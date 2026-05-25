@@ -12,6 +12,8 @@ async function render(){
     ['Projects', s.total_projects], ['Warn/Error', s.projects_with_warnings_errors], ['Bots Running', s.bots_running],
     ['PnL Today', s.total_trading_profit_today], ['PnL Week', s.total_trading_profit_this_week], ['Open Exposure', s.total_open_exposure],
     ['Tests Failing', s.tests_failing],
+    ['Local AI Total', s.local_ai_hosts_total], ['Local AI Online', s.local_ai_hosts_online],
+    ['Local AI Offline', s.local_ai_hosts_offline], ['Local AI Errors', s.local_ai_hosts_with_errors],
   ].map(([k,v])=>card(`<b>${k}</b><br>${v}`)).join('');
 
   document.getElementById('devices').innerHTML = data.devices.map(d=>card(`<b>${d.name}</b><br>${d.url}<br>${d.online?'online':'offline'}`)).join('');
@@ -21,7 +23,8 @@ async function render(){
   const html = Object.entries(grouped).map(([k,items])=>`<div class='project-type'><h3>${k}</h3><div class='grid'>${items.map(p=>{
     const m=p.metrics||{};
     const trading = p.type==='trading_bot' ? `<br>PnL today: ${m.profit_today}<br>PnL week: ${m.profit_this_week}<br>Exposure: ${m.open_exposure}<br>Open positions: ${m.open_positions}` : '';
-    return `<div class='card' data-project='${p.name}'><b>${p.name}</b><br>${healthBadge(p.health)}<br>Status: ${p.status}${trading}</div>`;
+    const localAi = p.type==='local_ai_host' ? `<br>Provider: ${m.provider}<br>Base URL: ${m.base_url}<br>Host Status: ${m.status}<br>Default model: ${m.default_model}<br>Available models: ${(m.available_models||[]).length}<br>Resp ms: ${m.response_time_ms}<br>Process: ${m.process_status}<br>CPU: ${m.cpu_usage}<br>RAM MB: ${m.ram_usage_mb}<br>GPU/VRAM: ${m.gpu_vram_usage}<br>Last error: ${m.last_error}` : '';
+    return `<div class='card' data-project='${p.name}'><b>${p.name}</b><br>Device: ${p.device}<br>${healthBadge(p.health)}<br>Status: ${p.status}${trading}${localAi}</div>`;
   }).join('')}</div></div>`).join('');
   document.getElementById('projects').innerHTML = html;
 

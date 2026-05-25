@@ -3,7 +3,7 @@ from .auth import verify_token
 from .config import load_projects, HOST, PORT
 from .services.command_runner import run_foreground, start_background, stop_process
 from .services.log_reader import read_logs
-from .adapters import trading_bot, code_project, game_server, website, school, ai_project, generic
+from .adapters import trading_bot, code_project, game_server, website, school, ai_project, local_ai_host, generic
 
 app = FastAPI(title="maybot-agent")
 
@@ -14,6 +14,7 @@ ADAPTERS = {
     "website": website,
     "school": school,
     "ai_project": ai_project,
+    "local_ai_host": local_ai_host,
     "generic": generic,
 }
 

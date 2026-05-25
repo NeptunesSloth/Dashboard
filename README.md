@@ -351,3 +351,45 @@ devices.yaml.example
 ```bash
 PYTHONPATH=. pytest -q
 ```
+
+
+## 15) Local AI / LLM Host Projects
+
+Use `type: local_ai_host` to monitor locally hosted model services (Hermes, Ollama, llama.cpp, LM Studio, Open WebUI, or other OpenAI-compatible local APIs) **separately** from `ai_project` coding-workflow tracking.
+
+### Example: Ollama / Hermes host
+
+```yaml
+projects:
+  - name: Hermes Local AI
+    type: local_ai_host
+    path: /opt/ollama
+    provider: ollama
+    base_url: http://127.0.0.1:11434
+    default_model: nous-hermes
+    expect_running: true
+    cmdline_contains: ollama
+    log_file: /var/log/ollama.log
+    test_prompt_enabled: false
+    health_url: http://127.0.0.1:11434/api/tags
+```
+
+### Example: OpenAI-compatible local API
+
+```yaml
+projects:
+  - name: Local LLM API
+    type: local_ai_host
+    provider: openai_compatible
+    base_url: http://127.0.0.1:1234
+    default_model: hermes
+    expect_running: true
+    health_url: http://127.0.0.1:1234/v1/models
+    test_prompt_enabled: false
+```
+
+Safety notes for local AI hosts:
+- Test prompt checks are disabled by default.
+- Tiny generation checks run only when `test_prompt_enabled: true`.
+- Do not expose local model hosts publicly unless protected by VPN/firewall.
+- API secrets are not included in dashboard project cards.
