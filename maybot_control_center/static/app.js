@@ -5,6 +5,7 @@ let refreshInterval = null;
 let prevHealthMap = {};
 const clientHistory = {};
 const MAX_HISTORY = 60; // ~7 min at 7s intervals
+const CONTROL_TOKEN_STORAGE_KEY = 'maybot.control_token';
 
 if ('Notification' in window && Notification.permission === 'default') {
   Notification.requestPermission();
@@ -62,11 +63,20 @@ function actionButtons(p) {
   return btns ? `<div class='actions'>${btns}</div>` : '';
 }
 
+function getControlToken() {
+  return localStorage.getItem(CONTROL_TOKEN_STORAGE_KEY) || '';
+}
+
+function authHeaders() {
+  const token = getControlToken();
+  return token ? { 'x-control-token': token } : {};
+}
+
 async function render() {
   const statusEl = document.getElementById('refresh-status');
   statusEl.textContent = 'Refreshing…';
   try {
-    const data = await fetch('/api/overview').then(r => r.json());
+    const data = await fetch('/api/overview', { headers: authHeaders() }).then(r => r.json());
     const s = data.summary;
 
     document.getElementById('summary').innerHTML = [
@@ -78,9 +88,10 @@ async function render() {
       ['Local AI Offline', s.local_ai_hosts_offline], ['Local AI Errors', s.local_ai_hosts_with_errors],
     ].map(([k, v]) => card(`<b>${esc(k)}</b><br>${esc(v)}`)).join('');
 
-    document.getElementById('devices').innerHTML = data.devices.map(d =>
-      card(`${statusDot(d.online)}<b>${esc(d.name)}</b><br><small>${esc(d.url)}</small><br>${d.online ? 'online' : 'offline'}`)
-    ).join('');
+    document.getElementById('devices').innerHTML = data.devices.map(d => {
+      const state = d.auth_error ? 'auth error' : (d.online ? 'online' : 'offline');
+      return card(`${statusDot(d.online)}<b>${esc(d.name)}</b><br><small>${esc(d.url)}</small><br>${esc(state)}`);
+    }).join('');
 
     // accumulate client-side history and fire browser notifications
     data.projects.forEach(p => {
@@ -152,7 +163,7 @@ async function render() {
       logsEl.innerText = `Running ${action} on ${project} (${device})…`;
       try {
         const url = `/api/action/${encodeURIComponent(device)}/${encodeURIComponent(project)}/${encodeURIComponent(action)}`;
-        const res = await fetch(url, { method: 'POST' });
+        const res = await fetch(url, { method: 'POST', headers: authHeaders() });
         const result = await res.json();
         logsEl.innerText = JSON.stringify(result, null, 2);
       } catch (err) {
@@ -176,7 +187,7 @@ document.getElementById('refresh-logs').onclick = async () => {
   document.getElementById('logs').innerText = 'Loading…';
   try {
     const url = `/api/logs/${encodeURIComponent(selectedProjectDevice)}/${encodeURIComponent(selectedProject)}?level=${encodeURIComponent(level)}`;
-    const data = await fetch(url).then(r => r.json());
+    const data = await fetch(url, { headers: authHeaders() }).then(r => r.json());
     document.getElementById('logs').innerText = (data.lines || []).join('\n') || '(no logs)';
   } catch (e) {
     document.getElementById('logs').innerText = `Error fetching logs: ${e}`;
@@ -193,6 +204,12 @@ document.getElementById('toggle-refresh').onclick = () => {
     refreshInterval = setInterval(render, 7000);
     document.getElementById('toggle-refresh').textContent = 'Pause Refresh';
   }
+};
+
+const tokenInput = document.getElementById('control-token');
+tokenInput.value = getControlToken();
+document.getElementById('save-control-token').onclick = () => {
+  localStorage.setItem(CONTROL_TOKEN_STORAGE_KEY, tokenInput.value || '');
 };
 
 render();

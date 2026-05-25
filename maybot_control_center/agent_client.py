@@ -9,9 +9,19 @@ def _headers(token: str) -> dict:
 
 
 def _wrap(r: requests.Response) -> dict:
+    is_2xx = 200 <= r.status_code < 300
+    is_auth_error = r.status_code in {401, 403}
+    payload = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
+    error = None
+    if not is_2xx:
+        detail = payload.get("detail") if isinstance(payload, dict) else None
+        error = detail or f"http status {r.status_code}"
     return {
-        "online": r.status_code < 500,
-        "data": r.json() if r.headers.get("content-type", "").startswith("application/json") else {},
+        "online": is_2xx,
+        "auth_error": is_auth_error,
+        "status_code": r.status_code,
+        "error": error,
+        "data": payload,
     }
 
 
