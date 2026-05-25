@@ -51,7 +51,7 @@ def adapt(project: dict) -> dict:
         data["alerts"].append("WARNING: trading database missing")
     if db_path and Path(db_path).exists():
         try:
-            conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=1)
+            conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=3)
             cur = conn.cursor()
             for table, col, key in [("trades", "pnl", "realized_pnl"), ("positions", "unrealized_pnl", "unrealized_pnl"), ("positions", "exposure", "open_exposure")]:
                 try:

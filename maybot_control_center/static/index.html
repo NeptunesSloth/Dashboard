@@ -6,15 +6,16 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>MayBot Control Center</h1>
+  <h1>MayBot Control Center <span id="refresh-status"></span></h1>
   <section><h2>Summary</h2><div id="summary" class="grid"></div></section>
   <section><h2>Devices</h2><div id="devices" class="grid"></div></section>
   <section><h2>Projects</h2><div id="projects"></div></section>
   <section>
     <h2>Log Viewer</h2>
     <select id="log-level"><option>ALL</option><option>ERROR</option><option>WARNING</option><option>INFO</option></select>
-    <button id="refresh-logs">Refresh selected project logs</button>
-    <pre id="logs"></pre>
+    <button id="refresh-logs">Refresh Logs</button>
+    <button id="toggle-refresh">Pause Refresh</button>
+    <pre id="logs">Select a project card, then click Refresh Logs.</pre>
   </section>
   <script src="/app.js"></script>
 </body>

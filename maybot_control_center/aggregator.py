@@ -1,3 +1,5 @@
+from __future__ import annotations
+from concurrent.futures import ThreadPoolExecutor
 from .agent_client import call_agent
 
 
@@ -8,17 +10,28 @@ def _num(v):
         return 0.0
 
 
-def aggregate(devices: list[dict]) -> dict:
-    device_rows, projects = [], []
-    for d in devices:
-        ping = call_agent(d, "/api/ping")
-        online = bool(ping.get("online"))
-        device_rows.append({"name": d.get("name", "unknown"), "online": online, "url": d.get("url", "unknown")})
-        if online:
-            p = call_agent(d, "/api/projects").get("data", [])
+def _fetch_device(d: dict) -> tuple[dict, list[dict]]:
+    ping = call_agent(d, "/api/ping")
+    online = bool(ping.get("online"))
+    device_row = {"name": d.get("name", "unknown"), "online": online, "url": d.get("url", "unknown")}
+    projects: list[dict] = []
+    if online:
+        p = call_agent(d, "/api/projects").get("data", [])
+        if isinstance(p, list):
             for pr in p:
                 pr["device"] = d.get("name", "unknown")
                 projects.append(pr)
+    return device_row, projects
+
+
+def aggregate(devices: list[dict]) -> dict:
+    device_rows: list[dict] = []
+    projects: list[dict] = []
+
+    with ThreadPoolExecutor(max_workers=min(len(devices), 16) or 1) as pool:
+        for device_row, device_projects in pool.map(_fetch_device, devices):
+            device_rows.append(device_row)
+            projects.extend(device_projects)
 
     summary = {
         "total_devices": len(device_rows),
@@ -35,6 +48,5 @@ def aggregate(devices: list[dict]) -> dict:
         "local_ai_hosts_online": sum(1 for p in projects if p.get("type") == "local_ai_host" and p.get("metrics", {}).get("status") == "online"),
         "local_ai_hosts_offline": sum(1 for p in projects if p.get("type") == "local_ai_host" and p.get("metrics", {}).get("status") == "offline"),
         "local_ai_hosts_with_errors": sum(1 for p in projects if p.get("type") == "local_ai_host" and p.get("health") in {"warning", "error"}),
-
     }
     return {"summary": summary, "devices": device_rows, "projects": projects}
