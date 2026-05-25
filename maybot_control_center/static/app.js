@@ -2,65 +2,151 @@ let selectedProject = null;
 let selectedProjectDevice = null;
 let refreshPaused = false;
 let refreshInterval = null;
-let prevHealthMap = {};
-const clientHistory = {};
-const MAX_HISTORY = 60; // ~7 min at 7s intervals
+let logsRefreshPaused = false;
+let logsInterval = null;
+let selectedLogLevel = 'ALL';
 const CONTROL_TOKEN_STORAGE_KEY = 'maybot.control_token';
+const clientHistory = {};
+const MAX_HISTORY = 60;
+const TYPE_LABEL = {
+  trading_bot: 'Trading Bots',
+  code_project: 'Code Projects',
+  game_server: 'Game Servers',
+  website: 'Websites',
+  school: 'School / Planning',
+  ai_project: 'AI Coding Projects',
+  local_ai_host: 'Local AI Hosts',
+  generic: 'Generic Projects',
+};
 
-if ('Notification' in window && Notification.permission === 'default') {
-  Notification.requestPermission();
-}
-
-function esc(s) {
-  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
-function card(content, extra = '') { return `<div class='card${extra}'>${content}</div>`; }
-
+function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+function getControlToken() { return localStorage.getItem(CONTROL_TOKEN_STORAGE_KEY) || ''; }
+function authHeaders() { const t = getControlToken(); return t ? { 'x-control-token': t } : {}; }
 function healthBadge(h) { return `<span class='badge ${esc(h || 'unknown')}'>${esc(h || 'unknown')}</span>`; }
-
-function statusDot(online) { return `<span class='dot ${online ? 'dot-ok' : 'dot-err'}'></span>`; }
-
-function sparkline(values, color, width = 110, height = 28) {
-  const nums = values.map(Number).filter(v => !isNaN(v));
-  if (nums.length < 2) return '';
-  const min = Math.min(...nums);
-  const max = Math.max(...nums);
-  const range = max - min || 1;
-  const step = width / (nums.length - 1);
-  const pts = nums.map((v, i) =>
-    `${(i * step).toFixed(1)},${(height - ((v - min) / range) * (height - 2) - 1).toFixed(1)}`
-  ).join(' ');
-  return `<svg class='sparkline' width='${width}' height='${height}'><polyline points='${pts}' fill='none' stroke='${color}' stroke-width='1.5' stroke-linejoin='round'/></svg>`;
+function money(v) {
+  if (v === 'unknown' || v === undefined || v === null || v === '') return `<span class='money-unknown'>unknown</span>`;
+  const n = Number(v);
+  if (Number.isNaN(n)) return `<span class='money-unknown'>${esc(v)}</span>`;
+  const cls = n > 0 ? 'money-pos' : (n < 0 ? 'money-neg' : 'money-zero');
+  return `<span class='${cls}'>$${n.toFixed(2)}</span>`;
 }
+function metric(label, value) { return `<div class='metric'><span>${esc(label)}</span><b>${value}</b></div>`; }
 
-const HEALTH_VAL = { ok: 2, warning: 1, unknown: 1.5, error: 0 };
-const HEALTH_COLOR = { ok: '#2d8f4e', warning: '#d08a00', error: '#c53c3c', unknown: '#888' };
-
-function projectSparkline(key, type, metrics) {
-  const hist = clientHistory[key] || [];
-  if (hist.length < 2) return '';
-  if (type === 'trading_bot') {
-    const vals = hist.map(h => h.pnl).filter(v => v != null && v !== 'unknown');
-    return vals.length > 1 ? sparkline(vals, '#3b7dd8') : '';
+function projectCard(p) {
+  const m = p.metrics || {};
+  const alerts = (p.alerts || []).map(a => {
+    const c = a.includes('ERROR') ? 'alert-error' : 'alert-warning';
+    return `<div class='alert ${c}'>${esc(a)}</div>`;
+  }).join('');
+  let keyMetrics = '';
+  if (p.type === 'trading_bot') {
+    keyMetrics = [
+      metric('Mode', esc(m.mode || 'unknown')),
+      metric('Paper/Replay PnL Today', money(m.profit_today)),
+      metric('Paper/Replay PnL Week', money(m.profit_this_week)),
+      metric('Realized PnL', money(m.realized_pnl)),
+      metric('Unrealized PnL', money(m.unrealized_pnl)),
+      metric('Open Exposure', money(m.open_exposure)),
+      metric('Open Positions', esc(m.open_positions)),
+      metric('Trades Today', esc(m.trades_today)),
+      metric('Fill Rate', esc(m.fill_rate)),
+      metric('Last Trade', esc(m.last_trade_time)),
+      metric('Tests', esc(m.last_test_result || 'unknown')),
+    ].join('');
+  } else if (p.type === 'local_ai_host') {
+    keyMetrics = [
+      metric('Provider', esc(m.provider)), metric('Status', esc(m.status)), metric('Default Model', esc(m.default_model)),
+      metric('Model Count', esc((m.available_models || []).length)), metric('Resp ms', esc(m.response_time_ms)), metric('Process', esc(m.process_status)),
+      metric('CPU', esc(m.cpu_usage)), metric('RAM MB', esc(m.ram_usage_mb)), metric('GPU/VRAM', esc(m.gpu_vram_usage)), metric('Last Error', esc(m.last_error)),
+    ].join('');
+  } else {
+    keyMetrics = Object.entries(m).slice(0, 8).map(([k, v]) => metric(k, esc(v))).join('');
   }
-  if (type === 'local_ai_host') {
-    const vals = hist.map(h => h.responseMs).filter(v => v != null && v !== 'unknown');
-    return vals.length > 1 ? sparkline(vals, '#a855f7') : '';
-  }
-  const vals = hist.map(h => HEALTH_VAL[h.health] ?? 1.5);
-  const lastHealth = hist[hist.length - 1]?.health || 'unknown';
-  return sparkline(vals, HEALTH_COLOR[lastHealth] || '#888');
-}
 
-function actionButtons(p) {
   const a = p.actions_available || {};
-  const btns = [
-    a.start ? `<button class='act-btn' data-action='start' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>&#9654; Start</button>` : '',
-    a.stop ? `<button class='act-btn' data-action='stop' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>&#9632; Stop</button>` : '',
-    a.run_tests ? `<button class='act-btn' data-action='run-tests' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>&#9881; Tests</button>` : '',
-  ].join('');
-  return btns ? `<div class='actions'>${btns}</div>` : '';
+  const actions = `
+    <div class='actions'>
+      <button class='act-btn' data-log='1' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>View Logs</button>
+      ${a.start ? `<button class='act-btn act-btn-start' data-action='start' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Start</button>` : ''}
+      ${a.stop ? `<button class='act-btn act-btn-stop' data-action='stop' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Stop</button>` : ''}
+      ${a.run_tests ? `<button class='act-btn' data-action='run-tests' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Run Tests</button>` : ''}
+    </div>`;
+
+  return `<div class='card' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
+    <div class='metric'><b>${esc(p.name)}</b><span>${healthBadge(p.health)}</span></div>
+    ${metric('Device', esc(p.device))}
+    ${metric('Type', esc(p.type))}
+    ${metric('Status', esc(p.status))}
+    ${keyMetrics}
+    ${alerts}
+    <details class='details'><summary>Raw details</summary><pre>${esc(JSON.stringify(p, null, 2))}</pre></details>
+    ${actions}
+  </div>`;
+}
+
+function summaryCards(s) {
+  return [
+    ['Total Devices', s.total_devices], ['Online Devices', s.online_devices], ['Offline Devices', s.offline_devices],
+    ['Total Projects', s.total_projects], ['Warn / Error Projects', s.projects_with_warnings_errors], ['Bots Running', s.bots_running],
+    ['Trading PnL Today', money(s.total_trading_profit_today)], ['Trading PnL Week', money(s.total_trading_profit_this_week)],
+    ['Open Exposure', money(s.total_open_exposure)], ['Tests Failing', esc(s.tests_failing)], ['Local AI Online', esc(s.local_ai_hosts_online)], ['Local AI Errors', esc(s.local_ai_hosts_with_errors)],
+  ].map(([k, v]) => `<div class='card'>${metric(k, String(v))}</div>`).join('');
+}
+
+function renderDevices(devices) {
+  return devices.map(d => {
+    const state = d.auth_error ? 'auth error' : (d.online ? 'online' : 'offline');
+    const cls = d.auth_error ? 'status-auth' : (d.online ? 'status-online' : 'status-offline');
+    const projectCount = (window.__lastProjects || []).filter(p => p.device === d.name).length;
+    return `<div class='card'>
+      <div class='metric'><b>${esc(d.name)}</b><span class='${cls}'>${esc(state)}</span></div>
+      ${metric('URL', esc(d.url))}
+      ${metric('Project Count', esc(projectCount))}
+      ${metric('Last Update', esc(new Date().toLocaleTimeString()))}
+      ${d.error ? `<div class='alert ${d.auth_error ? 'alert-warning' : 'alert-error'}'>${esc(d.error)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function callAction(device, project, action) {
+  if (action === 'start' || action === 'stop') {
+    if (!window.confirm(`${action.toUpperCase()} ${project} on ${device}? Confirm operation.`)) return;
+  }
+  const logsEl = document.getElementById('logs');
+  document.getElementById('logs-panel').classList.remove('hidden');
+  logsEl.innerText = `Running ${action} on ${project} (${device})...`;
+  try {
+    const url = `/api/action/${encodeURIComponent(device)}/${encodeURIComponent(project)}/${encodeURIComponent(action)}`;
+    const res = await fetch(url, { method: 'POST', headers: authHeaders() });
+    const body = await res.json();
+    logsEl.innerText = JSON.stringify(body, null, 2);
+  } catch (e) {
+    logsEl.innerText = `Action failed: ${e}`;
+  }
+}
+
+async function loadLogs(device, project) {
+  selectedProject = project;
+  selectedProjectDevice = device;
+  document.getElementById('logs-title').innerText = `Logs: ${project} @ ${device}`;
+  document.getElementById('logs-panel').classList.remove('hidden');
+  document.getElementById('logs').innerText = 'Loading logs...';
+  const level = selectedLogLevel;
+  try {
+    const url = `/api/logs/${encodeURIComponent(device)}/${encodeURIComponent(project)}?level=${encodeURIComponent(level)}`;
+    const data = await fetch(url, { headers: authHeaders() }).then(r => r.json());
+    document.getElementById('logs').innerText = (data.lines || []).join('\n') || '(no logs)';
+  } catch (e) {
+    document.getElementById('logs').innerText = `Error fetching logs: ${e}`;
+  }
+}
+
+function startLogsAutoRefresh() {
+  if (logsInterval) clearInterval(logsInterval);
+  logsInterval = setInterval(() => {
+    if (logsRefreshPaused || !selectedProject || !selectedProjectDevice) return;
+    loadLogs(selectedProjectDevice, selectedProject);
+  }, 7000);
 }
 
 function getControlToken() {
@@ -73,137 +159,83 @@ function authHeaders() {
 }
 
 async function render() {
-  const statusEl = document.getElementById('refresh-status');
-  statusEl.textContent = 'Refreshing…';
+  const summaryEl = document.getElementById('summary');
+  const projectsEl = document.getElementById('projects');
+  const devicesEl = document.getElementById('devices');
+  const err = document.getElementById('error-banner');
+  summaryEl.classList.add('loading');
+  summaryEl.innerHTML = `<div class='card'>Loading overview...</div>`;
   try {
     const data = await fetch('/api/overview', { headers: authHeaders() }).then(r => r.json());
-    const s = data.summary;
+    window.__lastProjects = data.projects || [];
+    err.classList.add('hidden');
+    document.getElementById('refresh-status').textContent = new Date().toLocaleTimeString();
+    document.getElementById('device-count-pill').textContent = `${data.summary.online_devices} online / ${data.summary.offline_devices} offline`;
 
-    document.getElementById('summary').innerHTML = [
-      ['Total Devices', s.total_devices], ['Online', s.online_devices], ['Offline', s.offline_devices],
-      ['Projects', s.total_projects], ['Warn/Error', s.projects_with_warnings_errors], ['Bots Running', s.bots_running],
-      ['PnL Today', s.total_trading_profit_today], ['PnL Week', s.total_trading_profit_this_week],
-      ['Open Exposure', s.total_open_exposure], ['Tests Failing', s.tests_failing],
-      ['Local AI Total', s.local_ai_hosts_total], ['Local AI Online', s.local_ai_hosts_online],
-      ['Local AI Offline', s.local_ai_hosts_offline], ['Local AI Errors', s.local_ai_hosts_with_errors],
-    ].map(([k, v]) => card(`<b>${esc(k)}</b><br>${esc(v)}`)).join('');
-
-    document.getElementById('devices').innerHTML = data.devices.map(d => {
-      const state = d.auth_error ? 'auth error' : (d.online ? 'online' : 'offline');
-      return card(`${statusDot(d.online)}<b>${esc(d.name)}</b><br><small>${esc(d.url)}</small><br>${esc(state)}`);
-    }).join('');
-
-    // accumulate client-side history and fire browser notifications
-    data.projects.forEach(p => {
-      const key = `${p.device}:${p.name}`;
-      if (!clientHistory[key]) clientHistory[key] = [];
-      const m = p.metrics || {};
-      clientHistory[key].push({
-        ts: Date.now(),
-        health: p.health,
-        pnl: m.profit_today,
-        responseMs: m.response_time_ms,
-      });
-      if (clientHistory[key].length > MAX_HISTORY) clientHistory[key].shift();
-
-      const prev = prevHealthMap[key];
-      const curr = p.health;
-      if (prev !== undefined && prev !== curr && (curr === 'error' || curr === 'warning')) {
-        if ('Notification' in window && Notification.permission === 'granted') {
-          new Notification(`MayBot: ${p.name}`, {
-            body: `Health ${prev} → ${curr} on ${p.device} (${p.status})`,
-          });
-        }
-      }
-      prevHealthMap[key] = curr;
-    });
+    summaryEl.classList.remove('loading');
+    summaryEl.innerHTML = summaryCards(data.summary);
+    devicesEl.innerHTML = renderDevices(data.devices || []);
 
     const grouped = {};
-    data.projects.forEach(p => {
-      const key = `${p.device} :: ${p.type}`;
-      (grouped[key] = grouped[key] || []).push(p);
+    (data.projects || []).forEach(p => {
+      const type = p.type || 'generic';
+      if (!grouped[type]) grouped[type] = [];
+      grouped[type].push(p);
+      const key = `${p.device}:${p.name}`;
+      if (!clientHistory[key]) clientHistory[key] = [];
+      clientHistory[key].push({ ts: Date.now(), pnl: p.metrics?.profit_today, health: p.health });
+      if (clientHistory[key].length > MAX_HISTORY) clientHistory[key].shift();
     });
 
-    document.getElementById('projects').innerHTML = Object.entries(grouped).map(([k, items]) =>
-      `<div class='project-type'><h3>${esc(k)}</h3><div class='grid'>${items.map(p => {
-        const m = p.metrics || {};
-        const histKey = `${p.device}:${p.name}`;
-        const trading = p.type === 'trading_bot'
-          ? `<br>PnL today: ${esc(m.profit_today)}<br>PnL week: ${esc(m.profit_this_week)}<br>Exposure: ${esc(m.open_exposure)}<br>Open positions: ${esc(m.open_positions)}`
-          : '';
-        const localAi = p.type === 'local_ai_host'
-          ? `<br>Provider: ${esc(m.provider)}<br>Base URL: ${esc(m.base_url)}<br>Status: ${esc(m.status)}<br>Model: ${esc(m.default_model)}<br>Models: ${esc((m.available_models || []).length)}<br>Resp ms: ${esc(m.response_time_ms)}<br>CPU: ${esc(m.cpu_usage)}<br>RAM MB: ${esc(m.ram_usage_mb)}<br>GPU/VRAM: ${esc(m.gpu_vram_usage)}`
-          : '';
-        const isSelected = p.name === selectedProject && p.device === selectedProjectDevice;
-        return `<div class='card${isSelected ? ' selected' : ''}' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
-          <b>${esc(p.name)}</b><br>Device: ${esc(p.device)}<br>${healthBadge(p.health)}<br>Status: ${esc(p.status)}${trading}${localAi}
-          ${projectSparkline(histKey, p.type, m)}
-          ${actionButtons(p)}
-        </div>`;
-      }).join('')}</div></div>`
+    const order = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'generic'];
+    projectsEl.innerHTML = order.filter(t => grouped[t]?.length).map(t =>
+      `<section class='project-type'><h3 class='project-type-title'>${esc(TYPE_LABEL[t] || t)}</h3><div class='grid'>${grouped[t].map(projectCard).join('')}</div></section>`
     ).join('');
 
-    document.querySelectorAll('[data-project]').forEach(el => el.onclick = (e) => {
-      if (e.target.classList.contains('act-btn')) return;
-      selectedProject = el.getAttribute('data-project');
-      selectedProjectDevice = el.getAttribute('data-device');
-      document.querySelectorAll('[data-project]').forEach(e => e.classList.remove('selected'));
-      el.classList.add('selected');
-    });
-
-    document.querySelectorAll('.act-btn').forEach(btn => btn.onclick = async (e) => {
-      e.stopPropagation();
-      const action = btn.getAttribute('data-action');
-      const project = btn.getAttribute('data-project');
-      const device = btn.getAttribute('data-device');
-      const origText = btn.textContent;
+    document.querySelectorAll('[data-action]').forEach(btn => btn.onclick = async () => {
       btn.disabled = true;
-      btn.textContent = '…';
-      const logsEl = document.getElementById('logs');
-      logsEl.innerText = `Running ${action} on ${project} (${device})…`;
-      try {
-        const url = `/api/action/${encodeURIComponent(device)}/${encodeURIComponent(project)}/${encodeURIComponent(action)}`;
-        const res = await fetch(url, { method: 'POST', headers: authHeaders() });
-        const result = await res.json();
-        logsEl.innerText = JSON.stringify(result, null, 2);
-      } catch (err) {
-        logsEl.innerText = `Error: ${err}`;
-      }
+      await callAction(btn.getAttribute('data-device'), btn.getAttribute('data-project'), btn.getAttribute('data-action'));
       btn.disabled = false;
-      btn.textContent = origText;
       render();
     });
-
-    statusEl.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+    document.querySelectorAll('[data-log]').forEach(btn => btn.onclick = () => loadLogs(btn.getAttribute('data-device'), btn.getAttribute('data-project')));
   } catch (e) {
-    document.getElementById('summary').innerHTML = card(`<b>Error:</b> Failed to load — ${esc(String(e))}`, ' error-card');
-    document.getElementById('refresh-status').textContent = 'Refresh failed';
+    err.classList.remove('hidden');
+    summaryEl.classList.remove('loading');
+    summaryEl.innerHTML = `<div class='card'><b>Overview unavailable</b><div class='muted'>${esc(String(e))}</div></div>`;
+    devicesEl.innerHTML = '';
+    projectsEl.innerHTML = '';
   }
 }
 
-document.getElementById('refresh-logs').onclick = async () => {
-  if (!selectedProject) { document.getElementById('logs').innerText = 'Select a project card first.'; return; }
-  const level = document.getElementById('log-level').value;
-  document.getElementById('logs').innerText = 'Loading…';
-  try {
-    const url = `/api/logs/${encodeURIComponent(selectedProjectDevice)}/${encodeURIComponent(selectedProject)}?level=${encodeURIComponent(level)}`;
-    const data = await fetch(url, { headers: authHeaders() }).then(r => r.json());
-    document.getElementById('logs').innerText = (data.lines || []).join('\n') || '(no logs)';
-  } catch (e) {
-    document.getElementById('logs').innerText = `Error fetching logs: ${e}`;
-  }
+document.getElementById('manual-refresh').onclick = render;
+document.getElementById('refresh-logs').onclick = () => {
+  if (!selectedProject || !selectedProjectDevice) return;
+  loadLogs(selectedProjectDevice, selectedProject);
 };
-
+document.getElementById('close-logs').onclick = () => document.getElementById('logs-panel').classList.add('hidden');
+document.getElementById('copy-logs').onclick = async () => {
+  const text = document.getElementById('logs').innerText || '';
+  try { await navigator.clipboard.writeText(text); } catch (_) {}
+};
+document.getElementById('clear-logs').onclick = () => { document.getElementById('logs').innerText = ''; };
+document.getElementById('pause-logs-refresh').onclick = () => {
+  logsRefreshPaused = !logsRefreshPaused;
+  document.getElementById('pause-logs-refresh').textContent = logsRefreshPaused ? 'Resume Logs Auto' : 'Pause Logs Auto';
+};
+document.querySelectorAll('.level-btn').forEach(btn => btn.onclick = () => {
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedLogLevel = btn.getAttribute('data-level') || 'ALL';
+  if (selectedProject && selectedProjectDevice) loadLogs(selectedProjectDevice, selectedProject);
+});
+document.getElementById('save-control-token').onclick = () => localStorage.setItem(CONTROL_TOKEN_STORAGE_KEY, document.getElementById('control-token').value || '');
+document.getElementById('control-token').value = getControlToken();
 document.getElementById('toggle-refresh').onclick = () => {
   refreshPaused = !refreshPaused;
-  if (refreshPaused) {
-    clearInterval(refreshInterval);
-    document.getElementById('toggle-refresh').textContent = 'Resume Refresh';
-  } else {
-    render();
-    refreshInterval = setInterval(render, 7000);
-    document.getElementById('toggle-refresh').textContent = 'Pause Refresh';
-  }
+  document.getElementById('toggle-refresh').textContent = refreshPaused ? 'Resume Auto' : 'Pause Auto';
+  if (refreshPaused) clearInterval(refreshInterval);
+  else refreshInterval = setInterval(render, 7000);
 };
 
 const tokenInput = document.getElementById('control-token');
@@ -214,3 +246,4 @@ document.getElementById('save-control-token').onclick = () => {
 
 render();
 refreshInterval = setInterval(render, 7000);
+startLogsAutoRefresh();

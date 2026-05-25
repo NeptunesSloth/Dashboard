@@ -229,6 +229,7 @@ projects:
     path: /opt/tradebot
     log_file: /opt/tradebot/logs/bot.log
     database: /opt/tradebot/data/trading.sqlite3
+    trade_csv_glob: logs/paper_trades_*.csv  # DayBot paper/replay CSV fallback
 
     pid_file: run/tradebot.pid
     cmdline_contains: tradebot
@@ -384,38 +385,10 @@ sudo journalctl -u maybot-control-center -f
 - Ensure `log_file` path exists and is readable.
 - If the bot hasn't started yet, the log file may not exist — start the bot first.
 
-### SQLite database locked
-- Happens under heavy bot writes. The adapter marks it as a warning; it clears automatically.
+- `ai_project` = track AI-assisted coding project workflow/health (Claude/Codex/etc. usage in a software project).
+- `local_ai_host` = track availability/health of a locally hosted model API endpoint.
 
-### Git status not showing
-- Confirm `path` points to a valid git repo (`git -C /your/path status` should work).
-- Ensure `git` is installed and on PATH.
-
-### Start action does nothing
-- Check `commands.start.argv` points to a real executable.
-- Check `background: true` is set.
-- Check the configured `stdout`/`stderr` log paths for error output.
-
-### Firewall issues
-- Open the agent port (default 8100) only within your private network/VPN.
-- Prefer VPN addresses (Tailscale/WireGuard) over public interfaces.
-
----
-
-## Supported project types
-
-| Type | What it monitors |
-|---|---|
-| `trading_bot` | PnL, trades, fills, rejections, risk-blocked, mode, last trade — from SQLite + logs |
-| `code_project` | Branch, clean/dirty, modified files, last commit, TODOs, test status, log/DB sizes |
-| `game_server` | Running state, PID, CPU/RAM, optional player counts/world size |
-| `website` | Online/offline via `health_url`, HTTP status, response time |
-| `school` | Task/progress/deadline metadata |
-| `ai_project` | Current task/status/log outputs/diff/test-review signals |
-| `local_ai_host` | Locally hosted model services (Ollama, llama.cpp, LM Studio, OpenAI-compatible APIs) |
-| `generic` | Path/log existence, basic health fallback |
-
-### Local AI host example (`local_ai_host`)
+### Example: Ollama / Hermes host
 
 ```yaml
 projects:
@@ -444,63 +417,8 @@ projects:
     test_prompt_enabled: false
 ```
 
----
-
-## Safety rules
-
-- The dashboard does **not** push to GitHub.
-- The dashboard does **not** merge branches.
-- The dashboard does **not** delete files.
-- The dashboard must **not** start live trading automatically.
-- Start/stop/test actions run **only** commands explicitly configured in `projects.yaml`.
-- Prefer paper-trading commands for `start` actions.
-
----
-
-## Limitations
-
-- Advanced PnL extraction depends on bot DB/log schema compatibility.
-- Some fields may remain `unknown` until adapter support is extended.
-- This is a monitoring/control helper, **not** a deployment/orchestration system.
-- This is not a replacement for broker/exchange-native risk controls.
-
----
-
-## Developer notes
-
-### Repo structure
-
-```
-maybot_agent/
-  app.py
-  auth.py
-  config.py
-  adapters/
-  services/
-
-maybot_control_center/
-  app.py
-  config.py
-  agent_client.py
-  aggregator.py
-  static/
-
-tests/
-projects.yaml.example
-devices.yaml.example
-```
-
-### Where to change logic
-- Add/extend project-type behavior in `maybot_agent/adapters/`.
-- Extend process/log/git/db helpers in `maybot_agent/services/`.
-- Config loaders: `maybot_agent/config.py` and `maybot_control_center/config.py`.
-- Dashboard aggregation: `maybot_control_center/aggregator.py`.
-- Frontend rendering: `maybot_control_center/static/app.js`.
-
-### Run tests
-
-```bash
-cd /opt/maybot
-source .venv/bin/activate
-PYTHONPATH=. pytest -q
-```
+Safety notes for local AI hosts:
+- Test prompt checks are disabled by default.
+- Tiny generation checks run only when `test_prompt_enabled: true`.
+- Do not expose local model hosts publicly unless protected by VPN/firewall (LAN/VPN/local-only strongly recommended).
+- API secrets are not included in dashboard project cards.
