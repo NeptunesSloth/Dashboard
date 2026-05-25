@@ -14,4 +14,9 @@ pre { white-space: pre-wrap; background: #111; color: #ddd; padding: 10px; borde
 #refresh-status { font-size: 13px; color: #888; font-weight: normal; }
 button { margin-left: 6px; padding: 4px 12px; border-radius: 6px; border: 1px solid #ccc; background: white; cursor: pointer; }
 button:hover { background: #f0f0f0; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
 select { padding: 4px 8px; border-radius: 6px; border: 1px solid #ccc; }
+.actions { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+.act-btn { margin: 0; padding: 2px 8px; font-size: 11px; border-radius: 4px; border: 1px solid #bbb; background: #f8f8f8; cursor: pointer; }
+.act-btn:hover { background: #e8e8f8; border-color: #99b; }
+.sparkline { display: block; margin-top: 5px; }
