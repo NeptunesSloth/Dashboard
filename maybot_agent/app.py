@@ -1,7 +1,7 @@
 from fastapi import Depends, FastAPI, HTTPException, Query
 from .auth import verify_token
 from .config import load_projects, HOST, PORT
-from .services.command_runner import run_configured_command
+from .services.command_runner import run_foreground, start_background, stop_process
 from .services.log_reader import read_logs
 from .adapters import trading_bot, code_project, game_server, website, school, ai_project, generic
 
@@ -61,22 +61,19 @@ def health(name: str):
     return {"health": adapt_project(get_project(name)).get("health", "unknown")}
 
 
-def _run_action(name: str, action: str):
-    p = get_project(name)
-    command = p.get("commands", {}).get(action)
-    return run_configured_command(command, cwd=p.get("path"))
-
-
 @app.post("/api/projects/{name}/run-tests", dependencies=[Depends(verify_token)])
 def run_tests(name: str):
-    return _run_action(name, "run_tests")
+    p = get_project(name)
+    return run_foreground(p.get("commands", {}).get("run_tests"), p)
 
 
 @app.post("/api/projects/{name}/start", dependencies=[Depends(verify_token)])
 def start(name: str):
-    return _run_action(name, "start")
+    p = get_project(name)
+    return start_background(p.get("commands", {}).get("start"), p)
 
 
 @app.post("/api/projects/{name}/stop", dependencies=[Depends(verify_token)])
 def stop(name: str):
-    return _run_action(name, "stop")
+    p = get_project(name)
+    return stop_process(p.get("commands", {}).get("stop"), p)

@@ -3,6 +3,7 @@ import yaml
 import os
 
 DEVICES_FILE = Path(os.getenv("MAYBOT_DEVICES_FILE", "devices.yaml"))
+CONTROL_CENTER_TOKEN = os.getenv("MAYBOT_CONTROL_CENTER_TOKEN", "")
 
 
 def load_devices() -> list[dict]:

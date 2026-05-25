@@ -1,15 +1,26 @@
 projects:
   - name: daybot
     type: trading_bot
-    path: /opt/daybot
-    process_name: python
-    log_file: /opt/daybot/logs/bot.log
+    path: /root/bot/TradeBot
+    expect_running: true
+    cmdline_contains: tradebot
+    pid_file: run/daybot.pid
+    log_file: /root/bot/TradeBot/logs/bot.log
+    database: /root/bot/TradeBot/data/trades.sqlite3
     metrics:
-      profit_today: 0
-      profit_week: 0
-      open_exposure: 0
       mode: paper
     commands:
-      run_tests: pytest -q
-      start: ./scripts/start_paper.sh
-      stop: ./scripts/stop.sh
+      start:
+        argv: ["tradebot"]
+        cwd: /root/bot/TradeBot
+        stdout: logs/bot.log
+        stderr: logs/bot.log
+        pid_file: run/daybot.pid
+        background: true
+      run_tests:
+        argv: [".venv/bin/python", "-m", "pytest", "-q"]
+        cwd: /root/bot/TradeBot
+        timeout_seconds: 300
+      stop:
+        pid_file: run/daybot.pid
+        match_cmdline_contains: tradebot

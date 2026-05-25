@@ -1,3 +1,7 @@
-body { font-family: Arial, sans-serif; max-width: 1200px; margin: auto; padding: 16px; background: #f9f9fb; }
-.card { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin: 8px 0; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: 10px; }
+body { font-family: Arial, sans-serif; max-width: 1280px; margin: auto; padding: 16px; background: #f4f6fa; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 10px; }
+.card { background: white; border: 1px solid #ddd; border-radius: 10px; padding: 10px; }
+.badge { padding: 2px 8px; border-radius: 8px; font-size: 12px; color: white; }
+.ok { background: #2d8f4e; } .warning { background: #d08a00; } .error { background: #c53c3c; } .unknown { background:#666; }
+.project-type { margin-top: 12px; }
+pre { white-space: pre-wrap; background: #111; color: #ddd; padding: 10px; border-radius: 8px; }
