@@ -1,0 +1,15 @@
+projects:
+  - name: daybot
+    type: trading_bot
+    path: /opt/daybot
+    process_name: python
+    log_file: /opt/daybot/logs/bot.log
+    metrics:
+      profit_today: 0
+      profit_week: 0
+      open_exposure: 0
+      mode: paper
+    commands:
+      run_tests: pytest -q
+      start: ./scripts/start_paper.sh
+      stop: ./scripts/stop.sh
