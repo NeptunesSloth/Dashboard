@@ -149,6 +149,15 @@ function startLogsAutoRefresh() {
   }, 7000);
 }
 
+function getControlToken() {
+  return localStorage.getItem(CONTROL_TOKEN_STORAGE_KEY) || '';
+}
+
+function authHeaders() {
+  const token = getControlToken();
+  return token ? { 'x-control-token': token } : {};
+}
+
 async function render() {
   const summaryEl = document.getElementById('summary');
   const projectsEl = document.getElementById('projects');
@@ -227,6 +236,12 @@ document.getElementById('toggle-refresh').onclick = () => {
   document.getElementById('toggle-refresh').textContent = refreshPaused ? 'Resume Auto' : 'Pause Auto';
   if (refreshPaused) clearInterval(refreshInterval);
   else refreshInterval = setInterval(render, 7000);
+};
+
+const tokenInput = document.getElementById('control-token');
+tokenInput.value = getControlToken();
+document.getElementById('save-control-token').onclick = () => {
+  localStorage.setItem(CONTROL_TOKEN_STORAGE_KEY, tokenInput.value || '');
 };
 
 render();

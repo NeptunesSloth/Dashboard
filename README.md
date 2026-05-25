@@ -3,91 +3,224 @@
 MayBot Control Center is a **distributed, monitoring-first dashboard** for tracking projects across multiple machines.
 
 It has two components:
-- **`maybot_agent`**: runs on each device that hosts projects/bots; reads local status/logs/metrics and exposes an authenticated HTTP API.
-- **`maybot_control_center`**: central web dashboard that polls all configured agents and shows a unified view.
+- **`maybot_agent`** — runs on each device that hosts projects/bots; reads local status/logs/metrics and exposes an authenticated HTTP API.
+- **`maybot_control_center`** — central web dashboard that polls all configured agents and shows a unified view.
 
 > ⚠️ Security posture: this system is intended for **private/local networks (LAN/VPN)** and should **not be exposed publicly** by default.
 
 ---
 
-## 1) Architecture
+## What Goes Where
 
-```text
+| Machine | What to install | What to configure |
+|---|---|---|
+| Every device hosting a bot/project | `maybot_agent` | `projects.yaml` |
+| The machine running the dashboard | `maybot_control_center` | `devices.yaml` |
+
+One machine can run both if you want to monitor local projects from the same machine.
+
+---
+
+## Architecture
+
+```
 [TradeBot Server] -> maybot_agent -> [Control Center Dashboard]
 [DayBot Server]   -> maybot_agent -> [Control Center Dashboard]
 [Other Device]    -> maybot_agent -> [Control Center Dashboard]
 ```
 
-Each agent uses a local `projects.yaml`. The control center uses `devices.yaml` to discover agents.
+Each agent reads a local `projects.yaml`. The control center reads `devices.yaml` to discover agents.
 
 ---
 
-## 2) Requirements
+## Prerequisites
 
-- Python **3.10+**
-- Linux/Ubuntu recommended
-- `pip` + `venv`
-- Git installed (for code project metrics)
-- `psutil` (already in `requirements.txt`)
-- Network connectivity from control center to each agent (prefer **LAN/VPN/Tailscale/WireGuard**)
-
----
-
-## 3) Install (both agent host and control-center host)
+Before you start, confirm these are installed on each machine:
 
 ```bash
+# Check Python version — must be 3.10 or higher
+python3 --version
+
+# Check pip
+pip3 --version
+
+# Check git
+git --version
+```
+
+If `python3 --version` shows below 3.10, install it first:
+```bash
+sudo apt update && sudo apt install python3 python3-pip python3-venv git -y
+```
+
+---
+
+## Step 1 — Clone the repo (on every machine)
+
+Run this on **each machine** (agent hosts AND the control center host):
+
+```bash
+git clone https://github.com/neptunessloth/dashboard.git /opt/maybot
+cd /opt/maybot
+```
+
+> If you don't want it in `/opt/maybot`, change that path — just use the same path consistently in all commands below.
+
+---
+
+## Step 2 — Create a virtual environment and install dependencies (on every machine)
+
+Run this on **each machine**:
+
+```bash
+cd /opt/maybot
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Expected output ends with something like:
+```
+Successfully installed fastapi-0.115.0 uvicorn-0.30.6 pyyaml-6.0.2 ...
+```
+
+> Every time you open a new terminal, re-run `source /opt/maybot/.venv/bin/activate` before using `uvicorn`.
+
 ---
 
-## 4) Agent setup (run on each project-hosting device)
+## Step 3 — Set up each agent host (device running a bot/project)
 
-1. Copy template config:
-   ```bash
-   cp projects.yaml.example projects.yaml
-   ```
-2. Edit `projects.yaml` for that specific machine.
-3. Set agent token:
-   ```bash
-   export MAYBOT_API_TOKEN="replace-me-with-a-long-random-token"
-   ```
-4. Start agent on loopback (default-safe):
-   ```bash
-   uvicorn maybot_agent.app:app --host 127.0.0.1 --port 8100
-   ```
+Do this on **each machine that hosts a project**.
 
-### LAN/VPN bind example
+### 3a — Generate a secret token
+
+Pick a long random string. Run this to generate one:
 
 ```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Copy the output. It will look like:
+```
+a3f9e2b1c8d7f6e5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1
+```
+
+**Save this token** — you will need it again in Step 4.
+
+### 3b — Export the token (current terminal session)
+
+```bash
+export MAYBOT_API_TOKEN="paste-your-token-here"
+```
+
+Replace `paste-your-token-here` with the token from 3a.
+
+### 3c — Create your projects config
+
+```bash
+cd /opt/maybot
+cp projects.yaml.example projects.yaml
+```
+
+Open `projects.yaml` in a text editor and fill in the details for your project:
+
+```bash
+nano projects.yaml
+```
+
+At minimum, update:
+- `name` — a label for your project
+- `path` — the absolute path to your project folder
+- `log_file` — the absolute path to the project's log file
+- `cmdline_contains` — a keyword that appears in the process command line when it's running
+
+See [Configuration examples](#configuration-examples) below for a full annotated example.
+
+### 3d — Start the agent
+
+```bash
+cd /opt/maybot
+source .venv/bin/activate
+
+# Bind to localhost only (safest — use this if control center is on the same machine)
+uvicorn maybot_agent.app:app --host 127.0.0.1 --port 8100
+
+# OR — bind to your LAN/VPN IP so other machines can reach it
+# Replace 100.x.x.x with your actual Tailscale/LAN IP
 uvicorn maybot_agent.app:app --host 100.x.x.x --port 8100
 ```
 
-> ⚠️ Do **not** bind to `0.0.0.0` unless protected by firewall/VPN and strict network controls.
+> ⚠️ Do **not** bind to `0.0.0.0` unless the machine is behind a firewall or VPN.
+
+### 3e — Verify the agent is working
+
+Open a second terminal on the same machine and run:
+
+```bash
+curl -H "x-api-token: $MAYBOT_API_TOKEN" http://127.0.0.1:8100/api/ping
+```
+
+Expected response:
+```json
+{"status": "ok"}
+```
+
+If you see `401 Unauthorized`, the token in your curl command doesn't match what the agent started with — re-export and restart.
+
+If you see `Connection refused`, the agent didn't start — check the terminal where you ran `uvicorn` for errors.
 
 ---
 
-## 5) Control center setup (main dashboard machine)
+## Step 4 — Set up the control center (dashboard machine)
 
-1. Copy template:
-   ```bash
-   cp devices.yaml.example devices.yaml
-   ```
-2. Edit `devices.yaml` with each agent URL + token.
-3. Start dashboard:
-   ```bash
-   uvicorn maybot_control_center.app:app --host 127.0.0.1 --port 8200
-   ```
-4. Open:
-   - `http://127.0.0.1:8200`
+Do this on the **one machine that will display the dashboard**.
+
+### 4a — Create your devices config
+
+```bash
+cd /opt/maybot
+cp devices.yaml.example devices.yaml
+nano devices.yaml
+```
+
+Add an entry for each agent host. Use the token from Step 3a for each device:
+
+```yaml
+devices:
+  - name: tradebot-server          # a label — anything you like
+    url: http://100.64.10.20:8100  # the IP/port where that agent is listening
+    api_token: "paste-token-here"  # the MAYBOT_API_TOKEN from that agent host
+
+  - name: daybot-server
+    url: http://100.64.10.21:8100
+    api_token: "paste-other-token-here"
+```
+
+> If the control center and agent are on the same machine, use `http://127.0.0.1:8100`.
+
+### 4b — Start the control center
+
+```bash
+cd /opt/maybot
+source .venv/bin/activate
+uvicorn maybot_control_center.app:app --host 127.0.0.1 --port 8200
+```
+
+### 4c — Open the dashboard
+
+Open your browser and go to:
+
+```
+http://127.0.0.1:8200
+```
+
+You should see the dashboard with all configured devices listed. If a device shows **offline**, see [Troubleshooting](#troubleshooting) below.
 
 ---
 
-## 6) Configuration examples
+## Configuration examples
 
-### `projects.yaml` example (trading bot)
+### `projects.yaml` — trading bot
 
 ```yaml
 projects:
@@ -98,7 +231,6 @@ projects:
     database: /opt/tradebot/data/trading.sqlite3
     trade_csv_glob: logs/paper_trades_*.csv  # DayBot paper/replay CSV fallback
 
-    # Process detection (prefer pid_file/cmdline_contains over broad process_name)
     pid_file: run/tradebot.pid
     cmdline_contains: tradebot
     expect_running: true
@@ -125,7 +257,7 @@ projects:
         match_cmdline_contains: tradebot
 ```
 
-### `devices.yaml` example
+### `devices.yaml`
 
 ```yaml
 devices:
@@ -140,131 +272,11 @@ devices:
 
 ---
 
-## 7) Verify agent health/API
+## Keep agents running with systemd (recommended)
 
-> Current implementation expects `x-api-token` header.
+Running `uvicorn` directly in a terminal stops when you close it. Use systemd to keep agents running permanently.
 
-```bash
-curl -H "x-api-token: $MAYBOT_API_TOKEN" http://127.0.0.1:8100/api/ping
-curl -H "x-api-token: $MAYBOT_API_TOKEN" http://127.0.0.1:8100/api/projects
-```
-
-Expected:
-- `/api/ping` returns JSON like `{"status":"ok"}`.
-- `/api/projects` returns a JSON array of project cards including fields such as `name`, `type`, `status`, `health`, `metrics`, and `alerts`.
-
-> If you specifically prefer Bearer auth, update agent auth middleware and then use:
-> `curl -H "Authorization: Bearer $MAYBOT_API_TOKEN" ...`
-
----
-
-## 8) How to add a new project
-
-1. Ensure `maybot_agent` is installed/running on the device that hosts the project.
-2. Add the project entry to that device’s `projects.yaml`.
-3. Restart agent on that device.
-4. If this is a brand-new device, add it to control-center `devices.yaml`.
-5. Refresh/open dashboard page.
-
----
-
-## 9) Supported project types
-
-- `trading_bot`
-  - Intended metrics: PnL/exposure/trades/fills/rejections/risk-blocked/mode/last trade.
-  - Sources: SQLite + logs + process state.
-- `code_project`
-  - Branch, clean/dirty, modified files, last commit, TODO/FIXME, test status, log/db sizes.
-- `game_server`
-  - Running state, PID, CPU/RAM, optional player counts/world size/crash signals.
-- `website`
-  - `health_url` online/offline, HTTP status, response time.
-- `school`
-  - Task/progress/deadline metadata from configured inputs.
-- `ai_project`
-  - Current task/status/log outputs/diff/test-review signals.
-- `generic`
-  - Path/log existence, folder/basic health fallback signals.
-
----
-
-## 10) Safety rules
-
-- The dashboard does **not** push to GitHub.
-- The dashboard does **not** merge branches.
-- The dashboard does **not** delete files.
-- The dashboard must **not** start live trading automatically.
-- Start/stop/test actions run **only** commands explicitly configured in `projects.yaml`.
-- Prefer paper-trading commands for `start` actions.
-
----
-
-## 11) Troubleshooting
-
-### Agent shows offline in dashboard
-- Check agent process on device.
-- Verify `devices.yaml` URL/port.
-- Verify LAN/VPN reachability.
-
-### 401 Unauthorized
-- Confirm `x-api-token` matches `MAYBOT_API_TOKEN` on that agent.
-- Re-export token and restart service if needed.
-
-### Connection refused
-- Agent not running, wrong host/port, or firewall blocked.
-- Validate with local curl on agent host first.
-
-### Missing `projects.yaml`
-- Agent returns empty project list. Copy and edit from example:
-  - `cp projects.yaml.example projects.yaml`
-
-### Missing `devices.yaml`
-- Control center has nothing to poll. Copy and edit from example:
-  - `cp devices.yaml.example devices.yaml`
-
-### Bot shows `unknown`
-- Missing schema/columns/log keys for that adapter.
-- Add fields in config and confirm data source paths exist.
-
-### Log file missing
-- Ensure `log_file` path exists and is readable by agent user.
-- Ensure `start` redirection points to correct relative/absolute path.
-
-### SQLite database locked
-- Temporary lock can occur under heavy bot writes.
-- Adapter marks warning; retry after lock clears.
-
-### Git status not showing
-- Confirm `path` points to a valid git repo.
-- Ensure `git` executable is installed and available in PATH.
-
-### Start action does nothing
-- Ensure `commands.start.argv` is valid.
-- Ensure `background: true` is present.
-- Check stdout/stderr logs and pid_file output path.
-
-### Running across different devices
-- Each device needs its own agent + local `projects.yaml`.
-- Control center needs all devices listed in `devices.yaml`.
-
-### Firewall/VPN issues
-- Open agent port only within private network.
-- Prefer VPN addresses (Tailscale/WireGuard) over public interfaces.
-
----
-
-## 12) Limitations
-
-- Advanced PnL extraction depends on bot DB/log schema compatibility.
-- Some fields may remain `unknown` until adapter support is extended.
-- This is a monitoring/control helper, **not** a deployment/orchestration system.
-- This is not a replacement for broker/exchange-native risk controls.
-
----
-
-## 13) Recommended deployment (optional systemd)
-
-### `/etc/systemd/system/maybot-agent.service`
+### Agent service — `/etc/systemd/system/maybot-agent.service`
 
 ```ini
 [Unit]
@@ -275,7 +287,7 @@ After=network.target
 Type=simple
 User=ubuntu
 WorkingDirectory=/opt/maybot
-Environment=MAYBOT_API_TOKEN=replace-me
+Environment=MAYBOT_API_TOKEN=paste-your-token-here
 ExecStart=/opt/maybot/.venv/bin/uvicorn maybot_agent.app:app --host 127.0.0.1 --port 8100
 Restart=always
 RestartSec=3
@@ -284,7 +296,7 @@ RestartSec=3
 WantedBy=multi-user.target
 ```
 
-### `/etc/systemd/system/maybot-control-center.service`
+### Control center service — `/etc/systemd/system/maybot-control-center.service`
 
 ```ini
 [Unit]
@@ -303,60 +315,75 @@ RestartSec=3
 WantedBy=multi-user.target
 ```
 
-Enable/start:
+Enable and start both services:
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now maybot-agent
 sudo systemctl enable --now maybot-control-center
+
+# Check status
 sudo systemctl status maybot-agent maybot-control-center
+```
+
+To view logs:
+```bash
+sudo journalctl -u maybot-agent -f
+sudo journalctl -u maybot-control-center -f
 ```
 
 ---
 
-## 14) Developer notes
+## Adding a new project later
 
-### Repo structure
+1. On the device hosting the project, add it to `projects.yaml`.
+2. Restart the agent on that device.
+   ```bash
+   sudo systemctl restart maybot-agent
+   # or if running manually, Ctrl+C and re-run uvicorn
+   ```
+3. If this is a brand-new device, add it to `devices.yaml` on the control center host and restart the control center.
+4. Refresh the dashboard in your browser.
 
-```text
-maybot_agent/
-  app.py
-  auth.py
-  config.py
-  adapters/
-  services/
+---
 
-maybot_control_center/
-  app.py
-  config.py
-  agent_client.py
-  aggregator.py
-  static/
+## Troubleshooting
 
-tests/
-projects.yaml.example
-devices.yaml.example
-```
+### Agent shows offline in dashboard
+- Check the agent is actually running: `sudo systemctl status maybot-agent` or look at the terminal where you started uvicorn.
+- Verify the URL and port in `devices.yaml` exactly match how the agent was started.
+- Test reachability from the control center machine: `curl -H "x-api-token: YOUR_TOKEN" http://AGENT_IP:8100/api/ping`
+- Verify VPN/LAN connectivity between the two machines.
 
-### Where to change logic
-- Add/extend project-type behavior in `maybot_agent/adapters/`.
-- Extend process/log/git/db helpers in `maybot_agent/services/`.
-- Config loaders are in:
-  - `maybot_agent/config.py`
-  - `maybot_control_center/config.py`
-- Dashboard aggregation logic: `maybot_control_center/aggregator.py`.
-- Frontend rendering: `maybot_control_center/static/app.js`.
+### 401 Unauthorized
+- The token in `devices.yaml` doesn't match `MAYBOT_API_TOKEN` on that agent.
+- If using systemd, check `Environment=MAYBOT_API_TOKEN=...` in the service file, then `sudo systemctl daemon-reload && sudo systemctl restart maybot-agent`.
 
-### Run tests
+### Connection refused
+- Agent is not running, or bound to a different IP/port than expected.
+- Test locally on the agent host first: `curl -H "x-api-token: $MAYBOT_API_TOKEN" http://127.0.0.1:8100/api/ping`
 
-```bash
-PYTHONPATH=. pytest -q
-```
+### Missing `projects.yaml`
+- Agent returns an empty project list. Copy the example and edit it:
+  ```bash
+  cp projects.yaml.example projects.yaml
+  nano projects.yaml
+  ```
 
+### Missing `devices.yaml`
+- Control center has nothing to poll. Copy and edit:
+  ```bash
+  cp devices.yaml.example devices.yaml
+  nano devices.yaml
+  ```
 
-## 15) Local AI / LLM Host Projects
+### Bot shows `unknown` status
+- The adapter can't find the expected data (log file missing, DB schema mismatch, wrong path).
+- Double-check `path`, `log_file`, and `database` paths exist and are readable by the user running the agent.
 
-Use `type: local_ai_host` to monitor locally hosted model services (Hermes, Ollama, llama.cpp, LM Studio, Open WebUI, or other OpenAI-compatible local APIs) **separately** from `ai_project` coding-workflow tracking.
+### Log file missing
+- Ensure `log_file` path exists and is readable.
+- If the bot hasn't started yet, the log file may not exist — start the bot first.
 
 - `ai_project` = track AI-assisted coding project workflow/health (Claude/Codex/etc. usage in a software project).
 - `local_ai_host` = track availability/health of a locally hosted model API endpoint.
@@ -377,8 +404,6 @@ projects:
     test_prompt_enabled: false
     health_url: http://127.0.0.1:11434/api/tags
 ```
-
-### Example: OpenAI-compatible local API
 
 ```yaml
 projects:
