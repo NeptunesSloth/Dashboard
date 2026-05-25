@@ -96,6 +96,7 @@ projects:
     path: /opt/tradebot
     log_file: /opt/tradebot/logs/bot.log
     database: /opt/tradebot/data/trading.sqlite3
+    trade_csv_glob: logs/paper_trades_*.csv  # DayBot paper/replay CSV fallback
 
     # Process detection (prefer pid_file/cmdline_contains over broad process_name)
     pid_file: run/tradebot.pid
@@ -357,6 +358,9 @@ PYTHONPATH=. pytest -q
 
 Use `type: local_ai_host` to monitor locally hosted model services (Hermes, Ollama, llama.cpp, LM Studio, Open WebUI, or other OpenAI-compatible local APIs) **separately** from `ai_project` coding-workflow tracking.
 
+- `ai_project` = track AI-assisted coding project workflow/health (Claude/Codex/etc. usage in a software project).
+- `local_ai_host` = track availability/health of a locally hosted model API endpoint.
+
 ### Example: Ollama / Hermes host
 
 ```yaml
@@ -391,5 +395,5 @@ projects:
 Safety notes for local AI hosts:
 - Test prompt checks are disabled by default.
 - Tiny generation checks run only when `test_prompt_enabled: true`.
-- Do not expose local model hosts publicly unless protected by VPN/firewall.
+- Do not expose local model hosts publicly unless protected by VPN/firewall (LAN/VPN/local-only strongly recommended).
 - API secrets are not included in dashboard project cards.

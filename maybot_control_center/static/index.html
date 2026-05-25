@@ -2,21 +2,65 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MayBot Control Center</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>MayBot Control Center <span id="refresh-status"></span></h1>
-  <section><h2>Summary</h2><div id="summary" class="grid"></div></section>
-  <section><h2>Devices</h2><div id="devices" class="grid"></div></section>
-  <section><h2>Projects</h2><div id="projects"></div></section>
-  <section>
-    <h2>Log Viewer</h2>
-    <select id="log-level"><option>ALL</option><option>ERROR</option><option>WARNING</option><option>INFO</option></select>
-    <button id="refresh-logs">Refresh Logs</button>
-    <button id="toggle-refresh">Pause Refresh</button>
-    <pre id="logs">Select a project card, then click Refresh Logs.</pre>
-  </section>
+  <header class="topbar">
+    <div>
+      <h1>MayBot Control Center</h1>
+      <p class="muted">Distributed project and bot monitoring</p>
+    </div>
+    <div class="top-actions">
+      <div class="pill"><span class="live-dot"></span> Dashboard online</div>
+      <div class="pill">Last refresh: <span id="refresh-status">never</span></div>
+      <div class="pill">Devices: <span id="device-count-pill">0 online / 0 offline</span></div>
+      <button id="manual-refresh" class="btn btn-primary">Refresh</button>
+      <button id="toggle-refresh" class="btn">Pause Auto</button>
+    </div>
+    <div class="token-row">
+      <label for="control-token">Control Token</label>
+      <input id="control-token" type="password" placeholder="optional">
+      <button id="save-control-token" class="btn">Save</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="error-banner" class="error-banner hidden">Control center could not fetch overview.</div>
+    <section>
+      <h2>Global Summary</h2>
+      <div id="summary" class="grid summary-grid"></div>
+    </section>
+    <section>
+      <h2>Devices</h2>
+      <div id="devices" class="grid"></div>
+    </section>
+    <section>
+      <h2>Projects</h2>
+      <div id="projects"></div>
+    </section>
+  </main>
+
+  <aside id="logs-panel" class="logs-panel hidden">
+    <div class="logs-head">
+      <h3 id="logs-title">Logs</h3>
+      <div class="logs-tools">
+        <div class="level-buttons">
+          <button class="btn level-btn active" data-level="ALL">All</button>
+          <button class="btn level-btn" data-level="ERROR">Error</button>
+          <button class="btn level-btn" data-level="WARNING">Warning</button>
+          <button class="btn level-btn" data-level="INFO">Info</button>
+        </div>
+        <button id="refresh-logs" class="btn">Refresh Logs</button>
+        <button id="pause-logs-refresh" class="btn">Pause Logs Auto</button>
+        <button id="copy-logs" class="btn">Copy Logs</button>
+        <button id="clear-logs" class="btn">Clear View</button>
+        <button id="close-logs" class="btn">Close</button>
+      </div>
+    </div>
+    <pre id="logs">Select a project and click View Logs.</pre>
+  </aside>
   <script src="/app.js"></script>
 </body>
 </html>

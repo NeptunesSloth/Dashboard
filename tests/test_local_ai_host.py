@@ -1,4 +1,4 @@
-from maybot_agent.adapters.local_ai_host import adapt
+from maybot_agent.adapters.local_ai_host import adapt, _safe_json_get
 from maybot_control_center.aggregator import aggregate
 
 
@@ -55,3 +55,54 @@ def test_aggregator_counts_local_ai_hosts(monkeypatch):
     assert s["local_ai_hosts_online"] == 0
     assert s["local_ai_hosts_offline"] == 1
     assert s["local_ai_hosts_with_errors"] == 1
+
+
+def test_safe_json_get_marks_non_2xx_as_not_ok(monkeypatch):
+    def fake_get_404(*args, **kwargs):
+        return DummyResp(404, {"detail": "missing"})
+
+    def fake_get_500(*args, **kwargs):
+        return DummyResp(500, {"detail": "boom"})
+
+    monkeypatch.setattr("maybot_agent.adapters.local_ai_host.requests.get", fake_get_404)
+    ok, _, status, _, err = _safe_json_get("http://x")
+    assert ok is False and status == 404 and "404" in str(err)
+
+    monkeypatch.setattr("maybot_agent.adapters.local_ai_host.requests.get", fake_get_500)
+    ok, _, status, _, err = _safe_json_get("http://x")
+    assert ok is False and status == 500 and "500" in str(err)
+
+
+def test_custom_provider_without_health_url_stays_unknown():
+    out = adapt({"name": "custom-llm", "type": "local_ai_host", "provider": "custom"})
+    assert out["metrics"]["status"] == "unknown"
+    assert out["health"] == "unknown"
+
+
+def test_ollama_can_override_health_url(monkeypatch):
+    called = {"urls": []}
+
+    def fake_get(url, timeout=5):
+        called["urls"].append(url)
+        if url.endswith("/api/version"):
+            return DummyResp(200, {"version": "1.0"})
+        return DummyResp(200, {"models": [{"name": "hermes"}]})
+
+    monkeypatch.setattr("maybot_agent.adapters.local_ai_host.requests.get", fake_get)
+    out = adapt({
+        "name": "ollama",
+        "type": "local_ai_host",
+        "provider": "ollama",
+        "base_url": "http://127.0.0.1:11434",
+        "health_url": "http://127.0.0.1:11434/custom-health",
+    })
+    assert out["metrics"]["status"] == "online"
+    assert "http://127.0.0.1:11434/custom-health" in called["urls"]
+
+
+def test_projects_yaml_example_includes_local_ai_examples():
+    text = open("projects.yaml.example", "r", encoding="utf-8").read()
+    assert "type: local_ai_host" in text
+    assert "provider: ollama" in text
+    assert "provider: openai_compatible" in text
+    assert "test_prompt_enabled: false" in text
