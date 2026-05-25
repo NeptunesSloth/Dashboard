@@ -1,0 +1,4 @@
+devices:
+  - name: main-server
+    url: http://127.0.0.1:8100
+    api_token: change-me
