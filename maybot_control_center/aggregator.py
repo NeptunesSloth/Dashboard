@@ -1,6 +1,7 @@
 from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 from .agent_client import call_agent
+from .notifier import check_and_notify
 
 
 def _num(v):
@@ -49,4 +50,5 @@ def aggregate(devices: list[dict]) -> dict:
         "local_ai_hosts_offline": sum(1 for p in projects if p.get("type") == "local_ai_host" and p.get("metrics", {}).get("status") == "offline"),
         "local_ai_hosts_with_errors": sum(1 for p in projects if p.get("type") == "local_ai_host" and p.get("health") in {"warning", "error"}),
     }
+    check_and_notify(projects)
     return {"summary": summary, "devices": device_rows, "projects": projects}

@@ -2,6 +2,11 @@ let selectedProject = null;
 let selectedProjectDevice = null;
 let refreshPaused = false;
 let refreshInterval = null;
+let prevHealthMap = {};
+
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
 
 function esc(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -58,6 +63,20 @@ async function render() {
       selectedProjectDevice = el.getAttribute('data-device');
       document.querySelectorAll('[data-project]').forEach(e => e.classList.remove('selected'));
       el.classList.add('selected');
+    });
+
+    data.projects.forEach(p => {
+      const key = `${p.device}:${p.name}`;
+      const prev = prevHealthMap[key];
+      const curr = p.health;
+      if (prev !== undefined && prev !== curr && (curr === 'error' || curr === 'warning')) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification(`MayBot: ${p.name}`, {
+            body: `Health ${prev} → ${curr} on ${p.device} (${p.status})`,
+          });
+        }
+      }
+      prevHealthMap[key] = curr;
     });
 
     statusEl.textContent = `Updated ${new Date().toLocaleTimeString()}`;
