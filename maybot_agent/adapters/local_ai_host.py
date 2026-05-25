@@ -15,7 +15,9 @@ def _safe_json_get(url: str, timeout: int = 5) -> tuple[bool, object, int | str,
         r = requests.get(url, timeout=timeout)
         ms = round((datetime.now(timezone.utc) - st).total_seconds() * 1000, 2)
         data = r.json() if "application/json" in r.headers.get("content-type", "") else {}
-        return True, data, r.status_code, ms, None
+        ok = 200 <= r.status_code < 300
+        err = None if ok else f"http status {r.status_code}"
+        return ok, data, r.status_code, ms, err
     except Exception as exc:
         return False, {}, "unknown", "unknown", str(exc)
 
@@ -65,7 +67,8 @@ def adapt(project: dict) -> dict:
     health_url = project.get("health_url")
     ok, payload, status_code, rt_ms, err = False, {}, "unknown", "unknown", None
     if provider == "ollama":
-        ok, payload, status_code, rt_ms, err = _safe_json_get(f"{base_url}/api/tags")
+        endpoint = health_url or f"{base_url}/api/tags"
+        ok, payload, status_code, rt_ms, err = _safe_json_get(endpoint)
         if ok:
             ai_metrics["available_models"] = [m.get("name") for m in payload.get("models", []) if isinstance(m, dict) and m.get("name")]
             v_ok, v_payload, _, _, _ = _safe_json_get(f"{base_url}/api/version")
@@ -90,6 +93,10 @@ def adapt(project: dict) -> dict:
         else:
             ai_metrics["status"] = "unknown"
             ai_metrics["last_error"] = "custom provider requires health_url"
+            metrics.update(ai_metrics)
+            data["metrics"] = metrics
+            data["health"] = "unknown"
+            return data
 
     if project.get("test_prompt_enabled") is True and base_url and provider in {"openai_compatible", "lmstudio"}:
         # tiny opt-in prompt test only

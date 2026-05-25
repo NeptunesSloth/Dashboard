@@ -24,3 +24,23 @@ projects:
       stop:
         pid_file: run/daybot.pid
         match_cmdline_contains: tradebot
+
+  # local_ai_host projects are for LAN/VPN/local-only model APIs. Do not expose publicly.
+  - name: Hermes Local AI
+    type: local_ai_host
+    provider: ollama
+    base_url: http://127.0.0.1:11434
+    health_url: http://127.0.0.1:11434/api/tags
+    default_model: nous-hermes
+    expect_running: true
+    cmdline_contains: ollama
+    test_prompt_enabled: false
+
+  - name: Local OpenAI-Compatible API
+    type: local_ai_host
+    provider: openai_compatible
+    base_url: http://127.0.0.1:1234
+    health_url: http://127.0.0.1:1234/v1/models
+    default_model: hermes
+    expect_running: true
+    test_prompt_enabled: false

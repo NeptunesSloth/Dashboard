@@ -14,7 +14,14 @@ def _num(v):
 def _fetch_device(d: dict) -> tuple[dict, list[dict]]:
     ping = call_agent(d, "/api/ping")
     online = bool(ping.get("online"))
-    device_row = {"name": d.get("name", "unknown"), "online": online, "url": d.get("url", "unknown")}
+    device_row = {
+        "name": d.get("name", "unknown"),
+        "online": online,
+        "auth_error": bool(ping.get("auth_error")),
+        "status_code": ping.get("status_code", "unknown"),
+        "error": ping.get("error"),
+        "url": d.get("url", "unknown"),
+    }
     projects: list[dict] = []
     if online:
         p = call_agent(d, "/api/projects").get("data", [])
