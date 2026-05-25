@@ -1,8 +1,12 @@
+import re
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse
 from .config import load_devices, CONTROL_CENTER_TOKEN
 from .aggregator import aggregate
 from .agent_client import call_agent
+
+_SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
+_VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
 
 app = FastAPI(title="maybot-control-center")
 
@@ -21,11 +25,15 @@ def overview(x_control_token: str = Header(default="")):
 @app.get("/api/logs/{device_name}/{project_name}")
 def proxy_logs(device_name: str, project_name: str, level: str = Query(default="ALL"), x_control_token: str = Header(default="")):
     _check_token(x_control_token)
+    if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
+        raise HTTPException(400, "invalid device or project name")
+    if level.upper() not in _VALID_LEVELS:
+        raise HTTPException(400, f"invalid log level '{level}'")
     devices = load_devices()
     device = next((d for d in devices if d.get("name") == device_name), None)
     if not device:
         raise HTTPException(404, "device not found")
-    result = call_agent(device, f"/api/projects/{project_name}/logs?level={level}")
+    result = call_agent(device, f"/api/projects/{project_name}/logs?level={level.upper()}")
     if not result.get("online"):
         raise HTTPException(503, "agent unreachable")
     return result.get("data", {})

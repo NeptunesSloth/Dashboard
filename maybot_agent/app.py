@@ -51,10 +51,15 @@ def project(name: str):
     return adapt_project(get_project(name))
 
 
+_VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
+
+
 @app.get("/api/projects/{name}/logs", dependencies=[Depends(verify_token)])
 def logs(name: str, level: str = Query(default="ALL")):
+    if level.upper() not in _VALID_LEVELS:
+        raise HTTPException(400, f"invalid log level '{level}'; must be one of {sorted(_VALID_LEVELS)}")
     p = get_project(name)
-    return read_logs(p.get("log_file"), level=level)
+    return read_logs(p.get("log_file"), level=level.upper())
 
 
 @app.get("/api/projects/{name}/health", dependencies=[Depends(verify_token)])

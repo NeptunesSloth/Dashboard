@@ -3,8 +3,12 @@ let selectedProjectDevice = null;
 let refreshPaused = false;
 let refreshInterval = null;
 
+function esc(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function card(content, extra = '') { return `<div class='card${extra}'>${content}</div>`; }
-function healthBadge(h) { return `<span class='badge ${h || 'unknown'}'>${h || 'unknown'}</span>`; }
+function healthBadge(h) { return `<span class='badge ${esc(h || 'unknown')}'>${esc(h || 'unknown')}</span>`; }
 function statusDot(online) { return `<span class='dot ${online ? 'dot-ok' : 'dot-err'}'></span>`; }
 
 async function render() {
@@ -21,10 +25,10 @@ async function render() {
       ['Open Exposure', s.total_open_exposure], ['Tests Failing', s.tests_failing],
       ['Local AI Total', s.local_ai_hosts_total], ['Local AI Online', s.local_ai_hosts_online],
       ['Local AI Offline', s.local_ai_hosts_offline], ['Local AI Errors', s.local_ai_hosts_with_errors],
-    ].map(([k, v]) => card(`<b>${k}</b><br>${v}`)).join('');
+    ].map(([k, v]) => card(`<b>${esc(k)}</b><br>${esc(v)}`)).join('');
 
     document.getElementById('devices').innerHTML = data.devices.map(d =>
-      card(`${statusDot(d.online)}<b>${d.name}</b><br><small>${d.url}</small><br>${d.online ? 'online' : 'offline'}`)
+      card(`${statusDot(d.online)}<b>${esc(d.name)}</b><br><small>${esc(d.url)}</small><br>${d.online ? 'online' : 'offline'}`)
     ).join('');
 
     const grouped = {};
@@ -34,17 +38,17 @@ async function render() {
     });
 
     document.getElementById('projects').innerHTML = Object.entries(grouped).map(([k, items]) =>
-      `<div class='project-type'><h3>${k}</h3><div class='grid'>${items.map(p => {
+      `<div class='project-type'><h3>${esc(k)}</h3><div class='grid'>${items.map(p => {
         const m = p.metrics || {};
         const trading = p.type === 'trading_bot'
-          ? `<br>PnL today: ${m.profit_today}<br>PnL week: ${m.profit_this_week}<br>Exposure: ${m.open_exposure}<br>Open positions: ${m.open_positions}`
+          ? `<br>PnL today: ${esc(m.profit_today)}<br>PnL week: ${esc(m.profit_this_week)}<br>Exposure: ${esc(m.open_exposure)}<br>Open positions: ${esc(m.open_positions)}`
           : '';
         const localAi = p.type === 'local_ai_host'
-          ? `<br>Provider: ${m.provider}<br>Base URL: ${m.base_url}<br>Status: ${m.status}<br>Model: ${m.default_model}<br>Models: ${(m.available_models || []).length}<br>Resp ms: ${m.response_time_ms}<br>CPU: ${m.cpu_usage}<br>RAM MB: ${m.ram_usage_mb}<br>GPU/VRAM: ${m.gpu_vram_usage}`
+          ? `<br>Provider: ${esc(m.provider)}<br>Base URL: ${esc(m.base_url)}<br>Status: ${esc(m.status)}<br>Model: ${esc(m.default_model)}<br>Models: ${esc((m.available_models || []).length)}<br>Resp ms: ${esc(m.response_time_ms)}<br>CPU: ${esc(m.cpu_usage)}<br>RAM MB: ${esc(m.ram_usage_mb)}<br>GPU/VRAM: ${esc(m.gpu_vram_usage)}`
           : '';
         const isSelected = p.name === selectedProject && p.device === selectedProjectDevice;
-        return `<div class='card${isSelected ? ' selected' : ''}' data-project='${p.name}' data-device='${p.device}'>
-          <b>${p.name}</b><br>Device: ${p.device}<br>${healthBadge(p.health)}<br>Status: ${p.status}${trading}${localAi}
+        return `<div class='card${isSelected ? ' selected' : ''}' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
+          <b>${esc(p.name)}</b><br>Device: ${esc(p.device)}<br>${healthBadge(p.health)}<br>Status: ${esc(p.status)}${trading}${localAi}
         </div>`;
       }).join('')}</div></div>`
     ).join('');
@@ -58,7 +62,7 @@ async function render() {
 
     statusEl.textContent = `Updated ${new Date().toLocaleTimeString()}`;
   } catch (e) {
-    document.getElementById('summary').innerHTML = card(`<b>Error:</b> Failed to load — ${e}`, ' error-card');
+    document.getElementById('summary').innerHTML = card(`<b>Error:</b> Failed to load — ${esc(String(e))}`, ' error-card');
     document.getElementById('refresh-status').textContent = 'Refresh failed';
   }
 }
@@ -68,7 +72,7 @@ document.getElementById('refresh-logs').onclick = async () => {
   const level = document.getElementById('log-level').value;
   document.getElementById('logs').innerText = 'Loading…';
   try {
-    const url = `/api/logs/${encodeURIComponent(selectedProjectDevice)}/${encodeURIComponent(selectedProject)}?level=${level}`;
+    const url = `/api/logs/${encodeURIComponent(selectedProjectDevice)}/${encodeURIComponent(selectedProject)}?level=${encodeURIComponent(level)}`;
     const data = await fetch(url).then(r => r.json());
     document.getElementById('logs').innerText = (data.lines || []).join('\n') || '(no logs)';
   } catch (e) {
