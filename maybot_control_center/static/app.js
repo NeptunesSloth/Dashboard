@@ -1051,22 +1051,30 @@ function tierOf(a) {
 
 // Peaks anchored to map_bg.png's painted pavilions (% of the art).
 const PEAK_DEFS = [
-  { id: 'leader', title: "Sect Leader's Peak", icon: '👑', kind: 'group', tiers: ['leader'], anchor: { x: 49, y: 33 } },
-  { id: 'elders', title: "Elders' Peak", icon: '🜍', kind: 'group', tiers: ['elder', 'core'], anchor: { x: 33, y: 10 } },
-  { id: 'inner', title: 'Inner Court', icon: '🟦', kind: 'group', tiers: ['inner'], anchor: { x: 80, y: 16 } },
-  { id: 'outer', title: 'Outer Court', icon: '⛰️', kind: 'group', tiers: ['outer'], anchor: { x: 12, y: 35 } },
-  { id: 'mission', title: 'Mission Hall', icon: '📜', kind: 'utility', cat: 'quests', anchor: { x: 91, y: 47 } },
-  { id: 'pill', title: 'Pill Pavilion', icon: '⚗️', kind: 'utility', cat: 'pills', anchor: { x: 63, y: 49 } },
-  { id: 'treasury', title: 'Treasure Pavilion', icon: '💎', kind: 'utility', cat: 'treasury', anchor: { x: 6, y: 60 } },
-  { id: 'techniques', title: 'Technique Hall', icon: '🗡️', kind: 'utility', cat: 'tools', anchor: { x: 71, y: 8 } },
+  { id: 'leader', title: "Sect Leader's Peak", icon: '👑', kind: 'group', tiers: ['leader'], anchor: { x: 49, y: 30 } },
+  { id: 'elders', title: "Elders' Peak", icon: '🜍', kind: 'group', tiers: ['elder', 'core'], anchor: { x: 31, y: 9 } },
+  { id: 'inner', title: 'Inner Court', icon: '🟦', kind: 'group', tiers: ['inner'], anchor: { x: 79, y: 15 } },
+  { id: 'outer', title: 'Outer Court', icon: '⛰️', kind: 'group', tiers: ['outer'], anchor: { x: 12, y: 34 } },
+  { id: 'mission', title: 'Mission Hall', icon: '📜', kind: 'utility', cat: 'quests', anchor: { x: 92, y: 45 } },
+  { id: 'pill', title: 'Pill Pavilion', icon: '⚗️', kind: 'utility', cat: 'pills', anchor: { x: 62, y: 48 } },
+  { id: 'treasury', title: 'Treasure Pavilion', icon: '💎', kind: 'utility', cat: 'treasury', anchor: { x: 6, y: 62 } },
+  { id: 'techniques', title: 'Technique Hall', icon: '🗡️', kind: 'utility', cat: 'tools', anchor: { x: 70, y: 7 } },
+  { id: 'council', title: 'Dao Council', icon: '⚖️', kind: 'utility', cat: 'council', anchor: { x: 41, y: 53 } },
+  { id: 'seclusion', title: 'Seclusion Caves', icon: '🕳️', kind: 'group', filter: 'seclusion', anchor: { x: 23, y: 64 } },
 ];
+
+// state-based membership for group peaks that aren't rank tiers
+const PEAK_FILTERS = { seclusion: a => !!(a.cultivation && a.cultivation.in_seclusion) };
 
 function buildPeaks(crew) {
   const byTier = { leader: [], elder: [], core: [], inner: [], outer: [] };
   crew.forEach(a => byTier[tierOf(a)].push(a));
   return PEAK_DEFS.map(d => {
     let members = [];
-    if (d.kind === 'group') d.tiers.forEach(t => { members = members.concat(byTier[t] || []); });
+    if (d.kind === 'group') {
+      if (d.filter && PEAK_FILTERS[d.filter]) members = crew.filter(PEAK_FILTERS[d.filter]);
+      else (d.tiers || []).forEach(t => { members = members.concat(byTier[t] || []); });
+    }
     members.sort((x, y) => (y.governance?.standing || 0) - (x.governance?.standing || 0));
     return { ...d, members };
   });
@@ -1255,6 +1263,15 @@ async function renderUtilityHall(peak) {
       const d = await fetch('/api/tools', { headers: authHeaders() }).then(r => r.json());
       const ts = d.tools || d.catalog || [];
       set(ts.length ? ts.map(t => `<div class='util-item'><b>🗡️ ${esc(t.name)}</b><div class='muted'>${esc(t.description || '')}</div></div>`).join('') : '<div class="muted">No sanctioned arts.</div>');
+    } else if (peak.cat === 'council') {
+      const [cm, votes] = await Promise.all([
+        fetch('/api/comms?limit=8', { headers: authHeaders() }).then(r => r.json()).catch(() => ({})),
+        fetch('/api/council/history?limit=5', { headers: authHeaders() }).then(r => r.json()).catch(() => ({})),
+      ]);
+      const st = (cm.status && cm.status.active) ? `<div class='util-item'><b>⚔️ In session:</b> <span class='muted'>${esc((cm.status.mission && cm.status.mission.goal) || 'a council activity')}</span></div>` : '';
+      const feed = (cm.feed || []).slice(-6).map(m => `<div class='util-item'><b>${esc(m.from)}</b> <span class='muted'>${esc((m.content || '').slice(0, 80))}</span></div>`).join('');
+      const vs = (votes.history || []).slice().reverse().map(v => `<div class='util-item'><b>🗳️ ${esc(v.question || 'vote')}</b> <span class='muted'>→ ${esc(v.winner || '—')}</span></div>`).join('');
+      set((st || '') + (vs || '') + (feed || '') || '<div class="muted">The council chamber is quiet.</div>');
     }
   } catch (_) { set('<div class="muted">unavailable</div>'); }
 }
