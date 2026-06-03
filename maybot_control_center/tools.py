@@ -147,9 +147,11 @@ def request_tool(requester: str, tool_name: str, args: dict | None = None) -> di
         _calls.append(call)
         if len(_calls) > MAX_CALLS:
             del _calls[:-MAX_CALLS]
-        auto = autonomy.allow(requester, tool)
         call_id = call["id"]
         snap = dict(call)
+    # Decide autonomy OUTSIDE the lock: reputation re-reads the tool audit log
+    # (list_calls), which re-acquires _lock — doing this inside would deadlock.
+    auto = autonomy.allow(requester, tool)
     if store.enabled():
         store.upsert_tool_call(snap)
     events.publish("tools", {"id": snap["id"], "status": snap["status"]})

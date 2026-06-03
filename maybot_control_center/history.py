@@ -68,6 +68,12 @@ def get(device: str, name: str) -> list[dict]:
         return list(_series.get(_key(device, name), []))
 
 
+def all_series() -> dict[str, list[dict]]:
+    """A copy of every project's series, keyed by 'device:project'."""
+    with _lock:
+        return {k: list(v) for k, v in _series.items()}
+
+
 def load_persisted() -> None:
     if not store.enabled():
         return

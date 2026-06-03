@@ -1,0 +1,35 @@
+# One-command MayBot: `docker compose up`
+# - control-center on :8200 (the dashboard)
+# - a co-located agent on :8100 (monitors this host)
+#
+# Configure via a .env file or the environment blocks below. Mount your
+# devices.yaml / projects.yaml / agents.yaml / tools.yaml next to this file.
+
+services:
+  control-center:
+    build: .
+    command: uvicorn maybot_control_center.app:app --host 0.0.0.0 --port 8200
+    ports:
+      - "8200:8200"
+    environment:
+      MAYBOT_DB: /data/maybot.db                       # persistence (history, audit, cultivation)
+      MAYBOT_CONTROL_CENTER_TOKEN: ${MAYBOT_CONTROL_CENTER_TOKEN:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}         # for claude-backed disciples
+    volumes:
+      - ./:/app
+      - maybot-data:/data
+    restart: unless-stopped
+
+  agent:
+    build: .
+    command: uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100
+    ports:
+      - "8100:8100"
+    environment:
+      MAYBOT_API_TOKEN: ${MAYBOT_API_TOKEN:-change-me}
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+
+volumes:
+  maybot-data:

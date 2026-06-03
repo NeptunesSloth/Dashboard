@@ -5,6 +5,12 @@ from .notifier import check_and_notify
 from . import history
 from . import incidents
 
+_last_summary: dict = {}
+
+
+def last_summary() -> dict:
+    return dict(_last_summary)
+
 
 def _num(v):
     try:
@@ -63,4 +69,6 @@ def aggregate(devices: list[dict]) -> dict:
     history.record(projects)
     history.attach(projects)
     incidents.maybe_dispatch(projects)
+    _last_summary.clear()
+    _last_summary.update(summary)
     return {"summary": summary, "devices": device_rows, "projects": projects}

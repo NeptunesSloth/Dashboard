@@ -1,0 +1,32 @@
+# Formation arrays — reusable multi-agent workflows.
+#
+# Copy to formations.yaml (or point MAYBOT_FORMATIONS_FILE at it) to customise.
+# Each formation is a DAG of stages run in order. A stage names a role; one
+# disciple fills it and sees the goal plus every prior stage's output before
+# adding its part. If a stage omits `agent`, a disciple is auto-assigned
+# round-robin from agents.yaml so every stage is always filled.
+formations:
+  - name: recon-array
+    title: Recon Array
+    description: Scout a target, analyze the findings, propose action, then review it.
+    stages:
+      - name: scout
+        role: Gather the relevant facts and surface the key signals about the goal.
+        # agent: Nova        # optional: pin a specific disciple to this stage
+      - name: analyze
+        role: Interpret the scout's findings; name the risks, causes and opportunities.
+      - name: propose
+        role: Draft a concrete, actionable plan addressing the analysis.
+      - name: review
+        role: Critique the proposal for flaws and give a clear go / no-go verdict.
+
+  - name: triage-array
+    title: Triage Array
+    description: Diagnose an incident, propose a remediation, and sanity-check it.
+    stages:
+      - name: diagnose
+        role: Establish what is wrong and the most likely root cause.
+      - name: remediate
+        role: Propose the safest concrete fix and the steps to apply it.
+      - name: verify
+        role: Check the fix for side effects and state how to confirm success.

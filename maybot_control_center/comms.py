@@ -218,6 +218,75 @@ def run_tournament(topic: str, entrants: list[str], judge: str, rounds: int, mis
             _mission = None
 
 
+def run_formation(name: str, goal: str, stages: list[dict], mission_id) -> None:
+    """Run a formation array: each stage's disciple builds on the prior stages."""
+    global _mission
+    try:
+        _post("system", f"🜨 Formation '{name}' forms — {' → '.join(s['name'] for s in stages)}. Goal: {goal}", "system", mission_id)
+        outputs: list[tuple[str, str, str]] = []  # (stage, agent, text)
+        for idx, stage in enumerate(stages):
+            who = stage["assignee"]
+            agent = agents._agent_def(who)
+            if not agent:
+                _post("system", f"(skipped stage {stage['name']} — unknown disciple {who})", "system", mission_id)
+                continue
+            with _lock:
+                if _mission is not None:
+                    _mission["round"] = idx + 1
+                    _mission["current"] = who
+            prior = "\n\n".join(f"[{s}] {a}: {t}" for s, a, t in outputs) or "(you are the first stage)"
+            sys = (f"{agents._persona(agent)}\n\nYou are {who}, holding the '{stage['name']}' position in a "
+                   f"formation array working toward a shared goal. Your role: {stage['role'] or 'advance the goal'}. "
+                   f"Build on the prior stages; do not repeat them.")
+            user = (f"Formation goal: {goal}\n\nPrior stages:\n{prior}\n\n"
+                    f"Deliver the '{stage['name']}' stage now (3-5 sentences).")
+            ok, text, err = agents._chat(agent, [{"role": "system", "content": sys}, {"role": "user", "content": user}])
+            content = (text or "").strip()[:MSG_CHARS] if ok else f"(error: {err})"
+            _post(who, f"【{stage['name']}】 {content or '(no response)'}", "agent", mission_id)
+            cultivation.on_council(who) if ok else cultivation.on_task(who, False)
+            if ok:
+                outputs.append((stage["name"], who, content))
+        _post("system", f"🜨 Formation '{name}' disperses — array complete.", "system", mission_id)
+    finally:
+        with _lock:
+            _mission = None
+
+
+def start_formation(name: str, goal: str) -> dict:
+    """Validate + launch a named formation array in the background."""
+    global _mission
+    from . import formations
+    goal = (goal or "").strip()
+    if not goal:
+        raise ValueError("goal required")
+    form = formations.get(name)
+    if not form:
+        raise ValueError(f"unknown formation: {name}")
+
+    # Assign a disciple to each stage: honour an explicit assignment when valid,
+    # else round-robin across the available agents so every stage is filled.
+    roster = [a.get("name") for a in agents.load_agents() if a.get("name")]
+    if not roster:
+        raise ValueError("no agents available to form the array")
+    stages = []
+    for i, stage in enumerate(form["stages"]):
+        want = stage.get("agent")
+        assignee = want if want in roster else roster[i % len(roster)]
+        stages.append({**stage, "assignee": assignee})
+
+    with _lock:
+        if _mission is not None:
+            raise RuntimeError("a council activity is already running")
+        mission_id = int(time.time() * 1000)
+        participants = list(dict.fromkeys(s["assignee"] for s in stages))
+        _mission = {"id": mission_id, "goal": goal, "participants": participants,
+                    "rounds": len(stages), "round": 0, "current": None,
+                    "started_at": mission_id, "kind": "formation", "formation": form["name"]}
+        snap = dict(_mission)
+    _pool.submit(run_formation, form["name"], goal, stages, mission_id)
+    return snap
+
+
 def start_tournament(topic: str, entrants: list[str], judge: str, rounds: int = 1) -> dict:
     """Validate + launch a single-elimination debate tournament."""
     global _mission

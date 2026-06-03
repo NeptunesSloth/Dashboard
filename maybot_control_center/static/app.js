@@ -258,6 +258,8 @@ async function render() {
     renderAiAgents(window.__lastProjects);
     renderProjects(window.__lastProjects);
     await renderAgentCrew();
+    renderHallOfFame();
+    renderProphecy();
     bindComms();
     renderComms();
     bindVault();
@@ -488,6 +490,16 @@ function delegateSelect(a, c) {
   return `<select class='delegate-target' data-agent='${esc(a.name)}' title='delegate to a lower-ranked disciple'><option value=''>self</option>${subs.map(n => `<option>${esc(n)}</option>`).join('')}</select>`;
 }
 
+function reputationChip(rep) {
+  if (!rep) return '';
+  const tier = rep.tier || 'Standard';
+  const cls = tier === 'Trusted' ? 'rep-trusted' : (tier === 'Probation' ? 'rep-probation' : 'rep-standard');
+  const mark = tier === 'Trusted' ? '★' : (tier === 'Probation' ? '⚠' : '◆');
+  const s = rep.signals || {};
+  const title = `merit ${rep.merit} · success ${s.success_pct ?? '—'}% · ${s.done || 0} tools done / ${s.failed || 0} failed / ${s.denied || 0} denied`;
+  return `<span class='rep-chip ${cls}' title='${esc(title)}'>${mark} ${esc(tier)} · merit ${rep.merit}</span>`;
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
@@ -496,6 +508,7 @@ function agentCard(a) {
   const tribCls = c.event === 'tribulation' && (Date.now() - (c.event_ts || 0) < 30000) ? ' agent-tribulation' : '';
   return `<div class='card agent-card agent-${esc(st)}${tribCls}' data-agent='${esc(a.name)}'>
     <div class='metric'><b>🧘 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
+    ${a.reputation ? `<div class='rep-row'>${reputationChip(a.reputation)}</div>` : ''}
     ${metric('Role', esc(a.role || '—'))}
     ${metric('Model', esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
@@ -645,6 +658,63 @@ async function renderAgentCrew() {
   }
 }
 
+// ---- Hall of Fame ----
+
+function fameCard(title, a, label, value) {
+  const c = a.cultivation || {};
+  return `<div class='card'>
+    <div class='metric'><b>${title}</b><b class='money-pos'>${value}</b></div>
+    ${metric('Disciple', `🧘 ${esc(a.name)}`)}
+    ${metric('Realm', `${esc(c.realm_name || '—')} · ${esc(c.layer_label || c.stage || '')}`)}
+    ${metric(label, esc(value))}
+  </div>`;
+}
+
+function renderHallOfFame() {
+  const sec = document.getElementById('fame-section');
+  const crew = (window.__agents || []).filter(a => a.cultivation);
+  if (!crew.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+  const top = f => crew.slice().sort(f)[0];
+  const strongest = top((x, y) => (y.cultivation.realm - x.cultivation.realm) || (y.cultivation.stones - x.cultivation.stones));
+  const richest = top((x, y) => y.cultivation.stones - x.cultivation.stones);
+  const learned = top((x, y) => (y.cultivation.skills || []).length - (x.cultivation.skills || []).length);
+  const broke = top((x, y) => y.cultivation.breakthroughs - x.cultivation.breakthroughs);
+  document.getElementById('hall-of-fame').innerHTML = [
+    fameCard('🏆 Strongest', strongest, 'Spirit stones', `💎 ${strongest.cultivation.stones}`),
+    fameCard('💎 Richest', richest, 'Spirit stones', `💎 ${richest.cultivation.stones}`),
+    fameCard('📚 Most Techniques', learned, 'Techniques', `${(learned.cultivation.skills || []).length}`),
+    fameCard('⚡ Most Breakthroughs', broke, 'Breakthroughs', `${broke.cultivation.breakthroughs}`),
+  ].join('');
+}
+
+// ---- Heavenly Omens: prophecy / divination ----
+
+function omenCard(o) {
+  const map = { ominous: ['omen-ominous', '☄ Ominous'], caution: ['omen-caution', '☁ Caution'], favorable: ['omen-favorable', '✦ Favorable'] };
+  const [cls, label] = map[o.omen] || ['omen-favorable', o.omen];
+  return `<div class='card omen-card ${cls}'>
+    <div class='metric'><b>${esc(o.project)}</b><span class='omen-badge ${cls}'>${label}</span></div>
+    ${metric('Realm', esc(o.device))}
+    <div class='omen-note'>“${esc(o.note)}”</div>
+    <div class='muted omen-points'>read from ${esc(o.points)} omens</div>
+  </div>`;
+}
+
+async function renderProphecy() {
+  const sec = document.getElementById('prophecy-section');
+  let data;
+  try { data = await fetch('/api/prophecy', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { sec.classList.add('hidden'); return; }
+  const omens = (data && data.omens) || [];
+  if (!omens.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+  const ill = omens.filter(o => o.omen !== 'favorable').length;
+  document.getElementById('prophecy-pill').textContent =
+    ill ? `${ill} ill omen${ill > 1 ? 's' : ''}` : 'all auspicious';
+  document.getElementById('prophecy-omens').innerHTML = omens.map(omenCard).join('');
+}
+
 // ---- Ship Comms: inter-agent missions ----
 
 function agentHue(name) {
@@ -691,6 +761,23 @@ async function renderComms() {
     else if (crew[idx]) elx.value = crew[idx].name;
   });
 
+  // formation catalog (populate once; keep selection across refresh)
+  const fsel = document.getElementById('formation-select');
+  if (fsel && !fsel.dataset.ready) {
+    try {
+      const fd = await fetch('/api/formations', { headers: authHeaders() }).then(r => r.json());
+      window.__formations = (fd && fd.catalog) || [];
+      fsel.innerHTML = window.__formations.map(f =>
+        `<option value='${esc(f.name)}'>${esc(f.title)} (${(f.stages || []).map(s => esc(s.name)).join(' → ')})</option>`).join('');
+      fsel.dataset.ready = '1';
+      const showDesc = () => {
+        const f = (window.__formations || []).find(x => x.name === fsel.value);
+        document.getElementById('formation-desc').textContent = f ? (f.description || '') : '';
+      };
+      fsel.onchange = showDesc; showDesc();
+    } catch (_) {}
+  }
+
   let data;
   try { data = await fetch('/api/comms', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { return; }
@@ -735,6 +822,26 @@ function bindComms() {
         if (!res.ok) { const j = await res.json().catch(() => ({})); alert('Debate failed: ' + (j.detail || res.status)); }
       } catch (e) { alert('Debate failed: ' + e); }
       dgo.disabled = false;
+      renderComms();
+    };
+  }
+  const fgo = document.getElementById('formation-go');
+  if (fgo && !fgo.dataset.bound) {
+    fgo.dataset.bound = '1';
+    fgo.onclick = async () => {
+      const formation = document.getElementById('formation-select').value;
+      const goal = (document.getElementById('formation-goal').value || '').trim();
+      if (!formation) { alert('Choose a formation.'); return; }
+      if (!goal) { alert('Enter a goal for the array.'); return; }
+      fgo.disabled = true;
+      try {
+        const res = await fetch('/api/formations/run', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ formation, goal }),
+        });
+        if (!res.ok) { const j = await res.json().catch(() => ({})); alert('Formation failed: ' + (j.detail || res.status)); }
+      } catch (e) { alert('Formation failed: ' + e); }
+      fgo.disabled = false;
       renderComms();
     };
   }

@@ -2,7 +2,7 @@ import queue
 import re
 import secrets
 from fastapi import FastAPI, Header, HTTPException, Query
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse
 from pydantic import BaseModel
 from .config import load_devices, CONTROL_CENTER_TOKEN
 from .aggregator import aggregate
@@ -21,6 +21,11 @@ from . import cultivation
 from . import pills
 from . import treasury
 from . import quests
+from . import metrics as metrics_mod
+from . import scheduler
+from . import reputation
+from . import prophecy
+from . import formations
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -31,6 +36,7 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
         _loader()
     except Exception:
         pass
+scheduler.start()  # background cron for scheduled missions (no-op without schedules.yaml)
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
@@ -304,6 +310,40 @@ def cultivation_stats(x_control_token: str = Header(default="")):
     return cultivation.snapshot()
 
 
+@app.get("/api/reputation")
+def reputation_stats(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return reputation.snapshot()
+
+
+@app.get("/api/prophecy")
+def prophecy_omens(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"omens": prophecy.divine()}
+
+
+@app.get("/api/formations")
+def formations_list(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"catalog": formations.catalog()}
+
+
+class FormationIn(BaseModel):
+    formation: str
+    goal: str
+
+
+@app.post("/api/formations/run")
+def formations_run(body: FormationIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.formation or ""):
+        raise HTTPException(400, "invalid formation name")
+    try:
+        return comms.start_formation(body.formation, body.goal)
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(400, str(exc))
+
+
 @app.get("/api/treasury")
 def treasury_status(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
@@ -470,6 +510,12 @@ def stream(token: str = Query(default="")):
             events.unsubscribe(q)
 
     return StreamingResponse(gen(), media_type="text/event-stream")
+
+
+@app.get("/metrics")
+def prometheus_metrics():
+    # Aggregate stats only (no secrets); standard unauthenticated Prometheus scrape target.
+    return PlainTextResponse(metrics_mod.render(), media_type="text/plain; version=0.0.4")
 
 
 @app.get("/")
