@@ -1159,11 +1159,15 @@ const SKIN_SUFFIX = {
   youth: '', young: '', a: '', elder: '_b', white: '_b', b: '_b',
   empress: '_empress', lotus: '_lotus', azure: '_azure', shadow: '_shadow', vegeta: '_vegeta',
   goku: '_goku', redhood: '_redhood', brute: '_brute', sage: '_sage', asta: '_asta',
+  wraith: '_wraith', warlock: '_warlock', fiend: '_fiend', lich: '_lich',
 };
+// pool of distinct character sets a disciple can be randomly assigned
+const RANDOM_SKINS = [...new Set(Object.values(SKIN_SUFFIX))];
+function _hash(s) { let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 function skinSuffix(a) {
   const s = a && a.skin;
-  if (s != null && s !== '' && SKIN_SUFFIX[s] !== undefined) return SKIN_SUFFIX[s];
-  return (a && a.cultivation && a.cultivation.realm >= 6) ? '_b' : '';
+  if (s != null && s !== '' && SKIN_SUFFIX[s] !== undefined) return SKIN_SUFFIX[s];  // explicit skin wins
+  return RANDOM_SKINS[_hash(a && a.name) % RANDOM_SKINS.length];                       // else: random (stable per agent)
 }
 function hallUnitInner(act, key, variant) {
   const v = (variant && key !== 'demon') ? variant : '';
