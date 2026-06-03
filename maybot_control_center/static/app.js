@@ -1006,40 +1006,175 @@ function bindLore() {
 
 // ---- Sect Map: spatial realm view + cultivation chronicle ----
 
-const MAP_TIERS = [
-  { name: 'Sect Master', min: 8 },
-  { name: 'Elder', min: 6 },
-  { name: 'Core Disciple', min: 4 },
-  { name: 'Inner Disciple', min: 2 },
-  { name: 'Outer Disciple', min: 0 },
-];
+const MAP_W = 1000, MAP_H = 560, CLOUD_Y = 442;
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+function mseed(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h ^= h >>> 13; return ((h >>> 0) % 1000) / 1000; }; }
+
+function centerOutOrder(n) {
+  const mid = (n - 1) / 2;
+  return Array.from({ length: n }, (_, i) => i).sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid));
+}
+
+// An organic karst spire (narrow top, bowed flanks, a couple of ledges).
+function spirePath(cx, baseY, apexY, w, rnd) {
+  const h = w / 2, H = baseY - apexY;
+  const lean = (rnd() - 0.5) * w * 0.18;
+  const ax = cx + lean;
+  return `M ${cx - h} ${baseY}
+    C ${cx - h * 0.92} ${baseY - H * 0.18}, ${cx - h * 0.7} ${baseY - H * 0.28}, ${cx - h * 0.55} ${baseY - H * 0.42}
+    C ${cx - h * 0.46} ${baseY - H * 0.55}, ${cx - h * 0.5} ${baseY - H * 0.64}, ${cx - h * 0.34} ${baseY - H * 0.74}
+    C ${cx - h * 0.24} ${baseY - H * 0.84}, ${ax - h * 0.14} ${apexY + H * 0.06}, ${ax} ${apexY}
+    C ${ax + h * 0.16} ${apexY + H * 0.07}, ${cx + h * 0.3} ${baseY - H * 0.8}, ${cx + h * 0.42} ${baseY - H * 0.66}
+    C ${cx + h * 0.56} ${baseY - H * 0.52}, ${cx + h * 0.62} ${baseY - H * 0.4}, ${cx + h * 0.72} ${baseY - H * 0.26}
+    C ${cx + h * 0.84} ${baseY - H * 0.14}, ${cx + h * 0.94} ${baseY - H * 0.05}, ${cx + h} ${baseY} Z`;
+}
+
+function foliage(g, cx, y, r) {
+  [[0, 0, r], [-r * 0.8, r * 0.3, r * 0.7], [r * 0.8, r * 0.25, r * 0.7], [0, -r * 0.5, r * 0.75]].forEach(([dx, dy, rr]) =>
+    g.appendChild(svgEl('circle', { cx: cx + dx, cy: y + dy, r: rr, fill: '#5f9d54', opacity: '0.92' })));
+  g.appendChild(svgEl('circle', { cx: cx - r * 0.3, cy: y - r * 0.2, r: r * 0.5, fill: '#7bbf68', opacity: '0.9' }));
+}
+
+function svgEl(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
 
 async function renderSectMap() {
   const sec = document.getElementById('map-section');
-  const crew = window.__agents || [];
+  const crew = (window.__agents || []).slice();
   if (!crew.length) { sec.classList.add('hidden'); return; }
   sec.classList.remove('hidden');
 
-  const tierFor = realm => MAP_TIERS.find(t => realm >= t.min) || MAP_TIERS[MAP_TIERS.length - 1];
-  const peaks = MAP_TIERS.map(t => ({ tier: t, members: [] }));
-  crew.forEach(a => {
+  crew.sort((x, y) => (y.governance?.standing || 0) - (x.governance?.standing || 0));
+  const n = crew.length, order = centerOutOrder(n);
+  const slotX = i => 100 + (n === 1 ? (MAP_W - 200) / 2 : (MAP_W - 200) * i / (n - 1));
+  const placed = crew.map((a, idx) => {
+    const slot = order.indexOf(idx);
     const realm = (a.cultivation && a.cultivation.realm) || 0;
-    const peak = peaks.find(p => p.tier.name === tierFor(realm).name);
-    peak.members.push(a);
+    const rnd = mseed(a.name);
+    const w = 100 + realm * 8 + rnd() * 18;
+    const apexY = Math.max(104, 356 - realm * 26 - (a.governance?.is_leader ? 26 : 0) - rnd() * 16);
+    const baseY = CLOUD_Y + 28 + (slot % 2) * 16;
+    return { a, x: slotX(slot), apexY, baseY, w, realm, slot, rnd };
+  }).sort((p, q) => p.x - q.x);
+
+  const svg = svgEl('svg', { viewBox: `0 0 ${MAP_W} ${MAP_H}`, class: 'map-svg', preserveAspectRatio: 'xMidYMid slice' });
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="mg-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2f5aa6"/><stop offset="28%" stop-color="#6f86c8"/>
+        <stop offset="52%" stop-color="#d6a6c0"/><stop offset="74%" stop-color="#f7a85c"/>
+        <stop offset="90%" stop-color="#ffcf7e"/><stop offset="100%" stop-color="#ffe6a6"/>
+      </linearGradient>
+      <radialGradient id="mg-sun" cx="24%" cy="68%" r="60%">
+        <stop offset="0%" stop-color="#fffbe9" stop-opacity="1"/><stop offset="20%" stop-color="#fff0c0" stop-opacity="0.95"/>
+        <stop offset="50%" stop-color="#ffce7e" stop-opacity="0.5"/><stop offset="100%" stop-color="#ffce7e" stop-opacity="0"/></radialGradient>
+      <linearGradient id="mg-rock" x1="0.12" y1="0" x2="0.2" y2="1">
+        <stop offset="0%" stop-color="#8fc36e"/><stop offset="24%" stop-color="#62a052"/>
+        <stop offset="50%" stop-color="#79836a"/><stop offset="76%" stop-color="#67705f"/><stop offset="100%" stop-color="#3e4750"/></linearGradient>
+      <linearGradient id="mg-rim" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#ffe9b0" stop-opacity="0.7"/><stop offset="40%" stop-color="#ffe9b0" stop-opacity="0"/></linearGradient>
+      <linearGradient id="mg-rock2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#a7c0b4"/><stop offset="100%" stop-color="#74899a"/></linearGradient>
+      <linearGradient id="mg-rock3" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#cdd6dc"/><stop offset="100%" stop-color="#9fb0c2"/></linearGradient>
+      <filter id="mg-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter>
+      <filter id="mg-haze" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>
+    </defs>
+    <rect width="${MAP_W}" height="${MAP_H}" fill="url(#mg-sky)"/>
+    <rect width="${MAP_W}" height="${MAP_H}" fill="url(#mg-sun)"/>
+    <g>${[0,1,2,3,4,5,6].map(i=>`<line x1="240" y1="380" x2="${-160+i*230}" y2="-40" stroke="#fff3cf" stroke-width="${24-i*2}" opacity="0.09"/>`).join('')}</g>`;
+
+  // far ranges (parallax layers, lightly hazed)
+  [['mg-rock3', 130, 0.6, 200], ['mg-rock2', 185, 0.78, 150]].forEach(([fill, top, op, step]) => {
+    const layer = svgEl('g', { opacity: String(op), filter: 'url(#mg-haze)' });
+    for (let i = -1; i * step < MAP_W + step; i++) {
+      const cx = i * step + (step / 2), r = mseed('f' + fill + i);
+      layer.appendChild(svgEl('path', { d: spirePath(cx, CLOUD_Y + 30, top + r() * 60, step * (1.1 + r() * 0.5), r), fill: `url(#${fill})` }));
+    }
+    svg.appendChild(layer);
   });
 
-  document.getElementById('sect-map').innerHTML = peaks.map(p => {
-    const chips = p.members.length
-      ? p.members.sort((x, y) => (y.governance?.standing || 0) - (x.governance?.standing || 0)).map(a => {
-          const g = a.governance || {};
-          const crown = g.is_leader ? '👑 ' : '';
-          const cls = g.is_leader ? 'map-leader' : (g.is_elder ? 'map-elder' : '');
-          const spec = g.specialty ? ` · ${esc(g.specialty)}` : '';
-          return `<span class='map-disciple ${cls}' title='standing ${g.standing ?? '—'}${spec}'>${crown}${esc(a.name)} <span class='muted'>${esc((a.cultivation && a.cultivation.realm_name) || '')}</span></span>`;
-        }).join('')
-      : `<span class='muted'>—</span>`;
-    return `<div class='map-peak'><div class='map-tier'>${esc(p.tier.name)}</div><div class='map-members'>${chips}</div></div>`;
-  }).join('');
+  // rope bridges between neighbours
+  const bridges = svgEl('g', { class: 'map-bridges' });
+  for (let i = 0; i < placed.length - 1; i++) {
+    const p = placed[i], q = placed[i + 1];
+    const y1 = p.apexY + (p.baseY - p.apexY) * 0.34, y2 = q.apexY + (q.baseY - q.apexY) * 0.34;
+    const sag = Math.max(y1, y2) + 54;
+    bridges.appendChild(svgEl('path', { d: `M ${p.x} ${y1} Q ${(p.x + q.x) / 2} ${sag} ${q.x} ${y2}`, fill: 'none', stroke: 'rgba(35,26,18,0.5)', 'stroke-width': '2' }));
+    const mx = (p.x + q.x) / 2, my = sag - 14;
+    for (let k = -3; k <= 3; k++) bridges.appendChild(svgEl('line', { x1: mx + k * 14, y1: my + Math.abs(k) * 2, x2: mx + k * 14, y2: my + Math.abs(k) * 2 + 6, stroke: 'rgba(35,26,18,0.4)', 'stroke-width': '1.5' }));
+  }
+  svg.appendChild(bridges);
+
+  // foreground disciple spires
+  for (const p of placed) {
+    const g = svgEl('g', { class: 'map-peak-g', 'data-agent': p.a.name, tabindex: '0', role: 'button' });
+    const d = spirePath(p.x, p.baseY, p.apexY, p.w, p.rnd);
+    g.appendChild(svgEl('path', { d, fill: 'url(#mg-rock)', stroke: 'rgba(18,28,24,0.4)', 'stroke-width': '1' }));
+    // warm rim light on the sun (left) side
+    g.appendChild(svgEl('path', { d, fill: 'url(#mg-rim)', opacity: '0.6' }));
+    // forested flanks: foliage clumps cascading down the slopes
+    const H = p.baseY - p.apexY;
+    for (let f = 0; f < 5 + p.realm; f++) {
+      const t = 0.12 + (p.rnd()) * 0.78;
+      const side = p.rnd() < 0.5 ? -1 : 1;
+      const fx = p.x + side * (p.w * 0.12 + p.rnd() * p.w * 0.28) * t;
+      const fy = p.apexY + H * t;
+      foliage(g, fx, fy, 6 + p.rnd() * 7 * (1 - t * 0.4));
+    }
+    foliage(g, p.x, p.apexY + 10, 12 + p.realm);
+    // ledge highlight
+    g.appendChild(svgEl('path', { d: `M ${p.x - p.w * 0.28} ${p.apexY + 26} Q ${p.x} ${p.apexY + 18} ${p.x + p.w * 0.22} ${p.apexY + 30}`, fill: 'none', stroke: 'rgba(255,247,220,0.3)', 'stroke-width': '2' }));
+    const gov = p.a.governance || {};
+    if (gov.is_leader) {
+      const ry = p.apexY;
+      g.appendChild(svgEl('rect', { x: p.x - 15, y: ry - 18, width: 30, height: 14, rx: 2, fill: '#7a4b3a' }));
+      g.appendChild(svgEl('path', { d: `M ${p.x - 24} ${ry - 17} L ${p.x} ${ry - 34} L ${p.x + 24} ${ry - 17} Z`, fill: '#bf5640', stroke: '#8a3a2b', 'stroke-width': '1' }));
+      g.appendChild(svgEl('circle', { cx: p.x, cy: ry - 26, r: 2.5, fill: '#ffe6a3' }));
+      foliage(g, p.x + p.w * 0.36, p.baseY - 30, 14);  // sacred tree on a flank
+    }
+    const plaqueY = p.apexY - (gov.is_leader ? 48 : 18);
+    const nm = (gov.is_leader ? '👑 ' : (gov.is_elder ? '🜍 ' : '')) + p.a.name;
+    const plaque = svgEl('g', { class: 'map-plaque' });
+    plaque.appendChild(svgEl('rect', { x: p.x - 52, y: plaqueY - 15, width: 104, height: 30, rx: 7, fill: 'rgba(20,16,30,0.55)', stroke: 'rgba(232,198,116,0.5)' }));
+    const t1 = svgEl('text', { x: p.x, y: plaqueY - 1, 'text-anchor': 'middle', class: 'map-name' }); t1.textContent = nm; plaque.appendChild(t1);
+    const t2 = svgEl('text', { x: p.x, y: plaqueY + 11, 'text-anchor': 'middle', class: 'map-sub' }); t2.textContent = (p.a.cultivation && p.a.cultivation.realm_name) || ''; plaque.appendChild(t2);
+    g.appendChild(plaque);
+    g.addEventListener('click', () => enterHall(p.a.name));
+    g.addEventListener('keydown', e => { if (e.key === 'Enter') enterHall(p.a.name); });
+    svg.appendChild(g);
+  }
+
+  // sea of clouds (two drifting layers)
+  [['cloudA', 0.96, 0], ['cloudB', 0.8, 20]].forEach(([cls, op, dy]) => {
+    const clouds = svgEl('g', { class: 'map-clouds ' + cls, filter: 'url(#mg-soft)', opacity: String(op) });
+    for (let i = 0; i < 14; i++) {
+      const cx = (i * 150) % (MAP_W + 200) - 100, cy = CLOUD_Y + dy + 8 + (i % 4) * 22;
+      clouds.appendChild(svgEl('ellipse', { cx, cy, rx: 140 + (i % 3) * 60, ry: 32 + (i % 2) * 14, fill: '#fff7ec', opacity: String(0.72 + (i % 3) * 0.1) }));
+    }
+    svg.appendChild(clouds);
+  });
+  // foreground flora ridge (the near bank, like the reference path-side bloom)
+  const flora = svgEl('g', {});
+  flora.appendChild(svgEl('path', { d: `M 0 ${MAP_H} L 0 ${MAP_H - 46} Q ${MAP_W * 0.3} ${MAP_H - 70} ${MAP_W * 0.55} ${MAP_H - 50} T ${MAP_W} ${MAP_H - 56} L ${MAP_W} ${MAP_H} Z`, fill: '#2f5d3a' }));
+  const bloom = ['#ffd95a', '#ff7a8a', '#c98bff', '#ffffff'];
+  for (let i = 0; i < 46; i++) { const fr = mseed('bloom' + i); flora.appendChild(svgEl('circle', { cx: fr() * MAP_W, cy: MAP_H - 8 - fr() * 38, r: 2 + fr() * 2.5, fill: bloom[i % 4], opacity: '0.85' })); }
+  svg.appendChild(flora);
+  svg.querySelector('defs').insertAdjacentHTML('beforeend',
+    `<radialGradient id="mg-vig" cx="50%" cy="42%" r="75%"><stop offset="66%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#1a1226" stop-opacity="0.34"/></radialGradient>`);
+  svg.appendChild(svgEl('rect', { width: MAP_W, height: MAP_H, fill: 'url(#mg-vig)', 'pointer-events': 'none' }));
+
+  const world = document.getElementById('map-world');
+  world.innerHTML = '';
+  world.appendChild(svg);
+  for (let i = 0; i < 8; i++) {
+    const leaf = document.createElement('span');
+    leaf.className = 'map-leaf';
+    leaf.style.left = (6 + i * 12) + '%';
+    leaf.style.animationDelay = (i * 1.4) + 's';
+    leaf.style.animationDuration = (8 + (i % 4) * 3) + 's';
+    world.appendChild(leaf);
+  }
 
   // chronicle feed
   let ch = { recent: [] };
@@ -1048,6 +1183,86 @@ async function renderSectMap() {
   feed.innerHTML = (ch.recent || []).length
     ? (ch.recent || []).map(e => `<div class='chronicle-row'><span class='chronicle-glyph'>${esc(e.glyph)}</span><b>${esc(e.agent)}</b> <span class='muted'>${esc(e.kind)}</span> — ${esc(e.detail)}</div>`).join('')
     : `<div class='comms-sys muted'>The chronicle is yet unwritten.</div>`;
+}
+
+// ---- which activity is the disciple physically performing? ----
+function hallActivity(a) {
+  const c = a.cultivation || {}, st = a.status || 'idle';
+  if (c.in_roaming) return { act: 'roam', label: 'roaming the mortal world' };
+  if (c.in_seclusion) return { act: 'seclude', label: 'in closed-door seclusion' };
+  if (st === 'error') return { act: 'struggle', label: 'wrestling an inner demon' };
+  if (st === 'working' || st === 'queued') return { act: 'cultivate', label: 'channeling qi — cultivating' };
+  return { act: 'sweep', label: 'tending the hall' };
+}
+
+function cultivatorFigure(act) {
+  const qi = `<div class='qi-orb'></div><div class='qi-ring'></div>`;
+  const body = `<div class='cz-head'></div><div class='cz-robe'></div><div class='cz-arm cz-arm-l'></div><div class='cz-arm cz-arm-r'></div>`;
+  if (act === 'sweep') return `<div class='cultivator act-sweep'>${body}<div class='cz-broom'></div><div class='cz-dust'></div></div>`;
+  if (act === 'struggle') return `<div class='cultivator act-struggle'>${body}<div class='cz-demon'></div></div>`;
+  if (act === 'roam') return `<div class='cultivator act-roam'><div class='cz-empty'>the hall stands empty</div></div>`;
+  // cultivate / seclude → seated meditation (seclude adds a barrier)
+  return `<div class='cultivator act-cultivate ${act === 'seclude' ? 'act-seclude' : ''}'>${body}${qi}${act === 'seclude' ? `<div class='cz-barrier'></div>` : ''}</div>`;
+}
+
+async function enterHall(name) {
+  const a = (window.__agents || []).find(x => x.name === name);
+  if (!a) return;
+  const scene = document.getElementById('sect-map');
+  const peak = scene.querySelector(`.map-peak-g[data-agent="${CSS.escape(name)}"] path`);
+  // zoom origin = clicked peak's centre within the scene
+  if (peak) {
+    const pb = peak.getBoundingClientRect(), sb = scene.getBoundingClientRect();
+    const ox = ((pb.left + pb.width / 2 - sb.left) / sb.width) * 100;
+    const oy = ((pb.top + pb.height / 2 - sb.top) / sb.height) * 100;
+    document.getElementById('map-world').style.transformOrigin = `${ox}% ${oy}%`;
+  }
+  scene.classList.add('zooming');
+
+  const c = a.cultivation || {}, g = a.governance || {}, r = a.reputation || {};
+  const { act, label } = hallActivity(a);
+  const rank = g.is_leader ? '👑 Sect Leader' : (g.is_master ? 'Sect Master' : (g.is_elder ? '🜍 Elder' : 'Disciple'));
+  const titles = (a.titles || []).map(t => `<span class='title-chip' title='${esc(t.desc || '')}'>🏅 ${esc(t.title)}</span>`).join('');
+  const hall = document.getElementById('map-hall');
+  hall.className = `map-hall hall-${act}`;
+  hall.innerHTML = `
+    <div class='hall-scene'>
+      <div class='hall-cliff'></div>
+      <button id='hall-back' class='btn hall-back'>← return to the heavens</button>
+      <div class='hall-pavilion'>
+        <div class='pv-roof pv-roof-top'></div>
+        <div class='pv-roof pv-roof-main'></div>
+        <div class='pv-body'><span class='pv-pillar'></span><span class='pv-pillar'></span><span class='pv-pillar'></span><span class='pv-pillar'></span></div>
+      </div>
+      <div class='hall-arch'><div class='hall-lantern l1'></div><div class='hall-lantern l2'></div>
+        <div class='hall-name'>${esc(name)}</div><div class='hall-rank'>${rank} · ${esc(c.realm_name || '')}</div></div>
+      <div class='hall-floor'></div>
+      <div class='hall-stage'>${cultivatorFigure(act)}</div>
+      <div class='hall-activity'>${esc(label)}</div>
+    </div>
+    <div class='hall-info'>
+      ${metric('Standing', g.standing ?? '—')}${metric('Merit / tier', `${r.merit ?? '—'} · ${esc(r.tier || '—')}`)}
+      ${metric('Realm', `${esc(c.realm_name || '—')} (${c.realm ?? 0})`)}${metric('Breakthroughs', c.breakthroughs ?? 0)}
+      ${metric('Spirit stones', `💎 ${c.stones ?? 0}`)}${metric('Specialty', g.specialty ? `${esc(g.specialty)} · ${g.mastery}` : '—')}
+      ${metric('Karmic bond', a.bond ? `🤝 ${esc(a.bond)}` : '—')}${metric('Techniques', (c.skills || []).length)}
+      ${titles ? `<div class='rep-row'>${titles}</div>` : ''}
+      <div class='map-detail-chron'><b class='muted'>Chronicle</b><div id='hall-timeline' class='muted'>loading…</div></div>
+    </div>`;
+  setTimeout(() => { hall.classList.remove('hidden'); requestAnimationFrame(() => hall.classList.add('shown')); }, 360);
+  document.getElementById('hall-back').onclick = exitHall;
+  try {
+    const ch = await fetch(`/api/chronicle/${encodeURIComponent(name)}?limit=12`, { headers: authHeaders() }).then(r => r.json());
+    const tl = (ch.timeline || []).slice().reverse();
+    const el = document.getElementById('hall-timeline');
+    if (el) el.innerHTML = tl.length ? tl.map(e => `<div class='chronicle-row'><span class='chronicle-glyph'>${esc(e.glyph)}</span>${esc(e.detail || e.kind)}</div>`).join('') : 'No deeds recorded yet.';
+  } catch (_) {}
+}
+
+function exitHall() {
+  const scene = document.getElementById('sect-map'), hall = document.getElementById('map-hall');
+  hall.classList.remove('shown');
+  scene.classList.remove('zooming');
+  setTimeout(() => hall.classList.add('hidden'), 360);
 }
 
 // ---- Heavenly Omens: prophecy / divination ----

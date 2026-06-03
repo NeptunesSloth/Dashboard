@@ -388,16 +388,124 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
   background: linear-gradient(90deg, var(--gold), #ffe6a3); border: 1px solid var(--gold); }
 #lore-section textarea { font-family: inherit; background: rgba(24,20,42,0.6); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
 
-/* ---- Sect Map ---- */
-.sect-map { display: flex; flex-direction: column; gap: 8px; }
-.map-peak { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
-  background: linear-gradient(90deg, rgba(232,198,116,0.06), transparent); }
-.map-peak:first-child { background: linear-gradient(90deg, rgba(232,198,116,0.16), transparent); border-color: rgba(232,198,116,0.4); }
-.map-tier { min-width: 130px; font-family: "Cinzel", Georgia, serif; color: var(--gold); font-size: 13px; letter-spacing: .04em; }
-.map-members { display: flex; flex-wrap: wrap; gap: 6px; }
-.map-disciple { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: rgba(24,20,42,0.6); }
-.map-disciple.map-elder { border-color: rgba(154,100,214,0.5); }
-.map-disciple.map-leader { color: #1a1404; background: linear-gradient(90deg, var(--gold), #ffe6a3); border-color: var(--gold); }
-.map-disciple.map-leader .muted { color: #5a4a1a; }
+/* ---- Sect Map: floating peaks above a sea of clouds, zoom into halls ---- */
+.sect-scene-wrap { display: block; }
+.sect-scene { position: relative; border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+  box-shadow: 0 14px 44px rgba(0,0,0,0.5), inset 0 0 60px rgba(0,0,0,0.3); }
+.map-world { position: relative; transition: transform .55s cubic-bezier(.6,.02,.3,1), filter .55s ease, opacity .45s ease; will-change: transform; }
+.sect-scene.zooming .map-world { transform: scale(5.2); filter: blur(5px) brightness(1.1); opacity: 0; }
+.map-svg { display: block; width: 100%; height: auto; }
+.map-peak-g { cursor: pointer; outline: none; transition: transform .18s ease, filter .18s ease; transform-box: fill-box; transform-origin: center bottom; }
+.map-peak-g:hover, .map-peak-g:focus { transform: translateY(-3px) scale(1.015); filter: drop-shadow(0 0 12px rgba(255,231,160,0.85)); }
+.map-name { font-family: "Cinzel", Georgia, serif; font-size: 15px; fill: #fff7e6; }
+.map-sub { font-size: 11px; fill: #f0d49a; }
+.map-bridges path { stroke-dasharray: 1 5; }
+.map-clouds.cloudA { animation: cloudDrift 38s linear infinite; }
+.map-clouds.cloudB { animation: cloudDrift 64s linear infinite reverse; }
+@keyframes cloudDrift { from { transform: translateX(-40px); } to { transform: translateX(40px); } }
+.map-leaf { position: absolute; top: -14px; width: 9px; height: 9px; border-radius: 0 100% 0 100%;
+  background: #8fd06f; opacity: .8; pointer-events: none; animation: leafFall linear infinite; z-index: 3; }
+@keyframes leafFall {
+  0% { transform: translateY(-20px) translateX(0) rotate(0); opacity: 0; }
+  10% { opacity: .85; } 100% { transform: translateY(540px) translateX(50px) rotate(420deg); opacity: 0; }
+}
+
+/* ---- Hall interior (revealed on zoom) ---- */
+.map-hall { position: absolute; inset: 0; display: flex; opacity: 0; transform: scale(1.18);
+  transition: opacity .4s ease, transform .4s ease; z-index: 5;
+  background: radial-gradient(120% 90% at 50% 18%, #2a2140 0%, #171029 55%, #0c0817 100%); }
+.map-hall.shown { opacity: 1; transform: scale(1); }
+.hall-scene { position: relative; flex: 1; min-width: 0; overflow: hidden; }
+.hall-info { width: 280px; flex: 0 0 280px; padding: 14px; overflow-y: auto; border-left: 1px solid var(--border);
+  background: rgba(12,8,23,0.55); }
+.hall-back { position: absolute; top: 12px; left: 12px; z-index: 6; }
+.hall-arch { position: absolute; top: 10px; left: 0; right: 0; text-align: center; pointer-events: none; }
+.hall-name { font-family: "Cinzel", Georgia, serif; font-size: 24px; color: var(--gold); text-shadow: 0 0 16px rgba(232,198,116,.5); margin-top: 30px; }
+.hall-rank { color: var(--muted); font-size: 13px; }
+.hall-lantern { position: absolute; top: 40px; width: 16px; height: 24px; border-radius: 8px; background: radial-gradient(circle at 50% 35%, #ffd27a, #d2452f);
+  box-shadow: 0 0 18px rgba(255,150,60,.7); animation: lanternSway 3.4s ease-in-out infinite; }
+.hall-lantern.l1 { left: 16%; } .hall-lantern.l2 { right: 16%; animation-delay: .8s; }
+@keyframes lanternSway { 0%,100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+.hall-cliff { position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 40% at 80% 20%, rgba(120,150,120,0.35), transparent 70%),
+    radial-gradient(50% 40% at 18% 16%, rgba(150,170,200,0.3), transparent 70%),
+    linear-gradient(180deg, rgba(80,100,90,0.4) 0%, transparent 45%); }
+.hall-cliff::after { content:''; position:absolute; left:0; right:0; bottom:40%; height:60px;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.5)); filter: blur(10px); }
+.hall-pavilion { position: absolute; left: 50%; top: 16%; transform: translateX(-50%); width: 230px; z-index: 1; filter: drop-shadow(0 8px 16px rgba(0,0,0,.4)); }
+.pv-roof { position: relative; margin: 0 auto; background: linear-gradient(180deg, #3a4150, #232838);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%; }
+.pv-roof::before, .pv-roof::after { content:''; position:absolute; bottom:-2px; width:24px; height:18px;
+  background: linear-gradient(180deg,#3a4150,#232838); border-radius:0 0 80% 0; }
+.pv-roof::before { left:-14px; transform: rotate(8deg) scaleX(-1); } .pv-roof::after { right:-14px; transform: rotate(8deg); }
+.pv-roof-top { width: 96px; height: 26px; }
+.pv-roof-main { width: 200px; height: 38px; margin-top: -6px; }
+.pv-body { width: 170px; height: 56px; margin: -4px auto 0; display: flex; justify-content: space-around; align-items: stretch;
+  background: linear-gradient(180deg, rgba(90,60,46,0.9), rgba(60,40,32,0.95)); border-radius: 3px; padding: 0 8px; }
+.pv-pillar { width: 7px; background: #4a3026; border-radius: 2px; }
+.hall-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 46%;
+  background: linear-gradient(180deg, #3a2c46 0%, #241a33 60%, #1a1226 100%);
+  border-top: 2px solid rgba(232,198,116,.25); box-shadow: inset 0 18px 50px rgba(0,0,0,.5); }
+.hall-floor::before { content:''; position:absolute; left:50%; top:8%; width:160px; height:54px; transform:translateX(-50%);
+  border-radius:50%; background: radial-gradient(ellipse, rgba(232,198,116,.22), transparent 70%); }
+.hall-stage { position: absolute; left: 50%; bottom: 18%; transform: translateX(-50%); z-index: 2; }
+.hall-activity { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; color: #f0d49a;
+  font-family: "Cinzel", Georgia, serif; font-size: 14px; letter-spacing: .04em; }
+.hall-info .metric { border-bottom: 1px solid var(--border); }
+
+/* ---- the cultivator figure ---- */
+.cultivator { position: relative; width: 120px; height: 150px; }
+.cz-head { position: absolute; left: 50%; transform: translateX(-50%); width: 26px; height: 26px; border-radius: 50%;
+  background: #e9c39a; box-shadow: inset -3px -3px 0 rgba(0,0,0,.12); top: 8px; z-index: 3; }
+.cz-head::after { content:''; position:absolute; left:50%; top:-6px; transform:translateX(-50%); width:12px; height:10px; border-radius:50%; background:#2b2336; }
+.cz-robe { position: absolute; left: 50%; transform: translateX(-50%); bottom: 0; width: 96px; height: 96px;
+  background: linear-gradient(180deg, #4ea3b8, #2f6f8a); clip-path: polygon(50% 0, 70% 22%, 100% 100%, 0 100%, 30% 22%);
+  z-index: 2; box-shadow: inset 0 -10px 24px rgba(0,0,0,.25); }
+.cz-arm { position: absolute; width: 40px; height: 14px; border-radius: 8px; background: #3f8aa3; bottom: 64px; z-index: 2; }
+.cz-arm-l { left: 6px; transform: rotate(20deg); transform-origin: right center; }
+.cz-arm-r { right: 6px; transform: rotate(-20deg); transform-origin: left center; }
+
+/* cultivate: seated, gentle bob, qi orb */
+.act-cultivate { animation: czBob 3.6s ease-in-out infinite; }
+.act-cultivate .cz-robe { clip-path: polygon(50% 6%, 78% 34%, 100% 100%, 0 100%, 22% 34%); height: 84px; width: 110px; }
+.act-cultivate .cz-arm { bottom: 40px; width: 34px; }
+.act-cultivate .cz-arm-l { transform: rotate(38deg); } .act-cultivate .cz-arm-r { transform: rotate(-38deg); }
+@keyframes czBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.qi-orb { position: absolute; left: 50%; top: 44px; width: 30px; height: 30px; transform: translateX(-50%); border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #d8fff4, #36e0b4 55%, rgba(54,224,180,0)); box-shadow: 0 0 26px rgba(54,224,180,.8);
+  animation: qiPulse 2.4s ease-in-out infinite; z-index: 4; }
+@keyframes qiPulse { 0%,100% { transform: translateX(-50%) scale(.85); opacity: .8; } 50% { transform: translateX(-50%) scale(1.15); opacity: 1; } }
+.qi-ring { position: absolute; left: 50%; top: 30px; width: 60px; height: 60px; transform: translateX(-50%); border-radius: 50%;
+  border: 2px solid rgba(54,224,180,.5); border-top-color: transparent; border-bottom-color: transparent; animation: qiSpin 3s linear infinite; z-index: 1; }
+@keyframes qiSpin { to { transform: translateX(-50%) rotate(360deg); } }
+.act-seclude { filter: saturate(.7) brightness(.85); }
+.cz-barrier { position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); width: 150px; height: 150px; border-radius: 50%;
+  border: 2px solid rgba(124,191,255,.45); box-shadow: 0 0 30px rgba(124,191,255,.35), inset 0 0 30px rgba(124,191,255,.2); animation: qiPulse 4s ease-in-out infinite; }
+
+/* sweep: standing, broom swings */
+.act-sweep .cz-arm-r { animation: sweepArm 2.2s ease-in-out infinite; transform-origin: left center; }
+.cz-broom { position: absolute; right: -6px; bottom: 18px; width: 6px; height: 60px; background: #8a5a32; border-radius: 3px;
+  transform-origin: top center; animation: sweepBroom 2.2s ease-in-out infinite; z-index: 1; }
+.cz-broom::after { content:''; position:absolute; bottom:-12px; left:-9px; width:24px; height:18px; background:#caa15a; clip-path: polygon(50% 0,100% 100%,0 100%); }
+@keyframes sweepArm { 0%,100% { transform: rotate(-26deg); } 50% { transform: rotate(-6deg); } }
+@keyframes sweepBroom { 0%,100% { transform: rotate(16deg); } 50% { transform: rotate(-14deg); } }
+.cz-dust { position: absolute; right: -22px; bottom: 6px; width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(220,210,180,.6); animation: dustPuff 2.2s ease-in-out infinite; }
+@keyframes dustPuff { 0%,100% { opacity: 0; transform: scale(.4) translateX(0); } 50% { opacity: .7; transform: scale(1) translateX(-14px); } }
+
+/* struggle: hunched, dark demon circling */
+.act-struggle { animation: struggleShake .5s ease-in-out infinite; filter: brightness(.8); }
+.act-struggle .cz-robe { background: linear-gradient(180deg, #6a4b86, #3a2452); }
+@keyframes struggleShake { 0%,100% { transform: translateX(0) rotate(-2deg); } 50% { transform: translateX(3px) rotate(2deg); } }
+.cz-demon { position: absolute; left: 50%; top: 6px; width: 28px; height: 28px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #b34, #300 70%); box-shadow: 0 0 22px rgba(200,40,70,.7);
+  transform-origin: -34px 40px; animation: demonOrbit 2.6s linear infinite; z-index: 4; }
+@keyframes demonOrbit { to { transform: rotate(360deg); } }
+.act-roam .cz-empty, .cz-empty { color: var(--muted); font-style: italic; }
+
+.map-detail-chron { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
 .chronicle-row { padding: 5px 8px; border-bottom: 1px solid var(--border); font-size: 13px; }
 .chronicle-glyph { display: inline-block; width: 1.4em; text-align: center; }
+@media (max-width: 820px) { .map-hall { flex-direction: column; } .hall-info { width: 100%; flex-basis: auto; border-left: none; } }
+@media (prefers-reduced-motion: reduce) { .map-clouds, .map-leaf, .cultivator, .qi-orb, .qi-ring, .cz-broom, .cz-arm-r, .cz-dust, .cz-demon, .hall-lantern { animation: none !important; } }
