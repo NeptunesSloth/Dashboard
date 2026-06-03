@@ -24,6 +24,7 @@ from . import agents
 from . import memory
 from . import store
 from . import events
+from . import cultivation
 
 MAX_ROUNDS = max(1, int(os.getenv("MAYBOT_COMMS_MAX_ROUNDS", "3")))
 MAX_PARTICIPANTS = max(2, int(os.getenv("MAYBOT_COMMS_MAX_PARTICIPANTS", "6")))
@@ -114,6 +115,7 @@ def run_mission(goal: str, names: list[str], rounds: int, mission_id) -> None:
                 ])
                 content = (text or "").strip()[:MSG_CHARS] if ok else f"(error: {err})"
                 _post(name, content or "(no response)", "agent", mission_id)
+                cultivation.on_council(name) if ok else cultivation.on_task(name, False)
         _write_mission_memory(goal, mission_id)
         saved = " · saved to vault" if memory.enabled() else ""
         _post("system", f"Mission complete.{saved}", "system", mission_id)

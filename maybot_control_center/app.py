@@ -17,11 +17,12 @@ from . import events
 from . import autonomy
 from . import usage
 from . import authz
+from . import cultivation
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
 for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted,
-                tooling.load_persisted, usage.load_persisted):
+                tooling.load_persisted, usage.load_persisted, cultivation.load_persisted):
     try:
         _loader()
     except Exception:
@@ -268,6 +269,12 @@ def tools_deny(call_id: int, x_control_token: str = Header(default="")):
 def usage_stats(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return usage.snapshot()
+
+
+@app.get("/api/cultivation")
+def cultivation_stats(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return cultivation.snapshot()
 
 
 @app.get("/api/stream")

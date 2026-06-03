@@ -395,15 +395,37 @@ function renderStation(projects) {
 
 // ---- Agent Crew: LLM-backed persona agents you can assign tasks to ----
 
+function cultivationBlock(c) {
+  if (!c) return '';
+  const prog = Math.round((c.progress || 0) * 100);
+  const recent = c.event && (Date.now() - (c.event_ts || 0) < 30000);
+  const next = c.next_realm
+    ? `<div class='muted culti-next'>${esc(c.stones_to_next)} stones${c.skills_to_next ? ` · ${esc(c.skills_to_next)} technique${c.skills_to_next > 1 ? 's' : ''}` : ''} → ${esc(c.next_realm)}</div>`
+    : `<div class='muted culti-next'>✦ Immortal Ascension attained</div>`;
+  const skills = (c.skills && c.skills.length) ? `<div class='muted culti-skills'>Techniques: ${c.skills.map(esc).join(', ')}</div>` : '';
+  const flourish = recent && c.event === 'breakthrough'
+    ? `<div class='culti-flash culti-breakthrough'>☯ Breakthrough — ${esc(c.realm_name)}!</div>`
+    : (recent && c.event === 'tribulation'
+        ? `<div class='culti-flash culti-tribulation'>⚡ Heavenly Tribulation — struck down!</div>` : '');
+  return `<div class='cultivation realm-${c.realm}'>
+    <div class='culti-head'><span class='culti-realm'>⛰ ${esc(c.realm_name)} · ${esc(c.stage)}</span><span class='culti-stones'>💎 ${esc(c.stones)}</span></div>
+    <div class='qi-bar'><span style='width:${prog}%'></span></div>
+    ${next}${skills}${flourish}
+  </div>`;
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
   const reply = a.last_reply ? esc(a.last_reply) : '';
-  return `<div class='card agent-card agent-${esc(st)}' data-agent='${esc(a.name)}'>
-    <div class='metric'><b>🤖 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
+  const c = a.cultivation || {};
+  const tribCls = c.event === 'tribulation' && (Date.now() - (c.event_ts || 0) < 30000) ? ' agent-tribulation' : '';
+  return `<div class='card agent-card agent-${esc(st)}${tribCls}' data-agent='${esc(a.name)}'>
+    <div class='metric'><b>🧘 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
     ${metric('Role', esc(a.role || '—'))}
     ${metric('Model', esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
+    ${cultivationBlock(c)}
     ${a.current_task ? `<div class='agent-task-cur'>▸ ${esc(a.current_task)}</div>` : ''}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
     <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>

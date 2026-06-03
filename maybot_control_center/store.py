@@ -26,6 +26,8 @@ _SCHEMA = [
      "args TEXT, status TEXT, output TEXT, code INTEGER, created_at INTEGER, finished_at INTEGER)"),
     ("CREATE TABLE IF NOT EXISTS usage (agent TEXT, model TEXT, ok INTEGER, latency_ms INTEGER, "
      "tin INTEGER, tout INTEGER, cost REAL, ts INTEGER)"),
+    ("CREATE TABLE IF NOT EXISTS cultivation (agent TEXT PRIMARY KEY, stones INTEGER, realm INTEGER, "
+     "skills TEXT, breakthroughs INTEGER, updated_at INTEGER)"),
 ]
 
 
@@ -148,6 +150,17 @@ def add_usage(agent: str, model: str, ok: bool, latency_ms: int, tin: int, tout:
 
 def load_usage(limit: int = 20000) -> list[tuple]:
     return _query("SELECT agent, model, ok, latency_ms, tin, tout, cost, ts FROM usage ORDER BY ts ASC LIMIT ?", (limit,))
+
+
+# ---- cultivation ----
+def upsert_cultivation(s: dict) -> None:
+    _exec("INSERT OR REPLACE INTO cultivation (agent, stones, realm, skills, breakthroughs, updated_at) VALUES (?,?,?,?,?,?)",
+          (s.get("agent"), s.get("stones", 0), s.get("realm", 0), json.dumps(s.get("skills") or []),
+           s.get("breakthroughs", 0), s.get("updated_at", 0)))
+
+
+def load_cultivation() -> list[tuple]:
+    return _query("SELECT agent, stones, realm, skills, breakthroughs, updated_at FROM cultivation")
 
 
 def _reset_for_tests(path: str) -> None:

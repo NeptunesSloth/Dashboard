@@ -26,6 +26,7 @@ from . import store
 from . import events
 from . import autonomy
 from . import usage
+from . import cultivation
 from . import tools as tooling
 
 AGENTS_FILE = Path(os.getenv("MAYBOT_AGENTS_FILE", "agents.yaml"))
@@ -208,6 +209,7 @@ def run_task(name: str, task: str) -> dict:
         snap = dict(st)
     if store.enabled():
         store.add_transcript(name, asst_msg)
+    cultivation.on_task(name, ok)  # spirit stones for diligent work
     events.publish("agents", {"agent": name})
 
     # If the agent requested a tool, queue it for approval (never auto-run here).
@@ -226,6 +228,8 @@ def _tool_followup(call: dict) -> None:
     name = call.get("requester")
     if not name or not _agent_def(name):
         return  # operator-run or unknown requester → no continuation
+    # Mastering a technique (new tool) advances cultivation; reward before the budget gate.
+    cultivation.on_tool(name, call.get("tool"), call.get("status") == "done")
     with _lock:
         n = _followups.get(name, 0)
         if n >= MAX_FOLLOWUPS:
@@ -275,6 +279,7 @@ def snapshot() -> list[dict]:
                 "tasks_done": st["tasks_done"] if st else 0,
                 "transcript_len": len(st["transcript"]) if st else 0,
                 "error": st["error"] if st else None,
+                "cultivation": cultivation.state(name),
             })
     return out
 
