@@ -31,3 +31,28 @@ tools:
     argv: ["./scripts/test.sh"]
     cwd: /opt/myproject
     timeout_seconds: 300
+
+  # --- GitHub (agents act on GitHub via the `gh` CLI) ---
+  # These let disciples read and act on GitHub. Reads are safe to auto-approve;
+  # anything that writes (comment, PR) stays human-approved by default. Requires
+  # the `gh` CLI to be installed and authenticated on the agent host.
+  - name: gh_pr_list
+    description: List open pull requests in a repo.
+    argv: ["gh", "pr", "list", "--repo", "{repo}", "--limit", "20"]
+    args: [repo]                # e.g. owner/name; validated, no shell
+    timeout_seconds: 30
+    auto_approve: true          # read-only
+
+  - name: gh_issue_view
+    description: View a GitHub issue.
+    argv: ["gh", "issue", "view", "{number}", "--repo", "{repo}"]
+    args: [repo, number]
+    timeout_seconds: 30
+    auto_approve: true          # read-only
+
+  - name: gh_issue_comment
+    description: Comment on a GitHub issue or PR (WRITE — stays human-approved).
+    argv: ["gh", "issue", "comment", "{number}", "--repo", "{repo}", "--body", "{body}"]
+    args: [repo, number, body]
+    timeout_seconds: 30
+    # no auto_approve → the Ancestor approves each comment before it posts

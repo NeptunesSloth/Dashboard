@@ -222,6 +222,7 @@ def on_task(agent: str, ok: bool) -> None:
     if ok:
         _award(agent, AWARD_TASK)
         treasury.deposit(TITHE)  # a tithe of good work funds the sect
+        _deepen_specialty(agent)
     else:
         _fail(agent)
 
@@ -239,6 +240,22 @@ def on_tool(agent: str, tool: str, ok: bool) -> None:
 def on_council(agent: str) -> None:
     if agent and agent != "operator":
         _award(agent, AWARD_COUNCIL)
+        _deepen_specialty(agent)
+
+
+def _deepen_specialty(agent: str) -> None:
+    """An Elder's good work deepens their chosen-path mastery (and may teach a
+    signature technique of that path). No-op for non-Elders / no specialty."""
+    try:
+        from . import governance
+        if not governance.specialty(agent):
+            return
+        governance.advance_mastery(agent)
+        skill = governance.specialty_skill(agent)
+        if skill and governance.mastery(agent) >= 20:
+            learn(agent, skill)  # mastery has matured enough to grasp the technique
+    except Exception:
+        pass  # governance is an optional layer; never break core cultivation
 
 
 def _progress(st: dict) -> float:

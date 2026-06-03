@@ -230,6 +230,11 @@ def run_task(name: str, task: str) -> dict:
         store.add_transcript(name, user_msg)
     # Pull relevant notes from the Obsidian vault (if configured and not opted out).
     system = _persona(agent)
+    try:
+        from . import governance
+        system = f"{system}\n\n{governance.persona_context(name)}"
+    except Exception:
+        pass  # governance is an optional layer
     if memory.enabled() and agent.get("memory", True):
         ctx = memory.context_for(task)
         if ctx:
@@ -438,10 +443,27 @@ def snapshot() -> list[dict]:
                 "error": st["error"] if st else None,
                 "cultivation": cultivation.state(name),
             })
-    from . import reputation
+    from . import reputation, governance
+    leader = governance.leader()
     for row in out:
-        row["reputation"] = reputation.score(row["name"])
+        name = row["name"]
+        row["reputation"] = reputation.score(name)
+        row["governance"] = {
+            "is_leader": name == leader,
+            "is_elder": governance.is_elder(name),
+            "is_master": governance.is_master(name),
+            "specialty": governance.specialty(name),
+            "mastery": governance.mastery(name),
+            "standing": governance.standing(name)["score"],
+        }
     return out
+
+
+def tasks_done(name: str) -> int:
+    """How many tasks this agent has completed (0 if it has no runtime state yet)."""
+    with _lock:
+        st = _state.get(name)
+        return int(st["tasks_done"]) if st else 0
 
 
 def get_agent(name: str) -> dict | None:
