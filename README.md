@@ -419,6 +419,7 @@ projects:
 
 ## Dashboard features
 
+- **Base view** — a "Base View" toggle in the top bar renders every project as a lit "room" in a bunker-style grid: a status badge (TRADING / INFERENCE / CODING / STANDBY…), a type icon, and a health-coloured status bar, with start / stop / test controls on hover. Toggle back to "Card View" for the detailed metric cards. The choice is remembered per browser.
 - **AI Agents area** — `ai_project` and `local_ai_host` projects are surfaced in a dedicated "AI Agents" section at the top of the dashboard with their start / stop / run-tests controls and an at-a-glance online / needs-attention count.
 - **Search & filter** — the Projects section has a search box (matches name, device, type, status) and a health filter (OK / Warning / Error / Unknown).
 - **Persistent sparklines** — the control center keeps a server-side, in-memory history of each project's `profit_today` and health, so the per-card PnL sparklines survive page refreshes and are shared across all viewers. History is also available at `GET /api/history/{device}/{project}`.

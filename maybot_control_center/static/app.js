@@ -5,6 +5,7 @@ let refreshInterval = null;
 let logsRefreshPaused = false;
 let logsInterval = null;
 let selectedLogLevel = 'ALL';
+let viewMode = localStorage.getItem('maybot.view_mode') || 'card';
 const CONTROL_TOKEN_STORAGE_KEY = 'maybot.control_token';
 // Project types that represent AI agents — surfaced in their own management area.
 const AI_AGENT_TYPES = ['ai_project', 'local_ai_host'];
@@ -18,6 +19,16 @@ const TYPE_LABEL = {
   local_ai_host: 'Local AI Hosts',
   generic: 'Generic Projects',
 };
+// Flavour for the "base" room view: an activity verb + icon per project type.
+const TYPE_VERB = {
+  trading_bot: 'TRADING', code_project: 'BUILDING', game_server: 'HOSTING', website: 'SERVING',
+  school: 'PLANNING', ai_project: 'CODING', local_ai_host: 'INFERENCE', generic: 'RUNNING',
+};
+const TYPE_ICON = {
+  trading_bot: '📈', code_project: '🛠️', game_server: '🎮', website: '🌐',
+  school: '🎓', ai_project: '🤖', local_ai_host: '🧠', generic: '📦',
+};
+const TYPE_ORDER = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'generic'];
 
 function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 function getControlToken() { return localStorage.getItem(CONTROL_TOKEN_STORAGE_KEY) || ''; }
@@ -108,6 +119,38 @@ function projectCard(p) {
     ${alerts}
     <details class='details'><summary>Raw details</summary><pre>${esc(JSON.stringify(p, null, 2))}</pre></details>
     ${actions}
+  </div>`;
+}
+
+function roomBadge(p) {
+  if (p.status === 'running') return TYPE_VERB[p.type] || 'ACTIVE';
+  if (p.status === 'stopped') return 'OFFLINE';
+  return 'STANDBY';
+}
+
+// A project rendered as a lit "room" for the base view.
+function roomCard(p) {
+  const health = p.health || 'unknown';
+  const icon = TYPE_ICON[p.type] || '📦';
+  const a = p.actions_available || {};
+  const overlay = `
+    <div class='room-overlay'>
+      <button class='act-btn' data-log='1' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Logs</button>
+      ${a.start ? `<button class='act-btn act-btn-start' data-action='start' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Start</button>` : ''}
+      ${a.stop ? `<button class='act-btn act-btn-stop' data-action='stop' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Stop</button>` : ''}
+      ${a.run_tests ? `<button class='act-btn' data-action='run-tests' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Test</button>` : ''}
+    </div>`;
+  return `<div class='room room--${esc(health)}' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
+    <div class='room-art'>
+      <span class='room-status'>● ${esc(roomBadge(p))}</span>
+      <span class='room-char' title='${esc(p.type)}'>${icon}</span>
+      ${overlay}
+    </div>
+    <div class='room-label'>
+      <div class='room-name'>${esc(p.name)}</div>
+      <div class='room-sub'>${esc(p.device)} · ${esc(TYPE_LABEL[p.type] || p.type)}</div>
+    </div>
+    <div class='room-bar room-bar--${esc(health)}'></div>
   </div>`;
 }
 
@@ -238,7 +281,9 @@ function renderAiAgents(projects) {
   const issues = agents.filter(p => p.health === 'warning' || p.health === 'error').length;
   document.getElementById('ai-agents-pill').textContent =
     `${agents.length} agents · ${online} online · ${issues} need attention`;
-  el.innerHTML = `<div class='grid'>${agents.map(projectCard).join('')}</div>`;
+  const render = viewMode === 'base' ? roomCard : projectCard;
+  const cls = viewMode === 'base' ? 'rooms-grid' : 'grid';
+  el.innerHTML = `<div class='${cls}'>${agents.map(render).join('')}</div>`;
   bindProjectButtons(el);
 }
 
@@ -251,21 +296,48 @@ function renderProjects(projects) {
   document.getElementById('project-count-pill').textContent =
     `${filtered.length} of ${(projects || []).length} shown`;
 
+  if (!filtered.length) {
+    projectsEl.innerHTML = `<div class='card muted'>No projects match the current filter.</div>`;
+    return;
+  }
+
+  if (viewMode === 'base') {
+    // One uniform grid of rooms, ordered by type then name — like the base layout.
+    const rooms = filtered
+      .slice()
+      .sort((a, b) => (TYPE_ORDER.indexOf(a.type) - TYPE_ORDER.indexOf(b.type)) || String(a.name).localeCompare(String(b.name)))
+      .map(roomCard).join('');
+    projectsEl.innerHTML = `<div class='rooms-grid'>${rooms}</div>`;
+    bindProjectButtons(projectsEl);
+    return;
+  }
+
   const grouped = {};
   filtered.forEach(p => {
     const type = p.type || 'generic';
     (grouped[type] = grouped[type] || []).push(p);
   });
 
-  const order = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'generic'];
-  const sections = order.filter(t => grouped[t]?.length).map(t =>
+  const sections = TYPE_ORDER.filter(t => grouped[t]?.length).map(t =>
     `<section class='project-type'><h3 class='project-type-title'>${esc(TYPE_LABEL[t] || t)}</h3><div class='grid'>${grouped[t].map(projectCard).join('')}</div></section>`
   ).join('');
-  projectsEl.innerHTML = sections || `<div class='card muted'>No projects match the current filter.</div>`;
+  projectsEl.innerHTML = sections;
   bindProjectButtons(projectsEl);
 }
 
 document.getElementById('manual-refresh').onclick = render;
+function updateViewToggleLabel() {
+  document.getElementById('toggle-view').textContent = viewMode === 'base' ? 'Card View' : 'Base View';
+  document.body.classList.toggle('base-mode', viewMode === 'base');
+}
+document.getElementById('toggle-view').onclick = () => {
+  viewMode = viewMode === 'base' ? 'card' : 'base';
+  localStorage.setItem('maybot.view_mode', viewMode);
+  updateViewToggleLabel();
+  renderAiAgents(window.__lastProjects || []);
+  renderProjects(window.__lastProjects || []);
+};
+updateViewToggleLabel();
 document.getElementById('project-search').oninput = () => renderProjects(window.__lastProjects || []);
 document.getElementById('health-filter').onchange = () => renderProjects(window.__lastProjects || []);
 document.getElementById('clear-filters').onclick = () => {

@@ -135,6 +135,60 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
   0%, 100% { box-shadow: 0 0 6px var(--green), 0 0 12px var(--green); opacity: 1; }
   50% { box-shadow: 0 0 12px var(--green), 0 0 26px var(--green); opacity: .75; }
 }
+/* ---- Base view: projects rendered as lit "rooms" ---- */
+.rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.room {
+  background: rgba(7, 10, 20, 0.72); border: 1px solid var(--border); border-radius: 10px;
+  padding: 6px; transition: all .18s ease;
+}
+.room:hover { transform: translateY(-2px); border-color: rgba(34, 224, 255, 0.5); box-shadow: 0 0 20px rgba(34, 224, 255, 0.2); }
+.room-art {
+  position: relative; aspect-ratio: 16 / 10; border-radius: 8px; overflow: hidden;
+  color: #5b6b8a; /* drives the per-health monitor glow via currentColor */
+  background:
+    radial-gradient(130% 90% at 50% 125%, rgba(255, 176, 92, 0.20), transparent 60%),
+    linear-gradient(180deg, #0c1124 0%, #0e1530 55%, #06090f 100%);
+  box-shadow: inset 0 0 34px rgba(0, 0, 0, 0.72), inset 0 16px 28px rgba(0, 0, 0, 0.5);
+}
+.room--ok .room-art { color: var(--cyan); }
+.room--warning .room-art { color: var(--yellow); }
+.room--error .room-art { color: var(--red); }
+/* glowing "monitor" on the wall */
+.room-art::before {
+  content: ""; position: absolute; left: 13%; top: 28%; width: 26%; height: 24%; border-radius: 3px;
+  background: currentColor; opacity: .35; box-shadow: 0 0 16px currentColor; filter: blur(.3px);
+}
+/* faint scanlines */
+.room-art::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+}
+.room-status {
+  position: absolute; top: 6px; right: 8px; z-index: 2; font-size: 10px; font-weight: 700;
+  letter-spacing: .08em; color: var(--muted); text-shadow: 0 0 8px currentColor;
+}
+.room--ok .room-status { color: var(--green); }
+.room--warning .room-status { color: var(--yellow); }
+.room--error .room-status { color: var(--red); }
+.room-char {
+  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); z-index: 1;
+  font-size: 34px; line-height: 1; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
+}
+.room-overlay {
+  position: absolute; inset: 0; z-index: 3; display: flex; flex-wrap: wrap; gap: 4px;
+  align-items: center; justify-content: center; padding: 8px;
+  background: rgba(4, 7, 16, 0.80); opacity: 0; transition: opacity .15s ease;
+}
+.room:hover .room-overlay { opacity: 1; }
+.room-overlay .act-btn { font-size: 11px; padding: 4px 8px; }
+.room-label { padding: 6px 4px 2px; }
+.room-name { font-weight: 700; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; }
+.room-sub { color: var(--muted); font-size: 11px; }
+.room-bar { height: 4px; border-radius: 3px; margin: 5px 2px 2px; background: #5b6b8a; box-shadow: 0 0 8px currentColor; color: #5b6b8a; }
+.room-bar--ok { background: var(--green); color: var(--green); }
+.room-bar--warning { background: var(--yellow); color: var(--yellow); }
+.room-bar--error { background: var(--red); color: var(--red); }
+
 @media (prefers-reduced-motion: reduce) {
   .topbar::after, .live-dot { animation: none; }
 }
