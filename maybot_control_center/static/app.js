@@ -257,6 +257,7 @@ async function render() {
 
     renderAiAgents(window.__lastProjects);
     renderProjects(window.__lastProjects);
+    renderAgentCrew();
   } catch (e) {
     err.classList.remove('hidden');
     summaryEl.classList.remove('loading');
@@ -383,6 +384,82 @@ function renderStation(projects) {
   const close = document.getElementById('manage-close');
   if (close) close.onclick = () => { selectedBase = null; renderStation(ordered); };
   bindProjectButtons(projectsEl);
+}
+
+// ---- Agent Crew: LLM-backed persona agents you can assign tasks to ----
+
+function agentCard(a) {
+  const st = a.status || 'idle';
+  const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
+  const reply = a.last_reply ? esc(a.last_reply) : '';
+  return `<div class='card agent-card agent-${esc(st)}' data-agent='${esc(a.name)}'>
+    <div class='metric'><b>🤖 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
+    ${metric('Role', esc(a.role || '—'))}
+    ${metric('Model', esc(a.model))}
+    ${metric('Tasks done', esc(a.tasks_done ?? 0))}
+    ${a.current_task ? `<div class='agent-task-cur'>▸ ${esc(a.current_task)}</div>` : ''}
+    ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
+    <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>
+    <div class='agent-assign'>
+      <input class='agent-input' placeholder='Assign a task…' data-agent='${esc(a.name)}'>
+      <button class='btn agent-send' data-agent='${esc(a.name)}'>Assign</button>
+    </div>
+    <details class='details agent-transcript' data-agent='${esc(a.name)}'><summary>Transcript (${esc(a.transcript_len ?? 0)})</summary><pre class='agent-tx-body'>Open to load…</pre></details>
+  </div>`;
+}
+
+function bindAgentCrew(root) {
+  const sel = name => root.querySelector(`.agent-send[data-agent="${CSS.escape(name)}"]`);
+  root.querySelectorAll('.agent-send').forEach(btn => btn.onclick = async () => {
+    const name = btn.getAttribute('data-agent');
+    const inp = root.querySelector(`.agent-input[data-agent="${CSS.escape(name)}"]`);
+    const task = (inp && inp.value || '').trim();
+    if (!task) return;
+    btn.disabled = true;
+    try {
+      await fetch(`/api/agents/${encodeURIComponent(name)}/task`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ task }),
+      });
+      if (inp) inp.value = '';
+    } catch (_) {}
+    btn.disabled = false;
+    renderAgentCrew();
+  });
+  root.querySelectorAll('.agent-input').forEach(inp => inp.onkeydown = (e) => {
+    if (e.key === 'Enter') sel(inp.getAttribute('data-agent'))?.click();
+  });
+  root.querySelectorAll('.agent-transcript').forEach(d => d.ontoggle = async () => {
+    if (!d.open) return;
+    const name = d.getAttribute('data-agent');
+    const body = d.querySelector('.agent-tx-body');
+    try {
+      const a = await fetch(`/api/agents/${encodeURIComponent(name)}`, { headers: authHeaders() }).then(r => r.json());
+      body.innerText = (a.transcript || []).map(m => `${String(m.role).toUpperCase()}: ${m.content}`).join('\n\n') || '(empty)';
+    } catch (_) { body.innerText = 'Error loading transcript.'; }
+  });
+}
+
+async function renderAgentCrew() {
+  const section = document.getElementById('agent-crew-section');
+  const el = document.getElementById('agent-crew');
+  let data;
+  try { data = await fetch('/api/agents', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { section.classList.add('hidden'); return; }
+  const crew = (data && data.agents) || [];
+  if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
+  section.classList.remove('hidden');
+  document.getElementById('agent-crew-pill').textContent = `${crew.length} agents`;
+  // preserve whatever the user is typing across the auto-refresh re-render
+  const act = document.activeElement;
+  const focusName = act && act.classList && act.classList.contains('agent-input') ? act.getAttribute('data-agent') : null;
+  const focusVal = focusName ? act.value : null;
+  el.innerHTML = crew.map(agentCard).join('');
+  bindAgentCrew(el);
+  if (focusName) {
+    const inp = el.querySelector(`.agent-input[data-agent="${CSS.escape(focusName)}"]`);
+    if (inp) { inp.value = focusVal; inp.focus(); }
+  }
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

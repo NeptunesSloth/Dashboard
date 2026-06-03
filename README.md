@@ -417,6 +417,31 @@ projects:
     test_prompt_enabled: false
 ```
 
+## Agent Crew (LLM persona agents — Phase 1)
+
+The dashboard can run **LLM-backed persona agents** against your local AI hosts. Each agent is defined in `agents.yaml` with a name, role, and persona (system prompt), and points at an Ollama or OpenAI-compatible endpoint. In the **Agent Crew** section you assign a task to an agent and it runs one chat completion in the background, streaming the reply (and a transcript) into its card.
+
+```bash
+cp agents.yaml.example agents.yaml
+nano agents.yaml   # set name/role/persona/provider/base_url/model per agent
+# restart the control center; the "Agent Crew" section appears automatically
+```
+
+**Phase 1 scope & safety:**
+- Agents *think and talk only* — they do **not** execute commands or tools, and do not message each other yet.
+- The control center calls each agent's `base_url` directly, so the endpoint must be reachable from the control-center machine (running it on the same box as Ollama is simplest).
+- State (transcripts) is in-memory and resets on restart.
+
+Optional control-center environment variables:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `MAYBOT_AGENTS_FILE` | `agents.yaml` | Path to the agent definitions |
+| `MAYBOT_AGENT_TIMEOUT` | `60` | Per-task LLM request timeout (seconds) |
+| `MAYBOT_AGENT_MAX_TURNS` | `20` | Transcript messages kept as context per agent |
+
+API: `GET /api/agents`, `GET /api/agents/{name}`, `POST /api/agents/{name}/task` (`{"task": "…"}`).
+
 ## Dashboard features
 
 - **Base view** — a "Base View" toggle in the top bar renders the dashboard as a "ship station": a **crew roster** down the left lists every project with a live status line, and the main area shows each project as a lit "room" in a bunker-style grid (status badge such as TRADING / INFERENCE / CODING / STANDBY, a type icon, and a health-coloured status bar). Trading bots (incl. DayBot) show live PnL, open positions and a PnL sparkline on the room face. Selecting a crew member or room opens a **Manage / Info panel** with key metrics and start / stop / test / logs controls. Toggle back to "Card View" for the detailed metric cards; the choice is remembered per browser.
