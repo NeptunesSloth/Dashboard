@@ -127,8 +127,8 @@ function projectCard(p) {
 }
 
 function roomBadge(p) {
-  if (p.status === 'stopped') return 'OFFLINE';
-  if (p.status !== 'running') return 'STANDBY';
+  if (p.status === 'stopped') return 'FALLEN';
+  if (p.status !== 'running') return 'RESTING';
   // Prefer the adapter-derived live activity (e.g. DayBot SCANNING / FILLING).
   const act = p.metrics && p.metrics.activity;
   if (act) return String(act).toUpperCase();
@@ -297,8 +297,8 @@ function bindProjectButtons(root) {
 
 function crewStatusLine(p) {
   const m = p.metrics || {};
-  if (p.status === 'stopped') return 'Offline';
-  if (p.status !== 'running') return 'Standby';
+  if (p.status === 'stopped') return 'Fallen';
+  if (p.status !== 'running') return 'Resting';
   let line = String(roomBadge(p)).toLowerCase();
   line = line.charAt(0).toUpperCase() + line.slice(1);
   if (p.type === 'trading_bot' && m.open_positions !== undefined && m.open_positions !== 'unknown') {
@@ -371,7 +371,7 @@ function renderStation(projects) {
 
   projectsEl.innerHTML = `<div class='station'>
     <aside class='crew'>
-      <div class='crew-head'>SHIP CREW <span class='muted'>${ordered.length}</span></div>
+      <div class='crew-head'>PARTY <span class='muted'>${ordered.length}</span></div>
       <div class='crew-list'>${ordered.map(crewRow).join('')}</div>
     </aside>
     <div class='station-main'>
@@ -457,7 +457,7 @@ async function renderAgentCrew() {
   window.__agents = crew;
   if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
   section.classList.remove('hidden');
-  document.getElementById('agent-crew-pill').textContent = `${crew.length} agents`;
+  document.getElementById('agent-crew-pill').textContent = `${crew.length} adventurers`;
   // preserve whatever the user is typing across the auto-refresh re-render
   const act = document.activeElement;
   const focusName = act && act.classList && act.classList.contains('agent-input') ? act.getAttribute('data-agent') : null;
@@ -513,18 +513,18 @@ async function renderComms() {
   const active = st.active;
   const m = st.mission;
   document.getElementById('comms-status').textContent =
-    active && m ? `running · round ${m.round}/${m.rounds} · ${m.current || '…'}` : 'idle';
+    active && m ? `questing · round ${m.round}/${m.rounds} · ${m.current || '…'}` : 'resting';
   const launchBtn = document.getElementById('comms-launch');
   launchBtn.disabled = !!active;
-  launchBtn.textContent = active ? 'Mission running…' : 'Launch Mission';
+  launchBtn.textContent = active ? 'Quest underway…' : 'Begin Quest';
 
   const feedEl = document.getElementById('comms-feed');
   const atBottom = feedEl.scrollHeight - feedEl.scrollTop - feedEl.clientHeight < 60;
-  let html = (data.feed || []).map(commsBubble).join('') || `<div class='comms-sys muted'>No missions yet.</div>`;
+  let html = (data.feed || []).map(commsBubble).join('') || `<div class='comms-sys muted'>The council is quiet.</div>`;
   if (active && m && m.current) {
     const hue = agentHue(m.current);
     const ini = esc(String(m.current).charAt(0).toUpperCase());
-    html += `<div class='comms-typing'><span class='comms-avatar' style='--hue:${hue}'>${ini}</span>${esc(m.current)} is composing<span class='dots'><i></i><i></i><i></i></span></div>`;
+    html += `<div class='comms-typing'><span class='comms-avatar' style='--hue:${hue}'>${ini}</span>${esc(m.current)} is conjuring<span class='dots'><i></i><i></i><i></i></span></div>`;
   }
   feedEl.innerHTML = html;
   if (atBottom) feedEl.scrollTop = feedEl.scrollHeight;
@@ -546,8 +546,8 @@ function bindComms() {
         method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ goal, participants, rounds }),
       });
-      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Mission failed: ' + (b.detail || res.status)); }
-    } catch (e) { alert('Mission failed: ' + e); }
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Quest failed: ' + (b.detail || res.status)); }
+    } catch (e) { alert('Quest failed: ' + e); }
     renderComms();
   };
 }
@@ -804,7 +804,7 @@ function renderProjects(projects) {
 
 document.getElementById('manual-refresh').onclick = render;
 function updateViewToggleLabel() {
-  document.getElementById('toggle-view').textContent = viewMode === 'base' ? 'Card View' : 'Base View';
+  document.getElementById('toggle-view').textContent = viewMode === 'base' ? 'Roster' : 'Guild Hall';
   document.body.classList.toggle('base-mode', viewMode === 'base');
 }
 document.getElementById('toggle-view').onclick = () => {

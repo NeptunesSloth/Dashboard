@@ -1,31 +1,33 @@
+/* ---- RPG / fantasy guild skin ---- */
 :root {
-  --bg: #05060e;
-  --bg-2: #0a0e20;
-  --card-bg: rgba(14, 19, 40, 0.66);
-  --text: #e9f2ff;
-  --muted: #8da3cc;
-  --border: rgba(96, 138, 220, 0.20);
-  --cyan: #22e0ff;
-  --magenta: #ff49e0;
-  --purple: #a368ff;
-  --green: #2bf0a8;
-  --yellow: #ffd23f;
-  --red: #ff5a6e;
-  --blue: #4ea1ff;
+  --bg: #110b06;
+  --bg-2: #1e140b;
+  --card-bg: rgba(34, 24, 14, 0.72);     /* dark leather */
+  --text: #efe3c8;                        /* parchment */
+  --muted: #b29a72;
+  --border: rgba(196, 150, 78, 0.28);     /* bronze */
+  --cyan: #e3b765;                        /* repurposed: gold (primary accent) */
+  --magenta: #9a64d6;                     /* arcane violet */
+  --purple: #8a5fd0;                      /* arcane */
+  --green: #4fc78a;                        /* emerald (ok) */
+  --yellow: #e3ad3f;                       /* amber (warning) */
+  --red: #cf4b4b;                          /* ruby (error) */
+  --blue: #c79a4e;                         /* old bronze (steel-gold) */
+  --gold: #e8c674;
 }
 * { box-sizing: border-box; }
 body {
   margin: 0;
   color: var(--text);
-  font-family: Inter, Segoe UI, Arial, sans-serif;
+  font-family: "EB Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   background:
-    radial-gradient(900px 520px at 8% -10%, rgba(34, 224, 255, 0.16) 0%, transparent 60%),
-    radial-gradient(1000px 600px at 100% 0%, rgba(255, 73, 224, 0.12) 0%, transparent 55%),
-    radial-gradient(1200px 800px at 50% 120%, rgba(163, 104, 255, 0.14) 0%, transparent 60%),
+    radial-gradient(900px 520px at 8% -10%, rgba(227, 173, 63, 0.14) 0%, transparent 60%),
+    radial-gradient(1000px 600px at 100% 0%, rgba(154, 100, 214, 0.12) 0%, transparent 55%),
+    radial-gradient(1200px 800px at 50% 120%, rgba(79, 199, 138, 0.10) 0%, transparent 60%),
     linear-gradient(180deg, var(--bg-2), var(--bg) 60%);
   background-attachment: fixed;
 }
-/* faint tech grid overlay */
+/* faint old-map grid */
 body::before {
   content: "";
   position: fixed;
@@ -33,71 +35,71 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background-image:
-    linear-gradient(rgba(96, 138, 220, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(96, 138, 220, 0.05) 1px, transparent 1px);
-  background-size: 42px 42px;
+    linear-gradient(rgba(196, 150, 78, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196, 150, 78, 0.05) 1px, transparent 1px);
+  background-size: 46px 46px;
   mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 85%);
 }
-/* drifting starfield / nebula backdrop */
+/* drifting embers / hearth motes */
 body::after {
-  content: ""; position: fixed; inset: -25%; z-index: 0; pointer-events: none; opacity: .55;
+  content: ""; position: fixed; inset: -25%; z-index: 0; pointer-events: none; opacity: .5;
   background-image:
-    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1.5px 1.5px at 70% 20%, rgba(180,220,255,.6), transparent),
-    radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,.5), transparent),
-    radial-gradient(1.5px 1.5px at 85% 60%, rgba(255,200,255,.5), transparent),
-    radial-gradient(1px 1px at 55% 85%, rgba(200,220,255,.5), transparent),
-    radial-gradient(2px 2px at 10% 80%, rgba(255,255,255,.5), transparent),
-    radial-gradient(600px 360px at 30% 20%, rgba(163,104,255,.10), transparent 70%),
-    radial-gradient(520px 320px at 80% 70%, rgba(34,224,255,.08), transparent 70%);
+    radial-gradient(2px 2px at 20% 30%, rgba(255,210,130,.7), transparent),
+    radial-gradient(1.5px 1.5px at 70% 20%, rgba(255,180,90,.55), transparent),
+    radial-gradient(1px 1px at 40% 70%, rgba(255,225,160,.5), transparent),
+    radial-gradient(1.5px 1.5px at 85% 60%, rgba(230,160,255,.4), transparent),
+    radial-gradient(1px 1px at 55% 85%, rgba(255,200,120,.5), transparent),
+    radial-gradient(2px 2px at 10% 80%, rgba(255,235,180,.5), transparent),
+    radial-gradient(600px 360px at 30% 20%, rgba(154,100,214,.08), transparent 70%),
+    radial-gradient(520px 320px at 80% 70%, rgba(227,173,63,.08), transparent 70%);
   background-repeat: repeat; background-size: 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 100% 100%, 100% 100%;
-  animation: starDrift 140s linear infinite;
+  animation: starDrift 150s linear infinite;
 }
-body.base-mode::after { opacity: .8; }
-@keyframes starDrift { from { transform: translate3d(0,0,0); } to { transform: translate3d(-260px,-180px,0); } }
+body.base-mode::after { opacity: .75; }
+@keyframes starDrift { from { transform: translate3d(0,0,0); } to { transform: translate3d(-220px,-160px,0); } }
 .container { max-width: 1400px; margin: 0 auto; padding: 18px; position: relative; z-index: 1; }
-h1, h2, h3 { margin: 0; }
-h1 { letter-spacing: .02em; text-shadow: 0 0 14px rgba(34, 224, 255, 0.45); }
-h2 { margin: 16px 0 12px; }
-h2, .project-type-title { text-shadow: 0 0 10px rgba(96, 138, 220, 0.25); }
+h1, h2, h3 { margin: 0; font-family: "Cinzel", "Trajan Pro", Georgia, serif; }
+h1 { letter-spacing: .04em; color: var(--gold); text-shadow: 0 0 14px rgba(232, 198, 116, 0.4); }
+h2 { margin: 16px 0 12px; color: var(--gold); letter-spacing: .03em; }
+h2, .project-type-title { text-shadow: 0 0 10px rgba(196, 150, 78, 0.25); }
 .muted { color: var(--muted); margin: 4px 0 0; font-size: 13px; }
 .topbar {
   position: sticky; top: 0; z-index: 50;
-  background: linear-gradient(180deg, rgba(10, 14, 32, 0.92), rgba(7, 9, 20, 0.82));
+  background: linear-gradient(180deg, rgba(30, 20, 11, 0.94), rgba(17, 11, 6, 0.86));
   border-bottom: 1px solid transparent;
   padding: 14px 18px; backdrop-filter: blur(10px);
 }
 .topbar::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), var(--purple), transparent);
+  background: linear-gradient(90deg, transparent, var(--gold), var(--magenta), var(--yellow), transparent);
   background-size: 200% 100%;
-  box-shadow: 0 0 14px rgba(34, 224, 255, 0.5);
-  animation: borderShimmer 7s linear infinite;
+  box-shadow: 0 0 14px rgba(232, 198, 116, 0.45);
+  animation: borderShimmer 9s linear infinite;
 }
 @keyframes borderShimmer { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
 .top-actions, .token-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
-.pill { border: 1px solid var(--border); background: rgba(14, 19, 40, 0.6); border-radius: 999px; padding: 6px 10px; color: var(--muted); font-size: 12px; }
-.btn { border: 1px solid var(--border); background: rgba(28, 40, 70, 0.6); color: var(--text); border-radius: 8px; padding: 7px 12px; cursor: pointer; transition: all .15s ease; }
-.btn:hover { border-color: var(--cyan); box-shadow: 0 0 12px rgba(34, 224, 255, 0.35); color: #fff; }
-.btn-primary { background: linear-gradient(135deg, rgba(34, 224, 255, 0.18), rgba(163, 104, 255, 0.18)); border-color: rgba(34, 224, 255, 0.5); }
-input, select { background: rgba(8, 12, 26, 0.8); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
-input:focus, select:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 10px rgba(34, 224, 255, 0.3); }
+.pill { border: 1px solid var(--border); background: rgba(34, 24, 14, 0.6); border-radius: 999px; padding: 6px 10px; color: var(--muted); font-size: 12px; }
+.btn { border: 1px solid var(--border); background: linear-gradient(180deg, rgba(54, 40, 22, 0.7), rgba(36, 26, 14, 0.7)); color: var(--text); border-radius: 8px; padding: 7px 12px; cursor: pointer; transition: all .15s ease; font-family: inherit; }
+.btn:hover { border-color: var(--gold); box-shadow: 0 0 12px rgba(232, 198, 116, 0.3); color: #fff7e6; }
+.btn-primary { background: linear-gradient(135deg, rgba(232, 198, 116, 0.22), rgba(154, 100, 214, 0.18)); border-color: rgba(232, 198, 116, 0.55); color: #fff7e6; }
+input, select { background: rgba(20, 13, 7, 0.82); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-family: inherit; }
+input:focus, select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgba(232, 198, 116, 0.28); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
 .summary-grid .card { min-height: 100px; }
 .card {
-  background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .45), inset 0 0 0 1px rgba(232, 198, 116, 0.06), inset 0 1px 0 rgba(255, 235, 180, 0.04);
   backdrop-filter: blur(6px); transition: all .18s ease;
 }
-.card:hover { transform: translateY(-2px); border-color: rgba(34, 224, 255, 0.55); box-shadow: 0 10px 30px rgba(0, 0, 0, .5), 0 0 18px rgba(34, 224, 255, 0.25); }
-.card.selected { border-color: var(--cyan); box-shadow: 0 0 0 1px rgba(34, 224, 255, .5), 0 0 22px rgba(34, 224, 255, 0.35); }
-.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #04121a; font-weight: 700; }
-.ok { background: var(--green); box-shadow: 0 0 12px rgba(43, 240, 168, 0.55); }
-.warning { background: var(--yellow); box-shadow: 0 0 12px rgba(255, 210, 63, 0.5); }
-.error { background: var(--red); color: #fff; box-shadow: 0 0 12px rgba(255, 90, 110, 0.6); }
-.unknown { background: #5b6b8a; color: #fff; }
-.status-online { color: var(--green); text-shadow: 0 0 8px rgba(43, 240, 168, 0.6); }
-.status-offline { color: var(--red); text-shadow: 0 0 8px rgba(255, 90, 110, 0.6); }
+.card:hover { transform: translateY(-2px); border-color: rgba(232, 198, 116, 0.5); box-shadow: 0 10px 30px rgba(0, 0, 0, .55), 0 0 18px rgba(232, 198, 116, 0.2); }
+.card.selected { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(232, 198, 116, .5), 0 0 22px rgba(232, 198, 116, 0.3); }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #1a1206; font-weight: 700; border: 1px solid rgba(255,255,255,.25); box-shadow: inset 0 1px 1px rgba(255,255,255,.35); }
+.ok { background: linear-gradient(180deg, #6fe0a6, var(--green)); }
+.warning { background: linear-gradient(180deg, #f0c25f, var(--yellow)); }
+.error { background: linear-gradient(180deg, #e06a6a, var(--red)); color: #fff; }
+.unknown { background: linear-gradient(180deg, #8a7a5e, #6a5b40); color: #fff; }
+.status-online { color: var(--green); text-shadow: 0 0 8px rgba(79, 199, 138, 0.6); }
+.status-offline { color: var(--red); text-shadow: 0 0 8px rgba(207, 75, 75, 0.6); }
 .status-auth { color: var(--yellow); }
 .metric { display: flex; justify-content: space-between; gap: 10px; margin: 5px 0; color: var(--muted); }
 .metric b { color: var(--text); font-weight: 600; }

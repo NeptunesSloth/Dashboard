@@ -3,21 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MayBot Control Center</title>
+  <title>MayBot Guild Hall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <header class="topbar">
     <div>
-      <h1>MayBot Control Center</h1>
-      <p class="muted">Distributed project and bot monitoring</p>
+      <h1>⚔️ MayBot Guild Hall</h1>
+      <p class="muted">Command your party of agents and watch over your realms</p>
     </div>
     <div class="top-actions">
-      <div class="pill"><span class="live-dot"></span> Dashboard online</div>
+      <div class="pill"><span class="live-dot"></span> Guild online</div>
       <div class="pill">Last refresh: <span id="refresh-status">never</span></div>
-      <div class="pill">Devices: <span id="device-count-pill">0 online / 0 offline</span></div>
+      <div class="pill">Realms: <span id="device-count-pill">0 online / 0 offline</span></div>
       <button id="manual-refresh" class="btn btn-primary">Refresh</button>
-      <button id="toggle-view" class="btn">Base View</button>
+      <button id="toggle-view" class="btn">Guild Hall</button>
       <button id="toggle-refresh" class="btn">Pause Auto</button>
     </div>
     <div class="token-row">
@@ -30,16 +33,16 @@
   <main class="container">
     <div id="error-banner" class="error-banner hidden">Control center could not fetch overview.</div>
     <section>
-      <h2>Global Summary</h2>
+      <h2>Guild Overview</h2>
       <div id="summary" class="grid summary-grid"></div>
     </section>
     <section>
-      <h2>Devices</h2>
+      <h2>Realms</h2>
       <div id="devices" class="grid"></div>
     </section>
     <section id="ai-agents-section" class="hidden">
       <div class="section-head">
-        <h2>AI Agents</h2>
+        <h2>Familiars</h2>
         <span id="ai-agents-pill" class="pill">0 agents</span>
       </div>
       <p class="muted">AI coding projects and local model hosts, with start / stop / test controls.</p>
@@ -47,68 +50,68 @@
     </section>
     <section id="agent-crew-section" class="hidden">
       <div class="section-head">
-        <h2>Agent Crew</h2>
-        <span id="agent-crew-pill" class="pill">0 agents</span>
+        <h2>Your Party</h2>
+        <span id="agent-crew-pill" class="pill">0 adventurers</span>
       </div>
-      <p class="muted">LLM-backed persona agents on your local AI hosts — assign a task and watch them work. (Phase 1: they think &amp; talk; no command execution.)</p>
+      <p class="muted">LLM-backed adventurers on your local AI hosts — give one a task and watch it work.</p>
       <div id="agent-crew" class="grid"></div>
     </section>
     <section id="comms-section" class="hidden">
       <div class="section-head">
-        <h2>Ship Comms</h2>
-        <span id="comms-status" class="pill">idle</span>
+        <h2>Party Council</h2>
+        <span id="comms-status" class="pill">resting</span>
       </div>
-      <p class="muted">Give the crew a shared goal and they collaborate in a bounded round-robin (Phase 2: inter-agent comms).</p>
+      <p class="muted">Set the party a shared goal and they deliberate in a bounded round-robin council.</p>
       <div class="comms-launch">
-        <input id="comms-goal" placeholder="Mission goal (e.g. plan the next release)…">
+        <input id="comms-goal" placeholder="Quest goal (e.g. plan the next release)…">
         <select id="comms-rounds">
           <option value="1">1 round</option>
           <option value="2" selected>2 rounds</option>
           <option value="3">3 rounds</option>
         </select>
-        <button id="comms-launch" class="btn btn-primary">Launch Mission</button>
+        <button id="comms-launch" class="btn btn-primary">Begin Quest</button>
       </div>
       <div id="comms-participants" class="comms-participants"></div>
       <div id="comms-feed" class="comms-feed"></div>
     </section>
     <section id="vault-section" class="hidden">
       <div class="section-head">
-        <h2>Vault Memory</h2>
+        <h2>Grimoire</h2>
         <span id="vault-status" class="pill">Obsidian</span>
       </div>
-      <p class="muted">Agents pull relevant notes from your Obsidian vault as context and write mission summaries back.</p>
+      <p class="muted">Adventurers consult the Grimoire (your Obsidian vault) for lore and inscribe their findings back.</p>
       <div class="comms-launch">
-        <input id="vault-q" type="search" placeholder="Search the vault…">
+        <input id="vault-q" type="search" placeholder="Search the Grimoire…">
         <button id="vault-search" class="btn">Search</button>
       </div>
       <div id="vault-results" class="grid"></div>
     </section>
     <section id="tools-section" class="hidden">
       <div class="section-head">
-        <h2>Tools</h2>
+        <h2>Abilities</h2>
         <span id="tools-status" class="pill">guarded</span>
         <button id="tools-kill" class="btn act-btn-stop hidden">Pause autonomy</button>
       </div>
-      <p class="muted">Allow-listed actions agents can request and you approve. Deny-by-default, fixed command, no shell.</p>
+      <p class="muted">Sanctioned actions your party may invoke and you approve. Forbidden by default, fixed incantation, no shell.</p>
       <div class="comms-launch">
         <select id="tools-select"></select>
         <input id="tools-args" placeholder='args JSON, e.g. {"path":"/tmp"}'>
-        <button id="tools-run" class="btn">Run</button>
+        <button id="tools-run" class="btn">Invoke</button>
       </div>
       <div id="tools-calls" class="grid"></div>
-      <details class="details tools-audit"><summary>Approval audit log</summary><div id="tools-audit-body" class="grid"></div></details>
+      <details class="details tools-audit"><summary>Approval chronicle</summary><div id="tools-audit-body" class="grid"></div></details>
     </section>
     <section id="usage-section" class="hidden">
       <div class="section-head">
-        <h2>Usage &amp; Cost</h2>
+        <h2>Treasury</h2>
         <span id="usage-total" class="pill">$0.00</span>
       </div>
-      <p class="muted">Per-agent LLM calls, latency, tokens, and estimated cost (local models are free).</p>
+      <p class="muted">Per-adventurer effort, latency, tokens, and gold spent (local familiars are free).</p>
       <div id="usage-table" class="grid"></div>
     </section>
     <section>
       <div class="section-head">
-        <h2>Projects</h2>
+        <h2>Holdings</h2>
         <span id="project-count-pill" class="pill">0 shown</span>
       </div>
       <div class="filter-bar">
