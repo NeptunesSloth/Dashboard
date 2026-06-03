@@ -27,6 +27,7 @@ from . import events
 from . import autonomy
 from . import usage
 from . import cultivation
+from . import pills
 from . import tools as tooling
 
 AGENTS_FILE = Path(os.getenv("MAYBOT_AGENTS_FILE", "agents.yaml"))
@@ -154,15 +155,25 @@ def _inner_demon_on(agent: dict) -> bool:
     return bool(agent.get("inner_demon")) or INNER_DEMON_GLOBAL
 
 
-def _inner_demon(agent: dict, task: str, answer: str) -> tuple[str, str | None]:
-    """The disciple's inner demon critiques the answer; if flawed, the disciple revises it.
+def _demon_cycles(realm: int) -> int:
+    """The inner demon is harshest when the disciple is weakest (low realm), easing as it ascends."""
+    return max(0, 3 - (realm + 1) // 2)  # Mortal:3, Qi/Foundation:2, Core/Nascent:1, Soul+:0
 
-    Returns (final_answer, critique-or-None). Two extra model calls at most.
-    """
+
+def _demon_tone(realm: int) -> str:
+    if realm <= 1:
+        return "merciless and exacting — nitpick every imprecision, unstated assumption, and possible error"
+    if realm <= 3:
+        return "exacting — flag concrete errors, flaws, and omissions"
+    return "discerning — flag only genuine errors or omissions; ignore matters of style"
+
+
+def _inner_demon(agent: dict, task: str, answer: str, realm: int) -> tuple[str, str | None]:
+    """One critique→revise cycle. Returns (answer, critique-or-None when clean)."""
     name = agent.get("name", "the disciple")
-    demon_sys = (f"You are the Inner Demon of {name} — a harsh, exacting critic. Judge the disciple's "
-                 f"answer against the task. List concrete errors, flaws, or omissions as terse bullet "
-                 f"points. If the answer is fully correct and complete, reply with exactly: NO FLAWS")
+    demon_sys = (f"You are the Inner Demon of {name} — {_demon_tone(realm)}. Judge the disciple's answer "
+                 f"against the task. List concrete errors, flaws, or omissions as terse bullet points. "
+                 f"If the answer is fully correct and complete, reply with exactly: NO FLAWS")
     ok, critique, _ = _chat(agent, [
         {"role": "system", "content": demon_sys},
         {"role": "user", "content": f"Task:\n{task}\n\nAnswer:\n{answer}"},
@@ -220,12 +231,26 @@ def run_task(name: str, task: str) -> dict:
     messages = [{"role": "system", "content": system}] + \
                [{"role": m["role"], "content": m["content"]} for m in recent]
 
-    ok, text, err = _chat(agent, messages)  # network call outside the lock
+    # Apply any active pill buffs (stronger model / deeper response) to this call.
+    boost = pills.effects(name)
+    agent_eff = dict(agent)
+    if boost.get("model"):
+        agent_eff["model"] = boost["model"]
+    if boost.get("max_tokens"):
+        agent_eff["max_tokens"] = int(agent.get("max_tokens", 1024)) + int(boost["max_tokens"])
 
-    # Inner demon: critique and (if flawed) revise the answer before recording it.
+    ok, text, err = _chat(agent_eff, messages)  # network call outside the lock
+
+    # Inner demon: harsher at low realms (and with a Heart-Demon pill); revise until clean.
     demon_critique = None
-    if ok and _inner_demon_on(agent):
-        text, demon_critique = _inner_demon(agent, task, text)
+    if ok:
+        realm = cultivation.realm_of(name)
+        cycles = (_demon_cycles(realm) if _inner_demon_on(agent) else 0) + int(boost.get("inner_demon", 0))
+        for _ in range(cycles):
+            text, crit = _inner_demon(agent_eff, task, text, realm)
+            if crit is None:
+                break
+            demon_critique = crit
 
     done = int(time.time() * 1000)
     asst_msg = {"role": "assistant", "content": text if ok else f"(error: {err})", "ts": done}

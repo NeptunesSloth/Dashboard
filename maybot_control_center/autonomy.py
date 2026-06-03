@@ -18,6 +18,8 @@ import os
 import threading
 import time
 
+from . import pills
+
 ENABLED = os.getenv("MAYBOT_AUTONOMY", "0").lower() in ("1", "true", "yes", "on")
 MAX_CALLS = max(0, int(os.getenv("MAYBOT_AUTONOMY_MAX_CALLS", "3")))
 # Optional local-time window for auto-runs, "START-END" 24h (e.g. "9-17").
@@ -66,7 +68,7 @@ def allow(requester: str, tool: dict) -> bool:
     if requester == "operator":
         return True   # operator authority — unbounded by design
     name = tool.get("name", "")
-    cap = max(0, int(tool.get("max_auto_per_task", MAX_CALLS)))  # per-tool budget override
+    cap = max(0, int(tool.get("max_auto_per_task", MAX_CALLS))) + pills.autonomy_bonus(requester)
     with _lock:
         if not ENABLED or _paused or not _window_ok():
             return False

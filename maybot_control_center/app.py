@@ -18,6 +18,7 @@ from . import autonomy
 from . import usage
 from . import authz
 from . import cultivation
+from . import pills
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -275,6 +276,48 @@ def usage_stats(x_control_token: str = Header(default="")):
 def cultivation_stats(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return cultivation.snapshot()
+
+
+class PillBuyIn(BaseModel):
+    agent: str
+    pill: str
+
+
+@app.get("/api/pills")
+def pills_list(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"catalog": pills.catalog(), "active": pills.active_all()}
+
+
+@app.post("/api/pills/buy")
+def pills_buy(body: PillBuyIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.agent or "") or not _SAFE_NAME.match(body.pill or ""):
+        raise HTTPException(400, "invalid agent or pill")
+    try:
+        return pills.buy(body.agent, body.pill)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+class DebateIn(BaseModel):
+    topic: str
+    a: str
+    b: str
+    judge: str
+    rounds: int = 2
+
+
+@app.post("/api/comms/debate")
+def comms_debate(body: DebateIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    for n in (body.a, body.b, body.judge):
+        if not _SAFE_NAME.match(n or ""):
+            raise HTTPException(400, "invalid participant name")
+    try:
+        return comms.start_debate(body.topic, body.a, body.b, body.judge, body.rounds)
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(400, str(exc))
 
 
 @app.get("/api/stream")

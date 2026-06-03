@@ -124,6 +124,83 @@ def run_mission(goal: str, names: list[str], rounds: int, mission_id) -> None:
             _mission = None
 
 
+def _debate_winner(verdict: str, a: str, b: str) -> str | None:
+    """Pick the winner named earliest in the judge's verdict."""
+    v = (verdict or "").lower()
+    ia, ib = v.find(a.lower()), v.find(b.lower())
+    if ia == -1 and ib == -1:
+        return None
+    if ia == -1:
+        return b
+    if ib == -1:
+        return a
+    return a if ia <= ib else b
+
+
+def run_debate(topic: str, a: str, b: str, judge: str, rounds: int, mission_id) -> None:
+    """Two disciples argue opposing sides of a proposition; a third judges."""
+    global _mission
+    try:
+        _post("system", f"⚖ Dao Debate: {topic} — {a} argues FOR, {b} argues AGAINST. Judged by {judge}.", "system", mission_id)
+        for stance_round in range(rounds):
+            for name, stance in ((a, "FOR"), (b, "AGAINST")):
+                agent = agents._agent_def(name)
+                if not agent:
+                    continue
+                with _lock:
+                    if _mission is not None:
+                        _mission["round"] = stance_round + 1
+                        _mission["current"] = name
+                channel = _channel_text()
+                sys = (f"{agents._persona(agent)}\n\nYou are {name}, arguing {stance} the proposition in a "
+                       f"formal dao debate. Be persuasive and concrete, and rebut your opponent.")
+                user = (f"Proposition: {topic}\n\nDebate so far:\n{channel or '(opening)'}\n\n"
+                        f"Make your argument {stance} the proposition (2-4 sentences).")
+                ok, text, err = agents._chat(agent, [{"role": "system", "content": sys}, {"role": "user", "content": user}])
+                _post(name, (text or "").strip()[:MSG_CHARS] if ok else f"(error: {err})", "agent", mission_id)
+                cultivation.on_council(name) if ok else cultivation.on_task(name, False)
+        # verdict
+        jagent = agents._agent_def(judge)
+        if jagent:
+            with _lock:
+                if _mission is not None:
+                    _mission["current"] = judge
+            channel = _channel_text()
+            jsys = f"{agents._persona(jagent)}\n\nYou are {judge}, an impartial judge of a dao debate."
+            juser = (f"Proposition: {topic}\n\nDebate transcript:\n{channel}\n\nDeclare the winner ({a} or {b}) and "
+                     f"give a one-sentence reason. Begin your reply with 'Winner: <name>'.")
+            ok, verdict, _ = agents._chat(jagent, [{"role": "system", "content": jsys}, {"role": "user", "content": juser}])
+            verdict = (verdict or "").strip() if ok else "(the judge was silent)"
+            _post(judge, f"⚖ Verdict — {verdict}", "agent", mission_id)
+            winner = _debate_winner(verdict, a, b) if ok else None
+            if winner:
+                cultivation.on_task(winner, True)  # the victor's spoils
+                _post("system", f"🏆 {winner} prevails in the debate.", "system", mission_id)
+    finally:
+        with _lock:
+            _mission = None
+
+
+def start_debate(topic: str, a: str, b: str, judge: str, rounds: int = 2) -> dict:
+    """Validate + launch a dao debate in the background."""
+    global _mission
+    topic = (topic or "").strip()
+    if not topic:
+        raise ValueError("topic required")
+    if a == b or not (agents._agent_def(a) and agents._agent_def(b) and agents._agent_def(judge)):
+        raise ValueError("need two distinct debaters and a judge, all valid agents")
+    rounds = max(1, min(int(rounds or 1), MAX_ROUNDS))
+    with _lock:
+        if _mission is not None:
+            raise RuntimeError("a council activity is already running")
+        mission_id = int(time.time() * 1000)
+        _mission = {"id": mission_id, "goal": topic, "participants": [a, b, judge], "rounds": rounds,
+                    "round": 0, "current": None, "started_at": mission_id, "kind": "debate"}
+        snap = dict(_mission)
+    _pool.submit(run_debate, topic, a, b, judge, rounds, mission_id)
+    return snap
+
+
 def start_mission(goal: str, participants: list[str], rounds: int = 2) -> dict:
     """Validate + launch a mission in the background. Returns the mission snapshot."""
     global _mission

@@ -230,6 +230,14 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .agent-card.agent-working, .agent-card.agent-queued { border-color: rgba(255, 210, 63, 0.4); }
 .agent-card.agent-working .agent-state .crew-dot, .agent-card.agent-queued .agent-state .crew-dot { animation: livePulse 1.3s ease-in-out infinite; }
 .agent-card.agent-error { border-color: rgba(255, 90, 110, 0.45); }
+.pill-buffs { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 4px; }
+.pill-chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; color: #fff7e6; border: 1px solid rgba(154, 100, 214, 0.5); background: rgba(154, 100, 214, 0.16); box-shadow: 0 0 8px rgba(154, 100, 214, 0.25); }
+.pill-control { display: flex; gap: 6px; margin: 4px 0 2px; }
+.pill-control .pill-select { flex: 1; min-width: 0; font-size: 12px; }
+.pill-control .pill-buy { font-size: 12px; padding: 6px 10px; }
+.debate-launch { margin: 4px 0 10px; }
+.debate-launch summary { color: var(--magenta); }
+.debate-launch select { min-width: 90px; }
 
 /* ---- Cultivation (spirit stones, realms, tribulation) ---- */
 .cultivation { margin: 9px 0; padding: 9px 10px; border-radius: 9px; border: 1px solid rgba(54, 224, 180, 0.22); background: linear-gradient(180deg, rgba(54, 224, 180, 0.06), rgba(20, 16, 34, 0.4)); }

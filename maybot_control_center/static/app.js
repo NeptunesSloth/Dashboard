@@ -442,6 +442,16 @@ function cultivationBlock(c) {
   </div>`;
 }
 
+function pillControl(a, c) {
+  const pd = window.__pills || { catalog: [], active: {} };
+  if (!pd.catalog || !pd.catalog.length) return '';
+  const stones = (c && c.stones) || 0;
+  const buffs = (pd.active && pd.active[a.name]) || [];
+  const chips = buffs.length ? `<div class='pill-buffs'>${buffs.map(b => `<span class='pill-chip'>⚗ ${esc(b.name)}</span>`).join('')}</div>` : '';
+  const opts = pd.catalog.map(p => `<option value='${esc(p.id)}'${p.cost > stones ? ' disabled' : ''}>${esc(p.name)} · 💎${esc(p.cost)}</option>`).join('');
+  return `${chips}<div class='pill-control'><select class='pill-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn pill-buy' data-agent='${esc(a.name)}'>Concoct</button></div>`;
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
@@ -454,6 +464,7 @@ function agentCard(a) {
     ${metric('Model', esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
     ${cultivationBlock(c)}
+    ${pillControl(a, c)}
     ${a.current_task ? `<div class='agent-task-cur'>▸ ${esc(a.current_task)}</div>` : ''}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
     <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>
@@ -467,6 +478,22 @@ function agentCard(a) {
 
 function bindAgentCrew(root) {
   const sel = name => root.querySelector(`.agent-send[data-agent="${CSS.escape(name)}"]`);
+  root.querySelectorAll('.pill-buy').forEach(btn => btn.onclick = async () => {
+    const name = btn.getAttribute('data-agent');
+    const s = root.querySelector(`.pill-select[data-agent="${CSS.escape(name)}"]`);
+    const pill = s && s.value;
+    if (!pill) return;
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/pills/buy', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ agent: name, pill }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Concoction failed: ' + (b.detail || res.status)); }
+    } catch (e) { alert('Concoction failed: ' + e); }
+    btn.disabled = false;
+    renderAgentCrew();
+  });
   root.querySelectorAll('.agent-send').forEach(btn => btn.onclick = async () => {
     const name = btn.getAttribute('data-agent');
     const inp = root.querySelector(`.agent-input[data-agent="${CSS.escape(name)}"]`);
@@ -505,6 +532,8 @@ async function renderAgentCrew() {
   catch (_) { section.classList.add('hidden'); return; }
   const crew = (data && data.agents) || [];
   window.__agents = crew;
+  try { window.__pills = await fetch('/api/pills', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { window.__pills = { catalog: [], active: {} }; }
   if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
   section.classList.remove('hidden');
   document.getElementById('agent-crew-pill').textContent = `${crew.length} disciples`;
@@ -557,6 +586,16 @@ async function renderComms() {
     return `<label class='comms-chip'><input type='checkbox' value='${esc(a.name)}' ${on}> ${esc(a.name)}</label>`;
   }).join('');
 
+  // debate roster selects
+  ['debate-a', 'debate-b', 'debate-judge'].forEach((id, idx) => {
+    const elx = document.getElementById(id);
+    if (!elx) return;
+    const cur = elx.value;
+    elx.innerHTML = crew.map(a => `<option>${esc(a.name)}</option>`).join('');
+    if (cur && crew.some(a => a.name === cur)) elx.value = cur;
+    else if (crew[idx]) elx.value = crew[idx].name;
+  });
+
   let data;
   try { data = await fetch('/api/comms', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { return; }
@@ -582,6 +621,28 @@ async function renderComms() {
 }
 
 function bindComms() {
+  const dgo = document.getElementById('debate-go');
+  if (dgo && !dgo.dataset.bound) {
+    dgo.dataset.bound = '1';
+    dgo.onclick = async () => {
+      const topic = (document.getElementById('debate-topic').value || '').trim();
+      if (!topic) { alert('Enter a proposition.'); return; }
+      const a = document.getElementById('debate-a').value;
+      const b = document.getElementById('debate-b').value;
+      const judge = document.getElementById('debate-judge').value;
+      const rounds = Number(document.getElementById('comms-rounds').value || 2);
+      dgo.disabled = true;
+      try {
+        const res = await fetch('/api/comms/debate', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ topic, a, b, judge, rounds }),
+        });
+        if (!res.ok) { const j = await res.json().catch(() => ({})); alert('Debate failed: ' + (j.detail || res.status)); }
+      } catch (e) { alert('Debate failed: ' + e); }
+      dgo.disabled = false;
+      renderComms();
+    };
+  }
   const btn = document.getElementById('comms-launch');
   if (!btn || btn.dataset.bound) return;
   btn.dataset.bound = '1';

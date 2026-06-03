@@ -238,6 +238,27 @@ def state(agent: str) -> dict:
     }
 
 
+def spend(agent: str, amount: int) -> bool:
+    """Spend spirit stones (e.g. on a pill). Does not cause demotion. False if too poor."""
+    with _lock:
+        st = _state.get(agent)
+        if not st or st["stones"] < amount:
+            return False
+        st["stones"] -= amount
+        st["updated_at"] = int(time.time() * 1000)
+        snap = dict(st)
+        snap["skills"] = list(st["skills"])
+    if store.enabled():
+        store.upsert_cultivation(snap)
+    return True
+
+
+def realm_of(agent: str) -> int:
+    with _lock:
+        st = _state.get(agent)
+        return st["realm"] if st else 0
+
+
 def snapshot() -> dict:
     with _lock:
         names = list(_state.keys())
