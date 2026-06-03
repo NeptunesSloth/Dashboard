@@ -895,3 +895,14 @@ def js():
 @app.get("/style.css")
 def css():
     return FileResponse("maybot_control_center/static/style.css")
+
+
+@app.get("/assets/{path:path}")
+def assets(path: str):
+    """Serve static assets (Sect Map art, sprites). Rejects path traversal."""
+    import os
+    base = os.path.realpath("maybot_control_center/static/assets")
+    target = os.path.realpath(os.path.join(base, path))
+    if os.path.commonpath([base, target]) != base or not os.path.isfile(target):
+        raise HTTPException(404, "asset not found")
+    return FileResponse(target)
