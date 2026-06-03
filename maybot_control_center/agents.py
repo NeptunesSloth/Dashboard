@@ -22,14 +22,20 @@ import requests
 import yaml
 
 from . import memory
+from . import store
+from . import events
 from . import tools as tooling
 
 AGENTS_FILE = Path(os.getenv("MAYBOT_AGENTS_FILE", "agents.yaml"))
 DEFAULT_TIMEOUT = int(os.getenv("MAYBOT_AGENT_TIMEOUT", "60"))
 MAX_TURNS = max(2, int(os.getenv("MAYBOT_AGENT_MAX_TURNS", "20")))  # transcript messages kept for context
+# Tool loop: how many times a tool result may be fed back to an agent before a
+# fresh (operator) task is required. Bounds runaway propose→run→continue loops.
+MAX_FOLLOWUPS = max(0, int(os.getenv("MAYBOT_AGENT_MAX_FOLLOWUPS", "4")))
 
 _lock = threading.Lock()
 _state: dict[str, dict] = {}
+_followups: dict[str, int] = {}
 _pool = ThreadPoolExecutor(max_workers=4)
 _anthropic = None
 
@@ -139,11 +145,14 @@ def run_task(name: str, task: str) -> dict:
         raise KeyError(name)
 
     now = int(time.time() * 1000)
+    user_msg = {"role": "user", "content": task, "ts": now}
     with _lock:
         st = _ensure_state(agent)
         st.update(status="working", current_task=task, error=None, updated_at=now)
-        st["transcript"].append({"role": "user", "content": task, "ts": now})
+        st["transcript"].append(user_msg)
         recent = [m for m in st["transcript"] if m["role"] in ("user", "assistant")][-MAX_TURNS:]
+    if store.enabled():
+        store.add_transcript(name, user_msg)
     # Pull relevant notes from the Obsidian vault (if configured and not opted out).
     system = _persona(agent)
     if memory.enabled() and agent.get("memory", True):
@@ -159,6 +168,7 @@ def run_task(name: str, task: str) -> dict:
     ok, text, err = _chat(agent, messages)  # network call outside the lock
 
     done = int(time.time() * 1000)
+    asst_msg = {"role": "assistant", "content": text if ok else f"(error: {err})", "ts": done}
     with _lock:
         st = _ensure_state(agent)
         st["current_task"] = None
@@ -166,13 +176,15 @@ def run_task(name: str, task: str) -> dict:
         if ok:
             st.update(status="idle", last_reply=text, error=None)
             st["tasks_done"] += 1
-            st["transcript"].append({"role": "assistant", "content": text, "ts": done})
         else:
             st.update(status="error", error=err)
-            st["transcript"].append({"role": "assistant", "content": f"(error: {err})", "ts": done})
+        st["transcript"].append(asst_msg)
         if len(st["transcript"]) > MAX_TURNS * 2:
             del st["transcript"][:-MAX_TURNS * 2]
         snap = dict(st)
+    if store.enabled():
+        store.add_transcript(name, asst_msg)
+    events.publish("agents", {"agent": name})
 
     # If the agent requested a tool, queue it for approval (never auto-run here).
     if ok and tools_on:
@@ -185,15 +197,37 @@ def run_task(name: str, task: str) -> dict:
     return snap
 
 
+def _tool_followup(call: dict) -> None:
+    """Tool-loop hook: feed a finished tool's result back to the requesting agent."""
+    name = call.get("requester")
+    if not name or not _agent_def(name):
+        return  # operator-run or unknown requester → no continuation
+    with _lock:
+        n = _followups.get(name, 0)
+        if n >= MAX_FOLLOWUPS:
+            return
+        _followups[name] = n + 1
+    out = (call.get("output") or "")[:2000]
+    task = (f"The tool '{call.get('tool')}' you requested returned (status {call.get('status')}):\n"
+            f"{out}\n\nContinue toward the original task. Request another tool if you need one; "
+            f"otherwise give your final answer.")
+    _pool.submit(run_task, name, task)
+
+
+tooling.on_complete = _tool_followup
+
+
 def assign_task(name: str, task: str) -> dict:
     """Queue a task for an agent and return immediately (runs in the background)."""
     agent = _agent_def(name)
     if not agent:
         raise KeyError(name)
     with _lock:
+        _followups[name] = 0  # operator task resets the tool-loop budget
         st = _ensure_state(agent)
         st.update(status="queued", current_task=task, updated_at=int(time.time() * 1000))
         snap = dict(st)
+    events.publish("agents", {"agent": name})
     _pool.submit(run_task, name, task)
     return snap
 
@@ -241,6 +275,21 @@ def get_agent(name: str) -> dict | None:
         }
 
 
+def load_persisted() -> None:
+    if not store.enabled():
+        return
+    transcripts = store.load_transcripts()
+    with _lock:
+        for name, msgs in transcripts.items():
+            agent = _agent_def(name)
+            st = _ensure_state(agent or {"name": name})
+            st["transcript"] = msgs[-MAX_TURNS * 2:]
+            st["tasks_done"] = sum(1 for m in msgs if m["role"] == "assistant")
+            last = next((m["content"] for m in reversed(msgs) if m["role"] == "assistant"), "")
+            st["last_reply"] = last
+
+
 def clear() -> None:
     with _lock:
         _state.clear()
+        _followups.clear()

@@ -778,3 +778,23 @@ document.getElementById('save-control-token').onclick = () => {
 render();
 refreshInterval = setInterval(render, 7000);
 startLogsAutoRefresh();
+
+// Live updates via Server-Sent Events — instant refresh on agent/comms/tool changes.
+let _streamDebounce = {};
+function debounced(fn, key, ms = 250) {
+  clearTimeout(_streamDebounce[key]);
+  _streamDebounce[key] = setTimeout(fn, ms);
+}
+function setupStream() {
+  let es;
+  try { es = new EventSource(`/api/stream?token=${encodeURIComponent(getControlToken())}`); }
+  catch (_) { return; }
+  es.onmessage = (e) => {
+    let msg; try { msg = JSON.parse(e.data); } catch (_) { return; }
+    if (msg.type === 'comms') debounced(renderComms, 'comms');
+    else if (msg.type === 'tools') debounced(renderTools, 'tools');
+    else if (msg.type === 'agents') debounced(() => { renderAgentCrew(); renderComms(); }, 'agents');
+  };
+  es.onerror = () => {}; // EventSource auto-reconnects
+}
+setupStream();
