@@ -258,6 +258,7 @@ async function render() {
     renderAiAgents(window.__lastProjects);
     renderProjects(window.__lastProjects);
     await renderAgentCrew();
+    renderGovernance();
     renderHallOfFame();
     renderProphecy();
     bindComms();
@@ -500,6 +501,15 @@ function reputationChip(rep) {
   return `<span class='rep-chip ${cls}' title='${esc(title)}'>${mark} ${esc(tier)} · merit ${rep.merit}</span>`;
 }
 
+function governanceChip(g) {
+  if (!g) return '';
+  let badge = '';
+  if (g.is_leader) badge = `<span class='gov-chip gov-leader' title='Sect Leader · standing ${g.standing}'>👑 Sect Leader</span>`;
+  else if (g.is_elder) badge = `<span class='gov-chip gov-elder' title='Elder · standing ${g.standing}'>🜍 Elder</span>`;
+  const spec = g.specialty ? `<span class='gov-chip gov-spec' title='mastery ${g.mastery}'>${esc(g.specialty)} · ${g.mastery}</span>` : '';
+  return badge + spec;
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
@@ -508,7 +518,7 @@ function agentCard(a) {
   const tribCls = c.event === 'tribulation' && (Date.now() - (c.event_ts || 0) < 30000) ? ' agent-tribulation' : '';
   return `<div class='card agent-card agent-${esc(st)}${tribCls}' data-agent='${esc(a.name)}'>
     <div class='metric'><b>🧘 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
-    ${a.reputation ? `<div class='rep-row'>${reputationChip(a.reputation)}</div>` : ''}
+    ${a.reputation || a.governance ? `<div class='rep-row'>${governanceChip(a.governance)}${reputationChip(a.reputation)}</div>` : ''}
     ${metric('Role', esc(a.role || '—'))}
     ${metric('Model', esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
@@ -686,6 +696,103 @@ function renderHallOfFame() {
     fameCard('📚 Most Techniques', learned, 'Techniques', `${(learned.cultivation.skills || []).length}`),
     fameCard('⚡ Most Breakthroughs', broke, 'Breakthroughs', `${broke.cultivation.breakthroughs}`),
   ].join('');
+}
+
+// ---- Sect Hierarchy: governance, challenges, the Ancestor's Hall ----
+
+async function govPost(path, body, okMsg) {
+  try {
+    const res = await fetch(`/api/governance/${path}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify(body),
+    });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) { alert((okMsg || 'Action') + ' failed: ' + (j.detail || res.status)); return null; }
+    return j;
+  } catch (e) { alert((okMsg || 'Action') + ' failed: ' + e); return null; }
+}
+
+function govRosterCard(r, leaderPinned) {
+  const s = r.standing || {};
+  const c = s.components || {};
+  const rank = r.is_leader ? '👑 Sect Leader' : (r.is_master ? 'Sect Master' : (r.is_elder ? '🜍 Elder' : 'Disciple'));
+  const specOpts = Object.keys(window.__specialties || {}).map(k =>
+    `<option ${r.specialty === k ? 'selected' : ''}>${esc(k)}</option>`).join('');
+  const elderControls = r.is_elder ? `
+    <div class='gov-controls'>
+      <select class='gov-spec-sel' data-agent='${esc(r.agent)}'>${specOpts}</select>
+      <button class='btn gov-spec-go' data-agent='${esc(r.agent)}'>Set path</button>
+      ${!r.is_leader && !leaderPinned ? `<button class='btn gov-challenge' data-agent='${esc(r.agent)}'>⚔ Challenge</button>` : ''}
+    </div>` : '';
+  return `<div class='card gov-card${r.is_leader ? ' gov-card-leader' : ''}'>
+    <div class='metric'><b>${esc(r.agent)}</b><b class='money-pos'>${s.score ?? '—'}</b></div>
+    ${metric('Rank', rank)}
+    ${metric('Specialty', r.specialty ? `${esc(r.specialty)} · mastery ${r.mastery}` : '—')}
+    <div class='gov-bars muted'>merit ${c.merit ?? '—'} · perf ${c.performance ?? '—'} · lead ${c.leadership ?? '—'} · contrib ${c.contribution ?? '—'}</div>
+    ${elderControls}
+  </div>`;
+}
+
+async function renderGovernance() {
+  const sec = document.getElementById('governance-section');
+  let data;
+  try { data = await fetch('/api/governance', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { sec.classList.add('hidden'); return; }
+  const roster = data.roster || [];
+  if (!roster.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+  window.__specialties = data.specialties || {};
+  document.getElementById('leader-pill').textContent =
+    data.leader ? `👑 ${data.leader}${data.leader_pinned ? ' (pinned)' : ''}` : 'no leader';
+
+  // appoint-leader select
+  const lsel = document.getElementById('leader-select');
+  const cur = lsel.value;
+  lsel.innerHTML = roster.map(r => `<option ${r.agent === data.leader ? 'selected' : ''}>${esc(r.agent)}</option>`).join('');
+  if (cur && roster.some(r => r.agent === cur)) lsel.value = cur;
+
+  document.getElementById('governance-roster').innerHTML =
+    roster.map(r => govRosterCard(r, data.leader_pinned)).join('');
+
+  // inbox
+  let inbox = { messages: [] };
+  try { inbox = await fetch('/api/governance/inbox', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) {}
+  const box = document.getElementById('ancestor-inbox');
+  box.innerHTML = (inbox.messages || []).length
+    ? inbox.messages.map(m => `<div class='comms-msg'><div class='comms-head'><span class='comms-from'>${esc(m.from)}</span> <span class='muted'>· ${esc(m.role)}</span></div><div class='comms-body'>${esc(m.text)}</div></div>`).join('')
+    : `<div class='comms-sys muted'>No word from the sect's leadership yet.</div>`;
+
+  bindGovernance();
+}
+
+function bindGovernance() {
+  const root = document.getElementById('governance-section');
+  const set = document.getElementById('leader-set');
+  if (set && !set.dataset.bound) {
+    set.dataset.bound = '1';
+    set.onclick = async () => {
+      const leader = document.getElementById('leader-select').value;
+      if (await govPost('leader', { leader, pinned: true }, 'Appoint')) renderGovernance();
+    };
+  }
+  const rel = document.getElementById('leader-release');
+  if (rel && !rel.dataset.bound) {
+    rel.dataset.bound = '1';
+    rel.onclick = async () => {
+      if (await govPost('leader', { leader: null, pinned: false }, 'Release')) renderGovernance();
+    };
+  }
+  root.querySelectorAll('.gov-spec-go').forEach(b => b.onclick = async () => {
+    const agent = b.getAttribute('data-agent');
+    const sel = root.querySelector(`.gov-spec-sel[data-agent="${CSS.escape(agent)}"]`);
+    if (sel && await govPost('specialty', { agent, specialty: sel.value }, 'Set path')) renderGovernance();
+  });
+  root.querySelectorAll('.gov-challenge').forEach(b => b.onclick = async () => {
+    const challenger = b.getAttribute('data-agent');
+    const res = await govPost('challenge', { challenger }, 'Challenge');
+    if (res) { alert(res.reason || (res.won ? 'Victory!' : 'Defeated.')); renderGovernance(); }
+  });
 }
 
 // ---- Heavenly Omens: prophecy / divination ----

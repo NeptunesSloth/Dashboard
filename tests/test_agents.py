@@ -64,7 +64,9 @@ def test_messages_include_persona_and_task(tmp_path, monkeypatch):
     monkeypatch.setattr(agents, "_chat", fake_chat)
     agents.run_task("Nova", "do thing")
     msgs = captured["messages"]
-    assert msgs[0] == {"role": "system", "content": "You are Nova."}
+    assert msgs[0]["role"] == "system"
+    assert msgs[0]["content"].startswith("You are Nova.")
+    assert "Ancestor" in msgs[0]["content"]  # sect persona context is appended
     assert msgs[-1] == {"role": "user", "content": "do thing"}
 
 

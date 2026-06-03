@@ -26,6 +26,7 @@ from . import scheduler
 from . import reputation
 from . import prophecy
 from . import formations
+from . import governance
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -125,6 +126,9 @@ def proxy_action(device_name: str, project_name: str, action: str, x_control_tok
 
 class TaskIn(BaseModel):
     task: str
+    critical: bool = False        # critical work the Sect Leader handles directly
+    project: str | None = None    # optional project this task acts on (personal guard)
+    device: str | None = None
 
 
 @app.get("/api/agents")
@@ -177,10 +181,20 @@ def assign_agent_task(name: str, body: TaskIn, x_control_token: str = Header(def
         raise HTTPException(400, "task must not be empty")
     if len(task) > 4000:
         raise HTTPException(400, "task too long (max 4000 chars)")
+    # The Ancestor's personal bot projects are off-limits to disciples.
+    if body.project and governance.is_personal_project(body.project, body.device):
+        raise HTTPException(403, f"'{body.project}' is the Ancestor's personal project — disciples may not be assigned to it")
+    # The Sect Leader oversees: routine work is routed to a deputy Elder.
+    executor, delegated_from = governance.route_task(name, body.critical)
     try:
-        return agents.assign_task(name, task)
+        snap = agents.assign_task(executor, task)
     except KeyError:
         raise HTTPException(404, "agent not found")
+    if delegated_from:
+        snap = dict(snap)
+        snap["oversight"] = {"leader": delegated_from, "delegated_to": executor,
+                             "note": "the Sect Leader oversees; routine work was passed to a deputy"}
+    return snap
 
 
 class MissionIn(BaseModel):
@@ -341,6 +355,87 @@ def formations_run(body: FormationIn, x_control_token: str = Header(default=""))
     try:
         return comms.start_formation(body.formation, body.goal)
     except (ValueError, RuntimeError) as exc:
+        raise HTTPException(400, str(exc))
+
+
+@app.get("/api/governance")
+def governance_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return governance.snapshot()
+
+
+class ChallengeIn(BaseModel):
+    challenger: str
+
+
+@app.post("/api/governance/challenge")
+def governance_challenge(body: ChallengeIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.challenger or ""):
+        raise HTTPException(400, "invalid challenger name")
+    try:
+        return governance.challenge(body.challenger)
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+class LeaderIn(BaseModel):
+    leader: str | None = None     # None releases the role back to merit
+    pinned: bool = True
+
+
+@app.post("/api/governance/leader")
+def governance_set_leader(body: LeaderIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)  # Ancestor authority
+    if body.leader is not None and not _SAFE_NAME.match(body.leader):
+        raise HTTPException(400, "invalid leader name")
+    try:
+        return governance.set_leader(body.leader, body.pinned)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+class SpecialtyIn(BaseModel):
+    agent: str
+    specialty: str
+
+
+@app.post("/api/governance/specialty")
+def governance_specialty(body: SpecialtyIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.agent or ""):
+        raise HTTPException(400, "invalid agent name")
+    try:
+        return governance.choose_specialty(body.agent, body.specialty)
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+@app.get("/api/governance/inbox")
+def governance_inbox(limit: int = Query(default=100), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"messages": governance.inbox(max(1, min(limit, 200)))}
+
+
+class AncestorMsgIn(BaseModel):
+    sender: str
+    text: str
+
+
+@app.post("/api/governance/message")
+def governance_message(body: AncestorMsgIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.sender or ""):
+        raise HTTPException(400, "invalid sender name")
+    try:
+        return governance.message_ancestor(body.sender, body.text)
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc))
+    except ValueError as exc:
         raise HTTPException(400, str(exc))
 
 

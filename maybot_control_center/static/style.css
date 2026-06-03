@@ -365,3 +365,15 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 
 /* ---- Formation launcher ---- */
 .formation-launch #formation-desc { margin-top: 6px; font-size: 12px; }
+
+/* ---- Sect hierarchy / governance ---- */
+.gov-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-family: "Cinzel", Georgia, serif; letter-spacing: .03em;
+  border-radius: 999px; padding: 3px 9px; border: 1px solid var(--border); margin-right: 4px; }
+.gov-leader { color: #1a1404; background: linear-gradient(90deg, var(--gold), #ffe6a3); border-color: var(--gold); box-shadow: 0 0 12px rgba(232,198,116,0.5); }
+.gov-elder { color: var(--gold); background: rgba(154,100,214,0.18); border-color: rgba(154,100,214,0.5); }
+.gov-spec { color: var(--tech); background: rgba(54,224,180,0.12); border-color: rgba(54,224,180,0.4); }
+.gov-card-leader { border-color: var(--gold); box-shadow: 0 0 16px rgba(232,198,116,0.28); }
+.gov-bars { font-size: 11px; margin: 6px 0; }
+.gov-controls { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.gov-controls .btn, .gov-controls select { font-size: 12px; }
+.gov-challenge { color: #fff2f3; border-color: rgba(255,92,110,0.55); }
