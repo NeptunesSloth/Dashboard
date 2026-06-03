@@ -17,6 +17,7 @@
       <div class="pill">Last refresh: <span id="refresh-status">never</span></div>
       <div class="pill">Devices: <span id="device-count-pill">0 online / 0 offline</span></div>
       <button id="manual-refresh" class="btn btn-primary">Refresh</button>
+      <button id="toggle-view" class="btn">Base View</button>
       <button id="toggle-refresh" class="btn">Pause Auto</button>
     </div>
     <div class="token-row">
@@ -36,8 +37,30 @@
       <h2>Devices</h2>
       <div id="devices" class="grid"></div>
     </section>
+    <section id="ai-agents-section" class="hidden">
+      <div class="section-head">
+        <h2>AI Agents</h2>
+        <span id="ai-agents-pill" class="pill">0 agents</span>
+      </div>
+      <p class="muted">AI coding projects and local model hosts, with start / stop / test controls.</p>
+      <div id="ai-agents"></div>
+    </section>
     <section>
-      <h2>Projects</h2>
+      <div class="section-head">
+        <h2>Projects</h2>
+        <span id="project-count-pill" class="pill">0 shown</span>
+      </div>
+      <div class="filter-bar">
+        <input id="project-search" type="search" placeholder="Search name, device, type, status…">
+        <select id="health-filter">
+          <option value="ALL">All health</option>
+          <option value="ok">OK</option>
+          <option value="warning">Warning</option>
+          <option value="error">Error</option>
+          <option value="unknown">Unknown</option>
+        </select>
+        <button id="clear-filters" class="btn">Clear</button>
+      </div>
       <div id="projects"></div>
     </section>
   </main>

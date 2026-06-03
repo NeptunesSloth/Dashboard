@@ -15,6 +15,18 @@ DEFAULTS = {
     "rejected_trades": "unknown", "risk_blocked_trades": "unknown", "last_trade_time": "unknown",
 }
 
+def _derive_activity(market_status, attempted, filled) -> str:
+    """Map a DayBot cycle into a short activity verb for the Base View badge."""
+    ms = str(market_status or "").lower()
+    if ms and any(t in ms for t in ("closed", "pre", "after", "holiday")):
+        return "standby"
+    if attempted and int(attempted) > 0:
+        return "filling" if (filled or 0) > 0 else "scanning"
+    if "open" in ms:
+        return "scanning"
+    return "trading"
+
+
 def _parse_dt(value: str | None) -> datetime | None:
     if not value:
         return None
@@ -80,10 +92,10 @@ def adapt(project: dict) -> dict:
                     pass
             # DayBot schema support
             try:
-                cur.execute("SELECT recorded_at, open_positions, total_exposure_usd, unrealized_pnl, orders_filled, orders_attempted FROM cycle_summaries ORDER BY recorded_at DESC LIMIT 1")
+                cur.execute("SELECT open_positions, total_exposure_usd, unrealized_pnl, orders_filled, orders_attempted, market_status, tickers_scanned, mode FROM cycle_summaries ORDER BY recorded_at DESC LIMIT 1")
                 row = cur.fetchone()
                 if row:
-                    _, open_positions, exposure, unrl, filled, attempted = row
+                    open_positions, exposure, unrl, filled, attempted, market_status, tickers_scanned, cyc_mode = row
                     if open_positions is not None:
                         metrics["open_positions"] = int(open_positions)
                     if exposure is not None:
@@ -92,8 +104,18 @@ def adapt(project: dict) -> dict:
                         metrics["unrealized_pnl"] = round(float(unrl), 4)
                     if filled is not None:
                         metrics["fills_today"] = int(filled)
-                    if attempted is not None and int(attempted) > 0:
-                        metrics["fill_rate"] = round(float(filled or 0) / float(attempted), 4)
+                        metrics["orders_filled"] = int(filled)
+                    if attempted is not None:
+                        metrics["orders_attempted"] = int(attempted)
+                        if int(attempted) > 0:
+                            metrics["fill_rate"] = round(float(filled or 0) / float(attempted), 4)
+                    if market_status is not None:
+                        metrics["market_status"] = str(market_status)
+                    if tickers_scanned is not None:
+                        metrics["tickers_scanned"] = int(tickers_scanned)
+                    if cyc_mode and not metrics.get("mode"):
+                        metrics["mode"] = str(cyc_mode)
+                    metrics["activity"] = _derive_activity(market_status, attempted, filled)
             except Exception:
                 pass
             try:

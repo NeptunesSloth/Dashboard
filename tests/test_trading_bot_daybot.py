@@ -2,7 +2,16 @@ import csv
 import sqlite3
 from datetime import datetime
 
-from maybot_agent.adapters.trading_bot import adapt
+from maybot_agent.adapters.trading_bot import adapt, _derive_activity
+
+
+def test_derive_activity_maps_daybot_cycle_state():
+    assert _derive_activity("closed", 0, 0) == "standby"
+    assert _derive_activity("pre-market", 5, 0) == "standby"
+    assert _derive_activity("open", 4, 3) == "filling"
+    assert _derive_activity("open", 4, 0) == "scanning"
+    assert _derive_activity("open", 0, 0) == "scanning"
+    assert _derive_activity(None, 0, 0) == "trading"
 
 
 def test_daybot_db_and_csv_fallback_and_dedup(tmp_path):
@@ -47,6 +56,10 @@ def test_daybot_db_and_csv_fallback_and_dedup(tmp_path):
     assert m["rejected_trades"] == 1
     assert m["realized_pnl"] == 12.0
     assert m["trades_today"] >= 2
+    # live activity fields surfaced for the Base View room
+    assert m["market_status"] == "open"
+    assert m["tickers_scanned"] == 10
+    assert m["activity"] == "filling"  # 4 attempted, 3 filled
 
 
 def test_daybot_uses_csv_when_paper_trades_missing(tmp_path):

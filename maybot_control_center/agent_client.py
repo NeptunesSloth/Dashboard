@@ -1,7 +1,6 @@
 import requests
 
 _session = requests.Session()
-_HEADERS = staticmethod = None  # unused, just for clarity
 
 
 def _headers(token: str) -> dict:

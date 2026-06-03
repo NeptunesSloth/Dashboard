@@ -417,6 +417,22 @@ projects:
     test_prompt_enabled: false
 ```
 
+## Dashboard features
+
+- **Base view** — a "Base View" toggle in the top bar renders the dashboard as a "ship station": a **crew roster** down the left lists every project with a live status line, and the main area shows each project as a lit "room" in a bunker-style grid (status badge such as TRADING / INFERENCE / CODING / STANDBY, a type icon, and a health-coloured status bar). Trading bots (incl. DayBot) show live PnL, open positions and a PnL sparkline on the room face. Selecting a crew member or room opens a **Manage / Info panel** with key metrics and start / stop / test / logs controls. Toggle back to "Card View" for the detailed metric cards; the choice is remembered per browser.
+- **AI Agents area** — `ai_project` and `local_ai_host` projects are surfaced in a dedicated "AI Agents" section at the top of the dashboard with their start / stop / run-tests controls and an at-a-glance online / needs-attention count.
+- **Search & filter** — the Projects section has a search box (matches name, device, type, status) and a health filter (OK / Warning / Error / Unknown).
+- **Persistent sparklines** — the control center keeps a server-side, in-memory history of each project's `profit_today` and health, so the per-card PnL sparklines survive page refreshes and are shared across all viewers. History is also available at `GET /api/history/{device}/{project}`.
+
+Optional control-center environment variables:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `MAYBOT_HISTORY_MAX_POINTS` | `240` | Points retained per project series |
+| `MAYBOT_HISTORY_MAX_SERIES` | `500` | Max distinct project series tracked |
+
+> History is in-memory only and resets when the control center restarts — it is a monitoring aid, not a system of record.
+
 Safety notes for local AI hosts:
 - Test prompt checks are disabled by default.
 - Tiny generation checks run only when `test_prompt_enabled: true`.
