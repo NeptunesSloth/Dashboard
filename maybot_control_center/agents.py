@@ -12,7 +12,9 @@ State is in-memory and resets when the control center restarts.
 """
 from __future__ import annotations
 
+import json
 import os
+import re
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -38,6 +40,13 @@ MAX_TURNS = max(2, int(os.getenv("MAYBOT_AGENT_MAX_TURNS", "20")))  # transcript
 MAX_FOLLOWUPS = max(0, int(os.getenv("MAYBOT_AGENT_MAX_FOLLOWUPS", "4")))
 # Inner demon: a self-critique/revision pass after each reply (opt-in).
 INNER_DEMON_GLOBAL = os.getenv("MAYBOT_INNER_DEMON", "0").lower() in ("1", "true", "yes", "on")
+# Delegation: a disciple may hand a task to a LOWER-ranked disciple (by cultivation
+# realm). Operator-driven delegation is always available; agent-initiated (autonomous)
+# delegation is opt-in and bounded per task.
+DELEGATION_GLOBAL = os.getenv("MAYBOT_DELEGATION", "0").lower() in ("1", "true", "yes", "on")
+MAX_DELEGATIONS = max(0, int(os.getenv("MAYBOT_AGENT_MAX_DELEGATIONS", "3")))
+_delegations: dict[str, int] = {}
+_DELEGATE_BLOCK = re.compile(r"```delegate\s+(\{.*?\})\s*```", re.DOTALL)
 
 _lock = threading.Lock()
 _state: dict[str, dict] = {}
@@ -228,6 +237,10 @@ def run_task(name: str, task: str) -> dict:
     tools_on = tooling.enabled() and agent.get("tools", True)
     if tools_on:
         system = f"{system}\n\n{tooling.prompt_hint()}"
+    if DELEGATION_GLOBAL:
+        hint = _delegate_hint(name)
+        if hint:
+            system = f"{system}\n\n{hint}"
     messages = [{"role": "system", "content": system}] + \
                [{"role": m["role"], "content": m["content"]} for m in recent]
 
@@ -285,6 +298,20 @@ def run_task(name: str, task: str) -> dict:
                 tooling.request_tool(name, req["tool"], req.get("args"))
             except ValueError:
                 pass  # invalid request is surfaced only as the agent's own text
+
+    # Agent-initiated delegation (opt-in): hand a subtask down the hierarchy, bounded.
+    if ok and DELEGATION_GLOBAL:
+        dreq = _parse_delegate(text)
+        if dreq:
+            with _lock:
+                n = _delegations.get(name, 0)
+            if n < MAX_DELEGATIONS and can_delegate(name, dreq["to"]):
+                with _lock:
+                    _delegations[name] = n + 1
+                try:
+                    delegate(name, dreq["to"], dreq["task"])
+                except Exception:
+                    pass
     return snap
 
 
@@ -310,6 +337,52 @@ def _tool_followup(call: dict) -> None:
 tooling.on_complete = _tool_followup
 
 
+def can_delegate(delegator: str, delegate: str) -> bool:
+    """A disciple may delegate only DOWNWARD — to one of strictly lower cultivation realm."""
+    if delegator == delegate or not (_agent_def(delegator) and _agent_def(delegate)):
+        return False
+    return cultivation.realm_of(delegator) > cultivation.realm_of(delegate)
+
+
+def subordinates(name: str) -> list[str]:
+    """Names this disciple outranks (and may delegate to)."""
+    my = cultivation.realm_of(name)
+    return [a.get("name") for a in load_agents()
+            if a.get("name") and a.get("name") != name and cultivation.realm_of(a["name"]) < my]
+
+
+def delegate(delegator: str, delegate: str, task: str) -> dict:
+    """Hand a task down the sect hierarchy. Raises PermissionError if rank is insufficient."""
+    if not can_delegate(delegator, delegate):
+        raise PermissionError(f"{delegator} may not delegate to {delegate} (must outrank them)")
+    from . import comms  # lazy import to avoid an import cycle
+    comms._post("system", f"📜 {delegator} delegates a task to {delegate}.", "system")
+    cultivation.on_council(delegator)  # leading the sect is meritorious
+    return assign_task(delegate, f"[Delegated by {delegator}] {task}")
+
+
+def _parse_delegate(text: str) -> dict | None:
+    m = _DELEGATE_BLOCK.search(text or "")
+    if not m:
+        return None
+    try:
+        obj = json.loads(m.group(1))
+    except Exception:
+        return None
+    if isinstance(obj, dict) and obj.get("to") and obj.get("task"):
+        return {"to": str(obj["to"]), "task": str(obj["task"])}
+    return None
+
+
+def _delegate_hint(name: str) -> str:
+    subs = subordinates(name)
+    if not subs:
+        return ""
+    return ("You may delegate ONE subtask to a lower-ranked disciple by ending your reply with:\n"
+            '```delegate\n{"to": "<name>", "task": "<subtask>"}\n```\n'
+            f"Disciples you may delegate to: {', '.join(subs)}")
+
+
 def assign_task(name: str, task: str) -> dict:
     """Queue a task for an agent and return immediately (runs in the background)."""
     agent = _agent_def(name)
@@ -317,6 +390,7 @@ def assign_task(name: str, task: str) -> dict:
         raise KeyError(name)
     with _lock:
         _followups[name] = 0  # operator task resets the tool-loop budget
+        _delegations[name] = 0  # ...and the delegation budget
         autonomy.reset(name)  # ...and the per-task autonomy budget
         st = _ensure_state(agent)
         st.update(status="queued", current_task=task, updated_at=int(time.time() * 1000))
@@ -388,3 +462,4 @@ def clear() -> None:
     with _lock:
         _state.clear()
         _followups.clear()
+        _delegations.clear()

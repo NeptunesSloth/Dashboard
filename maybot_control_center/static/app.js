@@ -452,6 +452,13 @@ function pillControl(a, c) {
   return `${chips}<div class='pill-control'><select class='pill-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn pill-buy' data-agent='${esc(a.name)}'>Concoct</button></div>`;
 }
 
+function delegateSelect(a, c) {
+  const myRealm = (c && c.realm) || 0;
+  const subs = (window.__agents || []).filter(x => x.name !== a.name && ((x.cultivation && x.cultivation.realm) || 0) < myRealm).map(x => x.name);
+  if (!subs.length) return '';  // outranks no one → can only act for self
+  return `<select class='delegate-target' data-agent='${esc(a.name)}' title='delegate to a lower-ranked disciple'><option value=''>self</option>${subs.map(n => `<option>${esc(n)}</option>`).join('')}</select>`;
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
@@ -470,6 +477,7 @@ function agentCard(a) {
     <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>
     <div class='agent-assign'>
       <input class='agent-input' placeholder='Assign a task…' data-agent='${esc(a.name)}'>
+      ${delegateSelect(a, c)}
       <button class='btn agent-send' data-agent='${esc(a.name)}'>Assign</button>
     </div>
     <details class='details agent-transcript' data-agent='${esc(a.name)}'><summary>Transcript (${esc(a.transcript_len ?? 0)})</summary><pre class='agent-tx-body'>Open to load…</pre></details>
@@ -499,13 +507,18 @@ function bindAgentCrew(root) {
     const inp = root.querySelector(`.agent-input[data-agent="${CSS.escape(name)}"]`);
     const task = (inp && inp.value || '').trim();
     if (!task) return;
+    const tsel = root.querySelector(`.delegate-target[data-agent="${CSS.escape(name)}"]`);
+    const target = tsel ? tsel.value : '';
     btn.disabled = true;
     try {
-      await fetch(`/api/agents/${encodeURIComponent(name)}/task`, {
+      const url = target ? `/api/agents/${encodeURIComponent(name)}/delegate` : `/api/agents/${encodeURIComponent(name)}/task`;
+      const body = target ? { to: target, task } : { task };
+      const res = await fetch(url, {
         method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ task }),
+        body: JSON.stringify(body),
       });
-      if (inp) inp.value = '';
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Failed: ' + (b.detail || res.status)); }
+      else if (inp) inp.value = '';
     } catch (_) {}
     btn.disabled = false;
     renderAgentCrew();

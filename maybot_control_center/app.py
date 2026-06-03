@@ -135,6 +135,29 @@ def agent_detail(name: str, x_control_token: str = Header(default="")):
     return detail
 
 
+class DelegateIn(BaseModel):
+    to: str
+    task: str
+
+
+@app.post("/api/agents/{name}/delegate")
+def agent_delegate(name: str, body: DelegateIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name) or not _SAFE_NAME.match(body.to or ""):
+        raise HTTPException(400, "invalid agent name")
+    task = (body.task or "").strip()
+    if not task:
+        raise HTTPException(400, "task must not be empty")
+    if len(task) > 4000:
+        raise HTTPException(400, "task too long (max 4000 chars)")
+    try:
+        return agents.delegate(name, body.to, task)
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc))
+    except KeyError:
+        raise HTTPException(404, "agent not found")
+
+
 @app.post("/api/agents/{name}/task")
 def assign_agent_task(name: str, body: TaskIn, x_control_token: str = Header(default="")):
     _check_operator(x_control_token)
