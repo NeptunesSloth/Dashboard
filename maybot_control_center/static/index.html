@@ -73,6 +73,14 @@
       <div class="section-head"><h2>Hall of Fame</h2></div>
       <div id="hall-of-fame" class="grid"></div>
     </section>
+    <section id="prophecy-section" class="hidden">
+      <div class="section-head">
+        <h2>Heavenly Omens</h2>
+        <span id="prophecy-pill" class="pill">divining…</span>
+      </div>
+      <p class="muted">The sect's diviners read the omens in each realm's metrics history — a sharp plunge, a worsening trend, or gathering errors surface as an ill omen before it becomes an outage.</p>
+      <div id="prophecy-omens" class="grid"></div>
+    </section>
     <section id="comms-section" class="hidden">
       <div class="section-head">
         <h2>Dao Council</h2>
@@ -89,6 +97,16 @@
         <button id="comms-launch" class="btn btn-primary">Begin Trial</button>
       </div>
       <div id="comms-participants" class="comms-participants"></div>
+      <details class="details formation-launch">
+        <summary>🜨 Form a Formation Array</summary>
+        <p class="muted">A saved multi-stage workflow (scout → analyze → propose → review). Disciples are assigned to each stage and build on one another in order.</p>
+        <div class="comms-launch">
+          <select id="formation-select"></select>
+          <input id="formation-goal" placeholder="Goal for the array…">
+          <button id="formation-go" class="btn">Raise Array</button>
+        </div>
+        <div id="formation-desc" class="muted"></div>
+      </details>
       <details class="details debate-launch">
         <summary>⚖ Hold a Dao Debate</summary>
         <div class="comms-launch">

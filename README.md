@@ -425,6 +425,14 @@ projects:
 - **Scheduled missions (cron):** define recurring sect activities in `schedules.yaml` (see `schedules.yaml.example`) — a `task`, `mission`, `quest`, or `debate` per `every_minutes`. A background scheduler fires them (first interval after startup, not at boot); no file → idle.
 - **Hall of Fame:** the dashboard ranks disciples by Strongest (realm/stones), Richest, Most Techniques, and Most Breakthroughs.
 
+## Trust, omens & formations
+
+Three features that wear the cultivation costume but earn their keep as real ops value:
+
+- **Reputation / trust tiers (`GET /api/reputation`):** a merit score (0-100) is derived live from the audit log + cultivation state — LLM success rate, guarded-tool reliability (completed vs failed/denied calls), realm/breakthroughs, minus a current failure streak — and maps to a tier shown on each disciple card. **Trusted** (≥75) disciples earn bonus autonomy budget (`MAYBOT_TRUST_AUTONOMY_BONUS`, default 3); **Probation** (<45) disciples are demoted back to human approval — their auto-runs are blocked regardless of `auto_approve`. So autonomy is *earned*: trust-based privilege escalation/de-escalation for autonomous tools. Tune the gates with `MAYBOT_TRUST_TRUSTED` / `MAYBOT_TRUST_PROBATION`.
+- **Prophecy / divination (`GET /api/prophecy`):** the **Heavenly Omens** section reads each project's recorded metrics history (the same series behind the sparklines) and forecasts near-term health with a light trend + anomaly model — a recent error, a z-score plunge, or a worsening PnL slope surfaces as an *ill omen* (ominous/caution/favorable, most concerning first). Under the costume it's simple early-warning/anomaly detection on monitoring data.
+- **Formations / agent workflows (`GET /api/formations`, `POST /api/formations/run`):** a **formation array** is a saved, reusable multi-agent pipeline run as a DAG of stages (e.g. scout → analyze → propose → review). Each stage's disciple sees the goal plus every prior stage's output and adds its part. Defined in `formations.yaml` (see `formations.yaml.example`; a built-in default works out of the box); stages without an explicit `agent` are auto-assigned round-robin. Reuses the council's one-activity-at-a-time guard. Operator-gated; launch from the **Dao Council** section.
+
 ## Agent Crew (LLM persona agents — Phase 1)
 
 The dashboard can run **LLM-backed persona agents** against your local AI hosts. Each agent is defined in `agents.yaml` with a name, role, and persona (system prompt), and points at an Ollama or OpenAI-compatible endpoint. In the **Agent Crew** section you assign a task to an agent and it runs one chat completion in the background, streaming the reply (and a transcript) into its card.

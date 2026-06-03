@@ -438,6 +438,9 @@ def snapshot() -> list[dict]:
                 "error": st["error"] if st else None,
                 "cultivation": cultivation.state(name),
             })
+    from . import reputation
+    for row in out:
+        row["reputation"] = reputation.score(row["name"])
     return out
 
 

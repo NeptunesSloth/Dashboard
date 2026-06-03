@@ -68,7 +68,11 @@ def allow(requester: str, tool: dict) -> bool:
     if requester == "operator":
         return True   # operator authority — unbounded by design
     name = tool.get("name", "")
-    cap = max(0, int(tool.get("max_auto_per_task", MAX_CALLS))) + pills.autonomy_bonus(requester)
+    from . import reputation  # lazy: reputation reads the tool audit log
+    if reputation.is_probation(requester):
+        return False  # untrusted disciples are demoted back to human approval
+    cap = (max(0, int(tool.get("max_auto_per_task", MAX_CALLS)))
+           + pills.autonomy_bonus(requester) + reputation.autonomy_bonus(requester))
     with _lock:
         if not ENABLED or _paused or not _window_ok():
             return False

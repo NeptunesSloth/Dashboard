@@ -23,6 +23,9 @@ from . import treasury
 from . import quests
 from . import metrics as metrics_mod
 from . import scheduler
+from . import reputation
+from . import prophecy
+from . import formations
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -305,6 +308,40 @@ def usage_stats(x_control_token: str = Header(default="")):
 def cultivation_stats(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return cultivation.snapshot()
+
+
+@app.get("/api/reputation")
+def reputation_stats(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return reputation.snapshot()
+
+
+@app.get("/api/prophecy")
+def prophecy_omens(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"omens": prophecy.divine()}
+
+
+@app.get("/api/formations")
+def formations_list(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"catalog": formations.catalog()}
+
+
+class FormationIn(BaseModel):
+    formation: str
+    goal: str
+
+
+@app.post("/api/formations/run")
+def formations_run(body: FormationIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.formation or ""):
+        raise HTTPException(400, "invalid formation name")
+    try:
+        return comms.start_formation(body.formation, body.goal)
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(400, str(exc))
 
 
 @app.get("/api/treasury")
