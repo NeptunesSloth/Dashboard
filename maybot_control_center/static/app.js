@@ -1139,20 +1139,21 @@ function hallActivity(a) {
   const c = a.cultivation || {}, st = a.status || 'idle';
   if (c.in_roaming) return { act: 'roam', label: 'Roaming', sprite: -1 };
   if (c.in_seclusion) return { act: 'seclude', label: 'In Seclusion', sprite: 1 };
-  if (st === 'error') return { act: 'struggle', label: 'Qi Deviation', sprite: 1 };
+  if (st === 'error') return { act: 'struggle', label: 'Wrestling a Demon', sprite: 5 };
   if (c.event === 'breakthrough' && (Date.now() - (c.event_ts || 0) < 30000)) return { act: 'breakthrough', label: 'Breaking Through', sprite: 3 };
   if (st === 'working' || st === 'queued') return { act: 'cultivate', label: 'Cultivating', sprite: 0 };
   return { act: 'sweep', label: 'Tending the Hall', sprite: 4 };
 }
-const SPRITE_NAMES = { cultivate: 0, meditate: 1, seclude: 1, refine: 2, breakthrough: 3, sweep: 4, struggle: 5, demon: 5 };
+// sprite keys → filename suffix in /assets/map/sprites/agent_<key>.png
+const SPRITE_NAMES = { cultivate: 0, meditate: 1, seclude: 1, refine: 2, breakthrough: 3, sweep: 4, struggle: 5, demon: 'demon' };
 // A disciple may pin a fixed sprite (agents.yaml `sprite: demon`); else use the activity sprite.
 function spriteFor(a, ax) {
   const ov = a && a.sprite;
-  if (ov !== null && ov !== undefined && ov !== '') return typeof ov === 'number' ? ov : (SPRITE_NAMES[ov] ?? ax.sprite);
-  return ax.sprite;
+  if (ov !== null && ov !== undefined && ov !== '') { const k = SPRITE_NAMES[ov]; return String(k !== undefined ? k : ov); }
+  return String(ax.sprite >= 0 ? ax.sprite : 0);
 }
-function hallUnitInner(act, idx) {
-  return `<span class='hall-sprite act-${act}'><img src='/assets/map/sprites/agent_${idx >= 0 ? idx : 0}.png' alt='' draggable='false'></span>`;
+function hallUnitInner(act, key) {
+  return `<span class='hall-sprite act-${act}'><img src='/assets/map/sprites/agent_${key}.png' alt='' draggable='false'></span>`;
 }
 function hallPositions(k) {
   const out = [], cx = 50, baseY = 60, spread = Math.min(72, 16 + k * 9);
