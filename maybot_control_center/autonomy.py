@@ -16,18 +16,34 @@ from __future__ import annotations
 
 import os
 import threading
+import time
 
 ENABLED = os.getenv("MAYBOT_AUTONOMY", "0").lower() in ("1", "true", "yes", "on")
 MAX_CALLS = max(0, int(os.getenv("MAYBOT_AUTONOMY_MAX_CALLS", "3")))
+# Optional local-time window for auto-runs, "START-END" 24h (e.g. "9-17").
+# Empty = always allowed. Supports overnight windows (e.g. "22-6").
+HOURS = os.getenv("MAYBOT_AUTONOMY_HOURS", "")
 
 _lock = threading.Lock()
 _paused = False
-_used: dict[str, int] = {}
+_used: dict[tuple[str, str], int] = {}  # (agent, tool) -> auto-runs this task
+
+
+def _window_ok() -> bool:
+    if not HOURS:
+        return True
+    try:
+        s, e = (int(x) for x in HOURS.split("-", 1))
+    except Exception:
+        return True
+    h = time.localtime().tm_hour
+    return s <= h < e if s <= e else (h >= s or h < e)
 
 
 def status() -> dict:
     with _lock:
-        return {"enabled": ENABLED, "paused": _paused, "max_calls": MAX_CALLS}
+        return {"enabled": ENABLED, "paused": _paused, "max_calls": MAX_CALLS,
+                "hours": HOURS, "in_window": _window_ok()}
 
 
 def set_paused(value: bool) -> dict:
@@ -39,7 +55,8 @@ def set_paused(value: bool) -> dict:
 
 def reset(agent: str) -> None:
     with _lock:
-        _used[agent] = 0
+        for key in [k for k in _used if k[0] == agent]:
+            _used.pop(key, None)
 
 
 def allow(requester: str, tool: dict) -> bool:
@@ -48,13 +65,15 @@ def allow(requester: str, tool: dict) -> bool:
         return False  # only operator-marked-safe tools are ever auto-runnable
     if requester == "operator":
         return True   # operator authority — unbounded by design
+    name = tool.get("name", "")
+    cap = max(0, int(tool.get("max_auto_per_task", MAX_CALLS)))  # per-tool budget override
     with _lock:
-        if not ENABLED or _paused:
+        if not ENABLED or _paused or not _window_ok():
             return False
-        used = _used.get(requester, 0)
-        if used >= MAX_CALLS:
+        key = (requester, name)
+        if _used.get(key, 0) >= cap:
             return False
-        _used[requester] = used + 1
+        _used[key] = _used.get(key, 0) + 1
         return True
 
 

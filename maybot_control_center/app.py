@@ -15,10 +15,13 @@ from . import tools as tooling
 from . import store
 from . import events
 from . import autonomy
+from . import usage
+from . import authz
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
-for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted, tooling.load_persisted):
+for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted,
+                tooling.load_persisted, usage.load_persisted):
     try:
         _loader()
     except Exception:
@@ -32,9 +35,32 @@ _ACTION_TIMEOUTS = {"start": 15, "stop": 15, "run-tests": 330}
 app = FastAPI(title="maybot-control-center")
 
 
-def _check_token(x_control_token: str = Header(default="")):
-    if CONTROL_CENTER_TOKEN and not secrets.compare_digest(x_control_token, CONTROL_CENTER_TOKEN):
+@app.middleware("http")
+async def _rate_limit(request, call_next):
+    if request.url.path.startswith("/api/") and not request.url.path.startswith("/api/stream"):
+        key = request.headers.get("x-control-token") or (request.client.host if request.client else "anon")
+        if not authz.allow_request(key):
+            from fastapi.responses import JSONResponse
+            return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
+    return await call_next(request)
+
+
+def _role(token: str) -> str:
+    r = authz.role_for(token)
+    if r is None:
         raise HTTPException(status_code=401, detail="invalid control token")
+    return r
+
+
+def _check_token(x_control_token: str = Header(default="")):
+    """Any valid role (viewer or operator)."""
+    _role(x_control_token)
+
+
+def _check_operator(x_control_token: str = Header(default="")):
+    """Operator role required for mutating actions."""
+    if _role(x_control_token) != "operator":
+        raise HTTPException(status_code=403, detail="operator role required")
 
 
 def _resolve_device(device_name: str):
@@ -73,7 +99,7 @@ def project_history(device_name: str, project_name: str, x_control_token: str = 
 
 @app.post("/api/action/{device_name}/{project_name}/{action}")
 def proxy_action(device_name: str, project_name: str, action: str, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
         raise HTTPException(400, "invalid device or project name")
     if action not in _VALID_ACTIONS:
@@ -109,7 +135,7 @@ def agent_detail(name: str, x_control_token: str = Header(default="")):
 
 @app.post("/api/agents/{name}/task")
 def assign_agent_task(name: str, body: TaskIn, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     if not _SAFE_NAME.match(name):
         raise HTTPException(400, "invalid agent name")
     task = (body.task or "").strip()
@@ -137,7 +163,7 @@ def comms_feed(limit: int = Query(default=100), x_control_token: str = Header(de
 
 @app.post("/api/comms/mission")
 def comms_mission(body: MissionIn, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     goal = (body.goal or "").strip()
     if not goal:
         raise HTTPException(400, "goal required")
@@ -185,21 +211,29 @@ def tools_list(x_control_token: str = Header(default="")):
             "calls": tooling.list_calls(), "autonomy": autonomy.status()}
 
 
+@app.get("/api/tools/audit")
+def tools_audit(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if store.enabled():
+        return {"persisted": True, "calls": store.load_tool_calls(500)}
+    return {"persisted": False, "calls": tooling.list_calls(200)}
+
+
 @app.post("/api/autonomy/pause")
 def autonomy_pause(x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     return autonomy.set_paused(True)
 
 
 @app.post("/api/autonomy/resume")
 def autonomy_resume(x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     return autonomy.set_paused(False)
 
 
 @app.post("/api/tools/run")
 def tools_run(body: ToolRunIn, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     if not _SAFE_NAME.match(body.tool or ""):
         raise HTTPException(400, "invalid tool name")
     try:
@@ -214,7 +248,7 @@ def tools_run(body: ToolRunIn, x_control_token: str = Header(default="")):
 
 @app.post("/api/tools/{call_id}/approve")
 def tools_approve(call_id: int, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     try:
         return tooling.approve(call_id)
     except KeyError:
@@ -223,11 +257,17 @@ def tools_approve(call_id: int, x_control_token: str = Header(default="")):
 
 @app.post("/api/tools/{call_id}/deny")
 def tools_deny(call_id: int, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     try:
         return tooling.deny(call_id)
     except KeyError:
         raise HTTPException(404, "call not found")
+
+
+@app.get("/api/usage")
+def usage_stats(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return usage.snapshot()
 
 
 @app.get("/api/stream")

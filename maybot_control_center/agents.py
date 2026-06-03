@@ -25,6 +25,7 @@ from . import memory
 from . import store
 from . import events
 from . import autonomy
+from . import usage
 from . import tools as tooling
 
 AGENTS_FILE = Path(os.getenv("MAYBOT_AGENTS_FILE", "agents.yaml"))
@@ -74,10 +75,12 @@ def _chat_claude(agent: dict, messages: list[dict]) -> tuple[bool, str, str | No
     except ImportError:
         return False, "", "anthropic SDK not installed (pip install anthropic)"
 
+    name = agent.get("name", "?")
     model = agent.get("model") or "claude-opus-4-8"
     max_tokens = int(agent.get("max_tokens", 1024))
     system_text = next((m["content"] for m in messages if m["role"] == "system"), _persona(agent))
     convo = [{"role": m["role"], "content": m["content"]} for m in messages if m["role"] in ("user", "assistant")]
+    t0 = time.time()
     try:
         resp = _anthropic_client().messages.create(
             model=model,
@@ -87,10 +90,16 @@ def _chat_claude(agent: dict, messages: list[dict]) -> tuple[bool, str, str | No
             messages=convo,
         )
         text = "".join(b.text for b in resp.content if getattr(b, "type", None) == "text")
+        u = getattr(resp, "usage", None)
+        tin = getattr(u, "input_tokens", 0) or 0
+        tout = getattr(u, "output_tokens", 0) or 0
+        usage.record(name, model, True, int((time.time() - t0) * 1000), tin, tout)
         return True, text, None
     except anthropic.AuthenticationError:
+        usage.record(name, model, False, int((time.time() - t0) * 1000))
         return False, "", "Claude API authentication failed — set ANTHROPIC_API_KEY"
     except Exception as exc:
+        usage.record(name, model, False, int((time.time() - t0) * 1000))
         return False, "", str(exc)
 
 
@@ -99,12 +108,15 @@ def _chat(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
     provider = (agent.get("provider") or "openai_compatible").lower()
     if provider in ("claude", "anthropic"):
         return _chat_claude(agent, messages)
+    name = agent.get("name", "?")
     base_url = (agent.get("base_url") or "").rstrip("/")
     model = agent.get("model") or agent.get("default_model") or ""
     temperature = float(agent.get("temperature", 0.7))
     max_tokens = int(agent.get("max_tokens", 512))
     if not base_url:
         return False, "", "base_url not configured"
+    t0 = time.time()
+    tin = tout = 0
     try:
         if provider == "ollama":
             r = requests.post(f"{base_url}/api/chat", json={
@@ -112,15 +124,26 @@ def _chat(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
                 "options": {"temperature": temperature, "num_predict": max_tokens},
             }, timeout=DEFAULT_TIMEOUT)
             r.raise_for_status()
-            return True, ((r.json().get("message") or {}).get("content") or ""), None
-        # OpenAI-compatible: openai_compatible / lmstudio / llama_cpp / vllm / custom
-        r = requests.post(f"{base_url}/v1/chat/completions", json={
-            "model": model, "messages": messages,
-            "temperature": temperature, "max_tokens": max_tokens,
-        }, timeout=DEFAULT_TIMEOUT)
-        r.raise_for_status()
-        return True, r.json()["choices"][0]["message"]["content"], None
+            data = r.json()
+            text = (data.get("message") or {}).get("content") or ""
+            tin = data.get("prompt_eval_count") or 0
+            tout = data.get("eval_count") or 0
+        else:
+            # OpenAI-compatible: openai_compatible / lmstudio / llama_cpp / vllm / custom
+            r = requests.post(f"{base_url}/v1/chat/completions", json={
+                "model": model, "messages": messages,
+                "temperature": temperature, "max_tokens": max_tokens,
+            }, timeout=DEFAULT_TIMEOUT)
+            r.raise_for_status()
+            data = r.json()
+            text = data["choices"][0]["message"]["content"]
+            u = data.get("usage") or {}
+            tin = u.get("prompt_tokens") or 0
+            tout = u.get("completion_tokens") or 0
+        usage.record(name, model, True, int((time.time() - t0) * 1000), tin, tout)
+        return True, text, None
     except Exception as exc:
+        usage.record(name, model, False, int((time.time() - t0) * 1000))
         return False, "", str(exc)
 
 

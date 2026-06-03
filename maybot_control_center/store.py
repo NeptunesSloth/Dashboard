@@ -24,6 +24,8 @@ _SCHEMA = [
     "CREATE TABLE IF NOT EXISTS comms (mission INTEGER, sender TEXT, kind TEXT, content TEXT, ts INTEGER)",
     ("CREATE TABLE IF NOT EXISTS tool_calls (id INTEGER PRIMARY KEY, requester TEXT, tool TEXT, "
      "args TEXT, status TEXT, output TEXT, code INTEGER, created_at INTEGER, finished_at INTEGER)"),
+    ("CREATE TABLE IF NOT EXISTS usage (agent TEXT, model TEXT, ok INTEGER, latency_ms INTEGER, "
+     "tin INTEGER, tout INTEGER, cost REAL, ts INTEGER)"),
 ]
 
 
@@ -136,6 +138,16 @@ def load_tool_calls(limit: int = 100) -> list[dict]:
                     "status": status, "output": output, "code": code,
                     "created_at": created, "finished_at": finished})
     return out
+
+
+# ---- usage ----
+def add_usage(agent: str, model: str, ok: bool, latency_ms: int, tin: int, tout: int, cost: float, ts: int) -> None:
+    _exec("INSERT INTO usage (agent, model, ok, latency_ms, tin, tout, cost, ts) VALUES (?,?,?,?,?,?,?,?)",
+          (agent, model, int(bool(ok)), latency_ms, tin, tout, cost, ts))
+
+
+def load_usage(limit: int = 20000) -> list[tuple]:
+    return _query("SELECT agent, model, ok, latency_ms, tin, tout, cost, ts FROM usage ORDER BY ts ASC LIMIT ?", (limit,))
 
 
 def _reset_for_tests(path: str) -> None:

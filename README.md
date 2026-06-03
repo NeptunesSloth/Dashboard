@@ -454,7 +454,9 @@ The request is created as **pending** — it never runs until a human approves. 
 - **Agentic tool loop:** when a guarded tool an agent requested completes, its result is fed back so the agent can continue (request another tool or finish). Bounded by `MAYBOT_AGENT_MAX_FOLLOWUPS` (default 4) per operator task — each tool step still needs approval unless `auto_approve`.
 - **Event-driven missions:** set `MAYBOT_INCIDENT_AGENT` to an agent name and, whenever a project goes unhealthy, that agent is auto-dispatched a diagnostic task (it can request a guarded tool to read logs, then post findings). Debounced: one dispatch per incident until the project recovers.
 - **Live updates (SSE):** the dashboard subscribes to `/api/stream` and refreshes the relevant section the instant an agent reply, comms message, or tool status changes — no waiting for the poll.
-- **Bounded autonomy (opt-in, default OFF):** by default an agent's tool request is queued for approval *even for `auto_approve` tools* — agents never act unattended. Set `MAYBOT_AUTONOMY=1` and an agent may auto-run an `auto_approve` tool only while under its per-task budget (`MAYBOT_AUTONOMY_MAX_CALLS`, default 3) and while not **paused**. The Tools section shows the budget and a **Pause/Resume kill switch** (`POST /api/autonomy/pause|resume`) that instantly halts all agent auto-runs. Operator-initiated runs are never affected.
+- **Bounded autonomy (opt-in, default OFF):** by default an agent's tool request is queued for approval *even for `auto_approve` tools* — agents never act unattended. Set `MAYBOT_AUTONOMY=1` and an agent may auto-run an `auto_approve` tool only while under its **per-task budget** (`MAYBOT_AUTONOMY_MAX_CALLS`, default 3; per-tool override via `max_auto_per_task` in `tools.yaml`), within an optional **time window** (`MAYBOT_AUTONOMY_HOURS`, e.g. `9-17`), and while not **paused**. The Tools section shows the budget/window and a **Pause/Resume kill switch** (`POST /api/autonomy/pause|resume`); an **approval audit log** view lists the persisted tool-call history. Operator-initiated runs are never affected.
+- **Cost & observability:** every LLM call is metered — per-agent calls, success rate, average latency, tokens, and estimated cost (per-model price table; local models are free). Surfaced in the **Usage & Cost** dashboard section and at `GET /api/usage`.
+- **Access control (RBAC):** without a users file the legacy single-token mode applies. Add `users.yaml` (see `users.yaml.example`) to map tokens to **viewer** (read-only) or **operator** (read + mutate) roles. All `/api/*` requests are rate-limited (`MAYBOT_RATE_LIMIT` per `MAYBOT_RATE_WINDOW` seconds).
 
 Optional control-center environment variables:
 
@@ -467,6 +469,10 @@ Optional control-center environment variables:
 | `MAYBOT_AGENT_MAX_FOLLOWUPS` | `4` | Tool-result feedbacks per task (loop guard) |
 | `MAYBOT_AUTONOMY` | `0` | Enable agents to auto-run `auto_approve` tools |
 | `MAYBOT_AUTONOMY_MAX_CALLS` | `3` | Agent auto-runs allowed per task (budget) |
+| `MAYBOT_AUTONOMY_HOURS` | _(unset)_ | Local-time window for auto-runs, e.g. `9-17` |
+| `MAYBOT_USERS_FILE` | `users.yaml` | RBAC token→role map (absent → single-token mode) |
+| `MAYBOT_RATE_LIMIT` | `240` | Max `/api/*` requests per window per client (0 = off) |
+| `MAYBOT_RATE_WINDOW` | `60` | Rate-limit window, seconds |
 | `MAYBOT_INCIDENT_AGENT` | _(unset)_ | Agent auto-dispatched when a project goes unhealthy |
 | `MAYBOT_INCIDENT_STATES` | `error` | Health states that trigger an incident |
 | `MAYBOT_COMMS_MAX_ROUNDS` | `3` | Max rounds per mission |

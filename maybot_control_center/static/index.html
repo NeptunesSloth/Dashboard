@@ -96,6 +96,15 @@
         <button id="tools-run" class="btn">Run</button>
       </div>
       <div id="tools-calls" class="grid"></div>
+      <details class="details tools-audit"><summary>Approval audit log</summary><div id="tools-audit-body" class="grid"></div></details>
+    </section>
+    <section id="usage-section" class="hidden">
+      <div class="section-head">
+        <h2>Usage &amp; Cost</h2>
+        <span id="usage-total" class="pill">$0.00</span>
+      </div>
+      <p class="muted">Per-agent LLM calls, latency, tokens, and estimated cost (local models are free).</p>
+      <div id="usage-table" class="grid"></div>
     </section>
     <section>
       <div class="section-head">

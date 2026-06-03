@@ -264,6 +264,7 @@ async function render() {
     renderVault();
     bindTools();
     renderTools();
+    renderUsage();
   } catch (e) {
     err.classList.remove('hidden');
     summaryEl.classList.remove('loading');
@@ -482,8 +483,9 @@ function commsBubble(m) {
     return `<div class='comms-sys'>${esc(m.content)}</div>`;
   }
   const hue = agentHue(m.from);
+  const ini = esc(String(m.from).charAt(0).toUpperCase());
   return `<div class='comms-msg' style='--hue:${hue}'>
-    <div class='comms-from'>${esc(m.from)}</div>
+    <div class='comms-head'><span class='comms-avatar'>${ini}</span><span class='comms-from'>${esc(m.from)}</span></div>
     <div class='comms-body'>${esc(m.content)}</div>
   </div>`;
 }
@@ -518,7 +520,13 @@ async function renderComms() {
 
   const feedEl = document.getElementById('comms-feed');
   const atBottom = feedEl.scrollHeight - feedEl.scrollTop - feedEl.clientHeight < 60;
-  feedEl.innerHTML = (data.feed || []).map(commsBubble).join('') || `<div class='comms-sys muted'>No missions yet.</div>`;
+  let html = (data.feed || []).map(commsBubble).join('') || `<div class='comms-sys muted'>No missions yet.</div>`;
+  if (active && m && m.current) {
+    const hue = agentHue(m.current);
+    const ini = esc(String(m.current).charAt(0).toUpperCase());
+    html += `<div class='comms-typing'><span class='comms-avatar' style='--hue:${hue}'>${ini}</span>${esc(m.current)} is composing<span class='dots'><i></i><i></i><i></i></span></div>`;
+  }
+  feedEl.innerHTML = html;
   if (atBottom) feedEl.scrollTop = feedEl.scrollHeight;
 }
 
@@ -638,7 +646,8 @@ async function renderTools() {
     killBtn.classList.remove('hidden');
     killBtn.textContent = 'Resume autonomy';
   } else {
-    statusEl.textContent = `autonomy on · budget ${auto.max_calls}/task`;
+    const win = auto.hours ? (auto.in_window ? ` · window ${auto.hours}` : ` · OUTSIDE window ${auto.hours}`) : '';
+    statusEl.textContent = `autonomy on · budget ${auto.max_calls}/task${win}`;
     killBtn.classList.remove('hidden');
     killBtn.textContent = 'Pause autonomy';
   }
@@ -666,6 +675,21 @@ async function renderTools() {
 }
 
 function bindTools() {
+  const audit = document.querySelector('.tools-audit');
+  if (audit && !audit.dataset.bound) {
+    audit.dataset.bound = '1';
+    audit.ontoggle = async () => {
+      if (!audit.open) return;
+      const body = document.getElementById('tools-audit-body');
+      body.innerHTML = `<div class='card muted'>Loading…</div>`;
+      try {
+        const d = await fetch('/api/tools/audit', { headers: authHeaders() }).then(r => r.json());
+        const calls = (d.calls || []).slice().reverse();
+        const note = d.persisted ? '' : `<div class='card muted'>In-memory only — set MAYBOT_DB to persist the audit log.</div>`;
+        body.innerHTML = note + (calls.length ? calls.map(toolCallCard).join('') : `<div class='card muted'>No tool calls recorded.</div>`);
+      } catch (_) { body.innerHTML = `<div class='card muted'>Failed to load audit log.</div>`; }
+    };
+  }
   const kill = document.getElementById('tools-kill');
   if (kill && !kill.dataset.bound) {
     kill.dataset.bound = '1';
@@ -696,6 +720,33 @@ function bindTools() {
     btn.disabled = false;
     renderTools();
   };
+}
+
+// ---- Usage & Cost ----
+
+function usageCard(u) {
+  const succCls = u.success_pct >= 90 ? 'money-pos' : (u.success_pct >= 50 ? 'money-zero' : 'money-neg');
+  const models = Object.keys(u.models || {}).join(', ') || '—';
+  return `<div class='card'>
+    <div class='metric'><b>🤖 ${esc(u.agent)}</b><b class='money-pos'>$${Number(u.cost).toFixed(4)}</b></div>
+    ${metric('Calls', `${esc(u.calls)} <span class='${succCls}'>(${esc(u.success_pct)}% ok)</span>`)}
+    ${metric('Avg latency', `${esc(u.avg_latency_ms)} ms`)}
+    ${metric('Tokens in / out', `${esc(u.tokens_in)} / ${esc(u.tokens_out)}`)}
+    ${metric('Models', esc(models))}
+  </div>`;
+}
+
+async function renderUsage() {
+  const section = document.getElementById('usage-section');
+  let data;
+  try { data = await fetch('/api/usage', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { section.classList.add('hidden'); return; }
+  const t = (data && data.totals) || {};
+  if (!t.calls) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+  document.getElementById('usage-total').textContent =
+    `$${Number(t.cost || 0).toFixed(4)} · ${t.calls} calls · ${(t.tokens_in + t.tokens_out).toLocaleString()} tok`;
+  document.getElementById('usage-table').innerHTML = (data.agents || []).map(usageCard).join('');
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).
