@@ -38,3 +38,14 @@ Screenshot world + each hall activity via the Playwright harness (Chromium at
 `/opt/pw-browsers/chromium-1194/chrome-linux/chrome`, `--no-sandbox`,
 `device_scale_factor=1`, width ≤ 980), iterate prompts if needed, then commit to
 the PR branch.
+
+## Prereqs for the next session (allowlist route)
+1. **Rotate** the OpenAI key that was pasted in chat (it's exposed). Use the new key below.
+2. In the environment config, set env var **`OPENAI_API_KEY`** = the new key.
+3. In the environment's **network policy**, allowlist host **`api.openai.com`**
+   (image bytes return inline as base64, so no CDN host is needed).
+4. Start a **new session on branch `claude/sect-finale`** and say "generate the map art".
+   First verify both gates:
+   - `echo ${OPENAI_API_KEY:+set}` → `set`
+   - `curl -s -o /dev/null -w '%{http_code}' https://api.openai.com/v1/models -H "Authorization: Bearer $OPENAI_API_KEY"` → `200` (403 "Host not in allowlist" = policy still blocking)
+   Then run `python scripts/generate_map_assets.py` and integrate per Step 2 above.

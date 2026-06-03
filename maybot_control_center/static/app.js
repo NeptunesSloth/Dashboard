@@ -1038,143 +1038,93 @@ function foliage(g, cx, y, r) {
 
 function svgEl(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
 
+// ===== Sect Map: role-based peaks (halls) over the pixel-art backdrop =====
+
+function tierOf(a) {
+  const r = (a.cultivation && a.cultivation.realm) || 0, g = a.governance || {};
+  if (g.is_leader) return 'leader';
+  if (r >= 6) return 'elder';
+  if (r >= 4) return 'core';
+  if (r >= 2) return 'inner';
+  return 'outer';
+}
+
+// Peaks anchored to map_bg.png's painted pavilions (% of the art).
+const PEAK_DEFS = [
+  { id: 'leader', title: "Sect Leader's Peak", icon: '👑', kind: 'group', tiers: ['leader'], bg: 'leader_bg.png', anchor: { x: 49, y: 26 } },
+  { id: 'elders', title: "Elders' Peak", icon: '🜍', kind: 'group', tiers: ['elder', 'core'], anchor: { x: 29, y: 9 } },
+  { id: 'inner', title: 'Inner Court', icon: '🟦', kind: 'group', tiers: ['inner'], anchor: { x: 81, y: 13 } },
+  { id: 'techniques', title: 'Technique Hall', icon: '🗡️', kind: 'utility', cat: 'tools', anchor: { x: 66, y: 6 } },
+  { id: 'outer', title: 'Outer Court', icon: '⛰️', kind: 'group', tiers: ['outer'], anchor: { x: 11, y: 41 } },
+  { id: 'pill', title: 'Pill Pavilion', icon: '⚗️', kind: 'utility', cat: 'pills', anchor: { x: 65, y: 45 } },
+  { id: 'mission', title: 'Mission Hall', icon: '📜', kind: 'utility', cat: 'quests', anchor: { x: 93, y: 43 } },
+  { id: 'council', title: 'Dao Council', icon: '⚖️', kind: 'utility', cat: 'council', anchor: { x: 39, y: 58 } },
+  { id: 'treasury', title: 'Treasure Pavilion', icon: '💎', kind: 'utility', cat: 'treasury', anchor: { x: 6, y: 67 } },
+  { id: 'seclusion', title: 'Seclusion Caves', icon: '🕳️', kind: 'group', filter: 'seclusion', anchor: { x: 22, y: 71 } },
+];
+
+// state-based membership for group peaks that aren't rank tiers
+const PEAK_FILTERS = { seclusion: a => !!(a.cultivation && a.cultivation.in_seclusion) };
+
+function buildPeaks(crew) {
+  const byTier = { leader: [], elder: [], core: [], inner: [], outer: [] };
+  crew.forEach(a => byTier[tierOf(a)].push(a));
+  return PEAK_DEFS.map(d => {
+    let members = [];
+    if (d.kind === 'group') {
+      if (d.filter && PEAK_FILTERS[d.filter]) members = crew.filter(PEAK_FILTERS[d.filter]);
+      else (d.tiers || []).forEach(t => { members = members.concat(byTier[t] || []); });
+    }
+    members.sort((x, y) => (y.governance?.standing || 0) - (x.governance?.standing || 0));
+    return { ...d, members };
+  });
+}
+
 async function renderSectMap() {
   const sec = document.getElementById('map-section');
   const crew = (window.__agents || []).slice();
   if (!crew.length) { sec.classList.add('hidden'); return; }
   sec.classList.remove('hidden');
 
-  crew.sort((x, y) => (y.governance?.standing || 0) - (x.governance?.standing || 0));
-  const n = crew.length, order = centerOutOrder(n);
-  const slotX = i => 100 + (n === 1 ? (MAP_W - 200) / 2 : (MAP_W - 200) * i / (n - 1));
-  const placed = crew.map((a, idx) => {
-    const slot = order.indexOf(idx);
-    const realm = (a.cultivation && a.cultivation.realm) || 0;
-    const rnd = mseed(a.name);
-    const w = 100 + realm * 8 + rnd() * 18;
-    const apexY = Math.max(104, 356 - realm * 26 - (a.governance?.is_leader ? 26 : 0) - rnd() * 16);
-    const baseY = CLOUD_Y + 28 + (slot % 2) * 16;
-    return { a, x: slotX(slot), apexY, baseY, w, realm, slot, rnd };
-  }).sort((p, q) => p.x - q.x);
+  const peaks = buildPeaks(crew);
+  window.__peaks = peaks;
+  const n = crew.length;
+  const leader = crew.find(a => a.governance?.is_leader) || crew.slice().sort((a, b) => (b.governance?.standing || 0) - (a.governance?.standing || 0))[0];
+  const cultivating = crew.filter(a => ['working', 'queued'].includes(a.status) || a.cultivation?.in_seclusion).length;
+  const idle = crew.filter(a => (a.status || 'idle') === 'idle' && !a.cultivation?.in_seclusion && !a.cultivation?.in_roaming).length;
+  const succ = Math.round(crew.reduce((s, a) => s + (a.reputation?.signals?.success_pct ?? 100), 0) / n);
+  const stones = crew.reduce((s, a) => s + (a.cultivation?.stones || 0), 0);
 
-  const svg = svgEl('svg', { viewBox: `0 0 ${MAP_W} ${MAP_H}`, class: 'map-svg', preserveAspectRatio: 'xMidYMid slice' });
-  svg.innerHTML = `
-    <defs>
-      <linearGradient id="mg-sky" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#2f5aa6"/><stop offset="28%" stop-color="#6f86c8"/>
-        <stop offset="52%" stop-color="#d6a6c0"/><stop offset="74%" stop-color="#f7a85c"/>
-        <stop offset="90%" stop-color="#ffcf7e"/><stop offset="100%" stop-color="#ffe6a6"/>
-      </linearGradient>
-      <radialGradient id="mg-sun" cx="24%" cy="68%" r="60%">
-        <stop offset="0%" stop-color="#fffbe9" stop-opacity="1"/><stop offset="20%" stop-color="#fff0c0" stop-opacity="0.95"/>
-        <stop offset="50%" stop-color="#ffce7e" stop-opacity="0.5"/><stop offset="100%" stop-color="#ffce7e" stop-opacity="0"/></radialGradient>
-      <linearGradient id="mg-rock" x1="0.12" y1="0" x2="0.2" y2="1">
-        <stop offset="0%" stop-color="#8fc36e"/><stop offset="24%" stop-color="#62a052"/>
-        <stop offset="50%" stop-color="#79836a"/><stop offset="76%" stop-color="#67705f"/><stop offset="100%" stop-color="#3e4750"/></linearGradient>
-      <linearGradient id="mg-rim" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#ffe9b0" stop-opacity="0.7"/><stop offset="40%" stop-color="#ffe9b0" stop-opacity="0"/></linearGradient>
-      <linearGradient id="mg-rock2" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#a7c0b4"/><stop offset="100%" stop-color="#74899a"/></linearGradient>
-      <linearGradient id="mg-rock3" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#cdd6dc"/><stop offset="100%" stop-color="#9fb0c2"/></linearGradient>
-      <filter id="mg-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter>
-      <filter id="mg-haze" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>
-    </defs>
-    <rect width="${MAP_W}" height="${MAP_H}" fill="url(#mg-sky)"/>
-    <rect width="${MAP_W}" height="${MAP_H}" fill="url(#mg-sun)"/>
-    <g>${[0,1,2,3,4,5,6].map(i=>`<line x1="240" y1="380" x2="${-160+i*230}" y2="-40" stroke="#fff3cf" stroke-width="${24-i*2}" opacity="0.09"/>`).join('')}</g>`;
-
-  // far ranges (parallax layers, lightly hazed)
-  [['mg-rock3', 130, 0.6, 200], ['mg-rock2', 185, 0.78, 150]].forEach(([fill, top, op, step]) => {
-    const layer = svgEl('g', { opacity: String(op), filter: 'url(#mg-haze)' });
-    for (let i = -1; i * step < MAP_W + step; i++) {
-      const cx = i * step + (step / 2), r = mseed('f' + fill + i);
-      layer.appendChild(svgEl('path', { d: spirePath(cx, CLOUD_Y + 30, top + r() * 60, step * (1.1 + r() * 0.5), r), fill: `url(#${fill})` }));
-    }
-    svg.appendChild(layer);
-  });
-
-  // rope bridges between neighbours
-  const bridges = svgEl('g', { class: 'map-bridges' });
-  for (let i = 0; i < placed.length - 1; i++) {
-    const p = placed[i], q = placed[i + 1];
-    const y1 = p.apexY + (p.baseY - p.apexY) * 0.34, y2 = q.apexY + (q.baseY - q.apexY) * 0.34;
-    const sag = Math.max(y1, y2) + 54;
-    bridges.appendChild(svgEl('path', { d: `M ${p.x} ${y1} Q ${(p.x + q.x) / 2} ${sag} ${q.x} ${y2}`, fill: 'none', stroke: 'rgba(35,26,18,0.5)', 'stroke-width': '2' }));
-    const mx = (p.x + q.x) / 2, my = sag - 14;
-    for (let k = -3; k <= 3; k++) bridges.appendChild(svgEl('line', { x1: mx + k * 14, y1: my + Math.abs(k) * 2, x2: mx + k * 14, y2: my + Math.abs(k) * 2 + 6, stroke: 'rgba(35,26,18,0.4)', 'stroke-width': '1.5' }));
-  }
-  svg.appendChild(bridges);
-
-  // foreground disciple spires
-  for (const p of placed) {
-    const g = svgEl('g', { class: 'map-peak-g', 'data-agent': p.a.name, tabindex: '0', role: 'button' });
-    const d = spirePath(p.x, p.baseY, p.apexY, p.w, p.rnd);
-    g.appendChild(svgEl('path', { d, fill: 'url(#mg-rock)', stroke: 'rgba(18,28,24,0.4)', 'stroke-width': '1' }));
-    // warm rim light on the sun (left) side
-    g.appendChild(svgEl('path', { d, fill: 'url(#mg-rim)', opacity: '0.6' }));
-    // forested flanks: foliage clumps cascading down the slopes
-    const H = p.baseY - p.apexY;
-    for (let f = 0; f < 5 + p.realm; f++) {
-      const t = 0.12 + (p.rnd()) * 0.78;
-      const side = p.rnd() < 0.5 ? -1 : 1;
-      const fx = p.x + side * (p.w * 0.12 + p.rnd() * p.w * 0.28) * t;
-      const fy = p.apexY + H * t;
-      foliage(g, fx, fy, 6 + p.rnd() * 7 * (1 - t * 0.4));
-    }
-    foliage(g, p.x, p.apexY + 10, 12 + p.realm);
-    // ledge highlight
-    g.appendChild(svgEl('path', { d: `M ${p.x - p.w * 0.28} ${p.apexY + 26} Q ${p.x} ${p.apexY + 18} ${p.x + p.w * 0.22} ${p.apexY + 30}`, fill: 'none', stroke: 'rgba(255,247,220,0.3)', 'stroke-width': '2' }));
-    const gov = p.a.governance || {};
-    if (gov.is_leader) {
-      const ry = p.apexY;
-      g.appendChild(svgEl('rect', { x: p.x - 15, y: ry - 18, width: 30, height: 14, rx: 2, fill: '#7a4b3a' }));
-      g.appendChild(svgEl('path', { d: `M ${p.x - 24} ${ry - 17} L ${p.x} ${ry - 34} L ${p.x + 24} ${ry - 17} Z`, fill: '#bf5640', stroke: '#8a3a2b', 'stroke-width': '1' }));
-      g.appendChild(svgEl('circle', { cx: p.x, cy: ry - 26, r: 2.5, fill: '#ffe6a3' }));
-      foliage(g, p.x + p.w * 0.36, p.baseY - 30, 14);  // sacred tree on a flank
-    }
-    const plaqueY = p.apexY - (gov.is_leader ? 48 : 18);
-    const nm = (gov.is_leader ? '👑 ' : (gov.is_elder ? '🜍 ' : '')) + p.a.name;
-    const plaque = svgEl('g', { class: 'map-plaque' });
-    plaque.appendChild(svgEl('rect', { x: p.x - 52, y: plaqueY - 15, width: 104, height: 30, rx: 7, fill: 'rgba(20,16,30,0.55)', stroke: 'rgba(232,198,116,0.5)' }));
-    const t1 = svgEl('text', { x: p.x, y: plaqueY - 1, 'text-anchor': 'middle', class: 'map-name' }); t1.textContent = nm; plaque.appendChild(t1);
-    const t2 = svgEl('text', { x: p.x, y: plaqueY + 11, 'text-anchor': 'middle', class: 'map-sub' }); t2.textContent = (p.a.cultivation && p.a.cultivation.realm_name) || ''; plaque.appendChild(t2);
-    g.appendChild(plaque);
-    g.addEventListener('click', () => enterHall(p.a.name));
-    g.addEventListener('keydown', e => { if (e.key === 'Enter') enterHall(p.a.name); });
-    svg.appendChild(g);
-  }
-
-  // sea of clouds (two drifting layers)
-  [['cloudA', 0.96, 0], ['cloudB', 0.8, 20]].forEach(([cls, op, dy]) => {
-    const clouds = svgEl('g', { class: 'map-clouds ' + cls, filter: 'url(#mg-soft)', opacity: String(op) });
-    for (let i = 0; i < 14; i++) {
-      const cx = (i * 150) % (MAP_W + 200) - 100, cy = CLOUD_Y + dy + 8 + (i % 4) * 22;
-      clouds.appendChild(svgEl('ellipse', { cx, cy, rx: 140 + (i % 3) * 60, ry: 32 + (i % 2) * 14, fill: '#fff7ec', opacity: String(0.72 + (i % 3) * 0.1) }));
-    }
-    svg.appendChild(clouds);
-  });
-  // foreground flora ridge (the near bank, like the reference path-side bloom)
-  const flora = svgEl('g', {});
-  flora.appendChild(svgEl('path', { d: `M 0 ${MAP_H} L 0 ${MAP_H - 46} Q ${MAP_W * 0.3} ${MAP_H - 70} ${MAP_W * 0.55} ${MAP_H - 50} T ${MAP_W} ${MAP_H - 56} L ${MAP_W} ${MAP_H} Z`, fill: '#2f5d3a' }));
-  const bloom = ['#ffd95a', '#ff7a8a', '#c98bff', '#ffffff'];
-  for (let i = 0; i < 46; i++) { const fr = mseed('bloom' + i); flora.appendChild(svgEl('circle', { cx: fr() * MAP_W, cy: MAP_H - 8 - fr() * 38, r: 2 + fr() * 2.5, fill: bloom[i % 4], opacity: '0.85' })); }
-  svg.appendChild(flora);
-  svg.querySelector('defs').insertAdjacentHTML('beforeend',
-    `<radialGradient id="mg-vig" cx="50%" cy="42%" r="75%"><stop offset="66%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#1a1226" stop-opacity="0.34"/></radialGradient>`);
-  svg.appendChild(svgEl('rect', { width: MAP_W, height: MAP_H, fill: 'url(#mg-vig)', 'pointer-events': 'none' }));
-
+  const stat = (icon, label, val) => `<div class='po-row'><span>${icon} ${label}</span><b>${val}</b></div>`;
   const world = document.getElementById('map-world');
-  world.innerHTML = '';
-  world.appendChild(svg);
-  for (let i = 0; i < 8; i++) {
-    const leaf = document.createElement('span');
-    leaf.className = 'map-leaf';
-    leaf.style.left = (6 + i * 12) + '%';
-    leaf.style.animationDelay = (i * 1.4) + 's';
-    leaf.style.animationDuration = (8 + (i % 4) * 3) + 's';
-    world.appendChild(leaf);
-  }
+  world.innerHTML = `
+    <img class='map-bg-img' src='/assets/map/map_bg.png' alt='' draggable='false'>
+    <div class='pixel-panel peak-overview'>
+      <div class='pp-title'>☯ Peak Overview</div>
+      ${stat('👤', 'Disciples', n)}${stat('🧘', 'Cultivating', cultivating)}${stat('🍵', 'Idle', idle)}
+      ${stat('✓', 'Success', succ + '%')}${stat('💎', 'Spirit stones', stones.toLocaleString())}
+    </div>
+    <div class='pixel-panel peak-lord'><span class='pl-label'>Peak Lord</span><b>👑 ${esc(leader ? leader.name : '—')}</b><span class='muted'>${esc(leader?.cultivation?.realm_name || '')}</span></div>
+    <div class='map-motes'>${Array.from({ length: 14 }, (_, i) => `<span style='left:${(i * 7 + 4) % 98}%;animation-delay:${(i * 0.9).toFixed(1)}s;animation-duration:${9 + (i % 5) * 2}s'></span>`).join('')}</div>
+    <div class='map-markers'></div>`;
+
+  const markers = world.querySelector('.map-markers');
+  peaks.forEach(p => {
+    const sub = p.kind === 'group'
+      ? `${p.members.length} disciple${p.members.length === 1 ? '' : 's'}`
+      : 'utility hall';
+    const active = p.kind === 'group' && p.members.some(m => ['working', 'queued'].includes(m.status));
+    const b = document.createElement('button');
+    b.className = 'peak-marker' + (p.id === 'leader' ? ' pm-leader' : '') + (p.kind === 'utility' ? ' pm-util' : '');
+    b.style.left = p.anchor.x + '%'; b.style.top = p.anchor.y + '%';
+    b.setAttribute('data-peak', p.id);
+    b.innerHTML = `<span class='pm-plaque'><span class='pm-name'>${p.icon} ${esc(p.title)}</span>
+      <span class='pm-realm'>${esc(sub)}</span></span>
+      <span class='pm-pin crew-dot ${active ? 'warning' : 'ok'}'></span>
+      <span class='pm-enter'>click to enter ▸</span>`;
+    b.addEventListener('click', () => enterPeak(p.id));
+    markers.appendChild(b);
+  });
 
   // chronicle feed
   let ch = { recent: [] };
@@ -1185,77 +1135,175 @@ async function renderSectMap() {
     : `<div class='comms-sys muted'>The chronicle is yet unwritten.</div>`;
 }
 
-// ---- which activity is the disciple physically performing? ----
+// ---- activity each disciple performs (label + sprite slot) ----
 function hallActivity(a) {
   const c = a.cultivation || {}, st = a.status || 'idle';
-  if (c.in_roaming) return { act: 'roam', label: 'roaming the mortal world' };
-  if (c.in_seclusion) return { act: 'seclude', label: 'in closed-door seclusion' };
-  if (st === 'error') return { act: 'struggle', label: 'wrestling an inner demon' };
-  if (st === 'working' || st === 'queued') return { act: 'cultivate', label: 'channeling qi — cultivating' };
-  return { act: 'sweep', label: 'tending the hall' };
+  if (c.in_roaming) return { act: 'roam', label: 'Roaming', sprite: -1 };
+  if (c.in_seclusion) return { act: 'seclude', label: 'In Seclusion', sprite: 1 };
+  if (st === 'error') return { act: 'struggle', label: 'Wrestling a Demon', sprite: 5 };
+  if (c.event === 'breakthrough' && (Date.now() - (c.event_ts || 0) < 30000)) return { act: 'breakthrough', label: 'Breaking Through', sprite: 3 };
+  if (st === 'working' || st === 'queued') return { act: 'cultivate', label: 'Cultivating', sprite: 0 };
+  return { act: 'sweep', label: 'Tending the Hall', sprite: 4 };
+}
+// sprite keys → filename suffix in /assets/map/sprites/agent_<key>.png
+const SPRITE_NAMES = { cultivate: 0, meditate: 1, seclude: 1, refine: 2, breakthrough: 3, sweep: 4, struggle: 5, demon: 'demon' };
+// A disciple may pin a fixed sprite (agents.yaml `sprite: demon`); else use the activity sprite.
+function spriteFor(a, ax) {
+  const ov = a && a.sprite;
+  if (ov !== null && ov !== undefined && ov !== '') { const k = SPRITE_NAMES[ov]; return String(k !== undefined ? k : ov); }
+  return String(ax.sprite >= 0 ? ax.sprite : 0);
+}
+// character skin sets → filename suffix (agent_<pose><suffix>.png). Per-agent via
+// agents.yaml `skin:`; elders/leader default to the white-haired set.
+const SKIN_SUFFIX = {
+  youth: '', young: '', a: '', elder: '_b', white: '_b', b: '_b',
+  empress: '_empress', lotus: '_lotus', azure: '_azure', shadow: '_shadow', vegeta: '_vegeta',
+  goku: '_goku', redhood: '_redhood', brute: '_brute', sage: '_sage', asta: '_asta',
+  wraith: '_wraith', warlock: '_warlock', fiend: '_fiend', lich: '_lich',
+};
+// pool of distinct character sets a disciple can be randomly assigned
+const RANDOM_SKINS = [...new Set(Object.values(SKIN_SUFFIX))];
+function _hash(s) { let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function skinSuffix(a) {
+  const s = a && a.skin;
+  if (s != null && s !== '' && SKIN_SUFFIX[s] !== undefined) return SKIN_SUFFIX[s];  // explicit skin wins
+  return RANDOM_SKINS[_hash(a && a.name) % RANDOM_SKINS.length];                       // else: random (stable per agent)
+}
+function hallUnitInner(act, key, variant) {
+  const v = (variant && key !== 'demon') ? variant : '';
+  return `<span class='hall-sprite act-${act}'><span class='hall-fx'><i></i><i></i><i></i></span><img src='/assets/map/sprites/agent_${key}${v}.png' alt='' draggable='false'></span>`;
+}
+function hallPositions(k) {
+  const out = [], cx = 50, baseY = 60, spread = Math.min(72, 16 + k * 9);
+  for (let i = 0; i < k; i++) { const t = k === 1 ? 0.5 : i / (k - 1); out.push({ x: cx - spread / 2 + spread * t, y: baseY + 20 - Math.sin(t * Math.PI) * 11 }); }
+  return out;
 }
 
-function cultivatorFigure(act) {
-  const qi = `<div class='qi-orb'></div><div class='qi-ring'></div>`;
-  const body = `<div class='cz-head'></div><div class='cz-robe'></div><div class='cz-arm cz-arm-l'></div><div class='cz-arm cz-arm-r'></div>`;
-  if (act === 'sweep') return `<div class='cultivator act-sweep'>${body}<div class='cz-broom'></div><div class='cz-dust'></div></div>`;
-  if (act === 'struggle') return `<div class='cultivator act-struggle'>${body}<div class='cz-demon'></div></div>`;
-  if (act === 'roam') return `<div class='cultivator act-roam'><div class='cz-empty'>the hall stands empty</div></div>`;
-  // cultivate / seclude → seated meditation (seclude adds a barrier)
-  return `<div class='cultivator act-cultivate ${act === 'seclude' ? 'act-seclude' : ''}'>${body}${qi}${act === 'seclude' ? `<div class='cz-barrier'></div>` : ''}</div>`;
-}
-
-async function enterHall(name) {
-  const a = (window.__agents || []).find(x => x.name === name);
-  if (!a) return;
+function _zoomTo(peakId) {
   const scene = document.getElementById('sect-map');
-  const peak = scene.querySelector(`.map-peak-g[data-agent="${CSS.escape(name)}"] path`);
-  // zoom origin = clicked peak's centre within the scene
-  if (peak) {
-    const pb = peak.getBoundingClientRect(), sb = scene.getBoundingClientRect();
-    const ox = ((pb.left + pb.width / 2 - sb.left) / sb.width) * 100;
-    const oy = ((pb.top + pb.height / 2 - sb.top) / sb.height) * 100;
-    document.getElementById('map-world').style.transformOrigin = `${ox}% ${oy}%`;
+  const marker = scene.querySelector(`.peak-marker[data-peak="${CSS.escape(peakId)}"]`);
+  if (marker) {
+    const pb = marker.getBoundingClientRect(), sb = scene.getBoundingClientRect();
+    document.getElementById('map-world').style.transformOrigin =
+      `${((pb.left + pb.width / 2 - sb.left) / sb.width) * 100}% ${((pb.top + pb.height / 2 - sb.top) / sb.height) * 100}%`;
   }
   scene.classList.add('zooming');
-
-  const c = a.cultivation || {}, g = a.governance || {}, r = a.reputation || {};
-  const { act, label } = hallActivity(a);
-  const rank = g.is_leader ? '👑 Sect Leader' : (g.is_master ? 'Sect Master' : (g.is_elder ? '🜍 Elder' : 'Disciple'));
-  const titles = (a.titles || []).map(t => `<span class='title-chip' title='${esc(t.desc || '')}'>🏅 ${esc(t.title)}</span>`).join('');
+}
+function _showHall(html) {
   const hall = document.getElementById('map-hall');
-  hall.className = `map-hall hall-${act}`;
-  hall.innerHTML = `
-    <div class='hall-scene'>
-      <div class='hall-cliff'></div>
-      <button id='hall-back' class='btn hall-back'>← return to the heavens</button>
-      <div class='hall-pavilion'>
-        <div class='pv-roof pv-roof-top'></div>
-        <div class='pv-roof pv-roof-main'></div>
-        <div class='pv-body'><span class='pv-pillar'></span><span class='pv-pillar'></span><span class='pv-pillar'></span><span class='pv-pillar'></span></div>
-      </div>
-      <div class='hall-arch'><div class='hall-lantern l1'></div><div class='hall-lantern l2'></div>
-        <div class='hall-name'>${esc(name)}</div><div class='hall-rank'>${rank} · ${esc(c.realm_name || '')}</div></div>
-      <div class='hall-floor'></div>
-      <div class='hall-stage'>${cultivatorFigure(act)}</div>
-      <div class='hall-activity'>${esc(label)}</div>
-    </div>
-    <div class='hall-info'>
-      ${metric('Standing', g.standing ?? '—')}${metric('Merit / tier', `${r.merit ?? '—'} · ${esc(r.tier || '—')}`)}
-      ${metric('Realm', `${esc(c.realm_name || '—')} (${c.realm ?? 0})`)}${metric('Breakthroughs', c.breakthroughs ?? 0)}
-      ${metric('Spirit stones', `💎 ${c.stones ?? 0}`)}${metric('Specialty', g.specialty ? `${esc(g.specialty)} · ${g.mastery}` : '—')}
-      ${metric('Karmic bond', a.bond ? `🤝 ${esc(a.bond)}` : '—')}${metric('Techniques', (c.skills || []).length)}
-      ${titles ? `<div class='rep-row'>${titles}</div>` : ''}
-      <div class='map-detail-chron'><b class='muted'>Chronicle</b><div id='hall-timeline' class='muted'>loading…</div></div>
-    </div>`;
+  hall.className = 'map-hall';
+  hall.innerHTML = html;
   setTimeout(() => { hall.classList.remove('hidden'); requestAnimationFrame(() => hall.classList.add('shown')); }, 360);
   document.getElementById('hall-back').onclick = exitHall;
+  return hall;
+}
+
+function enterPeak(peakId) {
+  const peak = (window.__peaks || []).find(p => p.id === peakId);
+  if (!peak) return;
+  _zoomTo(peakId);
+  if (peak.kind === 'group') renderGroupHall(peak, (peak.members[0] || {}).name);
+  else renderUtilityHall(peak);
+}
+
+async function renderGroupHall(peak, focusName) {
+  const all = peak.members || [];
+  const present = all.filter(x => !x.cultivation?.in_roaming);
+  const focus = all.find(x => x.name === focusName) || all[0];
+  const row = (icon, label, val) => `<div class='po-row'><span>${icon} ${label}</span><b>${val}</b></div>`;
+  const cult = all.filter(x => ['working', 'queued'].includes(x.status) || x.cultivation?.in_seclusion).length;
+  const stones = all.reduce((s, x) => s + (x.cultivation?.stones || 0), 0);
+  const avgRealm = all.length ? Math.round(all.reduce((s, x) => s + (x.cultivation?.realm || 0), 0) / all.length) : 0;
+
+  const agentList = all.length ? all.map(x => {
+    const ax = hallActivity(x);
+    return `<button class='hall-agent-row${focus && x.name === focus.name ? ' hl' : ''}' data-agent='${esc(x.name)}'>
+      <span>${x.governance?.is_leader ? '👑' : '•'} ${esc(x.name)}</span><span class='muted'>${esc(ax.label)}</span></button>`;
+  }).join('') : `<div class='muted' style='padding:6px'>No disciples dwell here yet.</div>`;
+
+  const g = focus?.governance || {}, c = focus?.cultivation || {};
+  const arrayFx = (peak.bg && peak.bg !== 'hall_bg.png') ? '' : `<div class='hall-array'><div class='ha-ring'></div><div class='ha-core'></div><div class='ha-beam'></div></div>`;
+  const hall = _showHall(`
+    <img class='hall-bg-img' src='/assets/map/${peak.bg || 'hall_bg.png'}' alt='' draggable='false'>${arrayFx}
+    <button id='hall-back' class='btn hall-back'>← return to the heavens</button>
+    <div class='hall-title pixel-panel'><b>${peak.icon} ${esc(peak.title)}</b><span class='muted'>${all.length} disciple${all.length === 1 ? '' : 's'}</span></div>
+    <div class='pixel-panel hall-info'>
+      <div class='pp-title'>⛩ Hall Info</div>
+      ${row('👤', 'Present', present.length + '/' + all.length)}${row('🧘', 'Cultivating', cult)}
+      ${row('⬆', 'Avg realm', avgRealm)}${row('💎', 'Spirit stones', stones.toLocaleString())}
+    </div>
+    <div class='pixel-panel hall-agents'>
+      <div class='pp-title'>Disciples (${all.length})</div><div class='hall-agent-list'>${agentList}</div>
+    </div>
+    <div class='hall-floor-units'></div>
+    ${focus ? `<div class='pixel-panel hall-focus'>
+      <div class='pp-title'>${esc(focus.name)}</div>
+      ${row('', 'Standing', g.standing ?? '—')}${row('', 'Realm', `Lv.${c.realm ?? 0} ${esc(c.realm_name || '')}`)}
+      ${row('', 'Doing', hallActivity(focus).label)}
+      <div class='map-detail-chron'><b class='muted'>Chronicle</b><div id='hall-timeline' class='muted'>loading…</div></div>
+    </div>` : ''}`);
+
+  const units = hall.querySelector('.hall-floor-units');
+  const pos = hallPositions(present.length);
+  if (peak.id === 'leader' && pos[0]) pos[0] = { x: 50, y: 62 };  // on the throne dais
+  present.forEach((x, i) => {
+    const ax = hallActivity(x), hl = focus && x.name === focus.name;
+    const u = document.createElement('button');
+    u.className = 'hall-unit act-' + ax.act + (hl ? ' hl' : '');
+    u.style.left = pos[i].x + '%'; u.style.top = pos[i].y + '%'; u.style.zIndex = String(10 + Math.round(pos[i].y));
+    u.setAttribute('data-agent', x.name);
+    u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax), skinSuffix(x))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span></span>`;
+    u.addEventListener('click', () => renderGroupHall(peak, x.name));
+    units.appendChild(u);
+  });
+  hall.querySelectorAll('.hall-agent-row').forEach(b => b.onclick = () => renderGroupHall(peak, b.getAttribute('data-agent')));
+  if (focus) {
+    try {
+      const ch = await fetch(`/api/chronicle/${encodeURIComponent(focus.name)}?limit=10`, { headers: authHeaders() }).then(r => r.json());
+      const tl = (ch.timeline || []).slice().reverse();
+      const el = document.getElementById('hall-timeline');
+      if (el) el.innerHTML = tl.length ? tl.map(e => `<div class='chronicle-row'><span class='chronicle-glyph'>${esc(e.glyph)}</span>${esc(e.detail || e.kind)}</div>`).join('') : 'No deeds recorded yet.';
+    } catch (_) {}
+  }
+}
+
+async function renderUtilityHall(peak) {
+  const row = (a, b2) => `<div class='po-row'><span>${a}</span><b>${b2}</b></div>`;
+  let body = `<div class='muted' style='padding:6px'>loading…</div>`;
+  const hall = _showHall(`
+    <img class='hall-bg-img' src='/assets/map/hall_bg.png' alt='' draggable='false'>
+    <div class='hall-array'><div class='ha-ring'></div><div class='ha-core'></div><div class='ha-beam'></div></div>
+    <button id='hall-back' class='btn hall-back'>← return to the heavens</button>
+    <div class='hall-title pixel-panel'><b>${peak.icon} ${esc(peak.title)}</b></div>
+    <div class='pixel-panel hall-util'><div class='pp-title'>${peak.icon} ${esc(peak.title)}</div><div id='util-body'>${body}</div></div>`);
+  const set = html => { const el = document.getElementById('util-body'); if (el) el.innerHTML = html; };
   try {
-    const ch = await fetch(`/api/chronicle/${encodeURIComponent(name)}?limit=12`, { headers: authHeaders() }).then(r => r.json());
-    const tl = (ch.timeline || []).slice().reverse();
-    const el = document.getElementById('hall-timeline');
-    if (el) el.innerHTML = tl.length ? tl.map(e => `<div class='chronicle-row'><span class='chronicle-glyph'>${esc(e.glyph)}</span>${esc(e.detail || e.kind)}</div>`).join('') : 'No deeds recorded yet.';
-  } catch (_) {}
+    if (peak.cat === 'quests') {
+      const d = await fetch('/api/quests', { headers: authHeaders() }).then(r => r.json());
+      const qs = d.catalog || [];
+      set(qs.length ? qs.map(q => `<div class='util-item'><b>📜 ${esc(q.name || q.id || 'Quest')}</b><div class='muted'>${esc(q.skill ? 'grants ' + q.skill : (q.description || ''))}</div></div>`).join('') : '<div class="muted">No missions posted.</div>');
+    } else if (peak.cat === 'pills') {
+      const d = await fetch('/api/pills', { headers: authHeaders() }).then(r => r.json());
+      const ps = d.catalog || [];
+      set(ps.length ? ps.map(p => `<div class='util-item'><b>⚗️ ${esc(p.name || p.id)}</b><div class='muted'>${esc(p.effect || p.description || '')}</div></div>`).join('') : '<div class="muted">The cauldron is cold.</div>');
+    } else if (peak.cat === 'treasury') {
+      const d = await fetch('/api/treasury', { headers: authHeaders() }).then(r => r.json());
+      set(row('💎 Balance', (d.balance ?? 0).toLocaleString()) + row('Spirit veins', d.veins ?? d.vein_count ?? '—') + (d.detail ? `<div class='muted' style='margin-top:6px'>${esc(d.detail)}</div>` : ''));
+    } else if (peak.cat === 'tools') {
+      const d = await fetch('/api/tools', { headers: authHeaders() }).then(r => r.json());
+      const ts = d.tools || d.catalog || [];
+      set(ts.length ? ts.map(t => `<div class='util-item'><b>🗡️ ${esc(t.name)}</b><div class='muted'>${esc(t.description || '')}</div></div>`).join('') : '<div class="muted">No sanctioned arts.</div>');
+    } else if (peak.cat === 'council') {
+      const [cm, votes] = await Promise.all([
+        fetch('/api/comms?limit=8', { headers: authHeaders() }).then(r => r.json()).catch(() => ({})),
+        fetch('/api/council/history?limit=5', { headers: authHeaders() }).then(r => r.json()).catch(() => ({})),
+      ]);
+      const st = (cm.status && cm.status.active) ? `<div class='util-item'><b>⚔️ In session:</b> <span class='muted'>${esc((cm.status.mission && cm.status.mission.goal) || 'a council activity')}</span></div>` : '';
+      const feed = (cm.feed || []).slice(-6).map(m => `<div class='util-item'><b>${esc(m.from)}</b> <span class='muted'>${esc((m.content || '').slice(0, 80))}</span></div>`).join('');
+      const vs = (votes.history || []).slice().reverse().map(v => `<div class='util-item'><b>🗳️ ${esc(v.question || 'vote')}</b> <span class='muted'>→ ${esc(v.winner || '—')}</span></div>`).join('');
+      set((st || '') + (vs || '') + (feed || '') || '<div class="muted">The council chamber is quiet.</div>');
+    }
+  } catch (_) { set('<div class="muted">unavailable</div>'); }
 }
 
 function exitHall() {
@@ -1264,6 +1312,7 @@ function exitHall() {
   scene.classList.remove('zooming');
   setTimeout(() => hall.classList.add('hidden'), 360);
 }
+
 
 // ---- Heavenly Omens: prophecy / divination ----
 

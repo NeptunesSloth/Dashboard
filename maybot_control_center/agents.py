@@ -477,6 +477,8 @@ def snapshot() -> list[dict]:
                 "transcript_len": len(st["transcript"]) if st else 0,
                 "error": st["error"] if st else None,
                 "cultivation": cultivation.state(name),
+                "sprite": a.get("sprite"),   # optional fixed map sprite (e.g. "demon")
+                "skin": a.get("skin"),       # optional character skin set (e.g. "elder")
             })
     from . import reputation, governance, titles, bonds
     leader = governance.leader()

@@ -45,3 +45,11 @@ logs/
 .DS_Store
 .idea/
 .vscode/
+
+# never commit secrets
+.env
+.env.*
+
+# ...but the Sect Map art assets ARE part of the app and must be tracked
+!maybot_control_center/static/assets/map/*.png
+!maybot_control_center/static/assets/map/**/*.png
