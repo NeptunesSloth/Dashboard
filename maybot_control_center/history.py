@@ -13,6 +13,8 @@ import os
 import threading
 import time
 
+from . import store
+
 # How many points to retain per project, and how many distinct project series
 # to track, before older data / new series are dropped. Both are configurable
 # so large fleets can tune memory use.
@@ -45,9 +47,12 @@ def record(projects: list[dict]) -> None:
                 if len(_series) >= MAX_SERIES:
                     continue
                 buf = _series[key] = []
-            buf.append({"ts": now, "health": p.get("health", "unknown"), "pnl": _pnl(p)})
+            point = {"ts": now, "health": p.get("health", "unknown"), "pnl": _pnl(p)}
+            buf.append(point)
             if len(buf) > MAX_POINTS:
                 del buf[:-MAX_POINTS]
+            if store.enabled():
+                store.add_history(p.get("device", "?"), p.get("name", "?"), point)
 
 
 def attach(projects: list[dict]) -> None:
@@ -61,6 +66,14 @@ def get(device: str, name: str) -> list[dict]:
     """Return a copy of the recorded series for one project."""
     with _lock:
         return list(_series.get(_key(device, name), []))
+
+
+def load_persisted() -> None:
+    if not store.enabled():
+        return
+    with _lock:
+        for key, points in store.load_history().items():
+            _series[key] = points[-MAX_POINTS:]
 
 
 def clear() -> None:

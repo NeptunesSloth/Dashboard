@@ -22,6 +22,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from . import agents
 from . import memory
+from . import store
+from . import events
 
 MAX_ROUNDS = max(1, int(os.getenv("MAYBOT_COMMS_MAX_ROUNDS", "3")))
 MAX_PARTICIPANTS = max(2, int(os.getenv("MAYBOT_COMMS_MAX_PARTICIPANTS", "6")))
@@ -40,12 +42,14 @@ def _post(sender: str, content: str, kind: str = "agent", mission_id=None) -> No
     global _seq
     with _lock:
         _seq += 1
-        _feed.append({
-            "id": _seq, "from": sender, "content": content, "kind": kind,
-            "ts": int(time.time() * 1000), "mission": mission_id,
-        })
+        msg = {"id": _seq, "from": sender, "content": content, "kind": kind,
+               "ts": int(time.time() * 1000), "mission": mission_id}
+        _feed.append(msg)
         if len(_feed) > FEED_CAP:
             del _feed[:-FEED_CAP]
+    if store.enabled():
+        store.add_comms(msg)
+    events.publish("comms", {"from": sender, "kind": kind})
 
 
 def get_feed(limit: int = 100) -> list[dict]:
@@ -144,6 +148,17 @@ def start_mission(goal: str, participants: list[str], rounds: int = 2) -> dict:
     _post("system", f"Mission started: {goal} — crew: {', '.join(names)} ({rounds} rounds)", "system", mission_id)
     _pool.submit(run_mission, goal, names, rounds, mission_id)
     return snap
+
+
+def load_persisted() -> None:
+    global _seq
+    if not store.enabled():
+        return
+    rows = store.load_comms(FEED_CAP)
+    with _lock:
+        _feed.clear()
+        _feed.extend(rows)
+        _seq = max((m.get("id") or 0 for m in _feed), default=0)
 
 
 def clear() -> None:

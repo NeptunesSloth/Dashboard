@@ -1,7 +1,8 @@
+import queue
 import re
 import secrets
 from fastapi import FastAPI, Header, HTTPException, Query
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 from .config import load_devices, CONTROL_CENTER_TOKEN
 from .aggregator import aggregate
@@ -11,6 +12,17 @@ from . import agents
 from . import comms
 from . import memory
 from . import tools as tooling
+from . import store
+from . import events
+from . import autonomy
+
+# Restore persisted state (no-op unless MAYBOT_DB is set).
+store.init()
+for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted, tooling.load_persisted):
+    try:
+        _loader()
+    except Exception:
+        pass
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
@@ -169,7 +181,20 @@ class ToolRunIn(BaseModel):
 @app.get("/api/tools")
 def tools_list(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
-    return {"enabled": tooling.enabled(), "tools": tooling.tool_summaries(), "calls": tooling.list_calls()}
+    return {"enabled": tooling.enabled(), "tools": tooling.tool_summaries(),
+            "calls": tooling.list_calls(), "autonomy": autonomy.status()}
+
+
+@app.post("/api/autonomy/pause")
+def autonomy_pause(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return autonomy.set_paused(True)
+
+
+@app.post("/api/autonomy/resume")
+def autonomy_resume(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return autonomy.set_paused(False)
 
 
 @app.post("/api/tools/run")
@@ -203,6 +228,27 @@ def tools_deny(call_id: int, x_control_token: str = Header(default="")):
         return tooling.deny(call_id)
     except KeyError:
         raise HTTPException(404, "call not found")
+
+
+@app.get("/api/stream")
+def stream(token: str = Query(default="")):
+    # EventSource can't send custom headers, so the control token comes as a query param.
+    if CONTROL_CENTER_TOKEN and not secrets.compare_digest(token, CONTROL_CENTER_TOKEN):
+        raise HTTPException(status_code=401, detail="invalid control token")
+
+    def gen():
+        q = events.subscribe()
+        try:
+            yield "retry: 3000\n\n"
+            while True:
+                try:
+                    yield f"data: {q.get(timeout=15)}\n\n"
+                except queue.Empty:
+                    yield ": ping\n\n"  # heartbeat keeps the connection alive
+        finally:
+            events.unsubscribe(q)
+
+    return StreamingResponse(gen(), media_type="text/event-stream")
 
 
 @app.get("/")

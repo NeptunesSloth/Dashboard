@@ -28,6 +28,10 @@ from pathlib import Path
 
 import yaml
 
+from . import store
+from . import events
+from . import autonomy
+
 TOOLS_FILE = Path(os.getenv("MAYBOT_TOOLS_FILE", "tools.yaml"))
 MAX_CALLS = 100
 OUTPUT_CAP = 8000
@@ -42,6 +46,18 @@ _TOOL_BLOCK = re.compile(r"```tool\s+(\{.*?\})\s*```", re.DOTALL)
 _lock = threading.Lock()
 _calls: list[dict] = []
 _seq = 0
+
+# Optional hook fired when a call finishes (set by agents.py for the tool loop).
+on_complete = None
+
+
+def _notify_complete(call: dict) -> None:
+    cb = on_complete
+    if cb and call.get("status") in ("done", "failed", "error"):
+        try:
+            cb(call)
+        except Exception:
+            pass
 
 
 def load_tools() -> list[dict]:
@@ -131,9 +147,12 @@ def request_tool(requester: str, tool_name: str, args: dict | None = None) -> di
         _calls.append(call)
         if len(_calls) > MAX_CALLS:
             del _calls[:-MAX_CALLS]
-        auto = bool(tool.get("auto_approve"))
+        auto = autonomy.allow(requester, tool)
         call_id = call["id"]
         snap = dict(call)
+    if store.enabled():
+        store.upsert_tool_call(snap)
+    events.publish("tools", {"id": snap["id"], "status": snap["status"]})
     return _execute(call_id) if auto else snap
 
 
@@ -168,8 +187,15 @@ def _execute(call_id: int) -> dict | None:
         call = _find(call_id)
         if call:
             call.update(status=status, output=output, code=code, finished_at=int(time.time() * 1000))
-            return dict(call)
-    return None
+            snap = dict(call)
+        else:
+            snap = None
+    if snap is not None:
+        if store.enabled():
+            store.upsert_tool_call(snap)
+        events.publish("tools", {"id": snap["id"], "status": snap["status"]})
+        _notify_complete(snap)
+    return snap
 
 
 def approve(call_id: int) -> dict:
@@ -190,7 +216,11 @@ def deny(call_id: int) -> dict:
             raise KeyError(call_id)
         if call["status"] == "pending":
             call["status"] = "denied"
-        return dict(call)
+        snap = dict(call)
+    if store.enabled():
+        store.upsert_tool_call(snap)
+    events.publish("tools", {"id": snap["id"], "status": snap["status"]})
+    return snap
 
 
 def list_calls(limit: int = 50) -> list[dict]:
@@ -210,6 +240,17 @@ def parse_request(text: str) -> dict | None:
     if isinstance(obj, dict) and obj.get("tool"):
         return {"tool": str(obj["tool"]), "args": obj.get("args") or {}}
     return None
+
+
+def load_persisted() -> None:
+    global _seq
+    if not store.enabled():
+        return
+    rows = store.load_tool_calls(MAX_CALLS)
+    with _lock:
+        _calls.clear()
+        _calls.extend(rows)
+        _seq = max((c.get("id") or 0 for c in _calls), default=0)
 
 
 def clear() -> None:

@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from .agent_client import call_agent
 from .notifier import check_and_notify
 from . import history
+from . import incidents
 
 
 def _num(v):
@@ -61,4 +62,5 @@ def aggregate(devices: list[dict]) -> dict:
     check_and_notify(projects)
     history.record(projects)
     history.attach(projects)
+    incidents.maybe_dispatch(projects)
     return {"summary": summary, "devices": device_rows, "projects": projects}

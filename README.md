@@ -449,13 +449,26 @@ The request is created as **pending** — it never runs until a human approves. 
 
 > ⚠️ Tools execute real commands on the agent host. Keep the allow-list narrow, prefer absolute `argv`/`cwd`, and only set `auto_approve` on commands that are safe to run unattended.
 
+**Reliability & autonomy:**
+- **Persistence (opt-in):** set `MAYBOT_DB` to a SQLite path and metrics history, agent transcripts, the comms feed, and the **tool-call audit log** survive restarts (reloaded on startup). Unset → in-memory only (default).
+- **Agentic tool loop:** when a guarded tool an agent requested completes, its result is fed back so the agent can continue (request another tool or finish). Bounded by `MAYBOT_AGENT_MAX_FOLLOWUPS` (default 4) per operator task — each tool step still needs approval unless `auto_approve`.
+- **Event-driven missions:** set `MAYBOT_INCIDENT_AGENT` to an agent name and, whenever a project goes unhealthy, that agent is auto-dispatched a diagnostic task (it can request a guarded tool to read logs, then post findings). Debounced: one dispatch per incident until the project recovers.
+- **Live updates (SSE):** the dashboard subscribes to `/api/stream` and refreshes the relevant section the instant an agent reply, comms message, or tool status changes — no waiting for the poll.
+- **Bounded autonomy (opt-in, default OFF):** by default an agent's tool request is queued for approval *even for `auto_approve` tools* — agents never act unattended. Set `MAYBOT_AUTONOMY=1` and an agent may auto-run an `auto_approve` tool only while under its per-task budget (`MAYBOT_AUTONOMY_MAX_CALLS`, default 3) and while not **paused**. The Tools section shows the budget and a **Pause/Resume kill switch** (`POST /api/autonomy/pause|resume`) that instantly halts all agent auto-runs. Operator-initiated runs are never affected.
+
 Optional control-center environment variables:
 
 | Variable | Default | Purpose |
 |---|---|---|
+| `MAYBOT_DB` | _(unset)_ | SQLite path for persistence (unset → in-memory) |
 | `MAYBOT_OBSIDIAN_VAULT` | _(unset)_ | Path to your Obsidian vault; enables agent memory |
 | `MAYBOT_OBSIDIAN_SUBDIR` | `MayBot` | Subfolder agents write into |
 | `MAYBOT_TOOLS_FILE` | `tools.yaml` | Guarded tool allow-list (absent → tools off) |
+| `MAYBOT_AGENT_MAX_FOLLOWUPS` | `4` | Tool-result feedbacks per task (loop guard) |
+| `MAYBOT_AUTONOMY` | `0` | Enable agents to auto-run `auto_approve` tools |
+| `MAYBOT_AUTONOMY_MAX_CALLS` | `3` | Agent auto-runs allowed per task (budget) |
+| `MAYBOT_INCIDENT_AGENT` | _(unset)_ | Agent auto-dispatched when a project goes unhealthy |
+| `MAYBOT_INCIDENT_STATES` | `error` | Health states that trigger an incident |
 | `MAYBOT_COMMS_MAX_ROUNDS` | `3` | Max rounds per mission |
 | `MAYBOT_COMMS_MAX_PARTICIPANTS` | `6` | Max agents per mission |
 

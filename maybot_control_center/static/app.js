@@ -626,6 +626,24 @@ async function renderTools() {
   if (!data || !data.enabled) { section.classList.add('hidden'); return; }
   section.classList.remove('hidden');
 
+  // autonomy status + kill switch
+  const auto = data.autonomy || {};
+  const statusEl = document.getElementById('tools-status');
+  const killBtn = document.getElementById('tools-kill');
+  if (!auto.enabled) {
+    statusEl.textContent = 'guarded · approval required';
+    killBtn.classList.add('hidden');
+  } else if (auto.paused) {
+    statusEl.textContent = 'autonomy PAUSED';
+    killBtn.classList.remove('hidden');
+    killBtn.textContent = 'Resume autonomy';
+  } else {
+    statusEl.textContent = `autonomy on · budget ${auto.max_calls}/task`;
+    killBtn.classList.remove('hidden');
+    killBtn.textContent = 'Pause autonomy';
+  }
+  killBtn.dataset.paused = auto.paused ? '1' : '';
+
   const sel = document.getElementById('tools-select');
   const cur = sel.value;
   sel.innerHTML = (data.tools || []).map(t =>
@@ -648,6 +666,17 @@ async function renderTools() {
 }
 
 function bindTools() {
+  const kill = document.getElementById('tools-kill');
+  if (kill && !kill.dataset.bound) {
+    kill.dataset.bound = '1';
+    kill.onclick = async () => {
+      const action = kill.dataset.paused ? 'resume' : 'pause';
+      kill.disabled = true;
+      await fetch(`/api/autonomy/${action}`, { method: 'POST', headers: authHeaders() }).catch(() => {});
+      kill.disabled = false;
+      renderTools();
+    };
+  }
   const btn = document.getElementById('tools-run');
   if (!btn || btn.dataset.bound) return;
   btn.dataset.bound = '1';
@@ -778,3 +807,23 @@ document.getElementById('save-control-token').onclick = () => {
 render();
 refreshInterval = setInterval(render, 7000);
 startLogsAutoRefresh();
+
+// Live updates via Server-Sent Events — instant refresh on agent/comms/tool changes.
+let _streamDebounce = {};
+function debounced(fn, key, ms = 250) {
+  clearTimeout(_streamDebounce[key]);
+  _streamDebounce[key] = setTimeout(fn, ms);
+}
+function setupStream() {
+  let es;
+  try { es = new EventSource(`/api/stream?token=${encodeURIComponent(getControlToken())}`); }
+  catch (_) { return; }
+  es.onmessage = (e) => {
+    let msg; try { msg = JSON.parse(e.data); } catch (_) { return; }
+    if (msg.type === 'comms') debounced(renderComms, 'comms');
+    else if (msg.type === 'tools') debounced(renderTools, 'tools');
+    else if (msg.type === 'agents') debounced(() => { renderAgentCrew(); renderComms(); }, 'agents');
+  };
+  es.onerror = () => {}; // EventSource auto-reconnects
+}
+setupStream();
