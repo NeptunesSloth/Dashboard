@@ -1045,136 +1045,50 @@ async function renderSectMap() {
   sec.classList.remove('hidden');
 
   crew.sort((x, y) => (y.governance?.standing || 0) - (x.governance?.standing || 0));
-  const n = crew.length, order = centerOutOrder(n);
-  const slotX = i => 100 + (n === 1 ? (MAP_W - 200) / 2 : (MAP_W - 200) * i / (n - 1));
-  const placed = crew.map((a, idx) => {
-    const slot = order.indexOf(idx);
-    const realm = (a.cultivation && a.cultivation.realm) || 0;
-    const rnd = mseed(a.name);
-    const w = 100 + realm * 8 + rnd() * 18;
-    const apexY = Math.max(104, 356 - realm * 26 - (a.governance?.is_leader ? 26 : 0) - rnd() * 16);
-    const baseY = CLOUD_Y + 28 + (slot % 2) * 16;
-    return { a, x: slotX(slot), apexY, baseY, w, realm, slot, rnd };
-  }).sort((p, q) => p.x - q.x);
+  const n = crew.length;
+  const leader = crew.find(a => a.governance?.is_leader) || crew[0];
+  const cultivating = crew.filter(a => ['working', 'queued'].includes(a.status) || a.cultivation?.in_seclusion).length;
+  const idle = crew.filter(a => (a.status || 'idle') === 'idle' && !a.cultivation?.in_seclusion && !a.cultivation?.in_roaming).length;
+  const succ = Math.round(crew.reduce((s, a) => s + (a.reputation?.signals?.success_pct ?? 100), 0) / n);
+  const stones = crew.reduce((s, a) => s + (a.cultivation?.stones || 0), 0);
 
-  const svg = svgEl('svg', { viewBox: `0 0 ${MAP_W} ${MAP_H}`, class: 'map-svg', preserveAspectRatio: 'xMidYMid slice' });
-  svg.innerHTML = `
-    <defs>
-      <linearGradient id="mg-sky" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#2f5aa6"/><stop offset="28%" stop-color="#6f86c8"/>
-        <stop offset="52%" stop-color="#d6a6c0"/><stop offset="74%" stop-color="#f7a85c"/>
-        <stop offset="90%" stop-color="#ffcf7e"/><stop offset="100%" stop-color="#ffe6a6"/>
-      </linearGradient>
-      <radialGradient id="mg-sun" cx="24%" cy="68%" r="60%">
-        <stop offset="0%" stop-color="#fffbe9" stop-opacity="1"/><stop offset="20%" stop-color="#fff0c0" stop-opacity="0.95"/>
-        <stop offset="50%" stop-color="#ffce7e" stop-opacity="0.5"/><stop offset="100%" stop-color="#ffce7e" stop-opacity="0"/></radialGradient>
-      <linearGradient id="mg-rock" x1="0.12" y1="0" x2="0.2" y2="1">
-        <stop offset="0%" stop-color="#8fc36e"/><stop offset="24%" stop-color="#62a052"/>
-        <stop offset="50%" stop-color="#79836a"/><stop offset="76%" stop-color="#67705f"/><stop offset="100%" stop-color="#3e4750"/></linearGradient>
-      <linearGradient id="mg-rim" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#ffe9b0" stop-opacity="0.7"/><stop offset="40%" stop-color="#ffe9b0" stop-opacity="0"/></linearGradient>
-      <linearGradient id="mg-rock2" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#a7c0b4"/><stop offset="100%" stop-color="#74899a"/></linearGradient>
-      <linearGradient id="mg-rock3" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#cdd6dc"/><stop offset="100%" stop-color="#9fb0c2"/></linearGradient>
-      <filter id="mg-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter>
-      <filter id="mg-haze" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>
-    </defs>
-    <rect width="${MAP_W}" height="${MAP_H}" fill="url(#mg-sky)"/>
-    <rect width="${MAP_W}" height="${MAP_H}" fill="url(#mg-sun)"/>
-    <g>${[0,1,2,3,4,5,6].map(i=>`<line x1="240" y1="380" x2="${-160+i*230}" y2="-40" stroke="#fff3cf" stroke-width="${24-i*2}" opacity="0.09"/>`).join('')}</g>`;
+  // anchor points tuned to map_bg.png's painted pavilions (% of the art); leader → central crystal spire
+  const ANCHORS = [{ x: 49, y: 33 }, { x: 33, y: 10 }, { x: 80, y: 17 }, { x: 13, y: 34 }, { x: 91, y: 48 }, { x: 63, y: 50 }];
+  const anchorFor = i => i < ANCHORS.length ? ANCHORS[i] : { x: 10 + ((i - ANCHORS.length) * 16) % 80, y: 68 + ((i - ANCHORS.length) % 2) * 9 };
+  const ordered = [leader, ...crew.filter(a => a !== leader)];
 
-  // far ranges (parallax layers, lightly hazed)
-  [['mg-rock3', 130, 0.6, 200], ['mg-rock2', 185, 0.78, 150]].forEach(([fill, top, op, step]) => {
-    const layer = svgEl('g', { opacity: String(op), filter: 'url(#mg-haze)' });
-    for (let i = -1; i * step < MAP_W + step; i++) {
-      const cx = i * step + (step / 2), r = mseed('f' + fill + i);
-      layer.appendChild(svgEl('path', { d: spirePath(cx, CLOUD_Y + 30, top + r() * 60, step * (1.1 + r() * 0.5), r), fill: `url(#${fill})` }));
-    }
-    svg.appendChild(layer);
-  });
-
-  // rope bridges between neighbours
-  const bridges = svgEl('g', { class: 'map-bridges' });
-  for (let i = 0; i < placed.length - 1; i++) {
-    const p = placed[i], q = placed[i + 1];
-    const y1 = p.apexY + (p.baseY - p.apexY) * 0.34, y2 = q.apexY + (q.baseY - q.apexY) * 0.34;
-    const sag = Math.max(y1, y2) + 54;
-    bridges.appendChild(svgEl('path', { d: `M ${p.x} ${y1} Q ${(p.x + q.x) / 2} ${sag} ${q.x} ${y2}`, fill: 'none', stroke: 'rgba(35,26,18,0.5)', 'stroke-width': '2' }));
-    const mx = (p.x + q.x) / 2, my = sag - 14;
-    for (let k = -3; k <= 3; k++) bridges.appendChild(svgEl('line', { x1: mx + k * 14, y1: my + Math.abs(k) * 2, x2: mx + k * 14, y2: my + Math.abs(k) * 2 + 6, stroke: 'rgba(35,26,18,0.4)', 'stroke-width': '1.5' }));
-  }
-  svg.appendChild(bridges);
-
-  // foreground disciple spires
-  for (const p of placed) {
-    const g = svgEl('g', { class: 'map-peak-g', 'data-agent': p.a.name, tabindex: '0', role: 'button' });
-    const d = spirePath(p.x, p.baseY, p.apexY, p.w, p.rnd);
-    g.appendChild(svgEl('path', { d, fill: 'url(#mg-rock)', stroke: 'rgba(18,28,24,0.4)', 'stroke-width': '1' }));
-    // warm rim light on the sun (left) side
-    g.appendChild(svgEl('path', { d, fill: 'url(#mg-rim)', opacity: '0.6' }));
-    // forested flanks: foliage clumps cascading down the slopes
-    const H = p.baseY - p.apexY;
-    for (let f = 0; f < 5 + p.realm; f++) {
-      const t = 0.12 + (p.rnd()) * 0.78;
-      const side = p.rnd() < 0.5 ? -1 : 1;
-      const fx = p.x + side * (p.w * 0.12 + p.rnd() * p.w * 0.28) * t;
-      const fy = p.apexY + H * t;
-      foliage(g, fx, fy, 6 + p.rnd() * 7 * (1 - t * 0.4));
-    }
-    foliage(g, p.x, p.apexY + 10, 12 + p.realm);
-    // ledge highlight
-    g.appendChild(svgEl('path', { d: `M ${p.x - p.w * 0.28} ${p.apexY + 26} Q ${p.x} ${p.apexY + 18} ${p.x + p.w * 0.22} ${p.apexY + 30}`, fill: 'none', stroke: 'rgba(255,247,220,0.3)', 'stroke-width': '2' }));
-    const gov = p.a.governance || {};
-    if (gov.is_leader) {
-      const ry = p.apexY;
-      g.appendChild(svgEl('rect', { x: p.x - 15, y: ry - 18, width: 30, height: 14, rx: 2, fill: '#7a4b3a' }));
-      g.appendChild(svgEl('path', { d: `M ${p.x - 24} ${ry - 17} L ${p.x} ${ry - 34} L ${p.x + 24} ${ry - 17} Z`, fill: '#bf5640', stroke: '#8a3a2b', 'stroke-width': '1' }));
-      g.appendChild(svgEl('circle', { cx: p.x, cy: ry - 26, r: 2.5, fill: '#ffe6a3' }));
-      foliage(g, p.x + p.w * 0.36, p.baseY - 30, 14);  // sacred tree on a flank
-    }
-    const plaqueY = p.apexY - (gov.is_leader ? 48 : 18);
-    const nm = (gov.is_leader ? '👑 ' : (gov.is_elder ? '🜍 ' : '')) + p.a.name;
-    const plaque = svgEl('g', { class: 'map-plaque' });
-    plaque.appendChild(svgEl('rect', { x: p.x - 52, y: plaqueY - 15, width: 104, height: 30, rx: 7, fill: 'rgba(20,16,30,0.55)', stroke: 'rgba(232,198,116,0.5)' }));
-    const t1 = svgEl('text', { x: p.x, y: plaqueY - 1, 'text-anchor': 'middle', class: 'map-name' }); t1.textContent = nm; plaque.appendChild(t1);
-    const t2 = svgEl('text', { x: p.x, y: plaqueY + 11, 'text-anchor': 'middle', class: 'map-sub' }); t2.textContent = (p.a.cultivation && p.a.cultivation.realm_name) || ''; plaque.appendChild(t2);
-    g.appendChild(plaque);
-    g.addEventListener('click', () => enterHall(p.a.name));
-    g.addEventListener('keydown', e => { if (e.key === 'Enter') enterHall(p.a.name); });
-    svg.appendChild(g);
-  }
-
-  // sea of clouds (two drifting layers)
-  [['cloudA', 0.96, 0], ['cloudB', 0.8, 20]].forEach(([cls, op, dy]) => {
-    const clouds = svgEl('g', { class: 'map-clouds ' + cls, filter: 'url(#mg-soft)', opacity: String(op) });
-    for (let i = 0; i < 14; i++) {
-      const cx = (i * 150) % (MAP_W + 200) - 100, cy = CLOUD_Y + dy + 8 + (i % 4) * 22;
-      clouds.appendChild(svgEl('ellipse', { cx, cy, rx: 140 + (i % 3) * 60, ry: 32 + (i % 2) * 14, fill: '#fff7ec', opacity: String(0.72 + (i % 3) * 0.1) }));
-    }
-    svg.appendChild(clouds);
-  });
-  // foreground flora ridge (the near bank, like the reference path-side bloom)
-  const flora = svgEl('g', {});
-  flora.appendChild(svgEl('path', { d: `M 0 ${MAP_H} L 0 ${MAP_H - 46} Q ${MAP_W * 0.3} ${MAP_H - 70} ${MAP_W * 0.55} ${MAP_H - 50} T ${MAP_W} ${MAP_H - 56} L ${MAP_W} ${MAP_H} Z`, fill: '#2f5d3a' }));
-  const bloom = ['#ffd95a', '#ff7a8a', '#c98bff', '#ffffff'];
-  for (let i = 0; i < 46; i++) { const fr = mseed('bloom' + i); flora.appendChild(svgEl('circle', { cx: fr() * MAP_W, cy: MAP_H - 8 - fr() * 38, r: 2 + fr() * 2.5, fill: bloom[i % 4], opacity: '0.85' })); }
-  svg.appendChild(flora);
-  svg.querySelector('defs').insertAdjacentHTML('beforeend',
-    `<radialGradient id="mg-vig" cx="50%" cy="42%" r="75%"><stop offset="66%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#1a1226" stop-opacity="0.34"/></radialGradient>`);
-  svg.appendChild(svgEl('rect', { width: MAP_W, height: MAP_H, fill: 'url(#mg-vig)', 'pointer-events': 'none' }));
-
+  const stat = (icon, label, val) => `<div class='po-row'><span>${icon} ${label}</span><b>${val}</b></div>`;
   const world = document.getElementById('map-world');
-  world.innerHTML = '';
-  world.appendChild(svg);
-  for (let i = 0; i < 8; i++) {
-    const leaf = document.createElement('span');
-    leaf.className = 'map-leaf';
-    leaf.style.left = (6 + i * 12) + '%';
-    leaf.style.animationDelay = (i * 1.4) + 's';
-    leaf.style.animationDuration = (8 + (i % 4) * 3) + 's';
-    world.appendChild(leaf);
-  }
+  world.innerHTML = `
+    <img class='map-bg-img' src='/assets/map/map_bg.png' alt='' draggable='false'>
+    <div class='pixel-panel peak-overview'>
+      <div class='pp-title'>☯ Peak Overview</div>
+      ${stat('👤', 'Disciples', n)}
+      ${stat('🧘', 'Cultivating', cultivating)}
+      ${stat('🍵', 'Idle', idle)}
+      ${stat('✓', 'Success', succ + '%')}
+      ${stat('💎', 'Spirit stones', stones.toLocaleString())}
+    </div>
+    <div class='pixel-panel peak-lord'><span class='pl-label'>Peak Lord</span><b>👑 ${esc(leader.name)}</b><span class='muted'>${esc(leader.cultivation?.realm_name || '')}</span></div>
+    <div class='map-markers'></div>`;
+
+  const markers = world.querySelector('.map-markers');
+  ordered.forEach((a, i) => {
+    const an = anchorFor(i), g = a.governance || {}, c = a.cultivation || {};
+    const st = a.status || 'idle';
+    const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
+    const tag = g.is_leader ? '👑 ' : (g.is_elder ? '🜍 ' : '');
+    const b = document.createElement('button');
+    b.className = 'peak-marker' + (g.is_leader ? ' pm-leader' : '');
+    b.style.left = an.x + '%'; b.style.top = an.y + '%';
+    b.setAttribute('data-agent', a.name);
+    b.innerHTML = `<span class='pm-plaque'><span class='pm-name'>${tag}${esc(a.name)}</span>
+      <span class='pm-realm'>Lv.${c.realm ?? 0} · ${esc(c.realm_name || '')}</span></span>
+      <span class='pm-pin crew-dot ${dot}'></span>
+      <span class='pm-enter'>click to enter ▸</span>`;
+    b.addEventListener('click', () => enterHall(a.name));
+    markers.appendChild(b);
+  });
 
   // chronicle feed
   let ch = { recent: [] };
