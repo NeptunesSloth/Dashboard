@@ -524,7 +524,7 @@ async function renderComms() {
   if (active && m && m.current) {
     const hue = agentHue(m.current);
     const ini = esc(String(m.current).charAt(0).toUpperCase());
-    html += `<div class='comms-typing'><span class='comms-avatar' style='--hue:${hue}'>${ini}</span>${esc(m.current)} is conjuring<span class='dots'><i></i><i></i><i></i></span></div>`;
+    html += `<div class='comms-typing'><span class='comms-avatar' style='--hue:${hue}'>${ini}</span>${esc(m.current)} is channeling<span class='dots'><i></i><i></i><i></i></span></div>`;
   }
   feedEl.innerHTML = html;
   if (atBottom) feedEl.scrollTop = feedEl.scrollHeight;
