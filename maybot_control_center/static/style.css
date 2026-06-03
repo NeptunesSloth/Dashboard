@@ -467,6 +467,8 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .hall-sprite img { height: 78px; width: auto; image-rendering: pixelated; display: block; transform-origin: center bottom;
   animation: idleBreath 3.6s ease-in-out infinite; }
 .hall-unit.hl .hall-sprite { transform: scale(1.28); transform-origin: center bottom; }
+.hall-unit.on-throne .hall-sprite img { height: 58px; }
+.hall-unit.on-throne .hall-tag { margin-top: 2px; }
 @keyframes idleBreath { 0%,100% { transform: scaleY(1) translateY(0); } 50% { transform: scaleY(1.035) translateY(-1px); } }
 
 /* per-activity ambient particles */

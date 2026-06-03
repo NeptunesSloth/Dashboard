@@ -1088,6 +1088,7 @@ async function renderSectMap() {
 
   const peaks = buildPeaks(crew);
   window.__peaks = peaks;
+  buildSkinMap(crew);  // lock one distinct skin per disciple
   const n = crew.length;
   const leader = crew.find(a => a.governance?.is_leader) || crew.slice().sort((a, b) => (b.governance?.standing || 0) - (a.governance?.standing || 0))[0];
   const cultivating = crew.filter(a => ['working', 'queued'].includes(a.status) || a.cultivation?.in_seclusion).length;
@@ -1164,10 +1165,29 @@ const SKIN_SUFFIX = {
 // pool of distinct character sets a disciple can be randomly assigned
 const RANDOM_SKINS = [...new Set(Object.values(SKIN_SUFFIX))];
 function _hash(s) { let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+// Lock each disciple to ONE skin: explicit `skin:` wins; everyone else gets a
+// DISTINCT random skin (no two agents alike until the pool runs out),
+// deterministic so it never changes between renders.
+let _skinMap = null, _skinKey = '';
+function buildSkinMap(crew) {
+  const key = crew.map(a => a.name).join('|');
+  if (_skinMap && _skinKey === key) return _skinMap;
+  const pool = [...RANDOM_SKINS];
+  let seed = 0x9e3779b1;
+  for (let i = pool.length - 1; i > 0; i--) { seed = (Math.imul(seed, 1103515245) + 12345) & 0x7fffffff; const j = seed % (i + 1); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const map = {};
+  crew.filter(a => !(a.skin && SKIN_SUFFIX[a.skin] !== undefined) && !a.sprite)
+      .map(a => a.name).sort()
+      .forEach((nm, i) => { map[nm] = pool[i % pool.length]; });
+  _skinMap = map; _skinKey = key;
+  return map;
+}
 function skinSuffix(a) {
   const s = a && a.skin;
-  if (s != null && s !== '' && SKIN_SUFFIX[s] !== undefined) return SKIN_SUFFIX[s];  // explicit skin wins
-  return RANDOM_SKINS[_hash(a && a.name) % RANDOM_SKINS.length];                       // else: random (stable per agent)
+  if (s != null && s !== '' && SKIN_SUFFIX[s] !== undefined) return SKIN_SUFFIX[s];      // explicit skin wins
+  if (_skinMap && _skinMap[a && a.name] !== undefined) return _skinMap[a.name];          // locked unique random
+  return RANDOM_SKINS[_hash(a && a.name) % RANDOM_SKINS.length];                          // fallback
 }
 function hallUnitInner(act, key, variant) {
   const v = (variant && key !== 'demon') ? variant : '';
@@ -1245,12 +1265,15 @@ async function renderGroupHall(peak, focusName) {
 
   const units = hall.querySelector('.hall-floor-units');
   const pos = hallPositions(present.length);
-  if (peak.id === 'leader' && pos[0]) pos[0] = { x: 50, y: 62 };  // on the throne dais
   present.forEach((x, i) => {
-    const ax = hallActivity(x), hl = focus && x.name === focus.name;
+    let ax = hallActivity(x);
+    let p = pos[i];
+    // the Sect Leader presides seated upon the throne (meditation pose)
+    if (peak.id === 'leader' && x.governance?.is_leader) { ax = { act: 'cultivate', label: 'Presiding over the Sect', sprite: 0 }; p = { x: 50, y: 53.5 }; }
+    const hl = focus && x.name === focus.name;
     const u = document.createElement('button');
-    u.className = 'hall-unit act-' + ax.act + (hl ? ' hl' : '');
-    u.style.left = pos[i].x + '%'; u.style.top = pos[i].y + '%'; u.style.zIndex = String(10 + Math.round(pos[i].y));
+    u.className = 'hall-unit act-' + ax.act + (hl ? ' hl' : '') + (peak.id === 'leader' && x.governance?.is_leader ? ' on-throne' : '');
+    u.style.left = p.x + '%'; u.style.top = p.y + '%'; u.style.zIndex = String(10 + Math.round(p.y));
     u.setAttribute('data-agent', x.name);
     u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax), skinSuffix(x))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span></span>`;
     u.addEventListener('click', () => renderGroupHall(peak, x.name));
