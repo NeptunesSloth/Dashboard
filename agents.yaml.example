@@ -32,3 +32,14 @@ agents:
     model: llama3
     temperature: 0.7
     max_tokens: 512
+
+  # Claude-backed agent. Requires ANTHROPIC_API_KEY in the control center's
+  # environment. No base_url needed; the Anthropic SDK handles the endpoint.
+  - name: Atlas
+    role: Strategist
+    persona: >
+      You are Atlas, a sharp strategist. You weigh trade-offs explicitly and
+      give a clear recommendation with a one-line rationale.
+    provider: claude
+    model: claude-opus-4-8
+    max_tokens: 1024

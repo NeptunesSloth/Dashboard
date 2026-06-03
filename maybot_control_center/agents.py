@@ -28,6 +28,7 @@ MAX_TURNS = max(2, int(os.getenv("MAYBOT_AGENT_MAX_TURNS", "20")))  # transcript
 _lock = threading.Lock()
 _state: dict[str, dict] = {}
 _pool = ThreadPoolExecutor(max_workers=4)
+_anthropic = None
 
 
 def load_agents() -> list[dict]:
@@ -47,9 +48,47 @@ def _persona(agent: dict) -> str:
     return agent.get("persona") or agent.get("system") or f"You are {agent.get('name', 'an assistant')}."
 
 
+def _anthropic_client():
+    """Lazily construct (and cache) the Anthropic SDK client."""
+    global _anthropic
+    if _anthropic is None:
+        import anthropic  # resolves ANTHROPIC_API_KEY from the environment
+        _anthropic = anthropic.Anthropic()
+    return _anthropic
+
+
+def _chat_claude(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
+    """Run one turn against the Claude API via the official Anthropic SDK."""
+    try:
+        import anthropic
+    except ImportError:
+        return False, "", "anthropic SDK not installed (pip install anthropic)"
+
+    model = agent.get("model") or "claude-opus-4-8"
+    max_tokens = int(agent.get("max_tokens", 1024))
+    system_text = next((m["content"] for m in messages if m["role"] == "system"), _persona(agent))
+    convo = [{"role": m["role"], "content": m["content"]} for m in messages if m["role"] in ("user", "assistant")]
+    try:
+        resp = _anthropic_client().messages.create(
+            model=model,
+            max_tokens=max_tokens,
+            # Stable persona first, cached so repeat turns reuse the prefix.
+            system=[{"type": "text", "text": system_text, "cache_control": {"type": "ephemeral"}}],
+            messages=convo,
+        )
+        text = "".join(b.text for b in resp.content if getattr(b, "type", None) == "text")
+        return True, text, None
+    except anthropic.AuthenticationError:
+        return False, "", "Claude API authentication failed — set ANTHROPIC_API_KEY"
+    except Exception as exc:
+        return False, "", str(exc)
+
+
 def _chat(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
-    """Run one chat completion against the agent's local AI host."""
+    """Run one chat completion against the agent's configured backend."""
     provider = (agent.get("provider") or "openai_compatible").lower()
+    if provider in ("claude", "anthropic"):
+        return _chat_claude(agent, messages)
     base_url = (agent.get("base_url") or "").rstrip("/")
     model = agent.get("model") or agent.get("default_model") or ""
     temperature = float(agent.get("temperature", 0.7))

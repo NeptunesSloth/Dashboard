@@ -427,9 +427,13 @@ nano agents.yaml   # set name/role/persona/provider/base_url/model per agent
 # restart the control center; the "Agent Crew" section appears automatically
 ```
 
+**Backends:** each agent's `provider` selects where it runs:
+- `ollama` / `openai_compatible` / `lmstudio` / `llama_cpp` — a local AI host you point at with `base_url` (reachable from the control center).
+- `claude` (or `anthropic`) — the Claude API via the official SDK. Set `ANTHROPIC_API_KEY` in the control center's environment; no `base_url` needed. Defaults to `claude-opus-4-8`; the stable persona is sent with prompt caching.
+
 **Phase 1 scope & safety:**
 - Agents *think and talk only* — they do **not** execute commands or tools, and do not message each other yet.
-- The control center calls each agent's `base_url` directly, so the endpoint must be reachable from the control-center machine (running it on the same box as Ollama is simplest).
+- For local-host agents, the control center calls `base_url` directly (running it on the same box as Ollama is simplest).
 - State (transcripts) is in-memory and resets on restart.
 
 Optional control-center environment variables:
