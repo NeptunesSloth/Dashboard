@@ -53,6 +53,49 @@
       <p class="muted">LLM-backed persona agents on your local AI hosts — assign a task and watch them work. (Phase 1: they think &amp; talk; no command execution.)</p>
       <div id="agent-crew" class="grid"></div>
     </section>
+    <section id="comms-section" class="hidden">
+      <div class="section-head">
+        <h2>Ship Comms</h2>
+        <span id="comms-status" class="pill">idle</span>
+      </div>
+      <p class="muted">Give the crew a shared goal and they collaborate in a bounded round-robin (Phase 2: inter-agent comms).</p>
+      <div class="comms-launch">
+        <input id="comms-goal" placeholder="Mission goal (e.g. plan the next release)…">
+        <select id="comms-rounds">
+          <option value="1">1 round</option>
+          <option value="2" selected>2 rounds</option>
+          <option value="3">3 rounds</option>
+        </select>
+        <button id="comms-launch" class="btn btn-primary">Launch Mission</button>
+      </div>
+      <div id="comms-participants" class="comms-participants"></div>
+      <div id="comms-feed" class="comms-feed"></div>
+    </section>
+    <section id="vault-section" class="hidden">
+      <div class="section-head">
+        <h2>Vault Memory</h2>
+        <span id="vault-status" class="pill">Obsidian</span>
+      </div>
+      <p class="muted">Agents pull relevant notes from your Obsidian vault as context and write mission summaries back.</p>
+      <div class="comms-launch">
+        <input id="vault-q" type="search" placeholder="Search the vault…">
+        <button id="vault-search" class="btn">Search</button>
+      </div>
+      <div id="vault-results" class="grid"></div>
+    </section>
+    <section id="tools-section" class="hidden">
+      <div class="section-head">
+        <h2>Tools</h2>
+        <span id="tools-status" class="pill">guarded</span>
+      </div>
+      <p class="muted">Allow-listed actions agents can request and you approve. Deny-by-default, fixed command, no shell.</p>
+      <div class="comms-launch">
+        <select id="tools-select"></select>
+        <input id="tools-args" placeholder='args JSON, e.g. {"path":"/tmp"}'>
+        <button id="tools-run" class="btn">Run</button>
+      </div>
+      <div id="tools-calls" class="grid"></div>
+    </section>
     <section>
       <div class="section-head">
         <h2>Projects</h2>

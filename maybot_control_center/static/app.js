@@ -257,7 +257,13 @@ async function render() {
 
     renderAiAgents(window.__lastProjects);
     renderProjects(window.__lastProjects);
-    renderAgentCrew();
+    await renderAgentCrew();
+    bindComms();
+    renderComms();
+    bindVault();
+    renderVault();
+    bindTools();
+    renderTools();
   } catch (e) {
     err.classList.remove('hidden');
     summaryEl.classList.remove('loading');
@@ -447,6 +453,7 @@ async function renderAgentCrew() {
   try { data = await fetch('/api/agents', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { section.classList.add('hidden'); return; }
   const crew = (data && data.agents) || [];
+  window.__agents = crew;
   if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
   section.classList.remove('hidden');
   document.getElementById('agent-crew-pill').textContent = `${crew.length} agents`;
@@ -460,6 +467,206 @@ async function renderAgentCrew() {
     const inp = el.querySelector(`.agent-input[data-agent="${CSS.escape(focusName)}"]`);
     if (inp) { inp.value = focusVal; inp.focus(); }
   }
+}
+
+// ---- Ship Comms: inter-agent missions ----
+
+function agentHue(name) {
+  let h = 0;
+  for (let i = 0; i < String(name).length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
+  return h;
+}
+
+function commsBubble(m) {
+  if (m.kind === 'system') {
+    return `<div class='comms-sys'>${esc(m.content)}</div>`;
+  }
+  const hue = agentHue(m.from);
+  return `<div class='comms-msg' style='--hue:${hue}'>
+    <div class='comms-from'>${esc(m.from)}</div>
+    <div class='comms-body'>${esc(m.content)}</div>
+  </div>`;
+}
+
+async function renderComms() {
+  const section = document.getElementById('comms-section');
+  const crew = window.__agents || [];
+  if (crew.length < 2) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+
+  // participant checkboxes (preserve current selections across refresh)
+  const partsEl = document.getElementById('comms-participants');
+  const checked = new Set(Array.from(partsEl.querySelectorAll('input:checked')).map(i => i.value));
+  const firstRender = !partsEl.dataset.ready;
+  partsEl.dataset.ready = '1';
+  partsEl.innerHTML = crew.map(a => {
+    const on = firstRender || checked.has(a.name) ? 'checked' : '';
+    return `<label class='comms-chip'><input type='checkbox' value='${esc(a.name)}' ${on}> ${esc(a.name)}</label>`;
+  }).join('');
+
+  let data;
+  try { data = await fetch('/api/comms', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { return; }
+  const st = (data && data.status) || {};
+  const active = st.active;
+  const m = st.mission;
+  document.getElementById('comms-status').textContent =
+    active && m ? `running · round ${m.round}/${m.rounds} · ${m.current || '…'}` : 'idle';
+  const launchBtn = document.getElementById('comms-launch');
+  launchBtn.disabled = !!active;
+  launchBtn.textContent = active ? 'Mission running…' : 'Launch Mission';
+
+  const feedEl = document.getElementById('comms-feed');
+  const atBottom = feedEl.scrollHeight - feedEl.scrollTop - feedEl.clientHeight < 60;
+  feedEl.innerHTML = (data.feed || []).map(commsBubble).join('') || `<div class='comms-sys muted'>No missions yet.</div>`;
+  if (atBottom) feedEl.scrollTop = feedEl.scrollHeight;
+}
+
+function bindComms() {
+  const btn = document.getElementById('comms-launch');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  btn.onclick = async () => {
+    const goal = (document.getElementById('comms-goal').value || '').trim();
+    if (!goal) return;
+    const participants = Array.from(document.querySelectorAll('#comms-participants input:checked')).map(i => i.value);
+    if (participants.length < 2) { alert('Select at least 2 agents.'); return; }
+    const rounds = Number(document.getElementById('comms-rounds').value || 2);
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/comms/mission', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ goal, participants, rounds }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Mission failed: ' + (b.detail || res.status)); }
+    } catch (e) { alert('Mission failed: ' + e); }
+    renderComms();
+  };
+}
+
+// ---- Vault Memory (Obsidian) ----
+
+function vaultCard(h) {
+  return `<div class='card vault-card' data-path='${esc(h.path)}'>
+    <div class='metric'><b>📝 ${esc(h.title)}</b><span class='muted'>${esc(h.path)}</span></div>
+    <div class='agent-reply'>${esc(h.excerpt)}</div>
+    <details class='details'><summary>Open note</summary><pre class='vault-body'>Loading…</pre></details>
+  </div>`;
+}
+
+function bindVaultCards(root) {
+  root.querySelectorAll('.vault-card details').forEach(d => d.ontoggle = async () => {
+    if (!d.open) return;
+    const path = d.closest('.vault-card').getAttribute('data-path');
+    const body = d.querySelector('.vault-body');
+    try {
+      const n = await fetch(`/api/memory/note?path=${encodeURIComponent(path)}`, { headers: authHeaders() }).then(r => r.json());
+      body.innerText = n.content || '(empty)';
+    } catch (_) { body.innerText = 'Error loading note.'; }
+  });
+}
+
+async function renderVault() {
+  const section = document.getElementById('vault-section');
+  let data;
+  try { data = await fetch('/api/memory', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { section.classList.add('hidden'); return; }
+  if (!data || !data.enabled) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+}
+
+function bindVault() {
+  const btn = document.getElementById('vault-search');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  const run = async () => {
+    const q = (document.getElementById('vault-q').value || '').trim();
+    const out = document.getElementById('vault-results');
+    if (!q) { out.innerHTML = ''; return; }
+    out.innerHTML = `<div class='card muted'>Searching…</div>`;
+    try {
+      const data = await fetch(`/api/memory/search?q=${encodeURIComponent(q)}`, { headers: authHeaders() }).then(r => r.json());
+      const res = (data && data.results) || [];
+      out.innerHTML = res.length ? res.map(vaultCard).join('') : `<div class='card muted'>No matching notes.</div>`;
+      bindVaultCards(out);
+    } catch (_) { out.innerHTML = `<div class='card muted'>Search failed.</div>`; }
+  };
+  btn.onclick = run;
+  document.getElementById('vault-q').onkeydown = e => { if (e.key === 'Enter') run(); };
+}
+
+// ---- Guarded Tools (Phase 4) ----
+
+function toolBadgeClass(s) {
+  if (s === 'done') return 'ok';
+  if (s === 'pending' || s === 'running' || s === 'approved') return 'warning';
+  if (s === 'denied') return 'unknown';
+  return 'error';
+}
+
+function toolCallCard(c) {
+  const cls = toolBadgeClass(c.status);
+  const args = Object.keys(c.args || {}).length ? `<div class='comms-sys' style='text-align:left'>args: ${esc(JSON.stringify(c.args))}</div>` : '';
+  const out = c.output ? `<div class='agent-reply'>${esc(c.output)}</div>` : '';
+  const acts = c.status === 'pending'
+    ? `<div class='actions'><button class='act-btn act-btn-start' data-approve='${c.id}'>Approve</button><button class='act-btn act-btn-stop' data-deny='${c.id}'>Deny</button></div>`
+    : '';
+  return `<div class='card'>
+    <div class='metric'><b>🔧 ${esc(c.tool)}</b><span class='badge ${cls}'>${esc(c.status)}</span></div>
+    ${metric('Requested by', esc(c.requester))}
+    ${args}${out}${acts}
+  </div>`;
+}
+
+async function renderTools() {
+  const section = document.getElementById('tools-section');
+  let data;
+  try { data = await fetch('/api/tools', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { section.classList.add('hidden'); return; }
+  if (!data || !data.enabled) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+
+  const sel = document.getElementById('tools-select');
+  const cur = sel.value;
+  sel.innerHTML = (data.tools || []).map(t =>
+    `<option value='${esc(t.name)}'>${esc(t.name)}${t.auto_approve ? ' (auto)' : ''} — ${esc(t.description)}</option>`).join('');
+  if (cur) sel.value = cur;
+
+  const callsEl = document.getElementById('tools-calls');
+  const calls = (data.calls || []).slice().reverse();
+  callsEl.innerHTML = calls.length ? calls.map(toolCallCard).join('') : `<div class='card muted'>No tool calls yet.</div>`;
+  callsEl.querySelectorAll('[data-approve]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    await fetch(`/api/tools/${b.getAttribute('data-approve')}/approve`, { method: 'POST', headers: authHeaders() }).catch(() => {});
+    renderTools();
+  });
+  callsEl.querySelectorAll('[data-deny]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    await fetch(`/api/tools/${b.getAttribute('data-deny')}/deny`, { method: 'POST', headers: authHeaders() }).catch(() => {});
+    renderTools();
+  });
+}
+
+function bindTools() {
+  const btn = document.getElementById('tools-run');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  btn.onclick = async () => {
+    const tool = document.getElementById('tools-select').value;
+    const raw = (document.getElementById('tools-args').value || '').trim();
+    let args = {};
+    if (raw) { try { args = JSON.parse(raw); } catch (_) { alert('Args must be valid JSON.'); return; } }
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/tools/run', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ tool, args }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Run failed: ' + (b.detail || res.status)); }
+    } catch (e) { alert('Run failed: ' + e); }
+    btn.disabled = false;
+    renderTools();
+  };
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

@@ -427,9 +427,41 @@ nano agents.yaml   # set name/role/persona/provider/base_url/model per agent
 # restart the control center; the "Agent Crew" section appears automatically
 ```
 
+**Backends:** each agent's `provider` selects where it runs:
+- `ollama` / `openai_compatible` / `lmstudio` / `llama_cpp` — a local AI host you point at with `base_url` (reachable from the control center). **Nous Hermes works here** — set `provider: openai_compatible` (or `ollama`) and `model:` to whatever id your host serves (e.g. `hermes`, `nous-hermes2`).
+- `claude` (or `anthropic`) — the Claude API via the official SDK. Set `ANTHROPIC_API_KEY` in the control center's environment; no `base_url` needed. Defaults to `claude-opus-4-8`; the stable persona is sent with prompt caching.
+
+**Inter-agent comms (Phase 2):** the **Ship Comms** section lets you give the crew a shared goal and run a bounded round-robin "mission" — each agent contributes per round, building on the channel. Guardrails cap rounds (`MAYBOT_COMMS_MAX_ROUNDS`, default 3), participants (`MAYBOT_COMMS_MAX_PARTICIPANTS`, default 6), and allow only one mission at a time, so total LLM calls per mission (rounds × participants) are bounded. API: `GET /api/comms`, `POST /api/comms/mission`.
+
+**Obsidian vault memory (Phase 3):** point `MAYBOT_OBSIDIAN_VAULT` at an Obsidian vault (a folder of markdown notes) and agents gain a shared, persistent memory — they pull relevant notes in as context (on tasks and missions) and write mission summaries back. Reads are confined to `.md` files inside the vault (path traversal is rejected); writes go only to a dedicated subfolder (`MAYBOT_OBSIDIAN_SUBDIR`, default `MayBot/`) with sanitized filenames, so hand-written notes are never clobbered. The **Vault Memory** dashboard section appears when a vault is configured. Per-agent `memory: false` opts an agent out of context injection.
+
+> Notes injected as context are sent to whatever backend the agent uses — a local host stays local; a `claude` agent sends them to the Anthropic API. Don't point an agent at a vault with secrets you wouldn't send to its backend.
+
+**Guarded tools (Phase 4):** agents can *act* — but only through an explicit allow-list, behind human approval. Define tools in `tools.yaml` (no file → the feature is off). Each tool runs as a **fixed argv with no shell**; an agent may only fill the named `{placeholder}` args you declare, and each value is validated (no spaces or shell metacharacters, bounded length). Every call is **pending until you approve it** in the **Tools** dashboard section, unless a tool sets `auto_approve: true` (reserve that for safe, read-only tools). An agent requests a tool by ending its reply with a fenced block:
+
+````text
+```tool
+{"tool": "list_dir", "args": {"path": "/opt/daybot/logs"}}
+```
+````
+
+The request is created as **pending** — it never runs until a human approves. (Tool requests are wired into single-agent tasks only, not multi-agent missions, to keep the blast radius small.) See `tools.yaml.example`. API: `GET /api/tools`, `POST /api/tools/run`, `POST /api/tools/{id}/approve|deny`.
+
+> ⚠️ Tools execute real commands on the agent host. Keep the allow-list narrow, prefer absolute `argv`/`cwd`, and only set `auto_approve` on commands that are safe to run unattended.
+
+Optional control-center environment variables:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `MAYBOT_OBSIDIAN_VAULT` | _(unset)_ | Path to your Obsidian vault; enables agent memory |
+| `MAYBOT_OBSIDIAN_SUBDIR` | `MayBot` | Subfolder agents write into |
+| `MAYBOT_TOOLS_FILE` | `tools.yaml` | Guarded tool allow-list (absent → tools off) |
+| `MAYBOT_COMMS_MAX_ROUNDS` | `3` | Max rounds per mission |
+| `MAYBOT_COMMS_MAX_PARTICIPANTS` | `6` | Max agents per mission |
+
 **Phase 1 scope & safety:**
 - Agents *think and talk only* — they do **not** execute commands or tools, and do not message each other yet.
-- The control center calls each agent's `base_url` directly, so the endpoint must be reachable from the control-center machine (running it on the same box as Ollama is simplest).
+- For local-host agents, the control center calls `base_url` directly (running it on the same box as Ollama is simplest).
 - State (transcripts) is in-memory and resets on restart.
 
 Optional control-center environment variables:
