@@ -1155,7 +1155,11 @@ function spriteFor(a, ax) {
 }
 // character skin sets → filename suffix (agent_<pose><suffix>.png). Per-agent via
 // agents.yaml `skin:`; elders/leader default to the white-haired set.
-const SKIN_SUFFIX = { youth: '', young: '', a: '', elder: '_b', white: '_b', b: '_b' };
+const SKIN_SUFFIX = {
+  youth: '', young: '', a: '', elder: '_b', white: '_b', b: '_b',
+  empress: '_empress', lotus: '_lotus', azure: '_azure', shadow: '_shadow', vegeta: '_vegeta',
+  goku: '_goku', redhood: '_redhood',
+};
 function skinSuffix(a) {
   const s = a && a.skin;
   if (s != null && s !== '' && SKIN_SUFFIX[s] !== undefined) return SKIN_SUFFIX[s];

@@ -47,9 +47,16 @@ agents:
     model: claude-opus-4-8
     max_tokens: 1024
 
-  # A disciple with a fixed map sprite. `sprite:` pins which agents_sheet figure
-  # represents them in the Sect Map halls (cultivate | meditate | refine |
-  # breakthrough | sweep | demon), regardless of their current activity.
+  # ---- Sect Map character art ----
+  # Each disciple is drawn on the Sect Map halls performing their current
+  # activity (cultivating / refining / breaking through / sweeping / …).
+  #
+  #   skin:   which CHARACTER SET draws them (in any activity pose). One of:
+  #           youth (default), elder, empress, lotus, azure, shadow, vegeta.
+  #           Elders/Leader default to `elder` when no skin is set.
+  #   sprite: a FIXED identity sprite that ignores activity. Currently: demon.
+  #
+  # Morde always appears as the armored demon, whatever he's doing:
   - name: Morde
     role: Iron Marshal
     persona: >
@@ -61,3 +68,29 @@ agents:
     temperature: 0.6
     max_tokens: 512
     sprite: demon
+
+  # The Saiyan prince, training in the sect (uses the `vegeta` skin):
+  - name: Vega
+    role: Combat Instructor
+    persona: >
+      You are Vega, a proud, relentless warrior who pushes for maximum effort
+      and has zero patience for excuses. Terse, intense, competitive.
+    provider: ollama
+    base_url: http://127.0.0.1:11434
+    model: llama3
+    temperature: 0.7
+    max_tokens: 512
+    skin: vegeta
+
+  # A serene female adept (uses the `empress` skin):
+  - name: Lin
+    role: Archivist
+    persona: >
+      You are Lin, a calm, precise archivist. You answer gracefully and flag
+      uncertainty plainly.
+    provider: ollama
+    base_url: http://127.0.0.1:11434
+    model: llama3
+    temperature: 0.6
+    max_tokens: 512
+    skin: empress
