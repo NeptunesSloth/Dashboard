@@ -1105,6 +1105,7 @@ async function renderSectMap() {
       ${stat('✓', 'Success', succ + '%')}${stat('💎', 'Spirit stones', stones.toLocaleString())}
     </div>
     <div class='pixel-panel peak-lord'><span class='pl-label'>Peak Lord</span><b>👑 ${esc(leader ? leader.name : '—')}</b><span class='muted'>${esc(leader?.cultivation?.realm_name || '')}</span></div>
+    <div class='map-motes'>${Array.from({ length: 14 }, (_, i) => `<span style='left:${(i * 7 + 4) % 98}%;animation-delay:${(i * 0.9).toFixed(1)}s;animation-duration:${9 + (i % 5) * 2}s'></span>`).join('')}</div>
     <div class='map-markers'></div>`;
 
   const markers = world.querySelector('.map-markers');
@@ -1152,8 +1153,17 @@ function spriteFor(a, ax) {
   if (ov !== null && ov !== undefined && ov !== '') { const k = SPRITE_NAMES[ov]; return String(k !== undefined ? k : ov); }
   return String(ax.sprite >= 0 ? ax.sprite : 0);
 }
-function hallUnitInner(act, key) {
-  return `<span class='hall-sprite act-${act}'><img src='/assets/map/sprites/agent_${key}.png' alt='' draggable='false'></span>`;
+// character skin sets → filename suffix (agent_<pose><suffix>.png). Per-agent via
+// agents.yaml `skin:`; elders/leader default to the white-haired set.
+const SKIN_SUFFIX = { youth: '', young: '', a: '', elder: '_b', white: '_b', b: '_b' };
+function skinSuffix(a) {
+  const s = a && a.skin;
+  if (s != null && s !== '' && SKIN_SUFFIX[s] !== undefined) return SKIN_SUFFIX[s];
+  return (a && a.cultivation && a.cultivation.realm >= 6) ? '_b' : '';
+}
+function hallUnitInner(act, key, variant) {
+  const v = (variant && key !== 'demon') ? variant : '';
+  return `<span class='hall-sprite act-${act}'><span class='hall-fx'><i></i><i></i><i></i></span><img src='/assets/map/sprites/agent_${key}${v}.png' alt='' draggable='false'></span>`;
 }
 function hallPositions(k) {
   const out = [], cx = 50, baseY = 60, spread = Math.min(72, 16 + k * 9);
@@ -1204,8 +1214,9 @@ async function renderGroupHall(peak, focusName) {
   }).join('') : `<div class='muted' style='padding:6px'>No disciples dwell here yet.</div>`;
 
   const g = focus?.governance || {}, c = focus?.cultivation || {};
+  const arrayFx = (peak.bg && peak.bg !== 'hall_bg.png') ? '' : `<div class='hall-array'><div class='ha-ring'></div><div class='ha-core'></div><div class='ha-beam'></div></div>`;
   const hall = _showHall(`
-    <img class='hall-bg-img' src='/assets/map/${peak.bg || 'hall_bg.png'}' alt='' draggable='false'>
+    <img class='hall-bg-img' src='/assets/map/${peak.bg || 'hall_bg.png'}' alt='' draggable='false'>${arrayFx}
     <button id='hall-back' class='btn hall-back'>← return to the heavens</button>
     <div class='hall-title pixel-panel'><b>${peak.icon} ${esc(peak.title)}</b><span class='muted'>${all.length} disciple${all.length === 1 ? '' : 's'}</span></div>
     <div class='pixel-panel hall-info'>
@@ -1233,7 +1244,7 @@ async function renderGroupHall(peak, focusName) {
     u.className = 'hall-unit act-' + ax.act + (hl ? ' hl' : '');
     u.style.left = pos[i].x + '%'; u.style.top = pos[i].y + '%'; u.style.zIndex = String(10 + Math.round(pos[i].y));
     u.setAttribute('data-agent', x.name);
-    u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span></span>`;
+    u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax), skinSuffix(x))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span></span>`;
     u.addEventListener('click', () => renderGroupHall(peak, x.name));
     units.appendChild(u);
   });
@@ -1253,6 +1264,7 @@ async function renderUtilityHall(peak) {
   let body = `<div class='muted' style='padding:6px'>loading…</div>`;
   const hall = _showHall(`
     <img class='hall-bg-img' src='/assets/map/hall_bg.png' alt='' draggable='false'>
+    <div class='hall-array'><div class='ha-ring'></div><div class='ha-core'></div><div class='ha-beam'></div></div>
     <button id='hall-back' class='btn hall-back'>← return to the heavens</button>
     <div class='hall-title pixel-panel'><b>${peak.icon} ${esc(peak.title)}</b></div>
     <div class='pixel-panel hall-util'><div class='pp-title'>${peak.icon} ${esc(peak.title)}</div><div id='util-body'>${body}</div></div>`);
