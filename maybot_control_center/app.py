@@ -27,6 +27,19 @@ from . import reputation
 from . import prophecy
 from . import formations
 from . import governance
+from . import nightwatch
+from . import spirit_root
+from . import dreamscape
+from . import chaos
+from . import github_repo
+from . import daoheart
+from . import bonds
+from . import lineage
+from . import council_vote
+from . import artifacts
+from . import titles
+from . import chronicle
+from . import runbooks
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -129,6 +142,8 @@ class TaskIn(BaseModel):
     critical: bool = False        # critical work the Sect Leader handles directly
     project: str | None = None    # optional project this task acts on (personal guard)
     device: str | None = None
+    repo: str | None = None       # optional GitHub repo (owner/name) for context
+    issue: int | None = None      # optional issue/PR number
 
 
 @app.get("/api/agents")
@@ -184,6 +199,13 @@ def assign_agent_task(name: str, body: TaskIn, x_control_token: str = Header(def
     # The Ancestor's personal bot projects are off-limits to disciples.
     if body.project and governance.is_personal_project(body.project, body.device):
         raise HTTPException(403, f"'{body.project}' is the Ancestor's personal project — disciples may not be assigned to it")
+    # Optional GitHub reference is prepended as context for the disciple.
+    if body.repo:
+        if not _SAFE_NAME.match(body.repo.replace("/", "_")):
+            raise HTTPException(400, "invalid repo name")
+        ref = github_repo.task_reference(body.repo, body.issue)
+        if ref:
+            task = f"{ref}\n\n{task}"
     # The Sect Leader oversees: routine work is routed to a deputy Elder.
     executor, delegated_from = governance.route_task(name, body.critical)
     try:
@@ -437,6 +459,253 @@ def governance_message(body: AncestorMsgIn, x_control_token: str = Header(defaul
         raise HTTPException(403, str(exc))
     except ValueError as exc:
         raise HTTPException(400, str(exc))
+
+
+# ---- Night-Watch (on-call rotation + auto-triage) ----
+@app.get("/api/nightwatch")
+def nightwatch_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return nightwatch.status()
+
+
+class RotationIn(BaseModel):
+    names: list[str] = []
+
+
+@app.post("/api/nightwatch/rotation")
+def nightwatch_rotation(body: RotationIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    names = [n for n in body.names if _SAFE_NAME.match(n or "")]
+    return nightwatch.set_rotation(names)
+
+
+@app.post("/api/nightwatch/{record_id}/handled")
+def nightwatch_handled(record_id: int, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"resolved": nightwatch.handled(record_id)}
+
+
+# ---- Spirit-Root assessment (capability benchmarking) ----
+@app.get("/api/spirit-root")
+def spirit_root_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"profiles": spirit_root.snapshot(), "probes": spirit_root.PROBES,
+            "baseline": spirit_root.BASELINE_PROBES}
+
+
+class AssessIn(BaseModel):
+    agent: str
+    results: list[dict] = []
+
+
+@app.post("/api/spirit-root/assess")
+def spirit_root_assess(body: AssessIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.agent or ""):
+        raise HTTPException(400, "invalid agent name")
+    return spirit_root.assess(body.agent, body.results)
+
+
+# ---- Dreamscape dry-run (formation plan preview) ----
+class DreamIn(BaseModel):
+    formation: str
+    goal: str
+
+
+@app.post("/api/dreamscape/preview")
+def dreamscape_preview(body: DreamIn, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if not _SAFE_NAME.match(body.formation or ""):
+        raise HTTPException(400, "invalid formation name")
+    try:
+        return dreamscape.preview(body.formation, body.goal)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+# ---- Tribulation Trials (chaos engineering) ----
+@app.get("/api/chaos")
+def chaos_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return chaos.status()
+
+
+class SummonIn(BaseModel):
+    target: str
+    kind: str
+    disciple: str | None = None
+    inject: bool = False          # actively inject the fault via a guarded tool
+
+
+@app.post("/api/chaos/summon")
+def chaos_summon(body: SummonIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if body.disciple and not _SAFE_NAME.match(body.disciple):
+        raise HTTPException(400, "invalid disciple name")
+    try:
+        return chaos.summon(body.target, body.kind, body.disciple, inject=body.inject)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+class ResolveIn(BaseModel):
+    recovered: bool
+    recovery_seconds: float | None = None
+
+
+@app.post("/api/chaos/{trial_id}/resolve")
+def chaos_resolve(trial_id: int, body: ResolveIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    try:
+        return chaos.resolve(trial_id, body.recovered, body.recovery_seconds)
+    except KeyError:
+        raise HTTPException(404, "trial not found")
+
+
+# ---- GitHub repos (tracked as projects) ----
+@app.get("/api/github")
+def github_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"enabled": github_repo.enabled(), "repos": github_repo.collect() if github_repo.enabled() else []}
+
+
+# ---- Dao-Heart drift detection ----
+@app.get("/api/daoheart")
+def daoheart_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"drift": daoheart.snapshot()}
+
+
+# ---- Karmic-bond pairs ----
+@app.get("/api/bonds")
+def bonds_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return bonds.snapshot()
+
+
+class BondIn(BaseModel):
+    a: str
+    b: str
+
+
+@app.post("/api/bonds/bind")
+def bonds_bind(body: BondIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.a or "") or not _SAFE_NAME.match(body.b or ""):
+        raise HTTPException(400, "invalid disciple name")
+    try:
+        return bonds.bind(body.a, body.b)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+class UnbondIn(BaseModel):
+    agent: str
+
+
+@app.post("/api/bonds/unbind")
+def bonds_unbind(body: UnbondIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.agent or ""):
+        raise HTTPException(400, "invalid disciple name")
+    return {"unbound": bonds.unbind(body.agent)}
+
+
+# ---- Lineage (knowledge graph) ----
+@app.get("/api/lineage")
+def lineage_graph(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return lineage.graph()
+
+
+# ---- Merit-weighted council vote ----
+class VoteIn(BaseModel):
+    question: str
+    votes: dict[str, str]
+
+
+@app.post("/api/council/vote")
+def council_vote_run(body: VoteIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    try:
+        return council_vote.tally(body.question, body.votes)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+@app.get("/api/council/history")
+def council_history(limit: int = Query(default=25), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"history": council_vote.history(max(1, min(limit, 100)))}
+
+
+# ---- Artifact vault ----
+@app.get("/api/artifacts")
+def artifacts_list(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return artifacts.snapshot()
+
+
+class ForgeIn(BaseModel):
+    creator: str
+    name: str
+    kind: str
+    content: str
+    description: str = ""
+
+
+@app.post("/api/artifacts/forge")
+def artifacts_forge(body: ForgeIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.name or ""):
+        raise HTTPException(400, "invalid artifact name")
+    try:
+        return artifacts.forge(body.creator, body.name, body.kind, body.content, body.description)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+class WieldIn(BaseModel):
+    agent: str
+    name: str
+
+
+@app.post("/api/artifacts/wield")
+def artifacts_wield(body: WieldIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    try:
+        return artifacts.wield(body.agent, body.name)
+    except KeyError:
+        raise HTTPException(404, "artifact not found")
+
+
+# ---- Titles & achievements ----
+@app.get("/api/titles")
+def titles_catalog(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"catalog": titles.catalog()}
+
+
+# ---- Cultivation chronicle (per-disciple timeline) ----
+@app.get("/api/chronicle")
+def chronicle_recent(limit: int = Query(default=50), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"recent": chronicle.recent(max(1, min(limit, 200))), "summary": chronicle.snapshot()}
+
+
+@app.get("/api/chronicle/{name}")
+def chronicle_agent(name: str, limit: int = Query(default=100), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    return {"agent": name, "timeline": chronicle.timeline(name, max(1, min(limit, 200)))}
+
+
+# ---- Auto-remediation runbooks ----
+@app.get("/api/runbooks")
+def runbooks_catalog(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"runbooks": runbooks.catalog()}
 
 
 @app.get("/api/treasury")

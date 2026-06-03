@@ -123,7 +123,17 @@ def _award(agent: str, stones: int, skill: str | None = None) -> dict:
         store.upsert_cultivation(snap)
     if broke:
         events.publish("agents", {"agent": agent, "event": "breakthrough"})
+        _chronicle(agent, "breakthrough", f"broke through to {REALMS[snap['realm']]['name']}")
     return {"new_skill": new_skill, "breakthrough": broke}
+
+
+def _chronicle(agent: str, kind: str, detail: str = "", meta: dict | None = None) -> None:
+    """Record a notable lifecycle event to the cultivation chronicle (best-effort)."""
+    try:
+        from . import chronicle
+        chronicle.record(agent, kind, detail, meta)
+    except Exception:
+        pass
 
 
 def _tribulate(agent: str) -> bool:
@@ -143,6 +153,7 @@ def _tribulate(agent: str) -> bool:
     if store.enabled():
         store.upsert_cultivation(snap)
     events.publish("agents", {"agent": agent, "event": "tribulation", "struck": struck})
+    _chronicle(agent, "tribulation", "struck down a realm" if struck else "weathered it; spirit stones scattered")
     try:
         from . import notifier
         notifier.notify_event("tribulation", f"Heavenly tribulation strikes {agent}",
@@ -231,8 +242,14 @@ def on_tool(agent: str, tool: str, ok: bool) -> None:
     if not agent or agent == "operator":
         return
     if ok:
-        _award(agent, AWARD_TOOL, skill=tool)
+        res = _award(agent, AWARD_TOOL, skill=tool)
         treasury.deposit(TITHE)
+        if res.get("new_skill"):  # first to master this technique → record provenance
+            try:
+                from . import lineage
+                lineage.record_origin(agent, tool, "technique")
+            except Exception:
+                pass
     else:
         _fail(agent)
 

@@ -19,17 +19,20 @@ const TYPE_LABEL = {
   ai_project: 'AI Coding Projects',
   local_ai_host: 'Local AI Hosts',
   generic: 'Generic Projects',
+  github_repo: 'GitHub Repos',
 };
 // Flavour for the "base" room view: an activity verb + icon per project type.
 const TYPE_VERB = {
   trading_bot: 'TRADING', code_project: 'BUILDING', game_server: 'HOSTING', website: 'SERVING',
   school: 'PLANNING', ai_project: 'CODING', local_ai_host: 'INFERENCE', generic: 'RUNNING',
+  github_repo: 'WATCHING',
 };
 const TYPE_ICON = {
   trading_bot: '📈', code_project: '🛠️', game_server: '🎮', website: '🌐',
   school: '🎓', ai_project: '🤖', local_ai_host: '🧠', generic: '📦',
+  github_repo: '🐙',
 };
-const TYPE_ORDER = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'generic'];
+const TYPE_ORDER = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'github_repo', 'generic'];
 
 function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 function getControlToken() { return localStorage.getItem(CONTROL_TOKEN_STORAGE_KEY) || ''; }
@@ -259,6 +262,9 @@ async function render() {
     renderProjects(window.__lastProjects);
     await renderAgentCrew();
     renderGovernance();
+    renderTrials();
+    renderLore();
+    renderSectMap();
     renderHallOfFame();
     renderProphecy();
     bindComms();
@@ -518,7 +524,8 @@ function agentCard(a) {
   const tribCls = c.event === 'tribulation' && (Date.now() - (c.event_ts || 0) < 30000) ? ' agent-tribulation' : '';
   return `<div class='card agent-card agent-${esc(st)}${tribCls}' data-agent='${esc(a.name)}'>
     <div class='metric'><b>🧘 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
-    ${a.reputation || a.governance ? `<div class='rep-row'>${governanceChip(a.governance)}${reputationChip(a.reputation)}</div>` : ''}
+    ${a.reputation || a.governance ? `<div class='rep-row'>${governanceChip(a.governance)}${reputationChip(a.reputation)}${a.bond ? `<span class='gov-chip gov-spec' title='karmic-bond reviewer'>🤝 ${esc(a.bond)}</span>` : ''}</div>` : ''}
+    ${(a.titles && a.titles.length) ? `<div class='rep-row'>${a.titles.map(t => `<span class='title-chip' title='${esc(t.desc)}'>🏅 ${esc(t.title)}</span>`).join('')}</div>` : ''}
     ${metric('Role', esc(a.role || '—'))}
     ${metric('Model', esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
@@ -793,6 +800,254 @@ function bindGovernance() {
     const res = await govPost('challenge', { challenger }, 'Challenge');
     if (res) { alert(res.reason || (res.won ? 'Victory!' : 'Defeated.')); renderGovernance(); }
   });
+}
+
+// ---- Trials Hall: Night-Watch, chaos, dreamscape, spirit-root ----
+
+async function apiJSON(path) { try { return await fetch(path, { headers: authHeaders() }).then(r => r.json()); } catch (_) { return null; } }
+async function apiPost(path, body, label) {
+  try {
+    const res = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body) });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) { alert((label || 'Action') + ' failed: ' + (j.detail || res.status)); return null; }
+    return j;
+  } catch (e) { alert((label || 'Action') + ' failed: ' + e); return null; }
+}
+
+async function renderTrials() {
+  const sec = document.getElementById('trials-section');
+  const crew = window.__agents || [];
+  if (!crew.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+
+  // Night-Watch
+  const w = await apiJSON('/api/nightwatch') || {};
+  document.getElementById('watch-line').textContent = w.current
+    ? `On watch: ${w.current} · next: ${w.next || '—'} · ${Math.round((w.shift_remaining || 0) / 60)}m left · ${w.open || 0} open`
+    : 'No one stands the night watch.';
+  const wr = document.getElementById('watch-roster');
+  const onWatch = new Set(w.rotation || []);
+  wr.innerHTML = crew.map(a => `<label class='comms-chip'><input type='checkbox' value='${esc(a.name)}' ${onWatch.has(a.name) ? 'checked' : ''}> ${esc(a.name)}</label>`).join('');
+  document.getElementById('watch-log').innerHTML = (w.trials || w.log || []).slice ? '' : '';
+
+  // Chaos trials
+  const ch = await apiJSON('/api/chaos') || {};
+  const kindSel = document.getElementById('chaos-kind');
+  if (kindSel && !kindSel.dataset.ready && ch.catalog) {
+    kindSel.innerHTML = Object.entries(ch.catalog).map(([k, v]) => `<option value='${esc(k)}' title='${esc(v)}'>${esc(k)}</option>`).join('');
+    kindSel.dataset.ready = '1';
+  }
+  const discSel = document.getElementById('chaos-disciple');
+  if (discSel) { const cur = discSel.value; discSel.innerHTML = `<option value=''>(no disciple)</option>` + crew.map(a => `<option>${esc(a.name)}</option>`).join(''); if (cur) discSel.value = cur; }
+  document.getElementById('chaos-trials').innerHTML = (ch.trials || []).map(t => {
+    const cls = t.status === 'failed' ? 'omen-ominous' : (t.status === 'weathered' ? 'omen-favorable' : '');
+    const btn = t.status === 'active' ? `<div class='gov-controls'><button class='btn chaos-weather' data-id='${t.id}'>Weathered</button><button class='btn gov-challenge chaos-fail' data-id='${t.id}'>Failed</button></div>` : '';
+    return `<div class='card omen-card ${cls}'>
+      <div class='metric'><b>${esc(t.kind)}</b><span class='muted'>${esc(t.status)}</span></div>
+      ${metric('Target', esc(t.target))}${metric('Disciple', esc(t.disciple || '—'))}${t.score != null ? metric('Score', t.score) : ''}${btn}</div>`;
+  }).join('') || `<div class='comms-sys muted'>No trials summoned.</div>`;
+
+  // Spirit-root grades
+  const sr = await apiJSON('/api/spirit-root') || {};
+  const profiles = (sr.profiles) || {};
+  document.getElementById('spirit-grades').innerHTML = Object.keys(profiles).length
+    ? Object.values(profiles).map(p => `<div class='card'><div class='metric'><b>${esc(p.agent)}</b><b class='money-pos'>${esc(p.grade)}</b></div>${metric('Overall', p.overall)}${metric('Samples', p.samples)}</div>`).join('')
+    : `<div class='comms-sys muted'>No disciples assessed yet (POST results to /api/spirit-root/assess).</div>`;
+
+  bindTrials();
+}
+
+function bindTrials() {
+  const root = document.getElementById('trials-section');
+  const ws = document.getElementById('watch-set');
+  if (ws && !ws.dataset.bound) {
+    ws.dataset.bound = '1';
+    ws.onclick = async () => {
+      const names = Array.from(root.querySelectorAll('#watch-roster input:checked')).map(i => i.value);
+      if (await apiPost('/api/nightwatch/rotation', { names }, 'Set watch')) renderTrials();
+    };
+  }
+  const cg = document.getElementById('chaos-go');
+  if (cg && !cg.dataset.bound) {
+    cg.dataset.bound = '1';
+    cg.onclick = async () => {
+      const target = (document.getElementById('chaos-target').value || '').trim();
+      if (!target) { alert('Enter a target.'); return; }
+      const kind = document.getElementById('chaos-kind').value;
+      const disciple = document.getElementById('chaos-disciple').value || null;
+      if (await apiPost('/api/chaos/summon', { target, kind, disciple }, 'Summon')) renderTrials();
+    };
+  }
+  root.querySelectorAll('.chaos-weather').forEach(b => b.onclick = async () => {
+    const secs = prompt('Recovery time in seconds (blank = full marks):', '');
+    const body = { recovered: true }; if (secs) body.recovery_seconds = Number(secs);
+    if (await apiPost(`/api/chaos/${b.getAttribute('data-id')}/resolve`, body, 'Resolve')) renderTrials();
+  });
+  root.querySelectorAll('.chaos-fail').forEach(b => b.onclick = async () => {
+    if (await apiPost(`/api/chaos/${b.getAttribute('data-id')}/resolve`, { recovered: false }, 'Resolve')) renderTrials();
+  });
+  const dg = document.getElementById('dream-go');
+  if (dg && !dg.dataset.bound) {
+    dg.dataset.bound = '1';
+    const fsel = document.getElementById('dream-formation');
+    apiJSON('/api/formations').then(fd => { if (fd && fd.catalog) fsel.innerHTML = fd.catalog.map(f => `<option value='${esc(f.name)}'>${esc(f.title)}</option>`).join(''); });
+    dg.onclick = async () => {
+      const formation = fsel.value;
+      const goal = (document.getElementById('dream-goal').value || '').trim();
+      if (!goal) { alert('Enter a goal.'); return; }
+      const res = await apiPost('/api/dreamscape/preview', { formation, goal }, 'Preview');
+      if (res) {
+        document.getElementById('dream-preview').innerHTML =
+          `<div class='card'><div class='metric'><b>${esc(res.title)}</b><span class='muted'>~${res.est_tokens_total} tokens</span></div>` +
+          res.stages.map(s => `<div class='metric'><span>${esc(s.stage)} · ${esc(s.assignee)}</span><span class='muted'>~${s.est_tokens}t</span></div>`).join('') + `</div>`;
+      }
+    };
+  }
+}
+
+// ---- Sect Lore: bonds, drift, lineage, artifacts, council votes ----
+
+async function renderLore() {
+  const sec = document.getElementById('lore-section');
+  const crew = window.__agents || [];
+  if (crew.length < 1) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+
+  // disciple selects (bonds + forge creator)
+  ['bond-a', 'bond-b', 'forge-creator'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    const cur = el.value;
+    el.innerHTML = crew.map(a => `<option>${esc(a.name)}</option>`).join('');
+    if (cur && crew.some(a => a.name === cur)) el.value = cur;
+  });
+
+  // bonds
+  const b = await apiJSON('/api/bonds') || {};
+  document.getElementById('bond-list').innerHTML = (b.pairs || []).length
+    ? (b.pairs || []).map(p => `<div class='card'><div class='metric'><b>🤝 ${esc(p[0])} ↔ ${esc(p[1])}</b><button class='btn unbond' data-agent='${esc(p[0])}'>Unbind</button></div></div>`).join('')
+    : `<div class='comms-sys muted'>No karmic bonds yet.</div>`;
+
+  // drift
+  const d = await apiJSON('/api/daoheart') || {};
+  const drifts = Object.values(d.drift || {}).filter(x => x.status && x.status !== 'stable' && x.status !== 'insufficient');
+  document.getElementById('drift-list').innerHTML = drifts.length
+    ? drifts.map(x => `<div class='card omen-card ${x.status === 'degraded' ? 'omen-ominous' : 'omen-caution'}'>
+        <div class='metric'><b>${esc(x.agent)}</b><span class='omen-badge ${x.status === 'degraded' ? 'omen-ominous' : 'omen-caution'}'>${esc(x.status)}</span></div>
+        <div class='gov-bars muted'>success Δ ${x.signals.success_delta} · len ratio ${x.signals.length_ratio} · latency Δ ${x.signals.latency_delta_pct}%</div></div>`).join('')
+    : `<div class='comms-sys muted'>All dao-hearts steady.</div>`;
+
+  // lineage
+  const lg = await apiJSON('/api/lineage') || {};
+  const edges = lg.edges || [], origins = lg.origins || [];
+  document.getElementById('lineage-list').innerHTML = (edges.length || origins.length)
+    ? `<div class='card'>
+        ${origins.map(o => `<div class='metric'><span>🌱 ${esc(o.skill)}</span><b>${esc(o.agent)} <span class='muted'>(${esc(o.source)})</span></b></div>`).join('')}
+        ${edges.map(e => `<div class='metric'><span>📜 ${esc(e.skill)}</span><b>${esc(e.teacher)} → ${esc(e.student)}</b></div>`).join('')}
+      </div>`
+    : `<div class='comms-sys muted'>No techniques traced yet.</div>`;
+
+  // artifacts
+  const av = await apiJSON('/api/artifacts') || {};
+  document.getElementById('artifact-list').innerHTML = (av.artifacts || []).length
+    ? (av.artifacts || []).map(a => `<div class='card'><div class='metric'><b>⚱ ${esc(a.name)}</b><span class='muted'>${esc(a.kind)} v${a.version}</span></div>${metric('By', esc(a.creator))}${metric('Used', a.uses)}<div class='muted'>${esc(a.description || '')}</div></div>`).join('')
+    : `<div class='comms-sys muted'>The vault is empty.</div>`;
+
+  bindLore();
+}
+
+function bindLore() {
+  const root = document.getElementById('lore-section');
+  const bg = document.getElementById('bond-go');
+  if (bg && !bg.dataset.bound) {
+    bg.dataset.bound = '1';
+    bg.onclick = async () => {
+      const a = document.getElementById('bond-a').value, bb = document.getElementById('bond-b').value;
+      if (a === bb) { alert('Pick two different disciples.'); return; }
+      if (await apiPost('/api/bonds/bind', { a, b: bb }, 'Bind')) renderLore();
+    };
+  }
+  root.querySelectorAll('.unbond').forEach(btn => btn.onclick = async () => {
+    if (await apiPost('/api/bonds/unbind', { agent: btn.getAttribute('data-agent') }, 'Unbind')) renderLore();
+  });
+  const fg = document.getElementById('forge-go');
+  if (fg && !fg.dataset.bound) {
+    fg.dataset.bound = '1';
+    fg.onclick = async () => {
+      const body = {
+        creator: document.getElementById('forge-creator').value,
+        name: (document.getElementById('forge-name').value || '').trim(),
+        kind: document.getElementById('forge-kind').value,
+        description: document.getElementById('forge-desc').value,
+        content: document.getElementById('forge-content').value,
+      };
+      if (!body.name || !body.content) { alert('Name and content required.'); return; }
+      if (await apiPost('/api/artifacts/forge', body, 'Forge')) { document.getElementById('forge-name').value = ''; document.getElementById('forge-content').value = ''; renderLore(); }
+    };
+  }
+  const vg = document.getElementById('vote-go');
+  if (vg && !vg.dataset.bound) {
+    vg.dataset.bound = '1';
+    vg.onclick = async () => {
+      const question = (document.getElementById('vote-q').value || '').trim();
+      if (!question) { alert('Enter a question.'); return; }
+      const votes = {};
+      (document.getElementById('vote-ballots').value || '').split('\n').forEach(line => {
+        const i = line.indexOf(':'); if (i > 0) votes[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+      });
+      if (!Object.keys(votes).length) { alert('Enter ballots as "Disciple: choice" lines.'); return; }
+      const res = await apiPost('/api/council/vote', { question, votes }, 'Vote');
+      if (res) document.getElementById('vote-result').innerHTML =
+        `<div class='card'><div class='metric'><b>Winner</b><b class='money-pos'>${esc(res.winner)}</b></div>
+         ${Object.entries(res.tally).map(([k, v]) => metric(esc(k), Math.round(v * 10) / 10)).join('')}
+         ${res.dissent.length ? `<div class='muted'>Dissent: ${res.dissent.map(esc).join(', ')}</div>` : ''}</div>`;
+    };
+  }
+}
+
+// ---- Sect Map: spatial realm view + cultivation chronicle ----
+
+const MAP_TIERS = [
+  { name: 'Sect Master', min: 8 },
+  { name: 'Elder', min: 6 },
+  { name: 'Core Disciple', min: 4 },
+  { name: 'Inner Disciple', min: 2 },
+  { name: 'Outer Disciple', min: 0 },
+];
+
+async function renderSectMap() {
+  const sec = document.getElementById('map-section');
+  const crew = window.__agents || [];
+  if (!crew.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+
+  const tierFor = realm => MAP_TIERS.find(t => realm >= t.min) || MAP_TIERS[MAP_TIERS.length - 1];
+  const peaks = MAP_TIERS.map(t => ({ tier: t, members: [] }));
+  crew.forEach(a => {
+    const realm = (a.cultivation && a.cultivation.realm) || 0;
+    const peak = peaks.find(p => p.tier.name === tierFor(realm).name);
+    peak.members.push(a);
+  });
+
+  document.getElementById('sect-map').innerHTML = peaks.map(p => {
+    const chips = p.members.length
+      ? p.members.sort((x, y) => (y.governance?.standing || 0) - (x.governance?.standing || 0)).map(a => {
+          const g = a.governance || {};
+          const crown = g.is_leader ? '👑 ' : '';
+          const cls = g.is_leader ? 'map-leader' : (g.is_elder ? 'map-elder' : '');
+          const spec = g.specialty ? ` · ${esc(g.specialty)}` : '';
+          return `<span class='map-disciple ${cls}' title='standing ${g.standing ?? '—'}${spec}'>${crown}${esc(a.name)} <span class='muted'>${esc((a.cultivation && a.cultivation.realm_name) || '')}</span></span>`;
+        }).join('')
+      : `<span class='muted'>—</span>`;
+    return `<div class='map-peak'><div class='map-tier'>${esc(p.tier.name)}</div><div class='map-members'>${chips}</div></div>`;
+  }).join('');
+
+  // chronicle feed
+  let ch = { recent: [] };
+  try { ch = await fetch('/api/chronicle?limit=40', { headers: authHeaders() }).then(r => r.json()); } catch (_) {}
+  const feed = document.getElementById('chronicle-feed');
+  feed.innerHTML = (ch.recent || []).length
+    ? (ch.recent || []).map(e => `<div class='chronicle-row'><span class='chronicle-glyph'>${esc(e.glyph)}</span><b>${esc(e.agent)}</b> <span class='muted'>${esc(e.kind)}</span> — ${esc(e.detail)}</div>`).join('')
+    : `<div class='comms-sys muted'>The chronicle is yet unwritten.</div>`;
 }
 
 // ---- Heavenly Omens: prophecy / divination ----

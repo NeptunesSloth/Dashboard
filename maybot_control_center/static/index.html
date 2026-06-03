@@ -86,6 +86,91 @@
       <p class="muted">Direct word from your Sect Leader and Elders — none below Elder rank may address you here.</p>
       <div id="ancestor-inbox" class="comms-feed"></div>
     </section>
+    <section id="trials-section" class="hidden">
+      <div class="section-head"><h2>Trials Hall</h2></div>
+      <p class="muted">Night-Watch on-call rotation, chaos tribulations, formation dry-runs, and spirit-root assessments.</p>
+
+      <h3 class="trials-sub">🌙 Night-Watch</h3>
+      <p class="muted" id="watch-line">No one stands the night watch.</p>
+      <div class="comms-launch">
+        <span class="muted">Set rotation (check disciples):</span>
+        <div id="watch-roster" class="comms-participants"></div>
+        <button id="watch-set" class="btn">Set watch</button>
+      </div>
+      <div id="watch-log" class="grid"></div>
+
+      <h3 class="trials-sub">☄ Tribulation Trials</h3>
+      <div class="comms-launch">
+        <input id="chaos-target" placeholder="target project / realm…">
+        <select id="chaos-kind"></select>
+        <select id="chaos-disciple"></select>
+        <button id="chaos-go" class="btn gov-challenge">Summon trial</button>
+      </div>
+      <div id="chaos-trials" class="grid"></div>
+
+      <h3 class="trials-sub">🜂 Dreamscape (formation dry-run)</h3>
+      <div class="comms-launch">
+        <select id="dream-formation"></select>
+        <input id="dream-goal" placeholder="goal to preview…">
+        <button id="dream-go" class="btn">Preview</button>
+      </div>
+      <div id="dream-preview" class="grid"></div>
+
+      <h3 class="trials-sub">🌱 Spirit-Root grades</h3>
+      <div id="spirit-grades" class="grid"></div>
+    </section>
+    <section id="lore-section" class="hidden">
+      <div class="section-head"><h2>Sect Lore</h2></div>
+      <p class="muted">Karmic bonds (pair review), the lineage of techniques, drift watch, the artifact vault, and merit-weighted council votes.</p>
+
+      <h3 class="trials-sub">🤝 Karmic Bonds</h3>
+      <div class="comms-launch">
+        <select id="bond-a"></select><span class="muted">↔</span><select id="bond-b"></select>
+        <button id="bond-go" class="btn">Bind pair</button>
+      </div>
+      <div id="bond-list" class="grid"></div>
+
+      <h3 class="trials-sub">💓 Dao-Heart Drift</h3>
+      <div id="drift-list" class="grid"></div>
+
+      <h3 class="trials-sub">🌳 Lineage of Techniques</h3>
+      <div id="lineage-list" class="grid"></div>
+
+      <h3 class="trials-sub">⚱ Artifact Vault</h3>
+      <details class="details"><summary>Forge an artifact</summary>
+        <div class="comms-launch">
+          <select id="forge-creator"></select>
+          <input id="forge-name" placeholder="artifact name…">
+          <select id="forge-kind"><option>prompt</option><option>tool_recipe</option><option>formation</option><option>note</option></select>
+        </div>
+        <div class="comms-launch">
+          <input id="forge-desc" placeholder="description…">
+          <textarea id="forge-content" placeholder="content…" rows="3" style="flex:1;min-width:0"></textarea>
+          <button id="forge-go" class="btn">Forge</button>
+        </div>
+      </details>
+      <div id="artifact-list" class="grid"></div>
+
+      <h3 class="trials-sub">🗳 Merit-Weighted Council Vote</h3>
+      <div class="comms-launch">
+        <input id="vote-q" placeholder="question / ambiguous call…" style="flex:1;min-width:0">
+      </div>
+      <div class="comms-launch">
+        <textarea id="vote-ballots" placeholder="one per line — Disciple: choice" rows="3" style="flex:1;min-width:0"></textarea>
+        <button id="vote-go" class="btn">Tally</button>
+      </div>
+      <div id="vote-result" class="grid"></div>
+    </section>
+    <section id="map-section" class="hidden">
+      <div class="section-head">
+        <h2>Sect Map</h2>
+        <span id="map-pill" class="pill">the heavens</span>
+      </div>
+      <p class="muted">The sect arrayed across the heavens — disciples rise through the peaks by realm; the Sect Leader sits at the summit. Runbooks stand ready to remediate fallen realms.</p>
+      <div id="sect-map" class="sect-map"></div>
+      <h3 class="trials-sub">📜 Cultivation Chronicle</h3>
+      <div id="chronicle-feed" class="comms-feed"></div>
+    </section>
     <section id="fame-section" class="hidden">
       <div class="section-head"><h2>Hall of Fame</h2></div>
       <div id="hall-of-fame" class="grid"></div>

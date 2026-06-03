@@ -445,6 +445,30 @@ A meritocratic hierarchy over the disciples. **You are the Ancestor** — ultima
 - **Personal projects:** disciples may **not** be assigned to act on your personal bot projects. Mark them with `personal: true` in `projects.yaml`, or list them in `MAYBOT_PERSONAL_PROJECTS` (comma-separated `name` or `device:name`); such a task is rejected (403) and the project is flagged in the overview.
 - **GitHub:** disciples can act on GitHub through guarded tools — see the `gh_*` examples in `tools.yaml.example` (reads auto-approve; writes stay human-approved).
 
+## Trials Hall & GitHub
+
+- **Night-Watch on-call (`GET /api/nightwatch`, `POST /api/nightwatch/rotation`, `/{id}/handled`):** an on-call rotation — disciples take timed watch shifts (`MAYBOT_WATCH_SHIFT_SECONDS`, default 1h). The on-watch disciple `triage`s incidents (warnings auto-handled, `error` severity escalated to the Ancestor); resolving a watch earns spirit stones. Real value: on-call rotation with first-line auto-triage.
+- **Spirit-Root assessment (`GET /api/spirit-root`, `POST /api/spirit-root/assess`):** a capability benchmark — feed in probe results (`reasoning`/`coding`/`reliability`/`latency`) and a weighted score yields a spirit-root grade (Heavenly → Mortal Dust). Real value: automated per-model capability profiling that can feed the trust tier.
+- **Dreamscape dry-run (`POST /api/dreamscape/preview`):** preview a formation's full stage→disciple plan and a token-cost estimate **without calling any LLM**, so you can sanity-check and budget before running it for real.
+- **Tribulation Trials / chaos (`GET /api/chaos`, `POST /api/chaos/summon`, `/{id}/resolve`):** deliberately inject a fault scenario (process kill, latency storm, disk drought, endpoint seal) and score how fast a disciple recovers — fast recovery earns stones, failure costs cultivation. Real value: game-day / chaos-engineering drills with scored resilience.
+- **GitHub repos as projects (`GET /api/github`):** list repos in `MAYBOT_GITHUB_REPOS` (comma-separated `owner/name`) and they appear in the overview as `github_repo` projects with health from open PRs, failing checks, and open issues (cached `MAYBOT_GITHUB_CACHE_TTL`s; needs the `gh` CLI authenticated). Tasks can also carry a `repo`/`issue` reference (`POST /api/agents/{name}/task`) that's prepended as context, and disciples post back through the human-approved `gh_*` guarded tools.
+
+## Sect Lore (drift, bonds, lineage, votes, artifacts, titles)
+
+- **Dao-Heart drift (`GET /api/daoheart`):** each task's output quality signals (success, length, latency) are recorded; drift compares a disciple's recent window to its baseline and flags `drifting`/`degraded`. Real value: behavioral / quality-regression detection.
+- **Karmic-bond pairs (`GET /api/bonds`, `POST /api/bonds/bind|unbind`):** bind two disciples and the partner automatically peer-reviews the other's task output before it ships (the review is appended to the transcript). Real value: mandatory cross-check / pair-agent QA.
+- **Lineage (`GET /api/lineage`):** a knowledge graph of who originated each technique and who transmitted it to whom (fed by tool-mastery + the `transmit` flow). Real value: knowledge-transfer & ownership graph.
+- **Merit-weighted council vote (`POST /api/council/vote`, `GET /api/council/history`):** disciples vote on an ambiguous call; votes are weighted by sect standing and the decision + dissent is logged. Real value: weighted-ensemble decisions with an audit trail.
+- **Artifact vault (`GET /api/artifacts`, `POST /api/artifacts/forge|wield`):** disciples forge reusable, versioned artifacts (prompt templates, tool recipes, formations, notes) with provenance (creator/created_at/version/uses). Real value: an attributed prompt/tool library.
+- **Titles & achievements (`GET /api/titles`):** disciples earn titles (Immortal Ascendant, Sword Saint, Bane of Bugs, …) from cultivation/reputation/governance milestones, shown as badges on their cards. Real value: gamified engagement + an at-a-glance specialization signal.
+
+## Auto-remediation, chronicle, sect map & active chaos
+
+- **Auto-remediation runbooks (`GET /api/runbooks`):** define `runbooks.yaml` (see `runbooks.yaml.example`) mapping a project match (`type`/`health`/`name_pattern`/`alert_contains`) to a guarded tool + args. When a project goes unhealthy, a matching runbook **requests** its remediation tool (debounced per episode, recovers on `ok`) — still subject to the normal approval/autonomy guards, so nothing destructive runs unsanctioned.
+- **Cultivation chronicle (`GET /api/chronicle`, `/api/chronicle/{name}`):** a per-disciple event timeline — breakthroughs, tribulations, leadership challenges/appointments, specialties, and karmic bonds are recorded as a chronological story, shown in the Sect Map's chronicle feed.
+- **Sect Map:** a spatial view of the sect arrayed across the heavens — disciples rise through the peaks by realm, the Sect Leader crowned at the summit.
+- **Active chaos injection:** `POST /api/chaos/summon` with `{"inject": true}` now *actually* inflicts the fault by requesting a mapped guarded tool (`chaos.FAULT_TOOLS`; see the `chaos_*` examples in `tools.yaml.example`) — always approval-gated, never silent. Without `inject` it stays observe-and-score.
+
 ## Agent Crew (LLM persona agents — Phase 1)
 
 The dashboard can run **LLM-backed persona agents** against your local AI hosts. Each agent is defined in `agents.yaml` with a name, role, and persona (system prompt), and points at an Ollama or OpenAI-compatible endpoint. In the **Agent Crew** section you assign a task to an agent and it runs one chat completion in the background, streaming the reply (and a transcript) into its card.
