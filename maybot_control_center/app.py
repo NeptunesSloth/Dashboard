@@ -2,10 +2,12 @@ import re
 import secrets
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 from .config import load_devices, CONTROL_CENTER_TOKEN
 from .aggregator import aggregate
 from .agent_client import call_agent, post_agent
 from . import history
+from . import agents
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
@@ -67,6 +69,43 @@ def proxy_action(device_name: str, project_name: str, action: str, x_control_tok
     if not result.get("online"):
         raise HTTPException(503, "agent unreachable")
     return result.get("data", {})
+
+
+class TaskIn(BaseModel):
+    task: str
+
+
+@app.get("/api/agents")
+def list_agents(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"agents": agents.snapshot()}
+
+
+@app.get("/api/agents/{name}")
+def agent_detail(name: str, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    detail = agents.get_agent(name)
+    if detail is None:
+        raise HTTPException(404, "agent not found")
+    return detail
+
+
+@app.post("/api/agents/{name}/task")
+def assign_agent_task(name: str, body: TaskIn, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    task = (body.task or "").strip()
+    if not task:
+        raise HTTPException(400, "task must not be empty")
+    if len(task) > 4000:
+        raise HTTPException(400, "task too long (max 4000 chars)")
+    try:
+        return agents.assign_task(name, task)
+    except KeyError:
+        raise HTTPException(404, "agent not found")
 
 
 @app.get("/")
