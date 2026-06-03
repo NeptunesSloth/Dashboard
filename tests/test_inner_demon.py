@@ -1,4 +1,4 @@
-from maybot_control_center import agents
+from maybot_control_center import agents, cultivation
 
 
 AGENTS_YAML = """
@@ -15,6 +15,7 @@ def _setup(tmp_path, monkeypatch):
 
 def setup_function():
     agents.clear()
+    cultivation.clear()  # ensure Nova starts at realm 0 (max demon cycles)
 
 
 def test_inner_demon_revises_a_flawed_answer(tmp_path, monkeypatch):

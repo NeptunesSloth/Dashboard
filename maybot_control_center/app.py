@@ -343,6 +343,25 @@ def comms_debate(body: DebateIn, x_control_token: str = Header(default="")):
         raise HTTPException(400, str(exc))
 
 
+class TournamentIn(BaseModel):
+    topic: str
+    participants: list[str] = []
+    judge: str
+    rounds: int = 1
+
+
+@app.post("/api/comms/tournament")
+def comms_tournament(body: TournamentIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    parts = [p for p in body.participants if _SAFE_NAME.match(p or "")]
+    if not _SAFE_NAME.match(body.judge or ""):
+        raise HTTPException(400, "invalid judge name")
+    try:
+        return comms.start_tournament(body.topic, parts, body.judge, body.rounds)
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(400, str(exc))
+
+
 @app.get("/api/stream")
 def stream(token: str = Query(default="")):
     # EventSource can't send custom headers, so the control token comes as a query param.

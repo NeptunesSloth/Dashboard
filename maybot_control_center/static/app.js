@@ -497,7 +497,9 @@ function bindAgentCrew(root) {
         method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ agent: name, pill }),
       });
-      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Concoction failed: ' + (b.detail || res.status)); }
+      const b = await res.json().catch(() => ({}));
+      if (!res.ok) { alert('Concoction failed: ' + (b.detail || res.status)); }
+      else if (b.deviation) { alert('⚡ Qi deviation! The churning qi scattered every buff' + (b.struck ? ' — and struck the disciple down a realm.' : '.')); }
     } catch (e) { alert('Concoction failed: ' + e); }
     btn.disabled = false;
     renderAgentCrew();
@@ -653,6 +655,27 @@ function bindComms() {
         if (!res.ok) { const j = await res.json().catch(() => ({})); alert('Debate failed: ' + (j.detail || res.status)); }
       } catch (e) { alert('Debate failed: ' + e); }
       dgo.disabled = false;
+      renderComms();
+    };
+  }
+  const tgo = document.getElementById('tournament-go');
+  if (tgo && !tgo.dataset.bound) {
+    tgo.dataset.bound = '1';
+    tgo.onclick = async () => {
+      const topic = (document.getElementById('debate-topic').value || '').trim();
+      if (!topic) { alert('Enter a proposition for the tournament.'); return; }
+      const participants = Array.from(document.querySelectorAll('#comms-participants input:checked')).map(i => i.value);
+      if (participants.length < 2) { alert('Check at least 2 disciples above to enter the bracket.'); return; }
+      const judge = document.getElementById('debate-judge').value;
+      tgo.disabled = true;
+      try {
+        const res = await fetch('/api/comms/tournament', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ topic, participants, judge, rounds: 1 }),
+        });
+        if (!res.ok) { const j = await res.json().catch(() => ({})); alert('Tournament failed: ' + (j.detail || res.status)); }
+      } catch (e) { alert('Tournament failed: ' + e); }
+      tgo.disabled = false;
       renderComms();
     };
   }

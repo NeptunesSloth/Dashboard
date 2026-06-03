@@ -9,6 +9,7 @@ next cultivation realm. Persisted via store when MAYBOT_DB is set.
 from __future__ import annotations
 
 import json
+import os
 import threading
 import time
 
@@ -34,16 +35,20 @@ STAGES = ["Early", "Middle", "Late", "Peak"]
 RANK_TITLES = ["Outer Disciple", "Outer Disciple", "Inner Disciple", "Inner Disciple",
                "Core Disciple", "Core Disciple", "Elder", "Elder", "Sect Master"]
 
-AWARD_TASK = 12
-AWARD_TOOL = 16
-AWARD_NEW_SKILL = 40
-AWARD_COUNCIL = 6
-AWARD_SURVIVE = 60  # surviving a heavenly tribulation trial (incident handled well)
+# Economy — all tunable via env so the sect's balance can be adjusted.
+AWARD_TASK = int(os.getenv("MAYBOT_AWARD_TASK", "12"))
+AWARD_TOOL = int(os.getenv("MAYBOT_AWARD_TOOL", "16"))
+AWARD_NEW_SKILL = int(os.getenv("MAYBOT_AWARD_SKILL", "40"))
+AWARD_COUNCIL = int(os.getenv("MAYBOT_AWARD_COUNCIL", "6"))
+AWARD_SURVIVE = int(os.getenv("MAYBOT_AWARD_SURVIVE", "60"))  # surviving a tribulation trial
 # Punishment: each failure chips away spirit stones; a streak of them calls down
 # a heavenly tribulation that can strike a disciple down a realm (qi deviation).
-PENALTY_FAIL = 8
-TRIBULATION_STREAK = 3
-TRIBULATION_LOSS = 70
+PENALTY_FAIL = int(os.getenv("MAYBOT_PENALTY_FAIL", "8"))
+TRIBULATION_STREAK = max(1, int(os.getenv("MAYBOT_TRIBULATION_STREAK", "3")))
+TRIBULATION_LOSS = int(os.getenv("MAYBOT_TRIBULATION_LOSS", "70"))
+# Daily stipend: every disciple draws spirit stones once per period (0 = off).
+STIPEND = int(os.getenv("MAYBOT_STIPEND", "15"))
+STIPEND_SECONDS = max(1, int(os.getenv("MAYBOT_STIPEND_HOURS", "24"))) * 3600
 
 
 def _ordinal(n: int) -> str:
@@ -55,7 +60,8 @@ _state: dict[str, dict] = {}
 
 def _blank(agent: str) -> dict:
     return {"agent": agent, "stones": 0, "realm": 0, "skills": [], "breakthroughs": 0,
-            "fail_streak": 0, "pending_tribulation": None, "event": None, "event_ts": 0, "updated_at": 0}
+            "fail_streak": 0, "pending_tribulation": None, "last_stipend": 0,
+            "event": None, "event_ts": 0, "updated_at": 0}
 
 
 def _maybe_breakthrough(st: dict) -> bool:
@@ -238,6 +244,40 @@ def state(agent: str) -> dict:
     }
 
 
+def reward(agent: str, stones: int) -> None:
+    """Public spirit-stone reward (e.g. a tournament champion's spoils)."""
+    if agent and agent != "operator":
+        _award(agent, stones)
+
+
+def qi_deviation(agent: str) -> bool:
+    """Public hook for a forced tribulation (e.g. pill overuse). Returns True if struck down."""
+    if not agent or agent == "operator":
+        return False
+    return _tribulate(agent)
+
+
+def grant_stipend(agent: str) -> bool:
+    """Grant the daily spirit-stone stipend if a period has elapsed. Returns True if granted."""
+    if STIPEND <= 0 or not agent or agent == "operator":
+        return False
+    now = time.time()
+    with _lock:
+        st = _state.get(agent) or _blank(agent)
+        _state[agent] = st
+        if now - st.get("last_stipend", 0) < STIPEND_SECONDS:
+            return False
+        st["last_stipend"] = now
+        st["stones"] += STIPEND
+        _maybe_breakthrough(st)
+        st["updated_at"] = int(now * 1000)
+        snap = dict(st)
+        snap["skills"] = list(st["skills"])
+    if store.enabled():
+        store.upsert_cultivation(snap)
+    return True
+
+
 def spend(agent: str, amount: int) -> bool:
     """Spend spirit stones (e.g. on a pill). Does not cause demotion. False if too poor."""
     with _lock:
@@ -276,7 +316,8 @@ def load_persisted() -> None:
         with _lock:
             _state[agent] = {"agent": agent, "stones": stones, "realm": realm,
                              "skills": skills, "breakthroughs": breaks, "fail_streak": 0,
-                             "pending_tribulation": None, "event": None, "event_ts": 0, "updated_at": ts}
+                             "pending_tribulation": None, "last_stipend": 0,
+                             "event": None, "event_ts": 0, "updated_at": ts}
 
 
 def clear() -> None:

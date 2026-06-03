@@ -8,12 +8,16 @@ Buffs are transient (not persisted) and expire after MAYBOT_PILL_DURATION.
 from __future__ import annotations
 
 import os
+import random
 import threading
 import time
 
 from . import cultivation
 
 DURATION = int(os.getenv("MAYBOT_PILL_DURATION", "600"))  # seconds a buff lasts
+# Toxicity: beyond OVERUSE_SAFE concurrent pills, each extra adds deviation risk.
+OVERUSE_SAFE = int(os.getenv("MAYBOT_PILL_SAFE", "2"))
+DEVIATION_PER = float(os.getenv("MAYBOT_PILL_DEVIATION", "0.34"))
 
 CATALOG = {
     "qi_gathering": {"name": "Qi-Gathering Pill", "cost": 40, "effect": "max_tokens", "amount": 1024,
@@ -35,16 +39,28 @@ def catalog() -> list[dict]:
             for k, v in CATALOG.items()]
 
 
+def deviation_risk(agent: str) -> float:
+    """Chance the NEXT pill backfires, given current concurrent buffs."""
+    count = len(active(agent))
+    return max(0.0, min(1.0, (count - OVERUSE_SAFE + 1) * DEVIATION_PER))
+
+
 def buy(agent: str, pill_id: str) -> dict:
     pill = CATALOG.get(pill_id)
     if not pill:
         raise ValueError(f"unknown pill '{pill_id}'")
     if not cultivation.spend(agent, pill["cost"]):
         raise ValueError("not enough spirit stones")
+    # Overuse toxicity: too many concurrent pills risks qi deviation (the stones are still spent).
+    if random.random() < deviation_risk(agent):
+        with _lock:
+            _active.pop(agent, None)  # the churning qi scatters every active buff
+        struck = cultivation.qi_deviation(agent)
+        return {"agent": agent, "pill": pill_id, "name": pill["name"], "deviation": True, "struck": struck}
     with _lock:
         _active.setdefault(agent, []).append(
             {"effect": pill["effect"], "amount": pill["amount"], "expires": time.time() + DURATION, "name": pill["name"]})
-    return {"agent": agent, "pill": pill_id, "name": pill["name"], "expires_in": DURATION}
+    return {"agent": agent, "pill": pill_id, "name": pill["name"], "expires_in": DURATION, "deviation": False}
 
 
 def _purge(agent: str, now: float) -> list[dict]:
