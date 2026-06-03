@@ -45,3 +45,7 @@ logs/
 .DS_Store
 .idea/
 .vscode/
+
+# never commit secrets
+.env
+.env.*
