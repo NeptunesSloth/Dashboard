@@ -27,7 +27,7 @@ def test_dispatches_once_per_incident(monkeypatch):
     incidents.maybe_dispatch(proj)
     incidents.maybe_dispatch(proj)  # still error → not re-dispatched
     assert len(calls) == 1
-    assert calls[0][0] == "Medic" and "INCIDENT" in calls[0][1] and "ERROR: down" in calls[0][1]
+    assert calls[0][0] == "Medic" and "TRIBULATION" in calls[0][1] and "ERROR: down" in calls[0][1]
 
 
 def test_redispatches_after_recovery(monkeypatch):

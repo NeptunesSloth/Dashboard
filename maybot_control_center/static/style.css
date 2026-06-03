@@ -239,6 +239,18 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .qi-bar { height: 7px; border-radius: 5px; margin: 7px 0 5px; background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(54, 224, 180, 0.18); overflow: hidden; }
 .qi-bar > span { display: block; height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--tech), var(--gold)); box-shadow: 0 0 10px rgba(54, 224, 180, 0.5); transition: width .5s ease; }
 .culti-next, .culti-skills { font-size: 11px; margin: 2px 0 0; }
+.culti-rank { font-size: 11px; margin: 1px 0 0; color: var(--magenta); }
+/* Sect ranking leaderboard */
+.sect-ranking { border: 1px solid rgba(232, 198, 116, 0.22); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; background: linear-gradient(180deg, rgba(232, 198, 116, 0.05), rgba(20, 16, 34, 0.4)); }
+.rank-head { font-family: "Cinzel", Georgia, serif; font-size: 12px; letter-spacing: .12em; color: var(--gold); margin-bottom: 6px; }
+.rank-row { display: grid; grid-template-columns: 28px 1fr auto auto auto; gap: 10px; align-items: baseline; padding: 4px 0; border-top: 1px solid var(--border); font-size: 13px; }
+.rank-row:first-of-type { border-top: none; }
+.rank-pos { text-align: center; }
+.rank-name { font-weight: 700; }
+.rank-title { color: var(--magenta); font-size: 11px; }
+.rank-realm { color: var(--gold); font-family: "Cinzel", Georgia, serif; font-size: 11px; }
+.rank-stones { color: var(--tech); font-weight: 700; font-size: 12px; }
+@media (max-width: 760px) { .rank-row { grid-template-columns: 24px 1fr auto; } .rank-title, .rank-realm { display: none; } }
 .culti-flash { margin-top: 7px; padding: 5px 8px; border-radius: 7px; font-size: 12px; font-weight: 700; text-align: center; letter-spacing: .03em; }
 .culti-breakthrough { color: #fff7e6; background: radial-gradient(circle, rgba(232, 198, 116, 0.35), rgba(154, 100, 214, 0.15)); border: 1px solid var(--gold); box-shadow: 0 0 18px rgba(232, 198, 116, 0.45); animation: breakGlow 1.2s ease-in-out infinite; }
 .culti-tribulation { color: #fff; background: radial-gradient(circle, rgba(255, 92, 110, 0.4), rgba(40, 12, 20, 0.4)); border: 1px solid var(--red); box-shadow: 0 0 18px rgba(255, 92, 110, 0.5); animation: tribFlash 0.5s steps(2) 4; }

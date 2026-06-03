@@ -35,6 +35,8 @@ MAX_TURNS = max(2, int(os.getenv("MAYBOT_AGENT_MAX_TURNS", "20")))  # transcript
 # Tool loop: how many times a tool result may be fed back to an agent before a
 # fresh (operator) task is required. Bounds runaway propose→run→continue loops.
 MAX_FOLLOWUPS = max(0, int(os.getenv("MAYBOT_AGENT_MAX_FOLLOWUPS", "4")))
+# Inner demon: a self-critique/revision pass after each reply (opt-in).
+INNER_DEMON_GLOBAL = os.getenv("MAYBOT_INNER_DEMON", "0").lower() in ("1", "true", "yes", "on")
 
 _lock = threading.Lock()
 _state: dict[str, dict] = {}
@@ -148,6 +150,34 @@ def _chat(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
         return False, "", str(exc)
 
 
+def _inner_demon_on(agent: dict) -> bool:
+    return bool(agent.get("inner_demon")) or INNER_DEMON_GLOBAL
+
+
+def _inner_demon(agent: dict, task: str, answer: str) -> tuple[str, str | None]:
+    """The disciple's inner demon critiques the answer; if flawed, the disciple revises it.
+
+    Returns (final_answer, critique-or-None). Two extra model calls at most.
+    """
+    name = agent.get("name", "the disciple")
+    demon_sys = (f"You are the Inner Demon of {name} — a harsh, exacting critic. Judge the disciple's "
+                 f"answer against the task. List concrete errors, flaws, or omissions as terse bullet "
+                 f"points. If the answer is fully correct and complete, reply with exactly: NO FLAWS")
+    ok, critique, _ = _chat(agent, [
+        {"role": "system", "content": demon_sys},
+        {"role": "user", "content": f"Task:\n{task}\n\nAnswer:\n{answer}"},
+    ])
+    if not ok or not critique or critique.strip().upper().startswith("NO FLAWS"):
+        return answer, None
+    ok2, revised, _ = _chat(agent, [
+        {"role": "system", "content": _persona(agent)},
+        {"role": "user", "content": (f"Task:\n{task}\n\nYour previous answer:\n{answer}\n\nYour inner demon's "
+                                      f"critique:\n{critique}\n\nProduce an improved, corrected final answer that "
+                                      f"addresses every valid point. Output only the final answer.")},
+    ])
+    return (revised if ok2 and revised else answer), critique.strip()
+
+
 def _ensure_state(agent: dict) -> dict:
     name = agent.get("name", "agent")
     st = _state.get(name)
@@ -192,8 +222,14 @@ def run_task(name: str, task: str) -> dict:
 
     ok, text, err = _chat(agent, messages)  # network call outside the lock
 
+    # Inner demon: critique and (if flawed) revise the answer before recording it.
+    demon_critique = None
+    if ok and _inner_demon_on(agent):
+        text, demon_critique = _inner_demon(agent, task, text)
+
     done = int(time.time() * 1000)
     asst_msg = {"role": "assistant", "content": text if ok else f"(error: {err})", "ts": done}
+    demon_msg = {"role": "system", "content": f"⚔ inner demon: {demon_critique}", "ts": done} if demon_critique else None
     with _lock:
         st = _ensure_state(agent)
         st["current_task"] = None
@@ -203,11 +239,15 @@ def run_task(name: str, task: str) -> dict:
             st["tasks_done"] += 1
         else:
             st.update(status="error", error=err)
+        if demon_msg:
+            st["transcript"].append(demon_msg)
         st["transcript"].append(asst_msg)
         if len(st["transcript"]) > MAX_TURNS * 2:
             del st["transcript"][:-MAX_TURNS * 2]
         snap = dict(st)
     if store.enabled():
+        if demon_msg:
+            store.add_transcript(name, demon_msg)
         store.add_transcript(name, asst_msg)
     cultivation.on_task(name, ok)  # spirit stones for diligent work
     events.publish("agents", {"agent": name})

@@ -395,22 +395,50 @@ function renderStation(projects) {
 
 // ---- Agent Crew: LLM-backed persona agents you can assign tasks to ----
 
+function renderSectRanking(crew) {
+  const el = document.getElementById('sect-ranking');
+  if (!el) return;
+  const ranked = (crew || []).filter(a => a.cultivation).slice().sort((x, y) => {
+    const a = x.cultivation, b = y.cultivation;
+    return (b.realm - a.realm) || (b.stones - a.stones);
+  });
+  if (!ranked.length) { el.innerHTML = ''; return; }
+  const medals = ['🥇', '🥈', '🥉'];
+  el.innerHTML = `<div class='rank-head'>SECT RANKING</div>` + ranked.map((a, i) => {
+    const c = a.cultivation;
+    return `<div class='rank-row'>
+      <span class='rank-pos'>${medals[i] || (i + 1)}</span>
+      <span class='rank-name'>${esc(a.name)}</span>
+      <span class='rank-title'>${esc(c.rank_title || '')}</span>
+      <span class='rank-realm'>${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span>
+      <span class='rank-stones'>💎 ${esc(c.stones)}</span>
+    </div>`;
+  }).join('');
+}
+
+function cultivationFlourish(c) {
+  if (!c.event || (Date.now() - (c.event_ts || 0) >= 30000)) return '';
+  switch (c.event) {
+    case 'breakthrough': return `<div class='culti-flash culti-breakthrough'>☯ Breakthrough — ${esc(c.realm_name)}!</div>`;
+    case 'tribulation_survived': return `<div class='culti-flash culti-breakthrough'>☯ Tribulation survived!</div>`;
+    case 'tribulation': return `<div class='culti-flash culti-tribulation'>⚡ Heavenly Tribulation — struck down!</div>`;
+    case 'facing_tribulation': return `<div class='culti-flash culti-tribulation'>⚡ Facing tribulation${c.pending_tribulation ? `: ${esc(c.pending_tribulation)}` : ''}…</div>`;
+    default: return '';
+  }
+}
+
 function cultivationBlock(c) {
-  if (!c) return '';
+  if (!c || !c.realm_name) return '';
   const prog = Math.round((c.progress || 0) * 100);
-  const recent = c.event && (Date.now() - (c.event_ts || 0) < 30000);
   const next = c.next_realm
     ? `<div class='muted culti-next'>${esc(c.stones_to_next)} stones${c.skills_to_next ? ` · ${esc(c.skills_to_next)} technique${c.skills_to_next > 1 ? 's' : ''}` : ''} → ${esc(c.next_realm)}</div>`
     : `<div class='muted culti-next'>✦ Immortal Ascension attained</div>`;
   const skills = (c.skills && c.skills.length) ? `<div class='muted culti-skills'>Techniques: ${c.skills.map(esc).join(', ')}</div>` : '';
-  const flourish = recent && c.event === 'breakthrough'
-    ? `<div class='culti-flash culti-breakthrough'>☯ Breakthrough — ${esc(c.realm_name)}!</div>`
-    : (recent && c.event === 'tribulation'
-        ? `<div class='culti-flash culti-tribulation'>⚡ Heavenly Tribulation — struck down!</div>` : '');
   return `<div class='cultivation realm-${c.realm}'>
-    <div class='culti-head'><span class='culti-realm'>⛰ ${esc(c.realm_name)} · ${esc(c.stage)}</span><span class='culti-stones'>💎 ${esc(c.stones)}</span></div>
+    <div class='culti-head'><span class='culti-realm'>⛰ ${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span><span class='culti-stones'>💎 ${esc(c.stones)}</span></div>
+    <div class='muted culti-rank'>${esc(c.rank_title || '')}</div>
     <div class='qi-bar'><span style='width:${prog}%'></span></div>
-    ${next}${skills}${flourish}
+    ${next}${skills}${cultivationFlourish(c)}
   </div>`;
 }
 
@@ -480,6 +508,7 @@ async function renderAgentCrew() {
   if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
   section.classList.remove('hidden');
   document.getElementById('agent-crew-pill').textContent = `${crew.length} disciples`;
+  renderSectRanking(crew);
   // preserve whatever the user is typing across the auto-refresh re-render
   const act = document.activeElement;
   const focusName = act && act.classList && act.classList.contains('agent-input') ? act.getAttribute('data-agent') : null;

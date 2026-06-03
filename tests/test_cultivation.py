@@ -66,6 +66,40 @@ def test_tribulation_can_strike_a_disciple_down_a_realm():
     assert c.state("Nova")["realm_name"] == "Mortal"
 
 
+def test_sub_realm_layers_and_rank_title():
+    st0 = c.state("Nova")
+    assert st0["layer"] == 1 and st0["layer_label"] == "1st Layer"
+    assert st0["rank_title"] == "Outer Disciple"
+    for _ in range(4):
+        c.on_task("Nova", True)  # ~48 stones → mid Mortal layers
+    st = c.state("Nova")
+    assert 1 <= st["layer"] <= 9
+    assert st["layer_label"].endswith("Layer")
+
+
+def test_facing_and_surviving_a_tribulation_trial():
+    for _ in range(5):
+        c.on_task("Nova", True)  # 60 stones → Qi Condensation
+    before = c.state("Nova")["stones"]
+    c.face_tribulation("Nova", "DayBot")
+    assert c.state("Nova")["pending_tribulation"] == "DayBot"
+    c.on_task("Nova", True)  # survive the trial → big windfall, pending cleared
+    after = c.state("Nova")
+    assert after["pending_tribulation"] is None
+    assert after["stones"] == before + c.AWARD_SURVIVE
+    assert after["event"] in ("tribulation_survived", "breakthrough")
+
+
+def test_failing_a_tribulation_trial_strikes_you_down():
+    for _ in range(6):
+        c.on_task("Nova", True)  # 72 stones → Qi Condensation
+    c.face_tribulation("Nova", "DayBot")
+    c.on_task("Nova", False)  # fail the trial → immediate tribulation
+    after = c.state("Nova")
+    assert after["event"] == "tribulation"
+    assert after["realm_name"] == "Mortal"  # struck down below Qi Condensation's 60
+
+
 def test_operator_does_not_cultivate():
     c.on_task("operator", True)
     c.on_tool("operator", "x", True)
