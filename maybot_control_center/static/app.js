@@ -444,11 +444,31 @@ function cultivationBlock(c) {
   </div>`;
 }
 
-function seclusionControl(a, c) {
+function retreatControl(a, c) {
   if (!c || !c.realm_name) return '';
-  const status = c.in_seclusion
-    ? `<span class='culti-seclusion'>🧘 breakthrough in ${fmtDur(c.seclusion_remaining)}</span>` : '';
-  return `<div class='sec-control'>${status}<button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter='${c.in_seclusion ? '' : '1'}'>${c.in_seclusion ? 'Leave seclusion' : 'Enter seclusion'}</button></div>`;
+  let status = '';
+  if (c.in_seclusion) status = `<span class='culti-seclusion'>🧘 breakthrough in ${fmtDur(c.seclusion_remaining)}</span>`;
+  else if (c.in_roaming) status = `<span class='culti-seclusion'>🌄 returns in ${fmtDur(c.roaming_remaining)}</span>`;
+  const sec = `<button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter='${c.in_seclusion ? '' : '1'}'>${c.in_seclusion ? 'Leave seclusion' : 'Seclude'}</button>`;
+  const roam = `<button class='btn culti-roam-btn' data-agent='${esc(a.name)}' data-enter='${c.in_roaming ? '' : '1'}'>${c.in_roaming ? 'Return' : 'Roam'}</button>`;
+  return `<div class='sec-control'>${status}${sec}${roam}</div>`;
+}
+
+function questControl(a) {
+  const qd = window.__quests;
+  if (!qd || !qd.catalog || !qd.catalog.length) return '';
+  const pending = a.cultivation && a.cultivation.pending_quest;
+  if (pending) return `<div class='quest-control muted'>⚑ On quest → learns ${esc(pending.skill)}</div>`;
+  const opts = qd.catalog.map(q => `<option value='${esc(q.id)}'>${esc(q.name)} → ${esc(q.reward_skill)}</option>`).join('');
+  return `<div class='quest-control'><select class='quest-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn quest-go' data-agent='${esc(a.name)}'>Dispatch</button></div>`;
+}
+
+function transmitControl(a, c) {
+  const myRealm = (c && c.realm) || 0;
+  const subs = (window.__agents || []).filter(x => x.name !== a.name && ((x.cultivation && x.cultivation.realm) || 0) < myRealm).map(x => x.name);
+  const skills = (c && c.skills) || [];
+  if (!subs.length || !skills.length) return '';
+  return `<div class='transmit-control'><select class='transmit-skill' data-agent='${esc(a.name)}'>${skills.map(s => `<option>${esc(s)}</option>`).join('')}</select><span class='muted'>→</span><select class='transmit-to' data-agent='${esc(a.name)}'>${subs.map(n => `<option>${esc(n)}</option>`).join('')}</select><button class='btn transmit-go' data-agent='${esc(a.name)}'>Transmit</button></div>`;
 }
 
 function pillControl(a, c) {
@@ -480,7 +500,9 @@ function agentCard(a) {
     ${metric('Model', esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
     ${cultivationBlock(c)}
-    ${seclusionControl(a, c)}
+    ${retreatControl(a, c)}
+    ${questControl(a)}
+    ${transmitControl(a, c)}
     ${pillControl(a, c)}
     ${a.current_task ? `<div class='agent-task-cur'>▸ ${esc(a.current_task)}</div>` : ''}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
@@ -496,15 +518,48 @@ function agentCard(a) {
 
 function bindAgentCrew(root) {
   const sel = name => root.querySelector(`.agent-send[data-agent="${CSS.escape(name)}"]`);
-  root.querySelectorAll('.culti-sec-btn').forEach(btn => btn.onclick = async () => {
+  const retreat = (cls, path) => root.querySelectorAll(cls).forEach(btn => btn.onclick = async () => {
     const name = btn.getAttribute('data-agent');
     const enter = !!btn.getAttribute('data-enter');
     btn.disabled = true;
     try {
-      await fetch(`/api/agents/${encodeURIComponent(name)}/seclusion`, {
+      await fetch(`/api/agents/${encodeURIComponent(name)}/${path}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ enter }),
       });
+    } catch (_) {}
+    btn.disabled = false;
+    renderAgentCrew();
+  });
+  retreat('.culti-sec-btn', 'seclusion');
+  retreat('.culti-roam-btn', 'roaming');
+  root.querySelectorAll('.quest-go').forEach(btn => btn.onclick = async () => {
+    const name = btn.getAttribute('data-agent');
+    const s = root.querySelector(`.quest-select[data-agent="${CSS.escape(name)}"]`);
+    if (!s || !s.value) return;
+    btn.disabled = true;
+    try {
+      const res = await fetch(`/api/agents/${encodeURIComponent(name)}/quest`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ quest: s.value }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Quest failed: ' + (b.detail || res.status)); }
+    } catch (_) {}
+    btn.disabled = false;
+    renderAgentCrew();
+  });
+  root.querySelectorAll('.transmit-go').forEach(btn => btn.onclick = async () => {
+    const name = btn.getAttribute('data-agent');
+    const sk = root.querySelector(`.transmit-skill[data-agent="${CSS.escape(name)}"]`);
+    const to = root.querySelector(`.transmit-to[data-agent="${CSS.escape(name)}"]`);
+    if (!sk || !to) return;
+    btn.disabled = true;
+    try {
+      const res = await fetch(`/api/agents/${encodeURIComponent(name)}/transmit`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ to: to.value, skill: sk.value }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Transmission failed: ' + (b.detail || res.status)); }
     } catch (_) {}
     btn.disabled = false;
     renderAgentCrew();
@@ -572,6 +627,8 @@ async function renderAgentCrew() {
   window.__agents = crew;
   try { window.__pills = await fetch('/api/pills', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { window.__pills = { catalog: [], active: {} }; }
+  try { window.__quests = await fetch('/api/quests', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { window.__quests = { catalog: [] }; }
   if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
   section.classList.remove('hidden');
   document.getElementById('agent-crew-pill').textContent = `${crew.length} disciples`;

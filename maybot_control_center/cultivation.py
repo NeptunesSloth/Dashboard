@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import threading
 import time
 
@@ -55,6 +56,13 @@ TITHE = int(os.getenv("MAYBOT_TITHE", "3"))
 # Closed-door seclusion: after this long sequestered, a disciple researches a new
 # technique and breaks through to the next realm (repeats while in seclusion).
 SECLUSION_SECONDS = max(1, int(os.getenv("MAYBOT_SECLUSION_MINUTES", "30"))) * 60
+# Roaming: a disciple wanders the world and returns with a unique art/knowledge.
+ROAMING_SECONDS = max(1, int(os.getenv("MAYBOT_ROAMING_MINUTES", "20"))) * 60
+DISCOVERIES = [
+    "Cloud-Stride Step", "Beast-Tongue Art", "Star-Chart Memory", "Whispering-Wind Ear",
+    "Iron-Bone Forging", "Verdant-Growth Palm", "Echo-Location Sense", "Ashen-Phoenix Rebirth",
+    "Tide-Calling Chant", "Hollow-Moon Gaze", "Thunderclap Resolve", "Serpent-Coil Footwork",
+]
 
 
 def _ordinal(n: int) -> str:
@@ -66,8 +74,9 @@ _state: dict[str, dict] = {}
 
 def _blank(agent: str) -> dict:
     return {"agent": agent, "stones": 0, "realm": 0, "skills": [], "breakthroughs": 0,
-            "fail_streak": 0, "pending_tribulation": None, "last_stipend": 0,
-            "seclusion_since": None, "event": None, "event_ts": 0, "updated_at": 0}
+            "fail_streak": 0, "pending_tribulation": None, "pending_quest": None, "last_stipend": 0,
+            "seclusion_since": None, "roaming_since": None,
+            "event": None, "event_ts": 0, "updated_at": 0}
 
 
 def _maybe_breakthrough(st: dict) -> bool:
@@ -174,6 +183,22 @@ def on_task(agent: str, ok: bool) -> None:
     with _lock:
         st = _state.get(agent)
         pending = st.get("pending_tribulation") if st else None
+        pquest = st.get("pending_quest") if st else None
+    if pquest:
+        with _lock:
+            _state[agent]["pending_quest"] = None
+        if ok:  # quest completed — bring back its unique technique + reward
+            learn(agent, pquest["skill"], bonus=pquest.get("stones", 0))
+            treasury.deposit(TITHE)
+            now = int(time.time() * 1000)
+            with _lock:
+                s = _state[agent]
+                if s.get("event") != "breakthrough":
+                    s["event"], s["event_ts"] = "quest_complete", now
+            events.publish("agents", {"agent": agent, "event": "quest_complete"})
+        else:
+            _fail(agent)
+        return
     if pending:
         if ok:  # survived the trial — a windfall and a chance to break through
             _award(agent, AWARD_SURVIVE)
@@ -249,6 +274,10 @@ def state(agent: str) -> dict:
         "in_seclusion": bool(st.get("seclusion_since")),
         "seclusion_remaining": (max(0, int(SECLUSION_SECONDS - (time.time() - st["seclusion_since"])))
                                 if st.get("seclusion_since") else 0),
+        "in_roaming": bool(st.get("roaming_since")),
+        "roaming_remaining": (max(0, int(ROAMING_SECONDS - (time.time() - st["roaming_since"])))
+                              if st.get("roaming_since") else 0),
+        "pending_quest": st.get("pending_quest"),
         "stones": st["stones"],
         "skills": st["skills"],
         "breakthroughs": st["breakthroughs"],
@@ -301,15 +330,105 @@ def grant_stipend(agent: str) -> bool:
     return True
 
 
+def learn(agent: str, skill: str, bonus: int = 0) -> bool:
+    """A disciple learns a technique (skill). Returns True if it was new."""
+    if not agent or agent == "operator" or not skill:
+        return False
+    now = int(time.time() * 1000)
+    with _lock:
+        st = _state.get(agent) or _blank(agent)
+        _state[agent] = st
+        if skill in st["skills"]:
+            return False
+        st["skills"].append(skill)
+        st["stones"] += bonus
+        broke = _maybe_breakthrough(st)
+        if broke:
+            st["event"], st["event_ts"] = "breakthrough", now
+        st["updated_at"] = now
+        snap = dict(st)
+        snap["skills"] = list(st["skills"])
+    if store.enabled():
+        store.upsert_cultivation(snap)
+    if broke:
+        events.publish("agents", {"agent": agent, "event": "breakthrough"})
+    return True
+
+
+def assign_quest(agent: str, reward_skill: str, stones: int) -> None:
+    """Mark a disciple as undertaking a quest; the reward is granted when the task succeeds."""
+    if not agent or agent == "operator":
+        return
+    with _lock:
+        st = _state.get(agent) or _blank(agent)
+        _state[agent] = st
+        st["pending_quest"] = {"skill": reward_skill, "stones": int(stones)}
+
+
 def enter_seclusion(agent: str) -> dict:
     now = int(time.time() * 1000)
     with _lock:
         st = _state.get(agent) or _blank(agent)
         _state[agent] = st
         st["seclusion_since"] = time.time()
+        st["roaming_since"] = None  # can't seclude and roam at once
         st["event"], st["event_ts"] = "seclusion", now
     events.publish("agents", {"agent": agent, "event": "seclusion"})
     return state(agent)
+
+
+def enter_roaming(agent: str) -> dict:
+    now = int(time.time() * 1000)
+    with _lock:
+        st = _state.get(agent) or _blank(agent)
+        _state[agent] = st
+        st["roaming_since"] = time.time()
+        st["seclusion_since"] = None
+        st["event"], st["event_ts"] = "roaming", now
+    events.publish("agents", {"agent": agent, "event": "roaming"})
+    return state(agent)
+
+
+def exit_roaming(agent: str) -> dict:
+    with _lock:
+        st = _state.get(agent)
+        if st:
+            st["roaming_since"] = None
+    events.publish("agents", {"agent": agent, "event": "returned"})
+    return state(agent)
+
+
+def tick_roaming(agent: str) -> str | None:
+    """If a roaming disciple's journey has matured, return with a unique art/knowledge."""
+    now = time.time()
+    with _lock:
+        st = _state.get(agent)
+        if not st or not st.get("roaming_since"):
+            return None
+        if now - st["roaming_since"] < ROAMING_SECONDS:
+            return None
+        undiscovered = [d for d in DISCOVERIES if d not in st["skills"]]
+        if not undiscovered:
+            st["roaming_since"] = None  # has discovered everything the world holds
+            return None
+        found = random.choice(undiscovered)
+        st["skills"].append(found)
+        st["stones"] += AWARD_NEW_SKILL
+        _maybe_breakthrough(st)
+        st["roaming_since"] = now  # keep wandering for the next discovery
+        st["event"], st["event_ts"] = "discovery", int(now * 1000)
+        snap = dict(st)
+        snap["skills"] = list(st["skills"])
+    if store.enabled():
+        store.upsert_cultivation(snap)
+    try:
+        from . import memory
+        if memory.enabled():
+            memory.write_note(f"roaming-{found}", f"# {found}\n{agent} returned from roaming having learned **{found}**.")
+    except Exception:
+        pass
+    events.publish("agents", {"agent": agent, "event": "discovery", "skill": found})
+    return found
 
 
 def exit_seclusion(agent: str) -> dict:
@@ -385,7 +504,8 @@ def load_persisted() -> None:
         with _lock:
             _state[agent] = {"agent": agent, "stones": stones, "realm": realm,
                              "skills": skills, "breakthroughs": breaks, "fail_streak": 0,
-                             "pending_tribulation": None, "last_stipend": 0, "seclusion_since": None,
+                             "pending_tribulation": None, "pending_quest": None, "last_stipend": 0,
+                             "seclusion_since": None, "roaming_since": None,
                              "event": None, "event_ts": 0, "updated_at": ts}
 
 

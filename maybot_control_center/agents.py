@@ -361,6 +361,21 @@ def delegate(delegator: str, delegate: str, task: str) -> dict:
     return assign_task(delegate, f"[Delegated by {delegator}] {task}")
 
 
+def transmit(teacher: str, student: str, skill: str) -> dict:
+    """A higher-ranked disciple passes one of its techniques down to a subordinate."""
+    if not can_delegate(teacher, student):  # must strictly outrank
+        raise PermissionError(f"{teacher} may not teach {student} (must outrank them)")
+    if skill not in cultivation.state(teacher)["skills"]:
+        raise ValueError(f"{teacher} does not know the {skill} technique")
+    if skill in cultivation.state(student)["skills"]:
+        raise ValueError(f"{student} already knows {skill}")
+    cultivation.learn(student, skill, bonus=cultivation.AWARD_NEW_SKILL // 2)
+    cultivation.on_council(teacher)  # mentoring is meritorious
+    from . import comms
+    comms._post("system", f"📜 {teacher} transmits the {skill} technique to {student}.", "system")
+    return cultivation.state(student)
+
+
 def _parse_delegate(text: str) -> dict | None:
     m = _DELEGATE_BLOCK.search(text or "")
     if not m:
@@ -408,6 +423,7 @@ def snapshot() -> list[dict]:
             name = a.get("name", "agent")
             cultivation.grant_stipend(name)  # daily spirit-stone stipend (no-op unless due)
             cultivation.tick_seclusion(name)  # mature any closed-door seclusion into a breakthrough
+            cultivation.tick_roaming(name)    # return any roaming disciple with a discovery
             st = _state.get(name)
             out.append({
                 "name": name,

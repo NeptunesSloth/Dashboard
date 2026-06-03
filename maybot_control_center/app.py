@@ -20,6 +20,7 @@ from . import authz
 from . import cultivation
 from . import pills
 from . import treasury
+from . import quests
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -335,6 +336,58 @@ def agent_seclusion(name: str, body: SeclusionIn, x_control_token: str = Header(
     if agents._agent_def(name) is None:
         raise HTTPException(404, "agent not found")
     return cultivation.enter_seclusion(name) if body.enter else cultivation.exit_seclusion(name)
+
+
+@app.post("/api/agents/{name}/roaming")
+def agent_roaming(name: str, body: SeclusionIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    if agents._agent_def(name) is None:
+        raise HTTPException(404, "agent not found")
+    return cultivation.enter_roaming(name) if body.enter else cultivation.exit_roaming(name)
+
+
+class TransmitIn(BaseModel):
+    to: str
+    skill: str
+
+
+@app.post("/api/agents/{name}/transmit")
+def agent_transmit(name: str, body: TransmitIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name) or not _SAFE_NAME.match(body.to or ""):
+        raise HTTPException(400, "invalid agent name")
+    try:
+        return agents.transmit(name, body.to, (body.skill or "").strip())
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+@app.get("/api/quests")
+def quests_board(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"catalog": quests.catalog()}
+
+
+class QuestIn(BaseModel):
+    quest: str
+
+
+@app.post("/api/agents/{name}/quest")
+def agent_quest(name: str, body: QuestIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    if agents._agent_def(name) is None:
+        raise HTTPException(404, "agent not found")
+    q = quests.get(body.quest)
+    if not q:
+        raise HTTPException(400, "unknown quest")
+    cultivation.assign_quest(name, q["reward_skill"], q["stones"])
+    return agents.assign_task(name, f"[Quest: {q['name']}] {q['task']}")
 
 
 class PillBuyIn(BaseModel):
