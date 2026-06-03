@@ -65,6 +65,10 @@ def aggregate(devices: list[dict]) -> dict:
         "local_ai_hosts_offline": sum(1 for p in projects if p.get("type") == "local_ai_host" and p.get("metrics", {}).get("status") == "offline"),
         "local_ai_hosts_with_errors": sum(1 for p in projects if p.get("type") == "local_ai_host" and p.get("health") in {"warning", "error"}),
     }
+    from . import github_repo
+    if github_repo.enabled():
+        projects.extend(github_repo.collect())  # tracked GitHub repos as projects
+
     from . import governance
     for p in projects:
         governance.mark_personal(p)  # flag the Ancestor's off-limits personal bots

@@ -86,6 +86,39 @@
       <p class="muted">Direct word from your Sect Leader and Elders — none below Elder rank may address you here.</p>
       <div id="ancestor-inbox" class="comms-feed"></div>
     </section>
+    <section id="trials-section" class="hidden">
+      <div class="section-head"><h2>Trials Hall</h2></div>
+      <p class="muted">Night-Watch on-call rotation, chaos tribulations, formation dry-runs, and spirit-root assessments.</p>
+
+      <h3 class="trials-sub">🌙 Night-Watch</h3>
+      <p class="muted" id="watch-line">No one stands the night watch.</p>
+      <div class="comms-launch">
+        <span class="muted">Set rotation (check disciples):</span>
+        <div id="watch-roster" class="comms-participants"></div>
+        <button id="watch-set" class="btn">Set watch</button>
+      </div>
+      <div id="watch-log" class="grid"></div>
+
+      <h3 class="trials-sub">☄ Tribulation Trials</h3>
+      <div class="comms-launch">
+        <input id="chaos-target" placeholder="target project / realm…">
+        <select id="chaos-kind"></select>
+        <select id="chaos-disciple"></select>
+        <button id="chaos-go" class="btn gov-challenge">Summon trial</button>
+      </div>
+      <div id="chaos-trials" class="grid"></div>
+
+      <h3 class="trials-sub">🜂 Dreamscape (formation dry-run)</h3>
+      <div class="comms-launch">
+        <select id="dream-formation"></select>
+        <input id="dream-goal" placeholder="goal to preview…">
+        <button id="dream-go" class="btn">Preview</button>
+      </div>
+      <div id="dream-preview" class="grid"></div>
+
+      <h3 class="trials-sub">🌱 Spirit-Root grades</h3>
+      <div id="spirit-grades" class="grid"></div>
+    </section>
     <section id="fame-section" class="hidden">
       <div class="section-head"><h2>Hall of Fame</h2></div>
       <div id="hall-of-fame" class="grid"></div>

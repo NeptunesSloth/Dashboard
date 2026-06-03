@@ -19,17 +19,20 @@ const TYPE_LABEL = {
   ai_project: 'AI Coding Projects',
   local_ai_host: 'Local AI Hosts',
   generic: 'Generic Projects',
+  github_repo: 'GitHub Repos',
 };
 // Flavour for the "base" room view: an activity verb + icon per project type.
 const TYPE_VERB = {
   trading_bot: 'TRADING', code_project: 'BUILDING', game_server: 'HOSTING', website: 'SERVING',
   school: 'PLANNING', ai_project: 'CODING', local_ai_host: 'INFERENCE', generic: 'RUNNING',
+  github_repo: 'WATCHING',
 };
 const TYPE_ICON = {
   trading_bot: '📈', code_project: '🛠️', game_server: '🎮', website: '🌐',
   school: '🎓', ai_project: '🤖', local_ai_host: '🧠', generic: '📦',
+  github_repo: '🐙',
 };
-const TYPE_ORDER = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'generic'];
+const TYPE_ORDER = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'github_repo', 'generic'];
 
 function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 function getControlToken() { return localStorage.getItem(CONTROL_TOKEN_STORAGE_KEY) || ''; }
@@ -259,6 +262,7 @@ async function render() {
     renderProjects(window.__lastProjects);
     await renderAgentCrew();
     renderGovernance();
+    renderTrials();
     renderHallOfFame();
     renderProphecy();
     bindComms();
@@ -793,6 +797,109 @@ function bindGovernance() {
     const res = await govPost('challenge', { challenger }, 'Challenge');
     if (res) { alert(res.reason || (res.won ? 'Victory!' : 'Defeated.')); renderGovernance(); }
   });
+}
+
+// ---- Trials Hall: Night-Watch, chaos, dreamscape, spirit-root ----
+
+async function apiJSON(path) { try { return await fetch(path, { headers: authHeaders() }).then(r => r.json()); } catch (_) { return null; } }
+async function apiPost(path, body, label) {
+  try {
+    const res = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body) });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) { alert((label || 'Action') + ' failed: ' + (j.detail || res.status)); return null; }
+    return j;
+  } catch (e) { alert((label || 'Action') + ' failed: ' + e); return null; }
+}
+
+async function renderTrials() {
+  const sec = document.getElementById('trials-section');
+  const crew = window.__agents || [];
+  if (!crew.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+
+  // Night-Watch
+  const w = await apiJSON('/api/nightwatch') || {};
+  document.getElementById('watch-line').textContent = w.current
+    ? `On watch: ${w.current} · next: ${w.next || '—'} · ${Math.round((w.shift_remaining || 0) / 60)}m left · ${w.open || 0} open`
+    : 'No one stands the night watch.';
+  const wr = document.getElementById('watch-roster');
+  const onWatch = new Set(w.rotation || []);
+  wr.innerHTML = crew.map(a => `<label class='comms-chip'><input type='checkbox' value='${esc(a.name)}' ${onWatch.has(a.name) ? 'checked' : ''}> ${esc(a.name)}</label>`).join('');
+  document.getElementById('watch-log').innerHTML = (w.trials || w.log || []).slice ? '' : '';
+
+  // Chaos trials
+  const ch = await apiJSON('/api/chaos') || {};
+  const kindSel = document.getElementById('chaos-kind');
+  if (kindSel && !kindSel.dataset.ready && ch.catalog) {
+    kindSel.innerHTML = Object.entries(ch.catalog).map(([k, v]) => `<option value='${esc(k)}' title='${esc(v)}'>${esc(k)}</option>`).join('');
+    kindSel.dataset.ready = '1';
+  }
+  const discSel = document.getElementById('chaos-disciple');
+  if (discSel) { const cur = discSel.value; discSel.innerHTML = `<option value=''>(no disciple)</option>` + crew.map(a => `<option>${esc(a.name)}</option>`).join(''); if (cur) discSel.value = cur; }
+  document.getElementById('chaos-trials').innerHTML = (ch.trials || []).map(t => {
+    const cls = t.status === 'failed' ? 'omen-ominous' : (t.status === 'weathered' ? 'omen-favorable' : '');
+    const btn = t.status === 'active' ? `<div class='gov-controls'><button class='btn chaos-weather' data-id='${t.id}'>Weathered</button><button class='btn gov-challenge chaos-fail' data-id='${t.id}'>Failed</button></div>` : '';
+    return `<div class='card omen-card ${cls}'>
+      <div class='metric'><b>${esc(t.kind)}</b><span class='muted'>${esc(t.status)}</span></div>
+      ${metric('Target', esc(t.target))}${metric('Disciple', esc(t.disciple || '—'))}${t.score != null ? metric('Score', t.score) : ''}${btn}</div>`;
+  }).join('') || `<div class='comms-sys muted'>No trials summoned.</div>`;
+
+  // Spirit-root grades
+  const sr = await apiJSON('/api/spirit-root') || {};
+  const profiles = (sr.profiles) || {};
+  document.getElementById('spirit-grades').innerHTML = Object.keys(profiles).length
+    ? Object.values(profiles).map(p => `<div class='card'><div class='metric'><b>${esc(p.agent)}</b><b class='money-pos'>${esc(p.grade)}</b></div>${metric('Overall', p.overall)}${metric('Samples', p.samples)}</div>`).join('')
+    : `<div class='comms-sys muted'>No disciples assessed yet (POST results to /api/spirit-root/assess).</div>`;
+
+  bindTrials();
+}
+
+function bindTrials() {
+  const root = document.getElementById('trials-section');
+  const ws = document.getElementById('watch-set');
+  if (ws && !ws.dataset.bound) {
+    ws.dataset.bound = '1';
+    ws.onclick = async () => {
+      const names = Array.from(root.querySelectorAll('#watch-roster input:checked')).map(i => i.value);
+      if (await apiPost('/api/nightwatch/rotation', { names }, 'Set watch')) renderTrials();
+    };
+  }
+  const cg = document.getElementById('chaos-go');
+  if (cg && !cg.dataset.bound) {
+    cg.dataset.bound = '1';
+    cg.onclick = async () => {
+      const target = (document.getElementById('chaos-target').value || '').trim();
+      if (!target) { alert('Enter a target.'); return; }
+      const kind = document.getElementById('chaos-kind').value;
+      const disciple = document.getElementById('chaos-disciple').value || null;
+      if (await apiPost('/api/chaos/summon', { target, kind, disciple }, 'Summon')) renderTrials();
+    };
+  }
+  root.querySelectorAll('.chaos-weather').forEach(b => b.onclick = async () => {
+    const secs = prompt('Recovery time in seconds (blank = full marks):', '');
+    const body = { recovered: true }; if (secs) body.recovery_seconds = Number(secs);
+    if (await apiPost(`/api/chaos/${b.getAttribute('data-id')}/resolve`, body, 'Resolve')) renderTrials();
+  });
+  root.querySelectorAll('.chaos-fail').forEach(b => b.onclick = async () => {
+    if (await apiPost(`/api/chaos/${b.getAttribute('data-id')}/resolve`, { recovered: false }, 'Resolve')) renderTrials();
+  });
+  const dg = document.getElementById('dream-go');
+  if (dg && !dg.dataset.bound) {
+    dg.dataset.bound = '1';
+    const fsel = document.getElementById('dream-formation');
+    apiJSON('/api/formations').then(fd => { if (fd && fd.catalog) fsel.innerHTML = fd.catalog.map(f => `<option value='${esc(f.name)}'>${esc(f.title)}</option>`).join(''); });
+    dg.onclick = async () => {
+      const formation = fsel.value;
+      const goal = (document.getElementById('dream-goal').value || '').trim();
+      if (!goal) { alert('Enter a goal.'); return; }
+      const res = await apiPost('/api/dreamscape/preview', { formation, goal }, 'Preview');
+      if (res) {
+        document.getElementById('dream-preview').innerHTML =
+          `<div class='card'><div class='metric'><b>${esc(res.title)}</b><span class='muted'>~${res.est_tokens_total} tokens</span></div>` +
+          res.stages.map(s => `<div class='metric'><span>${esc(s.stage)} · ${esc(s.assignee)}</span><span class='muted'>~${s.est_tokens}t</span></div>`).join('') + `</div>`;
+      }
+    };
+  }
 }
 
 // ---- Heavenly Omens: prophecy / divination ----

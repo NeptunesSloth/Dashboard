@@ -377,3 +377,7 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .gov-controls { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 .gov-controls .btn, .gov-controls select { font-size: 12px; }
 .gov-challenge { color: #fff2f3; border-color: rgba(255,92,110,0.55); }
+
+/* ---- Trials Hall ---- */
+.trials-sub { color: var(--gold); font-family: "Cinzel", Georgia, serif; font-size: 14px; margin: 16px 0 6px; letter-spacing: .03em; }
+#watch-roster { margin: 0 6px; }
