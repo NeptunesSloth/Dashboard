@@ -6,6 +6,7 @@ let logsRefreshPaused = false;
 let logsInterval = null;
 let selectedLogLevel = 'ALL';
 let viewMode = localStorage.getItem('maybot.view_mode') || 'card';
+let selectedBase = null; // {device, name} of the crew member / room selected in Base View
 const CONTROL_TOKEN_STORAGE_KEY = 'maybot.control_token';
 // Project types that represent AI agents — surfaced in their own management area.
 const AI_AGENT_TYPES = ['ai_project', 'local_ai_host'];
@@ -154,7 +155,8 @@ function roomCard(p) {
   const stats = isTrade
     ? `<div class='room-stats'>${money(m.profit_today)}<span class='room-pos'>${positions} pos</span></div>`
     : '';
-  return `<div class='room room--${esc(health)}' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
+  const selected = selectedBase && selectedBase.device === p.device && selectedBase.name === p.name ? ' is-selected' : '';
+  return `<div class='room room--${esc(health)}${selected}' data-select='1' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
     <div class='room-art'>
       ${spark}
       <span class='room-status'>● ${esc(roomBadge(p))}</span>
@@ -273,13 +275,114 @@ function projectMatches(p, query, health) {
 }
 
 function bindProjectButtons(root) {
-  root.querySelectorAll('[data-action]').forEach(btn => btn.onclick = async () => {
+  root.querySelectorAll('[data-action]').forEach(btn => btn.onclick = async (e) => {
+    e.stopPropagation();
     btn.disabled = true;
     await callAction(btn.getAttribute('data-device'), btn.getAttribute('data-project'), btn.getAttribute('data-action'));
     btn.disabled = false;
     render();
   });
-  root.querySelectorAll('[data-log]').forEach(btn => btn.onclick = () => loadLogs(btn.getAttribute('data-device'), btn.getAttribute('data-project')));
+  root.querySelectorAll('[data-log]').forEach(btn => btn.onclick = (e) => { e.stopPropagation(); loadLogs(btn.getAttribute('data-device'), btn.getAttribute('data-project')); });
+}
+
+// ---- Base View "ship station": crew roster + manage/info panel ----
+
+function crewStatusLine(p) {
+  const m = p.metrics || {};
+  if (p.status === 'stopped') return 'Offline';
+  if (p.status !== 'running') return 'Standby';
+  let line = String(roomBadge(p)).toLowerCase();
+  line = line.charAt(0).toUpperCase() + line.slice(1);
+  if (p.type === 'trading_bot' && m.open_positions !== undefined && m.open_positions !== 'unknown') {
+    line += ` · ${m.open_positions} pos`;
+  }
+  if (p.health === 'warning' || p.health === 'error') line += ' · needs attention';
+  return line;
+}
+
+function crewRow(p) {
+  const health = p.health || 'unknown';
+  const icon = TYPE_ICON[p.type] || '📦';
+  const active = selectedBase && selectedBase.device === p.device && selectedBase.name === p.name ? ' active' : '';
+  return `<button class='crew-row${active}' data-select='1' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
+    <span class='crew-dot ${esc(health)}'></span>
+    <span class='crew-meta'>
+      <span class='crew-name'>${esc(p.name)}</span>
+      <span class='crew-status'>${esc(crewStatusLine(p))}</span>
+    </span>
+    <span class='crew-icon'>${icon}</span>
+  </button>`;
+}
+
+function managePanel(p) {
+  if (!p) return `<div class='manage-empty muted'>Select a crew member or room to manage.</div>`;
+  const m = p.metrics || {};
+  const a = p.actions_available || {};
+  let stats;
+  if (p.type === 'trading_bot') {
+    stats = [
+      metric('Activity', esc((m.activity || (p.status === 'running' ? 'trading' : p.status)).toUpperCase())),
+      metric('PnL Today', money(m.profit_today)), metric('PnL Week', money(m.profit_this_week)),
+      metric('Open Positions', esc(m.open_positions)), metric('Open Exposure', money(m.open_exposure)),
+      metric('Fill Rate', esc(m.fill_rate)), metric('Market', esc(m.market_status)),
+    ].join('');
+  } else if (p.type === 'local_ai_host') {
+    stats = [
+      metric('Provider', esc(m.provider)), metric('Status', esc(m.status)), metric('Default Model', esc(m.default_model)),
+      metric('Models', esc((m.available_models || []).length)), metric('Resp ms', esc(m.response_time_ms)), metric('Last Error', esc(m.last_error)),
+    ].join('');
+  } else {
+    stats = Object.entries(m).filter(([k]) => k !== 'git' && k !== 'process').slice(0, 6).map(([k, v]) => metric(k, esc(v))).join('');
+  }
+  const alerts = (p.alerts || []).map(x => `<div class='alert ${x.includes('ERROR') ? 'alert-error' : 'alert-warning'}'>${esc(x)}</div>`).join('');
+  return `
+    <div class='manage-head'>
+      <div><b>${esc(p.name)}</b> ${healthBadge(p.health)}</div>
+      <button id='manage-close' class='btn'>×</button>
+    </div>
+    <div class='manage-sub muted'>${esc(p.device)} · ${esc(TYPE_LABEL[p.type] || p.type)} · status ${esc(p.status)}</div>
+    <div class='manage-grid'>${stats}</div>
+    ${alerts}
+    <div class='manage-actions'>
+      <button class='act-btn' data-log='1' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Logs</button>
+      ${a.start ? `<button class='act-btn act-btn-start' data-action='start' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Start</button>` : ''}
+      ${a.stop ? `<button class='act-btn act-btn-stop' data-action='stop' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Stop</button>` : ''}
+      ${a.run_tests ? `<button class='act-btn' data-action='run-tests' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Run Tests</button>` : ''}
+    </div>
+    <details class='details'><summary>Info / raw details</summary><pre>${esc(JSON.stringify(p, null, 2))}</pre></details>`;
+}
+
+function renderStation(projects) {
+  const projectsEl = document.getElementById('projects');
+  const ordered = projects.slice().sort((a, b) =>
+    (TYPE_ORDER.indexOf(a.type) - TYPE_ORDER.indexOf(b.type)) || String(a.name).localeCompare(String(b.name)));
+
+  // keep selection only if it still exists in the current (filtered) set
+  const sel = selectedBase && ordered.find(p => p.device === selectedBase.device && p.name === selectedBase.name);
+  if (!sel) selectedBase = null;
+
+  projectsEl.innerHTML = `<div class='station'>
+    <aside class='crew'>
+      <div class='crew-head'>SHIP CREW <span class='muted'>${ordered.length}</span></div>
+      <div class='crew-list'>${ordered.map(crewRow).join('')}</div>
+    </aside>
+    <div class='station-main'>
+      <div class='manage-panel ${sel ? '' : 'manage-panel--empty'}'>${managePanel(sel || null)}</div>
+      <div class='rooms-grid'>${ordered.map(roomCard).join('')}</div>
+    </div>
+  </div>`;
+
+  // selection: clicking a crew row or room (but not its action buttons) selects it
+  projectsEl.querySelectorAll('[data-select]').forEach(el => el.onclick = (e) => {
+    if (e.target.closest('[data-action],[data-log]')) return;
+    selectedBase = { device: el.getAttribute('data-device'), name: el.getAttribute('data-project') };
+    renderStation(window.__lastProjects ? window.__lastProjects.filter(p => projectMatches(p,
+      (document.getElementById('project-search').value || '').trim().toLowerCase(),
+      document.getElementById('health-filter').value || 'ALL')) : ordered);
+  });
+  const close = document.getElementById('manage-close');
+  if (close) close.onclick = () => { selectedBase = null; renderStation(ordered); };
+  bindProjectButtons(projectsEl);
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).
@@ -318,13 +421,7 @@ function renderProjects(projects) {
   }
 
   if (viewMode === 'base') {
-    // One uniform grid of rooms, ordered by type then name — like the base layout.
-    const rooms = filtered
-      .slice()
-      .sort((a, b) => (TYPE_ORDER.indexOf(a.type) - TYPE_ORDER.indexOf(b.type)) || String(a.name).localeCompare(String(b.name)))
-      .map(roomCard).join('');
-    projectsEl.innerHTML = `<div class='rooms-grid'>${rooms}</div>`;
-    bindProjectButtons(projectsEl);
+    renderStation(filtered);
     return;
   }
 
