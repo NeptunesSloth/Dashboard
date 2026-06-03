@@ -24,6 +24,7 @@ from . import agents
 from . import memory
 from . import store
 from . import events
+from . import cultivation
 
 MAX_ROUNDS = max(1, int(os.getenv("MAYBOT_COMMS_MAX_ROUNDS", "3")))
 MAX_PARTICIPANTS = max(2, int(os.getenv("MAYBOT_COMMS_MAX_PARTICIPANTS", "6")))
@@ -114,12 +115,152 @@ def run_mission(goal: str, names: list[str], rounds: int, mission_id) -> None:
                 ])
                 content = (text or "").strip()[:MSG_CHARS] if ok else f"(error: {err})"
                 _post(name, content or "(no response)", "agent", mission_id)
+                cultivation.on_council(name) if ok else cultivation.on_task(name, False)
         _write_mission_memory(goal, mission_id)
         saved = " · saved to vault" if memory.enabled() else ""
         _post("system", f"Mission complete.{saved}", "system", mission_id)
     finally:
         with _lock:
             _mission = None
+
+
+def _debate_winner(verdict: str, a: str, b: str) -> str | None:
+    """Pick the winner named earliest in the judge's verdict."""
+    v = (verdict or "").lower()
+    ia, ib = v.find(a.lower()), v.find(b.lower())
+    if ia == -1 and ib == -1:
+        return None
+    if ia == -1:
+        return b
+    if ib == -1:
+        return a
+    return a if ia <= ib else b
+
+
+def _one_match(topic: str, a: str, b: str, judge: str, rounds: int, mission_id) -> str | None:
+    """Run one FOR/AGAINST debate + verdict; return the winner (or None)."""
+    for stance_round in range(rounds):
+        for name, stance in ((a, "FOR"), (b, "AGAINST")):
+            agent = agents._agent_def(name)
+            if not agent:
+                continue
+            with _lock:
+                if _mission is not None:
+                    _mission["round"] = stance_round + 1
+                    _mission["current"] = name
+            channel = _channel_text()
+            sys = (f"{agents._persona(agent)}\n\nYou are {name}, arguing {stance} the proposition in a "
+                   f"formal dao debate. Be persuasive and concrete, and rebut your opponent.")
+            user = (f"Proposition: {topic}\n\nDebate so far:\n{channel or '(opening)'}\n\n"
+                    f"Make your argument {stance} the proposition (2-4 sentences).")
+            ok, text, err = agents._chat(agent, [{"role": "system", "content": sys}, {"role": "user", "content": user}])
+            _post(name, (text or "").strip()[:MSG_CHARS] if ok else f"(error: {err})", "agent", mission_id)
+            cultivation.on_council(name) if ok else cultivation.on_task(name, False)
+    jagent = agents._agent_def(judge)
+    if not jagent:
+        return None
+    with _lock:
+        if _mission is not None:
+            _mission["current"] = judge
+    channel = _channel_text()
+    jsys = f"{agents._persona(jagent)}\n\nYou are {judge}, an impartial judge of a dao debate."
+    juser = (f"Proposition: {topic}\n\nDebate transcript:\n{channel}\n\nDeclare the winner ({a} or {b}) and "
+             f"give a one-sentence reason. Begin your reply with 'Winner: <name>'.")
+    ok, verdict, _ = agents._chat(jagent, [{"role": "system", "content": jsys}, {"role": "user", "content": juser}])
+    verdict = (verdict or "").strip() if ok else "(the judge was silent)"
+    _post(judge, f"⚖ Verdict — {verdict}", "agent", mission_id)
+    return _debate_winner(verdict, a, b) if ok else None
+
+
+def run_debate(topic: str, a: str, b: str, judge: str, rounds: int, mission_id) -> None:
+    """Two disciples argue opposing sides of a proposition; a third judges."""
+    global _mission
+    try:
+        _post("system", f"⚖ Dao Debate: {topic} — {a} argues FOR, {b} argues AGAINST. Judged by {judge}.", "system", mission_id)
+        winner = _one_match(topic, a, b, judge, rounds, mission_id)
+        if winner:
+            cultivation.on_task(winner, True)  # the victor's spoils
+            _post("system", f"🏆 {winner} prevails in the debate.", "system", mission_id)
+    finally:
+        with _lock:
+            _mission = None
+
+
+def run_tournament(topic: str, entrants: list[str], judge: str, rounds: int, mission_id) -> None:
+    """Single-elimination bracket of debates; crown the last disciple standing."""
+    global _mission
+    try:
+        # seed strongest-first (by realm, then spirit stones)
+        bracket = sorted(entrants, key=lambda n: (-cultivation.realm_of(n), -cultivation.state(n)["stones"]))
+        _post("system", f"🏯 Sect Tournament: {topic} — entrants: {', '.join(bracket)}. Judged by {judge}.", "system", mission_id)
+        round_no = 0
+        while len(bracket) > 1:
+            round_no += 1
+            _post("system", f"— Round {round_no}: {len(bracket)} disciples remain —", "system", mission_id)
+            winners, i = [], 0
+            while i < len(bracket):
+                if i + 1 >= len(bracket):
+                    _post("system", f"{bracket[i]} advances on a bye.", "system", mission_id)
+                    winners.append(bracket[i])
+                    i += 1
+                    continue
+                a, b = bracket[i], bracket[i + 1]
+                _post("system", f"⚔ {a} vs {b}", "system", mission_id)
+                winners.append(_one_match(topic, a, b, judge, rounds, mission_id) or a)
+                i += 2
+            bracket = winners
+        if bracket:
+            champion = bracket[0]
+            cultivation.reward(champion, cultivation.AWARD_SURVIVE * 2)  # a champion's windfall
+            _post("system", f"👑 {champion} is crowned the sect's strongest disciple!", "system", mission_id)
+    finally:
+        with _lock:
+            _mission = None
+
+
+def start_tournament(topic: str, entrants: list[str], judge: str, rounds: int = 1) -> dict:
+    """Validate + launch a single-elimination debate tournament."""
+    global _mission
+    topic = (topic or "").strip()
+    if not topic:
+        raise ValueError("topic required")
+    seen: set[str] = set()
+    names = [n for n in (entrants or []) if agents._agent_def(n) and not (n in seen or seen.add(n))]
+    if len(names) < 2:
+        raise ValueError("need at least 2 valid entrants")
+    if not agents._agent_def(judge):
+        raise ValueError("judge must be a valid agent")
+    names = names[:8]
+    rounds = max(1, min(int(rounds or 1), MAX_ROUNDS))
+    with _lock:
+        if _mission is not None:
+            raise RuntimeError("a council activity is already running")
+        mission_id = int(time.time() * 1000)
+        _mission = {"id": mission_id, "goal": topic, "participants": names + [judge], "rounds": rounds,
+                    "round": 0, "current": None, "started_at": mission_id, "kind": "tournament"}
+        snap = dict(_mission)
+    _pool.submit(run_tournament, topic, names, judge, rounds, mission_id)
+    return snap
+
+
+def start_debate(topic: str, a: str, b: str, judge: str, rounds: int = 2) -> dict:
+    """Validate + launch a dao debate in the background."""
+    global _mission
+    topic = (topic or "").strip()
+    if not topic:
+        raise ValueError("topic required")
+    if a == b or not (agents._agent_def(a) and agents._agent_def(b) and agents._agent_def(judge)):
+        raise ValueError("need two distinct debaters and a judge, all valid agents")
+    rounds = max(1, min(int(rounds or 1), MAX_ROUNDS))
+    with _lock:
+        if _mission is not None:
+            raise RuntimeError("a council activity is already running")
+        mission_id = int(time.time() * 1000)
+        _mission = {"id": mission_id, "goal": topic, "participants": [a, b, judge], "rounds": rounds,
+                    "round": 0, "current": None, "started_at": mission_id, "kind": "debate"}
+        snap = dict(_mission)
+    _pool.submit(run_debate, topic, a, b, judge, rounds, mission_id)
+    return snap
 
 
 def start_mission(goal: str, participants: list[str], rounds: int = 2) -> dict:

@@ -1,0 +1,17 @@
+# Optional per-user RBAC for the control center. WITHOUT this file, the legacy
+# single-token mode applies (MAYBOT_CONTROL_CENTER_TOKEN grants operator, or open
+# access if unset). WITH it, each token maps to a role:
+#   - viewer:   read-only (GET endpoints)
+#   - operator: read + mutate (actions, agent tasks, missions, tools, autonomy)
+#
+# Generate tokens with:  python3 -c "import secrets; print(secrets.token_hex(32))"
+# Copy to users.yaml and edit.
+
+users:
+  - name: alice
+    token: "replace-with-a-long-random-secret"
+    role: operator
+
+  - name: bob
+    token: "replace-with-another-secret"
+    role: viewer

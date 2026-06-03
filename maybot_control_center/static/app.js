@@ -127,8 +127,8 @@ function projectCard(p) {
 }
 
 function roomBadge(p) {
-  if (p.status === 'stopped') return 'OFFLINE';
-  if (p.status !== 'running') return 'STANDBY';
+  if (p.status === 'stopped') return 'FALLEN';
+  if (p.status !== 'running') return 'SECLUSION';
   // Prefer the adapter-derived live activity (e.g. DayBot SCANNING / FILLING).
   const act = p.metrics && p.metrics.activity;
   if (act) return String(act).toUpperCase();
@@ -264,6 +264,9 @@ async function render() {
     renderVault();
     bindTools();
     renderTools();
+    renderUsage();
+    bindTreasury();
+    renderTreasury();
   } catch (e) {
     err.classList.remove('hidden');
     summaryEl.classList.remove('loading');
@@ -296,8 +299,8 @@ function bindProjectButtons(root) {
 
 function crewStatusLine(p) {
   const m = p.metrics || {};
-  if (p.status === 'stopped') return 'Offline';
-  if (p.status !== 'running') return 'Standby';
+  if (p.status === 'stopped') return 'Fallen';
+  if (p.status !== 'running') return 'In seclusion';
   let line = String(roomBadge(p)).toLowerCase();
   line = line.charAt(0).toUpperCase() + line.slice(1);
   if (p.type === 'trading_bot' && m.open_positions !== undefined && m.open_positions !== 'unknown') {
@@ -370,7 +373,7 @@ function renderStation(projects) {
 
   projectsEl.innerHTML = `<div class='station'>
     <aside class='crew'>
-      <div class='crew-head'>SHIP CREW <span class='muted'>${ordered.length}</span></div>
+      <div class='crew-head'>DISCIPLES <span class='muted'>${ordered.length}</span></div>
       <div class='crew-list'>${ordered.map(crewRow).join('')}</div>
     </aside>
     <div class='station-main'>
@@ -394,20 +397,119 @@ function renderStation(projects) {
 
 // ---- Agent Crew: LLM-backed persona agents you can assign tasks to ----
 
+function renderSectRanking(crew) {
+  const el = document.getElementById('sect-ranking');
+  if (!el) return;
+  const ranked = (crew || []).filter(a => a.cultivation).slice().sort((x, y) => {
+    const a = x.cultivation, b = y.cultivation;
+    return (b.realm - a.realm) || (b.stones - a.stones);
+  });
+  if (!ranked.length) { el.innerHTML = ''; return; }
+  const medals = ['🥇', '🥈', '🥉'];
+  el.innerHTML = `<div class='rank-head'>SECT RANKING</div>` + ranked.map((a, i) => {
+    const c = a.cultivation;
+    return `<div class='rank-row'>
+      <span class='rank-pos'>${medals[i] || (i + 1)}</span>
+      <span class='rank-name'>${esc(a.name)}</span>
+      <span class='rank-title'>${esc(c.rank_title || '')}</span>
+      <span class='rank-realm'>${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span>
+      <span class='rank-stones'>💎 ${esc(c.stones)}</span>
+    </div>`;
+  }).join('');
+}
+
+function cultivationFlourish(c) {
+  if (!c.event || (Date.now() - (c.event_ts || 0) >= 30000)) return '';
+  switch (c.event) {
+    case 'breakthrough': return `<div class='culti-flash culti-breakthrough'>☯ Breakthrough — ${esc(c.realm_name)}!</div>`;
+    case 'tribulation_survived': return `<div class='culti-flash culti-breakthrough'>☯ Tribulation survived!</div>`;
+    case 'tribulation': return `<div class='culti-flash culti-tribulation'>⚡ Heavenly Tribulation — struck down!</div>`;
+    case 'facing_tribulation': return `<div class='culti-flash culti-tribulation'>⚡ Facing tribulation${c.pending_tribulation ? `: ${esc(c.pending_tribulation)}` : ''}…</div>`;
+    default: return '';
+  }
+}
+
+function cultivationBlock(c) {
+  if (!c || !c.realm_name) return '';
+  const prog = Math.round((c.progress || 0) * 100);
+  const next = c.next_realm
+    ? `<div class='muted culti-next'>${esc(c.stones_to_next)} stones${c.skills_to_next ? ` · ${esc(c.skills_to_next)} technique${c.skills_to_next > 1 ? 's' : ''}` : ''} → ${esc(c.next_realm)}</div>`
+    : `<div class='muted culti-next'>✦ Immortal Ascension attained</div>`;
+  const skills = (c.skills && c.skills.length) ? `<div class='muted culti-skills'>Techniques: ${c.skills.map(esc).join(', ')}</div>` : '';
+  return `<div class='cultivation realm-${c.realm}'>
+    <div class='culti-head'><span class='culti-realm'>⛰ ${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span><span class='culti-stones'>💎 ${esc(c.stones)}</span></div>
+    <div class='muted culti-rank'>${esc(c.rank_title || '')}</div>
+    <div class='qi-bar'><span style='width:${prog}%'></span></div>
+    ${next}${skills}${cultivationFlourish(c)}
+  </div>`;
+}
+
+function retreatControl(a, c) {
+  if (!c || !c.realm_name) return '';
+  let status = '';
+  if (c.in_seclusion) status = `<span class='culti-seclusion'>🧘 breakthrough in ${fmtDur(c.seclusion_remaining)}</span>`;
+  else if (c.in_roaming) status = `<span class='culti-seclusion'>🌄 returns in ${fmtDur(c.roaming_remaining)}</span>`;
+  const sec = `<button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter='${c.in_seclusion ? '' : '1'}'>${c.in_seclusion ? 'Leave seclusion' : 'Seclude'}</button>`;
+  const roam = `<button class='btn culti-roam-btn' data-agent='${esc(a.name)}' data-enter='${c.in_roaming ? '' : '1'}'>${c.in_roaming ? 'Return' : 'Roam'}</button>`;
+  return `<div class='sec-control'>${status}${sec}${roam}</div>`;
+}
+
+function questControl(a) {
+  const qd = window.__quests;
+  if (!qd || !qd.catalog || !qd.catalog.length) return '';
+  const pending = a.cultivation && a.cultivation.pending_quest;
+  if (pending) return `<div class='quest-control muted'>⚑ On quest → learns ${esc(pending.skill)}</div>`;
+  const opts = qd.catalog.map(q => `<option value='${esc(q.id)}'>${esc(q.name)} → ${esc(q.reward_skill)}</option>`).join('');
+  return `<div class='quest-control'><select class='quest-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn quest-go' data-agent='${esc(a.name)}'>Dispatch</button></div>`;
+}
+
+function transmitControl(a, c) {
+  const myRealm = (c && c.realm) || 0;
+  const subs = (window.__agents || []).filter(x => x.name !== a.name && ((x.cultivation && x.cultivation.realm) || 0) < myRealm).map(x => x.name);
+  const skills = (c && c.skills) || [];
+  if (!subs.length || !skills.length) return '';
+  return `<div class='transmit-control'><select class='transmit-skill' data-agent='${esc(a.name)}'>${skills.map(s => `<option>${esc(s)}</option>`).join('')}</select><span class='muted'>→</span><select class='transmit-to' data-agent='${esc(a.name)}'>${subs.map(n => `<option>${esc(n)}</option>`).join('')}</select><button class='btn transmit-go' data-agent='${esc(a.name)}'>Transmit</button></div>`;
+}
+
+function pillControl(a, c) {
+  const pd = window.__pills || { catalog: [], active: {} };
+  if (!pd.catalog || !pd.catalog.length) return '';
+  const stones = (c && c.stones) || 0;
+  const buffs = (pd.active && pd.active[a.name]) || [];
+  const chips = buffs.length ? `<div class='pill-buffs'>${buffs.map(b => `<span class='pill-chip'>⚗ ${esc(b.name)}</span>`).join('')}</div>` : '';
+  const opts = pd.catalog.map(p => `<option value='${esc(p.id)}'${p.cost > stones ? ' disabled' : ''}>${esc(p.name)} · 💎${esc(p.cost)}</option>`).join('');
+  return `${chips}<div class='pill-control'><select class='pill-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn pill-buy' data-agent='${esc(a.name)}'>Concoct</button></div>`;
+}
+
+function delegateSelect(a, c) {
+  const myRealm = (c && c.realm) || 0;
+  const subs = (window.__agents || []).filter(x => x.name !== a.name && ((x.cultivation && x.cultivation.realm) || 0) < myRealm).map(x => x.name);
+  if (!subs.length) return '';  // outranks no one → can only act for self
+  return `<select class='delegate-target' data-agent='${esc(a.name)}' title='delegate to a lower-ranked disciple'><option value=''>self</option>${subs.map(n => `<option>${esc(n)}</option>`).join('')}</select>`;
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
   const reply = a.last_reply ? esc(a.last_reply) : '';
-  return `<div class='card agent-card agent-${esc(st)}' data-agent='${esc(a.name)}'>
-    <div class='metric'><b>🤖 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
+  const c = a.cultivation || {};
+  const tribCls = c.event === 'tribulation' && (Date.now() - (c.event_ts || 0) < 30000) ? ' agent-tribulation' : '';
+  return `<div class='card agent-card agent-${esc(st)}${tribCls}' data-agent='${esc(a.name)}'>
+    <div class='metric'><b>🧘 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
     ${metric('Role', esc(a.role || '—'))}
     ${metric('Model', esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
+    ${cultivationBlock(c)}
+    ${retreatControl(a, c)}
+    ${questControl(a)}
+    ${transmitControl(a, c)}
+    ${pillControl(a, c)}
     ${a.current_task ? `<div class='agent-task-cur'>▸ ${esc(a.current_task)}</div>` : ''}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
     <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>
     <div class='agent-assign'>
       <input class='agent-input' placeholder='Assign a task…' data-agent='${esc(a.name)}'>
+      ${delegateSelect(a, c)}
       <button class='btn agent-send' data-agent='${esc(a.name)}'>Assign</button>
     </div>
     <details class='details agent-transcript' data-agent='${esc(a.name)}'><summary>Transcript (${esc(a.transcript_len ?? 0)})</summary><pre class='agent-tx-body'>Open to load…</pre></details>
@@ -416,18 +518,87 @@ function agentCard(a) {
 
 function bindAgentCrew(root) {
   const sel = name => root.querySelector(`.agent-send[data-agent="${CSS.escape(name)}"]`);
+  const retreat = (cls, path) => root.querySelectorAll(cls).forEach(btn => btn.onclick = async () => {
+    const name = btn.getAttribute('data-agent');
+    const enter = !!btn.getAttribute('data-enter');
+    btn.disabled = true;
+    try {
+      await fetch(`/api/agents/${encodeURIComponent(name)}/${path}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ enter }),
+      });
+    } catch (_) {}
+    btn.disabled = false;
+    renderAgentCrew();
+  });
+  retreat('.culti-sec-btn', 'seclusion');
+  retreat('.culti-roam-btn', 'roaming');
+  root.querySelectorAll('.quest-go').forEach(btn => btn.onclick = async () => {
+    const name = btn.getAttribute('data-agent');
+    const s = root.querySelector(`.quest-select[data-agent="${CSS.escape(name)}"]`);
+    if (!s || !s.value) return;
+    btn.disabled = true;
+    try {
+      const res = await fetch(`/api/agents/${encodeURIComponent(name)}/quest`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ quest: s.value }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Quest failed: ' + (b.detail || res.status)); }
+    } catch (_) {}
+    btn.disabled = false;
+    renderAgentCrew();
+  });
+  root.querySelectorAll('.transmit-go').forEach(btn => btn.onclick = async () => {
+    const name = btn.getAttribute('data-agent');
+    const sk = root.querySelector(`.transmit-skill[data-agent="${CSS.escape(name)}"]`);
+    const to = root.querySelector(`.transmit-to[data-agent="${CSS.escape(name)}"]`);
+    if (!sk || !to) return;
+    btn.disabled = true;
+    try {
+      const res = await fetch(`/api/agents/${encodeURIComponent(name)}/transmit`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ to: to.value, skill: sk.value }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Transmission failed: ' + (b.detail || res.status)); }
+    } catch (_) {}
+    btn.disabled = false;
+    renderAgentCrew();
+  });
+  root.querySelectorAll('.pill-buy').forEach(btn => btn.onclick = async () => {
+    const name = btn.getAttribute('data-agent');
+    const s = root.querySelector(`.pill-select[data-agent="${CSS.escape(name)}"]`);
+    const pill = s && s.value;
+    if (!pill) return;
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/pills/buy', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ agent: name, pill }),
+      });
+      const b = await res.json().catch(() => ({}));
+      if (!res.ok) { alert('Concoction failed: ' + (b.detail || res.status)); }
+      else if (b.deviation) { alert('⚡ Qi deviation! The churning qi scattered every buff' + (b.struck ? ' — and struck the disciple down a realm.' : '.')); }
+    } catch (e) { alert('Concoction failed: ' + e); }
+    btn.disabled = false;
+    renderAgentCrew();
+  });
   root.querySelectorAll('.agent-send').forEach(btn => btn.onclick = async () => {
     const name = btn.getAttribute('data-agent');
     const inp = root.querySelector(`.agent-input[data-agent="${CSS.escape(name)}"]`);
     const task = (inp && inp.value || '').trim();
     if (!task) return;
+    const tsel = root.querySelector(`.delegate-target[data-agent="${CSS.escape(name)}"]`);
+    const target = tsel ? tsel.value : '';
     btn.disabled = true;
     try {
-      await fetch(`/api/agents/${encodeURIComponent(name)}/task`, {
+      const url = target ? `/api/agents/${encodeURIComponent(name)}/delegate` : `/api/agents/${encodeURIComponent(name)}/task`;
+      const body = target ? { to: target, task } : { task };
+      const res = await fetch(url, {
         method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ task }),
+        body: JSON.stringify(body),
       });
-      if (inp) inp.value = '';
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Failed: ' + (b.detail || res.status)); }
+      else if (inp) inp.value = '';
     } catch (_) {}
     btn.disabled = false;
     renderAgentCrew();
@@ -454,9 +625,14 @@ async function renderAgentCrew() {
   catch (_) { section.classList.add('hidden'); return; }
   const crew = (data && data.agents) || [];
   window.__agents = crew;
+  try { window.__pills = await fetch('/api/pills', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { window.__pills = { catalog: [], active: {} }; }
+  try { window.__quests = await fetch('/api/quests', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { window.__quests = { catalog: [] }; }
   if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
   section.classList.remove('hidden');
-  document.getElementById('agent-crew-pill').textContent = `${crew.length} agents`;
+  document.getElementById('agent-crew-pill').textContent = `${crew.length} disciples`;
+  renderSectRanking(crew);
   // preserve whatever the user is typing across the auto-refresh re-render
   const act = document.activeElement;
   const focusName = act && act.classList && act.classList.contains('agent-input') ? act.getAttribute('data-agent') : null;
@@ -482,8 +658,9 @@ function commsBubble(m) {
     return `<div class='comms-sys'>${esc(m.content)}</div>`;
   }
   const hue = agentHue(m.from);
+  const ini = esc(String(m.from).charAt(0).toUpperCase());
   return `<div class='comms-msg' style='--hue:${hue}'>
-    <div class='comms-from'>${esc(m.from)}</div>
+    <div class='comms-head'><span class='comms-avatar'>${ini}</span><span class='comms-from'>${esc(m.from)}</span></div>
     <div class='comms-body'>${esc(m.content)}</div>
   </div>`;
 }
@@ -504,6 +681,16 @@ async function renderComms() {
     return `<label class='comms-chip'><input type='checkbox' value='${esc(a.name)}' ${on}> ${esc(a.name)}</label>`;
   }).join('');
 
+  // debate roster selects
+  ['debate-a', 'debate-b', 'debate-judge'].forEach((id, idx) => {
+    const elx = document.getElementById(id);
+    if (!elx) return;
+    const cur = elx.value;
+    elx.innerHTML = crew.map(a => `<option>${esc(a.name)}</option>`).join('');
+    if (cur && crew.some(a => a.name === cur)) elx.value = cur;
+    else if (crew[idx]) elx.value = crew[idx].name;
+  });
+
   let data;
   try { data = await fetch('/api/comms', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { return; }
@@ -511,18 +698,67 @@ async function renderComms() {
   const active = st.active;
   const m = st.mission;
   document.getElementById('comms-status').textContent =
-    active && m ? `running · round ${m.round}/${m.rounds} · ${m.current || '…'}` : 'idle';
+    active && m ? `cultivating · round ${m.round}/${m.rounds} · ${m.current || '…'}` : 'in seclusion';
   const launchBtn = document.getElementById('comms-launch');
   launchBtn.disabled = !!active;
-  launchBtn.textContent = active ? 'Mission running…' : 'Launch Mission';
+  launchBtn.textContent = active ? 'Trial underway…' : 'Begin Trial';
 
   const feedEl = document.getElementById('comms-feed');
   const atBottom = feedEl.scrollHeight - feedEl.scrollTop - feedEl.clientHeight < 60;
-  feedEl.innerHTML = (data.feed || []).map(commsBubble).join('') || `<div class='comms-sys muted'>No missions yet.</div>`;
+  let html = (data.feed || []).map(commsBubble).join('') || `<div class='comms-sys muted'>The hall is silent.</div>`;
+  if (active && m && m.current) {
+    const hue = agentHue(m.current);
+    const ini = esc(String(m.current).charAt(0).toUpperCase());
+    html += `<div class='comms-typing'><span class='comms-avatar' style='--hue:${hue}'>${ini}</span>${esc(m.current)} is channeling qi<span class='dots'><i></i><i></i><i></i></span></div>`;
+  }
+  feedEl.innerHTML = html;
   if (atBottom) feedEl.scrollTop = feedEl.scrollHeight;
 }
 
 function bindComms() {
+  const dgo = document.getElementById('debate-go');
+  if (dgo && !dgo.dataset.bound) {
+    dgo.dataset.bound = '1';
+    dgo.onclick = async () => {
+      const topic = (document.getElementById('debate-topic').value || '').trim();
+      if (!topic) { alert('Enter a proposition.'); return; }
+      const a = document.getElementById('debate-a').value;
+      const b = document.getElementById('debate-b').value;
+      const judge = document.getElementById('debate-judge').value;
+      const rounds = Number(document.getElementById('comms-rounds').value || 2);
+      dgo.disabled = true;
+      try {
+        const res = await fetch('/api/comms/debate', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ topic, a, b, judge, rounds }),
+        });
+        if (!res.ok) { const j = await res.json().catch(() => ({})); alert('Debate failed: ' + (j.detail || res.status)); }
+      } catch (e) { alert('Debate failed: ' + e); }
+      dgo.disabled = false;
+      renderComms();
+    };
+  }
+  const tgo = document.getElementById('tournament-go');
+  if (tgo && !tgo.dataset.bound) {
+    tgo.dataset.bound = '1';
+    tgo.onclick = async () => {
+      const topic = (document.getElementById('debate-topic').value || '').trim();
+      if (!topic) { alert('Enter a proposition for the tournament.'); return; }
+      const participants = Array.from(document.querySelectorAll('#comms-participants input:checked')).map(i => i.value);
+      if (participants.length < 2) { alert('Check at least 2 disciples above to enter the bracket.'); return; }
+      const judge = document.getElementById('debate-judge').value;
+      tgo.disabled = true;
+      try {
+        const res = await fetch('/api/comms/tournament', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ topic, participants, judge, rounds: 1 }),
+        });
+        if (!res.ok) { const j = await res.json().catch(() => ({})); alert('Tournament failed: ' + (j.detail || res.status)); }
+      } catch (e) { alert('Tournament failed: ' + e); }
+      tgo.disabled = false;
+      renderComms();
+    };
+  }
   const btn = document.getElementById('comms-launch');
   if (!btn || btn.dataset.bound) return;
   btn.dataset.bound = '1';
@@ -538,8 +774,8 @@ function bindComms() {
         method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ goal, participants, rounds }),
       });
-      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Mission failed: ' + (b.detail || res.status)); }
-    } catch (e) { alert('Mission failed: ' + e); }
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Trial failed: ' + (b.detail || res.status)); }
+    } catch (e) { alert('Trial failed: ' + e); }
     renderComms();
   };
 }
@@ -638,7 +874,8 @@ async function renderTools() {
     killBtn.classList.remove('hidden');
     killBtn.textContent = 'Resume autonomy';
   } else {
-    statusEl.textContent = `autonomy on · budget ${auto.max_calls}/task`;
+    const win = auto.hours ? (auto.in_window ? ` · window ${auto.hours}` : ` · OUTSIDE window ${auto.hours}`) : '';
+    statusEl.textContent = `autonomy on · budget ${auto.max_calls}/task${win}`;
     killBtn.classList.remove('hidden');
     killBtn.textContent = 'Pause autonomy';
   }
@@ -666,6 +903,21 @@ async function renderTools() {
 }
 
 function bindTools() {
+  const audit = document.querySelector('.tools-audit');
+  if (audit && !audit.dataset.bound) {
+    audit.dataset.bound = '1';
+    audit.ontoggle = async () => {
+      if (!audit.open) return;
+      const body = document.getElementById('tools-audit-body');
+      body.innerHTML = `<div class='card muted'>Loading…</div>`;
+      try {
+        const d = await fetch('/api/tools/audit', { headers: authHeaders() }).then(r => r.json());
+        const calls = (d.calls || []).slice().reverse();
+        const note = d.persisted ? '' : `<div class='card muted'>In-memory only — set MAYBOT_DB to persist the audit log.</div>`;
+        body.innerHTML = note + (calls.length ? calls.map(toolCallCard).join('') : `<div class='card muted'>No tool calls recorded.</div>`);
+      } catch (_) { body.innerHTML = `<div class='card muted'>Failed to load audit log.</div>`; }
+    };
+  }
   const kill = document.getElementById('tools-kill');
   if (kill && !kill.dataset.bound) {
     kill.dataset.bound = '1';
@@ -696,6 +948,72 @@ function bindTools() {
     btn.disabled = false;
     renderTools();
   };
+}
+
+// ---- Spirit Veins (sect treasury) ----
+
+function fmtDur(s) {
+  s = Math.max(0, Math.round(s));
+  const m = Math.floor(s / 60), ss = s % 60;
+  return m ? `${m}m ${ss}s` : `${ss}s`;
+}
+
+async function renderTreasury() {
+  let t;
+  try { t = await fetch('/api/treasury', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { return; }
+  if (!t) return;
+  document.getElementById('treasury-balance').textContent = `💎 ${t.balance}`;
+  document.getElementById('treasury-detail').textContent =
+    `veins +${t.income_per_hour}/hr · ${t.total_income} channelled · ${t.total_spent} disbursed`;
+}
+
+function bindTreasury() {
+  const btn = document.getElementById('endow-go');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  btn.onclick = async () => {
+    const amount = Number(document.getElementById('endow-amount').value || 0);
+    if (!amount || amount <= 0) { alert('Enter an amount to endow.'); return; }
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/treasury/endow', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ amount }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Endow failed: ' + (b.detail || res.status)); }
+      else document.getElementById('endow-amount').value = '';
+    } catch (e) { alert('Endow failed: ' + e); }
+    btn.disabled = false;
+    renderTreasury();
+  };
+}
+
+// ---- Usage & Cost ----
+
+function usageCard(u) {
+  const succCls = u.success_pct >= 90 ? 'money-pos' : (u.success_pct >= 50 ? 'money-zero' : 'money-neg');
+  const models = Object.keys(u.models || {}).join(', ') || '—';
+  return `<div class='card'>
+    <div class='metric'><b>🤖 ${esc(u.agent)}</b><b class='money-pos'>$${Number(u.cost).toFixed(4)}</b></div>
+    ${metric('Calls', `${esc(u.calls)} <span class='${succCls}'>(${esc(u.success_pct)}% ok)</span>`)}
+    ${metric('Avg latency', `${esc(u.avg_latency_ms)} ms`)}
+    ${metric('Tokens in / out', `${esc(u.tokens_in)} / ${esc(u.tokens_out)}`)}
+    ${metric('Models', esc(models))}
+  </div>`;
+}
+
+async function renderUsage() {
+  const section = document.getElementById('usage-section');
+  let data;
+  try { data = await fetch('/api/usage', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { section.classList.add('hidden'); return; }
+  const t = (data && data.totals) || {};
+  if (!t.calls) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+  document.getElementById('usage-total').textContent =
+    `$${Number(t.cost || 0).toFixed(4)} · ${t.calls} calls · ${(t.tokens_in + t.tokens_out).toLocaleString()} tok`;
+  document.getElementById('usage-table').innerHTML = (data.agents || []).map(usageCard).join('');
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).
@@ -753,7 +1071,7 @@ function renderProjects(projects) {
 
 document.getElementById('manual-refresh').onclick = render;
 function updateViewToggleLabel() {
-  document.getElementById('toggle-view').textContent = viewMode === 'base' ? 'Card View' : 'Base View';
+  document.getElementById('toggle-view').textContent = viewMode === 'base' ? 'Disciples' : 'Sect Hall';
   document.body.classList.toggle('base-mode', viewMode === 'base');
 }
 document.getElementById('toggle-view').onclick = () => {

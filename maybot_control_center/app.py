@@ -15,10 +15,18 @@ from . import tools as tooling
 from . import store
 from . import events
 from . import autonomy
+from . import usage
+from . import authz
+from . import cultivation
+from . import pills
+from . import treasury
+from . import quests
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
-for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted, tooling.load_persisted):
+for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted,
+                tooling.load_persisted, usage.load_persisted, cultivation.load_persisted,
+                treasury.load_persisted):
     try:
         _loader()
     except Exception:
@@ -32,9 +40,32 @@ _ACTION_TIMEOUTS = {"start": 15, "stop": 15, "run-tests": 330}
 app = FastAPI(title="maybot-control-center")
 
 
-def _check_token(x_control_token: str = Header(default="")):
-    if CONTROL_CENTER_TOKEN and not secrets.compare_digest(x_control_token, CONTROL_CENTER_TOKEN):
+@app.middleware("http")
+async def _rate_limit(request, call_next):
+    if request.url.path.startswith("/api/") and not request.url.path.startswith("/api/stream"):
+        key = request.headers.get("x-control-token") or (request.client.host if request.client else "anon")
+        if not authz.allow_request(key):
+            from fastapi.responses import JSONResponse
+            return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
+    return await call_next(request)
+
+
+def _role(token: str) -> str:
+    r = authz.role_for(token)
+    if r is None:
         raise HTTPException(status_code=401, detail="invalid control token")
+    return r
+
+
+def _check_token(x_control_token: str = Header(default="")):
+    """Any valid role (viewer or operator)."""
+    _role(x_control_token)
+
+
+def _check_operator(x_control_token: str = Header(default="")):
+    """Operator role required for mutating actions."""
+    if _role(x_control_token) != "operator":
+        raise HTTPException(status_code=403, detail="operator role required")
 
 
 def _resolve_device(device_name: str):
@@ -73,7 +104,7 @@ def project_history(device_name: str, project_name: str, x_control_token: str = 
 
 @app.post("/api/action/{device_name}/{project_name}/{action}")
 def proxy_action(device_name: str, project_name: str, action: str, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
         raise HTTPException(400, "invalid device or project name")
     if action not in _VALID_ACTIONS:
@@ -107,9 +138,32 @@ def agent_detail(name: str, x_control_token: str = Header(default="")):
     return detail
 
 
+class DelegateIn(BaseModel):
+    to: str
+    task: str
+
+
+@app.post("/api/agents/{name}/delegate")
+def agent_delegate(name: str, body: DelegateIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name) or not _SAFE_NAME.match(body.to or ""):
+        raise HTTPException(400, "invalid agent name")
+    task = (body.task or "").strip()
+    if not task:
+        raise HTTPException(400, "task must not be empty")
+    if len(task) > 4000:
+        raise HTTPException(400, "task too long (max 4000 chars)")
+    try:
+        return agents.delegate(name, body.to, task)
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc))
+    except KeyError:
+        raise HTTPException(404, "agent not found")
+
+
 @app.post("/api/agents/{name}/task")
 def assign_agent_task(name: str, body: TaskIn, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     if not _SAFE_NAME.match(name):
         raise HTTPException(400, "invalid agent name")
     task = (body.task or "").strip()
@@ -137,7 +191,7 @@ def comms_feed(limit: int = Query(default=100), x_control_token: str = Header(de
 
 @app.post("/api/comms/mission")
 def comms_mission(body: MissionIn, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     goal = (body.goal or "").strip()
     if not goal:
         raise HTTPException(400, "goal required")
@@ -185,21 +239,29 @@ def tools_list(x_control_token: str = Header(default="")):
             "calls": tooling.list_calls(), "autonomy": autonomy.status()}
 
 
+@app.get("/api/tools/audit")
+def tools_audit(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if store.enabled():
+        return {"persisted": True, "calls": store.load_tool_calls(500)}
+    return {"persisted": False, "calls": tooling.list_calls(200)}
+
+
 @app.post("/api/autonomy/pause")
 def autonomy_pause(x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     return autonomy.set_paused(True)
 
 
 @app.post("/api/autonomy/resume")
 def autonomy_resume(x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     return autonomy.set_paused(False)
 
 
 @app.post("/api/tools/run")
 def tools_run(body: ToolRunIn, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     if not _SAFE_NAME.match(body.tool or ""):
         raise HTTPException(400, "invalid tool name")
     try:
@@ -214,7 +276,7 @@ def tools_run(body: ToolRunIn, x_control_token: str = Header(default="")):
 
 @app.post("/api/tools/{call_id}/approve")
 def tools_approve(call_id: int, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     try:
         return tooling.approve(call_id)
     except KeyError:
@@ -223,11 +285,170 @@ def tools_approve(call_id: int, x_control_token: str = Header(default="")):
 
 @app.post("/api/tools/{call_id}/deny")
 def tools_deny(call_id: int, x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
+    _check_operator(x_control_token)
     try:
         return tooling.deny(call_id)
     except KeyError:
         raise HTTPException(404, "call not found")
+
+
+@app.get("/api/usage")
+def usage_stats(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return usage.snapshot()
+
+
+@app.get("/api/cultivation")
+def cultivation_stats(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return cultivation.snapshot()
+
+
+@app.get("/api/treasury")
+def treasury_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return treasury.status()
+
+
+class EndowIn(BaseModel):
+    amount: int
+
+
+@app.post("/api/treasury/endow")
+def treasury_endow(body: EndowIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    amount = int(body.amount or 0)
+    if amount <= 0 or amount > 1_000_000:
+        raise HTTPException(400, "amount must be 1..1000000")
+    treasury.deposit(amount)
+    return treasury.status()
+
+
+class SeclusionIn(BaseModel):
+    enter: bool = True
+
+
+@app.post("/api/agents/{name}/seclusion")
+def agent_seclusion(name: str, body: SeclusionIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    if agents._agent_def(name) is None:
+        raise HTTPException(404, "agent not found")
+    return cultivation.enter_seclusion(name) if body.enter else cultivation.exit_seclusion(name)
+
+
+@app.post("/api/agents/{name}/roaming")
+def agent_roaming(name: str, body: SeclusionIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    if agents._agent_def(name) is None:
+        raise HTTPException(404, "agent not found")
+    return cultivation.enter_roaming(name) if body.enter else cultivation.exit_roaming(name)
+
+
+class TransmitIn(BaseModel):
+    to: str
+    skill: str
+
+
+@app.post("/api/agents/{name}/transmit")
+def agent_transmit(name: str, body: TransmitIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name) or not _SAFE_NAME.match(body.to or ""):
+        raise HTTPException(400, "invalid agent name")
+    try:
+        return agents.transmit(name, body.to, (body.skill or "").strip())
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+@app.get("/api/quests")
+def quests_board(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"catalog": quests.catalog()}
+
+
+class QuestIn(BaseModel):
+    quest: str
+
+
+@app.post("/api/agents/{name}/quest")
+def agent_quest(name: str, body: QuestIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    if agents._agent_def(name) is None:
+        raise HTTPException(404, "agent not found")
+    q = quests.get(body.quest)
+    if not q:
+        raise HTTPException(400, "unknown quest")
+    cultivation.assign_quest(name, q["reward_skill"], q["stones"])
+    return agents.assign_task(name, f"[Quest: {q['name']}] {q['task']}")
+
+
+class PillBuyIn(BaseModel):
+    agent: str
+    pill: str
+
+
+@app.get("/api/pills")
+def pills_list(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"catalog": pills.catalog(), "active": pills.active_all()}
+
+
+@app.post("/api/pills/buy")
+def pills_buy(body: PillBuyIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.agent or "") or not _SAFE_NAME.match(body.pill or ""):
+        raise HTTPException(400, "invalid agent or pill")
+    try:
+        return pills.buy(body.agent, body.pill)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+class DebateIn(BaseModel):
+    topic: str
+    a: str
+    b: str
+    judge: str
+    rounds: int = 2
+
+
+@app.post("/api/comms/debate")
+def comms_debate(body: DebateIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    for n in (body.a, body.b, body.judge):
+        if not _SAFE_NAME.match(n or ""):
+            raise HTTPException(400, "invalid participant name")
+    try:
+        return comms.start_debate(body.topic, body.a, body.b, body.judge, body.rounds)
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(400, str(exc))
+
+
+class TournamentIn(BaseModel):
+    topic: str
+    participants: list[str] = []
+    judge: str
+    rounds: int = 1
+
+
+@app.post("/api/comms/tournament")
+def comms_tournament(body: TournamentIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    parts = [p for p in body.participants if _SAFE_NAME.match(p or "")]
+    if not _SAFE_NAME.match(body.judge or ""):
+        raise HTTPException(400, "invalid judge name")
+    try:
+        return comms.start_tournament(body.topic, parts, body.judge, body.rounds)
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(400, str(exc))
 
 
 @app.get("/api/stream")

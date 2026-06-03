@@ -24,6 +24,12 @@ _SCHEMA = [
     "CREATE TABLE IF NOT EXISTS comms (mission INTEGER, sender TEXT, kind TEXT, content TEXT, ts INTEGER)",
     ("CREATE TABLE IF NOT EXISTS tool_calls (id INTEGER PRIMARY KEY, requester TEXT, tool TEXT, "
      "args TEXT, status TEXT, output TEXT, code INTEGER, created_at INTEGER, finished_at INTEGER)"),
+    ("CREATE TABLE IF NOT EXISTS usage (agent TEXT, model TEXT, ok INTEGER, latency_ms INTEGER, "
+     "tin INTEGER, tout INTEGER, cost REAL, ts INTEGER)"),
+    ("CREATE TABLE IF NOT EXISTS cultivation (agent TEXT PRIMARY KEY, stones INTEGER, realm INTEGER, "
+     "skills TEXT, breakthroughs INTEGER, updated_at INTEGER)"),
+    ("CREATE TABLE IF NOT EXISTS treasury (id INTEGER PRIMARY KEY CHECK (id = 1), balance INTEGER, "
+     "last_accrual REAL, income INTEGER, spent INTEGER)"),
 ]
 
 
@@ -136,6 +142,38 @@ def load_tool_calls(limit: int = 100) -> list[dict]:
                     "status": status, "output": output, "code": code,
                     "created_at": created, "finished_at": finished})
     return out
+
+
+# ---- usage ----
+def add_usage(agent: str, model: str, ok: bool, latency_ms: int, tin: int, tout: int, cost: float, ts: int) -> None:
+    _exec("INSERT INTO usage (agent, model, ok, latency_ms, tin, tout, cost, ts) VALUES (?,?,?,?,?,?,?,?)",
+          (agent, model, int(bool(ok)), latency_ms, tin, tout, cost, ts))
+
+
+def load_usage(limit: int = 20000) -> list[tuple]:
+    return _query("SELECT agent, model, ok, latency_ms, tin, tout, cost, ts FROM usage ORDER BY ts ASC LIMIT ?", (limit,))
+
+
+# ---- cultivation ----
+def upsert_cultivation(s: dict) -> None:
+    _exec("INSERT OR REPLACE INTO cultivation (agent, stones, realm, skills, breakthroughs, updated_at) VALUES (?,?,?,?,?,?)",
+          (s.get("agent"), s.get("stones", 0), s.get("realm", 0), json.dumps(s.get("skills") or []),
+           s.get("breakthroughs", 0), s.get("updated_at", 0)))
+
+
+def load_cultivation() -> list[tuple]:
+    return _query("SELECT agent, stones, realm, skills, breakthroughs, updated_at FROM cultivation")
+
+
+# ---- sect treasury ----
+def set_treasury(balance: int, last_accrual: float, income: int, spent: int) -> None:
+    _exec("INSERT OR REPLACE INTO treasury (id, balance, last_accrual, income, spent) VALUES (1,?,?,?,?)",
+          (balance, last_accrual, income, spent))
+
+
+def get_treasury() -> tuple | None:
+    rows = _query("SELECT balance, last_accrual, income, spent FROM treasury WHERE id = 1")
+    return rows[0] if rows else None
 
 
 def _reset_for_tests(path: str) -> None:

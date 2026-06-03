@@ -3,21 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MayBot Control Center</title>
+  <title>MayBot Guild Hall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <header class="topbar">
     <div>
-      <h1>MayBot Control Center</h1>
-      <p class="muted">Distributed project and bot monitoring</p>
+      <h1>☯ MayBot Celestial Sect</h1>
+      <p class="muted">Guide your disciples in their cultivation across the heavens</p>
     </div>
     <div class="top-actions">
-      <div class="pill"><span class="live-dot"></span> Dashboard online</div>
+      <div class="pill"><span class="live-dot"></span> Sect online</div>
       <div class="pill">Last refresh: <span id="refresh-status">never</span></div>
-      <div class="pill">Devices: <span id="device-count-pill">0 online / 0 offline</span></div>
+      <div class="pill">Realms: <span id="device-count-pill">0 online / 0 offline</span></div>
       <button id="manual-refresh" class="btn btn-primary">Refresh</button>
-      <button id="toggle-view" class="btn">Base View</button>
+      <button id="toggle-view" class="btn">Sect Hall</button>
       <button id="toggle-refresh" class="btn">Pause Auto</button>
     </div>
     <div class="token-row">
@@ -30,16 +33,28 @@
   <main class="container">
     <div id="error-banner" class="error-banner hidden">Control center could not fetch overview.</div>
     <section>
-      <h2>Global Summary</h2>
+      <h2>Sect Overview</h2>
       <div id="summary" class="grid summary-grid"></div>
     </section>
+    <section id="treasury-section">
+      <div class="section-head">
+        <h2>Spirit Veins</h2>
+        <span id="treasury-balance" class="pill">💎 0</span>
+      </div>
+      <p class="muted">The sect treasury — spirit veins channel ambient qi into it and a tithe of good work refills it; it funds the daily stipend, and stipends stop when it runs dry.</p>
+      <div class="comms-launch">
+        <input id="endow-amount" type="number" min="1" placeholder="endow spirit stones…" style="max-width:200px">
+        <button id="endow-go" class="btn">Endow</button>
+        <span id="treasury-detail" class="muted"></span>
+      </div>
+    </section>
     <section>
-      <h2>Devices</h2>
+      <h2>Spirit Realms</h2>
       <div id="devices" class="grid"></div>
     </section>
     <section id="ai-agents-section" class="hidden">
       <div class="section-head">
-        <h2>AI Agents</h2>
+        <h2>Spirit Beasts</h2>
         <span id="ai-agents-pill" class="pill">0 agents</span>
       </div>
       <p class="muted">AI coding projects and local model hosts, with start / stop / test controls.</p>
@@ -47,59 +62,80 @@
     </section>
     <section id="agent-crew-section" class="hidden">
       <div class="section-head">
-        <h2>Agent Crew</h2>
-        <span id="agent-crew-pill" class="pill">0 agents</span>
+        <h2>Sect Disciples</h2>
+        <span id="agent-crew-pill" class="pill">0 disciples</span>
       </div>
-      <p class="muted">LLM-backed persona agents on your local AI hosts — assign a task and watch them work. (Phase 1: they think &amp; talk; no command execution.)</p>
+      <p class="muted">LLM-backed disciples on your local AI hosts — set one a task and watch it cultivate.</p>
+      <div id="sect-ranking" class="sect-ranking"></div>
       <div id="agent-crew" class="grid"></div>
     </section>
     <section id="comms-section" class="hidden">
       <div class="section-head">
-        <h2>Ship Comms</h2>
-        <span id="comms-status" class="pill">idle</span>
+        <h2>Dao Council</h2>
+        <span id="comms-status" class="pill">in seclusion</span>
       </div>
-      <p class="muted">Give the crew a shared goal and they collaborate in a bounded round-robin (Phase 2: inter-agent comms).</p>
+      <p class="muted">Set your disciples a shared dao and they deliberate in a bounded round-robin council.</p>
       <div class="comms-launch">
-        <input id="comms-goal" placeholder="Mission goal (e.g. plan the next release)…">
+        <input id="comms-goal" placeholder="Dao topic (e.g. plan the next release)…">
         <select id="comms-rounds">
           <option value="1">1 round</option>
           <option value="2" selected>2 rounds</option>
           <option value="3">3 rounds</option>
         </select>
-        <button id="comms-launch" class="btn btn-primary">Launch Mission</button>
+        <button id="comms-launch" class="btn btn-primary">Begin Trial</button>
       </div>
       <div id="comms-participants" class="comms-participants"></div>
+      <details class="details debate-launch">
+        <summary>⚖ Hold a Dao Debate</summary>
+        <div class="comms-launch">
+          <input id="debate-topic" placeholder="Proposition to debate…">
+          <label class="muted">for</label><select id="debate-a"></select>
+          <label class="muted">vs</label><select id="debate-b"></select>
+          <label class="muted">judge</label><select id="debate-judge"></select>
+          <button id="debate-go" class="btn">Hold Debate</button>
+          <button id="tournament-go" class="btn" title="bracket of debates among the disciples checked above">🏯 Hold Tournament</button>
+        </div>
+      </details>
       <div id="comms-feed" class="comms-feed"></div>
     </section>
     <section id="vault-section" class="hidden">
       <div class="section-head">
-        <h2>Vault Memory</h2>
+        <h2>Jade Slips</h2>
         <span id="vault-status" class="pill">Obsidian</span>
       </div>
-      <p class="muted">Agents pull relevant notes from your Obsidian vault as context and write mission summaries back.</p>
+      <p class="muted">Disciples consult the Jade Slips (your Obsidian vault) for lore and inscribe their insights back.</p>
       <div class="comms-launch">
-        <input id="vault-q" type="search" placeholder="Search the vault…">
+        <input id="vault-q" type="search" placeholder="Search the Jade Slips…">
         <button id="vault-search" class="btn">Search</button>
       </div>
       <div id="vault-results" class="grid"></div>
     </section>
     <section id="tools-section" class="hidden">
       <div class="section-head">
-        <h2>Tools</h2>
-        <span id="tools-status" class="pill">guarded</span>
+        <h2>Techniques</h2>
+        <span id="tools-status" class="pill">sealed</span>
         <button id="tools-kill" class="btn act-btn-stop hidden">Pause autonomy</button>
       </div>
-      <p class="muted">Allow-listed actions agents can request and you approve. Deny-by-default, fixed command, no shell.</p>
+      <p class="muted">Sanctioned arts your disciples may invoke and you sanction. Forbidden by default, fixed incantation, no shell.</p>
       <div class="comms-launch">
         <select id="tools-select"></select>
         <input id="tools-args" placeholder='args JSON, e.g. {"path":"/tmp"}'>
-        <button id="tools-run" class="btn">Run</button>
+        <button id="tools-run" class="btn">Cast</button>
       </div>
       <div id="tools-calls" class="grid"></div>
+      <details class="details tools-audit"><summary>Sanction chronicle</summary><div id="tools-audit-body" class="grid"></div></details>
+    </section>
+    <section id="usage-section" class="hidden">
+      <div class="section-head">
+        <h2>Spirit Stones</h2>
+        <span id="usage-total" class="pill">$0.00</span>
+      </div>
+      <p class="muted">Per-disciple effort, latency, qi, and spirit stones spent (local spirit beasts are free).</p>
+      <div id="usage-table" class="grid"></div>
     </section>
     <section>
       <div class="section-head">
-        <h2>Projects</h2>
+        <h2>Sect Holdings</h2>
         <span id="project-count-pill" class="pill">0 shown</span>
       </div>
       <div class="filter-bar">

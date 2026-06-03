@@ -12,6 +12,7 @@ import os
 import threading
 
 from . import agents
+from . import cultivation
 
 INCIDENT_AGENT = os.getenv("MAYBOT_INCIDENT_AGENT", "")
 STATES = {s.strip().lower() for s in os.getenv("MAYBOT_INCIDENT_STATES", "error").split(",") if s.strip()}
@@ -26,11 +27,13 @@ def enabled() -> bool:
 
 def _dispatch(p: dict) -> None:
     alerts = "; ".join(p.get("alerts", [])) or "none"
-    task = (f"INCIDENT: project '{p.get('name')}' on device '{p.get('device')}' is "
-            f"{p.get('health')} (status {p.get('status')}, type {p.get('type')}). "
-            f"Alerts: {alerts}. Investigate the likely cause and recommend a concrete next step. "
-            f"If a tool would help (e.g. reading the logs), request it.")
+    task = (f"HEAVENLY TRIBULATION — a fallen realm calls. Project '{p.get('name')}' on device "
+            f"'{p.get('device')}' is {p.get('health')} (status {p.get('status')}, type {p.get('type')}). "
+            f"Alerts: {alerts}. Diagnose the likely cause and recommend a concrete next step to "
+            f"survive the tribulation. If a tool would help (e.g. reading the logs), request it.")
     try:
+        # The incident IS the disciple's tribulation trial: survive (succeed) or be struck down.
+        cultivation.face_tribulation(INCIDENT_AGENT, p.get("name", "?"))
         agents.assign_task(INCIDENT_AGENT, task)
     except Exception:
         with _lock:
