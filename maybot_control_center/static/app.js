@@ -1006,40 +1006,147 @@ function bindLore() {
 
 // ---- Sect Map: spatial realm view + cultivation chronicle ----
 
-const MAP_TIERS = [
-  { name: 'Sect Master', min: 8 },
-  { name: 'Elder', min: 6 },
-  { name: 'Core Disciple', min: 4 },
-  { name: 'Inner Disciple', min: 2 },
-  { name: 'Outer Disciple', min: 0 },
-];
+const MAP_W = 1000, MAP_H = 560, CLOUD_Y = 430;
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+function svgEl(tag, attrs) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+// Center-out slot order so the highest-standing disciples cluster on the
+// central spires (like the reference art) rather than reading left→right.
+function centerOutOrder(n) {
+  const mid = (n - 1) / 2;
+  return Array.from({ length: n }, (_, i) => i).sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid));
+}
+
+function peakPath(cx, baseY, apexY, w) {
+  const h = w / 2;
+  // a craggy spire: base → jagged shoulders → apex → down the far side
+  return `M ${cx - h} ${baseY}
+    L ${cx - h * 0.5} ${baseY - (baseY - apexY) * 0.35}
+    L ${cx - h * 0.22} ${baseY - (baseY - apexY) * 0.2}
+    L ${cx} ${apexY}
+    L ${cx + h * 0.28} ${baseY - (baseY - apexY) * 0.28}
+    L ${cx + h * 0.55} ${baseY - (baseY - apexY) * 0.12}
+    L ${cx + h} ${baseY} Z`;
+}
 
 async function renderSectMap() {
   const sec = document.getElementById('map-section');
-  const crew = window.__agents || [];
+  const crew = (window.__agents || []).slice();
   if (!crew.length) { sec.classList.add('hidden'); return; }
   sec.classList.remove('hidden');
 
-  const tierFor = realm => MAP_TIERS.find(t => realm >= t.min) || MAP_TIERS[MAP_TIERS.length - 1];
-  const peaks = MAP_TIERS.map(t => ({ tier: t, members: [] }));
-  crew.forEach(a => {
-    const realm = (a.cultivation && a.cultivation.realm) || 0;
-    const peak = peaks.find(p => p.tier.name === tierFor(realm).name);
-    peak.members.push(a);
-  });
+  // highest standing first → lands on the most central (tallest) spire
+  crew.sort((x, y) => (y.governance?.standing || 0) - (x.governance?.standing || 0));
+  const n = crew.length;
+  const order = centerOutOrder(n);            // slot index per (sorted) disciple
+  const slotX = i => 90 + (n === 1 ? (MAP_W - 180) / 2 : (MAP_W - 180) * i / (n - 1));
 
-  document.getElementById('sect-map').innerHTML = peaks.map(p => {
-    const chips = p.members.length
-      ? p.members.sort((x, y) => (y.governance?.standing || 0) - (x.governance?.standing || 0)).map(a => {
-          const g = a.governance || {};
-          const crown = g.is_leader ? '👑 ' : '';
-          const cls = g.is_leader ? 'map-leader' : (g.is_elder ? 'map-elder' : '');
-          const spec = g.specialty ? ` · ${esc(g.specialty)}` : '';
-          return `<span class='map-disciple ${cls}' title='standing ${g.standing ?? '—'}${spec}'>${crown}${esc(a.name)} <span class='muted'>${esc((a.cultivation && a.cultivation.realm_name) || '')}</span></span>`;
-        }).join('')
-      : `<span class='muted'>—</span>`;
-    return `<div class='map-peak'><div class='map-tier'>${esc(p.tier.name)}</div><div class='map-members'>${chips}</div></div>`;
-  }).join('');
+  const placed = crew.map((a, idx) => {
+    const slot = order.indexOf(idx);          // which left→right slot this disciple takes
+    const realm = (a.cultivation && a.cultivation.realm) || 0;
+    const w = 86 + realm * 7;
+    const apexY = Math.max(70, 350 - realm * 30 - (a.governance?.is_leader ? 26 : 0));
+    const baseY = CLOUD_Y + 18 + (slot % 2) * 14;   // slight stagger into the clouds
+    return { a, x: slotX(slot), apexY, baseY, w, realm, slot };
+  }).sort((p, q) => p.x - q.x);               // draw left→right for bridges
+
+  const svg = svgEl('svg', { viewBox: `0 0 ${MAP_W} ${MAP_H}`, class: 'map-svg', preserveAspectRatio: 'xMidYMid slice' });
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="mg-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#6f8bc4"/><stop offset="42%" stop-color="#b79fc0"/>
+        <stop offset="72%" stop-color="#f0c489"/><stop offset="100%" stop-color="#f7dca0"/>
+      </linearGradient>
+      <radialGradient id="mg-sun" cx="22%" cy="80%" r="55%">
+        <stop offset="0%" stop-color="#fff3d0" stop-opacity="0.95"/>
+        <stop offset="45%" stop-color="#ffd98a" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#ffd98a" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="mg-rock" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#9fb89a"/><stop offset="38%" stop-color="#7d977f"/>
+        <stop offset="100%" stop-color="#4d5d62"/>
+      </linearGradient>
+      <linearGradient id="mg-rock-far" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#aebccb"/><stop offset="100%" stop-color="#8190a6"/>
+      </linearGradient>
+      <filter id="mg-blur"><feGaussianBlur stdDeviation="7"/></filter>
+    </defs>
+    <rect x="0" y="0" width="${MAP_W}" height="${MAP_H}" fill="url(#mg-sky)"/>
+    <rect x="0" y="0" width="${MAP_W}" height="${MAP_H}" fill="url(#mg-sun)"/>`;
+
+  // distant haze peaks (parallax) behind the real spires
+  const far = svgEl('g', { opacity: '0.5' });
+  for (let i = 0; i < 7; i++) {
+    const cx = 70 + i * 150, ay = 150 + (i % 3) * 40;
+    far.appendChild(svgEl('path', { d: peakPath(cx, CLOUD_Y, ay, 150), fill: 'url(#mg-rock-far)' }));
+  }
+  far.setAttribute('filter', 'url(#mg-blur)');
+  svg.appendChild(far);
+
+  // rope bridges linking neighbouring spires (drawn before peaks so peaks overlap their ends)
+  const bridges = svgEl('g', { class: 'map-bridges' });
+  for (let i = 0; i < placed.length - 1; i++) {
+    const p = placed[i], q = placed[i + 1];
+    const y1 = p.apexY + (p.baseY - p.apexY) * 0.28, y2 = q.apexY + (q.baseY - q.apexY) * 0.28;
+    const sag = Math.max(y1, y2) + 46;
+    const d = `M ${p.x} ${y1} Q ${(p.x + q.x) / 2} ${sag} ${q.x} ${y2}`;
+    bridges.appendChild(svgEl('path', { d, fill: 'none', stroke: 'rgba(40,30,20,0.45)', 'stroke-width': '2' }));
+  }
+  svg.appendChild(bridges);
+
+  // the spires
+  for (const p of placed) {
+    const g = svgEl('g', { class: 'map-peak-g', 'data-agent': p.a.name, tabindex: '0' });
+    g.appendChild(svgEl('path', { d: peakPath(p.x, p.baseY, p.apexY, p.w), fill: 'url(#mg-rock)',
+      stroke: 'rgba(20,30,25,0.35)', 'stroke-width': '1' }));
+    // green crown of foliage near the apex
+    g.appendChild(svgEl('ellipse', { cx: p.x, cy: p.apexY + 14, rx: p.w * 0.22, ry: 12, fill: '#6fae64', opacity: '0.9' }));
+    const gov = p.a.governance || {};
+    if (gov.is_leader) {
+      // a pavilion + sacred tree on the leader's summit
+      const ry = p.apexY;
+      g.appendChild(svgEl('rect', { x: p.x - 13, y: ry - 16, width: 26, height: 12, fill: '#7a4b3a' }));
+      g.appendChild(svgEl('path', { d: `M ${p.x - 20} ${ry - 16} L ${p.x} ${ry - 30} L ${p.x + 20} ${ry - 16} Z`, fill: '#b5503e' }));
+      g.appendChild(svgEl('circle', { cx: p.x, cy: p.baseY - 34, r: 16, fill: '#8fd06f', opacity: '0.92' }));
+    }
+    // name plaque
+    const label = svgEl('text', { x: p.x, y: p.apexY - (gov.is_leader ? 40 : 12), 'text-anchor': 'middle', class: 'map-name' });
+    label.textContent = (gov.is_leader ? '👑 ' : (gov.is_elder ? '🜍 ' : '')) + p.a.name;
+    g.appendChild(label);
+    const sub = svgEl('text', { x: p.x, y: p.apexY - (gov.is_leader ? 26 : -2), 'text-anchor': 'middle', class: 'map-sub' });
+    sub.textContent = (p.a.cultivation && p.a.cultivation.realm_name) || '';
+    g.appendChild(sub);
+    g.addEventListener('click', () => showPeakDetail(p.a.name));
+    g.addEventListener('keydown', e => { if (e.key === 'Enter') showPeakDetail(p.a.name); });
+    svg.appendChild(g);
+  }
+
+  // sea of clouds (soft layered blobs) — drawn last so spires emerge from it
+  const clouds = svgEl('g', { class: 'map-clouds', filter: 'url(#mg-blur)' });
+  for (let i = 0; i < 16; i++) {
+    const cx = (i * 137) % (MAP_W + 120) - 60, cy = CLOUD_Y + 8 + (i % 4) * 26;
+    clouds.appendChild(svgEl('ellipse', { cx, cy, rx: 120 + (i % 3) * 50, ry: 30 + (i % 2) * 12,
+      fill: '#fbf0dd', opacity: String(0.55 + (i % 3) * 0.12) }));
+  }
+  svg.appendChild(clouds);
+
+  const scene = document.getElementById('sect-map');
+  scene.innerHTML = '';
+  scene.appendChild(svg);
+  // drifting leaves for flavour
+  for (let i = 0; i < 7; i++) {
+    const leaf = document.createElement('span');
+    leaf.className = 'map-leaf';
+    leaf.style.left = (8 + i * 13) + '%';
+    leaf.style.animationDelay = (i * 1.7) + 's';
+    leaf.style.animationDuration = (9 + (i % 4) * 3) + 's';
+    scene.appendChild(leaf);
+  }
 
   // chronicle feed
   let ch = { recent: [] };
@@ -1048,6 +1155,39 @@ async function renderSectMap() {
   feed.innerHTML = (ch.recent || []).length
     ? (ch.recent || []).map(e => `<div class='chronicle-row'><span class='chronicle-glyph'>${esc(e.glyph)}</span><b>${esc(e.agent)}</b> <span class='muted'>${esc(e.kind)}</span> — ${esc(e.detail)}</div>`).join('')
     : `<div class='comms-sys muted'>The chronicle is yet unwritten.</div>`;
+}
+
+async function showPeakDetail(name) {
+  const a = (window.__agents || []).find(x => x.name === name);
+  const panel = document.getElementById('map-detail');
+  if (!a) { panel.classList.add('hidden'); return; }
+  const c = a.cultivation || {}, g = a.governance || {}, r = a.reputation || {};
+  const rank = g.is_leader ? '👑 Sect Leader' : (g.is_master ? 'Sect Master' : (g.is_elder ? '🜍 Elder' : 'Disciple'));
+  const titles = (a.titles || []).map(t => `<span class='title-chip' title='${esc(t.desc || '')}'>🏅 ${esc(t.title)}</span>`).join('') || '<span class="muted">none yet</span>';
+  panel.classList.remove('hidden');
+  panel.innerHTML = `
+    <div class='map-detail-head'>
+      <div><b>${esc(name)}</b><div class='muted'>${rank} · ${esc(c.realm_name || '')} ${esc(c.layer_label || '')}</div></div>
+      <button id='map-detail-close' class='btn'>×</button>
+    </div>
+    ${metric('Standing', g.standing ?? '—')}
+    ${metric('Merit / tier', `${r.merit ?? '—'} · ${esc(r.tier || '—')}`)}
+    ${metric('Realm', `${esc(c.realm_name || '—')} (${c.realm ?? 0})`)}
+    ${metric('Breakthroughs', c.breakthroughs ?? 0)}
+    ${metric('Spirit stones', `💎 ${c.stones ?? 0}`)}
+    ${metric('Specialty', g.specialty ? `${esc(g.specialty)} · mastery ${g.mastery}` : '—')}
+    ${metric('Karmic bond', a.bond ? `🤝 ${esc(a.bond)}` : '—')}
+    ${metric('Techniques', (c.skills || []).length)}
+    <div class='rep-row'>${titles}</div>
+    <div class='map-detail-chron'><b class='muted'>Chronicle</b><div id='map-detail-timeline' class='muted'>loading…</div></div>`;
+  document.getElementById('map-detail-close').onclick = () => panel.classList.add('hidden');
+  try {
+    const ch = await fetch(`/api/chronicle/${encodeURIComponent(name)}?limit=12`, { headers: authHeaders() }).then(r => r.json());
+    const tl = (ch.timeline || []).slice().reverse();
+    document.getElementById('map-detail-timeline').innerHTML = tl.length
+      ? tl.map(e => `<div class='chronicle-row'><span class='chronicle-glyph'>${esc(e.glyph)}</span>${esc(e.detail || e.kind)}</div>`).join('')
+      : 'No deeds recorded yet.';
+  } catch (_) { document.getElementById('map-detail-timeline').textContent = 'unavailable'; }
 }
 
 // ---- Heavenly Omens: prophecy / divination ----
