@@ -10,6 +10,7 @@ from . import history
 from . import agents
 from . import comms
 from . import memory
+from . import tools as tooling
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
@@ -158,6 +159,50 @@ def memory_note(path: str = Query(...), x_control_token: str = Header(default=""
     if content is None:
         raise HTTPException(404, "note not found")
     return {"path": path, "content": content}
+
+
+class ToolRunIn(BaseModel):
+    tool: str
+    args: dict = {}
+
+
+@app.get("/api/tools")
+def tools_list(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"enabled": tooling.enabled(), "tools": tooling.tool_summaries(), "calls": tooling.list_calls()}
+
+
+@app.post("/api/tools/run")
+def tools_run(body: ToolRunIn, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if not _SAFE_NAME.match(body.tool or ""):
+        raise HTTPException(400, "invalid tool name")
+    try:
+        call = tooling.request_tool("operator", body.tool, body.args)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    # Operator both requests and approves — run it now if it's still pending.
+    if call.get("status") == "pending":
+        call = tooling.approve(call["id"])
+    return call
+
+
+@app.post("/api/tools/{call_id}/approve")
+def tools_approve(call_id: int, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    try:
+        return tooling.approve(call_id)
+    except KeyError:
+        raise HTTPException(404, "call not found")
+
+
+@app.post("/api/tools/{call_id}/deny")
+def tools_deny(call_id: int, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    try:
+        return tooling.deny(call_id)
+    except KeyError:
+        raise HTTPException(404, "call not found")
 
 
 @app.get("/")

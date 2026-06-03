@@ -437,12 +437,25 @@ nano agents.yaml   # set name/role/persona/provider/base_url/model per agent
 
 > Notes injected as context are sent to whatever backend the agent uses — a local host stays local; a `claude` agent sends them to the Anthropic API. Don't point an agent at a vault with secrets you wouldn't send to its backend.
 
+**Guarded tools (Phase 4):** agents can *act* — but only through an explicit allow-list, behind human approval. Define tools in `tools.yaml` (no file → the feature is off). Each tool runs as a **fixed argv with no shell**; an agent may only fill the named `{placeholder}` args you declare, and each value is validated (no spaces or shell metacharacters, bounded length). Every call is **pending until you approve it** in the **Tools** dashboard section, unless a tool sets `auto_approve: true` (reserve that for safe, read-only tools). An agent requests a tool by ending its reply with a fenced block:
+
+````text
+```tool
+{"tool": "list_dir", "args": {"path": "/opt/daybot/logs"}}
+```
+````
+
+The request is created as **pending** — it never runs until a human approves. (Tool requests are wired into single-agent tasks only, not multi-agent missions, to keep the blast radius small.) See `tools.yaml.example`. API: `GET /api/tools`, `POST /api/tools/run`, `POST /api/tools/{id}/approve|deny`.
+
+> ⚠️ Tools execute real commands on the agent host. Keep the allow-list narrow, prefer absolute `argv`/`cwd`, and only set `auto_approve` on commands that are safe to run unattended.
+
 Optional control-center environment variables:
 
 | Variable | Default | Purpose |
 |---|---|---|
 | `MAYBOT_OBSIDIAN_VAULT` | _(unset)_ | Path to your Obsidian vault; enables agent memory |
 | `MAYBOT_OBSIDIAN_SUBDIR` | `MayBot` | Subfolder agents write into |
+| `MAYBOT_TOOLS_FILE` | `tools.yaml` | Guarded tool allow-list (absent → tools off) |
 | `MAYBOT_COMMS_MAX_ROUNDS` | `3` | Max rounds per mission |
 | `MAYBOT_COMMS_MAX_PARTICIPANTS` | `6` | Max agents per mission |
 

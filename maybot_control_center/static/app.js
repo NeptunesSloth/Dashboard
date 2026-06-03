@@ -262,6 +262,8 @@ async function render() {
     renderComms();
     bindVault();
     renderVault();
+    bindTools();
+    renderTools();
   } catch (e) {
     err.classList.remove('hidden');
     summaryEl.classList.remove('loading');
@@ -591,6 +593,80 @@ function bindVault() {
   };
   btn.onclick = run;
   document.getElementById('vault-q').onkeydown = e => { if (e.key === 'Enter') run(); };
+}
+
+// ---- Guarded Tools (Phase 4) ----
+
+function toolBadgeClass(s) {
+  if (s === 'done') return 'ok';
+  if (s === 'pending' || s === 'running' || s === 'approved') return 'warning';
+  if (s === 'denied') return 'unknown';
+  return 'error';
+}
+
+function toolCallCard(c) {
+  const cls = toolBadgeClass(c.status);
+  const args = Object.keys(c.args || {}).length ? `<div class='comms-sys' style='text-align:left'>args: ${esc(JSON.stringify(c.args))}</div>` : '';
+  const out = c.output ? `<div class='agent-reply'>${esc(c.output)}</div>` : '';
+  const acts = c.status === 'pending'
+    ? `<div class='actions'><button class='act-btn act-btn-start' data-approve='${c.id}'>Approve</button><button class='act-btn act-btn-stop' data-deny='${c.id}'>Deny</button></div>`
+    : '';
+  return `<div class='card'>
+    <div class='metric'><b>🔧 ${esc(c.tool)}</b><span class='badge ${cls}'>${esc(c.status)}</span></div>
+    ${metric('Requested by', esc(c.requester))}
+    ${args}${out}${acts}
+  </div>`;
+}
+
+async function renderTools() {
+  const section = document.getElementById('tools-section');
+  let data;
+  try { data = await fetch('/api/tools', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { section.classList.add('hidden'); return; }
+  if (!data || !data.enabled) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+
+  const sel = document.getElementById('tools-select');
+  const cur = sel.value;
+  sel.innerHTML = (data.tools || []).map(t =>
+    `<option value='${esc(t.name)}'>${esc(t.name)}${t.auto_approve ? ' (auto)' : ''} — ${esc(t.description)}</option>`).join('');
+  if (cur) sel.value = cur;
+
+  const callsEl = document.getElementById('tools-calls');
+  const calls = (data.calls || []).slice().reverse();
+  callsEl.innerHTML = calls.length ? calls.map(toolCallCard).join('') : `<div class='card muted'>No tool calls yet.</div>`;
+  callsEl.querySelectorAll('[data-approve]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    await fetch(`/api/tools/${b.getAttribute('data-approve')}/approve`, { method: 'POST', headers: authHeaders() }).catch(() => {});
+    renderTools();
+  });
+  callsEl.querySelectorAll('[data-deny]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    await fetch(`/api/tools/${b.getAttribute('data-deny')}/deny`, { method: 'POST', headers: authHeaders() }).catch(() => {});
+    renderTools();
+  });
+}
+
+function bindTools() {
+  const btn = document.getElementById('tools-run');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  btn.onclick = async () => {
+    const tool = document.getElementById('tools-select').value;
+    const raw = (document.getElementById('tools-args').value || '').trim();
+    let args = {};
+    if (raw) { try { args = JSON.parse(raw); } catch (_) { alert('Args must be valid JSON.'); return; } }
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/tools/run', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ tool, args }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Run failed: ' + (b.detail || res.status)); }
+    } catch (e) { alert('Run failed: ' + e); }
+    btn.disabled = false;
+    renderTools();
+  };
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

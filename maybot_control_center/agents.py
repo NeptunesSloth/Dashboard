@@ -22,6 +22,7 @@ import requests
 import yaml
 
 from . import memory
+from . import tools as tooling
 
 AGENTS_FILE = Path(os.getenv("MAYBOT_AGENTS_FILE", "agents.yaml"))
 DEFAULT_TIMEOUT = int(os.getenv("MAYBOT_AGENT_TIMEOUT", "60"))
@@ -149,6 +150,9 @@ def run_task(name: str, task: str) -> dict:
         ctx = memory.context_for(task)
         if ctx:
             system = f"{system}\n\n{ctx}"
+    tools_on = tooling.enabled() and agent.get("tools", True)
+    if tools_on:
+        system = f"{system}\n\n{tooling.prompt_hint()}"
     messages = [{"role": "system", "content": system}] + \
                [{"role": m["role"], "content": m["content"]} for m in recent]
 
@@ -168,7 +172,17 @@ def run_task(name: str, task: str) -> dict:
             st["transcript"].append({"role": "assistant", "content": f"(error: {err})", "ts": done})
         if len(st["transcript"]) > MAX_TURNS * 2:
             del st["transcript"][:-MAX_TURNS * 2]
-        return dict(st)
+        snap = dict(st)
+
+    # If the agent requested a tool, queue it for approval (never auto-run here).
+    if ok and tools_on:
+        req = tooling.parse_request(text)
+        if req:
+            try:
+                tooling.request_tool(name, req["tool"], req.get("args"))
+            except ValueError:
+                pass  # invalid request is surfaced only as the agent's own text
+    return snap
 
 
 def assign_task(name: str, task: str) -> dict:

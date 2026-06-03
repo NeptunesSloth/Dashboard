@@ -1,0 +1,33 @@
+# Guarded tools that agents (and you) can run. DENY-BY-DEFAULT: only tools
+# listed here can ever execute. No tools.yaml = the feature is off.
+#
+# Each tool runs as a FIXED argv with NO shell. The command and `cwd` come from
+# this file, never from the agent. An agent may only fill the named
+# {placeholders} declared in `args`, and each value is validated (no spaces, no
+# shell metacharacters, bounded length) before use.
+#
+# Every call is PENDING until you approve it in the dashboard, UNLESS the tool
+# sets `auto_approve: true` — reserve that for safe, read-only tools.
+#
+# Copy to tools.yaml and edit:  cp tools.yaml.example tools.yaml
+
+tools:
+  - name: disk_free
+    description: Show free disk space.
+    argv: ["df", "-h"]
+    timeout_seconds: 10
+    auto_approve: true          # safe + read-only → runs without approval
+
+  - name: list_dir
+    description: List a directory.
+    argv: ["ls", "-la", "{path}"]
+    args: [path]                # agent supplies {path}; validated, no shell
+    cwd: /
+    timeout_seconds: 10
+    # no auto_approve → requires human approval in the dashboard
+
+  - name: run_tests
+    description: Run the project's test suite.
+    argv: ["./scripts/test.sh"]
+    cwd: /opt/myproject
+    timeout_seconds: 300
