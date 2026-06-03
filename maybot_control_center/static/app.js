@@ -1051,16 +1051,16 @@ function tierOf(a) {
 
 // Peaks anchored to map_bg.png's painted pavilions (% of the art).
 const PEAK_DEFS = [
-  { id: 'leader', title: "Sect Leader's Peak", icon: '👑', kind: 'group', tiers: ['leader'], anchor: { x: 49, y: 30 } },
-  { id: 'elders', title: "Elders' Peak", icon: '🜍', kind: 'group', tiers: ['elder', 'core'], anchor: { x: 31, y: 9 } },
-  { id: 'inner', title: 'Inner Court', icon: '🟦', kind: 'group', tiers: ['inner'], anchor: { x: 79, y: 15 } },
-  { id: 'outer', title: 'Outer Court', icon: '⛰️', kind: 'group', tiers: ['outer'], anchor: { x: 12, y: 34 } },
-  { id: 'mission', title: 'Mission Hall', icon: '📜', kind: 'utility', cat: 'quests', anchor: { x: 92, y: 45 } },
-  { id: 'pill', title: 'Pill Pavilion', icon: '⚗️', kind: 'utility', cat: 'pills', anchor: { x: 62, y: 48 } },
-  { id: 'treasury', title: 'Treasure Pavilion', icon: '💎', kind: 'utility', cat: 'treasury', anchor: { x: 6, y: 62 } },
-  { id: 'techniques', title: 'Technique Hall', icon: '🗡️', kind: 'utility', cat: 'tools', anchor: { x: 70, y: 7 } },
-  { id: 'council', title: 'Dao Council', icon: '⚖️', kind: 'utility', cat: 'council', anchor: { x: 41, y: 53 } },
-  { id: 'seclusion', title: 'Seclusion Caves', icon: '🕳️', kind: 'group', filter: 'seclusion', anchor: { x: 23, y: 64 } },
+  { id: 'leader', title: "Sect Leader's Peak", icon: '👑', kind: 'group', tiers: ['leader'], bg: 'leader_bg.png', anchor: { x: 49, y: 26 } },
+  { id: 'elders', title: "Elders' Peak", icon: '🜍', kind: 'group', tiers: ['elder', 'core'], anchor: { x: 29, y: 9 } },
+  { id: 'inner', title: 'Inner Court', icon: '🟦', kind: 'group', tiers: ['inner'], anchor: { x: 81, y: 13 } },
+  { id: 'techniques', title: 'Technique Hall', icon: '🗡️', kind: 'utility', cat: 'tools', anchor: { x: 66, y: 6 } },
+  { id: 'outer', title: 'Outer Court', icon: '⛰️', kind: 'group', tiers: ['outer'], anchor: { x: 11, y: 41 } },
+  { id: 'pill', title: 'Pill Pavilion', icon: '⚗️', kind: 'utility', cat: 'pills', anchor: { x: 65, y: 45 } },
+  { id: 'mission', title: 'Mission Hall', icon: '📜', kind: 'utility', cat: 'quests', anchor: { x: 93, y: 43 } },
+  { id: 'council', title: 'Dao Council', icon: '⚖️', kind: 'utility', cat: 'council', anchor: { x: 39, y: 58 } },
+  { id: 'treasury', title: 'Treasure Pavilion', icon: '💎', kind: 'utility', cat: 'treasury', anchor: { x: 6, y: 67 } },
+  { id: 'seclusion', title: 'Seclusion Caves', icon: '🕳️', kind: 'group', filter: 'seclusion', anchor: { x: 22, y: 71 } },
 ];
 
 // state-based membership for group peaks that aren't rank tiers
@@ -1114,7 +1114,7 @@ async function renderSectMap() {
       : 'utility hall';
     const active = p.kind === 'group' && p.members.some(m => ['working', 'queued'].includes(m.status));
     const b = document.createElement('button');
-    b.className = 'peak-marker' + (p.id === 'leader' ? ' pm-leader' : '');
+    b.className = 'peak-marker' + (p.id === 'leader' ? ' pm-leader' : '') + (p.kind === 'utility' ? ' pm-util' : '');
     b.style.left = p.anchor.x + '%'; b.style.top = p.anchor.y + '%';
     b.setAttribute('data-peak', p.id);
     b.innerHTML = `<span class='pm-plaque'><span class='pm-name'>${p.icon} ${esc(p.title)}</span>
@@ -1139,13 +1139,21 @@ function hallActivity(a) {
   const c = a.cultivation || {}, st = a.status || 'idle';
   if (c.in_roaming) return { act: 'roam', label: 'Roaming', sprite: -1 };
   if (c.in_seclusion) return { act: 'seclude', label: 'In Seclusion', sprite: 1 };
-  if (st === 'error') return { act: 'struggle', label: 'Wrestling a Demon', sprite: 5 };
+  if (st === 'error') return { act: 'struggle', label: 'Qi Deviation', sprite: 1 };
   if (c.event === 'breakthrough' && (Date.now() - (c.event_ts || 0) < 30000)) return { act: 'breakthrough', label: 'Breaking Through', sprite: 3 };
   if (st === 'working' || st === 'queued') return { act: 'cultivate', label: 'Cultivating', sprite: 0 };
   return { act: 'sweep', label: 'Tending the Hall', sprite: 4 };
 }
-function hallGlyph(act) { return { cultivate: '🧘', seclude: '🧘', breakthrough: '✨', struggle: '👹', sweep: '🧹', refine: '⚗️', roam: '🚶' }[act] || '🧘'; }
-function hallUnitInner(act, sprite) { return `<span class='hall-sprite act-${act}' data-sprite='${sprite >= 0 ? sprite : 0}'><span class='hs-glyph'>${hallGlyph(act)}</span></span>`; }
+const SPRITE_NAMES = { cultivate: 0, meditate: 1, seclude: 1, refine: 2, breakthrough: 3, sweep: 4, struggle: 5, demon: 5 };
+// A disciple may pin a fixed sprite (agents.yaml `sprite: demon`); else use the activity sprite.
+function spriteFor(a, ax) {
+  const ov = a && a.sprite;
+  if (ov !== null && ov !== undefined && ov !== '') return typeof ov === 'number' ? ov : (SPRITE_NAMES[ov] ?? ax.sprite);
+  return ax.sprite;
+}
+function hallUnitInner(act, idx) {
+  return `<span class='hall-sprite act-${act}'><img src='/assets/map/sprites/agent_${idx >= 0 ? idx : 0}.png' alt='' draggable='false'></span>`;
+}
 function hallPositions(k) {
   const out = [], cx = 50, baseY = 60, spread = Math.min(72, 16 + k * 9);
   for (let i = 0; i < k; i++) { const t = k === 1 ? 0.5 : i / (k - 1); out.push({ x: cx - spread / 2 + spread * t, y: baseY + 20 - Math.sin(t * Math.PI) * 11 }); }
@@ -1196,7 +1204,7 @@ async function renderGroupHall(peak, focusName) {
 
   const g = focus?.governance || {}, c = focus?.cultivation || {};
   const hall = _showHall(`
-    <img class='hall-bg-img' src='/assets/map/hall_bg.png' alt='' draggable='false'>
+    <img class='hall-bg-img' src='/assets/map/${peak.bg || 'hall_bg.png'}' alt='' draggable='false'>
     <button id='hall-back' class='btn hall-back'>← return to the heavens</button>
     <div class='hall-title pixel-panel'><b>${peak.icon} ${esc(peak.title)}</b><span class='muted'>${all.length} disciple${all.length === 1 ? '' : 's'}</span></div>
     <div class='pixel-panel hall-info'>
@@ -1217,13 +1225,14 @@ async function renderGroupHall(peak, focusName) {
 
   const units = hall.querySelector('.hall-floor-units');
   const pos = hallPositions(present.length);
+  if (peak.id === 'leader' && pos[0]) pos[0] = { x: 50, y: 62 };  // on the throne dais
   present.forEach((x, i) => {
     const ax = hallActivity(x), hl = focus && x.name === focus.name;
     const u = document.createElement('button');
     u.className = 'hall-unit act-' + ax.act + (hl ? ' hl' : '');
     u.style.left = pos[i].x + '%'; u.style.top = pos[i].y + '%'; u.style.zIndex = String(10 + Math.round(pos[i].y));
     u.setAttribute('data-agent', x.name);
-    u.innerHTML = `${hallUnitInner(ax.act, ax.sprite)}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span></span>`;
+    u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span></span>`;
     u.addEventListener('click', () => renderGroupHall(peak, x.name));
     units.appendChild(u);
   });

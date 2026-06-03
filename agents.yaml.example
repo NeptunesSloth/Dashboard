@@ -46,3 +46,18 @@ agents:
     provider: claude
     model: claude-opus-4-8
     max_tokens: 1024
+
+  # A disciple with a fixed map sprite. `sprite:` pins which agents_sheet figure
+  # represents them in the Sect Map halls (cultivate | meditate | refine |
+  # breakthrough | sweep | demon), regardless of their current activity.
+  - name: Morde
+    role: Iron Marshal
+    persona: >
+      You are Morde, an imposing armored cultivator of few words. You are blunt,
+      relentless, and decisive. You speak in short, heavy sentences.
+    provider: ollama
+    base_url: http://127.0.0.1:11434
+    model: llama3
+    temperature: 0.6
+    max_tokens: 512
+    sprite: demon
