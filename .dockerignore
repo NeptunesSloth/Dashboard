@@ -1,0 +1,16 @@
+.git
+.github
+__pycache__
+*.pyc
+.venv
+.pytest_cache
+*.db
+*.db-wal
+*.db-shm
+/data
+devices.yaml
+projects.yaml
+agents.yaml
+tools.yaml
+users.yaml
+schedules.yaml

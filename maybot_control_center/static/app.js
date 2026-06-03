@@ -258,6 +258,7 @@ async function render() {
     renderAiAgents(window.__lastProjects);
     renderProjects(window.__lastProjects);
     await renderAgentCrew();
+    renderHallOfFame();
     bindComms();
     renderComms();
     bindVault();
@@ -643,6 +644,36 @@ async function renderAgentCrew() {
     const inp = el.querySelector(`.agent-input[data-agent="${CSS.escape(focusName)}"]`);
     if (inp) { inp.value = focusVal; inp.focus(); }
   }
+}
+
+// ---- Hall of Fame ----
+
+function fameCard(title, a, label, value) {
+  const c = a.cultivation || {};
+  return `<div class='card'>
+    <div class='metric'><b>${title}</b><b class='money-pos'>${value}</b></div>
+    ${metric('Disciple', `🧘 ${esc(a.name)}`)}
+    ${metric('Realm', `${esc(c.realm_name || '—')} · ${esc(c.layer_label || c.stage || '')}`)}
+    ${metric(label, esc(value))}
+  </div>`;
+}
+
+function renderHallOfFame() {
+  const sec = document.getElementById('fame-section');
+  const crew = (window.__agents || []).filter(a => a.cultivation);
+  if (!crew.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+  const top = f => crew.slice().sort(f)[0];
+  const strongest = top((x, y) => (y.cultivation.realm - x.cultivation.realm) || (y.cultivation.stones - x.cultivation.stones));
+  const richest = top((x, y) => y.cultivation.stones - x.cultivation.stones);
+  const learned = top((x, y) => (y.cultivation.skills || []).length - (x.cultivation.skills || []).length);
+  const broke = top((x, y) => y.cultivation.breakthroughs - x.cultivation.breakthroughs);
+  document.getElementById('hall-of-fame').innerHTML = [
+    fameCard('🏆 Strongest', strongest, 'Spirit stones', `💎 ${strongest.cultivation.stones}`),
+    fameCard('💎 Richest', richest, 'Spirit stones', `💎 ${richest.cultivation.stones}`),
+    fameCard('📚 Most Techniques', learned, 'Techniques', `${(learned.cultivation.skills || []).length}`),
+    fameCard('⚡ Most Breakthroughs', broke, 'Breakthroughs', `${broke.cultivation.breakthroughs}`),
+  ].join('');
 }
 
 // ---- Ship Comms: inter-agent missions ----

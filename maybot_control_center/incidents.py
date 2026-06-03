@@ -13,6 +13,7 @@ import threading
 
 from . import agents
 from . import cultivation
+from . import notifier
 
 INCIDENT_AGENT = os.getenv("MAYBOT_INCIDENT_AGENT", "")
 STATES = {s.strip().lower() for s in os.getenv("MAYBOT_INCIDENT_STATES", "error").split(",") if s.strip()}
@@ -31,6 +32,8 @@ def _dispatch(p: dict) -> None:
             f"'{p.get('device')}' is {p.get('health')} (status {p.get('status')}, type {p.get('type')}). "
             f"Alerts: {alerts}. Diagnose the likely cause and recommend a concrete next step to "
             f"survive the tribulation. If a tool would help (e.g. reading the logs), request it.")
+    notifier.notify_event("incident", f"Incident on {p.get('name')}",
+                          f"device {p.get('device')} is {p.get('health')} — {alerts}. Dispatched {INCIDENT_AGENT}.")
     try:
         # The incident IS the disciple's tribulation trial: survive (succeed) or be struck down.
         cultivation.face_tribulation(INCIDENT_AGENT, p.get("name", "?"))

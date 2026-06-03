@@ -10,13 +10,34 @@ _log = logging.getLogger("maybot_control_center.notifier")
 
 DISCORD_WEBHOOK = os.getenv("MAYBOT_DISCORD_WEBHOOK_URL", "")
 SLACK_WEBHOOK = os.getenv("MAYBOT_SLACK_WEBHOOK_URL", "")
+GENERIC_WEBHOOK = os.getenv("MAYBOT_ALERT_WEBHOOK_URL", "")  # generic JSON {event,title,message}
 ALERT_STATES = {
     s.strip().lower()
     for s in os.getenv("MAYBOT_ALERT_STATES", "error").split(",")
     if s.strip()
 }
+# Which non-health events route to the webhooks (incidents, tribulations, agent failures).
+ALERT_EVENTS = {
+    s.strip().lower()
+    for s in os.getenv("MAYBOT_ALERT_EVENTS", "incident,tribulation").split(",")
+    if s.strip()
+}
 
 _prev: dict[str, str] = {}
+
+
+def notify_event(event: str, title: str, message: str) -> None:
+    """Route a noteworthy event to the configured webhooks (if subscribed)."""
+    if event.lower() not in ALERT_EVENTS:
+        return
+    text = f"🔔 {title} — {message}"
+    _log.warning("alert(%s): %s", event, text)
+    if DISCORD_WEBHOOK:
+        threading.Thread(target=_post, args=(DISCORD_WEBHOOK, {"content": text}), daemon=True).start()
+    if SLACK_WEBHOOK:
+        threading.Thread(target=_post, args=(SLACK_WEBHOOK, {"text": text}), daemon=True).start()
+    if GENERIC_WEBHOOK:
+        threading.Thread(target=_post, args=(GENERIC_WEBHOOK, {"event": event, "title": title, "message": message}), daemon=True).start()
 
 
 def _post(url: str, payload: dict) -> None:

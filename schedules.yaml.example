@@ -1,0 +1,24 @@
+# Scheduled sect activities. Each entry fires once per `every_minutes` (the first
+# interval after startup, not at boot). No schedules.yaml => the scheduler is idle.
+#
+# Copy to schedules.yaml and edit.  action ∈ task | mission | quest | debate
+
+schedules:
+  - name: nightly-diagnostics
+    every_minutes: 1440          # once a day
+    action: task
+    agent: Medic
+    task: "Run nightly diagnostics: review the health of every realm and summarise risks as bullets."
+
+  - name: daily-standup
+    every_minutes: 1440
+    action: mission              # a Dao Council mission
+    participants: [Nova, Forge]
+    goal: "Daily standup — what shipped, what's blocked, what's next."
+    rounds: 1
+
+  - name: hourly-patrol
+    every_minutes: 60
+    action: quest                # dispatch a quest (grants its reward technique on success)
+    agent: Forge
+    quest: patrol

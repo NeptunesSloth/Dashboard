@@ -143,6 +143,12 @@ def _tribulate(agent: str) -> bool:
     if store.enabled():
         store.upsert_cultivation(snap)
     events.publish("agents", {"agent": agent, "event": "tribulation", "struck": struck})
+    try:
+        from . import notifier
+        notifier.notify_event("tribulation", f"Heavenly tribulation strikes {agent}",
+                              "struck down a realm" if struck else "spirit stones scattered")
+    except Exception:
+        pass
     return struck
 
 

@@ -417,6 +417,14 @@ projects:
     test_prompt_enabled: false
 ```
 
+## Operations & deployment
+
+- **One-command run:** `docker compose up` brings up the control center (`:8200`) and a co-located agent (`:8100`). Configure via a `.env` file (`ANTHROPIC_API_KEY`, `MAYBOT_CONTROL_CENTER_TOKEN`, `MAYBOT_API_TOKEN`); persistence is on by default (`MAYBOT_DB=/data/maybot.db`).
+- **Prometheus metrics:** `GET /metrics` exposes monitoring + sect stats (devices/projects health, treasury balance, LLM calls/cost, tool calls by status, and per-disciple realm/stones/breakthroughs/techniques) in Prometheus text format for Grafana. It reads only cached/in-memory state, so a scrape never triggers a device poll.
+- **Alerting webhooks:** noteworthy events (incidents, heavenly tribulations) route to Discord/Slack/a generic JSON webhook. Set `MAYBOT_DISCORD_WEBHOOK_URL` / `MAYBOT_SLACK_WEBHOOK_URL` / `MAYBOT_ALERT_WEBHOOK_URL` and choose which events with `MAYBOT_ALERT_EVENTS` (default `incident,tribulation`). The existing health-transition alerts (`MAYBOT_ALERT_STATES`) still apply.
+- **Scheduled missions (cron):** define recurring sect activities in `schedules.yaml` (see `schedules.yaml.example`) — a `task`, `mission`, `quest`, or `debate` per `every_minutes`. A background scheduler fires them (first interval after startup, not at boot); no file → idle.
+- **Hall of Fame:** the dashboard ranks disciples by Strongest (realm/stones), Richest, Most Techniques, and Most Breakthroughs.
+
 ## Agent Crew (LLM persona agents — Phase 1)
 
 The dashboard can run **LLM-backed persona agents** against your local AI hosts. Each agent is defined in `agents.yaml` with a name, role, and persona (system prompt), and points at an Ollama or OpenAI-compatible endpoint. In the **Agent Crew** section you assign a task to an agent and it runs one chat completion in the background, streaming the reply (and a transcript) into its card.
