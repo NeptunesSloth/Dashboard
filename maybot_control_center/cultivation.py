@@ -231,8 +231,14 @@ def on_tool(agent: str, tool: str, ok: bool) -> None:
     if not agent or agent == "operator":
         return
     if ok:
-        _award(agent, AWARD_TOOL, skill=tool)
+        res = _award(agent, AWARD_TOOL, skill=tool)
         treasury.deposit(TITHE)
+        if res.get("new_skill"):  # first to master this technique → record provenance
+            try:
+                from . import lineage
+                lineage.record_origin(agent, tool, "technique")
+            except Exception:
+                pass
     else:
         _fail(agent)
 

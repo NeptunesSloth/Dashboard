@@ -32,6 +32,12 @@ from . import spirit_root
 from . import dreamscape
 from . import chaos
 from . import github_repo
+from . import daoheart
+from . import bonds
+from . import lineage
+from . import council_vote
+from . import artifacts
+from . import titles
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -558,6 +564,123 @@ def chaos_resolve(trial_id: int, body: ResolveIn, x_control_token: str = Header(
 def github_status(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return {"enabled": github_repo.enabled(), "repos": github_repo.collect() if github_repo.enabled() else []}
+
+
+# ---- Dao-Heart drift detection ----
+@app.get("/api/daoheart")
+def daoheart_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"drift": daoheart.snapshot()}
+
+
+# ---- Karmic-bond pairs ----
+@app.get("/api/bonds")
+def bonds_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return bonds.snapshot()
+
+
+class BondIn(BaseModel):
+    a: str
+    b: str
+
+
+@app.post("/api/bonds/bind")
+def bonds_bind(body: BondIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.a or "") or not _SAFE_NAME.match(body.b or ""):
+        raise HTTPException(400, "invalid disciple name")
+    try:
+        return bonds.bind(body.a, body.b)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+class UnbondIn(BaseModel):
+    agent: str
+
+
+@app.post("/api/bonds/unbind")
+def bonds_unbind(body: UnbondIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.agent or ""):
+        raise HTTPException(400, "invalid disciple name")
+    return {"unbound": bonds.unbind(body.agent)}
+
+
+# ---- Lineage (knowledge graph) ----
+@app.get("/api/lineage")
+def lineage_graph(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return lineage.graph()
+
+
+# ---- Merit-weighted council vote ----
+class VoteIn(BaseModel):
+    question: str
+    votes: dict[str, str]
+
+
+@app.post("/api/council/vote")
+def council_vote_run(body: VoteIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    try:
+        return council_vote.tally(body.question, body.votes)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+@app.get("/api/council/history")
+def council_history(limit: int = Query(default=25), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"history": council_vote.history(max(1, min(limit, 100)))}
+
+
+# ---- Artifact vault ----
+@app.get("/api/artifacts")
+def artifacts_list(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return artifacts.snapshot()
+
+
+class ForgeIn(BaseModel):
+    creator: str
+    name: str
+    kind: str
+    content: str
+    description: str = ""
+
+
+@app.post("/api/artifacts/forge")
+def artifacts_forge(body: ForgeIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.name or ""):
+        raise HTTPException(400, "invalid artifact name")
+    try:
+        return artifacts.forge(body.creator, body.name, body.kind, body.content, body.description)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+class WieldIn(BaseModel):
+    agent: str
+    name: str
+
+
+@app.post("/api/artifacts/wield")
+def artifacts_wield(body: WieldIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    try:
+        return artifacts.wield(body.agent, body.name)
+    except KeyError:
+        raise HTTPException(404, "artifact not found")
+
+
+# ---- Titles & achievements ----
+@app.get("/api/titles")
+def titles_catalog(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"catalog": titles.catalog()}
 
 
 @app.get("/api/treasury")

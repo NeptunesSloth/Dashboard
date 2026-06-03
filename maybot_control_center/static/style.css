@@ -381,3 +381,9 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 /* ---- Trials Hall ---- */
 .trials-sub { color: var(--gold); font-family: "Cinzel", Georgia, serif; font-size: 14px; margin: 16px 0 6px; letter-spacing: .03em; }
 #watch-roster { margin: 0 6px; }
+
+/* ---- Titles & Sect Lore ---- */
+.title-chip { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-family: "Cinzel", Georgia, serif;
+  border-radius: 999px; padding: 2px 8px; margin: 2px 4px 0 0; color: #1a1404;
+  background: linear-gradient(90deg, var(--gold), #ffe6a3); border: 1px solid var(--gold); }
+#lore-section textarea { font-family: inherit; background: rgba(24,20,42,0.6); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }

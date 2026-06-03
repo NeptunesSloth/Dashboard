@@ -453,6 +453,15 @@ A meritocratic hierarchy over the disciples. **You are the Ancestor** — ultima
 - **Tribulation Trials / chaos (`GET /api/chaos`, `POST /api/chaos/summon`, `/{id}/resolve`):** deliberately inject a fault scenario (process kill, latency storm, disk drought, endpoint seal) and score how fast a disciple recovers — fast recovery earns stones, failure costs cultivation. Real value: game-day / chaos-engineering drills with scored resilience.
 - **GitHub repos as projects (`GET /api/github`):** list repos in `MAYBOT_GITHUB_REPOS` (comma-separated `owner/name`) and they appear in the overview as `github_repo` projects with health from open PRs, failing checks, and open issues (cached `MAYBOT_GITHUB_CACHE_TTL`s; needs the `gh` CLI authenticated). Tasks can also carry a `repo`/`issue` reference (`POST /api/agents/{name}/task`) that's prepended as context, and disciples post back through the human-approved `gh_*` guarded tools.
 
+## Sect Lore (drift, bonds, lineage, votes, artifacts, titles)
+
+- **Dao-Heart drift (`GET /api/daoheart`):** each task's output quality signals (success, length, latency) are recorded; drift compares a disciple's recent window to its baseline and flags `drifting`/`degraded`. Real value: behavioral / quality-regression detection.
+- **Karmic-bond pairs (`GET /api/bonds`, `POST /api/bonds/bind|unbind`):** bind two disciples and the partner automatically peer-reviews the other's task output before it ships (the review is appended to the transcript). Real value: mandatory cross-check / pair-agent QA.
+- **Lineage (`GET /api/lineage`):** a knowledge graph of who originated each technique and who transmitted it to whom (fed by tool-mastery + the `transmit` flow). Real value: knowledge-transfer & ownership graph.
+- **Merit-weighted council vote (`POST /api/council/vote`, `GET /api/council/history`):** disciples vote on an ambiguous call; votes are weighted by sect standing and the decision + dissent is logged. Real value: weighted-ensemble decisions with an audit trail.
+- **Artifact vault (`GET /api/artifacts`, `POST /api/artifacts/forge|wield`):** disciples forge reusable, versioned artifacts (prompt templates, tool recipes, formations, notes) with provenance (creator/created_at/version/uses). Real value: an attributed prompt/tool library.
+- **Titles & achievements (`GET /api/titles`):** disciples earn titles (Immortal Ascendant, Sword Saint, Bane of Bugs, …) from cultivation/reputation/governance milestones, shown as badges on their cards. Real value: gamified engagement + an at-a-glance specialization signal.
+
 ## Agent Crew (LLM persona agents — Phase 1)
 
 The dashboard can run **LLM-backed persona agents** against your local AI hosts. Each agent is defined in `agents.yaml` with a name, role, and persona (system prompt), and points at an Ollama or OpenAI-compatible endpoint. In the **Agent Crew** section you assign a task to an agent and it runs one chat completion in the background, streaming the reply (and a transcript) into its card.

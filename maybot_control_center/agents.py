@@ -270,9 +270,21 @@ def run_task(name: str, task: str) -> dict:
                 break
             demon_critique = crit
 
+    # Karmic-bond peer review: a bonded partner critiques the work before it ships.
+    peer_review = None
+    if ok:
+        try:
+            from . import bonds
+            reviewer = bonds.reviewer_for(name)
+            if reviewer and reviewer != name:
+                peer_review = _peer_review(reviewer, name, task, text)
+        except Exception:
+            peer_review = None
+
     done = int(time.time() * 1000)
     asst_msg = {"role": "assistant", "content": text if ok else f"(error: {err})", "ts": done}
     demon_msg = {"role": "system", "content": f"⚔ inner demon: {demon_critique}", "ts": done} if demon_critique else None
+    peer_msg = {"role": "system", "content": f"🤝 peer review by {reviewer}: {peer_review}", "ts": done} if peer_review else None
     with _lock:
         st = _ensure_state(agent)
         st["current_task"] = None
@@ -285,6 +297,8 @@ def run_task(name: str, task: str) -> dict:
         if demon_msg:
             st["transcript"].append(demon_msg)
         st["transcript"].append(asst_msg)
+        if peer_msg:
+            st["transcript"].append(peer_msg)
         if len(st["transcript"]) > MAX_TURNS * 2:
             del st["transcript"][:-MAX_TURNS * 2]
         snap = dict(st)
@@ -292,7 +306,14 @@ def run_task(name: str, task: str) -> dict:
         if demon_msg:
             store.add_transcript(name, demon_msg)
         store.add_transcript(name, asst_msg)
+        if peer_msg:
+            store.add_transcript(name, peer_msg)
     cultivation.on_task(name, ok)  # spirit stones for diligent work
+    try:  # Dao-Heart drift: record this output's quality signals
+        from . import daoheart
+        daoheart.record(name, {"ok": ok, "chars": len(text or ""), "latency_ms": max(0, done - now)})
+    except Exception:
+        pass
     events.publish("agents", {"agent": name})
 
     # If the agent requested a tool, queue it for approval (never auto-run here).
@@ -376,9 +397,23 @@ def transmit(teacher: str, student: str, skill: str) -> dict:
         raise ValueError(f"{student} already knows {skill}")
     cultivation.learn(student, skill, bonus=cultivation.AWARD_NEW_SKILL // 2)
     cultivation.on_council(teacher)  # mentoring is meritorious
-    from . import comms
+    from . import comms, lineage
+    lineage.record_transmission(teacher, student, skill)  # knowledge-transfer graph
     comms._post("system", f"📜 {teacher} transmits the {skill} technique to {student}.", "system")
     return cultivation.state(student)
+
+
+def _peer_review(reviewer_name: str, author: str, task: str, text: str) -> str | None:
+    """A karmic-bonded partner critiques the author's work before it ships."""
+    rev = _agent_def(reviewer_name)
+    if not rev:
+        return None
+    sys = (f"{_persona(rev)}\n\nYou are {reviewer_name}, karmic-bonded to {author} as their reviewer. "
+           f"Check their work for correctness and quality before it ships. Reply 'APPROVE' if sound, "
+           f"otherwise 'REVISE:' and the single most important issue. Be terse.")
+    user = f"Task: {task}\n\n{author}'s output:\n{text}\n\nYour review:"
+    ok, out, _ = _chat(rev, [{"role": "system", "content": sys}, {"role": "user", "content": user}])
+    return (out or "").strip()[:1000] if ok else None
 
 
 def _parse_delegate(text: str) -> dict | None:
@@ -443,7 +478,7 @@ def snapshot() -> list[dict]:
                 "error": st["error"] if st else None,
                 "cultivation": cultivation.state(name),
             })
-    from . import reputation, governance
+    from . import reputation, governance, titles, bonds
     leader = governance.leader()
     for row in out:
         name = row["name"]
@@ -456,6 +491,8 @@ def snapshot() -> list[dict]:
             "mastery": governance.mastery(name),
             "standing": governance.standing(name)["score"],
         }
+        row["titles"] = titles.evaluate(name)
+        row["bond"] = bonds.partner(name)
     return out
 
 

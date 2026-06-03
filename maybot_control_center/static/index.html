@@ -119,6 +119,48 @@
       <h3 class="trials-sub">🌱 Spirit-Root grades</h3>
       <div id="spirit-grades" class="grid"></div>
     </section>
+    <section id="lore-section" class="hidden">
+      <div class="section-head"><h2>Sect Lore</h2></div>
+      <p class="muted">Karmic bonds (pair review), the lineage of techniques, drift watch, the artifact vault, and merit-weighted council votes.</p>
+
+      <h3 class="trials-sub">🤝 Karmic Bonds</h3>
+      <div class="comms-launch">
+        <select id="bond-a"></select><span class="muted">↔</span><select id="bond-b"></select>
+        <button id="bond-go" class="btn">Bind pair</button>
+      </div>
+      <div id="bond-list" class="grid"></div>
+
+      <h3 class="trials-sub">💓 Dao-Heart Drift</h3>
+      <div id="drift-list" class="grid"></div>
+
+      <h3 class="trials-sub">🌳 Lineage of Techniques</h3>
+      <div id="lineage-list" class="grid"></div>
+
+      <h3 class="trials-sub">⚱ Artifact Vault</h3>
+      <details class="details"><summary>Forge an artifact</summary>
+        <div class="comms-launch">
+          <select id="forge-creator"></select>
+          <input id="forge-name" placeholder="artifact name…">
+          <select id="forge-kind"><option>prompt</option><option>tool_recipe</option><option>formation</option><option>note</option></select>
+        </div>
+        <div class="comms-launch">
+          <input id="forge-desc" placeholder="description…">
+          <textarea id="forge-content" placeholder="content…" rows="3" style="flex:1;min-width:0"></textarea>
+          <button id="forge-go" class="btn">Forge</button>
+        </div>
+      </details>
+      <div id="artifact-list" class="grid"></div>
+
+      <h3 class="trials-sub">🗳 Merit-Weighted Council Vote</h3>
+      <div class="comms-launch">
+        <input id="vote-q" placeholder="question / ambiguous call…" style="flex:1;min-width:0">
+      </div>
+      <div class="comms-launch">
+        <textarea id="vote-ballots" placeholder="one per line — Disciple: choice" rows="3" style="flex:1;min-width:0"></textarea>
+        <button id="vote-go" class="btn">Tally</button>
+      </div>
+      <div id="vote-result" class="grid"></div>
+    </section>
     <section id="fame-section" class="hidden">
       <div class="section-head"><h2>Hall of Fame</h2></div>
       <div id="hall-of-fame" class="grid"></div>
