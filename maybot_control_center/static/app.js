@@ -43,7 +43,7 @@ function money(v) {
 }
 function metric(label, value) { return `<div class='metric'><span>${esc(label)}</span><b>${value}</b></div>`; }
 
-function sparkline(history, label) {
+function sparkSvg(history, extraClass = '') {
   const points = (history || [])
     .map(h => Number(h.pnl))
     .filter(n => Number.isFinite(n));
@@ -59,12 +59,15 @@ function sparkline(history, label) {
   }).join(' ');
   const last = points[points.length - 1], first = points[0];
   const cls = last > first ? 'spark-pos' : (last < first ? 'spark-neg' : 'spark-flat');
-  return `<div class='sparkline'>
-    <span class='spark-label'>${esc(label)}</span>
-    <svg viewBox='0 0 ${w} ${h}' preserveAspectRatio='none' class='spark-svg ${cls}'>
+  return `<svg viewBox='0 0 ${w} ${h}' preserveAspectRatio='none' class='spark-svg ${cls} ${extraClass}'>
       <polyline points='${coords}' fill='none' stroke-width='1.5' vector-effect='non-scaling-stroke' />
-    </svg>
-  </div>`;
+    </svg>`;
+}
+
+function sparkline(history, label) {
+  const svg = sparkSvg(history);
+  if (!svg) return '';
+  return `<div class='sparkline'><span class='spark-label'>${esc(label)}</span>${svg}</div>`;
 }
 
 function projectCard(p) {
@@ -123,15 +126,20 @@ function projectCard(p) {
 }
 
 function roomBadge(p) {
-  if (p.status === 'running') return TYPE_VERB[p.type] || 'ACTIVE';
   if (p.status === 'stopped') return 'OFFLINE';
-  return 'STANDBY';
+  if (p.status !== 'running') return 'STANDBY';
+  // Prefer the adapter-derived live activity (e.g. DayBot SCANNING / FILLING).
+  const act = p.metrics && p.metrics.activity;
+  if (act) return String(act).toUpperCase();
+  return TYPE_VERB[p.type] || 'ACTIVE';
 }
 
 // A project rendered as a lit "room" for the base view.
 function roomCard(p) {
   const health = p.health || 'unknown';
   const icon = TYPE_ICON[p.type] || '📦';
+  const m = p.metrics || {};
+  const isTrade = p.type === 'trading_bot';
   const a = p.actions_available || {};
   const overlay = `
     <div class='room-overlay'>
@@ -140,10 +148,18 @@ function roomCard(p) {
       ${a.stop ? `<button class='act-btn act-btn-stop' data-action='stop' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Stop</button>` : ''}
       ${a.run_tests ? `<button class='act-btn' data-action='run-tests' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Test</button>` : ''}
     </div>`;
+  // Trading bots (incl. DayBot) get a live PnL micro-sparkline + PnL/positions readout on the room face.
+  const spark = isTrade ? sparkSvg(p.history, 'room-spark') : '';
+  const positions = (m.open_positions === undefined || m.open_positions === 'unknown') ? '—' : esc(m.open_positions);
+  const stats = isTrade
+    ? `<div class='room-stats'>${money(m.profit_today)}<span class='room-pos'>${positions} pos</span></div>`
+    : '';
   return `<div class='room room--${esc(health)}' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
     <div class='room-art'>
+      ${spark}
       <span class='room-status'>● ${esc(roomBadge(p))}</span>
       <span class='room-char' title='${esc(p.type)}'>${icon}</span>
+      ${stats}
       ${overlay}
     </div>
     <div class='room-label'>
