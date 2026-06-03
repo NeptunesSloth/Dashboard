@@ -1,4 +1,5 @@
 import re
+import secrets
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse
 from .config import load_devices, CONTROL_CENTER_TOKEN
@@ -14,7 +15,7 @@ app = FastAPI(title="maybot-control-center")
 
 
 def _check_token(x_control_token: str = Header(default="")):
-    if CONTROL_CENTER_TOKEN and x_control_token != CONTROL_CENTER_TOKEN:
+    if CONTROL_CENTER_TOKEN and not secrets.compare_digest(x_control_token, CONTROL_CENTER_TOKEN):
         raise HTTPException(status_code=401, detail="invalid control token")
 
 

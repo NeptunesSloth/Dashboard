@@ -32,6 +32,30 @@ function money(v) {
 }
 function metric(label, value) { return `<div class='metric'><span>${esc(label)}</span><b>${value}</b></div>`; }
 
+function sparkline(history, label) {
+  const points = (history || [])
+    .map(h => Number(h.pnl))
+    .filter(n => Number.isFinite(n));
+  if (points.length < 2) return '';
+  const w = 220, h = 36, pad = 2;
+  const min = Math.min(...points), max = Math.max(...points);
+  const span = max - min || 1;
+  const stepX = (w - pad * 2) / (points.length - 1);
+  const coords = points.map((v, i) => {
+    const x = pad + i * stepX;
+    const y = pad + (h - pad * 2) * (1 - (v - min) / span);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const last = points[points.length - 1], first = points[0];
+  const cls = last > first ? 'spark-pos' : (last < first ? 'spark-neg' : 'spark-flat');
+  return `<div class='sparkline'>
+    <span class='spark-label'>${esc(label)}</span>
+    <svg viewBox='0 0 ${w} ${h}' preserveAspectRatio='none' class='spark-svg ${cls}'>
+      <polyline points='${coords}' fill='none' stroke-width='1.5' vector-effect='non-scaling-stroke' />
+    </svg>
+  </div>`;
+}
+
 function projectCard(p) {
   const m = p.metrics || {};
   const alerts = (p.alerts || []).map(a => {
@@ -63,6 +87,8 @@ function projectCard(p) {
     keyMetrics = Object.entries(m).slice(0, 8).map(([k, v]) => metric(k, esc(v))).join('');
   }
 
+  const spark = sparkline(clientHistory[`${p.device}:${p.name}`], 'PnL Today trend');
+
   const a = p.actions_available || {};
   const actions = `
     <div class='actions'>
@@ -78,6 +104,7 @@ function projectCard(p) {
     ${metric('Type', esc(p.type))}
     ${metric('Status', esc(p.status))}
     ${keyMetrics}
+    ${spark}
     ${alerts}
     <details class='details'><summary>Raw details</summary><pre>${esc(JSON.stringify(p, null, 2))}</pre></details>
     ${actions}
@@ -147,15 +174,6 @@ function startLogsAutoRefresh() {
     if (logsRefreshPaused || !selectedProject || !selectedProjectDevice) return;
     loadLogs(selectedProjectDevice, selectedProject);
   }, 7000);
-}
-
-function getControlToken() {
-  return localStorage.getItem(CONTROL_TOKEN_STORAGE_KEY) || '';
-}
-
-function authHeaders() {
-  const token = getControlToken();
-  return token ? { 'x-control-token': token } : {};
 }
 
 async function render() {
@@ -229,8 +247,6 @@ document.querySelectorAll('.level-btn').forEach(btn => btn.onclick = () => {
   selectedLogLevel = btn.getAttribute('data-level') || 'ALL';
   if (selectedProject && selectedProjectDevice) loadLogs(selectedProjectDevice, selectedProject);
 });
-document.getElementById('save-control-token').onclick = () => localStorage.setItem(CONTROL_TOKEN_STORAGE_KEY, document.getElementById('control-token').value || '');
-document.getElementById('control-token').value = getControlToken();
 document.getElementById('toggle-refresh').onclick = () => {
   refreshPaused = !refreshPaused;
   document.getElementById('toggle-refresh').textContent = refreshPaused ? 'Resume Auto' : 'Pause Auto';
