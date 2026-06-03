@@ -6,8 +6,8 @@ let logsRefreshPaused = false;
 let logsInterval = null;
 let selectedLogLevel = 'ALL';
 const CONTROL_TOKEN_STORAGE_KEY = 'maybot.control_token';
-const clientHistory = {};
-const MAX_HISTORY = 60;
+// Project types that represent AI agents — surfaced in their own management area.
+const AI_AGENT_TYPES = ['ai_project', 'local_ai_host'];
 const TYPE_LABEL = {
   trading_bot: 'Trading Bots',
   code_project: 'Code Projects',
@@ -87,7 +87,7 @@ function projectCard(p) {
     keyMetrics = Object.entries(m).slice(0, 8).map(([k, v]) => metric(k, esc(v))).join('');
   }
 
-  const spark = sparkline(clientHistory[`${p.device}:${p.name}`], 'PnL Today trend');
+  const spark = sparkline(p.history, 'PnL Today trend');
 
   const a = p.actions_available || {};
   const actions = `
@@ -194,39 +194,85 @@ async function render() {
     summaryEl.innerHTML = summaryCards(data.summary);
     devicesEl.innerHTML = renderDevices(data.devices || []);
 
-    const grouped = {};
-    (data.projects || []).forEach(p => {
-      const type = p.type || 'generic';
-      if (!grouped[type]) grouped[type] = [];
-      grouped[type].push(p);
-      const key = `${p.device}:${p.name}`;
-      if (!clientHistory[key]) clientHistory[key] = [];
-      clientHistory[key].push({ ts: Date.now(), pnl: p.metrics?.profit_today, health: p.health });
-      if (clientHistory[key].length > MAX_HISTORY) clientHistory[key].shift();
-    });
-
-    const order = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'generic'];
-    projectsEl.innerHTML = order.filter(t => grouped[t]?.length).map(t =>
-      `<section class='project-type'><h3 class='project-type-title'>${esc(TYPE_LABEL[t] || t)}</h3><div class='grid'>${grouped[t].map(projectCard).join('')}</div></section>`
-    ).join('');
-
-    document.querySelectorAll('[data-action]').forEach(btn => btn.onclick = async () => {
-      btn.disabled = true;
-      await callAction(btn.getAttribute('data-device'), btn.getAttribute('data-project'), btn.getAttribute('data-action'));
-      btn.disabled = false;
-      render();
-    });
-    document.querySelectorAll('[data-log]').forEach(btn => btn.onclick = () => loadLogs(btn.getAttribute('data-device'), btn.getAttribute('data-project')));
+    renderAiAgents(window.__lastProjects);
+    renderProjects(window.__lastProjects);
   } catch (e) {
     err.classList.remove('hidden');
     summaryEl.classList.remove('loading');
     summaryEl.innerHTML = `<div class='card'><b>Overview unavailable</b><div class='muted'>${esc(String(e))}</div></div>`;
     devicesEl.innerHTML = '';
     projectsEl.innerHTML = '';
+    document.getElementById('ai-agents').innerHTML = '';
   }
 }
 
+function projectMatches(p, query, health) {
+  if (health && health !== 'ALL' && (p.health || 'unknown') !== health) return false;
+  if (!query) return true;
+  const hay = `${p.name} ${p.device} ${p.type} ${p.status}`.toLowerCase();
+  return hay.includes(query);
+}
+
+function bindProjectButtons(root) {
+  root.querySelectorAll('[data-action]').forEach(btn => btn.onclick = async () => {
+    btn.disabled = true;
+    await callAction(btn.getAttribute('data-device'), btn.getAttribute('data-project'), btn.getAttribute('data-action'));
+    btn.disabled = false;
+    render();
+  });
+  root.querySelectorAll('[data-log]').forEach(btn => btn.onclick = () => loadLogs(btn.getAttribute('data-device'), btn.getAttribute('data-project')));
+}
+
+// Dedicated management area for AI agents (ai_project + local_ai_host).
+function renderAiAgents(projects) {
+  const section = document.getElementById('ai-agents-section');
+  const el = document.getElementById('ai-agents');
+  const agents = (projects || []).filter(p => AI_AGENT_TYPES.includes(p.type));
+  if (!agents.length) {
+    section.classList.add('hidden');
+    el.innerHTML = '';
+    return;
+  }
+  section.classList.remove('hidden');
+  const online = agents.filter(p => p.metrics?.status === 'online' || p.status === 'running').length;
+  const issues = agents.filter(p => p.health === 'warning' || p.health === 'error').length;
+  document.getElementById('ai-agents-pill').textContent =
+    `${agents.length} agents · ${online} online · ${issues} need attention`;
+  el.innerHTML = `<div class='grid'>${agents.map(projectCard).join('')}</div>`;
+  bindProjectButtons(el);
+}
+
+function renderProjects(projects) {
+  const projectsEl = document.getElementById('projects');
+  const query = (document.getElementById('project-search').value || '').trim().toLowerCase();
+  const health = document.getElementById('health-filter').value || 'ALL';
+  const filtered = (projects || []).filter(p => projectMatches(p, query, health));
+
+  document.getElementById('project-count-pill').textContent =
+    `${filtered.length} of ${(projects || []).length} shown`;
+
+  const grouped = {};
+  filtered.forEach(p => {
+    const type = p.type || 'generic';
+    (grouped[type] = grouped[type] || []).push(p);
+  });
+
+  const order = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'generic'];
+  const sections = order.filter(t => grouped[t]?.length).map(t =>
+    `<section class='project-type'><h3 class='project-type-title'>${esc(TYPE_LABEL[t] || t)}</h3><div class='grid'>${grouped[t].map(projectCard).join('')}</div></section>`
+  ).join('');
+  projectsEl.innerHTML = sections || `<div class='card muted'>No projects match the current filter.</div>`;
+  bindProjectButtons(projectsEl);
+}
+
 document.getElementById('manual-refresh').onclick = render;
+document.getElementById('project-search').oninput = () => renderProjects(window.__lastProjects || []);
+document.getElementById('health-filter').onchange = () => renderProjects(window.__lastProjects || []);
+document.getElementById('clear-filters').onclick = () => {
+  document.getElementById('project-search').value = '';
+  document.getElementById('health-filter').value = 'ALL';
+  renderProjects(window.__lastProjects || []);
+};
 document.getElementById('refresh-logs').onclick = () => {
   if (!selectedProject || !selectedProjectDevice) return;
   loadLogs(selectedProjectDevice, selectedProject);

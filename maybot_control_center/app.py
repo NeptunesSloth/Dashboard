@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 from .config import load_devices, CONTROL_CENTER_TOKEN
 from .aggregator import aggregate
 from .agent_client import call_agent, post_agent
+from . import history
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
@@ -43,6 +44,14 @@ def proxy_logs(device_name: str, project_name: str, level: str = Query(default="
     if not result.get("online"):
         raise HTTPException(503, "agent unreachable")
     return result.get("data", {})
+
+
+@app.get("/api/history/{device_name}/{project_name}")
+def project_history(device_name: str, project_name: str, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
+        raise HTTPException(400, "invalid device or project name")
+    return {"history": history.get(device_name, project_name)}
 
 
 @app.post("/api/action/{device_name}/{project_name}/{action}")

@@ -417,6 +417,21 @@ projects:
     test_prompt_enabled: false
 ```
 
+## Dashboard features
+
+- **AI Agents area** — `ai_project` and `local_ai_host` projects are surfaced in a dedicated "AI Agents" section at the top of the dashboard with their start / stop / run-tests controls and an at-a-glance online / needs-attention count.
+- **Search & filter** — the Projects section has a search box (matches name, device, type, status) and a health filter (OK / Warning / Error / Unknown).
+- **Persistent sparklines** — the control center keeps a server-side, in-memory history of each project's `profit_today` and health, so the per-card PnL sparklines survive page refreshes and are shared across all viewers. History is also available at `GET /api/history/{device}/{project}`.
+
+Optional control-center environment variables:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `MAYBOT_HISTORY_MAX_POINTS` | `240` | Points retained per project series |
+| `MAYBOT_HISTORY_MAX_SERIES` | `500` | Max distinct project series tracked |
+
+> History is in-memory only and resets when the control center restarts — it is a monitoring aid, not a system of record.
+
 Safety notes for local AI hosts:
 - Test prompt checks are disabled by default.
 - Tiny generation checks run only when `test_prompt_enabled: true`.
