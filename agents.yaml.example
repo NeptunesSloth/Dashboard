@@ -53,7 +53,7 @@ agents:
   #
   #   skin:   which CHARACTER SET draws them (in any activity pose). One of:
   #           youth (default), elder, empress, lotus, azure, shadow, vegeta,
-  #           goku, redhood, brute, sage. Elders/Leader default to `elder` if unset.
+  #           goku, redhood, brute, sage, batman. Elders/Leader default to `elder` if unset.
   #   sprite: a FIXED identity sprite that ignores activity. Currently: demon.
   #
   # Morde always appears as the armored demon, whatever he's doing:
