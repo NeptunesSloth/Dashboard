@@ -21,6 +21,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from . import agents
+from . import memory
 
 MAX_ROUNDS = max(1, int(os.getenv("MAYBOT_COMMS_MAX_ROUNDS", "3")))
 MAX_PARTICIPANTS = max(2, int(os.getenv("MAYBOT_COMMS_MAX_PARTICIPANTS", "6")))
@@ -63,16 +64,31 @@ def _channel_text() -> str:
     return "\n".join(lines[-CONTEXT_LINES:])
 
 
-def _mission_system(agent: dict, name: str, roster: str) -> str:
-    return (f"{agents._persona(agent)}\n\nYou are {name}, collaborating in a shared team "
+def _mission_system(agent: dict, name: str, roster: str, vault_ctx: str = "") -> str:
+    base = (f"{agents._persona(agent)}\n\nYou are {name}, collaborating in a shared team "
             f"channel with: {roster}. Work together toward the goal. Be concise and useful; "
             f"address teammates by name when relevant and build on what they said.")
+    return f"{base}\n\n{vault_ctx}" if vault_ctx else base
+
+
+def _write_mission_memory(goal: str, mission_id) -> None:
+    """Persist a mission summary back to the Obsidian vault."""
+    if not memory.enabled():
+        return
+    with _lock:
+        msgs = [m for m in _feed if m.get("mission") == mission_id and m["kind"] == "agent"]
+    if not msgs:
+        return
+    body = [f"## Mission: {goal}", f"_recorded {time.strftime('%Y-%m-%d %H:%M')}_", ""]
+    body += [f"- **{m['from']}**: {m['content']}" for m in msgs]
+    memory.write_note(f"mission-{goal[:48]}", "\n".join(body))
 
 
 def run_mission(goal: str, names: list[str], rounds: int, mission_id) -> None:
     """Run the round-robin conversation (the background worker entrypoint)."""
     global _mission
     roster = ", ".join(names)
+    vault_ctx = memory.context_for(goal) if memory.enabled() else ""
     try:
         for rnd in range(rounds):
             for name in names:
@@ -89,12 +105,14 @@ def run_mission(goal: str, names: list[str], rounds: int, mission_id) -> None:
                         f"You are {name}. Add ONE concise contribution (2-4 sentences). "
                         f"Don't repeat what's already been said.")
                 ok, text, err = agents._chat(agent, [
-                    {"role": "system", "content": _mission_system(agent, name, roster)},
+                    {"role": "system", "content": _mission_system(agent, name, roster, vault_ctx)},
                     {"role": "user", "content": user},
                 ])
                 content = (text or "").strip()[:MSG_CHARS] if ok else f"(error: {err})"
                 _post(name, content or "(no response)", "agent", mission_id)
-        _post("system", "Mission complete.", "system", mission_id)
+        _write_mission_memory(goal, mission_id)
+        saved = " · saved to vault" if memory.enabled() else ""
+        _post("system", f"Mission complete.{saved}", "system", mission_id)
     finally:
         with _lock:
             _mission = None

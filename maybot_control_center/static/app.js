@@ -260,6 +260,8 @@ async function render() {
     await renderAgentCrew();
     bindComms();
     renderComms();
+    bindVault();
+    renderVault();
   } catch (e) {
     err.classList.remove('hidden');
     summaryEl.classList.remove('loading');
@@ -538,6 +540,57 @@ function bindComms() {
     } catch (e) { alert('Mission failed: ' + e); }
     renderComms();
   };
+}
+
+// ---- Vault Memory (Obsidian) ----
+
+function vaultCard(h) {
+  return `<div class='card vault-card' data-path='${esc(h.path)}'>
+    <div class='metric'><b>📝 ${esc(h.title)}</b><span class='muted'>${esc(h.path)}</span></div>
+    <div class='agent-reply'>${esc(h.excerpt)}</div>
+    <details class='details'><summary>Open note</summary><pre class='vault-body'>Loading…</pre></details>
+  </div>`;
+}
+
+function bindVaultCards(root) {
+  root.querySelectorAll('.vault-card details').forEach(d => d.ontoggle = async () => {
+    if (!d.open) return;
+    const path = d.closest('.vault-card').getAttribute('data-path');
+    const body = d.querySelector('.vault-body');
+    try {
+      const n = await fetch(`/api/memory/note?path=${encodeURIComponent(path)}`, { headers: authHeaders() }).then(r => r.json());
+      body.innerText = n.content || '(empty)';
+    } catch (_) { body.innerText = 'Error loading note.'; }
+  });
+}
+
+async function renderVault() {
+  const section = document.getElementById('vault-section');
+  let data;
+  try { data = await fetch('/api/memory', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { section.classList.add('hidden'); return; }
+  if (!data || !data.enabled) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+}
+
+function bindVault() {
+  const btn = document.getElementById('vault-search');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  const run = async () => {
+    const q = (document.getElementById('vault-q').value || '').trim();
+    const out = document.getElementById('vault-results');
+    if (!q) { out.innerHTML = ''; return; }
+    out.innerHTML = `<div class='card muted'>Searching…</div>`;
+    try {
+      const data = await fetch(`/api/memory/search?q=${encodeURIComponent(q)}`, { headers: authHeaders() }).then(r => r.json());
+      const res = (data && data.results) || [];
+      out.innerHTML = res.length ? res.map(vaultCard).join('') : `<div class='card muted'>No matching notes.</div>`;
+      bindVaultCards(out);
+    } catch (_) { out.innerHTML = `<div class='card muted'>Search failed.</div>`; }
+  };
+  btn.onclick = run;
+  document.getElementById('vault-q').onkeydown = e => { if (e.key === 'Enter') run(); };
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

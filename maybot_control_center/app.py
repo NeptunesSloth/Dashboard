@@ -9,6 +9,7 @@ from .agent_client import call_agent, post_agent
 from . import history
 from . import agents
 from . import comms
+from . import memory
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
@@ -134,6 +135,29 @@ def comms_mission(body: MissionIn, x_control_token: str = Header(default="")):
         return comms.start_mission(goal, parts, body.rounds)
     except (ValueError, RuntimeError) as exc:
         raise HTTPException(400, str(exc))
+
+
+@app.get("/api/memory")
+def memory_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"enabled": memory.enabled(), "subdir": memory.SUBDIR}
+
+
+@app.get("/api/memory/search")
+def memory_search(q: str = Query(default=""), limit: int = Query(default=5), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"enabled": memory.enabled(), "results": memory.search(q, max(1, min(limit, 20)))}
+
+
+@app.get("/api/memory/note")
+def memory_note(path: str = Query(...), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if len(path) > 512:
+        raise HTTPException(400, "path too long")
+    content = memory.read_note(path)
+    if content is None:
+        raise HTTPException(404, "note not found")
+    return {"path": path, "content": content}
 
 
 @app.get("/")

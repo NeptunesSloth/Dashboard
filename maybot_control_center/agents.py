@@ -21,6 +21,8 @@ from pathlib import Path
 import requests
 import yaml
 
+from . import memory
+
 AGENTS_FILE = Path(os.getenv("MAYBOT_AGENTS_FILE", "agents.yaml"))
 DEFAULT_TIMEOUT = int(os.getenv("MAYBOT_AGENT_TIMEOUT", "60"))
 MAX_TURNS = max(2, int(os.getenv("MAYBOT_AGENT_MAX_TURNS", "20")))  # transcript messages kept for context
@@ -141,7 +143,13 @@ def run_task(name: str, task: str) -> dict:
         st.update(status="working", current_task=task, error=None, updated_at=now)
         st["transcript"].append({"role": "user", "content": task, "ts": now})
         recent = [m for m in st["transcript"] if m["role"] in ("user", "assistant")][-MAX_TURNS:]
-    messages = [{"role": "system", "content": _persona(agent)}] + \
+    # Pull relevant notes from the Obsidian vault (if configured and not opted out).
+    system = _persona(agent)
+    if memory.enabled() and agent.get("memory", True):
+        ctx = memory.context_for(task)
+        if ctx:
+            system = f"{system}\n\n{ctx}"
+    messages = [{"role": "system", "content": system}] + \
                [{"role": m["role"], "content": m["content"]} for m in recent]
 
     ok, text, err = _chat(agent, messages)  # network call outside the lock

@@ -433,6 +433,19 @@ nano agents.yaml   # set name/role/persona/provider/base_url/model per agent
 
 **Inter-agent comms (Phase 2):** the **Ship Comms** section lets you give the crew a shared goal and run a bounded round-robin "mission" — each agent contributes per round, building on the channel. Guardrails cap rounds (`MAYBOT_COMMS_MAX_ROUNDS`, default 3), participants (`MAYBOT_COMMS_MAX_PARTICIPANTS`, default 6), and allow only one mission at a time, so total LLM calls per mission (rounds × participants) are bounded. API: `GET /api/comms`, `POST /api/comms/mission`.
 
+**Obsidian vault memory (Phase 3):** point `MAYBOT_OBSIDIAN_VAULT` at an Obsidian vault (a folder of markdown notes) and agents gain a shared, persistent memory — they pull relevant notes in as context (on tasks and missions) and write mission summaries back. Reads are confined to `.md` files inside the vault (path traversal is rejected); writes go only to a dedicated subfolder (`MAYBOT_OBSIDIAN_SUBDIR`, default `MayBot/`) with sanitized filenames, so hand-written notes are never clobbered. The **Vault Memory** dashboard section appears when a vault is configured. Per-agent `memory: false` opts an agent out of context injection.
+
+> Notes injected as context are sent to whatever backend the agent uses — a local host stays local; a `claude` agent sends them to the Anthropic API. Don't point an agent at a vault with secrets you wouldn't send to its backend.
+
+Optional control-center environment variables:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `MAYBOT_OBSIDIAN_VAULT` | _(unset)_ | Path to your Obsidian vault; enables agent memory |
+| `MAYBOT_OBSIDIAN_SUBDIR` | `MayBot` | Subfolder agents write into |
+| `MAYBOT_COMMS_MAX_ROUNDS` | `3` | Max rounds per mission |
+| `MAYBOT_COMMS_MAX_PARTICIPANTS` | `6` | Max agents per mission |
+
 **Phase 1 scope & safety:**
 - Agents *think and talk only* — they do **not** execute commands or tools, and do not message each other yet.
 - For local-host agents, the control center calls `base_url` directly (running it on the same box as Ollama is simplest).
