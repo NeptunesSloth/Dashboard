@@ -58,11 +58,18 @@ def test_deny_blocks_execution(monkeypatch):
     assert again["status"] == "denied" and again["output"] is None
 
 
-def test_auto_approve_runs_immediately(monkeypatch):
+def test_auto_approve_runs_immediately_for_operator(monkeypatch):
     _defs(monkeypatch, [SAFE])
-    call = tools.request_tool("op", "ver", {})
+    call = tools.request_tool("operator", "ver", {})  # operator authority
     assert call["status"] == "done"
     assert "hi" in call["output"]
+
+
+def test_agent_auto_approve_is_pending_when_autonomy_off(monkeypatch):
+    # Bounded autonomy default: agents do NOT auto-run, even an auto_approve tool.
+    _defs(monkeypatch, [SAFE])
+    call = tools.request_tool("Nova", "ver", {})
+    assert call["status"] == "pending"
 
 
 def test_arg_validation_blocks_injection(monkeypatch):

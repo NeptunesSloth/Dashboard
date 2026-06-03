@@ -30,6 +30,7 @@ import yaml
 
 from . import store
 from . import events
+from . import autonomy
 
 TOOLS_FILE = Path(os.getenv("MAYBOT_TOOLS_FILE", "tools.yaml"))
 MAX_CALLS = 100
@@ -146,7 +147,7 @@ def request_tool(requester: str, tool_name: str, args: dict | None = None) -> di
         _calls.append(call)
         if len(_calls) > MAX_CALLS:
             del _calls[:-MAX_CALLS]
-        auto = bool(tool.get("auto_approve"))
+        auto = autonomy.allow(requester, tool)
         call_id = call["id"]
         snap = dict(call)
     if store.enabled():

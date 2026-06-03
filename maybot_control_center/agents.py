@@ -24,6 +24,7 @@ import yaml
 from . import memory
 from . import store
 from . import events
+from . import autonomy
 from . import tools as tooling
 
 AGENTS_FILE = Path(os.getenv("MAYBOT_AGENTS_FILE", "agents.yaml"))
@@ -224,6 +225,7 @@ def assign_task(name: str, task: str) -> dict:
         raise KeyError(name)
     with _lock:
         _followups[name] = 0  # operator task resets the tool-loop budget
+        autonomy.reset(name)  # ...and the per-task autonomy budget
         st = _ensure_state(agent)
         st.update(status="queued", current_task=task, updated_at=int(time.time() * 1000))
         snap = dict(st)

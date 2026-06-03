@@ -14,6 +14,7 @@ from . import memory
 from . import tools as tooling
 from . import store
 from . import events
+from . import autonomy
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -180,7 +181,20 @@ class ToolRunIn(BaseModel):
 @app.get("/api/tools")
 def tools_list(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
-    return {"enabled": tooling.enabled(), "tools": tooling.tool_summaries(), "calls": tooling.list_calls()}
+    return {"enabled": tooling.enabled(), "tools": tooling.tool_summaries(),
+            "calls": tooling.list_calls(), "autonomy": autonomy.status()}
+
+
+@app.post("/api/autonomy/pause")
+def autonomy_pause(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return autonomy.set_paused(True)
+
+
+@app.post("/api/autonomy/resume")
+def autonomy_resume(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return autonomy.set_paused(False)
 
 
 @app.post("/api/tools/run")
