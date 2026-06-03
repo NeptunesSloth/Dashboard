@@ -265,6 +265,8 @@ async function render() {
     bindTools();
     renderTools();
     renderUsage();
+    bindTreasury();
+    renderTreasury();
   } catch (e) {
     err.classList.remove('hidden');
     summaryEl.classList.remove('loading');
@@ -442,6 +444,13 @@ function cultivationBlock(c) {
   </div>`;
 }
 
+function seclusionControl(a, c) {
+  if (!c || !c.realm_name) return '';
+  const status = c.in_seclusion
+    ? `<span class='culti-seclusion'>🧘 breakthrough in ${fmtDur(c.seclusion_remaining)}</span>` : '';
+  return `<div class='sec-control'>${status}<button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter='${c.in_seclusion ? '' : '1'}'>${c.in_seclusion ? 'Leave seclusion' : 'Enter seclusion'}</button></div>`;
+}
+
 function pillControl(a, c) {
   const pd = window.__pills || { catalog: [], active: {} };
   if (!pd.catalog || !pd.catalog.length) return '';
@@ -471,6 +480,7 @@ function agentCard(a) {
     ${metric('Model', esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
     ${cultivationBlock(c)}
+    ${seclusionControl(a, c)}
     ${pillControl(a, c)}
     ${a.current_task ? `<div class='agent-task-cur'>▸ ${esc(a.current_task)}</div>` : ''}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
@@ -486,6 +496,19 @@ function agentCard(a) {
 
 function bindAgentCrew(root) {
   const sel = name => root.querySelector(`.agent-send[data-agent="${CSS.escape(name)}"]`);
+  root.querySelectorAll('.culti-sec-btn').forEach(btn => btn.onclick = async () => {
+    const name = btn.getAttribute('data-agent');
+    const enter = !!btn.getAttribute('data-enter');
+    btn.disabled = true;
+    try {
+      await fetch(`/api/agents/${encodeURIComponent(name)}/seclusion`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ enter }),
+      });
+    } catch (_) {}
+    btn.disabled = false;
+    renderAgentCrew();
+  });
   root.querySelectorAll('.pill-buy').forEach(btn => btn.onclick = async () => {
     const name = btn.getAttribute('data-agent');
     const s = root.querySelector(`.pill-select[data-agent="${CSS.escape(name)}"]`);
@@ -867,6 +890,45 @@ function bindTools() {
     } catch (e) { alert('Run failed: ' + e); }
     btn.disabled = false;
     renderTools();
+  };
+}
+
+// ---- Spirit Veins (sect treasury) ----
+
+function fmtDur(s) {
+  s = Math.max(0, Math.round(s));
+  const m = Math.floor(s / 60), ss = s % 60;
+  return m ? `${m}m ${ss}s` : `${ss}s`;
+}
+
+async function renderTreasury() {
+  let t;
+  try { t = await fetch('/api/treasury', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { return; }
+  if (!t) return;
+  document.getElementById('treasury-balance').textContent = `💎 ${t.balance}`;
+  document.getElementById('treasury-detail').textContent =
+    `veins +${t.income_per_hour}/hr · ${t.total_income} channelled · ${t.total_spent} disbursed`;
+}
+
+function bindTreasury() {
+  const btn = document.getElementById('endow-go');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  btn.onclick = async () => {
+    const amount = Number(document.getElementById('endow-amount').value || 0);
+    if (!amount || amount <= 0) { alert('Enter an amount to endow.'); return; }
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/treasury/endow', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ amount }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Endow failed: ' + (b.detail || res.status)); }
+      else document.getElementById('endow-amount').value = '';
+    } catch (e) { alert('Endow failed: ' + e); }
+    btn.disabled = false;
+    renderTreasury();
   };
 }
 

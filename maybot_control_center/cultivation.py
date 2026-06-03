@@ -15,6 +15,7 @@ import time
 
 from . import store
 from . import events
+from . import treasury
 
 # Each realm requires both a spirit-stone total and a number of mastered
 # techniques to break through into — so you can't reach the higher realms on
@@ -46,9 +47,14 @@ AWARD_SURVIVE = int(os.getenv("MAYBOT_AWARD_SURVIVE", "60"))  # surviving a trib
 PENALTY_FAIL = int(os.getenv("MAYBOT_PENALTY_FAIL", "8"))
 TRIBULATION_STREAK = max(1, int(os.getenv("MAYBOT_TRIBULATION_STREAK", "3")))
 TRIBULATION_LOSS = int(os.getenv("MAYBOT_TRIBULATION_LOSS", "70"))
-# Daily stipend: every disciple draws spirit stones once per period (0 = off).
+# Daily stipend: every disciple draws spirit stones once per period (0 = off),
+# funded from the sect treasury. A tithe of productive work flows back to it.
 STIPEND = int(os.getenv("MAYBOT_STIPEND", "15"))
 STIPEND_SECONDS = max(1, int(os.getenv("MAYBOT_STIPEND_HOURS", "24"))) * 3600
+TITHE = int(os.getenv("MAYBOT_TITHE", "3"))
+# Closed-door seclusion: after this long sequestered, a disciple researches a new
+# technique and breaks through to the next realm (repeats while in seclusion).
+SECLUSION_SECONDS = max(1, int(os.getenv("MAYBOT_SECLUSION_MINUTES", "30"))) * 60
 
 
 def _ordinal(n: int) -> str:
@@ -61,7 +67,7 @@ _state: dict[str, dict] = {}
 def _blank(agent: str) -> dict:
     return {"agent": agent, "stones": 0, "realm": 0, "skills": [], "breakthroughs": 0,
             "fail_streak": 0, "pending_tribulation": None, "last_stipend": 0,
-            "event": None, "event_ts": 0, "updated_at": 0}
+            "seclusion_since": None, "event": None, "event_ts": 0, "updated_at": 0}
 
 
 def _maybe_breakthrough(st: dict) -> bool:
@@ -171,6 +177,7 @@ def on_task(agent: str, ok: bool) -> None:
     if pending:
         if ok:  # survived the trial — a windfall and a chance to break through
             _award(agent, AWARD_SURVIVE)
+            treasury.deposit(TITHE)
             now = int(time.time() * 1000)
             with _lock:
                 s = _state[agent]
@@ -181,13 +188,21 @@ def on_task(agent: str, ok: bool) -> None:
         else:  # failed the trial — struck down
             _tribulate(agent)
         return
-    _award(agent, AWARD_TASK) if ok else _fail(agent)
+    if ok:
+        _award(agent, AWARD_TASK)
+        treasury.deposit(TITHE)  # a tithe of good work funds the sect
+    else:
+        _fail(agent)
 
 
 def on_tool(agent: str, tool: str, ok: bool) -> None:
     if not agent or agent == "operator":
         return
-    _award(agent, AWARD_TOOL, skill=tool) if ok else _fail(agent)
+    if ok:
+        _award(agent, AWARD_TOOL, skill=tool)
+        treasury.deposit(TITHE)
+    else:
+        _fail(agent)
 
 
 def on_council(agent: str) -> None:
@@ -231,6 +246,9 @@ def state(agent: str) -> dict:
         "layer_label": f"{_ordinal(layer)} Layer",
         "rank_title": RANK_TITLES[min(realm, len(RANK_TITLES) - 1)],
         "pending_tribulation": st.get("pending_tribulation"),
+        "in_seclusion": bool(st.get("seclusion_since")),
+        "seclusion_remaining": (max(0, int(SECLUSION_SECONDS - (time.time() - st["seclusion_since"])))
+                                if st.get("seclusion_since") else 0),
         "stones": st["stones"],
         "skills": st["skills"],
         "breakthroughs": st["breakthroughs"],
@@ -258,7 +276,7 @@ def qi_deviation(agent: str) -> bool:
 
 
 def grant_stipend(agent: str) -> bool:
-    """Grant the daily spirit-stone stipend if a period has elapsed. Returns True if granted."""
+    """Grant the daily stipend (funded from the treasury) if due. Returns True if granted."""
     if STIPEND <= 0 or not agent or agent == "operator":
         return False
     now = time.time()
@@ -267,6 +285,11 @@ def grant_stipend(agent: str) -> bool:
         _state[agent] = st
         if now - st.get("last_stipend", 0) < STIPEND_SECONDS:
             return False
+    if not treasury.withdraw(STIPEND):
+        return False  # the sect coffers are empty — no stipend until the veins refill
+    with _lock:
+        st = _state.get(agent) or _blank(agent)
+        _state[agent] = st
         st["last_stipend"] = now
         st["stones"] += STIPEND
         _maybe_breakthrough(st)
@@ -275,6 +298,52 @@ def grant_stipend(agent: str) -> bool:
         snap["skills"] = list(st["skills"])
     if store.enabled():
         store.upsert_cultivation(snap)
+    return True
+
+
+def enter_seclusion(agent: str) -> dict:
+    now = int(time.time() * 1000)
+    with _lock:
+        st = _state.get(agent) or _blank(agent)
+        _state[agent] = st
+        st["seclusion_since"] = time.time()
+        st["event"], st["event_ts"] = "seclusion", now
+    events.publish("agents", {"agent": agent, "event": "seclusion"})
+    return state(agent)
+
+
+def exit_seclusion(agent: str) -> dict:
+    with _lock:
+        st = _state.get(agent)
+        if st:
+            st["seclusion_since"] = None
+    events.publish("agents", {"agent": agent, "event": "emerged"})
+    return state(agent)
+
+
+def tick_seclusion(agent: str) -> bool:
+    """If a sequestered disciple's seclusion has matured, research a technique and break through."""
+    now = time.time()
+    with _lock:
+        st = _state.get(agent)
+        if not st or not st.get("seclusion_since"):
+            return False
+        if now - st["seclusion_since"] < SECLUSION_SECONDS:
+            return False
+        if st["realm"] + 1 >= len(REALMS):
+            st["seclusion_since"] = None  # nothing left to ascend to
+            return False
+        st["realm"] += 1
+        st["breakthroughs"] += 1
+        st["skills"].append(f"Dao Insight {len(st['skills']) + 1}")  # a technique researched in seclusion
+        st["stones"] = max(st["stones"], REALMS[st["realm"]]["stones"])  # the realm is consolidated
+        st["seclusion_since"] = now  # continue cultivating toward the next breakthrough
+        st["event"], st["event_ts"] = "breakthrough", int(now * 1000)
+        snap = dict(st)
+        snap["skills"] = list(st["skills"])
+    if store.enabled():
+        store.upsert_cultivation(snap)
+    events.publish("agents", {"agent": agent, "event": "breakthrough"})
     return True
 
 
@@ -316,7 +385,7 @@ def load_persisted() -> None:
         with _lock:
             _state[agent] = {"agent": agent, "stones": stones, "realm": realm,
                              "skills": skills, "breakthroughs": breaks, "fail_streak": 0,
-                             "pending_tribulation": None, "last_stipend": 0,
+                             "pending_tribulation": None, "last_stipend": 0, "seclusion_since": None,
                              "event": None, "event_ts": 0, "updated_at": ts}
 
 

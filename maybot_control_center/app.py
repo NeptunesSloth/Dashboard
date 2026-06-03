@@ -19,11 +19,13 @@ from . import usage
 from . import authz
 from . import cultivation
 from . import pills
+from . import treasury
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
 for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted,
-                tooling.load_persisted, usage.load_persisted, cultivation.load_persisted):
+                tooling.load_persisted, usage.load_persisted, cultivation.load_persisted,
+                treasury.load_persisted):
     try:
         _loader()
     except Exception:
@@ -299,6 +301,40 @@ def usage_stats(x_control_token: str = Header(default="")):
 def cultivation_stats(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return cultivation.snapshot()
+
+
+@app.get("/api/treasury")
+def treasury_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return treasury.status()
+
+
+class EndowIn(BaseModel):
+    amount: int
+
+
+@app.post("/api/treasury/endow")
+def treasury_endow(body: EndowIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    amount = int(body.amount or 0)
+    if amount <= 0 or amount > 1_000_000:
+        raise HTTPException(400, "amount must be 1..1000000")
+    treasury.deposit(amount)
+    return treasury.status()
+
+
+class SeclusionIn(BaseModel):
+    enter: bool = True
+
+
+@app.post("/api/agents/{name}/seclusion")
+def agent_seclusion(name: str, body: SeclusionIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    if agents._agent_def(name) is None:
+        raise HTTPException(404, "agent not found")
+    return cultivation.enter_seclusion(name) if body.enter else cultivation.exit_seclusion(name)
 
 
 class PillBuyIn(BaseModel):

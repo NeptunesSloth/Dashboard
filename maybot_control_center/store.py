@@ -28,6 +28,8 @@ _SCHEMA = [
      "tin INTEGER, tout INTEGER, cost REAL, ts INTEGER)"),
     ("CREATE TABLE IF NOT EXISTS cultivation (agent TEXT PRIMARY KEY, stones INTEGER, realm INTEGER, "
      "skills TEXT, breakthroughs INTEGER, updated_at INTEGER)"),
+    ("CREATE TABLE IF NOT EXISTS treasury (id INTEGER PRIMARY KEY CHECK (id = 1), balance INTEGER, "
+     "last_accrual REAL, income INTEGER, spent INTEGER)"),
 ]
 
 
@@ -161,6 +163,17 @@ def upsert_cultivation(s: dict) -> None:
 
 def load_cultivation() -> list[tuple]:
     return _query("SELECT agent, stones, realm, skills, breakthroughs, updated_at FROM cultivation")
+
+
+# ---- sect treasury ----
+def set_treasury(balance: int, last_accrual: float, income: int, spent: int) -> None:
+    _exec("INSERT OR REPLACE INTO treasury (id, balance, last_accrual, income, spent) VALUES (1,?,?,?,?)",
+          (balance, last_accrual, income, spent))
+
+
+def get_treasury() -> tuple | None:
+    rows = _query("SELECT balance, last_accrual, income, spent FROM treasury WHERE id = 1")
+    return rows[0] if rows else None
 
 
 def _reset_for_tests(path: str) -> None:

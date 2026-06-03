@@ -407,6 +407,7 @@ def snapshot() -> list[dict]:
         for a in load_agents():
             name = a.get("name", "agent")
             cultivation.grant_stipend(name)  # daily spirit-stone stipend (no-op unless due)
+            cultivation.tick_seclusion(name)  # mature any closed-door seclusion into a breakthrough
             st = _state.get(name)
             out.append({
                 "name": name,

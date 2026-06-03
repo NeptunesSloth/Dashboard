@@ -235,6 +235,9 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .pill-control { display: flex; gap: 6px; margin: 4px 0 2px; }
 .pill-control .pill-select { flex: 1; min-width: 0; font-size: 12px; }
 .pill-control .pill-buy { font-size: 12px; padding: 6px 10px; }
+.sec-control { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+.culti-seclusion { font-size: 12px; color: var(--tech); text-shadow: 0 0 8px rgba(54, 224, 180, .4); }
+.culti-sec-btn { font-size: 12px; padding: 5px 9px; margin-left: auto; }
 .debate-launch { margin: 4px 0 10px; }
 .debate-launch summary { color: var(--magenta); }
 .debate-launch select { min-width: 90px; }
