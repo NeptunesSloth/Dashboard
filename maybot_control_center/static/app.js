@@ -1158,7 +1158,7 @@ function spriteFor(a, ax) {
 const SKIN_SUFFIX = {
   youth: '', young: '', a: '', elder: '_b', white: '_b', b: '_b',
   empress: '_empress', lotus: '_lotus', azure: '_azure', shadow: '_shadow', vegeta: '_vegeta',
-  goku: '_goku', redhood: '_redhood', brute: '_brute',
+  goku: '_goku', redhood: '_redhood', brute: '_brute', sage: '_sage',
 };
 function skinSuffix(a) {
   const s = a && a.skin;
