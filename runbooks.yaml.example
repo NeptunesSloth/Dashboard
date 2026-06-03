@@ -1,0 +1,31 @@
+# Auto-remediation runbooks.
+#
+# When a project / incident matches a runbook's `match` spec, the runbook
+# REQUESTS the named guarded tool to remediate it. Requests still flow through
+# the dashboard's approval / autonomy guards (see tools.yaml) — a runbook never
+# bypasses them.
+#
+# Copy to `runbooks.yaml` (or point MAYBOT_RUNBOOKS_FILE at this file).
+#
+# match keys (all optional; ALL present keys must match):
+#   type           exact match on project["type"]
+#   health         exact match on project["health"]
+#   name_pattern   fnmatch glob against project["name"]
+#   alert_contains substring present in ANY string of project["alerts"]
+#
+# args string values support {name}, {device}, {type} placeholders.
+
+runbooks:
+  - name: restart-stuck-bot
+    match: {type: trading_bot, health: error, name_pattern: "daybot*", alert_contains: "ERROR"}
+    tool: restart_service
+    args: {service: "{name}"}
+    requester: operator        # who requests the tool (default "operator")
+    auto: true                 # informational flag surfaced in the result
+
+  - name: reboot-offline-device
+    match: {type: device, health: offline}
+    tool: reboot_device
+    args: {device: "{device}"}
+    requester: operator
+    auto: false

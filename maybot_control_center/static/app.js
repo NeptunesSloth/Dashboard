@@ -264,6 +264,7 @@ async function render() {
     renderGovernance();
     renderTrials();
     renderLore();
+    renderSectMap();
     renderHallOfFame();
     renderProphecy();
     bindComms();
@@ -1001,6 +1002,52 @@ function bindLore() {
          ${res.dissent.length ? `<div class='muted'>Dissent: ${res.dissent.map(esc).join(', ')}</div>` : ''}</div>`;
     };
   }
+}
+
+// ---- Sect Map: spatial realm view + cultivation chronicle ----
+
+const MAP_TIERS = [
+  { name: 'Sect Master', min: 8 },
+  { name: 'Elder', min: 6 },
+  { name: 'Core Disciple', min: 4 },
+  { name: 'Inner Disciple', min: 2 },
+  { name: 'Outer Disciple', min: 0 },
+];
+
+async function renderSectMap() {
+  const sec = document.getElementById('map-section');
+  const crew = window.__agents || [];
+  if (!crew.length) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+
+  const tierFor = realm => MAP_TIERS.find(t => realm >= t.min) || MAP_TIERS[MAP_TIERS.length - 1];
+  const peaks = MAP_TIERS.map(t => ({ tier: t, members: [] }));
+  crew.forEach(a => {
+    const realm = (a.cultivation && a.cultivation.realm) || 0;
+    const peak = peaks.find(p => p.tier.name === tierFor(realm).name);
+    peak.members.push(a);
+  });
+
+  document.getElementById('sect-map').innerHTML = peaks.map(p => {
+    const chips = p.members.length
+      ? p.members.sort((x, y) => (y.governance?.standing || 0) - (x.governance?.standing || 0)).map(a => {
+          const g = a.governance || {};
+          const crown = g.is_leader ? '👑 ' : '';
+          const cls = g.is_leader ? 'map-leader' : (g.is_elder ? 'map-elder' : '');
+          const spec = g.specialty ? ` · ${esc(g.specialty)}` : '';
+          return `<span class='map-disciple ${cls}' title='standing ${g.standing ?? '—'}${spec}'>${crown}${esc(a.name)} <span class='muted'>${esc((a.cultivation && a.cultivation.realm_name) || '')}</span></span>`;
+        }).join('')
+      : `<span class='muted'>—</span>`;
+    return `<div class='map-peak'><div class='map-tier'>${esc(p.tier.name)}</div><div class='map-members'>${chips}</div></div>`;
+  }).join('');
+
+  // chronicle feed
+  let ch = { recent: [] };
+  try { ch = await fetch('/api/chronicle?limit=40', { headers: authHeaders() }).then(r => r.json()); } catch (_) {}
+  const feed = document.getElementById('chronicle-feed');
+  feed.innerHTML = (ch.recent || []).length
+    ? (ch.recent || []).map(e => `<div class='chronicle-row'><span class='chronicle-glyph'>${esc(e.glyph)}</span><b>${esc(e.agent)}</b> <span class='muted'>${esc(e.kind)}</span> — ${esc(e.detail)}</div>`).join('')
+    : `<div class='comms-sys muted'>The chronicle is yet unwritten.</div>`;
 }
 
 // ---- Heavenly Omens: prophecy / divination ----

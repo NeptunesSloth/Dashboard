@@ -43,6 +43,12 @@ def bind(a: str, b: str) -> dict:
         _break(b)
         _bonds[a] = b
         _bonds[b] = a
+    try:  # record the bond to each disciple's chronicle (best-effort)
+        from . import chronicle
+        chronicle.record(a, "bond", f"karmic-bonded with {b}")
+        chronicle.record(b, "bond", f"karmic-bonded with {a}")
+    except Exception:
+        pass
     return {"pair": sorted([a, b])}
 
 

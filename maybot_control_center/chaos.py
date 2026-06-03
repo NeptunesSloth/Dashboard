@@ -6,9 +6,11 @@ by recovery time. Surviving a trial swiftly rewards spirit stones; failing one
 calls a misstep down on the disciple's head (a fail-streak that can invite a
 heavenly tribulation in :mod:`cultivation`).
 
-This module manages only the **lifecycle + scoring** of trials. It does NOT kill
-processes, inject latency, or fill disks — you run the real fault yourself and
-then :func:`resolve` the trial with the observed outcome.
+By default this module manages only the **lifecycle + scoring** of trials — you
+run the real fault yourself and then :func:`resolve` with the observed outcome.
+It can *also* actively inject a fault, but only through the guarded-tool system:
+``summon(..., inject=True)`` REQUESTS a deny-by-default, human-approved tool
+(mapped per fault kind), so a real fault never fires without your sanction.
 """
 from __future__ import annotations
 
@@ -22,6 +24,16 @@ TRIALS = {
     "latency_storm": "Flood the realm with latency",
     "disk_drought": "Exhaust spirit-stone storage (disk)",
     "endpoint_seal": "Seal an endpoint (simulate an outage)",
+}
+
+# Guarded tool used to actively inject each fault kind (override via env).
+# These tools must be defined in tools.yaml; they stay approval-gated like any
+# other guarded tool, so injection is never silent.
+FAULT_TOOLS = {
+    "process_kill": os.getenv("MAYBOT_CHAOS_TOOL_PROCESS_KILL", "chaos_process_kill"),
+    "latency_storm": os.getenv("MAYBOT_CHAOS_TOOL_LATENCY_STORM", "chaos_latency_storm"),
+    "disk_drought": os.getenv("MAYBOT_CHAOS_TOOL_DISK_DROUGHT", "chaos_disk_drought"),
+    "endpoint_seal": os.getenv("MAYBOT_CHAOS_TOOL_ENDPOINT_SEAL", "chaos_endpoint_seal"),
 }
 
 # Recovering within this many seconds earns full marks (score 100).
@@ -42,11 +54,14 @@ def catalog() -> dict:
     return TRIALS
 
 
-def summon(target: str, kind: str, disciple: str | None = None) -> dict:
+def summon(target: str, kind: str, disciple: str | None = None,
+           inject: bool = False, args: dict | None = None) -> dict:
     """Summon (start) a tribulation trial against ``target``.
 
     ``kind`` must be a key of :data:`TRIALS` and ``target`` must be non-empty,
-    else :class:`ValueError`. Returns a copy of the created record.
+    else :class:`ValueError`. With ``inject=True`` the mapped guarded fault tool
+    is *requested* (approval-gated) to actually inflict the fault; the request
+    outcome is recorded on the trial under ``injection``. Returns a copy.
     """
     if kind not in TRIALS:
         raise ValueError(f"unknown trial kind: {kind!r}")
@@ -65,10 +80,36 @@ def summon(target: str, kind: str, disciple: str | None = None) -> dict:
             "resolved_at": None,
             "recovery_seconds": None,
             "score": None,
+            "injection": None,
         }
         _next_id += 1
         _trials.append(rec)
-        return dict(rec)
+        rec_id = rec["id"]
+        snap = dict(rec)
+
+    if inject:
+        injection = _inject(kind, target, disciple, args)
+        with _lock:
+            cur = next((t for t in _trials if t["id"] == rec_id), None)
+            if cur is not None:
+                cur["injection"] = injection
+                snap = dict(cur)
+    return snap
+
+
+def _inject(kind: str, target: str, disciple: str | None, args: dict | None) -> dict:
+    """Request the guarded fault tool for ``kind`` (never runs unattended)."""
+    tool = FAULT_TOOLS.get(kind)
+    if not tool:
+        return {"requested": False, "error": "no fault tool mapped for this kind"}
+    try:
+        from . import tools as tooling
+        if not tooling.enabled():
+            return {"requested": False, "error": "guarded tools are disabled"}
+        call = tooling.request_tool(disciple or "operator", tool, {"target": target, **(args or {})})
+        return {"requested": True, "tool": tool, "call": call}
+    except ValueError as exc:  # unknown/invalid tool
+        return {"requested": False, "tool": tool, "error": str(exc)}
 
 
 def _score(recovery_seconds: float | None) -> int:

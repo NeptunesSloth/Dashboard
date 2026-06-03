@@ -124,3 +124,26 @@ def test_clear_empties_state():
     assert chaos.history() == []
     # ids reset after clear
     assert chaos.summon("auth", "process_kill")["id"] == 1
+
+
+def test_summon_inject_requests_guarded_tool(monkeypatch):
+    from maybot_control_center import tools as tooling
+    calls = []
+    monkeypatch.setattr(tooling, "enabled", lambda: True)
+    monkeypatch.setattr(tooling, "request_tool", lambda req, tool, args: (calls.append((req, tool, args)) or {"id": 1, "status": "pending"}))
+    rec = chaos.summon("daybot", "process_kill", disciple="Nova", inject=True)
+    assert rec["injection"]["requested"] is True
+    assert rec["injection"]["tool"] == "chaos_process_kill"
+    assert calls and calls[0][0] == "Nova" and calls[0][2]["target"] == "daybot"
+
+
+def test_summon_inject_noop_when_tools_disabled(monkeypatch):
+    from maybot_control_center import tools as tooling
+    monkeypatch.setattr(tooling, "enabled", lambda: False)
+    rec = chaos.summon("daybot", "endpoint_seal", inject=True)
+    assert rec["injection"]["requested"] is False
+
+
+def test_summon_without_inject_does_not_touch_tools():
+    rec = chaos.summon("daybot", "latency_storm")
+    assert rec["injection"] is None

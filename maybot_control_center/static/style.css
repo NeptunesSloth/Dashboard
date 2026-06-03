@@ -387,3 +387,17 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
   border-radius: 999px; padding: 2px 8px; margin: 2px 4px 0 0; color: #1a1404;
   background: linear-gradient(90deg, var(--gold), #ffe6a3); border: 1px solid var(--gold); }
 #lore-section textarea { font-family: inherit; background: rgba(24,20,42,0.6); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+
+/* ---- Sect Map ---- */
+.sect-map { display: flex; flex-direction: column; gap: 8px; }
+.map-peak { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: linear-gradient(90deg, rgba(232,198,116,0.06), transparent); }
+.map-peak:first-child { background: linear-gradient(90deg, rgba(232,198,116,0.16), transparent); border-color: rgba(232,198,116,0.4); }
+.map-tier { min-width: 130px; font-family: "Cinzel", Georgia, serif; color: var(--gold); font-size: 13px; letter-spacing: .04em; }
+.map-members { display: flex; flex-wrap: wrap; gap: 6px; }
+.map-disciple { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: rgba(24,20,42,0.6); }
+.map-disciple.map-elder { border-color: rgba(154,100,214,0.5); }
+.map-disciple.map-leader { color: #1a1404; background: linear-gradient(90deg, var(--gold), #ffe6a3); border-color: var(--gold); }
+.map-disciple.map-leader .muted { color: #5a4a1a; }
+.chronicle-row { padding: 5px 8px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.chronicle-glyph { display: inline-block; width: 1.4em; text-align: center; }

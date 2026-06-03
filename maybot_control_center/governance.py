@@ -99,6 +99,14 @@ def _all_agents() -> list[str]:
     return [a.get("name") for a in agents.load_agents() if a.get("name")]
 
 
+def _chronicle(agent: str, kind: str, detail: str = "") -> None:
+    try:
+        from . import chronicle
+        chronicle.record(agent, kind, detail)
+    except Exception:
+        pass
+
+
 def elders() -> list[str]:
     """Disciples at Elder rank or above (eligible to challenge / choose a specialty)."""
     return [n for n in _all_agents() if is_elder(n)]
@@ -164,6 +172,8 @@ def set_leader(name: str | None, pinned: bool = True) -> dict:
         entry = {"kind": "appointment", "leader": name, "by": "Ancestor",
                  "pinned": _leader_pinned, "ts": int(time.time() * 1000)}
         _history.append(entry)
+    if name:
+        _chronicle(name, "appointment", "appointed Sect Leader by the Ancestor")
     return {"leader": leader(), "pinned": _leader_pinned}
 
 
@@ -209,6 +219,9 @@ def challenge(challenger: str) -> dict:
         _history.append(entry)
     reason = (f"{challenger} ({cs['score']}) {'unseated' if won else 'fell short against'} "
               f"{cur} ({ls['score']}); margin needed {CHALLENGE_MARGIN}")
+    _chronicle(challenger, "challenge", reason)
+    if won:
+        _chronicle(challenger, "appointment", "became Sect Leader by challenge")
     return {"won": won, "leader": leader(), "challenger": cs, "defender": ls, "reason": reason}
 
 
@@ -223,6 +236,7 @@ def choose_specialty(agent: str, specialty: str) -> dict:
     with _lock:
         _specialty[agent] = specialty
         _mastery.setdefault(agent, 0.0)
+    _chronicle(agent, "specialty", f"took the path of {specialty} ({SPECIALTIES[specialty]['domain']})")
     return {"agent": agent, "specialty": specialty, "domain": SPECIALTIES[specialty]["domain"]}
 
 

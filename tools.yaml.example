@@ -56,3 +56,23 @@ tools:
     args: [repo, number, body]
     timeout_seconds: 30
     # no auto_approve → the Ancestor approves each comment before it posts
+
+  # --- Chaos / Tribulation Trials (active fault injection) ---
+  # Mapped from chaos fault kinds (see chaos.FAULT_TOOLS). DESTRUCTIVE by design,
+  # so NEVER auto_approve — every injection is approved by the Ancestor. Point
+  # these at YOUR fault scripts; {target} is the project/realm the trial names.
+  - name: chaos_process_kill
+    description: "Tribulation: kill the target service process (game-day drill)."
+    argv: ["./scripts/chaos/kill.sh", "{target}"]
+    cwd: /opt/myproject
+    timeout_seconds: 30
+  - name: chaos_latency_storm
+    description: "Tribulation: inject network latency against the target."
+    argv: ["./scripts/chaos/latency.sh", "{target}"]
+    cwd: /opt/myproject
+    timeout_seconds: 30
+  - name: chaos_endpoint_seal
+    description: "Tribulation: block the target endpoint (simulate an outage)."
+    argv: ["./scripts/chaos/seal.sh", "{target}"]
+    cwd: /opt/myproject
+    timeout_seconds: 30

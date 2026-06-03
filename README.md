@@ -462,6 +462,13 @@ A meritocratic hierarchy over the disciples. **You are the Ancestor** — ultima
 - **Artifact vault (`GET /api/artifacts`, `POST /api/artifacts/forge|wield`):** disciples forge reusable, versioned artifacts (prompt templates, tool recipes, formations, notes) with provenance (creator/created_at/version/uses). Real value: an attributed prompt/tool library.
 - **Titles & achievements (`GET /api/titles`):** disciples earn titles (Immortal Ascendant, Sword Saint, Bane of Bugs, …) from cultivation/reputation/governance milestones, shown as badges on their cards. Real value: gamified engagement + an at-a-glance specialization signal.
 
+## Auto-remediation, chronicle, sect map & active chaos
+
+- **Auto-remediation runbooks (`GET /api/runbooks`):** define `runbooks.yaml` (see `runbooks.yaml.example`) mapping a project match (`type`/`health`/`name_pattern`/`alert_contains`) to a guarded tool + args. When a project goes unhealthy, a matching runbook **requests** its remediation tool (debounced per episode, recovers on `ok`) — still subject to the normal approval/autonomy guards, so nothing destructive runs unsanctioned.
+- **Cultivation chronicle (`GET /api/chronicle`, `/api/chronicle/{name}`):** a per-disciple event timeline — breakthroughs, tribulations, leadership challenges/appointments, specialties, and karmic bonds are recorded as a chronological story, shown in the Sect Map's chronicle feed.
+- **Sect Map:** a spatial view of the sect arrayed across the heavens — disciples rise through the peaks by realm, the Sect Leader crowned at the summit.
+- **Active chaos injection:** `POST /api/chaos/summon` with `{"inject": true}` now *actually* inflicts the fault by requesting a mapped guarded tool (`chaos.FAULT_TOOLS`; see the `chaos_*` examples in `tools.yaml.example`) — always approval-gated, never silent. Without `inject` it stays observe-and-score.
+
 ## Agent Crew (LLM persona agents — Phase 1)
 
 The dashboard can run **LLM-backed persona agents** against your local AI hosts. Each agent is defined in `agents.yaml` with a name, role, and persona (system prompt), and points at an Ollama or OpenAI-compatible endpoint. In the **Agent Crew** section you assign a task to an agent and it runs one chat completion in the background, streaming the reply (and a transcript) into its card.

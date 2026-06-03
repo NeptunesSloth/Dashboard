@@ -20,6 +20,7 @@ STATES = {s.strip().lower() for s in os.getenv("MAYBOT_INCIDENT_STATES", "error"
 
 _lock = threading.Lock()
 _active: set[str] = set()
+_remediated: set[str] = set()
 
 
 def enabled() -> bool:
@@ -43,23 +44,46 @@ def _dispatch(p: dict) -> None:
             _active.discard(f"{p.get('device', '?')}:{p.get('name', '?')}")
 
 
-def maybe_dispatch(projects: list[dict]) -> None:
-    if not enabled():
+def _remediate(p: dict, key: str) -> None:
+    """Try an auto-remediation runbook for an unhealthy project (debounced)."""
+    try:
+        from . import runbooks
+        action = runbooks.dispatch(p)
+    except Exception:
+        action = None
+    if not action:
         return
+    with _lock:
+        _remediated.add(key)
+    notifier.notify_event("incident", f"Runbook '{action.get('runbook')}' on {p.get('name')}",
+                          f"auto-remediation requested tool '{action.get('tool', '?')}'")
+
+
+def maybe_dispatch(projects: list[dict]) -> None:
+    incident_on = enabled()
     for p in projects or []:
         key = f"{p.get('device', '?')}:{p.get('name', '?')}"
         health = str(p.get("health", "unknown")).lower()
         if health in STATES:
+            # Auto-remediation runbook (independent of the incident agent).
             with _lock:
-                if key in _active:
-                    continue
-                _active.add(key)
-            _dispatch(p)
+                fresh_remediation = key not in _remediated
+            if fresh_remediation:
+                _remediate(p, key)
+            # Incident-agent diagnostic dispatch.
+            if incident_on:
+                with _lock:
+                    if key in _active:
+                        continue
+                    _active.add(key)
+                _dispatch(p)
         elif health == "ok":
             with _lock:
                 _active.discard(key)
+                _remediated.discard(key)
 
 
 def clear() -> None:
     with _lock:
         _active.clear()
+        _remediated.clear()

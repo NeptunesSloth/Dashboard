@@ -38,6 +38,8 @@ from . import lineage
 from . import council_vote
 from . import artifacts
 from . import titles
+from . import chronicle
+from . import runbooks
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -532,6 +534,7 @@ class SummonIn(BaseModel):
     target: str
     kind: str
     disciple: str | None = None
+    inject: bool = False          # actively inject the fault via a guarded tool
 
 
 @app.post("/api/chaos/summon")
@@ -540,7 +543,7 @@ def chaos_summon(body: SummonIn, x_control_token: str = Header(default="")):
     if body.disciple and not _SAFE_NAME.match(body.disciple):
         raise HTTPException(400, "invalid disciple name")
     try:
-        return chaos.summon(body.target, body.kind, body.disciple)
+        return chaos.summon(body.target, body.kind, body.disciple, inject=body.inject)
     except ValueError as exc:
         raise HTTPException(400, str(exc))
 
@@ -681,6 +684,28 @@ def artifacts_wield(body: WieldIn, x_control_token: str = Header(default="")):
 def titles_catalog(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return {"catalog": titles.catalog()}
+
+
+# ---- Cultivation chronicle (per-disciple timeline) ----
+@app.get("/api/chronicle")
+def chronicle_recent(limit: int = Query(default=50), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"recent": chronicle.recent(max(1, min(limit, 200))), "summary": chronicle.snapshot()}
+
+
+@app.get("/api/chronicle/{name}")
+def chronicle_agent(name: str, limit: int = Query(default=100), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    return {"agent": name, "timeline": chronicle.timeline(name, max(1, min(limit, 200)))}
+
+
+# ---- Auto-remediation runbooks ----
+@app.get("/api/runbooks")
+def runbooks_catalog(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"runbooks": runbooks.catalog()}
 
 
 @app.get("/api/treasury")
