@@ -207,6 +207,18 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .agent-card.agent-working .agent-state .crew-dot, .agent-card.agent-queued .agent-state .crew-dot { animation: livePulse 1.3s ease-in-out infinite; }
 .agent-card.agent-error { border-color: rgba(255, 90, 110, 0.45); }
 
+/* ---- Ship Comms ---- */
+.comms-launch { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.comms-launch #comms-goal { flex: 1 1 320px; min-width: 220px; }
+.comms-participants { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.comms-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+.comms-chip input { accent-color: var(--cyan); }
+.comms-feed { max-height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: rgba(4, 7, 16, 0.6); }
+.comms-sys { align-self: center; font-size: 11px; color: var(--muted); font-style: italic; text-align: center; }
+.comms-msg { max-width: 80%; align-self: flex-start; border: 1px solid hsla(var(--hue), 70%, 60%, 0.45); background: hsla(var(--hue), 70%, 45%, 0.10); border-radius: 12px; padding: 7px 11px; box-shadow: 0 0 12px hsla(var(--hue), 70%, 50%, 0.12); }
+.comms-from { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: hsl(var(--hue), 80%, 72%); margin-bottom: 2px; }
+.comms-body { font-size: 13px; line-height: 1.45; white-space: pre-wrap; }
+
 /* ---- Base view "ship station": crew roster + manage panel ---- */
 .station { display: grid; grid-template-columns: 248px 1fr; gap: 12px; align-items: start; }
 .crew {

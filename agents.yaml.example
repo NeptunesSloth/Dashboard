@@ -11,14 +11,17 @@
 # Copy to agents.yaml and edit:  cp agents.yaml.example agents.yaml
 
 agents:
+  # Nous Hermes (or any local model) served over an OpenAI-compatible endpoint.
+  # Hermes works out of the box — just set provider + base_url + the model name
+  # your host exposes (e.g. "hermes", "nous-hermes2", "TheBloke/...-Hermes-...").
   - name: Nova
     role: Research Analyst
     persona: >
       You are Nova, a meticulous research analyst. You are concise, data-driven,
       and a little witty. You answer as tight bullet points and never pad.
-    provider: openai_compatible        # or: ollama
+    provider: openai_compatible        # or: ollama (use provider: ollama for an Ollama Hermes)
     base_url: http://127.0.0.1:1234    # your local AI host (reachable from the control center)
-    model: hermes
+    model: hermes                      # the model id your endpoint serves
     temperature: 0.6
     max_tokens: 512
 

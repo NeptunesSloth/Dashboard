@@ -53,6 +53,24 @@
       <p class="muted">LLM-backed persona agents on your local AI hosts — assign a task and watch them work. (Phase 1: they think &amp; talk; no command execution.)</p>
       <div id="agent-crew" class="grid"></div>
     </section>
+    <section id="comms-section" class="hidden">
+      <div class="section-head">
+        <h2>Ship Comms</h2>
+        <span id="comms-status" class="pill">idle</span>
+      </div>
+      <p class="muted">Give the crew a shared goal and they collaborate in a bounded round-robin (Phase 2: inter-agent comms).</p>
+      <div class="comms-launch">
+        <input id="comms-goal" placeholder="Mission goal (e.g. plan the next release)…">
+        <select id="comms-rounds">
+          <option value="1">1 round</option>
+          <option value="2" selected>2 rounds</option>
+          <option value="3">3 rounds</option>
+        </select>
+        <button id="comms-launch" class="btn btn-primary">Launch Mission</button>
+      </div>
+      <div id="comms-participants" class="comms-participants"></div>
+      <div id="comms-feed" class="comms-feed"></div>
+    </section>
     <section>
       <div class="section-head">
         <h2>Projects</h2>

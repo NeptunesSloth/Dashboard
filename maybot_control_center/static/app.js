@@ -257,7 +257,9 @@ async function render() {
 
     renderAiAgents(window.__lastProjects);
     renderProjects(window.__lastProjects);
-    renderAgentCrew();
+    await renderAgentCrew();
+    bindComms();
+    renderComms();
   } catch (e) {
     err.classList.remove('hidden');
     summaryEl.classList.remove('loading');
@@ -447,6 +449,7 @@ async function renderAgentCrew() {
   try { data = await fetch('/api/agents', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { section.classList.add('hidden'); return; }
   const crew = (data && data.agents) || [];
+  window.__agents = crew;
   if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
   section.classList.remove('hidden');
   document.getElementById('agent-crew-pill').textContent = `${crew.length} agents`;
@@ -460,6 +463,81 @@ async function renderAgentCrew() {
     const inp = el.querySelector(`.agent-input[data-agent="${CSS.escape(focusName)}"]`);
     if (inp) { inp.value = focusVal; inp.focus(); }
   }
+}
+
+// ---- Ship Comms: inter-agent missions ----
+
+function agentHue(name) {
+  let h = 0;
+  for (let i = 0; i < String(name).length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
+  return h;
+}
+
+function commsBubble(m) {
+  if (m.kind === 'system') {
+    return `<div class='comms-sys'>${esc(m.content)}</div>`;
+  }
+  const hue = agentHue(m.from);
+  return `<div class='comms-msg' style='--hue:${hue}'>
+    <div class='comms-from'>${esc(m.from)}</div>
+    <div class='comms-body'>${esc(m.content)}</div>
+  </div>`;
+}
+
+async function renderComms() {
+  const section = document.getElementById('comms-section');
+  const crew = window.__agents || [];
+  if (crew.length < 2) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+
+  // participant checkboxes (preserve current selections across refresh)
+  const partsEl = document.getElementById('comms-participants');
+  const checked = new Set(Array.from(partsEl.querySelectorAll('input:checked')).map(i => i.value));
+  const firstRender = !partsEl.dataset.ready;
+  partsEl.dataset.ready = '1';
+  partsEl.innerHTML = crew.map(a => {
+    const on = firstRender || checked.has(a.name) ? 'checked' : '';
+    return `<label class='comms-chip'><input type='checkbox' value='${esc(a.name)}' ${on}> ${esc(a.name)}</label>`;
+  }).join('');
+
+  let data;
+  try { data = await fetch('/api/comms', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { return; }
+  const st = (data && data.status) || {};
+  const active = st.active;
+  const m = st.mission;
+  document.getElementById('comms-status').textContent =
+    active && m ? `running · round ${m.round}/${m.rounds} · ${m.current || '…'}` : 'idle';
+  const launchBtn = document.getElementById('comms-launch');
+  launchBtn.disabled = !!active;
+  launchBtn.textContent = active ? 'Mission running…' : 'Launch Mission';
+
+  const feedEl = document.getElementById('comms-feed');
+  const atBottom = feedEl.scrollHeight - feedEl.scrollTop - feedEl.clientHeight < 60;
+  feedEl.innerHTML = (data.feed || []).map(commsBubble).join('') || `<div class='comms-sys muted'>No missions yet.</div>`;
+  if (atBottom) feedEl.scrollTop = feedEl.scrollHeight;
+}
+
+function bindComms() {
+  const btn = document.getElementById('comms-launch');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  btn.onclick = async () => {
+    const goal = (document.getElementById('comms-goal').value || '').trim();
+    if (!goal) return;
+    const participants = Array.from(document.querySelectorAll('#comms-participants input:checked')).map(i => i.value);
+    if (participants.length < 2) { alert('Select at least 2 agents.'); return; }
+    const rounds = Number(document.getElementById('comms-rounds').value || 2);
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/comms/mission', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ goal, participants, rounds }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); alert('Mission failed: ' + (b.detail || res.status)); }
+    } catch (e) { alert('Mission failed: ' + e); }
+    renderComms();
+  };
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

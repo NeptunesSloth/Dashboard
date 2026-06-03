@@ -8,6 +8,7 @@ from .aggregator import aggregate
 from .agent_client import call_agent, post_agent
 from . import history
 from . import agents
+from . import comms
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
@@ -106,6 +107,33 @@ def assign_agent_task(name: str, body: TaskIn, x_control_token: str = Header(def
         return agents.assign_task(name, task)
     except KeyError:
         raise HTTPException(404, "agent not found")
+
+
+class MissionIn(BaseModel):
+    goal: str
+    participants: list[str] = []
+    rounds: int = 2
+
+
+@app.get("/api/comms")
+def comms_feed(limit: int = Query(default=100), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"feed": comms.get_feed(max(1, min(limit, 200))), "status": comms.status()}
+
+
+@app.post("/api/comms/mission")
+def comms_mission(body: MissionIn, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    goal = (body.goal or "").strip()
+    if not goal:
+        raise HTTPException(400, "goal required")
+    if len(goal) > 2000:
+        raise HTTPException(400, "goal too long (max 2000 chars)")
+    parts = [p for p in body.participants if _SAFE_NAME.match(p or "")]
+    try:
+        return comms.start_mission(goal, parts, body.rounds)
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(400, str(exc))
 
 
 @app.get("/")

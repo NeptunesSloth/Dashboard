@@ -428,8 +428,10 @@ nano agents.yaml   # set name/role/persona/provider/base_url/model per agent
 ```
 
 **Backends:** each agent's `provider` selects where it runs:
-- `ollama` / `openai_compatible` / `lmstudio` / `llama_cpp` — a local AI host you point at with `base_url` (reachable from the control center).
+- `ollama` / `openai_compatible` / `lmstudio` / `llama_cpp` — a local AI host you point at with `base_url` (reachable from the control center). **Nous Hermes works here** — set `provider: openai_compatible` (or `ollama`) and `model:` to whatever id your host serves (e.g. `hermes`, `nous-hermes2`).
 - `claude` (or `anthropic`) — the Claude API via the official SDK. Set `ANTHROPIC_API_KEY` in the control center's environment; no `base_url` needed. Defaults to `claude-opus-4-8`; the stable persona is sent with prompt caching.
+
+**Inter-agent comms (Phase 2):** the **Ship Comms** section lets you give the crew a shared goal and run a bounded round-robin "mission" — each agent contributes per round, building on the channel. Guardrails cap rounds (`MAYBOT_COMMS_MAX_ROUNDS`, default 3), participants (`MAYBOT_COMMS_MAX_PARTICIPANTS`, default 6), and allow only one mission at a time, so total LLM calls per mission (rounds × participants) are bounded. API: `GET /api/comms`, `POST /api/comms/mission`.
 
 **Phase 1 scope & safety:**
 - Agents *think and talk only* — they do **not** execute commands or tools, and do not message each other yet.
