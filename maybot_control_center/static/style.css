@@ -778,20 +778,37 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .oath-chip { background: rgba(88,166,255,.08); border-color: rgba(88,166,255,.35); }
 .oath-claim { margin-top: 6px; font-size: 12px; }
 
-/* ---- Disciples: compact expandable cards + assignment + task board ---- */
-details.agent-card { padding: 0; overflow: hidden; }
-.agent-summary { display: grid; grid-template-columns: 1.4fr 1fr 1.6fr 1fr; gap: 10px; align-items: center;
-  padding: 11px 13px; cursor: pointer; list-style: none; }
+/* ---- Disciples: hierarchy pyramid of compact expandable node-cards ---- */
+.pyramid { display: flex; flex-direction: column; gap: 16px; }
+.pyr-tier { width: 100%; }
+.pyr-label { text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 7px; }
+.pyr-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: flex-start; }
+.pyr-ancestor { border: 1px solid var(--gold); color: var(--gold); border-radius: 10px; padding: 8px 22px;
+  font-family: "Cinzel", Georgia, serif; background: rgba(215,178,92,.08); }
+
+details.agent-card { padding: 0; overflow: hidden; width: 232px; align-self: flex-start; }
+details.agent-card[open] { width: 372px; }
+.agent-summary { display: block; padding: 9px 12px; cursor: pointer; list-style: none; }
 .agent-summary::-webkit-details-marker { display: none; }
-.agent-summary::before { content: '▸'; color: var(--muted); margin-right: 6px; font-size: 11px; }
-details[open] > .agent-summary::before { content: '▾'; }
-.agent-summary .as-id { display: inline-flex; align-items: center; gap: 7px; }
-.as-pos { font-size: 12px; color: var(--gold); }
-.as-act { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.agent-summary .as-id { display: flex; align-items: center; gap: 7px; }
+.as-pos { display: block; font-size: 11px; color: var(--gold); margin-top: 3px; }
+.as-act { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .as-act.working { color: var(--tech); } .as-act.error { color: #f85149; }
-.as-spec { font-size: 12px; color: var(--muted); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.agent-body { padding: 0 13px 13px; border-top: 1px solid var(--border); }
-@media (max-width: 720px) { .agent-summary { grid-template-columns: 1fr 1fr; } .as-spec { text-align: left; } }
+.as-spec { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.agent-body { padding: 0 12px 12px; border-top: 1px solid var(--border); }
+@media (max-width: 520px) { details.agent-card, details.agent-card[open] { width: 100%; } }
+
+/* ---- compact expandable project cards (Overview) ---- */
+details.project-card { padding: 0; overflow: hidden; }
+.proj-summary { display: grid; grid-template-columns: 1.6fr 1.2fr auto; gap: 10px; align-items: center;
+  padding: 10px 13px; cursor: pointer; list-style: none; }
+.proj-summary::-webkit-details-marker { display: none; }
+.ps-id { display: inline-flex; align-items: center; gap: 7px; }
+.ps-type { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ps-stat { font-size: 13px; text-align: right; white-space: nowrap; }
+.proj-summary .rel-badge { font-size: 10px; }
+.project-body { padding: 4px 13px 12px; border-top: 1px solid var(--border); }
+@media (max-width: 520px) { .proj-summary { grid-template-columns: 1fr auto; } .ps-type { display: none; } }
 
 #assign-preview { margin: 8px 0 4px; font-size: 13px; }
 .task-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
