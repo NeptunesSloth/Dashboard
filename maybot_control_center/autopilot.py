@@ -109,6 +109,11 @@ def _postmortem(name: str, device: str, inc: dict) -> None:
                         content, description=f"Autopilot post-incident summary for {name}.")
     except Exception:
         pass
+    try:
+        from . import sectmemory
+        sectmemory.add(content, source="autopilot", agent=name, kind="postmortem")
+    except Exception:
+        pass
 
 _lock = threading.Lock()
 _paused = False

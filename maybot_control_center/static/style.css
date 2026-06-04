@@ -974,3 +974,8 @@ details.project-card { padding: 0; overflow: hidden; }
 .sc-mini .sc-track > span { background: var(--tech); }
 
 .ascend { color: var(--gold); font-size: 12px; }
+
+/* ---- sect knowledge (compounding memory) ---- */
+.mem-card { display: flex; flex-direction: column; gap: 4px; }
+.mem-meta { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.mem-text { font-size: 12px; white-space: pre-wrap; max-height: 120px; overflow: auto; }

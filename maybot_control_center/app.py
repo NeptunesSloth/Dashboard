@@ -56,13 +56,14 @@ from . import taskqueue
 from . import routing
 from . import orchestrator
 from . import autopilot
+from . import sectmemory
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
 for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted,
                 tooling.load_persisted, usage.load_persisted, cultivation.load_persisted,
                 treasury.load_persisted, taskqueue.load_persisted, oaths.load_persisted,
-                maintenance.load_persisted, autopilot.load_persisted):
+                maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted):
     try:
         _loader()
     except Exception:
@@ -1072,6 +1073,15 @@ def oaths_release(body: UnsilenceIn, x_control_token: str = Header(default="")):
 def escalation_status(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return escalation.snapshot()
+
+
+# ---- Compounding sect memory (shared knowledge) ----
+@app.get("/api/sectmemory")
+def sectmemory_status(q: str = Query(default=""), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if q.strip():
+        return {"query": q, "results": sectmemory.search(q, 8)}
+    return sectmemory.snapshot()
 
 
 # ---- Autopilot (the Sect Leader's second brain) ----

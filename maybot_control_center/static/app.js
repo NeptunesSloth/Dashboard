@@ -2620,6 +2620,24 @@ async function renderSkills() {
   }).join('') || `<div class='card muted'>No skills learned yet — send a disciple roaming to bring one back.</div>`;
   const search = document.getElementById('skill-search');
   if (search && !search.dataset.bound) { search.dataset.bound = '1'; search.oninput = renderSkills; }
+  renderSectMemory();
+}
+
+async function renderSectMemory() {
+  const el = document.getElementById('mem-list');
+  if (!el) return;
+  const q = (document.getElementById('mem-search').value || '').trim();
+  const d = await apiJSON('/api/sectmemory' + (q ? `?q=${encodeURIComponent(q)}` : ''));
+  const items = (d && (d.results || d.recent)) || [];
+  const pill = document.getElementById('mem-pill');
+  if (pill && d && d.count != null) pill.textContent = `${d.count} entries`;
+  const KIND = { task: '📨', postmortem: '🛠', manual: '📖', skill: '🧭', note: '•' };
+  el.innerHTML = items.map(e => `<div class='card mem-card'>
+      <div class='mem-meta muted'>${KIND[e.kind] || '•'} ${esc(e.kind)}${e.agent ? ' · ' + esc(e.agent) : ''}</div>
+      <div class='mem-text'>${esc(e.text)}</div></div>`).join('')
+    || `<div class='card muted'>${q ? 'No matching knowledge.' : 'No knowledge yet — it accrues as disciples work.'}</div>`;
+  const ms = document.getElementById('mem-search');
+  if (ms && !ms.dataset.bound) { ms.dataset.bound = '1'; ms.oninput = renderSectMemory; }
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

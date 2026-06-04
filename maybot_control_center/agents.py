@@ -283,6 +283,13 @@ def run_task(name: str, task: str) -> dict:
         ctx = memory.context_for(task)
         if ctx:
             system = f"{system}\n\n{ctx}"
+    try:  # compounding sect memory: relevant knowledge the sect has accumulated
+        from . import sectmemory
+        sctx = sectmemory.context_for(task)
+        if sctx:
+            system = f"{system}\n\n{sctx}"
+    except Exception:
+        pass
     tools_on = tooling.enabled() and agent.get("tools", True)
     if tools_on:
         system = f"{system}\n\n{tooling.prompt_hint()}"
@@ -371,6 +378,12 @@ def run_task(name: str, task: str) -> dict:
         taskqueue.on_agent_finished(name, ok, text if ok else (err or ""))
     except Exception:
         pass
+    if ok and text:  # contribute the result to the sect's compounding memory
+        try:
+            from . import sectmemory
+            sectmemory.add(f"Task: {task}\nResult: {text[:600]}", source=name, agent=name, kind="task")
+        except Exception:
+            pass
     events.publish("agents", {"agent": name})
 
     # If the agent requested a tool, queue it for approval (never auto-run here).
