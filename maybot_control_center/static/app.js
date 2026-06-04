@@ -456,12 +456,15 @@ function cultivationBlock(c) {
 
 function retreatControl(a, c) {
   if (!c || !c.realm_name) return '';
-  let status = '';
-  if (c.in_seclusion) status = `<span class='culti-seclusion'>🧘 breakthrough in ${fmtDur(c.seclusion_remaining)}</span>`;
-  else if (c.in_roaming) status = `<span class='culti-seclusion'>🌄 returns in ${fmtDur(c.roaming_remaining)}</span>`;
-  const sec = `<button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter='${c.in_seclusion ? '' : '1'}'>${c.in_seclusion ? 'Leave seclusion' : 'Seclude'}</button>`;
-  const roam = `<button class='btn culti-roam-btn' data-agent='${esc(a.name)}' data-enter='${c.in_roaming ? '' : '1'}'>${c.in_roaming ? 'Return' : 'Roam'}</button>`;
-  return `<div class='sec-control'>${status}${sec}${roam}</div>`;
+  if (c.in_seclusion)
+    return `<div class='retreat-row active'><span class='retreat-state'>🧘 Secluded · breakthrough in ${fmtDur(c.seclusion_remaining)}</span>
+      <button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter=''>Leave</button></div>`;
+  if (c.in_roaming)
+    return `<div class='retreat-row active'><span class='retreat-state'>🌄 Roaming · returns in ${fmtDur(c.roaming_remaining)}</span>
+      <button class='btn culti-roam-btn' data-agent='${esc(a.name)}' data-enter=''>Return</button></div>`;
+  return `<div class='retreat-row'><span class='retreat-label'>Retreat</span>
+    <button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter='1'>Seclude</button>
+    <button class='btn culti-roam-btn' data-agent='${esc(a.name)}' data-enter='1'>Roam</button></div>`;
 }
 
 function questControl(a) {
@@ -539,9 +542,8 @@ function agentCard(a) {
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
     <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>
     <div class='agent-assign'>
-      <input class='agent-input' placeholder='Assign a task…' data-agent='${esc(a.name)}'>
-      ${delegateSelect(a, c)}
-      <button class='btn agent-send' data-agent='${esc(a.name)}'>Assign</button>
+      <input class='agent-input' placeholder='Assign a task to ${esc(a.name)}…' data-agent='${esc(a.name)}'>
+      <div class='agent-assign-go'>${delegateSelect(a, c)}<button class='btn btn-primary agent-send' data-agent='${esc(a.name)}'>Assign</button></div>
     </div>
     <details class='details agent-transcript' data-agent='${esc(a.name)}'><summary>Transcript (${esc(a.transcript_len ?? 0)})</summary><pre class='agent-tx-body'>Open to load…</pre></details>
   </div>`;

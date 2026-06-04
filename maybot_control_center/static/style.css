@@ -195,8 +195,11 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .agent-state { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
 .agent-task-cur { font-size: 12px; margin: 6px 0 4px; color: var(--cyan); }
 .agent-reply { margin: 8px 0; padding: 8px 10px; border-radius: 8px; background: rgba(4, 7, 16, 0.6); border: 1px solid var(--border); font-size: 12px; line-height: 1.45; white-space: pre-wrap; max-height: 170px; overflow: auto; }
-.agent-assign { display: flex; gap: 6px; margin-top: 6px; }
-.agent-assign .agent-input { flex: 1; min-width: 0; }
+.agent-assign { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.agent-assign .agent-input { width: 100%; }
+.agent-assign-go { display: flex; gap: 6px; }
+.agent-assign-go .delegate-target { flex: 0 0 38%; min-width: 0; font-size: 12px; }
+.agent-assign-go .agent-send { flex: 1; }
 .agent-tx-body { max-height: 220px; overflow: auto; }
 .agent-card.agent-working, .agent-card.agent-queued { border-color: rgba(255, 210, 63, 0.4); }
 .agent-card.agent-working .agent-state .crew-dot, .agent-card.agent-queued .agent-state .crew-dot { animation: livePulse 1.3s ease-in-out infinite; }
@@ -206,10 +209,14 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .pill-control { display: flex; gap: 6px; margin: 4px 0 2px; }
 .pill-control .pill-select { flex: 1; min-width: 0; font-size: 12px; }
 .pill-control .pill-buy { font-size: 12px; padding: 6px 10px; }
-.sec-control { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-.culti-seclusion { font-size: 12px; color: var(--tech); text-shadow: 0 0 8px rgba(54, 224, 180, .4); }
-.culti-sec-btn, .culti-roam-btn { font-size: 12px; padding: 5px 9px; }
-.sec-control .culti-sec-btn { margin-left: auto; }
+/* retreat (seclude / roam) — clean two-action row, or a status + single action */
+.retreat-row { display: flex; align-items: center; gap: 6px; margin: 8px 0; }
+.retreat-label { flex: 0 0 auto; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.retreat-row .btn { font-size: 12px; padding: 5px 0; }
+.retreat-row:not(.active) .btn { flex: 1; text-align: center; }
+.retreat-row.active .btn { flex: 0 0 auto; padding: 5px 12px; }
+.retreat-state { flex: 1; font-size: 12px; color: var(--tech); }
+.culti-seclusion { font-size: 12px; color: var(--tech); }
 .quest-control, .transmit-control { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
 .quest-control select, .transmit-control select { flex: 1; min-width: 0; font-size: 12px; }
 .quest-control .quest-go, .transmit-control .transmit-go { font-size: 12px; padding: 5px 9px; }
