@@ -208,3 +208,51 @@ def test_throne_cultivation_noop_without_leader(tmp_path, monkeypatch):
     # everyone realm 0; a leader auto-seeds, so force none by emptying the roster filter
     monkeypatch.setattr(governance, "_all_agents", lambda: [])
     assert governance.throne_cultivation() is None
+
+
+# ---- leader guidance walks ----
+def _arm_guidance(monkeypatch, reward=3, teach=0.0):
+    monkeypatch.setattr(governance, "GUIDANCE_IDLE", 0)
+    monkeypatch.setattr(governance, "GUIDANCE_INTERVAL", 100)
+    monkeypatch.setattr(governance, "GUIDANCE_REWARD", reward)
+    monkeypatch.setattr(governance, "GUIDANCE_TEACH_PCT", teach)
+    governance._last_guidance = 0.0
+    governance._leader_idle_since = 0.0
+    governance._guidance_leader = None
+
+
+def test_idle_leader_mentors_a_junior(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 8)   # Sect Master / Leader
+    _set_realm("Forge", 2)  # junior
+    _set_realm("Sage", 1)   # junior
+    governance.set_leader("Nova", pinned=False)
+    _arm_guidance(monkeypatch)
+    before = cultivation.state("Forge")["stones"] + cultivation.state("Sage")["stones"]
+    rec = governance.leader_guidance("idle")
+    assert rec and rec["leader"] == "Nova" and rec["junior"] in ("Forge", "Sage")
+    after = cultivation.state("Forge")["stones"] + cultivation.state("Sage")["stones"]
+    assert after == before + 3                       # exactly one junior gifted
+    assert governance.leader_guidance("idle") is None  # within interval → no second walk
+
+
+def test_busy_or_retreating_leader_does_not_wander(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 8)
+    _set_realm("Forge", 2)
+    governance.set_leader("Nova", pinned=False)
+    _arm_guidance(monkeypatch)
+    assert governance.leader_guidance("working") is None          # busy with real work
+    assert governance.leader_guidance("idle", in_retreat=True) is None  # away in seclusion/roaming
+
+
+def test_guidance_can_share_a_technique(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 8)
+    _set_realm("Forge", 2)
+    cultivation._state["Nova"]["skills"] = ["Cloud-Stride Step"]
+    governance.set_leader("Nova", pinned=False)
+    _arm_guidance(monkeypatch, teach=1.0)             # always teach
+    rec = governance.leader_guidance("idle")
+    assert rec["junior"] == "Forge" and rec["skill"] == "Cloud-Stride Step"
+    assert "Cloud-Stride Step" in cultivation.state("Forge")["skills"]

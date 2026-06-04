@@ -484,6 +484,13 @@ def snapshot() -> list[dict]:
     from . import reputation, governance, titles, bonds
     governance.throne_cultivation()  # the Sect Leader passively gains qi while presiding
     leader = governance.leader()
+    if leader:  # an idle Leader walks the sect, mentoring a junior disciple
+        ld_row = next((r for r in out if r["name"] == leader), None)
+        ld_cult = ld_row.get("cultivation", {}) if ld_row else {}
+        governance.leader_guidance(
+            ld_row["status"] if ld_row else "idle",
+            in_retreat=bool(ld_cult.get("in_seclusion") or ld_cult.get("in_roaming")),
+        )
     for row in out:
         name = row["name"]
         row["reputation"] = reputation.score(name)

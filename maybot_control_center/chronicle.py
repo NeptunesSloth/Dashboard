@@ -34,6 +34,11 @@ GLYPHS = {
     "appointment": "👑",
     "specialty": "🜍",
     "bond": "🤝",
+    "throne": "🪑",
+    "guidance": "🧭",
+    "mentored": "🌱",
+    "culled": "💀",
+    "arrival": "✨",
     "note": "•",
 }
 
