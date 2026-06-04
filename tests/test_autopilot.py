@@ -14,7 +14,7 @@ def _reset(monkeypatch):
     monkeypatch.setattr(governance, "leader", lambda: "Nova")
     # deterministic diagnosis + action (no LLM / network)
     monkeypatch.setattr(autopilot, "_diagnose", lambda leader, p: {"cause": "boom", "action": "restart", "summary": "s", "by": leader})
-    monkeypatch.setattr(autopilot, "_perform_action", lambda p, plan: "restarted the bot")
+    monkeypatch.setattr(autopilot, "_perform_action", lambda p, plan, coder=None: "restarted the bot")
     reports = []
     monkeypatch.setattr(autopilot, "_report", lambda kind, t, m, by: reports.append((kind, t)))
     return reports
@@ -100,8 +100,47 @@ def test_postmortem_written_on_recovery(monkeypatch, _reset):
     assert notes and "Post-incident" in notes[0]["name"]
 
 
+def test_propose_mode_recommends_without_acting(monkeypatch, _reset):
+    monkeypatch.setattr(autopilot, "_project_cfg", lambda d, n: {"mode": "propose"})
+    acted = []
+    monkeypatch.setattr(autopilot, "_perform_action", lambda p, plan, coder=None: acted.append(plan) or "x")
+    out = autopilot.handle([_err()])
+    assert out == [("prod-1:bot", "proposed")]
+    assert acted == []                                  # nothing executed
+    assert autopilot.status()["counters"]["proposals"] == 1
+
+
+def test_off_mode_skips(monkeypatch, _reset):
+    monkeypatch.setattr(autopilot, "_project_cfg", lambda d, n: {"mode": "off"})
+    assert autopilot.handle([_err()]) == []
+
+
+def test_remediation_override(monkeypatch, _reset):
+    monkeypatch.setattr(autopilot, "_project_cfg", lambda d, n: {"remediation": "code"})
+    seen = {}
+    monkeypatch.setattr(autopilot, "_perform_action", lambda p, plan, coder=None: seen.update(plan) or "done")
+    autopilot.handle([_err()])
+    assert seen["action"] == "code"                     # forced by config, not the diagnosed restart
+
+
+def test_counters_increment(_reset):
+    autopilot.handle([_err()])                          # a fix (restart)
+    autopilot.handle([_err(health="ok", status="running")])  # a recovery
+    c = autopilot.status()["counters"]
+    assert c["fixes"] == 1 and c["restarts"] == 1 and c["recoveries"] == 1
+
+
+def test_digest(monkeypatch, _reset):
+    monkeypatch.setattr(autopilot, "DIGEST_HOURS", 24)
+    autopilot.handle([_err()])                          # generate some activity
+    msg = autopilot.digest()
+    assert msg and "fixes" in msg
+    assert "digest" in [k for k, _ in _reset]
+
+
 def test_status_shape(_reset):
     autopilot.handle([_err()])
     s = autopilot.status()
     assert s["enabled"] is True and s["leader"] == "Nova"
     assert s["incidents"] and s["incidents"][0]["key"] == "prod-1:bot"
+    assert "counters" in s

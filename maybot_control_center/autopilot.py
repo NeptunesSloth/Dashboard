@@ -26,6 +26,9 @@ import os
 import re
 import threading
 import time
+from pathlib import Path
+
+import yaml
 
 ENABLED = os.getenv("MAYBOT_AUTOPILOT", "0").strip().lower() in {"1", "true", "yes", "on"}
 INTERVAL = max(15, int(os.getenv("MAYBOT_AUTOPILOT_INTERVAL", "60")))
@@ -37,7 +40,34 @@ ALLOW = {s.strip() for s in os.getenv("MAYBOT_AUTOPILOT_PROJECTS", "").split(","
 # Restart-loop circuit breaker: more than RESTART_LIMIT restarts within RESTART_WINDOW → stop & escalate.
 RESTART_LIMIT = max(1, int(os.getenv("MAYBOT_AUTOPILOT_RESTART_LIMIT", "3")))
 RESTART_WINDOW = max(60, int(os.getenv("MAYBOT_AUTOPILOT_RESTART_WINDOW", "1800")))
+# Per-project overrides (mode: auto|propose|off, remediation, coder). See autopilot.yaml.example.
+AUTOPILOT_FILE = Path(os.getenv("MAYBOT_AUTOPILOT_FILE", "autopilot.yaml"))
+# Daily digest of what the second brain did (0 = off).
+DIGEST_HOURS = float(os.getenv("MAYBOT_AUTOPILOT_DIGEST_HOURS", "24"))
 LOG_CAP = 200
+
+_counters = {"fixes": 0, "restarts": 0, "escalations": 0, "recoveries": 0, "proposals": 0}
+_last_digest = 0.0
+
+
+def load_config() -> dict:
+    """Per-project autopilot overrides keyed by 'device:project' (or bare 'project')."""
+    if not AUTOPILOT_FILE.exists():
+        return {}
+    try:
+        data = yaml.safe_load(AUTOPILOT_FILE.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+    out = {}
+    for entry in data.get("projects", []) or []:
+        if isinstance(entry, dict) and entry.get("project"):
+            out[entry["project"]] = entry
+    return out
+
+
+def _project_cfg(device: str, name: str) -> dict:
+    cfg = load_config()
+    return cfg.get(f"{device}:{name}") or cfg.get(name) or {}
 
 
 def _allowed(device: str, name: str) -> bool:
@@ -103,9 +133,39 @@ def set_paused(value: bool) -> dict:
 def status() -> dict:
     with _lock:
         return {"enabled": ENABLED, "paused": _paused, "leader": _leader(),
-                "interval": INTERVAL, "max_attempts": MAXATTEMPTS,
+                "interval": INTERVAL, "max_attempts": MAXATTEMPTS, "counters": dict(_counters),
                 "incidents": [{"key": k, **v} for k, v in _incidents.items()],
                 "log": [dict(r) for r in _log[-50:][::-1]]}
+
+
+def digest(now: float | None = None) -> str | None:
+    """Post a rollup of recent autopilot activity (counters + recent events). Returns
+    the digest text, or None if there was nothing to report."""
+    now = now if now is not None else time.time()
+    with _lock:
+        c = dict(_counters)
+        recent = [r for r in _log if now - r["ts"] / 1000.0 <= DIGEST_HOURS * 3600 and r["kind"] in ("recovered", "escalated")]
+    if not any(c.values()):
+        return None
+    lines = "; ".join(f"{k}: {v}" for k, v in c.items() if v)
+    notable = " | ".join(f"{r['title']}" for r in recent[-6:]) or "no recoveries/escalations"
+    msg = f"Last {int(DIGEST_HOURS)}h — {lines}. Recent: {notable}."
+    _report("digest", "Autopilot daily digest", msg, _leader())
+    return msg
+
+
+def maybe_digest(now: float | None = None) -> bool:
+    global _last_digest
+    if DIGEST_HOURS <= 0:
+        return False
+    now = now if now is not None else time.time()
+    with _lock:
+        due = (now - _last_digest) >= DIGEST_HOURS * 3600
+        if due:
+            _last_digest = now
+    if due:
+        digest(now)
+    return due
 
 
 def _report(kind: str, title: str, message: str, sender: str | None) -> None:
@@ -179,25 +239,47 @@ def _restart(device: str, name: str) -> str:
     return "restarted the bot" if res.get("online") else f"restart failed ({res.get('error')})"
 
 
-def _dispatch_coder(p: dict, plan: dict) -> str:
+def _recent_logs(device: str, name: str) -> str:
+    """Pull the failing project's recent error logs to ground the coder's diagnosis."""
+    try:
+        from .config import load_devices
+        from . import agent_client
+        dev = next((d for d in load_devices() if d.get("name") == device), None)
+        if not dev:
+            return ""
+        res = agent_client.call_agent(dev, f"/api/projects/{name}/logs?level=ERROR")
+        if not res.get("online"):
+            return ""
+        data = res.get("data") or {}
+        lines = data.get("lines") or data.get("logs") or []
+        text = "\n".join(lines) if isinstance(lines, list) else str(lines)
+        return text[-2000:]
+    except Exception:
+        return ""
+
+
+def _dispatch_coder(p: dict, plan: dict, coder: str | None = None) -> str:
     from . import agents, routing, taskqueue, governance
-    goal = (f"Project '{p.get('name')}' on '{p.get('device')}' is failing: {plan.get('cause', 'unknown')}. "
-            f"Investigate the code, apply a fix, and run the tests to confirm it recovers.")
-    coder = CODER or (routing.best_fit(goal + " code backend fix") or {}).get("agent") or governance.leader()
+    name, device = p.get("name", "?"), p.get("device", "?")
+    logs = _recent_logs(device, name)
+    goal = (f"Project '{name}' on '{device}' is failing: {plan.get('cause', 'unknown')}.\n"
+            f"Investigate the code, apply a fix, and run the tests to confirm it recovers."
+            + (f"\n\nRecent ERROR logs:\n{logs}" if logs else ""))
+    coder = coder or CODER or (routing.best_fit(f"{name} code backend fix") or {}).get("agent") or governance.leader()
     if not coder:
         return "no disciple available to patch"
-    task = taskqueue.create(f"Fix {p.get('name')}", description=goal, source="autopilot",
-                            assignee=coder, priority="high")
+    task = taskqueue.create(f"Fix {name}", description=goal, source="autopilot",
+                            assignee=coder, priority="high", project=name, device=device)
     executor, _ = governance.route_task(coder, critical=True)
     try:
         agents.assign_task(executor, goal)
         taskqueue.link_dispatch(task["id"], executor)
-        return f"dispatched {executor} to patch the code"
+        return f"dispatched {executor} to patch the code" + (" (with logs)" if logs else "")
     except Exception as exc:
         return f"failed to dispatch coder ({exc})"
 
 
-def _perform_action(p: dict, plan: dict) -> str:
+def _perform_action(p: dict, plan: dict, coder: str | None = None) -> str:
     action = plan.get("action")
     name, device = p.get("name", "?"), p.get("device", "?")
     if action == "restart":
@@ -210,7 +292,7 @@ def _perform_action(p: dict, plan: dict) -> str:
             r = None
         return f"ran runbook '{r.get('runbook')}'" if r else _restart(device, name)
     if action == "code":
-        return _dispatch_coder(p, plan)
+        return _dispatch_coder(p, plan, coder)
     return "no action taken"
 
 
@@ -236,12 +318,15 @@ def handle(projects: list[dict], now: float | None = None) -> list[tuple]:
             if had:
                 oaths.release(key)
                 _postmortem(name, device, had)
+                _counters["recoveries"] += 1
                 _report("recovered", f"{name} recovered",
                         f"{name} on {device} is healthy again after autopilot intervention.", leader)
                 acted.append((key, "recovered"))
             continue
 
-        if health not in STATES or maintenance.is_silenced(device, name) or not _allowed(device, name):
+        cfg = _project_cfg(device, name)
+        mode = (cfg.get("mode") or "auto").lower()
+        if mode == "off" or health not in STATES or maintenance.is_silenced(device, name) or not _allowed(device, name):
             continue
 
         with _lock:
@@ -261,12 +346,28 @@ def handle(projects: list[dict], now: float | None = None) -> list[tuple]:
                     f"Sect Leader {leader} detected {name} on {device} is {health}; investigating.", leader)
 
         if escalate:
+            _counters["escalations"] += 1
             _report("escalated", f"Autopilot stuck on {name}",
                     f"{name} still {health} after {MAXATTEMPTS} attempts — escalating to the Ancestor.", leader)
             acted.append((key, "escalated"))
             continue
 
         plan = _diagnose(leader, p)
+        if cfg.get("remediation") in {"restart", "runbook", "code", "none"}:
+            plan["action"] = cfg["remediation"]   # per-project override of the chosen remedy
+
+        # Propose-only mode: recommend, don't act.
+        if mode == "propose":
+            with _lock:
+                inc["state"] = "proposed"
+                inc["cause"] = plan.get("cause", "")
+            _counters["proposals"] += 1
+            _report("proposal", f"Autopilot recommends for {name}",
+                    f"Cause: {plan.get('cause', '?')}. Recommended fix: {plan.get('action')} "
+                    f"(propose-only — awaiting the Ancestor).", leader)
+            acted.append((key, "proposed"))
+            continue
+
         # Restart-loop circuit breaker: don't keep bouncing a project that won't stay up.
         if plan.get("action") == "restart":
             with _lock:
@@ -274,12 +375,13 @@ def handle(projects: list[dict], now: float | None = None) -> list[tuple]:
             if len(recent) >= RESTART_LIMIT:
                 with _lock:
                     inc["state"] = "escalated"
+                _counters["escalations"] += 1
                 _report("escalated", f"Restart loop on {name}",
                         f"{name} restarted {len(recent)}× in {RESTART_WINDOW // 60}m — circuit opened, "
                         f"escalating to the Ancestor instead of restarting again.", leader)
                 acted.append((key, "circuit_open"))
                 continue
-        result = _perform_action(p, plan)
+        result = _perform_action(p, plan, cfg.get("coder"))
         with _lock:
             inc["attempts"] += 1
             inc["state"] = "acting"
@@ -289,6 +391,9 @@ def handle(projects: list[dict], now: float | None = None) -> list[tuple]:
             if plan.get("action") == "restart":
                 inc.setdefault("restarts", []).append(now)
             attempts = inc["attempts"]
+        _counters["fixes"] += 1
+        if plan.get("action") == "restart":
+            _counters["restarts"] += 1
         _report("fix", f"Autopilot fixing {name}",
                 f"Cause: {plan.get('cause', '?')}. Action: {plan.get('action')} → {result}. "
                 f"(attempt {attempts}/{MAXATTEMPTS})", leader)
@@ -305,7 +410,9 @@ def tick() -> list[tuple]:
         snap = aggregator.aggregate(load_devices())
     except Exception:
         return []
-    return handle(snap.get("projects", []))
+    out = handle(snap.get("projects", []))
+    maybe_digest()
+    return out
 
 
 def _loop() -> None:
@@ -327,8 +434,11 @@ def start() -> bool:
 
 
 def clear() -> None:
-    global _paused
+    global _paused, _last_digest
     with _lock:
         _incidents.clear()
         _log.clear()
         _paused = False
+        _last_digest = 0.0
+        for k in _counters:
+            _counters[k] = 0
