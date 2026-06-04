@@ -560,6 +560,11 @@ def snapshot() -> list[dict]:
         row["quirk"] = traits.quirk(row["name"])
         row["trope"] = traits.trope(row["name"])
     lifecycle.tick()  # cull a stagnant Outer Disciple (and summon a recruit) if any
+    try:
+        from . import manuals
+        manuals.tick(out)  # idle Elders with no disciples author technique manuals
+    except Exception:
+        pass
     return out
 
 

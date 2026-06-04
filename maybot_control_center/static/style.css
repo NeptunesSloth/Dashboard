@@ -807,3 +807,19 @@ details[open] > .agent-summary::before { content: '▾'; }
 .prio-urgent { background: rgba(248,81,73,.15); color: #f85149; }
 .prio-low { background: rgba(139,148,158,.15); color: var(--muted); }
 .task-empty { font-size: 12px; padding: 4px; }
+
+/* ---- Hall of Fame: champion cards ---- */
+.fame-card { padding: 0; overflow: hidden; position: relative; text-align: center;
+  border-top: 2px solid var(--gold); background: linear-gradient(180deg, rgba(215,178,92,.07), transparent 60%); }
+.fame-strong { border-top-color: #f0b3ff; } .fame-rich { border-top-color: var(--gold); }
+.fame-learned { border-top-color: var(--tech); } .fame-broke { border-top-color: #ffcf5a; }
+.fame-banner { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 9px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.fame-medal { font-size: 18px; }
+.fame-hero { padding: 6px 10px 2px; }
+.fame-num { font-size: 26px; font-weight: 700; font-family: "Cinzel", Georgia, serif; color: var(--text); }
+.fame-unit { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.fame-champ { font-size: 16px; margin-top: 4px; }
+.fame-sub { font-size: 12px; padding: 0 10px; }
+.fame-runners { margin: 10px 0 0; border-top: 1px solid var(--border); }
+.fame-runner { display: flex; justify-content: space-between; padding: 5px 12px; font-size: 12px; }

@@ -42,6 +42,25 @@
       <h2>Sect Overview</h2>
       <div id="summary"></div>
     </section>
+    <section data-tab="overview">
+      <div class="section-head">
+        <h2>Projects</h2>
+        <span id="project-count-pill" class="pill">0 shown</span>
+      </div>
+      <p class="muted">The work the sect exists to serve. Disciples (agents) are here to assist these — assign goals from the Disciples tab.</p>
+      <div class="filter-bar">
+        <input id="project-search" type="search" placeholder="Search name, device, type, status…">
+        <select id="health-filter">
+          <option value="ALL">All health</option>
+          <option value="ok">OK</option>
+          <option value="warning">Warning</option>
+          <option value="error">Error</option>
+          <option value="unknown">Unknown</option>
+        </select>
+        <button id="clear-filters" class="btn">Clear</button>
+      </div>
+      <div id="projects"></div>
+    </section>
     <section data-tab="overview" id="treasury-section">
       <div class="section-head">
         <h2>Spirit Veins</h2>
@@ -105,9 +124,9 @@
     </section>
     <section data-tab="sect" id="trials-section" class="hidden">
       <div class="section-head"><h2>Trials Hall</h2></div>
-      <p class="muted">Night-Watch on-call rotation, chaos tribulations, formation dry-runs, and spirit-root assessments.</p>
+      <p class="muted">The operator's reliability controls: the on-call rotation and chaos tribulations. Spirit-root grading and formation dry-runs are handled automatically by the sect.</p>
 
-      <h3 class="trials-sub">🌙 Night-Watch</h3>
+      <h3 class="trials-sub">🌙 Night-Watch (on-call)</h3>
       <p class="muted" id="watch-line">No one stands the night watch.</p>
       <div class="comms-launch">
         <span class="muted">Set rotation (check disciples):</span>
@@ -116,7 +135,7 @@
       </div>
       <div id="watch-log" class="grid"></div>
 
-      <h3 class="trials-sub">☄ Tribulation Trials</h3>
+      <h3 class="trials-sub">☄ Tribulation Trials (chaos)</h3>
       <div class="comms-launch">
         <input id="chaos-target" placeholder="target project / realm…">
         <select id="chaos-kind"></select>
@@ -124,17 +143,6 @@
         <button id="chaos-go" class="btn gov-challenge">Summon trial</button>
       </div>
       <div id="chaos-trials" class="grid"></div>
-
-      <h3 class="trials-sub">🜂 Dreamscape (formation dry-run)</h3>
-      <div class="comms-launch">
-        <select id="dream-formation"></select>
-        <input id="dream-goal" placeholder="goal to preview…">
-        <button id="dream-go" class="btn">Preview</button>
-      </div>
-      <div id="dream-preview" class="grid"></div>
-
-      <h3 class="trials-sub">🌱 Spirit-Root grades</h3>
-      <div id="spirit-grades" class="grid"></div>
     </section>
     <section data-tab="sect" id="lore-section" class="hidden">
       <div class="section-head"><h2>Sect Lore</h2></div>
@@ -305,24 +313,6 @@
       </div>
       <div id="silences"></div>
       <div id="slo-table" class="grid"></div>
-    </section>
-    <section data-tab="overview">
-      <div class="section-head">
-        <h2>Sect Holdings</h2>
-        <span id="project-count-pill" class="pill">0 shown</span>
-      </div>
-      <div class="filter-bar">
-        <input id="project-search" type="search" placeholder="Search name, device, type, status…">
-        <select id="health-filter">
-          <option value="ALL">All health</option>
-          <option value="ok">OK</option>
-          <option value="warning">Warning</option>
-          <option value="error">Error</option>
-          <option value="unknown">Unknown</option>
-        </select>
-        <button id="clear-filters" class="btn">Clear</button>
-      </div>
-      <div id="projects"></div>
     </section>
   </main>
 

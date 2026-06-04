@@ -814,13 +814,17 @@ async function renderAgentCrew() {
 
 // ---- Hall of Fame ----
 
-function fameCard(title, a, label, value) {
+function fameCard(meta, a, runnersUp) {
   const c = a.cultivation || {};
-  return `<div class='card'>
-    <div class='metric'><b>${title}</b><b class='money-pos'>${value}</b></div>
-    ${metric('Disciple', `🧘 ${esc(a.name)}`)}
-    ${metric('Realm', `${esc(c.realm_name || '—')} · ${esc(c.layer_label || c.stage || '')}`)}
-    ${metric(label, value)}
+  const realm = `${esc(c.realm_name || '—')}${c.layer_label ? ` · ${esc(c.layer_label)}` : ''}`;
+  const runners = (runnersUp || []).slice(0, 2).map((r, i) =>
+    `<div class='fame-runner'><span>${i === 0 ? '2.' : '3.'} ${esc(r.name)}</span><span class='muted'>${meta.stat(r)}</span></div>`).join('');
+  return `<div class='card fame-card fame-${meta.key}'>
+    <div class='fame-banner'><span class='fame-medal'>${meta.icon}</span><span class='fame-cat'>${meta.title}</span></div>
+    <div class='fame-hero'>${meta.hero(a)}</div>
+    <div class='fame-champ'>🧘 <b>${esc(a.name)}</b></div>
+    <div class='fame-sub muted'>${realm}</div>
+    ${runners ? `<div class='fame-runners'>${runners}</div>` : ''}
   </div>`;
 }
 
@@ -829,17 +833,20 @@ function renderHallOfFame() {
   const crew = (window.__agents || []).filter(a => a.cultivation);
   if (!crew.length) { sec.classList.add('hidden'); return; }
   sec.classList.remove('hidden');
-  const top = f => crew.slice().sort(f)[0];
-  const strongest = top((x, y) => (y.cultivation.realm - x.cultivation.realm) || (y.cultivation.stones - x.cultivation.stones));
-  const richest = top((x, y) => y.cultivation.stones - x.cultivation.stones);
-  const learned = top((x, y) => (y.cultivation.skills || []).length - (x.cultivation.skills || []).length);
-  const broke = top((x, y) => y.cultivation.breakthroughs - x.cultivation.breakthroughs);
-  document.getElementById('hall-of-fame').innerHTML = [
-    fameCard('🏆 Strongest', strongest, 'Spirit stones', `<span class='stone'></span>${strongest.cultivation.stones}`),
-    fameCard(STONE + ' Richest', richest, 'Spirit stones', `${STONE}${richest.cultivation.stones}`),
-    fameCard('📚 Most Techniques', learned, 'Techniques', `${(learned.cultivation.skills || []).length}`),
-    fameCard('⚡ Most Breakthroughs', broke, 'Breakthroughs', `${broke.cultivation.breakthroughs}`),
-  ].join('');
+  const metas = [
+    { key: 'strong', icon: '🏆', title: 'Strongest', cmp: (x, y) => (y.cultivation.realm - x.cultivation.realm) || (y.cultivation.stones - x.cultivation.stones),
+      hero: a => `<span class='fame-num'>${esc(a.cultivation.realm_name || '—')}</span>`, stat: a => a.cultivation.realm_name || '—' },
+    { key: 'rich', icon: '💎', title: 'Richest', cmp: (x, y) => y.cultivation.stones - x.cultivation.stones,
+      hero: a => `<span class='fame-num'>${STONE}${a.cultivation.stones}</span>`, stat: a => `${a.cultivation.stones} stones` },
+    { key: 'learned', icon: '📚', title: 'Most Techniques', cmp: (x, y) => (y.cultivation.skills || []).length - (x.cultivation.skills || []).length,
+      hero: a => `<span class='fame-num'>${(a.cultivation.skills || []).length}</span><span class='fame-unit'>techniques</span>`, stat: a => `${(a.cultivation.skills || []).length}` },
+    { key: 'broke', icon: '⚡', title: 'Most Breakthroughs', cmp: (x, y) => y.cultivation.breakthroughs - x.cultivation.breakthroughs,
+      hero: a => `<span class='fame-num'>${a.cultivation.breakthroughs}</span><span class='fame-unit'>breakthroughs</span>`, stat: a => `${a.cultivation.breakthroughs}` },
+  ];
+  document.getElementById('hall-of-fame').innerHTML = metas.map(m => {
+    const ranked = crew.slice().sort(m.cmp);
+    return fameCard(m, ranked[0], ranked.slice(1));
+  }).join('');
 }
 
 // ---- Sect Grand Tournament: seeded single-elimination bracket ----
@@ -1070,13 +1077,6 @@ async function renderTrials() {
       ${metric('Target', esc(t.target))}${metric('Disciple', esc(t.disciple || '—'))}${t.score != null ? metric('Score', t.score) : ''}${btn}</div>`;
   }).join('') || `<div class='comms-sys muted'>No trials summoned.</div>`;
 
-  // Spirit-root grades
-  const sr = await apiJSON('/api/spirit-root') || {};
-  const profiles = (sr.profiles) || {};
-  document.getElementById('spirit-grades').innerHTML = Object.keys(profiles).length
-    ? Object.values(profiles).map(p => `<div class='card'><div class='metric'><b>${esc(p.agent)}</b><b class='money-pos'>${esc(p.grade)}</b></div>${metric('Overall', p.overall)}${metric('Samples', p.samples)}</div>`).join('')
-    : `<div class='comms-sys muted'>No disciples assessed yet (POST results to /api/spirit-root/assess).</div>`;
-
   bindTrials();
 }
 
@@ -1109,23 +1109,6 @@ function bindTrials() {
   root.querySelectorAll('.chaos-fail').forEach(b => b.onclick = async () => {
     if (await apiPost(`/api/chaos/${b.getAttribute('data-id')}/resolve`, { recovered: false }, 'Resolve')) renderTrials();
   });
-  const dg = document.getElementById('dream-go');
-  if (dg && !dg.dataset.bound) {
-    dg.dataset.bound = '1';
-    const fsel = document.getElementById('dream-formation');
-    apiJSON('/api/formations').then(fd => { if (fd && fd.catalog) fsel.innerHTML = fd.catalog.map(f => `<option value='${esc(f.name)}'>${esc(f.title)}</option>`).join(''); });
-    dg.onclick = async () => {
-      const formation = fsel.value;
-      const goal = (document.getElementById('dream-goal').value || '').trim();
-      if (!goal) { alert('Enter a goal.'); return; }
-      const res = await apiPost('/api/dreamscape/preview', { formation, goal }, 'Preview');
-      if (res) {
-        document.getElementById('dream-preview').innerHTML =
-          `<div class='card'><div class='metric'><b>${esc(res.title)}</b><span class='muted'>~${res.est_tokens_total} tokens</span></div>` +
-          res.stages.map(s => `<div class='metric'><span>${esc(s.stage)} · ${esc(s.assignee)}</span><span class='muted'>~${s.est_tokens}t</span></div>`).join('') + `</div>`;
-      }
-    };
-  }
 }
 
 // ---- Sect Lore: bonds, drift, lineage, artifacts, council votes ----

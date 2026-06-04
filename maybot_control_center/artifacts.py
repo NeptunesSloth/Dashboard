@@ -17,7 +17,7 @@ import threading
 import time
 
 # Allowed artifact kinds.
-KINDS = {"prompt", "tool_recipe", "formation", "note"}
+KINDS = {"prompt", "tool_recipe", "formation", "note", "manual"}
 
 # Maximum content length, in characters; over-long content is rejected.
 MAX_CONTENT = int(os.getenv("MAYBOT_ARTIFACT_MAX_CHARS", "8000"))
