@@ -1048,7 +1048,31 @@ async function renderAssign() {
     : `<div class='comms-sys muted'>No word from the sect's leadership yet.</div>`;
 
   renderTaskBoard();
+  renderAutopilot();
   bindAssign();
+}
+
+async function renderAutopilot() {
+  const el = document.getElementById('autopilot-bar');
+  if (!el) return;
+  const a = await apiJSON('/api/autopilot');
+  if (!a) { el.innerHTML = ''; return; }
+  const state = !a.enabled ? { cls: 'ap-off', txt: 'off', note: 'set MAYBOT_AUTOPILOT=1 to let the Sect Leader run projects autonomously' }
+    : a.paused ? { cls: 'ap-paused', txt: 'paused', note: 'autopilot is paused — the Leader will not act' }
+      : { cls: 'ap-on', txt: 'active', note: `Sect Leader ${esc(a.leader || '—')} is running the fleet autonomously` };
+  const active = (a.incidents || []).filter(i => i.state !== 'recovered');
+  const last = (a.log || [])[0];
+  const btn = a.enabled ? `<button class='btn ${a.paused ? '' : 'act-btn-stop'} ap-toggle' data-paused='${a.paused ? '1' : ''}'>${a.paused ? '▶ Resume' : '⏸ Pause'}</button>` : '';
+  el.innerHTML = `<div class='autopilot-card ${state.cls}'>
+    <div class='ap-head'><b>🧠 Second Brain</b><span class='ap-dot'></span><span class='ap-state'>${state.txt}</span>${btn}</div>
+    <div class='muted ap-note'>${state.note}${active.length ? ` · handling ${active.length}` : ''}</div>
+    ${last ? `<div class='ap-last muted'>↳ ${esc(last.title)} — ${esc(last.message)}</div>` : ''}
+  </div>`;
+  const t = el.querySelector('.ap-toggle');
+  if (t) t.onclick = async () => {
+    const path = t.dataset.paused ? '/api/autopilot/resume' : '/api/autopilot/pause';
+    if (await apiPost(path, {}, 'Autopilot')) renderAutopilot();
+  };
 }
 
 function taskCard(t) {

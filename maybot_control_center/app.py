@@ -55,6 +55,7 @@ from . import escalation
 from . import taskqueue
 from . import routing
 from . import orchestrator
+from . import autopilot
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -67,6 +68,7 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
         pass
 scheduler.start()  # background cron for scheduled missions (no-op without schedules.yaml)
 talismans.start()  # background synthetic uptime probes (no-op without talismans.yaml)
+autopilot.start()  # the Sect Leader's autonomous ops loop (no-op unless MAYBOT_AUTOPILOT=1)
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 # A silence target: "*", "device:*", or "device:project".
@@ -1043,6 +1045,25 @@ def oaths_release(body: UnsilenceIn, x_control_token: str = Header(default="")):
 def escalation_status(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return escalation.snapshot()
+
+
+# ---- Autopilot (the Sect Leader's second brain) ----
+@app.get("/api/autopilot")
+def autopilot_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return autopilot.status()
+
+
+@app.post("/api/autopilot/pause")
+def autopilot_pause(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)   # kill switch
+    return autopilot.set_paused(True)
+
+
+@app.post("/api/autopilot/resume")
+def autopilot_resume(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return autopilot.set_paused(False)
 
 
 # ---- Task board / work queue ----
