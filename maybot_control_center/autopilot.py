@@ -297,7 +297,15 @@ def _perform_action(p: dict, plan: dict, coder: str | None = None) -> str:
             r = None
         return f"ran runbook '{r.get('runbook')}'" if r else _restart(device, name)
     if action == "code":
-        return _dispatch_coder(p, plan, coder)
+        # Draft a real fix as a pull request (opened if enabled, else a reviewable proposal).
+        try:
+            from . import pullrequest
+            pr = pullrequest.propose(name, device, plan.get("cause", "") or plan.get("summary", ""), coder=coder)
+            if pr.get("opened"):
+                return f"opened PR: {pr.get('url')}"
+            return f"proposed PR '{pr.get('title')}' for review (vault: {pr.get('artifact')})"
+        except Exception:
+            return _dispatch_coder(p, plan, coder)   # fall back to dispatching a disciple
     return "no action taken"
 
 
