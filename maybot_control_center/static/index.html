@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MayBot Guild Hall</title>
+  <title>Aegis — Autonomous Ops</title>
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#0d1117">
   <link rel="apple-touch-icon" href="/icon.svg">
   <link rel="icon" href="/icon.svg">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="MayBot">
+  <meta name="apple-mobile-web-app-title" content="Aegis">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital@0;1&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
 <body>
   <div id="login-overlay" class="login-overlay hidden">
     <div class="login-box">
-      <h2>☯ MayBot — Sign in</h2>
+      <h2>◆ Aegis — Sign in</h2>
       <p class="muted">This dashboard requires a control token.</p>
       <input id="login-token" type="password" placeholder="Control token…" autocomplete="current-password">
       <div id="login-error" class="muted"></div>
@@ -28,8 +28,8 @@
   <div id="auth-banner" class="auth-banner hidden"></div>
   <header class="topbar">
     <div>
-      <h1>☯ MayBot Celestial Sect</h1>
-      <p class="muted">Guide your disciples in their cultivation across the heavens</p>
+      <h1>◆ Aegis</h1>
+      <p class="muted">Autonomous watch over your projects &amp; agents</p>
     </div>
     <div class="top-actions">
       <div class="pill"><span class="live-dot"></span> Sect online</div>
@@ -52,13 +52,12 @@
     <nav class="tabs">
       <button class="tab-btn" data-tab="overview">Overview</button>
       <button class="tab-btn" data-tab="disciples">Disciples</button>
-      <button class="tab-btn" data-tab="skills">Known Skills</button>
       <button class="tab-btn" data-tab="map">Sect Map</button>
       <button class="tab-btn" data-tab="sect">Sect Halls</button>
       <button class="tab-btn" data-tab="ops">Ops</button>
     </nav>
     <section data-tab="overview">
-      <h2>Sect Overview</h2>
+      <h2>System Overview</h2>
       <div id="summary"></div>
     </section>
     <section data-tab="overview">
@@ -66,7 +65,7 @@
         <h2>Projects</h2>
         <span id="project-count-pill" class="pill">0 shown</span>
       </div>
-      <p class="muted">The work the sect exists to serve. Disciples (agents) are here to assist these — assign goals from the Disciples tab.</p>
+      <p class="muted">The services and projects under watch — assign work to agents from the Disciples tab.</p>
       <div class="filter-bar">
         <input id="project-search" type="search" placeholder="Search name, device, type, status…">
         <select id="health-filter">
@@ -80,29 +79,10 @@
       </div>
       <div id="projects"></div>
     </section>
-    <section data-tab="overview" id="treasury-section">
-      <div class="section-head">
-        <h2>Spirit Veins</h2>
-        <span id="treasury-balance" class="pill">💎 0</span>
-      </div>
-      <p class="muted">The sect treasury — spirit veins channel ambient qi into it and a tithe of good work refills it; it funds the daily stipend, and stipends stop when it runs dry.</p>
-      <div class="comms-launch">
-        <input id="endow-amount" type="number" min="1" placeholder="endow spirit stones…" style="max-width:200px">
-        <button id="endow-go" class="btn">Endow</button>
-        <span id="treasury-detail" class="muted"></span>
-      </div>
-    </section>
     <section data-tab="overview">
-      <h2>Spirit Realms</h2>
+      <div class="section-head"><h2>Hosts</h2></div>
+      <p class="muted">The machines running your agents.</p>
       <div id="devices" class="grid"></div>
-    </section>
-    <section data-tab="overview" id="ai-agents-section" class="hidden">
-      <div class="section-head">
-        <h2>Spirit Beasts</h2>
-        <span id="ai-agents-pill" class="pill">0 agents</span>
-      </div>
-      <p class="muted">AI coding projects and local model hosts, with start / stop / test controls.</p>
-      <div id="ai-agents"></div>
     </section>
     <section data-tab="disciples" id="assign-section" class="hidden">
       <div class="section-head">
@@ -141,16 +121,6 @@
       <p class="muted">Direct word from your Sect Leader and Elders — none below Elder rank may address you here.</p>
       <div id="ancestor-inbox" class="comms-feed"></div>
     </section>
-    <section data-tab="skills" id="skills-section">
-      <div class="section-head"><h2>Known Skills</h2><span id="skills-pill" class="pill">0 skills</span></div>
-      <p class="muted">Every technique the sect knows and who holds it. Skills a disciple discovered on the web while roaming link to their source.</p>
-      <div class="filter-bar"><input id="skill-search" type="search" placeholder="Search skills or disciples…"></div>
-      <div id="skills-list" class="grid"></div>
-      <div class="section-head" style="margin-top:18px"><h3 style="margin:0">🧠 Sect Knowledge</h3><span id="mem-pill" class="pill">0 entries</span></div>
-      <p class="muted">Everything the sect has learned — task results, post-incident fixes, manuals, skills. Every disciple draws on this before acting, so the sect compounds knowledge over time.</p>
-      <div class="filter-bar"><input id="mem-search" type="search" placeholder="Search the sect's accumulated knowledge…"></div>
-      <div id="mem-list" class="grid"></div>
-    </section>
     <section data-tab="ops" id="ops-section">
       <div class="section-head"><h2>Ops</h2><span id="ops-pill" class="pill">—</span>
         <button id="enable-alerts" class="btn">🔔 Enable phone alerts</button></div>
@@ -160,6 +130,10 @@
       <div id="fleet-table"></div>
       <h3 class="trials-sub">📒 Operator Audit Log</h3>
       <div id="audit-list" class="comms-feed"></div>
+      <div class="section-head" style="margin-top:18px"><h3 style="margin:0">🧠 Knowledge Base</h3><span id="mem-pill" class="pill">0 entries</span></div>
+      <p class="muted">Everything the agents have learned — task results, post-incident fixes, manuals, skills. Every agent draws on this before acting, so knowledge compounds over time.</p>
+      <div class="filter-bar"><input id="mem-search" type="search" placeholder="Search the accumulated knowledge…"></div>
+      <div id="mem-list" class="grid"></div>
     </section>
     <section data-tab="sect" id="trials-section" class="hidden">
       <div class="section-head"><h2>Trials Hall</h2></div>
@@ -331,16 +305,6 @@
       </div>
       <div id="tools-calls" class="grid"></div>
       <details class="details tools-audit"><summary>Sanction chronicle</summary><div id="tools-audit-body" class="grid"></div></details>
-    </section>
-    <section data-tab="overview" id="usage-section" class="hidden">
-      <div class="section-head">
-        <h2>Spirit Stones</h2>
-        <span id="usage-total" class="pill">$0.00</span>
-      </div>
-      <p class="muted">Per-disciple effort, latency, qi, and spirit stones spent (local spirit beasts are free).</p>
-      <div id="qi-reserves"></div>
-      <div id="usage-chart"></div>
-      <div id="usage-table" class="grid"></div>
     </section>
     <section data-tab="overview" id="reliability-section" class="hidden">
       <div class="section-head">
