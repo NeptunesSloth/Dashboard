@@ -1061,12 +1061,18 @@ async function renderAutopilot() {
     : a.paused ? { cls: 'ap-paused', txt: 'paused', note: 'autopilot is paused — the Leader will not act' }
       : { cls: 'ap-on', txt: 'active', note: `Sect Leader ${esc(a.leader || '—')} is running the fleet autonomously` };
   const active = (a.incidents || []).filter(i => i.state !== 'recovered');
-  const last = (a.log || [])[0];
+  const log = a.log || [];
   const btn = a.enabled ? `<button class='btn ${a.paused ? '' : 'act-btn-stop'} ap-toggle' data-paused='${a.paused ? '1' : ''}'>${a.paused ? '▶ Resume' : '⏸ Pause'}</button>` : '';
+  const APK = { detected: '🔎', fix: '🛠', recovered: '✅', escalated: '⚠' };
+  const timeline = log.length ? `<details class='ap-log'><summary>Activity timeline (${log.length})</summary>${
+    log.map(e => `<div class='ap-log-row'><span class='ap-log-t muted'>${new Date(e.ts).toLocaleTimeString()}</span>
+      <span class='ap-log-k'>${APK[e.kind] || '•'}</span><b>${esc(e.title)}</b> <span class='muted'>${esc(e.message)}</span></div>`).join('')
+    }</details>` : '';
   el.innerHTML = `<div class='autopilot-card ${state.cls}'>
     <div class='ap-head'><b>🧠 Second Brain</b><span class='ap-dot'></span><span class='ap-state'>${state.txt}</span>${btn}</div>
     <div class='muted ap-note'>${state.note}${active.length ? ` · handling ${active.length}` : ''}</div>
-    ${last ? `<div class='ap-last muted'>↳ ${esc(last.title)} — ${esc(last.message)}</div>` : ''}
+    ${log[0] ? `<div class='ap-last muted'>↳ ${esc(log[0].title)} — ${esc(log[0].message)}</div>` : ''}
+    ${timeline}
   </div>`;
   const t = el.querySelector('.ap-toggle');
   if (t) t.onclick = async () => {
@@ -1100,10 +1106,82 @@ async function renderTaskBoard() {
   el.innerHTML = TASK_COLS.map(([key, label]) => {
     const items = (cols[key] || []);
     if (!items.length && (key === 'failed')) return '';
-    return `<div class='task-col'><div class='task-col-head'>${label} <span class='muted'>${items.length}</span></div>
-      ${items.map(taskCard).join('') || `<div class='task-empty muted'>—</div>`}</div>`;
+    return `<div class='task-col' data-col='${key}'><div class='task-col-head'>${label} <span class='muted'>${items.length}</span></div>
+      ${items.map(taskCard).join('') || `<div class='task-empty muted'>drop here</div>`}</div>`;
   }).join('');
+  // Kanban Wall: drag a card between columns to change its status.
+  el.querySelectorAll('.task-item').forEach(it => {
+    it.draggable = true;
+    it.ondragstart = e => { e.dataTransfer.setData('text/plain', it.dataset.task); it.classList.add('dragging'); };
+    it.ondragend = () => it.classList.remove('dragging');
+  });
+  el.querySelectorAll('.task-col').forEach(col => {
+    col.ondragover = e => { e.preventDefault(); col.classList.add('drag-over'); };
+    col.ondragleave = () => col.classList.remove('drag-over');
+    col.ondrop = async e => {
+      e.preventDefault(); col.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      if (id && await apiPost(`/api/tasks/${id}/status`, { status: col.dataset.col }, 'Move')) renderTaskBoard();
+    };
+  });
 }
+
+// ---- ⌘K command palette ----
+function cmdkCommands() {
+  const cmds = [
+    ['🗂', 'Go to Overview', () => setTab('overview')],
+    ['🗂', 'Go to Disciples', () => setTab('disciples')],
+    ['🗂', 'Go to Sect Map', () => setTab('map')],
+    ['🗂', 'Go to Sect Halls', () => setTab('sect')],
+    ['🎯', 'Assign a goal…', () => { setTab('disciples'); setTimeout(() => document.getElementById('goal-input')?.focus(), 60); }],
+    ['🧩', 'Orchestrate a goal…', () => { const g = prompt('Goal to orchestrate:'); if (g && g.trim()) apiPost('/api/orchestrate', { goal: g.trim(), dispatch: true }, 'Orchestrate').then(r => r && render()); }],
+    ['🔄', 'Sync now', () => render()],
+    ['🧠', 'Pause autopilot', () => apiPost('/api/autopilot/pause', {}, 'Autopilot').then(renderAutopilot)],
+    ['🧠', 'Resume autopilot', () => apiPost('/api/autopilot/resume', {}, 'Autopilot').then(renderAutopilot)],
+  ].map(([icon, label, run]) => ({ icon, label, run }));
+  (window.__lastProjects || []).forEach(p => cmds.push({
+    icon: TYPE_ICON[p.type] || '📦', label: `Project: ${p.name} · ${p.device}`,
+    run: () => { setTab('overview'); const d = document.querySelector(`details.project-card[data-device="${CSS.escape(p.device)}"][data-project="${CSS.escape(p.name)}"]`); if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); } }
+  }));
+  (window.__agents || []).forEach(a => cmds.push({
+    icon: '🧘', label: `Disciple: ${a.name}`,
+    run: () => { setTab('disciples'); setTimeout(() => { const d = document.querySelector(`details.agent-card[data-agent="${CSS.escape(a.name)}"]`); if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); } }, 60); }
+  }));
+  return cmds;
+}
+let _cmdkItems = [], _cmdkSel = 0;
+function _cmdkEl() { return document.getElementById('cmdk'); }
+function cmdkOpen() { return _cmdkEl() && !_cmdkEl().classList.contains('hidden'); }
+function openCmdk() { const o = _cmdkEl(); o.classList.remove('hidden'); const i = document.getElementById('cmdk-input'); i.value = ''; filterCmdk(''); i.focus(); }
+function closeCmdk() { _cmdkEl().classList.add('hidden'); }
+function filterCmdk(q) {
+  q = (q || '').toLowerCase().trim();
+  const all = cmdkCommands();
+  _cmdkItems = q ? all.filter(c => c.label.toLowerCase().includes(q)) : all;
+  _cmdkSel = 0; renderCmdkList();
+}
+function renderCmdkList() {
+  const l = document.getElementById('cmdk-list');
+  l.innerHTML = _cmdkItems.slice(0, 40).map((c, i) =>
+    `<div class='cmdk-item${i === _cmdkSel ? ' sel' : ''}' data-i='${i}'><span class='cmdk-ic'>${c.icon || ''}</span>${esc(c.label)}</div>`
+  ).join('') || `<div class='cmdk-empty muted'>No matches</div>`;
+  l.querySelectorAll('.cmdk-item').forEach(el => {
+    el.onmouseenter = () => { _cmdkSel = +el.dataset.i; _cmdkSelUpdate(); };
+    el.onclick = () => _cmdkRun(+el.dataset.i);
+  });
+}
+function _cmdkSelUpdate() { document.querySelectorAll('#cmdk-list .cmdk-item').forEach((el, i) => el.classList.toggle('sel', i === _cmdkSel)); }
+function _cmdkRun(i) { const c = _cmdkItems[i]; closeCmdk(); if (c && c.run) c.run(); }
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); cmdkOpen() ? closeCmdk() : openCmdk(); return; }
+  if (!cmdkOpen()) return;
+  if (e.key === 'Escape') { e.preventDefault(); closeCmdk(); }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); _cmdkSel = Math.min(_cmdkSel + 1, _cmdkItems.length - 1); _cmdkSelUpdate(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); _cmdkSel = Math.max(_cmdkSel - 1, 0); _cmdkSelUpdate(); }
+  else if (e.key === 'Enter') { e.preventDefault(); _cmdkRun(_cmdkSel); }
+});
+document.getElementById('cmdk-input').addEventListener('input', (e) => filterCmdk(e.target.value));
+_cmdkEl().addEventListener('click', (e) => { if (e.target.id === 'cmdk') closeCmdk(); });
 
 function bindAssign() {
   const set = document.getElementById('leader-set');
