@@ -394,6 +394,7 @@ async function render() {
     await renderAgentCrew();
     // Re-render KPIs now that window.__agents is populated (disciple/cultivating counts).
     summaryEl.innerHTML = summaryCards(data.summary);
+    renderSkills();
     renderTrials();
     renderLore();
     renderSectMap();
@@ -2521,6 +2522,44 @@ async function renderReliability() {
     const who = (getControlToken() && prompt('Claim as (disciple name):', 'operator')) || 'operator';
     if (await apiPost('/api/oaths/claim', { target: b.dataset.target, who }, 'Claim')) renderReliability();
   });
+}
+
+// ---- Known Skills tab ----
+async function renderSkills() {
+  const el = document.getElementById('skills-list');
+  if (!el) return;
+  const crew = window.__agents || [];
+  const map = {};   // skill -> { holders: [], url }
+  crew.forEach(a => (a.cultivation?.skills || []).forEach(s => {
+    (map[s] = map[s] || { holders: [] }).holders.push(a.name);
+  }));
+  // Roamed web skills are forged into the vault as notes "Skill — <name>" with a Source URL.
+  let arts = [];
+  try { const d = await apiJSON('/api/artifacts'); arts = (d && d.artifacts) || []; } catch (_) {}
+  arts.forEach(ar => {
+    if (ar.kind === 'note' && (ar.name || '').startsWith('Skill — ')) {
+      const name = ar.name.slice('Skill — '.length).trim();
+      const m = /Source:\s*(\S+)/.exec(ar.content || '');
+      if (map[name] && m && /^https?:/.test(m[1])) map[name].url = m[1];
+    }
+  });
+  document.getElementById('skills-pill').textContent = `${Object.keys(map).length} skills`;
+  const q = (document.getElementById('skill-search').value || '').toLowerCase().trim();
+  const names = Object.keys(map)
+    .sort((a, b) => map[b].holders.length - map[a].holders.length || a.localeCompare(b))
+    .filter(n => !q || n.toLowerCase().includes(q) || map[n].holders.some(h => h.toLowerCase().includes(q)));
+  el.innerHTML = names.map(n => {
+    const s = map[n];
+    const web = s.url ? `<span class='skill-tag' title='discovered on the web while roaming'>web</span>` : '';
+    const link = s.url ? `<a class='skill-src' href='${esc(s.url)}' target='_blank' rel='noopener'>🔗 source</a>` : '';
+    return `<div class='card skill-card'>
+      <div class='metric'><b>${esc(n)}</b>${web}</div>
+      <div class='muted skill-holders'>${s.holders.length}× · ${s.holders.map(esc).join(', ')}</div>
+      ${link}
+    </div>`;
+  }).join('') || `<div class='card muted'>No skills learned yet — send a disciple roaming to bring one back.</div>`;
+  const search = document.getElementById('skill-search');
+  if (search && !search.dataset.bound) { search.dataset.bound = '1'; search.oninput = renderSkills; }
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

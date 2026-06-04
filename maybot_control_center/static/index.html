@@ -36,6 +36,7 @@
     <nav class="tabs">
       <button class="tab-btn" data-tab="overview">Overview</button>
       <button class="tab-btn" data-tab="disciples">Disciples</button>
+      <button class="tab-btn" data-tab="skills">Known Skills</button>
       <button class="tab-btn" data-tab="map">Sect Map</button>
       <button class="tab-btn" data-tab="sect">Sect Halls</button>
     </nav>
@@ -122,6 +123,12 @@
       <div class="section-head" style="margin-top:18px"><h3 style="margin:0">Ancestor's Hall</h3></div>
       <p class="muted">Direct word from your Sect Leader and Elders — none below Elder rank may address you here.</p>
       <div id="ancestor-inbox" class="comms-feed"></div>
+    </section>
+    <section data-tab="skills" id="skills-section">
+      <div class="section-head"><h2>Known Skills</h2><span id="skills-pill" class="pill">0 skills</span></div>
+      <p class="muted">Every technique the sect knows and who holds it. Skills a disciple discovered on the web while roaming link to their source.</p>
+      <div class="filter-bar"><input id="skill-search" type="search" placeholder="Search skills or disciples…"></div>
+      <div id="skills-list" class="grid"></div>
     </section>
     <section data-tab="sect" id="trials-section" class="hidden">
       <div class="section-head"><h2>Trials Hall</h2></div>

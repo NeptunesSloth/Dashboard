@@ -937,3 +937,10 @@ details.project-card { padding: 0; overflow: hidden; }
   .cmdk { padding-top: 8vh; }
   .fame-card .fame-num { font-size: 22px; }
 }
+
+/* ---- Known Skills tab ---- */
+.skill-card { display: flex; flex-direction: column; gap: 4px; }
+.skill-holders { font-size: 12px; }
+.skill-tag { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--tech);
+  border: 1px solid rgba(88,166,255,.4); background: rgba(88,166,255,.08); border-radius: 8px; padding: 1px 7px; }
+.skill-src { font-size: 12px; color: var(--tech); }
