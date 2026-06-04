@@ -374,6 +374,13 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .trope-mc { border-color: var(--gold); color: var(--gold); background: rgba(215,178,92,.10); }
 .trope-ruined { border-color: rgba(220,76,76,.5); color: #e57373; }
 .trope-redeemed { border-color: #ff9d4f; color: #ff9d4f; background: rgba(255,157,79,.10); }
+.trope-dragon { border-color: rgba(140,170,120,.5); color: #a7c489; }
+.trope-awakened { border-color: #5fd08a; color: #5fd08a; background: rgba(95,208,138,.10); }
+.trope-reincarnator { border-color: rgba(120,160,220,.5); color: #8fb4e6; }
+.trope-blessed { border-color: rgba(120,200,220,.5); color: #7fd6e6; background: rgba(127,214,230,.08); }
+.trope-demonic { border-color: rgba(200,70,90,.55); color: #e06a7d; background: rgba(200,70,90,.10); }
+.trope-chosen { border-color: var(--gold); color: var(--gold); }
+.trope-sword { border-color: rgba(180,190,210,.55); color: #c2cbdc; }
 .gov-expert { font-size: 11px; margin: -2px 0 4px; }
 
 #lore-section textarea { font-family: inherit; background: rgba(24,20,42,0.6); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }

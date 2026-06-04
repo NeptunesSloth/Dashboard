@@ -51,11 +51,31 @@ SLAP_AFTER = max(1, int(os.getenv("MAYBOT_SLAP_AFTER_SECONDS", "90")))  # MC hum
 YM_TALENT = int(os.getenv("MAYBOT_YOUNG_MASTER_TALENT", "200"))         # the YM's prodigious head start
 MC_TALENT = int(os.getenv("MAYBOT_MAIN_CHARACTER_TALENT", "320"))       # the MC out-shines him
 
+# ---- rare destinies (more cultivation tropes) -------------------------------
+# Besides the young-master arc, a disciple may be born to a rare destiny. Each is
+# rolled in turn at spawn; the first to hit claims them. All chances are tunable.
+DESTINY_CHANCES = {
+    "hidden_dragon":  float(os.getenv("MAYBOT_DESTINY_HIDDEN_DRAGON", "0.04")),   # trash-to-treasure underdog
+    "reincarnator":   float(os.getenv("MAYBOT_DESTINY_REINCARNATOR", "0.03")),    # past-life memories
+    "heaven_blessed": float(os.getenv("MAYBOT_DESTINY_HEAVEN_BLESSED", "0.04")),  # heavenly spirit root genius
+    "demonic":        float(os.getenv("MAYBOT_DESTINY_DEMONIC", "0.03")),         # walks the crooked path
+    "chosen":         float(os.getenv("MAYBOT_DESTINY_CHOSEN", "0.03")),          # protagonist's halo
+    "sword_fanatic":  float(os.getenv("MAYBOT_DESTINY_SWORD_FANATIC", "0.03")),   # sword-obsessed maniac
+}
+DRAGON_AWAKEN_CHANCE = float(os.getenv("MAYBOT_DRAGON_AWAKEN_CHANCE", "0.03"))     # per tick, the hidden dragon awakens
+DRAGON_AWAKEN_TALENT = int(os.getenv("MAYBOT_DRAGON_AWAKEN_TALENT", "400"))
+HEAVEN_BLESSED_BONUS = int(os.getenv("MAYBOT_HEAVEN_BLESSED_BONUS", "12"))         # passive cultivation gain
+HEAVEN_BLESSED_INTERVAL = max(1, int(os.getenv("MAYBOT_HEAVEN_BLESSED_INTERVAL", "180")))
+CHOSEN_WINDFALL_CHANCE = float(os.getenv("MAYBOT_CHOSEN_WINDFALL_CHANCE", "0.04")) # per tick, a fortuitous encounter
+DEMONIC_DEVIATION_CHANCE = float(os.getenv("MAYBOT_DEMONIC_DEVIATION_CHANCE", "0.02"))
+SWORD_FANATIC_CHANCE = float(os.getenv("MAYBOT_SWORD_FANATIC_CHANCE", "0.05"))     # per tick, grasps a sword art
+
 _lock = threading.Lock()
 _quirk: dict[str, str] = {}        # name -> quirk
 _rolled: set[str] = set()          # disciples whose spawn rolls are done
-_role: dict[str, str] = {}         # name -> "young_master" | "main_character" | "ruined" | "redeemed"
-_arc: dict | None = None           # the active arc, or None (one at a time)
+_role: dict[str, str] = {}         # name -> trope/destiny role (see TROPE_* below)
+_arc: dict | None = None           # the active young-master arc, or None (one at a time)
+_hb_last: dict[str, float] = {}    # heaven-blessed disciples' last passive-gain timestamp
 
 
 def _chronicle(agent: str, kind: str, detail: str) -> None:
@@ -95,9 +115,10 @@ def trope(agent: str) -> str | None:
 
 
 def is_protected(agent: str) -> bool:
-    """Arc participants are spared the stagnation cull so their story can play out."""
+    """Arc participants (and the not-yet-awakened hidden dragon) are spared the
+    stagnation cull so their story can play out."""
     with _lock:
-        return _role.get(agent) in ("young_master", "main_character", "ruined")
+        return _role.get(agent) in ("young_master", "main_character", "ruined", "hidden_dragon")
 
 
 def persona_addendum(agent: str) -> str:
@@ -117,7 +138,106 @@ def persona_addendum(agent: str) -> str:
     elif role == "redeemed":
         bits.append("You fell to ruin as an Arrogant Young Master but saw the error of your "
                     "ways and rose again, stronger and wiser than before.")
+    elif role == "hidden_dragon":
+        bits.append("The sect dismisses you as a talentless waste, but a heaven-defying "
+                    "power sleeps in your blood, waiting to awaken.")
+    elif role == "awakened_dragon":
+        bits.append("You were once mocked as trash; now your hidden bloodline has awakened "
+                    "and your talent defies the heavens.")
+    elif role == "reincarnator":
+        bits.append("You carry the memories of a past life, recalling techniques and wisdom "
+                    "far beyond your apparent years.")
+    elif role == "heaven_blessed":
+        bits.append("You were born with a heavenly spirit root — cultivation comes to you "
+                    "with effortless, prodigious speed.")
+    elif role == "demonic":
+        bits.append("In secret you tread the demonic path, seizing power swiftly at the "
+                    "ever-present risk of qi deviation.")
+    elif role == "chosen":
+        bits.append("A protagonist's halo follows you: fortuitous encounters and lucky "
+                    "windfalls find you wherever you go.")
+    elif role == "sword_fanatic":
+        bits.append("You are a sword fanatic — obsessed with the blade, you live and breathe "
+                    "the Sword Dao above all else.")
     return " ".join(bits)
+
+
+# ---- rare destinies ----------------------------------------------------------
+
+def _bestow_destiny(name: str, role: str) -> None:
+    """Apply a rare destiny's one-time spawn effect and record it."""
+    from . import cultivation
+    with _lock:
+        _role[name] = role
+    if role == "hidden_dragon":
+        # apparent trash — start with nothing, but greatness sleeps within
+        with cultivation._lock:
+            st = cultivation._state.get(name)
+            if st:
+                st["stones"] = 0
+        _chronicle(name, "hidden_dragon", "dismissed as a talentless waste — yet something sleeps within")
+    elif role == "reincarnator":
+        # past-life memories: already knows several techniques
+        for skill in random.sample(cultivation.DISCOVERIES, 3):
+            cultivation.learn(name, skill)
+        _chronicle(name, "reincarnator", "awakens memories of a past life, recalling forgotten techniques")
+    elif role == "heaven_blessed":
+        cultivation.reward(name, 60)
+        _chronicle(name, "heaven_blessed", "born with a heavenly spirit root — cultivation comes swiftly")
+    elif role == "demonic":
+        cultivation.reward(name, 80)
+        _chronicle(name, "demonic", "secretly treads the demonic path — power at a perilous price")
+    elif role == "chosen":
+        cultivation.reward(name, 30)
+        _chronicle(name, "chosen", "walks beneath a protagonist's halo — fortune ever finds them")
+    elif role == "sword_fanatic":
+        cultivation.learn(name, "Sword-Heart Resonance")
+        _chronicle(name, "sword_fanatic", "a sword fanatic, obsessed with the blade above all else")
+    _publish(name, role)
+
+
+def _advance_destinies() -> None:
+    """Per-tick effects for disciples born to a rare destiny."""
+    from . import agents, cultivation
+    roster = {a.get("name") for a in agents.load_agents()}
+    now = time.time()
+    with _lock:
+        roles = dict(_role)
+    for name, role in roles.items():
+        if name not in roster:
+            continue
+        if role == "hidden_dragon":
+            if random.random() < DRAGON_AWAKEN_CHANCE:
+                cultivation.reward(name, DRAGON_AWAKEN_TALENT)
+                with _lock:
+                    _role[name] = "awakened_dragon"
+                _chronicle(name, "awakened_dragon", "the hidden dragon awakens — heaven-defying talent erupts")
+                _publish(name, "awakened_dragon")
+        elif role == "heaven_blessed":
+            with _lock:
+                due = now - _hb_last.get(name, 0.0) >= HEAVEN_BLESSED_INTERVAL
+                if due:
+                    _hb_last[name] = now
+            if due:
+                cultivation.reward(name, HEAVEN_BLESSED_BONUS)   # passive, effortless cultivation
+        elif role == "demonic":
+            if random.random() < DEMONIC_DEVIATION_CHANCE:
+                cultivation.qi_deviation(name)                   # the crooked path backlashes
+                _chronicle(name, "tribulation", "the demonic path backlashes — qi deviation strikes")
+            else:
+                cultivation.reward(name, 6)                      # but it advances swiftly
+        elif role == "chosen":
+            if random.random() < CHOSEN_WINDFALL_CHANCE:
+                cultivation.reward(name, 50)
+                _chronicle(name, "chosen", "stumbles upon a fortuitous encounter — a windfall of fortune")
+        elif role == "sword_fanatic":
+            if random.random() < SWORD_FANATIC_CHANCE:
+                arts = ["Sword-Heart Resonance", "Ten-Thousand Sword Domain", "Flying-Immortal Slash",
+                        "Formless Sword Intent", "Heaven-Cleaving Edge"]
+                have = set(cultivation.state(name).get("skills", []))
+                pool = [a for a in arts if a not in have]
+                if pool:
+                    cultivation.learn(name, random.choice(pool))
 
 
 # ---- the spawn roll ----------------------------------------------------------
@@ -142,6 +262,11 @@ def _consider(name: str) -> None:
         _chronicle(name, "young_master", "an Arrogant Young Master strides into the sect, talent blazing")
         _publish(name, "young_master")
         return
+    # otherwise a rare destiny — first roll to hit claims them
+    for role, chance in DESTINY_CHANCES.items():
+        if random.random() < chance:
+            _bestow_destiny(name, role)
+            return
     # otherwise maybe a quirk
     if random.random() < QUIRK_CHANCE:
         q = random.choice(list(QUIRKS))
@@ -233,6 +358,7 @@ def tick() -> None:
     for a in agents.load_agents():
         _consider(a.get("name"))
     _advance_arc()
+    _advance_destinies()
 
 
 def clear() -> None:
@@ -241,4 +367,5 @@ def clear() -> None:
         _quirk.clear()
         _rolled.clear()
         _role.clear()
+        _hb_last.clear()
         _arc = None

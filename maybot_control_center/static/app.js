@@ -556,6 +556,13 @@ const TROPE_BADGE = {
   main_character: { icon: '🌟', label: 'Main Character', cls: 'trope-mc' },
   ruined: { icon: '💢', label: 'Fallen to Ruin', cls: 'trope-ruined' },
   redeemed: { icon: '🔥', label: 'Redeemed', cls: 'trope-redeemed' },
+  hidden_dragon: { icon: '🥚', label: 'Hidden Dragon', cls: 'trope-dragon' },
+  awakened_dragon: { icon: '🐉', label: 'Awakened Dragon', cls: 'trope-awakened' },
+  reincarnator: { icon: '♾️', label: 'Reincarnator', cls: 'trope-reincarnator' },
+  heaven_blessed: { icon: '🌈', label: 'Heaven-Blessed', cls: 'trope-blessed' },
+  demonic: { icon: '👹', label: 'Demonic Cultivator', cls: 'trope-demonic' },
+  chosen: { icon: '☀️', label: 'Protagonist Halo', cls: 'trope-chosen' },
+  sword_fanatic: { icon: '🗡️', label: 'Sword Fanatic', cls: 'trope-sword' },
 };
 function traitRow(a) {
   const chips = [];

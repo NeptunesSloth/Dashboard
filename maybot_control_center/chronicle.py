@@ -46,6 +46,13 @@ GLYPHS = {
     "face_slap": "👋",
     "ruined": "💢",
     "redeemed": "🔥",
+    "hidden_dragon": "🥚",
+    "awakened_dragon": "🐉",
+    "reincarnator": "♾",
+    "heaven_blessed": "🌈",
+    "demonic": "👹",
+    "chosen": "☀",
+    "sword_fanatic": "🗡",
     "note": "•",
 }
 

@@ -85,3 +85,54 @@ def test_only_one_arc_at_a_time(tmp_path, monkeypatch):
     traits.tick()
     masters = [n for n in ("Nova", "Forge", "Sage") if traits.trope(n) == "young_master"]
     assert len(masters) == 1  # the open arc blocks a second young master spawning
+
+
+# ---- rare destinies ----
+def _only_destiny(monkeypatch, role):
+    """Force every disciple onto exactly the named destiny at spawn."""
+    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 0.0)
+    monkeypatch.setattr(traits, "QUIRK_CHANCE", 0.0)
+    monkeypatch.setattr(traits, "DESTINY_CHANCES", {role: 1.0})
+
+
+def test_reincarnator_starts_with_past_life_techniques(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _only_destiny(monkeypatch, "reincarnator")
+    traits.tick()
+    assert traits.trope("Nova") == "reincarnator"
+    assert len(cultivation.state("Nova")["skills"]) >= 3
+
+
+def test_heaven_blessed_passively_cultivates(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _only_destiny(monkeypatch, "heaven_blessed")
+    monkeypatch.setattr(traits, "HEAVEN_BLESSED_INTERVAL", 0)
+    traits.tick()
+    assert traits.trope("Nova") == "heaven_blessed"
+    before = cultivation.state("Nova")["stones"]
+    traits.tick()  # interval 0 → a passive gain each tick
+    assert cultivation.state("Nova")["stones"] > before
+
+
+def test_hidden_dragon_awakens(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _only_destiny(monkeypatch, "hidden_dragon")
+    monkeypatch.setattr(traits, "DRAGON_AWAKEN_CHANCE", 0.0)  # don't awaken yet
+    traits.tick()
+    assert traits.trope("Nova") == "hidden_dragon"
+    assert traits.is_protected("Nova")          # spared the cull until it awakens
+    monkeypatch.setattr(traits, "DRAGON_AWAKEN_CHANCE", 1.0)  # now awaken
+    traits.tick()
+    assert traits.trope("Nova") == "awakened_dragon"
+    assert cultivation.state("Nova")["stones"] >= traits.DRAGON_AWAKEN_TALENT
+
+
+def test_chosen_one_finds_windfalls(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _only_destiny(monkeypatch, "chosen")
+    monkeypatch.setattr(traits, "CHOSEN_WINDFALL_CHANCE", 1.0)
+    traits.tick()
+    assert traits.trope("Nova") == "chosen"
+    before = cultivation.state("Nova")["stones"]
+    traits.tick()
+    assert cultivation.state("Nova")["stones"] > before
