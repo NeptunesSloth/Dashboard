@@ -116,6 +116,7 @@ function projectCtxItems(device, name) {
   const a = p.actions_available || {};
   const tgt = `${device}:${name}`;
   const items = [
+    { icon: '📊', label: 'Open detail', onClick: () => openProjectDetail(device, name) },
     { icon: '📜', label: 'View logs', onClick: () => loadLogs(device, name) },
     { icon: '🎯', label: 'Assign a goal…', onClick: _promptGoalAssign },
   ];
@@ -212,8 +213,9 @@ function projectCard(p) {
 
   // Compact headline stat so the card reads in one line until expanded.
   const stat = p.type === 'trading_bot' ? money(m.profit_today)
-    : (p.type === 'local_ai_host' ? `<span class='muted'>${esc(m.status || p.status || '—')}</span>`
-      : `<span class='muted'>${esc(p.status || '—')}</span>`);
+    : p.type === 'github_repo' ? `<span class='muted'>${m.open_prs || 0} PR · ${m.open_issues || 0} iss${m.failing_checks ? ` · ⚠${m.failing_checks}` : ''}</span>`
+      : (p.type === 'local_ai_host' ? `<span class='muted'>${esc(m.status || p.status || '—')}</span>`
+        : `<span class='muted'>${esc(p.status || '—')}</span>`);
   const icon = TYPE_ICON[p.type] || '📦';
 
   return `<details class='card project-card' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
@@ -1182,6 +1184,61 @@ document.addEventListener('keydown', (e) => {
 });
 document.getElementById('cmdk-input').addEventListener('input', (e) => filterCmdk(e.target.value));
 _cmdkEl().addEventListener('click', (e) => { if (e.target.id === 'cmdk') closeCmdk(); });
+
+// ---- per-project detail modal ----
+function closeDetail() { document.getElementById('detail-modal').classList.add('hidden'); }
+async function openProjectDetail(device, name) {
+  const p = (window.__lastProjects || []).find(x => x.name === name && x.device === device) || { name, device };
+  const m = p.metrics || {};
+  const [slo, hist, ap] = await Promise.all([
+    apiJSON('/api/slo'),
+    apiJSON(`/api/history/${encodeURIComponent(device)}/${encodeURIComponent(name)}`),
+    apiJSON('/api/autopilot'),
+  ]);
+  const row = ((slo && slo.projects) || []).find(r => r.device === device && r.project === name) || {};
+  const history = (hist && hist.history) || [];
+  const aplog = ((ap && ap.log) || []).filter(e => `${e.title} ${e.message}`.includes(name));
+  const eb = p.error_budget || {};
+  const up = row.uptime_pct == null ? '—' : `${row.uptime_pct.toFixed(2)}%`;
+  const ghLink = p.type === 'github_repo' ? `<a class='detail-link' href='https://github.com/${esc(name)}' target='_blank' rel='noopener'>↗ open on GitHub</a>` : '';
+  const rel = [
+    metric('Uptime (SLO)', up),
+    metric('Incidents', row.incidents ?? '—'),
+    metric('MTTR', row.mttr_seconds == null ? '—' : `${Math.round(row.mttr_seconds)}s`),
+    metric('Error budget', eb.remaining_pct == null ? '—' : `${eb.remaining_pct}% of ${eb.target_pct}%`),
+    p.frozen ? metric('State', '🔒 frozen (Decree)') : '',
+    p.oath ? metric('Owned by', `🤝 ${esc(p.oath.who)}`) : '',
+  ].join('');
+  const mkeys = Object.entries(m).slice(0, 12).map(([k, v]) => metric(k, esc(v))).join('');
+  const apHtml = aplog.length
+    ? aplog.map(e => `<div class='ap-log-row'><span class='ap-log-t muted'>${new Date(e.ts).toLocaleTimeString()}</span><b>${esc(e.title)}</b> <span class='muted'>${esc(e.message)}</span></div>`).join('')
+    : `<div class='muted'>No autopilot activity for this project.</div>`;
+  const alerts = (p.alerts || []).map(a => `<div class='alert ${a.includes('ERROR') ? 'alert-error' : 'alert-warning'}'>${esc(a)}</div>`).join('');
+  document.getElementById('detail-body').innerHTML = `
+    <div class='detail-head'><h2>${TYPE_ICON[p.type] || '📦'} ${esc(name)} ${healthBadge(p.health)}</h2>
+      <span class='muted'>${esc(p.type || '')} · ${esc(device)} · ${esc(p.status || '')}</span> ${ghLink}</div>
+    ${alerts}
+    <h3 class='trials-sub'>Reliability</h3><div class='detail-grid'>${rel}</div>
+    ${sparkline(history, 'history') || ''}
+    <h3 class='trials-sub'>Metrics</h3><div class='detail-grid'>${mkeys || '<span class="muted">none</span>'}</div>
+    <h3 class='trials-sub'>🧠 Autopilot activity</h3>${apHtml}
+    <div class='detail-actions'>
+      <button class='btn' onclick='loadLogs(${JSON.stringify(device)},${JSON.stringify(name)})'>View logs</button>
+    </div>`;
+  document.getElementById('detail-modal').classList.remove('hidden');
+}
+document.getElementById('detail-close').onclick = closeDetail;
+document.getElementById('detail-modal').addEventListener('click', (e) => { if (e.target.id === 'detail-modal') closeDetail(); });
+
+// ---- auth-hardening banner ----
+(async function authBanner() {
+  const meta = await apiJSON('/api/meta');
+  const el = document.getElementById('auth-banner');
+  if (!el || !meta || meta.auth_configured || localStorage.getItem('maybot.auth_warn_dismissed')) return;
+  el.classList.remove('hidden');
+  el.innerHTML = `⚠ This dashboard has <b>no authentication configured</b> — anyone who can reach it has full control${meta.autopilot_enabled ? ', including the autopilot' : ''}. Set <code>MAYBOT_CONTROL_CENTER_TOKEN</code> or a <code>users.yaml</code>. <button class='btn auth-dismiss'>Dismiss</button>`;
+  el.querySelector('.auth-dismiss').onclick = () => { localStorage.setItem('maybot.auth_warn_dismissed', '1'); el.classList.add('hidden'); };
+})();
 
 function bindAssign() {
   const set = document.getElementById('leader-set');

@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <div id="auth-banner" class="auth-banner hidden"></div>
   <header class="topbar">
     <div>
       <h1>☯ MayBot Celestial Sect</h1>
@@ -335,6 +336,12 @@
     </div>
     <pre id="logs">Select a project and click View Logs.</pre>
   </aside>
+  <div id="detail-modal" class="modal hidden">
+    <div class="modal-box">
+      <button class="modal-close" id="detail-close">✕</button>
+      <div id="detail-body"></div>
+    </div>
+  </div>
   <div id="cmdk" class="cmdk hidden">
     <div class="cmdk-box">
       <input id="cmdk-input" placeholder="Type a command or search — projects, disciples, actions…  (Esc to close)">

@@ -116,6 +116,15 @@ def _resolve_device(device_name: str):
     return device
 
 
+@app.get("/api/meta")
+def meta():
+    """Non-secret UI hints: whether auth is configured (for the setup warning),
+    and which optional subsystems are on."""
+    auth_configured = bool(authz.load_users()) or bool(CONTROL_CENTER_TOKEN)
+    return {"auth_configured": auth_configured, "autopilot_enabled": autopilot.ENABLED,
+            "public_status": status_page.enabled()}
+
+
 @app.get("/api/overview")
 def overview(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
