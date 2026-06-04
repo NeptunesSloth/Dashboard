@@ -139,6 +139,7 @@ function agentCtxItems(name) {
   ];
   if (g.is_elder) items.push({ icon: '☯', label: 'Set path…', onClick: () => { const specs = Object.keys((window.__gov && window.__gov.specialties) || {}); const s = prompt(`Path for ${name} (${specs.join(', ')}):`, g.specialty || ''); if (s && s.trim()) govPost('specialty', { agent: name, specialty: s.trim() }, 'Set path').then(r => r && renderAgentCrew()); } });
   items.push({ sep: true });
+  items.push({ icon: '🎯', label: 'Set skill to learn…', onClick: () => { const s = prompt(`Skill for ${name} to seek on next roam:`, (a.cultivation || {}).learn_goal || ''); if (s !== null) fetch(`/api/agents/${encodeURIComponent(name)}/learn-goal`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ skill: s }) }).then(() => renderAgentCrew()); } });
   items.push({ icon: '🚪', label: 'Enter seclusion', onClick: () => fetch(`/api/agents/${encodeURIComponent(name)}/seclusion`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ enter: true }) }).then(() => renderAgentCrew()) });
   if (!g.is_leader) items.push({ icon: '💀', label: 'Strike down', danger: true, onClick: () => { if (confirm(`Strike down ${name}? They will be cast out and replaced.`)) govPost('strike-down', { agent: name, reason: '' }, 'Strike down').then(r => r && render()); } });
   return items;
@@ -731,6 +732,25 @@ function govControls(a) {
   return `<div class='gov-controls'>${elderBits}${strike}</div>`;
 }
 
+// Per-agent known-skills block + "tell them what to learn next roam" control.
+function agentSkillsBlock(a, c) {
+  const srcMap = window.__skillSrc || {};
+  const chips = (c.skills || []).map(s => {
+    const url = srcMap[s];
+    return `<span class='skill-chip'>${esc(s)}${url ? ` <a href='${esc(url)}' target='_blank' rel='noopener' title='discovered on the web'>🔗</a>` : ''}</span>`;
+  }).join('') || `<span class='muted'>none yet</span>`;
+  const goal = c.learn_goal ? `<div class='muted learn-goal'>🎯 seeking <b>${esc(c.learn_goal)}</b> (or the closest) on next roam</div>` : '';
+  return `<div class='agent-skills'>
+    <div class='muted skills-label'>Known skills</div>
+    <div class='skill-chips'>${chips}</div>
+    ${goal}
+    <div class='learn-set'>
+      <input class='learn-input' placeholder='skill to learn next roam…' data-agent='${esc(a.name)}' value='${esc(c.learn_goal || '')}'>
+      <button class='btn learn-go' data-agent='${esc(a.name)}'>Set goal</button>
+    </div>
+  </div>`;
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
@@ -756,8 +776,10 @@ function agentCard(a) {
     ${metric('Role', esc(a.role || '—'))}
     ${metric('Model', esc(a.model))}
     ${metric('Standing', esc(g.standing ?? '—'))}
+    ${metric('Aptitude', `<span title='reasoning · intelligence · knowledge · skills — decides who leads'>${esc(g.aptitude ?? '—')}</span>`)}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
     ${cultivationBlock(c)}
+    ${agentSkillsBlock(a, c)}
     ${pillBuffs(a)}
     ${retreatControl(a, c)}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
@@ -872,6 +894,17 @@ function bindAgentCrew(root) {
       body.innerText = (a.transcript || []).map(m => `${String(m.role).toUpperCase()}: ${m.content}`).join('\n\n') || '(empty)';
     } catch (_) { body.innerText = 'Error loading transcript.'; }
   });
+  // "Set a skill to learn next roam" per disciple.
+  root.querySelectorAll('.learn-go').forEach(b => b.onclick = async () => {
+    const name = b.getAttribute('data-agent');
+    const inp = root.querySelector(`.learn-input[data-agent="${CSS.escape(name)}"]`);
+    const skill = (inp && inp.value || '').trim();
+    await fetch(`/api/agents/${encodeURIComponent(name)}/learn-goal`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ skill }),
+    });
+    renderAgentCrew();
+  });
   // Governance controls folded into each disciple card (formerly the hierarchy roster).
   root.querySelectorAll('.gov-spec-go').forEach(b => b.onclick = async () => {
     const agent = b.getAttribute('data-agent');
@@ -901,6 +934,19 @@ async function renderAgentCrew() {
   catch (_) { window.__pills = { catalog: [], active: {} }; }
   try { window.__quests = await fetch('/api/quests', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { window.__quests = { catalog: [] }; }
+  // map of skill -> source URL for skills discovered on the web (from the vault)
+  try {
+    const ad = await fetch('/api/artifacts', { headers: authHeaders() }).then(r => r.json());
+    const map = {};
+    ((ad && ad.artifacts) || []).forEach(ar => {
+      if (ar.kind === 'note' && (ar.name || '').startsWith('Skill — ')) {
+        const nm = ar.name.slice('Skill — '.length).trim();
+        const m = /Source:\s*(\S+)/.exec(ar.content || '');
+        if (m && /^https?:/.test(m[1])) map[nm] = m[1];
+      }
+    });
+    window.__skillSrc = map;
+  } catch (_) { window.__skillSrc = window.__skillSrc || {}; }
   if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
   section.classList.remove('hidden');
   document.getElementById('agent-crew-pill').textContent = `${crew.length} disciples`;

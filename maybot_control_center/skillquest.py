@@ -69,13 +69,28 @@ def _normalize(title: str) -> str:
     return " ".join(words[:5])
 
 
-def discover(agent: str | None = None, known: set | None = None) -> dict | None:
-    """Search the web for a new, real AI skill the disciple doesn't already know.
+def _closest(want: str, pool: list[str]) -> str | None:
+    """The pool entry sharing the most words with ``want`` (None if no overlap)."""
+    wanted = set(re.findall(r"[a-z0-9]+", want.lower()))
+    best, best_score = None, 0
+    for s in pool:
+        overlap = len(wanted & set(re.findall(r"[a-z0-9]+", s.lower())))
+        if overlap > best_score:
+            best, best_score = s, overlap
+    return best
 
-    Returns {"skill", "url", "source": web|offline, "query"} or None if nothing new.
+
+def discover(agent: str | None = None, known: set | None = None,
+             want: str | None = None) -> dict | None:
+    """Search the web for a real AI skill the disciple doesn't already know.
+
+    If ``want`` is set (an Ancestor-requested skill), search for *that* and learn
+    it or the closest match. Returns {"skill","url","source","query","requested"}
+    or None if nothing new.
     """
     known_l = {str(k).lower() for k in (known or set())}
-    query = random.choice(SEEDS)
+    want = (want or "").strip()
+    query = want or random.choice(SEEDS)
     try:
         results = _search(query) or []
     except Exception:
@@ -89,13 +104,20 @@ def discover(agent: str | None = None, known: set | None = None) -> dict | None:
             break
 
     if not skill:
-        source = "offline"
-        pool = [s for s in FALLBACK if s.lower() not in known_l]
-        if not pool:
+        if want:
+            # Offline but a skill was requested: learn the closest curated match,
+            # or the requested skill itself if nothing's close.
+            source = "requested"
+            cand = _closest(want, [s for s in FALLBACK if s.lower() not in known_l])
+            skill = cand or (want.lower() if want.lower() not in known_l else "")
+        else:
+            source = "offline"
+            pool = [s for s in FALLBACK if s.lower() not in known_l]
+            skill = random.choice(pool) if pool else ""
+        if not skill:
             return None
-        skill = random.choice(pool)
 
-    meta = {"skill": skill, "url": url, "source": source, "query": query}
+    meta = {"skill": skill, "url": url, "source": source, "query": query, "requested": bool(want)}
     if agent:
         with _lock:
             _last[agent] = meta

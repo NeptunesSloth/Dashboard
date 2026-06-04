@@ -81,7 +81,7 @@ _state: dict[str, dict] = {}
 def _blank(agent: str) -> dict:
     return {"agent": agent, "stones": 0, "realm": 0, "skills": [], "breakthroughs": 0,
             "fail_streak": 0, "pending_tribulation": None, "pending_quest": None, "last_stipend": 0,
-            "seclusion_since": None, "roaming_since": None,
+            "seclusion_since": None, "roaming_since": None, "learn_goal": None,
             "event": None, "event_ts": 0, "updated_at": 0}
 
 
@@ -323,6 +323,7 @@ def state(agent: str) -> dict:
         "in_roaming": bool(st.get("roaming_since")),
         "roaming_remaining": (max(0, int(ROAMING_SECONDS - (time.time() - st["roaming_since"])))
                               if st.get("roaming_since") else 0),
+        "learn_goal": st.get("learn_goal"),
         "pending_quest": st.get("pending_quest"),
         "stones": st["stones"],
         "skills": st["skills"],
@@ -472,9 +473,20 @@ def exit_roaming(agent: str) -> dict:
     return state(agent)
 
 
+def set_learn_goal(agent: str, skill: str | None) -> dict:
+    """The Ancestor asks a disciple to seek a specific skill on their next roam."""
+    goal = (skill or "").strip() or None
+    with _lock:
+        st = _state.get(agent) or _blank(agent)
+        _state[agent] = st
+        st["learn_goal"] = goal
+    return state(agent)
+
+
 def tick_roaming(agent: str) -> str | None:
     """If a roaming disciple's journey has matured, return having learned a *real*
-    AI skill found on the web (curated fallback when offline)."""
+    AI skill found on the web (curated fallback when offline). If the Ancestor set
+    a learn-goal, the disciple searches for that skill (or the closest thing)."""
     now = time.time()
     with _lock:
         st = _state.get(agent)
@@ -483,12 +495,13 @@ def tick_roaming(agent: str) -> str | None:
         if now - st["roaming_since"] < ROAMING_SECONDS:
             return None
         known = set(st["skills"])
+        want = st.get("learn_goal")
 
     # Network/discovery happens OUTSIDE the lock so a slow search can't stall callers.
     found, meta = None, None
     try:
         from . import skillquest
-        meta = skillquest.discover(agent, known)
+        meta = skillquest.discover(agent, known, want=want)
         if meta:
             found = meta["skill"]
     except Exception:
@@ -508,6 +521,8 @@ def tick_roaming(agent: str) -> str | None:
         st["stones"] += AWARD_NEW_SKILL
         _maybe_breakthrough(st)
         st["roaming_since"] = now  # keep wandering for the next discovery
+        if st.get("learn_goal"):
+            st["learn_goal"] = None  # the requested skill (or closest) has been sought
         st["event"], st["event_ts"] = "discovery", int(now * 1000)
         snap = dict(st)
         snap["skills"] = list(st["skills"])

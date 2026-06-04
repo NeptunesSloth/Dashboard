@@ -833,6 +833,23 @@ def agent_roaming(name: str, body: SeclusionIn, x_control_token: str = Header(de
     return cultivation.enter_roaming(name) if body.enter else cultivation.exit_roaming(name)
 
 
+class LearnGoalIn(BaseModel):
+    skill: str = ""   # empty clears the goal
+
+
+@app.post("/api/agents/{name}/learn-goal")
+def agent_learn_goal(name: str, body: LearnGoalIn, x_control_token: str = Header(default="")):
+    """Ask a disciple to seek a specific skill on their next roam (or the closest)."""
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    if agents._agent_def(name) is None:
+        raise HTTPException(404, "agent not found")
+    if len(body.skill) > 120:
+        raise HTTPException(400, "skill too long (max 120)")
+    return cultivation.set_learn_goal(name, body.skill)
+
+
 class TransmitIn(BaseModel):
     to: str
     skill: str

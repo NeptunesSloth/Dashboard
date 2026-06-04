@@ -550,6 +550,7 @@ def snapshot() -> list[dict]:
             "specialty": governance.specialty(name),
             "mastery": governance.mastery(name),
             "standing": governance.standing(name)["score"],
+            "aptitude": governance.aptitude(name)["score"],
         }
         row["titles"] = titles.evaluate(name)
         row["bond"] = bonds.partner(name)

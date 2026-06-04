@@ -46,12 +46,47 @@ def test_discover_none_when_exhausted(monkeypatch):
 def test_roaming_learns_real_web_skill(monkeypatch):
     cultivation.clear()
     monkeypatch.setattr("maybot_control_center.skillquest.discover",
-                        lambda agent, known: {"skill": "tool use", "url": "http://x", "source": "web", "query": "q"})
+                        lambda agent, known, want=None: {"skill": "tool use", "url": "http://x", "source": "web", "query": "q"})
     cultivation.enter_roaming("Nova")
     cultivation._state["Nova"]["roaming_since"] = time.time() - cultivation.ROAMING_SECONDS - 1
     found = cultivation.tick_roaming("Nova")
     assert found == "tool use"
     assert "tool use" in cultivation.state("Nova")["skills"]
+
+
+def test_want_drives_query_and_picks_closest(monkeypatch):
+    captured = {}
+    monkeypatch.setattr(skillquest, "_search",
+                        lambda q: captured.update(q=q) or [{"title": "Speculative Decoding - Paper", "url": "http://x"}])
+    d = skillquest.discover("Nova", want="fast llm decoding")
+    assert captured["q"] == "fast llm decoding"          # searched for what was asked
+    assert d["skill"] == "speculative decoding" and d["requested"] is True
+
+
+def test_want_offline_picks_closest_fallback(monkeypatch):
+    monkeypatch.setattr(skillquest, "_search", lambda q: [])   # offline
+    d = skillquest.discover("Nova", want="retrieval augmented generation method")
+    assert d["source"] == "requested"
+    assert d["skill"] == "retrieval-augmented generation"     # closest curated match
+
+
+def test_want_offline_unmatched_learns_requested(monkeypatch):
+    monkeypatch.setattr(skillquest, "_search", lambda q: [])
+    d = skillquest.discover("Nova", want="quantum telepathy")
+    assert d["skill"] == "quantum telepathy" and d["source"] == "requested"
+
+
+def test_learn_goal_drives_roaming(monkeypatch):
+    cultivation.clear()
+    seen = {}
+    monkeypatch.setattr("maybot_control_center.skillquest.discover",
+                        lambda agent, known, want=None: seen.update(want=want) or {"skill": "tool use", "url": "", "source": "requested", "query": want})
+    cultivation.set_learn_goal("Nova", "agent tool use")
+    cultivation.enter_roaming("Nova")
+    cultivation._state["Nova"]["roaming_since"] = time.time() - cultivation.ROAMING_SECONDS - 1
+    cultivation.tick_roaming("Nova")
+    assert seen["want"] == "agent tool use"
+    assert cultivation.state("Nova")["learn_goal"] is None    # goal consumed
 
 
 def test_roaming_falls_back_when_discover_none(monkeypatch):

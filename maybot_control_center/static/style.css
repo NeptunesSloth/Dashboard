@@ -944,3 +944,13 @@ details.project-card { padding: 0; overflow: hidden; }
 .skill-tag { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--tech);
   border: 1px solid rgba(88,166,255,.4); background: rgba(88,166,255,.08); border-radius: 8px; padding: 1px 7px; }
 .skill-src { font-size: 12px; color: var(--tech); }
+
+/* ---- per-agent known skills + learn-goal ---- */
+.agent-skills { margin: 8px 0 4px; }
+.skills-label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.skill-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.skill-chip { font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,.03); }
+.skill-chip a { text-decoration: none; }
+.learn-goal { font-size: 12px; margin-top: 5px; }
+.learn-set { display: flex; gap: 6px; margin-top: 6px; }
+.learn-set .learn-input { flex: 1; min-width: 0; }
