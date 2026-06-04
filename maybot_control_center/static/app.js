@@ -756,6 +756,7 @@ function govRosterCard(r, leaderPinned) {
   const s = r.standing || {};
   const c = s.components || {};
   const rank = r.is_leader ? '👑 Sect Leader' : (r.is_master ? 'Sect Master' : (r.is_elder ? '🜍 Elder' : 'Disciple'));
+  const fieldLine = r.is_elder && r.specialty ? `<div class='muted gov-expert'>Expert of the ${esc(r.specialty)}</div>` : '';
   const specOpts = Object.keys(window.__specialties || {}).map(k =>
     `<option ${r.specialty === k ? 'selected' : ''}>${esc(k)}</option>`).join('');
   const elderBits = r.is_elder ? `
@@ -768,6 +769,7 @@ function govRosterCard(r, leaderPinned) {
   return `<div class='card gov-card${r.is_leader ? ' gov-card-leader' : ''}'>
     <div class='metric'><b>${esc(r.agent)}</b><b class='money-pos'>${s.score ?? '—'}</b></div>
     ${metric('Rank', rank)}
+    ${fieldLine}
     ${metric('Specialty', r.specialty ? `${esc(r.specialty)} · mastery ${r.mastery}` : '—')}
     <div class='gov-bars muted'>merit ${c.merit ?? '—'} · perf ${c.performance ?? '—'} · lead ${c.leadership ?? '—'} · contrib ${c.contribution ?? '—'}</div>
     ${controls}

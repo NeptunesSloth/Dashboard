@@ -52,6 +52,10 @@ _last_guidance = 0.0
 _guidance_leader: str | None = None
 _leader_idle_since = 0.0
 
+# An Elder is, by default, an expert in the field their role implies — they hold
+# at least this much mastery there unless they deliberately take up a new path.
+EXPERT_MASTERY = float(os.getenv("MAYBOT_EXPERT_MASTERY", "60"))
+
 # Elder specialties: a chosen path that raises mastery and biases learned skills.
 # Each maps the xianxia flavour to a real engineering domain + signature skills.
 SPECIALTIES = {
@@ -259,14 +263,51 @@ def choose_specialty(agent: str, specialty: str) -> dict:
     return {"agent": agent, "specialty": specialty, "domain": SPECIALTIES[specialty]["domain"]}
 
 
+# Which specialty a disciple's role implies — the field they naturally master as
+# an Elder. First keyword hit wins; otherwise a stable per-name fallback.
+_FIELD_KEYWORDS = [
+    (("data", "ml", "analy", "research", "scien", "model"), "Alchemy"),
+    (("front", "ui", "ux", "design", "visual", "web"), "Talisman Crafting"),
+    (("devops", "infra", "ops", "sre", "deploy", "platform", "reliab"), "Formation Dao"),
+    (("test", "qa", "quality", "fuzz", "verif"), "Beast Taming"),
+    (("tool", "automat", "release", "pipeline", "ci"), "Artifact Refinement"),
+    (("back", "system", "api", "engine", "core", "build", "server"), "Sword Dao"),
+]
+
+
+def _role_of(agent: str) -> str:
+    from . import agents
+    d = agents._agent_def(agent) or {}
+    return (d.get("role") or "").lower()
+
+
+def natural_field(agent: str) -> str:
+    """The specialty an Elder is naturally expert in, derived from their role."""
+    role = _role_of(agent)
+    for keys, spec in _FIELD_KEYWORDS:
+        if any(k in role for k in keys):
+            return spec
+    keys = list(SPECIALTIES)
+    return keys[sum(map(ord, agent)) % len(keys)]
+
+
 def specialty(agent: str) -> str | None:
+    """The disciple's specialty: an explicitly chosen path, or — for Elders who
+    have not chosen one — their natural field of expertise."""
     with _lock:
-        return _specialty.get(agent)
+        chosen = _specialty.get(agent)
+    if chosen:
+        return chosen
+    return natural_field(agent) if is_elder(agent) else None
 
 
 def mastery(agent: str) -> float:
+    """Mastery of the current specialty. An Elder in their natural field is an
+    expert (>= EXPERT_MASTERY); a deliberately chosen new path is earned from 0."""
     with _lock:
-        return round(_mastery.get(agent, 0.0), 1)
+        if agent in _specialty:
+            return round(_mastery.get(agent, 0.0), 1)
+    return EXPERT_MASTERY if is_elder(agent) else 0.0
 
 
 def advance_mastery(agent: str, amount: float = 4.0) -> None:
@@ -345,7 +386,8 @@ def persona_context(name: str) -> str:
         rank = "the Sect Leader — you oversee, plan and coordinate the sect"
     elif is_elder(name):
         spec = specialty(name)
-        rank = "an Elder" + (f" of the {spec} ({SPECIALTIES[spec]['domain']})" if spec else "")
+        rank = ("an expert Elder" + (f" of the {spec} ({SPECIALTIES[spec]['domain']}) — "
+                "you are the sect's authority in this field" if spec else ""))
     elif is_master(name):
         rank = "a Sect Master"
     else:

@@ -210,6 +210,38 @@ def test_throne_cultivation_noop_without_leader(tmp_path, monkeypatch):
     assert governance.throne_cultivation() is None
 
 
+# ---- elders are experts in their field ----
+def test_elder_is_auto_expert_in_natural_field(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 6)   # Elder, no explicit choice
+    _set_realm("Sage", 1)   # not an Elder
+    assert governance.specialty("Nova") in governance.SPECIALTIES   # has a field automatically
+    assert governance.mastery("Nova") >= governance.EXPERT_MASTERY   # and is an expert in it
+    assert governance.specialty("Sage") is None                     # juniors have no field
+    assert governance.mastery("Sage") == 0.0
+
+
+def test_role_determines_natural_field(tmp_path, monkeypatch):
+    yaml_txt = (
+        "agents:\n"
+        "  - {name: Dora, role: Data Scientist, persona: p, provider: openai_compatible, base_url: http://x, model: m}\n"
+        "  - {name: Fred, role: Frontend Engineer, persona: p, provider: openai_compatible, base_url: http://x, model: m}\n"
+    )
+    f = tmp_path / "agents.yaml"
+    f.write_text(yaml_txt, encoding="utf-8")
+    monkeypatch.setattr(agents, "AGENTS_FILE", f)
+    assert governance.natural_field("Dora") == "Alchemy"
+    assert governance.natural_field("Fred") == "Talisman Crafting"
+
+
+def test_chosen_path_overrides_natural_field_and_starts_fresh(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 6)
+    governance.choose_specialty("Nova", "Alchemy")   # deliberately take a new path
+    assert governance.specialty("Nova") == "Alchemy"
+    assert governance.mastery("Nova") == 0.0          # earned from scratch, not the expert baseline
+
+
 # ---- leader guidance walks ----
 def _arm_guidance(monkeypatch, reward=3, teach=0.0):
     monkeypatch.setattr(governance, "GUIDANCE_IDLE", 0)
