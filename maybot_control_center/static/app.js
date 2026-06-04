@@ -1054,13 +1054,14 @@ const PEAK_DEFS = [
   { id: 'leader', title: "Sect Leader's Peak", icon: '👑', kind: 'group', tiers: ['leader'], bg: 'leader_bg.png', anchor: { x: 49, y: 26 } },
   { id: 'elders', title: "Elders' Peak", icon: '🜍', kind: 'group', tiers: ['elder', 'core'], anchor: { x: 29, y: 9 } },
   { id: 'inner', title: 'Inner Court', icon: '🟦', kind: 'group', tiers: ['inner'], anchor: { x: 81, y: 13 } },
-  { id: 'techniques', title: 'Technique Hall', icon: '🗡️', kind: 'utility', cat: 'tools', anchor: { x: 66, y: 6 } },
+  { id: 'techniques', title: 'Technique Hall', icon: '🗡️', kind: 'utility', cat: 'tools', bg: 'technique_bg.png', anchor: { x: 66, y: 6 } },
   { id: 'outer', title: 'Outer Court', icon: '⛰️', kind: 'group', tiers: ['outer'], anchor: { x: 11, y: 41 } },
-  { id: 'pill', title: 'Pill Pavilion', icon: '⚗️', kind: 'utility', cat: 'pills', anchor: { x: 65, y: 45 } },
-  { id: 'mission', title: 'Mission Hall', icon: '📜', kind: 'utility', cat: 'quests', anchor: { x: 93, y: 43 } },
+  { id: 'pill', title: 'Pill Pavilion', icon: '⚗️', kind: 'utility', cat: 'pills', bg: 'pill_bg.png', anchor: { x: 65, y: 45 } },
+  { id: 'mission', title: 'Mission Hall', icon: '📜', kind: 'utility', cat: 'quests', bg: 'mission_bg.png', anchor: { x: 93, y: 43 } },
   { id: 'council', title: 'Dao Council', icon: '⚖️', kind: 'utility', cat: 'council', anchor: { x: 39, y: 58 } },
-  { id: 'treasury', title: 'Treasure Pavilion', icon: '💎', kind: 'utility', cat: 'treasury', anchor: { x: 6, y: 67 } },
-  { id: 'seclusion', title: 'Seclusion Caves', icon: '🕳️', kind: 'group', filter: 'seclusion', anchor: { x: 22, y: 71 } },
+  { id: 'treasury', title: 'Treasure Pavilion', icon: '💎', kind: 'utility', cat: 'treasury', bg: 'treasure_bg.png', anchor: { x: 6, y: 67 } },
+  // Seclusion Caves: disciples sit on the central stone platform only
+  { id: 'seclusion', title: 'Seclusion Caves', icon: '🕳️', kind: 'group', filter: 'seclusion', bg: 'seclusion_bg.png', floor: { cx: 50, baseY: 70, spread: 22, arc: 5 }, anchor: { x: 22, y: 71 } },
 ];
 
 // state-based membership for group peaks that aren't rank tiers
@@ -1200,9 +1201,15 @@ function hallUnitInner(act, key, variant) {
   const v = (variant && key !== 'demon') ? variant : '';
   return `<span class='hall-sprite act-${act}'><span class='hall-fx'><i></i><i></i><i></i></span><img src='/assets/map/sprites/agent_${key}${v}.png' alt='' draggable='false'></span>`;
 }
-function hallPositions(k) {
-  const out = [], cx = 50, baseY = 60, spread = Math.min(72, 16 + k * 9);
-  for (let i = 0; i < k; i++) { const t = k === 1 ? 0.5 : i / (k - 1); out.push({ x: cx - spread / 2 + spread * t, y: baseY + 20 - Math.sin(t * Math.PI) * 11 }); }
+function hallPositions(k, floor) {
+  // `floor` lets a hall pin disciples to a sensible standing area (e.g. a cave's
+  // central platform) instead of spreading them across scenery that can't be sat on.
+  const cx = floor?.cx ?? 50;
+  const baseY = floor?.baseY ?? 60;
+  const spread = floor ? Math.min(floor.spread, 8 + k * 6) : Math.min(72, 16 + k * 9);
+  const arc = floor?.arc ?? 11;
+  const out = [];
+  for (let i = 0; i < k; i++) { const t = k === 1 ? 0.5 : i / (k - 1); out.push({ x: cx - spread / 2 + spread * t, y: baseY + (floor ? 0 : 20) - Math.sin(t * Math.PI) * arc }); }
   return out;
 }
 
@@ -1286,7 +1293,7 @@ async function renderGroupHall(peak, focusName, instant) {
     </div>` : ''}`, instant);
 
   const units = hall.querySelector('.hall-floor-units');
-  const pos = hallPositions(present.length);
+  const pos = hallPositions(present.length, peak.floor);
   present.forEach((x, i) => {
     let ax = hallActivity(x);
     let p = pos[i];
@@ -1334,9 +1341,9 @@ async function renderGroupHall(peak, focusName, instant) {
 async function renderUtilityHall(peak, instant) {
   const row = (a, b2) => `<div class='po-row'><span>${a}</span><b>${b2}</b></div>`;
   let body = `<div class='muted' style='padding:6px'>loading…</div>`;
+  const arrayFx = (peak.bg && peak.bg !== 'hall_bg.png') ? '' : `<div class='hall-array'><div class='ha-ring'></div><div class='ha-core'></div><div class='ha-beam'></div></div>`;
   const hall = _showHall(`
-    <img class='hall-bg-img' src='/assets/map/${peak.bg || 'hall_bg.png'}' alt='' draggable='false'>
-    <div class='hall-array'><div class='ha-ring'></div><div class='ha-core'></div><div class='ha-beam'></div></div>
+    <img class='hall-bg-img' src='/assets/map/${peak.bg || 'hall_bg.png'}' alt='' draggable='false'>${arrayFx}
     <button id='hall-back' class='btn hall-back'>← return to the heavens</button>
     <div class='hall-title pixel-panel'><b>${peak.icon} ${esc(peak.title)}</b></div>
     <div class='pixel-panel hall-util'><div class='pp-title'>${peak.icon} ${esc(peak.title)}</div><div id='util-body'>${body}</div></div>`, instant);
