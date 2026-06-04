@@ -34,6 +34,7 @@ const TYPE_ICON = {
 };
 const TYPE_ORDER = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'github_repo', 'generic'];
 
+const STONE = "<span class='stone'></span>";
 function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 function getControlToken() { return localStorage.getItem(CONTROL_TOKEN_STORAGE_KEY) || ''; }
 function authHeaders() { const t = getControlToken(); return t ? { 'x-control-token': t } : {}; }
@@ -422,7 +423,7 @@ function renderSectRanking(crew) {
       <span class='rank-name'>${esc(a.name)}</span>
       <span class='rank-title'>${esc(c.rank_title || '')}</span>
       <span class='rank-realm'>${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span>
-      <span class='rank-stones'>💎 ${esc(c.stones)}</span>
+      <span class='rank-stones'><span class='stone'></span>${esc(c.stones)}</span>
     </div>`;
   }).join('');
 }
@@ -446,7 +447,7 @@ function cultivationBlock(c) {
     : `<div class='muted culti-next'>✦ Immortal Ascension attained</div>`;
   const skills = (c.skills && c.skills.length) ? `<div class='muted culti-skills'>Techniques: ${c.skills.map(esc).join(', ')}</div>` : '';
   return `<div class='cultivation realm-${c.realm}'>
-    <div class='culti-head'><span class='culti-realm'>⛰ ${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span><span class='culti-stones'>💎 ${esc(c.stones)}</span></div>
+    <div class='culti-head'><span class='culti-realm'>⛰ ${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span><span class='culti-stones'><span class='stone'></span>${esc(c.stones)}</span></div>
     <div class='muted culti-rank'>${esc(c.rank_title || '')}</div>
     <div class='qi-bar'><span style='width:${prog}%'></span></div>
     ${next}${skills}${cultivationFlourish(c)}
@@ -486,7 +487,7 @@ function pillControl(a, c) {
   const stones = (c && c.stones) || 0;
   const buffs = (pd.active && pd.active[a.name]) || [];
   const chips = buffs.length ? `<div class='pill-buffs'>${buffs.map(b => `<span class='pill-chip'>⚗ ${esc(b.name)}</span>`).join('')}</div>` : '';
-  const opts = pd.catalog.map(p => `<option value='${esc(p.id)}'${p.cost > stones ? ' disabled' : ''}>${esc(p.name)} · 💎${esc(p.cost)}</option>`).join('');
+  const opts = pd.catalog.map(p => `<option value='${esc(p.id)}'${p.cost > stones ? ' disabled' : ''}>${esc(p.name)} · <span class='stone'></span>${esc(p.cost)}</option>`).join('');
   return `${chips}<div class='pill-control'><select class='pill-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn pill-buy' data-agent='${esc(a.name)}'>Concoct</button></div>`;
 }
 
@@ -698,8 +699,8 @@ function renderHallOfFame() {
   const learned = top((x, y) => (y.cultivation.skills || []).length - (x.cultivation.skills || []).length);
   const broke = top((x, y) => y.cultivation.breakthroughs - x.cultivation.breakthroughs);
   document.getElementById('hall-of-fame').innerHTML = [
-    fameCard('🏆 Strongest', strongest, 'Spirit stones', `💎 ${strongest.cultivation.stones}`),
-    fameCard('💎 Richest', richest, 'Spirit stones', `💎 ${richest.cultivation.stones}`),
+    fameCard('🏆 Strongest', strongest, 'Spirit stones', `<span class='stone'></span>${strongest.cultivation.stones}`),
+    fameCard(STONE + ' Richest', richest, 'Spirit stones', `${STONE}${richest.cultivation.stones}`),
     fameCard('📚 Most Techniques', learned, 'Techniques', `${(learned.cultivation.skills || []).length}`),
     fameCard('⚡ Most Breakthroughs', broke, 'Breakthroughs', `${broke.cultivation.breakthroughs}`),
   ].join('');
@@ -1059,7 +1060,7 @@ const PEAK_DEFS = [
   { id: 'pill', title: 'Pill Pavilion', icon: '⚗️', kind: 'utility', cat: 'pills', bg: 'pill_bg.png', anchor: { x: 65, y: 45 } },
   { id: 'mission', title: 'Mission Hall', icon: '📜', kind: 'utility', cat: 'quests', bg: 'mission_bg.png', anchor: { x: 93, y: 43 } },
   { id: 'council', title: 'Dao Council', icon: '⚖️', kind: 'utility', cat: 'council', anchor: { x: 39, y: 58 } },
-  { id: 'treasury', title: 'Treasure Pavilion', icon: '💎', kind: 'utility', cat: 'treasury', bg: 'treasure_bg.png', anchor: { x: 6, y: 67 } },
+  { id: 'treasury', title: 'Treasure Pavilion', icon: '🪙', kind: 'utility', cat: 'treasury', bg: 'treasure_bg.png', anchor: { x: 6, y: 67 } },
   // Seclusion Caves: disciples sit on the central stone platform only
   { id: 'seclusion', title: 'Seclusion Caves', icon: '🕳️', kind: 'group', filter: 'seclusion', bg: 'seclusion_bg.png', floor: { cx: 50, baseY: 70, spread: 22, arc: 5 }, anchor: { x: 22, y: 71 } },
 ];
@@ -1111,7 +1112,7 @@ async function renderSectMap() {
     <div class='pixel-panel peak-overview'>
       <div class='pp-title'>☯ Peak Overview</div>
       ${stat('👤', 'Disciples', n)}${stat('🧘', 'Cultivating', cultivating)}${stat('🍵', 'Idle', idle)}
-      ${stat('✓', 'Success', succ + '%')}${stat('💎', 'Spirit stones', stones.toLocaleString())}
+      ${stat('✓', 'Success', succ + '%')}${stat(STONE, 'Spirit stones', stones.toLocaleString())}
     </div>
     <div class='pixel-panel peak-lord'><span class='pl-label'>Peak Lord</span><b>👑 ${esc(leader ? leader.name : '—')}</b><span class='muted'>${esc(leader?.cultivation?.realm_name || '')}</span></div>
     <div class='map-motes'>${Array.from({ length: 14 }, (_, i) => `<span style='left:${(i * 7 + 4) % 98}%;animation-delay:${(i * 0.9).toFixed(1)}s;animation-duration:${9 + (i % 5) * 2}s'></span>`).join('')}</div>
@@ -1278,7 +1279,7 @@ async function renderGroupHall(peak, focusName, instant) {
     <div class='pixel-panel hall-info'>
       <div class='pp-title'>⛩ Hall Info</div>
       ${row('👤', 'Present', present.length + '/' + all.length)}${row('🧘', 'Cultivating', cult)}
-      ${row('⬆', 'Avg realm', avgRealm)}${row('💎', 'Spirit stones', stones.toLocaleString())}
+      ${row('⬆', 'Avg realm', avgRealm)}${row(STONE, 'Spirit stones', stones.toLocaleString())}
     </div>
     <div class='pixel-panel hall-agents'>
       <div class='pp-title'>Disciples (${all.length})</div><div class='hall-agent-list'>${agentList}</div>
@@ -1359,7 +1360,7 @@ async function renderUtilityHall(peak, instant) {
       set(ps.length ? ps.map(p => `<div class='util-item'><b>⚗️ ${esc(p.name || p.id)}</b><div class='muted'>${esc(p.effect || p.description || '')}</div></div>`).join('') : '<div class="muted">The cauldron is cold.</div>');
     } else if (peak.cat === 'treasury') {
       const d = await fetch('/api/treasury', { headers: authHeaders() }).then(r => r.json());
-      set(row('💎 Balance', (d.balance ?? 0).toLocaleString()) + row('Spirit veins', d.veins ?? d.vein_count ?? '—') + (d.detail ? `<div class='muted' style='margin-top:6px'>${esc(d.detail)}</div>` : ''));
+      set(row(STONE + ' Balance', (d.balance ?? 0).toLocaleString()) + row('Spirit veins', d.veins ?? d.vein_count ?? '—') + (d.detail ? `<div class='muted' style='margin-top:6px'>${esc(d.detail)}</div>` : ''));
     } else if (peak.cat === 'tools') {
       const d = await fetch('/api/tools', { headers: authHeaders() }).then(r => r.json());
       const ts = d.tools || d.catalog || [];
@@ -1787,7 +1788,7 @@ async function renderTreasury() {
   try { t = await fetch('/api/treasury', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { return; }
   if (!t) return;
-  document.getElementById('treasury-balance').textContent = `💎 ${t.balance}`;
+  document.getElementById('treasury-balance').innerHTML = `<span class='stone'></span>${t.balance}`;
   document.getElementById('treasury-detail').textContent =
     `veins +${t.income_per_hour}/hr · ${t.total_income} channelled · ${t.total_spent} disbursed`;
 }
