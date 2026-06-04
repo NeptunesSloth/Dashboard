@@ -340,6 +340,13 @@ def usage_stats(x_control_token: str = Header(default="")):
     return usage.snapshot()
 
 
+@app.get("/api/budget")
+def budget_stats(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import budget
+    return budget.snapshot()
+
+
 @app.get("/api/cultivation")
 def cultivation_stats(x_control_token: str = Header(default="")):
     _check_token(x_control_token)

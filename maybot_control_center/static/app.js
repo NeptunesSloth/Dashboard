@@ -1838,6 +1838,38 @@ async function renderUsage() {
   document.getElementById('usage-total').textContent =
     `$${Number(t.cost || 0).toFixed(4)} · ${t.calls} calls · ${(t.tokens_in + t.tokens_out).toLocaleString()} tok`;
   document.getElementById('usage-table').innerHTML = (data.agents || []).map(usageCard).join('');
+  renderReserves();
+}
+
+async function renderReserves() {
+  const el = document.getElementById('qi-reserves');
+  if (!el) return;
+  let b; try { b = await fetch('/api/budget', { headers: authHeaders() }).then(r => r.json()); } catch (_) { el.innerHTML = ''; return; }
+  const r = b.reserves || {};
+  if (!r.enabled) {                                  // no budget configured → just a hint
+    el.innerHTML = `<div class='qr-card'><div class='qr-head'><b>☯ Qi Reserves</b><span class='muted'>no budget set · spent $${Number(r.spent || 0).toFixed(4)}</span></div>
+      <div class='muted' style='font-size:12px'>Set <code>MAYBOT_BUDGET_USD</code> to cap sect spend and auto-throttle low-merit disciples when it runs low.</div></div>`;
+    return;
+  }
+  const pct = r.pct_remaining;
+  const lvl = r.exhausted ? 'qr-exhausted' : r.critical ? 'qr-critical' : r.low ? 'qr-low' : 'qr-ok';
+  const note = r.exhausted ? 'reserves spent — autonomous runs halted'
+    : r.critical ? 'critical — only Trusted disciples may act'
+    : r.low ? 'low — Probation disciples throttled' : 'healthy';
+  const throttled = (b.agents || []).filter(a => a.status !== 'ok');
+  // per-agent spend bars (share of total spend), tinted by throttle status
+  const spenders = (b.agents || []).filter(a => a.cost > 0).sort((x, y) => y.cost - x.cost).slice(0, 8);
+  const maxc = Math.max(0.0001, ...spenders.map(a => a.cost));
+  const bars = spenders.map(a => `<div class='qr-agent'>
+    <span class='qr-aname'>${a.status === 'ok' ? '' : (a.status === 'capped' ? '⛔ ' : '⚠ ')}${esc(a.agent)}</span>
+    <span class='qr-abar'><span class='qr-a-${a.status}' style='width:${Math.round(100 * a.cost / maxc)}%'></span></span>
+    <span class='qr-acost'>$${a.cost.toFixed(4)}</span></div>`).join('');
+  el.innerHTML = `<div class='qr-card'>
+    <div class='qr-head'><b>☯ Qi Reserves</b><span>$${Number(r.remaining).toFixed(2)} / $${Number(r.budget).toFixed(2)} <span class='muted'>(${pct}%)</span></span></div>
+    <div class='qr-bar'><span class='${lvl}' style='width:${Math.max(0, Math.min(100, pct))}%'></span></div>
+    <div class='qr-note ${lvl}'>${note}${throttled.length ? ` · throttled: ${throttled.map(a => esc(a.agent)).join(', ')}` : ''}</div>
+    ${bars ? `<div class='qr-agents'>${bars}</div>` : ''}
+  </div>`;
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

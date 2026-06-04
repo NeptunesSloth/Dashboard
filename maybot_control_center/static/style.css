@@ -658,3 +658,24 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .asc-sub b { color: var(--tech); font-size: 26px; }
 @keyframes ascPop { 0% { transform: scale(.5) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .map-rain, .map-weather.storm, .asc-rays { animation: none !important; } }
+
+/* ---- Qi Reserves (cost budget gauge) ---- */
+.qr-card { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;
+  background: linear-gradient(180deg, rgba(24,20,42,.7), rgba(16,12,28,.7)); }
+.qr-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.qr-head b { color: var(--gold); font-family: "Cinzel", Georgia, serif; }
+.qr-bar { height: 14px; border-radius: 7px; background: rgba(0,0,0,.4); overflow: hidden; border: 1px solid var(--border); }
+.qr-bar > span { display: block; height: 100%; transition: width .6s ease; }
+.qr-ok { background: linear-gradient(90deg, var(--tech), var(--gold)); box-shadow: 0 0 10px rgba(54,224,180,.5); }
+.qr-low { background: linear-gradient(90deg, #ecb648, #f0c46a); }
+.qr-critical { background: linear-gradient(90deg, #ff8a3b, #ff5c6e); }
+.qr-exhausted { background: #ff5c6e; }
+.qr-note { font-size: 12px; margin-top: 6px; color: var(--muted); }
+.qr-note.qr-low { color: var(--yellow); } .qr-note.qr-critical, .qr-note.qr-exhausted { color: var(--red); }
+.qr-agents { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.qr-agent { display: grid; grid-template-columns: 110px 1fr 72px; align-items: center; gap: 8px; font-size: 12px; }
+.qr-aname { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qr-abar { height: 8px; border-radius: 4px; background: rgba(0,0,0,.35); overflow: hidden; }
+.qr-abar > span { display: block; height: 100%; }
+.qr-a-ok { background: var(--tech); } .qr-a-throttled { background: var(--yellow); } .qr-a-capped { background: var(--red); }
+.qr-acost { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
