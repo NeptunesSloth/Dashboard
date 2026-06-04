@@ -1,12 +1,22 @@
-from maybot_control_center import autonomy
+import pytest
+
+from maybot_control_center import autonomy, reputation, budget, pills
 
 
 SAFE = {"name": "ver", "auto_approve": True}
 UNSAFE = {"name": "rm", "auto_approve": False}
 
 
-def setup_function():
+@pytest.fixture(autouse=True)
+def _iso(monkeypatch):
+    """Isolate the budget logic from external influences on the cap (reputation /
+    pills bonuses, probation, sect budget) so the tests are deterministic
+    regardless of global cultivation/reputation state left by other tests."""
     autonomy.clear()
+    monkeypatch.setattr(reputation, "is_probation", lambda a: False)
+    monkeypatch.setattr(reputation, "autonomy_bonus", lambda a: 0)
+    monkeypatch.setattr(pills, "autonomy_bonus", lambda a: 0)
+    monkeypatch.setattr(budget, "allowed", lambda a: True)
 
 
 def test_non_auto_approve_never_runs(monkeypatch):
