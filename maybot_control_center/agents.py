@@ -300,6 +300,14 @@ def run_task(name: str, task: str) -> dict:
         agent_eff["model"] = boost["model"]
     if boost.get("max_tokens"):
         agent_eff["max_tokens"] = int(agent.get("max_tokens", 1024)) + int(boost["max_tokens"])
+    # Ascension: a high-realm disciple thinks with a stronger model.
+    try:
+        from . import ascension
+        asc = ascension.model_for(name, agent_eff.get("model") or agent.get("default_model"))
+        if asc:
+            agent_eff["model"] = asc
+    except Exception:
+        pass
 
     ok, text, err = _chat(agent_eff, messages)  # network call outside the lock
 
@@ -543,6 +551,8 @@ def snapshot() -> list[dict]:
     for row in out:
         name = row["name"]
         row["reputation"] = reputation.score(name)
+        from . import ascension
+        row["ascension"] = ascension.status(name, row.get("model"))
         _apt = governance.aptitude(name)
         row["governance"] = {
             "is_leader": name == leader,

@@ -793,7 +793,7 @@ function agentCard(a) {
     ${traitRow(a)}
     ${(a.titles && a.titles.length) ? `<div class='rep-row'>${a.titles.map(t => `<span class='title-chip' title='${esc(t.desc)}'>🏅 ${esc(t.title)}</span>`).join('')}</div>` : ''}
     ${metric('Role', esc(a.role || '—'))}
-    ${metric('Model', esc(a.model))}
+    ${metric('Model', a.ascension && a.ascension.ascended ? `${esc(a.model)} <span class='ascend' title='ascended by realm'>↗ ${esc(a.ascension.model)}</span>` : esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
     ${scoresWidget(g)}
     ${cultivationBlock(c)}

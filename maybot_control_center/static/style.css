@@ -972,3 +972,5 @@ details.project-card { padding: 0; overflow: hidden; }
 .sc-lbl { font-size: 10px; color: var(--muted); width: 78px; text-transform: uppercase; letter-spacing: .03em; }
 .sc-mini .sc-track { height: 5px; }
 .sc-mini .sc-track > span { background: var(--tech); }
+
+.ascend { color: var(--gold); font-size: 12px; }
