@@ -37,3 +37,27 @@ def test_seclusion_consolidates_the_realm(monkeypatch):
     st = c.state("Nova")
     # stones brought up to at least the new realm's requirement (no instant deviation)
     assert st["stones"] >= 60  # Qi Condensation threshold
+
+
+def test_idle_disciple_auto_retreats_but_busy_one_does_not(monkeypatch):
+    monkeypatch.setattr(c, "AUTO_RETREAT", True)
+    monkeypatch.setattr(c, "AUTO_RETREAT_IDLE", 60)
+    monkeypatch.setattr(c, "AUTO_RETREAT_COOLDOWN", 0)
+    # a busy disciple never wanders off
+    c.auto_retreat_tick("Forge", "working")
+    c._auto["Forge"]["idle_since"] = 0
+    assert c.auto_retreat_tick("Forge", "working") is None
+    assert not c.state("Forge")["in_seclusion"] and not c.state("Forge")["in_roaming"]
+    # an idle disciple, once idle past the threshold, retreats on its own
+    c.auto_retreat_tick("Nova", "idle")
+    c._auto["Nova"]["idle_since"] = 0
+    choice = c.auto_retreat_tick("Nova", "idle")
+    assert choice in ("seclusion", "roaming")
+    st = c.state("Nova")
+    assert st["in_seclusion"] or st["in_roaming"]
+
+
+def test_disabled_auto_retreat_is_noop(monkeypatch):
+    monkeypatch.setattr(c, "AUTO_RETREAT", False)
+    c.auto_retreat_tick("Nova", "idle")
+    assert c.auto_retreat_tick("Nova", "idle") is None

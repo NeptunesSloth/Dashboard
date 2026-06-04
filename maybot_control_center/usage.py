@@ -23,6 +23,28 @@ PRICES = {
 
 _lock = threading.Lock()
 _agents: dict[str, dict] = {}
+# Hourly time-series buckets: hour-epoch (seconds) -> aggregate. Bounded so memory
+# can't grow without limit; powers the cost/token-over-time chart.
+_series: dict[int, dict] = {}
+SERIES_CAP = 24 * 14  # keep up to two weeks of hourly buckets
+HOUR = 3600
+
+
+def _bucket(ts_ms: int, ok, tin: int, tout: int, cost: float) -> None:
+    hour = (int(ts_ms / 1000) // HOUR) * HOUR
+    b = _series.get(hour)
+    if b is None:
+        b = {"hour": hour, "calls": 0, "errors": 0, "tokens_in": 0, "tokens_out": 0, "cost": 0.0}
+        _series[hour] = b
+    b["calls"] += 1
+    if not ok:
+        b["errors"] += 1
+    b["tokens_in"] += tin
+    b["tokens_out"] += tout
+    b["cost"] = round(b["cost"] + cost, 6)
+    if len(_series) > SERIES_CAP:                  # drop the oldest buckets
+        for h in sorted(_series)[:len(_series) - SERIES_CAP]:
+            del _series[h]
 
 
 def cost_for(model: str, tin: int, tout: int) -> float:
@@ -47,6 +69,7 @@ def _apply(agent: str, model: str, ok, latency_ms: int, tin: int, tout: int, cos
     a["last_ts"] = max(a["last_ts"], ts)
     a["models"][model] = a["models"].get(model, 0) + 1
     _agents[agent] = a
+    _bucket(ts, ok, tin, tout, cost)
 
 
 def record(agent: str, model: str, ok: bool, latency_ms: int, tin: int = 0, tout: int = 0) -> None:
@@ -81,6 +104,30 @@ def snapshot() -> dict:
     return {"agents": rows, "totals": totals}
 
 
+def series(hours: int = 24) -> dict:
+    """Hourly cost/token/call buckets for the last ``hours`` hours, oldest first,
+    with empty hours zero-filled so the chart has a continuous timeline."""
+    hours = max(1, min(hours, SERIES_CAP))
+    now_hour = (int(time.time()) // HOUR) * HOUR
+    with _lock:
+        buckets = []
+        for i in range(hours - 1, -1, -1):
+            h = now_hour - i * HOUR
+            b = _series.get(h)
+            buckets.append({"hour": h, "calls": b["calls"] if b else 0,
+                            "errors": b["errors"] if b else 0,
+                            "tokens_in": b["tokens_in"] if b else 0,
+                            "tokens_out": b["tokens_out"] if b else 0,
+                            "cost": round(b["cost"], 6) if b else 0.0})
+    totals = {
+        "cost": round(sum(b["cost"] for b in buckets), 6),
+        "calls": sum(b["calls"] for b in buckets),
+        "tokens": sum(b["tokens_in"] + b["tokens_out"] for b in buckets),
+        "errors": sum(b["errors"] for b in buckets),
+    }
+    return {"hours": hours, "buckets": buckets, "totals": totals}
+
+
 def load_persisted() -> None:
     if not store.enabled():
         return
@@ -92,3 +139,4 @@ def load_persisted() -> None:
 def clear() -> None:
     with _lock:
         _agents.clear()
+        _series.clear()

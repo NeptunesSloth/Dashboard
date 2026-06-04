@@ -187,3 +187,105 @@ def test_snapshot_shape(tmp_path, monkeypatch):
     assert "Sword Dao" in snap["specialties"]
     assert any(r["agent"] == "Nova" and r["is_leader"] for r in snap["roster"])
     assert snap["roster"] == sorted(snap["roster"], key=lambda r: r["standing"]["score"], reverse=True)
+
+
+def test_throne_cultivation_rewards_the_leader(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 8)
+    governance.set_leader("Nova", pinned=False)
+    monkeypatch.setattr(governance, "THRONE_INTERVAL", 100)
+    monkeypatch.setattr(governance, "THRONE_REWARD", 5)
+    governance._last_throne = 0.0
+    before = cultivation.state("Nova")["stones"]
+    assert governance.throne_cultivation() == "Nova"            # first call grants
+    assert cultivation.state("Nova")["stones"] == before + 5
+    assert governance.throne_cultivation() is None              # within interval → no gain
+    assert cultivation.state("Nova")["stones"] == before + 5
+
+
+def test_throne_cultivation_noop_without_leader(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    # everyone realm 0; a leader auto-seeds, so force none by emptying the roster filter
+    monkeypatch.setattr(governance, "_all_agents", lambda: [])
+    assert governance.throne_cultivation() is None
+
+
+# ---- elders are experts in their field ----
+def test_elder_is_auto_expert_in_natural_field(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 6)   # Elder, no explicit choice
+    _set_realm("Sage", 1)   # not an Elder
+    assert governance.specialty("Nova") in governance.SPECIALTIES   # has a field automatically
+    assert governance.mastery("Nova") >= governance.EXPERT_MASTERY   # and is an expert in it
+    assert governance.specialty("Sage") is None                     # juniors have no field
+    assert governance.mastery("Sage") == 0.0
+
+
+def test_role_determines_natural_field(tmp_path, monkeypatch):
+    yaml_txt = (
+        "agents:\n"
+        "  - {name: Dora, role: Data Scientist, persona: p, provider: openai_compatible, base_url: http://x, model: m}\n"
+        "  - {name: Fred, role: Frontend Engineer, persona: p, provider: openai_compatible, base_url: http://x, model: m}\n"
+    )
+    f = tmp_path / "agents.yaml"
+    f.write_text(yaml_txt, encoding="utf-8")
+    monkeypatch.setattr(agents, "AGENTS_FILE", f)
+    assert governance.natural_field("Dora") == "Alchemy"
+    assert governance.natural_field("Fred") == "Talisman Crafting"
+
+
+def test_chosen_path_overrides_natural_field_and_starts_fresh(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 6)
+    governance.choose_specialty("Nova", "Alchemy")   # deliberately take a new path
+    assert governance.specialty("Nova") == "Alchemy"
+    assert governance.mastery("Nova") == 0.0          # earned from scratch, not the expert baseline
+
+
+# ---- leader guidance walks ----
+def _arm_guidance(monkeypatch, reward=3, teach=0.0):
+    monkeypatch.setattr(governance, "GUIDANCE_IDLE", 0)
+    monkeypatch.setattr(governance, "GUIDANCE_INTERVAL", 100)
+    monkeypatch.setattr(governance, "GUIDANCE_REWARD", reward)
+    monkeypatch.setattr(governance, "GUIDANCE_TEACH_PCT", teach)
+    governance._last_guidance = 0.0
+    governance._leader_idle_since = 0.0
+    governance._guidance_leader = None
+
+
+def test_idle_leader_mentors_a_junior(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 8)   # Sect Master / Leader
+    _set_realm("Forge", 2)  # junior
+    _set_realm("Sage", 1)   # junior
+    governance.set_leader("Nova", pinned=False)
+    _arm_guidance(monkeypatch)
+    before = cultivation.state("Forge")["stones"] + cultivation.state("Sage")["stones"]
+    rec = governance.leader_guidance("idle")
+    assert rec and rec["leader"] == "Nova" and rec["junior"] in ("Forge", "Sage")
+    after = cultivation.state("Forge")["stones"] + cultivation.state("Sage")["stones"]
+    assert after == before + 3                       # exactly one junior gifted
+    assert governance.leader_guidance("idle") is None  # within interval → no second walk
+
+
+def test_busy_or_retreating_leader_does_not_wander(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 8)
+    _set_realm("Forge", 2)
+    governance.set_leader("Nova", pinned=False)
+    _arm_guidance(monkeypatch)
+    assert governance.leader_guidance("working") is None          # busy with real work
+    assert governance.leader_guidance("idle", in_retreat=True) is None  # away in seclusion/roaming
+
+
+def test_guidance_can_share_a_technique(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 8)
+    _set_realm("Forge", 2)
+    _set_realm("Sage", 8)   # not below the Leader → only Forge is a junior
+    cultivation._state["Nova"]["skills"] = ["Cloud-Stride Step"]
+    governance.set_leader("Nova", pinned=False)
+    _arm_guidance(monkeypatch, teach=1.0)             # always teach
+    rec = governance.leader_guidance("idle")
+    assert rec["junior"] == "Forge" and rec["skill"] == "Cloud-Stride Step"
+    assert "Cloud-Stride Step" in cultivation.state("Forge")["skills"]

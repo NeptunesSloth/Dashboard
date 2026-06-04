@@ -27,3 +27,23 @@ def test_record_and_snapshot_aggregate():
 def test_local_model_is_free():
     usage.record("Forge", "llama3", True, 50, 2000, 1000)
     assert usage.snapshot()["totals"]["cost"] == 0.0
+
+
+def test_series_buckets_zero_filled_and_current_hour_populated():
+    usage.record("Nova", "claude-opus-4-8", True, 100, 1000, 500)
+    usage.record("Nova", "claude-opus-4-8", False, 90, 0, 0)
+    s = usage.series(hours=6)
+    assert s["hours"] == 6
+    assert len(s["buckets"]) == 6                 # zero-filled timeline
+    last = s["buckets"][-1]                        # the current hour holds our calls
+    assert last["calls"] == 2 and last["errors"] == 1
+    assert last["tokens_in"] == 1000 and last["tokens_out"] == 500
+    assert s["totals"]["calls"] == 2
+    assert s["totals"]["tokens"] == 1500
+    assert s["totals"]["cost"] == usage.cost_for("claude-opus-4-8", 1000, 500)
+
+
+def test_series_resets_on_clear():
+    usage.record("Nova", "claude-opus-4-8", True, 100, 1000, 500)
+    usage.clear()
+    assert usage.series(hours=3)["totals"]["calls"] == 0

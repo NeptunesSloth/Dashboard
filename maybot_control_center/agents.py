@@ -54,14 +54,51 @@ _followups: dict[str, int] = {}
 _pool = ThreadPoolExecutor(max_workers=4)
 _anthropic = None
 
+# Living-roster overlay: disciples can be culled (retired) and fresh recruits
+# added at runtime by the lifecycle module. Guarded by its OWN lock — load_agents
+# runs inside snapshot()'s _lock, and _lock is non-reentrant, so we must not take
+# _lock here.
+_roster_lock = threading.Lock()
+_retired: set[str] = set()
+_recruits: list[dict] = []
+
 
 def load_agents() -> list[dict]:
     if not AGENTS_FILE.exists():
-        return []
-    with AGENTS_FILE.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f) or {}
-    agents = data.get("agents", [])
-    return agents if isinstance(agents, list) else []
+        base: list[dict] = []
+    else:
+        with AGENTS_FILE.open("r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        agents = data.get("agents", [])
+        base = agents if isinstance(agents, list) else []
+    with _roster_lock:
+        retired = set(_retired)
+        recruits = [dict(a) for a in _recruits]
+    roster = [a for a in base if a.get("name") not in retired]
+    have = {a.get("name") for a in roster}
+    roster.extend(a for a in recruits if a.get("name") not in retired and a.get("name") not in have)
+    return roster
+
+
+def retire_agent(name: str) -> None:
+    """Remove a disciple from the living roster (a culling / expulsion)."""
+    with _roster_lock:
+        _retired.add(name)
+        _recruits[:] = [a for a in _recruits if a.get("name") != name]
+    with _lock:
+        _state.pop(name, None)
+        _followups.pop(name, None)
+        _delegations.pop(name, None)
+
+
+def recruit_agent(agent_def: dict) -> dict:
+    """Add a fresh disciple to the living roster. Returns the stored def."""
+    d = dict(agent_def)
+    with _roster_lock:
+        _retired.discard(d.get("name"))
+        _recruits[:] = [a for a in _recruits if a.get("name") != d.get("name")]
+        _recruits.append(d)
+    return d
 
 
 def _agent_def(name: str) -> dict | None:
@@ -235,6 +272,13 @@ def run_task(name: str, task: str) -> dict:
         system = f"{system}\n\n{governance.persona_context(name)}"
     except Exception:
         pass  # governance is an optional layer
+    try:
+        from . import traits
+        add = traits.persona_addendum(name)
+        if add:
+            system = f"{system}\n\n{add}"
+    except Exception:
+        pass  # traits are an optional flavour layer
     if memory.enabled() and agent.get("memory", True):
         ctx = memory.context_for(task)
         if ctx:
@@ -465,6 +509,7 @@ def snapshot() -> list[dict]:
             cultivation.tick_seclusion(name)  # mature any closed-door seclusion into a breakthrough
             cultivation.tick_roaming(name)    # return any roaming disciple with a discovery
             st = _state.get(name)
+            cultivation.auto_retreat_tick(name, st["status"] if st else "idle")  # idle disciples retreat on their own
             out.append({
                 "name": name,
                 "role": a.get("role", ""),
@@ -481,7 +526,15 @@ def snapshot() -> list[dict]:
                 "skin": a.get("skin"),       # optional character skin set (e.g. "elder")
             })
     from . import reputation, governance, titles, bonds
+    governance.throne_cultivation()  # the Sect Leader passively gains qi while presiding
     leader = governance.leader()
+    if leader:  # an idle Leader walks the sect, mentoring a junior disciple
+        ld_row = next((r for r in out if r["name"] == leader), None)
+        ld_cult = ld_row.get("cultivation", {}) if ld_row else {}
+        governance.leader_guidance(
+            ld_row["status"] if ld_row else "idle",
+            in_retreat=bool(ld_cult.get("in_seclusion") or ld_cult.get("in_roaming")),
+        )
     for row in out:
         name = row["name"]
         row["reputation"] = reputation.score(name)
@@ -495,6 +548,13 @@ def snapshot() -> list[dict]:
         }
         row["titles"] = titles.evaluate(name)
         row["bond"] = bonds.partner(name)
+    from . import traits, lifecycle, tournament
+    tournament.auto_tick()  # hold a Grand Tournament if one is due (no-op unless configured)
+    traits.tick()     # roll spawn quirks for new disciples + advance the young-master arc
+    for row in out:
+        row["quirk"] = traits.quirk(row["name"])
+        row["trope"] = traits.trope(row["name"])
+    lifecycle.tick()  # cull a stagnant Outer Disciple (and summon a recruit) if any
     return out
 
 
@@ -545,3 +605,6 @@ def clear() -> None:
         _state.clear()
         _followups.clear()
         _delegations.clear()
+    with _roster_lock:
+        _retired.clear()
+        _recruits.clear()

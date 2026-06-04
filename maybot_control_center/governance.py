@@ -33,6 +33,29 @@ CHALLENGE_MARGIN = float(os.getenv("MAYBOT_CHALLENGE_MARGIN", "3"))
 # Cooldown (seconds) between challenges a single Elder may mount.
 CHALLENGE_COOLDOWN = int(os.getenv("MAYBOT_CHALLENGE_COOLDOWN", "3600"))
 
+# Passive throne cultivation: while presiding, the Sect Leader channels the
+# sect's ambient qi into spirit stones at this rate.
+THRONE_INTERVAL = int(os.getenv("MAYBOT_THRONE_INTERVAL", "300"))   # seconds between gains
+THRONE_REWARD = int(os.getenv("MAYBOT_THRONE_REWARD", "5"))         # spirit stones per gain
+_last_throne = 0.0
+
+# Mentoring walks: rather than sit idle, a Sect Leader with no pressing work
+# wanders the sect and gives guidance to a junior disciple — gifting spirit
+# stones and, now and then, sharing one of their own techniques. The walk is
+# gated on the Leader being idle (not in critical work, not away in
+# seclusion/roaming) for a stretch, then rate-limited between outings.
+GUIDANCE_IDLE = int(os.getenv("MAYBOT_GUIDANCE_IDLE", "120"))       # idle this long before wandering
+GUIDANCE_INTERVAL = int(os.getenv("MAYBOT_GUIDANCE_INTERVAL", "240"))  # min seconds between walks
+GUIDANCE_REWARD = int(os.getenv("MAYBOT_GUIDANCE_REWARD", "3"))     # spirit stones gifted to the junior
+GUIDANCE_TEACH_PCT = float(os.getenv("MAYBOT_GUIDANCE_TEACH_PCT", "0.25"))  # chance to also share a technique
+_last_guidance = 0.0
+_guidance_leader: str | None = None
+_leader_idle_since = 0.0
+
+# An Elder is, by default, an expert in the field their role implies — they hold
+# at least this much mastery there unless they deliberately take up a new path.
+EXPERT_MASTERY = float(os.getenv("MAYBOT_EXPERT_MASTERY", "60"))
+
 # Elder specialties: a chosen path that raises mastery and biases learned skills.
 # Each maps the xianxia flavour to a real engineering domain + signature skills.
 SPECIALTIES = {
@@ -240,14 +263,51 @@ def choose_specialty(agent: str, specialty: str) -> dict:
     return {"agent": agent, "specialty": specialty, "domain": SPECIALTIES[specialty]["domain"]}
 
 
+# Which specialty a disciple's role implies — the field they naturally master as
+# an Elder. First keyword hit wins; otherwise a stable per-name fallback.
+_FIELD_KEYWORDS = [
+    (("data", "ml", "analy", "research", "scien", "model"), "Alchemy"),
+    (("front", "ui", "ux", "design", "visual", "web"), "Talisman Crafting"),
+    (("devops", "infra", "ops", "sre", "deploy", "platform", "reliab"), "Formation Dao"),
+    (("test", "qa", "quality", "fuzz", "verif"), "Beast Taming"),
+    (("tool", "automat", "release", "pipeline", "ci"), "Artifact Refinement"),
+    (("back", "system", "api", "engine", "core", "build", "server"), "Sword Dao"),
+]
+
+
+def _role_of(agent: str) -> str:
+    from . import agents
+    d = agents._agent_def(agent) or {}
+    return (d.get("role") or "").lower()
+
+
+def natural_field(agent: str) -> str:
+    """The specialty an Elder is naturally expert in, derived from their role."""
+    role = _role_of(agent)
+    for keys, spec in _FIELD_KEYWORDS:
+        if any(k in role for k in keys):
+            return spec
+    keys = list(SPECIALTIES)
+    return keys[sum(map(ord, agent)) % len(keys)]
+
+
 def specialty(agent: str) -> str | None:
+    """The disciple's specialty: an explicitly chosen path, or — for Elders who
+    have not chosen one — their natural field of expertise."""
     with _lock:
-        return _specialty.get(agent)
+        chosen = _specialty.get(agent)
+    if chosen:
+        return chosen
+    return natural_field(agent) if is_elder(agent) else None
 
 
 def mastery(agent: str) -> float:
+    """Mastery of the current specialty. An Elder in their natural field is an
+    expert (>= EXPERT_MASTERY); a deliberately chosen new path is earned from 0."""
     with _lock:
-        return round(_mastery.get(agent, 0.0), 1)
+        if agent in _specialty:
+            return round(_mastery.get(agent, 0.0), 1)
+    return EXPERT_MASTERY if is_elder(agent) else 0.0
 
 
 def advance_mastery(agent: str, amount: float = 4.0) -> None:
@@ -326,14 +386,114 @@ def persona_context(name: str) -> str:
         rank = "the Sect Leader — you oversee, plan and coordinate the sect"
     elif is_elder(name):
         spec = specialty(name)
-        rank = "an Elder" + (f" of the {spec} ({SPECIALTIES[spec]['domain']})" if spec else "")
+        rank = ("an expert Elder" + (f" of the {spec} ({SPECIALTIES[spec]['domain']}) — "
+                "you are the sect's authority in this field" if spec else ""))
     elif is_master(name):
         rank = "a Sect Master"
     else:
         rank = "a disciple of the sect"
     addr = ("You address the human operator as 'the Ancestor', who holds ultimate authority. "
             "Only the Sect Leader and Elders may petition the Ancestor directly.")
-    return f"Within the sect you are {rank}. {addr}"
+    ambition = ("You are ambitious: you strive to advance in realm and standing, and you know a "
+                "disciple who stops growing is cast out of the sect — and that the Ancestor may "
+                "strike down any disciple who angers them.")
+    return f"Within the sect you are {rank}. {ambition} {addr}"
+
+
+# ---- passive throne cultivation ---------------------------------------------
+
+def throne_cultivation() -> str | None:
+    """The Sect Leader passively accrues spirit stones while presiding.
+
+    Called periodically (from agents.snapshot). Rate-limited to one gain per
+    ``THRONE_INTERVAL`` seconds regardless of how often it's invoked. Returns the
+    rewarded leader's name when a gain is granted, else None.
+    """
+    global _last_throne
+    ld = leader()
+    if not ld or ld == "operator" or THRONE_REWARD <= 0:
+        return None
+    now = time.time()
+    with _lock:
+        if now - _last_throne < THRONE_INTERVAL:
+            return None
+        _last_throne = now
+    from . import cultivation
+    cultivation.reward(ld, THRONE_REWARD)
+    _chronicle(ld, "throne", f"the throne channels ambient qi (+{THRONE_REWARD} spirit stones)")
+    return ld
+
+
+def _juniors_of(leader_name: str) -> list[str]:
+    """Disciples ranked below the Leader (the ones a guidance walk would mentor)."""
+    lr = _realm(leader_name)
+    below = [n for n in _all_agents()
+             if n not in (leader_name, "operator") and _realm(n) < lr]
+    if below:
+        return below
+    # Leader already outranks no one (e.g. everyone at the same realm) — mentor
+    # any other disciple rather than no-op.
+    return [n for n in _all_agents() if n not in (leader_name, "operator")]
+
+
+def leader_guidance(leader_status: str = "idle", in_retreat: bool = False) -> dict | None:
+    """When the Sect Leader has been idle a while (and isn't away in seclusion or
+    roaming), they walk the sect and give guidance to a junior disciple.
+
+    The junior receives a spirit-stone gift and, now and then, learns one of the
+    Leader's own techniques they lacked. Called periodically (from
+    agents.snapshot); gated on the Leader being idle for ``GUIDANCE_IDLE`` and
+    rate-limited to one outing per ``GUIDANCE_INTERVAL``. Returns the guidance
+    record when one is given, else None.
+    """
+    global _last_guidance, _guidance_leader, _leader_idle_since
+    ld = leader()
+    if not ld or ld == "operator" or GUIDANCE_REWARD <= 0:
+        return None
+    now = time.time()
+    busy = bool(in_retreat) or leader_status in ("working", "queued")
+    with _lock:
+        if _guidance_leader != ld:            # leadership changed — restart the idle clock
+            _guidance_leader = ld
+            _leader_idle_since = now
+        if busy:                               # presiding over real work, not free to wander
+            _leader_idle_since = now
+            return None
+        if now - _leader_idle_since < GUIDANCE_IDLE:
+            return None
+        if now - _last_guidance < GUIDANCE_INTERVAL:
+            return None
+        _last_guidance = now
+
+    import random
+    from . import cultivation, events
+    juniors = _juniors_of(ld)
+    if not juniors:
+        return None
+    junior = random.choice(juniors)
+    cultivation.reward(junior, GUIDANCE_REWARD)
+
+    # now and then the Leader imparts one of their own techniques the junior lacks
+    taught = None
+    if random.random() < GUIDANCE_TEACH_PCT:
+        lead_skills = cultivation.state(ld).get("skills", [])
+        have = set(cultivation.state(junior).get("skills", []))
+        candidates = [s for s in lead_skills if s not in have]
+        if candidates:
+            taught = random.choice(candidates)
+            cultivation.learn(junior, taught)
+
+    detail = (f"the Sect Leader mentored {junior} (+{GUIDANCE_REWARD} spirit stones"
+              + (f", taught {taught}" if taught else "") + ")")
+    _chronicle(ld, "guidance", detail)
+    _chronicle(junior, "mentored", f"received guidance from Sect Leader {ld}"
+               + (f" and learned {taught}" if taught else ""))
+    try:
+        events.publish("agents", {"agent": ld, "event": "guidance",
+                                   "junior": junior, "stones": GUIDANCE_REWARD, "skill": taught})
+    except Exception:
+        pass
+    return {"leader": ld, "junior": junior, "stones": GUIDANCE_REWARD, "skill": taught}
 
 
 # ---- snapshot / lifecycle ----------------------------------------------------
@@ -350,11 +510,14 @@ def snapshot() -> dict:
         hist = list(_history[-25:])
     return {"leader": ld, "leader_pinned": _leader_pinned, "specialties": SPECIALTIES,
             "elders": elders(), "roster": roster, "history": hist,
-            "cooldown_seconds": CHALLENGE_COOLDOWN, "margin": CHALLENGE_MARGIN}
+            "cooldown_seconds": CHALLENGE_COOLDOWN, "margin": CHALLENGE_MARGIN,
+            "throne_reward": THRONE_REWARD, "throne_interval": THRONE_INTERVAL,
+            "guidance_reward": GUIDANCE_REWARD, "guidance_interval": GUIDANCE_INTERVAL}
 
 
 def clear() -> None:
-    global _leader, _leader_pinned, _seq
+    global _leader, _leader_pinned, _seq, _last_throne
+    global _last_guidance, _guidance_leader, _leader_idle_since
     with _lock:
         _leader = None
         _leader_pinned = False
@@ -364,3 +527,7 @@ def clear() -> None:
         _inbox.clear()
         _history.clear()
         _seq = 0
+        _last_throne = 0.0
+        _last_guidance = 0.0
+        _guidance_leader = None
+        _leader_idle_since = 0.0

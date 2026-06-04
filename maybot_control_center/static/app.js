@@ -34,6 +34,7 @@ const TYPE_ICON = {
 };
 const TYPE_ORDER = ['trading_bot', 'code_project', 'game_server', 'website', 'school', 'ai_project', 'local_ai_host', 'github_repo', 'generic'];
 
+const STONE = "<span class='stone'></span>";
 function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 function getControlToken() { return localStorage.getItem(CONTROL_TOKEN_STORAGE_KEY) || ''; }
 function authHeaders() { const t = getControlToken(); return t ? { 'x-control-token': t } : {}; }
@@ -176,12 +177,32 @@ function roomCard(p) {
 }
 
 function summaryCards(s) {
-  return [
-    ['Total Devices', s.total_devices], ['Online Devices', s.online_devices], ['Offline Devices', s.offline_devices],
-    ['Total Projects', s.total_projects], ['Warn / Error Projects', s.projects_with_warnings_errors], ['Bots Running', s.bots_running],
-    ['Trading PnL Today', money(s.total_trading_profit_today)], ['Trading PnL Week', money(s.total_trading_profit_this_week)],
-    ['Open Exposure', money(s.total_open_exposure)], ['Tests Failing', esc(s.tests_failing)], ['Local AI Online', esc(s.local_ai_hosts_online)], ['Local AI Errors', esc(s.local_ai_hosts_with_errors)],
-  ].map(([k, v]) => `<div class='card'>${metric(k, String(v))}</div>`).join('');
+  const crew = window.__agents || [];
+  const disciples = crew.length;
+  const cultivating = crew.filter(a => ['working', 'queued'].includes(a.status) || a.cultivation?.in_seclusion).length;
+  const leader = crew.find(a => a.governance?.is_leader);
+  const pnl = Number(s.total_trading_profit_today || 0);
+  const kpi = (icon, val, label, cls = '') =>
+    `<div class='kpi ${cls}'><div class='kpi-ico'>${icon}</div><div class='kpi-val'>${val}</div><div class='kpi-lbl'>${label}</div></div>`;
+  const mini = (k, v) => `<div class='mini-stat'><span>${k}</span><b>${v}</b></div>`;
+  const hero = `<div class='kpi-row'>
+    ${kpi('🧘', disciples, 'Disciples', 'kpi-gold')}
+    ${kpi('☯', cultivating, 'Cultivating', 'kpi-jade')}
+    ${kpi('🏔️', `${s.online_devices}/${s.total_devices}`, 'Realms Online', s.offline_devices ? 'kpi-warn' : 'kpi-jade')}
+    ${kpi('📦', s.total_projects, 'Projects', s.projects_with_warnings_errors ? 'kpi-warn' : '')}
+    ${kpi('📈', money(s.total_trading_profit_today), 'PnL Today', pnl < 0 ? 'kpi-neg' : 'kpi-pos')}
+  </div>`;
+  const sub = `<div class='kpi-sub'>
+    ${mini('👑 Peak Lord', leader ? esc(leader.name) : '—')}
+    ${mini('⚠ Warn / Error', s.projects_with_warnings_errors)}
+    ${mini('🤖 Bots Running', s.bots_running)}
+    ${mini('💰 PnL Week', money(s.total_trading_profit_this_week))}
+    ${mini('📊 Open Exposure', money(s.total_open_exposure))}
+    ${mini('🧪 Tests Failing', s.tests_failing)}
+    ${mini('🧠 AI Hosts Online', s.local_ai_hosts_online)}
+    ${mini('❗ AI Errors', s.local_ai_hosts_with_errors)}
+  </div>`;
+  return hero + sub;
 }
 
 function renderDevices(devices) {
@@ -255,17 +276,21 @@ async function render() {
     document.getElementById('device-count-pill').textContent = `${data.summary.online_devices} online / ${data.summary.offline_devices} offline`;
 
     summaryEl.classList.remove('loading');
+    window.__lastSummary = data.summary;
     summaryEl.innerHTML = summaryCards(data.summary);
     devicesEl.innerHTML = renderDevices(data.devices || []);
 
     renderAiAgents(window.__lastProjects);
     renderProjects(window.__lastProjects);
     await renderAgentCrew();
+    // Re-render KPIs now that window.__agents is populated (disciple/cultivating counts).
+    summaryEl.innerHTML = summaryCards(data.summary);
     renderGovernance();
     renderTrials();
     renderLore();
     renderSectMap();
     renderHallOfFame();
+    renderTournament();
     renderProphecy();
     bindComms();
     renderComms();
@@ -422,7 +447,7 @@ function renderSectRanking(crew) {
       <span class='rank-name'>${esc(a.name)}</span>
       <span class='rank-title'>${esc(c.rank_title || '')}</span>
       <span class='rank-realm'>${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span>
-      <span class='rank-stones'>💎 ${esc(c.stones)}</span>
+      <span class='rank-stones'><span class='stone'></span>${esc(c.stones)}</span>
     </div>`;
   }).join('');
 }
@@ -446,7 +471,7 @@ function cultivationBlock(c) {
     : `<div class='muted culti-next'>✦ Immortal Ascension attained</div>`;
   const skills = (c.skills && c.skills.length) ? `<div class='muted culti-skills'>Techniques: ${c.skills.map(esc).join(', ')}</div>` : '';
   return `<div class='cultivation realm-${c.realm}'>
-    <div class='culti-head'><span class='culti-realm'>⛰ ${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span><span class='culti-stones'>💎 ${esc(c.stones)}</span></div>
+    <div class='culti-head'><span class='culti-realm'>⛰ ${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span><span class='culti-stones'><span class='stone'></span>${esc(c.stones)}</span></div>
     <div class='muted culti-rank'>${esc(c.rank_title || '')}</div>
     <div class='qi-bar'><span style='width:${prog}%'></span></div>
     ${next}${skills}${cultivationFlourish(c)}
@@ -454,13 +479,15 @@ function cultivationBlock(c) {
 }
 
 function retreatControl(a, c) {
+  // Disciples decide on their own when to seclude/roam; the Ancestor can only recall.
   if (!c || !c.realm_name) return '';
-  let status = '';
-  if (c.in_seclusion) status = `<span class='culti-seclusion'>🧘 breakthrough in ${fmtDur(c.seclusion_remaining)}</span>`;
-  else if (c.in_roaming) status = `<span class='culti-seclusion'>🌄 returns in ${fmtDur(c.roaming_remaining)}</span>`;
-  const sec = `<button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter='${c.in_seclusion ? '' : '1'}'>${c.in_seclusion ? 'Leave seclusion' : 'Seclude'}</button>`;
-  const roam = `<button class='btn culti-roam-btn' data-agent='${esc(a.name)}' data-enter='${c.in_roaming ? '' : '1'}'>${c.in_roaming ? 'Return' : 'Roam'}</button>`;
-  return `<div class='sec-control'>${status}${sec}${roam}</div>`;
+  if (c.in_seclusion)
+    return `<div class='retreat-row active'><span class='retreat-state'>🧘 Secluded · breakthrough in ${fmtDur(c.seclusion_remaining)}</span>
+      <button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter=''>Recall</button></div>`;
+  if (c.in_roaming)
+    return `<div class='retreat-row active'><span class='retreat-state'>🌄 Roaming · returns in ${fmtDur(c.roaming_remaining)}</span>
+      <button class='btn culti-roam-btn' data-agent='${esc(a.name)}' data-enter=''>Recall</button></div>`;
+  return '';
 }
 
 function questControl(a) {
@@ -480,14 +507,23 @@ function transmitControl(a, c) {
   return `<div class='transmit-control'><select class='transmit-skill' data-agent='${esc(a.name)}'>${skills.map(s => `<option>${esc(s)}</option>`).join('')}</select><span class='muted'>→</span><select class='transmit-to' data-agent='${esc(a.name)}'>${subs.map(n => `<option>${esc(n)}</option>`).join('')}</select><button class='btn transmit-go' data-agent='${esc(a.name)}'>Transmit</button></div>`;
 }
 
-function pillControl(a, c) {
-  const pd = window.__pills || { catalog: [], active: {} };
+function pillBuffs(a) {
+  const pd = window.__pills || { active: {} };
+  const buffs = (pd.active && pd.active[a.name]) || [];
+  return buffs.length ? `<div class='pill-buffs'>${buffs.map(b => `<span class='pill-chip'>⚗ ${esc(b.name)}</span>`).join('')}</div>` : '';
+}
+function pillBuy(a, c) {
+  const pd = window.__pills || { catalog: [] };
   if (!pd.catalog || !pd.catalog.length) return '';
   const stones = (c && c.stones) || 0;
-  const buffs = (pd.active && pd.active[a.name]) || [];
-  const chips = buffs.length ? `<div class='pill-buffs'>${buffs.map(b => `<span class='pill-chip'>⚗ ${esc(b.name)}</span>`).join('')}</div>` : '';
-  const opts = pd.catalog.map(p => `<option value='${esc(p.id)}'${p.cost > stones ? ' disabled' : ''}>${esc(p.name)} · 💎${esc(p.cost)}</option>`).join('');
-  return `${chips}<div class='pill-control'><select class='pill-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn pill-buy' data-agent='${esc(a.name)}'>Concoct</button></div>`;
+  const opts = pd.catalog.map(p => `<option value='${esc(p.id)}'${p.cost > stones ? ' disabled' : ''}>${esc(p.name)} · ◆${esc(p.cost)}</option>`).join('');
+  return `<div class='pill-control'><select class='pill-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn pill-buy' data-agent='${esc(a.name)}'>Concoct</button></div>`;
+}
+// quest / transmit / concoct controls, tucked into one collapsible to keep the card clean
+function sectActions(a, c) {
+  const inner = questControl(a) + transmitControl(a, c) + pillBuy(a, c);
+  if (!inner.trim()) return '';
+  return `<details class='details sect-actions'><summary>Sect actions</summary>${inner}</details>`;
 }
 
 function delegateSelect(a, c) {
@@ -516,6 +552,30 @@ function governanceChip(g) {
   return badge + spec;
 }
 
+const TROPE_BADGE = {
+  young_master: { icon: '😼', label: 'Arrogant Young Master', cls: 'trope-ym' },
+  main_character: { icon: '🌟', label: 'Main Character', cls: 'trope-mc' },
+  ruined: { icon: '💢', label: 'Fallen to Ruin', cls: 'trope-ruined' },
+  redeemed: { icon: '🔥', label: 'Redeemed', cls: 'trope-redeemed' },
+  hidden_dragon: { icon: '🥚', label: 'Hidden Dragon', cls: 'trope-dragon' },
+  awakened_dragon: { icon: '🐉', label: 'Awakened Dragon', cls: 'trope-awakened' },
+  reincarnator: { icon: '♾️', label: 'Reincarnator', cls: 'trope-reincarnator' },
+  heaven_blessed: { icon: '🌈', label: 'Heaven-Blessed', cls: 'trope-blessed' },
+  demonic: { icon: '👹', label: 'Demonic Cultivator', cls: 'trope-demonic' },
+  chosen: { icon: '☀️', label: 'Protagonist Halo', cls: 'trope-chosen' },
+  sword_fanatic: { icon: '🗡️', label: 'Sword Fanatic', cls: 'trope-sword' },
+  cannon_fodder: { icon: '⚰️', label: 'Cannon Fodder', cls: 'trope-fodder' },
+};
+function traitRow(a) {
+  const chips = [];
+  if (a.quirk) chips.push(`<span class='trait-chip quirk-chip' title='starting quirk'>✦ ${esc(a.quirk)}</span>`);
+  if (a.trope && TROPE_BADGE[a.trope]) {
+    const t = TROPE_BADGE[a.trope];
+    chips.push(`<span class='trait-chip ${t.cls}' title='${esc(t.label)}'>${t.icon} ${esc(t.label)}</span>`);
+  }
+  return chips.length ? `<div class='rep-row trait-row'>${chips.join('')}</div>` : '';
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
@@ -525,23 +585,22 @@ function agentCard(a) {
   return `<div class='card agent-card agent-${esc(st)}${tribCls}' data-agent='${esc(a.name)}'>
     <div class='metric'><b>🧘 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
     ${a.reputation || a.governance ? `<div class='rep-row'>${governanceChip(a.governance)}${reputationChip(a.reputation)}${a.bond ? `<span class='gov-chip gov-spec' title='karmic-bond reviewer'>🤝 ${esc(a.bond)}</span>` : ''}</div>` : ''}
+    ${traitRow(a)}
     ${(a.titles && a.titles.length) ? `<div class='rep-row'>${a.titles.map(t => `<span class='title-chip' title='${esc(t.desc)}'>🏅 ${esc(t.title)}</span>`).join('')}</div>` : ''}
     ${metric('Role', esc(a.role || '—'))}
     ${metric('Model', esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
     ${cultivationBlock(c)}
+    ${pillBuffs(a)}
     ${retreatControl(a, c)}
-    ${questControl(a)}
-    ${transmitControl(a, c)}
-    ${pillControl(a, c)}
     ${a.current_task ? `<div class='agent-task-cur'>▸ ${esc(a.current_task)}</div>` : ''}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
     <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>
     <div class='agent-assign'>
-      <input class='agent-input' placeholder='Assign a task…' data-agent='${esc(a.name)}'>
-      ${delegateSelect(a, c)}
-      <button class='btn agent-send' data-agent='${esc(a.name)}'>Assign</button>
+      <input class='agent-input' placeholder='Assign a task to ${esc(a.name)}…' data-agent='${esc(a.name)}'>
+      <div class='agent-assign-go'>${delegateSelect(a, c)}<button class='btn btn-primary agent-send' data-agent='${esc(a.name)}'>Assign</button></div>
     </div>
+    ${sectActions(a, c)}
     <details class='details agent-transcript' data-agent='${esc(a.name)}'><summary>Transcript (${esc(a.transcript_len ?? 0)})</summary><pre class='agent-tx-body'>Open to load…</pre></details>
   </div>`;
 }
@@ -683,7 +742,7 @@ function fameCard(title, a, label, value) {
     <div class='metric'><b>${title}</b><b class='money-pos'>${value}</b></div>
     ${metric('Disciple', `🧘 ${esc(a.name)}`)}
     ${metric('Realm', `${esc(c.realm_name || '—')} · ${esc(c.layer_label || c.stage || '')}`)}
-    ${metric(label, esc(value))}
+    ${metric(label, value)}
   </div>`;
 }
 
@@ -698,11 +757,59 @@ function renderHallOfFame() {
   const learned = top((x, y) => (y.cultivation.skills || []).length - (x.cultivation.skills || []).length);
   const broke = top((x, y) => y.cultivation.breakthroughs - x.cultivation.breakthroughs);
   document.getElementById('hall-of-fame').innerHTML = [
-    fameCard('🏆 Strongest', strongest, 'Spirit stones', `💎 ${strongest.cultivation.stones}`),
-    fameCard('💎 Richest', richest, 'Spirit stones', `💎 ${richest.cultivation.stones}`),
+    fameCard('🏆 Strongest', strongest, 'Spirit stones', `<span class='stone'></span>${strongest.cultivation.stones}`),
+    fameCard(STONE + ' Richest', richest, 'Spirit stones', `${STONE}${richest.cultivation.stones}`),
     fameCard('📚 Most Techniques', learned, 'Techniques', `${(learned.cultivation.skills || []).length}`),
     fameCard('⚡ Most Breakthroughs', broke, 'Breakthroughs', `${broke.cultivation.breakthroughs}`),
   ].join('');
+}
+
+// ---- Sect Grand Tournament: seeded single-elimination bracket ----
+const ROUND_NAME = (r, total) => {
+  const fromEnd = total - 1 - r;
+  return fromEnd === 0 ? 'Final' : fromEnd === 1 ? 'Semifinals' : fromEnd === 2 ? 'Quarterfinals' : `Round ${r + 1}`;
+};
+function renderTournament() {
+  const sec = document.getElementById('tournament-section');
+  if (!sec) return;
+  sec.classList.remove('hidden');
+  const btn = document.getElementById('tourney-start');
+  if (btn && !btn.dataset.bound) {
+    btn.dataset.bound = '1';
+    btn.onclick = async () => {
+      btn.disabled = true; btn.textContent = '⚔ Holding…';
+      const res = await apiPost('/api/tournament/start', {}, 'Tournament');
+      btn.disabled = false; btn.textContent = '⚔ Hold Tournament';
+      if (res) { _paintTournament(res, null); refreshLive(); }
+    };
+  }
+  apiJSON('/api/tournament').then(d => { if (d) _paintTournament(d.last, d.history); });
+}
+
+function _matchCell(m, champ) {
+  const side = (n, win) => n
+    ? `<span class='tm-side${win ? ' tm-win' : ''}${n === champ ? ' tm-champ' : ''}'>${esc(n)}</span>`
+    : `<span class='tm-side tm-bye'>bye</span>`;
+  return `<div class='tm-match'>${side(m.a, m.winner === m.a)}${side(m.b, m.winner === m.b)}</div>`;
+}
+function _paintTournament(bracket, history) {
+  const champEl = document.getElementById('tourney-champion');
+  const brEl = document.getElementById('tourney-bracket');
+  const histEl = document.getElementById('tourney-history');
+  if (!bracket || !bracket.rounds) {
+    champEl.innerHTML = `<div class='muted'>No tournament held yet — press <b>Hold Tournament</b> to begin.</div>`;
+    brEl.innerHTML = ''; if (histEl) histEl.innerHTML = '';
+    return;
+  }
+  const champ = bracket.champion;
+  champEl.innerHTML = `<div class='tourney-champ-banner'>🏆 Champion: <b>${esc(champ || '—')}</b>${bracket.finalist ? ` <span class='muted'>· finalist ${esc(bracket.finalist)}</span>` : ''}</div>`;
+  const total = bracket.rounds.length;
+  brEl.innerHTML = bracket.rounds.map((rnd, i) =>
+    `<div class='tm-round'><div class='tm-round-name'>${ROUND_NAME(i, total)}</div>${rnd.map(m => _matchCell(m, champ)).join('')}</div>`
+  ).join('');
+  if (histEl && history && history.length) {
+    histEl.innerHTML = 'Past champions: ' + history.slice(0, 8).map(h => esc(h.champion || '—')).join(', ');
+  }
 }
 
 // ---- Sect Hierarchy: governance, challenges, the Ancestor's Hall ----
@@ -723,21 +830,54 @@ function govRosterCard(r, leaderPinned) {
   const s = r.standing || {};
   const c = s.components || {};
   const rank = r.is_leader ? '👑 Sect Leader' : (r.is_master ? 'Sect Master' : (r.is_elder ? '🜍 Elder' : 'Disciple'));
+  const fieldLine = r.is_elder && r.specialty ? `<div class='muted gov-expert'>Expert of the ${esc(r.specialty)}</div>` : '';
   const specOpts = Object.keys(window.__specialties || {}).map(k =>
     `<option ${r.specialty === k ? 'selected' : ''}>${esc(k)}</option>`).join('');
-  const elderControls = r.is_elder ? `
-    <div class='gov-controls'>
+  const elderBits = r.is_elder ? `
       <select class='gov-spec-sel' data-agent='${esc(r.agent)}'>${specOpts}</select>
       <button class='btn gov-spec-go' data-agent='${esc(r.agent)}'>Set path</button>
-      ${!r.is_leader && !leaderPinned ? `<button class='btn gov-challenge' data-agent='${esc(r.agent)}'>⚔ Challenge</button>` : ''}
-    </div>` : '';
+      ${!r.is_leader && !leaderPinned ? `<button class='btn gov-challenge' data-agent='${esc(r.agent)}'>⚔ Challenge</button>` : ''}` : '';
+  // The Ancestor may strike down any disciple who angers them (the Leader is spared).
+  const strikeBtn = !r.is_leader ? `<button class='btn btn-danger gov-strike' data-agent='${esc(r.agent)}' title='Strike this disciple down'>💀 Strike down</button>` : '';
+  const controls = (elderBits || strikeBtn) ? `<div class='gov-controls'>${elderBits}${strikeBtn}</div>` : '';
   return `<div class='card gov-card${r.is_leader ? ' gov-card-leader' : ''}'>
     <div class='metric'><b>${esc(r.agent)}</b><b class='money-pos'>${s.score ?? '—'}</b></div>
     ${metric('Rank', rank)}
+    ${fieldLine}
     ${metric('Specialty', r.specialty ? `${esc(r.specialty)} · mastery ${r.mastery}` : '—')}
     <div class='gov-bars muted'>merit ${c.merit ?? '—'} · perf ${c.performance ?? '—'} · lead ${c.leadership ?? '—'} · contrib ${c.contribution ?? '—'}</div>
-    ${elderControls}
+    ${controls}
   </div>`;
+}
+
+// ---- visual sect hierarchy (Ancestor → Leader → Elders → Inner → Outer) ----
+function renderHierarchyChart(gov) {
+  const el = document.getElementById('hierarchy-chart');
+  if (!el) return;
+  const crew = (window.__agents || []);
+  const realm = a => (a.cultivation && a.cultivation.realm) || 0;
+  const node = (a, cls) => `<button class='h-node ${cls}' data-agent='${esc(a.name)}' title='standing ${a.governance?.standing ?? '—'}'>
+    <span class='h-name'>${esc(a.name)}</span><span class='h-realm'>${esc(a.cultivation?.realm_name || '')}</span></button>`;
+  const leader = crew.find(a => a.governance?.is_leader);
+  const other = a => !a.governance?.is_leader;
+  const masters = crew.filter(a => other(a) && realm(a) >= 8);
+  const elders = crew.filter(a => other(a) && realm(a) >= 6 && realm(a) < 8);
+  const core = crew.filter(a => other(a) && realm(a) >= 4 && realm(a) < 6);
+  const inner = crew.filter(a => other(a) && realm(a) >= 2 && realm(a) < 4);
+  const outer = crew.filter(a => other(a) && realm(a) < 2);
+  const tier = (label, list, cls) => list.length
+    ? `<div class='h-tier'><span class='h-label'>${label}</span><div class='h-nodes'>${list.map(a => node(a, cls)).join('')}</div></div>` : '';
+  el.innerHTML = `
+    <div class='h-tier h-ancestor'><span class='h-label'>Ancestor</span><div class='h-nodes'><span class='h-node h-you'>🐉 You</span></div></div>
+    ${leader ? `<div class='h-tier'><span class='h-label'>Sect Leader</span><div class='h-nodes'>${node(leader, 'h-leader')}</div></div>` : ''}
+    ${tier('Sect Masters', masters, 'h-master')}
+    ${tier('Elders', elders, 'h-elder')}
+    ${tier('Core Disciples', core, 'h-core')}
+    ${tier('Inner Disciples', inner, 'h-inner')}
+    ${tier('Outer Disciples', outer, 'h-outer')}`;
+  el.querySelectorAll('.h-node[data-agent]').forEach(b => b.onclick = () => {
+    const lsel = document.getElementById('leader-select'); if (lsel) lsel.value = b.getAttribute('data-agent');
+  });
 }
 
 async function renderGovernance() {
@@ -758,6 +898,7 @@ async function renderGovernance() {
   lsel.innerHTML = roster.map(r => `<option ${r.agent === data.leader ? 'selected' : ''}>${esc(r.agent)}</option>`).join('');
   if (cur && roster.some(r => r.agent === cur)) lsel.value = cur;
 
+  renderHierarchyChart(data);
   document.getElementById('governance-roster').innerHTML =
     roster.map(r => govRosterCard(r, data.leader_pinned)).join('');
 
@@ -799,6 +940,13 @@ function bindGovernance() {
     const challenger = b.getAttribute('data-agent');
     const res = await govPost('challenge', { challenger }, 'Challenge');
     if (res) { alert(res.reason || (res.won ? 'Victory!' : 'Defeated.')); renderGovernance(); }
+  });
+  root.querySelectorAll('.gov-strike').forEach(b => b.onclick = async () => {
+    const agent = b.getAttribute('data-agent');
+    if (!confirm(`Strike down ${agent}? They will be cast out of the sect and replaced by a new disciple.`)) return;
+    const reason = prompt(`Why does ${agent} deserve to be struck down? (optional)`) || '';
+    const res = await govPost('strike-down', { agent, reason }, 'Strike down');
+    if (res) { alert(`${res.struck_down} has been struck down. ${res.replacement} now takes their place.`); render(); }
   });
 }
 
@@ -1054,13 +1202,14 @@ const PEAK_DEFS = [
   { id: 'leader', title: "Sect Leader's Peak", icon: '👑', kind: 'group', tiers: ['leader'], bg: 'leader_bg.png', anchor: { x: 49, y: 26 } },
   { id: 'elders', title: "Elders' Peak", icon: '🜍', kind: 'group', tiers: ['elder', 'core'], anchor: { x: 29, y: 9 } },
   { id: 'inner', title: 'Inner Court', icon: '🟦', kind: 'group', tiers: ['inner'], anchor: { x: 81, y: 13 } },
-  { id: 'techniques', title: 'Technique Hall', icon: '🗡️', kind: 'utility', cat: 'tools', anchor: { x: 66, y: 6 } },
+  { id: 'techniques', title: 'Technique Hall', icon: '🗡️', kind: 'utility', cat: 'tools', bg: 'technique_bg.png', anchor: { x: 66, y: 6 } },
   { id: 'outer', title: 'Outer Court', icon: '⛰️', kind: 'group', tiers: ['outer'], anchor: { x: 11, y: 41 } },
-  { id: 'pill', title: 'Pill Pavilion', icon: '⚗️', kind: 'utility', cat: 'pills', anchor: { x: 65, y: 45 } },
-  { id: 'mission', title: 'Mission Hall', icon: '📜', kind: 'utility', cat: 'quests', anchor: { x: 93, y: 43 } },
+  { id: 'pill', title: 'Pill Pavilion', icon: '⚗️', kind: 'utility', cat: 'pills', bg: 'pill_bg.png', anchor: { x: 65, y: 45 } },
+  { id: 'mission', title: 'Mission Hall', icon: '📜', kind: 'utility', cat: 'quests', bg: 'mission_bg.png', anchor: { x: 93, y: 43 } },
   { id: 'council', title: 'Dao Council', icon: '⚖️', kind: 'utility', cat: 'council', anchor: { x: 39, y: 58 } },
-  { id: 'treasury', title: 'Treasure Pavilion', icon: '💎', kind: 'utility', cat: 'treasury', anchor: { x: 6, y: 67 } },
-  { id: 'seclusion', title: 'Seclusion Caves', icon: '🕳️', kind: 'group', filter: 'seclusion', anchor: { x: 22, y: 71 } },
+  { id: 'treasury', title: 'Treasure Pavilion', icon: '🪙', kind: 'utility', cat: 'treasury', bg: 'treasure_bg.png', anchor: { x: 6, y: 67 } },
+  // Seclusion Caves: disciples sit on the central stone platform only
+  { id: 'seclusion', title: 'Seclusion Caves', icon: '🕳️', kind: 'group', filter: 'seclusion', bg: 'seclusion_bg.png', floor: { cx: 50, baseY: 70, spread: 22, arc: 5 }, anchor: { x: 22, y: 71 } },
 ];
 
 // state-based membership for group peaks that aren't rank tiers
@@ -1088,6 +1237,7 @@ async function renderSectMap() {
 
   const peaks = buildPeaks(crew);
   window.__peaks = peaks;
+  buildSkinMap(crew);  // lock one distinct skin per disciple
   const n = crew.length;
   const leader = crew.find(a => a.governance?.is_leader) || crew.slice().sort((a, b) => (b.governance?.standing || 0) - (a.governance?.standing || 0))[0];
   const cultivating = crew.filter(a => ['working', 'queued'].includes(a.status) || a.cultivation?.in_seclusion).length;
@@ -1095,14 +1245,21 @@ async function renderSectMap() {
   const succ = Math.round(crew.reduce((s, a) => s + (a.reputation?.signals?.success_pct ?? 100), 0) / n);
   const stones = crew.reduce((s, a) => s + (a.cultivation?.stones || 0), 0);
 
+  // day/night by local time; a storm gathers when the sect is unhealthy
+  const hour = new Date().getHours();
+  const phase = hour < 6 ? 'night' : hour < 9 ? 'dawn' : hour < 17 ? 'day' : hour < 20 ? 'dusk' : 'night';
+  const storm = (window.__lastProjects || []).some(p => p.health === 'error')
+    || crew.some(a => a.status === 'error' || a.cultivation?.pending_tribulation);
+
   const stat = (icon, label, val) => `<div class='po-row'><span>${icon} ${label}</span><b>${val}</b></div>`;
   const world = document.getElementById('map-world');
   world.innerHTML = `
     <img class='map-bg-img' src='/assets/map/map_bg.png' alt='' draggable='false'>
+    <div class='map-weather ph-${phase}${storm ? ' storm' : ''}'>${storm ? "<div class='map-rain'></div>" : ''}</div>
     <div class='pixel-panel peak-overview'>
       <div class='pp-title'>☯ Peak Overview</div>
       ${stat('👤', 'Disciples', n)}${stat('🧘', 'Cultivating', cultivating)}${stat('🍵', 'Idle', idle)}
-      ${stat('✓', 'Success', succ + '%')}${stat('💎', 'Spirit stones', stones.toLocaleString())}
+      ${stat('✓', 'Success', succ + '%')}${stat(STONE, 'Spirit stones', stones.toLocaleString())}
     </div>
     <div class='pixel-panel peak-lord'><span class='pl-label'>Peak Lord</span><b>👑 ${esc(leader ? leader.name : '—')}</b><span class='muted'>${esc(leader?.cultivation?.realm_name || '')}</span></div>
     <div class='map-motes'>${Array.from({ length: 14 }, (_, i) => `<span style='left:${(i * 7 + 4) % 98}%;animation-delay:${(i * 0.9).toFixed(1)}s;animation-duration:${9 + (i % 5) * 2}s'></span>`).join('')}</div>
@@ -1164,18 +1321,43 @@ const SKIN_SUFFIX = {
 // pool of distinct character sets a disciple can be randomly assigned
 const RANDOM_SKINS = [...new Set(Object.values(SKIN_SUFFIX))];
 function _hash(s) { let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+// Lock each disciple to ONE skin: explicit `skin:` wins; everyone else gets a
+// DISTINCT random skin (no two agents alike until the pool runs out),
+// deterministic so it never changes between renders.
+let _skinMap = null, _skinKey = '';
+function buildSkinMap(crew) {
+  const key = crew.map(a => a.name).join('|');
+  if (_skinMap && _skinKey === key) return _skinMap;
+  const pool = [...RANDOM_SKINS];
+  let seed = 0x9e3779b1;
+  for (let i = pool.length - 1; i > 0; i--) { seed = (Math.imul(seed, 1103515245) + 12345) & 0x7fffffff; const j = seed % (i + 1); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const map = {};
+  crew.filter(a => !(a.skin && SKIN_SUFFIX[a.skin] !== undefined) && !a.sprite)
+      .map(a => a.name).sort()
+      .forEach((nm, i) => { map[nm] = pool[i % pool.length]; });
+  _skinMap = map; _skinKey = key;
+  return map;
+}
 function skinSuffix(a) {
   const s = a && a.skin;
-  if (s != null && s !== '' && SKIN_SUFFIX[s] !== undefined) return SKIN_SUFFIX[s];  // explicit skin wins
-  return RANDOM_SKINS[_hash(a && a.name) % RANDOM_SKINS.length];                       // else: random (stable per agent)
+  if (s != null && s !== '' && SKIN_SUFFIX[s] !== undefined) return SKIN_SUFFIX[s];      // explicit skin wins
+  if (_skinMap && _skinMap[a && a.name] !== undefined) return _skinMap[a.name];          // locked unique random
+  return RANDOM_SKINS[_hash(a && a.name) % RANDOM_SKINS.length];                          // fallback
 }
 function hallUnitInner(act, key, variant) {
   const v = (variant && key !== 'demon') ? variant : '';
   return `<span class='hall-sprite act-${act}'><span class='hall-fx'><i></i><i></i><i></i></span><img src='/assets/map/sprites/agent_${key}${v}.png' alt='' draggable='false'></span>`;
 }
-function hallPositions(k) {
-  const out = [], cx = 50, baseY = 60, spread = Math.min(72, 16 + k * 9);
-  for (let i = 0; i < k; i++) { const t = k === 1 ? 0.5 : i / (k - 1); out.push({ x: cx - spread / 2 + spread * t, y: baseY + 20 - Math.sin(t * Math.PI) * 11 }); }
+function hallPositions(k, floor) {
+  // `floor` lets a hall pin disciples to a sensible standing area (e.g. a cave's
+  // central platform) instead of spreading them across scenery that can't be sat on.
+  const cx = floor?.cx ?? 50;
+  const baseY = floor?.baseY ?? 60;
+  const spread = floor ? Math.min(floor.spread, 8 + k * 6) : Math.min(72, 16 + k * 9);
+  const arc = floor?.arc ?? 11;
+  const out = [];
+  for (let i = 0; i < k; i++) { const t = k === 1 ? 0.5 : i / (k - 1); out.push({ x: cx - spread / 2 + spread * t, y: baseY + (floor ? 0 : 20) - Math.sin(t * Math.PI) * arc }); }
   return out;
 }
 
@@ -1189,11 +1371,13 @@ function _zoomTo(peakId) {
   }
   scene.classList.add('zooming');
 }
-function _showHall(html) {
+function _showHall(html, instant) {
   const hall = document.getElementById('map-hall');
+  const wasShown = hall.classList.contains('shown') && !hall.classList.contains('hidden');
   hall.className = 'map-hall';
   hall.innerHTML = html;
-  setTimeout(() => { hall.classList.remove('hidden'); requestAnimationFrame(() => hall.classList.add('shown')); }, 360);
+  if (instant && wasShown) { hall.classList.add('shown'); }                 // live refresh, no fade/zoom
+  else setTimeout(() => { hall.classList.remove('hidden'); requestAnimationFrame(() => hall.classList.add('shown')); }, 360);
   document.getElementById('hall-back').onclick = exitHall;
   return hall;
 }
@@ -1201,15 +1385,40 @@ function _showHall(html) {
 function enterPeak(peakId) {
   const peak = (window.__peaks || []).find(p => p.id === peakId);
   if (!peak) return;
+  window.__openPeak = peakId;
   _zoomTo(peakId);
   if (peak.kind === 'group') renderGroupHall(peak, (peak.members[0] || {}).name);
   else renderUtilityHall(peak);
 }
 
-async function renderGroupHall(peak, focusName) {
+// re-render the currently open hall in place (called on live SSE updates)
+function refreshOpenHall() {
+  const id = window.__openPeak;
+  if (!id) return;
+  const peak = (window.__peaks || []).find(p => p.id === id);
+  if (!peak) return;
+  if (peak.kind === 'group') renderGroupHall(peak, window.__openFocus, true);
+  else renderUtilityHall(peak, true);
+}
+
+// reorder a roster so karmic-bonded partners stand next to each other
+function pairAdjacent(list) {
+  const byName = Object.fromEntries(list.map(x => [x.name, x]));
+  const out = [], used = new Set();
+  list.forEach(x => {
+    if (used.has(x.name)) return;
+    out.push(x); used.add(x.name);
+    const mate = x.bond && byName[x.bond];
+    if (mate && !used.has(mate.name)) { out.push(mate); used.add(mate.name); }
+  });
+  return out;
+}
+
+async function renderGroupHall(peak, focusName, instant) {
   const all = peak.members || [];
-  const present = all.filter(x => !x.cultivation?.in_roaming);
+  const present = pairAdjacent(all.filter(x => !x.cultivation?.in_roaming));
   const focus = all.find(x => x.name === focusName) || all[0];
+  window.__openFocus = focus ? focus.name : undefined;
   const row = (icon, label, val) => `<div class='po-row'><span>${icon} ${label}</span><b>${val}</b></div>`;
   const cult = all.filter(x => ['working', 'queued'].includes(x.status) || x.cultivation?.in_seclusion).length;
   const stones = all.reduce((s, x) => s + (x.cultivation?.stones || 0), 0);
@@ -1230,7 +1439,7 @@ async function renderGroupHall(peak, focusName) {
     <div class='pixel-panel hall-info'>
       <div class='pp-title'>⛩ Hall Info</div>
       ${row('👤', 'Present', present.length + '/' + all.length)}${row('🧘', 'Cultivating', cult)}
-      ${row('⬆', 'Avg realm', avgRealm)}${row('💎', 'Spirit stones', stones.toLocaleString())}
+      ${row('⬆', 'Avg realm', avgRealm)}${row(STONE, 'Spirit stones', stones.toLocaleString())}
     </div>
     <div class='pixel-panel hall-agents'>
       <div class='pp-title'>Disciples (${all.length})</div><div class='hall-agent-list'>${agentList}</div>
@@ -1240,23 +1449,74 @@ async function renderGroupHall(peak, focusName) {
       <div class='pp-title'>${esc(focus.name)}</div>
       ${row('', 'Standing', g.standing ?? '—')}${row('', 'Realm', `Lv.${c.realm ?? 0} ${esc(c.realm_name || '')}`)}
       ${row('', 'Doing', hallActivity(focus).label)}
+      <div class='hall-assign'><input id='hall-task' placeholder='Assign a task to ${esc(focus.name)}…'><button id='hall-assign-go' class='btn'>Assign</button></div>
       <div class='map-detail-chron'><b class='muted'>Chronicle</b><div id='hall-timeline' class='muted'>loading…</div></div>
-    </div>` : ''}`);
+    </div>` : ''}`, instant);
 
   const units = hall.querySelector('.hall-floor-units');
-  const pos = hallPositions(present.length);
-  if (peak.id === 'leader' && pos[0]) pos[0] = { x: 50, y: 62 };  // on the throne dais
+  const pos = hallPositions(present.length, peak.floor);
+  const presentByName = Object.fromEntries(present.map(x => [x.name, x]));
+  const posByName = {};
   present.forEach((x, i) => {
-    const ax = hallActivity(x), hl = focus && x.name === focus.name;
+    let ax = hallActivity(x);
+    let p = pos[i];
+    // the Sect Leader presides seated upon the throne (meditation pose)
+    if (peak.id === 'leader' && x.governance?.is_leader) { ax = { act: 'cultivate', label: 'Presiding over the Sect', sprite: 0 }; p = { x: 50, y: 53.5 }; }
+    posByName[x.name] = p;
+    // two karmic-bonded disciples present together are collaborating
+    const mate = x.bond && presentByName[x.bond];
+    const collaborating = !!mate;
+    const hl = focus && x.name === focus.name;
     const u = document.createElement('button');
-    u.className = 'hall-unit act-' + ax.act + (hl ? ' hl' : '');
-    u.style.left = pos[i].x + '%'; u.style.top = pos[i].y + '%'; u.style.zIndex = String(10 + Math.round(pos[i].y));
+    u.className = 'hall-unit act-' + ax.act + (hl ? ' hl' : '') + (collaborating ? ' collaborating' : '') + (peak.id === 'leader' && x.governance?.is_leader ? ' on-throne' : '');
+    u.style.left = p.x + '%'; u.style.top = p.y + '%'; u.style.zIndex = String(10 + Math.round(p.y));
     u.setAttribute('data-agent', x.name);
-    u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax), skinSuffix(x))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span></span>`;
+    const collabTag = collaborating ? `<span class='ht-collab' title='collaborating with ${esc(mate.name)}'>🤝 ${esc(mate.name)}</span>` : '';
+    u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax), skinSuffix(x))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span>${collabTag}</span>`;
     u.addEventListener('click', () => renderGroupHall(peak, x.name));
     units.appendChild(u);
   });
+  // draw collaboration threads between bonded partners present together
+  const seen = new Set();
+  const lines = [];
+  present.forEach(x => {
+    const mate = x.bond && presentByName[x.bond];
+    if (!mate) return;
+    const key = [x.name, mate.name].sort().join('|');
+    if (seen.has(key)) return;
+    seen.add(key);
+    const a = posByName[x.name], b = posByName[mate.name];
+    const active = ['working', 'queued'].includes(x.status) || ['working', 'queued'].includes(mate.status);
+    lines.push(`<line x1='${a.x}' y1='${a.y}' x2='${b.x}' y2='${b.y}' class='collab-line${active ? ' active' : ''}' vector-effect='non-scaling-stroke'/>`);
+  });
+  if (lines.length) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'hall-collab');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.innerHTML = lines.join('');
+    units.insertBefore(svg, units.firstChild);
+  }
   hall.querySelectorAll('.hall-agent-row').forEach(b => b.onclick = () => renderGroupHall(peak, b.getAttribute('data-agent')));
+  // click-to-assign: give the focused disciple a task right from the hall
+  const goBtn = document.getElementById('hall-assign-go'), taskInp = document.getElementById('hall-task');
+  if (goBtn && taskInp && focus) {
+    const send = async () => {
+      const task = (taskInp.value || '').trim();
+      if (!task) return;
+      goBtn.disabled = true;
+      try {
+        const res = await fetch(`/api/agents/${encodeURIComponent(focus.name)}/task`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ task }),
+        });
+        if (!res.ok) { const j = await res.json().catch(() => ({})); alert('Assign failed: ' + (j.detail || res.status)); }
+        else taskInp.value = '';
+      } catch (e) { alert('Assign failed: ' + e); }
+      goBtn.disabled = false;
+    };
+    goBtn.onclick = send;
+    taskInp.onkeydown = e => { if (e.key === 'Enter') send(); };
+  }
   if (focus) {
     try {
       const ch = await fetch(`/api/chronicle/${encodeURIComponent(focus.name)}?limit=10`, { headers: authHeaders() }).then(r => r.json());
@@ -1267,15 +1527,15 @@ async function renderGroupHall(peak, focusName) {
   }
 }
 
-async function renderUtilityHall(peak) {
+async function renderUtilityHall(peak, instant) {
   const row = (a, b2) => `<div class='po-row'><span>${a}</span><b>${b2}</b></div>`;
   let body = `<div class='muted' style='padding:6px'>loading…</div>`;
+  const arrayFx = (peak.bg && peak.bg !== 'hall_bg.png') ? '' : `<div class='hall-array'><div class='ha-ring'></div><div class='ha-core'></div><div class='ha-beam'></div></div>`;
   const hall = _showHall(`
-    <img class='hall-bg-img' src='/assets/map/hall_bg.png' alt='' draggable='false'>
-    <div class='hall-array'><div class='ha-ring'></div><div class='ha-core'></div><div class='ha-beam'></div></div>
+    <img class='hall-bg-img' src='/assets/map/${peak.bg || 'hall_bg.png'}' alt='' draggable='false'>${arrayFx}
     <button id='hall-back' class='btn hall-back'>← return to the heavens</button>
     <div class='hall-title pixel-panel'><b>${peak.icon} ${esc(peak.title)}</b></div>
-    <div class='pixel-panel hall-util'><div class='pp-title'>${peak.icon} ${esc(peak.title)}</div><div id='util-body'>${body}</div></div>`);
+    <div class='pixel-panel hall-util'><div class='pp-title'>${peak.icon} ${esc(peak.title)}</div><div id='util-body'>${body}</div></div>`, instant);
   const set = html => { const el = document.getElementById('util-body'); if (el) el.innerHTML = html; };
   try {
     if (peak.cat === 'quests') {
@@ -1288,7 +1548,7 @@ async function renderUtilityHall(peak) {
       set(ps.length ? ps.map(p => `<div class='util-item'><b>⚗️ ${esc(p.name || p.id)}</b><div class='muted'>${esc(p.effect || p.description || '')}</div></div>`).join('') : '<div class="muted">The cauldron is cold.</div>');
     } else if (peak.cat === 'treasury') {
       const d = await fetch('/api/treasury', { headers: authHeaders() }).then(r => r.json());
-      set(row('💎 Balance', (d.balance ?? 0).toLocaleString()) + row('Spirit veins', d.veins ?? d.vein_count ?? '—') + (d.detail ? `<div class='muted' style='margin-top:6px'>${esc(d.detail)}</div>` : ''));
+      set(row(STONE + ' Balance', (d.balance ?? 0).toLocaleString()) + row('Spirit veins', d.veins ?? d.vein_count ?? '—') + (d.detail ? `<div class='muted' style='margin-top:6px'>${esc(d.detail)}</div>` : ''));
     } else if (peak.cat === 'tools') {
       const d = await fetch('/api/tools', { headers: authHeaders() }).then(r => r.json());
       const ts = d.tools || d.catalog || [];
@@ -1308,9 +1568,29 @@ async function renderUtilityHall(peak) {
 
 function exitHall() {
   const scene = document.getElementById('sect-map'), hall = document.getElementById('map-hall');
+  window.__openPeak = null;
   hall.classList.remove('shown');
   scene.classList.remove('zooming');
   setTimeout(() => hall.classList.add('hidden'), 360);
+}
+
+// ---- live updates + ascension cutscene (driven by SSE /api/stream) ----
+async function refreshLive() {
+  if (document.getElementById('map-section').classList.contains('hidden')) return;
+  await renderAgentCrew();      // refresh window.__agents from /api/agents
+  renderSectMap();              // peak counts + weather
+  refreshOpenHall();            // re-render the open hall in place (no zoom)
+}
+
+function ascend(name) {
+  const a = (window.__agents || []).find(x => x.name === name);
+  const realm = a?.cultivation?.realm_name || 'a new realm';
+  let cs = document.getElementById('ascension');
+  if (!cs) { cs = document.createElement('div'); cs.id = 'ascension'; document.body.appendChild(cs); }
+  cs.className = 'ascension show';
+  cs.innerHTML = `<div class='asc-rays'></div><div class='asc-text'><div class='asc-name'>✦ ${esc(name)} ✦</div><div class='asc-sub'>breaks through to<br><b>${esc(realm)}</b></div></div>`;
+  clearTimeout(window.__ascTimer);
+  window.__ascTimer = setTimeout(() => cs.classList.remove('show'), 3200);
 }
 
 
@@ -1696,7 +1976,7 @@ async function renderTreasury() {
   try { t = await fetch('/api/treasury', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { return; }
   if (!t) return;
-  document.getElementById('treasury-balance').textContent = `💎 ${t.balance}`;
+  document.getElementById('treasury-balance').innerHTML = `<span class='stone'></span>${t.balance}`;
   document.getElementById('treasury-detail').textContent =
     `veins +${t.income_per_hour}/hr · ${t.total_income} channelled · ${t.total_spent} disbursed`;
 }
@@ -1747,6 +2027,71 @@ async function renderUsage() {
   document.getElementById('usage-total').textContent =
     `$${Number(t.cost || 0).toFixed(4)} · ${t.calls} calls · ${(t.tokens_in + t.tokens_out).toLocaleString()} tok`;
   document.getElementById('usage-table').innerHTML = (data.agents || []).map(usageCard).join('');
+  renderUsageChart();
+  renderReserves();
+}
+
+// cost & token usage over the last 24h — a lightweight inline bar chart
+async function renderUsageChart() {
+  const el = document.getElementById('usage-chart');
+  if (!el) return;
+  let s; try { s = await fetch('/api/usage/series?hours=24', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { el.innerHTML = ''; return; }
+  const buckets = (s && s.buckets) || [];
+  if (!buckets.length || !(s.totals && (s.totals.cost > 0 || s.totals.tokens > 0))) { el.innerHTML = ''; return; }
+  const maxCost = Math.max(...buckets.map(b => b.cost), 0.000001);
+  const maxTok = Math.max(...buckets.map(b => b.tokens_in + b.tokens_out), 1);
+  const W = buckets.length, bw = 100 / W;
+  const hour = ms => new Date(ms * 1000).getHours();
+  const bars = buckets.map((b, i) => {
+    const tok = b.tokens_in + b.tokens_out;
+    const ch = Math.round((b.cost / maxCost) * 100);
+    const th = Math.round((tok / maxTok) * 100);
+    const x = (i * bw).toFixed(3);
+    const title = `${hour(b.hour)}:00 — $${b.cost.toFixed(4)}, ${tok.toLocaleString()} tok, ${b.calls} calls${b.errors ? `, ${b.errors} err` : ''}`;
+    return `<div class='uc-col' style='left:${x}%;width:${bw}%' title='${esc(title)}'>
+      <div class='uc-bar uc-tok' style='height:${th}%'></div>
+      <div class='uc-bar uc-cost' style='height:${ch}%'></div>${b.errors ? `<div class='uc-err'></div>` : ''}</div>`;
+  }).join('');
+  el.innerHTML = `<div class='usage-chart-card'>
+    <div class='uc-head'><b>Last 24h</b>
+      <span class='uc-legend'><span class='uc-key uc-cost'></span>cost <span class='uc-key uc-tok'></span>tokens</span>
+      <span class='muted'>$${Number(s.totals.cost).toFixed(4)} · ${Number(s.totals.tokens).toLocaleString()} tok${s.totals.errors ? ` · ${s.totals.errors} err` : ''}</span>
+    </div>
+    <div class='uc-plot'>${bars}</div>
+    <div class='uc-axis'><span>${hour(buckets[0].hour)}:00</span><span>now</span></div>
+  </div>`;
+}
+
+async function renderReserves() {
+  const el = document.getElementById('qi-reserves');
+  if (!el) return;
+  let b; try { b = await fetch('/api/budget', { headers: authHeaders() }).then(r => r.json()); } catch (_) { el.innerHTML = ''; return; }
+  const r = b.reserves || {};
+  if (!r.enabled) {                                  // no budget configured → just a hint
+    el.innerHTML = `<div class='qr-card'><div class='qr-head'><b>☯ Qi Reserves</b><span class='muted'>no budget set · spent $${Number(r.spent || 0).toFixed(4)}</span></div>
+      <div class='muted' style='font-size:12px'>Set <code>MAYBOT_BUDGET_USD</code> to cap sect spend and auto-throttle low-merit disciples when it runs low.</div></div>`;
+    return;
+  }
+  const pct = r.pct_remaining;
+  const lvl = r.exhausted ? 'qr-exhausted' : r.critical ? 'qr-critical' : r.low ? 'qr-low' : 'qr-ok';
+  const note = r.exhausted ? 'reserves spent — autonomous runs halted'
+    : r.critical ? 'critical — only Trusted disciples may act'
+    : r.low ? 'low — Probation disciples throttled' : 'healthy';
+  const throttled = (b.agents || []).filter(a => a.status !== 'ok');
+  // per-agent spend bars (share of total spend), tinted by throttle status
+  const spenders = (b.agents || []).filter(a => a.cost > 0).sort((x, y) => y.cost - x.cost).slice(0, 8);
+  const maxc = Math.max(0.0001, ...spenders.map(a => a.cost));
+  const bars = spenders.map(a => `<div class='qr-agent'>
+    <span class='qr-aname'>${a.status === 'ok' ? '' : (a.status === 'capped' ? '⛔ ' : '⚠ ')}${esc(a.agent)}</span>
+    <span class='qr-abar'><span class='qr-a-${a.status}' style='width:${Math.round(100 * a.cost / maxc)}%'></span></span>
+    <span class='qr-acost'>$${a.cost.toFixed(4)}</span></div>`).join('');
+  el.innerHTML = `<div class='qr-card'>
+    <div class='qr-head'><b>☯ Qi Reserves</b><span>$${Number(r.remaining).toFixed(2)} / $${Number(r.budget).toFixed(2)} <span class='muted'>(${pct}%)</span></span></div>
+    <div class='qr-bar'><span class='${lvl}' style='width:${Math.max(0, Math.min(100, pct))}%'></span></div>
+    <div class='qr-note ${lvl}'>${note}${throttled.length ? ` · throttled: ${throttled.map(a => esc(a.agent)).join(', ')}` : ''}</div>
+    ${bars ? `<div class='qr-agents'>${bars}</div>` : ''}
+  </div>`;
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).
@@ -1873,8 +2218,25 @@ function setupStream() {
     let msg; try { msg = JSON.parse(e.data); } catch (_) { return; }
     if (msg.type === 'comms') debounced(renderComms, 'comms');
     else if (msg.type === 'tools') debounced(renderTools, 'tools');
-    else if (msg.type === 'agents') debounced(() => { renderAgentCrew(); renderComms(); }, 'agents');
+    else if (msg.type === 'agents') {
+      if (msg.data && msg.data.event === 'breakthrough' && msg.data.agent) ascend(msg.data.agent);  // ascension cutscene
+      if (msg.data && (msg.data.event === 'culled' || msg.data.event === 'struck_down')) {
+        debounced(render, 'agents');  // roster changed — full refresh
+      } else {
+        debounced(() => { renderComms(); refreshLive(); }, 'agents');
+      }
+    }
   };
   es.onerror = () => {}; // EventSource auto-reconnects
 }
+// ---- tabbed navigation (no more infinite scroll) ----
+function setTab(t) {
+  localStorage.setItem('tab', t);
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  document.querySelectorAll('.container > section').forEach(s => s.classList.toggle('tab-hidden', (s.dataset.tab || 'overview') !== t));
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+setTab(localStorage.getItem('tab') || 'overview');
+
 setupStream();

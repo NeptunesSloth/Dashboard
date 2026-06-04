@@ -40,6 +40,8 @@ from . import artifacts
 from . import titles
 from . import chronicle
 from . import runbooks
+from . import lifecycle
+from . import tournament
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -340,6 +342,19 @@ def usage_stats(x_control_token: str = Header(default="")):
     return usage.snapshot()
 
 
+@app.get("/api/usage/series")
+def usage_series(hours: int = Query(default=24), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return usage.series(max(1, min(hours, 336)))
+
+
+@app.get("/api/budget")
+def budget_stats(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import budget
+    return budget.snapshot()
+
+
 @app.get("/api/cultivation")
 def cultivation_stats(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
@@ -433,6 +448,38 @@ def governance_specialty(body: SpecialtyIn, x_control_token: str = Header(defaul
         return governance.choose_specialty(body.agent, body.specialty)
     except PermissionError as exc:
         raise HTTPException(403, str(exc))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+class StrikeDownIn(BaseModel):
+    agent: str
+    reason: str = ""
+
+
+@app.post("/api/governance/strike-down")
+def governance_strike_down(body: StrikeDownIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)  # only the Ancestor may strike a disciple down
+    if not _SAFE_NAME.match(body.agent or ""):
+        raise HTTPException(400, "invalid agent name")
+    try:
+        new = lifecycle.strike_down(body.agent, body.reason)
+        return {"struck_down": body.agent, "replacement": new["name"]}
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+@app.get("/api/tournament")
+def tournament_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return tournament.snapshot()
+
+
+@app.post("/api/tournament/start")
+def tournament_start(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)  # the Ancestor calls the Grand Tournament
+    try:
+        return tournament.hold()
     except ValueError as exc:
         raise HTTPException(400, str(exc))
 
