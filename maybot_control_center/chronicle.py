@@ -38,7 +38,14 @@ GLYPHS = {
     "guidance": "🧭",
     "mentored": "🌱",
     "culled": "💀",
+    "struck_down": "⚡",
     "arrival": "✨",
+    "quirk": "✦",
+    "young_master": "😼",
+    "main_character": "🌟",
+    "face_slap": "👋",
+    "ruined": "💢",
+    "redeemed": "🔥",
     "note": "•",
 }
 

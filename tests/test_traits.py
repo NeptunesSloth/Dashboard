@@ -1,0 +1,87 @@
+import pytest
+
+from maybot_control_center import agents, cultivation, traits
+
+
+AGENTS_YAML = """
+agents:
+  - {name: Nova, role: Analyst, persona: You are Nova., provider: openai_compatible, base_url: http://x, model: m}
+  - {name: Forge, role: Builder, persona: You are Forge., provider: openai_compatible, base_url: http://x, model: m}
+  - {name: Sage, role: Sage, persona: You are Sage., provider: openai_compatible, base_url: http://x, model: m}
+"""
+
+
+def setup_function():
+    cultivation.clear()
+    agents.clear()
+    traits.clear()
+
+
+def _setup(tmp_path, monkeypatch):
+    f = tmp_path / "agents.yaml"
+    f.write_text(AGENTS_YAML, encoding="utf-8")
+    monkeypatch.setattr(agents, "AGENTS_FILE", f)
+
+
+# ---- quirks ----
+def test_quirk_assigned_within_chance(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 0.0)  # no arc
+    monkeypatch.setattr(traits, "QUIRK_CHANCE", 1.0)     # always a quirk
+    traits.tick()
+    for n in ("Nova", "Forge", "Sage"):
+        assert traits.quirk(n) in traits.QUIRKS
+
+
+def test_quirk_rolled_once_and_persona_reflects_it(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 0.0)
+    monkeypatch.setattr(traits, "QUIRK_CHANCE", 1.0)
+    traits.tick()
+    q = traits.quirk("Nova")
+    traits.tick()  # rolling again must not change it
+    assert traits.quirk("Nova") == q
+    assert q in traits.persona_addendum("Nova")
+
+
+def test_no_quirk_when_chance_zero(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 0.0)
+    monkeypatch.setattr(traits, "QUIRK_CHANCE", 0.0)
+    traits.tick()
+    assert all(traits.quirk(n) is None for n in ("Nova", "Forge", "Sage"))
+
+
+# ---- the arrogant young master arc ----
+def test_full_young_master_arc(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 1.0)   # first considered disciple is the YM
+    monkeypatch.setattr(traits, "QUIRK_CHANCE", 0.0)
+    monkeypatch.setattr(traits, "SLAP_AFTER", 0)          # slap immediately once an MC exists
+    monkeypatch.setattr(traits, "REDEMPTION_CHANCE", 1.0)  # guaranteed redemption
+
+    # first tick spawns the young master AND summons the Main Character to face him
+    traits.tick()
+    ym = next(n for n in ("Nova", "Forge", "Sage") if traits.trope(n) == "young_master")
+    mc = next(n for n in ("Nova", "Forge", "Sage") if traits.trope(n) == "main_character")
+    assert mc != ym
+    assert cultivation.state(ym)["stones"] >= traits.YM_TALENT      # the YM is talented
+    assert cultivation.state(mc)["stones"] >= traits.MC_TALENT      # the MC out-shines him
+    assert traits.is_protected(ym) and traits.is_protected(mc)
+
+    traits.tick()  # the face-slap: the young master falls to ruin
+    assert traits.trope(ym) == "ruined"
+    assert cultivation.state(ym)["stones"] == 0
+
+    traits.tick()  # redemption: he rises again, surpassing the MC
+    assert traits.trope(ym) == "redeemed"
+    assert cultivation.state(ym)["stones"] > cultivation.state(mc)["stones"]
+
+
+def test_only_one_arc_at_a_time(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 1.0)
+    monkeypatch.setattr(traits, "QUIRK_CHANCE", 0.0)
+    traits.tick()
+    masters = [n for n in ("Nova", "Forge", "Sage") if traits.trope(n) == "young_master"]
+    assert len(masters) == 1  # the open arc blocks a second young master spawning

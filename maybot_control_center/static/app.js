@@ -551,6 +551,22 @@ function governanceChip(g) {
   return badge + spec;
 }
 
+const TROPE_BADGE = {
+  young_master: { icon: '😼', label: 'Arrogant Young Master', cls: 'trope-ym' },
+  main_character: { icon: '🌟', label: 'Main Character', cls: 'trope-mc' },
+  ruined: { icon: '💢', label: 'Fallen to Ruin', cls: 'trope-ruined' },
+  redeemed: { icon: '🔥', label: 'Redeemed', cls: 'trope-redeemed' },
+};
+function traitRow(a) {
+  const chips = [];
+  if (a.quirk) chips.push(`<span class='trait-chip quirk-chip' title='starting quirk'>✦ ${esc(a.quirk)}</span>`);
+  if (a.trope && TROPE_BADGE[a.trope]) {
+    const t = TROPE_BADGE[a.trope];
+    chips.push(`<span class='trait-chip ${t.cls}' title='${esc(t.label)}'>${t.icon} ${esc(t.label)}</span>`);
+  }
+  return chips.length ? `<div class='rep-row trait-row'>${chips.join('')}</div>` : '';
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
@@ -560,6 +576,7 @@ function agentCard(a) {
   return `<div class='card agent-card agent-${esc(st)}${tribCls}' data-agent='${esc(a.name)}'>
     <div class='metric'><b>🧘 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
     ${a.reputation || a.governance ? `<div class='rep-row'>${governanceChip(a.governance)}${reputationChip(a.reputation)}${a.bond ? `<span class='gov-chip gov-spec' title='karmic-bond reviewer'>🤝 ${esc(a.bond)}</span>` : ''}</div>` : ''}
+    ${traitRow(a)}
     ${(a.titles && a.titles.length) ? `<div class='rep-row'>${a.titles.map(t => `<span class='title-chip' title='${esc(t.desc)}'>🏅 ${esc(t.title)}</span>`).join('')}</div>` : ''}
     ${metric('Role', esc(a.role || '—'))}
     ${metric('Model', esc(a.model))}

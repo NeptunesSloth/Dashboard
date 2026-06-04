@@ -127,13 +127,15 @@ def tick() -> dict | None:
     """
     if not CULL_ENABLED:
         return None
-    from . import agents, governance, cultivation
+    from . import agents, governance, cultivation, traits
     now = time.time()
     leader = governance.leader()
     stagnant: str | None = None
     for a in agents.load_agents():
         name = a.get("name")
         if not name or name == "operator" or name == leader:
+            continue
+        if traits.is_protected(name):   # let an active young-master arc play out
             continue
         prog = _progress(name)
         with _lock:

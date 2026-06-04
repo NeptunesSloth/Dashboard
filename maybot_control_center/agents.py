@@ -272,6 +272,13 @@ def run_task(name: str, task: str) -> dict:
         system = f"{system}\n\n{governance.persona_context(name)}"
     except Exception:
         pass  # governance is an optional layer
+    try:
+        from . import traits
+        add = traits.persona_addendum(name)
+        if add:
+            system = f"{system}\n\n{add}"
+    except Exception:
+        pass  # traits are an optional flavour layer
     if memory.enabled() and agent.get("memory", True):
         ctx = memory.context_for(task)
         if ctx:
@@ -541,7 +548,11 @@ def snapshot() -> list[dict]:
         }
         row["titles"] = titles.evaluate(name)
         row["bond"] = bonds.partner(name)
-    from . import lifecycle
+    from . import traits, lifecycle
+    traits.tick()     # roll spawn quirks for new disciples + advance the young-master arc
+    for row in out:
+        row["quirk"] = traits.quirk(row["name"])
+        row["trope"] = traits.trope(row["name"])
     lifecycle.tick()  # cull a stagnant Outer Disciple (and summon a recruit) if any
     return out
 
