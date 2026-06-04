@@ -694,5 +694,6 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .h-realm { font-size: 10px; color: var(--muted); }
 .h-you { border-top-color: var(--gold); color: var(--gold); cursor: default; font-family: "Cinzel", Georgia, serif; }
 .h-leader { border-top-color: var(--gold); box-shadow: 0 0 0 1px rgba(215,178,92,.3); }
+.h-master { border-top-color: #d98cff; box-shadow: 0 0 0 1px rgba(217,140,255,.25); }
 .h-elder { border-top-color: var(--tech); }
 .h-core { border-top-color: #7a8bd0; } .h-inner { border-top-color: #6c7a99; } .h-outer { border-top-color: var(--muted); }

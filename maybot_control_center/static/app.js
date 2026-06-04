@@ -782,19 +782,22 @@ function renderHierarchyChart(gov) {
   const node = (a, cls) => `<button class='h-node ${cls}' data-agent='${esc(a.name)}' title='standing ${a.governance?.standing ?? '—'}'>
     <span class='h-name'>${esc(a.name)}</span><span class='h-realm'>${esc(a.cultivation?.realm_name || '')}</span></button>`;
   const leader = crew.find(a => a.governance?.is_leader);
-  const elders = crew.filter(a => !a.governance?.is_leader && realm(a) >= 6);
-  const core = crew.filter(a => realm(a) >= 4 && realm(a) < 6);
-  const inner = crew.filter(a => realm(a) >= 2 && realm(a) < 4);
-  const outer = crew.filter(a => !a.governance?.is_leader && realm(a) < 2);
+  const other = a => !a.governance?.is_leader;
+  const masters = crew.filter(a => other(a) && realm(a) >= 8);
+  const elders = crew.filter(a => other(a) && realm(a) >= 6 && realm(a) < 8);
+  const core = crew.filter(a => other(a) && realm(a) >= 4 && realm(a) < 6);
+  const inner = crew.filter(a => other(a) && realm(a) >= 2 && realm(a) < 4);
+  const outer = crew.filter(a => other(a) && realm(a) < 2);
   const tier = (label, list, cls) => list.length
     ? `<div class='h-tier'><span class='h-label'>${label}</span><div class='h-nodes'>${list.map(a => node(a, cls)).join('')}</div></div>` : '';
   el.innerHTML = `
     <div class='h-tier h-ancestor'><span class='h-label'>Ancestor</span><div class='h-nodes'><span class='h-node h-you'>🐉 You</span></div></div>
     ${leader ? `<div class='h-tier'><span class='h-label'>Sect Leader</span><div class='h-nodes'>${node(leader, 'h-leader')}</div></div>` : ''}
+    ${tier('Sect Masters', masters, 'h-master')}
     ${tier('Elders', elders, 'h-elder')}
-    ${tier('Core', core, 'h-core')}
-    ${tier('Inner', inner, 'h-inner')}
-    ${tier('Outer', outer, 'h-outer')}`;
+    ${tier('Core Disciples', core, 'h-core')}
+    ${tier('Inner Disciples', inner, 'h-inner')}
+    ${tier('Outer Disciples', outer, 'h-outer')}`;
   el.querySelectorAll('.h-node[data-agent]').forEach(b => b.onclick = () => {
     const lsel = document.getElementById('leader-select'); if (lsel) lsel.value = b.getAttribute('data-agent');
   });
