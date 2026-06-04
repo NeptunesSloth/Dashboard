@@ -1096,10 +1096,17 @@ async function renderSectMap() {
   const succ = Math.round(crew.reduce((s, a) => s + (a.reputation?.signals?.success_pct ?? 100), 0) / n);
   const stones = crew.reduce((s, a) => s + (a.cultivation?.stones || 0), 0);
 
+  // day/night by local time; a storm gathers when the sect is unhealthy
+  const hour = new Date().getHours();
+  const phase = hour < 6 ? 'night' : hour < 9 ? 'dawn' : hour < 17 ? 'day' : hour < 20 ? 'dusk' : 'night';
+  const storm = (window.__lastProjects || []).some(p => p.health === 'error')
+    || crew.some(a => a.status === 'error' || a.cultivation?.pending_tribulation);
+
   const stat = (icon, label, val) => `<div class='po-row'><span>${icon} ${label}</span><b>${val}</b></div>`;
   const world = document.getElementById('map-world');
   world.innerHTML = `
     <img class='map-bg-img' src='/assets/map/map_bg.png' alt='' draggable='false'>
+    <div class='map-weather ph-${phase}${storm ? ' storm' : ''}'>${storm ? "<div class='map-rain'></div>" : ''}</div>
     <div class='pixel-panel peak-overview'>
       <div class='pp-title'>☯ Peak Overview</div>
       ${stat('👤', 'Disciples', n)}${stat('🧘', 'Cultivating', cultivating)}${stat('🍵', 'Idle', idle)}
@@ -1209,11 +1216,13 @@ function _zoomTo(peakId) {
   }
   scene.classList.add('zooming');
 }
-function _showHall(html) {
+function _showHall(html, instant) {
   const hall = document.getElementById('map-hall');
+  const wasShown = hall.classList.contains('shown') && !hall.classList.contains('hidden');
   hall.className = 'map-hall';
   hall.innerHTML = html;
-  setTimeout(() => { hall.classList.remove('hidden'); requestAnimationFrame(() => hall.classList.add('shown')); }, 360);
+  if (instant && wasShown) { hall.classList.add('shown'); }                 // live refresh, no fade/zoom
+  else setTimeout(() => { hall.classList.remove('hidden'); requestAnimationFrame(() => hall.classList.add('shown')); }, 360);
   document.getElementById('hall-back').onclick = exitHall;
   return hall;
 }
@@ -1221,15 +1230,27 @@ function _showHall(html) {
 function enterPeak(peakId) {
   const peak = (window.__peaks || []).find(p => p.id === peakId);
   if (!peak) return;
+  window.__openPeak = peakId;
   _zoomTo(peakId);
   if (peak.kind === 'group') renderGroupHall(peak, (peak.members[0] || {}).name);
   else renderUtilityHall(peak);
 }
 
-async function renderGroupHall(peak, focusName) {
+// re-render the currently open hall in place (called on live SSE updates)
+function refreshOpenHall() {
+  const id = window.__openPeak;
+  if (!id) return;
+  const peak = (window.__peaks || []).find(p => p.id === id);
+  if (!peak) return;
+  if (peak.kind === 'group') renderGroupHall(peak, window.__openFocus, true);
+  else renderUtilityHall(peak, true);
+}
+
+async function renderGroupHall(peak, focusName, instant) {
   const all = peak.members || [];
   const present = all.filter(x => !x.cultivation?.in_roaming);
   const focus = all.find(x => x.name === focusName) || all[0];
+  window.__openFocus = focus ? focus.name : undefined;
   const row = (icon, label, val) => `<div class='po-row'><span>${icon} ${label}</span><b>${val}</b></div>`;
   const cult = all.filter(x => ['working', 'queued'].includes(x.status) || x.cultivation?.in_seclusion).length;
   const stones = all.reduce((s, x) => s + (x.cultivation?.stones || 0), 0);
@@ -1260,8 +1281,9 @@ async function renderGroupHall(peak, focusName) {
       <div class='pp-title'>${esc(focus.name)}</div>
       ${row('', 'Standing', g.standing ?? '—')}${row('', 'Realm', `Lv.${c.realm ?? 0} ${esc(c.realm_name || '')}`)}
       ${row('', 'Doing', hallActivity(focus).label)}
+      <div class='hall-assign'><input id='hall-task' placeholder='Assign a task to ${esc(focus.name)}…'><button id='hall-assign-go' class='btn'>Assign</button></div>
       <div class='map-detail-chron'><b class='muted'>Chronicle</b><div id='hall-timeline' class='muted'>loading…</div></div>
-    </div>` : ''}`);
+    </div>` : ''}`, instant);
 
   const units = hall.querySelector('.hall-floor-units');
   const pos = hallPositions(present.length);
@@ -1280,6 +1302,25 @@ async function renderGroupHall(peak, focusName) {
     units.appendChild(u);
   });
   hall.querySelectorAll('.hall-agent-row').forEach(b => b.onclick = () => renderGroupHall(peak, b.getAttribute('data-agent')));
+  // click-to-assign: give the focused disciple a task right from the hall
+  const goBtn = document.getElementById('hall-assign-go'), taskInp = document.getElementById('hall-task');
+  if (goBtn && taskInp && focus) {
+    const send = async () => {
+      const task = (taskInp.value || '').trim();
+      if (!task) return;
+      goBtn.disabled = true;
+      try {
+        const res = await fetch(`/api/agents/${encodeURIComponent(focus.name)}/task`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ task }),
+        });
+        if (!res.ok) { const j = await res.json().catch(() => ({})); alert('Assign failed: ' + (j.detail || res.status)); }
+        else taskInp.value = '';
+      } catch (e) { alert('Assign failed: ' + e); }
+      goBtn.disabled = false;
+    };
+    goBtn.onclick = send;
+    taskInp.onkeydown = e => { if (e.key === 'Enter') send(); };
+  }
   if (focus) {
     try {
       const ch = await fetch(`/api/chronicle/${encodeURIComponent(focus.name)}?limit=10`, { headers: authHeaders() }).then(r => r.json());
@@ -1290,15 +1331,15 @@ async function renderGroupHall(peak, focusName) {
   }
 }
 
-async function renderUtilityHall(peak) {
+async function renderUtilityHall(peak, instant) {
   const row = (a, b2) => `<div class='po-row'><span>${a}</span><b>${b2}</b></div>`;
   let body = `<div class='muted' style='padding:6px'>loading…</div>`;
   const hall = _showHall(`
-    <img class='hall-bg-img' src='/assets/map/hall_bg.png' alt='' draggable='false'>
+    <img class='hall-bg-img' src='/assets/map/${peak.bg || 'hall_bg.png'}' alt='' draggable='false'>
     <div class='hall-array'><div class='ha-ring'></div><div class='ha-core'></div><div class='ha-beam'></div></div>
     <button id='hall-back' class='btn hall-back'>← return to the heavens</button>
     <div class='hall-title pixel-panel'><b>${peak.icon} ${esc(peak.title)}</b></div>
-    <div class='pixel-panel hall-util'><div class='pp-title'>${peak.icon} ${esc(peak.title)}</div><div id='util-body'>${body}</div></div>`);
+    <div class='pixel-panel hall-util'><div class='pp-title'>${peak.icon} ${esc(peak.title)}</div><div id='util-body'>${body}</div></div>`, instant);
   const set = html => { const el = document.getElementById('util-body'); if (el) el.innerHTML = html; };
   try {
     if (peak.cat === 'quests') {
@@ -1331,9 +1372,29 @@ async function renderUtilityHall(peak) {
 
 function exitHall() {
   const scene = document.getElementById('sect-map'), hall = document.getElementById('map-hall');
+  window.__openPeak = null;
   hall.classList.remove('shown');
   scene.classList.remove('zooming');
   setTimeout(() => hall.classList.add('hidden'), 360);
+}
+
+// ---- live updates + ascension cutscene (driven by SSE /api/stream) ----
+async function refreshLive() {
+  if (document.getElementById('map-section').classList.contains('hidden')) return;
+  await renderAgentCrew();      // refresh window.__agents from /api/agents
+  renderSectMap();              // peak counts + weather
+  refreshOpenHall();            // re-render the open hall in place (no zoom)
+}
+
+function ascend(name) {
+  const a = (window.__agents || []).find(x => x.name === name);
+  const realm = a?.cultivation?.realm_name || 'a new realm';
+  let cs = document.getElementById('ascension');
+  if (!cs) { cs = document.createElement('div'); cs.id = 'ascension'; document.body.appendChild(cs); }
+  cs.className = 'ascension show';
+  cs.innerHTML = `<div class='asc-rays'></div><div class='asc-text'><div class='asc-name'>✦ ${esc(name)} ✦</div><div class='asc-sub'>breaks through to<br><b>${esc(realm)}</b></div></div>`;
+  clearTimeout(window.__ascTimer);
+  window.__ascTimer = setTimeout(() => cs.classList.remove('show'), 3200);
 }
 
 
@@ -1896,7 +1957,10 @@ function setupStream() {
     let msg; try { msg = JSON.parse(e.data); } catch (_) { return; }
     if (msg.type === 'comms') debounced(renderComms, 'comms');
     else if (msg.type === 'tools') debounced(renderTools, 'tools');
-    else if (msg.type === 'agents') debounced(() => { renderAgentCrew(); renderComms(); }, 'agents');
+    else if (msg.type === 'agents') {
+      if (msg.data && msg.data.event === 'breakthrough' && msg.data.agent) ascend(msg.data.agent);  // ascension cutscene
+      debounced(() => { renderComms(); refreshLive(); }, 'agents');
+    }
   };
   es.onerror = () => {}; // EventSource auto-reconnects
 }
