@@ -123,18 +123,30 @@ function projectCard(p) {
     p.oath ? `<span class='rel-badge rel-oath' title='Claimed by ${esc(p.oath.who)}'>🤝 ${esc(p.oath.who)}</span>` : '',
   ].join('');
 
-  return `<div class='card' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
-    <div class='metric'><b>${esc(p.name)}</b><span>${healthBadge(p.health)}</span></div>
-    ${relBadges ? `<div class='rel-badges'>${relBadges}</div>` : ''}
-    ${metric('Device', esc(p.device))}
-    ${metric('Type', esc(p.type))}
-    ${metric('Status', esc(p.status))}
-    ${keyMetrics}
-    ${spark}
-    ${alerts}
-    <details class='details'><summary>Raw details</summary><pre>${esc(JSON.stringify(p, null, 2))}</pre></details>
-    ${actions}
-  </div>`;
+  // Compact headline stat so the card reads in one line until expanded.
+  const stat = p.type === 'trading_bot' ? money(m.profit_today)
+    : (p.type === 'local_ai_host' ? `<span class='muted'>${esc(m.status || p.status || '—')}</span>`
+      : `<span class='muted'>${esc(p.status || '—')}</span>`);
+  const icon = TYPE_ICON[p.type] || '📦';
+
+  return `<details class='card project-card' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
+    <summary class='proj-summary'>
+      <span class='ps-id'><b>${esc(p.name)}</b> ${healthBadge(p.health)}</span>
+      <span class='ps-type muted'>${icon} ${esc(p.device)}</span>
+      <span class='ps-stat'>${stat}</span>
+      ${relBadges}
+    </summary>
+    <div class='project-body'>
+      ${metric('Device', esc(p.device))}
+      ${metric('Type', esc(p.type))}
+      ${metric('Status', esc(p.status))}
+      ${keyMetrics}
+      ${spark}
+      ${alerts}
+      <details class='details'><summary>Raw details</summary><pre>${esc(JSON.stringify(p, null, 2))}</pre></details>
+      ${actions}
+    </div>
+  </details>`;
 }
 
 function roomBadge(p) {
@@ -440,27 +452,6 @@ function renderStation(projects) {
 
 // ---- Agent Crew: LLM-backed persona agents you can assign tasks to ----
 
-function renderSectRanking(crew) {
-  const el = document.getElementById('sect-ranking');
-  if (!el) return;
-  const ranked = (crew || []).filter(a => a.cultivation).slice().sort((x, y) => {
-    const a = x.cultivation, b = y.cultivation;
-    return (b.realm - a.realm) || (b.stones - a.stones);
-  });
-  if (!ranked.length) { el.innerHTML = ''; return; }
-  const medals = ['🥇', '🥈', '🥉'];
-  el.innerHTML = `<div class='rank-head'>SECT RANKING</div>` + ranked.map((a, i) => {
-    const c = a.cultivation;
-    return `<div class='rank-row'>
-      <span class='rank-pos'>${medals[i] || (i + 1)}</span>
-      <span class='rank-name'>${esc(a.name)}</span>
-      <span class='rank-title'>${esc(c.rank_title || '')}</span>
-      <span class='rank-realm'>${esc(c.realm_name)} · ${esc(c.layer_label || c.stage)}</span>
-      <span class='rank-stones'><span class='stone'></span>${esc(c.stones)}</span>
-    </div>`;
-  }).join('');
-}
-
 function cultivationFlourish(c) {
   if (!c.event || (Date.now() - (c.event_ts || 0) >= 30000)) return '';
   switch (c.event) {
@@ -583,6 +574,35 @@ function traitRow(a) {
     chips.push(`<span class='trait-chip ${t.cls}' title='${esc(t.label)}'>${t.icon} ${esc(t.label)}</span>`);
   }
   return chips.length ? `<div class='rep-row trait-row'>${chips.join('')}</div>` : '';
+}
+
+// Which hierarchy tier a disciple sits in (0 = apex). Governance rank first,
+// then cultivation realm for the lower disciple tiers.
+const PYRAMID_TIERS = ['Sect Leader', 'Sect Masters', 'Elders', 'Core Disciples', 'Inner Disciples', 'Outer Disciples'];
+function tierIndex(a) {
+  const g = a.governance || {};
+  if (g.is_leader) return 0;
+  if (g.is_master) return 1;
+  if (g.is_elder) return 2;
+  const realm = (a.cultivation && a.cultivation.realm) || 0;
+  if (realm >= 4) return 3;
+  if (realm >= 2) return 4;
+  return 5;
+}
+
+// Lay the disciples out as a hierarchy pyramid: apex Ancestor, then a centered
+// row per occupied tier (few at the top, many at the base).
+function pyramidHtml(crew) {
+  const tiers = PYRAMID_TIERS.map(() => []);
+  crew.forEach(a => tiers[tierIndex(a)].push(a));
+  const rows = tiers.map((members, i) => members.length
+    ? `<div class='pyr-tier'><div class='pyr-label'>${esc(PYRAMID_TIERS[i])}</div>
+         <div class='pyr-row'>${members.map(agentCard).join('')}</div></div>`
+    : '').join('');
+  return `<div class='pyramid'>
+    <div class='pyr-tier'><div class='pyr-label'>Ancestor</div>
+      <div class='pyr-row'><div class='pyr-ancestor'>🐉 You</div></div></div>
+    ${rows}</div>`;
 }
 
 // Rank / position label from governance flags (falls back to cultivation rank).
@@ -794,13 +814,12 @@ async function renderAgentCrew() {
   if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
   section.classList.remove('hidden');
   document.getElementById('agent-crew-pill').textContent = `${crew.length} disciples`;
-  renderSectRanking(crew);
   // preserve expanded cards + whatever the user is typing across the auto-refresh re-render
   const open = new Set([...el.querySelectorAll('details.agent-card[open]')].map(d => d.getAttribute('data-agent')));
   const act = document.activeElement;
   const focusName = act && act.classList && act.classList.contains('agent-input') ? act.getAttribute('data-agent') : null;
   const focusVal = focusName ? act.value : null;
-  el.innerHTML = crew.map(agentCard).join('');
+  el.innerHTML = pyramidHtml(crew);
   bindAgentCrew(el);
   open.forEach(name => {
     const d = el.querySelector(`details.agent-card[data-agent="${CSS.escape(name)}"]`);
@@ -2289,10 +2308,18 @@ function renderProjects(projects) {
     (grouped[type] = grouped[type] || []).push(p);
   });
 
+  // preserve which project cards are expanded across the auto-refresh re-render
+  const open = new Set([...projectsEl.querySelectorAll('details.project-card[open]')]
+    .map(d => `${d.getAttribute('data-device')}::${d.getAttribute('data-project')}`));
   const sections = TYPE_ORDER.filter(t => grouped[t]?.length).map(t =>
     `<section class='project-type'><h3 class='project-type-title'>${esc(TYPE_LABEL[t] || t)}</h3><div class='grid'>${grouped[t].map(projectCard).join('')}</div></section>`
   ).join('');
   projectsEl.innerHTML = sections;
+  open.forEach(key => {
+    const [device, name] = key.split('::');
+    const d = projectsEl.querySelector(`details.project-card[data-device="${CSS.escape(device)}"][data-project="${CSS.escape(name)}"]`);
+    if (d) d.open = true;
+  });
   bindProjectButtons(projectsEl);
 }
 
