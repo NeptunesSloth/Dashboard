@@ -1,10 +1,13 @@
+import csv
+import io
 import queue
 import re
 import secrets
 from fastapi import FastAPI, Header, HTTPException, Query
-from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse
+from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse
 from pydantic import BaseModel
 from .config import load_devices, CONTROL_CENTER_TOKEN
+from . import aggregator
 from .aggregator import aggregate
 from .agent_client import call_agent, post_agent
 from . import history
@@ -42,6 +45,8 @@ from . import chronicle
 from . import runbooks
 from . import lifecycle
 from . import tournament
+from . import maintenance
+from . import slo
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -55,6 +60,8 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
 scheduler.start()  # background cron for scheduled missions (no-op without schedules.yaml)
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
+# A silence target: "*", "device:*", or "device:project".
+_SAFE_TARGET = re.compile(r'^(\*|[a-zA-Z0-9_\-\.]{1,128}:(\*|[a-zA-Z0-9_\-\.]{1,128}))$')
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
 _VALID_ACTIONS = {"start", "stop", "run-tests"}
 _ACTION_TIMEOUTS = {"start": 15, "stop": 15, "run-tests": 330}
@@ -921,6 +928,109 @@ def stream(token: str = Query(default="")):
             events.unsubscribe(q)
 
     return StreamingResponse(gen(), media_type="text/event-stream")
+
+
+# ---- SLO / uptime ----
+@app.get("/api/slo")
+def slo_status(hours: int = Query(default=0), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return slo.snapshot(hours if hours > 0 else None)
+
+
+# ---- Maintenance windows / alert silencing ----
+@app.get("/api/maintenance")
+def maintenance_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return maintenance.snapshot()
+
+
+class SilenceIn(BaseModel):
+    target: str
+    minutes: float = 60.0
+    reason: str = ""
+
+
+@app.post("/api/maintenance/silence")
+def maintenance_silence(body: SilenceIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    target = (body.target or "").strip()
+    if not _SAFE_TARGET.match(target):
+        raise HTTPException(400, "invalid target; use '*', 'device:*', or 'device:project'")
+    if body.minutes > 60 * 24 * 30:
+        raise HTTPException(400, "minutes too large (max 30 days)")
+    return maintenance.silence(target, body.minutes, body.reason)
+
+
+class UnsilenceIn(BaseModel):
+    target: str
+
+
+@app.post("/api/maintenance/unsilence")
+def maintenance_unsilence(body: UnsilenceIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"unsilenced": maintenance.unsilence((body.target or "").strip())}
+
+
+# ---- Data export (CSV / JSON) ----
+def _csv_response(filename: str, header: list[str], rows) -> StreamingResponse:
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(header)
+    for r in rows:
+        w.writerow(r)
+    buf.seek(0)
+    return StreamingResponse(iter([buf.getvalue()]), media_type="text/csv",
+                             headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
+
+@app.get("/api/export/usage")
+def export_usage(hours: int = Query(default=168), fmt: str = Query(default="csv"),
+                 x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    data = usage.series(max(1, min(hours, 24 * 14)))
+    if fmt == "json":
+        return data
+    rows = ([b["hour"], b["calls"], b["errors"], b["tokens_in"], b["tokens_out"], b["cost"]]
+            for b in data["buckets"])
+    return _csv_response("usage.csv", ["hour_epoch", "calls", "errors", "tokens_in", "tokens_out", "cost_usd"], rows)
+
+
+@app.get("/api/export/history")
+def export_history(fmt: str = Query(default="csv"), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    series = history.all_series()
+    if fmt == "json":
+        return {"series": series}
+
+    def _rows():
+        for key, points in series.items():
+            device, _, name = key.partition(":")
+            for pt in points:
+                yield [device, name, pt.get("ts"), pt.get("health"), pt.get("pnl")]
+    return _csv_response("history.csv", ["device", "project", "ts_ms", "health", "pnl"], _rows())
+
+
+# ---- Health / readiness probes (unauthenticated, no secrets) ----
+@app.get("/healthz")
+def healthz():
+    """Liveness: the process is up and serving."""
+    return {"status": "ok"}
+
+
+@app.get("/readyz")
+def readyz(strict: bool = Query(default=False)):
+    """Readiness: the dashboard can serve. Reports the last poll's device health;
+    with ``?strict=1`` returns 503 when any configured device is offline."""
+    summary = aggregator.last_summary()
+    offline = summary.get("offline_devices", 0)
+    online = summary.get("online_devices", 0)
+    polled = bool(summary)
+    degraded = polled and offline > 0
+    body = {"status": "degraded" if degraded else "ok", "ready": True, "polled": polled,
+            "online_devices": online, "offline_devices": offline}
+    if strict and degraded:
+        return JSONResponse(body, status_code=503)
+    return body
 
 
 @app.get("/metrics")

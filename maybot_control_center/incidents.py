@@ -65,6 +65,11 @@ def maybe_dispatch(projects: list[dict]) -> None:
         key = f"{p.get('device', '?')}:{p.get('name', '?')}"
         health = str(p.get("health", "unknown")).lower()
         if health in STATES:
+            # During a maintenance window the unhealthy state is expected — don't
+            # auto-dispatch diagnostics or fire a runbook against it.
+            from . import maintenance
+            if maintenance.is_silenced(p.get("device", "?"), p.get("name", "?")):
+                continue
             # Auto-remediation runbook (independent of the incident agent).
             with _lock:
                 fresh_remediation = key not in _remediated

@@ -299,6 +299,8 @@ async function render() {
     bindTools();
     renderTools();
     renderUsage();
+    bindReliability();
+    renderReliability();
     bindTreasury();
     renderTreasury();
   } catch (e) {
@@ -2092,6 +2094,59 @@ async function renderReserves() {
     <div class='qr-note ${lvl}'>${note}${throttled.length ? ` · throttled: ${throttled.map(a => esc(a.agent)).join(', ')}` : ''}</div>
     ${bars ? `<div class='qr-agents'>${bars}</div>` : ''}
   </div>`;
+}
+
+function bindReliability() {
+  const btn = document.getElementById('silence-run');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  btn.onclick = async () => {
+    const target = document.getElementById('silence-target').value.trim();
+    if (!target) { alert('Enter a silence target (e.g. device:project, device:*, or *).'); return; }
+    const minutes = Number(document.getElementById('silence-minutes').value || 0);
+    const reason = document.getElementById('silence-reason').value.trim();
+    const r = await apiPost('/api/maintenance/silence', { target, minutes, reason }, 'Silence');
+    if (r) { document.getElementById('silence-reason').value = ''; renderReliability(); }
+  };
+}
+
+function sloRow(r) {
+  const up = r.uptime_pct === null ? '<span class="muted">no data</span>'
+    : `<b class='${r.uptime_pct >= 99 ? 'money-pos' : r.uptime_pct >= 95 ? 'money-zero' : 'money-neg'}'>${r.uptime_pct.toFixed(2)}%</b>`;
+  const mttr = r.mttr_seconds === null ? '—' : `${Math.round(r.mttr_seconds)}s`;
+  return `<div class='card slo-card'>
+    <div class='slo-head'><b>${esc(r.project)}</b> ${healthBadge(r.current)}<span class='muted'>${esc(r.device)}</span></div>
+    <div class='slo-stats'>
+      ${metric('Uptime', up)}
+      ${metric('Incidents', r.incidents)}
+      ${metric('MTTR', mttr)}
+    </div></div>`;
+}
+
+async function renderReliability() {
+  const section = document.getElementById('reliability-section');
+  if (!section) return;
+  const [slo, maint] = await Promise.all([apiJSON('/api/slo'), apiJSON('/api/maintenance')]);
+  const rows = (slo && slo.projects) || [];
+  const silences = (maint && maint.silences) || [];
+  if (!rows.length && !silences.length) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+
+  const o = (slo && slo.overall) || {};
+  document.getElementById('slo-pill').textContent =
+    `${o.avg_uptime_pct != null ? o.avg_uptime_pct.toFixed(2) + '% avg' : 'no data'} · ${o.total_incidents || 0} incidents / ${o.window_hours || 0}h`;
+
+  const sEl = document.getElementById('silences');
+  sEl.innerHTML = silences.length ? `<div class='silences-bar'>${silences.map(s => {
+    const exp = s.expires_in == null ? 'until lifted' : `${Math.round(s.expires_in / 60)}m left`;
+    return `<span class='silence-chip'>🔕 ${esc(s.target)} <span class='muted'>(${exp}${s.reason ? ' · ' + esc(s.reason) : ''})</span>
+      <button class='btn silence-lift' data-target='${esc(s.target)}'>✕</button></span>`;
+  }).join('')}</div>` : '';
+  sEl.querySelectorAll('.silence-lift').forEach(b => b.onclick = async () => {
+    if (await apiPost('/api/maintenance/unsilence', { target: b.dataset.target }, 'Unsilence')) renderReliability();
+  });
+
+  document.getElementById('slo-table').innerHTML = rows.map(sloRow).join('');
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

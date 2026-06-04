@@ -13,6 +13,8 @@ from . import cultivation
 from . import treasury
 from . import usage
 from . import tools as tooling
+from . import slo
+from . import maintenance
 
 
 def _esc(v: str) -> str:
@@ -72,5 +74,21 @@ def render() -> str:
         metric("maybot_agent_breakthroughs", c["breakthroughs"], "Breakthroughs achieved", "counter", lbl)
         metric("maybot_agent_techniques", len(c["skills"]), "Techniques mastered", "gauge", lbl)
     metric("maybot_agents_total", len(agents.load_agents()) or agent_count, "Configured disciples")
+
+    # ---- SLO / uptime (per project) ----
+    sl = slo.snapshot()
+    for r in sl["projects"]:
+        lbl = f'device="{_esc(r["device"])}",project="{_esc(r["project"])}"'
+        if r["uptime_pct"] is not None:
+            metric("maybot_project_uptime_ratio", round(r["uptime_pct"] / 100.0, 5),
+                   "Rolling uptime ratio over the SLO window", "gauge", lbl)
+        metric("maybot_project_incidents", r["incidents"],
+               "Incidents (ok->unhealthy transitions) in the SLO window", "gauge", lbl)
+        if r["mttr_seconds"] is not None:
+            metric("maybot_project_mttr_seconds", r["mttr_seconds"],
+                   "Mean time to recovery in the SLO window", "gauge", lbl)
+
+    # ---- maintenance silences ----
+    metric("maybot_alerts_silenced", len(maintenance.active()), "Active alert silences")
 
     return "\n".join(lines) + "\n"

@@ -281,6 +281,21 @@
       <div id="usage-chart"></div>
       <div id="usage-table" class="grid"></div>
     </section>
+    <section data-tab="overview" id="reliability-section" class="hidden">
+      <div class="section-head">
+        <h2>Reliability</h2>
+        <span id="slo-pill" class="pill">—</span>
+      </div>
+      <p class="muted">Rolling uptime, incidents, and mean-time-to-recovery per holding. Silence alerts during planned upkeep.</p>
+      <div class="comms-launch">
+        <input id="silence-target" placeholder='silence target: device:project, device:*, or *'>
+        <input id="silence-minutes" type="number" min="0" value="60" title="minutes (0 = until lifted/recovery)" style="max-width:90px">
+        <input id="silence-reason" placeholder="reason (e.g. upgrade)">
+        <button id="silence-run" class="btn">Silence</button>
+      </div>
+      <div id="silences"></div>
+      <div id="slo-table" class="grid"></div>
+    </section>
     <section data-tab="overview">
       <div class="section-head">
         <h2>Sect Holdings</h2>

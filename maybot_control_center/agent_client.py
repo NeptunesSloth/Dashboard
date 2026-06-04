@@ -1,6 +1,21 @@
+import os
+
 import requests
 
 _session = requests.Session()
+
+# Default per-request timeout for polling an agent. A single slow/hung device
+# must not stall the whole fleet poll, so each request is capped; a device may
+# override with a ``timeout`` field in devices.yaml.
+DEFAULT_TIMEOUT = float(os.getenv("MAYBOT_AGENT_TIMEOUT", "5"))
+
+
+def _device_timeout(device: dict) -> float:
+    try:
+        t = float(device.get("timeout") or DEFAULT_TIMEOUT)
+        return t if t > 0 else DEFAULT_TIMEOUT
+    except (TypeError, ValueError):
+        return DEFAULT_TIMEOUT
 
 
 def _headers(token: str) -> dict:
@@ -28,7 +43,7 @@ def call_agent(device: dict, endpoint: str) -> dict:
     base = device.get("url", "").rstrip("/")
     token = device.get("api_token", "")
     try:
-        r = _session.get(f"{base}{endpoint}", headers=_headers(token), timeout=5)
+        r = _session.get(f"{base}{endpoint}", headers=_headers(token), timeout=_device_timeout(device))
         return _wrap(r)
     except Exception as exc:
         return {"online": False, "error": str(exc), "data": {}}
