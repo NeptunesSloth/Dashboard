@@ -732,23 +732,42 @@ function govControls(a) {
   return `<div class='gov-controls'>${elderBits}${strike}</div>`;
 }
 
-// Per-agent known-skills block + "tell them what to learn next roam" control.
+function aptTier(s) { return s >= 85 ? 'Prodigy' : s >= 65 ? 'Gifted' : s >= 45 ? 'Adept' : s >= 25 ? 'Apt' : 'Novice'; }
+
+// Intuitive Aptitude/Standing display: a labelled bar + the four sub-scores that
+// decide leadership, instead of a meaningless bare number.
+function scoresWidget(g) {
+  if (!g) return '';
+  const apt = Number(g.aptitude || 0), p = g.aptitude_parts || {};
+  const clamp = v => Math.max(0, Math.min(100, Number(v) || 0));
+  const mini = (label, v) => `<div class='sc-mini'><span class='sc-lbl'>${label}</span><span class='sc-track'><span style='width:${clamp(v)}%'></span></span></div>`;
+  return `<div class='scores'>
+    <div class='sc-head'><b>Aptitude</b> <span class='sc-tier'>${aptTier(apt)}</span><span class='muted sc-num'>${apt}/100</span></div>
+    <div class='sc-track sc-main'><span style='width:${clamp(apt)}%'></span></div>
+    <div class='sc-parts'>${mini('reasoning', p.reasoning)}${mini('intelligence', p.intelligence)}${mini('knowledge', p.knowledge)}${mini('skills', p.skills)}</div>
+    <div class='sc-head sc-standing-head'><span class='muted'>Standing</span><span class='muted'>merit · ${g.standing ?? '—'}</span></div>
+    <div class='sc-track'><span class='sc-standing' style='width:${clamp(g.standing)}%'></span></div>
+  </div>`;
+}
+
+// Per-agent known-skills — collapsed until clicked — + "tell them what to learn".
 function agentSkillsBlock(a, c) {
   const srcMap = window.__skillSrc || {};
-  const chips = (c.skills || []).map(s => {
+  const skills = c.skills || [];
+  const chips = skills.map(s => {
     const url = srcMap[s];
     return `<span class='skill-chip'>${esc(s)}${url ? ` <a href='${esc(url)}' target='_blank' rel='noopener' title='discovered on the web'>🔗</a>` : ''}</span>`;
   }).join('') || `<span class='muted'>none yet</span>`;
   const goal = c.learn_goal ? `<div class='muted learn-goal'>🎯 seeking <b>${esc(c.learn_goal)}</b> (or the closest) on next roam</div>` : '';
-  return `<div class='agent-skills'>
-    <div class='muted skills-label'>Known skills</div>
+  return `<details class='details agent-skills'>
+    <summary>Known skills (${skills.length})</summary>
     <div class='skill-chips'>${chips}</div>
     ${goal}
     <div class='learn-set'>
       <input class='learn-input' placeholder='skill to learn next roam…' data-agent='${esc(a.name)}' value='${esc(c.learn_goal || '')}'>
       <button class='btn learn-go' data-agent='${esc(a.name)}'>Set goal</button>
     </div>
-  </div>`;
+  </details>`;
 }
 
 function agentCard(a) {
@@ -775,19 +794,14 @@ function agentCard(a) {
     ${(a.titles && a.titles.length) ? `<div class='rep-row'>${a.titles.map(t => `<span class='title-chip' title='${esc(t.desc)}'>🏅 ${esc(t.title)}</span>`).join('')}</div>` : ''}
     ${metric('Role', esc(a.role || '—'))}
     ${metric('Model', esc(a.model))}
-    ${metric('Standing', esc(g.standing ?? '—'))}
-    ${metric('Aptitude', `<span title='reasoning · intelligence · knowledge · skills — decides who leads'>${esc(g.aptitude ?? '—')}</span>`)}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
+    ${scoresWidget(g)}
     ${cultivationBlock(c)}
     ${agentSkillsBlock(a, c)}
     ${pillBuffs(a)}
     ${retreatControl(a, c)}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
     <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>
-    <div class='agent-assign'>
-      <input class='agent-input' placeholder='Assign a task to ${esc(a.name)}…' data-agent='${esc(a.name)}'>
-      <div class='agent-assign-go'>${delegateSelect(a, c)}<button class='btn btn-primary agent-send' data-agent='${esc(a.name)}'>Assign</button></div>
-    </div>
     ${govControls(a)}
     ${sectActions(a, c)}
     <details class='details agent-transcript' data-agent='${esc(a.name)}'><summary>Transcript (${esc(a.transcript_len ?? 0)})</summary><pre class='agent-tx-body'>Open to load…</pre></details>

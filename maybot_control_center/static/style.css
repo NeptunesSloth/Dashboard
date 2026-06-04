@@ -954,3 +954,21 @@ details.project-card { padding: 0; overflow: hidden; }
 .learn-goal { font-size: 12px; margin-top: 5px; }
 .learn-set { display: flex; gap: 6px; margin-top: 6px; }
 .learn-set .learn-input { flex: 1; min-width: 0; }
+
+/* ---- intuitive Aptitude / Standing display ---- */
+.scores { margin: 8px 0; }
+.sc-head { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.sc-head .sc-num { margin-left: auto; font-variant-numeric: tabular-nums; }
+.sc-standing-head { margin-top: 7px; font-size: 12px; }
+.sc-tier { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--gold);
+  border: 1px solid rgba(215,178,92,.4); background: rgba(215,178,92,.1); border-radius: 9px; padding: 0 7px; }
+.sc-track { display: block; flex: 1; height: 7px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.sc-track > span { display: block; height: 100%; background: var(--gold); }
+.sc-main { margin-top: 4px; }
+.sc-main > span { background: linear-gradient(90deg, var(--tech), var(--gold)); }
+.sc-standing { background: #6c7a99 !important; }
+.sc-parts { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; margin-top: 6px; }
+.sc-mini { display: flex; align-items: center; gap: 6px; }
+.sc-lbl { font-size: 10px; color: var(--muted); width: 78px; text-transform: uppercase; letter-spacing: .03em; }
+.sc-mini .sc-track { height: 5px; }
+.sc-mini .sc-track > span { background: var(--tech); }

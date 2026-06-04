@@ -543,6 +543,7 @@ def snapshot() -> list[dict]:
     for row in out:
         name = row["name"]
         row["reputation"] = reputation.score(name)
+        _apt = governance.aptitude(name)
         row["governance"] = {
             "is_leader": name == leader,
             "is_elder": governance.is_elder(name),
@@ -550,7 +551,8 @@ def snapshot() -> list[dict]:
             "specialty": governance.specialty(name),
             "mastery": governance.mastery(name),
             "standing": governance.standing(name)["score"],
-            "aptitude": governance.aptitude(name)["score"],
+            "aptitude": _apt["score"],
+            "aptitude_parts": _apt["components"],
         }
         row["titles"] = titles.evaluate(name)
         row["bond"] = bonds.partner(name)
