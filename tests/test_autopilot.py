@@ -14,7 +14,7 @@ def _reset(monkeypatch):
     monkeypatch.setattr(governance, "leader", lambda: "Nova")
     # deterministic diagnosis + action (no LLM / network)
     monkeypatch.setattr(autopilot, "_diagnose", lambda leader, p: {"cause": "boom", "action": "restart", "summary": "s", "by": leader})
-    monkeypatch.setattr(autopilot, "_perform_action", lambda p, plan, coder=None: "restarted the bot")
+    monkeypatch.setattr(autopilot, "_perform_action", lambda p, plan, coder=None, pr_mode=None: "restarted the bot")
     reports = []
     monkeypatch.setattr(autopilot, "_report", lambda kind, t, m, by: reports.append((kind, t)))
     return reports
@@ -103,7 +103,7 @@ def test_postmortem_written_on_recovery(monkeypatch, _reset):
 def test_propose_mode_recommends_without_acting(monkeypatch, _reset):
     monkeypatch.setattr(autopilot, "_project_cfg", lambda d, n: {"mode": "propose"})
     acted = []
-    monkeypatch.setattr(autopilot, "_perform_action", lambda p, plan, coder=None: acted.append(plan) or "x")
+    monkeypatch.setattr(autopilot, "_perform_action", lambda p, plan, coder=None, pr_mode=None: acted.append(plan) or "x")
     out = autopilot.handle([_err()])
     assert out == [("prod-1:bot", "proposed")]
     assert acted == []                                  # nothing executed
@@ -118,7 +118,7 @@ def test_off_mode_skips(monkeypatch, _reset):
 def test_remediation_override(monkeypatch, _reset):
     monkeypatch.setattr(autopilot, "_project_cfg", lambda d, n: {"remediation": "code"})
     seen = {}
-    monkeypatch.setattr(autopilot, "_perform_action", lambda p, plan, coder=None: seen.update(plan) or "done")
+    monkeypatch.setattr(autopilot, "_perform_action", lambda p, plan, coder=None, pr_mode=None: seen.update(plan) or "done")
     autopilot.handle([_err()])
     assert seen["action"] == "code"                     # forced by config, not the diagnosed restart
 

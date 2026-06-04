@@ -196,6 +196,26 @@ def load_state(module: str):
         return None
 
 
+def export_state() -> dict:
+    """Every module's persisted JSON blob (for backup). Empty without a DB."""
+    out: dict = {}
+    for module, data in _query("SELECT module, data FROM state"):
+        try:
+            out[module] = json.loads(data)
+        except Exception:
+            pass
+    return out
+
+
+def import_state(state: dict) -> int:
+    """Write module blobs back (for restore). Returns how many were written."""
+    n = 0
+    for module, obj in (state or {}).items():
+        save_state(str(module), obj)
+        n += 1
+    return n
+
+
 def _reset_for_tests(path: str) -> None:
     """Test helper: point at a fresh DB and drop the cached connection."""
     global DB_PATH, _conn

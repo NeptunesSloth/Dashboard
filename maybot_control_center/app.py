@@ -6,7 +6,7 @@ import secrets
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse
 from pydantic import BaseModel
-from .config import load_devices, CONTROL_CENTER_TOKEN
+from .config import load_devices, all_devices, CONTROL_CENTER_TOKEN
 from . import aggregator
 from .aggregator import aggregate
 from .agent_client import call_agent, post_agent
@@ -59,6 +59,9 @@ from . import autopilot
 from . import sectmemory
 from . import audit
 from . import diagnostics
+from . import inbound
+from . import backup
+from . import registry
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -66,7 +69,7 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
                 tooling.load_persisted, usage.load_persisted, cultivation.load_persisted,
                 treasury.load_persisted, taskqueue.load_persisted, oaths.load_persisted,
                 maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
-                audit.load_persisted):
+                audit.load_persisted, inbound.load_persisted, registry.load_persisted):
     try:
         _loader()
     except Exception:
@@ -123,7 +126,7 @@ def _check_operator(x_control_token: str = Header(default="")):
 
 
 def _resolve_device(device_name: str):
-    device = next((d for d in load_devices() if d.get("name") == device_name), None)
+    device = next((d for d in all_devices() if d.get("name") == device_name), None)
     if not device:
         raise HTTPException(404, "device not found")
     return device
@@ -141,7 +144,7 @@ def meta():
 @app.get("/api/overview")
 def overview(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
-    return aggregate(load_devices())
+    return aggregate(all_devices())
 
 
 @app.get("/api/logs/{device_name}/{project_name}")
@@ -1092,6 +1095,91 @@ def escalation_status(x_control_token: str = Header(default="")):
 def diagnostics_status(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return diagnostics.snapshot()
+
+
+# ---- Inbound alert ingestion (external systems push incidents in) ----
+def _check_ingest(x_control_token: str, x_ingest_token: str):
+    if inbound.INGEST_TOKEN and x_ingest_token and secrets.compare_digest(x_ingest_token, inbound.INGEST_TOKEN):
+        return
+    _check_operator(x_control_token)
+
+
+class InboundIn(BaseModel):
+    title: str
+    source: str = "external"
+    severity: str = "warning"
+    message: str = ""
+    project: str = ""
+    device: str = ""
+
+
+@app.post("/api/ingest/alert")
+def ingest_alert(body: InboundIn, x_control_token: str = Header(default=""),
+                 x_ingest_token: str = Header(default="")):
+    _check_ingest(x_control_token, x_ingest_token)
+    if not (body.title or "").strip():
+        raise HTTPException(400, "title required")
+    return inbound.ingest(body.source, body.severity, body.title, body.message, body.project, body.device)
+
+
+@app.get("/api/inbound")
+def inbound_feed(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return inbound.snapshot()
+
+
+# ---- State backup / restore ----
+@app.get("/api/backup")
+def backup_export(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return backup.export()
+
+
+@app.post("/api/restore")
+def backup_restore(body: dict, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    try:
+        return backup.restore(body)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+# ---- Agent auto-registration ----
+class RegisterIn(BaseModel):
+    name: str
+    url: str
+    api_token: str = ""
+    timeout: float | None = None
+
+
+@app.post("/api/agents/register")
+def agents_register(body: RegisterIn, x_control_token: str = Header(default=""),
+                    x_register_token: str = Header(default="")):
+    if registry.REGISTER_TOKEN and x_register_token and secrets.compare_digest(x_register_token, registry.REGISTER_TOKEN):
+        pass
+    else:
+        _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.name or ""):
+        raise HTTPException(400, "invalid agent name")
+    if not (body.url or "").startswith(("http://", "https://")):
+        raise HTTPException(400, "url must start with http:// or https://")
+    return registry.register(body.name, body.url, body.api_token, body.timeout)
+
+
+class DeregisterIn(BaseModel):
+    name: str
+
+
+@app.post("/api/agents/deregister")
+def agents_deregister(body: DeregisterIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"deregistered": registry.deregister((body.name or "").strip())}
+
+
+@app.get("/api/registry")
+def registry_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return registry.snapshot()
 
 
 # ---- Operator audit log ----

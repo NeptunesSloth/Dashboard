@@ -13,3 +13,5 @@ projects:
     mode: auto
     remediation: code       # always treat failures as code issues
     coder: Forge            # dispatch this disciple to patch it
+    pr: propose             # propose = record a Proposed PR for review | open = open a real PR
+                            # (overrides the global MAYBOT_PR_ENABLED for this project)

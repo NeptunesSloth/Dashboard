@@ -8,7 +8,7 @@ from __future__ import annotations
 import os
 import time
 
-from .config import load_devices, CONTROL_CENTER_TOKEN
+from .config import load_devices, all_devices, CONTROL_CENTER_TOKEN
 
 
 def config_checks() -> dict:
@@ -37,7 +37,7 @@ def config_checks() -> dict:
 def agent_health() -> list[dict]:
     from . import agent_client
     rows = []
-    for d in load_devices():
+    for d in all_devices():
         t0 = time.time()
         ping = agent_client.call_agent(d, "/api/ping")
         latency = round((time.time() - t0) * 1000)

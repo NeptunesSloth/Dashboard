@@ -234,9 +234,9 @@ def _diagnose(leader: str | None, p: dict) -> dict:
 
 # ---- actions ---------------------------------------------------------------
 def _restart(device: str, name: str) -> str:
-    from .config import load_devices
+    from .config import all_devices
     from . import agent_client
-    dev = next((d for d in load_devices() if d.get("name") == device), None)
+    dev = next((d for d in all_devices() if d.get("name") == device), None)
     if not dev:
         return "device not found"
     agent_client.post_agent(dev, f"/api/projects/{name}/stop", timeout=15)
@@ -247,9 +247,9 @@ def _restart(device: str, name: str) -> str:
 def _recent_logs(device: str, name: str) -> str:
     """Pull the failing project's recent error logs to ground the coder's diagnosis."""
     try:
-        from .config import load_devices
+        from .config import all_devices
         from . import agent_client
-        dev = next((d for d in load_devices() if d.get("name") == device), None)
+        dev = next((d for d in all_devices() if d.get("name") == device), None)
         if not dev:
             return ""
         res = agent_client.call_agent(dev, f"/api/projects/{name}/logs?level=ERROR")
@@ -284,7 +284,7 @@ def _dispatch_coder(p: dict, plan: dict, coder: str | None = None) -> str:
         return f"failed to dispatch coder ({exc})"
 
 
-def _perform_action(p: dict, plan: dict, coder: str | None = None) -> str:
+def _perform_action(p: dict, plan: dict, coder: str | None = None, pr_mode: str | None = None) -> str:
     action = plan.get("action")
     name, device = p.get("name", "?"), p.get("device", "?")
     if action == "restart":
@@ -300,7 +300,8 @@ def _perform_action(p: dict, plan: dict, coder: str | None = None) -> str:
         # Draft a real fix as a pull request (opened if enabled, else a reviewable proposal).
         try:
             from . import pullrequest
-            pr = pullrequest.propose(name, device, plan.get("cause", "") or plan.get("summary", ""), coder=coder)
+            pr = pullrequest.propose(name, device, plan.get("cause", "") or plan.get("summary", ""),
+                                     coder=coder, mode=pr_mode)
             if pr.get("opened"):
                 return f"opened PR: {pr.get('url')}"
             return f"proposed PR '{pr.get('title')}' for review (vault: {pr.get('artifact')})"
@@ -394,7 +395,7 @@ def handle(projects: list[dict], now: float | None = None) -> list[tuple]:
                         f"escalating to the Ancestor instead of restarting again.", leader)
                 acted.append((key, "circuit_open"))
                 continue
-        result = _perform_action(p, plan, cfg.get("coder"))
+        result = _perform_action(p, plan, cfg.get("coder"), cfg.get("pr"))
         with _lock:
             inc["attempts"] += 1
             inc["state"] = "acting"
@@ -418,9 +419,9 @@ def tick() -> list[tuple]:
     if not ENABLED or _paused:
         return []
     from . import aggregator
-    from .config import load_devices
+    from .config import all_devices
     try:
-        snap = aggregator.aggregate(load_devices())
+        snap = aggregator.aggregate(all_devices())
     except Exception:
         return []
     out = handle(snap.get("projects", []))

@@ -12,10 +12,12 @@ import pytest
 
 from maybot_control_center import (cultivation, governance, usage, treasury,
                                    traits, lifecycle, taskqueue, oaths,
-                                   maintenance, autopilot, skillquest, sectmemory, audit)
+                                   maintenance, autopilot, skillquest, sectmemory, audit,
+                                   inbound, registry)
 
 _RESETTABLE = (cultivation, governance, usage, treasury, traits, lifecycle,
-               taskqueue, oaths, maintenance, autopilot, skillquest, sectmemory, audit)
+               taskqueue, oaths, maintenance, autopilot, skillquest, sectmemory, audit,
+               inbound, registry)
 
 
 @pytest.fixture(autouse=True)

@@ -89,15 +89,20 @@ def _resolve_repo(project: str, repo: str | None) -> str:
 
 
 def propose(project: str, device: str, cause: str, coder: str | None = None,
-            repo: str | None = None) -> dict:
-    """Draft a fix and either open a real PR or record a Proposed PR artifact."""
+            repo: str | None = None, mode: str | None = None) -> dict:
+    """Draft a fix and either open a real PR or record a Proposed PR artifact.
+
+    ``mode``: "open" forces opening (if a repo/gh are available), "propose" forces
+    a review-only proposal, None defers to the global MAYBOT_PR_ENABLED.
+    """
     from . import governance
     coder = coder or os.getenv("MAYBOT_AUTOPILOT_CODER", "") or governance.leader() or "Autopilot"
     plan = _plan(coder, project, cause) or {
         "title": f"Fix: {project} unhealthy", "body": f"Autopilot diagnosed: {cause}", "diff": ""}
     repo = _resolve_repo(project, repo)
+    want_open = (mode == "open") or (mode is None and ENABLED)
 
-    if ENABLED and repo and plan.get("diff") and _gh_available():
+    if want_open and repo and plan.get("diff") and _gh_available():
         try:
             url = _open_pr(repo, plan["title"], plan["body"], plan["diff"])
             _remember(project, coder, plan, opened=True, url=url)
