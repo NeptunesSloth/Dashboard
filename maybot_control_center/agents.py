@@ -548,7 +548,8 @@ def snapshot() -> list[dict]:
         }
         row["titles"] = titles.evaluate(name)
         row["bond"] = bonds.partner(name)
-    from . import traits, lifecycle
+    from . import traits, lifecycle, tournament
+    tournament.auto_tick()  # hold a Grand Tournament if one is due (no-op unless configured)
     traits.tick()     # roll spawn quirks for new disciples + advance the young-master arc
     for row in out:
         row["quirk"] = traits.quirk(row["name"])

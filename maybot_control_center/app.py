@@ -41,6 +41,7 @@ from . import titles
 from . import chronicle
 from . import runbooks
 from . import lifecycle
+from . import tournament
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -458,6 +459,21 @@ def governance_strike_down(body: StrikeDownIn, x_control_token: str = Header(def
     try:
         new = lifecycle.strike_down(body.agent, body.reason)
         return {"struck_down": body.agent, "replacement": new["name"]}
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+@app.get("/api/tournament")
+def tournament_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return tournament.snapshot()
+
+
+@app.post("/api/tournament/start")
+def tournament_start(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)  # the Ancestor calls the Grand Tournament
+    try:
+        return tournament.hold()
     except ValueError as exc:
         raise HTTPException(400, str(exc))
 

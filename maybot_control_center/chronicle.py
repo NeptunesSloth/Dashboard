@@ -56,6 +56,7 @@ GLYPHS = {
     "cannon_fodder": "⚰",
     "stepping_stone": "🪜",
     "perished": "⚰",
+    "tournament": "🏆",
     "note": "•",
 }
 

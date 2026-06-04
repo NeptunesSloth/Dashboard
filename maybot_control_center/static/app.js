@@ -290,6 +290,7 @@ async function render() {
     renderLore();
     renderSectMap();
     renderHallOfFame();
+    renderTournament();
     renderProphecy();
     bindComms();
     renderComms();
@@ -761,6 +762,54 @@ function renderHallOfFame() {
     fameCard('📚 Most Techniques', learned, 'Techniques', `${(learned.cultivation.skills || []).length}`),
     fameCard('⚡ Most Breakthroughs', broke, 'Breakthroughs', `${broke.cultivation.breakthroughs}`),
   ].join('');
+}
+
+// ---- Sect Grand Tournament: seeded single-elimination bracket ----
+const ROUND_NAME = (r, total) => {
+  const fromEnd = total - 1 - r;
+  return fromEnd === 0 ? 'Final' : fromEnd === 1 ? 'Semifinals' : fromEnd === 2 ? 'Quarterfinals' : `Round ${r + 1}`;
+};
+function renderTournament() {
+  const sec = document.getElementById('tournament-section');
+  if (!sec) return;
+  sec.classList.remove('hidden');
+  const btn = document.getElementById('tourney-start');
+  if (btn && !btn.dataset.bound) {
+    btn.dataset.bound = '1';
+    btn.onclick = async () => {
+      btn.disabled = true; btn.textContent = '⚔ Holding…';
+      const res = await apiPost('/api/tournament/start', {}, 'Tournament');
+      btn.disabled = false; btn.textContent = '⚔ Hold Tournament';
+      if (res) { _paintTournament(res, null); refreshLive(); }
+    };
+  }
+  apiJSON('/api/tournament').then(d => { if (d) _paintTournament(d.last, d.history); });
+}
+
+function _matchCell(m, champ) {
+  const side = (n, win) => n
+    ? `<span class='tm-side${win ? ' tm-win' : ''}${n === champ ? ' tm-champ' : ''}'>${esc(n)}</span>`
+    : `<span class='tm-side tm-bye'>bye</span>`;
+  return `<div class='tm-match'>${side(m.a, m.winner === m.a)}${side(m.b, m.winner === m.b)}</div>`;
+}
+function _paintTournament(bracket, history) {
+  const champEl = document.getElementById('tourney-champion');
+  const brEl = document.getElementById('tourney-bracket');
+  const histEl = document.getElementById('tourney-history');
+  if (!bracket || !bracket.rounds) {
+    champEl.innerHTML = `<div class='muted'>No tournament held yet — press <b>Hold Tournament</b> to begin.</div>`;
+    brEl.innerHTML = ''; if (histEl) histEl.innerHTML = '';
+    return;
+  }
+  const champ = bracket.champion;
+  champEl.innerHTML = `<div class='tourney-champ-banner'>🏆 Champion: <b>${esc(champ || '—')}</b>${bracket.finalist ? ` <span class='muted'>· finalist ${esc(bracket.finalist)}</span>` : ''}</div>`;
+  const total = bracket.rounds.length;
+  brEl.innerHTML = bracket.rounds.map((rnd, i) =>
+    `<div class='tm-round'><div class='tm-round-name'>${ROUND_NAME(i, total)}</div>${rnd.map(m => _matchCell(m, champ)).join('')}</div>`
+  ).join('');
+  if (histEl && history && history.length) {
+    histEl.innerHTML = 'Past champions: ' + history.slice(0, 8).map(h => esc(h.champion || '—')).join(', ');
+  }
 }
 
 // ---- Sect Hierarchy: governance, challenges, the Ancestor's Hall ----
