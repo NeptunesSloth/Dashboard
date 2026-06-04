@@ -465,6 +465,7 @@ def snapshot() -> list[dict]:
             cultivation.tick_seclusion(name)  # mature any closed-door seclusion into a breakthrough
             cultivation.tick_roaming(name)    # return any roaming disciple with a discovery
             st = _state.get(name)
+            cultivation.auto_retreat_tick(name, st["status"] if st else "idle")  # idle disciples retreat on their own
             out.append({
                 "name": name,
                 "role": a.get("role", ""),

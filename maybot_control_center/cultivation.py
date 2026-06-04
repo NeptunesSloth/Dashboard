@@ -58,6 +58,12 @@ TITHE = int(os.getenv("MAYBOT_TITHE", "3"))
 SECLUSION_SECONDS = max(1, int(os.getenv("MAYBOT_SECLUSION_MINUTES", "30"))) * 60
 # Roaming: a disciple wanders the world and returns with a unique art/knowledge.
 ROAMING_SECONDS = max(1, int(os.getenv("MAYBOT_ROAMING_MINUTES", "20"))) * 60
+# Auto-retreat: disciples decide on their own to seclude/roam when left idle.
+# The Ancestor doesn't send them — but can recall them. Tunable, on by default.
+AUTO_RETREAT = os.getenv("MAYBOT_AUTO_RETREAT", "1").lower() in ("1", "true", "yes", "on")
+AUTO_RETREAT_IDLE = max(5, int(os.getenv("MAYBOT_AUTO_RETREAT_IDLE_SECONDS", "120")))   # idle this long → may retreat
+AUTO_RETREAT_COOLDOWN = max(0, int(os.getenv("MAYBOT_AUTO_RETREAT_COOLDOWN", "300")))   # rest this long after returning
+_auto: dict[str, dict] = {}  # agent -> {idle_since, blocked_until}
 DISCOVERIES = [
     "Cloud-Stride Step", "Beast-Tongue Art", "Star-Chart Memory", "Whispering-Wind Ear",
     "Iron-Bone Forging", "Verdant-Growth Palm", "Echo-Location Sense", "Ashen-Phoenix Rebirth",
@@ -429,6 +435,34 @@ def enter_roaming(agent: str) -> dict:
     return state(agent)
 
 
+def auto_retreat_tick(agent: str, status: str) -> str | None:
+    """Disciples decide for themselves: an idle disciple eventually goes off to
+    seclude (cultivate) or roam (seek knowledge). Returns 'seclusion'/'roaming'
+    if one was just started. The Ancestor can recall them at any time.
+    """
+    if not AUTO_RETREAT or not agent or agent == "operator":
+        return None
+    import random
+    now = time.time()
+    with _lock:
+        st = _state.get(agent)
+        in_retreat = bool(st and (st.get("seclusion_since") or st.get("roaming_since")))
+        rec = _auto.setdefault(agent, {"idle_since": now, "blocked_until": 0.0})
+        if in_retreat or status in ("working", "queued"):
+            # busy or already away — keep them off-cooldown clock fresh
+            rec["idle_since"] = now
+            if in_retreat:
+                rec["blocked_until"] = now + AUTO_RETREAT_COOLDOWN
+            return None
+        if now < rec["blocked_until"] or now - rec["idle_since"] < AUTO_RETREAT_IDLE:
+            return None
+        rec["idle_since"] = now
+        rec["blocked_until"] = now + AUTO_RETREAT_COOLDOWN
+    choice = "seclusion" if random.random() < 0.6 else "roaming"  # mostly cultivate, sometimes wander
+    (enter_seclusion if choice == "seclusion" else enter_roaming)(agent)
+    return choice
+
+
 def exit_roaming(agent: str) -> dict:
     with _lock:
         st = _state.get(agent)
@@ -552,3 +586,4 @@ def load_persisted() -> None:
 def clear() -> None:
     with _lock:
         _state.clear()
+        _auto.clear()

@@ -455,16 +455,15 @@ function cultivationBlock(c) {
 }
 
 function retreatControl(a, c) {
+  // Disciples decide on their own when to seclude/roam; the Ancestor can only recall.
   if (!c || !c.realm_name) return '';
   if (c.in_seclusion)
     return `<div class='retreat-row active'><span class='retreat-state'>🧘 Secluded · breakthrough in ${fmtDur(c.seclusion_remaining)}</span>
-      <button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter=''>Leave</button></div>`;
+      <button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter=''>Recall</button></div>`;
   if (c.in_roaming)
     return `<div class='retreat-row active'><span class='retreat-state'>🌄 Roaming · returns in ${fmtDur(c.roaming_remaining)}</span>
-      <button class='btn culti-roam-btn' data-agent='${esc(a.name)}' data-enter=''>Return</button></div>`;
-  return `<div class='retreat-row'><span class='retreat-label'>Retreat</span>
-    <button class='btn culti-sec-btn' data-agent='${esc(a.name)}' data-enter='1'>Seclude</button>
-    <button class='btn culti-roam-btn' data-agent='${esc(a.name)}' data-enter='1'>Roam</button></div>`;
+      <button class='btn culti-roam-btn' data-agent='${esc(a.name)}' data-enter=''>Recall</button></div>`;
+  return '';
 }
 
 function questControl(a) {
@@ -484,14 +483,23 @@ function transmitControl(a, c) {
   return `<div class='transmit-control'><select class='transmit-skill' data-agent='${esc(a.name)}'>${skills.map(s => `<option>${esc(s)}</option>`).join('')}</select><span class='muted'>→</span><select class='transmit-to' data-agent='${esc(a.name)}'>${subs.map(n => `<option>${esc(n)}</option>`).join('')}</select><button class='btn transmit-go' data-agent='${esc(a.name)}'>Transmit</button></div>`;
 }
 
-function pillControl(a, c) {
-  const pd = window.__pills || { catalog: [], active: {} };
+function pillBuffs(a) {
+  const pd = window.__pills || { active: {} };
+  const buffs = (pd.active && pd.active[a.name]) || [];
+  return buffs.length ? `<div class='pill-buffs'>${buffs.map(b => `<span class='pill-chip'>⚗ ${esc(b.name)}</span>`).join('')}</div>` : '';
+}
+function pillBuy(a, c) {
+  const pd = window.__pills || { catalog: [] };
   if (!pd.catalog || !pd.catalog.length) return '';
   const stones = (c && c.stones) || 0;
-  const buffs = (pd.active && pd.active[a.name]) || [];
-  const chips = buffs.length ? `<div class='pill-buffs'>${buffs.map(b => `<span class='pill-chip'>⚗ ${esc(b.name)}</span>`).join('')}</div>` : '';
   const opts = pd.catalog.map(p => `<option value='${esc(p.id)}'${p.cost > stones ? ' disabled' : ''}>${esc(p.name)} · <span class='stone'></span>${esc(p.cost)}</option>`).join('');
-  return `${chips}<div class='pill-control'><select class='pill-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn pill-buy' data-agent='${esc(a.name)}'>Concoct</button></div>`;
+  return `<div class='pill-control'><select class='pill-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn pill-buy' data-agent='${esc(a.name)}'>Concoct</button></div>`;
+}
+// quest / transmit / concoct controls, tucked into one collapsible to keep the card clean
+function sectActions(a, c) {
+  const inner = questControl(a) + transmitControl(a, c) + pillBuy(a, c);
+  if (!inner.trim()) return '';
+  return `<details class='details sect-actions'><summary>Sect actions</summary>${inner}</details>`;
 }
 
 function delegateSelect(a, c) {
@@ -534,10 +542,8 @@ function agentCard(a) {
     ${metric('Model', esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
     ${cultivationBlock(c)}
+    ${pillBuffs(a)}
     ${retreatControl(a, c)}
-    ${questControl(a)}
-    ${transmitControl(a, c)}
-    ${pillControl(a, c)}
     ${a.current_task ? `<div class='agent-task-cur'>▸ ${esc(a.current_task)}</div>` : ''}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
     <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>
@@ -545,6 +551,7 @@ function agentCard(a) {
       <input class='agent-input' placeholder='Assign a task to ${esc(a.name)}…' data-agent='${esc(a.name)}'>
       <div class='agent-assign-go'>${delegateSelect(a, c)}<button class='btn btn-primary agent-send' data-agent='${esc(a.name)}'>Assign</button></div>
     </div>
+    ${sectActions(a, c)}
     <details class='details agent-transcript' data-agent='${esc(a.name)}'><summary>Transcript (${esc(a.transcript_len ?? 0)})</summary><pre class='agent-tx-body'>Open to load…</pre></details>
   </div>`;
 }
