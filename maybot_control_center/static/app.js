@@ -2027,7 +2027,40 @@ async function renderUsage() {
   document.getElementById('usage-total').textContent =
     `$${Number(t.cost || 0).toFixed(4)} · ${t.calls} calls · ${(t.tokens_in + t.tokens_out).toLocaleString()} tok`;
   document.getElementById('usage-table').innerHTML = (data.agents || []).map(usageCard).join('');
+  renderUsageChart();
   renderReserves();
+}
+
+// cost & token usage over the last 24h — a lightweight inline bar chart
+async function renderUsageChart() {
+  const el = document.getElementById('usage-chart');
+  if (!el) return;
+  let s; try { s = await fetch('/api/usage/series?hours=24', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { el.innerHTML = ''; return; }
+  const buckets = (s && s.buckets) || [];
+  if (!buckets.length || !(s.totals && (s.totals.cost > 0 || s.totals.tokens > 0))) { el.innerHTML = ''; return; }
+  const maxCost = Math.max(...buckets.map(b => b.cost), 0.000001);
+  const maxTok = Math.max(...buckets.map(b => b.tokens_in + b.tokens_out), 1);
+  const W = buckets.length, bw = 100 / W;
+  const hour = ms => new Date(ms * 1000).getHours();
+  const bars = buckets.map((b, i) => {
+    const tok = b.tokens_in + b.tokens_out;
+    const ch = Math.round((b.cost / maxCost) * 100);
+    const th = Math.round((tok / maxTok) * 100);
+    const x = (i * bw).toFixed(3);
+    const title = `${hour(b.hour)}:00 — $${b.cost.toFixed(4)}, ${tok.toLocaleString()} tok, ${b.calls} calls${b.errors ? `, ${b.errors} err` : ''}`;
+    return `<div class='uc-col' style='left:${x}%;width:${bw}%' title='${esc(title)}'>
+      <div class='uc-bar uc-tok' style='height:${th}%'></div>
+      <div class='uc-bar uc-cost' style='height:${ch}%'></div>${b.errors ? `<div class='uc-err'></div>` : ''}</div>`;
+  }).join('');
+  el.innerHTML = `<div class='usage-chart-card'>
+    <div class='uc-head'><b>Last 24h</b>
+      <span class='uc-legend'><span class='uc-key uc-cost'></span>cost <span class='uc-key uc-tok'></span>tokens</span>
+      <span class='muted'>$${Number(s.totals.cost).toFixed(4)} · ${Number(s.totals.tokens).toLocaleString()} tok${s.totals.errors ? ` · ${s.totals.errors} err` : ''}</span>
+    </div>
+    <div class='uc-plot'>${bars}</div>
+    <div class='uc-axis'><span>${hour(buckets[0].hour)}:00</span><span>now</span></div>
+  </div>`;
 }
 
 async function renderReserves() {

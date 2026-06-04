@@ -8,6 +8,7 @@ def _usage(total, per_agent=None):
 
 def setup_function():
     usage.clear() if hasattr(usage, "clear") else None
+    budget.reset_alert()
 
 
 def test_reserves_off_by_default(monkeypatch):
@@ -70,3 +71,23 @@ def test_snapshot_shape(monkeypatch):
     snap = budget.snapshot()
     assert snap["reserves"]["remaining"] == 6.0
     assert snap["agents"][0]["agent"] == "Nova" and "status" in snap["agents"][0]
+
+
+def test_budget_alert_fires_once_per_worsening(monkeypatch):
+    monkeypatch.setattr(budget, "BUDGET_USD", 100.0)
+    monkeypatch.setattr(budget, "LOW_PCT", 20.0)
+    fired = []
+    monkeypatch.setattr("maybot_control_center.notifier.notify_event",
+                        lambda event, title, message: fired.append((event, title)))
+    budget.reset_alert()
+
+    monkeypatch.setattr(budget, "_usage", _usage(50.0))   # healthy → no alert
+    assert budget.check_alert() is None and not fired
+    monkeypatch.setattr(budget, "_usage", _usage(90.0))   # → low
+    assert budget.check_alert() == "low"
+    assert budget.check_alert() is None                   # same level → no repeat
+    monkeypatch.setattr(budget, "_usage", _usage(95.0))   # → critical (worse)
+    assert budget.check_alert() == "critical"
+    monkeypatch.setattr(budget, "_usage", _usage(50.0))   # recovered → no alert
+    assert budget.check_alert() is None
+    assert [e for e, _ in fired] == ["budget", "budget"]  # only the two worsenings alerted

@@ -16,6 +16,7 @@ just shows spend. Operator-initiated work is never throttled.
 from __future__ import annotations
 
 import os
+import threading
 
 BUDGET_USD = float(os.getenv("MAYBOT_BUDGET_USD", "0"))            # sect-wide cap (0 = off)
 AGENT_CAP = float(os.getenv("MAYBOT_BUDGET_AGENT_USD", "0"))       # per-agent cap (0 = none)
@@ -75,8 +76,55 @@ def status(agent: str) -> str:
     return "ok" if allowed(agent) else "throttled"
 
 
+# ---- budget-breach alerting (fires once per worsening transition) -----------
+_RANK = {"healthy": 0, "low": 1, "critical": 2, "exhausted": 3}
+_alert_lock = threading.Lock()
+_alert_level = "healthy"
+
+
+def _level(r: dict) -> str:
+    if not r.get("enabled"):
+        return "healthy"
+    if r["exhausted"]:
+        return "exhausted"
+    if r["critical"]:
+        return "critical"
+    if r["low"]:
+        return "low"
+    return "healthy"
+
+
+def check_alert() -> str | None:
+    """Fire a webhook alert when reserves cross into a worse budget level. Called
+    from snapshot(). Returns the new level when an alert fired, else None."""
+    global _alert_level
+    r = reserves()
+    lvl = _level(r)
+    with _alert_lock:
+        prev = _alert_level
+        if _RANK[lvl] <= _RANK[prev]:   # unchanged or recovering — no alert
+            _alert_level = lvl
+            return None
+        _alert_level = lvl
+    try:
+        from . import notifier
+        notifier.notify_event(
+            "budget", f"Sect reserves {lvl}",
+            f"{r['pct_remaining']}% of the ${r['budget']} budget remains (${r['remaining']} left).")
+    except Exception:
+        pass
+    return lvl
+
+
+def reset_alert() -> None:
+    global _alert_level
+    with _alert_lock:
+        _alert_level = "healthy"
+
+
 def snapshot() -> dict:
     r = reserves()
+    check_alert()
     rows = []
     for a in _usage()["agents"]:
         rows.append({"agent": a["agent"], "cost": round(a["cost"], 4),

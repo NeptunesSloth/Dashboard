@@ -19,7 +19,7 @@ ALERT_STATES = {
 # Which non-health events route to the webhooks (incidents, tribulations, agent failures).
 ALERT_EVENTS = {
     s.strip().lower()
-    for s in os.getenv("MAYBOT_ALERT_EVENTS", "incident,tribulation").split(",")
+    for s in os.getenv("MAYBOT_ALERT_EVENTS", "incident,tribulation,budget").split(",")
     if s.strip()
 }
 

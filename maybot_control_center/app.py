@@ -342,6 +342,12 @@ def usage_stats(x_control_token: str = Header(default="")):
     return usage.snapshot()
 
 
+@app.get("/api/usage/series")
+def usage_series(hours: int = Query(default=24), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return usage.series(max(1, min(hours, 336)))
+
+
 @app.get("/api/budget")
 def budget_stats(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
