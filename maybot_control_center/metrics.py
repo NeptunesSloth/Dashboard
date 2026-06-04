@@ -13,6 +13,11 @@ from . import cultivation
 from . import treasury
 from . import usage
 from . import tools as tooling
+from . import slo
+from . import maintenance
+from . import errorbudget
+from . import oaths
+from . import escalation
 
 
 def _esc(v: str) -> str:
@@ -72,5 +77,36 @@ def render() -> str:
         metric("maybot_agent_breakthroughs", c["breakthroughs"], "Breakthroughs achieved", "counter", lbl)
         metric("maybot_agent_techniques", len(c["skills"]), "Techniques mastered", "gauge", lbl)
     metric("maybot_agents_total", len(agents.load_agents()) or agent_count, "Configured disciples")
+
+    # ---- SLO / uptime (per project) ----
+    sl = slo.snapshot()
+    for r in sl["projects"]:
+        lbl = f'device="{_esc(r["device"])}",project="{_esc(r["project"])}"'
+        if r["uptime_pct"] is not None:
+            metric("maybot_project_uptime_ratio", round(r["uptime_pct"] / 100.0, 5),
+                   "Rolling uptime ratio over the SLO window", "gauge", lbl)
+        metric("maybot_project_incidents", r["incidents"],
+               "Incidents (ok->unhealthy transitions) in the SLO window", "gauge", lbl)
+        if r["mttr_seconds"] is not None:
+            metric("maybot_project_mttr_seconds", r["mttr_seconds"],
+                   "Mean time to recovery in the SLO window", "gauge", lbl)
+
+    # ---- maintenance silences ----
+    metric("maybot_alerts_silenced", len(maintenance.active()), "Active alert silences")
+
+    # ---- error budgets / freeze, ownership, escalation ----
+    eb = errorbudget.snapshot()
+    metric("maybot_projects_frozen", len(eb["frozen"]),
+           "Projects frozen by an exhausted error budget (Heavenly Decree)")
+    for r in eb["projects"]:
+        if r["budget_remaining_pct"] is not None:
+            lbl = f'device="{_esc(r["device"])}",project="{_esc(r["project"])}"'
+            metric("maybot_error_budget_remaining_pct", r["budget_remaining_pct"],
+                   "Error budget remaining (percent of allowed downtime)", "gauge", lbl)
+    metric("maybot_incidents_claimed", len(oaths.snapshot()["oaths"]),
+           "Incidents under an active sworn oath (acknowledged)")
+    metric("maybot_escalations_pending",
+           sum(1 for p in escalation.snapshot()["pending"] if not p["escalated"]),
+           "Armed escalations awaiting acknowledgement")
 
     return "\n".join(lines) + "\n"

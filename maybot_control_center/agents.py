@@ -358,6 +358,11 @@ def run_task(name: str, task: str) -> dict:
         daoheart.record(name, {"ok": ok, "chars": len(text or ""), "latency_ms": max(0, done - now)})
     except Exception:
         pass
+    try:  # update the task board if this run was a tracked board task
+        from . import taskqueue
+        taskqueue.on_agent_finished(name, ok, text if ok else (err or ""))
+    except Exception:
+        pass
     events.publish("agents", {"agent": name})
 
     # If the agent requested a tool, queue it for approval (never auto-run here).
@@ -555,6 +560,11 @@ def snapshot() -> list[dict]:
         row["quirk"] = traits.quirk(row["name"])
         row["trope"] = traits.trope(row["name"])
     lifecycle.tick()  # cull a stagnant Outer Disciple (and summon a recruit) if any
+    try:
+        from . import manuals
+        manuals.tick(out)  # idle Elders with no disciples author technique manuals
+    except Exception:
+        pass
     return out
 
 

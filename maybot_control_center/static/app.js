@@ -117,8 +117,15 @@ function projectCard(p) {
       ${a.run_tests ? `<button class='act-btn' data-action='run-tests' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Run Tests</button>` : ''}
     </div>`;
 
+  const relBadges = [
+    p.frozen ? `<span class='rel-badge rel-frozen' title='Error budget exhausted — state changes frozen'>🔒 Decree</span>` : '',
+    (p.blocked_by && p.blocked_by.length) ? `<span class='rel-badge rel-blocked' title='Likely downstream of ${esc(p.blocked_by.join(', '))}'>⛓ downstream</span>` : '',
+    p.oath ? `<span class='rel-badge rel-oath' title='Claimed by ${esc(p.oath.who)}'>🤝 ${esc(p.oath.who)}</span>` : '',
+  ].join('');
+
   return `<div class='card' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
     <div class='metric'><b>${esc(p.name)}</b><span>${healthBadge(p.health)}</span></div>
+    ${relBadges ? `<div class='rel-badges'>${relBadges}</div>` : ''}
     ${metric('Device', esc(p.device))}
     ${metric('Type', esc(p.type))}
     ${metric('Status', esc(p.status))}
@@ -282,10 +289,10 @@ async function render() {
 
     renderAiAgents(window.__lastProjects);
     renderProjects(window.__lastProjects);
+    await renderAssign();        // sets window.__gov (specialties/leader) used by disciple cards
     await renderAgentCrew();
     // Re-render KPIs now that window.__agents is populated (disciple/cultivating counts).
     summaryEl.innerHTML = summaryCards(data.summary);
-    renderGovernance();
     renderTrials();
     renderLore();
     renderSectMap();
@@ -299,6 +306,8 @@ async function render() {
     bindTools();
     renderTools();
     renderUsage();
+    bindReliability();
+    renderReliability();
     bindTreasury();
     renderTreasury();
   } catch (e) {
@@ -576,33 +585,82 @@ function traitRow(a) {
   return chips.length ? `<div class='rep-row trait-row'>${chips.join('')}</div>` : '';
 }
 
+// Rank / position label from governance flags (falls back to cultivation rank).
+function positionLabel(a) {
+  const g = a.governance || {};
+  if (g.is_leader) return '👑 Sect Leader';
+  if (g.is_master) return '🜍 Sect Master';
+  if (g.is_elder) return '🜍 Elder';
+  const c = a.cultivation || {};
+  return c.rank_title || 'Disciple';
+}
+
+// One-line "what it's doing right now".
+function agentActivity(a) {
+  const c = a.cultivation || {};
+  if (a.current_task) return { cls: 'working', text: `▸ ${a.current_task}` };
+  if (a.status === 'working' || a.status === 'queued') return { cls: 'working', text: a.status };
+  if (a.status === 'error') return { cls: 'error', text: a.error || 'error' };
+  if (c.in_seclusion) return { cls: 'idle', text: '🚪 in seclusion' };
+  if (c.in_roaming) return { cls: 'idle', text: '🌄 roaming abroad' };
+  return { cls: 'idle', text: 'idle' };
+}
+
+// Governance controls (operator) folded into the expanded card — the old roster.
+function govControls(a) {
+  const g = a.governance || {};
+  const specs = (window.__gov && window.__gov.specialties) || {};
+  const pinned = window.__gov && window.__gov.leader_pinned;
+  const specOpts = Object.keys(specs).map(k => `<option ${g.specialty === k ? 'selected' : ''}>${esc(k)}</option>`).join('');
+  const elderBits = g.is_elder ? `
+      <select class='gov-spec-sel' data-agent='${esc(a.name)}'>${specOpts}</select>
+      <button class='btn gov-spec-go' data-agent='${esc(a.name)}'>Set path</button>
+      ${!g.is_leader && !pinned ? `<button class='btn gov-challenge' data-agent='${esc(a.name)}'>⚔ Challenge</button>` : ''}` : '';
+  const strike = !g.is_leader ? `<button class='btn btn-danger gov-strike' data-agent='${esc(a.name)}' title='Strike this disciple down'>💀 Strike down</button>` : '';
+  if (!elderBits && !strike) return '';
+  return `<div class='gov-controls'>${elderBits}${strike}</div>`;
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
   const reply = a.last_reply ? esc(a.last_reply) : '';
   const c = a.cultivation || {};
   const tribCls = c.event === 'tribulation' && (Date.now() - (c.event_ts || 0) < 30000) ? ' agent-tribulation' : '';
-  return `<div class='card agent-card agent-${esc(st)}${tribCls}' data-agent='${esc(a.name)}'>
-    <div class='metric'><b>🧘 ${esc(a.name)}</b><span class='agent-state'><span class='crew-dot ${dot}'></span>${esc(st)}</span></div>
+  const g = a.governance || {};
+  const act = agentActivity(a);
+  const spec = g.specialty ? `${esc(g.specialty)}${g.mastery ? ` · ${g.mastery}` : ''}`
+    : ((c.skills && c.skills.length) ? esc(c.skills.slice(0, 2).join(', ')) : '—');
+  // Compact summary (always visible): name · position · activity · specialty/skill.
+  const summary = `<summary class='agent-summary'>
+    <span class='as-id'><span class='crew-dot ${dot}'></span><b>🧘 ${esc(a.name)}</b></span>
+    <span class='as-pos'>${esc(positionLabel(a))}</span>
+    <span class='as-act ${act.cls}'>${esc(act.text)}</span>
+    <span class='as-spec' title='specialty / techniques'>${spec}</span>
+  </summary>`;
+  // Everything else is revealed on click.
+  const body = `<div class='agent-body'>
     ${a.reputation || a.governance ? `<div class='rep-row'>${governanceChip(a.governance)}${reputationChip(a.reputation)}${a.bond ? `<span class='gov-chip gov-spec' title='karmic-bond reviewer'>🤝 ${esc(a.bond)}</span>` : ''}</div>` : ''}
     ${traitRow(a)}
     ${(a.titles && a.titles.length) ? `<div class='rep-row'>${a.titles.map(t => `<span class='title-chip' title='${esc(t.desc)}'>🏅 ${esc(t.title)}</span>`).join('')}</div>` : ''}
     ${metric('Role', esc(a.role || '—'))}
     ${metric('Model', esc(a.model))}
+    ${metric('Standing', esc(g.standing ?? '—'))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
     ${cultivationBlock(c)}
     ${pillBuffs(a)}
     ${retreatControl(a, c)}
-    ${a.current_task ? `<div class='agent-task-cur'>▸ ${esc(a.current_task)}</div>` : ''}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
     <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>
     <div class='agent-assign'>
       <input class='agent-input' placeholder='Assign a task to ${esc(a.name)}…' data-agent='${esc(a.name)}'>
       <div class='agent-assign-go'>${delegateSelect(a, c)}<button class='btn btn-primary agent-send' data-agent='${esc(a.name)}'>Assign</button></div>
     </div>
+    ${govControls(a)}
     ${sectActions(a, c)}
     <details class='details agent-transcript' data-agent='${esc(a.name)}'><summary>Transcript (${esc(a.transcript_len ?? 0)})</summary><pre class='agent-tx-body'>Open to load…</pre></details>
   </div>`;
+  return `<details class='card agent-card agent-${esc(st)}${tribCls}' data-agent='${esc(a.name)}'>${summary}${body}</details>`;
 }
 
 function bindAgentCrew(root) {
@@ -704,6 +762,21 @@ function bindAgentCrew(root) {
       body.innerText = (a.transcript || []).map(m => `${String(m.role).toUpperCase()}: ${m.content}`).join('\n\n') || '(empty)';
     } catch (_) { body.innerText = 'Error loading transcript.'; }
   });
+  // Governance controls folded into each disciple card (formerly the hierarchy roster).
+  root.querySelectorAll('.gov-spec-go').forEach(b => b.onclick = async () => {
+    const agent = b.getAttribute('data-agent');
+    const s = root.querySelector(`.gov-spec-sel[data-agent="${CSS.escape(agent)}"]`);
+    if (s && await govPost('specialty', { agent, specialty: s.value }, 'Set path')) renderAgentCrew();
+  });
+  root.querySelectorAll('.gov-challenge').forEach(b => b.onclick = async () => {
+    const res = await govPost('challenge', { challenger: b.getAttribute('data-agent') }, 'Challenge');
+    if (res) { alert(res.reason || (res.won ? 'Victory!' : 'Defeated.')); renderAgentCrew(); }
+  });
+  root.querySelectorAll('.gov-strike').forEach(b => b.onclick = async () => {
+    const agent = b.getAttribute('data-agent');
+    if (!confirm(`Strike down ${agent}? They will be cast out of the sect and replaced by a new disciple.`)) return;
+    if (await govPost('strike-down', { agent }, 'Strike down')) renderAgentCrew();
+  });
 }
 
 async function renderAgentCrew() {
@@ -722,12 +795,17 @@ async function renderAgentCrew() {
   section.classList.remove('hidden');
   document.getElementById('agent-crew-pill').textContent = `${crew.length} disciples`;
   renderSectRanking(crew);
-  // preserve whatever the user is typing across the auto-refresh re-render
+  // preserve expanded cards + whatever the user is typing across the auto-refresh re-render
+  const open = new Set([...el.querySelectorAll('details.agent-card[open]')].map(d => d.getAttribute('data-agent')));
   const act = document.activeElement;
   const focusName = act && act.classList && act.classList.contains('agent-input') ? act.getAttribute('data-agent') : null;
   const focusVal = focusName ? act.value : null;
   el.innerHTML = crew.map(agentCard).join('');
   bindAgentCrew(el);
+  open.forEach(name => {
+    const d = el.querySelector(`details.agent-card[data-agent="${CSS.escape(name)}"]`);
+    if (d) d.open = true;
+  });
   if (focusName) {
     const inp = el.querySelector(`.agent-input[data-agent="${CSS.escape(focusName)}"]`);
     if (inp) { inp.value = focusVal; inp.focus(); }
@@ -736,13 +814,17 @@ async function renderAgentCrew() {
 
 // ---- Hall of Fame ----
 
-function fameCard(title, a, label, value) {
+function fameCard(meta, a, runnersUp) {
   const c = a.cultivation || {};
-  return `<div class='card'>
-    <div class='metric'><b>${title}</b><b class='money-pos'>${value}</b></div>
-    ${metric('Disciple', `🧘 ${esc(a.name)}`)}
-    ${metric('Realm', `${esc(c.realm_name || '—')} · ${esc(c.layer_label || c.stage || '')}`)}
-    ${metric(label, value)}
+  const realm = `${esc(c.realm_name || '—')}${c.layer_label ? ` · ${esc(c.layer_label)}` : ''}`;
+  const runners = (runnersUp || []).slice(0, 2).map((r, i) =>
+    `<div class='fame-runner'><span>${i === 0 ? '2.' : '3.'} ${esc(r.name)}</span><span class='muted'>${meta.stat(r)}</span></div>`).join('');
+  return `<div class='card fame-card fame-${meta.key}'>
+    <div class='fame-banner'><span class='fame-medal'>${meta.icon}</span><span class='fame-cat'>${meta.title}</span></div>
+    <div class='fame-hero'>${meta.hero(a)}</div>
+    <div class='fame-champ'>🧘 <b>${esc(a.name)}</b></div>
+    <div class='fame-sub muted'>${realm}</div>
+    ${runners ? `<div class='fame-runners'>${runners}</div>` : ''}
   </div>`;
 }
 
@@ -751,17 +833,20 @@ function renderHallOfFame() {
   const crew = (window.__agents || []).filter(a => a.cultivation);
   if (!crew.length) { sec.classList.add('hidden'); return; }
   sec.classList.remove('hidden');
-  const top = f => crew.slice().sort(f)[0];
-  const strongest = top((x, y) => (y.cultivation.realm - x.cultivation.realm) || (y.cultivation.stones - x.cultivation.stones));
-  const richest = top((x, y) => y.cultivation.stones - x.cultivation.stones);
-  const learned = top((x, y) => (y.cultivation.skills || []).length - (x.cultivation.skills || []).length);
-  const broke = top((x, y) => y.cultivation.breakthroughs - x.cultivation.breakthroughs);
-  document.getElementById('hall-of-fame').innerHTML = [
-    fameCard('🏆 Strongest', strongest, 'Spirit stones', `<span class='stone'></span>${strongest.cultivation.stones}`),
-    fameCard(STONE + ' Richest', richest, 'Spirit stones', `${STONE}${richest.cultivation.stones}`),
-    fameCard('📚 Most Techniques', learned, 'Techniques', `${(learned.cultivation.skills || []).length}`),
-    fameCard('⚡ Most Breakthroughs', broke, 'Breakthroughs', `${broke.cultivation.breakthroughs}`),
-  ].join('');
+  const metas = [
+    { key: 'strong', icon: '🏆', title: 'Strongest', cmp: (x, y) => (y.cultivation.realm - x.cultivation.realm) || (y.cultivation.stones - x.cultivation.stones),
+      hero: a => `<span class='fame-num'>${esc(a.cultivation.realm_name || '—')}</span>`, stat: a => a.cultivation.realm_name || '—' },
+    { key: 'rich', icon: '💎', title: 'Richest', cmp: (x, y) => y.cultivation.stones - x.cultivation.stones,
+      hero: a => `<span class='fame-num'>${STONE}${a.cultivation.stones}</span>`, stat: a => `${a.cultivation.stones} stones` },
+    { key: 'learned', icon: '📚', title: 'Most Techniques', cmp: (x, y) => (y.cultivation.skills || []).length - (x.cultivation.skills || []).length,
+      hero: a => `<span class='fame-num'>${(a.cultivation.skills || []).length}</span><span class='fame-unit'>techniques</span>`, stat: a => `${(a.cultivation.skills || []).length}` },
+    { key: 'broke', icon: '⚡', title: 'Most Breakthroughs', cmp: (x, y) => y.cultivation.breakthroughs - x.cultivation.breakthroughs,
+      hero: a => `<span class='fame-num'>${a.cultivation.breakthroughs}</span><span class='fame-unit'>breakthroughs</span>`, stat: a => `${a.cultivation.breakthroughs}` },
+  ];
+  document.getElementById('hall-of-fame').innerHTML = metas.map(m => {
+    const ranked = crew.slice().sort(m.cmp);
+    return fameCard(m, ranked[0], ranked.slice(1));
+  }).join('');
 }
 
 // ---- Sect Grand Tournament: seeded single-elimination bracket ----
@@ -826,128 +911,125 @@ async function govPost(path, body, okMsg) {
   } catch (e) { alert((okMsg || 'Action') + ' failed: ' + e); return null; }
 }
 
-function govRosterCard(r, leaderPinned) {
-  const s = r.standing || {};
-  const c = s.components || {};
-  const rank = r.is_leader ? '👑 Sect Leader' : (r.is_master ? 'Sect Master' : (r.is_elder ? '🜍 Elder' : 'Disciple'));
-  const fieldLine = r.is_elder && r.specialty ? `<div class='muted gov-expert'>Expert of the ${esc(r.specialty)}</div>` : '';
-  const specOpts = Object.keys(window.__specialties || {}).map(k =>
-    `<option ${r.specialty === k ? 'selected' : ''}>${esc(k)}</option>`).join('');
-  const elderBits = r.is_elder ? `
-      <select class='gov-spec-sel' data-agent='${esc(r.agent)}'>${specOpts}</select>
-      <button class='btn gov-spec-go' data-agent='${esc(r.agent)}'>Set path</button>
-      ${!r.is_leader && !leaderPinned ? `<button class='btn gov-challenge' data-agent='${esc(r.agent)}'>⚔ Challenge</button>` : ''}` : '';
-  // The Ancestor may strike down any disciple who angers them (the Leader is spared).
-  const strikeBtn = !r.is_leader ? `<button class='btn btn-danger gov-strike' data-agent='${esc(r.agent)}' title='Strike this disciple down'>💀 Strike down</button>` : '';
-  const controls = (elderBits || strikeBtn) ? `<div class='gov-controls'>${elderBits}${strikeBtn}</div>` : '';
-  return `<div class='card gov-card${r.is_leader ? ' gov-card-leader' : ''}'>
-    <div class='metric'><b>${esc(r.agent)}</b><b class='money-pos'>${s.score ?? '—'}</b></div>
-    ${metric('Rank', rank)}
-    ${fieldLine}
-    ${metric('Specialty', r.specialty ? `${esc(r.specialty)} · mastery ${r.mastery}` : '—')}
-    <div class='gov-bars muted'>merit ${c.merit ?? '—'} · perf ${c.performance ?? '—'} · lead ${c.leadership ?? '—'} · contrib ${c.contribution ?? '—'}</div>
-    ${controls}
-  </div>`;
-}
+// ---- Assign Work: goal routing, orchestration, leader appointment, task board ----
+const TASK_COLS = [['queued', 'Queued'], ['assigned', 'Assigned'], ['in_progress', 'In progress'], ['done', 'Done'], ['failed', 'Failed']];
 
-// ---- visual sect hierarchy (Ancestor → Leader → Elders → Inner → Outer) ----
-function renderHierarchyChart(gov) {
-  const el = document.getElementById('hierarchy-chart');
-  if (!el) return;
-  const crew = (window.__agents || []);
-  const realm = a => (a.cultivation && a.cultivation.realm) || 0;
-  const node = (a, cls) => `<button class='h-node ${cls}' data-agent='${esc(a.name)}' title='standing ${a.governance?.standing ?? '—'}'>
-    <span class='h-name'>${esc(a.name)}</span><span class='h-realm'>${esc(a.cultivation?.realm_name || '')}</span></button>`;
-  const leader = crew.find(a => a.governance?.is_leader);
-  const other = a => !a.governance?.is_leader;
-  const masters = crew.filter(a => other(a) && realm(a) >= 8);
-  const elders = crew.filter(a => other(a) && realm(a) >= 6 && realm(a) < 8);
-  const core = crew.filter(a => other(a) && realm(a) >= 4 && realm(a) < 6);
-  const inner = crew.filter(a => other(a) && realm(a) >= 2 && realm(a) < 4);
-  const outer = crew.filter(a => other(a) && realm(a) < 2);
-  const tier = (label, list, cls) => list.length
-    ? `<div class='h-tier'><span class='h-label'>${label}</span><div class='h-nodes'>${list.map(a => node(a, cls)).join('')}</div></div>` : '';
-  el.innerHTML = `
-    <div class='h-tier h-ancestor'><span class='h-label'>Ancestor</span><div class='h-nodes'><span class='h-node h-you'>🐉 You</span></div></div>
-    ${leader ? `<div class='h-tier'><span class='h-label'>Sect Leader</span><div class='h-nodes'>${node(leader, 'h-leader')}</div></div>` : ''}
-    ${tier('Sect Masters', masters, 'h-master')}
-    ${tier('Elders', elders, 'h-elder')}
-    ${tier('Core Disciples', core, 'h-core')}
-    ${tier('Inner Disciples', inner, 'h-inner')}
-    ${tier('Outer Disciples', outer, 'h-outer')}`;
-  el.querySelectorAll('.h-node[data-agent]').forEach(b => b.onclick = () => {
-    const lsel = document.getElementById('leader-select'); if (lsel) lsel.value = b.getAttribute('data-agent');
-  });
-}
-
-async function renderGovernance() {
-  const sec = document.getElementById('governance-section');
+async function renderAssign() {
+  const sec = document.getElementById('assign-section');
   let data;
   try { data = await fetch('/api/governance', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { sec.classList.add('hidden'); return; }
   const roster = data.roster || [];
   if (!roster.length) { sec.classList.add('hidden'); return; }
   sec.classList.remove('hidden');
-  window.__specialties = data.specialties || {};
+  // Shared with the disciple cards' governance controls.
+  window.__gov = { specialties: data.specialties || {}, leader: data.leader, leader_pinned: data.leader_pinned };
   document.getElementById('leader-pill').textContent =
     data.leader ? `👑 ${data.leader}${data.leader_pinned ? ' (pinned)' : ''}` : 'no leader';
 
-  // appoint-leader select
   const lsel = document.getElementById('leader-select');
   const cur = lsel.value;
   lsel.innerHTML = roster.map(r => `<option ${r.agent === data.leader ? 'selected' : ''}>${esc(r.agent)}</option>`).join('');
   if (cur && roster.some(r => r.agent === cur)) lsel.value = cur;
 
-  renderHierarchyChart(data);
-  document.getElementById('governance-roster').innerHTML =
-    roster.map(r => govRosterCard(r, data.leader_pinned)).join('');
-
-  // inbox
+  // Ancestor's Hall inbox (lives in the disciples section now).
   let inbox = { messages: [] };
   try { inbox = await fetch('/api/governance/inbox', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) {}
   const box = document.getElementById('ancestor-inbox');
-  box.innerHTML = (inbox.messages || []).length
+  if (box) box.innerHTML = (inbox.messages || []).length
     ? inbox.messages.map(m => `<div class='comms-msg'><div class='comms-head'><span class='comms-from'>${esc(m.from)}</span> <span class='muted'>· ${esc(m.role)}</span></div><div class='comms-body'>${esc(m.text)}</div></div>`).join('')
     : `<div class='comms-sys muted'>No word from the sect's leadership yet.</div>`;
 
-  bindGovernance();
+  renderTaskBoard();
+  bindAssign();
 }
 
-function bindGovernance() {
-  const root = document.getElementById('governance-section');
+function taskCard(t) {
+  const prio = t.priority && t.priority !== 'normal' ? `<span class='task-prio prio-${esc(t.priority)}'>${esc(t.priority)}</span>` : '';
+  const who = t.assignee ? `🧘 ${esc(t.assignee)}` : '<span class="muted">unassigned</span>';
+  const src = t.source && t.source !== 'manual' ? `<span class='task-src'>${esc(t.source)}</span>` : '';
+  return `<div class='task-item' data-task='${t.id}'>
+    <div class='task-top'>${prio}<span class='task-title'>${esc(t.title)}</span></div>
+    <div class='task-meta'>${who} ${src}</div>
+    ${t.result ? `<div class='task-result muted'>${esc(t.result.slice(0, 120))}</div>` : ''}
+  </div>`;
+}
+
+async function renderTaskBoard() {
+  const el = document.getElementById('task-board');
+  if (!el) return;
+  let board; try { board = await fetch('/api/tasks', { headers: authHeaders() }).then(r => r.json()); }
+  catch (_) { el.innerHTML = ''; return; }
+  const cols = board.columns || {};
+  const counts = board.counts || {};
+  const active = (counts.queued || 0) + (counts.assigned || 0) + (counts.in_progress || 0);
+  const pill = document.getElementById('board-pill');
+  if (pill) pill.textContent = `${active} active · ${counts.done || 0} done`;
+  if (!Object.values(counts).some(n => n)) { el.innerHTML = `<div class='muted'>No tasks yet — assign a goal above.</div>`; return; }
+  el.innerHTML = TASK_COLS.map(([key, label]) => {
+    const items = (cols[key] || []);
+    if (!items.length && (key === 'failed')) return '';
+    return `<div class='task-col'><div class='task-col-head'>${label} <span class='muted'>${items.length}</span></div>
+      ${items.map(taskCard).join('') || `<div class='task-empty muted'>—</div>`}</div>`;
+  }).join('');
+}
+
+function bindAssign() {
   const set = document.getElementById('leader-set');
   if (set && !set.dataset.bound) {
     set.dataset.bound = '1';
     set.onclick = async () => {
       const leader = document.getElementById('leader-select').value;
-      if (await govPost('leader', { leader, pinned: true }, 'Appoint')) renderGovernance();
+      if (await govPost('leader', { leader, pinned: true }, 'Appoint')) renderAssign();
     };
   }
   const rel = document.getElementById('leader-release');
   if (rel && !rel.dataset.bound) {
     rel.dataset.bound = '1';
     rel.onclick = async () => {
-      if (await govPost('leader', { leader: null, pinned: false }, 'Release')) renderGovernance();
+      if (await govPost('leader', { leader: null, pinned: false }, 'Release')) renderAssign();
     };
   }
-  root.querySelectorAll('.gov-spec-go').forEach(b => b.onclick = async () => {
-    const agent = b.getAttribute('data-agent');
-    const sel = root.querySelector(`.gov-spec-sel[data-agent="${CSS.escape(agent)}"]`);
-    if (sel && await govPost('specialty', { agent, specialty: sel.value }, 'Set path')) renderGovernance();
-  });
-  root.querySelectorAll('.gov-challenge').forEach(b => b.onclick = async () => {
-    const challenger = b.getAttribute('data-agent');
-    const res = await govPost('challenge', { challenger }, 'Challenge');
-    if (res) { alert(res.reason || (res.won ? 'Victory!' : 'Defeated.')); renderGovernance(); }
-  });
-  root.querySelectorAll('.gov-strike').forEach(b => b.onclick = async () => {
-    const agent = b.getAttribute('data-agent');
-    if (!confirm(`Strike down ${agent}? They will be cast out of the sect and replaced by a new disciple.`)) return;
-    const reason = prompt(`Why does ${agent} deserve to be struck down? (optional)`) || '';
-    const res = await govPost('strike-down', { agent, reason }, 'Strike down');
-    if (res) { alert(`${res.struck_down} has been struck down. ${res.replacement} now takes their place.`); render(); }
-  });
+  const assign = document.getElementById('goal-assign');
+  if (assign && !assign.dataset.bound) {
+    assign.dataset.bound = '1';
+    assign.onclick = async () => {
+      const goal = document.getElementById('goal-input').value.trim();
+      if (!goal) return;
+      const priority = document.getElementById('goal-priority').value;
+      const prev = document.getElementById('assign-preview');
+      prev.textContent = 'Routing…';
+      const res = await apiPost('/api/assign/goal', { goal, priority, dispatch: true }, 'Assign');
+      if (res) {
+        prev.innerHTML = `🎯 Routed to <b>${esc(res.routed_to)}</b> <span class='muted'>(${esc(res.reason)})</span>`;
+        document.getElementById('goal-input').value = '';
+        renderTaskBoard(); renderAgentCrew();
+      } else prev.textContent = '';
+    };
+  }
+  const orch = document.getElementById('goal-orchestrate');
+  if (orch && !orch.dataset.bound) {
+    orch.dataset.bound = '1';
+    orch.onclick = async () => {
+      const goal = document.getElementById('goal-input').value.trim();
+      if (!goal) return;
+      const prev = document.getElementById('assign-preview');
+      prev.textContent = 'Decomposing…';
+      const res = await apiPost('/api/orchestrate', { goal, dispatch: true }, 'Orchestrate');
+      if (res) {
+        const lines = (res.subtasks || []).map(s => `• ${esc(s.task.title)} → <b>${esc(s.routed_to || '—')}</b>`).join('<br>');
+        prev.innerHTML = `🧩 Broke into ${(res.subtasks || []).length} subtasks:<br>${lines}`;
+        document.getElementById('goal-input').value = '';
+        renderTaskBoard(); renderAgentCrew();
+      } else prev.textContent = '';
+    };
+  }
+  const inp = document.getElementById('goal-input');
+  if (inp && !inp.dataset.bound) {
+    inp.dataset.bound = '1';
+    inp.onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('goal-assign').click(); };
+  }
 }
 
 // ---- Trials Hall: Night-Watch, chaos, dreamscape, spirit-root ----
@@ -995,13 +1077,6 @@ async function renderTrials() {
       ${metric('Target', esc(t.target))}${metric('Disciple', esc(t.disciple || '—'))}${t.score != null ? metric('Score', t.score) : ''}${btn}</div>`;
   }).join('') || `<div class='comms-sys muted'>No trials summoned.</div>`;
 
-  // Spirit-root grades
-  const sr = await apiJSON('/api/spirit-root') || {};
-  const profiles = (sr.profiles) || {};
-  document.getElementById('spirit-grades').innerHTML = Object.keys(profiles).length
-    ? Object.values(profiles).map(p => `<div class='card'><div class='metric'><b>${esc(p.agent)}</b><b class='money-pos'>${esc(p.grade)}</b></div>${metric('Overall', p.overall)}${metric('Samples', p.samples)}</div>`).join('')
-    : `<div class='comms-sys muted'>No disciples assessed yet (POST results to /api/spirit-root/assess).</div>`;
-
   bindTrials();
 }
 
@@ -1034,23 +1109,6 @@ function bindTrials() {
   root.querySelectorAll('.chaos-fail').forEach(b => b.onclick = async () => {
     if (await apiPost(`/api/chaos/${b.getAttribute('data-id')}/resolve`, { recovered: false }, 'Resolve')) renderTrials();
   });
-  const dg = document.getElementById('dream-go');
-  if (dg && !dg.dataset.bound) {
-    dg.dataset.bound = '1';
-    const fsel = document.getElementById('dream-formation');
-    apiJSON('/api/formations').then(fd => { if (fd && fd.catalog) fsel.innerHTML = fd.catalog.map(f => `<option value='${esc(f.name)}'>${esc(f.title)}</option>`).join(''); });
-    dg.onclick = async () => {
-      const formation = fsel.value;
-      const goal = (document.getElementById('dream-goal').value || '').trim();
-      if (!goal) { alert('Enter a goal.'); return; }
-      const res = await apiPost('/api/dreamscape/preview', { formation, goal }, 'Preview');
-      if (res) {
-        document.getElementById('dream-preview').innerHTML =
-          `<div class='card'><div class='metric'><b>${esc(res.title)}</b><span class='muted'>~${res.est_tokens_total} tokens</span></div>` +
-          res.stages.map(s => `<div class='metric'><span>${esc(s.stage)} · ${esc(s.assignee)}</span><span class='muted'>~${s.est_tokens}t</span></div>`).join('') + `</div>`;
-      }
-    };
-  }
 }
 
 // ---- Sect Lore: bonds, drift, lineage, artifacts, council votes ----
@@ -2092,6 +2150,97 @@ async function renderReserves() {
     <div class='qr-note ${lvl}'>${note}${throttled.length ? ` · throttled: ${throttled.map(a => esc(a.agent)).join(', ')}` : ''}</div>
     ${bars ? `<div class='qr-agents'>${bars}</div>` : ''}
   </div>`;
+}
+
+function bindReliability() {
+  const btn = document.getElementById('silence-run');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  btn.onclick = async () => {
+    const target = document.getElementById('silence-target').value.trim();
+    if (!target) { alert('Enter a silence target (e.g. device:project, device:*, or *).'); return; }
+    const minutes = Number(document.getElementById('silence-minutes').value || 0);
+    const reason = document.getElementById('silence-reason').value.trim();
+    const r = await apiPost('/api/maintenance/silence', { target, minutes, reason }, 'Silence');
+    if (r) { document.getElementById('silence-reason').value = ''; renderReliability(); }
+  };
+}
+
+function sloRow(r) {
+  const up = r.uptime_pct === null ? '<span class="muted">no data</span>'
+    : `<b class='${r.uptime_pct >= 99 ? 'money-pos' : r.uptime_pct >= 95 ? 'money-zero' : 'money-neg'}'>${r.uptime_pct.toFixed(2)}%</b>`;
+  const mttr = r.mttr_seconds === null ? '—' : `${Math.round(r.mttr_seconds)}s`;
+  const key = `${r.device}:${r.project}`;
+  let budget = '';
+  if (r.budget != null) {
+    const rem = r.budget.remaining_pct;
+    const lvl = r.frozen ? 'qr-exhausted' : rem >= 50 ? 'qr-ok' : rem >= 20 ? 'qr-low' : 'qr-critical';
+    budget = `<div class='eb-row' title='Error budget vs ${r.budget.target_pct}% target'>
+      <span class='eb-bar'><span class='${lvl}' style='width:${Math.max(0, Math.min(100, rem == null ? 0 : rem))}%'></span></span>
+      <span class='muted'>${rem == null ? '—' : rem + '%'} budget</span></div>`;
+  }
+  const frozen = r.frozen ? `<span class='rel-badge rel-frozen' title='Heavenly Decree — state changes frozen'>🔒 Decree</span>` : '';
+  return `<div class='card slo-card${r.frozen ? ' slo-frozen' : ''}'>
+    <div class='slo-head'><b>${esc(r.project)}</b> ${healthBadge(r.current)}${frozen}<span class='muted'>${esc(r.device)}</span></div>
+    <div class='slo-stats'>
+      ${metric('Uptime', up)}
+      ${metric('Incidents', r.incidents)}
+      ${metric('MTTR', mttr)}
+    </div>
+    ${budget}
+    ${r.current !== 'ok' ? `<button class='btn oath-claim' data-target='${esc(key)}'>🤝 Claim incident</button>` : ''}
+  </div>`;
+}
+
+async function renderReliability() {
+  const section = document.getElementById('reliability-section');
+  if (!section) return;
+  const [slo, maint, eb, oaths] = await Promise.all([
+    apiJSON('/api/slo'), apiJSON('/api/maintenance'), apiJSON('/api/errorbudget'), apiJSON('/api/oaths')]);
+  const rows = (slo && slo.projects) || [];
+  const silences = (maint && maint.silences) || [];
+  const scheduled = (maint && maint.scheduled) || [];
+  const claims = (oaths && oaths.oaths) || [];
+  if (!rows.length && !silences.length && !scheduled.length && !claims.length) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+
+  // merge error-budget data into the SLO rows by device:project
+  const ebByKey = {};
+  ((eb && eb.projects) || []).forEach(b => { ebByKey[`${b.device}:${b.project}`] = b; });
+  rows.forEach(r => {
+    const b = ebByKey[`${r.device}:${r.project}`];
+    if (b) { r.budget = { target_pct: b.target_pct, remaining_pct: b.budget_remaining_pct }; r.frozen = b.frozen; }
+  });
+
+  const o = (slo && slo.overall) || {};
+  const frozenN = (eb && eb.frozen && eb.frozen.length) || 0;
+  document.getElementById('slo-pill').textContent =
+    `${o.avg_uptime_pct != null ? o.avg_uptime_pct.toFixed(2) + '% avg' : 'no data'} · ${o.total_incidents || 0} incidents / ${o.window_hours || 0}h${frozenN ? ` · ${frozenN} frozen` : ''}`;
+
+  const chips = [];
+  silences.forEach(s => {
+    const exp = s.expires_in == null ? 'until lifted' : `${Math.round(s.expires_in / 60)}m left`;
+    chips.push(`<span class='silence-chip'>🔕 ${esc(s.target)} <span class='muted'>(${exp}${s.reason ? ' · ' + esc(s.reason) : ''})</span>
+      <button class='btn silence-lift' data-target='${esc(s.target)}'>✕</button></span>`);
+  });
+  scheduled.forEach(s => chips.push(`<span class='silence-chip sched-chip' title='scheduled maintenance window'>📅 ${esc(s.target)} <span class='muted'>(${Math.round(s.ends_in / 60)}m left${s.reason ? ' · ' + esc(s.reason) : ''})</span></span>`));
+  claims.forEach(c => chips.push(`<span class='silence-chip oath-chip'>🤝 ${esc(c.target)} <span class='muted'>(${esc(c.who)}${c.note ? ' · ' + esc(c.note) : ''})</span>
+    <button class='btn oath-release' data-target='${esc(c.target)}'>✕</button></span>`));
+  const sEl = document.getElementById('silences');
+  sEl.innerHTML = chips.length ? `<div class='silences-bar'>${chips.join('')}</div>` : '';
+  sEl.querySelectorAll('.silence-lift').forEach(b => b.onclick = async () => {
+    if (await apiPost('/api/maintenance/unsilence', { target: b.dataset.target }, 'Unsilence')) renderReliability();
+  });
+  sEl.querySelectorAll('.oath-release').forEach(b => b.onclick = async () => {
+    if (await apiPost('/api/oaths/release', { target: b.dataset.target }, 'Release oath')) renderReliability();
+  });
+
+  const table = document.getElementById('slo-table');
+  table.innerHTML = rows.map(sloRow).join('');
+  table.querySelectorAll('.oath-claim').forEach(b => b.onclick = async () => {
+    const who = (getControlToken() && prompt('Claim as (disciple name):', 'operator')) || 'operator';
+    if (await apiPost('/api/oaths/claim', { target: b.dataset.target, who }, 'Claim')) renderReliability();
+  });
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

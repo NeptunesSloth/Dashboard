@@ -2,3 +2,6 @@ devices:
   - name: main-server
     url: http://127.0.0.1:8100
     api_token: change-me
+    # Optional per-device poll timeout in seconds (default MAYBOT_AGENT_TIMEOUT, 5s).
+    # Cap a slow/remote agent so it can't stall the whole fleet poll.
+    # timeout: 10

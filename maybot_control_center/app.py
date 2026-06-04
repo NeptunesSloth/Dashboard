@@ -1,10 +1,13 @@
+import csv
+import io
 import queue
 import re
 import secrets
 from fastapi import FastAPI, Header, HTTPException, Query
-from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse
+from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse
 from pydantic import BaseModel
 from .config import load_devices, CONTROL_CENTER_TOKEN
+from . import aggregator
 from .aggregator import aggregate
 from .agent_client import call_agent, post_agent
 from . import history
@@ -42,6 +45,16 @@ from . import chronicle
 from . import runbooks
 from . import lifecycle
 from . import tournament
+from . import maintenance
+from . import slo
+from . import errorbudget
+from . import meridians
+from . import talismans
+from . import oaths
+from . import escalation
+from . import taskqueue
+from . import routing
+from . import orchestrator
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -53,8 +66,11 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
     except Exception:
         pass
 scheduler.start()  # background cron for scheduled missions (no-op without schedules.yaml)
+talismans.start()  # background synthetic uptime probes (no-op without talismans.yaml)
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
+# A silence target: "*", "device:*", or "device:project".
+_SAFE_TARGET = re.compile(r'^(\*|[a-zA-Z0-9_\-\.]{1,128}:(\*|[a-zA-Z0-9_\-\.]{1,128}))$')
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
 _VALID_ACTIONS = {"start", "stop", "run-tests"}
 _ACTION_TIMEOUTS = {"start": 15, "stop": 15, "run-tests": 330}
@@ -125,12 +141,18 @@ def project_history(device_name: str, project_name: str, x_control_token: str = 
 
 
 @app.post("/api/action/{device_name}/{project_name}/{action}")
-def proxy_action(device_name: str, project_name: str, action: str, x_control_token: str = Header(default="")):
+def proxy_action(device_name: str, project_name: str, action: str, force: bool = Query(default=False),
+                 x_control_token: str = Header(default="")):
     _check_operator(x_control_token)
     if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
         raise HTTPException(400, "invalid device or project name")
     if action not in _VALID_ACTIONS:
         raise HTTPException(400, f"unknown action '{action}'; must be one of {sorted(_VALID_ACTIONS)}")
+    # Heavenly Decree: a project that burned its error budget is frozen against
+    # state-changing actions until reliability recovers (override with ?force=1).
+    if action in {"start", "stop"} and not force and errorbudget.is_frozen(device_name, project_name):
+        raise HTTPException(423, f"'{project_name}' is under a Heavenly Decree (error budget exhausted); "
+                                 f"reliability work only, or retry with force=true")
     agent_path = "run-tests" if action == "run-tests" else action
     timeout = _ACTION_TIMEOUTS[action]
     result = post_agent(_resolve_device(device_name), f"/api/projects/{project_name}/{agent_path}", timeout=timeout)
@@ -923,10 +945,319 @@ def stream(token: str = Query(default="")):
     return StreamingResponse(gen(), media_type="text/event-stream")
 
 
+# ---- SLO / uptime ----
+@app.get("/api/slo")
+def slo_status(hours: int = Query(default=0), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return slo.snapshot(hours if hours > 0 else None)
+
+
+# ---- Maintenance windows / alert silencing ----
+@app.get("/api/maintenance")
+def maintenance_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return maintenance.snapshot()
+
+
+class SilenceIn(BaseModel):
+    target: str
+    minutes: float = 60.0
+    reason: str = ""
+
+
+@app.post("/api/maintenance/silence")
+def maintenance_silence(body: SilenceIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    target = (body.target or "").strip()
+    if not _SAFE_TARGET.match(target):
+        raise HTTPException(400, "invalid target; use '*', 'device:*', or 'device:project'")
+    if body.minutes > 60 * 24 * 30:
+        raise HTTPException(400, "minutes too large (max 30 days)")
+    return maintenance.silence(target, body.minutes, body.reason)
+
+
+class UnsilenceIn(BaseModel):
+    target: str
+
+
+@app.post("/api/maintenance/unsilence")
+def maintenance_unsilence(body: UnsilenceIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"unsilenced": maintenance.unsilence((body.target or "").strip())}
+
+
+# ---- Error budgets & deploy-freeze (Karmic Debt / Heavenly Decree) ----
+@app.get("/api/errorbudget")
+def errorbudget_status(hours: int = Query(default=0), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return errorbudget.snapshot(hours if hours > 0 else None)
+
+
+# ---- Dependency-aware alerting (Meridian Map) ----
+@app.get("/api/meridians")
+def meridians_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return meridians.graph()
+
+
+# ---- Synthetic uptime probes (Warding Talismans) ----
+@app.get("/api/talismans")
+def talismans_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return talismans.snapshot()
+
+
+# ---- Incident acknowledgement & ownership (Sworn Oath) ----
+@app.get("/api/oaths")
+def oaths_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return oaths.snapshot()
+
+
+class OathIn(BaseModel):
+    target: str
+    who: str = "operator"
+    note: str = ""
+
+
+@app.post("/api/oaths/claim")
+def oaths_claim(body: OathIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    target = (body.target or "").strip()
+    if not _SAFE_TARGET.match(target) or target == "*" or target.endswith(":*"):
+        raise HTTPException(400, "claim a specific 'device:project'")
+    who = (body.who or "operator").strip()
+    if not _SAFE_NAME.match(who):
+        raise HTTPException(400, "invalid claimant name")
+    return oaths.claim(target, who, body.note)
+
+
+@app.post("/api/oaths/release")
+def oaths_release(body: UnsilenceIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"released": oaths.release((body.target or "").strip())}
+
+
+# ---- Escalation policy (Chain of Command) ----
+@app.get("/api/escalation")
+def escalation_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return escalation.snapshot()
+
+
+# ---- Task board / work queue ----
+@app.get("/api/tasks")
+def tasks_board(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return taskqueue.board()
+
+
+class NewTaskIn(BaseModel):
+    title: str
+    description: str = ""
+    priority: str = "normal"
+    assignee: str | None = None
+    dispatch: bool = True
+    project: str | None = None
+    device: str | None = None
+
+
+@app.post("/api/tasks")
+def tasks_create(body: NewTaskIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    title = (body.title or "").strip()
+    if not title:
+        raise HTTPException(400, "title required")
+    if len(title) > 200:
+        raise HTTPException(400, "title too long (max 200)")
+    if body.assignee and not _SAFE_NAME.match(body.assignee):
+        raise HTTPException(400, "invalid assignee name")
+    task = taskqueue.create(title, description=body.description, priority=body.priority,
+                            assignee=body.assignee, project=body.project, device=body.device)
+    if body.dispatch and body.assignee:
+        if agents._agent_def(body.assignee) is None:
+            raise HTTPException(404, "assignee not found")
+        text = title + ((" — " + body.description) if body.description else "")
+        agents.assign_task(body.assignee, text)
+        taskqueue.link_dispatch(task["id"], body.assignee)
+        task = taskqueue.get(task["id"])
+    return task
+
+
+class ReassignIn(BaseModel):
+    assignee: str
+    dispatch: bool = True
+
+
+@app.post("/api/tasks/{task_id}/reassign")
+def tasks_reassign(task_id: int, body: ReassignIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.assignee or ""):
+        raise HTTPException(400, "invalid assignee name")
+    task = taskqueue.get(task_id)
+    if not task:
+        raise HTTPException(404, "task not found")
+    if agents._agent_def(body.assignee) is None:
+        raise HTTPException(404, "assignee not found")
+    taskqueue.reassign(task_id, body.assignee)
+    if body.dispatch:
+        text = task["title"] + ((" — " + task["description"]) if task["description"] else "")
+        agents.assign_task(body.assignee, text)
+        taskqueue.link_dispatch(task_id, body.assignee)
+    return taskqueue.get(task_id)
+
+
+class StatusIn(BaseModel):
+    status: str
+    result: str | None = None
+
+
+@app.post("/api/tasks/{task_id}/status")
+def tasks_set_status(task_id: int, body: StatusIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    valid = {"queued", "assigned", "in_progress", "done", "failed", "cancelled"}
+    if body.status not in valid:
+        raise HTTPException(400, f"invalid status; must be one of {sorted(valid)}")
+    task = taskqueue.set_status(task_id, body.status, body.result)
+    if not task:
+        raise HTTPException(404, "task not found")
+    return task
+
+
+# ---- Assign by goal (auto-route to the best-fit disciple) ----
+@app.get("/api/assign/preview")
+def assign_preview(goal: str = Query(...), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"goal": goal, "ranked": routing.rank(goal)}
+
+
+class GoalIn(BaseModel):
+    goal: str
+    priority: str = "normal"
+    dispatch: bool = True
+
+
+@app.post("/api/assign/goal")
+def assign_goal(body: GoalIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    goal = (body.goal or "").strip()
+    if not goal:
+        raise HTTPException(400, "goal required")
+    if len(goal) > 4000:
+        raise HTTPException(400, "goal too long (max 4000)")
+    fit = routing.best_fit(goal)
+    if not fit:
+        raise HTTPException(409, "no eligible disciple to take this goal")
+    task = taskqueue.create(goal[:200], description=goal if len(goal) > 200 else "",
+                            priority=body.priority, source="goal", assignee=fit["agent"])
+    if body.dispatch:
+        executor, _ = governance.route_task(fit["agent"], critical=False)
+        agents.assign_task(executor, goal)
+        taskqueue.link_dispatch(task["id"], executor)
+        task = taskqueue.get(task["id"])
+    return {"task": task, "routed_to": fit["agent"], "reason": fit["reason"], "ranked": fit["ranked"]}
+
+
+# ---- Orchestrate (decompose a goal into routed subtasks) ----
+class OrchestrateIn(BaseModel):
+    goal: str
+    max_subtasks: int | None = None
+    dispatch: bool = True
+
+
+@app.post("/api/orchestrate")
+def orchestrate_goal(body: OrchestrateIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    try:
+        return orchestrator.orchestrate(body.goal, body.max_subtasks, body.dispatch)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+# ---- Data export (CSV / JSON) ----
+def _csv_response(filename: str, header: list[str], rows) -> StreamingResponse:
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(header)
+    for r in rows:
+        w.writerow(r)
+    buf.seek(0)
+    return StreamingResponse(iter([buf.getvalue()]), media_type="text/csv",
+                             headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
+
+@app.get("/api/export/usage")
+def export_usage(hours: int = Query(default=168), fmt: str = Query(default="csv"),
+                 x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    data = usage.series(max(1, min(hours, 24 * 14)))
+    if fmt == "json":
+        return data
+    rows = ([b["hour"], b["calls"], b["errors"], b["tokens_in"], b["tokens_out"], b["cost"]]
+            for b in data["buckets"])
+    return _csv_response("usage.csv", ["hour_epoch", "calls", "errors", "tokens_in", "tokens_out", "cost_usd"], rows)
+
+
+@app.get("/api/export/history")
+def export_history(fmt: str = Query(default="csv"), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    series = history.all_series()
+    if fmt == "json":
+        return {"series": series}
+
+    def _rows():
+        for key, points in series.items():
+            device, _, name = key.partition(":")
+            for pt in points:
+                yield [device, name, pt.get("ts"), pt.get("health"), pt.get("pnl")]
+    return _csv_response("history.csv", ["device", "project", "ts_ms", "health", "pnl"], _rows())
+
+
+# ---- Health / readiness probes (unauthenticated, no secrets) ----
+@app.get("/healthz")
+def healthz():
+    """Liveness: the process is up and serving."""
+    return {"status": "ok"}
+
+
+@app.get("/readyz")
+def readyz(strict: bool = Query(default=False)):
+    """Readiness: the dashboard can serve. Reports the last poll's device health;
+    with ``?strict=1`` returns 503 when any configured device is offline."""
+    summary = aggregator.last_summary()
+    offline = summary.get("offline_devices", 0)
+    online = summary.get("online_devices", 0)
+    polled = bool(summary)
+    degraded = polled and offline > 0
+    body = {"status": "degraded" if degraded else "ok", "ready": True, "polled": polled,
+            "online_devices": online, "offline_devices": offline}
+    if strict and degraded:
+        return JSONResponse(body, status_code=503)
+    return body
+
+
 @app.get("/metrics")
 def prometheus_metrics():
     # Aggregate stats only (no secrets); standard unauthenticated Prometheus scrape target.
     return PlainTextResponse(metrics_mod.render(), media_type="text/plain; version=0.0.4")
+
+
+# ---- Public status page (Sect Proclamation) — opt-in, unauthenticated ----
+from . import status_page
+
+
+@app.get("/status")
+def public_status_page():
+    if not status_page.enabled():
+        raise HTTPException(404, "public status page is disabled (set MAYBOT_PUBLIC_STATUS=1)")
+    return PlainTextResponse(status_page.render_html(), media_type="text/html")
+
+
+@app.get("/api/status/public")
+def public_status_json():
+    if not status_page.enabled():
+        raise HTTPException(404, "public status page is disabled (set MAYBOT_PUBLIC_STATUS=1)")
+    return status_page.public_data()
 
 
 @app.get("/")

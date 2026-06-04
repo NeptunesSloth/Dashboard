@@ -1,0 +1,13 @@
+# Warding Talismans — synthetic/blackbox uptime probes run by the control center
+# itself (no agent required). Each result feeds the SLO/uptime history under the
+# synthetic device "warding". No file → idle.
+talismans:
+  - name: public-site
+    url: https://example.com/health
+    expect_status: 200      # health == ok only when the status matches
+    timeout: 5              # seconds
+    every_seconds: 60       # probe interval
+  - name: payments-api
+    url: https://api.example.com/healthz
+    expect_status: 200
+    every_seconds: 30
