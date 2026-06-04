@@ -1,6 +1,6 @@
 import pytest
 
-from maybot_control_center import agents, cultivation, traits
+from maybot_control_center import agents, cultivation, lifecycle, traits
 
 
 AGENTS_YAML = """
@@ -14,6 +14,7 @@ agents:
 def setup_function():
     cultivation.clear()
     agents.clear()
+    lifecycle.clear()
     traits.clear()
 
 
@@ -131,6 +132,27 @@ def test_hidden_dragon_awakens(tmp_path, monkeypatch):
     traits.tick()
     assert traits.trope("Nova") == "awakened_dragon"
     assert cultivation.state("Nova")["stones"] >= traits.DRAGON_AWAKEN_TALENT
+
+
+def test_cannon_fodder_perishes_as_a_stepping_stone(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 0.0)
+    monkeypatch.setattr(traits, "QUIRK_CHANCE", 0.0)
+    monkeypatch.setattr(traits, "DESTINY_CHANCES", {})
+    traits.tick()                                   # register the roster, no roles assigned
+    fodder = "Nova"
+    traits._role[fodder] = "cannon_fodder"          # make just Nova the cannon fodder
+    assert not traits.is_protected(fodder)          # fodder is expendable, not protected
+    # make Forge clearly the strongest so it's the one who steps over the fodder
+    cultivation.reward("Forge", 100)
+    forge_before = cultivation.state("Forge")["stones"]
+
+    monkeypatch.setattr(traits, "CANNON_PERISH_CHANCE", 1.0)  # now they fall
+    traits.tick()
+    names = {a["name"] for a in agents.load_agents()}
+    assert fodder not in names                      # the fodder is gone
+    assert len(names) == 3                          # replaced by a fresh recruit
+    assert cultivation.state("Forge")["stones"] > forge_before  # Forge rose by stepping over them
 
 
 def test_chosen_one_finds_windfalls(tmp_path, monkeypatch):

@@ -53,6 +53,9 @@ GLYPHS = {
     "demonic": "👹",
     "chosen": "☀",
     "sword_fanatic": "🗡",
+    "cannon_fodder": "⚰",
+    "stepping_stone": "🪜",
+    "perished": "⚰",
     "note": "•",
 }
 

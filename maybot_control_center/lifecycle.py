@@ -108,6 +108,18 @@ def _replace(culled: str, reason: str, kind: str) -> dict:
     return recruit
 
 
+def perish(name: str, reason: str = "") -> dict:
+    """A disciple meets their end (e.g. cannon fodder serving as a stepping stone).
+    They are expelled and replaced by a fresh recruit. Raises ValueError if
+    unknown."""
+    from . import agents
+    if not name or name == "operator":
+        raise ValueError("no such disciple")
+    if name not in {a.get("name") for a in agents.load_agents()}:
+        raise ValueError(f"unknown disciple: {name}")
+    return _replace(name, reason.strip() or "met an untimely end", "perished")
+
+
 def strike_down(name: str, reason: str = "") -> dict:
     """The Ancestor strikes down a disciple who has angered them. They are cast
     out at once and replaced. Raises ValueError for an unknown disciple."""

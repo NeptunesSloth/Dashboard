@@ -61,6 +61,7 @@ DESTINY_CHANCES = {
     "demonic":        float(os.getenv("MAYBOT_DESTINY_DEMONIC", "0.03")),         # walks the crooked path
     "chosen":         float(os.getenv("MAYBOT_DESTINY_CHOSEN", "0.03")),          # protagonist's halo
     "sword_fanatic":  float(os.getenv("MAYBOT_DESTINY_SWORD_FANATIC", "0.03")),   # sword-obsessed maniac
+    "cannon_fodder":  float(os.getenv("MAYBOT_DESTINY_CANNON_FODDER", "0.04")),   # a disposable stepping stone
 }
 DRAGON_AWAKEN_CHANCE = float(os.getenv("MAYBOT_DRAGON_AWAKEN_CHANCE", "0.03"))     # per tick, the hidden dragon awakens
 DRAGON_AWAKEN_TALENT = int(os.getenv("MAYBOT_DRAGON_AWAKEN_TALENT", "400"))
@@ -69,6 +70,8 @@ HEAVEN_BLESSED_INTERVAL = max(1, int(os.getenv("MAYBOT_HEAVEN_BLESSED_INTERVAL",
 CHOSEN_WINDFALL_CHANCE = float(os.getenv("MAYBOT_CHOSEN_WINDFALL_CHANCE", "0.04")) # per tick, a fortuitous encounter
 DEMONIC_DEVIATION_CHANCE = float(os.getenv("MAYBOT_DEMONIC_DEVIATION_CHANCE", "0.02"))
 SWORD_FANATIC_CHANCE = float(os.getenv("MAYBOT_SWORD_FANATIC_CHANCE", "0.05"))     # per tick, grasps a sword art
+CANNON_PERISH_CHANCE = float(os.getenv("MAYBOT_CANNON_PERISH_CHANCE", "0.03"))     # per tick, the fodder meets its end
+STEPPING_STONE_BONUS = int(os.getenv("MAYBOT_STEPPING_STONE_BONUS", "60"))         # the windfall a stronger disciple reaps
 
 _lock = threading.Lock()
 _quirk: dict[str, str] = {}        # name -> quirk
@@ -159,6 +162,9 @@ def persona_addendum(agent: str) -> str:
     elif role == "sword_fanatic":
         bits.append("You are a sword fanatic — obsessed with the blade, you live and breathe "
                     "the Sword Dao above all else.")
+    elif role == "cannon_fodder":
+        bits.append("You are a nameless cannon-fodder disciple — weak and overlooked, fated to "
+                    "be a stepping stone for those greater than you.")
     return " ".join(bits)
 
 
@@ -193,7 +199,34 @@ def _bestow_destiny(name: str, role: str) -> None:
     elif role == "sword_fanatic":
         cultivation.learn(name, "Sword-Heart Resonance")
         _chronicle(name, "sword_fanatic", "a sword fanatic, obsessed with the blade above all else")
+    elif role == "cannon_fodder":
+        # weak and overlooked — starts with nothing and is destined to fall
+        with cultivation._lock:
+            st = cultivation._state.get(name)
+            if st:
+                st["stones"] = 0
+        _chronicle(name, "cannon_fodder", "just another nameless disciple, fated to be a stepping stone")
     _publish(name, role)
+
+
+def _perish_fodder(name: str, roster: set[str]) -> None:
+    """The cannon-fodder disciple meets their end, serving as a stepping stone:
+    the strongest other disciple reaps a windfall, and the fodder is expelled and
+    replaced by a fresh recruit."""
+    from . import lifecycle
+    others = [n for n in roster if n not in (name, "operator")]
+    if others:
+        stepper = max(others, key=_progress)              # whoever steps over them gains
+        from . import cultivation
+        cultivation.reward(stepper, STEPPING_STONE_BONUS)
+        _chronicle(stepper, "stepping_stone", f"rises by stepping over the fallen {name}")
+    with _lock:
+        _role.pop(name, None)
+    _publish(name, "perished")
+    try:
+        lifecycle.perish(name, "fell as cannon fodder — a stepping stone for greater disciples")
+    except Exception:
+        pass
 
 
 def _advance_destinies() -> None:
@@ -238,6 +271,9 @@ def _advance_destinies() -> None:
                 pool = [a for a in arts if a not in have]
                 if pool:
                     cultivation.learn(name, random.choice(pool))
+        elif role == "cannon_fodder":
+            if random.random() < CANNON_PERISH_CHANCE:
+                _perish_fodder(name, roster)
 
 
 # ---- the spawn roll ----------------------------------------------------------

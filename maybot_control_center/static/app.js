@@ -563,6 +563,7 @@ const TROPE_BADGE = {
   demonic: { icon: '👹', label: 'Demonic Cultivator', cls: 'trope-demonic' },
   chosen: { icon: '☀️', label: 'Protagonist Halo', cls: 'trope-chosen' },
   sword_fanatic: { icon: '🗡️', label: 'Sword Fanatic', cls: 'trope-sword' },
+  cannon_fodder: { icon: '⚰️', label: 'Cannon Fodder', cls: 'trope-fodder' },
 };
 function traitRow(a) {
   const chips = [];
