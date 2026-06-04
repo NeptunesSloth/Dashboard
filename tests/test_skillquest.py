@@ -22,6 +22,27 @@ def test_discover_from_web(monkeypatch):
     assert skillquest.last("Nova")["skill"] == "vector search"
 
 
+def test_discover_fetches_howto_doc(monkeypatch):
+    monkeypatch.setattr(skillquest, "_search", lambda q: [{"title": "Reranking - Guide", "url": "http://x"}])
+    monkeypatch.setattr(skillquest, "_fetch_doc", lambda url: "Reranking reorders candidates by relevance.")
+    d = skillquest.discover("Nova")
+    assert d["doc"] == "Reranking reorders candidates by relevance."
+
+
+def test_learned_skill_doc_enters_sect_memory(monkeypatch):
+    from maybot_control_center import sectmemory
+    sectmemory.clear()
+    monkeypatch.setattr("maybot_control_center.skillquest.discover",
+                        lambda agent, known, want=None: {"skill": "reranking", "url": "http://x",
+                                                         "source": "web", "query": "q",
+                                                         "doc": "Reranking reorders results by relevance."})
+    cultivation.enter_roaming("Sage")
+    cultivation._state["Sage"]["roaming_since"] = time.time() - cultivation.ROAMING_SECONDS - 1
+    cultivation.tick_roaming("Sage")
+    hits = sectmemory.search("reranking relevance")
+    assert hits and "Reranking reorders" in hits[0]["text"]
+
+
 def test_discover_skips_known(monkeypatch):
     monkeypatch.setattr(skillquest, "_search",
                         lambda q: [{"title": "Vector Search", "url": "u1"}, {"title": "Reranking", "url": "u2"}])

@@ -543,9 +543,11 @@ def tick_roaming(agent: str) -> str | None:
                             description=f"Real AI skill discovered by {agent} while roaming.")
         except Exception:
             pass
-    try:  # feed the new skill into the sect's compounding memory
+    try:  # feed the new skill (with its how-to, if fetched) into compounding memory
         from . import sectmemory
-        sectmemory.add(f"{agent} learned the skill: {found}.{src}", source=agent, agent=agent, kind="skill")
+        doc = (meta or {}).get("doc")
+        body = f"Skill '{found}': {doc}" if doc else f"{agent} learned the skill: {found}.{src}"
+        sectmemory.add(body, source=agent, agent=agent, kind="skill")
     except Exception:
         pass
     events.publish("agents", {"agent": agent, "event": "discovery", "skill": found})

@@ -58,6 +58,20 @@ def _search(query: str) -> list[dict]:
     return _ddg(query)
 
 
+def _fetch_doc(url: str) -> str:
+    """Fetch a short how-to summary from the skill's source page (best effort)."""
+    if not url:
+        return ""
+    try:
+        r = requests.get(url, timeout=TIMEOUT, headers={"User-Agent": "maybot-skillquest"})
+        text = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", r.text, flags=re.DOTALL | re.IGNORECASE)
+        text = re.sub(r"<[^>]+>", " ", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        return text[:700]
+    except Exception:
+        return ""
+
+
 _CLEAN = re.compile(r"[^a-z0-9 +/&-]")
 
 
@@ -117,7 +131,9 @@ def discover(agent: str | None = None, known: set | None = None,
         if not skill:
             return None
 
-    meta = {"skill": skill, "url": url, "source": source, "query": query, "requested": bool(want)}
+    doc = _fetch_doc(url) if (source == "web" and url) else ""
+    meta = {"skill": skill, "url": url, "source": source, "query": query,
+            "requested": bool(want), "doc": doc}
     if agent:
         with _lock:
             _last[agent] = meta

@@ -279,6 +279,12 @@ def run_task(name: str, task: str) -> dict:
             system = f"{system}\n\n{add}"
     except Exception:
         pass  # traits are an optional flavour layer
+    try:  # mastered skills (incl. ones roamed from the web) become real capabilities
+        sk = cultivation.state(name).get("skills") or []
+        if sk:
+            system = f"{system}\n\nTechniques you have mastered — apply them where relevant: {', '.join(sk)}."
+    except Exception:
+        pass
     if memory.enabled() and agent.get("memory", True):
         ctx = memory.context_for(task)
         if ctx:

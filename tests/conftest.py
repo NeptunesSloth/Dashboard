@@ -28,4 +28,5 @@ def _isolate_shared_state(monkeypatch):
     # Never reach the real web during tests — roaming skill-quests use the
     # offline fallback unless a test stubs _search itself.
     monkeypatch.setattr(skillquest, "_search", lambda q: [])
+    monkeypatch.setattr(skillquest, "_fetch_doc", lambda url: "")
     yield
