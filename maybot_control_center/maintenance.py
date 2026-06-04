@@ -16,13 +16,78 @@ mirroring :mod:`history`; it resets when the control center restarts.
 """
 from __future__ import annotations
 
+import datetime
+import os
 import threading
 import time
+from pathlib import Path
+
+import yaml
 
 _lock = threading.Lock()
 # target -> {"target", "until" (epoch secs or None=indefinite), "reason", "who",
 #            "created_at", "clear_on_recovery"}
 _silences: dict[str, dict] = {}
+
+# ---- Heavenly Calendar: scheduled / recurring maintenance windows -----------
+CALENDAR_FILE = Path(os.getenv("MAYBOT_CALENDAR_FILE", "calendar.yaml"))
+_DAYS = {"mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6}
+
+
+def load_windows() -> list[dict]:
+    if not CALENDAR_FILE.exists():
+        return []
+    data = yaml.safe_load(CALENDAR_FILE.read_text(encoding="utf-8")) or {}
+    w = data.get("windows", [])
+    return w if isinstance(w, list) else []
+
+
+def _recurring_active(w: dict, now: float) -> tuple[bool, int]:
+    """(active, seconds_until_end) for a recurring daily/weekly window."""
+    try:
+        sh, sm = (int(x) for x in str(w.get("start", "0:00")).split(":", 1))
+    except Exception:
+        return False, 0
+    dur = max(1, int(w.get("duration_minutes", 60)))
+    lt = time.localtime(now)
+    now_min = lt.tm_hour * 60 + lt.tm_min
+    start_min, end_min = sh * 60 + sm, sh * 60 + sm + dur
+    days = w.get("days") or ["*"]
+    day_ok = "*" in days or any(_DAYS.get(str(d).lower()[:3]) == lt.tm_wday for d in days)
+    if end_min <= 1440:
+        active = day_ok and start_min <= now_min < end_min
+        remaining = (end_min - now_min) * 60
+    else:  # window crosses midnight
+        active = (day_ok and now_min >= start_min) or now_min < (end_min - 1440)
+        remaining = ((end_min - now_min) if now_min >= start_min else (end_min - 1440 - now_min)) * 60
+    return active, max(0, remaining)
+
+
+def _oneoff_active(w: dict, now: float) -> tuple[bool, int]:
+    try:
+        start = datetime.datetime.fromisoformat(str(w.get("start")))
+    except Exception:
+        return False, 0
+    dur = max(1, int(w.get("duration_minutes", 60)))
+    end = start + datetime.timedelta(minutes=dur)
+    now_dt = datetime.datetime.fromtimestamp(now)
+    active = start <= now_dt < end
+    return active, max(0, int((end - now_dt).total_seconds())) if active else 0
+
+
+def scheduled_active(now: float | None = None) -> list[dict]:
+    now = _now() if now is None else now
+    out = []
+    for w in load_windows():
+        target = w.get("target")
+        if not target:
+            continue
+        recurring = bool(w.get("days") or w.get("recurring") or ":" in str(w.get("start", "")) and "T" not in str(w.get("start", "")))
+        active, remaining = (_recurring_active(w, now) if recurring else _oneoff_active(w, now))
+        if active:
+            out.append({"target": target, "reason": (w.get("reason") or "").strip()[:200],
+                        "ends_in": remaining, "scheduled": True})
+    return out
 
 
 def _now() -> float:
@@ -72,7 +137,10 @@ def is_silenced(device: str, name: str) -> bool:
     now = _now()
     with _lock:
         _prune(now)
-        return any(_matches(t, key) for t in _silences)
+        if any(_matches(t, key) for t in _silences):
+            return True
+    # An active scheduled maintenance window also silences.
+    return any(_matches(w["target"], key) for w in scheduled_active(now))
 
 
 def note_recovery(device: str, name: str) -> None:
@@ -98,7 +166,7 @@ def active() -> list[dict]:
 
 
 def snapshot() -> dict:
-    return {"silences": active(), "now": int(_now())}
+    return {"silences": active(), "scheduled": scheduled_active(), "now": int(_now())}
 
 
 def clear() -> None:

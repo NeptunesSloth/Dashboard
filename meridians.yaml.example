@@ -1,0 +1,13 @@
+# Meridian Map — declare project dependencies for dependency-aware alerting.
+# When an upstream a project depends_on is unhealthy, this project's own error
+# is recognised as a downstream symptom (blocked meridian) and its page is
+# suppressed (MAYBOT_MERIDIAN_SUPPRESS=1, the default) so only the root cause pages.
+#
+# Keys are the project's "device:project" (the device name from devices.yaml).
+meridians:
+  - project: prod-1:Dashboard
+    depends_on:
+      - prod-1:api-gateway
+  - project: prod-1:api-gateway
+    depends_on:
+      - prod-1:TradeBot

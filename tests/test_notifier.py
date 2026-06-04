@@ -1,12 +1,14 @@
 import pytest
 
-from maybot_control_center import notifier, maintenance
+from maybot_control_center import notifier, maintenance, oaths, meridians, escalation
 
 
 @pytest.fixture(autouse=True)
 def _reset(monkeypatch):
     notifier.clear()
     maintenance.clear()
+    oaths.clear()
+    escalation.clear()
     monkeypatch.setattr(notifier, "ALERT_STATES", {"error"})
     monkeypatch.setattr(notifier, "SEND_RECOVERY", True)
     monkeypatch.setattr(notifier, "COOLDOWN_SECONDS", 300.0)
@@ -85,3 +87,35 @@ def test_silenced_recovery_clears_silence(_reset):
     _poll("error")       # silenced, no alert
     _poll("ok")          # recovery clears the silence
     assert maintenance.is_silenced("d", "bot") is False
+
+
+def _poll_many(projects):
+    notifier.check_and_notify(projects)
+
+
+def test_claimed_incident_suppresses_alert(_reset):
+    oaths.claim("d:bot", "Nova")
+    _poll("ok")
+    _poll("error")       # someone owns it → no page
+    assert _reset == []
+
+
+def test_downstream_blocked_meridian_suppressed(_reset, monkeypatch):
+    # web depends on api; both go error in the same poll → web is suppressed as downstream.
+    monkeypatch.setattr(meridians, "SUPPRESS", True)
+    monkeypatch.setattr(meridians, "blocked_upstreams",
+                        lambda key, hbk: ["d:api"] if key == "d:web" else [])
+    _poll_many([{"device": "d", "name": "api", "health": "ok"},
+                {"device": "d", "name": "web", "health": "ok"}])
+    _poll_many([{"device": "d", "name": "api", "health": "error", "status": "x"},
+                {"device": "d", "name": "web", "health": "error", "status": "x"}])
+    # only the root cause (api) paged; the downstream (web) was suppressed
+    assert _reset == [("alert", "error")]
+
+
+def test_recovery_disarms_escalation(_reset):
+    _poll("ok")
+    _poll("error")       # arms escalation
+    assert escalation.snapshot()["pending"]
+    _poll("ok")          # recovery disarms
+    assert escalation.snapshot()["pending"] == []

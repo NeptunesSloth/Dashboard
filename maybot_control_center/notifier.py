@@ -20,7 +20,7 @@ ALERT_STATES = {
 # Which non-health events route to the webhooks (incidents, tribulations, agent failures).
 ALERT_EVENTS = {
     s.strip().lower()
-    for s in os.getenv("MAYBOT_ALERT_EVENTS", "incident,tribulation,budget").split(",")
+    for s in os.getenv("MAYBOT_ALERT_EVENTS", "incident,tribulation,budget,escalation").split(",")
     if s.strip()
 }
 
@@ -113,8 +113,10 @@ def _recent_transitions(key: str, now: float) -> int:
 
 
 def check_and_notify(projects: list[dict]) -> None:
-    from . import maintenance
+    from . import maintenance, meridians, oaths, escalation
     now = _now()
+    health_by_key = {f"{p.get('device', '?')}:{p.get('name', '?')}": str(p.get("health", "unknown"))
+                     for p in projects}
     for p in projects:
         name = p.get("name", "?")
         device = p.get("device", "?")
@@ -135,6 +137,8 @@ def check_and_notify(projects: list[dict]) -> None:
             if recovered:
                 _in_alert[key] = False
                 maintenance.note_recovery(device, name)
+                oaths.note_recovery(device, name)        # claimed incident resolved
+                escalation.disarm(device, name)
             elif curr.lower() in ALERT_STATES:
                 _in_alert[key] = True
 
@@ -153,10 +157,20 @@ def check_and_notify(projects: list[dict]) -> None:
                         continue
                     fire = ("recovery",)
                 elif curr.lower() in ALERT_STATES:
+                    # Dependency-aware: an unhealthy upstream means this is likely a
+                    # downstream symptom — let the root cause page, suppress this one.
+                    if meridians.SUPPRESS and meridians.blocked_upstreams(key, health_by_key):
+                        escalation.arm(device, name, now)
+                        continue
+                    # Ownership: if a disciple has sworn an oath to this incident, the
+                    # owner is on it — suppress repeat pages (escalation stays disarmed).
+                    if oaths.is_claimed(device, name):
+                        continue
                     last = _last_alert.get(key)
                     if last and last[0] == curr and (now - last[1]) < COOLDOWN_SECONDS:
                         continue                       # deduped within cooldown
                     _last_alert[key] = (curr, now)
+                    escalation.arm(device, name, now)  # start the unacked-escalation clock
                     fire = ("alert", prev, p.get("status", "unknown"))
                 else:
                     continue  # transition into a non-alert, non-ok state (e.g. warning)

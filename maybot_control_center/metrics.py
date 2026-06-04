@@ -15,6 +15,9 @@ from . import usage
 from . import tools as tooling
 from . import slo
 from . import maintenance
+from . import errorbudget
+from . import oaths
+from . import escalation
 
 
 def _esc(v: str) -> str:
@@ -90,5 +93,20 @@ def render() -> str:
 
     # ---- maintenance silences ----
     metric("maybot_alerts_silenced", len(maintenance.active()), "Active alert silences")
+
+    # ---- error budgets / freeze, ownership, escalation ----
+    eb = errorbudget.snapshot()
+    metric("maybot_projects_frozen", len(eb["frozen"]),
+           "Projects frozen by an exhausted error budget (Heavenly Decree)")
+    for r in eb["projects"]:
+        if r["budget_remaining_pct"] is not None:
+            lbl = f'device="{_esc(r["device"])}",project="{_esc(r["project"])}"'
+            metric("maybot_error_budget_remaining_pct", r["budget_remaining_pct"],
+                   "Error budget remaining (percent of allowed downtime)", "gauge", lbl)
+    metric("maybot_incidents_claimed", len(oaths.snapshot()["oaths"]),
+           "Incidents under an active sworn oath (acknowledged)")
+    metric("maybot_escalations_pending",
+           sum(1 for p in escalation.snapshot()["pending"] if not p["escalated"]),
+           "Armed escalations awaiting acknowledgement")
 
     return "\n".join(lines) + "\n"

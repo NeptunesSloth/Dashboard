@@ -117,8 +117,15 @@ function projectCard(p) {
       ${a.run_tests ? `<button class='act-btn' data-action='run-tests' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>Run Tests</button>` : ''}
     </div>`;
 
+  const relBadges = [
+    p.frozen ? `<span class='rel-badge rel-frozen' title='Error budget exhausted — state changes frozen'>🔒 Decree</span>` : '',
+    (p.blocked_by && p.blocked_by.length) ? `<span class='rel-badge rel-blocked' title='Likely downstream of ${esc(p.blocked_by.join(', '))}'>⛓ downstream</span>` : '',
+    p.oath ? `<span class='rel-badge rel-oath' title='Claimed by ${esc(p.oath.who)}'>🤝 ${esc(p.oath.who)}</span>` : '',
+  ].join('');
+
   return `<div class='card' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
     <div class='metric'><b>${esc(p.name)}</b><span>${healthBadge(p.health)}</span></div>
+    ${relBadges ? `<div class='rel-badges'>${relBadges}</div>` : ''}
     ${metric('Device', esc(p.device))}
     ${metric('Type', esc(p.type))}
     ${metric('Status', esc(p.status))}
@@ -2114,39 +2121,77 @@ function sloRow(r) {
   const up = r.uptime_pct === null ? '<span class="muted">no data</span>'
     : `<b class='${r.uptime_pct >= 99 ? 'money-pos' : r.uptime_pct >= 95 ? 'money-zero' : 'money-neg'}'>${r.uptime_pct.toFixed(2)}%</b>`;
   const mttr = r.mttr_seconds === null ? '—' : `${Math.round(r.mttr_seconds)}s`;
-  return `<div class='card slo-card'>
-    <div class='slo-head'><b>${esc(r.project)}</b> ${healthBadge(r.current)}<span class='muted'>${esc(r.device)}</span></div>
+  const key = `${r.device}:${r.project}`;
+  let budget = '';
+  if (r.budget != null) {
+    const rem = r.budget.remaining_pct;
+    const lvl = r.frozen ? 'qr-exhausted' : rem >= 50 ? 'qr-ok' : rem >= 20 ? 'qr-low' : 'qr-critical';
+    budget = `<div class='eb-row' title='Error budget vs ${r.budget.target_pct}% target'>
+      <span class='eb-bar'><span class='${lvl}' style='width:${Math.max(0, Math.min(100, rem == null ? 0 : rem))}%'></span></span>
+      <span class='muted'>${rem == null ? '—' : rem + '%'} budget</span></div>`;
+  }
+  const frozen = r.frozen ? `<span class='rel-badge rel-frozen' title='Heavenly Decree — state changes frozen'>🔒 Decree</span>` : '';
+  return `<div class='card slo-card${r.frozen ? ' slo-frozen' : ''}'>
+    <div class='slo-head'><b>${esc(r.project)}</b> ${healthBadge(r.current)}${frozen}<span class='muted'>${esc(r.device)}</span></div>
     <div class='slo-stats'>
       ${metric('Uptime', up)}
       ${metric('Incidents', r.incidents)}
       ${metric('MTTR', mttr)}
-    </div></div>`;
+    </div>
+    ${budget}
+    ${r.current !== 'ok' ? `<button class='btn oath-claim' data-target='${esc(key)}'>🤝 Claim incident</button>` : ''}
+  </div>`;
 }
 
 async function renderReliability() {
   const section = document.getElementById('reliability-section');
   if (!section) return;
-  const [slo, maint] = await Promise.all([apiJSON('/api/slo'), apiJSON('/api/maintenance')]);
+  const [slo, maint, eb, oaths] = await Promise.all([
+    apiJSON('/api/slo'), apiJSON('/api/maintenance'), apiJSON('/api/errorbudget'), apiJSON('/api/oaths')]);
   const rows = (slo && slo.projects) || [];
   const silences = (maint && maint.silences) || [];
-  if (!rows.length && !silences.length) { section.classList.add('hidden'); return; }
+  const scheduled = (maint && maint.scheduled) || [];
+  const claims = (oaths && oaths.oaths) || [];
+  if (!rows.length && !silences.length && !scheduled.length && !claims.length) { section.classList.add('hidden'); return; }
   section.classList.remove('hidden');
 
-  const o = (slo && slo.overall) || {};
-  document.getElementById('slo-pill').textContent =
-    `${o.avg_uptime_pct != null ? o.avg_uptime_pct.toFixed(2) + '% avg' : 'no data'} · ${o.total_incidents || 0} incidents / ${o.window_hours || 0}h`;
+  // merge error-budget data into the SLO rows by device:project
+  const ebByKey = {};
+  ((eb && eb.projects) || []).forEach(b => { ebByKey[`${b.device}:${b.project}`] = b; });
+  rows.forEach(r => {
+    const b = ebByKey[`${r.device}:${r.project}`];
+    if (b) { r.budget = { target_pct: b.target_pct, remaining_pct: b.budget_remaining_pct }; r.frozen = b.frozen; }
+  });
 
-  const sEl = document.getElementById('silences');
-  sEl.innerHTML = silences.length ? `<div class='silences-bar'>${silences.map(s => {
+  const o = (slo && slo.overall) || {};
+  const frozenN = (eb && eb.frozen && eb.frozen.length) || 0;
+  document.getElementById('slo-pill').textContent =
+    `${o.avg_uptime_pct != null ? o.avg_uptime_pct.toFixed(2) + '% avg' : 'no data'} · ${o.total_incidents || 0} incidents / ${o.window_hours || 0}h${frozenN ? ` · ${frozenN} frozen` : ''}`;
+
+  const chips = [];
+  silences.forEach(s => {
     const exp = s.expires_in == null ? 'until lifted' : `${Math.round(s.expires_in / 60)}m left`;
-    return `<span class='silence-chip'>🔕 ${esc(s.target)} <span class='muted'>(${exp}${s.reason ? ' · ' + esc(s.reason) : ''})</span>
-      <button class='btn silence-lift' data-target='${esc(s.target)}'>✕</button></span>`;
-  }).join('')}</div>` : '';
+    chips.push(`<span class='silence-chip'>🔕 ${esc(s.target)} <span class='muted'>(${exp}${s.reason ? ' · ' + esc(s.reason) : ''})</span>
+      <button class='btn silence-lift' data-target='${esc(s.target)}'>✕</button></span>`);
+  });
+  scheduled.forEach(s => chips.push(`<span class='silence-chip sched-chip' title='scheduled maintenance window'>📅 ${esc(s.target)} <span class='muted'>(${Math.round(s.ends_in / 60)}m left${s.reason ? ' · ' + esc(s.reason) : ''})</span></span>`));
+  claims.forEach(c => chips.push(`<span class='silence-chip oath-chip'>🤝 ${esc(c.target)} <span class='muted'>(${esc(c.who)}${c.note ? ' · ' + esc(c.note) : ''})</span>
+    <button class='btn oath-release' data-target='${esc(c.target)}'>✕</button></span>`));
+  const sEl = document.getElementById('silences');
+  sEl.innerHTML = chips.length ? `<div class='silences-bar'>${chips.join('')}</div>` : '';
   sEl.querySelectorAll('.silence-lift').forEach(b => b.onclick = async () => {
     if (await apiPost('/api/maintenance/unsilence', { target: b.dataset.target }, 'Unsilence')) renderReliability();
   });
+  sEl.querySelectorAll('.oath-release').forEach(b => b.onclick = async () => {
+    if (await apiPost('/api/oaths/release', { target: b.dataset.target }, 'Release oath')) renderReliability();
+  });
 
-  document.getElementById('slo-table').innerHTML = rows.map(sloRow).join('');
+  const table = document.getElementById('slo-table');
+  table.innerHTML = rows.map(sloRow).join('');
+  table.querySelectorAll('.oath-claim').forEach(b => b.onclick = async () => {
+    const who = (getControlToken() && prompt('Claim as (disciple name):', 'operator')) || 'operator';
+    if (await apiPost('/api/oaths/claim', { target: b.dataset.target, who }, 'Claim')) renderReliability();
+  });
 }
 
 // Dedicated management area for AI agents (ai_project + local_ai_host).

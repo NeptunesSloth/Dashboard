@@ -352,6 +352,20 @@ def message_ancestor(sender: str, text: str) -> dict:
     return msg
 
 
+def system_notice(text: str, sender: str = "System") -> dict:
+    """Post a system-generated notice to the Ancestor's Hall (bypasses the
+    standing check used for disciple petitions). For automated escalations etc."""
+    global _seq
+    with _lock:
+        _seq += 1
+        msg = {"id": _seq, "from": sender, "role": "System", "text": (text or "")[:2000],
+               "ts": int(time.time() * 1000)}
+        _inbox.append(msg)
+        if len(_inbox) > INBOX_CAP:
+            del _inbox[:-INBOX_CAP]
+    return msg
+
+
 def inbox(limit: int = 100) -> list[dict]:
     with _lock:
         return list(_inbox[-limit:])

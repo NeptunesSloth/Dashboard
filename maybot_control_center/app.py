@@ -47,6 +47,11 @@ from . import lifecycle
 from . import tournament
 from . import maintenance
 from . import slo
+from . import errorbudget
+from . import meridians
+from . import talismans
+from . import oaths
+from . import escalation
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -58,6 +63,7 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
     except Exception:
         pass
 scheduler.start()  # background cron for scheduled missions (no-op without schedules.yaml)
+talismans.start()  # background synthetic uptime probes (no-op without talismans.yaml)
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 # A silence target: "*", "device:*", or "device:project".
@@ -132,12 +138,18 @@ def project_history(device_name: str, project_name: str, x_control_token: str = 
 
 
 @app.post("/api/action/{device_name}/{project_name}/{action}")
-def proxy_action(device_name: str, project_name: str, action: str, x_control_token: str = Header(default="")):
+def proxy_action(device_name: str, project_name: str, action: str, force: bool = Query(default=False),
+                 x_control_token: str = Header(default="")):
     _check_operator(x_control_token)
     if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
         raise HTTPException(400, "invalid device or project name")
     if action not in _VALID_ACTIONS:
         raise HTTPException(400, f"unknown action '{action}'; must be one of {sorted(_VALID_ACTIONS)}")
+    # Heavenly Decree: a project that burned its error budget is frozen against
+    # state-changing actions until reliability recovers (override with ?force=1).
+    if action in {"start", "stop"} and not force and errorbudget.is_frozen(device_name, project_name):
+        raise HTTPException(423, f"'{project_name}' is under a Heavenly Decree (error budget exhausted); "
+                                 f"reliability work only, or retry with force=true")
     agent_path = "run-tests" if action == "run-tests" else action
     timeout = _ACTION_TIMEOUTS[action]
     result = post_agent(_resolve_device(device_name), f"/api/projects/{project_name}/{agent_path}", timeout=timeout)
@@ -971,6 +983,65 @@ def maintenance_unsilence(body: UnsilenceIn, x_control_token: str = Header(defau
     return {"unsilenced": maintenance.unsilence((body.target or "").strip())}
 
 
+# ---- Error budgets & deploy-freeze (Karmic Debt / Heavenly Decree) ----
+@app.get("/api/errorbudget")
+def errorbudget_status(hours: int = Query(default=0), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return errorbudget.snapshot(hours if hours > 0 else None)
+
+
+# ---- Dependency-aware alerting (Meridian Map) ----
+@app.get("/api/meridians")
+def meridians_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return meridians.graph()
+
+
+# ---- Synthetic uptime probes (Warding Talismans) ----
+@app.get("/api/talismans")
+def talismans_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return talismans.snapshot()
+
+
+# ---- Incident acknowledgement & ownership (Sworn Oath) ----
+@app.get("/api/oaths")
+def oaths_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return oaths.snapshot()
+
+
+class OathIn(BaseModel):
+    target: str
+    who: str = "operator"
+    note: str = ""
+
+
+@app.post("/api/oaths/claim")
+def oaths_claim(body: OathIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    target = (body.target or "").strip()
+    if not _SAFE_TARGET.match(target) or target == "*" or target.endswith(":*"):
+        raise HTTPException(400, "claim a specific 'device:project'")
+    who = (body.who or "operator").strip()
+    if not _SAFE_NAME.match(who):
+        raise HTTPException(400, "invalid claimant name")
+    return oaths.claim(target, who, body.note)
+
+
+@app.post("/api/oaths/release")
+def oaths_release(body: UnsilenceIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"released": oaths.release((body.target or "").strip())}
+
+
+# ---- Escalation policy (Chain of Command) ----
+@app.get("/api/escalation")
+def escalation_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return escalation.snapshot()
+
+
 # ---- Data export (CSV / JSON) ----
 def _csv_response(filename: str, header: list[str], rows) -> StreamingResponse:
     buf = io.StringIO()
@@ -1037,6 +1108,24 @@ def readyz(strict: bool = Query(default=False)):
 def prometheus_metrics():
     # Aggregate stats only (no secrets); standard unauthenticated Prometheus scrape target.
     return PlainTextResponse(metrics_mod.render(), media_type="text/plain; version=0.0.4")
+
+
+# ---- Public status page (Sect Proclamation) — opt-in, unauthenticated ----
+from . import status_page
+
+
+@app.get("/status")
+def public_status_page():
+    if not status_page.enabled():
+        raise HTTPException(404, "public status page is disabled (set MAYBOT_PUBLIC_STATUS=1)")
+    return PlainTextResponse(status_page.render_html(), media_type="text/html")
+
+
+@app.get("/api/status/public")
+def public_status_json():
+    if not status_page.enabled():
+        raise HTTPException(404, "public status page is disabled (set MAYBOT_PUBLIC_STATUS=1)")
+    return status_page.public_data()
 
 
 @app.get("/")

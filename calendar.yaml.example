@@ -1,0 +1,22 @@
+# Heavenly Calendar — scheduled / recurring maintenance windows. While a window
+# is active its target is silenced (same target syntax as ad-hoc silences:
+# "*", "device:*", or "device:project"). No file → no scheduled windows.
+windows:
+  # Recurring weekly window: Sundays 02:00–04:00 local time.
+  - target: prod-1:*
+    days: [sun]
+    start: "02:00"
+    duration_minutes: 120
+    reason: weekly maintenance
+
+  # Recurring daily window (omit days or use ["*"]): nightly 01:00–01:30.
+  - target: prod-1:TradeBot
+    start: "01:00"
+    duration_minutes: 30
+    reason: nightly restart
+
+  # One-off window: ISO-8601 start with a duration.
+  - target: prod-1:api-gateway
+    start: "2026-07-01T22:00:00"
+    duration_minutes: 90
+    reason: database migration

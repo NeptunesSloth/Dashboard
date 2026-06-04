@@ -6,7 +6,7 @@ import io
 from fastapi.testclient import TestClient
 
 from maybot_control_center.app import app
-from maybot_control_center import aggregator, maintenance, history, usage
+from maybot_control_center import aggregator, maintenance, history, usage, oaths, errorbudget, status_page
 
 client = TestClient(app)
 
@@ -14,6 +14,7 @@ client = TestClient(app)
 def setup_function():
     maintenance.clear()
     history.clear()
+    oaths.clear()
 
 
 # ---- health / readiness ----
@@ -81,3 +82,52 @@ def test_export_usage_json():
     r = client.get("/api/export/usage?fmt=json&hours=6")
     assert r.status_code == 200
     assert r.json()["hours"] == 6
+
+
+# ---- error-budget freeze on actions ----
+def test_action_frozen_returns_423(monkeypatch):
+    monkeypatch.setattr(errorbudget, "is_frozen", lambda d, n: True)
+    r = client.post("/api/action/prod-1/api-gateway/start")
+    assert r.status_code == 423
+
+    # force=true overrides the freeze (then fails downstream on the unreachable device)
+    monkeypatch.setattr("maybot_control_center.app._resolve_device", lambda n: {"name": n, "url": "http://x"})
+    r2 = client.post("/api/action/prod-1/api-gateway/start?force=true")
+    assert r2.status_code != 423
+
+
+def test_errorbudget_endpoint():
+    assert client.get("/api/errorbudget").status_code == 200
+
+
+# ---- oaths (incident ownership) ----
+def test_oath_claim_release():
+    r = client.post("/api/oaths/claim", json={"target": "d:bot", "who": "Nova", "note": "on it"})
+    assert r.status_code == 200 and r.json()["who"] == "Nova"
+    assert oaths.is_claimed("d", "bot") is True
+    assert client.get("/api/oaths").json()["oaths"][0]["target"] == "d:bot"
+    assert client.post("/api/oaths/release", json={"target": "d:bot"}).json()["released"] is True
+
+
+def test_oath_claim_rejects_wildcard():
+    assert client.post("/api/oaths/claim", json={"target": "d:*"}).status_code == 400
+
+
+# ---- meridians / talismans / escalation read endpoints ----
+def test_read_endpoints_ok():
+    assert client.get("/api/meridians").status_code == 200
+    assert client.get("/api/talismans").status_code == 200
+    assert client.get("/api/escalation").status_code == 200
+
+
+# ---- public status page (gated) ----
+def test_status_page_404_when_disabled(monkeypatch):
+    monkeypatch.setattr(status_page, "enabled", lambda: False)
+    assert client.get("/status").status_code == 404
+    assert client.get("/api/status/public").status_code == 404
+
+
+def test_status_page_served_when_enabled(monkeypatch):
+    monkeypatch.setattr(status_page, "enabled", lambda: True)
+    r = client.get("/status")
+    assert r.status_code == 200 and r.headers["content-type"].startswith("text/html")

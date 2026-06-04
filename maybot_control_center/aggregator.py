@@ -69,13 +69,22 @@ def aggregate(devices: list[dict]) -> dict:
     if github_repo.enabled():
         projects.extend(github_repo.collect())  # tracked GitHub repos as projects
 
-    from . import governance
-    for p in projects:
-        governance.mark_personal(p)  # flag the Ancestor's off-limits personal bots
     check_and_notify(projects)
-    history.record(projects)
+    history.record(projects)            # record first so SLO/error-budget see this poll
     history.attach(projects)
+
+    from . import governance, errorbudget, meridians, oaths, escalation
+    eb_by_key = {f"{r['device']}:{r['project']}": r for r in errorbudget.snapshot()["projects"]}
+    health_by_key = {f"{p.get('device', '?')}:{p.get('name', '?')}": str(p.get("health", "unknown"))
+                     for p in projects}
+    for p in projects:
+        governance.mark_personal(p)     # flag the Ancestor's off-limits personal bots
+        errorbudget.annotate(p, eb_by_key)   # error-budget / freeze state
+        meridians.annotate(p, health_by_key)  # blocked-meridian (downstream) tag
+        oaths.annotate(p)               # incident ownership (sworn oath)
+
     incidents.maybe_dispatch(projects)
+    escalation.sweep()                  # escalate unacknowledged, unsilenced incidents
     _last_summary.clear()
     _last_summary.update(summary)
     return {"summary": summary, "devices": device_rows, "projects": projects}
