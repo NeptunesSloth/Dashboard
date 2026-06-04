@@ -4,6 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MayBot Guild Hall</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0d1117">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="icon" href="/icon.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MayBot">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital@0;1&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
@@ -39,6 +45,7 @@
       <button class="tab-btn" data-tab="skills">Known Skills</button>
       <button class="tab-btn" data-tab="map">Sect Map</button>
       <button class="tab-btn" data-tab="sect">Sect Halls</button>
+      <button class="tab-btn" data-tab="ops">Ops</button>
     </nav>
     <section data-tab="overview">
       <h2>Sect Overview</h2>
@@ -133,6 +140,16 @@
       <p class="muted">Everything the sect has learned — task results, post-incident fixes, manuals, skills. Every disciple draws on this before acting, so the sect compounds knowledge over time.</p>
       <div class="filter-bar"><input id="mem-search" type="search" placeholder="Search the sect's accumulated knowledge…"></div>
       <div id="mem-list" class="grid"></div>
+    </section>
+    <section data-tab="ops" id="ops-section">
+      <div class="section-head"><h2>Ops</h2><span id="ops-pill" class="pill">—</span>
+        <button id="enable-alerts" class="btn">🔔 Enable phone alerts</button></div>
+      <h3 class="trials-sub">⚙ Setup &amp; Diagnostics</h3>
+      <div id="diag-config"></div>
+      <h3 class="trials-sub">🛰 Fleet Health</h3>
+      <div id="fleet-table"></div>
+      <h3 class="trials-sub">📒 Operator Audit Log</h3>
+      <div id="audit-list" class="comms-feed"></div>
     </section>
     <section data-tab="sect" id="trials-section" class="hidden">
       <div class="section-head"><h2>Trials Hall</h2></div>

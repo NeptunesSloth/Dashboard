@@ -979,3 +979,13 @@ details.project-card { padding: 0; overflow: hidden; }
 .mem-card { display: flex; flex-direction: column; gap: 4px; }
 .mem-meta { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
 .mem-text { font-size: 12px; white-space: pre-wrap; max-height: 120px; overflow: auto; }
+
+/* ---- Ops tab: diagnostics + fleet ---- */
+.diag-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.diag-chip { font-size: 12px; padding: 2px 9px; border-radius: 11px; border: 1px solid var(--border); }
+.diag-chip.on { color: #3fb950; border-color: rgba(63,185,80,.4); background: rgba(63,185,80,.07); }
+.diag-chip.off { color: var(--muted); }
+table.fleet { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.fleet th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--border); }
+table.fleet td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
+#enable-alerts { margin-left: auto; }

@@ -379,6 +379,7 @@ async function render() {
   summaryEl.innerHTML = `<div class='card'>Loading overview...</div>`;
   try {
     const data = await fetch('/api/overview', { headers: authHeaders() }).then(r => r.json());
+    notifyHealthChanges(data.projects || []);
     window.__lastProjects = data.projects || [];
     err.classList.add('hidden');
     document.getElementById('refresh-status').textContent = new Date().toLocaleTimeString();
@@ -396,6 +397,7 @@ async function render() {
     // Re-render KPIs now that window.__agents is populated (disciple/cultivating counts).
     summaryEl.innerHTML = summaryCards(data.summary);
     renderSkills();
+    renderOps();
     renderTrials();
     renderLore();
     renderSectMap();
@@ -2584,6 +2586,65 @@ async function renderReliability() {
   });
 }
 
+// ---- Ops tab: diagnostics, fleet health, audit log ----
+async function renderOps() {
+  const sec = document.getElementById('ops-section');
+  if (!sec) return;
+  const [diag, aud] = await Promise.all([apiJSON('/api/diagnostics'), apiJSON('/api/audit')]);
+  const cfg = (diag && diag.config) || {};
+  const wh = cfg.webhooks || {};
+  const chip = (label, on) => `<span class='diag-chip ${on ? 'on' : 'off'}'>${on ? '✓' : '✗'} ${esc(label)}</span>`;
+  document.getElementById('diag-config').innerHTML = `<div class='diag-chips'>
+    ${chip('Auth', cfg.auth_configured)}${chip('Persistence', cfg.persistence_db)}${chip('Autopilot', cfg.autopilot)}
+    ${chip('Real PRs', cfg.real_prs)}${chip('Public status', cfg.public_status)}${chip('GitHub', cfg.github_repos)}
+    ${chip('Synthetic probes', cfg.synthetic_probes)}${chip('Meridians', cfg.meridians)}${chip('Calendar', cfg.maintenance_calendar)}
+    ${chip('Sect memory', cfg.sect_memory)}${chip('Discord', wh.discord)}${chip('Slack', wh.slack)}${chip('Webhook', wh.generic)}
+  </div>`;
+  const agents = (diag && diag.agents) || [];
+  document.getElementById('ops-pill').textContent = `${agents.filter(a => a.online).length}/${agents.length} agents online`;
+  document.getElementById('fleet-table').innerHTML = agents.length ? `<table class='fleet'>
+    <thead><tr><th>Agent</th><th>Status</th><th>Latency</th><th>Version</th><th>Notes</th></tr></thead><tbody>
+    ${agents.map(a => `<tr>
+      <td><b>${esc(a.name)}</b></td>
+      <td>${a.online ? `<span class='crew-dot ok'></span>online` : `<span class='crew-dot error'></span>${a.auth_error ? 'auth error' : 'offline'}`}</td>
+      <td class='${a.latency_ms > 1000 ? 'money-neg' : ''}'>${a.online ? a.latency_ms + 'ms' : '—'}</td>
+      <td class='muted'>${esc(a.version || '—')}</td>
+      <td class='muted'>${esc(a.error || a.url || '')}</td></tr>`).join('')}
+    </tbody></table>` : `<div class='muted'>No devices configured (devices.yaml).</div>`;
+  const entries = (aud && aud.entries) || [];
+  document.getElementById('audit-list').innerHTML = entries.length
+    ? entries.map(e => `<div class='comms-msg'><div class='comms-head'><span class='comms-from'>${esc(e.actor)}</span>
+        <span class='muted'>· ${new Date(e.ts).toLocaleString()}${e.status ? ` · ${e.status}` : ''}</span></div>
+        <div class='comms-body'>${esc(e.action)}${e.target ? ' ' + esc(e.target) : ''}</div></div>`).join('')
+    : `<div class='comms-sys muted'>No operator actions recorded yet.</div>`;
+  const btn = document.getElementById('enable-alerts');
+  if (btn && !btn.dataset.bound) {
+    btn.dataset.bound = '1';
+    if ('Notification' in window && Notification.permission === 'granted') btn.textContent = '🔔 Phone alerts on';
+    btn.onclick = async () => {
+      if (!('Notification' in window)) { alert('Notifications not supported here.'); return; }
+      const p = await Notification.requestPermission();
+      btn.textContent = p === 'granted' ? '🔔 Phone alerts on' : '🔔 Enable phone alerts';
+    };
+  }
+}
+
+// Fire a desktop/phone notification when a project worsens (client-side alerting).
+function notifyHealthChanges(projects) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
+    window.__prevHealth = Object.fromEntries((projects || []).map(p => [`${p.device}:${p.name}`, p.health]));
+    return;
+  }
+  const prev = window.__prevHealth || {};
+  (projects || []).forEach(p => {
+    const key = `${p.device}:${p.name}`, h = p.health, was = prev[key];
+    if (was && was !== h && (h === 'error' || h === 'warning') && was === 'ok') {
+      try { new Notification(`⚠ ${p.name} is ${h}`, { body: `${p.name} on ${p.device} changed ${was} → ${h}`, icon: '/icon.svg', tag: key }); } catch (_) {}
+    }
+  });
+  window.__prevHealth = Object.fromEntries((projects || []).map(p => [`${p.device}:${p.name}`, p.health]));
+}
+
 // ---- Known Skills tab ----
 async function renderSkills() {
   const el = document.getElementById('skills-list');
@@ -2794,3 +2855,8 @@ document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => setTab(b.da
 setTab(localStorage.getItem('tab') || 'overview');
 
 setupStream();
+
+// Register the PWA service worker (installable app + offline shell).
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}

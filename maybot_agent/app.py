@@ -38,7 +38,7 @@ def ping():
 
 @app.get("/api/device", dependencies=[Depends(verify_token)])
 def device():
-    return {"host": HOST, "port": PORT}
+    return {"host": HOST, "port": PORT, "version": "1.0"}
 
 
 @app.get("/api/projects", dependencies=[Depends(verify_token)])

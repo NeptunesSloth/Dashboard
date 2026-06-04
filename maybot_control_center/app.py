@@ -57,13 +57,16 @@ from . import routing
 from . import orchestrator
 from . import autopilot
 from . import sectmemory
+from . import audit
+from . import diagnostics
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
 for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted,
                 tooling.load_persisted, usage.load_persisted, cultivation.load_persisted,
                 treasury.load_persisted, taskqueue.load_persisted, oaths.load_persisted,
-                maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted):
+                maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
+                audit.load_persisted):
     try:
         _loader()
     except Exception:
@@ -89,7 +92,16 @@ async def _rate_limit(request, call_next):
         if not authz.allow_request(key):
             from fastapi.responses import JSONResponse
             return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
-    return await call_next(request)
+    response = await call_next(request)
+    # Operator audit: record every mutating API call (who, what, outcome).
+    if request.method in ("POST", "PUT", "DELETE", "PATCH") and request.url.path.startswith("/api/") \
+            and not request.url.path.startswith("/api/audit"):
+        try:
+            actor = authz.name_for(request.headers.get("x-control-token", ""))
+            audit.record(actor, f"{request.method} {request.url.path}", status=response.status_code)
+        except Exception:
+            pass
+    return response
 
 
 def _role(token: str) -> str:
@@ -1075,6 +1087,20 @@ def escalation_status(x_control_token: str = Header(default="")):
     return escalation.snapshot()
 
 
+# ---- Setup & diagnostics / fleet health ----
+@app.get("/api/diagnostics")
+def diagnostics_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return diagnostics.snapshot()
+
+
+# ---- Operator audit log ----
+@app.get("/api/audit")
+def audit_log(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return audit.snapshot()
+
+
 # ---- Compounding sect memory (shared knowledge) ----
 @app.get("/api/sectmemory")
 def sectmemory_status(q: str = Query(default=""), x_control_token: str = Header(default="")):
@@ -1331,6 +1357,22 @@ def js():
 @app.get("/style.css")
 def css():
     return FileResponse("maybot_control_center/static/style.css")
+
+
+# ---- PWA (installable app + offline shell) ----
+@app.get("/manifest.webmanifest")
+def manifest():
+    return FileResponse("maybot_control_center/static/manifest.webmanifest", media_type="application/manifest+json")
+
+
+@app.get("/sw.js")
+def service_worker():
+    return FileResponse("maybot_control_center/static/sw.js", media_type="text/javascript")
+
+
+@app.get("/icon.svg")
+def icon():
+    return FileResponse("maybot_control_center/static/icon.svg", media_type="image/svg+xml")
 
 
 @app.get("/assets/{path:path}")
