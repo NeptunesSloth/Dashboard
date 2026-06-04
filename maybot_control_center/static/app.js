@@ -758,18 +758,19 @@ function govRosterCard(r, leaderPinned) {
   const rank = r.is_leader ? '👑 Sect Leader' : (r.is_master ? 'Sect Master' : (r.is_elder ? '🜍 Elder' : 'Disciple'));
   const specOpts = Object.keys(window.__specialties || {}).map(k =>
     `<option ${r.specialty === k ? 'selected' : ''}>${esc(k)}</option>`).join('');
-  const elderControls = r.is_elder ? `
-    <div class='gov-controls'>
+  const elderBits = r.is_elder ? `
       <select class='gov-spec-sel' data-agent='${esc(r.agent)}'>${specOpts}</select>
       <button class='btn gov-spec-go' data-agent='${esc(r.agent)}'>Set path</button>
-      ${!r.is_leader && !leaderPinned ? `<button class='btn gov-challenge' data-agent='${esc(r.agent)}'>⚔ Challenge</button>` : ''}
-    </div>` : '';
+      ${!r.is_leader && !leaderPinned ? `<button class='btn gov-challenge' data-agent='${esc(r.agent)}'>⚔ Challenge</button>` : ''}` : '';
+  // The Ancestor may strike down any disciple who angers them (the Leader is spared).
+  const strikeBtn = !r.is_leader ? `<button class='btn btn-danger gov-strike' data-agent='${esc(r.agent)}' title='Strike this disciple down'>💀 Strike down</button>` : '';
+  const controls = (elderBits || strikeBtn) ? `<div class='gov-controls'>${elderBits}${strikeBtn}</div>` : '';
   return `<div class='card gov-card${r.is_leader ? ' gov-card-leader' : ''}'>
     <div class='metric'><b>${esc(r.agent)}</b><b class='money-pos'>${s.score ?? '—'}</b></div>
     ${metric('Rank', rank)}
     ${metric('Specialty', r.specialty ? `${esc(r.specialty)} · mastery ${r.mastery}` : '—')}
     <div class='gov-bars muted'>merit ${c.merit ?? '—'} · perf ${c.performance ?? '—'} · lead ${c.leadership ?? '—'} · contrib ${c.contribution ?? '—'}</div>
-    ${elderControls}
+    ${controls}
   </div>`;
 }
 
@@ -863,6 +864,13 @@ function bindGovernance() {
     const challenger = b.getAttribute('data-agent');
     const res = await govPost('challenge', { challenger }, 'Challenge');
     if (res) { alert(res.reason || (res.won ? 'Victory!' : 'Defeated.')); renderGovernance(); }
+  });
+  root.querySelectorAll('.gov-strike').forEach(b => b.onclick = async () => {
+    const agent = b.getAttribute('data-agent');
+    if (!confirm(`Strike down ${agent}? They will be cast out of the sect and replaced by a new disciple.`)) return;
+    const reason = prompt(`Why does ${agent} deserve to be struck down? (optional)`) || '';
+    const res = await govPost('strike-down', { agent, reason }, 'Strike down');
+    if (res) { alert(`${res.struck_down} has been struck down. ${res.replacement} now takes their place.`); render(); }
   });
 }
 
@@ -2062,7 +2070,11 @@ function setupStream() {
     else if (msg.type === 'tools') debounced(renderTools, 'tools');
     else if (msg.type === 'agents') {
       if (msg.data && msg.data.event === 'breakthrough' && msg.data.agent) ascend(msg.data.agent);  // ascension cutscene
-      debounced(() => { renderComms(); refreshLive(); }, 'agents');
+      if (msg.data && (msg.data.event === 'culled' || msg.data.event === 'struck_down')) {
+        debounced(render, 'agents');  // roster changed — full refresh
+      } else {
+        debounced(() => { renderComms(); refreshLive(); }, 'agents');
+      }
     }
   };
   es.onerror = () => {}; // EventSource auto-reconnects

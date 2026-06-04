@@ -53,6 +53,8 @@ h2, .project-type-title { text-shadow: none; }
 .btn:hover { border-color: rgba(255,255,255,.25); background: #21252c; }
 .btn-primary { background: rgba(215, 178, 92, 0.14); border-color: rgba(215, 178, 92, 0.5); color: var(--gold); }
 .btn-primary:hover { background: rgba(215, 178, 92, 0.22); }
+.btn-danger { background: rgba(220, 76, 76, 0.12); border-color: rgba(220, 76, 76, 0.45); color: #e57373; }
+.btn-danger:hover { background: rgba(220, 76, 76, 0.22); border-color: rgba(220, 76, 76, 0.7); }
 input, select, textarea { background: #101216; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-family: inherit; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: rgba(215,178,92,.55); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }

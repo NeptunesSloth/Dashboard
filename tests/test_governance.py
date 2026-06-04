@@ -250,6 +250,7 @@ def test_guidance_can_share_a_technique(tmp_path, monkeypatch):
     _setup(tmp_path, monkeypatch)
     _set_realm("Nova", 8)
     _set_realm("Forge", 2)
+    _set_realm("Sage", 8)   # not below the Leader → only Forge is a junior
     cultivation._state["Nova"]["skills"] = ["Cloud-Stride Step"]
     governance.set_leader("Nova", pinned=False)
     _arm_guidance(monkeypatch, teach=1.0)             # always teach

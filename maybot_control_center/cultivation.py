@@ -561,6 +561,14 @@ def realm_of(agent: str) -> int:
         return st["realm"] if st else 0
 
 
+def expel(agent: str) -> None:
+    """Forget all cultivation state for a disciple who has left the sect (culled
+    or struck down). Their progress dies with them."""
+    with _lock:
+        _state.pop(agent, None)
+        _auto.pop(agent, None)
+
+
 def snapshot() -> dict:
     with _lock:
         names = list(_state.keys())

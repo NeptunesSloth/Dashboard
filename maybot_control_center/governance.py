@@ -352,7 +352,10 @@ def persona_context(name: str) -> str:
         rank = "a disciple of the sect"
     addr = ("You address the human operator as 'the Ancestor', who holds ultimate authority. "
             "Only the Sect Leader and Elders may petition the Ancestor directly.")
-    return f"Within the sect you are {rank}. {addr}"
+    ambition = ("You are ambitious: you strive to advance in realm and standing, and you know a "
+                "disciple who stops growing is cast out of the sect — and that the Ancestor may "
+                "strike down any disciple who angers them.")
+    return f"Within the sect you are {rank}. {ambition} {addr}"
 
 
 # ---- passive throne cultivation ---------------------------------------------

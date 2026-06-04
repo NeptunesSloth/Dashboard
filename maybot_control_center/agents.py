@@ -54,14 +54,51 @@ _followups: dict[str, int] = {}
 _pool = ThreadPoolExecutor(max_workers=4)
 _anthropic = None
 
+# Living-roster overlay: disciples can be culled (retired) and fresh recruits
+# added at runtime by the lifecycle module. Guarded by its OWN lock — load_agents
+# runs inside snapshot()'s _lock, and _lock is non-reentrant, so we must not take
+# _lock here.
+_roster_lock = threading.Lock()
+_retired: set[str] = set()
+_recruits: list[dict] = []
+
 
 def load_agents() -> list[dict]:
     if not AGENTS_FILE.exists():
-        return []
-    with AGENTS_FILE.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f) or {}
-    agents = data.get("agents", [])
-    return agents if isinstance(agents, list) else []
+        base: list[dict] = []
+    else:
+        with AGENTS_FILE.open("r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        agents = data.get("agents", [])
+        base = agents if isinstance(agents, list) else []
+    with _roster_lock:
+        retired = set(_retired)
+        recruits = [dict(a) for a in _recruits]
+    roster = [a for a in base if a.get("name") not in retired]
+    have = {a.get("name") for a in roster}
+    roster.extend(a for a in recruits if a.get("name") not in retired and a.get("name") not in have)
+    return roster
+
+
+def retire_agent(name: str) -> None:
+    """Remove a disciple from the living roster (a culling / expulsion)."""
+    with _roster_lock:
+        _retired.add(name)
+        _recruits[:] = [a for a in _recruits if a.get("name") != name]
+    with _lock:
+        _state.pop(name, None)
+        _followups.pop(name, None)
+        _delegations.pop(name, None)
+
+
+def recruit_agent(agent_def: dict) -> dict:
+    """Add a fresh disciple to the living roster. Returns the stored def."""
+    d = dict(agent_def)
+    with _roster_lock:
+        _retired.discard(d.get("name"))
+        _recruits[:] = [a for a in _recruits if a.get("name") != d.get("name")]
+        _recruits.append(d)
+    return d
 
 
 def _agent_def(name: str) -> dict | None:
@@ -504,6 +541,8 @@ def snapshot() -> list[dict]:
         }
         row["titles"] = titles.evaluate(name)
         row["bond"] = bonds.partner(name)
+    from . import lifecycle
+    lifecycle.tick()  # cull a stagnant Outer Disciple (and summon a recruit) if any
     return out
 
 
@@ -554,3 +593,6 @@ def clear() -> None:
         _state.clear()
         _followups.clear()
         _delegations.clear()
+    with _roster_lock:
+        _retired.clear()
+        _recruits.clear()
