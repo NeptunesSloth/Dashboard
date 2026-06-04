@@ -12,17 +12,20 @@ import pytest
 
 from maybot_control_center import (cultivation, governance, usage, treasury,
                                    traits, lifecycle, taskqueue, oaths,
-                                   maintenance, autopilot)
+                                   maintenance, autopilot, skillquest)
 
 _RESETTABLE = (cultivation, governance, usage, treasury, traits, lifecycle,
-               taskqueue, oaths, maintenance, autopilot)
+               taskqueue, oaths, maintenance, autopilot, skillquest)
 
 
 @pytest.fixture(autouse=True)
-def _isolate_shared_state():
+def _isolate_shared_state(monkeypatch):
     for mod in _RESETTABLE:
         try:
             mod.clear()
         except Exception:
             pass
+    # Never reach the real web during tests — roaming skill-quests use the
+    # offline fallback unless a test stubs _search itself.
+    monkeypatch.setattr(skillquest, "_search", lambda q: [])
     yield

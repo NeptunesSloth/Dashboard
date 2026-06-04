@@ -473,7 +473,8 @@ def exit_roaming(agent: str) -> dict:
 
 
 def tick_roaming(agent: str) -> str | None:
-    """If a roaming disciple's journey has matured, return with a unique art/knowledge."""
+    """If a roaming disciple's journey has matured, return having learned a *real*
+    AI skill found on the web (curated fallback when offline)."""
     now = time.time()
     with _lock:
         st = _state.get(agent)
@@ -481,11 +482,28 @@ def tick_roaming(agent: str) -> str | None:
             return None
         if now - st["roaming_since"] < ROAMING_SECONDS:
             return None
-        undiscovered = [d for d in DISCOVERIES if d not in st["skills"]]
-        if not undiscovered:
-            st["roaming_since"] = None  # has discovered everything the world holds
+        known = set(st["skills"])
+
+    # Network/discovery happens OUTSIDE the lock so a slow search can't stall callers.
+    found, meta = None, None
+    try:
+        from . import skillquest
+        meta = skillquest.discover(agent, known)
+        if meta:
+            found = meta["skill"]
+    except Exception:
+        meta = None
+    if not found:  # web yielded nothing new — fall back to the flavour discoveries
+        undiscovered = [d for d in DISCOVERIES if d not in known]
+        found = random.choice(undiscovered) if undiscovered else None
+
+    with _lock:
+        st = _state.get(agent)
+        if not st or not st.get("roaming_since"):
             return None
-        found = random.choice(undiscovered)
+        if not found or found in st["skills"]:
+            st["roaming_since"] = None   # nothing left to learn — settle down
+            return None
         st["skills"].append(found)
         st["stones"] += AWARD_NEW_SKILL
         _maybe_breakthrough(st)
@@ -495,12 +513,21 @@ def tick_roaming(agent: str) -> str | None:
         snap["skills"] = list(st["skills"])
     if store.enabled():
         store.upsert_cultivation(snap)
+    src = f"\nSource: {meta['url']}" if meta and meta.get("url") else ""
     try:
         from . import memory
         if memory.enabled():
-            memory.write_note(f"roaming-{found}", f"# {found}\n{agent} returned from roaming having learned **{found}**.")
+            memory.write_note(f"roaming-{found}", f"# {found}\n{agent} returned from roaming having learned **{found}**.{src}")
     except Exception:
         pass
+    if meta and meta.get("source") == "web":  # attribute the real find in the vault
+        try:
+            from . import artifacts
+            artifacts.forge(agent, f"Skill — {found}", "note",
+                            f"{agent} learned **{found}** while roaming the web.{src}\nQuery: {meta.get('query', '')}",
+                            description=f"Real AI skill discovered by {agent} while roaming.")
+        except Exception:
+            pass
     events.publish("agents", {"agent": agent, "event": "discovery", "skill": found})
     return found
 
