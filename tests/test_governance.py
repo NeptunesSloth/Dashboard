@@ -187,3 +187,24 @@ def test_snapshot_shape(tmp_path, monkeypatch):
     assert "Sword Dao" in snap["specialties"]
     assert any(r["agent"] == "Nova" and r["is_leader"] for r in snap["roster"])
     assert snap["roster"] == sorted(snap["roster"], key=lambda r: r["standing"]["score"], reverse=True)
+
+
+def test_throne_cultivation_rewards_the_leader(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    _set_realm("Nova", 8)
+    governance.set_leader("Nova", pinned=False)
+    monkeypatch.setattr(governance, "THRONE_INTERVAL", 100)
+    monkeypatch.setattr(governance, "THRONE_REWARD", 5)
+    governance._last_throne = 0.0
+    before = cultivation.state("Nova")["stones"]
+    assert governance.throne_cultivation() == "Nova"            # first call grants
+    assert cultivation.state("Nova")["stones"] == before + 5
+    assert governance.throne_cultivation() is None              # within interval → no gain
+    assert cultivation.state("Nova")["stones"] == before + 5
+
+
+def test_throne_cultivation_noop_without_leader(tmp_path, monkeypatch):
+    _setup(tmp_path, monkeypatch)
+    # everyone realm 0; a leader auto-seeds, so force none by emptying the roster filter
+    monkeypatch.setattr(governance, "_all_agents", lambda: [])
+    assert governance.throne_cultivation() is None

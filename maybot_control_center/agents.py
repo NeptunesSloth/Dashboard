@@ -481,6 +481,7 @@ def snapshot() -> list[dict]:
                 "skin": a.get("skin"),       # optional character skin set (e.g. "elder")
             })
     from . import reputation, governance, titles, bonds
+    governance.throne_cultivation()  # the Sect Leader passively gains qi while presiding
     leader = governance.leader()
     for row in out:
         name = row["name"]

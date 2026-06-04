@@ -33,6 +33,12 @@ CHALLENGE_MARGIN = float(os.getenv("MAYBOT_CHALLENGE_MARGIN", "3"))
 # Cooldown (seconds) between challenges a single Elder may mount.
 CHALLENGE_COOLDOWN = int(os.getenv("MAYBOT_CHALLENGE_COOLDOWN", "3600"))
 
+# Passive throne cultivation: while presiding, the Sect Leader channels the
+# sect's ambient qi into spirit stones at this rate.
+THRONE_INTERVAL = int(os.getenv("MAYBOT_THRONE_INTERVAL", "300"))   # seconds between gains
+THRONE_REWARD = int(os.getenv("MAYBOT_THRONE_REWARD", "5"))         # spirit stones per gain
+_last_throne = 0.0
+
 # Elder specialties: a chosen path that raises mastery and biases learned skills.
 # Each maps the xianxia flavour to a real engineering domain + signature skills.
 SPECIALTIES = {
@@ -336,6 +342,30 @@ def persona_context(name: str) -> str:
     return f"Within the sect you are {rank}. {addr}"
 
 
+# ---- passive throne cultivation ---------------------------------------------
+
+def throne_cultivation() -> str | None:
+    """The Sect Leader passively accrues spirit stones while presiding.
+
+    Called periodically (from agents.snapshot). Rate-limited to one gain per
+    ``THRONE_INTERVAL`` seconds regardless of how often it's invoked. Returns the
+    rewarded leader's name when a gain is granted, else None.
+    """
+    global _last_throne
+    ld = leader()
+    if not ld or ld == "operator" or THRONE_REWARD <= 0:
+        return None
+    now = time.time()
+    with _lock:
+        if now - _last_throne < THRONE_INTERVAL:
+            return None
+        _last_throne = now
+    from . import cultivation
+    cultivation.reward(ld, THRONE_REWARD)
+    _chronicle(ld, "throne", f"the throne channels ambient qi (+{THRONE_REWARD} spirit stones)")
+    return ld
+
+
 # ---- snapshot / lifecycle ----------------------------------------------------
 
 def snapshot() -> dict:
@@ -350,11 +380,12 @@ def snapshot() -> dict:
         hist = list(_history[-25:])
     return {"leader": ld, "leader_pinned": _leader_pinned, "specialties": SPECIALTIES,
             "elders": elders(), "roster": roster, "history": hist,
-            "cooldown_seconds": CHALLENGE_COOLDOWN, "margin": CHALLENGE_MARGIN}
+            "cooldown_seconds": CHALLENGE_COOLDOWN, "margin": CHALLENGE_MARGIN,
+            "throne_reward": THRONE_REWARD, "throne_interval": THRONE_INTERVAL}
 
 
 def clear() -> None:
-    global _leader, _leader_pinned, _seq
+    global _leader, _leader_pinned, _seq, _last_throne
     with _lock:
         _leader = None
         _leader_pinned = False
@@ -364,3 +395,4 @@ def clear() -> None:
         _inbox.clear()
         _history.clear()
         _seq = 0
+        _last_throne = 0.0
