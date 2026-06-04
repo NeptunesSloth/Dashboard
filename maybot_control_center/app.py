@@ -61,7 +61,8 @@ from . import autopilot
 store.init()
 for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted,
                 tooling.load_persisted, usage.load_persisted, cultivation.load_persisted,
-                treasury.load_persisted):
+                treasury.load_persisted, taskqueue.load_persisted, oaths.load_persisted,
+                maintenance.load_persisted, autopilot.load_persisted):
     try:
         _loader()
     except Exception:

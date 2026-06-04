@@ -73,6 +73,33 @@ def test_escalates_after_max_attempts(monkeypatch, _reset):
     assert autopilot.handle([_err()]) == []
 
 
+def test_allowlist_skips_unlisted(monkeypatch, _reset):
+    monkeypatch.setattr(autopilot, "ALLOW", {"prod-1:other"})
+    assert autopilot.handle([_err()]) == []          # bot not on the allowlist
+    monkeypatch.setattr(autopilot, "ALLOW", {"prod-1:bot"})
+    assert autopilot.handle([_err()]) == [("prod-1:bot", "restart")]
+
+
+def test_restart_loop_circuit_breaker(monkeypatch, _reset):
+    monkeypatch.setattr(autopilot, "MAXATTEMPTS", 99)   # isolate the restart breaker
+    monkeypatch.setattr(autopilot, "RESTART_LIMIT", 2)
+    monkeypatch.setattr(autopilot, "RESTART_WINDOW", 100000)
+    autopilot.handle([_err()])   # restart 1
+    autopilot.handle([_err()])   # restart 2
+    out = autopilot.handle([_err()])  # would be 3rd → circuit opens
+    assert out == [("prod-1:bot", "circuit_open")]
+    assert "escalated" in [k for k, _ in _reset]
+
+
+def test_postmortem_written_on_recovery(monkeypatch, _reset):
+    from maybot_control_center import artifacts
+    artifacts.clear()
+    autopilot.handle([_err()])                               # acts (records an action)
+    autopilot.handle([_err(health="ok", status="running")])  # recovery → postmortem
+    notes = [a for a in artifacts.catalog() if a["kind"] == "note" and a["creator"] == "Autopilot"]
+    assert notes and "Post-incident" in notes[0]["name"]
+
+
 def test_status_shape(_reset):
     autopilot.handle([_err()])
     s = autopilot.status()

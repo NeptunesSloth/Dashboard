@@ -32,7 +32,53 @@ INTERVAL = max(15, int(os.getenv("MAYBOT_AUTOPILOT_INTERVAL", "60")))
 MAXATTEMPTS = max(1, int(os.getenv("MAYBOT_AUTOPILOT_MAX_ATTEMPTS", "3")))
 STATES = {s.strip().lower() for s in os.getenv("MAYBOT_AUTOPILOT_STATES", "error").split(",") if s.strip()}
 CODER = os.getenv("MAYBOT_AUTOPILOT_CODER", "")  # optional designated coding disciple
+# Allowlist of projects autopilot may touch ("device:project" or bare "project"); empty = all.
+ALLOW = {s.strip() for s in os.getenv("MAYBOT_AUTOPILOT_PROJECTS", "").split(",") if s.strip()}
+# Restart-loop circuit breaker: more than RESTART_LIMIT restarts within RESTART_WINDOW → stop & escalate.
+RESTART_LIMIT = max(1, int(os.getenv("MAYBOT_AUTOPILOT_RESTART_LIMIT", "3")))
+RESTART_WINDOW = max(60, int(os.getenv("MAYBOT_AUTOPILOT_RESTART_WINDOW", "1800")))
 LOG_CAP = 200
+
+
+def _allowed(device: str, name: str) -> bool:
+    return not ALLOW or name in ALLOW or f"{device}:{name}" in ALLOW
+
+
+def _save() -> None:
+    from . import store
+    if not store.enabled():
+        return
+    with _lock:
+        store.save_state("autopilot", {"incidents": _incidents, "log": _log[-LOG_CAP:], "paused": _paused})
+
+
+def load_persisted() -> None:
+    from . import store
+    data = store.load_state("autopilot")
+    if not data:
+        return
+    global _paused
+    with _lock:
+        _incidents.update(data.get("incidents") or {})
+        _log.extend((data.get("log") or [])[-LOG_CAP:])
+        _paused = bool(data.get("paused"))
+
+
+def _postmortem(name: str, device: str, inc: dict) -> None:
+    """On recovery, write a short post-incident summary to the artifact vault."""
+    actions = inc.get("actions") or []
+    if not actions:
+        return
+    try:
+        from . import artifacts
+        lines = "\n".join(f"- {a.get('action')}: {a.get('result')}" for a in actions)
+        content = (f"# Post-incident: {name} on {device}\n\n"
+                   f"Resolved autonomously by the Sect Leader after {len(actions)} action(s).\n\n"
+                   f"## Cause\n{inc.get('cause', 'unknown')}\n\n## Actions taken\n{lines}\n")
+        artifacts.forge("Autopilot", f"Post-incident {name} #{int(time.time())}", "note",
+                        content, description=f"Autopilot post-incident summary for {name}.")
+    except Exception:
+        pass
 
 _lock = threading.Lock()
 _paused = False
@@ -50,6 +96,7 @@ def set_paused(value: bool) -> dict:
     global _paused
     with _lock:
         _paused = bool(value)
+    _save()
     return status()
 
 
@@ -78,6 +125,7 @@ def _report(kind: str, title: str, message: str, sender: str | None) -> None:
         notifier.notify_event("autopilot", title, message)
     except Exception:
         pass
+    _save()
 
 
 # ---- diagnosis -------------------------------------------------------------
@@ -187,12 +235,13 @@ def handle(projects: list[dict], now: float | None = None) -> list[tuple]:
                 had = _incidents.pop(key, None)
             if had:
                 oaths.release(key)
+                _postmortem(name, device, had)
                 _report("recovered", f"{name} recovered",
                         f"{name} on {device} is healthy again after autopilot intervention.", leader)
                 acted.append((key, "recovered"))
             continue
 
-        if health not in STATES or maintenance.is_silenced(device, name):
+        if health not in STATES or maintenance.is_silenced(device, name) or not _allowed(device, name):
             continue
 
         with _lock:
@@ -218,11 +267,27 @@ def handle(projects: list[dict], now: float | None = None) -> list[tuple]:
             continue
 
         plan = _diagnose(leader, p)
+        # Restart-loop circuit breaker: don't keep bouncing a project that won't stay up.
+        if plan.get("action") == "restart":
+            with _lock:
+                recent = [t for t in inc.get("restarts", []) if now - t < RESTART_WINDOW]
+            if len(recent) >= RESTART_LIMIT:
+                with _lock:
+                    inc["state"] = "escalated"
+                _report("escalated", f"Restart loop on {name}",
+                        f"{name} restarted {len(recent)}× in {RESTART_WINDOW // 60}m — circuit opened, "
+                        f"escalating to the Ancestor instead of restarting again.", leader)
+                acted.append((key, "circuit_open"))
+                continue
         result = _perform_action(p, plan)
         with _lock:
             inc["attempts"] += 1
             inc["state"] = "acting"
+            inc["cause"] = plan.get("cause", "")
             inc["last_action"] = result
+            inc.setdefault("actions", []).append({"action": plan.get("action"), "result": result, "ts": int(now * 1000)})
+            if plan.get("action") == "restart":
+                inc.setdefault("restarts", []).append(now)
             attempts = inc["attempts"]
         _report("fix", f"Autopilot fixing {name}",
                 f"Cause: {plan.get('cause', '?')}. Action: {plan.get('action')} → {result}. "
