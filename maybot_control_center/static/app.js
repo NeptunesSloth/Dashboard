@@ -177,12 +177,32 @@ function roomCard(p) {
 }
 
 function summaryCards(s) {
-  return [
-    ['Total Devices', s.total_devices], ['Online Devices', s.online_devices], ['Offline Devices', s.offline_devices],
-    ['Total Projects', s.total_projects], ['Warn / Error Projects', s.projects_with_warnings_errors], ['Bots Running', s.bots_running],
-    ['Trading PnL Today', money(s.total_trading_profit_today)], ['Trading PnL Week', money(s.total_trading_profit_this_week)],
-    ['Open Exposure', money(s.total_open_exposure)], ['Tests Failing', esc(s.tests_failing)], ['Local AI Online', esc(s.local_ai_hosts_online)], ['Local AI Errors', esc(s.local_ai_hosts_with_errors)],
-  ].map(([k, v]) => `<div class='card'>${metric(k, String(v))}</div>`).join('');
+  const crew = window.__agents || [];
+  const disciples = crew.length;
+  const cultivating = crew.filter(a => ['working', 'queued'].includes(a.status) || a.cultivation?.in_seclusion).length;
+  const leader = crew.find(a => a.governance?.is_leader);
+  const pnl = Number(s.total_trading_profit_today || 0);
+  const kpi = (icon, val, label, cls = '') =>
+    `<div class='kpi ${cls}'><div class='kpi-ico'>${icon}</div><div class='kpi-val'>${val}</div><div class='kpi-lbl'>${label}</div></div>`;
+  const mini = (k, v) => `<div class='mini-stat'><span>${k}</span><b>${v}</b></div>`;
+  const hero = `<div class='kpi-row'>
+    ${kpi('🧘', disciples, 'Disciples', 'kpi-gold')}
+    ${kpi('☯', cultivating, 'Cultivating', 'kpi-jade')}
+    ${kpi('🏔️', `${s.online_devices}/${s.total_devices}`, 'Realms Online', s.offline_devices ? 'kpi-warn' : 'kpi-jade')}
+    ${kpi('📦', s.total_projects, 'Projects', s.projects_with_warnings_errors ? 'kpi-warn' : '')}
+    ${kpi('📈', money(s.total_trading_profit_today), 'PnL Today', pnl < 0 ? 'kpi-neg' : 'kpi-pos')}
+  </div>`;
+  const sub = `<div class='kpi-sub'>
+    ${mini('👑 Peak Lord', leader ? esc(leader.name) : '—')}
+    ${mini('⚠ Warn / Error', s.projects_with_warnings_errors)}
+    ${mini('🤖 Bots Running', s.bots_running)}
+    ${mini('💰 PnL Week', money(s.total_trading_profit_this_week))}
+    ${mini('📊 Open Exposure', money(s.total_open_exposure))}
+    ${mini('🧪 Tests Failing', s.tests_failing)}
+    ${mini('🧠 AI Hosts Online', s.local_ai_hosts_online)}
+    ${mini('❗ AI Errors', s.local_ai_hosts_with_errors)}
+  </div>`;
+  return hero + sub;
 }
 
 function renderDevices(devices) {
@@ -256,12 +276,15 @@ async function render() {
     document.getElementById('device-count-pill').textContent = `${data.summary.online_devices} online / ${data.summary.offline_devices} offline`;
 
     summaryEl.classList.remove('loading');
+    window.__lastSummary = data.summary;
     summaryEl.innerHTML = summaryCards(data.summary);
     devicesEl.innerHTML = renderDevices(data.devices || []);
 
     renderAiAgents(window.__lastProjects);
     renderProjects(window.__lastProjects);
     await renderAgentCrew();
+    // Re-render KPIs now that window.__agents is populated (disciple/cultivating counts).
+    summaryEl.innerHTML = summaryCards(data.summary);
     renderGovernance();
     renderTrials();
     renderLore();
@@ -492,7 +515,7 @@ function pillBuy(a, c) {
   const pd = window.__pills || { catalog: [] };
   if (!pd.catalog || !pd.catalog.length) return '';
   const stones = (c && c.stones) || 0;
-  const opts = pd.catalog.map(p => `<option value='${esc(p.id)}'${p.cost > stones ? ' disabled' : ''}>${esc(p.name)} · <span class='stone'></span>${esc(p.cost)}</option>`).join('');
+  const opts = pd.catalog.map(p => `<option value='${esc(p.id)}'${p.cost > stones ? ' disabled' : ''}>${esc(p.name)} · ◆${esc(p.cost)}</option>`).join('');
   return `<div class='pill-control'><select class='pill-select' data-agent='${esc(a.name)}'>${opts}</select><button class='btn pill-buy' data-agent='${esc(a.name)}'>Concoct</button></div>`;
 }
 // quest / transmit / concoct controls, tucked into one collapsible to keep the card clean
@@ -693,7 +716,7 @@ function fameCard(title, a, label, value) {
     <div class='metric'><b>${title}</b><b class='money-pos'>${value}</b></div>
     ${metric('Disciple', `🧘 ${esc(a.name)}`)}
     ${metric('Realm', `${esc(c.realm_name || '—')} · ${esc(c.layer_label || c.stage || '')}`)}
-    ${metric(label, esc(value))}
+    ${metric(label, value)}
   </div>`;
 }
 
@@ -750,6 +773,33 @@ function govRosterCard(r, leaderPinned) {
   </div>`;
 }
 
+// ---- visual sect hierarchy (Ancestor → Leader → Elders → Inner → Outer) ----
+function renderHierarchyChart(gov) {
+  const el = document.getElementById('hierarchy-chart');
+  if (!el) return;
+  const crew = (window.__agents || []);
+  const realm = a => (a.cultivation && a.cultivation.realm) || 0;
+  const node = (a, cls) => `<button class='h-node ${cls}' data-agent='${esc(a.name)}' title='standing ${a.governance?.standing ?? '—'}'>
+    <span class='h-name'>${esc(a.name)}</span><span class='h-realm'>${esc(a.cultivation?.realm_name || '')}</span></button>`;
+  const leader = crew.find(a => a.governance?.is_leader);
+  const elders = crew.filter(a => !a.governance?.is_leader && realm(a) >= 6);
+  const core = crew.filter(a => realm(a) >= 4 && realm(a) < 6);
+  const inner = crew.filter(a => realm(a) >= 2 && realm(a) < 4);
+  const outer = crew.filter(a => !a.governance?.is_leader && realm(a) < 2);
+  const tier = (label, list, cls) => list.length
+    ? `<div class='h-tier'><span class='h-label'>${label}</span><div class='h-nodes'>${list.map(a => node(a, cls)).join('')}</div></div>` : '';
+  el.innerHTML = `
+    <div class='h-tier h-ancestor'><span class='h-label'>Ancestor</span><div class='h-nodes'><span class='h-node h-you'>🐉 You</span></div></div>
+    ${leader ? `<div class='h-tier'><span class='h-label'>Sect Leader</span><div class='h-nodes'>${node(leader, 'h-leader')}</div></div>` : ''}
+    ${tier('Elders', elders, 'h-elder')}
+    ${tier('Core', core, 'h-core')}
+    ${tier('Inner', inner, 'h-inner')}
+    ${tier('Outer', outer, 'h-outer')}`;
+  el.querySelectorAll('.h-node[data-agent]').forEach(b => b.onclick = () => {
+    const lsel = document.getElementById('leader-select'); if (lsel) lsel.value = b.getAttribute('data-agent');
+  });
+}
+
 async function renderGovernance() {
   const sec = document.getElementById('governance-section');
   let data;
@@ -768,6 +818,7 @@ async function renderGovernance() {
   lsel.innerHTML = roster.map(r => `<option ${r.agent === data.leader ? 'selected' : ''}>${esc(r.agent)}</option>`).join('');
   if (cur && roster.some(r => r.agent === cur)) lsel.value = cur;
 
+  renderHierarchyChart(data);
   document.getElementById('governance-roster').innerHTML =
     roster.map(r => govRosterCard(r, data.leader_pinned)).join('');
 
@@ -2013,4 +2064,14 @@ function setupStream() {
   };
   es.onerror = () => {}; // EventSource auto-reconnects
 }
+// ---- tabbed navigation (no more infinite scroll) ----
+function setTab(t) {
+  localStorage.setItem('tab', t);
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  document.querySelectorAll('.container > section').forEach(s => s.classList.toggle('tab-hidden', (s.dataset.tab || 'overview') !== t));
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+setTab(localStorage.getItem('tab') || 'overview');
+
 setupStream();

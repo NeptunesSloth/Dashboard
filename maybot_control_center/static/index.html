@@ -32,11 +32,17 @@
 
   <main class="container">
     <div id="error-banner" class="error-banner hidden">Control center could not fetch overview.</div>
-    <section>
+    <nav class="tabs">
+      <button class="tab-btn" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="disciples">Disciples</button>
+      <button class="tab-btn" data-tab="map">Sect Map</button>
+      <button class="tab-btn" data-tab="sect">Sect Halls</button>
+    </nav>
+    <section data-tab="overview">
       <h2>Sect Overview</h2>
-      <div id="summary" class="grid summary-grid"></div>
+      <div id="summary"></div>
     </section>
-    <section id="treasury-section">
+    <section data-tab="overview" id="treasury-section">
       <div class="section-head">
         <h2>Spirit Veins</h2>
         <span id="treasury-balance" class="pill">💎 0</span>
@@ -48,11 +54,11 @@
         <span id="treasury-detail" class="muted"></span>
       </div>
     </section>
-    <section>
+    <section data-tab="overview">
       <h2>Spirit Realms</h2>
       <div id="devices" class="grid"></div>
     </section>
-    <section id="ai-agents-section" class="hidden">
+    <section data-tab="overview" id="ai-agents-section" class="hidden">
       <div class="section-head">
         <h2>Spirit Beasts</h2>
         <span id="ai-agents-pill" class="pill">0 agents</span>
@@ -60,7 +66,7 @@
       <p class="muted">AI coding projects and local model hosts, with start / stop / test controls.</p>
       <div id="ai-agents"></div>
     </section>
-    <section id="agent-crew-section" class="hidden">
+    <section data-tab="disciples" id="agent-crew-section" class="hidden">
       <div class="section-head">
         <h2>Sect Disciples</h2>
         <span id="agent-crew-pill" class="pill">0 disciples</span>
@@ -69,7 +75,7 @@
       <div id="sect-ranking" class="sect-ranking"></div>
       <div id="agent-crew" class="grid"></div>
     </section>
-    <section id="governance-section" class="hidden">
+    <section data-tab="disciples" id="governance-section" class="hidden">
       <div class="section-head">
         <h2>Sect Hierarchy</h2>
         <span id="leader-pill" class="pill">no leader</span>
@@ -81,12 +87,13 @@
         <button id="leader-set" class="btn">Appoint &amp; pin</button>
         <button id="leader-release" class="btn">Release to merit</button>
       </div>
+      <div id="hierarchy-chart" class="hierarchy"></div>
       <div id="governance-roster" class="grid"></div>
       <div class="section-head" style="margin-top:18px"><h3 style="margin:0">Ancestor's Hall</h3></div>
       <p class="muted">Direct word from your Sect Leader and Elders — none below Elder rank may address you here.</p>
       <div id="ancestor-inbox" class="comms-feed"></div>
     </section>
-    <section id="trials-section" class="hidden">
+    <section data-tab="sect" id="trials-section" class="hidden">
       <div class="section-head"><h2>Trials Hall</h2></div>
       <p class="muted">Night-Watch on-call rotation, chaos tribulations, formation dry-runs, and spirit-root assessments.</p>
 
@@ -119,7 +126,7 @@
       <h3 class="trials-sub">🌱 Spirit-Root grades</h3>
       <div id="spirit-grades" class="grid"></div>
     </section>
-    <section id="lore-section" class="hidden">
+    <section data-tab="sect" id="lore-section" class="hidden">
       <div class="section-head"><h2>Sect Lore</h2></div>
       <p class="muted">Karmic bonds (pair review), the lineage of techniques, drift watch, the artifact vault, and merit-weighted council votes.</p>
 
@@ -161,7 +168,7 @@
       </div>
       <div id="vote-result" class="grid"></div>
     </section>
-    <section id="map-section" class="hidden">
+    <section data-tab="map" id="map-section" class="hidden">
       <div class="section-head">
         <h2>Sect Map</h2>
         <span id="map-pill" class="pill">the heavens</span>
@@ -176,11 +183,11 @@
       <h3 class="trials-sub">📜 Cultivation Chronicle</h3>
       <div id="chronicle-feed" class="comms-feed"></div>
     </section>
-    <section id="fame-section" class="hidden">
+    <section data-tab="sect" id="fame-section" class="hidden">
       <div class="section-head"><h2>Hall of Fame</h2></div>
       <div id="hall-of-fame" class="grid"></div>
     </section>
-    <section id="prophecy-section" class="hidden">
+    <section data-tab="sect" id="prophecy-section" class="hidden">
       <div class="section-head">
         <h2>Heavenly Omens</h2>
         <span id="prophecy-pill" class="pill">divining…</span>
@@ -188,7 +195,7 @@
       <p class="muted">The sect's diviners read the omens in each realm's metrics history — a sharp plunge, a worsening trend, or gathering errors surface as an ill omen before it becomes an outage.</p>
       <div id="prophecy-omens" class="grid"></div>
     </section>
-    <section id="comms-section" class="hidden">
+    <section data-tab="sect" id="comms-section" class="hidden">
       <div class="section-head">
         <h2>Dao Council</h2>
         <span id="comms-status" class="pill">in seclusion</span>
@@ -227,7 +234,7 @@
       </details>
       <div id="comms-feed" class="comms-feed"></div>
     </section>
-    <section id="vault-section" class="hidden">
+    <section data-tab="sect" id="vault-section" class="hidden">
       <div class="section-head">
         <h2>Jade Slips</h2>
         <span id="vault-status" class="pill">Obsidian</span>
@@ -239,7 +246,7 @@
       </div>
       <div id="vault-results" class="grid"></div>
     </section>
-    <section id="tools-section" class="hidden">
+    <section data-tab="sect" id="tools-section" class="hidden">
       <div class="section-head">
         <h2>Techniques</h2>
         <span id="tools-status" class="pill">sealed</span>
@@ -254,7 +261,7 @@
       <div id="tools-calls" class="grid"></div>
       <details class="details tools-audit"><summary>Sanction chronicle</summary><div id="tools-audit-body" class="grid"></div></details>
     </section>
-    <section id="usage-section" class="hidden">
+    <section data-tab="overview" id="usage-section" class="hidden">
       <div class="section-head">
         <h2>Spirit Stones</h2>
         <span id="usage-total" class="pill">$0.00</span>
@@ -263,7 +270,7 @@
       <div id="qi-reserves"></div>
       <div id="usage-table" class="grid"></div>
     </section>
-    <section>
+    <section data-tab="overview">
       <div class="section-head">
         <h2>Sect Holdings</h2>
         <span id="project-count-pill" class="pill">0 shown</span>
