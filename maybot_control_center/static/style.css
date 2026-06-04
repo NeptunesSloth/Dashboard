@@ -501,6 +501,13 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
   background: rgba(16,10,26,.78); border: 1px solid #c4965a; border-radius: 3px; padding: 1px 6px; white-space: nowrap; text-align: center; }
 .hall-unit.hl .hall-tag { border-color: #ffe6a3; box-shadow: 0 0 12px rgba(255,231,160,.6); }
 .ht-act { display: block; color: #7fe9cf; font-size: 9px; }
+.ht-collab { display: block; color: #b9a4ff; font-size: 8px; }
+/* collaboration: bonded partners working together, linked by a spirit thread */
+.hall-collab { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; overflow: visible; }
+.collab-line { stroke: #8f7fff; stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .4; }
+.collab-line.active { stroke: #b9a4ff; stroke-width: 2; opacity: .85; animation: collabflow .9s linear infinite; filter: drop-shadow(0 0 3px #8f7fff); }
+@keyframes collabflow { to { stroke-dashoffset: -8; } }
+.hall-unit.collaborating .hall-sprite { filter: drop-shadow(0 0 5px rgba(143,127,255,.55)); }
 .hall-sprite.act-cultivate, .hall-sprite.act-seclude { animation: hsBob 3.4s ease-in-out infinite; text-shadow: 0 0 12px #36e0b4; }
 .hall-sprite.act-breakthrough { animation: hsPulse 1.5s ease-in-out infinite; text-shadow: 0 0 16px #ffe6a3; }
 .hall-sprite.act-struggle { animation: hsShake .5s ease-in-out infinite; text-shadow: 0 0 12px #ff5c6e; }

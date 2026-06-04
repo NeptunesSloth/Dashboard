@@ -1344,9 +1344,22 @@ function refreshOpenHall() {
   else renderUtilityHall(peak, true);
 }
 
+// reorder a roster so karmic-bonded partners stand next to each other
+function pairAdjacent(list) {
+  const byName = Object.fromEntries(list.map(x => [x.name, x]));
+  const out = [], used = new Set();
+  list.forEach(x => {
+    if (used.has(x.name)) return;
+    out.push(x); used.add(x.name);
+    const mate = x.bond && byName[x.bond];
+    if (mate && !used.has(mate.name)) { out.push(mate); used.add(mate.name); }
+  });
+  return out;
+}
+
 async function renderGroupHall(peak, focusName, instant) {
   const all = peak.members || [];
-  const present = all.filter(x => !x.cultivation?.in_roaming);
+  const present = pairAdjacent(all.filter(x => !x.cultivation?.in_roaming));
   const focus = all.find(x => x.name === focusName) || all[0];
   window.__openFocus = focus ? focus.name : undefined;
   const row = (icon, label, val) => `<div class='po-row'><span>${icon} ${label}</span><b>${val}</b></div>`;
@@ -1385,20 +1398,48 @@ async function renderGroupHall(peak, focusName, instant) {
 
   const units = hall.querySelector('.hall-floor-units');
   const pos = hallPositions(present.length, peak.floor);
+  const presentByName = Object.fromEntries(present.map(x => [x.name, x]));
+  const posByName = {};
   present.forEach((x, i) => {
     let ax = hallActivity(x);
     let p = pos[i];
     // the Sect Leader presides seated upon the throne (meditation pose)
     if (peak.id === 'leader' && x.governance?.is_leader) { ax = { act: 'cultivate', label: 'Presiding over the Sect', sprite: 0 }; p = { x: 50, y: 53.5 }; }
+    posByName[x.name] = p;
+    // two karmic-bonded disciples present together are collaborating
+    const mate = x.bond && presentByName[x.bond];
+    const collaborating = !!mate;
     const hl = focus && x.name === focus.name;
     const u = document.createElement('button');
-    u.className = 'hall-unit act-' + ax.act + (hl ? ' hl' : '') + (peak.id === 'leader' && x.governance?.is_leader ? ' on-throne' : '');
+    u.className = 'hall-unit act-' + ax.act + (hl ? ' hl' : '') + (collaborating ? ' collaborating' : '') + (peak.id === 'leader' && x.governance?.is_leader ? ' on-throne' : '');
     u.style.left = p.x + '%'; u.style.top = p.y + '%'; u.style.zIndex = String(10 + Math.round(p.y));
     u.setAttribute('data-agent', x.name);
-    u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax), skinSuffix(x))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span></span>`;
+    const collabTag = collaborating ? `<span class='ht-collab' title='collaborating with ${esc(mate.name)}'>🤝 ${esc(mate.name)}</span>` : '';
+    u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax), skinSuffix(x))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span>${collabTag}</span>`;
     u.addEventListener('click', () => renderGroupHall(peak, x.name));
     units.appendChild(u);
   });
+  // draw collaboration threads between bonded partners present together
+  const seen = new Set();
+  const lines = [];
+  present.forEach(x => {
+    const mate = x.bond && presentByName[x.bond];
+    if (!mate) return;
+    const key = [x.name, mate.name].sort().join('|');
+    if (seen.has(key)) return;
+    seen.add(key);
+    const a = posByName[x.name], b = posByName[mate.name];
+    const active = ['working', 'queued'].includes(x.status) || ['working', 'queued'].includes(mate.status);
+    lines.push(`<line x1='${a.x}' y1='${a.y}' x2='${b.x}' y2='${b.y}' class='collab-line${active ? ' active' : ''}' vector-effect='non-scaling-stroke'/>`);
+  });
+  if (lines.length) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'hall-collab');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.innerHTML = lines.join('');
+    units.insertBefore(svg, units.firstChild);
+  }
   hall.querySelectorAll('.hall-agent-row').forEach(b => b.onclick = () => renderGroupHall(peak, b.getAttribute('data-agent')));
   // click-to-assign: give the focused disciple a task right from the hall
   const goBtn = document.getElementById('hall-assign-go'), taskInp = document.getElementById('hall-task');
