@@ -16,6 +16,15 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <div id="login-overlay" class="login-overlay hidden">
+    <div class="login-box">
+      <h2>☯ MayBot — Sign in</h2>
+      <p class="muted">This dashboard requires a control token.</p>
+      <input id="login-token" type="password" placeholder="Control token…" autocomplete="current-password">
+      <div id="login-error" class="muted"></div>
+      <button id="login-go" class="btn btn-primary">Sign in</button>
+    </div>
+  </div>
   <div id="auth-banner" class="auth-banner hidden"></div>
   <header class="topbar">
     <div>
@@ -34,6 +43,7 @@
       <label for="control-token">Control Token</label>
       <input id="control-token" type="password" placeholder="optional">
       <button id="save-control-token" class="btn">Save</button>
+      <button id="sign-out" class="btn">Sign out</button>
     </div>
   </header>
 

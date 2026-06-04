@@ -378,7 +378,9 @@ async function render() {
   summaryEl.classList.add('loading');
   summaryEl.innerHTML = `<div class='card'>Loading overview...</div>`;
   try {
-    const data = await fetch('/api/overview', { headers: authHeaders() }).then(r => r.json());
+    const resp = await fetch('/api/overview', { headers: authHeaders() });
+    if (resp.status === 401) { showLogin(); return; }
+    const data = await resp.json();
     notifyHealthChanges(data.projects || []);
     window.__lastProjects = data.projects || [];
     err.classList.add('hidden');
@@ -2625,6 +2627,7 @@ async function renderOps() {
       if (!('Notification' in window)) { alert('Notifications not supported here.'); return; }
       const p = await Notification.requestPermission();
       btn.textContent = p === 'granted' ? '🔔 Phone alerts on' : '🔔 Enable phone alerts';
+      if (p === 'granted') subscribePush();   // background push when VAPID is configured
     };
   }
 }
@@ -2855,6 +2858,50 @@ document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => setTab(b.da
 setTab(localStorage.getItem('tab') || 'overview');
 
 setupStream();
+
+// ---- Login overlay (token sign-in) ----
+function showLogin() { const o = document.getElementById('login-overlay'); if (o) o.classList.remove('hidden'); }
+function hideLogin() { const o = document.getElementById('login-overlay'); if (o) o.classList.add('hidden'); }
+(function bindLogin() {
+  const go = document.getElementById('login-go'), inp = document.getElementById('login-token'),
+        err = document.getElementById('login-error');
+  if (!go) return;
+  const submit = async () => {
+    const token = (inp.value || '').trim();
+    err.textContent = '';
+    try {
+      const r = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
+      if (!r.ok) { err.textContent = 'Invalid token.'; return; }
+      localStorage.setItem(CONTROL_TOKEN_STORAGE_KEY, token);
+      const ct = document.getElementById('control-token'); if (ct) ct.value = token;
+      hideLogin(); render();
+    } catch (_) { err.textContent = 'Sign-in failed.'; }
+  };
+  go.onclick = submit;
+  inp.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
+})();
+(function bindSignOut() {
+  const so = document.getElementById('sign-out');
+  if (so) so.onclick = () => { localStorage.removeItem(CONTROL_TOKEN_STORAGE_KEY); const ct = document.getElementById('control-token'); if (ct) ct.value = ''; showLogin(); };
+})();
+
+// ---- Web Push subscription (after notification permission) ----
+function _urlB64ToUint8(base64) {
+  const pad = '='.repeat((4 - base64.length % 4) % 4);
+  const b = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(b); return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
+async function subscribePush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const k = await apiJSON('/api/push/key');
+    if (!k || !k.enabled || !k.key) return;   // VAPID not configured
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: _urlB64ToUint8(k.key) });
+    await fetch('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ subscription: sub }) });
+  } catch (_) {}
+}
 
 // Register the PWA service worker (installable app + offline shell).
 if ('serviceWorker' in navigator) {

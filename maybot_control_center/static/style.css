@@ -989,3 +989,15 @@ table.fleet { width: 100%; border-collapse: collapse; font-size: 13px; }
 table.fleet th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--border); }
 table.fleet td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
 #enable-alerts { margin-left: auto; }
+
+/* ---- login overlay ---- */
+.login-overlay { position: fixed; inset: 0; z-index: 3000; background: rgba(13,17,23,.92);
+  display: flex; align-items: center; justify-content: center; }
+.login-overlay.hidden { display: none; }
+.login-box { width: 340px; max-width: 90vw; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px; box-shadow: 0 16px 50px rgba(0,0,0,.6); text-align: center; }
+.login-box h2 { margin: 0 0 4px; color: var(--gold); font-family: "Cinzel", Georgia, serif; }
+.login-box input { width: 100%; box-sizing: border-box; margin: 12px 0 8px; padding: 10px 12px;
+  background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text); }
+.login-box #login-error { color: #f85149; font-size: 12px; min-height: 16px; }
+.login-box .btn { width: 100%; margin-top: 6px; }

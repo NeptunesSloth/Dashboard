@@ -62,6 +62,7 @@ from . import diagnostics
 from . import inbound
 from . import backup
 from . import registry
+from . import push
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -69,7 +70,8 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
                 tooling.load_persisted, usage.load_persisted, cultivation.load_persisted,
                 treasury.load_persisted, taskqueue.load_persisted, oaths.load_persisted,
                 maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
-                audit.load_persisted, inbound.load_persisted, registry.load_persisted):
+                audit.load_persisted, inbound.load_persisted, registry.load_persisted,
+                push.load_persisted):
     try:
         _loader()
     except Exception:
@@ -1180,6 +1182,35 @@ def agents_deregister(body: DeregisterIn, x_control_token: str = Header(default=
 def registry_status(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return registry.snapshot()
+
+
+# ---- Login (validate a token) ----
+class LoginIn(BaseModel):
+    token: str = ""
+
+
+@app.post("/api/login")
+def login(body: LoginIn):
+    role = authz.role_for(body.token)
+    if role is None:
+        raise HTTPException(401, "invalid token")
+    return {"ok": True, "role": role, "name": authz.name_for(body.token)}
+
+
+# ---- Web Push (VAPID) ----
+@app.get("/api/push/key")
+def push_key(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return push.public_key()
+
+
+@app.post("/api/push/subscribe")
+def push_subscribe(body: dict, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    try:
+        return push.subscribe(body.get("subscription") or body)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
 
 
 # ---- Operator audit log ----

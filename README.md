@@ -440,6 +440,13 @@ projects:
 - **Compounding sect memory (RAG):** task results, post-incident summaries, Elder manuals, and roamed skills accumulate in a shared, searchable memory (`/api/sectmemory`, the *Sect Knowledge* panel); every disciple retrieves the most relevant entries into its prompt before acting, so the sect gets smarter the longer it runs (`MAYBOT_SECT_MEMORY`).
 - **Skills are real capabilities:** a skill roamed from the web fetches its how-to from the source page into sect memory, and each disciple's mastered techniques are injected into its prompt — a learned skill changes behavior, not just a label.
 - **Ascension:** a disciple's cultivation realm unlocks a stronger model (Haiku→Sonnet→Opus at `MAYBOT_ASCEND_SONNET_REALM`/`_OPUS_REALM`); `run_task` runs high-realm disciples on the ascended model (upgrade-only, same provider family).
+- **Login UI + sessions:** a sign-in overlay validates the control token (`POST /api/login`) and persists it for the session; sign-out clears it. The dashboard prompts for a token whenever a request is unauthorized.
+- **Inbound alert ingestion (`POST /api/ingest/alert`):** external systems (Alertmanager, CI, cron) push incidents *into* the dashboard — stored in a feed, routed to your webhooks/Hall, and added to sect memory. Auth via the operator token or a dedicated `MAYBOT_INGEST_TOKEN`.
+- **State backup / restore (`GET /api/backup`, `POST /api/restore`):** export/import the persisted coordination state (board, oaths, silences, autopilot, sect memory, audit, inbound, registry) as one JSON blob (requires `MAYBOT_DB`).
+- **Agent auto-registration (`POST /api/agents/register`):** agents announce themselves (name/url/token) instead of being hand-listed; merged with `devices.yaml`. Gated by `MAYBOT_REGISTER_TOKEN`.
+- **Web Push (`MAYBOT_VAPID_PUBLIC`/`_PRIVATE`):** the installable PWA can receive push notifications for alerts even when closed — `pip install pywebpush` and set VAPID keys; without them, subscriptions are stored and sends are a safe no-op.
+- **Per-project PR mode:** `autopilot.yaml` `pr: open|propose` overrides the global `MAYBOT_PR_ENABLED` so some repos auto-open PRs while others only propose.
+- **Project integration prompts:** `docs/INTEGRATION_PROMPTS.md` has copy-paste prompts to make each project type dashboard-ready.
 - **Scheduled missions (cron):** define recurring sect activities in `schedules.yaml` (see `schedules.yaml.example`) — a `task`, `mission`, `quest`, or `debate` per `every_minutes`. A background scheduler fires them (first interval after startup, not at boot); no file → idle.
 - **Hall of Fame:** the dashboard ranks disciples by Strongest (realm/stones), Richest, Most Techniques, and Most Breakthroughs.
 

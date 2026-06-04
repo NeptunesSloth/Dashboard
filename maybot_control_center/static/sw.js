@@ -12,6 +12,21 @@ self.addEventListener('activate', (e) => {
     .then(() => self.clients.claim()));
 });
 
+// Web Push: show a notification even when the app is closed.
+self.addEventListener('push', (e) => {
+  let d = { title: 'MayBot', body: 'Alert', url: '/' };
+  try { d = Object.assign(d, e.data.json()); } catch (_) { if (e.data) d.body = e.data.text(); }
+  e.waitUntil(self.registration.showNotification(d.title, { body: d.body, icon: '/icon.svg', badge: '/icon.svg', tag: d.tag, data: { url: d.url } }));
+});
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || '/';
+  e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
+    for (const w of wins) { if ('focus' in w) return w.focus(); }
+    return clients.openWindow(url);
+  }));
+});
+
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.pathname.startsWith('/api/')) return;  // live data: always network
