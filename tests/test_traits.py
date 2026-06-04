@@ -24,9 +24,15 @@ def _setup(tmp_path, monkeypatch):
 
 
 # ---- quirks ----
+def _no_arc_no_destiny(monkeypatch):
+    """Silence the rare arc and destinies so only quirk rolls remain."""
+    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 0.0)
+    monkeypatch.setattr(traits, "DESTINY_CHANCES", {})
+
+
 def test_quirk_assigned_within_chance(tmp_path, monkeypatch):
     _setup(tmp_path, monkeypatch)
-    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 0.0)  # no arc
+    _no_arc_no_destiny(monkeypatch)
     monkeypatch.setattr(traits, "QUIRK_CHANCE", 1.0)     # always a quirk
     traits.tick()
     for n in ("Nova", "Forge", "Sage"):
@@ -35,7 +41,7 @@ def test_quirk_assigned_within_chance(tmp_path, monkeypatch):
 
 def test_quirk_rolled_once_and_persona_reflects_it(tmp_path, monkeypatch):
     _setup(tmp_path, monkeypatch)
-    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 0.0)
+    _no_arc_no_destiny(monkeypatch)
     monkeypatch.setattr(traits, "QUIRK_CHANCE", 1.0)
     traits.tick()
     q = traits.quirk("Nova")
@@ -46,7 +52,7 @@ def test_quirk_rolled_once_and_persona_reflects_it(tmp_path, monkeypatch):
 
 def test_no_quirk_when_chance_zero(tmp_path, monkeypatch):
     _setup(tmp_path, monkeypatch)
-    monkeypatch.setattr(traits, "ARROGANT_CHANCE", 0.0)
+    _no_arc_no_destiny(monkeypatch)
     monkeypatch.setattr(traits, "QUIRK_CHANCE", 0.0)
     traits.tick()
     assert all(traits.quirk(n) is None for n in ("Nova", "Forge", "Sage"))
