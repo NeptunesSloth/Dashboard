@@ -75,6 +75,93 @@ function sparkline(history, label) {
   return `<div class='sparkline'><span class='spark-label'>${esc(label)}</span>${svg}</div>`;
 }
 
+// ---- right-click context menu (sect-themed quick actions) ----
+let _ctxEl = null;
+function closeContextMenu() {
+  if (_ctxEl) { _ctxEl.remove(); _ctxEl = null; }
+  document.removeEventListener('keydown', _ctxKey);
+}
+function _ctxKey(e) { if (e.key === 'Escape') closeContextMenu(); }
+function showContextMenu(x, y, title, items) {
+  closeContextMenu();
+  const m = document.createElement('div');
+  m.className = 'ctx-menu';
+  m.innerHTML = (title ? `<div class='ctx-head'>${esc(title)}</div>` : '') + items.map((it, i) =>
+    it.sep ? `<div class='ctx-sep'></div>`
+      : `<button class='ctx-item${it.danger ? ' ctx-danger' : ''}' data-i='${i}'>${it.icon ? `<span class='ctx-ic'>${it.icon}</span>` : ''}${esc(it.label)}</button>`
+  ).join('');
+  document.body.appendChild(m);
+  const r = m.getBoundingClientRect();
+  m.style.left = Math.max(6, Math.min(x, window.innerWidth - r.width - 8)) + 'px';
+  m.style.top = Math.max(6, Math.min(y, window.innerHeight - r.height - 8)) + 'px';
+  m.querySelectorAll('.ctx-item').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    const it = items[+b.dataset.i];
+    closeContextMenu();
+    it.onClick && it.onClick();
+  });
+  _ctxEl = m;
+  setTimeout(() => document.addEventListener('keydown', _ctxKey), 0);
+}
+// close on any click/scroll/contextmenu-elsewhere
+document.addEventListener('click', () => closeContextMenu());
+document.addEventListener('scroll', () => closeContextMenu(), true);
+
+function _promptGoalAssign(name) {
+  const g = prompt(`Goal to route (best-fit disciple will be chosen):`, '');
+  if (g && g.trim()) apiPost('/api/assign/goal', { goal: g.trim(), dispatch: true }, 'Assign').then(r => { if (r) render(); });
+}
+function projectCtxItems(device, name) {
+  const p = (window.__lastProjects || []).find(x => x.name === name && x.device === device) || {};
+  const a = p.actions_available || {};
+  const tgt = `${device}:${name}`;
+  const items = [
+    { icon: '📜', label: 'View logs', onClick: () => loadLogs(device, name) },
+    { icon: '🎯', label: 'Assign a goal…', onClick: _promptGoalAssign },
+  ];
+  if (a.start || a.stop || a.run_tests) items.push({ sep: true });
+  if (a.start) items.push({ icon: '▶', label: 'Start', onClick: () => callAction(device, name, 'start').then(render) });
+  if (a.stop) items.push({ icon: '⏹', label: 'Stop', onClick: () => callAction(device, name, 'stop').then(render) });
+  if (a.run_tests) items.push({ icon: '🧪', label: 'Run tests', onClick: () => callAction(device, name, 'run-tests').then(render) });
+  items.push({ sep: true });
+  items.push({ icon: '🔕', label: 'Silence alerts 60m', onClick: () => apiPost('/api/maintenance/silence', { target: tgt, minutes: 60, reason: 'manual' }, 'Silence').then(r => r && render()) });
+  if (p.health && p.health !== 'ok') items.push({ icon: '🤝', label: 'Claim incident', onClick: () => apiPost('/api/oaths/claim', { target: tgt, who: 'operator' }, 'Claim').then(r => r && render()) });
+  items.push({ sep: true }, { icon: '🔄', label: 'Sync now', onClick: () => render() });
+  return items;
+}
+function agentCtxItems(name) {
+  const a = (window.__agents || []).find(x => x.name === name) || {};
+  const g = a.governance || {};
+  const items = [
+    { icon: '📨', label: 'Assign a task…', onClick: () => { const t = prompt(`Task for ${name}:`, ''); if (t && t.trim()) apiPost(`/api/agents/${encodeURIComponent(name)}/task`, { task: t.trim() }, 'Assign').then(r => r && renderAgentCrew()); } },
+    { icon: '📖', label: 'Open details', onClick: () => { const d = document.querySelector(`details.agent-card[data-agent="${CSS.escape(name)}"]`); if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); } } },
+  ];
+  if (g.is_elder) items.push({ icon: '☯', label: 'Set path…', onClick: () => { const specs = Object.keys((window.__gov && window.__gov.specialties) || {}); const s = prompt(`Path for ${name} (${specs.join(', ')}):`, g.specialty || ''); if (s && s.trim()) govPost('specialty', { agent: name, specialty: s.trim() }, 'Set path').then(r => r && renderAgentCrew()); } });
+  items.push({ sep: true });
+  items.push({ icon: '🚪', label: 'Enter seclusion', onClick: () => fetch(`/api/agents/${encodeURIComponent(name)}/seclusion`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ enter: true }) }).then(() => renderAgentCrew()) });
+  if (!g.is_leader) items.push({ icon: '💀', label: 'Strike down', danger: true, onClick: () => { if (confirm(`Strike down ${name}? They will be cast out and replaced.`)) govPost('strike-down', { agent: name, reason: '' }, 'Strike down').then(r => r && render()); } });
+  return items;
+}
+function taskCtxItems(id) {
+  const upd = (status) => apiPost(`/api/tasks/${id}/status`, { status }, 'Update').then(r => r && renderTaskBoard());
+  return [
+    { icon: '🧘', label: 'Reassign…', onClick: () => { const who = prompt('Reassign to disciple:', ''); if (who && who.trim()) apiPost(`/api/tasks/${id}/reassign`, { assignee: who.trim(), dispatch: true }, 'Reassign').then(r => r && renderTaskBoard()); } },
+    { icon: '✅', label: 'Mark done', onClick: () => upd('done') },
+    { icon: '⛔', label: 'Mark failed', onClick: () => upd('failed') },
+    { sep: true },
+    { icon: '🗑', label: 'Cancel task', danger: true, onClick: () => upd('cancelled') },
+  ];
+}
+// One delegated listener handles every card type (survives re-renders).
+document.addEventListener('contextmenu', (e) => {
+  const proj = e.target.closest('details.project-card[data-project]');
+  const agent = e.target.closest('details.agent-card[data-agent]');
+  const task = e.target.closest('.task-item[data-task]');
+  if (proj) { e.preventDefault(); showContextMenu(e.clientX, e.clientY, proj.dataset.project, projectCtxItems(proj.dataset.device, proj.dataset.project)); }
+  else if (agent) { e.preventDefault(); showContextMenu(e.clientX, e.clientY, agent.dataset.agent, agentCtxItems(agent.dataset.agent)); }
+  else if (task) { e.preventDefault(); showContextMenu(e.clientX, e.clientY, 'Task', taskCtxItems(+task.dataset.task)); }
+});
+
 function projectCard(p) {
   const m = p.metrics || {};
   const alerts = (p.alerts || []).map(a => {
