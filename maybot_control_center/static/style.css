@@ -908,3 +908,32 @@ details.project-card { padding: 0; overflow: hidden; }
 .auth-banner.hidden { display: none; }
 .auth-banner code { background: rgba(0,0,0,.3); padding: 1px 5px; border-radius: 4px; }
 .auth-banner .auth-dismiss { margin-left: 10px; padding: 2px 10px; }
+
+/* ---- autopilot counters ---- */
+.ap-counters { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.ap-counter { font-size: 11px; padding: 1px 8px; border-radius: 10px; border: 1px solid var(--border); color: var(--muted); }
+
+/* ---- GitHub drill-down (detail modal) ---- */
+.gh-block { margin: 4px 0 8px; font-size: 13px; }
+.gh-row { padding: 2px 0; color: var(--muted); }
+.gh-row a { color: var(--tech); margin-right: 6px; }
+
+/* ---- responsive / mobile ---- */
+@media (max-width: 640px) {
+  .container { padding: 10px; }
+  .topbar { flex-wrap: wrap; gap: 8px; }
+  .topbar h1 { font-size: 22px; }
+  .tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .tab-btn { white-space: nowrap; }
+  .grid { grid-template-columns: 1fr; }
+  #summary { grid-template-columns: repeat(2, 1fr) !important; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .task-board { grid-template-columns: 1fr; }
+  .proj-summary { grid-template-columns: 1fr auto; }
+  .ps-type { display: none; }
+  details.agent-card, details.agent-card[open] { width: 100%; }
+  .comms-launch > input, .comms-launch > select, .comms-launch > textarea { flex: 1 1 100%; min-width: 0; }
+  .modal-box { padding: 16px; }
+  .cmdk { padding-top: 8vh; }
+  .fame-card .fame-num { font-size: 22px; }
+}

@@ -1070,9 +1070,14 @@ async function renderAutopilot() {
     log.map(e => `<div class='ap-log-row'><span class='ap-log-t muted'>${new Date(e.ts).toLocaleTimeString()}</span>
       <span class='ap-log-k'>${APK[e.kind] || '•'}</span><b>${esc(e.title)}</b> <span class='muted'>${esc(e.message)}</span></div>`).join('')
     }</details>` : '';
+  const c = a.counters || {};
+  const counters = Object.values(c).some(v => v)
+    ? `<div class='ap-counters'>${['fixes', 'restarts', 'recoveries', 'escalations', 'proposals'].filter(k => c[k]).map(k => `<span class='ap-counter'>${c[k]} ${k}</span>`).join('')}</div>`
+    : '';
   el.innerHTML = `<div class='autopilot-card ${state.cls}'>
     <div class='ap-head'><b>🧠 Second Brain</b><span class='ap-dot'></span><span class='ap-state'>${state.txt}</span>${btn}</div>
     <div class='muted ap-note'>${state.note}${active.length ? ` · handling ${active.length}` : ''}</div>
+    ${counters}
     ${log[0] ? `<div class='ap-last muted'>↳ ${esc(log[0].title)} — ${esc(log[0].message)}</div>` : ''}
     ${timeline}
   </div>`;
@@ -1209,7 +1214,16 @@ async function openProjectDetail(device, name) {
     p.frozen ? metric('State', '🔒 frozen (Decree)') : '',
     p.oath ? metric('Owned by', `🤝 ${esc(p.oath.who)}`) : '',
   ].join('');
-  const mkeys = Object.entries(m).slice(0, 12).map(([k, v]) => metric(k, esc(v))).join('');
+  let ghLists = '';
+  if (p.type === 'github_repo') {
+    const prRows = (m.prs || []).map(x => `<div class='gh-row'><a href='https://github.com/${esc(name)}/pull/${x.number}' target='_blank' rel='noopener'>#${x.number}</a> ${esc(x.title)}</div>`).join('');
+    const isRows = (m.issues || []).map(x => `<div class='gh-row'><a href='https://github.com/${esc(name)}/issues/${x.number}' target='_blank' rel='noopener'>#${x.number}</a> ${esc(x.title)}</div>`).join('');
+    if (prRows || isRows) ghLists = `<h3 class='trials-sub'>GitHub</h3>
+      ${prRows ? `<div class='gh-block'><b>Open PRs</b>${prRows}</div>` : ''}
+      ${isRows ? `<div class='gh-block'><b>Open issues</b>${isRows}</div>` : ''}`;
+  }
+  const skipKeys = new Set(['prs', 'issues']);
+  const mkeys = Object.entries(m).filter(([k]) => !skipKeys.has(k)).slice(0, 12).map(([k, v]) => metric(k, esc(typeof v === 'object' ? JSON.stringify(v) : v))).join('');
   const apHtml = aplog.length
     ? aplog.map(e => `<div class='ap-log-row'><span class='ap-log-t muted'>${new Date(e.ts).toLocaleTimeString()}</span><b>${esc(e.title)}</b> <span class='muted'>${esc(e.message)}</span></div>`).join('')
     : `<div class='muted'>No autopilot activity for this project.</div>`;
@@ -1220,6 +1234,7 @@ async function openProjectDetail(device, name) {
     ${alerts}
     <h3 class='trials-sub'>Reliability</h3><div class='detail-grid'>${rel}</div>
     ${sparkline(history, 'history') || ''}
+    ${ghLists}
     <h3 class='trials-sub'>Metrics</h3><div class='detail-grid'>${mkeys || '<span class="muted">none</span>'}</div>
     <h3 class='trials-sub'>🧠 Autopilot activity</h3>${apHtml}
     <div class='detail-actions'>

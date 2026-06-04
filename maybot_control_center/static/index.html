@@ -147,13 +147,15 @@
     </section>
     <section data-tab="sect" id="lore-section" class="hidden">
       <div class="section-head"><h2>Sect Lore</h2></div>
-      <p class="muted">Karmic bonds (pair review), the lineage of techniques, drift watch, the artifact vault, and merit-weighted council votes.</p>
+      <p class="muted">The sect tends its own lore — bonds, lineage, drift, artifacts (incl. Elder technique manuals), and council votes form automatically as disciples work. Expand a section to intervene manually.</p>
 
       <h3 class="trials-sub">🤝 Karmic Bonds</h3>
-      <div class="comms-launch">
-        <select id="bond-a"></select><span class="muted">↔</span><select id="bond-b"></select>
-        <button id="bond-go" class="btn">Bind pair</button>
-      </div>
+      <details class="details"><summary>⚙ Bind a pair manually</summary>
+        <div class="comms-launch">
+          <select id="bond-a"></select><span class="muted">↔</span><select id="bond-b"></select>
+          <button id="bond-go" class="btn">Bind pair</button>
+        </div>
+      </details>
       <div id="bond-list" class="grid"></div>
 
       <h3 class="trials-sub">💓 Dao-Heart Drift</h3>
@@ -178,13 +180,15 @@
       <div id="artifact-list" class="grid"></div>
 
       <h3 class="trials-sub">🗳 Merit-Weighted Council Vote</h3>
-      <div class="comms-launch">
-        <input id="vote-q" placeholder="question / ambiguous call…" style="flex:1;min-width:0">
-      </div>
-      <div class="comms-launch">
-        <textarea id="vote-ballots" placeholder="one per line — Disciple: choice" rows="3" style="flex:1;min-width:0"></textarea>
-        <button id="vote-go" class="btn">Tally</button>
-      </div>
+      <details class="details"><summary>⚙ Call a council vote manually</summary>
+        <div class="comms-launch">
+          <input id="vote-q" placeholder="question / ambiguous call…" style="flex:1;min-width:0">
+        </div>
+        <div class="comms-launch">
+          <textarea id="vote-ballots" placeholder="one per line — Disciple: choice" rows="3" style="flex:1;min-width:0"></textarea>
+          <button id="vote-go" class="btn">Tally</button>
+        </div>
+      </details>
       <div id="vote-result" class="grid"></div>
     </section>
     <section data-tab="map" id="map-section" class="hidden">
