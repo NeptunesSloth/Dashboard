@@ -18,6 +18,7 @@ from . import maintenance
 from . import errorbudget
 from . import oaths
 from . import escalation
+from . import autopilot
 
 
 def _esc(v: str) -> str:
@@ -108,5 +109,16 @@ def render() -> str:
     metric("maybot_escalations_pending",
            sum(1 for p in escalation.snapshot()["pending"] if not p["escalated"]),
            "Armed escalations awaiting acknowledgement")
+
+    # ---- autopilot (the second brain) ----
+    ap = autopilot.status()
+    c = ap.get("counters", {})
+    for k in ("fixes", "restarts", "escalations", "recoveries", "proposals"):
+        metric(f"maybot_autopilot_{k}_total", c.get(k, 0), f"Autopilot {k} (cumulative)", "counter")
+    metric("maybot_autopilot_enabled", 1 if ap.get("enabled") else 0, "Autopilot enabled")
+    metric("maybot_autopilot_paused", 1 if ap.get("paused") else 0, "Autopilot kill switch engaged")
+    metric("maybot_autopilot_open_incidents",
+           sum(1 for i in ap.get("incidents", []) if i.get("state") not in ("recovered",)),
+           "Open incidents the autopilot is handling")
 
     return "\n".join(lines) + "\n"

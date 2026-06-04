@@ -1,0 +1,17 @@
+# Per-project autopilot (the Sect Leader's second brain) overrides.
+# Keys are "device:project" (from devices.yaml) or a bare "project" name.
+# Global behaviour is governed by MAYBOT_AUTOPILOT* env vars; this file refines it per project.
+projects:
+  - project: prod-1:TradeBot
+    mode: auto              # auto = fix it | propose = recommend only | off = ignore
+    remediation: restart    # optional force: restart | runbook | code | none
+
+  - project: prod-1:api-gateway
+    mode: propose           # diagnose + recommend, but wait for the Ancestor to act
+
+  - project: prod-1:Dashboard
+    mode: auto
+    remediation: code       # always treat failures as code issues
+    coder: Forge            # dispatch this disciple to patch it
+    pr: propose             # propose = record a Proposed PR for review | open = open a real PR
+                            # (overrides the global MAYBOT_PR_ENABLED for this project)

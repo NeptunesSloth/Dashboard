@@ -81,7 +81,7 @@ _state: dict[str, dict] = {}
 def _blank(agent: str) -> dict:
     return {"agent": agent, "stones": 0, "realm": 0, "skills": [], "breakthroughs": 0,
             "fail_streak": 0, "pending_tribulation": None, "pending_quest": None, "last_stipend": 0,
-            "seclusion_since": None, "roaming_since": None,
+            "seclusion_since": None, "roaming_since": None, "learn_goal": None,
             "event": None, "event_ts": 0, "updated_at": 0}
 
 
@@ -323,6 +323,7 @@ def state(agent: str) -> dict:
         "in_roaming": bool(st.get("roaming_since")),
         "roaming_remaining": (max(0, int(ROAMING_SECONDS - (time.time() - st["roaming_since"])))
                               if st.get("roaming_since") else 0),
+        "learn_goal": st.get("learn_goal"),
         "pending_quest": st.get("pending_quest"),
         "stones": st["stones"],
         "skills": st["skills"],
@@ -472,8 +473,20 @@ def exit_roaming(agent: str) -> dict:
     return state(agent)
 
 
+def set_learn_goal(agent: str, skill: str | None) -> dict:
+    """The Ancestor asks a disciple to seek a specific skill on their next roam."""
+    goal = (skill or "").strip() or None
+    with _lock:
+        st = _state.get(agent) or _blank(agent)
+        _state[agent] = st
+        st["learn_goal"] = goal
+    return state(agent)
+
+
 def tick_roaming(agent: str) -> str | None:
-    """If a roaming disciple's journey has matured, return with a unique art/knowledge."""
+    """If a roaming disciple's journey has matured, return having learned a *real*
+    AI skill found on the web (curated fallback when offline). If the Ancestor set
+    a learn-goal, the disciple searches for that skill (or the closest thing)."""
     now = time.time()
     with _lock:
         st = _state.get(agent)
@@ -481,24 +494,60 @@ def tick_roaming(agent: str) -> str | None:
             return None
         if now - st["roaming_since"] < ROAMING_SECONDS:
             return None
-        undiscovered = [d for d in DISCOVERIES if d not in st["skills"]]
-        if not undiscovered:
-            st["roaming_since"] = None  # has discovered everything the world holds
+        known = set(st["skills"])
+        want = st.get("learn_goal")
+
+    # Network/discovery happens OUTSIDE the lock so a slow search can't stall callers.
+    found, meta = None, None
+    try:
+        from . import skillquest
+        meta = skillquest.discover(agent, known, want=want)
+        if meta:
+            found = meta["skill"]
+    except Exception:
+        meta = None
+    if not found:  # web yielded nothing new — fall back to the flavour discoveries
+        undiscovered = [d for d in DISCOVERIES if d not in known]
+        found = random.choice(undiscovered) if undiscovered else None
+
+    with _lock:
+        st = _state.get(agent)
+        if not st or not st.get("roaming_since"):
             return None
-        found = random.choice(undiscovered)
+        if not found or found in st["skills"]:
+            st["roaming_since"] = None   # nothing left to learn — settle down
+            return None
         st["skills"].append(found)
         st["stones"] += AWARD_NEW_SKILL
         _maybe_breakthrough(st)
         st["roaming_since"] = now  # keep wandering for the next discovery
+        if st.get("learn_goal"):
+            st["learn_goal"] = None  # the requested skill (or closest) has been sought
         st["event"], st["event_ts"] = "discovery", int(now * 1000)
         snap = dict(st)
         snap["skills"] = list(st["skills"])
     if store.enabled():
         store.upsert_cultivation(snap)
+    src = f"\nSource: {meta['url']}" if meta and meta.get("url") else ""
     try:
         from . import memory
         if memory.enabled():
-            memory.write_note(f"roaming-{found}", f"# {found}\n{agent} returned from roaming having learned **{found}**.")
+            memory.write_note(f"roaming-{found}", f"# {found}\n{agent} returned from roaming having learned **{found}**.{src}")
+    except Exception:
+        pass
+    if meta and meta.get("source") == "web":  # attribute the real find in the vault
+        try:
+            from . import artifacts
+            artifacts.forge(agent, f"Skill — {found}", "note",
+                            f"{agent} learned **{found}** while roaming the web.{src}\nQuery: {meta.get('query', '')}",
+                            description=f"Real AI skill discovered by {agent} while roaming.")
+        except Exception:
+            pass
+    try:  # feed the new skill (with its how-to, if fetched) into compounding memory
+        from . import sectmemory
+        doc = (meta or {}).get("doc")
+        body = f"Skill '{found}': {doc}" if doc else f"{agent} learned the skill: {found}.{src}"
+        sectmemory.add(body, source=agent, agent=agent, kind="skill")
     except Exception:
         pass
     events.publish("agents", {"agent": agent, "event": "discovery", "skill": found})

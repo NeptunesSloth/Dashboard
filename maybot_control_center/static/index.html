@@ -4,12 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MayBot Guild Hall</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0d1117">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="icon" href="/icon.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MayBot">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital@0;1&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <div id="login-overlay" class="login-overlay hidden">
+    <div class="login-box">
+      <h2>☯ MayBot — Sign in</h2>
+      <p class="muted">This dashboard requires a control token.</p>
+      <input id="login-token" type="password" placeholder="Control token…" autocomplete="current-password">
+      <div id="login-error" class="muted"></div>
+      <button id="login-go" class="btn btn-primary">Sign in</button>
+    </div>
+  </div>
+  <div id="auth-banner" class="auth-banner hidden"></div>
   <header class="topbar">
     <div>
       <h1>☯ MayBot Celestial Sect</h1>
@@ -27,6 +43,7 @@
       <label for="control-token">Control Token</label>
       <input id="control-token" type="password" placeholder="optional">
       <button id="save-control-token" class="btn">Save</button>
+      <button id="sign-out" class="btn">Sign out</button>
     </div>
   </header>
 
@@ -35,8 +52,10 @@
     <nav class="tabs">
       <button class="tab-btn" data-tab="overview">Overview</button>
       <button class="tab-btn" data-tab="disciples">Disciples</button>
+      <button class="tab-btn" data-tab="skills">Known Skills</button>
       <button class="tab-btn" data-tab="map">Sect Map</button>
       <button class="tab-btn" data-tab="sect">Sect Halls</button>
+      <button class="tab-btn" data-tab="ops">Ops</button>
     </nav>
     <section data-tab="overview">
       <h2>Sect Overview</h2>
@@ -91,6 +110,7 @@
         <span id="leader-pill" class="pill">no leader</span>
       </div>
       <p class="muted">Describe a goal — the sect routes it to the best-fit disciple, or breaks it into subtasks across several. Or appoint a Sect Leader to oversee delegation.</p>
+      <div id="autopilot-bar"></div>
       <div class="comms-launch">
         <input id="goal-input" placeholder="Describe a goal, e.g. 'refactor the trading API for lower latency'…">
         <select id="goal-priority" title="priority">
@@ -121,6 +141,26 @@
       <p class="muted">Direct word from your Sect Leader and Elders — none below Elder rank may address you here.</p>
       <div id="ancestor-inbox" class="comms-feed"></div>
     </section>
+    <section data-tab="skills" id="skills-section">
+      <div class="section-head"><h2>Known Skills</h2><span id="skills-pill" class="pill">0 skills</span></div>
+      <p class="muted">Every technique the sect knows and who holds it. Skills a disciple discovered on the web while roaming link to their source.</p>
+      <div class="filter-bar"><input id="skill-search" type="search" placeholder="Search skills or disciples…"></div>
+      <div id="skills-list" class="grid"></div>
+      <div class="section-head" style="margin-top:18px"><h3 style="margin:0">🧠 Sect Knowledge</h3><span id="mem-pill" class="pill">0 entries</span></div>
+      <p class="muted">Everything the sect has learned — task results, post-incident fixes, manuals, skills. Every disciple draws on this before acting, so the sect compounds knowledge over time.</p>
+      <div class="filter-bar"><input id="mem-search" type="search" placeholder="Search the sect's accumulated knowledge…"></div>
+      <div id="mem-list" class="grid"></div>
+    </section>
+    <section data-tab="ops" id="ops-section">
+      <div class="section-head"><h2>Ops</h2><span id="ops-pill" class="pill">—</span>
+        <button id="enable-alerts" class="btn">🔔 Enable phone alerts</button></div>
+      <h3 class="trials-sub">⚙ Setup &amp; Diagnostics</h3>
+      <div id="diag-config"></div>
+      <h3 class="trials-sub">🛰 Fleet Health</h3>
+      <div id="fleet-table"></div>
+      <h3 class="trials-sub">📒 Operator Audit Log</h3>
+      <div id="audit-list" class="comms-feed"></div>
+    </section>
     <section data-tab="sect" id="trials-section" class="hidden">
       <div class="section-head"><h2>Trials Hall</h2></div>
       <p class="muted">The operator's reliability controls: the on-call rotation and chaos tribulations. Spirit-root grading and formation dry-runs are handled automatically by the sect.</p>
@@ -145,13 +185,15 @@
     </section>
     <section data-tab="sect" id="lore-section" class="hidden">
       <div class="section-head"><h2>Sect Lore</h2></div>
-      <p class="muted">Karmic bonds (pair review), the lineage of techniques, drift watch, the artifact vault, and merit-weighted council votes.</p>
+      <p class="muted">The sect tends its own lore — bonds, lineage, drift, artifacts (incl. Elder technique manuals), and council votes form automatically as disciples work. Expand a section to intervene manually.</p>
 
       <h3 class="trials-sub">🤝 Karmic Bonds</h3>
-      <div class="comms-launch">
-        <select id="bond-a"></select><span class="muted">↔</span><select id="bond-b"></select>
-        <button id="bond-go" class="btn">Bind pair</button>
-      </div>
+      <details class="details"><summary>⚙ Bind a pair manually</summary>
+        <div class="comms-launch">
+          <select id="bond-a"></select><span class="muted">↔</span><select id="bond-b"></select>
+          <button id="bond-go" class="btn">Bind pair</button>
+        </div>
+      </details>
       <div id="bond-list" class="grid"></div>
 
       <h3 class="trials-sub">💓 Dao-Heart Drift</h3>
@@ -176,13 +218,15 @@
       <div id="artifact-list" class="grid"></div>
 
       <h3 class="trials-sub">🗳 Merit-Weighted Council Vote</h3>
-      <div class="comms-launch">
-        <input id="vote-q" placeholder="question / ambiguous call…" style="flex:1;min-width:0">
-      </div>
-      <div class="comms-launch">
-        <textarea id="vote-ballots" placeholder="one per line — Disciple: choice" rows="3" style="flex:1;min-width:0"></textarea>
-        <button id="vote-go" class="btn">Tally</button>
-      </div>
+      <details class="details"><summary>⚙ Call a council vote manually</summary>
+        <div class="comms-launch">
+          <input id="vote-q" placeholder="question / ambiguous call…" style="flex:1;min-width:0">
+        </div>
+        <div class="comms-launch">
+          <textarea id="vote-ballots" placeholder="one per line — Disciple: choice" rows="3" style="flex:1;min-width:0"></textarea>
+          <button id="vote-go" class="btn">Tally</button>
+        </div>
+      </details>
       <div id="vote-result" class="grid"></div>
     </section>
     <section data-tab="map" id="map-section" class="hidden">
@@ -334,6 +378,18 @@
     </div>
     <pre id="logs">Select a project and click View Logs.</pre>
   </aside>
+  <div id="detail-modal" class="modal hidden">
+    <div class="modal-box">
+      <button class="modal-close" id="detail-close">✕</button>
+      <div id="detail-body"></div>
+    </div>
+  </div>
+  <div id="cmdk" class="cmdk hidden">
+    <div class="cmdk-box">
+      <input id="cmdk-input" placeholder="Type a command or search — projects, disciples, actions…  (Esc to close)">
+      <div id="cmdk-list" class="cmdk-list"></div>
+    </div>
+  </div>
   <script src="/app.js"></script>
 </body>
 </html>

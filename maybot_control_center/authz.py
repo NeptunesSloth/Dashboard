@@ -39,6 +39,20 @@ def load_users() -> list[dict]:
     return users if isinstance(users, list) else []
 
 
+def name_for(token: str) -> str:
+    """A human label for who is acting (for the audit log)."""
+    users = load_users()
+    if users:
+        for u in users:
+            tok = u.get("token")
+            if tok and secrets.compare_digest(token or "", str(tok)):
+                return u.get("name") or u.get("role") or "user"
+        return "unknown"
+    if CONTROL_CENTER_TOKEN:
+        return "operator" if secrets.compare_digest(token or "", CONTROL_CENTER_TOKEN) else "anon"
+    return "operator"   # no auth configured
+
+
 def role_for(token: str) -> str | None:
     """Return 'operator' | 'viewer' | None for a presented token."""
     users = load_users()

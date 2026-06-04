@@ -19,3 +19,17 @@ def load_devices() -> list[dict]:
         data = yaml.safe_load(f) or {}
     devices = data.get("devices", [])
     return devices if isinstance(devices, list) else []
+
+
+def all_devices() -> list[dict]:
+    """File-configured devices plus any self-registered agents (file wins on name)."""
+    devices = load_devices()
+    names = {d.get("name") for d in devices}
+    try:
+        from . import registry
+        for d in registry.registered():
+            if d.get("name") not in names:
+                devices.append(d)
+    except Exception:
+        pass
+    return devices

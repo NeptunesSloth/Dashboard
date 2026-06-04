@@ -30,6 +30,9 @@ _SCHEMA = [
      "skills TEXT, breakthroughs INTEGER, updated_at INTEGER)"),
     ("CREATE TABLE IF NOT EXISTS treasury (id INTEGER PRIMARY KEY CHECK (id = 1), balance INTEGER, "
      "last_accrual REAL, income INTEGER, spent INTEGER)"),
+    # Generic JSON blob per module — used by in-memory coordination aids
+    # (task board, oaths, maintenance silences, autopilot) to survive restarts.
+    "CREATE TABLE IF NOT EXISTS state (module TEXT PRIMARY KEY, data TEXT)",
 ]
 
 
@@ -174,6 +177,43 @@ def set_treasury(balance: int, last_accrual: float, income: int, spent: int) -> 
 def get_treasury() -> tuple | None:
     rows = _query("SELECT balance, last_accrual, income, spent FROM treasury WHERE id = 1")
     return rows[0] if rows else None
+
+
+# ---- generic per-module JSON state ----
+def save_state(module: str, obj) -> None:
+    if not DB_PATH:
+        return
+    _exec("INSERT OR REPLACE INTO state (module, data) VALUES (?, ?)", (module, json.dumps(obj)))
+
+
+def load_state(module: str):
+    rows = _query("SELECT data FROM state WHERE module = ?", (module,))
+    if not rows:
+        return None
+    try:
+        return json.loads(rows[0][0])
+    except Exception:
+        return None
+
+
+def export_state() -> dict:
+    """Every module's persisted JSON blob (for backup). Empty without a DB."""
+    out: dict = {}
+    for module, data in _query("SELECT module, data FROM state"):
+        try:
+            out[module] = json.loads(data)
+        except Exception:
+            pass
+    return out
+
+
+def import_state(state: dict) -> int:
+    """Write module blobs back (for restore). Returns how many were written."""
+    n = 0
+    for module, obj in (state or {}).items():
+        save_state(str(module), obj)
+        n += 1
+    return n
 
 
 def _reset_for_tests(path: str) -> None:

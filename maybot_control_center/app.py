@@ -6,7 +6,7 @@ import secrets
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse
 from pydantic import BaseModel
-from .config import load_devices, CONTROL_CENTER_TOKEN
+from .config import load_devices, all_devices, CONTROL_CENTER_TOKEN
 from . import aggregator
 from .aggregator import aggregate
 from .agent_client import call_agent, post_agent
@@ -55,18 +55,30 @@ from . import escalation
 from . import taskqueue
 from . import routing
 from . import orchestrator
+from . import autopilot
+from . import sectmemory
+from . import audit
+from . import diagnostics
+from . import inbound
+from . import backup
+from . import registry
+from . import push
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
 for _loader in (history.load_persisted, agents.load_persisted, comms.load_persisted,
                 tooling.load_persisted, usage.load_persisted, cultivation.load_persisted,
-                treasury.load_persisted):
+                treasury.load_persisted, taskqueue.load_persisted, oaths.load_persisted,
+                maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
+                audit.load_persisted, inbound.load_persisted, registry.load_persisted,
+                push.load_persisted):
     try:
         _loader()
     except Exception:
         pass
 scheduler.start()  # background cron for scheduled missions (no-op without schedules.yaml)
 talismans.start()  # background synthetic uptime probes (no-op without talismans.yaml)
+autopilot.start()  # the Sect Leader's autonomous ops loop (no-op unless MAYBOT_AUTOPILOT=1)
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 # A silence target: "*", "device:*", or "device:project".
@@ -85,7 +97,16 @@ async def _rate_limit(request, call_next):
         if not authz.allow_request(key):
             from fastapi.responses import JSONResponse
             return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
-    return await call_next(request)
+    response = await call_next(request)
+    # Operator audit: record every mutating API call (who, what, outcome).
+    if request.method in ("POST", "PUT", "DELETE", "PATCH") and request.url.path.startswith("/api/") \
+            and not request.url.path.startswith("/api/audit"):
+        try:
+            actor = authz.name_for(request.headers.get("x-control-token", ""))
+            audit.record(actor, f"{request.method} {request.url.path}", status=response.status_code)
+        except Exception:
+            pass
+    return response
 
 
 def _role(token: str) -> str:
@@ -107,16 +128,25 @@ def _check_operator(x_control_token: str = Header(default="")):
 
 
 def _resolve_device(device_name: str):
-    device = next((d for d in load_devices() if d.get("name") == device_name), None)
+    device = next((d for d in all_devices() if d.get("name") == device_name), None)
     if not device:
         raise HTTPException(404, "device not found")
     return device
 
 
+@app.get("/api/meta")
+def meta():
+    """Non-secret UI hints: whether auth is configured (for the setup warning),
+    and which optional subsystems are on."""
+    auth_configured = bool(authz.load_users()) or bool(CONTROL_CENTER_TOKEN)
+    return {"auth_configured": auth_configured, "autopilot_enabled": autopilot.ENABLED,
+            "public_status": status_page.enabled()}
+
+
 @app.get("/api/overview")
 def overview(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
-    return aggregate(load_devices())
+    return aggregate(all_devices())
 
 
 @app.get("/api/logs/{device_name}/{project_name}")
@@ -821,6 +851,23 @@ def agent_roaming(name: str, body: SeclusionIn, x_control_token: str = Header(de
     return cultivation.enter_roaming(name) if body.enter else cultivation.exit_roaming(name)
 
 
+class LearnGoalIn(BaseModel):
+    skill: str = ""   # empty clears the goal
+
+
+@app.post("/api/agents/{name}/learn-goal")
+def agent_learn_goal(name: str, body: LearnGoalIn, x_control_token: str = Header(default="")):
+    """Ask a disciple to seek a specific skill on their next roam (or the closest)."""
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid agent name")
+    if agents._agent_def(name) is None:
+        raise HTTPException(404, "agent not found")
+    if len(body.skill) > 120:
+        raise HTTPException(400, "skill too long (max 120)")
+    return cultivation.set_learn_goal(name, body.skill)
+
+
 class TransmitIn(BaseModel):
     to: str
     skill: str
@@ -1043,6 +1090,162 @@ def oaths_release(body: UnsilenceIn, x_control_token: str = Header(default="")):
 def escalation_status(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return escalation.snapshot()
+
+
+# ---- Setup & diagnostics / fleet health ----
+@app.get("/api/diagnostics")
+def diagnostics_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return diagnostics.snapshot()
+
+
+# ---- Inbound alert ingestion (external systems push incidents in) ----
+def _check_ingest(x_control_token: str, x_ingest_token: str):
+    if inbound.INGEST_TOKEN and x_ingest_token and secrets.compare_digest(x_ingest_token, inbound.INGEST_TOKEN):
+        return
+    _check_operator(x_control_token)
+
+
+class InboundIn(BaseModel):
+    title: str
+    source: str = "external"
+    severity: str = "warning"
+    message: str = ""
+    project: str = ""
+    device: str = ""
+
+
+@app.post("/api/ingest/alert")
+def ingest_alert(body: InboundIn, x_control_token: str = Header(default=""),
+                 x_ingest_token: str = Header(default="")):
+    _check_ingest(x_control_token, x_ingest_token)
+    if not (body.title or "").strip():
+        raise HTTPException(400, "title required")
+    return inbound.ingest(body.source, body.severity, body.title, body.message, body.project, body.device)
+
+
+@app.get("/api/inbound")
+def inbound_feed(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return inbound.snapshot()
+
+
+# ---- State backup / restore ----
+@app.get("/api/backup")
+def backup_export(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return backup.export()
+
+
+@app.post("/api/restore")
+def backup_restore(body: dict, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    try:
+        return backup.restore(body)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+# ---- Agent auto-registration ----
+class RegisterIn(BaseModel):
+    name: str
+    url: str
+    api_token: str = ""
+    timeout: float | None = None
+
+
+@app.post("/api/agents/register")
+def agents_register(body: RegisterIn, x_control_token: str = Header(default=""),
+                    x_register_token: str = Header(default="")):
+    if registry.REGISTER_TOKEN and x_register_token and secrets.compare_digest(x_register_token, registry.REGISTER_TOKEN):
+        pass
+    else:
+        _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.name or ""):
+        raise HTTPException(400, "invalid agent name")
+    if not (body.url or "").startswith(("http://", "https://")):
+        raise HTTPException(400, "url must start with http:// or https://")
+    return registry.register(body.name, body.url, body.api_token, body.timeout)
+
+
+class DeregisterIn(BaseModel):
+    name: str
+
+
+@app.post("/api/agents/deregister")
+def agents_deregister(body: DeregisterIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"deregistered": registry.deregister((body.name or "").strip())}
+
+
+@app.get("/api/registry")
+def registry_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return registry.snapshot()
+
+
+# ---- Login (validate a token) ----
+class LoginIn(BaseModel):
+    token: str = ""
+
+
+@app.post("/api/login")
+def login(body: LoginIn):
+    role = authz.role_for(body.token)
+    if role is None:
+        raise HTTPException(401, "invalid token")
+    return {"ok": True, "role": role, "name": authz.name_for(body.token)}
+
+
+# ---- Web Push (VAPID) ----
+@app.get("/api/push/key")
+def push_key(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return push.public_key()
+
+
+@app.post("/api/push/subscribe")
+def push_subscribe(body: dict, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    try:
+        return push.subscribe(body.get("subscription") or body)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
+# ---- Operator audit log ----
+@app.get("/api/audit")
+def audit_log(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return audit.snapshot()
+
+
+# ---- Compounding sect memory (shared knowledge) ----
+@app.get("/api/sectmemory")
+def sectmemory_status(q: str = Query(default=""), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    if q.strip():
+        return {"query": q, "results": sectmemory.search(q, 8)}
+    return sectmemory.snapshot()
+
+
+# ---- Autopilot (the Sect Leader's second brain) ----
+@app.get("/api/autopilot")
+def autopilot_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return autopilot.status()
+
+
+@app.post("/api/autopilot/pause")
+def autopilot_pause(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)   # kill switch
+    return autopilot.set_paused(True)
+
+
+@app.post("/api/autopilot/resume")
+def autopilot_resume(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return autopilot.set_paused(False)
 
 
 # ---- Task board / work queue ----
@@ -1273,6 +1476,22 @@ def js():
 @app.get("/style.css")
 def css():
     return FileResponse("maybot_control_center/static/style.css")
+
+
+# ---- PWA (installable app + offline shell) ----
+@app.get("/manifest.webmanifest")
+def manifest():
+    return FileResponse("maybot_control_center/static/manifest.webmanifest", media_type="application/manifest+json")
+
+
+@app.get("/sw.js")
+def service_worker():
+    return FileResponse("maybot_control_center/static/sw.js", media_type="text/javascript")
+
+
+@app.get("/icon.svg")
+def icon():
+    return FileResponse("maybot_control_center/static/icon.svg", media_type="image/svg+xml")
 
 
 @app.get("/assets/{path:path}")

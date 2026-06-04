@@ -38,7 +38,9 @@ def test_roaming_returns_with_a_unique_discovery(monkeypatch):
     with c._lock:
         c._state["Nova"]["roaming_since"] -= 2000
     found = c.tick_roaming("Nova")
-    assert found in c.DISCOVERIES
+    # Roaming now brings back a real AI skill (offline fallback in tests).
+    from maybot_control_center import skillquest
+    assert found in skillquest.FALLBACK or found in c.DISCOVERIES
     st = c.state("Nova")
     assert found in st["skills"]
     assert st["event"] == "discovery"

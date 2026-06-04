@@ -26,12 +26,16 @@ def claim(target: str, who: str, note: str = "") -> dict:
     rec = {"target": target, "who": who, "note": note.strip()[:200], "since": int(time.time() * 1000)}
     with _lock:
         _oaths[target] = rec
+    _save()
     return dict(rec)
 
 
 def release(target: str) -> bool:
     with _lock:
-        return _oaths.pop(target, None) is not None
+        removed = _oaths.pop(target, None) is not None
+    if removed:
+        _save()
+    return removed
 
 
 def is_claimed(device: str, name: str) -> bool:
@@ -64,6 +68,22 @@ def snapshot() -> dict:
         return {"oaths": [dict(r) for r in sorted(_oaths.values(), key=lambda r: r["since"])]}
 
 
+def _save() -> None:
+    from . import store
+    if store.enabled():
+        with _lock:
+            store.save_state("oaths", _oaths)
+
+
+def load_persisted() -> None:
+    from . import store
+    data = store.load_state("oaths")
+    if data:
+        with _lock:
+            _oaths.update(data)
+
+
 def clear() -> None:
     with _lock:
         _oaths.clear()
+    _save()

@@ -279,10 +279,23 @@ def run_task(name: str, task: str) -> dict:
             system = f"{system}\n\n{add}"
     except Exception:
         pass  # traits are an optional flavour layer
+    try:  # mastered skills (incl. ones roamed from the web) become real capabilities
+        sk = cultivation.state(name).get("skills") or []
+        if sk:
+            system = f"{system}\n\nTechniques you have mastered — apply them where relevant: {', '.join(sk)}."
+    except Exception:
+        pass
     if memory.enabled() and agent.get("memory", True):
         ctx = memory.context_for(task)
         if ctx:
             system = f"{system}\n\n{ctx}"
+    try:  # compounding sect memory: relevant knowledge the sect has accumulated
+        from . import sectmemory
+        sctx = sectmemory.context_for(task)
+        if sctx:
+            system = f"{system}\n\n{sctx}"
+    except Exception:
+        pass
     tools_on = tooling.enabled() and agent.get("tools", True)
     if tools_on:
         system = f"{system}\n\n{tooling.prompt_hint()}"
@@ -300,6 +313,14 @@ def run_task(name: str, task: str) -> dict:
         agent_eff["model"] = boost["model"]
     if boost.get("max_tokens"):
         agent_eff["max_tokens"] = int(agent.get("max_tokens", 1024)) + int(boost["max_tokens"])
+    # Ascension: a high-realm disciple thinks with a stronger model.
+    try:
+        from . import ascension
+        asc = ascension.model_for(name, agent_eff.get("model") or agent.get("default_model"))
+        if asc:
+            agent_eff["model"] = asc
+    except Exception:
+        pass
 
     ok, text, err = _chat(agent_eff, messages)  # network call outside the lock
 
@@ -363,6 +384,12 @@ def run_task(name: str, task: str) -> dict:
         taskqueue.on_agent_finished(name, ok, text if ok else (err or ""))
     except Exception:
         pass
+    if ok and text:  # contribute the result to the sect's compounding memory
+        try:
+            from . import sectmemory
+            sectmemory.add(f"Task: {task}\nResult: {text[:600]}", source=name, agent=name, kind="task")
+        except Exception:
+            pass
     events.publish("agents", {"agent": name})
 
     # If the agent requested a tool, queue it for approval (never auto-run here).
@@ -543,6 +570,9 @@ def snapshot() -> list[dict]:
     for row in out:
         name = row["name"]
         row["reputation"] = reputation.score(name)
+        from . import ascension
+        row["ascension"] = ascension.status(name, row.get("model"))
+        _apt = governance.aptitude(name)
         row["governance"] = {
             "is_leader": name == leader,
             "is_elder": governance.is_elder(name),
@@ -550,6 +580,8 @@ def snapshot() -> list[dict]:
             "specialty": governance.specialty(name),
             "mastery": governance.mastery(name),
             "standing": governance.standing(name)["score"],
+            "aptitude": _apt["score"],
+            "aptitude_parts": _apt["components"],
         }
         row["titles"] = titles.evaluate(name)
         row["bond"] = bonds.partner(name)

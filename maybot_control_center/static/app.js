@@ -75,6 +75,95 @@ function sparkline(history, label) {
   return `<div class='sparkline'><span class='spark-label'>${esc(label)}</span>${svg}</div>`;
 }
 
+// ---- right-click context menu (sect-themed quick actions) ----
+let _ctxEl = null;
+function closeContextMenu() {
+  if (_ctxEl) { _ctxEl.remove(); _ctxEl = null; }
+  document.removeEventListener('keydown', _ctxKey);
+}
+function _ctxKey(e) { if (e.key === 'Escape') closeContextMenu(); }
+function showContextMenu(x, y, title, items) {
+  closeContextMenu();
+  const m = document.createElement('div');
+  m.className = 'ctx-menu';
+  m.innerHTML = (title ? `<div class='ctx-head'>${esc(title)}</div>` : '') + items.map((it, i) =>
+    it.sep ? `<div class='ctx-sep'></div>`
+      : `<button class='ctx-item${it.danger ? ' ctx-danger' : ''}' data-i='${i}'>${it.icon ? `<span class='ctx-ic'>${it.icon}</span>` : ''}${esc(it.label)}</button>`
+  ).join('');
+  document.body.appendChild(m);
+  const r = m.getBoundingClientRect();
+  m.style.left = Math.max(6, Math.min(x, window.innerWidth - r.width - 8)) + 'px';
+  m.style.top = Math.max(6, Math.min(y, window.innerHeight - r.height - 8)) + 'px';
+  m.querySelectorAll('.ctx-item').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    const it = items[+b.dataset.i];
+    closeContextMenu();
+    it.onClick && it.onClick();
+  });
+  _ctxEl = m;
+  setTimeout(() => document.addEventListener('keydown', _ctxKey), 0);
+}
+// close on any click/scroll/contextmenu-elsewhere
+document.addEventListener('click', () => closeContextMenu());
+document.addEventListener('scroll', () => closeContextMenu(), true);
+
+function _promptGoalAssign(name) {
+  const g = prompt(`Goal to route (best-fit disciple will be chosen):`, '');
+  if (g && g.trim()) apiPost('/api/assign/goal', { goal: g.trim(), dispatch: true }, 'Assign').then(r => { if (r) render(); });
+}
+function projectCtxItems(device, name) {
+  const p = (window.__lastProjects || []).find(x => x.name === name && x.device === device) || {};
+  const a = p.actions_available || {};
+  const tgt = `${device}:${name}`;
+  const items = [
+    { icon: '📊', label: 'Open detail', onClick: () => openProjectDetail(device, name) },
+    { icon: '📜', label: 'View logs', onClick: () => loadLogs(device, name) },
+    { icon: '🎯', label: 'Assign a goal…', onClick: _promptGoalAssign },
+  ];
+  if (a.start || a.stop || a.run_tests) items.push({ sep: true });
+  if (a.start) items.push({ icon: '▶', label: 'Start', onClick: () => callAction(device, name, 'start').then(render) });
+  if (a.stop) items.push({ icon: '⏹', label: 'Stop', onClick: () => callAction(device, name, 'stop').then(render) });
+  if (a.run_tests) items.push({ icon: '🧪', label: 'Run tests', onClick: () => callAction(device, name, 'run-tests').then(render) });
+  items.push({ sep: true });
+  items.push({ icon: '🔕', label: 'Silence alerts 60m', onClick: () => apiPost('/api/maintenance/silence', { target: tgt, minutes: 60, reason: 'manual' }, 'Silence').then(r => r && render()) });
+  if (p.health && p.health !== 'ok') items.push({ icon: '🤝', label: 'Claim incident', onClick: () => apiPost('/api/oaths/claim', { target: tgt, who: 'operator' }, 'Claim').then(r => r && render()) });
+  items.push({ sep: true }, { icon: '🔄', label: 'Sync now', onClick: () => render() });
+  return items;
+}
+function agentCtxItems(name) {
+  const a = (window.__agents || []).find(x => x.name === name) || {};
+  const g = a.governance || {};
+  const items = [
+    { icon: '📨', label: 'Assign a task…', onClick: () => { const t = prompt(`Task for ${name}:`, ''); if (t && t.trim()) apiPost(`/api/agents/${encodeURIComponent(name)}/task`, { task: t.trim() }, 'Assign').then(r => r && renderAgentCrew()); } },
+    { icon: '📖', label: 'Open details', onClick: () => { const d = document.querySelector(`details.agent-card[data-agent="${CSS.escape(name)}"]`); if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); } } },
+  ];
+  if (g.is_elder) items.push({ icon: '☯', label: 'Set path…', onClick: () => { const specs = Object.keys((window.__gov && window.__gov.specialties) || {}); const s = prompt(`Path for ${name} (${specs.join(', ')}):`, g.specialty || ''); if (s && s.trim()) govPost('specialty', { agent: name, specialty: s.trim() }, 'Set path').then(r => r && renderAgentCrew()); } });
+  items.push({ sep: true });
+  items.push({ icon: '🎯', label: 'Set skill to learn…', onClick: () => { const s = prompt(`Skill for ${name} to seek on next roam:`, (a.cultivation || {}).learn_goal || ''); if (s !== null) fetch(`/api/agents/${encodeURIComponent(name)}/learn-goal`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ skill: s }) }).then(() => renderAgentCrew()); } });
+  items.push({ icon: '🚪', label: 'Enter seclusion', onClick: () => fetch(`/api/agents/${encodeURIComponent(name)}/seclusion`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ enter: true }) }).then(() => renderAgentCrew()) });
+  if (!g.is_leader) items.push({ icon: '💀', label: 'Strike down', danger: true, onClick: () => { if (confirm(`Strike down ${name}? They will be cast out and replaced.`)) govPost('strike-down', { agent: name, reason: '' }, 'Strike down').then(r => r && render()); } });
+  return items;
+}
+function taskCtxItems(id) {
+  const upd = (status) => apiPost(`/api/tasks/${id}/status`, { status }, 'Update').then(r => r && renderTaskBoard());
+  return [
+    { icon: '🧘', label: 'Reassign…', onClick: () => { const who = prompt('Reassign to disciple:', ''); if (who && who.trim()) apiPost(`/api/tasks/${id}/reassign`, { assignee: who.trim(), dispatch: true }, 'Reassign').then(r => r && renderTaskBoard()); } },
+    { icon: '✅', label: 'Mark done', onClick: () => upd('done') },
+    { icon: '⛔', label: 'Mark failed', onClick: () => upd('failed') },
+    { sep: true },
+    { icon: '🗑', label: 'Cancel task', danger: true, onClick: () => upd('cancelled') },
+  ];
+}
+// One delegated listener handles every card type (survives re-renders).
+document.addEventListener('contextmenu', (e) => {
+  const proj = e.target.closest('details.project-card[data-project]');
+  const agent = e.target.closest('details.agent-card[data-agent]');
+  const task = e.target.closest('.task-item[data-task]');
+  if (proj) { e.preventDefault(); showContextMenu(e.clientX, e.clientY, proj.dataset.project, projectCtxItems(proj.dataset.device, proj.dataset.project)); }
+  else if (agent) { e.preventDefault(); showContextMenu(e.clientX, e.clientY, agent.dataset.agent, agentCtxItems(agent.dataset.agent)); }
+  else if (task) { e.preventDefault(); showContextMenu(e.clientX, e.clientY, 'Task', taskCtxItems(+task.dataset.task)); }
+});
+
 function projectCard(p) {
   const m = p.metrics || {};
   const alerts = (p.alerts || []).map(a => {
@@ -125,8 +214,9 @@ function projectCard(p) {
 
   // Compact headline stat so the card reads in one line until expanded.
   const stat = p.type === 'trading_bot' ? money(m.profit_today)
-    : (p.type === 'local_ai_host' ? `<span class='muted'>${esc(m.status || p.status || '—')}</span>`
-      : `<span class='muted'>${esc(p.status || '—')}</span>`);
+    : p.type === 'github_repo' ? `<span class='muted'>${m.open_prs || 0} PR · ${m.open_issues || 0} iss${m.failing_checks ? ` · ⚠${m.failing_checks}` : ''}</span>`
+      : (p.type === 'local_ai_host' ? `<span class='muted'>${esc(m.status || p.status || '—')}</span>`
+        : `<span class='muted'>${esc(p.status || '—')}</span>`);
   const icon = TYPE_ICON[p.type] || '📦';
 
   return `<details class='card project-card' data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
@@ -288,7 +378,10 @@ async function render() {
   summaryEl.classList.add('loading');
   summaryEl.innerHTML = `<div class='card'>Loading overview...</div>`;
   try {
-    const data = await fetch('/api/overview', { headers: authHeaders() }).then(r => r.json());
+    const resp = await fetch('/api/overview', { headers: authHeaders() });
+    if (resp.status === 401) { showLogin(); return; }
+    const data = await resp.json();
+    notifyHealthChanges(data.projects || []);
     window.__lastProjects = data.projects || [];
     err.classList.add('hidden');
     document.getElementById('refresh-status').textContent = new Date().toLocaleTimeString();
@@ -305,6 +398,8 @@ async function render() {
     await renderAgentCrew();
     // Re-render KPIs now that window.__agents is populated (disciple/cultivating counts).
     summaryEl.innerHTML = summaryCards(data.summary);
+    renderSkills();
+    renderOps();
     renderTrials();
     renderLore();
     renderSectMap();
@@ -641,6 +736,44 @@ function govControls(a) {
   return `<div class='gov-controls'>${elderBits}${strike}</div>`;
 }
 
+function aptTier(s) { return s >= 85 ? 'Prodigy' : s >= 65 ? 'Gifted' : s >= 45 ? 'Adept' : s >= 25 ? 'Apt' : 'Novice'; }
+
+// Intuitive Aptitude/Standing display: a labelled bar + the four sub-scores that
+// decide leadership, instead of a meaningless bare number.
+function scoresWidget(g) {
+  if (!g) return '';
+  const apt = Number(g.aptitude || 0), p = g.aptitude_parts || {};
+  const clamp = v => Math.max(0, Math.min(100, Number(v) || 0));
+  const mini = (label, v) => `<div class='sc-mini'><span class='sc-lbl'>${label}</span><span class='sc-track'><span style='width:${clamp(v)}%'></span></span></div>`;
+  return `<div class='scores'>
+    <div class='sc-head'><b>Aptitude</b> <span class='sc-tier'>${aptTier(apt)}</span><span class='muted sc-num'>${apt}/100</span></div>
+    <div class='sc-track sc-main'><span style='width:${clamp(apt)}%'></span></div>
+    <div class='sc-parts'>${mini('reasoning', p.reasoning)}${mini('intelligence', p.intelligence)}${mini('knowledge', p.knowledge)}${mini('skills', p.skills)}</div>
+    <div class='sc-head sc-standing-head'><span class='muted'>Standing</span><span class='muted'>merit · ${g.standing ?? '—'}</span></div>
+    <div class='sc-track'><span class='sc-standing' style='width:${clamp(g.standing)}%'></span></div>
+  </div>`;
+}
+
+// Per-agent known-skills — collapsed until clicked — + "tell them what to learn".
+function agentSkillsBlock(a, c) {
+  const srcMap = window.__skillSrc || {};
+  const skills = c.skills || [];
+  const chips = skills.map(s => {
+    const url = srcMap[s];
+    return `<span class='skill-chip'>${esc(s)}${url ? ` <a href='${esc(url)}' target='_blank' rel='noopener' title='discovered on the web'>🔗</a>` : ''}</span>`;
+  }).join('') || `<span class='muted'>none yet</span>`;
+  const goal = c.learn_goal ? `<div class='muted learn-goal'>🎯 seeking <b>${esc(c.learn_goal)}</b> (or the closest) on next roam</div>` : '';
+  return `<details class='details agent-skills'>
+    <summary>Known skills (${skills.length})</summary>
+    <div class='skill-chips'>${chips}</div>
+    ${goal}
+    <div class='learn-set'>
+      <input class='learn-input' placeholder='skill to learn next roam…' data-agent='${esc(a.name)}' value='${esc(c.learn_goal || '')}'>
+      <button class='btn learn-go' data-agent='${esc(a.name)}'>Set goal</button>
+    </div>
+  </details>`;
+}
+
 function agentCard(a) {
   const st = a.status || 'idle';
   const dot = st === 'error' ? 'error' : (st === 'working' || st === 'queued' ? 'warning' : 'ok');
@@ -664,18 +797,15 @@ function agentCard(a) {
     ${traitRow(a)}
     ${(a.titles && a.titles.length) ? `<div class='rep-row'>${a.titles.map(t => `<span class='title-chip' title='${esc(t.desc)}'>🏅 ${esc(t.title)}</span>`).join('')}</div>` : ''}
     ${metric('Role', esc(a.role || '—'))}
-    ${metric('Model', esc(a.model))}
-    ${metric('Standing', esc(g.standing ?? '—'))}
+    ${metric('Model', a.ascension && a.ascension.ascended ? `${esc(a.model)} <span class='ascend' title='ascended by realm'>↗ ${esc(a.ascension.model)}</span>` : esc(a.model))}
     ${metric('Tasks done', esc(a.tasks_done ?? 0))}
+    ${scoresWidget(g)}
     ${cultivationBlock(c)}
+    ${agentSkillsBlock(a, c)}
     ${pillBuffs(a)}
     ${retreatControl(a, c)}
     ${a.error ? `<div class='alert alert-error'>${esc(a.error)}</div>` : ''}
     <div class='agent-reply'>${reply || `<span class='muted'>No output yet.</span>`}</div>
-    <div class='agent-assign'>
-      <input class='agent-input' placeholder='Assign a task to ${esc(a.name)}…' data-agent='${esc(a.name)}'>
-      <div class='agent-assign-go'>${delegateSelect(a, c)}<button class='btn btn-primary agent-send' data-agent='${esc(a.name)}'>Assign</button></div>
-    </div>
     ${govControls(a)}
     ${sectActions(a, c)}
     <details class='details agent-transcript' data-agent='${esc(a.name)}'><summary>Transcript (${esc(a.transcript_len ?? 0)})</summary><pre class='agent-tx-body'>Open to load…</pre></details>
@@ -782,6 +912,17 @@ function bindAgentCrew(root) {
       body.innerText = (a.transcript || []).map(m => `${String(m.role).toUpperCase()}: ${m.content}`).join('\n\n') || '(empty)';
     } catch (_) { body.innerText = 'Error loading transcript.'; }
   });
+  // "Set a skill to learn next roam" per disciple.
+  root.querySelectorAll('.learn-go').forEach(b => b.onclick = async () => {
+    const name = b.getAttribute('data-agent');
+    const inp = root.querySelector(`.learn-input[data-agent="${CSS.escape(name)}"]`);
+    const skill = (inp && inp.value || '').trim();
+    await fetch(`/api/agents/${encodeURIComponent(name)}/learn-goal`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ skill }),
+    });
+    renderAgentCrew();
+  });
   // Governance controls folded into each disciple card (formerly the hierarchy roster).
   root.querySelectorAll('.gov-spec-go').forEach(b => b.onclick = async () => {
     const agent = b.getAttribute('data-agent');
@@ -811,6 +952,19 @@ async function renderAgentCrew() {
   catch (_) { window.__pills = { catalog: [], active: {} }; }
   try { window.__quests = await fetch('/api/quests', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { window.__quests = { catalog: [] }; }
+  // map of skill -> source URL for skills discovered on the web (from the vault)
+  try {
+    const ad = await fetch('/api/artifacts', { headers: authHeaders() }).then(r => r.json());
+    const map = {};
+    ((ad && ad.artifacts) || []).forEach(ar => {
+      if (ar.kind === 'note' && (ar.name || '').startsWith('Skill — ')) {
+        const nm = ar.name.slice('Skill — '.length).trim();
+        const m = /Source:\s*(\S+)/.exec(ar.content || '');
+        if (m && /^https?:/.test(m[1])) map[nm] = m[1];
+      }
+    });
+    window.__skillSrc = map;
+  } catch (_) { window.__skillSrc = window.__skillSrc || {}; }
   if (!crew.length) { section.classList.add('hidden'); el.innerHTML = ''; return; }
   section.classList.remove('hidden');
   document.getElementById('agent-crew-pill').textContent = `${crew.length} disciples`;
@@ -961,7 +1115,42 @@ async function renderAssign() {
     : `<div class='comms-sys muted'>No word from the sect's leadership yet.</div>`;
 
   renderTaskBoard();
+  renderAutopilot();
   bindAssign();
+}
+
+async function renderAutopilot() {
+  const el = document.getElementById('autopilot-bar');
+  if (!el) return;
+  const a = await apiJSON('/api/autopilot');
+  if (!a) { el.innerHTML = ''; return; }
+  const state = !a.enabled ? { cls: 'ap-off', txt: 'off', note: 'set MAYBOT_AUTOPILOT=1 to let the Sect Leader run projects autonomously' }
+    : a.paused ? { cls: 'ap-paused', txt: 'paused', note: 'autopilot is paused — the Leader will not act' }
+      : { cls: 'ap-on', txt: 'active', note: `Sect Leader ${esc(a.leader || '—')} is running the fleet autonomously` };
+  const active = (a.incidents || []).filter(i => i.state !== 'recovered');
+  const log = a.log || [];
+  const btn = a.enabled ? `<button class='btn ${a.paused ? '' : 'act-btn-stop'} ap-toggle' data-paused='${a.paused ? '1' : ''}'>${a.paused ? '▶ Resume' : '⏸ Pause'}</button>` : '';
+  const APK = { detected: '🔎', fix: '🛠', recovered: '✅', escalated: '⚠' };
+  const timeline = log.length ? `<details class='ap-log'><summary>Activity timeline (${log.length})</summary>${
+    log.map(e => `<div class='ap-log-row'><span class='ap-log-t muted'>${new Date(e.ts).toLocaleTimeString()}</span>
+      <span class='ap-log-k'>${APK[e.kind] || '•'}</span><b>${esc(e.title)}</b> <span class='muted'>${esc(e.message)}</span></div>`).join('')
+    }</details>` : '';
+  const c = a.counters || {};
+  const counters = Object.values(c).some(v => v)
+    ? `<div class='ap-counters'>${['fixes', 'restarts', 'recoveries', 'escalations', 'proposals'].filter(k => c[k]).map(k => `<span class='ap-counter'>${c[k]} ${k}</span>`).join('')}</div>`
+    : '';
+  el.innerHTML = `<div class='autopilot-card ${state.cls}'>
+    <div class='ap-head'><b>🧠 Second Brain</b><span class='ap-dot'></span><span class='ap-state'>${state.txt}</span>${btn}</div>
+    <div class='muted ap-note'>${state.note}${active.length ? ` · handling ${active.length}` : ''}</div>
+    ${counters}
+    ${log[0] ? `<div class='ap-last muted'>↳ ${esc(log[0].title)} — ${esc(log[0].message)}</div>` : ''}
+    ${timeline}
+  </div>`;
+  const t = el.querySelector('.ap-toggle');
+  if (t) t.onclick = async () => {
+    const path = t.dataset.paused ? '/api/autopilot/resume' : '/api/autopilot/pause';
+    if (await apiPost(path, {}, 'Autopilot')) renderAutopilot();
+  };
 }
 
 function taskCard(t) {
@@ -989,10 +1178,147 @@ async function renderTaskBoard() {
   el.innerHTML = TASK_COLS.map(([key, label]) => {
     const items = (cols[key] || []);
     if (!items.length && (key === 'failed')) return '';
-    return `<div class='task-col'><div class='task-col-head'>${label} <span class='muted'>${items.length}</span></div>
-      ${items.map(taskCard).join('') || `<div class='task-empty muted'>—</div>`}</div>`;
+    return `<div class='task-col' data-col='${key}'><div class='task-col-head'>${label} <span class='muted'>${items.length}</span></div>
+      ${items.map(taskCard).join('') || `<div class='task-empty muted'>drop here</div>`}</div>`;
   }).join('');
+  // Kanban Wall: drag a card between columns to change its status.
+  el.querySelectorAll('.task-item').forEach(it => {
+    it.draggable = true;
+    it.ondragstart = e => { e.dataTransfer.setData('text/plain', it.dataset.task); it.classList.add('dragging'); };
+    it.ondragend = () => it.classList.remove('dragging');
+  });
+  el.querySelectorAll('.task-col').forEach(col => {
+    col.ondragover = e => { e.preventDefault(); col.classList.add('drag-over'); };
+    col.ondragleave = () => col.classList.remove('drag-over');
+    col.ondrop = async e => {
+      e.preventDefault(); col.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      if (id && await apiPost(`/api/tasks/${id}/status`, { status: col.dataset.col }, 'Move')) renderTaskBoard();
+    };
+  });
 }
+
+// ---- ⌘K command palette ----
+function cmdkCommands() {
+  const cmds = [
+    ['🗂', 'Go to Overview', () => setTab('overview')],
+    ['🗂', 'Go to Disciples', () => setTab('disciples')],
+    ['🗂', 'Go to Sect Map', () => setTab('map')],
+    ['🗂', 'Go to Sect Halls', () => setTab('sect')],
+    ['🎯', 'Assign a goal…', () => { setTab('disciples'); setTimeout(() => document.getElementById('goal-input')?.focus(), 60); }],
+    ['🧩', 'Orchestrate a goal…', () => { const g = prompt('Goal to orchestrate:'); if (g && g.trim()) apiPost('/api/orchestrate', { goal: g.trim(), dispatch: true }, 'Orchestrate').then(r => r && render()); }],
+    ['🔄', 'Sync now', () => render()],
+    ['🧠', 'Pause autopilot', () => apiPost('/api/autopilot/pause', {}, 'Autopilot').then(renderAutopilot)],
+    ['🧠', 'Resume autopilot', () => apiPost('/api/autopilot/resume', {}, 'Autopilot').then(renderAutopilot)],
+  ].map(([icon, label, run]) => ({ icon, label, run }));
+  (window.__lastProjects || []).forEach(p => cmds.push({
+    icon: TYPE_ICON[p.type] || '📦', label: `Project: ${p.name} · ${p.device}`,
+    run: () => { setTab('overview'); const d = document.querySelector(`details.project-card[data-device="${CSS.escape(p.device)}"][data-project="${CSS.escape(p.name)}"]`); if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); } }
+  }));
+  (window.__agents || []).forEach(a => cmds.push({
+    icon: '🧘', label: `Disciple: ${a.name}`,
+    run: () => { setTab('disciples'); setTimeout(() => { const d = document.querySelector(`details.agent-card[data-agent="${CSS.escape(a.name)}"]`); if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); } }, 60); }
+  }));
+  return cmds;
+}
+let _cmdkItems = [], _cmdkSel = 0;
+function _cmdkEl() { return document.getElementById('cmdk'); }
+function cmdkOpen() { return _cmdkEl() && !_cmdkEl().classList.contains('hidden'); }
+function openCmdk() { const o = _cmdkEl(); o.classList.remove('hidden'); const i = document.getElementById('cmdk-input'); i.value = ''; filterCmdk(''); i.focus(); }
+function closeCmdk() { _cmdkEl().classList.add('hidden'); }
+function filterCmdk(q) {
+  q = (q || '').toLowerCase().trim();
+  const all = cmdkCommands();
+  _cmdkItems = q ? all.filter(c => c.label.toLowerCase().includes(q)) : all;
+  _cmdkSel = 0; renderCmdkList();
+}
+function renderCmdkList() {
+  const l = document.getElementById('cmdk-list');
+  l.innerHTML = _cmdkItems.slice(0, 40).map((c, i) =>
+    `<div class='cmdk-item${i === _cmdkSel ? ' sel' : ''}' data-i='${i}'><span class='cmdk-ic'>${c.icon || ''}</span>${esc(c.label)}</div>`
+  ).join('') || `<div class='cmdk-empty muted'>No matches</div>`;
+  l.querySelectorAll('.cmdk-item').forEach(el => {
+    el.onmouseenter = () => { _cmdkSel = +el.dataset.i; _cmdkSelUpdate(); };
+    el.onclick = () => _cmdkRun(+el.dataset.i);
+  });
+}
+function _cmdkSelUpdate() { document.querySelectorAll('#cmdk-list .cmdk-item').forEach((el, i) => el.classList.toggle('sel', i === _cmdkSel)); }
+function _cmdkRun(i) { const c = _cmdkItems[i]; closeCmdk(); if (c && c.run) c.run(); }
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); cmdkOpen() ? closeCmdk() : openCmdk(); return; }
+  if (!cmdkOpen()) return;
+  if (e.key === 'Escape') { e.preventDefault(); closeCmdk(); }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); _cmdkSel = Math.min(_cmdkSel + 1, _cmdkItems.length - 1); _cmdkSelUpdate(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); _cmdkSel = Math.max(_cmdkSel - 1, 0); _cmdkSelUpdate(); }
+  else if (e.key === 'Enter') { e.preventDefault(); _cmdkRun(_cmdkSel); }
+});
+document.getElementById('cmdk-input').addEventListener('input', (e) => filterCmdk(e.target.value));
+_cmdkEl().addEventListener('click', (e) => { if (e.target.id === 'cmdk') closeCmdk(); });
+
+// ---- per-project detail modal ----
+function closeDetail() { document.getElementById('detail-modal').classList.add('hidden'); }
+async function openProjectDetail(device, name) {
+  const p = (window.__lastProjects || []).find(x => x.name === name && x.device === device) || { name, device };
+  const m = p.metrics || {};
+  const [slo, hist, ap] = await Promise.all([
+    apiJSON('/api/slo'),
+    apiJSON(`/api/history/${encodeURIComponent(device)}/${encodeURIComponent(name)}`),
+    apiJSON('/api/autopilot'),
+  ]);
+  const row = ((slo && slo.projects) || []).find(r => r.device === device && r.project === name) || {};
+  const history = (hist && hist.history) || [];
+  const aplog = ((ap && ap.log) || []).filter(e => `${e.title} ${e.message}`.includes(name));
+  const eb = p.error_budget || {};
+  const up = row.uptime_pct == null ? '—' : `${row.uptime_pct.toFixed(2)}%`;
+  const ghLink = p.type === 'github_repo' ? `<a class='detail-link' href='https://github.com/${esc(name)}' target='_blank' rel='noopener'>↗ open on GitHub</a>` : '';
+  const rel = [
+    metric('Uptime (SLO)', up),
+    metric('Incidents', row.incidents ?? '—'),
+    metric('MTTR', row.mttr_seconds == null ? '—' : `${Math.round(row.mttr_seconds)}s`),
+    metric('Error budget', eb.remaining_pct == null ? '—' : `${eb.remaining_pct}% of ${eb.target_pct}%`),
+    p.frozen ? metric('State', '🔒 frozen (Decree)') : '',
+    p.oath ? metric('Owned by', `🤝 ${esc(p.oath.who)}`) : '',
+  ].join('');
+  let ghLists = '';
+  if (p.type === 'github_repo') {
+    const prRows = (m.prs || []).map(x => `<div class='gh-row'><a href='https://github.com/${esc(name)}/pull/${x.number}' target='_blank' rel='noopener'>#${x.number}</a> ${esc(x.title)}</div>`).join('');
+    const isRows = (m.issues || []).map(x => `<div class='gh-row'><a href='https://github.com/${esc(name)}/issues/${x.number}' target='_blank' rel='noopener'>#${x.number}</a> ${esc(x.title)}</div>`).join('');
+    if (prRows || isRows) ghLists = `<h3 class='trials-sub'>GitHub</h3>
+      ${prRows ? `<div class='gh-block'><b>Open PRs</b>${prRows}</div>` : ''}
+      ${isRows ? `<div class='gh-block'><b>Open issues</b>${isRows}</div>` : ''}`;
+  }
+  const skipKeys = new Set(['prs', 'issues']);
+  const mkeys = Object.entries(m).filter(([k]) => !skipKeys.has(k)).slice(0, 12).map(([k, v]) => metric(k, esc(typeof v === 'object' ? JSON.stringify(v) : v))).join('');
+  const apHtml = aplog.length
+    ? aplog.map(e => `<div class='ap-log-row'><span class='ap-log-t muted'>${new Date(e.ts).toLocaleTimeString()}</span><b>${esc(e.title)}</b> <span class='muted'>${esc(e.message)}</span></div>`).join('')
+    : `<div class='muted'>No autopilot activity for this project.</div>`;
+  const alerts = (p.alerts || []).map(a => `<div class='alert ${a.includes('ERROR') ? 'alert-error' : 'alert-warning'}'>${esc(a)}</div>`).join('');
+  document.getElementById('detail-body').innerHTML = `
+    <div class='detail-head'><h2>${TYPE_ICON[p.type] || '📦'} ${esc(name)} ${healthBadge(p.health)}</h2>
+      <span class='muted'>${esc(p.type || '')} · ${esc(device)} · ${esc(p.status || '')}</span> ${ghLink}</div>
+    ${alerts}
+    <h3 class='trials-sub'>Reliability</h3><div class='detail-grid'>${rel}</div>
+    ${sparkline(history, 'history') || ''}
+    ${ghLists}
+    <h3 class='trials-sub'>Metrics</h3><div class='detail-grid'>${mkeys || '<span class="muted">none</span>'}</div>
+    <h3 class='trials-sub'>🧠 Autopilot activity</h3>${apHtml}
+    <div class='detail-actions'>
+      <button class='btn' onclick='loadLogs(${JSON.stringify(device)},${JSON.stringify(name)})'>View logs</button>
+    </div>`;
+  document.getElementById('detail-modal').classList.remove('hidden');
+}
+document.getElementById('detail-close').onclick = closeDetail;
+document.getElementById('detail-modal').addEventListener('click', (e) => { if (e.target.id === 'detail-modal') closeDetail(); });
+
+// ---- auth-hardening banner ----
+(async function authBanner() {
+  const meta = await apiJSON('/api/meta');
+  const el = document.getElementById('auth-banner');
+  if (!el || !meta || meta.auth_configured || localStorage.getItem('maybot.auth_warn_dismissed')) return;
+  el.classList.remove('hidden');
+  el.innerHTML = `⚠ This dashboard has <b>no authentication configured</b> — anyone who can reach it has full control${meta.autopilot_enabled ? ', including the autopilot' : ''}. Set <code>MAYBOT_CONTROL_CENTER_TOKEN</code> or a <code>users.yaml</code>. <button class='btn auth-dismiss'>Dismiss</button>`;
+  el.querySelector('.auth-dismiss').onclick = () => { localStorage.setItem('maybot.auth_warn_dismissed', '1'); el.classList.add('hidden'); };
+})();
 
 function bindAssign() {
   const set = document.getElementById('leader-set');
@@ -2262,6 +2588,122 @@ async function renderReliability() {
   });
 }
 
+// ---- Ops tab: diagnostics, fleet health, audit log ----
+async function renderOps() {
+  const sec = document.getElementById('ops-section');
+  if (!sec) return;
+  const [diag, aud] = await Promise.all([apiJSON('/api/diagnostics'), apiJSON('/api/audit')]);
+  const cfg = (diag && diag.config) || {};
+  const wh = cfg.webhooks || {};
+  const chip = (label, on) => `<span class='diag-chip ${on ? 'on' : 'off'}'>${on ? '✓' : '✗'} ${esc(label)}</span>`;
+  document.getElementById('diag-config').innerHTML = `<div class='diag-chips'>
+    ${chip('Auth', cfg.auth_configured)}${chip('Persistence', cfg.persistence_db)}${chip('Autopilot', cfg.autopilot)}
+    ${chip('Real PRs', cfg.real_prs)}${chip('Public status', cfg.public_status)}${chip('GitHub', cfg.github_repos)}
+    ${chip('Synthetic probes', cfg.synthetic_probes)}${chip('Meridians', cfg.meridians)}${chip('Calendar', cfg.maintenance_calendar)}
+    ${chip('Sect memory', cfg.sect_memory)}${chip('Discord', wh.discord)}${chip('Slack', wh.slack)}${chip('Webhook', wh.generic)}
+  </div>`;
+  const agents = (diag && diag.agents) || [];
+  document.getElementById('ops-pill').textContent = `${agents.filter(a => a.online).length}/${agents.length} agents online`;
+  document.getElementById('fleet-table').innerHTML = agents.length ? `<table class='fleet'>
+    <thead><tr><th>Agent</th><th>Status</th><th>Latency</th><th>Version</th><th>Notes</th></tr></thead><tbody>
+    ${agents.map(a => `<tr>
+      <td><b>${esc(a.name)}</b></td>
+      <td>${a.online ? `<span class='crew-dot ok'></span>online` : `<span class='crew-dot error'></span>${a.auth_error ? 'auth error' : 'offline'}`}</td>
+      <td class='${a.latency_ms > 1000 ? 'money-neg' : ''}'>${a.online ? a.latency_ms + 'ms' : '—'}</td>
+      <td class='muted'>${esc(a.version || '—')}</td>
+      <td class='muted'>${esc(a.error || a.url || '')}</td></tr>`).join('')}
+    </tbody></table>` : `<div class='muted'>No devices configured (devices.yaml).</div>`;
+  const entries = (aud && aud.entries) || [];
+  document.getElementById('audit-list').innerHTML = entries.length
+    ? entries.map(e => `<div class='comms-msg'><div class='comms-head'><span class='comms-from'>${esc(e.actor)}</span>
+        <span class='muted'>· ${new Date(e.ts).toLocaleString()}${e.status ? ` · ${e.status}` : ''}</span></div>
+        <div class='comms-body'>${esc(e.action)}${e.target ? ' ' + esc(e.target) : ''}</div></div>`).join('')
+    : `<div class='comms-sys muted'>No operator actions recorded yet.</div>`;
+  const btn = document.getElementById('enable-alerts');
+  if (btn && !btn.dataset.bound) {
+    btn.dataset.bound = '1';
+    if ('Notification' in window && Notification.permission === 'granted') btn.textContent = '🔔 Phone alerts on';
+    btn.onclick = async () => {
+      if (!('Notification' in window)) { alert('Notifications not supported here.'); return; }
+      const p = await Notification.requestPermission();
+      btn.textContent = p === 'granted' ? '🔔 Phone alerts on' : '🔔 Enable phone alerts';
+      if (p === 'granted') subscribePush();   // background push when VAPID is configured
+    };
+  }
+}
+
+// Fire a desktop/phone notification when a project worsens (client-side alerting).
+function notifyHealthChanges(projects) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
+    window.__prevHealth = Object.fromEntries((projects || []).map(p => [`${p.device}:${p.name}`, p.health]));
+    return;
+  }
+  const prev = window.__prevHealth || {};
+  (projects || []).forEach(p => {
+    const key = `${p.device}:${p.name}`, h = p.health, was = prev[key];
+    if (was && was !== h && (h === 'error' || h === 'warning') && was === 'ok') {
+      try { new Notification(`⚠ ${p.name} is ${h}`, { body: `${p.name} on ${p.device} changed ${was} → ${h}`, icon: '/icon.svg', tag: key }); } catch (_) {}
+    }
+  });
+  window.__prevHealth = Object.fromEntries((projects || []).map(p => [`${p.device}:${p.name}`, p.health]));
+}
+
+// ---- Known Skills tab ----
+async function renderSkills() {
+  const el = document.getElementById('skills-list');
+  if (!el) return;
+  const crew = window.__agents || [];
+  const map = {};   // skill -> { holders: [], url }
+  crew.forEach(a => (a.cultivation?.skills || []).forEach(s => {
+    (map[s] = map[s] || { holders: [] }).holders.push(a.name);
+  }));
+  // Roamed web skills are forged into the vault as notes "Skill — <name>" with a Source URL.
+  let arts = [];
+  try { const d = await apiJSON('/api/artifacts'); arts = (d && d.artifacts) || []; } catch (_) {}
+  arts.forEach(ar => {
+    if (ar.kind === 'note' && (ar.name || '').startsWith('Skill — ')) {
+      const name = ar.name.slice('Skill — '.length).trim();
+      const m = /Source:\s*(\S+)/.exec(ar.content || '');
+      if (map[name] && m && /^https?:/.test(m[1])) map[name].url = m[1];
+    }
+  });
+  document.getElementById('skills-pill').textContent = `${Object.keys(map).length} skills`;
+  const q = (document.getElementById('skill-search').value || '').toLowerCase().trim();
+  const names = Object.keys(map)
+    .sort((a, b) => map[b].holders.length - map[a].holders.length || a.localeCompare(b))
+    .filter(n => !q || n.toLowerCase().includes(q) || map[n].holders.some(h => h.toLowerCase().includes(q)));
+  el.innerHTML = names.map(n => {
+    const s = map[n];
+    const web = s.url ? `<span class='skill-tag' title='discovered on the web while roaming'>web</span>` : '';
+    const link = s.url ? `<a class='skill-src' href='${esc(s.url)}' target='_blank' rel='noopener'>🔗 source</a>` : '';
+    return `<div class='card skill-card'>
+      <div class='metric'><b>${esc(n)}</b>${web}</div>
+      <div class='muted skill-holders'>${s.holders.length}× · ${s.holders.map(esc).join(', ')}</div>
+      ${link}
+    </div>`;
+  }).join('') || `<div class='card muted'>No skills learned yet — send a disciple roaming to bring one back.</div>`;
+  const search = document.getElementById('skill-search');
+  if (search && !search.dataset.bound) { search.dataset.bound = '1'; search.oninput = renderSkills; }
+  renderSectMemory();
+}
+
+async function renderSectMemory() {
+  const el = document.getElementById('mem-list');
+  if (!el) return;
+  const q = (document.getElementById('mem-search').value || '').trim();
+  const d = await apiJSON('/api/sectmemory' + (q ? `?q=${encodeURIComponent(q)}` : ''));
+  const items = (d && (d.results || d.recent)) || [];
+  const pill = document.getElementById('mem-pill');
+  if (pill && d && d.count != null) pill.textContent = `${d.count} entries`;
+  const KIND = { task: '📨', postmortem: '🛠', manual: '📖', skill: '🧭', note: '•' };
+  el.innerHTML = items.map(e => `<div class='card mem-card'>
+      <div class='mem-meta muted'>${KIND[e.kind] || '•'} ${esc(e.kind)}${e.agent ? ' · ' + esc(e.agent) : ''}</div>
+      <div class='mem-text'>${esc(e.text)}</div></div>`).join('')
+    || `<div class='card muted'>${q ? 'No matching knowledge.' : 'No knowledge yet — it accrues as disciples work.'}</div>`;
+  const ms = document.getElementById('mem-search');
+  if (ms && !ms.dataset.bound) { ms.dataset.bound = '1'; ms.oninput = renderSectMemory; }
+}
+
 // Dedicated management area for AI agents (ai_project + local_ai_host).
 function renderAiAgents(projects) {
   const section = document.getElementById('ai-agents-section');
@@ -2416,3 +2858,52 @@ document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => setTab(b.da
 setTab(localStorage.getItem('tab') || 'overview');
 
 setupStream();
+
+// ---- Login overlay (token sign-in) ----
+function showLogin() { const o = document.getElementById('login-overlay'); if (o) o.classList.remove('hidden'); }
+function hideLogin() { const o = document.getElementById('login-overlay'); if (o) o.classList.add('hidden'); }
+(function bindLogin() {
+  const go = document.getElementById('login-go'), inp = document.getElementById('login-token'),
+        err = document.getElementById('login-error');
+  if (!go) return;
+  const submit = async () => {
+    const token = (inp.value || '').trim();
+    err.textContent = '';
+    try {
+      const r = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
+      if (!r.ok) { err.textContent = 'Invalid token.'; return; }
+      localStorage.setItem(CONTROL_TOKEN_STORAGE_KEY, token);
+      const ct = document.getElementById('control-token'); if (ct) ct.value = token;
+      hideLogin(); render();
+    } catch (_) { err.textContent = 'Sign-in failed.'; }
+  };
+  go.onclick = submit;
+  inp.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
+})();
+(function bindSignOut() {
+  const so = document.getElementById('sign-out');
+  if (so) so.onclick = () => { localStorage.removeItem(CONTROL_TOKEN_STORAGE_KEY); const ct = document.getElementById('control-token'); if (ct) ct.value = ''; showLogin(); };
+})();
+
+// ---- Web Push subscription (after notification permission) ----
+function _urlB64ToUint8(base64) {
+  const pad = '='.repeat((4 - base64.length % 4) % 4);
+  const b = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(b); return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
+async function subscribePush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const k = await apiJSON('/api/push/key');
+    if (!k || !k.enabled || !k.key) return;   // VAPID not configured
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: _urlB64ToUint8(k.key) });
+    await fetch('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ subscription: sub }) });
+  } catch (_) {}
+}
+
+// Register the PWA service worker (installable app + offline shell).
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}

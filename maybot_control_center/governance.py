@@ -160,14 +160,52 @@ def standing(agent: str) -> dict:
 
 # ---- the Sect Leader ---------------------------------------------------------
 
+def _model_iq(agent: str) -> int:
+    """Raw reasoning capacity from the disciple's model (its 'spiritual talent')."""
+    from . import agents
+    a = agents._agent_def(agent) or {}
+    model = str(a.get("model") or a.get("default_model") or "").lower()
+    if "opus" in model:
+        return 100
+    if "sonnet" in model:
+        return 78
+    if "haiku" in model:
+        return 55
+    return 50 if model else 40   # other/local model, or none configured
+
+
+def aptitude(agent: str) -> dict:
+    """How fit a disciple is to LEAD — reasoning, intelligence, knowledge, skills.
+
+    Distinct from :func:`standing` (merit/contribution): leadership goes to the
+    most *capable* mind, not merely the most meritorious.
+    """
+    from . import reputation, cultivation, spirit_root
+    c = cultivation.state(agent)
+    iq = _model_iq(agent)
+    perf = reputation.score(agent).get("signals", {}).get("success_pct", 100)
+    # reasoning: model talent, refined by a spirit-root assessment when one exists
+    try:
+        sr = (spirit_root.snapshot().get(agent) or {}).get("overall", 0)
+    except Exception:
+        sr = 0
+    reasoning = round(0.6 * iq + 0.4 * (sr or iq), 1)
+    intelligence = round(perf, 1)                                  # demonstrated reliability
+    knowledge = min(100, c["realm"] * 7 + c["breakthroughs"] * 5)  # realm depth + insights
+    skills = min(100, len(c.get("skills", [])) * 8 + mastery(agent))
+    score = round(0.35 * reasoning + 0.20 * intelligence + 0.20 * knowledge + 0.25 * skills, 1)
+    return {"agent": agent, "score": score,
+            "components": {"reasoning": reasoning, "intelligence": intelligence,
+                           "knowledge": knowledge, "skills": skills, "model_iq": iq}}
+
+
 def _auto_leader() -> str | None:
-    """Highest standing among Sect Masters, else among all agents."""
+    """The most capable disciple leads — highest aptitude (reasoning / intelligence /
+    knowledge / skills) across the whole sect."""
     names = _all_agents()
     if not names:
         return None
-    masters = [n for n in names if is_master(n)]
-    pool = masters or names
-    return max(pool, key=lambda n: standing(n)["score"])
+    return max(names, key=lambda n: aptitude(n)["score"])
 
 
 def leader() -> str | None:
@@ -227,8 +265,8 @@ def challenge(challenger: str) -> dict:
     if wait > 0:
         raise PermissionError(f"{challenger} must wait {int(wait)}s before challenging again")
 
-    cs = standing(challenger)
-    ls = standing(cur)
+    cs = aptitude(challenger)   # leadership is decided by capability, not mere merit
+    ls = aptitude(cur)
     won = cs["score"] >= ls["score"] + CHALLENGE_MARGIN
     with _lock:
         _last_challenge_by[challenger] = now
@@ -518,8 +556,8 @@ def snapshot() -> dict:
     for n in _all_agents():
         roster.append({"agent": n, "is_leader": n == ld, "is_elder": is_elder(n),
                        "is_master": is_master(n), "specialty": specialty(n),
-                       "mastery": mastery(n), "standing": standing(n)})
-    roster.sort(key=lambda r: r["standing"]["score"], reverse=True)
+                       "mastery": mastery(n), "standing": standing(n), "aptitude": aptitude(n)})
+    roster.sort(key=lambda r: r["aptitude"]["score"], reverse=True)
     with _lock:
         hist = list(_history[-25:])
     return {"leader": ld, "leader_pinned": _leader_pinned, "specialties": SPECIALTIES,

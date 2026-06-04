@@ -47,20 +47,25 @@ def _gh_fetch(repo: str) -> dict:
         data = json.loads(out.stdout or "[]")
         return len(data)
 
-    open_prs = _count(["pr", "list", "--repo", repo, "--state", "open", "--json", "number", "--limit", "100"])
-    open_issues = _count(["issue", "list", "--repo", repo, "--state", "open", "--json", "number", "--limit", "100"])
-    # failing checks on open PRs
-    pr_json = subprocess.run(["gh", "pr", "list", "--repo", repo, "--state", "open",
-                              "--json", "number,statusCheckRollup", "--limit", "100"],
-                             capture_output=True, text=True, timeout=GH_TIMEOUT, check=False)
+    def _list(args: list[str]) -> list[dict]:
+        out = subprocess.run(["gh"] + args, capture_output=True, text=True, timeout=GH_TIMEOUT, check=False)
+        if out.returncode != 0:
+            raise RuntimeError((out.stderr or "gh error").strip()[:200])
+        return json.loads(out.stdout or "[]")
+
+    prs = _list(["pr", "list", "--repo", repo, "--state", "open", "--json", "number,title,statusCheckRollup", "--limit", "100"])
+    issues = _list(["issue", "list", "--repo", repo, "--state", "open", "--json", "number,title", "--limit", "100"])
     failing = 0
-    if pr_json.returncode == 0:
-        for pr in json.loads(pr_json.stdout or "[]"):
-            roll = pr.get("statusCheckRollup") or []
-            if any((c.get("conclusion") in ("FAILURE", "TIMED_OUT", "CANCELLED")
-                    or c.get("state") == "FAILURE") for c in roll):
-                failing += 1
-    return {"open_prs": open_prs, "open_issues": open_issues, "failing_checks": failing}
+    for pr in prs:
+        roll = pr.get("statusCheckRollup") or []
+        if any((c.get("conclusion") in ("FAILURE", "TIMED_OUT", "CANCELLED")
+                or c.get("state") == "FAILURE") for c in roll):
+            failing += 1
+    return {
+        "open_prs": len(prs), "open_issues": len(issues), "failing_checks": failing,
+        "prs": [{"number": p["number"], "title": p.get("title", "")} for p in prs[:5]],
+        "issues": [{"number": i["number"], "title": i.get("title", "")} for i in issues[:5]],
+    }
 
 
 def _health(m: dict) -> str:

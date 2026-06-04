@@ -124,12 +124,16 @@ def silence(target: str, minutes: float = 60.0, reason: str = "",
            "who": who, "created_at": now, "clear_on_recovery": bool(clear_on_recovery)}
     with _lock:
         _silences[target] = rec
+    _save()
     return _public(rec, now)
 
 
 def unsilence(target: str) -> bool:
     with _lock:
-        return _silences.pop(target, None) is not None
+        removed = _silences.pop(target, None) is not None
+    if removed:
+        _save()
+    return removed
 
 
 def is_silenced(device: str, name: str) -> bool:
@@ -146,10 +150,14 @@ def is_silenced(device: str, name: str) -> bool:
 def note_recovery(device: str, name: str) -> None:
     """A project returned to ok — drop any recovery-clearing silence matching it."""
     key = _key(device, name)
+    changed = False
     with _lock:
         for t, s in list(_silences.items()):
             if s.get("clear_on_recovery") and _matches(t, key):
                 del _silences[t]
+                changed = True
+    if changed:
+        _save()
 
 
 def _public(rec: dict, now: float) -> dict:
@@ -169,6 +177,22 @@ def snapshot() -> dict:
     return {"silences": active(), "scheduled": scheduled_active(), "now": int(_now())}
 
 
+def _save() -> None:
+    from . import store
+    if store.enabled():
+        with _lock:
+            store.save_state("maintenance", _silences)
+
+
+def load_persisted() -> None:
+    from . import store
+    data = store.load_state("maintenance")
+    if data:
+        with _lock:
+            _silences.update(data)
+
+
 def clear() -> None:
     with _lock:
         _silences.clear()
+    _save()

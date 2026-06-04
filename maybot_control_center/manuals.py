@@ -92,6 +92,11 @@ def maybe_author(row: dict, now: float) -> dict | None:
                               description=f"Technique manual authored by Elder {name}.")
     except ValueError:
         return None
+    try:
+        from . import sectmemory
+        sectmemory.add(art["content"], source=name, agent=name, kind="manual")
+    except Exception:
+        pass
     with _lock:
         _last[name] = now
     try:

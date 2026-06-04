@@ -20,7 +20,7 @@ ALERT_STATES = {
 # Which non-health events route to the webhooks (incidents, tribulations, agent failures).
 ALERT_EVENTS = {
     s.strip().lower()
-    for s in os.getenv("MAYBOT_ALERT_EVENTS", "incident,tribulation,budget,escalation").split(",")
+    for s in os.getenv("MAYBOT_ALERT_EVENTS", "incident,tribulation,budget,escalation,autopilot,inbound").split(",")
     if s.strip()
 }
 
@@ -55,6 +55,11 @@ def notify_event(event: str, title: str, message: str) -> None:
     text = f"🔔 {title} — {message}"
     _log.warning("alert(%s): %s", event, text)
     _broadcast(text, text, {"event": event, "title": title, "message": message})
+    try:  # web push to subscribed phones (no-op unless VAPID configured)
+        from . import push
+        threading.Thread(target=push.send, args=(title, message), daemon=True).start()
+    except Exception:
+        pass
 
 
 def _broadcast(discord_text: str, slack_text: str, generic: dict) -> None:

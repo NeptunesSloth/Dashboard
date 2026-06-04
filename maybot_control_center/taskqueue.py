@@ -51,6 +51,7 @@ def create(title: str, *, description: str = "", priority: str = "normal",
         _tasks[task["id"]] = task
         snap = dict(task)
     events.publish("tasks", {"id": snap["id"]})
+    _save()
     return snap
 
 
@@ -71,6 +72,7 @@ def update(task_id: int, **fields) -> dict | None:
         t["updated_at"] = _now()
         snap = dict(t)
     events.publish("tasks", {"id": task_id})
+    _save()
     return snap
 
 
@@ -105,6 +107,7 @@ def link_dispatch(task_id: int, agent: str) -> None:
             t["status"] = "in_progress"
             t["updated_at"] = _now()
     events.publish("tasks", {"id": task_id})
+    _save()
 
 
 def on_agent_finished(agent: str, ok: bool, reply: str = "") -> None:
@@ -118,6 +121,7 @@ def on_agent_finished(agent: str, ok: bool, reply: str = "") -> None:
         t["result"] = (reply or "")[:1000]
         t["updated_at"] = _now()
     events.publish("tasks", {"id": task_id})
+    _save()
 
 
 def list_tasks(status: str | None = None, assignee: str | None = None, limit: int = 200) -> list[dict]:
@@ -142,9 +146,30 @@ def board() -> dict:
     return {"columns": cols, "counts": counts, "priorities": PRIORITIES}
 
 
+def _save() -> None:
+    from . import store
+    if not store.enabled():
+        return
+    with _lock:
+        store.save_state("taskqueue", {"tasks": _tasks, "seq": _seq, "current": _current_by_agent})
+
+
+def load_persisted() -> None:
+    from . import store
+    data = store.load_state("taskqueue")
+    if not data:
+        return
+    global _seq
+    with _lock:
+        _tasks.update({int(k): v for k, v in (data.get("tasks") or {}).items()})
+        _seq = max(_seq, int(data.get("seq") or 0))
+        _current_by_agent.update(data.get("current") or {})
+
+
 def clear() -> None:
     global _seq
     with _lock:
         _tasks.clear()
         _current_by_agent.clear()
         _seq = 0
+    _save()
