@@ -777,3 +777,33 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .sched-chip { background: rgba(88,166,255,.06); border-color: rgba(88,166,255,.3); }
 .oath-chip { background: rgba(88,166,255,.08); border-color: rgba(88,166,255,.35); }
 .oath-claim { margin-top: 6px; font-size: 12px; }
+
+/* ---- Disciples: compact expandable cards + assignment + task board ---- */
+details.agent-card { padding: 0; overflow: hidden; }
+.agent-summary { display: grid; grid-template-columns: 1.4fr 1fr 1.6fr 1fr; gap: 10px; align-items: center;
+  padding: 11px 13px; cursor: pointer; list-style: none; }
+.agent-summary::-webkit-details-marker { display: none; }
+.agent-summary::before { content: '▸'; color: var(--muted); margin-right: 6px; font-size: 11px; }
+details[open] > .agent-summary::before { content: '▾'; }
+.agent-summary .as-id { display: inline-flex; align-items: center; gap: 7px; }
+.as-pos { font-size: 12px; color: var(--gold); }
+.as-act { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.as-act.working { color: var(--tech); } .as-act.error { color: #f85149; }
+.as-spec { font-size: 12px; color: var(--muted); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.agent-body { padding: 0 13px 13px; border-top: 1px solid var(--border); }
+@media (max-width: 720px) { .agent-summary { grid-template-columns: 1fr 1fr; } .as-spec { text-align: left; } }
+
+#assign-preview { margin: 8px 0 4px; font-size: 13px; }
+.task-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.task-col-head { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+.task-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; }
+.task-top { display: flex; align-items: center; gap: 6px; }
+.task-title { font-size: 13px; }
+.task-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.task-src { border: 1px solid var(--border); border-radius: 8px; padding: 0 5px; margin-left: 4px; }
+.task-result { font-size: 11px; margin-top: 4px; }
+.task-prio { font-size: 10px; text-transform: uppercase; padding: 1px 6px; border-radius: 8px; }
+.prio-high { background: rgba(210,153,34,.15); color: #d29922; }
+.prio-urgent { background: rgba(248,81,73,.15); color: #f85149; }
+.prio-low { background: rgba(139,148,158,.15); color: var(--muted); }
+.task-empty { font-size: 12px; padding: 4px; }
