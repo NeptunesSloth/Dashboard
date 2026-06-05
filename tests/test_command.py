@@ -64,6 +64,16 @@ def test_immersive_scenes_served():
         assert "javascript" in resp.headers["content-type"]
 
 
+def test_sect_sprite_assets():
+    # Baked voxel building sprites + manifest are served for the Realm Map.
+    man = client.get("/assets/sect/manifest.json")
+    assert man.status_code == 200
+    data = man.json()
+    assert "grand_pagoda" in data["sprites"] and "fountain" in data["sprites"]
+    png = client.get("/assets/sect/grand_pagoda.png")
+    assert png.status_code == 200 and png.headers["content-type"] == "image/png"
+
+
 def test_command_positions_and_bots(monkeypatch):
     monkeypatch.setenv("MAYBOT_DEMO", "1")
     s = command.snapshot()

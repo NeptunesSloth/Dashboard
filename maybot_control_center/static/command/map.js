@@ -74,6 +74,36 @@ function toGrid(sx, sy) {
   return { gx: (wx / TW2 + wy / TH2) / 2, gy: (wy / TH2 - wx / TW2) / 2 };
 }
 
+/* ---------------- baked voxel building sprites (real art assets) ---------------- */
+const SPR = { ready: false, man: null, img: {} };
+(async function loadSprites() {
+  try {
+    const r = await fetch('/assets/sect/manifest.json'); if (!r.ok) return; SPR.man = await r.json();
+    const names = Object.keys(SPR.man.sprites); let n = 0;
+    const done = () => { if (++n >= names.length) SPR.ready = true; };
+    names.forEach((name) => { const im = new Image(); im.onload = done; im.onerror = done; im.src = '/assets/sect/' + SPR.man.sprites[name].file; SPR.img[name] = im; });
+  } catch (_) { /* fall back to procedural drawing */ }
+})();
+function blit(name, gx, gy, footTiles) {
+  if (!SPR.ready) return false; const m = SPR.man.sprites[name], img = SPR.img[name];
+  if (!m || !img || !img.complete || !img.naturalWidth) return false;
+  const s = toScreen(gx, gy), sc = cam.zoom * footTiles / m.footTiles;
+  ctx.drawImage(img, s.x - m.anchorX * sc, s.y - m.anchorY * sc, m.w * sc, m.h * sc); return true;
+}
+const LM_SPRITE = { fountain: 'fountain', prosperity: 'fountain', observatory: 'observatory', forge: 'forge', tome: 'pavilion', gate: 'gate', bell: 'bell', nexus: 'crystal', vortex: 'tree' };
+function drawBuildingBack(r, busy) {
+  if (r.kind === 'hall') { if (blit('grand_pagoda', r.cx, r.cyc - 0.1, 4.6)) return; }
+  else if (blit('pagoda', r.cx, r.gy + 1.7, 3.0)) return;
+  drawPagoda(r, busy);
+}
+const LM_FT = { gate: 3.4, nexus: 1.9, observatory: 2.6, forge: 2.6, tome: 2.8, fountain: 2.4, prosperity: 2.4, bell: 2.2, vortex: 1.7 };
+function drawLandmarkSprite(r, t, busy) {
+  const nm = LM_SPRITE[r.landmark];
+  if (nm) { if (blit(nm, r.cx, r.cyc + 0.8, LM_FT[r.landmark] || 2.4)) return; }
+  if (r.landmark === 'monument') return;   // the grand pagoda is the centerpiece
+  drawLandmark(r, t, busy);
+}
+
 /* ====================================================================== *
  *  Layout — rooms on a grid, Sect Hall (larger) at the centre
  * ====================================================================== */
@@ -340,11 +370,11 @@ function drawRoom(r, t) {
   // back walls + architecture (columns, railings, lamps) turn the platform into a space
   drawWall(A, B, K, busy); drawWall(A, D, K, busy);
   drawArchitecture(r, busy);
-  drawPagoda(r, busy);
+  drawBuildingBack(r, busy);
   // furniture
   r.furniture.forEach((it) => drawFurniture(r, it, t, busy));
   // the district's iconic landmark
-  if (r.landmark) drawLandmark(r, t, busy);
+  if (r.landmark) drawLandmarkSprite(r, t, busy);
   // selection
   if (hover.room === r || selected.room === r) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.globalAlpha = .85;
     ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(Cc.x, Cc.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.stroke(); ctx.globalAlpha = 1; }
@@ -398,6 +428,10 @@ function railing(ax, ay, bx, by, K) {
 
 function drawFurniture(r, it, t, busy) {
   const A = r.K.accent, gx = r.gx + it.gx, gy = r.gy + it.gy, z = cam.zoom, on = busy > 0;
+  if (it.type === 'lanternpost') { if (blit('lantern', gx, gy, 0.5)) return; }
+  else if (it.type === 'tree') { if (blit('tree', gx, gy, 1.15)) return; }
+  else if (it.type === 'stall') { if (blit('stall', gx, gy, 1.5)) return; }
+  else if (it.type === 'pavilion') { if (blit('pavilion', gx + 1, gy + 0.8, 2.0)) return; }
   switch (it.type) {
     case 'desk': isoBox(gx, gy, 1.3, 0.7, 9, shade(r.K.floor, 0.3), shade(r.K.floor, 0.05), shade(r.K.floor, -0.1)); break;
     case 'counter': isoBox(gx, gy, 2.2, 0.8, 11, shade(A, -0.1), shade(A, -0.4), shade(A, -0.5)); break;
