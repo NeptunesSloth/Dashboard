@@ -37,6 +37,20 @@ function kindForType(type) {
   if (t.includes('market') || t.includes('commerce') || t.includes('shop')) return 'commerce';
   return 'engineering';
 }
+/* cultivation identity — the sect name leads; the project is a secondary label */
+const SECT_NAME = {
+  hall: 'Sect Hall', mission: 'Hall of Heavenly Decrees', cultivation: 'Azure Spirit Grounds', server: 'Spirit Nexus Chamber',
+  market: 'Hall of Myriad Treasures', engineering: 'Forge of Creation', library: 'Hall of Infinite Inquiry', comms: 'Thousand Paths Gate', commerce: 'Golden Prosperity Hall',
+};
+function sectNameForType(type) {
+  const t = String(type || '').toLowerCase();
+  if (/dashboard|analytic|metric|monitor|calc/.test(t)) return 'Heavenly Calculation Pavilion';
+  if (/trad|bot|fund|invest/.test(t)) return 'Hall of Myriad Treasures';
+  if (/commerce|shop|store|web|site|market/.test(t)) return 'Golden Prosperity Hall';
+  if (/api|gateway|service|proxy/.test(t)) return 'Thousand Paths Gate';
+  if (/research|ml|ai|llm|model|data/.test(t)) return 'Hall of Infinite Inquiry';
+  return 'Forge of Creation';
+}
 
 /* ---------------- iso transforms ---------------- */
 function toScreen(gx, gy) {
@@ -57,11 +71,11 @@ function buildLayout(projects) {
   rooms.length = 0;
   const fixed = [
     { id: '__hall', title: 'Sect Hall', kind: 'hall' },
-    { id: '__mission', title: 'Mission Hall', kind: 'mission' },
-    { id: '__cultivation', title: 'Cultivation Chamber', kind: 'cultivation' },
-    { id: '__server', title: 'Server Core', kind: 'server' },
+    { id: '__mission', title: 'Hall of Heavenly Decrees', kind: 'mission' },
+    { id: '__cultivation', title: 'Azure Spirit Grounds', kind: 'cultivation' },
+    { id: '__server', title: 'Spirit Nexus Chamber', kind: 'server' },
   ];
-  const projRooms = projects.map((p) => ({ id: p.device + ':' + p.name, title: p.name, kind: kindForType(p.type), data: p }));
+  const projRooms = projects.map((p) => ({ id: p.device + ':' + p.name, title: sectNameForType(p.type), sub: p.name, kind: kindForType(p.type), data: p }));
   const all = [fixed[0], ...projRooms, fixed[1], fixed[2], fixed[3]];
   const C = Math.max(3, Math.ceil(Math.sqrt(all.length)));
   const rowsN = Math.ceil(all.length / C);
@@ -306,6 +320,7 @@ function drawRoom(r, t) {
   // back walls + architecture (columns, railings, lamps) turn the platform into a space
   drawWall(A, B, K, busy); drawWall(A, D, K, busy);
   drawArchitecture(r, busy);
+  drawPagoda(r, busy);
   // furniture
   r.furniture.forEach((it) => drawFurniture(r, it, t, busy));
   // selection
@@ -330,6 +345,23 @@ function drawArchitecture(r, busy) {
     ctx.fillStyle = K.accent; ctx.globalAlpha = 0.7 + busy * 0.3; ctx.shadowColor = K.accent; ctx.shadowBlur = (8 + busy * 6) * z;
     ctx.beginPath(); ctx.arc(p.x, p.y - 31 * z, 2.3 * z, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
   });
+}
+function drawPagoda(r, busy) {
+  const z = cam.zoom, K = r.K, A = toScreen(r.gx, r.gy), B = toScreen(r.gx + r.w, r.gy);
+  const cx = (A.x + B.x) / 2, backY = Math.min(A.y, B.y) - 30 * z;     // sits above the back wall
+  const w = Math.abs(B.x - A.x) * 0.95 + 8 * z, roofCol = shade(K.accent, -0.58), tiers = r.kind === 'hall' ? 3 : 2;
+  const tier = (yy, ww, hh) => {
+    ctx.fillStyle = roofCol; ctx.beginPath();
+    ctx.moveTo(cx - ww / 2, yy); ctx.quadraticCurveTo(cx - ww / 2 - 7 * z, yy - 3 * z, cx - ww * 0.34, yy - 3 * z);
+    ctx.lineTo(cx, yy - hh); ctx.lineTo(cx + ww * 0.34, yy - 3 * z); ctx.quadraticCurveTo(cx + ww / 2 + 7 * z, yy - 3 * z, cx + ww / 2, yy); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = K.accent; ctx.globalAlpha = 0.55 + busy * 0.35; ctx.lineWidth = 1.3 * z; ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.fillStyle = shade(roofCol, 0.18); ctx.fillRect(cx - ww / 2, yy - 1.5 * z, ww, 1.6 * z);   // eave board
+    ctx.fillStyle = '#fbbf24'; ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 6 * z;               // eave lanterns
+    ctx.beginPath(); ctx.arc(cx - ww / 2, yy + 3 * z, 1.5 * z, 0, 6.28); ctx.arc(cx + ww / 2, yy + 3 * z, 1.5 * z, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+  };
+  for (let i = 0; i < tiers; i++) tier(backY - i * 17 * z, w * (1 - i * 0.26), 15 * z);
+  ctx.fillStyle = K.accent; ctx.shadowColor = K.accent; ctx.shadowBlur = 8 * z;                    // finial
+  ctx.beginPath(); ctx.arc(cx, backY - tiers * 17 * z + 2 * z, 2.6 * z, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
 }
 function railing(ax, ay, bx, by, K) {
   const N = 6, z = cam.zoom, H = 9; let prevTop = null;
@@ -453,9 +485,11 @@ function drawDisciple(d, t) {
       const pt = Math.sin(t * 3 + d.phase) * 1.5 * sc;
       arm(p.x, sh, p.x + 6 * sc * fx, headY + 2 * sc + pt);
     }
-  } else if (training) {                                          // martial form
-    const sw = Math.sin(t * 6 + d.phase);
-    arm(p.x, sh, p.x + 6 * sc * sw, sh - 4 * sc * Math.abs(sw)); arm(p.x, sh, p.x - 5 * sc * sw, fy - 2 * sc);
+  } else if (training) {                                          // sword form
+    const sw = Math.sin(t * 6 + d.phase), hx = p.x + 6 * sc * sw, hy = sh - 4 * sc * Math.abs(sw);
+    arm(p.x, sh, hx, hy); arm(p.x, sh, p.x - 5 * sc * sw, fy - 2 * sc);
+    ctx.strokeStyle = 'rgba(205,214,255,.85)'; ctx.shadowColor = '#aab6ff'; ctx.shadowBlur = 5 * sc; ctx.lineWidth = 1.2 * sc;
+    ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx + 8 * sc * sw, hy - 7 * sc); ctx.stroke(); ctx.shadowBlur = 0; ctx.strokeStyle = shade(robe, -0.1);
   } else if (meditating) {                                        // hands resting
     arm(p.x, sh, p.x + 3.5 * sc, fy - 1 * sc); arm(p.x, sh, p.x - 3.5 * sc, fy - 1 * sc);
   }
@@ -546,12 +580,17 @@ function drawMicro(dt) {
 }
 
 function drawRoomLabel(r) {
-  const p = toScreen(r.cx, r.gy), z = cam.zoom; ctx.font = `700 ${12 * z}px system-ui`; ctx.textAlign = 'center';
-  const w = ctx.measureText(r.title).width + 18 * z, y = p.y - 50 * z;
-  ctx.fillStyle = 'rgba(8,10,20,.74)'; roundRect(p.x - w / 2, y - 13 * z, w, 18 * z, 5 * z); ctx.fill();
-  ctx.fillStyle = r.K.accent; ctx.fillText(r.title, p.x, y); ctx.textAlign = 'left';
+  const p = toScreen(r.cx, r.gy), z = cam.zoom, y = p.y - 82 * z; ctx.textAlign = 'center';
+  ctx.font = `700 ${12 * z}px system-ui`; const tw = ctx.measureText(r.title).width;
+  const sub = r.sub && r.sub !== r.title ? r.sub : '';
+  ctx.font = `${8.5 * z}px system-ui`; const sw = sub ? ctx.measureText(sub).width : 0;
+  const w = Math.max(tw, sw) + 18 * z, hgt = sub ? 28 * z : 18 * z;
+  ctx.fillStyle = 'rgba(8,10,20,.78)'; roundRect(p.x - w / 2, y - 13 * z, w, hgt, 5 * z); ctx.fill();
+  ctx.font = `700 ${12 * z}px system-ui`; ctx.fillStyle = r.K.accent; ctx.fillText(r.title, p.x, y);
+  if (sub) { ctx.font = `${8.5 * z}px system-ui`; ctx.fillStyle = 'rgba(184,190,214,.85)'; ctx.fillText(sub, p.x, y + 11 * z); }
   if (r.data) { ctx.fillStyle = HEALTH[r.data.health] || HEALTH.unknown; ctx.beginPath(); ctx.arc(p.x - w / 2 + 8 * z, y - 4 * z, 3 * z, 0, 6.28); ctx.fill(); }
-  if (r.occupants.size) { ctx.fillStyle = '#cdd3f0'; ctx.font = `${9 * z}px system-ui`; ctx.textAlign = 'center'; ctx.fillText('▸ ' + r.occupants.size, p.x + w / 2 + 8 * z, y); ctx.textAlign = 'left'; }
+  if (r.occupants.size) { ctx.fillStyle = '#cdd3f0'; ctx.font = `${9 * z}px system-ui`; ctx.fillText('▸ ' + r.occupants.size, p.x + w / 2 + 8 * z, y); }
+  ctx.textAlign = 'left';
 }
 
 /* ====================================================================== *
@@ -566,6 +605,7 @@ function frame(now) {
   disciples.forEach((d) => step(d, dt, t)); updateAmbient(dt, t);
 
   const bg = ctx.createLinearGradient(0, 0, 0, view.h); bg.addColorStop(0, BG1); bg.addColorStop(1, BG0); ctx.fillStyle = bg; ctx.fillRect(0, 0, view.w, view.h);
+  drawHorizon(t);
   drawCourtyard();
   drawCouriers(t);
   const ordered = rooms.slice().sort((a, b) => a.depth - b.depth);
@@ -606,6 +646,31 @@ function drawWalkways(h) {
     ctx.strokeStyle = 'rgba(124,92,255,.38)'; ctx.lineWidth = 1.5 * z; ctx.setLineDash([4 * z, 9 * z]); ctx.lineDashOffset = -(performance.now() * 0.02) % 100;
     ctx.beginPath(); ctx.moveTo(rc.x, rc.y); ctx.lineTo(hc.x, hc.y); ctx.stroke(); ctx.setLineDash([]); });
   ctx.lineCap = 'butt';
+}
+
+/* ---------------- the wider sect (background, parallax) ---------------- */
+const FAR_ISLES = [];
+function initHorizon() { FAR_ISLES.length = 0; for (let i = 0; i < 5; i++) FAR_ISLES.push({ x: 0.08 + Math.random() * 0.84, y: 0.16 + Math.random() * 0.16, s: 0.6 + Math.random() * 0.8, ph: Math.random() * 6.28 }); }
+function mountainRange(baseY, amp, peaks, off, color) {
+  const w = view.w; ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(-50, view.h);
+  for (let i = 0; i <= peaks; i++) { const x = ((i / peaks) * (w + 200) - 100 + off); const y = baseY - Math.abs(Math.sin(i * 1.7 + off * 0.01)) * amp; ctx.lineTo(x, y); }
+  ctx.lineTo(w + 50, view.h); ctx.closePath(); ctx.fill();
+}
+function drawFarIsle(x, y, s, t) {
+  const z = s; ctx.save(); ctx.globalAlpha = 0.5;
+  ctx.fillStyle = '#161a30'; ctx.beginPath(); ctx.ellipse(x, y, 26 * z, 7 * z, 0, 0, 6.28); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x - 24 * z, y); ctx.lineTo(x, y + 16 * z); ctx.lineTo(x + 24 * z, y); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = shade('#a78bfa', -0.5); ctx.beginPath(); ctx.moveTo(x - 8 * z, y - 4 * z); ctx.lineTo(x, y - 14 * z); ctx.lineTo(x + 8 * z, y - 4 * z); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(167,139,250,.5)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = '#fbbf24'; ctx.globalAlpha = 0.6; ctx.beginPath(); ctx.arc(x, y - 15 * z, 1.4 * z, 0, 6.28); ctx.fill();
+  ctx.restore();
+}
+function drawHorizon(t) {
+  const w = view.w, h = view.h, px = -cam.x * 0.02, py = -cam.y * 0.015;
+  mountainRange(h * 0.50 + py, h * 0.16, 7, px * 0.5, '#0b0e22');
+  mountainRange(h * 0.56 + py, h * 0.20, 6, px * 0.9, '#080a18');
+  ctx.globalAlpha = 1; for (let i = 0; i < 8; i++) { ctx.fillStyle = 'rgba(96,108,156,.07)'; const cx = (((i / 8) * (w + 260) - 130 + px * 1.4) % (w + 260)); ctx.beginPath(); ctx.ellipse(cx, h * 0.6 + py + Math.sin(t * 0.2 + i) * 4, 130, 24, 0, 0, 6.28); ctx.fill(); }
+  FAR_ISLES.forEach((I) => drawFarIsle(I.x * w + px * 1.6, h * I.y + py + Math.sin(t * 0.4 + I.ph) * 6, I.s, t));
 }
 
 /* ---------------- ambient world life ---------------- */
@@ -670,6 +735,7 @@ function selectRoom(r) {
     p && p.type === 'trading_bot' && Number.isFinite(Number((p.metrics || {}).profit_today)) ? ['PnL Today', money(p.metrics.profit_today)] : null]
     .filter(Boolean).map(([k, v]) => `<div class='kv'><span>${k}</span><b>${v}</b></div>`).join('');
   $('detail').innerHTML = `<div class='panel-title'>${esc(r.title)}</div>
+    ${r.sub ? `<div class='muted' style='font-size:12px;margin-top:6px'>overseeing <b style='color:var(--text)'>${esc(r.sub)}</b></div>` : ''}
     ${p ? `<div class='realm-health health-${esc(p.health || 'unknown')}'>${esc(p.health || 'unknown')}</div>` : ''}
     <div class='kvs'>${rows}</div><div class='muted' style='font-size:11.5px;margin-top:10px'>${esc(who)}</div>
     <div class='realm-actions'><button class='cbtn' id='r-logs'>View Logs</button><button class='cbtn' id='r-assign'>Assign Disciple</button></div>`;
@@ -719,7 +785,7 @@ function resize() {
   ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0); view.cx = view.w / 2; view.cy = view.h * 0.54;
   if (!cam.userMoved) centerOnHall();
 }
-addEventListener('resize', resize); resize();
+addEventListener('resize', resize); resize(); initHorizon();
 
 /* ====================================================================== *
  *  Data + demo simulation
