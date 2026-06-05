@@ -46,3 +46,15 @@ def test_command_home_served():
     assert client.get("/classic").status_code == 200
     assert client.get("/command.css").status_code == 200
     assert client.get("/vendor/three.module.js").status_code == 200
+
+
+def test_immersive_scenes_served():
+    # Realm Map (3D empire) + Disciple Command Chamber scenes and their assets.
+    rm = client.get("/realm-map")
+    assert rm.status_code == 200 and "Realm Map" in rm.text
+    ch = client.get("/chamber")
+    assert ch.status_code == 200 and "Command Chamber" in ch.text
+    for path in ("/map.js", "/chamber.js", "/lib.js", "/vendor/OrbitControls.js"):
+        resp = client.get(path)
+        assert resp.status_code == 200, path
+        assert "javascript" in resp.headers["content-type"]

@@ -39,10 +39,10 @@ function init3D() {
   camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 1, 2000); camera.position.set(0, 0, 8);
   SPRITE = softSprite();
   group = new THREE.Group(); scene.add(group);
-  group.add(cloud(2200, 1400, -500, 0xffffff, 2.2, 0.85));         // starfield
-  group.add(cloud(700, 900, -360, 0x8b5cff, 9, 0.10));             // violet nebula
-  group.add(cloud(600, 1000, -520, 0x38bdf8, 8, 0.07));            // azure nebula
-  group.add(cloud(420, 820, -300, 0x34d399, 7, 0.05));            // jade nebula
+  group.add(cloud(2600, 1500, -520, 0xffffff, 2.6, 0.95));         // starfield
+  group.add(cloud(820, 960, -360, 0x8b5cff, 11, 0.16));             // violet nebula
+  group.add(cloud(680, 1040, -540, 0x38bdf8, 10, 0.12));            // azure nebula
+  group.add(cloud(480, 860, -300, 0x34d399, 9, 0.09));            // jade nebula
   // qi streams
   STREAMS = [];
   for (let i = 0; i < 5; i++) {
@@ -249,10 +249,13 @@ async function refresh() {
 }
 
 /* nav */
-const NAVMAP = { disciples: 'disciples', map: 'map', ops: 'ops', projects: 'overview', trade: 'overview', missions: 'sect', treasury: 'sect' };
+const DEST = { disciples: '/chamber', map: '/realm-map' };
+const TABMAP = { ops: 'ops', projects: 'overview', trade: 'overview', missions: 'sect', treasury: 'sect' };
 $('rail').querySelectorAll('.nav-item').forEach((n) => n.onclick = () => {
   const k = n.dataset.nav; if (k === 'command') return;
-  if (NAVMAP[k]) localStorage.setItem('tab', NAVMAP[k]); location.href = '/classic';
+  if (DEST[k]) { location.href = DEST[k]; return; }
+  if (TABMAP[k]) localStorage.setItem('tab', TABMAP[k]);
+  location.href = '/classic';
 });
 
 /* clock */

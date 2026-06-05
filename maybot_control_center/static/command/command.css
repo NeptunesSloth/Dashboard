@@ -19,7 +19,11 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
 body {
-  background: var(--void);
+  background:
+    radial-gradient(70% 55% at 18% 8%, rgba(124, 92, 255, 0.16), transparent 60%),
+    radial-gradient(60% 50% at 92% 12%, rgba(56, 189, 248, 0.12), transparent 60%),
+    radial-gradient(80% 70% at 60% 110%, rgba(52, 211, 153, 0.08), transparent 60%),
+    var(--void);
   color: var(--text);
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -163,6 +167,84 @@ body {
 .rise { animation: rise .7s cubic-bezier(.2,.8,.2,1) both; }
 .d1 { animation-delay: .05s; } .d2 { animation-delay: .12s; } .d3 { animation-delay: .2s; }
 .d4 { animation-delay: .28s; } .d5 { animation-delay: .36s; } .d6 { animation-delay: .44s; }
+
+/* ============ IMMERSIVE SCENES (Realm Map + Disciple Chamber) ============ */
+.scene-canvas { position: fixed; inset: 0; z-index: 0; display: block; width: 100vw; height: 100vh; }
+.scene-app { position: relative; z-index: 2; display: grid; grid-template-columns: 84px 1fr; gap: 16px; padding: 16px; min-height: 100vh; pointer-events: none; }
+.scene-app .rail { pointer-events: auto; }
+.scene-stage { position: relative; min-height: calc(100vh - 32px); }
+.scene-top { position: absolute; top: 4px; left: 6px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; max-width: 60%; }
+.scene-top .brand { font-size: 26px; }
+.scene-top .jarvis { font-size: 13px; }
+
+/* legend */
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px; }
+.lg { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+.lg-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+.lg-dot.health-ok { background: var(--jade); color: var(--jade); }
+.lg-dot.health-warning { background: var(--gold); color: var(--gold); }
+.lg-dot.health-error { background: var(--crimson); color: var(--crimson); }
+.lg-dot.lg-link { background: var(--azure); color: var(--azure); border-radius: 2px; }
+
+/* floating detail panel */
+.map-panel { position: absolute; top: 4px; right: 6px; width: 320px; padding: 20px; pointer-events: auto; }
+.realm-health { display: inline-block; margin-top: 10px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+  padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line); }
+.kvs { display: flex; flex-direction: column; gap: 2px; margin-top: 14px; }
+.kv { display: flex; align-items: center; justify-content: space-between; padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+.kv span { color: var(--muted); letter-spacing: .04em; }
+.kv b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.realm-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+/* ---------- Disciple Command Chamber ---------- */
+.chamber { position: relative; z-index: 2; display: grid; grid-template-columns: 84px 360px 1fr; gap: 16px; padding: 16px;
+  min-height: 100vh; max-width: 1840px; margin: 0 auto; }
+.roster { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; height: calc(100vh - 32px); }
+.roster-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; padding-right: 4px; }
+.disc-card { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; border: 1px solid var(--line);
+  background: rgba(255,255,255,.015); cursor: pointer; transition: all .25s cubic-bezier(.2,.8,.2,1); }
+.disc-card:hover { background: rgba(139,92,255,.08); border-color: rgba(139,92,255,.3); transform: translateX(3px); }
+.disc-card.active { background: linear-gradient(135deg, rgba(139,92,255,.22), rgba(56,189,248,.06)); border-color: rgba(139,92,255,.4);
+  box-shadow: 0 0 22px rgba(139,92,255,.22); }
+.disc-meta { min-width: 0; flex: 1; }
+.disc-name { font-size: 14px; font-weight: 700; }
+.disc-rank { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--violet); margin-top: 2px; }
+.disc-now { font-size: 11px; color: var(--muted); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.disc-now.working { color: var(--azure); }
+
+.chamber-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.dossier { padding: 26px 30px; position: relative; overflow: hidden; }
+.dossier::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 120% at 88% 0%, rgba(139,92,255,.18), transparent 60%); }
+.dossier-head { display: flex; align-items: center; gap: 20px; position: relative; }
+.portrait { width: 88px; height: 88px; border-radius: 22px; flex: none; display: grid; place-items: center; font-size: 38px; font-weight: 800;
+  background: linear-gradient(135deg, rgba(139,92,255,.35), rgba(56,189,248,.14)); border: 1px solid rgba(139,92,255,.4);
+  box-shadow: 0 0 30px rgba(139,92,255,.3); position: relative; }
+.portrait-dot { position: absolute; right: -3px; bottom: -3px; width: 16px; height: 16px; border-radius: 50%; border: 3px solid var(--void-2); }
+.dossier-id { flex: 1; }
+.dossier-name { font-size: 30px; font-weight: 800; letter-spacing: -.01em; }
+.dossier-rank { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--violet); margin-top: 4px; }
+.dossier-now { font-size: 13px; color: var(--muted); margin-top: 8px; }
+.dossier-now b { color: var(--text); }
+.confidence { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.conf-bar { flex: 1; height: 7px; border-radius: 4px; background: rgba(140,150,190,.16); overflow: hidden; }
+.conf-bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--azure), var(--violet)); box-shadow: 0 0 10px var(--glow-v); }
+.conf-val { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 1100px) { .cols-2 { grid-template-columns: 1fr; } .chamber { grid-template-columns: 72px 1fr; } .roster { position: static; height: auto; } }
+.tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.tag { font-size: 11px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); color: var(--text); background: rgba(255,255,255,.03); }
+.tag.skill { border-color: rgba(56,189,248,.4); color: var(--azure); }
+.tag.title { border-color: rgba(251,191,36,.4); color: var(--gold); }
+.tline { display: flex; flex-direction: column; gap: 2px; max-height: 360px; overflow-y: auto; }
+.reason { font-size: 12.5px; color: var(--text); line-height: 1.5; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.reason .muted { display: block; font-size: 10.5px; margin-top: 4px; }
+.recs { display: flex; flex-direction: column; gap: 8px; }
+.rec { display: flex; gap: 11px; align-items: flex-start; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.015); }
+.rec-ico { font-size: 16px; }
+.rec-txt { font-size: 12.5px; line-height: 1.4; }
 
 .muted { color: var(--muted); }
 ::-webkit-scrollbar { width: 8px; height: 8px; }

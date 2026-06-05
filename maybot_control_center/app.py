@@ -1493,6 +1493,36 @@ def three_js():
     return FileResponse(f"{_CMD}/vendor/three.module.js", media_type="text/javascript")
 
 
+@app.get("/vendor/OrbitControls.js")
+def orbit_controls_js():
+    return FileResponse(f"{_CMD}/vendor/OrbitControls.js", media_type="text/javascript")
+
+
+@app.get("/lib.js")
+def command_lib_js():
+    return FileResponse(f"{_CMD}/lib.js", media_type="text/javascript")
+
+
+@app.get("/realm-map")
+def realm_map():
+    return FileResponse(f"{_CMD}/map.html")
+
+
+@app.get("/map.js")
+def map_js():
+    return FileResponse(f"{_CMD}/map.js", media_type="text/javascript")
+
+
+@app.get("/chamber")
+def chamber():
+    return FileResponse(f"{_CMD}/chamber.html")
+
+
+@app.get("/chamber.js")
+def chamber_js():
+    return FileResponse(f"{_CMD}/chamber.js", media_type="text/javascript")
+
+
 @app.get("/classic")
 def classic_home():
     return FileResponse("maybot_control_center/static/index.html")
