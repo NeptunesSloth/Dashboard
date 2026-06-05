@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Aegis — Command Hall</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#05060c">
+  <link rel="icon" href="/icon.svg">
+  <link rel="stylesheet" href="/command.css">
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <div class="vignette"></div>
+  <div class="scanline"></div>
+
+  <div class="app" id="app">
+    <!-- LEFT RAIL -->
+    <nav class="rail glass" id="rail">
+      <div class="rail-logo">◆</div>
+      <div class="nav-item active" data-nav="command"><span class="ni-ico">🏛</span><span class="ni-lbl">Command</span></div>
+      <div class="nav-item" data-nav="trade"><span class="ni-ico">📈</span><span class="ni-lbl">Trade</span></div>
+      <div class="nav-item" data-nav="disciples"><span class="ni-ico">🧠</span><span class="ni-lbl">Disciples</span></div>
+      <div class="nav-item" data-nav="missions"><span class="ni-ico">⚔</span><span class="ni-lbl">Missions</span></div>
+      <div class="nav-item" data-nav="projects"><span class="ni-ico">📜</span><span class="ni-lbl">Realms</span></div>
+      <div class="nav-item" data-nav="map"><span class="ni-ico">🗺</span><span class="ni-lbl">Map</span></div>
+      <div class="nav-item" data-nav="treasury"><span class="ni-ico">🏦</span><span class="ni-lbl">Treasury</span></div>
+      <div class="nav-item" data-nav="ops"><span class="ni-ico">⚙</span><span class="ni-lbl">Ops</span></div>
+    </nav>
+
+    <!-- CENTER -->
+    <main class="center">
+      <div class="topbar rise">
+        <div class="brand"><span class="mark">◆</span> Aegis</div>
+        <div class="jarvis" id="jarvis">Initializing command systems…</div>
+        <div class="clock" id="clock"></div>
+      </div>
+
+      <section class="hero glass rise d1" data-depth="0.5">
+        <div class="hero-grid" id="hero"></div>
+      </section>
+
+      <div class="section-h rise d2"><div class="panel-title">Trading Command Center</div></div>
+      <div class="metrics rise d2" id="metrics" data-depth="0.8"></div>
+
+      <section class="glass rise d3" style="padding:18px" data-depth="1.1">
+        <div class="section-h" style="margin-bottom:12px"><div class="panel-title">Active Opportunities</div><span class="muted" id="opp-count"></span></div>
+        <div class="opps" id="opps"></div>
+      </section>
+
+      <div class="section-h rise d4"><div class="panel-title">Realms · Strategic Assets</div></div>
+      <div class="projects rise d4" id="projects" data-depth="1.3"></div>
+
+      <section class="glass rise d5" style="padding:18px" data-depth="1.1">
+        <div class="section-h" style="margin-bottom:8px"><div class="panel-title">Intelligence Feed</div></div>
+        <div class="events" id="events"></div>
+      </section>
+    </main>
+
+    <!-- RIGHT -->
+    <aside class="right">
+      <section class="glass rise d2" style="padding:18px; display:flex; flex-direction:column; min-height:0; flex:1;" data-depth="0.6">
+        <div class="section-h" style="margin-bottom:10px"><div class="panel-title">Disciple Activity</div><span class="muted" id="disc-count"></span></div>
+        <div class="disciples" id="disciples"></div>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="/command.js"></script>
+</body>
+</html>
