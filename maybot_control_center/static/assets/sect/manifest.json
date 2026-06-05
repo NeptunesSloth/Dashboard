@@ -100,6 +100,38 @@
    "anchorX": 45.3,
    "anchorY": 113.7,
    "footTiles": 1.5
+  },
+  "pine": {
+   "file": "pine.png",
+   "w": 84,
+   "h": 97,
+   "anchorX": 42.0,
+   "anchorY": 95.3,
+   "footTiles": 1.0
+  },
+  "cherry": {
+   "file": "cherry.png",
+   "w": 97,
+   "h": 84,
+   "anchorX": 48.7,
+   "anchorY": 85.3,
+   "footTiles": 1.167
+  },
+  "crane": {
+   "file": "crane.png",
+   "w": 57,
+   "h": 67,
+   "anchorX": 25.3,
+   "anchorY": 60.3,
+   "footTiles": 1.0
+  },
+  "shrine": {
+   "file": "shrine.png",
+   "w": 124,
+   "h": 117,
+   "anchorX": 62.0,
+   "anchorY": 92.0,
+   "footTiles": 1.5
   }
  }
 }

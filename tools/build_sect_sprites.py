@@ -193,11 +193,64 @@ def m_bell():
     return m, 9, 4
 
 
+PINE = (44, 120, 78)
+CHERRY = (236, 156, 196)
+
+
+def m_pine():
+    m = {}
+    box(m, 2, 2, 0, 2, 2, 5, (96, 70, 46))          # trunk
+    box(m, 0, 0, 5, 6, 6, 1, mul(PINE, 0.85))
+    box(m, 1, 1, 6, 4, 4, 2, PINE)
+    box(m, 1, 1, 8, 4, 4, 1, mul(PINE, 1.08))
+    box(m, 2, 2, 9, 2, 2, 2, mul(PINE, 1.15))
+    box(m, 2, 2, 11, 2, 2, 1, mul(PINE, 1.2))
+    box(m, 3, 3, 12, 1, 1, 2, mul(PINE, 1.25))
+    return m, 6, 6
+
+
+def m_cherry():
+    m = {}
+    box(m, 2, 2, 0, 2, 2, 5, (110, 80, 54))         # trunk
+    gem(m, 3, 3, 5, 7, CHERRY)                        # blossom canopy
+    box(m, 1, 4, 8, 1, 1, 1, mul(CHERRY, 1.1))
+    box(m, 5, 2, 9, 1, 1, 1, mul(CHERRY, 1.1))
+    return m, 7, 7
+
+
+def m_crane():
+    m = {}
+    box(m, 2, 2, 0, 1, 1, 3, (40, 40, 44))          # legs
+    box(m, 4, 3, 0, 1, 1, 3, (40, 40, 44))
+    box(m, 1, 1, 3, 5, 3, 2, (240, 240, 244))       # body
+    box(m, 0, 2, 3, 1, 1, 2, (28, 28, 30))          # tail
+    box(m, 5, 2, 5, 1, 1, 3, (240, 240, 244))       # neck
+    box(m, 6, 2, 8, 1, 1, 1, (240, 240, 244))       # head
+    box(m, 6, 2, 9, 1, 1, 1, (208, 56, 56))         # red crown
+    return m, 6, 5
+
+
+def m_shrine():
+    m = {}
+    box(m, 0, 0, 0, 9, 9, 2, STONE_D)               # stone terrace
+    box(m, 2, 2, 2, 5, 5, 1, mul(GOLD, 0.55))       # gilded platform
+    box(m, 2, 3, 3, 1, 1, 6, (168, 40, 40))         # torii posts
+    box(m, 6, 3, 3, 1, 1, 6, (168, 40, 40))
+    box(m, 1, 3, 9, 7, 1, 1, (150, 30, 30))         # torii lintels
+    box(m, 1, 3, 10, 7, 1, 1, (120, 24, 24))
+    box(m, 4, 5, 3, 1, 1, 2, STONE)                 # altar
+    gem(m, 4, 5, 5, 3, GOLD)                          # golden relic
+    roof(m, 4, 4, 7, 4, 4, 2, ROOFG)                 # golden roof
+    box(m, 4, 4, 9, 1, 1, 2, GOLD)
+    return m, 9, 9
+
+
 MODELS = {
     "grand_pagoda": m_grand_pagoda, "pagoda": m_pagoda, "pavilion": m_pavilion,
     "lantern": m_lantern, "tree": m_tree, "stall": m_stall, "gate": m_gate,
     "crystal": m_crystal, "fountain": m_fountain, "observatory": m_observatory,
-    "forge": m_forge, "bell": m_bell,
+    "forge": m_forge, "bell": m_bell, "pine": m_pine, "cherry": m_cherry,
+    "crane": m_crane, "shrine": m_shrine,
 }
 
 

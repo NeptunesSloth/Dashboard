@@ -179,7 +179,7 @@ function furnish(r) {
       for (let i = 0; i < 3; i++) { P('bench', 1.4, 2.2 + i * 1.5); st.push([2.0, 2.4 + i * 1.5]); }
       P('crate', 1.0, H - 1.0); P('crate', 1.7, H - 1.2); P('crate', W - 1.4, H - 1.0); ring(); break;
     case 'tome':                                 // archive + study garden
-      B('pagoda', cx, 1.6, 2.8); B('pavilion', cx, 4.1, 2.6); B('tree', 1.5, 4.4, 1.1); B('tree', W - 1.5, 4.4, 1.1);
+      B('pagoda', cx, 1.6, 2.8); B('pavilion', cx, 4.1, 2.6); B('cherry', 1.5, 4.4, 1.1); B('cherry', W - 1.5, 4.4, 1.1);
       for (let i = 0; i < 4; i++) P('shelf', 1.2 + i * 0.9, 3.0);
       P('desk', cx - 1.6, H - 1.1); P('desk', cx + 0.8, H - 1.1); st.push([cx - 1.0, H - 0.6]); st.push([cx + 1.4, H - 0.6]);
       P('bench', 1.5, H - 1.0); P('bench', W - 1.7, H - 1.0); ring(); break;
@@ -198,12 +198,12 @@ function furnish(r) {
       [[1.3, H - 1.3], [W - 1.3, H - 1.3]].forEach(([x, y]) => P('conduit', x, y, { to: [cx, H / 2] }));
       P('crate', 1.2, H - 2.0); ring(); st.push([1.9, H - 1.1]); st.push([W - 1.9, H - 1.1]); break;
     case 'vortex':                               // spirit grounds
-      B('pavilion', cx, 1.7, 2.6); B('tree', cx, 4.0, 1.7); B('tree', 1.5, 1.6, 1.1); B('tree', W - 1.5, 1.6, 1.1);
+      B('pavilion', cx, 1.7, 2.6); B('tree', cx, 4.0, 1.7); B('pine', 1.5, 1.6, 1.1); B('pine', W - 1.5, 1.6, 1.1); B('crane', cx + 2.4, H - 1.4, 1.0);
       P('circle', cx - 1.8, H - 1.6); P('circle', cx + 1.8, H - 1.6); P('bench', 1.4, H - 1.0); P('bench', W - 1.6, H - 1.0); ring();
       st.push([cx - 1.8, H - 1.6]); st.push([cx + 1.8, H - 1.6]); break;
     case 'monument': default:                    // sect capital
       B('grand_pagoda', cx, 3.0, 4.6); B('pavilion', 1.6, 1.8, 2.2); B('pavilion', W - 1.8, 1.8, 2.2);
-      B('tree', 1.4, H - 1.6, 1.2); B('tree', W - 1.4, H - 1.6, 1.2);
+      B('cherry', 1.4, H - 1.6, 1.2); B('pine', W - 1.4, H - 1.6, 1.2); B('crane', cx - 2.6, H - 0.9, 1.0);
       P('dais', cx - 1.4, H - 2.4); P('circle', cx, H - 1.0);
       P('bench', cx - 2.6, H - 1.6); P('bench', cx + 1.8, H - 1.6); P('banner', cx - 2.4, 0.4); P('banner', cx + 1.6, 0.4);
       P('brazier', 2.2, H / 2 + 1); P('brazier', W - 2.2, H / 2 + 1); ring(); break;
@@ -352,16 +352,35 @@ function holoScreen(gx, gy, wpx, hpx, lift, color, content, t, on) {
 /* ====================================================================== *
  *  Rooms
  * ====================================================================== */
+function drawWaterfall(x, y, TH, t) {
+  const z = cam.zoom;
+  ctx.fillStyle = 'rgba(150,210,255,.32)'; ctx.fillRect(x - 4 * z, y, 8 * z, TH);
+  ctx.strokeStyle = 'rgba(230,245,255,.6)'; ctx.lineWidth = 1.3 * z;
+  for (let i = 0; i < 5; i++) { const yy = y + ((t * 140 * z + i * TH / 5) % TH); ctx.beginPath(); ctx.moveTo(x - 3 * z + i * 1.6 * z, yy); ctx.lineTo(x - 3 * z + i * 1.6 * z, yy + 9 * z); ctx.stroke(); }
+  ctx.fillStyle = 'rgba(220,235,255,.5)'; for (let i = 0; i < 2; i++) { ctx.beginPath(); ctx.ellipse(x + (i - 0.5) * 8 * z, y + TH + Math.sin(t * 2 + i) * 2 * z, 11 * z, 4 * z, 0, 0, 6.28); ctx.fill(); }
+}
+function drawCliff(r, A, B, Cc, D, TH, t) {
+  const z = cam.zoom, rock = '#2c2b3c', rockD = '#1b1a27';
+  ctx.fillStyle = rock; ctx.beginPath(); ctx.moveTo(D.x, D.y); ctx.lineTo(Cc.x, Cc.y); ctx.lineTo(Cc.x, Cc.y + TH); ctx.lineTo(D.x, D.y + TH); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = rockD; ctx.beginPath(); ctx.moveTo(B.x, B.y); ctx.lineTo(Cc.x, Cc.y); ctx.lineTo(Cc.x, Cc.y + TH); ctx.lineTo(B.x, B.y + TH); ctx.closePath(); ctx.fill();
+  // rock striations
+  ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.lineWidth = 1;
+  for (let i = 1; i < r.h; i++) { const p = toScreen(r.gx, r.gy + i); ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y + TH); ctx.stroke(); }
+  for (let i = 1; i < r.w; i++) { const p = toScreen(r.gx + i, r.gy + r.h); ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y + TH); ctx.stroke(); }
+  // top edge highlight
+  ctx.strokeStyle = 'rgba(150,150,184,.28)'; ctx.lineWidth = 1.4 * z; ctx.beginPath(); ctx.moveTo(D.x, D.y); ctx.lineTo(Cc.x, Cc.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+  // waterfalls for the watery/spirit terraces
+  if (r.landmark === 'vortex' || r.landmark === 'nexus' || r.kind === 'hall') drawWaterfall(Cc.x, Cc.y, TH, t);
+  // clinging mist at the cliff base
+  const mb = toScreen(r.cx, r.gy + r.h); ctx.globalAlpha = 0.5; ctx.fillStyle = 'rgba(205,214,236,.5)';
+  for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(mb.x + (i - 1.5) * 28 * z, mb.y + TH - 4 * z + Math.sin(t * 1.5 + i) * 3 * z, 22 * z, 6 * z, 0, 0, 6.28); ctx.fill(); }
+  ctx.globalAlpha = 1;
+}
 function drawRoom(r, t) {
   const z = cam.zoom, K = r.K, occ = r.occupants.size, busy = Math.min(1, occ * 0.45);
   const A = toScreen(r.gx, r.gy), B = toScreen(r.gx + r.w, r.gy), Cc = toScreen(r.gx + r.w, r.gy + r.h), D = toScreen(r.gx, r.gy + r.h);
-  const TH = 17 * z;
-  // ground shadow
-  ctx.save(); ctx.globalAlpha = 0.45; ctx.fillStyle = '#000'; ctx.filter = 'blur(5px)';
-  ctx.beginPath(); ctx.moveTo(A.x, A.y + TH + 5); ctx.lineTo(B.x, B.y + TH + 5); ctx.lineTo(Cc.x, Cc.y + TH + 10); ctx.lineTo(D.x, D.y + TH + 10); ctx.closePath(); ctx.fill(); ctx.restore();
-  // slab sides
-  ctx.fillStyle = shade(K.floor, -0.5); ctx.beginPath(); ctx.moveTo(D.x, D.y); ctx.lineTo(Cc.x, Cc.y); ctx.lineTo(Cc.x, Cc.y + TH); ctx.lineTo(D.x, D.y + TH); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = shade(K.floor, -0.62); ctx.beginPath(); ctx.moveTo(B.x, B.y); ctx.lineTo(Cc.x, Cc.y); ctx.lineTo(Cc.x, Cc.y + TH); ctx.lineTo(B.x, B.y + TH); ctx.closePath(); ctx.fill();
+  const TH = (r.kind === 'hall' ? 64 : 46) * z;     // each hall sits on a mountain terrace
+  drawCliff(r, A, B, Cc, D, TH, t);
   // floor
   const g = ctx.createLinearGradient(A.x, A.y, Cc.x, Cc.y); g.addColorStop(0, shade(K.floor, 0.14)); g.addColorStop(1, K.floor);
   ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(Cc.x, Cc.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.fill();
@@ -434,7 +453,9 @@ function railing(ax, ay, bx, by, K) {
 
 function drawFurniture(r, it, t, busy) {
   const A = r.K.accent, gx = r.gx + it.gx, gy = r.gy + it.gy, z = cam.zoom, on = busy > 0;
-  if (it.type === 'sprite') { if (blit(it.name, gx, gy, it.ft)) return; isoBox(gx - 0.5, gy - 0.5, 1, 1, 14, shade(r.K.wall, 0.05), shade(r.K.wall, -0.25), shade(r.K.wall, -0.35)); return; }
+  if (it.type === 'sprite') { const small = ['lantern', 'crane', 'pine', 'cherry', 'tree'].includes(it.name);
+    const ft = it.ft * (small ? 0.9 : 0.66);          // smaller halls -> open courtyards, disciples lead
+    if (blit(it.name, gx, gy, ft)) return; isoBox(gx - 0.5, gy - 0.5, 1, 1, 12, shade(r.K.wall, 0.05), shade(r.K.wall, -0.25), shade(r.K.wall, -0.35)); return; }
   switch (it.type) {
     case 'desk': isoBox(gx, gy, 1.3, 0.7, 9, shade(r.K.floor, 0.3), shade(r.K.floor, 0.05), shade(r.K.floor, -0.1)); break;
     case 'counter': isoBox(gx, gy, 2.2, 0.8, 11, shade(A, -0.1), shade(A, -0.4), shade(A, -0.5)); break;
@@ -837,9 +858,10 @@ function frame(now) {
   if (t - lastDerive > 0.35) { disciples.forEach(deriveState); lastDerive = t; }
   disciples.forEach((d) => step(d, dt, t)); updateAmbient(dt, t); updateExtras(dt, t);
 
-  const bg = ctx.createLinearGradient(0, 0, 0, view.h); bg.addColorStop(0, BG1); bg.addColorStop(1, BG0); ctx.fillStyle = bg; ctx.fillRect(0, 0, view.w, view.h);
+  const bg = ctx.createLinearGradient(0, 0, 0, view.h); bg.addColorStop(0, '#12183a'); bg.addColorStop(0.55, '#1a2247'); bg.addColorStop(1, '#0c1024'); ctx.fillStyle = bg; ctx.fillRect(0, 0, view.w, view.h);
   drawHorizon(t);
-  drawCourtyard();
+  drawBridges();
+  drawAncestor(t);
   drawCouriers(t);
   const ordered = rooms.slice().sort((a, b) => a.depth - b.depth);
   ordered.forEach((r) => drawRoom(r, t));
@@ -851,36 +873,46 @@ function frame(now) {
   drawSpectacles(dt); drawMicro(dt);
   drawAtmosphere(t);
 }
-function drawCourtyard() {
-  if (!grounds) return; const z = cam.zoom, M = grounds;
-  const A = toScreen(M.minGx, M.minGy), B = toScreen(M.maxGx, M.minGy), C = toScreen(M.maxGx, M.maxGy), D = toScreen(M.minGx, M.maxGy), TH = 26 * z;
-  // plaza drop shadow
-  ctx.save(); ctx.globalAlpha = .5; ctx.fillStyle = '#000'; ctx.filter = 'blur(8px)';
-  ctx.beginPath(); ctx.moveTo(A.x, A.y + TH + 8); ctx.lineTo(B.x, B.y + TH + 8); ctx.lineTo(C.x, C.y + TH + 14); ctx.lineTo(D.x, D.y + TH + 14); ctx.closePath(); ctx.fill(); ctx.restore();
-  // plaza sides (the headquarters foundation)
-  ctx.fillStyle = '#070810'; ctx.beginPath(); ctx.moveTo(D.x, D.y); ctx.lineTo(C.x, C.y); ctx.lineTo(C.x, C.y + TH); ctx.lineTo(D.x, D.y + TH); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = '#05060c'; ctx.beginPath(); ctx.moveTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.lineTo(C.x, C.y + TH); ctx.lineTo(B.x, B.y + TH); ctx.closePath(); ctx.fill();
-  // plaza top
-  const g = ctx.createLinearGradient(A.x, A.y, C.x, C.y); g.addColorStop(0, '#11131f'); g.addColorStop(1, '#0a0c16');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.fill();
-  // courtyard light pooling under the Sect Hall
-  const h = hall(); if (h) { const c = toScreen(h.cx, h.cyc), rg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 340 * z); rg.addColorStop(0, 'rgba(124,92,255,.18)'); rg.addColorStop(1, 'transparent');
-    ctx.save(); ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.clip(); ctx.fillStyle = rg; ctx.fillRect(c.x - 380 * z, c.y - 380 * z, 760 * z, 760 * z); ctx.restore(); }
-  // paving grid
-  ctx.strokeStyle = 'rgba(124,92,255,.05)'; ctx.lineWidth = 1;
-  for (let gx = Math.ceil(M.minGx); gx <= M.maxGx; gx += 2) { const a = toScreen(gx, M.minGy), b = toScreen(gx, M.maxGy); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
-  for (let gy = Math.ceil(M.minGy); gy <= M.maxGy; gy += 2) { const a = toScreen(M.minGx, gy), b = toScreen(M.maxGx, gy); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
-  drawWalkways(h);
-  // foundation edge rail
-  ctx.strokeStyle = 'rgba(167,139,250,.22)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.stroke();
-}
-function drawWalkways(h) {
-  if (!h) return; const z = cam.zoom, hc = toScreen(h.cx, h.cyc);
-  rooms.forEach((r) => { if (r === h) return; const rc = toScreen(r.cx, r.gy + r.h);
-    ctx.strokeStyle = 'rgba(58,64,96,.55)'; ctx.lineCap = 'round'; ctx.lineWidth = 10 * z; ctx.beginPath(); ctx.moveTo(rc.x, rc.y); ctx.lineTo(hc.x, hc.y); ctx.stroke();
-    ctx.strokeStyle = 'rgba(124,92,255,.38)'; ctx.lineWidth = 1.5 * z; ctx.setLineDash([4 * z, 9 * z]); ctx.lineDashOffset = -(performance.now() * 0.02) % 100;
-    ctx.beginPath(); ctx.moveTo(rc.x, rc.y); ctx.lineTo(hc.x, hc.y); ctx.stroke(); ctx.setLineDash([]); });
+/* spirit bridges spanning the cloud gaps between mountain terraces */
+function drawBridge(p1, p2) {
+  const z = cam.zoom, mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2 - 7 * z;
+  ctx.strokeStyle = 'rgba(118,116,134,.95)'; ctx.lineCap = 'round'; ctx.lineWidth = 7 * z;
+  ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.quadraticCurveTo(mx, my, p2.x, p2.y); ctx.stroke();
+  ctx.strokeStyle = 'rgba(156,152,172,.7)'; ctx.lineWidth = 1.4 * z;
+  ctx.beginPath(); ctx.moveTo(p1.x, p1.y - 4 * z); ctx.quadraticCurveTo(mx, my - 4 * z, p2.x, p2.y - 4 * z); ctx.stroke();
   ctx.lineCap = 'butt';
+  [p1, p2].forEach((p) => { ctx.fillStyle = '#ffce6a'; ctx.shadowColor = '#ffce6a'; ctx.shadowBlur = 7 * z; ctx.beginPath(); ctx.arc(p.x, p.y - 7 * z, 1.8 * z, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0; });
+}
+function drawBridges() {
+  rooms.forEach((a) => {
+    let right = null, down = null;
+    rooms.forEach((b) => { if (b === a) return;
+      if (b.gx > a.gx + a.w - 1 && Math.abs(b.cyc - a.cyc) < 3 && (!right || b.gx < right.gx)) right = b;
+      if (b.gy > a.gy + a.h - 1 && Math.abs(b.cx - a.cx) < 3 && (!down || b.gy < down.gy)) down = b;
+    });
+    if (right) drawBridge(toScreen(a.gx + a.w, a.cyc), toScreen(right.gx, right.cyc));
+    if (down) drawBridge(toScreen(a.cx, a.gy + a.h), toScreen(down.cx, down.gy));
+  });
+}
+/* the Grand Ancestor's peak — ancestral shrine above the sect, with rare golden manifestations */
+function drawAncestor(t) {
+  const h = hall(); if (!h) return; const gx = h.cx, gy = h.gy - 2.4, z = cam.zoom, p = toScreen(gx, gy);
+  // a small rock spire under the shrine
+  ctx.fillStyle = '#241f33'; ctx.beginPath(); ctx.moveTo(p.x - 22 * z, p.y); ctx.lineTo(p.x + 22 * z, p.y); ctx.lineTo(p.x + 12 * z, p.y + 70 * z); ctx.lineTo(p.x - 12 * z, p.y + 70 * z); ctx.closePath(); ctx.fill();
+  blit('shrine', gx, gy, 1.7);
+  const cyc = t % 26;                                  // a rare manifestation every ~26s
+  if (cyc < 6) {
+    const a = (cyc < 2 ? cyc / 2 : cyc > 5 ? (6 - cyc) : 1);
+    ctx.globalAlpha = 0.22 * a; const g = ctx.createLinearGradient(0, p.y - 230 * z, 0, p.y); g.addColorStop(0, 'rgba(255,212,110,0)'); g.addColorStop(1, 'rgba(255,212,110,.85)');
+    ctx.fillStyle = g; ctx.fillRect(p.x - 28 * z, p.y - 230 * z, 56 * z, 230 * z);
+    const cy = p.y - 150 * z;                          // golden immortal projection
+    ctx.globalAlpha = 0.24 * a; ctx.fillStyle = '#ffe39a'; ctx.shadowColor = '#ffd36a'; ctx.shadowBlur = 30 * z;
+    ctx.beginPath(); ctx.moveTo(p.x, cy - 42 * z); ctx.lineTo(p.x + 28 * z, cy + 22 * z); ctx.quadraticCurveTo(p.x, cy + 32 * z, p.x - 28 * z, cy + 22 * z); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, cy - 50 * z, 13 * z, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+    ctx.globalAlpha = 0.4 * a; ctx.strokeStyle = '#ffe39a'; ctx.lineWidth = 2 * z;
+    for (let i = 0; i < 3; i++) { const rr = (t * 0.5 + i * 0.34) % 1; ctx.beginPath(); ctx.ellipse(p.x, p.y, (12 + rr * 64) * z, (6 + rr * 32) * z, 0, 0, 6.28); ctx.stroke(); }
+    ctx.globalAlpha = 1;
+  }
 }
 
 /* ---------------- the wider sect (background, parallax) ---------------- */
@@ -902,10 +934,30 @@ function drawFarIsle(x, y, s, t) {
 }
 function drawHorizon(t) {
   const w = view.w, h = view.h, px = -cam.x * 0.02, py = -cam.y * 0.015;
-  mountainRange(h * 0.50 + py, h * 0.16, 7, px * 0.5, '#0b0e22');
-  mountainRange(h * 0.56 + py, h * 0.20, 6, px * 0.9, '#080a18');
-  ctx.globalAlpha = 1; for (let i = 0; i < 8; i++) { ctx.fillStyle = 'rgba(96,108,156,.07)'; const cx = (((i / 8) * (w + 260) - 130 + px * 1.4) % (w + 260)); ctx.beginPath(); ctx.ellipse(cx, h * 0.6 + py + Math.sin(t * 0.2 + i) * 4, 130, 24, 0, 0, 6.28); ctx.fill(); }
+  // sun shafts from the upper sky
+  ctx.save(); ctx.globalAlpha = 0.05; ctx.fillStyle = '#ffe7b0'; ctx.translate(w * 0.66, -80); ctx.rotate(0.5);
+  for (let i = 0; i < 4; i++) ctx.fillRect(i * 110 - 80, 0, 38, h * 1.8); ctx.restore();
+  // layered distant peaks (far -> near)
+  mountainRange(h * 0.44 + py, h * 0.16, 6, px * 0.4, '#1a2350');
+  mountainRange(h * 0.50 + py, h * 0.18, 7, px * 0.6, '#141a3c');
+  mountainRange(h * 0.57 + py, h * 0.22, 6, px * 0.9, '#0d1228');
+  // a neighbouring sect on a far peak
+  (function () { const sx = w * 0.2 + px * 0.6, sy = h * 0.44 + py; ctx.fillStyle = '#0a0e22';
+    ctx.beginPath(); ctx.moveTo(sx - 10, sy); ctx.lineTo(sx, sy - 22); ctx.lineTo(sx + 10, sy); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(167,139,250,.4)'; ctx.fillRect(sx - 2, sy - 26, 4, 6); })();
+  // rolling cloud sea (the peaks emerge from it)
+  for (let i = 0; i < 10; i++) { ctx.fillStyle = `rgba(150,162,205,${0.05 + (i % 3) * 0.02})`; const cx = (((i / 10) * (w + 320) - 160 + t * (6 + i) + px * 1.4) % (w + 320)) - 0;
+    ctx.beginPath(); ctx.ellipse(cx, h * (0.60 + (i % 4) * 0.05) + py + Math.sin(t * 0.2 + i) * 5, 150, 28, 0, 0, 6.28); ctx.fill(); }
   FAR_ISLES.forEach((I) => drawFarIsle(I.x * w + px * 1.6, h * I.y + py + Math.sin(t * 0.4 + I.ph) * 6, I.s, t));
+  // sky life: a gliding crane and a flying-sword cultivator crossing the heavens
+  const cax = (t * 26 % (w + 200)) - 100, cay = h * 0.26 + Math.sin(t * 0.6) * 16;
+  ctx.save(); ctx.globalAlpha = 0.85; ctx.strokeStyle = '#e8edff'; ctx.lineWidth = 2; const fl = Math.sin(t * 6) * 6;
+  ctx.beginPath(); ctx.moveTo(cax - 10, cay - fl); ctx.lineTo(cax, cay); ctx.lineTo(cax + 10, cay - fl); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cax - 26, cay + 6 - fl * 0.6); ctx.lineTo(cax - 16, cay + 6); ctx.lineTo(cax - 6, cay + 6 - fl * 0.6); ctx.stroke(); ctx.restore();
+  const sw = ((t * 90 + 300) % (w + 240)) - 120, swy = h * 0.18 + Math.sin(t * 0.8) * 10;
+  ctx.save(); ctx.globalAlpha = 0.6; ctx.strokeStyle = '#bcd0ff'; ctx.shadowColor = '#9ec0ff'; ctx.shadowBlur = 8; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(sw, swy); ctx.lineTo(sw + 26, swy - 4); ctx.stroke();
+  ctx.fillStyle = '#cdd9ff'; ctx.beginPath(); ctx.arc(sw + 28, swy - 4, 2, 0, 6.28); ctx.fill(); ctx.restore();
 }
 
 /* ---------------- ambient world life ---------------- */
