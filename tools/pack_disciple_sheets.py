@@ -38,13 +38,14 @@ ROLES = ["leader", "elder", "researcher", "analyst", "engineer", "architect", "t
 # State columns, left->right: (name, frame_count).
 STATES = [("idle", 4), ("walk", 6), ("work", 4), ("meditate", 2), ("celebrate", 4)]
 
-# Vertical ink-band per row (y0, y1) on the reference sheet.
-ROW_BANDS = [(60, 190), (202, 330), (344, 468), (480, 594), (605, 716), (727, 838), (844, 938), (937, 1022)]
+# Vertical ink-band per row (y0, y1) on the reference sheet. Cropped per-strip to
+# the character bbox afterwards, so these only need to bracket each row generously.
+ROW_BANDS = [(48, 162), (178, 288), (300, 406), (418, 524), (540, 646), (658, 766), (778, 882), (894, 1000)]
 
 # Horizontal span per state-group (x0, x1) on the reference sheet.
 STATE_BANDS = {
-    "idle": (132, 420), "walk": (420, 836), "work": (836, 1108),
-    "meditate": (1108, 1249), "celebrate": (1249, 1532),
+    "idle": (108, 428), "walk": (440, 820), "work": (820, 1082),
+    "meditate": (1086, 1224), "celebrate": (1232, 1533),
 }
 
 PAD = 4  # px of breathing room kept around the vertical bbox
