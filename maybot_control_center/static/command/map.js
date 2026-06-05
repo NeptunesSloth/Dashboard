@@ -51,6 +51,16 @@ function sectNameForType(type) {
   if (/research|ml|ai|llm|model|data/.test(t)) return 'Hall of Infinite Inquiry';
   return 'Forge of Creation';
 }
+/* one iconic landmark per district — a city is remembered by its landmarks */
+function landmarkFor(room) {
+  if (room.kind === 'hall') return 'monument';
+  if (room.kind === 'mission') return 'bell';
+  if (room.kind === 'cultivation') return 'vortex';
+  if (room.kind === 'server') return 'nexus';
+  return ({ 'Hall of Myriad Treasures': 'fountain', 'Heavenly Calculation Pavilion': 'observatory',
+    'Golden Prosperity Hall': 'prosperity', 'Thousand Paths Gate': 'gate', 'Hall of Infinite Inquiry': 'tome',
+    'Forge of Creation': 'forge' }[room.title]) || ({ market: 'fountain', engineering: 'forge', library: 'tome', comms: 'gate', commerce: 'prosperity' }[room.kind]) || 'monument';
+}
 
 /* ---------------- iso transforms ---------------- */
 function toScreen(gx, gy) {
@@ -92,6 +102,7 @@ function buildLayout(projects) {
     const K = KIND[r.kind];
     const room = { ...r, K, gx, gy, w, h, cx: gx + w / 2, cyc: gy + h / 2,
       door: { gx: gx + w / 2, gy: gy + h + 0.6 }, occupants: new Set(), depth: gx + gy + w / 2 + h / 2 };
+    room.landmark = landmarkFor(room);
     furnish(room);
     rooms.push(room);
   });
@@ -119,30 +130,27 @@ function furnish(r) {
   const push = (type, gx, gy, opt) => f.push({ type, gx, gy, ...opt });
   switch (r.kind) {
     case 'market':
-      for (let i = 0; i < 3; i++) { const x = 1.2 + i * 1.8; push('desk', x, back); push('screen', x, back - 0.1, { content: 'chart' }); st.push([x, back + 1.2]); }
-      push('holo', W / 2, midY + 0.6, { content: 'graph' }); break;
+      for (let i = 0; i < 3; i++) { const x = 1.2 + i * 1.8; push('desk', x, back); push('screen', x, back - 0.1, { content: 'chart' }); st.push([x, back + 1.2]); } break;
     case 'engineering':
-      for (let i = 0; i < 3; i++) { const x = 1.2 + i * 1.8; push('desk', x, back); push('screen', x, back - 0.1, { content: 'code' }); st.push([x, back + 1.2]); }
-      push('table', W / 2 - 0.5, midY + 1, { content: 'blueprint' }); break;
+      for (let i = 0; i < 3; i++) { const x = 1.2 + i * 1.8; push('desk', x, back); push('screen', x, back - 0.1, { content: 'code' }); st.push([x, back + 1.2]); } break;
     case 'library':
       for (let i = 0; i < 4; i++) push('shelf', 0.8 + i * 1.3, back - 0.2);
-      push('table', W / 2 - 0.5, midY + 0.6, { content: 'diagram' }); st.push([W / 2 - 0.6, midY + 1.6]); st.push([W / 2 + 0.6, midY + 1.6]); break;
+      st.push([W / 2 - 1.4, H - 1.2]); st.push([W / 2 + 1.4, H - 1.2]); break;
     case 'comms':
-      push('tower', W / 2 - 0.5, back + 0.4); push('desk', 1.4, H - 1.6); push('desk', W - 2.4, H - 1.6);
+      push('desk', 1.4, H - 1.6); push('desk', W - 2.4, H - 1.6);
       st.push([1.6, H - 0.6]); st.push([W - 2.2, H - 0.6]); break;
     case 'mission':
-      push('board', W / 2 - 1, back - 0.2); push('table', W / 2 - 0.5, midY + 0.8, { content: 'plan' });
-      st.push([W / 2 - 1, midY + 1.7]); st.push([W / 2 + 0.6, midY + 1.7]); break;
+      push('board', W / 2 - 1, back - 0.2);
+      st.push([W / 2 - 1.6, H - 1.1]); st.push([W / 2 + 1.6, H - 1.1]); break;
     case 'server':
       for (let i = 0; i < 4; i++) push('rack', 1 + i * 1.2, back + 0.2 + (i % 2) * 1.6);
-      push('conduit', 0.6, H - 1, { to: [W - 0.6, H - 1] }); st.push([W / 2, H - 0.8]); break;
+      push('conduit', 0.6, H - 1, { to: [W - 0.6, H - 1] }); st.push([W / 2 - 1.6, H - 0.8]); st.push([W / 2 + 1.6, H - 0.8]); break;
     case 'cultivation':
-      for (let i = 0; i < 3; i++) { push('mat', 1.4 + i * 1.6, midY); st.push([1.4 + i * 1.6, midY]); }
-      push('crystal', W / 2 - 0.4, back + 0.2); break;
+      push('mat', 1.4, H - 1.2); push('mat', W - 1.4, H - 1.2); st.push([1.4, H - 1.2]); st.push([W - 1.4, H - 1.2]); break;
     case 'commerce':
-      push('banner', W / 2 - 1, back - 0.3); push('counter', W / 2 - 1, midY + 0.6); st.push([W / 2 - 0.4, midY + 1.6]); break;
+      push('banner', W / 2 - 1, back - 0.3); push('counter', 1.4, H - 1.4); st.push([1.6, H - 0.5]); break;
     case 'hall': default:
-      push('dais', W / 2 - 1.4, midY - 0.7); push('statue', W / 2 - 0.1, midY - 0.1); push('throne', W / 2 - 0.8, back - 0.1);
+      push('dais', W / 2 - 1.4, midY - 0.7); push('throne', W / 2 - 0.8, back - 0.1);
       push('medcircle', 1.5, H - 1.3); push('dummy', W - 1.7, H - 1.4); push('dummy', W - 1.1, H - 2.1);
       push('plant', 0.7, back + 0.2); push('plant', W - 1.0, back + 0.2); push('brazier', 0.7, midY + 0.6); push('brazier', W - 1.0, midY + 0.6); break;
   }
@@ -323,6 +331,8 @@ function drawRoom(r, t) {
   drawPagoda(r, busy);
   // furniture
   r.furniture.forEach((it) => drawFurniture(r, it, t, busy));
+  // the district's iconic landmark
+  if (r.landmark) drawLandmark(r, t, busy);
   // selection
   if (hover.room === r || selected.room === r) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.globalAlpha = .85;
     ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(Cc.x, Cc.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.stroke(); ctx.globalAlpha = 1; }
@@ -435,6 +445,86 @@ function drawFurniture(r, it, t, busy) {
       for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.ellipse(p.x + (i - 1) * 3 * z, p.y - (8 + (i % 2) * 3) * z, 3.2 * z, 5 * z, 0, 0, 6.28); ctx.fill(); } ctx.shadowBlur = 0; break; }
   }
   ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+}
+
+/* ====================================================================== *
+ *  Landmarks — one unforgettable structure per district
+ * ====================================================================== */
+function disc(gx, gy, rT, hpx, topc, sidec) {
+  const z = cam.zoom, c = toScreen(gx, gy), rx = rT * TW2 * z, ry = rT * TH2 * z, h = hpx * z;
+  ctx.fillStyle = sidec; ctx.fillRect(c.x - rx, c.y - h, rx * 2, h);
+  ctx.beginPath(); ctx.ellipse(c.x, c.y, rx, ry, 0, 0, 6.28); ctx.fill();
+  ctx.fillStyle = topc; ctx.beginPath(); ctx.ellipse(c.x, c.y - h, rx, ry, 0, 0, 6.28); ctx.fill();
+  return { c, rx, ry, h };
+}
+function landmarkGlow(r, color) { const c = toScreen(r.cx, r.cyc), z = cam.zoom, g = ctx.createRadialGradient(c.x, c.y - 14 * z, 0, c.x, c.y - 14 * z, 80 * z);
+  g.addColorStop(0, color); g.addColorStop(1, 'transparent'); ctx.globalAlpha = 0.16; ctx.fillStyle = g; ctx.fillRect(c.x - 90 * z, c.y - 100 * z, 180 * z, 180 * z); ctx.globalAlpha = 1; }
+function drawLandmark(r, t, busy) {
+  const z = cam.zoom, A = r.K.accent, c = toScreen(r.cx, r.cyc);
+  switch (r.landmark) {
+    case 'fountain': {            // Wealth Fountain — golden tiers, coins arcing on jets of qi
+      landmarkGlow(r, '#f5c542'); disc(r.cx, r.cyc, 1.7, 5, '#caa24a', '#7c5f28'); disc(r.cx, r.cyc, 1.05, 11, shade('#caa24a', 0.12), '#7c5f28');
+      const top = disc(r.cx, r.cyc, 0.5, 17, shade('#caa24a', 0.22), '#7c5f28'), cy = top.c.y - 17 * z;
+      ctx.fillStyle = 'rgba(120,200,255,.55)'; ctx.beginPath(); ctx.ellipse(top.c.x, cy, top.rx, top.ry, 0, 0, 6.28); ctx.fill();
+      for (let i = 0; i < 12; i++) { const ph = (t * 0.9 + i * 0.55) % 1, ang = i * 0.9, rr = ph * 2.4 * TW2 * z;
+        ctx.globalAlpha = 1 - ph * 0.6; ctx.fillStyle = '#ffdf6e'; ctx.shadowColor = '#f5c542'; ctx.shadowBlur = 6 * z;
+        ctx.beginPath(); ctx.arc(top.c.x + Math.cos(ang) * rr, cy - Math.sin(ph * Math.PI) * 34 * z, 1.9 * z, 0, 6.28); ctx.fill(); }
+      ctx.shadowBlur = 0; ctx.globalAlpha = 1; break; }
+    case 'observatory': {         // Celestial Observatory — armillary rings + a caught star
+      landmarkGlow(r, A); disc(r.cx, r.cyc, 1.6, 8, '#22304e', '#121a2e'); const cy = c.y - 8 * z;
+      ctx.fillStyle = '#2a3a5e'; ctx.beginPath(); ctx.ellipse(c.x, cy, 1.45 * TW2 * z, 15 * z, 0, Math.PI, 0, true); ctx.fill();
+      ctx.strokeStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 10 * z; ctx.lineWidth = 1.6 * z;
+      for (let i = 0; i < 3; i++) { const a = t * 0.7 + i * 2.1; ctx.globalAlpha = 0.75; ctx.beginPath(); ctx.ellipse(c.x, cy - 20 * z, 15 * z, (4 + Math.abs(Math.sin(a)) * 10) * z, 0, 0, 6.28); ctx.stroke(); }
+      ctx.shadowBlur = 0; ctx.globalAlpha = 1; ctx.fillStyle = '#fff'; ctx.shadowColor = '#cbd6ff'; ctx.shadowBlur = 14 * z; ctx.beginPath(); ctx.arc(c.x, cy - 20 * z, 3 * z, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0; break; }
+    case 'forge': {               // Great Forge — molten core, anvil, flying sparks
+      landmarkGlow(r, '#ff8c1a'); disc(r.cx, r.cyc, 1.4, 7, '#2a2230', '#16121a'); const cy = c.y - 7 * z, pulse = 0.6 + Math.sin(t * 4) * 0.4;
+      ctx.fillStyle = 'rgba(255,150,40,.8)'; ctx.shadowColor = '#ff8c1a'; ctx.shadowBlur = (14 + pulse * 16) * z; ctx.beginPath(); ctx.ellipse(c.x, cy - 6 * z, 7 * z, 3.6 * z, 0, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+      ctx.fillStyle = '#3a3f55'; ctx.fillRect(c.x - 7 * z, cy - 13 * z, 14 * z, 4 * z); ctx.fillRect(c.x - 2 * z, cy - 13 * z, 4 * z, 9 * z);
+      for (let i = 0; i < 9; i++) { const ph = (t * 1.6 + i * 0.4) % 1; ctx.globalAlpha = 1 - ph; ctx.fillStyle = '#ffd27a'; ctx.beginPath(); ctx.arc(c.x + (i - 4) * 2.4 * z * (0.4 + ph), cy - 13 * z - ph * 24 * z, 1.5 * z, 0, 6.28); ctx.fill(); } ctx.globalAlpha = 1; break; }
+    case 'tome': {                // Tome of Ten Thousand Texts — a great floating book
+      landmarkGlow(r, A); disc(r.cx, r.cyc, 1.0, 9, '#2a2356', '#181238'); const cy = c.y - 9 * z - (15 + Math.sin(t * 1.5) * 3) * z;
+      ctx.fillStyle = '#efe6c8'; ctx.beginPath(); ctx.moveTo(c.x, cy); ctx.lineTo(c.x - 13 * z, cy - 4 * z); ctx.lineTo(c.x - 13 * z, cy + 7 * z); ctx.lineTo(c.x, cy + 9 * z); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(c.x, cy); ctx.lineTo(c.x + 13 * z, cy - 4 * z); ctx.lineTo(c.x + 13 * z, cy + 7 * z); ctx.lineTo(c.x, cy + 9 * z); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = A; ctx.lineWidth = 1 * z; ctx.stroke();
+      for (let i = 0; i < 5; i++) { const ph = (t * 0.6 + i * 0.4) % 1; ctx.globalAlpha = 1 - ph; ctx.fillStyle = A; ctx.font = `${7 * z}px system-ui`; ctx.fillText('✶', c.x + (i - 2) * 6 * z, cy - ph * 28 * z); } ctx.globalAlpha = 1; break; }
+    case 'gate': {                // Thousand-Path Gate — a great paifang with an energy portal
+      landmarkGlow(r, A); const pw = 13 * z, ph2 = 36 * z;
+      ctx.globalAlpha = 0.32 + Math.sin(t * 2) * 0.12; const pg = ctx.createLinearGradient(0, c.y - ph2, 0, c.y); pg.addColorStop(0, A); pg.addColorStop(1, 'transparent');
+      ctx.fillStyle = pg; ctx.fillRect(c.x - pw, c.y - ph2 + 5 * z, pw * 2, ph2 - 5 * z); ctx.globalAlpha = 1;
+      ctx.fillStyle = '#243a4a'; ctx.fillRect(c.x - pw - 3 * z, c.y - ph2, 6 * z, ph2); ctx.fillRect(c.x + pw - 3 * z, c.y - ph2, 6 * z, ph2);
+      ctx.fillStyle = shade(A, -0.5);
+      const lintel = (yy, hh) => { ctx.beginPath(); ctx.moveTo(c.x - pw - 8 * z, yy); ctx.quadraticCurveTo(c.x, yy - hh, c.x + pw + 8 * z, yy); ctx.lineTo(c.x + pw + 8 * z, yy + 4 * z); ctx.quadraticCurveTo(c.x, yy - hh + 4 * z, c.x - pw - 8 * z, yy + 4 * z); ctx.closePath(); ctx.fill(); };
+      lintel(c.y - ph2, 9 * z); lintel(c.y - ph2 - 11 * z, 7 * z);
+      ctx.strokeStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 8 * z; ctx.lineWidth = 1.4 * z; ctx.strokeRect(c.x - pw - 3 * z, c.y - ph2, 6 * z, ph2); ctx.strokeRect(c.x + pw - 3 * z, c.y - ph2, 6 * z, ph2); ctx.shadowBlur = 0; break; }
+    case 'bell': {                // Heavenly Bell — a great suspended bell tolling rings
+      landmarkGlow(r, A); ctx.strokeStyle = '#5a4632'; ctx.lineWidth = 3 * z; ctx.beginPath(); ctx.moveTo(c.x - 13 * z, c.y); ctx.lineTo(c.x - 9 * z, c.y - 28 * z); ctx.lineTo(c.x + 9 * z, c.y - 28 * z); ctx.lineTo(c.x + 13 * z, c.y); ctx.stroke();
+      const sway = Math.sin(t * 1.2) * 3 * z; ctx.save(); ctx.translate(c.x + sway, c.y - 28 * z);
+      ctx.fillStyle = shade(A, -0.3); ctx.strokeStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 9 * z; ctx.lineWidth = 1.4 * z;
+      ctx.beginPath(); ctx.moveTo(-8 * z, 19 * z); ctx.quadraticCurveTo(-9 * z, 2 * z, 0, 0); ctx.quadraticCurveTo(9 * z, 2 * z, 8 * z, 19 * z); ctx.quadraticCurveTo(0, 23 * z, -8 * z, 19 * z); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0; ctx.restore();
+      for (let i = 0; i < 2; i++) { const ph = (t * 0.5 + i * 0.5) % 1; ctx.globalAlpha = 0.4 * (1 - ph); ctx.strokeStyle = A; ctx.lineWidth = 1.4 * z; ctx.beginPath(); ctx.ellipse(c.x, c.y - 9 * z, (10 + ph * 32) * z, (5 + ph * 16) * z, 0, 0, 6.28); ctx.stroke(); } ctx.globalAlpha = 1; break; }
+    case 'nexus': {               // Spirit Crystal Nexus — a floating crystal cluster, arcing energy
+      landmarkGlow(r, A); disc(r.cx, r.cyc, 1.2, 6, '#16203a', '#0a1226'); const cy = c.y - 6 * z;
+      ctx.strokeStyle = A; ctx.globalAlpha = 0.5 + Math.sin(t * 3) * 0.2; ctx.shadowColor = A; ctx.shadowBlur = 8 * z; ctx.lineWidth = 1 * z;
+      ctx.beginPath(); ctx.moveTo(c.x - 10 * z, cy - 14 * z); ctx.lineTo(c.x, cy - 28 * z); ctx.lineTo(c.x + 10 * z, cy - 16 * z); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      [[0, -28, 6.5], [-10, -14, 4.5], [10, -16, 4.5], [-5, -6, 3.5], [6, -5, 3.5]].forEach(([gx, gy, s]) => { const x = c.x + gx * z, y = cy + gy * z;
+        ctx.fillStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 12 * z; ctx.beginPath(); ctx.moveTo(x, y - s * z); ctx.lineTo(x + s * 0.7 * z, y); ctx.lineTo(x, y + s * z); ctx.lineTo(x - s * 0.7 * z, y); ctx.closePath(); ctx.fill(); }); ctx.shadowBlur = 0; break; }
+    case 'vortex': {              // Qi Convergence — a rising spiral of spirit energy
+      landmarkGlow(r, A); ctx.fillStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 9 * z;
+      for (let i = 0; i < 26; i++) { const a = t * 2 + i * 0.5, rr = (1 - i / 26) * 15 * z, yy = c.y - (i / 26) * 34 * z; ctx.globalAlpha = 0.7 * (1 - i / 32);
+        ctx.beginPath(); ctx.arc(c.x + Math.cos(a) * rr, yy, 1.5 * z, 0, 6.28); ctx.fill(); } ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      ctx.strokeStyle = A; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.6 * z; ctx.beginPath(); ctx.ellipse(c.x, c.y, 1.5 * TW2 * z, 1.5 * TH2 * z, 0, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1; break; }
+    case 'prosperity': {          // Golden Prosperity Tree — coin-laden boughs
+      landmarkGlow(r, '#f5c542'); disc(r.cx, r.cyc, 0.85, 6, '#3a2f18', '#241a0c'); const cy = c.y - 6 * z;
+      ctx.strokeStyle = '#7a5a2a'; ctx.lineWidth = 3.4 * z; ctx.beginPath(); ctx.moveTo(c.x, cy); ctx.lineTo(c.x, cy - 19 * z); ctx.stroke();
+      ctx.fillStyle = '#caa24a'; ctx.shadowColor = '#f5c542'; ctx.shadowBlur = 13 * z; ctx.beginPath(); ctx.ellipse(c.x, cy - 24 * z, 13 * z, 10 * z, 0, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+      for (let i = 0; i < 7; i++) { const a = i * 0.9 + Math.sin(t + i) * 0.1; ctx.fillStyle = '#ffdf6e'; ctx.beginPath(); ctx.arc(c.x + Math.cos(a) * 10 * z, cy - 24 * z + Math.sin(a) * 7 * z, 1.7 * z, 0, 6.28); ctx.fill(); } break; }
+    case 'monument': default: {   // Ancestral Monument — a towering statue, haloed
+      landmarkGlow(r, A); const baseY = c.y - 14 * z, H = 42 * z;
+      ctx.fillStyle = '#3a3f5e'; ctx.beginPath(); ctx.moveTo(c.x, baseY - H); ctx.lineTo(c.x + 9 * z, baseY); ctx.quadraticCurveTo(c.x, baseY + 4 * z, c.x - 9 * z, baseY); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#474d70'; ctx.beginPath(); ctx.ellipse(c.x, baseY - H + 6 * z, 5 * z, 2.6 * z, 0, 0, 6.28); ctx.fill();
+      ctx.fillStyle = '#525984'; ctx.beginPath(); ctx.arc(c.x, baseY - H - 3 * z, 5.6 * z, 0, 6.28); ctx.fill();
+      ctx.strokeStyle = A; ctx.globalAlpha = 0.4 + Math.sin(t * 1.5) * 0.16; ctx.shadowColor = A; ctx.shadowBlur = 16 * z; ctx.lineWidth = 2 * z; ctx.beginPath(); ctx.arc(c.x, baseY - H - 3 * z, 10 * z, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1; break; }
+  }
 }
 
 /* rising work glyphs above busy rooms */
