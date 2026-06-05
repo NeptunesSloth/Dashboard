@@ -65,12 +65,15 @@ def test_immersive_scenes_served():
 
 
 def test_sect_sprite_assets():
-    # Baked voxel building sprites + manifest are served for the Realm Map.
-    man = client.get("/assets/sect/manifest.json")
+    # Realm Map sprite manifest merges baked fallbacks + authored overrides.
+    man = client.get("/api/sect/manifest")
     assert man.status_code == 200
     data = man.json()
     assert "grand_pagoda" in data["sprites"] and "fountain" in data["sprites"]
-    png = client.get("/assets/sect/grand_pagoda.png")
+    gp = data["sprites"]["grand_pagoda"]
+    assert gp["source"] == "baked" and gp["url"].endswith("/baked/grand_pagoda.png")
+    assert "anchorFx" in gp and "footTiles" in gp and "scale" in gp and "z" in gp
+    png = client.get(gp["url"])
     assert png.status_code == 200 and png.headers["content-type"] == "image/png"
 
 

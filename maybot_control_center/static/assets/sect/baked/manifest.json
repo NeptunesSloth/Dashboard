@@ -39,10 +39,10 @@
   },
   "tree": {
    "file": "tree.png",
-   "w": 124,
-   "h": 90,
-   "anchorX": 62.0,
-   "anchorY": 92.0,
+   "w": 84,
+   "h": 77,
+   "anchorX": 42.0,
+   "anchorY": 72.0,
    "footTiles": 1.167
   },
   "stall": {
@@ -63,9 +63,9 @@
   },
   "crystal": {
    "file": "crystal.png",
-   "w": 230,
-   "h": 164,
-   "anchorX": 115.3,
+   "w": 124,
+   "h": 150,
+   "anchorX": 62.0,
    "anchorY": 125.3,
    "footTiles": 1.5
   },

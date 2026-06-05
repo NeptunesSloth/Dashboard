@@ -54,3 +54,4 @@ logs/
 !maybot_control_center/static/assets/map/*.png
 !maybot_control_center/static/assets/map/**/*.png
 !maybot_control_center/static/assets/sect/*.png
+!maybot_control_center/static/assets/sect/**/*.png

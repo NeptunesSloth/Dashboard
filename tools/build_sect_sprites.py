@@ -17,7 +17,7 @@ TW2, TH2 = 40, 20          # map half-tile width/height (must match map.js)
 SS = 4                     # supersample factor for crisp downscale
 HW, HH = TW2 / N * SS, TH2 / N * SS
 VH = HW                    # voxel height in px (cubic-ish)
-OUT = "maybot_control_center/static/assets/sect"
+OUT = "maybot_control_center/static/assets/sect/baked"
 
 
 def mul(c, f):
@@ -110,10 +110,10 @@ def m_lantern():
 
 def m_tree():
     m = {}
-    box(m, 2, 2, 0, 2, 2, 6, (96, 70, 46))          # trunk
-    gem(m, 3, 3, 5, 8, JADE)                         # canopy
-    box(m, 1, 3, 8, 1, 1, 1, mul(JADE, 1.3))
-    box(m, 5, 2, 9, 1, 1, 1, mul(JADE, 1.3))
+    box(m, 3, 3, 0, 2, 2, 6, (96, 70, 46))          # trunk
+    box(m, 1, 1, 5, 6, 6, 2, mul(JADE, 0.88))        # rounded canopy
+    box(m, 2, 2, 7, 4, 4, 2, JADE)
+    box(m, 3, 3, 9, 2, 2, 1, mul(JADE, 1.12))
     return m, 7, 7
 
 
@@ -142,9 +142,13 @@ def m_gate():
 def m_crystal():
     m = {}
     box(m, 0, 0, 0, 9, 9, 2, mul(CRYS, 0.4))        # base
-    gem(m, 4, 4, 2, 16, CRYS)                        # main spire
-    gem(m, 1, 5, 2, 8, mul(CRYS, 1.1))
-    gem(m, 7, 3, 2, 9, mul(CRYS, 1.1))
+    for z in range(16):                              # tall central shard (slim, crystalline)
+        r = 2 if z < 5 else (1 if z < 11 else 0)
+        box(m, 4 - r, 4 - r, 2 + z, 2 * r + 1, 2 * r + 1, 1, CRYS, jit=14)
+    for (sx, sy, hh) in [(1, 5, 9), (7, 3, 10), (6, 6, 7)]:   # leaning side shards
+        for z in range(hh):
+            r = 1 if z < hh - 4 else 0
+            box(m, sx - r, sy - r, 2 + z, 2 * r + 1, 2 * r + 1, 1, mul(CRYS, 1.06), jit=12)
     return m, 9, 9
 
 

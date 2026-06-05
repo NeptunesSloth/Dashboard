@@ -74,21 +74,29 @@ function toGrid(sx, sy) {
   return { gx: (wx / TW2 + wy / TH2) / 2, gy: (wy / TH2 - wx / TW2) / 2 };
 }
 
-/* ---------------- baked voxel building sprites (real art assets) ---------------- */
-const SPR = { ready: false, man: null, img: {} };
+/* ---------------- sprite layer: authored PNGs override baked voxel fallbacks ---------------- */
+const SPR = { ready: false, meta: {}, img: {} };
 (async function loadSprites() {
   try {
-    const r = await fetch('/assets/sect/manifest.json'); if (!r.ok) return; SPR.man = await r.json();
-    const names = Object.keys(SPR.man.sprites); let n = 0;
-    const done = () => { if (++n >= names.length) SPR.ready = true; };
-    names.forEach((name) => { const im = new Image(); im.onload = done; im.onerror = done; im.src = '/assets/sect/' + SPR.man.sprites[name].file; SPR.img[name] = im; });
+    const r = await fetch('/api/sect/manifest'); if (!r.ok) return; const man = await r.json();
+    SPR.meta = man.sprites || {}; const names = Object.keys(SPR.meta); let n = 0;
+    const done = () => { if (++n >= names.length) {
+      SPR.ready = true;
+      console.log(`%c[Realm Map] sprites — ${(man.external || []).length} external, ${(man.baked || []).length} baked fallback`, 'color:#a78bfa');
+      if ((man.external || []).length) console.log('[Realm Map] external art:', man.external.join(', '));
+      console.log('[Realm Map] baked fallback:', (man.baked || []).join(', '));
+    } };
+    if (!names.length) SPR.ready = true;
+    names.forEach((name) => { const im = new Image(); im.onload = done; im.onerror = done; im.src = SPR.meta[name].url; SPR.img[name] = im; });
   } catch (_) { /* fall back to procedural drawing */ }
 })();
+function spriteZ(it) { return it.type === 'sprite' && SPR.meta[it.name] ? SPR.meta[it.name].z || 0 : 0; }
 function blit(name, gx, gy, footTiles) {
-  if (!SPR.ready) return false; const m = SPR.man.sprites[name], img = SPR.img[name];
+  if (!SPR.ready) return false; const m = SPR.meta[name], img = SPR.img[name];
   if (!m || !img || !img.complete || !img.naturalWidth) return false;
-  const s = toScreen(gx, gy), sc = cam.zoom * footTiles / m.footTiles;
-  ctx.drawImage(img, s.x - m.anchorX * sc, s.y - m.anchorY * sc, m.w * sc, m.h * sc); return true;
+  const w = img.naturalWidth, h = img.naturalHeight, s = toScreen(gx, gy);
+  const sc = cam.zoom * footTiles / m.footTiles * (m.scale || 1);
+  ctx.drawImage(img, s.x - m.anchorFx * w * sc, s.y - m.anchorFy * h * sc, w * sc, h * sc); return true;
 }
 const LM_SPRITE = { fountain: 'fountain', prosperity: 'fountain', observatory: 'observatory', forge: 'forge', tome: 'pavilion', gate: 'gate', bell: 'bell', nexus: 'crystal', vortex: 'tree' };
 function drawBuildingBack(r, busy) {
@@ -415,8 +423,8 @@ function drawRoom(r, t) {
   ctx.restore();
   // soft rocky rim highlight (not a hard square border)
   ctx.strokeStyle = 'rgba(150,150,180,.2)'; ctx.lineWidth = 1.5 * z; outlinePath(O); ctx.stroke();
-  // ---- the location's scene (buildings + props), painted back-to-front ----
-  r.furniture.forEach((it) => drawFurniture(r, it, t, busy));
+  // ---- the location's scene (buildings + props), painted back-to-front (+authored z) ----
+  r.furniture.slice().sort((a, b) => (a.gx + a.gy + spriteZ(a)) - (b.gx + b.gy + spriteZ(b))).forEach((it) => drawFurniture(r, it, t, busy));
   if (hover.room === r || selected.room === r) { ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2 * z; outlinePath(O); ctx.stroke(); }
 }
 function drawWall(p1, p2, K, busy) {

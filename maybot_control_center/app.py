@@ -1470,6 +1470,68 @@ def command_snapshot(x_control_token: str = Header(default="")):
     return command.snapshot()
 
 
+@app.get("/api/sect/manifest")
+def sect_manifest():
+    """Realm Map sprite manifest: authored PNGs in static/assets/sect/ override the
+    baked voxel fallbacks in static/assets/sect/baked/ by filename. Authored
+    metadata (anchorX/anchorY/w/h or anchorFx/anchorFy, footTiles, scale, z) can be
+    supplied via static/assets/sect/manifest.json. Each sprite reports its source.
+    """
+    import json, os
+    base = "maybot_control_center/static/assets/sect"
+    try:
+        with open(f"{base}/baked/manifest.json") as fh:
+            baked = json.load(fh)
+    except Exception:
+        baked = {"tile": [40, 20], "voxPerTile": 6, "sprites": {}}
+    overrides = {}
+    try:
+        with open(f"{base}/manifest.json") as fh:
+            overrides = (json.load(fh) or {}).get("sprites", {})
+    except Exception:
+        overrides = {}
+
+    def anchor_fractions(meta, default=(0.5, 0.9)):
+        if meta is None:
+            return default
+        if "anchorFx" in meta and "anchorFy" in meta:
+            return float(meta["anchorFx"]), float(meta["anchorFy"])
+        if "anchorX" in meta and "anchorY" in meta and meta.get("w") and meta.get("h"):
+            return float(meta["anchorX"]) / float(meta["w"]), float(meta["anchorY"]) / float(meta["h"])
+        return default
+
+    names = set(baked.get("sprites", {})) | set(overrides)
+    sprites, ext_n, baked_n = {}, [], []
+    for name in sorted(names):
+        b = baked.get("sprites", {}).get(name)
+        o = overrides.get(name)
+        ext_path = os.path.join(base, f"{name}.png")
+        is_external = os.path.isfile(ext_path)
+        if b:
+            bfx, bfy = (b["anchorX"] / b["w"], b["anchorY"] / b["h"])
+        else:
+            bfx, bfy = (0.5, 0.9)
+        if is_external:
+            fx, fy = anchor_fractions(o, (bfx, bfy))
+            url, source = f"/assets/sect/{name}.png", "external"
+        elif b:
+            fx, fy = bfx, bfy
+            url, source = f"/assets/sect/baked/{b['file']}", "baked"
+        else:
+            continue
+        meta = o or {}
+        sprites[name] = {
+            "url": url, "source": source,
+            "anchorFx": round(fx, 4), "anchorFy": round(fy, 4),
+            "footTiles": float(meta.get("footTiles", b["footTiles"] if b else 2.0)),
+            "scale": float(meta.get("scale", 1.0)),
+            "z": float(meta.get("z", 0)),
+        }
+        (ext_n if source == "external" else baked_n).append(name)
+    return {"tile": baked.get("tile", [40, 20]), "voxPerTile": baked.get("voxPerTile", 6),
+            "external": ext_n, "baked": baked_n, "sprites": sprites}
+
+
 _CMD = "maybot_control_center/static/command"
 
 
