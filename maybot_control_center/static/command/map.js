@@ -161,7 +161,7 @@ function drawRoom(r, t) {
   ctx.fillStyle = shade(K.floor, 0.08); ctx.fillRect(r.x + 2, r.y + r.h - 9, r.w - 4, 7);
   // activity wash
   if (occ > 0) { ctx.globalAlpha = 0.06 + Math.min(0.16, occ * 0.04); const rg = ctx.createRadialGradient(r.cx, r.cyc, 0, r.cx, r.cyc, r.w * 0.5); rg.addColorStop(0, K.accent); rg.addColorStop(1, 'transparent'); ctx.fillStyle = rg; ctx.fillRect(r.x + 2, r.y + 2, r.w - 4, r.h - 4); ctx.globalAlpha = 1; }
-  drawProp(r, t, occ);
+  drawProp(r, t);
   pagodaRoof(r, K.accent);
   lantern(r.x + 16, r.y + 22, t, r.f + r.c); lantern(r.x + r.w - 16, r.y + 22, t, r.f + r.c + 3);
   // frame + hover
@@ -174,70 +174,63 @@ function drawRoom(r, t) {
 }
 function roomOcc(r) { let n = 0; disciples.forEach((d) => { if (!d.gone && !d.extra && d.room === r && !d.path.length) n++; }); return n; }
 
-function drawProp(r, t, occ) {
-  const K = KIND[r.kind], cx = r.cx, by = r.y + r.h - 12, x0 = r.x + 14, x1 = r.x + r.w - 14, A = K.accent; ctx.save();
-  const carpet = (col) => { ctx.fillStyle = col; ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.ellipse(cx, by, Math.min(70, r.w * 0.32), 5, 0, 0, 6.28); ctx.fill(); ctx.globalAlpha = 1; };
-  const banner = (bx, col) => { ctx.fillStyle = col; ctx.fillRect(bx - 3, r.y + 26, 6, 26); ctx.beginPath(); ctx.moveTo(bx - 3, r.y + 52); ctx.lineTo(bx + 3, r.y + 52); ctx.lineTo(bx, r.y + 57); ctx.closePath(); ctx.fill(); };
-  const shelf = (sx, col) => { ctx.fillStyle = shade(col, -0.35); ctx.fillRect(sx - 5, by - 34, 10, 30); ctx.fillStyle = '#efe6c8'; for (let s = 0; s < 3; s++) ctx.fillRect(sx - 4, by - 32 + s * 9, 8, 6); };
-  const smoke = (sx, sy, col) => { for (let i = 0; i < 3; i++) { const ph = (t * 0.5 + i * 0.4) % 1; ctx.globalAlpha = (1 - ph) * 0.5; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(sx + Math.sin(ph * 6 + i) * 3, sy - ph * 30, 2 + ph * 3, 0, 6.28); ctx.fill(); } ctx.globalAlpha = 1; };
-  switch (r.kind) {
-    case 'ancestor': {                           // statue + sacred tree + incense + tablets
-      carpet('#3a2a4a');
-      ctx.strokeStyle = '#5a4430'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0 + 16, by); ctx.lineTo(x0 + 16, by - 22); ctx.stroke();
-      ctx.fillStyle = '#2f6f4a'; ctx.shadowColor = '#34d399'; ctx.shadowBlur = 12; ctx.beginPath(); ctx.ellipse(x0 + 16, by - 30, 14, 12, 0, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;     // sacred tree
-      ctx.fillStyle = '#3a3f5e'; ctx.beginPath(); ctx.moveTo(cx, by - 62); ctx.lineTo(cx + 14, by); ctx.quadraticCurveTo(cx, by + 5, cx - 14, by); ctx.closePath(); ctx.fill();           // statue
-      ctx.fillStyle = '#4a5072'; ctx.beginPath(); ctx.arc(cx, by - 66, 9, 0, 6.28); ctx.fill();
-      ctx.globalAlpha = 0.3 + Math.sin(t * 1.4) * 0.12; ctx.strokeStyle = '#ffd36a'; ctx.shadowColor = '#ffd36a'; ctx.shadowBlur = 24; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, by - 60, 26, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
-      [x1 - 30, x1 - 12].forEach((ix, i) => { ctx.fillStyle = '#5a4632'; ctx.fillRect(ix - 2, by - 14, 4, 12); ctx.fillStyle = '#ff9a3a'; ctx.beginPath(); ctx.arc(ix, by - 15, 1.4, 0, 6.28); ctx.fill(); smoke(ix, by - 16, 'rgba(220,210,255,.6)'); });   // incense
-      ctx.fillStyle = shade('#caa24a', -0.1); for (let i = 0; i < 3; i++) ctx.fillRect(x1 - 8 - i * 0, r.y + 28 + i * 10, 6, 7); break; }   // ancestor tablets
-    case 'hall': {                               // throne + council table + banners + carpet
-      carpet('#5a2440'); banner(x0 + 6, A); banner(x1 - 6, A);
-      ctx.fillStyle = shade(A, -0.25); ctx.fillRect(cx - 18, by - 34, 36, 30); ctx.fillStyle = shade(A, -0.1); ctx.fillRect(cx - 14, by - 44, 28, 12);   // throne
-      ctx.fillStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 12; ctx.beginPath(); ctx.arc(cx, by - 48, 5, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
-      ctx.fillStyle = '#3a2f22'; ctx.fillRect(cx - 34, by - 8, 22, 6); ctx.fillRect(cx + 12, by - 8, 22, 6);   // council tables
-      [x0 + 24, x1 - 24].forEach((bx) => { const fy = by - 16 - Math.abs(Math.sin(t * 4 + bx)) * 4; ctx.fillStyle = '#ffb04a'; ctx.shadowColor = '#ffb04a'; ctx.shadowBlur = 12; ctx.beginPath(); ctx.ellipse(bx, fy, 3, 6, 0, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0; }); break; }
-    case 'commerce': {                           // stalls + chests + crates + ledger
-      carpet('#3a3216');
-      for (let i = 0; i < 4; i++) { const sx = x0 + 14 + i * ((x1 - x0 - 28) / 3); ctx.fillStyle = i % 2 ? '#b9503c' : '#3f7a52'; ctx.fillRect(sx - 12, by - 28, 24, 6); ctx.fillStyle = '#5a3f2a'; ctx.fillRect(sx - 11, by - 22, 22, 14);
-        ctx.fillStyle = '#caa24a'; for (let c = 0; c < 3; c++) ctx.fillRect(sx - 8 + c * 6, by - 20, 4, 4); }
-      ctx.fillStyle = '#5a4632'; ctx.fillRect(x1 - 18, by - 12, 14, 10); ctx.fillStyle = '#ffdf6e'; for (let i = 0; i < 5; i++) ctx.beginPath(), ctx.arc(x0 + 6 + i * 5, by - 3, 1.8, 0, 6.28), ctx.fill(); break; }
-    case 'research': {                           // bookshelves + study desk + manuscript
-      [x0 + 8, x0 + 28, x1 - 28, x1 - 8].forEach((sx) => shelf(sx, A));
-      ctx.fillStyle = '#3a2f22'; ctx.fillRect(cx - 16, by - 8, 32, 6);   // study desk
-      ctx.fillStyle = '#efe6c8'; ctx.shadowColor = A; ctx.shadowBlur = 8 + Math.sin(t * 3) * 4; ctx.fillRect(cx - 6, by - 14, 12, 6); ctx.shadowBlur = 0; break; }   // glowing manuscript
-    case 'mission': {                            // quest board + maps + dispatch desk
-      ctx.fillStyle = '#1a1326'; ctx.fillRect(cx - 34, by - 38, 68, 30); ctx.strokeStyle = A; ctx.strokeRect(cx - 34, by - 38, 68, 30);
-      ctx.fillStyle = '#fbbf24'; for (let i = 0; i < 4; i++) ctx.fillRect(cx - 30 + i * 17, by - 34, 12, 13);
-      ctx.fillStyle = '#3a5a6a'; for (let i = 0; i < 4; i++) ctx.fillRect(cx - 30 + i * 17, by - 19, 12, 9);   // map pins row
-      ctx.fillStyle = '#3a2f22'; ctx.fillRect(cx - 14, by - 7, 28, 5); break; }
-    case 'alchemy': {                            // cauldron(bubbling) + herb shelves + jars + smoke
-      [x0 + 10, x0 + 26].forEach((sx) => { ctx.fillStyle = '#2a3a2a'; ctx.fillRect(sx - 5, by - 30, 10, 26); ctx.fillStyle = '#5fae6a'; for (let s = 0; s < 3; s++) ctx.fillRect(sx - 4, by - 28 + s * 8, 8, 4); });
-      ctx.fillStyle = '#2a2230'; ctx.beginPath(); ctx.ellipse(cx + 8, by - 10, 16, 11, 0, 0, 6.28); ctx.fill();
-      ctx.fillStyle = A; ctx.globalAlpha = 0.7; ctx.beginPath(); ctx.ellipse(cx + 8, by - 14, 12, 5, 0, 0, 6.28); ctx.fill(); ctx.globalAlpha = 1;
-      for (let i = 0; i < 3; i++) { const ph = (t * 0.8 + i * 0.4) % 1; ctx.globalAlpha = 1 - ph; ctx.fillStyle = A; ctx.beginPath(); ctx.arc(cx + 8 + (i - 1) * 5, by - 16 - ph * 24, 1.8, 0, 6.28); ctx.fill(); } ctx.globalAlpha = 1;
-      [x1 - 8, x1 - 18].forEach((jx, i) => { ctx.fillStyle = i ? '#caa24a' : '#5fae6a'; ctx.fillRect(jx - 3, by - 12, 6, 9); }); break; }
-    case 'martial': {                            // weapon rack + 2 dummies + sparring circle + banner
-      banner(x0 + 6, A);
-      [x0 + 26, x1 - 26].forEach((dx) => { ctx.strokeStyle = '#b9925a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(dx, by); ctx.lineTo(dx, by - 28); ctx.moveTo(dx - 9, by - 21); ctx.lineTo(dx + 9, by - 21); ctx.stroke(); ctx.fillStyle = '#c9a06a'; ctx.beginPath(); ctx.arc(dx, by - 31, 4.5, 0, 6.28); ctx.fill(); });
-      ctx.strokeStyle = shade(A, -0.1); ctx.lineWidth = 2; [x1 - 12, x1 - 8, x1 - 4].forEach((dx) => { ctx.beginPath(); ctx.moveTo(dx, by); ctx.lineTo(dx, by - 24); ctx.stroke(); });   // weapon rack
-      ctx.strokeStyle = A; ctx.globalAlpha = 0.4; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(cx, by - 2, 26, 6, 0, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1; break; }
-    case 'treasury': {                           // gold piles + chest + vault door + jade
-      ctx.fillStyle = shade('#2a2418', 0.1); ctx.fillRect(x1 - 26, r.y + 24, 24, by - r.y - 24); ctx.strokeStyle = '#caa24a'; ctx.strokeRect(x1 - 26, r.y + 24, 24, by - r.y - 24);   // vault door
-      ctx.fillStyle = '#caa24a'; ctx.beginPath(); ctx.arc(x1 - 14, (r.y + 24 + by) / 2, 4, 0, 6.28); ctx.fill();
-      ctx.fillStyle = '#caa24a'; [-1, 1].forEach((sgn) => { ctx.beginPath(); ctx.moveTo(cx + sgn * 6, by); ctx.quadraticCurveTo(cx + sgn * 18, by - 16, cx + sgn * 30, by); ctx.fill(); });
-      ctx.fillStyle = '#5a4632'; ctx.fillRect(cx - 9, by - 16, 18, 12); ctx.fillStyle = '#ffdf6e'; ctx.shadowColor = '#ffdf6e'; ctx.shadowBlur = 8; ctx.fillRect(cx - 1, by - 11, 4, 4); ctx.shadowBlur = 0;
-      ctx.fillStyle = '#5fd3a0'; ctx.fillRect(x0 + 8, by - 8, 5, 6); ctx.fillRect(x0 + 16, by - 6, 4, 4); break; }   // jade
-    case 'nexus': {                              // giant crystal + spring + qi streams + runes
-      ctx.fillStyle = 'rgba(60,150,210,.4)'; ctx.beginPath(); ctx.ellipse(x0 + 24, by - 4, 16, 5, 0, 0, 6.28); ctx.fill();   // spring
-      [[0, -42, 12], [-16, -24, 7], [16, -26, 7]].forEach(([dx, dy, s]) => { ctx.fillStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 16; ctx.beginPath(); ctx.moveTo(cx + dx, by + dy - s); ctx.lineTo(cx + dx + s * 0.7, by + dy); ctx.lineTo(cx + dx, by + dy + s); ctx.lineTo(cx + dx - s * 0.7, by + dy); ctx.closePath(); ctx.fill(); }); ctx.shadowBlur = 0;
-      ctx.strokeStyle = A; ctx.globalAlpha = 0.4; for (let i = 0; i < 3; i++) { const yy = by - 8 - ((t * 18 + i * 14) % 40); ctx.beginPath(); ctx.moveTo(cx - 20, yy); ctx.lineTo(cx + 20, yy - 6); ctx.stroke(); } ctx.globalAlpha = 1; break; }   // qi streams
-    case 'cultivation': {                        // platforms + cushions + lamps + formation + qi
-      const xs = [cx - 44, cx, cx + 44].filter((v) => v > x0 && v < x1);
-      xs.forEach((dx) => { ctx.fillStyle = shade(A, -0.4); ctx.beginPath(); ctx.ellipse(dx, by - 2, 12, 4, 0, 0, 6.28); ctx.fill();   // platform/cushion
-        ctx.strokeStyle = A; ctx.globalAlpha = 0.4 + Math.sin(t * 2 + dx) * 0.2; ctx.shadowColor = A; ctx.shadowBlur = 8; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.ellipse(dx, by - 4, 13, 4.5, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1; });
-      ctx.strokeStyle = A; ctx.globalAlpha = 0.25; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(cx, by - 4, Math.min(70, r.w * 0.34), 8, 0, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1;   // formation array
-      for (let i = 0; i < 4; i++) { const ph = (t * 0.4 + i * 0.25) % 1; ctx.globalAlpha = (1 - ph) * 0.6; ctx.fillStyle = A; ctx.beginPath(); ctx.arc(cx + (i - 1.5) * 18, by - 6 - ph * 22, 1.4, 0, 6.28); ctx.fill(); } ctx.globalAlpha = 1; break; }
-  }
+/* ---- shared decor primitives ---- */
+function dCarpet(cx, by, w, col) { ctx.fillStyle = col; ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.ellipse(cx, by, Math.min(70, w * 0.32), 5, 0, 0, 6.28); ctx.fill(); ctx.globalAlpha = 1; }
+function dBanner(bx, ry, col) { ctx.fillStyle = col; ctx.fillRect(bx - 3, ry + 26, 6, 26); ctx.beginPath(); ctx.moveTo(bx - 3, ry + 52); ctx.lineTo(bx + 3, ry + 52); ctx.lineTo(bx, ry + 57); ctx.closePath(); ctx.fill(); }
+function dShelf(sx, by, col) { ctx.fillStyle = shade(col, -0.35); ctx.fillRect(sx - 5, by - 34, 10, 30); ctx.fillStyle = '#efe6c8'; for (let s = 0; s < 3; s++) ctx.fillRect(sx - 4, by - 32 + s * 9, 8, 6); }
+function dSmoke(sx, sy, col, t) { for (let i = 0; i < 3; i++) { const ph = (t * 0.5 + i * 0.4) % 1; ctx.globalAlpha = (1 - ph) * 0.5; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(sx + Math.sin(ph * 6 + i) * 3, sy - ph * 30, 2 + ph * 3, 0, 6.28); ctx.fill(); } ctx.globalAlpha = 1; }
+
+/* ---- one decor function per room kind (data-driven: add a room = add an entry) ---- */
+const DECOR = {
+  ancestor(e) { const { r, cx, by, x0, x1, A, t } = e; dCarpet(cx, by, r.w, '#3a2a4a');
+    ctx.strokeStyle = '#5a4430'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0 + 16, by); ctx.lineTo(x0 + 16, by - 22); ctx.stroke();
+    ctx.fillStyle = '#2f6f4a'; ctx.shadowColor = '#34d399'; ctx.shadowBlur = 12; ctx.beginPath(); ctx.ellipse(x0 + 16, by - 30, 14, 12, 0, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;     // sacred tree
+    ctx.fillStyle = '#3a3f5e'; ctx.beginPath(); ctx.moveTo(cx, by - 62); ctx.lineTo(cx + 14, by); ctx.quadraticCurveTo(cx, by + 5, cx - 14, by); ctx.closePath(); ctx.fill();           // statue
+    ctx.fillStyle = '#4a5072'; ctx.beginPath(); ctx.arc(cx, by - 66, 9, 0, 6.28); ctx.fill();
+    ctx.globalAlpha = 0.3 + Math.sin(t * 1.4) * 0.12; ctx.strokeStyle = '#ffd36a'; ctx.shadowColor = '#ffd36a'; ctx.shadowBlur = 24; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, by - 60, 26, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+    [x1 - 30, x1 - 12].forEach((ix) => { ctx.fillStyle = '#5a4632'; ctx.fillRect(ix - 2, by - 14, 4, 12); ctx.fillStyle = '#ff9a3a'; ctx.beginPath(); ctx.arc(ix, by - 15, 1.4, 0, 6.28); ctx.fill(); dSmoke(ix, by - 16, 'rgba(220,210,255,.6)', t); });   // incense
+    ctx.fillStyle = shade('#caa24a', -0.1); for (let i = 0; i < 3; i++) ctx.fillRect(x1 - 8, r.y + 28 + i * 10, 6, 7); },   // ancestor tablets
+  hall(e) { const { cx, by, x0, x1, A, t } = e; dCarpet(cx, by, e.r.w, '#5a2440'); dBanner(x0 + 6, e.r.y, A); dBanner(x1 - 6, e.r.y, A);
+    ctx.fillStyle = shade(A, -0.25); ctx.fillRect(cx - 18, by - 34, 36, 30); ctx.fillStyle = shade(A, -0.1); ctx.fillRect(cx - 14, by - 44, 28, 12);   // throne
+    ctx.fillStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 12; ctx.beginPath(); ctx.arc(cx, by - 48, 5, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+    ctx.fillStyle = '#3a2f22'; ctx.fillRect(cx - 34, by - 8, 22, 6); ctx.fillRect(cx + 12, by - 8, 22, 6);   // council tables
+    [x0 + 24, x1 - 24].forEach((bx) => { const fy = by - 16 - Math.abs(Math.sin(t * 4 + bx)) * 4; ctx.fillStyle = '#ffb04a'; ctx.shadowColor = '#ffb04a'; ctx.shadowBlur = 12; ctx.beginPath(); ctx.ellipse(bx, fy, 3, 6, 0, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0; }); },
+  commerce(e) { const { cx, by, x0, x1 } = e; dCarpet(cx, by, e.r.w, '#3a3216');
+    for (let i = 0; i < 4; i++) { const sx = x0 + 14 + i * ((x1 - x0 - 28) / 3); ctx.fillStyle = i % 2 ? '#b9503c' : '#3f7a52'; ctx.fillRect(sx - 12, by - 28, 24, 6); ctx.fillStyle = '#5a3f2a'; ctx.fillRect(sx - 11, by - 22, 22, 14);
+      ctx.fillStyle = '#caa24a'; for (let c = 0; c < 3; c++) ctx.fillRect(sx - 8 + c * 6, by - 20, 4, 4); }
+    ctx.fillStyle = '#5a4632'; ctx.fillRect(x1 - 18, by - 12, 14, 10); ctx.fillStyle = '#ffdf6e'; for (let i = 0; i < 5; i++) ctx.beginPath(), ctx.arc(x0 + 6 + i * 5, by - 3, 1.8, 0, 6.28), ctx.fill(); },
+  research(e) { const { cx, by, x0, x1, A, t } = e; [x0 + 8, x0 + 28, x1 - 28, x1 - 8].forEach((sx) => dShelf(sx, by, A));
+    ctx.fillStyle = '#3a2f22'; ctx.fillRect(cx - 16, by - 8, 32, 6);   // study desk
+    ctx.fillStyle = '#efe6c8'; ctx.shadowColor = A; ctx.shadowBlur = 8 + Math.sin(t * 3) * 4; ctx.fillRect(cx - 6, by - 14, 12, 6); ctx.shadowBlur = 0; },   // glowing manuscript
+  mission(e) { const { cx, by, A } = e; ctx.fillStyle = '#1a1326'; ctx.fillRect(cx - 34, by - 38, 68, 30); ctx.strokeStyle = A; ctx.strokeRect(cx - 34, by - 38, 68, 30);
+    ctx.fillStyle = '#fbbf24'; for (let i = 0; i < 4; i++) ctx.fillRect(cx - 30 + i * 17, by - 34, 12, 13);
+    ctx.fillStyle = '#3a5a6a'; for (let i = 0; i < 4; i++) ctx.fillRect(cx - 30 + i * 17, by - 19, 12, 9);   // map pins
+    ctx.fillStyle = '#3a2f22'; ctx.fillRect(cx - 14, by - 7, 28, 5); },
+  alchemy(e) { const { cx, by, x0, x1, A, t } = e; [x0 + 10, x0 + 26].forEach((sx) => { ctx.fillStyle = '#2a3a2a'; ctx.fillRect(sx - 5, by - 30, 10, 26); ctx.fillStyle = '#5fae6a'; for (let s = 0; s < 3; s++) ctx.fillRect(sx - 4, by - 28 + s * 8, 8, 4); });
+    ctx.fillStyle = '#2a2230'; ctx.beginPath(); ctx.ellipse(cx + 8, by - 10, 16, 11, 0, 0, 6.28); ctx.fill();
+    ctx.fillStyle = A; ctx.globalAlpha = 0.7; ctx.beginPath(); ctx.ellipse(cx + 8, by - 14, 12, 5, 0, 0, 6.28); ctx.fill(); ctx.globalAlpha = 1;
+    for (let i = 0; i < 3; i++) { const ph = (t * 0.8 + i * 0.4) % 1; ctx.globalAlpha = 1 - ph; ctx.fillStyle = A; ctx.beginPath(); ctx.arc(cx + 8 + (i - 1) * 5, by - 16 - ph * 24, 1.8, 0, 6.28); ctx.fill(); } ctx.globalAlpha = 1;
+    [x1 - 8, x1 - 18].forEach((jx, i) => { ctx.fillStyle = i ? '#caa24a' : '#5fae6a'; ctx.fillRect(jx - 3, by - 12, 6, 9); }); },
+  martial(e) { const { cx, by, x0, x1, A } = e; dBanner(x0 + 6, e.r.y, A);
+    [x0 + 26, x1 - 26].forEach((dx) => { ctx.strokeStyle = '#b9925a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(dx, by); ctx.lineTo(dx, by - 28); ctx.moveTo(dx - 9, by - 21); ctx.lineTo(dx + 9, by - 21); ctx.stroke(); ctx.fillStyle = '#c9a06a'; ctx.beginPath(); ctx.arc(dx, by - 31, 4.5, 0, 6.28); ctx.fill(); });
+    ctx.strokeStyle = shade(A, -0.1); ctx.lineWidth = 2; [x1 - 12, x1 - 8, x1 - 4].forEach((dx) => { ctx.beginPath(); ctx.moveTo(dx, by); ctx.lineTo(dx, by - 24); ctx.stroke(); });   // weapon rack
+    ctx.strokeStyle = A; ctx.globalAlpha = 0.4; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(cx, by - 2, 26, 6, 0, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1; },
+  treasury(e) { const { r, cx, by, x0, x1 } = e; ctx.fillStyle = shade('#2a2418', 0.1); ctx.fillRect(x1 - 26, r.y + 24, 24, by - r.y - 24); ctx.strokeStyle = '#caa24a'; ctx.strokeRect(x1 - 26, r.y + 24, 24, by - r.y - 24);   // vault door
+    ctx.fillStyle = '#caa24a'; ctx.beginPath(); ctx.arc(x1 - 14, (r.y + 24 + by) / 2, 4, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#caa24a'; [-1, 1].forEach((sgn) => { ctx.beginPath(); ctx.moveTo(cx + sgn * 6, by); ctx.quadraticCurveTo(cx + sgn * 18, by - 16, cx + sgn * 30, by); ctx.fill(); });
+    ctx.fillStyle = '#5a4632'; ctx.fillRect(cx - 9, by - 16, 18, 12); ctx.fillStyle = '#ffdf6e'; ctx.shadowColor = '#ffdf6e'; ctx.shadowBlur = 8; ctx.fillRect(cx - 1, by - 11, 4, 4); ctx.shadowBlur = 0;
+    ctx.fillStyle = '#5fd3a0'; ctx.fillRect(x0 + 8, by - 8, 5, 6); ctx.fillRect(x0 + 16, by - 6, 4, 4); },   // jade
+  nexus(e) { const { cx, by, x0, A, t } = e; ctx.fillStyle = 'rgba(60,150,210,.4)'; ctx.beginPath(); ctx.ellipse(x0 + 24, by - 4, 16, 5, 0, 0, 6.28); ctx.fill();   // spring
+    [[0, -42, 12], [-16, -24, 7], [16, -26, 7]].forEach(([dx, dy, s]) => { ctx.fillStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 16; ctx.beginPath(); ctx.moveTo(cx + dx, by + dy - s); ctx.lineTo(cx + dx + s * 0.7, by + dy); ctx.lineTo(cx + dx, by + dy + s); ctx.lineTo(cx + dx - s * 0.7, by + dy); ctx.closePath(); ctx.fill(); }); ctx.shadowBlur = 0;
+    ctx.strokeStyle = A; ctx.globalAlpha = 0.4; for (let i = 0; i < 3; i++) { const yy = by - 8 - ((t * 18 + i * 14) % 40); ctx.beginPath(); ctx.moveTo(cx - 20, yy); ctx.lineTo(cx + 20, yy - 6); ctx.stroke(); } ctx.globalAlpha = 1; },   // qi streams
+  cultivation(e) { const { r, cx, by, x0, x1, A, t } = e; [cx - 44, cx, cx + 44].filter((v) => v > x0 && v < x1).forEach((dx) => { ctx.fillStyle = shade(A, -0.4); ctx.beginPath(); ctx.ellipse(dx, by - 2, 12, 4, 0, 0, 6.28); ctx.fill();   // cushion
+      ctx.strokeStyle = A; ctx.globalAlpha = 0.4 + Math.sin(t * 2 + dx) * 0.2; ctx.shadowColor = A; ctx.shadowBlur = 8; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.ellipse(dx, by - 4, 13, 4.5, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1; });
+    ctx.strokeStyle = A; ctx.globalAlpha = 0.25; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(cx, by - 4, Math.min(70, r.w * 0.34), 8, 0, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1;   // formation array
+    for (let i = 0; i < 4; i++) { const ph = (t * 0.4 + i * 0.25) % 1; ctx.globalAlpha = (1 - ph) * 0.6; ctx.fillStyle = A; ctx.beginPath(); ctx.arc(cx + (i - 1.5) * 18, by - 6 - ph * 22, 1.4, 0, 6.28); ctx.fill(); } ctx.globalAlpha = 1; },
+};
+function drawProp(r, t) {
+  ctx.save();
+  const fn = DECOR[r.kind]; if (fn) fn({ r, cx: r.cx, by: r.y + r.h - 12, x0: r.x + 14, x1: r.x + r.w - 14, A: KIND[r.kind].accent, t });
   // ambient dust motes drifting in every room
   ctx.fillStyle = 'rgba(255,255,255,.05)';
   for (let i = 0; i < 4; i++) { const mx = r.x + ((i * 71 + t * 6) % (r.w - 12)) + 6, my = r.y + 30 + ((i * 53 + t * 9) % (r.h - 40)); ctx.fillRect(mx, my, 1.5, 1.5); }
