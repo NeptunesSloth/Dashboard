@@ -1,8 +1,6 @@
 import { $, api, esc, money, mountRail } from '/lib.js';
 
 mountRail('map');
-const sceneTop = document.querySelector('.scene-top'); if (sceneTop) sceneTop.style.display = '';
-const followChip = $('follow-chip'); if (followChip) followChip.hidden = true;
 
 /* ====================================================================== *
  *  AEGIS — Sect Headquarters (Fallout-Shelter style cross-section)

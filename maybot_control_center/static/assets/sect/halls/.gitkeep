@@ -1,5 +1,0 @@
-Drop authored per-hall landmark PNGs here (transparent, ground-anchored).
-Filenames map to districts via HALL_KEY in map.js, e.g.:
-  sect_hall.png  cultivation_peak.png  spirit_nexus.png  archive_hall.png
-  observatory_peak.png  forge_peak.png  mission_hall.png  commerce_valley.png  mountain_gate.png
-If present, the hall is drawn as that single landmark sprite instead of assembled voxel buildings.
