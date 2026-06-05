@@ -10,6 +10,10 @@ const canvas = $('scene-canvas');
 const ctx = canvas.getContext('2d');
 const view = { w: 0, h: 0, dpr: 1 };
 const rand = (a, b) => a + Math.random() * (b - a);
+/* optional painted interior backdrop; rooms fall back to procedural decor if absent */
+const HQ = { img: new Image(), ready: false };
+HQ.img.onload = () => { HQ.ready = true; }; HQ.img.onerror = () => { HQ.ready = false; }; HQ.img.src = '/assets/sect/hq.png';
+const backdropOn = () => HQ.ready && HQ.img.naturalWidth > 0;
 const hashStr = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 
 const COLS = 6, ROWS = 5;
@@ -317,7 +321,10 @@ function drawDisc(d, t) {
   const bob = d.moving ? Math.abs(Math.sin(d.phase)) * (d.ident && d.ident.fast ? 2.6 : 2.0) * s : working ? Math.abs(Math.sin(t * 5 + d.phase)) * 1.2 * s : meditate ? 0 : Math.sin(t * (1.6 + idleK * 0.5) + d.phase) * 0.6 * s;
   const x = d.x, fy = d.y - bob, fx = d.facing, bodyH = (meditate ? 8 : 12) * s, headR = 3 * s, headY = fy - bodyH;
   ctx.globalAlpha = d.alpha;
-  ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.beginPath(); ctx.ellipse(x, d.y, 5 * s, 2 * s, 0, 0, 6.28); ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.beginPath(); ctx.ellipse(x, d.y, 5 * s, 2 * s, 0, 0, 6.28); ctx.fill();
+  if (backdropOn()) { const pc = { working: '#34d399', idle: '#a78bfa', roaming: '#fbbf24', meditate: '#caa9ff', error: '#fb5e7e' }[d.state] || '#a78bfa';
+    ctx.globalAlpha = d.alpha * (0.4 + Math.sin(t * 3 + d.phase) * 0.2); ctx.strokeStyle = pc; ctx.shadowColor = pc; ctx.shadowBlur = 8; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.ellipse(x, d.y, 6.5 * s, 2.8 * s, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = d.alpha; }
   // cultivation aura (elders/leaders) or meditation aura
   if (meditate || (id && id.aura)) { const ac = meditate ? '#a78bfa' : id.aura; ctx.globalAlpha = d.alpha * (0.3 + Math.sin(t * 2 + d.phase) * 0.18); ctx.strokeStyle = ac; ctx.shadowColor = ac; ctx.shadowBlur = 9; ctx.lineWidth = 1.4;
     ctx.beginPath(); ctx.ellipse(x, d.y, (meditate ? 8 : 6.5) * s, (meditate ? 3.5 : 3) * s, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = d.alpha; }
@@ -371,12 +378,25 @@ function frame(now) {
   if (assemblyT > 0) assemblyT -= dt;
   disciples.forEach((d) => { if (d.gone && t > d.goneUntil) { d.gone = false; d.alpha = 0; if (d.data.__sim) d.data.__sim = { state: 'idle' }; const r = d.home; d.x = B.x - 40; d.y = floorWalkY(r.f); d.room = r; d.wantCache = null; } step(d, dt, t); });
   drawBackdrop(t);
-  // building frame
-  ctx.fillStyle = 'rgba(10,12,24,.6)'; ctx.fillRect(B.x - 6, B.y - 6, B.w + 12, B.h + 12);
-  ROOMS.forEach((r) => drawRoom(r, t));
-  drawShaft(t);
+  if (backdropOn()) {
+    ctx.drawImage(HQ.img, B.x, B.y, B.w, B.h);   // painted interior fills the building
+    ROOMS.forEach((r) => drawRoomOverlay(r));     // labels + hover, no procedural decor
+  } else {
+    ctx.fillStyle = 'rgba(10,12,24,.6)'; ctx.fillRect(B.x - 6, B.y - 6, B.w + 12, B.h + 12);
+    ROOMS.forEach((r) => drawRoom(r, t));
+    drawShaft(t);
+  }
   disciples.slice().sort((a, b) => (a.y - b.y) || (a.x - b.x)).forEach((d) => drawDisc(d, t));
   drawSpectacles(dt);
+}
+/* in backdrop mode the painting carries the decor; we only add the label + hover + count */
+function drawRoomOverlay(r) {
+  const K = KIND[r.kind], occ = roomOcc(r), hot = hover.room === r || selected.room === r;
+  if (hot) { ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2; ctx.strokeRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2); }
+  ctx.font = '600 12px system-ui'; ctx.textAlign = 'left';
+  const lw = ctx.measureText(r.name).width + 12; ctx.fillStyle = 'rgba(8,10,20,.55)'; roundRect(r.x + 8, r.y + 9, lw, 17, 4); ctx.fill();
+  ctx.fillStyle = K.accent; ctx.fillText(r.name, r.x + 14, r.y + 21);
+  if (occ > 0) { ctx.fillStyle = '#cdd3f0'; ctx.font = '600 11px system-ui'; ctx.textAlign = 'right'; ctx.fillText('▸ ' + occ, r.x + r.w - 8, r.y + 21); ctx.textAlign = 'left'; }
 }
 
 /* ====================================================================== *
