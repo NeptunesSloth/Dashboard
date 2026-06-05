@@ -14,6 +14,8 @@ const TW2 = 40, TH2 = 20;                  // half tile width / height (2:1 iso)
 const cam = { x: 0, y: 0, zoom: 0.9, userMoved: false };
 const view = { cx: 0, cy: 0, w: 0, h: 0, dpr: 1 };
 const rand = (a, b) => a + Math.random() * (b - a);
+function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
 /* ---------------- palette / room identities ---------------- */
 const BG0 = '#070812', BG1 = '#0d1024';
@@ -106,7 +108,7 @@ function buildLayout(projects) {
     furnish(room);
     rooms.push(room);
   });
-  computeGrounds(); initAmbient(); centerOnHall();
+  computeGrounds(); initAmbient(); initExtras(); centerOnHall();
 }
 function computeGrounds() {
   let minGx = 1e9, minGy = 1e9, maxGx = -1e9, maxGy = -1e9;
@@ -160,6 +162,8 @@ function furnish(r) {
   if (r.kind === 'market') push('ticker', 0.3, H - 0.35);
   if (r.kind === 'server') { push('mist', 1.6, 1.4); push('mist', 3.4, 2.4); }
   r.furniture = f; r.stations = st.length ? st : [[W / 2, H * 0.6]];
+  const rng = mulberry(hashStr(r.id || r.title || 'x')); r.spots = [];
+  for (let i = 0; i < 16; i++) r.spots.push({ x: 0.7 + rng() * (W - 1.4), y: 0.7 + rng() * (H - 1.4), r: rng() });
 }
 
 /* ====================================================================== *
@@ -321,6 +325,7 @@ function drawRoom(r, t) {
   ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = 1;
   for (let i = 1; i < r.w; i++) { const a = toScreen(r.gx + i, r.gy), b = toScreen(r.gx + i, r.gy + r.h); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
   for (let i = 1; i < r.h; i++) { const a = toScreen(r.gx, r.gy + i), b = toScreen(r.gx + r.w, r.gy + i); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+  drawFloorDressing(r, t);
   // accent border
   const trouble = r.data && (r.data.health === 'error' || r.data.health === 'warning');
   ctx.strokeStyle = trouble ? HEALTH[r.data.health] : K.accent; ctx.lineWidth = 2; ctx.globalAlpha = 0.6 + busy * 0.4;
@@ -446,6 +451,62 @@ function drawFurniture(r, it, t, busy) {
   }
   ctx.globalAlpha = 1; ctx.shadowBlur = 0;
 }
+
+/* ====================================================================== *
+ *  Per-district floor terrain — the handcrafted diorama beneath each hall
+ * ====================================================================== */
+function clipFloor(r) { const A = toScreen(r.gx, r.gy), B = toScreen(r.gx + r.w, r.gy), C = toScreen(r.gx + r.w, r.gy + r.h), D = toScreen(r.gx, r.gy + r.h);
+  ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.clip(); }
+function pond(gx, gy, rT, t) { const z = cam.zoom, c = toScreen(gx, gy), rx = rT * TW2 * z, ry = rT * TH2 * z;
+  const g = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, rx); g.addColorStop(0, '#1d4066'); g.addColorStop(.7, '#13293f'); g.addColorStop(1, '#0d1c2e');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(c.x, c.y, rx, ry, 0, 0, 6.28); ctx.fill();
+  ctx.strokeStyle = 'rgba(120,200,255,.35)'; ctx.lineWidth = 1 * z;
+  for (let i = 0; i < 3; i++) { const ph = (t * 0.3 + i * 0.34) % 1; ctx.globalAlpha = 0.4 * (1 - ph); ctx.beginPath(); ctx.ellipse(c.x, c.y, rx * ph, ry * ph, 0, 0, 6.28); ctx.stroke(); }
+  ctx.globalAlpha = 1; ctx.fillStyle = '#2f6f4a'; ctx.beginPath(); ctx.ellipse(c.x - rx * 0.45, c.y, 3 * z, 1.5 * z, 0, 0, 6.28); ctx.fill(); }
+function grassBlade(gx, gy) { const z = cam.zoom, p = toScreen(gx, gy); ctx.strokeStyle = 'rgba(70,150,95,.5)'; ctx.lineWidth = 1 * z;
+  ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - 1 * z, p.y - 3 * z); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 1.5 * z, p.y - 3.5 * z); ctx.stroke(); }
+function stonePath(r) { const z = cam.zoom, a = toScreen(r.gx + 0.5, r.gy + r.h - 0.5), b = toScreen(r.gx + r.w - 0.5, r.gy + 0.5);
+  ctx.strokeStyle = 'rgba(150,150,170,.16)'; ctx.lineCap = 'round'; ctx.lineWidth = 7 * z; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.lineCap = 'butt'; }
+function formationRing(r, t) { const z = cam.zoom, c = toScreen(r.cx, r.cyc); ctx.strokeStyle = r.K.accent; ctx.shadowColor = r.K.accent; ctx.shadowBlur = 6 * z;
+  for (let i = 1; i <= 3; i++) { ctx.globalAlpha = 0.3; ctx.lineWidth = 1.4 * z; ctx.beginPath(); ctx.ellipse(c.x, c.y, i * TW2 * z, i * TH2 * z, 0, 0, 6.28); ctx.stroke(); }
+  for (let i = 0; i < 10; i++) { const a = t * 0.4 + i * 0.628; ctx.globalAlpha = 0.5; ctx.fillStyle = r.K.accent; ctx.fillRect(c.x + Math.cos(a) * 2.6 * TW2 * z - z, c.y + Math.sin(a) * 2.6 * TH2 * z - z, 2 * z, 2 * z); }
+  ctx.shadowBlur = 0; ctx.globalAlpha = 1; }
+function hexArray(r, t) { const z = cam.zoom, c = toScreen(r.cx, r.cyc);
+  const hex = (s) => { ctx.beginPath(); for (let k = 0; k < 6; k++) { const a = k * 1.047 + 0.5, x = c.x + Math.cos(a) * s * TW2 * z, y = c.y + Math.sin(a) * s * TH2 * z; ctx[k ? 'lineTo' : 'moveTo'](x, y); } ctx.closePath(); ctx.stroke(); };
+  ctx.strokeStyle = r.K.accent; ctx.globalAlpha = 0.3; ctx.lineWidth = 1.2 * z; hex(2.4); hex(1.5);
+  for (let k = 0; k < 6; k++) { const a = k * 1.047 + 0.5, ph = (t * 0.5 + k * 0.16) % 1; ctx.globalAlpha = 0.6 * (1 - ph); ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(c.x + Math.cos(a) * 2.4 * TW2 * z * ph, c.y + Math.sin(a) * 2.4 * TH2 * z * ph); ctx.stroke(); }
+  ctx.globalAlpha = 1; }
+function starMap(r, t) { const z = cam.zoom, pts = r.spots.slice(0, 9).map((s) => toScreen(r.gx + s.x, r.gy + s.y));
+  ctx.strokeStyle = 'rgba(120,150,255,.22)'; ctx.lineWidth = 1 * z; ctx.beginPath(); pts.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](p.x, p.y)); ctx.stroke();
+  pts.forEach((p, i) => { ctx.globalAlpha = 0.5 + Math.sin(t * 2 + i) * 0.3; ctx.fillStyle = '#cbd6ff'; ctx.beginPath(); ctx.arc(p.x, p.y, 1.4 * z, 0, 6.28); ctx.fill(); }); ctx.globalAlpha = 1; }
+function scorch(gx, gy, rT) { const z = cam.zoom, c = toScreen(gx, gy); ctx.fillStyle = 'rgba(16,8,6,.4)'; ctx.beginPath(); ctx.ellipse(c.x, c.y, rT * TW2 * z, rT * TH2 * z, 0, 0, 6.28); ctx.fill(); }
+function emberFloor(r, t) { const z = cam.zoom; r.spots.slice(0, 5).forEach((s, i) => { const p = toScreen(r.gx + s.x, r.gy + s.y); ctx.globalAlpha = 0.4 + Math.sin(t * 3 + i) * 0.3; ctx.fillStyle = '#ff8c1a'; ctx.shadowColor = '#ff8c1a'; ctx.shadowBlur = 6 * z; ctx.beginPath(); ctx.arc(p.x, p.y, 1.4 * z, 0, 6.28); ctx.fill(); }); ctx.shadowBlur = 0; ctx.globalAlpha = 1; }
+function rug(r) { const z = cam.zoom, A = toScreen(r.cx - 1.6, r.cyc - 1), B = toScreen(r.cx + 1.6, r.cyc - 1), C = toScreen(r.cx + 1.6, r.cyc + 1.4), D = toScreen(r.cx - 1.6, r.cyc + 1.4);
+  ctx.fillStyle = shade(r.K.accent, -0.55); ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = r.K.accent; ctx.globalAlpha = 0.4; ctx.lineWidth = 1 * z; ctx.stroke(); ctx.globalAlpha = 1; }
+function scrollDot(gx, gy) { const z = cam.zoom, p = toScreen(gx, gy); ctx.fillStyle = '#efe6c8'; ctx.fillRect(p.x - 2 * z, p.y - 1.4 * z, 4 * z, 2.8 * z); }
+function goldInlay(r, t) { const z = cam.zoom, c = toScreen(r.cx, r.cyc); ctx.strokeStyle = 'rgba(245,197,66,.28)'; ctx.lineWidth = 1.4 * z;
+  for (let i = 0; i < 6; i++) { const a = i * 1.047; ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(c.x + Math.cos(a) * 2.6 * TW2 * z, c.y + Math.sin(a) * 2.6 * TH2 * z); ctx.stroke(); }
+  ctx.globalAlpha = 0.4; ctx.beginPath(); ctx.ellipse(c.x, c.y, 1.6 * TW2 * z, 1.6 * TH2 * z, 0, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1; }
+function ceremonial(r) { const z = cam.zoom, A = toScreen(r.cx - 1, r.gy + 0.6), B = toScreen(r.cx + 1, r.gy + 0.6), C = toScreen(r.cx + 1, r.gy + r.h - 0.6), D = toScreen(r.cx - 1, r.gy + r.h - 0.6);
+  ctx.fillStyle = shade(r.K.accent, -0.5); ctx.globalAlpha = 0.45; ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1; }
+function sectEmblem(r, t) { const z = cam.zoom, c = toScreen(r.cx, r.cyc); ctx.save(); ctx.strokeStyle = r.K.accent; ctx.globalAlpha = 0.28; ctx.lineWidth = 1.6 * z;
+  ctx.beginPath(); ctx.ellipse(c.x, c.y, 2.6 * TW2 * z, 2.6 * TH2 * z, 0, 0, 6.28); ctx.stroke(); ctx.beginPath(); ctx.ellipse(c.x, c.y, 1.8 * TW2 * z, 1.8 * TH2 * z, 0, 0, 6.28); ctx.stroke();
+  ctx.translate(c.x, c.y); ctx.scale(1, TH2 / TW2); ctx.rotate(t * 0.12); ctx.fillStyle = r.K.accent; ctx.globalAlpha = 0.3;
+  for (let i = 0; i < 8; i++) { ctx.rotate(0.785); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(6 * z, 10 * z); ctx.lineTo(-6 * z, 10 * z); ctx.closePath(); ctx.fill(); } ctx.restore(); ctx.globalAlpha = 1; }
+function drawFloorDressing(r, t) { ctx.save(); clipFloor(r);
+  switch (r.landmark) {
+    case 'vortex': pond(r.gx + 1.5, r.gy + 1.3, 1.0, t); stonePath(r); r.spots.slice(0, 9).forEach((s) => grassBlade(r.gx + s.x, r.gy + s.y)); break;
+    case 'gate': formationRing(r, t); break;
+    case 'nexus': hexArray(r, t); break;
+    case 'observatory': starMap(r, t); break;
+    case 'forge': r.spots.slice(0, 5).forEach((s) => scorch(r.gx + s.x, r.gy + s.y, 0.4 + s.r * 0.3)); emberFloor(r, t); break;
+    case 'tome': rug(r); r.spots.slice(0, 7).forEach((s) => scrollDot(r.gx + s.x, r.gy + s.y)); break;
+    case 'fountain': case 'prosperity': goldInlay(r, t); break;
+    case 'bell': ceremonial(r); break;
+    case 'monument': default: sectEmblem(r, t); r.spots.slice(0, 6).forEach((s) => grassBlade(r.gx + s.x, r.gy + s.y)); break;
+  }
+  ctx.restore(); }
 
 /* ====================================================================== *
  *  Landmarks — one unforgettable structure per district
@@ -692,7 +753,7 @@ function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now; elapsed += dt; const t = elapsed;
   if (followed) { const wp = { x: (followed.gx - followed.gy) * TW2, y: (followed.gx + followed.gy) * TH2 }; cam.x += (wp.x - cam.x) * 0.06; cam.y += (wp.y - cam.y) * 0.06; updateFollowChip(); }
   if (t - lastDerive > 0.35) { disciples.forEach(deriveState); lastDerive = t; }
-  disciples.forEach((d) => step(d, dt, t)); updateAmbient(dt, t);
+  disciples.forEach((d) => step(d, dt, t)); updateAmbient(dt, t); updateExtras(dt, t);
 
   const bg = ctx.createLinearGradient(0, 0, 0, view.h); bg.addColorStop(0, BG1); bg.addColorStop(1, BG0); ctx.fillStyle = bg; ctx.fillRect(0, 0, view.w, view.h);
   drawHorizon(t);
@@ -700,11 +761,13 @@ function frame(now) {
   drawCouriers(t);
   const ordered = rooms.slice().sort((a, b) => a.depth - b.depth);
   ordered.forEach((r) => drawRoom(r, t));
+  drawExtras(t);
   ordered.forEach((r) => drawWorkFX(r, t));
   rooms.forEach(drawRoomLabel);
   disciples.slice().sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy)).forEach((d) => drawDisciple(d, t));
   drawLanterns(t);
   drawSpectacles(dt); drawMicro(dt);
+  drawAtmosphere(t);
 }
 function drawCourtyard() {
   if (!grounds) return; const z = cam.zoom, M = grounds;
@@ -787,6 +850,51 @@ function drawLanterns(t) {
   const z = cam.zoom; lanterns.forEach((l) => { const p = toScreen(l.gx, l.gy), y = p.y - (l.h + Math.sin(t * 1.5 + l.phase) * 4) * z;
     ctx.globalAlpha = 0.85; ctx.fillStyle = l.hue; ctx.shadowColor = l.hue; ctx.shadowBlur = 14 * z; ctx.beginPath(); ctx.ellipse(p.x, y, 3.2 * z, 4.2 * z, 0, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
     ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 0.8 * z; ctx.beginPath(); ctx.moveTo(p.x, y - 4.2 * z); ctx.lineTo(p.x, y - 9 * z); ctx.stroke(); ctx.globalAlpha = 1; });
+}
+
+/* ---------------- background life — decorative extras (no AI) ---------------- */
+const extras = [];
+const EXTRA_ROBE = { novice: '#8b92ac', keeper: '#6f7a52', visitor: '#a98c6a', meditator: '#9a8cff' };
+function mkExtra(r, kind, court) { const cx = r.gx + r.w / 2, cy = r.gy + r.h * 0.62, gx = cx + rand(-1.6, 1.6), gy = cy + rand(-1, 1.2);
+  return { kind, gx, gy, tx: gx, ty: gy, home: { gx: cx, gy: cy }, phase: Math.random() * 6.28, speed: 0.7 + Math.random() * 0.5, sit: kind === 'meditator', court: !!court, pause: 0, moving: false }; }
+function initExtras() {
+  extras.length = 0; if (!rooms.length) return;
+  rooms.forEach((r) => { const set = r.landmark === 'vortex' ? ['meditator', 'meditator', 'keeper'] : r.landmark === 'gate' ? ['visitor', 'visitor']
+    : r.kind === 'hall' ? ['novice', 'novice', 'keeper'] : r.landmark === 'fountain' || r.landmark === 'prosperity' ? ['visitor', 'keeper'] : ['novice'];
+    set.forEach((k) => extras.push(mkExtra(r, k))); });
+  for (let i = 0; i < 6; i++) extras.push(mkExtra(rooms[(Math.random() * rooms.length) | 0], 'visitor', true));
+}
+function updateExtras(dt, t) {
+  extras.forEach((e) => { if (e.sit) { e.moving = false; return; }
+    const dx = e.tx - e.gx, dy = e.ty - e.gy, d = Math.hypot(dx, dy);
+    if (d > 0.05) { const v = Math.min(d, e.speed * dt); e.gx += dx / d * v; e.gy += dy / d * v; e.phase += dt * 8; e.moving = true; }
+    else { e.moving = false; e.pause -= dt; if (e.pause <= 0) { const rad = e.court ? 7 : 2.2; e.tx = e.home.gx + rand(-rad, rad); e.ty = e.home.gy + rand(-rad, rad); e.pause = 2 + Math.random() * 4; } } });
+}
+function drawExtras(t) {
+  extras.slice().sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy)).forEach((e) => {
+    const p = toScreen(e.gx, e.gy), z = cam.zoom, sc = z * 1.12, robe = EXTRA_ROBE[e.kind] || '#8b92ac';
+    ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 4 * sc, 1.8 * sc, 0, 0, 6.28); ctx.fill();
+    const bob = e.sit ? 0 : e.moving ? Math.abs(Math.sin(e.phase)) * 1.6 * sc : Math.sin(t * 2 + e.phase) * 0.5 * sc;
+    const fy = p.y - bob, bodyH = (e.sit ? 8 : 11) * sc, headR = 2.6 * sc;
+    ctx.fillStyle = shade(robe, -0.08); ctx.strokeStyle = shade(robe, -0.5); ctx.lineWidth = 0.8 * sc;
+    ctx.beginPath(); ctx.moveTo(p.x, fy - bodyH); ctx.lineTo(p.x + 3.6 * sc, fy); ctx.quadraticCurveTo(p.x, fy + 1.4 * sc, p.x - 3.6 * sc, fy); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#e8ddc8'; ctx.beginPath(); ctx.arc(p.x, fy - bodyH, headR, 0, 6.28); ctx.fill();
+    if (e.sit) { ctx.globalAlpha = 0.3 + Math.sin(t * 2 + e.phase) * 0.15; ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 1 * sc; ctx.beginPath(); ctx.ellipse(p.x, fy, 6 * sc, 3 * sc, 0, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1; }
+    if (e.kind === 'keeper') { const sw = Math.sin(t * 4 + e.phase); ctx.strokeStyle = '#7a5a2a'; ctx.lineWidth = 1.1 * sc; ctx.beginPath(); ctx.moveTo(p.x + 2 * sc, fy - 7 * sc); ctx.lineTo(p.x + 6 * sc + sw * 2 * sc, fy + 1 * sc); ctx.stroke(); }
+  });
+}
+
+/* ---------------- atmosphere — haze, light, drifting spirit motes ---------------- */
+const petals = [];
+function initAtmos() { petals.length = 0; for (let i = 0; i < 24; i++) petals.push({ x: Math.random(), y: Math.random(), s: 0.5 + Math.random(), v: 0.2 + Math.random() * 0.35, ph: Math.random() * 6.28 }); }
+function drawAtmosphere(t) {
+  const w = view.w, h = view.h;
+  const hz = ctx.createLinearGradient(0, 0, 0, h); hz.addColorStop(0, 'rgba(124,92,255,.06)'); hz.addColorStop(0.5, 'rgba(0,0,0,0)'); hz.addColorStop(1, 'rgba(8,6,18,.30)');
+  ctx.fillStyle = hz; ctx.fillRect(0, 0, w, h);
+  ctx.save(); ctx.globalAlpha = 0.04; ctx.fillStyle = '#cbd6ff'; ctx.translate(w * 0.72, -60); ctx.rotate(0.5); for (let i = 0; i < 3; i++) ctx.fillRect(i * 130 - 90, 0, 46, h * 1.7); ctx.restore();
+  petals.forEach((pt) => { pt.x += pt.v * 0.0007; if (pt.x > 1.12) pt.x = -0.12; const x = pt.x * w, y = (pt.y + Math.sin(t * 0.3 + pt.ph) * 0.02) * h;
+    ctx.globalAlpha = 0.5; ctx.fillStyle = pt.ph > 3 ? '#ffd0e0' : '#cbb9ff'; ctx.beginPath(); ctx.ellipse(x, y, 2 * pt.s, 1.2 * pt.s, t + pt.ph, 0, 6.28); ctx.fill(); }); ctx.globalAlpha = 1;
+  const vg = ctx.createRadialGradient(w / 2, h * 0.45, h * 0.32, w / 2, h * 0.5, h * 0.92); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, w, h);
 }
 
 /* ====================================================================== *
@@ -875,7 +983,7 @@ function resize() {
   ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0); view.cx = view.w / 2; view.cy = view.h * 0.54;
   if (!cam.userMoved) centerOnHall();
 }
-addEventListener('resize', resize); resize(); initHorizon();
+addEventListener('resize', resize); resize(); initHorizon(); initAtmos();
 
 /* ====================================================================== *
  *  Data + demo simulation
