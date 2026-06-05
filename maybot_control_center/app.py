@@ -1470,6 +1470,17 @@ def command_snapshot(x_control_token: str = Header(default="")):
     return command.snapshot()
 
 
+@app.get("/api/sect/disciples")
+def sect_disciples():
+    """List authored disciple sprite basenames in static/assets/sect/disciples/
+    (e.g. 'atlas_idle', 'nova_walk_4f'). The Realm Map loads only what exists and
+    falls back to procedural characters otherwise — so no 404 probing."""
+    import os
+    d = "maybot_control_center/static/assets/sect/disciples"
+    out = [fn[:-4] for fn in sorted(os.listdir(d)) if fn.lower().endswith(".png")] if os.path.isdir(d) else []
+    return {"sprites": out}
+
+
 
 
 _CMD = "maybot_control_center/static/command"

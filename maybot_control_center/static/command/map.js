@@ -267,6 +267,7 @@ function tintByName(hex, h) { const n = parseInt(hex.slice(1), 16); const cl = (
   return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`; }
 function identity(d) {
   if (d.ident) return d.ident; const h = hashStr(d.name), fl = NAME_FLAVOR[d.name.toLowerCase()] || {};
+  d.key = d.name.toLowerCase().replace(/\s+/g, '_');
   const g = d.data.governance || {}, leader = fl.leader || g.is_leader, elder = fl.elder || d.role === 'elder' || g.is_elder;
   d.ident = {
     robe: fl.robe || tintByName(ROLE_STYLE[d.role] || '#9a8cff', h),
@@ -312,45 +313,90 @@ function drawActivity(d, x, fy, s, t) {
   else if (r.kind === 'commerce' || r.kind === 'treasury') { ctx.fillStyle = '#ffdf6e'; const ph = (t * 0.8) % 1; ctx.beginPath(); ctx.arc(x - 4 * s, fy - 8 * s - ph * 10 * s, 1.4 * s, 0, 6.28); ctx.fill(); }
   ctx.globalAlpha = d.alpha;
 }
+/* ---- authored character sprites (optional, with procedural fallback) ---- */
+const DISC_AVAIL = new Set(), DISC_IMG = {};
+fetch('/api/sect/disciples').then((r) => r.ok ? r.json() : { sprites: [] }).then((j) => (j.sprites || []).forEach((s) => DISC_AVAIL.add(s))).catch(() => {});
+function discSprite(base) {                        // resolve '<key>_<state>' to an authored sprite (single frame or _Nf sheet)
+  let name = null, frames = 1;
+  if (DISC_AVAIL.has(base)) name = base;
+  else for (const s of DISC_AVAIL) { const m = s.match(new RegExp('^' + base + '_(\\d+)f$')); if (m) { name = s; frames = +m[1]; break; } }
+  if (!name) return null;
+  let e = DISC_IMG[name]; if (!e) { e = { img: new Image(), frames }; e.img.src = '/assets/sect/disciples/' + name + '.png'; DISC_IMG[name] = e; }
+  return (e.img.complete && e.img.naturalWidth) ? e : null;
+}
+function spriteState(d) { if (d.celebrate > 0) return 'celebrate'; if (d.path.length) return 'walk'; if (d.state === 'meditate') return 'meditate'; if (d.state === 'working') return 'work'; return 'idle'; }
+const ROLE_ICON = { trader: '◈', engineer: '⚒', researcher: '✎', analyst: '∿', architect: '◇', elder: '☯', disciple: '⚔' };
+
+/* room-specific work pose: a visible arm/action per hall */
+function workPose(d, x, fy, s, fx, t, robe) {
+  const kind = d.room ? d.room.kind : '', sh = fy - 7 * s; ctx.strokeStyle = shade(robe, -0.12); ctx.lineWidth = 1.7 * s; ctx.lineCap = 'round';
+  if (kind === 'martial') { const sw = Math.sin(t * 7 + d.phase); arm(x, sh, x + 6 * s * fx, sh - 4 * s * Math.abs(sw)); arm(x, sh, x - 4 * s * fx, fy - 2 * s);
+    ctx.strokeStyle = 'rgba(205,214,255,.85)'; ctx.shadowColor = '#aab6ff'; ctx.shadowBlur = 5 * s; ctx.beginPath(); ctx.moveTo(x + 6 * s * fx, sh - 4 * s * Math.abs(sw)); ctx.lineTo(x + 10 * s * fx, sh - 9 * s); ctx.stroke(); ctx.shadowBlur = 0; }
+  else if (kind === 'alchemy') { const a = t * 4 + d.phase; arm(x, sh, x + 5 * s * fx + Math.cos(a) * 2 * s, fy - 4 * s + Math.sin(a) * 2 * s); }     // stirring
+  else if (kind === 'research' || kind === 'mission') { arm(x, sh, x + 5 * s * fx, sh + 1 * s); }                                                       // holding scroll/book (drawn by prop)
+  else if (kind === 'commerce' || kind === 'treasury') { const a = Math.sin(t * 3 + d.phase); arm(x, sh, x + 5 * s * fx, fy - 4 * s + a * 1.5 * s); }    // counting
+  else { const a = Math.sin(t * 9 + d.phase) * 1.4 * s; arm(x, sh, x + 5 * s * fx, fy - 3 * s + a); }
+  ctx.lineCap = 'butt';
+}
+function arm(x0, y0, x1, y1) { ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); }
+
 function drawDisc(d, t) {
   const id = d.extra ? null : identity(d);
-  const sc = (d.extra ? 1.5 : 2.0) * (id ? id.size : 1), hovd = hover.disc === d, sel = selected.disc === d;
-  const s = sc * (hovd || sel ? 1.18 : 1), robe = id ? id.robe : (ROLE_STYLE[d.role] || '#8b92ac');
+  if (d.celebrate > 0) d.celebrate -= 0.016;
+  const hovd = hover.disc === d, sel = selected.disc === d;
+  const s = (d.extra ? 2.4 : 3.3) * (id ? id.size : 1) * (hovd || sel ? 1.1 : 1);   // ~1.6x larger, readable
   const meditate = d.state === 'meditate' && !d.path.length, working = d.state === 'working' && !d.path.length;
-  const idleK = id ? id.idle : 0;
-  const bob = d.moving ? Math.abs(Math.sin(d.phase)) * (d.ident && d.ident.fast ? 2.6 : 2.0) * s : working ? Math.abs(Math.sin(t * 5 + d.phase)) * 1.2 * s : meditate ? 0 : Math.sin(t * (1.6 + idleK * 0.5) + d.phase) * 0.6 * s;
-  const x = d.x, fy = d.y - bob, fx = d.facing, bodyH = (meditate ? 8 : 12) * s, headR = 3 * s, headY = fy - bodyH;
+  const bob = d.path.length ? Math.abs(Math.sin(d.phase)) * (id && id.fast ? 2.6 : 2.0) * s : working ? Math.abs(Math.sin(t * 5 + d.phase)) * 1.0 * s : meditate ? 0 : Math.sin(t * 2 + d.phase) * 0.5 * s;
+  const x = d.x, fy = d.y - bob, fx = d.facing, headR = 3 * s, bodyH = (meditate ? 9 : 13) * s, headY = fy - bodyH;
   ctx.globalAlpha = d.alpha;
-  ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.beginPath(); ctx.ellipse(x, d.y, 5 * s, 2 * s, 0, 0, 6.28); ctx.fill();
-  if (backdropOn()) { const pc = { working: '#34d399', idle: '#a78bfa', roaming: '#fbbf24', meditate: '#caa9ff', error: '#fb5e7e' }[d.state] || '#a78bfa';
-    ctx.globalAlpha = d.alpha * (0.4 + Math.sin(t * 3 + d.phase) * 0.2); ctx.strokeStyle = pc; ctx.shadowColor = pc; ctx.shadowBlur = 8; ctx.lineWidth = 1.4;
-    ctx.beginPath(); ctx.ellipse(x, d.y, 6.5 * s, 2.8 * s, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = d.alpha; }
-  // cultivation aura (elders/leaders) or meditation aura
+  // shadow under feet
+  ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.beginPath(); ctx.ellipse(x, d.y, 5.5 * s, 2.2 * s, 0, 0, 6.28); ctx.fill();
+  // selection / hover ring + status ring (backdrop)
+  const pip = { working: '#34d399', idle: id ? id.aura || '#a78bfa' : '#8b92ac', roaming: '#fbbf24', meditate: '#caa9ff', error: '#fb5e7e' }[d.state] || '#a78bfa';
+  if (sel || hovd) { ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, d.y, 7.5 * s, 3 * s, 0, 0, 6.28); ctx.stroke(); }
+  else if (backdropOn() && !d.extra) { ctx.globalAlpha = d.alpha * (0.4 + Math.sin(t * 3 + d.phase) * 0.2); ctx.strokeStyle = pip; ctx.shadowColor = pip; ctx.shadowBlur = 7; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.ellipse(x, d.y, 6.5 * s, 2.7 * s, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = d.alpha; }
+
+  // --- authored sprite, if present ---
+  if (id) { const e = discSprite(d.key + '_' + spriteState(d)) || discSprite(d.key + '_idle'); if (e) {
+    const fw = e.img.naturalWidth / e.frames, fh = e.img.naturalHeight, scale = (19 * s) / fh, dw = fw * scale, dh = fh * scale;
+    const fi = e.frames > 1 ? (Math.floor(d.phase * (d.path.length ? 2.2 : 1.4)) % e.frames) : 0;
+    ctx.save(); if (fx < 0) { ctx.translate(2 * x, 0); ctx.scale(-1, 1); } ctx.drawImage(e.img, fi * fw, 0, fw, fh, x - dw / 2, fy - dh, dw, dh); ctx.restore();
+    drawDiscOverlay(d, x, fy - dh, s, working, pip, hovd, sel, id); ctx.globalAlpha = 1; return;
+  } }
+
+  // --- procedural character ---
   if (meditate || (id && id.aura)) { const ac = meditate ? '#a78bfa' : id.aura; ctx.globalAlpha = d.alpha * (0.3 + Math.sin(t * 2 + d.phase) * 0.18); ctx.strokeStyle = ac; ctx.shadowColor = ac; ctx.shadowBlur = 9; ctx.lineWidth = 1.4;
     ctx.beginPath(); ctx.ellipse(x, d.y, (meditate ? 8 : 6.5) * s, (meditate ? 3.5 : 3) * s, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = d.alpha; }
-  // robe
-  const grd = ctx.createLinearGradient(0, headY, 0, fy); grd.addColorStop(0, shade(robe, 0.2)); grd.addColorStop(1, shade(robe, -0.3));
-  ctx.fillStyle = grd; ctx.strokeStyle = shade(robe, -0.5); ctx.lineWidth = 0.9 * s;
-  const bw = (id && id.leader ? 5.4 : 4.5) * s;
-  ctx.beginPath(); ctx.moveTo(x, headY + 1.5 * s); ctx.lineTo(x + bw, fy); ctx.quadraticCurveTo(x, fy + 1.7 * s, x - bw, fy); ctx.closePath(); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = shade(robe, 0.34); ctx.beginPath(); ctx.ellipse(x, headY + 4 * s, bw * 0.85, 2 * s, 0, 0, 6.28); ctx.fill();
-  if (id && id.leader) { ctx.strokeStyle = '#ffd36a'; ctx.globalAlpha = d.alpha * 0.7; ctx.lineWidth = 0.8 * s; ctx.beginPath(); ctx.moveTo(x, headY + 5 * s); ctx.lineTo(x, fy); ctx.stroke(); ctx.globalAlpha = d.alpha; }
-  if (working) { ctx.strokeStyle = shade(robe, -0.1); ctx.lineWidth = 1.6 * s; ctx.lineCap = 'round'; const a = Math.sin(t * 10 + d.phase) * 1.4 * s; ctx.beginPath(); ctx.moveTo(x, fy - 6 * s); ctx.lineTo(x + 5 * s * fx, fy - 3 * s + a); ctx.stroke(); ctx.lineCap = 'butt'; }
-  // head + hair
-  ctx.fillStyle = '#f2e2c8'; ctx.beginPath(); ctx.arc(x, headY, headR, 0, 6.28); ctx.fill();
-  if (id) drawHair(x, headY, headR, id.hair, id.hairCol, s); else { ctx.fillStyle = shade(robe, -0.1); ctx.beginPath(); ctx.arc(x, headY - 0.5 * s, headR + 0.5 * s, Math.PI, 0); ctx.fill(); }
+  const robe = id ? id.robe : (ROLE_STYLE[d.role] || '#8b92ac'), bw = (id && id.leader ? 5.6 : 4.6) * s;
+  // robe path
+  ctx.beginPath(); ctx.moveTo(x, headY + 1.5 * s); ctx.lineTo(x + bw, fy); ctx.quadraticCurveTo(x, fy + 1.8 * s, x - bw, fy); ctx.closePath();
+  ctx.strokeStyle = 'rgba(8,8,14,.9)'; ctx.lineWidth = 2.6; ctx.stroke();                 // dark outline -> reads as a character, not pasted
+  const grd = ctx.createLinearGradient(0, headY, 0, fy); grd.addColorStop(0, shade(robe, 0.22)); grd.addColorStop(1, shade(robe, -0.3));
+  ctx.fillStyle = grd; ctx.fill(); ctx.strokeStyle = shade(robe, -0.5); ctx.lineWidth = 0.8 * s; ctx.stroke();
+  ctx.fillStyle = shade(robe, 0.36); ctx.beginPath(); ctx.ellipse(x, headY + 4.5 * s, bw * 0.85, 2.2 * s, 0, 0, 6.28); ctx.fill();   // mantle
+  if (id && id.leader) { ctx.strokeStyle = '#ffd36a'; ctx.globalAlpha = d.alpha * 0.7; ctx.lineWidth = 0.9 * s; ctx.beginPath(); ctx.moveTo(x, headY + 5 * s); ctx.lineTo(x, fy); ctx.stroke(); ctx.globalAlpha = d.alpha; }
+  if (working) workPose(d, x, fy, s, fx, t, robe);
+  // head (outlined) + hair
+  ctx.fillStyle = 'rgba(8,8,14,.9)'; ctx.beginPath(); ctx.arc(x, headY, headR + 1, 0, 6.28); ctx.fill();
+  ctx.fillStyle = '#f3e6cd'; ctx.beginPath(); ctx.arc(x, headY, headR, 0, 6.28); ctx.fill();
+  if (id) drawHair(x, headY, headR, id.hair, id.hairCol, s);
   if (id) drawHeld(d, x, fy, bodyH, s, fx, t, id);
   if (working && !d.extra) drawActivity(d, x, fy, s, t);
-  // status pip
-  const pip = { working: '#34d399', idle: robe, roaming: '#fbbf24', meditate: '#caa9ff', error: '#fb5e7e' }[d.state] || robe;
-  ctx.fillStyle = pip; if (working || meditate) { ctx.shadowColor = pip; ctx.shadowBlur = 7 * s; } ctx.beginPath(); ctx.arc(x + headR + 1 * s, headY - 1 * s, 1.5 * s, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
-  if (working && d.prog > 0.02) { ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.4 * s; ctx.beginPath(); ctx.arc(x, headY, headR + 2.5 * s, -1.57, -1.57 + d.prog * 6.28); ctx.stroke(); }
-  if (!d.extra && (hovd || sel || d.state === 'working' || d.state === 'meditate')) {
-    ctx.font = `600 ${10 * (hovd || sel ? 1.1 : 1)}px system-ui`; ctx.textAlign = 'center'; const w = ctx.measureText(d.name).width + 8;
-    ctx.fillStyle = 'rgba(8,10,20,.72)'; roundRect(x - w / 2, headY - 16 * s, w, 13, 3); ctx.fill();
-    ctx.fillStyle = (hovd || sel) ? '#fff' : '#cdd3f0'; ctx.fillText(d.name, x, headY - 16 * s + 10); ctx.textAlign = 'left';
-  }
+  drawDiscOverlay(d, x, headY, s, working, pip, hovd, sel, id);
   ctx.globalAlpha = 1;
+}
+function drawDiscOverlay(d, x, topY, s, working, pip, hovd, sel, id) {
+  if (d.extra) return;
+  ctx.fillStyle = pip; if (working || d.state === 'meditate') { ctx.shadowColor = pip; ctx.shadowBlur = 7 * s; }
+  ctx.beginPath(); ctx.arc(x + 4 * s, topY + 1 * s, 1.7 * s, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+  if (working && d.prog > 0.02) { ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.4 * s; ctx.beginPath(); ctx.arc(x, topY + 2 * s, 4 * s, -1.57, -1.57 + d.prog * 6.28); ctx.stroke(); }
+  const showName = hovd || sel || d.state === 'working' || d.state === 'meditate';
+  if (sel || hovd) { const ic = ROLE_ICON[d.role] || '•'; ctx.font = `${12}px system-ui`; ctx.textAlign = 'center'; ctx.fillStyle = id ? id.robe : '#9a8cff'; ctx.shadowColor = '#000'; ctx.shadowBlur = 3; ctx.fillText(ic, x, topY - 28 * s); ctx.shadowBlur = 0; }
+  if (showName) {
+    ctx.font = `600 ${hovd || sel ? 12 : 11}px system-ui`; ctx.textAlign = 'center'; const w = ctx.measureText(d.name).width + 10;
+    ctx.fillStyle = 'rgba(8,10,20,.78)'; roundRect(x - w / 2, topY - 17 * s, w, 14, 3); ctx.fill();
+    ctx.fillStyle = (hovd || sel) ? '#fff' : '#cdd3f0'; ctx.fillText(d.name, x, topY - 17 * s + 11); ctx.textAlign = 'left';
+  }
 }
 
 /* spectacles + assembly events */
@@ -456,7 +502,7 @@ function simTick() {
   const reals = disciples.filter((d) => !d.extra), d = reals[(Math.random() * reals.length) | 0]; if (!d) return; const roll = Math.random(), s = d.data.__sim.state;
   if (s === 'idle') { if (roll < 0.5) d.data.__sim = { state: 'working', room: roomByKey(WORK_ROOMS[(Math.random() * WORK_ROOMS.length) | 0]).key };
     else if (roll < 0.66) d.data.__sim = { state: 'roaming' }; else if (roll < 0.76) d.data.__sim = { state: 'meditate' }; }
-  else if (s === 'working' && roll < 0.32) { d.data.__sim = { state: 'idle' }; if (Math.random() < 0.5) celebrate(d.x, d.y - 30, '#fbbf24', `${d.name}: ${['milestone', 'breakthrough', 'deploy', 'profit'][(Math.random() * 4) | 0]}`); }
+  else if (s === 'working' && roll < 0.32) { d.data.__sim = { state: 'idle' }; if (Math.random() < 0.5) { d.celebrate = 1.8; celebrate(d.x, d.y - 30, '#fbbf24', `${d.name}: ${['milestone', 'breakthrough', 'deploy', 'profit'][(Math.random() * 4) | 0]}`); } }
   // extras drift among work rooms
   disciples.filter((e) => e.extra && Math.random() < 0.04).forEach((e) => { e.data.__sim = { state: Math.random() < 0.7 ? 'working' : 'idle', room: roomByKey(WORK_ROOMS[(Math.random() * WORK_ROOMS.length) | 0]).key }; });
 }
@@ -464,7 +510,7 @@ let seenChron = null;
 async function pollBreak() {
   const ch = await api('/api/chronicle?limit=20'); if (!ch) return; const entries = ch.recent || [];
   if (seenChron === null) { seenChron = new Set(entries.map((e) => e.id)); return; }
-  entries.filter((e) => !seenChron.has(e.id) && ['breakthrough', 'milestone', 'title', 'ascension'].includes(e.kind)).forEach((e) => { const d = disciples.find((x) => x.name === e.agent); if (d) celebrate(d.x, d.y - 30, '#a78bfa', `${e.agent}: ${String(e.detail || e.kind).slice(0, 22)}`); });
+  entries.filter((e) => !seenChron.has(e.id) && ['breakthrough', 'milestone', 'title', 'ascension'].includes(e.kind)).forEach((e) => { const d = disciples.find((x) => x.name === e.agent); if (d) { d.celebrate = 1.8; celebrate(d.x, d.y - 30, '#a78bfa', `${e.agent}: ${String(e.detail || e.kind).slice(0, 22)}`); } });
   entries.forEach((e) => seenChron.add(e.id));
 }
 async function load() {
