@@ -123,21 +123,46 @@ function furnish(r) {
     case 'hall': default:
       push('throne', W / 2 - 0.8, back - 0.2); push('rug', W / 2 - 1.6, midY); push('brazier', 1, back); push('brazier', W - 1.6, back); break;
   }
+  // animated back-wall data displays + ambient detail (storytelling, not new rooms)
+  if (['market', 'engineering', 'library', 'mission', 'server', 'commerce'].includes(r.kind))
+    push('datawall', W - 1.7, 0.15, { content: r.kind === 'engineering' ? 'code' : r.kind === 'mission' ? 'board' : r.kind === 'library' ? 'graph' : r.kind === 'server' ? 'status' : 'chart' });
+  if (r.kind === 'market') push('ticker', 0.3, H - 0.35);
+  if (r.kind === 'server') { push('mist', 1.6, 1.4); push('mist', 3.4, 2.4); }
   r.furniture = f; r.stations = st.length ? st : [[W / 2, H * 0.6]];
 }
 
 /* ====================================================================== *
  *  Disciples
  * ====================================================================== */
-const ROLE_ROBE = { idle: '#9a8cff', roaming: '#fbbf24', meditate: '#caa9ff', error: '#fb5e7e' };
+const ROLE_STYLE = {
+  trader:     { color: '#f5c542', prop: 'tablet' },
+  engineer:   { color: '#5ac8ff', prop: 'visor' },
+  researcher: { color: '#c4b5fd', prop: 'scroll' },
+  analyst:    { color: '#34d399', prop: 'clip' },
+  architect:  { color: '#7bb0ff', prop: 'tools' },
+  elder:      { color: '#ecd9a6', prop: 'staff' },
+  disciple:   { color: '#9a8cff', prop: 'none' },
+};
+const ROLE_LIST = ['trader', 'engineer', 'researcher', 'analyst', 'architect'];
+function roleOf(ag) {
+  const g = ag.governance || {}; if (g.is_leader || g.is_elder || g.is_master) return 'elder';
+  const r = String(ag.role || '').toLowerCase();
+  if (/trad|market|invest|fund/.test(r)) return 'trader';
+  if (/eng|develop|code|build|deploy/.test(r)) return 'engineer';
+  if (/research|scholar|study/.test(r)) return 'researcher';
+  if (/analy|data|quant|signal/.test(r)) return 'analyst';
+  if (/architect|infra|ops|server|system|network/.test(r)) return 'architect';
+  let h = 0; for (const c of ag.name) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return ROLE_LIST[Math.abs(h) % ROLE_LIST.length];
+}
 const disciples = [];
 function hallSpot() { const h = hall(); if (!h) return { gx: 0, gy: 0 };
   return { gx: h.gx + 1 + Math.random() * (h.w - 2), gy: h.gy + h.h * 0.45 + Math.random() * (h.h * 0.5) }; }
 
 function makeDisciple(ag, i) {
   const s = hallSpot();
-  return { name: ag.name, data: ag, gx: s.gx, gy: s.gy, tx: s.gx, ty: s.gy, state: 'idle', room: null,
-    speed: 1.7 + Math.random() * 0.7, phase: Math.random() * 6.28, pause: 0, alpha: 1, roamPhase: null,
+  return { name: ag.name, data: ag, role: roleOf(ag), gx: s.gx, gy: s.gy, tx: s.gx, ty: s.gy, state: 'idle', room: null,
+    speed: 1.6 + Math.random() * 0.7, phase: Math.random() * 6.28, idleAct: 'wander', idleT: 0, alpha: 1, roamPhase: null,
     idx: i, progress: 0, chat: 0, facing: 1 };
 }
 function ensureDisciples(agents) {
@@ -183,7 +208,15 @@ function step(d, dt, t) {
   } else {
     d.moving = false;
     if (d.state === 'working') d.progress = Math.min(1, d.progress + dt * 0.03);
-    if (d.state === 'idle') { d.pause -= dt; if (d.pause <= 0) { const s = hallSpot(); d.tx = s.gx; d.ty = s.gy; d.pause = 2 + Math.random() * 5; } }
+    if (d.state === 'idle') {
+      d.idleT -= dt;
+      if (d.idleT <= 0) {
+        const r = Math.random();
+        d.idleAct = r < 0.45 ? 'wander' : r < 0.65 ? 'train' : r < 0.82 ? 'observe' : 'meditate';
+        d.idleT = 3 + Math.random() * 5;
+        if (d.idleAct === 'wander') { const s = hallSpot(); d.tx = s.gx; d.ty = s.gy; } else { d.tx = d.gx; d.ty = d.gy; }
+      }
+    }
   }
 }
 function stepRoam(d, dt, t) {
@@ -310,6 +343,14 @@ function drawFurniture(r, it, t, busy) {
       ctx.beginPath(); ctx.arc(top.x + 6 * z, top.y - 38 * z, 5 * z, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0; break; }
     case 'brazier': { const p = toScreen(gx, gy); isoBox(gx, gy, 0.4, 0.4, 12, shade(A, -0.3), shade(A, -0.5), shade(A, -0.6));
       const fy = p.y - (14 + Math.sin(t * 5 + gx) * 3) * z; ctx.fillStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 14 * z; ctx.beginPath(); ctx.ellipse(p.x, fy, 4 * z, 8 * z, 0, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0; break; }
+    case 'datawall': { holoScreen(gx, gy, 54, 34, 22, A, it.content, t, on);
+      const p = toScreen(gx, gy); ctx.fillStyle = A; ctx.globalAlpha = 0.6; ctx.font = `${6 * z}px system-ui`; ctx.fillText('●', p.x - 25 * z, p.y - 52 * z); ctx.globalAlpha = 1; break; }
+    case 'ticker': { const a = toScreen(gx, gy), b = toScreen(gx + (r.w - 0.8), gy), w = b.x - a.x;
+      ctx.save(); ctx.fillStyle = 'rgba(6,12,20,.8)'; ctx.fillRect(a.x, a.y - 7 * z, w, 9 * z); ctx.beginPath(); ctx.rect(a.x, a.y - 7 * z, w, 9 * z); ctx.clip();
+      ctx.font = `${6.5 * z}px system-ui`; const syms = ['NVDA +2.4%', 'META ▲', 'AMD +1.1%', 'TSLA ▼', 'BTC +0.8%', 'SPY ▲'], off = (t * 40 * z) % (w + 60 * z);
+      for (let i = 0; i < 8; i++) { const x = a.x + w - off + i * 60 * z; const s = syms[i % syms.length]; ctx.fillStyle = s.includes('▼') ? '#fb5e7e' : '#34d399'; ctx.fillText(s, x, a.y - 0.5 * z); } ctx.restore(); break; }
+    case 'mist': { const p = toScreen(gx, gy); for (let i = 0; i < 3; i++) { const ph = (t * 0.4 + i * 0.5) % 1; ctx.globalAlpha = (1 - ph) * 0.16; ctx.fillStyle = A;
+      ctx.beginPath(); ctx.ellipse(p.x, p.y - ph * 28 * z, (6 + ph * 8) * z, (3 + ph * 4) * z, 0, 0, 6.28); ctx.fill(); } ctx.globalAlpha = 1; break; }
   }
   ctx.globalAlpha = 1; ctx.shadowBlur = 0;
 }
@@ -325,42 +366,98 @@ function drawWorkFX(r, t) {
 /* ---------------- disciples ---------------- */
 function drawDisciple(d, t) {
   const p = toScreen(d.gx, d.gy), z = cam.zoom;
-  const robe = d.state === 'working' && d.room ? d.room.K.robe : (ROLE_ROBE[d.state] || '#9a8cff');
-  const hovd = hover.disc === d, sel = selected.disc === d, foll = followed === d;
-  const sc = z * 1.55 * (hovd || foll ? 1.12 : 1);     // larger silhouettes
+  const rs = ROLE_STYLE[d.role] || ROLE_STYLE.disciple, robe = rs.color;
+  const hovd = hover.disc === d, sel = selected.disc === d, foll = followed === d, elder = d.role === 'elder';
+  const sc = z * (elder ? 1.72 : 1.55) * (hovd || foll ? 1.12 : 1);
+  const working = d.state === 'working';
+  const meditating = d.state === 'meditate' || (d.state === 'idle' && d.idleAct === 'meditate');
+  const training = d.state === 'idle' && d.idleAct === 'train';
+  const fx = d.facing;
   ctx.globalAlpha = d.alpha;
   ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 6 * sc, 2.6 * sc, 0, 0, 6.28); ctx.fill();
-  const bob = d.moving ? Math.abs(Math.sin(d.phase)) * 2.2 * sc : (d.state === 'working' ? Math.abs(Math.sin(t * 5 + d.phase)) * 1.4 * sc : (d.state === 'meditate' ? 0 : Math.sin(t * 2 + d.phase) * 0.7 * sc));
-  const fy = p.y - bob, bodyH = 15 * sc, headR = 3.6 * sc, fx = d.facing;
+  const bob = d.moving ? Math.abs(Math.sin(d.phase)) * 2.2 * sc
+    : working ? Math.abs(Math.sin(t * 5 + d.phase)) * 0.9 * sc
+    : training ? Math.abs(Math.sin(t * 6 + d.phase)) * 1.6 * sc
+    : meditating ? 0 : Math.sin(t * 2 + d.phase) * 0.7 * sc;
+  const fy = p.y - bob, bodyH = (meditating ? 11 : 15) * sc, headR = (elder ? 4 : 3.6) * sc, baseW = (meditating ? 6.5 : 5) * sc;
+  const headY = fy - bodyH;
+  // meditation qi ring
+  if (meditating) { ctx.globalAlpha = d.alpha * (0.35 + Math.sin(t * 2 + d.phase) * 0.2); ctx.strokeStyle = '#a78bfa'; ctx.shadowColor = '#a78bfa'; ctx.shadowBlur = 8 * sc; ctx.lineWidth = 1.4 * sc;
+    ctx.beginPath(); ctx.ellipse(p.x, fy, 9 * sc, 4.5 * sc, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = d.alpha; }
   // robe
-  const grd = ctx.createLinearGradient(0, fy - bodyH, 0, fy); grd.addColorStop(0, shade(robe, 0.2)); grd.addColorStop(1, shade(robe, -0.28));
+  const grd = ctx.createLinearGradient(0, headY, 0, fy); grd.addColorStop(0, shade(robe, 0.2)); grd.addColorStop(1, shade(robe, -0.3));
   ctx.fillStyle = grd; ctx.strokeStyle = shade(robe, -0.55); ctx.lineWidth = 1 * sc;
-  ctx.beginPath(); ctx.moveTo(p.x, fy - bodyH + 1.5 * sc); ctx.lineTo(p.x + 5 * sc, fy); ctx.quadraticCurveTo(p.x, fy + 1.8 * sc, p.x - 5 * sc, fy); ctx.closePath(); ctx.fill(); ctx.stroke();
-  // shoulder mantle (role colour accent)
-  ctx.fillStyle = shade(robe, 0.32); ctx.beginPath(); ctx.ellipse(p.x, fy - bodyH + 4 * sc, 4.4 * sc, 2.2 * sc, 0, 0, 6.28); ctx.fill();
-  // sash
-  ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.3 * sc; ctx.beginPath(); ctx.moveTo(p.x - 3.5 * sc * fx, fy - 6 * sc); ctx.lineTo(p.x + 3.5 * sc * fx, fy - 8.5 * sc); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(p.x, headY + 1.5 * sc); ctx.lineTo(p.x + baseW, fy); ctx.quadraticCurveTo(p.x, fy + 1.8 * sc, p.x - baseW, fy); ctx.closePath(); ctx.fill(); ctx.stroke();
+  // shoulder mantle
+  ctx.fillStyle = shade(robe, 0.34); ctx.beginPath(); ctx.ellipse(p.x, headY + 4 * sc, 4.4 * sc, 2.1 * sc, 0, 0, 6.28); ctx.fill();
+  // ---- arms / work poses ----
+  ctx.strokeStyle = shade(robe, -0.1); ctx.lineWidth = 1.7 * sc; ctx.lineCap = 'round';
+  const sh = headY + 5 * sc;                       // shoulder height
+  if (working) {
+    if (d.role === 'engineer' || d.role === 'architect') {       // typing
+      const tap = Math.sin(t * 14 + d.phase) * 1.4 * sc;
+      arm(p.x, sh, p.x + 5 * sc, fy - 3 * sc + tap); arm(p.x, sh, p.x + 4 * sc, fy - 4 * sc - tap);
+    } else if (d.role === 'researcher') {                         // reading scroll held up
+      arm(p.x, sh, p.x + 5 * sc * fx, sh + 1 * sc);
+    } else {                                                       // trader/analyst pointing at screen
+      const pt = Math.sin(t * 3 + d.phase) * 1.5 * sc;
+      arm(p.x, sh, p.x + 6 * sc * fx, headY + 2 * sc + pt);
+    }
+  } else if (training) {                                          // martial form
+    const sw = Math.sin(t * 6 + d.phase);
+    arm(p.x, sh, p.x + 6 * sc * sw, sh - 4 * sc * Math.abs(sw)); arm(p.x, sh, p.x - 5 * sc * sw, fy - 2 * sc);
+  } else if (meditating) {                                        // hands resting
+    arm(p.x, sh, p.x + 3.5 * sc, fy - 1 * sc); arm(p.x, sh, p.x - 3.5 * sc, fy - 1 * sc);
+  }
+  ctx.lineCap = 'butt';
   // head + hood
-  ctx.fillStyle = '#f2e2c8'; ctx.beginPath(); ctx.arc(p.x, fy - bodyH, headR, 0, 6.28); ctx.fill();
-  ctx.fillStyle = shade(robe, -0.08); ctx.beginPath(); ctx.arc(p.x, fy - bodyH - 0.6 * sc, headR + 0.5 * sc, Math.PI, 0); ctx.fill();
-  // carried item / work tell
-  if (d.state === 'working' && d.room) { ctx.fillStyle = d.room.K.accent; ctx.font = `${7 * sc}px system-ui`; ctx.fillText(d.room.K.fx, p.x + 5 * sc * fx, fy - bodyH + 1 * sc); }
+  ctx.fillStyle = '#f2e2c8'; ctx.beginPath(); ctx.arc(p.x, headY, headR, 0, 6.28); ctx.fill();
+  ctx.fillStyle = shade(robe, -0.06); ctx.beginPath(); ctx.arc(p.x, headY - 0.6 * sc, headR + 0.5 * sc, Math.PI, 0); ctx.fill();
+  // ---- role insignia ----
+  drawRoleProp(d, p.x, headY, fy, sh, sc, fx, robe, working, t, elder);
   // status pip
-  const pip = { working: '#34d399', idle: '#9a8cff', traveling: '#cbb9ff', roaming: '#fbbf24', meditate: '#caa9ff', error: '#fb5e7e' }[d.state] || '#9a8cff';
-  ctx.fillStyle = pip; if (d.state === 'working' || d.state === 'meditate') { ctx.shadowColor = pip; ctx.shadowBlur = 7 * sc; }
-  ctx.beginPath(); ctx.arc(p.x + 4.4 * sc, fy - bodyH - 1.5 * sc, 1.7 * sc, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+  const pip = { working: '#34d399', idle: rs.color, traveling: '#cbb9ff', roaming: '#fbbf24', meditate: '#caa9ff', error: '#fb5e7e' }[d.state] || rs.color;
+  ctx.fillStyle = pip; if (working || meditating) { ctx.shadowColor = pip; ctx.shadowBlur = 7 * sc; }
+  ctx.beginPath(); ctx.arc(p.x + 4.6 * sc, headY - 1.5 * sc, 1.7 * sc, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
   // chat bubble
-  if (d.chat > 0) { ctx.font = `${9 * sc}px system-ui`; ctx.fillStyle = '#fff'; ctx.globalAlpha = d.alpha * (0.6 + Math.sin(t * 6) * 0.3); ctx.fillText('💬', p.x + 3 * sc, fy - bodyH - 8 * sc); ctx.globalAlpha = d.alpha; }
-  // progress ring while working
-  if (d.state === 'working' && d.progress > 0.02) { ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.6 * sc; ctx.beginPath(); ctx.arc(p.x, fy - bodyH, headR + 3 * sc, -1.57, -1.57 + d.progress * 6.28); ctx.stroke(); }
+  if (d.chat > 0) { ctx.font = `${9 * sc}px system-ui`; ctx.globalAlpha = d.alpha * (0.6 + Math.sin(t * 6) * 0.3); ctx.fillText('💬', p.x + 3 * sc, headY - 8 * sc); ctx.globalAlpha = d.alpha; }
+  // work progress ring
+  if (working && d.progress > 0.02) { ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.6 * sc; ctx.beginPath(); ctx.arc(p.x, headY, headR + 3 * sc, -1.57, -1.57 + d.progress * 6.28); ctx.stroke(); }
   // name plate
   if (hovd || foll || sel || cam.zoom > 0.62) {
     ctx.font = `600 ${9.5 * z}px system-ui`; ctx.textAlign = 'center';
     const w = ctx.measureText(d.name).width + 8 * z; ctx.fillStyle = 'rgba(8,10,20,.72)';
-    roundRect(p.x - w / 2, fy - bodyH - 16 * sc, w, 13 * z, 3 * z); ctx.fill();
-    ctx.fillStyle = (hovd || foll) ? '#fff' : '#cdd3f0'; ctx.fillText(d.name, p.x, fy - bodyH - 16 * sc + 10 * z); ctx.textAlign = 'left';
+    roundRect(p.x - w / 2, headY - 16 * sc, w, 13 * z, 3 * z); ctx.fill();
+    ctx.fillStyle = (hovd || foll) ? '#fff' : '#cdd3f0'; ctx.fillText(d.name, p.x, headY - 16 * sc + 10 * z); ctx.textAlign = 'left';
   }
   ctx.globalAlpha = 1;
+}
+function arm(x0, y0, x1, y1) { ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); }
+function drawRoleProp(d, x, headY, fy, sh, sc, fx, robe, working, t, elder) {
+  const A = (ROLE_STYLE[d.role] || ROLE_STYLE.disciple).color;
+  switch (d.role) {
+    case 'elder': {                                     // beard + staff
+      ctx.fillStyle = '#e8e2d0'; ctx.beginPath(); ctx.moveTo(x - 2 * sc, headY + 2 * sc); ctx.lineTo(x + 2 * sc, headY + 2 * sc); ctx.lineTo(x, headY + 6 * sc); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = shade('#7a5a2a', 0.1); ctx.lineWidth = 1.6 * sc; ctx.beginPath(); ctx.moveTo(x + 6 * sc * fx, fy + 1 * sc); ctx.lineTo(x + 6 * sc * fx, headY - 6 * sc); ctx.stroke();
+      ctx.fillStyle = '#a78bfa'; ctx.shadowColor = '#a78bfa'; ctx.shadowBlur = 8 * sc; ctx.beginPath(); ctx.arc(x + 6 * sc * fx, headY - 7 * sc, 2.2 * sc, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0; break; }
+    case 'trader': {                                    // glowing market tablet
+      const tx = x + 5.5 * sc * fx, ty = working ? headY + 2 * sc : sh + 1 * sc;
+      ctx.fillStyle = 'rgba(8,14,22,.9)'; ctx.fillRect(tx - 3 * sc, ty - 4 * sc, 6 * sc, 7 * sc);
+      ctx.strokeStyle = A; ctx.shadowColor = A; ctx.shadowBlur = (working ? 7 : 3) * sc; ctx.strokeRect(tx - 3 * sc, ty - 4 * sc, 6 * sc, 7 * sc);
+      ctx.fillStyle = '#34d399'; for (let i = 0; i < 3; i++) ctx.fillRect(tx - 2 * sc + i * 2 * sc, ty + 1 * sc - ((i + (t * 4 | 0)) % 3) * sc, 1.2 * sc, 2 * sc); ctx.shadowBlur = 0; break; }
+    case 'researcher': {                                // scroll
+      const tx = x + 5 * sc * fx, ty = sh + 1 * sc; ctx.fillStyle = '#efe6c8'; ctx.fillRect(tx - 2.5 * sc, ty - 4 * sc, 5 * sc, 8 * sc);
+      ctx.strokeStyle = shade(A, -0.2); ctx.lineWidth = 1 * sc; for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(tx - 1.5 * sc, ty - 4 * sc + i * 2 * sc); ctx.lineTo(tx + 1.5 * sc, ty - 4 * sc + i * 2 * sc); ctx.stroke(); } break; }
+    case 'engineer': {                                  // visor
+      ctx.fillStyle = A; ctx.shadowColor = A; ctx.shadowBlur = 6 * sc; ctx.fillRect(x - 3.4 * sc, headY - 1 * sc, 6.8 * sc, 1.6 * sc); ctx.shadowBlur = 0; break; }
+    case 'architect': {                                 // tool belt
+      ctx.fillStyle = shade(A, -0.2); ctx.fillRect(x - 4 * sc, fy - 6 * sc, 8 * sc, 1.6 * sc);
+      ctx.fillStyle = A; ctx.beginPath(); ctx.arc(x - 2 * sc, fy - 5 * sc, 1 * sc, 0, 6.28); ctx.arc(x + 2 * sc, fy - 5 * sc, 1 * sc, 0, 6.28); ctx.fill(); break; }
+    case 'analyst': {                                   // clipboard
+      const tx = x + 5 * sc * fx, ty = sh + 2 * sc; ctx.fillStyle = '#e7ecf5'; ctx.fillRect(tx - 2.5 * sc, ty - 3 * sc, 5 * sc, 7 * sc);
+      ctx.strokeStyle = A; ctx.lineWidth = 0.9 * sc; for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(tx - 1.6 * sc, ty - 3 * sc + i * 1.8 * sc); ctx.lineTo(tx + 1.6 * sc, ty - 3 * sc + i * 1.8 * sc); ctx.stroke(); } break; }
+  }
+  ctx.shadowBlur = 0;
 }
 
 /* breakthrough spectacles */
@@ -371,6 +468,31 @@ function drawSpectacles(dt) {
     ctx.strokeStyle = s.color; ctx.globalAlpha = Math.max(0, 0.9 - k); ctx.lineWidth = 3 * z; ctx.beginPath(); ctx.ellipse(p.x, p.y, (10 + k * 90) * z, (5 + k * 45) * z, 0, 0, 6.28); ctx.stroke();
     ctx.globalAlpha = Math.max(0, 1 - k); ctx.font = `700 ${13 * z}px system-ui`; ctx.textAlign = 'center'; ctx.fillStyle = '#fff3cf'; ctx.fillText('✦ ' + s.text, p.x, p.y - (26 + k * 28) * z); ctx.textAlign = 'left'; ctx.globalAlpha = 1;
     if (s.t > 2.6) spectacles.splice(i, 1); }
+}
+
+/* micro-events — brief gatherings that make the HQ feel inhabited */
+const microEvents = [];
+const EVENT_TEXT = { market: 'Trade review', engineering: 'Deploy review', library: 'Research discussion', mission: 'Mission briefing',
+  server: 'Systems check', cultivation: 'Group meditation', hall: 'Sect assembly', commerce: 'Market report' };
+function microTick() {
+  if (!rooms.length) return;
+  const r = Math.random() < 0.4 ? hall() : rooms[(Math.random() * rooms.length) | 0]; if (!r) return;
+  microEvents.push({ room: r, text: EVENT_TEXT[r.kind] || 'Gathering', t: 0, ttl: 7 });
+  disciples.filter((d) => d.state === 'idle' && d.chat <= 0).slice(0, 2 + (Math.random() * 2 | 0)).forEach((d, k) => {
+    d.tx = r.gx + r.w * 0.35 + k * 1.2; d.ty = r.gy + r.h + 0.6; d.idleAct = 'observe'; d.idleT = 7;
+  });
+}
+function drawMicro(dt) {
+  for (let i = microEvents.length - 1; i >= 0; i--) {
+    const e = microEvents[i]; e.t += dt; const p = toScreen(e.room.cx, e.room.gy), z = cam.zoom;
+    const a = Math.min(1, e.t * 2) * Math.min(1, (e.ttl - e.t) * 1.5);
+    ctx.globalAlpha = Math.max(0, a); ctx.font = `700 ${11 * z}px system-ui`; ctx.textAlign = 'center';
+    const w = ctx.measureText(e.text).width + 22 * z, y = p.y - 70 * z;
+    ctx.fillStyle = 'rgba(18,14,30,.92)'; roundRect(p.x - w / 2, y - 13 * z, w, 19 * z, 6 * z); ctx.fill();
+    ctx.strokeStyle = e.room.K.accent; ctx.lineWidth = 1.4 * z; ctx.shadowColor = e.room.K.accent; ctx.shadowBlur = 8 * z; roundRect(p.x - w / 2, y - 13 * z, w, 19 * z, 6 * z); ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff'; ctx.fillText('✦ ' + e.text, p.x, y); ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+    if (e.t > e.ttl) microEvents.splice(i, 1);
+  }
 }
 
 function drawRoomLabel(r) {
@@ -400,7 +522,7 @@ function frame(now) {
   ordered.forEach((r) => drawWorkFX(r, t));
   rooms.forEach(drawRoomLabel);
   disciples.slice().sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy)).forEach((d) => drawDisciple(d, t));
-  drawSpectacles(dt);
+  drawSpectacles(dt); drawMicro(dt);
 }
 function drawCourtyard() {
   if (!rooms.length) return; let minGx = 1e9, minGy = 1e9, maxGx = -1e9, maxGy = -1e9;
@@ -533,5 +655,5 @@ async function load() {
   ensureDisciples((ag && ag.agents) || []);
   $('scene-sub').textContent = `${rooms.length} halls · ${disciples.length} disciples · ${DEMO ? 'simulation' : 'live'}`;
 }
-load(); setInterval(load, 12000); setInterval(simTick, 2400); setInterval(pollBreakthroughs, 9000);
+load(); setInterval(load, 12000); setInterval(simTick, 2400); setInterval(pollBreakthroughs, 9000); setInterval(microTick, 17000);
 requestAnimationFrame(frame);
