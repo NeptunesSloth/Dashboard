@@ -146,9 +146,9 @@ function buildLayout(projects) {
     furnish(room);
     rooms.push(room);
   });
-  // elevation by sect rank: a real mountain hierarchy from summit to valley
-  const RANK_ELEV = { monument: 74, vortex: 56, nexus: 52, tome: 44, observatory: 44, forge: 40, bell: 30, fountain: 14, prosperity: 14, gate: 6 };
-  rooms.forEach((r) => { const jit = mulberry(hashStr((r.id || '') + ':e'))() * 8; r.elev = (RANK_ELEV[r.landmark] ?? 24) + jit; });
+  // elevation by sect rank: terraces stepped into the massif, summit -> valley
+  const RANK_ELEV = { monument: 40, vortex: 30, nexus: 28, tome: 23, observatory: 23, forge: 20, bell: 15, fountain: 7, prosperity: 7, gate: 3 };
+  rooms.forEach((r) => { const jit = mulberry(hashStr((r.id || '') + ':e'))() * 5; r.elev = (RANK_ELEV[r.landmark] ?? 14) + jit; });
   computeGrounds(); initAmbient(); initExtras(); centerOnHall();
 }
 function elevAt(gx, gy) {
@@ -158,7 +158,14 @@ function elevAt(gx, gy) {
 function computeGrounds() {
   let minGx = 1e9, minGy = 1e9, maxGx = -1e9, maxGy = -1e9;
   rooms.forEach((r) => { minGx = Math.min(minGx, r.gx); minGy = Math.min(minGy, r.gy); maxGx = Math.max(maxGx, r.gx + r.w); maxGy = Math.max(maxGy, r.gy + r.h); });
-  const M = 2.6; grounds = { minGx: minGx - M, minGy: minGy - M, maxGx: maxGx + M, maxGy: maxGy + M };
+  const M = 3.2; grounds = { minGx: minGx - M, minGy: minGy - M, maxGx: maxGx + M, maxGy: maxGy + M };
+  // one organic outline for the whole mountain massif the sect is carved into
+  const ro = mulberry(0xA17E5), cgx = (grounds.minGx + grounds.maxGx) / 2, cgy = (grounds.minGy + grounds.maxGy) / 2;
+  grounds.outline = [];
+  const edges = [[grounds.minGx, grounds.minGy, grounds.maxGx, grounds.minGy], [grounds.maxGx, grounds.minGy, grounds.maxGx, grounds.maxGy],
+    [grounds.maxGx, grounds.maxGy, grounds.minGx, grounds.maxGy], [grounds.minGx, grounds.maxGy, grounds.minGx, grounds.minGy]];
+  edges.forEach(([x0, y0, x1, y1]) => { for (let s = 0; s < 6; s++) { const fp = s / 6, gx = x0 + (x1 - x0) * fp, gy = y0 + (y1 - y0) * fp;
+    let nx = gx - cgx, ny = gy - cgy; const L = Math.hypot(nx, ny) || 1, j = ro() * 2.4; grounds.outline.push({ gx: gx + nx / L * j, gy: gy + ny / L * j }); } });
 }
 const roomById = (id) => rooms.find((r) => r.id === id);
 const hall = () => roomById('__hall');
@@ -393,30 +400,62 @@ function drawCliff(r, A, B, Cc, D, TH, t) {
   ctx.globalAlpha = 1;
 }
 function outlinePath(O) { ctx.beginPath(); O.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); }
+
+/* the whole sect is carved into ONE mountain massif rising from the cloud sea */
+function drawMassif(t) {
+  if (!grounds || !grounds.outline) return; const z = cam.zoom;
+  const O = grounds.outline.map((p) => toScreen(p.gx, p.gy));
+  let minY = 1e9, maxY = -1e9, cxs = 0; O.forEach((p) => { minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); cxs += p.x; }); cxs /= O.length;
+  const SK = 150 * z, FL = 0.42, baseX = (i) => O[i].x + (O[i].x - cxs) * FL;
+  // ---- the great cliff face dropping into the clouds ----
+  ctx.beginPath(); O.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+  for (let i = O.length - 1; i >= 0; i--) ctx.lineTo(baseX(i), O[i].y + SK); ctx.closePath();
+  const cg = ctx.createLinearGradient(0, minY, 0, maxY + SK); cg.addColorStop(0, '#34323f'); cg.addColorStop(0.5, '#211f2a'); cg.addColorStop(1, '#0e0c14');
+  ctx.fillStyle = cg; ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,.3)'; ctx.lineWidth = 1;
+  for (let i = 0; i < O.length; i++) { ctx.beginPath(); ctx.moveTo(O[i].x, O[i].y); ctx.lineTo(baseX(i), O[i].y + SK); ctx.stroke(); }
+  // great waterfalls down the mountain face
+  [0.16, 0.34, 0.5, 0.68, 0.84].forEach((f, k) => { const i = Math.min(O.length - 1, (f * O.length) | 0); drawWaterfall((O[i].x + baseX(i)) / 2, O[i].y, SK * (0.7 + (k % 2) * 0.3), t); });
+  // a sea of cloud clinging to the base
+  ctx.globalAlpha = 0.6; ctx.fillStyle = 'rgba(210,218,240,.6)';
+  for (let i = 0; i < O.length; i++) { ctx.beginPath(); ctx.ellipse(baseX(i), O[i].y + SK - 4 * z + Math.sin(t * 1.2 + i) * 3 * z, 34 * z, 11 * z, 0, 0, 6.28); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  // ---- the mountain top surface (the rock the sect is built on) ----
+  outlinePath(O); const tg = ctx.createLinearGradient(0, minY, 0, maxY); tg.addColorStop(0, '#46444f'); tg.addColorStop(1, '#302e39');
+  ctx.fillStyle = tg; ctx.fill();
+  ctx.save(); outlinePath(O); ctx.clip(); drawMassifSurface(t); ctx.restore();
+  ctx.strokeStyle = 'rgba(160,160,194,.22)'; ctx.lineWidth = 1.5 * z; outlinePath(O); ctx.stroke();
+}
+function drawMassifSurface(t) {
+  const h = hall(); if (!h) return; const z = cam.zoom, hc = toScreen(h.cx, h.gy + h.h + 0.5);
+  // rock mottling so the surface reads as mountain stone, not a flat panel
+  ctx.strokeStyle = 'rgba(0,0,0,.10)'; ctx.lineWidth = 2 * z;
+  for (let i = 0; i < 6; i++) { const a = toScreen(grounds.minGx + i * 2, grounds.minGy + i * 0.6), b = toScreen(grounds.maxGx - i, grounds.maxGy - i * 2);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.quadraticCurveTo((a.x + b.x) / 2, (a.y + b.y) / 2 - 14 * z, b.x, b.y); ctx.stroke(); }
+  ctx.fillStyle = 'rgba(255,255,255,.04)';
+  for (let i = 0; i < 40; i++) { const p = toScreen(grounds.minGx + (i * 1.7) % (grounds.maxGx - grounds.minGx), grounds.minGy + (i * 1.1) % (grounds.maxGy - grounds.minGy)); ctx.fillRect(p.x, p.y, 2 * z, 1 * z); }
+  // faint stone trails to the summit (trails, not graph edges)
+  rooms.forEach((r) => { if (r === h) return; const rc = toScreen(r.cx, r.gy + r.h + 0.5);
+    const mx = (rc.x + hc.x) / 2 + ((r.cx | 0) % 2 ? 24 : -24) * z, my = (rc.y + hc.y) / 2;
+    ctx.strokeStyle = 'rgba(150,146,170,.16)'; ctx.lineCap = 'round'; ctx.lineWidth = 5 * z; ctx.beginPath(); ctx.moveTo(rc.x, rc.y); ctx.quadraticCurveTo(mx, my, hc.x, hc.y); ctx.stroke(); });
+  ctx.lineCap = 'butt';
+}
 function drawRoom(r, t) {
   const z = cam.zoom, K = r.K, occ = r.occupants.size, busy = Math.min(1, occ * 0.45);
-  ctx.save(); ctx.translate(0, -(r.elev || 0) * z);    // raise this peak to its elevation
+  ctx.save(); ctx.translate(0, -(r.elev || 0) * z);    // raise this terrace above the massif
   const O = r.outline.map((p) => toScreen(p.gx, p.gy));
-  const TH = (38 + (r.elev || 0) + (r.kind === 'hall' ? 12 : 0)) * z;   // cliff drops to the cloud sea
+  const TH = ((r.elev || 0) + 9) * z;                  // short retaining cliff down to the massif surface
   let minY = 1e9, maxY = -1e9; O.forEach((p) => { minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); });
-  // ---- rocky mountain flank (flares outward to a wide base, like a real peak) ----
+  // ---- terrace retaining wall (carved into the mountain, modest flare) ----
   let cxs = 0; O.forEach((p) => cxs += p.x); cxs /= O.length;
-  const FL = 0.55, baseX = (i) => O[i].x + (O[i].x - cxs) * FL;       // base wider than the top
+  const FL = 0.25, baseX = (i) => O[i].x + (O[i].x - cxs) * FL;
   ctx.beginPath(); O.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
   for (let i = O.length - 1; i >= 0; i--) ctx.lineTo(baseX(i), O[i].y + TH); ctx.closePath();
-  const cg = ctx.createLinearGradient(0, minY, 0, maxY + TH); cg.addColorStop(0, '#3a3847'); cg.addColorStop(0.5, '#272531'); cg.addColorStop(1, '#13111a');
+  const cg = ctx.createLinearGradient(0, minY, 0, maxY + TH); cg.addColorStop(0, '#3c3a49'); cg.addColorStop(1, '#23212c');
   ctx.fillStyle = cg; ctx.fill();
-  ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.lineWidth = 1;            // rock striations follow the flank
+  ctx.strokeStyle = 'rgba(0,0,0,.26)'; ctx.lineWidth = 1;
   for (let i = 0; i < O.length; i++) { ctx.beginPath(); ctx.moveTo(O[i].x, O[i].y); ctx.lineTo(baseX(i), O[i].y + TH); ctx.stroke(); }
-  if (['vortex', 'nexus', 'observatory', 'gate', 'tome'].includes(r.landmark) || r.kind === 'hall') {
-    const lo = O.reduce((a, b) => b.y > a.y ? b : a, O[0]), li = O.indexOf(lo); drawWaterfall((lo.x + baseX(li)) / 2, lo.y, TH, t);
-    if (r.kind === 'hall') { const l2 = O.reduce((a, b) => (b.x < a.x ? b : a), O[0]), l2i = O.indexOf(l2); drawWaterfall((l2.x + baseX(l2i)) / 2, l2.y, TH * 0.8, t); }
-  }
-  drawStairway(toScreen(r.cx, r.gy + r.h).x, toScreen(r.cx, r.gy + r.h).y, Math.min(TH, 80 * z));   // steps carved down the front face
-  // clinging mist along the base of the flank
-  ctx.globalAlpha = 0.55; ctx.fillStyle = 'rgba(205,214,236,.55)';
-  for (let i = 0; i < O.length; i += 2) { ctx.beginPath(); ctx.ellipse(baseX(i), O[i].y + TH - 2 * z + Math.sin(t * 1.5 + i) * 2 * z, 22 * z, 7 * z, 0, 0, 6.28); ctx.fill(); }
-  ctx.globalAlpha = 1;
+  drawStairway(toScreen(r.cx, r.gy + r.h).x, toScreen(r.cx, r.gy + r.h).y, TH);   // steps down to the mountain path
   // ---- terrace top (earth/stone, no square, no grid) ----
   const trouble = r.data && (r.data.health === 'error' || r.data.health === 'warning');
   outlinePath(O); const tg = ctx.createLinearGradient(0, minY, 0, maxY); tg.addColorStop(0, shade(K.floor, 0.18)); tg.addColorStop(1, shade(K.floor, -0.12));
@@ -893,7 +932,7 @@ function frame(now) {
 
   const bg = ctx.createLinearGradient(0, 0, 0, view.h); bg.addColorStop(0, '#12183a'); bg.addColorStop(0.55, '#1a2247'); bg.addColorStop(1, '#0c1024'); ctx.fillStyle = bg; ctx.fillRect(0, 0, view.w, view.h);
   drawHorizon(t);
-  drawBridges();
+  drawMassif(t);
   drawAncestor(t);
   drawCouriers(t);
   const ordered = rooms.slice().sort((a, b) => a.depth - b.depth);
