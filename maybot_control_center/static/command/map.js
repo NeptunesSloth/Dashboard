@@ -74,16 +74,26 @@ function toGrid(sx, sy) {
   return { gx: (wx / TW2 + wy / TH2) / 2, gy: (wy / TH2 - wx / TW2) / 2 };
 }
 
-/* ---------------- sprite layer: authored PNGs override baked voxel fallbacks ---------------- */
-const SPR = { ready: false, meta: {}, img: {} };
+/* ---------------- art pipeline: authored PNGs override procedural fallbacks ---------------- *
+ * - prop/building sprites override baked voxel fallbacks by filename
+ * - full-screen scenery layers (background / midground_clouds / foreground_fog) for parallax
+ * - per-hall landmark sprites (static/assets/sect/halls/<key>.png) replace assembled architecture
+ * Everything falls back to procedural rendering when the asset is absent. */
+const SPR = { ready: false, meta: {}, img: {}, scenery: {}, halls: {} };
+function loadImg(url) { const im = new Image(); im.src = url; return im; }
 (async function loadSprites() {
   try {
     const r = await fetch('/api/sect/manifest'); if (!r.ok) return; const man = await r.json();
-    SPR.meta = man.sprites || {}; const names = Object.keys(SPR.meta); let n = 0;
+    SPR.meta = man.sprites || {};
+    Object.entries(man.scenery || {}).forEach(([layer, m]) => { SPR.scenery[layer] = { ...m, img: loadImg(m.url) }; });
+    Object.entries(man.halls || {}).forEach(([key, m]) => { SPR.halls[key] = { ...m, img: loadImg(m.url) }; });
+    const names = Object.keys(SPR.meta); let n = 0;
     const done = () => { if (++n >= names.length) {
       SPR.ready = true;
-      console.log(`%c[Realm Map] sprites — ${(man.external || []).length} external, ${(man.baked || []).length} baked fallback`, 'color:#a78bfa');
-      if ((man.external || []).length) console.log('[Realm Map] external art:', man.external.join(', '));
+      console.log(`%c[Realm Map] art — ${(man.external || []).length} external sprites, ${(man.baked || []).length} baked, ${Object.keys(SPR.scenery).length} scenery layers, ${Object.keys(SPR.halls).length} hall landmarks`, 'color:#a78bfa');
+      if ((man.external || []).length) console.log('[Realm Map] external sprites:', man.external.join(', '));
+      if (Object.keys(SPR.scenery).length) console.log('[Realm Map] scenery layers:', Object.keys(SPR.scenery).join(', '));
+      if (Object.keys(SPR.halls).length) console.log('[Realm Map] hall landmarks:', Object.keys(SPR.halls).join(', '));
       console.log('[Realm Map] baked fallback:', (man.baked || []).join(', '));
     } };
     if (!names.length) SPR.ready = true;
@@ -91,6 +101,26 @@ const SPR = { ready: false, meta: {}, img: {} };
   } catch (_) { /* fall back to procedural drawing */ }
 })();
 function spriteZ(it) { return it.type === 'sprite' && SPR.meta[it.name] ? SPR.meta[it.name].z || 0 : 0; }
+/* full-screen scenery layer with parallax (cover the viewport, offset by camera) */
+function drawScenery(layer, t) {
+  const s = SPR.scenery[layer], img = s && s.img; if (!img || !img.complete || !img.naturalWidth) return false;
+  const w = view.w, h = view.h, scale = Math.max((w * 1.18) / img.naturalWidth, (h * 1.18) / img.naturalHeight);
+  const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
+  const ox = -cam.x * s.parallax * 0.04, oy = -cam.y * s.parallax * 0.04;
+  ctx.globalAlpha = s.alpha != null ? s.alpha : 1;
+  ctx.drawImage(img, (w - iw) / 2 + Math.max(-iw * 0.08, Math.min(iw * 0.08, ox)), (h - ih) / 2 + Math.max(-ih * 0.08, Math.min(ih * 0.08, oy)), iw, ih);
+  ctx.globalAlpha = 1; return true;
+}
+/* a hall represented by a single authored landmark sprite (else procedural fallback) */
+const HALL_KEY = { monument: 'sect_hall', vortex: 'cultivation_peak', nexus: 'spirit_nexus', tome: 'archive_hall',
+  observatory: 'observatory_peak', forge: 'forge_peak', bell: 'mission_hall', fountain: 'commerce_valley', prosperity: 'commerce_valley', gate: 'mountain_gate' };
+function drawHallLandmark(r) {
+  const key = HALL_KEY[r.landmark], hm = key && SPR.halls[key], img = hm && hm.img;
+  if (!img || !img.complete || !img.naturalWidth) return false;
+  const w = img.naturalWidth, h = img.naturalHeight, s = toScreen(r.cx, r.cyc + 0.5);
+  const sc = cam.zoom * (r.w * 0.92) / (hm.footTiles || 6) * (hm.scale || 1);   // span the terrace
+  ctx.drawImage(img, s.x - hm.anchorFx * w * sc, s.y - hm.anchorFy * h * sc, w * sc, h * sc); return true;
+}
 function blit(name, gx, gy, footTiles) {
   if (!SPR.ready) return false; const m = SPR.meta[name], img = SPR.img[name];
   if (!m || !img || !img.complete || !img.naturalWidth) return false;
@@ -467,8 +497,10 @@ function drawRoom(r, t) {
   ctx.restore();
   // soft rocky rim highlight (not a hard square border)
   ctx.strokeStyle = 'rgba(150,150,180,.2)'; ctx.lineWidth = 1.5 * z; outlinePath(O); ctx.stroke();
-  // ---- the location's scene (buildings + props), painted back-to-front (+authored z) ----
-  r.furniture.slice().sort((a, b) => (a.gx + a.gy + spriteZ(a)) - (b.gx + b.gy + spriteZ(b))).forEach((it) => drawFurniture(r, it, t, busy));
+  // ---- the location's hall: one authored landmark sprite, else the procedural scene ----
+  if (!drawHallLandmark(r)) {
+    r.furniture.slice().sort((a, b) => (a.gx + a.gy + spriteZ(a)) - (b.gx + b.gy + spriteZ(b))).forEach((it) => drawFurniture(r, it, t, busy));
+  }
   if (hover.room === r || selected.room === r) { ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2 * z; outlinePath(O); ctx.stroke(); }
   ctx.restore();
 }
@@ -930,8 +962,12 @@ function frame(now) {
   if (t - lastDerive > 0.35) { disciples.forEach(deriveState); lastDerive = t; }
   disciples.forEach((d) => step(d, dt, t)); updateAmbient(dt, t); updateExtras(dt, t);
 
+  // --- BACKGROUND layer (authored distant mountains, or procedural sky) ---
   const bg = ctx.createLinearGradient(0, 0, 0, view.h); bg.addColorStop(0, '#12183a'); bg.addColorStop(0.55, '#1a2247'); bg.addColorStop(1, '#0c1024'); ctx.fillStyle = bg; ctx.fillRect(0, 0, view.w, view.h);
-  drawHorizon(t);
+  if (!drawScenery('background', t)) drawHorizon(t);
+  // --- MIDGROUND clouds (authored), between background and terrain ---
+  drawScenery('midground_clouds', t);
+  // --- GAMEPLAY layer: terrain, halls, disciples ---
   drawMassif(t);
   drawAncestor(t);
   drawCouriers(t);
@@ -942,9 +978,12 @@ function frame(now) {
   rooms.forEach(drawRoomLabel);
   disciples.slice().sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy)).forEach((d) => drawDisciple(d, t));
   drawLanterns(t);
-  drawForegroundClouds(t);
   drawSpectacles(dt); drawMicro(dt);
-  drawAtmosphere(t);
+  // --- FOREGROUND fog/atmosphere (authored, or procedural) ---
+  if (drawScenery('foreground_fog', t)) {
+    const vg = ctx.createRadialGradient(view.w / 2, view.h * 0.45, view.h * 0.32, view.w / 2, view.h * 0.5, view.h * 0.92);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.4)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, view.w, view.h);
+  } else { drawForegroundClouds(t); drawAtmosphere(t); }
 }
 /* low cloud layer drifting in front of the peaks — the sect floats in a cloud sea */
 function drawForegroundClouds(t) {

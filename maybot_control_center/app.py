@@ -1528,8 +1528,40 @@ def sect_manifest():
             "z": float(meta.get("z", 0)),
         }
         (ext_n if source == "external" else baked_n).append(name)
+
+    # Authored scenery layers (full-screen parallax). Optional metadata under
+    # manifest.json "scenery": { "<layer>": { "parallax": 0.3, "alpha": 1.0 } }.
+    try:
+        with open(f"{base}/manifest.json") as fh:
+            top = json.load(fh) or {}
+    except Exception:
+        top = {}
+    scenery_meta = top.get("scenery", {})
+    DEFAULT_PARALLAX = {"background": 0.25, "midground_clouds": 0.55, "foreground_fog": 1.1}
+    scenery = {}
+    for layer in ("background", "midground_clouds", "foreground_fog"):
+        if os.path.isfile(os.path.join(base, f"{layer}.png")):
+            m = scenery_meta.get(layer, {})
+            scenery[layer] = {"url": f"/assets/sect/{layer}.png",
+                              "parallax": float(m.get("parallax", DEFAULT_PARALLAX[layer])),
+                              "alpha": float(m.get("alpha", 1.0))}
+
+    # Authored per-hall landmark sprites: static/assets/sect/halls/<key>.png.
+    halls_meta = top.get("halls", {})
+    halls, halls_dir = {}, os.path.join(base, "halls")
+    if os.path.isdir(halls_dir):
+        for fn in sorted(os.listdir(halls_dir)):
+            if not fn.lower().endswith(".png"):
+                continue
+            key = fn[:-4]
+            m = halls_meta.get(key, {})
+            fx, fy = anchor_fractions(m, (0.5, 0.96))
+            halls[key] = {"url": f"/assets/sect/halls/{fn}", "anchorFx": round(fx, 4), "anchorFy": round(fy, 4),
+                          "footTiles": float(m.get("footTiles", 6.0)), "scale": float(m.get("scale", 1.0)), "z": float(m.get("z", 0))}
+
     return {"tile": baked.get("tile", [40, 20]), "voxPerTile": baked.get("voxPerTile", 6),
-            "external": ext_n, "baked": baked_n, "sprites": sprites}
+            "external": ext_n, "baked": baked_n, "sprites": sprites,
+            "scenery": scenery, "halls": halls}
 
 
 _CMD = "maybot_control_center/static/command"

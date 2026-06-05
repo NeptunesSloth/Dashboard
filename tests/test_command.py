@@ -75,6 +75,9 @@ def test_sect_sprite_assets():
     assert "anchorFx" in gp and "footTiles" in gp and "scale" in gp and "z" in gp
     png = client.get(gp["url"])
     assert png.status_code == 200 and png.headers["content-type"] == "image/png"
+    # art-pipeline hooks for authored scenery + per-hall landmarks (empty until art is dropped in)
+    assert "scenery" in data and isinstance(data["scenery"], dict)
+    assert "halls" in data and isinstance(data["halls"], dict)
 
 
 def test_command_positions_and_bots(monkeypatch):
