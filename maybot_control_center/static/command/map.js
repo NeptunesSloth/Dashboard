@@ -155,49 +155,60 @@ function centerOnHall() {
   cam.zoom = Math.max(0.55, Math.min(1.0, view.w / 2000 + 0.55));
 }
 
-/* a whole district scene: the landmark sits centre, the rest is a built location */
+/* compose a whole district: main hall + landmark + secondary buildings + props, painted back-to-front */
 function furnish(r) {
-  const W = r.w, H = r.h, f = [], st = [];
-  const push = (type, gx, gy, opt) => f.push({ type, gx, gy, ...opt });
-  const corners = () => { push('lanternpost', 0.6, 0.6); push('lanternpost', W - 0.6, 0.6); push('lanternpost', 0.6, H - 0.6); push('lanternpost', W - 0.6, H - 0.6); };
+  const W = r.w, H = r.h, cx = W / 2, f = [], st = [];
+  const B = (name, gx, gy, ft) => f.push({ type: 'sprite', name, gx, gy, ft });
+  const P = (type, gx, gy, opt) => f.push({ type, gx, gy, ...opt });
+  const lant = (gx, gy) => B('lantern', gx, gy, 0.5);
+  const ring = () => { lant(0.7, 0.7); lant(W - 0.7, 0.7); lant(0.7, H - 0.7); lant(W - 0.7, H - 0.7); };
   switch (r.landmark) {
-    case 'fountain': case 'prosperity':   // market — stalls, counters, carts, crates
-      for (let i = 0; i < 3; i++) { push('stall', 1.1, 1.3 + i * 1.7); push('stall', W - 1.1, 1.3 + i * 1.7); st.push([1.9, 1.7 + i * 1.7]); st.push([W - 1.9, 1.7 + i * 1.7]); }
-      push('counter', 2.4, H - 1.3); push('counter', W - 3.6, H - 1.3); push('cart', W / 2 + 1.6, H - 1.3);
-      push('crate', 1.0, H - 1.2); push('crate', 1.6, H - 0.9); push('crate', W - 1.2, H - 1.0);
-      push('banner', 1.0, 0.4); push('banner', W - 1.6, 0.4); corners(); break;
-    case 'observatory':                    // calculation — scholar desk banks + strategy pavilion
-      for (let i = 0; i < 3; i++) { push('desk', 1.3, 1.2 + i * 1.5); push('screen', 1.6, 1.1 + i * 1.5, { content: 'graph' }); st.push([2.1, 1.6 + i * 1.5]);
-        push('desk', W - 1.7, 1.2 + i * 1.5); push('screen', W - 1.4, 1.1 + i * 1.5, { content: 'chart' }); st.push([W - 2.3, 1.6 + i * 1.5]); }
-      push('pavilion', W / 2 - 1, H - 2.4); push('pillar', 1.0, H - 1); push('pillar', W - 1.0, H - 1); corners(); break;
-    case 'forge':                          // engineering — workbenches, tool crates, chimney pavilion
-      for (let i = 0; i < 3; i++) { push('bench', 1.4, 1.3 + i * 1.6); push('bench', W - 1.6, 1.3 + i * 1.6); st.push([2.2, 1.5 + i * 1.6]); st.push([W - 2.2, 1.5 + i * 1.6]); }
-      push('crate', 1.0, H - 1.3); push('crate', 1.7, H - 1.0); push('crate', W - 1.4, H - 1.1); push('pavilion', W / 2 - 1, 0.6); corners(); break;
-    case 'tome':                           // library — shelves lining the walls, study desks, benches
-      for (let i = 0; i < 5; i++) { push('shelf', 0.8 + i * 1.0, 0.6); push('shelf', 0.8 + i * 1.0, H - 0.5); }
-      for (let i = 0; i < 3; i++) { push('desk', W / 2 - 1.8, 1.4 + i * 1.4); push('desk', W / 2 + 0.8, 1.4 + i * 1.4); st.push([W / 2 - 1.1, 1.8 + i * 1.4]); st.push([W / 2 + 1.5, 1.8 + i * 1.4]); }
-      push('bench', 1.6, H - 1.2); push('bench', W - 1.8, H - 1.2); corners(); break;
-    case 'gate':                           // travel — caravans, staging crates, waiting benches (plaza open)
-      push('cart', 1.6, H - 1.5); push('cart', W - 2.0, H - 1.7); push('crate', 1.0, H - 1.0); push('crate', 1.7, H - 1.2); push('crate', W - 1.2, H - 1.0);
-      push('bench', 1.4, 1.3); push('bench', W - 1.6, 1.3); push('banner', 0.8, 0.4); push('banner', W - 1.4, 0.4); corners();
-      st.push([2.2, H - 0.8]); st.push([W - 2.4, H - 0.8]); break;
-    case 'bell':                           // decrees — notice boards, waiting benches, banners
-      push('board', 1.3, 0.6); push('board', W - 2.3, 0.6); push('bench', 1.6, H - 1.5); push('bench', W / 2 - 0.8, H - 1.5); push('bench', W - 2.0, H - 1.5);
-      push('banner', W / 2 - 0.6, 0.3); corners(); st.push([1.8, H - 0.7]); st.push([W - 2.0, H - 0.7]); break;
-    case 'nexus':                          // infrastructure — formation pillars ring + conduits to core
-      [[1, 1], [W - 1, 1], [1, H - 1], [W - 1, H - 1], [W / 2, 0.8], [W / 2, H - 0.8]].forEach(([x, y]) => push('pillar', x, y));
-      [[1, 1], [W - 1, 1], [1, H - 1], [W - 1, H - 1]].forEach(([x, y]) => push('conduit', x, y, { to: [W / 2, H / 2] }));
-      push('crate', 1.3, H / 2); st.push([1.9, H / 2]); st.push([W - 1.9, H / 2]); break;
-    case 'vortex':                         // spirit grounds — tree, training circles, pavilion, benches
-      push('tree', W - 1.8, 1.5); push('pavilion', 0.9, H - 2.6);
-      push('circle', W / 2 + 0.8, H - 1.8); push('circle', W - 2.0, H - 1.8);
-      push('bench', 1.3, 1.0); push('bench', W / 2 + 1.4, 1.0); corners();
-      st.push([W / 2 + 0.8, H - 1.8]); st.push([W - 2.0, H - 1.8]); break;
-    case 'monument': default:              // sect capital — assembly pavilions, banners, gardens, lanterns
-      push('dais', W / 2 - 1.4, H / 2 - 0.7); push('pavilion', 0.9, 0.9); push('pavilion', W - 3.0, 0.9);
-      push('banner', W / 2 - 2.2, 0.3); push('banner', W / 2 + 1.6, 0.3); push('tree', 1.3, H - 1.7); push('tree', W - 1.5, H - 1.7);
-      push('bench', W / 2 - 2.6, H - 1.5); push('bench', W / 2 + 1.8, H - 1.5); push('brazier', 2.4, H / 2); push('brazier', W - 2.4, H / 2); corners(); break;
+    case 'fountain': case 'prosperity':          // crowded market district
+      B('pagoda', cx, 1.7, 3.0); B('pagoda', 1.5, 1.4, 1.8); B('pagoda', W - 1.5, 1.4, 1.8); B('fountain', cx, 4.1, 2.4);
+      for (let i = 0; i < 4; i++) B('stall', 1.4 + i * (W - 2.8) / 3, H - 1.0, 1.4);
+      B('stall', 1.4, 3.2, 1.4); B('stall', W - 1.4, 3.2, 1.4);
+      P('cart', cx + 1.9, H - 1.9); P('crate', 1.1, H - 2.0); P('crate', 1.6, H - 1.7); P('crate', W - 1.2, H - 2.0);
+      P('banner', 1.0, 0.5); P('banner', W - 1.6, 0.5); ring();
+      st.push([cx - 1.4, H - 1.7]); st.push([cx + 0.6, H - 1.7]); st.push([1.9, 3.4]); st.push([W - 1.9, 3.4]); break;
+    case 'observatory':                          // scholar complex
+      B('pagoda', cx, 1.6, 2.8); B('observatory', cx, 4.0, 2.6); B('pavilion', 1.6, 2.6, 2.0); B('pavilion', W - 1.6, 2.6, 2.0);
+      for (let i = 0; i < 3; i++) { P('desk', 1.4 + i * 1.2, H - 1.1); P('screen', 1.7 + i * 1.2, H - 1.2, { content: 'graph' }); st.push([1.9 + i * 1.2, H - 0.6]); }
+      P('pillar', 1.0, H - 2.2); P('pillar', W - 1.0, H - 2.2); ring(); break;
+    case 'forge':                                // workshop yard
+      B('pagoda', cx, 1.6, 2.6); B('forge', cx, 4.0, 2.6); B('pavilion', W - 1.7, 2.6, 2.0);
+      for (let i = 0; i < 3; i++) { P('bench', 1.4, 2.2 + i * 1.5); st.push([2.0, 2.4 + i * 1.5]); }
+      P('crate', 1.0, H - 1.0); P('crate', 1.7, H - 1.2); P('crate', W - 1.4, H - 1.0); ring(); break;
+    case 'tome':                                 // archive + study garden
+      B('pagoda', cx, 1.6, 2.8); B('pavilion', cx, 4.1, 2.6); B('tree', 1.5, 4.4, 1.1); B('tree', W - 1.5, 4.4, 1.1);
+      for (let i = 0; i < 4; i++) P('shelf', 1.2 + i * 0.9, 3.0);
+      P('desk', cx - 1.6, H - 1.1); P('desk', cx + 0.8, H - 1.1); st.push([cx - 1.0, H - 0.6]); st.push([cx + 1.4, H - 0.6]);
+      P('bench', 1.5, H - 1.0); P('bench', W - 1.7, H - 1.0); ring(); break;
+    case 'gate':                                 // arrival plaza
+      B('gate', cx, 2.2, 3.4); B('pavilion', 1.6, 2.6, 2.0); B('pavilion', W - 1.6, 2.6, 2.0);
+      P('cart', 1.6, H - 1.3); P('cart', W - 2.0, H - 1.6); P('crate', 1.0, H - 0.9); P('crate', 1.7, H - 1.1); P('crate', W - 1.2, H - 0.9);
+      P('board', 2.4, H - 1.7); P('bench', cx, H - 1.0); P('banner', 0.9, 0.5); P('banner', W - 1.5, 0.5); ring();
+      st.push([cx - 1.4, H - 0.8]); st.push([cx + 1.2, H - 0.8]); break;
+    case 'bell':                                 // hall of decrees
+      B('pagoda', cx, 1.6, 2.8); B('bell', cx, 3.8, 2.2); B('pavilion', W - 1.7, 2.6, 1.9);
+      P('board', 1.4, 2.6); P('board', 1.4, 3.8); P('bench', cx - 1.6, H - 1.2); P('bench', cx + 1.2, H - 1.2); P('bench', W - 1.8, H - 1.2);
+      P('banner', cx - 0.6, 0.4); ring(); st.push([1.9, 3.2]); st.push([cx, H - 0.7]); break;
+    case 'nexus':                                // operational energy complex
+      B('crystal', cx, 3.6, 1.9); B('pavilion', 1.6, 1.9, 1.8); B('pavilion', W - 1.6, 1.9, 1.8);
+      [[1.3, H - 1.3], [W - 1.3, H - 1.3], [cx - 2, 2.2], [cx + 2, 2.2]].forEach(([x, y]) => P('pillar', x, y));
+      [[1.3, H - 1.3], [W - 1.3, H - 1.3]].forEach(([x, y]) => P('conduit', x, y, { to: [cx, H / 2] }));
+      P('crate', 1.2, H - 2.0); ring(); st.push([1.9, H - 1.1]); st.push([W - 1.9, H - 1.1]); break;
+    case 'vortex':                               // spirit grounds
+      B('pavilion', cx, 1.7, 2.6); B('tree', cx, 4.0, 1.7); B('tree', 1.5, 1.6, 1.1); B('tree', W - 1.5, 1.6, 1.1);
+      P('circle', cx - 1.8, H - 1.6); P('circle', cx + 1.8, H - 1.6); P('bench', 1.4, H - 1.0); P('bench', W - 1.6, H - 1.0); ring();
+      st.push([cx - 1.8, H - 1.6]); st.push([cx + 1.8, H - 1.6]); break;
+    case 'monument': default:                    // sect capital
+      B('grand_pagoda', cx, 3.0, 4.6); B('pavilion', 1.6, 1.8, 2.2); B('pavilion', W - 1.8, 1.8, 2.2);
+      B('tree', 1.4, H - 1.6, 1.2); B('tree', W - 1.4, H - 1.6, 1.2);
+      P('dais', cx - 1.4, H - 2.4); P('circle', cx, H - 1.0);
+      P('bench', cx - 2.6, H - 1.6); P('bench', cx + 1.8, H - 1.6); P('banner', cx - 2.4, 0.4); P('banner', cx + 1.6, 0.4);
+      P('brazier', 2.2, H / 2 + 1); P('brazier', W - 2.2, H / 2 + 1); ring(); break;
   }
+  f.sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy));     // back-to-front so structures overlap correctly
   r.furniture = f; r.stations = st.length ? st : [[W / 2, H * 0.62]];
   const rng = mulberry(hashStr(r.id || r.title || 'x')); r.spots = [];
   for (let i = 0; i < 18; i++) r.spots.push({ x: 0.7 + rng() * (W - 1.4), y: 0.7 + rng() * (H - 1.4), r: rng() });
@@ -367,14 +378,9 @@ function drawRoom(r, t) {
   const trouble = r.data && (r.data.health === 'error' || r.data.health === 'warning');
   ctx.strokeStyle = trouble ? HEALTH[r.data.health] : K.accent; ctx.lineWidth = 2; ctx.globalAlpha = 0.6 + busy * 0.4;
   ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(Cc.x, Cc.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.stroke(); ctx.globalAlpha = 1;
-  // back walls + architecture (columns, railings, lamps) turn the platform into a space
+  // back walls keep the terrace feel; the rest of the district is one depth-sorted scene
   drawWall(A, B, K, busy); drawWall(A, D, K, busy);
-  drawArchitecture(r, busy);
-  drawBuildingBack(r, busy);
-  // furniture
   r.furniture.forEach((it) => drawFurniture(r, it, t, busy));
-  // the district's iconic landmark
-  if (r.landmark) drawLandmarkSprite(r, t, busy);
   // selection
   if (hover.room === r || selected.room === r) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.globalAlpha = .85;
     ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(Cc.x, Cc.y); ctx.lineTo(D.x, D.y); ctx.closePath(); ctx.stroke(); ctx.globalAlpha = 1; }
@@ -428,10 +434,7 @@ function railing(ax, ay, bx, by, K) {
 
 function drawFurniture(r, it, t, busy) {
   const A = r.K.accent, gx = r.gx + it.gx, gy = r.gy + it.gy, z = cam.zoom, on = busy > 0;
-  if (it.type === 'lanternpost') { if (blit('lantern', gx, gy, 0.5)) return; }
-  else if (it.type === 'tree') { if (blit('tree', gx, gy, 1.15)) return; }
-  else if (it.type === 'stall') { if (blit('stall', gx, gy, 1.5)) return; }
-  else if (it.type === 'pavilion') { if (blit('pavilion', gx + 1, gy + 0.8, 2.0)) return; }
+  if (it.type === 'sprite') { if (blit(it.name, gx, gy, it.ft)) return; isoBox(gx - 0.5, gy - 0.5, 1, 1, 14, shade(r.K.wall, 0.05), shade(r.K.wall, -0.25), shade(r.K.wall, -0.35)); return; }
   switch (it.type) {
     case 'desk': isoBox(gx, gy, 1.3, 0.7, 9, shade(r.K.floor, 0.3), shade(r.K.floor, 0.05), shade(r.K.floor, -0.1)); break;
     case 'counter': isoBox(gx, gy, 2.2, 0.8, 11, shade(A, -0.1), shade(A, -0.4), shade(A, -0.5)); break;
@@ -563,7 +566,17 @@ function sectEmblem(r, t) { const z = cam.zoom, c = toScreen(r.cx, r.cyc); ctx.s
   ctx.beginPath(); ctx.ellipse(c.x, c.y, 2.6 * TW2 * z, 2.6 * TH2 * z, 0, 0, 6.28); ctx.stroke(); ctx.beginPath(); ctx.ellipse(c.x, c.y, 1.8 * TW2 * z, 1.8 * TH2 * z, 0, 0, 6.28); ctx.stroke();
   ctx.translate(c.x, c.y); ctx.scale(1, TH2 / TW2); ctx.rotate(t * 0.12); ctx.fillStyle = r.K.accent; ctx.globalAlpha = 0.3;
   for (let i = 0; i < 8; i++) { ctx.rotate(0.785); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(6 * z, 10 * z); ctx.lineTo(-6 * z, 10 * z); ctx.closePath(); ctx.fill(); } ctx.restore(); ctx.globalAlpha = 1; }
-function drawFloorDressing(r, t) { ctx.save(); clipFloor(r);
+function drawDistrictGround(r) {
+  const z = cam.zoom;
+  const c = toScreen(r.cx, r.cyc + 0.4);              // central courtyard pad
+  ctx.fillStyle = 'rgba(190,188,205,.05)'; ctx.beginPath(); ctx.ellipse(c.x, c.y, 2.5 * TW2 * z, 2.5 * TH2 * z, 0, 0, 6.28); ctx.fill();
+  ctx.strokeStyle = 'rgba(150,150,172,.14)'; ctx.lineCap = 'round'; ctx.lineWidth = 8 * z;
+  const a = toScreen(r.cx, r.gy + r.h - 0.4), b = toScreen(r.cx, r.gy + 1.2);   // spine path front->back
+  ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  const e = toScreen(r.gx + 1, r.cyc + 0.4), g = toScreen(r.gx + r.w - 1, r.cyc + 0.4);   // cross path
+  ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(g.x, g.y); ctx.stroke(); ctx.lineCap = 'butt';
+}
+function drawFloorDressing(r, t) { ctx.save(); clipFloor(r); drawDistrictGround(r);
   switch (r.landmark) {
     case 'vortex': pond(r.gx + 1.5, r.gy + 1.3, 1.0, t); stonePath(r); r.spots.slice(0, 9).forEach((s) => grassBlade(r.gx + s.x, r.gy + s.y)); break;
     case 'gate': formationRing(r, t); break;
