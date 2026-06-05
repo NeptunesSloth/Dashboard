@@ -146,14 +146,9 @@ function buildLayout(projects) {
     furnish(room);
     rooms.push(room);
   });
-  // elevation: the Sect Hall is the high summit; outer peaks step down toward the cloud sea
-  const h0 = hall();
-  rooms.forEach((r) => {
-    if (!h0) { r.elev = 0; return; }
-    const ring = Math.hypot((r.cx - h0.cx) / STRIDE_X, (r.cyc - h0.cyc) / STRIDE_Y);
-    const jit = mulberry(hashStr((r.id || '') + ':e'))() * 16;
-    r.elev = r.kind === 'hall' ? 58 : Math.max(4, 44 - ring * 17) + jit;
-  });
+  // elevation by sect rank: a real mountain hierarchy from summit to valley
+  const RANK_ELEV = { monument: 74, vortex: 56, nexus: 52, tome: 44, observatory: 44, forge: 40, bell: 30, fountain: 14, prosperity: 14, gate: 6 };
+  rooms.forEach((r) => { const jit = mulberry(hashStr((r.id || '') + ':e'))() * 8; r.elev = (RANK_ELEV[r.landmark] ?? 24) + jit; });
   computeGrounds(); initAmbient(); initExtras(); centerOnHall();
 }
 function elevAt(gx, gy) {
@@ -175,64 +170,47 @@ function centerOnHall() {
   cam.zoom = Math.max(0.55, Math.min(1.0, view.w / 2000 + 0.55));
 }
 
-/* compose a whole district: main hall + landmark + secondary buildings + props, painted back-to-front */
+/* terrain first: one main hall per mountain + its landmark + a few essential props */
 function furnish(r) {
   const W = r.w, H = r.h, cx = W / 2, f = [], st = [];
   const B = (name, gx, gy, ft) => f.push({ type: 'sprite', name, gx, gy, ft });
   const P = (type, gx, gy, opt) => f.push({ type, gx, gy, ...opt });
-  const lant = (gx, gy) => B('lantern', gx, gy, 0.5);
-  const ring = () => { lant(0.7, 0.7); lant(W - 0.7, 0.7); lant(0.7, H - 0.7); lant(W - 0.7, H - 0.7); };
+  const gate2 = () => { B('lantern', cx - 1.4, H - 0.7, 0.5); B('lantern', cx + 1.4, H - 0.7, 0.5); };  // two lanterns flanking the stair
   switch (r.landmark) {
-    case 'fountain': case 'prosperity':          // crowded market district
-      B('pagoda', cx, 1.7, 3.0); B('pagoda', 1.5, 1.4, 1.8); B('pagoda', W - 1.5, 1.4, 1.8); B('fountain', cx, 4.1, 2.4);
-      for (let i = 0; i < 4; i++) B('stall', 1.4 + i * (W - 2.8) / 3, H - 1.0, 1.4);
-      B('stall', 1.4, 3.2, 1.4); B('stall', W - 1.4, 3.2, 1.4);
-      P('cart', cx + 1.9, H - 1.9); P('crate', 1.1, H - 2.0); P('crate', 1.6, H - 1.7); P('crate', W - 1.2, H - 2.0);
-      P('banner', 1.0, 0.5); P('banner', W - 1.6, 0.5); ring();
-      st.push([cx - 1.4, H - 1.7]); st.push([cx + 0.6, H - 1.7]); st.push([1.9, 3.4]); st.push([W - 1.9, 3.4]); break;
-    case 'observatory':                          // scholar complex
-      B('pagoda', cx, 1.6, 2.8); B('observatory', cx, 4.0, 2.6); B('pavilion', 1.6, 2.6, 2.0); B('pavilion', W - 1.6, 2.6, 2.0);
-      for (let i = 0; i < 3; i++) { P('desk', 1.4 + i * 1.2, H - 1.1); P('screen', 1.7 + i * 1.2, H - 1.2, { content: 'graph' }); st.push([1.9 + i * 1.2, H - 0.6]); }
-      P('pillar', 1.0, H - 2.2); P('pillar', W - 1.0, H - 2.2); ring(); break;
-    case 'forge':                                // workshop yard
-      B('pagoda', cx, 1.6, 2.6); B('forge', cx, 4.0, 2.6); B('pavilion', W - 1.7, 2.6, 2.0);
-      for (let i = 0; i < 3; i++) { P('bench', 1.4, 2.2 + i * 1.5); st.push([2.0, 2.4 + i * 1.5]); }
-      P('crate', 1.0, H - 1.0); P('crate', 1.7, H - 1.2); P('crate', W - 1.4, H - 1.0); ring(); break;
-    case 'tome':                                 // archive + study garden
-      B('pagoda', cx, 1.6, 2.8); B('pavilion', cx, 4.1, 2.6); B('cherry', 1.5, 4.4, 1.1); B('cherry', W - 1.5, 4.4, 1.1);
-      for (let i = 0; i < 4; i++) P('shelf', 1.2 + i * 0.9, 3.0);
-      P('desk', cx - 1.6, H - 1.1); P('desk', cx + 0.8, H - 1.1); st.push([cx - 1.0, H - 0.6]); st.push([cx + 1.4, H - 0.6]);
-      P('bench', 1.5, H - 1.0); P('bench', W - 1.7, H - 1.0); ring(); break;
-    case 'gate':                                 // arrival plaza
-      B('gate', cx, 2.2, 3.4); B('pavilion', 1.6, 2.6, 2.0); B('pavilion', W - 1.6, 2.6, 2.0);
-      P('cart', 1.6, H - 1.3); P('cart', W - 2.0, H - 1.6); P('crate', 1.0, H - 0.9); P('crate', 1.7, H - 1.1); P('crate', W - 1.2, H - 0.9);
-      P('board', 2.4, H - 1.7); P('bench', cx, H - 1.0); P('banner', 0.9, 0.5); P('banner', W - 1.5, 0.5); ring();
+    case 'fountain': case 'prosperity':          // Commerce Valley — market
+      B('pagoda', cx, 1.8, 2.6); B('fountain', cx, 3.9, 2.2);
+      B('stall', cx - 1.8, H - 1.1, 1.3); B('stall', cx, H - 1.1, 1.3); B('stall', cx + 1.8, H - 1.1, 1.3);
+      gate2(); st.push([cx - 1.8, H - 0.4]); st.push([cx, H - 0.4]); st.push([cx + 1.8, H - 0.4]); break;
+    case 'observatory':                          // Inner Sect — observatory
+      B('pagoda', cx, 1.7, 2.5); B('observatory', cx, 3.9, 2.4);
+      P('desk', cx - 1.4, H - 1.0); P('desk', cx + 1.4, H - 1.0); gate2();
+      st.push([cx - 1.4, H - 0.5]); st.push([cx + 1.4, H - 0.5]); break;
+    case 'forge':                                // Inner Sect — forge
+      B('pagoda', cx, 1.7, 2.5); B('forge', cx, 3.9, 2.4);
+      P('bench', cx - 1.6, H - 1.0); P('bench', cx + 1.6, H - 1.0); gate2();
+      st.push([cx - 1.6, H - 0.5]); st.push([cx + 1.6, H - 0.5]); break;
+    case 'tome':                                 // Inner Sect — archive
+      B('pagoda', cx, 1.7, 2.5); B('pavilion', cx, 3.9, 2.2); B('cherry', W - 1.4, H - 1.3, 1.1);
+      P('shelf', cx - 1.6, 2.8); P('shelf', cx + 1.6, 2.8); gate2();
+      st.push([cx - 1.3, H - 0.6]); st.push([cx + 1.3, H - 0.6]); break;
+    case 'gate':                                 // Mountain Gate — the entrance
+      B('gate', cx, 2.6, 3.2); P('banner', cx - 1.8, 0.6); P('banner', cx + 1.6, 0.6); gate2();
       st.push([cx - 1.4, H - 0.8]); st.push([cx + 1.2, H - 0.8]); break;
-    case 'bell':                                 // hall of decrees
-      B('pagoda', cx, 1.6, 2.8); B('bell', cx, 3.8, 2.2); B('pavilion', W - 1.7, 2.6, 1.9);
-      P('board', 1.4, 2.6); P('board', 1.4, 3.8); P('bench', cx - 1.6, H - 1.2); P('bench', cx + 1.2, H - 1.2); P('bench', W - 1.8, H - 1.2);
-      P('banner', cx - 0.6, 0.4); ring(); st.push([1.9, 3.2]); st.push([cx, H - 0.7]); break;
-    case 'nexus':                                // operational energy complex
-      B('crystal', cx, 3.6, 1.9); B('pavilion', 1.6, 1.9, 1.8); B('pavilion', W - 1.6, 1.9, 1.8);
-      [[1.3, H - 1.3], [W - 1.3, H - 1.3], [cx - 2, 2.2], [cx + 2, 2.2]].forEach(([x, y]) => P('pillar', x, y));
-      [[1.3, H - 1.3], [W - 1.3, H - 1.3]].forEach(([x, y]) => P('conduit', x, y, { to: [cx, H / 2] }));
-      P('crate', 1.2, H - 2.0); ring(); st.push([1.9, H - 1.1]); st.push([W - 1.9, H - 1.1]); break;
-    case 'vortex':                               // spirit grounds
-      B('pavilion', cx, 1.7, 2.6); B('tree', cx, 4.0, 1.7); B('pine', 1.5, 1.6, 1.1); B('pine', W - 1.5, 1.6, 1.1); B('crane', cx + 2.4, H - 1.4, 1.0);
-      P('circle', cx - 1.8, H - 1.6); P('circle', cx + 1.8, H - 1.6); P('bench', 1.4, H - 1.0); P('bench', W - 1.6, H - 1.0); ring();
-      st.push([cx - 1.8, H - 1.6]); st.push([cx + 1.8, H - 1.6]); break;
-    case 'monument': default:                    // sect capital
-      B('grand_pagoda', cx, 3.0, 4.6); B('pavilion', 1.6, 1.8, 2.2); B('pavilion', W - 1.8, 1.8, 2.2);
-      B('cherry', 1.4, H - 1.6, 1.2); B('pine', W - 1.4, H - 1.6, 1.2); B('crane', cx - 2.6, H - 0.9, 1.0);
-      P('dais', cx - 1.4, H - 2.4); P('circle', cx, H - 1.0);
-      P('bench', cx - 2.6, H - 1.6); P('bench', cx + 1.8, H - 1.6); P('banner', cx - 2.4, 0.4); P('banner', cx + 1.6, 0.4);
-      P('brazier', 2.2, H / 2 + 1); P('brazier', W - 2.2, H / 2 + 1); ring(); break;
+    case 'bell':                                 // Outer Sect — hall of decrees
+      B('pagoda', cx, 1.7, 2.5); B('bell', cx, 3.8, 2.0); P('board', cx - 1.6, 3.0); gate2();
+      st.push([cx + 1.4, 3.2]); st.push([cx, H - 0.7]); break;
+    case 'nexus':                                // Elder Peak — spirit nexus
+      B('crystal', cx, 3.4, 1.9);
+      [[cx - 2.2, 2.0], [cx + 2.2, 2.0], [cx - 2.2, H - 1.4], [cx + 2.2, H - 1.4]].forEach(([x, y]) => P('pillar', x, y));
+      gate2(); st.push([cx - 1.8, H - 0.8]); st.push([cx + 1.8, H - 0.8]); break;
+    case 'vortex':                               // Elder Peak — Azure Spirit Grounds (cultivation)
+      B('pavilion', cx, 1.8, 2.4); B('tree', cx + 0.2, 3.8, 2.2);
+      P('circle', cx - 2.0, H - 1.4); P('circle', cx + 2.0, H - 1.4); gate2();
+      st.push([cx - 2.0, H - 1.4]); st.push([cx + 2.0, H - 1.4]); break;
+    case 'monument': default:                    // Sect Master Peak — the Sect Hall
+      B('grand_pagoda', cx, 3.0, 4.2); P('dais', cx - 1.4, H - 2.2); P('circle', cx, H - 0.9);
+      P('brazier', cx - 3.0, H / 2 + 1); P('brazier', cx + 3.0, H / 2 + 1); gate2(); break;
   }
-  // rocks + groves around the rim so terrain (not a square) frames the location
-  const rg2 = mulberry(hashStr((r.id || r.title) + ':n'));
-  for (let i = 0; i < 6; i++) { const a = (i / 6) * 6.28 + rg2(); const gx = cx + Math.cos(a) * (W * 0.46), gy = H / 2 + Math.sin(a) * (H * 0.46);
-    f.push({ type: 'rock', gx: Math.max(0.3, Math.min(W - 0.3, gx)), gy: Math.max(0.3, Math.min(H - 0.3, gy)), s: 0.6 + rg2() * 0.8 }); }
-  for (let i = 0; i < 3; i++) { const a = rg2() * 6.28; f.push({ type: 'sprite', name: rg2() < 0.5 ? 'pine' : 'cherry', gx: cx + Math.cos(a) * (W * 0.4), gy: H / 2 + Math.sin(a) * (H * 0.4), ft: 1.0 }); }
   f.sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy));     // back-to-front so structures overlap correctly
   r.furniture = f; r.stations = st.length ? st : [[W / 2, H * 0.62]];
   // organic terrace outline replaces the square boundary
@@ -382,6 +360,14 @@ function holoScreen(gx, gy, wpx, hpx, lift, color, content, t, on) {
 /* ====================================================================== *
  *  Rooms
  * ====================================================================== */
+function drawStairway(x, y, TH) {
+  const z = cam.zoom, n = Math.max(4, (TH / (7 * z)) | 0);
+  for (let i = 0; i < n; i++) {
+    const yy = y + i * (TH / n), w = (8 + i * 1.4) * z;
+    ctx.fillStyle = i % 2 ? '#34323f' : '#2b2935'; ctx.fillRect(x - w, yy, w * 2, (TH / n) * 0.78);
+    ctx.strokeStyle = 'rgba(150,150,180,.16)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x - w, yy); ctx.lineTo(x + w, yy); ctx.stroke();
+  }
+}
 function drawWaterfall(x, y, TH, t) {
   const z = cam.zoom;
   ctx.fillStyle = 'rgba(150,210,255,.32)'; ctx.fillRect(x - 4 * z, y, 8 * z, TH);
@@ -413,20 +399,23 @@ function drawRoom(r, t) {
   const O = r.outline.map((p) => toScreen(p.gx, p.gy));
   const TH = (38 + (r.elev || 0) + (r.kind === 'hall' ? 12 : 0)) * z;   // cliff drops to the cloud sea
   let minY = 1e9, maxY = -1e9; O.forEach((p) => { minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); });
-  // ---- rocky cliff face (follows the irregular outline) ----
+  // ---- rocky mountain flank (flares outward to a wide base, like a real peak) ----
+  let cxs = 0; O.forEach((p) => cxs += p.x); cxs /= O.length;
+  const FL = 0.55, baseX = (i) => O[i].x + (O[i].x - cxs) * FL;       // base wider than the top
   ctx.beginPath(); O.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
-  for (let i = O.length - 1; i >= 0; i--) ctx.lineTo(O[i].x, O[i].y + TH); ctx.closePath();
-  const cg = ctx.createLinearGradient(0, minY, 0, maxY + TH); cg.addColorStop(0, '#34323f'); cg.addColorStop(0.5, '#26242f'); cg.addColorStop(1, '#15131c');
+  for (let i = O.length - 1; i >= 0; i--) ctx.lineTo(baseX(i), O[i].y + TH); ctx.closePath();
+  const cg = ctx.createLinearGradient(0, minY, 0, maxY + TH); cg.addColorStop(0, '#3a3847'); cg.addColorStop(0.5, '#272531'); cg.addColorStop(1, '#13111a');
   ctx.fillStyle = cg; ctx.fill();
-  ctx.strokeStyle = 'rgba(0,0,0,.3)'; ctx.lineWidth = 1;            // striations
-  for (let i = 0; i < O.length; i += 2) { ctx.beginPath(); ctx.moveTo(O[i].x, O[i].y); ctx.lineTo(O[i].x + (i % 4 ? 2 : -2), O[i].y + TH); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.lineWidth = 1;            // rock striations follow the flank
+  for (let i = 0; i < O.length; i++) { ctx.beginPath(); ctx.moveTo(O[i].x, O[i].y); ctx.lineTo(baseX(i), O[i].y + TH); ctx.stroke(); }
   if (['vortex', 'nexus', 'observatory', 'gate', 'tome'].includes(r.landmark) || r.kind === 'hall') {
-    const lo = O.reduce((a, b) => b.y > a.y ? b : a, O[0]); drawWaterfall(lo.x, lo.y, TH, t);
-    if (r.kind === 'hall') { const l2 = O.reduce((a, b) => (b.x < a.x ? b : a), O[0]); drawWaterfall(l2.x, l2.y, TH * 0.8, t); }
+    const lo = O.reduce((a, b) => b.y > a.y ? b : a, O[0]), li = O.indexOf(lo); drawWaterfall((lo.x + baseX(li)) / 2, lo.y, TH, t);
+    if (r.kind === 'hall') { const l2 = O.reduce((a, b) => (b.x < a.x ? b : a), O[0]), l2i = O.indexOf(l2); drawWaterfall((l2.x + baseX(l2i)) / 2, l2.y, TH * 0.8, t); }
   }
-  // clinging mist at the base
-  ctx.globalAlpha = 0.5; ctx.fillStyle = 'rgba(205,214,236,.5)';
-  for (let i = 0; i < O.length; i += 2) { ctx.beginPath(); ctx.ellipse(O[i].x, O[i].y + TH - 2 * z + Math.sin(t * 1.5 + i) * 2 * z, 16 * z, 5 * z, 0, 0, 6.28); ctx.fill(); }
+  drawStairway(toScreen(r.cx, r.gy + r.h).x, toScreen(r.cx, r.gy + r.h).y, Math.min(TH, 80 * z));   // steps carved down the front face
+  // clinging mist along the base of the flank
+  ctx.globalAlpha = 0.55; ctx.fillStyle = 'rgba(205,214,236,.55)';
+  for (let i = 0; i < O.length; i += 2) { ctx.beginPath(); ctx.ellipse(baseX(i), O[i].y + TH - 2 * z + Math.sin(t * 1.5 + i) * 2 * z, 22 * z, 7 * z, 0, 0, 6.28); ctx.fill(); }
   ctx.globalAlpha = 1;
   // ---- terrace top (earth/stone, no square, no grid) ----
   const trouble = r.data && (r.data.health === 'error' || r.data.health === 'warning');
@@ -956,9 +945,11 @@ function drawAncestor(t) {
   const h = hall(); if (!h) return; const gx = h.cx, gy = h.gy - 2.4, z = cam.zoom;
   ctx.save(); ctx.translate(0, -(h.elev + 34) * z);     // the ancestral peak crowns the summit
   const p = toScreen(gx, gy);
-  // a rock spire rising from the summit up to the shrine
-  ctx.fillStyle = '#241f33'; ctx.beginPath(); ctx.moveTo(p.x - 22 * z, p.y); ctx.lineTo(p.x + 22 * z, p.y); ctx.lineTo(p.x + 12 * z, p.y + 110 * z); ctx.lineTo(p.x - 12 * z, p.y + 110 * z); ctx.closePath(); ctx.fill();
-  blit('shrine', gx, gy, 1.7);
+  // a rock spire rising from the summit up to the hidden ancestral residence
+  ctx.fillStyle = '#241f33'; ctx.beginPath(); ctx.moveTo(p.x - 24 * z, p.y); ctx.lineTo(p.x + 24 * z, p.y); ctx.lineTo(p.x + 12 * z, p.y + 130 * z); ctx.lineTo(p.x - 12 * z, p.y + 130 * z); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(150,150,180,.18)'; ctx.beginPath(); ctx.moveTo(p.x - 24 * z, p.y); ctx.lineTo(p.x + 24 * z, p.y); ctx.lineTo(p.x + 14 * z, p.y + 14 * z); ctx.lineTo(p.x - 14 * z, p.y + 14 * z); ctx.closePath(); ctx.fill();
+  blit('tree', gx - 1.6, gy + 0.4, 1.9);             // the ancient sacred spirit tree
+  blit('shrine', gx + 0.4, gy, 1.7);
   const cyc = t % 26;                                  // a rare manifestation every ~26s
   if (cyc < 6) {
     const a = (cyc < 2 ? cyc / 2 : cyc > 5 ? (6 - cyc) : 1);
