@@ -146,7 +146,19 @@ function buildLayout(projects) {
     furnish(room);
     rooms.push(room);
   });
+  // elevation: the Sect Hall is the high summit; outer peaks step down toward the cloud sea
+  const h0 = hall();
+  rooms.forEach((r) => {
+    if (!h0) { r.elev = 0; return; }
+    const ring = Math.hypot((r.cx - h0.cx) / STRIDE_X, (r.cyc - h0.cyc) / STRIDE_Y);
+    const jit = mulberry(hashStr((r.id || '') + ':e'))() * 16;
+    r.elev = r.kind === 'hall' ? 58 : Math.max(4, 44 - ring * 17) + jit;
+  });
   computeGrounds(); initAmbient(); initExtras(); centerOnHall();
+}
+function elevAt(gx, gy) {
+  for (const r of rooms) if (gx >= r.gx - 0.6 && gx <= r.gx + r.w + 0.6 && gy >= r.gy - 0.6 && gy <= r.gy + r.h + 0.6) return r.elev || 0;
+  return 0;
 }
 function computeGrounds() {
   let minGx = 1e9, minGy = 1e9, maxGx = -1e9, maxGy = -1e9;
@@ -397,8 +409,9 @@ function drawCliff(r, A, B, Cc, D, TH, t) {
 function outlinePath(O) { ctx.beginPath(); O.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); }
 function drawRoom(r, t) {
   const z = cam.zoom, K = r.K, occ = r.occupants.size, busy = Math.min(1, occ * 0.45);
+  ctx.save(); ctx.translate(0, -(r.elev || 0) * z);    // raise this peak to its elevation
   const O = r.outline.map((p) => toScreen(p.gx, p.gy));
-  const TH = (r.kind === 'hall' ? 70 : 48) * z;       // natural rock terrace, organic edge
+  const TH = (38 + (r.elev || 0) + (r.kind === 'hall' ? 12 : 0)) * z;   // cliff drops to the cloud sea
   let minY = 1e9, maxY = -1e9; O.forEach((p) => { minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); });
   // ---- rocky cliff face (follows the irregular outline) ----
   ctx.beginPath(); O.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
@@ -407,7 +420,10 @@ function drawRoom(r, t) {
   ctx.fillStyle = cg; ctx.fill();
   ctx.strokeStyle = 'rgba(0,0,0,.3)'; ctx.lineWidth = 1;            // striations
   for (let i = 0; i < O.length; i += 2) { ctx.beginPath(); ctx.moveTo(O[i].x, O[i].y); ctx.lineTo(O[i].x + (i % 4 ? 2 : -2), O[i].y + TH); ctx.stroke(); }
-  if (r.landmark === 'vortex' || r.landmark === 'nexus' || r.kind === 'hall') { const lo = O.reduce((a, b) => b.y > a.y ? b : a, O[0]); drawWaterfall(lo.x, lo.y, TH, t); }
+  if (['vortex', 'nexus', 'observatory', 'gate', 'tome'].includes(r.landmark) || r.kind === 'hall') {
+    const lo = O.reduce((a, b) => b.y > a.y ? b : a, O[0]); drawWaterfall(lo.x, lo.y, TH, t);
+    if (r.kind === 'hall') { const l2 = O.reduce((a, b) => (b.x < a.x ? b : a), O[0]); drawWaterfall(l2.x, l2.y, TH * 0.8, t); }
+  }
   // clinging mist at the base
   ctx.globalAlpha = 0.5; ctx.fillStyle = 'rgba(205,214,236,.5)';
   for (let i = 0; i < O.length; i += 2) { ctx.beginPath(); ctx.ellipse(O[i].x, O[i].y + TH - 2 * z + Math.sin(t * 1.5 + i) * 2 * z, 16 * z, 5 * z, 0, 0, 6.28); ctx.fill(); }
@@ -426,6 +442,7 @@ function drawRoom(r, t) {
   // ---- the location's scene (buildings + props), painted back-to-front (+authored z) ----
   r.furniture.slice().sort((a, b) => (a.gx + a.gy + spriteZ(a)) - (b.gx + b.gy + spriteZ(b))).forEach((it) => drawFurniture(r, it, t, busy));
   if (hover.room === r || selected.room === r) { ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2 * z; outlinePath(O); ctx.stroke(); }
+  ctx.restore();
 }
 function drawWall(p1, p2, K, busy) {
   const H = 26 * cam.zoom;
@@ -477,7 +494,7 @@ function railing(ax, ay, bx, by, K) {
 function drawFurniture(r, it, t, busy) {
   const A = r.K.accent, gx = r.gx + it.gx, gy = r.gy + it.gy, z = cam.zoom, on = busy > 0;
   if (it.type === 'sprite') { const small = ['lantern', 'crane', 'pine', 'cherry', 'tree'].includes(it.name);
-    const ft = it.ft * (small ? 0.85 : 0.5);          // halls are one feature in a location, not the whole place
+    const ft = it.ft * (small ? 0.85 : 0.44);         // halls are one feature in a location, not the whole place
     if (blit(it.name, gx, gy, ft)) return; isoBox(gx - 0.5, gy - 0.5, 1, 1, 12, shade(r.K.wall, 0.05), shade(r.K.wall, -0.25), shade(r.K.wall, -0.35)); return; }
   if (it.type === 'rock') { const p = toScreen(gx, gy), s = (it.s || 1);
     ctx.fillStyle = '#3a3947'; ctx.beginPath(); ctx.moveTo(p.x - 7 * s * z, p.y); ctx.lineTo(p.x - 3 * s * z, p.y - 8 * s * z); ctx.lineTo(p.x + 4 * s * z, p.y - 9 * s * z); ctx.lineTo(p.x + 7 * s * z, p.y); ctx.closePath(); ctx.fill();
@@ -720,15 +737,15 @@ function drawLandmark(r, t, busy) {
 
 /* rising work glyphs above busy rooms */
 function drawWorkFX(r, t) {
-  const occ = r.occupants.size; if (!occ) return; const z = cam.zoom, c = toScreen(r.cx, r.gy + 0.5), busy = Math.min(1, occ * 0.45);
+  const occ = r.occupants.size; if (!occ) return; const z = cam.zoom, c = toScreen(r.cx, r.gy + 0.5), busy = Math.min(1, occ * 0.45), ev = (r.elev || 0) * z;
   for (let i = 0; i < 2 + occ; i++) { const ph = (t * (0.5 + busy) + i * 0.7) % 2; ctx.globalAlpha = Math.max(0, 0.5 - ph * 0.25);
-    ctx.fillStyle = r.K.accent; ctx.font = `${(10 + busy * 3) * z}px system-ui`; ctx.fillText(r.K.fx, c.x + ((i % 3) - 1) * 16 * z, c.y - 30 * z - ph * 24 * z); }
+    ctx.fillStyle = r.K.accent; ctx.font = `${(10 + busy * 3) * z}px system-ui`; ctx.fillText(r.K.fx, c.x + ((i % 3) - 1) * 16 * z, c.y - ev - 30 * z - ph * 24 * z); }
   ctx.globalAlpha = 1;
 }
 
 /* ---------------- disciples ---------------- */
 function drawDisciple(d, t) {
-  const p = toScreen(d.gx, d.gy), z = cam.zoom;
+  const p = toScreen(d.gx, d.gy), z = cam.zoom; p.y -= elevAt(d.gx, d.gy) * z;   // stand on the terrace
   const rs = ROLE_STYLE[d.role] || ROLE_STYLE.disciple, robe = rs.color;
   const hovd = hover.disc === d, sel = selected.disc === d, foll = followed === d, elder = d.role === 'elder';
   const sc = z * (elder ? 1.72 : 1.55) * (hovd || foll ? 1.12 : 1);
@@ -829,7 +846,7 @@ function drawRoleProp(d, x, headY, fy, sh, sc, fx, robe, working, t, elder) {
 const spectacles = [];
 function celebrate(gx, gy, color, text) { spectacles.push({ gx, gy, color, text, t: 0 }); }
 function drawSpectacles(dt) {
-  for (let i = spectacles.length - 1; i >= 0; i--) { const s = spectacles[i]; s.t += dt; const k = s.t / 2.6, p = toScreen(s.gx, s.gy), z = cam.zoom;
+  for (let i = spectacles.length - 1; i >= 0; i--) { const s = spectacles[i]; s.t += dt; const k = s.t / 2.6, p = toScreen(s.gx, s.gy), z = cam.zoom; p.y -= elevAt(s.gx, s.gy) * z;
     ctx.strokeStyle = s.color; ctx.globalAlpha = Math.max(0, 0.9 - k); ctx.lineWidth = 3 * z; ctx.beginPath(); ctx.ellipse(p.x, p.y, (10 + k * 90) * z, (5 + k * 45) * z, 0, 0, 6.28); ctx.stroke();
     ctx.globalAlpha = Math.max(0, 1 - k); ctx.font = `700 ${13 * z}px system-ui`; ctx.textAlign = 'center'; ctx.fillStyle = '#fff3cf'; ctx.fillText('✦ ' + s.text, p.x, p.y - (26 + k * 28) * z); ctx.textAlign = 'left'; ctx.globalAlpha = 1;
     if (s.t > 2.6) spectacles.splice(i, 1); }
@@ -849,7 +866,7 @@ function microTick() {
 }
 function drawMicro(dt) {
   for (let i = microEvents.length - 1; i >= 0; i--) {
-    const e = microEvents[i]; e.t += dt; const p = toScreen(e.room.cx, e.room.gy), z = cam.zoom;
+    const e = microEvents[i]; e.t += dt; const p = toScreen(e.room.cx, e.room.gy), z = cam.zoom; p.y -= (e.room.elev || 0) * z;
     const a = Math.min(1, e.t * 2) * Math.min(1, (e.ttl - e.t) * 1.5);
     ctx.globalAlpha = Math.max(0, a); ctx.font = `700 ${11 * z}px system-ui`; ctx.textAlign = 'center';
     const w = ctx.measureText(e.text).width + 22 * z, y = p.y - 70 * z;
@@ -861,7 +878,7 @@ function drawMicro(dt) {
 }
 
 function drawRoomLabel(r) {
-  const p = toScreen(r.cx, r.gy), z = cam.zoom, y = p.y - 82 * z; ctx.textAlign = 'center';
+  const p = toScreen(r.cx, r.gy), z = cam.zoom, y = p.y - (82 + (r.elev || 0)) * z; ctx.textAlign = 'center';
   ctx.font = `700 ${12 * z}px system-ui`; const tw = ctx.measureText(r.title).width;
   const sub = r.sub && r.sub !== r.title ? r.sub : '';
   ctx.font = `${8.5 * z}px system-ui`; const sw = sub ? ctx.measureText(sub).width : 0;
@@ -897,8 +914,20 @@ function frame(now) {
   rooms.forEach(drawRoomLabel);
   disciples.slice().sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy)).forEach((d) => drawDisciple(d, t));
   drawLanterns(t);
+  drawForegroundClouds(t);
   drawSpectacles(dt); drawMicro(dt);
   drawAtmosphere(t);
+}
+/* low cloud layer drifting in front of the peaks — the sect floats in a cloud sea */
+function drawForegroundClouds(t) {
+  const w = view.w, h = view.h, px = -cam.x * 0.05;
+  for (let i = 0; i < 7; i++) {
+    const cx = (((i / 7) * (w + 460) - 230 + t * (10 + i * 2) + px) % (w + 460)) - 0;
+    const cy = h * (0.74 + (i % 3) * 0.08) + Math.sin(t * 0.25 + i) * 6;
+    ctx.globalAlpha = 0.10 + (i % 2) * 0.05; ctx.fillStyle = '#cdd6ee';
+    ctx.beginPath(); ctx.ellipse(cx, cy, 150 + (i % 3) * 40, 30, 0, 0, 6.28); ctx.ellipse(cx + 90, cy + 8, 110, 24, 0, 0, 6.28); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
 }
 /* spirit bridges spanning the cloud gaps between mountain terraces */
 function drawBridge(p1, p2) {
@@ -917,15 +946,18 @@ function drawBridges() {
       if (b.gx > a.gx + a.w - 1 && Math.abs(b.cyc - a.cyc) < 3 && (!right || b.gx < right.gx)) right = b;
       if (b.gy > a.gy + a.h - 1 && Math.abs(b.cx - a.cx) < 3 && (!down || b.gy < down.gy)) down = b;
     });
-    if (right) drawBridge(toScreen(a.gx + a.w, a.cyc), toScreen(right.gx, right.cyc));
-    if (down) drawBridge(toScreen(a.cx, a.gy + a.h), toScreen(down.cx, down.gy));
+    const lift = (p, e) => ({ x: p.x, y: p.y - (e || 0) * cam.zoom });
+    if (right) drawBridge(lift(toScreen(a.gx + a.w, a.cyc), a.elev), lift(toScreen(right.gx, right.cyc), right.elev));
+    if (down) drawBridge(lift(toScreen(a.cx, a.gy + a.h), a.elev), lift(toScreen(down.cx, down.gy), down.elev));
   });
 }
 /* the Grand Ancestor's peak — ancestral shrine above the sect, with rare golden manifestations */
 function drawAncestor(t) {
-  const h = hall(); if (!h) return; const gx = h.cx, gy = h.gy - 2.4, z = cam.zoom, p = toScreen(gx, gy);
-  // a small rock spire under the shrine
-  ctx.fillStyle = '#241f33'; ctx.beginPath(); ctx.moveTo(p.x - 22 * z, p.y); ctx.lineTo(p.x + 22 * z, p.y); ctx.lineTo(p.x + 12 * z, p.y + 70 * z); ctx.lineTo(p.x - 12 * z, p.y + 70 * z); ctx.closePath(); ctx.fill();
+  const h = hall(); if (!h) return; const gx = h.cx, gy = h.gy - 2.4, z = cam.zoom;
+  ctx.save(); ctx.translate(0, -(h.elev + 34) * z);     // the ancestral peak crowns the summit
+  const p = toScreen(gx, gy);
+  // a rock spire rising from the summit up to the shrine
+  ctx.fillStyle = '#241f33'; ctx.beginPath(); ctx.moveTo(p.x - 22 * z, p.y); ctx.lineTo(p.x + 22 * z, p.y); ctx.lineTo(p.x + 12 * z, p.y + 110 * z); ctx.lineTo(p.x - 12 * z, p.y + 110 * z); ctx.closePath(); ctx.fill();
   blit('shrine', gx, gy, 1.7);
   const cyc = t % 26;                                  // a rare manifestation every ~26s
   if (cyc < 6) {
@@ -940,6 +972,7 @@ function drawAncestor(t) {
     for (let i = 0; i < 3; i++) { const rr = (t * 0.5 + i * 0.34) % 1; ctx.beginPath(); ctx.ellipse(p.x, p.y, (12 + rr * 64) * z, (6 + rr * 32) * z, 0, 0, 6.28); ctx.stroke(); }
     ctx.globalAlpha = 1;
   }
+  ctx.restore();
 }
 
 /* ---------------- the wider sect (background, parallax) ---------------- */
@@ -1041,7 +1074,7 @@ function updateExtras(dt, t) {
 }
 function drawExtras(t) {
   extras.slice().sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy)).forEach((e) => {
-    const p = toScreen(e.gx, e.gy), z = cam.zoom, sc = z * 1.12, robe = EXTRA_ROBE[e.kind] || '#8b92ac', sit = e.act === 'sit', work = e.act === 'work', fx = e.facing;
+    const p = toScreen(e.gx, e.gy), z = cam.zoom, sc = z * 1.12, robe = EXTRA_ROBE[e.kind] || '#8b92ac', sit = e.act === 'sit', work = e.act === 'work', fx = e.facing; p.y -= elevAt(e.gx, e.gy) * z;
     ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 4 * sc, 1.8 * sc, 0, 0, 6.28); ctx.fill();
     const bob = sit ? 0 : work ? Math.abs(Math.sin(t * 4 + e.phase)) * 1 * sc : e.moving ? Math.abs(Math.sin(e.phase)) * 1.6 * sc : Math.sin(t * 2 + e.phase) * 0.5 * sc;
     const fy = p.y - bob, bodyH = (sit ? 8 : 11) * sc, headR = 2.6 * sc;
@@ -1076,7 +1109,7 @@ const hover = { room: null, disc: null }, selected = { room: null, disc: null };
 let followed = null, drag = null;
 function pickAt(mx, my) {
   let best = null, bestD = 26;
-  disciples.forEach((d) => { const p = toScreen(d.gx, d.gy); const dist = Math.hypot(p.x - mx, p.y - my - 16 * cam.zoom); if (d.alpha > 0.3 && dist < bestD) { bestD = dist; best = d; } });
+  disciples.forEach((d) => { const p = toScreen(d.gx, d.gy); p.y -= elevAt(d.gx, d.gy) * cam.zoom; const dist = Math.hypot(p.x - mx, p.y - my - 16 * cam.zoom); if (d.alpha > 0.3 && dist < bestD) { bestD = dist; best = d; } });
   if (best) return { disc: best };
   const gp = toGrid(mx, my); const r = rooms.find((R) => gp.gx >= R.gx && gp.gx <= R.gx + R.w && gp.gy >= R.gy && gp.gy <= R.gy + R.h);
   return { room: r || null };
