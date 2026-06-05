@@ -13,6 +13,7 @@ const ctx = canvas.getContext('2d');
 const TW2 = 40, TH2 = 20;                  // half tile width / height (2:1 iso)
 const cam = { x: 0, y: 0, zoom: 0.9, userMoved: false };
 const view = { cx: 0, cy: 0, w: 0, h: 0, dpr: 1 };
+let ILLUSTRATED = false, iaMarkers = [];
 const rand = (a, b) => a + Math.random() * (b - a);
 function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -87,6 +88,7 @@ function loadImg(url) { const im = new Image(); im.src = url; return im; }
     SPR.meta = man.sprites || {};
     Object.entries(man.scenery || {}).forEach(([layer, m]) => { SPR.scenery[layer] = { ...m, img: loadImg(m.url) }; });
     Object.entries(man.halls || {}).forEach(([key, m]) => { SPR.halls[key] = { ...m, img: loadImg(m.url) }; });
+    if (SPR.scenery.background) { ILLUSTRATED = true; const st = document.querySelector('.scene-top'); if (st) st.style.display = 'none'; }
     const names = Object.keys(SPR.meta); let n = 0;
     const done = () => { if (++n >= names.length) {
       SPR.ready = true;
@@ -952,14 +954,72 @@ function drawRoomLabel(r) {
 }
 
 /* ====================================================================== *
+ *  Illustrated map mode — an authored world painting with live disciples
+ *  on the painted peaks (active when background.png is present)
+ * ====================================================================== */
+const HALL_ANCHORS = [   // normalised to the background painting (x,y in 0..1)
+  { name: 'Grand Ancestor Peak', x: 0.50, y: 0.21 }, { name: 'Sect Hall', x: 0.49, y: 0.40 },
+  { name: 'Elder Peaks', x: 0.22, y: 0.36 }, { name: 'Heavenly Sword Peak', x: 0.77, y: 0.37 },
+  { name: 'Inner Sect Mountain', x: 0.18, y: 0.60 }, { name: 'Spirit Nexus Chamber', x: 0.37, y: 0.66 },
+  { name: 'Alchemy Valley', x: 0.60, y: 0.63 }, { name: 'Commerce District', x: 0.82, y: 0.66 },
+  { name: 'Treasury', x: 0.15, y: 0.85 }, { name: 'Outer Sect Mountain', x: 0.45, y: 0.89 },
+  { name: 'Thousand Paths Gate', x: 0.80, y: 0.90 },
+];
+function coverXf(img) { const s = Math.max(view.w / img.naturalWidth, view.h / img.naturalHeight);
+  return { s, ox: (view.w - img.naturalWidth * s) / 2, oy: (view.h - img.naturalHeight * s) / 2, iw: img.naturalWidth, ih: img.naturalHeight }; }
+function aScreen(xf, a) { return { x: xf.ox + a.x * xf.iw * xf.s, y: xf.oy + a.y * xf.ih * xf.s }; }
+function initIA(o, salt) { o.iaHome = Math.abs(hashStr((o.name || o.kind || 'x') + salt)) % HALL_ANCHORS.length;
+  o.iseed = (Math.abs(hashStr((o.name || o.kind || 'y') + salt)) % 628) / 100; o.iph = o.iseed; o.irad = 14 + (Math.abs(hashStr(o.name || o.kind || 'r')) % 10); }
+function frameIllustrated(t, dt) {
+  const img = SPR.scenery.background.img, xf = coverXf(img);
+  ctx.fillStyle = '#0b1024'; ctx.fillRect(0, 0, view.w, view.h);
+  ctx.drawImage(img, xf.ox, xf.oy, xf.iw * xf.s, xf.ih * xf.s);
+  iaMarkers = [];
+  const place = (o, salt) => { if (o.iaHome == null) initIA(o, salt); o.iph += dt;
+    const med = o.state === 'meditate', r = med ? 0 : o.irad, a = HALL_ANCHORS[o.iaHome], p = aScreen(xf, a);
+    return { x: p.x + Math.cos(o.iph * 0.5 + o.iseed) * r, y: p.y + Math.sin(o.iph * 0.7 + o.iseed) * r * 0.5 }; };
+  extras.forEach((e) => iaMarkers.push({ p: place(e, ':x'), e }));
+  disciples.forEach((d) => iaMarkers.push({ p: place(d, ':d'), d }));
+  iaMarkers.sort((m1, m2) => m1.p.y - m2.p.y).forEach((m) => m.d ? drawDiscMarker(m.d, m.p, t) : drawExtraMarker(m.e, m.p, t));
+  drawScenery('foreground_fog', t);
+}
+function drawDiscMarker(d, p, t) {
+  const hovd = hover.disc === d, sel = selected.disc === d, foll = followed === d, sc = 2.7 * (hovd || foll ? 1.2 : 1);
+  const robe = (ROLE_STYLE[d.role] || ROLE_STYLE.disciple).color, bob = Math.abs(Math.sin(t * 3 + d.iseed)) * 1.4 * sc, fy = p.y - bob;
+  const pip = { working: '#34d399', idle: '#a78bfa', traveling: '#cbb9ff', roaming: '#fbbf24', meditate: '#caa9ff', error: '#fb5e7e' }[d.state] || '#a78bfa';
+  // live-overlay glow ring (distinguishes the simulation from the painting)
+  ctx.globalAlpha = 0.45 + Math.sin(t * 3 + d.iseed) * 0.2; ctx.strokeStyle = pip; ctx.shadowColor = pip; ctx.shadowBlur = 9; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.ellipse(p.x, p.y, 6.5 * sc, 3 * sc, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+  ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 4 * sc, 1.7 * sc, 0, 0, 6.28); ctx.fill();
+  const bodyH = 9 * sc;
+  ctx.fillStyle = shade(robe, -0.02); ctx.strokeStyle = shade(robe, -0.5); ctx.lineWidth = 0.9 * sc;
+  ctx.beginPath(); ctx.moveTo(p.x, fy - bodyH); ctx.lineTo(p.x + 3.4 * sc, fy); ctx.quadraticCurveTo(p.x, fy + 1.3 * sc, p.x - 3.4 * sc, fy); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = shade(robe, 0.3); ctx.beginPath(); ctx.ellipse(p.x, fy - bodyH + 2.6 * sc, 3.2 * sc, 1.5 * sc, 0, 0, 6.28); ctx.fill();
+  ctx.fillStyle = '#f4e6cc'; ctx.beginPath(); ctx.arc(p.x, fy - bodyH, 2.5 * sc, 0, 6.28); ctx.fill();
+  ctx.fillStyle = pip; ctx.shadowColor = pip; ctx.shadowBlur = 7; ctx.beginPath(); ctx.arc(p.x + 3.3 * sc, fy - bodyH - 1.5 * sc, 1.6 * sc, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+  if (hovd || foll || sel) { ctx.font = '600 12px system-ui'; ctx.textAlign = 'center'; const w = ctx.measureText(d.name).width + 12;
+    ctx.fillStyle = 'rgba(8,10,20,.82)'; roundRect(p.x - w / 2, fy - bodyH - 22 * sc, w, 16, 4); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.fillText(d.name, p.x, fy - bodyH - 22 * sc + 12); ctx.textAlign = 'left'; }
+}
+function drawExtraMarker(e, p, t) {
+  const robe = EXTRA_ROBE[e.kind] || '#8b92ac', sc = 1.9, bob = Math.abs(Math.sin(t * 2.5 + e.iseed)) * 1 * sc, fy = p.y - bob;
+  ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 3.2 * sc, 1.4 * sc, 0, 0, 6.28); ctx.fill();
+  ctx.fillStyle = shade(robe, -0.08); ctx.beginPath(); ctx.moveTo(p.x, fy - 7 * sc); ctx.lineTo(p.x + 2.8 * sc, fy); ctx.quadraticCurveTo(p.x, fy + 1 * sc, p.x - 2.8 * sc, fy); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#e8ddc8'; ctx.beginPath(); ctx.arc(p.x, fy - 7 * sc, 2 * sc, 0, 6.28); ctx.fill();
+}
+
+/* ====================================================================== *
  *  Render loop
  * ====================================================================== */
 let last = performance.now(), elapsed = 0, lastDerive = 0;
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.05, (now - last) / 1000); last = now; elapsed += dt; const t = elapsed;
-  if (followed) { const wp = { x: (followed.gx - followed.gy) * TW2, y: (followed.gx + followed.gy) * TH2 }; cam.x += (wp.x - cam.x) * 0.06; cam.y += (wp.y - cam.y) * 0.06; updateFollowChip(); }
   if (t - lastDerive > 0.35) { disciples.forEach(deriveState); lastDerive = t; }
+  if (ILLUSTRATED && SPR.scenery.background && SPR.scenery.background.img.complete && SPR.scenery.background.img.naturalWidth) {
+    updateExtras(dt, t); frameIllustrated(t, dt); renderRoamTicker(); return;
+  }
+  if (followed) { const wp = { x: (followed.gx - followed.gy) * TW2, y: (followed.gx + followed.gy) * TH2 }; cam.x += (wp.x - cam.x) * 0.06; cam.y += (wp.y - cam.y) * 0.06; updateFollowChip(); }
   disciples.forEach((d) => step(d, dt, t)); updateAmbient(dt, t); updateExtras(dt, t);
 
   // --- BACKGROUND layer (authored distant mountains, or procedural sky) ---
@@ -1177,6 +1237,10 @@ function drawAtmosphere(t) {
 const hover = { room: null, disc: null }, selected = { room: null, disc: null };
 let followed = null, drag = null;
 function pickAt(mx, my) {
+  if (ILLUSTRATED) {   // pick the nearest disciple marker on the painting
+    let best = null, bestD = 16; iaMarkers.forEach((m) => { if (!m.d) return; const dd = Math.hypot(m.p.x - mx, m.p.y - my - 8); if (dd < bestD) { bestD = dd; best = m.d; } });
+    return best ? { disc: best } : { room: null };
+  }
   let best = null, bestD = 26;
   disciples.forEach((d) => { const p = toScreen(d.gx, d.gy); p.y -= elevAt(d.gx, d.gy) * cam.zoom; const dist = Math.hypot(p.x - mx, p.y - my - 16 * cam.zoom); if (d.alpha > 0.3 && dist < bestD) { bestD = dist; best = d; } });
   if (best) return { disc: best };
