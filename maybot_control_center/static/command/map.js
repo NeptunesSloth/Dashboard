@@ -357,7 +357,12 @@ function drawDisc(d, t) {
   else if (backdropOn() && !d.extra) { ctx.globalAlpha = d.alpha * (0.4 + Math.sin(t * 3 + d.phase) * 0.2); ctx.strokeStyle = pip; ctx.shadowColor = pip; ctx.shadowBlur = 7; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.ellipse(x, d.y, 6.5 * s, 2.7 * s, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = d.alpha; }
 
   // --- authored sprite, if present ---
-  if (id) { const e = discSprite(d.key + '_' + spriteState(d)) || discSprite(d.key + '_idle'); if (e) {
+  // Names are dynamic, so art is keyed by ARCHETYPE (leader/elder/researcher/analyst/
+  // engineer/architect/trader/disciple). A name-specific sheet (e.g. atlas_walk) still
+  // wins when present; otherwise fall back role -> generic disciple -> idle frame.
+  if (id) { const st = spriteState(d), ar = id.leader ? 'leader' : d.role;
+    const e = discSprite(d.key + '_' + st) || discSprite(ar + '_' + st) || discSprite('disciple_' + st)
+           || discSprite(d.key + '_idle') || discSprite(ar + '_idle') || discSprite('disciple_idle'); if (e) {
     const fw = e.img.naturalWidth / e.frames, fh = e.img.naturalHeight, scale = (19 * s) / fh, dw = fw * scale, dh = fh * scale;
     const fi = e.frames > 1 ? (Math.floor(d.phase * (d.path.length ? 2.2 : 1.4)) % e.frames) : 0;
     ctx.save(); if (fx < 0) { ctx.translate(2 * x, 0); ctx.scale(-1, 1); } ctx.drawImage(e.img, fi * fw, 0, fw, fh, x - dw / 2, fy - dh, dw, dh); ctx.restore();
