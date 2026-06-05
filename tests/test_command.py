@@ -54,7 +54,18 @@ def test_immersive_scenes_served():
     assert rm.status_code == 200 and "Realm Map" in rm.text
     ch = client.get("/chamber")
     assert ch.status_code == 200 and "Command Chamber" in ch.text
-    for path in ("/map.js", "/chamber.js", "/lib.js", "/vendor/OrbitControls.js"):
+    tc = client.get("/trade")
+    assert tc.status_code == 200 and "Trade Center" in tc.text
+    tr = client.get("/treasury")
+    assert tr.status_code == 200 and "Treasury" in tr.text
+    for path in ("/map.js", "/chamber.js", "/trade.js", "/treasury.js", "/lib.js", "/vendor/OrbitControls.js"):
         resp = client.get(path)
         assert resp.status_code == 200, path
         assert "javascript" in resp.headers["content-type"]
+
+
+def test_command_positions_and_bots(monkeypatch):
+    monkeypatch.setenv("MAYBOT_DEMO", "1")
+    s = command.snapshot()
+    assert s["positions"] and {"ticker", "side", "qty", "pnl"} <= set(s["positions"][0])
+    assert s["bots"] and {"name", "pnl_today", "win_rate"} <= set(s["bots"][0])

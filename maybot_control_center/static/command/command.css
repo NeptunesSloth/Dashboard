@@ -246,6 +246,56 @@ body {
 .rec-ico { font-size: 16px; }
 .rec-txt { font-size: 12.5px; line-height: 1.4; }
 
+/* ---------- Trade Center: positions table ---------- */
+.postable { display: flex; flex-direction: column; }
+.pos-row { display: grid; grid-template-columns: 1.2fr .8fr .6fr .8fr .8fr 1.2fr; align-items: center; gap: 10px;
+  padding: 11px 12px; border-bottom: 1px solid var(--line); font-size: 13px; font-variant-numeric: tabular-nums; }
+.pos-row:last-child { border-bottom: none; }
+.pos-head { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
+.pos-tick { font-weight: 800; letter-spacing: -.01em; }
+.pos-side { font-size: 10px; font-weight: 700; letter-spacing: .08em; padding: 3px 9px; border-radius: 999px; justify-self: start; border: 1px solid; }
+.pos-side.long { color: var(--jade); border-color: rgba(52,211,153,.4); background: rgba(52,211,153,.08); }
+.pos-side.short { color: var(--crimson); border-color: rgba(251,94,126,.45); background: rgba(251,94,126,.08); }
+.pos-pnl { font-weight: 700; text-align: right; }
+.pos-pnl i { display: block; font-size: 10.5px; font-style: normal; opacity: .8; }
+.pos-pnl.pos { color: var(--jade); } .pos-pnl.neg { color: var(--crimson); }
+
+/* ---------- Trade Center: bot leaderboard ---------- */
+.bots { display: flex; flex-direction: column; gap: 10px; }
+.bot { padding: 13px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.015); }
+.bot-top { display: flex; align-items: center; justify-content: space-between; }
+.bot-name { font-size: 13px; font-weight: 700; }
+.bot-status { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.bot-status.on { color: var(--jade); border-color: rgba(52,211,153,.4); }
+.bot-pnl { font-size: 19px; font-weight: 800; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.bot-pnl.pos { color: var(--jade); } .bot-pnl.neg { color: var(--crimson); }
+.bot-pnl .muted { font-size: 11px; font-weight: 500; }
+.bot-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--muted); margin-top: 6px; }
+.bot-meta b { color: var(--text); }
+
+/* ---------- Treasury: capital allocation ---------- */
+.alloc { display: flex; flex-direction: column; gap: 12px; }
+.alloc-row { display: grid; grid-template-columns: 1.3fr 2fr 1.2fr; align-items: center; gap: 14px; }
+.alloc-name { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; }
+.alloc-name i { width: 10px; height: 10px; border-radius: 3px; flex: none; box-shadow: 0 0 8px currentColor; }
+.alloc-bar { height: 9px; border-radius: 5px; background: rgba(140,150,190,.14); overflow: hidden; }
+.alloc-bar > span { display: block; height: 100%; border-radius: 5px; box-shadow: 0 0 12px rgba(139,92,255,.35); transition: width .6s cubic-bezier(.2,.8,.2,1); }
+.alloc-val { text-align: right; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.alloc-val i { display: block; font-size: 10.5px; font-style: normal; font-weight: 600; }
+.alloc-val i.pos { color: var(--jade); } .alloc-val i.neg { color: var(--crimson); }
+
+/* ---------- Treasury: spirit-stone vault ---------- */
+.vault-balance { display: flex; align-items: center; gap: 14px; }
+.vault-coin { font-size: 38px; color: var(--gold); filter: drop-shadow(0 0 14px rgba(251,191,36,.5)); }
+.vault-num { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #fff3cf, var(--gold)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.flow { display: flex; flex-direction: column; gap: 8px; }
+.flow-row { display: flex; align-items: center; gap: 11px; font-size: 13px; padding: 9px 2px; border-bottom: 1px solid var(--line); }
+.flow-row b { margin-left: auto; font-variant-numeric: tabular-nums; }
+.flow-ico { width: 18px; text-align: center; }
+.flow-ico.pos, .flow-row b.pos { color: var(--jade); }
+.flow-ico.neg, .flow-row b.neg { color: var(--crimson); }
+
 .muted { color: var(--muted); }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: rgba(139,92,255,.25); border-radius: 8px; }

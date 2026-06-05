@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aegis — Trade Center</title>
+  <meta name="theme-color" content="#05060c">
+  <link rel="icon" href="/icon.svg">
+  <link rel="stylesheet" href="/command.css">
+</head>
+<body>
+  <canvas id="scene-canvas" class="scene-canvas"></canvas>
+  <div class="vignette"></div>
+
+  <div class="app">
+    <nav class="rail glass" id="rail"></nav>
+
+    <div class="center">
+      <div class="topbar">
+        <div class="brand"><span class="mark">📈</span> Trade Center</div>
+        <div class="jarvis" id="jarvis">The trading floor.</div>
+        <div class="clock" id="clock"></div>
+      </div>
+
+      <section class="hero glass rise" id="hero"></section>
+
+      <div class="section-h"><div class="panel-title">Trading Command Center</div></div>
+      <div class="metrics" id="metrics"></div>
+
+      <div class="section-h"><div class="panel-title">Open Positions</div><div class="muted" id="pos-count"></div></div>
+      <section class="glass rise d2" style="padding:8px 6px"><div class="postable" id="positions"></div></section>
+
+      <div class="section-h"><div class="panel-title">Active Opportunities</div><div class="muted" id="opp-count"></div></div>
+      <section class="opps glass rise d3" id="opps" style="padding:12px"></section>
+    </div>
+
+    <aside class="right">
+      <section class="glass rise d2" style="padding:18px; display:flex; flex-direction:column; min-height:0">
+        <div class="panel-title">Trading Bots</div>
+        <div class="bots" id="bots" style="margin-top:12px; overflow-y:auto"></div>
+      </section>
+      <section class="glass rise d4" style="padding:18px; display:flex; flex-direction:column; min-height:0; flex:1">
+        <div class="panel-title">Recent Activity</div>
+        <div class="events" id="events" style="margin-top:10px"></div>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="/trade.js"></script>
+</body>
+</html>

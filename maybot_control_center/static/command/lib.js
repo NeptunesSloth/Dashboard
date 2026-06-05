@@ -14,15 +14,15 @@ export const HEALTH_COLOR = { ok: 0x34d399, warning: 0xfbbf24, error: 0xfb5e7e, 
 /* ---------------- left command rail ---------------- */
 const NAV = [
   ['command', '🏛', 'Command', '/'],
-  ['trade', '📈', 'Trade', '/classic'],
+  ['trade', '📈', 'Trade', '/trade'],
   ['disciples', '🧠', 'Disciples', '/chamber'],
   ['missions', '⚔', 'Missions', '/classic'],
   ['projects', '📜', 'Realms', '/classic'],
   ['map', '🗺', 'Map', '/realm-map'],
-  ['treasury', '🏦', 'Treasury', '/classic'],
+  ['treasury', '🏦', 'Treasury', '/treasury'],
   ['ops', '⚙', 'Ops', '/classic'],
 ];
-const TABMAP = { disciples: 'disciples', map: 'map', ops: 'ops', projects: 'overview', trade: 'overview', missions: 'sect', treasury: 'sect' };
+const TABMAP = { ops: 'ops', projects: 'overview', missions: 'sect' };
 export function mountRail(active) {
   const el = $('rail'); if (!el) return;
   el.innerHTML = `<div class='rail-logo'>◆</div>` + NAV.map(([k, ico, lbl]) =>

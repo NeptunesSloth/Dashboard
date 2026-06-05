@@ -1523,6 +1523,26 @@ def chamber_js():
     return FileResponse(f"{_CMD}/chamber.js", media_type="text/javascript")
 
 
+@app.get("/trade")
+def trade():
+    return FileResponse(f"{_CMD}/trade.html")
+
+
+@app.get("/trade.js")
+def trade_js():
+    return FileResponse(f"{_CMD}/trade.js", media_type="text/javascript")
+
+
+@app.get("/treasury")
+def treasury_page():
+    return FileResponse(f"{_CMD}/treasury.html")
+
+
+@app.get("/treasury.js")
+def treasury_js():
+    return FileResponse(f"{_CMD}/treasury.js", media_type="text/javascript")
+
+
 @app.get("/classic")
 def classic_home():
     return FileResponse("maybot_control_center/static/index.html")
