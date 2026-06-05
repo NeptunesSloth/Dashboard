@@ -315,7 +315,12 @@ function drawActivity(d, x, fy, s, t) {
 }
 /* ---- authored character sprites (optional, with procedural fallback) ---- */
 const DISC_AVAIL = new Set(), DISC_IMG = {};
-fetch('/api/sect/disciples').then((r) => r.ok ? r.json() : { sprites: [] }).then((j) => (j.sprites || []).forEach((s) => DISC_AVAIL.add(s))).catch(() => {});
+const FX_AVAIL = new Set(), FX_IMG = {}, PORT_AVAIL = new Set();
+fetch('/api/sect/disciples').then((r) => r.ok ? r.json() : {}).then((j) => {
+  (j.sprites || []).forEach((s) => DISC_AVAIL.add(s));
+  (j.fx || []).forEach((s) => FX_AVAIL.add(s));
+  (j.portraits || []).forEach((s) => PORT_AVAIL.add(s));
+}).catch(() => {});
 function discSprite(base) {                        // resolve '<key>_<state>' to an authored sprite (single frame or _Nf sheet)
   let name = null, frames = 1;
   if (DISC_AVAIL.has(base)) name = base;
@@ -326,6 +331,26 @@ function discSprite(base) {                        // resolve '<key>_<state>' to
 }
 function spriteState(d) { if (d.celebrate > 0) return 'celebrate'; if (d.path.length) return 'walk'; if (d.state === 'meditate') return 'meditate'; if (d.state === 'working') return 'work'; return 'idle'; }
 const ROLE_ICON = { trader: '◈', engineer: '⚒', researcher: '✎', analyst: '∿', architect: '◇', elder: '☯', disciple: '⚔' };
+
+/* ---- authored effect strips (optional). 'fx_breakthrough' resolves to fx_breakthrough_8f.png ---- */
+function fxSprite(base) {
+  let name = null, frames = 1;
+  if (FX_AVAIL.has(base)) name = base;
+  else for (const s of FX_AVAIL) { const m = s.match(new RegExp('^' + base + '_(\\d+)f$')); if (m) { name = s; frames = +m[1]; break; } }
+  if (!name) return null;
+  let e = FX_IMG[name]; if (!e) { e = { img: new Image(), frames }; e.img.src = '/assets/sect/fx/' + name + '.png'; FX_IMG[name] = e; }
+  return (e.img.complete && e.img.naturalWidth) ? e : null;
+}
+// Draw an effect centered at (x,y), `size` px tall. `frac` 0..1 picks the frame
+// (use elapsed*speed%1 for a loop, or progress 0..1 for a one-shot). No-op when art absent.
+function drawFx(base, x, y, size, frac) {
+  const e = fxSprite(base); if (!e) return false;
+  const fw = e.img.naturalWidth / e.frames, fh = e.img.naturalHeight;
+  const fi = Math.min(e.frames - 1, Math.max(0, Math.floor(frac * e.frames)));
+  const scale = size / fh, dw = fw * scale, dh = fh * scale;
+  ctx.drawImage(e.img, fi * fw, 0, fw, fh, x - dw / 2, y - dh / 2, dw, dh);
+  return true;
+}
 
 /* room-specific work pose: a visible arm/action per hall */
 function workPose(d, x, fy, s, fx, t, robe) {
@@ -356,6 +381,11 @@ function drawDisc(d, t) {
   if (sel || hovd) { ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x, d.y, 7.5 * s, 3 * s, 0, 0, 6.28); ctx.stroke(); }
   else if (backdropOn() && !d.extra) { ctx.globalAlpha = d.alpha * (0.4 + Math.sin(t * 3 + d.phase) * 0.2); ctx.strokeStyle = pip; ctx.shadowColor = pip; ctx.shadowBlur = 7; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.ellipse(x, d.y, 6.5 * s, 2.7 * s, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = d.alpha; }
 
+  // --- authored effects (no-op when art absent): aura under, spark/celebrate over ---
+  if (meditate) drawFx('fx_aura', x, d.y - 6 * s, 26 * s, (t * 0.5 + d.phase) % 1);
+  if (d.celebrate > 0) drawFx('fx_celebrate', x, fy - 16 * s, 28 * s, Math.min(0.999, 1 - d.celebrate / 1.8));
+  else if (working) drawFx((d.room && (d.room.kind === 'commerce' || d.room.kind === 'treasury')) ? 'fx_coin' : 'fx_work', x, fy - 10 * s, 16 * s, (t * 1.1 + d.phase) % 1);
+
   // --- authored sprite, if present ---
   // Names are dynamic, so art is keyed by ARCHETYPE (leader/elder/researcher/analyst/
   // engineer/architect/trader/disciple). A name-specific sheet (e.g. atlas_walk) still
@@ -370,7 +400,8 @@ function drawDisc(d, t) {
   } }
 
   // --- procedural character ---
-  if (meditate || (id && id.aura)) { const ac = meditate ? '#a78bfa' : id.aura; ctx.globalAlpha = d.alpha * (0.3 + Math.sin(t * 2 + d.phase) * 0.18); ctx.strokeStyle = ac; ctx.shadowColor = ac; ctx.shadowBlur = 9; ctx.lineWidth = 1.4;
+  const auraEllipse = (meditate && !fxSprite('fx_aura')) || (!meditate && id && id.aura);
+  if (auraEllipse) { const ac = meditate ? '#a78bfa' : id.aura; ctx.globalAlpha = d.alpha * (0.3 + Math.sin(t * 2 + d.phase) * 0.18); ctx.strokeStyle = ac; ctx.shadowColor = ac; ctx.shadowBlur = 9; ctx.lineWidth = 1.4;
     ctx.beginPath(); ctx.ellipse(x, d.y, (meditate ? 8 : 6.5) * s, (meditate ? 3.5 : 3) * s, 0, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = d.alpha; }
   const robe = id ? id.robe : (ROLE_STYLE[d.role] || '#8b92ac'), bw = (id && id.leader ? 5.6 : 4.6) * s;
   // robe path
@@ -409,7 +440,9 @@ const spectacles = [];
 function celebrate(x, y, color, text) { spectacles.push({ x, y, color, text, t: 0 }); }
 function drawSpectacles(dt) {
   for (let i = spectacles.length - 1; i >= 0; i--) { const s = spectacles[i]; s.t += dt; const k = s.t / 2.4;
-    ctx.strokeStyle = s.color; ctx.globalAlpha = Math.max(0, 0.9 - k); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(s.x, s.y, 8 + k * 50, 0, 6.28); ctx.stroke();
+    ctx.globalAlpha = 1;
+    if (!drawFx('fx_breakthrough', s.x, s.y, 100, Math.min(0.999, k))) {
+      ctx.strokeStyle = s.color; ctx.globalAlpha = Math.max(0, 0.9 - k); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(s.x, s.y, 8 + k * 50, 0, 6.28); ctx.stroke(); }
     ctx.globalAlpha = Math.max(0, 1 - k); ctx.font = '700 12px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff3cf'; ctx.fillText('✦ ' + s.text, s.x, s.y - 26 - k * 22); ctx.textAlign = 'left'; ctx.globalAlpha = 1;
     if (s.t > 2.4) spectacles.splice(i, 1); }
 }
@@ -471,7 +504,9 @@ function selectDisc(d) {
   const rows = [['Role', esc(ag.role || c.rank_title || d.role)], ['Realm', esc(c.realm_name || 'Mortal')], ['Doing', esc(doing)],
     ag.current_task ? ['Task', esc(String(ag.current_task).slice(0, 56))] : null, ['Tasks done', ag.tasks_done || 0]]
     .filter(Boolean).map(([k, v]) => `<div class='kv'><span>${k}</span><b>${v}</b></div>`).join('');
-  $('detail').innerHTML = `<div class='panel-title'>${esc(d.name)}</div>
+  const pr = (d.ident && d.ident.leader) ? 'leader' : d.role;
+  const portrait = PORT_AVAIL.has(pr) ? `<img class='portrait' src='/assets/sect/portraits/${pr}.png' alt=''>` : '';
+  $('detail').innerHTML = `${portrait}<div class='panel-title'>${esc(d.name)}</div>
     <div class='muted' style='margin:8px 0 2px;font-size:12.5px'>${doing} — ${where}.</div>
     <div class='kvs'>${rows}</div>
     <div class='realm-actions'><button class='cbtn' id='r-cham'>Open Dossier</button></div>`;

@@ -1470,15 +1470,19 @@ def command_snapshot(x_control_token: str = Header(default="")):
     return command.snapshot()
 
 
+def _sect_pngs(sub: str) -> list:
+    import os
+    d = f"maybot_control_center/static/assets/sect/{sub}"
+    return [fn[:-4] for fn in sorted(os.listdir(d)) if fn.lower().endswith(".png")] if os.path.isdir(d) else []
+
+
 @app.get("/api/sect/disciples")
 def sect_disciples():
-    """List authored disciple sprite basenames in static/assets/sect/disciples/
-    (e.g. 'atlas_idle', 'nova_walk_4f'). The Realm Map loads only what exists and
-    falls back to procedural characters otherwise — so no 404 probing."""
-    import os
-    d = "maybot_control_center/static/assets/sect/disciples"
-    out = [fn[:-4] for fn in sorted(os.listdir(d)) if fn.lower().endswith(".png")] if os.path.isdir(d) else []
-    return {"sprites": out}
+    """List authored Realm Map art basenames: character sprites (disciples/,
+    e.g. 'trader_walk_6f'), effect strips (fx/, e.g. 'fx_breakthrough_8f'), and
+    inspect portraits (portraits/, e.g. 'leader'). The Realm Map loads only what
+    exists and falls back to procedural drawing otherwise — so no 404 probing."""
+    return {"sprites": _sect_pngs("disciples"), "fx": _sect_pngs("fx"), "portraits": _sect_pngs("portraits")}
 
 
 

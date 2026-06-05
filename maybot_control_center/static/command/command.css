@@ -186,6 +186,8 @@ body {
 
 /* floating detail panel */
 .map-panel { position: absolute; top: 4px; right: 6px; width: 320px; padding: 20px; pointer-events: auto; }
+.map-panel .portrait { float: right; width: 84px; height: 84px; object-fit: contain; margin: -4px -4px 4px 12px;
+  border-radius: 12px; background: rgba(255, 255, 255, .03); border: 1px solid var(--line); box-shadow: 0 6px 16px rgba(0, 0, 0, .4); }
 .kvs { display: flex; flex-direction: column; gap: 2px; margin-top: 14px; }
 .kv { display: flex; align-items: center; justify-content: space-between; padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
 .kv span { color: var(--muted); letter-spacing: .04em; }
