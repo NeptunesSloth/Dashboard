@@ -91,7 +91,7 @@ function buildLayout(projects) {
   const all = [fixed[0], ...projRooms, fixed[1], fixed[2], fixed[3]];
   const C = Math.max(3, Math.ceil(Math.sqrt(all.length)));
   const rowsN = Math.ceil(all.length / C);
-  const STRIDE_X = 9, STRIDE_Y = 8;
+  const STRIDE_X = 12, STRIDE_Y = 10;
   const centerCell = Math.floor(rowsN / 2) * C + Math.floor(C / 2);
   const order = []; order[centerCell] = all[0]; let q = 1;
   for (let cell = 0; cell < rowsN * C && q < all.length; cell++) { if (cell === centerCell) continue; order[cell] = all[q++]; }
@@ -99,8 +99,8 @@ function buildLayout(projects) {
     if (!r) return;
     const col = cell % C, row = (cell / C) | 0;
     const big = r.kind === 'hall';
-    const w = big ? 8 : 6, h = big ? 6 : 5;
-    const gx = col * STRIDE_X + (big ? -1 : 0), gy = row * STRIDE_Y + (big ? -0.5 : 0);
+    const w = big ? 10 : 8, h = big ? 8 : 6;
+    const gx = col * STRIDE_X + (big ? -1 : 0), gy = row * STRIDE_Y + (big ? -1 : 0);
     const K = KIND[r.kind];
     const room = { ...r, K, gx, gy, w, h, cx: gx + w / 2, cyc: gy + h / 2,
       door: { gx: gx + w / 2, gy: gy + h + 0.6 }, occupants: new Set(), depth: gx + gy + w / 2 + h / 2 };
@@ -125,45 +125,52 @@ function centerOnHall() {
   cam.zoom = Math.max(0.55, Math.min(1.0, view.w / 2000 + 0.55));
 }
 
-/* furniture + work-stations per room kind (positions are room-relative tiles) */
+/* a whole district scene: the landmark sits centre, the rest is a built location */
 function furnish(r) {
   const W = r.w, H = r.h, f = [], st = [];
-  const back = 1.0, midY = H * 0.5;
   const push = (type, gx, gy, opt) => f.push({ type, gx, gy, ...opt });
-  switch (r.kind) {
-    case 'market':
-      for (let i = 0; i < 3; i++) { const x = 1.2 + i * 1.8; push('desk', x, back); push('screen', x, back - 0.1, { content: 'chart' }); st.push([x, back + 1.2]); } break;
-    case 'engineering':
-      for (let i = 0; i < 3; i++) { const x = 1.2 + i * 1.8; push('desk', x, back); push('screen', x, back - 0.1, { content: 'code' }); st.push([x, back + 1.2]); } break;
-    case 'library':
-      for (let i = 0; i < 4; i++) push('shelf', 0.8 + i * 1.3, back - 0.2);
-      st.push([W / 2 - 1.4, H - 1.2]); st.push([W / 2 + 1.4, H - 1.2]); break;
-    case 'comms':
-      push('desk', 1.4, H - 1.6); push('desk', W - 2.4, H - 1.6);
-      st.push([1.6, H - 0.6]); st.push([W - 2.2, H - 0.6]); break;
-    case 'mission':
-      push('board', W / 2 - 1, back - 0.2);
-      st.push([W / 2 - 1.6, H - 1.1]); st.push([W / 2 + 1.6, H - 1.1]); break;
-    case 'server':
-      for (let i = 0; i < 4; i++) push('rack', 1 + i * 1.2, back + 0.2 + (i % 2) * 1.6);
-      push('conduit', 0.6, H - 1, { to: [W - 0.6, H - 1] }); st.push([W / 2 - 1.6, H - 0.8]); st.push([W / 2 + 1.6, H - 0.8]); break;
-    case 'cultivation':
-      push('mat', 1.4, H - 1.2); push('mat', W - 1.4, H - 1.2); st.push([1.4, H - 1.2]); st.push([W - 1.4, H - 1.2]); break;
-    case 'commerce':
-      push('banner', W / 2 - 1, back - 0.3); push('counter', 1.4, H - 1.4); st.push([1.6, H - 0.5]); break;
-    case 'hall': default:
-      push('dais', W / 2 - 1.4, midY - 0.7); push('throne', W / 2 - 0.8, back - 0.1);
-      push('medcircle', 1.5, H - 1.3); push('dummy', W - 1.7, H - 1.4); push('dummy', W - 1.1, H - 2.1);
-      push('plant', 0.7, back + 0.2); push('plant', W - 1.0, back + 0.2); push('brazier', 0.7, midY + 0.6); push('brazier', W - 1.0, midY + 0.6); break;
+  const corners = () => { push('lanternpost', 0.6, 0.6); push('lanternpost', W - 0.6, 0.6); push('lanternpost', 0.6, H - 0.6); push('lanternpost', W - 0.6, H - 0.6); };
+  switch (r.landmark) {
+    case 'fountain': case 'prosperity':   // market — stalls, counters, carts, crates
+      for (let i = 0; i < 3; i++) { push('stall', 1.1, 1.3 + i * 1.7); push('stall', W - 1.1, 1.3 + i * 1.7); st.push([1.9, 1.7 + i * 1.7]); st.push([W - 1.9, 1.7 + i * 1.7]); }
+      push('counter', 2.4, H - 1.3); push('counter', W - 3.6, H - 1.3); push('cart', W / 2 + 1.6, H - 1.3);
+      push('crate', 1.0, H - 1.2); push('crate', 1.6, H - 0.9); push('crate', W - 1.2, H - 1.0);
+      push('banner', 1.0, 0.4); push('banner', W - 1.6, 0.4); corners(); break;
+    case 'observatory':                    // calculation — scholar desk banks + strategy pavilion
+      for (let i = 0; i < 3; i++) { push('desk', 1.3, 1.2 + i * 1.5); push('screen', 1.6, 1.1 + i * 1.5, { content: 'graph' }); st.push([2.1, 1.6 + i * 1.5]);
+        push('desk', W - 1.7, 1.2 + i * 1.5); push('screen', W - 1.4, 1.1 + i * 1.5, { content: 'chart' }); st.push([W - 2.3, 1.6 + i * 1.5]); }
+      push('pavilion', W / 2 - 1, H - 2.4); push('pillar', 1.0, H - 1); push('pillar', W - 1.0, H - 1); corners(); break;
+    case 'forge':                          // engineering — workbenches, tool crates, chimney pavilion
+      for (let i = 0; i < 3; i++) { push('bench', 1.4, 1.3 + i * 1.6); push('bench', W - 1.6, 1.3 + i * 1.6); st.push([2.2, 1.5 + i * 1.6]); st.push([W - 2.2, 1.5 + i * 1.6]); }
+      push('crate', 1.0, H - 1.3); push('crate', 1.7, H - 1.0); push('crate', W - 1.4, H - 1.1); push('pavilion', W / 2 - 1, 0.6); corners(); break;
+    case 'tome':                           // library — shelves lining the walls, study desks, benches
+      for (let i = 0; i < 5; i++) { push('shelf', 0.8 + i * 1.0, 0.6); push('shelf', 0.8 + i * 1.0, H - 0.5); }
+      for (let i = 0; i < 3; i++) { push('desk', W / 2 - 1.8, 1.4 + i * 1.4); push('desk', W / 2 + 0.8, 1.4 + i * 1.4); st.push([W / 2 - 1.1, 1.8 + i * 1.4]); st.push([W / 2 + 1.5, 1.8 + i * 1.4]); }
+      push('bench', 1.6, H - 1.2); push('bench', W - 1.8, H - 1.2); corners(); break;
+    case 'gate':                           // travel — caravans, staging crates, waiting benches (plaza open)
+      push('cart', 1.6, H - 1.5); push('cart', W - 2.0, H - 1.7); push('crate', 1.0, H - 1.0); push('crate', 1.7, H - 1.2); push('crate', W - 1.2, H - 1.0);
+      push('bench', 1.4, 1.3); push('bench', W - 1.6, 1.3); push('banner', 0.8, 0.4); push('banner', W - 1.4, 0.4); corners();
+      st.push([2.2, H - 0.8]); st.push([W - 2.4, H - 0.8]); break;
+    case 'bell':                           // decrees — notice boards, waiting benches, banners
+      push('board', 1.3, 0.6); push('board', W - 2.3, 0.6); push('bench', 1.6, H - 1.5); push('bench', W / 2 - 0.8, H - 1.5); push('bench', W - 2.0, H - 1.5);
+      push('banner', W / 2 - 0.6, 0.3); corners(); st.push([1.8, H - 0.7]); st.push([W - 2.0, H - 0.7]); break;
+    case 'nexus':                          // infrastructure — formation pillars ring + conduits to core
+      [[1, 1], [W - 1, 1], [1, H - 1], [W - 1, H - 1], [W / 2, 0.8], [W / 2, H - 0.8]].forEach(([x, y]) => push('pillar', x, y));
+      [[1, 1], [W - 1, 1], [1, H - 1], [W - 1, H - 1]].forEach(([x, y]) => push('conduit', x, y, { to: [W / 2, H / 2] }));
+      push('crate', 1.3, H / 2); st.push([1.9, H / 2]); st.push([W - 1.9, H / 2]); break;
+    case 'vortex':                         // spirit grounds — tree, training circles, pavilion, benches
+      push('tree', W - 1.8, 1.5); push('pavilion', 0.9, H - 2.6);
+      push('circle', W / 2 + 0.8, H - 1.8); push('circle', W - 2.0, H - 1.8);
+      push('bench', 1.3, 1.0); push('bench', W / 2 + 1.4, 1.0); corners();
+      st.push([W / 2 + 0.8, H - 1.8]); st.push([W - 2.0, H - 1.8]); break;
+    case 'monument': default:              // sect capital — assembly pavilions, banners, gardens, lanterns
+      push('dais', W / 2 - 1.4, H / 2 - 0.7); push('pavilion', 0.9, 0.9); push('pavilion', W - 3.0, 0.9);
+      push('banner', W / 2 - 2.2, 0.3); push('banner', W / 2 + 1.6, 0.3); push('tree', 1.3, H - 1.7); push('tree', W - 1.5, H - 1.7);
+      push('bench', W / 2 - 2.6, H - 1.5); push('bench', W / 2 + 1.8, H - 1.5); push('brazier', 2.4, H / 2); push('brazier', W - 2.4, H / 2); corners(); break;
   }
-  // animated back-wall data displays + ambient detail (storytelling, not new rooms)
-  if (['market', 'engineering', 'library', 'mission', 'server', 'commerce'].includes(r.kind))
-    push('datawall', W - 1.7, 0.15, { content: r.kind === 'engineering' ? 'code' : r.kind === 'mission' ? 'board' : r.kind === 'library' ? 'graph' : r.kind === 'server' ? 'status' : 'chart' });
-  if (r.kind === 'market') push('ticker', 0.3, H - 0.35);
-  if (r.kind === 'server') { push('mist', 1.6, 1.4); push('mist', 3.4, 2.4); }
-  r.furniture = f; r.stations = st.length ? st : [[W / 2, H * 0.6]];
+  r.furniture = f; r.stations = st.length ? st : [[W / 2, H * 0.62]];
   const rng = mulberry(hashStr(r.id || r.title || 'x')); r.spots = [];
-  for (let i = 0; i < 16; i++) r.spots.push({ x: 0.7 + rng() * (W - 1.4), y: 0.7 + rng() * (H - 1.4), r: rng() });
+  for (let i = 0; i < 18; i++) r.spots.push({ x: 0.7 + rng() * (W - 1.4), y: 0.7 + rng() * (H - 1.4), r: rng() });
 }
 
 /* ====================================================================== *
@@ -448,6 +455,34 @@ function drawFurniture(r, it, t, busy) {
       ctx.lineCap = 'butt'; ctx.fillStyle = '#c9a06a'; ctx.beginPath(); ctx.arc(p.x, p.y - 18 * z, 3 * z, 0, 6.28); ctx.fill(); break; }
     case 'plant': { const p = toScreen(gx, gy); isoBox(gx, gy, 0.42, 0.42, 5, '#3a2f22', '#2a2118', '#22190f'); ctx.fillStyle = '#2f6f4a'; ctx.shadowColor = '#34d399'; ctx.shadowBlur = 6 * z;
       for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.ellipse(p.x + (i - 1) * 3 * z, p.y - (8 + (i % 2) * 3) * z, 3.2 * z, 5 * z, 0, 0, 6.28); ctx.fill(); } ctx.shadowBlur = 0; break; }
+    case 'stall': { const p = toScreen(gx, gy); isoBox(gx - 0.5, gy - 0.35, 1.0, 0.5, 6, '#5a3f2a', '#3f2c1c', '#33231a');
+      ctx.fillStyle = (Math.round(it.gy) % 2) ? '#b9503c' : '#3f7a52'; ctx.beginPath(); ctx.moveTo(p.x - 11 * z, p.y - 17 * z); ctx.lineTo(p.x + 11 * z, p.y - 17 * z); ctx.lineTo(p.x + 8 * z, p.y - 11 * z); ctx.lineTo(p.x - 8 * z, p.y - 11 * z); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#3a2a1a'; ctx.lineWidth = 1.6 * z; ctx.beginPath(); ctx.moveTo(p.x - 8 * z, p.y - 11 * z); ctx.lineTo(p.x - 8 * z, p.y - 1 * z); ctx.moveTo(p.x + 8 * z, p.y - 11 * z); ctx.lineTo(p.x + 8 * z, p.y - 1 * z); ctx.stroke();
+      ctx.fillStyle = '#caa24a'; for (let i = 0; i < 3; i++) ctx.fillRect(p.x - 5 * z + i * 4 * z, p.y - 8 * z, 2.4 * z, 2.4 * z); break; }
+    case 'crate': { isoBox(gx - 0.35, gy - 0.35, 0.7, 0.7, 7, '#6b4f2e', '#4a3620', '#3a2a18'); isoBox(gx - 0.18, gy - 0.18, 0.42, 0.42, 12, '#735634', '#4a3620', '#3a2a18'); break; }
+    case 'cart': { const p = toScreen(gx, gy); isoBox(gx - 0.75, gy - 0.45, 1.5, 0.9, 8, '#4a3826', '#33271a', '#281f14');
+      ctx.fillStyle = '#241a12'; ctx.beginPath(); ctx.arc(p.x - 8 * z, p.y, 3.2 * z, 0, 6.28); ctx.arc(p.x + 8 * z, p.y, 3.2 * z, 0, 6.28); ctx.fill();
+      ctx.fillStyle = '#5a4632'; ctx.beginPath(); ctx.arc(p.x - 8 * z, p.y, 1.2 * z, 0, 6.28); ctx.arc(p.x + 8 * z, p.y, 1.2 * z, 0, 6.28); ctx.fill();
+      isoBox(gx - 0.4, gy - 0.3, 0.8, 0.55, 14, '#6b4f2e', '#4a3620', '#3a2a18'); break; }
+    case 'bench': { isoBox(gx - 0.55, gy - 0.18, 1.1, 0.36, 4, '#4a3826', '#33271a', '#281f14'); break; }
+    case 'pillar': { const p = toScreen(gx, gy); isoBox(gx - 0.25, gy - 0.25, 0.5, 0.5, 30, shade(r.K.wall, 0.06), shade(r.K.wall, -0.24), shade(r.K.wall, -0.34));
+      ctx.fillStyle = A; ctx.globalAlpha = 0.45 + Math.sin(t * 2 + gx) * 0.22; ctx.shadowColor = A; ctx.shadowBlur = 10 * z; ctx.fillRect(p.x - 1.3 * z, p.y - 30 * z, 2.6 * z, 30 * z);
+      ctx.beginPath(); ctx.arc(p.x, p.y - 31 * z, 2.4 * z, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0; ctx.globalAlpha = 1; break; }
+    case 'tree': { const p = toScreen(gx, gy); ctx.strokeStyle = '#5a4430'; ctx.lineWidth = 3.4 * z; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y - 20 * z); ctx.stroke();
+      ctx.fillStyle = '#2f6f4a'; ctx.shadowColor = '#34d399'; ctx.shadowBlur = 13 * z; ctx.beginPath(); ctx.ellipse(p.x, p.y - 27 * z, 12 * z, 10 * z, 0, 0, 6.28); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(p.x - 8 * z, p.y - 20 * z, 6 * z, 5 * z, 0, 0, 6.28); ctx.fill(); ctx.beginPath(); ctx.ellipse(p.x + 8 * z, p.y - 21 * z, 6 * z, 5 * z, 0, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0;
+      for (let i = 0; i < 3; i++) { const ph = (t * 0.3 + i * 0.33) % 1; ctx.globalAlpha = 0.5 * (1 - ph); ctx.fillStyle = '#9be8c2'; ctx.beginPath(); ctx.arc(p.x + (i - 1) * 7 * z, p.y - 26 * z + ph * 24 * z, 1.3 * z, 0, 6.28); ctx.fill(); } ctx.globalAlpha = 1; break; }
+    case 'circle': { const p = toScreen(gx, gy); ctx.strokeStyle = 'rgba(184,172,140,.35)'; ctx.lineWidth = 1.6 * z; ctx.beginPath(); ctx.ellipse(p.x, p.y, TW2 * z, TH2 * z, 0, 0, 6.28); ctx.stroke();
+      ctx.strokeStyle = 'rgba(184,172,140,.2)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 0.55 * TW2 * z, 0.55 * TH2 * z, 0, 0, 6.28); ctx.stroke(); break; }
+    case 'pavilion': { const z2 = z; isoBox(gx, gy, 2, 1.6, 2, shade(r.K.floor, 0.12), shade(r.K.floor, -0.1), shade(r.K.floor, -0.22));
+      [[gx + 0.12, gy + 0.12], [gx + 1.88, gy + 0.12], [gx + 1.88, gy + 1.48], [gx + 0.12, gy + 1.48]].forEach(([cx, cy]) => isoBox(cx - 0.06, cy - 0.06, 0.12, 0.12, 20, shade(r.K.wall, 0.05), shade(r.K.wall, -0.2), shade(r.K.wall, -0.3)));
+      const c = toScreen(gx + 1, gy + 0.8), roofY = c.y - 22 * z2, ww = 2.6 * TW2 * z2;
+      ctx.fillStyle = shade(r.K.accent, -0.55); ctx.beginPath(); ctx.moveTo(c.x - ww / 2, roofY); ctx.quadraticCurveTo(c.x - ww / 2 - 6 * z2, roofY - 3 * z2, c.x - ww * 0.32, roofY - 3 * z2); ctx.lineTo(c.x, roofY - 13 * z2); ctx.lineTo(c.x + ww * 0.32, roofY - 3 * z2); ctx.quadraticCurveTo(c.x + ww / 2 + 6 * z2, roofY - 3 * z2, c.x + ww / 2, roofY); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = r.K.accent; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.2 * z2; ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.fillStyle = r.K.accent; ctx.shadowColor = r.K.accent; ctx.shadowBlur = 6 * z2; ctx.beginPath(); ctx.arc(c.x, roofY - 13 * z2, 2 * z2, 0, 6.28); ctx.fill(); ctx.shadowBlur = 0; break; }
+    case 'lanternpost': { const p = toScreen(gx, gy); ctx.fillStyle = '#565049'; ctx.fillRect(p.x - 1.4 * z, p.y - 13 * z, 2.8 * z, 13 * z);
+      ctx.fillStyle = '#6a645c'; ctx.fillRect(p.x - 3 * z, p.y - 18 * z, 6 * z, 5 * z); ctx.beginPath(); ctx.moveTo(p.x - 4 * z, p.y - 18 * z); ctx.lineTo(p.x + 4 * z, p.y - 18 * z); ctx.lineTo(p.x, p.y - 22 * z); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ffce6a'; ctx.shadowColor = '#ffce6a'; ctx.shadowBlur = 9 * z; ctx.fillRect(p.x - 1.6 * z, p.y - 17 * z, 3.2 * z, 3.4 * z); ctx.shadowBlur = 0; break; }
   }
   ctx.globalAlpha = 1; ctx.shadowBlur = 0;
 }
@@ -854,33 +889,44 @@ function drawLanterns(t) {
 
 /* ---------------- background life — decorative extras (no AI) ---------------- */
 const extras = [];
-const EXTRA_ROBE = { novice: '#8b92ac', keeper: '#6f7a52', visitor: '#a98c6a', meditator: '#9a8cff' };
-function mkExtra(r, kind, court) { const cx = r.gx + r.w / 2, cy = r.gy + r.h * 0.62, gx = cx + rand(-1.6, 1.6), gy = cy + rand(-1, 1.2);
-  return { kind, gx, gy, tx: gx, ty: gy, home: { gx: cx, gy: cy }, phase: Math.random() * 6.28, speed: 0.7 + Math.random() * 0.5, sit: kind === 'meditator', court: !!court, pause: 0, moving: false }; }
+const EXTRA_ROBE = { novice: '#8b92ac', keeper: '#6f7a52', visitor: '#a98c6a', meditator: '#9a8cff', scholar: '#c4b5fd', smith: '#5ac8ff', maint: '#7bb0ff', traveler: '#a98c6a', spar: '#9a8cff' };
+const EXTRA_ACT = { meditator: 'sit', scholar: 'work', smith: 'work', maint: 'work' };          // others wander
+const EXTRA_SET = {
+  fountain: ['visitor', 'visitor', 'visitor', 'keeper'], prosperity: ['visitor', 'visitor', 'visitor', 'keeper'],
+  observatory: ['scholar', 'scholar', 'scholar'], forge: ['smith', 'smith', 'smith'], tome: ['scholar', 'scholar', 'scholar'],
+  gate: ['traveler', 'traveler', 'visitor', 'visitor'], bell: ['novice', 'novice', 'visitor'], nexus: ['maint', 'maint', 'maint'],
+  vortex: ['meditator', 'meditator', 'spar', 'spar', 'keeper'], monument: ['novice', 'novice', 'novice', 'keeper', 'keeper'],
+};
+function mkExtra(r, kind, court) {
+  const gx = r.gx + rand(1, r.w - 1), gy = r.gy + rand(1.2, r.h - 1);
+  return { kind, act: EXTRA_ACT[kind] || 'wander', gx, gy, tx: gx, ty: gy, home: { gx, gy }, phase: Math.random() * 6.28,
+    speed: (kind === 'traveler' ? 1.2 : 0.7) + Math.random() * 0.5, court: !!court, pause: 0, moving: false, facing: 1 };
+}
 function initExtras() {
   extras.length = 0; if (!rooms.length) return;
-  rooms.forEach((r) => { const set = r.landmark === 'vortex' ? ['meditator', 'meditator', 'keeper'] : r.landmark === 'gate' ? ['visitor', 'visitor']
-    : r.kind === 'hall' ? ['novice', 'novice', 'keeper'] : r.landmark === 'fountain' || r.landmark === 'prosperity' ? ['visitor', 'keeper'] : ['novice'];
-    set.forEach((k) => extras.push(mkExtra(r, k))); });
-  for (let i = 0; i < 6; i++) extras.push(mkExtra(rooms[(Math.random() * rooms.length) | 0], 'visitor', true));
+  rooms.forEach((r) => (EXTRA_SET[r.landmark] || ['novice']).forEach((k) => extras.push(mkExtra(r, k))));
+  for (let i = 0; i < 8; i++) extras.push(mkExtra(rooms[(Math.random() * rooms.length) | 0], 'visitor', true));
 }
 function updateExtras(dt, t) {
-  extras.forEach((e) => { if (e.sit) { e.moving = false; return; }
+  extras.forEach((e) => { if (e.act !== 'wander') { e.moving = false; return; }
     const dx = e.tx - e.gx, dy = e.ty - e.gy, d = Math.hypot(dx, dy);
-    if (d > 0.05) { const v = Math.min(d, e.speed * dt); e.gx += dx / d * v; e.gy += dy / d * v; e.phase += dt * 8; e.moving = true; }
-    else { e.moving = false; e.pause -= dt; if (e.pause <= 0) { const rad = e.court ? 7 : 2.2; e.tx = e.home.gx + rand(-rad, rad); e.ty = e.home.gy + rand(-rad, rad); e.pause = 2 + Math.random() * 4; } } });
+    if (d > 0.05) { const v = Math.min(d, e.speed * dt); e.gx += dx / d * v; e.gy += dy / d * v; e.phase += dt * 8; e.moving = true; e.facing = (dx - dy) >= 0 ? 1 : -1; }
+    else { e.moving = false; e.pause -= dt; if (e.pause <= 0) { const rad = e.court ? 8 : 2; e.tx = e.home.gx + rand(-rad, rad); e.ty = e.home.gy + rand(-rad, rad); e.pause = 2 + Math.random() * 4; } } });
 }
 function drawExtras(t) {
   extras.slice().sort((a, b) => (a.gx + a.gy) - (b.gx + b.gy)).forEach((e) => {
-    const p = toScreen(e.gx, e.gy), z = cam.zoom, sc = z * 1.12, robe = EXTRA_ROBE[e.kind] || '#8b92ac';
+    const p = toScreen(e.gx, e.gy), z = cam.zoom, sc = z * 1.12, robe = EXTRA_ROBE[e.kind] || '#8b92ac', sit = e.act === 'sit', work = e.act === 'work', fx = e.facing;
     ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 4 * sc, 1.8 * sc, 0, 0, 6.28); ctx.fill();
-    const bob = e.sit ? 0 : e.moving ? Math.abs(Math.sin(e.phase)) * 1.6 * sc : Math.sin(t * 2 + e.phase) * 0.5 * sc;
-    const fy = p.y - bob, bodyH = (e.sit ? 8 : 11) * sc, headR = 2.6 * sc;
+    const bob = sit ? 0 : work ? Math.abs(Math.sin(t * 4 + e.phase)) * 1 * sc : e.moving ? Math.abs(Math.sin(e.phase)) * 1.6 * sc : Math.sin(t * 2 + e.phase) * 0.5 * sc;
+    const fy = p.y - bob, bodyH = (sit ? 8 : 11) * sc, headR = 2.6 * sc;
     ctx.fillStyle = shade(robe, -0.08); ctx.strokeStyle = shade(robe, -0.5); ctx.lineWidth = 0.8 * sc;
     ctx.beginPath(); ctx.moveTo(p.x, fy - bodyH); ctx.lineTo(p.x + 3.6 * sc, fy); ctx.quadraticCurveTo(p.x, fy + 1.4 * sc, p.x - 3.6 * sc, fy); ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#e8ddc8'; ctx.beginPath(); ctx.arc(p.x, fy - bodyH, headR, 0, 6.28); ctx.fill();
-    if (e.sit) { ctx.globalAlpha = 0.3 + Math.sin(t * 2 + e.phase) * 0.15; ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 1 * sc; ctx.beginPath(); ctx.ellipse(p.x, fy, 6 * sc, 3 * sc, 0, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1; }
+    if (sit) { ctx.globalAlpha = 0.3 + Math.sin(t * 2 + e.phase) * 0.15; ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 1 * sc; ctx.beginPath(); ctx.ellipse(p.x, fy, 6 * sc, 3 * sc, 0, 0, 6.28); ctx.stroke(); ctx.globalAlpha = 1; }
     if (e.kind === 'keeper') { const sw = Math.sin(t * 4 + e.phase); ctx.strokeStyle = '#7a5a2a'; ctx.lineWidth = 1.1 * sc; ctx.beginPath(); ctx.moveTo(p.x + 2 * sc, fy - 7 * sc); ctx.lineTo(p.x + 6 * sc + sw * 2 * sc, fy + 1 * sc); ctx.stroke(); }
+    else if (e.kind === 'smith') { const h = Math.abs(Math.sin(t * 8 + e.phase)); ctx.strokeStyle = shade(robe, -0.2); ctx.lineWidth = 1.2 * sc; ctx.beginPath(); ctx.moveTo(p.x + 1 * sc, fy - 7 * sc); ctx.lineTo(p.x + 5 * sc, fy - 6 * sc - h * 4 * sc); ctx.stroke(); }
+    else if (e.kind === 'scholar') { ctx.fillStyle = '#efe6c8'; ctx.fillRect(p.x + 3 * sc * fx - 1.5 * sc, fy - 7 * sc, 3 * sc, 5 * sc); }
+    else if (e.kind === 'spar') { const sw = Math.sin(t * 6 + e.phase); ctx.strokeStyle = shade(robe, -0.2); ctx.lineWidth = 1.1 * sc; ctx.beginPath(); ctx.moveTo(p.x, fy - 7 * sc); ctx.lineTo(p.x + 5 * sc * sw, fy - 8 * sc); ctx.stroke(); }
   });
 }
 
