@@ -286,32 +286,20 @@ function roomCard(p) {
 }
 
 function summaryCards(s) {
-  const crew = window.__agents || [];
-  const disciples = crew.length;
-  const cultivating = crew.filter(a => ['working', 'queued'].includes(a.status) || a.cultivation?.in_seclusion).length;
-  const leader = crew.find(a => a.governance?.is_leader);
-  const pnl = Number(s.total_trading_profit_today || 0);
-  const kpi = (icon, val, label, cls = '') =>
-    `<div class='kpi ${cls}'><div class='kpi-ico'>${icon}</div><div class='kpi-val'>${val}</div><div class='kpi-lbl'>${label}</div></div>`;
-  const mini = (k, v) => `<div class='mini-stat'><span>${k}</span><b>${v}</b></div>`;
-  const hero = `<div class='kpi-row'>
-    ${kpi('🧘', disciples, 'Disciples', 'kpi-gold')}
-    ${kpi('☯', cultivating, 'Cultivating', 'kpi-jade')}
-    ${kpi('🏔️', `${s.online_devices}/${s.total_devices}`, 'Realms Online', s.offline_devices ? 'kpi-warn' : 'kpi-jade')}
-    ${kpi('📦', s.total_projects, 'Projects', s.projects_with_warnings_errors ? 'kpi-warn' : '')}
-    ${kpi('📈', money(s.total_trading_profit_today), 'PnL Today', pnl < 0 ? 'kpi-neg' : 'kpi-pos')}
+  const total = Number(s.total_projects || 0);
+  const issues = Number(s.projects_with_warnings_errors || 0);
+  const healthy = Math.max(0, total - issues);
+  const testsFailing = Number(s.tests_failing || 0);
+  const kpi = (val, label, cls = '') =>
+    `<div class='kpi ${cls}'><div class='kpi-val'>${val}</div><div class='kpi-lbl'>${label}</div></div>`;
+  return `<div class='kpi-row'>
+    ${kpi(total, 'Projects')}
+    ${kpi(healthy, 'Healthy', total && !issues ? 'kpi-ok' : '')}
+    ${kpi(issues, 'Issues', issues ? 'kpi-bad' : 'kpi-ok')}
+    ${kpi(`${s.online_devices ?? 0}/${s.total_devices ?? 0}`, 'Hosts online', s.offline_devices ? 'kpi-warn' : '')}
+    ${kpi(s.bots_running ?? 0, 'Bots running')}
+    ${kpi(testsFailing, 'Tests failing', testsFailing ? 'kpi-bad' : 'kpi-ok')}
   </div>`;
-  const sub = `<div class='kpi-sub'>
-    ${mini('👑 Peak Lord', leader ? esc(leader.name) : '—')}
-    ${mini('⚠ Warn / Error', s.projects_with_warnings_errors)}
-    ${mini('🤖 Bots Running', s.bots_running)}
-    ${mini('💰 PnL Week', money(s.total_trading_profit_this_week))}
-    ${mini('📊 Open Exposure', money(s.total_open_exposure))}
-    ${mini('🧪 Tests Failing', s.tests_failing)}
-    ${mini('🧠 AI Hosts Online', s.local_ai_hosts_online)}
-    ${mini('❗ AI Errors', s.local_ai_hosts_with_errors)}
-  </div>`;
-  return hero + sub;
 }
 
 function renderDevices(devices) {
@@ -392,13 +380,9 @@ async function render() {
     summaryEl.innerHTML = summaryCards(data.summary);
     devicesEl.innerHTML = renderDevices(data.devices || []);
 
-    renderAiAgents(window.__lastProjects);
     renderProjects(window.__lastProjects);
     await renderAssign();        // sets window.__gov (specialties/leader) used by disciple cards
     await renderAgentCrew();
-    // Re-render KPIs now that window.__agents is populated (disciple/cultivating counts).
-    summaryEl.innerHTML = summaryCards(data.summary);
-    renderSkills();
     renderOps();
     renderTrials();
     renderLore();
@@ -412,11 +396,8 @@ async function render() {
     renderVault();
     bindTools();
     renderTools();
-    renderUsage();
     bindReliability();
     renderReliability();
-    bindTreasury();
-    renderTreasury();
   } catch (e) {
     err.classList.remove('hidden');
     summaryEl.classList.remove('loading');
@@ -2375,6 +2356,7 @@ function fmtDur(s) {
 }
 
 async function renderTreasury() {
+  if (!document.getElementById('treasury-balance')) return;
   let t;
   try { t = await fetch('/api/treasury', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { return; }
@@ -2421,6 +2403,7 @@ function usageCard(u) {
 
 async function renderUsage() {
   const section = document.getElementById('usage-section');
+  if (!section) return;
   let data;
   try { data = await fetch('/api/usage', { headers: authHeaders() }).then(r => r.json()); }
   catch (_) { section.classList.add('hidden'); return; }
@@ -2630,6 +2613,7 @@ async function renderOps() {
       if (p === 'granted') subscribePush();   // background push when VAPID is configured
     };
   }
+  renderSectMemory();   // the Knowledge Base lives in the Ops tab now
 }
 
 // Fire a desktop/phone notification when a project worsens (client-side alerting).
@@ -2707,6 +2691,7 @@ async function renderSectMemory() {
 // Dedicated management area for AI agents (ai_project + local_ai_host).
 function renderAiAgents(projects) {
   const section = document.getElementById('ai-agents-section');
+  if (!section) return;
   const el = document.getElementById('ai-agents');
   const agents = (projects || []).filter(p => AI_AGENT_TYPES.includes(p.type));
   if (!agents.length) {

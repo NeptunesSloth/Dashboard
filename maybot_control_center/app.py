@@ -63,6 +63,7 @@ from . import inbound
 from . import backup
 from . import registry
 from . import push
+from . import command
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -1463,8 +1464,67 @@ def public_status_json():
     return status_page.public_data()
 
 
+@app.get("/api/command")
+def command_snapshot(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return command.snapshot()
+
+
+_CMD = "maybot_control_center/static/command"
+
+
 @app.get("/")
 def home():
+    return FileResponse(f"{_CMD}/index.html")
+
+
+@app.get("/command.js")
+def command_js():
+    return FileResponse(f"{_CMD}/command.js", media_type="text/javascript")
+
+
+@app.get("/command.css")
+def command_css():
+    return FileResponse(f"{_CMD}/command.css", media_type="text/css")
+
+
+@app.get("/vendor/three.module.js")
+def three_js():
+    return FileResponse(f"{_CMD}/vendor/three.module.js", media_type="text/javascript")
+
+
+@app.get("/vendor/OrbitControls.js")
+def orbit_controls_js():
+    return FileResponse(f"{_CMD}/vendor/OrbitControls.js", media_type="text/javascript")
+
+
+@app.get("/lib.js")
+def command_lib_js():
+    return FileResponse(f"{_CMD}/lib.js", media_type="text/javascript")
+
+
+@app.get("/realm-map")
+def realm_map():
+    return FileResponse(f"{_CMD}/map.html")
+
+
+@app.get("/map.js")
+def map_js():
+    return FileResponse(f"{_CMD}/map.js", media_type="text/javascript")
+
+
+@app.get("/chamber")
+def chamber():
+    return FileResponse(f"{_CMD}/chamber.html")
+
+
+@app.get("/chamber.js")
+def chamber_js():
+    return FileResponse(f"{_CMD}/chamber.js", media_type="text/javascript")
+
+
+@app.get("/classic")
+def classic_home():
     return FileResponse("maybot_control_center/static/index.html")
 
 

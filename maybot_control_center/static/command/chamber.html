@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aegis — Disciple Command Chamber</title>
+  <meta name="theme-color" content="#05060c">
+  <link rel="icon" href="/icon.svg">
+  <link rel="stylesheet" href="/command.css">
+</head>
+<body>
+  <canvas id="scene-canvas" class="scene-canvas"></canvas>
+  <div class="vignette"></div>
+
+  <div class="chamber">
+    <nav class="rail glass" id="rail"></nav>
+
+    <aside class="roster">
+      <div class="topbar"><div class="brand"><span class="mark">🧠</span> Disciples</div></div>
+      <div class="glass" style="padding:14px; flex:1; display:flex; flex-direction:column; min-height:0">
+        <div class="panel-title">Command Chamber</div>
+        <div class="jarvis" id="roster-sub" style="margin:8px 0 12px">Loading the sect roster…</div>
+        <div class="roster-list" id="roster"></div>
+      </div>
+    </aside>
+
+    <main class="chamber-main" id="main">
+      <div class="glass" style="padding:40px; text-align:center; color:var(--muted)">Select a disciple to open their dossier.</div>
+    </main>
+  </div>
+
+  <script type="module" src="/chamber.js"></script>
+</body>
+</html>

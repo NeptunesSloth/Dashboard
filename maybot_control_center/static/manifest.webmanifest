@@ -1,6 +1,6 @@
 {
-  "name": "MayBot Celestial Sect",
-  "short_name": "MayBot",
+  "name": "Aegis — Autonomous Ops",
+  "short_name": "Aegis",
   "description": "Distributed monitoring + autonomous agent ops dashboard.",
   "start_url": "/",
   "scope": "/",
