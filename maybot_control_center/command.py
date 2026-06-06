@@ -34,6 +34,44 @@ def opportunities() -> list[dict]:
     return []
 
 
+def positions() -> list[dict]:
+    """Open trading positions for the Trade Center floor (demo or env-supplied)."""
+    if _demo():
+        return [
+            {"ticker": "NVDA", "side": "LONG", "qty": 40, "entry": 118.20, "last": 124.85, "pnl": 266.00, "pnl_pct": 5.63},
+            {"ticker": "META", "side": "LONG", "qty": 18, "entry": 484.10, "last": 502.30, "pnl": 327.60, "pnl_pct": 3.76},
+            {"ticker": "AMD", "side": "LONG", "qty": 60, "entry": 162.40, "last": 159.05, "pnl": -201.00, "pnl_pct": -2.06},
+            {"ticker": "TSLA", "side": "SHORT", "qty": 25, "entry": 244.90, "last": 238.10, "pnl": 170.00, "pnl_pct": 2.78},
+            {"ticker": "AAPL", "side": "LONG", "qty": 30, "entry": 211.30, "last": 214.95, "pnl": 109.50, "pnl_pct": 1.73},
+        ]
+    raw = os.getenv("MAYBOT_POSITIONS", "").strip()
+    if raw:
+        try:
+            data = json.loads(raw)
+            return data if isinstance(data, list) else []
+        except Exception:
+            return []
+    return []
+
+
+def bots() -> list[dict]:
+    """Per-bot trading performance leaderboard (demo or env-supplied)."""
+    if _demo():
+        return [
+            {"name": "Momentum Alpha", "pnl_today": 418.20, "pnl_month": 4192.80, "trades": 11, "win_rate": 73, "exposure": 6120.0, "status": "active"},
+            {"name": "Mean Reversion", "pnl_today": 196.40, "pnl_month": 2310.60, "trades": 8, "win_rate": 64, "exposure": 4180.0, "status": "active"},
+            {"name": "Vol Harvest", "pnl_today": 27.78, "pnl_month": 879.01, "trades": 4, "win_rate": 58, "exposure": 2180.0, "status": "throttled"},
+        ]
+    raw = os.getenv("MAYBOT_BOTS", "").strip()
+    if raw:
+        try:
+            data = json.loads(raw)
+            return data if isinstance(data, list) else []
+        except Exception:
+            return []
+    return []
+
+
 def events(limit: int = 14) -> list[dict]:
     out: list[dict] = []
     try:
@@ -69,6 +107,8 @@ def snapshot() -> dict:
         "account_base": float(os.getenv("MAYBOT_ACCOUNT_BASE", "0") or 0),
         "demo": demo,
         "opportunities": opportunities(),
+        "positions": positions(),
+        "bots": bots(),
         "events": events(),
     }
     if demo:  # vivid figures so the command center reads like a live trading floor

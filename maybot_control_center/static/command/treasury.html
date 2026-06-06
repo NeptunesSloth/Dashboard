@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aegis — Treasury</title>
+  <meta name="theme-color" content="#05060c">
+  <link rel="icon" href="/icon.svg">
+  <link rel="stylesheet" href="/command.css">
+</head>
+<body>
+  <canvas id="scene-canvas" class="scene-canvas"></canvas>
+  <div class="vignette"></div>
+
+  <div class="app">
+    <nav class="rail glass" id="rail"></nav>
+
+    <div class="center">
+      <div class="topbar">
+        <div class="brand"><span class="mark">🏦</span> Treasury</div>
+        <div class="jarvis" id="jarvis">The vault.</div>
+        <div class="clock" id="clock"></div>
+      </div>
+
+      <section class="hero glass rise" id="hero"></section>
+
+      <div class="section-h"><div class="panel-title">Capital Allocation</div><div class="muted" id="alloc-sub"></div></div>
+      <section class="glass rise d2" style="padding:20px"><div class="alloc" id="alloc"></div></section>
+
+      <div class="section-h"><div class="panel-title">Performance</div></div>
+      <div class="metrics" id="metrics"></div>
+    </div>
+
+    <aside class="right">
+      <section class="glass rise d2" style="padding:20px">
+        <div class="panel-title">Sect Treasury</div>
+        <div class="vault" id="vault" style="margin-top:14px"></div>
+      </section>
+      <section class="glass rise d4" style="padding:20px; flex:1; display:flex; flex-direction:column; min-height:0">
+        <div class="panel-title">Spirit Stone Flow</div>
+        <div class="flow" id="flow" style="margin-top:12px"></div>
+        <div class="muted" style="font-size:11px; margin-top:auto; padding-top:12px">
+          Spirit stones fund disciple stipends, pill refining, and tribulation insurance.
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <script type="module" src="/treasury.js"></script>
+</body>
+</html>
