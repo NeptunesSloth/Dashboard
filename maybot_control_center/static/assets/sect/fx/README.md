@@ -9,7 +9,7 @@ the disciple/event, with no character in frame.
 The map looks for these names (all optional — missing ones fall back to the
 existing procedural drawing, or simply nothing):
 
-  fx_breakthrough_8f.png   expanding golden qi shockwave (breakthrough/milestone spectacle)
+  fx_breakthrough_7f.png   expanding golden qi shockwave (breakthrough/milestone spectacle)
   fx_celebrate_6f.png      gold-spark + petal burst over a celebrating disciple
   fx_aura_4f.png           looping rising-qi aura under a meditating disciple
   fx_work_4f.png           small looping work spark (forge/alchemy/general work)
