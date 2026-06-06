@@ -1,4 +1,4 @@
-import { $, api, esc, money, timeAgo, mountRail, countUp, bindTilt, starfield } from '/lib.js';
+import { $, api, post, esc, money, timeAgo, mountRail, countUp, bindTilt, starfield } from '/lib.js';
 
 mountRail('trade');
 starfield('scene-canvas');
@@ -79,15 +79,83 @@ function renderOpps(cmd) {
 
 function renderBots(cmd) {
   const bots = (cmd && cmd.bots) || [];
+  const on = (s) => s === 'active' || s === 'throttled';
   $('bots').innerHTML = bots.length ? bots.map((b) => {
-    const pos = Number(b.pnl_today) >= 0;
+    const pos = Number(b.pnl_today) >= 0, st = b.status || '';
+    const act = on(st)
+      ? `<button class='bctl' data-bot='${esc(b.name)}' data-act='${st === 'throttled' ? 'resume' : 'throttle'}'>${st === 'throttled' ? 'Resume' : 'Throttle'}</button>
+         <button class='bctl warn' data-bot='${esc(b.name)}' data-act='pause'>Pause</button>`
+      : `<button class='bctl' data-bot='${esc(b.name)}' data-act='resume'>Resume</button>`;
     return `<div class='bot'>
       <div class='bot-top'><span class='bot-name'>${esc(b.name)}</span>
-        <span class='bot-status ${b.status === 'active' ? 'on' : 'off'}'>${esc(b.status || '')}</span></div>
+        <span class='bot-status ${on(st) ? 'on' : 'off'}'>${esc(st)}</span></div>
       <div class='bot-pnl ${pos ? 'pos' : 'neg'}'>${money(b.pnl_today)}<span class='muted'> today</span></div>
       <div class='bot-meta'><span>MTD <b>${money(b.pnl_month)}</b></span><span>${b.trades} trades</span><span>${b.win_rate}% win</span></div>
+      <div class='bot-ctl'>${act}</div>
     </div>`;
   }).join('') : `<div class='muted'>No bots reporting.</div>`;
+  $('bots').querySelectorAll('.bctl').forEach((el) => el.onclick = () => botAction(el.dataset.bot, el.dataset.act));
+}
+
+async function botAction(bot, action) {
+  const r = await post('/api/bots/control', { bot, action });
+  if (!r || r.error) { flash(r && r.error ? r.error : 'Operator role required for control'); return; }
+  refresh();
+}
+
+/* ---- live data chip, ML signal overlay, risk + control, advisor ---- */
+function renderLive(cmd) {
+  const chip = $('live-chip'); const live = cmd && (cmd.live_market || cmd.broker);
+  chip.hidden = !live;
+  if (live) chip.innerHTML = `<i></i>${cmd.broker ? 'BROKER' : 'LIVE'}`;
+}
+
+function applySignals(cmd) {
+  const sig = (cmd && cmd.signals) || []; if (!sig.length) return;
+  const by = {}; sig.forEach((s) => { by[s.symbol] = s; });
+  $('opps').querySelectorAll('.opp').forEach((row) => {
+    const t = row.querySelector('.opp-tick'); const s = t && by[t.textContent.trim()];
+    if (!s) return;
+    const tag = document.createElement('div');
+    tag.className = `sig-tag ${s.direction}`;
+    tag.innerHTML = `ML ${s.direction} · ${(s.score * 100) | 0}%`;
+    row.querySelector('.opp-meta').appendChild(tag);
+  });
+}
+
+function renderRisk(cmd) {
+  const r = (cmd && cmd.risk) || {};
+  $('risk-note').textContent = r.halted ? 'TRADING HALTED' : 'nominal';
+  const dd = Number(r.drawdown_pct || 0), exp = Number(r.exposure || 0);
+  const reasons = (r.reasons || []).map((x) => esc(x)).join(' · ');
+  $('risk-panel').innerHTML = `
+    <div class='risk-grid'>
+      <div class='risk-stat'><span>Status</span><b class='${r.halted ? 'neg' : 'pos'}'>${r.halted ? 'HALTED' : 'Live'}</b></div>
+      <div class='risk-stat'><span>Exposure</span><b>$${exp.toLocaleString(undefined, { maximumFractionDigits: 0 })}</b></div>
+      <div class='risk-stat'><span>Drawdown</span><b class='${dd > 0 ? 'neg' : ''}'>${dd.toFixed(1)}%</b></div>
+      <div class='risk-actions'>
+        <button class='cbtn ${r.halted ? '' : 'warn'}' id='kill-btn'>${r.halted ? 'Release halt' : 'Kill-switch'}</button>
+        <button class='cbtn danger' id='flatten-btn'>Flatten all</button>
+      </div>
+    </div>${reasons ? `<div class='muted' style='margin-top:8px;font-size:12px'>${reasons}</div>` : ''}`;
+  $('kill-btn').onclick = async () => { const x = await post('/api/risk/kill', { on: !r.halted }); if (!x || x.error) flash('Operator role required'); else refresh(); };
+  $('flatten-btn').onclick = async () => { if (!confirm('Flatten ALL positions across every bot?')) return; const x = await post('/api/bots/flatten'); if (!x || x.error) flash('Operator role required'); else { flash('Flatten-all requested'); refresh(); } };
+}
+
+async function loadAdvisor() {
+  const a = await api('/api/advisor'); if (!a || !a.text) return;
+  $('advisor-wrap').hidden = false;
+  $('adv-src').textContent = a.source === 'llm' ? '· live' : '· local';
+  const hi = (a.highlights || []).map((h) => `<li>${esc(h)}</li>`).join('');
+  const sg = (a.suggestions || []).map((s) => `<li>${esc(s)}</li>`).join('');
+  $('advisor').innerHTML = `<p class='adv-text'>${esc(a.text)}</p>
+    ${hi ? `<div class='adv-cols'><div><div class='adv-h'>Highlights</div><ul>${hi}</ul></div>${sg ? `<div><div class='adv-h'>Suggestions</div><ul>${sg}</ul></div>` : ''}</div>` : ''}`;
+}
+
+let flashT;
+function flash(msg) {
+  let el = $('toast'); if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.add('show'); clearTimeout(flashT); flashT = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
 function renderEvents(cmd) {
@@ -117,9 +185,12 @@ async function refresh() {
           fillRate: (tr.win_rate || 0) / 100, botCount: tr.bots || t.botCount, demoPF: tr.profit_factor };
   }
   renderHero(t, cmd); renderMetrics(t, cmd); renderPositions(cmd); renderOpps(cmd); renderBots(cmd); renderEvents(cmd); jarvis(cmd, t);
+  renderLive(cmd); applySignals(cmd); renderRisk(cmd);
 }
 
 setInterval(() => { $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);
 $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 refresh();
 setInterval(refresh, 7000);
+loadAdvisor();
+setInterval(loadAdvisor, 30000);

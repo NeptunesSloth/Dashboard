@@ -116,4 +116,68 @@ def snapshot() -> dict:
         out["trading"] = {"account_value": 42182.15, "buying_power": 18500.0, "exposure": 12480.0,
                           "positions": 7, "trades_today": 23, "win_rate": 68, "profit_factor": 2.4,
                           "risk": "Moderate", "bots": 3}
+    _live_layer(out)
     return out
+
+
+def _live_layer(out: dict) -> None:
+    """Overlay live, flagged-off-by-default capabilities onto the snapshot.
+
+    Every step is best-effort and guarded: a missing module, missing API keys, or
+    no network simply leaves the existing demo/env data in place. This is what lets
+    the trading floor go from demo to real one credential at a time.
+    """
+    # Real broker (Alpaca paper) positions + account, read-only, when configured.
+    try:
+        from . import broker
+        if broker.enabled():
+            bpos = broker.positions()
+            if bpos:
+                out["positions"] = bpos
+            acct = broker.account()
+            if acct:
+                out["account"] = acct
+            out["broker"] = True
+    except Exception:
+        pass
+    # Live market quotes recompute last/pnl on whatever positions we have.
+    try:
+        from . import quotes
+        out["positions"] = quotes.enrich_positions(out.get("positions") or [])
+        out["live_market"] = quotes.live()
+    except Exception:
+        pass
+    # Operator control overlay: paused/throttled/flatten reflected on each bot.
+    try:
+        from . import botcontrol
+        out["bots"] = botcontrol.apply_to_bots(out.get("bots") or [])
+    except Exception:
+        pass
+    # ML signal scores for the opportunities war room (flagged by MAYBOT_SIGNALS).
+    try:
+        from . import signals
+        if signals.enabled():
+            syms = [p.get("ticker") for p in (out.get("positions") or []) if p.get("ticker")]
+            syms = syms or [o.get("ticker") for o in (out.get("opportunities") or []) if o.get("ticker")]
+            out["signals"] = signals.score_symbols(syms)
+    except Exception:
+        pass
+    # Risk engine evaluation + kill-switch state.
+    try:
+        from . import risk
+        acct = out.get("account") or {"equity": (out.get("pnl") or {}).get("total")}
+        out["risk"] = risk.evaluate(out.get("positions") or [], acct, out.get("bots") or [])
+    except Exception:
+        pass
+    # Advisor availability (the panel decides LLM vs local from this).
+    try:
+        from . import advisor
+        out["advisor"] = advisor.available()
+    except Exception:
+        pass
+    # Record a time-series sample for the equity/P&L analytics.
+    try:
+        from . import pnl_history
+        pnl_history.record(out)
+    except Exception:
+        pass
