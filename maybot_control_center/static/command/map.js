@@ -437,13 +437,15 @@ function drawDiscOverlay(d, x, topY, s, working, pip, hovd, sel, id) {
 
 /* spectacles + assembly events */
 const spectacles = [];
-function celebrate(x, y, color, text) { spectacles.push({ x, y, color, text, t: 0 }); }
+function celebrate(x, y, color, text, fx) { spectacles.push({ x, y, color, text, t: 0, fx: fx || 'fx_breakthrough' }); }
 function drawSpectacles(dt) {
   for (let i = spectacles.length - 1; i >= 0; i--) { const s = spectacles[i]; s.t += dt; const k = s.t / 2.4;
     ctx.globalAlpha = 1;
-    if (!drawFx('fx_breakthrough', s.x, s.y, 100, Math.min(0.999, k))) {
+    const pillar = s.fx === 'fx_levelup', H = pillar ? 84 : 100, ey = pillar ? s.y - H / 2 : s.y;   // pillar rises from the feet
+    if (!drawFx(s.fx, s.x, ey, H, Math.min(0.999, k))) {
       ctx.strokeStyle = s.color; ctx.globalAlpha = Math.max(0, 0.9 - k); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(s.x, s.y, 8 + k * 50, 0, 6.28); ctx.stroke(); }
-    ctx.globalAlpha = Math.max(0, 1 - k); ctx.font = '700 12px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff3cf'; ctx.fillText('✦ ' + s.text, s.x, s.y - 26 - k * 22); ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+    const ty = pillar ? s.y - H - 6 : s.y - 26 - k * 22;
+    ctx.globalAlpha = Math.max(0, 1 - k); ctx.font = '700 12px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff3cf'; ctx.fillText('✦ ' + s.text, s.x, ty); ctx.textAlign = 'left'; ctx.globalAlpha = 1;
     if (s.t > 2.4) spectacles.splice(i, 1); }
 }
 let assemblyT = 0;
@@ -550,7 +552,12 @@ let seenChron = null;
 async function pollBreak() {
   const ch = await api('/api/chronicle?limit=20'); if (!ch) return; const entries = ch.recent || [];
   if (seenChron === null) { seenChron = new Set(entries.map((e) => e.id)); return; }
-  entries.filter((e) => !seenChron.has(e.id) && ['breakthrough', 'milestone', 'title', 'ascension'].includes(e.kind)).forEach((e) => { const d = disciples.find((x) => x.name === e.agent); if (d) { d.celebrate = 1.8; celebrate(d.x, d.y - 30, '#a78bfa', `${e.agent}: ${String(e.detail || e.kind).slice(0, 22)}`); } });
+  entries.filter((e) => !seenChron.has(e.id) && ['breakthrough', 'milestone', 'title', 'ascension'].includes(e.kind)).forEach((e) => {
+    const d = disciples.find((x) => x.name === e.agent); if (!d) return; d.celebrate = 1.8;
+    const text = `${e.agent}: ${String(e.detail || e.kind).slice(0, 22)}`, grand = e.kind === 'milestone' || e.kind === 'ascension';
+    if (grand) celebrate(d.x, d.y, '#ffd36a', text, 'fx_levelup');   // a pillar of light rises for milestones & ascensions
+    else celebrate(d.x, d.y - 30, '#a78bfa', text, 'fx_breakthrough');
+  });
   entries.forEach((e) => seenChron.add(e.id));
 }
 async function load() {
