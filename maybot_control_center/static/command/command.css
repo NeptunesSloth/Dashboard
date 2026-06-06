@@ -138,6 +138,40 @@ body {
 .proj:hover .proj-actions { opacity: 1; max-height: 40px; }
 .cbtn { font-size: 11px; padding: 6px 12px; border-radius: 9px; border: 1px solid var(--line); background: rgba(255,255,255,.03); color: var(--text); cursor: pointer; transition: all .2s; }
 .cbtn:hover { border-color: rgba(139,92,255,.4); background: rgba(139,92,255,.12); }
+.cbtn.warn { border-color: rgba(251,191,36,.4); color: #ffe7a6; }
+.cbtn.danger { border-color: rgba(251,94,126,.45); color: #ffb7c4; }
+.cbtn.danger:hover { background: rgba(251,94,126,.16); }
+
+/* ---------- trading cockpit (advisor / risk / control / signals) ---------- */
+.live-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: .14em; font-weight: 700;
+  color: var(--jade); border: 1px solid rgba(52,211,153,.4); border-radius: 999px; padding: 3px 10px; }
+.live-chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--jade); box-shadow: 0 0 8px var(--jade); animation: pulse 1.6s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+.advisor-wrap { padding: 16px 18px; }
+.adv-src { color: var(--muted); font-weight: 500; letter-spacing: .04em; }
+.advisor .adv-text { margin: 10px 0 4px; font-size: 13.5px; line-height: 1.55; color: var(--text); }
+.adv-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 8px; }
+.adv-h { font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.adv-cols ul { margin: 0; padding-left: 16px; font-size: 12.5px; color: #cdd3f0; }
+.adv-cols li { margin: 3px 0; }
+.risk-panel { padding: 14px 16px; }
+.risk-grid { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.risk-stat { display: flex; flex-direction: column; gap: 2px; }
+.risk-stat span { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.risk-stat b { font-size: 18px; font-variant-numeric: tabular-nums; }
+.risk-stat b.pos, .pos { color: var(--jade); } .risk-stat b.neg, .neg { color: var(--crimson); }
+.risk-actions { margin-left: auto; display: flex; gap: 8px; }
+.risk-actions .cbtn { padding: 8px 14px; font-size: 12px; }
+.bot-ctl { display: flex; gap: 6px; margin-top: 8px; }
+.bctl { flex: 1; font-size: 10.5px; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--line); background: rgba(255,255,255,.03); color: var(--muted); cursor: pointer; transition: all .2s; }
+.bctl:hover { color: var(--text); border-color: rgba(139,92,255,.4); background: rgba(139,92,255,.1); }
+.bctl.warn:hover { border-color: rgba(251,191,36,.45); color: #ffe7a6; background: rgba(251,191,36,.1); }
+.sig-tag { display: inline-block; margin-top: 5px; font-size: 10px; font-weight: 700; letter-spacing: .04em; padding: 2px 7px; border-radius: 6px; }
+.sig-tag.long { color: #b9ffd9; background: rgba(52,211,153,.16); } .sig-tag.short { color: #ffc1cd; background: rgba(251,94,126,.16); }
+.sig-tag.flat { color: var(--muted); background: rgba(140,150,190,.12); }
+.toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(12px); z-index: 80; padding: 11px 20px; border-radius: 12px;
+  background: rgba(20,22,38,.92); border: 1px solid var(--line); color: var(--text); font-size: 13px; opacity: 0; pointer-events: none; transition: all .3s; box-shadow: 0 18px 50px rgba(0,0,0,.5); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ---------- events timeline ---------- */
 .events { display: flex; flex-direction: column; gap: 2px; max-height: 320px; overflow-y: auto; }

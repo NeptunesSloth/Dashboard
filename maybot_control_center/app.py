@@ -64,6 +64,14 @@ from . import backup
 from . import registry
 from . import push
 from . import command
+from . import quotes
+from . import broker
+from . import risk
+from . import botcontrol
+from . import signals
+from . import advisor
+from . import notify
+from . import pnl_history
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -1485,6 +1493,100 @@ def sect_disciples():
     return {"sprites": _sect_pngs("disciples"), "fx": _sect_pngs("fx"), "portraits": _sect_pngs("portraits")}
 
 
+# ====================================================================== #
+#  Trading cockpit — live market data, risk, control, ML signals, advisor
+#  All read endpoints need any valid role; mutating ones need operator.
+# ====================================================================== #
+@app.get("/api/market/quotes")
+def market_quotes(symbols: str = Query(default=""), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    syms = [s.strip().upper() for s in symbols.split(",") if s.strip()][:50]
+    return {"quotes": quotes.get_quotes(syms), "live": quotes.live()}
+
+
+@app.get("/api/market/account")
+def market_account(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"enabled": broker.enabled(), "account": broker.account(), "fills": broker.recent_fills()}
+
+
+@app.get("/api/risk")
+def risk_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"status": risk.status(), "evaluation": command.snapshot().get("risk", {})}
+
+
+class KillIn(BaseModel):
+    on: bool = True
+
+
+@app.post("/api/risk/kill")
+def risk_kill(body: KillIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    actor = authz.name_for(x_control_token) or "operator"
+    res = risk.kill_switch(bool(body.on), actor)
+    try:
+        notify.send("Kill-switch " + ("ENGAGED" if body.on else "released"),
+                    f"by {actor}", level=("warn" if body.on else "info"), kind="risk")
+    except Exception:
+        pass
+    return res
+
+
+class BotControlIn(BaseModel):
+    bot: str
+    action: str
+
+
+@app.post("/api/bots/control")
+def bots_control(body: BotControlIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    bot = (body.bot or "").strip()
+    if not bot or len(bot) > 64 or not re.match(r'^[\w \-\.]+$', bot):
+        raise HTTPException(400, "invalid bot name")
+    actor = authz.name_for(x_control_token) or "operator"
+    res = botcontrol.set_state(bot, (body.action or "").strip().lower(), actor)
+    if res.get("error"):
+        raise HTTPException(400, res["error"])
+    return res
+
+
+@app.post("/api/bots/flatten")
+def bots_flatten(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    actor = authz.name_for(x_control_token) or "operator"
+    try:
+        notify.send("Flatten-all requested", f"by {actor}", level="warn", kind="risk")
+    except Exception:
+        pass
+    return botcontrol.flatten_all(actor)
+
+
+@app.get("/api/signals")
+def signals_view(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    snap = command.snapshot()
+    syms = [p.get("ticker") for p in snap.get("positions", []) if p.get("ticker")]
+    syms = syms or [o.get("ticker") for o in snap.get("opportunities", []) if o.get("ticker")]
+    return {"enabled": signals.enabled(), "model": signals.model_info(), "scores": signals.score_symbols(syms)}
+
+
+@app.get("/api/advisor")
+def advisor_view(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return advisor.summary(command.snapshot())
+
+
+@app.get("/api/notifications")
+def notifications_view(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"channels": notify.channels(), "recent": notify.recent()}
+
+
+@app.get("/api/pnl")
+def pnl_view(metric: str = Query(default="total"), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"metric": metric, "series": pnl_history.series(metric), "summary": pnl_history.summary()}
 
 
 _CMD = "maybot_control_center/static/command"

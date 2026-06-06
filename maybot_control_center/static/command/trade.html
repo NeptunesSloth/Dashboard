@@ -6,7 +6,9 @@
   <title>Aegis — Trade Center</title>
   <meta name="theme-color" content="#05060c">
   <link rel="icon" href="/icon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
   <link rel="stylesheet" href="/command.css">
+  <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}</script>
 </head>
 <body>
   <canvas id="scene-canvas" class="scene-canvas"></canvas>
@@ -19,10 +21,19 @@
       <div class="topbar">
         <div class="brand"><span class="mark">📈</span> Trade Center</div>
         <div class="jarvis" id="jarvis">The trading floor.</div>
+        <div class="live-chip" id="live-chip" hidden></div>
         <div class="clock" id="clock"></div>
       </div>
 
       <section class="hero glass rise" id="hero"></section>
+
+      <section class="glass rise d2 advisor-wrap" id="advisor-wrap" hidden>
+        <div class="panel-title">Sect Advisor <span class="adv-src" id="adv-src"></span></div>
+        <div class="advisor" id="advisor"></div>
+      </section>
+
+      <div class="section-h"><div class="panel-title">Risk &amp; Control</div><div class="muted" id="risk-note"></div></div>
+      <section class="glass rise d2 risk-panel" id="risk-panel"></section>
 
       <div class="section-h"><div class="panel-title">Trading Command Center</div></div>
       <div class="metrics" id="metrics"></div>
