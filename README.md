@@ -36,6 +36,7 @@ Full desktop-app details (stop, update, troubleshoot): [docs/DESKTOP_APP.md](doc
 ## Documentation
 
 - **[docs/DESKTOP_APP.md](docs/DESKTOP_APP.md)** — run it as a one-click desktop app (Docker; auto-restarts, no commands).
+- **[docs/CONTROL_CENTER_SETUP.md](docs/CONTROL_CENTER_SETUP.md)** — set up the dashboard host itself (run, auth/RBAC, connect hosts, features).
 - **[docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md)** — set up the LLM backend (Ollama / OpenAI-compatible / Claude) that powers the agents.
 - **[docs/AGENT_SETUP.md](docs/AGENT_SETUP.md)** — install an agent on each bot host so the dashboard can pull its data.
 
