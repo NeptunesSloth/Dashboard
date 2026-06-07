@@ -267,3 +267,30 @@ $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', mi
 init3D();
 refresh();
 setInterval(refresh, 7000);
+
+/* ---- first-run onboarding checklist ---- */
+async function renderSetup() {
+  const el = document.getElementById('setup-banner'); if (!el) return;
+  if (localStorage.getItem('maybot.setup_dismissed')) { el.innerHTML = ''; return; }
+  const s = await api('/api/setup');
+  if (!s || s.done) { el.innerHTML = ''; return; }
+  const steps = [
+    ['account', 'Create your account', 'Secure the dashboard', '/login', null],
+    ['host', 'Add a host', 'Connect a machine running your bots', '/console', 'ops'],
+    ['member', 'Recruit a sect member', 'Add an AI agent', '/chamber', null],
+    ['ai', 'Connect an AI backend', 'Local AI or an API key', '/chamber', null],
+    ['notifications', 'Set up notifications', 'Slack / Discord / webhook / email', '/console', 'ops'],
+  ];
+  const done = Object.values(s.steps).filter(Boolean).length;
+  el.innerHTML = `<section class='glass rise setup-card'>
+    <div class='setup-head'><div class='panel-title'>Get started · ${done}/${steps.length}</div>
+      <button class='setup-x' id='setup-x' title='dismiss'>✕</button></div>
+    <div class='setup-steps'>${steps.map(([k, t, d, href, tab]) => `
+      <a class='setup-step ${s.steps[k] ? 'ok' : ''}' href='${href}'${tab ? ` data-tab='${tab}'` : ''}>
+        <span class='setup-check'>${s.steps[k] ? '✓' : ''}</span>
+        <span class='setup-txt'><b>${t}</b><span>${d}</span></span></a>`).join('')}</div>
+  </section>`;
+  el.querySelectorAll('.setup-step[data-tab]').forEach((a) => a.onclick = () => localStorage.setItem('tab', a.dataset.tab));
+  const x = document.getElementById('setup-x'); if (x) x.onclick = () => { localStorage.setItem('maybot.setup_dismissed', '1'); el.innerHTML = ''; };
+}
+renderSetup();

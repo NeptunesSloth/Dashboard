@@ -31,8 +31,12 @@ WINDOW = int(os.getenv("MAYBOT_RATE_WINDOW", "60"))  # seconds
 # Login-issued session tokens expire after this many minutes (0 = no expiry).
 SESSION_TTL_MINUTES = float(os.getenv("MAYBOT_SESSION_TTL_MINUTES", "720"))
 
+LOGIN_MAX_FAILS = int(os.getenv("MAYBOT_LOGIN_MAX_FAILS", "8"))   # failed sign-ins before lockout
+LOGIN_LOCK_WINDOW = int(os.getenv("MAYBOT_LOGIN_LOCK_WINDOW", "300"))  # seconds
+
 _lock = threading.Lock()
 _buckets: dict[str, tuple[float, int]] = {}
+_login_fails: dict[str, tuple[float, int]] = {}
 # session id -> {"role", "name", "projects", "expires"} (expires=None never lapses)
 _sessions: dict[str, dict] = {}
 # pending 2FA challenge id -> {"name", "code", "expires", "tries"}
@@ -248,6 +252,33 @@ def role_for(token: str) -> str | None:
     return "operator"  # no auth configured at all
 
 
+def login_blocked(key: str) -> bool:
+    """True if this client has too many recent failed sign-ins (brute-force guard)."""
+    if LOGIN_MAX_FAILS <= 0:
+        return False
+    now = time.time()
+    with _lock:
+        ws, n = _login_fails.get(key, (now, 0))
+        if now - ws >= LOGIN_LOCK_WINDOW:
+            _login_fails.pop(key, None)
+            return False
+        return n >= LOGIN_MAX_FAILS
+
+
+def note_login_fail(key: str) -> None:
+    now = time.time()
+    with _lock:
+        ws, n = _login_fails.get(key, (now, 0))
+        if now - ws >= LOGIN_LOCK_WINDOW:
+            ws, n = now, 0
+        _login_fails[key] = (ws, n + 1)
+
+
+def reset_login(key: str) -> None:
+    with _lock:
+        _login_fails.pop(key, None)
+
+
 def allow_request(key: str) -> bool:
     if RATE <= 0:
         return True
@@ -268,3 +299,4 @@ def clear() -> None:
         _buckets.clear()
         _sessions.clear()
         _challenges.clear()
+        _login_fails.clear()

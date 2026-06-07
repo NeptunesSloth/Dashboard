@@ -64,3 +64,18 @@ def test_2fa_requires_channel_then_challenges(monkeypatch):
     assert r.get("pending_2fa") and r.get("challenge")
     # wrong code rejected; right code (from the in-memory challenge) issues a session
     assert client.post("/api/login/2fa", json={"challenge": r["challenge"], "code": "000000"}).status_code in (401,)
+
+
+def test_login_lockout(monkeypatch):
+    monkeypatch.setattr(authz, "LOGIN_MAX_FAILS", 3)
+    client.post("/api/signup", json={"name": "lock", "password": "passphrase1"})
+    for _ in range(3):
+        assert client.post("/api/login", json={"name": "lock", "password": "wrong"}).status_code == 401
+    # further attempts are blocked even with the correct password
+    assert client.post("/api/login", json={"name": "lock", "password": "passphrase1"}).status_code == 429
+
+
+def test_setup_status():
+    s = client.get("/api/setup").json()
+    assert set(s["steps"]) == {"account", "host", "member", "ai", "notifications"}
+    assert s["steps"]["account"] is False and s["done"] is False

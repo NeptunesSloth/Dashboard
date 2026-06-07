@@ -3166,6 +3166,7 @@ async function initAccountConsole() {
   me = me || {};
   if (!me.authed && me.auth_active) { location.href = '/login'; return; }
   mountAcct(me);
+  mountBellConsole();
 }
 function mountAcct(me) {
   document.getElementById('acct-bubble')?.remove();
@@ -3238,3 +3239,28 @@ function openPwModalConsole(me) {
   };
 }
 initAccountConsole();
+
+// ===== notifications bell (console) =====
+function _agoC(ts) { if (!ts) return ''; const s = Date.now() / 1000 - ts; if (s < 60) return `${s | 0}s ago`; if (s < 3600) return `${s / 60 | 0}m ago`; if (s < 86400) return `${s / 3600 | 0}h ago`; return `${s / 86400 | 0}d ago`; }
+function mountBellConsole() {
+  document.getElementById('bell')?.remove(); document.getElementById('bell-menu')?.remove();
+  const bell = document.createElement('button'); bell.id = 'bell'; bell.className = 'bell'; bell.innerHTML = `🔔<span class='bell-badge' id='bell-badge' hidden>0</span>`;
+  const menu = document.createElement('div'); menu.id = 'bell-menu'; menu.className = 'bell-menu';
+  document.body.append(bell, menu);
+  const bubble = document.getElementById('acct-bubble');
+  const place = () => { const w = bubble ? bubble.offsetWidth : 120; bell.style.right = (16 + w + 10) + 'px'; };
+  place(); setTimeout(place, 250); addEventListener('resize', place);
+  async function refresh() {
+    let d = {}; try { d = await fetch('/api/notifications', { headers: authHeaders() }).then((r) => r.json()); } catch (_) {}
+    const ev = (d && d.recent) || [];
+    const seen = Number(localStorage.getItem('maybot.notif_seen') || 0);
+    const unseen = ev.filter((e) => (e.ts * 1000) > seen).length;
+    const badge = document.getElementById('bell-badge');
+    if (badge) { if (unseen > 0) { badge.hidden = false; badge.textContent = unseen > 9 ? '9+' : String(unseen); } else badge.hidden = true; }
+    menu.innerHTML = `<div class='acct-head'><b>Notifications</b><span>${(d && d.channels || []).length ? 'via ' + d.channels.join(', ') : 'no channels configured'}</span></div>`
+      + (ev.length ? ev.slice().reverse().slice(0, 20).map((e) => `<div class='notif lvl-${esc(e.level || 'info')}'><div class='notif-t'>${esc(e.title || '')}</div>${e.body ? `<div class='notif-b'>${esc(e.body)}</div>` : ''}<div class='notif-time'>${_agoC(e.ts)}</div></div>`).join('') : `<div class='muted' style='padding:12px'>No notifications yet.</div>`);
+  }
+  bell.onclick = (e) => { e.stopPropagation(); const open = menu.classList.toggle('open'); if (open) { localStorage.setItem('maybot.notif_seen', String(Date.now())); const b = document.getElementById('bell-badge'); if (b) b.hidden = true; } };
+  document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== bell) menu.classList.remove('open'); });
+  refresh(); setInterval(refresh, 15000);
+}

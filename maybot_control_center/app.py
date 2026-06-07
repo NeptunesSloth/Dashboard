@@ -1,9 +1,10 @@
 import csv
 import io
+import os
 import queue
 import re
 import secrets
-from fastapi import FastAPI, Header, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse
 from pydantic import BaseModel
 from .config import load_devices, all_devices, save_devices, CONTROL_CENTER_TOKEN
@@ -1639,12 +1640,17 @@ def _issue(token: str) -> dict:
 
 
 @app.post("/api/login")
-def login(body: LoginIn):
+def login(body: LoginIn, request: Request):
+    key = request.client.host if request.client else "anon"
+    if authz.login_blocked(key):
+        raise HTTPException(429, "too many sign-in attempts — wait a few minutes and try again")
     # Name + password sign-in (preferred). Falls back to raw-token login (legacy).
     if body.name and body.password:
         u = authz.user_by_name(body.name.strip())
         if not u or not u.get("pw") or not authz.verify_password(body.password, u.get("pw", "")):
+            authz.note_login_fail(key)
             raise HTTPException(401, "invalid name or password")
+        authz.reset_login(key)
         if u.get("tfa") and notify.channels():
             cid, code = authz.create_2fa_challenge(u["name"])
             ch = notify.channels()[0]
@@ -1653,7 +1659,9 @@ def login(body: LoginIn):
         return _issue(u["token"])
     role = authz.role_for(body.token)
     if role is None:
+        authz.note_login_fail(key)
         raise HTTPException(401, "invalid token")
+    authz.reset_login(key)
     return _issue(body.token)
 
 
@@ -1702,6 +1710,26 @@ class LogoutIn(BaseModel):
 @app.post("/api/logout")
 def logout(body: LogoutIn):
     return {"ok": authz.revoke_session((body.session or "").strip())}
+
+
+@app.get("/api/setup")
+def setup_status(x_control_token: str = Header(default="")):
+    """Onboarding checklist state for the first-run guide."""
+    _check_token(x_control_token)
+    users = authz.load_users()
+    members = agents.file_agents()
+    devices = load_devices()
+    ai = (bool(os.getenv("ANTHROPIC_API_KEY")) and any(m.get("provider") == "claude" for m in members)) \
+        or bool(os.getenv("OPENAI_API_KEY")) or any(m.get("base_url") for m in members)
+    steps = {
+        "account": bool(users),
+        "host": len(devices) > 0,
+        "member": len(members) > 0,
+        "ai": bool(ai),
+        "notifications": len(notify.channels()) > 0,
+    }
+    return {"steps": steps, "done": all(steps.values()),
+            "counts": {"hosts": len(devices), "members": len(members), "accounts": len(users)}}
 
 
 @app.get("/api/account/me")
