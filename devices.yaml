@@ -1,0 +1,28 @@
+# ============================================================================
+#  devices.yaml — the list of AGENT HOSTS the control center pulls data FROM.
+#
+#  HOW DATA FLOWS:
+#    [your bot host] runs `maybot_agent`  --(HTTP, every poll)-->  control center
+#  The control center reaches OUT to each agent URL below, authenticates with
+#  api_token, and pulls /api/projects (status, health, logs, metrics). Add one
+#  entry per machine that runs your bots.
+#
+#  This default points at the co-located agent from `docker compose up`. To
+#  monitor other machines, add entries like the commented examples below.
+# ============================================================================
+
+devices:
+  # Co-located agent started by docker-compose (service name `agent`).
+  - name: local
+    url: http://agent:8100
+    api_token: change-me           # must equal that host's MAYBOT_API_TOKEN
+
+  # --- Add your real bot hosts (uncomment & edit) ---------------------------
+  # - name: trade-server
+  #   url: http://100.64.0.2:8100   # the bot host's LAN/VPN/Tailscale IP
+  #   api_token: "the-strong-secret-on-that-host"
+  #   timeout: 10                   # optional per-device poll timeout (seconds)
+  #
+  # - name: daybot-box
+  #   url: http://100.64.0.3:8100
+  #   api_token: "another-strong-secret"

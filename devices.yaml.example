@@ -1,7 +1,31 @@
+# ============================================================================
+#  devices.yaml — the AGENT HOSTS the control center pulls data FROM.
+#
+#  The control center reaches OUT to each `url` below on every poll, sends the
+#  `api_token` as the X-API-Token header, and pulls that host's projects
+#  (status / health / logs / metrics). One entry per machine running your bots.
+#
+#  Each agent host must:
+#    1. run `maybot_agent` bound to an address the control center can reach
+#       (LAN/VPN/Tailscale IP, not 127.0.0.1, unless co-located);
+#    2. export MAYBOT_API_TOKEN to a strong secret;
+#    3. list its bots in that host's own projects.yaml.
+#  The api_token here MUST match that host's MAYBOT_API_TOKEN.
+# ============================================================================
+
 devices:
-  - name: main-server
-    url: http://127.0.0.1:8100
-    api_token: change-me
+  - name: trade-server
+    url: http://100.64.0.2:8100     # the bot host's LAN/VPN/Tailscale IP + agent port
+    api_token: "replace-with-that-hosts-MAYBOT_API_TOKEN"
     # Optional per-device poll timeout in seconds (default MAYBOT_AGENT_TIMEOUT, 5s).
     # Cap a slow/remote agent so it can't stall the whole fleet poll.
     # timeout: 10
+
+  - name: daybot-box
+    url: http://100.64.0.3:8100
+    api_token: "another-strong-secret"
+
+  # Co-located agent on the same machine as the control center:
+  # - name: local
+  #   url: http://127.0.0.1:8100
+  #   api_token: "the-local-agent-secret"

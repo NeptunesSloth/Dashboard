@@ -33,6 +33,75 @@ Each agent reads a local `projects.yaml`. The control center reads `devices.yaml
 
 ---
 
+## ⭐ Pulling data from the hosts running your bots
+
+**Mental model — the control center PULLS; agents never push.** On every poll the
+dashboard reaches *out* over HTTP to each host listed in `devices.yaml`,
+authenticates with a shared token, and pulls that host's project status, health,
+logs, and metrics:
+
+```
+ your bot host                          dashboard host
+ ┌───────────────────────────┐          ┌────────────────────────┐
+ │ maybot_agent  (port 8100)  │  ◀──────  │ maybot_control_center  │
+ │  reads projects.yaml       │   HTTP    │  reads devices.yaml     │
+ │  (your bots live here)     │   pull    │  (list of agent URLs)   │
+ └───────────────────────────┘          └────────────────────────┘
+```
+
+So there are exactly **three things to get right** per bot host:
+
+**1. On the bot host — run the agent and tell it about your bots.**
+Create `projects.yaml` (see `projects.yaml.example`) listing each bot, then start the agent bound to an address the dashboard can reach (a LAN/VPN/Tailscale IP — *not* `127.0.0.1` unless it's the same machine):
+
+```bash
+export MAYBOT_API_TOKEN="$(python3 -c 'import secrets;print(secrets.token_hex(32))')"
+echo "token for this host: $MAYBOT_API_TOKEN"   # you'll paste it into devices.yaml
+uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100
+```
+
+**2. On the dashboard host — list that host in `devices.yaml`.**
+The `url` is the agent's address; the `api_token` MUST equal that host's `MAYBOT_API_TOKEN`:
+
+```yaml
+devices:
+  - name: trade-server
+    url: http://100.64.0.2:8100        # the bot host's reachable IP + agent port
+    api_token: "the-token-printed-above"
+```
+
+**3. Verify the link, then (re)start the control center.**
+Run the bundled checker from the dashboard host — it tells you PASS/FAIL and the exact cause:
+
+```bash
+scripts/check-agent.sh http://100.64.0.2:8100 the-token-printed-above
+```
+
+A `PASS` means the dashboard can pull from that host; the data appears on the
+next poll. Repeat steps 1–3 for every machine running bots. The
+`GET /api/history/{device}/{project}` and per-card sparklines are populated from
+this pulled data automatically.
+
+**Troubleshooting (what `check-agent.sh` reports):**
+- `401` → the `api_token` in `devices.yaml` doesn't match the host's `MAYBOT_API_TOKEN`.
+- `no response (000)` → agent not running, wrong host/port, agent bound to `127.0.0.1` instead of the LAN IP, or a firewall is blocking the port.
+- `0 projects` → the link works, but that host's `projects.yaml` is empty or missing.
+
+---
+
+## Out-of-the-box defaults (everything on)
+
+`docker compose up` ships with **every capability enabled** (see `docker-compose.yml` / `.env.example`): SQLite persistence, 90-day retention, daily disk backups, a daily summary report, alert ack/snooze, self-observability, **and the autonomous tier — Autopilot remediation, agent tool autonomy, task delegation, and real GitHub PRs.**
+
+```bash
+cp .env.example .env          # then fill in secrets (tokens, ANTHROPIC_API_KEY, channels)
+docker compose up
+```
+
+> ⚠️ **Autopilot can restart/stop your live bots and run remediation, and agents can auto-run guarded tools and open real PRs.** This is intentional per the chosen configuration. To dial it back, set any of `MAYBOT_AUTOPILOT`, `MAYBOT_AUTONOMY`, `MAYBOT_DELEGATION`, `MAYBOT_PR_ENABLED` to `0` in `.env`. Always set `MAYBOT_CONTROL_CENTER_TOKEN` before exposing the dashboard on any network. Real PRs additionally need `gh` auth (`GH_TOKEN`) and a repo (`MAYBOT_PR_REPO`); without them, fixes are recorded as review-only "proposed PRs". The public status page stays **off** by default.
+
+---
+
 ## Prerequisites
 
 Before you start, confirm these are installed on each machine:
