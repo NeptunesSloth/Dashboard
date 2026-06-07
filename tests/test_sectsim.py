@@ -57,3 +57,23 @@ def test_passive_tick_evolves_and_logs_insights(sim):
     p = sim.profile(a)
     assert p["sect"]["insights"] >= 1
     assert any("insight" in e["t"].lower() for e in p["events"])
+
+
+def test_relationships_and_promotion(sim):
+    import time
+    roster = [_agent_named("Nova"), _agent_named("Forge"), _agent_named("Sage")]
+    for a in roster:
+        sim.profile(a)
+    t = time.time()
+    for i in range(60):                      # simulate many hours of sect life
+        sim.tick(roster, now=t + i * 3600)
+    p = sim.profile(roster[0])
+    assert isinstance(p["relationships"], list)
+    assert p["sim_rank"] in sim.SIM_RANKS
+    # someone should have at least one tracked relationship after all that time
+    assert any(sim.profile(a)["relationships"] for a in roster)
+
+
+def _agent_named(n):
+    return {"name": n, "role": "Disciple", "model": "nous-hermes", "status": "idle",
+            "tasks_done": 20, "cultivation": {"realm": 2, "breakthroughs": 2}, "reputation": {"merit": 200}}

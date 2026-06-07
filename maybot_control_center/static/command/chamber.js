@@ -305,7 +305,8 @@ async function openInspect(name) {
   p.portrait = p.portrait || portraitFor(a);
   if (!p.assignment) p.assignment = 'At leisure';
   if (p.seed == null) p.seed = hash(name);
-  const rels = relationships(name);
+  if (p.sim_rank && (!p.rank || p.rank === 'Disciple')) p.rank = p.sim_rank;
+  const rels = (p.relationships && p.relationships.length) ? p.relationships : relationships(name);
   const ment = mentorship(name);
   const ths = thoughts(p, rels);
 
