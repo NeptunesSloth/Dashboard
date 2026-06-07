@@ -87,6 +87,8 @@ this pulled data automatically.
 - `no response (000)` → agent not running, wrong host/port, agent bound to `127.0.0.1` instead of the LAN IP, or a firewall is blocking the port.
 - `0 projects` → the link works, but that host's `projects.yaml` is empty or missing.
 
+> 📖 Full step-by-step for the agent side (install, per-type `projects.yaml` examples, systemd/Docker, security, reference): **[docs/AGENT_SETUP.md](docs/AGENT_SETUP.md)**.
+
 ---
 
 ## Out-of-the-box defaults (everything on)
