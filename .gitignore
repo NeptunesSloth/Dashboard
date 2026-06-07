@@ -49,6 +49,8 @@ logs/
 # never commit secrets
 .env
 .env.*
+# ...but the documented template (no real secrets) IS tracked
+!.env.example
 
 # ...but the Sect Map / sect HQ art assets ARE part of the app and must be tracked
 !maybot_control_center/static/assets/map/*.png

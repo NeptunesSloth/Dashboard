@@ -2,8 +2,9 @@
 # - control-center on :8200 (the dashboard)
 # - a co-located agent on :8100 (monitors this host)
 #
-# Configure via a .env file or the environment blocks below. Mount your
-# devices.yaml / projects.yaml / agents.yaml / tools.yaml next to this file.
+# Defaults below have EVERY capability turned on out of the box. Put secrets in
+# a `.env` file next to this one (`cp .env.example .env`) — it is auto-loaded.
+# Mount your devices.yaml / projects.yaml / agents.yaml / tools.yaml here too.
 
 services:
   control-center:
@@ -11,10 +12,47 @@ services:
     command: uvicorn maybot_control_center.app:app --host 0.0.0.0 --port 8200
     ports:
       - "8200:8200"
+    # `host.docker.internal` lets disciples reach an LLM (e.g. Ollama) and bots
+    # running on the host machine from inside the container.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
-      MAYBOT_DB: /data/maybot.db                       # persistence (history, audit, cultivation)
+      # --- persistence, retention & backups (ON) ---
+      MAYBOT_DB: /data/maybot.db
+      MAYBOT_RETENTION_DAYS: ${MAYBOT_RETENTION_DAYS:-90}
+      MAYBOT_BACKUP_DIR: ${MAYBOT_BACKUP_DIR:-/data/backups}
+      MAYBOT_BACKUP_INTERVAL_HOURS: ${MAYBOT_BACKUP_INTERVAL_HOURS:-24}
+      MAYBOT_BACKUP_KEEP: ${MAYBOT_BACKUP_KEEP:-14}
+      # --- scheduled daily report (ON) ---
+      MAYBOT_REPORT_INTERVAL_HOURS: ${MAYBOT_REPORT_INTERVAL_HOURS:-24}
+      # --- autonomous operations (ON) ---
+      MAYBOT_AUTOPILOT: ${MAYBOT_AUTOPILOT:-1}
+      MAYBOT_AUTONOMY: ${MAYBOT_AUTONOMY:-1}
+      MAYBOT_DELEGATION: ${MAYBOT_DELEGATION:-1}
+      MAYBOT_PR_ENABLED: ${MAYBOT_PR_ENABLED:-1}
+      MAYBOT_PR_REPO: ${MAYBOT_PR_REPO:-}
+      GH_TOKEN: ${GH_TOKEN:-}
+      # --- alerting behaviour ---
+      MAYBOT_ALERT_RECOVERY: ${MAYBOT_ALERT_RECOVERY:-1}
+      MAYBOT_ESCALATION: ${MAYBOT_ESCALATION:-1}
+      # --- security & sessions ---
       MAYBOT_CONTROL_CENTER_TOKEN: ${MAYBOT_CONTROL_CENTER_TOKEN:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}         # for claude-backed disciples
+      MAYBOT_SESSION_TTL_MINUTES: ${MAYBOT_SESSION_TTL_MINUTES:-720}
+      # --- LLM backends ---
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      # --- notification channels (inert until you set credentials) ---
+      MAYBOT_SLACK_WEBHOOK: ${MAYBOT_SLACK_WEBHOOK:-}
+      MAYBOT_DISCORD_WEBHOOK: ${MAYBOT_DISCORD_WEBHOOK:-}
+      MAYBOT_WEBHOOK_URL: ${MAYBOT_WEBHOOK_URL:-}
+      MAYBOT_SMTP_HOST: ${MAYBOT_SMTP_HOST:-}
+      MAYBOT_SMTP_FROM: ${MAYBOT_SMTP_FROM:-}
+      MAYBOT_SMTP_TO: ${MAYBOT_SMTP_TO:-}
+      MAYBOT_SMTP_PORT: ${MAYBOT_SMTP_PORT:-587}
+      MAYBOT_SMTP_USER: ${MAYBOT_SMTP_USER:-}
+      MAYBOT_SMTP_PASSWORD: ${MAYBOT_SMTP_PASSWORD:-}
+      MAYBOT_TELEGRAM_TOKEN: ${MAYBOT_TELEGRAM_TOKEN:-}
+      MAYBOT_TELEGRAM_CHAT_ID: ${MAYBOT_TELEGRAM_CHAT_ID:-}
     volumes:
       - ./:/app
       - maybot-data:/data
