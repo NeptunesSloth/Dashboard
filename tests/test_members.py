@@ -32,3 +32,14 @@ def test_member_crud():
     assert client.request("DELETE", "/api/members/Nova").status_code == 200
     assert {a["name"] for a in client.get("/api/members").json()["members"]} == {"Atlas"}
     assert client.request("DELETE", "/api/members/ghost").status_code == 404
+
+
+def test_member_test_backend(monkeypatch):
+    from maybot_control_center import agents
+    monkeypatch.setattr(agents, "_chat", lambda a, m: (True, "pong", None))
+    r = client.post("/api/members/test", json={"provider": "ollama", "model": "nous-hermes", "base_url": "http://127.0.0.1:11434"})
+    assert r.status_code == 200 and r.json()["ok"] is True and r.json()["reply"] == "pong"
+    monkeypatch.setattr(agents, "_chat", lambda a, m: (False, "", "connection refused"))
+    r = client.post("/api/members/test", json={"provider": "ollama", "model": "nous-hermes", "base_url": "http://127.0.0.1:1"})
+    assert r.json()["ok"] is False and "refused" in r.json()["error"]
+    assert client.post("/api/members/test", json={"provider": "ollama", "model": ""}).status_code == 400

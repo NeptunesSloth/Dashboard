@@ -603,3 +603,17 @@ body {
 .logs-pop-x { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 15px; }
 .logs-pre { flex: 1; margin: 0; overflow: auto; padding: 14px 16px; font-family: ui-monospace, Menlo, monospace; font-size: 12px;
   line-height: 1.5; white-space: pre-wrap; word-break: break-word; color: #cdd6f0; }
+
+/* diagnosis panel inside the log popover */
+.logs-diag { padding: 12px 16px; border-bottom: 1px solid var(--line); background: rgba(139,92,255,.06); }
+.diag-sum { font-size: 13px; font-weight: 600; }
+.diag-fix { font-size: 12.5px; color: #b6f2d8; margin-top: 4px; }
+.diag-finds { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.diag-finds .diag-chip { font-size: 11px; padding: 3px 9px; border-radius: 999px; background: rgba(251,94,126,.14); border: 1px solid rgba(251,94,126,.4); color: #ffc1cd; }
+
+/* cockpit project sparkline + quick actions (#4 #5) */
+.proj-spark { width: 100%; height: 26px; margin: 8px 0 2px; display: block; }
+.proj-ctl { display: inline-flex; gap: 4px; margin-left: auto; }
+.cbtn.mini { padding: 4px 8px; font-size: 12px; line-height: 1; }
+.proj-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.diag-explain { font-size: 12.5px; color: #cfd6f0; margin-top: 6px; font-style: italic; }

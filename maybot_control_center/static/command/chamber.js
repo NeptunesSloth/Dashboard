@@ -253,11 +253,17 @@ function renderPyramid() {
       <p>Add members once an AI backend is set up, then they'll rise here by rank — click any one to open their full dossier.</p>
       <div style='display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap'>
         ${CAN_MANAGE ? `<button class='sa-btn' id='es-add'>＋ Add member</button>` : ''}
+        ${CAN_MANAGE ? `<button class='sa-btn ghost' id='es-seed'>🌱 Seed a starter sect</button>` : ''}
         <button class='sa-btn ghost' id='preview-sample'>✨ Preview a sample dossier</button>
       </div>
     </div>`;
     const pb = $('preview-sample'); if (pb) pb.onclick = previewSample;
     const ea = $('es-add'); if (ea) ea.onclick = () => memberForm(null);
+    const es = $('es-seed'); if (es) es.onclick = async () => {
+      if (!confirm('Add a starter sect of 4 Hermes-backed members? (Edit or remove them anytime.)')) return;
+      const r = await post('/api/members/seed', {});
+      if (r && r.ok) { previewMode = false; load(); } else alert((r && r.detail) || 'Could not seed the sect.');
+    };
     return;
   }
   const byTier = {}; ROWS.forEach((a) => { (byTier[tierOf(a)] = byTier[tierOf(a)] || []).push(a); });
@@ -299,7 +305,8 @@ async function openInspect(name) {
   p.portrait = p.portrait || portraitFor(a);
   if (!p.assignment) p.assignment = 'At leisure';
   if (p.seed == null) p.seed = hash(name);
-  const rels = relationships(name);
+  if (p.sim_rank && (!p.rank || p.rank === 'Disciple')) p.rank = p.sim_rank;
+  const rels = (p.relationships && p.relationships.length) ? p.relationships : relationships(name);
   const ment = mentorship(name);
   const ths = thoughts(p, rels);
 
@@ -482,14 +489,24 @@ function memberForm(m) {
       <label class='lf-label'>Model</label><input class='lf-input' id='mf-model' value='${m ? esc(m.model || '') : 'nous-hermes'}' placeholder='e.g. nous-hermes · claude-opus-4-8'>
       <label class='lf-label'>Base URL <span class='muted'>(local providers)</span></label><input class='lf-input' id='mf-url' value='${m ? esc(m.base_url || '') : 'http://127.0.0.1:11434'}' placeholder='http://127.0.0.1:11434'>
       <label class='lf-label'>Persona <span class='muted'>(optional)</span></label><textarea class='lf-input' id='mf-persona' rows='3' placeholder='How this member thinks and writes…'>${m ? esc(m.persona || '') : ''}</textarea>
-      <button class='lf-btn' id='mf-save'>Save member</button>
-      <div class='lf-err' id='mf-err'></div>
+      <div style='display:flex;gap:8px;margin-top:16px'>
+        <button class='sa-btn ghost' id='mf-test' type='button' style='flex:1'>Test AI</button>
+        <button class='lf-btn' id='mf-save' style='flex:1;margin-top:0'>Save member</button>
+      </div>
+      <div class='lf-err' id='mf-err'></div><div class='lf-ok' id='mf-ok'></div>
       <button class='lf-link' id='mf-cancel'>Cancel</button>
     </div></div>`;
   wrap.hidden = false;
   $('mf-provider').value = m ? (m.provider || 'ollama') : 'ollama';
   wrap.onclick = (e) => { if (e.target === wrap) wrap.hidden = true; };
   $('mf-cancel').onclick = () => { wrap.hidden = true; };
+  $('mf-test').onclick = async () => {
+    const err = $('mf-err'), ok = $('mf-ok'); err.textContent = ''; ok.textContent = 'Testing the AI backend…';
+    const r = await post('/api/members/test', { provider: $('mf-provider').value, model: $('mf-model').value.trim(), base_url: $('mf-url').value.trim() });
+    ok.textContent = '';
+    if (r && r.ok) ok.textContent = `✓ Connected — replied in ${r.latency_ms}ms${r.reply ? ' ("' + r.reply.slice(0, 24) + '")' : ''}.`;
+    else err.textContent = `✗ ${(r && (r.error || r.detail)) || 'no response — is the model running at that URL?'}`;
+  };
   $('mf-save').onclick = async () => {
     const err = $('mf-err'); err.textContent = '';
     const payload = { name: $('mf-name').value.trim(), role: $('mf-role').value.trim() || 'Disciple',

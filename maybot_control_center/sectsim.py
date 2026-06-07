@@ -18,8 +18,11 @@ import time
 from pathlib import Path
 
 SECT_FILE = Path(os.getenv("MAYBOT_SECT_FILE", "sect_state.json"))
+TICK_SECONDS = float(os.getenv("MAYBOT_SECT_TICK_SECONDS", "300"))   # passive evolution cadence (0 = off)
+XP_RATE = float(os.getenv("MAYBOT_SECT_XP_RATE", "1.0"))             # base cultivation xp per minute
 _lock = threading.Lock()
 _state: dict | None = None
+_ticker_started = False
 
 REALMS = ["Mortal", "Qi Gathering", "Foundation Establishment", "Core Formation",
           "Nascent Soul", "Soul Transformation", "Ascendant", "Immortal Ascension"]
@@ -175,7 +178,46 @@ def _generate(name: str, role: str = "") -> dict:
         "equip": [["Weapon", wpn[0], RARITY[wpn[1]]], ["Armor", arm[0], RARITY[arm[1]]],
                   ["Artifact", art[0], RARITY[art[1]]], ["Accessory", acc[0], RARITY[acc[1]]]],
         "events": [], "last_breakthroughs": 0, "created": time.time(),
+        "rels": {}, "rel_seen": [], "rank_tier": 5, "xp": 0.0, "insights": 0,
     }
+
+
+SIM_RANKS = ["Sect Leader", "Sect Master", "Elder", "Core Disciple", "Inner Disciple", "Outer Disciple"]
+
+
+def _evolve_relationships(st: dict, names: list[str], now: float) -> None:
+    """Bonds and rivalries drift as members share the sect; thresholds log events."""
+    if len(names) < 2:
+        return
+    r = _Rng((int(now // 3600) ^ 0x9E37) & 0xFFFFFFFF)   # changes each hour
+    for nm in names:
+        base = st.get(nm)
+        if not base:
+            continue
+        other = names[int(r() * len(names))]
+        if other == nm:
+            continue
+        rels = base.setdefault("rels", {})
+        delta = (r() * 7) - 2.5                            # biased slightly positive
+        rels[other] = max(-100, min(100, rels.get(other, 0) + delta))
+        seen = base.setdefault("rel_seen", [])
+        score = rels[other]
+        if score >= 70 and f"+{other}" not in seen:
+            seen.append(f"+{other}")
+            base.setdefault("events", []).append({"y": "bond", "t": f"Formed a close bond with {other}."})
+        elif score <= -55 and f"-{other}" not in seen:
+            seen.append(f"-{other}")
+            base.setdefault("events", []).append({"y": "rivalry", "t": f"Developed a rivalry with {other}."})
+
+
+def _maybe_promote(base: dict, agent: dict) -> None:
+    """Advance a member's sect rank as cultivation/merit accrue (caps at Elder)."""
+    rep = agent.get("reputation", {}) or {}
+    score = base.get("insights", 0) * 2 + base.get("last_breakthroughs", 0) * 6 + int(base.get("xp", 0) / 60) + int((rep.get("merit") or 0) / 50)
+    target = 5 - min(3, score // 8)                        # 5=Outer .. 2=Elder (never auto-leader)
+    if target < base.get("rank_tier", 5):
+        base["rank_tier"] = target
+        base.setdefault("events", []).append({"y": "promotion", "t": f"Promoted to {SIM_RANKS[target]}."})
 
 
 def _load() -> dict:
@@ -247,15 +289,80 @@ def profile(agent: dict) -> dict:
             "assignment": (agent.get("current_task") if agent.get("status") == "working" and agent.get("current_task") else None),
             "sect": {
                 "years": max(1, age // 4 - 2),
-                "contribution": int((rep.get("merit") or 0) * 13 + tasks * 25 + base["seed"] % 400),
+                "contribution": int((rep.get("merit") or 0) * 13 + tasks * 25 + base.get("xp", 0) + base["seed"] % 400),
                 "missions": tasks, "breakthroughs": bts, "techniques": len(base["skills"]),
+                "insights": base.get("insights", 0),
             },
             "success": (sig.get("success_pct") if isinstance(sig.get("success_pct"), (int, float)) else None),
             "events": list(reversed(base.get("events", []))),
+            "sim_rank": SIM_RANKS[base.get("rank_tier", 5)],
+            "relationships": sorted(
+                ([{"name": k, "s": int(v)} for k, v in (base.get("rels") or {}).items()]),
+                key=lambda x: -abs(x["s"]))[:5],
         }
 
 
+def tick(agents: list[dict], now: float | None = None) -> int:
+    """Passively cultivate the sect: members accrue cultivation xp over real
+    elapsed time (faster the purer their spirit root), and every ~100 xp earns an
+    'insight' that's logged to their event history. Returns insights gained."""
+    now = now or time.time()
+    gained = 0
+    with _lock:
+        st = _load()
+        changed = False
+        for a in agents:
+            name = a.get("name")
+            if not name:
+                continue
+            base = st.get(name)
+            if base is None:
+                base = st[name] = _generate(name, a.get("role", ""))
+                changed = True
+            last = base.get("last_tick", base.get("created", now))
+            dt = max(0.0, min(now - last, 86400))      # cap a day so restarts don't dump xp
+            base["last_tick"] = now
+            speed = 0.5 + base["root"]["purity"] / 100.0
+            before = base.get("xp", 0.0)
+            after = before + (dt / 60.0) * XP_RATE * speed
+            base["xp"] = after
+            insights = int(after // 100) - int(before // 100)
+            if insights > 0:
+                lvl = int(after // 100)
+                base["insights"] = base.get("insights", 0) + insights
+                base.setdefault("events", []).append({"y": "insight", "t": f"Gained a cultivation insight (depth {lvl})."})
+                base["events"] = base["events"][-40:]
+                gained += insights
+            _maybe_promote(base, a)
+            if dt > 0 or insights:
+                changed = True
+        _evolve_relationships(st, [a.get("name") for a in agents if a.get("name")], now)
+        changed = True
+        if changed:
+            _save()
+    return gained
+
+
+def _ticker() -> None:
+    while True:
+        time.sleep(TICK_SECONDS)
+        try:
+            from . import agents as _agents
+            tick(_agents.snapshot())
+        except Exception:
+            pass
+
+
+def _ensure_ticker() -> None:
+    global _ticker_started
+    if _ticker_started or TICK_SECONDS <= 0:
+        return
+    _ticker_started = True
+    threading.Thread(target=_ticker, daemon=True).start()
+
+
 def profiles(agents: list[dict]) -> dict:
+    _ensure_ticker()
     return {a.get("name"): profile(a) for a in agents if a.get("name")}
 
 
