@@ -415,7 +415,6 @@ async function openInspect(name) {
   const events = (real.length ? real : synth);
   const el = $('ds-events');
   if (el) el.innerHTML = events.map((e) => `<div class='evt'><span class='evt-y'>${esc(e.y)}</span><span class='evt-t'>${esc(e.t)}</span></div>`).join('');
-  renderPyramid();
 }
 function stat(l, v) { return `<div class='ds-stat'><span class='st-v'>${esc(v)}</span><span class='st-l'>${esc(l)}</span></div>`; }
 
