@@ -30,11 +30,10 @@ OUT = Path(__file__).resolve().parent.parent / "docs" / "img"
 
 # (path, output filename, settle milliseconds) — heavier WebGL views settle longer.
 PAGES = [
-    ("/classic", "dashboard-classic.png", 3500),
+    ("/console", "dashboard-classic.png", 3500),
     ("/", "dashboard-cockpit.png", 6000),
     ("/trade", "trade-cockpit.png", 5000),
     ("/treasury", "treasury.png", 4000),
-    ("/realm-map", "realm-map.png", 6000),
 ]
 
 

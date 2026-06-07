@@ -1740,16 +1740,6 @@ def command_lib_js():
     return FileResponse(f"{_CMD}/lib.js", media_type="text/javascript")
 
 
-@app.get("/realm-map")
-def realm_map():
-    return FileResponse(f"{_CMD}/map.html")
-
-
-@app.get("/map.js")
-def map_js():
-    return FileResponse(f"{_CMD}/map.js", media_type="text/javascript")
-
-
 @app.get("/chamber")
 def chamber():
     return FileResponse(f"{_CMD}/chamber.html")
@@ -1780,8 +1770,8 @@ def treasury_js():
     return FileResponse(f"{_CMD}/treasury.js", media_type="text/javascript")
 
 
-@app.get("/classic")
-def classic_home():
+@app.get("/console")
+def console_home():
     return FileResponse("maybot_control_center/static/index.html")
 
 

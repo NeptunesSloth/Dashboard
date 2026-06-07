@@ -172,7 +172,7 @@ function renderProjects(projects) {
       </div></div>`;
   }).join('') || `<div class='muted'>No realms under watch.</div>`;
   $('projects').querySelectorAll('[data-act]').forEach((b) => b.onclick = (e) => {
-    e.stopPropagation(); localStorage.setItem('tab', e.target.dataset.act === 'assign' ? 'disciples' : 'overview'); location.href = '/classic';
+    e.stopPropagation(); localStorage.setItem('tab', e.target.dataset.act === 'assign' ? 'disciples' : 'overview'); location.href = '/console';
   });
   bindTilt();
 }
@@ -235,7 +235,7 @@ function jarvis(cmd, t) {
 /* ============================ orchestrate ============================ */
 async function refresh() {
   const [ov, ag, cmd] = await Promise.all([api('/api/overview'), api('/api/agents'), api('/api/command')]);
-  if (window.__needAuth && !ov) { $('jarvis').innerHTML = `Authentication required — <a href='/classic' style='color:var(--violet)'>sign in</a>.`; return; }
+  if (window.__needAuth && !ov) { $('jarvis').innerHTML = `Authentication required — <a href='/console' style='color:var(--violet)'>sign in</a>.`; return; }
   const projects = (ov && ov.projects) || [];
   let t = tradingFromProjects(projects);
   if (cmd && cmd.demo && cmd.pnl) {   // vivid demo figures override the (empty) live ones
@@ -249,13 +249,13 @@ async function refresh() {
 }
 
 /* nav */
-const DEST = { disciples: '/chamber', map: '/realm-map', trade: '/trade', treasury: '/treasury' };
-const TABMAP = { ops: 'ops', projects: 'overview', missions: 'sect' };
+const DEST = { disciples: '/chamber', trade: '/trade', treasury: '/treasury' };
+const TABMAP = { ops: 'ops', projects: 'overview', missions: 'sect', map: 'map' };
 $('rail').querySelectorAll('.nav-item').forEach((n) => n.onclick = () => {
   const k = n.dataset.nav; if (k === 'command') return;
   if (DEST[k]) { location.href = DEST[k]; return; }
   if (TABMAP[k]) localStorage.setItem('tab', TABMAP[k]);
-  location.href = '/classic';
+  location.href = '/console';
 });
 
 /* clock */

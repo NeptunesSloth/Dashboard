@@ -8,16 +8,16 @@ It has two components:
 
 > ⚠️ Security posture: this system is intended for **private/local networks (LAN/VPN)** and should **not be exposed publicly** by default.
 
-![Classic monitoring dashboard](docs/img/dashboard-classic.png)
+![Operations console](docs/img/dashboard-classic.png)
 
 <details>
-<summary>More views — command cockpit, trading cockpit, realm map</summary>
+<summary>More views — command cockpit, trading cockpit</summary>
 
 | Command cockpit (`/`) | Trading cockpit (`/trade`) |
 |---|---|
 | ![Command cockpit](docs/img/dashboard-cockpit.png) | ![Trading cockpit](docs/img/trade-cockpit.png) |
 
-![Realm Map](docs/img/realm-map.png)
+The Sect Map lives in the operations console (`/console`) under the **Sect Map** tab.
 
 </details>
 

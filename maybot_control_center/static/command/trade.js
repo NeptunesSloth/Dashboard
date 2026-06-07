@@ -176,7 +176,7 @@ function jarvis(cmd, t) {
 
 async function refresh() {
   const [ov, cmd] = await Promise.all([api('/api/overview'), api('/api/command')]);
-  if (window.__needAuth && !ov && !cmd) { $('jarvis').innerHTML = `Authentication required — <a href='/classic' style='color:var(--violet)'>sign in</a>.`; return; }
+  if (window.__needAuth && !ov && !cmd) { $('jarvis').innerHTML = `Authentication required — <a href='/console' style='color:var(--violet)'>sign in</a>.`; return; }
   let t = tradingFromProjects((ov && ov.projects) || []);
   if (cmd && cmd.demo && cmd.pnl) {
     const d = cmd.pnl, tr = cmd.trading || {};

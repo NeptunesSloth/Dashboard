@@ -19,8 +19,7 @@ projects configured.
 
 | File | View | Route |
 |---|---|---|
-| `dashboard-classic.png` | Classic monitoring dashboard (overview + project cards) | `/classic` |
+| `dashboard-classic.png` | Operations console (overview, disciples, Sect Map, ops) | `/console` |
 | `dashboard-cockpit.png` | Command cockpit (default landing page) | `/` |
 | `trade-cockpit.png` | Trading cockpit (advisor, risk, kill-switch) | `/trade` |
 | `treasury.png` | Sect treasury | `/treasury` |
-| `realm-map.png` | Realm Map (the gamified sect HQ) | `/realm-map` |
