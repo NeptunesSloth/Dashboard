@@ -358,10 +358,10 @@ body {
   display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 4px;
   transition: transform .35s cubic-bezier(.2,.8,.2,1), filter .35s, opacity .35s; }
 .member:hover { transform: translateY(-3px); }
-.m-av { position: relative; width: 64px; height: 64px; border-radius: 16px; display: grid; place-items: center;
-  font-size: 13px; font-weight: 700; letter-spacing: .02em; text-transform: lowercase;
+.m-av { position: relative; width: 64px; height: 64px; border-radius: 16px; overflow: hidden;
   background: linear-gradient(160deg, rgba(40,44,70,.9), rgba(18,20,34,.9));
   border: 2px solid rgba(150,160,210,.3); box-shadow: 0 6px 18px rgba(0,0,0,.5); }
+.m-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .m-dot { position: absolute; right: -3px; bottom: -3px; width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--void); }
 .m-name { font-size: 13px; font-weight: 600; }
 .m-rank { font-size: 10.5px; color: var(--muted); }

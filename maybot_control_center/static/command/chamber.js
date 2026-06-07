@@ -266,7 +266,9 @@ function memberChip(a) {
   const root = profile(a).root;
   const elite = ['SS', 'SSS', 'Heavenly', 'Immortal'].includes(root.potential);
   return `<button class='member ${a.name === active ? 'sel' : ''}' data-name='${esc(a.name)}'>
-    <span class='m-av rq-${root.qIdx}' title='${esc(a.model || '')}'>${esc(modelShort(a.model))}<span class='m-dot ${dot}'></span></span>
+    <span class='m-av rq-${root.qIdx}' title='${esc(a.model || '')}'>
+      <img src='/assets/sect/portraits/${portraitFor(a)}.png' alt='' onerror="this.style.display='none'">
+      <span class='m-dot ${dot}'></span></span>
     <span class='m-name'>${esc(a.name)}</span>
     <span class='m-rank'>${esc((a.cultivation || {}).rank_title || a.role || '')}</span>
     <span class='m-pot ${elite ? 'elite' : ''}' title='Potential'>${esc(root.potential)}</span>
@@ -455,6 +457,9 @@ async function load() {
   }
   ROWS = (data && data.agents) || [];
   renderPyramid();
+  // deep-link: /chamber?inspect=<name> (e.g. clicking a character on the Sect Map)
+  const want = new URLSearchParams(location.search).get('inspect');
+  if (want && !active && ROWS.some((x) => x.name === want)) openInspect(want);
 }
 load();
 setInterval(() => { if (!previewMode && $('inspect').hidden) load(); }, 12000);

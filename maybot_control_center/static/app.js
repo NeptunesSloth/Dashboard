@@ -1860,7 +1860,8 @@ async function renderGroupHall(peak, focusName, instant) {
     u.setAttribute('data-agent', x.name);
     const collabTag = collaborating ? `<span class='ht-collab' title='collaborating with ${esc(mate.name)}'>🤝 ${esc(mate.name)}</span>` : '';
     u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax), skinSuffix(x))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span>${collabTag}</span>`;
-    u.addEventListener('click', () => renderGroupHall(peak, x.name));
+    // clicking a character opens their cinematic dossier (same as Sect Members)
+    u.addEventListener('click', () => { location.href = '/chamber?inspect=' + encodeURIComponent(x.name); });
     units.appendChild(u);
   });
   // draw collaboration threads between bonded partners present together
