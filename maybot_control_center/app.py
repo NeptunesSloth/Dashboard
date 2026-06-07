@@ -324,6 +324,77 @@ def hosts_delete(name: str, x_control_token: str = Header(default="")):
     return {"ok": True}
 
 
+# ---------------------------------------------------------------------------
+# Account management — create/remove dashboard users from the UI (operator only).
+# No public sign-up: an operator provisions accounts here, each gets a token.
+# ---------------------------------------------------------------------------
+class AccountIn(BaseModel):
+    name: str
+    role: str = "viewer"
+    token: str = ""
+    projects: list[str] | None = None
+    original_name: str | None = None
+
+
+@app.get("/api/accounts")
+def accounts_list(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    out = [{
+        "name": u.get("name"), "role": u.get("role", "viewer"),
+        "token_masked": _mask_token(u.get("token", "")), "has_token": bool(u.get("token")),
+        "projects": u.get("projects") or [],
+    } for u in authz.load_users()]
+    return {"accounts": out, "auth_active": bool(authz.load_users())}
+
+
+@app.post("/api/accounts")
+def accounts_save(body: AccountIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    name = (body.name or "").strip()
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "account name may contain letters, numbers, dashes and underscores only")
+    role = body.role if body.role in ("operator", "viewer") else "viewer"
+    users = authz.load_users()
+    was_empty = not users
+    token = (body.token or "").strip() or secrets.token_hex(32)
+    entry = {"name": name, "token": token, "role": role}
+    if body.projects:
+        entry["projects"] = body.projects
+    if body.original_name:
+        idx = next((i for i, u in enumerate(users) if u.get("name") == body.original_name.strip()), None)
+        if idx is None:
+            raise HTTPException(404, "account not found")
+        if any(u.get("name") == name for i, u in enumerate(users) if i != idx):
+            raise HTTPException(409, f"an account named '{name}' already exists")
+        if not (body.token or "").strip() and users[idx].get("token"):
+            entry["token"] = users[idx]["token"]
+        users[idx] = entry
+    else:
+        if any(u.get("name") == name for u in users):
+            raise HTTPException(409, f"an account named '{name}' already exists")
+        users.append(entry)
+    authz.save_users(users)
+    # `first` tells the UI to adopt this token immediately (avoids a bootstrap lockout
+    # the moment auth turns on); `token` is returned once so it can be copied.
+    return {"ok": True, "name": name, "role": role, "token": entry["token"], "first": was_empty}
+
+
+@app.delete("/api/accounts/{name}")
+def accounts_delete(name: str, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid account name")
+    users = authz.load_users()
+    remaining = [u for u in users if u.get("name") != name]
+    if len(remaining) == len(users):
+        raise HTTPException(404, "account not found")
+    # never strand the dashboard with users but no operator (would lock everyone out)
+    if remaining and not any(u.get("role") == "operator" for u in remaining):
+        raise HTTPException(409, "can't remove the last operator account")
+    authz.save_users(remaining)
+    return {"ok": True}
+
+
 @app.post("/api/action/{device_name}/{project_name}/{action}")
 def proxy_action(device_name: str, project_name: str, action: str, force: bool = Query(default=False),
                  x_control_token: str = Header(default="")):

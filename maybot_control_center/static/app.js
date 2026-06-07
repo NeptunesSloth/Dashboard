@@ -2581,6 +2581,8 @@ async function renderOps() {
   if (!sec) return;
   bindHostsUI();        // host manager buttons (also bound at load, idempotent)
   renderHosts();        // agent host manager (add/edit/test, no file editing)
+  bindAccountsUI();
+  renderAccounts();     // account/user manager (operator only)
   const [diag, aud] = await Promise.all([apiJSON('/api/diagnostics'), apiJSON('/api/audit')]);
   const cfg = (diag && diag.config) || {};
   const wh = cfg.webhooks || {};
@@ -2753,6 +2755,101 @@ async function removeHost(name) {
     if (!r.ok) { const j = await r.json().catch(() => ({})); alert('Remove failed: ' + (j.detail || r.status)); return; }
   } catch (e) { alert('Remove failed: ' + e); return; }
   renderHosts(); render();
+}
+
+// ===== Accounts: create/remove dashboard users (operator only) =====
+function bindAccountsUI() {
+  const add = document.getElementById('account-add');
+  if (add && !add.dataset.bound) { add.dataset.bound = '1'; add.onclick = () => openAccountForm(); }
+  const ref = document.getElementById('account-refresh');
+  if (ref && !ref.dataset.bound) { ref.dataset.bound = '1'; ref.onclick = () => renderAccounts(); }
+  const close = document.getElementById('account-close');
+  if (close && !close.dataset.bound) { close.dataset.bound = '1'; close.onclick = () => document.getElementById('account-modal').classList.add('hidden'); }
+}
+async function renderAccounts() {
+  const list = document.getElementById('accounts-list'); if (!list) return;
+  const pill = document.getElementById('accounts-pill');
+  list.innerHTML = `<div class='muted'>Loading…</div>`;
+  const data = await apiJSON('/api/accounts');
+  const accts = (data && data.accounts) || [];
+  if (pill) pill.textContent = data && data.auth_active ? `${accts.length} account${accts.length === 1 ? '' : 's'}` : 'open access — no accounts yet';
+  if (!accts.length) {
+    list.innerHTML = `<div class='card host-empty'>
+      <h3>No accounts yet</h3>
+      <p class='muted'>Right now the dashboard is <b>open</b> — anyone who can reach it has full control. Create the first <b>operator</b> account to lock it down; you'll be signed in with it automatically.</p>
+      <button class='btn btn-primary' id='account-add-empty'>+ Create the first account</button></div>`;
+    const b = document.getElementById('account-add-empty'); if (b) b.onclick = () => openAccountForm();
+    return;
+  }
+  list.innerHTML = accts.map((u) => `<div class='card host-card'>
+    <div class='section-head'><h3>${esc(u.name)}</h3><span class='pill'>${u.role === 'operator' ? '🛡 operator' : '👁 viewer'}</span></div>
+    <div class='muted'>token: ${esc(u.token_masked) || '—'}</div>
+    ${(u.projects && u.projects.length) ? `<div class='muted host-bots'>projects: ${u.projects.map(esc).join(', ')}</div>` : ''}
+    <div class='host-actions'>
+      <button class='btn' data-acct-edit='${esc(u.name)}'>Edit</button>
+      <button class='btn btn-danger' data-acct-del='${esc(u.name)}'>Remove</button>
+    </div></div>`).join('');
+  list.querySelectorAll('[data-acct-edit]').forEach((b) => b.onclick = () => openAccountForm(accts.find((u) => u.name === b.dataset.acctEdit)));
+  list.querySelectorAll('[data-acct-del]').forEach((b) => b.onclick = () => removeAccount(b.dataset.acctDel));
+}
+function openAccountForm(acct) {
+  acct = acct || null;
+  const m = document.getElementById('account-modal'), body = document.getElementById('account-modal-body');
+  body.innerHTML = `
+    <h2>${acct ? ('Edit account: ' + esc(acct.name)) : 'Add an account'}</h2>
+    <p class='muted'>Operators can control the sect; viewers are read-only. The token is the password — it's shown once on creation, so copy it.</p>
+    <div class='host-form'>
+      <label>Name</label>
+      <input id='af-name' placeholder='alice' value='${acct ? esc(acct.name) : ''}'>
+      <label>Role</label>
+      <select id='af-role'>
+        <option value='operator'${acct && acct.role === 'operator' ? ' selected' : ''}>operator — full control</option>
+        <option value='viewer'${acct && acct.role === 'viewer' ? ' selected' : ''}>viewer — read-only</option>
+      </select>
+      <label>Token <span class='muted'>— the sign-in secret</span></label>
+      <div class='host-token-row'>
+        <input id='af-token' type='text' placeholder='${acct ? '•••••• unchanged — leave blank to keep' : 'generate or paste a token'}'>
+        <button class='btn' id='af-gen' type='button'>Generate</button>
+      </div>
+      <label>Project access <span class='muted'>— optional, comma-separated (e.g. box:daybot, web:*). Blank = all.</span></label>
+      <input id='af-projects' placeholder='all projects' value='${acct && acct.projects ? esc(acct.projects.join(', ')) : ''}'>
+      <div class='host-form-actions'>
+        <button class='btn btn-primary' id='af-save' type='button'>Save account</button>
+      </div>
+      <div id='af-result' class='host-result muted'></div>
+    </div>`;
+  m.classList.remove('hidden');
+  body.querySelector('#af-gen').onclick = async () => { const r = await apiJSON('/api/hosts/gen-token'); if (r && r.token) body.querySelector('#af-token').value = r.token; };
+  body.querySelector('#af-save').onclick = () => saveAccountForm(body, acct);
+}
+async function saveAccountForm(body, acct) {
+  const res = body.querySelector('#af-result');
+  const name = body.querySelector('#af-name').value.trim();
+  const role = body.querySelector('#af-role').value;
+  const token = body.querySelector('#af-token').value.trim();
+  const projects = body.querySelector('#af-projects').value.split(',').map((s) => s.trim()).filter(Boolean);
+  if (!name) { res.innerHTML = `<span class='money-neg'>Name is required.</span>`; return; }
+  const payload = { name, role, token, projects: projects.length ? projects : null };
+  if (acct) payload.original_name = acct.name;
+  const j = await apiPost('/api/accounts', payload, 'Save account');
+  if (!j || !j.ok) return;
+  if (j.first) {
+    // first account just enabled auth — adopt the token so we stay signed in
+    localStorage.setItem(CONTROL_TOKEN_STORAGE_KEY, j.token);
+    alert(`Account "${j.name}" created and you're now signed in as operator.\n\nYour token (store it safely):\n${j.token}`);
+    location.reload(); return;
+  }
+  res.innerHTML = `<span class='money-pos'>✓ Saved. Token (copy now — shown once):</span>
+    <div class='host-cmd' style='margin-top:6px'>${esc(j.token)}</div>`;
+  renderAccounts();
+}
+async function removeAccount(name) {
+  if (!confirm(`Remove account “${name}”? They will no longer be able to sign in.`)) return;
+  try {
+    const r = await fetch('/api/accounts/' + encodeURIComponent(name), { method: 'DELETE', headers: authHeaders() });
+    if (!r.ok) { const j = await r.json().catch(() => ({})); alert('Remove failed: ' + (j.detail || r.status)); return; }
+  } catch (e) { alert('Remove failed: ' + e); return; }
+  renderAccounts();
 }
 
 // Fire a desktop/phone notification when a project worsens (client-side alerting).
@@ -3037,7 +3134,7 @@ function hideLogin() { const o = document.getElementById('login-overlay'); if (o
 })();
 // Bind the Hosts manager buttons at load so "+ Add a host" works even before
 // (or independent of) the Ops tab's full render pass.
-(function bindHostsAtLoad() { try { bindHostsUI(); } catch (_) {} })();
+(function bindHostsAtLoad() { try { bindHostsUI(); bindAccountsUI(); } catch (_) {} })();
 
 // ---- Web Push subscription (after notification permission) ----
 function _urlB64ToUint8(base64) {

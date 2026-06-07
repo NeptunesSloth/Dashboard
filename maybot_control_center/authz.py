@@ -43,6 +43,27 @@ def load_users() -> list[dict]:
     return users if isinstance(users, list) else []
 
 
+def save_users(users: list[dict]) -> None:
+    """Persist accounts to users.yaml (atomic). Managed from Ops -> Accounts."""
+    clean: list[dict] = []
+    for u in users:
+        if not isinstance(u, dict) or not u.get("name") or not u.get("token"):
+            continue
+        e = {"name": str(u["name"]), "token": str(u["token"]),
+             "role": u.get("role") if u.get("role") in ("operator", "viewer") else "viewer"}
+        if u.get("projects"):
+            e["projects"] = list(u["projects"])
+        clean.append(e)
+    header = ("# users.yaml — dashboard accounts (managed from Ops -> Accounts).\n"
+              "# Each token grants its role (operator can mutate, viewer is read-only).\n"
+              "# Keep this file secret; never commit real tokens.\n")
+    text = header + yaml.safe_dump({"users": clean}, sort_keys=False, allow_unicode=True)
+    USERS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = USERS_FILE.with_name(USERS_FILE.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    tmp.replace(USERS_FILE)
+
+
 def _user_for(token: str) -> dict | None:
     """Return the matching users.yaml record for a raw token, else None."""
     for u in load_users():
