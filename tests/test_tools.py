@@ -17,9 +17,13 @@ def setup_function():
     tools.clear()
 
 
-def test_disabled_without_tools(monkeypatch):
+def test_builtins_available_without_yaml_tools(monkeypatch):
+    # No operator-defined tools, but built-in read-only observability tools
+    # (bot_status / bot_logs) are always available, so the channel stays on.
     _defs(monkeypatch, [])
-    assert tools.enabled() is False
+    assert tools.enabled() is True
+    assert "bot_status" in [t["name"] for t in tools.tool_summaries()]
+    # an undefined yaml tool is still rejected
     with pytest.raises(ValueError):
         tools.request_tool("op", "say", {"x": "ok"})
 

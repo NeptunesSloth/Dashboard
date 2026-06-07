@@ -60,6 +60,80 @@ def _notify_complete(call: dict) -> None:
             pass
 
 
+# ---------------------------------------------------------------------------
+# Built-in, read-only OBSERVABILITY tools — always available to disciples so they
+# can see a bot's PnL/status and tail its logs. These do NOT shell out; they read
+# the same data the dashboard already exposes, and auto-approve (read-only).
+# ---------------------------------------------------------------------------
+def _builtin_bot_status(args: dict) -> str:
+    from . import config
+    from .agent_client import call_agent
+    project = (args.get("project") or "").strip()
+    device = (args.get("device") or "").strip()
+    if not project:
+        return "usage: bot_status needs a 'project' (bot) name, optionally a 'device' (host)."
+    for d in config.all_devices():
+        if device and d.get("name") != device:
+            continue
+        pl = call_agent(d, "/api/projects").get("data", [])
+        if isinstance(pl, list):
+            p = next((x for x in pl if x.get("name") == project), None)
+            if p:
+                m = p.get("metrics", {}) or {}
+                out = [f"{project} @ {d.get('name')} — status={p.get('status')} "
+                       f"health={p.get('health')} type={p.get('type')}"]
+                for k in ("profit_today", "profit_this_week", "realized_pnl", "unrealized_pnl",
+                          "open_positions", "open_exposure", "trades_today", "fill_rate",
+                          "last_trade_time"):
+                    v = m.get(k)
+                    if v not in (None, "", "unknown"):
+                        out.append(f"{k}: {v}")
+                for a in (p.get("alerts") or [])[:5]:
+                    out.append(f"alert: {a}")
+                return "\n".join(out)
+        if device:
+            break
+    return f"no bot named '{project}'" + (f" on host '{device}'" if device else " on any host")
+
+
+def _builtin_bot_logs(args: dict) -> str:
+    from . import config
+    from .agent_client import call_agent
+    project = (args.get("project") or "").strip()
+    device = (args.get("device") or "").strip()
+    level = (args.get("level") or "ALL").strip().upper()
+    if level not in {"ALL", "ERROR", "WARNING", "INFO"}:
+        level = "ALL"
+    if not project:
+        return "usage: bot_logs needs a 'project' (bot) name, optionally 'device' and 'level'."
+    for d in config.all_devices():
+        if device and d.get("name") != device:
+            continue
+        pl = call_agent(d, "/api/projects").get("data", [])
+        names = [x.get("name") for x in pl] if isinstance(pl, list) else []
+        if project in names:
+            lg = call_agent(d, f"/api/projects/{project}/logs?level={level}").get("data", {})
+            lines = lg.get("lines") if isinstance(lg, dict) else None
+            if isinstance(lines, list) and lines:
+                return "\n".join(str(x) for x in lines[-40:])
+            return f"(no {level} log lines for '{project}')"
+        if device:
+            break
+    return f"no bot named '{project}'" + (f" on host '{device}'" if device else " on any host")
+
+
+_BUILTINS: dict = {
+    "bot_status": {
+        "description": "Read a bot/project's live status and PnL metrics (profit today/week, positions, fill rate, alerts).",
+        "args": ["project", "device"], "auto_approve": True, "handler": _builtin_bot_status,
+    },
+    "bot_logs": {
+        "description": "Tail a bot/project's recent logs to see what it's doing (level is ALL|ERROR|WARNING|INFO).",
+        "args": ["project", "device", "level"], "auto_approve": True, "handler": _builtin_bot_logs,
+    },
+}
+
+
 def load_tools() -> list[dict]:
     if not TOOLS_FILE.exists():
         return []
@@ -68,8 +142,16 @@ def load_tools() -> list[dict]:
     return tools if isinstance(tools, list) else []
 
 
+def _all_tool_defs() -> list[dict]:
+    """Built-in observability tools first, then operator-defined yaml tools."""
+    builtins = [{"name": n, "description": s["description"], "args": list(s["args"]),
+                 "auto_approve": bool(s["auto_approve"])} for n, s in _BUILTINS.items()]
+    return builtins + load_tools()
+
+
 def enabled() -> bool:
-    return bool(load_tools())
+    # Built-ins are always available, so the tool channel is always on.
+    return bool(_BUILTINS) or bool(load_tools())
 
 
 def _tool_def(name: str) -> dict | None:
@@ -82,7 +164,8 @@ def tool_summaries() -> list[dict]:
         "description": t.get("description", ""),
         "args": list(t.get("args", [])),
         "auto_approve": bool(t.get("auto_approve")),
-    } for t in load_tools()]
+        "builtin": t.get("name") in _BUILTINS,
+    } for t in _all_tool_defs()]
 
 
 def prompt_hint() -> str:
@@ -91,9 +174,9 @@ def prompt_hint() -> str:
         "```tool",
         '{"tool": "<name>", "args": {"<arg>": "<value>"}}',
         "```",
-        "A human must approve before it runs. Only these tools are available:",
+        "Read-only tools run immediately; others need a human to approve. Available tools:",
     ]
-    for t in load_tools():
+    for t in _all_tool_defs():
         args = ", ".join(t.get("args", [])) or "none"
         lines.append(f"- {t.get('name')}: {t.get('description', '')} (args: {args})")
     return "\n".join(lines)
@@ -130,9 +213,47 @@ def _find(call_id: int) -> dict | None:
     return next((c for c in _calls if c["id"] == call_id), None)
 
 
+def _run_builtin(requester: str, name: str, spec: dict, args: dict | None) -> dict:
+    """Execute a built-in observability tool in-process (read-only, auto-approved)."""
+    global _seq
+    declared = set(spec.get("args", []))
+    clean = {k: str(v) for k, v in (args or {}).items() if k in declared}
+    with _lock:
+        _seq += 1
+        call = {
+            "id": _seq, "requester": requester, "tool": name, "args": clean,
+            "status": "running", "created_at": int(time.time() * 1000),
+            "output": None, "code": None, "builtin": True,
+        }
+        _calls.append(call)
+        if len(_calls) > MAX_CALLS:
+            del _calls[:-MAX_CALLS]
+        call_id = call["id"]
+    try:
+        output, status, code = (str(spec["handler"](clean) or "")[:OUTPUT_CAP], "done", 0)
+    except Exception as exc:  # noqa: BLE001
+        output, status, code = (f"error: {exc}", "error", None)
+    with _lock:
+        call = _find(call_id)
+        if call:
+            call.update(status=status, output=output, code=code, finished_at=int(time.time() * 1000))
+            snap = dict(call)
+        else:
+            snap = None
+    if snap is not None:
+        if store.enabled():
+            store.upsert_tool_call(snap)
+        events.publish("tools", {"id": snap["id"], "status": snap["status"]})
+        _notify_complete(snap)
+    return snap
+
+
 def request_tool(requester: str, tool_name: str, args: dict | None = None) -> dict:
     """Request a tool run. Creates a pending call (or runs it if auto_approve)."""
     global _seq
+    builtin = _BUILTINS.get(tool_name)
+    if builtin:
+        return _run_builtin(requester, tool_name, builtin, args)
     tool = _tool_def(tool_name)
     if not tool:
         raise ValueError(f"unknown tool '{tool_name}'")

@@ -2617,6 +2617,141 @@ async function renderOps() {
     };
   }
   renderSectMemory();   // the Knowledge Base lives in the Ops tab now
+  bindHostsUI();
+  renderHosts();        // agent host manager (add/edit/test, no file editing)
+}
+
+// ===== Hosts: add/edit/test agent hosts from the dashboard =====
+function bindHostsUI() {
+  const add = document.getElementById('host-add');
+  if (add && !add.dataset.bound) { add.dataset.bound = '1'; add.onclick = () => openHostForm(); }
+  const ref = document.getElementById('host-refresh');
+  if (ref && !ref.dataset.bound) { ref.dataset.bound = '1'; ref.onclick = () => renderHosts(); }
+  const close = document.getElementById('host-close');
+  if (close && !close.dataset.bound) { close.dataset.bound = '1'; close.onclick = () => document.getElementById('host-modal').classList.add('hidden'); }
+}
+
+async function renderHosts() {
+  const list = document.getElementById('hosts-list'); if (!list) return;
+  const pill = document.getElementById('hosts-pill');
+  list.innerHTML = `<div class='muted'>Checking hosts…</div>`;
+  const data = await apiJSON('/api/hosts');
+  const hosts = (data && data.hosts) || [];
+  if (pill) pill.textContent = `${hosts.filter(h => h.online).length}/${hosts.length} online`;
+  if (!hosts.length) {
+    list.innerHTML = `<div class='card host-empty'>
+      <h3>No hosts yet</h3>
+      <p class='muted'>A “host” is a machine running your bots with the <b>maybot_agent</b> service. Add one to start pulling its bots, PnL and logs.</p>
+      <button class='btn btn-primary' id='host-add-empty'>+ Add your first host</button></div>`;
+    const b = document.getElementById('host-add-empty'); if (b) b.onclick = () => openHostForm();
+    return;
+  }
+  list.innerHTML = hosts.map(h => {
+    const dot = h.online ? 'ok' : (h.auth_error ? 'warning' : 'error');
+    const state = h.online ? `online · ${h.projects} bot${h.projects === 1 ? '' : 's'}`
+      : (h.auth_error ? 'auth error (token mismatch)' : 'offline');
+    const names = (h.project_names || []).slice(0, 8).map(esc).join(', ');
+    return `<div class='card host-card'>
+      <div class='section-head'><h3>${esc(h.name)} <span class='crew-dot ${dot}'></span></h3><span class='pill'>${esc(state)}</span></div>
+      <div class='muted host-url'>${esc(h.url)}</div>
+      <div class='muted'>token: ${esc(h.token_masked) || '—'}</div>
+      ${names ? `<div class='muted host-bots'>bots: ${names}</div>` : ''}
+      ${(!h.online && h.error) ? `<div class='alert alert-warning'>${esc(String(h.error).slice(0, 140))}</div>` : ''}
+      <div class='host-actions'>
+        <button class='btn' data-host-edit='${esc(h.name)}'>Edit</button>
+        <button class='btn btn-danger' data-host-del='${esc(h.name)}'>Remove</button>
+      </div></div>`;
+  }).join('');
+  list.querySelectorAll('[data-host-edit]').forEach(b => b.onclick = () => openHostForm(hosts.find(h => h.name === b.dataset.hostEdit)));
+  list.querySelectorAll('[data-host-del]').forEach(b => b.onclick = () => removeHost(b.dataset.hostDel));
+}
+
+function openHostForm(host) {
+  host = host || null;
+  const m = document.getElementById('host-modal'), body = document.getElementById('host-modal-body');
+  body.innerHTML = `
+    <h2>${host ? ('Edit host: ' + esc(host.name)) : 'Add a host'}</h2>
+    <p class='muted'>Point the dashboard at a machine running <b>maybot_agent</b>. Fill these in, hit <b>Test connection</b>, then <b>Save</b>.</p>
+    <div class='host-form'>
+      <label>Name <span class='muted'>— a label for this machine</span></label>
+      <input id='hf-name' placeholder='trade-server' value='${host ? esc(host.name) : ''}'>
+      <label>Agent URL <span class='muted'>— its LAN/VPN/Tailscale IP + port 8100</span></label>
+      <input id='hf-url' placeholder='http://100.64.0.2:8100' value='${host ? esc(host.url) : ''}'>
+      <label>API token <span class='muted'>— must match that host's MAYBOT_API_TOKEN</span></label>
+      <div class='host-token-row'>
+        <input id='hf-token' type='text' placeholder='${host ? '•••••• unchanged — leave blank to keep' : 'paste or generate a token'}'>
+        <button class='btn' id='hf-gen' type='button'>Generate</button>
+      </div>
+      <label>Timeout seconds <span class='muted'>— optional</span></label>
+      <input id='hf-timeout' type='number' min='1' placeholder='5' value='${host && host.timeout ? host.timeout : ''}'>
+      <div class='host-form-actions'>
+        <button class='btn' id='hf-test' type='button'>Test connection</button>
+        <button class='btn btn-primary' id='hf-save' type='button'>Save host</button>
+      </div>
+      <div id='hf-result' class='host-result muted'></div>
+    </div>
+    <details class='details host-wizard'><summary>First time? How to install the agent on that machine</summary>
+      <ol class='host-steps'>
+        <li>On the bot machine, install the agent:
+          <pre class='host-cmd'>git clone &lt;your-repo-url&gt; maybot &amp;&amp; cd maybot
+python3 -m venv .venv &amp;&amp; . .venv/bin/activate
+pip install -r requirements.txt</pre></li>
+        <li>Use <b>Generate</b> above for a token, then start the agent with it:
+          <pre class='host-cmd' id='hf-runcmd'>MAYBOT_API_TOKEN=&lt;token&gt; .venv/bin/uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100</pre></li>
+        <li>List that machine's bots in its <code>projects.yaml</code> (copy <code>projects.yaml.example</code>).</li>
+        <li>Put the machine's IP + the same token in the fields above, <b>Test</b>, then <b>Save</b>.</li>
+      </ol>
+      <p class='muted'>This dashboard is reachable at <code>${esc(location.origin)}</code>. The agent must be reachable from here on its port (keep it on a private LAN/VPN, never the public internet).</p>
+    </details>`;
+  m.classList.remove('hidden');
+  const tokenInput = body.querySelector('#hf-token');
+  const syncRun = () => { const rc = body.querySelector('#hf-runcmd'); const tk = (tokenInput.value || '').trim() || '<token>';
+    rc.textContent = `MAYBOT_API_TOKEN=${tk} .venv/bin/uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100`; };
+  tokenInput.oninput = syncRun;
+  body.querySelector('#hf-gen').onclick = async () => { const r = await apiJSON('/api/hosts/gen-token'); if (r && r.token) { tokenInput.value = r.token; syncRun(); } };
+  body.querySelector('#hf-test').onclick = () => testHostForm(body);
+  body.querySelector('#hf-save').onclick = () => saveHostForm(body, host);
+}
+
+async function testHostForm(body) {
+  const res = body.querySelector('#hf-result');
+  const url = body.querySelector('#hf-url').value.trim();
+  const token = body.querySelector('#hf-token').value.trim();
+  const timeout = body.querySelector('#hf-timeout').value.trim();
+  if (!url) { res.innerHTML = `<span class='money-neg'>Enter the agent URL first.</span>`; return; }
+  res.textContent = 'Testing…';
+  let j = null;
+  try {
+    const r = await fetch('/api/hosts/test', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ url, api_token: token, timeout: timeout ? Number(timeout) : null }) });
+    j = await r.json().catch(() => null);
+    if (!r.ok) { res.innerHTML = `<span class='money-neg'>${esc((j && j.detail) || ('error ' + r.status))}</span>`; return; }
+  } catch (e) { res.innerHTML = `<span class='money-neg'>Test failed: ${esc(String(e))}</span>`; return; }
+  if (j && j.online) res.innerHTML = `<span class='money-pos'>✓ Connected — ${j.projects} bot(s)${j.project_names && j.project_names.length ? ': ' + j.project_names.map(esc).join(', ') : ''}.</span>`;
+  else if (j && j.auth_error) res.innerHTML = `<span class='money-neg'>✗ Reached the agent, but the token was rejected — make it match that host's MAYBOT_API_TOKEN.</span>`;
+  else res.innerHTML = `<span class='money-neg'>✗ Could not reach the agent. Is it running and reachable at that URL? (offline/firewall/wrong port)</span>`;
+}
+
+async function saveHostForm(body, host) {
+  const res = body.querySelector('#hf-result');
+  const name = body.querySelector('#hf-name').value.trim();
+  const url = body.querySelector('#hf-url').value.trim();
+  const token = body.querySelector('#hf-token').value.trim();
+  const timeout = body.querySelector('#hf-timeout').value.trim();
+  if (!name || !url) { res.innerHTML = `<span class='money-neg'>Name and URL are required.</span>`; return; }
+  const payload = { name, url, api_token: token, timeout: timeout ? Number(timeout) : null };
+  if (host) payload.original_name = host.name;
+  const j = await apiPost('/api/hosts', payload, 'Save host');
+  if (j && j.ok) { document.getElementById('host-modal').classList.add('hidden'); renderHosts(); render(); }
+}
+
+async function removeHost(name) {
+  if (!confirm(`Remove host “${name}”? Its bots stop appearing here. (The agent on that machine keeps running.)`)) return;
+  try {
+    const r = await fetch('/api/hosts/' + encodeURIComponent(name), { method: 'DELETE', headers: authHeaders() });
+    if (!r.ok) { const j = await r.json().catch(() => ({})); alert('Remove failed: ' + (j.detail || r.status)); return; }
+  } catch (e) { alert('Remove failed: ' + e); return; }
+  renderHosts(); render();
 }
 
 // Fire a desktop/phone notification when a project worsens (client-side alerting).

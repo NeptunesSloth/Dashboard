@@ -122,6 +122,13 @@
       <p class="muted">Direct word from your Sect Leader and Elders — none below Elder rank may address you here.</p>
       <div id="ancestor-inbox" class="comms-feed"></div>
     </section>
+    <section data-tab="ops" id="hosts-section">
+      <div class="section-head"><h2>🖥 Hosts</h2><span id="hosts-pill" class="pill">—</span>
+        <button id="host-refresh" class="btn">Refresh</button>
+        <button id="host-add" class="btn btn-primary">+ Add a host</button></div>
+      <p class="muted">The machines that run your bots. The dashboard reaches out to each host and pulls its bots, PnL and logs. Add or edit hosts right here — no file editing.</p>
+      <div id="hosts-list" class="grid"></div>
+    </section>
     <section data-tab="ops" id="ops-section">
       <div class="section-head"><h2>Ops</h2><span id="ops-pill" class="pill">—</span>
         <button id="enable-alerts" class="btn">🔔 Enable phone alerts</button></div>
@@ -347,6 +354,12 @@
     <div class="modal-box">
       <button class="modal-close" id="detail-close">✕</button>
       <div id="detail-body"></div>
+    </div>
+  </div>
+  <div id="host-modal" class="modal hidden">
+    <div class="modal-box">
+      <button class="modal-close" id="host-close">✕</button>
+      <div id="host-modal-body"></div>
     </div>
   </div>
   <div id="cmdk" class="cmdk hidden">

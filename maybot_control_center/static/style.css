@@ -1034,3 +1034,24 @@ table.fleet td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
   background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text); }
 .login-box #login-error { color: #f85149; font-size: 12px; min-height: 16px; }
 .login-box .btn { width: 100%; margin-top: 6px; }
+
+/* ===== Hosts manager (Ops -> Hosts) ===== */
+.host-card .host-url { font-family: ui-monospace, Menlo, monospace; font-size: 12px; word-break: break-all; }
+.host-card .host-bots { margin-top: 4px; font-size: 12px; }
+.host-card .host-actions { display: flex; gap: 8px; margin-top: 10px; }
+.host-card .alert { margin-top: 8px; }
+.host-empty { text-align: center; padding: 22px; }
+.host-empty h3 { margin: 0 0 6px; }
+.host-form { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.host-form label { font-size: 13px; margin-top: 8px; }
+.host-form input { padding: 9px 10px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text); }
+.host-token-row { display: flex; gap: 8px; }
+.host-token-row input { flex: 1; min-width: 0; }
+.host-form-actions { display: flex; gap: 8px; margin-top: 14px; }
+.host-result { min-height: 18px; margin-top: 10px; font-size: 13px; }
+.host-wizard { margin-top: 16px; }
+.host-steps { margin: 6px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; }
+.host-steps li { margin-bottom: 8px; }
+.host-cmd { background: rgba(0,0,0,.35); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px;
+  white-space: pre-wrap; word-break: break-all; margin: 4px 0 0; }
