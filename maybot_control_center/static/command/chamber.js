@@ -138,7 +138,7 @@ async function select(name) {
 async function load() {
   const data = await api('/api/agents');
   if (window.__needAuth && !data) {
-    $('roster-sub').innerHTML = `Authentication required — <a href='/classic' style='color:var(--violet)'>sign in</a>.`;
+    $('roster-sub').innerHTML = `Authentication required — <a href='/console' style='color:var(--violet)'>sign in</a>.`;
     return;
   }
   ROWS = (data && data.agents) || [];

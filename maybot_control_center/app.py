@@ -6,7 +6,8 @@ import secrets
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse
 from pydantic import BaseModel
-from .config import load_devices, all_devices, CONTROL_CENTER_TOKEN
+from .config import load_devices, all_devices, save_devices, CONTROL_CENTER_TOKEN
+from . import config as _config
 from . import aggregator
 from .aggregator import aggregate
 from .agent_client import call_agent, post_agent
@@ -199,6 +200,130 @@ def project_history(device_name: str, project_name: str, x_control_token: str = 
     return {"history": history.get(device_name, project_name)}
 
 
+# ---------------------------------------------------------------------------
+# Host (agent) management — add/edit/remove bot hosts from the dashboard so the
+# operator never has to hand-edit devices.yaml. All operator-gated.
+# ---------------------------------------------------------------------------
+class HostIn(BaseModel):
+    name: str
+    url: str
+    api_token: str = ""
+    timeout: float | None = None
+    original_name: str | None = None   # set when renaming an existing host
+
+
+class HostTestIn(BaseModel):
+    url: str
+    api_token: str = ""
+    timeout: float | None = None
+
+
+def _mask_token(tok: str) -> str:
+    t = tok or ""
+    if len(t) <= 6:
+        return "•" * len(t)
+    return t[:3] + "•" * 6 + t[-3:]
+
+
+def _host_status_row(d: dict) -> dict:
+    ping = call_agent(d, "/api/ping")
+    online = bool(ping.get("online"))
+    projects, names = 0, []
+    if online:
+        pl = call_agent(d, "/api/projects").get("data", [])
+        if isinstance(pl, list):
+            projects = len(pl)
+            names = [p.get("name") for p in pl][:30]
+    return {
+        "name": d.get("name"), "url": d.get("url"), "timeout": d.get("timeout"),
+        "token_masked": _mask_token(d.get("api_token", "")), "has_token": bool(d.get("api_token")),
+        "online": online, "auth_error": bool(ping.get("auth_error")),
+        "status_code": ping.get("status_code"), "error": ping.get("error"),
+        "projects": projects, "project_names": names,
+    }
+
+
+@app.get("/api/hosts")
+def hosts_list(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from concurrent.futures import ThreadPoolExecutor
+    devices = load_devices()
+    if not devices:
+        return {"hosts": []}
+    with ThreadPoolExecutor(max_workers=min(len(devices), 8) or 1) as pool:
+        rows = list(pool.map(_host_status_row, devices))
+    return {"hosts": rows}
+
+
+@app.get("/api/hosts/gen-token")
+def hosts_gen_token(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"token": secrets.token_hex(32)}
+
+
+@app.post("/api/hosts/test")
+def hosts_test(body: HostTestIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    url = (body.url or "").strip()
+    if not re.match(r"^https?://", url):
+        raise HTTPException(400, "url must start with http:// or https://")
+    d = {"url": url, "api_token": body.api_token or "", "timeout": body.timeout or 5}
+    ping = call_agent(d, "/api/ping")
+    res = {"online": bool(ping.get("online")), "auth_error": bool(ping.get("auth_error")),
+           "status_code": ping.get("status_code"), "error": ping.get("error"),
+           "projects": 0, "project_names": []}
+    if res["online"]:
+        pl = call_agent(d, "/api/projects").get("data", [])
+        if isinstance(pl, list):
+            res["projects"] = len(pl)
+            res["project_names"] = [p.get("name") for p in pl][:30]
+    return res
+
+
+@app.post("/api/hosts")
+def hosts_save(body: HostIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    name = (body.name or "").strip()
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "host name may contain letters, numbers, dashes and underscores only")
+    url = (body.url or "").strip()
+    if not re.match(r"^https?://", url):
+        raise HTTPException(400, "url must start with http:// or https://")
+    devices = load_devices()
+    entry = {"name": name, "url": url, "api_token": (body.api_token or "").strip()}
+    if body.timeout:
+        entry["timeout"] = float(body.timeout)
+    if body.original_name:                                   # editing an existing host
+        idx = next((i for i, d in enumerate(devices) if d.get("name") == body.original_name.strip()), None)
+        if idx is None:
+            raise HTTPException(404, "host not found")
+        if any(d.get("name") == name for i, d in enumerate(devices) if i != idx):
+            raise HTTPException(409, f"a host named '{name}' already exists")
+        # keep the existing token if the form left it blank (masked, unchanged)
+        if not entry["api_token"] and devices[idx].get("api_token"):
+            entry["api_token"] = devices[idx]["api_token"]
+        devices[idx] = entry
+    else:                                                    # adding a new host
+        if any(d.get("name") == name for d in devices):
+            raise HTTPException(409, f"a host named '{name}' already exists")
+        devices.append(entry)
+    save_devices(devices)
+    return {"ok": True, "name": name}
+
+
+@app.delete("/api/hosts/{name}")
+def hosts_delete(name: str, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid host name")
+    devices = load_devices()
+    remaining = [d for d in devices if d.get("name") != name]
+    if len(remaining) == len(devices):
+        raise HTTPException(404, "host not found")
+    save_devices(remaining)
+    return {"ok": True}
+
+
 @app.post("/api/action/{device_name}/{project_name}/{action}")
 def proxy_action(device_name: str, project_name: str, action: str, force: bool = Query(default=False),
                  x_control_token: str = Header(default="")):
@@ -270,6 +395,49 @@ def agent_delegate(name: str, body: DelegateIn, x_control_token: str = Header(de
         raise HTTPException(404, "agent not found")
 
 
+def _bot_context(device: str | None, project: str | None, log_lines: int = 12) -> str:
+    """A compact live snapshot of one bot (status, PnL metrics, recent log tail)
+    so a dispatched disciple can see what's actually going on with it."""
+    if not project:
+        return ""
+    devices = all_devices()
+    found, dev = None, None
+    for d in devices:
+        if device and d.get("name") != device:
+            continue
+        pl = call_agent(d, "/api/projects").get("data", [])
+        if isinstance(pl, list):
+            match = next((p for p in pl if p.get("name") == project), None)
+            if match:
+                found, dev = match, d
+                break
+        if device:
+            break
+    if not found or not dev:
+        return ""
+    m = found.get("metrics", {}) or {}
+    lines = [f"### Live status — bot '{project}' on host '{dev.get('name')}'",
+             f"- type: {found.get('type')} · status: {found.get('status')} · health: {found.get('health')}"]
+    if found.get("type") == "trading_bot":
+        for key, label in (("profit_today", "PnL today"), ("profit_this_week", "PnL this week"),
+                           ("realized_pnl", "realized PnL"), ("unrealized_pnl", "unrealized PnL"),
+                           ("open_positions", "open positions"), ("open_exposure", "open exposure"),
+                           ("trades_today", "trades today"), ("fill_rate", "fill rate"),
+                           ("last_trade_time", "last trade")):
+            v = m.get(key)
+            if v not in (None, "", "unknown"):
+                lines.append(f"- {label}: {v}")
+    for a in (found.get("alerts") or [])[:4]:
+        lines.append(f"- alert: {a}")
+    lg = call_agent(dev, f"/api/projects/{project}/logs?level=ALL").get("data", {})
+    tail = lg.get("lines") if isinstance(lg, dict) else None
+    if isinstance(tail, list) and tail:
+        lines.append("\nRecent log tail:\n```")
+        lines.extend(str(x) for x in tail[-log_lines:])
+        lines.append("```")
+    return "\n".join(lines)
+
+
 @app.post("/api/agents/{name}/task")
 def assign_agent_task(name: str, body: TaskIn, x_control_token: str = Header(default="")):
     _check_operator(x_control_token)
@@ -290,6 +458,15 @@ def assign_agent_task(name: str, body: TaskIn, x_control_token: str = Header(def
         ref = github_repo.task_reference(body.repo, body.issue)
         if ref:
             task = f"{ref}\n\n{task}"
+    # When the task is tied to a bot, prepend that bot's live status + recent logs
+    # so the disciple can act on what's actually happening with it.
+    if body.project:
+        try:
+            botctx = _bot_context(body.device, body.project)
+            if botctx:
+                task = f"{botctx}\n\n---\n\n{task}"
+        except Exception:
+            pass  # never let an observability lookup block dispatch
     # The Sect Leader oversees: routine work is routed to a deputy Elder.
     executor, delegated_from = governance.route_task(name, body.critical)
     try:
@@ -1740,16 +1917,6 @@ def command_lib_js():
     return FileResponse(f"{_CMD}/lib.js", media_type="text/javascript")
 
 
-@app.get("/realm-map")
-def realm_map():
-    return FileResponse(f"{_CMD}/map.html")
-
-
-@app.get("/map.js")
-def map_js():
-    return FileResponse(f"{_CMD}/map.js", media_type="text/javascript")
-
-
 @app.get("/chamber")
 def chamber():
     return FileResponse(f"{_CMD}/chamber.html")
@@ -1780,8 +1947,8 @@ def treasury_js():
     return FileResponse(f"{_CMD}/treasury.js", media_type="text/javascript")
 
 
-@app.get("/classic")
-def classic_home():
+@app.get("/console")
+def console_home():
     return FileResponse("maybot_control_center/static/index.html")
 
 

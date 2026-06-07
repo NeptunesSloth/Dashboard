@@ -217,7 +217,12 @@ docker run -d --name maybot-agent --restart unless-stopped \
 
 ## 7. Connect it to the dashboard
 
-On the **control center** host, add this agent to `devices.yaml`:
+**Easiest:** in the dashboard go to **Ops → Hosts → “+ Add a host”**, paste this
+machine's URL and token, click **Test connection**, then **Save** — it writes
+`devices.yaml` for you (no file editing). The "Add a host" panel also has a
+built-in walkthrough of steps 1–6 with a copy-paste run command.
+
+Prefer files? On the **control center** host, add this agent to `devices.yaml`:
 ```yaml
 devices:
   - name: trade-server

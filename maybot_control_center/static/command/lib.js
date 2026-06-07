@@ -16,13 +16,13 @@ const NAV = [
   ['command', '🏛', 'Command', '/'],
   ['trade', '📈', 'Trade', '/trade'],
   ['disciples', '🧠', 'Disciples', '/chamber'],
-  ['missions', '⚔', 'Missions', '/classic'],
-  ['projects', '📜', 'Realms', '/classic'],
-  ['map', '🗺', 'Map', '/realm-map'],
+  ['missions', '⚔', 'Missions', '/console'],
+  ['projects', '📜', 'Realms', '/console'],
+  ['map', '🗺', 'Map', '/console'],
   ['treasury', '🏦', 'Treasury', '/treasury'],
-  ['ops', '⚙', 'Ops', '/classic'],
+  ['ops', '⚙', 'Ops', '/console'],
 ];
-const TABMAP = { ops: 'ops', projects: 'overview', missions: 'sect' };
+const TABMAP = { ops: 'ops', projects: 'overview', missions: 'sect', map: 'map' };
 export function mountRail(active) {
   const el = $('rail'); if (!el) return;
   el.innerHTML = `<div class='rail-logo'>◆</div>` + NAV.map(([k, ico, lbl]) =>
@@ -30,7 +30,7 @@ export function mountRail(active) {
   el.querySelectorAll('.nav-item').forEach((n) => n.onclick = () => {
     const k = n.dataset.nav; const dest = (NAV.find((x) => x[0] === k) || [])[3];
     if (k === active) return;
-    if (dest === '/classic' && TABMAP[k]) localStorage.setItem('tab', TABMAP[k]);
+    if (dest === '/console' && TABMAP[k]) localStorage.setItem('tab', TABMAP[k]);
     location.href = dest;
   });
 }

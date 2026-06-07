@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Slice a disciple contact-sheet into per-archetype, per-state sprite strips.
 
-The Realm Map renderer (static/command/map.js) loads authored character art
-from ``static/assets/sect/disciples/`` named ``<role>_<state>_<F>f.png`` where
+This packs authored character art into ``static/assets/sect/disciples/`` named
+``<role>_<state>_<F>f.png`` (legacy sprite-walker assets) where
 ``<F>`` is the number of evenly-spaced frames packed left-to-right in the strip.
 The engine divides the strip width by ``<F>`` to play the animation, so this
 tool only needs to cut the sheet at the *state-group* boundaries (5 per row),

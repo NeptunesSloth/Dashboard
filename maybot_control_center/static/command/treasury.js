@@ -98,7 +98,7 @@ function renderFlow(tr) {
 
 async function refresh() {
   const [ov, cmd, tr] = await Promise.all([api('/api/overview'), api('/api/command'), api('/api/treasury')]);
-  if (window.__needAuth && !cmd && !ov) { $('jarvis').innerHTML = `Authentication required — <a href='/classic' style='color:var(--violet)'>sign in</a>.`; return; }
+  if (window.__needAuth && !cmd && !ov) { $('jarvis').innerHTML = `Authentication required — <a href='/console' style='color:var(--violet)'>sign in</a>.`; return; }
   const c = deriveCapital(ov, cmd);
   renderHero(c); renderAlloc(c, cmd); renderMetrics(c, cmd); renderVault(tr); renderFlow(tr);
   $('jarvis').innerHTML = `Account value <b>$${c.accountValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</b> · <b>${tr ? Number(tr.balance).toLocaleString() : 0} ◈</b> in reserve`;

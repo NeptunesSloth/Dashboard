@@ -43,22 +43,23 @@ def test_command_endpoint():
 def test_command_home_served():
     r = client.get("/")
     assert r.status_code == 200 and "Command Hall" in r.text
-    assert client.get("/classic").status_code == 200
+    # The full-featured console (formerly the standalone "/classic" dashboard) is
+    # now reached at /console and carries the Sect Map the command rail links to.
+    assert client.get("/console").status_code == 200
+    assert client.get("/classic").status_code == 404
     assert client.get("/command.css").status_code == 200
     assert client.get("/vendor/three.module.js").status_code == 200
 
 
 def test_immersive_scenes_served():
-    # Realm Map (3D empire) + Disciple Command Chamber scenes and their assets.
-    rm = client.get("/realm-map")
-    assert rm.status_code == 200 and "Realm Map" in rm.text
+    # Disciple Command Chamber + Trade + Treasury scenes and their assets.
     ch = client.get("/chamber")
     assert ch.status_code == 200 and "Command Chamber" in ch.text
     tc = client.get("/trade")
     assert tc.status_code == 200 and "Trade Center" in tc.text
     tr = client.get("/treasury")
     assert tr.status_code == 200 and "Treasury" in tr.text
-    for path in ("/map.js", "/chamber.js", "/trade.js", "/treasury.js", "/lib.js", "/vendor/OrbitControls.js"):
+    for path in ("/chamber.js", "/trade.js", "/treasury.js", "/lib.js", "/vendor/OrbitControls.js"):
         resp = client.get(path)
         assert resp.status_code == 200, path
         assert "javascript" in resp.headers["content-type"]

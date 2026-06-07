@@ -500,6 +500,37 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 @keyframes fxWisp { 0%,100% { opacity: .2; transform: translate(-12px,0); } 50% { opacity: .95; transform: translate(12px,-14px); } }
 @keyframes fxDust { 0% { opacity: 0; transform: translate(0,0) scale(.4); } 40% { opacity: .7; } 100% { opacity: 0; transform: translate(-24px,-4px) scale(1.2); } }
 
+/* ---- authored effect strips ported from the realm map, layered on hall disciples.
+   Each PNG is a horizontal sprite strip; background-size pins one frame to the box
+   and steps(n) walks the strip frame-by-frame. ---- */
+.hall-sfx { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none;
+  background-repeat: no-repeat; opacity: .95; will-change: background-position; }
+.sfx-aura { width: 92px; height: 53px; bottom: -4px; z-index: -1;
+  background-image: url('/assets/sect/fx/fx_aura_4f.png'); background-size: 368px 53px;
+  animation: sfxAura 1.4s steps(4) infinite; }
+.sfx-work { width: 104px; height: 30px; bottom: 26px; z-index: 3; mix-blend-mode: screen;
+  background-image: url('/assets/sect/fx/fx_work_4f.png'); background-size: 416px 30px;
+  animation: sfxWork .5s steps(4) infinite; }
+.sfx-coin { width: 92px; height: 37px; bottom: 30px; z-index: 3; mix-blend-mode: screen;
+  background-image: url('/assets/sect/fx/fx_coin_4f.png'); background-size: 368px 37px;
+  animation: sfxCoin .7s steps(4) infinite; }
+.sfx-breakthrough { width: 104px; height: 79px; bottom: -2px; z-index: 3; mix-blend-mode: screen;
+  background-image: url('/assets/sect/fx/fx_breakthrough_7f.png'); background-size: 728px 79px;
+  animation: sfxBreak .9s steps(7) infinite; }
+.sfx-celebrate { width: 104px; height: 67px; bottom: 24px; z-index: 3; mix-blend-mode: screen;
+  background-image: url('/assets/sect/fx/fx_celebrate_6f.png'); background-size: 624px 67px;
+  animation: sfxCeleb .8s steps(6) infinite; }
+.sfx-levelup { width: 112px; height: 78px; bottom: -2px; z-index: 3; mix-blend-mode: screen;
+  background-image: url('/assets/sect/fx/fx_levelup_6f.png'); background-size: 672px 78px;
+  animation: sfxLevel 1s steps(6) infinite; }
+@keyframes sfxAura { to { background-position-x: -368px; } }
+@keyframes sfxWork { to { background-position-x: -416px; } }
+@keyframes sfxCoin { to { background-position-x: -368px; } }
+@keyframes sfxBreak { to { background-position-x: -728px; } }
+@keyframes sfxCeleb { to { background-position-x: -624px; } }
+@keyframes sfxLevel { to { background-position-x: -672px; } }
+@media (prefers-reduced-motion: reduce) { .hall-sfx { animation: none; background-position-x: 0; } }
+
 /* the living Qi Array on the hall floor */
 .hall-array { position: absolute; left: 50%; top: 71%; width: 30%; aspect-ratio: 1; transform: translate(-50%,-50%); pointer-events: none; z-index: 1; }
 .ha-ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(54,224,180,0), rgba(54,224,180,.5), rgba(124,191,255,.2), rgba(54,224,180,0));
@@ -1003,3 +1034,24 @@ table.fleet td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
   background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text); }
 .login-box #login-error { color: #f85149; font-size: 12px; min-height: 16px; }
 .login-box .btn { width: 100%; margin-top: 6px; }
+
+/* ===== Hosts manager (Ops -> Hosts) ===== */
+.host-card .host-url { font-family: ui-monospace, Menlo, monospace; font-size: 12px; word-break: break-all; }
+.host-card .host-bots { margin-top: 4px; font-size: 12px; }
+.host-card .host-actions { display: flex; gap: 8px; margin-top: 10px; }
+.host-card .alert { margin-top: 8px; }
+.host-empty { text-align: center; padding: 22px; }
+.host-empty h3 { margin: 0 0 6px; }
+.host-form { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.host-form label { font-size: 13px; margin-top: 8px; }
+.host-form input { padding: 9px 10px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text); }
+.host-token-row { display: flex; gap: 8px; }
+.host-token-row input { flex: 1; min-width: 0; }
+.host-form-actions { display: flex; gap: 8px; margin-top: 14px; }
+.host-result { min-height: 18px; margin-top: 10px; font-size: 13px; }
+.host-wizard { margin-top: 16px; }
+.host-steps { margin: 6px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; }
+.host-steps li { margin-bottom: 8px; }
+.host-cmd { background: rgba(0,0,0,.35); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px;
+  white-space: pre-wrap; word-break: break-all; margin: 4px 0 0; }
