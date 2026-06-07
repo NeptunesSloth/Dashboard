@@ -203,9 +203,10 @@ export async function openLogs(device, project) {
   document.body.appendChild(pop);
   document.getElementById('logs-dx').onclick = async () => {
     const box = document.getElementById('logs-diag'); box.hidden = false; box.innerHTML = `<span class='muted'>Diagnosing…</span>`;
-    const d = await api(`/api/diagnose/${encodeURIComponent(device)}/${encodeURIComponent(project)}`);
-    if (!d || !d.ok) { box.innerHTML = `<span class='money-neg'>${esc((d && d.error) || 'diagnosis failed')}</span>`; return; }
+    const d = await post(`/api/projects/${encodeURIComponent(device)}/${encodeURIComponent(project)}/explain`, {});
+    if (!d || !d.ok) { box.innerHTML = `<span class='money-neg'>${esc((d && (d.error || d.detail)) || 'diagnosis failed')}</span>`; return; }
     box.innerHTML = `<div class='diag-sum'>🩺 ${esc(d.summary)}</div>`
+      + (d.explanation ? `<div class='diag-explain'>${esc(d.explanation)}</div>` : '')
       + (d.suggestion ? `<div class='diag-fix'>→ ${esc(d.suggestion)}</div>` : '')
       + (d.findings && d.findings.length ? `<div class='diag-finds'>${d.findings.map((f) => `<span class='diag-chip'>${esc(f.signal)} ·${f.count}</span>`).join('')}</div>` : '')
       + `<div class='muted' style='font-size:11px;margin-top:4px'>scanned ${d.lines_scanned} log lines</div>`;

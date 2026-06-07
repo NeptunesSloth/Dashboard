@@ -87,6 +87,11 @@ def aggregate(devices: list[dict]) -> dict:
         acks.annotate(p)                # operator acknowledgement / snooze
 
     incidents.maybe_dispatch(projects)
+    try:
+        from . import diagnosis
+        diagnosis.sweep(projects)        # heuristic root-cause → notifications bell
+    except Exception:
+        pass
     escalation.sweep()                  # escalate unacknowledged, unsilenced incidents
     _last_summary.clear()
     _last_summary.update(summary)

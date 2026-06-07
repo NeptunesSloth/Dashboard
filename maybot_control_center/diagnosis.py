@@ -42,6 +42,31 @@ _SIGNATURES = [
 _EXC = re.compile(r"^([A-Za-z_][A-Za-z0-9_\.]*(?:Error|Exception|Warning)):", re.MULTILINE)
 
 
+_notified: set = set()
+
+
+def sweep(projects: list[dict]) -> None:
+    """Auto-diagnose freshly-unhealthy bots once and push the root cause to the
+    notifications channel. Re-arms after the project recovers."""
+    from . import notify
+    current = set()
+    for p in projects or []:
+        key = f"{p.get('device')}:{p.get('name')}"
+        if p.get("health") == "error":
+            current.add(key)
+            if key not in _notified:
+                _notified.add(key)
+                try:
+                    d = diagnose(p.get("device"), p.get("name"))
+                    notify.send(f"🩺 {p.get('name')}: {d.get('summary', 'is unhealthy')}",
+                                d.get("suggestion", ""), level="error", kind="diagnosis")
+                except Exception:
+                    pass
+    for k in list(_notified):
+        if k not in current:
+            _notified.discard(k)        # recovered → re-arm
+
+
 def analyze_logs(lines: list[str]) -> list[dict]:
     """Return matched failure signatures (most frequent first)."""
     text = "\n".join(str(x) for x in (lines or []))

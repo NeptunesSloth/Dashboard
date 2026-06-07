@@ -253,11 +253,17 @@ function renderPyramid() {
       <p>Add members once an AI backend is set up, then they'll rise here by rank — click any one to open their full dossier.</p>
       <div style='display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap'>
         ${CAN_MANAGE ? `<button class='sa-btn' id='es-add'>＋ Add member</button>` : ''}
+        ${CAN_MANAGE ? `<button class='sa-btn ghost' id='es-seed'>🌱 Seed a starter sect</button>` : ''}
         <button class='sa-btn ghost' id='preview-sample'>✨ Preview a sample dossier</button>
       </div>
     </div>`;
     const pb = $('preview-sample'); if (pb) pb.onclick = previewSample;
     const ea = $('es-add'); if (ea) ea.onclick = () => memberForm(null);
+    const es = $('es-seed'); if (es) es.onclick = async () => {
+      if (!confirm('Add a starter sect of 4 Hermes-backed members? (Edit or remove them anytime.)')) return;
+      const r = await post('/api/members/seed', {});
+      if (r && r.ok) { previewMode = false; load(); } else alert((r && r.detail) || 'Could not seed the sect.');
+    };
     return;
   }
   const byTier = {}; ROWS.forEach((a) => { (byTier[tierOf(a)] = byTier[tierOf(a)] || []).push(a); });

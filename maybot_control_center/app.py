@@ -452,6 +452,51 @@ def members_test(body: MemberTestIn, x_control_token: str = Header(default="")):
     return {"ok": bool(ok), "reply": (text or "").strip()[:200], "error": err, "latency_ms": int((_t.time() - t0) * 1000)}
 
 
+@app.post("/api/members/seed")
+def members_seed(x_control_token: str = Header(default="")):
+    """One-click starter sect: a few Hermes-backed members (only when empty)."""
+    _check_operator(x_control_token)
+    if agents.file_agents():
+        raise HTTPException(409, "the sect already has members")
+    base = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+    starter = [
+        ("Nova", "Research Analyst", "Meticulous, data-driven, concise. Answers in tight bullet points."),
+        ("Forge", "Builder", "Pragmatic engineer; proposes the smallest implementation that works."),
+        ("Sage", "Reviewer", "Careful reviewer; checks claims and gives a clear go / no-go."),
+        ("Atlas", "Strategist", "Weighs trade-offs explicitly and gives one clear recommendation."),
+    ]
+    roster = [{"name": n, "role": r, "provider": "ollama", "base_url": base,
+               "model": "nous-hermes", "persona": p, "max_tokens": 512} for n, r, p in starter]
+    agents.save_agents(roster)
+    return {"ok": True, "count": len(roster)}
+
+
+@app.post("/api/projects/{device_name}/{project_name}/explain")
+def explain_project(device_name: str, project_name: str, x_control_token: str = Header(default="")):
+    """Plain-English status + recommendation for a bot: heuristic diagnosis,
+    elaborated by a member if an LLM backend is configured."""
+    _check_token(x_control_token)
+    if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
+        raise HTTPException(400, "invalid device or project name")
+    _check_project_access(x_control_token, device_name, project_name)
+    from . import diagnosis
+    d = diagnosis.diagnose(device_name, project_name)
+    # try to elaborate with the first member that has a usable backend
+    explanation = None
+    for a in agents.file_agents():
+        if (a.get("base_url") or a.get("provider") in ("claude", "anthropic")):
+            facts = (f"Bot '{project_name}' on '{device_name}'. Health: {d.get('health')}. "
+                     f"Findings: {[f['signal'] for f in d.get('findings', [])] or 'none'}. "
+                     f"Summary: {d.get('summary')}")
+            ok, text, _ = agents._chat({**a, "max_tokens": 220, "temperature": 0.3}, [
+                {"role": "system", "content": "You are a terse trading-ops engineer. In 2-3 sentences, explain what's going on with this bot and the single most useful next action."},
+                {"role": "user", "content": facts}])
+            if ok and text:
+                explanation = text.strip()
+            break
+    return {**d, "explanation": explanation}
+
+
 @app.get("/api/members")
 def members_list(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
