@@ -118,7 +118,7 @@ def _recent_transitions(key: str, now: float) -> int:
 
 
 def check_and_notify(projects: list[dict]) -> None:
-    from . import maintenance, meridians, oaths, escalation
+    from . import maintenance, meridians, oaths, escalation, acks
     now = _now()
     health_by_key = {f"{p.get('device', '?')}:{p.get('name', '?')}": str(p.get("health", "unknown"))
                      for p in projects}
@@ -143,6 +143,7 @@ def check_and_notify(projects: list[dict]) -> None:
                 _in_alert[key] = False
                 maintenance.note_recovery(device, name)
                 oaths.note_recovery(device, name)        # claimed incident resolved
+                acks.note_recovery(device, name)         # acknowledgement no longer needed
                 escalation.disarm(device, name)
             elif curr.lower() in ALERT_STATES:
                 _in_alert[key] = True
@@ -170,6 +171,10 @@ def check_and_notify(projects: list[dict]) -> None:
                     # Ownership: if a disciple has sworn an oath to this incident, the
                     # owner is on it — suppress repeat pages (escalation stays disarmed).
                     if oaths.is_claimed(device, name):
+                        continue
+                    # Acknowledged: an operator has eyes on it and snoozed paging —
+                    # suppress repeat pages and hold off the escalation clock.
+                    if acks.is_acked(device, name):
                         continue
                     last = _last_alert.get(key)
                     if last and last[0] == curr and (now - last[1]) < COOLDOWN_SECONDS:

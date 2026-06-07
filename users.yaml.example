@@ -4,6 +4,18 @@
 #   - viewer:   read-only (GET endpoints)
 #   - operator: read + mutate (actions, agent tasks, missions, tools, autonomy)
 #
+# Optional `projects` list scopes a user to specific projects (per-project ACL),
+# matched against the project's "device:project" key. Supports wildcards:
+#   - "*"            every project (same as omitting the list)
+#   - "device:*"     all projects on a device
+#   - "device:proj"  one specific project
+# The ACL is enforced on the project-scoped endpoints (logs, history, actions).
+# Omit `projects` for unrestricted access.
+#
+# On login (POST /api/login) a token is exchanged for a time-boxed session token
+# (TTL via MAYBOT_SESSION_TTL_MINUTES, default 720) usable in place of the raw
+# token; POST /api/logout revokes it.
+#
 # Generate tokens with:  python3 -c "import secrets; print(secrets.token_hex(32))"
 # Copy to users.yaml and edit.
 
@@ -11,7 +23,11 @@ users:
   - name: alice
     token: "replace-with-a-long-random-secret"
     role: operator
+    # no `projects` → alice can see/act on everything
 
   - name: bob
     token: "replace-with-another-secret"
     role: viewer
+    projects:
+      - "edge-pi:*"        # bob only sees projects on the edge-pi device
+      - "lab-box:daybot"

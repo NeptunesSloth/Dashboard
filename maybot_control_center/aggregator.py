@@ -41,6 +41,8 @@ def _fetch_device(d: dict) -> tuple[dict, list[dict]]:
 
 
 def aggregate(devices: list[dict]) -> dict:
+    import time
+    _t0 = time.perf_counter()
     device_rows: list[dict] = []
     projects: list[dict] = []
 
@@ -73,7 +75,7 @@ def aggregate(devices: list[dict]) -> dict:
     history.record(projects)            # record first so SLO/error-budget see this poll
     history.attach(projects)
 
-    from . import governance, errorbudget, meridians, oaths, escalation
+    from . import governance, errorbudget, meridians, oaths, escalation, acks
     eb_by_key = {f"{r['device']}:{r['project']}": r for r in errorbudget.snapshot()["projects"]}
     health_by_key = {f"{p.get('device', '?')}:{p.get('name', '?')}": str(p.get("health", "unknown"))
                      for p in projects}
@@ -82,9 +84,15 @@ def aggregate(devices: list[dict]) -> dict:
         errorbudget.annotate(p, eb_by_key)   # error-budget / freeze state
         meridians.annotate(p, health_by_key)  # blocked-meridian (downstream) tag
         oaths.annotate(p)               # incident ownership (sworn oath)
+        acks.annotate(p)                # operator acknowledgement / snooze
 
     incidents.maybe_dispatch(projects)
     escalation.sweep()                  # escalate unacknowledged, unsilenced incidents
     _last_summary.clear()
     _last_summary.update(summary)
+    try:
+        from . import selfcheck
+        selfcheck.note_poll((time.perf_counter() - _t0) * 1000, len(device_rows), len(projects))
+    except Exception:
+        pass
     return {"summary": summary, "devices": device_rows, "projects": projects}

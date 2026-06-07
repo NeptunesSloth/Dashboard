@@ -72,6 +72,10 @@ from . import signals
 from . import advisor
 from . import notify
 from . import pnl_history
+from . import acks
+from . import reports
+from . import retention
+from . import selfcheck
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -80,7 +84,7 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
                 treasury.load_persisted, taskqueue.load_persisted, oaths.load_persisted,
                 maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
                 audit.load_persisted, inbound.load_persisted, registry.load_persisted,
-                push.load_persisted):
+                push.load_persisted, acks.load_persisted):
     try:
         _loader()
     except Exception:
@@ -88,6 +92,8 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
 scheduler.start()  # background cron for scheduled missions (no-op without schedules.yaml)
 talismans.start()  # background synthetic uptime probes (no-op without talismans.yaml)
 autopilot.start()  # the Sect Leader's autonomous ops loop (no-op unless MAYBOT_AUTOPILOT=1)
+reports.start()    # periodic summary reports (no-op unless MAYBOT_REPORT_INTERVAL_HOURS>0)
+retention.start()  # data-retention pruning + scheduled backups (no-op unless configured)
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 # A silence target: "*", "device:*", or "device:project".
@@ -107,6 +113,12 @@ async def _rate_limit(request, call_next):
             from fastapi.responses import JSONResponse
             return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
     response = await call_next(request)
+    # Self-observability: count served API requests (and 5xx errors).
+    if request.url.path.startswith("/api/"):
+        try:
+            selfcheck.note_request(response.status_code)
+        except Exception:
+            pass
     # Operator audit: record every mutating API call (who, what, outcome).
     if request.method in ("POST", "PUT", "DELETE", "PATCH") and request.url.path.startswith("/api/") \
             and not request.url.path.startswith("/api/audit"):
@@ -136,6 +148,12 @@ def _check_operator(x_control_token: str = Header(default="")):
         raise HTTPException(status_code=403, detail="operator role required")
 
 
+def _check_project_access(token: str, device: str, project: str):
+    """Per-project ACL gate (no-op unless a user declares a `projects` list)."""
+    if not authz.can_access_project(token, device, project):
+        raise HTTPException(status_code=403, detail="not authorized for this project")
+
+
 def _resolve_device(device_name: str):
     device = next((d for d in all_devices() if d.get("name") == device_name), None)
     if not device:
@@ -163,6 +181,7 @@ def proxy_logs(device_name: str, project_name: str, level: str = Query(default="
     _check_token(x_control_token)
     if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
         raise HTTPException(400, "invalid device or project name")
+    _check_project_access(x_control_token, device_name, project_name)
     if level.upper() not in _VALID_LEVELS:
         raise HTTPException(400, f"invalid log level '{level}'")
     result = call_agent(_resolve_device(device_name), f"/api/projects/{project_name}/logs?level={level.upper()}")
@@ -176,6 +195,7 @@ def project_history(device_name: str, project_name: str, x_control_token: str = 
     _check_token(x_control_token)
     if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
         raise HTTPException(400, "invalid device or project name")
+    _check_project_access(x_control_token, device_name, project_name)
     return {"history": history.get(device_name, project_name)}
 
 
@@ -185,6 +205,7 @@ def proxy_action(device_name: str, project_name: str, action: str, force: bool =
     _check_operator(x_control_token)
     if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
         raise HTTPException(400, "invalid device or project name")
+    _check_project_access(x_control_token, device_name, project_name)
     if action not in _VALID_ACTIONS:
         raise HTTPException(400, f"unknown action '{action}'; must be one of {sorted(_VALID_ACTIONS)}")
     # Heavenly Decree: a project that burned its error budget is frozen against
@@ -1101,6 +1122,87 @@ def escalation_status(x_control_token: str = Header(default="")):
     return escalation.snapshot()
 
 
+# ---- Alert acknowledgement & snooze ----
+@app.get("/api/alerts")
+def alerts_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return acks.snapshot()
+
+
+class AckIn(BaseModel):
+    target: str
+    who: str = "operator"
+    minutes: float | None = None
+    reason: str = ""
+
+
+@app.post("/api/alerts/ack")
+def alerts_ack(body: AckIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    target = (body.target or "").strip()
+    if not _SAFE_TARGET.match(target) or target == "*" or target.endswith(":*"):
+        raise HTTPException(400, "acknowledge a specific 'device:project'")
+    who = (body.who or "operator").strip()
+    if not _SAFE_NAME.match(who):
+        raise HTTPException(400, "invalid actor name")
+    if body.minutes is not None and (body.minutes < 0 or body.minutes > 60 * 24 * 30):
+        raise HTTPException(400, "minutes out of range (0..43200)")
+    return acks.ack(target, who, body.minutes, body.reason)
+
+
+@app.post("/api/alerts/resolve")
+def alerts_resolve(body: UnsilenceIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"resolved": acks.resolve((body.target or "").strip())}
+
+
+# ---- Summary reports (Daily Proclamation) ----
+@app.get("/api/reports/daily")
+def reports_daily(hours: int = Query(default=0), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    window = hours if hours > 0 else None
+    report = reports.build(window)
+    return {"report": report, "text": reports.render_text(report)}
+
+
+@app.post("/api/reports/send")
+def reports_send(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return reports.deliver()
+
+
+# ---- Data retention & scheduled backups (Archivist) ----
+@app.get("/api/retention")
+def retention_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return retention.snapshot()
+
+
+@app.post("/api/retention/prune")
+def retention_prune(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return retention.prune_now()
+
+
+@app.post("/api/backup/snapshot")
+def backup_snapshot(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return retention.snapshot_now()
+
+
+@app.get("/api/backup/list")
+def backup_list(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return {"backups": retention.list_backups()}
+
+
+# ---- Control-center self-observability ----
+@app.get("/api/selfcheck")
+def selfcheck_status(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    return selfcheck.snapshot()
+
+
 # ---- Setup & diagnostics / fleet health ----
 @app.get("/api/diagnostics")
 def diagnostics_status(x_control_token: str = Header(default="")):
@@ -1203,7 +1305,23 @@ def login(body: LoginIn):
     role = authz.role_for(body.token)
     if role is None:
         raise HTTPException(401, "invalid token")
-    return {"ok": True, "role": role, "name": authz.name_for(body.token)}
+    # Exchange the credential for a time-boxed session token the client can use
+    # in place of the raw token (X-Control-Token) until it expires.
+    session = authz.issue_session(body.token)
+    out = {"ok": True, "role": role, "name": authz.name_for(body.token)}
+    if session:
+        out["session"] = session["session"]
+        out["expires"] = session["expires"]
+    return out
+
+
+class LogoutIn(BaseModel):
+    session: str = ""
+
+
+@app.post("/api/logout")
+def logout(body: LogoutIn):
+    return {"ok": authz.revoke_session((body.session or "").strip())}
 
 
 # ---- Web Push (VAPID) ----

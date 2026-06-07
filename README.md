@@ -604,3 +604,69 @@ Safety notes for local AI hosts:
 - Tiny generation checks run only when `test_prompt_enabled: true`.
 - Do not expose local model hosts publicly unless protected by VPN/firewall (LAN/VPN/local-only strongly recommended).
 - API secrets are not included in dashboard project cards.
+
+---
+
+## Capability upgrades
+
+A set of "ops bread-and-butter" capabilities layered on top of the monitoring core. All are backward-compatible and degrade gracefully — every new feature is a no-op until you configure it.
+
+### Type-aware project adapters
+
+Previously only `trading_bot`, `local_ai_host`, and `code_project` had domain-specific health logic; `game_server`, `school`, and `ai_project` were stubs. They now inspect their own domain (see `projects.yaml.example`):
+
+- **`website`** — on top of up/down + status + latency: a response-time budget (`max_response_ms`), a content assertion (`expect_text` — a 200 that doesn't render the expected marker is treated as an error), and **TLS certificate expiry** for `https` URLs (`check_cert`, `cert_warn_days`, `cert_error_days`).
+- **`game_server`** — players/capacity/map/tick-rate from a JSON `query_url` (or a raw TCP port check via `host`+`port`); warns when the server is full or tick rate drops below `min_tps`.
+- **`school`** — LMS health from a JSON `query_url`: enrolment, overdue assignments, pass rate, attendance; warns on overdue work or outcomes below `min_pass_rate` / `min_attendance`.
+- **`ai_project`** — ML lifecycle (phase, model, GPU/VRAM, loss, eval score) plus a log scan for AI-specific failures (CUDA OOM, NaN/inf loss).
+
+### Alert acknowledgement & snooze
+
+A lightweight, time-boxed "I've got eyes on it" distinct from a sworn oath (ownership) or a maintenance silence (planned mute). While an alert is acked the notifier suppresses repeat pages and the escalation clock is held off; acks expire after `minutes` and auto-clear on recovery.
+
+- `GET /api/alerts` · `POST /api/alerts/ack` `{target, who, minutes, reason}` · `POST /api/alerts/resolve`
+- `MAYBOT_ACK_DEFAULT_MINUTES` (default 60). Persisted via `MAYBOT_DB` and included in backups.
+
+### More notification channels
+
+`notify` now fans out to **email (SMTP)** and **Telegram** alongside Slack/Discord/webhook:
+
+| Variable | Purpose |
+|---|---|
+| `MAYBOT_SMTP_HOST`, `MAYBOT_SMTP_FROM`, `MAYBOT_SMTP_TO` | Enable email (all three required; `TO` is comma-separated) |
+| `MAYBOT_SMTP_PORT` (587), `MAYBOT_SMTP_USER`/`_PASSWORD`, `MAYBOT_SMTP_TLS` (STARTTLS, on), `MAYBOT_SMTP_SSL` (off) | SMTP options |
+| `MAYBOT_TELEGRAM_TOKEN` + `MAYBOT_TELEGRAM_CHAT_ID` | Enable Telegram (both required) |
+
+### Scheduled summary reports (Daily Proclamation)
+
+A human-readable digest of fleet health (uptime per project, incidents, trading PnL, worst/unhealthy projects) built from data already in memory.
+
+- `GET /api/reports/daily?hours=` · `POST /api/reports/send` (deliver now to channels)
+- `MAYBOT_REPORT_INTERVAL_HOURS` (>0 enables auto-delivery), `MAYBOT_REPORT_WINDOW_HOURS` (default 24).
+
+### Data retention & scheduled backups (Archivist)
+
+Keeps the SQLite store from growing forever and snapshots coordination state to disk on a schedule.
+
+| Variable | Purpose |
+|---|---|
+| `MAYBOT_RETENTION_DAYS` | Prune time-series rows (history/transcripts/comms/usage) older than N days (needs `MAYBOT_DB`) |
+| `MAYBOT_PRUNE_INTERVAL_HOURS` | How often to prune (default 6) |
+| `MAYBOT_BACKUP_DIR` | Directory for periodic JSON state snapshots |
+| `MAYBOT_BACKUP_INTERVAL_HOURS` (24), `MAYBOT_BACKUP_KEEP` (14) | Snapshot cadence and rotation |
+
+- `GET /api/retention` · `POST /api/retention/prune` · `POST /api/backup/snapshot` · `GET /api/backup/list`
+
+### Auth hardening
+
+- **Session tokens** — `POST /api/login` exchanges a token for a time-boxed session token (use in `X-Control-Token`); `POST /api/logout` revokes it. TTL via `MAYBOT_SESSION_TTL_MINUTES` (default 720; 0 = no expiry).
+- **Per-project ACLs** — a user in `users.yaml` may declare a `projects` list (`device:project` patterns with `*` / `device:*` wildcards), enforced on the project-scoped endpoints (logs, history, actions). See `users.yaml.example`.
+
+### Control-center self-observability
+
+The dashboard now monitors itself: poll freshness/duration, staleness, and API request/error counts.
+
+- `GET /api/selfcheck` · new `/metrics` gauges: `maybot_poll_age_seconds`, `maybot_poll_duration_ms`, `maybot_poll_stale`, `maybot_poll_total`, `maybot_api_requests_total`, `maybot_api_errors_total`, `maybot_uptime_seconds`, `maybot_alerts_acknowledged`.
+- `MAYBOT_POLL_STALE_AFTER_SECONDS` (default 120) sets the staleness threshold.
+
+> Not included (deliberately out of scope for an in-process change): third-party SSO/OIDC (needs an external identity provider) and true multi-node HA/clustering (needs orchestration infrastructure). The auth hardening above — sessions, expiry, per-project ACLs — and the self-observability signals are the in-process groundwork for both.

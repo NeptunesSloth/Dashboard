@@ -121,4 +121,25 @@ def render() -> str:
            sum(1 for i in ap.get("incidents", []) if i.get("state") not in ("recovered",)),
            "Open incidents the autopilot is handling")
 
+    # ---- acknowledgements ----
+    from . import acks
+    metric("maybot_alerts_acknowledged", len(acks.snapshot()["acks"]),
+           "Alerts under an active operator acknowledgement / snooze")
+
+    # ---- control-center self-observability ----
+    from . import selfcheck
+    sc = selfcheck.snapshot()
+    if sc.get("last_poll_age_seconds") is not None:
+        metric("maybot_poll_age_seconds", sc["last_poll_age_seconds"],
+               "Seconds since the last successful device poll")
+    if sc.get("last_poll_duration_ms") is not None:
+        metric("maybot_poll_duration_ms", sc["last_poll_duration_ms"],
+               "Duration of the last device poll (ms)")
+    metric("maybot_poll_stale", 1 if sc.get("poll_stale") else 0,
+           "Whether the last poll is older than the staleness threshold")
+    metric("maybot_poll_total", sc.get("poll_count", 0), "Device polls completed", "counter")
+    metric("maybot_api_requests_total", sc.get("api_requests", 0), "API requests served", "counter")
+    metric("maybot_api_errors_total", sc.get("api_errors", 0), "API 5xx responses", "counter")
+    metric("maybot_uptime_seconds", sc.get("uptime_seconds", 0), "Control center process uptime")
+
     return "\n".join(lines) + "\n"

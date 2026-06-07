@@ -10,7 +10,7 @@ from __future__ import annotations
 import time
 
 # Modules whose in-memory state is reloaded from the store after a restore.
-_RELOAD = ("taskqueue", "oaths", "maintenance", "autopilot", "sectmemory", "audit", "inbound", "registry")
+_RELOAD = ("taskqueue", "oaths", "acks", "maintenance", "autopilot", "sectmemory", "audit", "inbound", "registry")
 
 
 def export() -> dict:

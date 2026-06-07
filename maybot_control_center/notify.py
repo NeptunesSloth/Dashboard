@@ -1,10 +1,18 @@
 """Pluggable outbound notification channels with a no-op fallback.
 
 Posts alerts to whichever channels are configured by environment variables —
-Slack (``MAYBOT_SLACK_WEBHOOK``), Discord (``MAYBOT_DISCORD_WEBHOOK``), and a
-generic JSON webhook (``MAYBOT_WEBHOOK_URL``). Every send is recorded to an
-in-memory ring buffer regardless of whether any channel is configured, so the
-dashboard can surface a recent-events log even in a fully offline demo.
+Slack (``MAYBOT_SLACK_WEBHOOK``), Discord (``MAYBOT_DISCORD_WEBHOOK``), a generic
+JSON webhook (``MAYBOT_WEBHOOK_URL``), email over SMTP, and Telegram. Every send
+is recorded to an in-memory ring buffer regardless of whether any channel is
+configured, so the dashboard can surface a recent-events log even in a fully
+offline demo.
+
+Email (all required to enable): ``MAYBOT_SMTP_HOST``, ``MAYBOT_SMTP_FROM``,
+``MAYBOT_SMTP_TO`` (comma-separated). Optional: ``MAYBOT_SMTP_PORT`` (587),
+``MAYBOT_SMTP_USER`` / ``MAYBOT_SMTP_PASSWORD``, ``MAYBOT_SMTP_TLS`` (STARTTLS,
+default on), ``MAYBOT_SMTP_SSL`` (implicit TLS, default off).
+
+Telegram (both required): ``MAYBOT_TELEGRAM_TOKEN`` + ``MAYBOT_TELEGRAM_CHAT_ID``.
 
 Delivery uses ``requests`` when available, else the stdlib ``urllib``; every
 network call is wrapped so nothing thrown here escapes. Identical (title, body)
@@ -14,9 +22,12 @@ from __future__ import annotations
 
 import json
 import os
+import smtplib
 import threading
 import time
+import urllib.parse
 import urllib.request
+from email.message import EmailMessage
 
 # Ring buffer of recent events (newest last), capped.
 _RING_CAP = 100
@@ -39,6 +50,21 @@ def _webhook_url() -> str:
     return os.getenv("MAYBOT_WEBHOOK_URL", "").strip()
 
 
+def _smtp_recipients() -> list[str]:
+    return [a.strip() for a in os.getenv("MAYBOT_SMTP_TO", "").split(",") if a.strip()]
+
+
+def _email_configured() -> bool:
+    return bool(os.getenv("MAYBOT_SMTP_HOST", "").strip()
+                and os.getenv("MAYBOT_SMTP_FROM", "").strip()
+                and _smtp_recipients())
+
+
+def _telegram_cfg() -> tuple[str, str]:
+    return (os.getenv("MAYBOT_TELEGRAM_TOKEN", "").strip(),
+            os.getenv("MAYBOT_TELEGRAM_CHAT_ID", "").strip())
+
+
 def channels() -> list[str]:
     """Which channels are currently configured (by env)."""
     out: list[str] = []
@@ -48,6 +74,11 @@ def channels() -> list[str]:
         out.append("discord")
     if _webhook_url():
         out.append("webhook")
+    if _email_configured():
+        out.append("email")
+    tok, chat = _telegram_cfg()
+    if tok and chat:
+        out.append("telegram")
     return out
 
 
@@ -74,6 +105,52 @@ def _post(url: str, payload: dict) -> bool:
         return False
 
 
+def _send_email(title: str, body: str) -> bool:
+    """Send one alert email over SMTP. Returns True on apparent success."""
+    host = os.getenv("MAYBOT_SMTP_HOST", "").strip()
+    sender = os.getenv("MAYBOT_SMTP_FROM", "").strip()
+    recipients = _smtp_recipients()
+    if not (host and sender and recipients):
+        return False
+    try:
+        port = int(os.getenv("MAYBOT_SMTP_PORT", "587"))
+    except ValueError:
+        port = 587
+    use_ssl = os.getenv("MAYBOT_SMTP_SSL", "").strip().lower() in {"1", "true", "yes"}
+    use_tls = os.getenv("MAYBOT_SMTP_TLS", "1").strip().lower() not in {"0", "false", "no", ""}
+    user = os.getenv("MAYBOT_SMTP_USER", "").strip()
+    password = os.getenv("MAYBOT_SMTP_PASSWORD", "")
+
+    msg = EmailMessage()
+    msg["Subject"] = title
+    msg["From"] = sender
+    msg["To"] = ", ".join(recipients)
+    msg.set_content(body or title)
+    try:
+        if use_ssl:
+            smtp = smtplib.SMTP_SSL(host, port, timeout=10)
+        else:
+            smtp = smtplib.SMTP(host, port, timeout=10)
+        with smtp:
+            if use_tls and not use_ssl:
+                smtp.starttls()
+            if user:
+                smtp.login(user, password)
+            smtp.send_message(msg)
+        return True
+    except Exception:
+        return False
+
+
+def _send_telegram(text: str) -> bool:
+    """Send one Telegram message via the Bot API. Returns True on success."""
+    token, chat_id = _telegram_cfg()
+    if not (token and chat_id):
+        return False
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    return _post(url, {"chat_id": chat_id, "text": text, "disable_web_page_preview": True})
+
+
 def _deliver(title: str, body: str, level: str, kind: str) -> list[str]:
     """Fan the message out to every configured channel; return those delivered."""
     text = f"{title}\n{body}".strip() if body else title
@@ -90,6 +167,13 @@ def _deliver(title: str, body: str, level: str, kind: str) -> list[str]:
     webhook = _webhook_url()
     if webhook and _post(webhook, {"title": title, "body": body, "level": level, "kind": kind}):
         delivered.append("webhook")
+
+    if _email_configured() and _send_email(title, body):
+        delivered.append("email")
+
+    tok, chat = _telegram_cfg()
+    if tok and chat and _send_telegram(text):
+        delivered.append("telegram")
 
     return delivered
 
