@@ -8,6 +8,7 @@ let ROWS = [];
 let active = null;
 let previewMode = false;
 let CAN_MANAGE = false;
+let PROFILES = {};
 
 /* ====================================================================== *
  *  Deterministic character synthesis
@@ -269,7 +270,7 @@ function renderPyramid() {
 }
 function memberChip(a) {
   const dot = STATUS_DOT[a.status] || 'dot-idle';
-  const root = profile(a).root;
+  const root = (PROFILES[a.name] && PROFILES[a.name].root) || profile(a).root;
   const elite = ['SS', 'SSS', 'Heavenly', 'Immortal'].includes(root.potential);
   return `<button class='member ${a.name === active ? 'sel' : ''}' data-name='${esc(a.name)}'>
     <span class='m-av rq-${root.qIdx}' title='${esc(a.model || '')}'>
@@ -294,7 +295,10 @@ function chip(text, cls) { return `<span class='chip ${cls || ''}'>${esc(text)}<
 async function openInspect(name) {
   active = name;
   const a = ROWS.find((x) => x.name === name); if (!a) return;
-  const p = profile(a);
+  const p = (!previewMode && PROFILES[name]) ? PROFILES[name] : profile(a);
+  p.portrait = p.portrait || portraitFor(a);
+  if (!p.assignment) p.assignment = 'At leisure';
+  if (p.seed == null) p.seed = hash(name);
   const rels = relationships(name);
   const ment = mentorship(name);
   const ths = thoughts(p, rels);
@@ -421,7 +425,7 @@ async function openInspect(name) {
     { y: `Year ${Math.max(1, p.sect.years - rint(r, 1, 3))}`, t: rels[0] ? `Formed a bond with ${rels[0].name}.` : 'Forged a karmic bond.' },
     { y: `Year ${p.sect.years}`, t: p.breakChance >= 60 ? 'On the cusp of a breakthrough.' : `Mastered ${p.skills[0] ? p.skills[0].name : 'a technique'}.` },
   ];
-  const events = (real.length ? real : synth);
+  const events = (p.events && p.events.length) ? p.events : (real.length ? real : synth);
   const el = $('ds-events');
   if (el) el.innerHTML = events.map((e) => `<div class='evt'><span class='evt-y'>${esc(e.y)}</span><span class='evt-t'>${esc(e.t)}</span></div>`).join('');
 }
@@ -525,6 +529,7 @@ async function load() {
     return;
   }
   ROWS = (data && data.agents) || [];
+  if (!previewMode) { try { const pp = await api('/api/members/profiles'); PROFILES = (pp && pp.profiles) || {}; } catch (_) {} }
   renderPyramid();
   // deep-link: /chamber?inspect=<name> (e.g. clicking a character on the Sect Map)
   const want = new URLSearchParams(location.search).get('inspect');

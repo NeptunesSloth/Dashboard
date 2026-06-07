@@ -413,6 +413,14 @@ class MemberIn(BaseModel):
 _PROVIDERS = {"ollama", "openai_compatible", "claude", "openai"}
 
 
+@app.get("/api/members/profiles")
+def members_profiles(x_control_token: str = Header(default="")):
+    """Persistent, evolving RPG dossiers for the current roster (the sect sim)."""
+    _check_token(x_control_token)
+    from . import sectsim
+    return {"profiles": sectsim.profiles(agents.snapshot())}
+
+
 @app.get("/api/members")
 def members_list(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
