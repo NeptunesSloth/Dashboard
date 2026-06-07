@@ -1,4 +1,6 @@
 import * as THREE from '/vendor/three.module.js';
+import { initAccount } from '/lib.js';
+initAccount();
 
 /* ============================ helpers ============================ */
 const $ = (id) => document.getElementById(id);

@@ -480,3 +480,51 @@ body {
 .dot-idle { background: var(--muted); }
 .dot-error { background: var(--crimson); box-shadow: 0 0 8px var(--crimson); }
 @media (prefers-reduced-motion: reduce) { .inspect-panel, .member, .ds-portrait img { transition: none; animation: none; } }
+
+/* ===== login / signup page ===== */
+.login-wrap { position: relative; z-index: 2; min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.login-card { width: 380px; max-width: 94vw; padding: 30px 28px 26px; }
+.login-brand { font-size: 26px; font-weight: 800; letter-spacing: .02em; }
+.login-brand .mark { color: var(--violet); filter: drop-shadow(0 0 12px var(--glow-v)); }
+.login-tag { color: var(--muted); font-size: 13px; margin: 4px 0 18px; }
+.login-h { font-size: 19px; margin: 0 0 14px; }
+.lf-label { display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 12px 0 5px; }
+.lf-input { width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line); background: rgba(10,12,22,.6); color: var(--text); font-size: 14px; }
+.lf-input:focus { outline: none; border-color: rgba(139,92,255,.55); }
+.lf-btn { width: 100%; margin-top: 18px; padding: 11px; border-radius: 10px; border: 1px solid rgba(139,92,255,.5); cursor: pointer;
+  background: linear-gradient(135deg, rgba(139,92,255,.32), rgba(56,189,248,.14)); color: var(--text); font-size: 14px; font-weight: 600; }
+.lf-btn:hover { background: linear-gradient(135deg, rgba(139,92,255,.45), rgba(56,189,248,.2)); }
+.lf-btn:disabled { opacity: .6; cursor: default; }
+.lf-link { width: 100%; margin-top: 8px; background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 13px; }
+.lf-err { color: var(--crimson); font-size: 12.5px; min-height: 16px; margin-top: 10px; }
+
+/* ===== account bubble + dropdown (shared, fixed top-right) ===== */
+.acct-bubble { position: fixed; top: 14px; right: 16px; z-index: 1600; display: flex; align-items: center; gap: 9px;
+  padding: 6px 12px 6px 6px; border-radius: 999px; cursor: pointer;
+  background: var(--panel); backdrop-filter: blur(14px) saturate(135%); -webkit-backdrop-filter: blur(14px) saturate(135%);
+  border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(0,0,0,.45); color: var(--text); font: inherit; }
+.acct-bubble:hover { border-color: rgba(139,92,255,.4); }
+.acct-av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px;
+  background: linear-gradient(135deg, var(--violet-2), var(--azure)); color: #fff; }
+.acct-name { font-size: 13px; font-weight: 600; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acct-role { font-size: 10px; color: var(--muted); }
+.acct-chev { color: var(--muted); font-size: 11px; }
+.acct-menu { position: fixed; top: 56px; right: 16px; z-index: 1600; width: 256px; padding: 8px;
+  background: rgba(18,20,32,.96); backdrop-filter: blur(20px) saturate(135%); -webkit-backdrop-filter: blur(20px) saturate(135%);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.6);
+  opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity .16s, transform .16s; }
+.acct-menu.open { opacity: 1; transform: none; pointer-events: auto; }
+.acct-head { padding: 8px 10px 10px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+.acct-head b { display: block; font-size: 14px; }
+.acct-head span { font-size: 11px; color: var(--muted); }
+.acct-item { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 10px; border-radius: 9px;
+  background: none; border: 0; color: var(--text); cursor: pointer; font: inherit; font-size: 13px; }
+.acct-item:hover { background: rgba(139,92,255,.12); }
+.acct-item .ai-ico { width: 16px; text-align: center; opacity: .85; }
+.acct-item.danger { color: #ffb3c0; }
+.acct-item .ai-tag { margin-left: auto; font-size: 10px; color: var(--muted); }
+.acct-modal { position: fixed; inset: 0; z-index: 1700; display: grid; place-items: center; background: rgba(3,4,10,.6); padding: 20px; }
+.acct-modal-box { width: 360px; max-width: 94vw; padding: 22px; }
+.acct-modal h3 { margin: 0 0 12px; }
+.acct-modal .lf-err { min-height: 14px; }
+.acct-modal .lf-ok { color: var(--jade); font-size: 12.5px; min-height: 14px; margin-top: 8px; }

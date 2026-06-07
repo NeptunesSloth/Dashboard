@@ -1,6 +1,7 @@
-import { $, api, post, esc, money, timeAgo, mountRail, countUp, bindTilt, starfield } from '/lib.js';
+import { $, api, post, esc, money, timeAgo, mountRail, initAccount, countUp, bindTilt, starfield } from '/lib.js';
 
 mountRail('trade');
+initAccount();
 starfield('scene-canvas');
 
 function tradingFromProjects(projects) {

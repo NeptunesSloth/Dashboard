@@ -1,6 +1,7 @@
-import { $, api, esc, money, mountRail, countUp, bindTilt, starfield } from '/lib.js';
+import { $, api, esc, money, mountRail, initAccount, countUp, bindTilt, starfield } from '/lib.js';
 
 mountRail('treasury');
+initAccount();
 starfield('scene-canvas');
 
 const COLORS = ['#a78bfa', '#38bdf8', '#34d399', '#fbbf24', '#fb5e7e', '#7c5cff'];

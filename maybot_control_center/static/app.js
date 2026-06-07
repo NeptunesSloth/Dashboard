@@ -367,7 +367,7 @@ async function render() {
   summaryEl.innerHTML = `<div class='card'>Loading overview...</div>`;
   try {
     const resp = await fetch('/api/overview', { headers: authHeaders() });
-    if (resp.status === 401) { showLogin(); return; }
+    if (resp.status === 401) { location.href = '/login'; return; }
     const data = await resp.json();
     notifyHealthChanges(data.projects || []);
     window.__lastProjects = data.projects || [];
@@ -3158,3 +3158,83 @@ async function subscribePush() {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 }
+
+// ===== account bubble + menu + startup auth guard (console) =====
+async function initAccountConsole() {
+  let me = {};
+  try { me = await fetch('/api/account/me', { headers: authHeaders() }).then((r) => r.json()); } catch (_) {}
+  me = me || {};
+  if (!me.authed && me.auth_active) { location.href = '/login'; return; }
+  mountAcct(me);
+}
+function mountAcct(me) {
+  document.getElementById('acct-bubble')?.remove();
+  document.getElementById('acct-menu')?.remove();
+  const authed = me.authed && me.name;
+  const name = authed ? me.name : 'Guest';
+  const role = authed ? me.role : 'open access';
+  const bubble = document.createElement('button'); bubble.id = 'acct-bubble'; bubble.className = 'acct-bubble';
+  bubble.innerHTML = `<span class='acct-av'>${esc((name[0] || '?').toUpperCase())}</span>
+    <span style='display:flex;flex-direction:column;line-height:1.15'><span class='acct-name'>${esc(name)}</span><span class='acct-role'>${esc(role)}</span></span>
+    <span class='acct-chev'>▾</span>`;
+  const menu = document.createElement('div'); menu.id = 'acct-menu'; menu.className = 'acct-menu';
+  let items = `<div class='acct-head'><b>${esc(name)}</b><span>${esc(role)}</span></div>`;
+  if (authed) {
+    items += `<button class='acct-item' data-act='pw'><span class='ai-ico'>🔑</span> Change password</button>`;
+    const can2fa = (me.channels || []).length > 0;
+    items += `<button class='acct-item' data-act='2fa'${can2fa ? '' : ' disabled'}><span class='ai-ico'>🛡</span> Two-factor <span class='ai-tag'>${me.tfa ? 'on' : (can2fa ? 'off' : 'unavailable')}</span></button>`;
+    if (me.role === 'operator') items += `<button class='acct-item' data-act='accounts'><span class='ai-ico'>👥</span> Manage accounts</button>`;
+    items += `<button class='acct-item danger' data-act='out'><span class='ai-ico'>⎋</span> Sign out</button>`;
+  } else {
+    items += `<button class='acct-item' data-act='login'><span class='ai-ico'>＋</span> Create / sign in</button>`;
+  }
+  menu.innerHTML = items;
+  document.body.append(bubble, menu);
+  const toggle = (on) => menu.classList.toggle('open', on ?? !menu.classList.contains('open'));
+  bubble.onclick = (e) => { e.stopPropagation(); toggle(); };
+  document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== bubble) toggle(false); });
+  menu.querySelectorAll('.acct-item').forEach((b) => b.onclick = () => { toggle(false); acctActConsole(b.dataset.act, me); });
+}
+async function acctActConsole(act, me) {
+  if (act === 'login') { location.href = '/login'; return; }
+  if (act === 'accounts') { setTab('ops'); return; }
+  if (act === 'out') {
+    try { await fetch('/api/logout', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ session: getControlToken() }) }); } catch (_) {}
+    localStorage.removeItem(CONTROL_TOKEN_STORAGE_KEY); location.href = '/login'; return;
+  }
+  if (act === '2fa') {
+    const r = await apiPost('/api/account/2fa', { enable: !me.tfa }, '2FA');
+    if (r && r.ok) initAccountConsole();
+    return;
+  }
+  if (act === 'pw') openPwModalConsole(me);
+}
+function openPwModalConsole(me) {
+  document.getElementById('acct-modal')?.remove();
+  const m = document.createElement('div'); m.id = 'acct-modal'; m.className = 'acct-modal';
+  m.innerHTML = `<div class='acct-modal-box card'>
+    <h3>Change password</h3>
+    ${me.has_password ? `<label class='lf-label'>Current password</label><input class='lf-input' id='pw-old' type='password'>` : `<p class='muted' style='font-size:12.5px;margin:0 0 6px'>Set a password for this account.</p>`}
+    <label class='lf-label'>New password</label><input class='lf-input' id='pw-new' type='password' placeholder='at least 8 characters'>
+    <label class='lf-label'>Confirm</label><input class='lf-input' id='pw-new2' type='password'>
+    <button class='lf-btn' id='pw-save'>Save</button>
+    <div class='lf-err' id='pw-err'></div><div class='lf-ok' id='pw-ok'></div>
+    <button class='lf-link' id='pw-cancel'>Cancel</button></div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', (e) => { if (e.target === m) m.remove(); });
+  m.querySelector('#pw-cancel').onclick = () => m.remove();
+  m.querySelector('#pw-save').onclick = async () => {
+    const err = m.querySelector('#pw-err'), ok = m.querySelector('#pw-ok'); err.textContent = ''; ok.textContent = '';
+    const nv = m.querySelector('#pw-new').value, nv2 = m.querySelector('#pw-new2').value;
+    if (nv.length < 8) { err.textContent = 'Password must be at least 8 characters.'; return; }
+    if (nv !== nv2) { err.textContent = 'Passwords do not match.'; return; }
+    const body = { new: nv }; const oldEl = m.querySelector('#pw-old'); if (oldEl) body.old = oldEl.value;
+    try {
+      const r = await fetch('/api/account/password', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok) { ok.textContent = 'Password updated.'; setTimeout(() => m.remove(), 900); }
+      else err.textContent = j.detail || 'Could not update password.';
+    } catch (e) { err.textContent = 'Could not update password.'; }
+  };
+}
+initAccountConsole();

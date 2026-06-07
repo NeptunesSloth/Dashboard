@@ -1543,24 +1543,77 @@ def registry_status(x_control_token: str = Header(default="")):
     return registry.snapshot()
 
 
-# ---- Login (validate a token) ----
+# ---- Login / signup / account ----
 class LoginIn(BaseModel):
     token: str = ""
+    name: str = ""
+    password: str = ""
 
 
-@app.post("/api/login")
-def login(body: LoginIn):
-    role = authz.role_for(body.token)
-    if role is None:
-        raise HTTPException(401, "invalid token")
-    # Exchange the credential for a time-boxed session token the client can use
-    # in place of the raw token (X-Control-Token) until it expires.
-    session = authz.issue_session(body.token)
-    out = {"ok": True, "role": role, "name": authz.name_for(body.token)}
+def _issue(token: str) -> dict:
+    session = authz.issue_session(token)
+    out = {"ok": True, "role": authz.role_for(token), "name": authz.name_for(token)}
     if session:
         out["session"] = session["session"]
         out["expires"] = session["expires"]
     return out
+
+
+@app.post("/api/login")
+def login(body: LoginIn):
+    # Name + password sign-in (preferred). Falls back to raw-token login (legacy).
+    if body.name and body.password:
+        u = authz.user_by_name(body.name.strip())
+        if not u or not u.get("pw") or not authz.verify_password(body.password, u.get("pw", "")):
+            raise HTTPException(401, "invalid name or password")
+        if u.get("tfa") and notify.channels():
+            cid, code = authz.create_2fa_challenge(u["name"])
+            ch = notify.channels()[0]
+            notify.send("Aegis sign-in code", f"Your 2FA code is {code} (valid 5 minutes).", level="info", kind="security")
+            return {"ok": False, "pending_2fa": True, "challenge": cid, "channel": ch}
+        return _issue(u["token"])
+    role = authz.role_for(body.token)
+    if role is None:
+        raise HTTPException(401, "invalid token")
+    return _issue(body.token)
+
+
+class TwoFAIn(BaseModel):
+    challenge: str = ""
+    code: str = ""
+
+
+@app.post("/api/login/2fa")
+def login_2fa(body: TwoFAIn):
+    name = authz.verify_2fa((body.challenge or "").strip(), (body.code or "").strip())
+    if not name:
+        raise HTTPException(401, "invalid or expired code")
+    u = authz.user_by_name(name)
+    if not u:
+        raise HTTPException(401, "account no longer exists")
+    return _issue(u["token"])
+
+
+class SignupIn(BaseModel):
+    name: str
+    password: str
+
+
+@app.post("/api/signup")
+def signup(body: SignupIn):
+    # Self-serve signup is allowed ONLY to claim a fresh dashboard (no accounts yet);
+    # the first account becomes the owner/operator. After that, operators invite users.
+    if authz.load_users():
+        raise HTTPException(403, "sign-up is closed — ask an operator to create your account")
+    name = (body.name or "").strip()
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "name may contain letters, numbers, dashes and underscores only")
+    if len(body.password or "") < 8:
+        raise HTTPException(400, "password must be at least 8 characters")
+    user = {"name": name, "token": secrets.token_hex(32), "role": "operator",
+            "pw": authz.hash_password(body.password)}
+    authz.save_users([user])
+    return _issue(user["token"])
 
 
 class LogoutIn(BaseModel):
@@ -1570,6 +1623,59 @@ class LogoutIn(BaseModel):
 @app.post("/api/logout")
 def logout(body: LogoutIn):
     return {"ok": authz.revoke_session((body.session or "").strip())}
+
+
+@app.get("/api/account/me")
+def account_me(x_control_token: str = Header(default="")):
+    """Who am I — used by the account bubble and the startup auth guard.
+    Never 401s; returns authed=false so the client can route to /login."""
+    users = authz.load_users()
+    auth_active = bool(users) or bool(CONTROL_CENTER_TOKEN)
+    role = authz.role_for(x_control_token)
+    if role is None:
+        return {"authed": False, "auth_active": auth_active, "accounts_exist": bool(users)}
+    u = authz.current_user(x_control_token)
+    return {
+        "authed": True, "auth_active": auth_active, "accounts_exist": bool(users),
+        "open_mode": not auth_active, "name": authz.name_for(x_control_token), "role": role,
+        "has_password": bool(u and u.get("pw")), "tfa": bool(u and u.get("tfa")),
+        "channels": notify.channels(),
+    }
+
+
+class PasswordIn(BaseModel):
+    old: str = ""
+    new: str
+
+
+@app.post("/api/account/password")
+def account_password(body: PasswordIn, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    u = authz.current_user(x_control_token)
+    if not u:
+        raise HTTPException(400, "no account is associated with this session")
+    if u.get("pw") and not authz.verify_password(body.old, u.get("pw", "")):
+        raise HTTPException(403, "current password is incorrect")
+    if len(body.new or "") < 8:
+        raise HTTPException(400, "new password must be at least 8 characters")
+    authz.set_password(u["name"], body.new)
+    return {"ok": True}
+
+
+class TwoFAToggleIn(BaseModel):
+    enable: bool
+
+
+@app.post("/api/account/2fa")
+def account_2fa(body: TwoFAToggleIn, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    u = authz.current_user(x_control_token)
+    if not u:
+        raise HTTPException(400, "no account is associated with this session")
+    if body.enable and not notify.channels():
+        raise HTTPException(400, "set up a notification channel (webhook/Slack/Telegram/email) first")
+    authz.set_2fa(u["name"], body.enable)
+    return {"ok": True, "tfa": body.enable}
 
 
 # ---- Web Push (VAPID) ----
@@ -1986,6 +2092,16 @@ def orbit_controls_js():
 @app.get("/lib.js")
 def command_lib_js():
     return FileResponse(f"{_CMD}/lib.js", media_type="text/javascript")
+
+
+@app.get("/login")
+def login_page():
+    return FileResponse(f"{_CMD}/login.html")
+
+
+@app.get("/login.js")
+def login_js():
+    return FileResponse(f"{_CMD}/login.js", media_type="text/javascript")
 
 
 @app.get("/chamber")

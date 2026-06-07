@@ -1,6 +1,7 @@
-import { $, api, esc, mountRail, starfield } from '/lib.js';
+import { $, api, esc, mountRail, initAccount, starfield } from '/lib.js';
 
 mountRail('disciples');
+initAccount();
 starfield('scene-canvas');
 
 let ROWS = [];
