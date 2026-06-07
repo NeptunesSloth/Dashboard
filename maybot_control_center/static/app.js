@@ -1613,6 +1613,19 @@ function buildPeaks(crew) {
   });
 }
 
+// role/governance → portrait art (matches the Sect Members dossier)
+function mapPortrait(a) {
+  const g = a.governance || {}; const role = String(a.role || '').toLowerCase();
+  if (g.is_leader) return 'leader';
+  if (g.is_elder) return 'elder';
+  if (/trad|market|invest|merchant/.test(role)) return 'trader';
+  if (/eng|build|forge|deploy/.test(role)) return 'engineer';
+  if (/research|scholar|study|scribe/.test(role)) return 'researcher';
+  if (/analy|data|quant|strateg/.test(role)) return 'analyst';
+  if (/architect|infra|ops|marshal/.test(role)) return 'architect';
+  return 'disciple';
+}
+
 async function renderSectMap() {
   const sec = document.getElementById('map-section');
   const crew = (window.__agents || []).slice();
@@ -1659,8 +1672,12 @@ async function renderSectMap() {
     b.className = 'peak-marker' + (p.id === 'leader' ? ' pm-leader' : '') + (p.kind === 'utility' ? ' pm-util' : '');
     b.style.left = p.anchor.x + '%'; b.style.top = p.anchor.y + '%';
     b.setAttribute('data-peak', p.id);
+    const faces = (p.kind === 'group' ? (p.members || []).slice(0, 4).map(m =>
+      `<img class='pm-face' src='/assets/sect/portraits/${mapPortrait(m)}.png' alt='' title='${esc(m.name)}' draggable='false'>`).join('') : '');
+    const more = p.kind === 'group' && p.members.length > 4 ? `<span class='pm-more'>+${p.members.length - 4}</span>` : '';
     b.innerHTML = `<span class='pm-plaque'><span class='pm-name'>${p.icon} ${esc(p.title)}</span>
       <span class='pm-realm'>${esc(sub)}</span></span>
+      ${faces ? `<span class='pm-faces'>${faces}${more}</span>` : ''}
       <span class='pm-pin crew-dot ${active ? 'warning' : 'ok'}'></span>
       <span class='pm-enter'>click to enter ▸</span>`;
     b.addEventListener('click', () => enterPeak(p.id));
