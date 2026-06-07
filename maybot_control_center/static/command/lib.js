@@ -85,6 +85,7 @@ export async function initAccount() {
   try { me = await api('/api/account/me'); } catch (_) {}
   me = me || {};
   if (!me.authed && me.auth_active) { location.href = '/login'; return; }   // startup guard
+  window.__isOperator = (me.role === 'operator') || !!me.open_mode;
   mountAccountBubble(me);
   mountBell();
 }

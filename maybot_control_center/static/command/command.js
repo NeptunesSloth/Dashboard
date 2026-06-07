@@ -1,5 +1,5 @@
 import * as THREE from '/vendor/three.module.js';
-import { initAccount, openLogs, liveStream, debounce } from '/lib.js';
+import { initAccount, openLogs, liveStream, debounce, post } from '/lib.js';
 initAccount();
 
 /* ============================ helpers ============================ */
@@ -155,29 +155,53 @@ function renderOpps(cmd) {
     <div class='opp-status st-${esc(o.status)}'>${esc(o.status)}</div></div>`).join('');
 }
 
+function sparkSvg(history) {
+  const pts = (history || []).map((h) => Number(h && (h.pnl ?? h.profit_today ?? h.value))).filter(Number.isFinite);
+  if (pts.length < 2) return '';
+  const w = 120, h = 26, min = Math.min(...pts), max = Math.max(...pts), rng = (max - min) || 1;
+  const coords = pts.map((v, i) => `${(i / (pts.length - 1) * w).toFixed(1)},${(h - 2 - ((v - min) / rng) * (h - 4)).toFixed(1)}`);
+  const up = pts[pts.length - 1] >= pts[0];
+  return `<svg class='proj-spark' viewBox='0 0 ${w} ${h}' preserveAspectRatio='none'><polyline points='${coords.join(' ')}' fill='none' stroke='${up ? 'var(--jade)' : 'var(--crimson)'}' stroke-width='1.5'/></svg>`;
+}
+
 function renderProjects(projects) {
   const list = (projects || []).slice(0, 9);
+  const op = window.__isOperator !== false;   // hide mutating actions for viewers
   $('projects').innerHTML = list.map((p) => {
     const m = p.metrics || {};
     const pnl = Number(m.profit_today);
     const hp = p.type === 'trading_bot' && Number.isFinite(pnl) ? `<span class='proj-pnl ${pnl >= 0 ? 'pos' : 'neg'}'>${money(pnl)}</span>` : `<span class='muted'>${esc(p.status || '')}</span>`;
     const prog = p.health === 'ok' ? 100 : p.health === 'warning' ? 60 : p.health === 'error' ? 25 : 50;
+    const running = String(p.status || '').toLowerCase() === 'running';
+    const ctl = (p.type === 'trading_bot' || p.actions_available) && op ? `<div class='proj-ctl'>
+        ${running ? `<button class='cbtn mini' data-act='stop' title='Stop'>■</button><button class='cbtn mini' data-act='restart' title='Restart'>⟳</button>`
+                  : `<button class='cbtn mini' data-act='start' title='Start'>▶</button>`}
+        <button class='cbtn mini' data-act='run-tests' title='Run tests'>✓</button></div>` : '';
     return `<div class='proj glass' data-tilt data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
       <div class='proj-head'><span class='proj-name'>${esc(p.name)}</span>
         <span class='proj-health health-${esc(p.health || 'unknown')}'>${esc(p.health || '—')}</span></div>
       <div class='proj-type'>${esc(p.type || '')} · ${esc(p.device || '')}</div>
-      <div class='proj-bar'><span style='width:${prog}%'></span></div>
+      ${sparkSvg(p.history) || `<div class='proj-bar'><span style='width:${prog}%'></span></div>`}
       <div class='proj-foot'><span>${esc(p.oath ? '🤝 ' + esc(p.oath.who) : (p.frozen ? '🔒 frozen' : 'nominal'))}</span>${hp}</div>
       <div class='proj-actions'>
         <button class='cbtn' data-act='logs'>Logs</button>
-        <button class='cbtn' data-act='assign'>Assign Disciple</button>
+        <button class='cbtn' data-act='assign'>Assign</button>
+        ${ctl}
       </div></div>`;
   }).join('') || `<div class='muted'>No realms under watch.</div>`;
-  $('projects').querySelectorAll('[data-act]').forEach((b) => b.onclick = (e) => {
+  $('projects').querySelectorAll('[data-act]').forEach((b) => b.onclick = async (e) => {
     e.stopPropagation();
     const card = b.closest('[data-project]'); const proj = card && card.dataset.project, dev = card && card.dataset.device;
-    if (b.dataset.act === 'logs') { if (dev && proj) openLogs(dev, proj); return; }
-    localStorage.setItem('tab', e.target.dataset.act === 'assign' ? 'disciples' : 'overview'); location.href = '/console';
+    const act = b.dataset.act;
+    if (act === 'logs') { if (dev && proj) openLogs(dev, proj); return; }
+    if (act === 'assign') { localStorage.setItem('tab', 'disciples'); location.href = '/console'; return; }
+    if (['start', 'stop', 'restart', 'run-tests'].includes(act)) {
+      if (!confirm(`${act} ${proj}?`)) return;
+      b.disabled = true;
+      const r = await post(`/api/action/${encodeURIComponent(dev)}/${encodeURIComponent(proj)}/${act}`, {});
+      b.disabled = false;
+      if (!r || r.detail) alert(`${act} failed: ${(r && r.detail) || 'error'}`); else debounce(refresh, 600);
+    }
   });
   bindTilt();
 }
