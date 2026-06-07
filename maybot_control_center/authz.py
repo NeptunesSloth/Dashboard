@@ -26,9 +26,13 @@ from .config import CONTROL_CENTER_TOKEN
 USERS_FILE = Path(os.getenv("MAYBOT_USERS_FILE", "users.yaml"))
 RATE = int(os.getenv("MAYBOT_RATE_LIMIT", "240"))   # requests per window per key (0 = off)
 WINDOW = int(os.getenv("MAYBOT_RATE_WINDOW", "60"))  # seconds
+# Login-issued session tokens expire after this many minutes (0 = no expiry).
+SESSION_TTL_MINUTES = float(os.getenv("MAYBOT_SESSION_TTL_MINUTES", "720"))
 
 _lock = threading.Lock()
 _buckets: dict[str, tuple[float, int]] = {}
+# session id -> {"role", "name", "projects", "expires"} (expires=None never lapses)
+_sessions: dict[str, dict] = {}
 
 
 def load_users() -> list[dict]:
@@ -39,8 +43,75 @@ def load_users() -> list[dict]:
     return users if isinstance(users, list) else []
 
 
+def _user_for(token: str) -> dict | None:
+    """Return the matching users.yaml record for a raw token, else None."""
+    for u in load_users():
+        tok = u.get("token")
+        if tok and secrets.compare_digest(token or "", str(tok)):
+            return u
+    return None
+
+
+def _session_lookup(token: str) -> dict | None:
+    """Return a live session record for ``token`` (a login-issued session id)."""
+    if not token:
+        return None
+    now = time.time()
+    with _lock:
+        rec = _sessions.get(token)
+        if rec is None:
+            return None
+        exp = rec.get("expires")
+        if exp is not None and now >= exp:
+            del _sessions[token]      # reap expired session
+            return None
+        return dict(rec)
+
+
+def issue_session(token: str) -> dict | None:
+    """Exchange a valid user/control token for a time-boxed session token.
+
+    Returns ``{"session", "role", "name", "expires"}`` or ``None`` if the
+    presented token is invalid.
+    """
+    role = role_for(token)
+    if role is None:
+        return None
+    user = _user_for(token)
+    projects = user.get("projects") if user else None
+    name = name_for(token)            # resolve before locking (name_for locks too)
+    sid = secrets.token_urlsafe(32)
+    expires = (time.time() + SESSION_TTL_MINUTES * 60) if SESSION_TTL_MINUTES > 0 else None
+    with _lock:
+        _sessions[sid] = {"role": role, "name": name,
+                          "projects": projects, "expires": expires}
+    return {"session": sid, "role": role, "name": name, "expires": expires}
+
+
+def revoke_session(session: str) -> bool:
+    with _lock:
+        return _sessions.pop(session, None) is not None
+
+
+def can_access_project(token: str, device: str, project: str) -> bool:
+    """Per-project ACL. A user may restrict access via a ``projects`` list of
+    ``device:project`` patterns (``*`` and ``device:*`` wildcards). Absent list,
+    legacy single-token mode, or no-auth mode all grant access to everything."""
+    sess = _session_lookup(token)
+    patterns = sess["projects"] if sess else (_user_for(token) or {}).get("projects")
+    if not patterns:               # no restriction declared
+        return True
+    if not isinstance(patterns, list):
+        return True
+    candidates = {"*", f"{device}:*", f"{device}:{project}", f"*:{project}"}
+    return any(p in candidates for p in patterns)
+
+
 def name_for(token: str) -> str:
     """A human label for who is acting (for the audit log)."""
+    sess = _session_lookup(token)
+    if sess:
+        return sess.get("name") or sess.get("role") or "user"
     users = load_users()
     if users:
         for u in users:
@@ -54,7 +125,13 @@ def name_for(token: str) -> str:
 
 
 def role_for(token: str) -> str | None:
-    """Return 'operator' | 'viewer' | None for a presented token."""
+    """Return 'operator' | 'viewer' | None for a presented token.
+
+    A login-issued session token resolves to its captured role; otherwise the
+    raw user/control token is matched as before."""
+    sess = _session_lookup(token)
+    if sess:
+        return sess.get("role")
     users = load_users()
     if users:
         for u in users:
@@ -86,3 +163,4 @@ def allow_request(key: str) -> bool:
 def clear() -> None:
     with _lock:
         _buckets.clear()
+        _sessions.clear()

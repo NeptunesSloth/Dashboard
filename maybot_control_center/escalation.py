@@ -39,14 +39,15 @@ def sweep(now: float | None = None) -> list[str]:
     if not ENABLED:
         return []
     now = now if now is not None else time.time()
-    from . import oaths, maintenance, notifier, governance
+    from . import oaths, maintenance, notifier, governance, acks
     escalated: list[str] = []
     for key, rec in list(_pending.items()):
         if rec["escalated"] or (now - rec["since"]) < ESCALATE_AFTER:
             continue
         device, name = rec["device"], rec["name"]
-        if oaths.is_claimed(device, name) or maintenance.is_silenced(device, name):
-            continue  # owned or muted — no escalation
+        if oaths.is_claimed(device, name) or maintenance.is_silenced(device, name) \
+                or acks.is_acked(device, name):
+            continue  # owned, muted, or acknowledged — no escalation
         rec["escalated"] = True
         mins = int((now - rec["since"]) / 60)
         try:

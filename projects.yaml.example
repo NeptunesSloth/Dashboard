@@ -44,3 +44,36 @@ projects:
     default_model: hermes
     expect_running: true
     test_prompt_enabled: false
+
+  # website — HTTP up/down + latency, optional content assertion & TLS expiry.
+  - name: Marketing Site
+    type: website
+    health_url: https://example.com/health
+    expect_text: "OK"          # 200 but missing this marker => error
+    max_response_ms: 800       # warn if slower than this
+    check_cert: true           # https only; warn/error as the cert nears expiry
+    cert_warn_days: 21
+    cert_error_days: 7
+
+  # game_server — players/capacity/map/tick rate from a JSON status endpoint,
+  # or a raw TCP port-reachability check via host+port.
+  - name: Minecraft SMP
+    type: game_server
+    query_url: http://127.0.0.1:8080/status   # JSON: players, max_players, map, tps
+    min_tps: 18                                # warn below this tick rate
+    # host: 127.0.0.1                          # alternative: TCP connect check
+    # port: 25565
+
+  # school — LMS health: enrolment, overdue work, pass rate, attendance.
+  - name: Online Academy
+    type: school
+    query_url: http://127.0.0.1:9000/api/summary  # JSON: students, overdue, pass_rate, attendance
+    min_pass_rate: 60          # warn below %
+    min_attendance: 70
+
+  # ai_project — ML training/inference: phase, GPU/VRAM, loss, eval score,
+  # plus a log scan for CUDA OOM / NaN loss.
+  - name: Vision Trainer
+    type: ai_project
+    query_url: http://127.0.0.1:7000/status   # JSON: phase, model, gpu_util, loss, eval_score
+    log_file: /root/train/run.log

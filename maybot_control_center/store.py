@@ -216,6 +216,51 @@ def import_state(state: dict) -> int:
     return n
 
 
+# ---- retention / pruning ----
+# Tables with a millisecond/epoch ``ts`` column that can be aged out. The audit
+# (tool_calls), cultivation, treasury and generic state tables are deliberately
+# excluded — those are systems of record, not time series.
+_PRUNABLE = {
+    "history": "ts",
+    "transcript": "ts",
+    "comms": "ts",
+    "usage": "ts",
+}
+
+
+def prune_older_than(cutoff_ms: int) -> dict[str, int]:
+    """Delete time-series rows older than ``cutoff_ms`` (epoch milliseconds).
+
+    Returns a per-table count of rows removed. A no-op without a DB.
+    """
+    removed: dict[str, int] = {}
+    if not DB_PATH:
+        return removed
+    with _lock:
+        c = _connect()
+        if c is None:
+            return removed
+        for table, col in _PRUNABLE.items():
+            cur = c.execute(f"DELETE FROM {table} WHERE {col} < ?", (cutoff_ms,))
+            removed[table] = cur.rowcount if cur.rowcount and cur.rowcount > 0 else 0
+        c.commit()
+    return removed
+
+
+def vacuum() -> None:
+    """Reclaim space after a large prune (best-effort; no-op without a DB)."""
+    if not DB_PATH:
+        return
+    with _lock:
+        c = _connect()
+        if c is not None:
+            try:
+                c.execute("VACUUM")
+                c.commit()
+            except Exception:
+                pass
+
+
 def _reset_for_tests(path: str) -> None:
     """Test helper: point at a fresh DB and drop the cached connection."""
     global DB_PATH, _conn
