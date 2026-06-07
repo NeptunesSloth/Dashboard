@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=MayBot Control Center
+Comment=Start the MayBot dashboard and open it in your browser
+Exec=__EXEC__
+Icon=__ICON__
+Terminal=false
+Categories=Utility;Network;Monitor;
+StartupNotify=true

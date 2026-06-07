@@ -10,6 +10,16 @@ It has two components:
 
 ---
 
+## Documentation
+
+- **[docs/DESKTOP_APP.md](docs/DESKTOP_APP.md)** — run it as a one-click desktop app (Docker; auto-restarts, no commands).
+- **[docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md)** — set up the LLM backend (Ollama / OpenAI-compatible / Claude) that powers the agents.
+- **[docs/AGENT_SETUP.md](docs/AGENT_SETUP.md)** — install an agent on each bot host so the dashboard can pull its data.
+
+**Fastest start:** install Docker Desktop, then `cp .env.example .env` and run the launcher for your OS (`launch/install-linux.sh` or `launch\install-windows.bat`) to get a clickable **MayBot** icon. See [docs/DESKTOP_APP.md](docs/DESKTOP_APP.md).
+
+---
+
 ## What Goes Where
 
 | Machine | What to install | What to configure |
