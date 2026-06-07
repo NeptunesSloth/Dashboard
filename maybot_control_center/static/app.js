@@ -1729,9 +1729,12 @@ function skinSuffix(a) {
   if (_skinMap && _skinMap[a && a.name] !== undefined) return _skinMap[a.name];          // locked unique random
   return RANDOM_SKINS[_hash(a && a.name) % RANDOM_SKINS.length];                          // fallback
 }
+// authored effect strips (ported from the realm map) keyed by hall activity
+const SFX_FOR = { cultivate: 'work', seclude: 'aura', breakthrough: 'breakthrough' };
 function hallUnitInner(act, key, variant) {
   const v = (variant && key !== 'demon') ? variant : '';
-  return `<span class='hall-sprite act-${act}'><span class='hall-fx'><i></i><i></i><i></i></span><img src='/assets/map/sprites/agent_${key}${v}.png' alt='' draggable='false'></span>`;
+  const sfx = SFX_FOR[act] ? `<span class='hall-sfx sfx-${SFX_FOR[act]}'></span>` : '';
+  return `<span class='hall-sprite act-${act}'><span class='hall-fx'><i></i><i></i><i></i></span>${sfx}<img src='/assets/map/sprites/agent_${key}${v}.png' alt='' draggable='false'></span>`;
 }
 function hallPositions(k, floor) {
   // `floor` lets a hall pin disciples to a sensible standing area (e.g. a cave's
