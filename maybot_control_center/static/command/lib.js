@@ -15,7 +15,7 @@ export const HEALTH_COLOR = { ok: 0x34d399, warning: 0xfbbf24, error: 0xfb5e7e, 
 const NAV = [
   ['command', '🏛', 'Command', '/'],
   ['trade', '📈', 'Trade', '/trade'],
-  ['disciples', '🧠', 'Disciples', '/chamber'],
+  ['disciples', '🧠', 'Sect Members', '/chamber'],
   ['missions', '⚔', 'Missions', '/console'],
   ['projects', '📜', 'Realms', '/console'],
   ['map', '🗺', 'Map', '/console'],

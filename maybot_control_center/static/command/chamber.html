@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aegis — Disciple Command Chamber</title>
+  <title>Aegis — Sect Members</title>
   <meta name="theme-color" content="#05060c">
   <link rel="icon" href="/icon.svg">
   <link rel="stylesheet" href="/command.css">
@@ -12,21 +12,21 @@
   <canvas id="scene-canvas" class="scene-canvas"></canvas>
   <div class="vignette"></div>
 
-  <div class="chamber">
+  <div class="chamber-app">
     <nav class="rail glass" id="rail"></nav>
-
-    <aside class="roster">
-      <div class="topbar"><div class="brand"><span class="mark">🧠</span> Disciples</div></div>
-      <div class="glass" style="padding:14px; flex:1; display:flex; flex-direction:column; min-height:0">
-        <div class="panel-title">Command Chamber</div>
-        <div class="jarvis" id="roster-sub" style="margin:8px 0 12px">Loading the sect roster…</div>
-        <div class="roster-list" id="roster"></div>
+    <div class="chamber-stage" id="stage">
+      <div class="scene-top rise">
+        <div class="brand"><span class="mark">🧠</span> Sect Members</div>
+        <div class="jarvis" id="roster-sub">Loading the sect roster…</div>
       </div>
-    </aside>
+      <div class="pyramid" id="pyramid"></div>
+    </div>
+  </div>
 
-    <main class="chamber-main" id="main">
-      <div class="glass" style="padding:40px; text-align:center; color:var(--muted)">Select a disciple to open their dossier.</div>
-    </main>
+  <!-- cinematic inspection view -->
+  <div class="inspect" id="inspect" hidden>
+    <div class="inspect-scrim" id="inspect-scrim"></div>
+    <aside class="inspect-panel glass" id="inspect-panel"></aside>
   </div>
 
   <script type="module" src="/chamber.js"></script>
