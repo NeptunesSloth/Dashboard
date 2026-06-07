@@ -1104,3 +1104,33 @@ input, select, textarea { background: rgba(10,12,22,.6); border: 1px solid var(-
 .modal-box { background: rgba(18,20,32,.92); backdrop-filter: blur(20px) saturate(135%); border: 1px solid var(--border); border-radius: 18px; }
 .logs-panel { background: rgba(12,14,24,.96); backdrop-filter: blur(16px); border-left: 1px solid var(--border); }
 h2::after { background: var(--gold); }
+
+/* ===== Ops tab — calmer, card-based layout ===== */
+.ops-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; margin: 8px 0 14px; }
+.ops-card { padding: 16px 18px; }
+.ops-card-h { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.ops-card-h h3 { margin: 0; font-size: 15px; letter-spacing: .01em; color: var(--text); }
+.ops-card-h .btn { margin-left: auto; }
+.ops-ico { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 9px;
+  background: rgba(139,92,255,.14); border: 1px solid rgba(139,92,255,.32); font-size: 15px; }
+/* collapsible secondary panels */
+details.ops-fold { padding: 0; margin: 0 0 14px; overflow: hidden; }
+details.ops-fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
+  padding: 15px 18px; font-size: 15px; font-weight: 600; color: var(--text); }
+details.ops-fold > summary::-webkit-details-marker { display: none; }
+details.ops-fold > summary .pill { margin-left: 4px; }
+details.ops-fold > summary::after { content: '▸'; margin-left: auto; color: var(--muted); transition: transform .2s ease; }
+details.ops-fold[open] > summary::after { transform: rotate(90deg); }
+details.ops-fold[open] > summary { border-bottom: 1px solid var(--border); }
+.ops-fold-body { padding: 14px 18px 16px; }
+.ops-fold-body .comms-feed { background: rgba(4,7,16,.4); max-height: 360px; }
+/* prettier diagnostic chips */
+#diag-config .diag-chips { gap: 8px; margin: 0; }
+.diag-chip { font-size: 12px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border); background: rgba(40,44,70,.35); }
+.diag-chip.on { color: #8ff0c0; border-color: rgba(52,211,153,.45); background: rgba(52,211,153,.12); }
+.diag-chip.off { color: var(--muted); background: rgba(40,44,70,.28); }
+/* fleet table polish */
+.ops-card table.fleet { margin-top: 2px; }
+table.fleet th { border-bottom-color: var(--border); }
+table.fleet tbody tr:last-child td { border-bottom: none; }
+table.fleet tbody tr:hover td { background: rgba(139,92,255,.06); }
