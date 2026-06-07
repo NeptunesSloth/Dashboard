@@ -1222,3 +1222,12 @@ table.fleet tbody tr:hover td { background: rgba(139,92,255,.06); }
 .hall-unit.hl, .hall-unit.on-throne { animation: none; }
 @keyframes hallWander { 0%,100% { transform: translate(-50%,-100%); } 50% { transform: translate(calc(-50% + 10px),-100%); } }
 @media (prefers-reduced-motion: reduce) { .hall-unit { animation: none; } }
+
+/* settings/controls panel (#15) */
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.set-row:last-child { border-bottom: 0; }
+.set-row b { font-size: 13px; } .set-row .muted { font-size: 11px; }
+
+/* #12 hall members stroll smoothly */
+.hall-unit { transition: left 4s ease-in-out, top 4s ease-in-out; }
+.hall-sprite img { transition: transform .3s ease; }

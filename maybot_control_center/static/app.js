@@ -2600,6 +2600,7 @@ async function renderOps() {
   renderHosts();        // agent host manager (add/edit/test, no file editing)
   bindAccountsUI();
   renderAccounts();     // account/user manager (operator only)
+  renderSettings();     // autopilot + risk kill-switch toggles (#15)
   const [diag, aud] = await Promise.all([apiJSON('/api/diagnostics'), apiJSON('/api/audit')]);
   const cfg = (diag && diag.config) || {};
   const wh = cfg.webhooks || {};
@@ -2867,6 +2868,21 @@ async function removeAccount(name) {
     if (!r.ok) { const j = await r.json().catch(() => ({})); alert('Remove failed: ' + (j.detail || r.status)); return; }
   } catch (e) { alert('Remove failed: ' + e); return; }
   renderAccounts();
+}
+
+async function renderSettings() {
+  const el = document.getElementById('settings-body'); if (!el) return;
+  const [ap, rk] = await Promise.all([apiJSON('/api/autopilot'), apiJSON('/api/risk')]);
+  const apPaused = !!(ap && ap.paused);
+  const killed = !!(rk && rk.status && rk.status.kill_switch);
+  el.innerHTML = `
+    <div class='set-row'><div><b>Autopilot</b><div class='muted'>autonomous detect → fix → verify</div></div>
+      <button class='btn ${apPaused ? '' : 'btn-primary'}' id='set-ap'>${apPaused ? 'Resume' : 'Pause'}</button></div>
+    <div class='set-row'><div><b>Risk kill-switch</b><div class='muted'>halt all new trades</div></div>
+      <button class='btn ${killed ? 'btn-danger' : ''}' id='set-kill'>${killed ? 'Release' : 'Engage'}</button></div>
+    <div class='muted' style='font-size:11px;margin-top:8px'>Other settings live in your environment / docker-compose.</div>`;
+  const a = document.getElementById('set-ap'); if (a) a.onclick = async () => { await apiPost(apPaused ? '/api/autopilot/resume' : '/api/autopilot/pause', {}, 'Autopilot'); renderSettings(); };
+  const k = document.getElementById('set-kill'); if (k) k.onclick = async () => { await apiPost('/api/risk/kill', { on: !killed }, 'Kill-switch'); renderSettings(); };
 }
 
 // Fire a desktop/phone notification when a project worsens (client-side alerting).
@@ -3281,3 +3297,17 @@ function mountBellConsole() {
   document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== bell) menu.classList.remove('open'); });
   refresh(); setInterval(refresh, 15000);
 }
+
+// #12 map life: members stroll around the hall they're in while it's open
+setInterval(() => {
+  const hall = document.getElementById('map-hall');
+  if (!hall || hall.classList.contains('hidden') || !hall.classList.contains('shown')) return;
+  hall.querySelectorAll('.hall-unit:not(.hl):not(.on-throne)').forEach((u) => {
+    if (Math.random() < 0.45) return;                     // not everyone moves each tick
+    const cur = parseFloat(u.style.left) || 50;
+    const nx = Math.max(8, Math.min(92, cur + (Math.random() * 28 - 14)));
+    u.style.left = nx + '%';
+    const img = u.querySelector('.hall-sprite img');
+    if (img) img.style.transform = nx < cur ? 'scaleX(-1)' : 'scaleX(1)';
+  });
+}, 5000);
