@@ -47,6 +47,9 @@ launch\install-windows.bat --autostart
 
 - **Start / open:** double-click the **MayBot** icon. It launches the stack (building
   the first time), waits for the dashboard, and opens <http://localhost:8200> in your browser.
+
+![The dashboard after launch](img/dashboard-classic.png)
+
 - **It keeps itself running:** thanks to `restart: unless-stopped`, the containers
   come back automatically after a crash or a reboot — you don't re-run anything.
 - **Stop it:** run `launch/stop.sh` (Linux) or `launch\stop.bat` (Windows). Click the

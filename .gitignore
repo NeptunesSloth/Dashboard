@@ -57,3 +57,6 @@ logs/
 !maybot_control_center/static/assets/map/**/*.png
 !maybot_control_center/static/assets/sect/*.png
 !maybot_control_center/static/assets/sect/**/*.png
+
+# ...and the documentation screenshots are tracked
+!docs/img/*.png

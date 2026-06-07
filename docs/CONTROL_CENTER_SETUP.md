@@ -117,6 +117,8 @@ In the UI you should see your `devices.yaml` hosts and their projects populate
 within one poll. If a device shows offline/auth-error, run
 `scripts/check-agent.sh <url> <token>` (see [AGENT_SETUP.md](AGENT_SETUP.md)).
 
+![Control center — classic dashboard](img/dashboard-classic.png)
+
 ---
 
 ## 6. Turn features on/off
