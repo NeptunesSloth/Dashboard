@@ -212,3 +212,15 @@ export async function openLogs(device, project) {
   pop.querySelectorAll('.lvl').forEach((b) => b.onclick = () => { level = b.dataset.lvl; pop.querySelectorAll('.lvl').forEach((x) => x.classList.toggle('on', x === b)); load(); });
   load();
 }
+
+/* ---------------- live updates over SSE ---------------- */
+export function liveStream(onEvent) {
+  let es;
+  try { es = new EventSource(`/api/stream?token=${encodeURIComponent(localStorage.getItem(TOKEN_KEY) || '')}`); }
+  catch (_) { return null; }
+  es.onmessage = (e) => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } onEvent(m.type, m.data); };
+  es.onerror = () => {};
+  return es;
+}
+let _liveT;
+export function debounce(fn, ms = 400) { clearTimeout(_liveT); _liveT = setTimeout(fn, ms); }

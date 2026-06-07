@@ -7,17 +7,42 @@ frames, so the dashboard updates instantly instead of waiting for the poll.
 from __future__ import annotations
 
 import json
+import os
 import queue
 import threading
+import time
 
 _subs: set[queue.Queue] = set()
 _lock = threading.Lock()
+_hb_started = False
+HEARTBEAT_SECONDS = float(os.getenv("MAYBOT_HEARTBEAT_SECONDS", "7"))
+
+
+def _heartbeat() -> None:
+    # Emit a periodic 'tick' so live clients can refresh PnL/overview without
+    # polling. Only fires while someone is listening; the on-demand /api/overview
+    # path never publishes, so this can't cause a refresh loop.
+    while True:
+        time.sleep(HEARTBEAT_SECONDS)
+        with _lock:
+            alive = len(_subs)
+        if alive:
+            publish("tick")
+
+
+def _ensure_heartbeat() -> None:
+    global _hb_started
+    if _hb_started or HEARTBEAT_SECONDS <= 0:
+        return
+    _hb_started = True
+    threading.Thread(target=_heartbeat, daemon=True).start()
 
 
 def subscribe() -> queue.Queue:
     q: queue.Queue = queue.Queue(maxsize=200)
     with _lock:
         _subs.add(q)
+    _ensure_heartbeat()
     return q
 
 

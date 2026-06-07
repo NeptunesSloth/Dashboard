@@ -1,4 +1,4 @@
-import { $, api, post, esc, mountRail, initAccount, starfield } from '/lib.js';
+import { $, api, post, esc, mountRail, initAccount, starfield, liveStream, debounce } from '/lib.js';
 
 mountRail('disciples');
 initAccount();
@@ -532,3 +532,4 @@ async function load() {
 }
 load();
 setInterval(() => { if (!previewMode && $('inspect').hidden) load(); }, 12000);
+liveStream((t) => { if (['agents','tick','tasks'].includes(t) && !previewMode && $('inspect').hidden) debounce(load, 800); });

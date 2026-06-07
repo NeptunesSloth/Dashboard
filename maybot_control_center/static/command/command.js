@@ -1,5 +1,5 @@
 import * as THREE from '/vendor/three.module.js';
-import { initAccount, openLogs } from '/lib.js';
+import { initAccount, openLogs, liveStream, debounce } from '/lib.js';
 initAccount();
 
 /* ============================ helpers ============================ */
@@ -269,7 +269,8 @@ $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', mi
 
 init3D();
 refresh();
-setInterval(refresh, 7000);
+setInterval(refresh, 15000);
+liveStream((t) => { if (['tick','agents','tasks','tools','command','overview'].includes(t)) debounce(refresh); });
 
 /* ---- first-run onboarding checklist ---- */
 async function renderSetup() {
