@@ -54,7 +54,7 @@ def test_command_home_served():
 def test_immersive_scenes_served():
     # Disciple Command Chamber + Trade + Treasury scenes and their assets.
     ch = client.get("/chamber")
-    assert ch.status_code == 200 and "Command Chamber" in ch.text
+    assert ch.status_code == 200 and "Sect Members" in ch.text
     tc = client.get("/trade")
     assert tc.status_code == 200 and "Trade Center" in tc.text
     tr = client.get("/treasury")

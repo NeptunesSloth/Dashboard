@@ -1,6 +1,7 @@
-import { $, api, post, esc, money, timeAgo, mountRail, countUp, bindTilt, starfield } from '/lib.js';
+import { $, api, post, esc, money, timeAgo, mountRail, initAccount, liveStream, debounce, countUp, bindTilt, starfield } from '/lib.js';
 
 mountRail('trade');
+initAccount();
 starfield('scene-canvas');
 
 function tradingFromProjects(projects) {
@@ -191,6 +192,7 @@ async function refresh() {
 setInterval(() => { $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);
 $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 refresh();
-setInterval(refresh, 7000);
+setInterval(refresh, 15000);
+liveStream((t) => { if (['tick','tasks','agents','command','overview'].includes(t)) debounce(refresh); });
 loadAdvisor();
 setInterval(loadAdvisor, 30000);

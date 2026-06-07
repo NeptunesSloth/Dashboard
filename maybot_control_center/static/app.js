@@ -367,7 +367,7 @@ async function render() {
   summaryEl.innerHTML = `<div class='card'>Loading overview...</div>`;
   try {
     const resp = await fetch('/api/overview', { headers: authHeaders() });
-    if (resp.status === 401) { showLogin(); return; }
+    if (resp.status === 401) { location.href = '/login'; return; }
     const data = await resp.json();
     notifyHealthChanges(data.projects || []);
     window.__lastProjects = data.projects || [];
@@ -1613,6 +1613,19 @@ function buildPeaks(crew) {
   });
 }
 
+// role/governance → portrait art (matches the Sect Members dossier)
+function mapPortrait(a) {
+  const g = a.governance || {}; const role = String(a.role || '').toLowerCase();
+  if (g.is_leader) return 'leader';
+  if (g.is_elder) return 'elder';
+  if (/trad|market|invest|merchant/.test(role)) return 'trader';
+  if (/eng|build|forge|deploy/.test(role)) return 'engineer';
+  if (/research|scholar|study|scribe/.test(role)) return 'researcher';
+  if (/analy|data|quant|strateg/.test(role)) return 'analyst';
+  if (/architect|infra|ops|marshal/.test(role)) return 'architect';
+  return 'disciple';
+}
+
 async function renderSectMap() {
   const sec = document.getElementById('map-section');
   const crew = (window.__agents || []).slice();
@@ -1659,8 +1672,12 @@ async function renderSectMap() {
     b.className = 'peak-marker' + (p.id === 'leader' ? ' pm-leader' : '') + (p.kind === 'utility' ? ' pm-util' : '');
     b.style.left = p.anchor.x + '%'; b.style.top = p.anchor.y + '%';
     b.setAttribute('data-peak', p.id);
+    const faces = (p.kind === 'group' ? (p.members || []).slice(0, 4).map(m =>
+      `<img class='pm-face' src='/assets/sect/portraits/${mapPortrait(m)}.png' alt='' title='${esc(m.name)}' draggable='false'>`).join('') : '');
+    const more = p.kind === 'group' && p.members.length > 4 ? `<span class='pm-more'>+${p.members.length - 4}</span>` : '';
     b.innerHTML = `<span class='pm-plaque'><span class='pm-name'>${p.icon} ${esc(p.title)}</span>
       <span class='pm-realm'>${esc(sub)}</span></span>
+      ${faces ? `<span class='pm-faces'>${faces}${more}</span>` : ''}
       <span class='pm-pin crew-dot ${active ? 'warning' : 'ok'}'></span>
       <span class='pm-enter'>click to enter ▸</span>`;
     b.addEventListener('click', () => enterPeak(p.id));
@@ -1860,7 +1877,8 @@ async function renderGroupHall(peak, focusName, instant) {
     u.setAttribute('data-agent', x.name);
     const collabTag = collaborating ? `<span class='ht-collab' title='collaborating with ${esc(mate.name)}'>🤝 ${esc(mate.name)}</span>` : '';
     u.innerHTML = `${hallUnitInner(ax.act, spriteFor(x, ax), skinSuffix(x))}<span class='hall-tag'>${x.governance?.is_leader ? '👑 ' : ''}${esc(x.name)}<span class='ht-act'>${esc(ax.label)}</span>${collabTag}</span>`;
-    u.addEventListener('click', () => renderGroupHall(peak, x.name));
+    // clicking a character opens their cinematic dossier (same as Sect Members)
+    u.addEventListener('click', () => { location.href = '/chamber?inspect=' + encodeURIComponent(x.name); });
     units.appendChild(u);
   });
   // draw collaboration threads between bonded partners present together
@@ -2578,6 +2596,10 @@ async function renderReliability() {
 async function renderOps() {
   const sec = document.getElementById('ops-section');
   if (!sec) return;
+  bindHostsUI();        // host manager buttons (also bound at load, idempotent)
+  renderHosts();        // agent host manager (add/edit/test, no file editing)
+  bindAccountsUI();
+  renderAccounts();     // account/user manager (operator only)
   const [diag, aud] = await Promise.all([apiJSON('/api/diagnostics'), apiJSON('/api/audit')]);
   const cfg = (diag && diag.config) || {};
   const wh = cfg.webhooks || {};
@@ -2617,8 +2639,6 @@ async function renderOps() {
     };
   }
   renderSectMemory();   // the Knowledge Base lives in the Ops tab now
-  bindHostsUI();
-  renderHosts();        // agent host manager (add/edit/test, no file editing)
 }
 
 // ===== Hosts: add/edit/test agent hosts from the dashboard =====
@@ -2752,6 +2772,101 @@ async function removeHost(name) {
     if (!r.ok) { const j = await r.json().catch(() => ({})); alert('Remove failed: ' + (j.detail || r.status)); return; }
   } catch (e) { alert('Remove failed: ' + e); return; }
   renderHosts(); render();
+}
+
+// ===== Accounts: create/remove dashboard users (operator only) =====
+function bindAccountsUI() {
+  const add = document.getElementById('account-add');
+  if (add && !add.dataset.bound) { add.dataset.bound = '1'; add.onclick = () => openAccountForm(); }
+  const ref = document.getElementById('account-refresh');
+  if (ref && !ref.dataset.bound) { ref.dataset.bound = '1'; ref.onclick = () => renderAccounts(); }
+  const close = document.getElementById('account-close');
+  if (close && !close.dataset.bound) { close.dataset.bound = '1'; close.onclick = () => document.getElementById('account-modal').classList.add('hidden'); }
+}
+async function renderAccounts() {
+  const list = document.getElementById('accounts-list'); if (!list) return;
+  const pill = document.getElementById('accounts-pill');
+  list.innerHTML = `<div class='muted'>Loading…</div>`;
+  const data = await apiJSON('/api/accounts');
+  const accts = (data && data.accounts) || [];
+  if (pill) pill.textContent = data && data.auth_active ? `${accts.length} account${accts.length === 1 ? '' : 's'}` : 'open access — no accounts yet';
+  if (!accts.length) {
+    list.innerHTML = `<div class='card host-empty'>
+      <h3>No accounts yet</h3>
+      <p class='muted'>Right now the dashboard is <b>open</b> — anyone who can reach it has full control. Create the first <b>operator</b> account to lock it down; you'll be signed in with it automatically.</p>
+      <button class='btn btn-primary' id='account-add-empty'>+ Create the first account</button></div>`;
+    const b = document.getElementById('account-add-empty'); if (b) b.onclick = () => openAccountForm();
+    return;
+  }
+  list.innerHTML = accts.map((u) => `<div class='card host-card'>
+    <div class='section-head'><h3>${esc(u.name)}</h3><span class='pill'>${u.role === 'operator' ? '🛡 operator' : '👁 viewer'}</span></div>
+    <div class='muted'>token: ${esc(u.token_masked) || '—'}</div>
+    ${(u.projects && u.projects.length) ? `<div class='muted host-bots'>projects: ${u.projects.map(esc).join(', ')}</div>` : ''}
+    <div class='host-actions'>
+      <button class='btn' data-acct-edit='${esc(u.name)}'>Edit</button>
+      <button class='btn btn-danger' data-acct-del='${esc(u.name)}'>Remove</button>
+    </div></div>`).join('');
+  list.querySelectorAll('[data-acct-edit]').forEach((b) => b.onclick = () => openAccountForm(accts.find((u) => u.name === b.dataset.acctEdit)));
+  list.querySelectorAll('[data-acct-del]').forEach((b) => b.onclick = () => removeAccount(b.dataset.acctDel));
+}
+function openAccountForm(acct) {
+  acct = acct || null;
+  const m = document.getElementById('account-modal'), body = document.getElementById('account-modal-body');
+  body.innerHTML = `
+    <h2>${acct ? ('Edit account: ' + esc(acct.name)) : 'Add an account'}</h2>
+    <p class='muted'>Operators can control the sect; viewers are read-only. The token is the password — it's shown once on creation, so copy it.</p>
+    <div class='host-form'>
+      <label>Name</label>
+      <input id='af-name' placeholder='alice' value='${acct ? esc(acct.name) : ''}'>
+      <label>Role</label>
+      <select id='af-role'>
+        <option value='operator'${acct && acct.role === 'operator' ? ' selected' : ''}>operator — full control</option>
+        <option value='viewer'${acct && acct.role === 'viewer' ? ' selected' : ''}>viewer — read-only</option>
+      </select>
+      <label>Token <span class='muted'>— the sign-in secret</span></label>
+      <div class='host-token-row'>
+        <input id='af-token' type='text' placeholder='${acct ? '•••••• unchanged — leave blank to keep' : 'generate or paste a token'}'>
+        <button class='btn' id='af-gen' type='button'>Generate</button>
+      </div>
+      <label>Project access <span class='muted'>— optional, comma-separated (e.g. box:daybot, web:*). Blank = all.</span></label>
+      <input id='af-projects' placeholder='all projects' value='${acct && acct.projects ? esc(acct.projects.join(', ')) : ''}'>
+      <div class='host-form-actions'>
+        <button class='btn btn-primary' id='af-save' type='button'>Save account</button>
+      </div>
+      <div id='af-result' class='host-result muted'></div>
+    </div>`;
+  m.classList.remove('hidden');
+  body.querySelector('#af-gen').onclick = async () => { const r = await apiJSON('/api/hosts/gen-token'); if (r && r.token) body.querySelector('#af-token').value = r.token; };
+  body.querySelector('#af-save').onclick = () => saveAccountForm(body, acct);
+}
+async function saveAccountForm(body, acct) {
+  const res = body.querySelector('#af-result');
+  const name = body.querySelector('#af-name').value.trim();
+  const role = body.querySelector('#af-role').value;
+  const token = body.querySelector('#af-token').value.trim();
+  const projects = body.querySelector('#af-projects').value.split(',').map((s) => s.trim()).filter(Boolean);
+  if (!name) { res.innerHTML = `<span class='money-neg'>Name is required.</span>`; return; }
+  const payload = { name, role, token, projects: projects.length ? projects : null };
+  if (acct) payload.original_name = acct.name;
+  const j = await apiPost('/api/accounts', payload, 'Save account');
+  if (!j || !j.ok) return;
+  if (j.first) {
+    // first account just enabled auth — adopt the token so we stay signed in
+    localStorage.setItem(CONTROL_TOKEN_STORAGE_KEY, j.token);
+    alert(`Account "${j.name}" created and you're now signed in as operator.\n\nYour token (store it safely):\n${j.token}`);
+    location.reload(); return;
+  }
+  res.innerHTML = `<span class='money-pos'>✓ Saved. Token (copy now — shown once):</span>
+    <div class='host-cmd' style='margin-top:6px'>${esc(j.token)}</div>`;
+  renderAccounts();
+}
+async function removeAccount(name) {
+  if (!confirm(`Remove account “${name}”? They will no longer be able to sign in.`)) return;
+  try {
+    const r = await fetch('/api/accounts/' + encodeURIComponent(name), { method: 'DELETE', headers: authHeaders() });
+    if (!r.ok) { const j = await r.json().catch(() => ({})); alert('Remove failed: ' + (j.detail || r.status)); return; }
+  } catch (e) { alert('Remove failed: ' + e); return; }
+  renderAccounts();
 }
 
 // Fire a desktop/phone notification when a project worsens (client-side alerting).
@@ -2971,13 +3086,40 @@ function setupStream() {
   es.onerror = () => {}; // EventSource auto-reconnects
 }
 // ---- tabbed navigation (no more infinite scroll) ----
+// ---- unified left rail (shared with the Command Hall); drives section nav ----
+const SIDE_RAIL = [
+  ['command', '🏛', 'Command', { href: '/' }],
+  ['trade', '📈', 'Trade', { href: '/trade' }],
+  ['members', '🧠', 'Sect Members', { href: '/chamber' }],
+  ['missions', '⚔', 'Missions', { tab: 'disciples' }],
+  ['realms', '📜', 'Realms', { tab: 'overview' }],
+  ['map', '🗺', 'Map', { tab: 'map' }],
+  ['halls', '⛩', 'Halls', { tab: 'sect' }],
+  ['treasury', '🏦', 'Treasury', { href: '/treasury' }],
+  ['ops', '⚙', 'Ops', { tab: 'ops' }],
+];
+function buildSideRail() {
+  const el = document.getElementById('side-rail'); if (!el) return;
+  el.innerHTML = `<div class='sr-logo'>◆</div>` + SIDE_RAIL.map(([k, ico, lbl, act]) =>
+    `<button class='sr-item' data-k='${k}'${act.tab ? ` data-tab='${act.tab}'` : ''}${act.href ? ` data-href='${act.href}'` : ''}>
+       <span class='sr-ico'>${ico}</span><span class='sr-lbl'>${lbl}</span></button>`).join('');
+  el.querySelectorAll('.sr-item').forEach((b) => b.onclick = () => {
+    if (b.dataset.href) { location.href = b.dataset.href; return; }
+    if (b.dataset.tab) setTab(b.dataset.tab);
+  });
+}
+function setActiveRail(t) {
+  document.querySelectorAll('#side-rail .sr-item').forEach((b) => b.classList.toggle('active', b.dataset.tab === t));
+}
+
+// ---- section navigation (driven entirely by the side rail) ----
 function setTab(t) {
   localStorage.setItem('tab', t);
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  setActiveRail(t);
   document.querySelectorAll('.container > section').forEach(s => s.classList.toggle('tab-hidden', (s.dataset.tab || 'overview') !== t));
   window.scrollTo(0, 0);
 }
-document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+buildSideRail();
 setTab(localStorage.getItem('tab') || 'overview');
 
 setupStream();
@@ -3007,6 +3149,9 @@ function hideLogin() { const o = document.getElementById('login-overlay'); if (o
   const so = document.getElementById('sign-out');
   if (so) so.onclick = () => { localStorage.removeItem(CONTROL_TOKEN_STORAGE_KEY); const ct = document.getElementById('control-token'); if (ct) ct.value = ''; showLogin(); };
 })();
+// Bind the Hosts manager buttons at load so "+ Add a host" works even before
+// (or independent of) the Ops tab's full render pass.
+(function bindHostsAtLoad() { try { bindHostsUI(); bindAccountsUI(); } catch (_) {} })();
 
 // ---- Web Push subscription (after notification permission) ----
 function _urlB64ToUint8(base64) {
@@ -3029,4 +3174,110 @@ async function subscribePush() {
 // Register the PWA service worker (installable app + offline shell).
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+
+// ===== account bubble + menu + startup auth guard (console) =====
+async function initAccountConsole() {
+  let me = {};
+  try { me = await fetch('/api/account/me', { headers: authHeaders() }).then((r) => r.json()); } catch (_) {}
+  me = me || {};
+  if (!me.authed && me.auth_active) { location.href = '/login'; return; }
+  mountAcct(me);
+  mountBellConsole();
+}
+function mountAcct(me) {
+  document.getElementById('acct-bubble')?.remove();
+  document.getElementById('acct-menu')?.remove();
+  const authed = me.authed && me.name;
+  const name = authed ? me.name : 'Guest';
+  const role = authed ? me.role : 'open access';
+  const bubble = document.createElement('button'); bubble.id = 'acct-bubble'; bubble.className = 'acct-bubble';
+  bubble.innerHTML = `<span class='acct-av'>${esc((name[0] || '?').toUpperCase())}</span>
+    <span style='display:flex;flex-direction:column;line-height:1.15'><span class='acct-name'>${esc(name)}</span><span class='acct-role'>${esc(role)}</span></span>
+    <span class='acct-chev'>▾</span>`;
+  const menu = document.createElement('div'); menu.id = 'acct-menu'; menu.className = 'acct-menu';
+  let items = `<div class='acct-head'><b>${esc(name)}</b><span>${esc(role)}</span></div>`;
+  if (authed) {
+    items += `<button class='acct-item' data-act='pw'><span class='ai-ico'>🔑</span> Change password</button>`;
+    const can2fa = (me.channels || []).length > 0;
+    items += `<button class='acct-item' data-act='2fa'${can2fa ? '' : ' disabled'}><span class='ai-ico'>🛡</span> Two-factor <span class='ai-tag'>${me.tfa ? 'on' : (can2fa ? 'off' : 'unavailable')}</span></button>`;
+    if (me.role === 'operator') items += `<button class='acct-item' data-act='accounts'><span class='ai-ico'>👥</span> Manage accounts</button>`;
+    items += `<button class='acct-item danger' data-act='out'><span class='ai-ico'>⎋</span> Sign out</button>`;
+  } else {
+    items += `<button class='acct-item' data-act='login'><span class='ai-ico'>＋</span> Create / sign in</button>`;
+  }
+  menu.innerHTML = items;
+  document.body.append(bubble, menu);
+  const toggle = (on) => menu.classList.toggle('open', on ?? !menu.classList.contains('open'));
+  bubble.onclick = (e) => { e.stopPropagation(); toggle(); };
+  document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== bubble) toggle(false); });
+  menu.querySelectorAll('.acct-item').forEach((b) => b.onclick = () => { toggle(false); acctActConsole(b.dataset.act, me); });
+}
+async function acctActConsole(act, me) {
+  if (act === 'login') { location.href = '/login'; return; }
+  if (act === 'accounts') { setTab('ops'); return; }
+  if (act === 'out') {
+    try { await fetch('/api/logout', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ session: getControlToken() }) }); } catch (_) {}
+    localStorage.removeItem(CONTROL_TOKEN_STORAGE_KEY); location.href = '/login'; return;
+  }
+  if (act === '2fa') {
+    const r = await apiPost('/api/account/2fa', { enable: !me.tfa }, '2FA');
+    if (r && r.ok) initAccountConsole();
+    return;
+  }
+  if (act === 'pw') openPwModalConsole(me);
+}
+function openPwModalConsole(me) {
+  document.getElementById('acct-modal')?.remove();
+  const m = document.createElement('div'); m.id = 'acct-modal'; m.className = 'acct-modal';
+  m.innerHTML = `<div class='acct-modal-box card'>
+    <h3>Change password</h3>
+    ${me.has_password ? `<label class='lf-label'>Current password</label><input class='lf-input' id='pw-old' type='password'>` : `<p class='muted' style='font-size:12.5px;margin:0 0 6px'>Set a password for this account.</p>`}
+    <label class='lf-label'>New password</label><input class='lf-input' id='pw-new' type='password' placeholder='at least 8 characters'>
+    <label class='lf-label'>Confirm</label><input class='lf-input' id='pw-new2' type='password'>
+    <button class='lf-btn' id='pw-save'>Save</button>
+    <div class='lf-err' id='pw-err'></div><div class='lf-ok' id='pw-ok'></div>
+    <button class='lf-link' id='pw-cancel'>Cancel</button></div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', (e) => { if (e.target === m) m.remove(); });
+  m.querySelector('#pw-cancel').onclick = () => m.remove();
+  m.querySelector('#pw-save').onclick = async () => {
+    const err = m.querySelector('#pw-err'), ok = m.querySelector('#pw-ok'); err.textContent = ''; ok.textContent = '';
+    const nv = m.querySelector('#pw-new').value, nv2 = m.querySelector('#pw-new2').value;
+    if (nv.length < 8) { err.textContent = 'Password must be at least 8 characters.'; return; }
+    if (nv !== nv2) { err.textContent = 'Passwords do not match.'; return; }
+    const body = { new: nv }; const oldEl = m.querySelector('#pw-old'); if (oldEl) body.old = oldEl.value;
+    try {
+      const r = await fetch('/api/account/password', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok) { ok.textContent = 'Password updated.'; setTimeout(() => m.remove(), 900); }
+      else err.textContent = j.detail || 'Could not update password.';
+    } catch (e) { err.textContent = 'Could not update password.'; }
+  };
+}
+initAccountConsole();
+
+// ===== notifications bell (console) =====
+function _agoC(ts) { if (!ts) return ''; const s = Date.now() / 1000 - ts; if (s < 60) return `${s | 0}s ago`; if (s < 3600) return `${s / 60 | 0}m ago`; if (s < 86400) return `${s / 3600 | 0}h ago`; return `${s / 86400 | 0}d ago`; }
+function mountBellConsole() {
+  document.getElementById('bell')?.remove(); document.getElementById('bell-menu')?.remove();
+  const bell = document.createElement('button'); bell.id = 'bell'; bell.className = 'bell'; bell.innerHTML = `🔔<span class='bell-badge' id='bell-badge' hidden>0</span>`;
+  const menu = document.createElement('div'); menu.id = 'bell-menu'; menu.className = 'bell-menu';
+  document.body.append(bell, menu);
+  const bubble = document.getElementById('acct-bubble');
+  const place = () => { const w = bubble ? bubble.offsetWidth : 120; bell.style.right = (16 + w + 10) + 'px'; };
+  place(); setTimeout(place, 250); addEventListener('resize', place);
+  async function refresh() {
+    let d = {}; try { d = await fetch('/api/notifications', { headers: authHeaders() }).then((r) => r.json()); } catch (_) {}
+    const ev = (d && d.recent) || [];
+    const seen = Number(localStorage.getItem('maybot.notif_seen') || 0);
+    const unseen = ev.filter((e) => (e.ts * 1000) > seen).length;
+    const badge = document.getElementById('bell-badge');
+    if (badge) { if (unseen > 0) { badge.hidden = false; badge.textContent = unseen > 9 ? '9+' : String(unseen); } else badge.hidden = true; }
+    menu.innerHTML = `<div class='acct-head'><b>Notifications</b><span>${(d && d.channels || []).length ? 'via ' + d.channels.join(', ') : 'no channels configured'}</span></div>`
+      + (ev.length ? ev.slice().reverse().slice(0, 20).map((e) => `<div class='notif lvl-${esc(e.level || 'info')}'><div class='notif-t'>${esc(e.title || '')}</div>${e.body ? `<div class='notif-b'>${esc(e.body)}</div>` : ''}<div class='notif-time'>${_agoC(e.ts)}</div></div>`).join('') : `<div class='muted' style='padding:12px'>No notifications yet.</div>`);
+  }
+  bell.onclick = (e) => { e.stopPropagation(); const open = menu.classList.toggle('open'); if (open) { localStorage.setItem('maybot.notif_seen', String(Date.now())); const b = document.getElementById('bell-badge'); if (b) b.hidden = true; } };
+  document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== bell) menu.classList.remove('open'); });
+  refresh(); setInterval(refresh, 15000);
 }

@@ -13,6 +13,8 @@ tools, autonomy). Rate limiting is a fixed-window counter per client key.
 """
 from __future__ import annotations
 
+import base64
+import hashlib
 import os
 import secrets
 import threading
@@ -29,10 +31,34 @@ WINDOW = int(os.getenv("MAYBOT_RATE_WINDOW", "60"))  # seconds
 # Login-issued session tokens expire after this many minutes (0 = no expiry).
 SESSION_TTL_MINUTES = float(os.getenv("MAYBOT_SESSION_TTL_MINUTES", "720"))
 
+LOGIN_MAX_FAILS = int(os.getenv("MAYBOT_LOGIN_MAX_FAILS", "8"))   # failed sign-ins before lockout
+LOGIN_LOCK_WINDOW = int(os.getenv("MAYBOT_LOGIN_LOCK_WINDOW", "300"))  # seconds
+
 _lock = threading.Lock()
 _buckets: dict[str, tuple[float, int]] = {}
+_login_fails: dict[str, tuple[float, int]] = {}
 # session id -> {"role", "name", "projects", "expires"} (expires=None never lapses)
 _sessions: dict[str, dict] = {}
+# pending 2FA challenge id -> {"name", "code", "expires", "tries"}
+_challenges: dict[str, dict] = {}
+
+
+# ---- password hashing (PBKDF2-HMAC-SHA256, stdlib only) -------------------
+def hash_password(pw: str) -> str:
+    salt = secrets.token_bytes(16)
+    dk = hashlib.pbkdf2_hmac("sha256", (pw or "").encode(), salt, 200_000)
+    return "pbkdf2$200000$" + base64.b64encode(salt).decode() + "$" + base64.b64encode(dk).decode()
+
+
+def verify_password(pw: str, stored: str) -> bool:
+    try:
+        algo, iters, salt_b64, hash_b64 = (stored or "").split("$")
+        if algo != "pbkdf2":
+            return False
+        dk = hashlib.pbkdf2_hmac("sha256", (pw or "").encode(), base64.b64decode(salt_b64), int(iters))
+        return secrets.compare_digest(dk, base64.b64decode(hash_b64))
+    except Exception:
+        return False
 
 
 def load_users() -> list[dict]:
@@ -41,6 +67,87 @@ def load_users() -> list[dict]:
     data = yaml.safe_load(USERS_FILE.read_text(encoding="utf-8")) or {}
     users = data.get("users", [])
     return users if isinstance(users, list) else []
+
+
+def user_by_name(name: str) -> dict | None:
+    return next((u for u in load_users() if u.get("name") == name), None)
+
+
+def save_users(users: list[dict]) -> None:
+    """Persist accounts to users.yaml (atomic). Managed from Ops -> Accounts."""
+    clean: list[dict] = []
+    for u in users:
+        if not isinstance(u, dict) or not u.get("name") or not u.get("token"):
+            continue
+        e = {"name": str(u["name"]), "token": str(u["token"]),
+             "role": u.get("role") if u.get("role") in ("operator", "viewer") else "viewer"}
+        if u.get("projects"):
+            e["projects"] = list(u["projects"])
+        if u.get("pw"):
+            e["pw"] = str(u["pw"])
+        if u.get("tfa"):
+            e["tfa"] = True
+        clean.append(e)
+    header = ("# users.yaml — dashboard accounts (managed from Ops -> Accounts).\n"
+              "# Each token grants its role (operator can mutate, viewer is read-only).\n"
+              "# 'pw' is a salted PBKDF2 hash; never store plaintext. Keep this file secret.\n")
+    text = header + yaml.safe_dump({"users": clean}, sort_keys=False, allow_unicode=True)
+    USERS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = USERS_FILE.with_name(USERS_FILE.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    tmp.replace(USERS_FILE)
+
+
+def set_password(name: str, pw: str) -> bool:
+    users = load_users()
+    u = next((x for x in users if x.get("name") == name), None)
+    if not u:
+        return False
+    u["pw"] = hash_password(pw)
+    save_users(users)
+    return True
+
+
+def set_2fa(name: str, on: bool) -> bool:
+    users = load_users()
+    u = next((x for x in users if x.get("name") == name), None)
+    if not u:
+        return False
+    u["tfa"] = bool(on)
+    save_users(users)
+    return True
+
+
+def current_user(token: str) -> dict | None:
+    """Resolve the acting account record from a session id or raw token."""
+    sess = _session_lookup(token)
+    if sess and sess.get("name"):
+        return user_by_name(sess["name"])
+    return _user_for(token)
+
+
+# ---- 2FA challenges (webhook-delivered one-time codes) --------------------
+def create_2fa_challenge(name: str) -> tuple[str, str]:
+    cid = secrets.token_urlsafe(18)
+    code = f"{secrets.randbelow(1000000):06d}"
+    with _lock:
+        _challenges[cid] = {"name": name, "code": code, "expires": time.time() + 300, "tries": 0}
+    return cid, code
+
+
+def verify_2fa(cid: str, code: str) -> str | None:
+    now = time.time()
+    with _lock:
+        rec = _challenges.get(cid)
+        if not rec or now >= rec["expires"] or rec["tries"] >= 5:
+            _challenges.pop(cid, None)
+            return None
+        rec["tries"] += 1
+        if secrets.compare_digest(code or "", rec["code"]):
+            name = rec["name"]
+            del _challenges[cid]
+            return name
+        return None
 
 
 def _user_for(token: str) -> dict | None:
@@ -145,6 +252,33 @@ def role_for(token: str) -> str | None:
     return "operator"  # no auth configured at all
 
 
+def login_blocked(key: str) -> bool:
+    """True if this client has too many recent failed sign-ins (brute-force guard)."""
+    if LOGIN_MAX_FAILS <= 0:
+        return False
+    now = time.time()
+    with _lock:
+        ws, n = _login_fails.get(key, (now, 0))
+        if now - ws >= LOGIN_LOCK_WINDOW:
+            _login_fails.pop(key, None)
+            return False
+        return n >= LOGIN_MAX_FAILS
+
+
+def note_login_fail(key: str) -> None:
+    now = time.time()
+    with _lock:
+        ws, n = _login_fails.get(key, (now, 0))
+        if now - ws >= LOGIN_LOCK_WINDOW:
+            ws, n = now, 0
+        _login_fails[key] = (ws, n + 1)
+
+
+def reset_login(key: str) -> None:
+    with _lock:
+        _login_fails.pop(key, None)
+
+
 def allow_request(key: str) -> bool:
     if RATE <= 0:
         return True
@@ -164,3 +298,5 @@ def clear() -> None:
     with _lock:
         _buckets.clear()
         _sessions.clear()
+        _challenges.clear()
+        _login_fails.clear()

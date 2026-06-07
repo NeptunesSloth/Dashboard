@@ -1,6 +1,7 @@
-import { $, api, esc, money, mountRail, countUp, bindTilt, starfield } from '/lib.js';
+import { $, api, esc, money, mountRail, initAccount, liveStream, debounce, countUp, bindTilt, starfield } from '/lib.js';
 
 mountRail('treasury');
+initAccount();
 starfield('scene-canvas');
 
 const COLORS = ['#a78bfa', '#38bdf8', '#34d399', '#fbbf24', '#fb5e7e', '#7c5cff'];
@@ -107,4 +108,5 @@ async function refresh() {
 setInterval(() => { $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);
 $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 refresh();
-setInterval(refresh, 9000);
+setInterval(refresh, 18000);
+liveStream((t) => { if (['tick','tasks','agents','command','overview'].includes(t)) debounce(refresh); });

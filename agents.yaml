@@ -1,116 +1,15 @@
 # Live sect roster for the MayBot dashboard.
 #
-# EDIT THIS to match your setup: point `base_url`/`model`/`provider` at your own
-# AI hosts, rename the disciples, add/remove as you like. The dashboard reads
-# this file (MAYBOT_AGENTS_FILE, default "agents.yaml") to populate the Agent
-# Crew, the Sect, and the Sect Map.
+# This starts EMPTY — add your own sect members once you've set up an AI backend.
+# See agents.yaml.example for a full, annotated set of examples to copy from.
 #
-# Providers:
+# Each member needs an AI backend:
 #   provider: ollama              -> base_url like http://127.0.0.1:11434
 #   provider: openai_compatible   -> LM Studio / llama.cpp / vLLM (base_url to that server)
 #   provider: claude              -> needs ANTHROPIC_API_KEY in the env; no base_url
 #
-# Sect Map art:
-#   No `skin:` set -> a RANDOM character skin is chosen, stable per agent.
-#   sprite: demon  -> a fixed identity sprite (always the armored demon).
+# The dashboard reads this file (MAYBOT_AGENTS_FILE, default "agents.yaml") to
+# populate the Sect Members roster, the Sect, and the Sect Map.
 # Keep API keys in the environment, never in this file.
 
-agents:
-  - name: Nova
-    role: Research Analyst
-    persona: >
-      You are Nova, a meticulous research analyst. Concise, data-driven, a little
-      witty. You answer in tight bullet points and never pad.
-    provider: ollama
-    base_url: http://127.0.0.1:11434
-    model: llama3
-    temperature: 0.6
-    max_tokens: 512
-
-  - name: Forge
-    role: Builder
-    persona: >
-      You are Forge, a pragmatic engineer. You think in concrete steps and
-      propose the smallest implementation that works. No fluff.
-    provider: ollama
-    base_url: http://127.0.0.1:11434
-    model: llama3
-    temperature: 0.7
-    max_tokens: 512
-
-  - name: Sage
-    role: Reviewer
-    persona: >
-      You are Sage, a careful reviewer. You check claims, flag risks, and give a
-      clear go / no-go with a one-line reason.
-    provider: ollama
-    base_url: http://127.0.0.1:11434
-    model: llama3
-    temperature: 0.5
-    max_tokens: 512
-
-  - name: Ember
-    role: Debugger
-    persona: >
-      You are Ember, a relentless debugger. You form a hypothesis, name the most
-      likely cause, and propose the next concrete check.
-    provider: ollama
-    base_url: http://127.0.0.1:11434
-    model: llama3
-    temperature: 0.6
-    max_tokens: 512
-
-  - name: Quill
-    role: Scribe
-    persona: >
-      You are Quill, a crisp technical writer. You explain plainly and keep it
-      short, with examples when they help.
-    provider: ollama
-    base_url: http://127.0.0.1:11434
-    model: llama3
-    temperature: 0.6
-    max_tokens: 512
-
-  - name: Pip
-    role: Apprentice
-    persona: >
-      You are Pip, an eager junior disciple. You ask one sharp clarifying
-      question when needed, then attempt the task earnestly.
-    provider: ollama
-    base_url: http://127.0.0.1:11434
-    model: llama3
-    temperature: 0.8
-    max_tokens: 512
-
-  - name: Wren
-    role: Scout
-    persona: >
-      You are Wren, a fast scout. You gather the relevant facts quickly and
-      surface the key signals without overcommitting.
-    provider: ollama
-    base_url: http://127.0.0.1:11434
-    model: llama3
-    temperature: 0.7
-    max_tokens: 512
-
-  - name: Atlas
-    role: Strategist
-    persona: >
-      You are Atlas, a sharp strategist. You weigh trade-offs explicitly and give
-      a clear recommendation with a one-line rationale.
-    provider: claude          # requires ANTHROPIC_API_KEY in the control center's env
-    model: claude-opus-4-8
-    max_tokens: 1024
-
-  # Morde always appears as the armored demon on the Sect Map, whatever he does.
-  - name: Morde
-    role: Iron Marshal
-    persona: >
-      You are Morde, an imposing armored cultivator of few words. Blunt,
-      relentless, decisive. You speak in short, heavy sentences.
-    provider: ollama
-    base_url: http://127.0.0.1:11434
-    model: llama3
-    temperature: 0.6
-    max_tokens: 512
-    sprite: demon
+agents: []

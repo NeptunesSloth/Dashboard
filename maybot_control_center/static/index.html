@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <nav class="side-rail" id="side-rail"></nav>
   <div id="login-overlay" class="login-overlay hidden">
     <div class="login-box">
       <h2>◆ Aegis — Sign in</h2>
@@ -32,7 +33,6 @@
       <p class="muted">Autonomous watch over your projects &amp; agents</p>
     </div>
     <div class="top-actions">
-      <a class="btn" href="/" title="Back to the Command Hall">◆ Command Hall</a>
       <div class="pill"><span class="live-dot"></span> Sect online</div>
       <div class="pill">Last refresh: <span id="refresh-status">never</span></div>
       <div class="pill">Realms: <span id="device-count-pill">0 online / 0 offline</span></div>
@@ -50,13 +50,6 @@
 
   <main class="container">
     <div id="error-banner" class="error-banner hidden">Control center could not fetch overview.</div>
-    <nav class="tabs">
-      <button class="tab-btn" data-tab="overview">Overview</button>
-      <button class="tab-btn" data-tab="disciples">Disciples</button>
-      <button class="tab-btn" data-tab="map">Sect Map</button>
-      <button class="tab-btn" data-tab="sect">Sect Halls</button>
-      <button class="tab-btn" data-tab="ops">Ops</button>
-    </nav>
     <section data-tab="overview">
       <h2>System Overview</h2>
       <div id="summary"></div>
@@ -122,26 +115,52 @@
       <p class="muted">Direct word from your Sect Leader and Elders — none below Elder rank may address you here.</p>
       <div id="ancestor-inbox" class="comms-feed"></div>
     </section>
-    <section data-tab="ops" id="hosts-section">
-      <div class="section-head"><h2>🖥 Hosts</h2><span id="hosts-pill" class="pill">—</span>
-        <button id="host-refresh" class="btn">Refresh</button>
-        <button id="host-add" class="btn btn-primary">+ Add a host</button></div>
-      <p class="muted">The machines that run your bots. The dashboard reaches out to each host and pulls its bots, PnL and logs. Add or edit hosts right here — no file editing.</p>
-      <div id="hosts-list" class="grid"></div>
-    </section>
     <section data-tab="ops" id="ops-section">
-      <div class="section-head"><h2>Ops</h2><span id="ops-pill" class="pill">—</span>
-        <button id="enable-alerts" class="btn">🔔 Enable phone alerts</button></div>
-      <h3 class="trials-sub">⚙ Setup &amp; Diagnostics</h3>
-      <div id="diag-config"></div>
-      <h3 class="trials-sub">🛰 Fleet Health</h3>
-      <div id="fleet-table"></div>
-      <h3 class="trials-sub">📒 Operator Audit Log</h3>
-      <div id="audit-list" class="comms-feed"></div>
-      <div class="section-head" style="margin-top:18px"><h3 style="margin:0">🧠 Knowledge Base</h3><span id="mem-pill" class="pill">0 entries</span></div>
-      <p class="muted">Everything the agents have learned — task results, post-incident fixes, manuals, skills. Every agent draws on this before acting, so knowledge compounds over time.</p>
-      <div class="filter-bar"><input id="mem-search" type="search" placeholder="Search the accumulated knowledge…"></div>
-      <div id="mem-list" class="grid"></div>
+      <div class="section-head"><h2>Ops</h2><span id="ops-pill" class="pill">—</span></div>
+      <div class="ops-masonry">
+        <div class="card ops-panel">
+          <div class="ops-card-h"><span class="ops-ico">🖥</span><h3>Hosts</h3>
+            <div class="ops-h-actions"><span id="hosts-pill" class="pill">—</span>
+              <button id="host-refresh" class="btn">Refresh</button>
+              <button id="host-add" class="btn btn-primary">+ Add</button></div></div>
+          <p class="muted ops-desc">The machines that run your bots — the dashboard pulls each host's bots, PnL and logs. Add or edit hosts here, no file editing.</p>
+          <div id="hosts-list" class="grid"></div>
+        </div>
+
+        <div class="card ops-panel">
+          <div class="ops-card-h"><span class="ops-ico">👤</span><h3>Accounts</h3>
+            <div class="ops-h-actions"><span id="accounts-pill" class="pill">—</span>
+              <button id="account-refresh" class="btn">Refresh</button>
+              <button id="account-add" class="btn btn-primary">+ Add</button></div></div>
+          <p class="muted ops-desc">People who can sign in. Operators control the sect; viewers are read-only. No public sign-up.</p>
+          <div id="accounts-list" class="grid"></div>
+        </div>
+
+        <div class="card ops-panel">
+          <div class="ops-card-h"><span class="ops-ico">⚙</span><h3>Setup &amp; Diagnostics</h3></div>
+          <div id="diag-config"></div>
+        </div>
+
+        <div class="card ops-panel">
+          <div class="ops-card-h"><span class="ops-ico">🛰</span><h3>Fleet Health</h3>
+            <div class="ops-h-actions"><button id="enable-alerts" class="btn">🔔 Alerts</button></div></div>
+          <div id="fleet-table"></div>
+        </div>
+
+        <details class="card ops-fold ops-panel">
+          <summary><span class="ops-ico">📒</span> Operator Audit Log</summary>
+          <div class="ops-fold-body"><div id="audit-list" class="comms-feed"></div></div>
+        </details>
+
+        <details class="card ops-fold ops-panel">
+          <summary><span class="ops-ico">🧠</span> Knowledge Base <span id="mem-pill" class="pill">0 entries</span></summary>
+          <div class="ops-fold-body">
+            <p class="muted">Everything the agents have learned — task results, fixes, manuals, skills. Every agent draws on this before acting.</p>
+            <div class="filter-bar"><input id="mem-search" type="search" placeholder="Search the accumulated knowledge…"></div>
+            <div id="mem-list" class="grid"></div>
+          </div>
+        </details>
+      </div>
     </section>
     <section data-tab="sect" id="trials-section" class="hidden">
       <div class="section-head"><h2>Trials Hall</h2></div>
@@ -360,6 +379,12 @@
     <div class="modal-box">
       <button class="modal-close" id="host-close">✕</button>
       <div id="host-modal-body"></div>
+    </div>
+  </div>
+  <div id="account-modal" class="modal hidden">
+    <div class="modal-box">
+      <button class="modal-close" id="account-close">✕</button>
+      <div id="account-modal-body"></div>
     </div>
   </div>
   <div id="cmdk" class="cmdk hidden">

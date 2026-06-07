@@ -1,9 +1,10 @@
 import csv
 import io
+import os
 import queue
 import re
 import secrets
-from fastapi import FastAPI, Header, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse
 from pydantic import BaseModel
 from .config import load_devices, all_devices, save_devices, CONTROL_CENTER_TOKEN
@@ -321,6 +322,164 @@ def hosts_delete(name: str, x_control_token: str = Header(default="")):
     if len(remaining) == len(devices):
         raise HTTPException(404, "host not found")
     save_devices(remaining)
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# Account management — create/remove dashboard users from the UI (operator only).
+# No public sign-up: an operator provisions accounts here, each gets a token.
+# ---------------------------------------------------------------------------
+class AccountIn(BaseModel):
+    name: str
+    role: str = "viewer"
+    token: str = ""
+    projects: list[str] | None = None
+    original_name: str | None = None
+
+
+@app.get("/api/accounts")
+def accounts_list(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    out = [{
+        "name": u.get("name"), "role": u.get("role", "viewer"),
+        "token_masked": _mask_token(u.get("token", "")), "has_token": bool(u.get("token")),
+        "projects": u.get("projects") or [],
+    } for u in authz.load_users()]
+    return {"accounts": out, "auth_active": bool(authz.load_users())}
+
+
+@app.post("/api/accounts")
+def accounts_save(body: AccountIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    name = (body.name or "").strip()
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "account name may contain letters, numbers, dashes and underscores only")
+    role = body.role if body.role in ("operator", "viewer") else "viewer"
+    users = authz.load_users()
+    was_empty = not users
+    token = (body.token or "").strip() or secrets.token_hex(32)
+    entry = {"name": name, "token": token, "role": role}
+    if body.projects:
+        entry["projects"] = body.projects
+    if body.original_name:
+        idx = next((i for i, u in enumerate(users) if u.get("name") == body.original_name.strip()), None)
+        if idx is None:
+            raise HTTPException(404, "account not found")
+        if any(u.get("name") == name for i, u in enumerate(users) if i != idx):
+            raise HTTPException(409, f"an account named '{name}' already exists")
+        if not (body.token or "").strip() and users[idx].get("token"):
+            entry["token"] = users[idx]["token"]
+        users[idx] = entry
+    else:
+        if any(u.get("name") == name for u in users):
+            raise HTTPException(409, f"an account named '{name}' already exists")
+        users.append(entry)
+    authz.save_users(users)
+    # `first` tells the UI to adopt this token immediately (avoids a bootstrap lockout
+    # the moment auth turns on); `token` is returned once so it can be copied.
+    return {"ok": True, "name": name, "role": role, "token": entry["token"], "first": was_empty}
+
+
+@app.delete("/api/accounts/{name}")
+def accounts_delete(name: str, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid account name")
+    users = authz.load_users()
+    remaining = [u for u in users if u.get("name") != name]
+    if len(remaining) == len(users):
+        raise HTTPException(404, "account not found")
+    # never strand the dashboard with users but no operator (would lock everyone out)
+    if remaining and not any(u.get("role") == "operator" for u in remaining):
+        raise HTTPException(409, "can't remove the last operator account")
+    authz.save_users(remaining)
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# Sect Member management — add/edit/remove members (agents.yaml) from the UI.
+# ---------------------------------------------------------------------------
+class MemberIn(BaseModel):
+    name: str
+    role: str = "Disciple"
+    provider: str = "ollama"
+    model: str = ""
+    base_url: str = ""
+    persona: str = ""
+    temperature: float | None = None
+    max_tokens: int | None = None
+    original_name: str | None = None
+
+_PROVIDERS = {"ollama", "openai_compatible", "claude", "openai"}
+
+
+@app.get("/api/members/profiles")
+def members_profiles(x_control_token: str = Header(default="")):
+    """Persistent, evolving RPG dossiers for the current roster (the sect sim)."""
+    _check_token(x_control_token)
+    from . import sectsim
+    return {"profiles": sectsim.profiles(agents.snapshot())}
+
+
+@app.get("/api/members")
+def members_list(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    out = [{
+        "name": a.get("name"), "role": a.get("role", ""), "provider": a.get("provider", ""),
+        "model": a.get("model", ""), "base_url": a.get("base_url", ""),
+        "persona": a.get("persona") or a.get("system") or "",
+        "temperature": a.get("temperature"), "max_tokens": a.get("max_tokens"),
+    } for a in agents.file_agents()]
+    return {"members": out}
+
+
+@app.post("/api/members")
+def members_save(body: MemberIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    name = (body.name or "").strip()
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "member name may contain letters, numbers, dashes and underscores only")
+    provider = body.provider if body.provider in _PROVIDERS else "ollama"
+    if not (body.model or "").strip():
+        raise HTTPException(400, "a model is required")
+    if provider in ("ollama", "openai_compatible", "openai") and not (body.base_url or "").strip() and provider != "openai":
+        raise HTTPException(400, "this provider needs a base_url (e.g. http://127.0.0.1:11434)")
+    entry: dict = {"name": name, "role": (body.role or "Disciple").strip(), "provider": provider,
+                   "model": body.model.strip()}
+    if body.base_url.strip():
+        entry["base_url"] = body.base_url.strip()
+    if body.persona.strip():
+        entry["persona"] = body.persona.strip()
+    if body.temperature is not None:
+        entry["temperature"] = float(body.temperature)
+    if body.max_tokens is not None:
+        entry["max_tokens"] = int(body.max_tokens)
+    roster = agents.file_agents()
+    if body.original_name:
+        idx = next((i for i, a in enumerate(roster) if a.get("name") == body.original_name.strip()), None)
+        if idx is None:
+            raise HTTPException(404, "member not found")
+        if any(a.get("name") == name for i, a in enumerate(roster) if i != idx):
+            raise HTTPException(409, f"a member named '{name}' already exists")
+        roster[idx] = entry
+    else:
+        if any(a.get("name") == name for a in roster):
+            raise HTTPException(409, f"a member named '{name}' already exists")
+        roster.append(entry)
+    agents.save_agents(roster)
+    return {"ok": True, "name": name}
+
+
+@app.delete("/api/members/{name}")
+def members_delete(name: str, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid member name")
+    roster = agents.file_agents()
+    remaining = [a for a in roster if a.get("name") != name]
+    if len(remaining) == len(roster):
+        raise HTTPException(404, "member not found")
+    agents.save_agents(remaining)
     return {"ok": True}
 
 
@@ -1472,24 +1631,84 @@ def registry_status(x_control_token: str = Header(default="")):
     return registry.snapshot()
 
 
-# ---- Login (validate a token) ----
+# ---- Login / signup / account ----
 class LoginIn(BaseModel):
     token: str = ""
+    name: str = ""
+    password: str = ""
 
 
-@app.post("/api/login")
-def login(body: LoginIn):
-    role = authz.role_for(body.token)
-    if role is None:
-        raise HTTPException(401, "invalid token")
-    # Exchange the credential for a time-boxed session token the client can use
-    # in place of the raw token (X-Control-Token) until it expires.
-    session = authz.issue_session(body.token)
-    out = {"ok": True, "role": role, "name": authz.name_for(body.token)}
+def _issue(token: str) -> dict:
+    session = authz.issue_session(token)
+    out = {"ok": True, "role": authz.role_for(token), "name": authz.name_for(token)}
     if session:
         out["session"] = session["session"]
         out["expires"] = session["expires"]
     return out
+
+
+@app.post("/api/login")
+def login(body: LoginIn, request: Request):
+    key = request.client.host if request.client else "anon"
+    if authz.login_blocked(key):
+        raise HTTPException(429, "too many sign-in attempts — wait a few minutes and try again")
+    # Name + password sign-in (preferred). Falls back to raw-token login (legacy).
+    if body.name and body.password:
+        u = authz.user_by_name(body.name.strip())
+        if not u or not u.get("pw") or not authz.verify_password(body.password, u.get("pw", "")):
+            authz.note_login_fail(key)
+            raise HTTPException(401, "invalid name or password")
+        authz.reset_login(key)
+        if u.get("tfa") and notify.channels():
+            cid, code = authz.create_2fa_challenge(u["name"])
+            ch = notify.channels()[0]
+            notify.send("Aegis sign-in code", f"Your 2FA code is {code} (valid 5 minutes).", level="info", kind="security")
+            return {"ok": False, "pending_2fa": True, "challenge": cid, "channel": ch}
+        return _issue(u["token"])
+    role = authz.role_for(body.token)
+    if role is None:
+        authz.note_login_fail(key)
+        raise HTTPException(401, "invalid token")
+    authz.reset_login(key)
+    return _issue(body.token)
+
+
+class TwoFAIn(BaseModel):
+    challenge: str = ""
+    code: str = ""
+
+
+@app.post("/api/login/2fa")
+def login_2fa(body: TwoFAIn):
+    name = authz.verify_2fa((body.challenge or "").strip(), (body.code or "").strip())
+    if not name:
+        raise HTTPException(401, "invalid or expired code")
+    u = authz.user_by_name(name)
+    if not u:
+        raise HTTPException(401, "account no longer exists")
+    return _issue(u["token"])
+
+
+class SignupIn(BaseModel):
+    name: str
+    password: str
+
+
+@app.post("/api/signup")
+def signup(body: SignupIn):
+    # Self-serve signup is allowed ONLY to claim a fresh dashboard (no accounts yet);
+    # the first account becomes the owner/operator. After that, operators invite users.
+    if authz.load_users():
+        raise HTTPException(403, "sign-up is closed — ask an operator to create your account")
+    name = (body.name or "").strip()
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "name may contain letters, numbers, dashes and underscores only")
+    if len(body.password or "") < 8:
+        raise HTTPException(400, "password must be at least 8 characters")
+    user = {"name": name, "token": secrets.token_hex(32), "role": "operator",
+            "pw": authz.hash_password(body.password)}
+    authz.save_users([user])
+    return _issue(user["token"])
 
 
 class LogoutIn(BaseModel):
@@ -1499,6 +1718,79 @@ class LogoutIn(BaseModel):
 @app.post("/api/logout")
 def logout(body: LogoutIn):
     return {"ok": authz.revoke_session((body.session or "").strip())}
+
+
+@app.get("/api/setup")
+def setup_status(x_control_token: str = Header(default="")):
+    """Onboarding checklist state for the first-run guide."""
+    _check_token(x_control_token)
+    users = authz.load_users()
+    members = agents.file_agents()
+    devices = load_devices()
+    ai = (bool(os.getenv("ANTHROPIC_API_KEY")) and any(m.get("provider") == "claude" for m in members)) \
+        or bool(os.getenv("OPENAI_API_KEY")) or any(m.get("base_url") for m in members)
+    steps = {
+        "account": bool(users),
+        "host": len(devices) > 0,
+        "member": len(members) > 0,
+        "ai": bool(ai),
+        "notifications": len(notify.channels()) > 0,
+    }
+    return {"steps": steps, "done": all(steps.values()),
+            "counts": {"hosts": len(devices), "members": len(members), "accounts": len(users)}}
+
+
+@app.get("/api/account/me")
+def account_me(x_control_token: str = Header(default="")):
+    """Who am I — used by the account bubble and the startup auth guard.
+    Never 401s; returns authed=false so the client can route to /login."""
+    users = authz.load_users()
+    auth_active = bool(users) or bool(CONTROL_CENTER_TOKEN)
+    role = authz.role_for(x_control_token)
+    if role is None:
+        return {"authed": False, "auth_active": auth_active, "accounts_exist": bool(users)}
+    u = authz.current_user(x_control_token)
+    return {
+        "authed": True, "auth_active": auth_active, "accounts_exist": bool(users),
+        "open_mode": not auth_active, "name": authz.name_for(x_control_token), "role": role,
+        "has_password": bool(u and u.get("pw")), "tfa": bool(u and u.get("tfa")),
+        "channels": notify.channels(),
+    }
+
+
+class PasswordIn(BaseModel):
+    old: str = ""
+    new: str
+
+
+@app.post("/api/account/password")
+def account_password(body: PasswordIn, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    u = authz.current_user(x_control_token)
+    if not u:
+        raise HTTPException(400, "no account is associated with this session")
+    if u.get("pw") and not authz.verify_password(body.old, u.get("pw", "")):
+        raise HTTPException(403, "current password is incorrect")
+    if len(body.new or "") < 8:
+        raise HTTPException(400, "new password must be at least 8 characters")
+    authz.set_password(u["name"], body.new)
+    return {"ok": True}
+
+
+class TwoFAToggleIn(BaseModel):
+    enable: bool
+
+
+@app.post("/api/account/2fa")
+def account_2fa(body: TwoFAToggleIn, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    u = authz.current_user(x_control_token)
+    if not u:
+        raise HTTPException(400, "no account is associated with this session")
+    if body.enable and not notify.channels():
+        raise HTTPException(400, "set up a notification channel (webhook/Slack/Telegram/email) first")
+    authz.set_2fa(u["name"], body.enable)
+    return {"ok": True, "tfa": body.enable}
 
 
 # ---- Web Push (VAPID) ----
@@ -1915,6 +2207,16 @@ def orbit_controls_js():
 @app.get("/lib.js")
 def command_lib_js():
     return FileResponse(f"{_CMD}/lib.js", media_type="text/javascript")
+
+
+@app.get("/login")
+def login_page():
+    return FileResponse(f"{_CMD}/login.html")
+
+
+@app.get("/login.js")
+def login_js():
+    return FileResponse(f"{_CMD}/login.js", media_type="text/javascript")
 
 
 @app.get("/chamber")

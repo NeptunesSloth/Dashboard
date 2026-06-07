@@ -1,4 +1,6 @@
 import * as THREE from '/vendor/three.module.js';
+import { initAccount, openLogs, liveStream, debounce } from '/lib.js';
+initAccount();
 
 /* ============================ helpers ============================ */
 const $ = (id) => document.getElementById(id);
@@ -172,7 +174,10 @@ function renderProjects(projects) {
       </div></div>`;
   }).join('') || `<div class='muted'>No realms under watch.</div>`;
   $('projects').querySelectorAll('[data-act]').forEach((b) => b.onclick = (e) => {
-    e.stopPropagation(); localStorage.setItem('tab', e.target.dataset.act === 'assign' ? 'disciples' : 'overview'); location.href = '/console';
+    e.stopPropagation();
+    const card = b.closest('[data-project]'); const proj = card && card.dataset.project, dev = card && card.dataset.device;
+    if (b.dataset.act === 'logs') { if (dev && proj) openLogs(dev, proj); return; }
+    localStorage.setItem('tab', e.target.dataset.act === 'assign' ? 'disciples' : 'overview'); location.href = '/console';
   });
   bindTilt();
 }
@@ -250,7 +255,7 @@ async function refresh() {
 
 /* nav */
 const DEST = { disciples: '/chamber', trade: '/trade', treasury: '/treasury' };
-const TABMAP = { ops: 'ops', projects: 'overview', missions: 'sect', map: 'map' };
+const TABMAP = { ops: 'ops', projects: 'overview', missions: 'disciples', map: 'map', halls: 'sect' };
 $('rail').querySelectorAll('.nav-item').forEach((n) => n.onclick = () => {
   const k = n.dataset.nav; if (k === 'command') return;
   if (DEST[k]) { location.href = DEST[k]; return; }
@@ -264,4 +269,32 @@ $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', mi
 
 init3D();
 refresh();
-setInterval(refresh, 7000);
+setInterval(refresh, 15000);
+liveStream((t) => { if (['tick','agents','tasks','tools','command','overview'].includes(t)) debounce(refresh); });
+
+/* ---- first-run onboarding checklist ---- */
+async function renderSetup() {
+  const el = document.getElementById('setup-banner'); if (!el) return;
+  if (localStorage.getItem('maybot.setup_dismissed')) { el.innerHTML = ''; return; }
+  const s = await api('/api/setup');
+  if (!s || s.done) { el.innerHTML = ''; return; }
+  const steps = [
+    ['account', 'Create your account', 'Secure the dashboard', '/login', null],
+    ['host', 'Add a host', 'Connect a machine running your bots', '/console', 'ops'],
+    ['member', 'Recruit a sect member', 'Add an AI agent', '/chamber', null],
+    ['ai', 'Connect an AI backend', 'Local AI or an API key', '/chamber', null],
+    ['notifications', 'Set up notifications', 'Slack / Discord / webhook / email', '/console', 'ops'],
+  ];
+  const done = Object.values(s.steps).filter(Boolean).length;
+  el.innerHTML = `<section class='glass rise setup-card'>
+    <div class='setup-head'><div class='panel-title'>Get started · ${done}/${steps.length}</div>
+      <button class='setup-x' id='setup-x' title='dismiss'>✕</button></div>
+    <div class='setup-steps'>${steps.map(([k, t, d, href, tab]) => `
+      <a class='setup-step ${s.steps[k] ? 'ok' : ''}' href='${href}'${tab ? ` data-tab='${tab}'` : ''}>
+        <span class='setup-check'>${s.steps[k] ? '✓' : ''}</span>
+        <span class='setup-txt'><b>${t}</b><span>${d}</span></span></a>`).join('')}</div>
+  </section>`;
+  el.querySelectorAll('.setup-step[data-tab]').forEach((a) => a.onclick = () => localStorage.setItem('tab', a.dataset.tab));
+  const x = document.getElementById('setup-x'); if (x) x.onclick = () => { localStorage.setItem('maybot.setup_dismissed', '1'); el.innerHTML = ''; };
+}
+renderSetup();

@@ -15,14 +15,15 @@ export const HEALTH_COLOR = { ok: 0x34d399, warning: 0xfbbf24, error: 0xfb5e7e, 
 const NAV = [
   ['command', '🏛', 'Command', '/'],
   ['trade', '📈', 'Trade', '/trade'],
-  ['disciples', '🧠', 'Disciples', '/chamber'],
+  ['disciples', '🧠', 'Sect Members', '/chamber'],
   ['missions', '⚔', 'Missions', '/console'],
   ['projects', '📜', 'Realms', '/console'],
   ['map', '🗺', 'Map', '/console'],
+  ['halls', '⛩', 'Halls', '/console'],
   ['treasury', '🏦', 'Treasury', '/treasury'],
   ['ops', '⚙', 'Ops', '/console'],
 ];
-const TABMAP = { ops: 'ops', projects: 'overview', missions: 'sect', map: 'map' };
+const TABMAP = { ops: 'ops', projects: 'overview', missions: 'disciples', map: 'map', halls: 'sect' };
 export function mountRail(active) {
   const el = $('rail'); if (!el) return;
   el.innerHTML = `<div class='rail-logo'>◆</div>` + NAV.map(([k, ico, lbl]) =>
@@ -74,3 +75,152 @@ export function starfield(canvasId) {
   (function loop() { requestAnimationFrame(loop); const t = performance.now() * 0.0001; group.rotation.y = t * 1.4;
     m.x += (m.tx - m.x) * .05; m.y += (m.ty - m.y) * .05; cam.position.x = m.x * 6; cam.position.y = -m.y * 4; cam.lookAt(0, 0, -200); renderer.render(scene, cam); })();
 }
+
+/* ---------------- account bubble + menu + startup auth guard ------------- */
+const _AKEY = 'maybot.control_token';
+function _ael(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+
+export async function initAccount() {
+  let me = {};
+  try { me = await api('/api/account/me'); } catch (_) {}
+  me = me || {};
+  if (!me.authed && me.auth_active) { location.href = '/login'; return; }   // startup guard
+  mountAccountBubble(me);
+  mountBell();
+}
+
+function mountAccountBubble(me) {
+  document.getElementById('acct-bubble')?.remove();
+  document.getElementById('acct-menu')?.remove();
+  const authed = me.authed && me.name;
+  const name = authed ? me.name : 'Guest';
+  const role = authed ? me.role : 'open access';
+  const bubble = _ael('button', 'acct-bubble');
+  bubble.id = 'acct-bubble';
+  bubble.innerHTML = `<span class='acct-av'>${esc((name[0] || '?').toUpperCase())}</span>
+    <span style='display:flex;flex-direction:column;line-height:1.15'><span class='acct-name'>${esc(name)}</span><span class='acct-role'>${esc(role)}</span></span>
+    <span class='acct-chev'>▾</span>`;
+  const menu = _ael('div', 'acct-menu'); menu.id = 'acct-menu';
+  let items = `<div class='acct-head'><b>${esc(name)}</b><span>${esc(role)}</span></div>`;
+  if (authed) {
+    items += `<button class='acct-item' data-act='pw'><span class='ai-ico'>🔑</span> Change password</button>`;
+    const can2fa = (me.channels || []).length > 0;
+    items += `<button class='acct-item' data-act='2fa'${can2fa ? '' : ' disabled title="set up a notification channel first"'}>
+      <span class='ai-ico'>🛡</span> Two-factor <span class='ai-tag'>${me.tfa ? 'on' : (can2fa ? 'off' : 'unavailable')}</span></button>`;
+    if (me.role === 'operator')
+      items += `<button class='acct-item' data-act='accounts'><span class='ai-ico'>👥</span> Manage accounts</button>`;
+    items += `<button class='acct-item danger' data-act='out'><span class='ai-ico'>⎋</span> Sign out</button>`;
+  } else {
+    items += `<button class='acct-item' data-act='login'><span class='ai-ico'>＋</span> Create / sign in</button>`;
+  }
+  menu.innerHTML = items;
+  document.body.append(bubble, menu);
+  const toggle = (on) => menu.classList.toggle('open', on ?? !menu.classList.contains('open'));
+  bubble.onclick = (e) => { e.stopPropagation(); toggle(); };
+  document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== bubble) toggle(false); });
+  menu.querySelectorAll('.acct-item').forEach((b) => b.onclick = () => { toggle(false); acctAction(b.dataset.act, me); });
+}
+
+async function acctAction(act, me) {
+  if (act === 'login') { location.href = '/login'; return; }
+  if (act === 'accounts') { localStorage.setItem('tab', 'ops'); location.href = '/console'; return; }
+  if (act === 'out') {
+    try { await post('/api/logout', { session: localStorage.getItem(_AKEY) || '' }); } catch (_) {}
+    localStorage.removeItem(_AKEY); location.href = '/login'; return;
+  }
+  if (act === '2fa') {
+    const r = await post('/api/account/2fa', { enable: !me.tfa });
+    if (r && r.ok) initAccount(); else alert((r && r.detail) || 'Could not change 2FA.');
+    return;
+  }
+  if (act === 'pw') openPasswordModal(me);
+}
+
+function openPasswordModal(me) {
+  document.getElementById('acct-modal')?.remove();
+  const m = _ael('div', 'acct-modal'); m.id = 'acct-modal';
+  m.innerHTML = `<div class='acct-modal-box glass'>
+    <h3>Change password</h3>
+    ${me.has_password ? `<label class='lf-label'>Current password</label><input class='lf-input' id='pw-old' type='password'>` : `<p class='muted' style='font-size:12.5px;margin:0 0 6px'>Set a password for this account.</p>`}
+    <label class='lf-label'>New password</label><input class='lf-input' id='pw-new' type='password' placeholder='at least 8 characters'>
+    <label class='lf-label'>Confirm</label><input class='lf-input' id='pw-new2' type='password'>
+    <button class='lf-btn' id='pw-save'>Save</button>
+    <div class='lf-err' id='pw-err'></div><div class='lf-ok' id='pw-ok'></div>
+    <button class='lf-link' id='pw-cancel'>Cancel</button>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', (e) => { if (e.target === m) m.remove(); });
+  m.querySelector('#pw-cancel').onclick = () => m.remove();
+  m.querySelector('#pw-save').onclick = async () => {
+    const err = m.querySelector('#pw-err'), ok = m.querySelector('#pw-ok');
+    err.textContent = ''; ok.textContent = '';
+    const nv = m.querySelector('#pw-new').value, nv2 = m.querySelector('#pw-new2').value;
+    if (nv.length < 8) { err.textContent = 'Password must be at least 8 characters.'; return; }
+    if (nv !== nv2) { err.textContent = 'Passwords do not match.'; return; }
+    const body = { new: nv }; const oldEl = m.querySelector('#pw-old'); if (oldEl) body.old = oldEl.value;
+    const r = await post('/api/account/password', body);
+    if (r && r.ok) { ok.textContent = 'Password updated.'; setTimeout(() => m.remove(), 900); }
+    else err.textContent = (r && r.detail) || 'Could not update password.';
+  };
+}
+
+/* ---------------- notifications bell ---------------- */
+function _ago(ts) { if (!ts) return ''; const s = Date.now() / 1000 - ts; if (s < 60) return `${s | 0}s ago`; if (s < 3600) return `${s / 60 | 0}m ago`; if (s < 86400) return `${s / 3600 | 0}h ago`; return `${s / 86400 | 0}d ago`; }
+export function mountBell() {
+  document.getElementById('bell')?.remove(); document.getElementById('bell-menu')?.remove();
+  const bell = _ael('button', 'bell'); bell.id = 'bell'; bell.innerHTML = `🔔<span class='bell-badge' id='bell-badge' hidden>0</span>`;
+  const menu = _ael('div', 'bell-menu'); menu.id = 'bell-menu';
+  document.body.append(bell, menu);
+  const bubble = document.getElementById('acct-bubble');
+  const place = () => { const w = bubble ? bubble.offsetWidth : 120; bell.style.right = (16 + w + 10) + 'px'; };
+  place(); setTimeout(place, 250); addEventListener('resize', place);
+  async function refresh() {
+    const d = await api('/api/notifications'); const ev = (d && d.recent) || [];
+    const seen = Number(localStorage.getItem('maybot.notif_seen') || 0);
+    const unseen = ev.filter((e) => (e.ts * 1000) > seen).length;
+    const badge = document.getElementById('bell-badge');
+    if (badge) { if (unseen > 0) { badge.hidden = false; badge.textContent = unseen > 9 ? '9+' : String(unseen); } else badge.hidden = true; }
+    menu.innerHTML = `<div class='acct-head'><b>Notifications</b><span>${(d && d.channels || []).length ? 'via ' + d.channels.join(', ') : 'no channels configured'}</span></div>`
+      + (ev.length ? ev.slice().reverse().slice(0, 20).map((e) => `<div class='notif lvl-${esc(e.level || 'info')}'><div class='notif-t'>${esc(e.title || '')}</div>${e.body ? `<div class='notif-b'>${esc(e.body)}</div>` : ''}<div class='notif-time'>${_ago(e.ts)}</div></div>`).join('') : `<div class='muted' style='padding:12px'>No notifications yet.</div>`);
+  }
+  bell.onclick = (e) => { e.stopPropagation(); const open = menu.classList.toggle('open'); if (open) { localStorage.setItem('maybot.notif_seen', String(Date.now())); const b = document.getElementById('bell-badge'); if (b) b.hidden = true; } };
+  document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== bell) menu.classList.remove('open'); });
+  refresh(); setInterval(refresh, 15000);
+}
+
+/* ---------------- per-bot log popover ---------------- */
+export async function openLogs(device, project) {
+  document.getElementById('logs-pop')?.remove();
+  const pop = _ael('div', 'logs-pop'); pop.id = 'logs-pop';
+  pop.innerHTML = `<div class='logs-pop-box glass'>
+    <div class='logs-pop-head'><b>${esc(project)}</b> <span class='muted'>${esc(device || '')}</span>
+      <span class='logs-levels'>${['ALL', 'ERROR', 'WARNING', 'INFO'].map((l) => `<button class='lvl ${l === 'ALL' ? 'on' : ''}' data-lvl='${l}'>${l}</button>`).join('')}</span>
+      <button class='logs-pop-x' id='logs-x'>✕</button></div>
+    <pre class='logs-pre' id='logs-pre'>Loading…</pre></div>`;
+  document.body.appendChild(pop);
+  pop.addEventListener('click', (e) => { if (e.target === pop) pop.remove(); });
+  document.getElementById('logs-x').onclick = () => pop.remove();
+  document.addEventListener('keydown', function esc2(e) { if (e.key === 'Escape') { pop.remove(); document.removeEventListener('keydown', esc2); } });
+  let level = 'ALL';
+  async function load() {
+    const pre = document.getElementById('logs-pre'); if (!pre) return; pre.textContent = 'Loading…';
+    const d = await api(`/api/logs/${encodeURIComponent(device)}/${encodeURIComponent(project)}?level=${level}`);
+    const lines = d && (d.lines || d.log || d.entries);
+    pre.textContent = Array.isArray(lines) && lines.length ? lines.join('\n') : ((d && d.detail) ? d.detail : 'No log lines.');
+    pre.scrollTop = pre.scrollHeight;
+  }
+  pop.querySelectorAll('.lvl').forEach((b) => b.onclick = () => { level = b.dataset.lvl; pop.querySelectorAll('.lvl').forEach((x) => x.classList.toggle('on', x === b)); load(); });
+  load();
+}
+
+/* ---------------- live updates over SSE ---------------- */
+export function liveStream(onEvent) {
+  let es;
+  try { es = new EventSource(`/api/stream?token=${encodeURIComponent(localStorage.getItem(TOKEN_KEY) || '')}`); }
+  catch (_) { return null; }
+  es.onmessage = (e) => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } onEvent(m.type, m.data); };
+  es.onerror = () => {};
+  return es;
+}
+let _liveT;
+export function debounce(fn, ms = 400) { clearTimeout(_liveT); _liveT = setTimeout(fn, ms); }

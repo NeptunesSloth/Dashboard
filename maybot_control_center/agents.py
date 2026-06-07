@@ -80,6 +80,27 @@ def load_agents() -> list[dict]:
     return roster
 
 
+def file_agents() -> list[dict]:
+    """The raw roster as stored in agents.yaml (no in-memory recruit/retire overlay)."""
+    if not AGENTS_FILE.exists():
+        return []
+    data = yaml.safe_load(AGENTS_FILE.read_text(encoding="utf-8")) or {}
+    a = data.get("agents", [])
+    return a if isinstance(a, list) else []
+
+
+def save_agents(agents: list[dict]) -> None:
+    """Persist the sect roster to agents.yaml (atomic). Managed from the UI."""
+    header = ("# agents.yaml — sect members (managed from the Sect Members screen).\n"
+              "# Each needs an AI backend: provider ollama|openai_compatible (with base_url)\n"
+              "# or claude (needs ANTHROPIC_API_KEY). Keep API keys in the environment.\n")
+    text = header + yaml.safe_dump({"agents": agents}, sort_keys=False, allow_unicode=True)
+    AGENTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = AGENTS_FILE.with_name(AGENTS_FILE.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    tmp.replace(AGENTS_FILE)
+
+
 def retire_agent(name: str) -> None:
     """Remove a disciple from the living roster (a culling / expulsion)."""
     with _roster_lock:
