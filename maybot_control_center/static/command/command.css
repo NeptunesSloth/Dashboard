@@ -528,3 +528,13 @@ body {
 .acct-modal h3 { margin: 0 0 12px; }
 .acct-modal .lf-err { min-height: 14px; }
 .acct-modal .lf-ok { color: var(--jade); font-size: 12.5px; min-height: 14px; margin-top: 8px; }
+
+/* member-management affordances (Sect Members) */
+#scene-actions { margin-left: auto; }
+.sa-btn { padding: 7px 13px; border-radius: 10px; cursor: pointer; font: inherit; font-size: 13px; color: var(--text);
+  border: 1px solid rgba(139,92,255,.5); background: linear-gradient(135deg, rgba(139,92,255,.28), rgba(56,189,248,.1)); }
+.sa-btn:hover { background: linear-gradient(135deg, rgba(139,92,255,.42), rgba(56,189,248,.16)); }
+.sa-btn.ghost { background: rgba(40,44,70,.5); border-color: var(--line); }
+.sa-btn.danger { background: rgba(251,94,126,.14); border-color: rgba(251,94,126,.5); color: #ffc1cd; }
+.ds-manage { display: flex; gap: 8px; margin-left: auto; }
+.acct-modal[hidden] { display: none; }

@@ -395,6 +395,85 @@ def accounts_delete(name: str, x_control_token: str = Header(default="")):
     return {"ok": True}
 
 
+# ---------------------------------------------------------------------------
+# Sect Member management — add/edit/remove members (agents.yaml) from the UI.
+# ---------------------------------------------------------------------------
+class MemberIn(BaseModel):
+    name: str
+    role: str = "Disciple"
+    provider: str = "ollama"
+    model: str = ""
+    base_url: str = ""
+    persona: str = ""
+    temperature: float | None = None
+    max_tokens: int | None = None
+    original_name: str | None = None
+
+_PROVIDERS = {"ollama", "openai_compatible", "claude", "openai"}
+
+
+@app.get("/api/members")
+def members_list(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    out = [{
+        "name": a.get("name"), "role": a.get("role", ""), "provider": a.get("provider", ""),
+        "model": a.get("model", ""), "base_url": a.get("base_url", ""),
+        "persona": a.get("persona") or a.get("system") or "",
+        "temperature": a.get("temperature"), "max_tokens": a.get("max_tokens"),
+    } for a in agents.file_agents()]
+    return {"members": out}
+
+
+@app.post("/api/members")
+def members_save(body: MemberIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    name = (body.name or "").strip()
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "member name may contain letters, numbers, dashes and underscores only")
+    provider = body.provider if body.provider in _PROVIDERS else "ollama"
+    if not (body.model or "").strip():
+        raise HTTPException(400, "a model is required")
+    if provider in ("ollama", "openai_compatible", "openai") and not (body.base_url or "").strip() and provider != "openai":
+        raise HTTPException(400, "this provider needs a base_url (e.g. http://127.0.0.1:11434)")
+    entry: dict = {"name": name, "role": (body.role or "Disciple").strip(), "provider": provider,
+                   "model": body.model.strip()}
+    if body.base_url.strip():
+        entry["base_url"] = body.base_url.strip()
+    if body.persona.strip():
+        entry["persona"] = body.persona.strip()
+    if body.temperature is not None:
+        entry["temperature"] = float(body.temperature)
+    if body.max_tokens is not None:
+        entry["max_tokens"] = int(body.max_tokens)
+    roster = agents.file_agents()
+    if body.original_name:
+        idx = next((i for i, a in enumerate(roster) if a.get("name") == body.original_name.strip()), None)
+        if idx is None:
+            raise HTTPException(404, "member not found")
+        if any(a.get("name") == name for i, a in enumerate(roster) if i != idx):
+            raise HTTPException(409, f"a member named '{name}' already exists")
+        roster[idx] = entry
+    else:
+        if any(a.get("name") == name for a in roster):
+            raise HTTPException(409, f"a member named '{name}' already exists")
+        roster.append(entry)
+    agents.save_agents(roster)
+    return {"ok": True, "name": name}
+
+
+@app.delete("/api/members/{name}")
+def members_delete(name: str, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid member name")
+    roster = agents.file_agents()
+    remaining = [a for a in roster if a.get("name") != name]
+    if len(remaining) == len(roster):
+        raise HTTPException(404, "member not found")
+    agents.save_agents(remaining)
+    return {"ok": True}
+
+
 @app.post("/api/action/{device_name}/{project_name}/{action}")
 def proxy_action(device_name: str, project_name: str, action: str, force: bool = Query(default=False),
                  x_control_token: str = Header(default="")):

@@ -1,4 +1,4 @@
-import { $, api, esc, mountRail, initAccount, starfield } from '/lib.js';
+import { $, api, post, esc, mountRail, initAccount, starfield } from '/lib.js';
 
 mountRail('disciples');
 initAccount();
@@ -7,6 +7,7 @@ starfield('scene-canvas');
 let ROWS = [];
 let active = null;
 let previewMode = false;
+let CAN_MANAGE = false;
 
 /* ====================================================================== *
  *  Deterministic character synthesis
@@ -248,10 +249,14 @@ function renderPyramid() {
     py.innerHTML = `<div class='empty-sect glass'>
       <div class='es-mark'>⛩</div>
       <h2>No sect members yet</h2>
-      <p>Add members to <code>agents.yaml</code> once an AI backend is set up, then they'll rise here by rank — click any one to open their full dossier.</p>
-      <button class='btn-primary' id='preview-sample' style='margin-top:8px;padding:9px 16px;border-radius:10px;border:1px solid var(--violet);background:rgba(139,92,250,.15);color:var(--text);cursor:pointer'>✨ Preview a sample dossier</button>
+      <p>Add members once an AI backend is set up, then they'll rise here by rank — click any one to open their full dossier.</p>
+      <div style='display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap'>
+        ${CAN_MANAGE ? `<button class='sa-btn' id='es-add'>＋ Add member</button>` : ''}
+        <button class='sa-btn ghost' id='preview-sample'>✨ Preview a sample dossier</button>
+      </div>
     </div>`;
     const pb = $('preview-sample'); if (pb) pb.onclick = previewSample;
+    const ea = $('es-add'); if (ea) ea.onclick = () => memberForm(null);
     return;
   }
   const byTier = {}; ROWS.forEach((a) => { (byTier[tierOf(a)] = byTier[tierOf(a)] || []).push(a); });
@@ -404,6 +409,7 @@ async function openInspect(name) {
   requestAnimationFrame(() => ov.classList.add('show'));
   $('inspect-close').onclick = closeInspect;
   $('inspect-scrim').onclick = closeInspect;
+  if (CAN_MANAGE && !previewMode) injectMemberActions(a);
 
   // real chronicle, blended with synthesised milestones
   const chron = await api('/api/chronicle/' + encodeURIComponent(name));
@@ -449,8 +455,70 @@ function previewSample() {
   openInspect('Aurelia');
 }
 
+/* ---- member management (add / edit / remove → agents.yaml) ---- */
+function setupManage(me) {
+  CAN_MANAGE = !!(me && me.authed && (me.role === 'operator' || me.open_mode));
+  const slot = $('scene-actions'); if (!slot) return;
+  slot.innerHTML = CAN_MANAGE ? `<button class='sa-btn' id='add-member'>＋ Add member</button>` : '';
+  const b = $('add-member'); if (b) b.onclick = () => memberForm(null);
+}
+function memberForm(m) {
+  const wrap = $('member-modal');
+  wrap.innerHTML = `<div class='acct-modal-box glass' style='width:460px'>
+    <h3>${m ? ('Edit ' + esc(m.name)) : 'Add a sect member'}</h3>
+    <div class='host-form'>
+      <label class='lf-label'>Name</label><input class='lf-input' id='mf-name' value='${m ? esc(m.name) : ''}' placeholder='e.g. Nova'>
+      <label class='lf-label'>Role</label><input class='lf-input' id='mf-role' value='${m ? esc(m.role || '') : ''}' placeholder='e.g. Research Analyst'>
+      <label class='lf-label'>AI provider</label>
+      <select class='lf-input' id='mf-provider'>
+        <option value='ollama'>Ollama (local)</option>
+        <option value='openai_compatible'>OpenAI-compatible (LM Studio / vLLM)</option>
+        <option value='claude'>Claude (needs ANTHROPIC_API_KEY)</option>
+      </select>
+      <label class='lf-label'>Model</label><input class='lf-input' id='mf-model' value='${m ? esc(m.model || '') : ''}' placeholder='e.g. llama3 · claude-opus-4-8'>
+      <label class='lf-label'>Base URL <span class='muted'>(local providers)</span></label><input class='lf-input' id='mf-url' value='${m ? esc(m.base_url || '') : ''}' placeholder='http://127.0.0.1:11434'>
+      <label class='lf-label'>Persona <span class='muted'>(optional)</span></label><textarea class='lf-input' id='mf-persona' rows='3' placeholder='How this member thinks and writes…'>${m ? esc(m.persona || '') : ''}</textarea>
+      <button class='lf-btn' id='mf-save'>Save member</button>
+      <div class='lf-err' id='mf-err'></div>
+      <button class='lf-link' id='mf-cancel'>Cancel</button>
+    </div></div>`;
+  wrap.hidden = false;
+  $('mf-provider').value = m ? (m.provider || 'ollama') : 'ollama';
+  wrap.onclick = (e) => { if (e.target === wrap) wrap.hidden = true; };
+  $('mf-cancel').onclick = () => { wrap.hidden = true; };
+  $('mf-save').onclick = async () => {
+    const err = $('mf-err'); err.textContent = '';
+    const payload = { name: $('mf-name').value.trim(), role: $('mf-role').value.trim() || 'Disciple',
+      provider: $('mf-provider').value, model: $('mf-model').value.trim(), base_url: $('mf-url').value.trim(),
+      persona: $('mf-persona').value.trim() };
+    if (m) payload.original_name = m.name;
+    if (!payload.name) { err.textContent = 'Name is required.'; return; }
+    if (!payload.model) { err.textContent = 'Model is required.'; return; }
+    const r = await post('/api/members', payload);
+    if (r && r.ok) { wrap.hidden = true; previewMode = false; load(); } else err.textContent = (r && r.detail) || 'Could not save member.';
+  };
+}
+async function removeMember(name) {
+  if (!confirm(`Remove ${name} from the sect?`)) return;
+  const tok = localStorage.getItem('maybot.control_token') || '';
+  const r = await fetch('/api/members/' + encodeURIComponent(name), { method: 'DELETE', headers: tok ? { 'x-control-token': tok } : {} });
+  if (r.ok) { if (active === name) closeInspect(); load(); }
+  else { const j = await r.json().catch(() => ({})); alert('Remove failed: ' + (j.detail || r.status)); }
+}
+function injectMemberActions(a) {
+  const head = document.querySelector('#inspect-panel .ds-head');
+  if (!head || document.getElementById('ds-edit')) return;
+  const row = document.createElement('div'); row.className = 'ds-manage';
+  row.innerHTML = `<button class='sa-btn' id='ds-edit'>Edit</button><button class='sa-btn danger' id='ds-del'>Remove</button>`;
+  head.appendChild(row);
+  $('ds-edit').onclick = async () => { const d = await api('/api/members'); const m = ((d && d.members) || []).find((x) => x.name === a.name); memberForm(m || { name: a.name }); };
+  $('ds-del').onclick = () => removeMember(a.name);
+}
+
+let _manageInit = false;
 async function load() {
   if (previewMode) return;
+  if (!_manageInit) { _manageInit = true; try { setupManage(await api('/api/account/me')); } catch (_) {} }
   const data = await api('/api/agents');
   if (window.__needAuth && !data) {
     $('roster-sub').innerHTML = `Authentication required — <a href='/console' style='color:var(--violet)'>sign in</a>.`;
