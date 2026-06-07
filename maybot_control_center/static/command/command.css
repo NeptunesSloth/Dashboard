@@ -591,3 +591,15 @@ body {
   .hero-val { font-size: 30px; } .hero-val.big { font-size: 34px; }
   .login-card { padding: 24px 20px; }
 }
+
+/* per-bot log popover */
+.logs-pop { position: fixed; inset: 0; z-index: 1700; display: grid; place-items: center; background: rgba(3,4,10,.6); padding: 24px; }
+.logs-pop-box { width: 820px; max-width: 96vw; height: 70vh; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+.logs-pop-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.logs-levels { margin-left: auto; display: flex; gap: 4px; }
+.logs-levels .lvl { font-size: 11px; padding: 3px 9px; border-radius: 8px; cursor: pointer; color: var(--muted);
+  background: rgba(40,44,70,.5); border: 1px solid var(--line); }
+.logs-levels .lvl.on { color: var(--text); border-color: rgba(139,92,255,.5); background: rgba(139,92,255,.16); }
+.logs-pop-x { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 15px; }
+.logs-pre { flex: 1; margin: 0; overflow: auto; padding: 14px 16px; font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+  line-height: 1.5; white-space: pre-wrap; word-break: break-word; color: #cdd6f0; }

@@ -1,5 +1,5 @@
 import * as THREE from '/vendor/three.module.js';
-import { initAccount } from '/lib.js';
+import { initAccount, openLogs } from '/lib.js';
 initAccount();
 
 /* ============================ helpers ============================ */
@@ -174,7 +174,10 @@ function renderProjects(projects) {
       </div></div>`;
   }).join('') || `<div class='muted'>No realms under watch.</div>`;
   $('projects').querySelectorAll('[data-act]').forEach((b) => b.onclick = (e) => {
-    e.stopPropagation(); localStorage.setItem('tab', e.target.dataset.act === 'assign' ? 'disciples' : 'overview'); location.href = '/console';
+    e.stopPropagation();
+    const card = b.closest('[data-project]'); const proj = card && card.dataset.project, dev = card && card.dataset.device;
+    if (b.dataset.act === 'logs') { if (dev && proj) openLogs(dev, proj); return; }
+    localStorage.setItem('tab', e.target.dataset.act === 'assign' ? 'disciples' : 'overview'); location.href = '/console';
   });
   bindTilt();
 }

@@ -187,3 +187,28 @@ export function mountBell() {
   document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== bell) menu.classList.remove('open'); });
   refresh(); setInterval(refresh, 15000);
 }
+
+/* ---------------- per-bot log popover ---------------- */
+export async function openLogs(device, project) {
+  document.getElementById('logs-pop')?.remove();
+  const pop = _ael('div', 'logs-pop'); pop.id = 'logs-pop';
+  pop.innerHTML = `<div class='logs-pop-box glass'>
+    <div class='logs-pop-head'><b>${esc(project)}</b> <span class='muted'>${esc(device || '')}</span>
+      <span class='logs-levels'>${['ALL', 'ERROR', 'WARNING', 'INFO'].map((l) => `<button class='lvl ${l === 'ALL' ? 'on' : ''}' data-lvl='${l}'>${l}</button>`).join('')}</span>
+      <button class='logs-pop-x' id='logs-x'>✕</button></div>
+    <pre class='logs-pre' id='logs-pre'>Loading…</pre></div>`;
+  document.body.appendChild(pop);
+  pop.addEventListener('click', (e) => { if (e.target === pop) pop.remove(); });
+  document.getElementById('logs-x').onclick = () => pop.remove();
+  document.addEventListener('keydown', function esc2(e) { if (e.key === 'Escape') { pop.remove(); document.removeEventListener('keydown', esc2); } });
+  let level = 'ALL';
+  async function load() {
+    const pre = document.getElementById('logs-pre'); if (!pre) return; pre.textContent = 'Loading…';
+    const d = await api(`/api/logs/${encodeURIComponent(device)}/${encodeURIComponent(project)}?level=${level}`);
+    const lines = d && (d.lines || d.log || d.entries);
+    pre.textContent = Array.isArray(lines) && lines.length ? lines.join('\n') : ((d && d.detail) ? d.detail : 'No log lines.');
+    pre.scrollTop = pre.scrollHeight;
+  }
+  pop.querySelectorAll('.lvl').forEach((b) => b.onclick = () => { level = b.dataset.lvl; pop.querySelectorAll('.lvl').forEach((x) => x.classList.toggle('on', x === b)); load(); });
+  load();
+}
