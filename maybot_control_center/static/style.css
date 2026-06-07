@@ -1134,3 +1134,14 @@ details.ops-fold[open] > summary { border-bottom: 1px solid var(--border); }
 table.fleet th { border-bottom-color: var(--border); }
 table.fleet tbody tr:last-child td { border-bottom: none; }
 table.fleet tbody tr:hover td { background: rgba(139,92,255,.06); }
+
+/* ===== Ops tab — 2-column masonry ===== */
+.ops-masonry { columns: 2; column-gap: 14px; margin-top: 6px; }
+.ops-masonry > * { break-inside: avoid; -webkit-column-break-inside: avoid; width: 100%; margin: 0 0 14px; display: inline-block; }
+.ops-panel { padding: 16px 18px; vertical-align: top; }
+.ops-h-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ops-card-h .btn { padding: 5px 10px; font-size: 12px; }
+.ops-desc { margin: 0 0 12px; font-size: 12.5px; }
+.ops-panel #hosts-list.grid, .ops-panel #accounts-list.grid, .ops-panel #mem-list.grid {
+  grid-template-columns: 1fr; gap: 10px; }
+@media (max-width: 1000px) { .ops-masonry { columns: 1; } }

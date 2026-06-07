@@ -115,45 +115,52 @@
       <p class="muted">Direct word from your Sect Leader and Elders — none below Elder rank may address you here.</p>
       <div id="ancestor-inbox" class="comms-feed"></div>
     </section>
-    <section data-tab="ops" id="hosts-section">
-      <div class="section-head"><h2>🖥 Hosts</h2><span id="hosts-pill" class="pill">—</span>
-        <button id="host-refresh" class="btn">Refresh</button>
-        <button id="host-add" class="btn btn-primary">+ Add a host</button></div>
-      <p class="muted">The machines that run your bots. The dashboard reaches out to each host and pulls its bots, PnL and logs. Add or edit hosts right here — no file editing.</p>
-      <div id="hosts-list" class="grid"></div>
-    </section>
-    <section data-tab="ops" id="accounts-section">
-      <div class="section-head"><h2>👤 Accounts</h2><span id="accounts-pill" class="pill">—</span>
-        <button id="account-refresh" class="btn">Refresh</button>
-        <button id="account-add" class="btn btn-primary">+ Add account</button></div>
-      <p class="muted">People who can sign in. Operators control the sect; viewers are read-only. No public sign-up — you create accounts here.</p>
-      <div id="accounts-list" class="grid"></div>
-    </section>
     <section data-tab="ops" id="ops-section">
-      <div class="section-head"><h2>Ops</h2><span id="ops-pill" class="pill">—</span>
-        <button id="enable-alerts" class="btn">🔔 Enable phone alerts</button></div>
-      <div class="ops-grid">
-        <div class="card ops-card">
+      <div class="section-head"><h2>Ops</h2><span id="ops-pill" class="pill">—</span></div>
+      <div class="ops-masonry">
+        <div class="card ops-panel">
+          <div class="ops-card-h"><span class="ops-ico">🖥</span><h3>Hosts</h3>
+            <div class="ops-h-actions"><span id="hosts-pill" class="pill">—</span>
+              <button id="host-refresh" class="btn">Refresh</button>
+              <button id="host-add" class="btn btn-primary">+ Add</button></div></div>
+          <p class="muted ops-desc">The machines that run your bots — the dashboard pulls each host's bots, PnL and logs. Add or edit hosts here, no file editing.</p>
+          <div id="hosts-list" class="grid"></div>
+        </div>
+
+        <div class="card ops-panel">
+          <div class="ops-card-h"><span class="ops-ico">👤</span><h3>Accounts</h3>
+            <div class="ops-h-actions"><span id="accounts-pill" class="pill">—</span>
+              <button id="account-refresh" class="btn">Refresh</button>
+              <button id="account-add" class="btn btn-primary">+ Add</button></div></div>
+          <p class="muted ops-desc">People who can sign in. Operators control the sect; viewers are read-only. No public sign-up.</p>
+          <div id="accounts-list" class="grid"></div>
+        </div>
+
+        <div class="card ops-panel">
           <div class="ops-card-h"><span class="ops-ico">⚙</span><h3>Setup &amp; Diagnostics</h3></div>
           <div id="diag-config"></div>
         </div>
-        <div class="card ops-card">
-          <div class="ops-card-h"><span class="ops-ico">🛰</span><h3>Fleet Health</h3></div>
+
+        <div class="card ops-panel">
+          <div class="ops-card-h"><span class="ops-ico">🛰</span><h3>Fleet Health</h3>
+            <div class="ops-h-actions"><button id="enable-alerts" class="btn">🔔 Alerts</button></div></div>
           <div id="fleet-table"></div>
         </div>
+
+        <details class="card ops-fold ops-panel">
+          <summary><span class="ops-ico">📒</span> Operator Audit Log</summary>
+          <div class="ops-fold-body"><div id="audit-list" class="comms-feed"></div></div>
+        </details>
+
+        <details class="card ops-fold ops-panel">
+          <summary><span class="ops-ico">🧠</span> Knowledge Base <span id="mem-pill" class="pill">0 entries</span></summary>
+          <div class="ops-fold-body">
+            <p class="muted">Everything the agents have learned — task results, fixes, manuals, skills. Every agent draws on this before acting.</p>
+            <div class="filter-bar"><input id="mem-search" type="search" placeholder="Search the accumulated knowledge…"></div>
+            <div id="mem-list" class="grid"></div>
+          </div>
+        </details>
       </div>
-      <details class="card ops-fold">
-        <summary><span class="ops-ico">📒</span> Operator Audit Log</summary>
-        <div class="ops-fold-body"><div id="audit-list" class="comms-feed"></div></div>
-      </details>
-      <details class="card ops-fold">
-        <summary><span class="ops-ico">🧠</span> Knowledge Base <span id="mem-pill" class="pill">0 entries</span></summary>
-        <div class="ops-fold-body">
-          <p class="muted">Everything the agents have learned — task results, post-incident fixes, manuals, skills. Every agent draws on this before acting, so knowledge compounds over time.</p>
-          <div class="filter-bar"><input id="mem-search" type="search" placeholder="Search the accumulated knowledge…"></div>
-          <div id="mem-list" class="grid"></div>
-        </div>
-      </details>
     </section>
     <section data-tab="sect" id="trials-section" class="hidden">
       <div class="section-head"><h2>Trials Hall</h2></div>
