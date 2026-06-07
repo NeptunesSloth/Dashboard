@@ -2578,6 +2578,8 @@ async function renderReliability() {
 async function renderOps() {
   const sec = document.getElementById('ops-section');
   if (!sec) return;
+  bindHostsUI();        // host manager buttons (also bound at load, idempotent)
+  renderHosts();        // agent host manager (add/edit/test, no file editing)
   const [diag, aud] = await Promise.all([apiJSON('/api/diagnostics'), apiJSON('/api/audit')]);
   const cfg = (diag && diag.config) || {};
   const wh = cfg.webhooks || {};
@@ -2617,8 +2619,6 @@ async function renderOps() {
     };
   }
   renderSectMemory();   // the Knowledge Base lives in the Ops tab now
-  bindHostsUI();
-  renderHosts();        // agent host manager (add/edit/test, no file editing)
 }
 
 // ===== Hosts: add/edit/test agent hosts from the dashboard =====
@@ -3007,6 +3007,9 @@ function hideLogin() { const o = document.getElementById('login-overlay'); if (o
   const so = document.getElementById('sign-out');
   if (so) so.onclick = () => { localStorage.removeItem(CONTROL_TOKEN_STORAGE_KEY); const ct = document.getElementById('control-token'); if (ct) ct.value = ''; showLogin(); };
 })();
+// Bind the Hosts manager buttons at load so "+ Add a host" works even before
+// (or independent of) the Ops tab's full render pass.
+(function bindHostsAtLoad() { try { bindHostsUI(); } catch (_) {} })();
 
 // ---- Web Push subscription (after notification permission) ----
 function _urlB64ToUint8(base64) {
