@@ -250,7 +250,7 @@ async function refresh() {
 
 /* nav */
 const DEST = { disciples: '/chamber', trade: '/trade', treasury: '/treasury' };
-const TABMAP = { ops: 'ops', projects: 'overview', missions: 'sect', map: 'map' };
+const TABMAP = { ops: 'ops', projects: 'overview', missions: 'disciples', map: 'map', halls: 'sect' };
 $('rail').querySelectorAll('.nav-item').forEach((n) => n.onclick = () => {
   const k = n.dataset.nav; if (k === 'command') return;
   if (DEST[k]) { location.href = DEST[k]; return; }

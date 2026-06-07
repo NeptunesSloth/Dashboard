@@ -2971,13 +2971,40 @@ function setupStream() {
   es.onerror = () => {}; // EventSource auto-reconnects
 }
 // ---- tabbed navigation (no more infinite scroll) ----
+// ---- unified left rail (shared with the Command Hall); drives section nav ----
+const SIDE_RAIL = [
+  ['command', '🏛', 'Command', { href: '/' }],
+  ['trade', '📈', 'Trade', { href: '/trade' }],
+  ['members', '🧠', 'Sect Members', { href: '/chamber' }],
+  ['missions', '⚔', 'Missions', { tab: 'disciples' }],
+  ['realms', '📜', 'Realms', { tab: 'overview' }],
+  ['map', '🗺', 'Map', { tab: 'map' }],
+  ['halls', '⛩', 'Halls', { tab: 'sect' }],
+  ['treasury', '🏦', 'Treasury', { href: '/treasury' }],
+  ['ops', '⚙', 'Ops', { tab: 'ops' }],
+];
+function buildSideRail() {
+  const el = document.getElementById('side-rail'); if (!el) return;
+  el.innerHTML = `<div class='sr-logo'>◆</div>` + SIDE_RAIL.map(([k, ico, lbl, act]) =>
+    `<button class='sr-item' data-k='${k}'${act.tab ? ` data-tab='${act.tab}'` : ''}${act.href ? ` data-href='${act.href}'` : ''}>
+       <span class='sr-ico'>${ico}</span><span class='sr-lbl'>${lbl}</span></button>`).join('');
+  el.querySelectorAll('.sr-item').forEach((b) => b.onclick = () => {
+    if (b.dataset.href) { location.href = b.dataset.href; return; }
+    if (b.dataset.tab) setTab(b.dataset.tab);
+  });
+}
+function setActiveRail(t) {
+  document.querySelectorAll('#side-rail .sr-item').forEach((b) => b.classList.toggle('active', b.dataset.tab === t));
+}
+
+// ---- section navigation (driven entirely by the side rail) ----
 function setTab(t) {
   localStorage.setItem('tab', t);
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  setActiveRail(t);
   document.querySelectorAll('.container > section').forEach(s => s.classList.toggle('tab-hidden', (s.dataset.tab || 'overview') !== t));
   window.scrollTo(0, 0);
 }
-document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+buildSideRail();
 setTab(localStorage.getItem('tab') || 'overview');
 
 setupStream();

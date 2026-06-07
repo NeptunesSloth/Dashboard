@@ -19,10 +19,11 @@ const NAV = [
   ['missions', '⚔', 'Missions', '/console'],
   ['projects', '📜', 'Realms', '/console'],
   ['map', '🗺', 'Map', '/console'],
+  ['halls', '⛩', 'Halls', '/console'],
   ['treasury', '🏦', 'Treasury', '/treasury'],
   ['ops', '⚙', 'Ops', '/console'],
 ];
-const TABMAP = { ops: 'ops', projects: 'overview', missions: 'sect', map: 'map' };
+const TABMAP = { ops: 'ops', projects: 'overview', missions: 'disciples', map: 'map', halls: 'sect' };
 export function mountRail(active) {
   const el = $('rail'); if (!el) return;
   el.innerHTML = `<div class='rail-logo'>◆</div>` + NAV.map(([k, ico, lbl]) =>

@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <nav class="side-rail" id="side-rail"></nav>
   <div id="login-overlay" class="login-overlay hidden">
     <div class="login-box">
       <h2>◆ Aegis — Sign in</h2>
@@ -50,13 +51,6 @@
 
   <main class="container">
     <div id="error-banner" class="error-banner hidden">Control center could not fetch overview.</div>
-    <nav class="tabs">
-      <button class="tab-btn" data-tab="overview">Overview</button>
-      <button class="tab-btn" data-tab="disciples">Disciples</button>
-      <button class="tab-btn" data-tab="map">Sect Map</button>
-      <button class="tab-btn" data-tab="sect">Sect Halls</button>
-      <button class="tab-btn" data-tab="ops">Ops</button>
-    </nav>
     <section data-tab="overview">
       <h2>System Overview</h2>
       <div id="summary"></div>

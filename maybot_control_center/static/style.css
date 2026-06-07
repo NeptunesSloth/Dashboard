@@ -1055,3 +1055,19 @@ table.fleet td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
 .host-cmd { background: rgba(0,0,0,.35); border: 1px solid var(--border); border-radius: 8px;
   padding: 8px 10px; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px;
   white-space: pre-wrap; word-break: break-all; margin: 4px 0 0; }
+
+/* ===== unified left rail on the console (mirrors the Command Hall) ===== */
+body { padding-left: 76px; }
+.side-rail { position: fixed; left: 0; top: 0; bottom: 0; width: 76px; z-index: 1400;
+  display: flex; flex-direction: column; align-items: stretch; gap: 2px; padding: 12px 8px;
+  background: rgba(8, 10, 18, 0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-right: 1px solid rgba(150, 160, 210, 0.14); overflow-y: auto; }
+.sr-logo { text-align: center; font-size: 20px; color: var(--accent, #a78bfa); margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(139, 92, 255, 0.5)); }
+.sr-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 4px;
+  border: 1px solid transparent; border-radius: 12px; background: none; color: var(--muted, #8b92ac);
+  cursor: pointer; transition: all .2s cubic-bezier(.2,.8,.2,1); font-family: inherit; }
+.sr-item:hover { color: var(--text, #eaecf6); background: rgba(139, 92, 255, 0.09); }
+.sr-item.active { color: var(--text, #fff); background: linear-gradient(135deg, rgba(139, 92, 255, 0.22), rgba(56, 189, 248, 0.06)); border-color: rgba(139, 92, 255, 0.35); }
+.sr-ico { font-size: 18px; line-height: 1; }
+.sr-lbl { font-size: 9.5px; letter-spacing: .02em; text-align: center; line-height: 1.12; }
+@media (max-width: 720px) { body { padding-left: 60px; } .side-rail { width: 60px; } .sr-lbl { display: none; } }
