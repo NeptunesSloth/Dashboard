@@ -194,10 +194,21 @@ export async function openLogs(device, project) {
   const pop = _ael('div', 'logs-pop'); pop.id = 'logs-pop';
   pop.innerHTML = `<div class='logs-pop-box glass'>
     <div class='logs-pop-head'><b>${esc(project)}</b> <span class='muted'>${esc(device || '')}</span>
-      <span class='logs-levels'>${['ALL', 'ERROR', 'WARNING', 'INFO'].map((l) => `<button class='lvl ${l === 'ALL' ? 'on' : ''}' data-lvl='${l}'>${l}</button>`).join('')}</span>
+      <span class='logs-levels'>${['ALL', 'ERROR', 'WARNING', 'INFO'].map((l) => `<button class='lvl ${l === 'ALL' ? 'on' : ''}' data-lvl='${l}'>${l}</button>`).join('')}
+        <button class='lvl' id='logs-dx' title='Heuristic root-cause analysis'>🔍 Diagnose</button></span>
       <button class='logs-pop-x' id='logs-x'>✕</button></div>
+    <div class='logs-diag' id='logs-diag' hidden></div>
     <pre class='logs-pre' id='logs-pre'>Loading…</pre></div>`;
   document.body.appendChild(pop);
+  document.getElementById('logs-dx').onclick = async () => {
+    const box = document.getElementById('logs-diag'); box.hidden = false; box.innerHTML = `<span class='muted'>Diagnosing…</span>`;
+    const d = await api(`/api/diagnose/${encodeURIComponent(device)}/${encodeURIComponent(project)}`);
+    if (!d || !d.ok) { box.innerHTML = `<span class='money-neg'>${esc((d && d.error) || 'diagnosis failed')}</span>`; return; }
+    box.innerHTML = `<div class='diag-sum'>🩺 ${esc(d.summary)}</div>`
+      + (d.suggestion ? `<div class='diag-fix'>→ ${esc(d.suggestion)}</div>` : '')
+      + (d.findings && d.findings.length ? `<div class='diag-finds'>${d.findings.map((f) => `<span class='diag-chip'>${esc(f.signal)} ·${f.count}</span>`).join('')}</div>` : '')
+      + `<div class='muted' style='font-size:11px;margin-top:4px'>scanned ${d.lines_scanned} log lines</div>`;
+  };
   pop.addEventListener('click', (e) => { if (e.target === pop) pop.remove(); });
   document.getElementById('logs-x').onclick = () => pop.remove();
   document.addEventListener('keydown', function esc2(e) { if (e.key === 'Escape') { pop.remove(); document.removeEventListener('keydown', esc2); } });

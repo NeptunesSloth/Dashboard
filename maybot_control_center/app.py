@@ -192,6 +192,17 @@ def proxy_logs(device_name: str, project_name: str, level: str = Query(default="
     return result.get("data", {})
 
 
+@app.get("/api/diagnose/{device_name}/{project_name}")
+def diagnose_project(device_name: str, project_name: str, x_control_token: str = Header(default="")):
+    """Heuristic root-cause analysis of a bot's recent error logs + status."""
+    _check_token(x_control_token)
+    if not _SAFE_NAME.match(device_name) or not _SAFE_NAME.match(project_name):
+        raise HTTPException(400, "invalid device or project name")
+    _check_project_access(x_control_token, device_name, project_name)
+    from . import diagnosis
+    return diagnosis.diagnose(device_name, project_name)
+
+
 @app.get("/api/history/{device_name}/{project_name}")
 def project_history(device_name: str, project_name: str, x_control_token: str = Header(default="")):
     _check_token(x_control_token)
