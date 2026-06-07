@@ -10,13 +10,34 @@ It has two components:
 
 ---
 
+## Quickstart (5 minutes)
+
+Get the dashboard running on your machine with Docker:
+
+1. **Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)** and start it.
+2. **Get the code and config:**
+   ```bash
+   git clone <your-repo-url> maybot && cd maybot
+   cp .env.example .env          # then edit .env: set MAYBOT_CONTROL_CENTER_TOKEN (and ANTHROPIC_API_KEY if using Claude)
+   ```
+3. **Make it a clickable app:**
+   - **Linux:** `bash launch/install-linux.sh`  → adds a **MayBot Control Center** icon to your apps menu.
+   - **Windows:** double-click `launch\install-windows.bat`  → adds **MayBot** shortcuts to Desktop + Start Menu.
+   - (Or skip the icon and just run `docker compose up -d`.)
+4. **Launch:** click the **MayBot** icon → it opens **http://localhost:8200**. It auto-restarts on crashes/reboots, so you only click once.
+5. **Make it useful:**
+   - Give the agents a brain → [docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md)
+   - Pull data from the machines running your bots → [docs/AGENT_SETUP.md](docs/AGENT_SETUP.md)
+
+Full desktop-app details (stop, update, troubleshoot): [docs/DESKTOP_APP.md](docs/DESKTOP_APP.md).
+
+---
+
 ## Documentation
 
 - **[docs/DESKTOP_APP.md](docs/DESKTOP_APP.md)** — run it as a one-click desktop app (Docker; auto-restarts, no commands).
 - **[docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md)** — set up the LLM backend (Ollama / OpenAI-compatible / Claude) that powers the agents.
 - **[docs/AGENT_SETUP.md](docs/AGENT_SETUP.md)** — install an agent on each bot host so the dashboard can pull its data.
-
-**Fastest start:** install Docker Desktop, then `cp .env.example .env` and run the launcher for your OS (`launch/install-linux.sh` or `launch\install-windows.bat`) to get a clickable **MayBot** icon. See [docs/DESKTOP_APP.md](docs/DESKTOP_APP.md).
 
 ---
 
