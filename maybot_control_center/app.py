@@ -421,6 +421,26 @@ def members_profiles(x_control_token: str = Header(default="")):
     return {"profiles": sectsim.profiles(agents.snapshot())}
 
 
+class MemberTestIn(BaseModel):
+    provider: str = "ollama"
+    model: str = ""
+    base_url: str = ""
+
+
+@app.post("/api/members/test")
+def members_test(body: MemberTestIn, x_control_token: str = Header(default="")):
+    """Send a tiny prompt to a member's AI backend to confirm it actually answers."""
+    _check_operator(x_control_token)
+    if not (body.model or "").strip():
+        raise HTTPException(400, "a model is required")
+    probe = {"name": "(test)", "provider": (body.provider or "ollama"), "model": body.model.strip(),
+             "base_url": (body.base_url or "").strip(), "max_tokens": 16, "temperature": 0}
+    import time as _t
+    t0 = _t.time()
+    ok, text, err = agents._chat(probe, [{"role": "user", "content": "Reply with the single word: pong"}])
+    return {"ok": bool(ok), "reply": (text or "").strip()[:200], "error": err, "latency_ms": int((_t.time() - t0) * 1000)}
+
+
 @app.get("/api/members")
 def members_list(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
