@@ -40,6 +40,9 @@ services:
       MAYBOT_SESSION_TTL_MINUTES: ${MAYBOT_SESSION_TTL_MINUTES:-720}
       # --- LLM backends ---
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Obsidian vault memory (mount the vault as a volume too if you set this)
+      MAYBOT_OBSIDIAN_VAULT: ${MAYBOT_OBSIDIAN_VAULT:-}
+      MAYBOT_OBSIDIAN_SUBDIR: ${MAYBOT_OBSIDIAN_SUBDIR:-MayBot}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       # --- notification channels (inert until you set credentials) ---
       MAYBOT_SLACK_WEBHOOK: ${MAYBOT_SLACK_WEBHOOK:-}

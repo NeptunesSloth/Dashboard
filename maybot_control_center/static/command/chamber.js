@@ -479,8 +479,8 @@ function memberForm(m) {
         <option value='openai_compatible'>OpenAI-compatible (LM Studio / vLLM)</option>
         <option value='claude'>Claude (needs ANTHROPIC_API_KEY)</option>
       </select>
-      <label class='lf-label'>Model</label><input class='lf-input' id='mf-model' value='${m ? esc(m.model || '') : ''}' placeholder='e.g. llama3 · claude-opus-4-8'>
-      <label class='lf-label'>Base URL <span class='muted'>(local providers)</span></label><input class='lf-input' id='mf-url' value='${m ? esc(m.base_url || '') : ''}' placeholder='http://127.0.0.1:11434'>
+      <label class='lf-label'>Model</label><input class='lf-input' id='mf-model' value='${m ? esc(m.model || '') : 'nous-hermes'}' placeholder='e.g. nous-hermes · claude-opus-4-8'>
+      <label class='lf-label'>Base URL <span class='muted'>(local providers)</span></label><input class='lf-input' id='mf-url' value='${m ? esc(m.base_url || '') : 'http://127.0.0.1:11434'}' placeholder='http://127.0.0.1:11434'>
       <label class='lf-label'>Persona <span class='muted'>(optional)</span></label><textarea class='lf-input' id='mf-persona' rows='3' placeholder='How this member thinks and writes…'>${m ? esc(m.persona || '') : ''}</textarea>
       <button class='lf-btn' id='mf-save'>Save member</button>
       <div class='lf-err' id='mf-err'></div>
