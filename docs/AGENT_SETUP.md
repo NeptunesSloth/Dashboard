@@ -5,9 +5,12 @@ runs your bots. The agent is the small service the **control center pulls data
 from** — it reads a local `projects.yaml`, inspects your bots (status, health,
 logs, metrics), and exposes that over an authenticated HTTP API on port `8100`.
 
-> Reminder on direction of traffic: **the control center reaches out to the
-> agent.** The agent never connects to the dashboard. So the agent must listen
-> on an address the dashboard can reach, and the two share a secret token.
+> Direction of traffic: by default the agent now **dials out** to the dashboard
+> over a reverse WebSocket tunnel (`MAYBOT_CONTROL_CENTER_URL`), so a host behind
+> NAT/a firewall needs **no inbound port** — the dashboard routes requests down
+> the tunnel. Direct HTTP (the dashboard reaching in to the agent's port) still
+> works as a fallback for hosts set up that way. Either way the two share a
+> secret token. (Set `MAYBOT_TUNNEL=0` to disable the tunnel and use direct HTTP only.)
 
 ```
  THIS host (your bot)                      dashboard host

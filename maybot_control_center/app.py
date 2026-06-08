@@ -4,7 +4,9 @@ import os
 import queue
 import re
 import secrets
-from fastapi import FastAPI, Header, HTTPException, Query, Request
+import asyncio
+import json as _json
+from fastapi import FastAPI, Header, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse, Response
 from pydantic import BaseModel
 from .config import load_devices, all_devices, save_devices, CONTROL_CENTER_TOKEN
@@ -1571,6 +1573,48 @@ def comms_tournament(body: TournamentIn, x_control_token: str = Header(default="
         raise HTTPException(400, str(exc))
 
 
+@app.websocket("/ws/agent")
+async def agent_tunnel(ws: WebSocket):
+    """Reverse tunnel endpoint: an agent dials out here and authenticates, then
+    the dashboard routes its requests down this socket (no inbound port on the
+    host). Auth = the host's API token, or the shared enroll token."""
+    from . import tunnel
+    await ws.accept()
+    try:
+        hello = _json.loads(await ws.receive_text())
+    except Exception:
+        await ws.close()
+        return
+    name = (hello.get("name") or "").strip()
+    token = hello.get("token") or ""
+    dev = next((d for d in all_devices() if d.get("name") == name), None)
+    authed = bool(name) and (
+        (dev and dev.get("api_token") and secrets.compare_digest(token, dev["api_token"]))
+        or (registry.REGISTER_TOKEN and secrets.compare_digest(token, registry.REGISTER_TOKEN))
+    )
+    if not authed:
+        await ws.send_text(_json.dumps({"t": "hello_ack", "ok": False, "error": "auth"}))
+        await ws.close()
+        return
+    conn = tunnel.Connection(name, ws, asyncio.get_running_loop())
+    tunnel.register(name, conn)
+    await ws.send_text(_json.dumps({"t": "hello_ack", "ok": True}))
+    events.publish("hosts", {"event": "tunnel_up", "name": name})
+    try:
+        while True:
+            msg = _json.loads(await ws.receive_text())
+            if msg.get("t") == "res":
+                conn.resolve(msg.get("id"), msg)
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
+    finally:
+        tunnel.unregister(name, conn)
+        conn.fail_all(ConnectionError("tunnel closed"))
+        events.publish("hosts", {"event": "tunnel_down", "name": name})
+
+
 @app.get("/api/stream")
 def stream(token: str = Query(default="")):
     # EventSource can't send custom headers, so the control token comes as a query param.
@@ -1967,7 +2011,8 @@ def agent_bundle():
     one-command installer below."""
     import io, tarfile, time as _t
     buf = io.BytesIO()
-    reqs = "fastapi==0.136.3\nuvicorn==0.48.0\npyyaml==6.0.3\nrequests==2.34.2\npsutil==7.2.2\n"
+    reqs = ("fastapi==0.136.3\nuvicorn==0.48.0\npyyaml==6.0.3\nrequests==2.34.2\n"
+            "psutil==7.2.2\nhttpx>=0.27\nwebsockets>=12\n")
     with tarfile.open(fileobj=buf, mode="w:gz") as tar:
         pkg = os.path.join(os.path.dirname(__file__), "..", "maybot_agent")
         tar.add(os.path.realpath(pkg), arcname="maybot_agent",

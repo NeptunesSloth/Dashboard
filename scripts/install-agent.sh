@@ -94,4 +94,6 @@ echo
 echo "Next steps:"
 echo "  1. Open your dashboard → Ops → Hosts. This host should appear within a few seconds."
 echo "  2. Add its bots there: Manage bots → Discover (no SSH, no YAML)."
-echo "  3. Make sure port $PORT is firewalled to the dashboard host only — don't expose it to the public internet."
+echo "  3. This agent dials OUT to the dashboard (reverse tunnel), so you usually do NOT"
+echo "     need to open port $PORT at all. If you do expose it for direct HTTP, firewall it"
+echo "     to the dashboard host only — never the public internet. (Disable the tunnel with MAYBOT_TUNNEL=0.)"

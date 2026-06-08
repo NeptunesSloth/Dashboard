@@ -39,7 +39,22 @@ def _wrap(r: requests.Response) -> dict:
     }
 
 
+def _tunneled(device: dict, endpoint: str, method: str = "GET", body=None, timeout: float | None = None):
+    """Route via the reverse tunnel if this host has a live outbound connection;
+    returns None to signal "fall back to direct HTTP"."""
+    name = device.get("name")
+    if not name:
+        return None
+    from . import tunnel
+    if not tunnel.connected(name):
+        return None
+    return tunnel.call(name, endpoint, method, body, timeout or _device_timeout(device))
+
+
 def call_agent(device: dict, endpoint: str) -> dict:
+    routed = _tunneled(device, endpoint, "GET")
+    if routed is not None:
+        return routed
     base = device.get("url", "").rstrip("/")
     token = device.get("api_token", "")
     try:
@@ -50,6 +65,9 @@ def call_agent(device: dict, endpoint: str) -> dict:
 
 
 def post_agent(device: dict, endpoint: str, timeout: int = 30) -> dict:
+    routed = _tunneled(device, endpoint, "POST", None, timeout)
+    if routed is not None:
+        return routed
     base = device.get("url", "").rstrip("/")
     token = device.get("api_token", "")
     try:
@@ -60,6 +78,9 @@ def post_agent(device: dict, endpoint: str, timeout: int = 30) -> dict:
 
 
 def put_agent(device: dict, endpoint: str, json_body: dict, timeout: int = 15) -> dict:
+    routed = _tunneled(device, endpoint, "PUT", json_body, timeout)
+    if routed is not None:
+        return routed
     base = device.get("url", "").rstrip("/")
     token = device.get("api_token", "")
     try:
