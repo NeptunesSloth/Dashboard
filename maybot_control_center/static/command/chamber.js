@@ -539,6 +539,35 @@ function injectMemberActions(a) {
   $('ds-del').onclick = () => removeMember(a.name);
 }
 
+/* #14: surface fresh promotions / breakthroughs as a celebratory toast */
+const _seenMilestone = {};
+let _milestoneInit = false;
+function toast(html) {
+  let host = $('toast-host');
+  if (!host) { host = document.createElement('div'); host.id = 'toast-host'; document.body.appendChild(host); }
+  const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = html;
+  host.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 6000);
+}
+function celebrateMilestones() {
+  const fresh = Object.values(PROFILES).map((p) => {
+    const e = (p.events || [])[0];
+    return e && /promotion|broke through|insight/i.test((e.y || '') + ' ' + (e.t || '')) ? { name: p.name, e } : null;
+  }).filter(Boolean);
+  for (const { name, e } of fresh) {
+    const sig = e.y + '|' + e.t;
+    if (_seenMilestone[name] === sig) continue;
+    const isNew = _milestoneInit && _seenMilestone[name] !== undefined;
+    _seenMilestone[name] = sig;
+    if (isNew) {
+      const ico = /broke through/i.test(e.t) ? '🌩' : /promotion/i.test(e.t + e.y) ? '👑' : '✨';
+      toast(`<span class='t-ico'>${ico}</span><span><b>${esc(name)}</b><br><span class='muted'>${esc(e.t)}</span></span>`);
+    }
+  }
+  _milestoneInit = true;
+}
+
 let _manageInit = false;
 async function load() {
   if (previewMode) return;
@@ -550,6 +579,7 @@ async function load() {
   }
   ROWS = (data && data.agents) || [];
   if (!previewMode) { try { const pp = await api('/api/members/profiles'); PROFILES = (pp && pp.profiles) || {}; } catch (_) {} }
+  celebrateMilestones();
   renderPyramid();
   // deep-link: /chamber?inspect=<name> (e.g. clicking a character on the Sect Map)
   const want = new URLSearchParams(location.search).get('inspect');
