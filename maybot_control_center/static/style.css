@@ -1356,3 +1356,68 @@ table.fleet tbody tr:hover td { background: rgba(139,92,255,.06); }
 .bot-list { display: flex; flex-direction: column; gap: 8px; }
 .bot-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .bf-check { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+
+/* =====================================================================
+   UI polish layer — global refinement for legibility, calm, and rhythm.
+   Appended last so it refines the existing skin without restructuring it.
+   ===================================================================== */
+:root {
+  --muted: #9aa1ad;                 /* a touch brighter → more legible secondary text */
+  --ring: rgba(167, 139, 250, .50); /* keyboard-focus ring (accent) */
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.35);
+  --shadow-2: 0 6px 22px rgba(0,0,0,.40);
+}
+
+/* Crisper text everywhere */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  line-height: 1.5;
+  font-feature-settings: "kern" 1;
+}
+.muted { line-height: 1.45; }
+
+/* Accessible keyboard focus (mouse clicks stay clean) */
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 6px; }
+.btn:focus-visible, .act-btn:focus-visible, .sr-item:focus-visible { outline-offset: 3px; }
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(167,139,250,.55);
+  box-shadow: 0 0 0 3px rgba(167,139,250,.14);   /* soft focus halo */
+}
+
+/* Buttons: same look, just steadier interaction feedback */
+.btn { transition: border-color .15s ease, background .15s ease, transform .05s ease; }
+.btn:active { transform: translateY(1px); }
+.btn[disabled] { opacity: .55; cursor: default; transform: none; }
+
+/* Cards: calmer elevation + gentle lift, no layout shift */
+.card { box-shadow: var(--shadow-1); }
+.card:hover { box-shadow: var(--shadow-2); }
+
+/* Section headers: consistent spacing + alignment to de-clutter rows */
+.section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.section-head h3 { font-size: 15px; font-weight: 650; letter-spacing: .01em; }
+
+/* Pills/badges: even vertical rhythm */
+.pill { line-height: 1; display: inline-flex; align-items: center; gap: 6px; }
+
+/* Themed, slim scrollbars (less visual noise than the OS default) */
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.16) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.26); background-clip: content-box; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* Text selection picks up the accent */
+::selection { background: rgba(167,139,250,.30); color: #fff; }
+
+/* A bit more breathing room between stacked sections (reduces clutter) */
+.container > section { margin-bottom: 18px; }
+
+/* Honor reduced-motion preferences (calmer, and accessible) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
