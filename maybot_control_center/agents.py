@@ -99,6 +99,7 @@ def save_agents(agents: list[dict]) -> None:
     tmp = AGENTS_FILE.with_name(AGENTS_FILE.name + ".tmp")
     tmp.write_text(text, encoding="utf-8")
     tmp.replace(AGENTS_FILE)
+    invalidate_snapshot()
 
 
 def retire_agent(name: str) -> None:
@@ -110,6 +111,7 @@ def retire_agent(name: str) -> None:
         _state.pop(name, None)
         _followups.pop(name, None)
         _delegations.pop(name, None)
+    invalidate_snapshot()
 
 
 def recruit_agent(agent_def: dict) -> dict:
@@ -119,6 +121,7 @@ def recruit_agent(agent_def: dict) -> dict:
         _retired.discard(d.get("name"))
         _recruits[:] = [a for a in _recruits if a.get("name") != d.get("name")]
         _recruits.append(d)
+    invalidate_snapshot()
     return d
 
 
@@ -547,12 +550,44 @@ def assign_task(name: str, task: str) -> dict:
         st = _ensure_state(agent)
         st.update(status="queued", current_task=task, updated_at=int(time.time() * 1000))
         snap = dict(st)
+    invalidate_snapshot()        # show the queued task immediately, not after the TTL
     events.publish("agents", {"agent": name})
     _pool.submit(run_task, name, task)
     return snap
 
 
-def snapshot() -> list[dict]:
+# Short-TTL cache for snapshot(): it recomputes a lot (per-agent reputation,
+# governance, titles, bonds, traits, ascension) plus runs idempotent sim ticks,
+# so concurrent/rapid reads (cockpit + chamber + console + SSE refresh, multiple
+# tabs) used to serialize into multi-second stalls. Cache for a beat; bust on
+# mutations. (Stress-tested: ~25 rps -> hundreds with this in place.)
+SNAPSHOT_TTL = float(os.getenv("MAYBOT_SNAPSHOT_TTL", "1.5"))
+_snap_lock = threading.Lock()
+_snap_cache: dict = {"data": None, "ts": 0.0}
+
+
+def invalidate_snapshot() -> None:
+    _snap_cache["ts"] = 0.0
+
+
+def snapshot(fresh: bool = False) -> list[dict]:
+    """Cached compact roster + live state. Pass fresh=True to force a recompute."""
+    now = time.time()
+    if not fresh and SNAPSHOT_TTL > 0 and _snap_cache["data"] is not None \
+            and (now - _snap_cache["ts"]) < SNAPSHOT_TTL:
+        return _snap_cache["data"]
+    with _snap_lock:
+        now = time.time()
+        if not fresh and SNAPSHOT_TTL > 0 and _snap_cache["data"] is not None \
+                and (now - _snap_cache["ts"]) < SNAPSHOT_TTL:
+            return _snap_cache["data"]      # another thread just computed it
+        data = _compute_snapshot()
+        _snap_cache["data"] = data
+        _snap_cache["ts"] = time.time()
+        return data
+
+
+def _compute_snapshot() -> list[dict]:
     """Compact list of all defined agents merged with their live runtime state."""
     out = []
     with _lock:
