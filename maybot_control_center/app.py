@@ -11,7 +11,7 @@ from .config import load_devices, all_devices, save_devices, CONTROL_CENTER_TOKE
 from . import config as _config
 from . import aggregator
 from .aggregator import aggregate
-from .agent_client import call_agent, post_agent
+from .agent_client import call_agent, post_agent, put_agent
 from . import history
 from . import agents
 from . import comms
@@ -389,6 +389,48 @@ def hosts_test(body: HostTestIn, x_control_token: str = Header(default="")):
             res["projects"] = len(pl)
             res["project_names"] = [p.get("name") for p in pl][:30]
     return res
+
+
+class HostProjectsIn(BaseModel):
+    projects: list[dict]
+
+
+@app.get("/api/hosts/{name}/projects")
+def host_projects_get(name: str, x_control_token: str = Header(default="")):
+    """Read a host's editable bot config (proxied to the agent)."""
+    _check_operator(x_control_token)
+    d = _resolve_device(name)
+    r = call_agent(d, "/api/projects/config")
+    if not r.get("online"):
+        raise HTTPException(502, r.get("error") or "agent unreachable")
+    data = r.get("data") or {}
+    return {"projects": data.get("projects", []) if isinstance(data, dict) else []}
+
+
+@app.put("/api/hosts/{name}/projects")
+def host_projects_put(name: str, body: HostProjectsIn, x_control_token: str = Header(default="")):
+    """Replace a host's bot config from the dashboard — no SSH/YAML editing."""
+    _check_operator(x_control_token)
+    d = _resolve_device(name)
+    r = put_agent(d, "/api/projects/config", {"projects": body.projects})
+    if not r.get("online"):
+        # The agent rejects bad config with 400; surface its message verbatim.
+        code = r.get("status_code")
+        raise HTTPException(400 if code == 400 else 502, r.get("error") or "agent unreachable")
+    # The audit middleware already records this mutating call.
+    return r.get("data") or {"projects": body.projects}
+
+
+@app.get("/api/hosts/{name}/discover")
+def host_discover(name: str, x_control_token: str = Header(default="")):
+    """Heuristic bot candidates from the host, to seed the editor."""
+    _check_operator(x_control_token)
+    d = _resolve_device(name)
+    r = call_agent(d, "/api/discover")
+    if not r.get("online"):
+        raise HTTPException(502, r.get("error") or "agent unreachable")
+    data = r.get("data") or {}
+    return {"candidates": data.get("candidates", []) if isinstance(data, dict) else []}
 
 
 @app.post("/api/hosts")

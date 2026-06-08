@@ -2723,12 +2723,14 @@ async function renderHosts() {
       ${names ? `<div class='muted host-bots'>bots: ${names}</div>` : ''}
       ${(!h.online && h.error) ? `<div class='alert alert-warning'>${esc(String(h.error).slice(0, 140))}</div>` : ''}
       <div class='host-actions'>
+        <button class='btn btn-primary' data-host-bots='${esc(h.name)}'>Manage bots</button>
         <button class='btn' data-host-edit='${esc(h.name)}'>Edit</button>
         <button class='btn btn-danger' data-host-del='${esc(h.name)}'>Remove</button>
       </div></div>`;
   }).join('');
   list.querySelectorAll('[data-host-edit]').forEach(b => b.onclick = () => openHostForm(hosts.find(h => h.name === b.dataset.hostEdit)));
   list.querySelectorAll('[data-host-del]').forEach(b => b.onclick = () => removeHost(b.dataset.hostDel));
+  list.querySelectorAll('[data-host-bots]').forEach(b => b.onclick = () => openBotsManager(b.dataset.hostBots));
 }
 
 function openHostForm(host) {
@@ -2866,6 +2868,78 @@ async function removeHost(name) {
     if (!r.ok) { const j = await r.json().catch(() => ({})); alert('Remove failed: ' + (j.detail || r.status)); return; }
   } catch (e) { alert('Remove failed: ' + e); return; }
   renderHosts(); render();
+}
+
+// ===== Manage a host's bots from the dashboard (no SSH / YAML editing) =====
+async function openBotsManager(name) {
+  let modal = document.getElementById('bots-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'bots-modal';
+    modal.className = 'modal hidden';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class='modal-card' style='max-width:760px'>
+      <div class='section-head'><h3>Bots on “${esc(name)}”</h3>
+        <button class='btn' id='bots-close'>✕</button></div>
+      <p class='muted' style='margin:2px 0 8px'>Edit this host's bots as JSON, then Save — the dashboard writes it to the
+        host's <code>projects.yaml</code> over the API. No SSH needed.
+        <a href='docs/AGENT_SETUP.md' target='_blank' rel='noopener'>Field reference</a>.</p>
+      <div id='bots-status' class='muted'>Loading…</div>
+      <textarea id='bots-json' class='lf-input' rows='16' spellcheck='false'
+        style='font-family:monospace;white-space:pre;width:100%'></textarea>
+      <div id='bots-error' class='money-neg' style='min-height:18px;font-size:12px'></div>
+      <div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px'>
+        <button class='btn' id='bots-discover'>🔍 Discover running bots</button>
+        <button class='btn btn-primary' id='bots-save'>Save</button>
+        <button class='btn' id='bots-cancel'>Cancel</button>
+      </div></div>`;
+  modal.classList.remove('hidden');
+  const ta = modal.querySelector('#bots-json');
+  const status = modal.querySelector('#bots-status');
+  const errEl = modal.querySelector('#bots-error');
+  const close = () => modal.classList.add('hidden');
+  modal.querySelector('#bots-close').onclick = close;
+  modal.querySelector('#bots-cancel').onclick = close;
+
+  const data = await apiJSON('/api/hosts/' + encodeURIComponent(name) + '/projects');
+  const projects = (data && data.projects) || [];
+  ta.value = JSON.stringify(projects, null, 2);
+  status.textContent = `${projects.length} bot(s) configured.`;
+
+  modal.querySelector('#bots-discover').onclick = async () => {
+    errEl.textContent = '';
+    status.textContent = 'Scanning the host…';
+    const d = await apiJSON('/api/hosts/' + encodeURIComponent(name) + '/discover');
+    const cands = (d && d.candidates) || [];
+    if (!cands.length) { status.textContent = 'No candidates found (the agent saw no obvious bots).'; return; }
+    let current = [];
+    try { current = JSON.parse(ta.value || '[]'); } catch (_) { current = []; }
+    const have = new Set(current.map(p => p && p.name));
+    let added = 0;
+    cands.forEach(c => {
+      if (have.has(c.name)) return;
+      const { _source, _detail, ...clean } = c;   // drop discovery-only hints
+      current.push(clean); have.add(c.name); added++;
+    });
+    ta.value = JSON.stringify(current, null, 2);
+    status.textContent = `Added ${added} candidate(s). Review names/types, then Save.`;
+  };
+
+  modal.querySelector('#bots-save').onclick = async () => {
+    errEl.textContent = '';
+    let parsed;
+    try { parsed = JSON.parse(ta.value || '[]'); }
+    catch (e) { errEl.textContent = 'Invalid JSON: ' + e.message; return; }
+    if (!Array.isArray(parsed)) { errEl.textContent = 'Top level must be a JSON array of bots.'; return; }
+    const r = await fetch('/api/hosts/' + encodeURIComponent(name) + '/projects', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ projects: parsed }),
+    });
+    if (!r.ok) { const j = await r.json().catch(() => ({})); errEl.textContent = 'Save failed: ' + (j.detail || r.status); return; }
+    close(); renderHosts(); render();
+  };
 }
 
 // ===== Accounts: create/remove dashboard users (operator only) =====

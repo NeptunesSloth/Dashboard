@@ -59,6 +59,16 @@ def test_hosts_test_offline():
     assert j["online"] is False and j["projects"] == 0
 
 
+def test_host_projects_proxy_endpoints():
+    # Unknown host -> 404.
+    assert client.get("/api/hosts/nope/projects").status_code == 404
+    # Known but unreachable host -> 502 (agent down), not a crash.
+    client.post("/api/hosts", json={"name": "c", "url": "http://127.0.0.1:59998", "api_token": "x"})
+    assert client.get("/api/hosts/c/projects").status_code == 502
+    assert client.put("/api/hosts/c/projects", json={"projects": []}).status_code == 502
+    assert client.get("/api/hosts/c/discover").status_code == 502
+
+
 def test_enroll_token_in_app(monkeypatch):
     """The self-enrollment token is fully manageable from the dashboard:
     generate → view → use → disable, no env edit / restart."""

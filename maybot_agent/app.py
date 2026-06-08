@@ -1,6 +1,7 @@
 from fastapi import Depends, FastAPI, HTTPException, Query
+from pydantic import BaseModel
 from .auth import verify_token
-from .config import load_projects, HOST, PORT
+from .config import load_projects, save_projects, HOST, PORT
 from .services.command_runner import run_foreground, start_background, stop_process
 from .services.log_reader import read_logs
 from .adapters import trading_bot, code_project, game_server, website, school, ai_project, local_ai_host, generic
@@ -101,6 +102,35 @@ def device():
 @app.get("/api/projects", dependencies=[Depends(verify_token)])
 def projects():
     return [adapt_project(p) for p in load_projects()]
+
+
+# --- Dashboard-managed bot config (edit a host's projects from the UI) -------
+
+class ProjectsConfig(BaseModel):
+    projects: list[dict]
+
+
+@app.get("/api/projects/config", dependencies=[Depends(verify_token)])
+def projects_config():
+    """The raw, editable projects list (the source for the dashboard editor)."""
+    return {"projects": load_projects()}
+
+
+@app.put("/api/projects/config", dependencies=[Depends(verify_token)])
+def set_projects_config(body: ProjectsConfig):
+    """Replace this host's projects list and persist it to ``projects.yaml``."""
+    try:
+        saved = save_projects(body.projects)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    return {"projects": saved, "count": len(saved)}
+
+
+@app.get("/api/discover", dependencies=[Depends(verify_token)])
+def discover():
+    """Heuristic candidates (processes/containers) to seed the projects editor."""
+    from .services.discover import discover_candidates
+    return {"candidates": discover_candidates()}
 
 
 @app.get("/api/projects/{name}", dependencies=[Depends(verify_token)])

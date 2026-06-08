@@ -57,3 +57,14 @@ def post_agent(device: dict, endpoint: str, timeout: int = 30) -> dict:
         return _wrap(r)
     except Exception as exc:
         return {"online": False, "error": str(exc), "data": {}}
+
+
+def put_agent(device: dict, endpoint: str, json_body: dict, timeout: int = 15) -> dict:
+    base = device.get("url", "").rstrip("/")
+    token = device.get("api_token", "")
+    try:
+        headers = {**_headers(token), "Content-Type": "application/json"}
+        r = _session.put(f"{base}{endpoint}", headers=headers, json=json_body, timeout=timeout)
+        return _wrap(r)
+    except Exception as exc:
+        return {"online": False, "error": str(exc), "data": {}}
