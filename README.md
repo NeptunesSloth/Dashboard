@@ -67,11 +67,11 @@ Get the dashboard running on your machine with Docker:
 6. **Make it useful — all from inside the site:**
    - **Add the machines running your bots:** open **Ops → Hosts → Add host**, or run one command on each bot host (it self-enrolls, no git clone):
      ```bash
-     curl -fsSL http://YOUR-DASH:8200/install-agent.sh | CONTROL_URL=http://YOUR-DASH:8200 REGISTER_TOKEN=<your-token> bash
+     curl -fsSL --connect-timeout 10 --max-time 60 http://YOUR-DASH:8200/install-agent.sh | CONTROL_URL=http://YOUR-DASH:8200 REGISTER_TOKEN=<your-token> bash
      ```
    - **Give the sect a brain (local AI):** one command on the AI box installs Ollama + a model and registers the member:
      ```bash
-     curl -fsSL http://YOUR-DASH:8200/install-ai.sh | CONTROL_URL=http://YOUR-DASH:8200 CONTROL_TOKEN=<operator-token> bash
+     curl -fsSL --connect-timeout 10 --max-time 60 http://YOUR-DASH:8200/install-ai.sh | CONTROL_URL=http://YOUR-DASH:8200 CONTROL_TOKEN=<operator-token> bash
      ```
    > **What is `YOUR-DASH`?** The dashboard's address *as seen from the machine you run the command on*.
    > Use `localhost` (or `127.0.0.1`) **only** when the agent runs on the **same machine** as the dashboard.

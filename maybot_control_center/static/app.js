@@ -2695,9 +2695,13 @@ function bindHostsUI() {
 async function renderHosts() {
   const list = document.getElementById('hosts-list'); if (!list) return;
   const pill = document.getElementById('hosts-pill');
-  list.innerHTML = `<div class='muted'>Checking hosts…</div>`;
+  // Show the placeholder only on first load. renderHosts() runs on every
+  // refresh (~7s); blanking the list to "Checking hosts…" each time made the
+  // panel flicker. On refreshes keep the current cards up and swap in place.
+  if (!list.dataset.loaded) list.innerHTML = `<div class='muted'>Checking hosts…</div>`;
   const data = await apiJSON('/api/hosts');
   const hosts = (data && data.hosts) || [];
+  list.dataset.loaded = '1';
   if (pill) pill.textContent = `${hosts.filter(h => h.online).length}/${hosts.length} online`;
   if (!hosts.length) {
     list.innerHTML = `<div class='card host-empty'>
@@ -2789,7 +2793,7 @@ async function renderEnrollSection(body) {
   try { info = (await apiJSON('/api/hosts/enroll-token')) || info; } catch (_) {}
   const tok = info.token || '';
   const shown = tok || '<enroll-token>';
-  const sh = `curl -fsSL ${host}/install-agent.sh | CONTROL_URL=${host} REGISTER_TOKEN=${shown} bash`;
+  const sh = `curl -fsSL --connect-timeout 10 --max-time 60 ${host}/install-agent.sh | CONTROL_URL=${host} REGISTER_TOKEN=${shown} bash`;
   const ps = `$env:CONTROL_URL='${host}'; $env:REGISTER_TOKEN='${shown}'; irm ${host}/install-agent.ps1 | iex`;
   sec.innerHTML = `
     <p class='muted' style='margin:2px 0 8px'>Run this on the bot machine — it downloads the agent from here, installs it as a service, and enrolls itself. The host then appears below automatically.</p>

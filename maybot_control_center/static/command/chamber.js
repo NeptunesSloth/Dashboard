@@ -491,7 +491,7 @@ function memberForm(m) {
       <label class='lf-label'>Persona <span class='muted'>(optional)</span></label><textarea class='lf-input' id='mf-persona' rows='3' placeholder='How this member thinks and writes…'>${m ? esc(m.persona || '') : ''}</textarea>
       ${m ? '' : `<details class='details' style='margin-top:8px'><summary class='muted' style='font-size:12px'>No local AI yet? One-command setup (Ollama + Hermes)</summary>
         <div class='muted' style='font-size:11px;margin:6px 0'>Run on the machine with the GPU; it installs Ollama, pulls the model, and registers the member here.</div>
-        <pre class='host-cmd'>curl -fsSL ${esc(location.origin)}/install-ai.sh | CONTROL_URL=${esc(location.origin)} CONTROL_TOKEN=&lt;operator-token&gt; bash</pre></details>`}
+        <pre class='host-cmd'>curl -fsSL --connect-timeout 10 --max-time 60 ${esc(location.origin)}/install-ai.sh | CONTROL_URL=${esc(location.origin)} CONTROL_TOKEN=&lt;operator-token&gt; bash</pre></details>`}
       <div style='display:flex;gap:8px;margin-top:16px'>
         <button class='sa-btn ghost' id='mf-test' type='button' style='flex:1'>Test AI</button>
         <button class='lf-btn' id='mf-save' style='flex:1;margin-top:0'>Save member</button>
