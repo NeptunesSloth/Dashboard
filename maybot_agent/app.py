@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel
 from .auth import verify_token
@@ -10,7 +12,17 @@ from . import selfregister
 import platform
 import socket
 
-app = FastAPI(title="maybot-agent")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Auto-enroll with the control center if MAYBOT_CONTROL_CENTER_URL is set, so a
+    # new host appears on the dashboard automatically — no manual "Add host".
+    # (Modern FastAPI lifespan handler; replaces the deprecated @app.on_event.)
+    selfregister.start()
+    yield
+
+
+app = FastAPI(title="maybot-agent", lifespan=lifespan)
 
 AGENT_VERSION = "1.0"
 
@@ -36,13 +48,6 @@ def _lan_ip() -> str:
         except Exception:
             return "127.0.0.1"
 
-
-
-@app.on_event("startup")
-def _announce():
-    # Auto-enroll with the control center if MAYBOT_CONTROL_CENTER_URL is set, so a
-    # new host appears on the dashboard automatically — no manual "Add host".
-    selfregister.start()
 
 ADAPTERS = {
     "trading_bot": trading_bot,
