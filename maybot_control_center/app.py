@@ -5,7 +5,7 @@ import queue
 import re
 import secrets
 from fastapi import FastAPI, Header, HTTPException, Query, Request
-from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse
+from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse, Response
 from pydantic import BaseModel
 from .config import load_devices, all_devices, save_devices, CONTROL_CENTER_TOKEN
 from . import config as _config
@@ -1800,6 +1800,38 @@ class LogoutIn(BaseModel):
 @app.post("/api/logout")
 def logout(body: LogoutIn):
     return {"ok": authz.revoke_session((body.session or "").strip())}
+
+
+@app.get("/agent-bundle.tgz")
+def agent_bundle():
+    """A tarball of the agent (maybot_agent + slim deps) so a host can install it
+    straight from the dashboard — no git clone, no registry. Served to the
+    one-command installer below."""
+    import io, tarfile, time as _t
+    buf = io.BytesIO()
+    reqs = "fastapi==0.136.3\nuvicorn==0.48.0\npyyaml==6.0.3\nrequests==2.34.2\npsutil==7.2.2\n"
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        pkg = os.path.join(os.path.dirname(__file__), "..", "maybot_agent")
+        tar.add(os.path.realpath(pkg), arcname="maybot_agent",
+                filter=lambda ti: None if ("__pycache__" in ti.name or ti.name.endswith(".pyc")) else ti)
+        for name, text in (("requirements-agent.txt", reqs),):
+            data = text.encode()
+            info = tarfile.TarInfo(name); info.size = len(data); info.mtime = int(_t.time())
+            tar.addfile(info, io.BytesIO(data))
+        ex = os.path.join(os.path.dirname(__file__), "..", "projects.yaml.example")
+        if os.path.exists(ex):
+            tar.add(os.path.realpath(ex), arcname="projects.yaml.example")
+    return Response(buf.getvalue(), media_type="application/gzip")
+
+
+@app.get("/install-agent.sh")
+def install_agent_sh():
+    return FileResponse("scripts/install-agent.sh", media_type="text/x-shellscript")
+
+
+@app.get("/install-agent.ps1")
+def install_agent_ps1():
+    return FileResponse("scripts/install-agent.ps1", media_type="text/plain")
 
 
 @app.get("/api/setup")

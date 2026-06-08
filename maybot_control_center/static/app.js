@@ -2711,13 +2711,12 @@ function openHostForm(host) {
       </div>
       <div id='hf-result' class='host-result muted'></div>
     </div>
-    <details class='details host-wizard' open><summary>✨ Easiest: let the host enroll itself (no Add-host needed)</summary>
-      <p class='muted' style='margin:2px 0 8px'>Set <code>MAYBOT_REGISTER_TOKEN</code> on this dashboard, then start the agent on the bot machine with the env below — it announces itself and appears here automatically.</p>
-      <pre class='host-cmd' id='hf-enroll'>MAYBOT_API_TOKEN=&lt;token&gt; \
-MAYBOT_CONTROL_CENTER_URL=${esc(location.origin)} \
-MAYBOT_REGISTER_TOKEN=&lt;enroll-token&gt; \
-MAYBOT_AGENT_URL=http://&lt;this-host-ip&gt;:8100 \
-.venv/bin/uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100</pre>
+    <details class='details host-wizard' open><summary>✨ One command (installs + runs + auto-appears here)</summary>
+      <p class='muted' style='margin:2px 0 8px'>Set <code>MAYBOT_REGISTER_TOKEN</code> on this dashboard, then run this on the bot machine. It downloads the agent from here, installs it as a service, and enrolls itself — the host shows up automatically.</p>
+      <div class='muted' style='font-size:11px'>Linux / macOS:</div>
+      <pre class='host-cmd'>curl -fsSL ${esc(location.origin)}/install-agent.sh | CONTROL_URL=${esc(location.origin)} REGISTER_TOKEN=&lt;enroll-token&gt; bash</pre>
+      <div class='muted' style='font-size:11px;margin-top:6px'>Windows (PowerShell):</div>
+      <pre class='host-cmd'>$env:CONTROL_URL='${esc(location.origin)}'; $env:REGISTER_TOKEN='&lt;enroll-token&gt;'; irm ${esc(location.origin)}/install-agent.ps1 | iex</pre>
     </details>
     <details class='details host-wizard'><summary>Or add it manually (install the agent)</summary>
       <ol class='host-steps'>
