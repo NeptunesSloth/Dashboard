@@ -121,6 +121,13 @@ async def _rate_limit(request, call_next):
     if not path.startswith("/api/") and (path == "/" or path.endswith((".js", ".css", ".html"))
                                          or path in ("/console", "/login", "/chamber", "/trade", "/treasury")):
         response.headers["Cache-Control"] = "no-cache, must-revalidate"
+    # Baseline security headers on every response (safe defaults; no CSP so inline
+    # scripts/fonts keep working).
+    h = response.headers
+    h.setdefault("X-Content-Type-Options", "nosniff")
+    h.setdefault("X-Frame-Options", "SAMEORIGIN")
+    h.setdefault("Referrer-Policy", "no-referrer")
+    h.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
     # Self-observability: count served API requests (and 5xx errors).
     if request.url.path.startswith("/api/"):
         try:
@@ -1741,11 +1748,14 @@ def login(body: LoginIn, request: Request):
             authz.note_login_fail(key)
             raise HTTPException(401, "invalid name or password")
         authz.reset_login(key)
+        if u.get("totp"):
+            cid, _ = authz.create_2fa_challenge(u["name"], method="totp")
+            return {"ok": False, "pending_2fa": True, "challenge": cid, "method": "totp", "channel": "authenticator app"}
         if u.get("tfa") and notify.channels():
-            cid, code = authz.create_2fa_challenge(u["name"])
+            cid, code = authz.create_2fa_challenge(u["name"], method="webhook")
             ch = notify.channels()[0]
             notify.send("Aegis sign-in code", f"Your 2FA code is {code} (valid 5 minutes).", level="info", kind="security")
-            return {"ok": False, "pending_2fa": True, "challenge": cid, "channel": ch}
+            return {"ok": False, "pending_2fa": True, "challenge": cid, "method": "webhook", "channel": ch}
         return _issue(u["token"])
     role = authz.role_for(body.token)
     if role is None:
@@ -1903,6 +1913,7 @@ def account_password(body: PasswordIn, x_control_token: str = Header(default="")
 
 class TwoFAToggleIn(BaseModel):
     enable: bool
+    method: str = "auto"   # "totp" (authenticator app), "webhook", or "auto"
 
 
 @app.post("/api/account/2fa")
@@ -1911,10 +1922,39 @@ def account_2fa(body: TwoFAToggleIn, x_control_token: str = Header(default="")):
     u = authz.current_user(x_control_token)
     if not u:
         raise HTTPException(400, "no account is associated with this session")
-    if body.enable and not notify.channels():
-        raise HTTPException(400, "set up a notification channel (webhook/Slack/Telegram/email) first")
-    authz.set_2fa(u["name"], body.enable)
-    return {"ok": True, "tfa": body.enable}
+    if not body.enable:
+        authz.set_totp(u["name"], None)    # also clears webhook tfa
+        return {"ok": True, "tfa": False}
+    method = body.method
+    if method == "auto":
+        method = "totp" if not notify.channels() else "webhook"
+    if method == "totp":
+        secret = authz.gen_totp_secret()
+        authz.set_totp(u["name"], secret)
+        return {"ok": True, "tfa": True, "method": "totp", "secret": secret,
+                "uri": authz.totp_uri(u["name"], secret)}
+    if not notify.channels():
+        raise HTTPException(400, "set up a notification channel first, or use an authenticator app (method=totp)")
+    authz.set_2fa(u["name"], True)
+    return {"ok": True, "tfa": True, "method": "webhook"}
+
+
+class ResetPwIn(BaseModel):
+    new: str
+
+
+@app.post("/api/accounts/{name}/reset-password")
+def accounts_reset_password(name: str, body: ResetPwIn, x_control_token: str = Header(default="")):
+    """Operator resets another account's password (e.g., a locked-out user)."""
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid account name")
+    if not authz.user_by_name(name):
+        raise HTTPException(404, "account not found")
+    if len(body.new or "") < 8:
+        raise HTTPException(400, "new password must be at least 8 characters")
+    authz.set_password(name, body.new)
+    return {"ok": True}
 
 
 # ---- Web Push (VAPID) ----

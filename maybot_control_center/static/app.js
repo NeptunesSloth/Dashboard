@@ -2813,10 +2813,17 @@ async function renderAccounts() {
     ${(u.projects && u.projects.length) ? `<div class='muted host-bots'>projects: ${u.projects.map(esc).join(', ')}</div>` : ''}
     <div class='host-actions'>
       <button class='btn' data-acct-edit='${esc(u.name)}'>Edit</button>
+      <button class='btn' data-acct-reset='${esc(u.name)}'>Reset PW</button>
       <button class='btn btn-danger' data-acct-del='${esc(u.name)}'>Remove</button>
     </div></div>`).join('');
   list.querySelectorAll('[data-acct-edit]').forEach((b) => b.onclick = () => openAccountForm(accts.find((u) => u.name === b.dataset.acctEdit)));
   list.querySelectorAll('[data-acct-del]').forEach((b) => b.onclick = () => removeAccount(b.dataset.acctDel));
+  list.querySelectorAll('[data-acct-reset]').forEach((b) => b.onclick = async () => {
+    const np = prompt(`New password for ${b.dataset.acctReset} (min 8 chars):`);
+    if (!np) return;
+    const r = await apiPost('/api/accounts/' + encodeURIComponent(b.dataset.acctReset) + '/reset-password', { new: np }, 'Reset password');
+    if (r && r.ok) alert('Password reset.');
+  });
 }
 function openAccountForm(acct) {
   acct = acct || null;
@@ -3246,7 +3253,10 @@ async function acctActConsole(act, me) {
   }
   if (act === '2fa') {
     const r = await apiPost('/api/account/2fa', { enable: !me.tfa }, '2FA');
-    if (r && r.ok) initAccountConsole();
+    if (r && r.ok) {
+      if (r.method === 'totp' && r.secret) prompt('Two-factor on. Add to your authenticator app (or paste this key), then it\'s required at login:\n\n' + (r.uri || ''), r.secret);
+      initAccountConsole();
+    }
     return;
   }
   if (act === 'pw') openPwModalConsole(me);
