@@ -98,8 +98,10 @@ You no longer have to hand-edit YAML over SSH for day-to-day changes — the
 **Ops** tab has live managers that write the same config files atomically:
 
 - **Hosts manager** — add/edit/remove bot hosts (the old `devices.yaml`). It can
-  **generate a token**, **test the connection** before saving (PASS/FAIL with the
-  exact cause), and shows the one-command installer to paste on a new host.
+  **generate a per-host token**, **test the connection** before saving (PASS/FAIL
+  with the exact cause), **generate/manage the self-enrollment token** in-app
+  (no `MAYBOT_REGISTER_TOKEN` env edit or restart), and shows the one-command
+  installer **pre-filled with the real token** plus copy buttons.
 - **Accounts manager** — create operator/viewer accounts (the old `users.yaml`),
   reset passwords, and remove accounts.
 - **Sect Members manager** — add/edit/remove sect members (the old `agents.yaml`):
@@ -792,7 +794,7 @@ Optional control-center environment variables:
 |---|---|---|
 | `MAYBOT_DB` | _(unset)_ | SQLite path for persistence (unset → in-memory) |
 | `MAYBOT_REQUIRE_AUTH` | `0` | Force a valid session on all pages/APIs (else open/operator-by-default) |
-| `MAYBOT_REGISTER_TOKEN` | _(unset)_ | Secret required for host self-enrollment (`/install-agent.*`, `POST /api/agents/register`) |
+| `MAYBOT_REGISTER_TOKEN` | _(unset)_ | Initial secret for host self-enrollment (`/install-agent.*`, `POST /api/agents/register`); also generate/manage it in-app (Ops → Hosts → Add host) where it persists and wins over this default |
 | `MAYBOT_SECT_TICK_SECONDS` | _(default)_ | Background sect-simulation tick interval |
 | `MAYBOT_SECT_XP_RATE` | _(default)_ | Passive cultivation XP rate for the sim |
 | `MAYBOT_OBSIDIAN_VAULT` | _(unset)_ | Path to your Obsidian vault; enables agent memory |

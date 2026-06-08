@@ -2753,11 +2753,7 @@ function openHostForm(host) {
       <div id='hf-result' class='host-result muted'></div>
     </div>
     <details class='details host-wizard' open><summary>✨ One command (installs + runs + auto-appears here)</summary>
-      <p class='muted' style='margin:2px 0 8px'>Set <code>MAYBOT_REGISTER_TOKEN</code> on this dashboard, then run this on the bot machine. It downloads the agent from here, installs it as a service, and enrolls itself — the host shows up automatically.</p>
-      <div class='muted' style='font-size:11px'>Linux / macOS:</div>
-      <pre class='host-cmd'>curl -fsSL ${esc(location.origin)}/install-agent.sh | CONTROL_URL=${esc(location.origin)} REGISTER_TOKEN=&lt;enroll-token&gt; bash</pre>
-      <div class='muted' style='font-size:11px;margin-top:6px'>Windows (PowerShell):</div>
-      <pre class='host-cmd'>$env:CONTROL_URL='${esc(location.origin)}'; $env:REGISTER_TOKEN='&lt;enroll-token&gt;'; irm ${esc(location.origin)}/install-agent.ps1 | iex</pre>
+      <div id='hf-enroll-section'><p class='muted'>Loading enrollment…</p></div>
     </details>
     <details class='details host-wizard'><summary>Or add it manually (install the agent)</summary>
       <ol class='host-steps'>
@@ -2781,6 +2777,51 @@ pip install -r requirements.txt</pre></li>
   body.querySelector('#hf-gen').onclick = async () => { const r = await apiJSON('/api/hosts/gen-token'); if (r && r.token) { tokenInput.value = r.token; syncRun(); } };
   body.querySelector('#hf-test').onclick = () => testHostForm(body);
   body.querySelector('#hf-save').onclick = () => saveHostForm(body, host);
+  renderEnrollSection(body);
+}
+
+// Manage the self-enrollment token entirely in-app: generate / view / copy /
+// regenerate / disable, and fill the one-command installer with the real token.
+async function renderEnrollSection(body) {
+  const sec = body.querySelector('#hf-enroll-section');
+  if (!sec) return;
+  const host = location.origin;
+  let info = { configured: false, token: '' };
+  try { info = (await apiJSON('/api/hosts/enroll-token')) || info; } catch (_) {}
+  const tok = info.token || '';
+  const shown = tok || '<enroll-token>';
+  const sh = `curl -fsSL ${host}/install-agent.sh | CONTROL_URL=${host} REGISTER_TOKEN=${shown} bash`;
+  const ps = `$env:CONTROL_URL='${host}'; $env:REGISTER_TOKEN='${shown}'; irm ${host}/install-agent.ps1 | iex`;
+  sec.innerHTML = `
+    <p class='muted' style='margin:2px 0 8px'>Run this on the bot machine — it downloads the agent from here, installs it as a service, and enrolls itself. The host then appears below automatically.</p>
+    <div class='enroll-status ${info.configured ? 'ok' : 'off'}'>
+      ${info.configured
+        ? `<span>✓ Enroll token <b>configured</b></span> <code class='enroll-tok'>${esc(tok)}</code>
+           <button class='btn btn-mini' data-en='copytok' type='button'>Copy</button>
+           <button class='btn btn-mini' data-en='regen' type='button'>Regenerate</button>
+           <button class='btn btn-mini btn-danger' data-en='clear' type='button'>Disable</button>`
+        : `<span>No enroll token set — generate one to turn on the one-command installer.</span>
+           <button class='btn btn-primary btn-mini' data-en='gen' type='button'>✦ Generate enroll token</button>`}
+    </div>
+    <div class='muted' style='font-size:11px;margin-top:8px'>Linux / macOS:</div>
+    <div class='cmd-row'><pre class='host-cmd' id='en-sh'>${esc(sh)}</pre><button class='btn btn-mini' data-en='copysh' type='button'>Copy</button></div>
+    <div class='muted' style='font-size:11px;margin-top:6px'>Windows (PowerShell):</div>
+    <div class='cmd-row'><pre class='host-cmd' id='en-ps'>${esc(ps)}</pre><button class='btn btn-mini' data-en='copyps' type='button'>Copy</button></div>
+    <p class='muted' style='font-size:11px;margin-top:6px'>On a <b>separate</b> machine, replace <code>${esc(host)}</code> with this dashboard's LAN/VPN address (a remote host can't reach <code>localhost</code>).</p>`;
+  const post = async (payload) => {
+    try { return await (await fetch('/api/hosts/enroll-token', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(payload) })).json(); }
+    catch (_) { return null; }
+  };
+  const copy = (text, btn) => { try { navigator.clipboard.writeText(text); const t = btn.textContent; btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = t; }, 1200); } catch (_) {} };
+  sec.querySelectorAll('[data-en]').forEach(b => b.onclick = async () => {
+    const a = b.dataset.en;
+    if (a === 'gen') { await post({ generate: true }); return renderEnrollSection(body); }
+    if (a === 'regen') { if (!confirm('Regenerate the enroll token? Install commands using the old token will stop enrolling.')) return; await post({ generate: true }); return renderEnrollSection(body); }
+    if (a === 'clear') { if (!confirm('Disable self-enrollment? New hosts must be added manually until you generate a token again.')) return; await post({ clear: true }); return renderEnrollSection(body); }
+    if (a === 'copytok') return copy(tok, b);
+    if (a === 'copysh') return copy(sh, b);
+    if (a === 'copyps') return copy(ps, b);
+  });
 }
 
 async function testHostForm(body) {

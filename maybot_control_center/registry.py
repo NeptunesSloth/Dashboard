@@ -51,19 +51,36 @@ def snapshot() -> dict:
         return {"count": len(_devices), "devices": [dict(d) for d in _devices.values()]}
 
 
+def set_register_token(tok: str) -> str:
+    """Set (or clear, with "") the self-enrollment token at runtime.
+
+    Lets an operator manage enrollment entirely from the dashboard instead of
+    editing ``MAYBOT_REGISTER_TOKEN`` + restarting. Persisted via the store, so
+    it survives restarts and (when set) takes precedence over the env default.
+    """
+    global REGISTER_TOKEN
+    REGISTER_TOKEN = (tok or "").strip()
+    _save()
+    return REGISTER_TOKEN
+
+
 def _save() -> None:
     from . import store
     if store.enabled():
         with _lock:
-            store.save_state("registry", {"devices": _devices})
+            store.save_state("registry", {"devices": _devices, "register_token": REGISTER_TOKEN})
 
 
 def load_persisted() -> None:
     from . import store
+    global REGISTER_TOKEN
     data = store.load_state("registry")
     if data:
         with _lock:
             _devices.update(data.get("devices") or {})
+        # An in-app change is the latest intent — honour it over the env default.
+        if "register_token" in data:
+            REGISTER_TOKEN = data.get("register_token") or ""
 
 
 def clear() -> None:

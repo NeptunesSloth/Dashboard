@@ -59,6 +59,37 @@ def test_hosts_test_offline():
     assert j["online"] is False and j["projects"] == 0
 
 
+def test_enroll_token_in_app(monkeypatch):
+    """The self-enrollment token is fully manageable from the dashboard:
+    generate → view → use → disable, no env edit / restart."""
+    from maybot_control_center import registry
+    monkeypatch.setattr(registry, "REGISTER_TOKEN", "")  # auto-restored after the test
+
+    g = client.get("/api/hosts/enroll-token").json()
+    assert g["configured"] is False and g["token"] == ""
+
+    # generate one
+    r = client.post("/api/hosts/enroll-token", json={"generate": True}).json()
+    assert r["ok"] and r["configured"] and len(r["token"]) == 64
+    tok = r["token"]
+    assert registry.REGISTER_TOKEN == tok
+    assert client.get("/api/hosts/enroll-token").json()["token"] == tok
+
+    # set an explicit value
+    r = client.post("/api/hosts/enroll-token", json={"token": "my-secret-123"}).json()
+    assert r["token"] == "my-secret-123" and r["configured"]
+
+    # the self-enroll endpoint now accepts that token (no operator token needed)
+    reg = client.post("/api/agents/register", headers={"x-register-token": "my-secret-123"},
+                      json={"name": "edgehost", "url": "http://10.0.0.5:8100", "api_token": "t"})
+    assert reg.status_code == 200
+    registry.deregister("edgehost")
+
+    # disable
+    r = client.post("/api/hosts/enroll-token", json={"clear": True}).json()
+    assert r["configured"] is False and r["token"] == ""
+
+
 def test_builtin_observability_tools_available():
     names = [t["name"] for t in tools.tool_summaries()]
     assert "bot_status" in names and "bot_logs" in names

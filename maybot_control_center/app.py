@@ -286,6 +286,33 @@ def hosts_gen_token(x_control_token: str = Header(default="")):
     return {"token": secrets.token_hex(32)}
 
 
+@app.get("/api/hosts/enroll-token")
+def hosts_enroll_token_get(x_control_token: str = Header(default="")):
+    """Current self-enrollment token (for the in-app one-command installer)."""
+    _check_operator(x_control_token)
+    return {"configured": bool(registry.REGISTER_TOKEN), "token": registry.REGISTER_TOKEN}
+
+
+class EnrollTokenIn(BaseModel):
+    token: str = ""
+    generate: bool = False
+    clear: bool = False
+
+
+@app.post("/api/hosts/enroll-token")
+def hosts_enroll_token_set(body: EnrollTokenIn, x_control_token: str = Header(default="")):
+    """Set / generate / clear the self-enrollment token from the dashboard."""
+    _check_operator(x_control_token)
+    if body.clear:
+        tok = ""
+    elif body.generate or not body.token.strip():
+        tok = secrets.token_hex(32)
+    else:
+        tok = body.token.strip()
+    registry.set_register_token(tok)
+    return {"ok": True, "configured": bool(registry.REGISTER_TOKEN), "token": registry.REGISTER_TOKEN}
+
+
 @app.post("/api/hosts/test")
 def hosts_test(body: HostTestIn, x_control_token: str = Header(default="")):
     _check_operator(x_control_token)
