@@ -2714,7 +2714,7 @@ function renderBackupCard() {
   const card = document.createElement('div');
   card.id = 'backup-card';
   card.className = 'card';
-  sec.insertBefore(card, sec.firstChild);
+  (opsAdminBody() || sec).appendChild(card);
   card.innerHTML = `
     <div class='section-head'><h3>💾 Backup &amp; Restore</h3>
       <span class='muted'>rebuild on a new machine, no SSH</span></div>
@@ -2761,6 +2761,22 @@ async function restoreBackup(file) {
   renderHosts(); render();
 }
 
+// Collapsible "System & Safety" group at the bottom of Ops, so the admin/safety
+// cards don't bury the hosts & fleet. Created once; cards append into its body.
+function opsAdminBody() {
+  const sec = document.getElementById('ops-section'); if (!sec) return null;
+  let det = document.getElementById('ops-admin');
+  if (!det) {
+    det = document.createElement('details');
+    det.id = 'ops-admin';
+    det.className = 'card ops-admin';
+    det.innerHTML = `<summary><b>⚙ System &amp; Safety</b> <span class='muted'>backup · runbooks · safe mode · heartbeat</span></summary>
+      <div id='ops-admin-body' class='ops-admin-body'></div>`;
+    sec.appendChild(det);
+  }
+  return document.getElementById('ops-admin-body');
+}
+
 // ---- Self-healing runbooks: condition → remediation, edited in-app ----
 async function renderRunbooksCard() {
   const sec = document.getElementById('ops-section'); if (!sec) return;
@@ -2769,7 +2785,7 @@ async function renderRunbooksCard() {
     card = document.createElement('div');
     card.id = 'runbooks-card';
     card.className = 'card';
-    sec.insertBefore(card, sec.firstChild);
+    (opsAdminBody() || sec).appendChild(card);
   }
   const data = (await apiJSON('/api/runbooks')) || {};
   const rules = data.editable || [];
@@ -2831,7 +2847,7 @@ async function renderSafemodeCard() {
     card = document.createElement('div');
     card.id = 'safemode-card';
     card.className = 'card';
-    sec.insertBefore(card, sec.firstChild);
+    (opsAdminBody() || sec).appendChild(card);
   }
   const s = (await apiJSON('/api/safemode')) || {};
   const on = !!s.engaged;
@@ -2872,7 +2888,7 @@ async function renderDeadmanCard() {
     card = document.createElement('div');
     card.id = 'deadman-card';
     card.className = 'card';
-    sec.insertBefore(card, sec.firstChild);
+    (opsAdminBody() || sec).appendChild(card);
   }
   const s = (await apiJSON('/api/deadman')) || {};
   const last = s.last || {};
