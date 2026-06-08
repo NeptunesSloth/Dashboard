@@ -1834,6 +1834,16 @@ def install_agent_ps1():
     return FileResponse("scripts/install-agent.ps1", media_type="text/plain")
 
 
+@app.get("/install-ai.sh")
+def install_ai_sh():
+    return FileResponse("scripts/install-ai.sh", media_type="text/x-shellscript")
+
+
+@app.get("/install-ai.ps1")
+def install_ai_ps1():
+    return FileResponse("scripts/install-ai.ps1", media_type="text/plain")
+
+
 @app.get("/api/setup")
 def setup_status(x_control_token: str = Header(default="")):
     """Onboarding checklist state for the first-run guide."""

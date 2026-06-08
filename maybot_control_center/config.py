@@ -2,7 +2,12 @@ from pathlib import Path
 import logging
 import os
 import tempfile
+import threading
 import yaml
+
+# Serializes config writes (devices/users/agents/sect). Re-entrant so an endpoint
+# can hold it across a read-modify-write to also avoid lost updates.
+WRITE_LOCK = threading.RLock()
 
 
 def _atomic_write(path: Path, text: str) -> None:
@@ -10,17 +15,18 @@ def _atomic_write(path: Path, text: str) -> None:
     never tear each other's output (a shared .tmp name corrupts the file)."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            f.write(text)
-        os.replace(tmp, path)
-    finally:
+    with WRITE_LOCK:
+        fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
         try:
-            if os.path.exists(tmp):
-                os.remove(tmp)
-        except OSError:
-            pass
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(text)
+            os.replace(tmp, path)
+        finally:
+            try:
+                if os.path.exists(tmp):
+                    os.remove(tmp)
+            except OSError:
+                pass
 
 _log = logging.getLogger("maybot_control_center")
 
