@@ -28,3 +28,24 @@ jobs:
 
       - name: Run tests
         run: pytest -q
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install deps + Playwright Chromium
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt playwright
+          python -m playwright install --with-deps chromium
+      - name: Start the dashboard
+        run: |
+          MAYBOT_DEMO=1 python -m uvicorn maybot_control_center.app:app --host 127.0.0.1 --port 8200 &
+          for i in $(seq 1 40); do curl -sf http://127.0.0.1:8200/healthz >/dev/null && break; sleep 1; done
+      - name: Browser smoke test
+        run: python tests/smoke_browser.py
+

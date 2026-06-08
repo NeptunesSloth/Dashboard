@@ -626,3 +626,17 @@ body {
   opacity: 0; transform: translateY(14px) scale(.96); transition: opacity .35s, transform .35s cubic-bezier(.2,.8,.2,1); }
 .toast.show { opacity: 1; transform: none; }
 .toast .t-ico { font-size: 22px; filter: drop-shadow(0 0 8px rgba(251,191,36,.6)); }
+
+/* ===== #11 mobile pass 2 ===== */
+@media (max-width: 680px) {
+  .dgrid { grid-template-columns: 1fr 1fr; }
+  .cols-2 { grid-template-columns: 1fr; }
+  .ds-stats { grid-template-columns: 1fr 1fr; }
+  .ds-equip { grid-template-columns: 1fr; }
+  .member { width: 88px; }
+  .m-av { width: 54px; height: 54px; }
+  .inspect-panel { width: 100vw; }
+  .logs-pop-box { width: 96vw; height: 82vh; }
+  .ds-head { gap: 12px; } .ds-portrait { width: 76px; height: 76px; }
+  #toast-host { width: 92vw; }
+}

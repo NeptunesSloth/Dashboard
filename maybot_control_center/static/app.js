@@ -1630,6 +1630,7 @@ async function renderSectMap() {
   const sec = document.getElementById('map-section');
   const crew = (window.__agents || []).slice();
   if (!crew.length) { sec.classList.add('hidden'); return; }
+  try { const pp = await apiJSON('/api/members/profiles'); window.__rels = (pp && pp.profiles) || {}; } catch (_) {}
   sec.classList.remove('hidden');
 
   const peaks = buildPeaks(crew);
@@ -1893,6 +1894,18 @@ async function renderGroupHall(peak, focusName, instant) {
     const a = posByName[x.name], b = posByName[mate.name];
     const active = ['working', 'queued'].includes(x.status) || ['working', 'queued'].includes(mate.status);
     lines.push(`<line x1='${a.x}' y1='${a.y}' x2='${b.x}' y2='${b.y}' class='collab-line${active ? ' active' : ''}' vector-effect='non-scaling-stroke'/>`);
+  });
+  // sim relationships: bonds (jade) and rivalries (crimson) between members present together
+  const rels = window.__rels || {};
+  present.forEach(x => {
+    ((rels[x.name] || {}).relationships || []).forEach(rl => {
+      if (Math.abs(rl.s) < 40 || !presentByName[rl.name]) return;
+      const key = 'rel|' + [x.name, rl.name].sort().join('|');
+      if (seen.has(key)) return;
+      seen.add(key);
+      const a = posByName[x.name], b = posByName[rl.name];
+      lines.push(`<line x1='${a.x}' y1='${a.y}' x2='${b.x}' y2='${b.y}' class='rel-line ${rl.s >= 0 ? 'good' : 'bad'}' vector-effect='non-scaling-stroke'/>`);
+    });
   });
   if (lines.length) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

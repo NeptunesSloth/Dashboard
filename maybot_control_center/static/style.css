@@ -1274,3 +1274,18 @@ table.fleet tbody tr:hover td { background: rgba(139,92,255,.06); }
 .details > summary { color: var(--text); cursor: pointer; }
 .agent-reply { background: rgba(4,7,16,.4); border: 1px solid var(--border); border-radius: 10px; }
 .po-row, .rep-row { border-bottom: 1px solid var(--border); }
+
+/* ===== #11 mobile pass 2 (console) ===== */
+@media (max-width: 560px) {
+  .container { padding: 10px; }
+  .grid { grid-template-columns: 1fr; }
+  h1 { font-size: 20px; }
+  .token-row { display: none; }            /* legacy token row; use the account bubble */
+  .acct-modal-box { width: 94vw; }
+  .topbar .top-actions { gap: 6px; flex-wrap: wrap; }
+}
+
+/* #13 sim relationship threads on the Sect Map */
+.hall-collab .rel-line { stroke-width: 1.5; stroke-dasharray: 4 3; opacity: .55; }
+.hall-collab .rel-line.good { stroke: #34d399; }
+.hall-collab .rel-line.bad { stroke: #fb5e7e; }
