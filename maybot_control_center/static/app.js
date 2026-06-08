@@ -2711,7 +2711,15 @@ function openHostForm(host) {
       </div>
       <div id='hf-result' class='host-result muted'></div>
     </div>
-    <details class='details host-wizard'><summary>First time? How to install the agent on that machine</summary>
+    <details class='details host-wizard' open><summary>✨ Easiest: let the host enroll itself (no Add-host needed)</summary>
+      <p class='muted' style='margin:2px 0 8px'>Set <code>MAYBOT_REGISTER_TOKEN</code> on this dashboard, then start the agent on the bot machine with the env below — it announces itself and appears here automatically.</p>
+      <pre class='host-cmd' id='hf-enroll'>MAYBOT_API_TOKEN=&lt;token&gt; \
+MAYBOT_CONTROL_CENTER_URL=${esc(location.origin)} \
+MAYBOT_REGISTER_TOKEN=&lt;enroll-token&gt; \
+MAYBOT_AGENT_URL=http://&lt;this-host-ip&gt;:8100 \
+.venv/bin/uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100</pre>
+    </details>
+    <details class='details host-wizard'><summary>Or add it manually (install the agent)</summary>
       <ol class='host-steps'>
         <li>On the bot machine, install the agent:
           <pre class='host-cmd'>git clone &lt;your-repo-url&gt; maybot &amp;&amp; cd maybot
@@ -2726,8 +2734,9 @@ pip install -r requirements.txt</pre></li>
     </details>`;
   m.classList.remove('hidden');
   const tokenInput = body.querySelector('#hf-token');
-  const syncRun = () => { const rc = body.querySelector('#hf-runcmd'); const tk = (tokenInput.value || '').trim() || '<token>';
-    rc.textContent = `MAYBOT_API_TOKEN=${tk} .venv/bin/uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100`; };
+  const syncRun = () => { const tk = (tokenInput.value || '').trim() || '<token>';
+    const rc = body.querySelector('#hf-runcmd'); if (rc) rc.textContent = `MAYBOT_API_TOKEN=${tk} .venv/bin/uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100`;
+    const en = body.querySelector('#hf-enroll'); if (en) en.textContent = `MAYBOT_API_TOKEN=${tk} \\\nMAYBOT_CONTROL_CENTER_URL=${location.origin} \\\nMAYBOT_REGISTER_TOKEN=<enroll-token> \\\nMAYBOT_AGENT_URL=http://<this-host-ip>:8100 \\\n.venv/bin/uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100`; };
   tokenInput.oninput = syncRun;
   body.querySelector('#hf-gen').onclick = async () => { const r = await apiJSON('/api/hosts/gen-token'); if (r && r.token) { tokenInput.value = r.token; syncRun(); } };
   body.querySelector('#hf-test').onclick = () => testHostForm(body);
