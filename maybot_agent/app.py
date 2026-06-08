@@ -139,6 +139,13 @@ def discover():
     return {"candidates": discover_candidates()}
 
 
+@app.post("/api/self-update", dependencies=[Depends(verify_token)])
+def self_update():
+    """Re-pull the agent bundle from the control center and restart on the new code."""
+    from . import updater
+    return updater.update_and_restart()
+
+
 @app.get("/api/projects/{name}", dependencies=[Depends(verify_token)])
 def project(name: str):
     return adapt_project(get_project(name))

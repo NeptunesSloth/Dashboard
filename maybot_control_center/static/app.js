@@ -1345,6 +1345,14 @@ function qsStep(st) {
 
 async function qsAction(kind, card) {
   if (kind === 'hosts' || kind === 'manage_bots' || kind === 'settings') { setTab('ops'); return; }
+  if (kind === 'update_agents') {
+    const extra = card.querySelector('#qs-extra');
+    if (extra) extra.innerHTML = `<div class='muted'>Updating outdated agents…</div>`;
+    const r = await apiPost('/api/fleet/update', {}, 'Update agents');
+    if (extra) extra.innerHTML = r ? `<div class='money-pos'>Updated: ${esc((r.updated || []).join(', ') || 'none')}.</div>` : `<div class='money-neg'>Update failed.</div>`;
+    setTimeout(() => render(), 5000);
+    return;
+  }
   if (kind === 'install') {
     let info = {};
     try { info = (await apiJSON('/api/hosts/enroll-token')) || {}; } catch (_) {}
@@ -2699,6 +2707,139 @@ async function renderReliability() {
   });
 }
 
+// ---- Backup & Restore: full-config disaster recovery, all in-app ----
+function renderBackupCard() {
+  const sec = document.getElementById('ops-section'); if (!sec) return;
+  if (document.getElementById('backup-card')) return;          // built once
+  const card = document.createElement('div');
+  card.id = 'backup-card';
+  card.className = 'card';
+  sec.insertBefore(card, sec.firstChild);
+  card.innerHTML = `
+    <div class='section-head'><h3>💾 Backup &amp; Restore</h3>
+      <span class='muted'>rebuild on a new machine, no SSH</span></div>
+    <p class='muted'>Download a full backup (hosts, accounts, enroll token, saved state) or restore one.
+      The file contains secrets — keep it safe.</p>
+    <div style='display:flex;gap:8px;flex-wrap:wrap;align-items:center'>
+      <button class='btn btn-primary' id='bk-export'>⬇ Download backup</button>
+      <button class='btn' id='bk-import'>⬆ Restore from file…</button>
+      <input type='file' id='bk-file' accept='.json,application/json' style='display:none'>
+      <span id='bk-status' class='muted'></span>
+    </div>`;
+  card.querySelector('#bk-export').onclick = downloadBackup;
+  const fileInput = card.querySelector('#bk-file');
+  card.querySelector('#bk-import').onclick = () => fileInput.click();
+  fileInput.onchange = () => { if (fileInput.files[0]) restoreBackup(fileInput.files[0]); fileInput.value = ''; };
+}
+
+async function downloadBackup() {
+  const status = document.getElementById('bk-status');
+  if (status) status.textContent = 'Preparing…';
+  try {
+    const r = await fetch('/api/admin/export', { headers: authHeaders() });
+    if (!r.ok) { if (status) status.innerHTML = `<span class='money-neg'>Export failed (${r.status}).</span>`; return; }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `maybot-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    if (status) status.innerHTML = `<span class='money-pos'>Downloaded ✓</span>`;
+  } catch (e) { if (status) status.innerHTML = `<span class='money-neg'>Export failed.</span>`; }
+}
+
+async function restoreBackup(file) {
+  const status = document.getElementById('bk-status');
+  let data;
+  try { data = JSON.parse(await file.text()); }
+  catch (_) { if (status) status.innerHTML = `<span class='money-neg'>That file isn't valid JSON.</span>`; return; }
+  if (!confirm('Restore this backup? It overwrites your hosts, accounts, enroll token, and saved state.')) return;
+  if (status) status.textContent = 'Restoring…';
+  const r = await apiPost('/api/admin/import', data, 'Restore backup');
+  if (!r) { if (status) status.innerHTML = `<span class='money-neg'>Restore failed.</span>`; return; }
+  if (status) status.innerHTML = `<span class='money-pos'>Restored: ${esc((r.restored || []).join(', ') || 'nothing')}.</span>`;
+  renderHosts(); render();
+}
+
+// ---- Safe mode / panic button: halt all automation instantly ----
+async function renderSafemodeCard() {
+  const sec = document.getElementById('ops-section'); if (!sec) return;
+  let card = document.getElementById('safemode-card');
+  if (!card) {
+    card = document.createElement('div');
+    card.id = 'safemode-card';
+    card.className = 'card';
+    sec.insertBefore(card, sec.firstChild);
+  }
+  const s = (await apiJSON('/api/safemode')) || {};
+  const on = !!s.engaged;
+  card.innerHTML = `
+    <div class='section-head'><h3>🛑 Safe mode</h3>
+      <span class='${on ? 'money-neg' : 'muted'}'>${on ? 'ENGAGED — automation halted' : 'off — automation running'}</span></div>
+    <p class='muted'>One switch to freeze all automation (autopilot, escalation, scheduled missions, self-healing).
+      Manual actions still work. Use it the moment something automated misbehaves.</p>
+    <button class='btn ${on ? 'btn-primary' : 'btn-danger'}' id='sm-toggle'>${on ? 'Resume automation' : '🛑 Engage safe mode'}</button>`;
+  card.querySelector('#sm-toggle').onclick = async () => {
+    if (!on && !confirm('Engage safe mode? All automation stops until you resume.')) return;
+    await apiPost('/api/safemode', { engaged: !on }, 'Safe mode');
+    renderSafemodeCard(); refreshSafemodeBanner();
+  };
+}
+
+async function refreshSafemodeBanner() {
+  const s = (await apiJSON('/api/safemode')) || {};
+  let b = document.getElementById('safemode-banner');
+  if (!s.engaged) { if (b) b.remove(); return; }
+  if (!b) {
+    const host = document.querySelector('.container');
+    if (!host) return;
+    b = document.createElement('div');
+    b.id = 'safemode-banner';
+    b.className = 'error-banner';
+    host.insertBefore(b, host.firstChild);
+  }
+  b.innerHTML = `🛑 <b>Safe mode is engaged</b> — all automation is halted. <button class='btn' id='smb-resume'>Resume</button>`;
+  b.querySelector('#smb-resume').onclick = async () => { await apiPost('/api/safemode', { engaged: false }, 'Safe mode'); refreshSafemodeBanner(); };
+}
+
+// ---- Dead-man's switch: external heartbeat so the dashboard's own death pages you ----
+async function renderDeadmanCard() {
+  const sec = document.getElementById('ops-section'); if (!sec) return;
+  let card = document.getElementById('deadman-card');
+  if (!card) {
+    card = document.createElement('div');
+    card.id = 'deadman-card';
+    card.className = 'card';
+    sec.insertBefore(card, sec.firstChild);
+  }
+  const s = (await apiJSON('/api/deadman')) || {};
+  const last = s.last || {};
+  const lastTxt = last.at ? `last ping ${last.ok ? 'OK' : 'FAILED'} · ${new Date(last.at).toLocaleString()}${last.error ? ' · ' + esc(last.error) : ''}` : 'no ping yet';
+  card.innerHTML = `
+    <div class='section-head'><h3>🫀 Dead-man's switch</h3>
+      <span class='muted'>${s.configured ? 'armed' : 'off'}</span></div>
+    <p class='muted'>Paste a heartbeat URL from an external monitor (healthchecks.io, Better Uptime, …).
+      The dashboard pings it on a schedule; if the dashboard ever dies, that monitor alerts you.</p>
+    <div style='display:flex;gap:8px;flex-wrap:wrap;align-items:center'>
+      <input id='dm-url' class='lf-input' style='flex:1;min-width:240px' placeholder='https://hc-ping.com/your-uuid' value='${esc(s.url || '')}'>
+      <input id='dm-int' class='lf-input' type='number' style='width:110px' title='seconds' value='${esc(s.interval || 60)}'>
+      <button class='btn btn-primary' id='dm-save'>Save</button>
+      <button class='btn' id='dm-test'>Test ping</button>
+    </div>
+    <div class='muted' id='dm-status' style='margin-top:6px'>${s.configured ? esc(lastTxt) : ''}</div>`;
+  card.querySelector('#dm-save').onclick = async () => {
+    const url = card.querySelector('#dm-url').value.trim();
+    const interval = Number(card.querySelector('#dm-int').value) || 60;
+    await apiPost('/api/deadman', { url, interval }, 'Save heartbeat');
+    renderDeadmanCard();
+  };
+  card.querySelector('#dm-test').onclick = async () => {
+    const st = card.querySelector('#dm-status'); st.textContent = 'Pinging…';
+    const r = await apiPost('/api/deadman/test', {}, 'Test heartbeat');
+    st.innerHTML = r && r.ok ? `<span class='money-pos'>Ping OK ✓</span>` : `<span class='money-neg'>Ping failed${r && r.last && r.last.error ? ': ' + esc(r.last.error) : ''}</span>`;
+  };
+}
+
 // ---- Ops Copilot: ask the fleet in natural language ----
 function renderCopilot() {
   const sec = document.getElementById('ops-section'); if (!sec) return;
@@ -2748,6 +2889,9 @@ async function renderOps() {
   const sec = document.getElementById('ops-section');
   if (!sec) return;
   renderCopilot();      // ops copilot panel (built once)
+  renderSafemodeCard(); // panic button (built once)
+  renderBackupCard();   // backup / restore (built once)
+  renderDeadmanCard();  // dead-man's switch (built once)
   bindHostsUI();        // host manager buttons (also bound at load, idempotent)
   renderHosts();        // agent host manager (add/edit/test, no file editing)
   bindAccountsUI();
@@ -2797,7 +2941,7 @@ async function renderOps() {
 // ===== Hosts: add/edit/test agent hosts from the dashboard =====
 function bindHostsUI() {
   const add = document.getElementById('host-add');
-  if (add && !add.dataset.bound) { add.dataset.bound = '1'; add.onclick = () => openHostForm(); }
+  if (add && !add.dataset.bound) { add.dataset.bound = '1'; add.onclick = () => openAddHostWizard(); }
   const ref = document.getElementById('host-refresh');
   if (ref && !ref.dataset.bound) { ref.dataset.bound = '1'; ref.onclick = () => renderHosts(); }
   const close = document.getElementById('host-close');
@@ -2820,7 +2964,7 @@ async function renderHosts() {
       <h3>No hosts yet</h3>
       <p class='muted'>A “host” is a machine running your bots with the <b>maybot_agent</b> service. Add one to start pulling its bots, PnL and logs.</p>
       <button class='btn btn-primary' id='host-add-empty'>+ Add your first host</button></div>`;
-    const b = document.getElementById('host-add-empty'); if (b) b.onclick = () => openHostForm();
+    const b = document.getElementById('host-add-empty'); if (b) b.onclick = () => openAddHostWizard();
     return;
   }
   list.innerHTML = hosts.map(h => {
@@ -2828,14 +2972,17 @@ async function renderHosts() {
     const state = h.online ? `online · ${h.projects} bot${h.projects === 1 ? '' : 's'}`
       : (h.auth_error ? 'auth error (token mismatch)' : 'offline');
     const names = (h.project_names || []).slice(0, 8).map(esc).join(', ');
+    const ver = h.version ? `<div class='muted'>agent v${esc(h.version)}${h.agent_outdated ? ' · update available' : ''}</div>` : '';
     return `<div class='card host-card'>
       <div class='section-head'><h3>${esc(h.name)} <span class='crew-dot ${dot}'></span></h3><span class='pill'>${esc(state)}</span></div>
       <div class='muted host-url'>${esc(h.url)}</div>
       <div class='muted'>token: ${esc(h.token_masked) || '—'}</div>
+      ${ver}
       ${names ? `<div class='muted host-bots'>bots: ${names}</div>` : ''}
       ${(!h.online && h.error) ? `<div class='alert alert-warning'>${esc(String(h.error).slice(0, 140))}</div>` : ''}
       <div class='host-actions'>
         <button class='btn btn-primary' data-host-bots='${esc(h.name)}'>Manage bots</button>
+        ${h.agent_outdated ? `<button class='btn' data-host-update='${esc(h.name)}'>Update agent</button>` : ''}
         <button class='btn' data-host-edit='${esc(h.name)}'>Edit</button>
         <button class='btn btn-danger' data-host-del='${esc(h.name)}'>Remove</button>
       </div></div>`;
@@ -2843,6 +2990,15 @@ async function renderHosts() {
   list.querySelectorAll('[data-host-edit]').forEach(b => b.onclick = () => openHostForm(hosts.find(h => h.name === b.dataset.hostEdit)));
   list.querySelectorAll('[data-host-del]').forEach(b => b.onclick = () => removeHost(b.dataset.hostDel));
   list.querySelectorAll('[data-host-bots]').forEach(b => b.onclick = () => openBotsManager(b.dataset.hostBots));
+  list.querySelectorAll('[data-host-update]').forEach(b => b.onclick = () => updateHostAgent(b.dataset.hostUpdate, b));
+}
+
+async function updateHostAgent(name, btn) {
+  if (!confirm(`Update the agent on “${name}”? It re-pulls the latest agent and restarts.`)) return;
+  if (btn) { btn.disabled = true; btn.textContent = 'Updating…'; }
+  const r = await apiPost('/api/hosts/' + encodeURIComponent(name) + '/update', {}, 'Update agent');
+  if (btn) btn.textContent = r ? 'Restarting…' : 'Failed';
+  setTimeout(() => { renderHosts(); render(); }, 4000);   // give the agent time to come back on the new version
 }
 
 function openHostForm(host) {
@@ -2983,6 +3139,96 @@ async function removeHost(name) {
 }
 
 // ===== Manage a host's bots from the dashboard (no SSH / YAML editing) =====
+// ===== Add-a-host wizard: guided install + live "it connected" detection =====
+async function openAddHostWizard() {
+  let modal = document.getElementById('addhost-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'addhost-modal';
+    modal.className = 'modal hidden';
+    document.body.appendChild(modal);
+  }
+  modal.classList.remove('hidden');
+  let poll = null;
+  const close = () => { if (poll) { clearInterval(poll); poll = null; } modal.classList.add('hidden'); };
+
+  // Snapshot existing hosts so we can spot the new one when it self-enrolls.
+  const before = new Set((((await apiJSON('/api/hosts')) || {}).hosts || []).map(h => h.name));
+
+  // Make sure an enroll token exists (generate one if needed).
+  let info = {};
+  try { info = (await apiJSON('/api/hosts/enroll-token')) || {}; } catch (_) {}
+  let token = info.token;
+  if (!token) {
+    try {
+      const r = await fetch('/api/hosts/enroll-token', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ generate: true }) });
+      token = (await r.json()).token;
+    } catch (_) {}
+  }
+  const sh = token ? agentInstallCmd(location.origin, token) : '';
+
+  modal.innerHTML = `
+    <div class='modal-card' style='max-width:720px'>
+      <div class='section-head'><h3>Add a host</h3><button class='btn' id='aw-close'>✕</button></div>
+      <ol class='aw-steps'>
+        <li><b>Run this on the machine that runs your bots.</b> It installs the agent, which dials back here — no inbound port needed.
+          ${sh ? `<pre class='host-cmd' style='white-space:pre-wrap'>${esc(sh)}</pre><button class='btn' id='aw-copy'>Copy</button>`
+                : `<div class='money-neg'>Couldn't get an enroll token — add the host manually instead.</div>`}
+        </li>
+        <li><b>Wait for it to appear.</b> <span id='aw-wait' class='muted'>Watching for a new host…</span></li>
+      </ol>
+      <div style='display:flex;gap:8px;margin-top:8px;align-items:center'>
+        <button class='btn' id='aw-manual'>Add manually instead</button>
+        <span style='flex:1'></span>
+        <button class='btn btn-primary hidden' id='aw-finish'>Finish</button>
+      </div></div>`;
+  modal.querySelector('#aw-close').onclick = close;
+  const copy = modal.querySelector('#aw-copy');
+  if (copy) copy.onclick = () => { if (navigator.clipboard) navigator.clipboard.writeText(sh); copy.textContent = 'Copied ✓'; };
+  modal.querySelector('#aw-manual').onclick = () => { close(); openHostForm(); };
+  const finish = modal.querySelector('#aw-finish');
+  finish.onclick = () => { close(); renderHosts(); render(); };
+
+  poll = setInterval(async () => {
+    const hs = (((await apiJSON('/api/hosts')) || {}).hosts || []);
+    const fresh = hs.find(h => !before.has(h.name));
+    if (fresh) {
+      clearInterval(poll); poll = null;
+      modal.querySelector('#aw-wait').innerHTML = `<span class='money-pos'>✓ “${esc(fresh.name)}” connected!</span>`;
+      finish.classList.remove('hidden');
+      renderHosts();
+    }
+  }, 3000);
+}
+
+// ===== Per-type bot forms (friendly editor for a host's projects.yaml) =====
+const BOT_TYPES = ['trading_bot', 'website', 'local_ai_host', 'game_server', 'school', 'ai_project', 'code_project', 'generic'];
+const _BF_PROC = [
+  { k: 'path', label: 'Path', ph: '/home/me/bot', hint: 'project dir' },
+  { k: 'expect_running', label: 'Expect running', type: 'bool', hint: 'stopped → error' },
+  { k: 'cmdline_contains', label: 'Cmdline contains', ph: 'tradebot' },
+  { k: 'pid_file', label: 'PID file', ph: 'run/bot.pid' },
+  { k: 'process_name', label: 'Process name', ph: 'python' },
+  { k: 'log_file', label: 'Log file', ph: '/home/me/bot/logs/bot.log' },
+];
+const BOT_FIELDS = {
+  trading_bot: [..._BF_PROC, { k: 'database', label: 'Database', ph: 'data/trades.sqlite3' }],
+  website: [{ k: 'health_url', label: 'Health URL', ph: 'https://example.com/health' }, { k: 'expect_text', label: 'Expect text', ph: 'OK' }, { k: 'max_response_ms', label: 'Max response ms', type: 'number' }, { k: 'check_cert', label: 'Check TLS cert', type: 'bool' }],
+  local_ai_host: [{ k: 'provider', label: 'Provider', ph: 'ollama' }, { k: 'base_url', label: 'Base URL', ph: 'http://127.0.0.1:11434' }, { k: 'health_url', label: 'Health URL', ph: 'http://127.0.0.1:11434/api/tags' }, { k: 'default_model', label: 'Default model', ph: 'nous-hermes' }, { k: 'expect_running', label: 'Expect running', type: 'bool' }, { k: 'cmdline_contains', label: 'Cmdline contains', ph: 'ollama' }],
+  game_server: [{ k: 'query_url', label: 'Status URL', ph: 'http://127.0.0.1:8080/status' }, { k: 'min_tps', label: 'Min TPS', type: 'number' }, { k: 'host', label: 'Host (TCP check)', ph: '127.0.0.1' }, { k: 'port', label: 'Port', type: 'number' }],
+  school: [{ k: 'query_url', label: 'Summary URL', ph: 'http://127.0.0.1:9000/api/summary' }, { k: 'min_pass_rate', label: 'Min pass rate %', type: 'number' }, { k: 'min_attendance', label: 'Min attendance %', type: 'number' }],
+  ai_project: [{ k: 'query_url', label: 'Status URL', ph: 'http://127.0.0.1:7000/status' }, { k: 'log_file', label: 'Log file', ph: '/home/me/train/run.log' }],
+  code_project: [{ k: 'path', label: 'Path', ph: '/home/me/my-service' }],
+  generic: _BF_PROC,
+};
+
+function _botFieldInput(f, val) {
+  if (f.type === 'bool') return `<label class='bf-check'><input type='checkbox' data-bf='${f.k}' ${val ? 'checked' : ''}> ${esc(f.label)}${f.hint ? ` <span class='muted'>(${esc(f.hint)})</span>` : ''}</label>`;
+  const t = f.type === 'number' ? 'number' : 'text';
+  return `<label class='lf-label'>${esc(f.label)}${f.hint ? ` <span class='muted'>(${esc(f.hint)})</span>` : ''}</label>
+    <input class='lf-input' type='${t}' data-bf='${f.k}' value='${esc(val ?? '')}' placeholder='${esc(f.ph || '')}'>`;
+}
+
 async function openBotsManager(name) {
   let modal = document.getElementById('bots-modal');
   if (!modal) {
@@ -2991,67 +3237,132 @@ async function openBotsManager(name) {
     modal.className = 'modal hidden';
     document.body.appendChild(modal);
   }
-  modal.innerHTML = `
-    <div class='modal-card' style='max-width:760px'>
-      <div class='section-head'><h3>Bots on “${esc(name)}”</h3>
-        <button class='btn' id='bots-close'>✕</button></div>
-      <p class='muted' style='margin:2px 0 8px'>Edit this host's bots as JSON, then Save — the dashboard writes it to the
-        host's <code>projects.yaml</code> over the API. No SSH needed.
-        <a href='docs/AGENT_SETUP.md' target='_blank' rel='noopener'>Field reference</a>.</p>
-      <div id='bots-status' class='muted'>Loading…</div>
-      <textarea id='bots-json' class='lf-input' rows='16' spellcheck='false'
-        style='font-family:monospace;white-space:pre;width:100%'></textarea>
-      <div id='bots-error' class='money-neg' style='min-height:18px;font-size:12px'></div>
-      <div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px'>
-        <button class='btn' id='bots-discover'>🔍 Discover running bots</button>
-        <button class='btn btn-primary' id='bots-save'>Save</button>
-        <button class='btn' id='bots-cancel'>Cancel</button>
-      </div></div>`;
   modal.classList.remove('hidden');
-  const ta = modal.querySelector('#bots-json');
-  const status = modal.querySelector('#bots-status');
-  const errEl = modal.querySelector('#bots-error');
   const close = () => modal.classList.add('hidden');
-  modal.querySelector('#bots-close').onclick = close;
-  modal.querySelector('#bots-cancel').onclick = close;
 
+  // Load current config into in-memory state, then drive the UI off it.
+  modal.innerHTML = `<div class='modal-card'><div class='muted'>Loading bots…</div></div>`;
   const data = await apiJSON('/api/hosts/' + encodeURIComponent(name) + '/projects');
-  const projects = (data && data.projects) || [];
-  ta.value = JSON.stringify(projects, null, 2);
-  status.textContent = `${projects.length} bot(s) configured.`;
+  const state = { bots: ((data && data.projects) || []).map(p => ({ ...p })) };
 
-  modal.querySelector('#bots-discover').onclick = async () => {
-    errEl.textContent = '';
-    status.textContent = 'Scanning the host…';
+  function shell(inner, statusMsg) {
+    modal.innerHTML = `
+      <div class='modal-card' style='max-width:760px'>
+        <div class='section-head'><h3>Bots on “${esc(name)}”</h3>
+          <button class='btn' id='bots-close'>✕</button></div>
+        <div id='bots-status' class='muted'>${esc(statusMsg || `${state.bots.length} bot(s) configured.`)}</div>
+        <div id='bots-body'>${inner}</div></div>`;
+    modal.querySelector('#bots-close').onclick = close;
+  }
+
+  function renderList() {
+    const rows = state.bots.length ? state.bots.map((b, i) => `
+      <div class='card host-card bot-row'>
+        <div><b>${esc(b.name || '(unnamed)')}</b> <span class='pill'>${esc(b.type || 'generic')}</span></div>
+        <div class='host-actions'>
+          <button class='btn' data-bot-edit='${i}'>Edit</button>
+          <button class='btn btn-danger' data-bot-del='${i}'>Remove</button>
+        </div></div>`).join('') : `<div class='muted'>No bots yet. Add one, or Discover what's running.</div>`;
+    shell(`
+      <div class='bot-list'>${rows}</div>
+      <div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:12px'>
+        <button class='btn btn-primary' id='bot-add'>+ Add bot</button>
+        <button class='btn' id='bots-discover'>🔍 Discover</button>
+        <button class='btn' id='bots-json'>Advanced (JSON)</button>
+        <span style='flex:1'></span>
+        <button class='btn btn-primary' id='bots-save'>Save</button>
+      </div>`);
+    modal.querySelectorAll('[data-bot-edit]').forEach(b => b.onclick = () => openForm(+b.dataset.botEdit));
+    modal.querySelectorAll('[data-bot-del]').forEach(b => b.onclick = () => { state.bots.splice(+b.dataset.botDel, 1); renderList(); });
+    modal.querySelector('#bot-add').onclick = () => openForm(-1);
+    modal.querySelector('#bots-discover').onclick = discover;
+    modal.querySelector('#bots-json').onclick = openJson;
+    modal.querySelector('#bots-save').onclick = save;
+  }
+
+  function openForm(index) {
+    const orig = index >= 0 ? state.bots[index] : {};
+    const type = orig.type || 'trading_bot';
+    const typeOpts = BOT_TYPES.map(t => `<option value='${t}' ${t === type ? 'selected' : ''}>${t}</option>`).join('');
+    const fieldsHtml = (t) => (BOT_FIELDS[t] || BOT_FIELDS.generic).map(f => _botFieldInput(f, orig[f.k])).join('');
+    shell(`
+      <label class='lf-label'>Name</label>
+      <input class='lf-input' id='bf-name' value='${esc(orig.name || '')}' placeholder='daybot'>
+      <label class='lf-label'>Type</label>
+      <select class='lf-input' id='bf-type'>${typeOpts}</select>
+      <div id='bf-fields'>${fieldsHtml(type)}</div>
+      <div id='bf-error' class='money-neg' style='min-height:18px;font-size:12px'></div>
+      <div style='display:flex;gap:8px;margin-top:12px'>
+        <button class='btn btn-primary' id='bf-save'>${index >= 0 ? 'Update' : 'Add'} bot</button>
+        <button class='btn' id='bf-cancel'>Cancel</button>
+      </div>`, index >= 0 ? `Editing ${orig.name}` : 'New bot');
+    const typeSel = modal.querySelector('#bf-type');
+    typeSel.onchange = () => { modal.querySelector('#bf-fields').innerHTML = fieldsHtml(typeSel.value); };
+    modal.querySelector('#bf-cancel').onclick = renderList;
+    modal.querySelector('#bf-save').onclick = () => {
+      const err = modal.querySelector('#bf-error');
+      const nm = modal.querySelector('#bf-name').value.trim();
+      if (!nm) { err.textContent = 'Name is required.'; return; }
+      if (state.bots.some((b, i) => b.name === nm && i !== index)) { err.textContent = 'That name is already used.'; return; }
+      // Preserve unknown keys (commands/metrics/etc.) the form doesn't expose.
+      const out = index >= 0 ? { ...orig } : {};
+      out.name = nm; out.type = typeSel.value;
+      modal.querySelectorAll('#bf-fields [data-bf]').forEach(inp => {
+        const k = inp.dataset.bf;
+        if (inp.type === 'checkbox') { if (inp.checked) out[k] = true; else delete out[k]; }
+        else if (inp.value === '') { delete out[k]; }
+        else out[k] = inp.type === 'number' ? Number(inp.value) : inp.value;
+      });
+      if (index >= 0) state.bots[index] = out; else state.bots.push(out);
+      renderList();
+    };
+  }
+
+  function openJson() {
+    shell(`
+      <p class='muted'>Power users: edit the raw bot list as JSON.</p>
+      <textarea id='bj' class='lf-input' rows='16' spellcheck='false' style='font-family:monospace;white-space:pre;width:100%'>${esc(JSON.stringify(state.bots, null, 2))}</textarea>
+      <div id='bj-error' class='money-neg' style='min-height:18px;font-size:12px'></div>
+      <div style='display:flex;gap:8px;margin-top:10px'>
+        <button class='btn btn-primary' id='bj-apply'>Apply</button>
+        <button class='btn' id='bj-cancel'>Back</button>
+      </div>`, 'Advanced JSON');
+    modal.querySelector('#bj-cancel').onclick = renderList;
+    modal.querySelector('#bj-apply').onclick = () => {
+      let parsed;
+      try { parsed = JSON.parse(modal.querySelector('#bj').value || '[]'); }
+      catch (e) { modal.querySelector('#bj-error').textContent = 'Invalid JSON: ' + e.message; return; }
+      if (!Array.isArray(parsed)) { modal.querySelector('#bj-error').textContent = 'Top level must be an array.'; return; }
+      state.bots = parsed; renderList();
+    };
+  }
+
+  async function discover() {
+    modal.querySelector('#bots-status').textContent = 'Scanning the host…';
     const d = await apiJSON('/api/hosts/' + encodeURIComponent(name) + '/discover');
     const cands = (d && d.candidates) || [];
-    if (!cands.length) { status.textContent = 'No candidates found (the agent saw no obvious bots).'; return; }
-    let current = [];
-    try { current = JSON.parse(ta.value || '[]'); } catch (_) { current = []; }
-    const have = new Set(current.map(p => p && p.name));
+    const have = new Set(state.bots.map(p => p && p.name));
     let added = 0;
     cands.forEach(c => {
       if (have.has(c.name)) return;
-      const { _source, _detail, ...clean } = c;   // drop discovery-only hints
-      current.push(clean); have.add(c.name); added++;
+      const { _source, _detail, ...clean } = c;       // drop discovery-only hints
+      state.bots.push(clean); have.add(c.name); added++;
     });
-    ta.value = JSON.stringify(current, null, 2);
-    status.textContent = `Added ${added} candidate(s). Review names/types, then Save.`;
-  };
+    renderList();
+    modal.querySelector('#bots-status').textContent = added
+      ? `Added ${added} discovered bot(s). Review, then Save.` : 'No new bots discovered.';
+  }
 
-  modal.querySelector('#bots-save').onclick = async () => {
-    errEl.textContent = '';
-    let parsed;
-    try { parsed = JSON.parse(ta.value || '[]'); }
-    catch (e) { errEl.textContent = 'Invalid JSON: ' + e.message; return; }
-    if (!Array.isArray(parsed)) { errEl.textContent = 'Top level must be a JSON array of bots.'; return; }
+  async function save() {
     const r = await fetch('/api/hosts/' + encodeURIComponent(name) + '/projects', {
       method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() },
-      body: JSON.stringify({ projects: parsed }),
+      body: JSON.stringify({ projects: state.bots }),
     });
-    if (!r.ok) { const j = await r.json().catch(() => ({})); errEl.textContent = 'Save failed: ' + (j.detail || r.status); return; }
+    if (!r.ok) { const j = await r.json().catch(() => ({})); modal.querySelector('#bots-status').innerHTML = `<span class='money-neg'>Save failed: ${esc(j.detail || r.status)}</span>`; return; }
     close(); renderHosts(); render();
-  };
+  }
+
+  renderList();
 }
 
 // ===== Accounts: create/remove dashboard users (operator only) =====
@@ -3366,6 +3677,7 @@ function setupStream() {
     else if (msg.type === 'tools') debounced(renderTools, 'tools');
     else if (msg.type === 'tick') debounced(render, 'tick', 500);           // server-driven live refresh
     else if (msg.type === 'hosts') debounced(render, 'hosts', 300);          // host added/removed/enrolled/bots changed
+    else if (msg.type === 'safemode') refreshSafemodeBanner();               // panic button toggled
     else if (msg.type === 'agents') {
       if (msg.data && msg.data.event === 'breakthrough' && msg.data.agent) ascend(msg.data.agent);  // ascension cutscene
       if (msg.data && (msg.data.event === 'culled' || msg.data.event === 'struck_down')) {
@@ -3415,6 +3727,7 @@ buildSideRail();
 setTab(localStorage.getItem('tab') || 'overview');
 
 setupStream();
+refreshSafemodeBanner();   // show the panic-mode banner if it's engaged at load
 
 // ---- Login overlay (token sign-in) ----
 function showLogin() { const o = document.getElementById('login-overlay'); if (o) o.classList.remove('hidden'); }

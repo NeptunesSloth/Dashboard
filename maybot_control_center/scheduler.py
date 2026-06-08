@@ -72,7 +72,9 @@ def _loop() -> None:
     while True:
         time.sleep(60)
         try:
-            tick()
+            from . import safemode
+            if not safemode.engaged():     # panic button halts scheduled missions too
+                tick()
         except Exception:
             pass
 

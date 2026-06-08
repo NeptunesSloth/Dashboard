@@ -36,7 +36,8 @@ def disarm(device: str, name: str) -> None:
 def sweep(now: float | None = None) -> list[str]:
     """Escalate any armed alert past the threshold that is still unowned and
     unsilenced. Returns the keys escalated this sweep."""
-    if not ENABLED:
+    from . import safemode
+    if not ENABLED or safemode.engaged():
         return []
     now = now if now is not None else time.time()
     from . import oaths, maintenance, notifier, governance, acks
