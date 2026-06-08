@@ -20,6 +20,11 @@ def main() -> int:
         vis = pg.evaluate("Array.from(document.querySelectorAll('.container>section'))"
                           ".filter(s=>!s.classList.contains('tab-hidden')).map(s=>s.dataset.tab)")
         assert "ops" in vis, f"tab switch failed: {vis}"
+        # Top-right password-protected System Settings gear opens its panel.
+        assert pg.query_selector("#settings-gear"), "settings gear missing"
+        pg.click("#settings-gear")
+        pg.wait_for_timeout(400)
+        assert pg.query_selector("#settings-modal"), "settings modal did not open"
         # Login page renders.
         pg.goto(BASE + "/login", wait_until="load", timeout=25000)
         pg.wait_for_timeout(800)

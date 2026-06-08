@@ -73,6 +73,10 @@ Get the dashboard running on your machine with Docker:
      ```bash
      curl -fsSL http://YOUR-DASH:8200/install-ai.sh | CONTROL_URL=http://YOUR-DASH:8200 CONTROL_TOKEN=<operator-token> bash
      ```
+   > **What is `YOUR-DASH`?** The dashboard's address *as seen from the machine you run the command on*.
+   > Use `localhost` (or `127.0.0.1`) **only** when the agent runs on the **same machine** as the dashboard.
+   > On a **separate** bot host, use the dashboard's **LAN/VPN IP or hostname** (e.g. `http://192.168.1.50:8200`)
+   > — `localhost` there would point at the bot host itself, so the download and self-enrollment would fail.
    - Deeper guides: local AI → [docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md) · agents/hosts → [docs/AGENT_SETUP.md](docs/AGENT_SETUP.md).
 
 Full desktop-app details (stop, update, troubleshoot): [docs/DESKTOP_APP.md](docs/DESKTOP_APP.md).
@@ -90,22 +94,31 @@ Full desktop-app details (stop, update, troubleshoot): [docs/DESKTOP_APP.md](doc
 
 ## Manage everything in-app
 
-You no longer have to hand-edit YAML over SSH for day-to-day changes — the
-**Ops** tab has live managers that write the same config files atomically:
+You no longer have to hand-edit YAML or `.env` over SSH for day-to-day changes —
+the **Ops** tab and the top-right **⚙ Settings** panel manage it all live:
 
 - **Hosts manager** — add/edit/remove bot hosts (the old `devices.yaml`). It can
-  **generate a token**, **test the connection** before saving (PASS/FAIL with the
-  exact cause), and shows the one-command installer to paste on a new host.
+  **generate a per-host token**, **test the connection** before saving (PASS/FAIL
+  with the exact cause), **generate/manage the self-enrollment token** in-app
+  (no `MAYBOT_REGISTER_TOKEN` env edit or restart), and shows the one-command
+  installer **pre-filled with the real token** plus copy buttons.
 - **Accounts manager** — create operator/viewer accounts (the old `users.yaml`),
   reset passwords, and remove accounts.
 - **Sect Members manager** — add/edit/remove sect members (the old `agents.yaml`):
   name, role, persona, provider/`base_url`/model, with a **Test AI** button that
   runs one real completion to confirm the backend answers, plus a **seed** action
   to bootstrap a starter roster.
+- **System Settings — top-right ⚙, password-protected** — manage the rest of the
+  config (the old `.env`) from **any page**: AI backend & keys (Anthropic / OpenAI
+  / Ollama), notification channels (Discord / Slack / generic webhook / email /
+  Telegram), automation & security gates (autopilot, tool autonomy, real PRs,
+  delegation, require-sign-in), and sect-sim tuning. Secrets live in the persisted
+  DB, are **masked until you re-enter your account password**, and apply **at
+  runtime** (no restart). An in-app value overrides the matching env default.
 
-Edits take effect immediately (no restart) and persist to disk; the matching
-`*.yaml` files stay the source of truth, so anything you set in the UI is still
-visible (and editable) on disk.
+Edits take effect immediately (no restart) and persist (config managers write the
+`*.yaml` files atomically; system settings persist to the DB when `MAYBOT_DB` is
+set), so the UI and the underlying files/env stay in sync.
 
 ## Accounts & sign-in
 
@@ -788,7 +801,7 @@ Optional control-center environment variables:
 |---|---|---|
 | `MAYBOT_DB` | _(unset)_ | SQLite path for persistence (unset → in-memory) |
 | `MAYBOT_REQUIRE_AUTH` | `0` | Force a valid session on all pages/APIs (else open/operator-by-default) |
-| `MAYBOT_REGISTER_TOKEN` | _(unset)_ | Secret required for host self-enrollment (`/install-agent.*`, `POST /api/agents/register`) |
+| `MAYBOT_REGISTER_TOKEN` | _(unset)_ | Initial secret for host self-enrollment (`/install-agent.*`, `POST /api/agents/register`); also generate/manage it in-app (Ops → Hosts → Add host) where it persists and wins over this default |
 | `MAYBOT_SECT_TICK_SECONDS` | _(default)_ | Background sect-simulation tick interval |
 | `MAYBOT_SECT_XP_RATE` | _(default)_ | Passive cultivation XP rate for the sim |
 | `MAYBOT_OBSIDIAN_VAULT` | _(unset)_ | Path to your Obsidian vault; enables agent memory |

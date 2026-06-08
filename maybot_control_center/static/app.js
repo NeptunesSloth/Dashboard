@@ -372,7 +372,6 @@ async function render() {
     notifyHealthChanges(data.projects || []);
     window.__lastProjects = data.projects || [];
     err.classList.add('hidden');
-    document.getElementById('refresh-status').textContent = new Date().toLocaleTimeString();
     document.getElementById('device-count-pill').textContent = `${data.summary.online_devices} online / ${data.summary.offline_devices} offline`;
 
     summaryEl.classList.remove('loading');
@@ -1628,10 +1627,14 @@ function mapPortrait(a) {
 
 async function renderSectMap() {
   const sec = document.getElementById('map-section');
+  if (!sec) return;
   const crew = (window.__agents || []).slice();
-  if (!crew.length) { sec.classList.add('hidden'); return; }
-  try { const pp = await apiJSON('/api/members/profiles'); window.__rels = (pp && pp.profiles) || {}; } catch (_) {}
+  // The map world is ALWAYS visible now — when the sect is empty we show an
+  // invite to recruit instead of hiding the whole page (which read as "the map
+  // is gone"). Relationship dossiers (hall rel-lines) are fetched in the
+  // background so a slow/failed call can never blank the map.
   sec.classList.remove('hidden');
+  apiJSON('/api/members/profiles').then(pp => { window.__rels = (pp && pp.profiles) || {}; }).catch(() => {});
 
   const peaks = buildPeaks(crew);
   window.__peaks = peaks;
@@ -1640,7 +1643,7 @@ async function renderSectMap() {
   const leader = crew.find(a => a.governance?.is_leader) || crew.slice().sort((a, b) => (b.governance?.standing || 0) - (a.governance?.standing || 0))[0];
   const cultivating = crew.filter(a => ['working', 'queued'].includes(a.status) || a.cultivation?.in_seclusion).length;
   const idle = crew.filter(a => (a.status || 'idle') === 'idle' && !a.cultivation?.in_seclusion && !a.cultivation?.in_roaming).length;
-  const succ = Math.round(crew.reduce((s, a) => s + (a.reputation?.signals?.success_pct ?? 100), 0) / n);
+  const succ = n ? Math.round(crew.reduce((s, a) => s + (a.reputation?.signals?.success_pct ?? 100), 0) / n) : 0;
   const stones = crew.reduce((s, a) => s + (a.cultivation?.stones || 0), 0);
 
   // day/night by local time; a storm gathers when the sect is unhealthy
@@ -1661,7 +1664,31 @@ async function renderSectMap() {
     </div>
     <div class='pixel-panel peak-lord'><span class='pl-label'>Peak Lord</span><b>👑 ${esc(leader ? leader.name : '—')}</b><span class='muted'>${esc(leader?.cultivation?.realm_name || '')}</span></div>
     <div class='map-motes'>${Array.from({ length: 14 }, (_, i) => `<span style='left:${(i * 7 + 4) % 98}%;animation-delay:${(i * 0.9).toFixed(1)}s;animation-duration:${9 + (i % 5) * 2}s'></span>`).join('')}</div>
+    ${n ? '' : `<div class='map-empty'><div class='me-card'>
+      <div class='me-title'>⛰ The peaks stand empty</div>
+      <p class='muted'>No sect members yet, so there are no disciples to place on the map.</p>
+      <div class='me-actions'>
+        <button id='map-seed' class='btn btn-primary'>✦ Seed a starter sect</button>
+        <a class='btn' href='/chamber'>Open Sect Members ▸</a>
+      </div></div></div>`}
     <div class='map-markers'></div>`;
+
+  const seedBtn = document.getElementById('map-seed');
+  if (seedBtn) seedBtn.onclick = async () => {
+    seedBtn.disabled = true; seedBtn.textContent = 'Summoning…';
+    try {
+      const r = await fetch('/api/members/seed', { method: 'POST', headers: authHeaders() });
+      if (!r.ok) {
+        const e = await r.json().catch(() => ({}));
+        alert(e.detail || 'Could not seed the sect (an operator token is required).');
+        seedBtn.disabled = false; seedBtn.textContent = '✦ Seed a starter sect'; return;
+      }
+      await renderAgentCrew(); renderSectMap();
+    } catch (_) {
+      alert('Could not seed the sect.');
+      seedBtn.disabled = false; seedBtn.textContent = '✦ Seed a starter sect';
+    }
+  };
 
   const markers = world.querySelector('.map-markers');
   peaks.forEach(p => {
@@ -2725,11 +2752,7 @@ function openHostForm(host) {
       <div id='hf-result' class='host-result muted'></div>
     </div>
     <details class='details host-wizard' open><summary>✨ One command (installs + runs + auto-appears here)</summary>
-      <p class='muted' style='margin:2px 0 8px'>Set <code>MAYBOT_REGISTER_TOKEN</code> on this dashboard, then run this on the bot machine. It downloads the agent from here, installs it as a service, and enrolls itself — the host shows up automatically.</p>
-      <div class='muted' style='font-size:11px'>Linux / macOS:</div>
-      <pre class='host-cmd'>curl -fsSL ${esc(location.origin)}/install-agent.sh | CONTROL_URL=${esc(location.origin)} REGISTER_TOKEN=&lt;enroll-token&gt; bash</pre>
-      <div class='muted' style='font-size:11px;margin-top:6px'>Windows (PowerShell):</div>
-      <pre class='host-cmd'>$env:CONTROL_URL='${esc(location.origin)}'; $env:REGISTER_TOKEN='&lt;enroll-token&gt;'; irm ${esc(location.origin)}/install-agent.ps1 | iex</pre>
+      <div id='hf-enroll-section'><p class='muted'>Loading enrollment…</p></div>
     </details>
     <details class='details host-wizard'><summary>Or add it manually (install the agent)</summary>
       <ol class='host-steps'>
@@ -2753,6 +2776,51 @@ pip install -r requirements.txt</pre></li>
   body.querySelector('#hf-gen').onclick = async () => { const r = await apiJSON('/api/hosts/gen-token'); if (r && r.token) { tokenInput.value = r.token; syncRun(); } };
   body.querySelector('#hf-test').onclick = () => testHostForm(body);
   body.querySelector('#hf-save').onclick = () => saveHostForm(body, host);
+  renderEnrollSection(body);
+}
+
+// Manage the self-enrollment token entirely in-app: generate / view / copy /
+// regenerate / disable, and fill the one-command installer with the real token.
+async function renderEnrollSection(body) {
+  const sec = body.querySelector('#hf-enroll-section');
+  if (!sec) return;
+  const host = location.origin;
+  let info = { configured: false, token: '' };
+  try { info = (await apiJSON('/api/hosts/enroll-token')) || info; } catch (_) {}
+  const tok = info.token || '';
+  const shown = tok || '<enroll-token>';
+  const sh = `curl -fsSL ${host}/install-agent.sh | CONTROL_URL=${host} REGISTER_TOKEN=${shown} bash`;
+  const ps = `$env:CONTROL_URL='${host}'; $env:REGISTER_TOKEN='${shown}'; irm ${host}/install-agent.ps1 | iex`;
+  sec.innerHTML = `
+    <p class='muted' style='margin:2px 0 8px'>Run this on the bot machine — it downloads the agent from here, installs it as a service, and enrolls itself. The host then appears below automatically.</p>
+    <div class='enroll-status ${info.configured ? 'ok' : 'off'}'>
+      ${info.configured
+        ? `<span>✓ Enroll token <b>configured</b></span> <code class='enroll-tok'>${esc(tok)}</code>
+           <button class='btn btn-mini' data-en='copytok' type='button'>Copy</button>
+           <button class='btn btn-mini' data-en='regen' type='button'>Regenerate</button>
+           <button class='btn btn-mini btn-danger' data-en='clear' type='button'>Disable</button>`
+        : `<span>No enroll token set — generate one to turn on the one-command installer.</span>
+           <button class='btn btn-primary btn-mini' data-en='gen' type='button'>✦ Generate enroll token</button>`}
+    </div>
+    <div class='muted' style='font-size:11px;margin-top:8px'>Linux / macOS:</div>
+    <div class='cmd-row'><pre class='host-cmd' id='en-sh'>${esc(sh)}</pre><button class='btn btn-mini' data-en='copysh' type='button'>Copy</button></div>
+    <div class='muted' style='font-size:11px;margin-top:6px'>Windows (PowerShell):</div>
+    <div class='cmd-row'><pre class='host-cmd' id='en-ps'>${esc(ps)}</pre><button class='btn btn-mini' data-en='copyps' type='button'>Copy</button></div>
+    <p class='muted' style='font-size:11px;margin-top:6px'>On a <b>separate</b> machine, replace <code>${esc(host)}</code> with this dashboard's LAN/VPN address (a remote host can't reach <code>localhost</code>).</p>`;
+  const post = async (payload) => {
+    try { return await (await fetch('/api/hosts/enroll-token', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(payload) })).json(); }
+    catch (_) { return null; }
+  };
+  const copy = (text, btn) => { try { navigator.clipboard.writeText(text); const t = btn.textContent; btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = t; }, 1200); } catch (_) {} };
+  sec.querySelectorAll('[data-en]').forEach(b => b.onclick = async () => {
+    const a = b.dataset.en;
+    if (a === 'gen') { await post({ generate: true }); return renderEnrollSection(body); }
+    if (a === 'regen') { if (!confirm('Regenerate the enroll token? Install commands using the old token will stop enrolling.')) return; await post({ generate: true }); return renderEnrollSection(body); }
+    if (a === 'clear') { if (!confirm('Disable self-enrollment? New hosts must be added manually until you generate a token again.')) return; await post({ clear: true }); return renderEnrollSection(body); }
+    if (a === 'copytok') return copy(tok, b);
+    if (a === 'copysh') return copy(sh, b);
+    if (a === 'copyps') return copy(ps, b);
+  });
 }
 
 async function testHostForm(body) {
@@ -3047,7 +3115,6 @@ function renderProjects(projects) {
   bindProjectButtons(projectsEl);
 }
 
-document.getElementById('manual-refresh').onclick = render;
 function updateViewToggleLabel() {
   document.getElementById('toggle-view').textContent = viewMode === 'base' ? 'Disciples' : 'Sect Hall';
   document.body.classList.toggle('base-mode', viewMode === 'base');
@@ -3087,19 +3154,6 @@ document.querySelectorAll('.level-btn').forEach(btn => btn.onclick = () => {
   selectedLogLevel = btn.getAttribute('data-level') || 'ALL';
   if (selectedProject && selectedProjectDevice) loadLogs(selectedProjectDevice, selectedProject);
 });
-document.getElementById('toggle-refresh').onclick = () => {
-  refreshPaused = !refreshPaused;
-  document.getElementById('toggle-refresh').textContent = refreshPaused ? 'Resume Auto' : 'Pause Auto';
-  if (refreshPaused) clearInterval(refreshInterval);
-  else refreshInterval = setInterval(render, 7000);
-};
-
-const tokenInput = document.getElementById('control-token');
-tokenInput.value = getControlToken();
-document.getElementById('save-control-token').onclick = () => {
-  localStorage.setItem(CONTROL_TOKEN_STORAGE_KEY, tokenInput.value || '');
-};
-
 render();
 refreshInterval = setInterval(render, 7000);
 startLogsAutoRefresh();
@@ -3228,6 +3282,82 @@ async function initAccountConsole() {
   if (!me.authed && me.auth_active) { location.href = '/login'; return; }
   mountAcct(me);
   mountBellConsole();
+  mountSettingsGear(me);
+}
+
+// Password-protected system-settings gear, top-right (operators only).
+function mountSettingsGear(me) {
+  document.getElementById('settings-gear')?.remove();
+  if (!(me && (me.role === 'operator' || me.open_mode))) return;
+  const g = document.createElement('button');
+  g.id = 'settings-gear'; g.className = 'bell settings-gear'; g.title = 'System settings'; g.textContent = '⚙';
+  document.body.append(g);
+  const place = () => { const bubble = document.getElementById('acct-bubble'); const w = bubble ? bubble.offsetWidth : 120; g.style.right = (16 + w + 10 + 40 + 10) + 'px'; };
+  place(); setTimeout(place, 300); addEventListener('resize', place);
+  g.onclick = () => openSettingsModal(me);
+}
+
+function openSettingsModal(me) {
+  document.getElementById('settings-modal')?.remove();
+  const m = document.createElement('div'); m.id = 'settings-modal'; m.className = 'acct-modal';
+  const needPw = !!(me && me.has_password);
+  m.innerHTML = `<div class='acct-modal-box card settings-box'>
+    <h3>🛠 System settings</h3>
+    <div id='sm-gate'>
+      <p class='muted' style='font-size:12.5px;margin:0 0 8px'>${needPw ? 'Confirm your account password to view and edit secrets.' : 'Open mode — no account password is set, so nothing gates this. Add a password in your account menu to protect it.'}</p>
+      ${needPw ? `<label class='lf-label'>Password</label><input class='lf-input' id='sm-pw' type='password' autocomplete='current-password'>` : ''}
+      <button class='lf-btn' id='sm-unlock'>${needPw ? '🔓 Unlock' : 'Open settings'}</button>
+      <div class='lf-err' id='sm-err'></div>
+    </div>
+    <div id='sm-body' class='hidden'></div>
+    <button class='lf-link' id='sm-cancel'>Close</button>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', (e) => { if (e.target === m) m.remove(); });
+  m.querySelector('#sm-cancel').onclick = () => m.remove();
+  let pw = '';
+  const unlock = async () => {
+    const err = m.querySelector('#sm-err'); err.textContent = '';
+    pw = (m.querySelector('#sm-pw')?.value) || '';
+    let data;
+    try {
+      const r = await fetch('/api/settings/unlock', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ password: pw }) });
+      if (!r.ok) { err.textContent = r.status === 403 ? 'Incorrect password.' : ('Error ' + r.status); return; }
+      data = await r.json();
+    } catch (_) { err.textContent = 'Unlock failed.'; return; }
+    m.querySelector('#sm-gate').classList.add('hidden');
+    const body = m.querySelector('#sm-body'); body.classList.remove('hidden');
+    renderSettingsForm(body, data, pw);
+  };
+  m.querySelector('#sm-unlock').onclick = unlock;
+  const pwi = m.querySelector('#sm-pw'); if (pwi) { pwi.onkeydown = (e) => { if (e.key === 'Enter') unlock(); }; pwi.focus(); }
+}
+
+function renderSettingsForm(body, data, pw) {
+  const field = (it) => {
+    if (it.type === 'bool') return `<label class='sm-field sm-bool'><input type='checkbox' data-skey='${it.key}' data-stype='bool' ${it.value === '1' ? 'checked' : ''}><span><b>${esc(it.label)}</b>${it.help ? ` <span class='muted'>${esc(it.help)}</span>` : ''}</span></label>`;
+    const t = it.type === 'secret' ? 'password' : 'text';
+    return `<div class='sm-field'><label><b>${esc(it.label)}</b>${it.type === 'secret' && it.set ? ` <span class='set-on'>set ✓</span>` : ''}</label>
+      <input type='${t}' data-skey='${it.key}' data-stype='${it.type}' value='${esc(it.value || '')}' ${it.type === 'secret' ? "autocomplete='new-password'" : ''}>
+      ${it.help && it.type !== 'bool' ? `<div class='muted set-help'>${esc(it.help)}</div>` : ''}</div>`;
+  };
+  body.innerHTML = `${data.persisted ? '' : `<div class='set-warn'>⚠ Persistence is off (set <code>MAYBOT_DB</code>) — changes apply now but reset on restart.</div>`}
+    ${(data.groups || []).map(g => `<div class='sm-group'><h4>${esc(g.label)}</h4>${g.items.map(field).join('')}</div>`).join('')}
+    <div class='sm-actions'><button class='lf-btn' id='sm-save'>Save settings</button><span class='lf-ok' id='sm-msg'></span></div>`;
+  body.querySelector('#sm-save').onclick = async () => {
+    const values = {};
+    body.querySelectorAll('[data-skey]').forEach(inp => {
+      const k = inp.dataset.skey, ty = inp.dataset.stype;
+      values[k] = ty === 'bool' ? (inp.checked ? '1' : '0') : inp.value.trim();
+    });
+    const msg = body.querySelector('#sm-msg'); msg.textContent = 'Saving…';
+    try {
+      const r = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ values, password: pw }) });
+      const d = await r.json().catch(() => null);
+      if (!r.ok) { msg.textContent = (d && d.detail) || 'Save failed'; return; }
+      msg.textContent = 'Saved ✓'; renderSettingsForm(body, d, pw);
+    } catch (_) { msg.textContent = 'Save failed'; }
+  };
 }
 function mountAcct(me) {
   document.getElementById('acct-bubble')?.remove();
