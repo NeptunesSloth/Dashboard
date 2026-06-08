@@ -236,9 +236,8 @@ def _load() -> dict:
 
 def _save() -> None:
     try:
-        tmp = SECT_FILE.with_name(SECT_FILE.name + ".tmp")
-        tmp.write_text(json.dumps(_state or {}), encoding="utf-8")
-        tmp.replace(SECT_FILE)
+        from .config import _atomic_write
+        _atomic_write(SECT_FILE, json.dumps(_state or {}))
     except Exception:
         pass
 

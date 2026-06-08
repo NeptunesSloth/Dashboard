@@ -5,7 +5,7 @@ import queue
 import re
 import secrets
 from fastapi import FastAPI, Header, HTTPException, Query, Request
-from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse
+from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse, Response
 from pydantic import BaseModel
 from .config import load_devices, all_devices, save_devices, CONTROL_CENTER_TOKEN
 from . import config as _config
@@ -86,7 +86,7 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
                 treasury.load_persisted, taskqueue.load_persisted, oaths.load_persisted,
                 maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
                 audit.load_persisted, inbound.load_persisted, registry.load_persisted,
-                push.load_persisted, acks.load_persisted):
+                push.load_persisted, acks.load_persisted, authz.load_persisted, risk.load_persisted):
     try:
         _loader()
     except Exception:
@@ -121,6 +121,13 @@ async def _rate_limit(request, call_next):
     if not path.startswith("/api/") and (path == "/" or path.endswith((".js", ".css", ".html"))
                                          or path in ("/console", "/login", "/chamber", "/trade", "/treasury")):
         response.headers["Cache-Control"] = "no-cache, must-revalidate"
+    # Baseline security headers on every response (safe defaults; no CSP so inline
+    # scripts/fonts keep working).
+    h = response.headers
+    h.setdefault("X-Content-Type-Options", "nosniff")
+    h.setdefault("X-Frame-Options", "SAMEORIGIN")
+    h.setdefault("Referrer-Policy", "no-referrer")
+    h.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
     # Self-observability: count served API requests (and 5xx errors).
     if request.url.path.startswith("/api/"):
         try:
@@ -1741,11 +1748,14 @@ def login(body: LoginIn, request: Request):
             authz.note_login_fail(key)
             raise HTTPException(401, "invalid name or password")
         authz.reset_login(key)
+        if u.get("totp"):
+            cid, _ = authz.create_2fa_challenge(u["name"], method="totp")
+            return {"ok": False, "pending_2fa": True, "challenge": cid, "method": "totp", "channel": "authenticator app"}
         if u.get("tfa") and notify.channels():
-            cid, code = authz.create_2fa_challenge(u["name"])
+            cid, code = authz.create_2fa_challenge(u["name"], method="webhook")
             ch = notify.channels()[0]
             notify.send("Aegis sign-in code", f"Your 2FA code is {code} (valid 5 minutes).", level="info", kind="security")
-            return {"ok": False, "pending_2fa": True, "challenge": cid, "channel": ch}
+            return {"ok": False, "pending_2fa": True, "challenge": cid, "method": "webhook", "channel": ch}
         return _issue(u["token"])
     role = authz.role_for(body.token)
     if role is None:
@@ -1800,6 +1810,48 @@ class LogoutIn(BaseModel):
 @app.post("/api/logout")
 def logout(body: LogoutIn):
     return {"ok": authz.revoke_session((body.session or "").strip())}
+
+
+@app.get("/agent-bundle.tgz")
+def agent_bundle():
+    """A tarball of the agent (maybot_agent + slim deps) so a host can install it
+    straight from the dashboard — no git clone, no registry. Served to the
+    one-command installer below."""
+    import io, tarfile, time as _t
+    buf = io.BytesIO()
+    reqs = "fastapi==0.136.3\nuvicorn==0.48.0\npyyaml==6.0.3\nrequests==2.34.2\npsutil==7.2.2\n"
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        pkg = os.path.join(os.path.dirname(__file__), "..", "maybot_agent")
+        tar.add(os.path.realpath(pkg), arcname="maybot_agent",
+                filter=lambda ti: None if ("__pycache__" in ti.name or ti.name.endswith(".pyc")) else ti)
+        for name, text in (("requirements-agent.txt", reqs),):
+            data = text.encode()
+            info = tarfile.TarInfo(name); info.size = len(data); info.mtime = int(_t.time())
+            tar.addfile(info, io.BytesIO(data))
+        ex = os.path.join(os.path.dirname(__file__), "..", "projects.yaml.example")
+        if os.path.exists(ex):
+            tar.add(os.path.realpath(ex), arcname="projects.yaml.example")
+    return Response(buf.getvalue(), media_type="application/gzip")
+
+
+@app.get("/install-agent.sh")
+def install_agent_sh():
+    return FileResponse("scripts/install-agent.sh", media_type="text/x-shellscript")
+
+
+@app.get("/install-agent.ps1")
+def install_agent_ps1():
+    return FileResponse("scripts/install-agent.ps1", media_type="text/plain")
+
+
+@app.get("/install-ai.sh")
+def install_ai_sh():
+    return FileResponse("scripts/install-ai.sh", media_type="text/x-shellscript")
+
+
+@app.get("/install-ai.ps1")
+def install_ai_ps1():
+    return FileResponse("scripts/install-ai.ps1", media_type="text/plain")
 
 
 @app.get("/api/setup")
@@ -1861,6 +1913,7 @@ def account_password(body: PasswordIn, x_control_token: str = Header(default="")
 
 class TwoFAToggleIn(BaseModel):
     enable: bool
+    method: str = "auto"   # "totp" (authenticator app), "webhook", or "auto"
 
 
 @app.post("/api/account/2fa")
@@ -1869,10 +1922,39 @@ def account_2fa(body: TwoFAToggleIn, x_control_token: str = Header(default="")):
     u = authz.current_user(x_control_token)
     if not u:
         raise HTTPException(400, "no account is associated with this session")
-    if body.enable and not notify.channels():
-        raise HTTPException(400, "set up a notification channel (webhook/Slack/Telegram/email) first")
-    authz.set_2fa(u["name"], body.enable)
-    return {"ok": True, "tfa": body.enable}
+    if not body.enable:
+        authz.set_totp(u["name"], None)    # also clears webhook tfa
+        return {"ok": True, "tfa": False}
+    method = body.method
+    if method == "auto":
+        method = "totp" if not notify.channels() else "webhook"
+    if method == "totp":
+        secret = authz.gen_totp_secret()
+        authz.set_totp(u["name"], secret)
+        return {"ok": True, "tfa": True, "method": "totp", "secret": secret,
+                "uri": authz.totp_uri(u["name"], secret)}
+    if not notify.channels():
+        raise HTTPException(400, "set up a notification channel first, or use an authenticator app (method=totp)")
+    authz.set_2fa(u["name"], True)
+    return {"ok": True, "tfa": True, "method": "webhook"}
+
+
+class ResetPwIn(BaseModel):
+    new: str
+
+
+@app.post("/api/accounts/{name}/reset-password")
+def accounts_reset_password(name: str, body: ResetPwIn, x_control_token: str = Header(default="")):
+    """Operator resets another account's password (e.g., a locked-out user)."""
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(name):
+        raise HTTPException(400, "invalid account name")
+    if not authz.user_by_name(name):
+        raise HTTPException(404, "account not found")
+    if len(body.new or "") < 8:
+        raise HTTPException(400, "new password must be at least 8 characters")
+    authz.set_password(name, body.new)
+    return {"ok": True}
 
 
 # ---- Web Push (VAPID) ----

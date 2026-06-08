@@ -489,6 +489,9 @@ function memberForm(m) {
       <label class='lf-label'>Model</label><input class='lf-input' id='mf-model' value='${m ? esc(m.model || '') : 'nous-hermes'}' placeholder='e.g. nous-hermes · claude-opus-4-8'>
       <label class='lf-label'>Base URL <span class='muted'>(local providers)</span></label><input class='lf-input' id='mf-url' value='${m ? esc(m.base_url || '') : 'http://127.0.0.1:11434'}' placeholder='http://127.0.0.1:11434'>
       <label class='lf-label'>Persona <span class='muted'>(optional)</span></label><textarea class='lf-input' id='mf-persona' rows='3' placeholder='How this member thinks and writes…'>${m ? esc(m.persona || '') : ''}</textarea>
+      ${m ? '' : `<details class='details' style='margin-top:8px'><summary class='muted' style='font-size:12px'>No local AI yet? One-command setup (Ollama + Hermes)</summary>
+        <div class='muted' style='font-size:11px;margin:6px 0'>Run on the machine with the GPU; it installs Ollama, pulls the model, and registers the member here.</div>
+        <pre class='host-cmd'>curl -fsSL ${esc(location.origin)}/install-ai.sh | CONTROL_URL=${esc(location.origin)} CONTROL_TOKEN=&lt;operator-token&gt; bash</pre></details>`}
       <div style='display:flex;gap:8px;margin-top:16px'>
         <button class='sa-btn ghost' id='mf-test' type='button' style='flex:1'>Test AI</button>
         <button class='lf-btn' id='mf-save' style='flex:1;margin-top:0'>Save member</button>
@@ -536,6 +539,35 @@ function injectMemberActions(a) {
   $('ds-del').onclick = () => removeMember(a.name);
 }
 
+/* #14: surface fresh promotions / breakthroughs as a celebratory toast */
+const _seenMilestone = {};
+let _milestoneInit = false;
+function toast(html) {
+  let host = $('toast-host');
+  if (!host) { host = document.createElement('div'); host.id = 'toast-host'; document.body.appendChild(host); }
+  const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = html;
+  host.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 6000);
+}
+function celebrateMilestones() {
+  const fresh = Object.values(PROFILES).map((p) => {
+    const e = (p.events || [])[0];
+    return e && /promotion|broke through|insight/i.test((e.y || '') + ' ' + (e.t || '')) ? { name: p.name, e } : null;
+  }).filter(Boolean);
+  for (const { name, e } of fresh) {
+    const sig = e.y + '|' + e.t;
+    if (_seenMilestone[name] === sig) continue;
+    const isNew = _milestoneInit && _seenMilestone[name] !== undefined;
+    _seenMilestone[name] = sig;
+    if (isNew) {
+      const ico = /broke through/i.test(e.t) ? '🌩' : /promotion/i.test(e.t + e.y) ? '👑' : '✨';
+      toast(`<span class='t-ico'>${ico}</span><span><b>${esc(name)}</b><br><span class='muted'>${esc(e.t)}</span></span>`);
+    }
+  }
+  _milestoneInit = true;
+}
+
 let _manageInit = false;
 async function load() {
   if (previewMode) return;
@@ -547,6 +579,7 @@ async function load() {
   }
   ROWS = (data && data.agents) || [];
   if (!previewMode) { try { const pp = await api('/api/members/profiles'); PROFILES = (pp && pp.profiles) || {}; } catch (_) {} }
+  celebrateMilestones();
   renderPyramid();
   // deep-link: /chamber?inspect=<name> (e.g. clicking a character on the Sect Map)
   const want = new URLSearchParams(location.search).get('inspect');

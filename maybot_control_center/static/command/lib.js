@@ -131,7 +131,10 @@ async function acctAction(act, me) {
   }
   if (act === '2fa') {
     const r = await post('/api/account/2fa', { enable: !me.tfa });
-    if (r && r.ok) initAccount(); else alert((r && r.detail) || 'Could not change 2FA.');
+    if (r && r.ok) {
+      if (r.method === 'totp' && r.secret) prompt('Two-factor on. Add to your authenticator app (or paste this key), then it\'s required at login:\n\n' + (r.uri || ''), r.secret);
+      initAccount();
+    } else alert((r && r.detail) || 'Could not change 2FA.');
     return;
   }
   if (act === 'pw') openPasswordModal(me);

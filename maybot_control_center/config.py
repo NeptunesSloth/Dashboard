@@ -1,7 +1,32 @@
 from pathlib import Path
 import logging
-import yaml
 import os
+import tempfile
+import threading
+import yaml
+
+# Serializes config writes (devices/users/agents/sect). Re-entrant so an endpoint
+# can hold it across a read-modify-write to also avoid lost updates.
+WRITE_LOCK = threading.RLock()
+
+
+def _atomic_write(path: Path, text: str) -> None:
+    """Write text atomically with a UNIQUE temp file, so concurrent writers can
+    never tear each other's output (a shared .tmp name corrupts the file)."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with WRITE_LOCK:
+        fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(text)
+            os.replace(tmp, path)
+        finally:
+            try:
+                if os.path.exists(tmp):
+                    os.remove(tmp)
+            except OSError:
+                pass
 
 _log = logging.getLogger("maybot_control_center")
 
@@ -15,8 +40,11 @@ if not CONTROL_CENTER_TOKEN:
 def load_devices() -> list[dict]:
     if not DEVICES_FILE.exists():
         return []
-    with DEVICES_FILE.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f) or {}
+    try:
+        data = yaml.safe_load(DEVICES_FILE.read_text(encoding="utf-8")) or {}
+    except Exception:
+        _log.warning("devices.yaml could not be parsed — treating as empty")
+        return []
     devices = data.get("devices", [])
     return devices if isinstance(devices, list) else []
 
@@ -45,10 +73,7 @@ def save_devices(devices: list[dict]) -> None:
         "# Each host runs maybot_agent; api_token must equal that host's MAYBOT_API_TOKEN.\n"
     )
     text = header + yaml.safe_dump({"devices": clean}, sort_keys=False, default_flow_style=False, allow_unicode=True)
-    DEVICES_FILE.parent.mkdir(parents=True, exist_ok=True)
-    tmp = DEVICES_FILE.with_name(DEVICES_FILE.name + ".tmp")
-    tmp.write_text(text, encoding="utf-8")
-    tmp.replace(DEVICES_FILE)
+    _atomic_write(DEVICES_FILE, text)
 
 
 def all_devices() -> list[dict]:

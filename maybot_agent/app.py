@@ -4,8 +4,16 @@ from .config import load_projects, HOST, PORT
 from .services.command_runner import run_foreground, start_background, stop_process
 from .services.log_reader import read_logs
 from .adapters import trading_bot, code_project, game_server, website, school, ai_project, local_ai_host, generic
+from . import selfregister
 
 app = FastAPI(title="maybot-agent")
+
+
+@app.on_event("startup")
+def _announce():
+    # Auto-enroll with the control center if MAYBOT_CONTROL_CENTER_URL is set, so a
+    # new host appears on the dashboard automatically — no manual "Add host".
+    selfregister.start()
 
 ADAPTERS = {
     "trading_bot": trading_bot,

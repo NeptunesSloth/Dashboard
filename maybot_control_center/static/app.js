@@ -1630,6 +1630,7 @@ async function renderSectMap() {
   const sec = document.getElementById('map-section');
   const crew = (window.__agents || []).slice();
   if (!crew.length) { sec.classList.add('hidden'); return; }
+  try { const pp = await apiJSON('/api/members/profiles'); window.__rels = (pp && pp.profiles) || {}; } catch (_) {}
   sec.classList.remove('hidden');
 
   const peaks = buildPeaks(crew);
@@ -1893,6 +1894,18 @@ async function renderGroupHall(peak, focusName, instant) {
     const a = posByName[x.name], b = posByName[mate.name];
     const active = ['working', 'queued'].includes(x.status) || ['working', 'queued'].includes(mate.status);
     lines.push(`<line x1='${a.x}' y1='${a.y}' x2='${b.x}' y2='${b.y}' class='collab-line${active ? ' active' : ''}' vector-effect='non-scaling-stroke'/>`);
+  });
+  // sim relationships: bonds (jade) and rivalries (crimson) between members present together
+  const rels = window.__rels || {};
+  present.forEach(x => {
+    ((rels[x.name] || {}).relationships || []).forEach(rl => {
+      if (Math.abs(rl.s) < 40 || !presentByName[rl.name]) return;
+      const key = 'rel|' + [x.name, rl.name].sort().join('|');
+      if (seen.has(key)) return;
+      seen.add(key);
+      const a = posByName[x.name], b = posByName[rl.name];
+      lines.push(`<line x1='${a.x}' y1='${a.y}' x2='${b.x}' y2='${b.y}' class='rel-line ${rl.s >= 0 ? 'good' : 'bad'}' vector-effect='non-scaling-stroke'/>`);
+    });
   });
   if (lines.length) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -2711,7 +2724,14 @@ function openHostForm(host) {
       </div>
       <div id='hf-result' class='host-result muted'></div>
     </div>
-    <details class='details host-wizard'><summary>First time? How to install the agent on that machine</summary>
+    <details class='details host-wizard' open><summary>✨ One command (installs + runs + auto-appears here)</summary>
+      <p class='muted' style='margin:2px 0 8px'>Set <code>MAYBOT_REGISTER_TOKEN</code> on this dashboard, then run this on the bot machine. It downloads the agent from here, installs it as a service, and enrolls itself — the host shows up automatically.</p>
+      <div class='muted' style='font-size:11px'>Linux / macOS:</div>
+      <pre class='host-cmd'>curl -fsSL ${esc(location.origin)}/install-agent.sh | CONTROL_URL=${esc(location.origin)} REGISTER_TOKEN=&lt;enroll-token&gt; bash</pre>
+      <div class='muted' style='font-size:11px;margin-top:6px'>Windows (PowerShell):</div>
+      <pre class='host-cmd'>$env:CONTROL_URL='${esc(location.origin)}'; $env:REGISTER_TOKEN='&lt;enroll-token&gt;'; irm ${esc(location.origin)}/install-agent.ps1 | iex</pre>
+    </details>
+    <details class='details host-wizard'><summary>Or add it manually (install the agent)</summary>
       <ol class='host-steps'>
         <li>On the bot machine, install the agent:
           <pre class='host-cmd'>git clone &lt;your-repo-url&gt; maybot &amp;&amp; cd maybot
@@ -2726,8 +2746,9 @@ pip install -r requirements.txt</pre></li>
     </details>`;
   m.classList.remove('hidden');
   const tokenInput = body.querySelector('#hf-token');
-  const syncRun = () => { const rc = body.querySelector('#hf-runcmd'); const tk = (tokenInput.value || '').trim() || '<token>';
-    rc.textContent = `MAYBOT_API_TOKEN=${tk} .venv/bin/uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100`; };
+  const syncRun = () => { const tk = (tokenInput.value || '').trim() || '<token>';
+    const rc = body.querySelector('#hf-runcmd'); if (rc) rc.textContent = `MAYBOT_API_TOKEN=${tk} .venv/bin/uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100`;
+    const en = body.querySelector('#hf-enroll'); if (en) en.textContent = `MAYBOT_API_TOKEN=${tk} \\\nMAYBOT_CONTROL_CENTER_URL=${location.origin} \\\nMAYBOT_REGISTER_TOKEN=<enroll-token> \\\nMAYBOT_AGENT_URL=http://<this-host-ip>:8100 \\\n.venv/bin/uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100`; };
   tokenInput.oninput = syncRun;
   body.querySelector('#hf-gen').onclick = async () => { const r = await apiJSON('/api/hosts/gen-token'); if (r && r.token) { tokenInput.value = r.token; syncRun(); } };
   body.querySelector('#hf-test').onclick = () => testHostForm(body);
@@ -2805,10 +2826,17 @@ async function renderAccounts() {
     ${(u.projects && u.projects.length) ? `<div class='muted host-bots'>projects: ${u.projects.map(esc).join(', ')}</div>` : ''}
     <div class='host-actions'>
       <button class='btn' data-acct-edit='${esc(u.name)}'>Edit</button>
+      <button class='btn' data-acct-reset='${esc(u.name)}'>Reset PW</button>
       <button class='btn btn-danger' data-acct-del='${esc(u.name)}'>Remove</button>
     </div></div>`).join('');
   list.querySelectorAll('[data-acct-edit]').forEach((b) => b.onclick = () => openAccountForm(accts.find((u) => u.name === b.dataset.acctEdit)));
   list.querySelectorAll('[data-acct-del]').forEach((b) => b.onclick = () => removeAccount(b.dataset.acctDel));
+  list.querySelectorAll('[data-acct-reset]').forEach((b) => b.onclick = async () => {
+    const np = prompt(`New password for ${b.dataset.acctReset} (min 8 chars):`);
+    if (!np) return;
+    const r = await apiPost('/api/accounts/' + encodeURIComponent(b.dataset.acctReset) + '/reset-password', { new: np }, 'Reset password');
+    if (r && r.ok) alert('Password reset.');
+  });
 }
 function openAccountForm(acct) {
   acct = acct || null;
@@ -3238,7 +3266,10 @@ async function acctActConsole(act, me) {
   }
   if (act === '2fa') {
     const r = await apiPost('/api/account/2fa', { enable: !me.tfa }, '2FA');
-    if (r && r.ok) initAccountConsole();
+    if (r && r.ok) {
+      if (r.method === 'totp' && r.secret) prompt('Two-factor on. Add to your authenticator app (or paste this key), then it\'s required at login:\n\n' + (r.uri || ''), r.secret);
+      initAccountConsole();
+    }
     return;
   }
   if (act === 'pw') openPwModalConsole(me);

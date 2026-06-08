@@ -1,0 +1,50 @@
+# Image-based deploy — pull a prebuilt image from GHCR (no local build) and
+# auto-update with Watchtower. Secrets/config come from .env (auto-loaded).
+#
+#   docker compose -f docker-compose.images.yml up -d
+#
+# Watchtower checks GHCR every 5 min and restarts containers when a new image is
+# published (by the publish-images workflow on merge to main).
+services:
+  control-center:
+    image: ghcr.io/neptunessloth/dashboard:latest
+    command: uvicorn maybot_control_center.app:app --host 0.0.0.0 --port 8200
+    ports: ["8200:8200"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    environment:
+      MAYBOT_DB: /data/maybot.db
+      # config persists in the named volume (the in-app managers write these)
+      MAYBOT_DEVICES_FILE: /data/devices.yaml
+      MAYBOT_USERS_FILE: /data/users.yaml
+      MAYBOT_AGENTS_FILE: /data/agents.yaml
+      MAYBOT_SECT_FILE: /data/sect_state.json
+      MAYBOT_CONTROL_CENTER_TOKEN: ${MAYBOT_CONTROL_CENTER_TOKEN:-}
+      MAYBOT_REGISTER_TOKEN: ${MAYBOT_REGISTER_TOKEN:-}
+      MAYBOT_AUTOPILOT: ${MAYBOT_AUTOPILOT:-1}
+      MAYBOT_AUTONOMY: ${MAYBOT_AUTONOMY:-1}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MAYBOT_OBSIDIAN_VAULT: ${MAYBOT_OBSIDIAN_VAULT:-}
+      MAYBOT_WEBHOOK_URL: ${MAYBOT_WEBHOOK_URL:-}
+    volumes:
+      - maybot-data:/data
+    labels: ["com.centurylinklabs.watchtower.enable=true"]
+    restart: unless-stopped
+
+  agent:
+    image: ghcr.io/neptunessloth/dashboard:latest
+    command: uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100
+    ports: ["8100:8100"]
+    environment:
+      MAYBOT_API_TOKEN: ${MAYBOT_API_TOKEN:-change-me}
+    labels: ["com.centurylinklabs.watchtower.enable=true"]
+    restart: unless-stopped
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+    command: --interval 300 --label-enable --cleanup
+    restart: unless-stopped
+
+volumes:
+  maybot-data:
