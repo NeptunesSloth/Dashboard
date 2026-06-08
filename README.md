@@ -1,25 +1,48 @@
 # MayBot Control Center
 
-MayBot Control Center is a **distributed, monitoring-first dashboard** for tracking projects across multiple machines.
+MayBot Control Center is a **distributed monitoring + autonomous-ops dashboard** for the
+bots and projects you run across many machines — wrapped in a cultivation-"sect"
+theme where your LLM agents are sect members who watch, diagnose, and fix the fleet.
 
 It has two components:
 - **`maybot_agent`** — runs on each device that hosts projects/bots; reads local status/logs/metrics and exposes an authenticated HTTP API.
-- **`maybot_control_center`** — central web dashboard that polls all configured agents and shows a unified view.
+- **`maybot_control_center`** — the central web app that polls all configured agents, shows a unified view, and runs the agent crew, governance, and automation.
+
+Everything is driven from **one web app with a shared left rail** — no more old
+"classic" page. You add hosts, accounts, and sect members from inside the site,
+and a sign-in/sign-up screen guards it on first run.
 
 > ⚠️ Security posture: this system is intended for **private/local networks (LAN/VPN)** and should **not be exposed publicly** by default.
 
-![Operations console](docs/img/dashboard-classic.png)
+![Command Hall cockpit](docs/img/dashboard-cockpit.png)
 
 <details>
-<summary>More views — command cockpit, trading cockpit</summary>
+<summary>More views — operations console, trading cockpit, treasury, sect map</summary>
 
-| Command cockpit (`/`) | Trading cockpit (`/trade`) |
+| Operations console (`/console`) | Trading cockpit (`/trade`) |
 |---|---|
-| ![Command cockpit](docs/img/dashboard-cockpit.png) | ![Trading cockpit](docs/img/trade-cockpit.png) |
-
-The Sect Map lives in the operations console (`/console`) under the **Sect Map** tab.
+| ![Operations console](docs/img/dashboard-classic.png) | ![Trading cockpit](docs/img/trade-cockpit.png) |
+| Treasury (`/treasury`) | Sect Map (in `/console`) |
+| ![Treasury](docs/img/treasury.png) | ![Sect Map](docs/img/realm-map.png) |
 
 </details>
+
+### Pages at a glance
+
+The same left rail appears on every page, so any page is one click away:
+
+| Rail item | Route | What it is |
+|---|---|---|
+| 🏛 **Command** | `/` | The Command Hall cockpit — fleet status, alerts, autopilot, KPIs at a glance. |
+| 📈 **Trade** | `/trade` | Trading cockpit — live PnL, positions, quotes, kill-switch / flatten. |
+| 🧠 **Sect Members** | `/chamber` | Rank **pyramid** of every member with their character portrait; click one for the cinematic **dossier** (full RPG sheet + Spirit Root). |
+| ⚔ **Missions** · 📜 **Realms** · 🗺 **Map** · ⛩ **Halls** · ⚙ **Ops** | `/console` | The operations console tabs (agent crew, projects, sect map, group halls, and the in-app **Hosts / Accounts** managers). |
+| 🏦 **Treasury** | `/treasury` | Spirit-stone treasury, veins, stipends, endowments. |
+
+> Coming from an older build? The previous `/classic` page is **gone** — its
+> route is now **`/console`**, restyled to match the Command Hall and driven by
+> the same rail. If your browser still shows a stale console, the fix was a
+> network-first service worker (`maybot-v2`); a hard refresh clears it.
 
 ---
 
@@ -37,10 +60,20 @@ Get the dashboard running on your machine with Docker:
    - **Linux:** `bash launch/install-linux.sh`  → adds a **MayBot Control Center** icon to your apps menu.
    - **Windows:** double-click `launch\install-windows.bat`  → adds **MayBot** shortcuts to Desktop + Start Menu.
    - (Or skip the icon and just run `docker compose up -d`.)
+   - **Prefer no rebuilds?** Run the prebuilt image with auto-update instead:
+     `docker compose -f docker-compose.images.yml up -d` (GHCR image + Watchtower — see [docs/DEPLOY.md](docs/DEPLOY.md)).
 4. **Launch:** click the **MayBot** icon → it opens **http://localhost:8200**. It auto-restarts on crashes/reboots, so you only click once.
-5. **Make it useful:**
-   - Give the agents a brain → [docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md)
-   - Pull data from the machines running your bots → [docs/AGENT_SETUP.md](docs/AGENT_SETUP.md)
+5. **Sign in:** the first time you open it, a **sign-up screen** creates your operator account; after that it's a normal **login** page.
+6. **Make it useful — all from inside the site:**
+   - **Add the machines running your bots:** open **Ops → Hosts → Add host**, or run one command on each bot host (it self-enrolls, no git clone):
+     ```bash
+     curl -fsSL http://YOUR-DASH:8200/install-agent.sh | CONTROL_URL=http://YOUR-DASH:8200 REGISTER_TOKEN=<your-token> bash
+     ```
+   - **Give the sect a brain (local AI):** one command on the AI box installs Ollama + a model and registers the member:
+     ```bash
+     curl -fsSL http://YOUR-DASH:8200/install-ai.sh | CONTROL_URL=http://YOUR-DASH:8200 CONTROL_TOKEN=<operator-token> bash
+     ```
+   - Deeper guides: local AI → [docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md) · agents/hosts → [docs/AGENT_SETUP.md](docs/AGENT_SETUP.md).
 
 Full desktop-app details (stop, update, troubleshoot): [docs/DESKTOP_APP.md](docs/DESKTOP_APP.md).
 
@@ -52,6 +85,81 @@ Full desktop-app details (stop, update, troubleshoot): [docs/DESKTOP_APP.md](doc
 - **[docs/CONTROL_CENTER_SETUP.md](docs/CONTROL_CENTER_SETUP.md)** — set up the dashboard host itself (run, auth/RBAC, connect hosts, features).
 - **[docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md)** — set up the LLM backend (Ollama / OpenAI-compatible / Claude) that powers the agents.
 - **[docs/AGENT_SETUP.md](docs/AGENT_SETUP.md)** — install an agent on each bot host so the dashboard can pull its data.
+
+---
+
+## Manage everything in-app
+
+You no longer have to hand-edit YAML over SSH for day-to-day changes — the
+**Ops** tab has live managers that write the same config files atomically:
+
+- **Hosts manager** — add/edit/remove bot hosts (the old `devices.yaml`). It can
+  **generate a token**, **test the connection** before saving (PASS/FAIL with the
+  exact cause), and shows the one-command installer to paste on a new host.
+- **Accounts manager** — create operator/viewer accounts (the old `users.yaml`),
+  reset passwords, and remove accounts.
+- **Sect Members manager** — add/edit/remove sect members (the old `agents.yaml`):
+  name, role, persona, provider/`base_url`/model, with a **Test AI** button that
+  runs one real completion to confirm the backend answers, plus a **seed** action
+  to bootstrap a starter roster.
+
+Edits take effect immediately (no restart) and persist to disk; the matching
+`*.yaml` files stay the source of truth, so anything you set in the UI is still
+visible (and editable) on disk.
+
+## Accounts & sign-in
+
+A real account system fronts the dashboard:
+
+- **First-run sign-up → login** at `/login`. Sessions are token-backed and
+  persisted; the account bubble (top-right) opens a menu for **change password**,
+  **account details**, and **two-factor**.
+- **Two-factor (2FA):** TOTP (authenticator app — stdlib HMAC-SHA1, no extra
+  deps) and, when an alert webhook is configured, a **webhook OTP** channel.
+- **Password security:** PBKDF2 hashing; a **rate limiter** and **login lockout**
+  blunt brute-force attempts.
+- **Require auth everywhere:** set `MAYBOT_REQUIRE_AUTH=1` to force a valid
+  session on all pages/APIs (open/operator-by-default otherwise, for a trusted
+  LAN). RBAC roles (operator/viewer) and per-project ACLs still apply (see
+  **Access control (RBAC)** and **Auth hardening** below).
+- **Hardening on every response:** `Cache-Control: no-cache` on pages/static and
+  security headers (`X-Content-Type-Options`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy`).
+
+## Sect Members — pyramid, dossier & Spirit Roots
+
+The **Sect Members** page (`/chamber`) replaces the old scrolling name list:
+
+- **Rank pyramid** — members are arranged by sect rank (Sect Master → Elder →
+  Core/Inner/Outer), each shown with its **character portrait**. ("Disciples"
+  means only inner/outer disciples; "sect members" means everyone.)
+- **Cinematic Disciple Inspection View** — clicking a member doesn't just
+  highlight them: the scene dims, blurs, and spotlights the member while a
+  full-height **dossier** slides in — a RimWorld/CK-style character sheet with
+  profile, cultivation, attributes, skills, specialties, traits, relationships,
+  mentor, sect status, equipment, thoughts, life goals, and event history.
+- **Full Spirit Root system** — every member gets a deterministic Spirit Root:
+  root type(s), purity, quality tier, multi-root/mutations, constitutions,
+  potential, tropes, and the bonuses they confer. (Same view is reachable from
+  the console's Sect Map.)
+- **Living simulation** — `sectsim` evolves members in the background: passive
+  cultivation XP (scaled by root purity), insights, shifting relationships, and
+  promotions, persisted to `sect_state.json`. Tune with
+  `MAYBOT_SECT_TICK_SECONDS` and `MAYBOT_SECT_XP_RATE`. Relationship threads are
+  drawn between co-present members on the Sect Map (jade = allies, crimson =
+  rivals).
+
+> No agents configured? Then no members appear — the roster is built from your
+> real sect (`agents.yaml` / the Members manager), not placeholders.
+
+## Per-bot visibility (you *and* the sect)
+
+Every project card exposes its **PnL** and **logs**, and a one-click **Diagnose**
+runs a heuristic log analysis (`/api/diagnose/...`) plus an LLM **explain**
+(`/api/projects/{device}/{project}/explain`). The sect members get the same
+visibility two ways: relevant per-bot context is **auto-injected** into a
+member's prompt when it's assigned a task, and members can pull bot status/logs
+**on demand** through read-only guarded tools.
 
 ---
 
@@ -148,6 +256,13 @@ docker compose up
 > ⚠️ **Autopilot can restart/stop your live bots and run remediation, and agents can auto-run guarded tools and open real PRs.** This is intentional per the chosen configuration. To dial it back, set any of `MAYBOT_AUTOPILOT`, `MAYBOT_AUTONOMY`, `MAYBOT_DELEGATION`, `MAYBOT_PR_ENABLED` to `0` in `.env`. Always set `MAYBOT_CONTROL_CENTER_TOKEN` before exposing the dashboard on any network. Real PRs additionally need `gh` auth (`GH_TOKEN`) and a repo (`MAYBOT_PR_REPO`); without them, fixes are recorded as review-only "proposed PRs". The public status page stays **off** by default.
 
 ---
+
+# Manual setup (from source, without Docker)
+
+> 💡 Most people don't need this. The [Quickstart](#quickstart-5-minutes) (Docker)
+> plus the in-app **Hosts / Accounts / Members** managers and the one-command
+> `install-agent` / `install-ai` enrollers cover the common path. The steps below
+> are the full manual install for when you want to run it straight from source.
 
 ## Prerequisites
 
@@ -536,6 +651,9 @@ projects:
 ## Operations & deployment
 
 - **One-command run:** `docker compose up` brings up the control center (`:8200`) and a co-located agent (`:8100`). Configure via a `.env` file (`ANTHROPIC_API_KEY`, `MAYBOT_CONTROL_CENTER_TOKEN`, `MAYBOT_API_TOKEN`); persistence is on by default (`MAYBOT_DB=/data/maybot.db`).
+- **Prebuilt image + auto-update (hands-off):** CI publishes a GHCR image (`ghcr.io/neptunessloth/dashboard`) on every merge to `main`; `docker compose -f docker-compose.images.yml up -d` runs it with **Watchtower**, which pulls new images and restarts automatically — no rebuilds. See [docs/DEPLOY.md](docs/DEPLOY.md).
+- **One-command host & AI enrollment:** new bot hosts and local-AI members install with a single piped command and **self-enroll** — `GET /install-agent.{sh,ps1}` (host agent, gated by `MAYBOT_REGISTER_TOKEN`) and `GET /install-ai.{sh,ps1}` (Ollama + model + member registration). The agent announces itself to `POST /api/agents/register` on startup, so it appears on the dashboard with no hand-editing of `devices.yaml`. (Windows updater: `launch/update.bat`.)
+- **Run a single uvicorn worker** for now — sessions, the kill-switch, and parts of the sim live in process memory. A snapshot cache (`agents.snapshot`, ~1.5s TTL) keeps the hot endpoints fast under load; multi-worker is safe only after runtime state moves to the shared store (see [docs/DEPLOY.md](docs/DEPLOY.md)).
 - **Prometheus metrics:** `GET /metrics` exposes monitoring + sect stats (devices/projects health, treasury balance, LLM calls/cost, tool calls by status, and per-disciple realm/stones/breakthroughs/techniques) in Prometheus text format for Grafana. It reads only cached/in-memory state, so a scrape never triggers a device poll.
 - **Alerting webhooks:** noteworthy events (incidents, heavenly tribulations) route to Discord/Slack/a generic JSON webhook. Set `MAYBOT_DISCORD_WEBHOOK_URL` / `MAYBOT_SLACK_WEBHOOK_URL` / `MAYBOT_ALERT_WEBHOOK_URL` and choose which events with `MAYBOT_ALERT_EVENTS` (default `incident,tribulation`). The existing health-transition alerts (`MAYBOT_ALERT_STATES`) still apply.
 - **Alert noise control:** health alerts are **deduplicated** (no repeat page for the same project+state within `MAYBOT_ALERT_COOLDOWN_SECONDS`, default 300), **flap-suppressed** (a project changing state `MAYBOT_ALERT_FLAP_THRESHOLD`+ times within `MAYBOT_ALERT_FLAP_WINDOW_SECONDS` is announced once as *flapping*, then muted until it settles), and followed by a **recovery** notice when it returns to ok (`MAYBOT_ALERT_RECOVERY=1`). Webhook delivery retries with backoff (`MAYBOT_WEBHOOK_RETRIES`, default 2).
@@ -669,6 +787,10 @@ Optional control-center environment variables:
 | Variable | Default | Purpose |
 |---|---|---|
 | `MAYBOT_DB` | _(unset)_ | SQLite path for persistence (unset → in-memory) |
+| `MAYBOT_REQUIRE_AUTH` | `0` | Force a valid session on all pages/APIs (else open/operator-by-default) |
+| `MAYBOT_REGISTER_TOKEN` | _(unset)_ | Secret required for host self-enrollment (`/install-agent.*`, `POST /api/agents/register`) |
+| `MAYBOT_SECT_TICK_SECONDS` | _(default)_ | Background sect-simulation tick interval |
+| `MAYBOT_SECT_XP_RATE` | _(default)_ | Passive cultivation XP rate for the sim |
 | `MAYBOT_OBSIDIAN_VAULT` | _(unset)_ | Path to your Obsidian vault; enables agent memory |
 | `MAYBOT_OBSIDIAN_SUBDIR` | `MayBot` | Subfolder agents write into |
 | `MAYBOT_TOOLS_FILE` | `tools.yaml` | Guarded tool allow-list (absent → tools off) |

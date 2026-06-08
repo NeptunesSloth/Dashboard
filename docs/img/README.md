@@ -23,3 +23,4 @@ projects configured.
 | `dashboard-cockpit.png` | Command cockpit (default landing page) | `/` |
 | `trade-cockpit.png` | Trading cockpit (advisor, risk, kill-switch) | `/trade` |
 | `treasury.png` | Sect treasury | `/treasury` |
+| `realm-map.png` | Sect Map (members across the heavens by realm) | `/console` (Map tab) |
