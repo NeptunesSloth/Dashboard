@@ -5,9 +5,12 @@ runs your bots. The agent is the small service the **control center pulls data
 from** — it reads a local `projects.yaml`, inspects your bots (status, health,
 logs, metrics), and exposes that over an authenticated HTTP API on port `8100`.
 
-> Reminder on direction of traffic: **the control center reaches out to the
-> agent.** The agent never connects to the dashboard. So the agent must listen
-> on an address the dashboard can reach, and the two share a secret token.
+> Direction of traffic: by default the agent now **dials out** to the dashboard
+> over a reverse WebSocket tunnel (`MAYBOT_CONTROL_CENTER_URL`), so a host behind
+> NAT/a firewall needs **no inbound port** — the dashboard routes requests down
+> the tunnel. Direct HTTP (the dashboard reaching in to the agent's port) still
+> works as a fallback for hosts set up that way. Either way the two share a
+> secret token. (Set `MAYBOT_TUNNEL=0` to disable the tunnel and use direct HTTP only.)
 
 ```
  THIS host (your bot)                      dashboard host
@@ -63,9 +66,18 @@ Persist it for the service (see step 6). Never commit it.
 
 ## 4. Describe your bots — `projects.yaml`
 
+> **Easiest path: do this from the dashboard.** Once the host is enrolled, open
+> **Ops → Hosts → Manage bots** on the dashboard. Click **Discover** to have the
+> agent suggest bots it can see running, tweak the list, and **Save** — the
+> dashboard writes this host's `projects.yaml` for you over the API. No SSH, no
+> hand-editing YAML. The rest of this section is the underlying file format (and
+> the manual route if you prefer it).
+
 Create `projects.yaml` next to the repo (or point `MAYBOT_PROJECTS_FILE` at it).
 Each entry is one bot/service. Start from `projects.yaml.example`, which has a
-full set of templates. The common fields:
+full set of templates. You can also append one from the host with
+`python -m maybot_agent add-bot --name mybot --type trading_bot --path /srv/bot`.
+The common fields:
 
 | Field | Meaning |
 |---|---|
@@ -274,7 +286,7 @@ the token automatically, and on a token mismatch the host shows **auth error**.
 | **`404` on `/api/ping`, `/api/device`, `/api/projects`**, but `/`, `/healthz`, `/metrics` exist and `/docs` shows a dashboard | **You are running the *control center* on this port, not the agent.** The control center (`maybot_control_center.app:app`, port 8200) and the agent (`maybot_agent.app:app`, port 8100) are different apps. On a bot host run the **agent**: `uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100` (or use the one-line installer). |
 | `401` / device shows **auth error** | `api_token` in `devices.yaml` ≠ this host's `MAYBOT_API_TOKEN`. |
 | `no response (000)` / device **offline** | Agent not running, wrong host/port, agent bound to `127.0.0.1` instead of the LAN IP, or firewall blocking the port. |
-| `0 projects` | `projects.yaml` is empty/missing, or `MAYBOT_PROJECTS_FILE` points elsewhere. |
+| **Connected but `0 projects`** | `projects.yaml` is empty/missing, or you edited a *different* file than the one the agent reads. Run **`python -m maybot_agent doctor`** on the host — it prints the exact projects file in effect and the bot count. Easiest fix: add bots from the dashboard (**Hosts → Manage bots → Discover**), which writes the right file for you. |
 | Bot shows `unknown` status | Process can't be matched — set `pid_file`, `cmdline_contains`, or `process_name`. |
 | `expected but stopped` error | `expect_running: true` but the process isn't found (start it, or relax the field). |
 | Log panel empty | `log_file` path is wrong or unreadable by the agent's user. |

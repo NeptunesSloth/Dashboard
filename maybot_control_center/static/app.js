@@ -377,6 +377,7 @@ async function render() {
     summaryEl.classList.remove('loading');
     window.__lastSummary = data.summary;
     summaryEl.innerHTML = summaryCards(data.summary);
+    renderQuickStart();          // click-and-play onboarding checklist (self-hides when ready)
     devicesEl.innerHTML = renderDevices(data.devices || []);
 
     renderProjects(window.__lastProjects);
@@ -1299,6 +1300,72 @@ document.getElementById('detail-modal').addEventListener('click', (e) => { if (e
   el.innerHTML = `⚠ This dashboard has <b>no authentication configured</b> — anyone who can reach it has full control${meta.autopilot_enabled ? ', including the autopilot' : ''}. Set <code>MAYBOT_CONTROL_CENTER_TOKEN</code> or a <code>users.yaml</code>. <button class='btn auth-dismiss'>Dismiss</button>`;
   el.querySelector('.auth-dismiss').onclick = () => { localStorage.setItem('maybot.auth_warn_dismissed', '1'); el.classList.add('hidden'); };
 })();
+
+// Single source of truth for the one-line agent installer (used by Quick Start
+// and the host-enroll panel) so the curl flags never drift between copies.
+function agentInstallCmd(origin, token) {
+  return `curl -fsSL --connect-timeout 10 --max-time 60 ${origin}/install-agent.sh | CONTROL_URL=${origin} REGISTER_TOKEN=${token} bash`;
+}
+
+// ---- Quick Start: click-and-play onboarding checklist (top of Command) ----
+let __qsDone = false;
+async function renderQuickStart() {
+  const card0 = document.getElementById('quickstart-card');
+  // Once finished or dismissed, stop polling /api/setup entirely.
+  if (__qsDone || localStorage.getItem('maybot.quickstart_dismissed')) { if (card0) card0.remove(); return; }
+  const data = await apiJSON('/api/setup');
+  let card = card0;
+  if (!data || data.checklist_ready) { __qsDone = !!(data && data.checklist_ready); if (card) card.remove(); return; }
+  if (!card) {
+    const host = document.querySelector('.container');
+    if (!host) return;
+    card = document.createElement('div');
+    card.id = 'quickstart-card';
+    card.className = 'card quickstart';
+    host.insertBefore(card, host.firstChild);
+  }
+  const s = data.summary || {};
+  card.innerHTML = `
+    <div class='section-head'><h3>🚀 Quick start</h3>
+      <button class='btn' id='qs-dismiss'>Dismiss</button></div>
+    <p class='muted'>A few clicks to a working dashboard — ${s.online || 0}/${s.hosts || 0} hosts online · ${s.bots || 0} bots tracked.</p>
+    <div class='qs-steps'>${(data.checklist || []).map(qsStep).join('')}</div>
+    <div id='qs-extra'></div>`;
+  card.querySelector('#qs-dismiss').onclick = () => { localStorage.setItem('maybot.quickstart_dismissed', '1'); card.remove(); };
+  card.querySelectorAll('[data-qs-action]').forEach(b => b.onclick = () => qsAction(b.dataset.qsAction, card));
+}
+
+function qsStep(st) {
+  const btn = (!st.done && st.action)
+    ? `<button class='btn btn-primary qs-cta' data-qs-action='${esc(st.action.kind)}'>${esc(st.action.label || 'Go')}</button>` : '';
+  return `<div class='qs-step ${st.done ? 'qs-done' : 'qs-todo'}'>
+    <span class='qs-ico'>${st.done ? '✓' : '○'}</span>
+    <div class='qs-body'><b>${esc(st.title)}</b><div class='muted'>${esc(st.detail)}</div></div>${btn}</div>`;
+}
+
+async function qsAction(kind, card) {
+  if (kind === 'hosts' || kind === 'manage_bots' || kind === 'settings') { setTab('ops'); return; }
+  if (kind === 'install') {
+    let info = {};
+    try { info = (await apiJSON('/api/hosts/enroll-token')) || {}; } catch (_) {}
+    const extra = card.querySelector('#qs-extra');
+    if (!info.token) {
+      extra.innerHTML = `<p class='muted' style='margin-top:8px'>First generate an enroll token in
+        <b>Ops → Hosts → Add a host</b>, then come back — or click below.</p>
+        <button class='btn btn-primary' id='qs-goops'>Open Hosts</button>`;
+      extra.querySelector('#qs-goops').onclick = () => setTab('ops');
+      return;
+    }
+    const cmd = agentInstallCmd(location.origin, info.token);
+    extra.innerHTML = `<p class='muted' style='margin-top:8px'>Run this on a machine that runs your bots:</p>
+      <pre class='host-cmd' style='white-space:pre-wrap'>${esc(cmd)}</pre>
+      <button class='btn' id='qs-copy'>Copy</button>`;
+    extra.querySelector('#qs-copy').onclick = () => {
+      if (navigator.clipboard) navigator.clipboard.writeText(cmd);
+      extra.querySelector('#qs-copy').textContent = 'Copied ✓';
+    };
+  }
+}
 
 function bindAssign() {
   const set = document.getElementById('leader-set');
@@ -2632,10 +2699,55 @@ async function renderReliability() {
   });
 }
 
+// ---- Ops Copilot: ask the fleet in natural language ----
+function renderCopilot() {
+  const sec = document.getElementById('ops-section'); if (!sec) return;
+  if (document.getElementById('copilot-card')) return;     // built once, idempotent
+  const card = document.createElement('div');
+  card.id = 'copilot-card';
+  card.className = 'card copilot';
+  sec.insertBefore(card, sec.firstChild);
+  card.innerHTML = `
+    <div class='section-head'><h3>🤖 Ops Copilot</h3>
+      <span class='muted'>Ask about your fleet in plain English</span></div>
+    <div class='copilot-ask'>
+      <input id='copilot-q' class='lf-input' placeholder='e.g. what needs attention? why is daybot unhealthy?'>
+      <button class='btn btn-primary' id='copilot-go'>Ask</button>
+    </div>
+    <div id='copilot-out'></div>`;
+  const go = () => copilotAsk();
+  card.querySelector('#copilot-go').onclick = go;
+  card.querySelector('#copilot-q').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+}
+
+async function copilotAsk() {
+  const q = document.getElementById('copilot-q');
+  const out = document.getElementById('copilot-out');
+  const question = (q.value || '').trim(); if (!question) return;
+  out.innerHTML = `<div class='muted'>Thinking…</div>`;
+  const r = await apiPost('/api/copilot', { question }, 'Ask copilot');
+  if (!r) { out.innerHTML = `<div class='money-neg'>Copilot unavailable.</div>`; return; }
+  const acts = (r.actions || []).map(a =>
+    `<button class='btn' data-cp-act='${esc(a.kind)}' data-cp-dev='${esc(a.device)}' data-cp-proj='${esc(a.project)}'>${esc(a.label)}</button>`).join(' ');
+  out.innerHTML = `
+    ${r.answer ? `<div class='copilot-answer'>${esc(r.answer)}</div>` : ''}
+    ${r.error && !r.answer ? `<div class='money-neg'>${esc(r.error)}</div>` : ''}
+    ${acts ? `<div class='copilot-actions'><span class='muted'>Suggested actions:</span> ${acts}</div>` : ''}
+    ${r.member ? `<div class='muted copilot-by'>— ${esc(r.member)}</div>` : ''}`;
+  out.querySelectorAll('[data-cp-act]').forEach(b => b.onclick = async () => {
+    if (!confirm(`${b.textContent}?`)) return;
+    b.disabled = true; b.textContent = 'Working…';
+    const ok = await apiPost(`/api/action/${encodeURIComponent(b.dataset.cpDev)}/${encodeURIComponent(b.dataset.cpProj)}/${encodeURIComponent(b.dataset.cpAct)}`, {}, 'Action');
+    b.textContent = ok ? 'Done ✓' : 'Failed';
+    debounced(render, 'cp-act');
+  });
+}
+
 // ---- Ops tab: diagnostics, fleet health, audit log ----
 async function renderOps() {
   const sec = document.getElementById('ops-section');
   if (!sec) return;
+  renderCopilot();      // ops copilot panel (built once)
   bindHostsUI();        // host manager buttons (also bound at load, idempotent)
   renderHosts();        // agent host manager (add/edit/test, no file editing)
   bindAccountsUI();
@@ -2723,12 +2835,14 @@ async function renderHosts() {
       ${names ? `<div class='muted host-bots'>bots: ${names}</div>` : ''}
       ${(!h.online && h.error) ? `<div class='alert alert-warning'>${esc(String(h.error).slice(0, 140))}</div>` : ''}
       <div class='host-actions'>
+        <button class='btn btn-primary' data-host-bots='${esc(h.name)}'>Manage bots</button>
         <button class='btn' data-host-edit='${esc(h.name)}'>Edit</button>
         <button class='btn btn-danger' data-host-del='${esc(h.name)}'>Remove</button>
       </div></div>`;
   }).join('');
   list.querySelectorAll('[data-host-edit]').forEach(b => b.onclick = () => openHostForm(hosts.find(h => h.name === b.dataset.hostEdit)));
   list.querySelectorAll('[data-host-del]').forEach(b => b.onclick = () => removeHost(b.dataset.hostDel));
+  list.querySelectorAll('[data-host-bots]').forEach(b => b.onclick = () => openBotsManager(b.dataset.hostBots));
 }
 
 function openHostForm(host) {
@@ -2793,7 +2907,7 @@ async function renderEnrollSection(body) {
   try { info = (await apiJSON('/api/hosts/enroll-token')) || info; } catch (_) {}
   const tok = info.token || '';
   const shown = tok || '<enroll-token>';
-  const sh = `curl -fsSL --connect-timeout 10 --max-time 60 ${host}/install-agent.sh | CONTROL_URL=${host} REGISTER_TOKEN=${shown} bash`;
+  const sh = agentInstallCmd(host, shown);
   const ps = `$env:CONTROL_URL='${host}'; $env:REGISTER_TOKEN='${shown}'; irm ${host}/install-agent.ps1 | iex`;
   sec.innerHTML = `
     <p class='muted' style='margin:2px 0 8px'>Run this on the bot machine — it downloads the agent from here, installs it as a service, and enrolls itself. The host then appears below automatically.</p>
@@ -2866,6 +2980,78 @@ async function removeHost(name) {
     if (!r.ok) { const j = await r.json().catch(() => ({})); alert('Remove failed: ' + (j.detail || r.status)); return; }
   } catch (e) { alert('Remove failed: ' + e); return; }
   renderHosts(); render();
+}
+
+// ===== Manage a host's bots from the dashboard (no SSH / YAML editing) =====
+async function openBotsManager(name) {
+  let modal = document.getElementById('bots-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'bots-modal';
+    modal.className = 'modal hidden';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class='modal-card' style='max-width:760px'>
+      <div class='section-head'><h3>Bots on “${esc(name)}”</h3>
+        <button class='btn' id='bots-close'>✕</button></div>
+      <p class='muted' style='margin:2px 0 8px'>Edit this host's bots as JSON, then Save — the dashboard writes it to the
+        host's <code>projects.yaml</code> over the API. No SSH needed.
+        <a href='docs/AGENT_SETUP.md' target='_blank' rel='noopener'>Field reference</a>.</p>
+      <div id='bots-status' class='muted'>Loading…</div>
+      <textarea id='bots-json' class='lf-input' rows='16' spellcheck='false'
+        style='font-family:monospace;white-space:pre;width:100%'></textarea>
+      <div id='bots-error' class='money-neg' style='min-height:18px;font-size:12px'></div>
+      <div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px'>
+        <button class='btn' id='bots-discover'>🔍 Discover running bots</button>
+        <button class='btn btn-primary' id='bots-save'>Save</button>
+        <button class='btn' id='bots-cancel'>Cancel</button>
+      </div></div>`;
+  modal.classList.remove('hidden');
+  const ta = modal.querySelector('#bots-json');
+  const status = modal.querySelector('#bots-status');
+  const errEl = modal.querySelector('#bots-error');
+  const close = () => modal.classList.add('hidden');
+  modal.querySelector('#bots-close').onclick = close;
+  modal.querySelector('#bots-cancel').onclick = close;
+
+  const data = await apiJSON('/api/hosts/' + encodeURIComponent(name) + '/projects');
+  const projects = (data && data.projects) || [];
+  ta.value = JSON.stringify(projects, null, 2);
+  status.textContent = `${projects.length} bot(s) configured.`;
+
+  modal.querySelector('#bots-discover').onclick = async () => {
+    errEl.textContent = '';
+    status.textContent = 'Scanning the host…';
+    const d = await apiJSON('/api/hosts/' + encodeURIComponent(name) + '/discover');
+    const cands = (d && d.candidates) || [];
+    if (!cands.length) { status.textContent = 'No candidates found (the agent saw no obvious bots).'; return; }
+    let current = [];
+    try { current = JSON.parse(ta.value || '[]'); } catch (_) { current = []; }
+    const have = new Set(current.map(p => p && p.name));
+    let added = 0;
+    cands.forEach(c => {
+      if (have.has(c.name)) return;
+      const { _source, _detail, ...clean } = c;   // drop discovery-only hints
+      current.push(clean); have.add(c.name); added++;
+    });
+    ta.value = JSON.stringify(current, null, 2);
+    status.textContent = `Added ${added} candidate(s). Review names/types, then Save.`;
+  };
+
+  modal.querySelector('#bots-save').onclick = async () => {
+    errEl.textContent = '';
+    let parsed;
+    try { parsed = JSON.parse(ta.value || '[]'); }
+    catch (e) { errEl.textContent = 'Invalid JSON: ' + e.message; return; }
+    if (!Array.isArray(parsed)) { errEl.textContent = 'Top level must be a JSON array of bots.'; return; }
+    const r = await fetch('/api/hosts/' + encodeURIComponent(name) + '/projects', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ projects: parsed }),
+    });
+    if (!r.ok) { const j = await r.json().catch(() => ({})); errEl.textContent = 'Save failed: ' + (j.detail || r.status); return; }
+    close(); renderHosts(); render();
+  };
 }
 
 // ===== Accounts: create/remove dashboard users (operator only) =====
@@ -3159,7 +3345,9 @@ document.querySelectorAll('.level-btn').forEach(btn => btn.onclick = () => {
   if (selectedProject && selectedProjectDevice) loadLogs(selectedProjectDevice, selectedProject);
 });
 render();
-refreshInterval = setInterval(render, 7000);
+// Live refresh is driven by the SSE 'tick'/'hosts' events (see setupStream).
+// This interval is just a resilient fallback for when SSE can't connect.
+refreshInterval = setInterval(render, 30000);
 startLogsAutoRefresh();
 
 // Live updates via Server-Sent Events — instant refresh on agent/comms/tool changes.
@@ -3176,6 +3364,8 @@ function setupStream() {
     let msg; try { msg = JSON.parse(e.data); } catch (_) { return; }
     if (msg.type === 'comms') debounced(renderComms, 'comms');
     else if (msg.type === 'tools') debounced(renderTools, 'tools');
+    else if (msg.type === 'tick') debounced(render, 'tick', 500);           // server-driven live refresh
+    else if (msg.type === 'hosts') debounced(render, 'hosts', 300);          // host added/removed/enrolled/bots changed
     else if (msg.type === 'agents') {
       if (msg.data && msg.data.event === 'breakthrough' && msg.data.agent) ascend(msg.data.agent);  // ascension cutscene
       if (msg.data && (msg.data.event === 'culled' || msg.data.event === 'struck_down')) {

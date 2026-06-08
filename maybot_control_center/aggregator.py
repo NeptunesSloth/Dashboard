@@ -5,6 +5,11 @@ from .notifier import check_and_notify
 from . import history
 from . import incidents
 
+try:
+    from maybot_agent import __version__ as LATEST_AGENT_VERSION
+except Exception:  # pragma: no cover - agent package always ships alongside
+    LATEST_AGENT_VERSION = "1.0"
+
 _last_summary: dict = {}
 
 
@@ -27,10 +32,15 @@ def _fetch_device(d: dict) -> tuple[dict, list[dict]]:
     proj_resp = call_agent(d, "/api/projects") if reachable else {}
     auth_error = bool(proj_resp.get("auth_error"))
     online = reachable and not auth_error
+    # The agent reports its version in the (already-made) ping payload — capture
+    # it here so the fleet can flag hosts running an outdated agent (no extra call).
+    version = (ping.get("data") or {}).get("version") if reachable else None
     device_row = {
         "name": d.get("name", "unknown"),
         "online": online,
         "auth_error": auth_error,
+        "version": version,
+        "agent_outdated": bool(version) and version != LATEST_AGENT_VERSION,
         "status_code": proj_resp.get("status_code", ping.get("status_code", "unknown")) if reachable else ping.get("status_code", "unknown"),
         "error": (proj_resp.get("error") if auth_error else ping.get("error")),
         "url": d.get("url", "unknown"),
@@ -60,6 +70,8 @@ def aggregate(devices: list[dict]) -> dict:
         "total_devices": len(device_rows),
         "online_devices": sum(1 for x in device_rows if x["online"]),
         "offline_devices": sum(1 for x in device_rows if not x["online"]),
+        "agents_outdated": sum(1 for x in device_rows if x.get("agent_outdated")),
+        "latest_agent_version": LATEST_AGENT_VERSION,
         "total_projects": len(projects),
         "projects_with_warnings_errors": sum(1 for p in projects if p.get("health") in {"warning", "error"}),
         "bots_running": sum(1 for p in projects if p.get("type") == "trading_bot" and p.get("status") == "running"),

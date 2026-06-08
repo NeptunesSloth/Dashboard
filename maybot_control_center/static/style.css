@@ -1331,3 +1331,21 @@ table.fleet tbody tr:hover td { background: rgba(139,92,255,.06); }
 .hall-collab .rel-line { stroke-width: 1.5; stroke-dasharray: 4 3; opacity: .55; }
 .hall-collab .rel-line.good { stroke: #34d399; }
 .hall-collab .rel-line.bad { stroke: #fb5e7e; }
+
+/* Quick Start: click-and-play onboarding checklist (top of Command) */
+.quickstart { border: 1px solid #6366f1; background: linear-gradient(180deg, rgba(99,102,241,.10), rgba(99,102,241,0)); }
+.quickstart .qs-steps { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.qs-step { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,.03); }
+.qs-step .qs-ico { width: 22px; height: 22px; flex: 0 0 22px; display: grid; place-items: center; border-radius: 50%; font-size: 13px; }
+.qs-step.qs-done .qs-ico { background: rgba(52,211,153,.18); color: #34d399; }
+.qs-step.qs-todo .qs-ico { background: rgba(251,191,36,.18); color: #fbbf24; }
+.qs-step .qs-body { flex: 1; min-width: 0; }
+.qs-step.qs-done { opacity: .7; }
+.qs-cta { white-space: nowrap; }
+
+/* Ops Copilot */
+.copilot .copilot-ask { display: flex; gap: 8px; margin: 6px 0; }
+.copilot .copilot-ask #copilot-q { flex: 1; }
+.copilot-answer { white-space: pre-wrap; padding: 10px 12px; border-radius: 8px; background: rgba(139,92,255,.08); border: 1px solid rgba(139,92,255,.25); margin-top: 6px; }
+.copilot-actions { margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.copilot-by { margin-top: 6px; font-style: italic; }

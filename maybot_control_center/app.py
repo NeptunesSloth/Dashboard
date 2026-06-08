@@ -4,14 +4,16 @@ import os
 import queue
 import re
 import secrets
-from fastapi import FastAPI, Header, HTTPException, Query, Request
+import asyncio
+import json as _json
+from fastapi import FastAPI, Header, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse, Response
 from pydantic import BaseModel
 from .config import load_devices, all_devices, save_devices, CONTROL_CENTER_TOKEN
 from . import config as _config
 from . import aggregator
 from .aggregator import aggregate
-from .agent_client import call_agent, post_agent
+from .agent_client import call_agent, post_agent, put_agent
 from . import history
 from . import agents
 from . import comms
@@ -391,6 +393,49 @@ def hosts_test(body: HostTestIn, x_control_token: str = Header(default="")):
     return res
 
 
+class HostProjectsIn(BaseModel):
+    projects: list[dict]
+
+
+@app.get("/api/hosts/{name}/projects")
+def host_projects_get(name: str, x_control_token: str = Header(default="")):
+    """Read a host's editable bot config (proxied to the agent)."""
+    _check_operator(x_control_token)
+    d = _resolve_device(name)
+    r = call_agent(d, "/api/projects/config")
+    if not r.get("online"):
+        raise HTTPException(502, r.get("error") or "agent unreachable")
+    data = r.get("data") or {}
+    return {"projects": data.get("projects", []) if isinstance(data, dict) else []}
+
+
+@app.put("/api/hosts/{name}/projects")
+def host_projects_put(name: str, body: HostProjectsIn, x_control_token: str = Header(default="")):
+    """Replace a host's bot config from the dashboard — no SSH/YAML editing."""
+    _check_operator(x_control_token)
+    d = _resolve_device(name)
+    r = put_agent(d, "/api/projects/config", {"projects": body.projects})
+    if not r.get("online"):
+        # The agent rejects bad config with 400; surface its message verbatim.
+        code = r.get("status_code")
+        raise HTTPException(400 if code == 400 else 502, r.get("error") or "agent unreachable")
+    # The audit middleware already records this mutating call.
+    events.publish("hosts", {"event": "bots_saved", "name": name})
+    return r.get("data") or {"projects": body.projects}
+
+
+@app.get("/api/hosts/{name}/discover")
+def host_discover(name: str, x_control_token: str = Header(default="")):
+    """Heuristic bot candidates from the host, to seed the editor."""
+    _check_operator(x_control_token)
+    d = _resolve_device(name)
+    r = call_agent(d, "/api/discover")
+    if not r.get("online"):
+        raise HTTPException(502, r.get("error") or "agent unreachable")
+    data = r.get("data") or {}
+    return {"candidates": data.get("candidates", []) if isinstance(data, dict) else []}
+
+
 @app.post("/api/hosts")
 def hosts_save(body: HostIn, x_control_token: str = Header(default="")):
     _check_operator(x_control_token)
@@ -419,6 +464,7 @@ def hosts_save(body: HostIn, x_control_token: str = Header(default="")):
             raise HTTPException(409, f"a host named '{name}' already exists")
         devices.append(entry)
     save_devices(devices)
+    events.publish("hosts", {"event": "saved", "name": name})
     return {"ok": True, "name": name}
 
 
@@ -432,6 +478,7 @@ def hosts_delete(name: str, x_control_token: str = Header(default="")):
     if len(remaining) == len(devices):
         raise HTTPException(404, "host not found")
     save_devices(remaining)
+    events.publish("hosts", {"event": "removed", "name": name})
     return {"ok": True}
 
 
@@ -594,6 +641,20 @@ def explain_project(device_name: str, project_name: str, x_control_token: str = 
                 explanation = text.strip()
             break
     return {**d, "explanation": explanation}
+
+
+class CopilotIn(BaseModel):
+    question: str
+
+
+@app.post("/api/copilot")
+def copilot_ask(body: CopilotIn, x_control_token: str = Header(default="")):
+    """Ops Copilot: answer a natural-language question about the fleet, grounded
+    in a fresh poll, and surface conservative one-click remediations."""
+    _check_token(x_control_token)
+    from . import copilot
+    overview = aggregate(all_devices())
+    return copilot.ask(body.question, overview)
 
 
 @app.get("/api/members")
@@ -1512,6 +1573,48 @@ def comms_tournament(body: TournamentIn, x_control_token: str = Header(default="
         raise HTTPException(400, str(exc))
 
 
+@app.websocket("/ws/agent")
+async def agent_tunnel(ws: WebSocket):
+    """Reverse tunnel endpoint: an agent dials out here and authenticates, then
+    the dashboard routes its requests down this socket (no inbound port on the
+    host). Auth = the host's API token, or the shared enroll token."""
+    from . import tunnel
+    await ws.accept()
+    try:
+        hello = _json.loads(await ws.receive_text())
+    except Exception:
+        await ws.close()
+        return
+    name = (hello.get("name") or "").strip()
+    token = hello.get("token") or ""
+    dev = next((d for d in all_devices() if d.get("name") == name), None)
+    authed = bool(name) and (
+        (dev and dev.get("api_token") and secrets.compare_digest(token, dev["api_token"]))
+        or (registry.REGISTER_TOKEN and secrets.compare_digest(token, registry.REGISTER_TOKEN))
+    )
+    if not authed:
+        await ws.send_text(_json.dumps({"t": "hello_ack", "ok": False, "error": "auth"}))
+        await ws.close()
+        return
+    conn = tunnel.Connection(name, ws, asyncio.get_running_loop())
+    tunnel.register(name, conn)
+    await ws.send_text(_json.dumps({"t": "hello_ack", "ok": True}))
+    events.publish("hosts", {"event": "tunnel_up", "name": name})
+    try:
+        while True:
+            msg = _json.loads(await ws.receive_text())
+            if msg.get("t") == "res":
+                conn.resolve(msg.get("id"), msg)
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
+    finally:
+        tunnel.unregister(name, conn)
+        conn.fail_all(ConnectionError("tunnel closed"))
+        events.publish("hosts", {"event": "tunnel_down", "name": name})
+
+
 @app.get("/api/stream")
 def stream(token: str = Query(default="")):
     # EventSource can't send custom headers, so the control token comes as a query param.
@@ -1787,7 +1890,10 @@ def agents_register(body: RegisterIn, x_control_token: str = Header(default=""),
         raise HTTPException(400, "invalid agent name")
     if not (body.url or "").startswith(("http://", "https://")):
         raise HTTPException(400, "url must start with http:// or https://")
-    return registry.register(body.name, body.url, body.api_token, body.timeout)
+    rec = registry.register(body.name, body.url, body.api_token, body.timeout)
+    # A host just self-enrolled — push it to live dashboards instantly.
+    events.publish("hosts", {"event": "enrolled", "name": body.name})
+    return rec
 
 
 class DeregisterIn(BaseModel):
@@ -1905,7 +2011,8 @@ def agent_bundle():
     one-command installer below."""
     import io, tarfile, time as _t
     buf = io.BytesIO()
-    reqs = "fastapi==0.136.3\nuvicorn==0.48.0\npyyaml==6.0.3\nrequests==2.34.2\npsutil==7.2.2\n"
+    reqs = ("fastapi==0.136.3\nuvicorn==0.48.0\npyyaml==6.0.3\nrequests==2.34.2\n"
+            "psutil==7.2.2\nhttpx>=0.27\nwebsockets>=12\n")
     with tarfile.open(fileobj=buf, mode="w:gz") as tar:
         pkg = os.path.join(os.path.dirname(__file__), "..", "maybot_agent")
         tar.add(os.path.realpath(pkg), arcname="maybot_agent",
@@ -1956,8 +2063,12 @@ def setup_status(x_control_token: str = Header(default="")):
         "ai": bool(ai),
         "notifications": len(notify.channels()) > 0,
     }
+    # Action-oriented "Quick Start" checklist (get hosts + bots online and current).
+    from . import setup as setup_mod
+    qs = setup_mod.checklist(devices)
     return {"steps": steps, "done": all(steps.values()),
-            "counts": {"hosts": len(devices), "members": len(members), "accounts": len(users)}}
+            "counts": {"hosts": len(devices), "members": len(members), "accounts": len(users)},
+            "summary": qs["summary"], "checklist": qs["steps"], "checklist_ready": qs["ready"]}
 
 
 @app.get("/api/account/me")

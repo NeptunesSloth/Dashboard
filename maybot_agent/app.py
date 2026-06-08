@@ -1,17 +1,31 @@
+from contextlib import asynccontextmanager
+
 from fastapi import Depends, FastAPI, HTTPException, Query
+from pydantic import BaseModel
 from .auth import verify_token
-from .config import load_projects, HOST, PORT
+from .config import load_projects, save_projects, HOST, PORT
 from .services.command_runner import run_foreground, start_background, stop_process
 from .services.log_reader import read_logs
 from .adapters import trading_bot, code_project, game_server, website, school, ai_project, local_ai_host, generic
 from . import selfregister
+from . import tunnel_client
+from . import __version__ as AGENT_VERSION
 
 import platform
 import socket
 
-app = FastAPI(title="maybot-agent")
 
-AGENT_VERSION = "1.0"
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Auto-enroll with the control center if MAYBOT_CONTROL_CENTER_URL is set, so a
+    # new host appears on the dashboard automatically — no manual "Add host".
+    # (Modern FastAPI lifespan handler; replaces the deprecated @app.on_event.)
+    selfregister.start()
+    tunnel_client.start()   # dial out to the dashboard (no inbound port needed); no-op if disabled
+    yield
+
+
+app = FastAPI(title="maybot-agent", lifespan=lifespan)
 
 
 def _hostname() -> str:
@@ -35,13 +49,6 @@ def _lan_ip() -> str:
         except Exception:
             return "127.0.0.1"
 
-
-
-@app.on_event("startup")
-def _announce():
-    # Auto-enroll with the control center if MAYBOT_CONTROL_CENTER_URL is set, so a
-    # new host appears on the dashboard automatically — no manual "Add host".
-    selfregister.start()
 
 ADAPTERS = {
     "trading_bot": trading_bot,
@@ -101,6 +108,35 @@ def device():
 @app.get("/api/projects", dependencies=[Depends(verify_token)])
 def projects():
     return [adapt_project(p) for p in load_projects()]
+
+
+# --- Dashboard-managed bot config (edit a host's projects from the UI) -------
+
+class ProjectsConfig(BaseModel):
+    projects: list[dict]
+
+
+@app.get("/api/projects/config", dependencies=[Depends(verify_token)])
+def projects_config():
+    """The raw, editable projects list (the source for the dashboard editor)."""
+    return {"projects": load_projects()}
+
+
+@app.put("/api/projects/config", dependencies=[Depends(verify_token)])
+def set_projects_config(body: ProjectsConfig):
+    """Replace this host's projects list and persist it to ``projects.yaml``."""
+    try:
+        saved = save_projects(body.projects)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    return {"projects": saved, "count": len(saved)}
+
+
+@app.get("/api/discover", dependencies=[Depends(verify_token)])
+def discover():
+    """Heuristic candidates (processes/containers) to seed the projects editor."""
+    from .services.discover import discover_candidates
+    return {"candidates": discover_candidates()}
 
 
 @app.get("/api/projects/{name}", dependencies=[Depends(verify_token)])
