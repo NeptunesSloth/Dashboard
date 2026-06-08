@@ -3297,6 +3297,82 @@ async function initAccountConsole() {
   if (!me.authed && me.auth_active) { location.href = '/login'; return; }
   mountAcct(me);
   mountBellConsole();
+  mountSettingsGear(me);
+}
+
+// Password-protected system-settings gear, top-right (operators only).
+function mountSettingsGear(me) {
+  document.getElementById('settings-gear')?.remove();
+  if (!(me && (me.role === 'operator' || me.open_mode))) return;
+  const g = document.createElement('button');
+  g.id = 'settings-gear'; g.className = 'bell settings-gear'; g.title = 'System settings'; g.textContent = '⚙';
+  document.body.append(g);
+  const place = () => { const bubble = document.getElementById('acct-bubble'); const w = bubble ? bubble.offsetWidth : 120; g.style.right = (16 + w + 10 + 40 + 10) + 'px'; };
+  place(); setTimeout(place, 300); addEventListener('resize', place);
+  g.onclick = () => openSettingsModal(me);
+}
+
+function openSettingsModal(me) {
+  document.getElementById('settings-modal')?.remove();
+  const m = document.createElement('div'); m.id = 'settings-modal'; m.className = 'acct-modal';
+  const needPw = !!(me && me.has_password);
+  m.innerHTML = `<div class='acct-modal-box card settings-box'>
+    <h3>🛠 System settings</h3>
+    <div id='sm-gate'>
+      <p class='muted' style='font-size:12.5px;margin:0 0 8px'>${needPw ? 'Confirm your account password to view and edit secrets.' : 'Open mode — no account password is set, so nothing gates this. Add a password in your account menu to protect it.'}</p>
+      ${needPw ? `<label class='lf-label'>Password</label><input class='lf-input' id='sm-pw' type='password' autocomplete='current-password'>` : ''}
+      <button class='lf-btn' id='sm-unlock'>${needPw ? '🔓 Unlock' : 'Open settings'}</button>
+      <div class='lf-err' id='sm-err'></div>
+    </div>
+    <div id='sm-body' class='hidden'></div>
+    <button class='lf-link' id='sm-cancel'>Close</button>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', (e) => { if (e.target === m) m.remove(); });
+  m.querySelector('#sm-cancel').onclick = () => m.remove();
+  let pw = '';
+  const unlock = async () => {
+    const err = m.querySelector('#sm-err'); err.textContent = '';
+    pw = (m.querySelector('#sm-pw')?.value) || '';
+    let data;
+    try {
+      const r = await fetch('/api/settings/unlock', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ password: pw }) });
+      if (!r.ok) { err.textContent = r.status === 403 ? 'Incorrect password.' : ('Error ' + r.status); return; }
+      data = await r.json();
+    } catch (_) { err.textContent = 'Unlock failed.'; return; }
+    m.querySelector('#sm-gate').classList.add('hidden');
+    const body = m.querySelector('#sm-body'); body.classList.remove('hidden');
+    renderSettingsForm(body, data, pw);
+  };
+  m.querySelector('#sm-unlock').onclick = unlock;
+  const pwi = m.querySelector('#sm-pw'); if (pwi) { pwi.onkeydown = (e) => { if (e.key === 'Enter') unlock(); }; pwi.focus(); }
+}
+
+function renderSettingsForm(body, data, pw) {
+  const field = (it) => {
+    if (it.type === 'bool') return `<label class='sm-field sm-bool'><input type='checkbox' data-skey='${it.key}' data-stype='bool' ${it.value === '1' ? 'checked' : ''}><span><b>${esc(it.label)}</b>${it.help ? ` <span class='muted'>${esc(it.help)}</span>` : ''}</span></label>`;
+    const t = it.type === 'secret' ? 'password' : 'text';
+    return `<div class='sm-field'><label><b>${esc(it.label)}</b>${it.type === 'secret' && it.set ? ` <span class='set-on'>set ✓</span>` : ''}</label>
+      <input type='${t}' data-skey='${it.key}' data-stype='${it.type}' value='${esc(it.value || '')}' ${it.type === 'secret' ? "autocomplete='new-password'" : ''}>
+      ${it.help && it.type !== 'bool' ? `<div class='muted set-help'>${esc(it.help)}</div>` : ''}</div>`;
+  };
+  body.innerHTML = `${data.persisted ? '' : `<div class='set-warn'>⚠ Persistence is off (set <code>MAYBOT_DB</code>) — changes apply now but reset on restart.</div>`}
+    ${(data.groups || []).map(g => `<div class='sm-group'><h4>${esc(g.label)}</h4>${g.items.map(field).join('')}</div>`).join('')}
+    <div class='sm-actions'><button class='lf-btn' id='sm-save'>Save settings</button><span class='lf-ok' id='sm-msg'></span></div>`;
+  body.querySelector('#sm-save').onclick = async () => {
+    const values = {};
+    body.querySelectorAll('[data-skey]').forEach(inp => {
+      const k = inp.dataset.skey, ty = inp.dataset.stype;
+      values[k] = ty === 'bool' ? (inp.checked ? '1' : '0') : inp.value.trim();
+    });
+    const msg = body.querySelector('#sm-msg'); msg.textContent = 'Saving…';
+    try {
+      const r = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ values, password: pw }) });
+      const d = await r.json().catch(() => null);
+      if (!r.ok) { msg.textContent = (d && d.detail) || 'Save failed'; return; }
+      msg.textContent = 'Saved ✓'; renderSettingsForm(body, d, pw);
+    } catch (_) { msg.textContent = 'Save failed'; }
+  };
 }
 function mountAcct(me) {
   document.getElementById('acct-bubble')?.remove();

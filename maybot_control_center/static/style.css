@@ -1079,6 +1079,25 @@ table.fleet td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
 .enroll-tok { font-family: ui-monospace, Menlo, monospace; font-size: 11px; word-break: break-all;
   background: rgba(0,0,0,.35); padding: 2px 6px; border-radius: 6px; max-width: 100%; }
 
+/* Top-right password-protected system-settings panel */
+.settings-gear { font-size: 18px; line-height: 1; }
+.acct-modal-box.settings-box { width: min(560px, 94vw); max-width: 94vw; max-height: 86vh; overflow-y: auto; text-align: left; }
+.sm-group { margin: 14px 0 6px; }
+.sm-group h4 { margin: 0 0 8px; font-size: 13px; color: var(--gold); letter-spacing: .03em;
+  border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+.sm-field { margin-bottom: 10px; }
+.sm-field > label { display: block; font-size: 12.5px; margin-bottom: 3px; }
+.sm-field input[type=text], .sm-field input[type=password] { width: 100%; box-sizing: border-box;
+  background: rgba(10,12,22,.6); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 10px; font: inherit; }
+.sm-bool { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+.sm-bool input { margin-top: 3px; }
+.sm-actions { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.sm-actions .lf-btn { width: auto; margin-top: 0; padding: 8px 18px; }
+.set-help { font-size: 11px; margin-top: 3px; }
+.set-on { color: #7bd88f; font-size: 11px; }
+.set-warn { background: rgba(220,180,90,.12); border: 1px solid rgba(220,180,90,.4);
+  border-radius: 8px; padding: 8px 10px; font-size: 12px; margin-bottom: 6px; }
+
 /* ===== unified left rail on the console (mirrors the Command Hall) ===== */
 body { padding-left: 76px; }
 .side-rail { position: fixed; left: 0; top: 0; bottom: 0; width: 76px; z-index: 1400;

@@ -94,8 +94,8 @@ Full desktop-app details (stop, update, troubleshoot): [docs/DESKTOP_APP.md](doc
 
 ## Manage everything in-app
 
-You no longer have to hand-edit YAML over SSH for day-to-day changes — the
-**Ops** tab has live managers that write the same config files atomically:
+You no longer have to hand-edit YAML or `.env` over SSH for day-to-day changes —
+the **Ops** tab and the top-right **⚙ Settings** panel manage it all live:
 
 - **Hosts manager** — add/edit/remove bot hosts (the old `devices.yaml`). It can
   **generate a per-host token**, **test the connection** before saving (PASS/FAIL
@@ -108,10 +108,17 @@ You no longer have to hand-edit YAML over SSH for day-to-day changes — the
   name, role, persona, provider/`base_url`/model, with a **Test AI** button that
   runs one real completion to confirm the backend answers, plus a **seed** action
   to bootstrap a starter roster.
+- **System Settings — top-right ⚙, password-protected** — manage the rest of the
+  config (the old `.env`) from **any page**: AI backend & keys (Anthropic / OpenAI
+  / Ollama), notification channels (Discord / Slack / generic webhook / email /
+  Telegram), automation & security gates (autopilot, tool autonomy, real PRs,
+  delegation, require-sign-in), and sect-sim tuning. Secrets live in the persisted
+  DB, are **masked until you re-enter your account password**, and apply **at
+  runtime** (no restart). An in-app value overrides the matching env default.
 
-Edits take effect immediately (no restart) and persist to disk; the matching
-`*.yaml` files stay the source of truth, so anything you set in the UI is still
-visible (and editable) on disk.
+Edits take effect immediately (no restart) and persist (config managers write the
+`*.yaml` files atomically; system settings persist to the DB when `MAYBOT_DB` is
+set), so the UI and the underlying files/env stay in sync.
 
 ## Accounts & sign-in
 

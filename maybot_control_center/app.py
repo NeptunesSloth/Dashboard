@@ -18,6 +18,7 @@ from . import comms
 from . import memory
 from . import tools as tooling
 from . import store
+from . import settings as app_settings
 from . import events
 from . import autonomy
 from . import usage
@@ -86,7 +87,8 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
                 treasury.load_persisted, taskqueue.load_persisted, oaths.load_persisted,
                 maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
                 audit.load_persisted, inbound.load_persisted, registry.load_persisted,
-                push.load_persisted, acks.load_persisted, authz.load_persisted, risk.load_persisted):
+                push.load_persisted, acks.load_persisted, authz.load_persisted, risk.load_persisted,
+                app_settings.load_persisted):
     try:
         _loader()
     except Exception:
@@ -311,6 +313,51 @@ def hosts_enroll_token_set(body: EnrollTokenIn, x_control_token: str = Header(de
         tok = body.token.strip()
     registry.set_register_token(tok)
     return {"ok": True, "configured": bool(registry.REGISTER_TOKEN), "token": registry.REGISTER_TOKEN}
+
+
+def _verify_account_password(token: str, password: str) -> None:
+    """Gate the secrets panel: re-check the operator's account password.
+
+    In open mode (no account password set) there is nothing to verify against,
+    so access follows the dashboard's own (open) posture.
+    """
+    u = authz.current_user(token)
+    pw_hash = (u or {}).get("pw") or ""
+    if pw_hash and not authz.verify_password(password or "", pw_hash):
+        raise HTTPException(403, "incorrect password")
+
+
+@app.get("/api/settings")
+def settings_get(x_control_token: str = Header(default="")):
+    """System settings with secrets MASKED (status only). Reveal needs /unlock."""
+    _check_operator(x_control_token)
+    return app_settings.view(reveal=False)
+
+
+class SettingsUnlockIn(BaseModel):
+    password: str = ""
+
+
+@app.post("/api/settings/unlock")
+def settings_unlock(body: SettingsUnlockIn, x_control_token: str = Header(default="")):
+    """Password-protected reveal: returns settings incl. secret values."""
+    _check_operator(x_control_token)
+    _verify_account_password(x_control_token, body.password)
+    return {"ok": True, **app_settings.view(reveal=True)}
+
+
+class SettingsIn(BaseModel):
+    values: dict = {}
+    password: str = ""
+
+
+@app.post("/api/settings")
+def settings_set(body: SettingsIn, x_control_token: str = Header(default="")):
+    """Update system settings (password-gated); persisted + applied at runtime."""
+    _check_operator(x_control_token)
+    _verify_account_password(x_control_token, body.password)
+    app_settings.set_many(body.values or {})
+    return {"ok": True, **app_settings.view(reveal=True)}
 
 
 @app.post("/api/hosts/test")
