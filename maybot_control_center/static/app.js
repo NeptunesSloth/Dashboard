@@ -2753,6 +2753,47 @@ async function restoreBackup(file) {
   renderHosts(); render();
 }
 
+// ---- Safe mode / panic button: halt all automation instantly ----
+async function renderSafemodeCard() {
+  const sec = document.getElementById('ops-section'); if (!sec) return;
+  let card = document.getElementById('safemode-card');
+  if (!card) {
+    card = document.createElement('div');
+    card.id = 'safemode-card';
+    card.className = 'card';
+    sec.insertBefore(card, sec.firstChild);
+  }
+  const s = (await apiJSON('/api/safemode')) || {};
+  const on = !!s.engaged;
+  card.innerHTML = `
+    <div class='section-head'><h3>🛑 Safe mode</h3>
+      <span class='${on ? 'money-neg' : 'muted'}'>${on ? 'ENGAGED — automation halted' : 'off — automation running'}</span></div>
+    <p class='muted'>One switch to freeze all automation (autopilot, escalation, scheduled missions, self-healing).
+      Manual actions still work. Use it the moment something automated misbehaves.</p>
+    <button class='btn ${on ? 'btn-primary' : 'btn-danger'}' id='sm-toggle'>${on ? 'Resume automation' : '🛑 Engage safe mode'}</button>`;
+  card.querySelector('#sm-toggle').onclick = async () => {
+    if (!on && !confirm('Engage safe mode? All automation stops until you resume.')) return;
+    await apiPost('/api/safemode', { engaged: !on }, 'Safe mode');
+    renderSafemodeCard(); refreshSafemodeBanner();
+  };
+}
+
+async function refreshSafemodeBanner() {
+  const s = (await apiJSON('/api/safemode')) || {};
+  let b = document.getElementById('safemode-banner');
+  if (!s.engaged) { if (b) b.remove(); return; }
+  if (!b) {
+    const host = document.querySelector('.container');
+    if (!host) return;
+    b = document.createElement('div');
+    b.id = 'safemode-banner';
+    b.className = 'error-banner';
+    host.insertBefore(b, host.firstChild);
+  }
+  b.innerHTML = `🛑 <b>Safe mode is engaged</b> — all automation is halted. <button class='btn' id='smb-resume'>Resume</button>`;
+  b.querySelector('#smb-resume').onclick = async () => { await apiPost('/api/safemode', { engaged: false }, 'Safe mode'); refreshSafemodeBanner(); };
+}
+
 // ---- Dead-man's switch: external heartbeat so the dashboard's own death pages you ----
 async function renderDeadmanCard() {
   const sec = document.getElementById('ops-section'); if (!sec) return;
@@ -2840,6 +2881,7 @@ async function renderOps() {
   const sec = document.getElementById('ops-section');
   if (!sec) return;
   renderCopilot();      // ops copilot panel (built once)
+  renderSafemodeCard(); // panic button (built once)
   renderBackupCard();   // backup / restore (built once)
   renderDeadmanCard();  // dead-man's switch (built once)
   bindHostsUI();        // host manager buttons (also bound at load, idempotent)
@@ -3615,6 +3657,7 @@ function setupStream() {
     else if (msg.type === 'tools') debounced(renderTools, 'tools');
     else if (msg.type === 'tick') debounced(render, 'tick', 500);           // server-driven live refresh
     else if (msg.type === 'hosts') debounced(render, 'hosts', 300);          // host added/removed/enrolled/bots changed
+    else if (msg.type === 'safemode') refreshSafemodeBanner();               // panic button toggled
     else if (msg.type === 'agents') {
       if (msg.data && msg.data.event === 'breakthrough' && msg.data.agent) ascend(msg.data.agent);  // ascension cutscene
       if (msg.data && (msg.data.event === 'culled' || msg.data.event === 'struck_down')) {
@@ -3664,6 +3707,7 @@ buildSideRail();
 setTab(localStorage.getItem('tab') || 'overview');
 
 setupStream();
+refreshSafemodeBanner();   // show the panic-mode banner if it's engaged at load
 
 // ---- Login overlay (token sign-in) ----
 function showLogin() { const o = document.getElementById('login-overlay'); if (o) o.classList.remove('hidden'); }

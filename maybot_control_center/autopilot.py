@@ -313,7 +313,8 @@ def _perform_action(p: dict, plan: dict, coder: str | None = None, pr_mode: str 
 # ---- the loop --------------------------------------------------------------
 def handle(projects: list[dict], now: float | None = None) -> list[tuple]:
     """One pass of the detect→diagnose→act→verify loop. Returns (key, outcome) tuples."""
-    if not ENABLED or _paused:
+    from . import safemode
+    if not ENABLED or _paused or safemode.engaged():
         return []
     leader = _leader()
     if not leader:
@@ -416,7 +417,8 @@ def handle(projects: list[dict], now: float | None = None) -> list[tuple]:
 
 
 def tick() -> list[tuple]:
-    if not ENABLED or _paused:
+    from . import safemode
+    if not ENABLED or _paused or safemode.engaged():
         return []
     from . import aggregator
     from .config import all_devices

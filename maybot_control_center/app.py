@@ -102,6 +102,8 @@ reports.start()    # periodic summary reports (no-op unless MAYBOT_REPORT_INTERV
 retention.start()  # data-retention pruning + scheduled backups (no-op unless configured)
 from . import deadman
 deadman.start()    # external heartbeat: if the dashboard dies, your monitor pages you (no-op until configured)
+from . import safemode
+safemode.load_persisted()   # restore the panic-button state across restarts
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 # A silence target: "*", "device:*", or "device:project".
@@ -232,6 +234,26 @@ def deadman_set(body: DeadmanIn, x_control_token: str = Header(default="")):
 def deadman_test(x_control_token: str = Header(default="")):
     _check_operator(x_control_token)
     return {"ok": deadman.ping_once(), **deadman.status()}
+
+
+class SafemodeIn(BaseModel):
+    engaged: bool
+
+
+@app.get("/api/safemode")
+def safemode_get(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import safemode
+    return safemode.status()
+
+
+@app.post("/api/safemode")
+def safemode_set(body: SafemodeIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import safemode
+    safemode.set_engaged(body.engaged)
+    events.publish("safemode", {"engaged": body.engaged})
+    return safemode.status()
 
 
 @app.get("/api/overview")
