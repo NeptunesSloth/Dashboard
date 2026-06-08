@@ -377,6 +377,7 @@ async function render() {
     summaryEl.classList.remove('loading');
     window.__lastSummary = data.summary;
     summaryEl.innerHTML = summaryCards(data.summary);
+    renderQuickStart();          // click-and-play onboarding checklist (self-hides when ready)
     devicesEl.innerHTML = renderDevices(data.devices || []);
 
     renderProjects(window.__lastProjects);
@@ -1299,6 +1300,72 @@ document.getElementById('detail-modal').addEventListener('click', (e) => { if (e
   el.innerHTML = `⚠ This dashboard has <b>no authentication configured</b> — anyone who can reach it has full control${meta.autopilot_enabled ? ', including the autopilot' : ''}. Set <code>MAYBOT_CONTROL_CENTER_TOKEN</code> or a <code>users.yaml</code>. <button class='btn auth-dismiss'>Dismiss</button>`;
   el.querySelector('.auth-dismiss').onclick = () => { localStorage.setItem('maybot.auth_warn_dismissed', '1'); el.classList.add('hidden'); };
 })();
+
+// Single source of truth for the one-line agent installer (used by Quick Start
+// and the host-enroll panel) so the curl flags never drift between copies.
+function agentInstallCmd(origin, token) {
+  return `curl -fsSL --connect-timeout 10 --max-time 60 ${origin}/install-agent.sh | CONTROL_URL=${origin} REGISTER_TOKEN=${token} bash`;
+}
+
+// ---- Quick Start: click-and-play onboarding checklist (top of Command) ----
+let __qsDone = false;
+async function renderQuickStart() {
+  const card0 = document.getElementById('quickstart-card');
+  // Once finished or dismissed, stop polling /api/setup entirely.
+  if (__qsDone || localStorage.getItem('maybot.quickstart_dismissed')) { if (card0) card0.remove(); return; }
+  const data = await apiJSON('/api/setup');
+  let card = card0;
+  if (!data || data.checklist_ready) { __qsDone = !!(data && data.checklist_ready); if (card) card.remove(); return; }
+  if (!card) {
+    const host = document.querySelector('.container');
+    if (!host) return;
+    card = document.createElement('div');
+    card.id = 'quickstart-card';
+    card.className = 'card quickstart';
+    host.insertBefore(card, host.firstChild);
+  }
+  const s = data.summary || {};
+  card.innerHTML = `
+    <div class='section-head'><h3>🚀 Quick start</h3>
+      <button class='btn' id='qs-dismiss'>Dismiss</button></div>
+    <p class='muted'>A few clicks to a working dashboard — ${s.online || 0}/${s.hosts || 0} hosts online · ${s.bots || 0} bots tracked.</p>
+    <div class='qs-steps'>${(data.checklist || []).map(qsStep).join('')}</div>
+    <div id='qs-extra'></div>`;
+  card.querySelector('#qs-dismiss').onclick = () => { localStorage.setItem('maybot.quickstart_dismissed', '1'); card.remove(); };
+  card.querySelectorAll('[data-qs-action]').forEach(b => b.onclick = () => qsAction(b.dataset.qsAction, card));
+}
+
+function qsStep(st) {
+  const btn = (!st.done && st.action)
+    ? `<button class='btn btn-primary qs-cta' data-qs-action='${esc(st.action.kind)}'>${esc(st.action.label || 'Go')}</button>` : '';
+  return `<div class='qs-step ${st.done ? 'qs-done' : 'qs-todo'}'>
+    <span class='qs-ico'>${st.done ? '✓' : '○'}</span>
+    <div class='qs-body'><b>${esc(st.title)}</b><div class='muted'>${esc(st.detail)}</div></div>${btn}</div>`;
+}
+
+async function qsAction(kind, card) {
+  if (kind === 'hosts' || kind === 'manage_bots' || kind === 'settings') { setTab('ops'); return; }
+  if (kind === 'install') {
+    let info = {};
+    try { info = (await apiJSON('/api/hosts/enroll-token')) || {}; } catch (_) {}
+    const extra = card.querySelector('#qs-extra');
+    if (!info.token) {
+      extra.innerHTML = `<p class='muted' style='margin-top:8px'>First generate an enroll token in
+        <b>Ops → Hosts → Add a host</b>, then come back — or click below.</p>
+        <button class='btn btn-primary' id='qs-goops'>Open Hosts</button>`;
+      extra.querySelector('#qs-goops').onclick = () => setTab('ops');
+      return;
+    }
+    const cmd = agentInstallCmd(location.origin, info.token);
+    extra.innerHTML = `<p class='muted' style='margin-top:8px'>Run this on a machine that runs your bots:</p>
+      <pre class='host-cmd' style='white-space:pre-wrap'>${esc(cmd)}</pre>
+      <button class='btn' id='qs-copy'>Copy</button>`;
+    extra.querySelector('#qs-copy').onclick = () => {
+      if (navigator.clipboard) navigator.clipboard.writeText(cmd);
+      extra.querySelector('#qs-copy').textContent = 'Copied ✓';
+    };
+  }
+}
 
 function bindAssign() {
   const set = document.getElementById('leader-set');
@@ -2795,7 +2862,7 @@ async function renderEnrollSection(body) {
   try { info = (await apiJSON('/api/hosts/enroll-token')) || info; } catch (_) {}
   const tok = info.token || '';
   const shown = tok || '<enroll-token>';
-  const sh = `curl -fsSL --connect-timeout 10 --max-time 60 ${host}/install-agent.sh | CONTROL_URL=${host} REGISTER_TOKEN=${shown} bash`;
+  const sh = agentInstallCmd(host, shown);
   const ps = `$env:CONTROL_URL='${host}'; $env:REGISTER_TOKEN='${shown}'; irm ${host}/install-agent.ps1 | iex`;
   sec.innerHTML = `
     <p class='muted' style='margin:2px 0 8px'>Run this on the bot machine — it downloads the agent from here, installs it as a service, and enrolls itself. The host then appears below automatically.</p>

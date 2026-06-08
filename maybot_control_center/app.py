@@ -1998,8 +1998,12 @@ def setup_status(x_control_token: str = Header(default="")):
         "ai": bool(ai),
         "notifications": len(notify.channels()) > 0,
     }
+    # Action-oriented "Quick Start" checklist (get hosts + bots online and current).
+    from . import setup as setup_mod
+    qs = setup_mod.checklist(devices)
     return {"steps": steps, "done": all(steps.values()),
-            "counts": {"hosts": len(devices), "members": len(members), "accounts": len(users)}}
+            "counts": {"hosts": len(devices), "members": len(members), "accounts": len(users)},
+            "summary": qs["summary"], "checklist": qs["steps"], "checklist_ready": qs["ready"]}
 
 
 @app.get("/api/account/me")

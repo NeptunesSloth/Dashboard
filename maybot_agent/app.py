@@ -8,6 +8,7 @@ from .services.command_runner import run_foreground, start_background, stop_proc
 from .services.log_reader import read_logs
 from .adapters import trading_bot, code_project, game_server, website, school, ai_project, local_ai_host, generic
 from . import selfregister
+from . import __version__ as AGENT_VERSION
 
 import platform
 import socket
@@ -23,8 +24,6 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="maybot-agent", lifespan=lifespan)
-
-AGENT_VERSION = "1.0"
 
 
 def _hostname() -> str:
