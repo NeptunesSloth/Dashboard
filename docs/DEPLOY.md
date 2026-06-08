@@ -21,3 +21,10 @@ No rebuilds, no manual updates. (First time: make the GHCR package public, or
 - **Host (bot machine):** `curl -fsSL <DASH>/install-agent.sh | CONTROL_URL=<DASH> REGISTER_TOKEN=<tok> bash` — self-enrolls.
 - **Local AI member:** `curl -fsSL <DASH>/install-ai.sh | CONTROL_URL=<DASH> CONTROL_TOKEN=<op> bash` — installs Ollama + model, registers the member.
 (Windows: the `.ps1` equivalents at `/install-agent.ps1` and `/install-ai.ps1`.)
+
+## Scaling note (#2)
+Run a **single uvicorn worker** for now. Sessions, the kill‑switch, and parts of
+the sim live in process memory, so `--workers N` would split that state across
+processes (you'd get logged out at random, etc.). Multi‑worker is safe only after
+runtime state is moved to the shared store (roadmap #3). The snapshot cache + the
+async I/O already give plenty of headroom for a LAN operator.
