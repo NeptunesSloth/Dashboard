@@ -64,7 +64,10 @@ def verify_password(pw: str, stored: str) -> bool:
 def load_users() -> list[dict]:
     if not USERS_FILE.exists():
         return []
-    data = yaml.safe_load(USERS_FILE.read_text(encoding="utf-8")) or {}
+    try:
+        data = yaml.safe_load(USERS_FILE.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return []
     users = data.get("users", [])
     return users if isinstance(users, list) else []
 
@@ -92,10 +95,8 @@ def save_users(users: list[dict]) -> None:
               "# Each token grants its role (operator can mutate, viewer is read-only).\n"
               "# 'pw' is a salted PBKDF2 hash; never store plaintext. Keep this file secret.\n")
     text = header + yaml.safe_dump({"users": clean}, sort_keys=False, allow_unicode=True)
-    USERS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    tmp = USERS_FILE.with_name(USERS_FILE.name + ".tmp")
-    tmp.write_text(text, encoding="utf-8")
-    tmp.replace(USERS_FILE)
+    from .config import _atomic_write
+    _atomic_write(USERS_FILE, text)
 
 
 def set_password(name: str, pw: str) -> bool:

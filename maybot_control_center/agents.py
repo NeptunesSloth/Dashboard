@@ -67,8 +67,10 @@ def load_agents() -> list[dict]:
     if not AGENTS_FILE.exists():
         base: list[dict] = []
     else:
-        with AGENTS_FILE.open("r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
+        try:
+            data = yaml.safe_load(AGENTS_FILE.read_text(encoding="utf-8")) or {}
+        except Exception:
+            data = {}
         agents = data.get("agents", [])
         base = agents if isinstance(agents, list) else []
     with _roster_lock:
@@ -84,7 +86,10 @@ def file_agents() -> list[dict]:
     """The raw roster as stored in agents.yaml (no in-memory recruit/retire overlay)."""
     if not AGENTS_FILE.exists():
         return []
-    data = yaml.safe_load(AGENTS_FILE.read_text(encoding="utf-8")) or {}
+    try:
+        data = yaml.safe_load(AGENTS_FILE.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return []
     a = data.get("agents", [])
     return a if isinstance(a, list) else []
 
@@ -95,10 +100,8 @@ def save_agents(agents: list[dict]) -> None:
               "# Each needs an AI backend: provider ollama|openai_compatible (with base_url)\n"
               "# or claude (needs ANTHROPIC_API_KEY). Keep API keys in the environment.\n")
     text = header + yaml.safe_dump({"agents": agents}, sort_keys=False, allow_unicode=True)
-    AGENTS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    tmp = AGENTS_FILE.with_name(AGENTS_FILE.name + ".tmp")
-    tmp.write_text(text, encoding="utf-8")
-    tmp.replace(AGENTS_FILE)
+    from .config import _atomic_write
+    _atomic_write(AGENTS_FILE, text)
     invalidate_snapshot()
 
 
