@@ -372,7 +372,6 @@ async function render() {
     notifyHealthChanges(data.projects || []);
     window.__lastProjects = data.projects || [];
     err.classList.add('hidden');
-    document.getElementById('refresh-status').textContent = new Date().toLocaleTimeString();
     document.getElementById('device-count-pill').textContent = `${data.summary.online_devices} online / ${data.summary.offline_devices} offline`;
 
     summaryEl.classList.remove('loading');
@@ -3116,7 +3115,6 @@ function renderProjects(projects) {
   bindProjectButtons(projectsEl);
 }
 
-document.getElementById('manual-refresh').onclick = render;
 function updateViewToggleLabel() {
   document.getElementById('toggle-view').textContent = viewMode === 'base' ? 'Disciples' : 'Sect Hall';
   document.body.classList.toggle('base-mode', viewMode === 'base');
@@ -3156,19 +3154,6 @@ document.querySelectorAll('.level-btn').forEach(btn => btn.onclick = () => {
   selectedLogLevel = btn.getAttribute('data-level') || 'ALL';
   if (selectedProject && selectedProjectDevice) loadLogs(selectedProjectDevice, selectedProject);
 });
-document.getElementById('toggle-refresh').onclick = () => {
-  refreshPaused = !refreshPaused;
-  document.getElementById('toggle-refresh').textContent = refreshPaused ? 'Resume Auto' : 'Pause Auto';
-  if (refreshPaused) clearInterval(refreshInterval);
-  else refreshInterval = setInterval(render, 7000);
-};
-
-const tokenInput = document.getElementById('control-token');
-tokenInput.value = getControlToken();
-document.getElementById('save-control-token').onclick = () => {
-  localStorage.setItem(CONTROL_TOKEN_STORAGE_KEY, tokenInput.value || '');
-};
-
 render();
 refreshInterval = setInterval(render, 7000);
 startLogsAutoRefresh();
