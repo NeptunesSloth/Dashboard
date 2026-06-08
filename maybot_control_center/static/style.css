@@ -1349,3 +1349,10 @@ table.fleet tbody tr:hover td { background: rgba(139,92,255,.06); }
 .copilot-answer { white-space: pre-wrap; padding: 10px 12px; border-radius: 8px; background: rgba(139,92,255,.08); border: 1px solid rgba(139,92,255,.25); margin-top: 6px; }
 .copilot-actions { margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .copilot-by { margin-top: 6px; font-style: italic; }
+
+/* Add-host wizard + per-type bot forms */
+.aw-steps { padding-left: 18px; margin: 6px 0; }
+.aw-steps li { margin: 10px 0; }
+.bot-list { display: flex; flex-direction: column; gap: 8px; }
+.bot-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.bf-check { display: flex; align-items: center; gap: 8px; margin: 8px 0; }

@@ -2797,7 +2797,7 @@ async function renderOps() {
 // ===== Hosts: add/edit/test agent hosts from the dashboard =====
 function bindHostsUI() {
   const add = document.getElementById('host-add');
-  if (add && !add.dataset.bound) { add.dataset.bound = '1'; add.onclick = () => openHostForm(); }
+  if (add && !add.dataset.bound) { add.dataset.bound = '1'; add.onclick = () => openAddHostWizard(); }
   const ref = document.getElementById('host-refresh');
   if (ref && !ref.dataset.bound) { ref.dataset.bound = '1'; ref.onclick = () => renderHosts(); }
   const close = document.getElementById('host-close');
@@ -2820,7 +2820,7 @@ async function renderHosts() {
       <h3>No hosts yet</h3>
       <p class='muted'>A “host” is a machine running your bots with the <b>maybot_agent</b> service. Add one to start pulling its bots, PnL and logs.</p>
       <button class='btn btn-primary' id='host-add-empty'>+ Add your first host</button></div>`;
-    const b = document.getElementById('host-add-empty'); if (b) b.onclick = () => openHostForm();
+    const b = document.getElementById('host-add-empty'); if (b) b.onclick = () => openAddHostWizard();
     return;
   }
   list.innerHTML = hosts.map(h => {
@@ -2983,6 +2983,96 @@ async function removeHost(name) {
 }
 
 // ===== Manage a host's bots from the dashboard (no SSH / YAML editing) =====
+// ===== Add-a-host wizard: guided install + live "it connected" detection =====
+async function openAddHostWizard() {
+  let modal = document.getElementById('addhost-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'addhost-modal';
+    modal.className = 'modal hidden';
+    document.body.appendChild(modal);
+  }
+  modal.classList.remove('hidden');
+  let poll = null;
+  const close = () => { if (poll) { clearInterval(poll); poll = null; } modal.classList.add('hidden'); };
+
+  // Snapshot existing hosts so we can spot the new one when it self-enrolls.
+  const before = new Set((((await apiJSON('/api/hosts')) || {}).hosts || []).map(h => h.name));
+
+  // Make sure an enroll token exists (generate one if needed).
+  let info = {};
+  try { info = (await apiJSON('/api/hosts/enroll-token')) || {}; } catch (_) {}
+  let token = info.token;
+  if (!token) {
+    try {
+      const r = await fetch('/api/hosts/enroll-token', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify({ generate: true }) });
+      token = (await r.json()).token;
+    } catch (_) {}
+  }
+  const sh = token ? agentInstallCmd(location.origin, token) : '';
+
+  modal.innerHTML = `
+    <div class='modal-card' style='max-width:720px'>
+      <div class='section-head'><h3>Add a host</h3><button class='btn' id='aw-close'>✕</button></div>
+      <ol class='aw-steps'>
+        <li><b>Run this on the machine that runs your bots.</b> It installs the agent, which dials back here — no inbound port needed.
+          ${sh ? `<pre class='host-cmd' style='white-space:pre-wrap'>${esc(sh)}</pre><button class='btn' id='aw-copy'>Copy</button>`
+                : `<div class='money-neg'>Couldn't get an enroll token — add the host manually instead.</div>`}
+        </li>
+        <li><b>Wait for it to appear.</b> <span id='aw-wait' class='muted'>Watching for a new host…</span></li>
+      </ol>
+      <div style='display:flex;gap:8px;margin-top:8px;align-items:center'>
+        <button class='btn' id='aw-manual'>Add manually instead</button>
+        <span style='flex:1'></span>
+        <button class='btn btn-primary hidden' id='aw-finish'>Finish</button>
+      </div></div>`;
+  modal.querySelector('#aw-close').onclick = close;
+  const copy = modal.querySelector('#aw-copy');
+  if (copy) copy.onclick = () => { if (navigator.clipboard) navigator.clipboard.writeText(sh); copy.textContent = 'Copied ✓'; };
+  modal.querySelector('#aw-manual').onclick = () => { close(); openHostForm(); };
+  const finish = modal.querySelector('#aw-finish');
+  finish.onclick = () => { close(); renderHosts(); render(); };
+
+  poll = setInterval(async () => {
+    const hs = (((await apiJSON('/api/hosts')) || {}).hosts || []);
+    const fresh = hs.find(h => !before.has(h.name));
+    if (fresh) {
+      clearInterval(poll); poll = null;
+      modal.querySelector('#aw-wait').innerHTML = `<span class='money-pos'>✓ “${esc(fresh.name)}” connected!</span>`;
+      finish.classList.remove('hidden');
+      renderHosts();
+    }
+  }, 3000);
+}
+
+// ===== Per-type bot forms (friendly editor for a host's projects.yaml) =====
+const BOT_TYPES = ['trading_bot', 'website', 'local_ai_host', 'game_server', 'school', 'ai_project', 'code_project', 'generic'];
+const _BF_PROC = [
+  { k: 'path', label: 'Path', ph: '/home/me/bot', hint: 'project dir' },
+  { k: 'expect_running', label: 'Expect running', type: 'bool', hint: 'stopped → error' },
+  { k: 'cmdline_contains', label: 'Cmdline contains', ph: 'tradebot' },
+  { k: 'pid_file', label: 'PID file', ph: 'run/bot.pid' },
+  { k: 'process_name', label: 'Process name', ph: 'python' },
+  { k: 'log_file', label: 'Log file', ph: '/home/me/bot/logs/bot.log' },
+];
+const BOT_FIELDS = {
+  trading_bot: [..._BF_PROC, { k: 'database', label: 'Database', ph: 'data/trades.sqlite3' }],
+  website: [{ k: 'health_url', label: 'Health URL', ph: 'https://example.com/health' }, { k: 'expect_text', label: 'Expect text', ph: 'OK' }, { k: 'max_response_ms', label: 'Max response ms', type: 'number' }, { k: 'check_cert', label: 'Check TLS cert', type: 'bool' }],
+  local_ai_host: [{ k: 'provider', label: 'Provider', ph: 'ollama' }, { k: 'base_url', label: 'Base URL', ph: 'http://127.0.0.1:11434' }, { k: 'health_url', label: 'Health URL', ph: 'http://127.0.0.1:11434/api/tags' }, { k: 'default_model', label: 'Default model', ph: 'nous-hermes' }, { k: 'expect_running', label: 'Expect running', type: 'bool' }, { k: 'cmdline_contains', label: 'Cmdline contains', ph: 'ollama' }],
+  game_server: [{ k: 'query_url', label: 'Status URL', ph: 'http://127.0.0.1:8080/status' }, { k: 'min_tps', label: 'Min TPS', type: 'number' }, { k: 'host', label: 'Host (TCP check)', ph: '127.0.0.1' }, { k: 'port', label: 'Port', type: 'number' }],
+  school: [{ k: 'query_url', label: 'Summary URL', ph: 'http://127.0.0.1:9000/api/summary' }, { k: 'min_pass_rate', label: 'Min pass rate %', type: 'number' }, { k: 'min_attendance', label: 'Min attendance %', type: 'number' }],
+  ai_project: [{ k: 'query_url', label: 'Status URL', ph: 'http://127.0.0.1:7000/status' }, { k: 'log_file', label: 'Log file', ph: '/home/me/train/run.log' }],
+  code_project: [{ k: 'path', label: 'Path', ph: '/home/me/my-service' }],
+  generic: _BF_PROC,
+};
+
+function _botFieldInput(f, val) {
+  if (f.type === 'bool') return `<label class='bf-check'><input type='checkbox' data-bf='${f.k}' ${val ? 'checked' : ''}> ${esc(f.label)}${f.hint ? ` <span class='muted'>(${esc(f.hint)})</span>` : ''}</label>`;
+  const t = f.type === 'number' ? 'number' : 'text';
+  return `<label class='lf-label'>${esc(f.label)}${f.hint ? ` <span class='muted'>(${esc(f.hint)})</span>` : ''}</label>
+    <input class='lf-input' type='${t}' data-bf='${f.k}' value='${esc(val ?? '')}' placeholder='${esc(f.ph || '')}'>`;
+}
+
 async function openBotsManager(name) {
   let modal = document.getElementById('bots-modal');
   if (!modal) {
@@ -2991,67 +3081,132 @@ async function openBotsManager(name) {
     modal.className = 'modal hidden';
     document.body.appendChild(modal);
   }
-  modal.innerHTML = `
-    <div class='modal-card' style='max-width:760px'>
-      <div class='section-head'><h3>Bots on “${esc(name)}”</h3>
-        <button class='btn' id='bots-close'>✕</button></div>
-      <p class='muted' style='margin:2px 0 8px'>Edit this host's bots as JSON, then Save — the dashboard writes it to the
-        host's <code>projects.yaml</code> over the API. No SSH needed.
-        <a href='docs/AGENT_SETUP.md' target='_blank' rel='noopener'>Field reference</a>.</p>
-      <div id='bots-status' class='muted'>Loading…</div>
-      <textarea id='bots-json' class='lf-input' rows='16' spellcheck='false'
-        style='font-family:monospace;white-space:pre;width:100%'></textarea>
-      <div id='bots-error' class='money-neg' style='min-height:18px;font-size:12px'></div>
-      <div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px'>
-        <button class='btn' id='bots-discover'>🔍 Discover running bots</button>
-        <button class='btn btn-primary' id='bots-save'>Save</button>
-        <button class='btn' id='bots-cancel'>Cancel</button>
-      </div></div>`;
   modal.classList.remove('hidden');
-  const ta = modal.querySelector('#bots-json');
-  const status = modal.querySelector('#bots-status');
-  const errEl = modal.querySelector('#bots-error');
   const close = () => modal.classList.add('hidden');
-  modal.querySelector('#bots-close').onclick = close;
-  modal.querySelector('#bots-cancel').onclick = close;
 
+  // Load current config into in-memory state, then drive the UI off it.
+  modal.innerHTML = `<div class='modal-card'><div class='muted'>Loading bots…</div></div>`;
   const data = await apiJSON('/api/hosts/' + encodeURIComponent(name) + '/projects');
-  const projects = (data && data.projects) || [];
-  ta.value = JSON.stringify(projects, null, 2);
-  status.textContent = `${projects.length} bot(s) configured.`;
+  const state = { bots: ((data && data.projects) || []).map(p => ({ ...p })) };
 
-  modal.querySelector('#bots-discover').onclick = async () => {
-    errEl.textContent = '';
-    status.textContent = 'Scanning the host…';
+  function shell(inner, statusMsg) {
+    modal.innerHTML = `
+      <div class='modal-card' style='max-width:760px'>
+        <div class='section-head'><h3>Bots on “${esc(name)}”</h3>
+          <button class='btn' id='bots-close'>✕</button></div>
+        <div id='bots-status' class='muted'>${esc(statusMsg || `${state.bots.length} bot(s) configured.`)}</div>
+        <div id='bots-body'>${inner}</div></div>`;
+    modal.querySelector('#bots-close').onclick = close;
+  }
+
+  function renderList() {
+    const rows = state.bots.length ? state.bots.map((b, i) => `
+      <div class='card host-card bot-row'>
+        <div><b>${esc(b.name || '(unnamed)')}</b> <span class='pill'>${esc(b.type || 'generic')}</span></div>
+        <div class='host-actions'>
+          <button class='btn' data-bot-edit='${i}'>Edit</button>
+          <button class='btn btn-danger' data-bot-del='${i}'>Remove</button>
+        </div></div>`).join('') : `<div class='muted'>No bots yet. Add one, or Discover what's running.</div>`;
+    shell(`
+      <div class='bot-list'>${rows}</div>
+      <div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:12px'>
+        <button class='btn btn-primary' id='bot-add'>+ Add bot</button>
+        <button class='btn' id='bots-discover'>🔍 Discover</button>
+        <button class='btn' id='bots-json'>Advanced (JSON)</button>
+        <span style='flex:1'></span>
+        <button class='btn btn-primary' id='bots-save'>Save</button>
+      </div>`);
+    modal.querySelectorAll('[data-bot-edit]').forEach(b => b.onclick = () => openForm(+b.dataset.botEdit));
+    modal.querySelectorAll('[data-bot-del]').forEach(b => b.onclick = () => { state.bots.splice(+b.dataset.botDel, 1); renderList(); });
+    modal.querySelector('#bot-add').onclick = () => openForm(-1);
+    modal.querySelector('#bots-discover').onclick = discover;
+    modal.querySelector('#bots-json').onclick = openJson;
+    modal.querySelector('#bots-save').onclick = save;
+  }
+
+  function openForm(index) {
+    const orig = index >= 0 ? state.bots[index] : {};
+    const type = orig.type || 'trading_bot';
+    const typeOpts = BOT_TYPES.map(t => `<option value='${t}' ${t === type ? 'selected' : ''}>${t}</option>`).join('');
+    const fieldsHtml = (t) => (BOT_FIELDS[t] || BOT_FIELDS.generic).map(f => _botFieldInput(f, orig[f.k])).join('');
+    shell(`
+      <label class='lf-label'>Name</label>
+      <input class='lf-input' id='bf-name' value='${esc(orig.name || '')}' placeholder='daybot'>
+      <label class='lf-label'>Type</label>
+      <select class='lf-input' id='bf-type'>${typeOpts}</select>
+      <div id='bf-fields'>${fieldsHtml(type)}</div>
+      <div id='bf-error' class='money-neg' style='min-height:18px;font-size:12px'></div>
+      <div style='display:flex;gap:8px;margin-top:12px'>
+        <button class='btn btn-primary' id='bf-save'>${index >= 0 ? 'Update' : 'Add'} bot</button>
+        <button class='btn' id='bf-cancel'>Cancel</button>
+      </div>`, index >= 0 ? `Editing ${orig.name}` : 'New bot');
+    const typeSel = modal.querySelector('#bf-type');
+    typeSel.onchange = () => { modal.querySelector('#bf-fields').innerHTML = fieldsHtml(typeSel.value); };
+    modal.querySelector('#bf-cancel').onclick = renderList;
+    modal.querySelector('#bf-save').onclick = () => {
+      const err = modal.querySelector('#bf-error');
+      const nm = modal.querySelector('#bf-name').value.trim();
+      if (!nm) { err.textContent = 'Name is required.'; return; }
+      if (state.bots.some((b, i) => b.name === nm && i !== index)) { err.textContent = 'That name is already used.'; return; }
+      // Preserve unknown keys (commands/metrics/etc.) the form doesn't expose.
+      const out = index >= 0 ? { ...orig } : {};
+      out.name = nm; out.type = typeSel.value;
+      modal.querySelectorAll('#bf-fields [data-bf]').forEach(inp => {
+        const k = inp.dataset.bf;
+        if (inp.type === 'checkbox') { if (inp.checked) out[k] = true; else delete out[k]; }
+        else if (inp.value === '') { delete out[k]; }
+        else out[k] = inp.type === 'number' ? Number(inp.value) : inp.value;
+      });
+      if (index >= 0) state.bots[index] = out; else state.bots.push(out);
+      renderList();
+    };
+  }
+
+  function openJson() {
+    shell(`
+      <p class='muted'>Power users: edit the raw bot list as JSON.</p>
+      <textarea id='bj' class='lf-input' rows='16' spellcheck='false' style='font-family:monospace;white-space:pre;width:100%'>${esc(JSON.stringify(state.bots, null, 2))}</textarea>
+      <div id='bj-error' class='money-neg' style='min-height:18px;font-size:12px'></div>
+      <div style='display:flex;gap:8px;margin-top:10px'>
+        <button class='btn btn-primary' id='bj-apply'>Apply</button>
+        <button class='btn' id='bj-cancel'>Back</button>
+      </div>`, 'Advanced JSON');
+    modal.querySelector('#bj-cancel').onclick = renderList;
+    modal.querySelector('#bj-apply').onclick = () => {
+      let parsed;
+      try { parsed = JSON.parse(modal.querySelector('#bj').value || '[]'); }
+      catch (e) { modal.querySelector('#bj-error').textContent = 'Invalid JSON: ' + e.message; return; }
+      if (!Array.isArray(parsed)) { modal.querySelector('#bj-error').textContent = 'Top level must be an array.'; return; }
+      state.bots = parsed; renderList();
+    };
+  }
+
+  async function discover() {
+    modal.querySelector('#bots-status').textContent = 'Scanning the host…';
     const d = await apiJSON('/api/hosts/' + encodeURIComponent(name) + '/discover');
     const cands = (d && d.candidates) || [];
-    if (!cands.length) { status.textContent = 'No candidates found (the agent saw no obvious bots).'; return; }
-    let current = [];
-    try { current = JSON.parse(ta.value || '[]'); } catch (_) { current = []; }
-    const have = new Set(current.map(p => p && p.name));
+    const have = new Set(state.bots.map(p => p && p.name));
     let added = 0;
     cands.forEach(c => {
       if (have.has(c.name)) return;
-      const { _source, _detail, ...clean } = c;   // drop discovery-only hints
-      current.push(clean); have.add(c.name); added++;
+      const { _source, _detail, ...clean } = c;       // drop discovery-only hints
+      state.bots.push(clean); have.add(c.name); added++;
     });
-    ta.value = JSON.stringify(current, null, 2);
-    status.textContent = `Added ${added} candidate(s). Review names/types, then Save.`;
-  };
+    renderList();
+    modal.querySelector('#bots-status').textContent = added
+      ? `Added ${added} discovered bot(s). Review, then Save.` : 'No new bots discovered.';
+  }
 
-  modal.querySelector('#bots-save').onclick = async () => {
-    errEl.textContent = '';
-    let parsed;
-    try { parsed = JSON.parse(ta.value || '[]'); }
-    catch (e) { errEl.textContent = 'Invalid JSON: ' + e.message; return; }
-    if (!Array.isArray(parsed)) { errEl.textContent = 'Top level must be a JSON array of bots.'; return; }
+  async function save() {
     const r = await fetch('/api/hosts/' + encodeURIComponent(name) + '/projects', {
       method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() },
-      body: JSON.stringify({ projects: parsed }),
+      body: JSON.stringify({ projects: state.bots }),
     });
-    if (!r.ok) { const j = await r.json().catch(() => ({})); errEl.textContent = 'Save failed: ' + (j.detail || r.status); return; }
+    if (!r.ok) { const j = await r.json().catch(() => ({})); modal.querySelector('#bots-status').innerHTML = `<span class='money-neg'>Save failed: ${esc(j.detail || r.status)}</span>`; return; }
     close(); renderHosts(); render();
-  };
+  }
+
+  renderList();
 }
 
 // ===== Accounts: create/remove dashboard users (operator only) =====
