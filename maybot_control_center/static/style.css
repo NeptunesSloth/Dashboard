@@ -1342,3 +1342,10 @@ table.fleet tbody tr:hover td { background: rgba(139,92,255,.06); }
 .qs-step .qs-body { flex: 1; min-width: 0; }
 .qs-step.qs-done { opacity: .7; }
 .qs-cta { white-space: nowrap; }
+
+/* Ops Copilot */
+.copilot .copilot-ask { display: flex; gap: 8px; margin: 6px 0; }
+.copilot .copilot-ask #copilot-q { flex: 1; }
+.copilot-answer { white-space: pre-wrap; padding: 10px 12px; border-radius: 8px; background: rgba(139,92,255,.08); border: 1px solid rgba(139,92,255,.25); margin-top: 6px; }
+.copilot-actions { margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.copilot-by { margin-top: 6px; font-style: italic; }

@@ -2699,10 +2699,55 @@ async function renderReliability() {
   });
 }
 
+// ---- Ops Copilot: ask the fleet in natural language ----
+function renderCopilot() {
+  const sec = document.getElementById('ops-section'); if (!sec) return;
+  if (document.getElementById('copilot-card')) return;     // built once, idempotent
+  const card = document.createElement('div');
+  card.id = 'copilot-card';
+  card.className = 'card copilot';
+  sec.insertBefore(card, sec.firstChild);
+  card.innerHTML = `
+    <div class='section-head'><h3>🤖 Ops Copilot</h3>
+      <span class='muted'>Ask about your fleet in plain English</span></div>
+    <div class='copilot-ask'>
+      <input id='copilot-q' class='lf-input' placeholder='e.g. what needs attention? why is daybot unhealthy?'>
+      <button class='btn btn-primary' id='copilot-go'>Ask</button>
+    </div>
+    <div id='copilot-out'></div>`;
+  const go = () => copilotAsk();
+  card.querySelector('#copilot-go').onclick = go;
+  card.querySelector('#copilot-q').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+}
+
+async function copilotAsk() {
+  const q = document.getElementById('copilot-q');
+  const out = document.getElementById('copilot-out');
+  const question = (q.value || '').trim(); if (!question) return;
+  out.innerHTML = `<div class='muted'>Thinking…</div>`;
+  const r = await apiPost('/api/copilot', { question }, 'Ask copilot');
+  if (!r) { out.innerHTML = `<div class='money-neg'>Copilot unavailable.</div>`; return; }
+  const acts = (r.actions || []).map(a =>
+    `<button class='btn' data-cp-act='${esc(a.kind)}' data-cp-dev='${esc(a.device)}' data-cp-proj='${esc(a.project)}'>${esc(a.label)}</button>`).join(' ');
+  out.innerHTML = `
+    ${r.answer ? `<div class='copilot-answer'>${esc(r.answer)}</div>` : ''}
+    ${r.error && !r.answer ? `<div class='money-neg'>${esc(r.error)}</div>` : ''}
+    ${acts ? `<div class='copilot-actions'><span class='muted'>Suggested actions:</span> ${acts}</div>` : ''}
+    ${r.member ? `<div class='muted copilot-by'>— ${esc(r.member)}</div>` : ''}`;
+  out.querySelectorAll('[data-cp-act]').forEach(b => b.onclick = async () => {
+    if (!confirm(`${b.textContent}?`)) return;
+    b.disabled = true; b.textContent = 'Working…';
+    const ok = await apiPost(`/api/action/${encodeURIComponent(b.dataset.cpDev)}/${encodeURIComponent(b.dataset.cpProj)}/${encodeURIComponent(b.dataset.cpAct)}`, {}, 'Action');
+    b.textContent = ok ? 'Done ✓' : 'Failed';
+    debounced(render, 'cp-act');
+  });
+}
+
 // ---- Ops tab: diagnostics, fleet health, audit log ----
 async function renderOps() {
   const sec = document.getElementById('ops-section');
   if (!sec) return;
+  renderCopilot();      // ops copilot panel (built once)
   bindHostsUI();        // host manager buttons (also bound at load, idempotent)
   renderHosts();        // agent host manager (add/edit/test, no file editing)
   bindAccountsUI();

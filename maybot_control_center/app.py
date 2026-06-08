@@ -641,6 +641,20 @@ def explain_project(device_name: str, project_name: str, x_control_token: str = 
     return {**d, "explanation": explanation}
 
 
+class CopilotIn(BaseModel):
+    question: str
+
+
+@app.post("/api/copilot")
+def copilot_ask(body: CopilotIn, x_control_token: str = Header(default="")):
+    """Ops Copilot: answer a natural-language question about the fleet, grounded
+    in a fresh poll, and surface conservative one-click remediations."""
+    _check_token(x_control_token)
+    from . import copilot
+    overview = aggregate(all_devices())
+    return copilot.ask(body.question, overview)
+
+
 @app.get("/api/members")
 def members_list(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
