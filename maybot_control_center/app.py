@@ -115,6 +115,12 @@ async def _rate_limit(request, call_next):
             from fastapi.responses import JSONResponse
             return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
     response = await call_next(request)
+    # Always serve fresh UI: tell browsers to revalidate static assets/pages so a
+    # redeploy never leaves a stale app.js/style.css (and the rail/reskin) cached.
+    path = request.url.path
+    if not path.startswith("/api/") and (path == "/" or path.endswith((".js", ".css", ".html"))
+                                         or path in ("/console", "/login", "/chamber", "/trade", "/treasury")):
+        response.headers["Cache-Control"] = "no-cache, must-revalidate"
     # Self-observability: count served API requests (and 5xx errors).
     if request.url.path.startswith("/api/"):
         try:
