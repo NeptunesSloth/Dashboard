@@ -94,7 +94,7 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
                 maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
                 audit.load_persisted, inbound.load_persisted, registry.load_persisted,
                 push.load_persisted, acks.load_persisted, authz.load_persisted, risk.load_persisted,
-                app_settings.load_persisted):
+                app_settings.load_persisted, runbooks.load_persisted):
     try:
         _loader()
     except Exception:
@@ -1506,7 +1506,34 @@ def chronicle_agent(name: str, limit: int = Query(default=100), x_control_token:
 @app.get("/api/runbooks")
 def runbooks_catalog(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
-    return {"runbooks": runbooks.catalog()}
+    return {"runbooks": runbooks.catalog(), "editable": runbooks.list_rules(),
+            "tools": [t.get("name") for t in tooling.tool_summaries()]}
+
+
+class RunbookIn(BaseModel):
+    name: str
+    tool: str
+    match: dict = {}
+    args: dict = {}
+    requester: str = "operator"
+    auto: bool = False
+
+
+@app.post("/api/runbooks")
+def runbooks_save(body: RunbookIn, x_control_token: str = Header(default="")):
+    """Create/replace a self-healing rule from the UI (persisted)."""
+    _check_operator(x_control_token)
+    try:
+        saved = runbooks.save_rule(body.model_dump())
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    return {"ok": True, "runbook": saved}
+
+
+@app.delete("/api/runbooks/{name}")
+def runbooks_delete(name: str, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"ok": runbooks.delete_rule(name)}
 
 
 @app.get("/api/treasury")
