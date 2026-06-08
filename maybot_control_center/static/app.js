@@ -1628,10 +1628,14 @@ function mapPortrait(a) {
 
 async function renderSectMap() {
   const sec = document.getElementById('map-section');
+  if (!sec) return;
   const crew = (window.__agents || []).slice();
-  if (!crew.length) { sec.classList.add('hidden'); return; }
-  try { const pp = await apiJSON('/api/members/profiles'); window.__rels = (pp && pp.profiles) || {}; } catch (_) {}
+  // The map world is ALWAYS visible now — when the sect is empty we show an
+  // invite to recruit instead of hiding the whole page (which read as "the map
+  // is gone"). Relationship dossiers (hall rel-lines) are fetched in the
+  // background so a slow/failed call can never blank the map.
   sec.classList.remove('hidden');
+  apiJSON('/api/members/profiles').then(pp => { window.__rels = (pp && pp.profiles) || {}; }).catch(() => {});
 
   const peaks = buildPeaks(crew);
   window.__peaks = peaks;
@@ -1640,7 +1644,7 @@ async function renderSectMap() {
   const leader = crew.find(a => a.governance?.is_leader) || crew.slice().sort((a, b) => (b.governance?.standing || 0) - (a.governance?.standing || 0))[0];
   const cultivating = crew.filter(a => ['working', 'queued'].includes(a.status) || a.cultivation?.in_seclusion).length;
   const idle = crew.filter(a => (a.status || 'idle') === 'idle' && !a.cultivation?.in_seclusion && !a.cultivation?.in_roaming).length;
-  const succ = Math.round(crew.reduce((s, a) => s + (a.reputation?.signals?.success_pct ?? 100), 0) / n);
+  const succ = n ? Math.round(crew.reduce((s, a) => s + (a.reputation?.signals?.success_pct ?? 100), 0) / n) : 0;
   const stones = crew.reduce((s, a) => s + (a.cultivation?.stones || 0), 0);
 
   // day/night by local time; a storm gathers when the sect is unhealthy
@@ -1661,7 +1665,31 @@ async function renderSectMap() {
     </div>
     <div class='pixel-panel peak-lord'><span class='pl-label'>Peak Lord</span><b>👑 ${esc(leader ? leader.name : '—')}</b><span class='muted'>${esc(leader?.cultivation?.realm_name || '')}</span></div>
     <div class='map-motes'>${Array.from({ length: 14 }, (_, i) => `<span style='left:${(i * 7 + 4) % 98}%;animation-delay:${(i * 0.9).toFixed(1)}s;animation-duration:${9 + (i % 5) * 2}s'></span>`).join('')}</div>
+    ${n ? '' : `<div class='map-empty'><div class='me-card'>
+      <div class='me-title'>⛰ The peaks stand empty</div>
+      <p class='muted'>No sect members yet, so there are no disciples to place on the map.</p>
+      <div class='me-actions'>
+        <button id='map-seed' class='btn btn-primary'>✦ Seed a starter sect</button>
+        <a class='btn' href='/chamber'>Open Sect Members ▸</a>
+      </div></div></div>`}
     <div class='map-markers'></div>`;
+
+  const seedBtn = document.getElementById('map-seed');
+  if (seedBtn) seedBtn.onclick = async () => {
+    seedBtn.disabled = true; seedBtn.textContent = 'Summoning…';
+    try {
+      const r = await fetch('/api/members/seed', { method: 'POST', headers: authHeaders() });
+      if (!r.ok) {
+        const e = await r.json().catch(() => ({}));
+        alert(e.detail || 'Could not seed the sect (an operator token is required).');
+        seedBtn.disabled = false; seedBtn.textContent = '✦ Seed a starter sect'; return;
+      }
+      await renderAgentCrew(); renderSectMap();
+    } catch (_) {
+      alert('Could not seed the sect.');
+      seedBtn.disabled = false; seedBtn.textContent = '✦ Seed a starter sect';
+    }
+  };
 
   const markers = world.querySelector('.map-markers');
   peaks.forEach(p => {

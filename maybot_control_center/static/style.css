@@ -433,6 +433,18 @@ pre { white-space: pre-wrap; margin: 0; font-family: ui-monospace, SFMono-Regula
 .peak-overview { top: 12px; left: 12px; min-width: 150px; }
 .po-row { display: flex; justify-content: space-between; gap: 14px; font-size: 12px; padding: 1px 0; }
 .po-row b { color: #fff; }
+
+/* Empty-roster invite shown over the map world when there are no sect members
+   (so the Map tab is never just blank / "gone"). */
+.map-empty { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; line-height: 1.4;
+  background: radial-gradient(ellipse at center, rgba(10,8,18,.30), rgba(10,8,18,.72)); }
+.map-empty .me-card { max-width: 440px; text-align: center; padding: 22px 26px;
+  background: linear-gradient(180deg, rgba(28,22,40,0.94), rgba(18,12,28,0.96));
+  border: 2px solid #c4b5fd; box-shadow: 0 0 0 2px #1a1226, 0 12px 34px rgba(0,0,0,.6); border-radius: 8px; }
+.me-title { font-family: "Cinzel", Georgia, serif; color: #ffe6a3; font-size: 18px; margin-bottom: 6px; text-shadow: 1px 1px 0 #000; }
+.map-empty .me-card p { margin: 0 0 14px; }
+.me-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.me-actions .btn { text-decoration: none; }
 .peak-lord { top: 12px; right: 12px; text-align: right; display: flex; flex-direction: column; }
 .peak-lord .pl-label { font-size: 10px; color: #b9a98a; } .peak-lord b { color: #ffe6a3; font-size: 13px; text-shadow: 1px 1px 0 #000; }
 .peak-lord .muted { font-size: 10px; }
