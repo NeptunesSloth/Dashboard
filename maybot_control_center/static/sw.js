@@ -1,9 +1,12 @@
 // MayBot PWA service worker — offline app shell, never caches the API.
-const CACHE = 'maybot-v1';
+// Network-first for the UI so a redeploy is picked up immediately; the cache is
+// only a fallback when offline. (A cache-first worker would pin a stale app.js /
+// style.css forever — which made the console look "old" after updates.)
+const CACHE = 'maybot-v2';
 const SHELL = ['/', '/app.js', '/style.css', '/icon.svg', '/manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL).catch(() => {})).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
@@ -27,16 +30,16 @@ self.addEventListener('notificationclick', (e) => {
   }));
 });
 
+// Network-first for GET (except the live API): always try the network and refresh
+// the cache; fall back to cache only when offline.
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  if (e.request.method !== 'GET' || url.pathname.startsWith('/api/')) return;  // live data: always network
+  if (e.request.method !== 'GET' || url.pathname.startsWith('/api/')) return;   // live data: always network
   e.respondWith(
-    caches.match(e.request).then((hit) => hit || fetch(e.request).then((resp) => {
-      if (SHELL.includes(url.pathname)) {
-        const copy = resp.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy));
-      }
+    fetch(e.request).then((resp) => {
+      const copy = resp.clone();
+      caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
       return resp;
-    }).catch(() => caches.match('/')))
+    }).catch(() => caches.match(e.request).then((hit) => hit || caches.match('/')))
   );
 });
