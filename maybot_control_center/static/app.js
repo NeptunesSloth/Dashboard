@@ -3300,7 +3300,9 @@ document.querySelectorAll('.level-btn').forEach(btn => btn.onclick = () => {
   if (selectedProject && selectedProjectDevice) loadLogs(selectedProjectDevice, selectedProject);
 });
 render();
-refreshInterval = setInterval(render, 7000);
+// Live refresh is driven by the SSE 'tick'/'hosts' events (see setupStream).
+// This interval is just a resilient fallback for when SSE can't connect.
+refreshInterval = setInterval(render, 30000);
 startLogsAutoRefresh();
 
 // Live updates via Server-Sent Events — instant refresh on agent/comms/tool changes.
@@ -3317,6 +3319,8 @@ function setupStream() {
     let msg; try { msg = JSON.parse(e.data); } catch (_) { return; }
     if (msg.type === 'comms') debounced(renderComms, 'comms');
     else if (msg.type === 'tools') debounced(renderTools, 'tools');
+    else if (msg.type === 'tick') debounced(render, 'tick', 500);           // server-driven live refresh
+    else if (msg.type === 'hosts') debounced(render, 'hosts', 300);          // host added/removed/enrolled/bots changed
     else if (msg.type === 'agents') {
       if (msg.data && msg.data.event === 'breakthrough' && msg.data.agent) ascend(msg.data.agent);  // ascension cutscene
       if (msg.data && (msg.data.event === 'culled' || msg.data.event === 'struck_down')) {

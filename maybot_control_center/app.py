@@ -418,6 +418,7 @@ def host_projects_put(name: str, body: HostProjectsIn, x_control_token: str = He
         code = r.get("status_code")
         raise HTTPException(400 if code == 400 else 502, r.get("error") or "agent unreachable")
     # The audit middleware already records this mutating call.
+    events.publish("hosts", {"event": "bots_saved", "name": name})
     return r.get("data") or {"projects": body.projects}
 
 
@@ -461,6 +462,7 @@ def hosts_save(body: HostIn, x_control_token: str = Header(default="")):
             raise HTTPException(409, f"a host named '{name}' already exists")
         devices.append(entry)
     save_devices(devices)
+    events.publish("hosts", {"event": "saved", "name": name})
     return {"ok": True, "name": name}
 
 
@@ -474,6 +476,7 @@ def hosts_delete(name: str, x_control_token: str = Header(default="")):
     if len(remaining) == len(devices):
         raise HTTPException(404, "host not found")
     save_devices(remaining)
+    events.publish("hosts", {"event": "removed", "name": name})
     return {"ok": True}
 
 
@@ -1829,7 +1832,10 @@ def agents_register(body: RegisterIn, x_control_token: str = Header(default=""),
         raise HTTPException(400, "invalid agent name")
     if not (body.url or "").startswith(("http://", "https://")):
         raise HTTPException(400, "url must start with http:// or https://")
-    return registry.register(body.name, body.url, body.api_token, body.timeout)
+    rec = registry.register(body.name, body.url, body.api_token, body.timeout)
+    # A host just self-enrolled — push it to live dashboards instantly.
+    events.publish("hosts", {"event": "enrolled", "name": body.name})
+    return rec
 
 
 class DeregisterIn(BaseModel):

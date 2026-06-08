@@ -59,6 +59,22 @@ def test_hosts_test_offline():
     assert j["online"] is False and j["projects"] == 0
 
 
+def test_host_mutations_publish_live_events():
+    """Adding/removing a host pushes a 'hosts' SSE event so live dashboards update."""
+    import json
+    from maybot_control_center import events
+    q = events.subscribe()
+    try:
+        client.post("/api/hosts", json={"name": "ev", "url": "http://1.2.3.4:8100"})
+        client.request("DELETE", "/api/hosts/ev")
+        kinds = []
+        while not q.empty():
+            kinds.append(json.loads(q.get_nowait()).get("type"))
+        assert kinds.count("hosts") >= 2          # one for save, one for delete
+    finally:
+        events.unsubscribe(q)
+
+
 def test_host_projects_proxy_endpoints():
     # Unknown host -> 404.
     assert client.get("/api/hosts/nope/projects").status_code == 404
