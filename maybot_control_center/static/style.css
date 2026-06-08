@@ -1421,3 +1421,11 @@ input:focus, select:focus, textarea:focus {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }
+
+/* Ops → collapsed "System & Safety" group keeps admin/safety cards out of the way */
+.ops-admin > summary { cursor: pointer; list-style: none; padding: 2px 0; }
+.ops-admin > summary::-webkit-details-marker { display: none; }
+.ops-admin > summary::before { content: "▸"; color: var(--muted); margin-right: 8px; }
+.ops-admin[open] > summary::before { content: "▾"; }
+.ops-admin .ops-admin-body { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.ops-admin .ops-admin-body > .card { background: var(--bg-2); box-shadow: none; }

@@ -2714,7 +2714,7 @@ function renderBackupCard() {
   const card = document.createElement('div');
   card.id = 'backup-card';
   card.className = 'card';
-  sec.insertBefore(card, sec.firstChild);
+  (opsAdminBody() || sec).appendChild(card);
   card.innerHTML = `
     <div class='section-head'><h3>💾 Backup &amp; Restore</h3>
       <span class='muted'>rebuild on a new machine, no SSH</span></div>
@@ -2761,6 +2761,84 @@ async function restoreBackup(file) {
   renderHosts(); render();
 }
 
+// Collapsible "System & Safety" group at the bottom of Ops, so the admin/safety
+// cards don't bury the hosts & fleet. Created once; cards append into its body.
+function opsAdminBody() {
+  const sec = document.getElementById('ops-section'); if (!sec) return null;
+  let det = document.getElementById('ops-admin');
+  if (!det) {
+    det = document.createElement('details');
+    det.id = 'ops-admin';
+    det.className = 'card ops-admin';
+    det.innerHTML = `<summary><b>⚙ System &amp; Safety</b> <span class='muted'>backup · runbooks · safe mode · heartbeat</span></summary>
+      <div id='ops-admin-body' class='ops-admin-body'></div>`;
+    sec.appendChild(det);
+  }
+  return document.getElementById('ops-admin-body');
+}
+
+// ---- Self-healing runbooks: condition → remediation, edited in-app ----
+async function renderRunbooksCard() {
+  const sec = document.getElementById('ops-section'); if (!sec) return;
+  let card = document.getElementById('runbooks-card');
+  if (!card) {
+    card = document.createElement('div');
+    card.id = 'runbooks-card';
+    card.className = 'card';
+    (opsAdminBody() || sec).appendChild(card);
+  }
+  const data = (await apiJSON('/api/runbooks')) || {};
+  const rules = data.editable || [];
+  const tools = data.tools || [];
+  const matchTxt = (m) => Object.entries(m || {}).map(([k, v]) => `${k}=${v}`).join(', ') || 'any project';
+  const rows = rules.length ? rules.map(r => `
+    <div class='card host-card bot-row'>
+      <div><b>${esc(r.name)}</b> <span class='muted'>when ${esc(matchTxt(r.match))} → <b>${esc(r.tool)}</b></span>
+        ${r.auto ? `<span class='pill'>auto</span>` : ''}</div>
+      <div class='host-actions'><button class='btn btn-danger' data-rb-del='${esc(r.name)}'>Remove</button></div>
+    </div>`).join('') : `<div class='muted'>No self-healing rules yet. Add one to auto-remediate matching failures.</div>`;
+  const typeOpts = ['', 'trading_bot', 'website', 'local_ai_host', 'game_server', 'school', 'ai_project', 'code_project', 'generic'].map(t => `<option value='${t}'>${t || '(any type)'}</option>`).join('');
+  const healthOpts = ['', 'ok', 'warning', 'error'].map(h => `<option value='${h}'>${h || '(any health)'}</option>`).join('');
+  const toolOpts = tools.map(t => `<option value='${esc(t)}'>${esc(t)}</option>`).join('');
+  card.innerHTML = `
+    <div class='section-head'><h3>🩹 Self-healing runbooks</h3>
+      <span class='muted'>auto-remediate matching failures</span></div>
+    <p class='muted'>A rule watches for bots matching a condition and fires a remediation tool. Auto rules run on their own
+      (and respect Safe mode); guarded tools still apply approval rules.</p>
+    <div class='bot-list'>${rows}</div>
+    <details style='margin-top:10px'><summary class='btn' style='display:inline-block'>+ Add rule</summary>
+      <div style='margin-top:10px;display:grid;gap:8px;max-width:480px'>
+        <label class='lf-label'>Name</label><input class='lf-input' id='rb-name' placeholder='restart-stalled-bots'>
+        <label class='lf-label'>When — type</label><select class='lf-input' id='rb-type'>${typeOpts}</select>
+        <label class='lf-label'>When — health</label><select class='lf-input' id='rb-health'>${healthOpts}</select>
+        <label class='lf-label'>When — name matches (glob, optional)</label><input class='lf-input' id='rb-name-pat' placeholder='*bot*'>
+        <label class='lf-label'>When — alert contains (optional)</label><input class='lf-input' id='rb-alert' placeholder='expected but stopped'>
+        <label class='lf-label'>Then — tool</label><select class='lf-input' id='rb-tool'>${toolOpts}</select>
+        <label class='bf-check'><input type='checkbox' id='rb-auto'> Run automatically (no approval prompt)</label>
+        <div id='rb-error' class='money-neg' style='font-size:12px;min-height:16px'></div>
+        <button class='btn btn-primary' id='rb-save' style='width:fit-content'>Save rule</button>
+      </div></details>`;
+  card.querySelectorAll('[data-rb-del]').forEach(b => b.onclick = async () => {
+    if (!confirm(`Remove rule “${b.dataset.rbDel}”?`)) return;
+    await fetch('/api/runbooks/' + encodeURIComponent(b.dataset.rbDel), { method: 'DELETE', headers: authHeaders() });
+    renderRunbooksCard();
+  });
+  const saveBtn = card.querySelector('#rb-save');
+  if (saveBtn) saveBtn.onclick = async () => {
+    const err = card.querySelector('#rb-error');
+    const match = {};
+    const t = card.querySelector('#rb-type').value; if (t) match.type = t;
+    const h = card.querySelector('#rb-health').value; if (h) match.health = h;
+    const np = card.querySelector('#rb-name-pat').value.trim(); if (np) match.name_pattern = np;
+    const al = card.querySelector('#rb-alert').value.trim(); if (al) match.alert_contains = al;
+    const body = { name: card.querySelector('#rb-name').value.trim(), tool: card.querySelector('#rb-tool').value, match, auto: card.querySelector('#rb-auto').checked };
+    if (!body.name || !body.tool) { err.textContent = 'Name and tool are required.'; return; }
+    const r = await apiPost('/api/runbooks', body, 'Save rule');
+    if (!r) { err.textContent = 'Save failed.'; return; }
+    renderRunbooksCard();
+  };
+}
+
 // ---- Safe mode / panic button: halt all automation instantly ----
 async function renderSafemodeCard() {
   const sec = document.getElementById('ops-section'); if (!sec) return;
@@ -2769,7 +2847,7 @@ async function renderSafemodeCard() {
     card = document.createElement('div');
     card.id = 'safemode-card';
     card.className = 'card';
-    sec.insertBefore(card, sec.firstChild);
+    (opsAdminBody() || sec).appendChild(card);
   }
   const s = (await apiJSON('/api/safemode')) || {};
   const on = !!s.engaged;
@@ -2810,7 +2888,7 @@ async function renderDeadmanCard() {
     card = document.createElement('div');
     card.id = 'deadman-card';
     card.className = 'card';
-    sec.insertBefore(card, sec.firstChild);
+    (opsAdminBody() || sec).appendChild(card);
   }
   const s = (await apiJSON('/api/deadman')) || {};
   const last = s.last || {};
@@ -2889,6 +2967,7 @@ async function renderOps() {
   const sec = document.getElementById('ops-section');
   if (!sec) return;
   renderCopilot();      // ops copilot panel (built once)
+  renderRunbooksCard(); // self-healing rules editor
   renderSafemodeCard(); // panic button (built once)
   renderBackupCard();   // backup / restore (built once)
   renderDeadmanCard();  // dead-man's switch (built once)

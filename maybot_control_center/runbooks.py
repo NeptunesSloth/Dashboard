@@ -21,6 +21,7 @@ import yaml
 RUNBOOKS_FILE = Path(os.getenv("MAYBOT_RUNBOOKS_FILE", "runbooks.yaml"))
 
 _cache: list[dict] | None = None
+_persisted: list[dict] = []          # in-app rules (editable + persisted), override file rules by name
 
 
 def _normalize(rb: dict) -> dict | None:
@@ -64,9 +65,57 @@ def load_runbooks() -> list[dict]:
     return _cache
 
 
+def _all() -> list[dict]:
+    """File rules + in-app rules, with in-app rules overriding by name."""
+    by_name = {rb["name"]: rb for rb in load_runbooks()}
+    for rb in _persisted:
+        by_name[rb["name"]] = rb
+    return list(by_name.values())
+
+
 def catalog() -> list[dict]:
-    """The loaded runbooks (for the API / UI)."""
-    return load_runbooks()
+    """The effective runbooks (file + in-app) for the API / UI."""
+    return _all()
+
+
+def list_rules() -> list[dict]:
+    """The in-app, editable rules only (what the UI manages)."""
+    return [dict(r) for r in _persisted]
+
+
+def save_rule(rb: dict) -> dict:
+    """Create or replace (by name) an in-app runbook; persisted."""
+    norm = _normalize(rb) if isinstance(rb, dict) else None
+    if not norm:
+        raise ValueError("a runbook needs a non-empty 'name' and 'tool'")
+    global _persisted
+    _persisted = [r for r in _persisted if r["name"] != norm["name"]] + [norm]
+    _persist()
+    return norm
+
+
+def delete_rule(name: str) -> bool:
+    global _persisted
+    before = len(_persisted)
+    _persisted = [r for r in _persisted if r["name"] != (name or "").strip()]
+    if len(_persisted) != before:
+        _persist()
+        return True
+    return False
+
+
+def _persist() -> None:
+    from . import store
+    if store.enabled():
+        store.save_state("runbooks", {"rules": _persisted})
+
+
+def load_persisted() -> None:
+    global _persisted
+    from . import store
+    data = store.load_state("runbooks")
+    if data and isinstance(data.get("rules"), list):
+        _persisted = [r for r in (_normalize(x) for x in data["rules"] if isinstance(x, dict)) if r]
 
 
 def _matches(spec: dict, project: dict) -> bool:
@@ -88,7 +137,7 @@ def _matches(spec: dict, project: dict) -> bool:
 
 def match(project: dict) -> dict | None:
     """First runbook whose match-spec matches the given project, else None."""
-    for rb in load_runbooks():
+    for rb in _all():
         if _matches(rb["match"], project):
             return rb
     return None
@@ -145,6 +194,7 @@ def dispatch(project: dict) -> dict | None:
 
 
 def clear() -> None:
-    """Drop the cached catalog."""
-    global _cache
+    """Drop the cached catalog + in-app rules (test isolation)."""
+    global _cache, _persisted
     _cache = None
+    _persisted = []
