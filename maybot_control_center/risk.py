@@ -61,7 +61,24 @@ def kill_switch(on: bool, actor: str = "system") -> dict:
         _kill["on"] = bool(on)
         _kill["actor"] = actor or "system"
         _kill["ts"] = int(time.time() * 1000)
+        snap = dict(_kill)
+    try:
+        from . import store
+        store.save_state("risk_kill", snap)   # a halt must survive a restart
+    except Exception:
+        pass
     return status()
+
+
+def load_persisted() -> None:
+    try:
+        from . import store
+        data = store.load_state("risk_kill")
+    except Exception:
+        data = None
+    if isinstance(data, dict):
+        with _lock:
+            _kill.update({k: data[k] for k in ("on", "actor", "ts") if k in data})
 
 
 def is_halted() -> bool:

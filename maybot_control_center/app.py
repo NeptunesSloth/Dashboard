@@ -86,7 +86,7 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
                 treasury.load_persisted, taskqueue.load_persisted, oaths.load_persisted,
                 maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
                 audit.load_persisted, inbound.load_persisted, registry.load_persisted,
-                push.load_persisted, acks.load_persisted):
+                push.load_persisted, acks.load_persisted, authz.load_persisted, risk.load_persisted):
     try:
         _loader()
     except Exception:

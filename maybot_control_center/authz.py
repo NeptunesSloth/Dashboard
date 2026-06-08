@@ -24,6 +24,7 @@ from pathlib import Path
 import yaml
 
 from .config import CONTROL_CENTER_TOKEN
+from . import store
 
 USERS_FILE = Path(os.getenv("MAYBOT_USERS_FILE", "users.yaml"))
 RATE = int(os.getenv("MAYBOT_RATE_LIMIT", "240"))   # requests per window per key (0 = off)
@@ -193,12 +194,34 @@ def issue_session(token: str) -> dict | None:
     with _lock:
         _sessions[sid] = {"role": role, "name": name,
                           "projects": projects, "expires": expires}
+    _persist_sessions()
     return {"session": sid, "role": role, "name": name, "expires": expires}
+
+
+def _persist_sessions() -> None:
+    """Save live sessions so a control-center restart doesn't log everyone out."""
+    with _lock:
+        store.save_state("auth_sessions", {"sessions": dict(_sessions)})
+
+
+def load_persisted() -> None:
+    data = store.load_state("auth_sessions") or {}
+    sess = data.get("sessions") if isinstance(data, dict) else None
+    if not isinstance(sess, dict):
+        return
+    now = time.time()
+    with _lock:
+        for sid, rec in sess.items():
+            exp = rec.get("expires")
+            if exp is None or now < exp:        # skip already-expired
+                _sessions[sid] = rec
 
 
 def revoke_session(session: str) -> bool:
     with _lock:
-        return _sessions.pop(session, None) is not None
+        removed = _sessions.pop(session, None) is not None
+    _persist_sessions()
+    return removed
 
 
 def can_access_project(token: str, device: str, project: str) -> bool:
