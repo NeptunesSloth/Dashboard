@@ -1345,6 +1345,14 @@ function qsStep(st) {
 
 async function qsAction(kind, card) {
   if (kind === 'hosts' || kind === 'manage_bots' || kind === 'settings') { setTab('ops'); return; }
+  if (kind === 'update_agents') {
+    const extra = card.querySelector('#qs-extra');
+    if (extra) extra.innerHTML = `<div class='muted'>Updating outdated agents…</div>`;
+    const r = await apiPost('/api/fleet/update', {}, 'Update agents');
+    if (extra) extra.innerHTML = r ? `<div class='money-pos'>Updated: ${esc((r.updated || []).join(', ') || 'none')}.</div>` : `<div class='money-neg'>Update failed.</div>`;
+    setTimeout(() => render(), 5000);
+    return;
+  }
   if (kind === 'install') {
     let info = {};
     try { info = (await apiJSON('/api/hosts/enroll-token')) || {}; } catch (_) {}
@@ -2964,14 +2972,17 @@ async function renderHosts() {
     const state = h.online ? `online · ${h.projects} bot${h.projects === 1 ? '' : 's'}`
       : (h.auth_error ? 'auth error (token mismatch)' : 'offline');
     const names = (h.project_names || []).slice(0, 8).map(esc).join(', ');
+    const ver = h.version ? `<div class='muted'>agent v${esc(h.version)}${h.agent_outdated ? ' · update available' : ''}</div>` : '';
     return `<div class='card host-card'>
       <div class='section-head'><h3>${esc(h.name)} <span class='crew-dot ${dot}'></span></h3><span class='pill'>${esc(state)}</span></div>
       <div class='muted host-url'>${esc(h.url)}</div>
       <div class='muted'>token: ${esc(h.token_masked) || '—'}</div>
+      ${ver}
       ${names ? `<div class='muted host-bots'>bots: ${names}</div>` : ''}
       ${(!h.online && h.error) ? `<div class='alert alert-warning'>${esc(String(h.error).slice(0, 140))}</div>` : ''}
       <div class='host-actions'>
         <button class='btn btn-primary' data-host-bots='${esc(h.name)}'>Manage bots</button>
+        ${h.agent_outdated ? `<button class='btn' data-host-update='${esc(h.name)}'>Update agent</button>` : ''}
         <button class='btn' data-host-edit='${esc(h.name)}'>Edit</button>
         <button class='btn btn-danger' data-host-del='${esc(h.name)}'>Remove</button>
       </div></div>`;
@@ -2979,6 +2990,15 @@ async function renderHosts() {
   list.querySelectorAll('[data-host-edit]').forEach(b => b.onclick = () => openHostForm(hosts.find(h => h.name === b.dataset.hostEdit)));
   list.querySelectorAll('[data-host-del]').forEach(b => b.onclick = () => removeHost(b.dataset.hostDel));
   list.querySelectorAll('[data-host-bots]').forEach(b => b.onclick = () => openBotsManager(b.dataset.hostBots));
+  list.querySelectorAll('[data-host-update]').forEach(b => b.onclick = () => updateHostAgent(b.dataset.hostUpdate, b));
+}
+
+async function updateHostAgent(name, btn) {
+  if (!confirm(`Update the agent on “${name}”? It re-pulls the latest agent and restarts.`)) return;
+  if (btn) { btn.disabled = true; btn.textContent = 'Updating…'; }
+  const r = await apiPost('/api/hosts/' + encodeURIComponent(name) + '/update', {}, 'Update agent');
+  if (btn) btn.textContent = r ? 'Restarting…' : 'Failed';
+  setTimeout(() => { renderHosts(); render(); }, 4000);   // give the agent time to come back on the new version
 }
 
 function openHostForm(host) {

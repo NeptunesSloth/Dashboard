@@ -14,6 +14,10 @@ from . import config as _config
 from . import aggregator
 from .aggregator import aggregate
 from .agent_client import call_agent, post_agent, put_agent
+try:
+    from maybot_agent import __version__ as _LATEST_AGENT_VERSION
+except Exception:  # pragma: no cover
+    _LATEST_AGENT_VERSION = "1.0"
 from . import history
 from . import agents
 from . import comms
@@ -336,10 +340,12 @@ def _host_status_row(d: dict) -> dict:
         if isinstance(pl, list):
             projects = len(pl)
             names = [p.get("name") for p in pl][:30]
+    version = (ping.get("data") or {}).get("version") if reachable else None
     return {
         "name": d.get("name"), "url": d.get("url"), "timeout": d.get("timeout"),
         "token_masked": _mask_token(d.get("api_token", "")), "has_token": bool(d.get("api_token")),
         "online": online, "auth_error": auth_error,
+        "version": version, "agent_outdated": bool(version) and version != _LATEST_AGENT_VERSION,
         "status_code": proj.get("status_code", ping.get("status_code")) if reachable else ping.get("status_code"),
         "error": (proj.get("error") if auth_error else ping.get("error")),
         "projects": projects, "project_names": names,
@@ -501,6 +507,33 @@ def host_discover(name: str, x_control_token: str = Header(default="")):
         raise HTTPException(502, r.get("error") or "agent unreachable")
     data = r.get("data") or {}
     return {"candidates": data.get("candidates", []) if isinstance(data, dict) else []}
+
+
+@app.post("/api/hosts/{name}/update")
+def host_update(name: str, x_control_token: str = Header(default="")):
+    """Push an agent self-update to one host (re-pull bundle + restart)."""
+    _check_operator(x_control_token)
+    d = _resolve_device(name)
+    r = post_agent(d, "/api/self-update", timeout=120)
+    if not r.get("online"):
+        raise HTTPException(502, r.get("error") or "agent unreachable")
+    return r.get("data") or {"ok": True}
+
+
+@app.post("/api/fleet/update")
+def fleet_update(x_control_token: str = Header(default="")):
+    """Update every reachable host whose agent is behind the bundled version."""
+    _check_operator(x_control_token)
+    updated, skipped = [], []
+    for d in all_devices():
+        ping = call_agent(d, "/api/ping")
+        ver = (ping.get("data") or {}).get("version")
+        if ping.get("online") and ver and ver != _LATEST_AGENT_VERSION:
+            res = post_agent(d, "/api/self-update", timeout=120)
+            (updated if res.get("online") else skipped).append(d.get("name"))
+        else:
+            skipped.append(d.get("name"))
+    return {"latest": _LATEST_AGENT_VERSION, "updated": updated, "skipped": skipped}
 
 
 @app.post("/api/hosts")

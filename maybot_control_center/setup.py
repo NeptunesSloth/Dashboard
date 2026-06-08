@@ -75,8 +75,8 @@ def checklist(devices: list[dict] | None = None) -> dict:
         steps.append({
             "id": "agents", "title": "Update outdated agents", "done": False,
             "detail": f"{outdated} agent(s) are behind v{LATEST_AGENT_VERSION}. "
-                      "Re-run the installer on those hosts to update.",
-            "action": {"kind": "hosts", "label": "Open Hosts"},
+                      "Update them in place — no SSH needed.",
+            "action": {"kind": "update_agents", "label": "Update all"},
         })
 
     ready = auth_ok and has_host and online > 0 and bots > 0 and outdated == 0
