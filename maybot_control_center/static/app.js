@@ -2753,6 +2753,44 @@ async function restoreBackup(file) {
   renderHosts(); render();
 }
 
+// ---- Dead-man's switch: external heartbeat so the dashboard's own death pages you ----
+async function renderDeadmanCard() {
+  const sec = document.getElementById('ops-section'); if (!sec) return;
+  let card = document.getElementById('deadman-card');
+  if (!card) {
+    card = document.createElement('div');
+    card.id = 'deadman-card';
+    card.className = 'card';
+    sec.insertBefore(card, sec.firstChild);
+  }
+  const s = (await apiJSON('/api/deadman')) || {};
+  const last = s.last || {};
+  const lastTxt = last.at ? `last ping ${last.ok ? 'OK' : 'FAILED'} · ${new Date(last.at).toLocaleString()}${last.error ? ' · ' + esc(last.error) : ''}` : 'no ping yet';
+  card.innerHTML = `
+    <div class='section-head'><h3>🫀 Dead-man's switch</h3>
+      <span class='muted'>${s.configured ? 'armed' : 'off'}</span></div>
+    <p class='muted'>Paste a heartbeat URL from an external monitor (healthchecks.io, Better Uptime, …).
+      The dashboard pings it on a schedule; if the dashboard ever dies, that monitor alerts you.</p>
+    <div style='display:flex;gap:8px;flex-wrap:wrap;align-items:center'>
+      <input id='dm-url' class='lf-input' style='flex:1;min-width:240px' placeholder='https://hc-ping.com/your-uuid' value='${esc(s.url || '')}'>
+      <input id='dm-int' class='lf-input' type='number' style='width:110px' title='seconds' value='${esc(s.interval || 60)}'>
+      <button class='btn btn-primary' id='dm-save'>Save</button>
+      <button class='btn' id='dm-test'>Test ping</button>
+    </div>
+    <div class='muted' id='dm-status' style='margin-top:6px'>${s.configured ? esc(lastTxt) : ''}</div>`;
+  card.querySelector('#dm-save').onclick = async () => {
+    const url = card.querySelector('#dm-url').value.trim();
+    const interval = Number(card.querySelector('#dm-int').value) || 60;
+    await apiPost('/api/deadman', { url, interval }, 'Save heartbeat');
+    renderDeadmanCard();
+  };
+  card.querySelector('#dm-test').onclick = async () => {
+    const st = card.querySelector('#dm-status'); st.textContent = 'Pinging…';
+    const r = await apiPost('/api/deadman/test', {}, 'Test heartbeat');
+    st.innerHTML = r && r.ok ? `<span class='money-pos'>Ping OK ✓</span>` : `<span class='money-neg'>Ping failed${r && r.last && r.last.error ? ': ' + esc(r.last.error) : ''}</span>`;
+  };
+}
+
 // ---- Ops Copilot: ask the fleet in natural language ----
 function renderCopilot() {
   const sec = document.getElementById('ops-section'); if (!sec) return;
@@ -2803,6 +2841,7 @@ async function renderOps() {
   if (!sec) return;
   renderCopilot();      // ops copilot panel (built once)
   renderBackupCard();   // backup / restore (built once)
+  renderDeadmanCard();  // dead-man's switch (built once)
   bindHostsUI();        // host manager buttons (also bound at load, idempotent)
   renderHosts();        // agent host manager (add/edit/test, no file editing)
   bindAccountsUI();

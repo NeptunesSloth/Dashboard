@@ -100,6 +100,8 @@ talismans.start()  # background synthetic uptime probes (no-op without talismans
 autopilot.start()  # the Sect Leader's autonomous ops loop (no-op unless MAYBOT_AUTOPILOT=1)
 reports.start()    # periodic summary reports (no-op unless MAYBOT_REPORT_INTERVAL_HOURS>0)
 retention.start()  # data-retention pruning + scheduled backups (no-op unless configured)
+from . import deadman
+deadman.start()    # external heartbeat: if the dashboard dies, your monitor pages you (no-op until configured)
 
 _SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
 # A silence target: "*", "device:*", or "device:project".
@@ -207,6 +209,29 @@ def admin_import(body: dict, x_control_token: str = Header(default="")):
         return dr.restore_all(body)
     except ValueError as exc:
         raise HTTPException(400, str(exc))
+
+
+class DeadmanIn(BaseModel):
+    url: str = ""
+    interval: float | None = None
+
+
+@app.get("/api/deadman")
+def deadman_get(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return deadman.status()
+
+
+@app.post("/api/deadman")
+def deadman_set(body: DeadmanIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return deadman.configure(body.url, body.interval)
+
+
+@app.post("/api/deadman/test")
+def deadman_test(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    return {"ok": deadman.ping_once(), **deadman.status()}
 
 
 @app.get("/api/overview")
