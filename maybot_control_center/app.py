@@ -253,19 +253,26 @@ def _mask_token(tok: str) -> str:
 
 
 def _host_status_row(d: dict) -> dict:
+    # /api/ping is an unauthenticated liveness check (reachability). The token is
+    # enforced on /api/projects, so a reachable host with a wrong/missing token
+    # surfaces as auth_error there — keep that distinction for the UI badge.
     ping = call_agent(d, "/api/ping")
-    online = bool(ping.get("online"))
+    reachable = bool(ping.get("online"))
+    proj = call_agent(d, "/api/projects") if reachable else {}
+    auth_error = bool(proj.get("auth_error"))
+    online = reachable and not auth_error
     projects, names = 0, []
     if online:
-        pl = call_agent(d, "/api/projects").get("data", [])
+        pl = proj.get("data", [])
         if isinstance(pl, list):
             projects = len(pl)
             names = [p.get("name") for p in pl][:30]
     return {
         "name": d.get("name"), "url": d.get("url"), "timeout": d.get("timeout"),
         "token_masked": _mask_token(d.get("api_token", "")), "has_token": bool(d.get("api_token")),
-        "online": online, "auth_error": bool(ping.get("auth_error")),
-        "status_code": ping.get("status_code"), "error": ping.get("error"),
+        "online": online, "auth_error": auth_error,
+        "status_code": proj.get("status_code", ping.get("status_code")) if reachable else ping.get("status_code"),
+        "error": (proj.get("error") if auth_error else ping.get("error")),
         "projects": projects, "project_names": names,
     }
 
@@ -368,11 +375,16 @@ def hosts_test(body: HostTestIn, x_control_token: str = Header(default="")):
         raise HTTPException(400, "url must start with http:// or https://")
     d = {"url": url, "api_token": body.api_token or "", "timeout": body.timeout or 5}
     ping = call_agent(d, "/api/ping")
-    res = {"online": bool(ping.get("online")), "auth_error": bool(ping.get("auth_error")),
-           "status_code": ping.get("status_code"), "error": ping.get("error"),
+    reachable = bool(ping.get("online"))
+    proj = call_agent(d, "/api/projects") if reachable else {}
+    auth_error = bool(proj.get("auth_error"))
+    online = reachable and not auth_error
+    res = {"online": online, "auth_error": auth_error,
+           "status_code": proj.get("status_code", ping.get("status_code")) if reachable else ping.get("status_code"),
+           "error": (proj.get("error") if auth_error else ping.get("error")),
            "projects": 0, "project_names": []}
-    if res["online"]:
-        pl = call_agent(d, "/api/projects").get("data", [])
+    if online:
+        pl = proj.get("data", [])
         if isinstance(pl, list):
             res["projects"] = len(pl)
             res["project_names"] = [p.get("name") for p in pl][:30]

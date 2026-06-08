@@ -239,11 +239,22 @@ From the dashboard host (or anywhere that can reach the agent):
 ```bash
 scripts/check-agent.sh http://100.64.0.2:8100 the-token-from-step-3
 ```
-A `PASS` line means the link works. You can also hit the API directly:
+A `PASS` line means the link works. You can also hit the API directly.
+
+**Liveness / identity — no token needed** (these carry no secrets):
 ```bash
-curl -s -H "X-API-Token: $MAYBOT_API_TOKEN" http://127.0.0.1:8100/api/ping
-curl -s -H "X-API-Token: $MAYBOT_API_TOKEN" http://127.0.0.1:8100/api/projects | python3 -m json.tool
+curl -s http://127.0.0.1:8100/healthz      # {"status":"ok",...}
+curl -s http://127.0.0.1:8100/api/ping     # {"status":"ok",...}
+curl -s http://127.0.0.1:8100/api/device   # {"hostname":...,"platform":...,"version":...}
 ```
+
+**Project data — requires the token** (it can include bot config and PnL):
+```bash
+curl -s -H "X-API-Token: $MAYBOT_API_TOKEN" http://127.0.0.1:8100/api/projects | python3 -m json.tool
+# A fresh host with no projects returns [] with HTTP 200 — that is success, not an error.
+```
+Without the token, `/api/projects` returns `401` by design — the dashboard sends
+the token automatically, and on a token mismatch the host shows **auth error**.
 
 ---
 
@@ -260,6 +271,7 @@ curl -s -H "X-API-Token: $MAYBOT_API_TOKEN" http://127.0.0.1:8100/api/projects |
 
 | Symptom (from `check-agent.sh` / dashboard) | Cause & fix |
 |---|---|
+| **`404` on `/api/ping`, `/api/device`, `/api/projects`**, but `/`, `/healthz`, `/metrics` exist and `/docs` shows a dashboard | **You are running the *control center* on this port, not the agent.** The control center (`maybot_control_center.app:app`, port 8200) and the agent (`maybot_agent.app:app`, port 8100) are different apps. On a bot host run the **agent**: `uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100` (or use the one-line installer). |
 | `401` / device shows **auth error** | `api_token` in `devices.yaml` ≠ this host's `MAYBOT_API_TOKEN`. |
 | `no response (000)` / device **offline** | Agent not running, wrong host/port, agent bound to `127.0.0.1` instead of the LAN IP, or firewall blocking the port. |
 | `0 projects` | `projects.yaml` is empty/missing, or `MAYBOT_PROJECTS_FILE` points elsewhere. |

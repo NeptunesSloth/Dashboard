@@ -20,19 +20,24 @@ def _num(v):
 
 
 def _fetch_device(d: dict) -> tuple[dict, list[dict]]:
+    # /api/ping is unauthenticated (reachability); the API token is enforced on
+    # /api/projects, so a wrong/missing token shows up as auth_error there.
     ping = call_agent(d, "/api/ping")
-    online = bool(ping.get("online"))
+    reachable = bool(ping.get("online"))
+    proj_resp = call_agent(d, "/api/projects") if reachable else {}
+    auth_error = bool(proj_resp.get("auth_error"))
+    online = reachable and not auth_error
     device_row = {
         "name": d.get("name", "unknown"),
         "online": online,
-        "auth_error": bool(ping.get("auth_error")),
-        "status_code": ping.get("status_code", "unknown"),
-        "error": ping.get("error"),
+        "auth_error": auth_error,
+        "status_code": proj_resp.get("status_code", ping.get("status_code", "unknown")) if reachable else ping.get("status_code", "unknown"),
+        "error": (proj_resp.get("error") if auth_error else ping.get("error")),
         "url": d.get("url", "unknown"),
     }
     projects: list[dict] = []
     if online:
-        p = call_agent(d, "/api/projects").get("data", [])
+        p = proj_resp.get("data", [])
         if isinstance(p, list):
             for pr in p:
                 pr["device"] = d.get("name", "unknown")

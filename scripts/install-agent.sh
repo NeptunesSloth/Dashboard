@@ -19,7 +19,7 @@ API_TOKEN="${API_TOKEN:-$(python3 -c 'import secrets;print(secrets.token_hex(32)
 
 echo "MayBot agent → installing into $DIR (enrolling to $CONTROL_URL)"
 mkdir -p "$DIR"; cd "$DIR"
-curl -fsSL "$CONTROL_URL/agent-bundle.tgz" -o bundle.tgz
+curl -fsSL --connect-timeout 10 "$CONTROL_URL/agent-bundle.tgz" -o bundle.tgz
 tar xzf bundle.tgz && rm -f bundle.tgz
 python3 -m venv .venv
 ./.venv/bin/pip install -q -U pip

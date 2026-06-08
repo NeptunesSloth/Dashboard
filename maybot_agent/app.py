@@ -6,7 +6,35 @@ from .services.log_reader import read_logs
 from .adapters import trading_bot, code_project, game_server, website, school, ai_project, local_ai_host, generic
 from . import selfregister
 
+import platform
+import socket
+
 app = FastAPI(title="maybot-agent")
+
+AGENT_VERSION = "1.0"
+
+
+def _hostname() -> str:
+    try:
+        return socket.gethostname() or "agent"
+    except Exception:
+        return "agent"
+
+
+def _lan_ip() -> str:
+    """Best-effort primary outbound IP (no packet is actually sent)."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        try:
+            return socket.gethostbyname(socket.gethostname())
+        except Exception:
+            return "127.0.0.1"
+
 
 
 @app.on_event("startup")
@@ -39,14 +67,35 @@ def get_project(name: str) -> dict:
     raise HTTPException(404, "project not found")
 
 
-@app.get("/api/ping", dependencies=[Depends(verify_token)])
+# --- Liveness / identity ---------------------------------------------------
+# These carry no secrets and no bot/PnL data, so they are intentionally
+# unauthenticated: they are the routes used for plain health checks (infra
+# probes, `curl /healthz`, the dashboard's reachability ping). Sensitive
+# routes below (projects, logs, run/start/stop) still require the API token.
+
+@app.get("/healthz")
+def healthz():
+    """Unauthenticated liveness — the agent process is up and serving."""
+    return {"status": "ok", "service": "maybot-agent", "version": AGENT_VERSION}
+
+
+@app.get("/api/ping")
 def ping():
-    return {"status": "ok"}
+    return {"status": "ok", "service": "maybot-agent", "version": AGENT_VERSION}
 
 
-@app.get("/api/device", dependencies=[Depends(verify_token)])
+@app.get("/api/device")
 def device():
-    return {"host": HOST, "port": PORT, "version": "1.0"}
+    """Non-sensitive host identity for the dashboard's device list."""
+    return {
+        "host": HOST,
+        "hostname": _hostname(),
+        "ip": _lan_ip(),
+        "platform": platform.platform(),
+        "python": platform.python_version(),
+        "port": PORT,
+        "version": AGENT_VERSION,
+    }
 
 
 @app.get("/api/projects", dependencies=[Depends(verify_token)])
