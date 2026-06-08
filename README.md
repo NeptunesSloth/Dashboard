@@ -73,6 +73,10 @@ Get the dashboard running on your machine with Docker:
      ```bash
      curl -fsSL http://YOUR-DASH:8200/install-ai.sh | CONTROL_URL=http://YOUR-DASH:8200 CONTROL_TOKEN=<operator-token> bash
      ```
+   > **What is `YOUR-DASH`?** The dashboard's address *as seen from the machine you run the command on*.
+   > Use `localhost` (or `127.0.0.1`) **only** when the agent runs on the **same machine** as the dashboard.
+   > On a **separate** bot host, use the dashboard's **LAN/VPN IP or hostname** (e.g. `http://192.168.1.50:8200`)
+   > — `localhost` there would point at the bot host itself, so the download and self-enrollment would fail.
    - Deeper guides: local AI → [docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md) · agents/hosts → [docs/AGENT_SETUP.md](docs/AGENT_SETUP.md).
 
 Full desktop-app details (stop, update, troubleshoot): [docs/DESKTOP_APP.md](docs/DESKTOP_APP.md).
