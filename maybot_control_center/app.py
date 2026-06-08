@@ -189,6 +189,26 @@ def meta():
             "public_status": status_page.enabled()}
 
 
+@app.get("/api/admin/export")
+def admin_export(x_control_token: str = Header(default="")):
+    """Download a full config backup (hosts, accounts, enroll token, state)."""
+    _check_operator(x_control_token)
+    from . import dr
+    return JSONResponse(dr.export_all(),
+                        headers={"Content-Disposition": "attachment; filename=maybot-backup.json"})
+
+
+@app.post("/api/admin/import")
+def admin_import(body: dict, x_control_token: str = Header(default="")):
+    """Restore from a backup bundle — rebuilds hosts/accounts/state in place."""
+    _check_operator(x_control_token)
+    from . import dr
+    try:
+        return dr.restore_all(body)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+
+
 @app.get("/api/overview")
 def overview(x_control_token: str = Header(default="")):
     _check_token(x_control_token)

@@ -2699,6 +2699,60 @@ async function renderReliability() {
   });
 }
 
+// ---- Backup & Restore: full-config disaster recovery, all in-app ----
+function renderBackupCard() {
+  const sec = document.getElementById('ops-section'); if (!sec) return;
+  if (document.getElementById('backup-card')) return;          // built once
+  const card = document.createElement('div');
+  card.id = 'backup-card';
+  card.className = 'card';
+  sec.insertBefore(card, sec.firstChild);
+  card.innerHTML = `
+    <div class='section-head'><h3>💾 Backup &amp; Restore</h3>
+      <span class='muted'>rebuild on a new machine, no SSH</span></div>
+    <p class='muted'>Download a full backup (hosts, accounts, enroll token, saved state) or restore one.
+      The file contains secrets — keep it safe.</p>
+    <div style='display:flex;gap:8px;flex-wrap:wrap;align-items:center'>
+      <button class='btn btn-primary' id='bk-export'>⬇ Download backup</button>
+      <button class='btn' id='bk-import'>⬆ Restore from file…</button>
+      <input type='file' id='bk-file' accept='.json,application/json' style='display:none'>
+      <span id='bk-status' class='muted'></span>
+    </div>`;
+  card.querySelector('#bk-export').onclick = downloadBackup;
+  const fileInput = card.querySelector('#bk-file');
+  card.querySelector('#bk-import').onclick = () => fileInput.click();
+  fileInput.onchange = () => { if (fileInput.files[0]) restoreBackup(fileInput.files[0]); fileInput.value = ''; };
+}
+
+async function downloadBackup() {
+  const status = document.getElementById('bk-status');
+  if (status) status.textContent = 'Preparing…';
+  try {
+    const r = await fetch('/api/admin/export', { headers: authHeaders() });
+    if (!r.ok) { if (status) status.innerHTML = `<span class='money-neg'>Export failed (${r.status}).</span>`; return; }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `maybot-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    if (status) status.innerHTML = `<span class='money-pos'>Downloaded ✓</span>`;
+  } catch (e) { if (status) status.innerHTML = `<span class='money-neg'>Export failed.</span>`; }
+}
+
+async function restoreBackup(file) {
+  const status = document.getElementById('bk-status');
+  let data;
+  try { data = JSON.parse(await file.text()); }
+  catch (_) { if (status) status.innerHTML = `<span class='money-neg'>That file isn't valid JSON.</span>`; return; }
+  if (!confirm('Restore this backup? It overwrites your hosts, accounts, enroll token, and saved state.')) return;
+  if (status) status.textContent = 'Restoring…';
+  const r = await apiPost('/api/admin/import', data, 'Restore backup');
+  if (!r) { if (status) status.innerHTML = `<span class='money-neg'>Restore failed.</span>`; return; }
+  if (status) status.innerHTML = `<span class='money-pos'>Restored: ${esc((r.restored || []).join(', ') || 'nothing')}.</span>`;
+  renderHosts(); render();
+}
+
 // ---- Ops Copilot: ask the fleet in natural language ----
 function renderCopilot() {
   const sec = document.getElementById('ops-section'); if (!sec) return;
@@ -2748,6 +2802,7 @@ async function renderOps() {
   const sec = document.getElementById('ops-section');
   if (!sec) return;
   renderCopilot();      // ops copilot panel (built once)
+  renderBackupCard();   // backup / restore (built once)
   bindHostsUI();        // host manager buttons (also bound at load, idempotent)
   renderHosts();        // agent host manager (add/edit/test, no file editing)
   bindAccountsUI();
