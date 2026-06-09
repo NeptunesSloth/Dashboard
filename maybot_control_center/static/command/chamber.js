@@ -319,7 +319,9 @@ async function openInspect(name) {
 
   const panel = $('inspect-panel');
   panel.innerHTML = `
-    <button class='inspect-close' id='inspect-close'>✕</button>
+    <div class='inspect-bar'>
+      <button class='inspect-back' id='inspect-close'>← Back to the sect</button>
+    </div>
     <div class='dsheet'>
       <header class='ds-head'>
         <div class='ds-portrait'><img src='/assets/sect/portraits/${p.portrait}.png' alt='' onerror="this.style.display='none'"><span class='ds-dot ${STATUS_DOT[p.status] || 'dot-idle'}'></span></div>
