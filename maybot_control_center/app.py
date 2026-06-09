@@ -65,6 +65,10 @@ from . import reports
 from . import retention
 from . import selfcheck
 from . import learning
+from . import obs
+
+# Opt-in structured JSON logging (no-op unless MAYBOT_JSON_LOGS is truthy).
+obs.setup_logging()
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -1531,6 +1535,18 @@ def readyz(strict: bool = Query(default=False)):
 def prometheus_metrics():
     # Aggregate stats only (no secrets); standard unauthenticated Prometheus scrape target.
     return PlainTextResponse(metrics_mod.render(), media_type="text/plain; version=0.0.4")
+
+
+@app.get("/metrics/obs")
+def prometheus_metrics_lite(x_control_token: str = Header(default="")):
+    # Cheap, never-fail liveness/throughput exposition (no agent polling). Public by
+    # default (internal scrape target); gated only when MAYBOT_METRICS_PUBLIC is off,
+    # in which case a valid control token (or MAYBOT_METRICS_TOKEN) is required.
+    if not obs.metrics_public():
+        tok = obs.metrics_token()
+        if not (tok and x_control_token == tok):
+            deps.check_token(x_control_token)
+    return PlainTextResponse(obs.render_prometheus(), media_type=obs.CONTENT_TYPE)
 
 
 # ---- Public status page (Sect Proclamation) — opt-in, unauthenticated ----
