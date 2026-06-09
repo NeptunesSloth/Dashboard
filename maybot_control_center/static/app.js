@@ -3779,6 +3779,7 @@ const SIDE_RAIL = [
   ['map', '🗺', 'Map', { tab: 'map' }],
   ['halls', '⛩', 'Halls', { tab: 'sect' }],
   ['treasury', '🏦', 'Treasury', { href: '/treasury' }],
+  ['learn', '📚', 'Learning', { href: '/learn' }],
   ['ops', '⚙', 'Ops', { tab: 'ops' }],
 ];
 function buildSideRail() {

@@ -1,0 +1,36 @@
+# learning.yaml — built-in learning tracks for the Learning Center.
+#
+# These are the read-only seed tracks. Custom tracks you create in the Learning
+# Center UI are stored separately (in the DB state blob), never written back here.
+# Each track: {id, title, topics: [str], labs: [str]}  (labs: ids | pentest)
+tracks:
+  - id: cybersecurity
+    title: Cybersecurity Fundamentals
+    topics:
+      - Networking & TCP/IP
+      - Threat Models & Attack Surface
+      - Cryptography Basics
+      - Intrusion Detection (IDS/IPS)
+      - Incident Response
+      - Web App Security (OWASP Top 10)
+    labs: [ids, pentest]
+  - id: french
+    title: French
+    topics:
+      - Greetings & Introductions
+      - The Present Tense
+      - Everyday Vocabulary
+      - Numbers, Dates & Time
+      - Listening Comprehension
+      - Holding a Conversation
+    labs: []
+  - id: cert-prep
+    title: Cert Prep — CompTIA Security+
+    topics:
+      - Threats, Attacks & Vulnerabilities
+      - Architecture & Design
+      - Implementation
+      - Operations & Incident Response
+      - Governance, Risk & Compliance
+      - Acronym Drills
+    labs: [ids]

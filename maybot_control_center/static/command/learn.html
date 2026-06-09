@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aegis — Learning Center</title>
+  <meta name="theme-color" content="#05060c">
+  <link rel="icon" href="/icon.svg">
+  <link rel="stylesheet" href="/command.css">
+  <style>
+    .track-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { padding:7px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04); cursor:pointer; font-size:13px; transition:.15s; white-space:nowrap; }
+    .chip:hover { background:rgba(255,255,255,.09); }
+    .chip.active { background:linear-gradient(135deg,#7c5cff,#38bdf8); border-color:transparent; color:#fff; }
+    .chip .lvl { opacity:.7; font-size:11px; margin-left:6px; }
+    .topic-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+    .topic-btn { padding:6px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.03); cursor:pointer; font-size:12.5px; }
+    .topic-btn:hover { background:rgba(255,255,255,.08); }
+    .topic-btn.done::after { content:' ✓'; color:#34d399; }
+    .lesson-body { line-height:1.6; font-size:14px; white-space:pre-wrap; }
+    .lesson-body h1,.lesson-body h2,.lesson-body h3 { font-size:16px; margin:12px 0 6px; }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+    .btn { padding:8px 16px; border-radius:9px; border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.05); cursor:pointer; font-size:13px; transition:.15s; }
+    .btn:hover { background:rgba(255,255,255,.1); }
+    .btn.primary { background:linear-gradient(135deg,#7c5cff,#38bdf8); border-color:transparent; color:#fff; }
+    .btn.gold { background:linear-gradient(135deg,#fbbf24,#fb5e7e); border-color:transparent; color:#0b0c12; font-weight:600; }
+    .btn:disabled { opacity:.45; cursor:default; }
+    .qz-q { margin:14px 0; }
+    .qz-q .stem { font-weight:600; margin-bottom:8px; font-size:13.5px; }
+    .qz-opt { display:block; padding:8px 12px; border-radius:8px; margin:5px 0; cursor:pointer;
+      border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.03); font-size:13px; }
+    .qz-opt:hover { background:rgba(255,255,255,.07); }
+    .qz-opt.sel { border-color:#7c5cff; background:rgba(124,92,255,.16); }
+    .qz-opt.right { border-color:#34d399; background:rgba(52,211,153,.16); }
+    .qz-opt.wrong { border-color:#fb5e7e; background:rgba(251,94,126,.16); }
+    .qz-exp { font-size:12px; opacity:.78; margin-top:6px; padding-left:4px; }
+    .lab-art { white-space:pre-wrap; font-family:ui-monospace,Menlo,monospace; font-size:12px;
+      background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.08); border-radius:9px;
+      padding:12px; max-height:300px; overflow:auto; line-height:1.5; }
+    textarea.finding { width:100%; min-height:80px; margin-top:10px; border-radius:9px; padding:10px;
+      background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.12); color:inherit; font-size:13px; resize:vertical; }
+    .chat-log { display:flex; flex-direction:column; gap:8px; max-height:260px; overflow:auto; margin-bottom:10px; }
+    .bub { padding:8px 12px; border-radius:11px; font-size:13px; max-width:88%; line-height:1.5; white-space:pre-wrap; }
+    .bub.you { align-self:flex-end; background:linear-gradient(135deg,#7c5cff,#38bdf8); color:#fff; }
+    .bub.ai { align-self:flex-start; background:rgba(255,255,255,.06); }
+    .chat-in { display:flex; gap:8px; }
+    .chat-in input { flex:1; border-radius:9px; padding:9px 12px; background:rgba(0,0,0,.3);
+      border:1px solid rgba(255,255,255,.12); color:inherit; font-size:13px; }
+    /* progress sidebar */
+    .realm-card { text-align:center; }
+    .realm-name { font-size:17px; font-weight:700; background:linear-gradient(135deg,#a78bfa,#38bdf8);
+      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    .stones-big { font-size:26px; font-weight:800; margin-top:4px; }
+    .realm-bar { height:7px; border-radius:5px; background:rgba(255,255,255,.08); margin-top:10px; overflow:hidden; }
+    .realm-bar > span { display:block; height:100%; background:linear-gradient(90deg,#7c5cff,#38bdf8); transition:width .8s; }
+    .streak { display:flex; align-items:center; gap:10px; margin-top:14px; }
+    .flame { font-size:26px; filter:drop-shadow(0 0 8px rgba(251,146,60,.7)); }
+    .streak.cold .flame { filter:grayscale(1); opacity:.45; }
+    .quests li { list-style:none; display:flex; align-items:center; gap:8px; padding:5px 0; font-size:12.5px; }
+    .quests .box { width:16px; height:16px; border-radius:5px; border:1px solid rgba(255,255,255,.25);
+      display:inline-flex; align-items:center; justify-content:center; font-size:11px; }
+    .quests .done .box { background:#34d399; border-color:#34d399; color:#0b0c12; }
+    .quests .done span { text-decoration:line-through; opacity:.6; }
+    .badge-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:8px; margin-top:8px; }
+    .badge { text-align:center; padding:8px 4px; border-radius:10px; border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03); font-size:10.5px; opacity:.35; }
+    .badge.earned { opacity:1; border-color:rgba(251,191,36,.5); background:rgba(251,191,36,.08); }
+    .badge .ico { font-size:18px; display:block; margin-bottom:3px; }
+    .ring2 { --p:0; width:46px; height:46px; border-radius:50%; display:grid; place-items:center;
+      background:conic-gradient(#7c5cff calc(var(--p)*1%), rgba(255,255,255,.08) 0); font-size:11px; font-weight:700; }
+    .ring2 b { width:36px; height:36px; border-radius:50%; background:#0b0c14; display:grid; place-items:center; }
+    .tlvl-row { display:flex; align-items:center; gap:10px; padding:6px 0; font-size:12.5px; }
+    .profile-card { font-size:12.5px; line-height:1.55; }
+    .profile-card .tag { display:inline-block; padding:2px 8px; border-radius:999px; margin:3px 3px 0 0;
+      background:rgba(255,255,255,.06); font-size:11px; }
+    /* fx */
+    #toasts { position:fixed; top:18px; right:18px; display:flex; flex-direction:column; gap:8px; z-index:60; }
+    .toast { padding:10px 16px; border-radius:11px; background:rgba(20,22,34,.92);
+      border:1px solid rgba(255,255,255,.12); font-size:13px; box-shadow:0 8px 30px rgba(0,0,0,.4);
+      animation:pop .3s ease; }
+    .toast.good { border-color:rgba(52,211,153,.6); }
+    @keyframes pop { from { transform:translateY(-8px) scale(.96); opacity:0; } to { transform:none; opacity:1; } }
+    #confetti { position:fixed; inset:0; pointer-events:none; z-index:55; overflow:hidden; }
+    .confetti-bit { position:absolute; width:9px; height:14px; top:-20px; will-change:transform; }
+    #modal { position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.55); z-index:70; }
+    #modal.show { display:grid; }
+    .modal-card { text-align:center; padding:30px 36px; border-radius:18px; max-width:340px;
+      background:linear-gradient(160deg,rgba(30,28,55,.97),rgba(14,16,28,.97)); border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 20px 70px rgba(0,0,0,.6); animation:pop .35s ease; }
+    .modal-card .big-ico { font-size:48px; }
+    .modal-card h2 { margin:10px 0 4px; font-size:20px; }
+    .mute-btn { cursor:pointer; opacity:.7; font-size:16px; background:none; border:none; color:inherit; }
+    .mode-bar { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .mode-btn { padding:7px 13px; border-radius:9px; border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04); cursor:pointer; font-size:12.5px; }
+    .mode-btn:hover { background:rgba(255,255,255,.09); }
+    .mode-btn .pill { display:inline-block; min-width:16px; padding:0 5px; margin-left:6px; border-radius:999px;
+      background:#fb5e7e; color:#fff; font-size:10px; font-weight:700; }
+    .exam-timer { font-family:ui-monospace,monospace; font-weight:700; font-size:15px; padding:4px 10px;
+      border-radius:8px; background:rgba(255,255,255,.06); }
+    .exam-timer.low { background:rgba(251,94,126,.2); color:#fb5e7e; }
+    .dom-row { display:flex; align-items:center; gap:10px; margin:6px 0; font-size:12.5px; }
+    .dom-bar { flex:1; height:7px; border-radius:5px; background:rgba(255,255,255,.08); overflow:hidden; }
+    .dom-bar > span { display:block; height:100%; background:linear-gradient(90deg,#34d399,#38bdf8); }
+    .lib-item { padding:9px 12px; border-radius:9px; border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03); cursor:pointer; margin:6px 0; font-size:13px; }
+    .lib-item:hover { background:rgba(255,255,255,.07); }
+    .lib-item .meta { font-size:11px; opacity:.6; margin-top:2px; }
+    .rate-bar { display:flex; gap:8px; margin-top:12px; }
+    @media (prefers-reduced-motion: reduce) { .toast,.modal-card { animation:none; } }
+  </style>
+</head>
+<body>
+  <canvas id="scene-canvas" class="scene-canvas"></canvas>
+  <div class="vignette"></div>
+
+  <div class="app">
+    <nav class="rail glass" id="rail"></nav>
+
+    <div class="center">
+      <div class="topbar">
+        <div class="brand"><span class="mark">📚</span> Learning Center</div>
+        <div class="jarvis" id="jarvis">Pick a track and let's learn.</div>
+        <button class="mute-btn" id="mute" title="Toggle sound & motion">🔊</button>
+        <div class="clock" id="clock"></div>
+      </div>
+
+      <section class="glass rise" style="padding:16px 20px">
+        <div class="panel-title" style="margin-bottom:10px">Tracks</div>
+        <div class="track-chips" id="tracks"></div>
+        <div class="topic-list" id="topics"></div>
+        <div class="mode-bar" id="modes"></div>
+      </section>
+
+      <section class="glass rise d2" style="padding:20px; margin-top:14px">
+        <div class="section-h"><div class="panel-title" id="work-title">Lesson</div>
+          <div class="muted" id="work-sub"></div></div>
+        <div id="work"><div class="muted">Choose a topic above to begin a lesson.</div></div>
+      </section>
+
+      <section class="glass rise d3" style="padding:20px; margin-top:14px">
+        <div class="panel-title" style="margin-bottom:10px">Ask the Tutor</div>
+        <div class="chat-log" id="chat"></div>
+        <div class="chat-in">
+          <input id="chat-input" placeholder="Ask a question about this track…" autocomplete="off">
+          <button class="btn primary" id="chat-send">Ask</button>
+        </div>
+      </section>
+    </div>
+
+    <aside class="right">
+      <section class="glass rise d2" style="padding:20px">
+        <div class="realm-card">
+          <div class="realm-name" id="realm-name">—</div>
+          <div class="muted" id="rank-title" style="font-size:12px"></div>
+          <div class="stones-big" id="stones">—</div>
+          <div class="muted" style="font-size:11px">spirit stones · <span id="next-realm"></span></div>
+          <div class="realm-bar"><span id="realm-prog" style="width:0%"></span></div>
+        </div>
+        <div class="streak" id="streak">
+          <span class="flame">🔥</span>
+          <div><div id="streak-n" style="font-weight:700">0-day streak</div>
+            <div class="muted" style="font-size:11px" id="streak-sub">Learn today to start one.</div></div>
+        </div>
+        <button class="btn gold" id="chest" style="width:100%; margin-top:14px; display:none">🎁 Open mystery chest</button>
+      </section>
+
+      <section class="glass rise d3" style="padding:20px">
+        <div class="panel-title">Daily Quests</div>
+        <ul class="quests" id="quests" style="margin:8px 0 0; padding:0"></ul>
+      </section>
+
+      <section class="glass rise d3" style="padding:20px">
+        <div class="panel-title">Track Mastery</div>
+        <div id="track-levels" style="margin-top:6px"></div>
+      </section>
+
+      <section class="glass rise d4" style="padding:20px">
+        <div class="panel-title">Achievements <span class="muted" id="badge-count" style="font-size:11px"></span></div>
+        <div class="badge-grid" id="badges"></div>
+      </section>
+
+      <section class="glass rise d4" style="padding:20px">
+        <div class="section-h"><div class="panel-title">Your Learning Profile</div>
+          <button class="btn" id="edit-profile" style="padding:4px 10px; font-size:11px">edit</button></div>
+        <div class="profile-card" id="profile" style="margin-top:8px"></div>
+      </section>
+    </aside>
+  </div>
+
+  <div id="toasts"></div>
+  <div id="confetti"></div>
+  <div id="modal"><div class="modal-card" id="modal-card"></div></div>
+
+  <script type="module" src="/learn.js"></script>
+</body>
+</html>
