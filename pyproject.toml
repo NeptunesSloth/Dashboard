@@ -1,3 +1,19 @@
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+
+# Lenient mypy config for the *non-gating* CI typecheck job (see
+# .github/workflows/ci.yml). The codebase is large and mostly untyped, so this
+# is intentionally permissive: it REPORTS type issues without failing CI. Do not
+# add strict flags here — the job is informational (continue-on-error: true).
+[tool.mypy]
+files = ["maybot_control_center", "maybot_agent"]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_ignores = false
+# Keep it quiet on untyped code: don't demand annotations or flag dynamic typing.
+follow_imports = "silent"
+check_untyped_defs = false
+disallow_untyped_defs = false
+warn_return_any = false
+no_implicit_optional = false
