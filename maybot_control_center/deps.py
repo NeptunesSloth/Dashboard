@@ -48,3 +48,11 @@ def resolve_device(device_name: str):
     if not device:
         raise HTTPException(404, "device not found")
     return device
+
+
+def mask_token(tok: str) -> str:
+    """Mask a secret for display (used by the hosts and accounts panels)."""
+    t = tok or ""
+    if len(t) <= 6:
+        return "•" * len(t)
+    return t[:3] + "•" * 6 + t[-3:]
