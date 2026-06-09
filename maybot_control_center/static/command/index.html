@@ -42,16 +42,30 @@
 
       <div id="setup-banner"></div>
 
-      <section class="hero glass rise d1" data-depth="0.5">
-        <div class="hero-grid" id="hero"></div>
+      <section class="decree glass rise d1" data-depth="0.5" aria-label="Heavenly Decree">
+        <div class="decree-head">
+          <span class="decree-title">⚡ Heavenly Decree</span>
+          <span class="decree-sub">Issue a decree — ask about your fleet or command your disciples</span>
+          <div class="decree-mode" role="tablist" aria-label="Decree mode">
+            <button id="decree-ask" class="on" role="tab" aria-selected="true">Ask</button>
+            <button id="decree-cmd" role="tab" aria-selected="false">Command</button>
+          </div>
+        </div>
+        <div class="decree-row">
+          <input id="decree-input" class="decree-input" autocomplete="off"
+            placeholder="e.g. what needs attention across the fleet?" aria-label="Decree">
+          <button id="decree-send" class="decree-send">Ask</button>
+        </div>
+        <div class="decree-parts" id="decree-parts" hidden></div>
+        <div class="decree-out" id="decree-out" aria-live="polite"></div>
       </section>
 
-      <div class="section-h rise d2"><div class="panel-title">Trading Command Center</div></div>
-      <div class="metrics rise d2" id="metrics" data-depth="0.8"></div>
+      <div class="section-h rise d2"><div class="panel-title">Fleet Command</div></div>
+      <div class="fleet-stats rise d2" id="fleet-stats" data-depth="0.8"></div>
 
       <section class="glass rise d3" style="padding:18px" data-depth="1.1">
-        <div class="section-h" style="margin-bottom:12px"><div class="panel-title">Active Opportunities</div><span class="muted" id="opp-count"></span></div>
-        <div class="opps" id="opps"></div>
+        <div class="section-h" style="margin-bottom:12px"><div class="panel-title">Active Missions · Task Board</div><span class="muted" id="task-count"></span></div>
+        <div class="taskboard" id="taskboard"></div>
       </section>
 
       <div class="section-h rise d4"><div class="panel-title">Realms · Strategic Assets</div></div>
