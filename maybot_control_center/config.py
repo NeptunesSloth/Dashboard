@@ -5,6 +5,12 @@ import tempfile
 import threading
 import yaml
 
+from . import secrets
+
+# Secret fields decrypted on load / encrypted on save (when MAYBOT_SECRET_KEY
+# is set). Only these are touched — names, urls and timeouts stay plaintext.
+_DEVICE_SECRET_FIELDS = ("api_token",)
+
 # Serializes config writes (devices/users/agents/sect). Re-entrant so an endpoint
 # can hold it across a read-modify-write to also avoid lost updates.
 WRITE_LOCK = threading.RLock()
@@ -46,7 +52,17 @@ def load_devices() -> list[dict]:
         _log.warning("devices.yaml could not be parsed — treating as empty")
         return []
     devices = data.get("devices", [])
-    return devices if isinstance(devices, list) else []
+    if not isinstance(devices, list):
+        return []
+    # Transparently decrypt any `enc:` secret fields. Plaintext values (the
+    # default, and existing configs) pass through unchanged. With no key set,
+    # `enc:` values are left as-is with a one-time warning (no crash).
+    for d in devices:
+        if isinstance(d, dict):
+            for field in _DEVICE_SECRET_FIELDS:
+                if field in d:
+                    d[field] = secrets.decrypt(d[field])
+    return devices
 
 
 def save_devices(devices: list[dict]) -> None:
@@ -59,8 +75,10 @@ def save_devices(devices: list[dict]) -> None:
     for d in devices:
         if not isinstance(d, dict) or not d.get("name"):
             continue
+        # Encrypt the api_token at rest when MAYBOT_SECRET_KEY is set; otherwise
+        # encrypt() returns it unchanged so the file is byte-for-byte as today.
         entry = {"name": str(d["name"]), "url": str(d.get("url", "")),
-                 "api_token": str(d.get("api_token", ""))}
+                 "api_token": secrets.encrypt(str(d.get("api_token", "")))}
         if d.get("timeout"):
             try:
                 entry["timeout"] = float(d["timeout"])
