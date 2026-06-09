@@ -39,6 +39,55 @@ def _visit(b, path, must_have):
     pg.close()
 
 
+def _decree_flow(b):
+    """Exercise the Heavenly Decree: Ask (copilot) + Command (mission/task) must
+    both produce output and raise no uncaught error. (#91 was invisible to a
+    page-load-only smoke — it only failed on submit.)"""
+    pg = b.new_page()
+    errs = []
+    pg.on("pageerror", lambda e: errs.append(str(e)))
+    pg.goto(BASE + "/", wait_until="load", timeout=25000)
+    pg.wait_for_selector("#decree-input", timeout=10000)
+    out_len = "() => (document.querySelector('#decree-out')||{}).textContent?.trim().length || 0"
+    # Ask mode (default).
+    pg.fill("#decree-input", "what needs attention?")
+    pg.click("#decree-send")
+    pg.wait_for_timeout(1800)
+    assert pg.evaluate(out_len) > 0, "Heavenly Decree Ask produced no output"
+    # Command mode.
+    pg.click("#decree-cmd")
+    pg.wait_for_timeout(200)
+    pg.fill("#decree-input", "scan the fleet")
+    pg.click("#decree-send")
+    pg.wait_for_timeout(1500)
+    assert pg.evaluate(out_len) > 0, "Heavenly Decree Command produced no output"
+    assert not errs, f"Heavenly Decree raised: {errs}"
+    pg.close()
+
+
+def _learning_flow(b):
+    """Switch through the Learning mode bar and open a lesson — each render path
+    must run without an uncaught error (backend-free panels render; backend ones
+    degrade gracefully)."""
+    pg = b.new_page()
+    errs = []
+    pg.on("pageerror", lambda e: errs.append(str(e)))
+    pg.goto(BASE + "/learn", wait_until="load", timeout=25000)
+    pg.wait_for_selector("#modes button", timeout=10000)
+    for mode in ("plan", "stats", "review", "library", "real"):
+        btn = pg.query_selector(f"#modes button[data-mode='{mode}']")
+        if btn:
+            btn.click()
+            pg.wait_for_timeout(700)
+            assert not errs, f"Learning '{mode}' mode raised: {errs}"
+    topic = pg.query_selector("#topics .topic-btn")
+    if topic:
+        topic.click()
+        pg.wait_for_timeout(1200)
+    assert not errs, f"Learning interactions raised: {errs}"
+    pg.close()
+
+
 def main() -> int:
     with sync_playwright() as p:
         b = p.chromium.launch(executable_path=_EXE) if _EXE else p.chromium.launch(args=["--no-sandbox"])
@@ -46,6 +95,10 @@ def main() -> int:
         # 1) Every page loads and renders with NO uncaught JS errors.
         for path, sel in PAGES:
             _visit(b, path, sel)
+
+        # 1b) Interactive flows (clicks, not just loads).
+        _decree_flow(b)
+        _learning_flow(b)
 
         # 2) Deeper interactions on the Command Hall.
         pg = b.new_page()
@@ -66,7 +119,7 @@ def main() -> int:
         assert pg.query_selector("#settings-modal"), "settings modal did not open"
         assert not errors, f"/console interactions raised: {errors}"
         b.close()
-    print(f"smoke OK ({len(PAGES)} pages, no uncaught JS errors)")
+    print(f"smoke OK ({len(PAGES)} pages + Decree/Learning interactions, no uncaught JS errors)")
     return 0
 
 
