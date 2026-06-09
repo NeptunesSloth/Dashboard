@@ -21,6 +21,7 @@ const NAV = [
   ['map', '🗺', 'Map', '/console'],
   ['halls', '⛩', 'Halls', '/console'],
   ['treasury', '🏦', 'Treasury', '/treasury'],
+  ['learn', '📚', 'Learning', '/learn'],
   ['ops', '⚙', 'Ops', '/console'],
 ];
 const TABMAP = { ops: 'ops', projects: 'overview', missions: 'disciples', map: 'map', halls: 'sect' };

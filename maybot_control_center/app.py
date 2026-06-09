@@ -85,6 +85,7 @@ from . import acks
 from . import reports
 from . import retention
 from . import selfcheck
+from . import learning
 
 # Restore persisted state (no-op unless MAYBOT_DB is set).
 store.init()
@@ -94,7 +95,7 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
                 maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
                 audit.load_persisted, inbound.load_persisted, registry.load_persisted,
                 push.load_persisted, acks.load_persisted, authz.load_persisted, risk.load_persisted,
-                app_settings.load_persisted, runbooks.load_persisted):
+                app_settings.load_persisted, runbooks.load_persisted, learning.load_persisted):
     try:
         _loader()
     except Exception:
@@ -131,7 +132,7 @@ async def _rate_limit(request, call_next):
     # redeploy never leaves a stale app.js/style.css (and the rail/reskin) cached.
     path = request.url.path
     if not path.startswith("/api/") and (path == "/" or path.endswith((".js", ".css", ".html"))
-                                         or path in ("/console", "/login", "/chamber", "/trade", "/treasury")):
+                                         or path in ("/console", "/login", "/chamber", "/trade", "/treasury", "/learn")):
         response.headers["Cache-Control"] = "no-cache, must-revalidate"
     # Baseline security headers on every response (safe defaults; no CSP so inline
     # scripts/fonts keep working).
@@ -755,6 +756,160 @@ def copilot_ask(body: CopilotIn, x_control_token: str = Header(default="")):
     from . import copilot
     overview = aggregate(all_devices())
     return copilot.ask(body.question, overview)
+
+
+# ---- Learning Center ----
+class TrackIn(BaseModel):
+    title: str
+    topics: list[str] = []
+    labs: list[str] = []
+
+
+class TrackPatch(BaseModel):
+    title: str | None = None
+    topics: list[str] | None = None
+    labs: list[str] | None = None
+
+
+class AskIn(BaseModel):
+    track: str
+    question: str
+    history: list[dict] = []
+
+
+class QuizIn(BaseModel):
+    track: str
+    topic: str
+    n: int = 5
+
+
+class QuizGradeIn(BaseModel):
+    quiz_id: str
+    answers: list[int] = []
+
+
+class LabIn(BaseModel):
+    track: str
+    kind: str
+
+
+class LabGradeIn(BaseModel):
+    lab_id: str
+    finding: str = ""
+
+
+class ProfileIn(BaseModel):
+    style_summary: str | None = None
+    preferences: list[str] | None = None
+    strengths: list[str] | None = None
+    gaps: list[str] | None = None
+    goals: list[str] | None = None
+    notes: str | None = None
+
+
+@app.get("/api/learning/tracks")
+def learning_tracks(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.list_tracks()
+
+
+@app.post("/api/learning/tracks")
+def learning_track_create(body: TrackIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.create_track(body.title, body.topics, body.labs)
+
+
+@app.put("/api/learning/tracks/{track_id}")
+def learning_track_update(track_id: str, body: TrackPatch, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.update_track(track_id, title=body.title, topics=body.topics, labs=body.labs)
+
+
+@app.delete("/api/learning/tracks/{track_id}")
+def learning_track_delete(track_id: str, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.delete_track(track_id)
+
+
+@app.get("/api/learning/lesson")
+def learning_lesson(track: str, topic: str, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.get_lesson(track, topic)
+
+
+@app.post("/api/learning/ask")
+def learning_ask(body: AskIn, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.ask_tutor(body.track, body.question, body.history)
+
+
+@app.post("/api/learning/quiz")
+def learning_quiz(body: QuizIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.generate_quiz(body.track, body.topic, body.n)
+
+
+@app.post("/api/learning/quiz/grade")
+def learning_quiz_grade(body: QuizGradeIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.grade_quiz(body.quiz_id, body.answers)
+
+
+@app.post("/api/learning/lab")
+def learning_lab(body: LabIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.generate_lab(body.track, body.kind)
+
+
+@app.post("/api/learning/lab/grade")
+def learning_lab_grade(body: LabGradeIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.grade_lab(body.lab_id, body.finding)
+
+
+@app.get("/api/learning/progress")
+def learning_progress(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.get_progress()
+
+
+@app.get("/api/learning/profile")
+def learning_profile(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.get_profile()
+
+
+@app.put("/api/learning/profile")
+def learning_profile_set(body: ProfileIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.set_profile({k: v for k, v in body.dict().items() if v is not None})
+
+
+@app.get("/api/learning/quests")
+def learning_quests(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.daily_quests()
+
+
+@app.post("/api/learning/chest/open")
+def learning_chest_open(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.open_chest()
 
 
 @app.get("/api/members")
@@ -2735,6 +2890,16 @@ def treasury_page():
 @app.get("/treasury.js")
 def treasury_js():
     return FileResponse(f"{_CMD}/treasury.js", media_type="text/javascript")
+
+
+@app.get("/learn")
+def learn_page():
+    return FileResponse(f"{_CMD}/learn.html")
+
+
+@app.get("/learn.js")
+def learn_js():
+    return FileResponse(f"{_CMD}/learn.js", media_type="text/javascript")
 
 
 @app.get("/console")
