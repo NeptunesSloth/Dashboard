@@ -98,13 +98,16 @@ function renderModes() {
   const m = [
     ['review', `🔁 Review${due ? `<span class='pill'>${due}</span>` : ''}`],
     ['exam', '📝 Practice Exam'],
+    ['plan', '📅 Study Plan'],
+    ['stats', '📈 Stats'],
     ['real', '🖥 Real Log Lab'],
     ['library', '📂 Library'],
   ];
   $('modes').innerHTML = m.map(([k, lbl]) => `<button class='mode-btn' data-mode='${k}'>${lbl}</button>`).join('');
   $('modes').querySelectorAll('.mode-btn').forEach((b) => b.onclick = () => {
     if (examTimer) { clearInterval(examTimer); examTimer = null; }
-    ({ review: startReview, exam: startExam, real: startRealLab, library: openLibrary }[b.dataset.mode])();
+    ({ review: startReview, exam: startExam, plan: openPlan, stats: openStats,
+       real: startRealLab, library: openLibrary }[b.dataset.mode])();
   });
 }
 async function loadChat() {
@@ -392,6 +395,85 @@ async function openLibrary() {
   });
 }
 
+/* ---------------- study plan ---------------- */
+async function openPlan() {
+  $('work-title').textContent = 'Study Plan'; $('work-sub').textContent = curTrack.title;
+  const r = await api(`/api/learning/plan?track=${encodeURIComponent(curTrack.id)}`);
+  const plan = r && r.plan;
+  if (!plan) {
+    const def = new Date(Date.now() + 21 * 864e5).toISOString().slice(0, 10);
+    $('work').innerHTML = `<div style='font-size:13px; margin-bottom:10px'>Set your exam/target date and I'll build a paced day-by-day plan with lessons, spaced reviews and mock exams.</div>
+      <div class='actions'><input type='date' id='exam-date' class='finding' style='min-height:auto; height:auto; width:auto' value='${def}'>
+        <button class='btn primary' id='make-plan'>Build my plan</button></div>`;
+    $('make-plan').onclick = async () => {
+      const res = await post('/api/learning/plan', { track: curTrack.id, exam_date: $('exam-date').value });
+      if (!res || res.error) return toast(errText(res));
+      toast('Plan ready!', true); openPlan();
+    };
+    return;
+  }
+  const ICON = { lesson: '📖', review: '🔁', exam: '📝' };
+  const today = new Date().toISOString().slice(0, 10);
+  $('work').innerHTML = `<div class='glass' style='padding:14px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center'>
+      <div><div style='font-size:18px; font-weight:800'>${plan.days_left} days left</div>
+        <div class='muted'>exam ${esc(plan.exam_date)} · ${plan.done}/${plan.total} tasks done</div></div>
+      <div style='text-align:right'><div style='font-size:15px; font-weight:700; color:${plan.on_track ? '#34d399' : '#fbbf24'}'>${plan.on_track ? '✅ On track' : '⏳ Catch up'}</div>
+        <button class='btn' id='replan' style='margin-top:6px; padding:4px 10px; font-size:11px'>change date</button></div></div>`
+    + plan.items.map((it, idx) => `<label class='lib-item' style='display:flex; align-items:center; gap:10px; ${it.done ? 'opacity:.6' : ''}'>
+        <input type='checkbox' data-idx='${idx}' ${it.done ? 'checked' : ''}>
+        <span>${ICON[it.kind] || '•'} <b>${esc(it.ref)}</b>
+          <span class='meta'>${it.date}${it.date < today && !it.done ? ' · overdue' : it.date === today ? ' · today' : ''}</span></span></label>`).join('');
+  $('work').querySelectorAll('input[type=checkbox]').forEach((cb) => cb.onchange = async () => {
+    const g = await post('/api/learning/plan/item', { track: curTrack.id, index: +cb.dataset.idx, done: cb.checked });
+    if (g && g.ok) { if (cb.checked) { beep(); toast('+5 ◈', true); } openPlan(); loadProgress(); }
+  });
+  $('replan').onclick = async () => {
+    const d = prompt('New exam/target date (YYYY-MM-DD):', plan.exam_date); if (!d) return;
+    const res = await post('/api/learning/plan', { track: curTrack.id, exam_date: d });
+    if (!res || res.error) return toast(errText(res));
+    openPlan();
+  };
+}
+
+/* ---------------- analytics ---------------- */
+async function openStats() {
+  $('work-title').textContent = 'Stats'; $('work-sub').textContent = 'Your learning analytics';
+  $('work').innerHTML = `<div class='muted'>Crunching your numbers…</div>`;
+  const a = await api('/api/learning/analytics');
+  if (!a) return showErr(a);
+  // heatmap (last ~17 weeks)
+  const cells = a.heatmap.map((d) => {
+    const lvl = d.count === 0 ? 0 : d.count < 2 ? 1 : d.count < 4 ? 2 : d.count < 7 ? 3 : 4;
+    const col = ['rgba(255,255,255,.05)', '#1e4620', '#2e7d32', '#43a047', '#66bb6a'][lvl];
+    return `<span title='${d.date}: ${d.count}' style='width:11px; height:11px; border-radius:2px; background:${col}; display:inline-block'></span>`;
+  }).join('');
+  const t = a.totals;
+  const stat = (lbl, v) => `<div class='glass' style='padding:10px 14px; text-align:center; flex:1'>
+    <div style='font-size:20px; font-weight:800'>${v}</div><div class='muted' style='font-size:11px'>${lbl}</div></div>`;
+  const mastery = a.mastery.map((m) => {
+    const pct = m.topics_total ? Math.round(100 * m.topics_done / m.topics_total) : 0;
+    return `<div class='dom-row'><span style='width:40%'>${esc(m.track)}</span>
+      <div class='dom-bar'><span style='width:${pct}%'></span></div><span>Lv ${m.level} · ${m.avg_score}%</span></div>`;
+  }).join('') || `<div class='muted'>Complete topics to build mastery.</div>`;
+  const trend = a.accuracy_trend.slice(-20);
+  const spark = trend.length ? trend.map((p) => {
+    const h = Math.max(3, Math.round(p.accuracy * 0.4));
+    return `<span title='${p.date}: ${p.accuracy}%' style='width:8px; height:${h}px; background:linear-gradient(#38bdf8,#7c5cff); display:inline-block; border-radius:2px'></span>`;
+  }).join('') : `<span class='muted'>Take quizzes to see your accuracy trend.</span>`;
+  $('work').innerHTML = `
+    <div style='display:flex; gap:8px; margin-bottom:14px'>
+      ${stat('Active days', a.active_days)}${stat('Streak', a.streak)}${stat('Best', a.max_streak)}${stat('Realm', esc(a.realm || '—'))}</div>
+    <div class='panel-title' style='margin-bottom:6px'>Activity</div>
+    <div style='display:flex; flex-wrap:wrap; gap:3px; margin-bottom:16px; max-width:100%'>${cells}</div>
+    <div style='display:flex; gap:8px; margin-bottom:16px'>
+      ${stat('Lessons', t.lessons)}${stat('Quizzes', t.quizzes)}${stat('Labs', t.labs)}${stat('Reviews', t.reviews)}${stat('Exams', t.exams)}</div>
+    <div class='panel-title' style='margin-bottom:6px'>Accuracy trend</div>
+    <div style='display:flex; align-items:flex-end; gap:3px; height:46px; margin-bottom:16px'>${spark}</div>
+    <div class='panel-title' style='margin-bottom:6px'>Track mastery</div>${mastery}
+    ${a.skills.length ? `<div class='panel-title' style='margin:14px 0 6px'>Techniques mastered</div>
+      <div>${a.skills.map((s) => `<span class='tag'>${esc(s)}</span>`).join('')}</div>` : ''}`;
+}
+
 /* ---------------- tutor chat ---------------- */
 async function sendChat() {
   const inp = $('chat-input'); const q = inp.value.trim();
@@ -408,10 +490,41 @@ async function sendChat() {
   chatHistory.push({ role: 'assistant', content: res.answer });
   $('chat').insertAdjacentHTML('beforeend', `<div class='bub ai'>${esc(res.answer)}</div>`);
   $('chat').scrollTop = $('chat').scrollHeight;
+  speak(res.answer);
   loadProgress();
 }
 $('chat-send').onclick = sendChat;
 $('chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChat(); });
+
+/* ---------------- voice (TTS + STT) ---------------- */
+let speakOn = localStorage.getItem('learn.speak') === '1';
+const voiceLang = () => (curTrack && /french|français/i.test(curTrack.title)) ? 'fr-FR' : 'en-US';
+function setSpeak() { $('chat-speak').style.opacity = speakOn ? '1' : '.5'; $('chat-speak').textContent = speakOn ? '🔊' : '🔈'; }
+function speak(text) {
+  if (!speakOn || !window.speechSynthesis || muted) return;
+  try {
+    const u = new SpeechSynthesisUtterance(String(text).slice(0, 600));
+    u.lang = voiceLang(); speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (_) {}
+}
+$('chat-speak').onclick = () => { speakOn = !speakOn; localStorage.setItem('learn.speak', speakOn ? '1' : '0'); setSpeak(); if (speakOn) speak('Voice on.'); };
+setSpeak();
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (!SR) { $('chat-mic').style.display = 'none'; }
+else {
+  let listening = false; const rec = new SR();
+  rec.lang = 'en-US'; rec.interimResults = false; rec.maxAlternatives = 1;
+  $('chat-mic').onclick = () => {
+    if (listening) { rec.stop(); return; }
+    rec.lang = voiceLang();
+    try { rec.start(); } catch (_) { return; }
+  };
+  rec.onstart = () => { listening = true; $('chat-mic').textContent = '🔴'; $('chat-input').placeholder = 'Listening…'; };
+  rec.onend = () => { listening = false; $('chat-mic').textContent = '🎙'; $('chat-input').placeholder = 'Ask a question, or tap 🎙 to speak…'; };
+  rec.onerror = () => { listening = false; $('chat-mic').textContent = '🎙'; toast('Mic unavailable.'); };
+  rec.onresult = (e) => { $('chat-input').value = e.results[0][0].transcript; sendChat(); };
+}
 
 /* ---------------- progress sidebar ---------------- */
 async function loadProgress() {
