@@ -3805,11 +3805,18 @@ function debounced(fn, key, ms = 250) {
   clearTimeout(_streamDebounce[key]);
   _streamDebounce[key] = setTimeout(fn, ms);
 }
+// Own the reconnect instead of relying on EventSource's blind fixed-interval
+// retry: on error, close the dead socket and reopen with exponential backoff +
+// jitter, capped so we never spam the server. Backoff resets once data flows.
+let _streamAttempt = 0, _streamTimer = null;
+const _STREAM_MIN = 1000, _STREAM_MAX = 30000;
 function setupStream() {
   let es;
   try { es = new EventSource(`/api/stream?token=${encodeURIComponent(getControlToken())}`); }
-  catch (_) { return; }
+  catch (_) { scheduleStreamReconnect(); return; }
+  es.onopen = () => { _streamAttempt = 0; };
   es.onmessage = (e) => {
+    _streamAttempt = 0;   // data flowing — reset backoff
     let msg; try { msg = JSON.parse(e.data); } catch (_) { return; }
     if (msg.type === 'comms') debounced(renderComms, 'comms');
     else if (msg.type === 'tools') debounced(renderTools, 'tools');
@@ -3825,7 +3832,14 @@ function setupStream() {
       }
     }
   };
-  es.onerror = () => {}; // EventSource auto-reconnects
+  es.onerror = () => { try { es.close(); } catch (_) {} scheduleStreamReconnect(); };
+}
+function scheduleStreamReconnect() {
+  if (_streamTimer) return;
+  _streamAttempt += 1;
+  const base = Math.min(_STREAM_MAX, _STREAM_MIN * Math.pow(2, _streamAttempt - 1));
+  const delay = base + Math.random() * base * 0.3;   // up to 30% jitter
+  _streamTimer = setTimeout(() => { _streamTimer = null; setupStream(); }, delay);
 }
 // ---- tabbed navigation (no more infinite scroll) ----
 // ---- unified left rail (shared with the Command Hall); drives section nav ----

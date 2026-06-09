@@ -307,14 +307,46 @@ export async function openLogs(device, project) {
   load();
 }
 
-/* ---------------- live updates over SSE ---------------- */
+/* ---------------- live updates over SSE ----------------
+   Auto-reconnecting EventSource wrapper. The browser's built-in EventSource
+   retry is fixed-interval and, on some proxies, dies outright on the first
+   network blip. We own the reconnect instead: on error we close the dead
+   socket and reopen with exponential backoff + jitter, capped so we never
+   spam the server. Backoff resets to the floor once a message arrives, so a
+   long-lived connection that briefly drops recovers fast.
+   The returned handle keeps the public { close() } shape of an EventSource. */
+const _LIVE_MIN = 1000;        // first retry ~1s
+const _LIVE_MAX = 30000;       // cap retries at 30s
 export function liveStream(onEvent) {
-  let es;
-  try { es = new EventSource(`/api/stream?token=${encodeURIComponent(localStorage.getItem(TOKEN_KEY) || '')}`); }
-  catch (_) { return null; }
-  es.onmessage = (e) => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } onEvent(m.type, m.data); };
-  es.onerror = () => {};
-  return es;
+  let es = null, attempt = 0, timer = null, closed = false;
+  const url = () => `/api/stream?token=${encodeURIComponent(localStorage.getItem(TOKEN_KEY) || '')}`;
+  const schedule = () => {
+    if (closed || timer) return;
+    attempt += 1;
+    // exponential backoff (min * 2^(n-1)) capped at max, plus up to 30% jitter
+    const base = Math.min(_LIVE_MAX, _LIVE_MIN * Math.pow(2, attempt - 1));
+    const delay = base + Math.random() * base * 0.3;
+    timer = setTimeout(() => { timer = null; connect(); }, delay);
+  };
+  const connect = () => {
+    if (closed) return;
+    try { es = new EventSource(url()); }
+    catch (_) { schedule(); return; }   // construction failed — back off and retry
+    es.onopen = () => { attempt = 0; };  // healthy connection: reset backoff
+    es.onmessage = (e) => {
+      attempt = 0;                       // data flowing — reset backoff
+      let m; try { m = JSON.parse(e.data); } catch (_) { return; }
+      onEvent(m.type, m.data);
+    };
+    es.onerror = () => {
+      // Don't lean on the browser's blind retry: close and reconnect ourselves.
+      try { es.close(); } catch (_) {}
+      es = null;
+      schedule();
+    };
+  };
+  connect();
+  return { close() { closed = true; if (timer) { clearTimeout(timer); timer = null; } if (es) { try { es.close(); } catch (_) {} es = null; } } };
 }
 let _liveT;
 export function debounce(fn, ms = 400) { clearTimeout(_liveT); _liveT = setTimeout(fn, ms); }
