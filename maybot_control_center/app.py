@@ -10,7 +10,6 @@ from fastapi import FastAPI, Header, HTTPException, Query, Request, WebSocket, W
 from fastapi.responses import FileResponse, StreamingResponse, PlainTextResponse, JSONResponse, Response
 from pydantic import BaseModel
 from .config import load_devices, all_devices, save_devices, CONTROL_CENTER_TOKEN
-from . import config as _config
 from . import aggregator
 from .aggregator import aggregate
 from .agent_client import call_agent, post_agent, put_agent
@@ -117,6 +116,14 @@ _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
 _VALID_ACTIONS = {"start", "stop", "run-tests"}
 _ACTION_TIMEOUTS = {"start": 15, "stop": 15, "run-tests": 330}
 
+# Optional security headers (off by default so existing deploys are unaffected).
+_DEFAULT_CSP = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+                "img-src 'self' data:; font-src 'self' data:; connect-src 'self'; "
+                "object-src 'none'; base-uri 'self'; frame-ancestors 'self'")
+_csp_env = os.getenv("MAYBOT_CSP", "").strip()
+_CSP = _DEFAULT_CSP if _csp_env.lower() in ("1", "true", "yes", "on") else _csp_env
+_HSTS = os.getenv("MAYBOT_HSTS", "0").lower() in ("1", "true", "yes", "on")
+
 app = FastAPI(title="maybot-control-center")
 
 
@@ -134,13 +141,21 @@ async def _rate_limit(request, call_next):
     if not path.startswith("/api/") and (path == "/" or path.endswith((".js", ".css", ".html"))
                                          or path in ("/console", "/login", "/chamber", "/trade", "/treasury", "/learn")):
         response.headers["Cache-Control"] = "no-cache, must-revalidate"
-    # Baseline security headers on every response (safe defaults; no CSP so inline
-    # scripts/fonts keep working).
+    # Baseline security headers on every response (safe defaults).
     h = response.headers
     h.setdefault("X-Content-Type-Options", "nosniff")
     h.setdefault("X-Frame-Options", "SAMEORIGIN")
     h.setdefault("Referrer-Policy", "no-referrer")
     h.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+    # Content-Security-Policy: opt-in (MAYBOT_CSP) so existing deploys are
+    # unaffected until enabled. The default policy fits this app — same-origin
+    # scripts (ES modules), inline styles/style-attributes the UI relies on, and
+    # data: images. Set MAYBOT_CSP to a custom policy, or "1"/"on" for the default.
+    if _CSP:
+        h.setdefault("Content-Security-Policy", _CSP)
+    # HSTS: opt-in (MAYBOT_HSTS) — only safe behind HTTPS, so off by default.
+    if _HSTS:
+        h.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
     # Self-observability: count served API requests (and 5xx errors).
     if request.url.path.startswith("/api/"):
         try:

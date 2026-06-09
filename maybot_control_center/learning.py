@@ -813,7 +813,6 @@ def generate_real_lab(track_id: str, device: str, project: str, logs_text: str, 
     """Build an intrusion-detection lab from REAL logs pulled off a host. The
     learner analyzes the real artifact; the AI grades against its own expert
     read of those same logs."""
-    track = _track(track_id) or {"title": "Security"}
     member = _backend_member()
     if not member:
         return {"error": "no_backend"}

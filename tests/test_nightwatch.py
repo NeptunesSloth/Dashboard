@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import time
 
 from maybot_control_center import nightwatch
 from maybot_control_center import cultivation

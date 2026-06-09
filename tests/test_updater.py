@@ -2,11 +2,9 @@
 import io
 import tarfile
 
-import pytest
 from fastapi.testclient import TestClient
 
 from maybot_agent import updater
-from maybot_control_center import config
 from maybot_control_center.app import app
 
 client = TestClient(app)

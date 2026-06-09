@@ -4,7 +4,6 @@ These exercise the pure-python heuristic path only: the model file is never
 committed and sklearn/joblib are typically absent in CI, so ``score_symbols``
 must degrade to deterministic ``source == "heuristic"`` entries.
 """
-import pytest
 
 from maybot_control_center import signals
 

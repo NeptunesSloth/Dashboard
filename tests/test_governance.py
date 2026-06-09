@@ -1,6 +1,6 @@
 import pytest
 
-from maybot_control_center import agents, cultivation, governance, reputation
+from maybot_control_center import agents, cultivation, governance
 
 
 AGENTS_YAML = """

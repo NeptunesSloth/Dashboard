@@ -8,7 +8,7 @@ from __future__ import annotations
 import os
 import time
 
-from .config import load_devices, all_devices, CONTROL_CENTER_TOKEN
+from .config import all_devices, CONTROL_CENTER_TOKEN
 
 
 def config_checks() -> dict:

@@ -1,0 +1,14 @@
+# Ruff config for the MayBot Control Center.
+#
+# We gate CI on the "real bug" rules (pyflakes + syntax errors): undefined names,
+# unused imports/variables, redefinitions, f-string mistakes. Stylistic rules are
+# deliberately NOT enforced yet to avoid a noisy, blocking churn on the existing
+# code — they can be enabled incrementally later.
+target-version = "py310"
+line-length = 120
+
+[lint]
+select = ["E9", "F"]
+# F401 in __init__.py re-exports is intentional.
+[lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
