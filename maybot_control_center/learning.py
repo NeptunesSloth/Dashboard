@@ -118,6 +118,8 @@ def _blank() -> dict:
         "chats": {},           # track_id -> [{role, content}]
         "reviews": [],         # spaced-repetition cards (SM-2): see _new_card()
         "exams": {},           # exam_id -> {track, questions:[{...,domain}], created}
+        "activity": {},        # YYYY-MM-DD -> {lessons, quizzes, labs, reviews, exams, score_sum, score_n}
+        "plans": {},           # track_id -> {track, exam_date, created, items:[{date, kind, ref, done}]}
     }
 
 
@@ -390,6 +392,7 @@ def get_lesson(track_id: str, topic: str, chat=None) -> dict:
     _award_progress(8)
     _touch_streak()
     _progress_quest("lesson")
+    _log_activity("lessons")
     earned = _check_badges()
     _update_profile(f"Completed a lesson on '{topic}' in {track['title']}.", chat)
     return {"lesson_id": lesson_id, "title": topic, "body": body, "member": member.get("name"),
@@ -531,6 +534,7 @@ def grade_quiz(quiz_id: str, answers: list[int], chat=None) -> dict:
     _award_progress(stones)
     _touch_streak()
     _progress_quest("quiz", passed=(score >= 80))
+    _log_activity("quizzes", score)
     # Missed questions feed the spaced-repetition deck (due immediately).
     _seed_reviews(quiz["track"], quiz.get("topic", ""),
                   [questions[i] for i, r in enumerate(per) if not r["correct"]])
@@ -620,6 +624,7 @@ def grade_lab(lab_id: str, finding: str, chat=None) -> dict:
     _award_progress(stones, skill=skill, bonus=10 if solved else 0)
     _touch_streak()
     _progress_quest("lab", passed=solved)
+    _log_activity("labs", score)
     earned = _check_badges()
     _update_profile(f"Attempted a {lab['kind']} lab and scored {score}/100. {feedback}", chat)
     return {"score": score, "feedback": feedback, "solved": solved,
@@ -688,6 +693,7 @@ def grade_review(card_id: str, quality: int) -> dict:
     stones = 3 if quality >= 3 else 1
     _award_progress(stones)
     _touch_streak()
+    _log_activity("reviews")
     earned = _check_badges()
     return {"correct_answer": correct, "explanation": card["explanation"], "next_due": card["due"],
             "interval_days": card["interval"], "awarded": stones, "badges": earned, "error": None}
@@ -780,6 +786,7 @@ def grade_exam(exam_id: str, answers: list[int], elapsed: int = 0, chat=None) ->
     _touch_streak()
     if passed:
         _progress_quest("quiz", passed=True)
+    _log_activity("exams", score)
     earned = _check_badges()
     weak = [d for d, v in domains.items() if v["total"] and v["correct"] / v["total"] < 0.6]
     _update_profile(f"Took a practice exam for {_track(exam['track'])['title']}: {score}%"
@@ -857,6 +864,24 @@ def _award_progress(stones: int, skill: str | None = None, bonus: int = 0) -> No
 # ---------------------------------------------------------------------------
 def _today() -> str:
     return date.today().isoformat()
+
+
+def _log_activity(kind: str, score: int | None = None) -> None:
+    """Record a unit of study for today (drives analytics + reminders)."""
+    with _lock:
+        day = _g().setdefault("activity", {}).setdefault(
+            _today(), {"lessons": 0, "quizzes": 0, "labs": 0, "reviews": 0, "exams": 0,
+                       "score_sum": 0, "score_n": 0})
+        if kind in day:
+            day[kind] += 1
+        if score is not None:
+            day["score_sum"] += score
+            day["score_n"] += 1
+        # keep ~1 year
+        if len(_g()["activity"]) > 400:
+            for k in sorted(_g()["activity"])[:len(_g()["activity"]) - 400]:
+                _g()["activity"].pop(k, None)
+        _save()
 
 
 def _touch_streak() -> dict:
@@ -987,6 +1012,185 @@ def get_progress() -> dict:
                                             "ids_solved", "pentest_solved")},
         "daily_quests": g.get("quests", []),
     }
+
+
+# ---------------------------------------------------------------------------
+# progress analytics
+# ---------------------------------------------------------------------------
+def get_analytics(days: int = 120) -> dict:
+    """Heatmap, accuracy trend, totals and per-skill mastery for the dashboard."""
+    with _lock:
+        activity = dict(_g().get("activity") or {})
+        prog = dict(_g().get("progress") or {})
+        game = dict(_g()["game"])
+    today = date.today()
+    heatmap, trend = [], []
+    studied_days = 0
+    for i in range(days - 1, -1, -1):
+        d = (today - timedelta(days=i)).isoformat()
+        a = activity.get(d, {})
+        count = sum(a.get(k, 0) for k in ("lessons", "quizzes", "labs", "reviews", "exams"))
+        if count:
+            studied_days += 1
+        heatmap.append({"date": d, "count": count})
+        if a.get("score_n"):
+            trend.append({"date": d, "accuracy": round(a["score_sum"] / a["score_n"])})
+    totals = {k: sum(a.get(k, 0) for a in activity.values())
+              for k in ("lessons", "quizzes", "labs", "reviews", "exams")}
+    mastery = []
+    for tid, p in prog.items():
+        t = _track(tid)
+        if t:
+            mastery.append({"track": t.get("title", tid), "level": _track_level(p)["level"],
+                            "avg_score": _track_level(p)["avg_score"],
+                            "topics_done": len(p.get("completed_topics", [])),
+                            "topics_total": len(t.get("topics", []))})
+    realm = cultivation.state(LEARNER)
+    return {"heatmap": heatmap, "accuracy_trend": trend, "totals": totals, "mastery": mastery,
+            "active_days": studied_days, "streak": game.get("streak", 0),
+            "max_streak": game.get("max_streak", 0), "skills": realm.get("skills", []),
+            "realm": realm.get("realm_name"), "stones": realm.get("stones", 0)}
+
+
+# ---------------------------------------------------------------------------
+# study plan toward an exam date (deterministic schedule, no LLM needed)
+# ---------------------------------------------------------------------------
+def create_plan(track_id: str, exam_date: str) -> dict:
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    try:
+        target = date.fromisoformat(exam_date)
+    except Exception:
+        return {"error": "exam_date must be YYYY-MM-DD"}
+    today = date.today()
+    days = (target - today).days
+    if days < 1:
+        return {"error": "exam_date must be in the future"}
+    topics = track.get("topics", []) or ["Study"]
+    # Build the task list: one lesson per topic, a review every ~3rd task, two mock
+    # exams in the back third, and a final review the day before.
+    tasks = []
+    for idx, tp in enumerate(topics):
+        tasks.append({"kind": "lesson", "ref": tp})
+        if idx % 3 == 2:
+            tasks.append({"kind": "review", "ref": "Spaced review"})
+    tasks.append({"kind": "exam", "ref": f"Practice exam — {track['title']}"})
+    if days >= 5:
+        tasks.insert(max(1, len(tasks) - 1), {"kind": "review", "ref": "Spaced review"})
+        tasks.append({"kind": "exam", "ref": "Final practice exam"})
+    # Spread tasks across the available study days (leave exam day for rest).
+    study_days = max(1, days - 1)
+    items = []
+    for i, task in enumerate(tasks):
+        offset = round(i * (study_days - 1) / max(1, len(tasks) - 1)) if len(tasks) > 1 else 0
+        items.append({"date": (today + timedelta(days=offset)).isoformat(),
+                      "kind": task["kind"], "ref": task["ref"], "done": False})
+    plan = {"track": track_id, "title": track["title"], "exam_date": exam_date,
+            "created": _today(), "items": items}
+    with _lock:
+        _g().setdefault("plans", {})[track_id] = plan
+        _save()
+    return {"ok": True, "plan": _plan_status(plan)}
+
+
+def _plan_status(plan: dict) -> dict:
+    today = _today()
+    items = plan.get("items", [])
+    due = [it for it in items if it["date"] <= today]
+    done_due = [it for it in due if it["done"]]
+    done_all = [it for it in items if it["done"]]
+    target = plan.get("exam_date", today)
+    try:
+        days_left = (date.fromisoformat(target) - date.today()).days
+    except Exception:
+        days_left = 0
+    return {**plan, "days_left": max(0, days_left), "total": len(items),
+            "done": len(done_all), "due": len(due), "done_due": len(done_due),
+            "on_track": len(done_due) >= len(due)}
+
+
+def get_plan(track_id: str) -> dict:
+    with _lock:
+        plan = (_g().get("plans") or {}).get(track_id)
+    return {"plan": _plan_status(plan) if plan else None}
+
+
+def complete_plan_item(track_id: str, index: int, done: bool = True) -> dict:
+    with _lock:
+        plan = (_g().get("plans") or {}).get(track_id)
+        if not plan or index < 0 or index >= len(plan["items"]):
+            return {"error": "plan item not found"}
+        plan["items"][index]["done"] = bool(done)
+        _save()
+        status = _plan_status(plan)
+    if done:
+        _award_progress(5)
+        _touch_streak()
+    return {"ok": True, "plan": status}
+
+
+# ---------------------------------------------------------------------------
+# reminders / re-engagement nudges (uses the existing notify channels)
+# ---------------------------------------------------------------------------
+REMINDERS_ON = os.getenv("MAYBOT_LEARNING_REMINDERS", "0").lower() in ("1", "true", "yes", "on")
+_reminder_started = False
+
+
+def reminder_status() -> dict:
+    from . import notify
+    with _lock:
+        g = _g()["game"]
+        streak = g.get("streak", 0)
+        active_today = g.get("last_active_day") == _today()
+    return {"reviews_due": due_reviews()["due_count"], "streak": streak,
+            "active_today": active_today, "streak_at_risk": streak > 0 and not active_today,
+            "channels": notify.channels(), "enabled": REMINDERS_ON}
+
+
+def send_reminder(force: bool = False) -> dict:
+    """Nudge the learner if reviews are due or the streak is at risk (once/day)."""
+    from . import notify
+    st = reminder_status()
+    with _lock:
+        g = _g()["game"]
+        if not force and g.get("last_reminder_day") == _today():
+            return {"sent": False, "reason": "already sent today"}
+        if not force and not (st["reviews_due"] or st["streak_at_risk"]):
+            return {"sent": False, "reason": "nothing to nudge about"}
+        g["last_reminder_day"] = _today()
+        _save()
+    bits = []
+    if st["streak_at_risk"]:
+        bits.append(f"🔥 Your {st['streak']}-day streak is at risk — study today to keep it.")
+    if st["reviews_due"]:
+        bits.append(f"🔁 {st['reviews_due']} spaced-repetition card(s) are due.")
+    if not bits:
+        bits.append("📚 Time for today's lesson.")
+    res = notify.send("Learning Center reminder", " ".join(bits), level="info", kind="learning")
+    return {"sent": True, "delivered": res.get("delivered", []), "message": " ".join(bits)}
+
+
+def _reminder_loop() -> None:
+    import time as _t
+    while True:
+        _t.sleep(1800)  # every 30 min; send_reminder de-dupes to once/day
+        try:
+            hour = int(_t.strftime("%H"))
+            if 8 <= hour <= 22:  # daytime nudges only
+                send_reminder()
+        except Exception:
+            pass
+
+
+def start() -> bool:
+    """Background reminder thread (no-op unless MAYBOT_LEARNING_REMINDERS is set)."""
+    global _reminder_started
+    if _reminder_started or not REMINDERS_ON:
+        return False
+    _reminder_started = True
+    threading.Thread(target=_reminder_loop, daemon=True).start()
+    return True
 
 
 # ---------------------------------------------------------------------------

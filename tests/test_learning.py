@@ -257,6 +257,55 @@ def test_fetch_real_logs_is_read_only(monkeypatch):
     assert calls["endpoint"].startswith("/api/projects/nginx/logs")   # GET logs only
 
 
+# ---- analytics ----
+def test_analytics_tracks_activity(monkeypatch):
+    monkeypatch.setattr(learning, "_backend_member", lambda: {"name": "Sage", "provider": "claude"})
+    learning.get_lesson("french", "Greetings & Introductions", chat=fake_chat)
+    a = learning.get_analytics(days=30)
+    assert a["totals"]["lessons"] == 1
+    assert a["active_days"] == 1
+    assert a["heatmap"][-1]["count"] == 1                      # today has activity
+    assert len(a["heatmap"]) == 30
+
+
+# ---- study plan ----
+def test_study_plan_schedule_and_completion():
+    from datetime import date, timedelta
+    future = (date.today() + timedelta(days=14)).isoformat()
+    res = learning.create_plan("cybersecurity", future)
+    assert res["ok"] and res["plan"]["items"]
+    assert res["plan"]["exam_date"] == future
+    # has lessons for the track's topics + at least one exam item
+    kinds = {it["kind"] for it in res["plan"]["items"]}
+    assert "lesson" in kinds and "exam" in kinds
+    # completing the first due item advances progress
+    g = learning.complete_plan_item("cybersecurity", 0, True)
+    assert g["ok"] and g["plan"]["done"] >= 1
+    assert learning.get_plan("cybersecurity")["plan"]["items"][0]["done"] is True
+
+
+def test_plan_rejects_past_date():
+    from datetime import date, timedelta
+    past = (date.today() - timedelta(days=1)).isoformat()
+    assert "error" in learning.create_plan("cybersecurity", past)
+
+
+# ---- reminders ----
+def test_reminder_dedupes_per_day(monkeypatch):
+    sent = []
+    monkeypatch.setattr("maybot_control_center.notify.send",
+                        lambda *a, **k: sent.append(a) or {"delivered": ["log"]})
+    # streak at risk: had a streak yesterday, nothing today
+    from datetime import date, timedelta
+    g = learning._g()["game"]
+    g["streak"] = 5
+    g["last_active_day"] = (date.today() - timedelta(days=1)).isoformat()
+    r1 = learning.send_reminder()
+    assert r1["sent"] is True and len(sent) == 1
+    r2 = learning.send_reminder()                              # same day -> deduped
+    assert r2["sent"] is False and len(sent) == 1
+
+
 # ---- store round-trip ----
 def test_state_persists_round_trip():
     store._reset_for_tests(":memory:")

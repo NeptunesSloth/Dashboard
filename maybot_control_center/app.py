@@ -105,6 +105,7 @@ talismans.start()  # background synthetic uptime probes (no-op without talismans
 autopilot.start()  # the Sect Leader's autonomous ops loop (no-op unless MAYBOT_AUTOPILOT=1)
 reports.start()    # periodic summary reports (no-op unless MAYBOT_REPORT_INTERVAL_HOURS>0)
 retention.start()  # data-retention pruning + scheduled backups (no-op unless configured)
+learning.start()   # Learning Center re-engagement reminders (no-op unless MAYBOT_LEARNING_REMINDERS=1)
 from . import deadman
 deadman.start()    # external heartbeat: if the dashboard dies, your monitor pages you (no-op until configured)
 from . import safemode
@@ -1008,6 +1009,59 @@ def learning_lab_real(body: RealLabIn, x_control_token: str = Header(default="")
     if err:
         raise HTTPException(503, err)
     return learning.generate_real_lab(body.track, body.device, body.project, logs)
+
+
+@app.get("/api/learning/analytics")
+def learning_analytics(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.get_analytics()
+
+
+class PlanIn(BaseModel):
+    track: str
+    exam_date: str
+
+
+class PlanItemIn(BaseModel):
+    track: str
+    index: int
+    done: bool = True
+
+
+@app.post("/api/learning/plan")
+def learning_plan_create(body: PlanIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.create_plan(body.track, body.exam_date)
+
+
+@app.get("/api/learning/plan")
+def learning_plan_get(track: str, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.get_plan(track)
+
+
+@app.post("/api/learning/plan/item")
+def learning_plan_item(body: PlanItemIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.complete_plan_item(body.track, body.index, body.done)
+
+
+@app.get("/api/learning/reminders")
+def learning_reminders(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.reminder_status()
+
+
+@app.post("/api/learning/remind")
+def learning_remind(x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.send_reminder(force=True)
 
 
 @app.get("/api/members")
