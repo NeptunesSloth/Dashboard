@@ -174,9 +174,9 @@ function renderProjects(projects) {
     const prog = p.health === 'ok' ? 100 : p.health === 'warning' ? 60 : p.health === 'error' ? 25 : 50;
     const running = String(p.status || '').toLowerCase() === 'running';
     const ctl = (p.type === 'trading_bot' || p.actions_available) && op ? `<div class='proj-ctl'>
-        ${running ? `<button class='cbtn mini' data-act='stop' title='Stop'>■</button><button class='cbtn mini' data-act='restart' title='Restart'>⟳</button>`
-                  : `<button class='cbtn mini' data-act='start' title='Start'>▶</button>`}
-        <button class='cbtn mini' data-act='run-tests' title='Run tests'>✓</button></div>` : '';
+        ${running ? `<button class='cbtn mini' data-act='stop' title='Stop' aria-label='Stop'>■</button><button class='cbtn mini' data-act='restart' title='Restart' aria-label='Restart'>⟳</button>`
+                  : `<button class='cbtn mini' data-act='start' title='Start' aria-label='Start'>▶</button>`}
+        <button class='cbtn mini' data-act='run-tests' title='Run tests' aria-label='Run tests'>✓</button></div>` : '';
     return `<div class='proj glass' data-tilt data-project='${esc(p.name)}' data-device='${esc(p.device)}'>
       <div class='proj-head'><span class='proj-name'>${esc(p.name)}</span>
         <span class='proj-health health-${esc(p.health || 'unknown')}'>${esc(p.health || '—')}</span></div>
@@ -280,11 +280,15 @@ async function refresh() {
 /* nav */
 const DEST = { disciples: '/chamber', trade: '/trade', treasury: '/treasury' };
 const TABMAP = { ops: 'ops', projects: 'overview', missions: 'disciples', map: 'map', halls: 'sect' };
-$('rail').querySelectorAll('.nav-item').forEach((n) => n.onclick = () => {
-  const k = n.dataset.nav; if (k === 'command') return;
-  if (DEST[k]) { location.href = DEST[k]; return; }
-  if (TABMAP[k]) localStorage.setItem('tab', TABMAP[k]);
-  location.href = '/console';
+$('rail').querySelectorAll('.nav-item').forEach((n) => {
+  const go = () => {
+    const k = n.dataset.nav; if (k === 'command') return;
+    if (DEST[k]) { location.href = DEST[k]; return; }
+    if (TABMAP[k]) localStorage.setItem('tab', TABMAP[k]);
+    location.href = '/console';
+  };
+  n.onclick = go;
+  n.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
 });
 
 /* clock */
@@ -312,7 +316,7 @@ async function renderSetup() {
   const done = Object.values(s.steps).filter(Boolean).length;
   el.innerHTML = `<section class='glass rise setup-card'>
     <div class='setup-head'><div class='panel-title'>Get started · ${done}/${steps.length}</div>
-      <button class='setup-x' id='setup-x' title='dismiss'>✕</button></div>
+      <button class='setup-x' id='setup-x' title='dismiss' aria-label='Dismiss'>✕</button></div>
     <div class='setup-steps'>${steps.map(([k, t, d, href, tab]) => `
       <a class='setup-step ${s.steps[k] ? 'ok' : ''}' href='${href}'${tab ? ` data-tab='${tab}'` : ''}>
         <span class='setup-check'>${s.steps[k] ? '✓' : ''}</span>

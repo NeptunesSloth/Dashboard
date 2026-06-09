@@ -675,3 +675,28 @@ body {
   .ds-head { gap: 12px; } .ds-portrait { width: 76px; height: 76px; }
   #toast-host { width: 92vw; }
 }
+
+/* ===== accessibility: skip link, keyboard focus, reduced motion ===== */
+.skip-link {
+  position: fixed; top: 8px; left: 8px; z-index: 9000;
+  transform: translateY(-150%);
+  padding: 10px 16px; border-radius: 8px;
+  background: var(--void-2); color: var(--text);
+  border: 1px solid var(--violet); font-weight: 600; text-decoration: none;
+  transition: transform .15s ease;
+}
+.skip-link:focus { transform: translateY(0); outline: 2px solid var(--violet); outline-offset: 2px; }
+
+/* Visible keyboard focus on the dark theme (mouse clicks stay clean) */
+:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; border-radius: 6px; }
+.nav-item:focus-visible, .btn:focus-visible, .cbtn:focus-visible, .lf-btn:focus-visible,
+.lf-input:focus-visible, .mute-btn:focus-visible, .chip:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+/* restore a visible focus on inputs that had it stripped */
+.lf-input:focus-visible { border-color: rgba(139,92,255,.55); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important; scroll-behavior: auto !important;
+  }
+}

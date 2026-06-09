@@ -14,7 +14,7 @@ function finish(session) {
   location.href = '/';
 }
 const field = (id, label, type, ph) =>
-  `<label class='lf-label'>${esc(label)}</label><input class='lf-input' id='${id}' type='${type}' placeholder='${esc(ph || '')}' autocomplete='${type === 'password' ? 'current-password' : 'username'}'>`;
+  `<label class='lf-label' for='${id}'>${esc(label)}</label><input class='lf-input' id='${id}' type='${type}' aria-label='${esc(label)}' placeholder='${esc(ph || '')}' autocomplete='${type === 'password' ? 'current-password' : 'username'}'>`;
 
 function loginView() {
   body.innerHTML = `
@@ -43,7 +43,7 @@ function twoFAView(challenge, channel) {
     <p class='muted' style='margin:0 0 10px'>We sent a 6-digit code to your <b>${esc(channel || 'notification')}</b> channel. Enter it to continue.</p>
     ${field('lf-code', 'Code', 'text', '000000')}
     <button class='lf-btn' id='lf-go'>Verify</button>
-    <button class='lf-link' id='lf-back'>← back</button>
+    <button class='lf-link' id='lf-back' aria-label='Back to sign in'>← back</button>
     <div class='lf-err' id='lf-err'></div>`;
   const go = $('lf-go'), err = $('lf-err');
   const submit = async () => {

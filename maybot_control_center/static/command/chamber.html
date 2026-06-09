@@ -9,12 +9,13 @@
   <link rel="stylesheet" href="/command.css">
 </head>
 <body>
-  <canvas id="scene-canvas" class="scene-canvas"></canvas>
-  <div class="vignette"></div>
+  <a class="skip-link" href="#stage">Skip to content</a>
+  <canvas id="scene-canvas" class="scene-canvas" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
 
   <div class="chamber-app">
-    <nav class="rail glass" id="rail"></nav>
-    <div class="chamber-stage" id="stage">
+    <nav class="rail glass" id="rail" aria-label="Primary"></nav>
+    <div class="chamber-stage" id="stage" role="main" aria-label="Sect members">
       <div class="scene-top rise">
         <div class="brand"><span class="mark">🧠</span> Sect Members</div>
         <div class="jarvis" id="roster-sub">Loading the sect roster…</div>
