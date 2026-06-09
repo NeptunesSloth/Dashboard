@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import re
 import threading
 import time
@@ -53,6 +54,98 @@ _state: dict[str, dict] = {}
 _followups: dict[str, int] = {}
 _pool = ThreadPoolExecutor(max_workers=4)
 _anthropic = None
+
+# ---------------------------------------------------------------------------
+# Resilience: retry-with-backoff + model fallback (both OFF by default).
+#
+# MAYBOT_LLM_RETRIES   (default 0 = OFF): how many EXTRA attempts a TRANSIENT
+#   failure (network error, timeout, HTTP 429/5xx) gets before giving up.
+#   Auth errors, budget blocks, and permanent 4xx (except 429) are never retried.
+# MAYBOT_LLM_RETRY_BASE_MS (default 400): base backoff; sleep grows as
+#   base * 2**attempt (+ small jitter), bounded by MAYBOT_LLM_RETRY_MAX_MS.
+#
+# Model fallback: if an agent dict carries `fallback_models: list[str]` (or a
+# single `fallback_model: str`), the primary model is tried first and — after
+# its retries are exhausted on a failure — each fallback model is tried in turn
+# (same backend) before giving up. No fallback configured ⇒ unchanged.
+# ---------------------------------------------------------------------------
+LLM_RETRIES = max(0, int(os.getenv("MAYBOT_LLM_RETRIES", "0")))
+LLM_RETRY_BASE_MS = max(0, int(os.getenv("MAYBOT_LLM_RETRY_BASE_MS", "400")))
+LLM_RETRY_MAX_MS = max(0, int(os.getenv("MAYBOT_LLM_RETRY_MAX_MS", "8000")))
+
+
+def _retry_sleep(seconds: float) -> None:
+    """Injectable backoff sleeper — monkeypatched to a no-op in tests."""
+    if seconds > 0:
+        time.sleep(seconds)
+
+
+def _fallback_models(agent: dict) -> list[str]:
+    """Ordered fallback model list for an agent (empty when none configured)."""
+    fbs = agent.get("fallback_models")
+    if isinstance(fbs, str):
+        fbs = [fbs]
+    elif not isinstance(fbs, list):
+        fbs = []
+    out = [str(m) for m in fbs if m]
+    one = agent.get("fallback_model")
+    if one and str(one) not in out:
+        out.append(str(one))
+    return out
+
+
+def _is_transient_requests(exc: Exception) -> bool:
+    """True for retryable requests-backend failures: network/timeout/429/5xx."""
+    if isinstance(exc, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
+        return True
+    if isinstance(exc, requests.exceptions.HTTPError):
+        resp = getattr(exc, "response", None)
+        code = getattr(resp, "status_code", None)
+        return code == 429 or (isinstance(code, int) and 500 <= code < 600)
+    return False
+
+
+def _is_transient_anthropic(exc: Exception) -> bool:
+    """True for retryable Anthropic SDK failures: rate limit/timeout/conn/5xx.
+
+    Auth and other permanent 4xx are explicitly NOT transient.
+    """
+    try:
+        import anthropic
+    except ImportError:
+        return False
+    if isinstance(exc, anthropic.AuthenticationError):
+        return False
+    if isinstance(exc, (anthropic.RateLimitError, anthropic.APITimeoutError,
+                        anthropic.APIConnectionError, anthropic.InternalServerError)):
+        return True
+    if isinstance(exc, anthropic.APIStatusError):
+        code = getattr(exc, "status_code", None)
+        return code == 429 or (isinstance(code, int) and 500 <= code < 600)
+    return False
+
+
+def _retry_call(do_request, is_transient):
+    """Run ``do_request()`` with retry-on-transient backoff.
+
+    ``do_request`` performs one attempt and returns its result, or raises. A
+    transient exception (per ``is_transient``) is retried up to LLM_RETRIES
+    times with exponential backoff + jitter; any other exception propagates
+    immediately (auth errors, permanent 4xx, etc. are not retried).
+    """
+    attempt = 0
+    while True:
+        try:
+            return do_request()
+        except Exception as exc:
+            if attempt >= LLM_RETRIES or not is_transient(exc):
+                raise
+            delay_ms = LLM_RETRY_BASE_MS * (2 ** attempt)
+            if LLM_RETRY_MAX_MS:
+                delay_ms = min(delay_ms, LLM_RETRY_MAX_MS)
+            jitter = random.uniform(0, LLM_RETRY_BASE_MS * 0.1)
+            _retry_sleep((delay_ms + jitter) / 1000.0)
+            attempt += 1
 
 # Living-roster overlay: disciples can be culled (retired) and fresh recruits
 # added at runtime by the lifecycle module. Guarded by its OWN lock — load_agents
@@ -162,8 +255,13 @@ def _budget_block(agent: dict) -> str | None:
 
 
 def _chat_claude(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
-    """Run one turn against the Claude API via the official Anthropic SDK."""
-    blocked = _budget_block(agent)
+    """Run one turn against the Claude API via the official Anthropic SDK.
+
+    Budget gate is FIRST and never retried. On a transient failure the request
+    is retried (MAYBOT_LLM_RETRIES); if the primary model still fails, each
+    configured fallback model is tried in turn (same backend).
+    """
+    blocked = _budget_block(agent)  # FIRST — a budget block is never retried
     if blocked:
         return False, "", blocked
     try:
@@ -172,31 +270,42 @@ def _chat_claude(agent: dict, messages: list[dict]) -> tuple[bool, str, str | No
         return False, "", "anthropic SDK not installed (pip install anthropic)"
 
     name = agent.get("name", "?")
-    model = agent.get("model") or "claude-opus-4-8"
     max_tokens = int(agent.get("max_tokens", 1024))
     system_text = next((m["content"] for m in messages if m["role"] == "system"), _persona(agent))
     convo = [{"role": m["role"], "content": m["content"]} for m in messages if m["role"] in ("user", "assistant")]
-    t0 = time.time()
-    try:
-        resp = _anthropic_client().messages.create(
-            model=model,
-            max_tokens=max_tokens,
-            # Stable persona first, cached so repeat turns reuse the prefix.
-            system=[{"type": "text", "text": system_text, "cache_control": {"type": "ephemeral"}}],
-            messages=convo,
-        )
-        text = "".join(b.text for b in resp.content if getattr(b, "type", None) == "text")
-        u = getattr(resp, "usage", None)
-        tin = getattr(u, "input_tokens", 0) or 0
-        tout = getattr(u, "output_tokens", 0) or 0
-        usage.record(name, model, True, int((time.time() - t0) * 1000), tin, tout)
-        return True, text, None
-    except anthropic.AuthenticationError:
-        usage.record(name, model, False, int((time.time() - t0) * 1000))
-        return False, "", "Claude API authentication failed — set ANTHROPIC_API_KEY"
-    except Exception as exc:
-        usage.record(name, model, False, int((time.time() - t0) * 1000))
-        return False, "", str(exc)
+
+    def _attempt(model: str) -> tuple[bool, str, str | None]:
+        t0 = time.time()
+        try:
+            def _do():
+                return _anthropic_client().messages.create(
+                    model=model,
+                    max_tokens=max_tokens,
+                    # Stable persona first, cached so repeat turns reuse the prefix.
+                    system=[{"type": "text", "text": system_text, "cache_control": {"type": "ephemeral"}}],
+                    messages=convo,
+                )
+            resp = _retry_call(_do, _is_transient_anthropic)
+            text = "".join(b.text for b in resp.content if getattr(b, "type", None) == "text")
+            u = getattr(resp, "usage", None)
+            tin = getattr(u, "input_tokens", 0) or 0
+            tout = getattr(u, "output_tokens", 0) or 0
+            usage.record(name, model, True, int((time.time() - t0) * 1000), tin, tout)
+            return True, text, None
+        except anthropic.AuthenticationError:
+            usage.record(name, model, False, int((time.time() - t0) * 1000))
+            return False, "", "Claude API authentication failed — set ANTHROPIC_API_KEY"
+        except Exception as exc:
+            usage.record(name, model, False, int((time.time() - t0) * 1000))
+            return False, "", str(exc)
+
+    models = [agent.get("model") or "claude-opus-4-8"] + _fallback_models(agent)
+    ok, text, err = False, "", None
+    for model in models:
+        ok, text, err = _attempt(model)
+        if ok:
+            return ok, text, err
+    return ok, text, err
 
 
 def _chat(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
@@ -204,46 +313,59 @@ def _chat(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
     provider = (agent.get("provider") or "openai_compatible").lower()
     if provider in ("claude", "anthropic"):
         return _chat_claude(agent, messages)   # gated inside _chat_claude
-    blocked = _budget_block(agent)
+    blocked = _budget_block(agent)  # FIRST — a budget block is never retried
     if blocked:
         return False, "", blocked
     name = agent.get("name", "?")
     base_url = (agent.get("base_url") or "").rstrip("/")
-    model = agent.get("model") or agent.get("default_model") or ""
     temperature = float(agent.get("temperature", 0.7))
     max_tokens = int(agent.get("max_tokens", 512))
     if not base_url:
         return False, "", "base_url not configured"
-    t0 = time.time()
-    tin = tout = 0
-    try:
-        if provider == "ollama":
-            r = requests.post(f"{base_url}/api/chat", json={
-                "model": model, "messages": messages, "stream": False,
-                "options": {"temperature": temperature, "num_predict": max_tokens},
-            }, timeout=DEFAULT_TIMEOUT)
-            r.raise_for_status()
-            data = r.json()
-            text = (data.get("message") or {}).get("content") or ""
-            tin = data.get("prompt_eval_count") or 0
-            tout = data.get("eval_count") or 0
-        else:
-            # OpenAI-compatible: openai_compatible / lmstudio / llama_cpp / vllm / custom
-            r = requests.post(f"{base_url}/v1/chat/completions", json={
-                "model": model, "messages": messages,
-                "temperature": temperature, "max_tokens": max_tokens,
-            }, timeout=DEFAULT_TIMEOUT)
-            r.raise_for_status()
-            data = r.json()
-            text = data["choices"][0]["message"]["content"]
-            u = data.get("usage") or {}
-            tin = u.get("prompt_tokens") or 0
-            tout = u.get("completion_tokens") or 0
-        usage.record(name, model, True, int((time.time() - t0) * 1000), tin, tout)
-        return True, text, None
-    except Exception as exc:
-        usage.record(name, model, False, int((time.time() - t0) * 1000))
-        return False, "", str(exc)
+
+    def _attempt(model: str) -> tuple[bool, str, str | None]:
+        t0 = time.time()
+        tin = tout = 0
+        try:
+            if provider == "ollama":
+                def _do():
+                    r = requests.post(f"{base_url}/api/chat", json={
+                        "model": model, "messages": messages, "stream": False,
+                        "options": {"temperature": temperature, "num_predict": max_tokens},
+                    }, timeout=DEFAULT_TIMEOUT)
+                    r.raise_for_status()
+                    return r
+                data = _retry_call(_do, _is_transient_requests).json()
+                text = (data.get("message") or {}).get("content") or ""
+                tin = data.get("prompt_eval_count") or 0
+                tout = data.get("eval_count") or 0
+            else:
+                # OpenAI-compatible: openai_compatible / lmstudio / llama_cpp / vllm / custom
+                def _do():
+                    r = requests.post(f"{base_url}/v1/chat/completions", json={
+                        "model": model, "messages": messages,
+                        "temperature": temperature, "max_tokens": max_tokens,
+                    }, timeout=DEFAULT_TIMEOUT)
+                    r.raise_for_status()
+                    return r
+                data = _retry_call(_do, _is_transient_requests).json()
+                text = data["choices"][0]["message"]["content"]
+                u = data.get("usage") or {}
+                tin = u.get("prompt_tokens") or 0
+                tout = u.get("completion_tokens") or 0
+            usage.record(name, model, True, int((time.time() - t0) * 1000), tin, tout)
+            return True, text, None
+        except Exception as exc:
+            usage.record(name, model, False, int((time.time() - t0) * 1000))
+            return False, "", str(exc)
+
+    models = [agent.get("model") or agent.get("default_model") or ""] + _fallback_models(agent)
+    ok, text, err = False, "", None
+    for model in models:
+        ok, text, err = _attempt(model)
+        if ok:
+            return ok, text, err
+    return ok, text, err
 
 
 # ---------------------------------------------------------------------------
