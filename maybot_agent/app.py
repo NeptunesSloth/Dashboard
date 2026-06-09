@@ -107,7 +107,25 @@ def device():
 
 @app.get("/api/projects", dependencies=[Depends(verify_token)])
 def projects():
-    return [adapt_project(p) for p in load_projects()]
+    # Adapt each project independently: one misconfigured bot (bad path, locked
+    # DB, adapter error) must never take down the whole response — otherwise it
+    # hides itself AND every other bot on this host from the dashboard. A failing
+    # bot is surfaced as a degraded entry so it still shows up (with the reason).
+    out = []
+    for p in load_projects():
+        try:
+            out.append(adapt_project(p))
+        except Exception as exc:  # noqa: BLE001 - degrade, never drop
+            out.append({
+                "name": p.get("name", "unknown"),
+                "type": p.get("type", "generic"),
+                "status": "unknown",
+                "health": "error",
+                "metrics": {},
+                "alerts": [f"ERROR: this bot could not be read on the host — {type(exc).__name__}: {exc}"[:300]],
+                "actions_available": {"run_tests": False, "start": False, "stop": False},
+            })
+    return out
 
 
 # --- Dashboard-managed bot config (edit a host's projects from the UI) -------
