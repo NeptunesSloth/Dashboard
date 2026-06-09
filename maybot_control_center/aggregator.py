@@ -1,6 +1,6 @@
 from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
-from .agent_client import call_agent
+from .agent_client import call_agent, gather_fleet
 from .notifier import check_and_notify
 from . import history
 from . import incidents
@@ -24,12 +24,14 @@ def _num(v):
         return 0.0
 
 
-def _fetch_device(d: dict) -> tuple[dict, list[dict]]:
-    # /api/ping is unauthenticated (reachability); the API token is enforced on
-    # /api/projects, so a wrong/missing token shows up as auth_error there.
-    ping = call_agent(d, "/api/ping")
+def _shape_device(d: dict, ping: dict, proj_resp: dict) -> tuple[dict, list[dict]]:
+    """Turn raw ping/projects responses into a ``(device_row, projects)`` tuple.
+
+    Shared by the sync ``_fetch_device`` and the async ``aggregate_async`` so
+    both paths produce identical row/project shapes — only the transport
+    (sync ``requests`` vs async ``httpx``) differs.
+    """
     reachable = bool(ping.get("online"))
-    proj_resp = call_agent(d, "/api/projects") if reachable else {}
     auth_error = bool(proj_resp.get("auth_error"))
     online = reachable and not auth_error
     # The agent reports its version in the (already-made) ping payload — capture
@@ -55,17 +57,24 @@ def _fetch_device(d: dict) -> tuple[dict, list[dict]]:
     return device_row, projects
 
 
-def aggregate(devices: list[dict]) -> dict:
+def _fetch_device(d: dict) -> tuple[dict, list[dict]]:
+    # /api/ping is unauthenticated (reachability); the API token is enforced on
+    # /api/projects, so a wrong/missing token shows up as auth_error there.
+    ping = call_agent(d, "/api/ping")
+    reachable = bool(ping.get("online"))
+    proj_resp = call_agent(d, "/api/projects") if reachable else {}
+    return _shape_device(d, ping, proj_resp)
+
+
+def _finalize(device_rows: list[dict], projects: list[dict], _t0: float) -> dict:
+    """Post-processing shared by the sync ``aggregate`` and async
+    ``aggregate_async``: build the summary, run notifications/history/incidents,
+    annotate projects, and stash the last summary.
+
+    Factored out so the sync and async fleet polls differ ONLY in how they
+    gather the network data; everything downstream is identical.
+    """
     import time
-    _t0 = time.perf_counter()
-    device_rows: list[dict] = []
-    projects: list[dict] = []
-
-    with ThreadPoolExecutor(max_workers=min(len(devices), 16) or 1) as pool:
-        for device_row, device_projects in pool.map(_fetch_device, devices):
-            device_rows.append(device_row)
-            projects.extend(device_projects)
-
     summary = {
         "total_devices": len(device_rows),
         "online_devices": sum(1 for x in device_rows if x["online"]),
@@ -118,3 +127,53 @@ def aggregate(devices: list[dict]) -> dict:
     except Exception:
         pass
     return {"summary": summary, "devices": device_rows, "projects": projects}
+
+
+def aggregate(devices: list[dict]) -> dict:
+    import time
+    _t0 = time.perf_counter()
+    device_rows: list[dict] = []
+    projects: list[dict] = []
+
+    with ThreadPoolExecutor(max_workers=min(len(devices), 16) or 1) as pool:
+        for device_row, device_projects in pool.map(_fetch_device, devices):
+            device_rows.append(device_row)
+            projects.extend(device_projects)
+
+    return _finalize(device_rows, projects, _t0)
+
+
+async def aggregate_async(devices: list[dict]) -> dict:
+    """Async, opt-in twin of :func:`aggregate` — ADDITIVE building block.
+
+    Gathers the per-device ``/api/ping`` + ``/api/projects`` data concurrently
+    with ``httpx.AsyncClient`` (via :func:`agent_client.gather_fleet`) instead of
+    a thread pool, then runs the EXACT same post-processing through
+    :func:`_finalize`. Result shape is identical to ``aggregate`` (same
+    ``summary``/``devices``/``projects`` keys and the same per-row keys).
+
+    Scope: this is a bounded async slice for the fleet-poll READ path only — it
+    is NOT a full async rewrite, and it is NOT yet wired into any route. The
+    sync ``aggregate`` and the ``/api/overview`` route are unchanged and remain
+    the default.
+
+    Caveat: the async path does DIRECT HTTP only (no reverse-tunnel fallback);
+    fleets that rely on the reverse tunnel should keep using ``aggregate``.
+
+    Follow-up (not in this change): add an async ``/api/overview`` handler that
+    calls ``await aggregate_async(devices)`` when ``MAYBOT_ASYNC_POLL`` is set
+    (and direct-HTTP is in use), falling back to ``aggregate`` otherwise.
+    """
+    import time
+    _t0 = time.perf_counter()
+    device_rows: list[dict] = []
+    projects: list[dict] = []
+
+    for record in await gather_fleet(devices):
+        device_row, device_projects = _shape_device(
+            record["device"], record["ping"], record["proj_resp"]
+        )
+        device_rows.append(device_row)
+        projects.extend(device_projects)
+
+    return _finalize(device_rows, projects, _t0)
