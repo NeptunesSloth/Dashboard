@@ -25,9 +25,11 @@ certs, launch the agent's uvicorn with TLS + client-cert verification, e.g.::
 client certs happens on the agent/uvicorn side; this module only configures
 what the control center verifies and presents.
 """
+import asyncio
 import logging
 import os
 
+import httpx
 import requests
 
 _log = logging.getLogger("maybot_control_center.agent_client")
@@ -82,7 +84,10 @@ def _headers(token: str) -> dict:
     return {"x-api-token": token}
 
 
-def _wrap(r: requests.Response) -> dict:
+def _wrap(r) -> dict:
+    # Accepts any response with ``.status_code``/``.headers``/``.json()`` —
+    # works for both ``requests.Response`` and ``httpx.Response`` so the sync
+    # and async paths produce identical result shapes.
     is_2xx = 200 <= r.status_code < 300
     is_auth_error = r.status_code in {401, 403}
     payload = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
@@ -149,3 +154,107 @@ def put_agent(device: dict, endpoint: str, json_body: dict, timeout: int = 15) -
         return _wrap(r)
     except Exception as exc:
         return {"online": False, "error": str(exc), "data": {}}
+
+
+# ---------------------------------------------------------------------------
+# Opt-in async fleet poll (additive — does NOT replace the sync client above).
+#
+# This is a BOUNDED async building block, not a full async rewrite of the
+# control center. Only the fleet-poll read path (``/api/ping`` + ``/api/projects``
+# for every device) gets an async variant here; every existing route and the
+# sync ``call_agent``/``post_agent``/``put_agent`` helpers are untouched.
+#
+# Differences from the sync path, on purpose and documented:
+#   * NO reverse-tunnel (``_tunneled``) fallback — the async path always does a
+#     direct HTTP request. The tunnel is a synchronous, per-host mechanism; the
+#     async fleet poll is for direct-HTTP fleets where avoiding thread overhead
+#     for large device counts is the win. Tunnelled hosts should keep using the
+#     sync ``aggregate()``.
+#   * Uses ``httpx.AsyncClient`` instead of ``requests.Session``, but honours the
+#     SAME opt-in mTLS env vars (verify CA + client cert/key) and the same
+#     per-device timeout, and returns the SAME ``_wrap``-shaped dicts so results
+#     are drop-in compatible with ``_fetch_device``.
+# ---------------------------------------------------------------------------
+
+
+def _async_client_kwargs() -> dict:
+    """Translate the opt-in mTLS env vars into ``httpx.AsyncClient`` kwargs.
+
+    Mirrors :func:`_configure_tls` (which configures the sync ``requests``
+    session). Off by default: with no env vars set, returns ``{}`` and httpx
+    uses its default verification with no client certificate, matching the sync
+    client's default behaviour.
+    """
+    kwargs: dict = {}
+    ca = os.getenv("MAYBOT_AGENT_CA", "").strip()
+    if ca:
+        kwargs["verify"] = ca
+
+    cert = os.getenv("MAYBOT_AGENT_CLIENT_CERT", "").strip()
+    key = os.getenv("MAYBOT_AGENT_CLIENT_KEY", "").strip()
+    if cert and key:
+        kwargs["cert"] = (cert, key)
+    elif cert or key:
+        _log.warning(
+            "SECURITY: client-cert mTLS not enabled (async) — both "
+            "MAYBOT_AGENT_CLIENT_CERT and MAYBOT_AGENT_CLIENT_KEY must be set "
+            "(got only %s); no client cert will be presented to agents",
+            "MAYBOT_AGENT_CLIENT_CERT" if cert else "MAYBOT_AGENT_CLIENT_KEY",
+        )
+    return kwargs
+
+
+async def call_agent_async(client, device: dict, endpoint: str) -> dict:
+    """Async analogue of :func:`call_agent` for a single GET, using a shared
+    ``httpx.AsyncClient``.
+
+    Returns the same ``_wrap``-shaped dict (``online``/``auth_error``/
+    ``status_code``/``error``/``data``) as the sync client, or the same
+    ``{"online": False, "error": ..., "data": {}}`` on transport failure.
+    Direct HTTP only — no reverse-tunnel fallback (see module note above).
+    """
+    base = device.get("url", "").rstrip("/")
+    token = device.get("api_token", "")
+    try:
+        r = await client.get(
+            f"{base}{endpoint}",
+            headers=_headers(token),
+            timeout=_device_timeout(device),
+        )
+        return _wrap(r)
+    except Exception as exc:
+        return {"online": False, "error": str(exc), "data": {}}
+
+
+async def _fetch_device_async(client, device: dict) -> dict:
+    """Fetch ``/api/ping`` then (if reachable) ``/api/projects`` for one device.
+
+    Returns the raw ping/projects responses so the aggregator can apply the
+    exact same row-shaping logic the sync ``_fetch_device`` uses — keeping the
+    network concern (here) separate from the post-processing concern (there).
+    """
+    ping = await call_agent_async(client, device, "/api/ping")
+    reachable = bool(ping.get("online"))
+    proj_resp = await call_agent_async(client, device, "/api/projects") if reachable else {}
+    return {"device": device, "ping": ping, "proj_resp": proj_resp}
+
+
+async def gather_fleet(devices: list[dict]) -> list[dict]:
+    """Concurrently poll ``/api/ping`` + ``/api/projects`` for every device.
+
+    Uses a single shared ``httpx.AsyncClient`` (so connection pooling and the
+    opt-in mTLS settings apply across the whole fleet) and ``asyncio.gather``
+    for concurrency — no thread pool. The win over the sync
+    ``ThreadPoolExecutor`` path is avoiding thread overhead for large fleets.
+
+    Returns one ``{"device", "ping", "proj_resp"}`` record per device, in the
+    same order as ``devices``. Callers (see ``aggregator.aggregate_async``) turn
+    these into the ``(device_row, projects)`` tuples that mirror the sync
+    ``_fetch_device`` output.
+    """
+    if not devices:
+        return []
+    async with httpx.AsyncClient(**_async_client_kwargs()) as client:
+        return await asyncio.gather(
+            *(_fetch_device_async(client, d) for d in devices)
+        )
