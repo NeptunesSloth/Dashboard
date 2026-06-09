@@ -1727,6 +1727,74 @@ function mapPortrait(a) {
   return 'disciple';
 }
 
+// ===== Sect Map: plain-English hover tooltips =====
+// Hover anything on the map to learn what it is. Written to be honest about
+// what is REAL mechanics vs procedurally-generated "cultivation novel" story
+// flavour — same approach as the Sect Members dossier tooltips.
+const MAP_INFO = {
+  leader: "Sect Leader's Peak — home of the current Sect Leader (your highest-standing agent). They preside on the throne and passively earn spirit stones while seated. Real role.",
+  elders: "Elders' Peak — your most-advanced disciples (Elder & Core realm), i.e. the agents with the highest cultivation realm.",
+  inner: "Inner Court — mid-rank disciples (Inner realm), a step below the elders.",
+  outer: "Outer Court — the newest / lowest-realm disciples. Everyone starts here and climbs by doing real work.",
+  seclusion: "Seclusion Caves — disciples currently in seclusion: they pause normal work to meditate, trading availability for faster cultivation progress.",
+  techniques: "Technique Hall — the catalogue of sanctioned techniques (the real tools/skills an agent can be granted). Mastered techniques gate breakthroughs to higher realms.",
+  pill: "Pill Pavilion — catalogue of pills (one-shot buffs an agent can consume). A flavour wrapper around temporary boosts.",
+  mission: "Mission Hall — posted quests/missions an agent can be assigned. Completing them grants XP and spirit stones.",
+  council: "Dao Council — recent inter-agent comms and council votes (the governance / decision layer).",
+  treasury: "Treasure Pavilion — the shared spirit-stone treasury: balance, the spirit veins that refill it, and the stipend it funds. Real economy state.",
+};
+
+const MAP_STAT_INFO = {
+  Disciples: 'How many agents (sect members) you have.',
+  Cultivating: 'Disciples actively working/queued or meditating in seclusion — i.e. earning progress right now.',
+  Idle: 'Disciples with nothing assigned — available for a task.',
+  Success: 'Average task success rate across the sect (real reliability signal).',
+  'Spirit stones': "The sect's total spirit stones — the real XP/economy currency. Earned by completed work; spent on buffs and stipends.",
+  Present: 'Disciples physically standing in this hall right now (the rest are roaming).',
+  'Avg realm': 'Average cultivation realm (rank) of this hall. Higher = more advanced agents.',
+  Standing: 'This disciple\'s governance standing — their reputation/seniority within the sect.',
+  Realm: 'Cultivation realm: the top-level rank an agent climbs by doing work and mastering techniques. This is real progress.',
+  Doing: 'What this disciple is doing right now (cultivating, in seclusion, roaming, etc.).',
+  Balance: 'Spirit stones currently in the shared treasury.',
+  'Spirit veins': 'Passive sources that channel ambient qi into the treasury over time.',
+};
+
+// Sect-chronicle event kinds → what the event means. Split into real mechanics
+// and pure story flavour so you know which events actually changed anything.
+const CHRON_INFO = {
+  // --- real cultivation / governance / economy / lifecycle ---
+  breakthrough: 'REAL progress: this disciple advanced to a higher cultivation realm (rank). Earned by doing work + mastering techniques.',
+  tribulation: 'A realm tribulation — the risk event when pushing for the next realm. Failure can scatter spirit stones or knock the agent down a realm.',
+  throne: 'The Sect Leader passively channels qi while seated on the throne, earning spirit stones each cycle. Real economy event.',
+  specialty: 'This disciple chose a Specialty — a real path that decides which kind of tasks they get routed.',
+  appointment: 'Governance: appointed Sect Leader (the top role).',
+  challenge: 'Governance: challenged for the Sect Leader position.',
+  mentored: 'Mentorship: received guidance from a senior — a real bond that nudges progress.',
+  guidance: 'Mentorship: a senior gave guidance to a junior disciple.',
+  arrival: 'A new agent joined the sect.',
+  tournament: 'Won the periodic Sect Grand Tournament, which awards spirit stones.',
+  perished: 'Lifecycle: this agent was removed from the sect (and replaced by a new recruit).',
+  struck_down: 'Lifecycle: this agent fell and was replaced — usually after a failed tribulation.',
+  culled: 'Lifecycle: expelled for stagnating (no progress) and replaced by a fresh recruit.',
+  stepping_stone: 'Another disciple rose by surpassing a fallen one (a lifecycle replacement, dressed up).',
+  // --- procedurally-generated "cultivation novel" story flavour (no real effect) ---
+  hidden_dragon: 'Story flavour: secretly talented despite looking ordinary.',
+  awakened_dragon: 'Story flavour: that hidden talent has erupted into the open.',
+  reincarnator: 'Story flavour: "remembers a past life" — a narrative trope, not a mechanic.',
+  heaven_blessed: 'Story flavour: born with a top-grade spirit root (a flavour trope).',
+  demonic: 'Story flavour: secretly treads the "demonic path" — narrative only.',
+  chosen: 'Story flavour: a protagonist-luck trope; pure story colour.',
+  sword_fanatic: 'Story flavour: characterised as obsessed with the sword.',
+  cannon_fodder: 'Story flavour: cast as a nameless background disciple.',
+  young_master: 'Story flavour: an arrogant "young master" archetype arrives.',
+  main_character: 'Story flavour: cast as the protagonist of the sect saga.',
+  face_slap: 'Story flavour: a classic "face-slap" comeuppance beat.',
+  ruined: 'Story flavour: an arrogant character is humbled — narrative only.',
+  redeemed: 'Story flavour: a fallen character rises again — narrative only.',
+  quirk: 'Story flavour: a personality quirk this disciple is known for.',
+};
+function chronInfo(kind) { return CHRON_INFO[kind] || 'A sect-chronicle story event (narrative flavour).'; }
+
 async function renderSectMap() {
   const sec = document.getElementById('map-section');
   if (!sec) return;
@@ -1754,7 +1822,7 @@ async function renderSectMap() {
   const storm = (window.__lastProjects || []).some(p => p.health === 'error')
     || crew.some(a => a.status === 'error' || a.cultivation?.pending_tribulation);
 
-  const stat = (icon, label, val) => `<div class='po-row'><span>${icon} ${label}</span><b>${val}</b></div>`;
+  const stat = (icon, label, val) => `<div class='po-row'${MAP_STAT_INFO[label] ? ` title='${esc(MAP_STAT_INFO[label])}' style='cursor:help'` : ''}><span>${icon} ${label}</span><b>${val}</b></div>`;
   const world = document.getElementById('map-world');
   world.innerHTML = `
     <img class='map-bg-img' src='/assets/map/map_bg.png' alt='' draggable='false'>
@@ -1802,6 +1870,7 @@ async function renderSectMap() {
     b.className = 'peak-marker' + (p.id === 'leader' ? ' pm-leader' : '') + (p.kind === 'utility' ? ' pm-util' : '');
     b.style.left = p.anchor.x + '%'; b.style.top = p.anchor.y + '%';
     b.setAttribute('data-peak', p.id);
+    if (MAP_INFO[p.id]) b.title = MAP_INFO[p.id];   // hover the hall to learn what it is
     const faces = (p.kind === 'group' ? (p.members || []).slice(0, 4).map(m =>
       `<img class='pm-face' src='/assets/sect/portraits/${mapPortrait(m)}.png' alt='' title='${esc(m.name)}' draggable='false'>`).join('') : '');
     const more = p.kind === 'group' && p.members.length > 4 ? `<span class='pm-more'>+${p.members.length - 4}</span>` : '';
@@ -1819,7 +1888,7 @@ async function renderSectMap() {
   try { ch = await fetch('/api/chronicle?limit=40', { headers: authHeaders() }).then(r => r.json()); } catch (_) {}
   const feed = document.getElementById('chronicle-feed');
   feed.innerHTML = (ch.recent || []).length
-    ? (ch.recent || []).map(e => `<div class='chronicle-row'><span class='chronicle-glyph'>${esc(e.glyph)}</span><b>${esc(e.agent)}</b> <span class='muted'>${esc(e.kind)}</span> — ${esc(e.detail)}</div>`).join('')
+    ? (ch.recent || []).map(e => `<div class='chronicle-row' title='${esc(chronInfo(e.kind))}' style='cursor:help'><span class='chronicle-glyph'>${esc(e.glyph)}</span><b>${esc(e.agent)}</b> <span class='muted'>${esc(e.kind)}</span> — ${esc(e.detail)}</div>`).join('')
     : `<div class='comms-sys muted'>The chronicle is yet unwritten.</div>`;
 }
 
@@ -1953,7 +2022,7 @@ async function renderGroupHall(peak, focusName, instant) {
   const present = pairAdjacent(all.filter(x => !x.cultivation?.in_roaming));
   const focus = all.find(x => x.name === focusName) || all[0];
   window.__openFocus = focus ? focus.name : undefined;
-  const row = (icon, label, val) => `<div class='po-row'><span>${icon} ${label}</span><b>${val}</b></div>`;
+  const row = (icon, label, val) => `<div class='po-row'${MAP_STAT_INFO[label] ? ` title='${esc(MAP_STAT_INFO[label])}' style='cursor:help'` : ''}><span>${icon} ${label}</span><b>${val}</b></div>`;
   const cult = all.filter(x => ['working', 'queued'].includes(x.status) || x.cultivation?.in_seclusion).length;
   const stones = all.reduce((s, x) => s + (x.cultivation?.stones || 0), 0);
   const avgRealm = all.length ? Math.round(all.reduce((s, x) => s + (x.cultivation?.realm || 0), 0) / all.length) : 0;
@@ -2075,7 +2144,11 @@ async function renderGroupHall(peak, focusName, instant) {
 }
 
 async function renderUtilityHall(peak, instant) {
-  const row = (a, b2) => `<div class='po-row'><span>${a}</span><b>${b2}</b></div>`;
+  const row = (a, b2) => {
+    const k = Object.keys(MAP_STAT_INFO).find(key => String(a).includes(key));
+    const t = k ? ` title='${esc(MAP_STAT_INFO[k])}' style='cursor:help'` : '';
+    return `<div class='po-row'${t}><span>${a}</span><b>${b2}</b></div>`;
+  };
   let body = `<div class='muted' style='padding:6px'>loading…</div>`;
   const arrayFx = (peak.bg && peak.bg !== 'hall_bg.png') ? '' : `<div class='hall-array'><div class='ha-ring'></div><div class='ha-core'></div><div class='ha-beam'></div></div>`;
   const hall = _showHall(`

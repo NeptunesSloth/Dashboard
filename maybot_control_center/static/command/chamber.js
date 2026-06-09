@@ -32,6 +32,62 @@ const SPECIALTIES = ['Pill Genius', 'Formation Savant', 'Born Merchant', 'Sword 
 const TRAITS_POS = ['Hardworking', 'Loyal', 'Disciplined', 'Curious', 'Brave', 'Patient', 'Wise', 'Charismatic', 'Perfectionist'];
 const TRAITS_NEG = ['Lazy', 'Arrogant', 'Cowardly', 'Greedy', 'Impulsive', 'Jealous', 'Vindictive', 'Wasteful', 'Reckless'];
 const TRAITS_NEU = ['Quiet', 'Bookworm', 'Dreamer', 'Competitive', 'Eccentric', 'Collector'];
+
+/* Plain-English hover explanations for the dossier — so it's clear what each
+ * stat IS and whether it actually DOES anything (much of the dossier is
+ * synthesised cultivation flavour; a few things are real). */
+const DOSSIER_INFO = {
+  Talent: 'Innate talent grade (S best → F). Cultivation aptitude — character flavour, not a task-outcome modifier.',
+  'Qi Affinity': 'How readily this disciple absorbs qi (0–100). Cultivation flavour.',
+  Comprehension: 'How quickly it grasps new techniques (0–100). Cultivation flavour.',
+  Strength: 'Physical power. RPG character flavour — does not change task results.',
+  Agility: 'Speed & reflexes. Character flavour.',
+  Endurance: 'Stamina & resilience. Character flavour.',
+  Intelligence: 'Reasoning ability. Character flavour.',
+  Perception: 'Awareness & insight. Character flavour.',
+  Willpower: 'Mental fortitude (resists the "inner demon" self-critique). Character flavour.',
+  Charisma: 'Social influence. Character flavour.',
+  Luck: 'Fortune — nudges random sect events. Character flavour.',
+  'Years in Sect': 'How long this disciple has served the sect.',
+  Contribution: 'Spirit stones earned through real work — the sect-merit total.',
+  Missions: 'Missions / tasks this disciple has taken part in.',
+  Breakthroughs: 'Times it has broken through to a higher cultivation realm (real progression).',
+  Techniques: 'Distinct techniques (skills) mastered — these gate realm breakthroughs.',
+  Success: "Share of this disciple's tasks that completed successfully.",
+};
+// Per-category fallback (matched against the chip's CSS class).
+const DOSSIER_CLS_INFO = {
+  spec: 'Specialty — the Sect Leader routes matching work to this disciple, so this DOES affect who gets a task.',
+  grade: 'Innate talent grade — cultivation aptitude flavour.',
+  'trait-pos': 'Positive personality trait — flavour that colours how this disciple thinks and talks.',
+  'trait-neg': 'Negative personality trait — flavour.',
+  'trait-neu': 'Neutral personality trait — flavour.',
+  constitution: 'A rare body/constitution — cultivation flavour with thematic bonuses.',
+  trope: 'Cultivation-novel archetype — pure flavour.',
+};
+function dossierInfo(text, cls) {
+  const t = String(text || '');
+  if (DOSSIER_INFO[t]) return DOSSIER_INFO[t];
+  for (const k in DOSSIER_INFO) if (t.startsWith(k)) return DOSSIER_INFO[k];   // "Talent A", "Qi Affinity 68"
+  for (const c in DOSSIER_CLS_INFO) if ((cls || '').includes(c)) return DOSSIER_CLS_INFO[c];
+  return '';
+}
+// What each dossier SECTION represents (hover the section heading).
+const SECTION_INFO = {
+  'Spirit Root': "A cultivator's innate aptitude — synthesised flavour that gives each disciple a distinct identity. Higher purity/potential reads as more gifted; it doesn't change task results.",
+  Cultivation: 'Progression. Realm + spirit stones are earned by real work (tasks, mastering tools); Talent / Qi Affinity / Comprehension are aptitude flavour.',
+  Attributes: "RPG character stats synthesised from the disciple's identity — they flavour its personality but don't affect task outcomes.",
+  Skills: "Techniques this disciple has mastered. Succeeding at a tool it's never used registers a new technique, which counts toward the next realm breakthrough.",
+  Specialties: 'The disciple\'s area of focus. The Sect Leader routes matching tasks to specialists — this section affects task assignment.',
+  Traits: 'Personality traits that colour how the disciple behaves and talks (green = positive, red = negative, grey = neutral). Flavour.',
+  Relationships: 'Karmic bonds with other disciples — positive bonds help them collaborate, negative ones create friction.',
+  Mentorship: 'Master / apprentice lineage — who trained whom in the sect.',
+  'Sect Status': 'This disciple\'s standing: time served, contribution (spirit stones), missions, breakthroughs, techniques mastered, and task success rate.',
+  Equipment: 'Cosmetic gear that reflects the disciple\'s realm and role — flavour.',
+  'Current Thoughts': 'AI-flavour musings — not real telemetry.',
+  'Life Goal': "A synthesised long-term ambition — flavour.",
+  'Event History': 'A timeline blending real chronicle events with synthesised cultivation milestones.',
+};
 const GOALS = ['Become Elder', 'Master the Sword Dao', 'Found a Personal Peak', 'Reach Nascent Soul', 'Create Legendary Pills', 'Become Sect Leader', 'Comprehend a Heavenly Dao', 'Forge an Immortal Artifact'];
 const WEAPONS = [['Wooden Practice Sword', 0], ['Iron Saber', 1], ['Azure Cloud Sword', 3], ['Frostmoon Glaive', 2], ['Nine-Ring Blade', 2], ['Voidsplitter Spear', 4]];
 const ARMORS = [['Cotton Robe', 0], ['Spirit Silk Robe', 2], ['Jade Scale Armor', 3], ['Cloudweave Vestment', 1], ['Dragonhide Mantle', 4]];
@@ -292,11 +348,15 @@ function memberChip(a) {
  *  Cinematic inspection view
  * ====================================================================== */
 function bar(label, val, cls) {
-  return `<div class='attr'><span class='attr-l'>${esc(label)}</span>
+  const ti = dossierInfo(label, '');
+  return `<div class='attr'${ti ? ` title='${esc(ti)}' style='cursor:help'` : ''}><span class='attr-l'>${esc(label)}</span>
     <span class='attr-bar'><span class='${cls || ''}' style='width:${Math.max(2, Math.min(100, val))}%'></span></span>
     <span class='attr-v'>${val}</span></div>`;
 }
-function chip(text, cls) { return `<span class='chip ${cls || ''}'>${esc(text)}</span>`; }
+function chip(text, cls) {
+  const ti = dossierInfo(text, cls);
+  return `<span class='chip ${cls || ''}'${ti ? ` title='${esc(ti)}' style='cursor:help'` : ''}>${esc(text)}</span>`;
+}
 
 async function openInspect(name) {
   active = name;
@@ -417,6 +477,14 @@ async function openInspect(name) {
       </section>
     </div>`;
 
+  // Explain each section on hover (what it is / whether it does anything).
+  panel.querySelectorAll('.ds-title').forEach((el) => {
+    const lead = (el.textContent || '').trim();
+    for (const k in SECTION_INFO) {
+      if (lead.startsWith(k)) { el.title = SECTION_INFO[k]; el.style.cursor = 'help'; break; }
+    }
+  });
+
   const ov = $('inspect');
   ov.hidden = false;
   requestAnimationFrame(() => ov.classList.add('show'));
@@ -438,7 +506,10 @@ async function openInspect(name) {
   const el = $('ds-events');
   if (el) el.innerHTML = events.map((e) => `<div class='evt'><span class='evt-y'>${esc(e.y)}</span><span class='evt-t'>${esc(e.t)}</span></div>`).join('');
 }
-function stat(l, v) { return `<div class='ds-stat'><span class='st-v'>${esc(v)}</span><span class='st-l'>${esc(l)}</span></div>`; }
+function stat(l, v) {
+  const ti = dossierInfo(l, '');
+  return `<div class='ds-stat'${ti ? ` title='${esc(ti)}' style='cursor:help'` : ''}><span class='st-v'>${esc(v)}</span><span class='st-l'>${esc(l)}</span></div>`;
+}
 
 function closeInspect() {
   const ov = $('inspect');
