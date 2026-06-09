@@ -884,6 +884,23 @@ def learning_ask(body: AskIn, x_control_token: str = Header(default="")):
     return learning.ask_tutor(body.track, body.question, body.history)
 
 
+@app.post("/api/learning/ask/stream")
+def learning_ask_stream(body: AskIn, x_control_token: str = Header(default="")):
+    """Streaming tutor reply (server-sent events): meta -> token* -> done/error."""
+    _check_token(x_control_token)
+    from . import learning
+
+    def gen():
+        try:
+            for event in learning.ask_tutor_stream(body.track, body.question, body.history):
+                yield f"data: {_json.dumps(event)}\n\n"
+        except Exception as exc:
+            yield f"data: {_json.dumps({'type': 'error', 'error': str(exc)})}\n\n"
+
+    return StreamingResponse(gen(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
 @app.post("/api/learning/quiz")
 def learning_quiz(body: QuizIn, x_control_token: str = Header(default="")):
     _check_operator(x_control_token)

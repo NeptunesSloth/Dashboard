@@ -480,17 +480,41 @@ async function sendChat() {
   if (!q) return;
   if (!curTrack) return toast('Pick a track first.');
   inp.value = '';
+  const history = chatHistory.slice();
   chatHistory.push({ role: 'user', content: q });
   $('chat').insertAdjacentHTML('beforeend', `<div class='bub you'>${esc(q)}</div>`);
-  $('chat').insertAdjacentHTML('beforeend', `<div class='bub ai' id='pending'>…</div>`);
+  const bub = document.createElement('div'); bub.className = 'bub ai'; bub.textContent = '…';
+  $('chat').appendChild(bub);
   $('chat').scrollTop = $('chat').scrollHeight;
-  const res = await post('/api/learning/ask', { track: curTrack.id, question: q, history: chatHistory.slice(0, -1) });
-  $('pending')?.remove();
-  if (!res || res.error) { $('chat').insertAdjacentHTML('beforeend', `<div class='bub ai'>⚠ ${esc(errText(res))}</div>`); return; }
-  chatHistory.push({ role: 'assistant', content: res.answer });
-  $('chat').insertAdjacentHTML('beforeend', `<div class='bub ai'>${esc(res.answer)}</div>`);
-  $('chat').scrollTop = $('chat').scrollHeight;
-  speak(res.answer);
+  let answer = '', errored = null;
+  try {
+    const resp = await fetch('/api/learning/ask/stream', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ track: curTrack.id, question: q, history }),
+    });
+    if (!resp.ok || !resp.body) throw new Error('no stream');
+    const reader = resp.body.getReader(); const dec = new TextDecoder(); let buf = '';
+    for (;;) {
+      const { value, done } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf('\n\n')) >= 0) {
+        const line = buf.slice(0, nl).trim(); buf = buf.slice(nl + 2);
+        if (!line.startsWith('data:')) continue;
+        let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch (_) { continue; }
+        if (ev.type === 'token') { answer += ev.text; bub.textContent = answer; $('chat').scrollTop = $('chat').scrollHeight; }
+        else if (ev.type === 'error') { errored = ev.error; }
+      }
+    }
+  } catch (_) {
+    // Fallback to the non-streaming endpoint.
+    const res = await post('/api/learning/ask', { track: curTrack.id, question: q, history });
+    if (res && !res.error) answer = res.answer; else errored = (res && res.error) || 'no response';
+  }
+  if (!answer) { bub.innerHTML = `⚠ ${esc(errText({ error: errored }))}`; return; }
+  bub.textContent = answer;
+  chatHistory.push({ role: 'assistant', content: answer });
+  speak(answer);
   loadProgress();
 }
 $('chat-send').onclick = sendChat;
