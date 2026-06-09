@@ -82,3 +82,49 @@ def test_daybot_uses_csv_when_paper_trades_missing(tmp_path):
     out = adapt({"name": "daybot", "type": "trading_bot", "path": str(tmp_path), "database": str(db), "trade_csv_glob": "logs/paper_trades_*.csv"})
     assert out["metrics"]["realized_pnl"] == 9.5
     assert out["metrics"]["profit_today"] == 9.5
+
+
+def test_generic_trades_table_feeds_time_bucketed_pnl(tmp_path):
+    """A bot that records executed trades in a generic `trades` table (no DayBot
+    pnl_snapshots/paper_trades) must still surface Profit Today/Week/Month, not
+    just a lump realized total. This is the "catching trades but no PnL" case."""
+    db = tmp_path / "bot.db"
+    conn = sqlite3.connect(db)
+    cur = conn.cursor()
+    # arbitrary column names the bot might use: `profit` for PnL, `exit_time` for close.
+    cur.execute("CREATE TABLE trades (id INTEGER PRIMARY KEY, symbol TEXT, side TEXT, "
+                "entry_time TEXT, exit_time TEXT, profit REAL)")
+    now = datetime.now().replace(microsecond=0)
+    cur.execute("INSERT INTO trades (symbol, side, entry_time, exit_time, profit) VALUES "
+                "('BTC', 'long', ?, ?, 12.5)", (now.isoformat(), now.isoformat()))
+    cur.execute("INSERT INTO trades (symbol, side, entry_time, exit_time, profit) VALUES "
+                "('ETH', 'short', ?, ?, -3.0)", (now.isoformat(), now.isoformat()))
+    conn.commit()
+    conn.close()
+
+    out = adapt({"name": "arb", "type": "trading_bot", "path": str(tmp_path), "database": str(db)})
+    m = out["metrics"]
+    assert m["realized_pnl"] == 9.5          # 12.5 + (-3.0)
+    assert m["profit_today"] == 9.5          # both closed today → headline populated
+    assert m["profit_this_week"] == 9.5
+    assert m["trades_today"] == 2
+
+
+def test_log_metrics_do_not_clobber_db_pnl(tmp_path):
+    """A stale 'total_pnl: 0' log line must not overwrite a real Profit Today
+    computed from closed trades in the database."""
+    db = tmp_path / "bot.db"
+    conn = sqlite3.connect(db)
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE trades (id INTEGER PRIMARY KEY, exit_time TEXT, pnl REAL)")
+    now = datetime.now().replace(microsecond=0)
+    cur.execute("INSERT INTO trades (exit_time, pnl) VALUES (?, 42.0)", (now.isoformat(),))
+    conn.commit()
+    conn.close()
+
+    log = tmp_path / "bot.log"
+    log.write_text("cycle done total_pnl=0\n", encoding="utf-8")
+
+    out = adapt({"name": "arb", "type": "trading_bot", "path": str(tmp_path),
+                 "database": str(db), "log_file": str(log)})
+    assert out["metrics"]["profit_today"] == 42.0   # DB wins over the log's 0
