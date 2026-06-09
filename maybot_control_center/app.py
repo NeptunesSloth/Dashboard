@@ -93,6 +93,12 @@ deadman.start()    # external heartbeat: if the dashboard dies, your monitor pag
 from . import safemode
 safemode.load_persisted()   # restore the panic-button state across restarts
 
+# Non-fatal startup config validation: warn (never fail) on common misconfig.
+from . import config_check
+import logging as _logging
+for _warning in config_check.check():
+    _logging.getLogger("maybot.config").warning("config: %s", _warning)
+
 _SAFE_NAME = deps.SAFE_NAME
 _SAFE_TARGET = deps.SAFE_TARGET
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
