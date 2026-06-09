@@ -17,10 +17,20 @@ from __future__ import annotations
 
 import os
 import threading
+import time
 
 BUDGET_USD = float(os.getenv("MAYBOT_BUDGET_USD", "0"))            # sect-wide cap (0 = off)
 AGENT_CAP = float(os.getenv("MAYBOT_BUDGET_AGENT_USD", "0"))       # per-agent cap (0 = none)
 LOW_PCT = float(os.getenv("MAYBOT_BUDGET_LOW_PCT", "20"))          # % remaining that counts as "low"
+
+# ---- hard spend caps (daily / monthly) -------------------------------------
+# Additive, OFF BY DEFAULT: with neither set (0), allow_call() always permits and
+# no alerts fire — existing behaviour is unchanged. When configured, a fresh LLM
+# call is *blocked* once the rolling spend for the period reaches the cap, and an
+# alert fires once per threshold per day as spend crosses 80% then 100%.
+DAILY_USD = float(os.getenv("MAYBOT_BUDGET_DAILY_USD", "0"))       # rolling 24h cap (0 = off)
+MONTHLY_USD = float(os.getenv("MAYBOT_BUDGET_MONTHLY_USD", "0"))   # rolling ~30d cap (0 = off)
+WARN_PCT = 80.0                                                    # alert threshold (% of cap)
 
 
 def _usage():
@@ -122,6 +132,107 @@ def reset_alert() -> None:
         _alert_level = "healthy"
 
 
+# ---- hard spend caps: rolling-window spend, allow_call(), threshold alerts ---
+_DAY = 24 * 3600
+_caps_lock = threading.Lock()
+# (cap-kind, threshold-pct) -> day-epoch the alert last fired on. De-dupes alerts
+# to once per threshold per UTC day, like the repo's other daily notifiers.
+_cap_alerted: dict[tuple[str, int], int] = {}
+
+
+def _series(hours: int) -> dict:
+    from . import usage
+    return usage.series(hours)
+
+
+def _window_spend(hours: int) -> float:
+    """USD spent over roughly the last ``hours`` hours, from the usage cost series.
+    Reuses usage's per-model pricing — no pricing is reinvented here."""
+    try:
+        return round(float(_series(hours)["totals"]["cost"]), 6)
+    except Exception:
+        return 0.0
+
+
+def daily_spend() -> float:
+    return _window_spend(24)
+
+
+def monthly_spend() -> float:
+    # usage keeps up to two weeks of hourly buckets; sum all we have for the month.
+    return _window_spend(24 * 30)
+
+
+def _cap_state(kind: str, cap: float, spent: float) -> dict:
+    """State for one configured cap (daily/monthly)."""
+    if cap <= 0:
+        return {"kind": kind, "enabled": False, "cap": 0.0, "spent": round(spent, 4),
+                "remaining": 0.0, "pct_used": 0.0, "paused": False}
+    remaining = max(0.0, round(cap - spent, 4))
+    pct = round(100.0 * spent / cap, 1)
+    return {"kind": kind, "enabled": True, "cap": round(cap, 4), "spent": round(spent, 4),
+            "remaining": remaining, "pct_used": pct, "paused": spent >= cap}
+
+
+def caps() -> dict:
+    """Current daily/monthly hard-cap state (off by default)."""
+    return {"daily": _cap_state("daily", DAILY_USD, daily_spend()),
+            "monthly": _cap_state("monthly", MONTHLY_USD, monthly_spend())}
+
+
+def _cap_alert(kind: str, st: dict) -> None:
+    """Fire an alert once per crossed threshold (80%, 100%) per UTC day. Best-effort."""
+    if not st["enabled"]:
+        return
+    today = int(time.time()) // _DAY
+    for thresh in (100, int(WARN_PCT)):
+        if st["pct_used"] < thresh:
+            continue
+        key = (kind, thresh)
+        with _caps_lock:
+            if _cap_alerted.get(key) == today:
+                continue
+            _cap_alerted[key] = today
+        level = "critical" if thresh >= 100 else "warn"
+        verb = "reached — calls paused" if thresh >= 100 else "warning"
+        try:
+            from . import notify
+            notify.send(
+                f"{kind.capitalize()} LLM budget {verb}",
+                f"${st['spent']} of ${st['cap']} {kind} cap used ({st['pct_used']}%).",
+                level=level, kind="budget")
+        except Exception:
+            pass
+        break  # only the highest crossed threshold this pass
+
+
+def reset_caps() -> None:
+    """Test/ops helper: clear the once-per-day cap-alert de-dupe state."""
+    with _caps_lock:
+        _cap_alerted.clear()
+
+
+def allow_call(agent_name: str | None = None) -> tuple[bool, str | None]:
+    """Whether a new LLM call is permitted under the configured hard spend caps.
+
+    Returns ``(True, None)`` when permitted (always, if no cap is configured), or
+    ``(False, reason)`` when a daily/monthly cap has been reached. Crossing a
+    threshold also fires an alert (once per threshold per day, best-effort).
+    """
+    c = caps()
+    denied: str | None = None
+    for kind in ("daily", "monthly"):
+        st = c[kind]
+        if not st["enabled"]:
+            continue
+        _cap_alert(kind, st)
+        if st["paused"] and denied is None:
+            denied = (f"{kind} LLM budget reached (${st['spent']}/${st['cap']}) — calls paused")
+    if denied is not None:
+        return False, denied
+    return True, None
+
+
 def snapshot() -> dict:
     r = reserves()
     check_alert()
@@ -129,4 +240,5 @@ def snapshot() -> dict:
     for a in _usage()["agents"]:
         rows.append({"agent": a["agent"], "cost": round(a["cost"], 4),
                      "tokens": a["tokens_in"] + a["tokens_out"], "status": status(a["agent"])})
-    return {"reserves": r, "agent_cap": round(AGENT_CAP, 4), "low_pct": LOW_PCT, "agents": rows}
+    return {"reserves": r, "agent_cap": round(AGENT_CAP, 4), "low_pct": LOW_PCT,
+            "caps": caps(), "agents": rows}
