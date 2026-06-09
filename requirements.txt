@@ -6,5 +6,14 @@ psutil==7.2.2
 anthropic==0.105.2
 httpx>=0.27
 websockets>=12
+# Optional features become usable once their env vars are set (all default-off):
+#   cryptography -> secret encryption-at-rest (MAYBOT_SECRET_KEY)
+#   redis        -> shared sessions/rate-limit for multi-replica (MAYBOT_REDIS_URL)
+#   psycopg      -> Postgres persistence (MAYBOT_DB=postgresql://...)
+#   sentry-sdk   -> error tracking (MAYBOT_SENTRY_DSN)
+cryptography>=41
+redis>=5
+psycopg[binary]>=3.1
+sentry-sdk>=2
 
 pytest==9.0.3
