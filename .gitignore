@@ -41,6 +41,11 @@ logs/
 *.webp
 *.bmp
 
+# Node / frontend build tooling (opt-in Vite pipeline)
+node_modules/
+frontend-dist/
+npm-debug.log*
+
 # OS/editor
 .DS_Store
 .idea/
