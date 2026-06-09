@@ -358,29 +358,54 @@ function startLogsAutoRefresh() {
   }, 7000);
 }
 
+// Cache the last overview so returning to the Command Hall paints instantly,
+// instead of blocking on a fresh /api/overview poll (which can take seconds when
+// an agent host is offline). The fresh poll still runs and updates in the
+// background — this only removes the blank "Loading…" wait on every tab-swap.
+const OVERVIEW_CACHE_KEY = 'maybot.overview_cache';
+function readOverviewCache() {
+  try {
+    const o = JSON.parse(localStorage.getItem(OVERVIEW_CACHE_KEY) || 'null');
+    if (!o || !o.data || Date.now() - (o.t || 0) > 600000) return null;  // ignore >10min-old
+    return o.data;
+  } catch (_) { return null; }
+}
+function writeOverviewCache(data) {
+  try { localStorage.setItem(OVERVIEW_CACHE_KEY, JSON.stringify({ t: Date.now(), data })); } catch (_) {}
+}
+function applyOverview(data) {
+  const summaryEl = document.getElementById('summary');
+  const devicesEl = document.getElementById('devices');
+  window.__lastProjects = data.projects || [];
+  window.__lastSummary = data.summary;
+  const pill = document.getElementById('device-count-pill');
+  if (pill && data.summary) pill.textContent = `${data.summary.online_devices} online / ${data.summary.offline_devices} offline`;
+  summaryEl.classList.remove('loading');
+  if (data.summary) summaryEl.innerHTML = summaryCards(data.summary);
+  if (devicesEl) devicesEl.innerHTML = renderDevices(data.devices || []);
+  renderProjects(window.__lastProjects);
+}
+
+let __overviewBooted = false;
 async function render() {
   const summaryEl = document.getElementById('summary');
   const projectsEl = document.getElementById('projects');
-  const devicesEl = document.getElementById('devices');
   const err = document.getElementById('error-banner');
-  summaryEl.classList.add('loading');
-  summaryEl.innerHTML = `<div class='card'>Loading overview...</div>`;
+  if (!__overviewBooted) {
+    const cached = readOverviewCache();
+    if (cached) applyOverview(cached);                    // instant paint from last-known state
+    else { summaryEl.classList.add('loading'); summaryEl.innerHTML = `<div class='card'>Loading overview...</div>`; }
+  }
   try {
     const resp = await fetch('/api/overview', { headers: authHeaders() });
     if (resp.status === 401) { location.href = '/login'; return; }
     const data = await resp.json();
+    writeOverviewCache(data);
     notifyHealthChanges(data.projects || []);
-    window.__lastProjects = data.projects || [];
     err.classList.add('hidden');
-    document.getElementById('device-count-pill').textContent = `${data.summary.online_devices} online / ${data.summary.offline_devices} offline`;
-
-    summaryEl.classList.remove('loading');
-    window.__lastSummary = data.summary;
-    summaryEl.innerHTML = summaryCards(data.summary);
+    __overviewBooted = true;
+    applyOverview(data);                                  // refresh with fresh data
     renderQuickStart();          // click-and-play onboarding checklist (self-hides when ready)
-    devicesEl.innerHTML = renderDevices(data.devices || []);
-
-    renderProjects(window.__lastProjects);
     await renderAssign();        // sets window.__gov (specialties/leader) used by disciple cards
     await renderAgentCrew();
     renderOps();
@@ -400,11 +425,13 @@ async function render() {
     renderReliability();
   } catch (e) {
     err.classList.remove('hidden');
-    summaryEl.classList.remove('loading');
-    summaryEl.innerHTML = `<div class='card'><b>Overview unavailable</b><div class='muted'>${esc(String(e))}</div></div>`;
-    devicesEl.innerHTML = '';
-    projectsEl.innerHTML = '';
-    document.getElementById('ai-agents').innerHTML = '';
+    if (!__overviewBooted) {     // only blank out if we never managed to paint anything
+      summaryEl.classList.remove('loading');
+      summaryEl.innerHTML = `<div class='card'><b>Overview unavailable</b><div class='muted'>${esc(String(e))}</div></div>`;
+      document.getElementById('devices').innerHTML = '';
+      projectsEl.innerHTML = '';
+      document.getElementById('ai-agents').innerHTML = '';
+    }
   }
 }
 
