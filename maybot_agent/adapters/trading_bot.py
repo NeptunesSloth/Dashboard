@@ -67,6 +67,68 @@ def _parse_log_metrics(log_file: str | None) -> dict:
     return out
 
 
+# A generic trades table can be named many ways by different bots. These are the
+# column-name candidates we recognise when pulling per-trade PnL so the dashboard
+# can time-bucket it into today / this-week / this-month (not just a lump sum).
+_PNL_COLS = ("pnl_usd", "pnl", "realized_pnl", "realised_pnl", "profit_usd",
+             "profit", "net_pnl", "net", "pl", "gain", "return_usd")
+_CLOSED_COLS = ("closed_at", "close_time", "closed_time", "exit_time", "exit_at",
+                "sell_time", "filled_at", "close_timestamp")
+_OPENED_COLS = ("opened_at", "open_time", "entry_time", "entry_at", "created_at",
+                "timestamp", "time", "ts", "date", "datetime", "executed_at")
+_OID_COLS = ("order_id", "client_order_id", "trade_id", "id")
+
+
+def _pick(cols_lower: dict, candidates) -> str | None:
+    for c in candidates:
+        if c in cols_lower:
+            return cols_lower[c]
+    return None
+
+
+def _read_trade_rows(cur, table: str) -> list[dict]:
+    """Per-trade reader for an arbitrary trades table: if `table` exists and has a
+    PnL-like column, return (pnl, closed_at, opened_at, order_id) rows so realized
+    PnL can be bucketed into today/week/month — whatever the bot's exact schema.
+    Returns [] when the table or a PnL column is absent (caller falls through)."""
+    try:
+        info = cur.execute(f"PRAGMA table_info({table})").fetchall()
+    except Exception:
+        return []
+    cols_lower = {str(r[1]).lower(): str(r[1]) for r in info}
+    pnl_col = _pick(cols_lower, _PNL_COLS)
+    if not pnl_col:
+        return []
+    closed_col = _pick(cols_lower, _CLOSED_COLS)
+    opened_col = _pick(cols_lower, _OPENED_COLS)
+    oid_col = _pick(cols_lower, _OID_COLS)
+    sel = ", ".join([
+        f'"{pnl_col}"',
+        f'"{closed_col}"' if closed_col else "NULL",
+        f'"{opened_col}"' if opened_col else "NULL",
+        f'"{oid_col}"' if oid_col else "NULL",
+    ])
+    rows: list[dict] = []
+    try:
+        for pnl, closed_at, opened_at, oid in cur.execute(f"SELECT {sel} FROM {table}"):
+            if pnl is None:
+                continue
+            try:
+                pnl_f = float(pnl)
+            except Exception:
+                continue
+            rows.append({
+                "opened_at": opened_at,
+                "closed_at": closed_at,
+                "order_id": oid,
+                "pnl_usd": pnl_f,
+                "status": "closed" if closed_at else "open",
+            })
+    except Exception:
+        return []
+    return rows
+
+
 def adapt(project: dict) -> dict:
     data = base_project(project)
     metrics = data.get("metrics", {})
@@ -137,22 +199,17 @@ def adapt(project: dict) -> dict:
                 metrics["rejected_trades"] = int(v or 0)
             except Exception:
                 pass
-            try:
-                cur.execute("SELECT opened_at, closed_at, order_id, pnl_usd, status FROM paper_trades")
-                rows = cur.fetchall()
-                for opened_at, closed_at, order_id, pnl_usd, status in rows:
-                    if pnl_usd is None:
-                        continue
+            # Per-trade PnL rows, so today/week/month can be bucketed. Prefer the
+            # DayBot `paper_trades` table; otherwise fall back to a generic
+            # `trades` table (the common case — "it's catching trades but no PnL"
+            # is usually a bot writing a `trades` table the dashboard only summed
+            # into realized_pnl, never the time-bucketed Profit Today headline).
+            for tbl in ("paper_trades", "trades"):
+                rows = _read_trade_rows(cur, tbl)
+                if rows:
                     has_db_trade_pnl = True
-                    closed_rows.append({
-                        "opened_at": opened_at,
-                        "closed_at": closed_at,
-                        "order_id": order_id,
-                        "pnl_usd": float(pnl_usd),
-                        "status": status,
-                    })
-            except Exception:
-                pass
+                    closed_rows.extend(rows)
+                    break
             conn.close()
         except sqlite3.OperationalError as exc:
             if "locked" in str(exc).lower():
@@ -222,7 +279,12 @@ def adapt(project: dict) -> dict:
         if last_trade_time:
             metrics["last_trade_time"] = last_trade_time.isoformat()
 
-    metrics.update(_parse_log_metrics(project.get("log_file")))
+    # Log-scraped metrics are a *fallback* — they must not clobber structured
+    # values already derived from the database (e.g. a stale "total_pnl: 0" log
+    # line overwriting a real Profit Today computed from closed trades).
+    for k, v in _parse_log_metrics(project.get("log_file")).items():
+        if metrics.get(k, "unknown") == "unknown":
+            metrics[k] = v
     data["metrics"] = metrics
     if any("ERROR" in a for a in data["alerts"]):
         data["health"] = "error"
