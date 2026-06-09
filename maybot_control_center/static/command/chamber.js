@@ -480,17 +480,17 @@ function memberForm(m) {
   wrap.innerHTML = `<div class='acct-modal-box glass' style='width:460px'>
     <h3>${m ? ('Edit ' + esc(m.name)) : 'Add a sect member'}</h3>
     <div class='host-form'>
-      <label class='lf-label'>Name</label><input class='lf-input' id='mf-name' value='${m ? esc(m.name) : ''}' placeholder='e.g. Nova'>
-      <label class='lf-label'>Role</label><input class='lf-input' id='mf-role' value='${m ? esc(m.role || '') : ''}' placeholder='e.g. Research Analyst'>
-      <label class='lf-label'>AI provider</label>
+      <label class='lf-label' for='mf-name'>Name</label><input class='lf-input' id='mf-name' value='${m ? esc(m.name) : ''}' placeholder='e.g. Nova'>
+      <label class='lf-label' for='mf-role'>Role</label><input class='lf-input' id='mf-role' value='${m ? esc(m.role || '') : ''}' placeholder='e.g. Research Analyst'>
+      <label class='lf-label' for='mf-provider'>AI provider</label>
       <select class='lf-input' id='mf-provider'>
         <option value='ollama'>Ollama (local)</option>
         <option value='openai_compatible'>OpenAI-compatible (LM Studio / vLLM)</option>
         <option value='claude'>Claude (needs ANTHROPIC_API_KEY)</option>
       </select>
-      <label class='lf-label'>Model</label><input class='lf-input' id='mf-model' value='${m ? esc(m.model || '') : 'nous-hermes'}' placeholder='e.g. nous-hermes · claude-opus-4-8'>
-      <label class='lf-label'>Base URL <span class='muted'>(local providers)</span></label><input class='lf-input' id='mf-url' value='${m ? esc(m.base_url || '') : 'http://127.0.0.1:11434'}' placeholder='http://127.0.0.1:11434'>
-      <label class='lf-label'>Persona <span class='muted'>(optional)</span></label><textarea class='lf-input' id='mf-persona' rows='3' placeholder='How this member thinks and writes…'>${m ? esc(m.persona || '') : ''}</textarea>
+      <label class='lf-label' for='mf-model'>Model</label><input class='lf-input' id='mf-model' value='${m ? esc(m.model || '') : 'nous-hermes'}' placeholder='e.g. nous-hermes · claude-opus-4-8'>
+      <label class='lf-label' for='mf-url'>Base URL <span class='muted'>(local providers)</span></label><input class='lf-input' id='mf-url' value='${m ? esc(m.base_url || '') : 'http://127.0.0.1:11434'}' placeholder='http://127.0.0.1:11434'>
+      <label class='lf-label' for='mf-persona'>Persona <span class='muted'>(optional)</span></label><textarea class='lf-input' id='mf-persona' rows='3' placeholder='How this member thinks and writes…'>${m ? esc(m.persona || '') : ''}</textarea>
       ${m ? '' : `<details class='details' style='margin-top:8px'><summary class='muted' style='font-size:12px'>No local AI yet? One-command setup (Ollama + Hermes)</summary>
         <div class='muted' style='font-size:11px;margin:6px 0'>Run on the machine with the GPU; it installs Ollama, pulls the model, and registers the member here.</div>
         <pre class='host-cmd'>curl -fsSL --connect-timeout 10 --max-time 60 ${esc(location.origin)}/install-ai.sh | CONTROL_URL=${esc(location.origin)} CONTROL_TOKEN=&lt;operator-token&gt; bash</pre></details>`}

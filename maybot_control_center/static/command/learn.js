@@ -216,7 +216,7 @@ function renderLab(res, kind) {
   $('work').innerHTML = `<div style='font-size:13.5px; margin-bottom:10px'><b>Brief:</b> ${esc(res.brief)}</div>
     ${res.source ? `<div class='muted' style='font-size:11px; margin-bottom:6px'>Real logs from ${esc(res.source)}</div>` : ''}
     <div class='lab-art'>${esc(res.artifact)}</div>
-    <textarea class='finding' id='finding' placeholder='${placeholder}'></textarea>
+    <textarea class='finding' id='finding' aria-label='Your finding' placeholder='${placeholder}'></textarea>
     <div class='actions'><button class='btn primary' id='submit-lab'>Submit finding</button></div>`;
   $('submit-lab').onclick = async () => {
     const finding = $('finding').value.trim();
@@ -361,7 +361,7 @@ async function startRealLab() {
     return;
   }
   $('work').innerHTML = `<div style='font-size:13px; margin-bottom:10px'>Pull recent logs from a live host and hunt for suspicious activity. The AI grades your analysis against the real logs.</div>
-    <select id='src' class='finding' style='min-height:auto; height:auto'>
+    <select id='src' class='finding' aria-label='Select log source' style='min-height:auto; height:auto'>
       ${sources.map((s) => `<option value='${esc(s.device)}|${esc(s.project)}'>${esc(s.device)} / ${esc(s.project)} (${esc(s.type || '')})</option>`).join('')}
     </select>
     <div class='actions'><button class='btn primary' id='pull'>🖥 Pull logs & build lab</button></div>`;

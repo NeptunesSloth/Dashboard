@@ -114,17 +114,18 @@
   </style>
 </head>
 <body>
-  <canvas id="scene-canvas" class="scene-canvas"></canvas>
-  <div class="vignette"></div>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <canvas id="scene-canvas" class="scene-canvas" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
 
   <div class="app">
-    <nav class="rail glass" id="rail"></nav>
+    <nav class="rail glass" id="rail" aria-label="Primary"></nav>
 
-    <div class="center">
+    <div class="center" id="main-content" role="main">
       <div class="topbar">
         <div class="brand"><span class="mark">📚</span> Learning Center</div>
         <div class="jarvis" id="jarvis">Pick a track and let's learn.</div>
-        <button class="mute-btn" id="mute" title="Toggle sound & motion">🔊</button>
+        <button class="mute-btn" id="mute" title="Toggle sound & motion" aria-label="Toggle sound and motion">🔊</button>
         <div class="clock" id="clock"></div>
       </div>
 
@@ -145,9 +146,9 @@
         <div class="panel-title" style="margin-bottom:10px">Ask the Tutor</div>
         <div class="chat-log" id="chat"></div>
         <div class="chat-in">
-          <button class="btn" id="chat-speak" title="Read tutor replies aloud">🔈</button>
-          <button class="btn" id="chat-mic" title="Speak your question">🎙</button>
-          <input id="chat-input" placeholder="Ask a question, or tap 🎙 to speak…" autocomplete="off">
+          <button class="btn" id="chat-speak" title="Read tutor replies aloud" aria-label="Read tutor replies aloud">🔈</button>
+          <button class="btn" id="chat-mic" title="Speak your question" aria-label="Speak your question">🎙</button>
+          <input id="chat-input" aria-label="Ask the tutor a question" placeholder="Ask a question, or tap 🎙 to speak…" autocomplete="off">
           <button class="btn primary" id="chat-send">Ask</button>
         </div>
       </section>

@@ -1380,6 +1380,17 @@ body {
 }
 .muted { line-height: 1.45; }
 
+/* Skip link: hidden until focused, then visible at top-left for keyboard users */
+.skip-link {
+  position: fixed; top: 8px; left: 8px; z-index: 4000;
+  transform: translateY(-150%);
+  padding: 10px 16px; border-radius: 8px;
+  background: var(--card-bg); color: var(--text);
+  border: 1px solid var(--gold); font-weight: 600; text-decoration: none;
+  transition: transform .15s ease;
+}
+.skip-link:focus { transform: translateY(0); outline: 2px solid var(--ring); outline-offset: 2px; }
+
 /* Accessible keyboard focus (mouse clicks stay clean) */
 :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 6px; }
 .btn:focus-visible, .act-btn:focus-visible, .sr-item:focus-visible { outline-offset: 3px; }

@@ -506,7 +506,7 @@ function managePanel(p) {
   return `
     <div class='manage-head'>
       <div><b>${esc(p.name)}</b> ${healthBadge(p.health)}</div>
-      <button id='manage-close' class='btn'>×</button>
+      <button id='manage-close' class='btn' aria-label='Close' title='Close'>×</button>
     </div>
     <div class='manage-sub muted'>${esc(p.device)} · ${esc(TYPE_LABEL[p.type] || p.type)} · status ${esc(p.status)}</div>
     <div class='manage-grid'>${stats}</div>
@@ -2712,11 +2712,11 @@ async function renderReliability() {
   silences.forEach(s => {
     const exp = s.expires_in == null ? 'until lifted' : `${Math.round(s.expires_in / 60)}m left`;
     chips.push(`<span class='silence-chip'>🔕 ${esc(s.target)} <span class='muted'>(${exp}${s.reason ? ' · ' + esc(s.reason) : ''})</span>
-      <button class='btn silence-lift' data-target='${esc(s.target)}'>✕</button></span>`);
+      <button class='btn silence-lift' data-target='${esc(s.target)}' aria-label='Lift silence on ${esc(s.target)}' title='Lift silence'>✕</button></span>`);
   });
   scheduled.forEach(s => chips.push(`<span class='silence-chip sched-chip' title='scheduled maintenance window'>📅 ${esc(s.target)} <span class='muted'>(${Math.round(s.ends_in / 60)}m left${s.reason ? ' · ' + esc(s.reason) : ''})</span></span>`));
   claims.forEach(c => chips.push(`<span class='silence-chip oath-chip'>🤝 ${esc(c.target)} <span class='muted'>(${esc(c.who)}${c.note ? ' · ' + esc(c.note) : ''})</span>
-    <button class='btn oath-release' data-target='${esc(c.target)}'>✕</button></span>`));
+    <button class='btn oath-release' data-target='${esc(c.target)}' aria-label='Release oath on ${esc(c.target)}' title='Release oath'>✕</button></span>`));
   const sEl = document.getElementById('silences');
   sEl.innerHTML = chips.length ? `<div class='silences-bar'>${chips.join('')}</div>` : '';
   sEl.querySelectorAll('.silence-lift').forEach(b => b.onclick = async () => {
@@ -3307,7 +3307,7 @@ async function openAddHostWizard() {
 
   modal.innerHTML = `
     <div class='modal-card' style='max-width:720px'>
-      <div class='section-head'><h3>Add a host</h3><button class='btn' id='aw-close'>✕</button></div>
+      <div class='section-head'><h3>Add a host</h3><button class='btn' id='aw-close' aria-label='Close' title='Close'>✕</button></div>
       <ol class='aw-steps'>
         <li><b>Run this on the machine that runs your bots.</b> It installs the agent, which dials back here — no inbound port needed.
           ${sh ? `<pre class='host-cmd' style='white-space:pre-wrap'>${esc(sh)}</pre><button class='btn' id='aw-copy'>Copy</button>`
@@ -3387,7 +3387,7 @@ async function openBotsManager(name) {
     modal.innerHTML = `
       <div class='modal-card' style='max-width:760px'>
         <div class='section-head'><h3>Bots on “${esc(name)}”</h3>
-          <button class='btn' id='bots-close'>✕</button></div>
+          <button class='btn' id='bots-close' aria-label='Close' title='Close'>✕</button></div>
         <div id='bots-status' class='muted'>${esc(statusMsg || `${state.bots.length} bot(s) configured.`)}</div>
         <div id='bots-body'>${inner}</div></div>`;
     modal.querySelector('#bots-close').onclick = close;
@@ -3843,9 +3843,9 @@ const SIDE_RAIL = [
 ];
 function buildSideRail() {
   const el = document.getElementById('side-rail'); if (!el) return;
-  el.innerHTML = `<div class='sr-logo'>◆</div>` + SIDE_RAIL.map(([k, ico, lbl, act]) =>
-    `<button class='sr-item' data-k='${k}'${act.tab ? ` data-tab='${act.tab}'` : ''}${act.href ? ` data-href='${act.href}'` : ''}>
-       <span class='sr-ico'>${ico}</span><span class='sr-lbl'>${lbl}</span></button>`).join('');
+  el.innerHTML = `<div class='sr-logo' aria-hidden='true'>◆</div>` + SIDE_RAIL.map(([k, ico, lbl, act]) =>
+    `<button class='sr-item' data-k='${k}' aria-label='${lbl}' title='${lbl}'${act.tab ? ` data-tab='${act.tab}'` : ''}${act.href ? ` data-href='${act.href}'` : ''}>
+       <span class='sr-ico' aria-hidden='true'>${ico}</span><span class='sr-lbl'>${lbl}</span></button>`).join('');
   el.querySelectorAll('.sr-item').forEach((b) => b.onclick = () => {
     if (b.dataset.href) { location.href = b.dataset.href; return; }
     if (b.dataset.tab) setTab(b.dataset.tab);

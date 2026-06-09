@@ -27,13 +27,18 @@ const NAV = [
 const TABMAP = { ops: 'ops', projects: 'overview', missions: 'disciples', map: 'map', halls: 'sect' };
 export function mountRail(active) {
   const el = $('rail'); if (!el) return;
-  el.innerHTML = `<div class='rail-logo'>◆</div>` + NAV.map(([k, ico, lbl]) =>
-    `<div class='nav-item ${k === active ? 'active' : ''}' data-nav='${k}'><span class='ni-ico'>${ico}</span><span class='ni-lbl'>${lbl}</span></div>`).join('');
-  el.querySelectorAll('.nav-item').forEach((n) => n.onclick = () => {
-    const k = n.dataset.nav; const dest = (NAV.find((x) => x[0] === k) || [])[3];
-    if (k === active) return;
-    if (dest === '/console' && TABMAP[k]) localStorage.setItem('tab', TABMAP[k]);
-    location.href = dest;
+  el.setAttribute('aria-label', 'Primary');
+  el.innerHTML = `<div class='rail-logo' aria-hidden='true'>◆</div>` + NAV.map(([k, ico, lbl]) =>
+    `<div class='nav-item ${k === active ? 'active' : ''}' data-nav='${k}' role='link' tabindex='0' aria-label='${lbl}' title='${lbl}'${k === active ? " aria-current='page'" : ''}><span class='ni-ico' aria-hidden='true'>${ico}</span><span class='ni-lbl'>${lbl}</span></div>`).join('');
+  el.querySelectorAll('.nav-item').forEach((n) => {
+    const go = () => {
+      const k = n.dataset.nav; const dest = (NAV.find((x) => x[0] === k) || [])[3];
+      if (k === active) return;
+      if (dest === '/console' && TABMAP[k]) localStorage.setItem('tab', TABMAP[k]);
+      location.href = dest;
+    };
+    n.onclick = go;
+    n.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
   });
 }
 
@@ -273,7 +278,7 @@ export async function openLogs(device, project) {
     <div class='logs-pop-head'><b>${esc(project)}</b> <span class='muted'>${esc(device || '')}</span>
       <span class='logs-levels'>${['ALL', 'ERROR', 'WARNING', 'INFO'].map((l) => `<button class='lvl ${l === 'ALL' ? 'on' : ''}' data-lvl='${l}'>${l}</button>`).join('')}
         <button class='lvl' id='logs-dx' title='Heuristic root-cause analysis'>🔍 Diagnose</button></span>
-      <button class='logs-pop-x' id='logs-x'>✕</button></div>
+      <button class='logs-pop-x' id='logs-x' aria-label='Close logs' title='Close'>✕</button></div>
     <div class='logs-diag' id='logs-diag' hidden></div>
     <pre class='logs-pre' id='logs-pre'>Loading…</pre></div>`;
   document.body.appendChild(pop);
