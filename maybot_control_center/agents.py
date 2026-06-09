@@ -224,6 +224,109 @@ def _chat(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
         return False, "", str(exc)
 
 
+# ---------------------------------------------------------------------------
+# streaming: yield text chunks as the model produces them (snappier chat UX).
+# Each helper is best-effort; stream_chat() falls back to a single full-text
+# chunk via _chat() if a backend (or SDK version) can't stream.
+# ---------------------------------------------------------------------------
+def _stream_claude(agent: dict, messages: list[dict]):
+    # _anthropic_client() imports the SDK lazily; an ImportError here is caught by
+    # stream_chat()'s fallback to the non-streaming path.
+    name = agent.get("name", "?")
+    model = agent.get("model") or "claude-opus-4-8"
+    max_tokens = int(agent.get("max_tokens", 1024))
+    system_text = next((m["content"] for m in messages if m["role"] == "system"), _persona(agent))
+    convo = [{"role": m["role"], "content": m["content"]} for m in messages if m["role"] in ("user", "assistant")]
+    t0 = time.time()
+    with _anthropic_client().messages.stream(
+        model=model, max_tokens=max_tokens,
+        system=[{"type": "text", "text": system_text, "cache_control": {"type": "ephemeral"}}],
+        messages=convo,
+    ) as s:
+        for piece in s.text_stream:
+            if piece:
+                yield piece
+        final = s.get_final_message()
+    u = getattr(final, "usage", None)
+    usage.record(name, model, True, int((time.time() - t0) * 1000),
+                 getattr(u, "input_tokens", 0) or 0, getattr(u, "output_tokens", 0) or 0)
+
+
+def _stream_ollama(agent: dict, messages: list[dict]):
+    name = agent.get("name", "?")
+    base_url = (agent.get("base_url") or "").rstrip("/")
+    model = agent.get("model") or agent.get("default_model") or ""
+    if not base_url:
+        raise RuntimeError("base_url not configured")
+    t0 = time.time()
+    with requests.post(f"{base_url}/api/chat", json={
+        "model": model, "messages": messages, "stream": True,
+        "options": {"temperature": float(agent.get("temperature", 0.7)),
+                    "num_predict": int(agent.get("max_tokens", 512))},
+    }, timeout=DEFAULT_TIMEOUT, stream=True) as r:
+        r.raise_for_status()
+        for line in r.iter_lines(decode_unicode=True):
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+            except Exception:
+                continue
+            piece = (obj.get("message") or {}).get("content")
+            if piece:
+                yield piece
+            if obj.get("done"):
+                break
+    usage.record(name, model, True, int((time.time() - t0) * 1000))
+
+
+def _stream_openai(agent: dict, messages: list[dict]):
+    name = agent.get("name", "?")
+    base_url = (agent.get("base_url") or "").rstrip("/")
+    model = agent.get("model") or agent.get("default_model") or ""
+    if not base_url:
+        raise RuntimeError("base_url not configured")
+    t0 = time.time()
+    with requests.post(f"{base_url}/v1/chat/completions", json={
+        "model": model, "messages": messages, "stream": True,
+        "temperature": float(agent.get("temperature", 0.7)),
+        "max_tokens": int(agent.get("max_tokens", 512)),
+    }, timeout=DEFAULT_TIMEOUT, stream=True) as r:
+        r.raise_for_status()
+        for line in r.iter_lines(decode_unicode=True):
+            if not line or not line.startswith("data:"):
+                continue
+            data = line[5:].strip()
+            if data == "[DONE]":
+                break
+            try:
+                obj = json.loads(data)
+            except Exception:
+                continue
+            delta = ((obj.get("choices") or [{}])[0].get("delta") or {}).get("content")
+            if delta:
+                yield delta
+    usage.record(name, model, True, int((time.time() - t0) * 1000))
+
+
+def stream_chat(agent: dict, messages: list[dict]):
+    """Yield text chunks from the agent's backend as they arrive. Falls back to a
+    single full-text chunk (via the non-streaming _chat) if streaming fails."""
+    provider = (agent.get("provider") or "openai_compatible").lower()
+    try:
+        if provider in ("claude", "anthropic"):
+            yield from _stream_claude(agent, messages)
+        elif provider == "ollama":
+            yield from _stream_ollama(agent, messages)
+        else:
+            yield from _stream_openai(agent, messages)
+    except Exception:
+        # Any streaming failure (unsupported backend, network, SDK) → one-shot.
+        ok, text, _ = _chat(agent, messages)
+        if ok and text:
+            yield text
+
+
 def _inner_demon_on(agent: dict) -> bool:
     return bool(agent.get("inner_demon")) or INNER_DEMON_GLOBAL
 

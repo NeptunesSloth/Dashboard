@@ -759,6 +759,25 @@ def copilot_ask(body: CopilotIn, x_control_token: str = Header(default="")):
     return copilot.ask(body.question, overview)
 
 
+@app.post("/api/copilot/stream")
+def copilot_ask_stream(body: CopilotIn, x_control_token: str = Header(default="")):
+    """Streaming Ops Copilot: server-sent events so the answer renders token by
+    token. Each line is ``data: {json}`` with a type of meta/token/done/error."""
+    _check_token(x_control_token)
+    from . import copilot
+    overview = aggregate(all_devices())
+
+    def gen():
+        try:
+            for event in copilot.ask_stream(body.question, overview):
+                yield f"data: {_json.dumps(event)}\n\n"
+        except Exception as exc:
+            yield f"data: {_json.dumps({'type': 'error', 'error': str(exc)})}\n\n"
+
+    return StreamingResponse(gen(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
 # ---- Learning Center ----
 class TrackIn(BaseModel):
     title: str

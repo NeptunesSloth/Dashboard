@@ -2943,9 +2943,41 @@ async function copilotAsk() {
   const q = document.getElementById('copilot-q');
   const out = document.getElementById('copilot-out');
   const question = (q.value || '').trim(); if (!question) return;
-  out.innerHTML = `<div class='muted'>Thinking…</div>`;
-  const r = await apiPost('/api/copilot', { question }, 'Ask copilot');
-  if (!r) { out.innerHTML = `<div class='money-neg'>Copilot unavailable.</div>`; return; }
+  // Stream the answer token-by-token; gracefully fall back to one-shot.
+  out.innerHTML = `<div class='copilot-answer' id='cp-ans'></div><div class='muted' id='cp-extra'>Thinking…</div>`;
+  const ansEl = document.getElementById('cp-ans');
+  const extraEl = document.getElementById('cp-extra');
+  let answer = '', meta = null, errored = null;
+  try {
+    const resp = await fetch('/api/copilot/stream', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ question }),
+    });
+    if (!resp.ok || !resp.body) throw new Error('no stream');
+    const reader = resp.body.getReader(); const dec = new TextDecoder(); let buf = '';
+    for (;;) {
+      const { value, done } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf('\n\n')) >= 0) {
+        const line = buf.slice(0, nl).trim(); buf = buf.slice(nl + 2);
+        if (!line.startsWith('data:')) continue;
+        let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch (_) { continue; }
+        if (ev.type === 'meta') { meta = ev; if (extraEl) extraEl.textContent = ''; }
+        else if (ev.type === 'token') { answer += ev.text; ansEl.textContent = answer; }
+        else if (ev.type === 'error') { errored = ev.error; if (ev.answer && !answer) { answer = ev.answer; ansEl.textContent = answer; } }
+      }
+    }
+  } catch (_) {
+    const r = await apiPost('/api/copilot', { question }, 'Ask copilot');
+    if (!r) { out.innerHTML = `<div class='money-neg'>Copilot unavailable.</div>`; return; }
+    return renderCopilotResult(r, out);
+  }
+  renderCopilotResult({ answer, actions: (meta && meta.actions) || [], member: meta && meta.member,
+                        error: errored && !answer ? errored : null }, out);
+}
+
+function renderCopilotResult(r, out) {
   const acts = (r.actions || []).map(a =>
     `<button class='btn' data-cp-act='${esc(a.kind)}' data-cp-dev='${esc(a.device)}' data-cp-proj='${esc(a.project)}'>${esc(a.label)}</button>`).join(' ');
   out.innerHTML = `
