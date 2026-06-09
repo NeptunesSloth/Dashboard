@@ -145,8 +145,27 @@ def _anthropic_client():
     return _anthropic
 
 
+def _budget_block(agent: dict) -> str | None:
+    """Return a denial message if a configured hard spend cap is reached, else None.
+
+    Calls the module-level ``budget.allow_call`` so tests can monkeypatch it. Off by
+    default (no cap configured) → always returns None and nothing changes.
+    """
+    try:
+        from . import budget
+        ok, reason = budget.allow_call(agent.get("name"))
+        if not ok:
+            return reason or "LLM budget reached — calls paused"
+    except Exception:
+        pass  # budget check is best-effort; never break a call on its account
+    return None
+
+
 def _chat_claude(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
     """Run one turn against the Claude API via the official Anthropic SDK."""
+    blocked = _budget_block(agent)
+    if blocked:
+        return False, "", blocked
     try:
         import anthropic
     except ImportError:
@@ -184,7 +203,10 @@ def _chat(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
     """Run one chat completion against the agent's configured backend."""
     provider = (agent.get("provider") or "openai_compatible").lower()
     if provider in ("claude", "anthropic"):
-        return _chat_claude(agent, messages)
+        return _chat_claude(agent, messages)   # gated inside _chat_claude
+    blocked = _budget_block(agent)
+    if blocked:
+        return False, "", blocked
     name = agent.get("name", "?")
     base_url = (agent.get("base_url") or "").rstrip("/")
     model = agent.get("model") or agent.get("default_model") or ""
@@ -312,6 +334,9 @@ def _stream_openai(agent: dict, messages: list[dict]):
 def stream_chat(agent: dict, messages: list[dict]):
     """Yield text chunks from the agent's backend as they arrive. Falls back to a
     single full-text chunk (via the non-streaming _chat) if streaming fails."""
+    blocked = _budget_block(agent)
+    if blocked:
+        return  # hard spend cap reached — emit no chunks (consistent with a failed call)
     provider = (agent.get("provider") or "openai_compatible").lower()
     try:
         if provider in ("claude", "anthropic"):
