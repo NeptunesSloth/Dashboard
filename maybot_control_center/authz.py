@@ -15,6 +15,8 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import json
+import logging
 import os
 import secrets
 import threading
@@ -25,6 +27,16 @@ import yaml
 
 from .config import CONTROL_CENTER_TOKEN
 from . import store
+
+log = logging.getLogger(__name__)
+
+# Opt-in Redis-backed shared state for running multiple dashboard replicas.
+# When MAYBOT_REDIS_URL is set we store login sessions and rate-limit counters
+# in Redis so they are shared across replicas; otherwise everything stays
+# process-local and behaves exactly as before. The ``redis`` package is NOT a
+# hard dependency — install it separately with ``pip install redis``.
+REDIS_URL = os.getenv("MAYBOT_REDIS_URL", "").strip()
+REDIS_PREFIX = os.getenv("MAYBOT_REDIS_PREFIX", "maybot").strip() or "maybot"
 
 USERS_FILE = Path(os.getenv("MAYBOT_USERS_FILE", "users.yaml"))
 RATE = int(os.getenv("MAYBOT_RATE_LIMIT", "240"))   # requests per window per key (0 = off)
@@ -45,6 +57,226 @@ _login_fails: dict[str, tuple[float, int]] = {}
 _sessions: dict[str, dict] = {}
 # pending 2FA challenge id -> {"name", "code", "expires", "tries"}
 _challenges: dict[str, dict] = {}
+
+
+# ---- pluggable backends for session + rate-limit state --------------------
+# Default backends are in-memory (process-local). When MAYBOT_REDIS_URL is set
+# we swap in Redis-backed equivalents so state is shared across replicas. The
+# rest of authz.py only talks to ``_session_store`` / ``_rate_store`` and never
+# needs to know which implementation is active.
+
+class _InMemorySessionStore:
+    """Process-local session store backed by the ``_sessions`` dict."""
+
+    def get(self, sid: str) -> dict | None:
+        """Return a live session record (reaping it if expired), else None."""
+        now = time.time()
+        with _lock:
+            rec = _sessions.get(sid)
+            if rec is None:
+                return None
+            exp = rec.get("expires")
+            if exp is not None and now >= exp:
+                del _sessions[sid]      # reap expired session
+                return None
+            return dict(rec)
+
+    def put(self, sid: str, rec: dict) -> None:
+        with _lock:
+            _sessions[sid] = rec
+        _persist_sessions()
+
+    def delete(self, sid: str) -> bool:
+        with _lock:
+            removed = _sessions.pop(sid, None) is not None
+        _persist_sessions()
+        return removed
+
+    def load_persisted(self, sessions: dict) -> None:
+        now = time.time()
+        with _lock:
+            for sid, rec in sessions.items():
+                exp = rec.get("expires")
+                if exp is None or now < exp:        # skip already-expired
+                    _sessions[sid] = rec
+
+    def clear(self) -> None:
+        with _lock:
+            _sessions.clear()
+
+
+class _RedisSessionStore:
+    """Session store backed by Redis keys ``<prefix>:sess:<sid>`` with TTLs."""
+
+    def __init__(self, client, prefix: str):
+        self._r = client
+        self._prefix = prefix
+
+    def _key(self, sid: str) -> str:
+        return f"{self._prefix}:sess:{sid}"
+
+    def get(self, sid: str) -> dict | None:
+        # Redis expires keys for us, so a missing key == expired/absent session.
+        raw = self._r.get(self._key(sid))
+        if not raw:
+            return None
+        try:
+            return json.loads(raw)
+        except Exception:
+            return None
+
+    def put(self, sid: str, rec: dict) -> None:
+        payload = json.dumps(rec)
+        exp = rec.get("expires")
+        if exp is not None:
+            ttl = max(1, int(exp - time.time()))
+            self._r.set(self._key(sid), payload, ex=ttl)
+        else:
+            self._r.set(self._key(sid), payload)
+
+    def delete(self, sid: str) -> bool:
+        return bool(self._r.delete(self._key(sid)))
+
+    def load_persisted(self, sessions: dict) -> None:
+        # Redis is the source of truth across replicas; no rehydration needed.
+        return
+
+    def clear(self) -> None:
+        # Used by tests/clear(); drop only our session keys.
+        try:
+            keys = list(self._r.scan_iter(match=f"{self._prefix}:sess:*"))
+            if keys:
+                self._r.delete(*keys)
+        except Exception:
+            pass
+
+
+class _InMemoryRateStore:
+    """Process-local fixed-window rate limiter backed by ``_buckets``."""
+
+    def allow(self, key: str, rate: int, window: int) -> bool:
+        now = time.time()
+        with _lock:
+            ws, count = _buckets.get(key, (now, 0))
+            if now - ws >= window:
+                ws, count = now, 0
+            if count >= rate:
+                _buckets[key] = (ws, count)
+                return False
+            _buckets[key] = (ws, count + 1)
+            return True
+
+    def clear(self) -> None:
+        with _lock:
+            _buckets.clear()
+
+
+class _RedisRateStore:
+    """Fixed-window rate limiter shared across replicas via Redis INCR/EXPIRE.
+
+    Each window is its own key (``<prefix>:rl:<key>:<window-index>``) so the
+    counter resets automatically when the key TTL lapses — the shared analogue
+    of the in-memory fixed window.
+    """
+
+    def __init__(self, client, prefix: str):
+        self._r = client
+        self._prefix = prefix
+
+    def allow(self, key: str, rate: int, window: int) -> bool:
+        window = max(1, int(window))
+        bucket = int(time.time() // window)
+        rkey = f"{self._prefix}:rl:{key}:{bucket}"
+        try:
+            count = self._r.incr(rkey)
+            if count == 1:
+                self._r.expire(rkey, window)
+            return count <= rate
+        except Exception:
+            # Never block requests if Redis hiccups mid-flight.
+            return True
+
+    def clear(self) -> None:
+        try:
+            keys = list(self._r.scan_iter(match=f"{self._prefix}:rl:*"))
+            if keys:
+                self._r.delete(*keys)
+        except Exception:
+            pass
+
+
+# Lazily-initialised backend singletons. ``None`` means "not yet selected".
+_session_store = None
+_rate_store = None
+_backend_lock = threading.Lock()
+
+
+def _redis_client():
+    """Build a Redis client from MAYBOT_REDIS_URL, or None on any failure.
+
+    Lazy-imports ``redis`` so it stays an optional dependency. A single warning
+    is logged on failure and the caller falls back to the in-memory backend.
+    """
+    try:
+        import redis  # type: ignore
+    except Exception as exc:  # pragma: no cover - exercised via monkeypatch
+        log.warning(
+            "MAYBOT_REDIS_URL is set but the 'redis' package is unavailable "
+            "(%s); falling back to in-memory state (single-replica). "
+            "Install it with `pip install redis`.", exc)
+        return None
+    try:
+        client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
+        client.ping()
+        return client
+    except Exception as exc:
+        log.warning(
+            "Could not connect to MAYBOT_REDIS_URL (%s); falling back to "
+            "in-memory state (single-replica).", exc)
+        return None
+
+
+def _init_backends() -> None:
+    """Pick the Redis backends if configured & reachable, else in-memory."""
+    global _session_store, _rate_store
+    with _backend_lock:
+        if _session_store is not None and _rate_store is not None:
+            return
+        client = _redis_client() if REDIS_URL else None
+        if client is not None:
+            _session_store = _RedisSessionStore(client, REDIS_PREFIX)
+            _rate_store = _RedisRateStore(client, REDIS_PREFIX)
+        else:
+            _session_store = _InMemorySessionStore()
+            _rate_store = _InMemoryRateStore()
+
+
+def _sessions_backend():
+    if _session_store is None:
+        _init_backends()
+    return _session_store
+
+
+def _rate_backend():
+    if _rate_store is None:
+        _init_backends()
+    return _rate_store
+
+
+def _reset_backends() -> None:
+    """Drop the selected backends so the next call re-evaluates MAYBOT_REDIS_URL.
+
+    Used by tests after monkeypatching the env/URL; harmless in production.
+    """
+    global _session_store, _rate_store
+    with _backend_lock:
+        _session_store = None
+        _rate_store = None
+
+
+def redis_enabled() -> bool:
+    """True when the active session backend is Redis (for diagnostics/tests)."""
+    return isinstance(_sessions_backend(), _RedisSessionStore)
 
 
 # ---- password hashing (PBKDF2-HMAC-SHA256, stdlib only) -------------------
@@ -219,16 +451,7 @@ def _session_lookup(token: str) -> dict | None:
     """Return a live session record for ``token`` (a login-issued session id)."""
     if not token:
         return None
-    now = time.time()
-    with _lock:
-        rec = _sessions.get(token)
-        if rec is None:
-            return None
-        exp = rec.get("expires")
-        if exp is not None and now >= exp:
-            del _sessions[token]      # reap expired session
-            return None
-        return dict(rec)
+    return _sessions_backend().get(token)
 
 
 def issue_session(token: str) -> dict | None:
@@ -245,15 +468,19 @@ def issue_session(token: str) -> dict | None:
     name = name_for(token)            # resolve before locking (name_for locks too)
     sid = secrets.token_urlsafe(32)
     expires = (time.time() + SESSION_TTL_MINUTES * 60) if SESSION_TTL_MINUTES > 0 else None
-    with _lock:
-        _sessions[sid] = {"role": role, "name": name,
-                          "projects": projects, "expires": expires}
-    _persist_sessions()
+    _sessions_backend().put(sid, {"role": role, "name": name,
+                                  "projects": projects, "expires": expires})
     return {"session": sid, "role": role, "name": name, "expires": expires}
 
 
 def _persist_sessions() -> None:
-    """Save live sessions so a control-center restart doesn't log everyone out."""
+    """Save live sessions so a control-center restart doesn't log everyone out.
+
+    Only meaningful for the in-memory backend; with Redis the store itself is
+    the durable, shared source of truth, so this is a no-op there.
+    """
+    if isinstance(_sessions_backend(), _RedisSessionStore):
+        return
     with _lock:
         store.save_state("auth_sessions", {"sessions": dict(_sessions)})
 
@@ -263,19 +490,11 @@ def load_persisted() -> None:
     sess = data.get("sessions") if isinstance(data, dict) else None
     if not isinstance(sess, dict):
         return
-    now = time.time()
-    with _lock:
-        for sid, rec in sess.items():
-            exp = rec.get("expires")
-            if exp is None or now < exp:        # skip already-expired
-                _sessions[sid] = rec
+    _sessions_backend().load_persisted(sess)
 
 
 def revoke_session(session: str) -> bool:
-    with _lock:
-        removed = _sessions.pop(session, None) is not None
-    _persist_sessions()
-    return removed
+    return _sessions_backend().delete(session)
 
 
 def can_access_project(token: str, device: str, project: str) -> bool:
@@ -361,19 +580,12 @@ def reset_login(key: str) -> None:
 def allow_request(key: str) -> bool:
     if RATE <= 0:
         return True
-    now = time.time()
-    with _lock:
-        ws, count = _buckets.get(key, (now, 0))
-        if now - ws >= WINDOW:
-            ws, count = now, 0
-        if count >= RATE:
-            _buckets[key] = (ws, count)
-            return False
-        _buckets[key] = (ws, count + 1)
-        return True
+    return _rate_backend().allow(key, RATE, WINDOW)
 
 
 def clear() -> None:
+    _sessions_backend().clear()
+    _rate_backend().clear()
     with _lock:
         _buckets.clear()
         _sessions.clear()
