@@ -185,6 +185,28 @@ uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100
 
 Override host/port with `MAYBOT_AGENT_HOST` / `MAYBOT_AGENT_PORT` if you prefer.
 
+### Optional: require client certificates (mutual TLS)
+
+By default the agent serves plain HTTP and the control center connects without
+TLS — unchanged behaviour. To enforce **mutual TLS** (the control center must
+present a client certificate), this is a *deployment* setting: launch the agent's
+uvicorn with TLS plus client-cert verification. The flags are commented/opt-in;
+add them only when you have certs in place:
+
+```bash
+uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100 \
+  --ssl-certfile  /etc/maybot/server.crt \
+  --ssl-keyfile   /etc/maybot/server.key \
+  --ssl-ca-certs  /etc/maybot/ca.crt \
+  --ssl-cert-reqs 2          # ssl.CERT_REQUIRED — verify the client's cert
+```
+
+Then point the control center at this agent with an `https://` URL in
+`devices.yaml`, and set the client-side env vars (`MAYBOT_AGENT_CA`,
+`MAYBOT_AGENT_CLIENT_CERT`, `MAYBOT_AGENT_CLIENT_KEY`) — see `.env.example`.
+Enforcement of client certs happens here on the agent/uvicorn side; the control
+center env vars only control what it verifies and the cert it presents.
+
 ---
 
 ## 6. Keep it running with systemd (recommended)

@@ -1,8 +1,68 @@
+"""HTTP client the control center uses to reach each agent host.
+
+Optional, opt-in mutual TLS (client certificates) is supported for the
+control center ↔ agent link via environment variables. Everything below is
+OFF by default — with none of these set, the client behaves exactly as before
+(``requests`` default verification, no client certificate presented):
+
+  * ``MAYBOT_AGENT_CA`` — path to a CA bundle (PEM) used to VERIFY each agent's
+    server certificate. Sets ``session.verify``. Unset => default verification.
+  * ``MAYBOT_AGENT_CLIENT_CERT`` + ``MAYBOT_AGENT_CLIENT_KEY`` — the client
+    certificate/key the control center PRESENTS to the agent (mutual TLS).
+    Sets ``session.cert = (cert, key)``. Both must be set together; if only one
+    is provided it's ignored (a warning is logged) and no client cert is used.
+
+Agent (server) side — DEPLOYMENT CONFIG, not changed in code. To require client
+certs, launch the agent's uvicorn with TLS + client-cert verification, e.g.::
+
+    uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100 \
+        --ssl-certfile  /path/server.crt \
+        --ssl-keyfile   /path/server.key \
+        --ssl-ca-certs  /path/ca.crt \
+        --ssl-cert-reqs 2          # ssl.CERT_REQUIRED — verify the client cert
+
+(and point the agents at ``https://`` URLs in devices.yaml). Enforcement of
+client certs happens on the agent/uvicorn side; this module only configures
+what the control center verifies and presents.
+"""
+import logging
 import os
 
 import requests
 
-_session = requests.Session()
+_log = logging.getLogger("maybot_control_center.agent_client")
+
+
+def _configure_tls(session: requests.Session) -> requests.Session:
+    """Apply opt-in TLS settings to ``session`` from the environment.
+
+    Off by default and re-runnable (pure function of the env + the passed
+    session) so it's easy to test. Returns the same session for convenience.
+
+    - ``MAYBOT_AGENT_CA`` -> ``session.verify`` (CA bundle to verify the agent).
+    - ``MAYBOT_AGENT_CLIENT_CERT`` + ``MAYBOT_AGENT_CLIENT_KEY`` ->
+      ``session.cert`` (client cert/key the control center presents). Both are
+      required; a lone half is ignored with a warning rather than crashing.
+    """
+    ca = os.getenv("MAYBOT_AGENT_CA", "").strip()
+    if ca:
+        session.verify = ca
+
+    cert = os.getenv("MAYBOT_AGENT_CLIENT_CERT", "").strip()
+    key = os.getenv("MAYBOT_AGENT_CLIENT_KEY", "").strip()
+    if cert and key:
+        session.cert = (cert, key)
+    elif cert or key:
+        _log.warning(
+            "SECURITY: client-cert mTLS not enabled — both MAYBOT_AGENT_CLIENT_CERT "
+            "and MAYBOT_AGENT_CLIENT_KEY must be set (got only %s); no client cert "
+            "will be presented to agents",
+            "MAYBOT_AGENT_CLIENT_CERT" if cert else "MAYBOT_AGENT_CLIENT_KEY",
+        )
+    return session
+
+
+_session = _configure_tls(requests.Session())
 
 # Default per-request timeout for polling an agent. A single slow/hung device
 # must not stall the whole fleet poll, so each request is capped; a device may
