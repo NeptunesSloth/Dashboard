@@ -33,6 +33,10 @@ from . import store
 from . import cultivation
 
 LEARNING_FILE = Path(os.getenv("MAYBOT_LEARNING_FILE", "learning.yaml"))
+# Catalog of Docker-based pentest/IDS lab targets the OPERATOR runs (labs/). This
+# is read-only seed DATA — list_lab_targets() returns it and NOTHING here executes
+# a command. See labs/README.md for the read-only boundary.
+LAB_TARGETS_FILE = Path(os.getenv("MAYBOT_LAB_TARGETS_FILE", "lab_targets.yaml"))
 # The cultivation key for the human learner. Single-operator dashboard, so one
 # fixed key (any non-"operator" string works with the cultivation API).
 LEARNER = os.getenv("MAYBOT_LEARNER", "scholar")
@@ -893,6 +897,44 @@ def generate_real_lab(track_id: str, device: str, project: str, logs_text: str, 
 
 
 # ---------------------------------------------------------------------------
+# lab target catalog (phase 3) — DATA ONLY, executes nothing
+# ---------------------------------------------------------------------------
+def list_lab_targets() -> list[dict]:
+    """Return the built-in catalog of Docker-based pentest/IDS lab TARGETS
+    (from ``lab_targets.yaml``, mirroring how ``seed_tracks`` loads tracks).
+
+    SAFE: this is just catalog data + a getter. It does NOT run Docker, does NOT
+    execute any command, and does NOT touch a host. The operator runs the targets
+    themselves (``labs/docker-compose.yml``); their real logs are then pulled
+    READ-ONLY via ``fetch_real_logs`` into ``generate_real_lab``. Each item:
+    ``{id, name, kind, app, service, ports, look_for, notes}``."""
+    if not LAB_TARGETS_FILE.exists():
+        return []
+    try:
+        data = yaml.safe_load(LAB_TARGETS_FILE.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return []
+    targets = data.get("targets", [])
+    if not isinstance(targets, list):
+        return []
+    out: list[dict] = []
+    for t in targets:
+        if not isinstance(t, dict) or not t.get("id"):
+            continue
+        out.append({
+            "id": str(t.get("id")),
+            "name": str(t.get("name", t.get("id"))),
+            "kind": t.get("kind") if t.get("kind") in ("ids", "pentest") else "pentest",
+            "app": str(t.get("app", "")),
+            "service": str(t.get("service", "")),
+            "ports": [str(p) for p in (t.get("ports") or [])],
+            "look_for": [str(x) for x in (t.get("look_for") or [])],
+            "notes": str(t.get("notes", "")).strip(),
+        })
+    return out
+
+
+# ---------------------------------------------------------------------------
 # cultivation / XP
 # ---------------------------------------------------------------------------
 def _award_progress(stones: int, skill: str | None = None, bonus: int = 0) -> None:
@@ -1240,10 +1282,17 @@ def start() -> bool:
 # PHASE 2 (optional) — real environment hook. Intentionally unbuilt.
 # ---------------------------------------------------------------------------
 def attach_real_env(exercise: dict, device_name: str, project_name: str) -> dict | None:
-    """PHASE 3 (not built): COMMAND-EXECUTION labs. Running an allow-listed
-    recon/exploit command on a real target (vs. the read-only log analysis in
-    ``generate_real_lab``) would route via the operator-approved ``tools.yaml`` /
-    ``/api/action`` allow-list — LLM text must never become a shell command.
-    Returns ``None``. The read-only real-log lab is implemented above and is the
-    only real-environment path that touches a host."""
+    """COMMAND-EXECUTION exploit labs — deny-by-default, deliberately UNBUILT.
+
+    Real IDS labs already work TODAY, read-only: the operator runs a Docker lab
+    TARGET (see ``labs/`` and the ``list_lab_targets()`` catalog), attacks it
+    themselves, and the resulting REAL logs are pulled via ``fetch_real_logs``
+    (a read-only ``/api/projects/<project>/logs`` proxy — no command execution)
+    into ``generate_real_lab``. That is the only real-environment path that
+    touches a host, and it only READS.
+
+    What stays unbuilt here is *driving recon/exploit COMMANDS* against a live
+    target from the dashboard. If ever built, it must route through the
+    operator-approved ``tools.yaml`` / ``/api/action`` allow-list — LLM text must
+    never become a shell command. Returns ``None``."""
     return None
