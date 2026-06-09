@@ -93,6 +93,23 @@
     .modal-card .big-ico { font-size:48px; }
     .modal-card h2 { margin:10px 0 4px; font-size:20px; }
     .mute-btn { cursor:pointer; opacity:.7; font-size:16px; background:none; border:none; color:inherit; }
+    .mode-bar { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .mode-btn { padding:7px 13px; border-radius:9px; border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04); cursor:pointer; font-size:12.5px; }
+    .mode-btn:hover { background:rgba(255,255,255,.09); }
+    .mode-btn .pill { display:inline-block; min-width:16px; padding:0 5px; margin-left:6px; border-radius:999px;
+      background:#fb5e7e; color:#fff; font-size:10px; font-weight:700; }
+    .exam-timer { font-family:ui-monospace,monospace; font-weight:700; font-size:15px; padding:4px 10px;
+      border-radius:8px; background:rgba(255,255,255,.06); }
+    .exam-timer.low { background:rgba(251,94,126,.2); color:#fb5e7e; }
+    .dom-row { display:flex; align-items:center; gap:10px; margin:6px 0; font-size:12.5px; }
+    .dom-bar { flex:1; height:7px; border-radius:5px; background:rgba(255,255,255,.08); overflow:hidden; }
+    .dom-bar > span { display:block; height:100%; background:linear-gradient(90deg,#34d399,#38bdf8); }
+    .lib-item { padding:9px 12px; border-radius:9px; border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03); cursor:pointer; margin:6px 0; font-size:13px; }
+    .lib-item:hover { background:rgba(255,255,255,.07); }
+    .lib-item .meta { font-size:11px; opacity:.6; margin-top:2px; }
+    .rate-bar { display:flex; gap:8px; margin-top:12px; }
     @media (prefers-reduced-motion: reduce) { .toast,.modal-card { animation:none; } }
   </style>
 </head>
@@ -115,6 +132,7 @@
         <div class="panel-title" style="margin-bottom:10px">Tracks</div>
         <div class="track-chips" id="tracks"></div>
         <div class="topic-list" id="topics"></div>
+        <div class="mode-bar" id="modes"></div>
       </section>
 
       <section class="glass rise d2" style="padding:20px; margin-top:14px">

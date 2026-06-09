@@ -98,6 +98,8 @@ BADGES = [
     ("on_fire", "On Fire", "Reach a 7-day streak.", lambda g: g.get("max_streak", 0) >= 7, 50),
     ("unstoppable", "Unstoppable", "Reach a 30-day streak.", lambda g: g.get("max_streak", 0) >= 30, 150),
     ("combo_master", "Combo Master", "Hit a 5-answer combo.", lambda g: g.get("best_combo", 0) >= 5, 30),
+    ("exam_ready", "Exam Ready", "Pass a practice exam.", lambda g: g.get("exams_passed", 0) >= 1, 50),
+    ("reviewer", "Spaced Learner", "Complete 25 spaced-repetition reviews.", lambda g: g.get("reviews_done", 0) >= 25, 40),
 ]
 
 
@@ -112,6 +114,10 @@ def _blank() -> dict:
         "game": _blank_game(),
         "quizzes": {},         # quiz_id -> {track, topic, questions:[{q,choices,answer,explanation}], created}
         "labs": {},            # lab_id -> {track, kind, brief, artifact, answer, indicators, created}
+        "lessons": {},         # lesson_id -> {id, track, topic, body, created}
+        "chats": {},           # track_id -> [{role, content}]
+        "reviews": [],         # spaced-repetition cards (SM-2): see _new_card()
+        "exams": {},           # exam_id -> {track, questions:[{...,domain}], created}
     }
 
 
@@ -125,7 +131,7 @@ def _blank_game() -> dict:
         "badges": [], "pending_chests": 0,
         "lessons_total": 0, "quizzes_total": 0, "labs_total": 0,
         "ids_solved": 0, "pentest_solved": 0, "flawless": 0,
-        "combo": 0, "best_combo": 0,
+        "combo": 0, "best_combo": 0, "exams_passed": 0, "reviews_done": 0,
         "quest_day": "", "quests": [],
     }
 
@@ -365,20 +371,50 @@ def get_lesson(track_id: str, topic: str, chat=None) -> dict:
     ok, text, err = _call(member, SYSTEM_TUTOR, user, chat, max_tokens=1100, temperature=0.5)
     if not ok:
         return {"error": err or "the tutor did not respond"}
+    body = (text or "").strip()
+    lesson_id = f"ls-{int(time.time()*1000)}-{random.randint(100,999)}"
     with _lock:
         p = _progress_for(track_id)
         p["lessons_done"] += 1
         if topic and topic not in p["completed_topics"]:
             p["completed_topics"].append(topic)
         _g()["game"]["lessons_total"] = _g()["game"].get("lessons_total", 0) + 1
+        lessons = _g().setdefault("lessons", {})
+        lessons[lesson_id] = {"id": lesson_id, "track": track_id, "topic": topic,
+                              "body": body, "created": int(time.time())}
+        # keep the most recent 60 lessons
+        if len(lessons) > 60:
+            for k in sorted(lessons, key=lambda x: lessons[x]["created"])[:len(lessons) - 60]:
+                lessons.pop(k, None)
         _save()
     _award_progress(8)
     _touch_streak()
     _progress_quest("lesson")
     earned = _check_badges()
     _update_profile(f"Completed a lesson on '{topic}' in {track['title']}.", chat)
-    return {"title": topic, "body": (text or "").strip(), "member": member.get("name"),
+    return {"lesson_id": lesson_id, "title": topic, "body": body, "member": member.get("name"),
             "awarded": 8, "badges": earned, "error": None}
+
+
+def list_lessons(track_id: str | None = None) -> dict:
+    with _lock:
+        items = list((_g().get("lessons") or {}).values())
+    if track_id:
+        items = [x for x in items if x["track"] == track_id]
+    items.sort(key=lambda x: x["created"], reverse=True)
+    return {"lessons": [{"id": x["id"], "track": x["track"], "topic": x["topic"],
+                         "created": x["created"], "snippet": x["body"][:140]} for x in items]}
+
+
+def get_saved_lesson(lesson_id: str) -> dict:
+    with _lock:
+        x = (_g().get("lessons") or {}).get(lesson_id)
+    return dict(x) if x else {"error": "lesson not found"}
+
+
+def get_chat(track_id: str) -> dict:
+    with _lock:
+        return {"history": list((_g().get("chats") or {}).get(track_id, []))}
 
 
 def ask_tutor(track_id: str, question: str, history=None, chat=None) -> dict:
@@ -399,8 +435,17 @@ def ask_tutor(track_id: str, question: str, history=None, chat=None) -> dict:
     ok, text, err = _call(member, SYSTEM_TUTOR, user, chat, max_tokens=700, temperature=0.5)
     if not ok:
         return {"answer": "", "member": member.get("name"), "error": err or "no response"}
+    answer = (text or "").strip()
+    tid = _track(track_id) and track_id
+    if tid:
+        with _lock:
+            log = _g().setdefault("chats", {}).setdefault(tid, [])
+            log.append({"role": "user", "content": question})
+            log.append({"role": "assistant", "content": answer})
+            del log[:-40]   # keep last 40 turns
+            _save()
     _touch_streak()
-    return {"answer": (text or "").strip(), "member": member.get("name"), "error": None}
+    return {"answer": answer, "member": member.get("name"), "error": None}
 
 
 # ---------------------------------------------------------------------------
@@ -486,6 +531,9 @@ def grade_quiz(quiz_id: str, answers: list[int], chat=None) -> dict:
     _award_progress(stones)
     _touch_streak()
     _progress_quest("quiz", passed=(score >= 80))
+    # Missed questions feed the spaced-repetition deck (due immediately).
+    _seed_reviews(quiz["track"], quiz.get("topic", ""),
+                  [questions[i] for i, r in enumerate(per) if not r["correct"]])
     earned = _check_badges()
     missed = [questions[i]["q"] for i, r in enumerate(per) if not r["correct"]]
     note = (f"Scored {score}% on a '{quiz.get('topic')}' quiz."
@@ -568,7 +616,7 @@ def grade_lab(lab_id: str, finding: str, chat=None) -> dict:
         _save()
     skill = None
     if solved:
-        skill = ("Intrusion Detection" if lab["kind"] == "ids" else "Penetration Testing")
+        skill = ("Penetration Testing" if lab["kind"] == "pentest" else "Intrusion Detection")
     _award_progress(stones, skill=skill, bonus=10 if solved else 0)
     _touch_streak()
     _progress_quest("lab", passed=solved)
@@ -576,6 +624,222 @@ def grade_lab(lab_id: str, finding: str, chat=None) -> dict:
     _update_profile(f"Attempted a {lab['kind']} lab and scored {score}/100. {feedback}", chat)
     return {"score": score, "feedback": feedback, "solved": solved,
             "expected": lab["answer"], "awarded": stones, "badges": earned, "error": None}
+
+
+# ---------------------------------------------------------------------------
+# spaced repetition (SM-2)
+# ---------------------------------------------------------------------------
+def _new_card(track: str, topic: str, q: dict) -> dict:
+    return {"id": f"rv-{int(time.time()*1000)}-{random.randint(100,999)}",
+            "track": track, "topic": topic, "q": q["q"], "choices": q["choices"],
+            "answer": q["answer"], "explanation": q.get("explanation", ""),
+            "ease": 2.5, "interval": 0, "reps": 0, "due": _today(), "created": int(time.time())}
+
+
+def _seed_reviews(track: str, topic: str, questions: list[dict]) -> None:
+    if not questions:
+        return
+    with _lock:
+        deck = _g().setdefault("reviews", [])
+        have = {c["q"] for c in deck}
+        for q in questions:
+            if q.get("q") and q["q"] not in have:
+                deck.append(_new_card(track, topic, q))
+        del deck[200:]   # cap the deck
+        _save()
+
+
+def due_reviews(limit: int = 20) -> dict:
+    today = _today()
+    with _lock:
+        deck = _g().get("reviews", [])
+        due = [c for c in deck if c.get("due", today) <= today]
+        total = len(deck)
+    due.sort(key=lambda c: c.get("due", today))
+    public = [{"id": c["id"], "track": c["track"], "topic": c["topic"],
+               "q": c["q"], "choices": c["choices"]} for c in due[:limit]]
+    return {"due": public, "due_count": len(due), "deck_size": total}
+
+
+def grade_review(card_id: str, quality: int) -> dict:
+    """SM-2 update. quality 0-5 (0-2 = forgot, 3-5 = recalled)."""
+    quality = max(0, min(5, int(quality)))
+    with _lock:
+        deck = _g().get("reviews", [])
+        card = next((c for c in deck if c["id"] == card_id), None)
+        if not card:
+            return {"error": "unknown review card"}
+        correct = card["answer"]
+        if quality < 3:
+            card["reps"] = 0
+            card["interval"] = 1
+        else:
+            card["reps"] += 1
+            if card["reps"] == 1:
+                card["interval"] = 1
+            elif card["reps"] == 2:
+                card["interval"] = 6
+            else:
+                card["interval"] = int(round(card["interval"] * card["ease"]))
+            card["ease"] = max(1.3, card["ease"] + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)))
+        card["due"] = (date.today() + timedelta(days=card["interval"])).isoformat()
+        _g()["game"]["reviews_done"] = _g()["game"].get("reviews_done", 0) + 1
+        _save()
+    stones = 3 if quality >= 3 else 1
+    _award_progress(stones)
+    _touch_streak()
+    earned = _check_badges()
+    return {"correct_answer": correct, "explanation": card["explanation"], "next_due": card["due"],
+            "interval_days": card["interval"], "awarded": stones, "badges": earned, "error": None}
+
+
+# ---------------------------------------------------------------------------
+# practice exams (timed, multi-domain, pass/fail)
+# ---------------------------------------------------------------------------
+EXAM_PASS = int(os.getenv("MAYBOT_EXAM_PASS", "75"))
+
+
+def generate_exam(track_id: str, n: int = 20, chat=None) -> dict:
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    n = max(5, min(40, int(n or 20)))
+    topics = ", ".join(track.get("topics", []))
+    user = (f"Track: {track['title']}\nDomains/topics: {topics}\nLearner profile:\n{_profile_brief()}\n\n"
+            f"Write a {n}-question practice EXAM spanning ALL the domains above, weighted realistically. "
+            "Tag each question with its domain (use one of the topic names as the `domain`).")
+    sys = SYSTEM_QUIZ.replace(
+        '{"q":"...","choices":["A","B","C","D"],"answer":0,"explanation":"..."}',
+        '{"q":"...","choices":["A","B","C","D"],"answer":0,"explanation":"...","domain":"..."}')
+    ok, text, err = _call(member, sys, user, chat, max_tokens=3500, temperature=0.5)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text)
+    qs = (data or {}).get("questions") if isinstance(data, dict) else None
+    if not isinstance(qs, list) or not qs:
+        return {"error": "could not parse exam from the model"}
+    clean = []
+    for q in qs[:n]:
+        if not isinstance(q, dict) or not q.get("q") or not isinstance(q.get("choices"), list):
+            continue
+        try:
+            ans = int(q.get("answer", 0))
+        except Exception:
+            ans = 0
+        clean.append({"q": str(q["q"]), "choices": [str(c) for c in q["choices"]],
+                      "answer": max(0, min(ans, len(q["choices"]) - 1)),
+                      "explanation": str(q.get("explanation", "")),
+                      "domain": str(q.get("domain", "General"))})
+    if not clean:
+        return {"error": "could not parse exam from the model"}
+    exam_id = f"ex-{int(time.time()*1000)}-{random.randint(100,999)}"
+    with _lock:
+        _g().setdefault("exams", {})[exam_id] = {"track": track_id, "questions": clean,
+                                                 "created": int(time.time())}
+        _save()
+    public = [{"q": q["q"], "choices": q["choices"], "domain": q["domain"]} for q in clean]
+    return {"exam_id": exam_id, "title": track["title"], "questions": public,
+            "duration_sec": len(clean) * 72, "pass_mark": EXAM_PASS, "error": None}
+
+
+def grade_exam(exam_id: str, answers: list[int], elapsed: int = 0, chat=None) -> dict:
+    with _lock:
+        exam = (_g().get("exams") or {}).get(exam_id)
+    if not exam:
+        return {"error": "unknown or expired exam"}
+    questions = exam["questions"]
+    answers = list(answers or [])
+    per, domains = [], {}
+    correct = 0
+    for i, q in enumerate(questions):
+        picked = answers[i] if i < len(answers) else -1
+        ok = (picked == q["answer"])
+        correct += 1 if ok else 0
+        d = domains.setdefault(q["domain"], {"correct": 0, "total": 0})
+        d["total"] += 1
+        d["correct"] += 1 if ok else 0
+        per.append({"correct": ok, "answer": q["answer"], "your_answer": picked,
+                    "explanation": q["explanation"], "domain": q["domain"]})
+    total = len(questions)
+    score = round(100 * correct / total) if total else 0
+    passed = score >= EXAM_PASS
+    stones = correct * 3 + (40 if passed else 0)
+    with _lock:
+        g = _g()["game"]
+        if passed:
+            g["exams_passed"] = g.get("exams_passed", 0) + 1
+        p = _progress_for(exam["track"])
+        p["score_sum"] += score
+        p["score_n"] += 1
+        _save()
+    _award_progress(stones, skill=(f"{_track(exam['track'])['title']} Mastery" if passed else None),
+                    bonus=20 if passed else 0)
+    _touch_streak()
+    if passed:
+        _progress_quest("quiz", passed=True)
+    earned = _check_badges()
+    weak = [d for d, v in domains.items() if v["total"] and v["correct"] / v["total"] < 0.6]
+    _update_profile(f"Took a practice exam for {_track(exam['track'])['title']}: {score}%"
+                    + (f", weak in {', '.join(weak)}." if weak else ", strong across domains."), chat)
+    return {"score": score, "passed": passed, "pass_mark": EXAM_PASS, "correct": correct,
+            "total": total, "per_domain": domains, "per_question": per, "weak_domains": weak,
+            "awarded": stones, "badges": earned, "error": None}
+
+
+# ---------------------------------------------------------------------------
+# real-environment log labs (read-only) — phase 2 of the labs
+# ---------------------------------------------------------------------------
+def fetch_real_logs(device: dict, project: str, level: str = "ALL") -> tuple[str, str | None]:
+    """Read-only: pull recent logs from a host's agent. No command execution.
+    ``device`` is a resolved devices.yaml entry; the caller (app.py) has already
+    enforced operator role + per-project ACL, mirroring the /api/logs proxy."""
+    from . import agent_client
+    res = agent_client.call_agent(device, f"/api/projects/{project}/logs?level={level.upper()}")
+    if not res.get("online"):
+        return "", res.get("error") or "agent unreachable"
+    data = res.get("data") or {}
+    lines = data.get("lines") or data.get("log") or []
+    if isinstance(lines, list):
+        text = "\n".join(str(x.get("line") if isinstance(x, dict) else x) for x in lines)
+    else:
+        text = str(lines)
+    return text[:6000], None
+
+
+def generate_real_lab(track_id: str, device: str, project: str, logs_text: str, chat=None) -> dict:
+    """Build an intrusion-detection lab from REAL logs pulled off a host. The
+    learner analyzes the real artifact; the AI grades against its own expert
+    read of those same logs."""
+    track = _track(track_id) or {"title": "Security"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    logs_text = (logs_text or "").strip()
+    if not logs_text:
+        return {"error": "no logs returned from that host/project"}
+    # Ask the model for an expert analysis of the REAL logs — that becomes the rubric.
+    ok, text, err = _call(member, (
+        "You are a senior SOC analyst. Analyze these REAL log lines and produce ONLY a JSON object: "
+        '{"answer":"what is notable — any suspicious or malicious activity, or a clear all-clear",'
+        '"indicators":["..."]}. Be precise; cite evidence from the logs.'),
+        f"Logs from {device}/{project}:\n{logs_text}", chat, max_tokens=600, temperature=0.2)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text) or {}
+    lab_id = f"lab-{int(time.time()*1000)}-{random.randint(100,999)}"
+    brief = (f"Analyze the real logs pulled from {device}/{project}. Identify any intrusion or "
+             "suspicious activity and your evidence — or justify an all-clear.")
+    with _lock:
+        _g().setdefault("labs", {})[lab_id] = {
+            "track": track_id, "kind": "real-ids", "brief": brief, "artifact": logs_text,
+            "answer": str(data.get("answer", "")), "indicators": [str(x) for x in (data.get("indicators") or [])],
+            "source": f"{device}/{project}", "created": int(time.time())}
+        _save()
+    return {"lab_id": lab_id, "kind": "real-ids", "brief": brief, "artifact": logs_text,
+            "source": f"{device}/{project}", "error": None}
 
 
 # ---------------------------------------------------------------------------
@@ -709,6 +973,7 @@ def get_progress() -> dict:
     return {
         "learner": LEARNER,
         "realm": realm,
+        "reviews_due": due_reviews()["due_count"],
         "streak": g.get("streak", 0),
         "max_streak": g.get("max_streak", 0),
         "freezes": g.get("freezes", 0),
@@ -728,10 +993,10 @@ def get_progress() -> dict:
 # PHASE 2 (optional) — real environment hook. Intentionally unbuilt.
 # ---------------------------------------------------------------------------
 def attach_real_env(exercise: dict, device_name: str, project_name: str) -> dict | None:
-    """PHASE 2 (optional, not built). When an exercise opts into a REAL lab, this
-    would run its pre-declared, operator-approved tool/action via
-    ``agent_client.post_agent`` / ``call_agent`` and return real output/logs instead
-    of the synthetic artifact. Deny-by-default: only commands defined in
-    ``tools.yaml`` / the ``/api/action`` allow-list may run — LLM text must never
-    become a shell command. Returns ``None`` in phase 1 (simulated path only)."""
+    """PHASE 3 (not built): COMMAND-EXECUTION labs. Running an allow-listed
+    recon/exploit command on a real target (vs. the read-only log analysis in
+    ``generate_real_lab``) would route via the operator-approved ``tools.yaml`` /
+    ``/api/action`` allow-list — LLM text must never become a shell command.
+    Returns ``None``. The read-only real-log lab is implemented above and is the
+    only real-environment path that touches a host."""
     return None

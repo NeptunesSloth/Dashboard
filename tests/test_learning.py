@@ -173,6 +173,90 @@ def test_award_raises_learner_stones():
     assert after == before + 20
 
 
+# ---- saved lessons + chat history ----
+def test_lessons_are_saved_and_retrievable(monkeypatch):
+    monkeypatch.setattr(learning, "_backend_member", lambda: {"name": "Sage", "provider": "claude"})
+    res = learning.get_lesson("french", "Greetings & Introductions", chat=fake_chat)
+    lid = res["lesson_id"]
+    listed = learning.list_lessons("french")["lessons"]
+    assert any(x["id"] == lid for x in listed)
+    full = learning.get_saved_lesson(lid)
+    assert full["body"] == res["body"] and full["topic"] == "Greetings & Introductions"
+
+
+def test_chat_history_persists(monkeypatch):
+    monkeypatch.setattr(learning, "_backend_member", lambda: {"name": "Sage", "provider": "claude"})
+    learning.ask_tutor("french", "Comment dit-on bonjour?", chat=fake_chat)
+    hist = learning.get_chat("french")["history"]
+    assert hist and hist[0]["role"] == "user" and hist[1]["role"] == "assistant"
+
+
+# ---- spaced repetition ----
+def test_missed_quiz_questions_become_due_reviews(monkeypatch):
+    monkeypatch.setattr(learning, "_backend_member", lambda: {"name": "Sage", "provider": "claude"})
+    q = learning.generate_quiz("cybersecurity", "TCP", n=2, chat=fake_chat)
+    learning.grade_quiz(q["quiz_id"], [1, 1], chat=fake_chat)   # both wrong
+    d = learning.due_reviews()
+    assert d["due_count"] == 2 and len(d["due"]) == 2
+    assert all("answer" not in c for c in d["due"])             # answer key hidden
+
+
+def test_review_sm2_schedules_forward():
+    learning._g()["reviews"] = [learning._new_card("cybersecurity", "TCP",
+        {"q": "Port?", "choices": ["80", "443"], "answer": 1, "explanation": "https"})]
+    cid = learning._g()["reviews"][0]["id"]
+    r = learning.grade_review(cid, 5)
+    assert r["error"] is None and r["correct_answer"] == 1
+    assert r["interval_days"] >= 1 and r["next_due"] > learning._today()
+    assert learning._g()["game"]["reviews_done"] == 1
+
+
+# ---- practice exams ----
+def test_exam_generate_and_grade_with_domains(monkeypatch):
+    monkeypatch.setattr(learning, "_backend_member", lambda: {"name": "Sage", "provider": "claude"})
+
+    def exam_chat(member, messages):
+        if "EXAM" in messages[-1]["content"] or "domain" in messages[0]["content"]:
+            return True, json.dumps({"questions": [
+                {"q": "Q1", "choices": ["a", "b"], "answer": 0, "explanation": "", "domain": "Crypto"},
+                {"q": "Q2", "choices": ["a", "b"], "answer": 1, "explanation": "", "domain": "Networking"},
+            ]}), None
+        return fake_chat(member, messages)
+
+    ex = learning.generate_exam("cybersecurity", n=2, chat=exam_chat)
+    assert ex["error"] is None and ex["duration_sec"] > 0 and ex["pass_mark"] == 75
+    assert all("domain" in q and "answer" not in q for q in ex["questions"])
+    g = learning.grade_exam(ex["exam_id"], [0, 1], chat=exam_chat)
+    assert g["score"] == 100 and g["passed"] is True
+    assert g["per_domain"]["Crypto"]["correct"] == 1
+    assert learning._g()["game"]["exams_passed"] == 1
+
+
+# ---- real-log labs (read-only) ----
+def test_real_log_lab_from_fetched_logs(monkeypatch):
+    monkeypatch.setattr(learning, "_backend_member", lambda: {"name": "Sage", "provider": "claude"})
+    logs = "10.0.0.5 GET /\n10.0.0.9 POST /login failed x40 brute force"
+    lab = learning.generate_real_lab("cybersecurity", "web-01", "nginx", logs, chat=fake_chat)
+    assert lab["error"] is None and lab["kind"] == "real-ids"
+    assert lab["artifact"] == logs and lab["source"] == "web-01/nginx"
+    # gradeable like any lab; answer was hidden server-side
+    g = learning.grade_lab(lab["lab_id"], "brute force on /login from 10.0.0.9", chat=fake_chat)
+    assert g["score"] == 85 and g["solved"] is True
+
+
+def test_fetch_real_logs_is_read_only(monkeypatch):
+    calls = {}
+
+    def fake_call(device, endpoint):
+        calls["endpoint"] = endpoint
+        return {"online": True, "data": {"lines": ["line one", {"line": "line two"}]}}
+
+    monkeypatch.setattr("maybot_control_center.agent_client.call_agent", fake_call)
+    text, err = learning.fetch_real_logs({"name": "web-01"}, "nginx")
+    assert err is None and "line one" in text and "line two" in text
+    assert calls["endpoint"].startswith("/api/projects/nginx/logs")   # GET logs only
+
+
 # ---- store round-trip ----
 def test_state_persists_round_trip():
     store._reset_for_tests(":memory:")

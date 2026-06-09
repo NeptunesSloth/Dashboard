@@ -912,6 +912,104 @@ def learning_chest_open(x_control_token: str = Header(default="")):
     return learning.open_chest()
 
 
+@app.get("/api/learning/lessons")
+def learning_lessons(track: str = Query(default=""), x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.list_lessons(track or None)
+
+
+@app.get("/api/learning/lessons/{lesson_id}")
+def learning_lesson_get(lesson_id: str, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.get_saved_lesson(lesson_id)
+
+
+@app.get("/api/learning/chat")
+def learning_chat(track: str, x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.get_chat(track)
+
+
+@app.get("/api/learning/reviews")
+def learning_reviews(x_control_token: str = Header(default="")):
+    _check_token(x_control_token)
+    from . import learning
+    return learning.due_reviews()
+
+
+class ReviewGradeIn(BaseModel):
+    card_id: str
+    quality: int
+
+
+@app.post("/api/learning/reviews/grade")
+def learning_review_grade(body: ReviewGradeIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.grade_review(body.card_id, body.quality)
+
+
+class ExamIn(BaseModel):
+    track: str
+    n: int = 20
+
+
+class ExamGradeIn(BaseModel):
+    exam_id: str
+    answers: list[int] = []
+    elapsed: int = 0
+
+
+@app.post("/api/learning/exam")
+def learning_exam(body: ExamIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.generate_exam(body.track, body.n)
+
+
+@app.post("/api/learning/exam/grade")
+def learning_exam_grade(body: ExamGradeIn, x_control_token: str = Header(default="")):
+    _check_operator(x_control_token)
+    from . import learning
+    return learning.grade_exam(body.exam_id, body.answers, body.elapsed)
+
+
+@app.get("/api/learning/lab/sources")
+def learning_lab_sources(x_control_token: str = Header(default="")):
+    """Host/project pairs whose real logs can be pulled into a log-analysis lab."""
+    _check_token(x_control_token)
+    ov = aggregate(all_devices())
+    out = []
+    for p in ov.get("projects", []) or []:
+        if authz.can_access_project(x_control_token, p.get("device"), p.get("name")):
+            out.append({"device": p.get("device"), "project": p.get("name"), "type": p.get("type")})
+    return {"sources": out}
+
+
+class RealLabIn(BaseModel):
+    track: str = "cybersecurity"
+    device: str
+    project: str
+
+
+@app.post("/api/learning/lab/real")
+def learning_lab_real(body: RealLabIn, x_control_token: str = Header(default="")):
+    """Read-only: pull a host's real logs (same path/ACL as /api/logs) and turn
+    them into an intrusion-detection lab. No command execution."""
+    _check_operator(x_control_token)
+    if not _SAFE_NAME.match(body.device) or not _SAFE_NAME.match(body.project):
+        raise HTTPException(400, "invalid device or project name")
+    _check_project_access(x_control_token, body.device, body.project)
+    from . import learning
+    logs, err = learning.fetch_real_logs(_resolve_device(body.device), body.project)
+    if err:
+        raise HTTPException(503, err)
+    return learning.generate_real_lab(body.track, body.device, body.project, logs)
+
+
 @app.get("/api/members")
 def members_list(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
