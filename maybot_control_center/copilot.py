@@ -94,3 +94,46 @@ def ask(question: str, overview: dict, chat=None) -> dict:
         return {"answer": "", "actions": actions, "member": member.get("name"),
                 "error": err or "the AI member did not respond"}
     return {"answer": (text or "").strip(), "actions": actions, "member": member.get("name"), "error": None}
+
+
+def ask_stream(question: str, overview: dict, chat_stream=None):
+    """Streaming variant of ask(): a generator of event dicts —
+    ``{"type":"meta",...}`` first (member + deterministic actions), then any
+    number of ``{"type":"token","text":...}`` as the model produces output, and
+    finally ``{"type":"done"}`` (or ``{"type":"error",...}``). ``chat_stream`` is
+    injectable for tests; it defaults to the real streaming call."""
+    question = (question or "").strip()
+    projects = (overview or {}).get("projects", []) or []
+    actions = _suggested_actions(projects)
+    if not question:
+        yield {"type": "meta", "member": None, "actions": actions}
+        yield {"type": "error", "error": "empty question"}
+        return
+
+    member = _backend_member()
+    if not member:
+        yield {"type": "meta", "member": None, "actions": actions}
+        yield {"type": "error", "error": "no_backend",
+               "answer": "No AI member with an LLM backend is configured yet. Add one in "
+                         "Sect Members to enable the Ops Copilot."}
+        return
+
+    yield {"type": "meta", "member": member.get("name"), "actions": actions}
+    chat_stream = chat_stream or agents.stream_chat
+    context = build_context(overview)
+    messages = [
+        {"role": "system", "content": SYSTEM},
+        {"role": "user", "content": f"Fleet context:\n{context}\n\nQuestion: {question}"},
+    ]
+    got = False
+    try:
+        for chunk in chat_stream({**member, "max_tokens": 500, "temperature": 0.2}, messages):
+            if chunk:
+                got = True
+                yield {"type": "token", "text": chunk}
+    except Exception as exc:  # never let a backend error break the SSE stream
+        yield {"type": "error", "error": str(exc)}
+        return
+    if not got:
+        yield {"type": "error", "error": "the AI member did not respond"}
+    yield {"type": "done"}
