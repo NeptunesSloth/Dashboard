@@ -1751,6 +1751,11 @@ def service_worker():
     return FileResponse("maybot_control_center/static/sw.js", media_type="text/javascript")
 
 
+@app.get("/pwa.js")
+def pwa_js():
+    return FileResponse("maybot_control_center/static/pwa.js", media_type="text/javascript")
+
+
 @app.get("/icon.svg")
 def icon():
     return FileResponse("maybot_control_center/static/icon.svg", media_type="image/svg+xml")

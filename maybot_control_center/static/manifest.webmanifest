@@ -1,13 +1,13 @@
 {
-  "name": "Aegis — Autonomous Ops",
-  "short_name": "Aegis",
+  "name": "MayBot Control Center",
+  "short_name": "MayBot",
   "description": "Distributed monitoring + autonomous agent ops dashboard.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0d1117",
-  "theme_color": "#0d1117",
+  "background_color": "#05060c",
+  "theme_color": "#05060c",
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]

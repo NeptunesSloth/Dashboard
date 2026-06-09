@@ -2,8 +2,11 @@
 // Network-first for the UI so a redeploy is picked up immediately; the cache is
 // only a fallback when offline. (A cache-first worker would pin a stale app.js /
 // style.css forever — which made the console look "old" after updates.)
-const CACHE = 'maybot-v2';
-const SHELL = ['/', '/app.js', '/style.css', '/icon.svg', '/manifest.webmanifest'];
+const CACHE = 'maybot-v3';
+const SHELL = [
+  '/', '/app.js', '/style.css', '/icon.svg', '/manifest.webmanifest', '/pwa.js',
+  '/command.css', '/lib.js',
+];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL).catch(() => {})).then(() => self.skipWaiting()));
