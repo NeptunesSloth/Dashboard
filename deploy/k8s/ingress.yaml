@@ -1,0 +1,31 @@
+# Edit the host (and TLS) before applying. Assumes an ingress controller such as
+# ingress-nginx. Protect the control center with MAYBOT_CONTROL_CENTER_TOKEN —
+# the ingress does not add auth.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: maybot-control-center
+  labels:
+    app.kubernetes.io/name: maybot
+    app.kubernetes.io/component: control-center
+  annotations:
+    # nginx.ingress.kubernetes.io/proxy-body-size: "16m"
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    {}
+spec:
+  ingressClassName: nginx
+  # tls:
+  #   - hosts:
+  #       - maybot.example.com
+  #     secretName: maybot-tls
+  rules:
+    - host: maybot.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maybot-control-center
+                port:
+                  name: http

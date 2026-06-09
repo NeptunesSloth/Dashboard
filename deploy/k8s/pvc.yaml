@@ -1,0 +1,17 @@
+# Persistent storage for /data: the SQLite DB, backups, and the in-app YAML
+# config the managers write. ReadWriteOnce is correct because the control
+# center runs single-replica (see deploy/README.md — multi-replica needs Redis).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: maybot-data
+  labels:
+    app.kubernetes.io/name: maybot
+    app.kubernetes.io/component: control-center
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  # storageClassName: ""   # set to your cluster's class, or leave to the default

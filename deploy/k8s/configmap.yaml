@@ -1,0 +1,35 @@
+# Non-secret environment for the control center.
+# Secrets (tokens, API keys) live in secret.yaml — do NOT put them here.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maybot-control-center
+  labels:
+    app.kubernetes.io/name: maybot
+    app.kubernetes.io/component: control-center
+data:
+  # --- persistence, retention & backups ---
+  MAYBOT_DB: "/data/maybot.db"
+  MAYBOT_DEVICES_FILE: "/data/devices.yaml"
+  MAYBOT_USERS_FILE: "/data/users.yaml"
+  MAYBOT_AGENTS_FILE: "/data/agents.yaml"
+  MAYBOT_SECT_FILE: "/data/sect_state.json"
+  MAYBOT_RETENTION_DAYS: "90"
+  MAYBOT_BACKUP_DIR: "/data/backups"
+  MAYBOT_BACKUP_INTERVAL_HOURS: "24"
+  MAYBOT_BACKUP_KEEP: "14"
+  # --- scheduled daily report ---
+  MAYBOT_REPORT_INTERVAL_HOURS: "24"
+  # --- autonomous operations ---
+  MAYBOT_AUTOPILOT: "1"
+  MAYBOT_AUTONOMY: "1"
+  MAYBOT_DELEGATION: "1"
+  MAYBOT_PR_ENABLED: "1"
+  MAYBOT_PR_REPO: ""
+  # --- alerting behaviour ---
+  MAYBOT_ALERT_RECOVERY: "1"
+  MAYBOT_ESCALATION: "1"
+  # --- sessions ---
+  MAYBOT_SESSION_TTL_MINUTES: "720"
+  # --- Obsidian vault memory (mount the vault too if you set the path) ---
+  MAYBOT_OBSIDIAN_SUBDIR: "MayBot"

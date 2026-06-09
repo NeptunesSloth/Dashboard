@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "maybot.fullname" . }}
+  labels:
+    {{- include "maybot.controlCenter.labels" . | nindent 4 }}
+spec:
+  # Single replica only — in-memory state (see deploy/README.md).
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "maybot.controlCenter.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "maybot.controlCenter.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if and .Values.persistence.enabled .Values.fixDataPermissions.enabled }}
+      initContainers:
+        - name: fix-data-perms
+          image: {{ .Values.fixDataPermissions.image }}
+          command: ["sh", "-c", "chown -R {{ .Values.securityContext.runAsUser | default 1000 }}:{{ .Values.securityContext.runAsGroup | default 1000 }} /data || true"]
+          securityContext:
+            runAsNonRoot: false
+            runAsUser: 0
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      {{- end }}
+      containers:
+        - name: control-center
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - uvicorn
+            - maybot_control_center.app:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8200"
+          ports:
+            - name: http
+              containerPort: 8200
+          envFrom:
+            - configMapRef:
+                name: {{ include "maybot.fullname" . }}
+            - secretRef:
+                name: {{ include "maybot.secretName" . }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            {{- toYaml .Values.probes.liveness | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            {{- toYaml .Values.probes.readiness | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          {{- end }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "maybot.pvcName" . }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

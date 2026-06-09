@@ -1,0 +1,150 @@
+# Default values for the maybot chart.
+
+image:
+  repository: ghcr.io/neptunessloth/dashboard
+  tag: latest
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+# IMPORTANT: the control center holds in-memory state (sessions, fleet status),
+# so it must run single-replica until the Redis-backed shared state lands.
+# Do NOT raise this above 1. See deploy/README.md.
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Non-secret environment (rendered into a ConfigMap). Add/override freely.
+config:
+  MAYBOT_DB: "/data/maybot.db"
+  MAYBOT_DEVICES_FILE: "/data/devices.yaml"
+  MAYBOT_USERS_FILE: "/data/users.yaml"
+  MAYBOT_AGENTS_FILE: "/data/agents.yaml"
+  MAYBOT_SECT_FILE: "/data/sect_state.json"
+  MAYBOT_RETENTION_DAYS: "90"
+  MAYBOT_BACKUP_DIR: "/data/backups"
+  MAYBOT_BACKUP_INTERVAL_HOURS: "24"
+  MAYBOT_BACKUP_KEEP: "14"
+  MAYBOT_REPORT_INTERVAL_HOURS: "24"
+  MAYBOT_AUTOPILOT: "1"
+  MAYBOT_AUTONOMY: "1"
+  MAYBOT_DELEGATION: "1"
+  MAYBOT_PR_ENABLED: "1"
+  MAYBOT_PR_REPO: ""
+  MAYBOT_ALERT_RECOVERY: "1"
+  MAYBOT_ESCALATION: "1"
+  MAYBOT_SESSION_TTL_MINUTES: "720"
+  MAYBOT_OBSIDIAN_SUBDIR: "MayBot"
+
+# Secret env (rendered into a Secret). Fill these in (or use an existing
+# Secret via secrets.existingSecret). Generate tokens with:
+#   python3 -c "import secrets; print(secrets.token_hex(32))"
+secrets:
+  # If set, use this pre-existing Secret instead of rendering one from the
+  # values below. Keys must match the env var names the app expects.
+  existingSecret: ""
+  data:
+    MAYBOT_CONTROL_CENTER_TOKEN: ""
+    # Shared secret with each agent; MUST match the agent's MAYBOT_API_TOKEN.
+    MAYBOT_API_TOKEN: "change-me"
+    MAYBOT_REGISTER_TOKEN: ""
+    ANTHROPIC_API_KEY: ""
+    OPENAI_API_KEY: ""
+    GH_TOKEN: ""
+    MAYBOT_SLACK_WEBHOOK: ""
+    MAYBOT_DISCORD_WEBHOOK: ""
+    MAYBOT_WEBHOOK_URL: ""
+    MAYBOT_SMTP_HOST: ""
+    MAYBOT_SMTP_FROM: ""
+    MAYBOT_SMTP_TO: ""
+    MAYBOT_SMTP_PORT: "587"
+    MAYBOT_SMTP_USER: ""
+    MAYBOT_SMTP_PASSWORD: ""
+    MAYBOT_TELEGRAM_TOKEN: ""
+    MAYBOT_TELEGRAM_CHAT_ID: ""
+    MAYBOT_PAGERDUTY_ROUTING_KEY: ""
+    MAYBOT_OPSGENIE_API_KEY: ""
+
+service:
+  type: ClusterIP
+  port: 8200
+
+persistence:
+  enabled: true
+  # Reuse an existing PVC instead of creating one.
+  existingClaim: ""
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  storageClass: ""
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  host: maybot.example.com
+  path: /
+  pathType: Prefix
+  tls: []
+  #  - secretName: maybot-tls
+  #    hosts:
+  #      - maybot.example.com
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+# Pod-level security context. fsGroup makes the kubelet chown the mounted PV so
+# the non-root app user can write to /data.
+podSecurityContext:
+  fsGroup: 1000
+
+# Container-level security context for the control center.
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# Run an init container (as root) to chown /data on first provision. Most
+# storage classes honour fsGroup so this can be disabled; enable it if your
+# class does not and the app cannot write to /data.
+fixDataPermissions:
+  enabled: false
+  image: busybox:1.36
+
+probes:
+  liveness:
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Optional in-cluster agent DaemonSet. OFF by default: agents normally run on
+# bot hosts, not in-cluster (see deploy/README.md). Enable only if your bots run
+# as workloads in this cluster and you want one agent per node.
+agent:
+  enabled: false
+  port: 8100
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
