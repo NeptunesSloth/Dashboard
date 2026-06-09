@@ -6,7 +6,7 @@ import io
 from fastapi.testclient import TestClient
 
 from maybot_control_center.app import app
-from maybot_control_center import aggregator, maintenance, history, usage, oaths, errorbudget, status_page
+from maybot_control_center import aggregator, maintenance, history, oaths, errorbudget, status_page
 
 client = TestClient(app)
 

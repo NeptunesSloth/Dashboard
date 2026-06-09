@@ -1,6 +1,5 @@
 import time
 
-import pytest
 
 from maybot_control_center import skillquest, cultivation
 

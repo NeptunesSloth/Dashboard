@@ -1,4 +1,3 @@
-import time
 
 from maybot_control_center import maintenance
 

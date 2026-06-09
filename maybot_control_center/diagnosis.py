@@ -101,7 +101,6 @@ def diagnose(device: str, project: str) -> dict:
     lines = lg.get("lines") if isinstance(lg, dict) else None
     findings = analyze_logs(lines or [])
     health = (proj or {}).get("health", "unknown")
-    metrics = (proj or {}).get("metrics", {}) or {}
     alerts = (proj or {}).get("alerts", []) or []
     if findings:
         top = findings[0]

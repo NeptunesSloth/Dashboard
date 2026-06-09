@@ -50,7 +50,7 @@ def send(title: str, body: str, url: str = "/") -> int:
     if not enabled():
         return 0
     try:
-        from pywebpush import webpush, WebPushException
+        from pywebpush import webpush
     except Exception:
         return 0
     import json

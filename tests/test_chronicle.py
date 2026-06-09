@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pytest
 
 from maybot_control_center import chronicle
 

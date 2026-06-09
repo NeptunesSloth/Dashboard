@@ -1,4 +1,4 @@
-from maybot_control_center import store, history, comms, tools
+from maybot_control_center import store, history, comms
 
 
 def _db(tmp_path):

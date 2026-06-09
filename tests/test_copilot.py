@@ -1,5 +1,5 @@
 """Ops Copilot — fleet-wide natural-language Q&A grounded in live state."""
-from maybot_control_center import copilot, agents
+from maybot_control_center import copilot
 
 
 OVERVIEW = {
