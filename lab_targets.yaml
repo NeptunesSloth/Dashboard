@@ -1,0 +1,62 @@
+# lab_targets.yaml — built-in catalog of Docker-based pentest / IDS lab targets
+# for the Learning Center (phase 3).
+#
+# This is CATALOG DATA ONLY. It is read by learning.list_lab_targets() and is
+# never executed by the dashboard. Each entry describes an intentionally-
+# vulnerable app the OPERATOR runs locally (via labs/docker-compose.yml), so its
+# real access/auth logs can be pulled — READ ONLY — into the existing Real Log
+# Lab (generate_real_lab over fetch_real_logs). The dashboard never runs a
+# command against these targets; LLM text never becomes a shell command.
+#
+# Each target: {id, name, kind: ids|pentest, app, service, ports: [str],
+#               look_for: [str], notes}
+#   - kind "pentest": an intentionally-vulnerable app to exploit on an isolated
+#     network, generating real attack traffic you can later hunt for.
+#   - kind "ids":     a service whose access/auth logs land on a mounted volume a
+#     maybot_agent can read, so the Real Log Lab can hunt intrusions in them.
+targets:
+  - id: juice-shop
+    name: OWASP Juice Shop
+    kind: pentest
+    app: bkimminich/juice-shop
+    service: juice-shop
+    ports: ["3000"]
+    look_for:
+      - SQL injection on the login form
+      - Broken access control / forced browsing to admin paths
+      - JWT and session handling flaws
+    notes: >-
+      Intentionally vulnerable. Run ONLY on an isolated/local network. Attacking
+      it generates real HTTP traffic; pair with the log-shipper service so a
+      maybot_agent can read the access logs into the Real Log Lab.
+
+  - id: dvwa
+    name: Damn Vulnerable Web Application (DVWA)
+    kind: pentest
+    app: vulnerables/web-dvwa
+    service: dvwa
+    ports: ["8080"]
+    look_for:
+      - SQL injection (low/medium/high security levels)
+      - Command injection
+      - Reflected and stored XSS
+      - File upload / inclusion
+    notes: >-
+      Intentionally vulnerable. Default creds admin/password. Run ONLY on an
+      isolated/local network. Set the security level low first, then raise it.
+
+  - id: access-log
+    name: Logged reverse proxy (IDS source)
+    kind: ids
+    app: nginx
+    service: log-shipper
+    ports: ["8088"]
+    look_for:
+      - Scanner / brute-force bursts in access.log
+      - 401/403 spikes against admin or login paths
+      - Unusual user-agents and path-traversal attempts
+    notes: >-
+      An nginx reverse proxy in front of the vulnerable apps that writes
+      access/auth logs to a mounted volume (./labs/logs). Point a maybot_agent
+      at that directory and register it as a host/project, then use the Real Log
+      Lab to hunt intrusions in the REAL traffic you generated. Read-only.

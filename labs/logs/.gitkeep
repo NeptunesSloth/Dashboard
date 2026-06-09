@@ -1,0 +1,2 @@
+# Mount point for nginx access/auth logs written by the log-shipper service.
+# A maybot_agent reads these READ-ONLY into the Learning Center's Real Log Lab.

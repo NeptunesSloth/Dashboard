@@ -1,0 +1,61 @@
+# labs/docker-compose.yml — Learning Center pentest / IDS lab TARGETS.
+#
+# !!! INTENTIONALLY VULNERABLE !!!
+# These services are deliberately insecure training targets. Run them ONLY on an
+# isolated / local network you fully control. NEVER expose them to the internet
+# or attach them to a network with real systems on it. See labs/README.md.
+#
+# What the operator does (the dashboard does NONE of this — it is read-only):
+#   1. `docker compose -f labs/docker-compose.yml up`
+#   2. Attack the targets from your own machine (real traffic is generated).
+#   3. The log-shipper writes nginx access/auth logs to ./labs/logs (a mounted
+#      volume) where a maybot_agent can read them — READ ONLY.
+#   4. Register that agent/log dir as a host/project, then use the Learning
+#      Center's Real Log Lab to hunt intrusions in the REAL traffic.
+#
+# The dashboard never runs a command against these targets. The only "real"
+# interaction is the existing read-only log pull (fetch_real_logs).
+
+services:
+  # --- pentest target: OWASP Juice Shop --------------------------------------
+  juice-shop:
+    image: bkimminich/juice-shop:latest
+    container_name: maybot-lab-juice-shop
+    ports:
+      - "127.0.0.1:3000:3000"   # bind to localhost only
+    networks:
+      - lab
+    restart: unless-stopped
+
+  # --- pentest target: DVWA --------------------------------------------------
+  dvwa:
+    image: vulnerables/web-dvwa:latest
+    container_name: maybot-lab-dvwa
+    ports:
+      - "127.0.0.1:8080:80"     # bind to localhost only
+    networks:
+      - lab
+    restart: unless-stopped
+
+  # --- IDS source: nginx reverse proxy writing access/auth logs to a volume ---
+  # Fronts the vulnerable apps so all attack traffic is captured in access.log,
+  # which lands in ./labs/logs for a maybot_agent to read (read-only).
+  log-shipper:
+    image: nginx:alpine
+    container_name: maybot-lab-log-shipper
+    depends_on:
+      - juice-shop
+      - dvwa
+    ports:
+      - "127.0.0.1:8088:80"     # bind to localhost only
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./logs:/var/log/nginx   # access.log / error.log readable by the agent
+    networks:
+      - lab
+    restart: unless-stopped
+
+networks:
+  lab:
+    driver: bridge
+    # Internal-ish lab network. Still: run this only on an isolated host.

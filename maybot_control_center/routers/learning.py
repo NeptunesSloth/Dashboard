@@ -289,6 +289,15 @@ def learning_lab_sources(x_control_token: str = Header(default="")):
     return {"sources": out}
 
 
+@router.get("/api/learning/lab/targets")
+def learning_lab_targets(x_control_token: str = Header(default="")):
+    """Built-in catalog of Docker-based pentest/IDS lab TARGETS (labs/). Read-only
+    catalog data — the operator runs the targets; the dashboard executes nothing."""
+    check_token(x_control_token)
+    from .. import learning
+    return {"targets": learning.list_lab_targets()}
+
+
 @router.post("/api/learning/lab/real")
 def learning_lab_real(body: RealLabIn, x_control_token: str = Header(default="")):
     """Read-only: pull a host's real logs (same path/ACL as /api/logs) and turn
