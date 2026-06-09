@@ -106,3 +106,27 @@ def test_discover_shape_and_auth(agent_client):
     assert r.status_code == 200
     assert isinstance(r.json().get("candidates"), list)
     assert agent_client.get("/api/discover").status_code == 401     # token required
+
+
+def test_projects_degrade_one_bad_bot_not_the_whole_host(monkeypatch):
+    """A single bot whose adapter raises must surface as a degraded entry, not
+    hide itself and every other bot on the host (the Command Hall regression)."""
+    monkeypatch.setattr(auth, "API_TOKEN", TOKEN)
+    monkeypatch.setattr(agent_app, "load_projects",
+                        lambda: [{"name": "arb", "type": "trading_bot"},
+                                 {"name": "ok-bot", "type": "generic"}])
+
+    def fake_adapt(project):
+        if project.get("name") == "arb":
+            raise RuntimeError("boom: bad path")
+        return {"name": project["name"], "type": project["type"], "status": "running",
+                "health": "ok", "metrics": {}, "alerts": []}
+
+    monkeypatch.setattr(agent_app, "adapt_project", fake_adapt)
+    r = TestClient(agent_app.app).get("/api/projects", headers=AUTH)
+    assert r.status_code == 200
+    rows = {p["name"]: p for p in r.json()}
+    assert set(rows) == {"arb", "ok-bot"}                 # both present
+    assert rows["arb"]["health"] == "error"
+    assert any("could not be read" in a for a in rows["arb"]["alerts"])
+    assert rows["ok-bot"]["health"] == "ok"               # the good bot is unaffected
