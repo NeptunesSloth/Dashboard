@@ -378,13 +378,26 @@ async function decreeAsk(question) {
 async function decreeCommand(goal) {
   const out = $('decree-out');
   out.innerHTML = `<div class='decree-note'>Dispatching decree…</div>`;
-  const participants = [...DECREE_PARTS];
-  const r = await post('/api/comms/mission', { goal, participants, rounds: 1 });
+  // None selected = all disciples. A mission needs >=2 participants, so a single
+  // disciple is dispatched as a direct task instead.
+  let chosen = [...DECREE_PARTS];
+  if (!chosen.length) chosen = (LAST_AGENTS || []).map((a) => a.name);
+  if (!chosen.length) {
+    out.innerHTML = `<div class='decree-note err'>No disciples enlisted — recruit one in the <a href='/chamber' style='color:var(--violet)'>Chamber</a> first.</div>`;
+    return;
+  }
+  let r, who;
+  if (chosen.length === 1) {
+    r = await post('/api/agents/' + encodeURIComponent(chosen[0]) + '/task', { task: goal });
+    who = chosen[0];
+  } else {
+    r = await post('/api/comms/mission', { goal, participants: chosen, rounds: 1 });
+    who = chosen.join(', ');
+  }
   if (!r || r.detail || r.error) {
     out.innerHTML = `<div class='decree-note err'>${esc((r && (r.detail || r.error)) || 'Could not dispatch the decree (operator role required).')}</div>`;
     return;
   }
-  const who = participants.length ? participants.join(', ') : 'all disciples';
   out.innerHTML = `<div class='decree-note'>⚔ Decree issued to <b>${esc(who)}</b>. The mission is underway.</div>`;
   decreeToast('Decree dispatched');
   $('decree-input').value = '';
