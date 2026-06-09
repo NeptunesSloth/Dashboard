@@ -88,71 +88,52 @@ function countUp(el, to, fmt) {
 }
 
 /* ============================ data + render ============================ */
-function tradingFromProjects(projects) {
-  const bots = (projects || []).filter((p) => p.type === 'trading_bot');
-  const num = (m, k) => { const v = Number((m || {})[k]); return Number.isFinite(v) ? v : 0; };
-  let today = 0, week = 0, month = 0, realized = 0, exposure = 0, positions = 0, trades = 0, fillSum = 0, fillN = 0;
-  bots.forEach((p) => {
-    const m = p.metrics || {};
-    today += num(m, 'profit_today'); week += num(m, 'profit_this_week'); month += num(m, 'profit_this_month');
-    realized += num(m, 'realized_pnl'); exposure += num(m, 'open_exposure'); positions += num(m, 'open_positions'); trades += num(m, 'trades_today');
-    const fr = Number(m.fill_rate); if (Number.isFinite(fr)) { fillSum += fr; fillN++; }
-  });
-  return { today, week, month, realized, exposure, positions, trades, fillRate: fillN ? fillSum / fillN : null, botCount: bots.length };
-}
-
-function renderHero(t, cmd) {
-  const base = (cmd && cmd.account_base) || 0;
-  const total = base + t.realized;
-  const cell = (lbl, val, cls, big) => `<div class='hero-cell'><div class='hero-lbl'>${lbl}</div>
-    <div class='hero-val ${cls} ${big ? 'big' : ''}' data-num='${val}'>—</div></div>`;
-  $('hero').innerHTML =
-    cell('Today', t.today, t.today >= 0 ? 'pos' : 'neg') +
-    cell('This Week', t.week, t.week >= 0 ? 'pos' : 'neg') +
-    cell('This Month', t.month, t.month >= 0 ? 'pos' : 'neg') +
-    cell('Total Value', total, '', true);
-  $('hero').querySelectorAll('.hero-val').forEach((el, i) => {
-    const v = Number(el.dataset.num);
-    countUp(el, v, i === 3 ? (x) => `$${x.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : (x) => money(x));
-  });
-}
-
-function renderMetrics(t, cmd, summary) {
-  const base = (cmd && cmd.account_base) || 0;
-  const acct = base + t.realized;
-  const goal = (cmd && cmd.monthly_goal) || 10000;
-  const goalPct = Math.max(0, Math.min(100, Math.round((t.month / goal) * 100)));
-  const winRate = t.fillRate != null ? Math.round(t.fillRate * 100) : null;
-  const pf = t.demoPF != null ? t.demoPF : (t.realized > 0 ? (1 + Math.min(3, Math.abs(t.realized) / Math.max(1, Math.abs(t.exposure) || 1000))) : null);
-  const card = (lbl, val, sub, accent) => `<div class='metric-card glass ${accent || ''}' data-tilt>
-    <div class='metric-lbl'>${lbl}</div><div class='metric-val'>${val}</div>${sub ? `<div class='metric-sub'>${sub}</div>` : ''}</div>`;
-  const ring = `<div class='metric-card glass accent-jade' data-tilt><div class='metric-lbl'>Monthly Goal</div>
-    <div class='goal-card' style='margin-top:8px'><div class='ring' style='--p:${goalPct}'><b>${goalPct}%</b></div>
-      <div><div class='metric-val' style='font-size:18px'>${money(t.month)}</div><div class='metric-sub'>of $${goal.toLocaleString()}</div></div></div></div>`;
-  $('metrics').innerHTML = [
-    card('Account Value', `$${acct.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 'buying power ready', 'accent-azure'),
-    card('Open Exposure', money(t.exposure).replace('+', ''), `${t.botCount} bot${t.botCount === 1 ? '' : 's'} active`, 'accent-gold'),
-    card('Open Positions', t.positions, 'live', ''),
-    card('Trades Today', t.trades, 'executed', ''),
-    card('Win Rate', winRate != null ? `${winRate}%` : '—', 'fill rate', 'accent-jade'),
-    card('Profit Factor', pf != null ? pf.toFixed(2) : '—', t.realized >= 0 ? 'positive' : 'drawdown', t.realized >= 0 ? 'accent-jade' : 'accent-crimson'),
-    ring,
-    card('Risk', t.exposure > 0 ? 'Moderate' : 'Minimal', 'exposure-based', 'accent-azure'),
+/* Fleet-level stats — OPS-focused, NOT trading PnL (that lives on /trade). */
+function renderFleetStats(summary, agents) {
+  const s = summary || {};
+  const online = Number(s.online_devices || 0), total = Number(s.total_devices || 0);
+  const bots = Number(s.bots_running || 0);
+  const warn = Number(s.projects_with_warnings_errors || 0);
+  const tests = Number(s.tests_failing || 0);
+  const active = (agents || []).filter((a) => a.current_task || a.status === 'working' || a.status === 'queued').length;
+  const hostsClass = total && online < total ? (online === 0 ? 'crit' : 'warn') : 'good';
+  const card = (val, lbl, sub, cls) => `<div class='fleet-stat glass ${cls || ''}' data-tilt>
+    <div class='fs-val'>${val}</div><div class='fs-lbl'>${lbl}</div>${sub ? `<div class='fs-sub'>${sub}</div>` : ''}</div>`;
+  $('fleet-stats').innerHTML = [
+    card(`${online}<span class='muted' style='font-size:18px'>/${total}</span>`, 'Hosts Online', total ? 'machines reporting' : 'no hosts yet', hostsClass),
+    card(bots, 'Bots Running', 'trading engines live', bots ? 'good' : ''),
+    card(warn, 'Realms at Risk', 'warnings + errors', warn ? (warn > 2 ? 'crit' : 'warn') : 'good'),
+    card(active, 'Active Missions', 'disciples on task', active ? '' : ''),
+    card(tests, 'Tests Failing', 'across the fleet', tests ? 'warn' : 'good'),
   ].join('');
   bindTilt();
 }
 
-function renderOpps(cmd) {
-  const opps = (cmd && cmd.opportunities) || [];
-  $('opp-count').textContent = opps.length ? `${opps.length} signals` : '';
-  if (!opps.length) { $('opps').innerHTML = `<div class='muted' style='padding:6px'>No active signals. Wire a signals feed or set MAYBOT_DEMO=1.</div>`; return; }
-  $('opps').innerHTML = opps.map((o) => `<div class='opp'>
-    <div class='opp-tick'>${esc(o.ticker)}</div>
-    <div class='opp-meta'>
-      <div class='opp-row'><span>Edge <b>${Number(o.edge).toFixed(1)}%</b></span><span>Confidence <b>${o.confidence}%</b></span></div>
-      <div class='signal'><span style='width:${Math.max(6, Math.min(100, o.confidence))}%'></span></div>
-    </div>
-    <div class='opp-status st-${esc(o.status)}'>${esc(o.status)}</div></div>`).join('');
+/* Active Missions / Task Board — disciple activity, replaces trading "opps". */
+const STATEMAP = (a) => {
+  if (a.current_task) return { txt: `▸ ${a.current_task.slice(0, 70)}`, state: 'ON TASK', cls: 'on', dot: 'dot-working', wcls: 'working' };
+  if (a.status === 'working' || a.status === 'queued') return { txt: a.status, state: a.status.toUpperCase(), cls: 'on', dot: 'dot-working', wcls: 'working' };
+  if (a.status === 'error') return { txt: a.error || 'error', state: 'ERROR', cls: 'err', dot: 'dot-error', wcls: '' };
+  const c = a.cultivation || {};
+  if (c.in_roaming) return { txt: '🌄 roaming the web', state: 'ROAMING', cls: '', dot: 'dot-idle', wcls: '' };
+  if (c.in_seclusion) return { txt: '🚪 in seclusion', state: 'SECLUSION', cls: '', dot: 'dot-idle', wcls: '' };
+  return { txt: 'standing by', state: 'IDLE', cls: '', dot: 'dot-idle', wcls: '' };
+};
+function renderTaskboard(agents) {
+  const list = (agents || []).slice();
+  // surface working disciples first
+  list.sort((a, b) => (b.current_task ? 1 : 0) - (a.current_task ? 1 : 0));
+  const active = list.filter((a) => a.current_task || a.status === 'working' || a.status === 'queued').length;
+  $('task-count').textContent = active ? `${active} active` : (list.length ? 'all idle' : '');
+  if (!list.length) { $('taskboard').innerHTML = `<div class='muted' style='padding:6px'>No disciples enlisted. Recruit one in the Chamber, then issue a decree.</div>`; return; }
+  $('taskboard').innerHTML = list.slice(0, 8).map((a) => {
+    const st = STATEMAP(a);
+    return `<div class='task-card'>
+      <div class='task-av'>${esc((a.name || '?')[0])}<span class='dav-dot ${st.dot}'></span></div>
+      <div style='min-width:0'><div class='task-who'>${esc(a.name)}</div>
+        <div class='task-what ${st.wcls}'>${esc(st.txt)}</div></div>
+      <div class='task-state ${st.cls}'>${esc(st.state)}</div></div>`;
+  }).join('');
 }
 
 function sparkSvg(history) {
@@ -248,33 +229,34 @@ function bindTilt() {
   });
 }
 
-/* JARVIS line */
-function jarvis(cmd, t) {
+/* JARVIS line — fleet/ops focused (no trading PnL; that's the Trade page). */
+function jarvis(cmd, summary, agents) {
   const name = (cmd && cmd.greeting_name) || 'Sect Master';
   const hr = new Date().getHours(); const part = hr < 12 ? 'morning' : hr < 18 ? 'afternoon' : 'evening';
-  const goal = (cmd && cmd.monthly_goal) || 10000; const pct = Math.round((t.month / goal) * 100);
-  const opps = ((cmd && cmd.opportunities) || []).filter((o) => o.status === 'EXECUTE' || o.status === 'READY').length;
+  const s = summary || {};
+  const online = Number(s.online_devices || 0), total = Number(s.total_devices || 0);
+  const warn = Number(s.projects_with_warnings_errors || 0);
+  const active = (agents || []).filter((a) => a.current_task || a.status === 'working' || a.status === 'queued').length;
   const bits = [`Good ${part}, <b>${esc(name)}</b>.`];
-  if (t.today) bits.push(`Today's PnL is <b>${money(t.today)}</b>.`);
-  if (opps) bits.push(`<b>${opps}</b> opportunit${opps === 1 ? 'y requires' : 'ies require'} review.`);
-  if (pct) bits.push(`Monthly goal <b>${pct}%</b> complete.`);
+  if (total) bits.push(`<b>${online}/${total}</b> hosts online.`);
+  if (warn) bits.push(`<b>${warn}</b> realm${warn === 1 ? '' : 's'} need${warn === 1 ? 's' : ''} attention.`);
+  if (active) bits.push(`<b>${active}</b> disciple${active === 1 ? '' : 's'} on task.`);
+  else bits.push(`Issue a decree to command the fleet.`);
   $('jarvis').innerHTML = bits.join(' ');
 }
 
 /* ============================ orchestrate ============================ */
+let LAST_AGENTS = [];
 async function refresh() {
   const [ov, ag, cmd] = await Promise.all([api('/api/overview'), api('/api/agents'), api('/api/command')]);
   if (window.__needAuth && !ov) { $('jarvis').innerHTML = `Authentication required — <a href='/console' style='color:var(--violet)'>sign in</a>.`; return; }
   const projects = (ov && ov.projects) || [];
-  let t = tradingFromProjects(projects);
-  if (cmd && cmd.demo && cmd.pnl) {   // vivid demo figures override the (empty) live ones
-    const d = cmd.pnl, tr = cmd.trading || {};
-    t = { today: d.today, week: d.week, month: d.month, realized: d.total - (cmd.account_base || 0),
-          exposure: tr.exposure || 0, positions: tr.positions || 0, trades: tr.trades_today || 0,
-          fillRate: (tr.win_rate || 0) / 100, botCount: tr.bots || t.botCount, demoPF: tr.profit_factor };
-  }
-  renderHero(t, cmd); renderMetrics(t, cmd, (ov && ov.summary) || {}); renderOpps(cmd);
-  renderProjects(projects); renderEvents(cmd); renderDisciples((ag && ag.agents) || []); jarvis(cmd, t);
+  const summary = (ov && ov.summary) || {};
+  const agents = (ag && ag.agents) || [];
+  LAST_AGENTS = agents;
+  renderFleetStats(summary, agents); renderTaskboard(agents);
+  renderProjects(projects); renderEvents(cmd); renderDisciples(agents); jarvis(cmd, summary, agents);
+  if (typeof renderDecreeParts === 'function') renderDecreeParts();   // keep participant picker in sync
 }
 
 /* nav */
@@ -290,6 +272,138 @@ $('rail').querySelectorAll('.nav-item').forEach((n) => {
   n.onclick = go;
   n.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
 });
+
+/* ============================ Heavenly Decree ============================ *
+ * Ask  -> stream the Ops Copilot answer token-by-token (/api/copilot/stream),
+ *         render suggested actions as buttons (route to /api/action/...).
+ * Command -> dispatch a mission (/api/comms/mission) with the typed text as goal,
+ *         optional participant picker (empty = all disciples). Shows a toast.        */
+let DECREE_MODE = 'ask';          // 'ask' | 'command'
+const DECREE_PARTS = new Set();   // chosen participant names (command mode)
+
+function decreeToast(msg) {
+  let el = document.getElementById('toast'); if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.add('show'); clearTimeout(el.__t); el.__t = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function setDecreeMode(mode) {
+  DECREE_MODE = mode;
+  const askB = $('decree-ask'), cmdB = $('decree-cmd');
+  askB.classList.toggle('on', mode === 'ask'); askB.setAttribute('aria-selected', mode === 'ask');
+  cmdB.classList.toggle('on', mode === 'command'); cmdB.setAttribute('aria-selected', mode === 'command');
+  $('decree-send').textContent = mode === 'ask' ? 'Ask' : 'Decree';
+  $('decree-input').placeholder = mode === 'ask'
+    ? 'e.g. what needs attention across the fleet?'
+    : 'e.g. audit every realm and report the weakest bot';
+  renderDecreeParts();
+}
+
+function renderDecreeParts() {
+  const box = $('decree-parts');
+  if (DECREE_MODE !== 'command' || !LAST_AGENTS.length) { box.hidden = true; box.innerHTML = ''; return; }
+  box.hidden = false;
+  // prune chosen names that no longer exist
+  const names = new Set(LAST_AGENTS.map((a) => a.name));
+  [...DECREE_PARTS].forEach((n) => { if (!names.has(n)) DECREE_PARTS.delete(n); });
+  box.innerHTML = `<span class='dp-lbl'>To</span>`
+    + LAST_AGENTS.map((a) => `<span class='dp-chip ${DECREE_PARTS.has(a.name) ? 'on' : ''}' data-part='${esc(a.name)}' role='button' tabindex='0'>${esc(a.name)}</span>`).join('')
+    + `<span class='muted' style='font-size:11px;margin-left:4px'>${DECREE_PARTS.size ? '' : 'none selected = all disciples'}</span>`;
+  box.querySelectorAll('.dp-chip').forEach((c) => {
+    const toggle = () => { const n = c.dataset.part; DECREE_PARTS.has(n) ? DECREE_PARTS.delete(n) : DECREE_PARTS.add(n); renderDecreeParts(); };
+    c.onclick = toggle;
+    c.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
+  });
+}
+
+function decreeActionsHtml(actions) {
+  const acts = (actions || []).filter((a) => a && a.device && a.project && a.kind);
+  if (!acts.length) return '';
+  return `<div class='decree-actions'><span class='da-lbl'>Suggested:</span>`
+    + acts.map((a) => `<button class='cbtn' data-da-kind='${esc(a.kind)}' data-da-dev='${esc(a.device)}' data-da-proj='${esc(a.project)}'>${esc(a.label || a.kind)}</button>`).join(' ')
+    + `</div>`;
+}
+function bindDecreeActions(out) {
+  out.querySelectorAll('[data-da-kind]').forEach((b) => b.onclick = async () => {
+    if (!confirm(`${b.textContent} on ${b.dataset.daProj}?`)) return;
+    b.disabled = true; const orig = b.textContent; b.textContent = 'Working…';
+    const r = await post(`/api/action/${encodeURIComponent(b.dataset.daDev)}/${encodeURIComponent(b.dataset.daProj)}/${encodeURIComponent(b.dataset.daKind)}`, {});
+    b.textContent = (r && !r.detail) ? 'Done ✓' : 'Failed';
+    if (r && !r.detail) debounce(refresh, 500); else b.disabled = false;
+  });
+}
+
+async function decreeAsk(question) {
+  const out = $('decree-out');
+  out.innerHTML = `<div class='decree-answer streaming' id='decree-ans'></div>`;
+  const ansEl = $('decree-ans');
+  let answer = '', meta = null, errored = null;
+  try {
+    const resp = await fetch('/api/copilot/stream', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ question }),
+    });
+    if (!resp.ok || !resp.body) throw new Error('no stream');
+    const reader = resp.body.getReader(); const dec = new TextDecoder(); let buf = '';
+    for (;;) {
+      const { value, done } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf('\n\n')) >= 0) {
+        const line = buf.slice(0, nl).trim(); buf = buf.slice(nl + 2);
+        if (!line.startsWith('data:')) continue;
+        let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch (_) { continue; }
+        if (ev.type === 'meta') meta = ev;
+        else if (ev.type === 'token') { answer += ev.text; ansEl.textContent = answer; }
+        else if (ev.type === 'error') { errored = ev.error; if (ev.answer && !answer) { answer = ev.answer; ansEl.textContent = answer; } }
+      }
+    }
+  } catch (_) {
+    const r = await post('/api/copilot', { question });
+    if (!r) { out.innerHTML = `<div class='decree-note err'>The oracle is silent — copilot unavailable.</div>`; return; }
+    answer = r.answer || ''; meta = { actions: r.actions, member: r.member }; errored = r.error;
+  }
+  ansEl.classList.remove('streaming');
+  // Graceful "no AI member configured" handling.
+  if ((errored === 'no_backend' || (errored && /no.?backend/i.test(errored))) && !answer) {
+    out.innerHTML = `<div class='decree-note'>No AI member is configured yet. Recruit a disciple with an AI backend in the <a href='/chamber' style='color:var(--violet)'>Chamber</a> to receive answers.</div>`;
+    return;
+  }
+  if (!answer && errored) { out.innerHTML = `<div class='decree-note err'>${esc(errored)}</div>`; return; }
+  out.innerHTML = `<div class='decree-answer'>${esc(answer)}</div>`
+    + decreeActionsHtml(meta && meta.actions)
+    + ((meta && meta.member) ? `<div class='decree-by'>— ${esc(meta.member)}</div>` : '');
+  bindDecreeActions(out);
+}
+
+async function decreeCommand(goal) {
+  const out = $('decree-out');
+  out.innerHTML = `<div class='decree-note'>Dispatching decree…</div>`;
+  const participants = [...DECREE_PARTS];
+  const r = await post('/api/comms/mission', { goal, participants, rounds: 1 });
+  if (!r || r.detail || r.error) {
+    out.innerHTML = `<div class='decree-note err'>${esc((r && (r.detail || r.error)) || 'Could not dispatch the decree (operator role required).')}</div>`;
+    return;
+  }
+  const who = participants.length ? participants.join(', ') : 'all disciples';
+  out.innerHTML = `<div class='decree-note'>⚔ Decree issued to <b>${esc(who)}</b>. The mission is underway.</div>`;
+  decreeToast('Decree dispatched');
+  $('decree-input').value = '';
+  debounce(refresh, 600);
+}
+
+function submitDecree() {
+  const inp = $('decree-input'); const text = (inp.value || '').trim();
+  if (!text) return;
+  if (DECREE_MODE === 'ask') decreeAsk(text); else decreeCommand(text);
+}
+
+(function mountDecree() {
+  $('decree-ask').onclick = () => setDecreeMode('ask');
+  $('decree-cmd').onclick = () => setDecreeMode('command');
+  $('decree-send').onclick = submitDecree;
+  $('decree-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); submitDecree(); } });
+  setDecreeMode('ask');
+})();
 
 /* clock */
 setInterval(() => { $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);

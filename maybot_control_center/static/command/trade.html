@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/command.css">
   <script src="/pwa.js" defer></script>
 </head>
-<body>
+<body class="trade-floor">
   <a class="skip-link" href="#main-content">Skip to content</a>
   <canvas id="scene-canvas" class="scene-canvas" aria-hidden="true"></canvas>
   <div class="vignette" aria-hidden="true"></div>
@@ -21,30 +21,44 @@
 
     <div class="center" id="main-content" role="main">
       <div class="topbar">
-        <div class="brand"><span class="mark">📈</span> Trade Center</div>
+        <div class="brand"><span class="mark">📈</span> Trading Floor</div>
         <div class="jarvis" id="jarvis">The trading floor.</div>
         <div class="live-chip" id="live-chip" hidden></div>
         <div class="clock" id="clock"></div>
       </div>
 
-      <section class="hero glass rise" id="hero"></section>
+      <section class="ticker rise" id="ticker" aria-label="Bot P&amp;L ticker" hidden>
+        <div class="ticker-track" id="ticker-track"></div>
+      </section>
+
+      <section class="pnl-hero glass rise" id="hero"></section>
+
+      <section class="chart-wrap glass rise d2" aria-label="Equity curve">
+        <div class="chart-head">
+          <div class="panel-title">Equity Curve</div>
+          <div class="chart-pick" id="chart-pick"></div>
+        </div>
+        <div id="equity-chart"></div>
+      </section>
+
+      <div class="section-h"><div class="panel-title">Per-Bot Performance</div><div class="muted" id="spark-note"></div></div>
+      <section class="glass rise d2" style="padding:16px">
+        <div class="spark-grid" id="spark-grid"></div>
+      </section>
+
+      <div class="section-h"><div class="panel-title">Open Positions</div><div class="muted" id="pos-count"></div></div>
+      <section class="glass rise d2" style="padding:8px 6px"><div class="postable" id="positions"></div></section>
+
+      <div class="section-h"><div class="panel-title">Risk &amp; Control</div><div class="muted" id="risk-note"></div></div>
+      <section class="glass rise d2 risk-panel" id="risk-panel"></section>
+
+      <div class="section-h"><div class="panel-title">Active Opportunities</div><div class="muted" id="opp-count"></div></div>
+      <section class="opps glass rise d3" id="opps" style="padding:12px"></section>
 
       <section class="glass rise d2 advisor-wrap" id="advisor-wrap" hidden>
         <div class="panel-title">Sect Advisor <span class="adv-src" id="adv-src"></span></div>
         <div class="advisor" id="advisor"></div>
       </section>
-
-      <div class="section-h"><div class="panel-title">Risk &amp; Control</div><div class="muted" id="risk-note"></div></div>
-      <section class="glass rise d2 risk-panel" id="risk-panel"></section>
-
-      <div class="section-h"><div class="panel-title">Trading Command Center</div></div>
-      <div class="metrics" id="metrics"></div>
-
-      <div class="section-h"><div class="panel-title">Open Positions</div><div class="muted" id="pos-count"></div></div>
-      <section class="glass rise d2" style="padding:8px 6px"><div class="postable" id="positions"></div></section>
-
-      <div class="section-h"><div class="panel-title">Active Opportunities</div><div class="muted" id="opp-count"></div></div>
-      <section class="opps glass rise d3" id="opps" style="padding:12px"></section>
     </div>
 
     <aside class="right">

@@ -1,4 +1,4 @@
-import { $, api, post, esc, money, timeAgo, mountRail, initAccount, liveStream, debounce, countUp, bindTilt, starfield } from '/lib.js';
+import { $, api, post, esc, money, timeAgo, mountRail, initAccount, liveStream, debounce, countUp, starfield } from '/lib.js';
 
 mountRail('trade');
 initAccount();
@@ -17,34 +17,126 @@ function tradingFromProjects(projects) {
   return { today, week, month, realized, exposure, positions, trades, fillRate: fillN ? fillSum / fillN : null, botCount: bots.length };
 }
 
+/* P&L-forward hero: big total PnL today / this week, plus key stats at a glance. */
 function renderHero(t, cmd) {
-  const total = ((cmd && cmd.account_base) || 0) + t.realized;
-  const cell = (lbl, val, cls, big) => `<div class='hero-cell'><div class='hero-lbl'>${lbl}</div>
-    <div class='hero-val ${cls} ${big ? 'big' : ''}' data-num='${val}'>—</div></div>`;
-  $('hero').innerHTML = `<div class='hero-grid'>` +
-    cell('Today', t.today, t.today >= 0 ? 'pos' : 'neg') +
-    cell('This Week', t.week, t.week >= 0 ? 'pos' : 'neg') +
-    cell('This Month', t.month, t.month >= 0 ? 'pos' : 'neg') +
-    cell('Total Value', total, '', true) + `</div>`;
-  $('hero').querySelectorAll('.hero-val').forEach((el, i) =>
-    countUp(el, Number(el.dataset.num), i === 3 ? (x) => `$${x.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : (x) => money(x)));
-}
-
-function renderMetrics(t, cmd) {
   const acct = ((cmd && cmd.account_base) || 0) + t.realized;
   const winRate = t.fillRate != null ? Math.round(t.fillRate * 100) : null;
-  const pf = t.demoPF != null ? t.demoPF : (t.realized > 0 ? (1 + Math.min(3, Math.abs(t.realized) / Math.max(1, Math.abs(t.exposure) || 1000))) : null);
-  const card = (lbl, val, sub, accent) => `<div class='metric-card glass ${accent || ''}' data-tilt>
-    <div class='metric-lbl'>${lbl}</div><div class='metric-val'>${val}</div>${sub ? `<div class='metric-sub'>${sub}</div>` : ''}</div>`;
-  $('metrics').innerHTML = [
-    card('Account Value', `$${acct.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 'capital deployed', 'accent-azure'),
-    card('Open Exposure', money(t.exposure).replace('+', ''), `${t.botCount} bot${t.botCount === 1 ? '' : 's'} active`, 'accent-gold'),
-    card('Open Positions', t.positions, 'live on the book', ''),
-    card('Trades Today', t.trades, 'executed', ''),
-    card('Win Rate', winRate != null ? `${winRate}%` : '—', 'fill rate', 'accent-jade'),
-    card('Profit Factor', pf != null ? pf.toFixed(2) : '—', t.realized >= 0 ? 'positive' : 'drawdown', t.realized >= 0 ? 'accent-jade' : 'accent-crimson'),
-  ].join('');
-  bindTilt();
+  const cls = (v) => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+  $('hero').innerHTML = `
+    <div class='ph-main'>
+      <div class='ph-lbl'>Profit · Today</div>
+      <div class='ph-big ${cls(t.today)}' data-num='${t.today}'>—</div>
+    </div>
+    <div class='ph-cell'><div class='ph-lbl'>This Week</div><div class='ph-val ${cls(t.week)}' data-num='${t.week}'>—</div>
+      <div class='metric-sub'>${t.botCount} bot${t.botCount === 1 ? '' : 's'} · ${t.positions} open</div></div>
+    <div class='ph-cell'><div class='ph-lbl'>Account Value</div>
+      <div class='ph-val'>$${acct.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+      <div class='metric-sub'>${t.trades} trades today${winRate != null ? ` · ${winRate}% win` : ''}</div></div>`;
+  const big = $('hero').querySelector('.ph-big');
+  if (big) countUp(big, Number(big.dataset.num), (x) => money(x));
+  $('hero').querySelectorAll('.ph-val[data-num]').forEach((el) => countUp(el, Number(el.dataset.num), (x) => money(x)));
+}
+
+/* ---- scrolling ticker tape: each bot's name + today PnL, looping ---- */
+function renderTicker(cmd) {
+  const bots = (cmd && cmd.bots) || [];
+  const tk = $('ticker'), track = $('ticker-track');
+  if (!bots.length) { tk.hidden = true; track.innerHTML = ''; return; }
+  tk.hidden = false;
+  const item = (b) => {
+    const v = Number(b.pnl_today) || 0; const pos = v >= 0;
+    return `<span class='tk-item'><span class='tk-name'>${esc(b.name)}</span>
+      <span class='tk-arrow ${pos ? 'pos' : 'neg'}'>${pos ? '▲' : '▼'}</span>
+      <span class='tk-pnl ${pos ? 'pos' : 'neg'}'>${money(v)}</span></span>`;
+  };
+  const row = bots.map(item).join('');
+  // duplicate the sequence so the -50% keyframe loops seamlessly
+  track.innerHTML = row + row;
+}
+
+/* ---- dependency-free SVG line chart for the equity / PnL curve ---- */
+function lineChartSvg(series, opts) {
+  const o = opts || {};
+  const pts = (series || []).map(Number).filter(Number.isFinite);
+  const W = 600, H = 200, padX = 8, padTop = 12, padBot = 18;
+  if (pts.length < 2) return null;
+  const min = Math.min(...pts, 0), max = Math.max(...pts, 0), rng = (max - min) || 1;
+  const x = (i) => padX + (i / (pts.length - 1)) * (W - padX * 2);
+  const y = (v) => padTop + (1 - (v - min) / rng) * (H - padTop - padBot);
+  const line = pts.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const area = `${x(0).toFixed(1)},${y(min).toFixed(1)} ${line} ${x(pts.length - 1).toFixed(1)},${y(min).toFixed(1)}`;
+  const up = pts[pts.length - 1] >= pts[0];
+  const stroke = up ? 'var(--jade)' : 'var(--crimson)';
+  const zeroY = y(0).toFixed(1);
+  return `<svg class='equity-svg' viewBox='0 0 ${W} ${H}' preserveAspectRatio='none' role='img'
+      aria-label='${esc(o.label || 'equity curve')}'>
+    <defs><linearGradient id='eqfill' x1='0' y1='0' x2='0' y2='1'>
+      <stop offset='0%' stop-color='${up ? 'rgba(52,211,153,.28)' : 'rgba(251,94,126,.24)'}'/>
+      <stop offset='100%' stop-color='rgba(52,211,153,0)'/></linearGradient></defs>
+    <line x1='${padX}' y1='${zeroY}' x2='${W - padX}' y2='${zeroY}' stroke='rgba(150,160,210,.22)' stroke-width='1' stroke-dasharray='3 4'/>
+    <polygon points='${area}' fill='url(#eqfill)'/>
+    <polyline points='${line}' fill='none' stroke='${stroke}' stroke-width='2' vector-effect='non-scaling-stroke'/>
+  </svg>`;
+}
+
+/* Build a cumulative-PnL series from a project's history (or pnl points). */
+function cumulativeSeries(history) {
+  const vals = (history || []).map((h) => Number(h && (h.pnl ?? h.profit_today ?? h.value))).filter(Number.isFinite);
+  return vals;   // history pnl is already a running figure; plot it directly
+}
+
+let CHART_SEL = '__all__';   // '__all__' or a bot/project name
+function renderEquityChart(projects) {
+  const bots = (projects || []).filter((p) => p.type === 'trading_bot');
+  const box = $('equity-chart'), pick = $('chart-pick');
+  // picker: All + each bot with usable history
+  const withHist = bots.filter((b) => (b.history || []).length >= 2);
+  pick.innerHTML = [`<button data-sel='__all__' class='${CHART_SEL === '__all__' ? 'on' : ''}'>All bots</button>`]
+    .concat(withHist.map((b) => `<button data-sel='${esc(b.name)}' class='${CHART_SEL === b.name ? 'on' : ''}'>${esc(b.name)}</button>`))
+    .join('');
+  pick.querySelectorAll('button').forEach((b) => b.onclick = () => { CHART_SEL = b.dataset.sel; renderEquityChart(projects); });
+
+  let series = [], label = 'aggregate equity';
+  if (CHART_SEL === '__all__') {
+    // aggregate: sum cumulative pnl across bots at each shared index
+    const seqs = withHist.map((b) => cumulativeSeries(b.history));
+    const n = Math.max(0, ...seqs.map((s) => s.length));
+    for (let i = 0; i < n; i++) series.push(seqs.reduce((acc, s) => acc + (s[Math.min(i, s.length - 1)] || 0), 0));
+  } else {
+    const b = bots.find((x) => x.name === CHART_SEL);
+    series = cumulativeSeries(b && b.history); label = `${CHART_SEL} equity`;
+  }
+  const svg = lineChartSvg(series, { label });
+  box.innerHTML = svg || `<div class='equity-empty'>Not enough history yet — the curve appears as bots report PnL over time.</div>`;
+}
+
+/* per-bot sparkline grid */
+function botSpark(history) {
+  const pts = (history || []).map((h) => Number(h && (h.pnl ?? h.profit_today ?? h.value))).filter(Number.isFinite);
+  if (pts.length < 2) return '';
+  const W = 160, H = 34, min = Math.min(...pts), max = Math.max(...pts), rng = (max - min) || 1;
+  const coords = pts.map((v, i) => `${(i / (pts.length - 1) * W).toFixed(1)},${(H - 3 - ((v - min) / rng) * (H - 6)).toFixed(1)}`).join(' ');
+  const up = pts[pts.length - 1] >= pts[0];
+  return `<svg viewBox='0 0 ${W} ${H}' preserveAspectRatio='none'><polyline points='${coords}' fill='none'
+    stroke='${up ? 'var(--jade)' : 'var(--crimson)'}' stroke-width='1.5' vector-effect='non-scaling-stroke'/></svg>`;
+}
+function renderSparkGrid(projects, cmd) {
+  const bots = (projects || []).filter((p) => p.type === 'trading_bot');
+  // demo path: command.bots carries today PnL when overview has none
+  const cmdBots = {}; ((cmd && cmd.bots) || []).forEach((b) => { cmdBots[b.name] = b; });
+  $('spark-note').textContent = bots.length ? `${bots.length} bot${bots.length === 1 ? '' : 's'}` : '';
+  if (!bots.length) { $('spark-grid').innerHTML = `<div class='muted' style='padding:6px'>No trading bots reporting yet.</div>`; return; }
+  $('spark-grid').innerHTML = bots.map((b) => {
+    const m = b.metrics || {};
+    let pnl = Number(m.profit_today);
+    if (!Number.isFinite(pnl) && cmdBots[b.name]) pnl = Number(cmdBots[b.name].pnl_today);
+    const has = Number.isFinite(pnl); const pos = has && pnl >= 0;
+    const spark = botSpark(b.history);
+    return `<div class='spark-card'>
+      <div class='sc-top'><span class='sc-name'>${esc(b.name)}</span>
+        ${has ? `<span class='sc-pnl ${pos ? 'pos' : 'neg'}'>${money(pnl)}</span>` : `<span class='muted' style='font-size:11px'>${esc(b.status || '—')}</span>`}</div>
+      ${spark || `<div class='sc-empty'>history pending…</div>`}</div>`;
+  }).join('');
 }
 
 function renderPositions(cmd) {
@@ -178,14 +270,16 @@ function jarvis(cmd, t) {
 async function refresh() {
   const [ov, cmd] = await Promise.all([api('/api/overview'), api('/api/command')]);
   if (window.__needAuth && !ov && !cmd) { $('jarvis').innerHTML = `Authentication required — <a href='/console' style='color:var(--violet)'>sign in</a>.`; return; }
-  let t = tradingFromProjects((ov && ov.projects) || []);
+  const projects = (ov && ov.projects) || [];
+  let t = tradingFromProjects(projects);
   if (cmd && cmd.demo && cmd.pnl) {
     const d = cmd.pnl, tr = cmd.trading || {};
     t = { today: d.today, week: d.week, month: d.month, realized: d.total - (cmd.account_base || 0),
           exposure: tr.exposure || 0, positions: tr.positions || 0, trades: tr.trades_today || 0,
           fillRate: (tr.win_rate || 0) / 100, botCount: tr.bots || t.botCount, demoPF: tr.profit_factor };
   }
-  renderHero(t, cmd); renderMetrics(t, cmd); renderPositions(cmd); renderOpps(cmd); renderBots(cmd); renderEvents(cmd); jarvis(cmd, t);
+  renderHero(t, cmd); renderTicker(cmd); renderEquityChart(projects); renderSparkGrid(projects, cmd);
+  renderPositions(cmd); renderOpps(cmd); renderBots(cmd); renderEvents(cmd); jarvis(cmd, t);
   renderLive(cmd); applySignals(cmd); renderRisk(cmd);
 }
 
