@@ -34,7 +34,6 @@ from . import scheduler
 from . import governance
 from . import runbooks
 from . import maintenance
-from . import slo
 from . import errorbudget
 from . import meridians
 from . import talismans
@@ -91,8 +90,7 @@ from . import safemode
 safemode.load_persisted()   # restore the panic-button state across restarts
 
 _SAFE_NAME = deps.SAFE_NAME
-# A silence target: "*", "device:*", or "device:project".
-_SAFE_TARGET = re.compile(r'^(\*|[a-zA-Z0-9_\-\.]{1,128}:(\*|[a-zA-Z0-9_\-\.]{1,128}))$')
+_SAFE_TARGET = deps.SAFE_TARGET
 _VALID_LEVELS = {"ALL", "ERROR", "WARNING", "INFO"}
 _VALID_ACTIONS = {"start", "stop", "run-tests"}
 _ACTION_TIMEOUTS = {"start": 15, "stop": 15, "run-tests": 330}
@@ -767,53 +765,9 @@ def stream(token: str = Query(default="")):
     return StreamingResponse(gen(), media_type="text/event-stream")
 
 
-# ---- SLO / uptime ----
-@app.get("/api/slo")
-def slo_status(hours: int = Query(default=0), x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    return slo.snapshot(hours if hours > 0 else None)
-
-
-# ---- Maintenance windows / alert silencing ----
-@app.get("/api/maintenance")
-def maintenance_status(x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    return maintenance.snapshot()
-
-
-class SilenceIn(BaseModel):
-    target: str
-    minutes: float = 60.0
-    reason: str = ""
-
-
-@app.post("/api/maintenance/silence")
-def maintenance_silence(body: SilenceIn, x_control_token: str = Header(default="")):
-    _check_operator(x_control_token)
-    target = (body.target or "").strip()
-    if not _SAFE_TARGET.match(target):
-        raise HTTPException(400, "invalid target; use '*', 'device:*', or 'device:project'")
-    if body.minutes > 60 * 24 * 30:
-        raise HTTPException(400, "minutes too large (max 30 days)")
-    return maintenance.silence(target, body.minutes, body.reason)
-
-
-class UnsilenceIn(BaseModel):
-    target: str
-
-
-@app.post("/api/maintenance/unsilence")
-def maintenance_unsilence(body: UnsilenceIn, x_control_token: str = Header(default="")):
-    _check_operator(x_control_token)
-    return {"unsilenced": maintenance.unsilence((body.target or "").strip())}
-
-
-# ---- Error budgets & deploy-freeze (Karmic Debt / Heavenly Decree) ----
-@app.get("/api/errorbudget")
-def errorbudget_status(hours: int = Query(default=0), x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    return errorbudget.snapshot(hours if hours > 0 else None)
-
+# Reliability / SLO routes -> routers/reliability.py
+from .routers import reliability as _reliability_router
+app.include_router(_reliability_router.router)
 
 # ---- Dependency-aware alerting (Meridian Map) ----
 @app.get("/api/meridians")
@@ -852,6 +806,10 @@ def oaths_claim(body: OathIn, x_control_token: str = Header(default="")):
     if not _SAFE_NAME.match(who):
         raise HTTPException(400, "invalid claimant name")
     return oaths.claim(target, who, body.note)
+
+
+class UnsilenceIn(BaseModel):
+    target: str
 
 
 @app.post("/api/oaths/release")

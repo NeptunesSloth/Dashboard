@@ -17,6 +17,8 @@ from .config import all_devices
 
 # A safe device/project name component.
 SAFE_NAME = re.compile(r'^[a-zA-Z0-9_\-\.]{1,128}$')
+# A silence/alert target: "*", "device:*", or "device:project".
+SAFE_TARGET = re.compile(r'^(\*|[a-zA-Z0-9_\-\.]{1,128}:(\*|[a-zA-Z0-9_\-\.]{1,128}))$')
 
 
 def role(token: str) -> str:
