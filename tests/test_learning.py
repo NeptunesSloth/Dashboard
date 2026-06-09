@@ -306,6 +306,35 @@ def test_reminder_dedupes_per_day(monkeypatch):
     assert r2["sent"] is False and len(sent) == 1
 
 
+# ---- streaming tutor ----
+def test_ask_tutor_stream_emits_tokens_and_persists(monkeypatch):
+    monkeypatch.setattr(learning, "_backend_member", lambda: {"name": "Sage", "provider": "claude"})
+
+    def fake_stream(member, messages):
+        for piece in ["Bon", "jour", "!"]:
+            yield piece
+
+    events = list(learning.ask_tutor_stream("french", "How do I say hello?", chat_stream=fake_stream))
+    assert events[0]["type"] == "meta" and events[0]["member"] == "Sage"
+    assert "".join(e["text"] for e in events if e["type"] == "token") == "Bonjour!"
+    assert events[-1]["type"] == "done"
+    # full reply persisted to the track's chat history
+    hist = learning.get_chat("french")["history"]
+    assert hist[-1]["role"] == "assistant" and hist[-1]["content"] == "Bonjour!"
+
+
+def test_ask_tutor_stream_no_backend(monkeypatch):
+    monkeypatch.setattr(learning, "_backend_member", lambda: None)
+    events = list(learning.ask_tutor_stream("french", "hi"))
+    assert any(e.get("error") == "no_backend" for e in events)
+
+
+def test_ask_tutor_stream_empty_output_errors(monkeypatch):
+    monkeypatch.setattr(learning, "_backend_member", lambda: {"name": "Sage", "provider": "claude"})
+    events = list(learning.ask_tutor_stream("french", "hi", chat_stream=lambda m, msgs: iter(())))
+    assert any(e["type"] == "error" for e in events)
+
+
 # ---- store round-trip ----
 def test_state_persists_round_trip():
     store._reset_for_tests(":memory:")

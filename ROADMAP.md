@@ -26,8 +26,10 @@ Safe, non-conflicting wins that don't require architectural changes:
 - 🟡 Type checking (`mypy`) once the code is router-split.
 
 ## 🔒 Security
-- 🔴 **Real user auth** — per-user accounts (hashed passwords or OAuth/SSO),
-  sessions, per-user identity (also fixes the single `scholar` learner key).
+- ✅ **Password user auth** — already present in `authz.py`: PBKDF2-hashed
+  passwords, `users.yaml` accounts + roles, login sessions with expiry, and TOTP
+  2FA. Remaining: an OAuth/SSO option, and per-user identity for the Learning
+  Center (the single `scholar` learner key).
 - 🔴 **mTLS / signed requests** between control center and agents (they execute
   commands).
 - 🟡 **Secret management** — encrypted-at-rest store + rotation (keys are in env /
@@ -45,7 +47,9 @@ Safe, non-conflicting wins that don't require architectural changes:
 - 🟢 Scheduled, encrypted, offsite backups + restore testing.
 
 ## 🤖 Agent / LLM platform
-- 🔴 **Streaming responses** (chat + lessons feel instant).
+- ✅ **Streaming responses** — `agents.stream_chat` engine, applied to the Ops
+  Copilot and the Learning tutor (token-by-token). Remaining: stream generated
+  lessons too.
 - 🔴 **Cost budgets & hard caps with alerts** per agent.
 - 🟡 Model fallback/routing + retry-with-backoff; context-window management.
 - 🟡 Output guardrails/moderation; an eval harness for agent quality.

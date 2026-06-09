@@ -420,6 +420,25 @@ def get_chat(track_id: str) -> dict:
         return {"history": list((_g().get("chats") or {}).get(track_id, []))}
 
 
+def _tutor_user_prompt(track: dict, question: str, history) -> str:
+    convo = ""
+    for turn in (history or [])[-6:]:
+        role = "You" if turn.get("role") == "user" else "Tutor"
+        convo += f"{role}: {turn.get('content', '')}\n"
+    return (f"Track: {track.get('title')}\n\nLearner profile:\n{_profile_brief()}\n\n"
+            + (f"Recent conversation:\n{convo}\n" if convo else "")
+            + f"Learner asks: {question}")
+
+
+def _persist_chat(track_id: str, question: str, answer: str) -> None:
+    with _lock:
+        log = _g().setdefault("chats", {}).setdefault(track_id, [])
+        log.append({"role": "user", "content": question})
+        log.append({"role": "assistant", "content": answer})
+        del log[:-40]   # keep last 40 turns
+        _save()
+
+
 def ask_tutor(track_id: str, question: str, history=None, chat=None) -> dict:
     question = (question or "").strip()
     if not question:
@@ -428,27 +447,52 @@ def ask_tutor(track_id: str, question: str, history=None, chat=None) -> dict:
     member = _backend_member()
     if not member:
         return {"answer": "", "member": None, "error": "no_backend"}
-    convo = ""
-    for turn in (history or [])[-6:]:
-        role = "You" if turn.get("role") == "user" else "Tutor"
-        convo += f"{role}: {turn.get('content', '')}\n"
-    user = (f"Track: {track.get('title')}\n\nLearner profile:\n{_profile_brief()}\n\n"
-            + (f"Recent conversation:\n{convo}\n" if convo else "")
-            + f"Learner asks: {question}")
+    user = _tutor_user_prompt(track, question, history)
     ok, text, err = _call(member, SYSTEM_TUTOR, user, chat, max_tokens=700, temperature=0.5)
     if not ok:
         return {"answer": "", "member": member.get("name"), "error": err or "no response"}
     answer = (text or "").strip()
-    tid = _track(track_id) and track_id
-    if tid:
-        with _lock:
-            log = _g().setdefault("chats", {}).setdefault(tid, [])
-            log.append({"role": "user", "content": question})
-            log.append({"role": "assistant", "content": answer})
-            del log[:-40]   # keep last 40 turns
-            _save()
+    if _track(track_id):
+        _persist_chat(track_id, question, answer)
     _touch_streak()
     return {"answer": answer, "member": member.get("name"), "error": None}
+
+
+def ask_tutor_stream(track_id: str, question: str, history=None, chat_stream=None):
+    """Streaming tutor reply: yields ``meta`` -> ``token``* -> ``done``/``error``
+    event dicts, using the shared streaming engine. Persists the full reply to the
+    track's chat history on completion. ``chat_stream`` is injectable for tests."""
+    question = (question or "").strip()
+    if not question:
+        yield {"type": "error", "error": "empty question"}
+        return
+    track = _track(track_id) or {"title": "general study"}
+    member = _backend_member()
+    if not member:
+        yield {"type": "meta", "member": None}
+        yield {"type": "error", "error": "no_backend"}
+        return
+    yield {"type": "meta", "member": member.get("name")}
+    messages = [{"role": "system", "content": SYSTEM_TUTOR},
+                {"role": "user", "content": _tutor_user_prompt(track, question, history)}]
+    chat_stream = chat_stream or agents.stream_chat
+    answer = ""
+    try:
+        for chunk in chat_stream({**member, "max_tokens": 700, "temperature": 0.5}, messages):
+            if chunk:
+                answer += chunk
+                yield {"type": "token", "text": chunk}
+    except Exception as exc:
+        yield {"type": "error", "error": str(exc)}
+        return
+    answer = answer.strip()
+    if not answer:
+        yield {"type": "error", "error": "the tutor did not respond"}
+        return
+    if _track(track_id):
+        _persist_chat(track_id, question, answer)
+    _touch_streak()
+    yield {"type": "done"}
 
 
 # ---------------------------------------------------------------------------
