@@ -21,12 +21,10 @@ except Exception:  # pragma: no cover
 from . import history
 from . import agents
 from . import comms
-from . import memory
 from . import tools as tooling
 from . import store
 from . import settings as app_settings
 from . import events
-from . import autonomy
 from . import usage
 from . import authz
 from . import cultivation
@@ -794,111 +792,9 @@ def comms_mission(body: MissionIn, x_control_token: str = Header(default="")):
         raise HTTPException(400, str(exc))
 
 
-@app.get("/api/memory")
-def memory_status(x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    return {"enabled": memory.enabled(), "subdir": memory.SUBDIR}
-
-
-@app.get("/api/memory/search")
-def memory_search(q: str = Query(default=""), limit: int = Query(default=5), x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    return {"enabled": memory.enabled(), "results": memory.search(q, max(1, min(limit, 20)))}
-
-
-@app.get("/api/memory/note")
-def memory_note(path: str = Query(...), x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    if len(path) > 512:
-        raise HTTPException(400, "path too long")
-    content = memory.read_note(path)
-    if content is None:
-        raise HTTPException(404, "note not found")
-    return {"path": path, "content": content}
-
-
-class ToolRunIn(BaseModel):
-    tool: str
-    args: dict = {}
-
-
-@app.get("/api/tools")
-def tools_list(x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    return {"enabled": tooling.enabled(), "tools": tooling.tool_summaries(),
-            "calls": tooling.list_calls(), "autonomy": autonomy.status()}
-
-
-@app.get("/api/tools/audit")
-def tools_audit(x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    if store.enabled():
-        return {"persisted": True, "calls": store.load_tool_calls(500)}
-    return {"persisted": False, "calls": tooling.list_calls(200)}
-
-
-@app.post("/api/autonomy/pause")
-def autonomy_pause(x_control_token: str = Header(default="")):
-    _check_operator(x_control_token)
-    return autonomy.set_paused(True)
-
-
-@app.post("/api/autonomy/resume")
-def autonomy_resume(x_control_token: str = Header(default="")):
-    _check_operator(x_control_token)
-    return autonomy.set_paused(False)
-
-
-@app.post("/api/tools/run")
-def tools_run(body: ToolRunIn, x_control_token: str = Header(default="")):
-    _check_operator(x_control_token)
-    if not _SAFE_NAME.match(body.tool or ""):
-        raise HTTPException(400, "invalid tool name")
-    try:
-        call = tooling.request_tool("operator", body.tool, body.args)
-    except ValueError as exc:
-        raise HTTPException(400, str(exc))
-    # Operator both requests and approves — run it now if it's still pending.
-    if call.get("status") == "pending":
-        call = tooling.approve(call["id"])
-    return call
-
-
-@app.post("/api/tools/{call_id}/approve")
-def tools_approve(call_id: int, x_control_token: str = Header(default="")):
-    _check_operator(x_control_token)
-    try:
-        return tooling.approve(call_id)
-    except KeyError:
-        raise HTTPException(404, "call not found")
-
-
-@app.post("/api/tools/{call_id}/deny")
-def tools_deny(call_id: int, x_control_token: str = Header(default="")):
-    _check_operator(x_control_token)
-    try:
-        return tooling.deny(call_id)
-    except KeyError:
-        raise HTTPException(404, "call not found")
-
-
-@app.get("/api/usage")
-def usage_stats(x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    return usage.snapshot()
-
-
-@app.get("/api/usage/series")
-def usage_series(hours: int = Query(default=24), x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    return usage.series(max(1, min(hours, 336)))
-
-
-@app.get("/api/budget")
-def budget_stats(x_control_token: str = Header(default="")):
-    _check_token(x_control_token)
-    from . import budget
-    return budget.snapshot()
+# Agent-ops routes (memory / tools / autonomy / usage / budget) -> routers/agentops.py
+from .routers import agentops as _agentops_router
+app.include_router(_agentops_router.router)
 
 
 @app.get("/api/cultivation")
