@@ -14,6 +14,11 @@ default on), ``MAYBOT_SMTP_SSL`` (implicit TLS, default off).
 
 Telegram (both required): ``MAYBOT_TELEGRAM_TOKEN`` + ``MAYBOT_TELEGRAM_CHAT_ID``.
 
+PagerDuty (Events API v2): ``MAYBOT_PAGERDUTY_ROUTING_KEY`` — triggers an event
+with severity mapped from the alert level. Opsgenie: ``MAYBOT_OPSGENIE_API_KEY``
+(+ optional ``MAYBOT_OPSGENIE_REGION`` = ``eu``|``us``, default ``us``) — creates
+an alert with priority mapped from the level.
+
 Delivery uses ``requests`` when available, else the stdlib ``urllib``; every
 network call is wrapped so nothing thrown here escapes. Identical (title, body)
 notifications sent within a short window are de-duplicated.
@@ -65,6 +70,19 @@ def _telegram_cfg() -> tuple[str, str]:
             os.getenv("MAYBOT_TELEGRAM_CHAT_ID", "").strip())
 
 
+def _pagerduty_key() -> str:
+    return os.getenv("MAYBOT_PAGERDUTY_ROUTING_KEY", "").strip()
+
+
+def _opsgenie_key() -> str:
+    return os.getenv("MAYBOT_OPSGENIE_API_KEY", "").strip()
+
+
+def _opsgenie_region() -> str:
+    region = os.getenv("MAYBOT_OPSGENIE_REGION", "us").strip().lower()
+    return "eu" if region == "eu" else "us"
+
+
 def channels() -> list[str]:
     """Which channels are currently configured (by env)."""
     out: list[str] = []
@@ -79,6 +97,10 @@ def channels() -> list[str]:
     tok, chat = _telegram_cfg()
     if tok and chat:
         out.append("telegram")
+    if _pagerduty_key():
+        out.append("pagerduty")
+    if _opsgenie_key():
+        out.append("opsgenie")
     return out
 
 
@@ -151,6 +173,67 @@ def _send_telegram(text: str) -> bool:
     return _post(url, {"chat_id": chat_id, "text": text, "disable_web_page_preview": True})
 
 
+def _post_headers(url: str, payload: dict, headers: dict) -> bool:
+    """POST JSON to ``url`` with extra ``headers``. Like ``_post`` but lets a
+    channel attach auth headers (e.g. Opsgenie's ``Authorization: GenieKey``).
+    Returns True on apparent success; never raises."""
+    body = json.dumps(payload).encode("utf-8")
+    base = {"Content-Type": "application/json"}
+    base.update(headers)
+    try:
+        try:
+            import requests  # optional dependency
+        except Exception:
+            requests = None  # type: ignore
+
+        if requests is not None:
+            resp = requests.post(url, json=payload, headers=base, timeout=5)
+            return bool(getattr(resp, "ok", True))
+
+        req = urllib.request.Request(url, data=body, headers=base, method="POST")
+        with urllib.request.urlopen(req, timeout=5) as r:  # noqa: S310 (trusted alerting URLs)
+            return 200 <= getattr(r, "status", 200) < 300
+    except Exception:
+        return False
+
+
+# PagerDuty Events API v2 severity is one of critical/error/warning/info.
+_PAGERDUTY_SEVERITY = {"error": "error", "critical": "critical", "warning": "warning", "info": "info"}
+# Opsgenie alert priority is P1 (highest) .. P5 (lowest).
+_OPSGENIE_PRIORITY = {"error": "P1", "critical": "P1", "warning": "P3", "info": "P5"}
+
+
+def _send_pagerduty(title: str, body: str, level: str) -> bool:
+    """Trigger a PagerDuty Events API v2 event. Returns True on success."""
+    key = _pagerduty_key()
+    if not key:
+        return False
+    summary = f"{title}\n{body}".strip() if body else title
+    severity = _PAGERDUTY_SEVERITY.get((level or "info").strip().lower(), "info")
+    payload = {
+        "routing_key": key,
+        "event_action": "trigger",
+        "payload": {
+            "summary": summary[:1024],
+            "severity": severity,
+            "source": "maybot",
+        },
+    }
+    return _post("https://events.pagerduty.com/v2/enqueue", payload)
+
+
+def _send_opsgenie(title: str, body: str, level: str) -> bool:
+    """Create an Opsgenie alert. Returns True on success."""
+    key = _opsgenie_key()
+    if not key:
+        return False
+    host = "api.opsgenie.com" if _opsgenie_region() == "us" else "api.eu.opsgenie.com"
+    url = f"https://{host}/v2/alerts"
+    priority = _OPSGENIE_PRIORITY.get((level or "info").strip().lower(), "P5")
+    payload = {"message": title, "description": body, "priority": priority}
+    return _post_headers(url, payload, {"Authorization": f"GenieKey {key}"})
+
+
 def _deliver(title: str, body: str, level: str, kind: str) -> list[str]:
     """Fan the message out to every configured channel; return those delivered."""
     text = f"{title}\n{body}".strip() if body else title
@@ -174,6 +257,12 @@ def _deliver(title: str, body: str, level: str, kind: str) -> list[str]:
     tok, chat = _telegram_cfg()
     if tok and chat and _send_telegram(text):
         delivered.append("telegram")
+
+    if _pagerduty_key() and _send_pagerduty(title, body, level):
+        delivered.append("pagerduty")
+
+    if _opsgenie_key() and _send_opsgenie(title, body, level):
+        delivered.append("opsgenie")
 
     return delivered
 
