@@ -1,0 +1,64 @@
+{{- if .Values.agent.enabled }}
+# In-cluster agent DaemonSet (one per node). Disabled by default — agents
+# normally run on bot hosts, not in-cluster. See deploy/README.md.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "maybot.fullname" . }}-agent
+  labels:
+    {{- include "maybot.agent.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "maybot.agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "maybot.agent.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: agent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - uvicorn
+            - maybot_agent.app:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "{{ .Values.agent.port }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.agent.port }}
+          env:
+            - name: MAYBOT_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "maybot.secretName" . }}
+                  key: MAYBOT_API_TOKEN
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            {{- toYaml .Values.probes.liveness | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            {{- toYaml .Values.probes.readiness | nindent 12 }}
+          resources:
+            {{- toYaml .Values.agent.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+{{- end }}

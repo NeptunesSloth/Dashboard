@@ -1,0 +1,39 @@
+MayBot Control Center has been deployed.
+
+Release:   {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Replicas:  {{ .Values.replicaCount }} (keep this at 1 — in-memory state)
+
+1. Reach the control center:
+{{- if .Values.ingress.enabled }}
+   http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.host }}{{ .Values.ingress.path }}
+{{- else }}
+   No ingress is enabled. Port-forward to reach it locally:
+
+     kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "maybot.fullname" . }} 8200:{{ .Values.service.port }}
+
+   then open http://127.0.0.1:8200
+{{- end }}
+
+2. Health endpoint: /healthz  (used by the liveness/readiness probes).
+
+{{- if not .Values.secrets.existingSecret }}
+{{- if eq (.Values.secrets.data.MAYBOT_CONTROL_CENTER_TOKEN | toString) "" }}
+
+WARNING: MAYBOT_CONTROL_CENTER_TOKEN is empty. Set it before exposing the
+control center on any network. Generate one with:
+
+   python3 -c "import secrets; print(secrets.token_hex(32))"
+
+and pass it via:  --set secrets.data.MAYBOT_CONTROL_CENTER_TOKEN=...
+{{- end }}
+{{- if eq (.Values.secrets.data.MAYBOT_API_TOKEN | toString) "change-me" }}
+
+WARNING: MAYBOT_API_TOKEN is still "change-me". Set a real shared secret that
+matches each agent host's MAYBOT_API_TOKEN.
+{{- end }}
+{{- end }}
+
+3. Agents normally run on your bot hosts, not in this cluster. The in-cluster
+   agent DaemonSet is {{ if .Values.agent.enabled }}ENABLED{{ else }}disabled (agent.enabled=false){{ end }}.
+   See deploy/README.md.

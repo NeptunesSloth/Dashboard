@@ -1,0 +1,86 @@
+# ============================================================================
+#  Agent — OPTIONAL / EXAMPLE ONLY.
+#
+#  Agents monitor a *host*: they watch the bots and processes running on the
+#  machine they live on. In production they normally run ON EACH BOT HOST
+#  (e.g. via the docker-compose agent service or a systemd unit), NOT inside the
+#  cluster — an in-cluster pod can only see its own namespace, not your bot
+#  hosts. See deploy/README.md ("agents run on bot hosts").
+#
+#  This DaemonSet is provided for the case where your bots themselves run as
+#  workloads in THIS cluster and you want one agent per node to watch them. It
+#  is NOT included in kustomization.yaml by default — apply it explicitly:
+#      kubectl apply -f deploy/k8s/agent-daemonset.yaml
+#
+#  Each agent must share MAYBOT_API_TOKEN with the control center and be
+#  registered in devices.yaml (or self-register via MAYBOT_REGISTER_TOKEN).
+# ============================================================================
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: maybot-agent
+  labels:
+    app.kubernetes.io/name: maybot
+    app.kubernetes.io/component: agent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: maybot
+      app.kubernetes.io/component: agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: maybot
+        app.kubernetes.io/component: agent
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: agent
+          image: ghcr.io/neptunessloth/dashboard:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - uvicorn
+            - maybot_agent.app:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8100"
+          ports:
+            - name: http
+              containerPort: 8100
+          env:
+            - name: MAYBOT_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: maybot-secrets
+                  key: MAYBOT_API_TOKEN
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

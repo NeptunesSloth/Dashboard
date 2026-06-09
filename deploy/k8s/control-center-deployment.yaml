@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maybot-control-center
+  labels:
+    app.kubernetes.io/name: maybot
+    app.kubernetes.io/component: control-center
+spec:
+  # Single replica: the control center keeps in-memory state (sessions, fleet
+  # status). Running >1 replica needs the planned Redis-backed shared state.
+  # See deploy/README.md.
+  replicas: 1
+  strategy:
+    # Recreate avoids two pods contending for the ReadWriteOnce PVC / SQLite DB.
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: maybot
+      app.kubernetes.io/component: control-center
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: maybot
+        app.kubernetes.io/component: control-center
+    spec:
+      securityContext:
+        # The image's /data volume must be writable by this group. fsGroup makes
+        # the kubelet chown the mounted volume so a non-root user can write.
+        fsGroup: 1000
+      # initContainer runs as root only to fix ownership of a freshly-provisioned
+      # PV, then the app runs as non-root. Drop this block if your storage class
+      # already honours fsGroup (most do) — fsGroup alone is usually enough.
+      initContainers:
+        - name: fix-data-perms
+          image: busybox:1.36
+          command: ["sh", "-c", "chown -R 1000:1000 /data || true"]
+          securityContext:
+            runAsNonRoot: false
+            runAsUser: 0
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      containers:
+        - name: control-center
+          image: ghcr.io/neptunessloth/dashboard:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - uvicorn
+            - maybot_control_center.app:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8200"
+          ports:
+            - name: http
+              containerPort: 8200
+          envFrom:
+            - configMapRef:
+                name: maybot-control-center
+            - secretRef:
+                name: maybot-secrets
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            # The app writes to /data (a mounted volume), not to its rootfs.
+            readOnlyRootFilesystem: false
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: maybot-data
