@@ -12,6 +12,30 @@ Two pieces, both additive and default-safe:
   configured hosts/agents) plus a ``process_up`` gauge.
 * :func:`setup_logging` — when ``MAYBOT_JSON_LOGS`` is truthy, attaches a JSON
   formatter to the root logger (one object per line). Unset => no change.
+* :func:`setup_sentry` — opt-in Sentry error tracking. Default OFF: with no
+  ``MAYBOT_SENTRY_DSN`` set it is a complete no-op (no import, no behaviour
+  change). Called automatically from :func:`setup_logging`, so no wiring change
+  is needed in callers.
+
+Optional Sentry error tracking
+------------------------------
+Sentry is **optional** and **default-off**. The ``sentry-sdk`` package is
+intentionally NOT in ``requirements.txt``; install it only if you want it::
+
+    pip install sentry-sdk
+
+Then enable by setting these environment variables:
+
+* ``MAYBOT_SENTRY_DSN`` — the Sentry DSN. Unset => Sentry is completely off
+  (no import, no init). This is the master switch.
+* ``MAYBOT_SENTRY_TRACES_SAMPLE_RATE`` — float in [0, 1] for performance
+  tracing sample rate. Defaults to ``0`` (errors only, no tracing).
+* ``MAYBOT_ENV`` — environment tag reported to Sentry. Defaults to
+  ``"production"``.
+* ``MAYBOT_RELEASE`` — optional release/version string reported to Sentry.
+
+If ``MAYBOT_SENTRY_DSN`` is set but ``sentry-sdk`` is not installed, a single
+warning is logged and Sentry is silently skipped (never raises).
 """
 from __future__ import annotations
 
@@ -128,6 +152,62 @@ class _JsonFormatter(logging.Formatter):
 
 
 _JSON_LOGGING_ENABLED = False
+_SENTRY_INITIALIZED = False
+
+
+def setup_sentry() -> bool:
+    """Opt-in Sentry error tracking. Default OFF, idempotent, never raises.
+
+    When ``MAYBOT_SENTRY_DSN`` is set, lazily import ``sentry_sdk`` and
+    initialize it. When the DSN is unset/empty this is a complete no-op: no
+    import is attempted and behaviour is unchanged. If ``sentry-sdk`` is not
+    installed, log a single warning and no-op (no raise).
+
+    Reads ``MAYBOT_SENTRY_TRACES_SAMPLE_RATE`` (default ``0``), ``MAYBOT_ENV``
+    (default ``"production"``) and ``MAYBOT_RELEASE`` (optional). Guarded so a
+    second call after a successful init does nothing.
+
+    Returns True if Sentry is (now or already) initialized, else False.
+    """
+    global _SENTRY_INITIALIZED
+    if _SENTRY_INITIALIZED:
+        return True
+
+    dsn = (os.getenv("MAYBOT_SENTRY_DSN") or "").strip()
+    if not dsn:
+        # Master switch off: no import, no behaviour change.
+        return False
+
+    try:
+        import sentry_sdk
+    except Exception:
+        logging.getLogger(__name__).warning(
+            "MAYBOT_SENTRY_DSN is set but sentry-sdk is not installed; "
+            "Sentry error tracking is disabled. Run 'pip install sentry-sdk' "
+            "to enable it."
+        )
+        return False
+
+    try:
+        traces_raw = (os.getenv("MAYBOT_SENTRY_TRACES_SAMPLE_RATE") or "").strip()
+        try:
+            traces = float(traces_raw or 0)
+        except (TypeError, ValueError):
+            traces = 0.0
+        sentry_sdk.init(
+            dsn=dsn,
+            traces_sample_rate=traces,
+            environment=(os.getenv("MAYBOT_ENV") or "production"),
+            release=(os.getenv("MAYBOT_RELEASE") or None),
+        )
+    except Exception:
+        logging.getLogger(__name__).warning(
+            "sentry_sdk.init failed; continuing without Sentry", exc_info=True
+        )
+        return False
+
+    _SENTRY_INITIALIZED = True
+    return True
 
 
 def setup_logging() -> bool:
@@ -137,9 +217,15 @@ def setup_logging() -> bool:
     logger so every record serializes as one JSON object per line. When the env
     is unset/falsey this is a no-op (no behaviour change). Idempotent.
 
+    Also calls :func:`setup_sentry` (opt-in, default-off) so Sentry can be
+    enabled without any caller change.
+
     Returns True if JSON logging is (now) active, else False.
     """
     global _JSON_LOGGING_ENABLED
+    # Opt-in Sentry initialization is wired here so app.py needs no change. It is
+    # a complete no-op unless MAYBOT_SENTRY_DSN is set, and never raises.
+    setup_sentry()
     if not _truthy(os.getenv("MAYBOT_JSON_LOGS")):
         return False
     root = logging.getLogger()
