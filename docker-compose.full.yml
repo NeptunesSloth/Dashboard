@@ -1,0 +1,116 @@
+# MayBot — "everything on" stack: control center + agent + Postgres + Redis,
+# with every safe feature enabled and the infra-gated ones (Postgres persistence,
+# Redis-shared sessions/rate-limit, secret encryption) wired up.
+#
+#   1) cp .env.example .env   and set MAYBOT_CONTROL_CENTER_TOKEN + MAYBOT_API_TOKEN
+#   2) Generate an encryption key once and add it to .env:
+#        echo "MAYBOT_SECRET_KEY=$(python -m maybot_control_center.secrets keygen)" >> .env
+#   3) docker compose -f docker-compose.full.yml up
+#
+# NOTE: this uses Postgres, NOT the SQLite file from the default compose — your
+# existing /data/maybot.db is NOT migrated automatically (see docs/MIGRATIONS.md).
+# Redis makes the control center safe to scale: `--scale control-center=N` once
+# you put a load balancer in front (single published port here for simplicity).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: maybot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-maybot}
+      POSTGRES_DB: maybot
+    volumes:
+      - maybot-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U maybot -d maybot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "60", "1"]
+    volumes:
+      - maybot-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  control-center:
+    build: .
+    command: uvicorn maybot_control_center.app:app --host 0.0.0.0 --port 8200
+    ports:
+      - "8200:8200"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # --- infra-gated features, now ON ---
+      MAYBOT_DB: postgresql://maybot:${POSTGRES_PASSWORD:-maybot}@postgres:5432/maybot
+      MAYBOT_REDIS_URL: redis://redis:6379/0
+      MAYBOT_SECRET_KEY: ${MAYBOT_SECRET_KEY:-}      # generate with: python -m maybot_control_center.secrets keygen
+      MAYBOT_BACKUP_DIR: ${MAYBOT_BACKUP_DIR:-/data/backups}
+      MAYBOT_BACKUP_INTERVAL_HOURS: ${MAYBOT_BACKUP_INTERVAL_HOURS:-24}
+      # --- performance, resilience, observability (ON) ---
+      MAYBOT_ASYNC_POLL: ${MAYBOT_ASYNC_POLL:-1}
+      MAYBOT_LLM_RETRIES: ${MAYBOT_LLM_RETRIES:-2}
+      MAYBOT_LLM_RETRY_BASE_MS: ${MAYBOT_LLM_RETRY_BASE_MS:-400}
+      MAYBOT_JSON_LOGS: ${MAYBOT_JSON_LOGS:-1}
+      MAYBOT_LEARNING_REMINDERS: ${MAYBOT_LEARNING_REMINDERS:-1}
+      MAYBOT_CSP: ${MAYBOT_CSP:-1}
+      MAYBOT_HSTS: ${MAYBOT_HSTS:-0}                 # turn on only behind HTTPS
+      MAYBOT_SENTRY_DSN: ${MAYBOT_SENTRY_DSN:-}
+      MAYBOT_SENTRY_TRACES_SAMPLE_RATE: ${MAYBOT_SENTRY_TRACES_SAMPLE_RATE:-0}
+      MAYBOT_ENV: ${MAYBOT_ENV:-production}
+      MAYBOT_BUDGET_DAILY_USD: ${MAYBOT_BUDGET_DAILY_USD:-0}
+      MAYBOT_BUDGET_MONTHLY_USD: ${MAYBOT_BUDGET_MONTHLY_USD:-0}
+      # --- autonomous ops + security + backends + notify (same as default) ---
+      MAYBOT_AUTOPILOT: ${MAYBOT_AUTOPILOT:-1}
+      MAYBOT_AUTONOMY: ${MAYBOT_AUTONOMY:-1}
+      MAYBOT_DELEGATION: ${MAYBOT_DELEGATION:-1}
+      MAYBOT_PR_ENABLED: ${MAYBOT_PR_ENABLED:-1}
+      GH_TOKEN: ${GH_TOKEN:-}
+      MAYBOT_CONTROL_CENTER_TOKEN: ${MAYBOT_CONTROL_CENTER_TOKEN:-}
+      MAYBOT_REGISTER_TOKEN: ${MAYBOT_REGISTER_TOKEN:-}
+      MAYBOT_SESSION_TTL_MINUTES: ${MAYBOT_SESSION_TTL_MINUTES:-720}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MAYBOT_SLACK_WEBHOOK: ${MAYBOT_SLACK_WEBHOOK:-}
+      MAYBOT_DISCORD_WEBHOOK: ${MAYBOT_DISCORD_WEBHOOK:-}
+      MAYBOT_PAGERDUTY_ROUTING_KEY: ${MAYBOT_PAGERDUTY_ROUTING_KEY:-}
+      MAYBOT_OPSGENIE_API_KEY: ${MAYBOT_OPSGENIE_API_KEY:-}
+      MAYBOT_OPSGENIE_REGION: ${MAYBOT_OPSGENIE_REGION:-us}
+    volumes:
+      - ./:/app
+      - maybot-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8200/healthz', timeout=4).status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  agent:
+    build: .
+    command: uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100
+    ports:
+      - "8100:8100"
+    environment:
+      MAYBOT_API_TOKEN: ${MAYBOT_API_TOKEN:-change-me}
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+
+volumes:
+  maybot-data:
+  maybot-pg:
+  maybot-redis:

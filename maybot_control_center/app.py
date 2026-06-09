@@ -112,6 +112,8 @@ _DEFAULT_CSP = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe
 _csp_env = os.getenv("MAYBOT_CSP", "").strip()
 _CSP = _DEFAULT_CSP if _csp_env.lower() in ("1", "true", "yes", "on") else _csp_env
 _HSTS = os.getenv("MAYBOT_HSTS", "0").lower() in ("1", "true", "yes", "on")
+# Opt-in async fleet poll for /api/overview (direct-HTTP fleets only).
+_ASYNC_POLL = os.getenv("MAYBOT_ASYNC_POLL", "0").lower() in ("1", "true", "yes", "on")
 
 app = FastAPI(title="maybot-control-center")
 
@@ -245,9 +247,26 @@ def safemode_set(body: SafemodeIn, x_control_token: str = Header(default="")):
 
 
 @app.get("/api/overview")
-def overview(x_control_token: str = Header(default="")):
+async def overview(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
-    return aggregate(all_devices())
+    devices = all_devices()
+    # Opt-in async fleet poll (MAYBOT_ASYNC_POLL): gather every agent's ping +
+    # projects concurrently with httpx instead of a thread pool. The async client
+    # does DIRECT HTTP only, so fall back to the sync path when any device is on
+    # the reverse tunnel. The sync path runs in a worker thread so a slow/offline
+    # host never blocks the event loop.
+    if _ASYNC_POLL and not _any_tunneled(devices):
+        return await aggregator.aggregate_async(devices)
+    from starlette.concurrency import run_in_threadpool
+    return await run_in_threadpool(aggregate, devices)
+
+
+def _any_tunneled(devices) -> bool:
+    try:
+        from . import tunnel
+        return any(tunnel.connected(d.get("name")) for d in (devices or []))
+    except Exception:
+        return False
 
 
 @app.get("/api/logs/{device_name}/{project_name}")
