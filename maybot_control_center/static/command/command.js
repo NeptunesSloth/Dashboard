@@ -88,6 +88,29 @@ function countUp(el, to, fmt) {
 }
 
 /* ============================ data + render ============================ */
+// Hover-help for the fleet stat cards (plain-English, like the dossier/map).
+const FS_INFO = {
+  'Hosts Online': 'Machines (agent hosts) currently reporting in / total registered. A host drops off when its agent stops checking in.',
+  'Bots Running': 'Trading-bot processes detected alive across all hosts right now.',
+  'Realms at Risk': 'Projects whose latest poll came back with a warning or error — the things to look at first.',
+  'Active Missions': 'Disciples (agents) currently on a task — working, queued, or mid-decree.',
+  'Tests Failing': 'Total failing test count summed across every project the fleet is watching.',
+};
+// A quiet bit of flavour: a Heavenly proverb, stable for the day (no flicker).
+const PROVERBS = [
+  'A sword is forged by ten thousand strikes; a sect, by ten thousand commits.',
+  'The patient cultivator outlasts the hurried one.',
+  'Watch the realms at risk before chasing the next breakthrough.',
+  'Green tests today spare a tribulation tomorrow.',
+  'A well-tended fleet needs no frantic master.',
+  'The Dao of ops: observe, then act.',
+  'Small daily progress carves the mountain.',
+  'A silent log is a peaceful sect.',
+];
+function proverbOfTheDay() {
+  const d = new Date(); const day = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+  return PROVERBS[day % PROVERBS.length];
+}
 /* Fleet-level stats — OPS-focused, NOT trading PnL (that lives on /trade). */
 function renderFleetStats(summary, agents) {
   const s = summary || {};
@@ -97,7 +120,7 @@ function renderFleetStats(summary, agents) {
   const tests = Number(s.tests_failing || 0);
   const active = (agents || []).filter((a) => a.current_task || a.status === 'working' || a.status === 'queued').length;
   const hostsClass = total && online < total ? (online === 0 ? 'crit' : 'warn') : 'good';
-  const card = (val, lbl, sub, cls) => `<div class='fleet-stat glass ${cls || ''}' data-tilt>
+  const card = (val, lbl, sub, cls) => `<div class='fleet-stat glass ${cls || ''}'${FS_INFO[lbl] ? ` title='${esc(FS_INFO[lbl])}' style='cursor:help'` : ''} data-tilt>
     <div class='fs-val'>${val}</div><div class='fs-lbl'>${lbl}</div>${sub ? `<div class='fs-sub'>${sub}</div>` : ''}</div>`;
   $('fleet-stats').innerHTML = [
     card(`${online}<span class='muted' style='font-size:18px'>/${total}</span>`, 'Hosts Online', total ? 'machines reporting' : 'no hosts yet', hostsClass),
@@ -242,7 +265,8 @@ function jarvis(cmd, summary, agents) {
   if (warn) bits.push(`<b>${warn}</b> realm${warn === 1 ? '' : 's'} need${warn === 1 ? 's' : ''} attention.`);
   if (active) bits.push(`<b>${active}</b> disciple${active === 1 ? '' : 's'} on task.`);
   else bits.push(`Issue a decree to command the fleet.`);
-  $('jarvis').innerHTML = bits.join(' ');
+  $('jarvis').innerHTML = bits.join(' ')
+    + ` <span class='muted' style='font-style:italic' title='Heavenly proverb of the day'>— ${esc(proverbOfTheDay())}</span>`;
 }
 
 /* ============================ orchestrate ============================ */

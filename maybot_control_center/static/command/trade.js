@@ -7,34 +7,55 @@ starfield('scene-canvas');
 function tradingFromProjects(projects) {
   const bots = (projects || []).filter((p) => p.type === 'trading_bot');
   const num = (m, k) => { const v = Number((m || {})[k]); return Number.isFinite(v) ? v : 0; };
+  // Track whether ANY bot actually reported a PnL figure, so we can show an
+  // honest "not reporting" state instead of a misleading $0 (a bot that hasn't
+  // wired up PnL looks identical to a genuinely break-even one otherwise).
   let today = 0, week = 0, month = 0, realized = 0, exposure = 0, positions = 0, trades = 0, fillSum = 0, fillN = 0;
+  let reportedToday = false, reportedRealized = false;
   bots.forEach((p) => {
     const m = p.metrics || {};
+    if (Number.isFinite(Number(m.profit_today))) reportedToday = true;
+    if (Number.isFinite(Number(m.realized_pnl))) reportedRealized = true;
     today += num(m, 'profit_today'); week += num(m, 'profit_this_week'); month += num(m, 'profit_this_month');
     realized += num(m, 'realized_pnl'); exposure += num(m, 'open_exposure'); positions += num(m, 'open_positions'); trades += num(m, 'trades_today');
     const fr = Number(m.fill_rate); if (Number.isFinite(fr)) { fillSum += fr; fillN++; }
   });
-  return { today, week, month, realized, exposure, positions, trades, fillRate: fillN ? fillSum / fillN : null, botCount: bots.length };
+  return { today, week, month, realized, exposure, positions, trades, fillRate: fillN ? fillSum / fillN : null,
+           botCount: bots.length, reportedToday, reportedRealized };
 }
+
+// Hover-help for the hero metrics (plain-English, like the dossier/map/fleet).
+const TR_INFO = {
+  today: "Summed realized profit/loss for today across all bots. Shows “not reporting” (not $0) when no bot has written PnL yet — so a genuine break-even is distinguishable from missing data.",
+  week: 'Summed PnL since the start of this week (Monday).',
+  acct: 'Account base (MAYBOT_ACCOUNT_BASE) plus total realized PnL across bots.',
+  trades: 'Trades counted today and the average fill/win rate where bots report it.',
+};
 
 /* P&L-forward hero: big total PnL today / this week, plus key stats at a glance. */
 function renderHero(t, cmd) {
   const acct = ((cmd && cmd.account_base) || 0) + t.realized;
   const winRate = t.fillRate != null ? Math.round(t.fillRate * 100) : null;
   const cls = (v) => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+  // demo mode always has PnL; otherwise honour whether any bot actually reported.
+  const liveReporting = (cmd && cmd.demo) || t.reportedToday;
+  const big = liveReporting
+    ? `<div class='ph-big ${cls(t.today)}' data-num='${t.today}'>—</div>`
+    : `<div class='ph-big ph-noreport' title='No bot has reported PnL yet. Trade counts can still show; see the Trade-bot PnL contract.'>—<span class='ph-noreport-sub'>no PnL reported yet</span></div>`;
   $('hero').innerHTML = `
     <div class='ph-main'>
-      <div class='ph-lbl'>Profit · Today</div>
-      <div class='ph-big ${cls(t.today)}' data-num='${t.today}'>—</div>
+      <div class='ph-lbl' title='${esc(TR_INFO.today)}' style='cursor:help'>Profit · Today</div>
+      ${big}
     </div>
-    <div class='ph-cell'><div class='ph-lbl'>This Week</div><div class='ph-val ${cls(t.week)}' data-num='${t.week}'>—</div>
+    <div class='ph-cell'><div class='ph-lbl' title='${esc(TR_INFO.week)}' style='cursor:help'>This Week</div>
+      <div class='ph-val ${cls(t.week)}' data-num='${t.week}'>—</div>
       <div class='metric-sub'>${t.botCount} bot${t.botCount === 1 ? '' : 's'} · ${t.positions} open</div></div>
-    <div class='ph-cell'><div class='ph-lbl'>Account Value</div>
+    <div class='ph-cell'><div class='ph-lbl' title='${esc(TR_INFO.acct)}' style='cursor:help'>Account Value</div>
       <div class='ph-val'>$${acct.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-      <div class='metric-sub'>${t.trades} trades today${winRate != null ? ` · ${winRate}% win` : ''}</div></div>`;
-  const big = $('hero').querySelector('.ph-big');
-  if (big) countUp(big, Number(big.dataset.num), (x) => money(x));
-  $('hero').querySelectorAll('.ph-val[data-num]').forEach((el) => countUp(el, Number(el.dataset.num), (x) => money(x)));
+      <div class='metric-sub' title='${esc(TR_INFO.trades)}' style='cursor:help'>${t.trades} trades today${winRate != null ? ` · ${winRate}% win` : ''}</div></div>`;
+  const bigEl = $('hero').querySelector('.ph-big:not(.ph-noreport)');
+  if (bigEl) countUp(bigEl, Number(bigEl.dataset.num), (x) => money(x));
+  if (liveReporting) $('hero').querySelectorAll('.ph-val[data-num]').forEach((el) => countUp(el, Number(el.dataset.num), (x) => money(x)));
 }
 
 /* ---- scrolling ticker tape: each bot's name + today PnL, looping ---- */

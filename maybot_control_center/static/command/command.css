@@ -793,6 +793,9 @@ body.trade-floor :focus-visible { outline-color: var(--accent-2); }
 .ph-big { font-size: 56px; font-weight: 800; line-height: 1; margin-top: 8px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
 .ph-big.pos { background: linear-gradient(180deg, #b9ffe6, var(--jade)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .ph-big.neg { background: linear-gradient(180deg, #ffc1cd, var(--crimson)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+/* "no PnL reported yet" — honest empty state, distinct from a $0 break-even */
+.ph-big.ph-noreport { color: var(--muted); font-size: 40px; opacity: .8; }
+.ph-noreport-sub { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0; margin-top: 4px; color: var(--muted); }
 .ph-cell { border-left: 1px solid var(--line); padding-left: 18px; }
 .ph-val { font-size: 28px; font-weight: 800; margin-top: 6px; font-variant-numeric: tabular-nums; }
 .ph-val.pos { color: var(--jade); } .ph-val.neg { color: var(--crimson); }
