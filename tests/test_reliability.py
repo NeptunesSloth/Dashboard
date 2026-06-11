@@ -91,7 +91,7 @@ def test_action_frozen_returns_423(monkeypatch):
     assert r.status_code == 423
 
     # force=true overrides the freeze (then fails downstream on the unreachable device)
-    monkeypatch.setattr("maybot_control_center.app._resolve_device", lambda n: {"name": n, "url": "http://x"})
+    monkeypatch.setattr("maybot_control_center.routers.fleet._resolve_device", lambda n: {"name": n, "url": "http://x"})
     r2 = client.post("/api/action/prod-1/api-gateway/start?force=true")
     assert r2.status_code != 423
 

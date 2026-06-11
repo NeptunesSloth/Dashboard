@@ -52,8 +52,9 @@ python -m playwright install --with-deps chromium && python tests/smoke_browser.
 
 ## Architecture (the 30-second version)
 
-- **`app.py`** — the control-center FastAPI app: routes, page handlers, startup.
-  Some routes are being split into `routers/*.py` with shared helpers in `deps.py`
+- **`app.py`** — the control-center FastAPI app: middleware, startup wiring, the
+  agent tunnel + SSE stream. All HTTP routes live in domain routers under
+  `routers/*.py`, with shared helpers in `deps.py`
   (`check_token`/`check_operator`/`resolve_device`/`SAFE_NAME`…).
 - **`aggregator.py`** — polls every agent and builds `/api/overview`. Sync by
   default; opt-in async path via `MAYBOT_ASYNC_POLL=1` (`aggregate_async`).

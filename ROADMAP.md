@@ -13,10 +13,10 @@ Safe, non-conflicting wins that don't require architectural changes:
 - ✅ Opt-in `Content-Security-Policy` (`MAYBOT_CSP`) and `HSTS` (`MAYBOT_HSTS`).
 
 ## 🏗 Architecture & code health
-- 🔴 **Split `app.py`** (~3k lines, 100+ routes) into FastAPI `APIRouter`s by
-  domain. First extract shared deps (`check_token`/`check_operator`/`resolve_device`)
-  into `deps.py`, then move routes domain-by-domain. _(Do after PR #49 merges to
-  avoid conflicts on the learning routes.)_
+- ✅ **Split `app.py`** into FastAPI `APIRouter`s by domain — done: shared deps
+  live in `deps.py`, all routes live in 16 domain routers under `routers/*`, and
+  `app.py` keeps only startup wiring, the middleware, the agent tunnel and the
+  SSE stream (~230 lines).
 - 🔴 **Modularize the frontend** — `app.js` (~230KB) → a small Vite build, split
   per page, shared API types.
 - 🟡 **Async LLM/agent I/O** — replace blocking `requests` in hot paths with
