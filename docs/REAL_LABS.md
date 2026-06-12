@@ -8,6 +8,31 @@
 > deployed**, because it requires hardware virtualization that doesn't exist in
 > every host (and never in the hosted web session). This doc is the build spec.
 
+## Turning it on
+
+Flip **Settings → Learning labs (advanced) → Real-command pentest labs** (or set
+`MAYBOT_REAL_LABS=1`). That's the button — it takes effect immediately, no
+restart. **But the toggle alone does nothing**: it only opens the gate so
+`attach_real_env` will consult your bindings. `GET /api/learning/real-env`
+returns a live requirements checklist; you're "live" only when all of the
+following are in place:
+
+1. **The toggle is on** (the app can see this).
+2. **`real_targets.yaml`** maps each lab host id to one isolated sandbox target
+   (copy `real_targets.yaml.example`).
+3. **Pentest tools in `tools.yaml`** — `nmap`/`nikto`/`gobuster` as fixed-argv,
+   human-approved (copy the pentest section of `tools.yaml.example`).
+4. **A `maybot_agent` running INSIDE the isolated sandbox**, registered as the
+   `agent` named in `real_targets.yaml`. The agent executes the tools; the
+   control center only dispatches.
+5. **The isolation itself** — a KVM microVM/VM, internal-only network with **no
+   egress**, ephemeral. This is the operator's responsibility and the rest of
+   this doc.
+
+Items 1–2 the dashboard verifies for you; 3–5 it cannot, so it lists them as
+operator-attested in the checklist. Leave the toggle **off** and every lab stays
+a safe, server-side simulation.
+
 ## The three tiers (recap)
 
 | Tier | What runs | Status |

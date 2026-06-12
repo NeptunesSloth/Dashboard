@@ -134,10 +134,37 @@ def test_incident_unknown():
 # ---------------------------------------------------------------------------
 # real-command execution contract (default off)
 # ---------------------------------------------------------------------------
-def test_real_env_off_by_default():
+def test_real_env_off_by_default(monkeypatch):
+    monkeypatch.setattr(learning, "REAL_LABS", False)
     st = learning.real_env_status()
     assert st["enabled"] is False and st["configured_targets"] == []
+    assert st["ready"] is False
     assert learning.attach_real_env({}, "web1") is None
+
+
+def test_real_env_requirements_checklist(monkeypatch):
+    monkeypatch.setattr(learning, "REAL_LABS", False)
+    st = learning.real_env_status()
+    labels = " | ".join(r["label"].lower() for r in st["requirements"])
+    assert "toggle" in labels and "real_targets.yaml" in labels
+    assert "tools.yaml" in labels and "sandbox" in labels and "no egress" in labels
+    assert st["docs"] == "docs/REAL_LABS.md"
+    assert st["requirements"][0]["met"] is False        # toggle reflects the gate
+
+
+def test_settings_toggle_flips_real_labs(monkeypatch):
+    from maybot_control_center import settings
+    monkeypatch.setattr(learning, "REAL_LABS", False)
+    try:
+        settings.set_value("MAYBOT_REAL_LABS", "1")      # the one-click button
+        assert learning.REAL_LABS is True
+        assert learning.real_env_status()["requirements"][0]["met"] is True
+        settings.set_value("MAYBOT_REAL_LABS", "0")
+        assert learning.REAL_LABS is False
+    finally:
+        settings._overrides.pop("MAYBOT_REAL_LABS", None)
+        import os
+        os.environ.pop("MAYBOT_REAL_LABS", None)
 
 
 def test_real_env_binding_when_enabled(monkeypatch, tmp_path):

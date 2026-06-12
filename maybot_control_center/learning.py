@@ -2023,12 +2023,38 @@ def _load_real_targets() -> dict:
 
 
 def real_env_status() -> dict:
-    """Surface whether real-command labs are wired (default off). The UI shows
-    this so simulated labs are clearly distinguished from a live sandbox."""
+    """Surface whether real-command labs are wired (default off) and a checklist
+    of EVERYTHING still required. The settings button flips ``enabled``; the
+    other items the operator must provide. The UI renders this so simulated labs
+    are clearly distinguished from a live sandbox and the requirements are spelled
+    out. ``met: None`` = the app can't verify it (operator-attested)."""
     targets = _load_real_targets()
+    # Distinct agents referenced by the target bindings (the in-sandbox agents).
+    agents_named = sorted({str(t.get("agent")) for t in targets.values() if t.get("agent")})
+    requirements = [
+        {"label": "Turn on the toggle (Settings → Learning labs)",
+         "met": REAL_LABS,
+         "detail": "Off = labs stay simulated and graded server-side."},
+        {"label": "Map lab hosts to sandbox targets in real_targets.yaml",
+         "met": bool(targets),
+         "detail": "Each entry binds a range host id to one isolated, sandbox-internal target."},
+        {"label": "Define the pentest tools in tools.yaml (nmap, nikto, …)",
+         "met": None,
+         "detail": "Fixed-argv, human-approved; see the pentest section of tools.yaml.example."},
+        {"label": "Run a maybot_agent INSIDE the isolated sandbox",
+         "met": None,
+         "detail": f"Referenced agents: {', '.join(agents_named) or '(none configured yet)'}. "
+                   "The agent executes the allow-listed tools; the control center only dispatches."},
+        {"label": "Isolate it: a KVM microVM/VM, internal-only network, NO egress, ephemeral",
+         "met": None,
+         "detail": "Targets are intentionally vulnerable — see docs/REAL_LABS.md for the topology."},
+    ]
+    # 'ready' covers only what the app can see; the operator-attested items remain.
+    app_ready = REAL_LABS and bool(targets)
     return {"enabled": REAL_LABS, "configured_targets": sorted(targets.keys()),
-            "agent_required": True,
-            "note": ("OFF — labs are simulated, graded server-side." if not REAL_LABS else
+            "ready": app_ready, "requirements": requirements, "docs": "docs/REAL_LABS.md",
+            "note": ("OFF — labs are simulated, graded server-side. Flip the Settings "
+                     "toggle and complete the checklist to go live." if not REAL_LABS else
                      "ON — host actions route through the guarded tools allow-list on an "
                      "isolated-sandbox agent. See docs/REAL_LABS.md.")}
 

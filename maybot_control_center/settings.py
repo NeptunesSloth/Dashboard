@@ -38,9 +38,16 @@ SPECS = [
     # --- Sect simulation ---
     ("MAYBOT_SECT_TICK_SECONDS", "sim", "Sim tick seconds", "float", "Passive evolution cadence (0 = off)."),
     ("MAYBOT_SECT_XP_RATE", "sim", "Sim XP rate", "float", "Base cultivation XP per minute."),
+    # --- Learning labs (advanced) ---
+    ("MAYBOT_REAL_LABS", "labs", "Real-command pentest labs", "bool",
+     "Let labs run REAL tools against an ISOLATED sandbox (off = simulated). The "
+     "toggle alone does nothing until you also stand up the sandbox — see the "
+     "requirements panel and docs/REAL_LABS.md. Commands always route through the "
+     "guarded tools allow-list; the model never runs free-text shell."),
 ]
 GROUPS = [("ai", "AI backend & keys"), ("notify", "Notifications"),
-          ("automation", "Automation & security"), ("sim", "Sect simulation")]
+          ("automation", "Automation & security"), ("sim", "Sect simulation"),
+          ("labs", "Learning labs (advanced)")]
 _SPEC = {k: (g, lbl, typ, hlp) for (k, g, lbl, typ, hlp) in SPECS}
 
 _lock = threading.RLock()
@@ -117,6 +124,9 @@ def _apply(key: str, val: str) -> None:
                 sectsim.XP_RATE = float(val or "0")
             except ValueError:
                 pass
+        elif key == "MAYBOT_REAL_LABS":
+            from . import learning
+            learning.REAL_LABS = _truthy(val)             # flip the real-command gate live
     except Exception:
         pass
 
