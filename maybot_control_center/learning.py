@@ -2005,6 +2005,60 @@ def start() -> bool:
 REAL_LABS = os.getenv("MAYBOT_REAL_LABS", "0").lower() in ("1", "true", "yes", "on")
 REAL_TARGETS_FILE = Path(os.getenv("MAYBOT_REAL_TARGETS_FILE", "real_targets.yaml"))
 
+# The standard industry toolkit a real engagement uses, mapped to kill-chain
+# phases so the range teaches WHICH tool fits WHEN (tradecraft, not tool-spraying).
+# These are what the operator installs on the attacker sandbox image and exposes,
+# narrowly, through tools.yaml. `tool` is the suggested tools.yaml entry name.
+PENTEST_TOOLKIT = [
+    {"name": "Nmap", "tool": "nmap_scan", "phase": "enumeration",
+     "purpose": "Port, service and version discovery — map the attack surface first.",
+     "kinds": ["router", "workstation", "server", "web", "db", "dc", "fileshare", "iot", "cloud"]},
+    {"name": "Nikto", "tool": "nikto_scan", "phase": "enumeration",
+     "purpose": "Web-server vulnerability and misconfiguration scan.", "kinds": ["web"]},
+    {"name": "Gobuster / ffuf", "tool": "gobuster_dir", "phase": "enumeration",
+     "purpose": "Content/endpoint discovery (hidden dirs, admin panels).", "kinds": ["web"]},
+    {"name": "WhatWeb", "tool": "whatweb_scan", "phase": "recon",
+     "purpose": "Fingerprint web tech stack and versions.", "kinds": ["web"]},
+    {"name": "WPScan", "tool": "wpscan_scan", "phase": "enumeration",
+     "purpose": "WordPress-specific enumeration (plugins, users, known CVEs).", "kinds": ["web"]},
+    {"name": "enum4linux-ng", "tool": "enum4linux_scan", "phase": "enumeration",
+     "purpose": "SMB / Windows / AD enumeration (shares, users, policy).",
+     "kinds": ["server", "dc", "fileshare", "workstation"]},
+    {"name": "SMBMap", "tool": "smbmap_scan", "phase": "enumeration",
+     "purpose": "Enumerate SMB shares and access rights.", "kinds": ["server", "fileshare", "dc"]},
+    {"name": "searchsploit", "tool": "searchsploit_lookup", "phase": "recon",
+     "purpose": "Look up public exploits for a discovered service/version.",
+     "kinds": ["router", "server", "web", "db", "dc", "iot"]},
+    {"name": "sqlmap", "tool": "sqlmap_test", "phase": "exploitation",
+     "purpose": "Detect and exploit SQL injection.", "kinds": ["web", "db"]},
+    {"name": "Hydra", "tool": "hydra_spray", "phase": "exploitation",
+     "purpose": "Online password attacks against a service.",
+     "kinds": ["server", "web", "db", "dc", "workstation"]},
+    {"name": "Metasploit", "tool": "msf_smb_version", "phase": "exploitation",
+     "purpose": "Exploit framework + auxiliary scanners (one bounded module per tool).",
+     "kinds": ["server", "workstation", "dc", "iot"]},
+    {"name": "CrackMapExec / NetExec", "tool": "nxc_smb", "phase": "lateral-movement",
+     "purpose": "Validate creds and move laterally across the AD network.",
+     "kinds": ["server", "workstation", "dc", "fileshare"]},
+    {"name": "Impacket (secretsdump/psexec)", "tool": "impacket_secretsdump", "phase": "post-exploitation",
+     "purpose": "Dump hashes / remote exec with valid creds.", "kinds": ["server", "dc", "workstation"]},
+    {"name": "John / Hashcat", "tool": "john_crack", "phase": "post-exploitation",
+     "purpose": "Crack looted password hashes offline.", "kinds": ["server", "dc", "workstation"]},
+]
+# GUI / interactive tools that belong on the attacker image but aren't CLI
+# allow-list entries (the learner drives them by hand inside the sandbox).
+PENTEST_GUI_TOOLS = ["Burp Suite (web proxy)", "Metasploit msfconsole (interactive)",
+                     "BloodHound (AD attack paths)", "Wireshark (packet analysis)"]
+
+
+def recommended_pentest_tools(host_kind: str | None = None) -> list[dict]:
+    """The real-world toolkit, optionally narrowed to a host kind so the UI can
+    suggest the right tool for the stage in front of the learner."""
+    if not host_kind:
+        return list(PENTEST_TOOLKIT)
+    k = str(host_kind).lower()
+    return [t for t in PENTEST_TOOLKIT if k in t["kinds"]]
+
 
 def _load_real_targets() -> dict:
     """Operator-defined map of range/lab host -> a real, isolated sandbox target +
@@ -2053,6 +2107,7 @@ def real_env_status() -> dict:
     app_ready = REAL_LABS and bool(targets)
     return {"enabled": REAL_LABS, "configured_targets": sorted(targets.keys()),
             "ready": app_ready, "requirements": requirements, "docs": "docs/REAL_LABS.md",
+            "toolkit": recommended_pentest_tools(), "gui_tools": list(PENTEST_GUI_TOOLS),
             "note": ("OFF — labs are simulated, graded server-side. Flip the Settings "
                      "toggle and complete the checklist to go live." if not REAL_LABS else
                      "ON — host actions route through the guarded tools allow-list on an "

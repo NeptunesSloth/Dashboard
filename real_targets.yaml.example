@@ -17,18 +17,18 @@
 #   network        the isolated lab subnet (scope guard)
 #   allowed_tools  tool names that must also be defined in tools.yaml
 targets:
-  - host_id: web1
+  - host_id: web1            # a web target: recon + web exploitation tools
     agent: lab-attacker
     target: 10.10.0.10
     network: 10.10.0.0/24
-    allowed_tools: [nmap_scan, nikto_scan, gobuster_dir]
+    allowed_tools: [nmap_scan, whatweb_scan, nikto_scan, gobuster_dir, wpscan_scan, sqlmap_test, searchsploit_lookup]
     requires_approval: true
     ephemeral: true
 
-  - host_id: db1
+  - host_id: dc1             # a domain controller: AD enum + lateral movement
     agent: lab-attacker
     target: 10.10.0.20
     network: 10.10.0.0/24
-    allowed_tools: [nmap_scan]
+    allowed_tools: [nmap_scan, enum4linux_scan, smbmap_scan, msf_smb_version, nxc_smb, impacket_secretsdump]
     requires_approval: true
     ephemeral: true

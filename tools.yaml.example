@@ -78,16 +78,28 @@ tools:
     timeout_seconds: 30
 
   # --- Learning Center real-command pentest labs (DEFAULT OFF) ---------------
-  # Only loaded when MAYBOT_REAL_LABS=1 and real_targets.yaml binds a lab host to
-  # an isolated sandbox target. Run the maybot_agent that executes these INSIDE
-  # the isolated microVM/sandbox network only (see docs/REAL_LABS.md), reachable
-  # to the lab subnet and NOTHING else. {target} is validated (no shell
-  # metacharacters); never auto_approve — a human approves each run.
+  # The real-world toolkit. Only loaded when MAYBOT_REAL_LABS=1 and
+  # real_targets.yaml binds a lab host to an isolated sandbox target. Run the
+  # maybot_agent that executes these INSIDE the isolated microVM/sandbox network
+  # only (see docs/REAL_LABS.md), reachable to the lab subnet and NOTHING else.
+  #
+  # SAFETY: each tool is a FIXED argv (no shell). {target} is the only agent-
+  # supplied value and is validated (no spaces, no shell metacharacters). Each
+  # tool pins ONE action/module — never let the agent choose the module/flags.
+  # Never auto_approve: a human approves every run. Install these on a Kali-based
+  # attacker image. Match the names referenced by real_targets.yaml.
+
+  # -- recon / enumeration --
   - name: nmap_scan
-    description: "Service/version scan of a single lab host (pentest range)."
+    description: "Service/version scan of a single lab host."
     argv: ["nmap", "-sV", "-Pn", "--top-ports", "200", "{target}"]
     args: [target]
     timeout_seconds: 120
+  - name: whatweb_scan
+    description: "Fingerprint a web host's tech stack."
+    argv: ["whatweb", "--no-errors", "{target}"]
+    args: [target]
+    timeout_seconds: 60
   - name: nikto_scan
     description: "Web server vulnerability scan of a lab host."
     argv: ["nikto", "-host", "{target}"]
@@ -98,3 +110,62 @@ tools:
     argv: ["gobuster", "dir", "-q", "-u", "{target}", "-w", "/usr/share/wordlists/dirb/common.txt"]
     args: [target]
     timeout_seconds: 180
+  - name: wpscan_scan
+    description: "WordPress enumeration (plugins, users, known CVEs)."
+    argv: ["wpscan", "--no-banner", "--url", "{target}"]
+    args: [target]
+    timeout_seconds: 240
+  - name: enum4linux_scan
+    description: "SMB / Windows / AD enumeration of a lab host."
+    argv: ["enum4linux-ng", "-A", "{target}"]
+    args: [target]
+    timeout_seconds: 180
+  - name: smbmap_scan
+    description: "Enumerate SMB shares and access rights."
+    argv: ["smbmap", "-H", "{target}"]
+    args: [target]
+    timeout_seconds: 120
+  - name: searchsploit_lookup
+    description: "Look up public exploits for a discovered service/term."
+    argv: ["searchsploit", "{target}"]    # {target} = validated search term
+    args: [target]
+    timeout_seconds: 30
+
+  # -- exploitation --
+  - name: sqlmap_test
+    description: "Test a URL for SQL injection (batch, non-interactive)."
+    argv: ["sqlmap", "-u", "{target}", "--batch", "--level", "2", "--risk", "1"]
+    args: [target]
+    timeout_seconds: 300
+  - name: hydra_spray
+    description: "Online password attack against SSH on a lab host (small list)."
+    argv: ["hydra", "-L", "/opt/wordlists/users.txt", "-P", "/opt/wordlists/pass-top100.txt",
+           "-t", "4", "-f", "{target}", "ssh"]
+    args: [target]
+    timeout_seconds: 300
+  # Metasploit, BOUNDED: one fixed auxiliary module, only RHOSTS parameterized.
+  # {target} is embedded in a single -x string arg (no shell, validated), so the
+  # agent cannot swap the module. Add one tool per module you choose to allow.
+  - name: msf_smb_version
+    description: "Metasploit: SMB version auxiliary scanner (bounded module)."
+    argv: ["msfconsole", "-q", "-x",
+           "use auxiliary/scanner/smb/smb_version; set RHOSTS {target}; run; exit"]
+    args: [target]
+    timeout_seconds: 180
+
+  # -- lateral movement / post-exploitation --
+  - name: nxc_smb
+    description: "NetExec/CrackMapExec: validate creds + enumerate over SMB."
+    argv: ["nxc", "smb", "{target}", "-u", "/opt/wordlists/users.txt", "-p", "/opt/wordlists/pass-top100.txt"]
+    args: [target]
+    timeout_seconds: 180
+  - name: impacket_secretsdump
+    description: "Impacket secretsdump against a lab host (creds in a vault file)."
+    argv: ["impacket-secretsdump", "-no-pass", "{target}"]
+    args: [target]
+    timeout_seconds: 180
+  - name: john_crack
+    description: "Crack a looted hash file with John (lab-local file under /opt/loot)."
+    argv: ["john", "--wordlist=/opt/wordlists/rockyou-mini.txt", "/opt/loot/{target}"]
+    args: [target]    # {target} = a validated filename
+    timeout_seconds: 240

@@ -127,6 +127,43 @@ targets:
     ephemeral: true
 ```
 
+## The attacker image & toolkit
+
+The attacker microVM should be a **Kali-based image** (or any image with the
+standard toolkit installed) so the learner uses the same tools a real engagement
+does. `GET /api/learning/pentest-tools` returns the curated catalog mapped to
+kill-chain phases, so the UI can suggest the right tool for the stage:
+
+| Phase | Tools |
+|-------|-------|
+| Recon | WhatWeb, searchsploit |
+| Enumeration | **Nmap**, Nikto, Gobuster/ffuf, WPScan, enum4linux-ng, SMBMap |
+| Exploitation | **Metasploit**, sqlmap, Hydra |
+| Lateral movement | CrackMapExec / NetExec |
+| Post-exploitation | Impacket (secretsdump/psexec), John/Hashcat |
+
+Interactive/GUI tools live on the image but aren't allow-list entries — the
+learner drives them by hand inside the sandbox: **Burp Suite**, **msfconsole**
+(interactive), **BloodHound** (AD attack paths), **Wireshark**.
+
+### The bounded-Metasploit pattern
+
+Metasploit is interactive, but the allow-list needs a fixed command. Pin **one
+module per tool** and parameterize only `RHOSTS`:
+
+```yaml
+  - name: msf_smb_version
+    argv: ["msfconsole", "-q", "-x",
+           "use auxiliary/scanner/smb/smb_version; set RHOSTS {target}; run; exit"]
+    args: [target]
+```
+
+`{target}` is validated (no spaces/metacharacters) and embedded in a single
+`-x` string with no shell, so the agent can't swap the module or inject flags.
+Add one entry per module you choose to expose. For free-form Metasploit, the
+learner uses interactive `msfconsole` inside the sandbox — outside the allow-list
+by design.
+
 ## Pentest tools in `tools.yaml`
 
 Define each tool as a fixed `argv` scoped to the lab subnet, human-approved (see

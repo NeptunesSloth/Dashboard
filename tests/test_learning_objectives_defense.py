@@ -142,6 +142,33 @@ def test_real_env_off_by_default(monkeypatch):
     assert learning.attach_real_env({}, "web1") is None
 
 
+def test_pentest_toolkit_catalog_and_phases():
+    tools = learning.recommended_pentest_tools()
+    names = {t["name"] for t in tools}
+    # the real-world staples are present
+    assert {"Nmap", "Metasploit", "sqlmap", "Hydra"} <= names
+    phases = {t["phase"] for t in tools}
+    assert {"enumeration", "exploitation", "lateral-movement", "post-exploitation"} <= phases
+    # every tool maps to a tools.yaml entry name and at least one host kind
+    for t in tools:
+        assert t["tool"] and t["kinds"]
+
+
+def test_pentest_toolkit_filters_by_host_kind():
+    web = {t["name"] for t in learning.recommended_pentest_tools("web")}
+    dc = {t["name"] for t in learning.recommended_pentest_tools("dc")}
+    assert "sqlmap" in web and "WPScan" in web        # web-appropriate
+    assert "Metasploit" in dc and "WPScan" not in dc  # AD-appropriate, not web
+    assert learning.recommended_pentest_tools() != learning.recommended_pentest_tools("web")
+
+
+def test_real_env_exposes_toolkit(monkeypatch):
+    monkeypatch.setattr(learning, "REAL_LABS", False)
+    st = learning.real_env_status()
+    assert st["toolkit"] and any(t["name"] == "Metasploit" for t in st["toolkit"])
+    assert st["gui_tools"] and any("Burp" in g for g in st["gui_tools"])
+
+
 def test_real_env_requirements_checklist(monkeypatch):
     monkeypatch.setattr(learning, "REAL_LABS", False)
     st = learning.real_env_status()

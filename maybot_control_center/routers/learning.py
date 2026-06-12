@@ -325,6 +325,16 @@ def learning_real_env(x_control_token: str = Header(default="")):
     return learning.real_env_status()
 
 
+@router.get("/api/learning/pentest-tools")
+def learning_pentest_tools(kind: str = Query(default=""), x_control_token: str = Header(default="")):
+    """The real-world pentest toolkit (optionally for a host kind) so the range
+    teaches which tool fits which stage."""
+    check_token(x_control_token)
+    from .. import learning
+    return {"tools": learning.recommended_pentest_tools(kind or None),
+            "gui_tools": list(learning.PENTEST_GUI_TOOLS)}
+
+
 # ---- blue-team incident investigation ----
 class IncidentIn(BaseModel):
     track: str = "blue-team"
