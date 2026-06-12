@@ -551,6 +551,7 @@ def list_tracks() -> dict:
                 "labs": t.get("labs", []), "builtin": t.get("builtin", False),
                 "level": _track_level(p), "completed_topics": p.get("completed_topics", []),
                 "mastered_topics": p.get("mastered_topics", []),
+                "language": _language_of(t),
                 "material": (_g().get("materials") or {}).get(tid, {}).get("name") if
                             (_g().get("materials") or {}).get(tid) else None,
             })

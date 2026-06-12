@@ -74,7 +74,8 @@ def _learning_flow(b):
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto(BASE + "/learn", wait_until="load", timeout=25000)
     pg.wait_for_selector("#modes button", timeout=10000)
-    for mode in ("plan", "stats", "review", "library", "real"):
+    for mode in ("plan", "stats", "review", "library", "real",
+                 "range", "incident", "material"):
         btn = pg.query_selector(f"#modes button[data-mode='{mode}']")
         if btn:
             btn.click()
@@ -84,6 +85,11 @@ def _learning_flow(b):
     if topic:
         topic.click()
         pg.wait_for_timeout(1200)
+    # the per-topic test-out (placement) button
+    testout = pg.query_selector("#topics .topic-testout")
+    if testout:
+        testout.click()
+        pg.wait_for_timeout(900)
     assert not errs, f"Learning interactions raised: {errs}"
     pg.close()
 
