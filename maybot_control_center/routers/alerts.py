@@ -161,4 +161,17 @@ def inbound_feed(x_control_token: str = Header(default="")):
 @router.get("/api/notifications")
 def notifications_view(x_control_token: str = Header(default="")):
     _check_token(x_control_token)
-    return {"channels": notify.channels(), "recent": notify.recent()}
+    return {"channels": notify.channels(), "recent": notify.recent(), **notify.snooze_status()}
+
+
+class SnoozeIn(BaseModel):
+    minutes: float = 60.0
+
+
+@router.post("/api/notifications/snooze")
+def notifications_snooze(body: SnoozeIn, x_control_token: str = Header(default="")):
+    """Mute notification delivery for a while (events are still recorded)."""
+    _check_operator(x_control_token)
+    if body.minutes <= 0:
+        return notify.unsnooze()
+    return notify.snooze(body.minutes)

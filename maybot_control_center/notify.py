@@ -234,37 +234,81 @@ def _send_opsgenie(title: str, body: str, level: str) -> bool:
     return _post_headers(url, payload, {"Authorization": f"GenieKey {key}"})
 
 
+# Per-channel severity routing: a channel only receives events at or above its
+# configured minimum level. MAYBOT_NOTIFY_MIN_LEVEL sets a global floor;
+# MAYBOT_NOTIFY_MIN_LEVEL_<CHANNEL> (e.g. _PAGERDUTY=error) overrides per channel.
+_LEVEL_RANK = {"info": 0, "warn": 1, "warning": 1, "error": 2, "critical": 3}
+
+
+def _routed(channel: str, level: str) -> bool:
+    raw = (os.getenv(f"MAYBOT_NOTIFY_MIN_LEVEL_{channel.upper()}", "")
+           or os.getenv("MAYBOT_NOTIFY_MIN_LEVEL", "")).strip().lower()
+    floor = _LEVEL_RANK.get(raw, 0)
+    return _LEVEL_RANK.get((level or "info").strip().lower(), 0) >= floor
+
+
 def _deliver(title: str, body: str, level: str, kind: str) -> list[str]:
     """Fan the message out to every configured channel; return those delivered."""
     text = f"{title}\n{body}".strip() if body else title
     delivered: list[str] = []
 
     slack = _slack_url()
-    if slack and _post(slack, {"text": text}):
+    if slack and _routed("slack", level) and _post(slack, {"text": text}):
         delivered.append("slack")
 
     discord = _discord_url()
-    if discord and _post(discord, {"content": text}):
+    if discord and _routed("discord", level) and _post(discord, {"content": text}):
         delivered.append("discord")
 
     webhook = _webhook_url()
-    if webhook and _post(webhook, {"title": title, "body": body, "level": level, "kind": kind}):
+    if webhook and _routed("webhook", level) and _post(webhook, {"title": title, "body": body, "level": level, "kind": kind}):
         delivered.append("webhook")
 
-    if _email_configured() and _send_email(title, body):
+    if _email_configured() and _routed("email", level) and _send_email(title, body):
         delivered.append("email")
 
     tok, chat = _telegram_cfg()
-    if tok and chat and _send_telegram(text):
+    if tok and chat and _routed("telegram", level) and _send_telegram(text):
         delivered.append("telegram")
 
-    if _pagerduty_key() and _send_pagerduty(title, body, level):
+    if _pagerduty_key() and _routed("pagerduty", level) and _send_pagerduty(title, body, level):
         delivered.append("pagerduty")
 
-    if _opsgenie_key() and _send_opsgenie(title, body, level):
+    if _opsgenie_key() and _routed("opsgenie", level) and _send_opsgenie(title, body, level):
         delivered.append("opsgenie")
 
     return delivered
+
+
+# Operator snooze: mute delivery for a while (events are still recorded to the
+# ring so nothing is lost — they just don't page anyone).
+_snooze_until = 0.0
+
+
+def snooze(minutes: float) -> dict:
+    global _snooze_until
+    minutes = max(0.0, min(float(minutes or 0), 60 * 24 * 7))  # cap at a week
+    with _lock:
+        _snooze_until = time.time() + minutes * 60
+    return snooze_status()
+
+
+def unsnooze() -> dict:
+    global _snooze_until
+    with _lock:
+        _snooze_until = 0.0
+    return snooze_status()
+
+
+def snoozed() -> bool:
+    with _lock:
+        return time.time() < _snooze_until
+
+
+def snooze_status() -> dict:
+    with _lock:
+        remaining = max(0.0, _snooze_until - time.time())
+    return {"snoozed": remaining > 0, "remaining_s": int(remaining)}
 
 
 def send(title: str, body: str = "", level: str = "info", kind: str = "alert") -> dict:
@@ -288,7 +332,7 @@ def send(title: str, body: str = "", level: str = "info", kind: str = "alert") -
         # Suppress: don't re-deliver and don't re-record the noisy repeat.
         return {"delivered": [], "recorded": False}
 
-    delivered = _deliver(title, body, level, kind)
+    delivered = [] if snoozed() else _deliver(title, body, level, kind)
 
     event = {
         "ts": now,

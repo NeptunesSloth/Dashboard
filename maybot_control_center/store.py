@@ -198,6 +198,24 @@ def init() -> None:
         _connect()
 
 
+def close() -> None:
+    """Commit and close the connection (graceful shutdown). Safe to call when
+    persistence is off or already closed; the next use reconnects lazily."""
+    global _conn
+    with _lock:
+        if _conn is None:
+            return
+        try:
+            _conn.commit()
+        except Exception:
+            pass
+        try:
+            _conn.close()
+        except Exception:
+            pass
+        _conn = None
+
+
 def _exec(sql: str, params: tuple = ()) -> None:
     if not DB_PATH:
         return

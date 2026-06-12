@@ -135,7 +135,7 @@ def test_chat_claude_splits_system_and_omits_sampling(monkeypatch):
 
 def test_claude_provider_routes_through_claude(monkeypatch):
     called = {}
-    monkeypatch.setattr(agents, "_chat_claude", lambda agent, messages: called.setdefault("hit", True) or (True, "x", None))
+    monkeypatch.setattr(agents, "_chat_claude", lambda agent, messages: (called.setdefault("hit", True), "x", None))
     agents._chat({"provider": "anthropic"}, [{"role": "user", "content": "y"}])
     assert called.get("hit") is True
 

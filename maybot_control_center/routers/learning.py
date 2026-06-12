@@ -193,6 +193,18 @@ def learning_lab_grade(body: LabGradeIn, x_control_token: str = Header(default="
     return learning.grade_lab(body.lab_id, body.finding)
 
 
+class LabHintIn(BaseModel):
+    lab_id: str
+
+
+@router.post("/api/learning/lab/hint")
+def learning_lab_hint(body: LabHintIn, x_control_token: str = Header(default="")):
+    """Spend spirit stones for one mentor nudge on an open lab."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.lab_hint(body.lab_id)
+
+
 @router.get("/api/learning/progress")
 def learning_progress(x_control_token: str = Header(default="")):
     check_token(x_control_token)

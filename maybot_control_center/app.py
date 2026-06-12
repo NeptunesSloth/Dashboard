@@ -78,8 +78,33 @@ _DEFAULT_CSP = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe
 _csp_env = os.getenv("MAYBOT_CSP", "").strip()
 _CSP = _DEFAULT_CSP if _csp_env.lower() in ("1", "true", "yes", "on") else _csp_env
 _HSTS = os.getenv("MAYBOT_HSTS", "0").lower() in ("1", "true", "yes", "on")
+# Interactive OpenAPI docs (/docs, /redoc, /openapi.json) are opt-in: they
+# enumerate the whole API surface unauthenticated, so MAYBOT_DOCS gates them.
+_DOCS = os.getenv("MAYBOT_DOCS", "0").lower() in ("1", "true", "yes", "on")
 
-app = FastAPI(title="maybot-control-center")
+def _graceful_shutdown() -> None:
+    """Flush + close persistence on SIGTERM/reload. Background loops are daemon
+    threads whose every mutation persists synchronously, so a clean DB close is
+    what keeps a terminating pod from cutting a commit in half."""
+    try:
+        store.close()
+    except Exception:
+        pass
+
+
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def _lifespan(_app):
+    yield
+    _graceful_shutdown()
+
+
+app = FastAPI(title="maybot-control-center", lifespan=_lifespan,
+              docs_url="/docs" if _DOCS else None,
+              redoc_url="/redoc" if _DOCS else None,
+              openapi_url="/openapi.json" if _DOCS else None)
 
 
 @app.middleware("http")

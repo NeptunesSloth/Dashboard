@@ -636,6 +636,39 @@ def generate_lab(track_id: str, kind: str, chat=None) -> dict:
             "artifact": str(data["artifact"]), "error": None}
 
 
+HINT_COST = 10
+
+SYSTEM_HINT = (
+    "You are a patient lab mentor. Given a lab's hidden answer and indicators, give the learner ONE "
+    "nudge toward the next step: point at where to look or what to question, but NEVER name the "
+    "vulnerability, attack, or flag outright. 2-3 sentences, plain text, no JSON."
+)
+
+
+def lab_hint(lab_id: str, chat=None) -> dict:
+    """A paid nudge: spend spirit stones for one mentor hint on an open lab."""
+    with _lock:
+        lab = (_g().get("labs") or {}).get(lab_id)
+    if not lab:
+        return {"error": "unknown or expired lab"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    if not cultivation.spend(LEARNER, HINT_COST):
+        return {"error": f"not enough spirit stones — a hint costs {HINT_COST}"}
+    user = (f"Lab brief: {lab['brief']}\n\nHidden answer (do NOT reveal it):\n{lab['answer']}\n\n"
+            f"Key indicators: {', '.join(lab['indicators'])}\n\n"
+            f"Hints already given: {lab.get('hints', 0)}")
+    ok, text, err = _call(member, SYSTEM_HINT, user, chat, max_tokens=220, temperature=0.5)
+    if not ok:
+        cultivation.reward(LEARNER, HINT_COST)  # refund — the learner paid for nothing
+        return {"error": err or "no response"}
+    with _lock:
+        lab["hints"] = lab.get("hints", 0) + 1
+        _save()
+    return {"hint": text.strip(), "cost": HINT_COST, "hints_used": lab["hints"], "error": None}
+
+
 def grade_lab(lab_id: str, finding: str, chat=None) -> dict:
     with _lock:
         lab = (_g().get("labs") or {}).get(lab_id)

@@ -225,6 +225,22 @@ def audit_log(x_control_token: str = Header(default="")):
     return audit.snapshot()
 
 
+@router.get("/api/audit/verify")
+def audit_verify(x_control_token: str = Header(default="")):
+    """Walk the audit log's hash chain and report any tampering."""
+    _check_token(x_control_token)
+    return audit.verify()
+
+
+@router.get("/api/audit/export")
+def audit_export(x_control_token: str = Header(default="")):
+    """The retained audit log as JSON Lines, for SIEM / log-pipeline ingestion."""
+    _check_operator(x_control_token)
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(audit.export_jsonl(), media_type="application/x-ndjson",
+                             headers={"Content-Disposition": 'attachment; filename="audit.jsonl"'})
+
+
 # ---- Data export (CSV / JSON) ----
 def _csv_response(filename: str, header: list[str], rows) -> StreamingResponse:
     buf = io.StringIO()
