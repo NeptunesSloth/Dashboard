@@ -108,8 +108,12 @@ SYSTEM_DRILL = (
 SYSTEM_RANGE = (
     "You design SIMULATED, end-to-end penetration-testing ranges for authorized training. "
     "Respond with ONLY a JSON object describing a small virtual network the learner attacks "
-    "stage by stage:\n"
-    '{"scenario":"1-2 sentence engagement brief","entry_points":["host id the learner can reach first"],'
+    "stage by stage toward a CONCRETE OBJECTIVE:\n"
+    '{"scenario":"1-2 sentence engagement brief (who hired you, rules of engagement)",'
+    '"objective":{"goal":"a specific real-world mission, e.g. exfiltrate the file '
+    '/srv/finance/payroll_2026.xlsx from the domain controller","target_host":"the host id holding '
+    'it","flag":"the exact secret/file-contents the learner must produce to prove capture"},'
+    '"entry_points":["host id the learner can reach first"],'
     '"hosts":[{"id":"h1","hostname":"...","ip":"10.0.0.x","kind":"router|workstation|server|web|db|'
     'dc|fileshare|iot|cloud","services":[{"port":22,"name":"ssh","version":"..."}],'
     '"enum_hint":"what enumeration reveals here","vuln":"the specific weakness","exploit":"how it is '
@@ -117,8 +121,46 @@ SYSTEM_RANGE = (
     '["host ids this loot unlocks"]}]}.\n'
     "Build a realistic kill chain: a reachable foothold, then lateral movement across DIFFERENT device "
     "kinds (e.g. web server -> database -> workstation -> domain controller), where each host's loot "
-    "unlocks the next. 4-7 hosts. Mix services/versions realistically. Keep vuln/exploit/loot HIDDEN "
-    "from the brief — the learner must discover them. " + _GUARD
+    "unlocks the next, and the OBJECTIVE lives on the deepest host (target_host should have no further "
+    "pivots). 4-7 hosts. Mix services/versions realistically. Keep vuln/exploit/loot/flag HIDDEN from "
+    "the brief — the learner must discover them. " + _GUARD
+)
+# Grade an exploit attempt on REAL TRADECRAFT, not buzzword-matching: reward
+# sound enumeration, correct vuln identification, a viable exploitation path, and
+# awareness of post-exploitation + detection. Penalise "just run <tool>" with no
+# understanding. The point is teaching method, not making script kiddies.
+SYSTEM_RANGE_GRADER = (
+    "You are a senior penetration-test assessor grading a learner's plan to compromise one host in a "
+    "simulated range. Grade on TRADECRAFT, not keywords. Reward: (1) correct identification of the "
+    "actual weakness; (2) a viable, specific exploitation path (not just naming a tool); (3) sound "
+    "method — enumeration evidence, why this works, safe validation; (4) awareness of what's gained and "
+    "the next pivot. Penalise blind tool-spraying, hand-waving, or wrong root cause even if a tool is "
+    "named. Respond with ONLY: {\"score\":0-100,\"feedback\":\"2-3 sentences: tradecraft done well and "
+    "the single biggest gap\",\"tradecraft\":\"one concrete habit to improve\"}."
+)
+# Defensive (blue-team) incident investigation: an alert + multi-source logs hide
+# a ground truth the learner must SCOPE — entry vector, every compromised device,
+# the lateral path, and exactly what (if anything) was exfiltrated.
+SYSTEM_INCIDENT = (
+    "You design SIMULATED blue-team incident-investigation exercises for authorized training. "
+    "Respond with ONLY a JSON object:\n"
+    '{"alert":"the initial alert/notification as a SOC tool (EDR/SIEM/IDS) would phrase it",'
+    '"tool":"the tool the alert came from","artifacts":"15-40 lines of realistic, multi-source '
+    'synthetic logs (auth, web, EDR, firewall, DNS) the analyst pivots through — embed the real '
+    'evidence among noise","ground_truth":{"entry_vector":"how they got in","compromised":["device '
+    'names actually compromised"],"not_compromised":["devices that look suspicious but were NOT"],'
+    '"lateral_path":"device-to-device movement","exfiltration":"exactly what data left and to where, '
+    'or \'none\'","timeline":"brief ordered sequence"},"indicators":["IOC 1","IOC 2"]}.\n'
+    "Make scoping genuinely require reading the evidence: include red herrings. " + _GUARD
+)
+SYSTEM_INCIDENT_GRADER = (
+    "You grade a SOC analyst's incident investigation against the hidden ground truth. Grade on "
+    "investigative TRADECRAFT and accuracy of the SCOPE, not vibes. Score these dimensions and weight "
+    "them: (1) correct ENTRY vector; (2) correct list of COMPROMISED devices (false positives AND "
+    "misses both cost points); (3) correct determination of EXFILTRATION — what left and where, or "
+    "correctly concluding nothing did; (4) EVIDENCE — did they cite specific log lines/IOCs rather than "
+    "guess. Respond with ONLY: {\"score\":0-100,\"passed\":true/false (>=70),\"feedback\":\"what they "
+    "scoped correctly and what they got wrong\",\"missed\":[\"key things not found\"]}."
 )
 SYSTEM_PROFILER = (
     "You maintain a concise model of how a particular learner learns, to help a tutor adapt. "
@@ -147,6 +189,8 @@ BADGES = [
     ("proven", "Proven", "Test out of a topic you already knew.", lambda g: g.get("tested_out", 0) >= 1, 30),
     ("foothold", "Foothold", "Compromise your first host in a range.", lambda g: g.get("hosts_pwned", 0) >= 1, 30),
     ("domain_admin", "Domain Admin", "Clear an end-to-end pentest range.", lambda g: g.get("ranges_cleared", 0) >= 1, 120),
+    ("exfiltrator", "Exfiltrator", "Capture a range's objective (the crown jewels).", lambda g: g.get("objectives_captured", 0) >= 1, 90),
+    ("incident_handler", "Incident Handler", "Correctly scope an incident investigation.", lambda g: g.get("incidents_solved", 0) >= 1, 70),
 ]
 
 
@@ -169,6 +213,7 @@ def _blank() -> dict:
         "plans": {},           # track_id -> {track, exam_date, created, items:[{date, kind, ref, done}]}
         "ranges": {},          # range_id -> end-to-end pentest range (virtual network); see generate_range()
         "drills": {},          # drill_id -> language cloze/translation drill; see generate_drill()
+        "incidents": {},       # incident_id -> blue-team investigation exercise; see generate_incident()
     }
 
 
@@ -185,6 +230,7 @@ def _blank_game() -> dict:
         "combo": 0, "best_combo": 0, "exams_passed": 0, "reviews_done": 0,
         "quest_day": "", "quests": [],
         "tested_out": 0, "hosts_pwned": 0, "ranges_cleared": 0,
+        "objectives_captured": 0, "incidents_total": 0, "incidents_solved": 0,
     }
 
 
@@ -1067,8 +1113,12 @@ def _range_view(rng: dict) -> dict:
         })
     total = len(rng["hosts"])
     owned = sum(1 for h in rng["hosts"].values() if h.get("compromised"))
+    obj = rng.get("objective") or {}
+    # The objective's goal/target are shown; the flag stays hidden until captured.
+    objective = {"goal": obj.get("goal", ""), "target_host": obj.get("target_host", ""),
+                 "captured": bool(obj.get("captured"))} if obj else None
     return {"range_id": rng["id"], "scenario": rng.get("scenario", ""), "track": rng.get("track"),
-            "hosts": hosts, "owned": owned, "total": total,
+            "objective": objective, "hosts": hosts, "owned": owned, "total": total,
             "cleared": owned >= total and total > 0, "error": None}
 
 
@@ -1110,9 +1160,20 @@ def generate_range(track_id: str, chat=None) -> dict:
     entry = [str(x) for x in (data.get("entry_points") or []) if str(x) in hosts]
     if not entry:
         entry = [next(iter(hosts))]  # fall back to the first host as the foothold
+    raw_obj = data.get("objective") if isinstance(data.get("objective"), dict) else {}
+    target = str(raw_obj.get("target_host", "")) if raw_obj else ""
+    if target not in hosts:
+        # default the objective to the deepest host (one with no onward pivots)
+        target = next((hid for hid, h in hosts.items() if not h.get("pivots_to")),
+                      list(hosts)[-1])
+    objective = {"goal": str(raw_obj.get("goal", "") or "Reach and loot the crown-jewel host."),
+                 "target_host": target,
+                 "flag": str(raw_obj.get("flag", "") or (hosts[target].get("loot") or "OBJECTIVE")),
+                 "captured": False}
     range_id = f"rng-{int(time.time()*1000)}-{random.randint(100,999)}"
     rng = {"id": range_id, "track": track_id, "scenario": str(data.get("scenario", "")),
-           "entry_points": entry, "hosts": hosts, "created": int(time.time())}
+           "objective": objective, "entry_points": entry, "hosts": hosts,
+           "created": int(time.time())}
     with _lock:
         ranges = _g().setdefault("ranges", {})
         ranges[range_id] = rng
@@ -1174,7 +1235,7 @@ def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
             f"Services: {host.get('services')}\n\nHidden vulnerability: {host['vuln']}\n"
             f"Expected exploitation: {host['exploit']}\n\n"
             f"Learner's plan:\n{(finding or '').strip() or '(blank)'}")
-    ok, text, err = _call(member, SYSTEM_GRADER, user, chat, max_tokens=400, temperature=0.2)
+    ok, text, err = _call(member, SYSTEM_RANGE_GRADER, user, chat, max_tokens=450, temperature=0.2)
     if not ok:
         return {"error": err or "no response"}
     data = _extract_json(text) or {}
@@ -1185,6 +1246,7 @@ def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
     feedback = str(data.get("feedback", "")).strip()
     owned = score >= RANGE_EXPLOIT_PASS
     result: dict = {"host_id": host_id, "score": score, "feedback": feedback,
+                    "tradecraft": str(data.get("tradecraft", "")).strip(),
                     "compromised": owned, "error": None}
     if not owned:
         return result
@@ -1210,6 +1272,127 @@ def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
         f"Compromised {host.get('hostname')} ({host.get('kind')}) in a pentest range."
         + (" Cleared the whole range." if cleared else ""), chat)
     return result
+
+
+def range_capture(range_id: str, submission: str) -> dict:
+    """Complete the engagement OBJECTIVE: extract the specific file/secret from the
+    target host. The target must be compromised first; the submission is matched
+    against the hidden flag (accent/format tolerant). This is the real-world goal
+    — getting domain admin isn't the point, getting the data out is."""
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if not rng:
+            return {"error": "unknown or expired range"}
+        obj = rng.get("objective") or {}
+        if not obj:
+            return {"error": "this range has no objective"}
+        if obj.get("captured"):
+            return {"captured": True, "already": True, "goal": obj.get("goal", ""), "error": None}
+        target_id = obj.get("target_host")
+        target = rng["hosts"].get(target_id) or {}
+        if not target.get("compromised"):
+            return {"error": "compromise the objective's target host before extracting from it",
+                    "target_host": target_id}
+        flag = obj.get("flag", "")
+        got = _norm_answer(submission)
+        ok = bool(got) and (got == _norm_answer(flag) or _norm_answer(flag) in got
+                            or (len(got) >= 6 and got in _norm_answer(flag)))
+        if not ok:
+            return {"captured": False, "goal": obj.get("goal", ""),
+                    "hint": "that's not the objective data — re-check what's on the target host",
+                    "error": None}
+        obj["captured"] = True
+        g = _g()["game"]
+        g["objectives_captured"] = g.get("objectives_captured", 0) + 1
+        _save()
+    _award_progress(80, skill="Objective-Based Operations", bonus=20)
+    _touch_streak()
+    earned = _check_badges()
+    _update_profile(f"Captured the engagement objective ({obj.get('goal','')}) in a pentest range.")
+    return {"captured": True, "goal": obj.get("goal", ""), "flag": flag,
+            "awarded": 80, "badges": earned, "error": None}
+
+
+# ---------------------------------------------------------------------------
+# blue-team incident investigation — scope a real compromise from alert + logs
+# ---------------------------------------------------------------------------
+INCIDENT_PASS = int(os.getenv("MAYBOT_INCIDENT_PASS", "70"))
+
+
+def generate_incident(track_id: str = "blue-team", chat=None) -> dict:
+    """Generate a defensive investigation: an alert + multi-source logs hiding a
+    ground truth the analyst must scope (entry, spread, exfiltration)."""
+    track = _track(track_id) or {"id": track_id, "title": "Blue Team"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    user = (f"Track: {track.get('title')}\nLearner profile:\n{_profile_brief()}\n\n"
+            "Design a blue-team incident-investigation exercise as specified."
+            + _threat_context({"labs": ["ids"], "title": "incident"}))
+    ok, text, err = _call(member, SYSTEM_INCIDENT, user, chat, max_tokens=2200, temperature=0.7)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text)
+    gt = (data or {}).get("ground_truth") if isinstance(data, dict) else None
+    if not isinstance(data, dict) or not data.get("artifacts") or not isinstance(gt, dict):
+        return {"error": "could not parse incident from the model"}
+    incident_id = f"inc-{int(time.time()*1000)}-{random.randint(100,999)}"
+    with _lock:
+        _g().setdefault("incidents", {})[incident_id] = {
+            "track": track_id, "alert": str(data.get("alert", "")), "tool": str(data.get("tool", "")),
+            "artifacts": str(data["artifacts"]), "ground_truth": gt,
+            "indicators": [str(x) for x in (data.get("indicators") or [])],
+            "created": int(time.time())}
+        _save()
+    # The alert + raw logs are shown; the ground truth stays server-side.
+    return {"incident_id": incident_id, "alert": str(data.get("alert", "")),
+            "tool": str(data.get("tool", "")), "artifacts": str(data["artifacts"]),
+            "goal": ("Scope the compromise: the entry vector, EVERY compromised device, the lateral "
+                     "path, and exactly what (if anything) was exfiltrated. Cite the evidence."),
+            "error": None}
+
+
+def grade_incident(incident_id: str, findings: str, chat=None) -> dict:
+    """Grade a SOC analyst's investigation on scope accuracy + tradecraft."""
+    with _lock:
+        inc = (_g().get("incidents") or {}).get(incident_id)
+    if not inc:
+        return {"error": "unknown or expired incident"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    gt = inc["ground_truth"]
+    user = (f"Alert ({inc.get('tool')}): {inc.get('alert')}\n\nGround truth:\n{json.dumps(gt)}\n\n"
+            f"Analyst's investigation:\n{(findings or '').strip() or '(blank)'}")
+    ok, text, err = _call(member, SYSTEM_INCIDENT_GRADER, user, chat, max_tokens=500, temperature=0.2)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text) or {}
+    try:
+        score = max(0, min(100, int(data.get("score", 0))))
+    except Exception:
+        score = 0
+    solved = bool(data.get("passed")) if "passed" in data else (score >= INCIDENT_PASS)
+    stones = 12 + score // 5 if solved else score // 10
+    with _lock:
+        g = _g()["game"]
+        g["incidents_total"] = g.get("incidents_total", 0) + 1
+        if solved:
+            g["incidents_solved"] = g.get("incidents_solved", 0) + 1
+        p = _progress_for(inc["track"])
+        p["labs_done"] += 1
+        _save()
+    _award_progress(stones, skill="Incident Response & Scoping" if solved else None, bonus=10 if solved else 0)
+    _touch_streak()
+    _progress_quest("lab", passed=solved)
+    _log_activity("labs", score)
+    earned = _check_badges()
+    _update_profile(f"Investigated an incident and scored {score}/100. "
+                    + ("Scoped it accurately." if solved else "Missed parts of the scope."), chat)
+    return {"score": score, "solved": solved, "passed": solved,
+            "feedback": str(data.get("feedback", "")).strip(),
+            "missed": [str(x) for x in (data.get("missed") or [])],
+            "ground_truth": gt, "awarded": stones, "badges": earned, "error": None}
 
 
 # ---------------------------------------------------------------------------
@@ -1815,18 +1998,63 @@ def start() -> bool:
 # ---------------------------------------------------------------------------
 # PHASE 2 (optional) — real environment hook. Intentionally unbuilt.
 # ---------------------------------------------------------------------------
-def attach_real_env(exercise: dict, device_name: str, project_name: str) -> dict | None:
-    """COMMAND-EXECUTION exploit labs — deny-by-default, deliberately UNBUILT.
+# ---------------------------------------------------------------------------
+# real-command execution (default-OFF) — the contract, not a live exploit driver.
+# See docs/REAL_LABS.md for the microVM/sandbox topology this binds to.
+# ---------------------------------------------------------------------------
+REAL_LABS = os.getenv("MAYBOT_REAL_LABS", "0").lower() in ("1", "true", "yes", "on")
+REAL_TARGETS_FILE = Path(os.getenv("MAYBOT_REAL_TARGETS_FILE", "real_targets.yaml"))
 
-    Real IDS labs already work TODAY, read-only: the operator runs a Docker lab
-    TARGET (see ``labs/`` and the ``list_lab_targets()`` catalog), attacks it
-    themselves, and the resulting REAL logs are pulled via ``fetch_real_logs``
-    (a read-only ``/api/projects/<project>/logs`` proxy — no command execution)
-    into ``generate_real_lab``. That is the only real-environment path that
-    touches a host, and it only READS.
 
-    What stays unbuilt here is *driving recon/exploit COMMANDS* against a live
-    target from the dashboard. If ever built, it must route through the
-    operator-approved ``tools.yaml`` / ``/api/action`` allow-list — LLM text must
-    never become a shell command. Returns ``None``."""
-    return None
+def _load_real_targets() -> dict:
+    """Operator-defined map of range/lab host -> a real, isolated sandbox target +
+    the guarded tools allowed against it. Read-only data; nothing here executes."""
+    if not REAL_LABS or not REAL_TARGETS_FILE.exists():
+        return {}
+    try:
+        data = yaml.safe_load(REAL_TARGETS_FILE.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+    out = {}
+    for t in (data.get("targets") or []):
+        if isinstance(t, dict) and t.get("host_id"):
+            out[str(t["host_id"])] = t
+    return out
+
+
+def real_env_status() -> dict:
+    """Surface whether real-command labs are wired (default off). The UI shows
+    this so simulated labs are clearly distinguished from a live sandbox."""
+    targets = _load_real_targets()
+    return {"enabled": REAL_LABS, "configured_targets": sorted(targets.keys()),
+            "agent_required": True,
+            "note": ("OFF — labs are simulated, graded server-side." if not REAL_LABS else
+                     "ON — host actions route through the guarded tools allow-list on an "
+                     "isolated-sandbox agent. See docs/REAL_LABS.md.")}
+
+
+def attach_real_env(exercise: dict, host_id: str) -> dict | None:
+    """Bind a simulated range/lab host to a REAL, isolated sandbox target so its
+    enumerate/exploit actions run actual tools — the CONTRACT, default-OFF.
+
+    Returns ``None`` unless ``MAYBOT_REAL_LABS=1`` AND ``real_targets.yaml`` maps
+    ``host_id`` to a sandbox target. When bound, it returns a descriptor naming the
+    sandbox agent and the *allow-listed* guarded tools permitted against it — it
+    does NOT execute anything. Execution still goes through ``tools.run`` (fixed
+    argv, no shell, validated args, human approval, audited) dispatched to a
+    ``maybot_agent`` running INSIDE the isolated microVM/sandbox network, scoped to
+    the lab subnet. The model never turns free text into a command; it can only
+    request an allow-listed tool with validated parameters. See docs/REAL_LABS.md."""
+    targets = _load_real_targets()
+    t = targets.get(str(host_id))
+    if not t:
+        return None
+    return {
+        "host_id": str(host_id),
+        "agent": str(t.get("agent", "")),          # the in-sandbox maybot_agent host name
+        "target": str(t.get("target", "")),        # sandbox-internal IP/hostname only
+        "network": str(t.get("network", "")),      # the isolated lab subnet (scope guard)
+        "allowed_tools": [str(x) for x in (t.get("allowed_tools") or [])],
+        "requires_approval": bool(t.get("requires_approval", True)),
+        "ephemeral": bool(t.get("ephemeral", True)),
+    }

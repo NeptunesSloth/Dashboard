@@ -61,10 +61,14 @@ python -m playwright install --with-deps chromium && python tests/smoke_browser.
 - **LLM layer** — `agents.py` (`_chat`/`stream_chat`, retries, fallback models,
   budget, context trimming + opt-in secret redaction), `copilot.py` (Ops Copilot),
   `learning.py` (Learning Center tutor/quiz/labs + learner-profile adaptation;
-  topic test-out, a simulated end-to-end pentest range, current-threat injection
-  for security tracks, and an immersive tutor + cloze/translation drills for
-  language tracks). Every LLM fn takes an injectable `chat=` param defaulting to
-  `agents._chat`, for testability.
+  topic test-out, an objective-driven end-to-end pentest range with a capture
+  step + tradecraft grading, blue-team incident-scoping labs, current-threat
+  injection for security tracks, and an immersive tutor + cloze/translation
+  drills for language tracks). Every LLM fn takes an injectable `chat=` param
+  defaulting to `agents._chat`, for testability. Real-command labs are a
+  default-off contract (`attach_real_env`/`MAYBOT_REAL_LABS`) — see
+  `docs/REAL_LABS.md`; execution always routes through the guarded tools
+  allow-list, never free-text shell.
 - **Gamification** — `cultivation.py` (XP/realm ladder, spirit stones),
   `governance.py`, `traits.py`, `chronicle.py` (the event feed), `lifecycle.py`.
 - **Persistence** — `store.py` (optional SQLite/Postgres via `MAYBOT_DB`; a no-op

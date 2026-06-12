@@ -76,3 +76,25 @@ tools:
     argv: ["./scripts/chaos/seal.sh", "{target}"]
     cwd: /opt/myproject
     timeout_seconds: 30
+
+  # --- Learning Center real-command pentest labs (DEFAULT OFF) ---------------
+  # Only loaded when MAYBOT_REAL_LABS=1 and real_targets.yaml binds a lab host to
+  # an isolated sandbox target. Run the maybot_agent that executes these INSIDE
+  # the isolated microVM/sandbox network only (see docs/REAL_LABS.md), reachable
+  # to the lab subnet and NOTHING else. {target} is validated (no shell
+  # metacharacters); never auto_approve — a human approves each run.
+  - name: nmap_scan
+    description: "Service/version scan of a single lab host (pentest range)."
+    argv: ["nmap", "-sV", "-Pn", "--top-ports", "200", "{target}"]
+    args: [target]
+    timeout_seconds: 120
+  - name: nikto_scan
+    description: "Web server vulnerability scan of a lab host."
+    argv: ["nikto", "-host", "{target}"]
+    args: [target]
+    timeout_seconds: 180
+  - name: gobuster_dir
+    description: "Directory/content discovery against a lab web host."
+    argv: ["gobuster", "dir", "-q", "-u", "{target}", "-w", "/usr/share/wordlists/dirb/common.txt"]
+    args: [target]
+    timeout_seconds: 180

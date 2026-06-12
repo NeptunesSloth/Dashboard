@@ -304,6 +304,52 @@ def learning_range_exploit(body: RangeExploitIn, x_control_token: str = Header(d
     return learning.range_exploit(body.range_id, body.host_id, body.finding)
 
 
+class RangeCaptureIn(BaseModel):
+    range_id: str
+    submission: str = ""
+
+
+@router.post("/api/learning/range/capture")
+def learning_range_capture(body: RangeCaptureIn, x_control_token: str = Header(default="")):
+    """Complete the engagement objective — extract the target file/secret."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_capture(body.range_id, body.submission)
+
+
+@router.get("/api/learning/real-env")
+def learning_real_env(x_control_token: str = Header(default="")):
+    """Whether real-command (sandboxed) labs are wired — default off."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.real_env_status()
+
+
+# ---- blue-team incident investigation ----
+class IncidentIn(BaseModel):
+    track: str = "blue-team"
+
+
+class IncidentGradeIn(BaseModel):
+    incident_id: str
+    findings: str = ""
+
+
+@router.post("/api/learning/incident")
+def learning_incident(body: IncidentIn, x_control_token: str = Header(default="")):
+    """Generate a defensive incident-investigation exercise (scope the compromise)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.generate_incident(body.track)
+
+
+@router.post("/api/learning/incident/grade")
+def learning_incident_grade(body: IncidentGradeIn, x_control_token: str = Header(default="")):
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.grade_incident(body.incident_id, body.findings)
+
+
 @router.get("/api/learning/progress")
 def learning_progress(x_control_token: str = Header(default="")):
     check_token(x_control_token)

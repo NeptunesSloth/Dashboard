@@ -103,10 +103,22 @@ Safe, non-conflicting wins that don't require architectural changes:
 
 ## 🎓 Learning Center
 - ✅ **End-to-end pentest range** — a SIMULATED virtual network you attack stage
-  by stage: enumerate a reachable host, exploit it (server-side graded), loot
-  credentials that unlock pivots, and move laterally across device kinds
-  (web → db → workstation → DC) to clear the range. Zero command execution.
-  (`/api/learning/range`, `/range/{id}`, `/range/enumerate`, `/range/exploit`.)
+  by stage: enumerate a reachable host, exploit it, loot credentials that unlock
+  pivots, and move laterally (web → db → workstation → DC) toward a **concrete
+  mission objective** (e.g. exfiltrate a specific file from the deepest host),
+  completed via a `/range/capture` step. Exploits are graded on **tradecraft**
+  (method/root-cause/post-ex awareness), not buzzwords. Zero command execution.
+  (`/api/learning/range`, `/range/{id}`, `/range/enumerate`, `/range/exploit`,
+  `/range/capture`.)
+- ✅ **Blue-team incident investigation** — given an alert + multi-source logs,
+  scope the real degree of compromise (entry vector, every compromised device,
+  lateral path, exactly what was exfiltrated) and get graded on scoping accuracy
+  + evidence. (`/api/learning/incident`, `/incident/grade`.)
+- ✅ **Real-command labs (default-off contract)** — `attach_real_env` +
+  `real_targets.yaml` bind a simulated host to an isolated microVM/sandbox target;
+  execution routes through the guarded tools allow-list on an in-sandbox agent.
+  Spec + topology in `docs/REAL_LABS.md`; surfaced at `/api/learning/real-env`.
+  The model never turns free text into a shell command.
 - ✅ **Test-out / placement** — prove mastery of a topic and skip it
   (`/api/learning/placement` + `/placement/grade`); tracks `mastered_topics`.
 - ✅ **Stays current** — a `threats.yaml` / `MAYBOT_THREAT_CONTEXT` "current
