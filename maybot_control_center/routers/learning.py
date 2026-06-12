@@ -361,6 +361,36 @@ def learning_rank(x_control_token: str = Header(default="")):
     return learning.skill_rank()
 
 
+# ---- bring-your-own material (RAG) ----
+class MaterialIn(BaseModel):
+    track: str
+    text: str
+    name: str = ""
+
+
+@router.post("/api/learning/material")
+def learning_material_set(body: MaterialIn, x_control_token: str = Header(default="")):
+    """Attach your own notes/document text to a track; lessons + quizzes + exams
+    are then grounded in it."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.set_material(body.track, body.text, body.name)
+
+
+@router.get("/api/learning/material")
+def learning_material_get(track: str = Query(...), x_control_token: str = Header(default="")):
+    check_token(x_control_token)
+    from .. import learning
+    return learning.get_material(track)
+
+
+@router.delete("/api/learning/material")
+def learning_material_clear(track: str = Query(...), x_control_token: str = Header(default="")):
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.clear_material(track)
+
+
 @router.get("/api/learning/real-env")
 def learning_real_env(x_control_token: str = Header(default="")):
     """Whether real-command (sandboxed) labs are wired — default off."""

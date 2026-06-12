@@ -232,6 +232,7 @@ def _blank() -> dict:
         "ranges": {},          # range_id -> end-to-end pentest range (virtual network); see generate_range()
         "drills": {},          # drill_id -> language cloze/translation drill; see generate_drill()
         "incidents": {},       # incident_id -> blue-team investigation exercise; see generate_incident()
+        "materials": {},       # track_id -> {name, text, created}: bring-your-own study material (RAG)
     }
 
 
@@ -386,6 +387,57 @@ def _call(member: dict, system: str, user: str, chat, max_tokens=900, temperatur
     )
 
 
+# Bring-your-own material (a lightweight RAG): an operator pastes notes / a doc
+# for a track; lessons, quizzes and exams are then grounded in it. Text-only —
+# paste extracted text (e.g. from a PDF). Capped so a huge upload can't blow the
+# context; the newest material wins.
+MATERIAL_CAP = max(1000, int(os.getenv("MAYBOT_MATERIAL_CHARS", "12000")))
+
+
+def set_material(track_id: str, text: str, name: str = "") -> dict:
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    text = (text or "").strip()
+    if not text:
+        return {"error": "no material text provided"}
+    with _lock:
+        _g().setdefault("materials", {})[track_id] = {
+            "name": (name or "study material").strip()[:120],
+            "text": text[:MATERIAL_CAP], "created": int(time.time())}
+        _save()
+    return {"ok": True, "track": track_id, "chars": min(len(text), MATERIAL_CAP),
+            "truncated": len(text) > MATERIAL_CAP}
+
+
+def get_material(track_id: str) -> dict:
+    with _lock:
+        m = (_g().get("materials") or {}).get(track_id)
+    if not m:
+        return {"present": False}
+    return {"present": True, "name": m.get("name", ""), "chars": len(m.get("text", "")),
+            "created": m.get("created")}
+
+
+def clear_material(track_id: str) -> dict:
+    with _lock:
+        existed = (_g().get("materials") or {}).pop(track_id, None) is not None
+        if existed:
+            _save()
+    return {"ok": existed}
+
+
+def _material_context(track_id: str) -> str:
+    """Grounding block for a track's bring-your-own material (empty if none)."""
+    with _lock:
+        m = (_g().get("materials") or {}).get(track_id)
+    if not m or not m.get("text"):
+        return ""
+    return ("\n\nGROUND YOUR TEACHING IN THE LEARNER'S OWN MATERIAL BELOW — prefer it over general "
+            "knowledge, quote/reference it, and stay consistent with it:\n<material>\n"
+            + m["text"] + "\n</material>")
+
+
 # Keep security content current. The model's training has a cutoff, so the
 # operator can inject the live threat picture — recent TTPs, CVEs, tooling — via
 # a `threats.yaml` file and/or MAYBOT_THREAT_CONTEXT. Injected into security
@@ -499,6 +551,8 @@ def list_tracks() -> dict:
                 "labs": t.get("labs", []), "builtin": t.get("builtin", False),
                 "level": _track_level(p), "completed_topics": p.get("completed_topics", []),
                 "mastered_topics": p.get("mastered_topics", []),
+                "material": (_g().get("materials") or {}).get(tid, {}).get("name") if
+                            (_g().get("materials") or {}).get(tid) else None,
             })
         return {"tracks": tracks}
 
@@ -618,7 +672,7 @@ def get_lesson(track_id: str, topic: str, chat=None) -> dict:
     user = (f"Track: {track['title']}\nTopic: {topic}\n\nLearner profile:\n{_profile_brief()}\n\n"
             "Teach this topic now: a focused lesson with a clear explanation, one or two worked "
             "examples, and a short 'check yourself' question at the end."
-            + _threat_context(track))
+            + _threat_context(track) + _material_context(track_id))
     ok, text, err = _call(member, system, user, chat, max_tokens=1100, temperature=0.5)
     if not ok:
         return {"error": err or "the tutor did not respond"}
@@ -682,7 +736,8 @@ def _tutor_user_prompt(track: dict, question: str, history) -> str:
         convo += f"{role}: {turn.get('content', '')}\n"
     return (f"Track: {track.get('title')}\n\nLearner profile:\n{_profile_brief()}\n\n"
             + (f"Recent conversation:\n{convo}\n" if convo else "")
-            + f"Learner asks: {question}")
+            + f"Learner asks: {question}"
+            + _material_context(track.get("id", "")))
 
 
 def _persist_chat(track_id: str, question: str, answer: str) -> None:
@@ -762,7 +817,7 @@ def generate_quiz(track_id: str, topic: str, n: int = 5, chat=None) -> dict:
         return {"error": "no_backend"}
     n = max(1, min(10, int(n or 5)))
     user = (f"Track: {track['title']}\nTopic: {topic}\nLearner profile:\n{_profile_brief()}\n\n"
-            f"Write {n} multiple-choice questions on this topic.")
+            f"Write {n} multiple-choice questions on this topic." + _material_context(track_id))
     ok, text, err = _call(member, SYSTEM_QUIZ, user, chat, max_tokens=1200, temperature=0.6)
     if not ok:
         return {"error": err or "no response"}
@@ -1663,7 +1718,7 @@ def generate_exam(track_id: str, n: int = 20, chat=None) -> dict:
     user = (f"Track: {track['title']}\nDomains/topics: {topics}\nLearner profile:\n{_profile_brief()}\n\n"
             f"Write a {n}-question practice EXAM spanning ALL the domains above, weighted realistically. "
             "Tag each question with its domain (use one of the topic names as the `domain`)."
-            + _threat_context(track))
+            + _threat_context(track) + _material_context(track_id))
     sys = SYSTEM_QUIZ.replace(
         '{"q":"...","choices":["A","B","C","D"],"answer":0,"explanation":"..."}',
         '{"q":"...","choices":["A","B","C","D"],"answer":0,"explanation":"...","domain":"..."}')
