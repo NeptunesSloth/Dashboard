@@ -59,9 +59,12 @@ python -m playwright install --with-deps chromium && python tests/smoke_browser.
 - **`aggregator.py`** — polls every agent and builds `/api/overview`. Sync by
   default; opt-in async path via `MAYBOT_ASYNC_POLL=1` (`aggregate_async`).
 - **LLM layer** — `agents.py` (`_chat`/`stream_chat`, retries, fallback models,
-  budget), `copilot.py` (Ops Copilot), `learning.py` (Learning Center tutor/quiz/
-  labs + learner-profile adaptation). Every LLM fn takes an injectable `chat=`
-  param defaulting to `agents._chat`, for testability.
+  budget, context trimming + opt-in secret redaction), `copilot.py` (Ops Copilot),
+  `learning.py` (Learning Center tutor/quiz/labs + learner-profile adaptation;
+  topic test-out, a simulated end-to-end pentest range, current-threat injection
+  for security tracks, and an immersive tutor + cloze/translation drills for
+  language tracks). Every LLM fn takes an injectable `chat=` param defaulting to
+  `agents._chat`, for testability.
 - **Gamification** — `cultivation.py` (XP/realm ladder, spirit stones),
   `governance.py`, `traits.py`, `chronicle.py` (the event feed), `lifecycle.py`.
 - **Persistence** — `store.py` (optional SQLite/Postgres via `MAYBOT_DB`; a no-op

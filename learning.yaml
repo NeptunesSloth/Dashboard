@@ -3,6 +3,10 @@
 # These are the read-only seed tracks. Custom tracks you create in the Learning
 # Center UI are stored separately (in the DB state blob), never written back here.
 # Each track: {id, title, topics: [str], labs: [str]}  (labs: ids | pentest)
+#
+# Security tracks also get the CURRENT THREAT LANDSCAPE injected into generated
+# lessons/labs/exams (see threats.yaml + MAYBOT_THREAT_CONTEXT) so content tracks
+# how the field actually looks now, not just at the model's training cutoff.
 tracks:
   - id: cybersecurity
     title: Cybersecurity Fundamentals
@@ -13,17 +17,48 @@ tracks:
       - Intrusion Detection (IDS/IPS)
       - Incident Response
       - Web App Security (OWASP Top 10)
+      - Identity & Access Management
+      - Logging, SIEM & Detection Engineering
     labs: [ids, pentest]
-  - id: french
-    title: French
+
+  - id: offensive-security
+    title: Offensive Security / Red Team
     topics:
-      - Greetings & Introductions
-      - The Present Tense
-      - Everyday Vocabulary
-      - Numbers, Dates & Time
-      - Listening Comprehension
-      - Holding a Conversation
-    labs: []
+      - Reconnaissance & OSINT
+      - Network Enumeration & Service Discovery
+      - Web Exploitation (OWASP Top 10 in depth)
+      - Password Attacks & Credential Access
+      - Active Directory Attacks (Kerberoasting, AS-REP, NTLM relay, ADCS)
+      - Linux & Windows Privilege Escalation
+      - Lateral Movement & Pivoting
+      - Command & Control and Evasion (EDR-aware)
+      - Reporting & Risk Communication
+    labs: [pentest]
+
+  - id: cloud-security
+    title: Cloud & Container Security
+    topics:
+      - Cloud Shared-Responsibility & IAM (AWS/Azure/GCP)
+      - Identity Federation, OAuth & Token Theft
+      - Storage, Secrets & Key Management
+      - Metadata Service & SSRF-to-Cloud
+      - Containers & Kubernetes Hardening
+      - CI/CD and Supply-Chain Security
+      - Cloud Logging, Guardrails & Detection
+    labs: [pentest, ids]
+
+  - id: blue-team
+    title: Blue Team / SOC & Detection
+    topics:
+      - Security Operations & the Analyst Workflow
+      - Log Sources, Normalization & SIEM
+      - Detection Engineering & MITRE ATT&CK Mapping
+      - Threat Hunting
+      - Endpoint Detection & Response (EDR)
+      - Digital Forensics & Incident Response (DFIR)
+      - Threat Intelligence
+    labs: [ids]
+
   - id: cert-prep
     title: Cert Prep — CompTIA Security+
     topics:
@@ -34,3 +69,20 @@ tracks:
       - Governance, Risk & Compliance
       - Acronym Drills
     labs: [ids]
+
+  - id: french
+    title: French
+    language: French          # marks this a language track: immersive tutor + drills
+    topics:
+      # High-frequency first (the ~1000 most common words cover most speech),
+      # roughly A1 -> A2 in CEFR order so each builds on the last.
+      - Greetings & Introductions
+      - High-Frequency Words (top 100)
+      - The Present Tense (être, avoir, -er verbs)
+      - Everyday Vocabulary & Cognates
+      - Numbers, Dates & Time
+      - Asking Questions & Negation
+      - The Near Future & Past (futur proche, passé composé)
+      - Listening Comprehension
+      - Holding a Conversation
+    labs: []

@@ -205,6 +205,105 @@ def learning_lab_hint(body: LabHintIn, x_control_token: str = Header(default="")
     return learning.lab_hint(body.lab_id)
 
 
+class PlacementIn(BaseModel):
+    track: str
+    topic: str
+    n: int = 6
+
+
+class PlacementGradeIn(BaseModel):
+    quiz_id: str
+    answers: list[int] = []
+
+
+@router.post("/api/learning/placement")
+def learning_placement(body: PlacementIn, x_control_token: str = Header(default="")):
+    """Generate a test-out challenge to skip a topic you already know."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.generate_placement(body.track, body.topic, body.n)
+
+
+@router.post("/api/learning/placement/grade")
+def learning_placement_grade(body: PlacementGradeIn, x_control_token: str = Header(default="")):
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.grade_placement(body.quiz_id, body.answers)
+
+
+# ---- language drills (cloze / translation) ----
+class DrillIn(BaseModel):
+    track: str
+    topic: str
+    kind: str = "cloze"
+    n: int = 6
+
+
+class DrillGradeIn(BaseModel):
+    drill_id: str
+    answers: list[str] = []
+
+
+@router.post("/api/learning/drill")
+def learning_drill(body: DrillIn, x_control_token: str = Header(default="")):
+    """Generate a cloze or translation drill for a language track."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.generate_drill(body.track, body.topic, body.kind, body.n)
+
+
+@router.post("/api/learning/drill/grade")
+def learning_drill_grade(body: DrillGradeIn, x_control_token: str = Header(default="")):
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.grade_drill(body.drill_id, body.answers)
+
+
+# ---- end-to-end pentest range ----
+class RangeIn(BaseModel):
+    track: str = "cybersecurity"
+
+
+class RangeHostIn(BaseModel):
+    range_id: str
+    host_id: str
+
+
+class RangeExploitIn(BaseModel):
+    range_id: str
+    host_id: str
+    finding: str = ""
+
+
+@router.post("/api/learning/range")
+def learning_range(body: RangeIn, x_control_token: str = Header(default="")):
+    """Generate a simulated multi-stage pentest range (virtual network)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.generate_range(body.track)
+
+
+@router.get("/api/learning/range/{range_id}")
+def learning_range_state(range_id: str, x_control_token: str = Header(default="")):
+    check_token(x_control_token)
+    from .. import learning
+    return learning.get_range(range_id)
+
+
+@router.post("/api/learning/range/enumerate")
+def learning_range_enumerate(body: RangeHostIn, x_control_token: str = Header(default="")):
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_enumerate(body.range_id, body.host_id)
+
+
+@router.post("/api/learning/range/exploit")
+def learning_range_exploit(body: RangeExploitIn, x_control_token: str = Header(default="")):
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_exploit(body.range_id, body.host_id, body.finding)
+
+
 @router.get("/api/learning/progress")
 def learning_progress(x_control_token: str = Header(default="")):
     check_token(x_control_token)

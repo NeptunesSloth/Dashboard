@@ -80,6 +80,46 @@ SYSTEM_GRADER = (
     "Be fair but rigorous. Respond with ONLY a JSON object: "
     '{"score":0-100,"feedback":"2-3 sentences: what they got right and what they missed"}.'
 )
+# Language tracks get a tutor built around proven second-language acquisition:
+# comprehensible input (mostly the target language, scaffolded), retrieval
+# practice, learner PRODUCTION with gentle corrective recasts, spaced repetition,
+# and high-frequency vocab first.
+LANG_METHODS = (
+    "Use evidence-based language teaching: (1) COMPREHENSIBLE INPUT — speak mostly in {lang} at a "
+    "level just above the learner's, with brief English glosses in (parentheses) for anything new; "
+    "(2) HIGH-FREQUENCY first — prioritise the most common words/structures; "
+    "(3) RETRIEVAL — make the learner recall and PRODUCE {lang}, don't just present it; "
+    "(4) CORRECTIVE RECASTS — when they err, restate it correctly and naturally, briefly noting why; "
+    "(5) keep it communicative and contextual, not grammar-rules in isolation. "
+    "Always end a lesson by prompting the learner to produce 1-2 sentences of their own in {lang}."
+)
+SYSTEM_LANG_TUTOR = (
+    "You are a warm, patient {lang} tutor and conversation partner. " + LANG_METHODS
+)
+SYSTEM_DRILL = (
+    "You write short {lang} practice drills for active recall and production. Respond with ONLY a "
+    "JSON object: {\"items\":[{\"prompt\":\"what the learner sees\",\"answer\":\"the exact expected "
+    "response\",\"accept\":[\"other acceptable answers\"],\"hint\":\"a short hint\",\"explain\":\"one-line why\"}]}. "
+    "For a `cloze` drill, `prompt` is a natural {lang} sentence with one blank as ___ and `answer` is "
+    "the missing word/phrase. For a `translate` drill, `prompt` is a short English sentence and "
+    "`answer` is its natural {lang} translation; put any equally-valid translations in `accept`. "
+    "Use high-frequency vocabulary. No prose outside JSON."
+)
+SYSTEM_RANGE = (
+    "You design SIMULATED, end-to-end penetration-testing ranges for authorized training. "
+    "Respond with ONLY a JSON object describing a small virtual network the learner attacks "
+    "stage by stage:\n"
+    '{"scenario":"1-2 sentence engagement brief","entry_points":["host id the learner can reach first"],'
+    '"hosts":[{"id":"h1","hostname":"...","ip":"10.0.0.x","kind":"router|workstation|server|web|db|'
+    'dc|fileshare|iot|cloud","services":[{"port":22,"name":"ssh","version":"..."}],'
+    '"enum_hint":"what enumeration reveals here","vuln":"the specific weakness","exploit":"how it is '
+    'exploited in THIS simulation","loot":"credentials/keys/data gained, used to pivot","pivots_to":'
+    '["host ids this loot unlocks"]}]}.\n'
+    "Build a realistic kill chain: a reachable foothold, then lateral movement across DIFFERENT device "
+    "kinds (e.g. web server -> database -> workstation -> domain controller), where each host's loot "
+    "unlocks the next. 4-7 hosts. Mix services/versions realistically. Keep vuln/exploit/loot HIDDEN "
+    "from the brief — the learner must discover them. " + _GUARD
+)
 SYSTEM_PROFILER = (
     "You maintain a concise model of how a particular learner learns, to help a tutor adapt. "
     "Given the prior profile and a note about what just happened, return an UPDATED profile as "
@@ -104,6 +144,9 @@ BADGES = [
     ("combo_master", "Combo Master", "Hit a 5-answer combo.", lambda g: g.get("best_combo", 0) >= 5, 30),
     ("exam_ready", "Exam Ready", "Pass a practice exam.", lambda g: g.get("exams_passed", 0) >= 1, 50),
     ("reviewer", "Spaced Learner", "Complete 25 spaced-repetition reviews.", lambda g: g.get("reviews_done", 0) >= 25, 40),
+    ("proven", "Proven", "Test out of a topic you already knew.", lambda g: g.get("tested_out", 0) >= 1, 30),
+    ("foothold", "Foothold", "Compromise your first host in a range.", lambda g: g.get("hosts_pwned", 0) >= 1, 30),
+    ("domain_admin", "Domain Admin", "Clear an end-to-end pentest range.", lambda g: g.get("ranges_cleared", 0) >= 1, 120),
 ]
 
 
@@ -124,6 +167,8 @@ def _blank() -> dict:
         "exams": {},           # exam_id -> {track, questions:[{...,domain}], created}
         "activity": {},        # YYYY-MM-DD -> {lessons, quizzes, labs, reviews, exams, score_sum, score_n}
         "plans": {},           # track_id -> {track, exam_date, created, items:[{date, kind, ref, done}]}
+        "ranges": {},          # range_id -> end-to-end pentest range (virtual network); see generate_range()
+        "drills": {},          # drill_id -> language cloze/translation drill; see generate_drill()
     }
 
 
@@ -139,6 +184,7 @@ def _blank_game() -> dict:
         "ids_solved": 0, "pentest_solved": 0, "flawless": 0,
         "combo": 0, "best_combo": 0, "exams_passed": 0, "reviews_done": 0,
         "quest_day": "", "quests": [],
+        "tested_out": 0, "hosts_pwned": 0, "ranges_cleared": 0,
     }
 
 
@@ -211,6 +257,70 @@ def _call(member: dict, system: str, user: str, chat, max_tokens=900, temperatur
     )
 
 
+# Keep security content current. The model's training has a cutoff, so the
+# operator can inject the live threat picture — recent TTPs, CVEs, tooling — via
+# a `threats.yaml` file and/or MAYBOT_THREAT_CONTEXT. Injected into security
+# lesson/lab/exam/range prompts so generated content reflects how the field
+# looks NOW, not just at training time. Non-security tracks (e.g. French) skip it.
+THREATS_FILE = Path(os.getenv("MAYBOT_THREATS_FILE", "threats.yaml"))
+_BASELINE_THREATS = (
+    "Emphasize how attacks and defenses look in real organizations TODAY: identity-first "
+    "attacks (Active Directory, Entra/Azure AD, OAuth token theft, MFA fatigue), cloud "
+    "misconfiguration and metadata-service abuse, supply-chain and CI/CD compromise, "
+    "ransomware tradecraft and living-off-the-land, edge/VPN device exploitation, and "
+    "EDR/SIEM-aware tradecraft. Map techniques to MITRE ATT&CK where natural."
+)
+
+
+def _language_of(track: dict) -> str:
+    """The target language for a language track, or '' for non-language tracks.
+
+    Explicit ``language:`` field wins; otherwise infer from a one-word title with
+    no labs (e.g. the built-in 'French') so existing language tracks just work."""
+    lang = str(track.get("language") or "").strip()
+    if lang:
+        return lang
+    title = str(track.get("title") or "").strip()
+    known = {"french", "spanish", "german", "italian", "portuguese", "japanese",
+             "mandarin", "chinese", "korean", "russian", "arabic", "english"}
+    if not track.get("labs") and title.lower() in known:
+        return title
+    return ""
+
+
+def _is_language_track(track: dict) -> bool:
+    return bool(_language_of(track))
+
+
+def _is_security_track(track: dict) -> bool:
+    hay = (str(track.get("id", "")) + " " + str(track.get("title", "")) + " "
+           + " ".join(track.get("topics", []))).lower()
+    return bool(track.get("labs")) or any(
+        w in hay for w in ("security", "cyber", "pentest", "red team", "blue team",
+                           "soc", "incident", "owasp", "threat", "attack"))
+
+
+def _threat_context(track: dict) -> str:
+    """Current-threat-landscape guidance for security tracks (empty otherwise)."""
+    if not _is_security_track(track):
+        return ""
+    extra = []
+    try:
+        if THREATS_FILE.exists():
+            data = yaml.safe_load(THREATS_FILE.read_text(encoding="utf-8")) or {}
+            items = data.get("threats") or data.get("items") or []
+            extra = [str(x) for x in items][:30]
+    except Exception:
+        extra = []
+    env = (os.getenv("MAYBOT_THREAT_CONTEXT") or "").strip()
+    if env:
+        extra.append(env)
+    body = _BASELINE_THREATS
+    if extra:
+        body += "\nCurrent focus items (operator-supplied):\n- " + "\n- ".join(extra)
+    return "\n\nCURRENT THREAT LANDSCAPE — weave this in so the material stays current:\n" + body
+
+
 # ---------------------------------------------------------------------------
 # tracks
 # ---------------------------------------------------------------------------
@@ -259,6 +369,7 @@ def list_tracks() -> dict:
                 "id": tid, "title": t.get("title", tid), "topics": t.get("topics", []),
                 "labs": t.get("labs", []), "builtin": t.get("builtin", False),
                 "level": _track_level(p), "completed_topics": p.get("completed_topics", []),
+                "mastered_topics": p.get("mastered_topics", []),
             })
         return {"tracks": tracks}
 
@@ -309,8 +420,10 @@ def delete_track(track_id: str) -> dict:
 
 def _progress_for(track_id: str) -> dict:
     prog = _g().setdefault("progress", {})
-    return prog.setdefault(track_id, {"lessons_done": 0, "quizzes_done": 0, "labs_done": 0,
-                                      "score_sum": 0, "score_n": 0, "completed_topics": []})
+    p = prog.setdefault(track_id, {"lessons_done": 0, "quizzes_done": 0, "labs_done": 0,
+                                   "score_sum": 0, "score_n": 0, "completed_topics": []})
+    p.setdefault("mastered_topics", [])  # topics proven via a passing check / test-out
+    return p
 
 
 # ---------------------------------------------------------------------------
@@ -371,10 +484,13 @@ def get_lesson(track_id: str, topic: str, chat=None) -> dict:
     member = _backend_member()
     if not member:
         return {"error": "no_backend"}
+    lang = _language_of(track)
+    system = SYSTEM_LANG_TUTOR.format(lang=lang) if lang else SYSTEM_TUTOR
     user = (f"Track: {track['title']}\nTopic: {topic}\n\nLearner profile:\n{_profile_brief()}\n\n"
             "Teach this topic now: a focused lesson with a clear explanation, one or two worked "
-            "examples, and a short 'check yourself' question at the end.")
-    ok, text, err = _call(member, SYSTEM_TUTOR, user, chat, max_tokens=1100, temperature=0.5)
+            "examples, and a short 'check yourself' question at the end."
+            + _threat_context(track))
+    ok, text, err = _call(member, system, user, chat, max_tokens=1100, temperature=0.5)
     if not ok:
         return {"error": err or "the tutor did not respond"}
     body = (text or "").strip()
@@ -424,6 +540,12 @@ def get_chat(track_id: str) -> dict:
         return {"history": list((_g().get("chats") or {}).get(track_id, []))}
 
 
+def _tutor_system(track: dict) -> str:
+    """Immersive language tutor for language tracks, expert tutor otherwise."""
+    lang = _language_of(track)
+    return SYSTEM_LANG_TUTOR.format(lang=lang) if lang else SYSTEM_TUTOR
+
+
 def _tutor_user_prompt(track: dict, question: str, history) -> str:
     convo = ""
     for turn in (history or [])[-6:]:
@@ -452,7 +574,7 @@ def ask_tutor(track_id: str, question: str, history=None, chat=None) -> dict:
     if not member:
         return {"answer": "", "member": None, "error": "no_backend"}
     user = _tutor_user_prompt(track, question, history)
-    ok, text, err = _call(member, SYSTEM_TUTOR, user, chat, max_tokens=700, temperature=0.5)
+    ok, text, err = _call(member, _tutor_system(track), user, chat, max_tokens=700, temperature=0.5)
     if not ok:
         return {"answer": "", "member": member.get("name"), "error": err or "no response"}
     answer = (text or "").strip()
@@ -477,7 +599,7 @@ def ask_tutor_stream(track_id: str, question: str, history=None, chat_stream=Non
         yield {"type": "error", "error": "no_backend"}
         return
     yield {"type": "meta", "member": member.get("name")}
-    messages = [{"role": "system", "content": SYSTEM_TUTOR},
+    messages = [{"role": "system", "content": _tutor_system(track)},
                 {"role": "user", "content": _tutor_user_prompt(track, question, history)}]
     chat_stream = chat_stream or agents.stream_chat
     answer = ""
@@ -597,6 +719,202 @@ def grade_quiz(quiz_id: str, answers: list[int], chat=None) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# test-out / placement — prove you already know a topic and skip it
+# ---------------------------------------------------------------------------
+PLACEMENT_PASS = int(os.getenv("MAYBOT_PLACEMENT_PASS", "80"))
+
+
+def generate_placement(track_id: str, topic: str, n: int = 6, chat=None) -> dict:
+    """A harder challenge quiz that lets a learner test OUT of a topic they
+    already know. Stored like a quiz but flagged so grading marks mastery."""
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    if not topic:
+        return {"error": "a topic is required"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    n = max(4, min(10, int(n or 6)))
+    user = (f"Track: {track['title']}\nTopic: {topic}\nLearner profile:\n{_profile_brief()}\n\n"
+            f"Write {n} CHALLENGING multiple-choice questions to verify real mastery of this topic "
+            "(application and edge cases, not just definitions). A learner who passes may skip it."
+            + _threat_context(track))
+    ok, text, err = _call(member, SYSTEM_QUIZ, user, chat, max_tokens=1500, temperature=0.5)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text)
+    questions = (data or {}).get("questions") if isinstance(data, dict) else None
+    if not isinstance(questions, list) or not questions:
+        return {"error": "could not parse placement from the model"}
+    clean = []
+    for q in questions[:n]:
+        if not isinstance(q, dict) or not q.get("q") or not isinstance(q.get("choices"), list):
+            continue
+        try:
+            ans = int(q.get("answer", 0))
+        except Exception:
+            ans = 0
+        clean.append({"q": str(q["q"]), "choices": [str(c) for c in q["choices"]],
+                      "answer": max(0, min(ans, len(q["choices"]) - 1)),
+                      "explanation": str(q.get("explanation", ""))})
+    if not clean:
+        return {"error": "could not parse placement from the model"}
+    quiz_id = f"pl-{int(time.time()*1000)}-{random.randint(100,999)}"
+    with _lock:
+        _g().setdefault("quizzes", {})[quiz_id] = {
+            "track": track_id, "topic": topic, "questions": clean,
+            "placement": True, "created": int(time.time())}
+        _save()
+    public = [{"q": q["q"], "choices": q["choices"]} for q in clean]
+    return {"quiz_id": quiz_id, "topic": topic, "questions": public,
+            "pass_mark": PLACEMENT_PASS, "error": None}
+
+
+def grade_placement(quiz_id: str, answers: list[int], chat=None) -> dict:
+    """Grade a test-out attempt. On a pass, the topic is marked mastered (and
+    studied) so the learner can skip it; a near-miss just gives feedback."""
+    with _lock:
+        quiz = (_g().get("quizzes") or {}).get(quiz_id)
+    if not quiz:
+        return {"error": "unknown or expired placement"}
+    questions = quiz["questions"]
+    answers = list(answers or [])
+    correct = sum(1 for i, q in enumerate(questions)
+                  if i < len(answers) and answers[i] == q["answer"])
+    total = len(questions)
+    score = round(100 * correct / total) if total else 0
+    passed = score >= PLACEMENT_PASS
+    topic = quiz.get("topic", "")
+    stones = 25 if passed else 0
+    with _lock:
+        p = _progress_for(quiz["track"])
+        if passed:
+            if topic and topic not in p["mastered_topics"]:
+                p["mastered_topics"].append(topic)
+            if topic and topic not in p["completed_topics"]:
+                p["completed_topics"].append(topic)
+            g = _g()["game"]
+            g["tested_out"] = g.get("tested_out", 0) + 1
+        _save()
+    if passed:
+        _award_progress(stones, skill=f"{_track(quiz['track'])['title']}: {topic}")
+        _touch_streak()
+    earned = _check_badges() if passed else []
+    _update_profile(
+        f"{'Tested OUT of' if passed else 'Attempted to test out of'} '{topic}' "
+        f"({score}%). {'Already proficient.' if passed else 'Not yet — should study it.'}", chat)
+    return {"score": score, "correct": correct, "total": total, "passed": passed,
+            "mastered": passed, "topic": topic, "pass_mark": PLACEMENT_PASS,
+            "awarded": stones, "badges": earned, "error": None}
+
+
+# ---------------------------------------------------------------------------
+# language drills — cloze (fill-in) + translation, for active recall + output
+# ---------------------------------------------------------------------------
+import unicodedata
+
+
+def _norm_answer(s: str) -> str:
+    """Fold case, accents, and surrounding punctuation/space so a learner isn't
+    failed for a missing accent or trailing period."""
+    s = unicodedata.normalize("NFKD", (s or "").strip().lower())
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    return re.sub(r"^[\s\W]+|[\s\W]+$", "", s)
+
+
+def generate_drill(track_id: str, topic: str, kind: str = "cloze", n: int = 6, chat=None) -> dict:
+    """A {lang} cloze or translation drill (language tracks only)."""
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    lang = _language_of(track)
+    if not lang:
+        return {"error": "drills are for language tracks"}
+    if kind not in ("cloze", "translate"):
+        return {"error": "kind must be 'cloze' or 'translate'"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    n = max(3, min(12, int(n or 6)))
+    user = (f"Language: {lang}\nTopic: {topic}\nLearner profile:\n{_profile_brief()}\n\n"
+            f"Write {n} `{kind}` drill items at the learner's level.")
+    # .replace (not .format) — SYSTEM_DRILL embeds literal JSON braces.
+    ok, text, err = _call(member, SYSTEM_DRILL.replace("{lang}", lang), user, chat, max_tokens=1200, temperature=0.5)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text)
+    items = (data or {}).get("items") if isinstance(data, dict) else None
+    if not isinstance(items, list) or not items:
+        return {"error": "could not parse drill from the model"}
+    clean = []
+    for it in items[:n]:
+        if not isinstance(it, dict) or not it.get("prompt") or not it.get("answer"):
+            continue
+        clean.append({"prompt": str(it["prompt"]), "answer": str(it["answer"]),
+                      "accept": [str(a) for a in (it.get("accept") or [])],
+                      "hint": str(it.get("hint", "")), "explain": str(it.get("explain", ""))})
+    if not clean:
+        return {"error": "could not parse drill from the model"}
+    drill_id = f"dr-{int(time.time()*1000)}-{random.randint(100,999)}"
+    with _lock:
+        _g().setdefault("drills", {})[drill_id] = {
+            "track": track_id, "topic": topic, "kind": kind, "lang": lang,
+            "items": clean, "created": int(time.time())}
+        _save()
+    public = [{"prompt": it["prompt"], "hint": it["hint"]} for it in clean]
+    return {"drill_id": drill_id, "kind": kind, "lang": lang, "topic": topic,
+            "items": public, "error": None}
+
+
+def grade_drill(drill_id: str, answers: list[str]) -> dict:
+    """Grade a language drill (accent/case-tolerant). Missed items seed the
+    spaced-repetition deck so they come back."""
+    with _lock:
+        drill = (_g().get("drills") or {}).get(drill_id)
+    if not drill:
+        return {"error": "unknown or expired drill"}
+    items = drill["items"]
+    answers = list(answers or [])
+    per = []
+    correct = 0
+    missed_cards = []
+    for i, it in enumerate(items):
+        given = answers[i] if i < len(answers) else ""
+        accepted = {_norm_answer(it["answer"]), *(_norm_answer(a) for a in it.get("accept", []))}
+        is_ok = _norm_answer(given) in accepted and _norm_answer(given) != ""
+        correct += 1 if is_ok else 0
+        per.append({"correct": is_ok, "your_answer": given, "answer": it["answer"],
+                    "explain": it.get("explain", "")})
+        if not is_ok:
+            # turn the miss into a recall card (prompt -> answer)
+            missed_cards.append({"q": it["prompt"], "choices": [it["answer"]], "answer": 0,
+                                 "explanation": it.get("explain", "")})
+    total = len(items)
+    score = round(100 * correct / total) if total else 0
+    stones = correct * 2 + (8 if score == 100 else 0)
+    with _lock:
+        g = _g()["game"]
+        g["quizzes_total"] = g.get("quizzes_total", 0) + 1
+        if score == 100:
+            g["flawless"] = g.get("flawless", 0) + 1
+        p = _progress_for(drill["track"])
+        p["quizzes_done"] += 1
+        p["score_sum"] += score
+        p["score_n"] += 1
+        _save()
+    _award_progress(stones)
+    _touch_streak()
+    _progress_quest("quiz", passed=(score >= 80))
+    _log_activity("quizzes", score)
+    if missed_cards:
+        _seed_reviews(drill["track"], drill.get("topic", ""), missed_cards)
+    earned = _check_badges()
+    return {"score": score, "correct": correct, "total": total, "per_item": per,
+            "awarded": stones, "badges": earned, "error": None}
+
+
+# ---------------------------------------------------------------------------
 # labs (simulated)
 # ---------------------------------------------------------------------------
 def generate_lab(track_id: str, kind: str, chat=None) -> dict:
@@ -616,7 +934,7 @@ def generate_lab(track_id: str, kind: str, chat=None) -> dict:
         ask = ("Design a PENTEST CTF lab: a self-contained, simulated target described in the brief. "
                "The artifact is the scenario (services, hints). The answer is the vulnerability + how "
                "to exploit it in this simulation and the flag/finding to report.")
-    user = f"Track: {track['title']}\nLearner profile:\n{_profile_brief()}\n\n{ask}"
+    user = f"Track: {track['title']}\nLearner profile:\n{_profile_brief()}\n\n{ask}" + _threat_context(track)
     ok, text, err = _call(member, SYSTEM_LAB, user, chat, max_tokens=1300, temperature=0.7)
     if not ok:
         return {"error": err or "no response"}
@@ -713,6 +1031,188 @@ def grade_lab(lab_id: str, finding: str, chat=None) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# end-to-end pentest range — a SIMULATED virtual network you attack host by host:
+# enumerate a reachable host, exploit it (server-side graded free-text finding),
+# loot credentials that unlock pivots, and move laterally across device kinds to
+# the crown jewels. ZERO command execution — same safety boundary as the labs.
+# ---------------------------------------------------------------------------
+RANGE_EXPLOIT_PASS = int(os.getenv("MAYBOT_RANGE_PASS", "65"))
+
+
+def _range_reachable(rng: dict) -> set[str]:
+    """Host ids the learner can currently touch: entry points + anything a
+    compromised host pivots to."""
+    reach = set(rng.get("entry_points") or [])
+    for h in rng["hosts"].values():
+        if h.get("compromised"):
+            reach.update(h.get("pivots_to") or [])
+    return reach
+
+
+def _range_view(rng: dict) -> dict:
+    """The learner-facing state — hidden vuln/exploit/loot stay server-side until
+    earned (loot is revealed only for hosts already compromised)."""
+    reach = _range_reachable(rng)
+    hosts = []
+    for hid, h in rng["hosts"].items():
+        owned = bool(h.get("compromised"))
+        enumerated = bool(h.get("enumerated"))
+        hosts.append({
+            "id": hid, "hostname": h.get("hostname"), "ip": h.get("ip"), "kind": h.get("kind"),
+            "reachable": hid in reach, "enumerated": enumerated, "compromised": owned,
+            # services appear once enumerated; loot only once compromised.
+            "services": h.get("services", []) if enumerated else None,
+            "enum_hint": h.get("enum_hint") if enumerated else None,
+            "loot": h.get("loot") if owned else None,
+        })
+    total = len(rng["hosts"])
+    owned = sum(1 for h in rng["hosts"].values() if h.get("compromised"))
+    return {"range_id": rng["id"], "scenario": rng.get("scenario", ""), "track": rng.get("track"),
+            "hosts": hosts, "owned": owned, "total": total,
+            "cleared": owned >= total and total > 0, "error": None}
+
+
+def generate_range(track_id: str, chat=None) -> dict:
+    """Generate a simulated multi-stage pentest range (virtual network)."""
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    user = (f"Track: {track['title']}\nLearner profile:\n{_profile_brief()}\n\n"
+            "Design a simulated end-to-end pentest range as specified."
+            + _threat_context(track))
+    ok, text, err = _call(member, SYSTEM_RANGE, user, chat, max_tokens=2600, temperature=0.7)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text)
+    raw_hosts = (data or {}).get("hosts") if isinstance(data, dict) else None
+    if not isinstance(raw_hosts, list) or not raw_hosts:
+        return {"error": "could not parse range from the model"}
+    hosts: dict[str, dict] = {}
+    for h in raw_hosts:
+        if not isinstance(h, dict) or not h.get("id"):
+            continue
+        hid = str(h["id"])
+        hosts[hid] = {
+            "hostname": str(h.get("hostname", hid)), "ip": str(h.get("ip", "")),
+            "kind": str(h.get("kind", "server")),
+            "services": [{"port": s.get("port"), "name": str(s.get("name", "")),
+                          "version": str(s.get("version", ""))}
+                         for s in (h.get("services") or []) if isinstance(s, dict)],
+            "enum_hint": str(h.get("enum_hint", "")), "vuln": str(h.get("vuln", "")),
+            "exploit": str(h.get("exploit", "")), "loot": str(h.get("loot", "")),
+            "pivots_to": [str(x) for x in (h.get("pivots_to") or [])],
+            "enumerated": False, "compromised": False}
+    if not hosts:
+        return {"error": "could not parse range hosts from the model"}
+    entry = [str(x) for x in (data.get("entry_points") or []) if str(x) in hosts]
+    if not entry:
+        entry = [next(iter(hosts))]  # fall back to the first host as the foothold
+    range_id = f"rng-{int(time.time()*1000)}-{random.randint(100,999)}"
+    rng = {"id": range_id, "track": track_id, "scenario": str(data.get("scenario", "")),
+           "entry_points": entry, "hosts": hosts, "created": int(time.time())}
+    with _lock:
+        ranges = _g().setdefault("ranges", {})
+        ranges[range_id] = rng
+        # keep the most recent 10 ranges
+        if len(ranges) > 10:
+            for k in sorted(ranges, key=lambda x: ranges[x]["created"])[:len(ranges) - 10]:
+                ranges.pop(k, None)
+        _save()
+    _log_activity("labs")
+    return _range_view(rng)
+
+
+def get_range(range_id: str) -> dict:
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+    if not rng:
+        return {"error": "unknown or expired range"}
+    return _range_view(rng)
+
+
+def range_enumerate(range_id: str, host_id: str) -> dict:
+    """Scan a reachable host: reveal its services + enumeration hint."""
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if not rng:
+            return {"error": "unknown or expired range"}
+        host = rng["hosts"].get(host_id)
+        if not host:
+            return {"error": "no such host in this range"}
+        if host_id not in _range_reachable(rng):
+            return {"error": "host not reachable yet — compromise a host that pivots to it first"}
+        host["enumerated"] = True
+        _save()
+    return {"host_id": host_id, "hostname": host.get("hostname"), "kind": host.get("kind"),
+            "services": host.get("services", []), "enum_hint": host.get("enum_hint", ""),
+            "error": None}
+
+
+def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
+    """Submit how you'd exploit an enumerated host. Graded server-side against
+    the hidden vuln/exploit; on success you loot it and unlock its pivots."""
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if not rng:
+            return {"error": "unknown or expired range"}
+        host = rng["hosts"].get(host_id)
+        if not host:
+            return {"error": "no such host in this range"}
+        if host_id not in _range_reachable(rng):
+            return {"error": "host not reachable yet"}
+        if not host.get("enumerated"):
+            return {"error": "enumerate the host before exploiting it"}
+        if host.get("compromised"):
+            return {"error": "host already compromised", "already": True}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    user = (f"Host: {host.get('hostname')} ({host.get('kind')})\n"
+            f"Services: {host.get('services')}\n\nHidden vulnerability: {host['vuln']}\n"
+            f"Expected exploitation: {host['exploit']}\n\n"
+            f"Learner's plan:\n{(finding or '').strip() or '(blank)'}")
+    ok, text, err = _call(member, SYSTEM_GRADER, user, chat, max_tokens=400, temperature=0.2)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text) or {}
+    try:
+        score = max(0, min(100, int(data.get("score", 0))))
+    except Exception:
+        score = 0
+    feedback = str(data.get("feedback", "")).strip()
+    owned = score >= RANGE_EXPLOIT_PASS
+    result: dict = {"host_id": host_id, "score": score, "feedback": feedback,
+                    "compromised": owned, "error": None}
+    if not owned:
+        return result
+    with _lock:
+        host["compromised"] = True
+        g = _g()["game"]
+        g["hosts_pwned"] = g.get("hosts_pwned", 0) + 1
+        view = _range_view(rng)
+        cleared = view["cleared"]
+        if cleared:
+            g["ranges_cleared"] = g.get("ranges_cleared", 0) + 1
+            p = _progress_for(rng["track"])
+            p["labs_done"] += 1
+        _save()
+    stones = 20 + (60 if cleared else 0)
+    _award_progress(stones, skill="Network Penetration Testing", bonus=15 if cleared else 0)
+    _touch_streak()
+    _progress_quest("lab", passed=True)
+    earned = _check_badges()
+    result.update({"loot": host.get("loot", ""), "unlocked": host.get("pivots_to", []),
+                   "awarded": stones, "cleared": cleared, "badges": earned, "range": view})
+    _update_profile(
+        f"Compromised {host.get('hostname')} ({host.get('kind')}) in a pentest range."
+        + (" Cleared the whole range." if cleared else ""), chat)
+    return result
+
+
+# ---------------------------------------------------------------------------
 # spaced repetition (SM-2)
 # ---------------------------------------------------------------------------
 def _new_card(track: str, topic: str, q: dict) -> dict:
@@ -797,7 +1297,8 @@ def generate_exam(track_id: str, n: int = 20, chat=None) -> dict:
     topics = ", ".join(track.get("topics", []))
     user = (f"Track: {track['title']}\nDomains/topics: {topics}\nLearner profile:\n{_profile_brief()}\n\n"
             f"Write a {n}-question practice EXAM spanning ALL the domains above, weighted realistically. "
-            "Tag each question with its domain (use one of the topic names as the `domain`).")
+            "Tag each question with its domain (use one of the topic names as the `domain`)."
+            + _threat_context(track))
     sys = SYSTEM_QUIZ.replace(
         '{"q":"...","choices":["A","B","C","D"],"answer":0,"explanation":"..."}',
         '{"q":"...","choices":["A","B","C","D"],"answer":0,"explanation":"...","domain":"..."}')

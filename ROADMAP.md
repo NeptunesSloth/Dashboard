@@ -101,12 +101,28 @@ Safe, non-conflicting wins that don't require architectural changes:
 - ✅ `ARCHITECTURE.md`, `CONTRIBUTING.md`, gated OpenAPI `/docs`
   (`MAYBOT_DOCS=1`). Remaining: diagrams.
 
-## 🎓 Learning Center — remaining
-- 🔴 Real Docker pentest targets (phase 3, command-execution labs via the
-  guarded-tools allow-list — `attach_real_env()` is deliberately unbuilt until
-  that lands).
-- 🟡 Bring-your-own material (RAG over uploads); multi-learner profiles +
-  leaderboard. (Auto-built flashcard decks exist — SM-2 spaced repetition.)
+## 🎓 Learning Center
+- ✅ **End-to-end pentest range** — a SIMULATED virtual network you attack stage
+  by stage: enumerate a reachable host, exploit it (server-side graded), loot
+  credentials that unlock pivots, and move laterally across device kinds
+  (web → db → workstation → DC) to clear the range. Zero command execution.
+  (`/api/learning/range`, `/range/{id}`, `/range/enumerate`, `/range/exploit`.)
+- ✅ **Test-out / placement** — prove mastery of a topic and skip it
+  (`/api/learning/placement` + `/placement/grade`); tracks `mastered_topics`.
+- ✅ **Stays current** — a `threats.yaml` / `MAYBOT_THREAT_CONTEXT` "current
+  threat landscape" is woven into generated security lessons/labs/exams so
+  content tracks how the field looks now, not just at the model's cutoff.
+- ✅ **Real-world curriculum** — added Offensive Security/Red Team, Cloud &
+  Container Security, and Blue Team/SOC tracks (AD attacks, privesc, lateral
+  movement, cloud IAM, K8s, SIEM/EDR, DFIR).
+- ✅ **Language tracks** — immersive, target-language tutor built on proven SLA
+  methods (comprehensible input, retrieval, corrective recasts, high-frequency
+  first) plus cloze + translation drills wired to spaced repetition
+  (`/api/learning/drill` + `/drill/grade`).
 - ✅ Lab hint system — spend spirit stones for a mentor nudge
   (`/api/learning/lab/hint`).
+- 🔴 Real Docker pentest targets (command-execution labs via the guarded-tools
+  allow-list — `attach_real_env()` is deliberately unbuilt until that lands).
+- 🟡 Bring-your-own material (RAG over uploads); multi-learner profiles +
+  leaderboard. (Auto-built flashcard decks exist — SM-2 spaced repetition.)
 - 🟢 Certificates/shareable cards; adaptive difficulty; image-based labs.
