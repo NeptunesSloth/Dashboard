@@ -73,6 +73,65 @@ LLM_RETRIES = max(0, int(os.getenv("MAYBOT_LLM_RETRIES", "0")))
 LLM_RETRY_BASE_MS = max(0, int(os.getenv("MAYBOT_LLM_RETRY_BASE_MS", "400")))
 LLM_RETRY_MAX_MS = max(0, int(os.getenv("MAYBOT_LLM_RETRY_MAX_MS", "8000")))
 
+# Context-window management: cap the total characters sent per chat call so a
+# runaway history/prompt can't blow a model's context (or the bill). Generous
+# default — normal dashboard traffic never hits it. 0 disables.
+LLM_CONTEXT_CHARS = max(0, int(os.getenv("MAYBOT_LLM_CONTEXT_CHARS", "120000")))
+
+# Output guardrail (opt-in): scrub credential-shaped strings from model replies
+# before they reach the UI/chronicle, in case a prompt leaked one into context.
+LLM_REDACT = os.getenv("MAYBOT_LLM_REDACT", "0").lower() in ("1", "true", "yes", "on")
+_SECRET_PATTERNS = [
+    re.compile(r"sk-[A-Za-z0-9_\-]{16,}"),                       # OpenAI/Anthropic-style keys
+    re.compile(r"(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}"),     # GitHub tokens
+    re.compile(r"github_pat_[A-Za-z0-9_]{20,}"),
+    re.compile(r"xox[baprs]-[A-Za-z0-9\-]{10,}"),                # Slack tokens
+    re.compile(r"AKIA[0-9A-Z]{16}"),                             # AWS access key ids
+    re.compile(r"AIza[0-9A-Za-z_\-]{30,}"),                      # Google API keys
+    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----"),
+]
+
+
+def redact_secrets(text: str) -> str:
+    """Replace credential-shaped substrings with a redaction marker."""
+    for pat in _SECRET_PATTERNS:
+        text = pat.sub("[REDACTED]", text)
+    return text
+
+
+def _guard_output(text: str) -> str:
+    return redact_secrets(text) if (LLM_REDACT and text) else text
+
+
+def _fit_context(messages: list[dict]) -> list[dict]:
+    """Trim a message list to the LLM_CONTEXT_CHARS budget.
+
+    Keeps leading system message(s) and the newest turns, dropping the oldest
+    non-system messages first; an oversized single message is head-truncated.
+    """
+    if not LLM_CONTEXT_CHARS or not messages:
+        return messages
+    def size(ms): return sum(len(m.get("content") or "") for m in ms)
+    if size(messages) <= LLM_CONTEXT_CHARS:
+        return messages
+    head = []
+    rest = list(messages)
+    while rest and rest[0].get("role") == "system":
+        head.append(rest.pop(0))
+    while rest[1:] and size(head + rest) > LLM_CONTEXT_CHARS:
+        rest.pop(0)  # drop the oldest turn
+    out = head + rest
+    over = size(out) - LLM_CONTEXT_CHARS
+    if over > 0:
+        # Still too big (one huge message): truncate the longest content.
+        # Copy before mutating — the dicts belong to the caller.
+        idx = max(range(len(out)), key=lambda i: len(out[i].get("content") or ""))
+        m = dict(out[idx])
+        keep = max(0, len(m.get("content") or "") - over - 32)
+        m["content"] = (m.get("content") or "")[:keep] + "\n…[truncated to fit context]"
+        out[idx] = m
+    return out
+
 
 def _retry_sleep(seconds: float) -> None:
     """Injectable backoff sleeper — monkeypatched to a no-op in tests."""
@@ -310,9 +369,11 @@ def _chat_claude(agent: dict, messages: list[dict]) -> tuple[bool, str, str | No
 
 def _chat(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
     """Run one chat completion against the agent's configured backend."""
+    messages = _fit_context(messages)
     provider = (agent.get("provider") or "openai_compatible").lower()
     if provider in ("claude", "anthropic"):
-        return _chat_claude(agent, messages)   # gated inside _chat_claude
+        ok, text, err = _chat_claude(agent, messages)   # gated inside _chat_claude
+        return ok, _guard_output(text), err
     blocked = _budget_block(agent)  # FIRST — a budget block is never retried
     if blocked:
         return False, "", blocked
@@ -364,7 +425,7 @@ def _chat(agent: dict, messages: list[dict]) -> tuple[bool, str, str | None]:
     for model in models:
         ok, text, err = _attempt(model)
         if ok:
-            return ok, text, err
+            return ok, _guard_output(text), err
     return ok, text, err
 
 
@@ -459,6 +520,7 @@ def stream_chat(agent: dict, messages: list[dict]):
     blocked = _budget_block(agent)
     if blocked:
         return  # hard spend cap reached — emit no chunks (consistent with a failed call)
+    messages = _fit_context(messages)
     provider = (agent.get("provider") or "openai_compatible").lower()
     try:
         if provider in ("claude", "anthropic"):

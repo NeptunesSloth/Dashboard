@@ -25,16 +25,35 @@ See [ROADMAP.md](ROADMAP.md) for the impact-ordered backlog and planned waves
 `app.py` is the application root: it builds the `FastAPI` app, installs an HTTP
 middleware (rate limiting, baseline security headers, opt-in CSP/HSTS via
 `MAYBOT_CSP`/`MAYBOT_HSTS`, self-observability counters, and an operator audit
-trail of mutating calls), and defines a large set of API routes. Historically a
-monolith, route groups have been extracted into `routers/*` and mounted via
+trail of mutating calls), runs the startup wiring (state restore + background
+loops), and keeps only the two transport endpoints that aren't ordinary HTTP
+routes: the `/ws/agent` reverse tunnel and the `/api/stream` SSE feed.
+Every other route lives in a domain router under `routers/*`, mounted via
 `app.include_router(...)`:
 
-- `routers/hosts.py` — host (agent) management + system settings.
+- `routers/fleet.py` — `/api/overview`, per-bot logs/diagnose/history/explain,
+  guarded start/stop/run-tests actions, and the Ops Copilot.
+- `routers/hosts.py` — host (agent) management.
+- `routers/adminops.py` — admin export/import, dead-man's switch, safe mode,
+  system settings, runbooks, backup/restore, retention, selfcheck, diagnostics,
+  the audit log, and CSV/JSON export.
+- `routers/accounts.py` — accounts, login/2FA/signup/sessions, and Web Push.
+- `routers/members.py` — Sect Member roster CRUD + debates/tournaments.
 - `routers/crew.py` — disciple crew + missions.
 - `routers/agentops.py` — agent memory / tools / autonomy / usage / budget.
 - `routers/sect.py` — the sect/cultivation RPG layer.
 - `routers/economy.py` — disciple economy & lifecycle.
 - `routers/reliability.py` — reliability / SLO.
+- `routers/alerts.py` — meridians, talismans, oaths, escalation, alert
+  ack/snooze, inbound ingestion, reports, and notification channels.
+- `routers/tasks.py` — the task board, goal routing, orchestration, autopilot
+  controls, and sect memory.
+- `routers/enroll.py` — agent auto-registration, the agent bundle + installers,
+  and the first-run setup checklist.
+- `routers/trading.py` — the trading cockpit (market data, risk + kill switch,
+  bot controls, signals, advisor, PnL).
+- `routers/pages.py` — UI pages/static assets/PWA, health probes, metrics, and
+  the public status page.
 - `routers/learning.py` — the Learning Center.
 
 ### `deps.py` — shared request gates

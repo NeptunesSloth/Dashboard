@@ -1,0 +1,23 @@
+# threats.yaml(.example) — keep the security curriculum current.
+#
+# The AI tutor's model has a training cutoff, so generated lessons/labs/exams can
+# drift behind the real threat landscape. Drop the live picture here and the
+# Learning Center weaves it into every SECURITY track's generated content
+# (non-security tracks like French are unaffected). Copy to `threats.yaml` (or
+# point MAYBOT_THREATS_FILE at it) and refresh it however often you like — from a
+# threat-intel feed, your last incident retro, this quarter's pentest findings.
+#
+# A short, opinionated list works best (top ~30 are used). One line each.
+threats:
+  - "Identity-first intrusions: Active Directory + Entra ID, Kerberoasting, ADCS abuse, NTLM relay."
+  - "MFA fatigue / push-bombing and OAuth token / session-cookie theft (infostealers)."
+  - "Edge device exploitation: VPN gateways, firewalls, file-transfer appliances as initial access."
+  - "Cloud: SSRF-to-metadata, over-permissioned IAM roles, exposed secrets in CI/CD."
+  - "Supply-chain and CI/CD pipeline compromise; malicious packages and build-system access."
+  - "Ransomware affiliates living-off-the-land (LOLBins) and disabling EDR before encryption."
+  - "Kubernetes: exposed dashboards/API servers, container escapes, weak RBAC."
+  - "Map techniques to MITRE ATT&CK and reference recent, real CVEs where relevant."
+
+  # Add your own current focus items, e.g.:
+  # - "This quarter: phishing via OAuth consent grants against our M365 tenant."
+  # - "Recent CVE we care about: <CVE-id> in <product> — teach detection + mitigation."
