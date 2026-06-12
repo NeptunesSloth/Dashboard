@@ -31,7 +31,8 @@ tracks:
       - Active Directory Attacks (Kerberoasting, AS-REP, NTLM relay, ADCS)
       - Linux & Windows Privilege Escalation
       - Lateral Movement & Pivoting
-      - Command & Control and Evasion (EDR-aware)
+      - Persistence & Defense Evasion (EDR-aware)
+      - Command & Control
       - Reporting & Risk Communication
     labs: [pentest]
 

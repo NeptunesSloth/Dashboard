@@ -317,6 +317,50 @@ def learning_range_capture(body: RangeCaptureIn, x_control_token: str = Header(d
     return learning.range_capture(body.range_id, body.submission)
 
 
+class RangePostExIn(BaseModel):
+    range_id: str
+    host_id: str
+    plan: str = ""
+
+
+@router.post("/api/learning/range/escalate")
+def learning_range_escalate(body: RangePostExIn, x_control_token: str = Header(default="")):
+    """Privilege escalation: foothold -> admin/root on a compromised host."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_escalate(body.range_id, body.host_id, body.plan)
+
+
+@router.post("/api/learning/range/persist")
+def learning_range_persist(body: RangePostExIn, x_control_token: str = Header(default="")):
+    """Establish persistence on a compromised host."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_persist(body.range_id, body.host_id, body.plan)
+
+
+class RangeHintIn(BaseModel):
+    range_id: str
+    host_id: str
+    stage: str = ""
+
+
+@router.post("/api/learning/range/hint")
+def learning_range_hint(body: RangeHintIn, x_control_token: str = Header(default="")):
+    """Stuck? Spend spirit stones for a nudge on a host (never the answer)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_hint(body.range_id, body.host_id, body.stage)
+
+
+@router.get("/api/learning/rank")
+def learning_rank(x_control_token: str = Header(default="")):
+    """The learner's standing versus real job-field roles (junior … head)."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.skill_rank()
+
+
 @router.get("/api/learning/real-env")
 def learning_real_env(x_control_token: str = Header(default="")):
     """Whether real-command (sandboxed) labs are wired — default off."""

@@ -153,7 +153,19 @@ tools:
     args: [target]
     timeout_seconds: 180
 
-  # -- lateral movement / post-exploitation --
+  # -- privilege escalation (run ON a foothold via the agent's session) --
+  - name: linpeas_run
+    description: "linPEAS: enumerate local privesc vectors on the foothold."
+    argv: ["linpeas", "-t", "{target}"]   # {target} = the foothold session/host id
+    args: [target]
+    timeout_seconds: 240
+  - name: pspy_run
+    description: "pspy: watch processes/cron for privesc without root."
+    argv: ["pspy64", "-p", "-i", "1000", "{target}"]
+    args: [target]
+    timeout_seconds: 120
+
+  # -- lateral movement / post-exploitation / persistence --
   - name: nxc_smb
     description: "NetExec/CrackMapExec: validate creds + enumerate over SMB."
     argv: ["nxc", "smb", "{target}", "-u", "/opt/wordlists/users.txt", "-p", "/opt/wordlists/pass-top100.txt"]

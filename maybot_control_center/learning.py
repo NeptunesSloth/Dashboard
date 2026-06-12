@@ -117,13 +117,29 @@ SYSTEM_RANGE = (
     '"hosts":[{"id":"h1","hostname":"...","ip":"10.0.0.x","kind":"router|workstation|server|web|db|'
     'dc|fileshare|iot|cloud","services":[{"port":22,"name":"ssh","version":"..."}],'
     '"enum_hint":"what enumeration reveals here","vuln":"the specific weakness","exploit":"how it is '
-    'exploited in THIS simulation","loot":"credentials/keys/data gained, used to pivot","pivots_to":'
+    'exploited in THIS simulation","access_level":"the privilege the initial exploit yields, e.g. '
+    'www-data or a low user","privesc":"how to escalate from that foothold to admin/root on THIS host '
+    '(the specific local weakness)","persistence":"a realistic way to persist on this host (cron/'
+    'scheduled task, service, run key, SSH key; for a DC a golden/silver ticket or DCSync)",'
+    '"loot":"credentials/keys/data gained AFTER privesc, used to pivot","pivots_to":'
     '["host ids this loot unlocks"]}]}.\n'
-    "Build a realistic kill chain: a reachable foothold, then lateral movement across DIFFERENT device "
-    "kinds (e.g. web server -> database -> workstation -> domain controller), where each host's loot "
-    "unlocks the next, and the OBJECTIVE lives on the deepest host (target_host should have no further "
-    "pivots). 4-7 hosts. Mix services/versions realistically. Keep vuln/exploit/loot/flag HIDDEN from "
-    "the brief — the learner must discover them. " + _GUARD
+    "Build a realistic kill chain: a reachable foothold, then PRIVILEGE ESCALATION on each host, "
+    "lateral movement across DIFFERENT device kinds (e.g. web server -> database -> workstation -> "
+    "domain controller), and the option to establish PERSISTENCE. Each host's loot unlocks the next, "
+    "and the OBJECTIVE lives on the deepest host (target_host has no further pivots). When the network "
+    "includes a domain controller, make the AD path realistic: service accounts (Kerberoasting), ACL/"
+    "delegation abuse, credential dumping, and DCSync / golden-ticket persistence. 4-7 hosts. Mix "
+    "services/versions realistically. Keep vuln/exploit/privesc/persistence/loot/flag HIDDEN from the "
+    "brief — the learner must discover them. " + _GUARD
+)
+# Grade a post-exploitation step (privilege escalation or persistence) on real
+# tradecraft against the host's hidden technique.
+SYSTEM_POSTEX_GRADER = (
+    "You are a senior red-team assessor grading a learner's POST-EXPLOITATION step ({goal}) on one "
+    "host. Grade on TRADECRAFT: did they identify the actual local mechanism, give a specific viable "
+    "technique (not just a tool name), and show awareness of OPSEC + how a defender would detect it? "
+    "Penalise hand-waving or the wrong mechanism. Respond with ONLY: "
+    "{\"score\":0-100,\"feedback\":\"2-3 sentences\",\"tradecraft\":\"one concrete habit to improve\"}."
 )
 # Grade an exploit attempt on REAL TRADECRAFT, not buzzword-matching: reward
 # sound enumeration, correct vuln identification, a viable exploitation path, and
@@ -188,6 +204,8 @@ BADGES = [
     ("reviewer", "Spaced Learner", "Complete 25 spaced-repetition reviews.", lambda g: g.get("reviews_done", 0) >= 25, 40),
     ("proven", "Proven", "Test out of a topic you already knew.", lambda g: g.get("tested_out", 0) >= 1, 30),
     ("foothold", "Foothold", "Compromise your first host in a range.", lambda g: g.get("hosts_pwned", 0) >= 1, 30),
+    ("rooted", "Rooted", "Escalate to admin/root on a host.", lambda g: g.get("privescs", 0) >= 1, 45),
+    ("entrenched", "Entrenched", "Establish persistence on a host.", lambda g: g.get("persists", 0) >= 1, 45),
     ("domain_admin", "Domain Admin", "Clear an end-to-end pentest range.", lambda g: g.get("ranges_cleared", 0) >= 1, 120),
     ("exfiltrator", "Exfiltrator", "Capture a range's objective (the crown jewels).", lambda g: g.get("objectives_captured", 0) >= 1, 90),
     ("incident_handler", "Incident Handler", "Correctly scope an incident investigation.", lambda g: g.get("incidents_solved", 0) >= 1, 70),
@@ -231,6 +249,7 @@ def _blank_game() -> dict:
         "quest_day": "", "quests": [],
         "tested_out": 0, "hosts_pwned": 0, "ranges_cleared": 0,
         "objectives_captured": 0, "incidents_total": 0, "incidents_solved": 0,
+        "privescs": 0, "persists": 0,
     }
 
 
@@ -282,9 +301,73 @@ def _extract_json(text: str):
         return None
 
 
+# ---------------------------------------------------------------------------
+# mastery, adaptive difficulty, and a job-field rank ladder
+# ---------------------------------------------------------------------------
+# Job-field roles the learner is measured against (cumulative-mastery thresholds).
+RANKS = [
+    (0, "Intern / Trainee", "Learning the fundamentals."),
+    (20, "Junior Security Analyst", "Handles routine tasks with guidance."),
+    (60, "Security Analyst", "Works independently across the core skills."),
+    (130, "Senior Security Engineer", "Owns complex work end-to-end and mentors."),
+    (240, "Lead / Principal", "Sets technical direction; deep specialist."),
+    (380, "Head of Security (CISO-track)", "Strategy and ownership across the whole domain."),
+]
+# Adaptive-difficulty bands (same mastery scale).
+_BANDS = [(15, "absolute beginner"), (45, "beginner"), (110, "intermediate"),
+          (220, "advanced"), (10**9, "expert")]
+
+
+def mastery_points() -> int:
+    """A single cumulative skill score from everything the learner has done —
+    drives both adaptive difficulty and the rank ladder."""
+    g = _g().get("game") or {}
+    return int(
+        g.get("lessons_total", 0) * 1 + g.get("quizzes_total", 0) * 1
+        + g.get("labs_total", 0) * 3 + g.get("ids_solved", 0) * 2 + g.get("pentest_solved", 0) * 3
+        + g.get("exams_passed", 0) * 8 + g.get("tested_out", 0) * 3
+        + g.get("hosts_pwned", 0) * 2 + g.get("ranges_cleared", 0) * 15
+        + g.get("objectives_captured", 0) * 10 + g.get("privescs", 0) * 2 + g.get("persists", 0) * 2
+        + g.get("incidents_solved", 0) * 4 + len(g.get("badges", []) or []) * 2)
+
+
+def _difficulty_band(points: int | None = None) -> str:
+    pts = mastery_points() if points is None else points
+    for ceiling, name in _BANDS:
+        if pts < ceiling:
+            return name
+    return "expert"
+
+
+def skill_rank() -> dict:
+    """Where the learner stands versus real job-field roles, with progress to the
+    next role. Comparative ('how do I stack up')."""
+    pts = mastery_points()
+    idx = 0
+    for i, (need, _name, _d) in enumerate(RANKS):
+        if pts >= need:
+            idx = i
+    need, name, desc = RANKS[idx]
+    nxt = RANKS[idx + 1] if idx + 1 < len(RANKS) else None
+    to_next = max(0, nxt[0] - pts) if nxt else 0
+    span = (nxt[0] - need) if nxt else 1
+    progress_pct = 100 if not nxt else round(100 * (pts - need) / max(1, span))
+    return {"points": pts, "rank": name, "rank_index": idx, "rank_count": len(RANKS),
+            "description": desc, "difficulty": _difficulty_band(pts),
+            "next_rank": (nxt[1] if nxt else None), "points_to_next": to_next,
+            "progress_pct": progress_pct,
+            "ladder": [{"role": n, "at": need, "reached": pts >= need} for (need, n, _d) in RANKS]}
+
+
+def _difficulty_directive() -> str:
+    band = _difficulty_band()
+    return (f"Calibrate difficulty to this learner's level: {band}. Match vocabulary, depth, and "
+            "challenge to that band — stretch them slightly without overwhelming.")
+
+
 def _profile_brief() -> str:
     p = _g().get("profile") or {}
-    parts = []
+    parts = [_difficulty_directive()]
     if p.get("style_summary"):
         parts.append(f"Style: {p['style_summary']}")
     for label, key in (("Prefers", "preferences"), ("Strengths", "strengths"),
@@ -292,7 +375,7 @@ def _profile_brief() -> str:
         vals = p.get(key) or []
         if vals:
             parts.append(f"{label}: {', '.join(str(v) for v in vals[:6])}")
-    return "\n".join(parts) or "No learner profile yet — start at a beginner level and observe."
+    return "\n".join(parts)
 
 
 def _call(member: dict, system: str, user: str, chat, max_tokens=900, temperature=0.4):
@@ -1106,6 +1189,10 @@ def _range_view(rng: dict) -> dict:
         hosts.append({
             "id": hid, "hostname": h.get("hostname"), "ip": h.get("ip"), "kind": h.get("kind"),
             "reachable": hid in reach, "enumerated": enumerated, "compromised": owned,
+            "escalated": bool(h.get("escalated")), "persisted": bool(h.get("persisted")),
+            # privilege shown once you've a foothold; full admin once escalated.
+            "access_level": (("admin/root" if h.get("escalated") else h.get("access_level", "user"))
+                             if owned else None),
             # services appear once enumerated; loot only once compromised.
             "services": h.get("services", []) if enumerated else None,
             "enum_hint": h.get("enum_hint") if enumerated else None,
@@ -1153,8 +1240,10 @@ def generate_range(track_id: str, chat=None) -> dict:
                          for s in (h.get("services") or []) if isinstance(s, dict)],
             "enum_hint": str(h.get("enum_hint", "")), "vuln": str(h.get("vuln", "")),
             "exploit": str(h.get("exploit", "")), "loot": str(h.get("loot", "")),
+            "access_level": str(h.get("access_level", "user")),
+            "privesc": str(h.get("privesc", "")), "persistence": str(h.get("persistence", "")),
             "pivots_to": [str(x) for x in (h.get("pivots_to") or [])],
-            "enumerated": False, "compromised": False}
+            "enumerated": False, "compromised": False, "escalated": False, "persisted": False}
     if not hosts:
         return {"error": "could not parse range hosts from the model"}
     entry = [str(x) for x in (data.get("entry_points") or []) if str(x) in hosts]
@@ -1311,6 +1400,99 @@ def range_capture(range_id: str, submission: str) -> dict:
     _update_profile(f"Captured the engagement objective ({obj.get('goal','')}) in a pentest range.")
     return {"captured": True, "goal": obj.get("goal", ""), "flag": flag,
             "awarded": 80, "badges": earned, "error": None}
+
+
+def _postex(range_id: str, host_id: str, plan: str, kind: str, chat=None) -> dict:
+    """Shared engine for the two post-exploitation steps: privilege escalation
+    and persistence. The host must already be compromised; the plan is graded on
+    tradecraft against the host's hidden technique."""
+    field = "privesc" if kind == "privesc" else "persistence"
+    flag_attr = "escalated" if kind == "privesc" else "persisted"
+    counter = "privescs" if kind == "privesc" else "persists"
+    goal = ("escalating from the initial foothold to admin/root" if kind == "privesc"
+            else "establishing persistence that survives a reboot/logout")
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if not rng:
+            return {"error": "unknown or expired range"}
+        host = rng["hosts"].get(host_id)
+        if not host:
+            return {"error": "no such host in this range"}
+        if not host.get("compromised"):
+            return {"error": "compromise the host before post-exploitation"}
+        if host.get(flag_attr):
+            return {flag_attr: True, "already": True, "error": None}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    user = (f"Host: {host.get('hostname')} ({host.get('kind')})\nCurrent access: "
+            f"{host.get('access_level', 'user')}\n\nHidden expected technique:\n{host.get(field, '')}\n\n"
+            f"Learner's plan:\n{(plan or '').strip() or '(blank)'}")
+    ok, text, err = _call(member, SYSTEM_POSTEX_GRADER.replace("{goal}", goal), user, chat,
+                          max_tokens=450, temperature=0.2)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text) or {}
+    try:
+        score = max(0, min(100, int(data.get("score", 0))))
+    except Exception:
+        score = 0
+    done = score >= RANGE_EXPLOIT_PASS
+    result = {"host_id": host_id, "score": score, "feedback": str(data.get("feedback", "")).strip(),
+              "tradecraft": str(data.get("tradecraft", "")).strip(), flag_attr: done, "error": None}
+    if not done:
+        return result
+    with _lock:
+        host[flag_attr] = True
+        g = _g()["game"]
+        g[counter] = g.get(counter, 0) + 1
+        _save()
+    stones = 18
+    _award_progress(stones, skill=("Privilege Escalation" if kind == "privesc" else "Persistence & Evasion"))
+    _touch_streak()
+    earned = _check_badges()
+    result.update({"awarded": stones, "badges": earned})
+    _update_profile(f"On {host.get('hostname')}: {goal}.", chat)
+    return result
+
+
+def range_escalate(range_id: str, host_id: str, plan: str, chat=None) -> dict:
+    """Privilege escalation: foothold -> admin/root on a compromised host."""
+    return _postex(range_id, host_id, plan, "privesc", chat)
+
+
+def range_persist(range_id: str, host_id: str, plan: str, chat=None) -> dict:
+    """Establish persistence on a compromised host."""
+    return _postex(range_id, host_id, plan, "persistence", chat)
+
+
+RANGE_HINT_COST = 12
+
+
+def range_hint(range_id: str, host_id: str, stage: str = "", chat=None) -> dict:
+    """Stuck? Spend spirit stones for a mentor nudge toward the next step on a
+    host (enumerate / exploit / privesc / persistence / pivot) — never the answer."""
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if not rng:
+            return {"error": "unknown or expired range"}
+        host = rng["hosts"].get(host_id)
+        if not host:
+            return {"error": "no such host in this range"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    if not cultivation.spend(LEARNER, RANGE_HINT_COST):
+        return {"error": f"not enough spirit stones — a hint costs {RANGE_HINT_COST}"}
+    stage = (stage or "the next step").strip()
+    facts = (f"Host {host.get('hostname')} ({host.get('kind')}). enum_hint: {host.get('enum_hint','')}. "
+             f"vuln: {host.get('vuln','')}. privesc: {host.get('privesc','')}. "
+             f"persistence: {host.get('persistence','')}. Stage the learner is stuck on: {stage}.")
+    ok, text, err = _call(member, SYSTEM_HINT, facts, chat, max_tokens=200, temperature=0.5)
+    if not ok:
+        cultivation.reward(LEARNER, RANGE_HINT_COST)   # refund on failure
+        return {"error": err or "no response"}
+    return {"hint": text.strip(), "cost": RANGE_HINT_COST, "stage": stage, "error": None}
 
 
 # ---------------------------------------------------------------------------
@@ -1813,6 +1995,7 @@ def get_progress() -> dict:
         "totals": {k: g.get(k, 0) for k in ("lessons_total", "quizzes_total", "labs_total",
                                             "ids_solved", "pentest_solved")},
         "daily_quests": g.get("quests", []),
+        "rank": skill_rank(),
     }
 
 
@@ -2037,18 +2220,26 @@ PENTEST_TOOLKIT = [
     {"name": "Metasploit", "tool": "msf_smb_version", "phase": "exploitation",
      "purpose": "Exploit framework + auxiliary scanners (one bounded module per tool).",
      "kinds": ["server", "workstation", "dc", "iot"]},
+    {"name": "linPEAS / winPEAS", "tool": "linpeas_run", "phase": "privilege-escalation",
+     "purpose": "Enumerate local privesc vectors on a foothold (SUID, sudo, cron, services).",
+     "kinds": ["server", "workstation", "web", "db"]},
+    {"name": "pspy", "tool": "pspy_run", "phase": "privilege-escalation",
+     "purpose": "Watch processes/cron jobs for privesc without needing root.",
+     "kinds": ["server", "workstation"]},
     {"name": "CrackMapExec / NetExec", "tool": "nxc_smb", "phase": "lateral-movement",
      "purpose": "Validate creds and move laterally across the AD network.",
      "kinds": ["server", "workstation", "dc", "fileshare"]},
     {"name": "Impacket (secretsdump/psexec)", "tool": "impacket_secretsdump", "phase": "post-exploitation",
-     "purpose": "Dump hashes / remote exec with valid creds.", "kinds": ["server", "dc", "workstation"]},
+     "purpose": "Dump hashes / remote exec with valid creds; DCSync for persistence.",
+     "kinds": ["server", "dc", "workstation"]},
     {"name": "John / Hashcat", "tool": "john_crack", "phase": "post-exploitation",
      "purpose": "Crack looted password hashes offline.", "kinds": ["server", "dc", "workstation"]},
 ]
 # GUI / interactive tools that belong on the attacker image but aren't CLI
 # allow-list entries (the learner drives them by hand inside the sandbox).
 PENTEST_GUI_TOOLS = ["Burp Suite (web proxy)", "Metasploit msfconsole (interactive)",
-                     "BloodHound (AD attack paths)", "Wireshark (packet analysis)"]
+                     "BloodHound (AD attack paths)", "Mimikatz (creds / golden-ticket persistence)",
+                     "Rubeus (Kerberoast / ticket abuse)", "Wireshark (packet analysis)"]
 
 
 def recommended_pentest_tools(host_kind: str | None = None) -> list[dict]:
