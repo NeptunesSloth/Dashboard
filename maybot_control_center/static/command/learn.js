@@ -689,6 +689,7 @@ function renderRange() {
     if (!h.reachable) acts = `<div class='muted' style='font-size:11px'>Compromise a host that pivots here to unlock.</div>`;
     else if (!h.enumerated) acts = `<button class='btn' data-act='enum' data-h='${esc(h.id)}'>🔍 Enumerate</button>`;
     else if (!h.compromised) acts = `<div class='mini-form'><textarea class='finding' data-plan='${esc(h.id)}' placeholder='How would you exploit this host? (vuln + specific path)'></textarea>
+      <textarea class='finding' data-evidence='${esc(h.id)}' placeholder='Proof of work: payload/command used, request sent, response observed, data extracted'></textarea>
       <div class='actions'><button class='btn primary' data-act='exploit' data-h='${esc(h.id)}'>💥 Exploit</button>
       <button class='btn' data-act='hint' data-h='${esc(h.id)}'>💡 Hint</button></div></div>`;
     else acts = `<div class='actions'>
@@ -719,7 +720,8 @@ async function rangeAction(act, hostId) {
     const plan = act === 'exploit' ? (ta ? ta.value.trim() : '') : prompt(act === 'escalate' ? 'How do you escalate to root/admin here?' : 'How do you establish persistence here?') || '';
     if (!plan) return;
     const ep = { exploit: 'exploit', escalate: 'escalate', persist: 'persist' }[act];
-    const body = act === 'exploit' ? { range_id: curRange.range_id, host_id: hostId, finding: plan }
+    const evEl = $('work').querySelector(`[data-evidence='${hostId}']`);
+    const body = act === 'exploit' ? { range_id: curRange.range_id, host_id: hostId, finding: plan, evidence: evEl ? evEl.value.trim() : '' }
       : { range_id: curRange.range_id, host_id: hostId, plan };
     toast('Grading your tradecraft…', true);
     const r = await post(`/api/learning/range/${ep}`, body);

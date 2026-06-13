@@ -62,6 +62,7 @@ class LabIn(BaseModel):
 class LabGradeIn(BaseModel):
     lab_id: str
     finding: str = ""
+    evidence: str = ""
 
 
 class ProfileIn(BaseModel):
@@ -190,7 +191,7 @@ def learning_lab(body: LabIn, x_control_token: str = Header(default="")):
 def learning_lab_grade(body: LabGradeIn, x_control_token: str = Header(default="")):
     check_operator(x_control_token)
     from .. import learning
-    return learning.grade_lab(body.lab_id, body.finding)
+    return learning.grade_lab(body.lab_id, body.finding, evidence=body.evidence)
 
 
 class LabHintIn(BaseModel):
@@ -273,6 +274,7 @@ class RangeExploitIn(BaseModel):
     range_id: str
     host_id: str
     finding: str = ""
+    evidence: str = ""
 
 
 @router.post("/api/learning/range")
@@ -301,7 +303,7 @@ def learning_range_enumerate(body: RangeHostIn, x_control_token: str = Header(de
 def learning_range_exploit(body: RangeExploitIn, x_control_token: str = Header(default="")):
     check_operator(x_control_token)
     from .. import learning
-    return learning.range_exploit(body.range_id, body.host_id, body.finding)
+    return learning.range_exploit(body.range_id, body.host_id, body.finding, evidence=body.evidence)
 
 
 class RangeCaptureIn(BaseModel):

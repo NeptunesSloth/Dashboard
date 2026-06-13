@@ -56,11 +56,29 @@ _GUARD = (
     "Labs are self-contained CTF/synthetic exercises — never give instructions aimed "
     "at real third-party systems you do not own."
 )
+# The TUTOR is sealed off from the examiner: it teaches but must never hand over
+# an assessment's answer. It never receives answer keys in code (only graders do);
+# this clause hardens it against a learner pasting a live lab/range and asking for
+# the solution.
+_TUTOR_SEAL = (
+    " You are a teacher, NOT an answer key. If the learner pastes an active lab, range host, exam or "
+    "challenge and asks you to solve it or hand over the exploit/flag, REFUSE: instead teach the "
+    "underlying concept and give a generic, non-spoiler hint about the method. Never reveal a specific "
+    "exploit chain, payload, or flag for an assessment they are being graded on."
+)
 SYSTEM_TUTOR = (
     "You are a patient, encouraging expert tutor. Teach the requested topic clearly and "
     "concretely, building on what the learner already knows. Adapt your explanation to the "
     "learner profile provided (their level, gaps, and preferred style). Keep it focused. "
-    + _GUARD
+    + _GUARD + _TUTOR_SEAL
+)
+# Proof-of-work clause appended to every assessment grader: claims aren't enough,
+# the learner must show evidence (payload/command, request, response, extraction).
+_POW = (
+    " This is PROOF-OF-WORK grading. The learner must show EVIDENCE, not claims: the actual "
+    "command/payload used, the request sent, the response/output observed, and the data extracted or "
+    "flag recovered. A bare assertion like 'I exploited SQL injection' with no payload/request/"
+    "response/evidence MUST score below passing. Reward concrete artifacts; fail unsupported claims."
 )
 SYSTEM_QUIZ = (
     "You are a quiz author. Produce multiple-choice questions that genuinely test "
@@ -81,6 +99,7 @@ SYSTEM_GRADER = (
     "You grade a learner's free-text finding against the expected answer for a security lab. "
     "Be fair but rigorous. Respond with ONLY a JSON object: "
     '{"score":0-100,"feedback":"2-3 sentences: what they got right and what they missed"}.'
+    + _POW
 )
 # Language tracks get a tutor built around proven second-language acquisition:
 # comprehensible input (mostly the target language, scaffolded), retrieval
@@ -145,6 +164,7 @@ SYSTEM_POSTEX_GRADER = (
     "technique (not just a tool name), and show awareness of OPSEC + how a defender would detect it? "
     "Penalise hand-waving or the wrong mechanism. Respond with ONLY: "
     "{\"score\":0-100,\"feedback\":\"2-3 sentences\",\"tradecraft\":\"one concrete habit to improve\"}."
+    + _POW
 )
 # Grade an exploit attempt on REAL TRADECRAFT, not buzzword-matching: reward
 # sound enumeration, correct vuln identification, a viable exploitation path, and
@@ -158,6 +178,7 @@ SYSTEM_RANGE_GRADER = (
     "the next pivot. Penalise blind tool-spraying, hand-waving, or wrong root cause even if a tool is "
     "named. Respond with ONLY: {\"score\":0-100,\"feedback\":\"2-3 sentences: tradecraft done well and "
     "the single biggest gap\",\"tradecraft\":\"one concrete habit to improve\"}."
+    + _POW
 )
 # Defensive (blue-team) incident investigation: an alert + multi-source logs hide
 # a ground truth the learner must SCOPE — entry vector, every compromised device,
@@ -288,11 +309,29 @@ def _g() -> dict:
 # LLM plumbing (mirrors copilot.py)
 # ---------------------------------------------------------------------------
 def _backend_member() -> dict | None:
-    """First configured member with a usable LLM backend (same rule as the copilot)."""
+    """The TUTOR backend: first configured member with a usable LLM backend. The
+    tutor teaches and is never handed an answer key (only grader functions read
+    solution fields), so a learner can't extract solutions through it."""
     for a in agents.file_agents():
         if a.get("base_url") or a.get("provider") in ("claude", "anthropic"):
             return a
     return None
+
+
+# The SEALED EXAMINER backend, kept separate from the tutor. Name a dedicated
+# member with MAYBOT_GRADER_MEMBER to run grading on a different model/process
+# entirely; otherwise it falls back to the tutor backend. The separation that
+# actually matters is in code: only grader functions ever see answer keys, exploit
+# chains, or ground truth — the tutor functions never receive them.
+GRADER_MEMBER = os.getenv("MAYBOT_GRADER_MEMBER", "").strip()
+
+
+def _grader_member() -> dict | None:
+    if GRADER_MEMBER:
+        named = agents._agent_def(GRADER_MEMBER) if hasattr(agents, "_agent_def") else None
+        if named and (named.get("base_url") or named.get("provider") in ("claude", "anthropic")):
+            return named
+    return _backend_member()
 
 
 def _extract_json(text: str):
@@ -1177,17 +1216,19 @@ def lab_hint(lab_id: str, chat=None) -> dict:
     return {"hint": text.strip(), "cost": HINT_COST, "hints_used": lab["hints"], "error": None}
 
 
-def grade_lab(lab_id: str, finding: str, chat=None) -> dict:
+def grade_lab(lab_id: str, finding: str, chat=None, evidence: str = "") -> dict:
     with _lock:
         lab = (_g().get("labs") or {}).get(lab_id)
     if not lab:
         return {"error": "unknown or expired lab"}
-    member = _backend_member()
+    member = _grader_member()   # SEALED examiner — holds the answer key, not the tutor
     if not member:
         return {"error": "no_backend"}
+    ev = (evidence or "").strip()
     user = (f"Lab brief: {lab['brief']}\n\nExpected answer:\n{lab['answer']}\n\n"
             f"Key indicators: {', '.join(lab['indicators'])}\n\n"
-            f"Learner's finding:\n{(finding or '').strip() or '(blank)'}")
+            f"Learner's finding:\n{(finding or '').strip() or '(blank)'}"
+            + (f"\n\nEvidence/artifacts submitted:\n{ev}" if ev else "\n\n(No evidence/artifacts submitted.)"))
     ok, text, err = _call(member, SYSTEM_GRADER, user, chat, max_tokens=400, temperature=0.2)
     if not ok:
         return {"error": err or "no response"}
@@ -1400,8 +1441,9 @@ def range_enumerate(range_id: str, host_id: str) -> dict:
             "error": None}
 
 
-def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
-    """Submit how you'd exploit an enumerated host. Graded server-side against
+def range_exploit(range_id: str, host_id: str, finding: str, chat=None, evidence: str = "") -> dict:
+    """Submit how you'd exploit an enumerated host, WITH EVIDENCE (payload/command,
+    request, response, extracted data). Graded server-side on proof-of-work against
     the hidden vuln/exploit; on success you loot it and unlock its pivots."""
     with _lock:
         rng = (_g().get("ranges") or {}).get(range_id)
@@ -1416,13 +1458,16 @@ def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
             return {"error": "enumerate the host before exploiting it"}
         if host.get("compromised"):
             return {"error": "host already compromised", "already": True}
-    member = _backend_member()
+    member = _grader_member()   # SEALED examiner — holds the exploit chain, not the tutor
     if not member:
         return {"error": "no_backend"}
+    ev = (evidence or "").strip()
     user = (f"Host: {host.get('hostname')} ({host.get('kind')})\n"
             f"Services: {host.get('services')}\n\nHidden vulnerability: {host['vuln']}\n"
             f"Expected exploitation: {host['exploit']}\n\n"
-            f"Learner's plan:\n{(finding or '').strip() or '(blank)'}")
+            f"Learner's plan:\n{(finding or '').strip() or '(blank)'}"
+            + (f"\n\nEvidence/artifacts (commands, request, response, extraction):\n{ev}"
+               if ev else "\n\n(No evidence/artifacts submitted — a bare claim.)"))
     ok, text, err = _call(member, SYSTEM_RANGE_GRADER, user, chat, max_tokens=450, temperature=0.2)
     if not ok:
         return {"error": err or "no response"}
@@ -1521,7 +1566,7 @@ def _postex(range_id: str, host_id: str, plan: str, kind: str, chat=None) -> dic
             return {"error": "compromise the host before post-exploitation"}
         if host.get(flag_attr):
             return {flag_attr: True, "already": True, "error": None}
-    member = _backend_member()
+    member = _grader_member()   # SEALED examiner
     if not member:
         return {"error": "no_backend"}
     user = (f"Host: {host.get('hostname')} ({host.get('kind')})\nCurrent access: "
@@ -1639,7 +1684,7 @@ def grade_incident(incident_id: str, findings: str, chat=None) -> dict:
         inc = (_g().get("incidents") or {}).get(incident_id)
     if not inc:
         return {"error": "unknown or expired incident"}
-    member = _backend_member()
+    member = _grader_member()   # SEALED examiner — holds the incident ground truth
     if not member:
         return {"error": "no_backend"}
     gt = inc["ground_truth"]
