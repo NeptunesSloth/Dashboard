@@ -1,0 +1,306 @@
+# canonical.yaml — the VERIFIED knowledge base that anchors all generated
+# security content. Nothing the learner sees should reference a technique, CVE,
+# weakness or control that does not resolve here (or in an operator overlay set
+# via MAYBOT_KNOWLEDGE_FILE). This is a curated SEED — extend/refresh it from the
+# authoritative sources below. IDs are the real, citable identifiers.
+#
+# Sources: MITRE ATT&CK (techniques), MITRE CVE (cves), OWASP Top 10 2021
+# (owasp), NIST SP 800-53 Rev.5 (nist). See knowledge.py for the loader.
+
+meta:
+  version: "2026.06"
+  attack_version: "ATT&CK v15"
+  owasp_version: "OWASP Top 10:2021"
+  nist_version: "NIST SP 800-53 Rev.5"
+
+# MITRE ATT&CK techniques (Enterprise). id, name, tactic(s), platforms.
+techniques:
+  - id: T1595
+    name: Active Scanning
+    tactics: [reconnaissance]
+    platforms: [network]
+  - id: T1046
+    name: Network Service Discovery
+    tactics: [discovery]
+    platforms: [linux, windows, network, containers]
+  - id: T1190
+    name: Exploit Public-Facing Application
+    tactics: [initial-access]
+    platforms: [linux, windows, network, containers]
+  - id: T1210
+    name: Exploitation of Remote Services
+    tactics: [lateral-movement]
+    platforms: [linux, windows]
+  - id: T1133
+    name: External Remote Services
+    tactics: [initial-access, persistence]
+    platforms: [linux, windows]
+  - id: T1566
+    name: Phishing
+    tactics: [initial-access]
+    platforms: [linux, windows, office365, saas]
+  - id: T1078
+    name: Valid Accounts
+    tactics: [initial-access, persistence, privilege-escalation, defense-evasion]
+    platforms: [linux, windows, azure-ad, saas, iaas]
+  - id: T1110
+    name: Brute Force
+    tactics: [credential-access]
+    platforms: [linux, windows, azure-ad, saas]
+  - id: T1212
+    name: Exploitation for Credential Access
+    tactics: [credential-access]
+    platforms: [linux, windows]
+  - id: T1068
+    name: Exploitation for Privilege Escalation
+    tactics: [privilege-escalation]
+    platforms: [linux, windows, containers]
+  - id: T1548
+    name: Abuse Elevation Control Mechanism
+    tactics: [privilege-escalation, defense-evasion]
+    platforms: [linux, windows, macos]
+  - id: T1548.003
+    name: "Abuse Elevation Control Mechanism: Sudo and Sudo Caching"
+    tactics: [privilege-escalation]
+    platforms: [linux, macos]
+  - id: T1053
+    name: Scheduled Task/Job
+    tactics: [execution, persistence, privilege-escalation]
+    platforms: [linux, windows]
+  - id: T1543
+    name: Create or Modify System Process
+    tactics: [persistence, privilege-escalation]
+    platforms: [linux, windows, macos]
+  - id: T1547
+    name: Boot or Logon Autostart Execution
+    tactics: [persistence, privilege-escalation]
+    platforms: [linux, windows, macos]
+  - id: T1098
+    name: Account Manipulation
+    tactics: [persistence, privilege-escalation]
+    platforms: [linux, windows, azure-ad, iaas]
+  - id: T1021
+    name: Remote Services
+    tactics: [lateral-movement]
+    platforms: [linux, windows]
+    name: "Remote Services: SMB/Windows Admin Shares"
+    tactics: [lateral-movement]
+    platforms: [windows]
+  - id: T1550
+    name: Use Alternate Authentication Material
+    tactics: [defense-evasion, lateral-movement]
+    platforms: [windows, azure-ad, saas]
+  - id: T1003
+    name: OS Credential Dumping
+    tactics: [credential-access]
+    platforms: [linux, windows]
+  - id: T1558.003
+    name: "Steal or Forge Kerberos Tickets: Kerberoasting"
+    tactics: [credential-access]
+    platforms: [windows]
+  - id: T1558.004
+    name: "Steal or Forge Kerberos Tickets: AS-REP Roasting"
+    tactics: [credential-access]
+    platforms: [windows]
+  - id: T1558.001
+    name: "Steal or Forge Kerberos Tickets: Golden Ticket"
+    tactics: [credential-access, persistence]
+    platforms: [windows]
+  - id: T1207
+    name: "Rogue Domain Controller (DCSync-class replication abuse)"
+    tactics: [defense-evasion]
+    platforms: [windows]
+  - id: T1187
+    name: Forced Authentication (NTLM relay class)
+    tactics: [credential-access]
+    platforms: [windows]
+  - id: T1505.003
+    name: "Server Software Component: Web Shell"
+    tactics: [persistence]
+    platforms: [linux, windows, network]
+  - id: T1190.cloud
+    name: Cloud Instance Metadata API Abuse (SSRF-to-cloud)
+    tactics: [credential-access]
+    platforms: [iaas]
+  - id: T1530
+    name: Data from Cloud Storage
+    tactics: [collection]
+    platforms: [iaas, saas]
+  - id: T1041
+    name: Exfiltration Over C2 Channel
+    tactics: [exfiltration]
+    platforms: [linux, windows]
+  - id: T1048
+    name: Exfiltration Over Alternative Protocol
+    tactics: [exfiltration]
+    platforms: [linux, windows]
+
+# A curated set of well-known CVEs (id, name, cvss, affects, attack technique).
+cves:
+  - id: CVE-2021-44228
+    name: "Log4Shell — Apache Log4j2 JNDI RCE"
+    cvss: 10.0
+    affects: ["log4j 2.x < 2.15.0"]
+    technique: T1190
+  - id: CVE-2017-0144
+    name: "EternalBlue — SMBv1 RCE"
+    cvss: 8.1
+    affects: ["windows smbv1"]
+    technique: T1210
+  - id: CVE-2014-0160
+    name: "Heartbleed — OpenSSL memory disclosure"
+    cvss: 7.5
+    affects: ["openssl 1.0.1 - 1.0.1f"]
+    technique: T1212
+  - id: CVE-2019-0708
+    name: "BlueKeep — RDP pre-auth RCE"
+    cvss: 9.8
+    affects: ["windows rdp"]
+    technique: T1210
+  - id: CVE-2020-1472
+    name: "Zerologon — Netlogon privilege escalation"
+    cvss: 10.0
+    affects: ["windows domain controller"]
+    technique: T1068
+  - id: CVE-2021-34527
+    name: "PrintNightmare — Windows Print Spooler RCE/LPE"
+    cvss: 8.8
+    affects: ["windows print spooler"]
+    technique: T1068
+  - id: CVE-2021-3156
+    name: "Baron Samedit — sudo heap overflow LPE"
+    cvss: 7.8
+    affects: ["sudo < 1.9.5p2"]
+    technique: T1548.003
+  - id: CVE-2018-7600
+    name: "Drupalgeddon2 — Drupal RCE"
+    cvss: 9.8
+    affects: ["drupal 7.x/8.x"]
+    technique: T1190
+  - id: CVE-2017-5638
+    name: "Apache Struts2 OGNL RCE"
+    cvss: 10.0
+    affects: ["struts 2.3.x/2.5.x"]
+    technique: T1190
+  - id: CVE-2019-11510
+    name: "Pulse Secure VPN arbitrary file read"
+    cvss: 10.0
+    affects: ["pulse connect secure"]
+    technique: T1133
+  - id: CVE-2023-23397
+    name: "Microsoft Outlook NTLM credential leak"
+    cvss: 9.8
+    affects: ["microsoft outlook"]
+    technique: T1187
+  - id: CVE-2022-1388
+    name: "F5 BIG-IP iControl REST auth bypass RCE"
+    cvss: 9.8
+    affects: ["f5 big-ip"]
+    technique: T1190
+
+# OWASP Top 10:2021 categories.
+owasp:
+  - id: A01
+    name: Broken Access Control
+  - id: A02
+    name: Cryptographic Failures
+  - id: A03
+    name: Injection
+  - id: A04
+    name: Insecure Design
+  - id: A05
+    name: Security Misconfiguration
+  - id: A06
+    name: Vulnerable and Outdated Components
+  - id: A07
+    name: Identification and Authentication Failures
+  - id: A08
+    name: Software and Data Integrity Failures
+  - id: A09
+    name: Security Logging and Monitoring Failures
+  - id: A10
+    name: Server-Side Request Forgery (SSRF)
+
+# NIST SP 800-53 Rev.5 control families (sample of frequently-cited controls).
+nist:
+  - id: AC-2
+    name: Account Management
+  - id: AC-6
+    name: Least Privilege
+  - id: AU-6
+    name: Audit Record Review, Analysis, and Reporting
+  - id: IA-2
+    name: Identification and Authentication (Organizational Users)
+  - id: IA-5
+    name: Authenticator Management
+  - id: SI-2
+    name: Flaw Remediation
+  - id: SI-4
+    name: System Monitoring
+  - id: CM-7
+    name: Least Functionality
+  - id: SC-7
+    name: Boundary Protection
+  - id: RA-5
+    name: Vulnerability Monitoring and Scanning
+
+# Verified, named attack chains. Each step cites a technique id above; the chain
+# is the ground truth a generated scenario's logic is checked against.
+ad_chains:
+  - id: chain-kerberoast-to-da
+    name: Kerberoast → crack → lateral → DCSync
+    steps:
+      - {technique: T1046, desc: "Enumerate the domain; find SPNs / service accounts."}
+      - {technique: T1558.003, desc: "Kerberoast: request service tickets for SPN accounts."}
+      - {technique: T1110, desc: "Crack the extracted TGS hashes offline."}
+      - {technique: T1021.002, desc: "Use the cracked service-account creds to move laterally over SMB."}
+      - {technique: T1003, desc: "Dump credentials on a privileged host."}
+      - {technique: T1207, desc: "DCSync the domain to obtain the krbtgt / target hashes."}
+      - {technique: T1558.001, desc: "Forge a golden ticket for durable domain persistence."}
+  - id: chain-asrep-to-lateral
+    name: AS-REP roast → crack → valid accounts → lateral
+    steps:
+      - {technique: T1558.004, desc: "AS-REP roast accounts without Kerberos pre-auth."}
+      - {technique: T1110, desc: "Crack the AS-REP hashes."}
+      - {technique: T1078, desc: "Authenticate with the recovered valid account."}
+      - {technique: T1021, desc: "Move laterally with the account's rights."}
+
+privesc:
+  - id: pe-sudo-misconfig
+    name: Sudo misconfiguration / GTFOBins
+    platform: linux
+    technique: T1548.003
+  - id: pe-cron-writable
+    name: Writable cron job / PATH abuse
+    platform: linux
+    technique: T1053
+  - id: pe-suid
+    name: SUID binary abuse
+    platform: linux
+    technique: T1548
+  - id: pe-unquoted-service-path
+    name: Unquoted service path / weak service ACL
+    platform: windows
+    technique: T1543
+  - id: pe-token-impersonation
+    name: Token impersonation (SeImpersonate / potato family)
+    platform: windows
+    technique: T1068
+  - id: pe-zerologon
+    name: Zerologon DC privilege escalation
+    platform: windows
+    technique: T1068
+
+cloud:
+  - id: cl-ssrf-imds
+    name: SSRF → instance metadata → temporary credentials
+    provider: aws
+    technique: T1190.cloud
+  - id: cl-overperm-role
+    name: Over-permissioned IAM role → privilege escalation
+    provider: aws
+    technique: T1078
+  - id: cl-public-bucket
+    name: Public/over-shared object storage → data exposure
+    provider: any
+    technique: T1530

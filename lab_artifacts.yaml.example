@@ -1,0 +1,34 @@
+# lab_artifacts.yaml(.example) — register REAL artifact files for analysis labs.
+#
+# CORE 8: security work is not synthetic text. Point the Learning Center at real
+# artifacts and its artifact labs analyse THOSE (with the real tool) instead of a
+# generated stand-in. Copy to lab_artifacts.yaml (or set MAYBOT_ARTIFACTS_FILE).
+#
+# `source` is a path/URL the LEARNER opens in the real tool (Wireshark, Volatility,
+# etc.) — the dashboard never executes it. Malware samples must live ONLY in the
+# isolated sandbox (see docs/REAL_LABS.md). `answer` (optional) is the hidden
+# expected finding used for grading.
+#
+# type: pcap | memory | apache_log | nginx_log | windows_event | sysmon |
+#       malware_script | malware_sample | iam_policy | s3_config | terraform | docker
+artifacts:
+  - type: pcap
+    name: "Exfiltration over DNS (capture)"
+    source: ./artifacts/dns_exfil.pcap
+    note: "Open in Wireshark; follow the DNS stream."
+    answer: "Data exfiltration encoded in DNS TXT queries to attacker.example."
+
+  - type: apache_log
+    name: "Web shell upload (access log)"
+    source: ./artifacts/apache_access.log
+    note: "Hunt the upload + subsequent web-shell requests."
+
+  - type: memory
+    name: "Injected process (memory image)"
+    source: ./artifacts/win10.mem
+    note: "Analyse with Volatility (pslist, malfind, netscan)."
+
+  - type: iam_policy
+    name: "Over-permissioned role"
+    source: ./artifacts/role_policy.json
+    note: "Audit for privilege-escalation paths (iam:PassRole, *:*)."

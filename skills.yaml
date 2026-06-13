@@ -1,0 +1,102 @@
+# skills.yaml — the skill dependency graph (a DAG). No skipping prerequisites:
+# a node only unlocks once every node it depends on is mastered. Each node maps
+# to a domain (see learning.DOMAINS) and, optionally, a track topic that proves
+# it. Operators can override via MAYBOT_SKILLS_FILE.
+#
+# node: {id, name, domain, requires:[ids], topic (optional)}
+skills:
+  # --- foundations ---
+  - id: networking-fundamentals
+    name: Networking Fundamentals
+    domain: Network Security
+    requires: []
+  - id: linux-fundamentals
+    name: Linux Fundamentals
+    domain: Network Security
+    requires: [networking-fundamentals]
+  - id: tcpip
+    name: TCP/IP Deep Understanding
+    domain: Network Security
+    requires: [networking-fundamentals]
+  - id: http-protocol
+    name: HTTP Protocol
+    domain: Web Security
+    requires: [tcpip]
+
+  # --- web exploitation path ---
+  - id: web-enumeration
+    name: Web Enumeration
+    domain: Web Security
+    requires: [http-protocol]
+  - id: web-vulnerabilities
+    name: Web Vulnerabilities (OWASP Top 10)
+    domain: Web Security
+    requires: [web-enumeration]
+  - id: manual-exploitation
+    name: Manual Exploitation
+    domain: Web Security
+    requires: [web-vulnerabilities]
+  - id: burp-suite
+    name: Burp Suite Usage
+    domain: Web Security
+    requires: [manual-exploitation]
+  - id: advanced-web-exploitation
+    name: Advanced Web Exploitation
+    domain: Web Security
+    requires: [burp-suite]
+
+  # --- host / privilege escalation ---
+  - id: privilege-escalation
+    name: Linux & Windows Privilege Escalation
+    domain: Privilege Escalation
+    requires: [linux-fundamentals, manual-exploitation]
+  - id: persistence
+    name: Persistence & Defense Evasion
+    domain: Privilege Escalation
+    requires: [privilege-escalation]
+
+  # --- active directory path ---
+  - id: ad-fundamentals
+    name: Active Directory Fundamentals
+    domain: Active Directory
+    requires: [networking-fundamentals]
+  - id: ad-enumeration
+    name: AD Enumeration
+    domain: Active Directory
+    requires: [ad-fundamentals]
+  - id: ad-attacks
+    name: AD Attacks (Kerberoasting, NTLM relay, ACLs)
+    domain: Active Directory
+    requires: [ad-enumeration, privilege-escalation]
+  - id: lateral-movement
+    name: Lateral Movement & Pivoting
+    domain: Active Directory
+    requires: [ad-attacks]
+  - id: domain-dominance
+    name: Domain Dominance (DCSync, Golden Ticket)
+    domain: Active Directory
+    requires: [lateral-movement, persistence]
+
+  # --- cloud ---
+  - id: cloud-fundamentals
+    name: Cloud & IAM Fundamentals
+    domain: Cloud Security
+    requires: [networking-fundamentals]
+  - id: cloud-exploitation
+    name: Cloud Exploitation (SSRF-to-metadata, IAM abuse)
+    domain: Cloud Security
+    requires: [cloud-fundamentals, web-vulnerabilities]
+
+  # --- blue team ---
+  - id: log-analysis
+    name: Log Analysis & SIEM
+    domain: Incident Response
+    requires: [networking-fundamentals]
+  - id: incident-response
+    name: Incident Response & Scoping
+    domain: Incident Response
+    requires: [log-analysis]
+  - id: digital-forensics
+    name: Digital Forensics (DFIR)
+    domain: Digital Forensics
+    requires: [incident-response]

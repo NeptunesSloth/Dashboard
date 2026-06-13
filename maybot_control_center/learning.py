@@ -31,6 +31,9 @@ import yaml
 from . import agents
 from . import store
 from . import cultivation
+from . import knowledge
+from . import consensus
+from . import lab_artifacts
 
 LEARNING_FILE = Path(os.getenv("MAYBOT_LEARNING_FILE", "learning.yaml"))
 # Catalog of Docker-based pentest/IDS lab targets the OPERATOR runs (labs/). This
@@ -54,11 +57,29 @@ _GUARD = (
     "Labs are self-contained CTF/synthetic exercises — never give instructions aimed "
     "at real third-party systems you do not own."
 )
+# The TUTOR is sealed off from the examiner: it teaches but must never hand over
+# an assessment's answer. It never receives answer keys in code (only graders do);
+# this clause hardens it against a learner pasting a live lab/range and asking for
+# the solution.
+_TUTOR_SEAL = (
+    " You are a teacher, NOT an answer key. If the learner pastes an active lab, range host, exam or "
+    "challenge and asks you to solve it or hand over the exploit/flag, REFUSE: instead teach the "
+    "underlying concept and give a generic, non-spoiler hint about the method. Never reveal a specific "
+    "exploit chain, payload, or flag for an assessment they are being graded on."
+)
 SYSTEM_TUTOR = (
     "You are a patient, encouraging expert tutor. Teach the requested topic clearly and "
     "concretely, building on what the learner already knows. Adapt your explanation to the "
     "learner profile provided (their level, gaps, and preferred style). Keep it focused. "
-    + _GUARD
+    + _GUARD + _TUTOR_SEAL
+)
+# Proof-of-work clause appended to every assessment grader: claims aren't enough,
+# the learner must show evidence (payload/command, request, response, extraction).
+_POW = (
+    " This is PROOF-OF-WORK grading. The learner must show EVIDENCE, not claims: the actual "
+    "command/payload used, the request sent, the response/output observed, and the data extracted or "
+    "flag recovered. A bare assertion like 'I exploited SQL injection' with no payload/request/"
+    "response/evidence MUST score below passing. Reward concrete artifacts; fail unsupported claims."
 )
 SYSTEM_QUIZ = (
     "You are a quiz author. Produce multiple-choice questions that genuinely test "
@@ -75,10 +96,20 @@ SYSTEM_LAB = (
     "intrusion inside otherwise-normal synthetic log lines. For a `pentest` lab, describe a "
     "self-contained CTF target and the finding/flag the learner should report. " + _GUARD
 )
+SYSTEM_ARTIFACT = (
+    "You design a REAL-ARTIFACT analysis lab for authorized training — the kind of artifact a security "
+    "analyst actually works with, in its REAL format (not a vague summary). Respond with ONLY a JSON "
+    'object: {"brief":"what to analyse and with which tool","artifact":"the artifact itself in its '
+    'authentic format (e.g. real Apache combined-log lines, real Volatility plugin output, real Sysmon '
+    'event XML, a real-looking IAM policy JSON, an obfuscated script)","answer":"the full expected '
+    'finding","indicators":["IOC/evidence 1","IOC/evidence 2"]}. Embed a genuine security issue to '
+    "discover. Make the artifact realistic enough to practise the real tool on. " + _GUARD
+)
 SYSTEM_GRADER = (
     "You grade a learner's free-text finding against the expected answer for a security lab. "
     "Be fair but rigorous. Respond with ONLY a JSON object: "
     '{"score":0-100,"feedback":"2-3 sentences: what they got right and what they missed"}.'
+    + _POW
 )
 # Language tracks get a tutor built around proven second-language acquisition:
 # comprehensible input (mostly the target language, scaffolded), retrieval
@@ -108,17 +139,91 @@ SYSTEM_DRILL = (
 SYSTEM_RANGE = (
     "You design SIMULATED, end-to-end penetration-testing ranges for authorized training. "
     "Respond with ONLY a JSON object describing a small virtual network the learner attacks "
-    "stage by stage:\n"
-    '{"scenario":"1-2 sentence engagement brief","entry_points":["host id the learner can reach first"],'
+    "stage by stage toward a CONCRETE OBJECTIVE:\n"
+    '{"scenario":"1-2 sentence engagement brief (who hired you, rules of engagement)",'
+    '"objective":{"goal":"a specific real-world mission, e.g. exfiltrate the file '
+    '/srv/finance/payroll_2026.xlsx from the domain controller","target_host":"the host id holding '
+    'it","flag":"the exact secret/file-contents the learner must produce to prove capture"},'
+    '"entry_points":["host id the learner can reach first"],'
     '"hosts":[{"id":"h1","hostname":"...","ip":"10.0.0.x","kind":"router|workstation|server|web|db|'
     'dc|fileshare|iot|cloud","services":[{"port":22,"name":"ssh","version":"..."}],'
     '"enum_hint":"what enumeration reveals here","vuln":"the specific weakness","exploit":"how it is '
-    'exploited in THIS simulation","loot":"credentials/keys/data gained, used to pivot","pivots_to":'
+    'exploited in THIS simulation","technique":"the MITRE ATT&CK technique id for the exploit (cite a '
+    'real one from the provided list, e.g. T1190)","cve":"a real CVE id if one applies, else empty",'
+    '"access_level":"the privilege the initial exploit yields, e.g. '
+    'www-data or a low user","privesc":"how to escalate from that foothold to admin/root on THIS host '
+    '(the specific local weakness)","persistence":"a realistic way to persist on this host (cron/'
+    'scheduled task, service, run key, SSH key; for a DC a golden/silver ticket or DCSync)",'
+    '"loot":"credentials/keys/data gained AFTER privesc, used to pivot","pivots_to":'
     '["host ids this loot unlocks"]}]}.\n'
-    "Build a realistic kill chain: a reachable foothold, then lateral movement across DIFFERENT device "
-    "kinds (e.g. web server -> database -> workstation -> domain controller), where each host's loot "
-    "unlocks the next. 4-7 hosts. Mix services/versions realistically. Keep vuln/exploit/loot HIDDEN "
-    "from the brief — the learner must discover them. " + _GUARD
+    "Build a realistic kill chain: a reachable foothold, then PRIVILEGE ESCALATION on each host, "
+    "lateral movement across DIFFERENT device kinds (e.g. web server -> database -> workstation -> "
+    "domain controller), and the option to establish PERSISTENCE. Each host's loot unlocks the next, "
+    "and the OBJECTIVE lives on the deepest host (target_host has no further pivots). When the network "
+    "includes a domain controller, make the AD path realistic: service accounts (Kerberoasting), ACL/"
+    "delegation abuse, credential dumping, and DCSync / golden-ticket persistence. 4-7 hosts. EVERY "
+    "host must cite a real ATT&CK technique id from the provided canonical list; never invent technique "
+    "ids or CVEs. Mix services/versions realistically. Keep vuln/exploit/privesc/persistence/loot/flag "
+    "HIDDEN from the brief — the learner must discover them. " + _GUARD
+)
+# Grade a post-exploitation step (privilege escalation or persistence) on real
+# tradecraft against the host's hidden technique.
+SYSTEM_POSTEX_GRADER = (
+    "You are a senior red-team assessor grading a learner's POST-EXPLOITATION step ({goal}) on one "
+    "host. Grade on TRADECRAFT: did they identify the actual local mechanism, give a specific viable "
+    "technique (not just a tool name), and show awareness of OPSEC + how a defender would detect it? "
+    "Penalise hand-waving or the wrong mechanism. Respond with ONLY: "
+    "{\"score\":0-100,\"feedback\":\"2-3 sentences\",\"tradecraft\":\"one concrete habit to improve\"}."
+    + _POW
+)
+# Grade an exploit attempt on REAL TRADECRAFT, not buzzword-matching: reward
+# sound enumeration, correct vuln identification, a viable exploitation path, and
+# awareness of post-exploitation + detection. Penalise "just run <tool>" with no
+# understanding. The point is teaching method, not making script kiddies.
+SYSTEM_RANGE_GRADER = (
+    "You are a senior penetration-test assessor grading a learner's plan to compromise one host in a "
+    "simulated range. Grade on TRADECRAFT, not keywords. Reward: (1) correct identification of the "
+    "actual weakness; (2) a viable, specific exploitation path (not just naming a tool); (3) sound "
+    "method — enumeration evidence, why this works, safe validation; (4) awareness of what's gained and "
+    "the next pivot. Penalise blind tool-spraying, hand-waving, or wrong root cause even if a tool is "
+    "named. Respond with ONLY: {\"score\":0-100,\"feedback\":\"2-3 sentences: tradecraft done well and "
+    "the single biggest gap\",\"tradecraft\":\"one concrete habit to improve\"}."
+    + _POW
+)
+# Defensive (blue-team) incident investigation: an alert + multi-source logs hide
+# a ground truth the learner must SCOPE — entry vector, every compromised device,
+# the lateral path, and exactly what (if anything) was exfiltrated.
+SYSTEM_INCIDENT = (
+    "You design SIMULATED blue-team incident-investigation exercises for authorized training. "
+    "Respond with ONLY a JSON object:\n"
+    '{"alert":"the initial alert/notification as a SOC tool (EDR/SIEM/IDS) would phrase it",'
+    '"tool":"the tool the alert came from","artifacts":"15-40 lines of realistic, multi-source '
+    'synthetic logs (auth, web, EDR, firewall, DNS) the analyst pivots through — embed the real '
+    'evidence among noise","ground_truth":{"entry_vector":"how they got in","compromised":["device '
+    'names actually compromised"],"not_compromised":["devices that look suspicious but were NOT"],'
+    '"lateral_path":"device-to-device movement","exfiltration":"exactly what data left and to where, '
+    'or \'none\'","timeline":"brief ordered sequence"},"indicators":["IOC 1","IOC 2"]}.\n'
+    "Make scoping genuinely require reading the evidence: include red herrings. " + _GUARD
+)
+SYSTEM_INCIDENT_GRADER = (
+    "You grade a SOC analyst's incident investigation against the hidden ground truth. Grade on "
+    "investigative TRADECRAFT and accuracy of the SCOPE, not vibes. Score these dimensions and weight "
+    "them: (1) correct ENTRY vector; (2) correct list of COMPROMISED devices (false positives AND "
+    "misses both cost points); (3) correct determination of EXFILTRATION — what left and where, or "
+    "correctly concluding nothing did; (4) EVIDENCE — did they cite specific log lines/IOCs rather than "
+    "guess. Respond with ONLY: {\"score\":0-100,\"passed\":true/false (>=70),\"feedback\":\"what they "
+    "scoped correctly and what they got wrong\",\"missed\":[\"key things not found\"]}."
+)
+# CORE 9 — reporting. Security pros write reports constantly; grade a real one.
+SYSTEM_REPORT_GRADER = (
+    "You are a lead penetration tester grading a junior's engagement REPORT against the known findings. "
+    "Score four dimensions 0-100 and an overall: (1) TECHNICAL ACCURACY — are the findings correct and "
+    "complete vs the known facts; (2) CLARITY — is it well-structured and readable; (3) BUSINESS "
+    "COMMUNICATION — does the executive summary convey impact/risk to a non-technical reader; "
+    "(4) REMEDIATION QUALITY — are the fixes specific, correct and prioritised. Penalise missing "
+    "reproduction steps or evidence. Respond with ONLY: {\"overall\":0-100,\"technical_accuracy\":0-100,"
+    "\"clarity\":0-100,\"business_communication\":0-100,\"remediation_quality\":0-100,"
+    "\"feedback\":\"2-3 sentences\",\"missing\":[\"what a real report needs that's absent\"]}."
 )
 SYSTEM_PROFILER = (
     "You maintain a concise model of how a particular learner learns, to help a tutor adapt. "
@@ -146,7 +251,11 @@ BADGES = [
     ("reviewer", "Spaced Learner", "Complete 25 spaced-repetition reviews.", lambda g: g.get("reviews_done", 0) >= 25, 40),
     ("proven", "Proven", "Test out of a topic you already knew.", lambda g: g.get("tested_out", 0) >= 1, 30),
     ("foothold", "Foothold", "Compromise your first host in a range.", lambda g: g.get("hosts_pwned", 0) >= 1, 30),
+    ("rooted", "Rooted", "Escalate to admin/root on a host.", lambda g: g.get("privescs", 0) >= 1, 45),
+    ("entrenched", "Entrenched", "Establish persistence on a host.", lambda g: g.get("persists", 0) >= 1, 45),
     ("domain_admin", "Domain Admin", "Clear an end-to-end pentest range.", lambda g: g.get("ranges_cleared", 0) >= 1, 120),
+    ("exfiltrator", "Exfiltrator", "Capture a range's objective (the crown jewels).", lambda g: g.get("objectives_captured", 0) >= 1, 90),
+    ("incident_handler", "Incident Handler", "Correctly scope an incident investigation.", lambda g: g.get("incidents_solved", 0) >= 1, 70),
 ]
 
 
@@ -169,6 +278,12 @@ def _blank() -> dict:
         "plans": {},           # track_id -> {track, exam_date, created, items:[{date, kind, ref, done}]}
         "ranges": {},          # range_id -> end-to-end pentest range (virtual network); see generate_range()
         "drills": {},          # drill_id -> language cloze/translation drill; see generate_drill()
+        "incidents": {},       # incident_id -> blue-team investigation exercise; see generate_incident()
+        "materials": {},       # track_id -> {name, text, created}: bring-your-own study material (RAG)
+        "executions": [],      # verified real-sandbox execution proofs (CORE 4 graduation gate)
+        "reports": {},         # report_id -> graded engagement report (CORE 9)
+        "content_cache": {},   # kind -> [validated content for reuse/offline fallback] (CORE 14)
+        "quality": {},         # content_id -> telemetry + quarantine state (CORE 13)
     }
 
 
@@ -185,6 +300,8 @@ def _blank_game() -> dict:
         "combo": 0, "best_combo": 0, "exams_passed": 0, "reviews_done": 0,
         "quest_day": "", "quests": [],
         "tested_out": 0, "hosts_pwned": 0, "ranges_cleared": 0,
+        "objectives_captured": 0, "incidents_total": 0, "incidents_solved": 0,
+        "privescs": 0, "persists": 0, "domain_mastery": {}, "domain_practiced": {},
     }
 
 
@@ -217,11 +334,29 @@ def _g() -> dict:
 # LLM plumbing (mirrors copilot.py)
 # ---------------------------------------------------------------------------
 def _backend_member() -> dict | None:
-    """First configured member with a usable LLM backend (same rule as the copilot)."""
+    """The TUTOR backend: first configured member with a usable LLM backend. The
+    tutor teaches and is never handed an answer key (only grader functions read
+    solution fields), so a learner can't extract solutions through it."""
     for a in agents.file_agents():
         if a.get("base_url") or a.get("provider") in ("claude", "anthropic"):
             return a
     return None
+
+
+# The SEALED EXAMINER backend, kept separate from the tutor. Name a dedicated
+# member with MAYBOT_GRADER_MEMBER to run grading on a different model/process
+# entirely; otherwise it falls back to the tutor backend. The separation that
+# actually matters is in code: only grader functions ever see answer keys, exploit
+# chains, or ground truth — the tutor functions never receive them.
+GRADER_MEMBER = os.getenv("MAYBOT_GRADER_MEMBER", "").strip()
+
+
+def _grader_member() -> dict | None:
+    if GRADER_MEMBER:
+        named = agents._agent_def(GRADER_MEMBER) if hasattr(agents, "_agent_def") else None
+        if named and (named.get("base_url") or named.get("provider") in ("claude", "anthropic")):
+            return named
+    return _backend_member()
 
 
 def _extract_json(text: str):
@@ -236,9 +371,256 @@ def _extract_json(text: str):
         return None
 
 
-def _profile_brief() -> str:
+# ---------------------------------------------------------------------------
+# mastery, adaptive difficulty, and a job-field rank ladder
+# ---------------------------------------------------------------------------
+# Job-field roles the learner is measured against (cumulative-mastery thresholds).
+RANKS = [
+    (0, "Intern / Trainee", "Learning the fundamentals."),
+    (20, "Junior Security Analyst", "Handles routine tasks with guidance."),
+    (60, "Security Analyst", "Works independently across the core skills."),
+    (130, "Senior Security Engineer", "Owns complex work end-to-end and mentors."),
+    (240, "Lead / Principal", "Sets technical direction; deep specialist."),
+    (380, "Head of Security (CISO-track)", "Strategy and ownership across the whole domain."),
+]
+# Adaptive-difficulty bands (same mastery scale).
+_BANDS = [(15, "absolute beginner"), (45, "beginner"), (110, "intermediate"),
+          (220, "advanced"), (10**9, "expert")]
+
+
+def mastery_points() -> int:
+    """A single cumulative skill score from everything the learner has done —
+    drives both adaptive difficulty and the rank ladder."""
+    g = _g().get("game") or {}
+    return int(
+        g.get("lessons_total", 0) * 1 + g.get("quizzes_total", 0) * 1
+        + g.get("labs_total", 0) * 3 + g.get("ids_solved", 0) * 2 + g.get("pentest_solved", 0) * 3
+        + g.get("exams_passed", 0) * 8 + g.get("tested_out", 0) * 3
+        + g.get("hosts_pwned", 0) * 2 + g.get("ranges_cleared", 0) * 15
+        + g.get("objectives_captured", 0) * 10 + g.get("privescs", 0) * 2 + g.get("persists", 0) * 2
+        + g.get("incidents_solved", 0) * 4 + len(g.get("badges", []) or []) * 2)
+
+
+def _difficulty_band(points: int | None = None) -> str:
+    pts = mastery_points() if points is None else points
+    for ceiling, name in _BANDS:
+        if pts < ceiling:
+            return name
+    return "expert"
+
+
+# CORE 6 — per-domain mastery. A single global number is wrong: a learner can be
+# expert at web and a novice at AD. Track each independently and adapt difficulty
+# per domain.
+DOMAINS = ["Web Security", "Active Directory", "Cloud Security", "Malware Analysis",
+           "Reverse Engineering", "Digital Forensics", "Incident Response",
+           "Privilege Escalation", "Cryptography", "Network Security"]
+_DOMAIN_KEYWORDS = [
+    ("Active Directory", ("active directory", "kerber", "ntlm", "dcsync", "ldap", " ad ",
+                          "domain controller", "golden ticket", "as-rep", "bloodhound")),
+    ("Cloud Security", ("cloud", "aws", "azure", "gcp", " iam", "s3 ", "metadata", "kubernetes",
+                        "container", "ssrf")),
+    ("Web Security", ("web", "owasp", "http", "sql injection", "sqli", "xss", "burp", "csrf",
+                      "ssrf", "api ")),
+    ("Privilege Escalation", ("privilege escalation", "privesc", "sudo", "suid", "kernel exploit",
+                              "token impersonation")),
+    ("Digital Forensics", ("forensic", "dfir", "memory dump", "disk image", "artifact analysis")),
+    ("Incident Response", ("incident", " soc", "siem", "alert", "triage", "threat hunt",
+                           "intrusion detection", "log analysis")),
+    ("Reverse Engineering", ("reverse engineering", "disassembl", "ghidra", "decompil")),
+    ("Malware Analysis", ("malware", "ransomware", "trojan", "sandbox analysis")),
+    ("Cryptography", ("cryptograph", "encryption", "cipher", "hashing", "tls", "pki")),
+    ("Network Security", ("network", "tcp/ip", "tcp", "packet", "dns", "firewall", "vpn", "nmap")),
+]
+
+
+def classify_domain(text: str) -> str:
+    """Best-fit security domain for a topic/lab text (empty if none clearly apply)."""
+    t = (" " + (text or "").lower() + " ")
+    for domain, kws in _DOMAIN_KEYWORDS:
+        if any(k in t for k in kws):
+            return domain
+    return ""
+
+
+def _award_domain(domain: str, points: int) -> None:
+    if not domain or points <= 0:
+        return
+    with _lock:
+        g = _g()["game"]
+        dm = g.setdefault("domain_mastery", {})
+        dm[domain] = int(dm.get(domain, 0)) + int(points)
+        # practising a domain resets its decay clock (CORE 7).
+        g.setdefault("domain_practiced", {})[domain] = int(time.time())
+        _save()
+
+
+# CORE 7 — skill decay. Master once != permanent: without recent practice, a
+# skill's RETAINED mastery degrades. retention = knowledge * time_decay, where
+# time_decay halves every DECAY_HALF_LIFE_DAYS after a short grace period. The
+# skill graph and adaptive difficulty use the RETAINED value, so a decayed skill
+# re-locks and must be REASSESSED (any practice in the domain restores it).
+DECAY_HALF_LIFE_DAYS = max(1, int(os.getenv("MAYBOT_DECAY_HALF_LIFE_DAYS", "240")))
+DECAY_GRACE_DAYS = max(0, int(os.getenv("MAYBOT_DECAY_GRACE_DAYS", "14")))
+
+
+def _days_since_practice(domain: str) -> float:
+    ts = ((_g().get("game") or {}).get("domain_practiced", {}) or {}).get(domain)
+    if not ts:
+        return 0.0
+    return max(0.0, (time.time() - float(ts)) / 86400.0)
+
+
+def _retention_factor(domain: str) -> float:
+    """time_decay in [0,1]: 1.0 within the grace window, then half-life decay."""
+    idle = _days_since_practice(domain) - DECAY_GRACE_DAYS
+    if idle <= 0:
+        return 1.0
+    return 0.5 ** (idle / DECAY_HALF_LIFE_DAYS)
+
+
+def _domain_raw(domain: str) -> int:
+    return int(((_g().get("game") or {}).get("domain_mastery", {}) or {}).get(domain, 0))
+
+
+def _domain_retained(domain: str) -> int:
+    """Effective, decayed mastery — what the learner can still rely on today."""
+    return int(round(_domain_raw(domain) * _retention_factor(domain)))
+
+
+def _needs_reassessment(domain: str) -> bool:
+    raw = _domain_raw(domain)
+    return raw >= SKILL_DOMAIN_THRESHOLD and _domain_retained(domain) < int(raw * 0.8)
+
+
+def domain_mastery() -> dict:
+    """Per-domain mastery with skill decay: raw knowledge, RETAINED (decayed)
+    mastery, the difficulty band (on retained), and a reassessment flag."""
+    out = []
+    for d in DOMAINS:
+        raw = _domain_raw(d)
+        retained = _domain_retained(d)
+        out.append({"domain": d, "points": raw, "retained": retained,
+                    "band": _difficulty_band(retained),
+                    "decayed": retained < raw, "needs_reassessment": _needs_reassessment(d),
+                    "idle_days": round(_days_since_practice(d), 1)})
+    out.sort(key=lambda x: x["retained"], reverse=True)
+    strongest = out[0]["domain"] if out and out[0]["retained"] else None
+    weakest = next((x["domain"] for x in reversed(out)), None)
+    return {"domains": out, "strongest": strongest, "weakest": weakest,
+            "reassess": [x["domain"] for x in out if x["needs_reassessment"]]}
+
+
+def _domain_band(domain: str) -> str:
+    # use RETAINED (decayed) mastery so difficulty tracks current ability
+    return _difficulty_band(_domain_retained(domain)) if domain else _difficulty_band()
+
+
+# CORE 5 — skill dependency graph (DAG). No skipping prerequisites: a node
+# unlocks only when every node it requires is mastered. Mastery of a node = its
+# domain has cleared a small threshold, OR its linked topic is in mastered_topics.
+SKILLS_FILE = Path(os.getenv("MAYBOT_SKILLS_FILE", "skills.yaml"))
+SKILL_DOMAIN_THRESHOLD = int(os.getenv("MAYBOT_SKILL_THRESHOLD", "6"))
+ENFORCE_PREREQS = os.getenv("MAYBOT_ENFORCE_PREREQS", "0").lower() in ("1", "true", "yes", "on")
+_skills_cache: list | None = None
+
+
+def _load_skills() -> list[dict]:
+    global _skills_cache
+    if _skills_cache is not None:
+        return _skills_cache
+    nodes = []
+    if SKILLS_FILE.exists():
+        try:
+            data = yaml.safe_load(SKILLS_FILE.read_text(encoding="utf-8")) or {}
+            for n in (data.get("skills") or []):
+                if isinstance(n, dict) and n.get("id"):
+                    nodes.append({"id": str(n["id"]), "name": str(n.get("name", n["id"])),
+                                  "domain": str(n.get("domain", "")),
+                                  "requires": [str(x) for x in (n.get("requires") or [])],
+                                  "topic": str(n.get("topic", ""))})
+        except Exception:
+            nodes = []
+    _skills_cache = nodes
+    return nodes
+
+
+def _node_mastered(node: dict) -> bool:
+    # RETAINED mastery (CORE 7): a decayed domain re-locks its skills until reassessed
+    if node.get("domain") and _domain_retained(node["domain"]) >= SKILL_DOMAIN_THRESHOLD:
+        return True
+    topic = node.get("topic")
+    if topic:
+        for p in (_g().get("progress") or {}).values():
+            if topic in (p.get("mastered_topics") or []):
+                return True
+    return False
+
+
+def skill_graph() -> dict:
+    """The skill DAG with each node's state: mastered / unlocked (all prereqs
+    mastered) / locked, plus which prereqs are still missing."""
+    nodes = _load_skills()
+    mastered = {n["id"]: _node_mastered(n) for n in nodes}
+    out = []
+    for n in nodes:
+        missing = [r for r in n["requires"] if not mastered.get(r)]
+        is_mastered = mastered[n["id"]]
+        unlocked = not missing
+        out.append({"id": n["id"], "name": n["name"], "domain": n["domain"],
+                    "requires": n["requires"], "mastered": is_mastered,
+                    "unlocked": unlocked, "available": unlocked and not is_mastered,
+                    "missing_prereqs": missing})
+    return {"skills": out, "mastered": sum(1 for v in mastered.values() if v),
+            "total": len(nodes), "threshold": SKILL_DOMAIN_THRESHOLD,
+            "enforced": ENFORCE_PREREQS}
+
+
+def prereqs_met(topic: str) -> dict:
+    """Whether a topic's skill node has its prerequisites satisfied. Topics not in
+    the graph are always allowed."""
+    nodes = _load_skills()
+    node = next((n for n in nodes if n.get("topic") == topic
+                 or n["name"].lower() == (topic or "").lower()), None)
+    if not node:
+        return {"in_graph": False, "ok": True, "missing": []}
+    mastered = {n["id"]: _node_mastered(n) for n in nodes}
+    missing = [r for r in node["requires"] if not mastered.get(r)]
+    names = {n["id"]: n["name"] for n in nodes}
+    return {"in_graph": True, "ok": not missing, "node": node["id"],
+            "missing": [names.get(m, m) for m in missing]}
+
+
+def skill_rank() -> dict:
+    """Where the learner stands versus real job-field roles, with progress to the
+    next role. Comparative ('how do I stack up')."""
+    pts = mastery_points()
+    idx = 0
+    for i, (need, _name, _d) in enumerate(RANKS):
+        if pts >= need:
+            idx = i
+    need, name, desc = RANKS[idx]
+    nxt = RANKS[idx + 1] if idx + 1 < len(RANKS) else None
+    to_next = max(0, nxt[0] - pts) if nxt else 0
+    span = (nxt[0] - need) if nxt else 1
+    progress_pct = 100 if not nxt else round(100 * (pts - need) / max(1, span))
+    return {"points": pts, "rank": name, "rank_index": idx, "rank_count": len(RANKS),
+            "description": desc, "difficulty": _difficulty_band(pts),
+            "next_rank": (nxt[1] if nxt else None), "points_to_next": to_next,
+            "progress_pct": progress_pct,
+            "ladder": [{"role": n, "at": need, "reached": pts >= need} for (need, n, _d) in RANKS]}
+
+
+def _difficulty_directive(domain: str = "") -> str:
+    band = _domain_band(domain) if domain else _difficulty_band()
+    where = f" in {domain}" if domain else ""
+    return (f"Calibrate difficulty to this learner's level{where}: {band}. Match vocabulary, depth, "
+            "and challenge to that band — stretch them slightly without overwhelming.")
+
+
+def _profile_brief(domain: str = "") -> str:
     p = _g().get("profile") or {}
-    parts = []
+    parts = [_difficulty_directive(domain)]
     if p.get("style_summary"):
         parts.append(f"Style: {p['style_summary']}")
     for label, key in (("Prefers", "preferences"), ("Strengths", "strengths"),
@@ -246,7 +628,7 @@ def _profile_brief() -> str:
         vals = p.get(key) or []
         if vals:
             parts.append(f"{label}: {', '.join(str(v) for v in vals[:6])}")
-    return "\n".join(parts) or "No learner profile yet — start at a beginner level and observe."
+    return "\n".join(parts)
 
 
 def _call(member: dict, system: str, user: str, chat, max_tokens=900, temperature=0.4):
@@ -255,6 +637,138 @@ def _call(member: dict, system: str, user: str, chat, max_tokens=900, temperatur
         {**member, "max_tokens": max_tokens, "temperature": temperature},
         [{"role": "system", "content": system}, {"role": "user", "content": user}],
     )
+
+
+# ---------------------------------------------------------------------------
+# CORE 13 + 14 — quality telemetry + content cache. Validated content is cached
+# so the platform keeps working when the LLM backend is down (fallback mode), and
+# quality signals (failures, hint floods, disputes, bug reports) auto-QUARANTINE a
+# bad cached item so it's never reused — broken labs get fixed by removal.
+# ---------------------------------------------------------------------------
+CACHE_PER_KIND = max(5, int(os.getenv("MAYBOT_CONTENT_CACHE", "40")))
+
+
+def _quality(content_id: str) -> dict:
+    q = _g().setdefault("quality", {})
+    return q.setdefault(content_id, {"attempts": 0, "solves": 0, "fails": 0, "hints": 0,
+                                     "abandons": 0, "disputes": 0, "bugs": 0, "quarantined": False})
+
+
+def _quarantine_check(content_id: str) -> bool:
+    q = _quality(content_id)
+    # a confirmed bug, repeated grading disputes, or a high failure rate quarantines.
+    bad = (q["bugs"] >= 1 or q["disputes"] >= 2
+           or (q["attempts"] >= 4 and q["fails"] > q["solves"] and q["fails"] >= 3)
+           or (q["attempts"] >= 4 and q["abandons"] >= q["attempts"] * 0.75))
+    q["quarantined"] = bool(q["quarantined"] or bad)
+    return q["quarantined"]
+
+
+def record_quality(content_id: str, event: str, n: int = 1) -> dict:
+    """Record a quality signal for a piece of content; may auto-quarantine it."""
+    field = {"attempt": "attempts", "solve": "solves", "fail": "fails", "hint": "hints",
+             "abandon": "abandons", "dispute": "disputes", "bug": "bugs"}.get(event)
+    if not field:
+        return {"error": f"unknown quality event '{event}'"}
+    with _lock:
+        q = _quality(content_id)
+        q[field] += int(n)
+        quarantined = _quarantine_check(content_id)
+        _save()
+    return {"ok": True, "content_id": content_id, "quarantined": quarantined}
+
+
+def _is_quarantined(content_id: str) -> bool:
+    return bool((_g().get("quality") or {}).get(content_id, {}).get("quarantined"))
+
+
+def quality_snapshot() -> dict:
+    q = (_g().get("quality") or {})
+    quarantined = [cid for cid, v in q.items() if v.get("quarantined")]
+    return {"tracked": len(q), "quarantined": quarantined,
+            "items": [{"id": cid, **v} for cid, v in q.items()]}
+
+
+def _cache_put(kind: str, track: str, payload: dict) -> str:
+    """Cache a validated payload; returns its STABLE cache id (shared by every
+    instance, so quality signals aggregate against the template)."""
+    cid = f"cc-{kind}-{int(time.time()*1000)}-{random.randint(100,999)}"
+    payload = {**payload, "_cache_id": cid}
+    with _lock:
+        bucket = _g().setdefault("content_cache", {}).setdefault(kind, [])
+        bucket.append({"track": track, "payload": payload, "ts": int(time.time())})
+        if len(bucket) > CACHE_PER_KIND:
+            del bucket[:len(bucket) - CACHE_PER_KIND]
+        _save()
+    return cid
+
+
+def _cache_pick(kind: str, track: str) -> dict | None:
+    """A non-quarantined cached payload for this track (newest-first)."""
+    bucket = (_g().get("content_cache") or {}).get(kind, [])
+    for item in reversed(bucket):
+        if item.get("track") == track and not _is_quarantined(
+                (item.get("payload") or {}).get("_cache_id", "")):
+            return item["payload"]
+    return None
+
+
+def cache_status() -> dict:
+    cc = (_g().get("content_cache") or {})
+    return {"backend_available": _backend_member() is not None,
+            "cached": {kind: len(items) for kind, items in cc.items()},
+            "total": sum(len(v) for v in cc.values())}
+
+
+# Bring-your-own material (a lightweight RAG): an operator pastes notes / a doc
+# for a track; lessons, quizzes and exams are then grounded in it. Text-only —
+# paste extracted text (e.g. from a PDF). Capped so a huge upload can't blow the
+# context; the newest material wins.
+MATERIAL_CAP = max(1000, int(os.getenv("MAYBOT_MATERIAL_CHARS", "12000")))
+
+
+def set_material(track_id: str, text: str, name: str = "") -> dict:
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    text = (text or "").strip()
+    if not text:
+        return {"error": "no material text provided"}
+    with _lock:
+        _g().setdefault("materials", {})[track_id] = {
+            "name": (name or "study material").strip()[:120],
+            "text": text[:MATERIAL_CAP], "created": int(time.time())}
+        _save()
+    return {"ok": True, "track": track_id, "chars": min(len(text), MATERIAL_CAP),
+            "truncated": len(text) > MATERIAL_CAP}
+
+
+def get_material(track_id: str) -> dict:
+    with _lock:
+        m = (_g().get("materials") or {}).get(track_id)
+    if not m:
+        return {"present": False}
+    return {"present": True, "name": m.get("name", ""), "chars": len(m.get("text", "")),
+            "created": m.get("created")}
+
+
+def clear_material(track_id: str) -> dict:
+    with _lock:
+        existed = (_g().get("materials") or {}).pop(track_id, None) is not None
+        if existed:
+            _save()
+    return {"ok": existed}
+
+
+def _material_context(track_id: str) -> str:
+    """Grounding block for a track's bring-your-own material (empty if none)."""
+    with _lock:
+        m = (_g().get("materials") or {}).get(track_id)
+    if not m or not m.get("text"):
+        return ""
+    return ("\n\nGROUND YOUR TEACHING IN THE LEARNER'S OWN MATERIAL BELOW — prefer it over general "
+            "knowledge, quote/reference it, and stay consistent with it:\n<material>\n"
+            + m["text"] + "\n</material>")
 
 
 # Keep security content current. The model's training has a cutoff, so the
@@ -370,6 +884,9 @@ def list_tracks() -> dict:
                 "labs": t.get("labs", []), "builtin": t.get("builtin", False),
                 "level": _track_level(p), "completed_topics": p.get("completed_topics", []),
                 "mastered_topics": p.get("mastered_topics", []),
+                "language": _language_of(t),
+                "material": (_g().get("materials") or {}).get(tid, {}).get("name") if
+                            (_g().get("materials") or {}).get(tid) else None,
             })
         return {"tracks": tracks}
 
@@ -481,15 +998,23 @@ def get_lesson(track_id: str, topic: str, chat=None) -> dict:
     track = _track(track_id)
     if not track:
         return {"error": "unknown track"}
+    # CORE 5: optionally block a topic until its prerequisites are mastered.
+    if ENFORCE_PREREQS:
+        pr = prereqs_met(topic)
+        if not pr["ok"]:
+            return {"error": "locked", "locked": True,
+                    "missing_prereqs": pr["missing"],
+                    "message": f"Master these first: {', '.join(pr['missing'])}"}
     member = _backend_member()
     if not member:
         return {"error": "no_backend"}
     lang = _language_of(track)
     system = SYSTEM_LANG_TUTOR.format(lang=lang) if lang else SYSTEM_TUTOR
-    user = (f"Track: {track['title']}\nTopic: {topic}\n\nLearner profile:\n{_profile_brief()}\n\n"
+    domain = classify_domain(f"{topic} {track.get('title', '')}")
+    user = (f"Track: {track['title']}\nTopic: {topic}\n\nLearner profile:\n{_profile_brief(domain)}\n\n"
             "Teach this topic now: a focused lesson with a clear explanation, one or two worked "
             "examples, and a short 'check yourself' question at the end."
-            + _threat_context(track))
+            + _threat_context(track) + _material_context(track_id))
     ok, text, err = _call(member, system, user, chat, max_tokens=1100, temperature=0.5)
     if not ok:
         return {"error": err or "the tutor did not respond"}
@@ -510,6 +1035,7 @@ def get_lesson(track_id: str, topic: str, chat=None) -> dict:
                 lessons.pop(k, None)
         _save()
     _award_progress(8)
+    _award_domain(domain, 1)
     _touch_streak()
     _progress_quest("lesson")
     _log_activity("lessons")
@@ -553,7 +1079,8 @@ def _tutor_user_prompt(track: dict, question: str, history) -> str:
         convo += f"{role}: {turn.get('content', '')}\n"
     return (f"Track: {track.get('title')}\n\nLearner profile:\n{_profile_brief()}\n\n"
             + (f"Recent conversation:\n{convo}\n" if convo else "")
-            + f"Learner asks: {question}")
+            + f"Learner asks: {question}"
+            + _material_context(track.get("id", "")))
 
 
 def _persist_chat(track_id: str, question: str, answer: str) -> None:
@@ -633,7 +1160,7 @@ def generate_quiz(track_id: str, topic: str, n: int = 5, chat=None) -> dict:
         return {"error": "no_backend"}
     n = max(1, min(10, int(n or 5)))
     user = (f"Track: {track['title']}\nTopic: {topic}\nLearner profile:\n{_profile_brief()}\n\n"
-            f"Write {n} multiple-choice questions on this topic.")
+            f"Write {n} multiple-choice questions on this topic." + _material_context(track_id))
     ok, text, err = _call(member, SYSTEM_QUIZ, user, chat, max_tokens=1200, temperature=0.6)
     if not ok:
         return {"error": err or "no response"}
@@ -702,6 +1229,7 @@ def grade_quiz(quiz_id: str, answers: list[int], chat=None) -> dict:
         p["score_n"] += 1
         _save()
     _award_progress(stones)
+    _award_domain(classify_domain(quiz.get("topic", "")), 2 if score >= 80 else 0)
     _touch_streak()
     _progress_quest("quiz", passed=(score >= 80))
     _log_activity("quizzes", score)
@@ -987,17 +1515,69 @@ def lab_hint(lab_id: str, chat=None) -> dict:
     return {"hint": text.strip(), "cost": HINT_COST, "hints_used": lab["hints"], "error": None}
 
 
-def grade_lab(lab_id: str, finding: str, chat=None) -> dict:
+def _range_cache_id(range_id: str) -> str:
+    return ((_g().get("ranges") or {}).get(range_id) or {}).get("_cache_id", "")
+
+
+def generate_artifact_lab(track_id: str, artifact_type: str, chat=None) -> dict:
+    """CORE 8 — a lab built on a REAL artifact type (PCAP, memory image, Apache/
+    Sysmon/Windows logs, IAM/S3/Terraform config, obfuscated script, container).
+    If the operator has registered a real artifact file for this type it is used;
+    otherwise the artifact is generated in its authentic format. Graded via
+    grade_lab. No synthetic-only text labs."""
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    at = lab_artifacts.artifact_type(artifact_type)
+    if not at:
+        return {"error": f"unknown artifact type '{artifact_type}'"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    reg = lab_artifacts.registered_for(at["type"])
+    domain = at["domain"]
+    user = (f"Artifact type: {at['name']} ({at['type']}). Analysis tool: {at['tool']}. "
+            f"Domain: {domain}.\nLearner profile:\n{_profile_brief(domain)}\n\n"
+            f"Design an analysis lab using {at['prompt']}."
+            + (f"\nA REAL artifact is provided at: {reg['source']} — {reg.get('note', '')}. "
+               "Frame the lab around analysing THAT file with the tool above."
+               if reg else "")
+            + _threat_context(track))
+    ok, text, err = _call(member, SYSTEM_ARTIFACT, user, chat, max_tokens=1500, temperature=0.6)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text)
+    if not isinstance(data, dict) or not data.get("artifact") or not data.get("answer"):
+        return {"error": "could not parse artifact lab from the model"}
+    lab_id = f"art-{int(time.time()*1000)}-{random.randint(100,999)}"
+    artifact = (f"[REAL artifact: {reg['source']} — analyse with {at['tool']}]\n\n"
+                if reg else "") + str(data["artifact"])
+    with _lock:
+        _g().setdefault("labs", {})[lab_id] = {
+            "track": track_id, "kind": "ids", "artifact_type": at["type"],
+            "brief": f"[{at['name']} · {at['tool']}] " + str(data.get("brief", "")),
+            "artifact": artifact, "answer": str(data["answer"]),
+            "indicators": [str(x) for x in (data.get("indicators") or [])],
+            "created": int(time.time())}
+        _save()
+    return {"lab_id": lab_id, "kind": "ids", "artifact_type": at["type"],
+            "tool": at["tool"], "domain": domain, "real_artifact": bool(reg),
+            "brief": str(data.get("brief", "")), "artifact": artifact, "error": None}
+
+
+def grade_lab(lab_id: str, finding: str, chat=None, evidence: str = "") -> dict:
     with _lock:
         lab = (_g().get("labs") or {}).get(lab_id)
     if not lab:
         return {"error": "unknown or expired lab"}
-    member = _backend_member()
+    member = _grader_member()   # SEALED examiner — holds the answer key, not the tutor
     if not member:
         return {"error": "no_backend"}
+    ev = (evidence or "").strip()
     user = (f"Lab brief: {lab['brief']}\n\nExpected answer:\n{lab['answer']}\n\n"
             f"Key indicators: {', '.join(lab['indicators'])}\n\n"
-            f"Learner's finding:\n{(finding or '').strip() or '(blank)'}")
+            f"Learner's finding:\n{(finding or '').strip() or '(blank)'}"
+            + (f"\n\nEvidence/artifacts submitted:\n{ev}" if ev else "\n\n(No evidence/artifacts submitted.)"))
     ok, text, err = _call(member, SYSTEM_GRADER, user, chat, max_tokens=400, temperature=0.2)
     if not ok:
         return {"error": err or "no response"}
@@ -1021,6 +1601,9 @@ def grade_lab(lab_id: str, finding: str, chat=None) -> dict:
     if solved:
         skill = ("Penetration Testing" if lab["kind"] == "pentest" else "Intrusion Detection")
     _award_progress(stones, skill=skill, bonus=10 if solved else 0)
+    if solved:
+        _award_domain(classify_domain(f"{lab.get('brief', '')} {lab['kind']}")
+                      or ("Web Security" if lab["kind"] == "pentest" else "Incident Response"), 3)
     _touch_streak()
     _progress_quest("lab", passed=solved)
     _log_activity("labs", score)
@@ -1037,6 +1620,52 @@ def grade_lab(lab_id: str, finding: str, chat=None) -> dict:
 # the crown jewels. ZERO command execution — same safety boundary as the labs.
 # ---------------------------------------------------------------------------
 RANGE_EXPLOIT_PASS = int(os.getenv("MAYBOT_RANGE_PASS", "65"))
+# CORE 11 — engagement discipline.
+RANGE_TIME_LIMIT_MIN = int(os.getenv("MAYBOT_RANGE_TIME_LIMIT_MIN", "45"))
+RULES_OF_ENGAGEMENT = [
+    "ONLY interact with hosts IN SCOPE (the hosts in this range).",
+    "DO NOT denial-of-service or crash any target.",
+    "NO destructive actions — no data deletion, no ransomware behaviour.",
+    "Keep a contemporaneous notebook: commands, findings, assumptions.",
+]
+
+
+def range_note(range_id: str, entry: str, kind: str = "note") -> dict:
+    """Append to the engagement notebook (note/command/finding/assumption).
+    Documentation discipline is part of the grade (CORE 11)."""
+    entry = (entry or "").strip()
+    if not entry:
+        return {"error": "empty note"}
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if not rng:
+            return {"error": "unknown or expired range"}
+        nb = rng.setdefault("notebook", [])
+        nb.append({"ts": int(time.time()), "kind": str(kind or "note"), "text": entry[:1000]})
+        del nb[:-200]
+        _save()
+    return {"ok": True, "entries": len(rng["notebook"])}
+
+
+def _range_time_left(rng: dict) -> int:
+    started = rng.get("started_at") or rng.get("created") or int(time.time())
+    limit = int(rng.get("time_limit_min", RANGE_TIME_LIMIT_MIN)) * 60
+    return max(0, limit - int(time.time() - started))
+
+
+def _doc_factor(rng: dict) -> float:
+    """How much the notebook backs up the work: 1.0 with solid notes, down to 0.7
+    with none. Documentation failure reduces the grade (CORE 11)."""
+    n = len(rng.get("notebook") or [])
+    owned = sum(1 for h in rng.get("hosts", {}).values() if h.get("compromised")) or 1
+    ratio = n / owned
+    if ratio >= 2:
+        return 1.0
+    if ratio >= 1:
+        return 0.9
+    if n > 0:
+        return 0.8
+    return 0.7
 
 
 def _range_reachable(rng: dict) -> set[str]:
@@ -1057,39 +1686,44 @@ def _range_view(rng: dict) -> dict:
     for hid, h in rng["hosts"].items():
         owned = bool(h.get("compromised"))
         enumerated = bool(h.get("enumerated"))
+        # the ATT&CK technique mapping is shown once enumerated (it's educational,
+        # not the answer) and resolved to its canonical name from the KB.
+        tech = h.get("technique") or ""
+        tech_name = (knowledge.resolve(tech) or {}).get("name") if tech else None
         hosts.append({
             "id": hid, "hostname": h.get("hostname"), "ip": h.get("ip"), "kind": h.get("kind"),
             "reachable": hid in reach, "enumerated": enumerated, "compromised": owned,
+            "escalated": bool(h.get("escalated")), "persisted": bool(h.get("persisted")),
+            # privilege shown once you've a foothold; full admin once escalated.
+            "access_level": (("admin/root" if h.get("escalated") else h.get("access_level", "user"))
+                             if owned else None),
             # services appear once enumerated; loot only once compromised.
             "services": h.get("services", []) if enumerated else None,
             "enum_hint": h.get("enum_hint") if enumerated else None,
+            "technique": (tech if enumerated else None),
+            "technique_name": (tech_name if enumerated else None),
             "loot": h.get("loot") if owned else None,
         })
     total = len(rng["hosts"])
     owned = sum(1 for h in rng["hosts"].values() if h.get("compromised"))
+    obj = rng.get("objective") or {}
+    # The objective's goal/target are shown; the flag stays hidden until captured.
+    objective = {"goal": obj.get("goal", ""), "target_host": obj.get("target_host", ""),
+                 "captured": bool(obj.get("captured"))} if obj else None
     return {"range_id": rng["id"], "scenario": rng.get("scenario", ""), "track": rng.get("track"),
-            "hosts": hosts, "owned": owned, "total": total,
+            "objective": objective, "hosts": hosts, "owned": owned, "total": total,
+            "validation": rng.get("validation"), "content_id": rng.get("_cache_id"),
+            "roe": rng.get("roe", []), "time_limit_min": rng.get("time_limit_min"),
+            "time_left_s": _range_time_left(rng), "expired": _range_time_left(rng) <= 0,
+            "notebook_entries": len(rng.get("notebook") or []),
             "cleared": owned >= total and total > 0, "error": None}
 
 
-def generate_range(track_id: str, chat=None) -> dict:
-    """Generate a simulated multi-stage pentest range (virtual network)."""
-    track = _track(track_id)
-    if not track:
-        return {"error": "unknown track"}
-    member = _backend_member()
-    if not member:
-        return {"error": "no_backend"}
-    user = (f"Track: {track['title']}\nLearner profile:\n{_profile_brief()}\n\n"
-            "Design a simulated end-to-end pentest range as specified."
-            + _threat_context(track))
-    ok, text, err = _call(member, SYSTEM_RANGE, user, chat, max_tokens=2600, temperature=0.7)
-    if not ok:
-        return {"error": err or "no response"}
-    data = _extract_json(text)
+def _parse_range(track_id: str, data: dict) -> dict | None:
+    """Normalise a model's JSON into a range structure (no persistence yet)."""
     raw_hosts = (data or {}).get("hosts") if isinstance(data, dict) else None
     if not isinstance(raw_hosts, list) or not raw_hosts:
-        return {"error": "could not parse range from the model"}
+        return None
     hosts: dict[str, dict] = {}
     for h in raw_hosts:
         if not isinstance(h, dict) or not h.get("id"):
@@ -1103,26 +1737,117 @@ def generate_range(track_id: str, chat=None) -> dict:
                          for s in (h.get("services") or []) if isinstance(s, dict)],
             "enum_hint": str(h.get("enum_hint", "")), "vuln": str(h.get("vuln", "")),
             "exploit": str(h.get("exploit", "")), "loot": str(h.get("loot", "")),
+            "technique": str(h.get("technique", "")).strip().upper(),
+            "cve": str(h.get("cve", "")).strip().upper(),
+            "access_level": str(h.get("access_level", "user")),
+            "privesc": str(h.get("privesc", "")), "persistence": str(h.get("persistence", "")),
             "pivots_to": [str(x) for x in (h.get("pivots_to") or [])],
-            "enumerated": False, "compromised": False}
+            "enumerated": False, "compromised": False, "escalated": False, "persisted": False}
     if not hosts:
-        return {"error": "could not parse range hosts from the model"}
+        return None
     entry = [str(x) for x in (data.get("entry_points") or []) if str(x) in hosts]
     if not entry:
-        entry = [next(iter(hosts))]  # fall back to the first host as the foothold
+        entry = [next(iter(hosts))]
+    raw_obj = data.get("objective") if isinstance(data.get("objective"), dict) else {}
+    target = str(raw_obj.get("target_host", "")) if raw_obj else ""
+    if target not in hosts:
+        target = next((hid for hid, h in hosts.items() if not h.get("pivots_to")), list(hosts)[-1])
+    objective = {"goal": str(raw_obj.get("goal", "") or "Reach and loot the crown-jewel host."),
+                 "target_host": target,
+                 "flag": str(raw_obj.get("flag", "") or (hosts[target].get("loot") or "OBJECTIVE")),
+                 "captured": False}
+    return {"track": track_id, "scenario": str(data.get("scenario", "")),
+            "objective": objective, "entry_points": entry, "hosts": hosts}
+
+
+def generate_range(track_id: str, chat=None) -> dict:
+    """Generate a validated, ground-truth-anchored pentest range.
+
+    The model must cite canonical ATT&CK/CVE references; the scenario is then run
+    through the validation engine. If it has HARD issues (hallucinated reference,
+    broken attack graph, unreachable objective) the model is asked to repair it
+    once. A scenario that still fails is REJECTED rather than served — a learner
+    never sees a hallucinated or impossible attack chain."""
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    member = _backend_member()
+    if not member:
+        # CORE 14 — fallback: serve a previously-validated range from the cache.
+        cached = _cache_pick("range", track_id)
+        if cached:
+            return _instantiate_range(track_id, cached, {"approved": True, "confidence": 0,
+                                                         "grounded_hosts": 0, "reviewers": 0,
+                                                         "warnings": ["offline — served from validated cache"]},
+                                      cached=True)
+        return {"error": "no_backend"}
+    base = (f"Track: {track['title']}\nLearner profile:\n{_profile_brief()}\n\n"
+            "Design a simulated end-to-end pentest range as specified."
+            + _threat_context(track) + "\n\n" + knowledge.grounding_brief("offensive"))
+    rng = None
+    report = {}
+    user = base
+    for attempt in range(2):  # initial + one repair pass
+        ok, text, err = _call(member, SYSTEM_RANGE, user, chat, max_tokens=2600, temperature=0.6)
+        if not ok:
+            cached = _cache_pick("range", track_id)
+            if cached:
+                return _instantiate_range(track_id, cached, {"approved": True, "confidence": 0,
+                                          "grounded_hosts": 0, "reviewers": 0,
+                                          "warnings": ["backend error — served from validated cache"]},
+                                          cached=True)
+            return {"error": err or "no response"}
+        parsed = _parse_range(track_id, _extract_json(text))
+        if not parsed:
+            return {"error": "could not parse range from the model"}
+        # multi-agent consensus: deterministic ground-truth gate + LLM panel.
+        report = consensus.review_range(parsed, chat=chat, member=member)
+        if report["approved"]:
+            rng = parsed
+            break
+        # ask the model to fix the specific problems and try once more
+        user = (base + "\n\nYour previous scenario FAILED the review panel. Fix every issue and "
+                "return corrected JSON:\n" + consensus.issues_brief(report))
+    if rng is None:
+        return {"error": "the generated scenario failed multi-agent review (it would teach a broken "
+                          "or hallucinated attack chain)", "validation": report}
+    # CORE 14 — cache the validated scenario for reuse / offline fallback.
+    cid = _cache_put("range", track_id, {k: rng[k] for k in ("scenario", "objective", "entry_points", "hosts")})
+    rng["_cache_id"] = cid
+    return _instantiate_range(track_id, rng, {
+        "approved": report["approved"], "confidence": report.get("confidence", 0),
+        "grounded_hosts": report.get("grounded_hosts", 0), "reviewers": report.get("llm_reviewers", 0),
+        "warnings": report.get("warnings", [])})
+
+
+def _instantiate_range(track_id: str, parsed: dict, validation_summary: dict, cached: bool = False) -> dict:
+    """Build a fresh, playable range instance from a parsed/cached scenario."""
+    import copy
+    rng = copy.deepcopy(parsed)
+    rng["track"] = track_id
+    # reset runtime state (a cached scenario must start clean)
+    for h in rng["hosts"].values():
+        h.update({"enumerated": False, "compromised": False, "escalated": False, "persisted": False})
+    if rng.get("objective"):
+        rng["objective"]["captured"] = False
     range_id = f"rng-{int(time.time()*1000)}-{random.randint(100,999)}"
-    rng = {"id": range_id, "track": track_id, "scenario": str(data.get("scenario", "")),
-           "entry_points": entry, "hosts": hosts, "created": int(time.time())}
+    # share the template's stable cache id so quality signals aggregate per template
+    cache_id = parsed.get("_cache_id") or f"cc-{range_id}"
+    rng.update({"id": range_id, "created": int(time.time()), "_cache_id": cache_id,
+                "roe": list(RULES_OF_ENGAGEMENT), "time_limit_min": RANGE_TIME_LIMIT_MIN,
+                "started_at": int(time.time()), "notebook": [], "validation": validation_summary})
     with _lock:
         ranges = _g().setdefault("ranges", {})
         ranges[range_id] = rng
-        # keep the most recent 10 ranges
         if len(ranges) > 10:
             for k in sorted(ranges, key=lambda x: ranges[x]["created"])[:len(ranges) - 10]:
                 ranges.pop(k, None)
         _save()
     _log_activity("labs")
-    return _range_view(rng)
+    record_quality(cache_id, "attempt")
+    view = _range_view(rng)
+    view["cached"] = cached
+    return view
 
 
 def get_range(range_id: str) -> dict:
@@ -1151,8 +1876,9 @@ def range_enumerate(range_id: str, host_id: str) -> dict:
             "error": None}
 
 
-def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
-    """Submit how you'd exploit an enumerated host. Graded server-side against
+def range_exploit(range_id: str, host_id: str, finding: str, chat=None, evidence: str = "") -> dict:
+    """Submit how you'd exploit an enumerated host, WITH EVIDENCE (payload/command,
+    request, response, extracted data). Graded server-side on proof-of-work against
     the hidden vuln/exploit; on success you loot it and unlock its pivots."""
     with _lock:
         rng = (_g().get("ranges") or {}).get(range_id)
@@ -1167,14 +1893,17 @@ def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
             return {"error": "enumerate the host before exploiting it"}
         if host.get("compromised"):
             return {"error": "host already compromised", "already": True}
-    member = _backend_member()
+    member = _grader_member()   # SEALED examiner — holds the exploit chain, not the tutor
     if not member:
         return {"error": "no_backend"}
+    ev = (evidence or "").strip()
     user = (f"Host: {host.get('hostname')} ({host.get('kind')})\n"
             f"Services: {host.get('services')}\n\nHidden vulnerability: {host['vuln']}\n"
             f"Expected exploitation: {host['exploit']}\n\n"
-            f"Learner's plan:\n{(finding or '').strip() or '(blank)'}")
-    ok, text, err = _call(member, SYSTEM_GRADER, user, chat, max_tokens=400, temperature=0.2)
+            f"Learner's plan:\n{(finding or '').strip() or '(blank)'}"
+            + (f"\n\nEvidence/artifacts (commands, request, response, extraction):\n{ev}"
+               if ev else "\n\n(No evidence/artifacts submitted — a bare claim.)"))
+    ok, text, err = _call(member, SYSTEM_RANGE_GRADER, user, chat, max_tokens=450, temperature=0.2)
     if not ok:
         return {"error": err or "no response"}
     data = _extract_json(text) or {}
@@ -1185,6 +1914,7 @@ def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
     feedback = str(data.get("feedback", "")).strip()
     owned = score >= RANGE_EXPLOIT_PASS
     result: dict = {"host_id": host_id, "score": score, "feedback": feedback,
+                    "tradecraft": str(data.get("tradecraft", "")).strip(),
                     "compromised": owned, "error": None}
     if not owned:
         return result
@@ -1201,6 +1931,8 @@ def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
         _save()
     stones = 20 + (60 if cleared else 0)
     _award_progress(stones, skill="Network Penetration Testing", bonus=15 if cleared else 0)
+    _award_domain(classify_domain(f"{host.get('kind', '')} {host.get('vuln', '')} "
+                                  f"{host.get('exploit', '')}") or "Network Security", 2)
     _touch_streak()
     _progress_quest("lab", passed=True)
     earned = _check_badges()
@@ -1210,6 +1942,360 @@ def range_exploit(range_id: str, host_id: str, finding: str, chat=None) -> dict:
         f"Compromised {host.get('hostname')} ({host.get('kind')}) in a pentest range."
         + (" Cleared the whole range." if cleared else ""), chat)
     return result
+
+
+def range_capture(range_id: str, submission: str) -> dict:
+    """Complete the engagement OBJECTIVE: extract the specific file/secret from the
+    target host. The target must be compromised first; the submission is matched
+    against the hidden flag (accent/format tolerant). This is the real-world goal
+    — getting domain admin isn't the point, getting the data out is."""
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if not rng:
+            return {"error": "unknown or expired range"}
+        obj = rng.get("objective") or {}
+        if not obj:
+            return {"error": "this range has no objective"}
+        if obj.get("captured"):
+            return {"captured": True, "already": True, "goal": obj.get("goal", ""), "error": None}
+        target_id = obj.get("target_host")
+        target = rng["hosts"].get(target_id) or {}
+        if not target.get("compromised"):
+            return {"error": "compromise the objective's target host before extracting from it",
+                    "target_host": target_id}
+        flag = obj.get("flag", "")
+        got = _norm_answer(submission)
+        ok = bool(got) and (got == _norm_answer(flag) or _norm_answer(flag) in got
+                            or (len(got) >= 6 and got in _norm_answer(flag)))
+        if not ok:
+            return {"captured": False, "goal": obj.get("goal", ""),
+                    "hint": "that's not the objective data — re-check what's on the target host",
+                    "error": None}
+        obj["captured"] = True
+        g = _g()["game"]
+        g["objectives_captured"] = g.get("objectives_captured", 0) + 1
+        # CORE 11: documentation discipline + the engagement clock shape the reward.
+        doc = _doc_factor(rng)
+        expired = _range_time_left(rng) <= 0
+        _save()
+    award = int(round(80 * doc * (0.85 if expired else 1.0)))
+    record_quality(rng.get("_cache_id", ""), "solve")   # CORE 13 telemetry
+    _award_progress(award, skill="Objective-Based Operations", bonus=20)
+    _touch_streak()
+    earned = _check_badges()
+    _update_profile(f"Captured the engagement objective ({obj.get('goal','')}) in a pentest range.")
+    notes = [] if doc >= 0.9 else ["Keep a fuller notebook (commands/findings/assumptions) — "
+                                   "documentation is part of the engagement."]
+    if expired:
+        notes.append("You ran over the time limit — real engagements are time-boxed.")
+    return {"captured": True, "goal": obj.get("goal", ""), "flag": flag,
+            "awarded": award, "doc_factor": doc, "over_time": expired,
+            "discipline_notes": notes, "badges": earned, "error": None}
+
+
+def _postex(range_id: str, host_id: str, plan: str, kind: str, chat=None) -> dict:
+    """Shared engine for the two post-exploitation steps: privilege escalation
+    and persistence. The host must already be compromised; the plan is graded on
+    tradecraft against the host's hidden technique."""
+    field = "privesc" if kind == "privesc" else "persistence"
+    flag_attr = "escalated" if kind == "privesc" else "persisted"
+    counter = "privescs" if kind == "privesc" else "persists"
+    goal = ("escalating from the initial foothold to admin/root" if kind == "privesc"
+            else "establishing persistence that survives a reboot/logout")
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if not rng:
+            return {"error": "unknown or expired range"}
+        host = rng["hosts"].get(host_id)
+        if not host:
+            return {"error": "no such host in this range"}
+        if not host.get("compromised"):
+            return {"error": "compromise the host before post-exploitation"}
+        if host.get(flag_attr):
+            return {flag_attr: True, "already": True, "error": None}
+    member = _grader_member()   # SEALED examiner
+    if not member:
+        return {"error": "no_backend"}
+    user = (f"Host: {host.get('hostname')} ({host.get('kind')})\nCurrent access: "
+            f"{host.get('access_level', 'user')}\n\nHidden expected technique:\n{host.get(field, '')}\n\n"
+            f"Learner's plan:\n{(plan or '').strip() or '(blank)'}")
+    ok, text, err = _call(member, SYSTEM_POSTEX_GRADER.replace("{goal}", goal), user, chat,
+                          max_tokens=450, temperature=0.2)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text) or {}
+    try:
+        score = max(0, min(100, int(data.get("score", 0))))
+    except Exception:
+        score = 0
+    done = score >= RANGE_EXPLOIT_PASS
+    result = {"host_id": host_id, "score": score, "feedback": str(data.get("feedback", "")).strip(),
+              "tradecraft": str(data.get("tradecraft", "")).strip(), flag_attr: done, "error": None}
+    if not done:
+        return result
+    with _lock:
+        host[flag_attr] = True
+        g = _g()["game"]
+        g[counter] = g.get(counter, 0) + 1
+        _save()
+    stones = 18
+    _award_progress(stones, skill=("Privilege Escalation" if kind == "privesc" else "Persistence & Evasion"))
+    _touch_streak()
+    earned = _check_badges()
+    result.update({"awarded": stones, "badges": earned})
+    _update_profile(f"On {host.get('hostname')}: {goal}.", chat)
+    return result
+
+
+def range_escalate(range_id: str, host_id: str, plan: str, chat=None) -> dict:
+    """Privilege escalation: foothold -> admin/root on a compromised host."""
+    return _postex(range_id, host_id, plan, "privesc", chat)
+
+
+def range_persist(range_id: str, host_id: str, plan: str, chat=None) -> dict:
+    """Establish persistence on a compromised host."""
+    return _postex(range_id, host_id, plan, "persistence", chat)
+
+
+RANGE_HINT_COST = 12
+
+
+def range_hint(range_id: str, host_id: str, stage: str = "", chat=None) -> dict:
+    """Stuck? Spend spirit stones for a mentor nudge toward the next step on a
+    host (enumerate / exploit / privesc / persistence / pivot) — never the answer."""
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if not rng:
+            return {"error": "unknown or expired range"}
+        host = rng["hosts"].get(host_id)
+        if not host:
+            return {"error": "no such host in this range"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    if not cultivation.spend(LEARNER, RANGE_HINT_COST):
+        return {"error": f"not enough spirit stones — a hint costs {RANGE_HINT_COST}"}
+    stage = (stage or "the next step").strip()
+    facts = (f"Host {host.get('hostname')} ({host.get('kind')}). enum_hint: {host.get('enum_hint','')}. "
+             f"vuln: {host.get('vuln','')}. privesc: {host.get('privesc','')}. "
+             f"persistence: {host.get('persistence','')}. Stage the learner is stuck on: {stage}.")
+    ok, text, err = _call(member, SYSTEM_HINT, facts, chat, max_tokens=200, temperature=0.5)
+    if not ok:
+        cultivation.reward(LEARNER, RANGE_HINT_COST)   # refund on failure
+        return {"error": err or "no response"}
+    record_quality(_range_cache_id(range_id), "hint")   # CORE 13 telemetry
+    return {"hint": text.strip(), "cost": RANGE_HINT_COST, "stage": stage, "error": None}
+
+
+# ---------------------------------------------------------------------------
+# blue-team incident investigation — scope a real compromise from alert + logs
+# ---------------------------------------------------------------------------
+INCIDENT_PASS = int(os.getenv("MAYBOT_INCIDENT_PASS", "70"))
+
+
+def generate_incident(track_id: str = "blue-team", chat=None) -> dict:
+    """Generate a defensive investigation: an alert + multi-source logs hiding a
+    ground truth the analyst must scope (entry, spread, exfiltration)."""
+    track = _track(track_id) or {"id": track_id, "title": "Blue Team"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    user = (f"Track: {track.get('title')}\nLearner profile:\n{_profile_brief()}\n\n"
+            "Design a blue-team incident-investigation exercise as specified."
+            + _threat_context({"labs": ["ids"], "title": "incident"}))
+    ok, text, err = _call(member, SYSTEM_INCIDENT, user, chat, max_tokens=2200, temperature=0.7)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text)
+    gt = (data or {}).get("ground_truth") if isinstance(data, dict) else None
+    if not isinstance(data, dict) or not data.get("artifacts") or not isinstance(gt, dict):
+        return {"error": "could not parse incident from the model"}
+    incident_id = f"inc-{int(time.time()*1000)}-{random.randint(100,999)}"
+    with _lock:
+        _g().setdefault("incidents", {})[incident_id] = {
+            "track": track_id, "alert": str(data.get("alert", "")), "tool": str(data.get("tool", "")),
+            "artifacts": str(data["artifacts"]), "ground_truth": gt,
+            "indicators": [str(x) for x in (data.get("indicators") or [])],
+            "created": int(time.time())}
+        _save()
+    # The alert + raw logs are shown; the ground truth stays server-side.
+    return {"incident_id": incident_id, "alert": str(data.get("alert", "")),
+            "tool": str(data.get("tool", "")), "artifacts": str(data["artifacts"]),
+            "goal": ("Scope the compromise: the entry vector, EVERY compromised device, the lateral "
+                     "path, and exactly what (if anything) was exfiltrated. Cite the evidence."),
+            "error": None}
+
+
+def grade_incident(incident_id: str, findings: str, chat=None) -> dict:
+    """Grade a SOC analyst's investigation on scope accuracy + tradecraft."""
+    with _lock:
+        inc = (_g().get("incidents") or {}).get(incident_id)
+    if not inc:
+        return {"error": "unknown or expired incident"}
+    member = _grader_member()   # SEALED examiner — holds the incident ground truth
+    if not member:
+        return {"error": "no_backend"}
+    gt = inc["ground_truth"]
+    user = (f"Alert ({inc.get('tool')}): {inc.get('alert')}\n\nGround truth:\n{json.dumps(gt)}\n\n"
+            f"Analyst's investigation:\n{(findings or '').strip() or '(blank)'}")
+    ok, text, err = _call(member, SYSTEM_INCIDENT_GRADER, user, chat, max_tokens=500, temperature=0.2)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text) or {}
+    try:
+        score = max(0, min(100, int(data.get("score", 0))))
+    except Exception:
+        score = 0
+    solved = bool(data.get("passed")) if "passed" in data else (score >= INCIDENT_PASS)
+    stones = 12 + score // 5 if solved else score // 10
+    with _lock:
+        g = _g()["game"]
+        g["incidents_total"] = g.get("incidents_total", 0) + 1
+        if solved:
+            g["incidents_solved"] = g.get("incidents_solved", 0) + 1
+        p = _progress_for(inc["track"])
+        p["labs_done"] += 1
+        _save()
+    _award_progress(stones, skill="Incident Response & Scoping" if solved else None, bonus=10 if solved else 0)
+    if solved:
+        _award_domain("Incident Response", 3)
+    _touch_streak()
+    _progress_quest("lab", passed=solved)
+    _log_activity("labs", score)
+    earned = _check_badges()
+    _update_profile(f"Investigated an incident and scored {score}/100. "
+                    + ("Scoped it accurately." if solved else "Missed parts of the scope."), chat)
+    return {"score": score, "solved": solved, "passed": solved,
+            "feedback": str(data.get("feedback", "")).strip(),
+            "missed": [str(x) for x in (data.get("missed") or [])],
+            "ground_truth": gt, "awarded": stones, "badges": earned, "error": None}
+
+
+# ---------------------------------------------------------------------------
+# CORE 9 — engagement reporting. The learner writes a real report; it's graded on
+# technical accuracy, clarity, business communication, and remediation quality.
+# ---------------------------------------------------------------------------
+REPORT_SECTIONS = ["executive_summary", "technical_findings", "risk_rating",
+                   "evidence", "reproduction_steps", "remediation"]
+
+
+def grade_report(sections: dict, context: str = "", range_id: str = "", chat=None) -> dict:
+    """Grade a structured engagement report. ``sections`` should provide the
+    standard parts (executive_summary, technical_findings, risk_rating, evidence,
+    reproduction_steps, remediation). ``context``/``range_id`` give the grader the
+    known findings to grade against."""
+    sections = sections or {}
+    if not any(str(sections.get(s, "")).strip() for s in REPORT_SECTIONS):
+        return {"error": "the report is empty — write the standard sections"}
+    member = _grader_member()
+    if not member:
+        return {"error": "no_backend"}
+    known = context or ""
+    if range_id:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if rng:
+            facts = [f"{h.get('hostname')} ({h.get('kind')}): {h.get('vuln')} via {h.get('exploit')} "
+                     f"[{h.get('technique')}]" for h in rng["hosts"].values() if h.get("compromised")]
+            known = (known + "\nKnown findings from the engagement:\n- " + "\n- ".join(facts)
+                     + f"\nObjective: {rng.get('objective', {}).get('goal', '')}").strip()
+    present = {s: str(sections.get(s, "")).strip() for s in REPORT_SECTIONS}
+    user = ("Known facts:\n" + (known or "(none provided)") + "\n\nThe learner's report sections:\n"
+            + "\n\n".join(f"## {s.replace('_', ' ').title()}\n{present[s] or '(missing)'}"
+                          for s in REPORT_SECTIONS))
+    ok, text, err = _call(member, SYSTEM_REPORT_GRADER, user, chat, max_tokens=600, temperature=0.2)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text) or {}
+    def _s(k):
+        try:
+            return max(0, min(100, int(data.get(k, 0))))
+        except Exception:
+            return 0
+    overall = _s("overall") or round((_s("technical_accuracy") + _s("clarity")
+                                      + _s("business_communication") + _s("remediation_quality")) / 4)
+    passed = overall >= 70
+    missing_sections = [s for s in REPORT_SECTIONS if not present[s]]
+    stones = 10 + overall // 5 if passed else overall // 10
+    with _lock:
+        rep_id = f"rep-{int(time.time()*1000)}-{random.randint(100,999)}"
+        _g().setdefault("reports", {})[rep_id] = {
+            "range": range_id, "overall": overall, "created": int(time.time())}
+        _save()
+    _award_progress(stones, skill="Reporting & Communication" if passed else None, bonus=10 if passed else 0)
+    _touch_streak()
+    _log_activity("labs", overall)
+    earned = _check_badges()
+    _update_profile(f"Wrote an engagement report (overall {overall}/100).", chat)
+    return {"report_id": rep_id, "overall": overall, "passed": passed,
+            "scores": {k: _s(k) for k in ("technical_accuracy", "clarity",
+                                          "business_communication", "remediation_quality")},
+            "feedback": str(data.get("feedback", "")).strip(),
+            "missing": [str(x) for x in (data.get("missing") or [])] + missing_sections,
+            "awarded": stones, "badges": earned, "error": None}
+
+
+# ---------------------------------------------------------------------------
+# CORE 10 — purple-team loop. Attack -> telemetry -> investigate your OWN attack.
+# An incident is generated FROM a range the learner just worked: the ground truth
+# is the actual attack path, and the model produces matching telemetry to hunt.
+# ---------------------------------------------------------------------------
+SYSTEM_PURPLE = (
+    "You are a detection engineer. Given the GROUND TRUTH of an attack that just happened on a network, "
+    "produce the realistic blue-team telemetry an analyst would see, as ONLY this JSON: "
+    '{"alert":"the initial EDR/SIEM alert text","tool":"the tool","artifacts":"15-40 lines of realistic '
+    'multi-source logs (auth, web, EDR/Sysmon, firewall, DNS) that CONTAIN the evidence of THIS attack '
+    'among normal noise","indicators":["IOC 1","IOC 2"]}. The telemetry must be consistent with the '
+    "ground truth so the learner can reconstruct exactly what they did. " + _GUARD
+)
+
+
+def generate_purple_incident(range_id: str, chat=None) -> dict:
+    """Turn a worked range into a blue-team investigation of the learner's OWN
+    attack (the purple-team loop)."""
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+    if not rng:
+        return {"error": "unknown or expired range"}
+    owned = [h for h in rng["hosts"].values() if h.get("compromised")]
+    if not owned:
+        return {"error": "compromise at least one host before investigating your attack"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    entry_hosts = [h for hid, h in rng["hosts"].items() if hid in (rng.get("entry_points") or [])]
+    obj = rng.get("objective") or {}
+    gt = {
+        "entry_vector": (entry_hosts[0].get("exploit") if entry_hosts else
+                         owned[0].get("exploit")) + (f" [{entry_hosts[0].get('technique')}]"
+                                                     if entry_hosts else ""),
+        "compromised": [h.get("hostname") for h in owned],
+        "not_compromised": [h.get("hostname") for h in rng["hosts"].values() if not h.get("compromised")],
+        "lateral_path": " -> ".join(h.get("hostname") for h in owned),
+        "exfiltration": (obj.get("goal") if obj.get("captured") else "attempted, not completed"),
+        "timeline": "recon -> exploit -> privesc -> lateral -> objective",
+        "techniques": [h.get("technique") for h in owned if h.get("technique")],
+    }
+    user = "GROUND TRUTH of the attack to build telemetry for:\n" + json.dumps(gt, default=str)
+    ok, text, err = _call(member, SYSTEM_PURPLE, user, chat, max_tokens=1800, temperature=0.6)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text)
+    if not isinstance(data, dict) or not data.get("artifacts"):
+        return {"error": "could not parse telemetry from the model"}
+    incident_id = f"inc-{int(time.time()*1000)}-{random.randint(100,999)}"
+    with _lock:
+        _g().setdefault("incidents", {})[incident_id] = {
+            "track": rng.get("track", "blue-team"), "alert": str(data.get("alert", "")),
+            "tool": str(data.get("tool", "EDR")), "artifacts": str(data["artifacts"]),
+            "ground_truth": gt, "indicators": [str(x) for x in (data.get("indicators") or [])],
+            "purple_from": range_id, "created": int(time.time())}
+        _save()
+    return {"incident_id": incident_id, "alert": str(data.get("alert", "")),
+            "tool": str(data.get("tool", "EDR")), "artifacts": str(data["artifacts"]),
+            "purple": True, "from_range": range_id,
+            "goal": ("You attacked this network — now investigate it as the defender. Scope the "
+                     "compromise: entry vector, every compromised device, lateral path, exfiltration, "
+                     "and propose a detection rule. Cite the evidence."), "error": None}
 
 
 # ---------------------------------------------------------------------------
@@ -1298,7 +2384,7 @@ def generate_exam(track_id: str, n: int = 20, chat=None) -> dict:
     user = (f"Track: {track['title']}\nDomains/topics: {topics}\nLearner profile:\n{_profile_brief()}\n\n"
             f"Write a {n}-question practice EXAM spanning ALL the domains above, weighted realistically. "
             "Tag each question with its domain (use one of the topic names as the `domain`)."
-            + _threat_context(track))
+            + _threat_context(track) + _material_context(track_id))
     sys = SYSTEM_QUIZ.replace(
         '{"q":"...","choices":["A","B","C","D"],"answer":0,"explanation":"..."}',
         '{"q":"...","choices":["A","B","C","D"],"answer":0,"explanation":"...","domain":"..."}')
@@ -1630,6 +2716,8 @@ def get_progress() -> dict:
         "totals": {k: g.get(k, 0) for k in ("lessons_total", "quizzes_total", "labs_total",
                                             "ids_solved", "pentest_solved")},
         "daily_quests": g.get("quests", []),
+        "rank": skill_rank(),
+        "domain_mastery": domain_mastery(),
     }
 
 
@@ -1815,18 +2903,279 @@ def start() -> bool:
 # ---------------------------------------------------------------------------
 # PHASE 2 (optional) — real environment hook. Intentionally unbuilt.
 # ---------------------------------------------------------------------------
-def attach_real_env(exercise: dict, device_name: str, project_name: str) -> dict | None:
-    """COMMAND-EXECUTION exploit labs — deny-by-default, deliberately UNBUILT.
+# ---------------------------------------------------------------------------
+# real-command execution (default-OFF) — the contract, not a live exploit driver.
+# See docs/REAL_LABS.md for the microVM/sandbox topology this binds to.
+# ---------------------------------------------------------------------------
+REAL_LABS = os.getenv("MAYBOT_REAL_LABS", "0").lower() in ("1", "true", "yes", "on")
+REAL_TARGETS_FILE = Path(os.getenv("MAYBOT_REAL_TARGETS_FILE", "real_targets.yaml"))
 
-    Real IDS labs already work TODAY, read-only: the operator runs a Docker lab
-    TARGET (see ``labs/`` and the ``list_lab_targets()`` catalog), attacks it
-    themselves, and the resulting REAL logs are pulled via ``fetch_real_logs``
-    (a read-only ``/api/projects/<project>/logs`` proxy — no command execution)
-    into ``generate_real_lab``. That is the only real-environment path that
-    touches a host, and it only READS.
+# The standard industry toolkit a real engagement uses, mapped to kill-chain
+# phases so the range teaches WHICH tool fits WHEN (tradecraft, not tool-spraying).
+# These are what the operator installs on the attacker sandbox image and exposes,
+# narrowly, through tools.yaml. `tool` is the suggested tools.yaml entry name.
+PENTEST_TOOLKIT = [
+    {"name": "Nmap", "tool": "nmap_scan", "phase": "enumeration",
+     "purpose": "Port, service and version discovery — map the attack surface first.",
+     "kinds": ["router", "workstation", "server", "web", "db", "dc", "fileshare", "iot", "cloud"]},
+    {"name": "Nikto", "tool": "nikto_scan", "phase": "enumeration",
+     "purpose": "Web-server vulnerability and misconfiguration scan.", "kinds": ["web"]},
+    {"name": "Gobuster / ffuf", "tool": "gobuster_dir", "phase": "enumeration",
+     "purpose": "Content/endpoint discovery (hidden dirs, admin panels).", "kinds": ["web"]},
+    {"name": "WhatWeb", "tool": "whatweb_scan", "phase": "recon",
+     "purpose": "Fingerprint web tech stack and versions.", "kinds": ["web"]},
+    {"name": "WPScan", "tool": "wpscan_scan", "phase": "enumeration",
+     "purpose": "WordPress-specific enumeration (plugins, users, known CVEs).", "kinds": ["web"]},
+    {"name": "enum4linux-ng", "tool": "enum4linux_scan", "phase": "enumeration",
+     "purpose": "SMB / Windows / AD enumeration (shares, users, policy).",
+     "kinds": ["server", "dc", "fileshare", "workstation"]},
+    {"name": "SMBMap", "tool": "smbmap_scan", "phase": "enumeration",
+     "purpose": "Enumerate SMB shares and access rights.", "kinds": ["server", "fileshare", "dc"]},
+    {"name": "searchsploit", "tool": "searchsploit_lookup", "phase": "recon",
+     "purpose": "Look up public exploits for a discovered service/version.",
+     "kinds": ["router", "server", "web", "db", "dc", "iot"]},
+    {"name": "sqlmap", "tool": "sqlmap_test", "phase": "exploitation",
+     "purpose": "Detect and exploit SQL injection.", "kinds": ["web", "db"]},
+    {"name": "Hydra", "tool": "hydra_spray", "phase": "exploitation",
+     "purpose": "Online password attacks against a service.",
+     "kinds": ["server", "web", "db", "dc", "workstation"]},
+    {"name": "Metasploit", "tool": "msf_smb_version", "phase": "exploitation",
+     "purpose": "Exploit framework + auxiliary scanners (one bounded module per tool).",
+     "kinds": ["server", "workstation", "dc", "iot"]},
+    {"name": "linPEAS / winPEAS", "tool": "linpeas_run", "phase": "privilege-escalation",
+     "purpose": "Enumerate local privesc vectors on a foothold (SUID, sudo, cron, services).",
+     "kinds": ["server", "workstation", "web", "db"]},
+    {"name": "pspy", "tool": "pspy_run", "phase": "privilege-escalation",
+     "purpose": "Watch processes/cron jobs for privesc without needing root.",
+     "kinds": ["server", "workstation"]},
+    {"name": "CrackMapExec / NetExec", "tool": "nxc_smb", "phase": "lateral-movement",
+     "purpose": "Validate creds and move laterally across the AD network.",
+     "kinds": ["server", "workstation", "dc", "fileshare"]},
+    {"name": "Impacket (secretsdump/psexec)", "tool": "impacket_secretsdump", "phase": "post-exploitation",
+     "purpose": "Dump hashes / remote exec with valid creds; DCSync for persistence.",
+     "kinds": ["server", "dc", "workstation"]},
+    {"name": "John / Hashcat", "tool": "john_crack", "phase": "post-exploitation",
+     "purpose": "Crack looted password hashes offline.", "kinds": ["server", "dc", "workstation"]},
+]
+# GUI / interactive tools that belong on the attacker image but aren't CLI
+# allow-list entries (the learner drives them by hand inside the sandbox).
+PENTEST_GUI_TOOLS = ["Burp Suite (web proxy)", "Metasploit msfconsole (interactive)",
+                     "BloodHound (AD attack paths)", "Mimikatz (creds / golden-ticket persistence)",
+                     "Rubeus (Kerberoast / ticket abuse)", "Wireshark (packet analysis)"]
 
-    What stays unbuilt here is *driving recon/exploit COMMANDS* against a live
-    target from the dashboard. If ever built, it must route through the
-    operator-approved ``tools.yaml`` / ``/api/action`` allow-list — LLM text must
-    never become a shell command. Returns ``None``."""
-    return None
+
+def recommended_pentest_tools(host_kind: str | None = None) -> list[dict]:
+    """The real-world toolkit, optionally narrowed to a host kind so the UI can
+    suggest the right tool for the stage in front of the learner."""
+    if not host_kind:
+        return list(PENTEST_TOOLKIT)
+    k = str(host_kind).lower()
+    return [t for t in PENTEST_TOOLKIT if k in t["kinds"]]
+
+
+def _load_real_targets() -> dict:
+    """Operator-defined map of range/lab host -> a real, isolated sandbox target +
+    the guarded tools allowed against it. Read-only data; nothing here executes."""
+    if not REAL_LABS or not REAL_TARGETS_FILE.exists():
+        return {}
+    try:
+        data = yaml.safe_load(REAL_TARGETS_FILE.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+    out = {}
+    for t in (data.get("targets") or []):
+        if isinstance(t, dict) and t.get("host_id"):
+            out[str(t["host_id"])] = t
+    return out
+
+
+def real_env_status() -> dict:
+    """Surface whether real-command labs are wired (default off) and a checklist
+    of EVERYTHING still required. The settings button flips ``enabled``; the
+    other items the operator must provide. The UI renders this so simulated labs
+    are clearly distinguished from a live sandbox and the requirements are spelled
+    out. ``met: None`` = the app can't verify it (operator-attested)."""
+    targets = _load_real_targets()
+    # Distinct agents referenced by the target bindings (the in-sandbox agents).
+    agents_named = sorted({str(t.get("agent")) for t in targets.values() if t.get("agent")})
+    requirements = [
+        {"label": "Turn on the toggle (Settings → Learning labs)",
+         "met": REAL_LABS,
+         "detail": "Off = labs stay simulated and graded server-side."},
+        {"label": "Map lab hosts to sandbox targets in real_targets.yaml",
+         "met": bool(targets),
+         "detail": "Each entry binds a range host id to one isolated, sandbox-internal target."},
+        {"label": "Define the pentest tools in tools.yaml (nmap, nikto, …)",
+         "met": None,
+         "detail": "Fixed-argv, human-approved; see the pentest section of tools.yaml.example."},
+        {"label": "Run a maybot_agent INSIDE the isolated sandbox",
+         "met": None,
+         "detail": f"Referenced agents: {', '.join(agents_named) or '(none configured yet)'}. "
+                   "The agent executes the allow-listed tools; the control center only dispatches."},
+        {"label": "Isolate it: a KVM microVM/VM, internal-only network, NO egress, ephemeral",
+         "met": None,
+         "detail": "Targets are intentionally vulnerable — see docs/REAL_LABS.md for the topology."},
+    ]
+    # 'ready' covers only what the app can see; the operator-attested items remain.
+    app_ready = REAL_LABS and bool(targets)
+    return {"enabled": REAL_LABS, "configured_targets": sorted(targets.keys()),
+            "ready": app_ready, "requirements": requirements, "docs": "docs/REAL_LABS.md",
+            "toolkit": recommended_pentest_tools(), "gui_tools": list(PENTEST_GUI_TOOLS),
+            "note": ("OFF — labs are simulated, graded server-side. Flip the Settings "
+                     "toggle and complete the checklist to go live." if not REAL_LABS else
+                     "ON — host actions route through the guarded tools allow-list on an "
+                     "isolated-sandbox agent. See docs/REAL_LABS.md.")}
+
+
+def attach_real_env(exercise: dict, host_id: str) -> dict | None:
+    """Bind a simulated range/lab host to a REAL, isolated sandbox target so its
+    enumerate/exploit actions run actual tools — the CONTRACT, default-OFF.
+
+    Returns ``None`` unless ``MAYBOT_REAL_LABS=1`` AND ``real_targets.yaml`` maps
+    ``host_id`` to a sandbox target. When bound, it returns a descriptor naming the
+    sandbox agent and the *allow-listed* guarded tools permitted against it — it
+    does NOT execute anything. Execution still goes through ``tools.run`` (fixed
+    argv, no shell, validated args, human approval, audited) dispatched to a
+    ``maybot_agent`` running INSIDE the isolated microVM/sandbox network, scoped to
+    the lab subnet. The model never turns free text into a command; it can only
+    request an allow-listed tool with validated parameters. See docs/REAL_LABS.md."""
+    targets = _load_real_targets()
+    t = targets.get(str(host_id))
+    if not t:
+        return None
+    return {
+        "host_id": str(host_id),
+        "agent": str(t.get("agent", "")),          # the in-sandbox maybot_agent host name
+        "target": str(t.get("target", "")),        # sandbox-internal IP/hostname only
+        "network": str(t.get("network", "")),      # the isolated lab subnet (scope guard)
+        "allowed_tools": [str(x) for x in (t.get("allowed_tools") or [])],
+        "requires_approval": bool(t.get("requires_approval", True)),
+        "ephemeral": bool(t.get("ephemeral", True)),
+    }
+
+
+# ---------------------------------------------------------------------------
+# CORE 4 — graduation requires real execution. Simulation builds the skills;
+# GRADUATION (the credential that says "career-ready") requires PROOF that the
+# learner actually executed an exploit against an isolated, real sandbox target.
+# A verified execution proof comes from the real-labs path (an in-sandbox agent
+# completing a guarded tool run), recorded here. See deploy/lab-range/ for the
+# ephemeral per-learner provisioning templates the operator runs.
+# ---------------------------------------------------------------------------
+GRADUATION_RANK_INDEX = int(os.getenv("MAYBOT_GRADUATION_RANK", "2"))  # default: Security Analyst
+
+
+def record_execution_proof(domain: str, summary: str, *, verified: bool = False,
+                           lab: str = "", tool: str = "") -> dict:
+    """Record proof that the learner executed against a REAL sandbox target. Only
+    proofs marked ``verified`` (attested by the operator / in-sandbox agent) count
+    toward graduation — a learner can't self-certify simulation as execution."""
+    rec = {"id": f"ex-{int(time.time()*1000)}-{random.randint(100,999)}",
+           "domain": str(domain or ""), "summary": str(summary or "")[:400],
+           "lab": str(lab or ""), "tool": str(tool or ""),
+           "verified": bool(verified), "ts": int(time.time())}
+    with _lock:
+        ex = _g().setdefault("executions", [])
+        ex.append(rec)
+        del ex[:-100]
+        _save()
+    if verified:
+        _award_domain(domain, 6)   # real execution is worth more than a simulation
+    return rec
+
+
+def execution_proofs() -> list[dict]:
+    with _lock:
+        return [dict(e) for e in _g().get("executions", [])]
+
+
+def certifications() -> dict:
+    """CORE 15 — readiness for industry certs (Security+, CEH, OSCP, CISSP, GIAC)
+    from per-domain RETAINED mastery + graduation (proven execution)."""
+    from . import certifications as certs
+    retained = {d: _domain_retained(d) for d in DOMAINS}
+    grad = graduation_status()["graduated"]
+    return {"certifications": certs.all_readiness(retained, grad), "graduated": grad}
+
+
+def portfolio() -> dict:
+    """CORE 15 + 12 — an exportable, verifiable record of capability for an
+    employer/instructor: rank, per-domain mastery, certifications, graduation,
+    verified real executions, ranges cleared, reports written, labs, and badges.
+    Carries a verification hash over the record so it's tamper-evident."""
+    import hashlib
+    g = _g().get("game") or {}
+    rank = skill_rank()
+    grad = graduation_status()
+    proofs = [e for e in execution_proofs() if e.get("verified")]
+    reports = list((_g().get("reports") or {}).values())
+    record = {
+        "learner": LEARNER,
+        "generated": int(time.time()),
+        "knowledge_rank": rank["rank"],
+        "graduated": grad["graduated"],
+        "domain_mastery": [{"domain": d["domain"], "retained": d["retained"],
+                            "band": d["band"]} for d in domain_mastery()["domains"]],
+        "certifications": [{"name": c["name"], "readiness_pct": c["readiness_pct"],
+                            "ready": c["ready"]} for c in certifications()["certifications"]],
+        "evidence": {
+            "verified_executions": [{"domain": e["domain"], "summary": e["summary"],
+                                     "lab": e.get("lab", ""), "ts": e["ts"]} for e in proofs],
+            "ranges_cleared": g.get("ranges_cleared", 0),
+            "objectives_captured": g.get("objectives_captured", 0),
+            "incidents_solved": g.get("incidents_solved", 0),
+            "reports_written": len(reports),
+            "labs_solved": g.get("labs_total", 0),
+            "badges": [b for b in g.get("badges", [])],
+        },
+    }
+    blob = _json_dumps_stable(record)
+    record["verification"] = hashlib.sha256(blob.encode()).hexdigest()
+    return record
+
+
+def _json_dumps_stable(obj) -> str:
+    return json.dumps(obj, sort_keys=True, separators=(",", ":"), default=str)
+
+
+def instructor_summary() -> dict:
+    """CORE 12 (foundation) — an instructor/employer-facing summary combining the
+    verifiable portfolio with the operator audit trail. (Full multi-tenant orgs /
+    cohorts / per-learner identity is a separate enterprise effort — this app is
+    single-operator/single-learner; this surfaces what IS verifiable today.)"""
+    pf = portfolio()
+    try:
+        from . import audit
+        recent_actions = audit.recent(30)
+    except Exception:
+        recent_actions = []
+    return {"portfolio": pf, "verification": pf["verification"],
+            "audit_tail": recent_actions,
+            "note": "Single-learner record. Organizations, cohorts and multi-learner identity "
+                    "require the enterprise multi-tenant layer (not built — see ROADMAP)."}
+
+
+def graduation_status() -> dict:
+    """Whether the learner has GRADUATED — career-ready, proven by real execution,
+    not just simulation. The knowledge rank ladder measures simulated progress;
+    graduation additionally requires a verified real-sandbox exploitation."""
+    proofs = [e for e in execution_proofs() if e.get("verified")]
+    rank = skill_rank()
+    real = real_env_status()
+    domains_proven = sorted({e["domain"] for e in proofs if e.get("domain")})
+    requirements = [
+        {"label": f"Reach the {RANKS[GRADUATION_RANK_INDEX][1]} knowledge rank (simulation)",
+         "met": rank["rank_index"] >= GRADUATION_RANK_INDEX,
+         "detail": f"currently {rank['rank']}"},
+        {"label": "Real-command sandbox labs enabled",
+         "met": real["enabled"], "detail": "operator stands up the isolated sandbox"},
+        {"label": "Complete a VERIFIED real-sandbox exploitation (proof of execution)",
+         "met": len(proofs) >= 1,
+         "detail": f"{len(proofs)} verified execution(s) in {domains_proven or 'no'} domain(s)"},
+    ]
+    graduated = all(r["met"] for r in requirements)
+    return {"graduated": graduated, "requirements": requirements,
+            "knowledge_rank": rank["rank"], "verified_executions": len(proofs),
+            "domains_proven": domains_proven,
+            "note": "Graduation requires REAL execution in an isolated sandbox — simulation alone "
+                    "builds the skill, but never certifies it. See deploy/lab-range/."}

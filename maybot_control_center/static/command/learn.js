@@ -95,19 +95,23 @@ function selectTrack(id) {
 function renderModes() {
   if (!curTrack) { $('modes').innerHTML = ''; return; }
   const due = PROG.reviews_due || 0;
+  const labs = curTrack.labs || [];
   const m = [
     ['review', `🔁 Review${due ? `<span class='pill'>${due}</span>` : ''}`],
     ['exam', '📝 Practice Exam'],
-    ['plan', '📅 Study Plan'],
-    ['stats', '📈 Stats'],
-    ['real', '🖥 Real Log Lab'],
-    ['library', '📂 Library'],
   ];
+  if (labs.includes('pentest')) m.push(['range', '🎯 Pentest Range']);
+  if (labs.includes('ids')) m.push(['incident', '🛡 Incident']);
+  if (curTrack.language) m.push(['drill', '✍️ Drills']);
+  m.push(['skills', '🗺 Skill Path'], ['plan', '📅 Study Plan'], ['stats', '📈 Stats'],
+    ['real', '🖥 Real Log Lab'], ['material', '📎 My Material'], ['library', '📂 Library']);
   $('modes').innerHTML = m.map(([k, lbl]) => `<button class='mode-btn' data-mode='${k}'>${lbl}</button>`).join('');
+  const handlers = { review: startReview, exam: startExam, plan: openPlan, stats: openStats,
+    real: startRealLab, library: openLibrary, range: startRange, incident: startIncident,
+    drill: startDrill, material: openMaterial, skills: openSkills };
   $('modes').querySelectorAll('.mode-btn').forEach((b) => b.onclick = () => {
     if (examTimer) { clearInterval(examTimer); examTimer = null; }
-    ({ review: startReview, exam: startExam, plan: openPlan, stats: openStats,
-       real: startRealLab, library: openLibrary }[b.dataset.mode])();
+    (handlers[b.dataset.mode] || (() => {}))();
   });
 }
 async function loadChat() {
@@ -119,9 +123,15 @@ async function loadChat() {
 }
 function renderTopics() {
   if (!curTrack) { $('topics').innerHTML = ''; return; }
-  $('topics').innerHTML = curTrack.topics.map((tp) =>
-    `<button class='topic-btn ${curTrack.completed_topics.includes(tp) ? 'done' : ''}' data-tp='${esc(tp)}'>${esc(tp)}</button>`).join('');
+  const mastered = curTrack.mastered_topics || [];
+  $('topics').innerHTML = curTrack.topics.map((tp) => {
+    const done = curTrack.completed_topics.includes(tp);
+    const star = mastered.includes(tp) ? ' ✓' : '';
+    return `<span class='topic-wrap'><button class='topic-btn ${done ? 'done' : ''}' data-tp='${esc(tp)}'>${esc(tp)}${star}</button>` +
+      `<button class='topic-testout' data-testout='${esc(tp)}' title='Already know this? Test out to skip it.'>⚡</button></span>`;
+  }).join('');
   $('topics').querySelectorAll('.topic-btn').forEach((b) => b.onclick = () => loadLesson(b.dataset.tp));
+  $('topics').querySelectorAll('[data-testout]').forEach((b) => b.onclick = () => startTestOut(b.dataset.testout));
 }
 function labButtons() {
   if (!curTrack || !curTrack.labs.length) return '';
@@ -558,7 +568,15 @@ async function loadProgress() {
   if ($('modes').innerHTML) renderModes();
   const r = p.realm || {};
   $('realm-name').textContent = r.realm_name || 'Mortal';
-  $('rank-title').textContent = `${r.rank_title || ''} · ${r.layer_label || ''}`;
+  // Job-field rank (junior … head of security) vs cultivation layer.
+  const jr = p.rank;
+  if (jr) {
+    const toNext = jr.next_rank ? ` · ${jr.points_to_next} pts → ${esc(jr.next_rank)}` : ' · top role';
+    $('rank-title').innerHTML = `🎖 <b>${esc(jr.rank)}</b> <span class='muted'>(${esc(jr.difficulty)})</span>` +
+      `<span class='muted' style='display:block; font-size:10px'>${esc(r.rank_title || '')} · ${esc(r.layer_label || '')}${toNext}</span>`;
+  } else {
+    $('rank-title').textContent = `${r.rank_title || ''} · ${r.layer_label || ''}`;
+  }
   countUp($('stones'), Number(r.stones) || 0, (x) => `${Math.round(x).toLocaleString()} ◈`);
   $('next-realm').textContent = r.next_realm ? `${r.stones_to_next} ◈ to ${r.next_realm}` : 'max realm';
   $('realm-prog').style.width = Math.round((r.progress || 0) * 100) + '%';
@@ -581,6 +599,15 @@ async function loadProgress() {
     return `<div class='tlvl-row'><div class='ring2' style='--p:${lv.progress_pct}'><b>${lv.level}</b></div>
       <div><div>${esc(t.title)}</div><div class='muted' style='font-size:11px'>Lv ${lv.level} · avg ${lv.avg_score}%</div></div></div>`;
   }).join('') || `<div class='muted'>Complete lessons to level up tracks.</div>`;
+  // per-domain mastery (CORE 6) — web vs AD vs cloud, tracked independently
+  const dm = (p.domain_mastery && p.domain_mastery.domains) || [];
+  const shown = dm.filter((d) => d.points > 0);
+  $('domain-mastery').innerHTML = (shown.length ? shown : dm.slice(0, 4)).map((d) => {
+    const pct = Math.min(100, d.points);
+    return `<div class='dm-row' title='${esc(d.band)}'><div class='dm-name'>${esc(d.domain)}</div>
+      <div class='dm-bar'><span style='width:${pct}%'></span></div>
+      <div class='dm-pts'>${d.points}</div></div>`;
+  }).join('') || `<div class='muted'>Practice to build domain mastery.</div>`;
   // badges
   $('badge-count').textContent = `${p.earned_badges}/${(p.badges || []).length}`;
   $('badges').innerHTML = (p.badges || []).map((b) =>
@@ -621,6 +648,211 @@ $('edit-profile').onclick = async () => {
 async function putJson(path, body) {
   try { const r = await fetch(path, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body) });
     if (r.status === 401) { window.__needAuth = true; return null; } return await r.json(); } catch (_) { return null; }
+}
+
+/* ---------------- test-out / placement ---------------- */
+async function startTestOut(topic) {
+  $('work-title').textContent = `Test out · ${topic}`; $('work-sub').textContent = 'Pass to skip this topic';
+  $('work').innerHTML = `<div class='muted'>Building a challenge to verify your mastery…</div>`;
+  const res = await post('/api/learning/placement', { track: curTrack.id, topic, n: 6 });
+  if (!res || res.error) return showErr(res);
+  const qs = res.questions || []; const picks = {};
+  $('work').innerHTML = `<div class='muted' style='margin-bottom:8px'>Score ${res.pass_mark}%+ to test out and skip <b>${esc(topic)}</b>.</div>` +
+    qs.map((q, i) => `<div class='qz-q' data-q='${i}'><div class='stem'>${i + 1}. ${esc(q.q)}</div>
+      ${q.choices.map((c, j) => `<label class='qz-opt' data-i='${i}' data-j='${j}'>${esc(c)}</label>`).join('')}</div>`).join('') +
+    `<div class='actions'><button class='btn primary' id='submit-to'>Submit</button></div>`;
+  $('work').querySelectorAll('.qz-opt').forEach((o) => o.onclick = () => {
+    picks[o.dataset.i] = +o.dataset.j;
+    o.parentElement.querySelectorAll('.qz-opt').forEach((x) => x.classList.remove('sel'));
+    o.classList.add('sel');
+  });
+  $('submit-to').onclick = async () => {
+    const answers = qs.map((_, i) => (i in picks ? picks[i] : -1));
+    const g = await post('/api/learning/placement/grade', { quiz_id: res.quiz_id, answers });
+    if (!g || g.error) return showErr(g);
+    const head = g.passed
+      ? `<div class='glass' style='padding:14px; text-align:center'><div style='font-size:22px; font-weight:800'>✓ Tested out — ${g.score}%</div><div class='muted'>${esc(topic)} marked mastered · +${g.awarded} ◈</div></div>`
+      : `<div class='glass' style='padding:14px; text-align:center'><div style='font-size:22px; font-weight:800'>${g.score}%</div><div class='muted'>Not yet (need ${g.pass_mark}%). Study it, then retry.</div></div>`;
+    $('work').innerHTML = head;
+    if (g.passed) celebrate('⚡', 'Tested out!', `${esc(topic)} · +${g.awarded} ◈`);
+    await loadTracks(); loadProgress();
+  };
+}
+
+/* ---------------- pentest range ---------------- */
+let curRange = null;
+async function startRange() {
+  $('work-title').textContent = 'Pentest Range'; $('work-sub').textContent = curTrack.title;
+  $('work').innerHTML = `<div class='muted'>🎯 Spinning up a simulated network…</div>`;
+  const r = await post('/api/learning/range', { track: curTrack.id });
+  if (!r || r.error) return showErr(r);
+  curRange = r; renderRange();
+}
+function renderRange() {
+  const r = curRange; if (!r) return;
+  const obj = r.objective;
+  const hostCard = (h) => {
+    const tag = h.compromised ? `<span class='pill' style='background:#16341f'>owned · ${esc(h.access_level || '')}</span>`
+      : h.reachable ? `<span class='pill'>reachable</span>` : `<span class='pill muted'>locked</span>`;
+    let acts = '';
+    if (!h.reachable) acts = `<div class='muted' style='font-size:11px'>Compromise a host that pivots here to unlock.</div>`;
+    else if (!h.enumerated) acts = `<button class='btn' data-act='enum' data-h='${esc(h.id)}'>🔍 Enumerate</button>`;
+    else if (!h.compromised) acts = `<div class='mini-form'><textarea class='finding' data-plan='${esc(h.id)}' placeholder='How would you exploit this host? (vuln + specific path)'></textarea>
+      <textarea class='finding' data-evidence='${esc(h.id)}' placeholder='Proof of work: payload/command used, request sent, response observed, data extracted'></textarea>
+      <div class='actions'><button class='btn primary' data-act='exploit' data-h='${esc(h.id)}'>💥 Exploit</button>
+      <button class='btn' data-act='hint' data-h='${esc(h.id)}'>💡 Hint</button></div></div>`;
+    else acts = `<div class='actions'>
+        ${h.escalated ? `<span class='pill' style='background:#2a2440'>rooted</span>` : `<button class='btn' data-act='escalate' data-h='${esc(h.id)}'>⬆ Privesc</button>`}
+        ${h.persisted ? `<span class='pill' style='background:#2a2440'>persisted</span>` : `<button class='btn' data-act='persist' data-h='${esc(h.id)}'>📌 Persist</button>`}
+        <button class='btn' data-act='hint' data-h='${esc(h.id)}'>💡 Hint</button></div>`;
+    const svc = h.services ? `<div class='muted' style='font-size:11px'>${h.services.map((s) => `${esc(s.name || '')}:${esc(String(s.port || ''))}`).join(' · ')}</div>` : '';
+    const enumHint = h.enum_hint ? `<div class='muted' style='font-size:11px'>📋 ${esc(h.enum_hint)}</div>` : '';
+    const loot = h.loot ? `<div style='font-size:11px; color:var(--gold,#e9c46a)'>💰 ${esc(h.loot)}</div>` : '';
+    return `<div class='range-host'><div class='section-h'><b>${esc(h.hostname)}</b> ${tag} <span class='muted' style='font-size:11px'>${esc(h.kind)} · ${esc(h.ip || '')}</span></div>
+      ${svc}${enumHint}${loot}${acts}</div>`;
+  };
+  $('work').innerHTML = `<div style='font-size:13px'>${esc(r.scenario || '')}</div>
+    ${obj ? `<div class='glass' style='padding:10px; margin:10px 0'>🎯 <b>Objective:</b> ${esc(obj.goal)} ${obj.captured ? '<span class="pill" style="background:#16341f">captured</span>' : ''}</div>` : ''}
+    <div class='muted' style='font-size:11px; margin-bottom:8px'>Owned ${r.owned}/${r.total}${r.cleared ? ' · range cleared 🏆' : ''}</div>
+    <div class='range-grid'>${r.hosts.map(hostCard).join('')}</div>
+    ${obj && !obj.captured ? `<div class='mini-form' style='margin-top:12px'><textarea class='finding' id='cap-sub' placeholder='Extract the objective from ${esc(obj.target_host)} and paste it here'></textarea>
+      <div class='actions'><button class='btn gold' id='cap-btn'>🏴 Capture objective</button></div></div>` : ''}`;
+  $('work').querySelectorAll('[data-act]').forEach((b) => b.onclick = () => rangeAction(b.dataset.act, b.dataset.h));
+  if ($('cap-btn')) $('cap-btn').onclick = rangeCapture;
+}
+async function rangeAction(act, hostId) {
+  if (act === 'enum') {
+    const r = await post('/api/learning/range/enumerate', { range_id: curRange.range_id, host_id: hostId });
+    if (!r || r.error) return toast(errText(r));
+  } else if (act === 'exploit' || act === 'escalate' || act === 'persist') {
+    const ta = $('work').querySelector(`[data-plan='${hostId}']`);
+    const plan = act === 'exploit' ? (ta ? ta.value.trim() : '') : prompt(act === 'escalate' ? 'How do you escalate to root/admin here?' : 'How do you establish persistence here?') || '';
+    if (!plan) return;
+    const ep = { exploit: 'exploit', escalate: 'escalate', persist: 'persist' }[act];
+    const evEl = $('work').querySelector(`[data-evidence='${hostId}']`);
+    const body = act === 'exploit' ? { range_id: curRange.range_id, host_id: hostId, finding: plan, evidence: evEl ? evEl.value.trim() : '' }
+      : { range_id: curRange.range_id, host_id: hostId, plan };
+    toast('Grading your tradecraft…', true);
+    const r = await post(`/api/learning/range/${ep}`, body);
+    if (!r || r.error) return toast(errText(r));
+    const ok = r.compromised || r.escalated || r.persisted;
+    toast(`${r.score}% — ${ok ? 'success' : 'not yet'}. ${r.feedback || ''}`, ok);
+    if (r.tradecraft) setTimeout(() => toast('Tradecraft: ' + r.tradecraft), 400);
+    loadProgress();
+  } else if (act === 'hint') {
+    const stage = prompt('What are you stuck on? (enumerate / exploit / privesc / persistence / pivot)', 'exploit') || '';
+    const r = await post('/api/learning/range/hint', { range_id: curRange.range_id, host_id: hostId, stage });
+    if (!r || r.error) return toast(errText(r));
+    return toast('💡 ' + r.hint);
+  }
+  // refresh range state
+  const st = await api(`/api/learning/range/${curRange.range_id}`);
+  if (st && !st.error) { curRange = st; renderRange(); }
+}
+async function rangeCapture() {
+  const sub = ($('cap-sub') && $('cap-sub').value.trim()) || '';
+  if (!sub) return toast('Paste what you extracted from the target.');
+  const r = await post('/api/learning/range/capture', { range_id: curRange.range_id, submission: sub });
+  if (!r || r.error) return toast(errText(r));
+  if (r.captured) { celebrate('🏴', 'Objective captured!', `+${r.awarded || 0} ◈`); }
+  else toast(r.hint || 'Not the objective data — keep looking.');
+  const st = await api(`/api/learning/range/${curRange.range_id}`);
+  if (st && !st.error) { curRange = st; renderRange(); }
+  loadProgress();
+}
+
+/* ---------------- blue-team incident ---------------- */
+async function startIncident() {
+  $('work-title').textContent = 'Incident Investigation'; $('work-sub').textContent = 'Scope the compromise';
+  $('work').innerHTML = `<div class='muted'>🛡 Pulling the alert and logs…</div>`;
+  const r = await post('/api/learning/incident', { track: curTrack.id });
+  if (!r || r.error) return showErr(r);
+  $('work').innerHTML = `<div class='glass' style='padding:10px; margin-bottom:10px'>🚨 <b>${esc(r.tool || 'Alert')}:</b> ${esc(r.alert)}</div>
+    <div class='muted' style='font-size:12px; margin-bottom:6px'>${esc(r.goal)}</div>
+    <div class='lab-art'>${esc(r.artifacts)}</div>
+    <div class='mini-form'><textarea class='finding' id='inc-find' placeholder='Entry vector, every compromised device, lateral path, and exactly what was exfiltrated — cite the evidence.'></textarea>
+    <div class='actions'><button class='btn primary' id='inc-submit'>Submit investigation</button></div></div>`;
+  $('inc-submit').onclick = async () => {
+    const findings = $('inc-find').value.trim();
+    $('inc-submit').disabled = true; $('inc-submit').textContent = 'Grading…';
+    const g = await post('/api/learning/incident/grade', { incident_id: r.incident_id, findings });
+    if (!g || g.error) { $('inc-submit').disabled = false; $('inc-submit').textContent = 'Submit investigation'; return showErr(g); }
+    const gt = g.ground_truth || {};
+    $('work').insertAdjacentHTML('afterbegin', `<div class='glass' style='padding:14px; margin-bottom:12px; text-align:center'>
+      <div style='font-size:22px; font-weight:800'>${g.score}% ${g.solved ? '✓' : ''}</div>
+      <div class='muted'>${esc(g.feedback || '')} · +${g.awarded} ◈</div></div>`);
+    $('work').insertAdjacentHTML('beforeend', `<details style='margin-top:10px'><summary class='muted'>Ground truth</summary>
+      <div style='font-size:12px'>Entry: ${esc(gt.entry_vector || '')}<br>Compromised: ${esc((gt.compromised || []).join(', '))}<br>Exfiltration: ${esc(gt.exfiltration || '')}</div></details>`);
+    $('inc-submit').remove();
+    if (g.solved) celebrate('🛡', 'Scoped it!', `${g.score}% · +${g.awarded} ◈`);
+    loadProgress();
+  };
+}
+
+/* ---------------- language drills ---------------- */
+async function startDrill() {
+  const kind = (prompt('Drill type: "cloze" (fill-in) or "translate"', 'cloze') || 'cloze').trim();
+  const topic = curTopic || (curTrack.topics[0] || 'Vocabulary');
+  $('work-title').textContent = `Drill · ${kind}`; $('work-sub').textContent = topic;
+  $('work').innerHTML = `<div class='muted'>Writing your ${esc(kind)} drill…</div>`;
+  const r = await post('/api/learning/drill', { track: curTrack.id, topic, kind, n: 6 });
+  if (!r || r.error) return showErr(r);
+  const items = r.items || [];
+  $('work').innerHTML = items.map((it, i) => `<div class='qz-q'><div class='stem'>${i + 1}. ${esc(it.prompt)}</div>
+      <input class='finding' data-drill='${i}' placeholder='your answer' style='min-height:auto; height:auto' autocomplete='off'>
+      ${it.hint ? `<div class='muted' style='font-size:11px'>💡 ${esc(it.hint)}</div>` : ''}</div>`).join('') +
+    `<div class='actions'><button class='btn primary' id='drill-submit'>Check answers</button></div>`;
+  $('drill-submit').onclick = async () => {
+    const answers = items.map((_, i) => { const el = $('work').querySelector(`[data-drill='${i}']`); return el ? el.value : ''; });
+    const g = await post('/api/learning/drill/grade', { drill_id: r.drill_id, answers });
+    if (!g || g.error) return showErr(g);
+    g.per_item.forEach((p, i) => {
+      const row = $('work').querySelectorAll('.qz-q')[i];
+      const el = row.querySelector(`[data-drill='${i}']`); if (el) el.disabled = true;
+      row.insertAdjacentHTML('beforeend', `<div class='qz-exp ${p.correct ? 'right' : 'wrong'}'>${p.correct ? '✓' : '✗ ' + esc(p.answer)} ${esc(p.explain || '')}</div>`);
+    });
+    $('drill-submit').remove();
+    $('work').insertAdjacentHTML('afterbegin', `<div class='glass' style='padding:12px; margin-bottom:10px; text-align:center'><div style='font-size:20px; font-weight:800'>${g.score}%</div><div class='muted'>${g.correct}/${g.total} · +${g.awarded} ◈</div></div>`);
+    loadProgress();
+  };
+}
+
+/* ---------------- skill path (DAG) ---------------- */
+async function openSkills() {
+  $('work-title').textContent = 'Skill Path'; $('work-sub').textContent = 'Prerequisites unlock as you master domains';
+  $('work').innerHTML = `<div class='muted'>Loading the skill graph…</div>`;
+  const r = await api('/api/learning/skills');
+  const nodes = (r && r.skills) || [];
+  if (!nodes.length) { $('work').innerHTML = `<div class='muted'>No skill graph configured.</div>`; return; }
+  $('work').innerHTML = `<div class='muted' style='margin-bottom:8px'>${r.mastered}/${r.total} skills mastered. No skipping prerequisites — locked skills need the ones they depend on first.</div>` +
+    nodes.map((n) => {
+      const state = n.mastered ? '✅' : n.available ? '🔓' : '🔒';
+      const cls = n.mastered ? 'sk-done' : n.available ? 'sk-open' : 'sk-locked';
+      const need = (!n.unlocked && n.missing_prereqs.length) ? `<div class='muted' style='font-size:11px'>needs: ${esc(n.missing_prereqs.join(', '))}</div>` : '';
+      return `<div class='sk-node ${cls}'><div>${state} <b>${esc(n.name)}</b> <span class='muted' style='font-size:11px'>${esc(n.domain)}</span></div>${need}</div>`;
+    }).join('');
+}
+
+/* ---------------- bring-your-own material (RAG) ---------------- */
+async function openMaterial() {
+  $('work-title').textContent = 'My Material'; $('work-sub').textContent = 'Ground lessons in your own notes';
+  const cur = await api(`/api/learning/material?track=${encodeURIComponent(curTrack.id)}`);
+  const present = cur && cur.present;
+  $('work').innerHTML = `<div style='font-size:13px; margin-bottom:8px'>Paste your own notes or document text. Lessons, quizzes and exams for <b>${esc(curTrack.title)}</b> will be grounded in it.</div>
+    ${present ? `<div class='muted' style='font-size:12px; margin-bottom:6px'>Current: <b>${esc(cur.name)}</b> (${cur.chars} chars) <button class='btn' id='mat-clear' style='padding:2px 8px; font-size:11px'>remove</button></div>` : ''}
+    <input id='mat-name' class='finding' placeholder='Name (e.g. "ACME runbook")' style='min-height:auto; height:auto; margin-bottom:6px' autocomplete='off'>
+    <textarea class='finding' id='mat-text' placeholder='Paste your material here…' style='min-height:160px'></textarea>
+    <div class='actions'><button class='btn primary' id='mat-save'>Save material</button></div>`;
+  $('mat-save').onclick = async () => {
+    const text = $('mat-text').value.trim(); if (!text) return toast('Paste some text first.');
+    const r = await post('/api/learning/material', { track: curTrack.id, text, name: $('mat-name').value.trim() });
+    if (!r || r.error) return toast(errText(r));
+    toast(`Saved ${r.chars} chars — lessons will use it.`, true); await loadTracks(); openMaterial();
+  };
+  if ($('mat-clear')) $('mat-clear').onclick = async () => {
+    await api(`/api/learning/material?track=${encodeURIComponent(curTrack.id)}`, { method: 'DELETE' });
+    toast('Material removed.', true); await loadTracks(); openMaterial();
+  };
 }
 
 /* ---------------- helpers + boot ---------------- */

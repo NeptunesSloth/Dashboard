@@ -62,6 +62,7 @@ class LabIn(BaseModel):
 class LabGradeIn(BaseModel):
     lab_id: str
     finding: str = ""
+    evidence: str = ""
 
 
 class ProfileIn(BaseModel):
@@ -190,7 +191,7 @@ def learning_lab(body: LabIn, x_control_token: str = Header(default="")):
 def learning_lab_grade(body: LabGradeIn, x_control_token: str = Header(default="")):
     check_operator(x_control_token)
     from .. import learning
-    return learning.grade_lab(body.lab_id, body.finding)
+    return learning.grade_lab(body.lab_id, body.finding, evidence=body.evidence)
 
 
 class LabHintIn(BaseModel):
@@ -273,6 +274,7 @@ class RangeExploitIn(BaseModel):
     range_id: str
     host_id: str
     finding: str = ""
+    evidence: str = ""
 
 
 @router.post("/api/learning/range")
@@ -301,7 +303,310 @@ def learning_range_enumerate(body: RangeHostIn, x_control_token: str = Header(de
 def learning_range_exploit(body: RangeExploitIn, x_control_token: str = Header(default="")):
     check_operator(x_control_token)
     from .. import learning
-    return learning.range_exploit(body.range_id, body.host_id, body.finding)
+    return learning.range_exploit(body.range_id, body.host_id, body.finding, evidence=body.evidence)
+
+
+class RangeCaptureIn(BaseModel):
+    range_id: str
+    submission: str = ""
+
+
+@router.post("/api/learning/range/capture")
+def learning_range_capture(body: RangeCaptureIn, x_control_token: str = Header(default="")):
+    """Complete the engagement objective — extract the target file/secret."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_capture(body.range_id, body.submission)
+
+
+class RangePostExIn(BaseModel):
+    range_id: str
+    host_id: str
+    plan: str = ""
+
+
+@router.post("/api/learning/range/escalate")
+def learning_range_escalate(body: RangePostExIn, x_control_token: str = Header(default="")):
+    """Privilege escalation: foothold -> admin/root on a compromised host."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_escalate(body.range_id, body.host_id, body.plan)
+
+
+@router.post("/api/learning/range/persist")
+def learning_range_persist(body: RangePostExIn, x_control_token: str = Header(default="")):
+    """Establish persistence on a compromised host."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_persist(body.range_id, body.host_id, body.plan)
+
+
+class RangeNoteIn(BaseModel):
+    range_id: str
+    text: str
+    kind: str = "note"
+
+
+@router.post("/api/learning/range/note")
+def learning_range_note(body: RangeNoteIn, x_control_token: str = Header(default="")):
+    """Append to the engagement notebook (CORE 11 — documentation discipline)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_note(body.range_id, body.text, body.kind)
+
+
+class PurpleIn(BaseModel):
+    range_id: str
+
+
+@router.post("/api/learning/range/purple")
+def learning_range_purple(body: PurpleIn, x_control_token: str = Header(default="")):
+    """Purple-team loop: investigate your OWN attack on a range you worked."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.generate_purple_incident(body.range_id)
+
+
+class ReportIn(BaseModel):
+    sections: dict = {}
+    context: str = ""
+    range_id: str = ""
+
+
+@router.post("/api/learning/report")
+def learning_report(body: ReportIn, x_control_token: str = Header(default="")):
+    """Grade a structured engagement report (CORE 9)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.grade_report(body.sections, body.context, body.range_id)
+
+
+class RangeHintIn(BaseModel):
+    range_id: str
+    host_id: str
+    stage: str = ""
+
+
+@router.post("/api/learning/range/hint")
+def learning_range_hint(body: RangeHintIn, x_control_token: str = Header(default="")):
+    """Stuck? Spend spirit stones for a nudge on a host (never the answer)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_hint(body.range_id, body.host_id, body.stage)
+
+
+@router.get("/api/learning/rank")
+def learning_rank(x_control_token: str = Header(default="")):
+    """The learner's standing versus real job-field roles (junior … head)."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.skill_rank()
+
+
+@router.get("/api/learning/mastery")
+def learning_mastery(x_control_token: str = Header(default="")):
+    """Per-domain mastery (web vs AD vs cloud …), with skill decay/retention."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.domain_mastery()
+
+
+# ---- real-world artifact labs (CORE 8) ----
+@router.get("/api/learning/artifacts")
+def learning_artifacts(x_control_token: str = Header(default="")):
+    """The real-world artifact catalog (PCAP, memory, logs, malware, IaC …)."""
+    check_token(x_control_token)
+    from .. import lab_artifacts
+    return lab_artifacts.catalog()
+
+
+class ArtifactLabIn(BaseModel):
+    track: str = "blue-team"
+    artifact_type: str
+
+
+@router.post("/api/learning/artifact-lab")
+def learning_artifact_lab(body: ArtifactLabIn, x_control_token: str = Header(default="")):
+    """Generate a lab on a real artifact type (analysed with its real tool)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.generate_artifact_lab(body.track, body.artifact_type)
+
+
+@router.get("/api/learning/skills")
+def learning_skills(x_control_token: str = Header(default="")):
+    """The skill dependency graph — what's mastered, unlocked, and locked."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.skill_graph()
+
+
+# ---- certifications + exportable portfolio (CORE 15) + instructor view (CORE 12) ----
+@router.get("/api/learning/certifications")
+def learning_certifications(x_control_token: str = Header(default="")):
+    """Readiness for industry certs (Security+, CEH, OSCP, CISSP, GIAC)."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.certifications()
+
+
+@router.get("/api/learning/portfolio")
+def learning_portfolio(x_control_token: str = Header(default="")):
+    """An exportable, verifiable record of capability for an employer."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.portfolio()
+
+
+@router.get("/api/learning/instructor")
+def learning_instructor(x_control_token: str = Header(default="")):
+    """Instructor/employer summary: the verifiable portfolio + operator audit tail."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.instructor_summary()
+
+
+# ---- graduation (real execution required, not simulation) ----
+@router.get("/api/learning/graduation")
+def learning_graduation(x_control_token: str = Header(default="")):
+    """Whether the learner has graduated — proven career-ready by real execution."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.graduation_status()
+
+
+class ExecutionProofIn(BaseModel):
+    domain: str = ""
+    summary: str
+    lab: str = ""
+    tool: str = ""
+    verified: bool = False
+
+
+@router.post("/api/learning/execution-proof")
+def learning_execution_proof(body: ExecutionProofIn, x_control_token: str = Header(default="")):
+    """Record proof the learner executed against a real sandbox target. Operator-
+    gated; only verified proofs count toward graduation."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.record_execution_proof(body.domain, body.summary, verified=body.verified,
+                                           lab=body.lab, tool=body.tool)
+
+
+# ---- quality feedback loop + content cache (CORE 13/14) ----
+class FeedbackIn(BaseModel):
+    content_id: str
+    event: str          # dispute | bug | abandon
+
+
+@router.post("/api/learning/feedback")
+def learning_feedback(body: FeedbackIn, x_control_token: str = Header(default="")):
+    """Report a quality signal (grading dispute / bug / abandonment). Enough bad
+    signals auto-quarantine a cached item so it's never reused."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.record_quality(body.content_id, body.event)
+
+
+@router.get("/api/learning/quality")
+def learning_quality(x_control_token: str = Header(default="")):
+    """Quality telemetry + which content is quarantined."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.quality_snapshot()
+
+
+@router.get("/api/learning/cache")
+def learning_cache(x_control_token: str = Header(default="")):
+    """Content cache / fallback status (does the platform still work offline?)."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.cache_status()
+
+
+# ---- canonical knowledge base (ground truth) ----
+@router.get("/api/learning/knowledge")
+def learning_knowledge(q: str = Query(default=""), x_control_token: str = Header(default="")):
+    """Search the verified knowledge base (ATT&CK / CVE / OWASP / NIST) that
+    anchors generated content, or get its summary when no query is given."""
+    check_token(x_control_token)
+    from .. import knowledge
+    if q.strip():
+        return {"query": q, "results": knowledge.search(q, 25)}
+    return knowledge.snapshot()
+
+
+# ---- bring-your-own material (RAG) ----
+class MaterialIn(BaseModel):
+    track: str
+    text: str
+    name: str = ""
+
+
+@router.post("/api/learning/material")
+def learning_material_set(body: MaterialIn, x_control_token: str = Header(default="")):
+    """Attach your own notes/document text to a track; lessons + quizzes + exams
+    are then grounded in it."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.set_material(body.track, body.text, body.name)
+
+
+@router.get("/api/learning/material")
+def learning_material_get(track: str = Query(...), x_control_token: str = Header(default="")):
+    check_token(x_control_token)
+    from .. import learning
+    return learning.get_material(track)
+
+
+@router.delete("/api/learning/material")
+def learning_material_clear(track: str = Query(...), x_control_token: str = Header(default="")):
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.clear_material(track)
+
+
+@router.get("/api/learning/real-env")
+def learning_real_env(x_control_token: str = Header(default="")):
+    """Whether real-command (sandboxed) labs are wired — default off."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.real_env_status()
+
+
+@router.get("/api/learning/pentest-tools")
+def learning_pentest_tools(kind: str = Query(default=""), x_control_token: str = Header(default="")):
+    """The real-world pentest toolkit (optionally for a host kind) so the range
+    teaches which tool fits which stage."""
+    check_token(x_control_token)
+    from .. import learning
+    return {"tools": learning.recommended_pentest_tools(kind or None),
+            "gui_tools": list(learning.PENTEST_GUI_TOOLS)}
+
+
+# ---- blue-team incident investigation ----
+class IncidentIn(BaseModel):
+    track: str = "blue-team"
+
+
+class IncidentGradeIn(BaseModel):
+    incident_id: str
+    findings: str = ""
+
+
+@router.post("/api/learning/incident")
+def learning_incident(body: IncidentIn, x_control_token: str = Header(default="")):
+    """Generate a defensive incident-investigation exercise (scope the compromise)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.generate_incident(body.track)
+
+
+@router.post("/api/learning/incident/grade")
+def learning_incident_grade(body: IncidentGradeIn, x_control_token: str = Header(default="")):
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.grade_incident(body.incident_id, body.findings)
 
 
 @router.get("/api/learning/progress")

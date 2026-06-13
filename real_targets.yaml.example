@@ -1,0 +1,34 @@
+# real_targets.yaml(.example) — bind SIMULATED range/lab hosts to REAL, isolated
+# sandbox targets so their enumerate/exploit steps run actual allow-listed tools.
+#
+# DEFAULT OFF. This file is ignored unless MAYBOT_REAL_LABS=1. Even then it only
+# DESCRIBES bindings — nothing here executes. Real tool runs go through the
+# guarded tools allow-list (tools.yaml: fixed argv, no shell, validated args,
+# human approval, audited) dispatched to a maybot_agent running INSIDE an
+# isolated microVM/sandbox network. See docs/REAL_LABS.md before enabling.
+#
+# !!! Only ever point `target`/`network` at an ISOLATED lab subnet with NO egress
+# to production or the internet. The targets are intentionally vulnerable. !!!
+#
+# Each entry: {host_id, agent, target, network, allowed_tools, requires_approval, ephemeral}
+#   host_id        the simulated range/lab host id this binds to
+#   agent          the maybot_agent host name running inside the sandbox
+#   target         sandbox-internal IP/hostname ONLY
+#   network        the isolated lab subnet (scope guard)
+#   allowed_tools  tool names that must also be defined in tools.yaml
+targets:
+  - host_id: web1            # a web target: recon + web exploitation tools
+    agent: lab-attacker
+    target: 10.10.0.10
+    network: 10.10.0.0/24
+    allowed_tools: [nmap_scan, whatweb_scan, nikto_scan, gobuster_dir, wpscan_scan, sqlmap_test, searchsploit_lookup]
+    requires_approval: true
+    ephemeral: true
+
+  - host_id: dc1             # a domain controller: AD enum + lateral movement
+    agent: lab-attacker
+    target: 10.10.0.20
+    network: 10.10.0.0/24
+    allowed_tools: [nmap_scan, enum4linux_scan, smbmap_scan, msf_smb_version, nxc_smb, impacket_secretsdump]
+    requires_approval: true
+    ephemeral: true
