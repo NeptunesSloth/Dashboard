@@ -103,12 +103,13 @@ function renderModes() {
   if (labs.includes('pentest')) m.push(['range', '🎯 Pentest Range']);
   if (labs.includes('ids')) m.push(['incident', '🛡 Incident']);
   if (curTrack.language) m.push(['drill', '✍️ Drills']);
-  m.push(['skills', '🗺 Skill Path'], ['plan', '📅 Study Plan'], ['stats', '📈 Stats'],
-    ['real', '🖥 Real Log Lab'], ['material', '📎 My Material'], ['library', '📂 Library']);
+  m.push(['skills', '🗺 Skill Path'], ['infra', '🖧 Cyber Range'], ['plan', '📅 Study Plan'],
+    ['stats', '📈 Stats'], ['real', '🖥 Real Log Lab'], ['material', '📎 My Material'],
+    ['library', '📂 Library']);
   $('modes').innerHTML = m.map(([k, lbl]) => `<button class='mode-btn' data-mode='${k}'>${lbl}</button>`).join('');
   const handlers = { review: startReview, exam: startExam, plan: openPlan, stats: openStats,
     real: startRealLab, library: openLibrary, range: startRange, incident: startIncident,
-    drill: startDrill, material: openMaterial, skills: openSkills };
+    drill: startDrill, material: openMaterial, skills: openSkills, infra: openRangeInfra };
   $('modes').querySelectorAll('.mode-btn').forEach((b) => b.onclick = () => {
     if (examTimer) { clearInterval(examTimer); examTimer = null; }
     (handlers[b.dataset.mode] || (() => {}))();
@@ -831,6 +832,49 @@ async function openSkills() {
       const need = (!n.unlocked && n.missing_prereqs.length) ? `<div class='muted' style='font-size:11px'>needs: ${esc(n.missing_prereqs.join(', '))}</div>` : '';
       return `<div class='sk-node ${cls}'><div>${state} <b>${esc(n.name)}</b> <span class='muted' style='font-size:11px'>${esc(n.domain)}</span></div>${need}</div>`;
     }).join('');
+}
+
+/* ---------------- cyber range (VM control plane) ---------------- */
+async function openRangeInfra() {
+  $('work-title').textContent = 'Cyber Range'; $('work-sub').textContent = 'Launch real VM labs (when infrastructure is connected)';
+  $('work').innerHTML = `<div class='muted'>Checking infrastructure…</div>`;
+  const r = await api('/api/range-infra/labs');
+  if (!r) return showErr(r);
+  const infra = r.infrastructure || {};
+  const live = r.live;
+  // Honest banner: green only when a real provider reports ok.
+  const banner = live
+    ? `<div class='glass' style='padding:10px; margin-bottom:10px; border-left:3px solid #34d399'>✅ Infrastructure connected (${esc(infra.provider || '')}).</div>`
+    : `<div class='glass' style='padding:12px; margin-bottom:10px; border-left:3px solid #fbbf24'>
+        ⚠ <b>Infrastructure not connected yet.</b> ${esc(infra.detail || '')}<br>
+        <span class='muted' style='font-size:11px'>The control plane is ready; connect a hypervisor (see docs/CYBER_RANGE_DEPLOYMENT.md) to launch real VMs. Labs below are definitions — launching reports an honest "unavailable" until a provider is live.</span></div>`;
+  const labs = r.labs || [];
+  $('work').innerHTML = banner + (labs.length ? labs.map((l) => `
+    <div class='range-host'>
+      <div class='section-h'><b>${esc(l.name)}</b> <span class='pill ${live ? '' : 'muted'}'>${esc(l.difficulty || '')}</span></div>
+      <div class='muted' style='font-size:11px'>attacker: ${esc(l.attacker_vm || '')} · targets: ${esc((l.target_vms || []).join(', '))} · ${l.duration_minutes || '?'} min</div>
+      <div class='actions'><button class='btn ${live ? 'primary' : ''}' data-launch='${esc(l.lab_id)}'>${live ? '▶ Launch' : '▶ Launch (unavailable)'}</button></div>
+      <div class='muted' id='ll-${esc(l.lab_id)}' style='font-size:11px'></div>
+    </div>`).join('') : `<div class='muted'>No labs defined.</div>`)
+    + `<div class='muted' style='font-size:11px; margin-top:8px'>Active sessions: <span id='infra-sessions'>—</span></div>`;
+  $('work').querySelectorAll('[data-launch]').forEach((b) => b.onclick = async () => {
+    const id = b.dataset.launch;
+    const out = $('ll-' + id); out.textContent = 'Requesting…';
+    const res = await post('/api/range-infra/launch', { lab_id: id });
+    // Honest rendering: success only when a real session is returned; otherwise show the reason.
+    if (res && res.ok && res.session) {
+      out.innerHTML = `✅ session ${esc(res.session.id)} · ${esc(res.session.status)}`;
+    } else {
+      out.innerHTML = `⚠ ${esc((res && res.detail) || 'unavailable')} <span class='muted'>(no VM launched)</span>`;
+    }
+    refreshInfraSessions();
+  });
+  refreshInfraSessions();
+}
+async function refreshInfraSessions() {
+  const el = $('infra-sessions'); if (!el) return;
+  const s = await api('/api/range-infra/sessions');
+  el.textContent = s ? String(s.count || 0) : '—';
 }
 
 /* ---------------- bring-your-own material (RAG) ---------------- */

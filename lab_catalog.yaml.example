@@ -1,0 +1,49 @@
+# lab_catalog.yaml — cyber-range lab DEFINITIONS (config-driven; no hardcoding).
+#
+# These are DEFINITIONS the control plane offers. They do NOT launch anything by
+# themselves — a real VM backend (MAYBOT_RANGE_PROVIDER + a hypervisor) must be
+# connected. Until then the dashboard honestly reports "infrastructure not
+# connected". See docs/CYBER_RANGE_ARCHITECTURE.md and CYBER_RANGE_DEPLOYMENT.md.
+
+templates:
+  - {id: kali_template,        kind: attacker, os: linux,   notes: "Kali Linux attacker desktop (VNC/SSH)"}
+  - {id: parrot_template,      kind: attacker, os: linux,   notes: "Parrot OS attacker"}
+  - {id: ubuntu_vuln,          kind: target,   os: linux,   notes: "Vulnerable Ubuntu server"}
+  - {id: apache_vuln,          kind: target,   os: linux,   notes: "Vulnerable Apache + web app"}
+  - {id: linux_privesc,        kind: target,   os: linux,   notes: "Linux privilege-escalation box"}
+  - {id: windows_workstation,  kind: target,   os: windows, notes: "Windows workstation (RDP)"}
+  - {id: domain_controller,    kind: target,   os: windows, notes: "Active Directory domain controller"}
+  - {id: windows_privesc,      kind: target,   os: windows, notes: "Windows privilege-escalation box"}
+  - {id: docker_vuln,          kind: target,   os: linux,   notes: "Vulnerable Docker host"}
+  - {id: siem_box,             kind: target,   os: linux,   notes: "SIEM misconfiguration box (defensive)"}
+
+labs:
+  - lab_id: ad_attack_001
+    name: Active Directory Initial Compromise
+    attacker_vm: kali_template
+    target_vms: [windows_workstation, domain_controller]
+    duration_minutes: 120
+    network_profile: isolated_ad_network
+    difficulty: medium
+    flags: [user.txt, dc_admin.txt]
+    success_conditions: [shell_obtained, domain_admin]
+
+  - lab_id: web_exploit_001
+    name: Web Exploitation — SQLi to Shell
+    attacker_vm: kali_template
+    target_vms: [apache_vuln]
+    duration_minutes: 60
+    network_profile: isolated_web_network
+    difficulty: easy
+    flags: [user.txt, root.txt]
+    success_conditions: [shell_obtained, root]
+
+  - lab_id: linux_privesc_001
+    name: Linux Privilege Escalation
+    attacker_vm: kali_template
+    target_vms: [linux_privesc]
+    duration_minutes: 45
+    network_profile: isolated_single_target
+    difficulty: medium
+    flags: [user.txt, root.txt]
+    success_conditions: [root]

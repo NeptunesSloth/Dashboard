@@ -35,6 +35,7 @@ from . import reports
 from . import retention
 from . import selfcheck
 from . import learning
+from . import orchestration
 from . import obs
 
 # Opt-in structured JSON logging (no-op unless MAYBOT_JSON_LOGS is truthy).
@@ -48,7 +49,8 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
                 maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
                 audit.load_persisted, inbound.load_persisted, registry.load_persisted,
                 push.load_persisted, acks.load_persisted, authz.load_persisted, risk.load_persisted,
-                app_settings.load_persisted, runbooks.load_persisted, learning.load_persisted):
+                app_settings.load_persisted, runbooks.load_persisted, learning.load_persisted,
+                orchestration.load_persisted):
     try:
         _loader()
     except Exception:
@@ -238,11 +240,13 @@ from .routers import (accounts as _accounts_router, adminops as _adminops_router
                       enroll as _enroll_router, fleet as _fleet_router,
                       hosts as _hosts_router, learning as _learning_router,
                       members as _members_router, pages as _pages_router,
+                      range_infra as _range_infra_router,
                       reliability as _reliability_router, sect as _sect_router,
                       tasks as _tasks_router, trading as _trading_router)
 
 for _router_mod in (_fleet_router, _hosts_router, _adminops_router, _accounts_router,
                     _members_router, _learning_router, _crew_router, _agentops_router,
                     _sect_router, _economy_router, _reliability_router, _alerts_router,
-                    _tasks_router, _enroll_router, _trading_router, _pages_router):
+                    _tasks_router, _enroll_router, _trading_router, _range_infra_router,
+                    _pages_router):
     app.include_router(_router_mod.router)
