@@ -365,10 +365,32 @@ def learning_rank(x_control_token: str = Header(default="")):
 
 @router.get("/api/learning/mastery")
 def learning_mastery(x_control_token: str = Header(default="")):
-    """Per-domain mastery (web vs AD vs cloud …) — each tracked independently."""
+    """Per-domain mastery (web vs AD vs cloud …), with skill decay/retention."""
     check_token(x_control_token)
     from .. import learning
     return learning.domain_mastery()
+
+
+# ---- real-world artifact labs (CORE 8) ----
+@router.get("/api/learning/artifacts")
+def learning_artifacts(x_control_token: str = Header(default="")):
+    """The real-world artifact catalog (PCAP, memory, logs, malware, IaC …)."""
+    check_token(x_control_token)
+    from .. import lab_artifacts
+    return lab_artifacts.catalog()
+
+
+class ArtifactLabIn(BaseModel):
+    track: str = "blue-team"
+    artifact_type: str
+
+
+@router.post("/api/learning/artifact-lab")
+def learning_artifact_lab(body: ArtifactLabIn, x_control_token: str = Header(default="")):
+    """Generate a lab on a real artifact type (analysed with its real tool)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.generate_artifact_lab(body.track, body.artifact_type)
 
 
 @router.get("/api/learning/skills")

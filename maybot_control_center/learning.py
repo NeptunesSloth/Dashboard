@@ -33,6 +33,7 @@ from . import store
 from . import cultivation
 from . import knowledge
 from . import consensus
+from . import lab_artifacts
 
 LEARNING_FILE = Path(os.getenv("MAYBOT_LEARNING_FILE", "learning.yaml"))
 # Catalog of Docker-based pentest/IDS lab targets the OPERATOR runs (labs/). This
@@ -94,6 +95,15 @@ SYSTEM_LAB = (
     'finding","indicators":["key thing 1","key thing 2"]}. For an `ids` lab, embed a realistic '
     "intrusion inside otherwise-normal synthetic log lines. For a `pentest` lab, describe a "
     "self-contained CTF target and the finding/flag the learner should report. " + _GUARD
+)
+SYSTEM_ARTIFACT = (
+    "You design a REAL-ARTIFACT analysis lab for authorized training — the kind of artifact a security "
+    "analyst actually works with, in its REAL format (not a vague summary). Respond with ONLY a JSON "
+    'object: {"brief":"what to analyse and with which tool","artifact":"the artifact itself in its '
+    'authentic format (e.g. real Apache combined-log lines, real Volatility plugin output, real Sysmon '
+    'event XML, a real-looking IAM policy JSON, an obfuscated script)","answer":"the full expected '
+    'finding","indicators":["IOC/evidence 1","IOC/evidence 2"]}. Embed a genuine security issue to '
+    "discover. Make the artifact realistic enough to practise the real tool on. " + _GUARD
 )
 SYSTEM_GRADER = (
     "You grade a learner's free-text finding against the expected answer for a security lab. "
@@ -277,7 +287,7 @@ def _blank_game() -> dict:
         "quest_day": "", "quests": [],
         "tested_out": 0, "hosts_pwned": 0, "ranges_cleared": 0,
         "objectives_captured": 0, "incidents_total": 0, "incidents_solved": 0,
-        "privescs": 0, "persists": 0, "domain_mastery": {},
+        "privescs": 0, "persists": 0, "domain_mastery": {}, "domain_practiced": {},
     }
 
 
@@ -423,27 +433,73 @@ def _award_domain(domain: str, points: int) -> None:
     if not domain or points <= 0:
         return
     with _lock:
-        dm = _g()["game"].setdefault("domain_mastery", {})
+        g = _g()["game"]
+        dm = g.setdefault("domain_mastery", {})
         dm[domain] = int(dm.get(domain, 0)) + int(points)
+        # practising a domain resets its decay clock (CORE 7).
+        g.setdefault("domain_practiced", {})[domain] = int(time.time())
         _save()
 
 
+# CORE 7 — skill decay. Master once != permanent: without recent practice, a
+# skill's RETAINED mastery degrades. retention = knowledge * time_decay, where
+# time_decay halves every DECAY_HALF_LIFE_DAYS after a short grace period. The
+# skill graph and adaptive difficulty use the RETAINED value, so a decayed skill
+# re-locks and must be REASSESSED (any practice in the domain restores it).
+DECAY_HALF_LIFE_DAYS = max(1, int(os.getenv("MAYBOT_DECAY_HALF_LIFE_DAYS", "240")))
+DECAY_GRACE_DAYS = max(0, int(os.getenv("MAYBOT_DECAY_GRACE_DAYS", "14")))
+
+
+def _days_since_practice(domain: str) -> float:
+    ts = ((_g().get("game") or {}).get("domain_practiced", {}) or {}).get(domain)
+    if not ts:
+        return 0.0
+    return max(0.0, (time.time() - float(ts)) / 86400.0)
+
+
+def _retention_factor(domain: str) -> float:
+    """time_decay in [0,1]: 1.0 within the grace window, then half-life decay."""
+    idle = _days_since_practice(domain) - DECAY_GRACE_DAYS
+    if idle <= 0:
+        return 1.0
+    return 0.5 ** (idle / DECAY_HALF_LIFE_DAYS)
+
+
+def _domain_raw(domain: str) -> int:
+    return int(((_g().get("game") or {}).get("domain_mastery", {}) or {}).get(domain, 0))
+
+
+def _domain_retained(domain: str) -> int:
+    """Effective, decayed mastery — what the learner can still rely on today."""
+    return int(round(_domain_raw(domain) * _retention_factor(domain)))
+
+
+def _needs_reassessment(domain: str) -> bool:
+    raw = _domain_raw(domain)
+    return raw >= SKILL_DOMAIN_THRESHOLD and _domain_retained(domain) < int(raw * 0.8)
+
+
 def domain_mastery() -> dict:
-    """Per-domain mastery: points + adaptive-difficulty band for each domain."""
-    dm = (_g().get("game") or {}).get("domain_mastery", {}) or {}
+    """Per-domain mastery with skill decay: raw knowledge, RETAINED (decayed)
+    mastery, the difficulty band (on retained), and a reassessment flag."""
     out = []
     for d in DOMAINS:
-        pts = int(dm.get(d, 0))
-        out.append({"domain": d, "points": pts, "band": _difficulty_band(pts)})
-    out.sort(key=lambda x: x["points"], reverse=True)
-    strongest = out[0]["domain"] if out and out[0]["points"] else None
+        raw = _domain_raw(d)
+        retained = _domain_retained(d)
+        out.append({"domain": d, "points": raw, "retained": retained,
+                    "band": _difficulty_band(retained),
+                    "decayed": retained < raw, "needs_reassessment": _needs_reassessment(d),
+                    "idle_days": round(_days_since_practice(d), 1)})
+    out.sort(key=lambda x: x["retained"], reverse=True)
+    strongest = out[0]["domain"] if out and out[0]["retained"] else None
     weakest = next((x["domain"] for x in reversed(out)), None)
-    return {"domains": out, "strongest": strongest, "weakest": weakest}
+    return {"domains": out, "strongest": strongest, "weakest": weakest,
+            "reassess": [x["domain"] for x in out if x["needs_reassessment"]]}
 
 
 def _domain_band(domain: str) -> str:
-    dm = (_g().get("game") or {}).get("domain_mastery", {}) or {}
-    return _difficulty_band(int(dm.get(domain, 0))) if domain else _difficulty_band()
+    # use RETAINED (decayed) mastery so difficulty tracks current ability
+    return _difficulty_band(_domain_retained(domain)) if domain else _difficulty_band()
 
 
 # CORE 5 — skill dependency graph (DAG). No skipping prerequisites: a node
@@ -476,8 +532,8 @@ def _load_skills() -> list[dict]:
 
 
 def _node_mastered(node: dict) -> bool:
-    dm = (_g().get("game") or {}).get("domain_mastery", {}) or {}
-    if node.get("domain") and int(dm.get(node["domain"], 0)) >= SKILL_DOMAIN_THRESHOLD:
+    # RETAINED mastery (CORE 7): a decayed domain re-locks its skills until reassessed
+    if node.get("domain") and _domain_retained(node["domain"]) >= SKILL_DOMAIN_THRESHOLD:
         return True
     topic = node.get("topic")
     if topic:
@@ -1362,6 +1418,52 @@ def lab_hint(lab_id: str, chat=None) -> dict:
         lab["hints"] = lab.get("hints", 0) + 1
         _save()
     return {"hint": text.strip(), "cost": HINT_COST, "hints_used": lab["hints"], "error": None}
+
+
+def generate_artifact_lab(track_id: str, artifact_type: str, chat=None) -> dict:
+    """CORE 8 — a lab built on a REAL artifact type (PCAP, memory image, Apache/
+    Sysmon/Windows logs, IAM/S3/Terraform config, obfuscated script, container).
+    If the operator has registered a real artifact file for this type it is used;
+    otherwise the artifact is generated in its authentic format. Graded via
+    grade_lab. No synthetic-only text labs."""
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    at = lab_artifacts.artifact_type(artifact_type)
+    if not at:
+        return {"error": f"unknown artifact type '{artifact_type}'"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    reg = lab_artifacts.registered_for(at["type"])
+    domain = at["domain"]
+    user = (f"Artifact type: {at['name']} ({at['type']}). Analysis tool: {at['tool']}. "
+            f"Domain: {domain}.\nLearner profile:\n{_profile_brief(domain)}\n\n"
+            f"Design an analysis lab using {at['prompt']}."
+            + (f"\nA REAL artifact is provided at: {reg['source']} — {reg.get('note', '')}. "
+               "Frame the lab around analysing THAT file with the tool above."
+               if reg else "")
+            + _threat_context(track))
+    ok, text, err = _call(member, SYSTEM_ARTIFACT, user, chat, max_tokens=1500, temperature=0.6)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text)
+    if not isinstance(data, dict) or not data.get("artifact") or not data.get("answer"):
+        return {"error": "could not parse artifact lab from the model"}
+    lab_id = f"art-{int(time.time()*1000)}-{random.randint(100,999)}"
+    artifact = (f"[REAL artifact: {reg['source']} — analyse with {at['tool']}]\n\n"
+                if reg else "") + str(data["artifact"])
+    with _lock:
+        _g().setdefault("labs", {})[lab_id] = {
+            "track": track_id, "kind": "ids", "artifact_type": at["type"],
+            "brief": f"[{at['name']} · {at['tool']}] " + str(data.get("brief", "")),
+            "artifact": artifact, "answer": str(data["answer"]),
+            "indicators": [str(x) for x in (data.get("indicators") or [])],
+            "created": int(time.time())}
+        _save()
+    return {"lab_id": lab_id, "kind": "ids", "artifact_type": at["type"],
+            "tool": at["tool"], "domain": domain, "real_artifact": bool(reg),
+            "brief": str(data.get("brief", "")), "artifact": artifact, "error": None}
 
 
 def grade_lab(lab_id: str, finding: str, chat=None, evidence: str = "") -> dict:
