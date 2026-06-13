@@ -259,6 +259,7 @@ def _blank() -> dict:
         "drills": {},          # drill_id -> language cloze/translation drill; see generate_drill()
         "incidents": {},       # incident_id -> blue-team investigation exercise; see generate_incident()
         "materials": {},       # track_id -> {name, text, created}: bring-your-own study material (RAG)
+        "executions": [],      # verified real-sandbox execution proofs (CORE 4 graduation gate)
     }
 
 
@@ -2629,3 +2630,64 @@ def attach_real_env(exercise: dict, host_id: str) -> dict | None:
         "requires_approval": bool(t.get("requires_approval", True)),
         "ephemeral": bool(t.get("ephemeral", True)),
     }
+
+
+# ---------------------------------------------------------------------------
+# CORE 4 — graduation requires real execution. Simulation builds the skills;
+# GRADUATION (the credential that says "career-ready") requires PROOF that the
+# learner actually executed an exploit against an isolated, real sandbox target.
+# A verified execution proof comes from the real-labs path (an in-sandbox agent
+# completing a guarded tool run), recorded here. See deploy/lab-range/ for the
+# ephemeral per-learner provisioning templates the operator runs.
+# ---------------------------------------------------------------------------
+GRADUATION_RANK_INDEX = int(os.getenv("MAYBOT_GRADUATION_RANK", "2"))  # default: Security Analyst
+
+
+def record_execution_proof(domain: str, summary: str, *, verified: bool = False,
+                           lab: str = "", tool: str = "") -> dict:
+    """Record proof that the learner executed against a REAL sandbox target. Only
+    proofs marked ``verified`` (attested by the operator / in-sandbox agent) count
+    toward graduation — a learner can't self-certify simulation as execution."""
+    rec = {"id": f"ex-{int(time.time()*1000)}-{random.randint(100,999)}",
+           "domain": str(domain or ""), "summary": str(summary or "")[:400],
+           "lab": str(lab or ""), "tool": str(tool or ""),
+           "verified": bool(verified), "ts": int(time.time())}
+    with _lock:
+        ex = _g().setdefault("executions", [])
+        ex.append(rec)
+        del ex[:-100]
+        _save()
+    if verified:
+        _award_domain(domain, 6)   # real execution is worth more than a simulation
+    return rec
+
+
+def execution_proofs() -> list[dict]:
+    with _lock:
+        return [dict(e) for e in _g().get("executions", [])]
+
+
+def graduation_status() -> dict:
+    """Whether the learner has GRADUATED — career-ready, proven by real execution,
+    not just simulation. The knowledge rank ladder measures simulated progress;
+    graduation additionally requires a verified real-sandbox exploitation."""
+    proofs = [e for e in execution_proofs() if e.get("verified")]
+    rank = skill_rank()
+    real = real_env_status()
+    domains_proven = sorted({e["domain"] for e in proofs if e.get("domain")})
+    requirements = [
+        {"label": f"Reach the {RANKS[GRADUATION_RANK_INDEX][1]} knowledge rank (simulation)",
+         "met": rank["rank_index"] >= GRADUATION_RANK_INDEX,
+         "detail": f"currently {rank['rank']}"},
+        {"label": "Real-command sandbox labs enabled",
+         "met": real["enabled"], "detail": "operator stands up the isolated sandbox"},
+        {"label": "Complete a VERIFIED real-sandbox exploitation (proof of execution)",
+         "met": len(proofs) >= 1,
+         "detail": f"{len(proofs)} verified execution(s) in {domains_proven or 'no'} domain(s)"},
+    ]
+    graduated = all(r["met"] for r in requirements)
+    return {"graduated": graduated, "requirements": requirements,
+            "knowledge_rank": rank["rank"], "verified_executions": len(proofs),
+            "domains_proven": domains_proven,
+            "note": "Graduation requires REAL execution in an isolated sandbox — simulation alone "
+                    "builds the skill, but never certifies it. See deploy/lab-range/."}

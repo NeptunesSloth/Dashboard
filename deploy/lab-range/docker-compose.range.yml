@@ -1,0 +1,37 @@
+# docker-compose.range.yml — non-Terraform per-learner ephemeral range (CORE 4).
+#
+#   LEARNER=scholar RANGE_ID=rng-123 docker compose -p maybot-lab-$LEARNER \
+#     -f deploy/lab-range/docker-compose.range.yml up -d
+#   ...run the graduation lab...
+#   docker compose -p maybot-lab-$LEARNER -f deploy/lab-range/docker-compose.range.yml down -v
+#
+# !!! INTENTIONALLY VULNERABLE. The `lab` network is `internal: true` (NO egress).
+# Run on an isolated host. For VM-grade isolation use a Kata/Firecracker runtime. !!!
+
+services:
+  web:
+    image: bkimminich/juice-shop:latest
+    networks: [lab]
+    restart: "no"
+
+  app:
+    image: vulnerables/web-dvwa:latest
+    networks: [lab]
+    restart: "no"
+
+  # The attacker box: a maybot_agent + the pentest toolkit, INSIDE the isolated
+  # network. It runs allow-listed tools against the targets and reports a verified
+  # execution proof. Build maybot/lab-attacker from a Kali base (see docs/REAL_LABS.md).
+  attacker:
+    image: maybot/lab-attacker:latest
+    networks: [lab]
+    restart: "no"
+    environment:
+      - MAYBOT_AGENT_NAME=lab-attacker-${LEARNER:-scholar}
+      - MAYBOT_LAB_RANGE=${RANGE_ID:-adhoc}
+    depends_on: [web, app]
+
+networks:
+  lab:
+    driver: bridge
+    internal: true        # NO egress — the containment boundary

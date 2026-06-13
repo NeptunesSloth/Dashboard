@@ -379,6 +379,33 @@ def learning_skills(x_control_token: str = Header(default="")):
     return learning.skill_graph()
 
 
+# ---- graduation (real execution required, not simulation) ----
+@router.get("/api/learning/graduation")
+def learning_graduation(x_control_token: str = Header(default="")):
+    """Whether the learner has graduated — proven career-ready by real execution."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.graduation_status()
+
+
+class ExecutionProofIn(BaseModel):
+    domain: str = ""
+    summary: str
+    lab: str = ""
+    tool: str = ""
+    verified: bool = False
+
+
+@router.post("/api/learning/execution-proof")
+def learning_execution_proof(body: ExecutionProofIn, x_control_token: str = Header(default="")):
+    """Record proof the learner executed against a real sandbox target. Operator-
+    gated; only verified proofs count toward graduation."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.record_execution_proof(body.domain, body.summary, verified=body.verified,
+                                           lab=body.lab, tool=body.tool)
+
+
 # ---- canonical knowledge base (ground truth) ----
 @router.get("/api/learning/knowledge")
 def learning_knowledge(q: str = Query(default=""), x_control_token: str = Header(default="")):
