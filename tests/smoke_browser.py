@@ -75,7 +75,7 @@ def _learning_flow(b):
     pg.goto(BASE + "/learn", wait_until="load", timeout=25000)
     pg.wait_for_selector("#modes button", timeout=10000)
     for mode in ("plan", "stats", "review", "library", "real",
-                 "range", "incident", "material"):
+                 "range", "incident", "material", "skills"):
         btn = pg.query_selector(f"#modes button[data-mode='{mode}']")
         if btn:
             btn.click()

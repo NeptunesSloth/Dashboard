@@ -103,12 +103,12 @@ function renderModes() {
   if (labs.includes('pentest')) m.push(['range', '🎯 Pentest Range']);
   if (labs.includes('ids')) m.push(['incident', '🛡 Incident']);
   if (curTrack.language) m.push(['drill', '✍️ Drills']);
-  m.push(['plan', '📅 Study Plan'], ['stats', '📈 Stats'], ['real', '🖥 Real Log Lab'],
-    ['material', '📎 My Material'], ['library', '📂 Library']);
+  m.push(['skills', '🗺 Skill Path'], ['plan', '📅 Study Plan'], ['stats', '📈 Stats'],
+    ['real', '🖥 Real Log Lab'], ['material', '📎 My Material'], ['library', '📂 Library']);
   $('modes').innerHTML = m.map(([k, lbl]) => `<button class='mode-btn' data-mode='${k}'>${lbl}</button>`).join('');
   const handlers = { review: startReview, exam: startExam, plan: openPlan, stats: openStats,
     real: startRealLab, library: openLibrary, range: startRange, incident: startIncident,
-    drill: startDrill, material: openMaterial };
+    drill: startDrill, material: openMaterial, skills: openSkills };
   $('modes').querySelectorAll('.mode-btn').forEach((b) => b.onclick = () => {
     if (examTimer) { clearInterval(examTimer); examTimer = null; }
     (handlers[b.dataset.mode] || (() => {}))();
@@ -599,6 +599,15 @@ async function loadProgress() {
     return `<div class='tlvl-row'><div class='ring2' style='--p:${lv.progress_pct}'><b>${lv.level}</b></div>
       <div><div>${esc(t.title)}</div><div class='muted' style='font-size:11px'>Lv ${lv.level} · avg ${lv.avg_score}%</div></div></div>`;
   }).join('') || `<div class='muted'>Complete lessons to level up tracks.</div>`;
+  // per-domain mastery (CORE 6) — web vs AD vs cloud, tracked independently
+  const dm = (p.domain_mastery && p.domain_mastery.domains) || [];
+  const shown = dm.filter((d) => d.points > 0);
+  $('domain-mastery').innerHTML = (shown.length ? shown : dm.slice(0, 4)).map((d) => {
+    const pct = Math.min(100, d.points);
+    return `<div class='dm-row' title='${esc(d.band)}'><div class='dm-name'>${esc(d.domain)}</div>
+      <div class='dm-bar'><span style='width:${pct}%'></span></div>
+      <div class='dm-pts'>${d.points}</div></div>`;
+  }).join('') || `<div class='muted'>Practice to build domain mastery.</div>`;
   // badges
   $('badge-count').textContent = `${p.earned_badges}/${(p.badges || []).length}`;
   $('badges').innerHTML = (p.badges || []).map((b) =>
@@ -806,6 +815,22 @@ async function startDrill() {
     $('work').insertAdjacentHTML('afterbegin', `<div class='glass' style='padding:12px; margin-bottom:10px; text-align:center'><div style='font-size:20px; font-weight:800'>${g.score}%</div><div class='muted'>${g.correct}/${g.total} · +${g.awarded} ◈</div></div>`);
     loadProgress();
   };
+}
+
+/* ---------------- skill path (DAG) ---------------- */
+async function openSkills() {
+  $('work-title').textContent = 'Skill Path'; $('work-sub').textContent = 'Prerequisites unlock as you master domains';
+  $('work').innerHTML = `<div class='muted'>Loading the skill graph…</div>`;
+  const r = await api('/api/learning/skills');
+  const nodes = (r && r.skills) || [];
+  if (!nodes.length) { $('work').innerHTML = `<div class='muted'>No skill graph configured.</div>`; return; }
+  $('work').innerHTML = `<div class='muted' style='margin-bottom:8px'>${r.mastered}/${r.total} skills mastered. No skipping prerequisites — locked skills need the ones they depend on first.</div>` +
+    nodes.map((n) => {
+      const state = n.mastered ? '✅' : n.available ? '🔓' : '🔒';
+      const cls = n.mastered ? 'sk-done' : n.available ? 'sk-open' : 'sk-locked';
+      const need = (!n.unlocked && n.missing_prereqs.length) ? `<div class='muted' style='font-size:11px'>needs: ${esc(n.missing_prereqs.join(', '))}</div>` : '';
+      return `<div class='sk-node ${cls}'><div>${state} <b>${esc(n.name)}</b> <span class='muted' style='font-size:11px'>${esc(n.domain)}</span></div>${need}</div>`;
+    }).join('');
 }
 
 /* ---------------- bring-your-own material (RAG) ---------------- */

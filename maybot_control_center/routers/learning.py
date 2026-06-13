@@ -363,6 +363,22 @@ def learning_rank(x_control_token: str = Header(default="")):
     return learning.skill_rank()
 
 
+@router.get("/api/learning/mastery")
+def learning_mastery(x_control_token: str = Header(default="")):
+    """Per-domain mastery (web vs AD vs cloud …) — each tracked independently."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.domain_mastery()
+
+
+@router.get("/api/learning/skills")
+def learning_skills(x_control_token: str = Header(default="")):
+    """The skill dependency graph — what's mastered, unlocked, and locked."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.skill_graph()
+
+
 # ---- canonical knowledge base (ground truth) ----
 @router.get("/api/learning/knowledge")
 def learning_knowledge(q: str = Query(default=""), x_control_token: str = Header(default="")):

@@ -57,6 +57,16 @@
     .pill { padding:1px 7px; border-radius:99px; font-size:10px; background:rgba(124,92,255,.2); }
     .pill.muted { background:rgba(255,255,255,.07); opacity:.7; }
     .qz-exp.right { color:#34d399; } .qz-exp.wrong { color:#fb5e7e; }
+    /* per-domain mastery + skill graph */
+    .dm-row { display:flex; align-items:center; gap:8px; margin:5px 0; font-size:12px; }
+    .dm-name { flex:0 0 44%; }
+    .dm-bar { flex:1; height:7px; border-radius:6px; background:rgba(255,255,255,.08); overflow:hidden; }
+    .dm-bar span { display:block; height:100%; background:linear-gradient(90deg,#7c5cff,#38bdf8); }
+    .dm-pts { flex:0 0 28px; text-align:right; color:#9aa4c0; }
+    .sk-node { padding:8px 11px; border-radius:9px; margin:6px 0; border:1px solid rgba(255,255,255,.08); }
+    .sk-node.sk-done { background:rgba(52,211,153,.10); }
+    .sk-node.sk-open { background:rgba(124,92,255,.10); }
+    .sk-node.sk-locked { opacity:.6; }
     .chat-log { display:flex; flex-direction:column; gap:8px; max-height:260px; overflow:auto; margin-bottom:10px; }
     .bub { padding:8px 12px; border-radius:11px; font-size:13px; max-width:88%; line-height:1.5; white-space:pre-wrap; }
     .bub.you { align-self:flex-end; background:linear-gradient(135deg,#7c5cff,#38bdf8); color:#fff; }
@@ -194,6 +204,11 @@
       <section class="glass rise d3" style="padding:20px">
         <div class="panel-title">Track Mastery</div>
         <div id="track-levels" style="margin-top:6px"></div>
+      </section>
+
+      <section class="glass rise d3" style="padding:20px">
+        <div class="panel-title">Domain Mastery</div>
+        <div id="domain-mastery" style="margin-top:8px"></div>
       </section>
 
       <section class="glass rise d4" style="padding:20px">

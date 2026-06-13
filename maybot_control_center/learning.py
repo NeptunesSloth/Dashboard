@@ -276,7 +276,7 @@ def _blank_game() -> dict:
         "quest_day": "", "quests": [],
         "tested_out": 0, "hosts_pwned": 0, "ranges_cleared": 0,
         "objectives_captured": 0, "incidents_total": 0, "incidents_solved": 0,
-        "privescs": 0, "persists": 0,
+        "privescs": 0, "persists": 0, "domain_mastery": {},
     }
 
 
@@ -384,6 +384,142 @@ def _difficulty_band(points: int | None = None) -> str:
     return "expert"
 
 
+# CORE 6 — per-domain mastery. A single global number is wrong: a learner can be
+# expert at web and a novice at AD. Track each independently and adapt difficulty
+# per domain.
+DOMAINS = ["Web Security", "Active Directory", "Cloud Security", "Malware Analysis",
+           "Reverse Engineering", "Digital Forensics", "Incident Response",
+           "Privilege Escalation", "Cryptography", "Network Security"]
+_DOMAIN_KEYWORDS = [
+    ("Active Directory", ("active directory", "kerber", "ntlm", "dcsync", "ldap", " ad ",
+                          "domain controller", "golden ticket", "as-rep", "bloodhound")),
+    ("Cloud Security", ("cloud", "aws", "azure", "gcp", " iam", "s3 ", "metadata", "kubernetes",
+                        "container", "ssrf")),
+    ("Web Security", ("web", "owasp", "http", "sql injection", "sqli", "xss", "burp", "csrf",
+                      "ssrf", "api ")),
+    ("Privilege Escalation", ("privilege escalation", "privesc", "sudo", "suid", "kernel exploit",
+                              "token impersonation")),
+    ("Digital Forensics", ("forensic", "dfir", "memory dump", "disk image", "artifact analysis")),
+    ("Incident Response", ("incident", " soc", "siem", "alert", "triage", "threat hunt",
+                           "intrusion detection", "log analysis")),
+    ("Reverse Engineering", ("reverse engineering", "disassembl", "ghidra", "decompil")),
+    ("Malware Analysis", ("malware", "ransomware", "trojan", "sandbox analysis")),
+    ("Cryptography", ("cryptograph", "encryption", "cipher", "hashing", "tls", "pki")),
+    ("Network Security", ("network", "tcp/ip", "tcp", "packet", "dns", "firewall", "vpn", "nmap")),
+]
+
+
+def classify_domain(text: str) -> str:
+    """Best-fit security domain for a topic/lab text (empty if none clearly apply)."""
+    t = (" " + (text or "").lower() + " ")
+    for domain, kws in _DOMAIN_KEYWORDS:
+        if any(k in t for k in kws):
+            return domain
+    return ""
+
+
+def _award_domain(domain: str, points: int) -> None:
+    if not domain or points <= 0:
+        return
+    with _lock:
+        dm = _g()["game"].setdefault("domain_mastery", {})
+        dm[domain] = int(dm.get(domain, 0)) + int(points)
+        _save()
+
+
+def domain_mastery() -> dict:
+    """Per-domain mastery: points + adaptive-difficulty band for each domain."""
+    dm = (_g().get("game") or {}).get("domain_mastery", {}) or {}
+    out = []
+    for d in DOMAINS:
+        pts = int(dm.get(d, 0))
+        out.append({"domain": d, "points": pts, "band": _difficulty_band(pts)})
+    out.sort(key=lambda x: x["points"], reverse=True)
+    strongest = out[0]["domain"] if out and out[0]["points"] else None
+    weakest = next((x["domain"] for x in reversed(out)), None)
+    return {"domains": out, "strongest": strongest, "weakest": weakest}
+
+
+def _domain_band(domain: str) -> str:
+    dm = (_g().get("game") or {}).get("domain_mastery", {}) or {}
+    return _difficulty_band(int(dm.get(domain, 0))) if domain else _difficulty_band()
+
+
+# CORE 5 — skill dependency graph (DAG). No skipping prerequisites: a node
+# unlocks only when every node it requires is mastered. Mastery of a node = its
+# domain has cleared a small threshold, OR its linked topic is in mastered_topics.
+SKILLS_FILE = Path(os.getenv("MAYBOT_SKILLS_FILE", "skills.yaml"))
+SKILL_DOMAIN_THRESHOLD = int(os.getenv("MAYBOT_SKILL_THRESHOLD", "6"))
+ENFORCE_PREREQS = os.getenv("MAYBOT_ENFORCE_PREREQS", "0").lower() in ("1", "true", "yes", "on")
+_skills_cache: list | None = None
+
+
+def _load_skills() -> list[dict]:
+    global _skills_cache
+    if _skills_cache is not None:
+        return _skills_cache
+    nodes = []
+    if SKILLS_FILE.exists():
+        try:
+            data = yaml.safe_load(SKILLS_FILE.read_text(encoding="utf-8")) or {}
+            for n in (data.get("skills") or []):
+                if isinstance(n, dict) and n.get("id"):
+                    nodes.append({"id": str(n["id"]), "name": str(n.get("name", n["id"])),
+                                  "domain": str(n.get("domain", "")),
+                                  "requires": [str(x) for x in (n.get("requires") or [])],
+                                  "topic": str(n.get("topic", ""))})
+        except Exception:
+            nodes = []
+    _skills_cache = nodes
+    return nodes
+
+
+def _node_mastered(node: dict) -> bool:
+    dm = (_g().get("game") or {}).get("domain_mastery", {}) or {}
+    if node.get("domain") and int(dm.get(node["domain"], 0)) >= SKILL_DOMAIN_THRESHOLD:
+        return True
+    topic = node.get("topic")
+    if topic:
+        for p in (_g().get("progress") or {}).values():
+            if topic in (p.get("mastered_topics") or []):
+                return True
+    return False
+
+
+def skill_graph() -> dict:
+    """The skill DAG with each node's state: mastered / unlocked (all prereqs
+    mastered) / locked, plus which prereqs are still missing."""
+    nodes = _load_skills()
+    mastered = {n["id"]: _node_mastered(n) for n in nodes}
+    out = []
+    for n in nodes:
+        missing = [r for r in n["requires"] if not mastered.get(r)]
+        is_mastered = mastered[n["id"]]
+        unlocked = not missing
+        out.append({"id": n["id"], "name": n["name"], "domain": n["domain"],
+                    "requires": n["requires"], "mastered": is_mastered,
+                    "unlocked": unlocked, "available": unlocked and not is_mastered,
+                    "missing_prereqs": missing})
+    return {"skills": out, "mastered": sum(1 for v in mastered.values() if v),
+            "total": len(nodes), "threshold": SKILL_DOMAIN_THRESHOLD,
+            "enforced": ENFORCE_PREREQS}
+
+
+def prereqs_met(topic: str) -> dict:
+    """Whether a topic's skill node has its prerequisites satisfied. Topics not in
+    the graph are always allowed."""
+    nodes = _load_skills()
+    node = next((n for n in nodes if n.get("topic") == topic
+                 or n["name"].lower() == (topic or "").lower()), None)
+    if not node:
+        return {"in_graph": False, "ok": True, "missing": []}
+    mastered = {n["id"]: _node_mastered(n) for n in nodes}
+    missing = [r for r in node["requires"] if not mastered.get(r)]
+    names = {n["id"]: n["name"] for n in nodes}
+    return {"in_graph": True, "ok": not missing, "node": node["id"],
+            "missing": [names.get(m, m) for m in missing]}
+
+
 def skill_rank() -> dict:
     """Where the learner stands versus real job-field roles, with progress to the
     next role. Comparative ('how do I stack up')."""
@@ -404,15 +540,16 @@ def skill_rank() -> dict:
             "ladder": [{"role": n, "at": need, "reached": pts >= need} for (need, n, _d) in RANKS]}
 
 
-def _difficulty_directive() -> str:
-    band = _difficulty_band()
-    return (f"Calibrate difficulty to this learner's level: {band}. Match vocabulary, depth, and "
-            "challenge to that band — stretch them slightly without overwhelming.")
+def _difficulty_directive(domain: str = "") -> str:
+    band = _domain_band(domain) if domain else _difficulty_band()
+    where = f" in {domain}" if domain else ""
+    return (f"Calibrate difficulty to this learner's level{where}: {band}. Match vocabulary, depth, "
+            "and challenge to that band — stretch them slightly without overwhelming.")
 
 
-def _profile_brief() -> str:
+def _profile_brief(domain: str = "") -> str:
     p = _g().get("profile") or {}
-    parts = [_difficulty_directive()]
+    parts = [_difficulty_directive(domain)]
     if p.get("style_summary"):
         parts.append(f"Style: {p['style_summary']}")
     for label, key in (("Prefers", "preferences"), ("Strengths", "strengths"),
@@ -709,12 +846,20 @@ def get_lesson(track_id: str, topic: str, chat=None) -> dict:
     track = _track(track_id)
     if not track:
         return {"error": "unknown track"}
+    # CORE 5: optionally block a topic until its prerequisites are mastered.
+    if ENFORCE_PREREQS:
+        pr = prereqs_met(topic)
+        if not pr["ok"]:
+            return {"error": "locked", "locked": True,
+                    "missing_prereqs": pr["missing"],
+                    "message": f"Master these first: {', '.join(pr['missing'])}"}
     member = _backend_member()
     if not member:
         return {"error": "no_backend"}
     lang = _language_of(track)
     system = SYSTEM_LANG_TUTOR.format(lang=lang) if lang else SYSTEM_TUTOR
-    user = (f"Track: {track['title']}\nTopic: {topic}\n\nLearner profile:\n{_profile_brief()}\n\n"
+    domain = classify_domain(f"{topic} {track.get('title', '')}")
+    user = (f"Track: {track['title']}\nTopic: {topic}\n\nLearner profile:\n{_profile_brief(domain)}\n\n"
             "Teach this topic now: a focused lesson with a clear explanation, one or two worked "
             "examples, and a short 'check yourself' question at the end."
             + _threat_context(track) + _material_context(track_id))
@@ -738,6 +883,7 @@ def get_lesson(track_id: str, topic: str, chat=None) -> dict:
                 lessons.pop(k, None)
         _save()
     _award_progress(8)
+    _award_domain(domain, 1)
     _touch_streak()
     _progress_quest("lesson")
     _log_activity("lessons")
@@ -931,6 +1077,7 @@ def grade_quiz(quiz_id: str, answers: list[int], chat=None) -> dict:
         p["score_n"] += 1
         _save()
     _award_progress(stones)
+    _award_domain(classify_domain(quiz.get("topic", "")), 2 if score >= 80 else 0)
     _touch_streak()
     _progress_quest("quiz", passed=(score >= 80))
     _log_activity("quizzes", score)
@@ -1252,6 +1399,9 @@ def grade_lab(lab_id: str, finding: str, chat=None, evidence: str = "") -> dict:
     if solved:
         skill = ("Penetration Testing" if lab["kind"] == "pentest" else "Intrusion Detection")
     _award_progress(stones, skill=skill, bonus=10 if solved else 0)
+    if solved:
+        _award_domain(classify_domain(f"{lab.get('brief', '')} {lab['kind']}")
+                      or ("Web Security" if lab["kind"] == "pentest" else "Incident Response"), 3)
     _touch_streak()
     _progress_quest("lab", passed=solved)
     _log_activity("labs", score)
@@ -1496,6 +1646,8 @@ def range_exploit(range_id: str, host_id: str, finding: str, chat=None, evidence
         _save()
     stones = 20 + (60 if cleared else 0)
     _award_progress(stones, skill="Network Penetration Testing", bonus=15 if cleared else 0)
+    _award_domain(classify_domain(f"{host.get('kind', '')} {host.get('vuln', '')} "
+                                  f"{host.get('exploit', '')}") or "Network Security", 2)
     _touch_streak()
     _progress_quest("lab", passed=True)
     earned = _check_badges()
@@ -1709,6 +1861,8 @@ def grade_incident(incident_id: str, findings: str, chat=None) -> dict:
         p["labs_done"] += 1
         _save()
     _award_progress(stones, skill="Incident Response & Scoping" if solved else None, bonus=10 if solved else 0)
+    if solved:
+        _award_domain("Incident Response", 3)
     _touch_streak()
     _progress_quest("lab", passed=solved)
     _log_activity("labs", score)
@@ -2140,6 +2294,7 @@ def get_progress() -> dict:
                                             "ids_solved", "pentest_solved")},
         "daily_quests": g.get("quests", []),
         "rank": skill_rank(),
+        "domain_mastery": domain_mastery(),
     }
 
 
