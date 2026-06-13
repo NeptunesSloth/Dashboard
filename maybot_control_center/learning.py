@@ -3089,6 +3089,72 @@ def execution_proofs() -> list[dict]:
         return [dict(e) for e in _g().get("executions", [])]
 
 
+def certifications() -> dict:
+    """CORE 15 — readiness for industry certs (Security+, CEH, OSCP, CISSP, GIAC)
+    from per-domain RETAINED mastery + graduation (proven execution)."""
+    from . import certifications as certs
+    retained = {d: _domain_retained(d) for d in DOMAINS}
+    grad = graduation_status()["graduated"]
+    return {"certifications": certs.all_readiness(retained, grad), "graduated": grad}
+
+
+def portfolio() -> dict:
+    """CORE 15 + 12 — an exportable, verifiable record of capability for an
+    employer/instructor: rank, per-domain mastery, certifications, graduation,
+    verified real executions, ranges cleared, reports written, labs, and badges.
+    Carries a verification hash over the record so it's tamper-evident."""
+    import hashlib
+    g = _g().get("game") or {}
+    rank = skill_rank()
+    grad = graduation_status()
+    proofs = [e for e in execution_proofs() if e.get("verified")]
+    reports = list((_g().get("reports") or {}).values())
+    record = {
+        "learner": LEARNER,
+        "generated": int(time.time()),
+        "knowledge_rank": rank["rank"],
+        "graduated": grad["graduated"],
+        "domain_mastery": [{"domain": d["domain"], "retained": d["retained"],
+                            "band": d["band"]} for d in domain_mastery()["domains"]],
+        "certifications": [{"name": c["name"], "readiness_pct": c["readiness_pct"],
+                            "ready": c["ready"]} for c in certifications()["certifications"]],
+        "evidence": {
+            "verified_executions": [{"domain": e["domain"], "summary": e["summary"],
+                                     "lab": e.get("lab", ""), "ts": e["ts"]} for e in proofs],
+            "ranges_cleared": g.get("ranges_cleared", 0),
+            "objectives_captured": g.get("objectives_captured", 0),
+            "incidents_solved": g.get("incidents_solved", 0),
+            "reports_written": len(reports),
+            "labs_solved": g.get("labs_total", 0),
+            "badges": [b for b in g.get("badges", [])],
+        },
+    }
+    blob = _json_dumps_stable(record)
+    record["verification"] = hashlib.sha256(blob.encode()).hexdigest()
+    return record
+
+
+def _json_dumps_stable(obj) -> str:
+    return json.dumps(obj, sort_keys=True, separators=(",", ":"), default=str)
+
+
+def instructor_summary() -> dict:
+    """CORE 12 (foundation) — an instructor/employer-facing summary combining the
+    verifiable portfolio with the operator audit trail. (Full multi-tenant orgs /
+    cohorts / per-learner identity is a separate enterprise effort — this app is
+    single-operator/single-learner; this surfaces what IS verifiable today.)"""
+    pf = portfolio()
+    try:
+        from . import audit
+        recent_actions = audit.recent(30)
+    except Exception:
+        recent_actions = []
+    return {"portfolio": pf, "verification": pf["verification"],
+            "audit_tail": recent_actions,
+            "note": "Single-learner record. Organizations, cohorts and multi-learner identity "
+                    "require the enterprise multi-tenant layer (not built — see ROADMAP)."}
+
+
 def graduation_status() -> dict:
     """Whether the learner has GRADUATED — career-ready, proven by real execution,
     not just simulation. The knowledge rank ladder measures simulated progress;

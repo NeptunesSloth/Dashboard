@@ -441,6 +441,31 @@ def learning_skills(x_control_token: str = Header(default="")):
     return learning.skill_graph()
 
 
+# ---- certifications + exportable portfolio (CORE 15) + instructor view (CORE 12) ----
+@router.get("/api/learning/certifications")
+def learning_certifications(x_control_token: str = Header(default="")):
+    """Readiness for industry certs (Security+, CEH, OSCP, CISSP, GIAC)."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.certifications()
+
+
+@router.get("/api/learning/portfolio")
+def learning_portfolio(x_control_token: str = Header(default="")):
+    """An exportable, verifiable record of capability for an employer."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.portfolio()
+
+
+@router.get("/api/learning/instructor")
+def learning_instructor(x_control_token: str = Header(default="")):
+    """Instructor/employer summary: the verifiable portfolio + operator audit tail."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.instructor_summary()
+
+
 # ---- graduation (real execution required, not simulation) ----
 @router.get("/api/learning/graduation")
 def learning_graduation(x_control_token: str = Header(default="")):
