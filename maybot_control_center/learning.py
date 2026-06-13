@@ -282,6 +282,8 @@ def _blank() -> dict:
         "materials": {},       # track_id -> {name, text, created}: bring-your-own study material (RAG)
         "executions": [],      # verified real-sandbox execution proofs (CORE 4 graduation gate)
         "reports": {},         # report_id -> graded engagement report (CORE 9)
+        "content_cache": {},   # kind -> [validated content for reuse/offline fallback] (CORE 14)
+        "quality": {},         # content_id -> telemetry + quarantine state (CORE 13)
     }
 
 
@@ -635,6 +637,87 @@ def _call(member: dict, system: str, user: str, chat, max_tokens=900, temperatur
         {**member, "max_tokens": max_tokens, "temperature": temperature},
         [{"role": "system", "content": system}, {"role": "user", "content": user}],
     )
+
+
+# ---------------------------------------------------------------------------
+# CORE 13 + 14 — quality telemetry + content cache. Validated content is cached
+# so the platform keeps working when the LLM backend is down (fallback mode), and
+# quality signals (failures, hint floods, disputes, bug reports) auto-QUARANTINE a
+# bad cached item so it's never reused — broken labs get fixed by removal.
+# ---------------------------------------------------------------------------
+CACHE_PER_KIND = max(5, int(os.getenv("MAYBOT_CONTENT_CACHE", "40")))
+
+
+def _quality(content_id: str) -> dict:
+    q = _g().setdefault("quality", {})
+    return q.setdefault(content_id, {"attempts": 0, "solves": 0, "fails": 0, "hints": 0,
+                                     "abandons": 0, "disputes": 0, "bugs": 0, "quarantined": False})
+
+
+def _quarantine_check(content_id: str) -> bool:
+    q = _quality(content_id)
+    # a confirmed bug, repeated grading disputes, or a high failure rate quarantines.
+    bad = (q["bugs"] >= 1 or q["disputes"] >= 2
+           or (q["attempts"] >= 4 and q["fails"] > q["solves"] and q["fails"] >= 3)
+           or (q["attempts"] >= 4 and q["abandons"] >= q["attempts"] * 0.75))
+    q["quarantined"] = bool(q["quarantined"] or bad)
+    return q["quarantined"]
+
+
+def record_quality(content_id: str, event: str, n: int = 1) -> dict:
+    """Record a quality signal for a piece of content; may auto-quarantine it."""
+    field = {"attempt": "attempts", "solve": "solves", "fail": "fails", "hint": "hints",
+             "abandon": "abandons", "dispute": "disputes", "bug": "bugs"}.get(event)
+    if not field:
+        return {"error": f"unknown quality event '{event}'"}
+    with _lock:
+        q = _quality(content_id)
+        q[field] += int(n)
+        quarantined = _quarantine_check(content_id)
+        _save()
+    return {"ok": True, "content_id": content_id, "quarantined": quarantined}
+
+
+def _is_quarantined(content_id: str) -> bool:
+    return bool((_g().get("quality") or {}).get(content_id, {}).get("quarantined"))
+
+
+def quality_snapshot() -> dict:
+    q = (_g().get("quality") or {})
+    quarantined = [cid for cid, v in q.items() if v.get("quarantined")]
+    return {"tracked": len(q), "quarantined": quarantined,
+            "items": [{"id": cid, **v} for cid, v in q.items()]}
+
+
+def _cache_put(kind: str, track: str, payload: dict) -> str:
+    """Cache a validated payload; returns its STABLE cache id (shared by every
+    instance, so quality signals aggregate against the template)."""
+    cid = f"cc-{kind}-{int(time.time()*1000)}-{random.randint(100,999)}"
+    payload = {**payload, "_cache_id": cid}
+    with _lock:
+        bucket = _g().setdefault("content_cache", {}).setdefault(kind, [])
+        bucket.append({"track": track, "payload": payload, "ts": int(time.time())})
+        if len(bucket) > CACHE_PER_KIND:
+            del bucket[:len(bucket) - CACHE_PER_KIND]
+        _save()
+    return cid
+
+
+def _cache_pick(kind: str, track: str) -> dict | None:
+    """A non-quarantined cached payload for this track (newest-first)."""
+    bucket = (_g().get("content_cache") or {}).get(kind, [])
+    for item in reversed(bucket):
+        if item.get("track") == track and not _is_quarantined(
+                (item.get("payload") or {}).get("_cache_id", "")):
+            return item["payload"]
+    return None
+
+
+def cache_status() -> dict:
+    cc = (_g().get("content_cache") or {})
+    return {"backend_available": _backend_member() is not None,
+            "cached": {kind: len(items) for kind, items in cc.items()},
+            "total": sum(len(v) for v in cc.values())}
 
 
 # Bring-your-own material (a lightweight RAG): an operator pastes notes / a doc
@@ -1432,6 +1515,10 @@ def lab_hint(lab_id: str, chat=None) -> dict:
     return {"hint": text.strip(), "cost": HINT_COST, "hints_used": lab["hints"], "error": None}
 
 
+def _range_cache_id(range_id: str) -> str:
+    return ((_g().get("ranges") or {}).get(range_id) or {}).get("_cache_id", "")
+
+
 def generate_artifact_lab(track_id: str, artifact_type: str, chat=None) -> dict:
     """CORE 8 — a lab built on a REAL artifact type (PCAP, memory image, Apache/
     Sysmon/Windows logs, IAM/S3/Terraform config, obfuscated script, container).
@@ -1625,7 +1712,7 @@ def _range_view(rng: dict) -> dict:
                  "captured": bool(obj.get("captured"))} if obj else None
     return {"range_id": rng["id"], "scenario": rng.get("scenario", ""), "track": rng.get("track"),
             "objective": objective, "hosts": hosts, "owned": owned, "total": total,
-            "validation": rng.get("validation"),
+            "validation": rng.get("validation"), "content_id": rng.get("_cache_id"),
             "roe": rng.get("roe", []), "time_limit_min": rng.get("time_limit_min"),
             "time_left_s": _range_time_left(rng), "expired": _range_time_left(rng) <= 0,
             "notebook_entries": len(rng.get("notebook") or []),
@@ -1686,6 +1773,13 @@ def generate_range(track_id: str, chat=None) -> dict:
         return {"error": "unknown track"}
     member = _backend_member()
     if not member:
+        # CORE 14 — fallback: serve a previously-validated range from the cache.
+        cached = _cache_pick("range", track_id)
+        if cached:
+            return _instantiate_range(track_id, cached, {"approved": True, "confidence": 0,
+                                                         "grounded_hosts": 0, "reviewers": 0,
+                                                         "warnings": ["offline — served from validated cache"]},
+                                      cached=True)
         return {"error": "no_backend"}
     base = (f"Track: {track['title']}\nLearner profile:\n{_profile_brief()}\n\n"
             "Design a simulated end-to-end pentest range as specified."
@@ -1696,6 +1790,12 @@ def generate_range(track_id: str, chat=None) -> dict:
     for attempt in range(2):  # initial + one repair pass
         ok, text, err = _call(member, SYSTEM_RANGE, user, chat, max_tokens=2600, temperature=0.6)
         if not ok:
+            cached = _cache_pick("range", track_id)
+            if cached:
+                return _instantiate_range(track_id, cached, {"approved": True, "confidence": 0,
+                                          "grounded_hosts": 0, "reviewers": 0,
+                                          "warnings": ["backend error — served from validated cache"]},
+                                          cached=True)
             return {"error": err or "no response"}
         parsed = _parse_range(track_id, _extract_json(text))
         if not parsed:
@@ -1711,19 +1811,31 @@ def generate_range(track_id: str, chat=None) -> dict:
     if rng is None:
         return {"error": "the generated scenario failed multi-agent review (it would teach a broken "
                           "or hallucinated attack chain)", "validation": report}
+    # CORE 14 — cache the validated scenario for reuse / offline fallback.
+    cid = _cache_put("range", track_id, {k: rng[k] for k in ("scenario", "objective", "entry_points", "hosts")})
+    rng["_cache_id"] = cid
+    return _instantiate_range(track_id, rng, {
+        "approved": report["approved"], "confidence": report.get("confidence", 0),
+        "grounded_hosts": report.get("grounded_hosts", 0), "reviewers": report.get("llm_reviewers", 0),
+        "warnings": report.get("warnings", [])})
+
+
+def _instantiate_range(track_id: str, parsed: dict, validation_summary: dict, cached: bool = False) -> dict:
+    """Build a fresh, playable range instance from a parsed/cached scenario."""
+    import copy
+    rng = copy.deepcopy(parsed)
+    rng["track"] = track_id
+    # reset runtime state (a cached scenario must start clean)
+    for h in rng["hosts"].values():
+        h.update({"enumerated": False, "compromised": False, "escalated": False, "persisted": False})
+    if rng.get("objective"):
+        rng["objective"]["captured"] = False
     range_id = f"rng-{int(time.time()*1000)}-{random.randint(100,999)}"
-    rng["id"] = range_id
-    rng["created"] = int(time.time())
-    # CORE 11 — real engagement discipline: rules of engagement, a clock, and a
-    # notebook the learner must keep (documentation affects the grade).
-    rng["roe"] = list(RULES_OF_ENGAGEMENT)
-    rng["time_limit_min"] = RANGE_TIME_LIMIT_MIN
-    rng["started_at"] = int(time.time())
-    rng["notebook"] = []
-    rng["validation"] = {"approved": report["approved"], "confidence": report.get("confidence", 0),
-                         "grounded_hosts": report.get("grounded_hosts", 0),
-                         "reviewers": report.get("llm_reviewers", 0),
-                         "warnings": report.get("warnings", [])}
+    # share the template's stable cache id so quality signals aggregate per template
+    cache_id = parsed.get("_cache_id") or f"cc-{range_id}"
+    rng.update({"id": range_id, "created": int(time.time()), "_cache_id": cache_id,
+                "roe": list(RULES_OF_ENGAGEMENT), "time_limit_min": RANGE_TIME_LIMIT_MIN,
+                "started_at": int(time.time()), "notebook": [], "validation": validation_summary})
     with _lock:
         ranges = _g().setdefault("ranges", {})
         ranges[range_id] = rng
@@ -1732,7 +1844,10 @@ def generate_range(track_id: str, chat=None) -> dict:
                 ranges.pop(k, None)
         _save()
     _log_activity("labs")
-    return _range_view(rng)
+    record_quality(cache_id, "attempt")
+    view = _range_view(rng)
+    view["cached"] = cached
+    return view
 
 
 def get_range(range_id: str) -> dict:
@@ -1864,6 +1979,7 @@ def range_capture(range_id: str, submission: str) -> dict:
         expired = _range_time_left(rng) <= 0
         _save()
     award = int(round(80 * doc * (0.85 if expired else 1.0)))
+    record_quality(rng.get("_cache_id", ""), "solve")   # CORE 13 telemetry
     _award_progress(award, skill="Objective-Based Operations", bonus=20)
     _touch_streak()
     earned = _check_badges()
@@ -1967,6 +2083,7 @@ def range_hint(range_id: str, host_id: str, stage: str = "", chat=None) -> dict:
     if not ok:
         cultivation.reward(LEARNER, RANGE_HINT_COST)   # refund on failure
         return {"error": err or "no response"}
+    record_quality(_range_cache_id(range_id), "hint")   # CORE 13 telemetry
     return {"hint": text.strip(), "cost": RANGE_HINT_COST, "stage": stage, "error": None}
 
 

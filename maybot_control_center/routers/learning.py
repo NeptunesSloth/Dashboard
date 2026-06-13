@@ -468,6 +468,37 @@ def learning_execution_proof(body: ExecutionProofIn, x_control_token: str = Head
                                            lab=body.lab, tool=body.tool)
 
 
+# ---- quality feedback loop + content cache (CORE 13/14) ----
+class FeedbackIn(BaseModel):
+    content_id: str
+    event: str          # dispute | bug | abandon
+
+
+@router.post("/api/learning/feedback")
+def learning_feedback(body: FeedbackIn, x_control_token: str = Header(default="")):
+    """Report a quality signal (grading dispute / bug / abandonment). Enough bad
+    signals auto-quarantine a cached item so it's never reused."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.record_quality(body.content_id, body.event)
+
+
+@router.get("/api/learning/quality")
+def learning_quality(x_control_token: str = Header(default="")):
+    """Quality telemetry + which content is quarantined."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.quality_snapshot()
+
+
+@router.get("/api/learning/cache")
+def learning_cache(x_control_token: str = Header(default="")):
+    """Content cache / fallback status (does the platform still work offline?)."""
+    check_token(x_control_token)
+    from .. import learning
+    return learning.cache_status()
+
+
 # ---- canonical knowledge base (ground truth) ----
 @router.get("/api/learning/knowledge")
 def learning_knowledge(q: str = Query(default=""), x_control_token: str = Header(default="")):
