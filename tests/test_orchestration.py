@@ -12,11 +12,12 @@ client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def fresh_state(monkeypatch):
-    from maybot_control_center import proxmox
+    from maybot_control_center import proxmox, guacamole
     orch._state["sessions"] = {}
     orch._state["events"] = []
     orch._state["validations"] = []
     proxmox.set_test_client(None)
+    guacamole.set_test_client(None)
     monkeypatch.delenv("MAYBOT_RANGE_PROVIDER", raising=False)
     for k in ("MAYBOT_PROXMOX_URL", "MAYBOT_PROXMOX_TOKEN", "MAYBOT_PROXMOX_NODE"):
         monkeypatch.delenv(k, raising=False)

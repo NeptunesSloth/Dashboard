@@ -60,6 +60,9 @@ class FakeProxmox:
     def vm_status(self, vmid):
         return self.vms.get(vmid, {}).get("status", "stopped")
 
+    def vm_ip(self, vmid):
+        return self.vms.get(vmid, {}).get("ip", f"10.10.0.{vmid % 250}")
+
     def stop(self, vmid):
         self.calls.append(("stop", vmid))
         if vmid in self.vms:
@@ -81,6 +84,7 @@ TMAP = {"kali_template": 9000, "windows_workstation": 9200, "domain_controller":
 
 @pytest.fixture(autouse=True)
 def wired(monkeypatch):
+    from maybot_control_center import guacamole
     orch._state["sessions"] = {}
     orch._state["events"] = []
     orch._state["validations"] = []
@@ -88,8 +92,10 @@ def wired(monkeypatch):
     monkeypatch.setenv("MAYBOT_RANGE_PROVIDER", "proxmox")
     fake = FakeProxmox()
     proxmox.set_test_client(fake)
+    guacamole.set_test_client(None)   # browser access off unless a test opts in
     yield fake
     proxmox.set_test_client(None)
+    guacamole.set_test_client(None)
 
 
 def _prov():
@@ -127,8 +133,8 @@ def test_launch_clones_isolates_starts_and_confirms_running(wired):
 
 def test_launch_returns_no_connect_url_without_browser_access():
     res = orch.launch_lab("ad_attack_001", provider="proxmox")
-    assert res["session"]["connect_url"] is None     # Guacamole/noVNC not wired
-    assert "browser access" in res["detail"].lower()
+    assert res["session"]["connect_url"] is None     # Guacamole not configured
+    assert "guacamole" in res["detail"].lower() or "browser console" in res["detail"].lower()
 
 
 def test_session_running_only_when_api_confirms(wired):

@@ -116,6 +116,23 @@ class ProxmoxClient:
     def vm_status(self, vmid: int) -> str:
         return (self.get(f"/nodes/{self.node}/qemu/{vmid}/status/current") or {}).get("status", "unknown")
 
+    def vm_ip(self, vmid: int) -> str | None:
+        """The guest's first non-loopback IPv4, via the qemu guest agent. Returns
+        None if the agent isn't installed/responsive (the template must run
+        qemu-guest-agent for browser access to find the VM)."""
+        try:
+            data = self.get(f"/nodes/{self.node}/qemu/{vmid}/agent/network-get-interfaces") or {}
+        except Exception:
+            return None
+        for iface in (data.get("result") or []):
+            if str(iface.get("name", "")).lower().startswith("lo"):
+                continue
+            for addr in (iface.get("ip-addresses") or []):
+                ip = addr.get("ip-address", "")
+                if addr.get("ip-address-type") == "ipv4" and ip and not ip.startswith("127."):
+                    return ip
+        return None
+
     def task_status(self, upid: str) -> dict:
         return self.get(f"/nodes/{self.node}/tasks/{upid}/status") or {}
 

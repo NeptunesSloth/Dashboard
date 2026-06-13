@@ -22,7 +22,10 @@ Data model (persisted via ``store``; see docs/CYBER_RANGE_ARCHITECTURE.md §6):
 """
 from __future__ import annotations
 
+import hashlib
+import hmac
 import os
+import secrets
 import threading
 import time
 from pathlib import Path
@@ -30,6 +33,31 @@ from pathlib import Path
 import yaml
 
 from . import store
+
+# Short-lived signed connect URLs (CORE: never expose raw VM IPs; the URL points
+# at the broker endpoint, not the hypervisor). Per-process secret unless pinned.
+_CONNECT_SECRET = os.getenv("MAYBOT_CONNECT_SECRET", "").strip() or secrets.token_hex(32)
+CONNECT_TTL_SEC = int(os.getenv("MAYBOT_CONNECT_TTL_SEC", "600"))
+
+
+def _connect_sig(session_id: str, exp: int) -> str:
+    return hmac.new(_CONNECT_SECRET.encode(), f"{session_id}:{exp}".encode(),
+                    hashlib.sha256).hexdigest()[:32]
+
+
+def signed_connect_url(session_id: str) -> str:
+    exp = int(time.time()) + CONNECT_TTL_SEC
+    return f"/api/range-infra/connect/{session_id}?exp={exp}&sig={_connect_sig(session_id, exp)}"
+
+
+def verify_connect(session_id: str, exp, sig: str) -> bool:
+    try:
+        exp = int(exp)
+    except (TypeError, ValueError):
+        return False
+    if exp < int(time.time()):
+        return False
+    return hmac.compare_digest(sig or "", _connect_sig(session_id, exp))
 
 LAB_CATALOG_FILE = Path(os.getenv("MAYBOT_LAB_CATALOG_FILE", "lab_catalog.yaml"))
 
@@ -185,22 +213,76 @@ class ProxmoxProvider(RangeProvider):
             _event(sid, "network", "failed", str(exc))
             return {"ok": False, "status": "failed", "session_id": sid, "detail": str(exc)}
         created: list[dict] = []
+        connections: list[dict] = []
         try:
             self._provision_vms(c, sid, roles, tmap, vlan, created)
+            connections = self._register_browser_access(c, sid, lab, created)
         except Exception as exc:
             _event(sid, "provision", "failed", str(exc))
+            self._revoke_connections(connections)
             self._rollback(c, created)
             _event(sid, "rollback", "done", f"removed {len(created)} vm(s)")
             return {"ok": False, "status": "failed", "session_id": sid,
                     "detail": f"provisioning failed and was rolled back: {exc}"}
-        connect = proxmox.guacamole_connect_url(sid, created)   # None until browser access exists
+        # connect_url ONLY when Guacamole confirmed ≥1 connection — never faked.
+        connect = signed_connect_url(sid) if connections else None
         meta = {"vlan": vlan, "node": c.node, "vms": created, "lab": lab,
-                "ttl_min": int(lab.get("duration_minutes") or 60)}
-        _event(sid, "ready", "running", f"{len(created)} vm(s) on vlan {vlan}; browser_access={'set' if connect else 'not_configured'}")
+                "connections": connections, "ttl_min": int(lab.get("duration_minutes") or 60)}
+        _event(sid, "ready", "running",
+               f"{len(created)} vm(s) on vlan {vlan}; browser_access={'ready' if connect else 'none'}")
         return {"ok": True, "session_id": sid, "status": "running",
                 "connect_url": connect, "meta": meta,
-                "detail": ("VMs running. Browser access (Guacamole/noVNC) is not configured — "
-                           "no console URL yet." if not connect else "")}
+                "detail": ("" if connect else
+                           "VMs running. No browser console — Guacamole is not configured or no "
+                           "guest reported an IP yet.")}
+
+    def _register_browser_access(self, c, sid: str, lab: dict, created: list[dict]) -> list[dict]:
+        """Register a Guacamole connection per browser-accessible VM. Returns the
+        connections (empty if Guacamole isn't configured). Raises if a connection
+        create fails (after revoking any partial ones) so the caller rolls back."""
+        from . import guacamole
+        gc = guacamole.client()
+        if gc is None:
+            _event(sid, "guacamole", "not_configured", "no console URL")
+            return []
+        access = guacamole.access_map()
+        conns: list[dict] = []
+        try:
+            for vm in created:
+                if not guacamole.accessible(vm, lab):
+                    continue
+                ip = None
+                try:
+                    ip = c.vm_ip(vm["vmid"])
+                except Exception:
+                    ip = None
+                if not ip:
+                    _event(sid, "guacamole", "skip", f"no guest IP for vmid={vm['vmid']} (guest agent?)")
+                    continue
+                proto, params = guacamole.connection_for(vm, ip, access)
+                cid = gc.create_connection(f"maybotlab-{sid}-{vm['role']}-{vm['vmid']}", proto, params)
+                if not cid:
+                    raise RuntimeError("Guacamole returned no connection id")
+                conns.append({"role": vm["role"], "vmid": vm["vmid"], "protocol": proto,
+                              "conn_id": cid, "client_url": gc.client_url(cid)})
+                _event(sid, "guacamole", "registered", f"{vm['role']} {proto} conn={cid}")
+        except Exception:
+            self._revoke_connections(conns)        # roll back partial registration
+            raise
+        if not conns:
+            _event(sid, "guacamole", "no_accessible_vm", "no browser-accessible VM reachable")
+        return conns
+
+    def _revoke_connections(self, conns: list[dict]) -> None:
+        from . import guacamole
+        gc = guacamole.client()
+        if gc is None:
+            return
+        for cn in conns:
+            try:
+                gc.delete_connection(cn["conn_id"])
+            except Exception:
+                pass
 
     def session_status(self, session: dict) -> dict:
         c = self._client()
@@ -217,6 +299,12 @@ class ProxmoxProvider(RangeProvider):
     def stop(self, session: dict) -> dict:
         from . import proxmox
         c = self._client()
+        conns = session.get("meta", {}).get("connections", [])
+        if conns:
+            self._revoke_connections(conns)
+            session["meta"]["connections"] = []
+            session["connect_url"] = None
+            _event(session["id"], "guacamole", "revoked", f"{len(conns)} conn(s) on stop")
         if c is None:
             return {"ok": False, "status": session.get("status", "unknown")}
         for vm in session.get("meta", {}).get("vms", []):
@@ -228,6 +316,10 @@ class ProxmoxProvider(RangeProvider):
 
     def destroy(self, session: dict) -> dict:
         c = self._client()
+        conns = session.get("meta", {}).get("connections", [])
+        if conns:
+            self._revoke_connections(conns)
+            _event(session["id"], "guacamole", "revoked", f"{len(conns)} conn(s) on destroy")
         if c is None:
             return {"ok": True, "status": "destroyed"}
         self._rollback(c, session.get("meta", {}).get("vms", []))
@@ -243,6 +335,7 @@ class ProxmoxProvider(RangeProvider):
         if c is None or not lab or not vlan:
             return {"ok": False, "status": "failed", "detail": "nothing to reset"}
         sid = session["id"]
+        self._revoke_connections(session.get("meta", {}).get("connections", []))
         self._rollback(c, session.get("meta", {}).get("vms", []))
         _event(sid, "reset", "recloning", f"vlan {vlan}")
         tmap = proxmox.template_map()
@@ -250,12 +343,17 @@ class ProxmoxProvider(RangeProvider):
                  + [("target", t) for t in (lab.get("target_vms") or [])])
         roles = [(r, n) for r, n in roles if n]
         created: list[dict] = []
+        connections: list[dict] = []
         try:
             self._provision_vms(c, sid, roles, tmap, vlan, created)
+            connections = self._register_browser_access(c, sid, lab, created)
         except Exception as exc:
+            self._revoke_connections(connections)
             self._rollback(c, created)
             return {"ok": False, "status": "failed", "detail": f"reset failed: {exc}"}
         session["meta"]["vms"] = created
+        session["meta"]["connections"] = connections
+        session["connect_url"] = signed_connect_url(sid) if connections else None
         return {"ok": True, "status": "running"}
 
     def cleanup_orphans(self, active_ids: set[str]) -> dict:
@@ -317,8 +415,11 @@ def load_catalog() -> dict:
 def list_labs() -> dict:
     cat = load_catalog()
     health = provider_health()
+    from . import guacamole
+    browser = {"configured": guacamole.client() is not None}
     return {"labs": cat["labs"], "templates": cat["templates"],
-            "infrastructure": health, "live": health.get("status") == "ok"}
+            "infrastructure": health, "browser_access": browser,
+            "live": health.get("status") == "ok"}
 
 
 def _lab(lab_id: str) -> dict | None:
@@ -433,6 +534,31 @@ def list_sessions(owner: str | None = None) -> dict:
         ss = [_public(s) for s in _state["sessions"].values()
               if owner is None or s.get("owner") == owner]
     return {"sessions": ss, "count": len(ss)}
+
+
+def connect_session(session_id: str, exp, sig: str) -> dict:
+    """Resolve a short-lived signed connect link into the per-VM Guacamole client
+    URLs. Returns ONLY connection URLs (never raw VM IPs) and audits the open."""
+    if not verify_connect(session_id, exp, sig):
+        return {"ok": False, "error": "expired_or_invalid",
+                "detail": "this connect link has expired — reopen the lab to get a fresh one"}
+    with _lock:
+        s = _state["sessions"].get(session_id)
+    if not s:
+        return {"ok": False, "error": "unknown_session"}
+    conns = s.get("meta", {}).get("connections", [])
+    if not conns:
+        return {"ok": False, "error": "no_browser_access",
+                "detail": "no Guacamole connection is registered for this session"}
+    _event(session_id, "connect", "opened", f"{len(conns)} connection(s)")
+    try:
+        from . import audit
+        audit.record(s.get("owner", "learner"), f"open browser lab {session_id}", status=200)
+    except Exception:
+        pass
+    return {"ok": True, "session_id": session_id,
+            "connections": [{"role": c["role"], "protocol": c["protocol"], "url": c["client_url"]}
+                            for c in conns]}
 
 
 def record_validation(session_id: str, condition: str, passed: bool, evidence: dict | None = None) -> dict:

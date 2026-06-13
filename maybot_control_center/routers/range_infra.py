@@ -51,6 +51,15 @@ def session_status(session_id: str, x_control_token: str = Header(default="")):
     return orchestration.session_status(session_id)
 
 
+@router.get("/api/range-infra/connect/{session_id}")
+def connect(session_id: str, exp: str = Query(default=""), sig: str = Query(default=""),
+            x_control_token: str = Header(default="")):
+    """Resolve a short-lived signed connect link into the per-VM browser console
+    URLs (Guacamole). Returns no raw VM IPs."""
+    _check_operator(x_control_token)
+    return orchestration.connect_session(session_id, exp, sig)
+
+
 class LaunchIn(BaseModel):
     lab_id: str
     provider: str | None = None

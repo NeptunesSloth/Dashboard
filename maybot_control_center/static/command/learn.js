@@ -859,11 +859,21 @@ async function openRangeInfra() {
     + `<div class='muted' style='font-size:11px; margin-top:8px'>Active sessions: <span id='infra-sessions'>—</span></div>`;
   $('work').querySelectorAll('[data-launch]').forEach((b) => b.onclick = async () => {
     const id = b.dataset.launch;
-    const out = $('ll-' + id); out.textContent = 'Requesting…';
+    const out = $('ll-' + id); out.textContent = 'Requesting… (provisioning VMs can take a while)';
     const res = await post('/api/range-infra/launch', { lab_id: id });
     // Honest rendering: success only when a real session is returned; otherwise show the reason.
     if (res && res.ok && res.session) {
-      out.innerHTML = `✅ session ${esc(res.session.id)} · ${esc(res.session.status)}`;
+      const s = res.session;
+      let html = `✅ session ${esc(s.id)} · ${esc(s.status)}`;
+      if (s.connect_url) {
+        // A real Guacamole connection exists — offer to open it (no raw VM IPs).
+        html += ` <button class='btn primary' data-open='${esc(s.connect_url)}'>🖥 Open Browser Lab</button>`;
+      } else {
+        html += ` <span class='muted'>· running, no browser console (${esc(res.detail || 'Guacamole not configured')})</span>`;
+      }
+      out.innerHTML = html;
+      const ob = out.querySelector('[data-open]');
+      if (ob) ob.onclick = () => openBrowserLab(ob.dataset.open, out);
     } else {
       out.innerHTML = `⚠ ${esc((res && res.detail) || 'unavailable')} <span class='muted'>(no VM launched)</span>`;
     }
@@ -875,6 +885,19 @@ async function refreshInfraSessions() {
   const el = $('infra-sessions'); if (!el) return;
   const s = await api('/api/range-infra/sessions');
   el.textContent = s ? String(s.count || 0) : '—';
+}
+async function openBrowserLab(connectUrl, out) {
+  // Resolve the signed broker link into real Guacamole console URLs, then open.
+  const prev = out.innerHTML; out.innerHTML = 'Opening console…';
+  const r = await api(connectUrl);
+  if (!r || !r.ok || !(r.connections || []).length) {
+    out.innerHTML = prev + ` <span class='muted'>⚠ ${esc((r && r.detail) || 'could not open console')}</span>`;
+    return;
+  }
+  // open the attacker box (or the first connection) in a new tab
+  const att = r.connections.find((c) => c.role === 'attacker') || r.connections[0];
+  window.open(att.url, '_blank', 'noopener');
+  out.innerHTML = prev + ` <span class='muted'>· opened ${esc(att.role)} (${esc(att.protocol)})</span>`;
 }
 
 /* ---------------- bring-your-own material (RAG) ---------------- */

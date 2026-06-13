@@ -88,7 +88,54 @@ the VMs and returns a **`running`** session — but `connect_url` is still `null
   signed URL. Until then the VM runs but the dashboard honestly shows it has no
   console URL.
 
-### Hygiene
+## Browser access — Apache Guacamole (implemented driver)
+
+The `guacamole.py` client + the provider integration are real: when a Proxmox
+session reaches `running`, the control center registers a **per-VM Guacamole
+connection** (one per browser-accessible VM), and the session's `connect_url`
+becomes a **short-lived signed link** to the broker endpoint. It is mock-tested
+(`tests/test_guacamole.py`); a real Guacamole server is required to actually open
+a console.
+
+### Deploy Guacamole
+
+1. Run **guacd + the Guacamole webapp** (the official `guacamole/guacd` +
+   `guacamole/guacamole` containers, with a Postgres/MySQL auth DB), behind your
+   reverse proxy with TLS.
+2. **Network**: guacd must reach the isolated lab VLAN (give it an interface on
+   `vmbrLAB`, or route to it). The lab VLAN still has **no internet egress** — only
+   guacd can reach the guests.
+3. **Guests** need the service Guacamole connects to **and the qemu-guest-agent**
+   (so the driver can discover the guest IP): Kali → VNC server (or SSH), Windows
+   → RDP enabled, Linux targets → SSH.
+4. Point the control center at it:
+   ```bash
+   export MAYBOT_GUACAMOLE_URL=https://guac.internal
+   export MAYBOT_GUACAMOLE_USER=maybot
+   export MAYBOT_GUACAMOLE_PASSWORD=…            # a Guacamole admin that can create connections
+   export MAYBOT_GUACAMOLE_DATASOURCE=postgresql  # or mysql
+   # optional hardening (default ON): MAYBOT_GUAC_DISABLE_CLIPBOARD / _FILE_TRANSFER
+   ```
+5. Optional per-template access creds (`access:` section in
+   `proxmox_templates.yaml`): protocol/port/username/password per template.
+   Absent creds → Guacamole prompts in-browser. For true **per-session
+   credentials**, inject them into the guest at clone time with cloud-init and put
+   the same values in the access config (documented enhancement; the control
+   center never invents creds the guest won't honour).
+
+### How browser access behaves
+
+- Guacamole **not configured** → labs still launch (VMs run), but `connect_url`
+  is `null`. No fake console link — ever.
+- Guacamole configured + a guest IP found → a connection is created and a signed
+  `connect_url` is returned. The dashboard "Open Browser Lab" button resolves it
+  into the real Guacamole client URL (no raw VM IPs in the response).
+- Connection **create failure** rolls back the whole launch (VMs + any partial
+  connections). Connections are **deleted** from Guacamole on stop/destroy/reset.
+- Clipboard + file transfer are **restricted by default**; connect links expire
+  (`MAYBOT_CONNECT_TTL_SEC`, default 600s); opens are written to the audit log.
+
+## Hygiene
 
 `POST /api/range-infra/reap` destroys sessions past their lab TTL; `POST
 /api/range-infra/cleanup-orphans` destroys lab VMs on the node whose session no
