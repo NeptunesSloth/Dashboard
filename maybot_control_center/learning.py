@@ -214,6 +214,17 @@ SYSTEM_INCIDENT_GRADER = (
     "guess. Respond with ONLY: {\"score\":0-100,\"passed\":true/false (>=70),\"feedback\":\"what they "
     "scoped correctly and what they got wrong\",\"missed\":[\"key things not found\"]}."
 )
+# CORE 9 — reporting. Security pros write reports constantly; grade a real one.
+SYSTEM_REPORT_GRADER = (
+    "You are a lead penetration tester grading a junior's engagement REPORT against the known findings. "
+    "Score four dimensions 0-100 and an overall: (1) TECHNICAL ACCURACY — are the findings correct and "
+    "complete vs the known facts; (2) CLARITY — is it well-structured and readable; (3) BUSINESS "
+    "COMMUNICATION — does the executive summary convey impact/risk to a non-technical reader; "
+    "(4) REMEDIATION QUALITY — are the fixes specific, correct and prioritised. Penalise missing "
+    "reproduction steps or evidence. Respond with ONLY: {\"overall\":0-100,\"technical_accuracy\":0-100,"
+    "\"clarity\":0-100,\"business_communication\":0-100,\"remediation_quality\":0-100,"
+    "\"feedback\":\"2-3 sentences\",\"missing\":[\"what a real report needs that's absent\"]}."
+)
 SYSTEM_PROFILER = (
     "You maintain a concise model of how a particular learner learns, to help a tutor adapt. "
     "Given the prior profile and a note about what just happened, return an UPDATED profile as "
@@ -270,6 +281,7 @@ def _blank() -> dict:
         "incidents": {},       # incident_id -> blue-team investigation exercise; see generate_incident()
         "materials": {},       # track_id -> {name, text, created}: bring-your-own study material (RAG)
         "executions": [],      # verified real-sandbox execution proofs (CORE 4 graduation gate)
+        "reports": {},         # report_id -> graded engagement report (CORE 9)
     }
 
 
@@ -1521,6 +1533,52 @@ def grade_lab(lab_id: str, finding: str, chat=None, evidence: str = "") -> dict:
 # the crown jewels. ZERO command execution — same safety boundary as the labs.
 # ---------------------------------------------------------------------------
 RANGE_EXPLOIT_PASS = int(os.getenv("MAYBOT_RANGE_PASS", "65"))
+# CORE 11 — engagement discipline.
+RANGE_TIME_LIMIT_MIN = int(os.getenv("MAYBOT_RANGE_TIME_LIMIT_MIN", "45"))
+RULES_OF_ENGAGEMENT = [
+    "ONLY interact with hosts IN SCOPE (the hosts in this range).",
+    "DO NOT denial-of-service or crash any target.",
+    "NO destructive actions — no data deletion, no ransomware behaviour.",
+    "Keep a contemporaneous notebook: commands, findings, assumptions.",
+]
+
+
+def range_note(range_id: str, entry: str, kind: str = "note") -> dict:
+    """Append to the engagement notebook (note/command/finding/assumption).
+    Documentation discipline is part of the grade (CORE 11)."""
+    entry = (entry or "").strip()
+    if not entry:
+        return {"error": "empty note"}
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if not rng:
+            return {"error": "unknown or expired range"}
+        nb = rng.setdefault("notebook", [])
+        nb.append({"ts": int(time.time()), "kind": str(kind or "note"), "text": entry[:1000]})
+        del nb[:-200]
+        _save()
+    return {"ok": True, "entries": len(rng["notebook"])}
+
+
+def _range_time_left(rng: dict) -> int:
+    started = rng.get("started_at") or rng.get("created") or int(time.time())
+    limit = int(rng.get("time_limit_min", RANGE_TIME_LIMIT_MIN)) * 60
+    return max(0, limit - int(time.time() - started))
+
+
+def _doc_factor(rng: dict) -> float:
+    """How much the notebook backs up the work: 1.0 with solid notes, down to 0.7
+    with none. Documentation failure reduces the grade (CORE 11)."""
+    n = len(rng.get("notebook") or [])
+    owned = sum(1 for h in rng.get("hosts", {}).values() if h.get("compromised")) or 1
+    ratio = n / owned
+    if ratio >= 2:
+        return 1.0
+    if ratio >= 1:
+        return 0.9
+    if n > 0:
+        return 0.8
+    return 0.7
 
 
 def _range_reachable(rng: dict) -> set[str]:
@@ -1568,6 +1626,9 @@ def _range_view(rng: dict) -> dict:
     return {"range_id": rng["id"], "scenario": rng.get("scenario", ""), "track": rng.get("track"),
             "objective": objective, "hosts": hosts, "owned": owned, "total": total,
             "validation": rng.get("validation"),
+            "roe": rng.get("roe", []), "time_limit_min": rng.get("time_limit_min"),
+            "time_left_s": _range_time_left(rng), "expired": _range_time_left(rng) <= 0,
+            "notebook_entries": len(rng.get("notebook") or []),
             "cleared": owned >= total and total > 0, "error": None}
 
 
@@ -1653,6 +1714,12 @@ def generate_range(track_id: str, chat=None) -> dict:
     range_id = f"rng-{int(time.time()*1000)}-{random.randint(100,999)}"
     rng["id"] = range_id
     rng["created"] = int(time.time())
+    # CORE 11 — real engagement discipline: rules of engagement, a clock, and a
+    # notebook the learner must keep (documentation affects the grade).
+    rng["roe"] = list(RULES_OF_ENGAGEMENT)
+    rng["time_limit_min"] = RANGE_TIME_LIMIT_MIN
+    rng["started_at"] = int(time.time())
+    rng["notebook"] = []
     rng["validation"] = {"approved": report["approved"], "confidence": report.get("confidence", 0),
                          "grounded_hosts": report.get("grounded_hosts", 0),
                          "reviewers": report.get("llm_reviewers", 0),
@@ -1792,13 +1859,22 @@ def range_capture(range_id: str, submission: str) -> dict:
         obj["captured"] = True
         g = _g()["game"]
         g["objectives_captured"] = g.get("objectives_captured", 0) + 1
+        # CORE 11: documentation discipline + the engagement clock shape the reward.
+        doc = _doc_factor(rng)
+        expired = _range_time_left(rng) <= 0
         _save()
-    _award_progress(80, skill="Objective-Based Operations", bonus=20)
+    award = int(round(80 * doc * (0.85 if expired else 1.0)))
+    _award_progress(award, skill="Objective-Based Operations", bonus=20)
     _touch_streak()
     earned = _check_badges()
     _update_profile(f"Captured the engagement objective ({obj.get('goal','')}) in a pentest range.")
+    notes = [] if doc >= 0.9 else ["Keep a fuller notebook (commands/findings/assumptions) — "
+                                   "documentation is part of the engagement."]
+    if expired:
+        notes.append("You ran over the time limit — real engagements are time-boxed.")
     return {"captured": True, "goal": obj.get("goal", ""), "flag": flag,
-            "awarded": 80, "badges": earned, "error": None}
+            "awarded": award, "doc_factor": doc, "over_time": expired,
+            "discipline_notes": notes, "badges": earned, "error": None}
 
 
 def _postex(range_id: str, host_id: str, plan: str, kind: str, chat=None) -> dict:
@@ -1976,6 +2052,133 @@ def grade_incident(incident_id: str, findings: str, chat=None) -> dict:
             "feedback": str(data.get("feedback", "")).strip(),
             "missed": [str(x) for x in (data.get("missed") or [])],
             "ground_truth": gt, "awarded": stones, "badges": earned, "error": None}
+
+
+# ---------------------------------------------------------------------------
+# CORE 9 — engagement reporting. The learner writes a real report; it's graded on
+# technical accuracy, clarity, business communication, and remediation quality.
+# ---------------------------------------------------------------------------
+REPORT_SECTIONS = ["executive_summary", "technical_findings", "risk_rating",
+                   "evidence", "reproduction_steps", "remediation"]
+
+
+def grade_report(sections: dict, context: str = "", range_id: str = "", chat=None) -> dict:
+    """Grade a structured engagement report. ``sections`` should provide the
+    standard parts (executive_summary, technical_findings, risk_rating, evidence,
+    reproduction_steps, remediation). ``context``/``range_id`` give the grader the
+    known findings to grade against."""
+    sections = sections or {}
+    if not any(str(sections.get(s, "")).strip() for s in REPORT_SECTIONS):
+        return {"error": "the report is empty — write the standard sections"}
+    member = _grader_member()
+    if not member:
+        return {"error": "no_backend"}
+    known = context or ""
+    if range_id:
+        rng = (_g().get("ranges") or {}).get(range_id)
+        if rng:
+            facts = [f"{h.get('hostname')} ({h.get('kind')}): {h.get('vuln')} via {h.get('exploit')} "
+                     f"[{h.get('technique')}]" for h in rng["hosts"].values() if h.get("compromised")]
+            known = (known + "\nKnown findings from the engagement:\n- " + "\n- ".join(facts)
+                     + f"\nObjective: {rng.get('objective', {}).get('goal', '')}").strip()
+    present = {s: str(sections.get(s, "")).strip() for s in REPORT_SECTIONS}
+    user = ("Known facts:\n" + (known or "(none provided)") + "\n\nThe learner's report sections:\n"
+            + "\n\n".join(f"## {s.replace('_', ' ').title()}\n{present[s] or '(missing)'}"
+                          for s in REPORT_SECTIONS))
+    ok, text, err = _call(member, SYSTEM_REPORT_GRADER, user, chat, max_tokens=600, temperature=0.2)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text) or {}
+    def _s(k):
+        try:
+            return max(0, min(100, int(data.get(k, 0))))
+        except Exception:
+            return 0
+    overall = _s("overall") or round((_s("technical_accuracy") + _s("clarity")
+                                      + _s("business_communication") + _s("remediation_quality")) / 4)
+    passed = overall >= 70
+    missing_sections = [s for s in REPORT_SECTIONS if not present[s]]
+    stones = 10 + overall // 5 if passed else overall // 10
+    with _lock:
+        rep_id = f"rep-{int(time.time()*1000)}-{random.randint(100,999)}"
+        _g().setdefault("reports", {})[rep_id] = {
+            "range": range_id, "overall": overall, "created": int(time.time())}
+        _save()
+    _award_progress(stones, skill="Reporting & Communication" if passed else None, bonus=10 if passed else 0)
+    _touch_streak()
+    _log_activity("labs", overall)
+    earned = _check_badges()
+    _update_profile(f"Wrote an engagement report (overall {overall}/100).", chat)
+    return {"report_id": rep_id, "overall": overall, "passed": passed,
+            "scores": {k: _s(k) for k in ("technical_accuracy", "clarity",
+                                          "business_communication", "remediation_quality")},
+            "feedback": str(data.get("feedback", "")).strip(),
+            "missing": [str(x) for x in (data.get("missing") or [])] + missing_sections,
+            "awarded": stones, "badges": earned, "error": None}
+
+
+# ---------------------------------------------------------------------------
+# CORE 10 — purple-team loop. Attack -> telemetry -> investigate your OWN attack.
+# An incident is generated FROM a range the learner just worked: the ground truth
+# is the actual attack path, and the model produces matching telemetry to hunt.
+# ---------------------------------------------------------------------------
+SYSTEM_PURPLE = (
+    "You are a detection engineer. Given the GROUND TRUTH of an attack that just happened on a network, "
+    "produce the realistic blue-team telemetry an analyst would see, as ONLY this JSON: "
+    '{"alert":"the initial EDR/SIEM alert text","tool":"the tool","artifacts":"15-40 lines of realistic '
+    'multi-source logs (auth, web, EDR/Sysmon, firewall, DNS) that CONTAIN the evidence of THIS attack '
+    'among normal noise","indicators":["IOC 1","IOC 2"]}. The telemetry must be consistent with the '
+    "ground truth so the learner can reconstruct exactly what they did. " + _GUARD
+)
+
+
+def generate_purple_incident(range_id: str, chat=None) -> dict:
+    """Turn a worked range into a blue-team investigation of the learner's OWN
+    attack (the purple-team loop)."""
+    with _lock:
+        rng = (_g().get("ranges") or {}).get(range_id)
+    if not rng:
+        return {"error": "unknown or expired range"}
+    owned = [h for h in rng["hosts"].values() if h.get("compromised")]
+    if not owned:
+        return {"error": "compromise at least one host before investigating your attack"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    entry_hosts = [h for hid, h in rng["hosts"].items() if hid in (rng.get("entry_points") or [])]
+    obj = rng.get("objective") or {}
+    gt = {
+        "entry_vector": (entry_hosts[0].get("exploit") if entry_hosts else
+                         owned[0].get("exploit")) + (f" [{entry_hosts[0].get('technique')}]"
+                                                     if entry_hosts else ""),
+        "compromised": [h.get("hostname") for h in owned],
+        "not_compromised": [h.get("hostname") for h in rng["hosts"].values() if not h.get("compromised")],
+        "lateral_path": " -> ".join(h.get("hostname") for h in owned),
+        "exfiltration": (obj.get("goal") if obj.get("captured") else "attempted, not completed"),
+        "timeline": "recon -> exploit -> privesc -> lateral -> objective",
+        "techniques": [h.get("technique") for h in owned if h.get("technique")],
+    }
+    user = "GROUND TRUTH of the attack to build telemetry for:\n" + json.dumps(gt, default=str)
+    ok, text, err = _call(member, SYSTEM_PURPLE, user, chat, max_tokens=1800, temperature=0.6)
+    if not ok:
+        return {"error": err or "no response"}
+    data = _extract_json(text)
+    if not isinstance(data, dict) or not data.get("artifacts"):
+        return {"error": "could not parse telemetry from the model"}
+    incident_id = f"inc-{int(time.time()*1000)}-{random.randint(100,999)}"
+    with _lock:
+        _g().setdefault("incidents", {})[incident_id] = {
+            "track": rng.get("track", "blue-team"), "alert": str(data.get("alert", "")),
+            "tool": str(data.get("tool", "EDR")), "artifacts": str(data["artifacts"]),
+            "ground_truth": gt, "indicators": [str(x) for x in (data.get("indicators") or [])],
+            "purple_from": range_id, "created": int(time.time())}
+        _save()
+    return {"incident_id": incident_id, "alert": str(data.get("alert", "")),
+            "tool": str(data.get("tool", "EDR")), "artifacts": str(data["artifacts"]),
+            "purple": True, "from_range": range_id,
+            "goal": ("You attacked this network — now investigate it as the defender. Scope the "
+                     "compromise: entry vector, every compromised device, lateral path, exfiltration, "
+                     "and propose a detection rule. Cite the evidence."), "error": None}
 
 
 # ---------------------------------------------------------------------------

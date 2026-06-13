@@ -341,6 +341,46 @@ def learning_range_persist(body: RangePostExIn, x_control_token: str = Header(de
     return learning.range_persist(body.range_id, body.host_id, body.plan)
 
 
+class RangeNoteIn(BaseModel):
+    range_id: str
+    text: str
+    kind: str = "note"
+
+
+@router.post("/api/learning/range/note")
+def learning_range_note(body: RangeNoteIn, x_control_token: str = Header(default="")):
+    """Append to the engagement notebook (CORE 11 — documentation discipline)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.range_note(body.range_id, body.text, body.kind)
+
+
+class PurpleIn(BaseModel):
+    range_id: str
+
+
+@router.post("/api/learning/range/purple")
+def learning_range_purple(body: PurpleIn, x_control_token: str = Header(default="")):
+    """Purple-team loop: investigate your OWN attack on a range you worked."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.generate_purple_incident(body.range_id)
+
+
+class ReportIn(BaseModel):
+    sections: dict = {}
+    context: str = ""
+    range_id: str = ""
+
+
+@router.post("/api/learning/report")
+def learning_report(body: ReportIn, x_control_token: str = Header(default="")):
+    """Grade a structured engagement report (CORE 9)."""
+    check_operator(x_control_token)
+    from .. import learning
+    return learning.grade_report(body.sections, body.context, body.range_id)
+
+
 class RangeHintIn(BaseModel):
     range_id: str
     host_id: str
