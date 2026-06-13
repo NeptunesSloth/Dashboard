@@ -361,6 +361,18 @@ def learning_rank(x_control_token: str = Header(default="")):
     return learning.skill_rank()
 
 
+# ---- canonical knowledge base (ground truth) ----
+@router.get("/api/learning/knowledge")
+def learning_knowledge(q: str = Query(default=""), x_control_token: str = Header(default="")):
+    """Search the verified knowledge base (ATT&CK / CVE / OWASP / NIST) that
+    anchors generated content, or get its summary when no query is given."""
+    check_token(x_control_token)
+    from .. import knowledge
+    if q.strip():
+        return {"query": q, "results": knowledge.search(q, 25)}
+    return knowledge.snapshot()
+
+
 # ---- bring-your-own material (RAG) ----
 class MaterialIn(BaseModel):
     track: str

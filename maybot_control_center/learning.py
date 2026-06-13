@@ -31,6 +31,8 @@ import yaml
 from . import agents
 from . import store
 from . import cultivation
+from . import knowledge
+from . import consensus
 
 LEARNING_FILE = Path(os.getenv("MAYBOT_LEARNING_FILE", "learning.yaml"))
 # Catalog of Docker-based pentest/IDS lab targets the OPERATOR runs (labs/). This
@@ -117,7 +119,9 @@ SYSTEM_RANGE = (
     '"hosts":[{"id":"h1","hostname":"...","ip":"10.0.0.x","kind":"router|workstation|server|web|db|'
     'dc|fileshare|iot|cloud","services":[{"port":22,"name":"ssh","version":"..."}],'
     '"enum_hint":"what enumeration reveals here","vuln":"the specific weakness","exploit":"how it is '
-    'exploited in THIS simulation","access_level":"the privilege the initial exploit yields, e.g. '
+    'exploited in THIS simulation","technique":"the MITRE ATT&CK technique id for the exploit (cite a '
+    'real one from the provided list, e.g. T1190)","cve":"a real CVE id if one applies, else empty",'
+    '"access_level":"the privilege the initial exploit yields, e.g. '
     'www-data or a low user","privesc":"how to escalate from that foothold to admin/root on THIS host '
     '(the specific local weakness)","persistence":"a realistic way to persist on this host (cron/'
     'scheduled task, service, run key, SSH key; for a DC a golden/silver ticket or DCSync)",'
@@ -128,9 +132,10 @@ SYSTEM_RANGE = (
     "domain controller), and the option to establish PERSISTENCE. Each host's loot unlocks the next, "
     "and the OBJECTIVE lives on the deepest host (target_host has no further pivots). When the network "
     "includes a domain controller, make the AD path realistic: service accounts (Kerberoasting), ACL/"
-    "delegation abuse, credential dumping, and DCSync / golden-ticket persistence. 4-7 hosts. Mix "
-    "services/versions realistically. Keep vuln/exploit/privesc/persistence/loot/flag HIDDEN from the "
-    "brief — the learner must discover them. " + _GUARD
+    "delegation abuse, credential dumping, and DCSync / golden-ticket persistence. 4-7 hosts. EVERY "
+    "host must cite a real ATT&CK technique id from the provided canonical list; never invent technique "
+    "ids or CVEs. Mix services/versions realistically. Keep vuln/exploit/privesc/persistence/loot/flag "
+    "HIDDEN from the brief — the learner must discover them. " + _GUARD
 )
 # Grade a post-exploitation step (privilege escalation or persistence) on real
 # tradecraft against the host's hidden technique.
@@ -1242,6 +1247,10 @@ def _range_view(rng: dict) -> dict:
     for hid, h in rng["hosts"].items():
         owned = bool(h.get("compromised"))
         enumerated = bool(h.get("enumerated"))
+        # the ATT&CK technique mapping is shown once enumerated (it's educational,
+        # not the answer) and resolved to its canonical name from the KB.
+        tech = h.get("technique") or ""
+        tech_name = (knowledge.resolve(tech) or {}).get("name") if tech else None
         hosts.append({
             "id": hid, "hostname": h.get("hostname"), "ip": h.get("ip"), "kind": h.get("kind"),
             "reachable": hid in reach, "enumerated": enumerated, "compromised": owned,
@@ -1252,6 +1261,8 @@ def _range_view(rng: dict) -> dict:
             # services appear once enumerated; loot only once compromised.
             "services": h.get("services", []) if enumerated else None,
             "enum_hint": h.get("enum_hint") if enumerated else None,
+            "technique": (tech if enumerated else None),
+            "technique_name": (tech_name if enumerated else None),
             "loot": h.get("loot") if owned else None,
         })
     total = len(rng["hosts"])
@@ -1262,27 +1273,15 @@ def _range_view(rng: dict) -> dict:
                  "captured": bool(obj.get("captured"))} if obj else None
     return {"range_id": rng["id"], "scenario": rng.get("scenario", ""), "track": rng.get("track"),
             "objective": objective, "hosts": hosts, "owned": owned, "total": total,
+            "validation": rng.get("validation"),
             "cleared": owned >= total and total > 0, "error": None}
 
 
-def generate_range(track_id: str, chat=None) -> dict:
-    """Generate a simulated multi-stage pentest range (virtual network)."""
-    track = _track(track_id)
-    if not track:
-        return {"error": "unknown track"}
-    member = _backend_member()
-    if not member:
-        return {"error": "no_backend"}
-    user = (f"Track: {track['title']}\nLearner profile:\n{_profile_brief()}\n\n"
-            "Design a simulated end-to-end pentest range as specified."
-            + _threat_context(track))
-    ok, text, err = _call(member, SYSTEM_RANGE, user, chat, max_tokens=2600, temperature=0.7)
-    if not ok:
-        return {"error": err or "no response"}
-    data = _extract_json(text)
+def _parse_range(track_id: str, data: dict) -> dict | None:
+    """Normalise a model's JSON into a range structure (no persistence yet)."""
     raw_hosts = (data or {}).get("hosts") if isinstance(data, dict) else None
     if not isinstance(raw_hosts, list) or not raw_hosts:
-        return {"error": "could not parse range from the model"}
+        return None
     hosts: dict[str, dict] = {}
     for h in raw_hosts:
         if not isinstance(h, dict) or not h.get("id"):
@@ -1296,33 +1295,77 @@ def generate_range(track_id: str, chat=None) -> dict:
                          for s in (h.get("services") or []) if isinstance(s, dict)],
             "enum_hint": str(h.get("enum_hint", "")), "vuln": str(h.get("vuln", "")),
             "exploit": str(h.get("exploit", "")), "loot": str(h.get("loot", "")),
+            "technique": str(h.get("technique", "")).strip().upper(),
+            "cve": str(h.get("cve", "")).strip().upper(),
             "access_level": str(h.get("access_level", "user")),
             "privesc": str(h.get("privesc", "")), "persistence": str(h.get("persistence", "")),
             "pivots_to": [str(x) for x in (h.get("pivots_to") or [])],
             "enumerated": False, "compromised": False, "escalated": False, "persisted": False}
     if not hosts:
-        return {"error": "could not parse range hosts from the model"}
+        return None
     entry = [str(x) for x in (data.get("entry_points") or []) if str(x) in hosts]
     if not entry:
-        entry = [next(iter(hosts))]  # fall back to the first host as the foothold
+        entry = [next(iter(hosts))]
     raw_obj = data.get("objective") if isinstance(data.get("objective"), dict) else {}
     target = str(raw_obj.get("target_host", "")) if raw_obj else ""
     if target not in hosts:
-        # default the objective to the deepest host (one with no onward pivots)
-        target = next((hid for hid, h in hosts.items() if not h.get("pivots_to")),
-                      list(hosts)[-1])
+        target = next((hid for hid, h in hosts.items() if not h.get("pivots_to")), list(hosts)[-1])
     objective = {"goal": str(raw_obj.get("goal", "") or "Reach and loot the crown-jewel host."),
                  "target_host": target,
                  "flag": str(raw_obj.get("flag", "") or (hosts[target].get("loot") or "OBJECTIVE")),
                  "captured": False}
+    return {"track": track_id, "scenario": str(data.get("scenario", "")),
+            "objective": objective, "entry_points": entry, "hosts": hosts}
+
+
+def generate_range(track_id: str, chat=None) -> dict:
+    """Generate a validated, ground-truth-anchored pentest range.
+
+    The model must cite canonical ATT&CK/CVE references; the scenario is then run
+    through the validation engine. If it has HARD issues (hallucinated reference,
+    broken attack graph, unreachable objective) the model is asked to repair it
+    once. A scenario that still fails is REJECTED rather than served — a learner
+    never sees a hallucinated or impossible attack chain."""
+    track = _track(track_id)
+    if not track:
+        return {"error": "unknown track"}
+    member = _backend_member()
+    if not member:
+        return {"error": "no_backend"}
+    base = (f"Track: {track['title']}\nLearner profile:\n{_profile_brief()}\n\n"
+            "Design a simulated end-to-end pentest range as specified."
+            + _threat_context(track) + "\n\n" + knowledge.grounding_brief("offensive"))
+    rng = None
+    report = {}
+    user = base
+    for attempt in range(2):  # initial + one repair pass
+        ok, text, err = _call(member, SYSTEM_RANGE, user, chat, max_tokens=2600, temperature=0.6)
+        if not ok:
+            return {"error": err or "no response"}
+        parsed = _parse_range(track_id, _extract_json(text))
+        if not parsed:
+            return {"error": "could not parse range from the model"}
+        # multi-agent consensus: deterministic ground-truth gate + LLM panel.
+        report = consensus.review_range(parsed, chat=chat, member=member)
+        if report["approved"]:
+            rng = parsed
+            break
+        # ask the model to fix the specific problems and try once more
+        user = (base + "\n\nYour previous scenario FAILED the review panel. Fix every issue and "
+                "return corrected JSON:\n" + consensus.issues_brief(report))
+    if rng is None:
+        return {"error": "the generated scenario failed multi-agent review (it would teach a broken "
+                          "or hallucinated attack chain)", "validation": report}
     range_id = f"rng-{int(time.time()*1000)}-{random.randint(100,999)}"
-    rng = {"id": range_id, "track": track_id, "scenario": str(data.get("scenario", "")),
-           "objective": objective, "entry_points": entry, "hosts": hosts,
-           "created": int(time.time())}
+    rng["id"] = range_id
+    rng["created"] = int(time.time())
+    rng["validation"] = {"approved": report["approved"], "confidence": report.get("confidence", 0),
+                         "grounded_hosts": report.get("grounded_hosts", 0),
+                         "reviewers": report.get("llm_reviewers", 0),
+                         "warnings": report.get("warnings", [])}
     with _lock:
         ranges = _g().setdefault("ranges", {})
         ranges[range_id] = rng
-        # keep the most recent 10 ranges
         if len(ranges) > 10:
             for k in sorted(ranges, key=lambda x: ranges[x]["created"])[:len(ranges) - 10]:
                 ranges.pop(k, None)
