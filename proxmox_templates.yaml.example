@@ -1,0 +1,17 @@
+# proxmox_templates.yaml(.example) — map the logical template names used in
+# lab_catalog.yaml to the real Proxmox source VMIDs the driver clones from.
+#
+# Create each VM in Proxmox, install/configure it, then "Convert to template".
+# Put its VMID here. The driver clones these per session onto an isolated VLAN.
+# Copy to proxmox_templates.yaml (or set MAYBOT_PROXMOX_TEMPLATES_FILE).
+templates:
+  kali_template: 9000
+  parrot_template: 9010
+  ubuntu_vuln: 9100
+  apache_vuln: 9101
+  linux_privesc: 9102
+  windows_workstation: 9200
+  domain_controller: 9201
+  windows_privesc: 9202
+  docker_vuln: 9300
+  siem_box: 9400

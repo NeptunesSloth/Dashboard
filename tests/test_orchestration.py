@@ -12,9 +12,11 @@ client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def fresh_state(monkeypatch):
+    from maybot_control_center import proxmox
     orch._state["sessions"] = {}
     orch._state["events"] = []
     orch._state["validations"] = []
+    proxmox.set_test_client(None)
     monkeypatch.delenv("MAYBOT_RANGE_PROVIDER", raising=False)
     for k in ("MAYBOT_PROXMOX_URL", "MAYBOT_PROXMOX_TOKEN", "MAYBOT_PROXMOX_NODE"):
         monkeypatch.delenv(k, raising=False)
@@ -32,14 +34,8 @@ def test_default_provider_is_not_configured():
 
 def test_proxmox_without_config_is_not_configured():
     assert orch.provider_health("proxmox")["status"] == "not_configured"
-
-
-def test_proxmox_with_config_is_unverified_not_ok(monkeypatch):
-    monkeypatch.setenv("MAYBOT_PROXMOX_URL", "https://pve:8006")
-    monkeypatch.setenv("MAYBOT_PROXMOX_TOKEN", "x")
-    monkeypatch.setenv("MAYBOT_PROXMOX_NODE", "pve1")
-    h = orch.provider_health("proxmox")
-    assert h["status"] == "unverified" and h["configured"] is True   # never falsely "ok"
+    # (real-driver health/launch behaviour is covered with a mocked API in
+    #  tests/test_proxmox.py — no real node is contacted)
 
 
 # ---- launch is honestly rejected; no fake running VM ----
@@ -55,14 +51,6 @@ def test_no_session_ever_has_running_status():
     orch.launch_lab("web_exploit_001")
     statuses = [s["status"] for s in orch.list_sessions()["sessions"]]
     assert "running" not in statuses and statuses == []  # zero fake VMs
-
-
-def test_proxmox_launch_unavailable_even_with_config(monkeypatch):
-    monkeypatch.setenv("MAYBOT_PROXMOX_URL", "https://pve:8006")
-    monkeypatch.setenv("MAYBOT_PROXMOX_TOKEN", "x")
-    monkeypatch.setenv("MAYBOT_PROXMOX_NODE", "pve1")
-    res = orch.launch_lab("ad_attack_001", provider="proxmox")
-    assert res["ok"] is False and res["status"] == "unavailable" and res["session"] is None
 
 
 def test_unknown_lab_rejected():

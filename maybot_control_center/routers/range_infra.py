@@ -92,3 +92,17 @@ def destroy(body: SessionIn, x_control_token: str = Header(default="")):
 def events(limit: int = Query(default=50), x_control_token: str = Header(default="")):
     _check_token(x_control_token)
     return {"events": orchestration.events(limit)}
+
+
+@router.post("/api/range-infra/reap")
+def reap(x_control_token: str = Header(default="")):
+    """Destroy sessions past their TTL (stuck-session timeout)."""
+    _check_operator(x_control_token)
+    return orchestration.reap_stuck_sessions()
+
+
+@router.post("/api/range-infra/cleanup-orphans")
+def cleanup_orphans(provider: str = Query(default=""), x_control_token: str = Header(default="")):
+    """Destroy lab VMs on the hypervisor whose session is no longer active."""
+    _check_operator(x_control_token)
+    return orchestration.cleanup_orphans(provider or None)

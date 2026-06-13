@@ -90,37 +90,197 @@ class NullProvider(RangeProvider):
 
 
 class ProxmoxProvider(RangeProvider):
-    """INTERFACE SKELETON for a future Proxmox VE backend. It reports whether the
-    required config is present, but does NOT implement provisioning here, so it
-    never claims a VM is running. A real driver (with tests against a live node)
-    must replace ``launch`` before this provider can return ``running``."""
+    """Real Proxmox VE backend: clones templates into per-session VMs on an
+    isolated VLAN, starts them, and confirms running state via the API. Reports
+    ``running`` only when Proxmox confirms every VM is running; ``connect_url``
+    stays ``None`` until browser access (Guacamole/noVNC) is wired. Uses the
+    mockable client in ``proxmox.py`` so it's testable without a live node."""
 
     name = "proxmox"
     kind = "hypervisor"
 
-    def _config(self) -> dict:
-        return {"url": os.getenv("MAYBOT_PROXMOX_URL", "").strip(),
-                "token": os.getenv("MAYBOT_PROXMOX_TOKEN", "").strip(),
-                "node": os.getenv("MAYBOT_PROXMOX_NODE", "").strip()}
+    def _client(self):
+        from . import proxmox
+        return proxmox.client()
 
     def configured(self) -> bool:
-        c = self._config()
-        return bool(c["url"] and c["token"] and c["node"])
+        return self._client() is not None
 
     def health(self) -> dict:
-        if not self.configured():
+        c = self._client()
+        if c is None:
             return {"provider": self.name, "status": "not_configured", "configured": False,
                     "detail": "Proxmox config missing — set MAYBOT_PROXMOX_URL / _TOKEN / _NODE."}
-        # Config present, but the provisioning driver is NOT implemented/verified
-        # in this build. Be honest: 'unverified', not 'ok'.
-        return {"provider": self.name, "status": "unverified", "configured": True,
-                "detail": "Proxmox config detected, but the provisioning driver is not implemented or "
-                          "verified in this build. Implement + test a real driver before launching VMs."}
+        # 'ok' ONLY after a live reachability check against the node.
+        try:
+            ver = c.version()
+            v = ver.get("version") if isinstance(ver, dict) else ""
+            return {"provider": self.name, "status": "ok", "configured": True,
+                    "detail": f"Proxmox reachable (version {v})."}
+        except Exception as exc:
+            return {"provider": self.name, "status": "error", "configured": True,
+                    "detail": f"Proxmox configured but unreachable: {exc}"}
+
+    def _used_vlans(self) -> set[int]:
+        return {int(s.get("meta", {}).get("vlan")) for s in _state["sessions"].values()
+                if s.get("meta", {}).get("vlan")}
+
+    def _alloc_vlan(self):
+        from . import proxmox
+        used = self._used_vlans()
+        for v in range(proxmox.VLAN_MIN, proxmox.VLAN_MAX + 1):
+            if v not in used:
+                return v
+        raise RuntimeError("no free VLAN in the configured range")
+
+    def _provision_vms(self, c, sid: str, roles: list[tuple], tmap: dict, vlan: int,
+                       created: list[dict]) -> None:
+        """Clone + isolate + start + confirm running for each VM. Appends every VM
+        it creates to ``created`` (even on partial failure) so the caller can roll
+        back exactly what was made. Raises on any failure."""
+        from . import proxmox
+        for role, name in roles:
+            src = tmap[str(name)]
+            newid = int(c.next_id())
+            _event(sid, "clone", "start", f"{name}({src}) -> {newid}")
+            c.wait_task(c.clone(src, newid, proxmox.vm_name(sid, role, newid)), proxmox.CLONE_TIMEOUT)
+            created.append({"vmid": newid, "role": role, "template": str(name)})
+            c.set_net(newid, proxmox.net_config(vlan))
+            _event(sid, "network", "ok", f"vmid={newid} bridge={proxmox.LAB_BRIDGE} vlan={vlan} fw=on")
+        for vm in created:
+            _event(sid, "start", "begin", f"vmid={vm['vmid']}")
+            c.wait_task(c.start(vm["vmid"]), proxmox.START_TIMEOUT)
+        for vm in created:
+            c.wait_running(vm["vmid"], proxmox.READY_TIMEOUT)   # confirms REAL running state
+            _event(sid, "start", "running", f"vmid={vm['vmid']}")
+
+    def _rollback(self, c, created: list[dict]) -> None:
+        for vm in created:
+            for action in ("stop", "destroy"):
+                try:
+                    getattr(c, action)(vm["vmid"])
+                except Exception:
+                    pass
 
     def launch(self, lab: dict, owner: str) -> dict:
-        return {"ok": False, "status": "unavailable",
-                "detail": "Proxmox provider is an interface skeleton — no driver is implemented in this "
-                          "build, so no VM was launched. See docs/CYBER_RANGE_DEPLOYMENT.md."}
+        from . import proxmox
+        c = self._client()
+        if c is None:
+            return {"ok": False, "status": "unavailable",
+                    "detail": "Proxmox not configured — set MAYBOT_PROXMOX_URL/_TOKEN/_NODE."}
+        tmap = proxmox.template_map()
+        roles = ([("attacker", lab.get("attacker_vm"))]
+                 + [("target", t) for t in (lab.get("target_vms") or [])])
+        roles = [(r, n) for r, n in roles if n]
+        missing = sorted({str(n) for _, n in roles if str(n) not in tmap})
+        sid = f"sess-{int(time.time()*1000)}"
+        if missing:
+            _event(sid, "resolve", "failed", f"unmapped templates: {missing}")
+            return {"ok": False, "status": "failed", "session_id": sid,
+                    "detail": f"templates not mapped to Proxmox VMIDs: {missing} "
+                              "(set MAYBOT_PROXMOX_TEMPLATES_FILE / proxmox_templates.yaml)."}
+        try:
+            vlan = self._alloc_vlan()
+        except Exception as exc:
+            _event(sid, "network", "failed", str(exc))
+            return {"ok": False, "status": "failed", "session_id": sid, "detail": str(exc)}
+        created: list[dict] = []
+        try:
+            self._provision_vms(c, sid, roles, tmap, vlan, created)
+        except Exception as exc:
+            _event(sid, "provision", "failed", str(exc))
+            self._rollback(c, created)
+            _event(sid, "rollback", "done", f"removed {len(created)} vm(s)")
+            return {"ok": False, "status": "failed", "session_id": sid,
+                    "detail": f"provisioning failed and was rolled back: {exc}"}
+        connect = proxmox.guacamole_connect_url(sid, created)   # None until browser access exists
+        meta = {"vlan": vlan, "node": c.node, "vms": created, "lab": lab,
+                "ttl_min": int(lab.get("duration_minutes") or 60)}
+        _event(sid, "ready", "running", f"{len(created)} vm(s) on vlan {vlan}; browser_access={'set' if connect else 'not_configured'}")
+        return {"ok": True, "session_id": sid, "status": "running",
+                "connect_url": connect, "meta": meta,
+                "detail": ("VMs running. Browser access (Guacamole/noVNC) is not configured — "
+                           "no console URL yet." if not connect else "")}
+
+    def session_status(self, session: dict) -> dict:
+        c = self._client()
+        vms = session.get("meta", {}).get("vms", [])
+        if c is None or not vms:
+            return {"status": session.get("status", "unknown")}
+        try:
+            states = {vm["vmid"]: c.vm_status(vm["vmid"]) for vm in vms}
+            running = bool(states) and all(s == "running" for s in states.values())
+            return {"status": "running" if running else "degraded", "vm_states": states}
+        except Exception as exc:
+            return {"status": "unknown", "error": str(exc)}
+
+    def stop(self, session: dict) -> dict:
+        from . import proxmox
+        c = self._client()
+        if c is None:
+            return {"ok": False, "status": session.get("status", "unknown")}
+        for vm in session.get("meta", {}).get("vms", []):
+            try:
+                c.wait_task(c.stop(vm["vmid"]), proxmox.START_TIMEOUT)
+            except Exception:
+                pass
+        return {"ok": True, "status": "stopped"}
+
+    def destroy(self, session: dict) -> dict:
+        c = self._client()
+        if c is None:
+            return {"ok": True, "status": "destroyed"}
+        self._rollback(c, session.get("meta", {}).get("vms", []))
+        return {"ok": True, "status": "destroyed"}
+
+    def reset(self, session: dict) -> dict:
+        """Destroy this session's VMs and re-clone the lab into the SAME session
+        (same VLAN). Mutates the session's meta in place."""
+        from . import proxmox
+        c = self._client()
+        lab = session.get("meta", {}).get("lab")
+        vlan = session.get("meta", {}).get("vlan")
+        if c is None or not lab or not vlan:
+            return {"ok": False, "status": "failed", "detail": "nothing to reset"}
+        sid = session["id"]
+        self._rollback(c, session.get("meta", {}).get("vms", []))
+        _event(sid, "reset", "recloning", f"vlan {vlan}")
+        tmap = proxmox.template_map()
+        roles = ([("attacker", lab.get("attacker_vm"))]
+                 + [("target", t) for t in (lab.get("target_vms") or [])])
+        roles = [(r, n) for r, n in roles if n]
+        created: list[dict] = []
+        try:
+            self._provision_vms(c, sid, roles, tmap, vlan, created)
+        except Exception as exc:
+            self._rollback(c, created)
+            return {"ok": False, "status": "failed", "detail": f"reset failed: {exc}"}
+        session["meta"]["vms"] = created
+        return {"ok": True, "status": "running"}
+
+    def cleanup_orphans(self, active_ids: set[str]) -> dict:
+        """Destroy lab VMs on the node whose session is no longer active."""
+        from . import proxmox
+        c = self._client()
+        if c is None:
+            return {"removed": [], "skipped": "not_configured"}
+        removed = []
+        try:
+            for vm in c.list_vms():
+                sid = proxmox.session_of(vm.get("name", ""))
+                if sid and sid not in active_ids:
+                    try:
+                        c.stop(vm["vmid"])
+                    except Exception:
+                        pass
+                    try:
+                        c.destroy(vm["vmid"])
+                        removed.append(vm["vmid"])
+                    except Exception:
+                        pass
+        except Exception as exc:
+            return {"removed": removed, "error": str(exc)}
+        return {"removed": removed}
 
 
 _PROVIDERS: dict[str, RangeProvider] = {p.name: p for p in (NullProvider(), ProxmoxProvider())}
@@ -211,13 +371,14 @@ def launch_lab(lab_id: str, owner: str = "scholar", provider: str | None = None)
     sid = res.get("session_id") or f"sess-{int(time.time()*1000)}"
     session = {"id": sid, "lab_id": lab_id, "owner": owner, "provider": prov.name,
                "status": res.get("status", "provisioning"), "connect_url": res.get("connect_url"),
+               "meta": res.get("meta", {}),   # provider state (vm ids, vlan, node) — internal, not exposed
                "created": int(time.time()), "updated": int(time.time())}
     with _lock:
         _state["sessions"][sid] = session
         _save()
     _event(sid, "launch", "started", f"provider={prov.name}")
     return {"ok": True, "lab_id": lab_id, "provider": prov.name, "status": session["status"],
-            "session": _public(session)}
+            "session": _public(session), "detail": res.get("detail", "")}
 
 
 def _public(session: dict) -> dict:
@@ -289,3 +450,36 @@ def record_validation(session_id: str, condition: str, passed: bool, evidence: d
 def events(limit: int = 50) -> list[dict]:
     with _lock:
         return [dict(e) for e in _state["events"][-limit:][::-1]]
+
+
+# ---------------------------------------------------------------------------
+# hygiene: timeout stuck sessions + clean up orphaned VMs
+# ---------------------------------------------------------------------------
+def reap_stuck_sessions() -> dict:
+    """Destroy sessions that have outlived their lab's duration (TTL). Returns the
+    session ids reaped."""
+    now = int(time.time())
+    with _lock:
+        stale = [sid for sid, s in _state["sessions"].items()
+                 if now - int(s.get("created", now)) > int(s.get("meta", {}).get("ttl_min", 60)) * 60]
+    reaped = []
+    for sid in stale:
+        try:
+            destroy_lab(sid)
+            _event(sid, "reap", "ttl_expired")
+            reaped.append(sid)
+        except Exception:
+            pass
+    return {"reaped": reaped, "count": len(reaped)}
+
+
+def cleanup_orphans(provider: str | None = None) -> dict:
+    """Ask the provider to destroy lab VMs whose session is no longer active
+    (e.g. orphaned by a crash). No-op for providers that can't enumerate VMs."""
+    prov = get_provider(provider)
+    fn = getattr(prov, "cleanup_orphans", None)
+    if not callable(fn):
+        return {"removed": [], "skipped": "provider_has_no_orphan_cleanup"}
+    with _lock:
+        active = set(_state["sessions"].keys())
+    return fn(active)
