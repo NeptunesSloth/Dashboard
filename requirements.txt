@@ -11,6 +11,8 @@ websockets>=12
 #   redis        -> shared sessions/rate-limit for multi-replica (MAYBOT_REDIS_URL)
 #   psycopg      -> Postgres persistence (MAYBOT_DB=postgresql://...)
 #   sentry-sdk   -> error tracking (MAYBOT_SENTRY_DSN)
+#   rarfile      -> read .cbr/.rar comics in the page-by-page reader (needs unrar/unar)
+#   PyMuPDF      -> render PDF pages in the reader (later; PDFs already download/open inline)
 cryptography>=41
 redis>=5
 psycopg[binary]>=3.1

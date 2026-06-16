@@ -13,6 +13,7 @@ PAGES = [
     ("/trade", "#rail .nav-item"),
     ("/chamber", "#rail .nav-item"),
     ("/treasury", "#rail .nav-item"),
+    ("/comics", "#library"),
     ("/learn", "#tracks"),
     ("/console", "#side-rail .sr-item"),
     ("/login", "#login-body"),

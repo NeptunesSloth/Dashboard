@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aegis — Comics</title>
+  <meta name="theme-color" content="#05060c">
+  <link rel="icon" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/command.css">
+  <script src="/pwa.js" defer></script>
+  <style>
+    .cx-ops { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin-top:14px; }
+    .cx-form { display:flex; flex-direction:column; gap:8px; }
+    .cx-form h4 { margin:0; font-size:13px; color:var(--violet); }
+    .cx-input { width:100%; padding:9px 11px; border-radius:9px; border:1px solid rgba(167,139,250,.25);
+      background:rgba(10,12,24,.6); color:var(--text); font:inherit; }
+    .cx-btn { padding:9px 14px; border-radius:9px; border:1px solid rgba(167,139,250,.35);
+      background:rgba(124,92,255,.18); color:var(--text); cursor:pointer; font:inherit; font-size:13px; }
+    .cx-btn:hover { background:rgba(124,92,255,.32); }
+    .cx-msg { margin-top:10px; font-size:12.5px; min-height:1em; }
+    .cx-libactions { display:flex; gap:8px; flex-wrap:wrap; }
+    .cx-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:16px; }
+    .cx-card { cursor:pointer; display:flex; flex-direction:column; gap:6px; }
+    .cx-cover { aspect-ratio:2/3; border-radius:10px; overflow:hidden; background:rgba(20,22,38,.7);
+      border:1px solid rgba(167,139,250,.2); display:flex; align-items:center; justify-content:center; }
+    .cx-cover img { width:100%; height:100%; object-fit:cover; }
+    .cx-cover .ph { font-size:38px; opacity:.4; }
+    .cx-card-t { font-size:13px; font-weight:600; line-height:1.2; }
+    .cx-card-n { font-size:11px; color:var(--muted); }
+    .cx-issue { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(167,139,250,.12); }
+    .cx-issue input[type=checkbox] { width:16px; height:16px; }
+    .cx-issue-t { flex:1; font-size:13px; }
+    .cx-badge { font-size:10px; padding:2px 7px; border-radius:99px; background:rgba(52,211,153,.16); color:var(--jade); }
+    .cx-issue .cx-btn { padding:5px 10px; font-size:12px; }
+    .cx-feed { padding:9px 0; border-bottom:1px solid rgba(167,139,250,.12); font-size:12.5px; }
+    .cx-feed-url { word-break:break-all; color:var(--text); }
+    .cx-feed-meta { color:var(--muted); font-size:11px; margin-top:3px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .cx-reader { position:fixed; inset:0; z-index:200; background:rgba(3,4,10,.97); display:none;
+      align-items:center; justify-content:center; }
+    .cx-reader.open { display:flex; }
+    .cx-reader-bar { position:absolute; top:0; left:0; right:0; display:flex; align-items:center; gap:12px;
+      padding:12px 16px; background:linear-gradient(rgba(3,4,10,.85),transparent); }
+    .cx-rtitle { flex:1; font-size:14px; font-weight:600; }
+    .cx-rcount { color:var(--muted); font-size:12px; }
+    .cx-rbtn { background:none; border:none; color:var(--text); font-size:20px; cursor:pointer; }
+    .cx-rimg { max-height:100vh; max-width:100vw; object-fit:contain; }
+    .cx-rnav { position:absolute; top:0; bottom:0; width:22%; background:none; border:none; color:rgba(234,236,246,.5);
+      font-size:48px; cursor:pointer; }
+    .cx-rnav:hover { color:var(--text); background:rgba(124,92,255,.08); }
+    .cx-rprev { left:0; } .cx-rnext { right:0; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <canvas id="scene-canvas" class="scene-canvas" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <div class="app">
+    <nav class="rail glass" id="rail" aria-label="Primary"></nav>
+
+    <div class="center" id="main-content" role="main">
+      <div class="topbar">
+        <div class="brand"><span class="mark">📖</span> Scripture Archive</div>
+        <div class="jarvis" id="jarvis">Your offline comics library.</div>
+        <div class="clock" id="clock"></div>
+      </div>
+
+      <!-- Operator controls: upload / add URL / add feed / export -->
+      <section class="glass rise" id="ops" style="padding:18px; display:none">
+        <div class="panel-title">Add to the archive</div>
+        <div class="cx-ops" id="cx-ops"></div>
+        <div class="cx-msg" id="cx-msg"></div>
+      </section>
+
+      <div class="section-h">
+        <div class="panel-title">Library</div>
+        <div class="cx-libactions" id="cx-libactions"></div>
+      </div>
+      <section class="glass rise d2" style="padding:20px">
+        <div class="cx-grid" id="library"><div class="muted">Loading…</div></div>
+      </section>
+
+      <!-- Series detail (hidden until a series is opened) -->
+      <section class="glass rise d2" id="series-detail" style="padding:20px; display:none; margin-top:16px"></section>
+    </div>
+
+    <aside class="right">
+      <section class="glass rise d2" style="padding:20px">
+        <div class="panel-title">Feeds</div>
+        <div class="cx-feeds" id="feeds" style="margin-top:12px"><div class="muted">No subscriptions.</div></div>
+      </section>
+      <section class="glass rise d4" style="padding:20px">
+        <div class="panel-title">Offline</div>
+        <div class="muted" style="font-size:12px; margin-top:10px">
+          Heading off-grid? Use <b>Download all</b> to save the whole library to this
+          device, or <b>Export to SSD</b> (operator) to sync it onto an attached drive.
+          Downloaded files read in any comic app.
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- Page-by-page reader overlay -->
+  <div class="cx-reader" id="reader" aria-hidden="true">
+    <div class="cx-reader-bar">
+      <button class="cx-rbtn" id="r-close" aria-label="Close reader">✕</button>
+      <span class="cx-rtitle" id="r-title"></span>
+      <span class="cx-rcount" id="r-count"></span>
+    </div>
+    <button class="cx-rnav cx-rprev" id="r-prev" aria-label="Previous page">‹</button>
+    <img class="cx-rimg" id="reader-img" alt="comic page">
+    <button class="cx-rnav cx-rnext" id="r-next" aria-label="Next page">›</button>
+  </div>
+
+  <script type="module" src="/comics.js"></script>
+</body>
+</html>

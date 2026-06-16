@@ -172,6 +172,16 @@ def treasury_js():
     return FileResponse(f"{_CMD}/treasury.js", media_type="text/javascript")
 
 
+@router.get("/comics")
+def comics_page():
+    return FileResponse(f"{_CMD}/comics.html")
+
+
+@router.get("/comics.js")
+def comics_page_js():
+    return FileResponse(f"{_CMD}/comics.js", media_type="text/javascript")
+
+
 @router.get("/learn")
 def learn_page():
     return FileResponse(f"{_CMD}/learn.html")
