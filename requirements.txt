@@ -1,19 +1,19 @@
-fastapi==0.136.3
-uvicorn==0.48.0
+fastapi==0.137.1
+uvicorn==0.49.0
 pyyaml==6.0.3
 requests==2.34.2
 psutil==7.2.2
-anthropic==0.105.2
-httpx>=0.27
-websockets>=12
+anthropic==0.109.2
+httpx>=0.28.1
+websockets>=16.0
 # Optional features become usable once their env vars are set (all default-off):
 #   cryptography -> secret encryption-at-rest (MAYBOT_SECRET_KEY)
 #   redis        -> shared sessions/rate-limit for multi-replica (MAYBOT_REDIS_URL)
 #   psycopg      -> Postgres persistence (MAYBOT_DB=postgresql://...)
 #   sentry-sdk   -> error tracking (MAYBOT_SENTRY_DSN)
-cryptography>=41
-redis>=5
-psycopg[binary]>=3.1
-sentry-sdk>=2
+cryptography>=49.0.0
+redis>=8.0.0
+psycopg[binary]>=3.3.4
+sentry-sdk>=2.63.0
 
-pytest==9.0.3
+pytest==9.1.0
