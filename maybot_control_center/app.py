@@ -36,6 +36,7 @@ from . import retention
 from . import selfcheck
 from . import learning
 from . import obs
+from . import comics
 
 # Opt-in structured JSON logging (no-op unless MAYBOT_JSON_LOGS is truthy).
 obs.setup_logging()
@@ -48,7 +49,8 @@ for _loader in (history.load_persisted, agents.load_persisted, comms.load_persis
                 maintenance.load_persisted, autopilot.load_persisted, sectmemory.load_persisted,
                 audit.load_persisted, inbound.load_persisted, registry.load_persisted,
                 push.load_persisted, acks.load_persisted, authz.load_persisted, risk.load_persisted,
-                app_settings.load_persisted, runbooks.load_persisted, learning.load_persisted):
+                app_settings.load_persisted, runbooks.load_persisted, learning.load_persisted,
+                comics.load_persisted):
     try:
         _loader()
     except Exception:
@@ -60,6 +62,7 @@ autopilot.start()  # the Sect Leader's autonomous ops loop (no-op unless MAYBOT_
 reports.start()    # periodic summary reports (no-op unless MAYBOT_REPORT_INTERVAL_HOURS>0)
 retention.start()  # data-retention pruning + scheduled backups (no-op unless configured)
 learning.start()   # Learning Center re-engagement reminders (no-op unless MAYBOT_LEARNING_REMINDERS=1)
+comics.start()     # comics library feed auto-updater (no-op unless MAYBOT_COMICS=1)
 from . import deadman
 deadman.start()    # external heartbeat: if the dashboard dies, your monitor pages you (no-op until configured)
 from . import safemode
@@ -119,7 +122,7 @@ async def _rate_limit(request, call_next):
     # redeploy never leaves a stale app.js/style.css (and the rail/reskin) cached.
     path = request.url.path
     if not path.startswith("/api/") and (path == "/" or path.endswith((".js", ".css", ".html"))
-                                         or path in ("/console", "/login", "/chamber", "/trade", "/treasury", "/learn")):
+                                         or path in ("/console", "/login", "/chamber", "/trade", "/treasury", "/learn", "/comics")):
         response.headers["Cache-Control"] = "no-cache, must-revalidate"
     # Baseline security headers on every response (safe defaults).
     h = response.headers
@@ -239,10 +242,12 @@ from .routers import (accounts as _accounts_router, adminops as _adminops_router
                       hosts as _hosts_router, learning as _learning_router,
                       members as _members_router, pages as _pages_router,
                       reliability as _reliability_router, sect as _sect_router,
-                      tasks as _tasks_router, trading as _trading_router)
+                      tasks as _tasks_router, trading as _trading_router,
+                      comics as _comics_router)
 
 for _router_mod in (_fleet_router, _hosts_router, _adminops_router, _accounts_router,
                     _members_router, _learning_router, _crew_router, _agentops_router,
                     _sect_router, _economy_router, _reliability_router, _alerts_router,
-                    _tasks_router, _enroll_router, _trading_router, _pages_router):
+                    _tasks_router, _enroll_router, _trading_router, _comics_router,
+                    _pages_router):
     app.include_router(_router_mod.router)

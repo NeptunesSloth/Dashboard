@@ -66,6 +66,8 @@ npm-debug.log*
 # ...and the documentation screenshots are tracked
 !docs/img/*.png
 sect_state.json
+# Comics Library — ingested comic files live on disk, never in git
+comics_library/
 
 # Claude Code local state + ephemeral agent worktrees
 .claude/
