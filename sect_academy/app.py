@@ -110,6 +110,16 @@ def icon():
     return _file("icon.svg", "image/svg+xml")
 
 
+ART = {f.name for f in (STATIC / "art").glob("*.webp")}
+
+
+@app.get("/art/{name}")
+def art(name: str):
+    if name not in ART:                       # a fixed list: nothing outside static/art can be reached
+        raise HTTPException(404, "no such picture")
+    return FileResponse(STATIC / "art" / name, media_type="image/webp", headers={"Cache-Control": "public, max-age=604800"})
+
+
 @app.get("/healthz")
 def healthz():
     return {"status": "ok", "courses": len(packs.load_all())}
@@ -197,6 +207,8 @@ class SectIn(BaseModel):
     tech: str = ""
     option: str = ""
     storyteller: str = ""
+    sect: str = ""
+    manual: str = ""
     on: bool = False
 
 
@@ -380,6 +392,12 @@ def sect(action: str, body: SectIn):
             res = colony.use_pill(st, body.pawn, now)
         elif action == "banish":
             res = colony.banish(st, body.pawn, now)
+        elif action == "attempt":
+            res = colony.attempt(st, body.pawn, now)
+        elif action == "gift":
+            res = colony.gift(st, body.sect, now)
+        elif action == "burn":
+            res = colony.burn_manual(st, body.manual, now)
         elif action == "storyteller":
             res = colony.set_storyteller(st, body.storyteller, now)
         elif action == "seclusion":

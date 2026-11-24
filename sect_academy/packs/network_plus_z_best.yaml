@@ -1,0 +1,1896 @@
+# Network+ N10-009 - best-answer practice bank (BEST / MOST / FIRST / LEAST).
+# Every choice is reasonable; the stem supplies the deciding constraint.
+# Original content written against the public exam objectives.
+part_of: network-plus
+
+units:
+  - id: np-1z
+    title: "Best-answer practice: Networking Concepts"
+    domain: "1"
+    goal: "I can pick the best appliance, cloud model, medium, topology or addressing plan when every option on offer would work."
+    notes: |
+      Domain 1 best-answer questions offer four technologies that all function. The stem decides between them, so read it for the **requirement that only one option meets in full**.
+
+      **Constraints to look for**
+
+      | Clue in the stem | What it decides |
+      | "lowest cost that meets" | Reject anything that exceeds the need |
+      | "no staff", "nothing to maintain" | The option with the least left to manage |
+      | "automatically", "nobody is watching" | A control that acts, not one that alerts |
+      | "must not add delay" | Out-of-path beats inline |
+      | "fewest addresses", "smallest subnet" | Do the arithmetic; do not guess |
+
+      **Usual traps**
+
+      - Choosing the most powerful option when the stem asked for the cheapest or simplest.
+      - Choosing an option that meets one stated requirement and ignoring the second.
+      - Missing a single word, such as *block-level*, *single address* or *same rack*, that rules out three choices.
+
+      Before you look at the choices, say the deciding constraint to yourself.
+    items:
+      - id: np-1z-b01
+        type: mcq
+        best: true
+        q: "An online shop's single web server hits 100% CPU during sales. Two more identical servers have been bought. Requests must be spread across all three, and a server that crashes must stop receiving traffic within seconds, with no action by staff. Which is the BEST way to do it?"
+        choices:
+          - "Publish three DNS A records and let round-robin spread the load"
+          - "Put a load balancer with health checks in front of the three servers"
+          - "Run the two new servers as standbys and switch to one by hand on failure"
+          - "Put a caching reverse proxy in front of the original server"
+        answer: 1
+        why: "Only a load balancer both spreads requests and removes a failed server automatically."
+        whys:
+          - "Spreads the load, but DNS keeps handing out a dead server's address until someone edits the record and caches expire."
+          - "Best: it shares the load and its health checks take a dead server out of rotation within seconds."
+          - "Gives redundancy, but shares no load and needs staff to act."
+          - "Lowers CPU load for cacheable pages, but uses neither new server and does nothing when the server fails."
+
+      - id: np-1z-b02
+        type: mcq
+        best: true
+        q: "A 12-person firm runs its own e-mail server in a cupboard. Nobody has time to patch the operating system or the mail software, and the owner wants that work to disappear entirely. Which option is BEST?"
+        choices:
+          - "Move the mail server to a virtual machine at a cloud provider (IaaS)"
+          - "Move the physical server to a colocation facility"
+          - "Pay a managed service provider to patch the existing server monthly"
+          - "Subscribe to a hosted e-mail service (SaaS)"
+        answer: 3
+        why: "With SaaS the provider maintains every layer; the firm only uses the mailboxes."
+        whys:
+          - "Removes the hardware, but the firm still patches the operating system and the mail software."
+          - "Improves power, cooling and connectivity, but all the patching stays with the firm."
+          - "Hands over the labour, but the firm still owns a server, pays for the work and plans its outages."
+          - "Best: the provider runs the hardware, the operating system and the mail software, so no patching is left."
+
+      - id: np-1z-b03
+        type: mcq
+        best: true
+        q: "Payroll files must go to a partner every night across the Internet. The partner already runs an SSH server, will open only TCP 22 inbound, and wants the sending system to authenticate with a key pair instead of a password. Which transfer method is BEST?"
+        choices:
+          - "SFTP"
+          - "FTPS (FTP over TLS)"
+          - "An HTTPS upload to a web portal"
+          - "Plain FTP through a site-to-site IPsec VPN"
+        answer: 0
+        why: "SFTP is a subsystem of SSH, so it fits the one open port and the key-pair requirement with nothing new to build."
+        whys:
+          - "Best: it runs inside SSH on TCP 22 alone and supports key-pair authentication."
+          - "Encrypts the transfer, but needs a control port plus separate data ports and uses certificates, not SSH keys."
+          - "Encrypted and uses one port, but the partner would have to build a web service and open TCP 443."
+          - "The tunnel protects the files, but it needs a VPN built with the partner and more than TCP 22 opened."
+
+      - id: np-1z-b04
+        type: mcq
+        best: true
+        q: "A new server must connect at 10 Gb/s to the top-of-rack switch 2 m away in the same rack. Both have empty SFP+ ports. The goal is the lowest cost and the lowest power draw. Which link is BEST?"
+        choices:
+          - "Two SFP+ SR transceivers and an OM4 multimode patch cord"
+          - "An active optical cable (AOC)"
+          - "A passive direct attach copper (DAC) cable"
+          - "Two 10GBASE-T SFP+ modules and a Cat 6A patch cord"
+        answer: 2
+        why: "A passive DAC is made for short in-rack links: no separate transceivers to buy and next to no power."
+        whys:
+          - "Works to hundreds of metres, but two optics cost more and draw more power than a passive cable."
+          - "Light and flexible, but dearer and powered; its advantage only appears on longer runs."
+          - "Best: one passive cable with fixed ends is the cheapest 10 Gb/s link and draws almost no power at this length."
+          - "Works, but copper 10GBASE-T modules draw the most power per port and run hot."
+
+      - id: np-1z-b05
+        type: mcq
+        best: true
+        q: "A data centre's traffic is mostly server-to-server. The design goals are that any two servers are always the same number of switch hops apart, and that capacity grows by adding switches, not by replacing them. Which topology is BEST?"
+        choices:
+          - "Three-tier (core, distribution, access)"
+          - "Collapsed core"
+          - "Spine-and-leaf"
+          - "Full mesh between all switches"
+        answer: 2
+        why: "Spine-and-leaf gives a fixed hop count for east-west traffic and scales out by adding switches."
+        whys:
+          - "Proven for client-to-server traffic, but server-to-server paths vary in length and may climb to the core."
+          - "Cheaper for a small site, but it is the same hierarchy with fewer layers and grows by buying bigger switches."
+          - "Best: every leaf connects to every spine, so any server pair is leaf-spine-leaf, and adding a spine or leaf adds capacity."
+          - "One hop everywhere, but the number of links grows with the square of the number of switches."
+
+      - id: np-1z-b06
+        type: mcq
+        best: true
+        q: "Forty branch offices each need a private WAN link. Every application lives at headquarters and branches almost never talk to each other. The company wants the fewest circuits to pay for. Which WAN topology is BEST?"
+        choices:
+          - "Hub-and-spoke with headquarters as the hub"
+          - "Full mesh between all sites"
+          - "Partial mesh with extra links between neighbouring branches"
+          - "Hub-and-spoke with two circuits from every branch"
+        answer: 0
+        why: "All traffic is branch-to-headquarters, so one circuit per branch is the minimum that serves it."
+        whys:
+          - "Best: forty circuits, one per branch, each going exactly where the traffic goes."
+          - "Gives every pair a direct path, but 41 sites would need 820 circuits."
+          - "Adds resilience, but pays for branch-to-branch paths that are almost never used."
+          - "More resilient, but doubles the circuit count the company wants to minimise."
+
+      - id: np-1z-b07
+        type: mcq
+        best: true
+        q: "Forty point-to-point links between routers must be numbered from a small block. Each link has exactly two interfaces, both routers support 31-bit prefixes (RFC 3021), and the aim is to use the FEWEST addresses. Which prefix length is BEST for each link?"
+        choices:
+          - "/30"
+          - "/29"
+          - "/24"
+          - "/31"
+        answer: 3
+        why: "On a point-to-point link a /31 uses exactly the two addresses the link needs."
+        whys:
+          - "The traditional choice, but it uses four addresses per link and loses two to network and broadcast."
+          - "Works, but spends eight addresses on a link with two interfaces."
+          - "Easy to read, but spends 256 addresses on a link with two interfaces."
+          - "Best: two addresses per link and both are usable, so nothing is wasted."
+
+      - id: np-1z-b08
+        type: mcq
+        best: true
+        q: "A new VLAN will hold 60 devices plus the default gateway within a year. Address space is short, so the subnet must be the SMALLEST that will hold all of them. Which prefix length is BEST?"
+        choices:
+          - "/25"
+          - "/26"
+          - "/24"
+          - "/23"
+        answer: 1
+        why: "A /26 has 64 addresses, 62 usable, which is the smallest block that fits 61 hosts."
+        whys:
+          - "Fits, but its 126 usable addresses are twice what is needed."
+          - "Best: 62 usable addresses hold the 61 that are needed, with the least waste."
+          - "Fits, but its 254 usable addresses are four times what is needed."
+          - "Fits, but its 510 usable addresses are eight times what is needed."
+
+      - id: np-1z-b09
+        type: mcq
+        best: true
+        q: "Remote staff reach a new office subnet through a VPN from their home networks. Home routers most often hand out 192.168.0.0/24, 192.168.1.0/24 or 10.0.0.0/24, and the VPN breaks when the home and office subnets overlap. Which office subnet is LEAST likely to cause that problem?"
+        choices:
+          - "192.168.1.0/24"
+          - "172.22.48.0/24"
+          - "192.168.0.0/24"
+          - "10.0.0.0/24"
+        answer: 1
+        why: "All four are valid RFC 1918 subnets; only the one in 172.16.0.0/12 avoids the common home defaults."
+        whys:
+          - "Valid private space, but probably the most common home-router default of all."
+          - "Best: it is private, and home routers almost never use the 172.16.0.0/12 range by default."
+          - "Valid private space, but another very common home-router default."
+          - "Valid private space, but the default on many provider-supplied home gateways."
+
+      - id: np-1z-b10
+        type: mcq
+        best: true
+        q: "A company streams a live town-hall video. About 500 of its 5,000 desktops will choose to watch. The network team wants one copy of the stream on each link, and no video delivered to desktops that did not ask for it. Which delivery method is BEST?"
+        choices:
+          - "A separate unicast stream to each viewer"
+          - "A broadcast stream on each VLAN"
+          - "Unicast to a relay server per site, which serves local viewers by unicast"
+          - "Multicast, with IGMP snooping on the switches"
+        answer: 3
+        why: "Multicast sends one copy and IGMP snooping keeps it away from ports with no subscriber."
+        whys:
+          - "Reaches only the viewers, but puts up to 500 copies on the core links."
+          - "One copy per VLAN, but every desktop receives it whether it asked or not."
+          - "Cuts the copies on the WAN, but the LAN still carries one stream per viewer."
+          - "Best: one stream per link, forwarded only to ports whose hosts have joined the group."
+
+      - id: np-1z-b11
+        type: mcq
+        best: true
+        q: "A provider runs public DNS resolvers in six regions. Customers must configure one IP address, be answered by the nearest region, and be sent to another region automatically if theirs fails. Which addressing approach is BEST?"
+        choices:
+          - "Anycast: advertise the same address from every region"
+          - "A different unicast address per region, with customers told which to use"
+          - "One unicast address in one region, taken over by a standby region on failure"
+          - "A DNS name that returns the nearest region's address"
+        answer: 0
+        why: "Anycast gives one address, nearest-site delivery and automatic failover through routing alone."
+        whys:
+          - "Best: routing delivers each query to the nearest site announcing the address and moves it when that site withdraws."
+          - "Works, but there is no single address and failover means customers changing settings."
+          - "One address and failover, but most customers are not answered by their nearest region."
+          - "Works well for web sites, but a client cannot look up the name of its resolver before it has a resolver."
+
+      - id: np-1z-b12
+        type: mcq
+        best: true
+        q: "A public web server must keep TCP 443 open to customers anywhere on the Internet. A known exploit arrives over that port, no vendor patch exists yet, and attacks come at night when nobody is watching. The exploit traffic must be stopped as it arrives. Which control is BEST?"
+        choices:
+          - "An IDS on a mirror port that alerts the on-call engineer"
+          - "A firewall rule limiting TCP 443 to known customer address ranges"
+          - "An inline IPS with a signature for the exploit, set to block"
+          - "Web server logs sent to a SIEM for correlation"
+        answer: 2
+        why: "The port must stay open and nobody is watching, so only an inline device that blocks by content meets the need."
+        whys:
+          - "Detects the same exploit, but only raises an alert that nobody acts on at night."
+          - "Shrinks exposure, but customers connect from anywhere, so the list cannot be written."
+          - "Best: it inspects the permitted traffic and drops the exploit itself, with nobody needing to act."
+          - "Gives good evidence, but only after the exploit has already reached the server."
+
+      - id: np-1z-b13
+        type: mcq
+        best: true
+        q: "A trading firm wants to see attacks against its order servers. Two things are ruled out: any device in the traffic path that could delay or drop a legitimate order, and any software installed on the servers. Which approach is BEST?"
+        choices:
+          - "An IPS inline in front of the servers"
+          - "A host-based IDS agent on each order server"
+          - "An IDS fed by a passive network tap"
+          - "A weekly review of the firewall's logs"
+        answer: 2
+        why: "A passive, out-of-path sensor is the only option that respects both exclusions."
+        whys:
+          - "Can block attacks, but it sits in the path and a false positive would drop an order."
+          - "Sees the most detail per host, but installing software on the servers is ruled out."
+          - "Best: it sees a copy of the traffic, so it can neither delay nor drop an order, and nothing is installed on the servers."
+          - "Touches neither path nor servers, but shows only connection records, days late."
+
+      - id: np-1z-b14
+        type: mcq
+        best: true
+        q: "Four clustered hypervisor hosts must share the same virtual-machine disks so that a VM can move between hosts. The cluster software requires block-level volumes (LUNs) on a dedicated storage network. Which storage is BEST?"
+        choices:
+          - "A SAN presenting LUNs over Fibre Channel or iSCSI"
+          - "A NAS sharing folders over NFS or SMB"
+          - "Local disks in each host, replicated between the hosts"
+          - "Cloud object storage reached over the Internet"
+        answer: 0
+        why: "The requirement is shared block storage on its own network, which defines a SAN."
+        whys:
+          - "Best: a SAN is exactly a dedicated network that presents shared block-level volumes to several hosts."
+          - "Shared and simpler to run, but it serves files, and the cluster asks for block-level LUNs."
+          - "Can work for some clusters, but it is not a shared LUN on a dedicated storage network."
+          - "Durable and cheap, but it is reached through an object API with Internet latency, not as a block device."
+
+      - id: np-1z-b15
+        type: mcq
+        best: true
+        q: "A company replicates a database from its data centre to a cloud VPC all day. The requirements are predictable latency and a path that never crosses the public Internet. Which connection is BEST?"
+        choices:
+          - "A site-to-site IPsec VPN to the VPC's gateway, carried over the Internet"
+          - "The database's public endpoint, protected by TLS"
+          - "A client-to-site VPN from the database server"
+          - "A dedicated private circuit to the cloud provider (direct connect)"
+        answer: 3
+        why: "Only a dedicated circuit meets both the latency and the no-Internet requirement."
+        whys:
+          - "Encrypted and cheap, but it rides the Internet, so latency varies."
+          - "Simplest and encrypted, but it uses the Internet and exposes the database publicly."
+          - "Would carry the traffic, but still over the Internet and through a service meant for individual users."
+          - "Best: a private circuit bypasses the Internet and gives a fixed, predictable path."
+
+      - id: np-1z-b16
+        type: mcq
+        best: true
+        q: "In a cloud VPC, only the application servers may reach the database servers, on TCP 3306. Both tiers scale automatically, so instances and their IP addresses appear and vanish all day and may land in any subnet. Which control is BEST?"
+        choices:
+          - "A network ACL on the database subnets permitting 3306 from the application subnets"
+          - "A database security group allowing 3306 from the application security group"
+          - "A host firewall on every database server listing application addresses"
+          - "A separate VPC for the databases, peered with the application VPC"
+        answer: 1
+        why: "A security group rule that references another group needs no IP addresses, so scaling never breaks it."
+        whys:
+          - "Works at subnet level, but is tied to address ranges and admits anything else in those subnets."
+          - "Best: the rule names group membership, so it follows instances wherever and whenever they appear."
+          - "Precise, but the address list changes all day and must be pushed to every server."
+          - "A strong boundary, but peering alone does not limit traffic to 3306 or to the application tier."
+
+      - id: np-1z-b17
+        type: mcq
+        best: true
+        q: "A hospital is required to keep patient records on hardware it owns. Its research team also needs large bursts of computing for anonymised data, a few days each month, without buying servers that sit idle. Which cloud deployment model is BEST?"
+        choices:
+          - "Private cloud"
+          - "Hybrid cloud"
+          - "Public cloud"
+          - "Community cloud shared with other hospitals"
+        answer: 1
+        why: "Hybrid is the only model that satisfies the ownership rule and the pay-per-use burst together."
+        whys:
+          - "Meets the records rule, but the monthly bursts would need hardware that sits idle."
+          - "Best: records stay on the hospital's own private infrastructure while research bursts into public cloud."
+          - "Ideal for the bursts, but patient records may not leave hardware the hospital owns."
+          - "Shares cost among similar organisations, but the records would not be on the hospital's own hardware."
+
+      - id: np-1z-b18
+        type: mcq
+        best: true
+        q: "Thirty branches each have an MPLS circuit and a cheaper broadband line that sits idle as backup. Management wants both lines used at once, voice steered to whichever path is performing better at that moment, and one central place to set policy. Which solution is BEST?"
+        choices:
+          - "Static routes over MPLS with a floating static route over broadband"
+          - "A dynamic routing protocol with equal-cost paths over both lines"
+          - "A second MPLS circuit at every branch"
+          - "SD-WAN"
+        answer: 3
+        why: "Application-aware path selection with central policy over mixed links is what SD-WAN is for."
+        whys:
+          - "Gives failover, but the broadband line stays idle until MPLS fails."
+          - "Uses both lines, but routing metrics do not follow live loss and jitter per application."
+          - "Adds resilience at high cost, with no application-aware steering."
+          - "Best: it measures each path, steers each application accordingly, uses both lines, and is managed from a central controller."
+
+      - id: np-1z-b19
+        type: mcq
+        best: true
+        q: "A company must make its services reachable over IPv6 while IPv4 customers keep working. Every router, firewall and server already supports IPv6, and the architects want no translation or tunnelling devices to maintain. Which approach is BEST?"
+        choices:
+          - "Dual stack"
+          - "NAT64 with DNS64 in front of IPv4-only servers"
+          - "IPv6 tunnelled inside IPv4 between sites"
+          - "A reverse proxy with an IPv6 address in front of the IPv4 servers"
+        answer: 0
+        why: "When everything supports IPv6, dual stack serves both protocols natively with no extra devices."
+        whys:
+          - "Best: each device runs IPv4 and IPv6 natively side by side, so nothing has to translate or tunnel."
+          - "Lets IPv6 clients reach IPv4 servers, but it is exactly the translator the architects want to avoid."
+          - "Carries IPv6 across an IPv4-only core, but this core already supports IPv6, so the tunnels are needless overhead."
+          - "Quick for web sites, but it is a translating device and covers only proxied applications."
+
+      - id: np-1z-b20
+        type: mcq
+        best: true
+        q: "Two hundred branch routers were configured by hand and have drifted apart. The team wants every change peer-reviewed before it is applied, a full history of who changed what, and the ability to rebuild any router identically. Which practice is BEST?"
+        choices:
+          - "Back up every router's running configuration nightly"
+          - "Write a golden configuration document for engineers to follow when making changes"
+          - "Keep configurations in version control and deploy them by automation"
+          - "Send every change to a change advisory board"
+        answer: 2
+        why: "Infrastructure as code delivers review, history and repeatability together."
+        whys:
+          - "Gives history and a restore point, but it records drift instead of preventing it and reviews nothing."
+          - "Defines the standard, but hand typing from a document is how the routers drifted."
+          - "Best: version control gives review and history, and automated deployment gives identical, repeatable builds."
+          - "Reviews changes beforehand, but keeps no configuration history and cannot rebuild a router."
+
+      - id: np-1z-b21
+        type: mcq
+        best: true
+        q: "A research station has no cable service and no mobile coverage, and the nearest town is 300 km away. Staff need video calls, which become unusable above about 150 ms of delay. Service must start this month. Which link is BEST?"
+        choices:
+          - "A geostationary (GEO) satellite service"
+          - "A chain of licensed microwave relay towers to the town"
+          - "A low Earth orbit (LEO) satellite service"
+          - "A new fibre run to the town"
+        answer: 2
+        why: "LEO satellite is the only option that is both available this month and within the delay limit."
+        whys:
+          - "Covers the site and installs quickly, but its round trip of about half a second ruins video calls."
+          - "Low delay, but 300 km needs many towers and far longer than a month."
+          - "Best: it covers remote sites, installs quickly, and its low orbit keeps delay to tens of milliseconds."
+          - "The best performance of all, but it would take years and a very large budget."
+
+      - id: np-1z-b22
+        type: mcq
+        best: true
+        q: "An auditor finds that network monitoring polls can be read on the wire. The new rule is that the polls themselves must be both authenticated and encrypted. Which change is BEST?"
+        choices:
+          - "SNMPv3 at the authPriv security level"
+          - "SNMPv3 at the authNoPriv security level"
+          - "SNMPv2c with an ACL accepting polls only from the monitoring server"
+          - "SNMPv2c confined to a dedicated management VLAN"
+        answer: 0
+        why: "Only SNMPv3 with authPriv provides authentication and privacy in the protocol itself."
+        whys:
+          - "Best: authPriv both authenticates each message and encrypts its contents."
+          - "Authenticates each message, but leaves the contents unencrypted."
+          - "Limits who may poll, but the community string and the data still cross in clear text."
+          - "Reduces who can listen, but the polls themselves are still neither authenticated nor encrypted."
+
+  - id: np-2z
+    title: "Best-answer practice: Network Implementation"
+    domain: "2"
+    goal: "I can choose the best routing, switching, wireless or physical-installation option for a stated constraint when every option would function."
+    notes: |
+      Implementation questions give you a working network and one thing to add or fix. Every choice is a real feature. The stem tells you which one fits by stating **what you have** (one router port, one public address, no budget) and **what must not happen** (touching every host, exposing every VLAN).
+
+      **Constraints to look for**
+
+      - **Hardware limits:** "no money for new hardware" removes every purchase, however good.
+      - **Scale:** one exit path favours a static route; many routers and vendors favour OSPF; two providers favour BGP.
+      - **Scope:** prefer the change that touches only the ports or VLAN concerned.
+      - **Order:** for FIRST, ask which step the others depend on.
+      - **"Lowest cost that meets":** the larger standard, generator or switch is a trap.
+
+      **Usual traps**
+
+      - Disabling a protection (such as spanning tree) to cure a symptom.
+      - Fixing a symptom at each client when one switch setting fixes the cause.
+      - Picking the fastest or newest wireless setting when the stem asked for the most channels or the widest compatibility.
+    items:
+      - id: np-2z-b01
+        type: mcq
+        best: true
+        q: "A company with 60 routers from three vendors needs a dynamic routing protocol inside its own network. It must be fully supported by every vendor and reconverge quickly after a link fails. Which protocol is BEST?"
+        choices:
+          - "EIGRP"
+          - "BGP"
+          - "Static routes with floating backups"
+          - "OSPF"
+        answer: 3
+        why: "OSPF is the vendor-neutral interior protocol built for fast convergence inside one organisation."
+        whys:
+          - "Converges quickly, but full support is largely limited to one vendor's equipment."
+          - "Supported by every vendor, but it is built for policy between networks and by default converges more slowly."
+          - "Vendor-neutral, but 60 routers must be maintained by hand and react only to local link failures."
+          - "Best: an open standard interior protocol that every vendor supports and that converges quickly."
+
+      - id: np-2z-b02
+        type: mcq
+        best: true
+        q: "A branch has one router and one WAN link to headquarters. Everything not on the branch LAN is reached through that link. Which routing choice gives the LEAST overhead to run and maintain?"
+        choices:
+          - "OSPF between the branch and headquarters"
+          - "A static default route pointing at headquarters"
+          - "BGP between the branch and headquarters"
+          - "A static route for every individual headquarters subnet"
+        answer: 1
+        why: "A stub site with a single exit needs only a default route."
+        whys:
+          - "Learns routes automatically, but adds neighbour relationships and updates for a site with one path."
+          - "Best: one line covers every destination and never needs changing while there is one way out."
+          - "Offers policy control the branch does not need, with the most configuration of the four."
+          - "Works, but must be edited every time headquarters adds a subnet."
+
+      - id: np-2z-b03
+        type: mcq
+        best: true
+        q: "A company owns a public /24 and buys Internet service from two providers. Its servers must stay reachable on the same addresses if either provider fails. Which approach is BEST?"
+        choices:
+          - "Two static default routes, the second with a higher administrative distance"
+          - "Run BGP with both providers and advertise the /24 through each"
+          - "NAT the servers to an address from each provider and publish both in DNS"
+          - "A second circuit from the same provider"
+        answer: 1
+        why: "Keeping the same addresses reachable through two providers requires advertising the prefix to both, which is BGP's job."
+        whys:
+          - "Gives outbound failover, but does nothing about how the Internet reaches the /24."
+          - "Best: the Internet learns two paths to the same prefix, so inbound traffic survives the loss of either provider."
+          - "Reachable either way, but the addresses differ and failover waits for DNS caches."
+          - "Protects against a circuit failure, but not against the provider itself failing."
+
+      - id: np-2z-b04
+        type: mcq
+        best: true
+        q: "Two routers serve a subnet of 150 devices whose default gateway is typed in by hand as 10.1.1.1. If one router fails, the devices must keep working without anyone touching them or the routers. Which solution is BEST?"
+        choices:
+          - "Keep the second router as a spare and move 10.1.1.1 to it by hand"
+          - "Configure half the devices with each router as their gateway"
+          - "Run a routing protocol on the devices so they learn a new gateway"
+          - "Run an FHRP such as VRRP with 10.1.1.1 as the virtual IP"
+        answer: 3
+        why: "A first hop redundancy protocol keeps the configured gateway address alive on whichever router is up."
+        whys:
+          - "No device changes, but the subnet is down until someone acts."
+          - "Halves the impact, but half the devices still lose their gateway."
+          - "Would work on hosts that support it, but means reconfiguring all 150."
+          - "Best: the surviving router answers for 10.1.1.1 within seconds and no device setting changes."
+
+      - id: np-2z-b05
+        type: mcq
+        best: true
+        q: "An office of 200 users has been given one public IPv4 address by its provider, and more addresses cost extra. All 200 need to browse at the same time, starting today. Which is BEST?"
+        choices:
+          - "PAT (NAT overload) on the single address"
+          - "Dynamic NAT from a pool of public addresses"
+          - "Static NAT with one public address per user"
+          - "Moving the office to IPv6"
+        answer: 0
+        why: "PAT is the only form of NAT that shares one public address among many simultaneous users."
+        whys:
+          - "Best: it tells sessions apart by port number, so one address serves all 200 users at once."
+          - "Works, but needs one public address per active user, so a pool must be bought."
+          - "Works, but needs 200 public addresses."
+          - "The long-term answer to address shortage, but not ready today, and IPv4-only sites would still need translation."
+
+      - id: np-2z-b06
+        type: mcq
+        best: true
+        q: "A small office has one public IP address, shared by all users through PAT. An internal web server must now be reachable by the public on TCP 443, exposing as little as possible. Which is BEST?"
+        choices:
+          - "Buy a second public address and map it one-to-one to the web server"
+          - "Set the server as the router's 'DMZ host'"
+          - "Forward TCP 443 on the public address to the server (static PAT)"
+          - "Have visitors connect by VPN and reach the server internally"
+        answer: 2
+        why: "A port forward exposes only the one service on the address the office already has."
+        whys:
+          - "Works, but costs more and maps every port to the server unless filtered."
+          - "Makes 443 reachable, but sends every other unsolicited inbound port to the server too."
+          - "Best: exactly one port reaches the server and the single address keeps serving the users."
+          - "Exposes the least, but the general public cannot be given VPN accounts."
+
+      - id: np-2z-b07
+        type: mcq
+        best: true
+        q: "A Layer 2 switch carries four VLANs that must now route to each other. The only router has one free interface, and there is no money for new hardware. Which is BEST?"
+        choices:
+          - "Replace the switch with a Layer 3 switch and route between VLANs with SVIs"
+          - "Use a separate router interface for each VLAN"
+          - "Trunk the switch to the router and create one subinterface per VLAN"
+          - "Merge the four VLANs into one"
+        answer: 2
+        why: "Subinterfaces on a trunk give each VLAN a gateway using one physical port and no purchase."
+        whys:
+          - "The faster modern design, but it is a purchase."
+          - "Simple to understand, but needs four free interfaces and the router has one."
+          - "Best: 'router on a stick' routes all four VLANs through the single free interface at no cost."
+          - "Removes the need to route, but throws away the segmentation the VLANs provide."
+
+      - id: np-2z-b08
+        type: mcq
+        best: true
+        q: "Each desk has one wall jack. An IP phone plugs into it and the PC plugs into the phone. Phones must sit in VLAN 50 and PCs in VLAN 10, and the port should carry no other VLAN. Which switch port configuration is BEST?"
+        choices:
+          - "An access port in VLAN 10 with VLAN 50 set as the voice VLAN"
+          - "A trunk port allowing all VLANs"
+          - "An access port in VLAN 10 only, with QoS marking for voice"
+          - "A second cable run to each desk, giving each device its own port"
+        answer: 0
+        why: "A voice VLAN on an access port separates phone and PC on one cable without opening the port to other VLANs."
+        whys:
+          - "Best: the port carries only the data VLAN untagged and the voice VLAN tagged for the phone."
+          - "Phone and PC would both work, but every VLAN in the building is delivered to the desk."
+          - "Prioritises voice, but leaves the phones in the PC VLAN."
+          - "Clean separation, but pays for a new cable run to every desk."
+
+      - id: np-2z-b09
+        type: mcq
+        best: true
+        q: "PCs take about 40 seconds to get a link that passes traffic, and some time out waiting for DHCP. The access ports run classic spanning tree, and only end devices are ever meant to connect to them. Which change is BEST?"
+        choices:
+          - "Disable spanning tree on the user VLANs"
+          - "Lengthen the DHCP timeout on every PC"
+          - "Shorten the forward-delay timer on the root bridge so every port forwards sooner"
+          - "Enable PortFast (edge port) with BPDU guard on the access ports"
+        answer: 3
+        why: "PortFast removes the listening and learning delay on host ports; BPDU guard keeps that safe."
+        whys:
+          - "Removes the delay, but also removes all loop protection."
+          - "Hides the symptom, leaves the 40-second wait, and means touching every PC."
+          - "Speeds up every port, but lowering timers network-wide risks temporary loops and still leaves a delay."
+          - "Best: edge ports forward at once, and BPDU guard shuts a port if a switch is ever plugged in."
+
+      - id: np-2z-b10
+        type: mcq
+        best: true
+        q: "After an old access switch was added, it became the spanning-tree root bridge because it has the lowest MAC address, and traffic now takes poor paths. The core is a pair of switches, all still at the default priority. What should be done FIRST to make the root placement deliberate?"
+        choices:
+          - "Enable root guard on the core switches' ports that face the access switches"
+          - "Give one core switch the lowest bridge priority and its partner the next"
+          - "Remove the old access switch from the network"
+          - "Raise the bridge priority on the old access switch"
+        answer: 1
+        why: "Root placement is decided by priority first; set it on the switches that should win before adding guards."
+        whys:
+          - "The right follow-up, but it defends a chosen root; applied now it would block the port toward the current root."
+          - "Best: it chooses the root and its backup explicitly, which every other protection then builds on."
+          - "Fixes today's election, but the next switch with a low MAC address does the same."
+          - "Moves the root off that switch, but the election then falls to the next-lowest MAC, not necessarily the core."
+
+      - id: np-2z-b11
+        type: mcq
+        best: true
+        q: "Two switches are joined by two 1 Gb/s links, and spanning tree blocks one of them. The team wants both links carrying traffic as one logical link that survives the loss of either cable, with no new hardware. Which is BEST?"
+        choices:
+          - "Leave it: spanning tree will unblock the second link on failure"
+          - "Bundle the two links with LACP (link aggregation)"
+          - "Replace both with a single 10 Gb/s link"
+          - "Put half the VLANs on each link using per-VLAN spanning tree"
+        answer: 1
+        why: "Link aggregation turns the two cables into one logical link with shared load and redundancy."
+        whys:
+          - "Gives redundancy, but half the capacity sits idle."
+          - "Best: spanning tree sees one logical link, both cables carry traffic, and either can fail."
+          - "More bandwidth, but it needs new hardware and has no redundancy."
+          - "Uses both links, but not as one logical link, and the balance is set by hand."
+
+      - id: np-2z-b12
+        type: mcq
+        best: true
+        q: "Hosts and a storage array exchange iSCSI traffic on a dedicated storage VLAN. The team wants less per-frame overhead for that traffic, with no purchases and no risk to ordinary user traffic. Which is BEST?"
+        choices:
+          - "Enable jumbo frames on every switch port and every host across the whole network"
+          - "Leave the MTU at 1500 and add a second link to the array"
+          - "Fit the hosts with iSCSI offload adapters"
+          - "Set an MTU of 9000 on every host, switch and array port in the storage path"
+        answer: 3
+        why: "Jumbo frames must match end to end; confining them to the storage path meets the goal with the least risk."
+        whys:
+          - "Covers the storage path, but also changes user devices that gain nothing and may mishandle large frames."
+          - "Adds capacity, but each frame still carries the same overhead."
+          - "Relieves the hosts' CPUs, but it is a purchase."
+          - "Best: jumbo frames cut overhead for storage, and matching the MTU end to end on that path alone leaves user traffic untouched."
+
+      - id: np-2z-b13
+        type: mcq
+        best: true
+        q: "Twelve access points will serve one 400-seat lecture hall on 5 GHz. Each student needs only a modest data rate, but neighbouring access points must not share a channel. Which channel width is BEST?"
+        choices:
+          - "20 MHz"
+          - "40 MHz"
+          - "80 MHz"
+          - "160 MHz"
+        answer: 0
+        why: "In high-density designs, more channels matter more than peak speed, so use 20 MHz."
+        whys:
+          - "Best: the narrowest width gives the most non-overlapping channels to spread across twelve access points."
+          - "Doubles the peak rate, but halves the number of channels available to reuse."
+          - "Fast for a home, but leaves only a handful of channels for twelve access points."
+          - "The highest peak rate, but leaves one or two channels, so nearly every access point would share."
+
+      - id: np-2z-b14
+        type: mcq
+        best: true
+        q: "Two buildings 400 m apart with clear line of sight need a wireless bridge. The signal should reach the other building and nowhere else, to limit interference with neighbours. Which antenna type is BEST at each end?"
+        choices:
+          - "A high-gain omnidirectional antenna"
+          - "A sector or patch antenna"
+          - "A highly directional antenna such as a parabolic dish or Yagi"
+          - "The radios' built-in antennas at maximum power"
+        answer: 2
+        why: "A point-to-point link wants the narrowest beam: the most gain where it is needed and the least spill."
+        whys:
+          - "May reach 400 m, but radiates in every horizontal direction."
+          - "Directional and cheaper, but its wide beam covers far more than one building."
+          - "Best: a narrow beam puts the energy on the far building and little anywhere else."
+          - "Needs no new parts, but spreads power everywhere and leaves the least link margin."
+
+      - id: np-2z-b15
+        type: mcq
+        best: true
+        q: "New access points support WPA3. Most laptops do too, but 40 barcode scanners support only WPA2 and cannot be replaced this year. The requirements are a single SSID and the strongest protection each device can use. Which setting is BEST?"
+        choices:
+          - "WPA3 only"
+          - "WPA2 only"
+          - "WPA2/WPA3 transition (mixed) mode"
+          - "Two SSIDs, one WPA3 for laptops and one WPA2 for scanners"
+        answer: 2
+        why: "Transition mode is designed for exactly this mixed population on a single SSID."
+        whys:
+          - "The strongest setting, but it locks out the 40 scanners."
+          - "Everything connects, but the laptops lose WPA3."
+          - "Best: one SSID on which WPA3 devices use WPA3 and the scanners still join with WPA2."
+          - "Each device gets its strongest option, but it breaks the single-SSID requirement and adds beacon overhead."
+
+      - id: np-2z-b16
+        type: mcq
+        best: true
+        q: "Two rooms in a listed historic building have no Wi-Fi. Drilling for cable is forbidden, but each room has mains power. Devices in those rooms need good throughput. Which is BEST?"
+        choices:
+          - "Mesh access points in the rooms with a dedicated backhaul radio"
+          - "A single-radio repeater in each room"
+          - "Raise the transmit power of the nearest corridor access point to its maximum"
+          - "Fit a higher-gain antenna to the nearest corridor access point"
+        answer: 0
+        why: "Mesh with a dedicated backhaul radio extends coverage wirelessly without halving client throughput."
+        whys:
+          - "Best: no cable is needed, and a separate backhaul radio keeps the client radio's full capacity."
+          - "Extends coverage without cable, but repeating on the same radio roughly halves throughput."
+          - "Devices may see a stronger signal, but their own weaker radios still cannot answer through the walls."
+          - "Helps a little in both directions, but thick walls still leave low data rates."
+
+      - id: np-2z-b17
+        type: mcq
+        best: true
+        q: "A wiring closet suffers power cuts of a few minutes, several times a year. The equipment must ride through cuts of up to 10 minutes and shut down cleanly in longer ones. Which purchase is BEST at the lowest cost?"
+        choices:
+          - "A standby generator"
+          - "A second utility feed from a different substation, with automatic transfer"
+          - "A UPS and a generator together"
+          - "A UPS sized for 10 minutes, with automatic shutdown signalling"
+        answer: 3
+        why: "A correctly sized UPS meets the whole requirement; anything more is gold-plating."
+        whys:
+          - "Runs for hours, but takes time to start, so equipment still drops unless a UPS bridges the gap."
+          - "Reduces the number of cuts at high cost, and gives no clean shutdown."
+          - "The complete answer for long outages, but far more than a 10-minute requirement needs."
+          - "Best: it bridges the short cuts and triggers a clean shutdown in long ones, which is all that is asked."
+
+      - id: np-2z-b18
+        type: mcq
+        best: true
+        q: "A regional operations centre must keep running through storms that cut utility power to the whole area for up to two days. Which power design is BEST?"
+        choices:
+          - "A larger UPS battery bank"
+          - "A generator with on-site fuel, plus a UPS to carry the load while it starts"
+          - "Feeds from two different utility substations"
+          - "Dual power supplies in every device, on separate PDUs"
+        answer: 1
+        why: "Only on-site generation lasts two days; the UPS covers the seconds before it takes the load."
+        whys:
+          - "Bridges minutes to an hour or so; two days of battery is impractical."
+          - "Best: the UPS bridges the start-up gap and the generator supplies power for as long as there is fuel."
+          - "Protects against one feeder failing, but an area-wide cut takes both."
+          - "Protects against a failed supply or PDU, but both still depend on utility power."
+
+      - id: np-2z-b19
+        type: mcq
+        best: true
+        q: "A row of racks uses hot-aisle/cold-aisle cooling. New top-of-rack switches are mounted with their ports facing the hot aisle, and they can be ordered with either fan direction. Which choice BEST keeps them cool?"
+        choices:
+          - "Order port-side-intake fans and lower the room's temperature setpoint"
+          - "Order port-side-exhaust fans, so they draw from the cold aisle"
+          - "Fit blanking panels in the empty rack spaces"
+          - "Add fan trays at the top of each rack"
+        answer: 1
+        why: "Match the device's airflow direction to the aisle layout; here the ports face hot, so the ports must be the exhaust side."
+        whys:
+          - "Makes the switches breathe hot-aisle air, then spends energy trying to offset it."
+          - "Best: the switch's airflow then matches the room's, taking in cold air and adding its heat to the hot aisle."
+          - "Good practice that stops hot air recirculating, but it does not change which aisle a switch draws from."
+          - "Moves more air through the rack, but does not change which aisle a switch draws from."
+
+      - id: np-2z-b20
+        type: mcq
+        best: true
+        q: "Twelve new access points each draw up to 25 W over the cable. The current switch supplies 802.3af (15.4 W per port). The team wants power delivered from the closet on its UPS, the ability to power-cycle any access point remotely from the switch, and the lowest cost that meets those needs. Which is BEST?"
+        choices:
+          - "A PoE++ (802.3bt) switch"
+          - "Twelve PoE+ injectors in the closet, one per access point"
+          - "A mains adapter at each access point"
+          - "A PoE+ (802.3at) switch with a 370 W power budget"
+        answer: 3
+        why: "802.3at is the lowest standard that powers a 25 W device; check the per-port figure and the total budget."
+        whys:
+          - "Would power them, but pays for 60-90 W ports that nobody needs."
+          - "Delivers the power, but adds twelve boxes and outlets, and the switch cannot cycle or monitor their power."
+          - "Works, but needs an outlet at every ceiling location and is off the UPS."
+          - "Best: 30 W per port covers a 25 W device, twelve ports at 30 W need 360 W, and the switch can cycle power per port."
+
+  - id: np-3z
+    title: "Best-answer practice: Network Operations"
+    domain: "3"
+    goal: "I can choose the best document, process step, monitoring method, recovery option or service setting for a stated operational requirement."
+    notes: |
+      Operations questions are about running the network well. All four choices are sound practice, so decide by the **number or rule in the stem**.
+
+      **Constraints to look for**
+
+      | Clue | How to use it |
+      | An RTO or RPO figure | Reject what misses it, then reject what exceeds it at higher cost |
+      | "cheapest that meets" | Take the weakest option that still passes |
+      | "within seconds", "without more load" | Events pushed by the device beat faster polling |
+      | "from one place" | Central control beats per-device settings |
+      | "no risk to production" | Pilot, tabletop or staged options |
+      | A written procedure | Follow it; do not skip it and do not ignore it |
+
+      **Usual traps**
+
+      - Hot site, synchronous replication or a full failover test when the stem asked for less.
+      - A task that could be done later, chosen over the one that cannot.
+      - Evidence that describes traffic in summary when the stem needs the packets themselves.
+      - Documents: each one answers a different question, so match the document to the question asked.
+    items:
+      - id: np-3z-b01
+        type: mcq
+        best: true
+        q: "A user at wall jack 3-117 has no link. The technician needs to know, as quickly as possible, which patch-panel port and switch port that jack leads to. Which document is BEST?"
+        choices:
+          - "The cable map (wiring schematic)"
+          - "The physical network diagram"
+          - "The rack diagram"
+          - "The logical network diagram"
+        answer: 0
+        why: "Only the cable map records individual jack-to-port runs."
+        whys:
+          - "Best: it is the document that records each jack's run to its patch-panel and switch port."
+          - "Shows devices and the links between them, not each wall jack's run."
+          - "Shows where each device sits in the rack, not which jack reaches it."
+          - "Shows VLANs, subnets and routing, not physical runs."
+
+      - id: np-3z-b02
+        type: mcq
+        best: true
+        q: "Three administrators record static addresses in a shared spreadsheet. Duplicate addresses appear every month because the sheet lags behind what DHCP and DNS are really doing. Which is the BEST fix for the cause?"
+        choices:
+          - "Ping an address before assigning it"
+          - "Convert static addresses to DHCP reservations where possible"
+          - "Deploy IPAM integrated with the DHCP and DNS servers"
+          - "Allow only one administrator to edit the spreadsheet"
+        answer: 2
+        why: "IPAM tied to DHCP and DNS removes the stale record that causes the duplicates."
+        whys:
+          - "Catches some conflicts, but misses devices that are switched off or ignore ping."
+          - "Leaves fewer hand-typed addresses, but the remainder are still tracked on the same sheet."
+          - "Best: the record of addresses is taken from the live services, so it cannot lag behind them."
+          - "Stops conflicting edits, but the sheet still lags behind DHCP and DNS."
+
+      - id: np-3z-b03
+        type: mcq
+        best: true
+        q: "The vendor announces that an Internet-facing edge router reaches end of support in nine months, after which no security patches will be issued. Company policy requires every Internet-facing device to receive vendor patches. Which plan is BEST?"
+        choices:
+          - "Buy third-party hardware maintenance for the router"
+          - "Restrict the router's management access with ACLs and keep it"
+          - "Replace the router before the end-of-support date"
+          - "Keep spare units of the same model on the shelf"
+        answer: 2
+        why: "After end of support no option but replacement can satisfy a policy that requires vendor patches."
+        whys:
+          - "Covers failed parts, but supplies no security patches."
+          - "A sensible compensating control, but the policy asks for patches."
+          - "Best: it is the only plan that keeps the device within the patching policy after the date."
+          - "Covers hardware failure, but the spares run the same unpatched software."
+
+      - id: np-3z-b04
+        type: mcq
+        best: true
+        q: "Ten retired switches are stacked for collection by a recycler this afternoon. There is time for one task before they leave. Which is MOST important?"
+        choices:
+          - "Erase the configurations and credentials stored on them"
+          - "Mark them as disposed in the asset inventory and update the records"
+          - "Remove them from the monitoring system"
+          - "Cancel their support contracts and licences"
+        answer: 0
+        why: "Sanitise before disposal; the record-keeping tasks can all be completed afterwards."
+        whys:
+          - "Best: it is the only task that cannot be done once the switches have left the building."
+          - "Necessary, but it can be done after they have gone."
+          - "Stops false alerts, but it can be done after they have gone."
+          - "Saves money, but it can be done after they have gone."
+
+      - id: np-3z-b05
+        type: mcq
+        best: true
+        q: "At 02:00 a failed module takes down a hospital's core uplink. The fix is a configuration change. The change policy has an emergency procedure: approval by the on-call change manager, with the paperwork completed afterwards. What is the BEST course of action?"
+        choices:
+          - "Submit a normal change request for review at the next weekly board meeting"
+          - "Make the change now and raise the request in the morning"
+          - "Wait for the day shift's senior engineer"
+          - "Get the on-call change manager's approval, make the change, then record it"
+        answer: 3
+        why: "An emergency change procedure exists so that urgent fixes are both fast and authorised."
+        whys:
+          - "Follows the standard process, but leaves the hospital's uplink down for days."
+          - "Restores service soonest, but skips an approval that is available tonight."
+          - "Adds experience, but extends the outage for something the procedure does not require."
+          - "Best: it restores service tonight and stays inside the procedure written for this situation."
+
+      - id: np-3z-b06
+        type: mcq
+        best: true
+        q: "Forty identical access switches need a firmware upgrade to fix a bug. There is no lab, and a bad image would cut off every user on the switches that receive it. Which rollout is BEST?"
+        choices:
+          - "Upgrade all forty in one maintenance window"
+          - "Upgrade one low-impact switch, watch it, then upgrade the rest in batches"
+          - "Upgrade only the switches that have shown the bug"
+          - "Wait for the next firmware release"
+        answer: 1
+        why: "A pilot followed by staged batches limits the blast radius when there is no lab."
+        whys:
+          - "Finishes soonest, but a bad image takes down every user at once."
+          - "Best: a bad image is found while it affects one switch, and the bug still gets fixed everywhere."
+          - "Less work, but leaves a known bug in place and a mix of versions to support."
+          - "Avoids this image's risk, but leaves the bug, and the next image will be just as untested here."
+
+      - id: np-3z-b07
+        type: mcq
+        best: true
+        q: "A monitoring server polls 2,000 interfaces by SNMP every five minutes. The operations team must now learn of a link failure within seconds, without greatly increasing load on the devices. Which change is BEST?"
+        choices:
+          - "Poll every interface every five seconds"
+          - "Configure the devices to send SNMP traps for link-down events"
+          - "Ping each device once a minute"
+          - "Watch flow records for interfaces that suddenly stop sending traffic"
+        answer: 1
+        why: "Traps are event-driven, so they are fast and add almost no load."
+        whys:
+          - "Would notice quickly, but multiplies the polling load by sixty."
+          - "Best: the device reports the event the moment it happens and sends nothing the rest of the time."
+          - "Light, but detects a dead device, not a single failed link, and up to a minute late."
+          - "Shows the drop, but minutes later, and an idle link looks the same as a failed one."
+
+      - id: np-3z-b08
+        type: mcq
+        best: true
+        q: "An application's sessions reset at random. The developer asks for the exact sequence of TCP flags and retransmissions between one client and the server. Which data source is BEST?"
+        choices:
+          - "Flow records (NetFlow/IPFIX) exported from the router"
+          - "SNMP interface counters"
+          - "The server's application log"
+          - "A packet capture taken through a mirror port"
+        answer: 3
+        why: "A packet-by-packet question needs a packet capture."
+        whys:
+          - "Show who talked to whom and how much, but summarise a conversation instead of sequencing it."
+          - "Show errors and discards on a port, not what happened inside one conversation."
+          - "Shows when the application saw a reset, not which side sent it or what preceded it."
+          - "Best: only the packets themselves show each flag, sequence number and retransmission in order."
+
+      - id: np-3z-b09
+        type: mcq
+        best: true
+        q: "For an investigation, every frame on a busy 10 Gb/s link must be captured, including damaged frames, and the capture must not depend on how busy the switch is. Which method is BEST?"
+        choices:
+          - "A passive network tap on the link"
+          - "A mirror (SPAN) port on the switch"
+          - "A remote mirror (RSPAN) to an analyser in another building"
+          - "A capture run on the server at one end of the link"
+        answer: 0
+        why: "A tap sees the physical signal, so it misses nothing and is unaffected by switch load."
+        whys:
+          - "Best: a tap copies everything on the wire, errors included, independently of the switch."
+          - "Easy to set up, but a busy switch may drop mirrored frames and does not forward damaged ones."
+          - "Convenient, but has the same limits as a mirror port and adds load to the trunks."
+          - "Sees only that server's traffic, and its NIC discards damaged frames first."
+
+      - id: np-3z-b10
+        type: mcq
+        best: true
+        q: "Users say the WAN has been 'slow lately'. The link is at 70% utilisation at 10:00 today. To decide whether that is abnormal for this network, which reference is BEST?"
+        choices:
+          - "The circuit's contracted bandwidth"
+          - "The provider's SLA"
+          - "The baseline of this link's utilisation recorded over previous months"
+          - "Yesterday's reading at 10:00"
+        answer: 2
+        why: "Abnormal can only be judged against a baseline of normal."
+        whys:
+          - "Shows how much headroom is left, not what load is usual."
+          - "States what the provider promises, not what this link normally carries."
+          - "Best: it shows what is normal for this link at this time of day, which is the only fair comparison."
+          - "A real comparison, but one point that may itself be part of 'lately'."
+
+      - id: np-3z-b11
+        type: mcq
+        best: true
+        q: "After a switch rebooted itself, its log buffer was empty, and events on other devices could not be lined up with it. The team wants logs that survive a reboot and can be correlated across 300 devices. Which is BEST?"
+        choices:
+          - "Increase each device's log buffer"
+          - "Write logs to each device's flash storage"
+          - "Send all logs to a central syslog server, with every device synchronised by NTP"
+          - "Send SNMP traps to the monitoring server"
+        answer: 2
+        why: "Central collection survives reboots, and common time makes correlation possible."
+        whys:
+          - "Holds more history, but the buffer is in memory and is lost at reboot."
+          - "Survives a reboot, but leaves 300 places to look and no common view."
+          - "Best: logs are kept off the device, in one place, with timestamps that agree."
+          - "Central, but only for selected events, not the full log stream."
+
+      - id: np-3z-b12
+        type: mcq
+        best: true
+        q: "A company's RTO is 8 hours and its RPO is 24 hours. Finance will approve the cheapest recovery site that meets both. Which is BEST?"
+        choices:
+          - "A warm site: equipment in place, loaded from last night's backups"
+          - "A hot site running in parallel with live data"
+          - "A cold site: space and power only"
+          - "Rebuilding at the main site with quick-ship hardware from the supplier"
+        answer: 0
+        why: "A warm site is the cheapest option that still meets an RTO measured in hours."
+        whys:
+          - "Best: restoring nightly backups onto waiting equipment fits 8 hours and 24 hours at moderate cost."
+          - "Recovers in minutes, but far exceeds the targets at the highest cost."
+          - "The cheapest, but buying and installing equipment takes days, not 8 hours."
+          - "Cheap, but assumes the main site is usable and waits days for delivery."
+
+      - id: np-3z-b13
+        type: mcq
+        best: true
+        q: "An order database may lose no more than 15 minutes of transactions in a disaster. The recovery site is 2,000 km away, and the cheapest method that meets the target is wanted. Which is BEST?"
+        choices:
+          - "Synchronous replication"
+          - "Hourly snapshots of the database copied to the recovery site"
+          - "Nightly full backups sent off site"
+          - "Asynchronous replication (log shipping) every few minutes"
+        answer: 3
+        why: "Asynchronous replication at a short interval meets a 15-minute RPO at the lowest cost."
+        whys:
+          - "Loses nothing, but every write waits on a site 2,000 km away, slowing the application and costing more than the target needs."
+          - "Cheap, but up to an hour of transactions could be lost."
+          - "The cheapest, but up to a day of transactions could be lost."
+          - "Best: it keeps the copy within a few minutes of live without making every write wait on a distant site."
+
+      - id: np-3z-b14
+        type: mcq
+        best: true
+        q: "A disaster recovery plan has never been exercised. This week the team wants a first check of it, with no spare hardware, no budget and no risk at all to production. Which test is BEST to do FIRST?"
+        choices:
+          - "A full failover of production to the recovery site"
+          - "A tabletop exercise walking through the plan"
+          - "A restore of last night's backups onto test servers"
+          - "A simulated failover in an isolated copy of the environment"
+        answer: 1
+        why: "A tabletop exercise is the zero-cost, zero-risk first validation of a plan."
+        whys:
+          - "The strongest proof, but it puts production at risk."
+          - "Best: it needs only people and the plan, touches nothing, and exposes gaps before anything riskier is tried."
+          - "Proves the backups, but needs spare hardware and tests only one part of the plan."
+          - "Realistic and safe, but building the copy needs hardware and budget."
+
+      - id: np-3z-b15
+        type: mcq
+        best: true
+        q: "Two identical firewalls protect a site. Each can carry the full traffic load alone. No extra throughput is needed. The team wants automatic failover and, above all, the simplest possible traffic path to troubleshoot. Which design is BEST?"
+        choices:
+          - "Active-active: both forward at once"
+          - "Active-passive: one forwards, the other takes over on failure"
+          - "One firewall in service, the other kept powered off as a cold spare"
+          - "Active-active with a third firewall added"
+        answer: 1
+        why: "When one unit handles everything, active-passive gives full-capacity failover with the simplest path."
+        whys:
+          - "Uses both units, but sessions can take different paths in each direction, and the extra capacity is not needed."
+          - "Best: traffic always follows one path, and the standby carries the full load when it takes over."
+          - "The simplest path, but failover is manual and comes with an outage."
+          - "More capacity and resilience, but cost and complexity beyond the requirement."
+
+      - id: np-3z-b16
+        type: mcq
+        best: true
+        q: "Thirty printers must always have the same IP address. The team also wants to change their DNS server and gateway settings in future from one place, without visiting any printer. Which is BEST?"
+        choices:
+          - "Static addresses typed into each printer, excluded from the DHCP scope"
+          - "A very long DHCP lease time"
+          - "A separate DHCP scope just for printers"
+          - "DHCP reservations tied to each printer's MAC address"
+        answer: 3
+        why: "A reservation gives a fixed address with central control of every option."
+        whys:
+          - "The addresses are fixed, but any later change means visiting every printer."
+          - "Addresses rarely change, but they are not guaranteed to stay the same."
+          - "Groups the printers, but still hands each one any free address."
+          - "Best: each printer always gets the same address, and its other settings are changed on the DHCP server."
+
+      - id: np-3z-b17
+        type: mcq
+        best: true
+        q: "A café's guest Wi-Fi uses a /24 with an 8-day DHCP lease. About 600 different visitors connect each day for half an hour each, and by noon new visitors get no address. Re-addressing is not possible this week. Which change is BEST?"
+        choices:
+          - "Shorten the lease time to about an hour"
+          - "Enlarge the subnet to a /22"
+          - "Clear the lease table by hand each morning"
+          - "Limit the number of clients per access point"
+        answer: 0
+        why: "Lease time should match how long clients stay; short visits need short leases."
+        whys:
+          - "Best: addresses return to the pool soon after visitors leave, so about 250 addresses are plenty."
+          - "Re-addressing is ruled out, and eight days of visitors would exhaust even a /22."
+          - "Frees the addresses, but it is a daily manual job that cures nothing."
+          - "Protects each access point, but returns no addresses to the pool."
+
+      - id: np-3z-b18
+        type: mcq
+        best: true
+        q: "A public web server moves to a new IP address next Tuesday. Its DNS A record has a TTL of 24 hours. The aim is for clients to stop using the old address within minutes of the cutover. Which preparation is BEST?"
+        choices:
+          - "Change the record at cutover and keep the old server running for another day"
+          - "Lower the TTL at the same moment the address is changed"
+          - "Lower the record's TTL to a few minutes at least a day before the move"
+          - "Ask users to flush their DNS caches after the move"
+        answer: 2
+        why: "The lower TTL must be in place for one full old TTL before the change."
+        whys:
+          - "Works, but costs a day of running and synchronising two servers."
+          - "Helps future changes, but caches already hold the old answer for up to 24 hours."
+          - "Best: by cutover every cache holds a short-lived copy, so the new address is picked up within minutes."
+          - "Works for those who do it, but not for the public or for resolvers in between."
+
+      - id: np-3z-b19
+        type: mcq
+        best: true
+        q: "Log timestamps on 80 network devices disagree by several minutes. The firewall allows outbound NTP only from two internal time servers. All devices must agree with each other and with real time. Which is BEST?"
+        choices:
+          - "Point every device at public NTP servers directly"
+          - "Set each device's clock by hand"
+          - "Point every device at the two internal NTP servers, which sync to an external source"
+          - "Deploy PTP across the network"
+        answer: 2
+        why: "A small internal NTP hierarchy gives consistent, accurate time within the firewall policy."
+        whys:
+          - "Accurate, but the firewall blocks it and 80 devices would each talk to the outside."
+          - "Agrees today, but the clocks drift apart again."
+          - "Best: every device follows the same source, that source follows real time, and the firewall rule is respected."
+          - "Far more precise than log timestamps need, and requires hardware that supports it."
+
+      - id: np-3z-b20
+        type: mcq
+        best: true
+        q: "Administrators open SSH sessions to network devices straight from their everyday laptops, which also browse the web and read e-mail. The team wants to shrink that exposure and have one place where all administrative sessions are logged. Which is BEST?"
+        choices:
+          - "A hardened jump host, with devices accepting SSH only from it"
+          - "ACLs on the devices permitting the administrators' laptop addresses"
+          - "Longer passwords on the device accounts"
+          - "A separate management VLAN that the laptops can route to"
+        answer: 0
+        why: "A jump host gives a single, hardened and logged entry point to the management plane."
+        whys:
+          - "Best: devices trust one controlled system, and every session passes through it and can be logged there."
+          - "Narrows the sources, but the exposed laptops still connect directly and nothing logs in one place."
+          - "Harder to guess, but changes nothing about where sessions come from."
+          - "Tidies the paths, but the same laptops still connect directly."
+
+  - id: np-4z
+    title: "Best-answer practice: Network Security"
+    domain: "4"
+    goal: "I can choose the security control that best fits a stated threat and constraint when all four controls are legitimate."
+    notes: |
+      Security best-answer questions list four real controls. Sort them before you choose.
+
+      **Sort each choice by what it does**
+
+      | Type | Does | Typical wording |
+      | Preventive | Stops the event | block, deny, lock, encrypt |
+      | Detective | Reports the event | alert, log, camera, IDS |
+      | Administrative | Tells people the rule | policy, training |
+      | Compensating | Limits harm when the ideal fix is impossible | isolate, restrict |
+
+      If the stem says **prevent**, **stop** or **automatically**, a detective or administrative control is weaker, however sensible it is.
+
+      **Constraints to look for**
+
+      - **The exact threat.** A control for a neighbouring attack is the usual distractor: port security does not stop ARP poisoning.
+      - **Where the control sits.** A flood bigger than your circuit cannot be filtered on your side of the circuit.
+      - **Scope words:** "across the VLAN", "all 800 hosts" rule out per-host fixes.
+      - **"Cannot be patched or replaced":** look for the compensating control.
+      - **Least privilege:** the smallest access that still lets the job be done at its real frequency.
+      - **FIRST:** what closes the exposure that exists right now.
+    items:
+      - id: np-4z-b01
+        type: mcq
+        best: true
+        q: "Sales laptops carry customer data and are sometimes stolen from cars. The data must be unreadable to a thief even if the laptop is never connected to a network again. Which control is BEST?"
+        choices:
+          - "Remote wipe through device management"
+          - "An always-on VPN"
+          - "Cable locks issued to all sales staff"
+          - "Full-disk encryption"
+        answer: 3
+        why: "Encryption at rest protects stored data with no dependence on the network."
+        whys:
+          - "Destroys the data, but only if the stolen laptop comes online to receive the command."
+          - "Protects data in transit, not the files stored on the disk."
+          - "Deters some thefts, but does nothing once a laptop has been taken."
+          - "Best: the data is protected on the disk itself, whether or not the laptop ever goes online."
+
+      - id: np-4z-b02
+        type: mcq
+        best: true
+        q: "Network engineers log in to 300 routers and switches. The security team wants central control over which commands each engineer may run, and a record of every command entered. Which is BEST?"
+        choices:
+          - "RADIUS"
+          - "TACACS+"
+          - "Local accounts with privilege levels on each device"
+          - "Direct LDAP authentication against the directory"
+        answer: 1
+        why: "TACACS+ is the AAA protocol built for device administration with per-command authorisation and accounting."
+        whys:
+          - "Central authentication and session accounting, but it does not authorise individual commands."
+          - "Best: it separates authorisation from authentication, so it can approve and record each command centrally."
+          - "Can limit commands, but must be maintained on 300 devices with no central record."
+          - "Central identities, but no command authorisation or command accounting."
+
+      - id: np-4z-b03
+        type: mcq
+        best: true
+        q: "Attackers send VPN administrators to a fake login page that relays whatever is typed to the real site in real time. Which second factor is MOST resistant to this attack?"
+        choices:
+          - "A six-digit code from an authenticator app"
+          - "A FIDO2 hardware security key"
+          - "A code sent by SMS"
+          - "A push notification to approve on a phone"
+        answer: 1
+        why: "A factor bound to the site's identity cannot be relayed through a look-alike page."
+        whys:
+          - "Strong against stolen passwords, but the code can be typed into the fake page and relayed."
+          - "Best: the key answers only the genuine site's address, so a fake page gets nothing it can relay."
+          - "Can be relayed in the same way, and is also exposed to SIM swapping."
+          - "Convenient, but the administrator ends up approving the attacker's relayed login."
+
+      - id: np-4z-b04
+        type: mcq
+        best: true
+        q: "Help-desk staff need to shut and re-enable switch ports about twenty times a day and to view configurations. They need nothing else. Which is BEST?"
+        choices:
+          - "Full administrator rights, with every command logged"
+          - "A shared read-only account, with every port reset escalated to a network engineer"
+          - "Individual administrator accounts that expire each month"
+          - "A help-desk role permitting only interface shut/no shut and show commands"
+        answer: 3
+        why: "Role-based access with least privilege grants the task and no more."
+        whys:
+          - "Records misuse, but does not prevent it."
+          - "The least access, but twenty escalations a day, and a shared account hides who did what."
+          - "Limits how long access lasts, not how much it allows."
+          - "Best: exactly the access the job needs, held by named individuals, with nothing extra."
+
+      - id: np-4z-b05
+        type: mcq
+        best: true
+        q: "Wiring closets open onto a school corridor. Entry must be prevented for anyone unauthorised, and there must be a record of which staff member opened each door and when. Which control is BEST?"
+        choices:
+          - "A badge reader lock on each closet door"
+          - "A keyed lock with keys issued to IT staff"
+          - "A camera covering each door"
+          - "A door-open alarm sent to the monitoring system"
+        answer: 0
+        why: "Only a badge reader both prevents entry and records who entered."
+        whys:
+          - "Best: it keeps the door locked to others and logs each badge and time."
+          - "Prevents entry, but keeps no record and keys can be copied."
+          - "Records who entered, but does not stop anyone."
+          - "Reports that a door opened, but neither stops entry nor says who it was."
+
+      - id: np-4z-b06
+        type: mcq
+        best: true
+        q: "A company suspects an intruder may already be inside its network. It wants a cheap alarm with very few false positives that fires when someone starts exploring internal systems. Which is BEST?"
+        choices:
+          - "An IDS sensor on every internal VLAN"
+          - "More device logs sent to the SIEM"
+          - "A honeypot that no legitimate user has any reason to touch"
+          - "A monthly vulnerability scan"
+        answer: 2
+        why: "A decoy has no legitimate traffic, which makes it a cheap, low-noise tripwire."
+        whys:
+          - "Sees far more, but is costly and alerts on a great deal of normal traffic."
+          - "Adds evidence, but also adds noise that must be tuned."
+          - "Best: any contact with it is suspicious by definition, so alerts are rare and meaningful."
+          - "Finds weaknesses, not intruders who are already inside."
+
+      - id: np-4z-b07
+        type: mcq
+        best: true
+        q: "A shop's payment terminals share one flat network with office PCs, Wi-Fi and cameras, so the whole network falls inside its PCI DSS assessment. Using the existing switches and firewall, which action BEST reduces the scope?"
+        choices:
+          - "Apply the PCI DSS controls to every device on the flat network"
+          - "Run quarterly vulnerability scans of the whole network"
+          - "Put the terminals in their own VLAN, firewalled from the rest"
+          - "Encrypt the office Wi-Fi with WPA3"
+        answer: 2
+        why: "Scope follows connectivity to cardholder data; isolating the terminals shrinks it."
+        whys:
+          - "Compliant, but that is the full scope the shop wants to reduce."
+          - "A required activity, but it does not make the scope smaller."
+          - "Best: segmentation takes the other systems out of the cardholder data environment."
+          - "Protects one way in, but the terminals remain on the same network as everything else."
+
+      - id: np-4z-b08
+        type: mcq
+        best: true
+        q: "A contract states that EU customers' records must be stored only on systems physically located in the EU. The records are moving to a public cloud. Which is BEST?"
+        choices:
+          - "Store them in EU regions and restrict replication and backups to EU regions"
+          - "Encrypt them with company-held keys and use the cheapest region"
+          - "Block access to the records from non-EU IP addresses"
+          - "Have the provider sign a data-protection agreement"
+        answer: 0
+        why: "A data locality rule is met only by controlling the location of all copies."
+        whys:
+          - "Best: it controls where every copy of the data physically sits, including the backups."
+          - "Protects confidentiality, but the data would still be stored outside the EU."
+          - "Controls who reads the data, not where it is stored."
+          - "A useful legal safeguard, but it does not put the data in the EU."
+
+      - id: np-4z-b09
+        type: mcq
+        best: true
+        q: "A factory's controllers have a flaw in the industrial protocol they must keep using. The vendor has no patch, and replacements are two years away. Which is the BEST compensating control now?"
+        choices:
+          - "An IDS watching the controllers' traffic"
+          - "Disable unused services on the controllers"
+          - "A written policy, signed by all staff, forbidding unapproved devices on the factory network"
+          - "Isolate the controllers behind a firewall admitting only the engineering workstations"
+        answer: 3
+        why: "When a system cannot be fixed, isolate it and allow only the traffic it requires."
+        whys:
+          - "Reports an attack, but does not stop it."
+          - "Good hardening, but the flaw is in the protocol that must stay on."
+          - "An administrative control that does not stop malware arriving on an approved PC."
+          - "Best: the flaw stays, but almost nothing can reach it."
+
+      - id: np-4z-b10
+        type: mcq
+        best: true
+        q: "A flood of traffic larger than the company's Internet circuit is aimed at its public web site. Which defence is MOST effective?"
+        choices:
+          - "Rate limiting on the company's own edge firewall"
+          - "A provider-side or cloud DDoS scrubbing service"
+          - "An inline IPS behind the firewall"
+          - "A larger Internet circuit"
+        answer: 1
+        why: "A volumetric attack must be handled where there is more capacity than the attack: upstream."
+        whys:
+          - "Fine for small floods, but the circuit is already full before traffic reaches the firewall."
+          - "Best: the flood is absorbed and filtered upstream, before it can fill the company's circuit."
+          - "Can drop attack packets, but only after they have already used up the circuit."
+          - "Raises the bar, but attackers can add traffic more cheaply than the company can add bandwidth."
+
+      - id: np-4z-b11
+        type: mcq
+        best: true
+        q: "On an 800-host user VLAN that uses DHCP, an attacker's PC answers ARP requests for the gateway with its own MAC address. Which control BEST prevents this across the VLAN?"
+        choices:
+          - "Static ARP entries for the gateway on every PC"
+          - "Dynamic ARP inspection, using the DHCP snooping table"
+          - "Port security limiting each port to one MAC address"
+          - "An IDS rule that alerts when the gateway's MAC changes"
+        answer: 1
+        why: "Dynamic ARP inspection validates ARP at the switch for every host at once."
+        whys:
+          - "Works on each PC, but means maintaining 800 machines."
+          - "Best: the switch drops ARP replies that do not match the address each port was leased."
+          - "Stops MAC flooding and extra devices, but the attacker is using its own real MAC."
+          - "Detects the attack, but does not block it."
+
+      - id: np-4z-b12
+        type: mcq
+        best: true
+        q: "An attacker's tool sends frames with thousands of fake source MAC addresses from one desk port, trying to fill the switch's MAC table so that it floods traffic to every port. Which control BEST stops the attack at its source?"
+        choices:
+          - "Switches with a larger MAC address table"
+          - "Smaller VLANs"
+          - "An alert when the MAC table nears capacity"
+          - "Port security limiting the number of MAC addresses learned per access port"
+        answer: 3
+        why: "Capping learned addresses per port defeats MAC flooding where it starts."
+        whys:
+          - "Takes longer to fill, but the tool simply keeps sending."
+          - "Limits who receives the flooded traffic, but the table still fills."
+          - "Detects the attack, but does not stop it."
+          - "Best: the port stops learning, or shuts, after a few addresses, so the table never fills."
+
+      - id: np-4z-b13
+        type: mcq
+        best: true
+        q: "An impostor access point in the lobby copies the company SSID, and laptops try to join it. Laptops must refuse to hand over credentials to an impostor, even when nobody has noticed it is there. Which control is BEST?"
+        choices:
+          - "WPA2/WPA3-Enterprise with laptops set to validate the authentication server's certificate"
+          - "A wireless intrusion prevention system"
+          - "Security awareness training about fake hotspots"
+          - "A weekly walk-through with a Wi-Fi analyser"
+        answer: 0
+        why: "Server certificate validation makes the client reject an evil twin without any human noticing."
+        whys:
+          - "Best: the laptop checks the network's identity itself and abandons the login when the certificate is wrong."
+          - "Detects and can contain an impostor, but only after it appears and only where sensors hear it."
+          - "Worth doing, but users cannot tell two identical SSIDs apart."
+          - "Finds an impostor that happens to be present during that hour."
+
+      - id: np-4z-b14
+        type: mcq
+        best: true
+        q: "Contractors plug their own laptops into office wall jacks. Some are months behind on patches. Unpatched machines must be kept off the internal network automatically, while still being able to reach the update servers. Which is BEST?"
+        choices:
+          - "802.1X authentication with contractor user accounts"
+          - "Port security with sticky MAC addresses"
+          - "NAC with a posture check that places failing devices in a quarantine VLAN"
+          - "A signed policy requiring contractors to patch before visiting"
+        answer: 2
+        why: "Posture assessment with quarantine enforces a health rule automatically."
+        whys:
+          - "Proves who is connecting, not whether the laptop is patched."
+          - "Ties ports to known devices, but says nothing about patch level."
+          - "Best: it tests each device's health at connection and gives failures access only to remediation."
+          - "States the rule, but nothing enforces it at the jack."
+
+      - id: np-4z-b15
+        type: mcq
+        best: true
+        q: "A new switch is about to be connected to the management network so that it can download its firmware update. It is still at factory settings. Which hardening step should be done FIRST, before it is plugged in?"
+        choices:
+          - "Install the firmware update"
+          - "Disable the unused switch ports"
+          - "Change the default administrator credentials"
+          - "Configure logging to the central syslog server"
+        answer: 2
+        why: "Default credentials are public knowledge, so they must go before the device touches a network."
+        whys:
+          - "Important, but it needs the network connection during which the defaults would be exposed."
+          - "Matters before users are connected, but does not protect the management login."
+          - "Best: it closes the one hole that anyone on the network could use the moment the switch is connected."
+          - "Useful afterwards, but it records access instead of preventing it."
+
+      - id: np-4z-b16
+        type: mcq
+        best: true
+        q: "A public web server needs inbound HTTPS from the Internet and must query a database that holds customer records. If the web server is compromised, the attacker must not gain a free path into the internal network. Which design is BEST?"
+        choices:
+          - "Web server in a screened subnet; database inside, reachable from it on the database port only"
+          - "Web server on the internal LAN with HTTPS forwarded to it"
+          - "Web server and database together in the screened subnet, with only HTTPS allowed in from the Internet"
+          - "Web server on the internal LAN behind a web application firewall"
+        answer: 0
+        why: "A screened subnet contains the exposed server and the firewall limits what it can reach inside."
+        whys:
+          - "Best: a compromised web server can reach one port on one internal host and nothing else."
+          - "Simple, but a compromised server is already inside the LAN."
+          - "Protects the LAN, but puts the customer records in the exposed zone."
+          - "Blocks many web attacks, but one that succeeds still lands inside the LAN."
+
+  - id: np-5z
+    title: "Best-answer practice: Network Troubleshooting"
+    domain: "5"
+    goal: "I can pick the correct first or next step of the troubleshooting methodology, and the most likely cause, when every option is a sensible thing to do."
+    notes: |
+      Troubleshooting best-answer questions offer four sensible actions. The right one is the action that belongs **at this point** in the seven steps.
+
+      **The seven steps**
+
+      | # | Step |
+      | 1 | Identify the problem: gather information, question users, find what changed |
+      | 2 | Establish a theory of probable cause |
+      | 3 | Test the theory |
+      | 4 | Establish a plan of action and identify potential effects |
+      | 5 | Implement the solution or escalate |
+      | 6 | Verify full system functionality and implement preventive measures |
+      | 7 | Document findings, actions, outcomes and lessons learned |
+
+      **For FIRST and NEXT:** work out which step the stem has reached, then choose the next one. A fix chosen before a theory is tested is wrong, however likely it is to work.
+
+      **For MOST likely cause:** use every fact given. Each distractor is a real cause that one detail in the stem rules out.
+
+      **Usual traps**
+
+      - Testing the slow, disruptive theory before the quick, obvious one.
+      - Documenting before verifying.
+      - Fixing one device when the question asks about the class of problem.
+    items:
+      - id: np-5z-b01
+        type: mcq
+        best: true
+        q: "A user phones the help desk and says only, 'The Internet is down.' Following the troubleshooting methodology, what should the technician do FIRST?"
+        choices:
+          - "Ping the default gateway from the user's PC"
+          - "Check the user's switch port for errors"
+          - "Have the user restart the PC"
+          - "Ask what exactly fails, when it started, and whether colleagues are affected"
+        answer: 3
+        why: "Gather information and question the user before forming or testing any theory."
+        whys:
+          - "A useful test, but it belongs after the problem has been identified and a theory formed."
+          - "Tests one theory before the scope of the problem is known."
+          - "May clear the fault and the evidence together, before anyone knows what the problem is."
+          - "Best: step 1 is to identify the problem, and nothing is yet known about its symptoms or scope."
+
+      - id: np-5z-b02
+        type: mcq
+        best: true
+        q: "Twenty users on one floor lose the network at the same moment. The technician's theory is that the floor's closet switch has failed. Which is the BEST NEXT step?"
+        choices:
+          - "Take a replacement switch to the closet and install it"
+          - "Check whether the switch has power and answers on its management address"
+          - "Visit each of the twenty PCs and check its network settings and link light"
+          - "Escalate to the switch vendor"
+        answer: 1
+        why: "Step 3 follows step 2: test the theory before acting on it."
+        whys:
+          - "May turn out to be the fix, but it acts on a theory that has not been tested."
+          - "Best: a theory has been established, so the next step is to test it, and this test takes moments."
+          - "Gathers more data, but the scope already points to something shared."
+          - "Premature: nothing has yet shown the switch to be at fault."
+
+      - id: np-5z-b03
+        type: mcq
+        best: true
+        q: "A technician has confirmed that an uplink transceiver is failing and has a spare in hand. Swapping it will cut off 200 users for about two minutes, and it is mid-morning. What should the technician do NEXT?"
+        choices:
+          - "Swap it immediately, since the outage is short"
+          - "Plan the swap: identify who is affected, agree a time and get approval"
+          - "Document the finding and close the ticket"
+          - "Run further tests on the transceiver to confirm the theory a second time"
+        answer: 1
+        why: "Establish a plan and identify potential effects before implementing a disruptive fix."
+        whys:
+          - "Fixes it soonest, but imposes an unannounced outage by skipping the planning step."
+          - "Best: with the theory confirmed, step 4 is a plan of action that accounts for the effect on 200 users."
+          - "Documentation is the last step, and nothing has been fixed yet."
+          - "Thorough, but the theory is already confirmed, so this only delays the fix."
+
+      - id: np-5z-b04
+        type: mcq
+        best: true
+        q: "Users could not open any web site. A technician corrected the DNS forwarder address, and the user who reported the fault can now open the site she first complained about. What should the technician do NEXT?"
+        choices:
+          - "Document the cause and the fix, then close the ticket"
+          - "Add monitoring that alerts when the forwarder stops answering"
+          - "Explain to the user what went wrong"
+          - "Confirm that other users and other names resolve as well"
+        answer: 3
+        why: "Step 6 is to verify full system functionality before anything is closed or written up."
+        whys:
+          - "Required, but it is the last step and comes after verification."
+          - "A good preventive measure, but it follows confirming that the fix worked."
+          - "Courteous, but it does not establish whether the problem is fully solved."
+          - "Best: one user and one site working does not show that the whole fault is cleared."
+
+      - id: np-5z-b05
+        type: mcq
+        best: true
+        q: "One PC drops its connection every few minutes. The technician has two theories: a damaged patch cable (a spare is in hand) or a failing switch line card (replacing it needs a maintenance window). Which should be done FIRST?"
+        choices:
+          - "Swap the patch cable and watch whether the drops stop"
+          - "Schedule the window and replace the line card"
+          - "Open a vendor case and wait for guidance"
+          - "Run a packet capture on the port for a day"
+        answer: 0
+        why: "Question the obvious: test the cheap, fast theory before the slow, disruptive one."
+        whys:
+          - "Best: it is the obvious, quick and harmless test, and it settles one theory in minutes."
+          - "Would test the other theory, but it is slow and disruptive, and a failing card would probably affect other ports too."
+          - "Premature while a thirty-second test remains untried."
+          - "Collects data, but delays a faster test and shows the drops, not their cause."
+
+      - id: np-5z-b06
+        type: mcq
+        best: true
+        q: "A technician has tested three theories for a branch outage and disproved each one. She has re-confirmed the symptoms with the users, has no further theory, and the SLA expires in 30 minutes. What is the BEST NEXT step?"
+        choices:
+          - "Keep working alone until a new theory comes to mind"
+          - "Reboot the branch router and switches in case it helps"
+          - "Escalate, handing over the symptoms and the theories already ruled out"
+          - "Start a long-running packet capture at the branch router for later analysis"
+        answer: 2
+        why: "With no theory left and the SLA near, escalate with good notes so the next engineer does not repeat the work."
+        whys:
+          - "The methodology allows a new theory, but she has none and time is nearly gone."
+          - "Sometimes clears a fault, but it is an untested change that also destroys evidence."
+          - "Best: when a theory fails the choice is a new theory or escalation, and she has no new theory and little time."
+          - "May help the next engineer, but makes no progress inside 30 minutes."
+
+      - id: np-5z-b07
+        type: mcq
+        best: true
+        q: "A user reports that a file share 'froze for ten minutes yesterday at about 15:00'. It works now and she cannot make it happen again. What should the technician do FIRST?"
+        choices:
+          - "Replace the user's patch cable as a precaution"
+          - "Close the ticket as 'could not reproduce'"
+          - "Check server, switch and monitoring logs for that time and ask what else was happening"
+          - "Ask the user to call the moment it happens again"
+        answer: 2
+        why: "Step 1 comes first: when a fault cannot be reproduced, gather information from logs and the user."
+        whys:
+          - "Cheap, but it is a change made with no theory, and its effect could never be verified."
+          - "Honest, but it skips the evidence already sitting in the logs."
+          - "Best: the problem cannot be duplicated, so the evidence that already exists for 15:00 is the way to identify it."
+          - "Worth doing, but passive; do it after checking what the logs already show."
+
+      - id: np-5z-b08
+        type: mcq
+        best: true
+        q: "Wi-Fi in one meeting room became unusable on Monday; every other room is fine. Over the weekend a wireless presentation system was installed in that room. The room's access point is up and reports very high channel utilisation and retries. What is the MOST likely cause?"
+        choices:
+          - "Interference from the new presentation system on the same channel"
+          - "A failing radio in the access point"
+          - "DHCP scope exhaustion"
+          - "A fault in the wireless controller's firmware"
+        answer: 0
+        why: "Ask what changed: a new transmitter in the only affected room matches every symptom."
+        whys:
+          - "Best: it is the one thing that changed, it is in the one room affected, and it explains a busy channel with retries."
+          - "Possible, but it would be a coincidence, and the radio is up and reporting a busy channel."
+          - "Would stop new clients getting addresses wherever that scope is used, not raise retries in one room."
+          - "Would affect access points in other rooms as well."
+
+      - id: np-5z-b09
+        type: mcq
+        best: true
+        q: "One copper access port logs bursts of CRC errors. Both ends are set to full duplex and show no collisions. The bursts line up with the times a lift motor runs, and the cable passes the lift's power feed. What is the MOST likely cause?"
+        choices:
+          - "A duplex mismatch"
+          - "A failing NIC in the PC"
+          - "A damaged patch cable at the desk"
+          - "Electromagnetic interference on the cable run"
+        answer: 3
+        why: "CRC bursts that track a nearby electrical load indicate EMI."
+        whys:
+          - "A classic cause of CRC errors, but both ends are full duplex and there are no late collisions."
+          - "Can corrupt frames, but would not keep time with the lift."
+          - "Also produces CRC errors, but they would follow cable movement or be constant, not follow the lift."
+          - "Best: errors that follow the lift motor, on a cable beside its power feed, point to induced noise."
+
+      - id: np-5z-b10
+        type: mcq
+        best: true
+        q: "A desktop that used to link at 1 Gb/s has linked at 100 Mb/s since its wall jack was re-terminated last week. Both ends are set to auto-negotiate, the run is 40 m, and a laptop on the same jack also gets 100 Mb/s. What is the MOST likely cause?"
+        choices:
+          - "The switch port is fixed at 100 Mb/s"
+          - "One or two of the four pairs are not connected at the new termination"
+          - "The desktop's NIC driver is faulty"
+          - "The cable run is too long"
+        answer: 1
+        why: "A drop to 100 Mb/s straight after re-termination means only two pairs are working."
+        whys:
+          - "Would give this result, but both ends are set to auto-negotiate."
+          - "Best: gigabit needs all four pairs, 100 Mb/s needs two, and the termination is what changed."
+          - "A laptop on the same jack behaves the same way."
+          - "Length does cause trouble beyond 100 m, but this run is 40 m."
+
+      - id: np-5z-b11
+        type: mcq
+        best: true
+        q: "A newly pulled and terminated copper run shows no link light. The same switch port and PC worked on the old run. The technician carries a basic cable tester and a TDR. What should be done FIRST?"
+        choices:
+          - "Run a TDR test to measure the distance to a fault"
+          - "Run a wire-map test with the basic cable tester"
+          - "Move the run to a different switch port"
+          - "Cut off both connectors and re-terminate"
+        answer: 1
+        why: "Test the changed component with the quickest tool that confirms or clears it."
+        whys:
+          - "The right follow-up once the tester has shown that there is an open or short to locate."
+          - "Best: the new run is what changed, and a wire map shows in seconds whether it has an open, short or crossed pair."
+          - "Rules out the port, but the port worked before and the run is what changed."
+          - "May fix it, but replaces parts before knowing whether, or at which end, the fault lies."
+
+      - id: np-5z-b12
+        type: mcq
+        best: true
+        q: "A new outdoor camera on an 802.3af switch port works by day but reboots at dusk, when its infrared lamps switch on. Its datasheet lists a 22 W peak. The cable is 80 m and the switch shows 200 W of PoE budget unused. What is the MOST likely cause?"
+        choices:
+          - "The switch's total PoE budget is exhausted"
+          - "The cable run is too long for PoE"
+          - "The camera is defective"
+          - "The camera's peak draw exceeds what an 802.3af port can supply"
+        answer: 3
+        why: "Compare the device's peak draw with the per-port limit of the PoE standard."
+        whys:
+          - "Does cause ports to be refused power, but 200 W is unused."
+          - "Voltage drop matters on long runs, but 80 m is within the limit."
+          - "Possible, but the datasheet figure already explains a reboot exactly when the load rises."
+          - "Best: 802.3af supplies up to 15.4 W per port, and the camera asks for 22 W when the lamps come on."
+
+      - id: np-5z-b13
+        type: mcq
+        best: true
+        q: "A new PC in Accounting receives 10.20.0.57 by DHCP, a valid address from the real server's Sales scope. Every other Accounting PC receives a 10.30.0.x address. What is the MOST likely cause?"
+        choices:
+          - "The PC's switch port is assigned to the Sales VLAN"
+          - "The Accounting DHCP scope is misconfigured"
+          - "A rogue DHCP server is on the network"
+          - "The Accounting scope has run out of addresses"
+        answer: 0
+        why: "A valid address from the wrong scope means the port is in the wrong VLAN."
+        whys:
+          - "Best: the genuine server gave a genuine Sales address, so the request arrived from the Sales VLAN."
+          - "Would affect the other Accounting PCs as well."
+          - "Would hand out its own addresses; this one came from the real server's real scope."
+          - "Would leave the PC with no lease or an APIPA address, not a Sales address."
+
+      - id: np-5z-b14
+        type: mcq
+        best: true
+        q: "A flat office network is 10.1.0.0/16 with its gateway at 10.1.0.1. One PC, configured by hand as 10.1.1.50, mask 255.255.255.0, gateway 10.1.0.1, can reach its 10.1.1.x neighbours but not a server at 10.1.2.20 or the Internet. What is the MOST likely cause?"
+        choices:
+          - "The PC's default gateway address is wrong"
+          - "The server at 10.1.2.20 is blocking the PC"
+          - "The PC's subnet mask is wrong"
+          - "The PC's address duplicates another host's"
+        answer: 2
+        why: "The mask should be 255.255.0.0; the /24 mask puts the gateway outside the PC's own subnet."
+        whys:
+          - "The address is right for this network; it is unreachable only because of the mask."
+          - "Would explain the server, but not the loss of the Internet."
+          - "Best: with a /24 mask the PC believes 10.1.2.20 and even its gateway are on another network it cannot reach."
+          - "Would cause intermittent trouble, including with its 10.1.1.x neighbours."
+
+      - id: np-5z-b15
+        type: mcq
+        best: true
+        q: "Users in VLAN 30 can reach each other and a server in their own VLAN, but nothing beyond it, even by IP address. Every other VLAN works normally. Yesterday an engineer edited the Layer 3 switch. What should be checked FIRST?"
+        choices:
+          - "The Internet circuit and the provider's status page"
+          - "The network adapter and cabling of each affected PC"
+          - "The VLAN 30 gateway interface (SVI) on the Layer 3 switch: its state and its address"
+          - "The DNS server's forwarders"
+        answer: 2
+        why: "Local traffic works and routed traffic does not, so start at that VLAN's gateway, where the change was made."
+        whys:
+          - "Worth checking in a wider outage, but every other VLAN works."
+          - "The PCs reach each other and their local server, so their links are working."
+          - "Best: only routed traffic from one VLAN fails, and the device that routes it was changed yesterday."
+          - "Would break name resolution, but access fails even by IP address."
+
+      - id: np-5z-b16
+        type: mcq
+        best: true
+        q: "A branch added subnet 10.50.2.0/24. The branch's older subnets are still reachable from headquarters. From headquarters, a traceroute to 10.50.2.10 leaves through the Internet firewall instead of the branch WAN link. What is the MOST likely cause?"
+        choices:
+          - "Headquarters has no route to 10.50.2.0/24, so the traffic follows the default route"
+          - "An ACL on the branch router is dropping the traffic"
+          - "The host 10.50.2.10 has a local firewall enabled"
+          - "The branch WAN link is down"
+        answer: 0
+        why: "A new subnet must be advertised or added as a route at the far end; without it the default route wins."
+        whys:
+          - "Best: packets heading for the Internet show that no specific route matched and the default route was used."
+          - "Would block it, but the traffic never sets off toward the branch."
+          - "Would stop the host's replies, but the traceroute would still head toward the branch."
+          - "Would cut off the older branch subnets as well, and they are reachable."
+
+      - id: np-5z-b17
+        type: mcq
+        best: true
+        q: "Calls on a branch's IP phones break up whenever the hourly database replication runs, and the WAN link then sits at 98%. Replication must stay hourly for compliance, and there is no budget for more bandwidth. Which fix is BEST?"
+        choices:
+          - "Upgrade the WAN circuit"
+          - "Move the phones into their own voice VLAN"
+          - "Switch the phones to a lower-bit-rate codec"
+          - "Apply QoS on the WAN link to prioritise voice over replication"
+        answer: 3
+        why: "When a congested link cannot be enlarged or relieved, prioritise the delay-sensitive traffic."
+        whys:
+          - "Removes the congestion, but there is no budget."
+          - "Good practice on the LAN, but the WAN link still treats both kinds of traffic alike."
+          - "Each call needs less bandwidth, but its packets still queue behind replication."
+          - "Best: voice is sent first during congestion, at no cost and without changing the replication schedule."
+
+      - id: np-5z-b18
+        type: mcq
+        best: true
+        q: "Users say an application is slow. From a user's PC, pings to the application server take 2 ms with no loss, and large file copies to the same server run at full speed. Only the screens that run database reports are slow. What is the BEST NEXT step?"
+        choices:
+          - "Apply QoS to prioritise the application's traffic"
+          - "Measure the server's response time with a capture showing how long each request waits"
+          - "Certify the cabling between the users and the server"
+          - "Upgrade the server's uplink to 10 Gb/s"
+        answer: 1
+        why: "Low latency, no loss and full throughput point away from the network; test where the time is actually spent."
+        whys:
+          - "Helps under congestion, but nothing here shows congestion."
+          - "Best: the network path tests clean, so the next test is whether the delay is inside the server or its database."
+          - "Would matter with errors or low throughput, but file copies run at full speed."
+          - "Adds capacity, but nothing shows the link to be the limit."
+
+      - id: np-5z-b19
+        type: mcq
+        best: true
+        q: "Clients in one corner of an office connect at the lowest data rates. A survey shows -80 dBm there and no interference. The corner lies behind a concrete lift shaft, and the nearest access point is already at maximum power. Which fix is BEST?"
+        choices:
+          - "Change the nearest access point's channel"
+          - "Install an additional access point on the corner's side of the lift shaft"
+          - "Restrict the corner's clients to 2.4 GHz"
+          - "Fit a higher-gain antenna to the nearest access point"
+        answer: 1
+        why: "Weak signal with no interference is a coverage problem; fix it with coverage."
+        whys:
+          - "Cures interference, but the survey found none."
+          - "Best: the fault is coverage blocked by an obstacle, and only a radio on the far side removes the obstacle from the path."
+          - "Penetrates a little better, but still passes through concrete and uses a more crowded band."
+          - "Helps slightly in both directions, but the concrete is still in the way."
+
+      - id: np-5z-b20
+        type: mcq
+        best: true
+        q: "Users in one part of a floor report Wi-Fi drops. Before changing anything, the technician wants to know whether the area suffers from weak signal or from interference. Which tool is BEST to use FIRST?"
+        choices:
+          - "A throughput test such as iperf from an affected laptop to a wired server"
+          - "A packet capture on the wired side of the access point"
+          - "The wireless controller's client event log"
+          - "A Wi-Fi analyser, to read signal strength and channel use in that area"
+        answer: 3
+        why: "A Wi-Fi analyser separates coverage faults from interference faults directly."
+        whys:
+          - "Measures how bad it is, not why."
+          - "Sees the frames that arrived, not the radio conditions that lost the others."
+          - "Shows disconnections and reason codes, a useful next look, but cannot measure signal at the desks."
+          - "Best: it measures the two things in question, at the place where users have the problem."
+
+      - id: np-5z-b21
+        type: mcq
+        best: true
+        q: "A PC cannot reach a server at a remote site. Pinging the server's IP address fails; pinging the PC's own default gateway succeeds. Which tool is BEST to use NEXT?"
+        choices:
+          - "traceroute (tracert) to the server's address"
+          - "nslookup for the server's name"
+          - "A packet capture on the PC"
+          - "The routing table of each router along the path, one at a time"
+        answer: 0
+        why: "With the local hop proven good, traceroute finds how far along the path packets get."
+        whys:
+          - "Best: it shows the last router that answers, which is where to look next."
+          - "Tests DNS, but the failure is with an IP address."
+          - "Confirms that no replies return, but not where they stop."
+          - "Would find the fault, but slowly; traceroute says which router to open first."
+
+      - id: np-5z-b22
+        type: mcq
+        best: true
+        q: "A new firewall rule should allow the user subnet to reach a server on TCP 8443. The technician wants the most direct proof that it works end to end. Which test is BEST?"
+        choices:
+          - "From the same PC, ping the server"
+          - "Read the rule back in the firewall's configuration"
+          - "From a PC in the user subnet, open a TCP connection to the server on port 8443"
+          - "Run a packet capture on the server and wait for user traffic to TCP 8443 to arrive"
+        answer: 2
+        why: "Prove a rule with the same source, destination, protocol and port that the rule describes."
+        whys:
+          - "Proves ICMP reachability, but the rule concerns TCP 8443."
+          - "Confirms what was typed, not that an earlier rule, NAT or another device lets the traffic pass."
+          - "Best: it tests the real protocol and port, from the real source, through every device in the path."
+          - "Would show connections arriving, but is slower and depends on someone trying."
+
+      - id: np-5z-b23
+        type: mcq
+        best: true
+        q: "A PC with a faulty NIC flaps its link every few seconds. Each flap makes spanning tree announce a topology change, switches flush their MAC tables, and the whole VLAN slows down. The NIC is being replaced. Which action BEST prevents this class of problem in future?"
+        choices:
+          - "Replace the faulty NIC"
+          - "Shut the port until the PC is repaired"
+          - "Configure all end-device ports as edge (PortFast) ports"
+          - "Raise the MAC address ageing time on every switch in the VLAN"
+        answer: 2
+        why: "Prefer the fix for the class: edge ports do not generate topology changes."
+        whys:
+          - "Fixes this PC, but the next flapping device does the same."
+          - "Stops today's flapping, but protects against nothing else."
+          - "Best: it removes the mechanism, so no end device's flapping link can disturb the VLAN again."
+          - "Reduces ordinary time-outs, but a topology change still flushes the tables."
+
+      - id: np-5z-b24
+        type: mcq
+        best: true
+        q: "A server is unreachable for a few seconds at a time. On the gateway, the ARP entry for the server's IP address alternates between the server's MAC and a second MAC, which belongs to a printer installed yesterday with a hand-typed address. What is the MOST likely cause?"
+        choices:
+          - "The printer was given the same IP address as the server"
+          - "An ARP poisoning attack"
+          - "A failing NIC team on the server"
+          - "A switching loop"
+        answer: 0
+        why: "An ARP entry that alternates between two known devices after a manual install indicates a duplicate address."
+        whys:
+          - "Best: two devices answering ARP for one address, one of them newly and manually addressed, is a duplicate IP."
+          - "Produces the same alternating entry, but the second MAC is a new printer with a typed-in address."
+          - "Can flip between the server's own MAC addresses, not to a printer's."
+          - "Makes MAC addresses jump between ports and floods the VLAN; it does not make one IP alternate between two devices."
+
+      - id: np-5z-b25
+        type: mcq
+        best: true
+        q: "Wi-Fi logins failed for everyone because the authentication server's certificate expired unnoticed. It has been renewed and all users are confirmed working. Which action BEST completes the 'implement preventive measures' part of the methodology?"
+        choices:
+          - "Put a renewal reminder in the technician's own calendar"
+          - "Write the renewal procedure into the ticket"
+          - "Issue the next certificate with the longest lifetime the authority allows"
+          - "Add certificate-expiry monitoring that alerts the team 30 days ahead"
+        answer: 3
+        why: "A preventive measure should stop the recurrence without depending on one person remembering."
+        whys:
+          - "Helps, but depends on one person being present and noticing."
+          - "That is documentation, step 7; it speeds up a renewal but does not warn that one is due."
+          - "Makes expiry rarer, but it will still arrive unannounced."
+          - "Best: it removes the cause, an expiry nobody saw coming, for this certificate and without relying on anyone's memory."
+
+      - id: np-5z-b26
+        type: mcq
+        best: true
+        q: "An outage took six hours to resolve, four of them lost because the network diagram showed the wrong uplinks. Service is restored and verified. Which is the BEST way to complete the final step of the methodology?"
+        choices:
+          - "Close the ticket with the note 'resolved - uplink re-patched'"
+          - "Record findings, actions and outcome, and correct the diagram"
+          - "Brief the team verbally at the next stand-up"
+          - "Commission a full audit of all network documentation"
+        answer: 1
+        why: "Step 7 covers findings, actions, outcomes and lessons learned, and here the lesson is the diagram."
+        whys:
+          - "Records the outcome, but the next engineer learns nothing and the diagram stays wrong."
+          - "Best: it documents the incident in full and fixes the specific thing that cost four hours."
+          - "Spreads the lesson today, but leaves nothing written."
+          - "Would find other errors, but it is a separate project and does not close out this incident."

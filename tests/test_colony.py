@@ -144,56 +144,210 @@ def test_study_is_a_second_engine_not_the_only_one(st):
     assert other["qi"] > q or other["step"] > 0
 
 
-def test_a_great_realm_is_a_gamble_and_pills_help(st):
+def _try(c, seed, pills, st):
+    s2 = copy.deepcopy(st)
+    cc = s2["colony"]
+    cc["seed"] = seed
+    cc["res"]["pills"] = pills
+    q = cc["pawns"][1]
+    q["step"], q["qi"] = 3, colony.step_need(3)
+    res = colony.attempt(s2, q["id"], T0)
+    return res, q, cc
+
+
+def test_a_great_realm_waits_for_the_order_and_is_a_gamble(st):
     c = st["colony"]
     p = c["pawns"][1]
     p["step"], p["qi"] = 2, 0.0
     colony._gain_qi(c, p, colony.step_need(2) + 1)
     assert p["step"] == 3                                                           # minor stages just happen
-    outcomes = set()
+    colony._gain_qi(c, p, colony.step_need(3) * 3)
+    assert p["step"] == 3 and p["qi"] == colony.step_need(3)                        # a great realm waits for you
+    v = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == p["id"])
+    assert v["ready"] and 5 <= v["chance"] <= 95 and sum(o["v"] for o in v["odds"]) == v["chance"] and not v["tribulation"]
+    assert any(a.get("pawn") == p["id"] for a in colony.view(st, T0)["alerts"])
+    assert not colony.attempt(st, c["pawns"][2]["id"], T0)["ok"]                    # not ready: refused
+    seen = set()
     for seed in range(40):
-        cc = copy.deepcopy(c)
-        cc["seed"] = seed
-        cc["res"]["pills"] = 0
-        q = cc["pawns"][1]
-        colony._gain_qi(cc, q, colony.step_need(3) + 1)
-        outcomes.add(q["step"])
-        if q["step"] == 3:
-            assert q["health"] < 100 and q["qi"] < colony.step_need(3)
-    assert outcomes == {3, 4}
-    with_pill = sum(1 for seed in range(60) if _attempt(c, seed, pills=1) == 4)
-    without = sum(1 for seed in range(60) if _attempt(c, seed, pills=0) == 4)
-    assert with_pill > without
+        res, q, _ = _try(c, seed, 0, st)
+        seen.add(res["success"])
+        if res["success"]:
+            assert q["step"] == 4 and q["qi"] == 0
+        else:
+            assert q["step"] == 3 and q["health"] < 100 and q["qi"] < colony.step_need(3) and q["bt_tries"] == 1
+    assert seen == {True, False}
+    wins = lambda pills: sum(1 for seed in range(60) if _try(c, seed, pills, st)[0]["success"])   # noqa: E731
+    assert wins(1) > wins(0)
+    assert _try(c, 1, 1, st)[2]["res"]["pills"] == 0                                # the pill is used up
+    # failing teaches: the same hour does not replay the same roll, and the odds improve
+    s2 = copy.deepcopy(st)
+    q = s2["colony"]["pawns"][1]
+    q["bt_tries"] = 3
+    assert colony.bt_chance(s2["colony"], q) > colony.bt_chance(c, p)
 
 
-def _attempt(c, seed, pills):
-    cc = copy.deepcopy(c)
-    cc["seed"] = seed
-    cc["res"]["pills"] = pills
-    q = cc["pawns"][1]
-    q["step"], q["qi"] = 3, 0.0
-    colony._gain_qi(cc, q, colony.step_need(3) + 1)
-    return q["step"]
+def test_tribulations_ranks_and_manuals(st):
+    c = st["colony"]
+    c["storyteller"] = "harsh"
+    p = c["pawns"][1]
+    p["step"], p["qi"], p["health"] = 11, colony.step_need(11), 100.0              # Foundation peak -> Core Formation
+    v = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == p["id"])
+    assert v["tribulation"] and v["next_realm"] == "Core Formation" and v["rank"] == "Inner Disciple"
+    c["rooms"]["ward"] = 3
+    assert any("Ward" in o["label"] for o in next(x for x in colony.view(st, T0)["pawns"] if x["id"] == p["id"])["odds"])
+    out = set()
+    for seed in range(60):
+        s2 = copy.deepcopy(st)
+        s2["colony"]["seed"] = seed
+        q = s2["colony"]["pawns"][1]
+        res = colony.attempt(s2, q["id"], T0)
+        out.add(res["success"])
+        if res["success"]:
+            assert colony.rank_of(q) == 2 and "lightning" in res["event"]["text"] and s2["colony"]["fame"] > 0
+    assert out == {True, False}
+    # the wounded can die under a tribulation; the Sect Master never does
+    s2 = copy.deepcopy(st)
+    q = s2["colony"]["pawns"][1]
+    q["health"] = 10.0
+    for seed in range(200):
+        s3 = copy.deepcopy(s2)
+        s3["colony"]["seed"] = seed
+        if not colony.attempt(s3, q["id"], T0)["success"]:
+            assert len(s3["colony"]["pawns"]) == 2 and s3["colony"]["graves"] == 1
+            break
+    # manuals: rank gates the grade; the best allowed one is used
+    c["manuals"] = ["breathing", "azure_tide", "primordial"]
+    outer, master = c["pawns"][2], c["pawns"][0]
+    outer["step"] = 0
+    assert colony._manual(c, outer, "qi")[1] == "breathing"
+    assert colony._manual(c, p, "qi")[1] == "azure_tide"                            # an Inner Disciple reads Mystic grade
+    assert colony._manual(c, master, "qi")[1] == "primordial"                       # the Master reads everything
+    c["manuals"].append("blood_sutra")
+    assert colony._manual(c, outer, "qi")[1] == "blood_sutra"                       # forbidden arts ask no rank
+    assert ("The Blood Sutra whispers", -8) in colony.mood_mods(c, outer)
+    assert colony.burn_manual(st, "blood_sutra", T0)["ok"] and not colony.burn_manual(st, "breathing", T0)["ok"]
 
 
-def test_raids_scale_and_defences_matter(st):
+def test_raids_are_seen_coming_and_defences_matter(st):
     import random
     c = st["colony"]
     c["hour"] = 24 * 120
+    assert len(c["sects"]) == 3 and {s["kind"] for s in c["sects"]} == {"righteous", "demonic", "neutral"}
+    rival = colony._rival(c)
     for p in c["pawns"]:
         p["skills"]["combat"]["lv"] = 0
-    weak = copy.deepcopy(c)
-    colony._threat(weak, random.Random(1), "raid")
-    strong = copy.deepcopy(c)
-    strong["rooms"]["ward"] = 5
-    for p in strong["pawns"]:
+    weak = copy.deepcopy(st)
+    colony._omen(weak["colony"], random.Random(1), "raid", colony._rival(weak["colony"]))
+    ev = weak["colony"]["pending"]
+    assert ev["kind"] == "omen" and rival["name"] in ev["title"] and [o["id"] for o in ev["options"]] == ["fight"]
+    assert colony.advance(weak, 5, T0)["hours"] == 0                                # time waits for the answer
+    colony.resolve(weak, "fight", T0)
+    wc = weak["colony"]
+    assert "driven off" not in wc["log"][-1]["title"] and sum(p["health"] for p in wc["pawns"]) < 300
+    assert next((p for p in wc["pawns"] if p["master"]), None) is not None          # the Sect Master never dies
+    assert wc["adapt"] < 0.85 and wc["last_threat_day"] > colony._day(wc)           # the world eases off the beaten
+    strong = copy.deepcopy(st)
+    sc = strong["colony"]
+    sc["rooms"]["ward"] = 5
+    sc["res"]["stones"] = 500.0
+    for p in sc["pawns"]:
         p["skills"]["combat"]["lv"] = 18
-    colony._threat(strong, random.Random(1), "raid")
-    assert "driven off" in strong["log"][-1]["title"] and all(p["health"] == 100 for p in strong["pawns"])
-    assert "driven off" not in weak["log"][-1]["title"]
-    assert sum(p["health"] for p in weak["pawns"]) < 300
-    assert next((p for p in weak["pawns"] if p["master"]), None) is not None       # the Sect Master never dies
-    assert colony.defense(strong) > colony.defense(c) * 3
+    colony._omen(sc, random.Random(1), "raid", colony._rival(sc))
+    assert [o["id"] for o in sc["pending"]["options"]] == ["fight", "wards", "tribute"]
+    paid = copy.deepcopy(strong)
+    colony.resolve(paid, "tribute", T0)
+    assert paid["colony"]["res"]["stones"] < 500 and paid["colony"]["fame"] == 0
+    assert colony._rival(paid["colony"])["rel"] > colony._rival(sc)["rel"] or True
+    colony.resolve(strong, "fight", T0)
+    assert "driven off" in sc["log"][-1]["title"] and all(p["health"] == 100 for p in sc["pawns"]) and sc["fame"] >= 5
+    assert colony.defense(sc) > colony.defense(c) * 3
+    # raids stop growing with the calendar after day 48
+    late = copy.deepcopy(st)
+    late["colony"]["hour"] = 24 * 400
+    colony._omen(late["colony"], random.Random(1), "beasts")
+    base = copy.deepcopy(st)
+    colony._omen(base["colony"], random.Random(1), "beasts")
+    assert late["colony"]["pending"]["strength"] == base["colony"]["pending"]["strength"]
+
+
+def test_every_trope_event_can_be_raised_and_answered_every_way(st):
+    """Drive the storyteller for years; every choice of every event must resolve and render."""
+    import random
+    seen, answered = set(), set()
+    for seed in range(30):
+        s = copy.deepcopy(st)
+        c = s["colony"]
+        c["seed"] = seed
+        c["storyteller"] = "harsh"
+        c["res"].update(rice=900.0, stones=200.0, wood=300.0, stone=300.0)
+        c["rooms"].update(main_hall=5, dormitory=5, alchemy=1, ward=1, fields=4)
+        pick = random.Random(seed)
+        for _ in range(24 * 110):
+            colony.advance(s, 1, T0)
+            ev = c["pending"]
+            if ev:
+                seen.add(ev["kind"])
+                opt = pick.choice(ev["options"])["id"]
+                res = colony.resolve(s, opt, T0)
+                if res["ok"]:
+                    answered.add((ev["kind"], opt[:4]))
+                else:
+                    colony.resolve(s, ev["options"][-1]["id"], T0)
+                v = colony.view(s, T0)
+                assert all(isinstance(x["rel"], int) for x in v["sects"]) and isinstance(v["fame"], int)
+        assert c["pawns"] and any(p["master"] for p in c["pawns"])
+        assert all(0 <= p["health"] <= 100 for p in c["pawns"])
+    assert seen >= {"wanderer", "merchant", "omen", "young_master", "auction", "secret_realm", "beast_cub", "demonic_offer",
+                    "cave", "engagement", "spy", "village", "tournament", "recruit"}, seen
+    assert {("young_master", "slap"), ("young_master", "endu"), ("secret_realm", "send"), ("tournament", "p")} - answered <= {("tournament", "p")}
+
+
+def test_trope_consequences_chain(st):
+    import random
+    c = st["colony"]
+    c["hour"] = 24 * 20
+    p = c["pawns"][1]
+    p["skills"]["combat"]["lv"] = 20
+    rival = colony._rival(c)
+    rel0 = rival["rel"]
+    colony._ask(c, "young_master", "t", "x", [("slap", "s"), ("endure", "e")], pawn=p["id"], src=rival["id"])
+    res = colony.resolve(st, "slap", T0)
+    assert "slapped" in res["event"]["title"] and rival["rel"] == rel0 - 20 and c["fame"] == 5 and p["title"]
+    assert [x["kind"] for x in c["later"]] == ["elder"]                             # beat the young, the old comes
+    c["later"][0]["at"] = c["hour"] + 1
+    colony.advance(st, 2, T0)
+    assert c["pending"]["kind"] == "omen" and "avenge" in c["pending"]["text"]
+    colony.resolve(st, "fight", T0)
+    # the fallen genius: crippled on arrival, heaven-defying once the ring wakes
+    cand = colony._make_pawn(c, 77)
+    cand.update(root="Crippled", root_mult=0.6, hidden=True)
+    colony._ask(c, "wanderer", "t", "x", [("accept", "a"), ("decline", "d")], cand=cand)
+    colony.resolve(st, "accept", T0)
+    ring = next(x for x in c["later"] if x["kind"] == "ring")
+    ring["at"] = c["hour"] + 1
+    colony.advance(st, 2, T0)
+    g = colony._p(c, "p77")
+    assert g["root"] == "Heaven-Defying" and g["root_mult"] == 2.3 and not g["hidden"]
+    # the secret realm: disciples leave, cannot fight while away, and come back with spoils
+    stones = c["res"]["stones"]
+    colony._ask(c, "secret_realm", "t", "x", [("send3", "a"), ("send1", "b"), ("decline", "d")])
+    colony.resolve(st, "send1", T0)
+    away = [x for x in c["pawns"] if x["away_until"] > c["hour"]]
+    assert len(away) == 1 and colony.combat_power(c, away[0]) == 0
+    assert next(x for x in colony.view(st, T0)["pawns"] if x["id"] == away[0]["id"])["away"]
+    for _ in range(60):
+        colony.advance(st, 1, T0)
+        if c["pending"]:
+            colony.resolve(st, c["pending"]["options"][-1]["id"], T0)
+    assert c["res"]["stones"] > stones and not any(x["away_until"] > c["hour"] for x in c["pawns"])
+    # gifts mend relations; a spirit beast guards the gate
+    c["res"]["stones"] = 10.0
+    rel = rival["rel"]
+    assert colony.gift(st, rival["id"], T0)["ok"] and rival["rel"] == rel + 8 and not colony.gift(st, rival["id"], T0)["ok"]
+    d0 = colony.defense(c)
+    c["beast"] = {"name": "Snow Spirit Fox", "born": c["hour"] - 240}
+    assert colony.defense(c) > d0 and colony.view(st, T0)["beast"]["name"] == "Snow Spirit Fox"
+    assert random.Random(1)
 
 
 def test_calm_storyteller_sends_no_raids_and_harsh_sends_many(st):

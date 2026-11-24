@@ -248,8 +248,11 @@ def _edit1(a: str, b: str) -> bool:
     return a[i:] == b[i + 1:]
 
 
-def check_typed(answer: str, accepted: list[str]) -> dict:
-    """Grade a typed answer. Returns {correct, flag, expected}."""
+def check_typed(answer: str, accepted: list[str], slips: bool = True) -> dict:
+    """Grade a typed answer. Returns {correct, flag, expected}.
+
+    ``slips=False`` (cloze blanks) forgives no typo and no final-letter accent: there one
+    letter is usually the grammar being tested (hables/hablas, hablo/habló)."""
     expected = accepted[0]
     got = _norm(answer)
     if not got:
@@ -261,18 +264,28 @@ def check_typed(answer: str, accepted: list[str]) -> dict:
     # A missing accent is forgiven (with the correction shown) on longer answers.
     # On very short words the accent *is* the word (où/ou, à/a, tú/tu, sí/si).
     for a, n in zip(accepted, normed):
-        if len(got_plain) >= 4 and got_plain == _strip_accents(n):
+        if len(got_plain) >= 4 and got_plain == _strip_accents(n) and (slips or (n[-1:] == _strip_accents(n)[-1:] and got[-1:] == got_plain[-1:])):
             return {"correct": True, "flag": "accent", "expected": a}
     for a, n in zip(accepted, normed):
         plain = _strip_accents(n)
         # One slip is forgiven on longer answers — but never in the article (le/la,
         # el/la, un/une): that single letter *is* the thing being learned.
-        if len(plain) >= 6 and _edit1(got_plain, plain):
+        if slips and len(plain) >= 6 and _edit1(got_plain, plain):
             first = plain.split(" ")[0]
             if " " in plain and first in _ARTICLES and got_plain.split(" ")[0] != first:
                 continue
             return {"correct": True, "flag": "typo", "expected": a}
     return {"correct": False, "flag": None, "expected": expected}
+
+
+def _tiles(text: str) -> list[str]:
+    """A sentence as word tiles: no loose punctuation, no full stop to give away the last word."""
+    out = []
+    for w in str(text).split():
+        w = w.strip(".,!?;:…«»¿¡\"“”")
+        if w:
+            out.append(w)
+    return out
 
 
 def fill_cloze(it: dict) -> str:
@@ -367,9 +380,9 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
     elif mode == "type_l2":
         ex.update(prompt=it["l1"], ask=f"Type it in {pack.get('language', 'the language')}")
     elif mode == "build_l2":
-        words = it["l2"].split()
+        words = _tiles(it["l2"])
         pool = [w for o in next(u for u in pack["units"] if u["id"] == it["unit"])["items"]
-                if o["id"] != it["id"] and o.get("l2") for w in o["l2"].split() if w not in words]
+                if o["id"] != it["id"] and o.get("l2") for w in _tiles(o["l2"]) if w not in words]
         rng.shuffle(pool)
         bank = words + pool[:3]
         rng.shuffle(bank)
@@ -402,9 +415,9 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
             row = {"who": ln["who"], "l1": ln["l1"], "mine": i in mine, "index": i}
             if i in mine:
                 if mode == "dialogue_build":
-                    words = ln["l2"].split()
+                    words = _tiles(ln["l2"])
                     # two decoy words from the rest of the conversation keep it honest
-                    pool = [w for j, o in enumerate(it["lines"]) if j != i for w in o["l2"].split() if w not in words]
+                    pool = [w for j, o in enumerate(it["lines"]) if j != i for w in _tiles(o["l2"]) if w not in words]
                     rng.shuffle(pool)
                     bank = words + pool[:2]
                     rng.shuffle(bank)
@@ -496,7 +509,7 @@ def check(it: dict, mode: str, answer) -> dict:
                 "expected_list": truth_list(it)}
     answer = answer if isinstance(answer, str) else ""
     if mode in ("type_l2", "listen", "cloze_type", "build_l2"):
-        return check_typed(answer, _accepted(it))
+        return check_typed(answer, _accepted(it), slips=mode != "cloze_type")
     truth = _truth(it, mode)
     return {"correct": answer.strip() == str(truth).strip(), "flag": None, "expected": truth}
 

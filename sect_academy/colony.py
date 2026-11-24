@@ -24,9 +24,12 @@ Everything here mutates ``st["colony"]``; the engine owns locking and saving.
 """
 from __future__ import annotations
 
+import copy
 import datetime as _dt
 import math
 import random
+
+from . import lore
 
 REALMS = ["Mortal", "Qi Condensation", "Foundation Establishment", "Core Formation",
           "Nascent Soul", "Soul Transformation", "Void Refinement", "Immortal Ascension"]
@@ -120,9 +123,10 @@ def _rng(c: dict, *salt) -> random.Random:
     return random.Random(f"{c['seed']}:{':'.join(str(s) for s in salt)}")
 
 
-def _make_pawn(c: dict, n: int, master_name: str = "") -> dict:
+def _make_pawn(c: dict, n: int, master_name: str = "", lucky: bool = False) -> dict:
     r = _rng(c, "pawn", n)
-    roll = r.uniform(0, sum(w for _, _, w in ROOTS))
+    total = sum(w for _, _, w in ROOTS)
+    roll = max(r.uniform(0, total), r.uniform(0, total)) if lucky else r.uniform(0, total)     # fame draws better talent
     acc, root, mult = 0.0, ROOTS[0][0], ROOTS[0][1]
     for name, m, w in ROOTS:
         acc += w
@@ -146,10 +150,14 @@ def _make_pawn(c: dict, n: int, master_name: str = "") -> dict:
         "food": 80.0, "rest": 80.0, "joy": 70.0, "mood": 60.0, "health": 100.0,
         "thoughts": [], "step": 0, "qi": 0.0, "prio": dict(DEFAULT_PRIO),
         "doing": "idle", "break_until": 0, "inspired_until": 0, "sick_until": 0, "joined": c["hour"],
+        **PAWN_EXTRA,
     }
     if master_name:
         pawn["prio"].update(meditate=2, research=2, farm=3, build=2)
     return pawn
+
+
+PAWN_EXTRA = {"bt_tries": 0, "away_until": 0, "away_kind": "", "resolve_until": 0, "title": "", "hidden": False, "rank": 0}
 
 
 def new_colony(now: float) -> dict:
@@ -159,7 +167,10 @@ def new_colony(now: float) -> dict:
         "rooms": {"main_hall": 1, "dormitory": 1, "fields": 1},
         "builds": [],                # [{room, need (work hours), done}]
         "pawns": [], "next_pawn": 0, "graves": 0,
-        "research": {"done": [], "current": "", "progress": 0.0},
+        "research": {"done": [], "current": "", "progress": 0.0, "banked": {}},
+        # the wider world
+        "fame": 0.0, "sects": [], "manuals": ["breathing"], "treasures": [], "beast": None, "later": [], "adapt": 0.85,
+        "flags": {}, "tournament_year": 0, "recruit_year": 0,
         "craft": 0.0, "insight": 0.0, "pending": None, "last_threat_day": 0, "last_event_day": 0,
         "log": [], "last_real": now, "hint": 0,
         # study habit (kept here so one object holds the whole game)
@@ -177,6 +188,7 @@ def setup(st: dict, name: str, master: str, now: float) -> dict:
     if first:
         c["pawns"] = [_make_pawn(c, 0, master)] + [_make_pawn(c, i) for i in (1, 2)]
         c["next_pawn"] = 3
+        _make_world(c)
         _letter(c, "good", "The sect is founded",
                 f"{master} and two disciples raise the first hall of the {c['name']}. There is rice for a few weeks. "
                 "Set who does what in Work, and queue rooms in Build.")
@@ -195,6 +207,11 @@ def _c(st: dict, now: float) -> dict:
     else:
         for k, v in new_colony(now).items():
             c.setdefault(k, v)
+        for pw in c["pawns"]:
+            for k, v in PAWN_EXTRA.items():
+                pw.setdefault(k, v)
+        if c["name"] and not c["sects"]:
+            _make_world(c)
     return c
 
 
@@ -224,7 +241,27 @@ def _has(c: dict, tech: str) -> bool:
 
 
 def _cap(c: dict) -> float:
-    return (150 + 120 * _lvl(c, "storehouse")) * (1.5 if _has(c, "granary") else 1.0)
+    return (150 + 120 * _lvl(c, "storehouse")) * (1.5 if _has(c, "granary") else 1.0) * (1.3 if "pouch" in c["treasures"] else 1.0)
+
+
+def rank_of(p: dict) -> int:
+    """Outer, Inner, Core, Elder: a disciple's standing follows their realm."""
+    realm = int(p["step"]) // 4
+    return 0 if realm <= 1 else 1 if realm == 2 else 2 if realm == 3 else 3
+
+
+def _manual(c: dict, p: dict, kind: str) -> tuple[float, str]:
+    """The best manual of a kind this disciple's rank lets them study: (bonus, id)."""
+    cap = 3 if p.get("master") else rank_of(p)
+    best = (0.0, "")
+    for mid in c["manuals"]:
+        m = lore.MANUALS.get(mid)
+        if not m or m["kind"] != kind or (m["grade"] > cap and not m.get("demonic")):
+            continue
+        b = lore.MANUAL_BONUS[kind][m["grade"]] + (0.15 if m.get("demonic") else 0.0)
+        if b > best[0]:
+            best = (b, mid)
+    return best
 
 
 def _add(c: dict, res: str, amount: float) -> None:
@@ -293,21 +330,32 @@ def _xp(p: dict, skill: str, amount: float) -> None:
         s["lv"] += 1
 
 
-def _hurt(p: dict, amount: float) -> None:
+def _hurt(p: dict, amount: float, c: dict | None = None) -> None:
     amount *= 0.6 if "Tough" in p["traits"] else 1.4 if "Frail" in p["traits"] else 1.0
+    if c is not None:
+        amount *= 1.0 - _manual(c, p, "body")[0]
     p["health"] = max(0.0, p["health"] - amount)
 
 
 def combat_power(c: dict, p: dict) -> float:
-    if p["health"] < 25 or p["break_until"] > c["hour"]:
+    if p["health"] < 25 or p["break_until"] > c["hour"] or p["away_until"] > c["hour"]:
         return 0.0
     return (10 + 4 * p["skills"]["combat"]["lv"]) * (1 + 0.07 * p["step"]) * (p["health"] / 100.0) \
-        * (1.25 if _has(c, "sword_forms") else 1.0)
+        * (1.25 if _has(c, "sword_forms") else 1.0) * (1 + _manual(c, p, "sword")[0]) \
+        * (1.15 if "spirit_sword" in c["treasures"] else 1.0)
+
+
+def ward_power(c: dict) -> float:
+    return 18 * _lvl(c, "ward") * (1.5 if _has(c, "ward_ii") else 1.0) * (1.4 if "array_flag" in c["treasures"] else 1.0)
+
+
+def beast_power(c: dict) -> float:
+    b = c["beast"]
+    return min(70.0, 12.0 + (c["hour"] - b["born"]) / 24.0 * 1.2) if b else 0.0
 
 
 def defense(c: dict) -> float:
-    ward = 18 * _lvl(c, "ward") * (1.5 if _has(c, "ward_ii") else 1.0)
-    return sum(combat_power(c, p) for p in c["pawns"]) + ward
+    return sum(combat_power(c, p) for p in c["pawns"]) + ward_power(c) + beast_power(c)
 
 
 # ---------------------------------------------------------------------------
@@ -367,18 +415,22 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
             _letter(c, "good", f"{ROOMS[b['room']]['name']} {'built' if lv == 1 else f'raised to level {lv}'}",
                     f"{p['name']} set the last stone.")
     elif job == "craft":
-        c["craft"] += out * (1 + 0.15 * (_lvl(c, "alchemy") - 1))
+        c["craft"] += out * (1 + 0.15 * (_lvl(c, "alchemy") - 1)) * (1 + _manual(c, p, "alchemy")[0]) \
+            * (1.3 if "pill_furnace" in c["treasures"] else 1.0)
         if c["craft"] >= 6.0:
             c["craft"] -= 6.0
             _add(c, "herbs", -(2 if _has(c, "refinement") else 3))
             _add(c, "pills", 1)
     elif job == "research":
-        _research(c, out * (1 + 0.2 * (_lvl(c, "library") - 1)) * (1.25 if "Bookworm" in p["traits"] else 1.0))
+        _research(c, out * (1 + 0.2 * (_lvl(c, "library") - 1)) * (1.25 if "Bookworm" in p["traits"] else 1.0)
+                  * (1.25 if "jade_slip" in c["treasures"] else 1.0))
         if "Bookworm" in p["traits"]:
             p["joy"] = min(100.0, p["joy"] + 3)
     elif job == "meditate":
         _gain_qi(c, p, _work_mult(p, hour) * p["root_mult"] * (1 + 0.15 * _lvl(c, "meditation"))
-                 * (1 + 0.05 * _lvl(c, "spirit_vein")) * (1.2 if _has(c, "qi_array") else 1.0), quiet)
+                 * (1 + 0.05 * _lvl(c, "spirit_vein")) * (1.2 if _has(c, "qi_array") else 1.0)
+                 * (1 + _manual(c, p, "qi")[0]) * (1.1 if "spirit_spring" in c["treasures"] else 1.0)
+                 * (1.5 if p["resolve_until"] > hour else 1.0), quiet)
         p["joy"] = min(100.0, p["joy"] + 1.5)
 
 
@@ -397,37 +449,50 @@ def _research(c: dict, points: float) -> None:
 
 
 def _gain_qi(c: dict, p: dict, amount: float, quiet: bool = False) -> None:
-    """Add qi and attempt breakthroughs. A new great realm is a gamble; a pill steadies it."""
+    """Add qi. Small steps come on their own; a new great realm waits until you order the attempt."""
     p["qi"] += amount
     while p["step"] < MAX_STEP and p["qi"] >= step_need(p["step"]):
-        major = p["step"] % 4 == 3
-        if major and quiet:
-            p["qi"] = step_need(p["step"])          # wait for the player to be watching
+        if p["step"] % 4 == 3:
+            if p["qi"] > step_need(p["step"]) or not p.get("told_ready"):
+                if not p.get("told_ready") and not quiet:
+                    p["told_ready"] = 1
+                    _letter(c, "info", f"{p['name']} stands at a bottleneck",
+                            f"They have gathered all the qi the {REALMS[p['step'] // 4]} realm can hold. "
+                            "Open their page and order the breakthrough when the odds look good.")
+            p["qi"] = step_need(p["step"])
             return
-        if major:
-            chance = 0.55 + 0.02 * p["skills"]["scholar"]["lv"]
-            if c["res"]["pills"] >= 1:
-                c["res"]["pills"] -= 1
-                chance += 0.25
-            r = _rng(c, "bt", p["id"], c["hour"])
-            if r.random() > chance:
-                p["qi"] = step_need(p["step"]) * 0.6
-                _hurt(p, 25)
-                _think(p, "bt_fail", "Failed a breakthrough", -10, 48, c["hour"])
-                _letter(c, "bad", f"{p['name']} failed a breakthrough",
-                        f"The attempt on {REALMS[p['step'] // 4 + 1]} backfired. They are hurt and must gather qi again. "
-                        "A pill in the stores steadies the next attempt.")
-                return
         p["qi"] -= step_need(p["step"])
         p["step"] += 1
-        _think(p, "bt", "Broke through", 15 if major else 6, 72 if major else 24, c["hour"])
-        if major or p.get("master"):
-            _letter(c, "good", f"{p['name']} reached {realm_label(p['step'])}",
-                    "A new great realm. The whole sect feels it." if major else "A steady step forward.")
-        if major:
-            for o in c["pawns"]:
-                if o is not p:
-                    _think(o, "bt_other", "A fellow disciple ascended", 5, 48, c["hour"])
+        p["told_ready"] = 0
+        _think(p, "bt", "Broke through", 6, 24, c["hour"])
+        if p.get("master"):
+            _letter(c, "good", f"{p['name']} reached {realm_label(p['step'])}", "A steady step forward.")
+
+
+def mood_mods(c: dict, p: dict) -> list[tuple[str, int]]:
+    """The standing reasons for a disciple's mood (thoughts come and go on top of these)."""
+    rows: list[tuple[str, int]] = []
+    if "Optimist" in p["traits"]:
+        rows.append(("Optimist", 8))
+    if "Pessimist" in p["traits"]:
+        rows.append(("Pessimist", -8))
+    if _has(c, "dao_heart"):
+        rows.append(("Dao heart", 6))
+    if p["rest"] < 25:
+        rows.append(("Exhausted", -8))
+    if p["joy"] < 25:
+        rows.append(("No joy in life", -8))
+    elif p["joy"] > 75:
+        rows.append(("Enjoying life", 4))
+    if p["health"] < 50:
+        rows.append(("In pain", -6))
+    if len(c["pawns"]) > beds(c) + 2:
+        rows.append(("The sect is crowded", -4))
+    if c["beast"]:
+        rows.append(("The sect's spirit beast", 3))
+    if _manual(c, p, "qi")[1] == "blood_sutra":
+        rows.append(("The Blood Sutra whispers", -8))
+    return rows
 
 
 def _tick_pawn(c: dict, p: dict, taken: dict, quiet: bool) -> None:
@@ -435,6 +500,9 @@ def _tick_pawn(c: dict, p: dict, taken: dict, quiet: bool) -> None:
     hod = hour % 24
     night = hod >= 22 or hod < 6
     p["thoughts"] = [t for t in p["thoughts"] if t["until"] > hour]
+    if p["away_until"] > hour:
+        p["doing"] = p["away_kind"] or "away"
+        return
     # --- needs decay
     p["food"] = max(0.0, p["food"] - 2.2 * (1.4 if "Glutton" in p["traits"] else 1.0))
     p["joy"] = max(0.0, p["joy"] - 1.2 * (0.5 if "Ascetic" in p["traits"] else 1.0))
@@ -483,13 +551,7 @@ def _tick_pawn(c: dict, p: dict, taken: dict, quiet: bool) -> None:
         p["health"] = min(100.0, p["health"] + 0.15)
     p["doing"] = doing
     # --- mood drifts toward what the disciple has to feel about
-    target = 50 + sum(t["v"] for t in p["thoughts"])
-    target += 8 if "Optimist" in p["traits"] else -8 if "Pessimist" in p["traits"] else 0
-    target += 6 if _has(c, "dao_heart") else 0
-    target += -8 if p["rest"] < 25 else 0
-    target += -8 if p["joy"] < 25 else 4 if p["joy"] > 75 else 0
-    target += -6 if p["health"] < 50 else 0
-    target += -4 if len(c["pawns"]) > beds(c) + 2 else 0
+    target = 50 + sum(t["v"] for t in p["thoughts"]) + sum(v for _, v in mood_mods(c, p))
     p["mood"] += (max(0.0, min(100.0, target)) - p["mood"]) * 0.2
     # --- mental state
     if quiet or p["break_until"] > hour or doing in ("sleeping", "recovering"):
@@ -508,32 +570,302 @@ def _tick_pawn(c: dict, p: dict, taken: dict, quiet: bool) -> None:
 
 
 # ---------------------------------------------------------------------------
-# storyteller
+# the wider world: rival sects, fame, manuals, treasures
 # ---------------------------------------------------------------------------
-def _threat(c: dict, r: random.Random, kind: str) -> None:
+def _make_world(c: dict) -> None:
+    r = _rng(c, "world")
+    c["sects"] = []
+    for i, kind in enumerate(("righteous", "demonic", "neutral")):
+        name, _, sur = r.choice([s for s in lore.SECTS if s[1] == kind])
+        c["sects"].append({"id": f"s{i}", "name": name, "kind": kind, "rel": lore.KIND_START_REL[kind] + r.randint(-5, 5),
+                           "power": round(r.uniform(0.85, 1.25), 2), "young": f"{sur} {r.choice(lore.YOUNG_GIVEN)}"})
+
+
+def _sect(c: dict, sid: str) -> dict | None:
+    return next((s for s in c["sects"] if s["id"] == sid), None)
+
+
+def _rival(c: dict) -> dict | None:
+    return min(c["sects"], key=lambda s: s["rel"]) if c["sects"] else None
+
+
+def _rel(s: dict | None, delta: float) -> None:
+    if s:
+        s["rel"] = max(-100.0, min(100.0, s["rel"] + delta))
+
+
+def stance(rel: float) -> str:
+    return "Allied" if rel >= 40 else "Friendly" if rel >= 15 else "Wary" if rel > -15 else "Hostile" if rel > -50 else "Blood feud"
+
+
+def _fame(c: dict, delta: float) -> None:
+    c["fame"] = max(0.0, c["fame"] + delta)
+
+
+def _p(c: dict, pid: str) -> dict | None:
+    return next((p for p in c["pawns"] if p["id"] == pid), None)
+
+
+def _home(c: dict) -> list[dict]:
+    return [p for p in c["pawns"] if p["away_until"] <= c["hour"]]
+
+
+def _strongest(c: dict, n: int, master: bool = False) -> list[dict]:
+    pool = [p for p in _home(c) if (master or not p.get("master")) and p["health"] >= 40]
+    return sorted(pool, key=lambda p: -duel_power(c, p))[:n]
+
+
+def _max_grade(c: dict) -> int:
+    d = _day(c)
+    return 0 if d < 15 else 1 if d < 40 else 2 if d < 90 else 3
+
+
+def _loot_manual(c: dict, r: random.Random, max_grade: int | None = None) -> str:
+    g = _max_grade(c) if max_grade is None else max_grade
+    pool = [k for k, m in lore.MANUALS.items() if k not in c["manuals"] and not m.get("demonic") and m["grade"] <= g]
+    if not pool:
+        return ""
+    top = max(lore.MANUALS[k]["grade"] for k in pool)
+    pick = r.choice([k for k in pool if lore.MANUALS[k]["grade"] >= top - 1])
+    c["manuals"].append(pick)
+    return pick
+
+
+def _loot_treasure(c: dict, r: random.Random) -> str:
+    pool = [k for k in lore.TREASURES if k not in c["treasures"]]
+    if not pool:
+        return ""
+    pick = r.choice(pool)
+    c["treasures"].append(pick)
+    return pick
+
+
+def _manual_name(mid: str) -> str:
+    m = lore.MANUALS[mid]
+    return f"{m['name']} ({lore.GRADES[m['grade']]} grade {lore.MANUAL_KIND[m['kind']].lower()})"
+
+
+def _die(c: dict, p: dict) -> None:
+    c["pawns"].remove(p)
+    c["graves"] += 1
+    c["adapt"] = max(0.55, c["adapt"] - 0.1)
+    for o in c["pawns"]:
+        _think(o, "death", "A fellow disciple died", -12, 72, c["hour"])
+
+
+# ---------------------------------------------------------------------------
+# breakthroughs and tribulations
+# ---------------------------------------------------------------------------
+def ready(p: dict) -> bool:
+    return p["step"] < MAX_STEP and p["step"] % 4 == 3 and p["qi"] >= step_need(p["step"])
+
+
+def bt_odds(c: dict, p: dict) -> list[tuple[str, int]]:
+    """What a great-realm breakthrough has going for and against it, in percentage points."""
+    target = p["step"] // 4 + 1
+    trib = target >= 3
+    rows = [("Reaching for a new great realm", 50 - 4 * max(0, target - 2))]
+    lv = p["skills"]["scholar"]["lv"]
+    if lv:
+        rows.append((f"Scholarship {lv}", round(1.5 * lv)))
+    if c["res"]["pills"] >= 1:
+        rows.append(("A pill to steady the meridians (used up)", 20))
+    if _lvl(c, "meditation"):
+        rows.append(("Meditation Chamber", 3 * _lvl(c, "meditation")))
+    mid = _manual(c, p, "qi")[1]
+    if mid:
+        rows.append((lore.MANUALS[mid]["name"], 4 * (lore.MANUALS[mid]["grade"] + 1)))
+    if p["mood"] >= 70:
+        rows.append(("A calm heart", 8))
+    elif p["mood"] < 35:
+        rows.append(("Heart demons (low mood)", -12))
+    if p["health"] < 60:
+        rows.append(("Wounded", -15))
+    if p["bt_tries"]:
+        rows.append(("Lessons of past failures", min(20, 6 * p["bt_tries"])))
+    if p["resolve_until"] > c["hour"]:
+        rows.append(("Burning resolve", 10))
+    if trib and _lvl(c, "ward"):
+        rows.append(("The Ward Formation draws off lightning", 3 * _lvl(c, "ward")))
+    if trib and "lightning_rod" in c["treasures"]:
+        rows.append((lore.TREASURES["lightning_rod"]["name"], 10))
+    return rows
+
+
+def bt_chance(c: dict, p: dict) -> int:
+    return max(5, min(95, sum(v for _, v in bt_odds(c, p))))
+
+
+def _promote(c: dict, p: dict) -> None:
+    new = rank_of(p)
+    if new > p.get("rank", 0) and not p.get("master"):
+        _think(p, "promoted", f"Promoted to {lore.RANKS[new]}", 8, 72, c["hour"])
+        _letter(c, "good", f"{p['name']} is now {'an' if lore.RANKS[new][0] in 'AEIOU' else 'a'} {lore.RANKS[new]}",
+                "Higher ranks may study higher-grade manuals in the Scripture Pavilion.")
+    p["rank"] = new
+
+
+def attempt(st: dict, pawn_id: str, now: float) -> dict:
+    """Order a disciple to attempt a great-realm breakthrough. From Core Formation up, heaven answers with lightning."""
+    c = _c(st, now)
+    p = _p(c, pawn_id)
+    if not p or not ready(p) or p["away_until"] > c["hour"]:
+        return {"ok": False, "error": "They are not ready to break through."}
+    target = p["step"] // 4 + 1
+    trib = target >= 3
+    chance = bt_chance(c, p) / 100.0
+    if c["res"]["pills"] >= 1:
+        c["res"]["pills"] -= 1
+    roll = _rng(c, "bt", p["id"], c["hour"], p["bt_tries"]).random()
+    bolts = target * 3 if trib else 0
+    if roll > chance:
+        p["bt_tries"] += 1
+        p["qi"] = step_need(p["step"]) * 0.6
+        _hurt(p, 35 if trib else 25, c)
+        _think(p, "bt_fail", "Failed a breakthrough", -10, 48, c["hour"])
+        died = p["health"] <= 0 and trib and STORYTELLERS[c["storyteller"]]["deaths"] and not p.get("master")
+        if died:
+            _die(c, p)
+            return {"ok": True, "success": False, "event": _letter(
+                c, "bad", f"{p['name']} perished under the tribulation",
+                f"The {_ordinal(max(1, int(bolts * roll)))} bolt found a body already broken. Never send the wounded to face heaven.")}
+        p["health"] = max(p["health"], 5.0)
+        text = (f"Of {bolts} bolts of heavenly lightning, the last ones broke through their guard. " if trib
+                else f"The attempt on {REALMS[target]} backfired. ")
+        return {"ok": True, "success": False, "event": _letter(
+            c, "bad", f"{p['name']} failed {'the tribulation' if trib else 'a breakthrough'}",
+            text + "They are hurt and must gather qi again. Each failure teaches something for the next attempt.")}
+    perfect = roll < chance * 0.2
+    p["bt_tries"] = 0
+    p["qi"] = 0.0
+    p["step"] += 1
+    if perfect:
+        p["root_mult"] = round(p["root_mult"] + 0.05, 2)
+    _think(p, "bt", "Broke through to a new realm", 15, 72, c["hour"])
+    for o in c["pawns"]:
+        if o is not p:
+            _think(o, "bt_other", "A fellow disciple ascended", 5, 48, c["hour"])
+    _fame(c, 2 * target)
+    text = (f"{bolts} bolts of heavenly lightning fell on the peak, and {p['name']} stood through every one. " if trib
+            else "The bottleneck gave way. ")
+    if perfect:
+        text += "A flawless breakthrough: their foundation is firmer than before, and they will gather qi a little faster for life. "
+    ev = _letter(c, "good", f"{p['name']} reached {REALMS[target]}", text + "The whole sect feels it.")
+    _promote(c, p)
+    if p["step"] // 4 == len(REALMS) - 1 and p.get("master") and not c["flags"].get("ascended"):
+        c["flags"]["ascended"] = 1
+        _fame(c, 100)
+        _letter(c, "good", "The heavens open",
+                f"{p['name']} has stepped into Immortal Ascension. The {c['name']} will be spoken of for ten thousand years. "
+                "The sect carries on for as long as you care to guide it.")
+    return {"ok": True, "success": True, "perfect": perfect, "event": ev}
+
+
+def _ordinal(n: int) -> str:
+    return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+
+
+def gift(st: dict, sect_id: str, now: float) -> dict:
+    c = _c(st, now)
+    s = _sect(c, sect_id)
+    if not s:
+        return {"ok": False, "error": "Unknown sect."}
+    if c["res"]["stones"] < 10:
+        return {"ok": False, "error": "A fitting gift costs 10 spirit stones."}
+    c["res"]["stones"] -= 10
+    _rel(s, 8)
+    return {"ok": True, "event": _letter(c, "info", f"Gifts sent to the {s['name']}", f"Relations are now {stance(s['rel']).lower()}.")}
+
+
+def burn_manual(st: dict, manual: str, now: float) -> dict:
+    c = _c(st, now)
+    if manual not in c["manuals"] or not lore.MANUALS[manual].get("demonic"):
+        return {"ok": False, "error": "Only a forbidden manual can be burned."}
+    c["manuals"].remove(manual)
+    for s in c["sects"]:
+        _rel(s, 6 if s["kind"] == "righteous" else 0)
+    return {"ok": True, "event": _letter(c, "info", f"The {lore.MANUALS[manual]['name']} was burned", "The whispers stop. The righteous sects take note.")}
+
+
+# ---------------------------------------------------------------------------
+# storyteller: threats
+# ---------------------------------------------------------------------------
+def _ask(c: dict, kind: str, title: str, text: str, options: list[tuple[str, str]], **data) -> None:
+    c["pending"] = {"kind": kind, "title": title, "text": text, "options": [{"id": i, "label": lab} for i, lab in options], **data}
+
+
+def _omen(c: dict, r: random.Random, kind: str, src: dict | None = None, boost: float = 1.0, why: str = "") -> None:
+    """A threat is seen coming: the player chooses how to meet it."""
     tell = STORYTELLERS[c["storyteller"]]
-    strength = (wealth(c) / 22 + len(c["pawns"]) * 9 + _day(c) * 1.1) * r.uniform(0.7, 1.35) * tell["threat"]
+    strength = (wealth(c) / 22 + len(c["pawns"]) * 9 + min(_day(c), 48) * 1.1) * r.uniform(0.7, 1.35) * max(tell["threat"], 0.6) \
+        * c["adapt"] * boost
+    if kind == "raid" and src:
+        strength *= src["power"]
+    if kind == "beasts" and "beast_bell" in c["treasures"]:
+        strength *= 0.67
     ratio = defense(c) / max(strength, 1.0)
-    who = "A beast tide" if kind == "beasts" else "A rival sect's raid"
-    fighters = [p for p in c["pawns"] if combat_power(c, p) > 0]
-    for p in fighters:
-        _xp(p, "combat", 12)
+    look = ("They look far weaker than us." if ratio >= 1.6 else "We should hold them." if ratio >= 1.1 else "It will be close."
+            if ratio >= 0.8 else "They are stronger than us." if ratio >= 0.55 else "They are far stronger than us.")
+    who = "A beast tide" if kind == "beasts" else f"Raiders of the {src['name']}" if src else "Mountain bandits"
+    opts = [("fight", "Meet them at the gate")]
+    if _lvl(c, "ward"):
+        opts.append(("wards", "Seal the gates and hold behind the wards"))
+    cost = max(5, int(strength / 10))
+    if kind == "raid" and c["res"]["stones"] >= cost:
+        opts.append(("tribute", f"Pay them off ({cost} spirit stones)"))
+    _ask(c, "omen", f"{who} approach{'es' if kind == 'beasts' else ''}",
+         (why + " " if why else "") + f"Scouts count their strength at about {int(strength)} against our {int(defense(c))}. {look} "
+         "Fighting at the gate wins fame and spoils; the wards are safer but win nothing"
+         + ("; tribute buys peace and costs face." if kind == "raid" else "."),
+         opts, threat=kind, strength=float(strength), src=src["id"] if src else "", cost=cost)
+
+
+def _threat(c: dict, r: random.Random, kind: str, strength: float, how: str = "fight", src: dict | None = None) -> dict:
+    tell = STORYTELLERS[c["storyteller"]]
+    who = "The beast tide" if kind == "beasts" else f"The {src['name']} raid" if src else "The bandit raid"
     c["last_threat_day"] = _day(c)
-    if ratio >= 1.4:
-        loot = r.randint(3, 8) if kind == "raid" else 0
-        _add(c, "stones", loot)
-        _letter(c, "good", f"{who} was driven off", "Your disciples and wards held without a scratch."
-                + (f" The raiders dropped {loot} spirit stones." if loot else ""))
-        return
+    if how == "tribute":
+        cost = max(5, int(strength / 10))
+        c["res"]["stones"] = max(0.0, c["res"]["stones"] - cost)
+        _rel(src, 5)
+        _fame(c, -2)
+        for p in c["pawns"]:
+            _think(p, "tribute", "The sect paid tribute", -4, 48, c["hour"])
+        return _letter(c, "info", "Tribute was paid", f"{cost} spirit stones bought peace. The disciples keep their eyes on the ground.")
+    ward = ward_power(c)
+    d = ward * 2 + (defense(c) - ward) * 0.5 if how == "wards" else defense(c)
+    ratio = d / max(strength, 1.0)
+    soft = 0.5 if how == "wards" else 1.0
+    fighters = [p for p in _home(c) if combat_power(c, p) > 0]
+    for p in fighters:
+        _xp(p, "combat", 12 * soft)
+
     def wound(lo: int, hi: int, n: int) -> list[str]:
-        hit = r.sample(fighters or c["pawns"], min(n, len(fighters or c["pawns"])))
+        pool = fighters or _home(c) or c["pawns"]
+        hit = r.sample(pool, min(max(1, int(n * soft)), len(pool)))
         for p in hit:
-            _hurt(p, r.randint(lo, hi))
+            _hurt(p, r.randint(lo, hi) * soft, c)
         return [p["name"] for p in hit]
+    if ratio >= 1.4:
+        loot = r.randint(3, 8) if kind == "raid" and how == "fight" else 0
+        _add(c, "stones", loot)
+        if how == "fight":
+            _fame(c, 5)
+            _rel(src, -5)
+            if src:
+                src["power"] = round(max(0.6, src["power"] * 0.95), 2)
+        c["adapt"] = min(1.25, c["adapt"] + 0.05)
+        for p in c["pawns"]:
+            _think(p, "fought", "Drove off an attack", 5 if how == "fight" else 2, 36, c["hour"])
+        return _letter(c, "good", f"{who} was driven off", "Your disciples and wards held without a scratch."
+                       + (f" The raiders dropped {loot} spirit stones." if loot else ""))
     if ratio >= 0.9:
         names = wound(15, 35, 2)
         text = f"The sect won, but {' and '.join(names)} took wounds. Pills and rest will mend them."
         kind_ = "info"
+        if how == "fight":
+            _fame(c, 3)
+        c["adapt"] = min(1.25, c["adapt"] + 0.03)
     elif ratio >= 0.55:
         names = wound(20, 50, max(2, len(c["pawns"]) // 2))
         for res in ("rice", "wood", "stone", "herbs"):
@@ -541,65 +873,120 @@ def _threat(c: dict, r: random.Random, kind: str) -> None:
         text = f"A costly win. {', '.join(names)} are wounded and a tenth of the stores were trampled."
         kind_ = "bad"
     else:
-        names = wound(30, 70, len(c["pawns"]))
+        wound(30, 70, len(c["pawns"]))
         for res in ("rice", "wood", "stone", "herbs", "stones"):
             c["res"][res] *= 0.65
         text = "The sect was overrun. A third of the stores are gone and nearly everyone is hurt. Train, and raise a Ward Formation."
         kind_ = "bad"
+        _fame(c, -3)
+    if ratio < 0.9:
+        # The world eases off a sect that has just been beaten.
+        c["adapt"] = max(0.55, c["adapt"] - 0.2)
+        c["last_threat_day"] = _day(c) + min(10, int(tell["threat_gap"]))
     dead = []
     for p in list(c["pawns"]):
         if p["health"] <= 0:
-            if p.get("master") or not tell["deaths"]:
+            if p.get("master") or not tell["deaths"] or p not in fighters:
                 p["health"] = 6.0
             else:
                 dead.append(p["name"])
-                c["pawns"].remove(p)
-                c["graves"] += 1
+                _die(c, p)
     if dead:
         text += f" {' and '.join(dead)} did not survive."
-        for p in c["pawns"]:
-            _think(p, "death", "A fellow disciple died", -12, 72, c["hour"])
     for p in c["pawns"]:
         _think(p, "fought", "Fought for the sect" if ratio >= 0.9 else "The sect was beaten", 4 if ratio >= 0.9 else -8, 36, c["hour"])
-    _letter(c, kind_, f"{who} struck", text)
+    return _letter(c, kind_, f"{who} struck", text)
+
+
+# ---------------------------------------------------------------------------
+# storyteller: the day's event
+# ---------------------------------------------------------------------------
+def _others(c: dict) -> list[dict]:
+    return [p for p in _home(c) if not p.get("master")]
 
 
 def _daily_event(c: dict) -> None:
-    tell = STORYTELLERS[c["storyteller"]]
+    tell = STORYTELLERS.get(c["storyteller"], STORYTELLERS["balanced"])
     day = _day(c)
+    year = day // (DAYS_PER_SEASON * 4) + 1
+    doy = day % (DAYS_PER_SEASON * 4)
     r = _rng(c, "event", day)
-    if c["pending"] or r.random() > tell["event"] * (1.3 if _lvl(c, "market") else 1.0):
+    if c["pending"]:
+        return
+    home, others = _home(c), _others(c)
+    # --- the calendar: recruitment in spring, the tournament in autumn
+    if year >= 2 and doy >= 1 and c["recruit_year"] != year and len(c["pawns"]) < pawn_cap(c):
+        c["recruit_year"] = year
+        cands = []
+        for _ in range(3):
+            cands.append(_make_pawn(c, c["next_pawn"], lucky=c["fame"] >= 20))
+            c["next_pawn"] += 1
+        def line(p):
+            best = max(SKILLS, key=lambda s: p["skills"][s]["lv"])
+            return f"{p['name']}: {p['root']} root, {' and '.join(p['traits']).lower()}, {SKILL_NAMES[best].lower()} {p['skills'][best]['lv']}"
+        _ask(c, "recruit", "The spring entrance trial",
+             "Youths from the villages below have climbed the ten thousand steps to have their spirit roots tested. "
+             "You may take one. " + " / ".join(line(p) for p in cands) + ".",
+             [(f"pick{i}", f"Take {p['name']}") for i, p in enumerate(cands)] + [("decline", "Take no one this year")], cands=cands)
+        return
+    if doy >= 30 and c["tournament_year"] != year and len(home) >= 2 and c["sects"]:
+        c["tournament_year"] = year
+        champs = _strongest(c, 3, master=False) or _strongest(c, 1, master=True)
+        if champs:
+            _ask(c, "tournament", "The Hundred Sects Tournament",
+                 "Every autumn the sects of the region send one champion each to the arena. Three rounds; fame and prizes for every win. "
+                 "Whom do you send?",
+                 [(p["id"], f"Send {p['name']} (strength {int(duel_power(c, p))})") for p in champs] + [("decline", "Stay home this year")])
+            return
+    if r.random() > tell["event"] * (1.3 if _lvl(c, "market") else 1.0):
         return
     c["last_event_day"] = day
-    table = [("wanderer", 16 if len(c["pawns"]) < pawn_cap(c) else 0), ("merchant", 14 + 6 * _lvl(c, "market")),
-             ("herbs", 10), ("meteor", 7), ("elder", 7), ("harvest", 8 if _season(c) != 3 else 0),
-             ("sickness", 9), ("blight", 6 if _season(c) != 3 else 0), ("cold", 8 if _season(c) == 3 else 0)]
+    rival = _rival(c)
+    fl = c["flags"]
+    table = [("wanderer", 14 if len(c["pawns"]) < pawn_cap(c) else 0), ("merchant", 12 + 6 * _lvl(c, "market")),
+             ("herbs", 8), ("meteor", 6), ("elder", 6), ("harvest", 7 if _season(c) != 3 else 0),
+             ("sickness", 8), ("blight", 5 if _season(c) != 3 else 0), ("cold", 8 if _season(c) == 3 else 0),
+             # the tropes
+             ("young_master", 11 if rival and others and day >= 4 else 0),
+             ("auction", 8 if c["res"]["stones"] >= 15 and day >= 8 else 0),
+             ("secret_realm", 8 if len(others) >= 2 and day >= 10 else 0),
+             ("fallen_genius", 9 if not fl.get("genius") and day >= 6 and len(c["pawns"]) < pawn_cap(c) else 0),
+             ("beast_cub", 7 if not c["beast"] and day >= 5 else 0),
+             ("demonic_offer", 5 if "blood_sutra" not in c["manuals"] and day >= 12 else 0),
+             ("cave", 7 if day >= 8 and others else 0),
+             ("engagement", 6 if not fl.get("engagement") and others and day >= 9 and c["sects"] else 0),
+             ("spy", 4 if rival and rival["rel"] < 0 and len(others) >= 3 and day >= 14 else 0),
+             ("village", 8 if others and day >= 5 else 0),
+             ("cliff", 5 if len(others) >= 2 else 0), ("epiphany", 6), ("furnace", 5 if _lvl(c, "alchemy") else 0)]
     if tell["threat"] > 0 and day >= 6 and day - c["last_threat_day"] >= tell["threat_gap"]:
         table += [("beasts", 16), ("raid", 12 if day >= 12 else 0)]
     kinds, weights = zip(*[(k, w) for k, w in table if w > 0])
     kind = r.choices(kinds, weights)[0]
     if kind == "wanderer":
-        cand = _make_pawn(c, c["next_pawn"])
+        cand = _make_pawn(c, c["next_pawn"], lucky=c["fame"] >= 20)
         c["next_pawn"] += 1
         best = max(SKILLS, key=lambda s: cand["skills"][s]["lv"])
-        c["pending"] = {"kind": "wanderer", "title": "A wanderer at the gate", "cand": cand, "expires": c["hour"] + 24,
-                        "text": f"{cand['name']}, {cand['age']}, asks to join. {cand['root']} spirit root; "
-                                f"{' and '.join(cand['traits']).lower()}; best at {SKILL_NAMES[best].lower()} ({cand['skills'][best]['lv']}). "
-                                "Another mouth, another pair of hands.",
-                        "options": [{"id": "accept", "label": "Welcome them"}, {"id": "decline", "label": "Turn them away"}]}
+        _ask(c, "wanderer", "A wanderer at the gate",
+             f"{cand['name']}, {cand['age']}, asks to join. {cand['root']} spirit root; "
+             f"{' and '.join(cand['traits']).lower()}; best at {SKILL_NAMES[best].lower()} ({cand['skills'][best]['lv']}). "
+             "Another mouth, another pair of hands.", [("accept", "Welcome them"), ("decline", "Turn them away")], cand=cand)
     elif kind == "merchant":
         rate = 1.0 + 0.25 * _lvl(c, "market")
         opts = []
         if c["res"]["rice"] >= 40:
-            opts.append({"id": "sell_rice", "label": f"Sell 25 rice for {int(6 * rate)} spirit stones"})
+            opts.append(("sell_rice", f"Sell 25 rice for {int(6 * rate)} spirit stones"))
         if c["res"]["herbs"] >= 10:
-            opts.append({"id": "sell_herbs", "label": f"Sell 8 herbs for {int(7 * rate)} spirit stones"})
+            opts.append(("sell_herbs", f"Sell 8 herbs for {int(7 * rate)} spirit stones"))
+        if c["res"]["pills"] >= 3:
+            opts.append(("sell_pills", f"Sell 2 pills for {int(8 * rate)} spirit stones"))
         if c["res"]["stones"] >= 6:
-            opts += [{"id": "buy_rice", "label": "Buy 30 rice for 6 spirit stones"}, {"id": "buy_wood", "label": "Buy 40 wood for 6 spirit stones"}]
+            opts += [("buy_rice", "Buy 30 rice for 6 spirit stones"), ("buy_wood", "Buy 40 wood for 6 spirit stones")]
         if c["res"]["stones"] >= 10:
-            opts.append({"id": "buy_pills", "label": "Buy 2 pills for 10 spirit stones"})
-        c["pending"] = {"kind": "merchant", "title": "A merchant caravan", "expires": c["hour"] + 24, "rate": rate,
-                        "text": "Traders have stopped at the gate for the day.", "options": opts + [{"id": "decline", "label": "Send them on"}]}
+            opts.append(("buy_pills", "Buy 2 pills for 10 spirit stones"))
+        if not opts:
+            _letter(c, "info", "A merchant caravan passed", "You had nothing they wanted, and no spirit stones to spend.")
+            return
+        _ask(c, "merchant", "A merchant caravan", "Traders have stopped at the gate for the day.", opts + [("decline", "Send them on")], rate=rate)
     elif kind == "herbs":
         n = r.randint(8, 16)
         _add(c, "herbs", n)
@@ -618,7 +1005,9 @@ def _daily_event(c: dict) -> None:
         _add(c, "rice", n)
         _letter(c, "good", "A bumper harvest", f"The terraces gave {n} more rice than expected.")
     elif kind == "sickness":
-        p = r.choice(c["pawns"])
+        if not home:
+            return
+        p = r.choice(home)
         p["sick_until"] = c["hour"] + r.randint(30, 60)
         _hurt(p, 15)
         _letter(c, "bad", f"{p['name']} has fallen ill", "They will rest for a day or two. A pill speeds it up.")
@@ -635,8 +1024,358 @@ def _daily_event(c: dict) -> None:
                 _think(p, "cold", "Shivered through a cold snap", -8, 48, c["hour"])
         _letter(c, "bad" if short else "info", "A cold snap", f"The sect burned {int(burn)} wood to keep warm."
                 + (" It was not enough." if short else ""))
+    elif kind == "young_master":
+        p = r.choice(others)
+        _ask(c, "young_master", "A young master blocks the road",
+             f"{rival['young']}, young master of the {rival['name']}, has stopped {p['name']} on the mountain path with a dozen lackeys. "
+             f"“A {realm_label(p['step']).split(' · ')[0]} trash from a nameless sect dares to walk in front of me? Kneel, and I may forget it. "
+             "Do you know who my father is?”",
+             [("slap", f"Have {p['name']} teach him a lesson"), ("endure", "Swallow the insult and walk away")]
+             + ([("pay", "Smooth it over with 8 spirit stones")] if c["res"]["stones"] >= 8 else []),
+             pawn=p["id"], src=rival["id"])
+    elif kind == "auction":
+        lots = []
+        mids = [k for k, m in lore.MANUALS.items() if k not in c["manuals"] and not m.get("demonic") and m["grade"] <= min(3, _max_grade(c) + 1)]
+        if mids:
+            mid = r.choice(mids)
+            lots.append({"what": "manual", "id": mid, "price": (15, 30, 55, 90)[lore.MANUALS[mid]["grade"]], "label": _manual_name(mid)})
+        tids = [k for k in lore.TREASURES if k not in c["treasures"]]
+        if tids:
+            tid = r.choice(tids)
+            lots.append({"what": "treasure", "id": tid, "price": 40, "label": f"{lore.TREASURES[tid]['name']}: {lore.TREASURES[tid]['text']}"})
+        lots.append({"what": "pills", "id": "", "price": 12, "label": "A jade bottle of 3 pills"})
+        if not c["beast"]:
+            lots.append({"what": "egg", "id": "", "price": 25, "label": "A warm spirit-beast egg"})
+        _ask(c, "auction", "The Golden Pavilion auction",
+             "An auction house in the valley town has sent an invitation in gold leaf. Rival bidders glare from the private boxes. You can win one lot.",
+             [(f"lot{i}", f"{lot['label']} — {lot['price']} spirit stones") for i, lot in enumerate(lots)] + [("decline", "Bid on nothing")], lots=lots)
+    elif kind == "secret_realm":
+        _ask(c, "secret_realm", "A secret realm opens",
+             "Light pours from a tear in the sky above the Misty Marsh: the Azure Emperor's secret realm, open for two days once in sixty years. "
+             "Every sect is sending disciples in. There are manuals, herbs and treasures inside, and rivals with drawn swords.",
+             [("send3", "Send the three strongest disciples"), ("send1", "Send only the strongest"), ("decline", "Keep everyone home")])
+    elif kind == "fallen_genius":
+        fl["genius"] = 1
+        cand = _make_pawn(c, c["next_pawn"])
+        c["next_pawn"] += 1
+        cand.update(root="Crippled", root_mult=0.6, hidden=True, age=r.randint(15, 17))
+        _ask(c, "wanderer", "A fallen genius at the gate",
+             f"{cand['name']}, {cand['age']}, was the pride of a great clan until his meridians were crippled three years ago. "
+             "His engagement was annulled in front of the whole clan and he was cast out. He wears a plain black ring and has nowhere to go. "
+             "He would be a mouth to feed, and he will gather qi slowly.",
+             [("accept", "Give him a place"), ("decline", "Turn him away")], cand=cand)
+    elif kind == "beast_cub":
+        name = r.choice(lore.BEASTS)
+        _ask(c, "beast_cub", "A wounded spirit beast",
+             f"Foragers found a {name} with an arrow in its flank, too weak to run. Raised in the sect it would guard the gate one day. It will eat a little rice.",
+             [("adopt", "Nurse it and raise it (10 rice)"), ("sell", "Sell it to a beast tamer (8 spirit stones)"), ("decline", "Leave it be")], beast=name)
+    elif kind == "demonic_offer":
+        _ask(c, "demonic_offer", "A stranger in a black cloak",
+             "He leaves no footprints in the snow. “Your disciples crawl where they could fly. This sutra asks only a little blood, "
+             "and never the reader's own.” He holds out a manual bound in something that is not leather. Any rank can practise it, "
+             "it gathers qi faster than anything you own, and it darkens the heart. The righteous sects will hear of it.",
+             [("accept", "Take the Blood Sutra"), ("refuse", "Refuse and send him away"), ("fight", "Drive the demon out")])
+    elif kind == "cave":
+        p = max(others, key=lambda x: x["skills"]["scholar"]["lv"])
+        _ask(c, "cave", "A sealed cave abode",
+             f"A quarry wall fell away onto a stone door carved with a dead immortal's seal. Beyond it, by the old stories, is an inheritance "
+             f"and the trial that guards it. {p['name']} reads the seal script best (scholarship {p['skills']['scholar']['lv']}).",
+             [("enter", f"Send {p['name']} to take the trial"), ("decline", "Seal it up again")], pawn=p["id"])
+    elif kind == "engagement":
+        fl["engagement"] = 1
+        p = r.choice(others)
+        s = r.choice(c["sects"])
+        _ask(c, "engagement", "An engagement is annulled",
+             f"A lady of the {s['name']} has come with her elders to break her childhood engagement to {p['name']}, in front of the whole sect. "
+             "“We walk different roads now. Take these spirit stones for your trouble.” "
+             f"{p['name']}'s knuckles are white.",
+             [("pact", "“Three years from now, I will come to your sect.” (a pact to duel)"), ("stones", "Take the 15 spirit stones")],
+             pawn=p["id"], src=s["id"])
+    elif kind == "spy":
+        p = r.choice(others)
+        _ask(c, "spy", "A spy in the sect",
+             f"{p['name']} was caught passing notes on the ward formation to the {rival['name']}. They kneel in the Main Hall and say their family is held hostage.",
+             [("banish", "Cast them out"), ("forgive", "Forgive them"), ("turn", "Send false notes back through them")], pawn=p["id"], src=rival["id"])
+    elif kind == "village":
+        p = _strongest(c, 1)
+        if not p:
+            return
+        _ask(c, "village", "The village below begs for help",
+             f"A demon boar has been tearing up the fields of Willow Village. The headman kneels at the gate. {p[0]['name']} could deal with it in a day.",
+             [("send", f"Send {p[0]['name']}"), ("decline", "The sect does not meddle with mortals")], pawn=p[0]["id"])
+    elif kind == "cliff":
+        p = r.choice(others)
+        p["away_until"], p["away_kind"] = c["hour"] + r.randint(36, 72), "missing"
+        c["later"].append({"at": p["away_until"], "kind": "cliff_return", "pawn": p["id"]})
+        _letter(c, "bad", f"{p['name']} fell from a cliff", "A ledge gave way while they were gathering herbs. The others searched until dark and found nothing but mist.")
+    elif kind == "epiphany":
+        if not home:
+            return
+        p = r.choice(home)
+        _gain_qi(c, p, step_need(p["step"]) * 0.3)
+        p["inspired_until"] = c["hour"] + 24
+        _letter(c, "good", f"{p['name']} had an epiphany", "Watching a leaf fall into the pond, they sat down and did not move for a day. Their qi surged.")
+    elif kind == "furnace":
+        if r.random() < 0.5:
+            _add(c, "pills", 2)
+            _letter(c, "good", "A pill with pill-lines", "The furnace sang at midnight. Two flawless pills came out of an ordinary batch.")
+        else:
+            c["res"]["herbs"] = max(0.0, c["res"]["herbs"] - 3)
+            brewer = max(home, key=lambda x: x["skills"]["craft"]["lv"]) if home else None
+            if brewer:
+                _hurt(brewer, 10, c)
+            _letter(c, "bad", "The pill furnace exploded", f"{brewer['name'] if brewer else 'Someone'} is singed, and three herbs are ash.")
     else:
-        _threat(c, r, kind)
+        _omen(c, r, kind, rival if kind == "raid" and rival and rival["rel"] < 20 else None)
+
+
+# ---------------------------------------------------------------------------
+# answering an event
+# ---------------------------------------------------------------------------
+def duel_power(c: dict, p: dict) -> float:
+    return (10 + 4 * p["skills"]["combat"]["lv"]) * (1 + 0.07 * p["step"]) * (1 + _manual(c, p, "sword")[0]) * max(0.3, p["health"] / 100.0)
+
+
+def _res_wanderer(c, ev, opt, r):
+    if opt != "accept":
+        return None
+    if len(c["pawns"]) >= pawn_cap(c):
+        return ("err", "The sect is full. Raise the Main Hall to take in more, or turn them away.")
+    p = ev["cand"]
+    p["joined"] = c["hour"]
+    c["pawns"].append(p)
+    if p.get("hidden"):
+        c["later"].append({"at": c["hour"] + 24 * r.randint(8, 14), "kind": "ring", "pawn": p["id"]})
+    return _letter(c, "good", f"{p['name']} joined the sect", "Set their work priorities in Work.")
+
+
+def _res_recruit(c, ev, opt, r):
+    if not opt.startswith("pick"):
+        return None
+    if len(c["pawns"]) >= pawn_cap(c):
+        return ("err", "The sect is full. Raise the Main Hall to take in more.")
+    p = ev["cands"][int(opt[4:])]
+    p["joined"] = c["hour"]
+    c["pawns"].append(p)
+    return _letter(c, "good", f"{p['name']} passed the entrance trial", "A new outer disciple bows to the Sect Master.")
+
+
+def _res_merchant(c, ev, opt, r):
+    rate = float(ev.get("rate", 1.0))
+    trades = {"sell_rice": ("rice", -25, int(6 * rate)), "sell_herbs": ("herbs", -8, int(7 * rate)), "sell_pills": ("pills", -2, int(8 * rate)),
+              "buy_rice": ("rice", 30, -6), "buy_wood": ("wood", 40, -6), "buy_pills": ("pills", 2, -10)}
+    if opt not in trades:
+        return None
+    what, qty, stones = trades[opt]
+    res = c["res"]
+    if res[what] + qty < 0 or res["stones"] + stones < 0:
+        return ("err", "You no longer have enough for that trade.")
+    res[what] += qty
+    res["stones"] += stones
+    return _letter(c, "info", "A trade was struck", next(o["label"] for o in ev["options"] if o["id"] == opt) + ".")
+
+
+def _res_omen(c, ev, opt, r):
+    return _threat(c, r, ev["threat"], float(ev["strength"]), opt, _sect(c, ev.get("src", "")))
+
+
+def _res_young_master(c, ev, opt, r):
+    p, s = _p(c, ev["pawn"]), _sect(c, ev["src"])
+    if not p or not s:
+        return None
+    if opt == "pay":
+        if c["res"]["stones"] < 8:
+            return ("err", "You do not have 8 spirit stones.")
+        c["res"]["stones"] -= 8
+        _rel(s, 8)
+        _fame(c, -1)
+        return _letter(c, "info", "The matter was smoothed over", f"{s['young']} weighs the pouch, sneers and lets {p['name']} pass.")
+    if opt == "endure":
+        _think(p, "insult", "Swallowed an insult", -10, 48, c["hour"])
+        _xp(p, "combat", 25)
+        _rel(s, 3)
+        return _letter(c, "info", f"{p['name']} walked away", "They said nothing, and trained until dawn. A gentleman's revenge can wait ten years.")
+    foe = (14 + _day(c) * 0.7) * s["power"] * r.uniform(0.7, 1.3)
+    if duel_power(c, p) >= foe:
+        _think(p, "slap", "Slapped a young master's face", 12, 72, c["hour"])
+        for o in c["pawns"]:
+            if o is not p:
+                _think(o, "slap_seen", "Saw an arrogant young master humbled", 4, 48, c["hour"])
+        _fame(c, 5)
+        _rel(s, -20)
+        if not p.get("title"):
+            p["title"] = r.choice(lore.EPITHETS)
+        c["later"].append({"at": c["hour"] + 24 * r.randint(3, 5), "kind": "elder", "src": s["id"]})
+        return _letter(c, "good", f"{p['name']} slapped {s['young']}'s face",
+                       "One palm, and the young master spun three times before he hit the ground. His lackeys carried him off shouting "
+                       "“You will regret this! My father will not let this go!” Beat the young, and the old will come.")
+    _hurt(p, 30, c)
+    _think(p, "beaten", "Beaten in front of everyone", -10, 48, c["hour"])
+    _rel(s, -5)
+    _fame(c, -2)
+    return _letter(c, "bad", f"{p['name']} was beaten by {s['young']}",
+                   "The young master had a protective treasure from his father. “Courting death!” Train harder before picking the next fight.")
+
+
+def _res_auction(c, ev, opt, r):
+    if not opt.startswith("lot"):
+        return None
+    lot = ev["lots"][int(opt[3:])]
+    if c["res"]["stones"] < lot["price"]:
+        return ("err", "You do not have the spirit stones for that lot.")
+    c["res"]["stones"] -= lot["price"]
+    if lot["what"] == "manual" and lot["id"] in lore.MANUALS and lot["id"] not in c["manuals"]:
+        c["manuals"].append(lot["id"])
+    elif lot["what"] == "treasure" and lot["id"] in lore.TREASURES and lot["id"] not in c["treasures"]:
+        c["treasures"].append(lot["id"])
+    elif lot["what"] == "pills":
+        _add(c, "pills", 3)
+    elif lot["what"] == "egg":
+        c["beast"] = {"name": r.choice(lore.BEASTS), "born": c["hour"]}
+    return _letter(c, "good", "The hammer falls", f"Sold to the {c['name']}: {lot['label']}. A rival bidder crushes his teacup.")
+
+
+def _res_secret_realm(c, ev, opt, r):
+    if opt == "decline":
+        return None
+    team = _strongest(c, 3 if opt == "send3" else 1)
+    if not team:
+        return ("err", "No disciple is fit to go.")
+    back = c["hour"] + 48
+    for p in team:
+        p["away_until"], p["away_kind"] = back, "in the secret realm"
+    c["later"].append({"at": back, "kind": "realm_return", "pawns": [p["id"] for p in team]})
+    return _letter(c, "info", "Into the secret realm", f"{', '.join(p['name'] for p in team)} stepped through the tear in the sky. They will be gone two days.")
+
+
+def _res_beast_cub(c, ev, opt, r):
+    if opt == "adopt":
+        if c["res"]["rice"] < 10:
+            return ("err", "You do not have 10 rice to spare.")
+        c["res"]["rice"] -= 10
+        c["beast"] = {"name": str(ev["beast"]), "born": c["hour"]}
+        for p in c["pawns"]:
+            _think(p, "cub", "The sect has a spirit beast", 5, 72, c["hour"])
+        return _letter(c, "good", f"The {ev['beast']} stays", "It sleeps by the kitchen fire and growls at strangers. It will grow.")
+    if opt == "sell":
+        _add(c, "stones", 8)
+        return _letter(c, "info", "The beast was sold", "A tamer from Hundred Beasts Mountain paid 8 spirit stones.")
+    return None
+
+
+def _res_demonic_offer(c, ev, opt, r):
+    if opt == "accept":
+        c["manuals"].append("blood_sutra")
+        for s in c["sects"]:
+            _rel(s, -15 if s["kind"] == "righteous" else 10 if s["kind"] == "demonic" else -5)
+        return _letter(c, "bad", "The Blood Sutra is in the pavilion",
+                       "Every disciple gathers qi far faster, and sleeps worse. You can burn it from the World tab.")
+    if opt == "fight":
+        _fame(c, 2)
+        for s in c["sects"]:
+            _rel(s, 4 if s["kind"] == "righteous" else -8 if s["kind"] == "demonic" else 0)
+        return _letter(c, "good", "The demon was driven out", "He laughed as the wards flared, and was gone. The righteous sects approve.")
+    return None
+
+
+def _res_cave(c, ev, opt, r):
+    p = _p(c, ev["pawn"])
+    if opt != "enter" or not p:
+        return None
+    if r.random() < 0.4 + 0.03 * p["skills"]["scholar"]["lv"]:
+        mid = _loot_manual(c, r, min(3, _max_grade(c) + 1))
+        _gain_qi(c, p, step_need(p["step"]) * 0.5)
+        _xp(p, "scholar", 40)
+        _think(p, "inherit", "Received an immortal's inheritance", 12, 96, c["hour"])
+        return _letter(c, "good", f"{p['name']} passed the trial",
+                       "A remnant soul looked them over for a long time. “You will do.” "
+                       + (f"They came out with the {_manual_name(mid)}." if mid else "They came out with a surge of qi."))
+    _hurt(p, 25, c)
+    _add(c, "stones", 4)
+    return _letter(c, "bad", f"{p['name']} failed the trial", "The puppet guardians threw them out with four spirit stones clutched in one fist.")
+
+
+def _res_engagement(c, ev, opt, r):
+    p, s = _p(c, ev["pawn"]), _sect(c, ev["src"])
+    if not p:
+        return None
+    if opt == "stones":
+        _add(c, "stones", 15)
+        _think(p, "annulled", "Sold their pride for spirit stones", -8, 72, c["hour"])
+        return _letter(c, "info", "The stones were taken", f"{p['name']} does not come out of their room that night.")
+    p["resolve_until"] = c["hour"] + 24 * 12
+    c["later"].append({"at": c["hour"] + 24 * 12, "kind": "pact_duel", "pawn": p["id"], "src": s["id"] if s else ""})
+    return _letter(c, "good", f"{p['name']} made a three-year pact",
+                   "“Do not bully the young for being poor.” For the next twelve days they gather qi half again as fast. Then the duel.")
+
+
+def _res_spy(c, ev, opt, r):
+    p, s = _p(c, ev["pawn"]), _sect(c, ev["src"])
+    if not p:
+        return None
+    if opt == "banish":
+        c["pawns"].remove(p)
+        _rel(s, -5)
+        return _letter(c, "info", f"{p['name']} was cast out", "The gate closed behind them.")
+    if opt == "forgive":
+        _think(p, "mercy", "Was shown mercy", 12, 120, c["hour"])
+        for sk in SKILLS:
+            _xp(p, sk, 10)
+        return _letter(c, "good", f"{p['name']} was forgiven", "They work like someone with a debt to repay.")
+    c["adapt"] = max(0.55, c["adapt"] - 0.15)
+    _think(p, "double", "Living a double life", -6, 96, c["hour"])
+    return _letter(c, "good", "False notes were sent", f"The {s['name'] if s else 'enemy'} now has a very wrong map of the wards. Their next raid will be weaker.")
+
+
+def _res_village(c, ev, opt, r):
+    p = _p(c, ev["pawn"])
+    if opt != "send" or not p:
+        _fame(c, -2)
+        return _letter(c, "info", "The headman was sent away", "Word gets around the villages.")
+    p["away_until"], p["away_kind"] = c["hour"] + 24, "hunting a demon boar"
+    c["later"].append({"at": p["away_until"], "kind": "village_return", "pawn": p["id"]})
+    return _letter(c, "info", f"{p['name']} went down the mountain", "They will be back tomorrow.")
+
+
+def _res_tournament(c, ev, opt, r):
+    p = _p(c, opt)
+    if not p:
+        for o in c["pawns"]:
+            _think(o, "no_tourney", "The sect skipped the tournament", -3, 48, c["hour"])
+        return None
+    wins, lines = 0, []
+    me = duel_power(c, p)
+    for i, s in enumerate(sorted(c["sects"], key=lambda x: x["power"])):
+        foe = (16 + _day(c) * 0.75) * s["power"] * (1 + 0.15 * i) * r.uniform(0.75, 1.25)
+        if me >= foe:
+            wins += 1
+            _rel(s, -3)
+            lines.append(f"beat the {s['name']}'s champion")
+        else:
+            lines.append(f"fell to the {s['name']}'s champion")
+            _hurt(p, 15, c)
+            break
+    _fame(c, 4 * wins)
+    _xp(p, "combat", 30 + 20 * wins)
+    prize = ""
+    if wins:
+        _add(c, "stones", 8 * wins)
+        prize = f" Prize: {8 * wins} spirit stones"
+    if wins == len(c["sects"]):
+        mid = _loot_manual(c, r, min(3, _max_grade(c) + 1))
+        prize += f" and the {_manual_name(mid)}" if mid else ""
+        p["title"] = "Tournament Champion"
+    for o in c["pawns"]:
+        _think(o, "tourney", "Our champion won the tournament" if wins == len(c["sects"]) else "Our champion fought in the tournament",
+               10 if wins == len(c["sects"]) else 2 + 2 * wins, 72, c["hour"])
+    return _letter(c, "good" if wins else "info", f"{p['name']} at the Hundred Sects Tournament",
+                   f"{p['name']} {', then '.join(lines)}.{prize}{'.' if prize else ''}")
+
+
+_RESOLVERS = {"wanderer": _res_wanderer, "recruit": _res_recruit, "merchant": _res_merchant, "omen": _res_omen,
+              "young_master": _res_young_master, "auction": _res_auction, "secret_realm": _res_secret_realm,
+              "beast_cub": _res_beast_cub, "demonic_offer": _res_demonic_offer, "cave": _res_cave, "engagement": _res_engagement,
+              "spy": _res_spy, "village": _res_village, "tournament": _res_tournament}
 
 
 def resolve(st: dict, option: str, now: float) -> dict:
@@ -647,27 +1386,97 @@ def resolve(st: dict, option: str, now: float) -> dict:
     if option not in {o["id"] for o in ev["options"]}:
         return {"ok": False, "error": "That is not one of the choices."}
     c["pending"] = None
-    res = c["res"]
-    rate = float(ev.get("rate", 1.0))
-    if ev["kind"] == "wanderer" and option == "accept":
-        if len(c["pawns"]) >= pawn_cap(c):
-            c["pending"] = ev
-            return {"ok": False, "error": "The sect is full. Raise the Main Hall to take in more, or turn them away."}
-        p = ev["cand"]
-        p["joined"] = c["hour"]
-        c["pawns"].append(p)
-        return {"ok": True, "event": _letter(c, "good", f"{p['name']} joined the sect", "Set their work priorities in Work.")}
-    trades = {"sell_rice": ("rice", -25, int(6 * rate)), "sell_herbs": ("herbs", -8, int(7 * rate)),
-              "buy_rice": ("rice", 30, -6), "buy_wood": ("wood", 40, -6), "buy_pills": ("pills", 2, -10)}
-    if option in trades:
-        what, qty, stones = trades[option]
-        if res[what] + qty < 0 or res["stones"] + stones < 0:
-            c["pending"] = ev
-            return {"ok": False, "error": "You no longer have enough for that trade."}
-        res[what] += qty
-        res["stones"] += stones
-        return {"ok": True, "event": _letter(c, "info", "A trade was struck", ev["options"][[o["id"] for o in ev["options"]].index(option)]["label"] + ".")}
-    return {"ok": True}
+    fn = _RESOLVERS.get(ev["kind"])
+    out = fn(c, ev, option, _rng(c, "res", ev["kind"], c["hour"])) if fn else None
+    if isinstance(out, tuple):
+        c["pending"] = ev
+        return {"ok": False, "error": out[1]}
+    return {"ok": True, "event": out} if out else {"ok": True}
+
+
+def _later(c: dict, item: dict) -> bool:
+    """A consequence that was set in motion earlier comes due. False = try again later."""
+    r = _rng(c, "later", item["kind"], c["hour"])
+    kind = item["kind"]
+    if kind == "elder":
+        s = _sect(c, item.get("src", ""))
+        if c["pending"]:
+            return False
+        if s:
+            _omen(c, r, "raid", s, boost=1.25, why=f"An elder of the {s['name']} has come to avenge {s['young']}'s face.")
+    elif kind == "realm_return":
+        team = [p for p in (_p(c, i) for i in item.get("pawns", [])) if p]
+        if not team:
+            return True
+        power = sum(duel_power(c, p) for p in team)
+        need = (30 + _day(c) * 1.2) * r.uniform(0.7, 1.3)
+        luck = power / max(need, 1.0)
+        found = []
+        n = r.randint(6, 14) * len(team)
+        _add(c, "stones", n * min(1.5, luck))
+        found.append(f"{int(n * min(1.5, luck))} spirit stones")
+        herbs = r.randint(5, 10) * len(team)
+        _add(c, "herbs", herbs)
+        found.append(f"{herbs} spirit herbs")
+        if r.random() < 0.35 * luck:
+            mid = _loot_manual(c, r)
+            if mid:
+                found.append(f"the {_manual_name(mid)}")
+        if r.random() < 0.15 * luck:
+            tid = _loot_treasure(c, r)
+            if tid:
+                found.append(f"the {lore.TREASURES[tid]['name']}")
+        hurt = []
+        for p in team:
+            _xp(p, "combat", 30)
+            _gain_qi(c, p, step_need(p["step"]) * 0.2)
+            if r.random() < max(0.1, 0.7 - 0.4 * luck):
+                _hurt(p, r.randint(15, 40), c)
+                p["health"] = max(p["health"], 8.0)
+                hurt.append(p["name"])
+        _fame(c, 2 if luck >= 1 else 0)
+        _letter(c, "good" if not hurt else "info", "The disciples return from the secret realm",
+                f"They brought back {', '.join(found)}." + (f" {' and '.join(hurt)} crossed swords with rival disciples and came back wounded." if hurt else ""))
+    elif kind == "cliff_return":
+        p = _p(c, item.get("pawn", ""))
+        if p:
+            _gain_qi(c, p, step_need(p["step"]) * 0.6)
+            _think(p, "fortune", "Survived a fall and found a fortune", 10, 96, c["hour"])
+            _add(c, "herbs", 8)
+            _letter(c, "good", f"{p['name']} walked back through the gate",
+                    "At the foot of the cliff was a cave, and in the cave a skeleton sitting in meditation, with a spirit fruit growing from its lap. "
+                    "They ate the fruit. Those who survive a great disaster are bound for good fortune.")
+    elif kind == "ring":
+        p = _p(c, item.get("pawn", ""))
+        if p and p.get("hidden"):
+            p.update(hidden=False, root="Heaven-Defying", root_mult=2.3)
+            _think(p, "ring", "An old voice in the ring is teaching him", 12, 240, c["hour"])
+            _letter(c, "good", f"The ring on {p['name']}'s finger woke",
+                    f"“Little fellow, you have fed this old man's soul for long enough. Your meridians were never crippled, they were sealed.” "
+                    f"{lore.RING_LINES[0]} {p['name']} now has a Heaven-Defying spirit root.")
+    elif kind == "pact_duel":
+        p, s = _p(c, item.get("pawn", "")), _sect(c, item.get("src", ""))
+        if p:
+            foe = (20 + _day(c) * 0.8) * (s["power"] if s else 1.0) * r.uniform(0.8, 1.2)
+            if duel_power(c, p) >= foe:
+                _fame(c, 8)
+                _think(p, "pact", "Kept the three-year pact and won", 15, 120, c["hour"])
+                p["title"] = p.get("title") or "the Unbowed"
+                _letter(c, "good", f"{p['name']} won the pact duel",
+                        f"On the {s['name'] if s else 'rival sect'}'s own arena, before all its elders. “The engagement? I annul it.” Nobody in the stands breathes.")
+            else:
+                _hurt(p, 20, c)
+                _think(p, "pact", "Lost the pact duel", -8, 72, c["hour"])
+                _letter(c, "info", f"{p['name']} lost the pact duel", "They bowed, and walked home alone. There is always a higher mountain.")
+    elif kind == "village_return":
+        p = _p(c, item.get("pawn", ""))
+        if p:
+            _xp(p, "combat", 25)
+            _add(c, "rice", 20)
+            _fame(c, 4)
+            _think(p, "hero", "Thanked by a whole village", 8, 72, c["hour"])
+            _letter(c, "good", f"{p['name']} slew the demon boar", "The villagers sent 20 rice up the mountain, and three youths who want to be cultivators.")
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -678,6 +1487,17 @@ def _hour(c: dict, quiet: bool) -> None:
     taken: dict = {}
     for p in list(c["pawns"]):
         _tick_pawn(c, p, taken, quiet)
+    if not quiet:
+        for item in list(c["later"]):
+            if item.get("at", 0) <= c["hour"]:
+                if _later(c, item):
+                    c["later"].remove(item)
+                else:
+                    item["at"] = c["hour"] + 6
+    if c["hour"] % 24 == 6:
+        c["adapt"] = min(1.25, c["adapt"] + 0.004)
+        if c["beast"]:
+            c["res"]["rice"] = max(0.0, c["res"]["rice"] - 1.0)
     if c["hour"] % 24 == 6 and not quiet:
         _daily_event(c)
         if c["res"]["rice"] < len(c["pawns"]) * 2 and _day(c) % 2 == 0:
@@ -960,7 +1780,38 @@ def _pawn_view(c: dict, p: dict) -> dict:
         "prio": {j: _f(p["prio"].get(j, 0)) for j in JOBS}, "doing": str(p["doing"]),
         "broken": p["break_until"] > hour, "inspired": p["inspired_until"] > hour, "sick": p["sick_until"] > hour,
         "power": _f(combat_power(c, p)),
+        "rank": "Sect Master" if p.get("master") else lore.RANKS[rank_of(p)], "title": str(p.get("title") or ""),
+        "away": p["away_until"] > hour, "ready": ready(p),
+        "tribulation": int(p["step"]) // 4 + 1 >= 3, "next_realm": REALMS[min(len(REALMS) - 1, int(p["step"]) // 4 + 1)],
+        "chance": _f(bt_chance(c, p)) if ready(p) else 0,
+        "odds": [{"label": str(a), "v": _f(b)} for a, b in bt_odds(c, p)] if ready(p) else [],
+        "mood_why": [{"label": str(a), "v": _f(b)} for a, b in mood_mods(c, p)],
+        "arts": [lore.MANUALS[m]["name"] for m in (_manual(c, p, k)[1] for k in lore.MANUAL_BONUS) if m],
     }
+
+
+def _alerts(c: dict) -> list[dict]:
+    """What needs the player's eye right now, most urgent first."""
+    out = []
+    n = max(1, len(c["pawns"]))
+    days = c["res"]["rice"] / (n * 1.2)
+    if days < 3:
+        out.append({"kind": "bad", "text": f"About {int(days)} day{'s' if int(days) != 1 else ''} of rice left."})
+    day = _day(c)
+    to_winter = (3 * DAYS_PER_SEASON - day % (4 * DAYS_PER_SEASON)) % (4 * DAYS_PER_SEASON)
+    if 0 < to_winter <= 6 and c["res"]["rice"] < n * 1.2 * DAYS_PER_SEASON:
+        out.append({"kind": "bad", "text": f"Winter is {to_winter} day{'s' if to_winter != 1 else ''} away and the granary will not last it. Nothing grows in winter."})
+    for p in c["pawns"]:
+        if ready(p):
+            out.append({"kind": "good", "text": f"{p['name']} is ready to attempt {REALMS[p['step'] // 4 + 1]}.", "pawn": str(p["id"])})
+    low = [p["name"] for p in c["pawns"] if p["mood"] < 25 and p["break_until"] <= c["hour"]]
+    if low:
+        out.append({"kind": "bad", "text": f"{' and '.join(low[:3])} {'is' if len(low) == 1 else 'are'} close to a qi deviation (very low mood)."})
+    if len(c["pawns"]) > beds(c):
+        out.append({"kind": "info", "text": f"{len(c['pawns']) - beds(c)} disciple{'s' if len(c['pawns']) - beds(c) != 1 else ''} without a bed. Raise the Dormitory."})
+    if _lvl(c, "library") and not c["research"]["current"] and len(c["research"]["done"]) < len(RESEARCH):
+        out.append({"kind": "info", "text": "The Scripture Pavilion is idle. Choose something to research."})
+    return out[:6]
 
 
 def view(st: dict, now: float) -> dict:
@@ -987,24 +1838,34 @@ def view(st: dict, now: float) -> dict:
     m = _master(c)
     return {
         "name": str(c["name"]), "founded": bool(c["name"]), "master": str(m["name"]) if m else "",
-        "hour": _f(c["hour"]), "day": day + 1, "hod": c["hour"] % 24, "season": SEASONS[_season(c)],
+        "hour": _f(c["hour"]), "day": day + 1, "hod": _f(c["hour"] % 24), "season": SEASONS[_season(c)],
         "year": day // (DAYS_PER_SEASON * 4) + 1, "season_day": day % DAYS_PER_SEASON + 1,
-        "storyteller": c["storyteller"],
+        "storyteller": str(c["storyteller"]),
         "storytellers": [{"id": k, "name": v["name"], "blurb": v["blurb"]} for k, v in STORYTELLERS.items()],
         "res": [{"id": k, "name": RES_NAMES[k], "n": _f(c["res"][k]),
                  "cap": _f(_cap(c)) if k in ("rice", "wood", "stone", "herbs") else None} for k in RES],
         "insight": _f(c["insight"]), "wealth": _f(wealth(c)), "defense": _f(defense(c)),
+        "fame": _f(c["fame"]), "alerts": _alerts(c),
+        "sects": [{"id": str(x["id"]), "name": str(x["name"]), "kind": str(x["kind"]), "rel": _f(x["rel"]), "stance": stance(float(x["rel"])),
+                   "young": str(x["young"])} for x in c["sects"]],
+        "manuals": [{"id": k, "name": lore.MANUALS[k]["name"], "grade": lore.GRADES[lore.MANUALS[k]["grade"]],
+                     "kind": lore.MANUAL_KIND[lore.MANUALS[k]["kind"]], "demonic": bool(lore.MANUALS[k].get("demonic")),
+                     "bonus": _f(100 * lore.MANUAL_BONUS[lore.MANUALS[k]["kind"]][lore.MANUALS[k]["grade"]]),
+                     "rank": "Any rank" if lore.MANUALS[k].get("demonic") else lore.RANKS[lore.MANUALS[k]["grade"]]}
+                    for k in c["manuals"] if k in lore.MANUALS],
+        "treasures": [{"id": k, "name": lore.TREASURES[k]["name"], "text": lore.TREASURES[k]["text"]} for k in c["treasures"] if k in lore.TREASURES],
+        "beast": {"name": str(c["beast"]["name"]), "power": _f(beast_power(c))} if c["beast"] else None,
         "beds": beds(c), "pawn_cap": pawn_cap(c), "graves": _f(c["graves"]),
         "food_days": _f(c["res"]["rice"] / max(1, len(c["pawns"])), 1),
         "rooms": rooms,
         "builds": [{"room": b["room"], "name": ROOMS[b["room"]]["name"], "pct": _f(100.0 * b["done"] / b["need"])} for b in c["builds"]],
         "pawns": [_pawn_view(c, p) for p in c["pawns"]],
         "jobs": [{"id": j, "name": v[0], "skill": SKILL_NAMES[v[1]]} for j, v in JOBS.items()],
-        "research": {"current": cur, "progress": _f(c["research"]["progress"]),
+        "research": {"current": str(cur), "progress": _f(c["research"]["progress"]),
                      "items": [{"id": k, "name": v["name"], "cost": v["cost"], "effect": v["effect"], "done": k in c["research"]["done"]}
                                for k, v in RESEARCH.items()],
                      "has_library": _lvl(c, "library") > 0},
-        "pending": ({"title": str(pending["title"]), "text": str(pending["text"]),
+        "pending": ({"title": str(pending["title"]), "text": str(pending["text"]), "kind": str(pending["kind"]),
                      "options": [{"id": str(o["id"]), "label": str(o["label"])} for o in pending["options"]]} if pending else None),
         "log": [{"hour": _f(e["hour"]), "day": _f(e["hour"]) // 24 + 1, "kind": str(e["kind"]), "title": str(e["title"]), "text": str(e["text"])}
                 for e in reversed(c["log"][-30:])],
@@ -1041,15 +1902,89 @@ def sanitize(raw, now: float) -> dict:
 
     c = clean(raw)
     try:
-        probe = {"colony": __import__("copy").deepcopy(c), "settings": {"tz_offset_min": 0}}
+        shell = {"colony": c, "settings": {"tz_offset_min": 0}}
+        _c(shell, now)
+        _repair(c)
+        probe = {"colony": copy.deepcopy(c), "settings": {"tz_offset_min": 0}}
         pc = _c(probe, now)
-        if not isinstance(pc["pawns"], list) or len(pc["pawns"]) > 60 or not all(isinstance(p, dict) for p in pc["pawns"]):
-            return {}
+        if pc["pending"]:
+            try:
+                for o in pc["pending"]["options"]:
+                    trial = {"colony": copy.deepcopy(c), "settings": {"tz_offset_min": 0}}
+                    resolve(trial, o["id"], now)
+                    view(trial, now)
+            except Exception:
+                c["pending"] = pc["pending"] = None
         for _ in range(26):
             _hour(pc, quiet=True)
+        pc["seclusion"] = False
+        for _ in range(60):
+            if pc["pending"]:
+                resolve(probe, pc["pending"]["options"][-1]["id"], now)
+            _hour(pc, quiet=False)
         view(probe, now)
     except Exception:
         return {}
     c.setdefault("last_real", now)
     c["last_real"] = min(float(c["last_real"]), now)
     return c
+
+
+def _repair(c: dict) -> None:
+    """Force a loaded colony into shapes the sim can run. Raises on anything hopeless."""
+    def num(v, lo, hi, default=0.0):
+        return max(lo, min(hi, float(v))) if isinstance(v, (int, float)) and not isinstance(v, bool) else default
+    if c.get("storyteller") not in STORYTELLERS:
+        c["storyteller"] = "balanced"
+    c["hour"] = int(c["hour"])
+    if not isinstance(c["pawns"], list) or len(c["pawns"]) > 60 or not all(isinstance(p, dict) for p in c["pawns"]):
+        raise ValueError("pawns")
+    for p in c["pawns"]:
+        p["step"] = int(num(p.get("step"), 0, MAX_STEP))
+        p["traits"] = [t for t in p.get("traits", []) if t in TRAITS][:3]
+        sk = p.get("skills") if isinstance(p.get("skills"), dict) else {}
+        p["skills"] = {k: {"lv": int(num((sk.get(k) or {}).get("lv"), 0, 20)), "xp": num((sk.get(k) or {}).get("xp"), 0, 1e6),
+                           "passion": int(num((sk.get(k) or {}).get("passion"), 0, 2))} for k in SKILLS}
+        for k in ("food", "rest", "joy", "mood", "health"):
+            p[k] = num(p.get(k), 0, 100, 50.0)
+        for k in ("qi", "break_until", "inspired_until", "sick_until", "away_until", "resolve_until", "bt_tries", "age"):
+            p[k] = num(p.get(k), 0, 1e9)
+        p["root_mult"] = num(p.get("root_mult"), 0.3, 3.0, 1.0)
+        p["prio"] = {j: int(num((p.get("prio") or {}).get(j), 0, 4)) for j in JOBS}
+        p["thoughts"] = [t for t in p.get("thoughts", []) if isinstance(t, dict) and isinstance(t.get("k"), str)
+                         and isinstance(t.get("v"), (int, float)) and isinstance(t.get("until"), (int, float))][:40]
+        for k in ("id", "name", "root", "doing", "away_kind", "title"):
+            p[k] = str(p.get(k) or "")
+    if c["pawns"] and not any(p.get("master") for p in c["pawns"]):
+        c["pawns"][0]["master"] = True
+    pd = c.get("pending")
+    if not (isinstance(pd, dict) and pd.get("kind") in _RESOLVERS and isinstance(pd.get("title"), str) and isinstance(pd.get("text"), str)
+            and isinstance(pd.get("options"), list) and pd["options"]
+            and all(isinstance(o, dict) and isinstance(o.get("id"), str) and isinstance(o.get("label"), str) for o in pd["options"])):
+        c["pending"] = None
+    c["manuals"] = [m for m in c["manuals"] if m in lore.MANUALS] if isinstance(c["manuals"], list) else ["breathing"]
+    c["treasures"] = [t for t in c["treasures"] if t in lore.TREASURES] if isinstance(c["treasures"], list) else []
+    b = c.get("beast")
+    c["beast"] = {"name": str(b.get("name") or "Spirit beast"), "born": int(num(b.get("born"), 0, 1e9))} if isinstance(b, dict) else None
+    c["later"] = [x for x in c["later"] if isinstance(x, dict) and isinstance(x.get("at"), (int, float)) and isinstance(x.get("kind"), str)][:40] \
+        if isinstance(c["later"], list) else []
+    ok = isinstance(c["sects"], list) and all(
+        isinstance(x, dict) and isinstance(x.get("id"), str) and isinstance(x.get("name"), str) and isinstance(x.get("young"), str)
+        and x.get("kind") in lore.KIND_START_REL and isinstance(x.get("rel"), (int, float)) and isinstance(x.get("power"), (int, float))
+        for x in c["sects"])
+    if not ok:
+        c["sects"] = []
+    for x in c["sects"]:
+        x["power"] = num(x["power"], 0.5, 2.0, 1.0)
+    c["flags"] = c["flags"] if isinstance(c["flags"], dict) else {}
+    c["fame"] = num(c.get("fame"), 0, 1e7)
+    c["adapt"] = num(c.get("adapt"), 0.55, 1.25, 0.85)
+    r = c["research"]
+    r["done"] = [t for t in r.get("done", []) if t in RESEARCH]
+    r["current"] = r.get("current") if r.get("current") in RESEARCH else ""
+    r["progress"] = num(r.get("progress"), 0, 1e6)
+    r["banked"] = {k: num(v, 0, 1e6) for k, v in (r.get("banked") or {}).items() if k in RESEARCH}
+    c["rooms"] = {k: int(num(v, 0, ROOMS[k]["max"])) for k, v in c["rooms"].items() if k in ROOMS}
+    c["builds"] = [x for x in c["builds"] if isinstance(x, dict) and x.get("room") in ROOMS
+                   and isinstance(x.get("need"), (int, float)) and x["need"] > 0 and isinstance(x.get("done"), (int, float))][:20]
+    c["res"] = {k: num(c["res"].get(k), 0, 1e7) for k in RES}

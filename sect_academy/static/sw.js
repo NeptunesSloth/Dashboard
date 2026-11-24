@@ -1,8 +1,10 @@
 // Sect Academy service worker: keeps the app shell available offline.
 // Network-first, so an updated server is picked up at once; the cache is only
 // the fallback. API calls are never cached (they are your live progress).
-const CACHE = 'sect-academy-v1';
-const SHELL = ['/', '/academy.js', '/sect.js', '/art.js', '/academy.css', '/icon.svg', '/manifest.webmanifest'];
+const CACHE = 'sect-academy-v2';
+const SHELL = ['/', '/academy.js', '/sect.js', '/art.js', '/academy.css', '/icon.svg', '/manifest.webmanifest', '/art/hq.webp', '/art/bg_map.webp',
+  '/art/p_leader.webp', '/art/p_elder.webp', '/art/p_disciple.webp', '/art/p_analyst.webp', '/art/p_architect.webp', '/art/p_engineer.webp',
+  '/art/p_researcher.webp', '/art/p_trader.webp'];
 const PAGES = ['/', '/study', '/library', '/trials', '/progress'];
 
 self.addEventListener('install', (e) => {

@@ -442,3 +442,63 @@ details.units summary { cursor: pointer; font-weight: 800; color: var(--dim); pa
 .tile:active:not(:disabled) { transform: translateY(3px); box-shadow: none; }
 .tile:disabled { opacity: .28; box-shadow: none; } .tile.on { border-color: #9fcdfb; background: var(--azure-soft); box-shadow: 0 3px 0 #9fcdfb; }
 .opt .whyopt { display: block; margin-top: 4px; font-size: .84rem; font-weight: 600; color: var(--dim); }
+
+/* =====================================================================
+   Lantern night: the painted look. One palette, taken from the artwork:
+   lacquer-black wood, lantern gold, jade, vermilion. (Overrides the
+   earlier day/night palettes.)
+   ===================================================================== */
+:root, :root:root {
+  --bg: #120d0a; --surface: #1f1712; --ink: #f4e8d2; --dim: #b7a488; --line: #3b2d22; --line-d: #2a2019;
+  --jade: #3fae82; --jade-d: #2a7d5c; --jade-soft: #173328;
+  --gold: #e9b44c; --gold-d: #a97a1c; --gold-soft: #3a2b10;
+  --verm: #e0563f; --verm-d: #a13624; --verm-soft: #40201a;
+  --azure: #5fa8e0; --azure-d: #2f6fa8; --azure-soft: #172c40;
+  --violet: #a58af0; --violet-soft: #2b2247; --face-bg: #2b2019;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "Noto Serif", Georgia, serif;
+  color-scheme: dark;
+}
+body { background: #120d0a radial-gradient(1200px 600px at 50% -200px, #3a2413 0%, #120d0a 70%) fixed; }
+h1, h2, h3 { font-family: var(--serif); letter-spacing: .01em; color: #f8e6bf; }
+a { color: var(--gold); }
+.panel, .buildcard, .pawn, .opt, .tile { border-color: var(--line); }
+.panel { background: linear-gradient(#241a14, #1c1510); box-shadow: 0 1px 0 #ffffff0a inset, 0 10px 30px #0006; }
+.btn.primary { background: linear-gradient(#f0c15e, #d99a2b); color: #2b1c05; border-color: #a97a1c; box-shadow: 0 4px 0 #8a6113; }
+.btn.primary:disabled { filter: saturate(.3) brightness(.7); }
+.face { border-radius: 50%; object-fit: cover; background: #2b2019; box-shadow: 0 0 0 2px #7d6a4a; }
+.face.r1 { box-shadow: 0 0 0 2px var(--jade); } .face.r2 { box-shadow: 0 0 0 2px var(--azure); }
+.face.r3 { box-shadow: 0 0 0 2px var(--gold), 0 0 10px #e9b44c88; } .face.r4 { box-shadow: 0 0 0 2px var(--violet), 0 0 12px #a58af0aa; }
+.face.m-oops { filter: saturate(.55) brightness(.85); }
+
+/* the sect: a painted cut-away with live rooms laid over it */
+.hq { aspect-ratio: 1620 / 971; background: #0b0706; border-color: #5a4426; }
+.hq .art { object-fit: cover; user-select: none; }
+.room { border-radius: 6px; transition: background .15s; }
+.room:hover, .room:focus-visible { background: #f0c15e22; box-shadow: inset 0 0 0 2px #f0c15ecc; }
+.room.closed { background: #0a0705a8; backdrop-filter: grayscale(.9); }
+.room.closed:hover { background: #0a0705b0; }
+.room.building { background: repeating-linear-gradient(135deg, #0a0705b8 0 12px, #3a2b10b8 12px 24px); }
+.room .plaque { bottom: 4px; background: #120d0ae6; color: #f8e6bf; border: 1px solid #7d6a4a; font-family: var(--serif); }
+.room.closed .plaque { background: #120d0ae6; color: #b7a488; }
+.room .crew { position: absolute; left: 6px; top: 6px; display: flex; gap: 3px; flex-wrap: wrap; max-width: calc(100% - 12px); }
+.room .crew .face { width: clamp(16px, 2.6vw, 30px); height: clamp(16px, 2.6vw, 30px); }
+.room .can { top: 4px; left: auto; right: 6px; margin: 0; border-color: #120d0a; }
+@media (max-width: 640px) { .room .plaque { display: block; font-size: .5rem; padding: 0 4px; bottom: 1px; } .room .plaque em { margin-left: 3px; padding: 0 3px; } }
+.found .hero { aspect-ratio: 1152 / 520; } .found .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* events, world, breakthroughs */
+.panel.event { background-size: cover; background-position: center right; border-color: #a97a1c; }
+.panel.event p { max-width: 62ch; }
+.choices { display: grid; gap: 8px; max-width: 46ch; } .choices .btn { text-align: left; white-space: normal; height: auto; padding-block: 10px; }
+.alerts { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+.alerts li { padding: 7px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 700; font-size: .92rem; }
+.alerts li.bad { border-color: var(--verm-d); background: var(--verm-soft); } .alerts li.good { border-color: var(--gold-d); background: var(--gold-soft); }
+.linkish { all: unset; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.banner { border-radius: 18px; padding: 22px 18px; background-size: cover; background-position: center; border: 1px solid #5a4426; margin-bottom: 14px; }
+.banner p { margin: 6px 0 0; max-width: 60ch; }
+.breakthrough { margin-top: 14px; padding: 16px; border-radius: 18px; border: 1px solid #a97a1c; background-size: cover; background-position: center; }
+.breakthrough .odds { margin: 10px 0; } .breakthrough.result { padding: 28px 18px; } .breakthrough.won { border-color: var(--gold); box-shadow: 0 0 30px #e9b44c55; }
+.breakthrough.lost { border-color: var(--verm-d); }
+.pawn.away { opacity: .55; }
+.tag { border: 1px solid var(--line); }
+.tag.gold { color: var(--gold); } .tag.jade { color: var(--jade); } .tag.red { color: #ff8a75; } .tag.blue { color: var(--azure); }

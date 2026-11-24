@@ -2,7 +2,7 @@
 // Everything is served from this origin; nothing is fetched from anywhere else.
 // Vanilla JS, no build step. All server/user text goes through esc() before innerHTML.
 
-import { ICON, portrait, sectScene } from '/art.js';
+import { ICON, backdrop, portrait } from '/art.js';
 import { mountSect } from '/sect.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -163,9 +163,8 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#she
 /* ================= founding ================= */
 function renderFounding() {
   const courses = OV.courses;
-  const preview = ['grand_hall', 'tongues_west', 'tongues_south', 'ward_hall', 'spirit_vein', 'meditation'].map((id) => ({ id, level: id === 'grand_hall' ? 3 : 2 }));
   view.innerHTML = `<div class="found">
-    <div class="hero">${sectScene(preview)}</div>
+    <div class="hero"><img src="${backdrop('map')}" alt="A sect of pavilions on mountain peaks above the clouds"></div>
     <h1>Found your sect</h1>
     <p class="dim">Every answer you give from memory becomes qi. Qi raises your realm, and your realm raises the sect. Choose what you will cultivate — you can change this later in the library.</p>
     <label class="field"><span>Name of the sect</span><input type="text" id="f-name" maxlength="40" placeholder="Azure Lantern Sect" autocomplete="off"></label>
@@ -230,7 +229,7 @@ function masterPanel() {
   const g = OV.sect; const m = g.pawns.find((p) => p.master);
   if (!m) return '<section class="panel"></section>';
   const week = Array.from({ length: g.week.goal }, (_, i) => `<i class="${i < g.week.days ? 'on' : ''}"></i>`).join('');
-  return `<section class="panel realm"><div class="who">${portrait(m.id + m.name, { root: m.root, size: 64, mood: m.mood >= 65 ? 'happy' : 'calm' })}<span class="ring"></span></div>
+  return `<section class="panel realm"><div class="who">${portrait(m.id + m.name, { root: m.root, size: 64, kind: 'master', mood: m.mood >= 65 ? 'happy' : 'calm' })}<span class="ring"></span></div>
     <div class="grow"><b>${esc(m.name)}</b> <span class="tag blue">${esc(m.realm)} · ${esc(m.stage)}</span>
       <div class="bar violet" title="${m.qi} of ${m.qi_need} qi"><i style="width:${m.qi_pct}%"></i></div>
       <div class="small dim" style="margin-top:4px">${ICON.qi} ${m.qi} / ${m.qi_need} qi. You gain it by meditating in the sect and by studying.</div>

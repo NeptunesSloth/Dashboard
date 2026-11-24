@@ -140,3 +140,68 @@ def test_optional_token(monkeypatch):
     assert client.get("/api/overview").status_code == 401
     assert client.post("/api/sect/tick", json={"hours": 1}).status_code == 401
     assert client.get("/api/overview", headers={"x-academy-token": "s3cret"}).status_code == 200
+
+
+def test_a_conversation_is_rehearsed_line_by_line_and_graded_as_a_whole():
+    it = next(i for i in packs.item_index().values() if i["type"] == "dialogue")
+    mine = engine.my_lines(it)
+    ex = engine.build_exercise(it, "dialogue_build", packs.get(it["pack"]), 1)
+    assert [ln["index"] for ln in ex["lines"] if ln["mine"]] == mine
+    for ln in ex["lines"]:
+        if ln["mine"]:
+            assert "l2" not in ln and set(engine._tiles(it["lines"][ln["index"]]["l2"])) <= set(ln["bank"])   # the answer is never sent
+            assert not any(w in ".,!?" for w in ln["bank"])
+        else:
+            assert ln["l2"] == it["lines"][ln["index"]]["l2"]
+    good = client.post("/api/line", json={"item": it["id"], "index": mine[0], "answer": it["lines"][mine[0]]["l2"]}).json()
+    assert good["correct"] and good["expected"]
+    assert not client.post("/api/line", json={"item": it["id"], "index": mine[0], "answer": "zzz"}).json()["correct"]
+    partner = next(i for i in range(len(it["lines"])) if i not in mine)
+    assert client.post("/api/line", json={"item": it["id"], "index": partner, "answer": "x"}).status_code == 400
+    assert client.post("/api/line", json={"item": "nope", "index": 0, "answer": "x"}).status_code == 404
+    truth = engine.truth_list(it)
+    assert engine.check(it, "dialogue_type", truth)["correct"] and engine.check(it, "dialogue_type", truth)["flag"] is None
+    assert not engine.check(it, "dialogue_type", ["zzz"] * len(truth))["correct"]
+    one_off = [truth[0]] + ["zzz"] * (len(truth) - 1)
+    assert not engine.check(it, "dialogue_type", one_off)["correct"] or len(truth) <= 1
+    assert engine.check(it, f"line:{mine[-1]}", truth[-1])["correct"]
+
+
+def test_best_answer_questions_explain_every_option():
+    best = [i for i in packs.item_index().values() if i.get("best")]
+    assert len(best) >= 250 and {i["pack"] for i in best} == {"security-plus", "network-plus", "isc2-cc"}
+    it = best[0]
+    ex = engine.build_exercise(it, "mcq", packs.get(it["pack"]), 3)
+    assert ex["best"] and "BEST" in ex["ask"] and "whys" not in ex and sorted(ex["choices"]) == sorted(it["choices"])
+    whys = engine._explain(it)["whys"]
+    assert set(whys) == set(it["choices"]) and all(len(w) > 10 for w in whys.values())
+
+
+def test_another_site_cannot_write_and_import_needs_json():
+    blob = client.get("/api/export").json()
+    assert client.post("/api/import", content=b'{"cards":{}}', headers={"content-type": "text/plain"}).status_code == 400
+    assert client.post("/api/import", json=blob, headers={"origin": "http://evil.example"}).status_code == 403
+    assert client.post("/api/sect/tick", json={"hours": 1}, headers={"sec-fetch-site": "cross-site"}).status_code == 403
+    assert client.post("/api/import", json=blob, headers={"origin": "http://testserver", "sec-fetch-site": "same-origin"}).json()["ok"]
+
+
+def test_list_answers_come_back_with_the_key_and_choices_are_graded_exactly():
+    client.post("/api/setup", json={"name": "S", "master": "M", "courses": ["network-plus"]})
+    it = next(i for i in packs.item_index().values() if i["type"] == "multi")
+    assert engine.check(it, "multi", engine.truth_list(it))["expected_list"] == engine.truth_list(it)
+    v6 = packs.item_index()["np-3-q09"]
+    key = v6["choices"][v6["answer"]]
+    assert engine.check(v6, "mcq", key)["correct"]
+    assert all(not engine.check(v6, "mcq", c)["correct"] for c in v6["choices"] if c != key)
+
+
+def test_a_cloze_blank_forgives_no_slip_in_the_grammar():
+    assert engine.check_typed("hablas", ["hables"])["correct"]                       # a typo, in free typing
+    assert not engine.check_typed("hablas", ["hables"], slips=False)["correct"]      # the mood itself, in a blank
+    assert not engine.check_typed("hablo", ["habló"], slips=False)["correct"]
+    assert engine.check_typed("etudiant", ["étudiant"], slips=False)["flag"] == "accent"
+
+
+def test_the_paintings_are_served_from_a_fixed_list():
+    assert client.get("/art/hq.webp").headers["content-type"] == "image/webp"
+    assert client.get("/art/nope.webp").status_code == 404 and client.get("/art/..%2Fapp.py").status_code == 404

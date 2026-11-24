@@ -2,54 +2,74 @@
 // this module draws it, sends orders, and asks for sim hours as real time passes.
 // All text from the server goes through esc(); every number arrives already cast.
 
-import { ICON, SITES, portrait, sectScene, siteRect } from '/art.js';
+import { ICON, VAULT, backdrop, portrait, sectScene, siteRect } from '/art.js';
 
 const SPEED_KEY = 'sect.speed';
 const SECS_PER_HOUR = { 1: 4, 2: 2, 3: 1 };          // real seconds per sim hour
 const RES_ICON = { rice: '🌾', wood: '🪵', stone: '🪨', herbs: '🌿', pills: '💊', stones: '💎' };
-const SITE_OF = { farm: 'fields', quarry: 'spirit_vein', 'cut wood': 'storehouse', 'forage herbs': 'alchemy', 'brew pills': 'alchemy',
-  research: 'library', train: 'training', meditate: 'meditation', sleeping: 'dormitory', recovering: 'dormitory' };
+const SITE_OF = { farm: 'fields', quarry: 'spirit_vein', 'cut wood': 'storehouse', 'forage herbs': 'fields', 'brew pills': 'alchemy',
+  research: 'library', train: 'training', meditate: 'meditation', sleeping: 'dormitory', recovering: 'dormitory', relaxing: 'main_hall', idle: 'main_hall' };
+const EVENT_ART = { omen: 'mission', young_master: 'leader', auction: 'treasure', secret_realm: 'seclusion', cave: 'seclusion', tournament: 'technique',
+  demonic_offer: 'seclusion', merchant: 'treasure', wanderer: 'hall', recruit: 'hall', engagement: 'leader', spy: 'leader', village: 'map', beast_cub: 'map' };
+const store = { get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (_) { /* private mode */ } } };
 
 export function mountSect(h) {
   const { view, $, esc, api, toast, openSheet, closeSheet } = h;
   let S = h.sect();
   let tab = sessionStorage.getItem('sect.tab') || 'disciples';
-  let speed = Number(localStorage.getItem(SPEED_KEY) || 1);
+  let speed = [0, 1, 2, 3].includes(Number(store.get(SPEED_KEY))) && store.get(SPEED_KEY) !== null ? Number(store.get(SPEED_KEY)) : 1;
   let sceneSig = '';
+  let tabSig = '';
   let timer = null;
   let busy = false;
   let owed = 0;
+  let idle = 0;
+  let seq = 0;
 
-  const face = (p, size = 48, mood) => portrait(p.id + p.name, { root: p.root, size, mood: mood || (p.broken ? 'oops' : p.mood >= 65 ? 'happy' : 'calm') });
+  const face = (p, size = 48, mood) => portrait(p.id + p.name, { root: p.root, size, kind: p.master ? 'master' : '', mood: mood || (p.broken ? 'oops' : p.mood >= 65 ? 'happy' : 'calm') });
   const bar = (v, cls = '') => `<span class="bar thin ${cls}"><i style="width:${Math.max(0, Math.min(100, v))}%"></i></span>`;
   const moodCls = (m) => (m < 25 ? 'verm' : m < 45 ? '' : 'jade');
   const clock = () => `${String(S.hod).padStart(2, '0')}:00`;
   const costText = (c) => Object.entries(c).map(([k, v]) => `${v} ${k === 'stones' ? 'spirit stones' : k}`).join(', ');
+  const signed = (v) => `<b class="num" style="color:var(--${v < 0 ? 'verm' : 'jade'})">${v > 0 ? '+' : ''}${v}</b>`;
+  const flames = (n) => '🔥'.repeat(Math.max(0, Math.min(2, n)));
+
+  function take(res, mine) { if (res.sect && mine >= seq) { seq = mine; S = res.sect; h.setSect(S); return true; } return false; }
 
   async function order(action, body = {}, quiet = false) {
+    const mine = ++seq;
     const res = await api(`/api/sect/${action}`, body);
-    if (res.sect) { S = res.sect; h.setSect(S); }
+    take(res, mine);
     if (res.ok === false && !quiet) toast(res.error || 'That did not work.');
-    else if (res.event && !quiet) toast(res.event.title);
+    else if (res.event && !quiet) toast(res.event.title, res.event.kind === 'bad' ? 6000 : 3500);
     paint();
     return res;
   }
 
   /* ---------------- the clock ---------------- */
-  function setSpeed(n) { speed = n; localStorage.setItem(SPEED_KEY, String(n)); owed = 0; paintTop(); }
+  function setSpeed(n) { speed = n; store.set(SPEED_KEY, String(n)); owed = 0; paintTop(); }
   async function beat() {
     if (!view.isConnected || !$('#sect-root')) { stop(); return; }
-    if (!speed || document.hidden || busy || S.pending || S.seclusion || !$('#sheet').hidden) return;
-    owed += 1 / SECS_PER_HOUR[speed];
-    const hours = Math.floor(owed);
-    if (hours < 1) return;
-    owed -= hours;
+    if (document.hidden || busy) return;
+    const waiting = !speed || S.pending || S.seclusion || !$('#sheet').hidden;
+    let hours = 0;
+    if (waiting) {
+      // Paused, or waiting on you: tell the server we are here so the time is not counted as time away.
+      idle += 1;
+      if (idle < 20) return;
+    } else {
+      owed += 1 / SECS_PER_HOUR[speed];
+      hours = Math.floor(owed);
+      if (hours < 1) return;
+      owed -= hours;
+    }
+    idle = 0;
     busy = true;
     const before = S.log.length ? S.log[0].hour + S.log[0].title : '';
+    const mine = ++seq;
     const res = await api('/api/sect/tick', { hours });
     busy = false;
-    if (res.sect) {
-      S = res.sect; h.setSect(S);
+    if (take(res, mine)) {
       const top = S.log[0];
       if (top && top.hour + top.title !== before && top.hour > 0) toast(top.title, top.kind === 'bad' ? 6000 : 3500);
       paint();
@@ -60,7 +80,6 @@ export function mountSect(h) {
   /* ---------------- zones ---------------- */
   function paintTop() {
     const z = $('#z-top'); if (!z) return;
-    const low = S.food_days < 3;
     z.innerHTML = `<header class="status">
         <h1>${esc(S.name)}<small>Day ${S.season_day} of ${esc(S.season)}, year ${S.year} · ${clock()}${S.seclusion ? ' · gates sealed' : ''}</small></h1>
         <span class="pill flame ${S.streak ? '' : 'off'}" title="Study streak. Best: ${S.best_streak}">${ICON.flame}${S.streak}</span>
@@ -69,53 +88,73 @@ export function mountSect(h) {
           ${[1, 2, 3].map((n) => `<button class="${speed === n ? 'on' : ''}" data-speed="${n}" aria-label="Speed ${n}">${'▸'.repeat(n)}</button>`).join('')}
         </span>
       </header>
-      <div class="resbar">${S.res.map((r) => `<span class="res ${r.id === 'rice' && low ? 'low' : ''}" title="${esc(r.name)}${r.cap ? ` (store holds ${r.cap})` : ''}">
+      <div class="resbar">${S.res.map((r) => `<span class="res ${r.id === 'rice' && S.food_days < 3 ? 'low' : ''}" title="${esc(r.name)}${r.cap ? ` (store holds ${r.cap})` : ''}">
           <span aria-hidden="true">${RES_ICON[r.id] || ''}</span><b class="num">${r.n}</b><small>${esc(r.name)}</small></span>`).join('')}
         <span class="res" title="Insight from your own study. It is spent on research automatically."><span aria-hidden="true">📜</span><b class="num">${S.insight}</b><small>Insight</small></span>
         <span class="res" title="How strong the sect's defence is"><span aria-hidden="true">🛡</span><b class="num">${S.defense}</b><small>Defence</small></span>
+        <span class="res" title="Fame: won in fights, tournaments and breakthroughs. Draws better recruits."><span aria-hidden="true">🏮</span><b class="num">${S.fame}</b><small>Fame</small></span>
       </div>
-      ${low ? `<p class="warn">Only ${S.food_days} day${S.food_days === 1 ? '' : 's'} of rice left. Put more disciples on farming in Work${S.season === 'Winter' ? ' — nothing grows in winter, so trade or wait for spring' : ''}.</p>` : ''}`;
+      ${S.alerts.length ? `<ul class="alerts">${S.alerts.map((a) => `<li class="${esc(a.kind)}">${a.pawn ? `<button class="linkish" data-pawn="${esc(a.pawn)}">${esc(a.text)}</button>` : esc(a.text)}</li>`).join('')}</ul>` : ''}`;
     z.querySelectorAll('[data-speed]').forEach((b) => { b.onclick = () => setSpeed(Number(b.dataset.speed)); });
+    z.querySelectorAll('[data-pawn]').forEach((b) => { b.onclick = () => pawnSheet(b.dataset.pawn); });
   }
 
   function paintEvent() {
     const z = $('#z-event'); if (!z) return;
     const ev = S.pending;
-    z.innerHTML = ev ? `<section class="panel event"><h2>${esc(ev.title)}</h2><p>${esc(ev.text)}</p>
-      <div class="row">${ev.options.map((o, i) => `<button class="btn ${i === 0 ? 'primary' : ''}" data-opt="${esc(o.id)}">${esc(o.label)}</button>`).join('')}</div>
-      <p class="dim small" style="margin:8px 0 0">Time waits while they stand at the gate.</p></section>` : '';
+    const sig = ev ? ev.title + ev.text + ev.options.length : '';
+    if (z.dataset.sig === sig) return;
+    z.dataset.sig = sig;
+    z.innerHTML = ev ? `<section class="panel event" style="background-image:linear-gradient(90deg,#120d0af2 0%,#120d0ad9 55%,#120d0a66 100%),url(${backdrop(EVENT_ART[ev.kind] || 'hall')})">
+      <h2>${esc(ev.title)}</h2><p>${esc(ev.text)}</p>
+      <div class="choices">${ev.options.map((o, i) => `<button class="btn ${i === 0 ? 'primary' : ''}" data-opt="${esc(o.id)}">${esc(o.label)}</button>`).join('')}</div>
+      <p class="dim small" style="margin:8px 0 0">Time waits for your answer.</p></section>` : '';
     z.querySelectorAll('[data-opt]').forEach((b) => { b.onclick = () => order('resolve', { option: b.dataset.opt }); });
+    if (ev) z.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
   function paintScene() {
     const z = $('#z-scene'); if (!z) return;
     const building = S.builds.map((b) => b.room);
     const staff = {};
-    S.pawns.forEach((p, i) => {
+    S.pawns.forEach((p) => {
+      if (p.away) return;
       const site = p.doing === 'build' ? building[0] : SITE_OF[p.doing] || 'main_hall';
-      if (site) (staff[site] = staff[site] || []).push(i);
+      if (site) (staff[site] = staff[site] || []).push(p);
     });
-    const sig = JSON.stringify([S.rooms.map((r) => r.level), building, staff, S.rooms.map((r) => r.affordable)]);
-    if (sig === sceneSig && z.firstChild) return;      // keep the clouds drifting between ticks
+    const sig = JSON.stringify([S.rooms.map((r) => r.level), building, Object.entries(staff).map(([k, v]) => k + v.map((p) => p.id).join()), S.rooms.map((r) => r.affordable), S.treasures.length]);
+    if (sig === sceneSig && z.firstChild) return;
     sceneSig = sig;
     const rooms = S.rooms.map((r) => {
       const [x, y, w, hh] = siteRect(r.id);
-      return `<button class="room ${r.open ? '' : 'closed'}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
+      const crew = (staff[r.id] || []).slice(0, 5).map((p) => face(p, 30)).join('');
+      return `<button class="room ${r.open ? '' : 'closed'} ${building.includes(r.id) ? 'building' : ''}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
         aria-label="${esc(r.name)}, ${r.open ? `level ${r.level}` : 'not built'}${r.affordable ? ', you can afford the next level' : ''}">
         ${r.affordable ? '<span class="can" aria-hidden="true">↑</span>' : ''}
-        <span class="plaque">${esc(r.name)}${r.open ? `<em>${r.level}</em>` : ''}</span></button>`;
+        <span class="crew" aria-hidden="true">${crew}</span>
+        <span class="plaque">${esc(r.name)}${r.open ? `<em>${r.level}</em>` : building.includes(r.id) ? '<em>building</em>' : ''}</span></button>`;
     }).join('');
-    z.innerHTML = `<div class="hq">${sectScene(S.rooms, staff, building)}${rooms}</div>`;
+    const [vx, vy, vw, vh] = VAULT;
+    z.innerHTML = `<div class="hq">${sectScene()}${rooms}
+      <button class="room vault" data-vault style="left:${vx}%;top:${vy}%;width:${vw}%;height:${vh}%" aria-label="Treasure vault: manuals, treasures and the world beyond">
+        <span class="plaque">Treasure Vault${S.treasures.length ? `<em>${S.treasures.length}</em>` : ''}</span></button></div>`;
     z.querySelectorAll('[data-room]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.room); });
+    $('[data-vault]', z).onclick = () => { tab = 'world'; sessionStorage.setItem('sect.tab', tab); paintTabs(); $('#z-tabs').scrollIntoView({ behavior: 'smooth' }); };
   }
 
   function paintTabs() {
     const z = $('#z-tabs'); if (!z) return;
-    const tabs = [['disciples', `Disciples ${S.pawns.length}/${S.pawn_cap}`], ['work', 'Work'], ['build', `Build${S.builds.length ? ` (${S.builds.length})` : ''}`],
-      ['research', 'Research'], ['chronicle', 'Chronicle']];
-    const body = { disciples, work, build, research, chronicle }[tab]();
-    z.innerHTML = `<div class="tabs" role="tablist">${tabs.map(([id, label]) => `<button role="tab" aria-selected="${tab === id}" class="${tab === id ? 'on' : ''}" data-tab="${id}">${esc(label)}</button>`).join('')}</div>
-      <div class="tabbody">${body}</div>`;
+    const ready = S.pawns.filter((p) => p.ready).length;
+    const tabs = [['disciples', `Disciples ${S.pawns.length}/${S.pawn_cap}${ready ? ' ⚡' : ''}`], ['work', 'Work'], ['build', `Build${S.builds.length ? ` (${S.builds.length})` : ''}`],
+      ['research', 'Research'], ['world', 'World'], ['chronicle', 'Chronicle']];
+    if (!tabs.some(([id]) => id === tab)) tab = 'disciples';
+    const html = `<div class="tabs" role="tablist">${tabs.map(([id, label]) => `<button role="tab" aria-selected="${tab === id}" class="${tab === id ? 'on' : ''}" data-tab="${id}">${esc(label)}</button>`).join('')}</div>
+      <div class="tabbody">${{ disciples, work, build, research, world, chronicle }[tab]()}</div>`;
+    if (html === tabSig && z.firstChild) return;        // nothing changed: keep scroll position and focus
+    tabSig = html;
+    const sx = $('.scroll-x', z) ? $('.scroll-x', z).scrollLeft : 0;
+    z.innerHTML = html;
+    if ($('.scroll-x', z)) $('.scroll-x', z).scrollLeft = sx;
     z.querySelectorAll('[data-tab]').forEach((b) => { b.onclick = () => { tab = b.dataset.tab; sessionStorage.setItem('sect.tab', tab); paintTabs(); }; });
     z.querySelectorAll('[data-pawn]').forEach((b) => { b.onclick = () => pawnSheet(b.dataset.pawn); });
     z.querySelectorAll('[data-prio]').forEach((b) => {
@@ -124,13 +163,16 @@ export function mountSect(h) {
     z.querySelectorAll('[data-build]').forEach((b) => { b.onclick = () => order('build', { room: b.dataset.build }); });
     z.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => order('cancel-build', { index: Number(b.dataset.cancel) }); });
     z.querySelectorAll('[data-tech]').forEach((b) => { b.onclick = () => order('research', { tech: b.dataset.tech }); });
+    z.querySelectorAll('[data-gift]').forEach((b) => { b.onclick = () => order('gift', { sect: b.dataset.gift }); });
+    z.querySelectorAll('[data-burn]').forEach((b) => { b.onclick = () => { if (confirm('Burn this manual? It cannot be recovered.')) order('burn', { manual: b.dataset.burn }); }; });
   }
 
   function disciples() {
-    return `<div class="pawns">${S.pawns.map((p) => `<button class="pawn" data-pawn="${esc(p.id)}">
+    return `<div class="pawns">${S.pawns.map((p) => `<button class="pawn ${p.away ? 'away' : ''}" data-pawn="${esc(p.id)}">
       ${face(p, 56)}
-      <span class="grow"><b>${esc(p.name)}</b>${p.master ? ' <span class="tag gold">You</span>' : ''} <span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span>
-        <span class="doing">${p.broken ? '<span class="tag red">Qi deviation</span> ' : ''}${p.inspired ? '<span class="tag jade">Inspired</span> ' : ''}${p.sick ? '<span class="tag red">Sick</span> ' : ''}${esc(p.doing)}</span>
+      <span class="grow"><b>${esc(p.name)}</b>${p.title ? ` <i class="dim">${esc(p.title)}</i>` : ''}${p.master ? ' <span class="tag gold">You</span>' : ''}
+        <span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="tag">${esc(p.rank)}</span>
+        <span class="doing">${p.ready ? `<span class="tag gold">⚡ Ready for ${esc(p.next_realm)}</span> ` : ''}${p.broken ? '<span class="tag red">Qi deviation</span> ' : ''}${p.inspired ? '<span class="tag jade">Inspired</span> ' : ''}${p.sick ? '<span class="tag red">Sick</span> ' : ''}${esc(p.doing)}</span>
         <span class="needs"><span title="Mood ${p.mood}">Mood ${bar(p.mood, moodCls(p.mood))}</span><span title="Food ${p.food}">Food ${bar(p.food, p.food < 25 ? 'verm' : 'azure')}</span>
           <span title="Rest ${p.rest}">Rest ${bar(p.rest, p.rest < 25 ? 'verm' : 'azure')}</span><span title="Health ${p.health}">Health ${bar(p.health, p.health < 50 ? 'verm' : 'jade')}</span></span>
       </span></button>`).join('')}</div>
@@ -143,7 +185,7 @@ export function mountSect(h) {
       ${S.pawns.map((p) => `<tr><td><b>${esc(p.name.split(' ')[0])}</b></td>${S.jobs.map((j) => {
         const lv = p.prio[j.id]; const sk = p.skills.find((s) => s.name === j.skill);
         return `<td><button class="prio p${lv}" data-prio="${esc(p.id)}|${esc(j.id)}|${lv}" aria-label="${esc(p.name)}: ${esc(j.name)}, priority ${lv || 'off'}; skill ${sk ? sk.lv : 0}">
-          ${lv || ''}<small>${sk ? sk.lv : 0}${sk && sk.passion ? '🔥'.repeat(sk.passion) : ''}</small></button></td>`;
+          ${lv || ''}<small>${sk ? sk.lv : 0}${sk ? flames(sk.passion) : ''}</small></button></td>`;
       }).join('')}</tr>`).join('')}</table></div>
       <p class="dim small" style="margin:8px 0 0">The small number is their skill; a flame means they love it and learn it fast.</p>`;
   }
@@ -167,7 +209,27 @@ export function mountSect(h) {
       return `<li class="row"><span class="grow"><b>${esc(t.name)}</b> ${t.done ? '<span class="tag jade">Known</span>' : ''}<br><span class="small dim">${esc(t.effect)}</span>
         ${cur ? bar(100 * R.progress / t.cost, 'violet') : ''}</span>
         ${t.done ? '' : cur ? `<span class="dim small num">${R.progress}/${t.cost}</span>` : `<button class="btn" data-tech="${esc(t.id)}">Research (${t.cost})</button>`}</li>`;
-    }).join('')}</ul>`;
+    }).join('')}</ul><p class="dim small" style="margin:8px 0 0">Switching topic keeps what was already learned.</p>`;
+  }
+
+  function world() {
+    const stones = (S.res.find((r) => r.id === 'stones') || {}).n || 0;
+    const relCls = (r) => (r >= 15 ? 'jade' : r > -15 ? '' : 'red');
+    return `<div class="banner" style="background-image:linear-gradient(#120d0a55,#120d0acc),url(${backdrop('map')})"><h2>${esc(S.name)}</h2>
+        <p>Fame <b class="num">${S.fame}</b>. Fame is won at the gate, in the arena and under the lightning; talented youths seek out famous sects.</p></div>
+      <h3>The sects of the region</h3>
+      <ul class="list">${S.sects.map((x) => `<li class="row"><span class="grow"><b>${esc(x.name)}</b> <span class="tag">${esc(x.kind)}</span> <span class="tag ${relCls(x.rel)}">${esc(x.stance)} ${x.rel > 0 ? '+' : ''}${x.rel}</span>
+          <br><span class="small dim">Young master: ${esc(x.young)}. ${x.rel <= -15 ? 'Their raiders know the way to your gate.' : x.rel >= 15 ? 'They will not raid you.' : 'They are watching.'}</span></span>
+          <button class="btn" data-gift="${esc(x.id)}" ${stones >= 10 ? '' : 'disabled'}>Send gifts (10 💎)</button></li>`).join('')}</ul>
+      <h3 style="margin-top:16px">Scripture Pavilion</h3>
+      <p class="dim small">Each disciple practises the best manual of each kind that their rank allows. Outer disciples read Yellow grade, Inner disciples Mystic, Core disciples Earth, Elders and the Sect Master Heaven.</p>
+      <ul class="list">${S.manuals.map((m) => `<li class="row"><span class="grow"><b>${esc(m.name)}</b> <span class="tag ${m.demonic ? 'red' : 'gold'}">${m.demonic ? 'Forbidden' : `${esc(m.grade)} grade`}</span>
+          <br><span class="small dim">${esc(m.kind)}, +${m.bonus}%${m.demonic ? ' and more. It darkens the heart of everyone who reads it' : ''}. ${esc(m.rank)}${m.demonic ? '' : ' and above'}.</span></span>
+          ${m.demonic ? `<button class="btn quiet" data-burn="${esc(m.id)}">Burn it</button>` : ''}</li>`).join('')}</ul>
+      <h3 style="margin-top:16px">Treasures</h3>
+      ${S.treasures.length || S.beast ? `<ul class="list">${S.treasures.map((t) => `<li><b>${esc(t.name)}</b><br><span class="small dim">${esc(t.text)}</span></li>`).join('')}
+        ${S.beast ? `<li><b>${esc(S.beast.name)}</b> <span class="tag jade">Guardian beast</span><br><span class="small dim">Guards the gate with strength ${S.beast.power}, growing with age. Eats one rice a day.</span></li>` : ''}</ul>`
+        : '<p class="dim">The vault is empty. Treasures come from auctions, secret realms and inheritances.</p>'}`;
   }
 
   function chronicle() {
@@ -179,23 +241,44 @@ export function mountSect(h) {
   function pawnSheet(id) {
     const p = S.pawns.find((x) => x.id === id); if (!p) return;
     const pills = (S.res.find((r) => r.id === 'pills') || {}).n || 0;
-    openSheet(`<div class="row" style="align-items:flex-start">${face(p, 84)}<div class="grow"><h2>${esc(p.name)}</h2>
-        <p class="dim" style="margin:0">${p.age} · ${esc(p.root)} spirit root${p.master ? ' · Sect Master (you)' : ''}</p>
+    const why = [...p.thoughts, ...p.mood_why];
+    const bt = p.ready ? `<section class="breakthrough" style="background-image:linear-gradient(#120d0ad9,#120d0aee),url(${backdrop('seclusion')})">
+        <h3>${p.tribulation ? '⚡ Heavenly tribulation' : 'Great-realm breakthrough'}: ${esc(p.next_realm)}</h3>
+        <ul class="list odds">${p.odds.map((o) => `<li class="row"><span class="grow">${esc(o.label)}</span>${signed(o.v)}</li>`).join('')}
+          <li class="row"><span class="grow"><b>Chance of success</b></span><b class="num">${p.chance}%</b></li></ul>
+        <p class="small dim">${p.tribulation ? 'Heaven answers with lightning. A failure wounds badly, and a disciple who is already hurt may not survive it.' : 'A failure wounds them and scatters some of their qi.'} Each failure makes the next attempt a little surer.</p>
+        <button class="btn primary big" data-attempt>${p.tribulation ? 'Face the tribulation' : 'Attempt the breakthrough'}</button></section>` : '';
+    openSheet(`<div class="row" style="align-items:flex-start">${face(p, 84)}<div class="grow"><h2>${esc(p.name)}${p.title ? ` <i class="dim" style="font-size:.8em">${esc(p.title)}</i>` : ''}</h2>
+        <p class="dim" style="margin:0">${p.age} · ${esc(p.root)} spirit root · ${esc(p.rank)}${p.master ? ' (you)' : ''}</p>
         <p style="margin:6px 0 0"><span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="small dim">${p.qi} / ${p.qi_need} qi</span></p>${bar(p.qi_pct, 'violet')}</div></div>
+      ${bt}
       <p style="margin-top:12px">Now: <b>${esc(p.doing)}</b></p>
       <div class="needs big"><span>Mood <b class="num">${p.mood}</b>${bar(p.mood, moodCls(p.mood))}</span><span>Food <b class="num">${p.food}</b>${bar(p.food, 'azure')}</span>
         <span>Rest <b class="num">${p.rest}</b>${bar(p.rest, 'azure')}</span><span>Joy <b class="num">${p.joy}</b>${bar(p.joy, 'azure')}</span><span>Health <b class="num">${p.health}</b>${bar(p.health, 'jade')}</span></div>
-      <h3 style="margin-top:14px">On their mind</h3>
-      ${p.thoughts.length ? `<ul class="list">${p.thoughts.map((t) => `<li class="row"><span class="grow">${esc(t.label)}</span><b class="num" style="color:var(--${t.v < 0 ? 'verm-d' : 'jade-d'})">${t.v > 0 ? '+' : ''}${t.v}</b></li>`).join('')}</ul>` : '<p class="dim">Nothing in particular.</p>'}
+      <h3 style="margin-top:14px">Why they feel this way</h3>
+      ${why.length ? `<ul class="list">${why.map((t) => `<li class="row"><span class="grow">${esc(t.label)}</span>${signed(t.v)}</li>`).join('')}</ul>
+        <p class="dim small">Mood settles toward 50 plus these. Below about 20 a disciple may suffer a qi deviation.</p>` : '<p class="dim">Nothing in particular. Their mood rests at 50.</p>'}
+      ${p.arts.length ? `<h3 style="margin-top:14px">Practising</h3><p>${p.arts.map((a) => `<span class="tag gold">${esc(a)}</span>`).join(' ')}</p>` : ''}
       <h3 style="margin-top:14px">Traits</h3>
       <ul class="list">${p.traits.map((t) => `<li><b>${esc(t.name)}</b> <span class="dim small">${esc(t.text)}</span></li>`).join('')}</ul>
       <h3 style="margin-top:14px">Skills</h3>
-      <div class="skills">${p.skills.map((s) => `<span>${esc(s.name)} <b class="num">${s.lv}</b>${s.passion ? ` ${'🔥'.repeat(s.passion)}` : ''}${bar(s.lv * 5, 'jade')}</span>`).join('')}</div>
+      <div class="skills">${p.skills.map((s) => `<span>${esc(s.name)} <b class="num">${s.lv}</b>${s.passion ? ` ${flames(s.passion)}` : ''}${bar(s.lv * 5, 'jade')}</span>`).join('')}</div>
       <hr><div class="row"><button class="btn" data-heal ${pills && (p.health < 100 || p.sick) ? '' : 'disabled'}>Give a pill (${pills})</button>
         ${p.master ? '' : '<button class="btn quiet" data-banish>Send away</button>'}</div>`);
     const s = $('#sheet');
     const heal = $('[data-heal]', s); if (heal) heal.onclick = async () => { await order('pill', { pawn: id }); pawnSheet(id); };
     const ban = $('[data-banish]', s); if (ban) ban.onclick = async () => { if (!confirm(`Send ${p.name} away from the sect for good?`)) return; closeSheet(); await order('banish', { pawn: id }); };
+    const go = $('[data-attempt]', s);
+    if (go) go.onclick = async () => {
+      go.disabled = true;
+      const res = await order('attempt', { pawn: id }, true);
+      if (res.ok === false) { toast(res.error); return; }
+      const ev = res.event || {};
+      openSheet(`<section class="breakthrough result ${res.success ? 'won' : 'lost'}" style="background-image:linear-gradient(#120d0a99,#120d0aee),url(${backdrop('seclusion')})">
+          <h2>${esc(ev.title || '')}</h2><p>${esc(ev.text || '')}</p></section>
+        <button class="btn primary big" data-close style="margin-top:12px">Continue</button>`);
+      $('[data-close]', $('#sheet')).onclick = closeSheet;
+    };
   }
 
   function roomSheet(id) {

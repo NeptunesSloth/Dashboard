@@ -1,0 +1,1347 @@
+id: french-talk
+title: "French — Conversations"
+kind: language
+language: French
+lang: fr-FR
+hall: tongues_west
+blurb: "Spoken-conversation practice to take alongside the A1-B1 courses: 56 everyday exchanges you rehearse line by line, from a first hello to handling real life."
+
+units:
+  # ───────────────────────────────────────────────────────────────── 1
+  - id: frt-01
+    title: "First contact"
+    goal: "I can greet someone, introduce myself, ask the same question back, say I am learning French and ask people to repeat or slow down."
+    notes: |
+      A first conversation in French follows a small, predictable script. Learn the moves and you can survive almost any first meeting.
+
+      ## The moves
+      - **Open**: *Bonjour !* with strangers, *Salut !* with people your age at a party. Then *Moi, c'est Alex* — what people really say, more than *Je m'appelle*.
+      - **Ask back**: *Et vous ?* / *Et toi ?* Two words that keep the conversation alive. Use them after every answer.
+      - **React**: *Ah bon ?* (really?), *D'accord* (OK), *Enchanté(e)* (nice to meet you).
+      - **Repair**: nobody minds if you say *Pardon, je ne comprends pas*, *Vous pouvez répéter ?* or *Plus lentement, s'il vous plaît*. Saying *J'apprends le français* makes people slow down and smile.
+      - **Ask about words**: *Comment on dit … en français ?* and *Ça veut dire quoi ?*
+
+      ## Tu or vous
+      Neighbours, strangers on a train, receptionists: **vous**. A party, a class, a language exchange: **tu**. Stay with the one you started with.
+
+      Say every line aloud, at normal speed, before you check it.
+    items:
+      - id: frt-01-neighbour
+        type: dialogue
+        title: "Meeting a neighbour"
+        scene: "You have just moved in. A woman you have never met greets you on the stairs of your building."
+        you: B
+        lines:
+          - {who: A, l2: "Bonjour ! Vous habitez ici ?", l1: "Hello! Do you live here?"}
+          - {who: B, l2: "Bonjour ! Oui, j'habite ici.", l1: "Hello! Yes, I live here.",
+             alt: ["Bonjour ! Oui, je vis ici."]}
+          - {who: A, l2: "Ah, enchantée ! Moi, c'est Claire, votre voisine.", l1: "Ah, nice to meet you! I'm Claire, your neighbour."}
+          - {who: B, l2: "Enchanté. Je m'appelle Alex.", l1: "Nice to meet you. My name is Alex.",
+             alt: ["Enchantée. Je m'appelle Alex.", "Enchanté. Moi, c'est Alex.", "Enchantée. Moi, c'est Alex.", "Enchanté. Je suis Alex.", "Enchantée. Je suis Alex."]}
+          - {who: A, l2: "Vous venez d'où, Alex ?", l1: "Where are you from, Alex?"}
+          - {who: B, l2: "Je viens d'Angleterre. Et vous ?", l1: "I come from England. And you? (formal)",
+             alt: ["Je suis d'Angleterre. Et vous ?", "Moi, je viens d'Angleterre. Et vous ?"]}
+          - {who: A, l2: "Moi, je suis de Lyon. Bienvenue dans l'immeuble !", l1: "I'm from Lyon. Welcome to the building!"}
+          - {who: B, l2: "Merci beaucoup. Bonne journée !", l1: "Thank you very much. Have a good day!",
+             alt: ["Merci beaucoup. Bonne journée à vous !", "Merci bien. Bonne journée !"]}
+
+      - id: frt-01-party
+        type: dialogue
+        title: "Hello at a party"
+        scene: "You are at your colleague Paul's party. You walk up to someone your own age who is standing alone."
+        you: A
+        lines:
+          - {who: A, l2: "Salut ! Moi, c'est Alex. Et toi ?", l1: "Hi! I'm Alex. And you? (informal)",
+             alt: ["Salut ! Je m'appelle Alex. Et toi ?", "Salut ! Je suis Alex. Et toi ?", "Bonjour ! Moi, c'est Alex. Et toi ?"]}
+          - {who: B, l2: "Salut Alex ! Moi, c'est Inès. Tu connais Paul comment ?", l1: "Hi Alex! I'm Inès. How do you know Paul?"}
+          - {who: A, l2: "On travaille ensemble.", l1: "We work together.",
+             alt: ["Nous travaillons ensemble.", "On bosse ensemble."]}
+          - {who: B, l2: "Ah, d'accord ! Et tu es d'où ? Tu as un petit accent.", l1: "Ah, OK! And where are you from? You have a slight accent."}
+          - {who: A, l2: "Je viens du Canada.", l1: "I come from Canada.",
+             alt: ["Je suis du Canada.", "Moi, je viens du Canada."]}
+          - {who: B, l2: "Du Canada ? Génial ! Moi, je suis de Marseille.", l1: "From Canada? Great! I'm from Marseille."}
+          - {who: A, l2: "Ah bon ? J'adore Marseille !", l1: "Really? I love Marseille!",
+             alt: ["Ah oui ? J'adore Marseille !", "C'est vrai ? J'adore Marseille !"]}
+          - {who: B, l2: "C'est gentil ! Bon, tu veux boire quelque chose ?", l1: "That's kind! Right, do you want something to drink?"}
+          - {who: A, l2: "Oui, je veux bien, merci.", l1: "Yes, I'd like that, thanks.",
+             alt: ["Je veux bien, merci.", "Oui, avec plaisir, merci.", "Oui, volontiers, merci."]}
+
+      - id: frt-01-train
+        type: dialogue
+        title: "A stranger on the train"
+        scene: "You are sitting on a train to Bordeaux. A man sits down next to you and starts chatting, a little too fast."
+        you: B
+        lines:
+          - {who: A, l2: "Excusez-moi, cette place est libre ?", l1: "Excuse me, is this seat free?"}
+          - {who: B, l2: "Oui, bien sûr.", l1: "Yes, of course.",
+             alt: ["Oui, bien sûr, allez-y.", "Oui, je vous en prie.", "Bien sûr."]}
+          - {who: A, l2: "Merci. Dites, vous savez si on arrive bientôt à Bordeaux ?", l1: "Thanks. Say, do you know if we're arriving in Bordeaux soon?"}
+          - {who: B, l2: "Pardon, je ne comprends pas.", l1: "Sorry, I don't understand.",
+             alt: ["Pardon, je comprends pas.", "Pardon, je n'ai pas compris.", "Désolé, je ne comprends pas.", "Désolée, je ne comprends pas.", "Désolé, je n'ai pas compris.", "Désolée, je n'ai pas compris.", "Excusez-moi, je ne comprends pas."]}
+          - {who: A, l2: "Oh, pardon. Bordeaux… c'est bientôt ?", l1: "Oh, sorry. Bordeaux… is it soon?"}
+          - {who: B, l2: "Ah ! Oui, dans dix minutes.", l1: "Ah! Yes, in ten minutes.",
+             alt: ["Ah ! Oui, dans 10 minutes.", "Ah, oui ! Dans dix minutes."]}
+          - {who: A, l2: "Merci. Vous n'êtes pas d'ici, je crois ?", l1: "Thanks. You're not from here, I think?"}
+          - {who: B, l2: "Non, j'apprends le français.", l1: "No, I'm learning French.",
+             alt: ["Non. J'apprends le français.", "Non, je suis en train d'apprendre le français."]}
+          - {who: A, l2: "Eh bien, vous parlez déjà très bien !", l1: "Well, you already speak very well!"}
+          - {who: B, l2: "Merci, c'est gentil !", l1: "Thank you, that's kind!",
+             alt: ["Merci, c'est très gentil !", "Merci, vous êtes gentil !", "Merci, c'est sympa !", "Merci beaucoup, c'est gentil !"]}
+
+      - id: frt-01-slow-down
+        type: dialogue
+        title: "Too fast for me"
+        scene: "You are at a language-exchange evening. A friendly French student comes over and speaks very quickly."
+        you: A
+        lines:
+          - {who: B, l2: "Salut ! Alors, tu es là pour l'échange de conversation, c'est ça ?", l1: "Hi! So, you're here for the conversation exchange, is that right?"}
+          - {who: A, l2: "Tu peux répéter, s'il te plaît ?", l1: "Can you repeat that, please? (informal)",
+             alt: ["Tu peux répéter ?", "Peux-tu répéter, s'il te plaît ?", "Est-ce que tu peux répéter, s'il te plaît ?", "Pardon, tu peux répéter ?", "Pardon, tu peux répéter, s'il te plaît ?", "Tu pourrais répéter, s'il te plaît ?"]}
+          - {who: B, l2: "Oui, pardon ! Tu es là pour parler français ?", l1: "Yes, sorry! Are you here to speak French?"}
+          - {who: A, l2: "Oui ! Mais je suis débutant.", l1: "Yes! But I'm a beginner.",
+             alt: ["Oui ! Mais je suis débutante.", "Oui ! Mais je débute."]}
+          - {who: B, l2: "Pas de souci, on va parler tranquillement. Tu apprends le français depuis longtemps ?", l1: "No worries, we'll take it easy. Have you been learning French for long?"}
+          - {who: A, l2: "Plus lentement, s'il te plaît.", l1: "More slowly, please. (informal)",
+             alt: ["Plus doucement, s'il te plaît.", "Moins vite, s'il te plaît.", "Tu peux parler plus lentement, s'il te plaît ?", "Tu peux parler moins vite, s'il te plaît ?", "Un peu plus lentement, s'il te plaît."]}
+          - {who: B, l2: "Bien sûr. Tu apprends… le français… depuis quand ?", l1: "Of course. You've been learning… French… since when?"}
+          - {who: A, l2: "Depuis trois mois.", l1: "For three months.",
+             alt: ["Depuis 3 mois.", "Ça fait trois mois.", "J'apprends le français depuis trois mois."]}
+          - {who: B, l2: "Trois mois seulement ? Bravo, tu te débrouilles bien !", l1: "Only three months? Well done, you're managing well!"}
+
+      - id: frt-01-how-are-you
+        type: dialogue
+        title: "Bumping into a classmate"
+        scene: "On the way to your French class you run into Léa, a student you know from the same school."
+        you: B
+        lines:
+          - {who: A, l2: "Tiens, salut ! Ça va ?", l1: "Oh, hi! How are you?"}
+          - {who: B, l2: "Salut ! Ça va bien, et toi ?", l1: "Hi! I'm fine, and you? (informal)",
+             alt: ["Salut ! Ça va, et toi ?", "Salut ! Ça va très bien, et toi ?", "Salut ! Je vais bien, et toi ?", "Salut ! Très bien, et toi ?", "Salut ! Bien, et toi ?", "Salut ! Oui, ça va bien, et toi ?", "Salut ! Oui, ça va, et toi ?"]}
+          - {who: A, l2: "Ça va, un peu fatiguée aujourd'hui. Tu vas au cours de français ?", l1: "OK, a bit tired today. Are you going to the French class?"}
+          - {who: B, l2: "Oui, j'ai cours à dix heures.", l1: "Yes, I have class at ten o'clock.",
+             alt: ["Oui, j'ai cours à 10 heures.", "Oui, j'ai cours à 10h.", "Oui, j'ai un cours à dix heures.", "Oui, j'ai mon cours à dix heures."]}
+          - {who: A, l2: "Ah, moi aussi ! On y va ensemble ?", l1: "Oh, me too! Shall we go together?"}
+          - {who: B, l2: "D'accord, bonne idée !", l1: "OK, good idea!",
+             alt: ["OK, bonne idée !", "Oui, bonne idée !", "D'accord, c'est une bonne idée !"]}
+          - {who: A, l2: "Super. Et après, un café ?", l1: "Great. And afterwards, a coffee?"}
+          - {who: B, l2: "Oui, avec plaisir !", l1: "Yes, with pleasure!",
+             alt: ["Oui, volontiers !", "Oui, avec grand plaisir !", "Avec plaisir !", "Oui, je veux bien !"]}
+
+      - id: frt-01-spell
+        type: dialogue
+        title: "Giving your name"
+        scene: "It is your first day at a language school. You go to the reception desk to sign in."
+        you: B
+        lines:
+          - {who: A, l2: "Bonjour ! Je peux vous aider ?", l1: "Hello! Can I help you?"}
+          - {who: B, l2: "Bonjour. Je suis ici pour le cours de français.", l1: "Hello. I'm here for the French class.",
+             alt: ["Bonjour. Je suis là pour le cours de français.", "Bonjour. Je viens pour le cours de français."]}
+          - {who: A, l2: "Très bien. Votre nom, s'il vous plaît ?", l1: "Very good. Your name, please?"}
+          - {who: B, l2: "Je m'appelle Alex Reid.", l1: "My name is Alex Reid.",
+             alt: ["Alex Reid.", "C'est Alex Reid.", "Moi, c'est Alex Reid.", "Mon nom, c'est Alex Reid.", "Je suis Alex Reid."]}
+          - {who: A, l2: "Reid… Comment ça s'écrit ?", l1: "Reid… How is that spelled?"}
+          - {who: B, l2: "Ça s'écrit R, E, I, D.", l1: "It's spelled R, E, I, D.",
+             alt: ["R, E, I, D.", "Ça s'écrit R-E-I-D.", "C'est R, E, I, D."]}
+          - {who: A, l2: "Merci. Et vous venez de quel pays ?", l1: "Thank you. And which country are you from?"}
+          - {who: B, l2: "Je viens d'Irlande.", l1: "I come from Ireland.",
+             alt: ["Je suis d'Irlande.", "D'Irlande.", "Moi, je viens d'Irlande."]}
+          - {who: A, l2: "Parfait. Vous êtes dans le groupe débutant, salle trois.", l1: "Perfect. You're in the beginners' group, room three."}
+          - {who: B, l2: "Merci beaucoup. Au revoir !", l1: "Thank you very much. Goodbye!",
+             alt: ["Merci bien. Au revoir !", "Merci beaucoup, madame. Au revoir !", "Merci beaucoup, monsieur. Au revoir !"]}
+
+      - id: frt-01-how-do-you-say
+        type: dialogue
+        title: "Asking about a word"
+        scene: "You are having lunch with Karim, a French colleague, and you use him as your walking dictionary."
+        you: A
+        lines:
+          - {who: A, l2: "Comment on dit « late » en français ?", l1: "How do you say 'late' in French?",
+             alt: ["Comment dit-on « late » en français ?", "Comment est-ce qu'on dit « late » en français ?", "Comment tu dis « late » en français ?", "Comment ça se dit, « late », en français ?"]}
+          - {who: B, l2: "On dit « en retard ». Par exemple : je suis en retard.", l1: "You say 'en retard'. For example: I am late."}
+          - {who: A, l2: "Et « bosser », ça veut dire quoi ?", l1: "And 'bosser', what does that mean?",
+             alt: ["Et « bosser », qu'est-ce que ça veut dire ?", "Et que veut dire « bosser » ?", "Et « bosser », ça signifie quoi ?", "Et ça veut dire quoi, « bosser » ?", "Et qu'est-ce que ça veut dire, « bosser » ?"]}
+          - {who: B, l2: "C'est un mot familier pour « travailler ». Tout le monde le dit.", l1: "It's an informal word for 'to work'. Everyone says it."}
+          - {who: A, l2: "D'accord, je comprends.", l1: "OK, I understand.",
+             alt: ["OK, je comprends.", "Ah d'accord, je comprends.", "D'accord, j'ai compris.", "D'accord, je vois."]}
+          - {who: B, l2: "Tu apprends vite ! Ce n'est pas trop difficile, le français ?", l1: "You learn fast! Isn't French too hard?"}
+          - {who: A, l2: "C'est difficile, mais j'aime bien.", l1: "It's hard, but I like it.",
+             alt: ["C'est difficile, mais j'aime ça.", "C'est dur, mais j'aime bien.", "C'est difficile, mais ça me plaît.", "Si, c'est difficile, mais j'aime bien.", "C'est difficile, mais j'aime bien ça."]}
+          - {who: B, l2: "C'est normal. Continue comme ça !", l1: "That's normal. Keep it up!"}
+
+  # ───────────────────────────────────────────────────────────────── 2
+  - id: frt-02
+    title: "Getting things done"
+    goal: "I can order in a café or bakery, buy something in a shop, ask the price, pay, and ask where something is."
+    notes: |
+      Shops and cafés run on a fixed ritual. Miss a step and you sound abrupt; follow it and everything goes smoothly.
+
+      ## The ritual
+      1. **Bonjour** first — always, before anything else.
+      2. Ask with **s'il vous plaît**: *Un café, s'il vous plaît.* A noun plus *s'il vous plaît* is perfectly polite; *Je voudrais…* and *Je vais prendre…* are the fuller versions.
+      3. Expect the follow-up questions: *Et avec ceci ?* (anything else?) / *Ce sera tout ?* (will that be all?), *Sur place ou à emporter ?* (eat in or take away?). Close with *C'est tout, merci.*
+      4. Money: *C'est combien ?* / *Ça fait combien ?*, then *Je peux payer par carte ?*
+      5. Leave with **Merci, bonne journée !** — and answer theirs with *À vous aussi !*
+
+      ## Survival phrases
+      - *Je regarde, merci* — "just looking".
+      - *Excusez-moi, où sont… ?* — repeat the answer back (*Au fond, à droite, d'accord*) to check you understood.
+      - *Pardon, vous pouvez répéter ?* — prices are said fast; asking again is normal.
+
+      Everything here is **vous**.
+    items:
+      - id: frt-02-cafe
+        type: dialogue
+        title: "Ordering at a café"
+        scene: "You sit down on a café terrace in the morning. The waiter comes to your table."
+        you: B
+        lines:
+          - {who: A, l2: "Bonjour ! Qu'est-ce que je vous sers ?", l1: "Hello! What can I get you?"}
+          - {who: B, l2: "Bonjour. Un café, s'il vous plaît.", l1: "Hello. A coffee, please.",
+             alt: ["Bonjour. Je voudrais un café, s'il vous plaît.", "Bonjour. Je vais prendre un café, s'il vous plaît.", "Bonjour. Je prends un café, s'il vous plaît."]}
+          - {who: A, l2: "Un café. Et avec ça ?", l1: "A coffee. And with that?"}
+          - {who: B, l2: "Un croissant aussi, s'il vous plaît.", l1: "A croissant too, please.",
+             alt: ["Et un croissant, s'il vous plaît.", "Je voudrais aussi un croissant, s'il vous plaît.", "Et un croissant aussi, s'il vous plaît."]}
+          - {who: A, l2: "Désolé, je n'ai plus de croissants. Un pain au chocolat, peut-être ?", l1: "Sorry, I have no croissants left. A pain au chocolat, perhaps?"}
+          - {who: B, l2: "D'accord, un pain au chocolat.", l1: "OK, a pain au chocolat.",
+             alt: ["OK, un pain au chocolat.", "Oui, un pain au chocolat.", "D'accord, un pain au chocolat, alors."]}
+          - {who: A, l2: "Et voilà : un café et un pain au chocolat. Autre chose ?", l1: "There you are: a coffee and a pain au chocolat. Anything else?"}
+          - {who: B, l2: "Non merci. L'addition, s'il vous plaît.", l1: "No thanks. The bill, please.",
+             alt: ["Non, merci. Je peux avoir l'addition, s'il vous plaît ?", "Non merci. Je voudrais l'addition, s'il vous plaît.", "Non merci, c'est tout. L'addition, s'il vous plaît."]}
+          - {who: A, l2: "Tout de suite. Ça fait quatre euros cinquante.", l1: "Right away. That's four euros fifty."}
+
+      - id: frt-02-bakery
+        type: dialogue
+        title: "At the bakery"
+        scene: "You are at the front of the queue in a busy bakery. The baker is waiting for your order."
+        you: A
+        lines:
+          - {who: A, l2: "Bonjour, madame. Une baguette, s'il vous plaît.", l1: "Hello, ma'am. A baguette, please.",
+             alt: ["Bonjour, madame. Je voudrais une baguette, s'il vous plaît.", "Bonjour, madame. Je vais prendre une baguette, s'il vous plaît."]}
+          - {who: B, l2: "Bonjour ! Une tradition ou une baguette normale ?", l1: "Hello! A 'tradition' or an ordinary baguette?"}
+          - {who: A, l2: "Une tradition. C'est combien ?", l1: "A 'tradition'. How much is it?",
+             alt: ["Une tradition. Ça coûte combien ?", "Une tradition. Combien ça coûte ?", "Une tradition. C'est combien, s'il vous plaît ?", "Une tradition, s'il vous plaît. C'est combien ?", "Une tradition. Elle est à combien ?"]}
+          - {who: B, l2: "Un euro trente. Et avec ceci ?", l1: "One euro thirty. And with that?"}
+          - {who: A, l2: "Deux croissants, s'il vous plaît.", l1: "Two croissants, please.",
+             alt: ["2 croissants, s'il vous plaît.", "Et deux croissants, s'il vous plaît.", "Je voudrais deux croissants, s'il vous plaît.", "Je vais prendre deux croissants, s'il vous plaît."]}
+          - {who: B, l2: "Voilà. Ce sera tout ?", l1: "There you are. Will that be all?"}
+          - {who: A, l2: "Oui, c'est tout, merci.", l1: "Yes, that's all, thank you.",
+             alt: ["Oui, ce sera tout, merci.", "C'est tout, merci.", "Oui, merci, c'est tout."]}
+          - {who: B, l2: "Alors, ça vous fait trois euros soixante-dix.", l1: "So, that comes to three euros seventy."}
+          - {who: A, l2: "Voilà. Merci, bonne journée !", l1: "Here you are. Thanks, have a good day!",
+             alt: ["Tenez. Merci, bonne journée !", "Voici. Merci, bonne journée !", "Voilà. Merci, bonne journée à vous !", "Voilà. Merci et bonne journée !"]}
+          - {who: B, l2: "Merci, à vous aussi !", l1: "Thank you, you too!"}
+
+      - id: frt-02-clothes
+        type: dialogue
+        title: "Just looking — then buying"
+        scene: "You walk into a clothes shop. At first you only want to browse; a moment later you spot a jumper you like and call the assistant back."
+        you: B
+        lines:
+          - {who: A, l2: "Bonjour ! Je peux vous aider ?", l1: "Hello! Can I help you?"}
+          - {who: B, l2: "Non merci, je regarde.", l1: "No thanks, I'm just looking.",
+             alt: ["Non merci, je regarde juste.", "Non merci, je regarde seulement.", "Non merci, je ne fais que regarder.", "Merci, je regarde.", "Non merci, je regarde, c'est tout."]}
+          - {who: A, l2: "Très bien. N'hésitez pas si vous avez besoin.", l1: "Very good. Don't hesitate if you need anything."}
+          - {who: B, l2: "Excusez-moi, vous avez ce pull en bleu ?", l1: "(A moment later, to the assistant) Excuse me, do you have this jumper in blue? (formal)",
+             alt: ["Excusez-moi, est-ce que vous avez ce pull en bleu ?", "Excusez-moi, avez-vous ce pull en bleu ?", "Pardon, vous avez ce pull en bleu ?", "Excusez-moi, vous l'avez en bleu, ce pull ?"]}
+          - {who: A, l2: "Oui, bien sûr. Vous faites quelle taille ?", l1: "Yes, of course. What size are you?"}
+          - {who: B, l2: "Je fais du M.", l1: "I'm a medium (say: M).",
+             alt: ["Du M.", "Je prends du M.", "Je fais du M, je pense.", "Taille M."]}
+          - {who: A, l2: "Voilà. Il est très doux, vous allez voir.", l1: "Here you are. It's very soft, you'll see."}
+          - {who: B, l2: "Merci. Je peux l'essayer ?", l1: "Thanks. Can I try it on?",
+             alt: ["Merci. Est-ce que je peux l'essayer ?", "Merci. Je peux essayer ?", "Merci. Je pourrais l'essayer ?", "Merci. Je peux l'essayer, s'il vous plaît ?", "Merci. Puis-je l'essayer ?"]}
+          - {who: A, l2: "Bien sûr ! Les cabines sont au fond, à gauche.", l1: "Of course! The fitting rooms are at the back, on the left."}
+
+      - id: frt-02-market
+        type: dialogue
+        title: "Asking the price at the market"
+        scene: "You are at an open-air market on Sunday morning, in front of a fruit stall. The seller talks fast."
+        you: A
+        lines:
+          - {who: A, l2: "Bonjour ! C'est combien, les fraises ?", l1: "Hello! How much are the strawberries?",
+             alt: ["Bonjour ! Les fraises, c'est combien ?", "Bonjour ! Elles sont à combien, les fraises ?", "Bonjour ! Les fraises sont à combien ?", "Bonjour ! Combien coûtent les fraises ?", "Bonjour ! Ça coûte combien, les fraises ?", "Bonjour ! Elles coûtent combien, les fraises ?"]}
+          - {who: B, l2: "Bonjour ! Quatre euros la barquette, sept euros les deux.", l1: "Hello! Four euros a punnet, seven euros for two."}
+          - {who: A, l2: "Pardon, vous pouvez répéter ?", l1: "Sorry, can you repeat that? (formal)",
+             alt: ["Pardon, vous pouvez répéter, s'il vous plaît ?", "Pardon, pouvez-vous répéter ?", "Excusez-moi, vous pouvez répéter ?", "Pardon, vous pourriez répéter ?", "Désolé, vous pouvez répéter ?", "Désolée, vous pouvez répéter ?", "Excusez-moi, vous pouvez répéter, s'il vous plaît ?"]}
+          - {who: B, l2: "Bien sûr : quatre euros une barquette, sept euros les deux. Elles sont très bonnes !", l1: "Of course: four euros for one punnet, seven euros for two. They're very good!"}
+          - {who: A, l2: "D'accord. Je prends deux barquettes.", l1: "OK. I'll take two punnets (barquettes).",
+             alt: ["D'accord. Je vais prendre deux barquettes.", "OK. Je prends deux barquettes.", "D'accord. Deux barquettes, s'il vous plaît.", "D'accord. Je prends 2 barquettes.", "D'accord. J'en prends deux."]}
+          - {who: B, l2: "Très bien. Il vous faut autre chose ?", l1: "Very good. Do you need anything else?"}
+          - {who: A, l2: "Non, c'est tout, merci.", l1: "No, that's all, thank you.",
+             alt: ["Non merci, c'est tout.", "Non, ce sera tout, merci.", "Non, c'est tout.", "Non, merci, ce sera tout."]}
+          - {who: B, l2: "Alors sept euros, s'il vous plaît. Merci, et bonne journée !", l1: "Seven euros then, please. Thank you, and have a good day!"}
+          - {who: A, l2: "Merci, à vous aussi !", l1: "Thanks, you too! (formal)",
+             alt: ["Merci, vous aussi !", "Merci, bonne journée à vous aussi !", "Merci, pareillement !", "Merci, vous de même !", "Merci, également !"]}
+
+      - id: frt-02-pay
+        type: dialogue
+        title: "Paying at the till"
+        scene: "You are at a supermarket checkout. The cashier has just scanned your last item."
+        you: B
+        lines:
+          - {who: A, l2: "Ça fait vingt-trois euros quarante, s'il vous plaît.", l1: "That's twenty-three euros forty, please."}
+          - {who: B, l2: "Je peux payer par carte ?", l1: "Can I pay by card?",
+             alt: ["Est-ce que je peux payer par carte ?", "Je peux payer par carte, s'il vous plaît ?", "Je peux payer avec la carte ?", "Je peux payer en carte ?", "Je peux régler par carte ?", "Vous prenez la carte ?", "Je peux payer par carte bancaire ?"]}
+          - {who: A, l2: "Oui, bien sûr. Sans contact ?", l1: "Yes, of course. Contactless?"}
+          - {who: B, l2: "Oui, s'il vous plaît.", l1: "Yes, please. (formal)",
+             alt: ["Oui, sans contact, s'il vous plaît.", "Oui, sans contact."]}
+          - {who: A, l2: "Allez-y… C'est bon. Vous voulez un sac ?", l1: "Go ahead… That's fine. Would you like a bag?"}
+          - {who: B, l2: "Non merci, j'ai un sac.", l1: "No thanks, I have a bag.",
+             alt: ["Non merci, j'ai mon sac.", "Non merci, j'en ai un.", "Non merci, j'ai déjà un sac.", "Non, merci, j'ai ce qu'il faut."]}
+          - {who: A, l2: "Et le ticket de caisse, vous le voulez ?", l1: "And the receipt, do you want it?"}
+          - {who: B, l2: "Non, ce n'est pas la peine.", l1: "No, there's no need.",
+             alt: ["Non, c'est pas la peine.", "Non, pas la peine.", "Non merci, ce n'est pas la peine.", "Non merci, pas la peine.", "Non, pas besoin.", "Non merci, pas besoin.", "Non, ce n'est pas nécessaire."]}
+          - {who: A, l2: "Très bien. Bonne fin de journée !", l1: "Very good. Enjoy the rest of your day!"}
+          - {who: B, l2: "Merci, au revoir !", l1: "Thanks, goodbye!",
+             alt: ["Merci, au revoir, bonne journée !", "Merci beaucoup, au revoir !"]}
+
+      - id: frt-02-where
+        type: dialogue
+        title: "Where are the eggs?"
+        scene: "You are lost in a big supermarket. You stop an employee who is stacking shelves."
+        you: A
+        lines:
+          - {who: A, l2: "Excusez-moi, où sont les œufs, s'il vous plaît ?", l1: "Excuse me, where are the eggs, please?",
+             alt: ["Excusez-moi, où sont les œufs ?", "Excusez-moi, les œufs sont où, s'il vous plaît ?", "Pardon, où sont les œufs, s'il vous plaît ?", "Excusez-moi, où se trouvent les œufs, s'il vous plaît ?", "Excusez-moi, ils sont où, les œufs, s'il vous plaît ?", "Excusez-moi, où est-ce que sont les œufs, s'il vous plaît ?"]}
+          - {who: B, l2: "Les œufs ? Au fond du magasin, à droite, à côté du lait.", l1: "The eggs? At the back of the shop, on the right, next to the milk."}
+          - {who: A, l2: "Au fond, à droite. D'accord.", l1: "At the back, on the right. OK.",
+             alt: ["Au fond, à droite. OK.", "Au fond à droite, d'accord.", "D'accord, au fond, à droite."]}
+          - {who: B, l2: "C'est ça. Vous cherchez autre chose ?", l1: "That's right. Are you looking for anything else?"}
+          - {who: A, l2: "Oui, je cherche aussi le café.", l1: "Yes, I'm also looking for the coffee.",
+             alt: ["Oui, je cherche le café aussi.", "Oui, je cherche également le café.", "Oui, le café aussi."]}
+          - {who: B, l2: "Le café, c'est dans le rayon juste là, derrière vous.", l1: "The coffee is in the aisle just there, behind you."}
+          - {who: A, l2: "Ah oui, je vois. Merci beaucoup !", l1: "Oh yes, I see. Thank you very much!",
+             alt: ["Ah oui, je vois. Merci bien !", "Ah, je vois. Merci beaucoup !", "Ah oui, je le vois. Merci beaucoup !", "Ah oui, d'accord. Merci beaucoup !"]}
+          - {who: B, l2: "Je vous en prie. Bonne journée !", l1: "You're welcome. Have a good day!"}
+
+      - id: frt-02-takeaway
+        type: dialogue
+        title: "A sandwich to take away"
+        scene: "It is lunchtime. You are next in line at a sandwich counter near the station."
+        you: B
+        lines:
+          - {who: A, l2: "Bonjour ! Vous avez choisi ?", l1: "Hello! Have you decided?"}
+          - {who: B, l2: "Bonjour. Je voudrais un sandwich au fromage.", l1: "Hello. I'd like a cheese sandwich.",
+             alt: ["Bonjour. Je voudrais un sandwich au fromage, s'il vous plaît.", "Bonjour. Je vais prendre un sandwich au fromage.", "Bonjour. Je prends un sandwich au fromage.", "Bonjour. Un sandwich au fromage, s'il vous plaît.", "Bonjour. J'aimerais un sandwich au fromage.", "Bonjour. Je vais prendre un sandwich au fromage, s'il vous plaît."]}
+          - {who: A, l2: "Sur place ou à emporter ?", l1: "To eat in or take away?"}
+          - {who: B, l2: "À emporter, s'il vous plaît.", l1: "To take away, please.",
+             alt: ["À emporter.", "C'est à emporter, s'il vous plaît.", "C'est pour emporter, s'il vous plaît.", "C'est à emporter."]}
+          - {who: A, l2: "Et comme boisson ?", l1: "And to drink?"}
+          - {who: B, l2: "Une bouteille d'eau, s'il vous plaît.", l1: "A bottle of water, please.",
+             alt: ["Je voudrais une bouteille d'eau, s'il vous plaît.", "Je vais prendre une bouteille d'eau, s'il vous plaît.", "Une bouteille d'eau."]}
+          - {who: A, l2: "Plate ou gazeuse ?", l1: "Still or sparkling?"}
+          - {who: B, l2: "Plate. Ça fait combien ?", l1: "Still. How much does that come to?",
+             alt: ["Plate. C'est combien ?", "Plate. Ça fait combien, s'il vous plaît ?", "Plate, s'il vous plaît. Ça fait combien ?", "Plate. Je vous dois combien ?", "Plate. Combien je vous dois ?", "Plate. Ça coûte combien ?"]}
+          - {who: A, l2: "Sept euros vingt, s'il vous plaît.", l1: "Seven euros twenty, please."}
+
+  # ───────────────────────────────────────────────────────────────── 3
+  - id: frt-03
+    title: "Small talk"
+    goal: "I can chat about family, work, where I live, the weather, weekend plans and what I like, and keep the exchange going by asking back and reacting."
+    notes: |
+      Small talk is not about information; it is about showing interest. French speakers do it with three tools, and you need all of them.
+
+      ## Three tools
+      - **Ask back.** *Et toi ?* / *Et vous ?* after your answer, or return the whole question: *Et toi, tu as des enfants ?*
+      - **React before you answer.** *Ah bon ?* (really?), *Sympa !*, *C'est bien !*, *Tant mieux !* (good!), *Dommage* (pity), *Tu as de la chance !* A reaction plus a short answer sounds far more fluent than a long, silent sentence.
+      - **Soften.** *Pas trop* (not really), *un peu* (a bit), *je pense* (I think), *Pourquoi pas !* (why not!). Blunt *non* is rare in friendly talk.
+
+      ## Spoken French
+      In conversation people say **on** for "we" (*On va au restaurant*), and ask questions with plain intonation: *Tu fais quoi ce week-end ?*
+
+      ## Safe topics
+      The weather (*Il fait froid, non ?*), the weekend (*Bon week-end !* on Friday, *C'était bien, ton week-end ?* on Monday), food and where you live.
+    items:
+      - id: frt-03-family
+        type: dialogue
+        title: "A family photo"
+        scene: "At the coffee machine, your colleague Sophie shows you a photo on her phone."
+        you: B
+        lines:
+          - {who: A, l2: "Regarde, c'est ma famille. Là, c'est mon frère, et là, ma petite sœur.", l1: "Look, this is my family. That's my brother, and that's my little sister."}
+          - {who: B, l2: "Elle a quel âge, ta sœur ?", l1: "How old is your sister? (informal)",
+             alt: ["Ta sœur a quel âge ?", "Quel âge a ta sœur ?", "Quel âge elle a, ta sœur ?", "Elle a quel âge ?", "Ta sœur, elle a quel âge ?"]}
+          - {who: A, l2: "Elle a dix-neuf ans. Et toi, tu as des frères et sœurs ?", l1: "She's nineteen. And you, do you have brothers and sisters?"}
+          - {who: B, l2: "Oui, j'ai un frère.", l1: "Yes, I have a brother.",
+             alt: ["J'ai un frère.", "Oui, un frère.", "Oui, moi, j'ai un frère."]}
+          - {who: A, l2: "Il habite où ?", l1: "Where does he live?"}
+          - {who: B, l2: "Il habite à Londres avec sa femme.", l1: "He lives in London with his wife.",
+             alt: ["Il vit à Londres avec sa femme.", "À Londres, avec sa femme."]}
+          - {who: A, l2: "Ah, il est marié ! Ils ont des enfants ?", l1: "Oh, he's married! Do they have children?"}
+          - {who: B, l2: "Non, pas encore. Et toi, tu as des enfants ?", l1: "No, not yet. And you, do you have children? (informal)",
+             alt: ["Non, pas encore. Et toi, est-ce que tu as des enfants ?", "Non, pas encore. Tu as des enfants, toi ?", "Non, pas encore. Et toi, as-tu des enfants ?", "Non, pas encore. Et toi, t'as des enfants ?"]}
+          - {who: A, l2: "Oui, une fille de deux ans. Elle ne dort jamais !", l1: "Yes, a two-year-old daughter. She never sleeps!"}
+
+      - id: frt-03-work
+        type: dialogue
+        title: "What do you do?"
+        scene: "At a wedding dinner you are seated next to a man of about fifty whom you do not know. He turns to you."
+        you: A
+        lines:
+          - {who: B, l2: "Et vous, qu'est-ce que vous faites dans la vie ?", l1: "And you, what do you do for a living?"}
+          - {who: A, l2: "Je travaille dans un hôpital.", l1: "I work in a hospital.",
+             alt: ["Je travaille à l'hôpital.", "Moi, je travaille dans un hôpital.", "Je bosse dans un hôpital."]}
+          - {who: B, l2: "Ah bon ? Ça doit être fatigant !", l1: "Really? That must be tiring!"}
+          - {who: A, l2: "Oui, un peu, mais j'aime mon travail.", l1: "Yes, a bit, but I like my job.",
+             alt: ["Oui, un peu, mais j'aime bien mon travail.", "Oui, un peu, mais j'aime mon métier.", "Oui, un peu, mais j'aime mon boulot.", "Un peu, oui, mais j'aime mon travail.", "Oui, un peu, mais j'aime ce que je fais."]}
+          - {who: B, l2: "C'est le plus important. Vous travaillez aussi la nuit ?", l1: "That's the main thing. Do you work nights too?"}
+          - {who: A, l2: "Parfois, oui. Et vous, vous faites quoi ?", l1: "Sometimes, yes. And you, what do you do? (formal)",
+             alt: ["Parfois, oui. Et vous, qu'est-ce que vous faites ?", "Parfois, oui. Et vous, que faites-vous ?", "Parfois, oui. Et vous, qu'est-ce que vous faites dans la vie ?", "Parfois, oui. Et vous, vous faites quoi dans la vie ?", "Quelquefois, oui. Et vous, vous faites quoi ?", "Des fois, oui. Et vous, vous faites quoi ?", "Oui, parfois. Et vous, vous faites quoi ?"]}
+          - {who: B, l2: "Moi, je suis professeur de maths dans un lycée.", l1: "I'm a maths teacher in a secondary school."}
+          - {who: A, l2: "Ah, c'est intéressant ! Ça vous plaît ?", l1: "Oh, that's interesting! Do you like it? (formal)",
+             alt: ["Ah, c'est intéressant ! Vous aimez ça ?", "Ah, intéressant ! Ça vous plaît ?", "Ah, c'est intéressant ! Vous aimez ?", "Ah, c'est intéressant ! Et ça vous plaît ?", "Ah, c'est intéressant ! Est-ce que ça vous plaît ?"]}
+          - {who: B, l2: "Beaucoup, même si les élèves sont parfois difficiles !", l1: "Very much, even if the pupils are sometimes difficult!"}
+
+      - id: frt-03-where-live
+        type: dialogue
+        title: "Which part of town?"
+        scene: "During the break in your evening class, Thomas, another student, asks where you live."
+        you: B
+        lines:
+          - {who: A, l2: "Tu habites dans quel quartier ?", l1: "Which neighbourhood do you live in?"}
+          - {who: B, l2: "J'habite près de la gare. Et toi ?", l1: "I live near the station. And you? (informal)",
+             alt: ["J'habite à côté de la gare. Et toi ?", "Je vis près de la gare. Et toi ?", "Près de la gare. Et toi ?", "Moi, j'habite près de la gare. Et toi ?"]}
+          - {who: A, l2: "Moi, dans le centre, dans un petit studio. C'est bien, ton quartier ?", l1: "Me, in the centre, in a small studio. Is your neighbourhood nice?"}
+          - {who: B, l2: "Oui, c'est calme et pas trop cher.", l1: "Yes, it's quiet and not too expensive.",
+             alt: ["Oui, c'est tranquille et pas trop cher.", "Oui, c'est calme et ce n'est pas trop cher.", "Oui, c'est calme et c'est pas trop cher.", "Oui, il est calme et pas trop cher."]}
+          - {who: A, l2: "Tu as de la chance ! Chez moi, il y a beaucoup de bruit le soir. Tu es en appartement ?", l1: "Lucky you! At my place there's a lot of noise in the evening. Are you in a flat?"}
+          - {who: B, l2: "Oui, j'ai un appartement avec un balcon.", l1: "Yes, I have a flat with a balcony.",
+             alt: ["Oui, j'ai un appart avec un balcon.", "Oui, j'ai un appartement avec balcon.", "Oui, j'habite dans un appartement avec un balcon.", "Oui, un appartement avec un balcon."]}
+          - {who: A, l2: "Un balcon ! Le rêve. Et tu vis avec quelqu'un ?", l1: "A balcony! The dream. And do you live with someone?"}
+          - {who: B, l2: "Oui, j'habite avec un ami.", l1: "Yes, I live with a (male) friend.",
+             alt: ["Oui, je vis avec un ami.", "Oui, j'habite avec un copain.", "Oui, je vis avec un copain.", "Oui, avec un ami.", "Oui, j'habite avec un pote."]}
+
+      - id: frt-03-weather
+        type: dialogue
+        title: "Weather talk in the lift"
+        scene: "You step into the lift with Madame Dubois, an elderly neighbour. You break the silence."
+        you: A
+        lines:
+          - {who: A, l2: "Bonjour ! Il fait froid aujourd'hui, non ?", l1: "Hello! It's cold today, isn't it?",
+             alt: ["Bonjour ! Il fait froid aujourd'hui, hein ?", "Bonjour ! Il fait froid aujourd'hui, n'est-ce pas ?", "Bonjour ! Il fait froid aujourd'hui !", "Bonjour ! Il fait froid aujourd'hui, vous ne trouvez pas ?"]}
+          - {who: B, l2: "Bonjour ! Oh oui, quel temps ! Et il va pleuvoir cet après-midi, il paraît.", l1: "Hello! Oh yes, what weather! And it's going to rain this afternoon, apparently."}
+          - {who: A, l2: "Ah bon ? Je n'ai pas de parapluie !", l1: "Really? I don't have an umbrella!",
+             alt: ["Ah bon ? J'ai pas de parapluie !", "Ah oui ? Je n'ai pas de parapluie !", "C'est vrai ? Je n'ai pas de parapluie !", "Ah bon ? Je n'ai pas mon parapluie !"]}
+          - {who: B, l2: "Aïe ! Mais demain, il va faire beau, heureusement.", l1: "Ouch! But tomorrow it's going to be fine, fortunately."}
+          - {who: A, l2: "Tant mieux ! J'aime le soleil.", l1: "Good (so much the better)! I like the sun.",
+             alt: ["Tant mieux ! J'aime bien le soleil.", "Tant mieux ! Moi, j'aime le soleil.", "Super ! J'aime le soleil.", "Ah, tant mieux ! J'aime le soleil."]}
+          - {who: B, l2: "Moi aussi. Dans votre pays, il fait plus chaud qu'ici ?", l1: "Me too. In your country, is it warmer than here?"}
+          - {who: A, l2: "Non, chez moi, il pleut souvent.", l1: "No, where I'm from, it often rains.",
+             alt: ["Non, chez nous, il pleut souvent.", "Non, dans mon pays, il pleut souvent.", "Non, il pleut souvent chez moi.", "Non, chez moi, il pleut très souvent."]}
+          - {who: B, l2: "Alors vous avez l'habitude ! Allez, bonne journée, et couvrez-vous bien !", l1: "Then you're used to it! Well, have a good day, and wrap up warm!"}
+          - {who: A, l2: "Merci, bonne journée à vous aussi !", l1: "Thanks, have a good day too! (formal)",
+             alt: ["Merci, bonne journée à vous !", "Merci, vous aussi !", "Merci, à vous aussi !", "Merci, bonne journée également !", "Merci, bonne journée aussi !", "Merci, vous aussi, bonne journée !"]}
+
+      - id: frt-03-weekend
+        type: dialogue
+        title: "Weekend plans"
+        scene: "It is Friday afternoon at the office. Your colleague Julie is packing up her bag."
+        you: B
+        lines:
+          - {who: A, l2: "Enfin vendredi ! Tu fais quoi ce week-end ?", l1: "Friday at last! What are you doing this weekend?"}
+          - {who: B, l2: "Je vais voir des amis samedi.", l1: "I'm going to see some friends on Saturday.",
+             alt: ["Samedi, je vais voir des amis.", "Je vais voir des copains samedi.", "Je vois des amis samedi.", "Samedi, je vois des amis.", "Je vais voir des potes samedi."]}
+          - {who: A, l2: "Sympa ! Vous allez faire quoi ?", l1: "Nice! What are you going to do?"}
+          - {who: B, l2: "On va manger au restaurant.", l1: "We're going to eat at a restaurant.",
+             alt: ["Nous allons manger au restaurant.", "On va manger au resto.", "On va manger dans un restaurant.", "On va aller manger au restaurant."]}
+          - {who: A, l2: "Et dimanche ?", l1: "And on Sunday?"}
+          - {who: B, l2: "Rien de spécial. Et toi ?", l1: "Nothing special. And you? (informal)",
+             alt: ["Rien de particulier. Et toi ?", "Pas grand-chose. Et toi ?", "Rien de spécial. Et toi, tu fais quoi ?", "Rien de spécial, et toi ?"]}
+          - {who: A, l2: "Moi, je vais chez mes parents. C'est l'anniversaire de ma mère.", l1: "I'm going to my parents'. It's my mother's birthday."}
+          - {who: B, l2: "Ah, c'est bien ! Bon week-end, alors !", l1: "Oh, that's nice! Have a good weekend, then!",
+             alt: ["Ah, c'est bien ! Bon week-end !", "Ah, c'est bien ! Alors bon week-end !", "Ah, c'est sympa ! Bon week-end, alors !", "Ah, super ! Bon week-end, alors !", "Ah, c'est chouette ! Bon week-end, alors !", "Ah, c'est bien ! Bon weekend, alors !", "Ah, c'est bien ! Bon weekend !"]}
+          - {who: A, l2: "Merci, toi aussi ! À lundi !", l1: "Thanks, you too! See you Monday!"}
+
+      - id: frt-03-likes
+        type: dialogue
+        title: "What do you like to eat?"
+        scene: "Your friend Camille has invited you to dinner at her place and is deciding what to cook."
+        you: A
+        lines:
+          - {who: B, l2: "Je pensais faire des pâtes aux champignons. Tu aimes les champignons ?", l1: "I was thinking of making pasta with mushrooms. Do you like mushrooms?"}
+          - {who: A, l2: "Pas trop, désolé.", l1: "Not really, sorry.",
+             alt: ["Pas trop, désolée.", "Pas vraiment, désolé.", "Pas vraiment, désolée.", "Pas tellement, désolé.", "Pas tellement, désolée.", "Pas trop, pardon.", "Bof, pas trop, désolé.", "Bof, pas trop, désolée."]}
+          - {who: B, l2: "Ah, pas de souci ! Et le poisson, tu aimes ?", l1: "Oh, no problem! And fish, do you like it?"}
+          - {who: A, l2: "Oui, j'adore le poisson !", l1: "Yes, I love fish!",
+             alt: ["Oui, j'adore ça !", "Oui, j'adore !", "Oui, j'aime beaucoup le poisson !", "Oui, le poisson, j'adore !"]}
+          - {who: B, l2: "Parfait. Alors du saumon avec du riz, ça te va ?", l1: "Perfect. So salmon with rice, does that suit you?"}
+          - {who: A, l2: "Oui, ça me va très bien.", l1: "Yes, that suits me very well.",
+             alt: ["Oui, ça me va.", "Ça me va très bien.", "Oui, ça me va parfaitement.", "Oui, très bien.", "Oui, c'est parfait.", "Oui, ça me convient très bien."]}
+          - {who: B, l2: "Et comme dessert ? Tu préfères le chocolat ou les fruits ?", l1: "And for dessert? Do you prefer chocolate or fruit?"}
+          - {who: A, l2: "Je préfère le chocolat, bien sûr !", l1: "I prefer chocolate, of course!",
+             alt: ["Le chocolat, bien sûr !", "Je préfère le chocolat, évidemment !", "Bien sûr, je préfère le chocolat !", "Moi, je préfère le chocolat, bien sûr !"]}
+          - {who: B, l2: "Ha ha, moi aussi. Allez, à table dans une demi-heure !", l1: "Ha ha, me too. Right, dinner's in half an hour!"}
+
+      - id: frt-03-hobbies
+        type: dialogue
+        title: "Free time"
+        scene: "You are chatting with Nadia, whom you have just met at a friend's picnic in the park."
+        you: B
+        lines:
+          - {who: A, l2: "Tu fais du sport, toi ?", l1: "Do you do any sport?"}
+          - {who: B, l2: "Oui, je fais du vélo le week-end.", l1: "Yes, I go cycling at the weekend.",
+             alt: ["Oui, je fais du vélo le weekend.", "Oui, le week-end, je fais du vélo.", "Oui, le weekend, je fais du vélo.", "Oui, je fais du vélo pendant le week-end.", "Oui, je fais du vélo tous les week-ends."]}
+          - {who: A, l2: "Ah, c'est bien ! Moi, je joue au tennis, mais je ne suis pas très forte.", l1: "Oh, that's good! I play tennis, but I'm not very good."}
+          - {who: B, l2: "Moi, je ne sais pas jouer au tennis.", l1: "Me, I don't know how to play tennis.",
+             alt: ["Je ne sais pas jouer au tennis.", "Moi, je sais pas jouer au tennis.", "Je sais pas jouer au tennis.", "Moi, je ne sais pas jouer au tennis du tout."]}
+          - {who: A, l2: "Ce n'est pas difficile ! Tu veux essayer un jour ?", l1: "It's not hard! Do you want to try some day?"}
+          - {who: B, l2: "Pourquoi pas ! C'est quand, ton cours ?", l1: "Why not! When is your class? (informal)",
+             alt: ["Pourquoi pas ! Ton cours, c'est quand ?", "Pourquoi pas ! Quand est ton cours ?", "Pourquoi pas ! Il est quand, ton cours ?", "Pourquoi pas ! C'est quand ton cours de tennis ?", "Pourquoi pas ! Ton cours est quand ?", "Pourquoi pas ! Tu as cours quand ?"]}
+          - {who: A, l2: "Le mercredi soir, à sept heures. Et à part le vélo, tu fais quoi de ton temps libre ?", l1: "Wednesday evenings at seven. And apart from cycling, what do you do with your free time?"}
+          - {who: B, l2: "J'aime lire et regarder des séries.", l1: "I like reading and watching series.",
+             alt: ["J'aime bien lire et regarder des séries.", "J'aime lire et regarder des séries télé.", "J'aime la lecture et regarder des séries.", "Moi, j'aime lire et regarder des séries."]}
+          - {who: A, l2: "Des séries françaises ? C'est super pour apprendre !", l1: "French series? That's great for learning!"}
+
+  # ───────────────────────────────────────────────────────────────── 4
+  - id: frt-04
+    title: "Out and about"
+    goal: "I can ask for and check directions, buy tickets and use transport, check in at a hotel, deal with a problem in a restaurant, and explain a simple health problem."
+    notes: |
+      When you are out in a French town you mostly talk to strangers who are working or in a hurry. The strategy is the same everywhere: get their attention politely, say what you need in one short sentence, and **check what you heard**.
+
+      ## Moves to practise
+      - **Getting attention**: *Excusez-moi…* / *Pardon…* then the request: *Je cherche la gare.*
+      - **Checking by repeating**: say the key words back with a rising voice — *Tout droit, puis à gauche au feu ?* The other person confirms with *C'est ça*.
+      - **Admitting a gap**: *Je ne connais pas ce mot*, *Pardon, combien de fois par jour ?*
+      - **Asking for an alternative**: *Il n'y a pas de train plus tôt ?*
+      - **Complaining gently**: state the fact, not the blame — *Je n'ai pas commandé ça.* Then accept the apology: *Ce n'est pas grave.*
+
+      ## At the doctor's or pharmacy
+      *J'ai mal à…* (la tête, la gorge, au ventre), *depuis hier* (since yesterday), *il y a deux jours* (two days ago). Expect *Depuis quand ?* and *Vous avez de la fièvre ?*
+    items:
+      - id: frt-04-directions
+        type: dialogue
+        title: "Finding the station"
+        scene: "You are lost in a town you do not know, with a train to catch. You stop a woman in the street."
+        you: A
+        lines:
+          - {who: A, l2: "Excusez-moi, je cherche la gare.", l1: "Excuse me, I'm looking for the station.",
+             alt: ["Excusez-moi, je cherche la gare, s'il vous plaît.", "Pardon, je cherche la gare.", "Excusez-moi, madame, je cherche la gare.", "Pardon, madame, je cherche la gare.", "Bonjour, excusez-moi, je cherche la gare."]}
+          - {who: B, l2: "La gare ? Alors, vous continuez tout droit, et au feu, vous tournez à gauche.", l1: "The station? Right, you carry straight on, and at the lights you turn left."}
+          - {who: A, l2: "Tout droit, puis à gauche au feu ?", l1: "Straight on, then left at the lights?",
+             alt: ["Tout droit, et à gauche au feu ?", "Tout droit, ensuite à gauche au feu ?", "Tout droit, et après à gauche au feu ?", "Tout droit, puis à gauche au feu, c'est ça ?", "Tout droit, puis au feu, à gauche ?", "Tout droit, et au feu, à gauche ?"]}
+          - {who: B, l2: "C'est ça. Ensuite, vous traversez le pont et la gare est en face.", l1: "That's right. Then you cross the bridge and the station is opposite."}
+          - {who: A, l2: "D'accord. C'est loin d'ici ?", l1: "OK. Is it far from here?",
+             alt: ["D'accord. C'est loin ?", "OK. C'est loin d'ici ?", "D'accord. Est-ce que c'est loin d'ici ?", "D'accord. Elle est loin d'ici ?", "D'accord. Et c'est loin d'ici ?"]}
+          - {who: B, l2: "Non, pas du tout. Dix minutes à pied, à peu près.", l1: "No, not at all. About ten minutes on foot."}
+          - {who: A, l2: "Parfait. Merci beaucoup, madame !", l1: "Perfect. Thank you very much, ma'am!",
+             alt: ["Parfait. Merci beaucoup !", "Très bien. Merci beaucoup, madame !", "Super. Merci beaucoup, madame !", "Parfait. Merci bien, madame !"]}
+          - {who: B, l2: "De rien. Bonne journée !", l1: "You're welcome. Have a good day!"}
+
+      - id: frt-04-train-ticket
+        type: dialogue
+        title: "Buying a train ticket"
+        scene: "You are at the ticket office of a railway station on a Friday morning. You want to go to Lyon today."
+        you: B
+        lines:
+          - {who: A, l2: "Bonjour. Je vous écoute.", l1: "Hello. How can I help? (literally: I'm listening.)"}
+          - {who: B, l2: "Bonjour. Je voudrais un billet pour Lyon.", l1: "Hello. I'd like a ticket to Lyon.",
+             alt: ["Bonjour. Je voudrais un billet pour Lyon, s'il vous plaît.", "Bonjour. Un billet pour Lyon, s'il vous plaît.", "Bonjour. J'aimerais un billet pour Lyon.", "Bonjour. Je voudrais un billet de train pour Lyon.", "Bonjour. Il me faut un billet pour Lyon."]}
+          - {who: A, l2: "Pour aujourd'hui ? Aller simple ou aller-retour ?", l1: "For today? One way or return?"}
+          - {who: B, l2: "Un aller-retour. Je reviens dimanche.", l1: "A return. I'm coming back on Sunday.",
+             alt: ["Aller-retour. Je reviens dimanche.", "Un aller-retour, s'il vous plaît. Je reviens dimanche.", "Un aller-retour. Je rentre dimanche.", "Aller-retour. Je rentre dimanche."]}
+          - {who: A, l2: "Très bien. Il y a un train à quatorze heures dix, ça vous convient ?", l1: "Very good. There's a train at 2:10 p.m., does that suit you?"}
+          - {who: B, l2: "Il n'y a pas de train plus tôt ?", l1: "Isn't there an earlier train?",
+             alt: ["Il n'y a pas un train plus tôt ?", "Il y a un train plus tôt ?", "Est-ce qu'il y a un train plus tôt ?", "Vous n'avez pas un train plus tôt ?", "Y a pas de train plus tôt ?", "Il n'y a rien plus tôt ?", "Il n'y a pas de train avant ?", "Il n'y en a pas un plus tôt ?"]}
+          - {who: A, l2: "Si, à midi vingt, mais il est plus cher : cinquante-deux euros.", l1: "Yes, at 12:20, but it's more expensive: fifty-two euros."}
+          - {who: B, l2: "Ce n'est pas grave, je le prends.", l1: "That doesn't matter, I'll take it.",
+             alt: ["C'est pas grave, je le prends.", "Ce n'est pas grave, je vais le prendre.", "Ça ne fait rien, je le prends.", "Ça fait rien, je le prends.", "Tant pis, je le prends.", "Ce n'est pas grave. Je le prends.", "Pas grave, je le prends.", "Ça ne fait rien, je vais le prendre."]}
+          - {who: A, l2: "Entendu. Départ voie sept. Bon voyage !", l1: "Understood. It leaves from platform seven. Have a good trip!"}
+
+      - id: frt-04-bus
+        type: dialogue
+        title: "Is this the right bus?"
+        scene: "You are waiting at a bus stop. A bus pulls in and you ask a man standing next to you before getting on."
+        you: A
+        lines:
+          - {who: A, l2: "Pardon, ce bus va au centre-ville ?", l1: "Excuse me, does this bus go to the town centre?",
+             alt: ["Excusez-moi, ce bus va au centre-ville ?", "Pardon, est-ce que ce bus va au centre-ville ?", "Excusez-moi, est-ce que ce bus va au centre-ville ?", "Pardon, il va au centre-ville, ce bus ?", "Pardon, ce bus va dans le centre ?", "Pardon, ce bus va au centre ?", "Pardon, ce bus va en centre-ville ?", "Pardon, ce bus va dans le centre-ville ?"]}
+          - {who: B, l2: "Ah non, celui-ci va à l'aéroport. Pour le centre, il faut prendre le douze.", l1: "Oh no, this one goes to the airport. For the centre, you need to take the 12."}
+          - {who: A, l2: "Le douze, d'accord. Il passe ici ?", l1: "The 12, OK. Does it stop here?",
+             alt: ["Le 12, d'accord. Il passe ici ?", "Le douze, d'accord. Il s'arrête ici ?", "Le 12, d'accord. Il s'arrête ici ?", "Le douze, d'accord. Est-ce qu'il passe ici ?", "Le douze, d'accord. Il passe par ici ?", "Le douze, OK. Il passe ici ?", "Le 12, OK. Il passe ici ?", "Le douze, d'accord. Est-ce qu'il s'arrête ici ?"]}
+          - {who: B, l2: "Non, l'arrêt est de l'autre côté de la rue, devant la pharmacie.", l1: "No, the stop is on the other side of the street, in front of the pharmacy."}
+          - {who: A, l2: "Et il faut descendre où ?", l1: "And where do I have to get off?",
+             alt: ["Et je dois descendre où ?", "Et je descends où ?", "Et on descend où ?", "Et où est-ce qu'il faut descendre ?", "Et où est-ce que je dois descendre ?", "Et où faut-il descendre ?", "Et il faut descendre à quel arrêt ?", "Et je dois descendre à quel arrêt ?", "Et où dois-je descendre ?"]}
+          - {who: B, l2: "À « Hôtel de Ville ». C'est le cinquième arrêt, vous ne pouvez pas le rater.", l1: "At 'Hôtel de Ville'. It's the fifth stop, you can't miss it."}
+          - {who: A, l2: "Merci, c'est très gentil !", l1: "Thank you, that's very kind!",
+             alt: ["Merci, c'est gentil !", "Merci, c'est vraiment gentil !", "Merci, vous êtes très gentil !", "Merci, c'est très aimable !", "Merci beaucoup, c'est très gentil !", "Merci, c'est très sympa !"]}
+          - {who: B, l2: "Je vous en prie. Dépêchez-vous, il arrive !", l1: "You're welcome. Hurry, it's coming!"}
+
+      - id: frt-04-hotel
+        type: dialogue
+        title: "Checking in"
+        scene: "You arrive at a small hotel in the evening after a long journey. The receptionist looks up as you come in."
+        you: B
+        lines:
+          - {who: A, l2: "Bonsoir. Bienvenue à l'hôtel du Parc.", l1: "Good evening. Welcome to the Hôtel du Parc."}
+          - {who: B, l2: "Bonsoir. J'ai une réservation au nom de Reid.", l1: "Good evening. I have a reservation in the name of Reid.",
+             alt: ["Bonsoir. J'ai réservé au nom de Reid.", "Bonsoir. J'ai réservé une chambre au nom de Reid.", "Bonsoir. J'ai une réservation au nom de Reid, s'il vous plaît.", "Bonsoir. J'ai une réservation, au nom de Reid."]}
+          - {who: A, l2: "Oui… une chambre double pour trois nuits, c'est bien ça ?", l1: "Yes… a double room for three nights, is that right?"}
+          - {who: B, l2: "Oui, c'est ça.", l1: "Yes, that's right.",
+             alt: ["Oui, c'est bien ça.", "C'est ça.", "Oui, exactement.", "Oui, tout à fait.", "Oui, c'est exact.", "C'est bien ça."]}
+          - {who: A, l2: "Parfait. Vous avez la chambre vingt-quatre, au deuxième étage. Voici votre clé.", l1: "Perfect. You have room twenty-four, on the second floor. Here is your key."}
+          - {who: B, l2: "Merci. Le petit-déjeuner est à quelle heure ?", l1: "Thanks. What time is breakfast?",
+             alt: ["Merci. À quelle heure est le petit-déjeuner ?", "Merci. Le petit-déjeuner, c'est à quelle heure ?", "Merci. C'est à quelle heure, le petit-déjeuner ?", "Merci. Le petit-déj est à quelle heure ?", "Merci. Le petit-déjeuner est servi à quelle heure ?", "Merci. À quelle heure est servi le petit-déjeuner ?", "Merci. Le petit déjeuner est à quelle heure ?"]}
+          - {who: A, l2: "De sept heures à dix heures, dans la salle à côté de la réception.", l1: "From seven to ten, in the room next to reception."}
+          - {who: B, l2: "Très bien. Et il y a le wifi ?", l1: "Very good. And is there wifi?",
+             alt: ["Très bien. Et il y a du wifi ?", "Très bien. Et est-ce qu'il y a le wifi ?", "Très bien. Et vous avez le wifi ?", "Très bien. Et il y a le wi-fi ?", "Très bien. Et il y a la wifi ?", "Très bien. Et est-ce qu'il y a du wifi ?", "Parfait. Et il y a le wifi ?", "Très bien. Et il y a une connexion wifi ?"]}
+          - {who: A, l2: "Oui, le code est sur la carte, avec la clé. Bon séjour chez nous !", l1: "Yes, the code is on the card, with the key. Enjoy your stay with us!"}
+
+      - id: frt-04-restaurant
+        type: dialogue
+        title: "The wrong dish"
+        scene: "You are having dinner in a brasserie. The waiter has just put a steak and chips in front of you, but you ordered chicken."
+        you: A
+        lines:
+          - {who: A, l2: "Excusez-moi, il y a un problème.", l1: "Excuse me, there's a problem.",
+             alt: ["Excusez-moi, il y a un petit problème.", "Excusez-moi, monsieur, il y a un problème.", "Pardon, il y a un problème.", "Excusez-moi, j'ai un problème.", "Excusez-moi, il y a un souci."]}
+          - {who: B, l2: "Oui, je vous écoute. Qu'est-ce qui se passe ?", l1: "Yes, go ahead. What's the matter?"}
+          - {who: A, l2: "Je n'ai pas commandé ça.", l1: "I didn't order this.",
+             alt: ["J'ai pas commandé ça.", "Je n'ai pas commandé ce plat.", "Je n'ai pas commandé cela.", "Ce n'est pas ce que j'ai commandé.", "C'est pas ce que j'ai commandé."]}
+          - {who: B, l2: "Ah bon ? Ce n'est pas le steak-frites, pour vous ?", l1: "Really? The steak and chips isn't for you?"}
+          - {who: A, l2: "Non, j'ai pris le poulet.", l1: "No, I ordered (took) the chicken.",
+             alt: ["Non, j'ai commandé le poulet.", "Non, moi, j'ai pris le poulet.", "Non, j'avais pris le poulet.", "Non, j'avais commandé le poulet.", "Non, j'ai demandé le poulet.", "Non, moi, j'ai commandé le poulet."]}
+          - {who: B, l2: "Oh, je suis vraiment désolé, c'est une erreur. Je vous apporte le poulet tout de suite.", l1: "Oh, I'm really sorry, it's a mistake. I'll bring you the chicken right away."}
+          - {who: A, l2: "Ce n'est pas grave. Merci.", l1: "It doesn't matter. Thank you.",
+             alt: ["C'est pas grave. Merci.", "Ça ne fait rien. Merci.", "Ce n'est rien. Merci.", "Pas de problème. Merci.", "Pas de souci. Merci.", "Il n'y a pas de mal. Merci.", "Ce n'est pas grave, merci beaucoup."]}
+          - {who: B, l2: "Et voilà votre poulet. Encore toutes mes excuses. Je vous offre le café.", l1: "(A few minutes later) And here is your chicken. My apologies again. The coffee is on the house."}
+          - {who: A, l2: "C'est gentil, merci beaucoup !", l1: "That's kind, thank you very much!",
+             alt: ["C'est très gentil, merci beaucoup !", "C'est gentil, merci bien !", "C'est sympa, merci beaucoup !", "Merci beaucoup, c'est gentil !", "Oh, c'est gentil, merci beaucoup !", "C'est gentil à vous, merci beaucoup !"]}
+
+      - id: frt-04-pharmacy
+        type: dialogue
+        title: "At the pharmacy"
+        scene: "You woke up feeling unwell and go to the pharmacy on the corner. The pharmacist asks you a few questions."
+        you: B
+        lines:
+          - {who: A, l2: "Bonjour. Je peux vous renseigner ?", l1: "Hello. Can I help you?"}
+          - {who: B, l2: "Bonjour. J'ai mal à la gorge.", l1: "Hello. I have a sore throat.",
+             alt: ["Bonjour. J'ai un mal de gorge.", "Bonjour. Oui, j'ai mal à la gorge."]}
+          - {who: A, l2: "D'accord. Depuis quand ? Vous avez de la fièvre ?", l1: "OK. Since when? Do you have a temperature?"}
+          - {who: B, l2: "Depuis hier. Non, pas de fièvre.", l1: "Since yesterday. No, no fever.",
+             alt: ["Depuis hier. Non, je n'ai pas de fièvre.", "Depuis hier. Non, j'ai pas de fièvre.", "Depuis hier. Pas de fièvre.", "Depuis hier. Et non, pas de fièvre.", "Depuis hier. Non, aucune fièvre."]}
+          - {who: A, l2: "Et vous toussez ?", l1: "And are you coughing?"}
+          - {who: B, l2: "Oui, un peu, surtout la nuit.", l1: "Yes, a little, especially at night.",
+             alt: ["Un peu, oui, surtout la nuit.", "Oui, un petit peu, surtout la nuit.", "Oui, un peu, surtout pendant la nuit.", "Oui, un peu, particulièrement la nuit."]}
+          - {who: A, l2: "Alors je vous conseille ces pastilles et ce sirop. Une cuillère matin et soir.", l1: "Then I recommend these lozenges and this syrup. One spoonful morning and evening."}
+          - {who: B, l2: "Pardon, combien de fois par jour ?", l1: "Sorry, how many times a day?",
+             alt: ["Excusez-moi, combien de fois par jour ?", "Pardon, c'est combien de fois par jour ?", "Pardon, combien de fois dans la journée ?", "Pardon ? Combien de fois par jour ?", "Désolé, combien de fois par jour ?", "Désolée, combien de fois par jour ?"]}
+          - {who: A, l2: "Deux fois : le matin et le soir. Et si ça ne va pas mieux dans trois jours, allez voir un médecin.", l1: "Twice: in the morning and in the evening. And if it's no better in three days, go and see a doctor."}
+          - {who: B, l2: "D'accord, merci pour votre aide.", l1: "OK, thank you for your help. (formal)",
+             alt: ["D'accord, merci de votre aide.", "OK, merci pour votre aide.", "Très bien, merci pour votre aide.", "D'accord, merci beaucoup pour votre aide.", "D'accord. Merci pour votre aide.", "D'accord, merci pour l'aide."]}
+
+      - id: frt-04-doctor
+        type: dialogue
+        title: "Seeing the doctor"
+        scene: "You have felt ill for two days and have an appointment with a GP. She invites you into her office."
+        you: A
+        lines:
+          - {who: B, l2: "Bonjour, asseyez-vous. Alors, qu'est-ce qui vous amène ?", l1: "Hello, take a seat. So, what brings you here?"}
+          - {who: A, l2: "Je ne me sens pas bien, docteur.", l1: "I don't feel well, doctor.",
+             alt: ["Je me sens pas bien, docteur.", "Je ne me sens pas très bien, docteur.", "Je ne vais pas bien, docteur.", "Je me sens mal, docteur.", "Je ne me sens pas bien."]}
+          - {who: B, l2: "Qu'est-ce que vous avez, exactement ?", l1: "What's wrong, exactly?"}
+          - {who: A, l2: "J'ai mal à la tête et au ventre.", l1: "I have a headache and a stomach ache.",
+             alt: ["J'ai mal à la tête et j'ai mal au ventre.", "J'ai mal au ventre et à la tête.", "J'ai mal à la tête et à l'estomac.", "J'ai mal à la tête et mal au ventre."]}
+          - {who: B, l2: "Depuis combien de temps ?", l1: "For how long?"}
+          - {who: A, l2: "Ça a commencé il y a deux jours.", l1: "It started two days ago.",
+             alt: ["Ça a commencé il y a 2 jours.", "Ça a débuté il y a deux jours.", "Depuis deux jours.", "Ça fait deux jours.", "Ça a commencé avant-hier.", "C'est depuis deux jours."]}
+          - {who: B, l2: "Je vois. Vous avez mangé quelque chose d'inhabituel ?", l1: "I see. Have you eaten anything unusual?"}
+          - {who: A, l2: "Inhabituel ? Je ne connais pas ce mot.", l1: "'Inhabituel'? I don't know that word.",
+             alt: ["Inhabituel ? Je connais pas ce mot.", "Inhabituel ? Je ne connais pas ce mot-là.", "Inhabituel ? Je ne comprends pas ce mot.", "Inhabituel ? Je ne connais pas le mot.", "Inhabituel ? Je comprends pas ce mot."]}
+          - {who: B, l2: "Pardon : quelque chose de différent, de spécial. Au restaurant, par exemple ?", l1: "Sorry: something different, special. In a restaurant, for example?"}
+          - {who: A, l2: "Ah oui ! Des fruits de mer, samedi.", l1: "Oh yes! Seafood, on Saturday.",
+             alt: ["Ah oui ! Samedi, des fruits de mer.", "Ah oui ! J'ai mangé des fruits de mer samedi.", "Ah oui ! Samedi, j'ai mangé des fruits de mer.", "Ah, oui ! Des fruits de mer samedi."]}
+
+  # ───────────────────────────────────────────────────────────────── 5
+  - id: frt-05
+    title: "Making plans"
+    goal: "I can invite someone, accept or decline politely, fix or change a time and place, make a simple phone call and say that I am running late."
+    notes: |
+      Making plans in French is a dance of small formulas.
+
+      ## Inviting
+      Test the ground first — *Tu es libre vendredi soir ?* — then propose with **Ça te dit de… ?** (do you fancy…?). Then *Vers sept heures, ça te va ?* and *Ça marche !*
+
+      ## Accepting and declining
+      - Yes: *Avec plaisir !*, *Ça me dit bien !*, *Je veux bien.* Then offer something: *Je peux apporter quelque chose ?*
+      - No: never a bare *non*. Thank, refuse, give a reason, offer another day: *C'est gentil, mais je ne peux pas. Je dois travailler. Je suis libre dimanche.*
+
+      ## Changing plans
+      *J'ai un empêchement* ("something has come up") is the standard, slightly vague excuse. Then *On peut se voir vendredi ?*
+
+      ## On the phone
+      *Allô ?* only on the phone. *Est-ce que Julien est là ?*, *C'est de la part de qui ?* (who's calling?), *Il peut me rappeler ?*
+
+      ## Late
+      *Désolé(e), je suis en retard. J'arrive dans dix minutes.*
+    items:
+      - id: frt-05-invite
+        type: dialogue
+        title: "Fancy a drink?"
+        scene: "You would like to get to know your colleague Manon better. You catch her as she leaves the office."
+        you: A
+        lines:
+          - {who: A, l2: "Dis, tu es libre vendredi soir ?", l1: "Say, are you free on Friday evening? (informal)",
+             alt: ["Dis, t'es libre vendredi soir ?", "Dis, est-ce que tu es libre vendredi soir ?", "Dis-moi, tu es libre vendredi soir ?", "Dis, tu es dispo vendredi soir ?", "Dis, tu es disponible vendredi soir ?", "Tu es libre vendredi soir ?", "Dis, t'es dispo vendredi soir ?"]}
+          - {who: B, l2: "Vendredi ? Oui, je crois. Pourquoi ?", l1: "Friday? Yes, I think so. Why?"}
+          - {who: A, l2: "Ça te dit d'aller boire un verre ?", l1: "Do you fancy going for a drink? (informal)",
+             alt: ["Ça te dirait d'aller boire un verre ?", "Ça te dit d'aller prendre un verre ?", "Ça te dirait d'aller prendre un verre ?", "Ça te dit de boire un verre ?", "Ça te dit de prendre un verre ?", "Ça te dirait de boire un verre ?", "Ça te dirait de prendre un verre ?", "Tu veux aller boire un verre ?", "Tu veux aller prendre un verre ?", "Tu veux boire un verre ?", "Tu as envie d'aller boire un verre ?", "Ça te tente d'aller boire un verre ?", "On va boire un verre ?"]}
+          - {who: B, l2: "Ah oui, bonne idée ! Tu penses à quel endroit ?", l1: "Oh yes, good idea! Which place are you thinking of?"}
+          - {who: A, l2: "Il y a un nouveau bar près du canal.", l1: "There's a new bar near the canal.",
+             alt: ["Il y a un nouveau bar à côté du canal.", "Y a un nouveau bar près du canal.", "Il y a un nouveau bar au bord du canal.", "Il y a un nouveau bar pas loin du canal."]}
+          - {who: B, l2: "Ah, je vois lequel ! On se retrouve à quelle heure ?", l1: "Oh, I know the one! What time shall we meet?"}
+          - {who: A, l2: "Vers sept heures, ça te va ?", l1: "Around seven, does that suit you? (informal)",
+             alt: ["Vers 7 heures, ça te va ?", "Vers 7h, ça te va ?", "Vers dix-neuf heures, ça te va ?", "Vers 19 heures, ça te va ?", "Vers 19h, ça te va ?", "Vers sept heures, ça te convient ?", "Vers sept heures, ça va pour toi ?", "Vers sept heures, c'est bon pour toi ?", "Vers sept heures, ça t'irait ?", "Vers sept heures, ça te va ou pas ?"]}
+          - {who: B, l2: "Parfait. À vendredi, alors !", l1: "Perfect. See you Friday, then!"}
+          - {who: A, l2: "Super, à vendredi !", l1: "Great, see you Friday!",
+             alt: ["Génial, à vendredi !", "Cool, à vendredi !", "Top, à vendredi !", "Parfait, à vendredi !", "Super ! À vendredi !", "Chouette, à vendredi !"]}
+
+      - id: frt-05-accept
+        type: dialogue
+        title: "Saying yes to dinner"
+        scene: "Your colleague Bastien and his wife are having friends over on Saturday. He stops by your desk to invite you."
+        you: B
+        lines:
+          - {who: A, l2: "Samedi, on fait un dîner à la maison avec quelques amis. Tu veux venir ?", l1: "On Saturday we're having a dinner at home with a few friends. Do you want to come?"}
+          - {who: B, l2: "Avec plaisir ! C'est gentil de m'inviter.", l1: "With pleasure! It's kind of you to invite me.",
+             alt: ["Avec plaisir ! C'est sympa de m'inviter.", "Avec plaisir ! C'est très gentil de m'inviter.", "Avec plaisir ! C'est gentil à toi de m'inviter.", "Avec grand plaisir ! C'est gentil de m'inviter.", "Volontiers ! C'est gentil de m'inviter.", "Oui, avec plaisir ! C'est gentil de m'inviter.", "Avec plaisir ! C'est gentil de ta part de m'inviter."]}
+          - {who: A, l2: "Super ! On commence vers vingt heures.", l1: "Great! We're starting around eight."}
+          - {who: B, l2: "Très bien. Je peux apporter quelque chose ?", l1: "Very good. Can I bring something?",
+             alt: ["Très bien. Est-ce que je peux apporter quelque chose ?", "Très bien. J'apporte quelque chose ?", "Très bien. Je peux amener quelque chose ?", "Très bien. Je dois apporter quelque chose ?", "Très bien. Tu veux que j'apporte quelque chose ?", "Parfait. Je peux apporter quelque chose ?", "D'accord. Je peux apporter quelque chose ?", "Très bien. Je peux ramener quelque chose ?"]}
+          - {who: A, l2: "Si tu veux, un dessert ou une bouteille, mais ce n'est pas obligé.", l1: "If you like, a dessert or a bottle, but you don't have to."}
+          - {who: B, l2: "D'accord, j'apporte un dessert.", l1: "OK, I'll bring a dessert.",
+             alt: ["D'accord, je vais apporter un dessert.", "D'accord, j'apporterai un dessert.", "OK, j'apporte un dessert.", "D'accord, j'amène un dessert.", "D'accord, je m'occupe du dessert.", "D'accord, je prends un dessert.", "D'accord, je ramène un dessert."]}
+          - {who: A, l2: "Génial. Tu as notre adresse ?", l1: "Brilliant. Do you have our address?"}
+          - {who: B, l2: "Non. Tu peux me l'envoyer par message ?", l1: "No. Can you send it to me by message? (informal)",
+             alt: ["Non. Tu peux me l'envoyer par texto ?", "Non. Tu peux me l'envoyer par SMS ?", "Non. Tu peux me l'envoyer ?", "Non. Tu me l'envoies par message ?", "Non. Tu pourrais me l'envoyer par message ?", "Non. Est-ce que tu peux me l'envoyer par message ?", "Non. Tu peux me l'écrire par message ?"]}
+          - {who: A, l2: "Bien sûr, je te l'envoie tout de suite. À samedi !", l1: "Of course, I'll send it to you right away. See you Saturday!"}
+
+      - id: frt-05-decline
+        type: dialogue
+        title: "Sorry, I can't"
+        scene: "Your friend Chloé calls to invite you to the cinema tomorrow evening, but you have to work."
+        you: B
+        lines:
+          - {who: A, l2: "Salut ! On va au cinéma demain soir avec Léa. Tu viens avec nous ?", l1: "Hi! We're going to the cinema tomorrow evening with Léa. Are you coming with us?"}
+          - {who: B, l2: "C'est gentil, mais je ne peux pas.", l1: "That's kind, but I can't.",
+             alt: ["C'est gentil, mais je peux pas.", "C'est sympa, mais je ne peux pas.", "C'est sympa, mais je peux pas.", "C'est très gentil, mais je ne peux pas.", "C'est gentil, mais je ne pourrai pas.", "C'est gentil, mais ce n'est pas possible.", "C'est gentil, mais je ne peux pas, désolé.", "C'est gentil, mais je ne peux pas, désolée."]}
+          - {who: A, l2: "Oh, dommage ! Tu as quelque chose de prévu ?", l1: "Oh, what a pity! Do you have something planned?"}
+          - {who: B, l2: "Oui, je dois travailler tard demain.", l1: "Yes, I have to work late tomorrow.",
+             alt: ["Oui, demain, je dois travailler tard.", "Oui, je dois bosser tard demain.", "Oui, je travaille tard demain.", "Oui, il faut que je travaille tard demain.", "Oui, je dois travailler tard demain soir."]}
+          - {who: A, l2: "Mince. Et ce week-end, tu es là ?", l1: "Shame. And this weekend, are you around?"}
+          - {who: B, l2: "Oui, je suis libre dimanche.", l1: "Yes, I'm free on Sunday.",
+             alt: ["Oui, dimanche, je suis libre.", "Oui, je suis dispo dimanche.", "Oui, je suis disponible dimanche.", "Oui, dimanche, je suis dispo."]}
+          - {who: A, l2: "Alors on fait quelque chose dimanche ! Un brunch, ça te dit ?", l1: "Then let's do something on Sunday! A brunch, do you fancy that?"}
+          - {who: B, l2: "Oui, ça me dit bien !", l1: "Yes, I fancy that!",
+             alt: ["Oui, ça me dit !", "Oui, ça me tente !", "Oui, ça me tente bien !", "Oui, carrément !", "Oui, avec plaisir !", "Oui, volontiers !", "Oui, bonne idée !", "Oui, ça me va !", "Ça me dit bien !", "Oui, ça me dirait bien !"]}
+          - {who: A, l2: "Parfait, je t'envoie l'adresse. Bon courage pour demain !", l1: "Perfect, I'll send you the address. Good luck for tomorrow!"}
+          - {who: B, l2: "Merci ! Bon film à vous deux !", l1: "Thanks! Enjoy the film, you two!",
+             alt: ["Merci ! Bon film !", "Merci ! Bon film à vous !", "Merci ! Bon film à toutes les deux !", "Merci ! Bon ciné à vous deux !", "Merci ! Et bon film à vous deux !"]}
+
+      - id: frt-05-reschedule
+        type: dialogue
+        title: "Something has come up"
+        scene: "You were meant to have coffee with your friend Élodie on Thursday, but a work meeting has been scheduled. You call her."
+        you: A
+        lines:
+          - {who: A, l2: "Désolé, j'ai un empêchement pour jeudi.", l1: "Sorry, something has come up for Thursday (un empêchement).",
+             alt: ["Désolée, j'ai un empêchement pour jeudi.", "Désolé, j'ai un empêchement jeudi.", "Désolée, j'ai un empêchement jeudi.", "Je suis désolé, j'ai un empêchement pour jeudi.", "Je suis désolée, j'ai un empêchement pour jeudi.", "Désolé, j'ai un imprévu pour jeudi.", "Désolée, j'ai un imprévu pour jeudi.", "Désolé, j'ai un contretemps pour jeudi.", "Désolée, j'ai un contretemps pour jeudi.", "Pardon, j'ai un empêchement pour jeudi."]}
+          - {who: B, l2: "Ah mince ! Rien de grave, j'espère ?", l1: "Oh no! Nothing serious, I hope?"}
+          - {who: A, l2: "Non, non, juste une réunion au travail.", l1: "No, no, just a meeting at work.",
+             alt: ["Non, juste une réunion au travail.", "Non, non, juste une réunion au boulot.", "Non, non, c'est juste une réunion au travail.", "Non, non, seulement une réunion au travail.", "Non, non, juste une réunion de travail.", "Non, non, juste une réunion au bureau."]}
+          - {who: B, l2: "Ouf. Alors, on reporte ?", l1: "Phew. So, shall we postpone?"}
+          - {who: A, l2: "Oui. On peut se voir vendredi ?", l1: "Yes. Can we meet on Friday?",
+             alt: ["Oui. Est-ce qu'on peut se voir vendredi ?", "Oui. On pourrait se voir vendredi ?", "Oui. On se voit vendredi ?", "Oui. On peut se retrouver vendredi ?", "Oui. Nous pouvons nous voir vendredi ?", "Oui. On peut se voir vendredi à la place ?", "Oui. Tu peux vendredi ?"]}
+          - {who: B, l2: "Vendredi, je ne peux pas, j'ai mon cours de yoga. Samedi matin, plutôt ?", l1: "Friday I can't, I have my yoga class. Saturday morning instead?"}
+          - {who: A, l2: "Samedi matin, c'est parfait pour moi.", l1: "Saturday morning is perfect for me.",
+             alt: ["Samedi matin, c'est parfait.", "Samedi matin, parfait pour moi.", "Samedi matin, c'est très bien pour moi.", "Samedi matin, ça me va très bien.", "Samedi matin, ça me va parfaitement.", "Samedi matin, ça me convient parfaitement.", "Samedi matin, c'est parfait pour moi aussi.", "Samedi matin, c'est nickel pour moi."]}
+          - {who: B, l2: "Super. Même endroit, à dix heures ?", l1: "Great. Same place, at ten?"}
+          - {who: A, l2: "Ça marche. Encore désolé !", l1: "That works. Sorry again!",
+             alt: ["Ça marche. Encore désolée !", "Ça marche. Désolé encore !", "Ça marche. Désolée encore !", "Ça marche. Encore pardon !", "Ça roule. Encore désolé !", "Ça roule. Encore désolée !", "D'accord. Encore désolé !", "D'accord. Encore désolée !", "Ça me va. Encore désolé !", "Ça me va. Encore désolée !", "OK, ça marche. Encore désolé !", "OK, ça marche. Encore désolée !"]}
+
+      - id: frt-05-phone-table
+        type: dialogue
+        title: "Booking a table by phone"
+        scene: "You want to take three friends to a restaurant on Saturday evening. You phone to book."
+        you: A
+        lines:
+          - {who: B, l2: "Restaurant Chez Louise, bonjour !", l1: "Chez Louise restaurant, hello!"}
+          - {who: A, l2: "Bonjour. Je voudrais réserver une table.", l1: "Hello. I'd like to book a table.",
+             alt: ["Bonjour. Je voudrais réserver une table, s'il vous plaît.", "Bonjour. J'aimerais réserver une table.", "Bonjour. Je souhaite réserver une table.", "Bonjour. Je souhaiterais réserver une table.", "Bonjour. C'est pour réserver une table.", "Bonjour. J'appelle pour réserver une table.", "Bonjour. Est-ce que je peux réserver une table ?", "Bonjour. J'aimerais réserver une table, s'il vous plaît."]}
+          - {who: B, l2: "Bien sûr. Pour quel jour, et pour combien de personnes ?", l1: "Of course. For which day, and for how many people?"}
+          - {who: A, l2: "Pour samedi soir, pour quatre personnes.", l1: "For Saturday evening, for four people.",
+             alt: ["Samedi soir, pour quatre personnes.", "Pour samedi soir, quatre personnes.", "Pour samedi soir, pour 4 personnes.", "Samedi soir, pour 4 personnes.", "Pour samedi soir, 4 personnes.", "Pour quatre personnes, samedi soir.", "Pour samedi soir, et pour quatre personnes.", "Pour samedi soir, on sera quatre.", "Pour samedi soir, nous serons quatre."]}
+          - {who: B, l2: "Samedi… à vingt heures, c'est complet. J'ai une table à vingt et une heures trente, si vous voulez.", l1: "Saturday… at eight we're full. I have a table at nine thirty, if you like."}
+          - {who: A, l2: "Vous n'avez rien plus tôt ?", l1: "Don't you have anything earlier? (formal)",
+             alt: ["Vous n'avez rien avant ?", "Vous n'avez rien de plus tôt ?", "Vous avez quelque chose plus tôt ?", "Vous n'avez pas quelque chose plus tôt ?", "Est-ce que vous avez quelque chose plus tôt ?", "Vous auriez quelque chose plus tôt ?", "Il n'y a rien plus tôt ?", "Vous n'auriez rien plus tôt ?", "Vous n'avez rien d'autre plus tôt ?", "Vous avez rien plus tôt ?"]}
+          - {who: B, l2: "Alors, dix-neuf heures quinze, c'est possible.", l1: "Well, seven fifteen is possible."}
+          - {who: A, l2: "C'est parfait. C'est au nom de Reid.", l1: "That's perfect. It's in the name of Reid.",
+             alt: ["Parfait. C'est au nom de Reid.", "C'est parfait. Au nom de Reid.", "Parfait. Au nom de Reid.", "Très bien. C'est au nom de Reid.", "C'est parfait. La réservation est au nom de Reid.", "C'est parfait. Au nom de Reid, s'il vous plaît."]}
+          - {who: B, l2: "C'est noté : samedi, dix-neuf heures quinze, quatre personnes, au nom de Reid. À samedi !", l1: "Noted: Saturday, seven fifteen, four people, in the name of Reid. See you Saturday!"}
+          - {who: A, l2: "Merci beaucoup. À samedi, au revoir !", l1: "Thank you very much. See you Saturday, goodbye!",
+             alt: ["Merci beaucoup. À samedi !", "Merci bien. À samedi, au revoir !", "Merci beaucoup, à samedi. Au revoir !", "Merci beaucoup. Au revoir, à samedi !"]}
+
+      - id: frt-05-phone-message
+        type: dialogue
+        title: "He's not in"
+        scene: "You call your friend Julien on his family's landline. His mother, whom you have never met, picks up."
+        you: A
+        lines:
+          - {who: B, l2: "Allô ?", l1: "Hello? (on the phone)"}
+          - {who: A, l2: "Allô, bonjour. Est-ce que Julien est là ?", l1: "Hello (on the phone), good morning. Is Julien there?",
+             alt: ["Allô, bonjour. Julien est là ?", "Allô, bonjour. Est-ce que Julien est là, s'il vous plaît ?", "Allô, bonjour. Julien est là, s'il vous plaît ?", "Allô, bonjour. Je peux parler à Julien ?", "Allô, bonjour. Est-ce que je peux parler à Julien ?", "Allô, bonjour. Je pourrais parler à Julien ?", "Allô, bonjour. Je voudrais parler à Julien.", "Bonjour. Est-ce que Julien est là ?"]}
+          - {who: B, l2: "Ah non, il vient de sortir. C'est de la part de qui ?", l1: "Oh no, he's just gone out. Who's calling?"}
+          - {who: A, l2: "C'est Alex, un ami de Julien.", l1: "It's Alex, a friend of Julien's.",
+             alt: ["C'est Alex, une amie de Julien.", "C'est Alex, un copain de Julien.", "C'est Alex, une copine de Julien.", "De la part d'Alex, un ami de Julien.", "De la part d'Alex, une amie de Julien.", "Je suis Alex, un ami de Julien.", "Je suis Alex, une amie de Julien.", "C'est de la part d'Alex, un ami de Julien.", "C'est de la part d'Alex, une amie de Julien."]}
+          - {who: B, l2: "Ah, bonjour Alex ! Je suis sa mère. Vous voulez laisser un message ?", l1: "Oh, hello Alex! I'm his mother. Would you like to leave a message?"}
+          - {who: A, l2: "Oui. Il peut me rappeler ce soir ?", l1: "Yes. Can he call me back this evening?",
+             alt: ["Oui. Est-ce qu'il peut me rappeler ce soir ?", "Oui. Il pourrait me rappeler ce soir ?", "Oui. Est-ce qu'il pourrait me rappeler ce soir ?", "Oui. Peut-il me rappeler ce soir ?", "Oui. Il peut me rappeler ce soir, s'il vous plaît ?", "Oui, s'il vous plaît. Il peut me rappeler ce soir ?", "Oui. Pourrait-il me rappeler ce soir ?"]}
+          - {who: B, l2: "Bien sûr. Il a votre numéro ?", l1: "Of course. Does he have your number?"}
+          - {who: A, l2: "Oui, il a mon numéro.", l1: "Yes, he has my number.",
+             alt: ["Oui, il l'a.", "Oui, il a déjà mon numéro.", "Oui, il a mon numéro de téléphone.", "Oui, il a bien mon numéro."]}
+          - {who: B, l2: "Très bien, je lui dis de vous rappeler dès qu'il rentre.", l1: "Very good, I'll tell him to call you back as soon as he gets in."}
+          - {who: A, l2: "Merci, madame. Bonne soirée !", l1: "Thank you, ma'am. Have a good evening!",
+             alt: ["Merci beaucoup, madame. Bonne soirée !", "Merci, madame. Bonne soirée à vous !", "Merci bien, madame. Bonne soirée !", "Merci, madame. Bonne soirée, au revoir !"]}
+
+      - id: frt-05-late
+        type: dialogue
+        title: "Running late"
+        scene: "You are meeting your friend Hugo for dinner, but you missed your bus. Your phone rings while you wait for the next one."
+        you: B
+        lines:
+          - {who: A, l2: "Allô ? T'es où ? Je suis déjà devant le restaurant.", l1: "Hello? Where are you? I'm already outside the restaurant."}
+          - {who: B, l2: "Désolé, je suis en retard !", l1: "Sorry, I'm late!",
+             alt: ["Désolée, je suis en retard !", "Je suis désolé, je suis en retard !", "Je suis désolée, je suis en retard !", "Pardon, je suis en retard !", "Excuse-moi, je suis en retard !", "Désolé, je suis à la bourre !", "Désolée, je suis à la bourre !"]}
+          - {who: A, l2: "Ah. Qu'est-ce qui se passe ?", l1: "Ah. What's going on?"}
+          - {who: B, l2: "J'ai raté mon bus.", l1: "I missed my bus.",
+             alt: ["J'ai loupé mon bus.", "J'ai manqué mon bus.", "J'ai raté le bus.", "J'ai loupé le bus.", "J'ai manqué le bus."]}
+          - {who: A, l2: "Mince ! Tu arrives dans combien de temps ?", l1: "Oh no! How long until you get here?"}
+          - {who: B, l2: "J'arrive dans dix minutes, promis.", l1: "I'll be there in ten minutes, I promise.",
+             alt: ["J'arrive dans 10 minutes, promis.", "Je suis là dans dix minutes, promis.", "Je serai là dans dix minutes, promis.", "Dans dix minutes, promis.", "J'arrive dans dix minutes, c'est promis.", "J'arrive dans dix minutes, je te promets.", "J'arrive dans dix minutes, je te le promets.", "J'arrive d'ici dix minutes, promis."]}
+          - {who: A, l2: "Bon, ça va. Je prends une table et je t'attends à l'intérieur ?", l1: "OK, that's fine. Shall I get a table and wait for you inside?"}
+          - {who: B, l2: "Oui, vas-y. Je fais vite !", l1: "Yes, go ahead. I'll be quick!",
+             alt: ["Oui, vas-y. Je me dépêche !", "Oui, vas-y. Je fais au plus vite !", "Vas-y. Je fais vite !", "Oui, vas-y. J'arrive vite !", "Oui, vas-y. Je fais le plus vite possible !", "Oui, vas-y. Je me grouille !"]}
+          - {who: A, l2: "Pas de panique, prends ton temps. À tout de suite !", l1: "Don't panic, take your time. See you in a minute!"}
+          - {who: B, l2: "Merci, à tout de suite !", l1: "Thanks, see you in a minute!",
+             alt: ["Merci ! À tout de suite !", "Merci, à toute !", "Merci, à tout à l'heure !", "Merci, j'arrive, à tout de suite !"]}
+
+  # ───────────────────────────────────────────────────────────────── 6
+  - id: frt-06
+    title: "Telling what happened"
+    goal: "I can tell someone about my weekend, a trip, a mishap or a childhood memory, and react naturally to good and bad news."
+    notes: |
+      Telling a story is a duet in French. The listener keeps prompting — *Ah bon ?*, *Raconte !*, *Et alors ?* — and the teller feeds short pieces. Practise both roles.
+
+      ## Telling
+      - **Announce it**: *Tu ne vas pas me croire…*, *Il m'est arrivé un truc bête.*
+      - **What happened**: passé composé — *J'ai perdu mon téléphone. Je suis allé(e) à la mer.*
+      - **What it was like / used to be**: imparfait — *C'était génial. L'eau était froide. On jouait toujours dehors.*
+      - **Evaluate**: a story without a verdict feels unfinished — *C'était sympa*, *heureusement*, *trop tard !*
+      - **Si** contradicts a negative question: *Il n'y avait pas trop de monde ? — Si !*
+
+      ## Reacting
+      - Good news: *C'est pas vrai ! Félicitations ! Je suis content(e) pour toi.*
+      - Bad news: *Oh non ! Je suis désolé(e) pour toi. Ça arrive à tout le monde. Ça va aller.*
+      - Then **ask a follow-up**: *Tu commences quand ?*, *Et toi, tu as fait quoi ?*
+
+    items:
+      - id: frt-06-weekend
+        type: dialogue
+        title: "How was your weekend?"
+        scene: "Monday morning at the office. Your colleague Marion comes over with her coffee."
+        you: B
+        lines:
+          - {who: A, l2: "Salut ! Alors, ce week-end, c'était bien ?", l1: "Hi! So, was the weekend good?"}
+          - {who: B, l2: "Oui, super ! Je suis allé à la mer.", l1: "Yes, great! I went to the seaside.",
+             alt: ["Oui, super ! Je suis allée à la mer.", "Oui, génial ! Je suis allé à la mer.", "Oui, génial ! Je suis allée à la mer.", "Oui, c'était super ! Je suis allé à la mer.", "Oui, c'était super ! Je suis allée à la mer.", "Oui, super ! Je suis allé au bord de la mer.", "Oui, super ! Je suis allée au bord de la mer.", "Oui, top ! Je suis allé à la mer.", "Oui, top ! Je suis allée à la mer."]}
+          - {who: A, l2: "La chance ! Il faisait beau ?", l1: "Lucky you! Was the weather nice?"}
+          - {who: B, l2: "Samedi, oui, mais dimanche il a plu.", l1: "On Saturday, yes, but on Sunday it rained.",
+             alt: ["Samedi, oui, mais il a plu dimanche.", "Oui, samedi, mais dimanche il a plu.", "Samedi, oui, mais dimanche, il pleuvait.", "Le samedi, oui, mais le dimanche il a plu.", "Samedi, oui, mais dimanche il a plu toute la journée."]}
+          - {who: A, l2: "Ah, dommage. Et tu as pu te baigner quand même ?", l1: "Oh, pity. And did you manage to swim anyway?"}
+          - {who: B, l2: "Oui, mais l'eau était vraiment froide !", l1: "Yes, but the water was really cold!",
+             alt: ["Oui, mais l'eau était très froide !", "Oui, mais l'eau était super froide !", "Oui, mais elle était vraiment froide !", "Oui, mais l'eau était vraiment glacée !", "Oui, mais l'eau était hyper froide !", "Oui, mais l'eau était trop froide !"]}
+          - {who: A, l2: "Ha ha, j'imagine !", l1: "Ha ha, I can imagine!"}
+          - {who: B, l2: "Et toi, tu as fait quoi ?", l1: "And you, what did you do? (informal)",
+             alt: ["Et toi, qu'est-ce que tu as fait ?", "Et toi, t'as fait quoi ?", "Et toi, qu'est-ce que t'as fait ?", "Et toi, qu'as-tu fait ?", "Et toi, tu as fait quoi ce week-end ?", "Et toi, tu as fait quoi de beau ?"]}
+          - {who: A, l2: "Pas grand-chose. Je suis restée à la maison et j'ai regardé des films.", l1: "Not much. I stayed at home and watched films."}
+          - {who: B, l2: "Ça fait du bien aussi, parfois.", l1: "That does you good too, sometimes.",
+             alt: ["Ça fait du bien aussi, des fois.", "Ça fait du bien aussi, quelquefois.", "Ça fait du bien aussi, de temps en temps.", "Parfois, ça fait du bien aussi.", "Ça fait aussi du bien, parfois.", "Ça fait du bien, aussi, parfois."]}
+
+      - id: frt-06-trip
+        type: dialogue
+        title: "Back from Portugal"
+        scene: "You have just come back from a holiday in Portugal with your partner. Your friend Antoine wants to hear everything."
+        you: A
+        lines:
+          - {who: B, l2: "Tiens, te revoilà ! Alors, ces vacances au Portugal, raconte !", l1: "Well, here you are again! So, this holiday in Portugal, tell me!"}
+          - {who: A, l2: "C'était génial. On a visité Lisbonne et Porto.", l1: "It was great. We visited Lisbon and Porto.",
+             alt: ["C'était super. On a visité Lisbonne et Porto.", "C'était génial. Nous avons visité Lisbonne et Porto.", "C'était super. Nous avons visité Lisbonne et Porto.", "C'était formidable. On a visité Lisbonne et Porto.", "C'était top. On a visité Lisbonne et Porto.", "C'était trop bien. On a visité Lisbonne et Porto.", "C'était génial ! On a visité Lisbonne et Porto."]}
+          - {who: B, l2: "Oh, j'adore Lisbonne ! Vous êtes restés combien de temps ?", l1: "Oh, I love Lisbon! How long did you stay?"}
+          - {who: A, l2: "Dix jours en tout.", l1: "Ten days in all.",
+             alt: ["10 jours en tout.", "Dix jours au total.", "En tout, dix jours.", "On est restés dix jours en tout.", "Dix jours.", "On est restés dix jours."]}
+          - {who: B, l2: "Et qu'est-ce que tu as préféré ?", l1: "And what did you like best?"}
+          - {who: A, l2: "La nourriture ! On a très bien mangé.", l1: "The food! We ate really well.",
+             alt: ["La nourriture ! Nous avons très bien mangé.", "La nourriture ! On a vraiment bien mangé.", "La nourriture ! On a super bien mangé.", "La cuisine ! On a très bien mangé.", "La bouffe ! On a très bien mangé.", "La nourriture ! On a trop bien mangé."]}
+          - {who: B, l2: "Ça me donne envie ! Il n'y avait pas trop de monde ?", l1: "That makes me want to go! Weren't there too many people?"}
+          - {who: A, l2: "Si, surtout à Lisbonne, mais c'était sympa.", l1: "Yes there were, especially in Lisbon, but it was nice.",
+             alt: ["Si, surtout à Lisbonne, mais c'était bien.", "Si, surtout à Lisbonne, mais c'était sympa quand même.", "Si, surtout à Lisbonne, mais c'était agréable.", "Si, surtout à Lisbonne, mais c'était chouette.", "Si, surtout à Lisbonne, mais c'était quand même sympa.", "Si, surtout à Lisbonne, mais c'était sympathique."]}
+          - {who: B, l2: "Il faut absolument que tu me montres les photos !", l1: "You absolutely have to show me the photos!"}
+          - {who: A, l2: "Bien sûr ! Je te les montre ce soir.", l1: "Of course! I'll show you them this evening.",
+             alt: ["Bien sûr ! Je te les montrerai ce soir.", "Bien sûr ! Je vais te les montrer ce soir.", "Évidemment ! Je te les montre ce soir.", "Bien sûr ! Je te montre ça ce soir.", "Bien sûr ! Ce soir, je te les montre.", "Avec plaisir ! Je te les montre ce soir."]}
+
+      - id: frt-06-mishap
+        type: dialogue
+        title: "I lost my phone"
+        scene: "You arrive at your French friend Sarah's flat looking upset: last night you lost your phone."
+        you: A
+        lines:
+          - {who: A, l2: "Tu ne vas pas me croire…", l1: "You're not going to believe me… (informal)",
+             alt: ["Tu vas pas me croire…", "Tu ne vas jamais me croire…", "Tu vas jamais me croire…", "Tu ne me croiras pas…", "Tu ne vas pas le croire…", "Tu ne vas pas y croire…"]}
+          - {who: B, l2: "Quoi ? Qu'est-ce qui t'est arrivé ?", l1: "What? What happened to you?"}
+          - {who: A, l2: "J'ai perdu mon téléphone hier soir.", l1: "I lost my phone yesterday evening.",
+             alt: ["Hier soir, j'ai perdu mon téléphone.", "J'ai perdu mon portable hier soir.", "Hier soir, j'ai perdu mon portable.", "J'ai paumé mon téléphone hier soir.", "J'ai perdu mon téléphone portable hier soir."]}
+          - {who: B, l2: "Oh non ! Où ça ?", l1: "Oh no! Where?"}
+          - {who: A, l2: "Dans le métro, je crois.", l1: "In the metro, I think.",
+             alt: ["Dans le métro, je pense.", "Dans le métro, il me semble.", "Je crois que c'était dans le métro.", "Je pense que c'était dans le métro.", "Je crois que c'est dans le métro.", "Dans le métro, j'imagine."]}
+          - {who: B, l2: "Et tu as appelé les objets trouvés ?", l1: "And have you called lost property?"}
+          - {who: A, l2: "Pas encore. Je vais les appeler cet après-midi.", l1: "Not yet. I'm going to call them this afternoon.",
+             alt: ["Pas encore. Je les appelle cet après-midi.", "Pas encore. Je les appellerai cet après-midi.", "Pas encore. Je vais appeler cet après-midi.", "Pas encore. Cet après-midi, je vais les appeler.", "Non, pas encore. Je vais les appeler cet après-midi.", "Pas encore. Je vais les appeler cet aprèm."]}
+          - {who: B, l2: "Bonne idée. En attendant, tu veux utiliser mon ancien portable ?", l1: "Good idea. In the meantime, do you want to use my old mobile?"}
+          - {who: A, l2: "Oh oui, merci, tu me sauves la vie !", l1: "Oh yes, thank you, you're a lifesaver!",
+             alt: ["Oh oui, merci, tu me sauves !", "Ah oui, merci, tu me sauves la vie !", "Oh oui, merci ! Tu me sauves la vie !", "Oh oui, merci beaucoup, tu me sauves la vie !", "Oh oui, merci, tu me sauves la mise !"]}
+
+      - id: frt-06-childhood
+        type: dialogue
+        title: "Where did you grow up?"
+        scene: "Over dinner your friend Margaux, a born Parisian, asks about your childhood."
+        you: B
+        lines:
+          - {who: A, l2: "Tu as grandi où, toi ? En ville ?", l1: "Where did you grow up? In a city?"}
+          - {who: B, l2: "Non, j'ai grandi à la campagne.", l1: "No, I grew up in the countryside.",
+             alt: ["Non, moi, j'ai grandi à la campagne.", "Non, à la campagne.", "Non, j'ai grandi en pleine campagne.", "Non, pas du tout, j'ai grandi à la campagne."]}
+          - {who: A, l2: "Ah bon ? C'était comment ?", l1: "Really? What was it like?"}
+          - {who: B, l2: "C'était calme. On jouait toujours dehors.", l1: "It was quiet. We always played outside.",
+             alt: ["C'était calme. On jouait tout le temps dehors.", "C'était tranquille. On jouait toujours dehors.", "C'était calme. Nous jouions toujours dehors.", "C'était calme. On jouait toujours à l'extérieur.", "C'était calme. On jouait dehors tout le temps.", "C'était tranquille. On jouait tout le temps dehors."]}
+          - {who: A, l2: "Ça devait être bien ! Moi, j'habitais dans un petit appartement à Paris. Vous aviez des animaux ?", l1: "That must have been nice! I lived in a small flat in Paris. Did you have any animals?"}
+          - {who: B, l2: "Oui, on avait un chien et deux chats.", l1: "Yes, we had a dog and two cats.",
+             alt: ["Oui, nous avions un chien et deux chats.", "Oui, on avait un chien et 2 chats.", "Oui, un chien et deux chats.", "Oui, j'avais un chien et deux chats.", "Oui, on avait deux chats et un chien."]}
+          - {who: A, l2: "Trop mignon ! Et ça te manque, la campagne ?", l1: "So cute! And do you miss the countryside?"}
+          - {who: B, l2: "Parfois, oui. Surtout le silence.", l1: "Sometimes, yes. Especially the silence.",
+             alt: ["Oui, parfois. Surtout le silence.", "Des fois, oui. Surtout le silence.", "Quelquefois, oui. Surtout le silence.", "De temps en temps, oui. Surtout le silence.", "Parfois, oui. Surtout le calme.", "Parfois, oui, surtout le silence."]}
+          - {who: A, l2: "Je comprends. Ici, avec les voisins, ce n'est pas vraiment ça !", l1: "I understand. Here, with the neighbours, it's not exactly that!"}
+
+      - id: frt-06-good-news
+        type: dialogue
+        title: "Great news!"
+        scene: "Your friend Pauline bursts into the café where you are waiting for her, waving her phone."
+        you: A
+        lines:
+          - {who: B, l2: "Devine quoi ! J'ai eu le poste à Bordeaux !", l1: "Guess what! I got the job in Bordeaux!"}
+          - {who: A, l2: "C'est pas vrai ! Félicitations !", l1: "No way! Congratulations!",
+             alt: ["Ce n'est pas vrai ! Félicitations !", "C'est pas vrai ! Bravo !", "Ce n'est pas vrai ! Bravo !", "C'est pas possible ! Félicitations !", "Pas possible ! Félicitations !", "Non ! Félicitations !", "Sérieux ? Félicitations !", "Non, c'est vrai ? Félicitations !", "C'est pas vrai ! Toutes mes félicitations !"]}
+          - {who: B, l2: "Merci ! Je n'y croyais plus, franchement.", l1: "Thanks! I'd stopped believing in it, frankly."}
+          - {who: A, l2: "Je suis vraiment content pour toi.", l1: "I'm really happy for you. (informal)",
+             alt: ["Je suis vraiment contente pour toi.", "Je suis très content pour toi.", "Je suis très contente pour toi.", "Je suis trop content pour toi.", "Je suis trop contente pour toi.", "Je suis super content pour toi.", "Je suis super contente pour toi.", "Je suis vraiment heureux pour toi.", "Je suis vraiment heureuse pour toi.", "Je suis tellement content pour toi.", "Je suis tellement contente pour toi."]}
+          - {who: B, l2: "C'est gentil. Mais du coup, je vais devoir déménager…", l1: "That's kind. But that means I'm going to have to move…"}
+          - {who: A, l2: "Tu commences quand ?", l1: "When do you start? (informal)",
+             alt: ["Quand est-ce que tu commences ?", "Tu commences à quelle date ?", "Quand commences-tu ?", "Tu commences quand, alors ?", "C'est quand que tu commences ?", "Et tu commences quand ?"]}
+          - {who: B, l2: "Le premier septembre. Ça me laisse deux mois pour trouver un appartement.", l1: "The first of September. That leaves me two months to find a flat."}
+          - {who: A, l2: "Ça va aller. Je peux t'aider, si tu veux.", l1: "It'll be fine. I can help you, if you want. (informal)",
+             alt: ["Ça ira. Je peux t'aider, si tu veux.", "Ça va bien se passer. Je peux t'aider, si tu veux.", "Ça va le faire. Je peux t'aider, si tu veux.", "T'inquiète, ça va aller. Je peux t'aider, si tu veux.", "Ça va aller. Je peux te donner un coup de main, si tu veux.", "Ça va aller. Si tu veux, je peux t'aider."]}
+          - {who: B, l2: "T'es un amour. Allez, on fête ça ce soir, c'est moi qui invite !", l1: "You're a sweetheart. Come on, let's celebrate tonight, my treat!"}
+          - {who: A, l2: "Alors là, je ne dis pas non !", l1: "Well, I won't say no to that!",
+             alt: ["Alors là, je dis pas non !", "Je ne dis pas non !", "Je dis pas non !", "Là, je ne dis pas non !", "Alors ça, je ne dis pas non !", "Ah, je ne dis pas non !", "Alors là, je ne vais pas dire non !"]}
+
+      - id: frt-06-bad-news
+        type: dialogue
+        title: "Cheering a friend up"
+        scene: "Your flatmate Hugo comes home, drops his bag and sinks onto the sofa without a word."
+        you: A
+        lines:
+          - {who: A, l2: "Ça n'a pas l'air d'aller. Qu'est-ce qu'il y a ?", l1: "You don't seem OK. What's the matter?",
+             alt: ["Ça a pas l'air d'aller. Qu'est-ce qu'il y a ?", "Ça n'a pas l'air d'aller. Qu'est-ce qui se passe ?", "Ça a pas l'air d'aller. Qu'est-ce qui se passe ?", "Ça n'a pas l'air d'aller. Qu'est-ce qui ne va pas ?", "Ça n'a pas l'air d'aller. Qu'est-ce qui t'arrive ?", "Ça n'a pas l'air d'aller. Qu'est-ce que tu as ?", "Tu n'as pas l'air bien. Qu'est-ce qu'il y a ?", "Tu n'as pas l'air d'aller bien. Qu'est-ce qu'il y a ?", "Ça n'a pas l'air d'aller. Il y a quoi ?", "Ça n'a pas l'air d'aller. Qu'est-ce qui va pas ?"]}
+          - {who: B, l2: "Bof… J'ai encore raté mon permis de conduire ce matin.", l1: "Meh… I failed my driving test again this morning."}
+          - {who: A, l2: "Oh non, je suis désolé pour toi.", l1: "Oh no, I'm sorry for you. (informal)",
+             alt: ["Oh non, je suis désolée pour toi.", "Oh non, désolé pour toi.", "Oh non, désolée pour toi.", "Oh non, je suis vraiment désolé pour toi.", "Oh non, je suis vraiment désolée pour toi.", "Oh non, je suis navré pour toi.", "Oh non, je suis navrée pour toi.", "Oh non, je suis désolé.", "Oh non, je suis désolée."]}
+          - {who: B, l2: "C'est la troisième fois. J'en ai marre, je crois que je vais arrêter.", l1: "It's the third time. I'm fed up, I think I'm going to give up."}
+          - {who: A, l2: "Mais non, ne dis pas ça !", l1: "Oh no, don't say that! (informal)",
+             alt: ["Mais non, dis pas ça !", "Non, ne dis pas ça !", "Ne dis pas ça !", "Mais non, il ne faut pas dire ça !", "Mais non, faut pas dire ça !", "Mais non, arrête, ne dis pas ça !"]}
+          - {who: B, l2: "J'étais trop stressé, j'ai fait n'importe quoi au premier carrefour.", l1: "I was too stressed, I made a mess of it at the first junction."}
+          - {who: A, l2: "Ça arrive à tout le monde.", l1: "It happens to everyone.",
+             alt: ["Ça peut arriver à tout le monde.", "Ça arrive à tout le monde, tu sais.", "Tu sais, ça arrive à tout le monde.", "Ça arrive à tout le monde, ça."]}
+          - {who: B, l2: "Tu crois ?", l1: "You think so?"}
+          - {who: A, l2: "Oui ! La prochaine fois, ça va marcher.", l1: "Yes! Next time, it'll work out.",
+             alt: ["Oui ! La prochaine fois, ça marchera.", "Oui ! La prochaine fois sera la bonne.", "Oui ! La prochaine fois, c'est la bonne.", "Oui ! La prochaine fois, ça va le faire.", "Oui ! La prochaine fois, ça ira.", "Oui ! La prochaine fois, tu vas l'avoir.", "Oui ! La prochaine fois, tu l'auras.", "Oui ! Ça va marcher la prochaine fois.", "Oui ! La prochaine fois, ça va aller."]}
+          - {who: B, l2: "Merci, ça me fait du bien de t'entendre dire ça.", l1: "Thanks, it does me good to hear you say that."}
+
+      - id: frt-06-wrong-train
+        type: dialogue
+        title: "The wrong train"
+        scene: "You arrive at work two hours late. Your colleague Nora looks at your face and wants the story."
+        you: A
+        lines:
+          - {who: B, l2: "Tu fais une drôle de tête ! Qu'est-ce qui s'est passé ce matin ?", l1: "You've got a funny look on your face! What happened this morning?"}
+          - {who: A, l2: "Il m'est arrivé un truc bête.", l1: "A silly thing happened to me.",
+             alt: ["Il m'est arrivé un truc stupide.", "Il m'est arrivé un truc idiot.", "Il m'est arrivé un truc débile.", "Il m'est arrivé quelque chose de bête.", "Il m'est arrivé quelque chose de stupide.", "Il m'est arrivé un truc tout bête.", "Il m'est arrivé un truc vraiment bête."]}
+          - {who: B, l2: "Ah ? Raconte !", l1: "Oh? Tell me!"}
+          - {who: A, l2: "J'étais pressé et j'ai pris le mauvais train.", l1: "I was in a hurry and I took the wrong train.",
+             alt: ["J'étais pressée et j'ai pris le mauvais train.", "J'étais pressé et je me suis trompé de train.", "J'étais pressée et je me suis trompée de train.", "J'étais pressé, alors j'ai pris le mauvais train.", "J'étais pressée, alors j'ai pris le mauvais train.", "J'étais pressé et je n'ai pas pris le bon train.", "J'étais pressée et je n'ai pas pris le bon train.", "J'étais pressé et j'ai pris un mauvais train.", "J'étais pressée et j'ai pris un mauvais train."]}
+          - {who: B, l2: "Non ! Et tu t'en es rendu compte quand ?", l1: "No! And when did you realise?"}
+          - {who: A, l2: "Trop tard ! Le train était direct jusqu'à Lille.", l1: "Too late! The train was non-stop to Lille.",
+             alt: ["Trop tard ! Le train était direct pour Lille.", "Trop tard ! C'était un train direct jusqu'à Lille.", "Trop tard ! C'était un train direct pour Lille.", "Trop tard ! C'était un direct pour Lille.", "Trop tard ! Le train était sans arrêt jusqu'à Lille.", "Trop tard ! Le train allait directement à Lille.", "Trop tard ! C'était un direct jusqu'à Lille."]}
+          - {who: B, l2: "Jusqu'à Lille ? Mais c'est à une heure d'ici ! Et alors, qu'est-ce que tu as fait ?", l1: "To Lille? But that's an hour from here! So then what did you do?"}
+          - {who: A, l2: "J'ai dû prendre un autre train pour revenir.", l1: "I had to take another train to come back.",
+             alt: ["J'ai dû prendre un autre train pour rentrer.", "J'ai dû reprendre un train pour revenir.", "J'ai dû reprendre un train pour rentrer.", "Il a fallu que je prenne un autre train pour revenir.", "J'ai été obligé de prendre un autre train pour revenir.", "J'ai été obligée de prendre un autre train pour revenir.", "J'ai dû prendre un autre train pour le retour.", "J'ai dû prendre un autre train dans l'autre sens.", "Il a fallu prendre un autre train pour revenir."]}
+          - {who: B, l2: "Oh là là, quelle matinée ! Et le chef, il a dit quelque chose ?", l1: "Oh dear, what a morning! And the boss, did he say anything?"}
+          - {who: A, l2: "Non, heureusement, ça l'a fait rire.", l1: "No, luckily, it made him laugh.",
+             alt: ["Non, heureusement, il a ri.", "Non, heureusement, il a rigolé.", "Non, heureusement, ça l'a fait rigoler.", "Non, heureusement, il en a ri.", "Non, heureusement, il a trouvé ça drôle.", "Non, par chance, ça l'a fait rire.", "Non, heureusement, ça l'a amusé.", "Non, heureusement, ça l'a fait marrer."]}
+
+  # ───────────────────────────────────────────────────────────────── 7
+  - id: frt-07
+    title: "Opinions and feelings"
+    goal: "I can give my opinion and my reasons, agree or disagree politely, buy time while I think, compare two things, recommend a film and say how I feel."
+    notes: |
+      French conversation loves a friendly argument. Disagreeing is not rude, as long as you wrap it properly.
+
+      ## Giving an opinion
+      *À mon avis…*, *Je trouve que…*, *Pour moi…*, *Franchement…* / *Honnêtement…* Add a reason with *parce que*, a consequence with *c'est pour ça que*, and highlight with **Ce qui me plaît le plus, c'est…**
+
+      ## Agreeing — and not
+      - Yes: *Je suis d'accord avec toi*, *Tu as raison*, *C'est vrai*, *Ça ne m'étonne pas.*
+      - Soft no: **concede first, then turn**. *Oui, c'est vrai, mais…*, *Peut-être, mais…*, *Je ne suis pas tout à fait d'accord*, *Ça dépend.*
+      - Meeting halfway: *Là, on est d'accord !*
+
+      ## Buying time
+      Fill the silence: *Euh…*, *Laisse-moi réfléchir*, *Comment dire…*, *Je ne sais pas trop, en fait*, *D'un autre côté…*
+
+      ## Comparing and recommending
+      *plus… que*, *aussi… que*, *mieux*; *Je te le conseille vraiment*, *Ça vaut le coup*.
+
+      ## Feelings
+      *Je suis stressé(e)*, *J'ai peur de…*, *Ça m'empêche de dormir*, and the kind reply: *Ça fait du bien d'en parler.*
+    items:
+      - id: frt-07-agree
+        type: dialogue
+        title: "Too much screen time"
+        scene: "You are having dinner with your friend Mathilde. Half the people at the next table are staring at their phones."
+        you: B
+        lines:
+          - {who: A, l2: "Franchement, je trouve qu'on passe trop de temps sur nos téléphones.", l1: "Frankly, I think we spend too much time on our phones."}
+          - {who: B, l2: "Je suis d'accord avec toi.", l1: "I agree with you. (informal)",
+             alt: ["Je suis bien d'accord avec toi.", "Je suis tout à fait d'accord avec toi.", "Je suis complètement d'accord avec toi.", "Je suis entièrement d'accord avec toi.", "Je suis d'accord.", "Je suis totalement d'accord avec toi.", "Là, je suis d'accord avec toi."]}
+          - {who: A, l2: "Au restaurant, par exemple, tout le monde regarde son écran au lieu de se parler.", l1: "In restaurants, for example, everyone looks at their screen instead of talking to each other."}
+          - {who: B, l2: "C'est vrai, et c'est vraiment dommage.", l1: "That's true, and it's a real shame.",
+             alt: ["C'est vrai, et c'est bien dommage.", "C'est vrai, et c'est très dommage.", "C'est vrai, et c'est dommage.", "C'est vrai, c'est vraiment dommage.", "C'est vrai, et je trouve ça vraiment dommage.", "C'est vrai, et c'est vraiment triste."]}
+          - {who: A, l2: "Moi, j'ai décidé d'éteindre le mien après vingt et une heures.", l1: "I've decided to switch mine off after nine p.m."}
+          - {who: B, l2: "Tu as raison. Je devrais faire pareil.", l1: "You're right. I should do the same.",
+             alt: ["T'as raison. Je devrais faire pareil.", "Tu as raison. Je devrais faire la même chose.", "Tu as raison. Je devrais faire comme toi.", "Tu as bien raison. Je devrais faire pareil.", "Tu as raison. Je devrais en faire autant.", "Tu as raison. Il faudrait que je fasse pareil.", "Tu as raison. Moi aussi, je devrais faire pareil."]}
+          - {who: A, l2: "Tu verras, on dort beaucoup mieux. Au début, c'est dur, mais on s'habitue.", l1: "You'll see, you sleep much better. At first it's hard, but you get used to it."}
+          - {who: B, l2: "Ça ne m'étonne pas. Je vais essayer.", l1: "That doesn't surprise me. I'm going to try.",
+             alt: ["Ça m'étonne pas. Je vais essayer.", "Ça ne me surprend pas. Je vais essayer.", "Ça ne m'étonne pas. J'essaierai.", "Ça ne m'étonne pas. Je vais essayer aussi.", "Ça ne m'étonne pas. Je vais tenter.", "Ça ne m'étonne pas du tout. Je vais essayer."]}
+          - {who: A, l2: "On en reparle dans une semaine, alors !", l1: "We'll talk about it again in a week, then!"}
+          - {who: B, l2: "Ça marche, on verra bien !", l1: "Deal, we'll see!",
+             alt: ["Ça marche, on verra !", "Ça marche. On verra bien !", "D'accord, on verra bien !", "OK, on verra bien !", "Ça roule, on verra bien !", "Ça marche, nous verrons bien !"]}
+
+      - id: frt-07-disagree
+        type: dialogue
+        title: "Working from home"
+        scene: "At lunch your colleague Romain declares that offices are finished. You see it differently."
+        you: A
+        lines:
+          - {who: B, l2: "Pour moi, le télétravail, c'est l'idéal. On devrait tous travailler de chez nous.", l1: "For me, working from home is ideal. We should all work from home."}
+          - {who: A, l2: "Je ne suis pas tout à fait d'accord.", l1: "I don't entirely agree.",
+             alt: ["Je suis pas tout à fait d'accord.", "Je ne suis pas complètement d'accord.", "Je ne suis pas totalement d'accord.", "Je ne suis pas entièrement d'accord.", "Je ne suis pas vraiment d'accord.", "Je ne suis pas tout à fait d'accord avec toi.", "Je suis pas complètement d'accord.", "Je suis pas vraiment d'accord.", "Je ne suis pas tout à fait de ton avis."]}
+          - {who: B, l2: "Ah bon ? Pourtant, on gagne un temps fou sans les transports.", l1: "Really? Yet you save a huge amount of time without the commute."}
+          - {who: A, l2: "Oui, c'est vrai, mais on se sent seul.", l1: "Yes, that's true, but you feel lonely.",
+             alt: ["C'est vrai, mais on se sent seul.", "Oui, c'est vrai, mais on se sent isolé.", "Oui, c'est vrai, mais on est seul.", "C'est vrai, oui, mais on se sent seul.", "Oui, c'est vrai, mais on se sent tout seul.", "Oui, c'est vrai, mais on se sent seul chez soi."]}
+          - {who: B, l2: "Tu trouves ? Avec les réunions en visio, on se parle toute la journée.", l1: "You think so? With video meetings, we talk to each other all day."}
+          - {who: A, l2: "À mon avis, ce n'est pas pareil.", l1: "In my opinion, it's not the same.",
+             alt: ["À mon avis, c'est pas pareil.", "À mon avis, ce n'est pas la même chose.", "À mon avis, c'est pas la même chose.", "Pour moi, ce n'est pas pareil.", "Selon moi, ce n'est pas pareil.", "D'après moi, ce n'est pas pareil.", "Je trouve que ce n'est pas pareil.", "À mon avis, c'est différent.", "À mon sens, ce n'est pas pareil."]}
+          - {who: B, l2: "Peut-être. Mais tu ne peux pas nier qu'on est plus efficace à la maison.", l1: "Maybe. But you can't deny that we're more efficient at home."}
+          - {who: A, l2: "Ça dépend des gens, je pense.", l1: "It depends on the person, I think.",
+             alt: ["Ça dépend des personnes, je pense.", "Ça dépend des gens, je crois.", "Ça dépend des personnes, je crois.", "Je pense que ça dépend des gens.", "Je crois que ça dépend des gens.", "Ça dépend des gens, à mon avis.", "Ça dépend de chacun, je pense.", "Ça dépend des gens, je trouve."]}
+          - {who: B, l2: "Bon, d'accord, tu marques un point. Deux jours au bureau, trois à la maison ?", l1: "OK, fine, you have a point. Two days at the office, three at home?"}
+          - {who: A, l2: "Là, on est d'accord !", l1: "Now we agree!",
+             alt: ["Là, nous sommes d'accord !", "Là, je suis d'accord !", "Alors là, on est d'accord !", "Voilà, on est d'accord !", "Là-dessus, on est d'accord !", "Là, on est d'accord tous les deux !", "Là, je suis d'accord avec toi !"]}
+
+      - id: frt-07-reasons
+        type: dialogue
+        title: "Why France?"
+        scene: "At a dinner party the host's father, a courteous man in his seventies, is curious about why you moved to France."
+        you: B
+        lines:
+          - {who: A, l2: "Et pourquoi avez-vous décidé de venir vivre en France ?", l1: "And why did you decide to come and live in France?"}
+          - {who: B, l2: "Parce que j'ai toujours aimé la langue.", l1: "Because I've always loved the language.",
+             alt: ["Parce que j'ai toujours adoré la langue.", "Parce que j'ai toujours aimé cette langue.", "Parce que j'ai toujours aimé le français.", "Parce que j'ai toujours aimé la langue française.", "C'est parce que j'ai toujours aimé la langue.", "Parce que j'aime la langue depuis toujours."]}
+          - {who: A, l2: "C'est une bonne raison ! Mais ce n'est pas trop dur, loin de votre famille ?", l1: "That's a good reason! But isn't it too hard, far from your family?"}
+          - {who: B, l2: "Si, un peu. C'est pour ça que je rentre souvent.", l1: "Yes, a bit. That's why I go back often.",
+             alt: ["Si, un peu. C'est pour cela que je rentre souvent.", "Si, un peu. C'est pourquoi je rentre souvent.", "Si, un peu. Voilà pourquoi je rentre souvent.", "Si, un peu. Du coup, je rentre souvent.", "Si, un peu. Donc je rentre souvent.", "Si, un peu. C'est pour ça que j'y retourne souvent.", "Si, un peu. C'est pour ça que je retourne souvent chez moi.", "Si, un peu. C'est pour ça que je rentre souvent chez moi."]}
+          - {who: A, l2: "Je comprends. Et qu'est-ce qui vous plaît le plus ici ?", l1: "I understand. And what do you like most here?"}
+          - {who: B, l2: "Ce qui me plaît le plus, c'est la cuisine.", l1: "What I like most is the food (la cuisine).",
+             alt: ["Ce que j'aime le plus, c'est la cuisine.", "Ce que je préfère, c'est la cuisine.", "Ce qui me plaît le plus, c'est la nourriture.", "Ce que j'aime le plus, c'est la nourriture.", "Ce que je préfère, c'est la nourriture.", "Ce qui me plaît le plus, c'est la gastronomie.", "Ce que j'aime le plus, c'est la gastronomie.", "La cuisine, c'est ce qui me plaît le plus.", "La cuisine, c'est ce que je préfère.", "Ce qui me plaît le plus ici, c'est la cuisine."]}
+          - {who: A, l2: "Ah, ça, on ne peut pas vous donner tort ! Et vous comptez rester longtemps ?", l1: "Ah, nobody can say you're wrong there! And do you plan to stay long?"}
+          - {who: B, l2: "Je ne sais pas encore, ça dépend du travail.", l1: "I don't know yet, it depends on work.",
+             alt: ["Je sais pas encore, ça dépend du travail.", "Je ne sais pas encore, ça dépend du boulot.", "Je ne sais pas encore, ça dépendra du travail.", "Je ne sais pas encore. Ça dépend du travail.", "Je ne sais pas encore, ça dépend de mon travail.", "Je ne sais pas encore, cela dépend du travail.", "Je ne le sais pas encore, ça dépend du travail."]}
+          - {who: A, l2: "En tout cas, vous parlez très bien. On voit que vous avez beaucoup travaillé !", l1: "In any case, you speak very well. One can see you've worked hard!"}
+          - {who: B, l2: "Merci, mais j'ai encore beaucoup à apprendre.", l1: "Thank you, but I still have a lot to learn.",
+             alt: ["Merci, mais j'ai encore beaucoup de choses à apprendre.", "Merci, mais il me reste beaucoup à apprendre.", "Merci, mais j'ai encore plein de choses à apprendre.", "Merci, mais j'ai encore pas mal de choses à apprendre.", "Merci, mais il me reste encore beaucoup à apprendre.", "Merci beaucoup, mais j'ai encore beaucoup à apprendre.", "Merci, mais j'ai encore beaucoup à apprendre, vous savez."]}
+
+      - id: frt-07-hesitate
+        type: dialogue
+        title: "Mountains or sea?"
+        scene: "You and your partner Lucie must book the summer holiday tonight. She wants an answer; you need time to think."
+        you: A
+        lines:
+          - {who: B, l2: "Bon, pour cet été : la montagne ou la mer ? Il faut qu'on se décide !", l1: "Right, for this summer: the mountains or the sea? We have to decide!"}
+          - {who: A, l2: "Euh… laisse-moi réfléchir.", l1: "Um… let me think. (informal)",
+             alt: ["Euh… laisse-moi réfléchir une seconde.", "Euh… laisse-moi y réfléchir.", "Euh… laisse-moi le temps de réfléchir.", "Euh… attends, laisse-moi réfléchir.", "Euh… attends, je réfléchis.", "Hmm… laisse-moi réfléchir.", "Laisse-moi réfléchir.", "Euh… laisse-moi réfléchir un peu.", "Euh… laisse-moi réfléchir deux secondes."]}
+          - {who: B, l2: "Allez, dis-moi ce que tu en penses, sincèrement.", l1: "Come on, tell me what you think, honestly."}
+          - {who: A, l2: "Je ne sais pas trop, en fait.", l1: "I don't really know, actually.",
+             alt: ["Je sais pas trop, en fait.", "En fait, je ne sais pas trop.", "En fait, je sais pas trop.", "Je ne sais pas vraiment, en fait.", "Je ne sais pas trop, à vrai dire.", "À vrai dire, je ne sais pas trop.", "Je ne sais pas trop, en réalité.", "Je ne sais pas trop, honnêtement.", "En fait, je ne sais pas vraiment."]}
+          - {who: B, l2: "La mer, c'est reposant, non ? Tu disais que tu avais besoin de repos.", l1: "The sea is restful, isn't it? You were saying you needed rest."}
+          - {who: A, l2: "Oui, mais d'un autre côté, il fait trop chaud.", l1: "Yes, but on the other hand, it's too hot.",
+             alt: ["Oui, mais d'un autre côté, il fait trop chaud là-bas.", "Oui, mais d'un autre côté, il y fait trop chaud.", "Oui, mais en même temps, il fait trop chaud.", "Oui, mais par contre, il fait trop chaud.", "Oui, mais d'un autre côté, il fait trop chaud l'été.", "Oui, mais d'un autre côté il fait trop chaud."]}
+          - {who: B, l2: "Donc tu préfères la montagne ?", l1: "So you prefer the mountains?"}
+          - {who: A, l2: "Comment dire… j'hésite encore.", l1: "How shall I put it… I'm still hesitating.",
+             alt: ["Comment dire… j'hésite toujours.", "Comment dire ? J'hésite encore.", "Comment dirais-je… j'hésite encore.", "Comment dire… j'hésite encore un peu.", "Comment je peux dire… j'hésite encore.", "Comment dire… je suis encore en train d'hésiter."]}
+          - {who: B, l2: "Bon. Et si on faisait une semaine à la mer et une semaine à la montagne ?", l1: "OK. What if we did a week at the sea and a week in the mountains?"}
+          - {who: A, l2: "Ah, voilà, ça, c'est une bonne idée !", l1: "Ah, there you go, now that's a good idea!",
+             alt: ["Ah voilà, ça c'est une bonne idée !", "Ah, voilà une bonne idée !", "Ah, ça, c'est une bonne idée !", "Voilà, ça, c'est une bonne idée !", "Ah, voilà, c'est une bonne idée !", "Ah, voilà, ça, c'est une super idée !", "Ah, voilà, ça, c'est une très bonne idée !", "Ah, voilà, ça, c'est une excellente idée !"]}
+
+      - id: frt-07-compare
+        type: dialogue
+        title: "Lyon or Paris?"
+        scene: "You lived in Paris for a year before moving to Lyon. Your Parisian friend Yanis wants a verdict."
+        you: B
+        lines:
+          - {who: A, l2: "Alors, maintenant que tu as vécu dans les deux, tu préfères Lyon ou Paris ?", l1: "So, now that you've lived in both, do you prefer Lyon or Paris?"}
+          - {who: B, l2: "Je préfère Lyon. C'est plus tranquille.", l1: "I prefer Lyon. It's more relaxed (tranquille).",
+             alt: ["Je préfère Lyon. C'est plus calme.", "Moi, je préfère Lyon. C'est plus tranquille.", "Lyon. C'est plus tranquille.", "Je préfère Lyon, c'est plus tranquille.", "Je préfère Lyon. C'est plus paisible.", "Je préfère Lyon. C'est beaucoup plus tranquille.", "Je préfère Lyon. La ville est plus tranquille."]}
+          - {who: A, l2: "Vraiment ? Mais à Paris, il y a tellement plus de choses à faire !", l1: "Really? But in Paris there's so much more to do!"}
+          - {who: B, l2: "Peut-être, mais tout est plus cher.", l1: "Maybe, but everything is more expensive.",
+             alt: ["Peut-être, mais tout coûte plus cher.", "Peut-être, mais tout y est plus cher.", "Peut-être, mais tout est plus cher là-bas.", "C'est possible, mais tout est plus cher.", "Sans doute, mais tout est plus cher.", "Peut-être, mais tout est plus cher à Paris.", "Peut-être, mais c'est plus cher."]}
+          - {who: A, l2: "Ça, c'est sûr. Et les gens ? On dit que les Parisiens sont froids…", l1: "That's for sure. And the people? They say Parisians are cold…"}
+          - {who: B, l2: "Honnêtement, ils sont aussi sympas qu'à Lyon.", l1: "Honestly, they're as nice as in Lyon.",
+             alt: ["Honnêtement, ils sont aussi sympathiques qu'à Lyon.", "Franchement, ils sont aussi sympas qu'à Lyon.", "Franchement, ils sont aussi sympathiques qu'à Lyon.", "Honnêtement, ils sont aussi gentils qu'à Lyon.", "Franchement, ils sont aussi gentils qu'à Lyon.", "Sincèrement, ils sont aussi sympas qu'à Lyon.", "Honnêtement, les gens sont aussi sympas qu'à Lyon.", "Franchement, les gens sont aussi sympas qu'à Lyon.", "Honnêtement, ils sont aussi agréables qu'à Lyon."]}
+          - {who: A, l2: "Ah, tu vois ! Et pour la nourriture ?", l1: "Ah, you see! And what about the food?"}
+          - {who: B, l2: "Là, on mange mieux à Lyon, c'est sûr.", l1: "On that point, you eat better in Lyon, for sure.",
+             alt: ["Là, on mange mieux à Lyon, c'est clair.", "Là, on mange mieux à Lyon, c'est certain.", "Là, c'est sûr, on mange mieux à Lyon.", "Là, on mange mieux à Lyon, sans aucun doute.", "Là, on mange bien mieux à Lyon, c'est sûr.", "Là-dessus, on mange mieux à Lyon, c'est sûr.", "Sur ce point, on mange mieux à Lyon, c'est sûr.", "Là, on mange mieux à Lyon, c'est évident.", "Là, on mange mieux à Lyon, ça c'est sûr."]}
+          - {who: A, l2: "Ha ha, je savais que tu allais dire ça. Donc tu ne reviendras jamais à Paris ?", l1: "Ha ha, I knew you were going to say that. So you'll never come back to Paris?"}
+          - {who: B, l2: "Si, pour les vacances, avec plaisir !", l1: "Yes I will, for holidays, with pleasure!",
+             alt: ["Si, pour les vacances, volontiers !", "Si, en vacances, avec plaisir !", "Si, pour des vacances, avec plaisir !", "Si, avec plaisir, pour les vacances !", "Si, pour les vacances, avec grand plaisir !", "Si, pendant les vacances, avec plaisir !"]}
+
+      - id: frt-07-film
+        type: dialogue
+        title: "You have to see this film"
+        scene: "You saw a French film called « Les Passagers » last week and loved it. You want your sceptical friend Maxime to go."
+        you: A
+        lines:
+          - {who: A, l2: "Tu as vu « Les Passagers » au cinéma ?", l1: "Have you seen 'Les Passagers' at the cinema? (informal)",
+             alt: ["T'as vu « Les Passagers » au cinéma ?", "Tu as vu « Les Passagers » au ciné ?", "T'as vu « Les Passagers » au ciné ?", "Est-ce que tu as vu « Les Passagers » au cinéma ?", "As-tu vu « Les Passagers » au cinéma ?", "Tu as déjà vu « Les Passagers » au cinéma ?"]}
+          - {who: B, l2: "Non, pas encore. Ça vaut le coup ?", l1: "No, not yet. Is it worth it?"}
+          - {who: A, l2: "Oui, je te le conseille vraiment.", l1: "Yes, I really recommend it to you. (informal)",
+             alt: ["Oui, je te le recommande vraiment.", "Oui, je te le conseille vivement.", "Oui, je te le recommande vivement.", "Oui, je te le conseille fortement.", "Oui, je te le recommande fortement.", "Oui, vraiment, je te le conseille.", "Oui, vraiment, je te le recommande.", "Oui, je te le conseille.", "Oui, je te le recommande.", "Oui, je te le conseille franchement."]}
+          - {who: B, l2: "Ah oui ? Ça parle de quoi ?", l1: "Oh yes? What's it about?"}
+          - {who: A, l2: "C'est l'histoire de deux inconnus dans un train.", l1: "It's the story of two strangers on a train.",
+             alt: ["Ça raconte l'histoire de deux inconnus dans un train.", "Ça parle de deux inconnus dans un train.", "C'est l'histoire de deux inconnus dans un train de nuit.", "C'est l'histoire de 2 inconnus dans un train.", "C'est une histoire de deux inconnus dans un train.", "C'est l'histoire de deux inconnus à bord d'un train."]}
+          - {who: B, l2: "Hmm, ça a l'air un peu lent, non ? Moi, j'aime bien quand il y a de l'action.", l1: "Hmm, it sounds a bit slow, doesn't it? I like it when there's action."}
+          - {who: A, l2: "Pas du tout ! On ne s'ennuie pas une seconde.", l1: "Not at all! You're not bored for a second.",
+             alt: ["Pas du tout ! On s'ennuie pas une seconde.", "Pas du tout ! On ne s'ennuie pas une seule seconde.", "Pas du tout ! On ne s'ennuie pas un instant.", "Pas du tout ! On ne s'ennuie pas une minute.", "Pas du tout ! On ne s'ennuie jamais.", "Absolument pas ! On ne s'ennuie pas une seconde.", "Du tout ! On ne s'ennuie pas une seconde.", "Pas du tout ! On ne s'ennuie pas un seul instant."]}
+          - {who: B, l2: "Et les acteurs, ils sont bons ?", l1: "And the actors, are they good?"}
+          - {who: A, l2: "Ils jouent super bien, surtout l'actrice principale.", l1: "They act really well, especially the lead actress.",
+             alt: ["Ils jouent très bien, surtout l'actrice principale.", "Ils jouent vraiment bien, surtout l'actrice principale.", "Ils jouent hyper bien, surtout l'actrice principale.", "Ils jouent vachement bien, surtout l'actrice principale.", "Ils sont super bons, surtout l'actrice principale.", "Ils sont très bons, surtout l'actrice principale.", "Ils sont excellents, surtout l'actrice principale.", "Ils jouent trop bien, surtout l'actrice principale."]}
+          - {who: B, l2: "Bon, tu m'as convaincu. J'y vais ce week-end et je te dis ce que j'en ai pensé !", l1: "OK, you've convinced me. I'll go this weekend and tell you what I thought of it!"}
+
+      - id: frt-07-feelings
+        type: dialogue
+        title: "Something on your mind"
+        scene: "You are unusually quiet at dinner with your close friend Clara. She notices and asks what is wrong."
+        you: B
+        lines:
+          - {who: A, l2: "Tu ne dis pas grand-chose ce soir. Quelque chose ne va pas ?", l1: "You're not saying much this evening. Is something wrong?"}
+          - {who: B, l2: "Je suis un peu stressé en ce moment.", l1: "I'm a bit stressed at the moment.",
+             alt: ["Je suis un peu stressée en ce moment.", "En ce moment, je suis un peu stressé.", "En ce moment, je suis un peu stressée.", "Je suis un peu stressé ces temps-ci.", "Je suis un peu stressée ces temps-ci.", "Je suis un peu stressé ces jours-ci.", "Je suis un peu stressée ces jours-ci.", "Je suis un peu stressé actuellement.", "Je suis un peu stressée actuellement.", "Je suis un peu stressé, en ce moment.", "Je suis assez stressé en ce moment.", "Je suis assez stressée en ce moment."]}
+          - {who: A, l2: "Ah mince. C'est le travail ?", l1: "Oh dear. Is it work?"}
+          - {who: B, l2: "Oui, j'ai peur de ne pas finir à temps.", l1: "Yes, I'm afraid of not finishing in time.",
+             alt: ["Oui, j'ai peur de pas finir à temps.", "Oui, j'ai peur de ne pas finir dans les temps.", "Oui, j'ai peur de ne pas terminer à temps.", "Oui, je crains de ne pas finir à temps.", "Oui, j'ai peur de ne pas finir à l'heure.", "Oui, j'ai peur de ne pas finir mon projet à temps.", "Oui, j'ai peur de ne pas avoir fini à temps."]}
+          - {who: A, l2: "Ton fameux projet ? Tu dois le rendre quand ?", l1: "Your famous project? When do you have to hand it in?"}
+          - {who: B, l2: "Vendredi, et ça m'empêche de dormir.", l1: "Friday, and it's stopping me from sleeping.",
+             alt: ["Vendredi. Et ça m'empêche de dormir.", "C'est vendredi, et ça m'empêche de dormir.", "Pour vendredi, et ça m'empêche de dormir.", "Vendredi, et cela m'empêche de dormir.", "Vendredi, et ça m'empêche de dormir la nuit.", "Vendredi, et du coup, ça m'empêche de dormir."]}
+          - {who: A, l2: "Écoute, tu as déjà fait le plus gros. Et si tu demandais un coup de main à ton équipe ?", l1: "Listen, you've already done the bulk of it. What if you asked your team for a hand?"}
+          - {who: B, l2: "Tu as raison, je vais leur en parler.", l1: "You're right, I'll talk to them about it.",
+             alt: ["T'as raison, je vais leur en parler.", "Tu as raison, je leur en parlerai.", "Tu as raison. Je vais leur en parler.", "Tu as raison, je vais en parler avec eux.", "C'est vrai, je vais leur en parler.", "Tu as raison, il faut que je leur en parle.", "Tu as raison, je vais leur en parler demain."]}
+          - {who: A, l2: "Voilà. Et ce soir, on n'y pense plus, d'accord ?", l1: "There you go. And tonight, we stop thinking about it, OK?"}
+          - {who: B, l2: "D'accord. Ça fait du bien d'en parler.", l1: "OK. It feels good to talk about it.",
+             alt: ["D'accord. Ça me fait du bien d'en parler.", "D'accord. Ça fait du bien de parler.", "D'accord. Ça soulage d'en parler.", "OK. Ça fait du bien d'en parler.", "D'accord. Ça fait vraiment du bien d'en parler.", "D'accord. Ça m'a fait du bien d'en parler.", "D'accord. Ça fait du bien d'en parler, merci."]}
+
+  # ───────────────────────────────────────────────────────────────── 8
+  - id: frt-08
+    title: "Handling real life"
+    goal: "I can clear up a misunderstanding, make a complaint, ask the right questions when renting a flat, talk about myself in a job conversation, explain a practical problem and take my leave warmly after an evening."
+    notes: |
+      Real life means conversations where something is at stake: money, a flat, a job, a neighbour's goodwill. The skill is staying polite **and** firm.
+
+      ## Firm but polite
+      - State facts, not accusations: *Il ne marche plus*, *J'avais compris seize heures*, *Il doit y avoir un malentendu.*
+      - Acknowledge, then hold your line: **Je comprends, mais…** *je préfère un remboursement.*
+      - Ask with the conditional: *Vous pourriez baisser un peu ?*, *Je voudrais être remboursé(e).*
+      - Apologise before bothering someone: *Excusez-moi de vous déranger.*
+      - Let people save face: *Ce n'est pas grave, ça arrive.*
+
+      ## Practical words
+      *le loyer* (rent), *les charges comprises* (bills included), *le dossier* (the application file every landlord wants), *une fuite* (a leak), *le ticket de caisse* (receipt), *un remboursement* (refund).
+
+      ## Leaving well
+      French goodbyes take time. Announce it — *Bon, il se fait tard, je vais y aller* — compliment — *J'ai passé une excellente soirée* — thank — *Merci pour tout* — and promise a next time.
+
+    items:
+      - id: frt-08-misunderstanding
+        type: dialogue
+        title: "The meeting was at two"
+        scene: "It is ten past two and you are still at your desk at home. Your colleague Thibault phones you, sounding stressed."
+        you: B
+        lines:
+          - {who: A, l2: "Allô ? Tu es où ? On t'attend, la réunion a commencé il y a dix minutes !", l1: "Hello? Where are you? We're waiting for you, the meeting started ten minutes ago!"}
+          - {who: B, l2: "Comment ça ? J'avais compris seize heures.", l1: "What do you mean? I'd understood four p.m. (seize heures)",
+             alt: ["Comment ça ? J'avais compris 16 heures.", "Comment ça ? J'avais compris 16h.", "Comment ça ? Moi, j'avais compris seize heures.", "Comment ça ? J'ai compris seize heures.", "Comment ça ? J'avais compris à seize heures.", "Comment ça ? Je croyais que c'était à seize heures.", "Comment ça ? Je pensais que c'était à seize heures.", "Quoi ? J'avais compris seize heures.", "Comment ça ? J'avais compris quatre heures."]}
+          - {who: A, l2: "Non, quatorze heures ! Je te l'ai écrit dans le message d'hier.", l1: "No, two p.m.! I wrote it to you in yesterday's message."}
+          - {who: B, l2: "Il doit y avoir un malentendu.", l1: "There must be a misunderstanding.",
+             alt: ["Il doit y avoir un malentendu, alors.", "Il doit y avoir eu un malentendu.", "Il y a sûrement un malentendu.", "Ça doit être un malentendu.", "Il y a un malentendu, je pense.", "Je pense qu'il y a un malentendu.", "Il a dû y avoir un malentendu.", "Il doit y avoir un malentendu quelque part."]}
+          - {who: A, l2: "Attends, je regarde… Ah. Tu as raison, j'ai écrit « 16 h ». C'est ma faute, pardon.", l1: "Wait, let me look… Ah. You're right, I wrote '16 h'. It's my fault, sorry."}
+          - {who: B, l2: "Ce n'est pas grave, ça arrive.", l1: "It doesn't matter, it happens.",
+             alt: ["C'est pas grave, ça arrive.", "Pas grave, ça arrive.", "Ce n'est rien, ça arrive.", "Pas de souci, ça arrive.", "Ne t'inquiète pas, ça arrive.", "T'inquiète, ça arrive.", "Il n'y a pas de mal, ça arrive.", "Y a pas de mal, ça arrive.", "Ce n'est pas grave, ce sont des choses qui arrivent.", "Ce n'est pas grave, ça peut arriver."]}
+          - {who: A, l2: "Tu peux nous rejoindre quand même ?", l1: "Can you join us anyway?"}
+          - {who: B, l2: "Oui, je peux être là dans vingt minutes.", l1: "Yes, I can be there in twenty minutes.",
+             alt: ["Oui, je peux être là dans 20 minutes.", "Oui, je peux arriver dans vingt minutes.", "Oui, je suis là dans vingt minutes.", "Oui, je serai là dans vingt minutes.", "Oui, j'arrive dans vingt minutes.", "Oui, je peux être là d'ici vingt minutes.", "Oui, je peux y être dans vingt minutes.", "Oui, je peux être au bureau dans vingt minutes."]}
+          - {who: A, l2: "Super. On commence par les autres points en t'attendant.", l1: "Great. We'll start with the other items while we wait for you."}
+          - {who: B, l2: "Merci, je fais au plus vite.", l1: "Thanks, I'll be as quick as I can.",
+             alt: ["Merci, je fais vite.", "Merci, je me dépêche.", "Merci, je fais le plus vite possible.", "Merci, je fais aussi vite que possible.", "Merci, j'arrive au plus vite.", "Merci, je fais au plus vite, promis.", "Merci. Je fais au plus vite."]}
+
+      - id: frt-08-complaint
+        type: dialogue
+        title: "Taking something back"
+        scene: "The headphones you bought last week have stopped working. You go back to the shop with the receipt and speak to the assistant."
+        you: A
+        lines:
+          - {who: A, l2: "Bonjour. J'ai acheté ce casque ici la semaine dernière.", l1: "Hello. I bought these headphones (ce casque) here last week.",
+             alt: ["Bonjour. J'ai acheté ce casque chez vous la semaine dernière.", "Bonjour. La semaine dernière, j'ai acheté ce casque ici.", "Bonjour. J'ai acheté ce casque ici il y a une semaine.", "Bonjour. J'ai acheté ce casque dans votre magasin la semaine dernière.", "Bonjour. J'ai acheté ce casque audio ici la semaine dernière."]}
+          - {who: B, l2: "Bonjour. Oui, et il y a un souci ?", l1: "Hello. Yes, and is there a problem?"}
+          - {who: A, l2: "Oui, il ne marche plus.", l1: "Yes, it doesn't work any more.",
+             alt: ["Oui, il marche plus.", "Oui, il ne fonctionne plus.", "Oui, il fonctionne plus.", "Oui, il ne marche plus du tout.", "Oui, il ne fonctionne plus du tout.", "Oui, il a arrêté de marcher.", "Oui, il a cessé de fonctionner."]}
+          - {who: B, l2: "Ah, c'est embêtant. Vous avez le ticket de caisse ?", l1: "Oh, that's annoying. Do you have the receipt?"}
+          - {who: A, l2: "Oui, le voilà. Je voudrais être remboursé.", l1: "Yes, here it is. I'd like a refund (to be refunded).",
+             alt: ["Oui, le voilà. Je voudrais être remboursée.", "Oui, le voici. Je voudrais être remboursé.", "Oui, le voici. Je voudrais être remboursée.", "Oui, voilà. Je voudrais être remboursé.", "Oui, voilà. Je voudrais être remboursée.", "Oui, le voilà. J'aimerais être remboursé.", "Oui, le voilà. J'aimerais être remboursée.", "Oui, le voilà. Je souhaite être remboursé.", "Oui, le voilà. Je souhaite être remboursée.", "Oui, le voilà. Je souhaiterais être remboursé.", "Oui, le voilà. Je souhaiterais être remboursée.", "Oui, le voilà. Je voudrais un remboursement.", "Oui, le voici. Je voudrais un remboursement.", "Oui, le voilà. J'aimerais un remboursement.", "Oui, le voilà. Je voudrais me faire rembourser."]}
+          - {who: B, l2: "Normalement, on propose plutôt un échange ou un avoir…", l1: "Normally, we offer an exchange or a credit note instead…"}
+          - {who: A, l2: "Je comprends, mais je préfère un remboursement.", l1: "I understand, but I prefer a refund.",
+             alt: ["Je comprends, mais je préférerais un remboursement.", "Je comprends bien, mais je préfère un remboursement.", "Je comprends, mais je préfère être remboursé.", "Je comprends, mais je préfère être remboursée.", "Je comprends, mais je préférerais être remboursé.", "Je comprends, mais je préférerais être remboursée.", "Je comprends, mais j'aimerais mieux un remboursement.", "Je comprends, mais je préfère me faire rembourser.", "Je comprends, mais je voudrais un remboursement."]}
+          - {who: B, l2: "Bon, comme c'est un défaut de fabrication, c'est d'accord. Je vous rembourse sur votre carte.", l1: "Well, as it's a manufacturing fault, that's fine. I'll refund it to your card."}
+          - {who: A, l2: "Parfait. Merci de votre compréhension.", l1: "Perfect. Thank you for your understanding. (formal)",
+             alt: ["Parfait. Merci pour votre compréhension.", "Très bien. Merci de votre compréhension.", "Très bien. Merci pour votre compréhension.", "Parfait. Je vous remercie de votre compréhension.", "Parfait. Je vous remercie pour votre compréhension.", "Parfait. Merci beaucoup de votre compréhension.", "Parfait. Merci beaucoup pour votre compréhension."]}
+
+      - id: frt-08-flat
+        type: dialogue
+        title: "Viewing a flat"
+        scene: "You are looking for a flat to rent. An estate agent, Madame Girard, opens the door of a one-bedroom flat and shows you round."
+        you: B
+        lines:
+          - {who: A, l2: "Voilà, entrez. Donc, c'est un deux-pièces de quarante mètres carrés, très lumineux.", l1: "Here we are, come in. So, it's a one-bedroom flat of forty square metres, very bright."}
+          - {who: B, l2: "Il est très agréable, en effet.", l1: "It's very pleasant, indeed.",
+             alt: ["Il est très agréable, effectivement.", "En effet, il est très agréable.", "Effectivement, il est très agréable.", "Il est vraiment agréable, en effet.", "C'est très agréable, en effet.", "Il est très agréable, c'est vrai.", "Il est très sympa, en effet."]}
+          - {who: A, l2: "La cuisine est équipée et il y a une cave au sous-sol.", l1: "The kitchen is fitted and there's a cellar in the basement."}
+          - {who: B, l2: "Le loyer est de combien, exactement ?", l1: "How much is the rent, exactly?",
+             alt: ["Le loyer est à combien, exactement ?", "Le loyer, c'est combien, exactement ?", "C'est combien, le loyer, exactement ?", "Quel est le loyer, exactement ?", "Il est de combien, le loyer, exactement ?", "Le loyer s'élève à combien, exactement ?", "Le loyer est de combien ?", "Le loyer fait combien, exactement ?", "Quel est le montant du loyer, exactement ?"]}
+          - {who: A, l2: "Sept cent quatre-vingts euros par mois.", l1: "Seven hundred and eighty euros a month."}
+          - {who: B, l2: "Les charges sont comprises ?", l1: "Are the service charges included?",
+             alt: ["Est-ce que les charges sont comprises ?", "Les charges sont incluses ?", "Est-ce que les charges sont incluses ?", "Charges comprises ?", "C'est charges comprises ?", "Les charges sont-elles comprises ?", "Les charges sont comprises dans le loyer ?", "Les charges sont comprises dedans ?"]}
+          - {who: A, l2: "L'eau et le chauffage, oui. L'électricité et Internet sont à votre charge.", l1: "Water and heating, yes. Electricity and internet are at your expense."}
+          - {who: B, l2: "D'accord. Et il serait libre à partir de quand ?", l1: "OK. And when would it be available from?",
+             alt: ["D'accord. Et il est libre à partir de quand ?", "D'accord. Et il sera libre à partir de quand ?", "D'accord. Et il serait disponible à partir de quand ?", "D'accord. Et il est disponible à partir de quand ?", "D'accord. Et à partir de quand serait-il libre ?", "D'accord. Et à partir de quand est-il libre ?", "D'accord. Et à partir de quand il serait libre ?", "D'accord. Et à partir de quand il est libre ?", "D'accord. Et il serait libre quand ?", "D'accord. Et il est libre quand ?", "D'accord. Et il se libère quand ?", "D'accord. Et il serait disponible quand ?"]}
+          - {who: A, l2: "Dès le premier du mois prochain. Il vous intéresse ?", l1: "From the first of next month. Are you interested in it?"}
+          - {who: B, l2: "Oui, beaucoup. Qu'est-ce qu'il faut pour le dossier ?", l1: "Yes, very much. What is needed for the application (le dossier)?",
+             alt: ["Oui, beaucoup. Il faut quoi pour le dossier ?", "Oui, beaucoup. Que faut-il pour le dossier ?", "Oui, beaucoup. Qu'est-ce qu'il vous faut pour le dossier ?", "Oui, beaucoup. Il vous faut quoi pour le dossier ?", "Oui, beaucoup. De quoi avez-vous besoin pour le dossier ?", "Oui, beaucoup. Vous avez besoin de quoi pour le dossier ?", "Oui, beaucoup. Qu'est-ce que je dois fournir pour le dossier ?", "Oui, beaucoup. Quels documents faut-il pour le dossier ?", "Oui, beaucoup. Qu'est-ce qu'il faut fournir pour le dossier ?", "Oui, beaucoup. Qu'est-ce qu'il faut comme documents pour le dossier ?"]}
+
+      - id: frt-08-job-chat
+        type: dialogue
+        title: "A chat about a job"
+        scene: "You applied for a sales job in a bookshop. The owner, Monsieur Lambert, has invited you for an informal talk over coffee."
+        you: A
+        lines:
+          - {who: B, l2: "Merci d'avoir répondu si vite. Alors, parlez-moi un peu de vous.", l1: "Thank you for replying so quickly. So, tell me a little about yourself."}
+          - {who: A, l2: "Je vis en France depuis deux ans.", l1: "I've been living in France for two years.",
+             alt: ["J'habite en France depuis deux ans.", "Je vis en France depuis 2 ans.", "J'habite en France depuis 2 ans.", "Ça fait deux ans que je vis en France.", "Ça fait deux ans que j'habite en France.", "Cela fait deux ans que je vis en France.", "Cela fait deux ans que j'habite en France.", "Je suis en France depuis deux ans.", "Je vis ici, en France, depuis deux ans."]}
+          - {who: B, l2: "Très bien. Et vous avez déjà travaillé dans la vente ?", l1: "Very good. And have you worked in sales before?"}
+          - {who: A, l2: "Oui, j'ai travaillé trois ans dans une librairie.", l1: "Yes, I worked for three years in a bookshop.",
+             alt: ["Oui, j'ai travaillé pendant trois ans dans une librairie.", "Oui, j'ai travaillé dans une librairie pendant trois ans.", "Oui, j'ai travaillé 3 ans dans une librairie.", "Oui, j'ai travaillé pendant 3 ans dans une librairie.", "Oui, j'ai travaillé dans une librairie pendant 3 ans.", "Oui, j'ai travaillé trois ans en librairie.", "Oui, j'ai bossé trois ans dans une librairie.", "Oui, j'ai travaillé dans une librairie durant trois ans.", "Oui, pendant trois ans, dans une librairie.", "Oui, j'ai travaillé durant trois ans dans une librairie."]}
+          - {who: B, l2: "Parfait. Et qu'est-ce qui vous attire dans ce poste ?", l1: "Perfect. And what attracts you to this position?"}
+          - {who: A, l2: "J'aime le contact avec les clients.", l1: "I like dealing with customers (le contact).",
+             alt: ["J'aime bien le contact avec les clients.", "J'aime beaucoup le contact avec les clients.", "J'aime le contact avec la clientèle.", "J'aime être en contact avec les clients.", "J'apprécie le contact avec les clients.", "Ce que j'aime, c'est le contact avec les clients.", "J'aime le contact client.", "J'adore le contact avec les clients."]}
+          - {who: B, l2: "C'est essentiel ici. Vous seriez disponible le samedi ?", l1: "That's essential here. Would you be available on Saturdays?"}
+          - {who: A, l2: "Oui, ça ne me pose aucun problème.", l1: "Yes, that's no problem at all for me.",
+             alt: ["Oui, ça ne me pose pas de problème.", "Oui, cela ne me pose aucun problème.", "Oui, ça me pose aucun problème.", "Oui, ça ne pose aucun problème.", "Oui, sans problème.", "Oui, sans aucun problème.", "Oui, aucun problème.", "Oui, pas de problème.", "Oui, ce n'est pas un problème.", "Oui, il n'y a aucun problème.", "Oui, ça ne me dérange pas du tout.", "Oui, ça ne me pose aucun souci."]}
+          - {who: B, l2: "Tant mieux. Vous avez des questions de votre côté ?", l1: "Good. Do you have any questions on your side?"}
+          - {who: A, l2: "Oui. Le poste commencerait quand ?", l1: "Yes. When would the position start?",
+             alt: ["Oui. Le poste commencerait à quelle date ?", "Oui. Le poste commencerait à partir de quand ?", "Oui. Quand est-ce que le poste commencerait ?", "Oui. Quand commencerait le poste ?", "Oui. Quand le poste commencerait-il ?", "Oui. À partir de quand commencerait le poste ?", "Oui. Le poste commence quand ?", "Oui. Quand est-ce que le poste commence ?", "Oui. Quand commence le poste ?", "Oui. Le poste débuterait quand ?", "Oui. Je commencerais quand ?", "Oui. Le poste serait à pourvoir quand ?"]}
+
+      - id: frt-08-leak
+        type: dialogue
+        title: "A leak in the bathroom"
+        scene: "You come home to find water on the bathroom floor. You turn off the water and phone your landlady, Madame Morel."
+        you: A
+        lines:
+          - {who: A, l2: "Bonjour, madame Morel. C'est Alex, votre locataire.", l1: "Hello, Mrs Morel. It's Alex, your tenant.",
+             alt: ["Bonjour, madame Morel. Ici Alex, votre locataire.", "Bonjour, madame Morel. Je suis Alex, votre locataire.", "Bonjour, madame Morel. Alex à l'appareil, votre locataire.", "Bonjour, madame Morel. C'est Alex à l'appareil, votre locataire.", "Allô, bonjour, madame Morel. C'est Alex, votre locataire."]}
+          - {who: B, l2: "Ah, bonjour ! Tout va bien dans l'appartement ?", l1: "Oh, hello! Is everything all right in the flat?"}
+          - {who: A, l2: "Pas vraiment. J'ai une fuite dans la salle de bains.", l1: "Not really. I have a leak in the bathroom.",
+             alt: ["Pas vraiment. Il y a une fuite dans la salle de bains.", "Pas vraiment. J'ai une fuite d'eau dans la salle de bains.", "Pas vraiment. Il y a une fuite d'eau dans la salle de bains.", "Pas vraiment. J'ai une fuite dans la salle de bain.", "Pas vraiment. Il y a une fuite dans la salle de bain.", "Pas vraiment. J'ai une fuite d'eau dans la salle de bain.", "Pas vraiment. Il y a une fuite d'eau dans la salle de bain.", "Non, pas vraiment. J'ai une fuite dans la salle de bains.", "Pas trop. J'ai une fuite dans la salle de bains.", "Pas tellement. J'ai une fuite dans la salle de bains.", "Non, pas vraiment. Il y a une fuite dans la salle de bains."]}
+          - {who: B, l2: "Aïe. Ça vient d'où, exactement ? Du lavabo, de la douche ?", l1: "Ouch. Where is it coming from, exactly? The washbasin, the shower?"}
+          - {who: A, l2: "Ça vient du tuyau sous le lavabo.", l1: "It's coming from the pipe under the washbasin.",
+             alt: ["Ça vient du tuyau en dessous du lavabo.", "Ça vient du tuyau qui est sous le lavabo.", "Ça vient du tuyau au-dessous du lavabo.", "Cela vient du tuyau sous le lavabo.", "Du tuyau sous le lavabo.", "C'est le tuyau sous le lavabo.", "Elle vient du tuyau sous le lavabo.", "Ça vient du tuyau qui se trouve sous le lavabo."]}
+          - {who: B, l2: "Et c'est une grosse fuite ? Vous avez pu couper l'eau ?", l1: "And is it a big leak? Were you able to turn off the water?"}
+          - {who: A, l2: "Oui, j'ai coupé l'eau, mais c'est urgent.", l1: "Yes, I've turned the water off, but it's urgent.",
+             alt: ["Oui, j'ai coupé l'eau, mais ça presse.", "Oui, j'ai fermé l'eau, mais c'est urgent.", "Oui, je l'ai coupée, mais c'est urgent.", "Oui, j'ai pu couper l'eau, mais c'est urgent.", "Oui, j'ai coupé l'arrivée d'eau, mais c'est urgent.", "Oui, j'ai coupé l'eau, mais c'est quand même urgent.", "Oui, j'ai pu la couper, mais c'est urgent."]}
+          - {who: B, l2: "Vous avez bien fait. J'appelle le plombier tout de suite. Vous êtes chez vous demain matin ?", l1: "You did the right thing. I'll call the plumber right away. Are you at home tomorrow morning?"}
+          - {who: A, l2: "Oui, je serai là toute la matinée.", l1: "Yes, I'll be here all morning.",
+             alt: ["Oui, je suis là toute la matinée.", "Oui, je serai chez moi toute la matinée.", "Oui, je suis chez moi toute la matinée.", "Oui, je serai à la maison toute la matinée.", "Oui, je serai ici toute la matinée.", "Oui, je serai présent toute la matinée.", "Oui, je serai présente toute la matinée."]}
+          - {who: B, l2: "Parfait. Je vous rappelle pour vous confirmer l'heure.", l1: "Perfect. I'll call you back to confirm the time."}
+
+      - id: frt-08-noise
+        type: dialogue
+        title: "The music upstairs"
+        scene: "It is eleven at night and loud music is coming from the flat above yours. You go up and knock; a young man you have never met opens the door."
+        you: A
+        lines:
+          - {who: A, l2: "Bonsoir. Excusez-moi de vous déranger.", l1: "Good evening. Sorry to disturb you. (formal)",
+             alt: ["Bonsoir. Désolé de vous déranger.", "Bonsoir. Désolée de vous déranger.", "Bonsoir. Pardon de vous déranger.", "Bonsoir. Je suis désolé de vous déranger.", "Bonsoir. Je suis désolée de vous déranger.", "Bonsoir. Je m'excuse de vous déranger.", "Bonsoir. Excusez-moi de vous déranger si tard.", "Bonsoir. Pardonnez-moi de vous déranger."]}
+          - {who: B, l2: "Bonsoir. Non, non, je vous en prie. Qu'est-ce qu'il y a ?", l1: "Good evening. No, no, not at all. What's the matter?"}
+          - {who: A, l2: "Je suis votre voisin du dessous.", l1: "I'm your downstairs neighbour.",
+             alt: ["Je suis votre voisine du dessous.", "Je suis le voisin du dessous.", "Je suis la voisine du dessous.", "Je suis votre voisin d'en dessous.", "Je suis votre voisine d'en dessous.", "Je suis le voisin d'en dessous.", "Je suis la voisine d'en dessous.", "J'habite juste en dessous.", "J'habite en dessous."]}
+          - {who: B, l2: "Ah, enchanté ! Oh là là, c'est la musique, c'est ça ?", l1: "Oh, nice to meet you! Oh dear, it's the music, isn't it?"}
+          - {who: A, l2: "Oui. Vous pourriez baisser un peu, s'il vous plaît ?", l1: "Yes. Could you turn it down a bit, please? (formal)",
+             alt: ["Oui. Vous pourriez baisser un peu ?", "Oui. Vous pouvez baisser un peu, s'il vous plaît ?", "Oui. Pourriez-vous baisser un peu, s'il vous plaît ?", "Oui. Est-ce que vous pourriez baisser un peu, s'il vous plaît ?", "Oui. Vous pourriez baisser un peu le son, s'il vous plaît ?", "Oui. Vous pourriez baisser un peu la musique, s'il vous plaît ?", "Oui. Vous pourriez la baisser un peu, s'il vous plaît ?", "Oui. Vous pourriez baisser un peu le volume, s'il vous plaît ?", "Oui. Est-ce que vous pouvez baisser un peu, s'il vous plaît ?", "Oui. Vous pourriez baisser un petit peu, s'il vous plaît ?"]}
+          - {who: B, l2: "Bien sûr, je suis vraiment désolé ! Je fête mon anniversaire et je ne me rendais pas compte.", l1: "Of course, I'm really sorry! I'm celebrating my birthday and I didn't realise."}
+          - {who: A, l2: "Je comprends, mais je me lève tôt demain.", l1: "I understand, but I'm getting up early tomorrow.",
+             alt: ["Je comprends, mais je me lève tôt demain matin.", "Je comprends, mais demain, je me lève tôt.", "Je comprends bien, mais je me lève tôt demain.", "Je comprends, mais je dois me lever tôt demain.", "Je comprends, mais je me lève de bonne heure demain.", "Je comprends, mais je dois me lever tôt demain matin.", "Je comprends, mais il faut que je me lève tôt demain."]}
+          - {who: B, l2: "Évidemment. Je baisse tout de suite, et on arrête à minuit, promis.", l1: "Of course. I'll turn it down right away, and we'll stop at midnight, I promise."}
+          - {who: A, l2: "C'est très gentil, merci. Et bon anniversaire !", l1: "That's very kind, thank you. And happy birthday!",
+             alt: ["C'est très gentil, merci. Et joyeux anniversaire !", "C'est très gentil, merci. Bon anniversaire !", "C'est gentil, merci. Et bon anniversaire !", "C'est très aimable, merci. Et bon anniversaire !", "C'est très sympa, merci. Et bon anniversaire !", "Merci, c'est très gentil. Et bon anniversaire !", "C'est très gentil, merci beaucoup. Et bon anniversaire !", "C'est très gentil à vous, merci. Et bon anniversaire !"]}
+          - {who: B, l2: "Merci ! Passez boire un verre, si le cœur vous en dit !", l1: "Thanks! Come by for a drink, if you feel like it!"}
+
+      - id: frt-08-goodbye
+        type: dialogue
+        title: "Leaving after a good evening"
+        scene: "You have spent the evening at the home of your friends Camille and Marc, who cooked for you. It is nearly midnight; Camille sees you to the door."
+        you: A
+        lines:
+          - {who: A, l2: "Bon, il se fait tard, je vais y aller.", l1: "Right, it's getting late, I'm going to head off.",
+             alt: ["Bon, il se fait tard, je vais rentrer.", "Bon, il se fait tard, il faut que j'y aille.", "Bon, il se fait tard, je dois y aller.", "Bon, il se fait tard, je vais devoir y aller.", "Bon, il est tard, je vais y aller.", "Bon, il est tard, il faut que j'y aille.", "Bon, il est tard, je dois y aller.", "Bon, il commence à se faire tard, je vais y aller.", "Allez, il se fait tard, je vais y aller.", "Bon, il se fait tard, je vais vous laisser.", "Bon, il se fait tard, je file."]}
+          - {who: B, l2: "Déjà ? Bon, on ne te retient pas, alors. Ça nous a fait vraiment plaisir de te voir.", l1: "Already? Well, we won't keep you, then. It was a real pleasure for us to see you."}
+          - {who: A, l2: "Moi aussi. J'ai passé une excellente soirée.", l1: "Me too. I had an excellent evening.",
+             alt: ["Moi aussi. J'ai passé une super soirée.", "Moi aussi. J'ai passé une très bonne soirée.", "Moi aussi. J'ai passé une soirée excellente.", "Moi aussi. J'ai passé une très belle soirée.", "Moi aussi. J'ai passé une soirée géniale.", "Moi aussi. J'ai passé une soirée formidable.", "Moi aussi. J'ai passé une merveilleuse soirée.", "Moi aussi. C'était une excellente soirée.", "À moi aussi. J'ai passé une excellente soirée.", "Moi aussi. J'ai vraiment passé une excellente soirée."]}
+          - {who: B, l2: "Tant mieux ! Et le gratin, ça allait ? Je n'étais pas sûre de la cuisson…", l1: "Good! And the gratin, was it OK? I wasn't sure about the cooking time…"}
+          - {who: A, l2: "C'était délicieux, vraiment. Merci pour tout.", l1: "It was delicious, really. Thanks for everything.",
+             alt: ["C'était vraiment délicieux. Merci pour tout.", "C'était délicieux, franchement. Merci pour tout.", "C'était délicieux, vraiment. Merci encore pour tout.", "C'était un délice, vraiment. Merci pour tout.", "C'était excellent, vraiment. Merci pour tout.", "C'était succulent, vraiment. Merci pour tout.", "Il était délicieux, vraiment. Merci pour tout.", "C'était très bon, vraiment. Merci pour tout.", "C'était délicieux, vraiment. Merci beaucoup pour tout."]}
+          - {who: B, l2: "Avec plaisir. La prochaine fois, c'est nous qui venons chez toi, hein ?", l1: "With pleasure. Next time, we're coming to your place, right?"}
+          - {who: A, l2: "Avec plaisir ! Je vous invite le mois prochain.", l1: "With pleasure! I'm inviting you both next month.",
+             alt: ["Volontiers ! Je vous invite le mois prochain.", "Avec grand plaisir ! Je vous invite le mois prochain.", "Avec plaisir ! Le mois prochain, je vous invite.", "Avec plaisir ! Je vous inviterai le mois prochain.", "Avec plaisir ! Je vous invite chez moi le mois prochain.", "Avec plaisir ! Je vous invite tous les deux le mois prochain.", "Bien sûr ! Je vous invite le mois prochain."]}
+          - {who: B, l2: "On compte sur toi ! Allez, rentre bien, et fais attention sur la route.", l1: "We're counting on you! Right, get home safe, and take care on the road."}
+          - {who: A, l2: "Merci ! Bonne nuit, et à bientôt !", l1: "Thanks! Good night, and see you soon!",
+             alt: ["Merci ! Bonne nuit et à très bientôt !", "Merci ! Bonne nuit, à bientôt !", "Merci ! Bonne nuit à vous, et à bientôt !", "Merci ! Bonne nuit à vous deux, et à bientôt !", "Merci ! Bonne nuit, et à la prochaine !", "Merci ! Bonne nuit à tous les deux, et à bientôt !", "Merci ! Bonne nuit, et à très vite !"]}
