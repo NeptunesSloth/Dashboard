@@ -522,3 +522,7 @@ a { color: var(--gold); }
 .annals li { padding-left: 12px; border-left: 2px solid var(--gold-d); }
 
 .tag.violet { background: var(--violet-soft); color: var(--violet); }
+
+.rumours { padding: 10px 14px; border-radius: 14px; border: 1px dashed var(--line); margin-bottom: 12px; font-family: var(--serif); }
+.rumours ul { margin: 6px 0 0; padding-left: 18px; color: var(--dim); }
+.choices .btn .tag { margin-left: 6px; }

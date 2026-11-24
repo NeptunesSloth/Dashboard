@@ -185,6 +185,7 @@ def new_colony(now: float) -> dict:
         "streak": 0, "best_streak": 0, "last_study_day": "", "grace": 2, "seclusion": False, "secluded_on": "",
         "week": {"id": "", "days": []},
     }
+    c.update(dao.defaults())
     return c
 
 
@@ -318,7 +319,7 @@ def qi_rate(c: dict, p: dict) -> list[tuple[str, float]]:
         rows.append(("Direct disciple: the Master's own teaching", 1.25))
     if p["resolve_until"] > c["hour"]:
         rows.append(("Burning resolve", 1.5))
-    return rows
+    return rows + dao.qi_rows(c, p)
 
 
 def _manual(c: dict, p: dict, kind: str) -> tuple[float, str]:
@@ -395,7 +396,7 @@ def _work_mult(p: dict, hour: int) -> float:
 
 def _xp(p: dict, skill: str, amount: float) -> None:
     s = p["skills"][skill]
-    s["xp"] += amount * (0.4, 1.0, 1.6)[s["passion"]] * (1.5 if "Quick learner" in p["traits"] else 1.0)
+    s["xp"] += amount * (0.4, 1.0, 1.6)[s["passion"]] * (1.5 if "Quick learner" in p["traits"] else 1.0) * float(p.get("xp_x", 1.0))
     while s["lv"] < 20 and s["xp"] >= 20 * (s["lv"] + 1):
         s["xp"] -= 20 * (s["lv"] + 1)
         s["lv"] += 1
@@ -404,7 +405,7 @@ def _xp(p: dict, skill: str, amount: float) -> None:
 def _hurt(p: dict, amount: float, c: dict | None = None) -> None:
     amount *= 0.6 if "Tough" in p["traits"] else 1.4 if "Frail" in p["traits"] else 1.0
     if c is not None:
-        amount *= (1.0 - _manual(c, p, "body")[0]) * (1.0 - _art(c, p, "armour"))
+        amount *= (1.0 - _manual(c, p, "body")[0]) * (1.0 - _art(c, p, "armour")) * dao.hurt_x(c, p)
     p["health"] = max(0.0, p["health"] - amount)
 
 
@@ -413,7 +414,7 @@ def combat_power(c: dict, p: dict) -> float:
         return 0.0
     return (10 + 4 * p["skills"]["combat"]["lv"]) * (1 + 0.07 * p["step"]) * (p["health"] / 100.0) \
         * (1.25 if _has(c, "sword_forms") else 1.0) * (1 + _manual(c, p, "sword")[0]) * (1 + _art(c, p, "sword")) \
-        * (1.15 if "spirit_sword" in c["treasures"] else 1.0)
+        * (1.15 if "spirit_sword" in c["treasures"] else 1.0) * dao.combat_x(c, p)
 
 
 def ward_power(c: dict) -> float:
@@ -426,7 +427,7 @@ def beast_power(c: dict) -> float:
 
 
 def defense(c: dict) -> float:
-    return sum(combat_power(c, p) for p in c["pawns"]) + ward_power(c) + beast_power(c)
+    return sum(combat_power(c, p) for p in c["pawns"]) + ward_power(c) + beast_power(c) + dao.defense_extra(c)
 
 
 # ---------------------------------------------------------------------------
@@ -495,11 +496,10 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
             * (1.3 if "pill_furnace" in c["treasures"] else 1.0)
         if c["craft"] >= 6.0:
             c["craft"] -= 6.0
-            _add(c, "herbs", -(2 if _has(c, "refinement") else 3))
-            _add(c, "pills", 1)
+            dao.brew(c, p)
     elif job == "research":
         _research(c, out * (1 + 0.2 * (_lvl(c, "library") - 1)) * (1.25 if "Bookworm" in p["traits"] else 1.0)
-                  * (1.25 if "jade_slip" in c["treasures"] else 1.0))
+                  * (1.25 if "jade_slip" in c["treasures"] else 1.0) * dao.research_x(c))
         if "Bookworm" in p["traits"]:
             p["joy"] = min(100.0, p["joy"] + 3)
     elif job == "meditate":
@@ -577,7 +577,7 @@ def mood_mods(c: dict, p: dict) -> list[tuple[str, int]]:
         rows.append(("Lives beside a rival", -4))
     if _manual(c, p, "qi")[1] == "blood_sutra":
         rows.append(("The Blood Sutra whispers", -8))
-    return rows
+    return rows + dao.mood_rows(c, p)
 
 
 def _tick_pawn(c: dict, p: dict, taken: dict, quiet: bool) -> None:
@@ -589,7 +589,7 @@ def _tick_pawn(c: dict, p: dict, taken: dict, quiet: bool) -> None:
         p["doing"] = p["away_kind"] or "away"
         return
     # --- needs decay
-    p["food"] = max(0.0, p["food"] - 2.2 * (1.4 if "Glutton" in p["traits"] else 1.0))
+    p["food"] = max(0.0, p["food"] - 2.2 * (1.4 if "Glutton" in p["traits"] else 1.0) * dao.hunger_x(c, p))
     p["joy"] = max(0.0, p["joy"] - 1.2 * (0.5 if "Ascetic" in p["traits"] else 1.0))
     # --- eat (instant) when hungry
     if p["food"] < 35 and c["res"]["rice"] >= 1:
@@ -659,6 +659,7 @@ def _tick_pawn(c: dict, p: dict, taken: dict, quiet: bool) -> None:
             _bond(c, p, o, 25 if made_up else -15)
             _letter(c, "bad", f"{p['name']} and {o['name']} came to blows",
                     "It took three disciples to pull them apart. " + ("Afterwards they sat on the steps and talked until dark." if made_up else "Neither will look at the other now."))
+            dao.brawl(c, p, o)
             return
         _letter(c, "bad", f"{p['name']} is having a qi deviation",
                 "Their mood sank too low and they have stopped working. It will pass in half a day. "
@@ -757,6 +758,7 @@ def _die(c: dict, p: dict) -> None:
         else:
             _think(o, "death", "A fellow disciple died", -10, 72, c["hour"])
     _unequip(c, p)
+    dao.on_death(c, p)
     _annal(c, f"{p['name']} ({realm_label(p['step'])}) died." + (f" Mourned by {', '.join(o['name'] for o in _friends(c, p))}." if _friends(c, p) else ""))
     c["bonds"] = {k: v for k, v in c["bonds"].items() if p["id"] not in k.split("|")}
 
@@ -803,7 +805,7 @@ def bt_odds(c: dict, p: dict) -> list[tuple[str, int]]:
         rows.append(("The Ward Formation draws off lightning", 3 * _lvl(c, "ward")))
     if trib and "lightning_rod" in c["treasures"]:
         rows.append((lore.TREASURES["lightning_rod"]["name"], 10))
-    return rows
+    return rows + dao.bt_rows(c, p)
 
 
 def bt_chance(c: dict, p: dict) -> int:
@@ -834,6 +836,7 @@ def attempt(st: dict, pawn_id: str, now: float) -> dict:
     bolts = target * 3 if trib else 0
     if roll > chance:
         p["bt_tries"] += 1
+        dao.on_bt(c, p, False, False, trib)
         p["qi"] = step_need(p["step"]) * 0.6
         _hurt(p, 35 if trib else 25, c)
         _think(p, "bt_fail", "Failed a breakthrough", -10, 48, c["hour"])
@@ -872,12 +875,14 @@ def attempt(st: dict, pawn_id: str, now: float) -> dict:
         text += "A flawless breakthrough: their foundation is firmer than before, and they will gather qi a little faster for life. "
     ev = _letter(c, "good", f"{p['name']} reached {REALMS[target]}", text + "The whole sect feels it.")
     _promote(c, p)
+    dao.on_bt(c, p, True, perfect, trib)
     if p["step"] // 4 == len(REALMS) - 1 and p.get("master") and not c["flags"].get("ascended"):
         c["flags"]["ascended"] = 1
         _fame(c, 100)
         _letter(c, "good", "The heavens open",
                 f"{p['name']} has stepped into Immortal Ascension. The {c['name']} will be spoken of for ten thousand years. "
                 "The sect carries on for as long as you care to guide it.")
+        dao.succession(c)
     return {"ok": True, "success": True, "perfect": perfect, "event": ev}
 
 
@@ -934,6 +939,8 @@ def _omen(c: dict, r: random.Random, kind: str, src: dict | None = None, boost: 
     if _lvl(c, "ward"):
         opts.append(("wards", "Seal the gates and hold behind the wards"))
     cost = max(5, int(strength / 10))
+    if c["elixirs"]["berserk"] >= 1:
+        opts.append(("berserk", "Hand out Berserk Pills and charge (+30% strength, then wounds)"))
     if kind == "raid" and c["res"]["stones"] >= cost:
         opts.append(("tribute", f"Pay them off ({cost} spirit stones)"))
     _ask(c, "omen", f"{who} approach{'es' if kind == 'beasts' else ''}",
@@ -955,13 +962,25 @@ def _threat(c: dict, r: random.Random, kind: str, strength: float, how: str = "f
         for p in c["pawns"]:
             _think(p, "tribute", "The sect paid tribute", -4, 48, c["hour"])
         return _letter(c, "info", "Tribute was paid", f"{cost} spirit stones bought peace. The disciples keep their eyes on the ground.")
+    berserk = how == "berserk"
+    if berserk:
+        how = "fight"
+        c["elixirs"]["berserk"] = max(0, c["elixirs"]["berserk"] - 1)
     ward = ward_power(c)
-    d = ward * 2 + (defense(c) - ward) * 0.5 if how == "wards" else defense(c)
+    d = ward * 2 + (defense(c) - ward) * 0.5 if how == "wards" else defense(c) * (1.3 if berserk else 1.0)
+    aid = dao.ally_aid(c, src)
+    d += aid
     ratio = d / max(strength, 1.0)
     soft = 0.5 if how == "wards" else 1.0
     fighters = [p for p in _home(c) if combat_power(c, p) > 0]
     for p in fighters:
         _xp(p, "combat", 12 * soft)
+        if berserk:
+            p["health"] = max(10.0, p["health"] - 12)
+            p["toxin"] += 1.5
+    dao.after_fight(c, fighters, ratio, how, src, kind)
+    if aid:
+        _letter(c, "info", "Allied disciples stood with you", "Your allies kept their oath and sent swords to the gate.")
 
     def wound(lo: int, hi: int, n: int) -> list[str]:
         pool = fighters or _home(c) or c["pawns"]
@@ -1019,8 +1038,8 @@ def _threat(c: dict, r: random.Random, kind: str, strength: float, how: str = "f
     dead = []
     for p in list(c["pawns"]):
         if p["health"] <= 0:
-            if p.get("master") or not tell["deaths"] or p not in fighters:
-                p["health"] = 6.0
+            if p.get("master") or not tell["deaths"] or p not in fighters or dao.saved_by_companion(c, p, fighters):
+                p["health"] = max(p["health"], 6.0)
             else:
                 dead.append(p["name"])
                 _die(c, p)
@@ -1083,6 +1102,8 @@ def _daily_event(c: dict) -> None:
                  "Whom do you send?",
                  [(p["id"], f"Send {p['name']} (strength {int(duel_power(c, p))})") for p in champs] + [("decline", "Stay home this year")])
             return
+    if dao.calendar(c, r, day, year, doy):
+        return
     if r.random() > tell["event"] * (1.3 if _lvl(c, "market") else 1.0):
         return
     c["last_event_day"] = day
@@ -1105,10 +1126,13 @@ def _daily_event(c: dict) -> None:
              ("spy", 4 if rival and rival["rel"] < 0 and len(others) >= 3 and day >= 14 else 0),
              ("village", 8 if others and day >= 5 else 0),
              ("cliff", 5 if len(others) >= 3 and day >= 8 else 0), ("epiphany", 6), ("furnace", 5 if _lvl(c, "alchemy") else 0)]
-    if tell["threat"] > 0 and day >= 6 and day - c["last_threat_day"] >= tell["threat_gap"]:
+    table += dao.table(c, day, others)
+    if tell["threat"] > 0 and day >= 6 and day - c["last_threat_day"] >= tell["threat_gap"] and not c["siege"]:
         table += [("beasts", 16), ("raid", 12 if day >= 12 else 0)]
     kinds, weights = zip(*[(k, w) for k, w in table if w > 0])
     kind = r.choices(kinds, weights)[0]
+    if dao.raise_event(c, r, kind):
+        return
     if kind == "quest":
         _offer_quest(c, r)
     elif kind == "wanderer":
@@ -1539,10 +1563,17 @@ def resolve(st: dict, option: str, now: float) -> dict:
     if option not in {o["id"] for o in ev["options"]}:
         return {"ok": False, "error": "That is not one of the choices."}
     c["pending"] = None
+    saved = copy.deepcopy([(p["id"], p["thoughts"]) for p in c["pawns"]]), dict(c["bonds"]), copy.deepcopy(c["siege"])
+    dao.before_choice(c, ev, option)
     fn = _RESOLVERS.get(ev["kind"])
     out = fn(c, ev, option, _rng(c, "res", ev["kind"], c["hour"])) if fn else None
     if isinstance(out, tuple):
         c["pending"] = ev
+        for pid, th in saved[0]:                      # the choice did not happen: nobody reacts to it
+            q = _p(c, pid)
+            if q:
+                q["thoughts"] = th
+        c["bonds"], c["siege"] = saved[1], saved[2]
         return {"ok": False, "error": out[1]}
     return {"ok": True, "event": out} if out else {"ok": True}
 
@@ -1551,6 +1582,8 @@ def _later(c: dict, item: dict) -> bool:
     """A consequence that was set in motion earlier comes due. False = try again later."""
     r = _rng(c, "later", item["kind"], c["hour"])
     kind = item["kind"]
+    if kind in dao.LATER:
+        return dao.later(c, item, r)
     if kind == "elder":
         s = _sect(c, item.get("src", ""))
         if c["pending"]:
@@ -1815,6 +1848,7 @@ def equip(st: dict, pawn_id: str, art_id: str, now: float) -> dict:
     if old and old is not a:
         old["owner"] = ""
     a["owner"] = p["id"]
+    dao.on_equip(c, p, a)
     for o in _friends(c, p, -1):
         _think(o, "passed_over", f"Passed over for {p['name']}", -6, 48, c["hour"])
     return {"ok": True, "event": _letter(c, "info", f"{p['name']} received the {a['name']}", artifact_text(a))}
@@ -1876,6 +1910,7 @@ def _check_works(c: dict) -> None:
     for w in works(c):
         if w["done"] and not c["flags"].get("work_" + w["id"]):
             c["flags"]["work_" + w["id"]] = 1
+            dao.poem(c, c["name"])
             _fame(c, 25)
             for p in c["pawns"]:
                 _think(p, "work", f"The sect achieved {w['name']}", 12, 120, c["hour"])
@@ -1967,6 +2002,7 @@ def _quest_tick(c: dict) -> None:
         for p in c["pawns"]:
             _think(p, "broke_word", "The sect broke its word", -5, 72, c["hour"])
         _letter(c, "bad", "A promise was broken", f"{q['title']}: the deadline passed. People will remember.")
+        dao.on_broken_promise(c)
 
 
 # ---------------------------------------------------------------------------
@@ -2035,6 +2071,9 @@ def _trip_return(c: dict, item: dict, r: random.Random) -> None:
         n = int(r.randint(14, 24) * min(1.3, luck + 0.3))
         _add(c, "herbs", n)
         found.append(f"{n} herbs")
+        rare = r.randint(1, 2)
+        c["rare"] += rare
+        found.append(f"{rare} hundred-year spirit herb{'s' if rare > 1 else ''}")
     elif item.get("place") == "forest":
         n = int(r.randint(8, 16) * luck)
         _add(c, "stones", n)
@@ -2083,6 +2122,9 @@ def _hour(c: dict, quiet: bool) -> None:
     for p in list(c["pawns"]):
         _tick_pawn(c, p, taken, quiet)
     _socialise(c, quiet)
+    dao.hourly(c, quiet)
+    if c["hour"] % 24 == 5:
+        dao.daily(c, quiet)
     if not quiet:
         _quest_tick(c)
         _guide(c)
@@ -2215,6 +2257,7 @@ def use_pill(st: dict, pawn_id: str, now: float) -> dict:
     if c["res"]["pills"] < 1:
         return {"ok": False, "error": "No pills in the stores. Brew some in the Alchemy Hall."}
     c["res"]["pills"] -= 1
+    p["toxin"] += 1.0                                  # pills are not rice
     p["health"] = min(100.0, p["health"] + 45)
     p["sick_until"] = 0
     return {"ok": True}
@@ -2406,6 +2449,7 @@ def _pawn_view(c: dict, p: dict) -> dict:
         "odds": [{"label": str(a), "v": _f(b)} for a, b in bt_odds(c, p)] if ready(p) else [],
         "mood_why": [{"label": str(a), "v": _f(b)} for a, b in mood_mods(c, p)],
         "arts": [lore.MANUALS[m]["name"] for m in (_manual(c, p, k)[1] for k in lore.MANUAL_BONUS) if m],
+        **dao.pawn_view(c, p),
         "origin": str(p.get("origin") or ""), "element": str(p["element"]), "direct": bool(p.get("direct")),
         "qi_why": [{"label": str(a), "x": _f(b, 2)} for a, b in qi_rate(c, p)], "qi_x": _f(math.prod(b for _, b in qi_rate(c, p)), 2),
         "artifact": ({"id": str(artifact_of(c, p)["id"]), "name": str(artifact_of(c, p)["name"]), "text": artifact_text(artifact_of(c, p))}
@@ -2436,7 +2480,7 @@ def _alerts(c: dict) -> list[dict]:
         out.append({"kind": "info", "text": f"{len(c['pawns']) - beds(c)} disciple{'s' if len(c['pawns']) - beds(c) != 1 else ''} without a bed. Raise the Dormitory."})
     if _lvl(c, "library") and not c["research"]["current"] and len(c["research"]["done"]) < len(RESEARCH):
         out.append({"kind": "info", "text": "The Scripture Pavilion is idle. Choose something to research."})
-    return out[:6]
+    return (dao.alerts(c) + out)[:7]
 
 
 def view(st: dict, now: float) -> dict:
@@ -2470,6 +2514,7 @@ def view(st: dict, now: float) -> dict:
         "res": [{"id": k, "name": RES_NAMES[k], "n": _f(c["res"][k]),
                  "cap": _f(_cap(c)) if k in ("rice", "wood", "stone", "herbs") else None} for k in RES],
         "insight": _f(c["insight"]), "wealth": _f(wealth(c)), "defense": _f(defense(c)),
+        **dao.view(c),
         "fame": _f(c["fame"]), "alerts": _alerts(c), "renown": renown(float(c["fame"])),
         "guide": ({"text": GUIDE[c["guide"]["i"]][1], "n": _f(c["guide"]["i"]) + 1, "total": len(GUIDE)}
                   if not c["guide"]["skip"] and c["guide"]["i"] < len(GUIDE) and c["name"] else None),
@@ -2488,7 +2533,7 @@ def view(st: dict, now: float) -> dict:
         "annals": [{"year": _f(e["hour"]) // (24 * DAYS_PER_SEASON * 4) + 1, "day": _f(e["hour"]) // 24 + 1, "text": str(e["text"])}
                    for e in reversed(c["annals"][-80:])],
         "sects": [{"id": str(x["id"]), "name": str(x["name"]), "kind": str(x["kind"]), "rel": _f(x["rel"]), "stance": stance(float(x["rel"])),
-                   "young": str(x["young"])} for x in c["sects"]],
+                   "young": str(x["young"]), "ally": bool(x.get("ally"))} for x in c["sects"]],
         "manuals": [{"id": k, "name": lore.MANUALS[k]["name"], "grade": lore.GRADES[lore.MANUALS[k]["grade"]],
                      "kind": lore.MANUAL_KIND[lore.MANUALS[k]["kind"]], "demonic": bool(lore.MANUALS[k].get("demonic")),
                      "bonus": _f(100 * lore.MANUAL_BONUS[lore.MANUALS[k]["kind"]][lore.MANUALS[k]["grade"]]),
@@ -2507,7 +2552,7 @@ def view(st: dict, now: float) -> dict:
                                for k, v in RESEARCH.items()],
                      "has_library": _lvl(c, "library") > 0},
         "pending": ({"title": str(pending["title"]), "text": str(pending["text"]), "kind": str(pending["kind"]),
-                     "options": [{"id": str(o["id"]), "label": str(o["label"])} for o in pending["options"]]} if pending else None),
+                     "options": dao.annotate(c, pending)} if pending else None),
         "log": [{"hour": _f(e["hour"]), "day": _f(e["hour"]) // 24 + 1, "kind": str(e["kind"]), "title": str(e["title"]), "text": str(e["text"])}
                 for e in reversed(c["log"][-30:])],
         # study habit
@@ -2630,6 +2675,7 @@ def _repair(c: dict) -> None:
                    "days": int(num(q.get("days"), 1, 99, 7.0)), "src": str(q.get("src") or ""), "title": str(q.get("title") or "A promise")}
                   if isinstance(q, dict) and q.get("res") in RES else None)
     c["festival"] = str(c.get("festival") or "")
+    dao.repair(c, num)
     ids = {p["id"] for p in c["pawns"]}
     c["artifacts"] = [{"id": str(a.get("id") or f"a{i}"), "name": str(a.get("name") or "Nameless artifact"), "kind": a["kind"], "q": int(num(a.get("q"), 0, 2)),
                        "origin": str(a.get("origin") or ""), "owner": a.get("owner") if a.get("owner") in ids else ""}
@@ -2647,3 +2693,9 @@ def _repair(c: dict) -> None:
     c["builds"] = [x for x in c["builds"] if isinstance(x, dict) and x.get("room") in ROOMS
                    and isinstance(x.get("need"), (int, float)) and x["need"] > 0 and isinstance(x.get("done"), (int, float))][:20]
     c["res"] = {k: num(c["res"].get(k), 0, 1e7) for k in RES}
+
+
+from . import dao  # noqa: E402  (dao needs this module; it is imported last so every name above exists)
+
+PAWN_EXTRA.update(dao.PAWN)
+_RESOLVERS.update(dao.RESOLVERS)

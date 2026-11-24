@@ -82,7 +82,7 @@ export function mountSect(h) {
   function paintTop() {
     const z = $('#z-top'); if (!z) return;
     z.innerHTML = `<header class="status">
-        <h1>${esc(S.name)}<small>${esc(S.renown)} · Day ${S.season_day} of ${esc(S.season)}, year ${S.year} · ${clock()}${S.seclusion ? ' · gates sealed' : ''}</small></h1>
+        <h1>${esc(S.name)}<small>${esc(S.renown)}${S.demonic ? ' · demonic path' : ''} · Day ${S.season_day} of ${esc(S.season)}, year ${S.year} · ${clock()}${S.seclusion ? ' · gates sealed' : ''}</small></h1>
         <span class="pill flame ${S.streak ? '' : 'off'}" title="Study streak. Best: ${S.best_streak}">${ICON.flame}${S.streak}</span>
         <span class="speed" role="group" aria-label="Game speed">
           <button class="${speed === 0 ? 'on' : ''}" data-speed="0" aria-label="Pause">${ICON.pause}</button>
@@ -97,6 +97,7 @@ export function mountSect(h) {
       </div>
       ${S.guide ? `<div class="guide tutor">${portrait('guide', { kind: 'elder', size: 52 })}<div class="speech"><small class="dim">The elder's counsel · ${S.guide.n} of ${S.guide.total}</small><br>${esc(S.guide.text)}
           <button class="linkish dim small" data-skipguide style="margin-left:8px">I know colony sims, skip</button></div></div>` : ''}
+      ${S.siege ? `<p class="warn">⚔ Under siege by the ${esc(S.siege.sect)}: battle ${S.siege.stage} of three is coming. Train, brew, and mend the wounded.</p>` : ''}
       ${S.quest ? `<p class="questline ${S.quest.ready ? 'ready' : ''}">📜 <b>${esc(S.quest.title)}</b>: ${S.quest.have}/${S.quest.n} ${esc(S.quest.res)}, ${S.quest.days_left} day${S.quest.days_left === 1 ? '' : 's'} left.
           ${S.quest.ready ? '<button class="btn primary" data-deliver>Deliver</button>' : ''}</p>` : ''}
       ${S.alerts.length ? `<ul class="alerts">${S.alerts.map((a) => `<li class="${esc(a.kind)}">${a.pawn ? `<button class="linkish" data-pawn="${esc(a.pawn)}">${esc(a.text)}</button>` : esc(a.text)}</li>`).join('')}</ul>` : ''}`;
@@ -109,12 +110,12 @@ export function mountSect(h) {
   function paintEvent() {
     const z = $('#z-event'); if (!z) return;
     const ev = S.pending;
-    const sig = ev ? ev.title + ev.text + ev.options.length : '';
+    const sig = ev ? ev.title + ev.text + ev.options.map((o) => o.id + o.warn + o.counsel).join() : '';
     if (z.dataset.sig === sig) return;
     z.dataset.sig = sig;
     z.innerHTML = ev ? `<section class="panel event" style="background-image:linear-gradient(90deg,#120d0af2 0%,#120d0ad9 55%,#120d0a66 100%),url(${backdrop(EVENT_ART[ev.kind] || 'hall')})">
       <h2>${esc(ev.title)}</h2><p>${esc(ev.text)}</p>
-      <div class="choices">${ev.options.map((o, i) => `<button class="btn ${i === 0 ? 'primary' : ''}" data-opt="${esc(o.id)}">${esc(o.label)}</button>`).join('')}</div>
+      <div class="choices">${ev.options.map((o, i) => `<button class="btn ${i === 0 ? 'primary' : ''}" data-opt="${esc(o.id)}">${esc(o.label)}${o.counsel ? ' <span class="tag jade">the elders advise this</span>' : ''}${o.warn ? ` <span class="tag red">breaks “${esc(o.warn)}”</span>` : ''}</button>`).join('')}</div>
       <p class="dim small" style="margin:8px 0 0">Time waits for your answer.</p></section>` : '';
     z.querySelectorAll('[data-opt]').forEach((b) => { b.onclick = () => order('resolve', { option: b.dataset.opt }); });
     if (ev) z.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -170,6 +171,9 @@ export function mountSect(h) {
     z.querySelectorAll('[data-build]').forEach((b) => { b.onclick = () => order('build', { room: b.dataset.build }); });
     z.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => order('cancel-build', { index: Number(b.dataset.cancel) }); });
     z.querySelectorAll('[data-tech]').forEach((b) => { b.onclick = () => order('research', { tech: b.dataset.tech }); });
+    z.querySelectorAll('[data-precept]').forEach((b) => { b.onclick = () => order('precept', { precept: b.dataset.precept, on: b.dataset.on === '1' }); });
+    z.querySelectorAll('[data-recipe]').forEach((b) => { b.onclick = () => order('recipe', { recipe: b.dataset.recipe }); });
+    z.querySelectorAll('[data-ally]').forEach((b) => { b.onclick = () => order('ally', { sect: b.dataset.ally }); });
     z.querySelectorAll('[data-forge]').forEach((b) => { b.onclick = () => order('forge'); });
     z.querySelectorAll('[data-trip]').forEach((b) => { b.onclick = () => order('expedition', { place: b.dataset.trip }); });
     z.querySelectorAll('[data-gift]').forEach((b) => { b.onclick = () => order('gift', { sect: b.dataset.gift }); });
@@ -182,6 +186,7 @@ export function mountSect(h) {
       <span class="grow"><b>${esc(p.name)}</b>${p.title ? ` <i class="dim">${esc(p.title)}</i>` : ''}${p.master ? ' <span class="tag gold">You</span>' : ''}
         <span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="tag">${esc(p.rank)}</span>${p.direct ? ' <span class="tag gold">Direct disciple</span>' : ''}
         ${p.bonds.filter((x) => x.kind).slice(0, 2).map((x) => `<span class="tag ${x.kind === 'rival' ? 'red' : 'jade'}">${x.kind === 'rival' ? '⚔' : '♥'} ${esc(x.name.split(' ')[0])}</span>`).join(' ')}
+        ${p.companion ? `<span class="tag violet">☯ ${esc(p.companion.split(' ')[0])}</span>` : ''}${p.demon ? ` <span class="tag red">Heart demon${p.demon > 1 ? ` ×${p.demon}` : ''}</span>` : ''}
         <span class="doing">${p.ready ? `<span class="tag gold">⚡ Ready for ${esc(p.next_realm)}</span> ` : ''}${p.broken ? '<span class="tag red">Qi deviation</span> ' : ''}${p.inspired ? '<span class="tag jade">Inspired</span> ' : ''}${p.sick ? '<span class="tag red">Sick</span> ' : ''}${esc(p.doing)}</span>
         <span class="needs"><span title="Mood ${p.mood}">Mood ${bar(p.mood, moodCls(p.mood))}</span><span title="Food ${p.food}">Food ${bar(p.food, p.food < 25 ? 'verm' : 'azure')}</span>
           <span title="Rest ${p.rest}">Rest ${bar(p.rest, p.rest < 25 ? 'verm' : 'azure')}</span><span title="Health ${p.health}">Health ${bar(p.health, p.health < 50 ? 'verm' : 'jade')}</span></span>
@@ -227,7 +232,12 @@ export function mountSect(h) {
     const relCls = (r) => (r >= 15 ? 'jade' : r > -15 ? '' : 'red');
     return `<div class="banner" style="background-image:linear-gradient(#120d0a55,#120d0acc),url(${backdrop('map')})"><h2>${esc(S.name)}</h2>
         <p>Fame <b class="num">${S.fame}</b>. Fame is won at the gate, in the arena and under the lightning; talented youths seek out famous sects.</p></div>
-      <h3>Great Works</h3>
+      ${S.blessings.length ? `<p>${S.blessings.map((b) => `<span class="tag gold">${esc(b)}</span>`).join(' ')}</p>` : ''}
+      <h3>Precepts</h3>
+      <p class="dim small">What the sect stands for: up to three. Each helps every day, and each makes some choices a betrayal the disciples will feel.${S.council ? ' The elders now offer counsel on great decisions; overruling them costs their goodwill.' : ''}</p>
+      <ul class="list">${S.precepts.map((x) => `<li class="row"><span class="grow"><b>${esc(x.name)}</b> ${x.on ? '<span class="tag gold">Sworn</span>' : ''}<br><span class="small dim">${esc(x.text)}</span></span>
+          <button class="btn ${x.on ? 'quiet' : ''}" data-precept="${esc(x.id)}" data-on="${x.on ? '0' : '1'}">${x.on ? 'Abandon' : 'Swear to it'}</button></li>`).join('')}</ul>
+      <h3 style="margin-top:16px">Great Works</h3>
       <p class="dim small">Long goals with no deadline. Each one finished brings fame and a day the disciples never forget.</p>
       <div class="works">${S.works.map((w) => `<div class="work ${w.done ? 'done' : ''}"><b>${esc(w.name)}</b> ${w.done ? '<span class="tag gold">Achieved</span>' : ''}<br><span class="small dim">${esc(w.text)}</span>
           <ul>${w.lines.map((l) => `<li class="${l.ok ? 'ok' : ''}">${l.ok ? '✓' : '○'} ${esc(l.text)}</li>`).join('')}</ul></div>`).join('')}</div>
@@ -238,7 +248,16 @@ export function mountSect(h) {
       <h3 style="margin-top:16px">The sects of the region</h3>
       <ul class="list">${S.sects.map((x) => `<li class="row"><span class="grow"><b>${esc(x.name)}</b> <span class="tag">${esc(x.kind)}</span> <span class="tag ${relCls(x.rel)}">${esc(x.stance)} ${x.rel > 0 ? '+' : ''}${x.rel}</span>
           <br><span class="small dim">Young master: ${esc(x.young)}. ${x.rel <= -15 ? 'Their raiders know the way to your gate.' : x.rel >= 15 ? 'They will not raid you.' : 'They are watching.'}</span></span>
+          ${x.ally ? '<span class="tag gold">Sworn ally</span>' : x.rel >= 50 ? `<button class="btn primary" data-ally="${esc(x.id)}" ${stones >= 20 ? '' : 'disabled'}>Swear alliance (20 💎)</button>` : ''}
           <button class="btn" data-gift="${esc(x.id)}" ${stones >= 10 ? '' : 'disabled'}>Send gifts (10 💎)</button></li>`).join('')}</ul>
+      <h3 style="margin-top:16px">The mortal kingdom</h3>
+      <p>The lowland lord is <b>${esc(S.kingdom.stance.toLowerCase())}</b> <span class="tag ${S.kingdom.favour >= 30 ? 'jade' : S.kingdom.favour <= -30 ? 'red' : ''}">${S.kingdom.favour > 0 ? '+' : ''}${S.kingdom.favour}</span>
+        <span class="dim small">A grateful lord sends rice each autumn; a resentful one sends tax collectors.</span></p>
+      <h3 style="margin-top:16px">Alchemy</h3>
+      <p class="dim small">What the Alchemy Hall brews. Special pills need hundred-year spirit herbs (you hold ${S.rare}) from Herb Valley or lucky foraging; a clumsy alchemist can ruin a batch.
+        In the stores: ${S.elixirs.marrow} Marrow-Cleansing, ${S.elixirs.berserk} Berserk.</p>
+      <ul class="list">${S.recipes.map((x) => `<li class="row"><span class="grow"><b>${esc(x.name)}</b> ${x.on ? '<span class="tag gold">Brewing</span>' : ''}${x.cost ? ` <span class="tag">${esc(x.cost)}</span>` : ''}<br><span class="small dim">${esc(x.text)}</span></span>
+          ${x.on ? '' : `<button class="btn" data-recipe="${esc(x.id)}">Brew this</button>`}</li>`).join('')}</ul>
       <h3 style="margin-top:16px">Scripture Pavilion</h3>
       <p class="dim small">Each disciple practises the best manual of each kind that their rank allows. Outer disciples read Yellow grade, Inner disciples Mystic, Core disciples Earth, Elders and the Sect Master Heaven.</p>
       <ul class="list">${S.manuals.map((m) => `<li class="row"><span class="grow"><b>${esc(m.name)}</b> <span class="tag ${m.demonic ? 'red' : 'gold'}">${m.demonic ? 'Forbidden' : `${esc(m.grade)} grade`}</span>
@@ -257,7 +276,9 @@ export function mountSect(h) {
   function chronicle() {
     const recent = S.log.length ? `<ul class="list">${S.log.map((e) => `<li class="letter ${esc(e.kind)}"><b>${esc(e.title)}</b> <span class="dim small">day ${e.day}</span><br><span class="small">${esc(e.text)}</span></li>`).join('')}</ul>`
       : '<p class="dim">Nothing has happened yet.</p>';
-    return `${recent}<h3 style="margin-top:18px">Annals of the ${esc(S.name)}</h3><p class="dim small">What will be remembered: who came, who rose, who fell.</p>
+    const rumours = S.rumours.length ? `<div class="rumours"><b>Heard in the tea house</b><ul>${S.rumours.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
+    const graves = S.tombs.length ? `<h3 style="margin-top:18px">The north slope</h3><ul class="list">${S.tombs.map((g) => `<li>🪦 <b>${esc(g.name)}</b> <span class="dim small">${esc(g.realm)}, died on day ${g.day}</span></li>`).join('')}</ul>` : '';
+    return `${rumours}${recent}${graves}<h3 style="margin-top:18px">Annals of the ${esc(S.name)}</h3><p class="dim small">What will be remembered: who came, who rose, who fell.</p>
       <ol class="annals">${S.annals.map((a) => `<li><span class="dim small">Year ${a.year}, day ${a.day}</span> ${esc(a.text)}</li>`).join('')}</ol>`;
   }
 
@@ -293,6 +314,20 @@ export function mountSect(h) {
       ${p.master ? '' : `<h3 style="margin-top:14px">Standing</h3>
       <p class="small dim">A direct disciple stops labouring and only meditates, trains and researches, gathering qi a quarter faster, but expects a bed and some ease. The sect can spare ${S.direct_cap} (${S.direct_n} chosen).</p>
       <button class="btn" data-direct="${p.direct ? '0' : '1'}">${p.direct ? 'Return them to ordinary duties' : 'Take as a direct disciple'}</button>`}
+      <h3 style="margin-top:14px">Lineage and road</h3>
+      <ul class="list">
+        <li class="row"><span class="grow">Master: <b>${p.mentor ? esc(p.mentor) : p.master ? 'none (you lead the sect)' : 'none'}</b>${p.student ? ` · Personal disciple: <b>${esc(p.student)}</b>` : ''}</span>
+          ${p.mentors.map((m) => `<button class="btn" data-mentor="${esc(m.id)}">Kneel to ${esc(m.name.split(' ')[0])}</button>`).join('')}</li>
+        <li class="row"><span class="grow">Dao companion: <b>${p.companion ? esc(p.companion) : 'none'}</b></span>
+          ${p.can_bind.map((m) => `<button class="btn" data-bind="${esc(m.id)}">Bind with ${esc(m.name.split(' ')[0])}</button>`).join('')}</li>
+        <li class="row"><span class="grow">Path: <b>${p.path ? esc(p.path) : 'none yet'}</b>${p.can_path ? '' : p.path ? '' : ' <span class="dim small">(chosen at Foundation Establishment)</span>'}</span>
+          ${p.can_path ? S.paths.map((x) => `<button class="btn" data-path="${esc(x.id)}" title="${esc(x.text)}">${esc(x.name)}</button>`).join('') : ''}</li>
+        <li class="row"><span class="grow">Merit: <b class="num">${p.merit}</b> <span class="dim small">earned by work and at the gate; spent on artifacts from the vault</span></span></li>
+        ${p.demon ? `<li class="row"><span class="grow"><span class="tag red">Heart demon ×${p.demon}</span> <span class="small dim">-${8 * p.demon} to every breakthrough, -${3 * p.demon} mood</span></span><button class="btn seal" data-demon>Face it</button></li>` : ''}
+        ${p.toxin > 3 ? `<li><span class="tag red">Pill toxin ${p.toxin}</span> <span class="small dim">Too many pills. It fades with time.</span></li>` : ''}
+      </ul>
+      <div class="row">${p.can_retreat ? '<button class="btn" data-retreat title="Twelve days sealed in: no work, a great deal of qi, a chance of an epiphany or a qi deviation.">Closed-door seclusion (10 rice)</button>' : ''}
+        ${p.can_marrow ? '<button class="btn" data-marrow>Give the Marrow-Cleansing Pill</button>' : ''}</div>
       <h3 style="margin-top:14px">Bonds</h3>
       ${p.bonds.length ? `<ul class="list">${p.bonds.map((x) => `<li class="row"><span class="grow">${esc(x.name)}${x.kind ? ` <span class="tag ${x.kind === 'rival' ? 'red' : 'jade'}">${esc(x.kind)}</span>` : ''}</span>${signed(x.v)}</li>`).join('')}</ul>
         <p class="dim small">Disciples who work side by side talk. Friends (+30) steady each other and guard a breakthrough; rivals (-30) sour the mood, and may come to blows.</p>`
@@ -309,6 +344,12 @@ export function mountSect(h) {
     const ban = $('[data-banish]', s); if (ban) ban.onclick = async () => { if (!confirm(`Send ${p.name} away from the sect for good?`)) return; closeSheet(); await order('banish', { pawn: id }); };
     s.querySelectorAll('[data-equip]').forEach((b) => { b.onclick = async () => { await order('equip', { pawn: id, artifact: b.dataset.equip }); pawnSheet(id); }; });
     const dd = $('[data-direct]', s); if (dd) dd.onclick = async () => { await order('direct', { pawn: id, on: dd.dataset.direct === '1' }); pawnSheet(id); };
+    s.querySelectorAll('[data-mentor]').forEach((b) => { b.onclick = async () => { await order('apprentice', { pawn: id, other: b.dataset.mentor }); pawnSheet(id); }; });
+    s.querySelectorAll('[data-bind]').forEach((b) => { b.onclick = async () => { await order('companion', { pawn: id, other: b.dataset.bind }); pawnSheet(id); }; });
+    s.querySelectorAll('[data-path]').forEach((b) => { b.onclick = async () => { if (!confirm('A path is chosen once and for life. Choose this one?')) return; await order('path', { pawn: id, path: b.dataset.path }); pawnSheet(id); }; });
+    const dm = $('[data-demon]', s); if (dm) dm.onclick = async () => { closeSheet(); await order('face-demon', { pawn: id }); };
+    const rt = $('[data-retreat]', s); if (rt) rt.onclick = async () => { if (!confirm(`Seal ${p.name} in for twelve days?`)) return; closeSheet(); await order('retreat', { pawn: id }); };
+    const mw = $('[data-marrow]', s); if (mw) mw.onclick = async () => { await order('marrow', { pawn: id }); pawnSheet(id); };
     const go = $('[data-attempt]', s);
     if (go) go.onclick = async () => {
       go.disabled = true;

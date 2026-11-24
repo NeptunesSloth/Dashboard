@@ -84,6 +84,17 @@ python -m sect_academy
   **direct disciples**, who stop labouring and cultivate a quarter faster but
   expect a bed and some ease. A ledger on each disciple's page shows exactly
   what multiplies their cultivation speed.
+- **The long road.** Masters take personal disciples who avenge them; sworn
+  siblings become dao companions who take blows for each other; grief and
+  failed tribulations leave heart demons to be faced. The sect swears up to
+  three precepts and pays for breaking them, elders offer counsel you can
+  overrule at a cost, brawlers come before the punishment hall, and merit
+  earned by work buys artifacts from the vault.
+- **More to do**: named pills from rare herbs, a path (sword, body, formation)
+  chosen at Foundation Establishment, twelve-day closed-door seclusion, a
+  lowland lord to please or defy, sworn alliances, three-stage sieges, the
+  demonic path, a reincarnated ancient, succession when the founder ascends,
+  tea-house rumours, verses carved for great days, and tomb-sweeping.
 - **Things to aim at**: an elder's ten-step guided opening, a festival each
   season, promises to keep by a deadline with a reward you choose, expeditions
   you send out, five untimed **Great Works**, and the sect's permanent annals.

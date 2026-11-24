@@ -41,10 +41,14 @@ sect_academy/
   colony.py     the sect: pawns, needs, work, building, research, storyteller,
                 breakthroughs, rival sects, choice events (see _RESOLVERS)
   lore.py       names and tables for the cultivation world (data only)
+  dao.py        the deeper systems (lineage, companions, heart demons, precepts,
+                merit, council, alchemy, paths, kingdom, alliances, sieges,
+                demonic path, succession); colony.py calls its small hooks
   state.py      one JSON file, always on; sanitises everything it loads
   static/       index.html, academy.js (shell + study), sect.js (colony UI),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js
-tests/          test_engine.py, test_colony.py, test_api.py, smoke_browser.py
+tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py,
+                smoke_browser.py
 docs/           ACADEMY_CONTENT.md, the design spec, research
 ```
 

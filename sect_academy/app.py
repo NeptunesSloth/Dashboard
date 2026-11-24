@@ -22,7 +22,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from . import colony, engine, packs, state
+from . import colony, dao, engine, packs, state
 
 STATIC = Path(__file__).parent / "static"
 app = FastAPI(title="Sect Academy", docs_url=None, redoc_url=None, openapi_url=None)
@@ -211,6 +211,10 @@ class SectIn(BaseModel):
     manual: str = ""
     place: str = ""
     artifact: str = ""
+    other: str = ""
+    precept: str = ""
+    path: str = ""
+    recipe: str = ""
     on: bool = False
 
 
@@ -400,6 +404,24 @@ def sect(action: str, body: SectIn):
             res = colony.gift(st, body.sect, now)
         elif action == "burn":
             res = colony.burn_manual(st, body.manual, now)
+        elif action == "apprentice":
+            res = dao.apprentice(st, body.pawn, body.other, now)
+        elif action == "companion":
+            res = dao.companion(st, body.pawn, body.other, now)
+        elif action == "face-demon":
+            res = dao.face_demon(st, body.pawn, now)
+        elif action == "precept":
+            res = dao.set_precept(st, body.precept, body.on, now)
+        elif action == "path":
+            res = dao.set_path(st, body.pawn, body.path, now)
+        elif action == "retreat":
+            res = dao.retreat(st, body.pawn, now)
+        elif action == "recipe":
+            res = dao.set_recipe(st, body.recipe, now)
+        elif action == "marrow":
+            res = dao.take_marrow(st, body.pawn, now)
+        elif action == "ally":
+            res = dao.ally(st, body.sect, now)
         elif action == "forge":
             res = colony.forge(st, now)
         elif action == "equip":
