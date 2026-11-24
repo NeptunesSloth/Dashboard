@@ -19,12 +19,13 @@ python -m sect_academy
 
 ## What is in it
 
-**Courses** (about 3,800 hand-checked items, all original)
+**Courses** (about 4,800 items, all original, each independently re-checked)
 
 | Course | Size | Notes |
 |---|---|---|
-| French A1, French A2 | 20 + 12 units | From zero to elementary; typed recall and dictation |
-| Spanish A1, Spanish A2 | 20 + 12 units | Spain Spanish, Latin American variants accepted |
+| French A1, A2, B1 | 20 + 12 + 12 units | From zero to intermediate; typed recall and dictation |
+| French Conversations | 8 units, 56 dialogues | Rehearsed exchanges, A1 to B1: you speak one side |
+| Spanish A1, A2, B1 | 20 + 12 + 12 units | Spain Spanish, Latin American variants accepted |
 | CompTIA Security+ (SY0-801) | 25 units | Every exam domain, plus exam-hard practice |
 | CompTIA Network+ (N10-009) | 22 units | Every exam domain, heavy on subnetting and troubleshooting |
 | ISC2 Certified in Cybersecurity | 15 units | Sept 2026 outline |
@@ -36,8 +37,14 @@ python -m sect_academy
 - A **daily session** is scheduled for you by spaced repetition (FSRS-6): what
   is due for review first, then a ration of new items.
 - Exercises get harder as you remember more: recognise, recall, type from
-  memory, type from audio. Certification items include single-answer,
-  choose-two and put-in-order questions.
+  memory, build a sentence from word tiles, type from audio. Certification
+  items include single-answer, choose-two and put-in-order questions.
+- **Conversations**: the app speaks the other person's lines; you answer from
+  an English cue, first by arranging the words and later from memory, and are
+  told to say every line aloud. Several natural answers are accepted.
+- **Best-answer questions** (300+): four options that are all reasonable, and
+  you must pick the BEST, the FIRST or the MOST effective, as on the real exams.
+  Afterwards every option gets its own reason.
 - **Trials** are timed mock exams drawn across the official domains by their
   exam weights. They are deliberately harder than the real thing: the questions
   are scenario-based and the pass mark is 85%. Each cert course has a
@@ -50,9 +57,19 @@ python -m sect_academy
   decide hour by hour what to do.
 - You gather rice, wood, stone and herbs, **build and raise eleven rooms**,
   **research** eight techniques, brew pills, and take in wanderers.
-- A **storyteller** sends events: merchants, windfalls, sickness, cold snaps,
-  beast tides and raids that scale with your wealth. Pick a gentle, balanced or
-  harsh one.
+- A **storyteller** sends events and waits for your decision: merchants,
+  windfalls, sickness, cold snaps, and threats you see coming and can fight at
+  the gate, sit out behind the wards, or buy off. Pick a gentle, balanced or
+  harsh one. The world eases off a sect that has just been beaten.
+- **The cultivation world**: disciples rise from Outer to Inner to Core
+  disciple to Elder, and rank decides which **manuals** (Yellow to Heaven
+  grade) they may study. A great-realm **breakthrough** is yours to order, with
+  the odds laid out; from Core Formation up it is a **heavenly tribulation**.
+  Three **rival sects** hold opinions of you. Arrogant young masters block the
+  road (slap his face and his elder comes for revenge), auctions and **secret
+  realms** open, the **Hundred Sects Tournament** comes every autumn, a
+  crippled genius with a plain black ring asks for shelter, and a stranger
+  offers a forbidden sutra. Fame, treasures and a guardian spirit beast follow.
 - The sect **does not depend on studying**: everyone cultivates by meditating.
   Study is a second engine — each correct answer gives the Sect Master qi and
   the sect a point of research insight, a finished session lifts every
@@ -99,6 +116,11 @@ python -m sect_academy & python tests/smoke_browser.py   # browser test, outside
   not by a human teacher or a certified instructor. Treat it as a strong study
   aid, and for the certifications check anything surprising against the vendor's
   current objectives.
+- **Conversation**: the dialogues rehearse real exchanges and make you produce
+  the lines, which is the part most apps skip. They cannot listen to you or
+  talk back freely. To converse comfortably with native speakers you also need
+  hours of real speaking and listening; finish the B1 course, then find a
+  tutor, a language exchange or a conversation group and use what you built.
 - No app can guarantee an exam pass. The readiness checklist is deliberately
   strict so that ticking all four boxes means something.
 - One learner, one sect, one process.

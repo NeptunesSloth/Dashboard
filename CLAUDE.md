@@ -38,10 +38,12 @@ sect_academy/
   packs/        the courses (see docs/ACADEMY_CONTENT.md)
   fsrs.py       FSRS-6 scheduler, published default weights
   engine.py     enrolment, sessions, server-side grading, placement, trials
-  colony.py     the sect: pawns, needs, work, building, research, storyteller
+  colony.py     the sect: pawns, needs, work, building, research, storyteller,
+                breakthroughs, rival sects, choice events (see _RESOLVERS)
+  lore.py       names and tables for the cultivation world (data only)
   state.py      one JSON file, always on; sanitises everything it loads
   static/       index.html, academy.js (shell + study), sect.js (colony UI),
-                art.js (all artwork, vector), academy.css, sw.js
+                art.js (places the painted art), art/*.webp, academy.css, sw.js
 tests/          test_engine.py, test_colony.py, test_api.py, smoke_browser.py
 docs/           ACADEMY_CONTENT.md, the design spec, research
 ```
@@ -64,6 +66,14 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
 - **Escape every string** with `esc()` before `innerHTML`. `colony.view()` casts
   every number server-side; `academy.js` passes other numbers through `num()`.
   `art.js` takes numbers and known ids only — never user text.
+- **The art is painted, not vector.** The owner disliked the bright vector look;
+  keep the lantern-night palette that matches `static/art/`. New images go in
+  `static/art/` as WebP and are served from the fixed list in `app.py`.
+- **Time waits for the player**: while an event is pending or the gates are
+  sealed the sim does not advance (watching or away). Great-realm breakthroughs
+  are never automatic; the player orders them (`colony.attempt`).
+- **A new event needs** a branch in `_daily_event`, a `_res_<kind>` in
+  `_RESOLVERS`, and to survive `test_every_trope_event_can_be_raised...`.
 - **Offline is a hard rule**: no CDN, no web font, no external URL in anything
   the page loads. The CSP in `app.py` is `default-src 'self'`.
 - **State safety** (`state.py`): atomic fsynced writes, a daily `.bak`, a
