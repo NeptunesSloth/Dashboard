@@ -60,3 +60,16 @@ EPITHETS = ["the Face-Slapper", "Young-Master's Bane", "the Unbowed"]
 RING_LINES = [
     "Thirty years east of the river, thirty years west of the river. Do not bully the young for being poor.",
 ]
+
+# (one line of story, the skill it left them with, how much)
+ORIGINS = [
+    ("Orphan of a village the beasts razed.", "combat", 3), ("A scholar who failed the imperial examination three times.", "scholar", 3),
+    ("Ran away from a rival sect's outer court.", "combat", 2), ("A herb-gatherer's child who knows every slope.", "gather", 3),
+    ("Third child of a rice farmer; there was no land left to inherit.", "farm", 3), ("An apothecary's apprentice who read the wrong book.", "craft", 3),
+    ("A carpenter who rebuilt half a town after the flood.", "build", 3), ("A caravan guard whose caravan never arrived.", "combat", 2),
+    ("A temple novice who asked too many questions.", "scholar", 2), ("A street performer who swallowed fire for coppers.", "craft", 2),
+    ("A debtor's child, sold and escaped.", "gather", 2), ("A minor noble's unwanted heir.", "scholar", 2),
+    ("A quarry worker with lungs full of dust and arms like rope.", "gather", 3), ("A cook who claims the secret is always patience.", "craft", 2),
+    ("A deserter from a border garrison.", "combat", 3), ("A wandering storyteller who half believes the stories.", "scholar", 2),
+    ("A fisherman's child who saw something in the lake.", "farm", 2), ("A mason who carved one grave too many.", "build", 3),
+]

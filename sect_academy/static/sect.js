@@ -81,7 +81,7 @@ export function mountSect(h) {
   function paintTop() {
     const z = $('#z-top'); if (!z) return;
     z.innerHTML = `<header class="status">
-        <h1>${esc(S.name)}<small>Day ${S.season_day} of ${esc(S.season)}, year ${S.year} · ${clock()}${S.seclusion ? ' · gates sealed' : ''}</small></h1>
+        <h1>${esc(S.name)}<small>${esc(S.renown)} · Day ${S.season_day} of ${esc(S.season)}, year ${S.year} · ${clock()}${S.seclusion ? ' · gates sealed' : ''}</small></h1>
         <span class="pill flame ${S.streak ? '' : 'off'}" title="Study streak. Best: ${S.best_streak}">${ICON.flame}${S.streak}</span>
         <span class="speed" role="group" aria-label="Game speed">
           <button class="${speed === 0 ? 'on' : ''}" data-speed="0" aria-label="Pause">${ICON.pause}</button>
@@ -94,9 +94,15 @@ export function mountSect(h) {
         <span class="res" title="How strong the sect's defence is"><span aria-hidden="true">🛡</span><b class="num">${S.defense}</b><small>Defence</small></span>
         <span class="res" title="Fame: won in fights, tournaments and breakthroughs. Draws better recruits."><span aria-hidden="true">🏮</span><b class="num">${S.fame}</b><small>Fame</small></span>
       </div>
+      ${S.guide ? `<div class="guide tutor">${portrait('guide', { kind: 'elder', size: 52 })}<div class="speech"><small class="dim">The elder's counsel · ${S.guide.n} of ${S.guide.total}</small><br>${esc(S.guide.text)}
+          <button class="linkish dim small" data-skipguide style="margin-left:8px">I know colony sims, skip</button></div></div>` : ''}
+      ${S.quest ? `<p class="questline ${S.quest.ready ? 'ready' : ''}">📜 <b>${esc(S.quest.title)}</b>: ${S.quest.have}/${S.quest.n} ${esc(S.quest.res)}, ${S.quest.days_left} day${S.quest.days_left === 1 ? '' : 's'} left.
+          ${S.quest.ready ? '<button class="btn primary" data-deliver>Deliver</button>' : ''}</p>` : ''}
       ${S.alerts.length ? `<ul class="alerts">${S.alerts.map((a) => `<li class="${esc(a.kind)}">${a.pawn ? `<button class="linkish" data-pawn="${esc(a.pawn)}">${esc(a.text)}</button>` : esc(a.text)}</li>`).join('')}</ul>` : ''}`;
     z.querySelectorAll('[data-speed]').forEach((b) => { b.onclick = () => setSpeed(Number(b.dataset.speed)); });
     z.querySelectorAll('[data-pawn]').forEach((b) => { b.onclick = () => pawnSheet(b.dataset.pawn); });
+    const sk = $('[data-skipguide]', z); if (sk) sk.onclick = () => order('guide-skip', {}, true);
+    const dv = $('[data-deliver]', z); if (dv) dv.onclick = () => order('deliver');
   }
 
   function paintEvent() {
@@ -135,7 +141,7 @@ export function mountSect(h) {
         <span class="plaque">${esc(r.name)}${r.open ? `<em>${r.level}</em>` : building.includes(r.id) ? '<em>building</em>' : ''}</span></button>`;
     }).join('');
     const [vx, vy, vw, vh] = VAULT;
-    z.innerHTML = `<div class="hq">${sectScene()}${rooms}
+    z.innerHTML = `<div class="hq">${sectScene()}<div class="daylight" id="daylight"></div>${rooms}
       <button class="room vault" data-vault style="left:${vx}%;top:${vy}%;width:${vw}%;height:${vh}%" aria-label="Treasure vault: manuals, treasures and the world beyond">
         <span class="plaque">Treasure Vault${S.treasures.length ? `<em>${S.treasures.length}</em>` : ''}</span></button></div>`;
     z.querySelectorAll('[data-room]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.room); });
@@ -163,6 +169,7 @@ export function mountSect(h) {
     z.querySelectorAll('[data-build]').forEach((b) => { b.onclick = () => order('build', { room: b.dataset.build }); });
     z.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => order('cancel-build', { index: Number(b.dataset.cancel) }); });
     z.querySelectorAll('[data-tech]').forEach((b) => { b.onclick = () => order('research', { tech: b.dataset.tech }); });
+    z.querySelectorAll('[data-trip]').forEach((b) => { b.onclick = () => order('expedition', { place: b.dataset.trip }); });
     z.querySelectorAll('[data-gift]').forEach((b) => { b.onclick = () => order('gift', { sect: b.dataset.gift }); });
     z.querySelectorAll('[data-burn]').forEach((b) => { b.onclick = () => { if (confirm('Burn this manual? It cannot be recovered.')) order('burn', { manual: b.dataset.burn }); }; });
   }
@@ -172,6 +179,7 @@ export function mountSect(h) {
       ${face(p, 56)}
       <span class="grow"><b>${esc(p.name)}</b>${p.title ? ` <i class="dim">${esc(p.title)}</i>` : ''}${p.master ? ' <span class="tag gold">You</span>' : ''}
         <span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="tag">${esc(p.rank)}</span>
+        ${p.bonds.filter((x) => x.kind).slice(0, 2).map((x) => `<span class="tag ${x.kind === 'rival' ? 'red' : 'jade'}">${x.kind === 'rival' ? '⚔' : '♥'} ${esc(x.name.split(' ')[0])}</span>`).join(' ')}
         <span class="doing">${p.ready ? `<span class="tag gold">⚡ Ready for ${esc(p.next_realm)}</span> ` : ''}${p.broken ? '<span class="tag red">Qi deviation</span> ' : ''}${p.inspired ? '<span class="tag jade">Inspired</span> ' : ''}${p.sick ? '<span class="tag red">Sick</span> ' : ''}${esc(p.doing)}</span>
         <span class="needs"><span title="Mood ${p.mood}">Mood ${bar(p.mood, moodCls(p.mood))}</span><span title="Food ${p.food}">Food ${bar(p.food, p.food < 25 ? 'verm' : 'azure')}</span>
           <span title="Rest ${p.rest}">Rest ${bar(p.rest, p.rest < 25 ? 'verm' : 'azure')}</span><span title="Health ${p.health}">Health ${bar(p.health, p.health < 50 ? 'verm' : 'jade')}</span></span>
@@ -217,7 +225,15 @@ export function mountSect(h) {
     const relCls = (r) => (r >= 15 ? 'jade' : r > -15 ? '' : 'red');
     return `<div class="banner" style="background-image:linear-gradient(#120d0a55,#120d0acc),url(${backdrop('map')})"><h2>${esc(S.name)}</h2>
         <p>Fame <b class="num">${S.fame}</b>. Fame is won at the gate, in the arena and under the lightning; talented youths seek out famous sects.</p></div>
-      <h3>The sects of the region</h3>
+      <h3>Great Works</h3>
+      <p class="dim small">Long goals with no deadline. Each one finished brings fame and a day the disciples never forget.</p>
+      <div class="works">${S.works.map((w) => `<div class="work ${w.done ? 'done' : ''}"><b>${esc(w.name)}</b> ${w.done ? '<span class="tag gold">Achieved</span>' : ''}<br><span class="small dim">${esc(w.text)}</span>
+          <ul>${w.lines.map((l) => `<li class="${l.ok ? 'ok' : ''}">${l.ok ? '✓' : '○'} ${esc(l.text)}</li>`).join('')}</ul></div>`).join('')}</div>
+      <h3 style="margin-top:16px">Expeditions</h3>
+      <p class="dim small">Send your two strongest disciples out. They cannot work or defend the sect while away, and the road forges bonds.</p>
+      <ul class="list">${S.places.map((x) => `<li class="row"><span class="grow"><b>${esc(x.name)}</b> <span class="tag">${x.hours} hours</span><br><span class="small dim">${esc(x.text)}</span></span>
+          <button class="btn" data-trip="${esc(x.id)}" ${S.trip ? 'disabled' : ''}>${S.trip ? 'A party is out' : 'Send a party'}</button></li>`).join('')}</ul>
+      <h3 style="margin-top:16px">The sects of the region</h3>
       <ul class="list">${S.sects.map((x) => `<li class="row"><span class="grow"><b>${esc(x.name)}</b> <span class="tag">${esc(x.kind)}</span> <span class="tag ${relCls(x.rel)}">${esc(x.stance)} ${x.rel > 0 ? '+' : ''}${x.rel}</span>
           <br><span class="small dim">Young master: ${esc(x.young)}. ${x.rel <= -15 ? 'Their raiders know the way to your gate.' : x.rel >= 15 ? 'They will not raid you.' : 'They are watching.'}</span></span>
           <button class="btn" data-gift="${esc(x.id)}" ${stones >= 10 ? '' : 'disabled'}>Send gifts (10 💎)</button></li>`).join('')}</ul>
@@ -233,8 +249,10 @@ export function mountSect(h) {
   }
 
   function chronicle() {
-    return S.log.length ? `<ul class="list">${S.log.map((e) => `<li class="letter ${esc(e.kind)}"><b>${esc(e.title)}</b> <span class="dim small">day ${e.day}</span><br><span class="small">${esc(e.text)}</span></li>`).join('')}</ul>`
+    const recent = S.log.length ? `<ul class="list">${S.log.map((e) => `<li class="letter ${esc(e.kind)}"><b>${esc(e.title)}</b> <span class="dim small">day ${e.day}</span><br><span class="small">${esc(e.text)}</span></li>`).join('')}</ul>`
       : '<p class="dim">Nothing has happened yet.</p>';
+    return `${recent}<h3 style="margin-top:18px">Annals of the ${esc(S.name)}</h3><p class="dim small">What will be remembered: who came, who rose, who fell.</p>
+      <ol class="annals">${S.annals.map((a) => `<li><span class="dim small">Year ${a.year}, day ${a.day}</span> ${esc(a.text)}</li>`).join('')}</ol>`;
   }
 
   /* ---------------- sheets ---------------- */
@@ -250,6 +268,7 @@ export function mountSect(h) {
         <button class="btn primary big" data-attempt>${p.tribulation ? 'Face the tribulation' : 'Attempt the breakthrough'}</button></section>` : '';
     openSheet(`<div class="row" style="align-items:flex-start">${face(p, 84)}<div class="grow"><h2>${esc(p.name)}${p.title ? ` <i class="dim" style="font-size:.8em">${esc(p.title)}</i>` : ''}</h2>
         <p class="dim" style="margin:0">${p.age} · ${esc(p.root)} spirit root · ${esc(p.rank)}${p.master ? ' (you)' : ''}</p>
+        ${p.origin ? `<p class="small" style="margin:4px 0 0"><i>${esc(p.origin)}</i></p>` : ''}
         <p style="margin:6px 0 0"><span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="small dim">${p.qi} / ${p.qi_need} qi</span></p>${bar(p.qi_pct, 'violet')}</div></div>
       ${bt}
       <p style="margin-top:12px">Now: <b>${esc(p.doing)}</b></p>
@@ -258,6 +277,10 @@ export function mountSect(h) {
       <h3 style="margin-top:14px">Why they feel this way</h3>
       ${why.length ? `<ul class="list">${why.map((t) => `<li class="row"><span class="grow">${esc(t.label)}</span>${signed(t.v)}</li>`).join('')}</ul>
         <p class="dim small">Mood settles toward 50 plus these. Below about 20 a disciple may suffer a qi deviation.</p>` : '<p class="dim">Nothing in particular. Their mood rests at 50.</p>'}
+      <h3 style="margin-top:14px">Bonds</h3>
+      ${p.bonds.length ? `<ul class="list">${p.bonds.map((x) => `<li class="row"><span class="grow">${esc(x.name)}${x.kind ? ` <span class="tag ${x.kind === 'rival' ? 'red' : 'jade'}">${esc(x.kind)}</span>` : ''}</span>${signed(x.v)}</li>`).join('')}</ul>
+        <p class="dim small">Disciples who work side by side talk. Friends (+30) steady each other and guard a breakthrough; rivals (-30) sour the mood, and may come to blows.</p>`
+        : '<p class="dim">They have not grown close to anyone yet, nor fallen out.</p>'}
       ${p.arts.length ? `<h3 style="margin-top:14px">Practising</h3><p>${p.arts.map((a) => `<span class="tag gold">${esc(a)}</span>`).join(' ')}</p>` : ''}
       <h3 style="margin-top:14px">Traits</h3>
       <ul class="list">${p.traits.map((t) => `<li><b>${esc(t.name)}</b> <span class="dim small">${esc(t.text)}</span></li>`).join('')}</ul>
@@ -291,7 +314,13 @@ export function mountSect(h) {
     const go = $('[data-go]', $('#sheet')); if (go) go.onclick = async () => { closeSheet(); await order('build', { room: id }); };
   }
 
-  function paint() { paintTop(); paintEvent(); paintScene(); paintTabs(); }
+  function paintLight() {
+    const d = $('#daylight'); if (!d) return;
+    const hh = S.hod;
+    d.className = `daylight ${hh >= 21 || hh < 5 ? 'night' : hh < 8 ? 'dawn' : hh >= 18 ? 'dusk' : 'day'} ${S.season === 'Winter' ? 'winter' : ''}`;
+  }
+
+  function paint() { paintTop(); paintEvent(); paintScene(); paintLight(); paintTabs(); }
 
   view.innerHTML = `<div id="sect-root"><div id="z-top"></div><div class="grid2">${h.todayPanel()}${h.masterPanel()}</div>
     <div id="z-event"></div><section class="panel scenewrap" id="z-scene"></section><section class="panel" id="z-tabs" style="margin-top:14px"></section></div>`;

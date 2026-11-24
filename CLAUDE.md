@@ -72,6 +72,10 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
 - **Time waits for the player**: while an event is pending or the gates are
   sealed the sim does not advance (watching or away). Great-realm breakthroughs
   are never automatic; the player orders them (`colony.attempt`).
+- **Difficulty is tuned by simulation, not by feel.** Before changing yields,
+  appetite or threat strength, run a 150-day scripted game on each storyteller
+  with an idle profile and a careful one: idle should starve or lose people on
+  balanced/harsh, careful should survive balanced.
 - **A new event needs** a branch in `_daily_event`, a `_res_<kind>` in
   `_RESOLVERS`, and to survive `test_every_trope_event_can_be_raised...`.
 - **Offline is a hard rule**: no CDN, no web font, no external URL in anything

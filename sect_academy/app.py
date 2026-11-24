@@ -209,6 +209,7 @@ class SectIn(BaseModel):
     storyteller: str = ""
     sect: str = ""
     manual: str = ""
+    place: str = ""
     on: bool = False
 
 
@@ -398,6 +399,12 @@ def sect(action: str, body: SectIn):
             res = colony.gift(st, body.sect, now)
         elif action == "burn":
             res = colony.burn_manual(st, body.manual, now)
+        elif action == "deliver":
+            res = colony.deliver(st, now)
+        elif action == "expedition":
+            res = colony.expedition(st, body.place, now)
+        elif action == "guide-skip":
+            res = colony.skip_guide(st, now)
         elif action == "storyteller":
             res = colony.set_storyteller(st, body.storyteller, now)
         elif action == "seclusion":

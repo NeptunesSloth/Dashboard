@@ -502,3 +502,21 @@ a { color: var(--gold); }
 .pawn.away { opacity: .55; }
 .tag { border: 1px solid var(--line); }
 .tag.gold { color: var(--gold); } .tag.jade { color: var(--jade); } .tag.red { color: #ff8a75; } .tag.blue { color: var(--azure); }
+
+/* the living sect */
+.daylight { position: absolute; inset: 0; pointer-events: none; transition: background 3s linear; mix-blend-mode: multiply; }
+.daylight.day { background: #ffffff00; } .daylight.dawn { background: #ffb37a33; } .daylight.dusk { background: #ff7a5a40; } .daylight.night { background: #1c2a6699; }
+.daylight.winter.day { background: #cfe4ff40; }
+@media (prefers-reduced-motion: no-preference) {
+  .room .crew .face { animation: bob 2.6s ease-in-out infinite; } .room .crew .face:nth-child(2n) { animation-delay: .9s; } .room .crew .face:nth-child(3n) { animation-delay: 1.7s; }
+  .breakthrough.won { animation: flash 1.2s ease-out; } .panel.event { animation: rise .35s ease-out; }
+}
+@keyframes flash { 0% { filter: brightness(4) saturate(0); } 25% { filter: brightness(1); } 40% { filter: brightness(3); } 100% { filter: none; } }
+@keyframes rise { from { transform: translateY(8px); opacity: 0; } }
+.guide.tutor { margin-top: 10px; align-items: flex-start; } .guide.tutor .speech { flex: 1; font-weight: 600; }
+.questline { margin: 10px 0 0; padding: 8px 12px; border-radius: 12px; border: 1px dashed var(--gold-d); } .questline.ready { background: var(--gold-soft); border-style: solid; }
+.works { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.work { padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: #0000002e; } .work.done { border-color: var(--gold); box-shadow: 0 0 16px #e9b44c33; }
+.work ul { list-style: none; margin: 8px 0 0; padding: 0; font-size: .9rem; color: var(--dim); } .work li.ok { color: var(--jade); }
+.annals { margin: 8px 0 0; padding-left: 0; list-style: none; display: grid; gap: 6px; font-family: var(--serif); }
+.annals li { padding-left: 12px; border-left: 2px solid var(--gold-d); }

@@ -71,6 +71,15 @@ python -m sect_academy
   realms** open, the **Hundred Sects Tournament** comes every autumn, a
   crippled genius with a plain black ring asks for shelter, and a stranger
   offers a forbidden sutra. Fame, treasures and a guardian spirit beast follow.
+- **It pushes back.** Rice is tight on the balanced and harsh storytellers,
+  winter burns firewood, and a sect that is outmatched takes real wounds and
+  can lose people. Idle play fails; careful play survives.
+- **Disciples have each other.** Those who work side by side become friends,
+  sworn siblings or rivals. Friends guard a breakthrough and grieve a death;
+  rivals envy success, sour the mood and sometimes come to blows.
+- **Things to aim at**: an elder's ten-step guided opening, a festival each
+  season, promises to keep by a deadline with a reward you choose, expeditions
+  you send out, five untimed **Great Works**, and the sect's permanent annals.
 - The sect **does not depend on studying**: everyone cultivates by meditating.
   Study is a second engine — each correct answer gives the Sect Master qi and
   the sect a point of research insight, a finished session lifts every

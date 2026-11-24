@@ -355,8 +355,8 @@ def test_calm_storyteller_sends_no_raids_and_harsh_sends_many(st):
         s = copy.deepcopy(st)
         s["colony"]["storyteller"] = mode
         _run(s, 60)
-        return sum(1 for e in s["colony"]["log"] if "beast tide" in e["title"].lower() or "raid" in e["title"].lower())
-    assert raids("calm") == 0
+        return sum(1 for e in s["colony"]["annals"] if "beast tide" in e["text"].lower() or " raid " in e["text"].lower())
+    assert raids("calm") <= 2          # the scripted lone wolf, and at most a revenge the player provoked
     assert raids("harsh") >= 2
 
 
@@ -428,3 +428,120 @@ def test_view_is_all_plain_numbers_and_a_broken_save_restarts_the_sect_only(st):
     evil["pawns"][0]["name"] = "x" * 5000
     out = colony.sanitize(evil, T0)
     assert len(out["name"]) <= 300 and len(out["pawns"][0]["name"]) <= 300          # capped; the UI escapes strings
+
+
+def test_bonds_form_and_colour_grief_envy_and_breakthroughs(st):
+    c = st["colony"]
+    m, a, b = c["pawns"]
+    colony._bond(c, a, b, 35)
+    assert colony.bond_kind(colony.bond(c, a, b)) == "friend" and "friends" in c["log"][-1]["title"]
+    assert ("Has a friend in the sect", 4) in colony.mood_mods(c, a) and ("Has a friend in the sect", 4) not in colony.mood_mods(c, m)
+    a["step"], a["qi"] = 3, colony.step_need(3)
+    assert any(lab == "A friend stands guard" for lab, _ in colony.bt_odds(c, a))
+    colony._bond(c, m, a, -40)
+    assert colony.bond_kind(colony.bond(c, m, a)) == "rival" and ("Lives beside a rival", -4) in colony.mood_mods(c, a)
+    v = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == a["id"])
+    assert {x["kind"] for x in v["bonds"]} == {"friend", "rival"} and v["origin"]
+    for seed in range(50):
+        s2 = copy.deepcopy(st)
+        s2["colony"]["seed"] = seed
+        if colony.attempt(s2, a["id"], T0)["success"]:
+            m2, _, b2 = s2["colony"]["pawns"]
+            assert any("friend, ascended" in t["label"] and t["v"] == 9 for t in b2["thoughts"])
+            assert any(t["label"].startswith("Envious") for t in m2["thoughts"]) and m2["resolve_until"] > s2["colony"]["hour"]
+            break
+    colony._die(c, a)
+    assert any("a friend, died" in t["label"] and t["v"] == -16 for t in b["thoughts"])
+    assert not any(a["id"] in k.split("|") for k in c["bonds"]) and any("died" in x["text"] for x in c["annals"])
+    # left alone, a sect grows both friendships and feuds
+    s3 = copy.deepcopy(st)
+    s3["colony"]["storyteller"] = "calm"
+    s3["colony"]["res"]["rice"] = 150.0
+    _run(s3, 40)
+    assert len(s3["colony"]["bonds"]) >= 1 and any(abs(v) >= 10 for v in s3["colony"]["bonds"].values())
+
+
+def test_the_guided_opening_great_works_quests_festivals_and_expeditions(st):
+    c = st["colony"]
+    v = colony.view(st, T0)
+    assert v["guide"]["n"] == 1 and v["renown"] == "Nameless sect" and len(v["works"]) == 5 and not any(w["done"] for w in v["works"])
+    stones = c["res"]["stones"]
+    colony.set_priority(st, c["pawns"][1]["id"], "farm", 1, T0)
+    assert colony.view(st, T0)["guide"]["n"] == 2 and c["res"]["stones"] == stones + 3            # a lesson, a small reward
+    colony.skip_guide(st, T0)
+    assert colony.view(st, T0)["guide"] is None
+    # a lone wolf is the scripted first fight, on every storyteller, and it is winnable
+    c["storyteller"] = "calm"
+    c["hour"] = 24 * 4 + 5
+    colony.advance(st, 1, T0)
+    assert c["pending"]["kind"] == "omen" and "wolf" in c["pending"]["text"] and "disciples" in c["pending"]["text"]
+    colony.resolve(st, "fight", T0)
+    assert c["flags"]["first_win"] and "driven off" in c["log"][-1]["title"]
+    # a festival comes once a season and is a real choice
+    c["hour"] = 24 * 5 + 5
+    colony.advance(st, 1, T0)
+    assert c["pending"]["kind"] == "festival"
+    rice = c["res"]["rice"]
+    colony.resolve(st, "hold", T0)
+    assert c["res"]["rice"] == rice - 12 and all(any(t["k"] == "festival" and t["v"] == 10 for t in p["thoughts"]) for p in c["pawns"])
+    assert all(v >= 4 for v in c["bonds"].values()) and len(c["bonds"]) == 3
+    # a promise: deliver in time and choose the reward, or lose face
+    import random
+    colony._offer_quest(c, random.Random(3))
+    colony.resolve(st, "accept", T0)
+    q = c["quest"]
+    assert q and colony.view(st, T0)["quest"]["n"] == q["n"] and not colony.deliver(st, T0)["ok"] or c["res"][q["res"]] >= q["n"]
+    c["quest"] = q
+    c["res"][q["res"]] = float(q["n"])
+    c["pending"] = None
+    assert colony.deliver(st, T0)["ok"] and c["res"][q["res"]] == 0 and c["pending"]["kind"] == "quest_reward"
+    fame = c["fame"]
+    colony.resolve(st, "fame", T0)
+    assert c["fame"] == fame + 8 and c["quest"] is None
+    colony._offer_quest(c, random.Random(4))
+    colony.resolve(st, "accept", T0)
+    c["quest"]["due"] = c["hour"] + 1
+    c["festival"] = "9-9"
+    for _ in range(3):
+        colony.advance(st, 1, T0)
+        if c["pending"]:
+            colony.resolve(st, c["pending"]["options"][-1]["id"], T0)
+    assert c["quest"] is None and c["fame"] == fame + 3 and any(e["title"] == "A promise was broken" for e in c["log"])
+    # expeditions: two leave, cannot defend, and come back closer
+    assert colony.expedition(st, "ruins", T0)["ok"] and not colony.expedition(st, "valley", T0)["ok"]
+    assert sum(1 for p in c["pawns"] if p["away_until"] > c["hour"]) == 2 and colony.view(st, T0)["trip"]
+    before = dict(c["bonds"])
+    for _ in range(50):
+        colony.advance(st, 1, T0)
+        if c["pending"]:
+            colony.resolve(st, c["pending"]["options"][-1]["id"], T0)
+    assert not colony.view(st, T0)["trip"] and any("party is back" in e["title"] for e in c["log"])
+    assert max(c["bonds"].values()) > max(before.values())
+    # a Great Work, once complete, is recorded and celebrated
+    c["bonds"] = {"p1|p2": 80.0}
+    for i in range(3):
+        c["pawns"].append(colony._make_pawn(c, 50 + i))
+    colony._check_works(c)
+    assert c["flags"]["work_family"] and next(w for w in colony.view(st, T0)["works"] if w["id"] == "family")["done"]
+    assert any("One Family" in a["text"] for a in colony.view(st, T0)["annals"])
+
+
+def test_scarcity_is_real_on_balanced_and_winter_burns_wood(st):
+    c = st["colony"]
+    assert colony.STORYTELLERS["harsh"]["yield"] < colony.STORYTELLERS["balanced"]["yield"] < colony.STORYTELLERS["calm"]["yield"]
+    c["storyteller"] = "calm"
+    c["hour"] = 24 * 36 + 4              # the first winter dawn
+    c["res"].update(wood=100.0, rice=150.0)
+    c["flags"]["first_threat"] = 1
+    c["festival"] = "1-3"
+    for _ in range(3):
+        colony.advance(st, 1, T0)
+    assert c["res"]["wood"] < 100
+    c["hour"] = 24 * 37 + 5
+    for p in c["pawns"]:
+        p["prio"]["wood"] = 0
+    c["res"]["wood"] = 0.0
+    c["pending"] = None
+    colony.advance(st, 1, T0)
+    assert any(t["k"] == "no_fire" for p in c["pawns"] for t in p["thoughts"] if "Ascetic" not in p["traits"]) \
+        or all("Ascetic" in p["traits"] for p in c["pawns"])
