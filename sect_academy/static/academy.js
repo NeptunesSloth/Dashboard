@@ -173,7 +173,7 @@ function renderFounding() {
     <h3 style="margin-top:20px">Arts to cultivate</h3>
     ${courses.length ? courses.map((c) => `<label class="pick"><input type="checkbox" value="${esc(c.id)}" ${c.id.endsWith('-a1') || c.id === 'isc2-cc' ? 'checked' : ''}>
       <span><b>${esc(c.title)}</b><br><span class="dim small">${esc(c.blurb)} ${c.total} items in ${c.units.length} units.</span></span></label>`).join('')
-    : '<p class="dim">No courses are installed. Add a pack under <code>academy/packs</code> and reload.</p>'}
+    : '<p class="dim">No courses are installed. Add a pack under <code>sect_academy/packs</code> and reload.</p>'}
     <p class="dim small" style="margin-top:14px">Each art adds about 8 new items a day. Two or three arts is a comfortable daily load; more is possible but the reviews add up.</p>
     <h3 style="margin-top:20px">How harsh should the world be?</h3>
     ${OV.sect.storytellers.map((t) => `<label class="pick"><input type="radio" name="f-tell" value="${esc(t.id)}" ${t.id === 'balanced' ? 'checked' : ''}>
@@ -270,7 +270,7 @@ async function runPlacement(course, done) {
   leaveGuard = async () => over || confirm('Stop the placement test? What you have proven so far is kept.');
   const title = (OV.courses.find((c) => c.id === course) || {}).title || '';
   const block = (b) => {
-    const qs = b.questions; const answers = qs.map(() => null); let cur = 0;
+    const qs = b.questions; const answers = qs.map(() => null); let cur = 0; let sending = false;
     const draw = () => {
       const q = qs[cur];
       view.innerHTML = `<div class="session"><div class="top"><button aria-label="Stop the test" id="pl-exit">✕</button>
@@ -281,9 +281,12 @@ async function runPlacement(course, done) {
       $('#pl-exit').onclick = async () => { if (await leaveGuard()) { over = true; leaveGuard = null; document.body.classList.remove('in-session'); (done || (() => go('/library', false)))(); } };
       const read = bindQuestion(q, answers[cur], (v) => { answers[cur] = v; });
       const advance = async (skip) => {
+        if (sending) return;                       // a double tap must not answer the next block
         answers[cur] = skip ? null : read();
         if (cur < qs.length - 1) { cur += 1; draw(); return; }
-        const res = await api('/api/placement/answer', { placement: first.placement, answers });
+        sending = true;
+        const res = await api('/api/placement/answer', { placement: first.placement, unit: b.unit, answers });
+        sending = false;
         if (res.ok === false) { toast(res.error); return; }
         if (!res.done) { block(res); return; }
         over = true; leaveGuard = null; document.body.classList.remove('in-session');
@@ -364,7 +367,8 @@ function bindQuestion(q, value, onChange) {
 
 /* ================= study session ================= */
 const ACCENTS = { fr: 'é è ê à ç ù â î ô û ë ï œ'.split(' '), es: 'á é í ó ú ñ ü ¿ ¡'.split(' ') };
-const TYPED = new Set(['type_l2', 'listen', 'cloze_type']);
+const TYPED = new Set(['type_l2', 'listen', 'cloze_type', 'build_l2']);
+const TILES = new Set(['build_l2']);
 
 async function renderStudy(params) {
   const practice = params && params.get('practice') === '1';
@@ -513,15 +517,100 @@ function runSession(s) {
     };
   }
 
+  // Sentence tiles: tap words into order. Returns {html, bind(onReady) -> read()}.
+  function tiles(bank) {
+    const html = `<div class="built" id="s-built" aria-label="Your sentence"></div><div class="bank" id="s-bank">${bank.map((w, i) => `<button class="tile" data-t="${i}">${esc(w)}</button>`).join('')}</div>`;
+    const bind = () => {
+      const picked = [];
+      const paint = () => {
+        $('#s-built').innerHTML = picked.map((i, k) => `<button class="tile on" data-k="${k}">${esc(bank[i])}</button>`).join('') || '<span class="dim">Tap the words in order</span>';
+        view.querySelectorAll('#s-bank .tile').forEach((b) => { b.disabled = picked.includes(+b.dataset.t); });
+        view.querySelectorAll('#s-built .tile').forEach((b) => { b.onclick = () => { picked.splice(+b.dataset.k, 1); paint(); }; });
+      };
+      view.querySelectorAll('#s-bank .tile').forEach((b) => { b.onclick = () => { picked.push(+b.dataset.t); paint(); }; });
+      paint();
+      return () => picked.map((i) => bank[i]).join(' ');
+    };
+    return { html, bind };
+  }
+
+  // A conversation: the partner speaks, you answer line by line, then the whole exchange is graded.
+  function dialogue(ex) {
+    const build = ex.mode === 'dialogue_build';
+    const mine = ex.lines.filter((l) => l.mine);
+    const given = []; const marks = [];
+    let at = 0;                                   // index into ex.lines
+    const log = [];                               // rendered bubbles so far
+    const bubble = (who, l2, l1, cls = '') => `<div class="say ${who === 'me' ? 'me' : 'them'} ${cls}"><div class="l2">${esc(l2)}</div><div class="l1">${esc(l1)}</div></div>`;
+    const step = () => {
+      while (at < ex.lines.length && !ex.lines[at].mine) {
+        const ln = ex.lines[at]; log.push(bubble('them', ln.l2, ln.l1)); speak(ln.l2, ex.lang); at += 1;
+      }
+      if (at >= ex.lines.length) return finishDialogue();
+      const ln = ex.lines[at];
+      const t = build ? tiles(ln.bank) : null;
+      const accents = ACCENTS[(ex.lang || '').slice(0, 2)] || [];
+      shell(`<div class="guide">${guide(ex.retry ? 'think' : 'calm')}<div class="speech">${esc(ex.title)}${ex.retry ? ' <span class="tag gold">once more</span>' : ''}</div></div>
+        <p class="dim small" style="margin:-6px 0 10px">${esc(ex.scene)}</p>
+        <div class="chat">${log.join('')}<div class="say me cue"><div class="l1">Say: ${esc(ln.l1)}</div></div></div>
+        ${build ? t.html : `<div class="typed"><input type="text" id="s-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" lang="${esc(ex.lang)}" aria-label="Your reply" enterkeyhint="done">
+          ${accents.length ? `<div class="accents">${accents.map((a) => `<button type="button" data-acc="${a}" tabindex="-1">${a}</button>`).join('')}</div>` : ''}</div>`}
+        <div class="foot" id="s-foot"><button class="btn primary big" id="s-check">Reply</button></div>`);
+      const chat = view.querySelector('.chat'); chat.scrollTop = chat.scrollHeight;
+      let read;
+      if (build) read = t.bind();
+      else {
+        const inp = $('#s-in'); inp.focus(); read = () => inp.value;
+        inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); $('#s-check').click(); } };
+        view.querySelectorAll('[data-acc]').forEach((b) => { b.onclick = () => { const p = inp.selectionStart ?? inp.value.length; inp.value = inp.value.slice(0, p) + b.dataset.acc + inp.value.slice(inp.selectionEnd ?? p); inp.focus(); inp.setSelectionRange(p + 1, p + 1); }; });
+      }
+      let locked = false;
+      $('#s-check').onclick = async () => {
+        const said = read().trim();
+        if (locked || !said) return;
+        locked = true;
+        const res = await api('/api/line', { item: ex.item, index: ln.index, answer: said });
+        if (res.ok === false) { locked = false; toast(res.error); return; }
+        given.push(said); marks.push(!!res.correct);
+        log.push(bubble('me', res.expected, ln.l1, res.correct ? 'ok' : 'no'));
+        speak(res.expected, ex.lang);
+        $('#s-foot').innerHTML = `<div class="verdict ${res.correct ? 'ok' : 'no'}" role="status">${guide(res.correct ? 'happy' : 'oops', 52)}<div class="grow">
+            <h3>${res.correct ? (res.flag ? 'Right, with a small slip' : 'Good') : 'A native speaker would say'}</h3><div class="ans">${esc(res.expected)}</div>
+            ${res.correct ? '' : `<p class="dim small">You said: ${esc(said)}</p>`}<p class="dim small">Now say it aloud.</p></div></div>
+          <button class="btn ${res.correct ? 'primary' : 'seal'} big" id="s-next">Continue</button>`;
+        const b = $('#s-next'); b.focus(); b.onclick = () => { at += 1; step(); };
+      };
+      keyHandler = null;
+    };
+    const finishDialogue = async () => {
+      const res = await api('/api/answer', { session: s.session, item: ex.item, mode: ex.mode, answer: given, retry: !!ex.retry });
+      if (res.ok === false) { toast(res.error); return; }
+      if (!ex.retry) {
+        st.first += 1; st.correct += res.correct ? 1 : 0; st.qi += (res.rewards && res.rewards.qi) || 0; st.insight += (res.rewards && res.rewards.insight) || 0;
+        if (res.rewards && res.rewards.events && res.rewards.events.length) { st.events.push(...res.rewards.events); showEvents(res.rewards.events); }
+      }
+      if (res.correct) st.done += 1; else queue.splice(Math.min(3, queue.length), 0, { ...ex, retry: true });
+      const right = marks.filter(Boolean).length;
+      shell(`<div class="guide">${guide(res.correct ? 'happy' : 'think')}<div class="speech">${res.correct ? (right === mine.length ? 'That conversation went well.' : 'You got through it. A few lines to polish.') : 'Let us run that conversation again.'}</div></div>
+        <div class="chat full">${(res.explain.dialogue || []).map((l) => bubble(l.mine ? 'me' : 'them', l.l2, l.l1)).join('')}</div>
+        <p class="dim small">${right} of ${mine.length} of your lines were right${!ex.retry && res.next_days != null ? (num(res.next_days) <= 0 ? '. It returns later in this session.' : `. Next rehearsal in ${num(res.next_days)} day${num(res.next_days) === 1 ? '' : 's'}.`) : '.'}</p>
+        <div class="foot"><button class="btn primary big" id="s-next">Continue</button></div>`);
+      const b = $('#s-next'); b.onclick = next; b.focus();
+    };
+    step();
+  }
+
   function exercise(ex) {
     if (ex.mode === 'multi' || ex.mode === 'order') return listExercise(ex);
+    if (ex.mode === 'dialogue_build' || ex.mode === 'dialogue_type') return dialogue(ex);
     const lang = ex.lang; const typed = TYPED.has(ex.mode);
     const long = (ex.prompt || '').length > 90;
     let top;
     if (ex.mode === 'listen') top = `<div style="text-align:center">${sayBtn(ex.say, lang, 'huge')}<p class="dim small">Tap to hear it again. <button class="btn quiet" id="s-mute" style="min-height:32px;padding:0 8px">I can't listen now</button></p></div>`;
     else top = `<div class="prompt ${long ? 'long' : ''}">${esc(ex.prompt)} ${ex.say ? sayBtn(ex.say, lang) : ''}</div>${ex.sub ? `<div class="sub">${esc(ex.sub)}</div>` : ''}`;
-    const accents = typed ? (ACCENTS[(lang || '').slice(0, 2)] || []) : [];
-    const input = typed ? `<div class="typed"><input type="text" id="s-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" lang="${esc(lang)}" aria-label="Your answer" enterkeyhint="done">
+    const tile = TILES.has(ex.mode) ? tiles(ex.bank) : null;
+    const accents = typed && !tile ? (ACCENTS[(lang || '').slice(0, 2)] || []) : [];
+    const input = tile ? tile.html : typed ? `<div class="typed"><input type="text" id="s-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" lang="${esc(lang)}" aria-label="Your answer" enterkeyhint="done">
         ${accents.length ? `<div class="accents">${accents.map((a) => `<button type="button" data-acc="${a}" tabindex="-1">${a}</button>`).join('')}</div>` : ''}</div>`
       : `<div class="opts">${ex.choices.map((c, i) => `<button class="opt" data-i="${i}"><kbd>${i + 1}</kbd><span>${esc(c)}</span></button>`).join('')}</div>`;
     shell(`<div class="guide">${guide(ex.retry ? 'think' : 'calm')}<div class="speech">${esc(ex.ask || '')}${ex.retry ? ' <span class="tag gold">once more</span>' : ''}</div></div>${top}${input}
@@ -546,7 +635,10 @@ function runSession(s) {
       const inp = $('#s-in'); if (inp) inp.disabled = true;
       feedback(ex, res, given);
     };
-    if (typed) {
+    if (tile) {
+      const read = tile.bind();
+      $('#s-check').onclick = () => { if (read().trim()) { view.querySelectorAll('.tile').forEach((b) => { b.disabled = true; }); submit(read()); } };
+    } else if (typed) {
       const inp = $('#s-in'); inp.focus();
       $('#s-check').onclick = () => { if (inp.value.trim()) submit(inp.value); else inp.focus(); };
       inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); $('#s-check') && $('#s-check').click(); } };
@@ -567,6 +659,13 @@ function runSession(s) {
     const flag = res.flag === 'accent' ? 'Right — mind the accents.' : res.flag === 'typo' ? 'Right — with a small slip.' : 'Correct';
     const when = !ex.retry && !s.practice && res.next_days != null ? (num(res.next_days) <= 0 ? 'It returns later in this session.' : `Next review in ${num(res.next_days)} day${num(res.next_days) === 1 ? '' : 's'}.`) : '';
     let detail;
+    if (x.whys) {
+      // Best-answer questions: say under each option why it is best or why it is weaker.
+      view.querySelectorAll('.opt').forEach((o) => {
+        const text = ex.choices[+o.dataset.i]; const why = x.whys[text];
+        if (why && !o.querySelector('.whyopt')) { const d = document.createElement('small'); d.className = 'whyopt'; d.textContent = why; o.querySelector('span').appendChild(d); }
+      });
+    }
     if (x.why) detail = `<p>${esc(x.why)}</p>`;
     else {
       // Show the pair once: the target-language form, then its meaning.
@@ -636,10 +735,11 @@ async function renderUnit(cid, uid) {
   const row = (it) => {
     let a, b;
     if (it.type === 'concept') { a = esc(it.term); b = esc(it.def); }
-    else if (it.type === 'mcq') { a = esc(it.q); b = `<span class="dim">${esc(it.correct)}.</span> ${esc(it.why || '')}`; }
+    else if (it.type === 'mcq' || it.type === 'multi' || it.type === 'order') { a = esc(it.q); b = `<span class="dim">${esc(it.correct)}.</span> ${esc(it.why || '')}`; }
+    else if (it.type === 'dialogue') { a = `<b>${esc(it.title)}</b>`; b = esc(it.scene || ''); }
     else if (it.type === 'cloze') { const full = it.full; a = `${esc(full)} ${canSpeak(lang) ? `<button class="say tiny" data-say="${esc(full)}" aria-label="Play audio">${ICON.sound}</button>` : ''}`; b = esc(it.l1 || ''); }
     else { a = `${esc(it.l2)} ${canSpeak(lang) ? `<button class="say tiny" data-say="${esc(it.l2)}" aria-label="Play audio">${ICON.sound}</button>` : ''}`; b = `${esc(it.l1)}${it.note ? `<br><span class="dim small">${esc(it.note)}</span>` : ''}`; }
-    const hide = it.type === 'mcq' && it.state === 'new';
+    const hide = (it.type === 'mcq' || it.type === 'multi' || it.type === 'order') && it.state === 'new';
     return `<tr><td><span class="dot ${esc(it.state)}" title="${esc(it.state)}"></span>${a}</td><td>${hide ? '<span class="dim">Answer hidden until you have met this question.</span>' : b}</td>
       <td class="dim small num" style="white-space:nowrap">${it.state === 'new' ? '' : `${num(it.strength)}%`}</td></tr>`;
   };
@@ -737,6 +837,7 @@ async function startTrial(course, full) {
         <div class="bar ${num(d.pct) >= num(res.pass_pct) ? 'jade' : ''}"><i style="width:${num(d.pct)}%"></i></div></div>`).join('')}</section>` : ''}
       ${misses.length ? `<section class="panel" style="text-align:left"><h2>What you missed</h2><ul class="list">${misses.map((m) => `<li><b>${esc(m.prompt)}</b>
         <div class="small"><span style="color:#ff9a8a">${m.given ? esc(m.given) : 'No answer'}</span> <span class="dim">should be</span> <span style="color:var(--jade)">${esc(m.expected)}</span></div>
+        ${m.explain.whys && m.explain.whys[m.given] ? `<div class="small">Your choice: ${esc(m.explain.whys[m.given])}</div>` : ''}
         ${m.explain.why ? `<div class="dim small">${esc(m.explain.why)}</div>` : ''}</li>`).join('')}</ul></section>` : ''}
       <div class="row" style="justify-content:center;margin-top:16px"><a class="btn" href="/trials" data-link>Back to trials</a><a class="btn primary" href="/" data-link>Return to the sect</a></div></div>`;
     window.scrollTo(0, 0); refresh();

@@ -124,7 +124,7 @@ def test_research_needs_a_library_and_study_insight_speeds_it(st):
         colony.on_answer(st, "x", correct=True, is_new=False, practice=False, typed=False, now=T0)
     assert c["insight"] == 160
     colony.advance(st, 1, T0)
-    assert "irrigation" in c["research"]["done"] and c["insight"] == 0
+    assert "irrigation" in c["research"]["done"] and c["insight"] < 20      # the overflow is kept
     assert any(e["title"].startswith("Research complete") for e in c["log"])
     assert not colony.set_research(st, "irrigation", T0)["ok"]
 
@@ -213,7 +213,7 @@ def test_wanderers_and_merchants_wait_for_a_decision(st):
                     "options": [{"id": "accept", "label": "a"}, {"id": "decline", "label": "d"}]}
     assert colony.view(st, T0)["pending"]["options"][0]["id"] == "accept"
     before = c["hour"]
-    assert colony.advance(st, 6, T0)["hours"] == 1 and c["hour"] == before + 1      # the sim waits at the gate
+    assert colony.advance(st, 6, T0)["hours"] == 0 and c["hour"] == before          # the sim waits at the gate
     assert not colony.resolve(st, "nonsense", T0)["ok"]
     assert colony.resolve(st, "accept", T0)["ok"] and len(c["pawns"]) == 4 and c["pending"] is None
     c["res"].update(rice=100, stones=0)

@@ -30,7 +30,7 @@ app = FastAPI(title="Sect Academy", docs_url=None, redoc_url=None, openapi_url=N
 
 def guard(x_academy_token: str = Header(default="")) -> None:
     want = os.getenv("SECT_ACADEMY_TOKEN", "")
-    if want and not secrets.compare_digest(x_academy_token or "", want):
+    if want and not secrets.compare_digest((x_academy_token or "").encode("utf-8", "replace"), want.encode()):
         raise HTTPException(401, "token required")
 
 
@@ -40,9 +40,18 @@ API = [Depends(guard)]
 @app.middleware("http")
 async def no_surprises(request: Request, call_next):
     """Same-origin only, and never let a browser cache API answers."""
+    if request.url.path.startswith("/api/") and request.method not in ("GET", "HEAD", "OPTIONS"):
+        # Another web page must never be able to change (or wipe) your progress.
+        origin = request.headers.get("origin", "")
+        site = request.headers.get("sec-fetch-site", "")
+        host = request.headers.get("host", "")
+        foreign = bool(origin) and origin.split("://", 1)[-1] != host
+        if foreign or site in ("cross-site", "same-site"):
+            return JSONResponse({"detail": "cross-site request refused"}, status_code=403)
     resp = await call_next(request)
     resp.headers["Content-Security-Policy"] = ("default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
-                                               "connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
+                                               "connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; "
+                                               "form-action 'self'")
     resp.headers["X-Content-Type-Options"] = "nosniff"
     resp.headers["Referrer-Policy"] = "no-referrer"
     if request.url.path.startswith("/api/"):
@@ -144,6 +153,12 @@ class AnswerIn(BaseModel):
     claim: bool = False
 
 
+class LineIn(BaseModel):
+    item: str
+    index: int
+    answer: str = ""
+
+
 class FinishIn(BaseModel):
     session: str
     secs: int = 0
@@ -168,6 +183,7 @@ class IdIn(BaseModel):
     trial: str = ""
     course: str = ""
     placement: str = ""
+    unit: int = -1
     answers: list[str | list[str] | None] = []
 
 
@@ -249,6 +265,19 @@ def answer(body: AnswerIn):
     return res
 
 
+@app.post("/api/line", dependencies=API)
+def line(body: LineIn):
+    """Check one of your lines in a dialogue as you go (nothing is scheduled)."""
+    it = packs.item_index().get(body.item)
+    if not it or it["type"] != "dialogue":
+        raise HTTPException(404, "unknown dialogue")
+    res = engine.check_line(it, body.index, body.answer[:400])
+    if res.get("error"):
+        raise HTTPException(400, res["error"])
+    ln = it["lines"][body.index]
+    return {**res, "l2": ln["l2"], "l1": ln["l1"]}
+
+
 @app.post("/api/session/finish", dependencies=API)
 def finish(body: FinishIn):
     return engine.finish_session(secs=body.secs, session=body.session)
@@ -266,7 +295,7 @@ def placement_start(body: IdIn):
 
 @app.post("/api/placement/answer", dependencies=API)
 def placement_answer(body: IdIn):
-    return engine.placement_answer(body.placement, [_clip(a) for a in body.answers[:12]])
+    return engine.placement_answer(body.placement, [_clip(a) for a in body.answers[:12]], unit=body.unit)
 
 
 @app.get("/api/trial", dependencies=API)
@@ -301,9 +330,13 @@ def export():
 
 @app.post("/api/import", dependencies=API)
 async def import_(request: Request):
+    if int(request.headers.get("content-length") or 0) > state.MAX_IMPORT_BYTES:
+        raise HTTPException(413, "backup file is too large")
     raw = await request.body()
     if len(raw) > state.MAX_IMPORT_BYTES:
         raise HTTPException(413, "backup file is too large")
+    if "application/json" not in request.headers.get("content-type", ""):
+        raise HTTPException(400, "not a Sect Academy backup")     # a plain form post from another page lands here
     try:
         body = json.loads(raw)
     except Exception:
@@ -317,7 +350,7 @@ async def import_(request: Request):
 # ---------------------------------------------------------------------------
 # the sect
 # ---------------------------------------------------------------------------
-_last_tick = {"t": 0.0}
+_tick = {"t": 0.0, "credit": float(colony.MAX_TICK), "saved": 0.0}
 
 
 @app.post("/api/sect/{action}", dependencies=API)
@@ -326,10 +359,13 @@ def sect(action: str, body: SectIn):
     with state.LOCK:
         st = state.get()
         if action == "tick":
-            # The page asks for hours as real time passes; never run faster than 3 sim hours a second.
-            allowed = max(1, int((now - _last_tick["t"]) * 3) + 1) if _last_tick["t"] else colony.MAX_TICK
-            _last_tick["t"] = now
-            res = colony.advance(st, min(body.hours, allowed), now)
+            # The page asks for hours as real time passes; never run faster than 3 sim hours a second,
+            # however many tabs are asking. Zero hours is a heartbeat: "I am here, and paused".
+            _tick["credit"] = min(float(colony.MAX_TICK), _tick["credit"] + max(0.0, now - _tick["t"]) * 3.0)
+            _tick["t"] = now
+            grant = max(0, min(int(body.hours), int(_tick["credit"])))
+            _tick["credit"] -= grant
+            res = colony.advance(st, grant, now)
         elif action == "priority":
             res = colony.set_priority(st, body.pawn, body.job, body.level, now)
         elif action == "build":
@@ -351,7 +387,10 @@ def sect(action: str, body: SectIn):
         else:
             raise HTTPException(404, "unknown action")
         view = colony.view(st, now)
-        state.save()
+        # Ticks arrive every second or so; writing the whole file each time would wear the disk for nothing.
+        if action != "tick" or now - _tick["saved"] >= 5.0:
+            _tick["saved"] = now
+            state.save()
     return JSONResponse({**res, "sect": view})
 
 

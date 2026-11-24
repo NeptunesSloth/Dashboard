@@ -20,7 +20,7 @@ def fresh(monkeypatch):
 
 def _truth(ex):
     it = packs.item_index()[ex["item"]]
-    if ex["mode"] in ("type_l2", "listen"):
+    if ex["mode"] in ("type_l2", "listen", "build_l2"):
         return it["l2"]
     if ex["mode"] == "cloze_type":
         return it["answer"]

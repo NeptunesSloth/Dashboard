@@ -195,7 +195,8 @@ def unit_detail(course: str, unit_id: str, now: float | None = None) -> dict:
 
 
 def _public_item(it: dict) -> dict:
-    keys = ("id", "type", "l1", "l2", "alt", "note", "ex", "ex_l1", "text", "answer", "term", "def", "q", "why")
+    keys = ("id", "type", "l1", "l2", "alt", "note", "ex", "ex_l1", "text", "answer", "term", "def", "q", "why",
+            "title", "scene", "you", "lines", "best")
     out = {k: it[k] for k in keys if k in it and it[k] not in ("", None, [])}
     if it["type"] == "mcq":
         out["correct"] = it["choices"][it["answer"]]
@@ -299,6 +300,8 @@ def _mode_for(it: dict, card: dict | None, pack: dict) -> str:
             return "choose_l1"
         if reps == 1:
             return "choose_l2"
+        if reps == 2 and len(it["l2"].split()) >= 3:
+            return "build_l2"            # assemble the sentence from tiles before typing it cold
         if pack.get("lang") and reps >= 3 and reps % 3 == 0:
             return "listen"
         return "type_l2"
@@ -306,6 +309,9 @@ def _mode_for(it: dict, card: dict | None, pack: dict) -> str:
         return "cloze_choose" if reps == 0 else "cloze_type"
     if t == "concept":
         return "choose_term" if reps % 2 == 0 else "choose_def"
+    if t == "dialogue":
+        # First rehearsals arrange the words; after that you answer from memory.
+        return "dialogue_build" if reps < 2 else "dialogue_type"
     return t          # mcq, multi, order: always the test itself
 
 
@@ -360,6 +366,14 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
         ex.update(prompt=it["l1"], ask=f"Choose the {pack.get('language', 'translation')}", choices=choices("l2", it["l2"]))
     elif mode == "type_l2":
         ex.update(prompt=it["l1"], ask=f"Type it in {pack.get('language', 'the language')}")
+    elif mode == "build_l2":
+        words = it["l2"].split()
+        pool = [w for o in next(u for u in pack["units"] if u["id"] == it["unit"])["items"]
+                if o["id"] != it["id"] and o.get("l2") for w in o["l2"].split() if w not in words]
+        rng.shuffle(pool)
+        bank = words + pool[:3]
+        rng.shuffle(bank)
+        ex.update(prompt=it["l1"], ask="Build the sentence", bank=bank)
     elif mode == "listen":
         ex.update(say=it["l2"], hint=it["l1"], ask="Type what you hear")
     elif mode == "cloze_choose":
@@ -373,11 +387,38 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
     elif mode == "mcq":
         opts = list(it["choices"])
         rng.shuffle(opts)
-        ex.update(prompt=it["q"], ask="Choose the best answer", choices=opts)
+        ex.update(prompt=it["q"], choices=opts,
+                  ask="Every option may be reasonable. Choose the BEST one" if it.get("best") else "Choose the best answer")
+        if it.get("best"):
+            ex["best"] = True
     elif mode == "multi":
         opts = list(it["choices"])
         rng.shuffle(opts)
         ex.update(prompt=it["q"], ask=f"Choose {len(it['answers'])}", choices=opts, pick=len(it["answers"]))
+    elif mode in ("dialogue_build", "dialogue_type"):
+        mine = set(my_lines(it))
+        lines = []
+        for i, ln in enumerate(it["lines"]):
+            row = {"who": ln["who"], "l1": ln["l1"], "mine": i in mine, "index": i}
+            if i in mine:
+                if mode == "dialogue_build":
+                    words = ln["l2"].split()
+                    # two decoy words from the rest of the conversation keep it honest
+                    pool = [w for j, o in enumerate(it["lines"]) if j != i for w in o["l2"].split() if w not in words]
+                    rng.shuffle(pool)
+                    bank = words + pool[:2]
+                    rng.shuffle(bank)
+                    row["bank"] = bank
+            else:
+                row["l2"] = ln["l2"]
+            lines.append(row)
+        ex.update(title=it["title"], scene=it["scene"], lines=lines,
+                  ask="Arrange your reply" if mode == "dialogue_build" else "Reply from memory")
+    elif mode.startswith("line:"):
+        i = int(mode.split(":", 1)[1])
+        prev = it["lines"][i - 1] if i > 0 else None
+        ex.update(prompt=it["lines"][i]["l1"], ask=f"Say it in {pack.get('language', 'the language')}",
+                  sub=(f"{it['title']}. They said: “{prev['l2']}”" if prev else f"{it['title']}. You speak first."))
     elif mode == "order":
         steps = list(it["steps"])
         for _ in range(8):                       # never hand over the answer already in order
@@ -394,17 +435,32 @@ def _truth(it: dict, mode: str) -> str:
             "mcq": it["choices"][it["answer"]] if it["type"] == "mcq" else None}.get(mode) or ""
 
 
-LIST_MODES = ("multi", "order")
-_MODES = {"multi": {"multi"}, "order": {"order"},
-          "vocab": {"choose_l1", "choose_l2", "type_l2", "listen"},
-          "phrase": {"choose_l1", "choose_l2", "type_l2", "listen"},
+LIST_MODES = ("multi", "order", "dialogue_build", "dialogue_type")
+_MODES = {"multi": {"multi"}, "order": {"order"}, "dialogue": {"dialogue_build", "dialogue_type"},
+          "vocab": {"choose_l1", "choose_l2", "build_l2", "type_l2", "listen"},
+          "phrase": {"choose_l1", "choose_l2", "build_l2", "type_l2", "listen"},
           "cloze": {"cloze_choose", "cloze_type"},
           "concept": {"choose_term", "choose_def"},
           "mcq": {"mcq"}}
 
 
+def my_lines(it: dict) -> list[int]:
+    """Indexes of the learner's lines in a dialogue."""
+    return [i for i, ln in enumerate(it["lines"]) if ln["who"] == it["you"]]
+
+
+def check_line(it: dict, index: int, answer: str) -> dict:
+    """Grade one of the learner's lines in a dialogue (no scheduling)."""
+    if it["type"] != "dialogue" or index not in my_lines(it):
+        return {"correct": False, "flag": None, "expected": "", "error": "not one of your lines"}
+    ln = it["lines"][index]
+    return check_typed(answer if isinstance(answer, str) else "", [ln["l2"], *ln.get("alt", [])])
+
+
 def truth_list(it: dict) -> list[str]:
-    """The keyed answer of a multi (any order) or order (this order) item."""
+    """The keyed answer of a multi (any order), order (this order) or dialogue (your lines) item."""
+    if it["type"] == "dialogue":
+        return [it["lines"][i]["l2"] for i in my_lines(it)]
     return [it["choices"][i] for i in it["answers"]] if it["type"] == "multi" else list(it["steps"])
 
 
@@ -412,25 +468,48 @@ def check(it: dict, mode: str, answer) -> dict:
     """Grade one answer for an item in a mode -> {correct, flag, expected}.
 
     ``answer`` is a string, or for multi/order items a list of strings."""
+    if mode.startswith("line:") and it["type"] == "dialogue":
+        # one line of a dialogue asked on its own (placement tests and trials)
+        try:
+            return check_line(it, int(mode.split(":", 1)[1]), answer)
+        except ValueError:
+            return {"correct": False, "flag": None, "expected": "", "error": "bad mode"}
     if mode not in _MODES[it["type"]]:
         return {"correct": False, "flag": None, "expected": "", "error": "bad mode"}
+    if it["type"] == "dialogue":
+        mine = my_lines(it)
+        given = list(answer) if isinstance(answer, (list, tuple)) else []
+        results = [check_line(it, idx, given[k] if k < len(given) and isinstance(given[k], str) else "") for k, idx in enumerate(mine)]
+        right = sum(1 for r in results if r["correct"])
+        flagged = any(r["flag"] for r in results)
+        # A conversation is passed when every line lands; most of them is a shaky pass.
+        ok = right == len(mine) or right / len(mine) >= 0.6
+        return {"correct": ok, "flag": None if right == len(mine) and not flagged else ("slips" if ok else None),
+                "expected": " / ".join(truth_list(it)), "expected_list": truth_list(it),
+                "lines": [{"correct": r["correct"], "expected": r["expected"]} for r in results]}
     if mode in LIST_MODES:
-        given = [_norm(a) for a in answer] if isinstance(answer, (list, tuple)) else []
-        want = [_norm(a) for a in truth_list(it)]
+        # Choices come from the server, so they are compared exactly: "a::b" is not "a:b".
+        given = [str(a).strip() for a in answer] if isinstance(answer, (list, tuple)) else []
+        want = [str(a).strip() for a in truth_list(it)]
         ok = sorted(given) == sorted(want) if mode == "multi" else given == want
         return {"correct": ok, "flag": None, "expected": (" + " if mode == "multi" else " → ").join(truth_list(it)),
                 "expected_list": truth_list(it)}
     answer = answer if isinstance(answer, str) else ""
-    if mode in ("type_l2", "listen", "cloze_type"):
+    if mode in ("type_l2", "listen", "cloze_type", "build_l2"):
         return check_typed(answer, _accepted(it))
     truth = _truth(it, mode)
-    return {"correct": _norm(answer) == _norm(truth), "flag": None, "expected": truth}
+    return {"correct": answer.strip() == str(truth).strip(), "flag": None, "expected": truth}
 
 
 def _explain(it: dict) -> dict:
     out = {}
     if it["type"] in ("mcq", "multi", "order"):
         out["why"] = it.get("why", "")
+        if it.get("whys"):
+            # per-choice reasons, keyed by the choice text (the choices are shuffled when asked)
+            out["whys"] = {str(c): str(w) for c, w in zip(it["choices"], it["whys"])}
+    elif it["type"] == "dialogue":
+        out["dialogue"] = [{"who": ln["who"], "l2": ln["l2"], "l1": ln["l1"], "mine": ln["who"] == it["you"]} for ln in it["lines"]]
     elif it["type"] == "concept":
         out["why"] = f"{it['term']} — {it['def']}"
     else:
@@ -510,11 +589,11 @@ def build_session(course: str | None = None, size: int | None = None, now: float
             pack = packs.get(cid)
             stats = course_stats(st, pack, now)
             for it in _new_items(st, pack, min(per_course, stats["new_left"])):
-                if it["type"] not in ("mcq", "multi", "order"):
+                if it["type"] not in ("mcq", "multi", "order", "dialogue"):
                     new_exs.append((build_exercise(it, "intro", pack, seed),
                                     build_exercise(it, _mode_for(it, None, pack), pack, seed)))
                 else:
-                    new_exs.append((None, build_exercise(it, it["type"], pack, seed)))
+                    new_exs.append((None, build_exercise(it, _mode_for(it, None, pack), pack, seed)))
                 unit = next(u for u in pack["units"] if u["id"] == it["unit"])
                 first_time = not any((st["cards"].get(x["id"]) or {}).get("reps") for x in unit["items"])
                 if first_time and not any(n["unit"] == unit["id"] for n in unit_notes):
@@ -603,6 +682,8 @@ def answer(item_id: str, mode: str, given, *, retry: bool = False, practice: boo
         was_new = not (card or {}).get("reps")
         out = {"ok": True, "correct": res["correct"], "flag": res["flag"], "expected": res["expected"],
                "explain": _explain(it), "rewards": {}, "events": []}
+        if "expected_list" in res:
+            out["expected_list"] = res["expected_list"]
         if retry or practice:
             if practice and not retry:
                 out["rewards"] = game.on_answer(st, it["pack"], correct=res["correct"], is_new=False,
@@ -622,7 +703,7 @@ def answer(item_id: str, mode: str, given, *, retry: bool = False, practice: boo
         d = _day(st, now)
         d["answers"] += 1
         d["correct"] += 1 if res["correct"] else 0
-        typed = mode in ("type_l2", "listen", "cloze_type")
+        typed = mode in ("type_l2", "listen", "cloze_type", "dialogue_type")
         d["typed"] = d.get("typed", 0) + (1 if typed and res["correct"] else 0)
         if it["pack"] not in d["courses"]:
             d["courses"].append(it["pack"])
@@ -743,6 +824,15 @@ def readiness(st: dict, pack: dict, now: float) -> dict:
     return {"ready": all(c["ok"] for c in checks), "checks": checks}
 
 
+def _typed_mode(it: dict, rng: random.Random) -> str:
+    """The typed-from-memory form of a language item (one line, for a dialogue)."""
+    if it["type"] == "cloze":
+        return "cloze_type"
+    if it["type"] == "dialogue":
+        return f"line:{rng.choice(my_lines(it))}"
+    return "type_l2"
+
+
 def trial_info(course: str, now: float | None = None) -> dict:
     now = now or time.time()
     pack = packs.get(course)
@@ -798,7 +888,7 @@ def start_trial(course: str, full: bool = False, now: float | None = None) -> di
         else:
             seen = [it for u in pack["units"] for it in u["items"] if (st["cards"].get(it["id"]) or {}).get("reps")]
             for it in rng.sample(seen, n_q):
-                chosen.append((it, "cloze_type" if it["type"] == "cloze" else "type_l2"))
+                chosen.append((it, _typed_mode(it, rng)))
         rng.shuffle(chosen)
         tid = uuid.uuid4().hex[:12]
         seed = rng.randrange(1 << 30)
@@ -896,10 +986,8 @@ def _placement_block(st: dict, pl: dict, pack: dict) -> list[dict]:
     picks = rng.sample(pool, min(PLACEMENT_PER_UNIT[pack["kind"]], len(pool)))
     block = []
     for it in picks:
-        if it["type"] == "cloze":
-            mode = "cloze_type"
-        elif it["type"] in ("vocab", "phrase"):
-            mode = "type_l2"
+        if it["type"] in ("cloze", "vocab", "phrase", "dialogue"):
+            mode = _typed_mode(it, rng)
         elif it["type"] == "concept":
             mode = "choose_term"
         else:
@@ -947,7 +1035,7 @@ def _mark_known(st: dict, pack: dict, unit: dict, proven: set[str], now: float) 
     return n
 
 
-def placement_answer(placement_id: str, answers: list, now: float | None = None) -> dict:
+def placement_answer(placement_id: str, answers: list, now: float | None = None, unit: int = -1) -> dict:
     """Grade the current block, then hand back the next one or the result.
 
     Languages stop after two units in a row are failed (the level is found);
@@ -959,6 +1047,8 @@ def placement_answer(placement_id: str, answers: list, now: float | None = None)
         pl = st.get("open_placements", {}).get(placement_id)
         if not pl:
             return {"ok": False, "error": "This placement test has expired. Start it again."}
+        if unit >= 0 and unit != pl["unit"]:
+            return {"ok": False, "error": "That block was already answered."}     # a double tap
         pack = packs.get(pl["course"])
         unit = pack["units"][pl["unit"]]
         right = 0

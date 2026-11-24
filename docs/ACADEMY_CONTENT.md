@@ -74,6 +74,26 @@ pack, e.g. `fr-03-avoir`) and a `type`.
    l1: "I am a student.", note: "être → je suis"}
 ```
 
+```yaml
+- id: frt-01-cafe
+  type: dialogue
+  title: "Ordering at a café"
+  scene: "You are a customer. The waiter comes to your table."
+  you: B                      # the learner's role
+  lines:
+    - {who: A, l2: "Bonjour ! Vous désirez ?", l1: "Hello! What would you like?"}
+    - {who: B, l2: "Un café, s'il vous plaît.", l1: "A coffee, please.",
+       alt: ["Je voudrais un café, s'il vous plaît."]}
+    - {who: A, l2: "Autre chose ?", l1: "Anything else?"}
+    - {who: B, l2: "Non merci, c'est tout.", l1: "No thanks, that's all.", alt: ["Non, merci."]}
+```
+
+- A `dialogue` is conversation practice: the app speaks the partner's lines and
+  the learner must produce their own from the English cue — first by arranging
+  the words, later by typing from memory. 4-12 lines; the learner (`you`) has
+  at least two. Keep each learner line short (about 3-10 words) and natural;
+  list every other natural way to say it in `alt`. The partner's lines can be
+  longer and may use words the learner has only met passively.
 - `l2` is the target-language answer the learner will eventually **type**; `alt`
   lists other answers that must be accepted. `l1` is the English prompt/meaning.
 - Teach nouns **with their article** (`le livre`, `la mesa`) so gender is learned
@@ -116,6 +136,23 @@ pack, e.g. `fr-03-avoir`) and a `type`.
    why: "You cannot contain what you have not identified, and recovery follows eradication."}
 ```
 
+```yaml
+- {id: sy-1-b01, type: mcq, best: true,
+   q: "A team must stop staff reusing passwords across sites. Every option would help. Which is the BEST control?",
+   choices: ["A yearly awareness e-mail", "A password manager issued to all staff", "A longer minimum password length", "A quarterly password change"],
+   answer: 1,
+   why: "A password manager removes the reason people reuse passwords.",
+   whys: ["Raises awareness but changes little behaviour.", "Makes unique passwords effortless - the root cause.", "Stronger passwords are still reused.", "Forced rotation encourages predictable variations."]}
+```
+
+- A **best-answer** `mcq` (`best: true`) is the exam's hardest style: **every
+  choice is correct or reasonable**, and the candidate must pick the BEST, MOST
+  effective, or FIRST one. It needs `whys`: one sentence per choice, in the
+  order the choices are written, saying why it is the best or exactly why it is
+  weaker than the best. The stem must use the qualifier (BEST / MOST / FIRST /
+  LEAST) and must give the deciding constraint (cost, time, order of operations,
+  the specific risk) so the best answer is defensible, not a matter of taste.
+  `whys` is welcome on ordinary `mcq` items too.
 - `multi` is the exam's "choose TWO / choose THREE": 5-6 distinct choices,
   `answers` lists the 2-3 correct indices, and the stem must say how many to
   choose. It is graded all-or-nothing, so every listed answer must be

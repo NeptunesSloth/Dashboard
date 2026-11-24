@@ -13,7 +13,8 @@ Item types:
     vocab / phrase  {id, type, l2, l1, alt?, note?, ex?, ex_l1?}
     cloze           {id, type, text (one ``___``), answer, alt?, l1?, note?}
     concept         {id, type, term, def, note?}
-    mcq             {id, type, q, choices[4], answer (index), why}
+    dialogue        {id, type, title, scene, you (A|B), lines [{who, l2, l1, alt?}]}
+    mcq             {id, type, q, choices[4], answer (index), why, best?, whys?}
     multi           {id, type, q, choices[5-6], answers [2-3 indices], why}   "choose TWO/THREE"
     order           {id, type, q, steps [3-6, in the correct order], why}
 
@@ -34,7 +35,7 @@ import yaml
 
 PACK_DIR = Path(__file__).parent / "packs"
 KINDS = ("language", "cert")
-ITEM_TYPES = ("vocab", "phrase", "cloze", "concept", "mcq", "multi", "order")
+ITEM_TYPES = ("vocab", "phrase", "cloze", "dialogue", "concept", "mcq", "multi", "order")
 CERT_TYPES = ("concept", "mcq", "multi", "order")
 _ID = re.compile(r"^[a-z0-9][a-z0-9_.\-]{1,63}$")
 _Loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)      # the C loader is ~10x faster when present
@@ -80,6 +81,8 @@ def _validate_units(units, kind, domains: set[str], err, seen_units: set[str], s
             if t not in ITEM_TYPES:
                 err(f"item {iid}: type must be one of {ITEM_TYPES}")
                 continue
+            if t == "dialogue":
+                pass
             if kind == "language" and t in CERT_TYPES:
                 err(f"item {iid}: {t} items belong in cert packs")
             if kind == "cert" and t not in CERT_TYPES:
@@ -95,6 +98,17 @@ def _validate_units(units, kind, domains: set[str], err, seen_units: set[str], s
                     err(f"item {iid}: needs answer")
                 if not _s(it.get("l1")):
                     err(f"item {iid}: needs l1 (English meaning of the full sentence)")
+            elif t == "dialogue":
+                lines = it.get("lines")
+                if not _s(it.get("title")) or not _s(it.get("scene")) or it.get("you") not in ("A", "B"):
+                    err(f"item {iid}: needs title, scene and you (A or B)")
+                if not isinstance(lines, list) or not 4 <= len(lines) <= 12 or not all(
+                        isinstance(ln, dict) and ln.get("who") in ("A", "B") and _s(ln.get("l2")) and _s(ln.get("l1"))
+                        and isinstance(ln.get("alt", []), list) and all(isinstance(a, str) and a.strip() for a in ln.get("alt", []))
+                        for ln in lines):
+                    err(f"item {iid}: needs 4-12 lines, each with who (A|B), l2 and l1 (alt optional)")
+                elif sum(1 for ln in lines if ln["who"] == it.get("you")) < 2:
+                    err(f"item {iid}: the learner needs at least two lines")
             elif t == "concept":
                 if not _s(it.get("term")) or not _s(it.get("def")):
                     err(f"item {iid}: needs term and def")
@@ -118,6 +132,12 @@ def _validate_units(units, kind, domains: set[str], err, seen_units: set[str], s
                         err(f"item {iid}: answers must be 2-3 distinct choice indices")
                 if not _s(it.get("why")):
                     err(f"item {iid}: needs why (the explanation)")
+                whys = it.get("whys")
+                if whys is not None and not (isinstance(whys, list) and isinstance(ch, list) and len(whys) == len(ch)
+                                             and all(isinstance(x, str) and x.strip() for x in whys)):
+                    err(f"item {iid}: whys must give one explanation per choice, in choice order")
+                if it.get("best") and whys is None:
+                    err(f"item {iid}: a best-answer question needs whys (why each choice is weaker or best)")
             elif t == "order":
                 steps = it.get("steps")
                 if not _s(it.get("q")) or not isinstance(steps, list) or not 3 <= len(steps) <= 6 \

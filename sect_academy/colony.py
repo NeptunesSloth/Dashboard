@@ -390,6 +390,8 @@ def _research(c: dict, points: float) -> None:
     if r["progress"] >= RESEARCH[r["current"]]["cost"]:
         done = r["current"]
         r["done"].append(done)
+        r.setdefault("banked", {}).pop(done, None)
+        c["insight"] += r["progress"] - RESEARCH[done]["cost"]      # what was left over is not wasted
         r["current"], r["progress"] = "", 0.0
         _letter(c, "good", f"Research complete: {RESEARCH[done]['name']}", RESEARCH[done]["effect"])
 
@@ -442,8 +444,8 @@ def _tick_pawn(c: dict, p: dict, taken: dict, quiet: bool) -> None:
         p["food"] = min(100.0, p["food"] + 55)
     if p["food"] <= 0:
         _think(p, "starving", "Starving", -18, 6, hour)
-        if not quiet:
-            _hurt(p, 1.5)
+        if not quiet and p["health"] > 34:
+            _hurt(p, 1.5)                 # hunger weakens; it never pins a disciple to the sickbed
     elif p["food"] < 25:
         _think(p, "hungry", "Hungry", -8, 3, hour)
     # --- choose what to do this hour
@@ -649,7 +651,8 @@ def resolve(st: dict, option: str, now: float) -> dict:
     rate = float(ev.get("rate", 1.0))
     if ev["kind"] == "wanderer" and option == "accept":
         if len(c["pawns"]) >= pawn_cap(c):
-            return {"ok": False, "error": "The sect is full. Raise the Main Hall to take in more."}
+            c["pending"] = ev
+            return {"ok": False, "error": "The sect is full. Raise the Main Hall to take in more, or turn them away."}
         p = ev["cand"]
         p["joined"] = c["hour"]
         c["pawns"].append(p)
@@ -675,8 +678,6 @@ def _hour(c: dict, quiet: bool) -> None:
     taken: dict = {}
     for p in list(c["pawns"]):
         _tick_pawn(c, p, taken, quiet)
-    if c["pending"] and c["pending"].get("expires", 0) <= c["hour"]:
-        c["pending"] = None
     if c["hour"] % 24 == 6 and not quiet:
         _daily_event(c)
         if c["res"]["rice"] < len(c["pawns"]) * 2 and _day(c) % 2 == 0:
@@ -694,8 +695,8 @@ def advance(st: dict, hours: int, now: float) -> dict:
     if not c["name"]:
         return {"ok": False, "hours": 0}
     for _ in range(max(0, min(int(hours), MAX_TICK))):
-        if c["pending"] and c["pending"]["kind"] in ("wanderer", "merchant") and n > 0:
-            break                        # let the player answer the knock at the gate
+        if c["pending"] or c["seclusion"]:
+            break                        # time waits for your answer, and behind sealed gates
         _hour(c, quiet=False)
         n += 1
     c["last_real"] = now
@@ -705,8 +706,8 @@ def advance(st: dict, hours: int, now: float) -> dict:
 def catch_up(st: dict, now: float) -> int:
     """Quiet progress for time spent away. Returns the sim hours advanced."""
     c = _c(st, now)
-    if not c["name"] or c["seclusion"]:
-        c["last_real"] = now
+    if not c["name"] or c["seclusion"] or c["pending"]:
+        c["last_real"] = now             # sealed gates, or someone waiting for your answer: time waits
         return 0
     hours = int(min(max(0.0, now - c["last_real"]) / SECS_PER_HOUR_OFFLINE, MAX_OFFLINE_HOURS))
     if hours < 1:
@@ -766,8 +767,12 @@ def set_research(st: dict, tech: str, now: float) -> dict:
     c = _c(st, now)
     if tech and (tech not in RESEARCH or tech in c["research"]["done"]):
         return {"ok": False, "error": "Unknown or finished research."}
-    if tech != c["research"]["current"]:
-        c["research"]["current"], c["research"]["progress"] = tech, 0.0
+    r = c["research"]
+    if tech != r["current"]:
+        bank = r.setdefault("banked", {})
+        if r["current"]:
+            bank[r["current"]] = r["progress"]          # switching topics keeps what was learned
+        r["current"], r["progress"] = tech, float(bank.pop(tech, 0.0)) if tech else 0.0
     return {"ok": True}
 
 
@@ -812,8 +817,12 @@ def set_seclusion(st: dict, on: bool, now: float) -> dict:
     elif not on and c["seclusion"]:
         c["seclusion"] = False
         c["last_real"] = now
-        if c["last_study_day"] and c["secluded_on"]:
-            away = max(0, (_date(today) - _date(c["secluded_on"])).days)
+        try:
+            since = _date(c["secluded_on"]) if c["secluded_on"] else None
+        except ValueError:
+            since = None
+        if c["last_study_day"] and since:
+            away = max(0, (_date(today) - since).days)
             latest = _date(today) - _dt.timedelta(days=1)
             if _date(c["last_study_day"]) < latest:
                 c["last_study_day"] = min(_date(c["last_study_day"]) + _dt.timedelta(days=away), latest).isoformat()
@@ -856,6 +865,9 @@ def on_answer(st: dict, course: str, *, correct: bool, is_new: bool, practice: b
 
 def _mark_study_day(st: dict, c: dict, now: float) -> list[dict]:
     events = []
+    if c["seclusion"]:
+        set_seclusion(st, False, now)
+        events.append({"kind": "info", "text": "You studied, so the gates are open again. Your streak was kept."})
     today = _today(st, now)
     if c["last_study_day"] and c["last_study_day"] >= today:
         return events
