@@ -1,4 +1,0 @@
-# Keep the logs/ mount-point directory tracked, but never commit captured logs.
-!logs/
-logs/*
-!logs/.gitkeep

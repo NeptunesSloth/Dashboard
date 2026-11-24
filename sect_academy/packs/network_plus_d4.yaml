@@ -1,0 +1,925 @@
+# CompTIA Network+ N10-009 — Domain 4 (Network Security) extension.
+# Original items written against the public objectives. Never rename an item id.
+part_of: network-plus
+units:
+  # ───────────────────── 4c · Security concepts: full coverage ─────────────────────
+  - id: np-4c
+    title: "Network security: concepts, compliance and controls"
+    domain: "4"
+    goal: "I can explain every Domain 4 term, from PKI and SAML to data locality, OT segmentation and NAC."
+    notes: |
+      This unit fills in the Domain 4 vocabulary that the first security unit did not reach.
+
+      ## Logical security
+      Encrypt data **in transit** (TLS, SSH, IPsec) and **at rest** (disks, backups). **PKI** issues the certificates that make that trust possible. **IAM** covers the whole life of an identity; **SSO** and **SAML** let one login serve many applications, and **RBAC** hands out rights by job role. Access can also depend on a short-lived code (**time-based authentication**) or on where the device is (**geofencing**).
+
+      ## Risk language
+      A **threat** acts on a **vulnerability** by means of an **exploit**; **risk** is likelihood combined with impact.
+
+      ## Rules and segments
+      **PCI DSS** protects card data, **GDPR** protects personal data of people in the EU, and **data locality** fixes where data may live. Keep **IoT, IIoT, SCADA/ICS/OT, guest** and **BYOD** devices in their own segments.
+
+      ## Attacks and defences
+      | Attack | Defence |
+      | DNS poisoning | DNSSEC validation |
+      | Rogue access point | 802.1X, NAC |
+      | Phishing | Training, MFA |
+      | Tailgating | Access control vestibule |
+    items:
+      - id: np-4c-enc-transit
+        type: concept
+        term: "Encryption in transit"
+        def: "Scrambling data while it crosses a network, as TLS, SSH and IPsec do, so that anyone who captures the packets cannot read them."
+      - id: np-4c-enc-rest
+        type: concept
+        term: "Encryption at rest"
+        def: "Scrambling data where it is stored, on a disk, in a database or on a backup tape, so that a stolen drive or copied file is unreadable without the key."
+      - id: np-4c-pki
+        type: concept
+        term: "PKI"
+        def: "The whole system of certificate authorities, policies and key pairs that issues, distributes and revokes digital certificates, so that strangers can trust each other's public keys."
+      - id: np-4c-certificate
+        type: concept
+        term: "Digital certificate"
+        def: "A signed file that binds a public key to the name of its owner, and carries an issuer, a serial number and a validity period."
+      - id: np-4c-iam
+        type: concept
+        term: "IAM"
+        def: "The set of processes and tools for creating user identities, proving who they are, granting them rights, and removing those rights when they leave."
+      - id: np-4c-sso
+        type: concept
+        term: "SSO"
+        def: "Signing in once and then reaching many separate applications without being asked for credentials again."
+      - id: np-4c-saml
+        type: concept
+        term: "SAML"
+        def: "An XML-based open standard in which an identity provider passes a signed assertion about a logged-in user to a separate service provider; common for web sign-in to cloud applications."
+      - id: np-4c-totp
+        type: concept
+        term: "Time-based authentication (TOTP)"
+        def: "A login method in which a token or app derives a short-lived numeric code from a shared secret and the current clock, so that each code works for only about 30 seconds."
+      - id: np-4c-rbac
+        type: concept
+        term: "RBAC"
+        def: "Attaching permissions to job functions such as 'helpdesk' or 'network admin', and giving users their rights by placing them in those groups."
+      - id: np-4c-geofencing
+        type: concept
+        term: "Geofencing"
+        def: "Allowing or denying access according to where a device physically is, judged from GPS, its IP address or the wireless networks it can see."
+      - id: np-4c-honeynet
+        type: concept
+        term: "Honeynet"
+        def: "A whole decoy network of several fake hosts and services, built to watch how an intruder moves from one system to the next."
+      - id: np-4c-risk
+        type: concept
+        term: "Risk"
+        def: "The likelihood that something harmful happens combined with the damage it would cause; the thing an organisation chooses to accept, reduce, transfer or avoid."
+      - id: np-4c-vulnerability
+        type: concept
+        term: "Vulnerability"
+        def: "A weakness in a system, configuration or process, such as a missing patch or a default password, that could be taken advantage of."
+      - id: np-4c-exploit
+        type: concept
+        term: "Exploit"
+        def: "The specific code or technique that takes advantage of a particular weakness to make a system behave in a way its owner did not intend."
+      - id: np-4c-threat
+        type: concept
+        term: "Threat"
+        def: "Any person, event or circumstance with the potential to cause harm by acting on a weakness, such as a criminal group, a careless insider or a flood."
+      - id: np-4c-pci-dss
+        type: concept
+        term: "PCI DSS"
+        def: "The card brands' contractual security standard for any organisation that stores, processes or transmits cardholder data."
+      - id: np-4c-gdpr
+        type: concept
+        term: "GDPR"
+        def: "The European Union regulation on how the personal data of people in the EU is collected, processed and protected, wherever the organisation handling it is based."
+      - id: np-4c-data-locality
+        type: concept
+        term: "Data locality"
+        def: "The requirement that information be stored and processed inside a particular country or region, which limits the cloud regions and backup sites that may hold it."
+      - id: np-4c-scada
+        type: concept
+        term: "SCADA"
+        def: "A supervisory system that collects readings from industrial equipment spread over a wide area and sends control commands back, as used for pipelines, power grids and water plants."
+      - id: np-4c-ot
+        type: concept
+        term: "Operational technology (OT)"
+        def: "The hardware and software that monitors and controls physical processes and machinery, as opposed to the systems that handle business information."
+      - id: np-4c-iiot
+        type: concept
+        term: "IIoT"
+        def: "Networked sensors and actuators built into factory and plant equipment, reporting data for the monitoring and automation of industrial processes."
+      - id: np-4c-byod
+        type: concept
+        term: "BYOD"
+        def: "A policy that lets staff use personally owned phones, tablets and laptops for work, which puts devices the organisation does not manage onto its network."
+      - id: np-4c-dns-poisoning
+        type: concept
+        term: "DNS poisoning"
+        def: "Inserting a false record into a resolver's cache so that a legitimate name resolves to an address the attacker controls."
+      - id: np-4c-rogue-ap
+        type: concept
+        term: "Rogue access point"
+        def: "A wireless device attached to the wired network without authorisation, such as one a member of staff plugs in for convenience, which opens an uncontrolled way in."
+      - id: np-4c-on-path
+        type: concept
+        term: "On-path attack"
+        def: "An attack in which someone secretly sits between two communicating parties, relaying their traffic while reading or altering it; formerly called man-in-the-middle."
+      - id: np-4c-phishing
+        type: concept
+        term: "Phishing"
+        def: "A deceptive message, usually an email, that impersonates a trusted sender to trick the recipient into revealing credentials or opening a malicious link or attachment."
+      - id: np-4c-nac
+        type: concept
+        term: "NAC"
+        def: "A system that checks a device's identity and health, such as patch level and antivirus status, before deciding whether to admit it, quarantine it or refuse it."
+      - id: np-4c-mac-filtering
+        type: concept
+        term: "MAC filtering"
+        def: "Admitting or refusing devices by comparing each one's hardware address with an allow or deny list, most often on a wireless access point; weak on its own because those addresses can be observed and cloned."
+      - id: np-4c-key-management
+        type: concept
+        term: "Key management"
+        def: "The practice of generating, storing, distributing, rotating and retiring cryptographic secrets safely throughout their life."
+      - id: np-4c-content-filtering
+        type: concept
+        term: "URL / content filtering"
+        def: "Blocking web requests according to the address, category or reputation of the site being asked for, typically at a proxy or next-generation firewall."
+      - id: np-4c-zone
+        type: concept
+        term: "Security zone"
+        def: "A group of interfaces or networks given the same level of trust, such as inside, outside or guest, with firewall policy governing traffic that crosses from one group to another."
+      - id: np-4c-vestibule
+        type: concept
+        term: "Access control vestibule"
+        def: "A small room with two interlocking doors, the second opening only after the first has closed, so that one authenticated person passes at a time; formerly called a mantrap."
+
+      - id: np-4c-q01
+        type: mcq
+        q: "A technician opens a newly installed switch's HTTPS management page and the browser warns that the issuer is unknown. The certificate's Issuer and Subject fields are identical. What kind of certificate is this?"
+        choices: ["A revoked certificate", "A self-signed certificate", "An expired certificate", "A wildcard certificate"]
+        answer: 1
+        why: "When the issuer and the subject are the same, the device signed its own certificate, so no trusted authority vouches for it. An expired certificate produces a date warning, not an unknown-issuer warning."
+      - id: np-4c-q02
+        type: mcq
+        q: "A user signs in with a password and then types a six-digit code from a phone app. The app replaces the code with a new one every 30 seconds. What does the app use to work out each code?"
+        choices:
+          - "A shared secret combined with the current time"
+          - "The phone's GPS position"
+          - "A signed assertion from an identity provider"
+          - "The server's digital certificate"
+        answer: 0
+        why: "Time-based authentication derives each code from a secret shared at enrolment plus the current time, which is why both clocks must agree. A signed assertion is how SAML passes on a login, not how a one-time code is produced."
+      - id: np-4c-q03
+        type: mcq
+        q: "In an open-plan office, a visitor waiting beside a desk watches an administrator type the firewall console password, and uses it later. Which technique is this?"
+        choices: ["Phishing", "Tailgating", "Shoulder surfing", "Dumpster diving"]
+        answer: 2
+        why: "Shoulder surfing is watching someone enter or read sensitive information. Tailgating is also done in person, but it means following an authorised person through a controlled door."
+      - id: np-4c-q04
+        type: mcq
+        q: "A scan reports that a router still accepts the factory-default administrator password. In risk terminology, what is the default password?"
+        choices: ["A threat", "An exploit", "A risk", "A vulnerability"]
+        answer: 3
+        why: "A default password is a weakness waiting to be used, which is a vulnerability. An exploit is the technique or code that uses the weakness, and a threat is whoever or whatever might do so."
+      - id: np-4c-q05
+        type: mcq
+        q: "Warehouse tablets must lose access to the inventory application as soon as they are carried off the premises, whoever is signed in. Which control fits best?"
+        choices: ["Geofencing", "Time-based authentication", "MAC filtering", "Role-based access control"]
+        answer: 0
+        why: "Geofencing ties access to the device's physical location. MAC filtering identifies which device is connecting but knows nothing about where it is."
+      - id: np-4c-q06
+        type: mcq
+        q: "A café chain starts taking credit card payments at networked tills. Which requirement now applies to the network that carries the card data?"
+        choices: ["GDPR", "PCI DSS", "A data locality rule", "A service-level agreement"]
+        answer: 1
+        why: "PCI DSS applies to anyone who stores, processes or transmits cardholder data. GDPR concerns personal data in general and is not what sets the security requirements for card systems."
+      - id: np-4c-q07
+        type: mcq
+        q: "A US-based online shop sells to customers in France and stores their names, addresses and order history. Which regulation governs how that personal data must be handled?"
+        choices: ["PCI DSS", "HIPAA", "GDPR", "SOX"]
+        answer: 2
+        why: "GDPR protects the personal data of people in the EU even when the company handling it is based elsewhere. PCI DSS would cover the card numbers, but not names, addresses and order history."
+      - id: np-4c-q08
+        type: mcq
+        q: "A security team wants to observe how an intruder pivots between a fake web server, a fake database and a fake file share, all isolated from production. What should it build?"
+        choices: ["A honeypot", "A screened subnet", "A guest network", "A honeynet"]
+        answer: 3
+        why: "Several decoys joined into a decoy network make a honeynet, which is what reveals movement between systems. A honeypot is a single decoy host."
+      - id: np-4c-q09
+        type: mcq
+        q: "Staff who type the correct address of the company's bank arrive at a look-alike site. The internal resolver is found to be holding a false address record for the bank's name. Which attack is this?"
+        choices: ["DNS poisoning", "ARP poisoning", "Evil twin", "Phishing"]
+        answer: 0
+        why: "A false record planted in a resolver's cache is DNS poisoning. Phishing also leads to look-alike sites, but it needs a deceptive message with a link; here the users typed the right name."
+      - id: np-4c-q10
+        type: mcq
+        q: "A water utility runs a central system that gathers readings from pumping stations across a whole region and sends them control commands. What is this system called?"
+        choices: ["An IIoT sensor", "A BYOD fleet", "A SCADA system", "A honeynet"]
+        answer: 2
+        why: "Supervising and controlling widely spread industrial equipment from a central point is what SCADA does. IIoT sensors may feed such a system, but a single sensor does not supervise or control anything."
+      - id: np-4c-q11
+        type: mcq
+        q: "Malware enters one PC and within minutes has copied itself to dozens of others across the LAN, with nobody opening a file. Which type of malware behaves this way?"
+        choices: ["Trojan", "Worm", "Spyware", "Logic bomb"]
+        answer: 1
+        why: "A worm spreads by itself across the network. A Trojan depends on a user running a program that appears to be harmless."
+      - id: np-4c-q12
+        type: mcq
+        q: "Staff may connect personal phones at work, but those phones must reach only the internet and the mail service, never the file servers. Which design is best?"
+        choices:
+          - "Put them on the staff VLAN and rely on file-share passwords"
+          - "Put them on the management VLAN so that IT can monitor them"
+          - "Put them on the server VLAN and apply MAC filtering"
+          - "Put them on their own VLAN with ACLs permitting only internet and mail"
+        answer: 3
+        why: "A separate BYOD segment with filtering enforces the limit at the network, whatever is on the phone. On the staff VLAN an unmanaged phone has the same network reach as a managed PC."
+      - id: np-4c-q13
+        type: mcq
+        q: "A data centre wants a physical control that stops an unauthorised person from entering, as opposed to recording that they did. Which should it choose?"
+        choices:
+          - "Surveillance cameras"
+          - "A locking access control vestibule"
+          - "Motion-detection alerts"
+          - "A visitor log"
+        answer: 1
+        why: "A vestibule physically prevents entry until a person is authenticated. Cameras are detective: they record or reveal an intrusion without stopping it."
+
+  # ───────────────── 4d · Exam-hard practice: identity, PKI, risk ─────────────────
+  - id: np-4d
+    title: "Exam-hard practice: identity, certificates, risk and physical security"
+    domain: "4"
+    goal: "I can solve scenario questions on AAA, PKI, encryption, risk terms, compliance and physical controls that are harder than the real exam."
+    notes: |
+      These questions are deliberately **harder than the exam**. Each one turns on a distinction between two near neighbours, so read the stem for the detail that separates them.
+
+      ## Distinctions to hold on to
+      | Pair | The difference |
+      | RADIUS / TACACS+ | UDP 1812 and 1813, password encrypted / TCP 49, whole body encrypted |
+      | In transit / at rest | Moving across a network / sitting on storage |
+      | Vulnerability / exploit | The weakness / the means of using it |
+      | Geofencing / data locality | Where the user's device is / where the data lives |
+      | Identity provider / service provider | Checks the login / trusts the assertion |
+
+      ## Reading certificate errors
+      - **Unknown issuer**: the client does not trust the signer.
+      - **Name mismatch**: the name browsed is not in the certificate.
+      - **Expired**: check the dates, and the client's clock.
+
+      For **multi** items, the stem says how many to choose and scoring is all-or-nothing. For **order** items, think of the real process from start to finish before placing any step.
+    items:
+      - id: np-4d-q01
+        type: mcq
+        q: "A new firewall is placed between the access switches and the AAA server. Its log shows: DENY udp 10.0.9.11:49152 -> 10.0.1.5:1812. Administrators can still log in to the switches through the same server. Which service has MOST likely stopped working?"
+        choices:
+          - "Per-command authorisation of administrators over TACACS+"
+          - "Directory lookups over LDAP"
+          - "802.1X authentication of user devices over RADIUS"
+          - "Recording of RADIUS accounting data only"
+        answer: 2
+        why: "UDP 1812 is RADIUS authentication, the usual back end for 802.1X. RADIUS accounting uses UDP 1813 and TACACS+ uses TCP 49, and neither appears in the denied entry."
+      - id: np-4d-q02
+        type: mcq
+        q: "A capture of a web application's directory lookups shows a simple bind to TCP 389 with the service account's password readable in the payload. Which change BEST fixes this with the least redesign?"
+        choices:
+          - "Bind using LDAPS on TCP 636"
+          - "Move the lookups to RADIUS on UDP 1812"
+          - "Move the lookups to TACACS+ on TCP 49"
+          - "Hash the password field stored in the directory"
+        answer: 0
+        why: "LDAPS wraps the same directory protocol in TLS, so the bind is no longer readable on the wire. Hashing what the directory stores protects data at rest and does nothing for a password sent in clear text."
+      - id: np-4d-q03
+        type: mcq
+        q: "A user opens a cloud CRM, is redirected to the company's own login page, signs in, and is sent back to the CRM carrying a signed XML assertion. In this SAML exchange, what role does the CRM play?"
+        choices: ["Identity provider", "Service provider", "Certificate authority", "Authenticator"]
+        answer: 1
+        why: "The application that accepts the assertion and grants access is the service provider. The identity provider is the company's login system, which checked the credentials and issued the assertion."
+      - id: np-4d-q04
+        type: mcq
+        q: "After single sign-on is deployed, one phished password gives an attacker access to fourteen applications. Management wants to keep SSO. Which change BEST reduces this exposure?"
+        choices:
+          - "Give each application its own separate password"
+          - "Lengthen the minimum password to 16 characters"
+          - "Shorten the SSO session lifetime to one hour"
+          - "Require multifactor authentication at the identity provider"
+        answer: 3
+        why: "With MFA at the identity provider, a stolen password alone no longer opens the single door to everything. A longer password is just as easy to phish, and separate passwords would abandon SSO."
+      - id: np-4d-q05
+        type: mcq
+        q: "After a power failure, every user's authenticator-app code is rejected by the VPN gateway, although passwords are accepted. The gateway logs 'OTP outside allowed window' and its clock shows a date in 2019. What should be fixed FIRST?"
+        choices:
+          - "The gateway's NTP synchronisation"
+          - "Every user's token seed"
+          - "The gateway's server certificate"
+          - "The RADIUS timeout value"
+        answer: 0
+        why: "Time-based codes are calculated from the current time, so a gateway with the wrong clock computes different codes from the users' apps. The seeds are fine: nothing about them changed, and reissuing them would not correct the clock."
+      - id: np-4d-q06
+        type: mcq
+        q: "Users browsing to https://portal.example.com get a name-mismatch warning. The certificate shows Subject CN=web01.corp.example.com, SAN=web01.corp.example.com, 200 days of validity left, issued by a public CA the browsers trust. What is the BEST fix?"
+        choices:
+          - "Install the CA's root certificate on every client"
+          - "Renew the certificate with the same details"
+          - "Reissue the certificate with portal.example.com in the SAN"
+          - "Synchronise the clients' clocks with NTP"
+        answer: 2
+        why: "The name the users browse to is not among the names in the certificate, so it must be reissued with that name. Installing the root would fix an unknown-issuer error, but the issuer is already trusted here."
+      - id: np-4d-q07
+        type: mcq
+        q: "All 400 managed laptops warn of an untrusted issuer when engineers open the HTTPS pages of internal switches, which still use the certificates they generated at first boot. The company's internal CA root is already installed on the laptops. What is the BEST fix?"
+        choices:
+          - "Regenerate each switch's self-signed certificate with a 4096-bit key"
+          - "Issue each switch a certificate signed by the internal CA"
+          - "Add a permanent browser exception on every laptop"
+          - "Manage the switches over HTTP on the management VLAN"
+        answer: 1
+        why: "A certificate signed by the internal CA chains to a root the laptops already trust, so the warning goes away properly. A bigger key on a self-signed certificate is still self-signed, and still untrusted."
+      - id: np-4d-q08
+        type: mcq
+        q: "A laptop holding a VPN client certificate is stolen. The VPN authenticates by certificate alone, and the certificate does not expire for eleven months. What must the administrator do to stop it being accepted?"
+        choices:
+          - "Reset the user's directory password"
+          - "Generate a new key pair for the CA"
+          - "Shorten the validity period of future certificates"
+          - "Revoke the certificate so that it appears on the CRL or in OCSP"
+        answer: 3
+        why: "Revocation tells relying systems to refuse a certificate before its expiry date. Resetting the password changes nothing, because this VPN never asks for one."
+      - id: np-4d-q09
+        type: mcq
+        q: "A file server's LAN traffic is protected by encrypted SMB, and its nightly backup tapes go to an off-site vault by courier. The courier loses one unencrypted tape. Which control would have kept that data confidential?"
+        choices:
+          - "Encryption in transit using TLS"
+          - "Encryption at rest on the backup media"
+          - "A hash of each backup file"
+          - "An IPsec tunnel to the vault site"
+        answer: 1
+        why: "Data on a tape is stored data, even while the tape is being carried, so it needs encryption at rest. TLS and IPsec protect data only while it crosses a network, and a hash gives integrity, not secrecy."
+      - id: np-4d-q10
+        type: mcq
+        q: "An engineer manages branch routers with Telnet and copies their configurations with TFTP across a provider's shared WAN. Which pair of replacements BEST provides confidentiality in transit for both tasks?"
+        choices: ["SSH and SFTP", "SSH and TFTP", "Telnet and SFTP", "HTTPS and FTP"]
+        answer: 0
+        why: "SSH encrypts the management session and SFTP carries the file copy inside SSH. HTTPS would protect a web management session, but FTP still sends the configuration and the login in clear text."
+      - id: np-4d-q11
+        type: mcq
+        q: "A scanner finds an unpatched flaw in a public web server. Working attack code for that flaw has been published, and a criminal group is known to target the company's sector. Which of these is the exploit?"
+        choices:
+          - "The unpatched flaw"
+          - "The criminal group"
+          - "The published attack code"
+          - "The chance of a breach and its cost"
+        answer: 2
+        why: "The exploit is the code or technique that takes advantage of a weakness. The unpatched flaw itself is the vulnerability, the group is the threat, and likelihood with cost is the risk."
+      - id: np-4d-q12
+        type: mcq
+        q: "The same unpatched firmware flaw exists on two switches: one in an isolated lab with no outside connectivity, and one whose management interface is reachable from the internet. Which statement is MOST accurate?"
+        choices:
+          - "The flaw is the same, so the risk is the same"
+          - "The lab switch has no vulnerability, because it cannot be reached"
+          - "The internet-facing switch has a different, more severe vulnerability"
+          - "The vulnerability is the same, but the risk is higher on the internet-facing switch"
+        answer: 3
+        why: "Risk combines likelihood with impact, and exposure to the internet makes exploitation far more likely. The weakness itself is identical on both switches; being unreachable lowers the lab switch's risk without removing its vulnerability."
+      - id: np-4d-q13
+        type: mcq
+        q: "An attacker positioned between a branch and head office changes the destination account number inside payment instructions as they pass, without interrupting the traffic. Which security goal is violated, and which control addresses it?"
+        choices:
+          - "Confidentiality; encrypt the stored payment files"
+          - "Integrity; digitally sign each instruction"
+          - "Availability; add a second WAN link"
+          - "Integrity; back up the instructions every night"
+        answer: 1
+        why: "Altering data is an integrity failure, and a digital signature lets the receiver detect any change. Backups help to restore stored data, but they cannot reveal that a message was modified in flight."
+      - id: np-4d-q14
+        type: mcq
+        q: "A retailer's card terminals share one flat VLAN with office PCs and guest Wi-Fi, so the assessor declares the whole network in scope for PCI DSS. Which change BEST reduces the scope?"
+        choices:
+          - "Isolate the card systems in their own segment behind a firewall"
+          - "Upgrade the guest Wi-Fi to WPA3"
+          - "Apply MAC filtering to the card terminals' switch ports"
+          - "Keep cardholder data in a data centre in the same country"
+        answer: 0
+        why: "Only systems that handle card data, or can reach those that do, are in scope, so segmentation shrinks the scope to the card environment. Better guest Wi-Fi encryption still leaves the guests on the same network as the terminals."
+      - id: np-4d-q15
+        type: mcq
+        q: "A German insurer's cloud contract states that customer records may be stored and processed only in the provider's EU regions, and that backups may not replicate anywhere else. What is this requirement BEST called?"
+        choices: ["Geofencing", "Encryption at rest", "Data locality", "PCI DSS compliance"]
+        answer: 2
+        why: "A rule about where data may be stored and processed is data locality. Geofencing sounds similar but controls access according to where a user's device is, not where the data resides."
+      - id: np-4d-q16
+        type: mcq
+        q: "An identity platform logs: '09:02 user=jlee src=203.0.113.9 country=DE mfa=pass result=ALLOW' and '09:40 user=jlee src=198.51.100.7 country=BR mfa=pass result=DENY reason=policy'. Which control MOST likely produced the denial?"
+        choices: ["Time-based authentication", "Role-based access control", "Single sign-on", "Geofencing"]
+        answer: 3
+        why: "The only thing that differs between the two attempts is the country of the source address, which is what a location policy checks. The one-time code passed both times, and the user's role did not change in 38 minutes."
+      - id: np-4d-q17
+        type: mcq
+        q: "Helpdesk staff are granted rights one account at a time, and people who change jobs keep everything they ever had. An audit finds 60 accounts holding rights their owners no longer need. Which approach BEST corrects this going forward?"
+        choices: ["Role-based access control", "Single sign-on", "Multifactor authentication", "Time-based authentication"]
+        answer: 0
+        why: "With rights attached to roles, moving a person to a new role removes the old permissions automatically. Multifactor authentication makes logins stronger but has no effect on what an account is allowed to do."
+      - id: np-4d-q18
+        type: mcq
+        q: "A decoy file server that no user has any reason to contact raises an alert: 'SMB logon attempt from 10.20.4.17', an internal workstation. What is the BEST next step?"
+        choices:
+          - "Add 10.20.4.17 to the decoy's allow list"
+          - "Investigate 10.20.4.17 as a possibly compromised host"
+          - "Shut the decoy down, because it is attracting attacks"
+          - "Move the decoy into the screened subnet"
+        answer: 1
+        why: "A honeypot has no legitimate use, so any contact is suspect and the source should be investigated. Shutting the decoy down throws away exactly the early warning it exists to give."
+      - id: np-4d-q19
+        type: mcq
+        q: "A server room's badge log shows one swipe at 22:14, but the camera recording shows three people walking in together. Which control BEST prevents a repeat?"
+        choices:
+          - "A second camera inside the room"
+          - "A fingerprint reader on the same door"
+          - "An access control vestibule"
+          - "A motion sensor that raises an alert"
+        answer: 2
+        why: "A vestibule admits one authenticated person at a time, which defeats tailgating. A fingerprint reader strengthens the check on the first person, but the door still stays open for whoever follows."
+      - id: np-4d-q20
+        type: mcq
+        q: "In a shared office building, a wiring closet in the public corridor is found with a console cable attached to the switch and an unknown device patched into a spare port. Which single control BEST addresses both findings?"
+        choices:
+          - "Enabling port security on every switch port"
+          - "Disabling the unused switch ports"
+          - "Installing a camera in the corridor"
+          - "Keeping the closet locked, with logged badge access"
+        answer: 3
+        why: "Both findings come from uncontrolled physical access, which a locked closet removes. Port security could stop the unknown device, but it does nothing about someone using the console port."
+      - id: np-4d-q21
+        type: mcq
+        q: "A contractor's account stays enabled for three months after the contract ends, and is then used to sign in to the VPN with its correct password. Which part of identity and access management failed?"
+        choices: ["Authentication", "Deprovisioning", "Accounting", "Federation"]
+        answer: 1
+        why: "Removing access when a person leaves is deprovisioning, and it did not happen. Authentication worked as designed: it accepted valid credentials for an account that should no longer have existed."
+      - id: np-4d-q22
+        type: mcq
+        q: "After an overnight outage, the AAA server's log shows: 'user=jdoe device=core-sw1 cmd=reload time=02:14'. Which AAA function produced this record?"
+        choices: ["Accounting", "Authorization", "Authentication", "Federation"]
+        answer: 0
+        why: "Accounting records what a user did and when. Authorization decided whether jdoe was allowed to run the command, but the record of it having been run is accounting."
+      - id: np-4d-q23
+        type: mcq
+        q: "A scan of a newly installed router shows: 22/tcp open ssh, 23/tcp open telnet, 80/tcp open http, 161/udp open snmp (community 'public'). Which set of changes hardens it BEST while keeping it manageable?"
+        choices:
+          - "Disable SSH and restrict Telnet with an ACL"
+          - "Keep every service and rename the community to 'private'"
+          - "Disable Telnet and HTTP, keep SSH, and move SNMP to version 3"
+          - "Disable SSH and SNMP, and manage the router over HTTP"
+        answer: 2
+        why: "Hardening removes the clear-text services and keeps the encrypted ones: SSH for the command line and SNMPv3 for monitoring. An ACL in front of Telnet limits who can connect, but the session, password included, is still sent unencrypted."
+
+      - id: np-4d-m01
+        type: multi
+        q: "Which TWO statements correctly describe TACACS+? (Choose TWO.)"
+        choices:
+          - "It uses TCP port 49"
+          - "It uses UDP port 1812"
+          - "It encrypts only the password field"
+          - "It encrypts the entire body of each packet"
+          - "It always returns authentication and authorization in one combined reply"
+          - "It is the protocol for querying a directory on TCP port 389"
+        answers: [0, 3]
+        why: "TACACS+ runs over TCP 49 and encrypts the whole packet body, keeping authentication, authorization and accounting separate. UDP 1812, password-only encryption and combined replies describe RADIUS; TCP 389 is LDAP."
+      - id: np-4d-m02
+        type: multi
+        q: "Which TWO of these are 'something you have' authentication factors? (Choose TWO.)"
+        choices:
+          - "A four-digit PIN"
+          - "A fingerprint scan"
+          - "A smart card"
+          - "The answer to a security question"
+          - "A hardware token that displays a one-time code"
+        answers: [2, 4]
+        why: "A smart card and a hardware token are physical objects in the user's possession. A PIN and a security answer are things you know, and a fingerprint is something you are."
+      - id: np-4d-m03
+        type: multi
+        q: "Which THREE of these are contained in a server's X.509 certificate? (Choose THREE.)"
+        choices:
+          - "The server's private key"
+          - "The server's public key"
+          - "The name of the issuing CA"
+          - "The session key for the current connection"
+          - "The validity period"
+          - "The administrator's password hash"
+        answers: [1, 2, 4]
+        why: "A certificate carries the subject's public key, the issuer's name and its valid-from and valid-to dates, all signed by the issuer. The private key never leaves its owner, and session keys are negotiated separately for each connection."
+      - id: np-4d-m04
+        type: multi
+        q: "Which TWO of these protect data at rest? (Choose TWO.)"
+        choices:
+          - "TLS on the web server"
+          - "Full-disk encryption on laptops"
+          - "An IPsec site-to-site tunnel"
+          - "SSH for device management"
+          - "Encrypted database backup files"
+        answers: [1, 4]
+        why: "Full-disk encryption and encrypted backup files protect stored data. TLS, IPsec and SSH all protect data only while it is moving across a network."
+      - id: np-4d-m05
+        type: multi
+        q: "Which TWO of these physical controls are preventive, in that they stop entry and do not merely record it? (Choose TWO.)"
+        choices:
+          - "A surveillance camera"
+          - "A locked equipment rack"
+          - "A review of the door-open alarm log"
+          - "An access control vestibule"
+          - "A review of the visitor sign-in sheet"
+        answers: [1, 3]
+        why: "A locked rack and a vestibule physically block an unauthorised person. Cameras and log reviews are detective controls: they show that something happened."
+      - id: np-4d-m06
+        type: multi
+        q: "Which TWO statements about compliance are true? (Choose TWO.)"
+        choices:
+          - "PCI DSS is a law passed by the European Union"
+          - "PCI DSS applies to organisations that store, process or transmit payment card data"
+          - "GDPR applies only to payment card numbers"
+          - "GDPR can apply to a company outside the EU that handles the personal data of people in the EU"
+          - "Data locality means that data must be encrypted while stored"
+        answers: [1, 3]
+        why: "PCI DSS is an industry standard tied to handling card data, and GDPR follows the personal data of people in the EU wherever the handler is based. Data locality is about where data is kept, not whether it is encrypted."
+
+      - id: np-4d-o01
+        type: order
+        q: "A laptop is plugged into a switch port that enforces 802.1X. Put the authentication steps in order."
+        steps:
+          - "The port starts unauthorized and passes only EAPOL frames from the supplicant"
+          - "The authenticator sends the supplicant an EAP identity request"
+          - "The supplicant's identity is relayed to the RADIUS server in an Access-Request"
+          - "The RADIUS server and the supplicant complete the credential exchange through the authenticator"
+          - "The RADIUS server returns an Access-Accept to the authenticator"
+          - "The authenticator sets the port to authorized and normal traffic flows"
+        why: "The switch port blocks ordinary traffic until the server has checked the credentials that the switch relays, and only an Access-Accept opens it. The switch never judges the credentials itself."
+      - id: np-4d-o02
+        type: order
+        q: "A browser opens an HTTPS connection to a web server. Put the stages of the TLS session in order."
+        steps:
+          - "The client sends a ClientHello listing the versions and cipher suites it supports"
+          - "The server replies with a ServerHello and presents its certificate"
+          - "The client checks the certificate's chain of trust, dates and name"
+          - "The client sends its Finished message, completing the handshake"
+          - "Application data flows, encrypted with the session keys"
+        why: "The client proposes, the server chooses and proves its identity, and the client must be satisfied with the certificate before it completes the handshake. No application data is sent until the handshake is finished."
+      - id: np-4d-o03
+        type: order
+        q: "An attacker on a LAN carries out an on-path attack by ARP poisoning. Put the events in order."
+        steps:
+          - "The attacker connects a host to the victim's VLAN"
+          - "The attacker sends forged ARP replies that claim the gateway's IP address"
+          - "The victim's ARP cache maps the gateway's IP address to the attacker's MAC address"
+          - "The victim's gateway-bound frames are delivered to the attacker"
+          - "The attacker reads the traffic and forwards it to the real gateway"
+        why: "ARP only works inside a broadcast domain, so the attacker must be on the VLAN first; the forged replies change the cache, and only then is traffic redirected. Forwarding it onwards keeps the victim unaware."
+
+  # ───────────────── 4e · Exam-hard practice: attacks and defences ─────────────────
+  - id: np-4e
+    title: "Exam-hard practice: attacks, segmentation and defences"
+    domain: "4"
+    goal: "I can identify an attack from its symptoms and choose the exact switch, firewall or access control feature that stops it."
+    notes: |
+      This unit works in two steps, as the hardest exam questions do: **name the attack from the evidence**, then **choose the control that stops that attack**, not a neighbouring one.
+
+      ## Match the control to the attack
+      | Evidence | Attack | Control |
+      | Port negotiates a trunk | VLAN hopping (switch spoofing) | Static access port, no negotiation |
+      | Double-tagged frames | VLAN hopping (double tagging) | Unused native VLAN |
+      | Address table full | MAC flooding | Port security |
+      | Gateway IP on the wrong MAC | ARP poisoning | DHCP snooping plus dynamic ARP inspection |
+      | Resolver returns a false address | DNS poisoning | DNSSEC validation |
+      | Unknown AP on a wall jack | Rogue access point | 802.1X, NAC |
+
+      ## Things that catch people out
+      - **Dynamic ARP inspection** depends on the DHCP snooping table, so hosts with static addresses need a manual entry.
+      - **MAC filtering** and **port security** both trust an address that can be cloned; **802.1X** does not.
+      - **ACLs** stop at the first match, so order matters.
+      - Devices that cannot be patched (**OT**, **IoT**) are protected by isolating them.
+    items:
+      - id: np-4e-q01
+        type: mcq
+        q: "An attacker on an access port in VLAN 1 sends frames that carry two 802.1Q tags, and they arrive in VLAN 20. The trunk between the two switches uses native VLAN 1. Which change BEST stops this?"
+        choices:
+          - "Enable DHCP snooping on VLAN 20"
+          - "Enable dynamic ARP inspection on VLAN 1"
+          - "Limit the access port to one MAC address"
+          - "Move the trunk's native VLAN to an unused ID that holds no hosts"
+        answer: 3
+        why: "Double tagging works only when the attacker's port is in the trunk's native VLAN, because the first switch strips the outer tag and forwards the frame untagged. With no hosts in the native VLAN, nobody is in a position to do it; limiting MAC addresses does not look at tags at all."
+      - id: np-4e-q02
+        type: mcq
+        q: "A user port is left at 'switchport mode dynamic desirable'. A PC on it runs a tool that emits DTP frames and begins to receive traffic from every VLAN. Which change BEST fixes this port?"
+        choices:
+          - "Change the native VLAN on the uplink trunk"
+          - "Set it as a static access port with trunk negotiation disabled"
+          - "Enable storm control on the port"
+          - "Enable dynamic ARP inspection for the user VLAN"
+        answer: 1
+        why: "The PC negotiated a trunk, which is switch spoofing, so the port must be fixed as an access port that will not negotiate. Changing the native VLAN is the remedy for double tagging, a different form of VLAN hopping."
+      - id: np-4e-q03
+        type: mcq
+        q: "A switch logs 'MAC table 8192/8192 entries' after port Gi0/7 learns 6,000 source addresses in 30 seconds. An analyser on another port now sees unicast frames between unrelated hosts. Which feature on Gi0/7 would have prevented this?"
+        choices:
+          - "Port security with a low MAC address limit"
+          - "Dynamic ARP inspection"
+          - "DHCP snooping"
+          - "Tagging of the native VLAN"
+        answer: 0
+        why: "This is MAC flooding: the full table forces the switch to flood unicast frames. Port security caps the number of addresses a port may learn; dynamic ARP inspection checks ARP contents and would not notice thousands of bogus source addresses."
+      - id: np-4e-q04
+        type: mcq
+        q: "Dynamic ARP inspection is enabled on VLAN 30. DHCP clients work, but a printer with a static address on an access port loses connectivity, and the switch logs 'ARP drop: no matching binding'. What is the BEST fix?"
+        choices:
+          - "Mark every access port in VLAN 30 as trusted"
+          - "Disable DHCP snooping on VLAN 30"
+          - "Add a static binding or ARP ACL entry for the printer"
+          - "Change the printer's port to a trunk"
+        answer: 2
+        why: "Inspection validates ARP against the DHCP snooping table, and a statically addressed host never appears there, so it needs a manual entry. Trusting every access port would restore the printer but switch off the protection for the whole VLAN."
+      - id: np-4e-q05
+        type: mcq
+        q: "Immediately after DHCP snooping is enabled on a user VLAN, no client can obtain an address. The DHCP server is reached through uplink Gi0/48, and the switch counts dropped DHCPOFFER messages on that port. What is the fix?"
+        choices:
+          - "Add an IP helper address on Gi0/48"
+          - "Configure Gi0/48 as a trusted port"
+          - "Enlarge the DHCP scope"
+          - "Enable dynamic ARP inspection on the VLAN"
+        answer: 1
+        why: "Snooping drops server messages on untrusted ports, and every port is untrusted until configured otherwise, so the uplink towards the real server must be trusted. A helper address relays requests between subnets and has no bearing on offers being dropped."
+      - id: np-4e-q06
+        type: mcq
+        q: "Queries to the corporate resolver for a bank's name return 203.0.113.66 with a TTL of 86400, while a public resolver returns the bank's real address. Client hosts files are clean. Which measure BEST prevents this from happening again?"
+        choices:
+          - "Dynamic ARP inspection on the client VLANs"
+          - "DHCP snooping on the access switches"
+          - "Shorter DHCP lease times"
+          - "DNSSEC validation on the corporate resolver"
+        answer: 3
+        why: "The resolver's cache has been poisoned, and DNSSEC validation makes it reject answers that are not properly signed. Dynamic ARP inspection defends against forged ARP on the LAN, which is not how a false record got into the resolver."
+      - id: np-4e-q07
+        type: mcq
+        q: "A wireless survey finds an unknown BSSID broadcasting 'Linksys-5G'. It is traced to a consumer router that an accounts clerk plugged into wall port Gi0/14 to get a better signal. What is this device, and which control BEST prevents it?"
+        choices:
+          - "A rogue access point; enforce 802.1X on wired ports"
+          - "An evil twin; enforce 802.1X on wired ports"
+          - "An evil twin; move the corporate SSID to WPA3"
+          - "A rogue access point; stop broadcasting the corporate SSID"
+        answer: 0
+        why: "An unauthorised AP attached to the wired network is a rogue access point, and 802.1X on the wall ports would refuse to pass its traffic. An evil twin imitates the corporate SSID to lure clients; this device uses its own name and was not set up to deceive anyone."
+      - id: np-4e-q08
+        type: mcq
+        q: "Laptops are repeatedly knocked off the corporate WLAN and then rejoin a stronger signal with the same SSID, from a BSSID that is not in the inventory. Which setting BEST defends against this?"
+        choices:
+          - "Hiding the corporate SSID"
+          - "Static IP addresses on the laptops"
+          - "WPA2/WPA3-Enterprise with validation of the RADIUS server's certificate"
+          - "MAC address filtering on the corporate access points"
+        answer: 2
+        why: "This is an evil twin, and a client that insists on the genuine authentication server's certificate will not complete a login to the impostor. MAC filtering on the real access points controls who joins them, and does nothing to stop clients joining a fake one."
+      - id: np-4e-q09
+        type: mcq
+        q: "On café Wi-Fi, a user's webmail shows a certificate warning: the issuer is 'Cafe-GW', where it is normally a public CA. A DNS lookup returns the webmail service's correct address. Which attack is MOST likely?"
+        choices: ["DNS poisoning", "An on-path attack", "A denial of service", "VLAN hopping"]
+        answer: 1
+        why: "A device in the traffic path is intercepting the TLS session and presenting its own certificate, which is an on-path attack. DNS poisoning is ruled out because the name still resolves to the correct address."
+      - id: np-4e-q10
+        type: mcq
+        q: "A firewall logs a flood of large UDP packets with source port 53, arriving from thousands of public resolvers at a web server that sent no DNS queries. Which attack is this?"
+        choices:
+          - "DNS cache poisoning"
+          - "An on-path attack"
+          - "A DoS from a single compromised resolver"
+          - "A reflected DDoS that uses the victim's spoofed address"
+        answer: 3
+        why: "The attacker sent queries with the victim's address forged as the source, so thousands of resolvers reply to the victim: a reflected, distributed denial of service. Cache poisoning plants false records in a resolver and does not flood anyone."
+      - id: np-4e-q11
+        type: mcq
+        q: "A site-to-site VPN has used the same pre-shared key since 2019, kept in a shared spreadsheet. An engineer who had access to the spreadsheet has just left the company. Which action should come FIRST?"
+        choices:
+          - "Replace the pre-shared key at both ends"
+          - "Shorten the IPsec security association lifetime"
+          - "Move the spreadsheet to a restricted folder"
+          - "Increase the tunnel's encryption key length"
+        answer: 0
+        why: "A secret known to someone who has left must be rotated; that is basic key management. A shorter security association lifetime renews the session keys more often, but the peers still authenticate with the same exposed pre-shared key."
+      - id: np-4e-q12
+        type: mcq
+        q: "An outsider collects printed network diagrams and a list of device passwords from the recycling bins behind an office. Which technique is this, and which control addresses it?"
+        choices:
+          - "Shoulder surfing; fit privacy screens"
+          - "Tailgating; install an access control vestibule"
+          - "Dumpster diving; shred documents before disposal"
+          - "Dumpster diving; fit privacy screens"
+        answer: 2
+        why: "Recovering information from discarded material is dumpster diving, and shredding makes that material useless. Privacy screens counter shoulder surfing, which is watching a screen or keyboard while it is in use."
+      - id: np-4e-q13
+        type: mcq
+        q: "An email from 'it-support@examp1e.com' sends staff to a copy of the VPN login page, and three people enter their passwords. Which control would have BEST stopped those passwords from being enough to log in?"
+        choices:
+          - "A longer minimum password length"
+          - "Multifactor authentication on the VPN"
+          - "Encryption at rest on staff laptops"
+          - "Role-based access control"
+        answer: 1
+        why: "With a second factor, a phished password alone does not open the VPN. Length makes a password harder to guess, but a user who types it into a fake page gives it away whatever its length."
+      - id: np-4e-q14
+        type: mcq
+        q: "Files on workstations are renamed with a .locked extension and a payment demand appears. The malware spreads from PC to PC over SMB with no user action. Which design measure would have MOST limited the spread?"
+        choices:
+          - "Category-based URL filtering"
+          - "WPA3 on the staff WLAN"
+          - "MAC filtering on the access switches"
+          - "Segmentation with ACLs that block SMB between workstations"
+        answer: 3
+        why: "This ransomware moves like a worm, so blocking workstation-to-workstation SMB contains it within a small segment. URL filtering might have stopped the first download, but it has no effect on host-to-host spread inside the LAN."
+      - id: np-4e-q15
+        type: mcq
+        q: "802.1X correctly authenticates every employee, yet an employee's personal laptop with no antivirus and months of missing patches joins the staff VLAN and infects other hosts. What is missing?"
+        choices:
+          - "NAC posture assessment with a quarantine network"
+          - "MAC filtering on the access ports"
+          - "Port security with sticky addresses"
+          - "A longer RADIUS shared secret"
+        answer: 0
+        why: "Authentication proved who the user was, but nothing checked the health of the device; posture assessment does that and quarantines machines that fail. MAC filtering would only confirm which device it was, not what condition it was in."
+      - id: np-4e-q16
+        type: mcq
+        q: "A firm wants to stop visitors using conference-room wall jacks. It notes that a visitor could read the MAC address printed on the room's IP phone and clone it. Which control still holds against a cloned MAC address?"
+        choices:
+          - "Port security with a sticky MAC address"
+          - "A MAC filtering allow list"
+          - "802.1X with per-device certificates"
+          - "Placing the jack in the voice VLAN"
+        answer: 2
+        why: "802.1X demands a credential that the visitor does not have, whatever MAC address is presented. Sticky port security looks stronger than a plain allow list, but it still admits any device showing the learned address."
+      - id: np-4e-q17
+        type: mcq
+        q: "A clinic is choosing how to keep outsiders off its WLAN. Which option is LEAST effective against an attacker who can capture wireless frames from the car park?"
+        choices:
+          - "WPA3-Personal with a long random passphrase"
+          - "MAC address filtering on an open SSID"
+          - "WPA2-Enterprise using PEAP"
+          - "WPA3-Enterprise using EAP-TLS"
+        answer: 1
+        why: "MAC addresses travel unencrypted in every frame header, so the attacker can read a permitted address and copy it. WPA3-Personal with a strong passphrase has no such shortcut, even though it is a shared secret."
+      - id: np-4e-q18
+        type: mcq
+        q: "An ACL is applied inbound on the guest VLAN interface: 10 permit udp any any eq 53; 20 permit tcp any any eq 443; 30 deny ip any 10.0.0.0 0.255.255.255; 40 permit ip any any. Guests can open https://10.1.1.20, an internal server. Which change BEST fixes this?"
+        choices:
+          - "Delete line 40"
+          - "Apply the same ACL outbound on the guest interface"
+          - "Add 'deny tcp any host 10.1.1.20 eq 443' as line 50"
+          - "Move the deny for 10.0.0.0/8 above line 20"
+        answer: 3
+        why: "An ACL stops at the first match, and line 20 permits HTTPS to any destination before the deny at line 30 is reached. A new deny at line 50 would never be evaluated for this traffic, for the same reason."
+      - id: np-4e-q19
+        type: mcq
+        q: "A web server at 172.16.50.10 in the screened subnet must query a database at 10.1.1.30 on TCP 1433. Which rule on the internal firewall BEST meets the need?"
+        choices:
+          - "permit tcp host 172.16.50.10 host 10.1.1.30 eq 1433"
+          - "permit ip 172.16.50.0/24 10.1.1.0/24"
+          - "permit tcp any host 10.1.1.30 eq 1433"
+          - "permit tcp host 10.1.1.30 host 172.16.50.10 eq 1433"
+        answer: 0
+        why: "Least privilege means one source, one destination and one port, in the direction the session is opened. The rule with the database as the source is just as narrow but points the wrong way, so the web server's queries would not match it."
+      - id: np-4e-q20
+        type: mcq
+        q: "A stateful firewall has three zones: outside (untrusted), screened subnet, and inside (trusted). Which traffic should be denied by default?"
+        choices:
+          - "Sessions opened by inside hosts to the internet"
+          - "Replies from the internet to sessions that inside hosts opened"
+          - "New sessions opened from the internet to inside hosts"
+          - "Sessions opened by inside hosts to servers in the screened subnet"
+        answer: 2
+        why: "Traffic that starts in a less trusted zone and is aimed at a more trusted one is denied unless a rule explicitly allows it. Replies to sessions opened from inside are permitted by the state table, even though they also arrive from outside."
+      - id: np-4e-q21
+        type: mcq
+        q: "Staff must be blocked from gambling sites. The sites change IP addresses daily and share content-delivery addresses with legitimate sites. Which control fits BEST?"
+        choices:
+          - "An extended ACL denying the sites' current IP addresses"
+          - "URL filtering by site category"
+          - "Geofencing of staff devices"
+          - "MAC filtering on the staff VLAN"
+        answer: 1
+        why: "URL filtering decides on the name and category of the site requested, so changing or shared addresses do not matter. An address-based ACL would be out of date within a day and would also block the legitimate sites on the same addresses."
+      - id: np-4e-q22
+        type: mcq
+        q: "Programmable controllers that run water pumps use a legacy operating system which the vendor no longer patches, and they cannot be replaced this year. Engineers on the corporate LAN need to read pump data. What is the BEST approach?"
+        choices:
+          - "Install endpoint antivirus on each controller"
+          - "Move the controllers onto the corporate VLAN and set strong passwords"
+          - "Give the controllers public addresses so that the vendor can monitor them"
+          - "Isolate the OT network behind a firewall that permits only the required data flow"
+        answer: 3
+        why: "Systems that cannot be patched are protected by segmentation: keep them in their own zone and allow only the one flow that is needed. Strong passwords do not fix unpatched flaws, and the corporate VLAN would expose the controllers to every infected PC."
+      - id: np-4e-q23
+        type: mcq
+        q: "A web server's connection table fills with half-open TCP sessions. Every SYN comes from the single address 198.51.100.23, and none of the server's SYN-ACKs is answered. Which description and immediate mitigation fit BEST?"
+        choices:
+          - "DoS; block 198.51.100.23 with an ACL at the edge"
+          - "DDoS; block 198.51.100.23 with an ACL at the edge"
+          - "DoS; enable port security on the server's switch port"
+          - "DDoS; enable dynamic ARP inspection on the server VLAN"
+        answer: 0
+        why: "A flood from one source is a denial of service, not a distributed one, and one source can be dropped with a single ACL entry. Port security limits MAC addresses on a switch port and cannot see where routed TCP traffic came from."
+
+      - id: np-4e-m01
+        type: multi
+        q: "Which TWO measures defend against VLAN hopping? (Choose TWO.)"
+        choices:
+          - "Enable DHCP snooping on user VLANs"
+          - "Disable trunk negotiation on user-facing ports"
+          - "Enable dynamic ARP inspection"
+          - "Set the trunk native VLAN to an unused ID"
+          - "Apply MAC filtering to user-facing ports"
+        answers: [1, 3]
+        why: "Disabling negotiation stops switch spoofing, and an unused native VLAN stops double tagging. DHCP snooping, ARP inspection and MAC filtering address other attacks and do not examine VLAN tags."
+      - id: np-4e-m02
+        type: multi
+        q: "A switch must drop forged ARP replies arriving on ports used by DHCP clients. Which TWO features have to be enabled together? (Choose TWO.)"
+        choices:
+          - "BPDU guard"
+          - "DHCP snooping"
+          - "Port mirroring"
+          - "Storm control"
+          - "Dynamic ARP inspection"
+        answers: [1, 4]
+        why: "Dynamic ARP inspection compares each ARP packet with the address bindings that DHCP snooping has recorded, so it needs snooping to be running. BPDU guard protects spanning tree, and storm control only limits the volume of broadcast traffic."
+      - id: np-4e-m03
+        type: multi
+        q: "Which THREE of these are device-hardening steps for a new switch? (Choose THREE.)"
+        choices:
+          - "Change the default administrator credentials"
+          - "Enable Telnet as a backup to SSH"
+          - "Disable unused ports and services"
+          - "Leave the SNMP community string as 'public'"
+          - "Apply the current firmware updates"
+          - "Leave trunk negotiation enabled on every port"
+        answers: [0, 2, 4]
+        why: "Hardening reduces what an attacker can reach or guess: no default logins, nothing enabled that is not needed, and known flaws patched. Telnet, default community strings and automatic trunking each add an avenue of attack."
+      - id: np-4e-m04
+        type: multi
+        q: "Which TWO of these are social engineering techniques? (Choose TWO.)"
+        choices:
+          - "MAC flooding"
+          - "Tailgating"
+          - "VLAN hopping"
+          - "DNS poisoning"
+          - "Phishing"
+          - "ARP spoofing"
+        answers: [1, 4]
+        why: "Tailgating and phishing work by manipulating people. The other four abuse the behaviour of protocols or switches and involve no deception of a person."
+      - id: np-4e-m05
+        type: multi
+        q: "A company is adding guest Wi-Fi. Which TWO design choices are appropriate? (Choose TWO.)"
+        choices:
+          - "Place guests in their own VLAN with an ACL that allows internet access only"
+          - "Give guests addresses from the staff DHCP scope so that printers are reachable"
+          - "Reuse the corporate passphrase to keep support simple"
+          - "Enable client isolation so that guest devices cannot reach each other"
+          - "Allow the guest VLAN to reach the management VLAN for troubleshooting"
+        answers: [0, 3]
+        why: "Guests are untrusted, so they are kept in a separate segment with internet-only access and isolated from one another. Sharing the staff scope, the corporate passphrase or a route to the management VLAN each puts untrusted devices inside the trusted network."
+      - id: np-4e-m06
+        type: multi
+        q: "A building is fitted with dozens of smart thermostats and door sensors. Which TWO measures BEST limit the risk they pose? (Choose TWO.)"
+        choices:
+          - "Put them on the server VLAN for faster response"
+          - "Place them in a dedicated VLAN with ACLs limiting what they can reach"
+          - "Keep the vendor's default administrator password so that support can log in"
+          - "Change their default credentials"
+          - "Permit inbound connections from the internet to each device"
+        answers: [1, 3]
+        why: "IoT devices are hard to patch and often ship with known default logins, so they are isolated and their credentials changed. The other choices either widen what the devices can reach or leave a published password in place."
+
+      - id: np-4e-o01
+        type: order
+        q: "A web server needs a certificate from a certificate authority. Put the steps in order."
+        steps:
+          - "Generate a key pair on the server"
+          - "Create a certificate signing request containing the public key and the server's name"
+          - "Submit the request to the certificate authority"
+          - "The certificate authority verifies the requester's control of the name"
+          - "The certificate authority signs and issues the certificate"
+          - "Install the certificate on the server alongside its private key"
+        why: "The request is built from the public key, so the key pair must exist first, and the authority signs only after it has validated the requester. The private key never leaves the server at any point."
+      - id: np-4e-o02
+        type: order
+        q: "A NAC system with posture checking handles a laptop that is missing security patches. Put the events in order."
+        steps:
+          - "The laptop connects to a switch port"
+          - "The user and device are authenticated"
+          - "The NAC system assesses the laptop's patch and antivirus status"
+          - "The laptop is placed in a quarantine VLAN with access to update servers only"
+          - "The missing patches are installed"
+          - "The laptop is reassessed and moved to the production VLAN"
+        why: "Identity is established before health is checked, a failed check leads to quarantine, and production access is granted only after remediation and a fresh assessment."
+      - id: np-4e-o03
+        type: order
+        q: "Guest subnet 10.1.1.0/24 must reach nothing on server network 10.2.2.0/24, except that host 10.1.1.50 may open SSH to it. All other sources may reach the servers on HTTPS only. Put the ACL lines in the order that achieves this."
+        steps:
+          - "permit tcp host 10.1.1.50 10.2.2.0/24 eq 22"
+          - "deny ip 10.1.1.0/24 10.2.2.0/24"
+          - "permit tcp any 10.2.2.0/24 eq 443"
+          - "deny ip any any"
+        why: "ACLs stop at the first match, so the most specific exception comes first, then the guest deny, then the general HTTPS permit. If the HTTPS permit came before the guest deny, guests would reach the servers on port 443."

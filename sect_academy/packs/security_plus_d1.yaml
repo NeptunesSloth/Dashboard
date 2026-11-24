@@ -1,0 +1,694 @@
+part_of: security-plus
+units:
+  # ───────────────────────── Domain 1 — coverage ─────────────────────────
+  - id: sp-1c
+    title: "Domain 1 in full: control types, change mechanics and crypto building blocks"
+    domain: "1"
+    goal: "I can classify any control by category and type, name every moving part of a change, and pick the right encryption level, key tool and algorithm."
+    notes: |
+      This unit fills the remaining gaps in Domain 1.
+
+      **Controls.** The fourth category is **physical/environmental**. The four everyday *types* are preventive, detective, corrective and **deterring** (older material says *deterrent*). In Zero Trust a **policy engine** decides and a **policy enforcement point** carries the decision out.
+
+      **Change management.** A change has an *owner*, *stakeholders*, an *impact analysis*, *test results*, an approval from the **CAB**, a *maintenance window* and either a backout or a **fail forward**. Watch the technical side effects: allow and deny lists, restricted activities, downtime, restarts, legacy applications, dependencies, documentation and version control.
+
+      **Cryptography.** Encryption is applied at a *level*:
+
+      | Level | Protects |
+      |---|---|
+      | Full disk | the whole drive when powered off |
+      | Partition / volume | one slice or one logical unit |
+      | File | chosen files, even when the system is running |
+      | Database / record | the data store, or single rows and fields |
+      | Transport | data moving over a network |
+
+      Keys live in tools: a **TPM** (one device), an **HSM** (shared appliance), a secure enclave (isolated processor area) or a key management system. **Key stretching** slows guessing; **obfuscation** and **steganography** hide rather than encrypt.
+    items:
+      # 1.1 controls and Zero Trust
+      - id: sp-1c-physical-control
+        type: concept
+        term: "Physical (environmental) control"
+        def: "A safeguard you can touch that protects premises, people or equipment, such as a fence, a door lock, a fire-suppression system or a humidity alarm."
+      - id: sp-1c-preventive-control
+        type: concept
+        term: "Preventive control"
+        def: "A safeguard classified by what it does: it stops an unwanted event before it can happen, as a locked door or a firewall block rule does."
+      - id: sp-1c-detective-control
+        type: concept
+        term: "Detective control"
+        def: "A safeguard classified by what it does: it identifies and records an unwanted event during or after the fact without stopping it, as an alarm or an audit trail does."
+      - id: sp-1c-corrective-control
+        type: concept
+        term: "Corrective control"
+        def: "A safeguard classified by what it does: it repairs damage or returns a system to normal after an unwanted event, as restoring a backup or applying a fix does."
+      - id: sp-1c-deterring-control
+        type: concept
+        term: "Deterring (deterrent) control"
+        def: "A safeguard classified by what it does: it discourages someone from attempting a violation without physically or logically stopping them, as a warning sign or visible camera does."
+      - id: sp-1c-pep
+        type: concept
+        term: "Policy enforcement point (PEP)"
+        def: "The Zero Trust component that sits in the path of every request and opens, monitors or terminates the connection according to the decision handed to it."
+      - id: sp-1c-policy-engine
+        type: concept
+        term: "Policy engine"
+        def: "The Zero Trust component that weighs identity, device posture and context against the rules and produces the grant-or-deny decision for each request."
+      # 1.2 change management
+      - id: sp-1c-cab
+        type: concept
+        term: "Change advisory board (CAB)"
+        def: "The cross-functional group that reviews proposed modifications to production, weighs their risk and schedule, and approves or rejects them."
+      - id: sp-1c-change-owner
+        type: concept
+        term: "Change owner"
+        def: "The person or department accountable for a proposed modification and its outcome, who is not necessarily the one who carries out the technical work."
+      - id: sp-1c-stakeholder
+        type: concept
+        term: "Stakeholder"
+        def: "Any person or group affected by a proposed modification, whose input is gathered and who must be told before it goes ahead."
+      - id: sp-1c-impact-analysis
+        type: concept
+        term: "Impact analysis (change management)"
+        def: "The assessment, made before approval, of what a proposed modification could break, who it touches and how risky it is to do or not to do."
+      - id: sp-1c-fail-forward
+        type: concept
+        term: "Fail forward"
+        def: "Responding to a faulty deployment by pushing a further fix on top of it and carrying on, instead of returning to the earlier state."
+      - id: sp-1c-maintenance-window
+        type: concept
+        term: "Maintenance window"
+        def: "The pre-agreed period, usually of low business activity, during which approved modifications may be carried out and interruption is tolerated."
+      - id: sp-1c-allow-list
+        type: concept
+        term: "Allow list"
+        def: "A default-deny control that permits only the explicitly enumerated applications, addresses or senders and blocks everything else."
+      - id: sp-1c-deny-list
+        type: concept
+        term: "Deny list"
+        def: "A default-permit control that blocks only the explicitly enumerated applications, addresses or senders and lets everything else through."
+      - id: sp-1c-restricted-activities
+        type: concept
+        term: "Restricted activities"
+        def: "The rule that work done under an approved request must stay inside the scope that was approved; anything extra needs its own request."
+      - id: sp-1c-legacy-application
+        type: concept
+        term: "Legacy application"
+        def: "Older software, often no longer supported by its maker, that the business still relies on and that may break or block upgrades to the systems around it."
+      - id: sp-1c-version-control
+        type: concept
+        term: "Version control"
+        def: "Tracking every revision of code or configuration with its author and time, so differences can be compared and an earlier state restored."
+      # 1.3 cryptography
+      - id: sp-1c-public-key
+        type: concept
+        term: "Public key"
+        def: "The half of an asymmetric pair that is distributed freely; others use it to encrypt data for the holder or to verify the holder's signatures."
+      - id: sp-1c-private-key
+        type: concept
+        term: "Private key"
+        def: "The half of an asymmetric pair that its holder must never disclose; it decrypts data sent to the holder and creates the holder's signatures."
+      - id: sp-1c-root-of-trust
+        type: concept
+        term: "Root of trust"
+        def: "The inherently trusted starting point, such as a top-level issuing certificate or a hardware module, on which every later link in a chain of verification depends."
+      - id: sp-1c-third-party-cert
+        type: concept
+        term: "Third-party certificate"
+        def: "A certificate issued by an external, publicly trusted issuer whose top-level certificate already ships in browsers and operating systems."
+      - id: sp-1c-fde
+        type: concept
+        term: "Full-disk encryption (FDE)"
+        def: "Encrypting an entire storage drive, including the operating system, swap space and temporary files, so nothing is readable until the drive is unlocked at start-up."
+      - id: sp-1c-partition-encryption
+        type: concept
+        term: "Partition encryption"
+        def: "Encrypting one defined slice of a physical drive while other slices on the same drive are left in the clear."
+      - id: sp-1c-volume-encryption
+        type: concept
+        term: "Volume encryption"
+        def: "Encrypting one logical storage unit as the operating system sees it, which may span several drives or be a container file mounted as a drive letter."
+      - id: sp-1c-file-encryption
+        type: concept
+        term: "File-level encryption"
+        def: "Encrypting individually chosen documents or folders, each of which stays protected even while the system is running and when it is copied elsewhere."
+      - id: sp-1c-database-encryption
+        type: concept
+        term: "Database encryption (transparent)"
+        def: "Encryption performed by the data-store engine on its entire set of data files and backups, with no change needed in the applications that query it."
+      - id: sp-1c-record-encryption
+        type: concept
+        term: "Record-level encryption"
+        def: "Encrypting single rows or fields inside a data store, often with different keys, so even its administrators see only ciphertext for those entries."
+      - id: sp-1c-transport-encryption
+        type: concept
+        term: "Transport encryption"
+        def: "Protecting data only while it moves between two endpoints across a network, as TLS, SSH and IPsec do."
+      - id: sp-1c-key-length
+        type: concept
+        term: "Key length"
+        def: "The size in bits of a cryptographic secret; within one algorithm, more bits means more possible values and more work for a brute-force attack."
+      - id: sp-1c-key-stretching
+        type: concept
+        term: "Key stretching"
+        def: "Running a password through a deliberately slow, repeated function (PBKDF2, bcrypt, Argon2) so that each guess costs an attacker significant computing time."
+      - id: sp-1c-obfuscation
+        type: concept
+        term: "Obfuscation"
+        def: "Making code or data hard for a person to understand without relying on a secret key, which slows analysis but can always be undone with enough effort."
+      - id: sp-1c-steganography
+        type: concept
+        term: "Steganography"
+        def: "Concealing the very existence of a message by embedding it inside an innocent-looking carrier such as an image, audio or video file."
+      - id: sp-1c-tpm
+        type: concept
+        term: "Trusted Platform Module (TPM)"
+        def: "A chip bound to one computer's motherboard that generates and seals keys for that machine and releases them only if start-up measurements are unchanged."
+      - id: sp-1c-hsm
+        type: concept
+        term: "Hardware security module (HSM)"
+        def: "A dedicated, tamper-resistant appliance or card that generates, stores and uses keys on behalf of many servers, so the keys never leave it in the clear."
+
+      - id: sp-1c-q01
+        type: mcq
+        q: "A distribution centre installs steel bollards at its loading dock so that a vehicle cannot be driven into the building. Which category and type BEST describe the bollards?"
+        choices: ["Physical, preventive", "Physical, detective", "Technical, preventive", "Operational, deterring"]
+        answer: 0
+        why: "Bollards are a tangible barrier (physical) that stops the event from happening (preventive). They may also discourage an attempt, but deterring controls do not block, and nothing here is carried out by staff, so it is not operational."
+      - id: sp-1c-q02
+        type: mcq
+        q: "In a Zero Trust deployment, a gateway in front of the HR application drops a user's session the moment it is told that the laptop's disk encryption has been switched off. Which role is the gateway playing?"
+        choices: ["Policy engine", "Policy enforcement point", "Identity provider", "Certificate authority"]
+        answer: 1
+        why: "The gateway is in the traffic path and acts on a decision made elsewhere, which is the policy enforcement point. The policy engine is the component that evaluated the posture change and made the decision; it does not carry traffic."
+      - id: sp-1c-q03
+        type: mcq
+        q: "A change request for a database patch contains an impact analysis, a named owner and a backout plan. The CAB sends it back because nothing shows the patch actually works with the company's own applications. What is missing?"
+        choices: ["Stakeholder list", "Maintenance window", "Test results", "Version history"]
+        answer: 2
+        why: "Test results from a non-production copy are the evidence that the change behaves as intended. An impact analysis only predicts what might be affected; it does not demonstrate that the patch works."
+      - id: sp-1c-q04
+        type: mcq
+        q: "Four technicians apply the monthly server patches, each in a different sequence, and one forgot to take a snapshot first. Management wants the routine task done the same way every time. Which document BEST meets that need?"
+        choices: ["A backout plan", "An impact analysis", "A CAB charter", "A standard operating procedure"]
+        answer: 3
+        why: "A standard operating procedure (SOP) is the step-by-step instruction that makes a recurring task repeatable. A backout plan covers only how to reverse one specific change after it fails."
+      - id: sp-1c-q05
+        type: mcq
+        q: "A migration converts customer records to a new format that cannot be converted back. A defect appears after go-live, and the team ships a corrective patch to the new system instead of reverting. What is this approach called?"
+        choices: ["Fail forward", "Backout", "Failover", "Fail closed"]
+        answer: 0
+        why: "Fixing the fault by moving ahead with a further change is failing forward, the usual choice when reversal is impossible. A backout would return to the prior state, which the one-way conversion rules out; failover switches to a standby system."
+      - id: sp-1c-q06
+        type: mcq
+        q: "Workstations enforce application control that runs only executables whose hashes are approved. After an approved upgrade of the accounting package, the program will not start. Which technical implication did the change request overlook?"
+        choices: ["Adding the old version to the deny list", "Updating the allow list with the new version", "Scheduling a longer maintenance window", "Restarting the application-control service"]
+        answer: 1
+        why: "A new binary has a new hash, so a hash-based allow list blocks it until the list is updated. A deny list is irrelevant because the control is default-deny: nothing runs unless it is listed."
+      - id: sp-1c-q07
+        type: mcq
+        q: "A firewall migration was approved, tested and implemented without problems. Eight months later, incident responders lose an hour because the network diagram and rule inventory still describe the old firewall. Which change management step was skipped?"
+        choices: ["Impact analysis", "Backout planning", "Updating documentation", "Stakeholder approval"]
+        answer: 2
+        why: "A change is not finished until diagrams, inventories and procedures reflect the new state. The impact analysis and backout plan concern the period before and during the change, and both evidently worked."
+      - id: sp-1c-q08
+        type: mcq
+        q: "An administrator writes a hardened cipher list to a web server's configuration file and saves it. A scan an hour later still shows the old ciphers on offer. Which technical implication of the change has not yet been dealt with?"
+        choices: ["Allow list update", "Legacy application support", "Version control commit", "Service restart"]
+        answer: 3
+        why: "Many services read their configuration only at start-up, so the change does not take effect until the service is restarted or reloaded, which must be planned for. Committing the file to version control records the change but does not activate it."
+      - id: sp-1c-q09
+        type: mcq
+        q: "A customer database must keep each customer's national ID number unreadable even to the database administrators, using a separate key per customer. Which encryption level BEST fits?"
+        choices: ["Record-level encryption", "Transparent database encryption", "Full-disk encryption", "Volume encryption"]
+        answer: 0
+        why: "Record-level encryption protects individual rows or fields with their own keys, so privileged database users see ciphertext. Transparent database encryption decrypts automatically for anyone who queries through the engine, including administrators."
+      - id: sp-1c-q10
+        type: mcq
+        q: "A password manager derives its vault key from the user's master password. Each vault already has a unique random salt. Which technique makes every offline guess at the master password computationally expensive?"
+        choices: ["Key escrow", "Key stretching", "Obfuscation", "Key exchange"]
+        answer: 1
+        why: "Key stretching runs the password through thousands of iterations (PBKDF2, bcrypt, Argon2) so each guess is slow. Key exchange is how two parties agree on a session key and has no effect on guessing speed."
+      - id: sp-1c-q11
+        type: mcq
+        q: "A laptop's disk-encryption key must be bound to that one machine and released automatically only when the firmware and boot loader measurements match their known-good values. Which component provides this?"
+        choices: ["Hardware security module", "Key management system", "Trusted Platform Module", "Certificate authority"]
+        answer: 2
+        why: "A TPM is soldered to one device, seals keys to boot measurements and releases them only if nothing has changed. An HSM also protects keys in hardware but is a shared appliance serving many systems, not tied to one laptop's boot state."
+      - id: sp-1c-q12
+        type: mcq
+        q: "An internal certificate authority needs its signing key generated and held in a tamper-resistant, rack-mounted device that several servers reach over the network and that performs the signing itself. Which tool is this?"
+        choices: ["Trusted Platform Module", "Secure enclave", "Key escrow agent", "Hardware security module"]
+        answer: 3
+        why: "An HSM is a dedicated shared appliance that keeps keys inside tamper-resistant hardware and performs operations on request. A secure enclave is an isolated area inside one device's processor, and a TPM is bound to a single motherboard."
+      - id: sp-1c-q13
+        type: mcq
+        q: "A cloud team has hundreds of encryption keys spread across storage, databases and applications. It wants one place to create, rotate and retire them, set who may use each key, and audit every use. Which tool BEST fits?"
+        choices: ["Key management system", "Trusted Platform Module", "Certificate revocation list", "Key escrow"]
+        answer: 0
+        why: "A key management system centralises the whole key life cycle with policy and audit. Key escrow only lodges copies with a third party for recovery; it does not rotate keys or control their use."
+      - id: sp-1c-q14
+        type: mcq
+        q: "Holiday photos emailed by an employee are found to carry customer records hidden in the least significant bits of the pixel data. The images look normal. Which technique was used?"
+        choices: ["Data masking", "Steganography", "Tokenization", "Code obfuscation"]
+        answer: 1
+        why: "Hiding data inside an innocent carrier file so that its existence goes unnoticed is steganography. Code obfuscation makes program logic hard to follow; it does not conceal a payload inside media."
+
+  # ───────────────── Domain 1 — exam-hard: controls and change ─────────────────
+  - id: sp-1d
+    title: "Exam-hard practice: controls, Zero Trust and change management"
+    domain: "1"
+    goal: "I can solve scenario questions on control classification, Zero Trust and change management that are harder than the real exam."
+    notes: |
+      These are scenario questions pitched **above** exam difficulty. Nothing new is taught here; the unit drills objectives 1.1 and 1.2.
+
+      How to work a control question:
+
+      - Read the *last sentence* first. It tells you whether the question wants the **category** (how it is implemented), the **type** (what it does) or both.
+      - A task done by a person is **operational**, even when the data comes from a machine. A decision or document from management is **managerial**.
+      - *Compensating* only applies when a required control cannot be used. *Corrective* only applies after something went wrong.
+
+      How to work a change question:
+
+      - Ask what would have **prevented** the problem. A backout plan never prevents; it only recovers.
+      - The **owner** is accountable; the implementer just does the work.
+      - Firewall rules are read **top down, first match wins**, with an implicit deny at the end.
+      - An emergency does not cancel the process. It shortens it, and the paperwork follows.
+
+      Words such as **BEST**, **FIRST** and **MOST** mean several choices are partly right. Pick the one the scenario's constraint points to.
+    items:
+      - id: sp-1d-q01
+        type: mcq
+        q: "A payment standard requires MFA for administrative access, but a mainframe cannot support it. Administrators must now reach it only through a jump host that enforces MFA and records every session, and the assessor accepts this in place of the requirement. How is the jump host BEST classified?"
+        choices: ["Technical, compensating", "Managerial, compensating", "Operational, corrective", "Technical, corrective"]
+        answer: 0
+        why: "It is implemented in software and hardware (technical) and stands in for a required control that cannot be applied (compensating). It is not corrective, because nothing is being repaired after an incident."
+      - id: sp-1d-q02
+        type: mcq
+        q: "Every morning an analyst opens the previous day's badge-reader export, compares entries with the shift roster by hand and flags any mismatch to the facilities manager. Which category and type BEST describe the analyst's review?"
+        choices: ["Technical, detective", "Operational, detective", "Physical, preventive", "Managerial, corrective"]
+        answer: 1
+        why: "A person performing a routine task is an operational control, and finding events after they happened is detective. The badge reader itself is a technical and physical device, but the question asks about the manual review, not the reader."
+      - id: sp-1d-q03
+        type: mcq
+        q: "An inline IPS drops packets that match exploit signatures, and a separate IDS on a mirror port raises alerts on the same signatures. To troubleshoot latency, the IPS is switched to monitor-only mode. Which control type has the organization lost?"
+        choices: ["Detective", "Corrective", "Preventive", "Compensating"]
+        answer: 2
+        why: "Dropping malicious packets before they arrive is preventive, and monitor-only mode removes exactly that. Detection is still present twice over, from the IDS and from the IPS now acting as one."
+      - id: sp-1d-q04
+        type: mcq
+        q: "An endpoint agent raises an alert when it sees mass file encryption, kills the offending process, and then automatically restores the affected files from local snapshots. Which control type describes the automatic restoration?"
+        choices: ["Preventive", "Detective", "Compensating", "Corrective"]
+        answer: 3
+        why: "Returning files to their prior state after damage has occurred is corrective. The alert is the detective part, and nothing here substitutes for a required control that could not be used, so it is not compensating."
+      - id: sp-1d-q05
+        type: mcq
+        q: "A company issues an acceptable use policy, signed by all staff, stating that company files must not be stored in personal cloud accounts. No technical block is in place. Which category and type BEST describe the policy?"
+        choices: ["Managerial, directive", "Managerial, preventive", "Technical, directive", "Operational, corrective"]
+        answer: 0
+        why: "A written policy is a managerial control, and telling people what they must not do is directive. It is not preventive, because with no technical block the policy cannot actually stop the upload."
+      - id: sp-1d-q06
+        type: mcq
+        q: "A backup service account needs to read one file share. An audit finds it is a member of the domain administrators group 'to avoid permission errors', and an attacker who stole its password used it to create new accounts. Which principle was MOST directly violated?"
+        choices: ["Defense in depth", "Least privilege", "Non-repudiation", "Availability"]
+        answer: 1
+        why: "The account held far more rights than its single task required, which is a failure of least privilege. Defense in depth concerns having several independent layers; more layers would have helped, but the root fault is the excess rights."
+      - id: sp-1d-q07
+        type: mcq
+        q: "Five engineers share one 'netadmin' account. Intact logs show 'netadmin' logged in with the correct password and MFA code and deleted a production VLAN, which that account is permitted to do. All five deny it. Which property is the organization unable to establish?"
+        choices: ["Authentication", "Authorization", "Non-repudiation", "Integrity"]
+        answer: 2
+        why: "Because the account is shared, the action cannot be tied to one individual, so anyone can credibly deny it: non-repudiation fails. Authentication and authorization both worked as configured, and the logs themselves are intact."
+      - id: sp-1d-q08
+        type: mcq
+        q: "After an incident, an investigator reads the RADIUS log for a suspect switch port: 'Access-Request user=jlee', 'Access-Accept user=jlee Filter-Id=VLAN30'. There are no records of when the session started or stopped or how much data moved. Which function was never configured?"
+        choices: ["Authentication", "Authorization", "Federation", "Accounting"]
+        answer: 3
+        why: "Session start, stop and usage records are the accounting part of AAA. The Access-Accept shows authentication succeeded, and the VLAN assignment shows authorization was applied."
+      - id: sp-1d-q09
+        type: mcq
+        q: "A company replaces its VPN with per-application access. Twenty minutes into a session, a user's laptop reports that its endpoint protection has been disabled, and access to the finance application is cut without waiting for logout. Which Zero Trust principle does this BEST illustrate?"
+        choices: ["Continuous verification", "Microsegmentation", "Single sign-on", "Defense in depth"]
+        answer: 0
+        why: "Trust is re-evaluated throughout the session as signals change, not granted once at login: continuous verification. Microsegmentation limits which resources can talk to each other, but it does not describe re-checking posture mid-session."
+      - id: sp-1d-q10
+        type: mcq
+        q: "In a Zero Trust network the policy engine goes offline. Sessions that were already approved keep passing traffic through the gateways until they expire, but no new session can be set up. Which design feature does this behaviour demonstrate?"
+        choices: ["Separation of management and user VLANs", "Separation of the control plane and the data plane", "Separation of authentication and accounting", "Separation of north-south and east-west traffic"]
+        answer: 1
+        why: "Decisions are made in the control plane (policy engine and administrator) while traffic flows in the data plane through enforcement points, so losing one does not instantly stop the other. VLAN separation is a network segmentation choice and does not explain why decisions and forwarding fail independently."
+      - id: sp-1d-q11
+        type: mcq
+        q: "A firm relies on one next-generation firewall for intrusion prevention, malware scanning, URL filtering and remote access. An auditor notes that a single firmware flaw would remove all of these at once. Which recommendation BEST addresses the finding?"
+        choices: ["Replace the firewall with a larger model from the same vendor that has more throughput", "Add a second identical firewall in a high-availability pair with automatic failover", "Add independent layers such as endpoint protection, internal segmentation and email filtering", "Publish a policy requiring the firewall firmware to be patched within a month of release"]
+        answer: 2
+        why: "Independent, different layers mean one failure does not expose everything: defense in depth. A high-availability pair of identical firewalls improves availability but shares the same firmware flaw, so both would fail the same way."
+      - id: sp-1d-q12
+        type: mcq
+        q: "A vulnerability in the company's VPN gateway is being exploited across the internet today. The vendor has released a fix, and the CAB next meets in five days. What is the BEST course of action?"
+        choices: ["Apply the fix now and raise a change record only if something breaks", "Wait for the scheduled CAB meeting so the normal process is followed", "Apply the fix to production at once and skip testing because the vendor tested it", "Use the emergency change procedure: get expedited approval, apply the fix, then document and review it afterwards"]
+        answer: 3
+        why: "An emergency change shortens the process but keeps approval, a record and a retrospective review. Waiting five days leaves an actively exploited flaw open, and applying it with no record or approval abandons change control altogether."
+      - id: sp-1d-q13
+        type: mcq
+        q: "An approved change record states: 'If validation has not passed by 02:45, revert.' At 02:46 validation is still failing, the tested backout takes ten minutes, and the window closes at 03:00. An engineer asks for 'twenty more minutes' to debug. What should the change owner do FIRST?"
+        choices: ["Invoke the backout plan and return to the known-good state", "Extend the window on their own authority and keep debugging", "Fail forward by applying an untested hotfix the engineer has written", "Convene the CAB to re-approve the change before doing anything else"]
+        answer: 0
+        why: "The approved criteria have been met for reverting, and the backout fits inside the window, so it is invoked. Extending the window or pushing an untested fix both exceed what was approved and risk a longer outage."
+      - id: sp-1d-q14
+        type: mcq
+        q: "A change will disable TLS 1.0 on an internal load balancer. The impact analysis finds one payroll client that speaks only TLS 1.0 and whose vendor has ceased trading; replacement is budgeted for next year. What is the BEST way to proceed?"
+        choices: ["Disable TLS 1.0 everywhere at once and let payroll processing fail until the client is replaced next year", "Disable TLS 1.0 for all other services, and isolate the payroll path with compensating controls under a documented, time-limited exception", "Cancel the change for every service until the payroll client has been replaced next year", "Approve the change but leave TLS 1.0 enabled for every service so that behaviour stays consistent"]
+        answer: 1
+        why: "The legacy dependency is handled as a narrow, documented exception with compensating controls while everything else gets the improvement. Cancelling or leaving TLS 1.0 on everywhere lets one legacy application hold the whole estate at the weaker setting."
+      - id: sp-1d-q15
+        type: mcq
+        q: "The finance application manager requests a firewall change for her application and is accountable for the result. A network engineer will make the change, the CAB chair will run the approval meeting, and the help-desk lead must be told about it. Who is the change owner?"
+        choices: ["The network engineer", "The CAB chair", "The finance application manager", "The help-desk lead"]
+        answer: 2
+        why: "The owner is the party accountable for the change and its outcome, here the application manager. The network engineer only implements it, and the help-desk lead is a stakeholder who needs to be informed."
+      - id: sp-1d-q16
+        type: mcq
+        q: "A retailer must schedule a two-hour database upgrade. Facts: order volume is lowest Tuesday and Wednesday 03:00-05:00; a settlement batch runs 00:00-02:30 every night; month-end close runs from the 30th to the 1st; weekends are peak trading. Which maintenance window is BEST?"
+        choices: ["Tuesday the 15th, 01:00-03:00", "Saturday the 19th, 03:00-05:00", "Wednesday the 30th, 03:00-05:00", "Wednesday the 16th, 03:00-05:00"]
+        answer: 3
+        why: "Wednesday the 16th at 03:00 is in the lowest-volume period, after the nightly batch and away from month-end. The 30th has the same hours but falls inside month-end close, and Tuesday 01:00 collides with the settlement batch."
+      - id: sp-1d-q17
+        type: mcq
+        q: "Public kiosks must run exactly three applications. New malware variants appear daily, and users sometimes plug in USB drives. Which application-control approach BEST protects the kiosks?"
+        choices: ["An allow list of the three applications identified by publisher signature and hash", "A deny list refreshed daily from a threat-intelligence feed", "A deny list of publisher certificates known to have signed malware", "An allow list of the three applications identified by file name"]
+        answer: 0
+        why: "A default-deny allow list tied to hash or signature blocks anything unknown, including brand-new malware. A deny list can only block what has already been seen, and a file-name allow list is defeated by renaming a malicious file."
+      - id: sp-1d-q18
+        type: mcq
+        q: "A change was meant to stop 203.0.113.0/24 reaching a web server. The rule list after the change is: '10 permit tcp any host 198.51.100.10 eq 443', '20 deny ip 203.0.113.0/24 any', '30 deny ip any any'. Testing shows the range still loads the site over HTTPS. What is the MOST likely reason?"
+        choices: ["The implicit deny in rule 30 overrides rule 20", "Rule 10 matches the traffic first, so rule 20 is never reached", "Rule 20 says 'ip' and therefore does not cover TCP", "A deny rule cannot be written with a /24 prefix"]
+        answer: 1
+        why: "Rules are evaluated top down and the first match wins; HTTPS from any source matches the permit in rule 10. Rule 20 does cover TCP, because 'ip' includes every protocol carried over IP; it simply sits too low in the list."
+      - id: sp-1d-q19
+        type: mcq
+        q: "During an approved window to patch a database engine, the administrator notices fragmented indexes and rebuilds them as well. The rebuild locks tables past the end of the window and orders fail. Which change management concept was violated?"
+        choices: ["Backout plan", "Version control", "Restricted activities", "Impact analysis"]
+        answer: 2
+        why: "Only the approved scope may be carried out in the window; the index rebuild was unapproved extra work, which is what restricted activities forbids. An impact analysis existed for the patch, but none was ever made for the rebuild because it was never requested."
+      - id: sp-1d-q20
+        type: mcq
+        q: "A shared server's runtime library is upgraded. Tests passed for the one application named in the request. After the change, a second application on the same server, with no listed owner and absent from the inventory, stops working. Which measure would MOST likely have prevented the outage?"
+        choices: ["A longer maintenance window", "A faster backout plan", "Adding the new runtime to the application allow list", "An accurate inventory of dependencies used in the impact analysis"]
+        answer: 3
+        why: "The failure came from an unknown dependency; a complete inventory would have put the second application into the impact analysis and the test plan. A faster backout shortens the outage but does not prevent it."
+      - id: sp-1d-q21
+        type: mcq
+        q: "Three administrators edited a core router's configuration in one week, and routing then broke. Nobody can say which line changed or who changed it. Which practice BEST lets the team find the exact edit and its author and restore the earlier state?"
+        choices: ["Keeping configurations in version control with each commit linked to a change ticket", "Taking a full configuration backup to a remote server every night", "Sending every administrator login and logout to a central syslog server", "Recording each CAB decision and its approver in the meeting minutes"]
+        answer: 0
+        why: "Version control records every revision with author and time, shows a line-by-line difference and can restore any earlier state. A nightly backup can restore yesterday's file but does not show who changed which line, or separate several edits made in one day."
+      - id: sp-1d-q22
+        type: mcq
+        q: "A renewed certificate must be loaded on four web nodes behind a load balancer, and each node's web service has to restart to pick it up. The business requires no customer-visible downtime. Which approach is BEST?"
+        choices: ["Restart all four nodes together at the quietest hour", "Drain and restart one node at a time, checking health before moving to the next", "Skip the restarts; the nodes will load the certificate at their next reboot", "Ask the CAB to accept a short outage as unavoidable"]
+        answer: 1
+        why: "A rolling restart keeps three nodes serving while one reloads, meeting the no-downtime requirement. Skipping the restart leaves the old certificate in memory, which will expire while still in use."
+      - id: sp-1d-q23
+        type: mcq
+        q: "While troubleshooting during an approved change, an engineer adds a temporary 'permit ip any any' rule to a firewall. Six months later a penetration test finds the rule still in place. Which process weakness BEST explains this?"
+        choices: ["No impact analysis was performed on the systems behind the firewall", "No backout plan was written and rehearsed before the change began", "No post-implementation review confirmed that temporary measures were removed and documentation updated", "No maintenance window was agreed with the owners of the affected services"]
+        answer: 2
+        why: "A post-implementation review compares the final state with what was approved and catches leftover temporary rules. A backout plan is used only when the change fails; this change succeeded and still left a hole."
+      - id: sp-1d-q24
+        type: mcq
+        q: "A request proposes cutting mailbox retention from seven years to one year. The email administrator says it is a single setting with no technical risk. Which stakeholder's input is MOST important before the CAB approves it?"
+        choices: ["The help-desk team", "The network operations team", "The storage administrators", "The legal and compliance team"]
+        answer: 3
+        why: "Retention periods are driven by legal and regulatory obligations, so legal and compliance must confirm the change is permitted. Storage administrators are affected only by the amount of space, which is not where the risk lies."
+
+      - id: sp-1d-m01
+        type: multi
+        q: "A manufacturer cannot patch the controller of a production-line robot until the vendor certifies an update next year. Which TWO measures act as compensating controls for the missing patch? (Choose TWO.)"
+        choices: ["Placing the controller in its own network segment with strict access rules", "Recording the exception in the risk register", "Putting an IPS with a signature for the flaw in front of the controller", "Buying a cyber-insurance policy", "Budgeting for a replacement controller in three years"]
+        answers: [0, 2]
+        why: "Segmentation and a virtual patch at the IPS reduce the chance of the flaw being exploited, standing in for the patch. Recording the exception, insuring and budgeting are documentation, risk transfer and planning; none of them protects the device."
+      - id: sp-1d-m02
+        type: multi
+        q: "Which THREE items should be present in a change request BEFORE the CAB is asked to approve it? (Choose THREE.)"
+        choices: ["Impact analysis", "Backout plan", "Post-implementation review findings", "Test results", "Lessons-learned report for this change"]
+        answers: [0, 1, 3]
+        why: "The board needs to know what could be affected, how to reverse the change and evidence that it works. A post-implementation review and lessons learned can only be written after the change has been made."
+      - id: sp-1d-m03
+        type: multi
+        q: "Which TWO of these are corrective controls? (Choose TWO.)"
+        choices: ["Restoring a file server from backup after ransomware", "A camera recording the server-room door", "Re-imaging a workstation after malware is found on it", "A 'Trespassers will be prosecuted' sign", "A mantrap at the data-centre entrance", "An acceptable use policy"]
+        answers: [0, 2]
+        why: "Restoring and re-imaging both return a system to a good state after an event, which is corrective. The camera is detective, the sign deterring, the mantrap preventive and the policy directive."
+      - id: sp-1d-m04
+        type: multi
+        q: "Which TWO behaviours are consistent with Zero Trust principles? (Choose TWO.)"
+        choices: ["Users on the office LAN skip MFA because the network is trusted", "Every request is authenticated and authorized regardless of where it comes from", "Remote users who connect to the VPN can reach every internal subnet", "Access decisions take the device's current security posture into account", "A session stays trusted until logout, whatever happens to the device"]
+        answers: [1, 3]
+        why: "Zero Trust verifies each request on identity, device and context and gives no credit for network location. Trusting the LAN, granting whole-network VPN access and never re-evaluating a session are all forms of implicit trust."
+      - id: sp-1d-m05
+        type: multi
+        q: "An organization wants to be able to prove which administrator performed each privileged action. Which TWO measures MOST directly support this? (Choose TWO.)"
+        choices: ["A unique named account for every administrator", "A shared administrator account with a long password", "Audit logs sent to a write-once store that administrators cannot alter", "RAID on the servers that the administrators manage", "Deleting logs after 24 hours to save space"]
+        answers: [0, 2]
+        why: "Individual accounts tie each action to one person, and tamper-resistant logs preserve the evidence: together they give accountability and non-repudiation. A shared account makes actions deniable, and RAID addresses availability only."
+      - id: sp-1d-m06
+        type: multi
+        q: "In which TWO situations is failing forward MORE appropriate than backing out? (Choose TWO.)"
+        choices: ["The change converted data to a format that cannot be converted back", "A tested five-minute rollback exists and the cause of the fault is unknown", "Reverting would re-open a flaw that is being actively exploited, and a small tested fix is ready", "The team would rather not report a failed change to the CAB", "The rollback has been rehearsed and three hours of the window remain"]
+        answers: [0, 2]
+        why: "When reversal is impossible, or reverting would restore a worse and actively exploited state while a tested fix is to hand, moving forward is the sound choice. With a quick tested rollback and an unknown cause, backing out is safer; avoiding a report is never a reason."
+
+      - id: sp-1d-o01
+        type: order
+        q: "Put the stages of a normal (non-emergency) change in order, from first to last."
+        steps: ["The owner submits a documented change request", "Impact is analysed and the change is tested in a non-production environment", "The CAB reviews the analysis and test results and approves the change", "The change is implemented in the agreed maintenance window", "The result is verified, documentation is updated and the change is closed"]
+        why: "A request must exist before it can be analysed and tested, the CAB needs that evidence to approve, implementation waits for approval and the window, and closing with updated documentation comes last."
+      - id: sp-1d-o02
+        type: order
+        q: "A user requests an application in a Zero Trust architecture. Put the events in order."
+        steps: ["The user's request arrives at the policy enforcement point", "The enforcement point passes the request to the policy engine for a decision", "The policy engine evaluates identity, device posture and context against policy", "The enforcement point is instructed to allow the session and opens the connection", "The session is monitored and re-evaluated as signals change"]
+        why: "The enforcement point intercepts the request but cannot decide, so it consults the policy engine; only after evaluation is the session opened, and verification then continues for the life of the session."
+      - id: sp-1d-o03
+        type: order
+        q: "A change fails validation during its maintenance window and the approved plan says to revert. Put the actions in order."
+        steps: ["Validation shows the change has not met its success criteria", "The change owner decides to invoke the backout plan", "The team carries out the documented backout steps", "Service is verified as back in its known-good state", "The failure is documented and reported for review before the change is re-submitted"]
+        why: "The decision to revert follows the failed check, the backout steps follow the decision, restoration must be verified before the window closes, and review and re-submission come only after service is safe."
+
+  # ───────────────── Domain 1 — exam-hard: cryptography and PKI ─────────────────
+  - id: sp-1e
+    title: "Exam-hard practice: cryptography and PKI"
+    domain: "1"
+    goal: "I can solve scenario questions on keys, certificates, encryption levels, hashing and key protection that are harder than the real exam."
+    notes: |
+      Scenario drills on objective 1.3, pitched **above** exam difficulty.
+
+      Anchor rules to reason from:
+
+      - **Secrecy**: encrypt with the *recipient's public* key. **Signature**: sign with *your own private* key. A signature never hides anything.
+      - Real systems are **hybrid**: asymmetric crypto protects a random symmetric key; the symmetric key protects the data.
+      - Symmetric keys for *n* people talking pairwise: **n(n-1)/2**. Asymmetric: *n* key pairs.
+      - Key length only compares *within* an algorithm family. A 256-bit elliptic-curve key is roughly as strong as a 3072-bit RSA key.
+      - **MD5 and SHA-1** are broken for collisions; DES, 3DES and RC4 are obsolete ciphers. Prefer the SHA-2 family, AES and ephemeral (ECDHE) key exchange, which gives **forward secrecy**.
+      - A stolen private key means **revoke and re-key**, never just renew.
+      - A wildcard covers **one** label: `*.example.com` matches `a.example.com`, not `a.b.example.com`.
+      - Salting defeats precomputed tables; **key stretching** makes each guess slow. You want both.
+
+      Ask of every encryption question: *is the data protected in the state the attacker reaches it?* Full-disk encryption does nothing once the system is unlocked and running.
+    items:
+      - id: sp-1e-q01
+        type: mcq
+        q: "Ana must send Ben a contract that only Ben can read, and Ben must be able to prove that Ana sent it. Which keys does ANA use?"
+        choices: ["Her own private key to sign, and Ben's public key to encrypt", "Her own public key to sign, and Ben's private key to encrypt", "Ben's public key to sign, and her own private key to encrypt", "Her own private key to sign, and her own public key to encrypt"]
+        answer: 0
+        why: "Signing uses the sender's private key and encrypting for secrecy uses the recipient's public key. Encrypting with Ana's own public key would produce something only Ana could decrypt."
+      - id: sp-1e-q02
+        type: mcq
+        q: "A secure email client encrypts a 20 MB attachment for three recipients, each with their own certificate. How is the content MOST likely protected?"
+        choices: ["The attachment is encrypted three times, once with each recipient's public key", "The attachment is encrypted once with a random symmetric key, and that key is encrypted separately with each recipient's public key", "The attachment is encrypted once with the sender's private key so all three can open it", "The attachment is encrypted with a key derived from the sender's password, which is sent in a second email"]
+        answer: 1
+        why: "Hybrid encryption uses a fast symmetric key for the bulk data and wraps that small key with each recipient's public key. Encrypting 20 MB directly with asymmetric keys is impractically slow, and anything 'encrypted' with the sender's private key can be opened by anyone."
+      - id: sp-1e-q03
+        type: mcq
+        q: "A vendor posts each installer with its SHA-256 digest on the same download page. An attacker who takes over the web server could replace both. Which change BEST lets customers detect a tampered installer?"
+        choices: ["Publish a SHA-512 digest alongside the SHA-256 digest", "Publish both an MD5 and a SHA-256 digest", "Digitally sign the installer with a private key kept off the web server", "Serve the download page only over TLS"]
+        answer: 2
+        why: "A signature can only be produced with the vendor's private key, which the attacker on the web server does not have, so a replaced installer fails verification. Any unkeyed digest, however long, can simply be recomputed and replaced by the same attacker."
+      - id: sp-1e-q04
+        type: mcq
+        q: "Forensics confirms that an attacker copied a web server's private key. Its certificate is valid for nine more months. What should be done FIRST about the certificate?"
+        choices: ["Renew the certificate early using the same key pair", "Generate a new CSR from the existing private key", "Shorten the validity of the next certificate to 90 days", "Have the CA revoke it and issue a new certificate for a newly generated key pair"]
+        answer: 3
+        why: "A compromised key must be retired: revoke the certificate so clients stop trusting it and re-key with a fresh pair. Renewing or re-requesting with the same key leaves the attacker holding a key that matches a valid certificate."
+      - id: sp-1e-q05
+        type: mcq
+        q: "Clients on a locked-down network can reach a company's web server but not the CA's servers. The site owner wants each client to receive fresh, CA-signed proof that the certificate is not revoked, during the TLS handshake itself. Which feature provides this?"
+        choices: ["OCSP stapling", "A CRL distribution point", "A wildcard certificate", "Key escrow"]
+        answer: 0
+        why: "With OCSP stapling the web server fetches a signed, time-stamped status response from the CA and attaches it to the handshake, so the client need not contact the CA. A CRL distribution point is a CA-hosted location the client would have to reach itself."
+      - id: sp-1e-q06
+        type: mcq
+        q: "A server presents a certificate whose only name is '*.example.com'. Which of these hostnames will cause a name-mismatch error?"
+        choices: ["shop.example.com", "api.dev.example.com", "www.example.com", "mail.example.com"]
+        answer: 1
+        why: "The asterisk stands for exactly one label, so it matches shop, www and mail but not a name two levels down such as api.dev.example.com. That host needs its own name on a certificate or a wildcard for '*.dev.example.com'."
+      - id: sp-1e-q07
+        type: mcq
+        q: "Some clients report 'unable to verify issuer' for a new website while others connect normally. The certificate was issued by an intermediate CA under a public root that all clients trust, and the server is configured to send only its own certificate. What is the BEST fix?"
+        choices: ["Import the public root certificate into the web server's trust store", "Replace the certificate with a self-signed one", "Configure the server to send the intermediate CA certificate along with its own", "Ask the CA to add the certificate to its CRL"]
+        answer: 2
+        why: "Clients build a chain from the server certificate through the intermediate to a trusted root; those without a cached copy of the intermediate cannot complete it unless the server sends it. The root is already trusted by the clients, and the server's own trust store plays no part in how clients validate."
+      - id: sp-1e-q08
+        type: mcq
+        q: "Twenty internal web applications are used only from 400 company-managed laptops. Requirements: no browser warnings, no per-certificate fee, and the ability to revoke a certificate. Which approach is BEST?"
+        choices: ["A separate self-signed certificate on each application server", "Certificates bought from a public third-party CA", "One self-signed wildcard certificate copied to every server", "An internal CA whose root certificate is pushed to the managed laptops"]
+        answer: 3
+        why: "A private CA costs nothing per certificate, is trusted once its root is deployed to managed devices, and can publish revocation. Self-signed certificates have no issuer to revoke them and trigger warnings unless each one is trusted individually."
+      - id: sp-1e-q09
+        type: mcq
+        q: "A CA's automated system rejects a certificate signing request with 'request signature invalid'. What does the signature on a CSR demonstrate when it does verify?"
+        choices: ["That the applicant holds the private key matching the public key in the request", "That the CA has validated the applicant's control of the domain", "That the public key in the request has never been revoked", "That the applicant's identity was checked by a registration authority"]
+        answer: 0
+        why: "A CSR is signed with the applicant's own private key, proving possession of the key that pairs with the enclosed public key. Domain and identity validation are separate checks the CA carries out afterwards; the CSR signature says nothing about them."
+      - id: sp-1e-q10
+        type: mcq
+        q: "A laptop with full-disk encryption is switched on and logged in when malware running as the user uploads a folder of contracts. Why did the encryption not help, and what would BEST add protection for those contracts?"
+        choices: ["The disk key was too short; use a longer key", "The disk is transparently decrypted while the system is unlocked; add file-level encryption with separately held keys", "Only the system partition was encrypted; add partition encryption for the data partition", "The algorithm was symmetric; switch the disk to asymmetric encryption"]
+        answer: 1
+        why: "Full-disk encryption protects a powered-off or locked drive; once unlocked, every process sees plaintext. File-level encryption keeps selected files encrypted until a separate key is supplied. Partition encryption has the same weakness as full-disk once mounted."
+      - id: sp-1e-q11
+        type: mcq
+        q: "Backup tapes of a customer database must be unreadable if stolen in transit to the vault. The ten applications that query the database cannot be modified. Which solution BEST meets both constraints?"
+        choices: ["Record-level encryption performed by each application", "TLS between the applications and the database", "Transparent database encryption performed by the database engine", "Full-disk encryption on the database server's drives"]
+        answer: 2
+        why: "Transparent database encryption encrypts the data files and their backups inside the engine, with no application changes. Full-disk encryption on the server protects only that server's drives; a backup written out to tape leaves in plaintext."
+      - id: sp-1e-q12
+        type: mcq
+        q: "Engineers manage switches across a WAN with Telnet and copy configuration files with FTP. A capture shows passwords in clear text. Which pair of replacements gives transport encryption for both tasks?"
+        choices: ["SSH for management and TFTP for file copy", "Telnet inside a dedicated VLAN and FTP in passive mode", "SNMPv2c for management and SSH for file copy", "SSH for management and SFTP for file copy"]
+        answer: 3
+        why: "SSH encrypts the management session and SFTP transfers files inside an SSH channel. TFTP has neither authentication nor encryption, and SNMPv2c sends its community string in clear text."
+      - id: sp-1e-q13
+        type: mcq
+        q: "An adversary records a company's TLS traffic for a year and later steals the web server's long-term private key. Which property, had it been in use, would keep the recorded sessions unreadable?"
+        choices: ["Forward secrecy from ephemeral Diffie-Hellman key exchange", "A 4096-bit instead of a 2048-bit RSA server key", "OCSP stapling on the web server", "A certificate from a different certificate authority"]
+        answer: 0
+        why: "With ephemeral (ECDHE/DHE) exchange each session key is derived from temporary values that are discarded, so the long-term key cannot recover past sessions. A longer RSA key is still a single long-term key: once stolen, sessions whose keys were exchanged under it can be decrypted."
+      - id: sp-1e-q14
+        type: mcq
+        q: "A scan lists four cipher suites enabled on a server. The administrator must leave only the strongest one enabled. Which should remain?"
+        choices: ["TLS_RSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_RSA_WITH_RC4_128_MD5", "TLS_DHE_RSA_WITH_DES_CBC_SHA"]
+        answer: 1
+        why: "ECDHE gives forward secrecy, AES-256-GCM is a modern authenticated cipher and SHA-384 is a SHA-2 hash. The others rely on 3DES, RC4, single DES, MD5 or SHA-1, all obsolete; the DHE suite has ephemeral exchange but protects data with 56-bit DES."
+      - id: sp-1e-q15
+        type: mcq
+        q: "Battery-powered sensors with little processing power need an asymmetric key pair whose strength is roughly comparable to 3072-bit RSA. Which option BEST fits?"
+        choices: ["1024-bit RSA", "256-bit AES", "256-bit ECC", "4096-bit RSA"]
+        answer: 2
+        why: "Elliptic-curve keys give equivalent strength at far smaller sizes; a 256-bit curve is roughly comparable to 3072-bit RSA and much lighter to compute. AES is symmetric, so it is not a key pair at all, and 4096-bit RSA is strong but heavy for a constrained device."
+      - id: sp-1e-q16
+        type: mcq
+        q: "A legacy build system signs software using SHA-1 digests. What is the MOST significant risk of continuing to do so?"
+        choices: ["SHA-1 digests can be reversed, so the signed source code could be recovered from them", "SHA-1 depends on a shared secret, so the signature fails if that secret leaks", "SHA-1 digests are longer than modern certificates allow, so signatures get truncated", "Two different files can be crafted with the same digest, so a signature on one validates the other"]
+        answer: 3
+        why: "SHA-1 is no longer collision-resistant, so an attacker can prepare a harmless file and a malicious file with the same digest and have the harmless one signed. Hashes are not reversible and use no key, so the other options describe properties SHA-1 does not have."
+      - id: sp-1e-q17
+        type: mcq
+        q: "A leaked table holds, for each user, a unique 16-byte salt and one round of SHA-256 over salt plus password. With a GPU rig an attacker recovers most passwords in a day. Which change BEST improves resistance?"
+        choices: ["Store passwords with a slow, iterated function such as bcrypt, PBKDF2 or Argon2", "Lengthen each salt from 16 to 32 bytes", "Switch to a single round of SHA-512", "Encrypt the hash column with AES and keep the key in the same database"]
+        answer: 0
+        why: "The salts already prevent precomputed tables; the weakness is that one fast hash lets a GPU try billions of guesses, which key stretching fixes by making each guess slow. A longer salt or a single round of SHA-512 leaves each guess almost as cheap."
+      - id: sp-1e-q18
+        type: mcq
+        q: "A breached forum stored passwords as unsalted MD5. Analysts see many users with identical digests, and most are reversed within minutes by looking them up. Which attack does the missing salt specifically enable?"
+        choices: ["Birthday attack", "Rainbow table attack", "Downgrade attack", "Replay attack"]
+        answer: 1
+        why: "Without salts, an attacker can use tables of digests computed once in advance for common passwords and simply look each one up: a rainbow table attack. A birthday attack seeks any two inputs with the same digest and does not recover a given user's password."
+      - id: sp-1e-q19
+        type: mcq
+        q: "A developer stores an API secret in a mobile app as a Base64 string, renames the variables to random letters and reports that the secret is 'encrypted'. Which statement BEST describes the protection actually in place?"
+        choices: ["Symmetric encryption, because the same string is used to encode and decode", "Hashing, because the original secret cannot be recovered from the string", "Obfuscation, because anyone can recover the secret without knowing any key", "Tokenization, because the string stands in for the secret"]
+        answer: 2
+        why: "Base64 and renamed variables only make the code harder to read; no key is needed to reverse them, which is obfuscation. Encryption requires a secret key, and tokenization would keep the real value in a separate vault, not inside the app."
+      - id: sp-1e-q20
+        type: mcq
+        q: "A phone keeps fingerprint templates and payment keys in an isolated area of its main processor that runs its own small operating system and stays inaccessible even if the phone's main operating system is fully compromised. What is this area called?"
+        choices: ["Hardware security module", "Key management system", "Certificate store", "Secure enclave"]
+        answer: 3
+        why: "A secure enclave is a hardware-isolated execution area within a device's processor that protects secrets from the main operating system. A hardware security module is a separate dedicated appliance or card shared by servers, not a region of a phone's processor."
+      - id: sp-1e-q21
+        type: mcq
+        q: "Company policy escrows every employee's encryption private key so data can be recovered after they leave, but forbids making any copy of their signing private keys. What is the BEST reason for the difference?"
+        choices: ["A second copy of a signing key would undermine non-repudiation", "Signing keys are symmetric and cannot be exported", "Escrowed signing keys would invalidate the CA's revocation list", "Signing keys expire too quickly to be worth storing"]
+        answer: 0
+        why: "If anyone else holds a copy of a signing key, the owner can plausibly deny a signature, destroying non-repudiation; lost signing keys are simply replaced. Encryption keys are escrowed because without them existing data would be unrecoverable."
+      - id: sp-1e-q22
+        type: mcq
+        q: "Ten engineers must each be able to exchange confidential messages with every other engineer, using only symmetric encryption and a different key for every pair. How many keys are needed?"
+        choices: ["10", "45", "90", "100"]
+        answer: 1
+        why: "Pairwise symmetric keys number n(n-1)/2: 10 x 9 / 2 = 45. Ten is the number of key pairs asymmetric encryption would need, which is why it scales better."
+      - id: sp-1e-q23
+        type: mcq
+        q: "A dual-boot workstation has a system slice that a vendor's diagnostic tool must read unencrypted, and a data slice on the same drive where everything written, including temporary files, must be encrypted automatically. Which encryption level BEST fits?"
+        choices: ["Full-disk encryption", "File-level encryption", "Partition encryption", "Record-level encryption"]
+        answer: 2
+        why: "Encrypting only the data partition covers everything written there while leaving the system partition readable. Full-disk encryption would also encrypt the slice the vendor tool needs, and file-level encryption protects only files someone chooses, missing temporary files."
+      - id: sp-1e-q24
+        type: mcq
+        q: "A device maker 'signs' firmware by computing a keyed integrity value with an AES key that is embedded in every device so each can verify updates. A researcher extracts the key from one unit. Why is this scheme weaker than a true digital signature?"
+        choices: ["AES keys are shorter than SHA-256 digests, so the integrity value is easy to brute-force", "Symmetric algorithms cannot provide integrity checks at all, only confidentiality", "The integrity value can be reversed by anyone to reveal the firmware contents", "The key used to verify is the same key used to sign, so anyone who extracts it can forge valid firmware"]
+        answer: 3
+        why: "With a shared symmetric key, every verifier can also create valid values, so one extracted key lets an attacker forge updates for all devices. A digital signature keeps the private signing key with the maker and puts only the public key on devices. Symmetric keyed checks do give integrity; they just cannot give non-repudiation."
+
+      - id: sp-1e-m01
+        type: multi
+        q: "A manager digitally signs a purchase order and sends it unencrypted. Which TWO properties does the signature provide? (Choose TWO.)"
+        choices: ["Confidentiality", "Integrity", "Availability", "Non-repudiation", "Obfuscation"]
+        answers: [1, 3]
+        why: "Any change to the order breaks the signature (integrity), and only the manager's private key could have made it (non-repudiation). A signature does not hide the content, so there is no confidentiality."
+      - id: sp-1e-m02
+        type: multi
+        q: "A configuration review lists the algorithms a product supports. Which TWO are symmetric ciphers, which encrypt and decrypt with one shared key? (Choose TWO.)"
+        choices: ["RSA", "AES", "ECDSA", "SHA-256", "3DES", "Diffie-Hellman"]
+        answers: [1, 4]
+        why: "AES and 3DES both use one shared key to encrypt and decrypt (3DES is now deprecated). RSA and ECDSA are asymmetric, SHA-256 is a hash and Diffie-Hellman is a key-exchange method."
+      - id: sp-1e-m03
+        type: multi
+        q: "An auditor reviews which hash algorithms a code-signing service still accepts. Which TWO must be disabled because practical collisions have been demonstrated? (Choose TWO.)"
+        choices: ["MD5", "SHA-256", "SHA-1", "SHA-384", "SHA-512", "SHA3-256"]
+        answers: [0, 2]
+        why: "Collisions have been produced in practice for both MD5 and SHA-1, so neither is acceptable for signatures. The SHA-2 family (SHA-256, SHA-384, SHA-512) and SHA-3 have no known practical collisions."
+      - id: sp-1e-m04
+        type: multi
+        q: "Which THREE items are contained in a certificate signing request when it is sent to a CA? (Choose THREE.)"
+        choices: ["The applicant's public key", "The applicant's private key", "The subject name, such as the server's hostname", "The CA's signature over the certificate", "A signature made with the applicant's private key", "The certificate's serial number"]
+        answers: [0, 2, 4]
+        why: "A CSR carries the public key and subject details and is signed with the applicant's private key to prove possession. The private key itself never leaves the applicant, and the CA's signature and the serial number are added by the CA when it issues the certificate."
+      - id: sp-1e-m05
+        type: multi
+        q: "In which TWO situations should a certificate be revoked before its expiry date? (Choose TWO.)"
+        choices: ["The matching private key was found in a public code repository", "The certificate will expire in one week", "The company has sold the domain named in the certificate", "The web server was rebooted after patching", "The CA has published a new CRL"]
+        answers: [0, 2]
+        why: "Revocation is for certificates that should no longer be trusted: the key is exposed, or the subject no longer controls the name. A certificate nearing expiry is renewed, and a reboot or a new CRL changes nothing about its trustworthiness."
+      - id: sp-1e-m06
+        type: multi
+        q: "A password table might be stolen one day. Which TWO measures make an OFFLINE attack on the stolen table harder? (Choose TWO.)"
+        choices: ["A unique random salt for every password", "Locking an account after five failed logins", "Base64-encoding each stored digest", "A key-stretching function with a high iteration count", "Requiring TLS on the login page"]
+        answers: [0, 3]
+        why: "Salts force the attacker to attack each password separately and defeat precomputed tables, and stretching makes every guess slow. Lockout and TLS protect the live login process only, and Base64 is a reversible encoding."
+
+      - id: sp-1e-o01
+        type: order
+        q: "Put the steps of obtaining and deploying a web server certificate from a public CA in order."
+        steps: ["Generate a key pair on the server", "Create a CSR containing the public key and subject name", "Submit the CSR to the CA", "The CA validates the applicant's control of the domain", "The CA signs and issues the certificate", "Install the certificate and its chain on the server"]
+        why: "The CSR is built from an existing key pair, the CA cannot validate or sign a request it has not received, it validates before it signs, and only an issued certificate can be installed."
+      - id: sp-1e-o02
+        type: order
+        q: "Put the steps of creating and then verifying a digital signature in order."
+        steps: ["The sender computes a hash of the message", "The sender processes the hash with the sender's own private key to form the signature", "The message and signature are sent to the recipient", "The recipient recovers the hash from the signature with the sender's public key and separately hashes the received message", "The recipient compares the two hashes; a match confirms integrity and origin"]
+        why: "The hash must exist before it can be signed, the signature travels with the message, and the recipient needs both the recovered hash and a freshly computed one before they can be compared."
+      - id: sp-1e-o03
+        type: order
+        q: "Put these events of a TLS 1.3 handshake in order."
+        steps: ["The client sends a hello with its supported cipher suites and a key share", "The server replies with its chosen cipher suite and its own key share", "The server sends its certificate and a signature proving it holds the matching private key", "The client validates the certificate chain and the server's signature", "Finished messages are exchanged and application data flows encrypted"]
+        why: "The client speaks first, the server's reply completes the key exchange, the server then proves its identity, the client must check that proof before trusting the session, and only then is application data sent."

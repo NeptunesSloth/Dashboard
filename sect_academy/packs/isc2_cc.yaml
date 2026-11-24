@@ -1,0 +1,901 @@
+id: isc2-cc
+title: "ISC2 CC — Certified in Cybersecurity"
+kind: cert
+blurb: "The gentlest first cert: concept-only foundations of security, risk, access, networks, cloud and operations."
+hall: ward_hall
+exam:
+  name: "ISC2 Certified in Cybersecurity"
+  code: CC
+  questions: 25
+  minutes: 25
+  pass_pct: 85
+  full: {questions: 100, minutes: 120}
+  domains:
+    - {id: "1", title: "Security Principles", weight: 24}
+    - {id: "2", title: "Security Governance", weight: 17.3}
+    - {id: "3", title: "Identity and Access Management (IAM) Concepts", weight: 20}
+    - {id: "4", title: "Networking and Cloud Security Concepts", weight: 21.3}
+    - {id: "5", title: "Security Operations and Incident Response", weight: 17.3}
+
+units:
+  # ───────────────────────── Domain 1 ─────────────────────────
+  - id: cc-1
+    title: "Security Principles"
+    domain: "1"
+    goal: "I can explain the core goals of security, how risk is treated, and how rules, controls and ethics guide a security professional."
+    notes: |
+      ## Start here
+
+      Everything in security serves three goals, the **CIA triad**: *confidentiality* (only the right people see it), *integrity* (it has not been changed wrongly) and *availability* (it is there when needed). Around them sit **AAA** — authentication, authorization, accounting — plus **non-repudiation** and **privacy**.
+
+      **Risk** is what happens when a *threat* meets a *vulnerability*. Once a risk is identified and assessed, there are four ways to treat it:
+
+      - **Avoid** — stop the risky activity
+      - **Mitigate** — add safeguards to reduce it
+      - **Transfer** — shift the cost, e.g. insurance
+      - **Accept** — knowingly live with it
+
+      Safeguards are called **controls**. ISC2 sorts them into three categories:
+
+      | Category | Example |
+      | Technical (logical) | firewall, encryption |
+      | Administrative | policy, training |
+      | Physical | lock, fence, guard |
+
+      Rules flow downward: laws and regulations, then **policies** (intent), **standards** (mandatory specifics), **procedures** (steps); guidelines are optional advice.
+
+      Finally, learn the four canons of the **ISC2 Code of Ethics** in order — the order settles conflicts.
+    items:
+      - id: cc-1-confidentiality
+        type: concept
+        term: "Confidentiality"
+        def: "Keeping information from being disclosed to anyone who is not permitted to see it."
+      - id: cc-1-integrity
+        type: concept
+        term: "Integrity"
+        def: "Assurance that data is complete and accurate and has not been altered without permission."
+      - id: cc-1-availability
+        type: concept
+        term: "Availability"
+        def: "Assurance that systems and data can be reached and used by permitted users at the moment they need them."
+      - id: cc-1-authentication
+        type: concept
+        term: "Authentication"
+        def: "Proving that a claimed identity is genuine, for example by supplying a password or a one-time code."
+      - id: cc-1-authorization
+        type: concept
+        term: "Authorization"
+        def: "Deciding what an already-verified user is allowed to do or reach."
+      - id: cc-1-accounting
+        type: concept
+        term: "Accounting (the third A in AAA)"
+        def: "Recording who did what and when, so that actions can later be traced back to an individual."
+      - id: cc-1-nonrepudiation
+        type: concept
+        term: "Non-repudiation"
+        def: "A guarantee that someone cannot credibly deny having sent a message or carried out an action."
+      - id: cc-1-privacy
+        type: concept
+        term: "Privacy"
+        def: "An individual's right to control how information about them is collected, used and shared."
+      - id: cc-1-threat
+        type: concept
+        term: "Threat"
+        def: "A person, event or circumstance with the potential to cause harm to something of value."
+      - id: cc-1-vulnerability
+        type: concept
+        term: "Vulnerability"
+        def: "A weakness or gap in a system or process that could be exploited to cause harm."
+      - id: cc-1-transference
+        type: concept
+        term: "Risk transference"
+        def: "Shifting the financial burden of a potential loss to another party, most often by buying insurance."
+      - id: cc-1-policy
+        type: concept
+        term: "Policy"
+        def: "A high-level statement of management's intent and expectations that everyone in the organization must follow."
+      - id: cc-1-procedure
+        type: concept
+        term: "Procedure"
+        def: "A detailed, step-by-step set of instructions for carrying out one specific task the same way every time."
+      - id: cc-1-technical-control
+        type: concept
+        term: "Technical (logical) control"
+        def: "A safeguard implemented in hardware or software, such as a firewall rule, encryption or file permissions."
+      - id: cc-1-administrative-control
+        type: concept
+        term: "Administrative control"
+        def: "A safeguard that works by directing people through rules, training and management oversight, such as background checks or an acceptable-use agreement."
+      - id: cc-1-due-diligence
+        type: concept
+        term: "Due diligence"
+        def: "The ongoing research and verification that confirms protective measures are really in place and working, such as vetting a supplier before signing a contract."
+
+      - id: cc-1-q01
+        type: mcq
+        q: "An online shop is flooded with junk traffic and genuine customers cannot load the site for three hours. No data is stolen or changed. Which security goal has been affected?"
+        choices: ["Availability", "Confidentiality", "Integrity", "Non-repudiation"]
+        answer: 0
+        why: "Legitimate users could not reach the service when they needed it, which is a loss of availability. Integrity is tempting, but the stem says nothing was altered."
+      - id: cc-1-q02
+        type: mcq
+        q: "A consultant's unencrypted laptop holding client contracts is stolen from a train. Which security goal is most directly at risk?"
+        choices: ["Integrity", "Confidentiality", "Non-repudiation", "Authentication"]
+        answer: 1
+        why: "A stranger can now read the contracts, so the primary concern is confidentiality — disclosure to someone not permitted to see the data. Nothing suggests the files were altered, so integrity is not the main issue."
+      - id: cc-1-q03
+        type: mcq
+        q: "An attacker quietly changes the bank account numbers stored in a company's supplier database so that payments go to the attacker. Which security goal has been violated?"
+        choices: ["Confidentiality", "Availability", "Integrity", "Privacy"]
+        answer: 2
+        why: "Data was modified without permission, so it can no longer be trusted as accurate — an integrity failure. The database is still reachable, so availability is not the issue."
+      - id: cc-1-q04
+        type: mcq
+        q: "Maria types her username, then proves she really is Maria by entering her password and a code from her phone. What is the proving step called?"
+        choices: ["Authorization", "Accounting", "Identification", "Authentication"]
+        answer: 3
+        why: "Authentication is verifying a claimed identity. Typing the username was identification (making the claim); authorization comes afterwards and decides what Maria may do."
+      - id: cc-1-q05
+        type: mcq
+        q: "A supplier digitally signs a purchase agreement, then later claims it never agreed to the terms. The signature lets the buyer prove otherwise. Which concept does this illustrate?"
+        choices: ["Non-repudiation", "Confidentiality", "Availability", "Least privilege"]
+        answer: 0
+        why: "Non-repudiation means a party cannot credibly deny an action it performed. Confidentiality is about keeping content secret, which a signature alone does not do."
+      - id: cc-1-q06
+        type: mcq
+        q: "After a risk assessment, a clinic decides to stop collecting patients' national ID numbers altogether because it does not truly need them. Which risk treatment is this?"
+        choices: ["Risk mitigation", "Risk avoidance", "Risk transference", "Risk acceptance"]
+        answer: 1
+        why: "Stopping the activity that creates the risk removes the risk entirely — avoidance. Mitigation would mean continuing to collect the numbers while adding safeguards such as encryption."
+      - id: cc-1-q07
+        type: mcq
+        q: "A fix for a minor risk would cost far more than the loss it could ever cause. Management documents the decision and takes no further action. Which risk treatment is this?"
+        choices: ["Risk avoidance", "Risk transference", "Risk acceptance", "Risk mitigation"]
+        answer: 2
+        why: "Knowingly living with a risk, with a documented management decision, is acceptance. It is not avoidance, because the activity that creates the risk continues."
+      - id: cc-1-q08
+        type: mcq
+        q: "Which of the following is an example of an administrative control?"
+        choices: ["A firewall rule blocking inbound traffic", "A badge reader on the server room door", "Full-disk encryption on laptops", "An acceptable use policy that all staff must sign"]
+        answer: 3
+        why: "Administrative controls direct people through policies, procedures and training. The firewall rule and encryption are technical (logical) controls, and the badge reader protects a physical space."
+      - id: cc-1-q09
+        type: mcq
+        q: "Which of the following is an example of a physical control?"
+        choices: ["A locked cage around the server racks", "An access control list on a file share", "A security awareness training course", "Antivirus software on workstations"]
+        answer: 0
+        why: "Physical controls are tangible barriers that protect people, buildings and equipment. An access control list is tempting because it also restricts access, but it does so in software, making it a technical control."
+      - id: cc-1-q10
+        type: mcq
+        q: "A document lists the exact steps a technician must follow, in order, to wipe a laptop before it is reissued. What kind of document is it?"
+        choices: ["Policy", "Procedure", "Standard", "Regulation"]
+        answer: 1
+        why: "Step-by-step instructions for a specific task are a procedure. A standard states mandatory requirements (what must be met) but not the sequence of steps for doing it."
+      - id: cc-1-q11
+        type: mcq
+        q: "Senior management publishes a one-page document stating that all company information must be protected according to its sensitivity. It contains no technical detail. What kind of document is it?"
+        choices: ["Procedure", "Guideline", "Policy", "Standard"]
+        answer: 2
+        why: "A broad, mandatory statement of management intent is a policy. A standard would add specific measurable requirements, and a guideline is only a recommendation."
+      - id: cc-1-q12
+        type: mcq
+        q: "An ISC2 member's employer asks her to keep quiet about a flaw that puts public safety at risk. According to the order of the ISC2 Code of Ethics canons, which duty takes priority?"
+        choices: ["Provide diligent and competent service to principals", "Advance and protect the profession", "Act honorably, honestly, justly, responsibly, and legally", "Protect society, the common good, necessary public trust and confidence, and the infrastructure"]
+        answer: 3
+        why: "The canons are applied in order, and protecting society comes first. Service to principals (the employer) is the third canon, so it yields when the two conflict."
+      - id: cc-1-q13
+        type: mcq
+        q: "Before signing with a cloud provider, a company reviews the provider's independent audit reports and security certifications. What is the company demonstrating?"
+        choices: ["Due diligence", "Risk avoidance", "Non-repudiation", "Separation of duties"]
+        answer: 0
+        why: "Investigating and verifying before (and while) relying on something is due diligence. It is not risk avoidance, because the company still intends to use the provider."
+      - id: cc-1-q14
+        type: mcq
+        q: "A web server is missing a security patch that was released six months ago. In risk terms, what is the missing patch?"
+        choices: ["A threat", "A vulnerability", "An impact", "A control"]
+        answer: 1
+        why: "A missing patch is a weakness that could be exploited — a vulnerability. The threat is the attacker or malware that might take advantage of it."
+
+  # ───────────────────────── Domain 2 ─────────────────────────
+  - id: cc-2
+    title: "Security Governance"
+    domain: "2"
+    goal: "I can describe how an organization directs, measures and sustains its security programme, including continuity planning and security awareness."
+    notes: |
+      ## Running security as a programme
+
+      **GRC** stands for governance, risk and compliance. *Governance* is leadership setting direction and owning the outcome; *risk management* decides what to worry about; *compliance* shows that obligations are being met. Frameworks such as the **NIST Cybersecurity Framework** and **ISO/IEC 27001** give a ready-made structure, and tools like a **risk register** keep track of the detail.
+
+      **Redundancy and resilience.** Two plans are easy to confuse:
+
+      - **Business continuity (BC)** — keep the *business* running during a disruption
+      - **Disaster recovery (DR)** — restore the *IT* afterwards
+
+      A **business impact analysis** comes first and sets two targets: **RTO** (how long can we be down?) and **RPO** (how much data can we lose?).
+
+      **People.** Most attacks start with *social engineering*, so a healthy security culture makes reporting easy and blame-free, and trains everyone on phishing and passwords.
+
+      **Measurement.** *KPIs* show how well the programme performs; *KRIs* warn that risk is rising. Dashboards, scorecards and reports turn those numbers into decisions.
+    items:
+      - id: cc-2-governance
+        type: concept
+        term: "Governance"
+        def: "The system of direction and oversight through which senior leadership sets security goals, assigns responsibility and answers for the results."
+      - id: cc-2-compliance
+        type: concept
+        term: "Compliance"
+        def: "Meeting, and being able to show that you meet, the laws, regulations, contracts and internal rules that apply to the organization."
+      - id: cc-2-risk-register
+        type: concept
+        term: "Risk register"
+        def: "A living list of identified dangers that records each one's likelihood, impact, owner and planned treatment."
+      - id: cc-2-risk-appetite
+        type: concept
+        term: "Risk appetite"
+        def: "The amount of potential loss that leadership is willing to take on in pursuit of the organization's objectives."
+      - id: cc-2-standard
+        type: concept
+        term: "Standard"
+        def: "A mandatory document that sets specific, measurable requirements, such as a minimum password length, in support of a broader statement of management intent."
+      - id: cc-2-guideline
+        type: concept
+        term: "Guideline"
+        def: "Recommended but optional advice on a good way to meet a requirement."
+      - id: cc-2-kri
+        type: concept
+        term: "Key risk indicator (KRI)"
+        def: "A forward-looking measurement that gives early warning that exposure to loss is rising, such as a growing number of unpatched critical systems."
+      - id: cc-2-kpi
+        type: concept
+        term: "Key performance indicator (KPI)"
+        def: "A measurement of how well a process is meeting its targets, such as the percentage of staff who finished training on time."
+      - id: cc-2-bc
+        type: concept
+        term: "Business continuity (BC)"
+        def: "Planning that keeps an organization's critical functions operating during and after a disruption."
+      - id: cc-2-dr
+        type: concept
+        term: "Disaster recovery (DR)"
+        def: "Planning that focuses on restoring IT systems, data and infrastructure after a major outage."
+      - id: cc-2-bia
+        type: concept
+        term: "Business impact analysis (BIA)"
+        def: "A study that identifies which functions are critical and estimates the consequences of losing each one over time."
+      - id: cc-2-rto
+        type: concept
+        term: "Recovery time objective (RTO)"
+        def: "The target time within which a system or function is to be restored after a disruption."
+      - id: cc-2-rpo
+        type: concept
+        term: "Recovery point objective (RPO)"
+        def: "The maximum acceptable amount of data loss, expressed as a span of time back from the moment of failure."
+      - id: cc-2-redundancy
+        type: concept
+        term: "Redundancy"
+        def: "Duplicating critical components so that a spare takes over when one fails."
+      - id: cc-2-social-engineering
+        type: concept
+        term: "Social engineering"
+        def: "Manipulating people, rather than attacking technology, into revealing information or doing something unsafe."
+      - id: cc-2-phishing
+        type: concept
+        term: "Phishing"
+        def: "Fraudulent messages, usually email, that pose as a trusted sender to trick recipients into clicking a link, opening a file or giving up credentials."
+
+      - id: cc-2-q01
+        type: mcq
+        q: "After a flood destroys a server room, the IT team follows a runbook to rebuild servers at another location and restore data from backups. Which plan are they carrying out?"
+        choices: ["Business continuity plan", "Security awareness plan", "Disaster recovery plan", "Change management plan"]
+        answer: 2
+        why: "Restoring IT systems and data after a major outage is disaster recovery. Business continuity is broader — it is about keeping the business's critical functions going while that restoration happens."
+      - id: cc-2-q02
+        type: mcq
+        q: "While its order system is down, a company keeps serving customers by taking orders on paper forms from a backup office. Which kind of planning made this possible?"
+        choices: ["Disaster recovery", "Change management", "Vulnerability management", "Business continuity"]
+        answer: 3
+        why: "Keeping critical business functions operating during a disruption, even by manual workarounds, is business continuity. Disaster recovery is the separate effort to bring the failed IT system back."
+      - id: cc-2-q03
+        type: mcq
+        q: "Management decides the sales database may lose at most one hour of transactions in a failure, so backups must run at least hourly. Which objective has been set?"
+        choices: ["Recovery point objective (RPO)", "Recovery time objective (RTO)", "Key risk indicator (KRI)", "Key performance indicator (KPI)"]
+        answer: 0
+        why: "RPO is the tolerable amount of data loss measured in time, and it drives backup frequency. RTO is about how long the system may stay down, not how much data may be lost."
+      - id: cc-2-q04
+        type: mcq
+        q: "A company is starting its continuity planning and must decide which business functions to recover first. What should it do first?"
+        choices: ["Lease a fully equipped alternate site", "Conduct a business impact analysis", "Write detailed recovery procedures", "Run a full-scale recovery test"]
+        answer: 1
+        why: "A business impact analysis identifies critical functions and the cost of losing them, which sets recovery priorities and targets. Leasing a site or writing procedures before the BIA means spending without knowing what actually matters."
+      - id: cc-2-q05
+        type: mcq
+        q: "A payment system has a recovery time objective of two hours. Which recovery arrangement can realistically meet it?"
+        choices: ["A cold site with empty floor space, power and cooling", "Restoring offsite backups onto hardware ordered after the outage", "A hot site with duplicate systems already running and current data", "Waiting for the damaged primary site to be repaired"]
+        answer: 2
+        why: "A hot site is equipped and kept current, so operations can switch over within a very short time. A cold site is the cheapest option but needs equipment installed and data restored, which takes days or longer."
+      - id: cc-2-q06
+        type: mcq
+        q: "A security manager tracks the number of critical vulnerabilities left unpatched for more than 30 days, as an early warning that exposure is growing. What kind of measure is this?"
+        choices: ["Key performance indicator (KPI)", "Recovery time objective (RTO)", "Business impact analysis (BIA)", "Key risk indicator (KRI)"]
+        answer: 3
+        why: "A KRI signals that risk exposure is rising before a loss occurs. A KPI measures how well a process meets its goals; the same data could feed one, but the stem describes its use as an early warning of risk."
+      - id: cc-2-q07
+        type: mcq
+        q: "The board wants a single at-a-glance, colour-coded view of the organization's security posture that is kept up to date. Which reporting tool fits best?"
+        choices: ["A security dashboard", "A raw export of firewall logs", "A full technical vulnerability scan report", "A written recovery procedure"]
+        answer: 0
+        why: "A dashboard summarises key metrics visually for quick decisions by leadership. A full scan report is accurate but far too detailed and technical for a board-level overview."
+      - id: cc-2-q08
+        type: mcq
+        q: "An employee receives an unexpected email that claims to be from IT and asks her to confirm her password through a link. What is the best response?"
+        choices: ["Reply to the sender and ask whether the message is genuine", "Report it through the company's reporting process without clicking the link", "Click the link to see whether the page looks legitimate", "Forward it to her whole team so they are warned"]
+        answer: 1
+        why: "Reporting lets the security team investigate and protect others, and not clicking avoids the trap. Replying to the sender is tempting but only reaches the attacker, who will of course say it is genuine."
+      - id: cc-2-q09
+        type: mcq
+        q: "A caller invents a story about being a new help desk technician fixing an urgent fault, and uses it to persuade an employee to read out a login code. Which technique is this?"
+        choices: ["Tailgating", "Dumpster diving", "Pretexting", "Shoulder surfing"]
+        answer: 2
+        why: "Pretexting is using a fabricated scenario and identity to gain trust and extract information. Tailgating and shoulder surfing both require the attacker to be physically present, which a phone caller is not."
+      - id: cc-2-q10
+        type: mcq
+        q: "Which advice best reflects good password protection for an employee with many accounts?"
+        choices: ["Use one strong password everywhere so it is never forgotten", "Keep a short password and add a new number to it each month", "Write each password on a note kept under the keyboard", "Use a long, unique password for each account, stored in a password manager"]
+        answer: 3
+        why: "Long, unique passwords mean one breached site cannot unlock the others, and a password manager makes that practical. Reusing one strong password everywhere is the tempting mistake: a single leak exposes every account."
+      - id: cc-2-q11
+        type: mcq
+        q: "In a phishing simulation, several employees click the test link. Which reaction best builds a strong security culture?"
+        choices: ["Give them prompt, supportive coaching and keep reporting easy and blame-free", "Publish their names company-wide as a warning to others", "Remove email access from everyone who clicked", "Stop running simulations because they upset staff"]
+        answer: 0
+        why: "People report mistakes quickly only when it is safe to do so, and fast reporting is what limits real incidents. Public shaming teaches staff to hide errors, which is the opposite of what the organization needs."
+      - id: cc-2-q12
+        type: mcq
+        q: "A retailer checks and documents that it meets the payment card industry's security standard and the privacy laws that apply to it. Which part of GRC is this activity?"
+        choices: ["Governance", "Compliance", "Risk treatment", "Business continuity"]
+        answer: 1
+        why: "Compliance is demonstrating that external and internal obligations are being met. Governance is the leadership direction and oversight that decides compliance must happen, not the checking itself."
+      - id: cc-2-q13
+        type: mcq
+        q: "Who is ultimately accountable for an organization's cybersecurity risk?"
+        choices: ["The help desk team", "The firewall vendor", "Senior leadership", "Each individual end user"]
+        answer: 2
+        why: "Tasks can be delegated, but accountability stays with senior leadership, who set direction and accept risk on the organization's behalf. End users are responsible for following the rules, yet they do not own the overall risk."
+      - id: cc-2-q14
+        type: mcq
+        q: "A growing company wants a recognised, structured way to organize its whole security programme instead of inventing one from scratch. What should it adopt?"
+        choices: ["A commercial vulnerability scanning tool", "A cyber insurance policy with broad cover", "An annual external penetration test", "A security framework such as the NIST CSF"]
+        answer: 3
+        why: "A framework provides an organized, widely recognised set of practices for building and assessing a programme. A scanner or a penetration test is a single activity that would sit inside such a programme, not a structure for it."
+
+  # ───────────────────────── Domain 3 ─────────────────────────
+  - id: cc-3
+    title: "Identity and Access Management (IAM) Concepts"
+    domain: "3"
+    goal: "I can follow an identity from joining to leaving and choose the right principle or access control model for a situation."
+    notes: |
+      ## Who are you, and what may you do?
+
+      IAM answers those two questions for every person and every program.
+
+      **The identity life cycle** has four stages:
+
+      - **Role definition** — decide what each job needs
+      - **Provisioning** — create the account and grant access
+      - **Review** — regularly confirm access is still needed
+      - **Deprovisioning** — remove access promptly when it is not
+
+      Skipping the last two leads to *privilege creep* and forgotten accounts, which attackers love.
+
+      **Proving identity** uses factors: something you *know*, *have* or *are*. Two different types together is **multifactor authentication**.
+
+      **Two principles** show up everywhere: **least privilege** (only the access the job requires) and **separation of duties** (no one person completes a sensitive task alone).
+
+      **Access control models:**
+
+      | Model | Who or what decides |
+      | DAC | the resource owner |
+      | MAC | system-enforced labels and clearances |
+      | RBAC | the user's job role |
+      | ABAC | attributes of user, resource and context |
+
+      Administrator accounts deserve extra protection — that is *privileged access management*.
+    items:
+      - id: cc-3-identification
+        type: concept
+        term: "Identification"
+        def: "Claiming who you are to a system, for example by presenting a username, before any proof is offered."
+      - id: cc-3-mfa
+        type: concept
+        term: "Multifactor authentication (MFA)"
+        def: "Requiring two or more different kinds of proof, such as something you know plus something you have, before a login is allowed."
+      - id: cc-3-biometrics
+        type: concept
+        term: "Biometrics"
+        def: "Verifying a person by a measurable bodily trait such as a fingerprint, face or iris."
+      - id: cc-3-sso
+        type: concept
+        term: "Single sign-on (SSO)"
+        def: "Logging in once and then reaching several separate applications without being asked for credentials again."
+      - id: cc-3-provisioning
+        type: concept
+        term: "Provisioning"
+        def: "Creating an account and granting its initial access when a person joins or takes on a new job."
+      - id: cc-3-deprovisioning
+        type: concept
+        term: "Deprovisioning"
+        def: "Promptly disabling or removing accounts and access when a person leaves or no longer needs them."
+      - id: cc-3-access-review
+        type: concept
+        term: "Access review (recertification)"
+        def: "A periodic check in which managers confirm that each person's existing permissions are still required."
+      - id: cc-3-privilege-creep
+        type: concept
+        term: "Privilege creep"
+        def: "The gradual build-up of permissions as someone moves between jobs without their old access being taken away."
+      - id: cc-3-least-privilege
+        type: concept
+        term: "Least privilege"
+        def: "Giving each user or process only the minimum access needed to do its job, and nothing more."
+      - id: cc-3-sod
+        type: concept
+        term: "Separation of duties"
+        def: "Splitting a sensitive task between people so that no one person can carry out all of it alone, reducing fraud and error."
+      - id: cc-3-dac
+        type: concept
+        term: "Discretionary access control (DAC)"
+        def: "A model in which the owner of a resource decides who else may use it."
+      - id: cc-3-mac
+        type: concept
+        term: "Mandatory access control (MAC)"
+        def: "A model in which the system enforces access by comparing classification labels on data with users' clearances, and users cannot override it."
+      - id: cc-3-rbac
+        type: concept
+        term: "Role-based access control (RBAC)"
+        def: "A model in which permissions are attached to job functions, and users receive them by being assigned to those functions."
+      - id: cc-3-abac
+        type: concept
+        term: "Attribute-based access control (ABAC)"
+        def: "A model that decides access by evaluating characteristics of the user, the resource and the context, such as department, device and time of day."
+      - id: cc-3-pam
+        type: concept
+        term: "Privileged access management (PAM)"
+        def: "Tools and practices that tightly control, monitor and record the use of administrator-level accounts."
+      - id: cc-3-service-account
+        type: concept
+        term: "Service account"
+        def: "A non-human identity that an application or automated process logs in with, instead of a person."
+
+      - id: cc-3-q01
+        type: mcq
+        q: "Which login method is genuine multifactor authentication?"
+        choices: ["A password and a one-time code from a hardware token", "A password and the answer to a security question", "A fingerprint and a face scan", "A PIN and a passphrase"]
+        answer: 0
+        why: "MFA needs factors of different types; a password (something you know) plus a token (something you have) qualifies. A password with a security question is tempting but both are things you know, so it is still one factor type."
+      - id: cc-3-q02
+        type: mcq
+        q: "Three months after an engineer resigned, her account is used to log in to the company VPN. Which stage of the identity life cycle failed?"
+        choices: ["Provisioning", "Deprovisioning", "Role definition", "Authentication"]
+        answer: 1
+        why: "Access should have been removed promptly when she left, which is deprovisioning. Authentication worked exactly as designed — the problem is that a valid account still existed."
+      - id: cc-3-q03
+        type: mcq
+        q: "An employee has moved from finance to marketing to sales over five years and can still open the systems of all three departments. Which process is designed to catch this?"
+        choices: ["Multifactor authentication", "Single sign-on", "Periodic access reviews", "Password expiry"]
+        answer: 2
+        why: "Regular access reviews make managers confirm that each permission is still needed, which exposes privilege creep. MFA makes logins stronger but says nothing about whether the access behind the login is appropriate."
+      - id: cc-3-q04
+        type: mcq
+        q: "An intern who only needs to read monthly reports is given full administrator rights because it is quicker to set up. Which principle is being violated?"
+        choices: ["Separation of duties", "Non-repudiation", "Defense in depth", "Least privilege"]
+        answer: 3
+        why: "Least privilege means granting only the access the job requires — here, read access to reports. Separation of duties concerns splitting one sensitive task between people, which is not the issue described."
+      - id: cc-3-q05
+        type: mcq
+        q: "A company requires that the person who adds a new supplier to the payment system cannot also approve payments to that supplier. Which principle is being applied?"
+        choices: ["Separation of duties", "Least privilege", "Single sign-on", "Mandatory access control"]
+        answer: 0
+        why: "Splitting a sensitive process so that fraud would need two people to cooperate is separation of duties. Least privilege limits how much access one person has, but it does not by itself require a second person in the process."
+      - id: cc-3-q06
+        type: mcq
+        q: "A government system labels every file Confidential, Secret or Top Secret. The system itself blocks users whose clearance is too low, and file owners cannot change this. Which access control model is in use?"
+        choices: ["Discretionary access control (DAC)", "Mandatory access control (MAC)", "Role-based access control (RBAC)", "Attribute-based access control (ABAC)"]
+        answer: 1
+        why: "System-enforced labels and clearances that users cannot override define MAC. In DAC the file owner could grant access at their own discretion, which the stem rules out."
+      - id: cc-3-q07
+        type: mcq
+        q: "A user creates a folder and, on her own initiative, edits its permissions so that two colleagues can read it. Which access control model does this reflect?"
+        choices: ["Role-based access control (RBAC)", "Mandatory access control (MAC)", "Discretionary access control (DAC)", "Attribute-based access control (ABAC)"]
+        answer: 2
+        why: "In DAC the owner of a resource chooses who may access it. In RBAC access would come from the colleagues' assigned roles, not from the owner's personal decision."
+      - id: cc-3-q08
+        type: mcq
+        q: "A rule allows access to salary records only if the user is in the HR department, is using a company-managed device, and the request is made during business hours. Which access control model is this?"
+        choices: ["Discretionary access control (DAC)", "Role-based access control (RBAC)", "Mandatory access control (MAC)", "Attribute-based access control (ABAC)"]
+        answer: 3
+        why: "The decision combines several attributes of the user, device and context, which is ABAC. RBAC would look only at the user's role and could not take device or time of day into account."
+      - id: cc-3-q09
+        type: mcq
+        q: "At a hospital, permissions are assigned to job groups such as Nurse and Pharmacist. A newly hired nurse is simply added to the Nurse group and receives everything needed. Which access control model is this?"
+        choices: ["Role-based access control (RBAC)", "Discretionary access control (DAC)", "Mandatory access control (MAC)", "Attribute-based access control (ABAC)"]
+        answer: 0
+        why: "Permissions tied to job roles, with users assigned to roles, is RBAC. It is not DAC, because no individual resource owner is deciding who gets access."
+      - id: cc-3-q10
+        type: mcq
+        q: "A company is opening a new department. In the identity life cycle, what should happen before any accounts are created?"
+        choices: ["Review the access that staff already hold", "Define the roles and the access each one needs", "Deprovision accounts that are no longer used", "Grant everyone full access and trim it later"]
+        answer: 1
+        why: "Role definition comes first so that provisioning grants exactly what each job requires. Granting broad access and trimming later is tempting for speed, but it breaks least privilege from day one and the trimming rarely happens."
+      - id: cc-3-q11
+        type: mcq
+        q: "Five administrators share one root password, and nobody can tell who used it or when. Which improvement addresses the problem best?"
+        choices: ["Make the shared password longer and change it monthly", "Rename the root account to something less obvious", "Adopt privileged access management with individual check-out", "Enable single sign-on for all office staff"]
+        answer: 2
+        why: "Privileged access management vaults powerful credentials, ties each use to a named person and can record the session, restoring accountability. A longer shared password is still shared, so actions still cannot be traced to an individual."
+      - id: cc-3-q12
+        type: mcq
+        q: "A user who has logged in successfully tries to open the payroll folder and sees 'access denied'. Which process made that decision?"
+        choices: ["Identification", "Authentication", "Accounting", "Authorization"]
+        answer: 3
+        why: "Authorization determines what an authenticated user may access. Authentication already succeeded — the user's identity is not in doubt, only their permission."
+      - id: cc-3-q13
+        type: mcq
+        q: "What is the main security trade-off an organization should plan for when it adopts single sign-on?"
+        choices: ["One stolen credential can unlock many applications at once", "Users must remember more passwords than they did before", "Periodic access reviews are no longer possible", "Applications can no longer enforce their own authorization"]
+        answer: 0
+        why: "SSO concentrates access behind one login, so that login becomes a high-value target and should be protected with MFA. It reduces, rather than increases, the number of passwords users must remember."
+      - id: cc-3-q14
+        type: mcq
+        q: "A phone unlocks when it recognises its owner's fingerprint. Which type of authentication factor is this?"
+        choices: ["Something you know", "Something you are", "Something you have", "Something you do"]
+        answer: 1
+        why: "A fingerprint is a physical characteristic of the person — something you are. The phone itself would be something you have, but the stem asks about the fingerprint."
+
+  # ───────────────────────── Domain 4 ─────────────────────────
+  - id: cc-4
+    title: "Networking and Cloud Security Concepts"
+    domain: "4"
+    goal: "I can describe how networks and cloud services are built, and how segmentation, layered defences and zero trust keep them safe."
+    notes: |
+      ## How data travels, and where it lives
+
+      Two models describe networking. The **OSI model** has seven layers (Physical, Data Link, Network, Transport, Session, Presentation, Application); the **TCP/IP model** squeezes them into four. **IPv4** addresses are 32-bit (`192.168.1.10`); **IPv6** addresses are 128-bit and written in hexadecimal.
+
+      **Firewalls** allow or block traffic, often by port. Worth memorising:
+
+      | Port | Service |
+      | 22 | SSH |
+      | 25 | SMTP |
+      | 53 | DNS |
+      | 80 / 443 | HTTP / HTTPS |
+      | 3389 | RDP |
+
+      **Architecture.** *Segmentation* (firewall zones, VLANs, micro-segmentation) limits how far an intruder can move. *Defense in depth* layers many controls. *Zero trust* stops trusting anything just because it is "inside".
+
+      Wireless (Wi-Fi, Bluetooth) and small devices (**IoT**, embedded systems, industrial control systems) are often weakly protected, so isolate them.
+
+      **Cloud.** Know the five characteristics, three service models (**IaaS, PaaS, SaaS**), four deployment models (public, private, community, hybrid) and the *shared security model*: the provider secures the cloud itself, you secure what you put in it — always including your data.
+    items:
+      - id: cc-4-osi
+        type: concept
+        term: "OSI model"
+        def: "A seven-layer reference description of how data moves between networked systems, from physical signals up to applications."
+      - id: cc-4-firewall
+        type: concept
+        term: "Firewall"
+        def: "A device or program that permits or blocks traffic passing between networks according to a set of rules."
+      - id: cc-4-vpn
+        type: concept
+        term: "Virtual private network (VPN)"
+        def: "An encrypted tunnel that carries an organization's traffic safely across an untrusted network such as the internet."
+      - id: cc-4-vlan
+        type: concept
+        term: "VLAN"
+        def: "A logical grouping of switch ports that keeps devices in separate broadcast domains even though they share the same physical equipment."
+      - id: cc-4-microsegmentation
+        type: concept
+        term: "Micro-segmentation"
+        def: "Placing fine-grained traffic rules around individual workloads, so that even neighbouring machines in the same zone cannot talk to each other freely."
+      - id: cc-4-dmz
+        type: concept
+        term: "DMZ (screened subnet)"
+        def: "A buffer zone holding public-facing servers, placed between the internet and the internal network."
+      - id: cc-4-defense-in-depth
+        type: concept
+        term: "Defense in depth"
+        def: "Layering several independent safeguards so that if one fails, others still stand in the attacker's way."
+      - id: cc-4-zero-trust
+        type: concept
+        term: "Zero trust"
+        def: "An approach that never grants access on the basis of network location alone and explicitly verifies every request, every time."
+      - id: cc-4-iot
+        type: concept
+        term: "Internet of Things (IoT)"
+        def: "Everyday physical objects, such as cameras, door locks and thermostats, that are fitted with sensors and network connectivity."
+      - id: cc-4-ics
+        type: concept
+        term: "Industrial control system (ICS)"
+        def: "Computer systems that monitor and operate physical processes in places such as factories, power stations and water treatment plants."
+      - id: cc-4-iaas
+        type: concept
+        term: "Infrastructure as a Service (IaaS)"
+        def: "A cloud model in which the provider supplies virtual machines, storage and networking, and the customer manages everything from the operating system upward."
+      - id: cc-4-paas
+        type: concept
+        term: "Platform as a Service (PaaS)"
+        def: "A cloud model in which the provider runs the operating system and runtime environment, and the customer deploys only its own code and data."
+      - id: cc-4-saas
+        type: concept
+        term: "Software as a Service (SaaS)"
+        def: "A cloud model in which the customer simply uses a finished application run entirely by the provider, usually through a web browser."
+      - id: cc-4-shared-responsibility
+        type: concept
+        term: "Shared responsibility model"
+        def: "The principle that security duties in the cloud are split between provider and customer, with the dividing line moving according to the kind of service bought."
+      - id: cc-4-hybrid-cloud
+        type: concept
+        term: "Hybrid cloud"
+        def: "A deployment that combines two or more distinct cloud environments, typically one privately run and one public, linked so that workloads can move between them."
+      - id: cc-4-resource-pooling
+        type: concept
+        term: "Resource pooling"
+        def: "The cloud characteristic in which a provider's computing capacity serves many customers at once and is dynamically assigned to whoever needs it."
+
+      - id: cc-4-q01
+        type: mcq
+        q: "A firewall administrator must allow staff to browse secure (HTTPS) websites. Which destination port should the rule permit?"
+        choices: ["22", "80", "443", "3389"]
+        answer: 2
+        why: "HTTPS uses port 443 by default. Port 80 is the tempting choice but carries unencrypted HTTP."
+      - id: cc-4-q02
+        type: mcq
+        q: "An administrator needs an encrypted command-line session to manage a remote Linux server. Which protocol and default port should be used?"
+        choices: ["Telnet on port 23", "HTTP on port 80", "FTP on port 21", "SSH on port 22"]
+        answer: 3
+        why: "SSH provides encrypted remote terminal access on port 22. Telnet offers a similar remote session but sends everything, including passwords, in clear text."
+      - id: cc-4-q03
+        type: mcq
+        q: "A router decides where to forward a packet by reading its destination IP address. At which OSI layer is the router working?"
+        choices: ["Layer 3 — Network", "Layer 2 — Data Link", "Layer 4 — Transport", "Layer 7 — Application"]
+        answer: 0
+        why: "IP addressing and routing belong to the Network layer, layer 3. Layer 2 is where switches forward frames using MAC addresses, not IP addresses."
+      - id: cc-4-q04
+        type: mcq
+        q: "Which of the following is an IPv6 address?"
+        choices: ["192.168.1.10", "2001:db8::8a2e:370:7334", "00:1A:2B:3C:4D:5E", "255.255.255.0"]
+        answer: 1
+        why: "IPv6 addresses are 128 bits written as hexadecimal groups separated by colons, with '::' standing for a run of zeros. The six-pair value is a MAC (hardware) address, which also uses colons but is only 48 bits."
+      - id: cc-4-q05
+        type: mcq
+        q: "An employee must reach internal company systems while using a hotel's public Wi-Fi. What best protects the traffic?"
+        choices: ["Using the browser's private browsing mode", "Turning off the laptop's firewall to avoid conflicts", "Connecting through the company VPN", "Choosing the Wi-Fi network with the strongest signal"]
+        answer: 2
+        why: "A VPN encrypts traffic in a tunnel across the untrusted network. Private browsing mode only stops the browser keeping local history; it does not encrypt anything on the network."
+      - id: cc-4-q06
+        type: mcq
+        q: "A small office is setting up a new wireless network. Which configuration gives the strongest protection?"
+        choices: ["WEP with a long key", "An open network with a hidden network name", "MAC address filtering with no encryption", "WPA3 with a strong passphrase"]
+        answer: 3
+        why: "WPA3 is the current Wi-Fi security standard and encrypts traffic strongly. WEP is long broken regardless of key length, and hiding the name or filtering MAC addresses provides no encryption at all."
+      - id: cc-4-q07
+        type: mcq
+        q: "Internet-connected security cameras with weak built-in security sit on the same flat network as the finance servers. What is the best way to reduce the risk?"
+        choices: ["Move the cameras to their own VLAN with firewall rules limiting what they can reach", "Rename the cameras so they are harder to identify", "Give the cameras fixed IP addresses on the finance network", "Disable logging on the cameras to save bandwidth"]
+        answer: 0
+        why: "Segmentation contains a compromised camera so it cannot reach sensitive systems. Renaming the devices is security through obscurity — a compromised camera would still share a network with the finance servers."
+      - id: cc-4-q08
+        type: mcq
+        q: "Which statement best reflects a zero trust approach?"
+        choices: ["Devices are trusted once they are connected to the office network", "Every access request is verified explicitly, wherever it comes from", "A strong perimeter firewall is the single line of defence", "Users get broad access for the day after their first login"]
+        answer: 1
+        why: "Zero trust removes implicit trust based on network location and verifies each request. Trusting anything on the office network is exactly the traditional perimeter assumption that zero trust rejects."
+      - id: cc-4-q09
+        type: mcq
+        q: "A bank protects customer data with a firewall, endpoint protection, multifactor authentication, encryption and staff training, so that no single failure exposes the data. Which principle is this?"
+        choices: ["Zero trust", "Separation of duties", "Defense in depth", "Least privilege"]
+        answer: 2
+        why: "Multiple overlapping layers of different controls is defense in depth. Zero trust is about never assuming trust from network location; the stem describes layering, not continuous verification."
+      - id: cc-4-q10
+        type: mcq
+        q: "A company rents virtual machines from a cloud provider and then installs, patches and configures the operating systems and databases itself. Which service model is it using?"
+        choices: ["Software as a Service (SaaS)", "Platform as a Service (PaaS)", "Community cloud", "Infrastructure as a Service (IaaS)"]
+        answer: 3
+        why: "In IaaS the provider supplies the underlying infrastructure and the customer manages the operating system upward. In PaaS the provider would patch the operating system, which here the customer does itself."
+      - id: cc-4-q11
+        type: mcq
+        q: "A company uses a SaaS customer-relationship application. Under the shared security model, which task remains the customer's responsibility?"
+        choices: ["Controlling which of its users can access its data in the application", "Physically securing the provider's data centres", "Patching the servers that run the application", "Maintaining the hypervisors beneath the service"]
+        answer: 0
+        why: "Whatever the service model, the customer stays responsible for its own data and for who is given access to it. Patching the application's servers is tempting, but in SaaS that belongs to the provider."
+      - id: cc-4-q12
+        type: mcq
+        q: "A company keeps sensitive records in a cloud it runs in its own data centre, but shifts extra workload to a public cloud provider during seasonal peaks. Which deployment model is this?"
+        choices: ["Public cloud", "Hybrid cloud", "Private cloud", "Community cloud"]
+        answer: 1
+        why: "Combining a private cloud with a public cloud, connected so that workloads can move, is a hybrid cloud. A community cloud is shared by several organizations with a common concern, which is not described here."
+      - id: cc-4-q13
+        type: mcq
+        q: "During a one-day sale, a retailer's cloud capacity grows automatically to meet demand and shrinks again that evening. Which cloud characteristic is this?"
+        choices: ["Measured service", "Resource pooling", "Rapid elasticity", "Broad network access"]
+        answer: 2
+        why: "Rapid elasticity is the ability to scale capacity up and down quickly in line with demand. Measured service is the metering that lets the retailer pay only for what it used, not the scaling itself."
+      - id: cc-4-q14
+        type: mcq
+        q: "A controller in a water treatment plant runs old software that cannot be patched without halting the plant. What is the best way to protect it in the meantime?"
+        choices: ["Expose it to the internet so the vendor can support it remotely", "Put it on the office Wi-Fi so it is easier to monitor", "Leave it alone, because industrial devices are rarely targeted", "Isolate it on its own network segment with tightly restricted access"]
+        answer: 3
+        why: "When a system cannot be patched, isolating it limits who and what can reach the weakness. Moving it onto the office network for easier monitoring does the opposite — it exposes the controller to every compromised office machine."
+
+  # ───────────────────────── Domain 5 ─────────────────────────
+  - id: cc-5
+    title: "Security Operations and Incident Response"
+    domain: "5"
+    goal: "I can explain how data and assets are protected day to day, how incidents are detected and handled, and how defences are tested."
+    notes: |
+      ## Keeping watch and responding
+
+      **Data security.** Handle data according to its value: *classify* it, *label* it, *mask* it where the full value is not needed, and *sanitize* media before disposal. Cryptography comes in three flavours:
+
+      | Type | Keys | Typical use |
+      | Symmetric | one shared key | fast bulk encryption |
+      | Asymmetric | public + private pair | key exchange, signatures |
+      | Hashing | none (one-way) | integrity checks |
+
+      *Quantum-resistant* algorithms are being adopted because future quantum computers threaten today's asymmetric methods.
+
+      **Operations.** Logs are collected and monitored; analysts *triage* alerts to find what matters. An **event** is anything observable; an **incident** is an event that harms or threatens security. Threat intelligence and frameworks such as MITRE ATT&CK describe who attacks and how.
+
+      **Incident response** runs from a written plan, rehearsed through exercises such as *tabletops*.
+
+      **Assets** are tracked through their whole life, including end of life, and altered only through *configuration and change management*.
+
+      **Testing.** Red teams attack, blue teams defend, purple teams combine both. Other tools include vulnerability scanning, static and dynamic analysis, threat modeling and physical penetration tests.
+    items:
+      - id: cc-5-classification
+        type: concept
+        term: "Data classification"
+        def: "Assigning information to a sensitivity level, such as public or restricted, according to the harm its exposure would cause."
+      - id: cc-5-masking
+        type: concept
+        term: "Data masking"
+        def: "Hiding part of a value, for instance showing only the last four digits of a card number, so that the full value is not exposed."
+      - id: cc-5-sanitization
+        type: concept
+        term: "Sanitization"
+        def: "Removing data from storage media so thoroughly that it cannot be recovered, before the media is reused or disposed of."
+      - id: cc-5-symmetric
+        type: concept
+        term: "Symmetric encryption"
+        def: "Scrambling data with a single shared secret key that is used both to lock and to unlock it."
+      - id: cc-5-asymmetric
+        type: concept
+        term: "Asymmetric encryption"
+        def: "Cryptography that uses a mathematically linked pair of keys, one published openly and one kept secret by its owner."
+      - id: cc-5-hashing
+        type: concept
+        term: "Hashing"
+        def: "A one-way function that turns any input into a fixed-length digest, used to detect changes rather than to hide content."
+      - id: cc-5-pqc
+        type: concept
+        term: "Quantum-resistant cryptography"
+        def: "Newer algorithms designed to stay secure against a future class of computers that is expected to break today's widely used public-key schemes."
+      - id: cc-5-siem
+        type: concept
+        term: "SIEM (security information and event management)"
+        def: "A platform that gathers logs from many sources, correlates them and raises alerts on suspicious patterns."
+      - id: cc-5-cti
+        type: concept
+        term: "Cyber threat intelligence"
+        def: "Analysed information about adversaries, their motives and their methods, used to make better defensive decisions."
+      - id: cc-5-attack
+        type: concept
+        term: "MITRE ATT&CK"
+        def: "A publicly available knowledge base that catalogues the tactics and techniques adversaries have been observed using in real attacks."
+      - id: cc-5-tabletop
+        type: concept
+        term: "Tabletop exercise"
+        def: "A discussion-based session in which a team talks through its response to a hypothetical scenario without touching live systems."
+      - id: cc-5-change-management
+        type: concept
+        term: "Change management"
+        def: "A formal process for requesting, reviewing, approving and documenting modifications to systems before they are made."
+      - id: cc-5-eol
+        type: concept
+        term: "End of life (EOL)"
+        def: "The stage at which a vendor retires a product and stops providing updates and security fixes for it."
+      - id: cc-5-red-team
+        type: concept
+        term: "Red team"
+        def: "A group that plays the attacker, emulating real adversaries in order to test an organization's defences."
+      - id: cc-5-static-analysis
+        type: concept
+        term: "Static analysis"
+        def: "Examining a program's source code or binaries for flaws without running the program."
+      - id: cc-5-threat-modeling
+        type: concept
+        term: "Threat modeling"
+        def: "A structured exercise, ideally at design time, for working out what could go wrong with a system and how it might be attacked, so safeguards can be planned early."
+
+      - id: cc-5-q01
+        type: mcq
+        q: "A technician downloads a software installer and wants to confirm it was not altered on the way. What should the technician do?"
+        choices: ["Compare its SHA-256 hash with the value published by the vendor", "Encrypt the file with AES before running it", "Check that the file name matches the vendor's", "Compress the file and compare the archive size"]
+        answer: 0
+        why: "Any change to a file changes its hash, so a matching hash confirms integrity. Encrypting the file afterwards protects confidentiality from that point on but tells you nothing about whether it was already tampered with."
+      - id: cc-5-q02
+        type: mcq
+        q: "Ana wants to send Ben a confidential message. They have never met and share no secret, but Ben has posted a public key online. Which kind of cryptography makes this possible?"
+        choices: ["Symmetric encryption", "Asymmetric encryption", "Hashing", "Data masking"]
+        answer: 1
+        why: "With asymmetric encryption Ana encrypts using Ben's public key and only Ben's private key can decrypt. Symmetric encryption would require them to share a secret key securely first, which they have no way to do."
+      - id: cc-5-q03
+        type: mcq
+        q: "Why are organizations beginning to plan a move to quantum-resistant cryptography?"
+        choices: ["Because hashing algorithms will stop producing fixed-length output", "Because it removes the need to manage encryption keys", "Because large quantum computers could break today's public-key algorithms such as RSA", "Because it makes encrypted data smaller and faster to send"]
+        answer: 2
+        why: "Widely used asymmetric algorithms such as RSA and elliptic-curve cryptography rely on maths that a sufficiently powerful quantum computer could solve. Keys still have to be managed with the new algorithms, so the key-management choice is wrong."
+      - id: cc-5-q04
+        type: mcq
+        q: "A company is donating old laptops that held customer records. What should be done to the drives first?"
+        choices: ["Delete the files and empty the recycle bin", "Perform a quick format of each drive", "Remove the asset tags and reset the login passwords", "Wipe them with an approved sanitization method and verify the result"]
+        answer: 3
+        why: "Sanitization makes data unrecoverable, and verification proves that it worked. Deleting files or quick formatting only removes the references to the data, which simple tools can recover."
+      - id: cc-5-q05
+        type: mcq
+        q: "Which of the following is best described as a security incident rather than merely an event?"
+        choices: ["Malware encrypts the files on a shared server", "A user logs in successfully at 9 a.m.", "A firewall records an allowed outbound web request", "A scheduled backup job completes"]
+        answer: 0
+        why: "An incident is an event that actually or potentially harms confidentiality, integrity or availability, as the malware does. The other choices are ordinary observable occurrences — events — with no harm involved."
+      - id: cc-5-q06
+        type: mcq
+        q: "A security analyst starts a shift facing 200 new alerts. What does triage mean in this situation?"
+        choices: ["Working through the alerts strictly in the order they arrived", "Quickly assessing each alert and prioritizing by severity and likely impact", "Closing every low-severity alert without looking at it", "Escalating every alert to senior management"]
+        answer: 1
+        why: "Triage is rapid assessment and prioritization so that the most serious issues are handled first. Working in arrival order is tempting because it feels fair, but it can leave a critical alert waiting behind trivial ones."
+      - id: cc-5-q07
+        type: mcq
+        q: "A group defaces a company's website to protest its environmental record, publicly claims the attack, and asks for no money. Which type of threat actor is this?"
+        choices: ["Organized crime group", "Insider threat", "Hacktivist", "Unskilled attacker"]
+        answer: 2
+        why: "Hacktivists are driven by a political or social cause and want publicity for it. Organized crime is motivated by financial gain, and the stem says no money was sought."
+      - id: cc-5-q08
+        type: mcq
+        q: "The incident response team meets in a conference room, where a facilitator describes a ransomware scenario and each member explains what they would do. No systems are touched. What is this activity?"
+        choices: ["Vulnerability scan", "Penetration test", "Dynamic analysis", "Tabletop exercise"]
+        answer: 3
+        why: "A tabletop is a discussion-based walk-through of the plan against a hypothetical scenario. A penetration test involves actually attacking real systems, which does not happen here."
+      - id: cc-5-q09
+        type: mcq
+        q: "What is the main reason to write and approve an incident response plan before any incident happens?"
+        choices: ["So that roles, contacts and steps are already agreed and people can act quickly under pressure", "So that the organization is guaranteed never to suffer an incident", "So that logging and monitoring are no longer needed", "So that incidents can be handled without telling management"]
+        answer: 0
+        why: "A plan prepared in advance removes guesswork about who does what when time is short. It cannot prevent incidents — it prepares the organization to respond to them well."
+      - id: cc-5-q10
+        type: mcq
+        q: "An administrator changes a production firewall rule at midday without telling anyone, and the online store goes offline. Which process would most likely have prevented this?"
+        choices: ["Data classification", "Change management", "Threat intelligence", "Data masking"]
+        answer: 1
+        why: "Change management requires changes to be requested, reviewed, approved, scheduled and documented, with a way to roll back. Threat intelligence concerns outside adversaries, whereas this outage was caused by an uncontrolled internal change."
+      - id: cc-5-q11
+        type: mcq
+        q: "A server's operating system has reached end of life and will receive no more security patches. What is the best course of action?"
+        choices: ["Keep it in normal use because it still works", "Wait for the vendor to release a fix if a serious flaw appears", "Plan its upgrade or replacement, and isolate it until that is done", "Remove it from the asset inventory since it is unsupported"]
+        answer: 2
+        why: "Unsupported systems accumulate unfixable vulnerabilities, so they should be replaced and isolated in the meantime. Waiting for the vendor is tempting but end of life means no further fixes will come."
+      - id: cc-5-q12
+        type: mcq
+        q: "During a security exercise, the attackers and the defenders sit together, and the attackers explain each technique as they use it so the defenders can tune their detection straight away. What is this collaborative approach called?"
+        choices: ["Red teaming", "Blue teaming", "White teaming", "Purple teaming"]
+        answer: 3
+        why: "Purple teaming blends red (attack) and blue (defence) so that each learns from the other in real time. Pure red teaming would test the defenders without sharing techniques as it goes."
+      - id: cc-5-q13
+        type: mcq
+        q: "A tool tests a running web application by sending it crafted inputs and watching how it responds. Which type of security testing is this?"
+        choices: ["Dynamic analysis", "Static analysis", "Threat modeling", "Data sanitization"]
+        answer: 0
+        why: "Dynamic analysis examines software while it executes. Static analysis inspects the code without running it, which is the opposite of what is described."
+      - id: cc-5-q14
+        type: mcq
+        q: "During an authorized physical penetration test, a tester carrying a stack of boxes walks in behind an employee who holds the badge-controlled door open. Which technique was used?"
+        choices: ["Phishing", "Tailgating", "Shoulder surfing", "Dumpster diving"]
+        answer: 1
+        why: "Tailgating is following an authorized person through a controlled entrance without presenting your own credential. Shoulder surfing is watching someone enter a PIN or password, not getting through a door."

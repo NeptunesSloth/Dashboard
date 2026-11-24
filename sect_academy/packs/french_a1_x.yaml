@@ -1,0 +1,435 @@
+part_of: french-a1
+
+units:
+  # ──────────────────────────────────────────────────────────────── 13
+  - id: fr-13
+    title: "Numbers 11–100 & prices"
+    goal: "I can count to one hundred, understand and say prices, and give my phone number."
+    notes: |
+      You know 2–10. From 11 to 16 each number is one word ending in **-ze**; 17–19 are simply "ten-seven", "ten-eight", "ten-nine": *dix-sept, dix-huit, dix-neuf*.
+
+      The tens are regular up to 60. Then French counts in twenties:
+
+      | number | French | literally |
+      |---|---|---|
+      | 70 | soixante-dix | sixty-ten |
+      | 71 | soixante et onze | sixty and eleven |
+      | 80 | quatre-vingts | four twenties |
+      | 81 | quatre-vingt-un | four-twenty-one |
+      | 90 | quatre-vingt-dix | four-twenty-ten |
+      | 99 | quatre-vingt-dix-neuf | four-twenty-ten-nine |
+
+      - Join tens and units with a hyphen: *vingt-deux*, *trente-cinq*.
+      - 21, 31, 41, 51, 61 and 71 take **et**: *vingt et un*, *soixante et onze*. But 81 and 91 do not: *quatre-vingt-un*.
+      - *quatre-vingts* loses its **-s** when another number follows: *quatre-vingt-trois*.
+      - *cent* never takes *un*: 100 is just *cent*; 200 is *deux cents*.
+
+      ## Prices
+      Say the euros, then the cents as a plain number: 12,50 € is *douze euros cinquante*. French writes a comma where English writes a decimal point.
+    items:
+      - {id: fr-13-onze, type: vocab, l2: "onze", l1: "eleven", ex: "Il est onze heures.", ex_l1: "It is eleven o'clock.", note: "No elision before onze: le onze mai, never l'onze."}
+      - {id: fr-13-douze, type: vocab, l2: "douze", l1: "twelve", ex: "J'ai douze livres.", ex_l1: "I have twelve books."}
+      - {id: fr-13-treize, type: vocab, l2: "treize", l1: "thirteen", ex: "Ma sœur a treize ans.", ex_l1: "My sister is thirteen."}
+      - {id: fr-13-quatorze, type: vocab, l2: "quatorze", l1: "fourteen", ex: "Nous sommes le quatorze juillet.", ex_l1: "It is the fourteenth of July.", note: "The qu sounds like k: 'ka-torz'."}
+      - {id: fr-13-quinze, type: vocab, l2: "quinze", l1: "fifteen", ex: "Le train part à quinze heures.", ex_l1: "The train leaves at 3 p.m. (15:00).", note: "quinze jours ('fifteen days') is the usual way to say 'a fortnight / two weeks'."}
+      - {id: fr-13-seize, type: vocab, l2: "seize", l1: "sixteen", ex: "Mon frère a seize ans.", ex_l1: "My brother is sixteen.", note: "The last of the one-word teens. Sounds like 'sez'."}
+      - {id: fr-13-dix-sept, type: vocab, l2: "dix-sept", l1: "seventeen", ex: "Elle a dix-sept ans.", ex_l1: "She is seventeen.", note: "From 17 French just says ten + unit: dix-sept, dix-huit, dix-neuf. Always with a hyphen."}
+      - {id: fr-13-vingt, type: vocab, l2: "vingt", l1: "twenty", ex: "Ça coûte vingt euros.", ex_l1: "It costs twenty euros.", note: "Alone, the g and t are silent ('van'). The t is heard in 21–29: vingt-deux."}
+      - {id: fr-13-trente, type: vocab, l2: "trente", l1: "thirty", ex: "Il y a trente étudiants.", ex_l1: "There are thirty students."}
+      - {id: fr-13-quarante, type: vocab, l2: "quarante", l1: "forty", ex: "Mon père a quarante ans.", ex_l1: "My father is forty."}
+      - {id: fr-13-cinquante, type: vocab, l2: "cinquante", l1: "fifty", ex: "Le livre coûte cinquante euros.", ex_l1: "The book costs fifty euros."}
+      - {id: fr-13-soixante, type: vocab, l2: "soixante", l1: "sixty", ex: "Il y a soixante minutes dans une heure.", ex_l1: "There are sixty minutes in an hour.", note: "The x sounds like s: 'swa-sant'."}
+      - {id: fr-13-soixante-dix, type: vocab, l2: "soixante-dix", l1: "seventy", alt: ["septante"], ex: "Ma mère a soixante-dix ans.", ex_l1: "My mother is seventy.", note: "'Sixty-ten'. Then soixante et onze (71), soixante-douze (72) … In Belgium and Switzerland you will hear septante."}
+      - {id: fr-13-quatre-vingts, type: vocab, l2: "quatre-vingts", l1: "eighty", ex: "Ça fait quatre-vingts euros.", ex_l1: "That comes to eighty euros.", note: "'Four twenties'. The final -s disappears when a number follows: quatre-vingt-deux."}
+      - {id: fr-13-quatre-vingt-dix, type: vocab, l2: "quatre-vingt-dix", l1: "ninety", alt: ["nonante"], ex: "Il a quatre-vingt-dix ans.", ex_l1: "He is ninety.", note: "'Four-twenty-ten'. Then quatre-vingt-onze (91) … quatre-vingt-dix-neuf (99)."}
+      - {id: fr-13-cent, type: vocab, l2: "cent", l1: "one hundred", ex: "Ça coûte cent euros.", ex_l1: "It costs one hundred euros.", note: "Never 'un cent'. The t is silent, but links before a vowel: cent‿ans."}
+      - {id: fr-13-ca-fait-combien, type: phrase, l2: "Ça fait combien ?", l1: "How much does that come to? (asking for the total)", alt: ["Combien ça fait ?", "Ça fait combien en tout ?", "Ça fait combien, s'il vous plaît ?"], note: "faire is used for totals: Ça fait dix euros = 'That makes ten euros'."}
+      - {id: fr-13-c-est-trop-cher, type: phrase, l2: "C'est trop cher.", l1: "It's too expensive.", note: "trop = too (much); très = very."}
+      - {id: fr-13-numero-de-telephone, type: phrase, l2: "Quel est votre numéro de téléphone ?", l1: "What is your phone number? (formal)", alt: ["C'est quoi, votre numéro de téléphone ?", "Votre numéro de téléphone, c'est quoi ?"], note: "French phone numbers are read in pairs: 06 12 34 56 78 = zéro six, douze, trente-quatre …"}
+      - {id: fr-13-vous-avez-de-la-monnaie, type: phrase, l2: "Vous avez de la monnaie ?", l1: "Do you have any change? (formal)", alt: ["Avez-vous de la monnaie ?", "Est-ce que vous avez de la monnaie ?"], note: "False friend: la monnaie is small change, not 'money' in general (that is l'argent)."}
+      - {id: fr-13-c1, type: cloze, text: "Le livre coûte vingt ___ un euros.", answer: "et", l1: "The book costs twenty-one euros.", note: "21, 31, 41, 51 and 61 insert et before un: vingt et un."}
+      - {id: fr-13-c2, type: cloze, text: "Mon père a soixante et ___ ans.", answer: "onze", l1: "My father is seventy-one.", note: "71 = 60 + 11: soixante et onze. The seventies continue with the teens: soixante-douze, soixante-treize …"}
+      - {id: fr-13-c3, type: cloze, text: "Ma mère a quatre-___-cinq ans.", answer: "vingt", l1: "My mother is eighty-five.", note: "quatre-vingts drops its -s when another number follows: quatre-vingt-cinq."}
+      - {id: fr-13-c4, type: cloze, text: "Il y a deux ___ étudiants à l'école.", answer: "cents", l1: "There are two hundred students at the school.", note: "cent takes -s when multiplied and nothing follows: deux cents, but deux cent dix."}
+      - {id: fr-13-c5, type: cloze, text: "Ça ___ quinze euros, s'il vous plaît.", answer: "fait", alt: ["coûte"], l1: "That comes to fifteen euros, please.", note: "Ça fait + price gives a total at the till."}
+      - {id: fr-13-c6, type: cloze, text: "Le vin coûte quatre-vingt-___ euros.", answer: "un", l1: "The wine costs eighty-one euros.", note: "No et in 81 and 91: quatre-vingt-un, quatre-vingt-onze."}
+
+  # ──────────────────────────────────────────────────────────────── 14
+  - id: fr-14
+    title: "Months, seasons, dates & the full clock"
+    goal: "I can name the months and seasons, give and understand dates, and tell any time on the clock."
+    notes: |
+      Months and seasons, like the days, are written **without a capital letter**.
+
+      - **en** + month: *en janvier*, *en août*.
+      - **en** + season, except spring: *en été*, *en automne*, *en hiver*, but **au printemps**.
+
+      ## Dates
+      French says **le** + plain number + month: *le quatorze juillet*, *le 3 mai*. Only the first of the month uses an ordinal: **le premier mai** (written *le 1er mai*). There is no "of" and no "-th".
+
+      ## The clock
+      | time | French |
+      |---|---|
+      | 9:10 | neuf heures dix |
+      | 9:15 | neuf heures et quart |
+      | 9:30 | neuf heures et demie |
+      | 9:40 | dix heures moins vingt |
+      | 9:45 | dix heures moins le quart |
+      | 12:00 | midi |
+      | 0:00 | minuit |
+
+      After the half hour, name the *next* hour and subtract with **moins**.
+
+      French has no a.m./p.m. Add **du matin**, **de l'après-midi** or **du soir**, or use the 24-hour clock, which is normal for timetables: *vingt heures trente* (20:30). With the 24-hour clock you never say *et quart* or *et demie*.
+    items:
+      - {id: fr-14-janvier, type: vocab, l2: "janvier", l1: "January", ex: "Mon anniversaire est en janvier.", ex_l1: "My birthday is in January.", note: "No capital letter in French."}
+      - {id: fr-14-fevrier, type: vocab, l2: "février", l1: "February", ex: "En février, il fait froid à Paris.", ex_l1: "In February it is cold in Paris."}
+      - {id: fr-14-mars, type: vocab, l2: "mars", l1: "March", ex: "Nous partons en vacances en mars.", ex_l1: "We are going on holiday in March.", note: "The final s is pronounced: 'marss'."}
+      - {id: fr-14-avril, type: vocab, l2: "avril", l1: "April", ex: "En avril, il y a souvent de la pluie.", ex_l1: "In April there is often rain."}
+      - {id: fr-14-mai, type: vocab, l2: "mai", l1: "May (the month)", ex: "Le premier mai, les magasins sont fermés.", ex_l1: "On the first of May the shops are closed.", note: "Sounds like 'meh'."}
+      - {id: fr-14-juin, type: vocab, l2: "juin", l1: "June", ex: "Je vais à Paris en juin.", ex_l1: "I am going to Paris in June.", note: "Don't confuse with juillet (July)."}
+      - {id: fr-14-juillet, type: vocab, l2: "juillet", l1: "July", ex: "En juillet, il fait très chaud.", ex_l1: "In July it is very hot.", note: "Pronounced 'zhwee-yeh'; the t is silent."}
+      - {id: fr-14-aout, type: vocab, l2: "août", l1: "August", ex: "Nous sommes en vacances en août.", ex_l1: "We are on holiday in August.", note: "Usually pronounced 'oot'. Also spelled aout since the 1990 spelling reform."}
+      - {id: fr-14-septembre, type: vocab, l2: "septembre", l1: "September", ex: "Les enfants vont à l'école en septembre.", ex_l1: "The children go to school in September.", note: "The p is pronounced here, unlike in sept."}
+      - {id: fr-14-octobre, type: vocab, l2: "octobre", l1: "October", ex: "Elle arrive le dix octobre.", ex_l1: "She arrives on the tenth of October."}
+      - {id: fr-14-novembre, type: vocab, l2: "novembre", l1: "November", ex: "Mon frère vient à Londres en novembre.", ex_l1: "My brother is coming to London in November."}
+      - {id: fr-14-decembre, type: vocab, l2: "décembre", l1: "December", ex: "Nous allons chez mes parents en décembre.", ex_l1: "We are going to my parents' in December."}
+      - {id: fr-14-printemps, type: vocab, l2: "le printemps", l1: "spring (the season)", ex: "Au printemps, il fait beau.", ex_l1: "In spring the weather is nice.", note: "The only season that takes au: au printemps. The final ps is silent."}
+      - {id: fr-14-ete, type: vocab, l2: "l'été", l1: "summer", ex: "En été, il fait chaud.", ex_l1: "In summer it is hot.", note: "Masculine: un été."}
+      - {id: fr-14-automne, type: vocab, l2: "l'automne", l1: "autumn / fall", ex: "En automne, il y a de la pluie.", ex_l1: "In autumn there is rain.", note: "Masculine: un automne. The m is silent: 'o-tonn'."}
+      - {id: fr-14-hiver, type: vocab, l2: "l'hiver", l1: "winter", ex: "Je n'aime pas l'hiver.", ex_l1: "I don't like winter.", note: "Masculine: un hiver. Silent h; the final r is pronounced."}
+      - {id: fr-14-quelle-est-la-date, type: phrase, l2: "Quelle est la date aujourd'hui ?", l1: "What is the date today?", alt: ["Quelle est la date d'aujourd'hui ?", "On est le combien aujourd'hui ?", "Nous sommes le combien aujourd'hui ?", "On est le combien ?"], note: "Answer with Nous sommes le … or On est le … : On est le 3 mai."}
+      - {id: fr-14-c-est-quand-ton-anniversaire, type: phrase, l2: "C'est quand, ton anniversaire ?", l1: "When is your birthday? (informal)", alt: ["Quand est ton anniversaire ?", "Ton anniversaire, c'est quand ?", "Quand est-ce que c'est, ton anniversaire ?"], note: "un anniversaire is a birthday as well as an anniversary. Bon anniversaire ! = Happy birthday!"}
+      - {id: fr-14-il-est-midi-et-demi, type: phrase, l2: "Il est midi et demi.", l1: "It is half past twelve. (in the daytime)", alt: ["Il est midi et demie.", "Il est douze heures trente."], note: "midi and minuit are masculine, so traditionally demi has no -e here (but et demie after heures)."}
+      - {id: fr-14-il-est-minuit, type: phrase, l2: "Il est minuit.", l1: "It is midnight.", note: "Never 'douze heures' for midnight: say minuit, or zéro heure on a timetable."}
+      - {id: fr-14-c1, type: cloze, text: "Mon anniversaire est ___ mars.", answer: "en", l1: "My birthday is in March.", note: "en + month: en mars, en août."}
+      - {id: fr-14-c2, type: cloze, text: "Nous allons à Paris ___ printemps.", answer: "au", l1: "We are going to Paris in spring.", note: "The other seasons take en, but spring takes au: au printemps."}
+      - {id: fr-14-c3, type: cloze, text: "Nous sommes le ___ mai.", answer: "premier", l1: "It is the first of May.", note: "Only the 1st uses an ordinal. Every other date is a plain number: le deux mai, le trois mai."}
+      - {id: fr-14-c4, type: cloze, text: "Il est sept heures ___ matin.", answer: "du", l1: "It is seven in the morning.", note: "du matin = a.m.; de l'après-midi and du soir = p.m."}
+      - {id: fr-14-c5, type: cloze, text: "Il est six heures ___ vingt.", answer: "moins", l1: "It is twenty to six.", note: "After the half hour, give the next hour and subtract: six heures moins vingt = 5:40."}
+      - {id: fr-14-c6, type: cloze, text: "Le film est à vingt ___ trente.", answer: "heures", l1: "The film is at 8:30 p.m. (20:30).", note: "The 24-hour clock is standard for timetables and programmes; it uses plain minutes, never et demie."}
+
+  # ──────────────────────────────────────────────────────────────── 15
+  - id: fr-15
+    title: "My things: possessives & demonstratives"
+    goal: "I can say what belongs to whom and point out this or that person or thing."
+    notes: |
+      You know *mon, ma, mes*. Every possessive works the same way: it agrees with the **thing owned**, not with the owner.
+
+      | owner | + masculine | + feminine | + plural |
+      |---|---|---|---|
+      | my | mon | ma | mes |
+      | your (tu) | ton | ta | tes |
+      | his / her / its | son | sa | ses |
+      | our | notre | notre | nos |
+      | your (vous) | votre | votre | vos |
+      | their | leur | leur | leurs |
+
+      - So **son père** means "his father" *or* "her father", and **sa mère** "his mother" or "her mother". The context tells you the owner.
+      - Before a feminine noun starting with a vowel sound, use **mon, ton, son** to avoid two vowels meeting: *mon amie*, *ton école*.
+
+      ## This and that
+      | masculine | masc. + vowel | feminine | plural |
+      |---|---|---|---|
+      | ce | cet | cette | ces |
+
+      *ce livre*, *cet hôtel*, *cette maison*, *ces enfants*. French does not normally separate "this" from "that", or "these" from "those".
+
+      To say who something belongs to: **C'est à** + person — *C'est à Paul*, *C'est à moi*.
+    items:
+      - {id: fr-15-ton, type: vocab, l2: "ton", l1: "your (informal, before a masculine noun)", ex: "C'est ton frère ?", ex_l1: "Is that your brother?", note: "Also before a feminine noun starting with a vowel: ton amie."}
+      - {id: fr-15-ta, type: vocab, l2: "ta", l1: "your (informal, before a feminine noun)", ex: "Où est ta sœur ?", ex_l1: "Where is your sister?"}
+      - {id: fr-15-tes, type: vocab, l2: "tes", l1: "your (informal, before a plural noun)", ex: "Tes parents sont à Paris ?", ex_l1: "Are your parents in Paris?"}
+      - {id: fr-15-son, type: vocab, l2: "son", l1: "his / her (before a masculine noun)", ex: "Marie aime beaucoup son chien.", ex_l1: "Marie loves her dog.", note: "Masculine because chien is masculine, not because of the owner. Paul aime son chien = his dog."}
+      - {id: fr-15-sa, type: vocab, l2: "sa", l1: "his / her (before a feminine noun)", ex: "Paul cherche sa clé.", ex_l1: "Paul is looking for his key.", note: "Feminine because clé is feminine, even though Paul is a man."}
+      - {id: fr-15-ses, type: vocab, l2: "ses", l1: "his / her (before a plural noun)", ex: "Il habite chez ses parents.", ex_l1: "He lives with his parents.", note: "One owner, several things. Compare leurs: several owners."}
+      - {id: fr-15-notre, type: vocab, l2: "notre", l1: "our (before a singular noun)", ex: "Notre maison est petite.", ex_l1: "Our house is small.", note: "Same form for masculine and feminine."}
+      - {id: fr-15-nos, type: vocab, l2: "nos", l1: "our (before a plural noun)", ex: "Nos enfants sont à l'école.", ex_l1: "Our children are at school.", note: "Liaison: nos‿enfants ('no-zan-fan')."}
+      - {id: fr-15-votre, type: vocab, l2: "votre", l1: "your (formal or to a group, before a singular noun)", ex: "Voici votre café, monsieur.", ex_l1: "Here is your coffee, sir."}
+      - {id: fr-15-vos, type: vocab, l2: "vos", l1: "your (formal or to a group, before a plural noun)", ex: "Vos enfants sont très grands !", ex_l1: "Your children are very tall!"}
+      - {id: fr-15-leur, type: vocab, l2: "leur", l1: "their (before a singular noun)", ex: "Leur fille habite à Lyon.", ex_l1: "Their daughter lives in Lyon.", note: "No separate feminine form: leur fils, leur fille."}
+      - {id: fr-15-leurs, type: vocab, l2: "leurs", l1: "their (before a plural noun)", ex: "Ils aiment leurs enfants.", ex_l1: "They love their children.", note: "Sounds the same as leur, except in liaison: leurs‿enfants."}
+      - {id: fr-15-ce, type: vocab, l2: "ce", l1: "this / that (before a masculine noun starting with a consonant)", ex: "Ce livre est très bon.", ex_l1: "This book is very good."}
+      - {id: fr-15-cet, type: vocab, l2: "cet", l1: "this / that (before a masculine noun starting with a vowel sound)", ex: "Cet homme est mon professeur.", ex_l1: "That man is my teacher.", note: "Sounds exactly like cette. Used before a vowel or silent h: cet ordinateur, cet hôtel."}
+      - {id: fr-15-cette, type: vocab, l2: "cette", l1: "this / that (before a feminine noun)", ex: "Cette maison est belle.", ex_l1: "This house is beautiful."}
+      - {id: fr-15-ces, type: vocab, l2: "ces", l1: "these / those", ex: "Ces livres sont à Paul.", ex_l1: "These books are Paul's.", note: "One plural form for both genders. Don't confuse with ses (his / her), which sounds the same."}
+      - {id: fr-15-c-est-a-qui, type: phrase, l2: "C'est à qui ?", l1: "Whose is it?", alt: ["À qui est-ce ?", "À qui c'est ?", "C'est à qui, ça ?"], note: "être à + person = to belong to."}
+      - {id: fr-15-c-est-a-moi, type: phrase, l2: "C'est à moi.", l1: "It's mine.", alt: ["C'est le mien.", "C'est la mienne."], note: "After à, 'me' is moi, not je: à moi, à toi, à lui, à elle."}
+      - {id: fr-15-ce-n-est-pas-ma-voiture, type: phrase, l2: "Ce n'est pas ma voiture.", l1: "It's not my car.", note: "The negative of c'est is ce n'est pas."}
+      - {id: fr-15-j-aime-beaucoup-cette-ville, type: phrase, l2: "J'aime beaucoup cette ville.", l1: "I really like this town.", alt: ["J'aime bien cette ville.", "J'aime vraiment cette ville."], note: "beaucoup comes straight after the verb, never at the end as in English."}
+      - {id: fr-15-c1, type: cloze, text: "C'est ___ amie Marie.", answer: "mon", l1: "This is my friend Marie.", note: "amie is feminine, but it starts with a vowel, so ma becomes mon."}
+      - {id: fr-15-c2, type: cloze, text: "Marie aime ___ père.", answer: "son", l1: "Marie loves her father.", note: "père is masculine, so son, even though the owner is a woman."}
+      - {id: fr-15-c3, type: cloze, text: "Paul cherche ___ voiture.", answer: "sa", l1: "Paul is looking for his car.", note: "voiture is feminine, so sa, even though the owner is a man."}
+      - {id: fr-15-c4, type: cloze, text: "Les enfants cherchent ___ livres.", answer: "leurs", l1: "The children are looking for their books.", note: "Several owners and several things: leurs."}
+      - {id: fr-15-c5, type: cloze, text: "___ hôtel est très cher.", answer: "cet", l1: "This hotel is very expensive.", note: "hôtel is masculine and starts with a silent h, so ce becomes cet."}
+      - {id: fr-15-c6, type: cloze, text: "___ pommes sont délicieuses.", answer: "ces", l1: "These apples are delicious.", note: "Plural of ce / cet / cette is always ces."}
+
+  # ──────────────────────────────────────────────────────────────── 16
+  - id: fr-16
+    title: "My day: pronominal verbs & routine"
+    goal: "I can describe my daily routine from waking up to going to bed and ask about someone else's."
+    notes: |
+      Many routine verbs are **pronominal** (reflexive): the action comes back to the subject, so the verb carries an extra pronoun. You already know one: *je m'appelle* — "I call myself".
+
+      | pronoun | se laver | meaning |
+      |---|---|---|
+      | je | me lave | I wash (myself) |
+      | tu | te laves | you wash |
+      | il / elle / on | se lave | he / she washes |
+      | nous | nous lavons | we wash |
+      | vous | vous lavez | you wash |
+      | ils / elles | se lavent | they wash |
+
+      - The verb itself is an ordinary -er verb; only the little pronoun is new.
+      - **me, te, se** become **m', t', s'** before a vowel or silent h: *je m'habille*, *elle s'appelle*.
+      - Negation wraps around pronoun and verb together: *je **ne** me lève **pas***.
+      - After another verb, the pronoun still matches the subject: *je vais **me** coucher*, *tu dois **te** dépêcher*.
+      - With parts of the body French uses **le / la / les**, not "my": *je me lave **les** mains*.
+
+      *se lever* and *se promener* take a grave accent when the ending is silent: *je me lève*, but *nous nous levons*.
+    items:
+      - {id: fr-16-se-reveiller, type: vocab, l2: "se réveiller", l1: "to wake up", ex: "Je me réveille à six heures.", ex_l1: "I wake up at six o'clock.", note: "Waking up (se réveiller) comes before getting up (se lever)."}
+      - {id: fr-16-se-lever, type: vocab, l2: "se lever", l1: "to get up", ex: "Elle se lève tôt.", ex_l1: "She gets up early.", note: "Grave accent when the ending is silent: je me lève, ils se lèvent; but nous nous levons."}
+      - {id: fr-16-se-laver, type: vocab, l2: "se laver", l1: "to wash (oneself)", ex: "Je me lave les mains.", ex_l1: "I wash my hands.", note: "les mains, not 'mes mains': the pronoun me already says whose hands."}
+      - {id: fr-16-se-doucher, type: vocab, l2: "se doucher", l1: "to shower (one word + pronoun)", ex: "Il se douche le soir.", ex_l1: "He showers in the evening."}
+      - {id: fr-16-s-habiller, type: vocab, l2: "s'habiller", l1: "to get dressed", ex: "Les enfants s'habillent.", ex_l1: "The children are getting dressed.", note: "Silent h, so se → s' and je m'habille."}
+      - {id: fr-16-se-coucher, type: vocab, l2: "se coucher", l1: "to go to bed", alt: ["aller au lit"], ex: "Nous nous couchons à onze heures.", ex_l1: "We go to bed at eleven o'clock.", note: "With nous and vous the pronoun looks like the subject: nous nous couchons."}
+      - {id: fr-16-se-reposer, type: vocab, l2: "se reposer", l1: "to rest", ex: "Le dimanche, je me repose.", ex_l1: "On Sundays I rest.", note: "False friend: 'to rest' is se reposer; rester means 'to stay'."}
+      - {id: fr-16-se-depecher, type: vocab, l2: "se dépêcher", l1: "to hurry", ex: "Le matin, je me dépêche.", ex_l1: "In the morning I hurry."}
+      - {id: fr-16-se-promener, type: vocab, l2: "se promener", l1: "to go for a walk", alt: ["faire une promenade"], ex: "Ils se promènent en ville.", ex_l1: "They are going for a walk in town.", note: "Accent like se lever: je me promène, nous nous promenons."}
+      - {id: fr-16-dormir, type: vocab, l2: "dormir", l1: "to sleep", ex: "Je dors huit heures.", ex_l1: "I sleep for eight hours.", note: "Not pronominal, and irregular like partir: je dors, tu dors, il dort, nous dormons."}
+      - {id: fr-16-rentrer, type: vocab, l2: "rentrer", l1: "to go home / to come home", alt: ["rentrer à la maison"], ex: "Je rentre à six heures.", ex_l1: "I get home at six o'clock."}
+      - {id: fr-16-tot, type: vocab, l2: "tôt", l1: "early", ex: "Je me lève tôt.", ex_l1: "I get up early.", note: "Final t silent: 'toh'."}
+      - {id: fr-16-tard, type: vocab, l2: "tard", l1: "late (not early)", ex: "Il rentre tard.", ex_l1: "He gets home late.", note: "tard = late in the day. 'Late for something' is en retard."}
+      - {id: fr-16-ensuite, type: vocab, l2: "ensuite", l1: "then / next (after that)", alt: ["puis", "après"], ex: "Je me lève, ensuite je me douche.", ex_l1: "I get up, then I shower.", note: "To list your routine: d'abord (first) … ensuite / puis (then) … enfin (finally)."}
+      - {id: fr-16-je-me-brosse-les-dents, type: phrase, l2: "Je me brosse les dents.", l1: "I brush my teeth.", alt: ["Je me lave les dents."], note: "les dents, not 'mes dents'. Verb: se brosser."}
+      - {id: fr-16-a-quelle-heure-tu-te-couches, type: phrase, l2: "À quelle heure tu te couches ?", l1: "What time do you go to bed? (informal)", alt: ["Tu te couches à quelle heure ?", "À quelle heure est-ce que tu te couches ?", "À quelle heure te couches-tu ?"]}
+      - {id: fr-16-je-prends-une-douche, type: phrase, l2: "Je prends une douche le matin.", l1: "I have a shower in the morning.", alt: ["Je me douche le matin.", "Le matin, je prends une douche.", "Le matin, je me douche."], note: "French 'takes' a shower: prendre une douche."}
+      - {id: fr-16-je-ne-me-leve-pas-tot, type: phrase, l2: "Je ne me lève pas tôt le dimanche.", l1: "I don't get up early on Sundays.", alt: ["Le dimanche, je ne me lève pas tôt."], note: "ne … pas goes around the pronoun and the verb together."}
+      - {id: fr-16-je-vais-me-coucher, type: phrase, l2: "Je vais me coucher.", l1: "I'm going to bed.", alt: ["Je vais au lit."], note: "After aller, the pronoun stays in front of the infinitive and still matches the subject: tu vas te coucher."}
+      - {id: fr-16-c1, type: cloze, text: "Je ___ couche à onze heures.", answer: "me", l1: "I go to bed at eleven o'clock.", note: "je → me."}
+      - {id: fr-16-c2, type: cloze, text: "Tu ___ lèves à quelle heure ?", answer: "te", l1: "What time do you get up?", note: "tu → te."}
+      - {id: fr-16-c3, type: cloze, text: "Il ___ douche le matin.", answer: "se", l1: "He showers in the morning.", note: "il / elle / on / ils / elles → se."}
+      - {id: fr-16-c4, type: cloze, text: "Je ___habille et je pars.", answer: "m'", l1: "I get dressed and I leave.", note: "me → m' before a vowel or silent h."}
+      - {id: fr-16-c5, type: cloze, text: "Elle ___appelle Marie.", answer: "s'", l1: "Her name is Marie.", note: "se → s' before a vowel: elle s'appelle."}
+      - {id: fr-16-c6, type: cloze, text: "Nous nous ___ à sept heures.", answer: "levons", l1: "We get up at seven o'clock.", note: "se lever → nous nous levons: no accent, because the ending is pronounced."}
+      - {id: fr-16-c7, type: cloze, text: "Vous vous ___ tard ?", answer: "couchez", l1: "Do you go to bed late?", note: "se coucher → vous vous couchez."}
+
+  # ──────────────────────────────────────────────────────────────── 17
+  - id: fr-17
+    title: "At home: rooms, furniture & where things are"
+    goal: "I can describe my home, say which rooms and furniture it has and explain where things are."
+    notes: |
+      Describe a home with **il y a** (there is / there are). It never changes: *il y a une cuisine*, *il y a trois chambres*.
+
+      The negative is **il n'y a pas de** — after a negative, *un / une / des* become **de** (or **d'**): *il n'y a pas de jardin*, *il n'y a pas d'ascenseur*.
+
+      ## Where is it?
+      | French | English |
+      |---|---|
+      | sur | on |
+      | sous | under |
+      | dans | in |
+      | devant | in front of |
+      | derrière | behind |
+      | entre | between |
+      | à côté de | next to |
+      | en face de | opposite |
+
+      - The short ones are followed directly by the noun: *sous **le** lit*, *devant **la** maison*.
+      - The ones ending in **de** contract like any *de*: **de + le = du**, **de + les = des** — *à côté **du** salon*, *en face **des** toilettes*, but *à côté **de la** cuisine*.
+
+      ## Rooms and floors
+      *une pièce* is any room; *une chambre* is only a bedroom. Floors start above street level: *le rez-de-chaussée* is the ground floor and *le premier étage* is one flight up.
+    items:
+      - {id: fr-17-appartement, type: vocab, l2: "l'appartement", l1: "the flat / apartment", ex: "L'appartement est petit.", ex_l1: "The flat is small.", note: "Masculine: un appartement. Two p's in French."}
+      - {id: fr-17-chambre, type: vocab, l2: "la chambre", l1: "the bedroom", ex: "Ma chambre est petite.", ex_l1: "My bedroom is small.", note: "Only a room you sleep in (also a hotel room). Any room in general is une pièce."}
+      - {id: fr-17-cuisine, type: vocab, l2: "la cuisine", l1: "the kitchen", ex: "Nous mangeons dans la cuisine.", ex_l1: "We eat in the kitchen.", note: "Also means 'cooking': faire la cuisine = to cook."}
+      - {id: fr-17-salon, type: vocab, l2: "le salon", l1: "the living room", alt: ["le séjour", "la salle de séjour"], ex: "Nous regardons un film dans le salon.", ex_l1: "We are watching a film in the living room."}
+      - {id: fr-17-salle-de-bains, type: vocab, l2: "la salle de bains", l1: "the bathroom", alt: ["la salle de bain"], ex: "La salle de bains est à droite.", ex_l1: "The bathroom is on the right.", note: "The room where you wash. The toilet (les toilettes) is often a separate room in France."}
+      - {id: fr-17-jardin, type: vocab, l2: "le jardin", l1: "the garden", ex: "Les enfants jouent dans le jardin.", ex_l1: "The children are playing in the garden."}
+      - {id: fr-17-fenetre, type: vocab, l2: "la fenêtre", l1: "the window", ex: "La fenêtre est ouverte.", ex_l1: "The window is open."}
+      - {id: fr-17-lit, type: vocab, l2: "le lit", l1: "the bed", ex: "Le chat dort sur mon lit.", ex_l1: "The cat is sleeping on my bed.", note: "Final t silent: 'lee'."}
+      - {id: fr-17-chaise, type: vocab, l2: "la chaise", l1: "the chair", ex: "Il y a quatre chaises dans la cuisine.", ex_l1: "There are four chairs in the kitchen."}
+      - {id: fr-17-canape, type: vocab, l2: "le canapé", l1: "the sofa", alt: ["le sofa"], ex: "Le chien dort sur le canapé.", ex_l1: "The dog is sleeping on the sofa."}
+      - {id: fr-17-armoire, type: vocab, l2: "l'armoire", l1: "the wardrobe (cupboard for clothes)", ex: "L'armoire est dans la chambre.", ex_l1: "The wardrobe is in the bedroom.", note: "Feminine: une armoire."}
+      - {id: fr-17-sur, type: vocab, l2: "sur", l1: "on / on top of", ex: "Le livre est sur la chaise.", ex_l1: "The book is on the chair."}
+      - {id: fr-17-sous, type: vocab, l2: "sous", l1: "under", ex: "Le chat est sous le lit.", ex_l1: "The cat is under the bed.", note: "sur (on) and sous (under) differ only by the vowel: 'sür' and 'soo'."}
+      - {id: fr-17-dans, type: vocab, l2: "dans", l1: "in / inside", ex: "Ma sœur est dans sa chambre.", ex_l1: "My sister is in her bedroom.", note: "For rooms, boxes, cars. Towns take à and most countries take en."}
+      - {id: fr-17-derriere, type: vocab, l2: "derrière", l1: "behind", ex: "Le jardin est derrière la maison.", ex_l1: "The garden is behind the house.", note: "The opposite is devant (in front of). Neither takes de."}
+      - {id: fr-17-a-cote-de, type: vocab, l2: "à côté de", l1: "next to / beside", ex: "La chambre est à côté de la cuisine.", ex_l1: "The bedroom is next to the kitchen.", note: "de contracts: à côté du salon, à côté des toilettes."}
+      - {id: fr-17-j-habite-dans-un-appartement, type: phrase, l2: "J'habite dans un appartement.", l1: "I live in a flat.", alt: ["J'habite en appartement.", "J'habite un appartement.", "Je vis dans un appartement."]}
+      - {id: fr-17-il-y-a-combien-de-pieces, type: phrase, l2: "Il y a combien de pièces ?", l1: "How many rooms are there?", alt: ["Combien de pièces y a-t-il ?", "Combien de pièces il y a ?", "Combien de pièces est-ce qu'il y a ?", "Combien y a-t-il de pièces ?"], note: "une pièce = a room of any kind. combien de + noun, with no article."}
+      - {id: fr-17-salle-de-bains-premier-etage, type: phrase, l2: "La salle de bains est au premier étage.", l1: "The bathroom is on the first floor. (one flight up)", alt: ["La salle de bain est au premier étage."], note: "le premier étage is one flight up (the American 'second floor'). Street level is le rez-de-chaussée."}
+      - {id: fr-17-il-n-y-a-pas-d-ascenseur, type: phrase, l2: "Il n'y a pas d'ascenseur.", l1: "There is no lift (elevator).", note: "il y a un ascenseur → il n'y a pas d'ascenseur: un becomes de / d' after a negative."}
+      - {id: fr-17-c1, type: cloze, text: "La voiture est ___ la maison.", answer: "devant", l1: "The car is in front of the house.", note: "devant = in front of, with no de after it."}
+      - {id: fr-17-c2, type: cloze, text: "La pharmacie est ___ la banque et l'hôtel.", answer: "entre", l1: "The pharmacy is between the bank and the hotel.", note: "entre … et … = between … and …"}
+      - {id: fr-17-c3, type: cloze, text: "La cuisine est à côté ___ salon.", answer: "du", l1: "The kitchen is next to the living room.", note: "à côté de + le salon → à côté du salon."}
+      - {id: fr-17-c4, type: cloze, text: "Il n'y a pas ___ canapé dans le salon.", answer: "de", l1: "There is no sofa in the living room.", note: "After a negative, un / une / des become de."}
+      - {id: fr-17-c5, type: cloze, text: "Il ___ a deux chambres.", answer: "y", l1: "There are two bedrooms.", note: "il y a = there is / there are; it never changes for the plural."}
+      - {id: fr-17-c6, type: cloze, text: "La chambre est en ___ de la salle de bains.", answer: "face", l1: "The bedroom is opposite the bathroom.", note: "en face de = opposite, facing."}
+
+  # ──────────────────────────────────────────────────────────────── 18
+  - id: fr-18
+    title: "Body, health & clothes"
+    goal: "I can name parts of the body, say where it hurts, tell a doctor I am ill and describe what someone is wearing."
+    notes: |
+      ## Saying what hurts
+      French uses **avoir mal à** + the part of the body — literally "to have pain at". The *à* contracts with the article:
+
+      | à + | becomes | example |
+      |---|---|---|
+      | le | au | J'ai mal au dos. |
+      | la | à la | J'ai mal à la tête. |
+      | l' | à l' | J'ai mal à l'oreille. |
+      | les | aux | J'ai mal aux pieds. |
+
+      - Body parts take **le / la / les**, not "my": *j'ai mal **à la** tête*, never "à ma tête".
+      - *avoir* also gives *j'ai chaud*, *j'ai froid*, *j'ai faim*; but you **are** ill: *je suis malade*.
+      - To see a doctor you go **chez le médecin** (to the person), not "au médecin".
+
+      ## Clothes
+      **porter** (a regular -er verb) means "to wear" — and also "to carry". Colours come after the noun and agree with it: *une chemise blanche*, *des chaussures noires*.
+
+      Watch the number: **le pantalon** is singular in French ("a trouser"), while *les vêtements* (clothes) is plural as in English.
+
+      False friends: *la robe* is a dress, and *la veste* is a jacket, not a vest.
+    items:
+      - {id: fr-18-tete, type: vocab, l2: "la tête", l1: "the head", ex: "Le chat a une petite tête.", ex_l1: "The cat has a small head."}
+      - {id: fr-18-ventre, type: vocab, l2: "le ventre", l1: "the stomach / belly", alt: ["l'estomac"], ex: "Il dort sur le ventre.", ex_l1: "He sleeps on his stomach.", note: "The everyday word for a stomach ache: avoir mal au ventre."}
+      - {id: fr-18-dos, type: vocab, l2: "le dos", l1: "the back (of the body)", ex: "Elle dort sur le dos.", ex_l1: "She sleeps on her back.", note: "Final s silent: 'doh'."}
+      - {id: fr-18-main, type: vocab, l2: "la main", l1: "the hand", ex: "Il a un stylo dans la main.", ex_l1: "He has a pen in his hand.", note: "Feminine, although it does not end in -e."}
+      - {id: fr-18-pied, type: vocab, l2: "le pied", l1: "the foot", ex: "Je vais au bureau à pied.", ex_l1: "I go to the office on foot.", note: "The d is silent: 'pyeh'. à pied = on foot."}
+      - {id: fr-18-jambe, type: vocab, l2: "la jambe", l1: "the leg", ex: "Elle a de grandes jambes.", ex_l1: "She has long legs."}
+      - {id: fr-18-gorge, type: vocab, l2: "la gorge", l1: "the throat", ex: "J'ai mal à la gorge.", ex_l1: "I have a sore throat."}
+      - {id: fr-18-malade, type: vocab, l2: "malade", l1: "ill / sick", ex: "Mon fils est malade.", ex_l1: "My son is ill.", note: "Same form for masculine and feminine. With être, not avoir."}
+      - {id: fr-18-medecin, type: vocab, l2: "le médecin", l1: "the doctor", alt: ["le docteur", "la médecin", "la docteure"], ex: "Le médecin arrive à dix heures.", ex_l1: "The doctor arrives at ten o'clock.", note: "False friend: médecin is the person; medicine you take is un médicament. Speak to one as docteur."}
+      - {id: fr-18-vetements, type: vocab, l2: "les vêtements", l1: "the clothes", ex: "J'achète des vêtements.", ex_l1: "I am buying clothes.", note: "Masculine: un vêtement = one item of clothing."}
+      - {id: fr-18-porter, type: vocab, l2: "porter", l1: "to wear / to carry", ex: "Il porte un pantalon noir.", ex_l1: "He is wearing black trousers.", note: "Regular -er verb. mettre is 'to put on'."}
+      - {id: fr-18-pantalon, type: vocab, l2: "le pantalon", l1: "the trousers / pants (one pair)", ex: "Ce pantalon est trop grand.", ex_l1: "These trousers are too big.", note: "Singular in French: un pantalon = one pair of trousers."}
+      - {id: fr-18-chemise, type: vocab, l2: "la chemise", l1: "the shirt", ex: "Il porte une chemise blanche.", ex_l1: "He is wearing a white shirt.", note: "Feminine, even though it is typically a man's shirt. A woman's blouse is un chemisier (masculine)."}
+      - {id: fr-18-robe, type: vocab, l2: "la robe", l1: "the dress", ex: "Cette robe est très belle.", ex_l1: "This dress is very beautiful.", note: "False friend: not a robe or dressing gown."}
+      - {id: fr-18-chaussures, type: vocab, l2: "les chaussures", l1: "the shoes", ex: "Mes chaussures sont sous le lit.", ex_l1: "My shoes are under the bed.", note: "Feminine: une chaussure."}
+      - {id: fr-18-manteau, type: vocab, l2: "le manteau", l1: "the coat", ex: "En hiver, je porte un manteau.", ex_l1: "In winter I wear a coat.", note: "Plural in -x: des manteaux."}
+      - {id: fr-18-j-ai-mal-a-la-tete, type: phrase, l2: "J'ai mal à la tête.", l1: "I have a headache.", alt: ["J'ai un mal de tête."], note: "avoir mal à + body part. Not 'à ma tête'."}
+      - {id: fr-18-je-ne-me-sens-pas-bien, type: phrase, l2: "Je ne me sens pas bien.", l1: "I don't feel well.", alt: ["Je me sens mal.", "Je ne vais pas bien."], note: "se sentir = to feel; a pronominal verb like those in unit 16."}
+      - {id: fr-18-ou-avez-vous-mal, type: phrase, l2: "Où avez-vous mal ?", l1: "Where does it hurt? (formal)", alt: ["Vous avez mal où ?", "Où est-ce que vous avez mal ?"], note: "What a doctor or pharmacist will ask you."}
+      - {id: fr-18-je-dois-aller-chez-le-medecin, type: phrase, l2: "Je dois aller chez le médecin.", l1: "I must go to the doctor's.", alt: ["Je dois aller chez le docteur.", "Il faut que j'aille chez le médecin."], note: "chez + person: chez le médecin, chez le dentiste."}
+      - {id: fr-18-c1, type: cloze, text: "J'ai mal ___ ventre.", answer: "au", l1: "I have a stomach ache.", note: "à + le ventre → au ventre."}
+      - {id: fr-18-c2, type: cloze, text: "Elle a mal ___ dents.", answer: "aux", l1: "She has toothache.", note: "à + les dents → aux dents."}
+      - {id: fr-18-c3, type: cloze, text: "Tu as mal à ___ jambe ?", answer: "la", l1: "Does your leg hurt?", note: "à la stays in two words. French says 'the leg', not 'your leg'."}
+      - {id: fr-18-c4, type: cloze, text: "Il a ___ au dos.", answer: "mal", l1: "He has backache.", note: "avoir mal à = to have a pain in. mal never changes."}
+      - {id: fr-18-c5, type: cloze, text: "J'___ mal aux pieds.", answer: "ai", l1: "My feet hurt.", note: "The verb is avoir, not être: j'ai mal."}
+      - {id: fr-18-c6, type: cloze, text: "Elle ___ une jupe verte.", answer: "porte", l1: "She is wearing a green skirt.", note: "porter → elle porte. une jupe = a skirt."}
+
+  # ──────────────────────────────────────────────────────────────── 19
+  - id: fr-19
+    title: "Do this! -ir and -re verbs & the imperative"
+    goal: "I can use common -ir and -re verbs and give or follow simple instructions."
+    notes: |
+      Besides -er verbs, French has two smaller regular groups.
+
+      | pronoun | finir | attendre |
+      |---|---|---|
+      | je | finis | attends |
+      | tu | finis | attends |
+      | il / elle / on | finit | attend |
+      | nous | finissons | attendons |
+      | vous | finissez | attendez |
+      | ils / elles | finissent | attendent |
+
+      - **-ir** verbs add **-iss-** in the plural. *choisir, réussir, remplir* follow *finir*.
+      - **-re** verbs add nothing for *il / elle*: *il attend*, *elle vend*. The d is silent in the singular and heard in the plural.
+      - *ouvrir* looks like an -ir verb but conjugates like an -er verb: *j'ouvre, tu ouvres*.
+
+      ## The imperative
+      To tell someone what to do, use the **tu**, **nous** or **vous** form without its pronoun:
+
+      - *Attends !* — Wait! (to a friend)
+      - *Attendons !* — Let's wait!
+      - *Attendez !* — Wait! (formal or to a group)
+
+      -er verbs (and *ouvrir*, *aller*) drop the final **-s** of the *tu* form: *Ferme la porte !*, *Va à l'école !*
+
+      Negative: *Ne touchez pas !* With pronominal verbs the pronoun follows the verb, and *te* becomes **toi**: *Dépêche-toi !*, *Asseyez-vous !*
+    items:
+      - {id: fr-19-finir, type: vocab, l2: "finir", l1: "to finish", alt: ["terminer"], ex: "Je finis à six heures.", ex_l1: "I finish at six o'clock.", note: "The model -ir verb: je finis, nous finissons, ils finissent."}
+      - {id: fr-19-choisir, type: vocab, l2: "choisir", l1: "to choose", ex: "Tu choisis un livre ?", ex_l1: "Are you choosing a book?", note: "Like finir: nous choisissons."}
+      - {id: fr-19-reussir, type: vocab, l2: "réussir", l1: "to succeed / to pass (an exam)", ex: "Elle réussit toujours.", ex_l1: "She always succeeds.", note: "Like finir. 'To pass an exam' is réussir un examen; passer un examen only means to sit it."}
+      - {id: fr-19-remplir, type: vocab, l2: "remplir", l1: "to fill / to fill in (a form)", ex: "Je remplis mon verre.", ex_l1: "I am filling my glass.", note: "Like finir: vous remplissez."}
+      - {id: fr-19-attendre, type: vocab, l2: "attendre", l1: "to wait / to wait for", ex: "Nous attendons le train.", ex_l1: "We are waiting for the train.", note: "No preposition: attendre le bus = to wait FOR the bus. False friend: it does not mean 'to attend'."}
+      - {id: fr-19-vendre, type: vocab, l2: "vendre", l1: "to sell", ex: "Ils vendent leur maison.", ex_l1: "They are selling their house.", note: "The model -re verb: je vends, il vend, nous vendons."}
+      - {id: fr-19-repondre, type: vocab, l2: "répondre", l1: "to answer / to reply", ex: "Il répond en anglais.", ex_l1: "He answers in English.", note: "Takes à: répondre à une question, répondre au professeur."}
+      - {id: fr-19-entendre, type: vocab, l2: "entendre", l1: "to hear", ex: "Tu entends la musique ?", ex_l1: "Can you hear the music?", note: "entendre is to hear; écouter is to listen to."}
+      - {id: fr-19-descendre, type: vocab, l2: "descendre", l1: "to go down / to get off (a bus, a train)", ex: "Je descends à la gare.", ex_l1: "I am getting off at the station."}
+      - {id: fr-19-perdre, type: vocab, l2: "perdre", l1: "to lose", ex: "Je perds toujours mes clés.", ex_l1: "I always lose my keys."}
+      - {id: fr-19-ouvrir, type: vocab, l2: "ouvrir", l1: "to open", ex: "J'ouvre la fenêtre.", ex_l1: "I am opening the window.", note: "Ends in -ir but takes -er endings: j'ouvre, tu ouvres, il ouvre, nous ouvrons."}
+      - {id: fr-19-fermer, type: vocab, l2: "fermer", l1: "to close / to shut", ex: "Le magasin ferme à sept heures.", ex_l1: "The shop closes at seven o'clock.", note: "Regular -er verb. You know its participle: fermé (closed)."}
+      - {id: fr-19-donner, type: vocab, l2: "donner", l1: "to give", ex: "Je donne un livre à mon frère.", ex_l1: "I am giving a book to my brother.", note: "donner quelque chose à quelqu'un: the person always takes à."}
+      - {id: fr-19-entrer, type: vocab, l2: "entrer", l1: "to come in / to go in", ex: "Entrez, s'il vous plaît !", ex_l1: "Come in, please!", note: "Takes dans before a place: entrer dans un magasin."}
+      - {id: fr-19-ouvrez-la-porte, type: phrase, l2: "Ouvrez la porte, s'il vous plaît.", l1: "Open the door, please. (formal)", note: "The vous form without vous is the polite imperative."}
+      - {id: fr-19-asseyez-vous, type: phrase, l2: "Asseyez-vous.", l1: "Sit down. (formal)", alt: ["Asseyez-vous, s'il vous plaît.", "Assoyez-vous."], note: "From s'asseoir (pronominal). To a friend: Assieds-toi."}
+      - {id: fr-19-allons-y, type: phrase, l2: "Allons-y !", l1: "Let's go!", alt: ["On y va !"], note: "The nous form of the imperative means 'let's …'. y = 'there'. Liaison: 'a-lon-zee'."}
+      - {id: fr-19-ne-touchez-pas, type: phrase, l2: "Ne touchez pas !", l1: "Don't touch! (formal, or to a group)", alt: ["Ne pas toucher !"], note: "Negative imperative: ne + verb + pas."}
+      - {id: fr-19-depeche-toi, type: phrase, l2: "Dépêche-toi !", l1: "Hurry up! (to a friend)", note: "Pronominal verb in the imperative: the pronoun goes after the verb with a hyphen, and te becomes toi. No -s on dépêche."}
+      - {id: fr-19-c1, type: cloze, text: "Je ___ mon travail à six heures.", answer: "finis", alt: ["termine"], l1: "I finish my work at six o'clock.", note: "finir → je finis, tu finis (both with a silent s)."}
+      - {id: fr-19-c2, type: cloze, text: "Nous ___ le cours à cinq heures.", answer: "finissons", alt: ["terminons"], l1: "We finish the class at five o'clock.", note: "-ir verbs insert -iss- in the plural: nous finissons."}
+      - {id: fr-19-c3, type: cloze, text: "Ils ___ un restaurant.", answer: "choisissent", l1: "They are choosing a restaurant.", note: "choisir → ils choisissent; the -ent is silent."}
+      - {id: fr-19-c4, type: cloze, text: "J'___ le bus.", answer: "attends", l1: "I am waiting for the bus.", note: "attendre → j'attends. No word for 'for'."}
+      - {id: fr-19-c5, type: cloze, text: "Il ___ sa voiture.", answer: "vend", l1: "He is selling his car.", note: "-re verbs add no ending for il / elle: il vend."}
+      - {id: fr-19-c6, type: cloze, text: "___ la fenêtre, s'il te plaît !", answer: "ferme", l1: "Close the window, please! (to a friend)", note: "Imperative of an -er verb for tu: no final -s. Tu fermes → Ferme !"}
+      - {id: fr-19-c7, type: cloze, text: "___ au cinéma ce soir !", answer: "allons", l1: "Let's go to the cinema tonight!", note: "The nous form without nous = 'let's': Allons !"}
+
+  # ──────────────────────────────────────────────────────────────── 20
+  - id: fr-20
+    title: "Travel, work & free time: the past with être"
+    goal: "I can buy a ticket, talk about my job and hobbies, and say where I went and what I did."
+    notes: |
+      ## Getting there
+      **en** for vehicles you sit inside: *en train, en avion, en bus, en voiture, en métro*. **à** for the ones you sit on, and for walking: *à vélo, à pied*.
+
+      ## Passé composé with être
+      Most verbs build the past with *avoir*. A small group of verbs of **movement or change of state** use **être** instead: *aller, venir, arriver, partir, entrer, sortir, monter, descendre, rester, tomber, rentrer, naître, mourir* — plus every pronominal verb (*je me suis levé*).
+
+      With être, the participle **agrees with the subject**, like an adjective:
+
+      | subject | participle |
+      |---|---|
+      | il est | allé |
+      | elle est | allée |
+      | ils sont | allés |
+      | elles sont | allées |
+
+      *Je suis allé* (a man speaking), *je suis allée* (a woman). The extra letters are usually silent.
+
+      ## Irregular participles (with avoir)
+      Learn these by heart: *être → **été***, *avoir → **eu***, *faire → **fait***, *prendre → **pris***, *voir → **vu***, *boire → **bu***, *lire → **lu***, *pouvoir → **pu***, *vouloir → **voulu***, *mettre → **mis***.
+
+      With avoir there is no agreement with the subject: *elle a mangé*, *ils ont vu*.
+    items:
+      - {id: fr-20-train, type: vocab, l2: "le train", l1: "the train", ex: "Je prends le train à huit heures.", ex_l1: "I am taking the train at eight o'clock.", note: "en train = by train."}
+      - {id: fr-20-avion, type: vocab, l2: "l'avion", l1: "the plane", ex: "L'avion part à midi.", ex_l1: "The plane leaves at midday.", note: "Masculine: un avion. en avion = by plane."}
+      - {id: fr-20-metro, type: vocab, l2: "le métro", l1: "the underground / subway", ex: "Je vais au bureau en métro.", ex_l1: "I go to the office by underground."}
+      - {id: fr-20-velo, type: vocab, l2: "le vélo", l1: "the bike / bicycle", alt: ["la bicyclette"], ex: "Je vais à l'école à vélo.", ex_l1: "I go to school by bike.", note: "à vélo (you sit on it), but en voiture, en train (you sit in them)."}
+      - {id: fr-20-aeroport, type: vocab, l2: "l'aéroport", l1: "the airport", ex: "L'aéroport est loin de la ville.", ex_l1: "The airport is far from the town.", note: "Masculine: un aéroport. Note the spelling: aéro-, not 'air-'."}
+      - {id: fr-20-billet, type: vocab, l2: "le billet", l1: "the ticket (for a train or plane)", ex: "Je voudrais un billet pour Paris.", ex_l1: "I would like a ticket to Paris.", note: "For the bus or métro the word is un ticket. un billet is also a banknote."}
+      - {id: fr-20-valise, type: vocab, l2: "la valise", l1: "the suitcase", ex: "Ma valise est dans la voiture.", ex_l1: "My suitcase is in the car.", note: "faire sa valise = to pack."}
+      - {id: fr-20-voyager, type: vocab, l2: "voyager", l1: "to travel", ex: "J'aime voyager en train.", ex_l1: "I like travelling by train.", note: "Like manger, it keeps an e before -ons: nous voyageons."}
+      - {id: fr-20-rester, type: vocab, l2: "rester", l1: "to stay", ex: "Je reste à la maison ce soir.", ex_l1: "I am staying at home tonight.", note: "False friend: not 'to rest' (se reposer). Past with être: je suis resté."}
+      - {id: fr-20-sortir, type: vocab, l2: "sortir", l1: "to go out", ex: "Je sors avec des amis ce soir.", ex_l1: "I am going out with friends tonight.", note: "Like partir: je sors, tu sors, il sort, nous sortons. Past with être: je suis sorti."}
+      - {id: fr-20-metier, type: vocab, l2: "le métier", l1: "the job / profession (what you do for a living)", alt: ["la profession", "le travail"], ex: "Professeur, c'est un beau métier.", ex_l1: "Teaching is a fine profession."}
+      - {id: fr-20-ingenieur, type: vocab, l2: "un ingénieur", l1: "an engineer", alt: ["une ingénieure"], ex: "Mon père est ingénieur.", ex_l1: "My father is an engineer.", note: "No article after être + job: il est ingénieur. Other jobs: médecin, serveur (waiter), vendeur (sales assistant)."}
+      - {id: fr-20-sport, type: vocab, l2: "le sport", l1: "sport (in general)", ex: "Je fais du sport le samedi.", ex_l1: "I do sport on Saturdays.", note: "faire du sport, faire du vélo, faire de la natation; but jouer au football. Final t silent."}
+      - {id: fr-20-nager, type: vocab, l2: "nager", l1: "to swim", ex: "Tu sais nager ?", ex_l1: "Can you swim?", note: "A learned skill takes savoir, not pouvoir. Like manger: nous nageons."}
+      - {id: fr-20-un-aller-retour, type: phrase, l2: "Un aller-retour pour Lyon, s'il vous plaît.", l1: "A return (round-trip) ticket to Lyon, please.", alt: ["Un billet aller-retour pour Lyon, s'il vous plaît.", "Un aller et retour pour Lyon, s'il vous plaît."], note: "A one-way ticket is un aller simple."}
+      - {id: fr-20-quel-est-votre-metier, type: phrase, l2: "Quel est votre métier ?", l1: "What is your job? (formal)", alt: ["Quelle est votre profession ?", "Qu'est-ce que vous faites dans la vie ?", "Qu'est-ce que vous faites comme travail ?", "Vous faites quoi dans la vie ?"], note: "Answer without an article: Je suis ingénieur."}
+      - {id: fr-20-je-suis-ne-a-londres, type: phrase, l2: "Je suis né à Londres.", l1: "I was born in London. (said by a man)", note: "naître takes être, and French uses the passé composé here. A woman writes: Je suis née."}
+      - {id: fr-20-j-aime-lire, type: phrase, l2: "J'aime lire et faire du sport.", l1: "I like reading and doing sport.", alt: ["J'aime la lecture et le sport."], note: "aimer + infinitive: j'aime lire (to read), j'aime nager."}
+      - {id: fr-20-c1, type: cloze, text: "Marie est ___ à huit heures.", answer: "partie", l1: "Marie left at eight o'clock.", note: "partir takes être, so the participle agrees: feminine singular → partie."}
+      - {id: fr-20-c2, type: cloze, text: "Ils sont ___ à la gare à midi.", answer: "arrivés", l1: "They arrived at the station at midday.", note: "arriver takes être; masculine plural adds -s: arrivés."}
+      - {id: fr-20-c3, type: cloze, text: "Nous ___ restés à la maison.", answer: "sommes", l1: "We stayed at home.", note: "rester takes être: nous sommes restés."}
+      - {id: fr-20-c4, type: cloze, text: "Elles sont ___ au musée.", answer: "allées", l1: "They (women) went to the museum.", note: "Feminine plural agreement: -ées."}
+      - {id: fr-20-c5, type: cloze, text: "Tu ___ sorti hier soir ?", answer: "es", l1: "Did you go out last night?", note: "sortir takes être: tu es sorti."}
+      - {id: fr-20-c6, type: cloze, text: "J'ai ___ ce livre en deux jours.", answer: "lu", l1: "I read this book in two days. (past)", note: "lire → lu, an irregular participle, with avoir."}
+      - {id: fr-20-c7, type: cloze, text: "Hier, j'ai ___ malade.", answer: "été", l1: "Yesterday I was ill.", note: "être → été. être itself builds its past with avoir: j'ai été."}
+      - {id: fr-20-c8, type: cloze, text: "Nous avons ___ un café à l'aéroport.", answer: "bu", l1: "We drank a coffee at the airport.", note: "boire → bu, an irregular participle."}

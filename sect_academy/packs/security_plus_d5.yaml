@@ -1,0 +1,555 @@
+# CompTIA Security+ SY0-801 - Domain 5 "Security Program Management and Oversight":
+# full-coverage unit (sp-5c) and two exam-hard practice units (sp-5d, sp-5e).
+# Original content written against the public exam objectives. No real exam items.
+part_of: security-plus
+units:
+  # ───────────────────────── Domain 5: coverage ─────────────────────────
+  - id: sp-5c
+    title: "Domain 5 in full: artifacts, risk maths, vendors and audits"
+    domain: "5"
+    goal: "I can name any Domain 5 document, agreement or audit activity from a description and work SLE, ALE, RTO, RPO, MTBF and MTTR problems."
+    notes: |
+      **Artifacts.** Know the named policies (AUP, BYOD, clean desk, incident response, data classification and retention, access control, disposal, vulnerability disclosure, privacy), the **runbook**, and the two plans: **business continuity** keeps the business working; **disaster recovery** restores the IT.
+
+      **Risk maths.**
+
+      | Formula | Worked example |
+      |---|---|
+      | SLE = AV × EF | $400,000 × 0.30 = $120,000 |
+      | ARO = events ÷ years | 6 in 4 years = 1.5 |
+      | ALE = SLE × ARO | $120,000 × 0.2 = $24,000 |
+      | MTBF = uptime ÷ failures | 8,400 h ÷ 4 = 2,100 h |
+      | MTTR = repair time ÷ repairs | 12 h ÷ 4 = 3 h |
+
+      **RTO** limits downtime; **RPO** limits data loss, so it dictates backup frequency.
+
+      **Third parties.** Selection runs EOI or RFI, then RFP or RFQ, with due diligence before signing. Agreements: NDA, MOU, MOA, MSA, SOW, SLA (built from SLOs). Watch for *jurisdiction*, *ROI* and *vendor lock-in*.
+
+      **Audits.** An **audit charter** grants authority; evidence comes from **sampling** and **interviews**; engagements are internal, external, gap analysis or **benchmarking**. Penetration tests may be physical, offensive, defensive or integrated.
+    items:
+      - {id: sp-5c-runbook, type: concept, term: "Runbook",
+         def: "A task-specific list of exact technical steps or commands, often scripted for automation, that an operator follows to perform one system operation such as a database failover."}
+      - {id: sp-5c-bcp, type: concept, term: "Business continuity plan (BCP)",
+         def: "The document describing how an organization keeps its essential business functions running during and after a major disruption, including alternative ways of working."}
+      - {id: sp-5c-drp, type: concept, term: "Disaster recovery plan (DRP)",
+         def: "The document describing how IT systems, data and infrastructure are restored after a catastrophic outage; a technical subset of wider continuity planning."}
+      - {id: sp-5c-aup, type: concept, term: "Acceptable use policy (AUP)",
+         def: "A document telling users what they may and may not do with the organization's systems, networks and data, usually signed before access is granted."}
+      - {id: sp-5c-byod-policy, type: concept, term: "BYOD policy",
+         def: "A document setting the conditions under which personally owned devices may connect to and hold organizational data, including required safeguards and the employer's rights over that data."}
+      - {id: sp-5c-clean-desk, type: concept, term: "Clean desk policy",
+         def: "A rule requiring staff to lock away papers and removable media, and to lock their screens, whenever they leave their workspace."}
+      - {id: sp-5c-retention-policy, type: concept, term: "Data retention policy",
+         def: "A document stating how long each category of record must be kept and when it must then be destroyed."}
+      - {id: sp-5c-vdp, type: concept, term: "Vulnerability disclosure policy",
+         def: "A published statement telling outside researchers how to report security flaws they find in the organization's systems, and what response and legal protection they can expect."}
+      - {id: sp-5c-exposure-factor, type: concept, term: "Exposure factor (EF)",
+         def: "The percentage of an asset's value expected to be lost in one occurrence of a specific harmful event."}
+      - {id: sp-5c-inherent-risk, type: concept, term: "Inherent risk",
+         def: "The level of exposure that exists before any safeguards are taken into account."}
+      - {id: sp-5c-rfi, type: concept, term: "Request for information (RFI)",
+         def: "A document sent to suppliers early in procurement to learn what solutions and capabilities exist, without asking for prices or binding offers."}
+      - {id: sp-5c-rfp, type: concept, term: "Request for proposal (RFP)",
+         def: "A document that sets out a buyer's detailed requirements and invites suppliers to submit a full solution with pricing, to be evaluated against stated criteria."}
+      - {id: sp-5c-rfq, type: concept, term: "Request for quotation (RFQ)",
+         def: "A document asking suppliers to price a precisely specified product or service, used when the buyer already knows exactly what it wants."}
+      - {id: sp-5c-eoi, type: concept, term: "Expression of interest (EOI)",
+         def: "A supplier's early, non-binding statement that it wishes to be considered for an upcoming contract, used by the buyer to build a shortlist."}
+      - {id: sp-5c-due-diligence, type: concept, term: "Due diligence",
+         def: "The investigation of a prospective supplier's security, finances, reputation and legal standing carried out before entering a contract."}
+      - {id: sp-5c-conflict-of-interest, type: concept, term: "Conflict of interest",
+         def: "A situation in which a person's private relationships or financial stake could bias a decision they make on the organization's behalf, such as choosing a supplier."}
+      - {id: sp-5c-slo, type: concept, term: "Service-level objective (SLO)",
+         def: "A single measurable performance target for a service, such as 99.95% monthly availability; a provider's contractual commitment is built from one or more of these."}
+      - {id: sp-5c-mou, type: concept, term: "Memorandum of understanding (MOU)",
+         def: "A document recording two parties' shared intent to cooperate, usually without money changing hands and usually not legally enforceable."}
+      - {id: sp-5c-moa, type: concept, term: "Memorandum of agreement (MOA)",
+         def: "A formal document setting out the specific responsibilities each party accepts in a joint undertaking; more detailed and more binding than a simple statement of intent."}
+      - {id: sp-5c-nda, type: concept, term: "Non-disclosure agreement (NDA)",
+         def: "A legally binding contract that forbids the parties from revealing the confidential information they share with each other."}
+      - {id: sp-5c-msa, type: concept, term: "Master service agreement (MSA)",
+         def: "An overarching contract that fixes the general terms for all future work between two parties, so that each later engagement needs only a short task-specific document."}
+      - {id: sp-5c-vendor-lock-in, type: concept, term: "Vendor lock-in",
+         def: "Dependence on one supplier's proprietary technology or data formats that makes moving to another supplier prohibitively costly or difficult."}
+      - {id: sp-5c-right-to-audit, type: concept, term: "Right-to-audit clause",
+         def: "A contract term giving the customer permission to inspect a supplier's controls and records, either itself or through an appointed assessor."}
+      - {id: sp-5c-acknowledgement, type: concept, term: "Acknowledgement",
+         def: "A user's signed or recorded confirmation that they have read and understood a policy or completed required training."}
+      - {id: sp-5c-opt-in, type: concept, term: "Opt-in consent",
+         def: "A consent model in which personal data is used only after the individual takes an affirmative action to agree."}
+      - {id: sp-5c-audit-charter, type: concept, term: "Audit charter",
+         def: "The formal document that establishes an audit function's purpose, authority, scope and right of access to records and people."}
+      - {id: sp-5c-sampling, type: concept, term: "Sampling",
+         def: "An evidence-gathering technique in which an auditor examines a representative subset of records and draws conclusions about the whole population."}
+      - {id: sp-5c-benchmarking, type: concept, term: "Benchmarking",
+         def: "Measuring an organization's security practices or performance against industry peers or recognized best practice to see how it ranks."}
+      - {id: sp-5c-diamond-model, type: concept, term: "Diamond Model",
+         def: "An intrusion-analysis model that describes each event by four linked features: adversary, capability, infrastructure and victim."}
+      - {id: sp-5c-partially-known, type: concept, term: "Partially known environment test",
+         def: "A penetration test in which the testers are given limited information, such as user-level credentials or address ranges, but not full internal detail."}
+      - {id: sp-5c-integrated-pentest, type: concept, term: "Integrated penetration test",
+         def: "A security exercise in which the attacking and defending teams work side by side and share findings as they go, so that detections improve during the exercise."}
+      - {id: sp-5c-lms, type: concept, term: "Learning management system (LMS)",
+         def: "A platform that assigns and delivers training courses and records each person's completion and scores."}
+      - {id: sp-5c-opsec, type: concept, term: "Operational security (OPSEC)",
+         def: "The practice of working out which everyday pieces of information would help an adversary and stopping them from leaking, for example through social media posts or overheard conversations."}
+      - {id: sp-5c-q01, type: mcq,
+         q: "A database server is valued at $400,000. A ransomware event is estimated to destroy 30% of that value and is expected once every five years. What is the annualized loss expectancy?",
+         choices: ["$120,000", "$80,000", "$24,000", "$600,000"],
+         answer: 2,
+         why: "SLE = $400,000 × 0.30 = $120,000, and once in five years is an ARO of 0.2, so ALE = $120,000 × 0.2 = $24,000. $120,000 is the SLE, the loss from one event, not the yearly figure."}
+      - {id: sp-5c-q02, type: mcq,
+         q: "Over the last four years a branch office suffered six laptop thefts, each costing about $8,000 in hardware and response. Using that history, what are the ARO and the ALE?",
+         choices: ["ARO 1.5, ALE $12,000", "ARO 6, ALE $48,000", "ARO 0.67, ALE $5,333", "ARO 1.5, ALE $32,000"],
+         answer: 0,
+         why: "ARO is events per year: 6 ÷ 4 = 1.5, and ALE = $8,000 × 1.5 = $12,000. An ARO of 0.67 divides years by events, which is the wrong way round."}
+      - {id: sp-5c-q03, type: mcq,
+         q: "A risk has an SLE of $100,000 and an ARO of 0.5. A control costing $30,000 a year would cut the ARO to 0.1 and leave the SLE unchanged. What is the control's net annual value?",
+         choices: ["$40,000 benefit", "$20,000 loss", "$20,000 benefit", "$10,000 benefit"],
+         answer: 3,
+         why: "ALE falls from $50,000 to $10,000, a saving of $40,000; subtracting the $30,000 cost leaves a $10,000 benefit. $40,000 is the ALE reduction before the control's own cost is deducted."}
+      - {id: sp-5c-q04, type: mcq,
+         q: "The business sets an RPO of 4 hours and an RTO of 8 hours for its order system. Backups run nightly at 01:00. The system fails at 17:00 and is restored from the last backup by 21:00. Which targets were met?",
+         choices: ["Both the RTO and the RPO were met", "The RTO was met but the RPO was missed", "The RPO was met but the RTO was missed", "Neither the RTO nor the RPO was met"],
+         answer: 1,
+         why: "Service returned after 4 hours, inside the 8-hour RTO. The restored data is from 01:00, so 16 hours of orders were lost against a 4-hour RPO; the RPO measures data loss, not downtime."}
+      - {id: sp-5c-q05, type: mcq,
+         q: "In one year a core switch was working for 8,400 hours and failed four times. The four repairs took 12 hours in total. What are its MTBF and MTTR?",
+         choices: ["MTBF 8,400 hours, MTTR 12 hours", "MTBF 2,100 hours, MTTR 3 hours", "MTBF 3 hours, MTTR 2,100 hours", "MTBF 2,100 hours, MTTR 12 hours"],
+         answer: 1,
+         why: "MTBF = operating time ÷ failures = 8,400 ÷ 4 = 2,100 hours; MTTR = repair time ÷ repairs = 12 ÷ 4 = 3 hours. Twelve hours is the total repair time, not the mean per repair."}
+      - {id: sp-5c-q06, type: mcq,
+         q: "A company has already decided to buy 200 laptops of one exact model and configuration. It only needs suppliers to state their price and delivery terms. Which document should it issue?",
+         choices: ["Request for information", "Request for proposal", "Expression of interest", "Request for quotation"],
+         answer: 3,
+         why: "An RFQ asks for prices on a precisely specified item. An RFP is used when suppliers must propose how they would meet a set of requirements, which is not needed here."}
+      - {id: sp-5c-q07, type: mcq,
+         q: "A consultancy will carry out many separate projects for a client over three years. The lawyers want payment terms, liability and confidentiality negotiated once, with a short document per project afterwards. Which agreement holds the terms negotiated once?",
+         choices: ["Master service agreement", "Statement of work", "Service-level agreement", "Memorandum of understanding"],
+         answer: 0,
+         why: "The MSA fixes the general terms for the whole relationship. The statement of work is the short per-project document that sits under it."}
+      - {id: sp-5c-q08, type: mcq,
+         q: "A platform team publishes the target '99th-percentile API response time under 300 ms each month' and tracks it on a dashboard. It is one measurable figure and by itself carries no remedies or penalties. What is it?",
+         choices: ["Service-level agreement", "Memorandum of agreement", "Service-level objective", "Statement of work"],
+         answer: 2,
+         why: "A single measurable target is an SLO. An SLA is the contract that commits a provider to such targets and states the remedies for missing them."}
+      - {id: sp-5c-q09, type: mcq,
+         q: "An employee uses a company laptop and the office network to run a personal online shop during work hours. No personally owned device is involved and no data was lost. Which policy has MOST directly been violated?",
+         choices: ["BYOD policy", "Clean desk policy", "Acceptable use policy", "Data retention policy"],
+         answer: 2,
+         why: "The AUP defines what company systems may be used for. A BYOD policy governs personally owned devices, and none is involved here."}
+      - {id: sp-5c-q10, type: mcq,
+         q: "After repeated privacy violations, a regulator withdraws a clinic's authorization to operate until it passes a new inspection. Which consequence of non-compliance is this?",
+         choices: ["Loss of license", "Reputational damage", "Contractual impact", "Financial penalty"],
+         answer: 0,
+         why: "Withdrawing permission to operate is loss of license. A financial penalty would be a fine, which leaves the clinic free to keep operating."}
+      - {id: sp-5c-q11, type: mcq,
+         q: "A bank's own audit department, which reports to the board's audit committee, reviews access controls to give management assurance before the regulator visits. Which type of engagement is this?",
+         choices: ["External audit", "Benchmarking", "Penetration test", "Internal audit"],
+         answer: 3,
+         why: "An audit performed by the organization's own staff for its own assurance is an internal audit. An external audit is carried out by an independent outside party such as a regulator or audit firm."}
+      - {id: sp-5c-q12, type: mcq,
+         q: "An analyst records an intrusion by linking who carried it out, the malware they used, the command-and-control servers involved and the organization that was targeted. Which reference model structures an event around these four elements?",
+         choices: ["MITRE ATT&CK", "Diamond Model", "Cyber Kill Chain", "CVSS"],
+         answer: 1,
+         why: "The Diamond Model's four vertices are adversary, capability, infrastructure and victim. The Cyber Kill Chain instead orders an attack into seven sequential stages."}
+      - {id: sp-5c-q13, type: mcq,
+         q: "During an exercise, attackers launch techniques one at a time while SOC analysts sit alongside them, checking whether each was detected and tuning alerts on the spot. Which type of penetration testing is this?",
+         choices: ["Offensive", "Integrated", "Defensive", "Physical"],
+         answer: 1,
+         why: "Attackers and defenders collaborating and sharing results in real time is integrated testing. A purely offensive test would attack without the defenders' involvement and report afterwards."}
+      - {id: sp-5c-q14, type: mcq,
+         q: "To test whether changes are approved before deployment, an auditor pulls 25 of the year's 2,000 change tickets at random and checks each for an approval record. Which data-gathering technique is this?",
+         choices: ["Interviews", "Benchmarking", "Attestation", "Sampling"],
+         answer: 3,
+         why: "Examining a representative subset to draw a conclusion about the whole population is sampling. Interviews gather evidence by questioning people rather than inspecting records."}
+      - {id: sp-5c-q15, type: mcq,
+         q: "A project team lists every threat it can think of to a new payment system, such as card skimming, insider fraud and supplier failure. It has not yet estimated how likely or damaging each one is. Which risk management activity has it completed?",
+         choices: ["Risk identification", "Risk analysis", "Risk treatment", "Risk acceptance"],
+         answer: 0,
+         why: "Listing what could go wrong is risk identification. Risk analysis comes next and estimates the likelihood and impact of each listed risk."}
+
+  # ───────────────────────── Domain 5: exam-hard practice 1 ─────────────────────────
+  - id: sp-5d
+    title: "Exam-hard practice: governance, risk and third parties"
+    domain: "5"
+    goal: "I can solve multi-step risk calculations and pick the right document, treatment or vendor agreement in scenarios harder than the exam."
+    notes: |
+      These questions are deliberately **harder than the real exam**. Each turns on two near-neighbours, so slow down and name the distinction before you answer.
+
+      **Risk maths traps**
+
+      - Convert "once in N years" to an ARO of 1 ÷ N; "three times in two years" is 1.5.
+      - A control's value is the **ALE reduction minus its cost**, never the ALE that remains.
+      - Compare options by *total* expected yearly cost: control cost plus residual ALE.
+      - RPO is about data lost (backup interval); RTO is about time down.
+
+      **Document traps**
+
+      - *Must* signals a policy, standard or procedure; *should* or *suggested* signals a guideline.
+      - Business continuity keeps functions running; disaster recovery restores systems.
+
+      **Vendor traps**
+
+      - RFI (what exists?), RFP (propose a solution), RFQ (price this exact thing), EOI (we want to bid).
+      - MOU records intent; MOA assigns responsibilities; MSA sets general terms; SOW covers one job; SLA commits to measurable SLOs.
+      - Outsourcing or indemnity is *transfer*; stopping the activity is *avoid*.
+
+      In "Choose TWO" items every keyed answer must be right: there is no partial credit.
+    items:
+      - {id: sp-5d-q01, type: mcq,
+         q: "A data hall is valued at $2,000,000. A fire is expected once in 20 years and would destroy 40% of its value. Option A is a suppression system costing $25,000 a year that cuts the loss to 10%. Option B is insurance costing $45,000 a year that pays the full loss. On expected annual cost alone, which choice is BEST?",
+         choices: ["Accept the risk", "Buy the insurance", "Install the suppression system", "Install the suppression system and buy the insurance"],
+         answer: 2,
+         why: "Accepting costs an ALE of $800,000 × 0.05 = $40,000. Suppression costs $25,000 plus a residual ALE of $200,000 × 0.05 = $10,000, a total of $35,000, the lowest. Insurance alone costs $45,000, more than the loss it covers."}
+      - {id: sp-5d-q02, type: mcq,
+         q: "A file server worth $60,000 would lose 20% of its value in a malware outbreak, and outbreaks are expected three times every two years. A proposed control would prevent 80% of that annual loss. What is the MOST the company should pay per year for the control on financial grounds?",
+         choices: ["$14,400", "$18,000", "$9,600", "$3,600"],
+         answer: 0,
+         why: "SLE = $12,000, ARO = 1.5, so ALE = $18,000; 80% of that is $14,400, the most the control can save. $18,000 is the whole ALE, which this control does not fully remove."}
+      - {id: sp-5d-q03, type: mcq,
+         q: "A document approved by the CISO reads: 'Administrators should consider passphrases of at least five words. Where practical, a password manager is suggested.' A separate document states that passwords must be at least 14 characters. Which type of document is the first one?",
+         choices: ["Policy", "Standard", "Procedure", "Guideline"],
+         answer: 3,
+         why: "'Should consider' and 'suggested' mark optional advice, which is a guideline, however senior the approver. The 14-character rule is the standard, because it is specific and mandatory."}
+      - {id: sp-5d-q04, type: mcq,
+         q: "An on-call engineer follows a document listing the exact commands, in order, to fail a database cluster over to its standby node, with the expected output after each command. Parts of it have been scripted. Which type of document is this?",
+         choices: ["Guideline", "Runbook", "Standard", "Policy"],
+         answer: 1,
+         why: "Exact, automatable steps for one technical operation make a runbook. A standard states what must be true, such as 'databases must have a standby node', not how to carry out the failover."}
+      - {id: sp-5d-q05, type: mcq,
+         q: "A flood closes headquarters. Document A explains how payroll will be run by hand from a branch office and how customers will be kept informed. Document B explains how the ERP servers will be rebuilt from backups at the warm site. What is document A?",
+         choices: ["Disaster recovery plan", "Business continuity plan", "Incident response policy", "Business impact analysis"],
+         answer: 1,
+         why: "Keeping business functions going by alternative means is the business continuity plan. Document B, which restores IT systems, is the disaster recovery plan."}
+      - {id: sp-5d-q06, type: mcq,
+         q: "A retailer keeps hosting its web shop with the same provider but renegotiates the contract so that the provider must pay breach costs caused by the provider's own failures. No safeguards are added and the shop runs as before. Which risk treatment has the retailer applied?",
+         choices: ["Avoid", "Mitigate", "Accept", "Transfer"],
+         answer: 3,
+         why: "Shifting the financial consequences to another party by contract is transference. It is not mitigation, because neither the likelihood nor the size of a breach has been reduced."}
+      - {id: sp-5d-q07, type: mcq,
+         q: "The board's risk appetite statement says the firm will carry no more than $200,000 of expected annual loss from fraud. With all planned controls in place, the fraud risk is assessed at $300,000 a year. What should happen NEXT?",
+         choices: ["Apply further treatment, or have the board formally approve an exception", "Record the risk as accepted by the system owner and close it", "Recalculate the inherent risk using a lower asset value", "Mark the risk as mitigated because the planned controls are in place"],
+         answer: 0,
+         why: "Residual risk above the stated appetite needs more treatment or an explicit decision by the body that set the appetite. A system owner cannot quietly accept a risk larger than the board allows."}
+      - {id: sp-5d-q08, type: mcq,
+         q: "Before any controls, a risk has an SLE of $60,000 and an ARO of 1.5. A new control cuts the likelihood by two-thirds and does not change the loss per event. What is the residual ALE?",
+         choices: ["$90,000", "$60,000", "$30,000", "$45,000"],
+         answer: 2,
+         why: "Inherent ALE is $60,000 × 1.5 = $90,000. The ARO falls to 0.5, so residual ALE = $60,000 × 0.5 = $30,000. $60,000 is the amount removed, not the amount remaining."}
+      - {id: sp-5d-q09, type: mcq,
+         q: "A BIA finds that order entry can be down for at most 4 hours and that no more than 15 minutes of orders may be lost. Today the database is backed up hourly and a full restore takes 2 hours. Which change is needed to meet the BIA's targets?",
+         choices: ["Contract a hot site to shorten the restore time", "Keep backups for a longer retention period", "Replicate or back up transactions at least every 15 minutes", "Replace the servers with models that have a higher MTBF"],
+         answer: 2,
+         why: "The 2-hour restore already meets the 4-hour RTO, but hourly backups can lose up to 60 minutes against a 15-minute RPO, so the backup interval must shrink. A hot site improves recovery time, which is not the failing target."}
+      - {id: sp-5d-q10, type: mcq,
+         q: "A security team knows it wants better endpoint detection but does not yet know what products exist or which features matter. It wants vendors to describe their capabilities, with no prices or binding offers yet. Which document should it issue FIRST?",
+         choices: ["Request for information", "Request for proposal", "Request for quotation", "Statement of work"],
+         answer: 0,
+         why: "An RFI gathers information about what the market offers. An RFP comes later, once the team can write detailed requirements for suppliers to propose against."}
+      - {id: sp-5d-q11, type: mcq,
+         q: "An agency announces a large managed-SOC contract for next year. Before writing detailed requirements, it invites suppliers to register that they want to bid and to summarize their qualifications, so that it can build a shortlist. What is each supplier submitting?",
+         choices: ["Request for proposal", "Request for quotation", "Request for information", "Expression of interest"],
+         answer: 3,
+         why: "A supplier's statement that it wishes to be considered is an expression of interest. The three requests are documents issued by the buyer, not submitted by the supplier."}
+      - {id: sp-5d-q12, type: mcq,
+         q: "During the scoring of bids for a firewall contract, one evaluator mentions that her spouse is the sales director of a bidder. What should happen FIRST?",
+         choices: ["The bidder is asked to sign a non-disclosure agreement", "The evaluator formally declares the relationship and withdraws from the evaluation", "Extra due diligence is run on that bidder's finances", "A right-to-audit clause is added to that bidder's draft contract"],
+         answer: 1,
+         why: "This is a conflict of interest, handled by disclosure and recusal so the decision cannot be biased. Extra due diligence examines the bidder, not the evaluator's impartiality."}
+      - {id: sp-5d-q13, type: mcq,
+         q: "Two universities want to record their intention to share threat intelligence. No money changes hands, neither wants enforceable obligations, and the details will be worked out later. Which document fits BEST?",
+         choices: ["Memorandum of agreement", "Memorandum of understanding", "Master service agreement", "Service-level agreement"],
+         answer: 1,
+         why: "An MOU records intent to cooperate and is usually not binding. An MOA goes further by committing each party to specific responsibilities, which these parties want to avoid for now."}
+      - {id: sp-5d-q14, type: mcq,
+         q: "A company is about to send its network diagrams and current firewall rules to three bidders so that they can prepare proposals. No supplier has been chosen. Which agreement should each bidder sign FIRST?",
+         choices: ["Master service agreement", "Statement of work", "Service-level agreement", "Non-disclosure agreement"],
+         answer: 3,
+         why: "An NDA protects the confidential material shared during selection. An MSA is signed only with the supplier that is eventually chosen."}
+      - {id: sp-5d-q15, type: mcq,
+         q: "An SLA promises 99.9% availability per 30-day month (43,200 minutes) and excludes scheduled maintenance. June's log shows: 3 June 02:10-02:30 unplanned outage; 17 June 14:00-14:30 unplanned outage; 24 June 01:00-05:00 scheduled maintenance. Which statement is correct?",
+         choices: ["The SLA was breached: 50 minutes of counted downtime exceeds the 43.2 minutes allowed", "The SLA was met: 50 minutes of counted downtime is within the 432 minutes allowed", "The SLA was breached: 290 minutes of counted downtime exceeds the 43.2 minutes allowed", "The SLA was met: only the longest outage counts, and 30 minutes is within the 43.2 minutes allowed"],
+         answer: 0,
+         why: "0.1% of 43,200 minutes is 43.2 minutes, and the two unplanned outages total 20 + 30 = 50 minutes. The 240 minutes of scheduled maintenance are excluded by the contract, so 290 is the wrong count."}
+      - {id: sp-5d-q16, type: mcq,
+         q: "A SaaS HR system stores records in a proprietary format and offers no bulk export. The company fears it could never move to a competitor. Which contract term BEST addresses this risk?",
+         choices: ["A right-to-audit clause", "Higher service credits for missed uptime", "An exit clause requiring export of all data in an open format", "A mutual non-disclosure agreement"],
+         answer: 2,
+         why: "The risk is vendor lock-in, which is reduced by guaranteed data portability on exit. A right-to-audit clause lets the customer inspect controls but does nothing to get the data out."}
+      - {id: sp-5d-q17, type: mcq,
+         q: "A firm's backup provider stores the data in another country. After a dispute, the firm learns that the contract is governed by that country's courts and that local authorities can demand access to the data under local law. Which third-party constraint was overlooked?",
+         choices: ["Vendor lock-in", "Return on investment", "Jurisdiction", "Conflict of interest"],
+         answer: 2,
+         why: "Which country's laws and courts apply to the data and the contract is a question of jurisdiction. Vendor lock-in concerns the difficulty of switching supplier, not whose law applies."}
+      - {id: sp-5d-q18, type: mcq,
+         q: "An email-filtering service costs $50,000 a year and is expected to reduce the ALE from phishing by $80,000 a year. What is the return on this security investment?",
+         choices: ["60%", "160%", "37.5%", "62.5%"],
+         answer: 0,
+         why: "ROI = (benefit − cost) ÷ cost = ($80,000 − $50,000) ÷ $50,000 = 60%. 160% divides the gross benefit by the cost without first subtracting the cost."}
+      - {id: sp-5d-q19, type: mcq,
+         q: "A large cloud provider will not let individual customers audit its data centres. A customer needs independent evidence that the provider's security controls actually operated effectively over the past twelve months. Which evidence is BEST?",
+         choices: ["A completed self-assessment questionnaire", "A SOC 2 Type I report", "A summary of the provider's latest penetration test", "A SOC 2 Type II report"],
+         answer: 3,
+         why: "A Type II report is an independent attestation of how controls operated over a period. A Type I report only covers the design of controls at a single point in time."}
+      - {id: sp-5d-q20, type: mcq,
+         q: "A contract's right-to-audit clause lets a customer test its SaaS supplier's security. The customer's testers run load-heavy exploits against shared production at midday and take other tenants offline. Which document, agreed before testing, would MOST likely have prevented this?",
+         choices: ["A right-to-audit clause", "Rules of engagement", "A service-level objective", "A master service agreement"],
+         answer: 1,
+         why: "Rules of engagement fix the scope, timing and permitted techniques of a specific test. The right-to-audit clause only grants permission to test; it does not say how or when."}
+      - {id: sp-5d-q21, type: mcq,
+         q: "A leased multifunction printer is returned to the leasing company at the end of its contract. Its internal drive still holds images of scanned payroll documents. All of those records were still within their approved keeping period. Which policy was MOST directly not followed?",
+         choices: ["Data retention policy", "Disposal policy", "Acceptable use policy", "Data classification policy"],
+         answer: 1,
+         why: "Sanitizing equipment before it leaves the organization's control is the subject of the disposal policy. The retention policy governs how long records are kept, and no record was kept too long or deleted too soon."}
+      - {id: sp-5d-q22, type: mcq,
+         q: "Tax law requires a company to keep invoices for seven years. A customer whose last purchase was two years ago asks for all of her personal data to be erased. No litigation is pending. What is the BEST response?",
+         choices: ["Erase everything at once, because the right to be forgotten overrides other rules", "Refuse the request, because some of the data is still required", "Place a legal hold on all of her records", "Keep the invoices the law requires, erase her other personal data and tell her what was kept and why"],
+         answer: 3,
+         why: "A legal obligation to retain specific records limits erasure only for those records; everything else should be erased. A legal hold applies to litigation, and none is pending."}
+      - {id: sp-5d-q23, type: mcq,
+         q: "An employee's personal phone, which holds company email, is lost. IT wants to wipe the company data on it remotely; the employee objects that he never agreed to any wiping and that IT has no rights over his phone. Which policy should have settled this in advance?",
+         choices: ["Acceptable use policy", "Clean desk policy", "BYOD policy", "Access control policy"],
+         answer: 2,
+         why: "A BYOD policy sets the conditions for using personal devices, including the employer's right to manage or wipe company data on them. An acceptable use policy covers how the organization's own systems may be used."}
+      - {id: sp-5d-q24, type: mcq,
+         q: "A review finds no document stating who may approve access to systems, that access must follow least privilege, or how often entitlements must be reviewed. Which policy is missing?",
+         choices: ["Access control policy", "Privacy policy", "Data classification policy", "Acceptable use policy"],
+         answer: 0,
+         why: "Approval authority, least privilege and periodic entitlement review are the content of an access control policy. A data classification policy defines sensitivity levels and labelling, not who may grant access."}
+      - {id: sp-5d-m01, type: multi,
+         q: "A risk analyst must calculate a single loss expectancy. Which TWO inputs are required? (Choose TWO.)",
+         choices: ["Asset value", "Annualized rate of occurrence", "Exposure factor", "Risk appetite", "Recovery point objective"],
+         answers: [0, 2],
+         why: "SLE = asset value × exposure factor. The ARO is only needed afterwards, to turn the SLE into an ALE."}
+      - {id: sp-5d-m02, type: multi,
+         q: "A company must treat the risk of its remote-access service being compromised. Which TWO actions are risk mitigation? (Choose TWO.)",
+         choices: ["Buying cyber insurance", "Requiring MFA for remote access", "Shutting the remote-access service down for good", "Segmenting the network that the service reaches", "Signing a memo that accepts the risk", "Adding an indemnity clause to the hosting contract"],
+         answers: [1, 3],
+         why: "MFA lowers the likelihood and segmentation limits the impact, so both mitigate. Insurance and indemnity transfer the risk, shutting the service down avoids it, and the memo accepts it."}
+      - {id: sp-5d-m03, type: multi,
+         q: "Which THREE of these normally take place during vendor selection, before a contract exists? (Choose THREE.)",
+         choices: ["Issuing a request for proposal", "Applying service credits for missed uptime", "Initial due diligence on the supplier's finances and breach history", "Exercising the right-to-audit clause", "Collecting conflict-of-interest declarations from the evaluators", "Checking monthly reports against the service-level agreement"],
+         answers: [0, 2, 4],
+         why: "The RFP, initial due diligence and conflict-of-interest declarations all belong to selection. Service credits, the right to audit and SLA reporting exist only once a contract is in force."}
+      - {id: sp-5d-m04, type: multi,
+         q: "An asset is worth $500,000, the exposure factor is 20% and the ARO is 0.5. Which TWO statements are correct? (Choose TWO.)",
+         choices: ["The SLE is $100,000", "The SLE is $250,000", "The ALE is $50,000", "The ALE is $200,000", "The event is expected twice a year", "A control costing $60,000 a year that removes the risk entirely pays for itself"],
+         answers: [0, 2],
+         why: "SLE = $500,000 × 0.20 = $100,000 and ALE = $100,000 × 0.5 = $50,000. An ARO of 0.5 means once every two years, and a $60,000 control costs more than the $50,000 it could save."}
+      - {id: sp-5d-m05, type: multi,
+         q: "Which THREE of these are outputs of a business impact analysis? (Choose THREE.)",
+         choices: ["The functions the organization cannot operate without", "Step-by-step instructions for rebuilding each server", "The longest downtime each function can tolerate", "The financial and operational effect of losing each function", "The root cause of the most recent outage", "A named owner and treatment for every risk"],
+         answers: [0, 2, 3],
+         why: "A BIA identifies critical functions, the effect of losing them and how long each can be down. Rebuild steps belong in the disaster recovery plan, owners and treatments in the risk register, and root causes in a post-incident review."}
+      - {id: sp-5d-m06, type: multi,
+         q: "A company is assessing a cloud supplier. Which TWO findings point to a vendor lock-in risk? (Choose TWO.)",
+         choices: ["Customer data is held in a proprietary format with no export tool", "The supplier is headquartered in another country", "The application would be built on interfaces that only this supplier offers", "A member of the evaluation panel owns shares in the supplier", "The service's benefits barely exceed its cost", "The draft contract has no right-to-audit clause"],
+         answers: [0, 2],
+         why: "Proprietary data formats and supplier-only interfaces make leaving costly, which is lock-in. The other findings are jurisdiction, conflict of interest, ROI and monitoring concerns."}
+      - {id: sp-5d-o01, type: order,
+         q: "Put the stages of the risk management process in order.",
+         steps: ["Identify the risks to the asset", "Analyze each risk's likelihood and impact", "Choose a treatment for each risk", "Implement the chosen controls", "Monitor the residual risk and update the risk register"],
+         why: "A risk must be identified before it can be analyzed, and analyzed before a treatment can be chosen and implemented. Monitoring what remains comes last and feeds the next cycle."}
+      - {id: sp-5d-o02, type: order,
+         q: "A company with no knowledge of the market brings in a new managed-service supplier. Put the steps in order.",
+         steps: ["Issue a request for information to learn what the market offers", "Issue a request for proposal with detailed requirements", "Carry out due diligence on the preferred supplier", "Sign the master service agreement", "Agree a statement of work for the first project", "Review the supplier's attestation reports during the contract"],
+         why: "The RFI informs the requirements in the RFP, and due diligence must finish before anything is signed. The MSA sets the terms under which a statement of work is agreed, and monitoring continues for the life of the contract."}
+      - {id: sp-5d-o03, type: order,
+         q: "Put the steps of continuity planning in order.",
+         steps: ["Identify the critical business functions", "Determine the impact of losing each function and set its RTO and RPO", "Select recovery strategies that can meet those targets", "Write the continuity and recovery plans", "Test the plans and update them with the results"],
+         why: "The business impact analysis (the first two steps) produces the targets that recovery strategies must meet. Plans document the chosen strategies and can only be tested once they exist."}
+
+  # ───────────────────────── Domain 5: exam-hard practice 2 ─────────────────────────
+  - id: sp-5e
+    title: "Exam-hard practice: compliance, audits, testing and awareness"
+    domain: "5"
+    goal: "I can resolve privacy, audit, penetration-testing and security-awareness scenarios that are harder than the exam."
+    notes: |
+      A second **above-exam** set, covering objectives 5.4 to 5.6.
+
+      **Compliance and privacy**
+
+      - Whoever decides the *purpose* of processing is the **controller**, even if it began as a processor.
+      - **Opt-in** needs an affirmative act; a pre-ticked box is opt-out.
+      - A **legal hold** suspends retention only while it lasts.
+      - An *acknowledgement* is a user confirming they read something; an *attestation* is a formal declaration that controls are in place.
+
+      **Audits**
+
+      - The **audit charter** grants internal audit its authority; **rules of engagement** govern one test.
+      - *Gap analysis* compares you with a requirement; *benchmarking* compares you with peers.
+      - External audits give independent assurance; internal audits serve management.
+
+      **Penetration testing**
+
+      - Known, partially known and unknown environments differ in what testers are told.
+      - Anything that touches the target's own systems is **active** reconnaissance.
+      - Kill Chain: reconnaissance, weaponization, delivery, exploitation, installation, command and control, actions on objectives.
+
+      **Awareness**
+
+      Judge training by behaviour (click, report and repeat-offender rates), and prefer role-based training for targeted staff.
+    items:
+      - {id: sp-5e-q01, type: mcq,
+         q: "A payroll SaaS firm processes a client's employee records strictly on the client's instructions. Without telling the client, it also starts using those records to build a salary-benchmarking product that it sells. For this second use, which privacy role has the SaaS firm taken on?",
+         choices: ["Data processor", "Data subject", "Data controller", "Data custodian"],
+         answer: 2,
+         why: "A party that decides its own purpose for processing personal data is a controller for that processing. It remains a processor only for the payroll work done on the client's instructions."}
+      - {id: sp-5e-q02, type: mcq,
+         q: "A regulation requires opt-in consent before marketing emails are sent. Which sign-up design satisfies it?",
+         choices: ["An empty checkbox that the user must tick to receive marketing", "A pre-ticked checkbox that the user may untick", "A notice that continuing to use the site means agreeing to marketing", "No checkbox, but an unsubscribe link in every marketing email"],
+         answer: 0,
+         why: "Opt-in requires an affirmative action by the individual, such as ticking an empty box. A pre-ticked box assumes consent until the user refuses, which is opt-out."}
+      - {id: sp-5e-q03, type: mcq,
+         q: "Emails were preserved under a legal hold for a lawsuit. The case has settled and counsel has formally released the hold. The emails are now five years old, the retention policy keeps email for two years, and no other requirement applies. What should happen to them?",
+         choices: ["Keep them permanently, because they were once under a legal hold", "Keep them for a further two years counted from the release date", "Send them to the opposing party's lawyers", "Dispose of them under the normal retention schedule"],
+         answer: 3,
+         why: "A legal hold only suspends the retention schedule; once released, the schedule applies again and overdue records are disposed of. The hold does not restart the retention clock."}
+      - {id: sp-5e-q04, type: mcq,
+         q: "Each new employee signs a form stating that they have read the acceptable use policy and understand the penalties for breaking it. HR files the form as evidence. What is the signed form?",
+         choices: ["An attestation", "An acknowledgement", "An opt-in consent", "A due diligence record"],
+         answer: 1,
+         why: "A user's confirmation that they have read and understood a policy is an acknowledgement. An attestation is a formal declaration, usually by an auditor or accountable officer, that controls exist and work."}
+      - {id: sp-5e-q05, type: mcq,
+         q: "A software firm is found to have broken export-control law. The government adds it to a restricted list, which bars it from public contracts and limits who may trade with it. Which consequence of non-compliance is this?",
+         choices: ["Loss of license", "Sanctions", "Reputational damage", "Contractual impact"],
+         answer: 1,
+         why: "Government-imposed restrictions on trading and contracting are sanctions. Loss of license would mean withdrawing a specific permit that the firm needs in order to operate."}
+      - {id: sp-5e-q06, type: mcq,
+         q: "Every laptop passed the disk-encryption check on audit day. A later review shows that 14% of laptops had encryption switched off at some point during the year. What would BEST show compliance between audits?",
+         choices: ["An annual acknowledgement of the encryption standard signed by users", "A second external audit each year", "An encryption module added to awareness training", "Automated continuous monitoring of the setting, with alerts on drift"],
+         answer: 3,
+         why: "Compliance monitoring that checks the control continuously catches drift whenever it happens. A second audit is still a point-in-time check and would miss changes between visits."}
+      - {id: sp-5e-q07, type: mcq,
+         q: "A company's internal auditors ask for HR's access-review records. The HR director refuses, saying that the auditors have no authority over HR. Which document should settle the question?",
+         choices: ["The audit charter", "The rules of engagement", "A right-to-audit clause", "A statement of work"],
+         answer: 0,
+         why: "The audit charter establishes the internal audit function's authority, scope and right of access. A right-to-audit clause is a contract term covering an outside supplier, not an internal department."}
+      - {id: sp-5e-q08, type: mcq,
+         q: "A firm's internal audit found no control weaknesses. A major customer replies that it needs assurance from a party with no reporting line to the firm's management. What should the firm commission?",
+         choices: ["A second internal audit by a different team", "A gap analysis against the framework", "An external audit by an independent firm", "A benchmarking study against competitors"],
+         answer: 2,
+         why: "Only an external audit provides assurance independent of the firm's own management. Another internal team still reports inside the organization, however capable it is."}
+      - {id: sp-5e-q09, type: mcq,
+         q: "An auditor wants to know whether reception staff understand the visitor-escort procedure and what they do when a visitor arrives without an appointment. No log or ticket records these decisions. Which data-gathering technique is MOST appropriate?",
+         choices: ["Sampling", "Benchmarking", "Interviews", "Attestation"],
+         answer: 2,
+         why: "Understanding and unrecorded practice are best assessed by questioning the people who do the work. Sampling needs a population of records to draw from, and none exists here."}
+      - {id: sp-5e-q10, type: mcq,
+         q: "A CISO wants to know how the firm's average time to patch and its security spend per employee compare with those of similar-sized companies in the same sector. Which type of engagement provides this?",
+         choices: ["Benchmarking", "Gap analysis", "Internal audit", "Penetration test"],
+         answer: 0,
+         why: "Comparison with industry peers is benchmarking. A gap analysis compares the firm with the requirements of a chosen framework, not with other companies."}
+      - {id: sp-5e-q11, type: mcq,
+         q: "A client gives penetration testers a standard user account and the in-scope IP ranges, but no architecture diagrams, source code or administrator access. Which statement BEST describes this test?",
+         choices: ["Known environment: it gives the deepest coverage because nothing is withheld", "Unknown environment: it best imitates an outsider who starts with nothing", "Partially known environment: it best imitates an anonymous attacker on the Internet", "Partially known environment: it saves discovery time and approximates a user with limited inside access"],
+         answer: 3,
+         why: "Some but not all information makes the environment partially known, which shortens reconnaissance and models a low-privilege insider or a compromised account. An anonymous Internet attacker is modelled by an unknown environment."}
+      - {id: sp-5e-q12, type: mcq,
+         q: "A client wants to learn whether its door controllers, reception staff and server-room locks can be bypassed by someone walking in. Which engagement should be scoped?",
+         choices: ["An unknown-environment network penetration test", "A physical penetration test", "A credentialed vulnerability scan", "A defensive exercise for the SOC"],
+         answer: 1,
+         why: "Testing doors, locks and reception procedures is a physical penetration test. An unknown-environment network test also starts without information, but it attacks systems over the network rather than the building."}
+      - {id: sp-5e-q13, type: mcq,
+         q: "An exercise replays recorded attack traffic into the monitoring stack. Nobody attempts to exploit live systems; SOC analysts are scored on how quickly they detect and contain each replayed attack. Which type of engagement is this?",
+         choices: ["Offensive", "Defensive", "Integrated", "Physical"],
+         answer: 1,
+         why: "An exercise that measures only detection and response is defensive. An integrated engagement would pair a live attacking team with the defenders."}
+      - {id: sp-5e-q14, type: mcq,
+         q: "During reconnaissance, which activity is MOST likely to appear in the target's own logs?",
+         choices: ["Searching certificate transparency logs for the target's subdomains", "Looking the target up on a search engine that indexes Internet-exposed devices", "Reading the target's domain registration records", "Attempting a DNS zone transfer from the target's authoritative name server"],
+         answer: 3,
+         why: "A zone transfer request is sent to the target's own server, so it is active reconnaissance and can be logged. The other three query third-party sources and never touch the target."}
+      - {id: sp-5e-q15, type: mcq,
+         q: "An attacker builds a malicious spreadsheet and emails it to a clerk; the macro exploits the spreadsheet application and a backdoor is installed. The mail gateway could have stripped the attachment. At which Cyber Kill Chain stage would that control have broken the attack?",
+         choices: ["Delivery", "Weaponization", "Exploitation", "Installation"],
+         answer: 0,
+         why: "Transmitting the weapon to the victim, here by email, is the delivery stage. Weaponization is the attacker building the spreadsheet on their own systems, where the gateway cannot act."}
+      - {id: sp-5e-q16, type: mcq,
+         q: "Using the Diamond Model, an analyst starts from a malware sample, extracts the domain it contacts for commands, and uses that domain's registration details to link the activity to a known group. Which vertex of the model does the command domain belong to?",
+         choices: ["Adversary", "Capability", "Infrastructure", "Victim"],
+         answer: 2,
+         why: "Domains, IP addresses and servers used to deliver or control an attack are infrastructure. The malware sample itself is the capability."}
+      - {id: sp-5e-q17, type: mcq,
+         q: "For three quarters, awareness training shows 98% completion and a 95% average quiz score, yet the click rate in simulated phishing has stayed at 18%. What is the BEST conclusion?",
+         choices: ["The programme works, because completion and quiz scores are high", "Simulations should stop, because they are not improving", "The training is not changing behaviour, so its approach should change, for example with targeted follow-up for repeat clickers", "The completion target should be raised to 100%"],
+         answer: 2,
+         why: "Effectiveness is judged by behaviour, and the click rate has not moved, so the content or delivery needs to change. Completion and quiz scores measure participation and recall, not what people do."}
+      - {id: sp-5e-q18, type: mcq,
+         q: "Accounts-payable staff received three fraudulent 'change of bank details' emails in a month, and one was paid. All staff already complete the same generic computer-based course each year. Which training change is BEST?",
+         choices: ["Role-based training for accounts-payable on payment fraud and out-of-band verification", "Repeating the generic annual course for all staff this quarter", "A poster campaign about phishing in every office", "Asking all staff to re-sign the acceptable use policy"],
+         answer: 0,
+         why: "The threat targets one role, so training tailored to that role's tasks and procedures is most effective. Repeating generic training gives the targeted team nothing new."}
+      - {id: sp-5e-q19, type: mcq,
+         q: "An employee finds a USB drive labelled 'Salaries Q3' in the car park. What should awareness training tell staff to do?",
+         choices: ["Scan it with antivirus on their workstation before opening anything", "Open it on a personal laptop at home rather than a work machine", "Look at the file names only, without opening any file", "Hand it to the security team without connecting it to anything"],
+         answer: 3,
+         why: "Unknown removable media must never be connected, because some devices attack as soon as they are plugged in, before any scan runs. Antivirus scanning still requires connecting the device."}
+      - {id: sp-5e-q20, type: mcq,
+         q: "An engineer posts a selfie from the new office. Visible behind her are a whiteboard showing the network layout and a monitor showing internal server names. No password or device was exposed. Which awareness topic addresses this MOST directly?",
+         choices: ["Credential management", "Operational security", "Removable media", "Bring your own device"],
+         answer: 1,
+         why: "Stopping seemingly harmless details from reaching an adversary is operational security. Credential management concerns passwords and other secrets, and none was shown."}
+      - {id: sp-5e-q21, type: mcq,
+         q: "Attackers log in to several staff accounts using passwords taken from a breach of an unrelated shopping site. Which credential-management practice should training emphasize to BEST prevent a repeat?",
+         choices: ["Changing the work password every 30 days", "A unique password for every site, kept in an approved password manager", "Adding a number and a symbol to the existing password", "Keeping passwords in a notebook locked in a drawer"],
+         answer: 1,
+         why: "The cause is password reuse, so unique passwords per site remove the link between the two accounts. Frequent rotation does not help if users keep reusing the same password elsewhere."}
+      - {id: sp-5e-q22, type: mcq,
+         q: "A service has an MTBF of 990 hours and an MTTR of 10 hours. Which availability should the business expect?",
+         choices: ["99.9%", "98.99%", "90%", "99%"],
+         answer: 3,
+         why: "Availability = MTBF ÷ (MTBF + MTTR) = 990 ÷ 1,000 = 99%. 98.99% comes from dividing the repair time by the MTBF alone instead of by the full cycle."}
+      - {id: sp-5e-q23, type: mcq,
+         q: "A web shop must tell visitors which personal data it collects, why it collects it and with whom it is shared. Which document does this?",
+         choices: ["Acceptable use policy", "Vulnerability disclosure policy", "Privacy policy", "Data retention policy"],
+         answer: 2,
+         why: "A privacy policy explains what personal data is collected, for what purpose and who receives it. A data retention policy covers only how long records are kept."}
+      - {id: sp-5e-q24, type: mcq,
+         q: "During a breach, nobody knew who could declare an incident or who had to be informed. Management wants a mandatory, high-level document that assigns that authority and requires a response capability to exist. Which document is needed?",
+         choices: ["Incident response policy", "Disaster recovery plan", "Vulnerability disclosure policy", "Access control policy"],
+         answer: 0,
+         why: "An incident response policy states management's requirements, roles and authority for handling incidents. A disaster recovery plan describes how systems are restored after a major outage, not who declares an incident."}
+      - {id: sp-5e-m01, type: multi,
+         q: "Which TWO of these are passive reconnaissance? (Choose TWO.)",
+         choices: ["Reading the target's job advertisements for technology names", "Running a port scan against the target's web server", "Looking up the target's historical records in a third-party passive DNS database", "Grabbing service banners from the target's mail server", "Phoning the target's help desk while posing as an employee", "Sending a ping sweep across the target's address range"],
+         answers: [0, 2],
+         why: "Job adverts and third-party DNS databases are public sources that involve no contact with the target. Scans, banner grabs, ping sweeps and pretext calls all interact with the target's systems or staff."}
+      - {id: sp-5e-m02, type: multi,
+         q: "A security manager wants awareness metrics that show a change in BEHAVIOUR rather than participation. Which THREE qualify? (Choose THREE.)",
+         choices: ["Percentage of staff who completed the course", "Proportion of simulated phishing emails that staff reported", "Number of training modules published this year", "Median time from a simulated phish arriving to the first user report", "Number of repeat clickers across successive campaigns", "Training budget spent per employee"],
+         answers: [1, 3, 4],
+         why: "Report rate, time to report and repeat clickers all measure what people actually do. Completion, modules published and budget measure effort and attendance."}
+      - {id: sp-5e-m03, type: multi,
+         q: "Which TWO actions make an organization the data controller for a set of personal data? (Choose TWO.)",
+         choices: ["Deciding the purpose for which the data is used", "Hosting the data in its data centre on a customer's instructions", "Deciding which personal data is collected and how it is processed", "Encrypting backups of the data for a customer", "Being the person the data describes", "Deleting the data when the customer tells it to"],
+         answers: [0, 2],
+         why: "The controller determines the purposes and means of processing. Hosting, encrypting or deleting on someone else's instructions is the work of a processor, and the person described is the data subject."}
+      - {id: sp-5e-m04, type: multi,
+         q: "Which THREE of these belong in a penetration test's rules of engagement? (Choose THREE.)",
+         choices: ["The hours during which testing is permitted", "The vulnerabilities the testers expect to find", "The in-scope systems and the prohibited techniques", "The client's risk appetite statement", "Emergency contacts on both sides", "A remediation deadline for each finding"],
+         answers: [0, 2, 4],
+         why: "Rules of engagement set timing, scope, permitted techniques and who to call if something goes wrong. Findings and remediation deadlines exist only after testing, and risk appetite is a governance statement."}
+      - {id: sp-5e-m05, type: multi,
+         q: "Which TWO practices should remote-work awareness training tell staff to follow? (Choose TWO.)",
+         choices: ["Connect through the company VPN when on public or shared networks", "Forward work email to a personal account when the VPN is slow", "Lock the screen and keep family members off the work device", "Use a hotel's shared computer for quick logins to company systems", "Postpone security updates until back in the office", "Copy work files to a personal USB drive as a backup"],
+         answers: [0, 2],
+         why: "The VPN protects traffic on untrusted networks, and locking the device keeps other people out. The other four move company data or credentials onto unmanaged systems or leave the device unpatched."}
+      - {id: sp-5e-m06, type: multi,
+         q: "Which TWO statements describe an external audit rather than an internal one? (Choose TWO.)",
+         choices: ["It is performed by a party independent of the organization", "Its auditors are employees who report to the organization's audit committee", "Its results can be relied on by regulators and customers as independent assurance", "Its authority comes from the organization's own audit charter", "Its main purpose is to compare the organization's metrics with those of its peers", "It must exploit vulnerabilities to prove their impact"],
+         answers: [0, 2],
+         why: "Independence, and the reliance outsiders can therefore place on the result, define an external audit. Employee auditors and the audit charter describe internal audit; peer comparison is benchmarking and exploitation is penetration testing."}
+      - {id: sp-5e-o01, type: order,
+         q: "Put the phases of a penetration test in order.",
+         steps: ["Agree the scope and rules of engagement in writing", "Gather information from public sources", "Scan and enumerate the in-scope systems", "Exploit the weaknesses found", "Report the findings and recommendations"],
+         why: "Written authorization comes before any activity, passive reconnaissance precedes active probing, and exploitation needs targets found by scanning. Reporting closes the engagement."}
+      - {id: sp-5e-o02, type: order,
+         q: "Put these six Cyber Kill Chain stages in order. (The seventh and final stage, actions on objectives, is left out.)",
+         steps: ["Reconnaissance", "Weaponization", "Delivery", "Exploitation", "Installation", "Command and control"],
+         why: "The attacker researches the target, builds the weapon, delivers it, exploits a weakness, installs persistent malware and then establishes a control channel before acting on objectives."}
+      - {id: sp-5e-o03, type: order,
+         q: "Put the stages of an audit in order.",
+         steps: ["Define the scope and authority of the audit", "Gather evidence through sampling and interviews", "Evaluate the evidence against the audit criteria", "Report the findings to management", "Follow up on whether the findings were remediated"],
+         why: "Scope and authority must exist before evidence can be requested, evidence must be gathered before it can be evaluated, and findings are reported before remediation can be followed up."}

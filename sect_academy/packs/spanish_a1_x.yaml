@@ -1,0 +1,738 @@
+part_of: spanish-a1
+
+units:
+  # ---------------------------------------------------------------- 13
+  - id: es-13
+    title: "Numbers 11–100 & prices"
+    goal: "I can count to a hundred, understand and say prices, and give my age."
+    notes: |
+      You know 1–10, *veinte* and *cien*. Now fill the gaps.
+
+      **11–15** are irregular: *once, doce, trece, catorce, quince*.
+
+      **16–19** are "ten-and-six" written as one word: *dieciséis, diecisiete, dieciocho, diecinueve*.
+
+      **21–29** are also one word, built on *veinti-*: *veintiuno, veintidós, veintitrés … veintinueve*. Three of them need an accent: *veintidós, veintitrés, veintiséis*.
+
+      **From 31** write three words joined by **y**: *treinta y uno, cuarenta y dos, noventa y nueve*.
+
+      | Tens | Spanish |
+      | 30 | treinta |
+      | 40 | cuarenta |
+      | 50 | cincuenta |
+      | 60 | sesenta |
+      | 70 | setenta |
+      | 80 | ochenta |
+      | 90 | noventa |
+
+      - **uno** becomes **un** before a masculine noun and **una** before a feminine one: *treinta y un euros*, *veintiuna personas*.
+      - **cien** is exactly 100; for 101–199 it becomes *ciento*: *ciento diez*.
+      - Prices: *Cuesta doce euros.* In Spain prices are written with a comma: 12,50 € is *doce euros con cincuenta*.
+    items:
+      - {id: es-13-once, type: vocab, l2: "once", l1: "eleven",
+         ex: "Son las once.", ex_l1: "It's eleven o'clock.",
+         note: "Not the English word 'once': say ON-theh (Spain) or ON-seh (Latin America)."}
+      - {id: es-13-doce, type: vocab, l2: "doce", l1: "twelve",
+         ex: "Hay doce estudiantes en la clase.", ex_l1: "There are twelve students in the class."}
+      - {id: es-13-trece, type: vocab, l2: "trece", l1: "thirteen",
+         ex: "Mi hermana tiene trece años.", ex_l1: "My sister is thirteen."}
+      - {id: es-13-catorce, type: vocab, l2: "catorce", l1: "fourteen",
+         ex: "Hoy es el catorce de mayo.", ex_l1: "Today is the fourteenth of May."}
+      - {id: es-13-quince, type: vocab, l2: "quince", l1: "fifteen",
+         ex: "El autobús viene en quince minutos.", ex_l1: "The bus is coming in fifteen minutes.",
+         note: "qu sounds like k: KEEN-theh / KEEN-seh."}
+      - {id: es-13-dieciseis, type: vocab, l2: "dieciséis", l1: "sixteen",
+         ex: "Tengo dieciséis euros.", ex_l1: "I have sixteen euros.",
+         note: "One word, with an accent on the e. 17–19 follow the pattern without an accent: diecisiete, dieciocho, diecinueve."}
+      - {id: es-13-veintiuno, type: vocab, l2: "veintiuno", l1: "twenty-one (when counting)",
+         ex: "Veinte y uno son veintiuno.", ex_l1: "Twenty and one are twenty-one.",
+         note: "21–29 are one word: veintiuno, veintidós, veintitrés… Before a noun: veintiún años, veintiuna personas."}
+      - {id: es-13-treinta, type: vocab, l2: "treinta", l1: "thirty",
+         ex: "Abril tiene treinta días.", ex_l1: "April has thirty days.",
+         note: "From 31 on, three words with y: treinta y uno, treinta y dos."}
+      - {id: es-13-cuarenta, type: vocab, l2: "cuarenta", l1: "forty",
+         ex: "Trabajo cuarenta horas a la semana.", ex_l1: "I work forty hours a week.",
+         note: "cuatro → cuarenta."}
+      - {id: es-13-cincuenta, type: vocab, l2: "cincuenta", l1: "fifty",
+         ex: "Hay cincuenta personas en el restaurante.", ex_l1: "There are fifty people in the restaurant.",
+         note: "cinco → cincuenta."}
+      - {id: es-13-sesenta, type: vocab, l2: "sesenta", l1: "sixty",
+         ex: "Una hora tiene sesenta minutos.", ex_l1: "An hour has sixty minutes.",
+         note: "seis → sesenta. Easy to confuse with setenta (70)."}
+      - {id: es-13-setenta, type: vocab, l2: "setenta", l1: "seventy",
+         ex: "Mi abuelo tiene setenta años.", ex_l1: "My grandfather is seventy.",
+         note: "siete → setenta (with a t). Sesenta (60) has an s."}
+      - {id: es-13-ochenta, type: vocab, l2: "ochenta", l1: "eighty",
+         ex: "El hotel cuesta ochenta euros.", ex_l1: "The hotel costs eighty euros."}
+      - {id: es-13-noventa, type: vocab, l2: "noventa", l1: "ninety",
+         ex: "Mi abuela tiene noventa años.", ex_l1: "My grandmother is ninety.",
+         note: "nueve → noventa (not 'nueventa')."}
+      - {id: es-13-euro, type: vocab, l2: "el euro", l1: "the euro",
+         ex: "Un café cuesta dos euros.", ex_l1: "A coffee costs two euros.",
+         note: "Say EH-oo-ro. The small coins are céntimos. Latin America: el peso, el dólar, el sol…"}
+      - {id: es-13-son-euros, type: phrase, l2: "Son treinta y cinco euros.", l1: "That's thirty-five euros. (telling someone the total)",
+         alt: ["Son treinta y cinco euros en total", "Son 35 euros"],
+         note: "Totals use son (plural), like the time: son las tres."}
+      - {id: es-13-cuanto-es-todo, type: phrase, l2: "¿Cuánto es todo?", l1: "How much is everything? (asking for the total)",
+         alt: ["¿Cuánto es en total?", "¿Cuánto cuesta todo?", "¿Cuánto es?"],
+         note: "¿Cuánto cuesta? asks the price of one thing; ¿Cuánto es? asks what you owe."}
+      - {id: es-13-demasiado-caro, type: phrase, l2: "Es demasiado caro.", l1: "It's too expensive. (a masculine thing)",
+         note: "demasiado = too (much). For a feminine thing: Es demasiado cara."}
+      - {id: es-13-tengo-42, type: phrase, l2: "Tengo cuarenta y dos años.", l1: "I am forty-two years old.",
+         alt: ["Yo tengo cuarenta y dos años", "Tengo cuarenta y dos", "Tengo 42 años"],
+         note: "Age uses tener, never ser: you 'have' years."}
+      - {id: es-13-c1, type: cloze, text: "Diez y siete son ___.", answer: "diecisiete",
+         l1: "Ten and seven are seventeen.", note: "16–19 are one word: dieci + siete"}
+      - {id: es-13-c2, type: cloze, text: "Nueve y nueve son ___.", answer: "dieciocho",
+         l1: "Nine and nine are eighteen.", note: "dieci + ocho, one word, no accent"}
+      - {id: es-13-c3, type: cloze, text: "Veinte menos uno son ___.", answer: "diecinueve",
+         l1: "Twenty minus one is nineteen.", note: "dieci + nueve, one word"}
+      - {id: es-13-c4, type: cloze, text: "Once y once son ___.", answer: "veintidós",
+         l1: "Eleven and eleven are twenty-two.", note: "21–29 are one word; veintidós, veintitrés and veintiséis carry an accent"}
+      - {id: es-13-c5, type: cloze, text: "Mi madre tiene cincuenta ___ tres años.", answer: "y",
+         l1: "My mother is fifty-three.", note: "from 31 on: tens + y + units, as three words"}
+      - {id: es-13-c6, type: cloze, text: "El libro cuesta treinta y ___ euros.", answer: "un",
+         l1: "The book costs thirty-one euros.", note: "uno → un before a masculine noun"}
+      - {id: es-13-c7, type: cloze, text: "Hay cuarenta y ___ personas en el autobús.", answer: "una",
+         l1: "There are forty-one people on the bus.", note: "uno → una before a feminine noun (la persona)"}
+
+  # ---------------------------------------------------------------- 14
+  - id: es-14
+    title: "Months, seasons, dates & ordinals"
+    goal: "I can name the months and seasons, say and ask dates and birthdays, and use first, second and third."
+    notes: |
+      Months and seasons take a **small letter** in Spanish: *enero*, *el verano*.
+
+      **Dates** use *el* + an ordinary number + *de* + the month: *el tres de marzo*, *el veinticinco de diciembre*. There is no "-th". The first of the month is *el uno de mayo* in Spain and usually *el primero de mayo* in Latin America.
+
+      **In** a month or season is **en**: *en julio*, *en invierno*. **On** a date is just **el**: *La fiesta es el cinco de agosto.*
+
+      **Ordinals** agree with the noun, and two of them lose their *-o* before a masculine singular noun:
+
+      | Number | Masculine | Before a masc. noun | Feminine |
+      | 1st | primero | primer | primera |
+      | 2nd | segundo | segundo | segunda |
+      | 3rd | tercero | tercer | tercera |
+      | 4th | cuarto | cuarto | cuarta |
+      | 5th | quinto | quinto | quinta |
+
+      So *el primer día*, *el tercer piso*, but *la primera calle*. Ordinals go **before** the noun. Above tenth, Spanish normally just uses the ordinary number: *el piso doce*.
+    items:
+      - {id: es-14-enero, type: vocab, l2: "enero", l1: "January",
+         ex: "En enero hace frío.", ex_l1: "In January it is cold.",
+         note: "Months are not capitalised in Spanish."}
+      - {id: es-14-febrero, type: vocab, l2: "febrero", l1: "February",
+         ex: "Febrero tiene veintiocho días.", ex_l1: "February has twenty-eight days."}
+      - {id: es-14-marzo, type: vocab, l2: "marzo", l1: "March",
+         ex: "Mi cumpleaños es en marzo.", ex_l1: "My birthday is in March."}
+      - {id: es-14-abril, type: vocab, l2: "abril", l1: "April",
+         ex: "En abril voy a Sevilla.", ex_l1: "In April I'm going to Seville."}
+      - {id: es-14-mayo, type: vocab, l2: "mayo", l1: "May",
+         ex: "El uno de mayo no trabajo.", ex_l1: "On the first of May I don't work.",
+         note: "Latin America usually says el primero de mayo."}
+      - {id: es-14-junio, type: vocab, l2: "junio", l1: "June",
+         ex: "En junio hace sol.", ex_l1: "In June it is sunny.",
+         note: "j is a throaty h: HOO-nyo. Don't mix it up with julio (July)."}
+      - {id: es-14-julio, type: vocab, l2: "julio", l1: "July",
+         ex: "En julio vamos a la playa.", ex_l1: "In July we go to the beach.",
+         note: "junio has an n like JuNe; julio has an l like JuLy."}
+      - {id: es-14-agosto, type: vocab, l2: "agosto", l1: "August",
+         ex: "En agosto hace mucho calor.", ex_l1: "In August it is very hot."}
+      - {id: es-14-septiembre, type: vocab, l2: "septiembre", l1: "September", alt: ["setiembre"],
+         ex: "Vuelvo a Londres en septiembre.", ex_l1: "I go back to London in September.",
+         note: "The p is barely heard; the spelling setiembre is also accepted."}
+      - {id: es-14-octubre, type: vocab, l2: "octubre", l1: "October",
+         ex: "Hoy es el doce de octubre.", ex_l1: "Today is the twelfth of October."}
+      - {id: es-14-noviembre, type: vocab, l2: "noviembre", l1: "November",
+         ex: "En noviembre hace mal tiempo.", ex_l1: "In November the weather is bad."}
+      - {id: es-14-diciembre, type: vocab, l2: "diciembre", l1: "December",
+         ex: "El veinticinco de diciembre es Navidad.", ex_l1: "The twenty-fifth of December is Christmas."}
+      - {id: es-14-primavera, type: vocab, l2: "la primavera", l1: "spring (the season)",
+         ex: "En primavera hace buen tiempo.", ex_l1: "In spring the weather is good.",
+         note: "The only feminine season. 'In spring' = en primavera, without the article."}
+      - {id: es-14-verano, type: vocab, l2: "el verano", l1: "summer",
+         ex: "En verano voy a la playa.", ex_l1: "In summer I go to the beach."}
+      - {id: es-14-otono, type: vocab, l2: "el otoño", l1: "autumn / fall",
+         ex: "El otoño es muy bonito en Madrid.", ex_l1: "Autumn is very pretty in Madrid.",
+         note: "ñ = 'ny': o-TO-nyo."}
+      - {id: es-14-invierno, type: vocab, l2: "el invierno", l1: "winter",
+         ex: "En invierno hace frío.", ex_l1: "In winter it is cold."}
+      - {id: es-14-cuando-cumple, type: phrase, l2: "¿Cuándo es tu cumpleaños?", l1: "When is your birthday? (informal)",
+         alt: ["¿Cuándo es tu cumple?", "¿Cuándo cumples años?"],
+         note: "el cumpleaños ends in -s even in the singular: un cumpleaños, dos cumpleaños."}
+      - {id: es-14-hoy-es-el-tres, type: phrase, l2: "Hoy es el tres de marzo.", l1: "Today is the third of March.",
+         alt: ["Hoy es tres de marzo", "Es el tres de marzo", "Hoy estamos a tres de marzo", "Hoy es el 3 de marzo"],
+         note: "el + ordinary number + de + month. No ordinal, no capital letter."}
+      - {id: es-14-feliz-cumple, type: phrase, l2: "¡Feliz cumpleaños!", l1: "Happy birthday!",
+         alt: ["¡Feliz cumple!", "¡Felicidades!"],
+         note: "feliz = happy. ¡Felicidades! (congratulations) is just as common in Spain."}
+      - {id: es-14-segundo-piso, type: phrase, l2: "Vivo en el segundo piso.", l1: "I live on the second floor.",
+         alt: ["Yo vivo en el segundo piso", "Vivo en el segundo", "Vivo en la segunda planta"],
+         note: "el piso is the floor (storey) here; it also means a flat. Ordinals go before the noun."}
+      - {id: es-14-c1, type: cloze, text: "El lunes es el ___ día de la semana.", answer: "primer",
+         l1: "Monday is the first day of the week.", note: "primero → primer before a masculine singular noun"}
+      - {id: es-14-c2, type: cloze, text: "Hoy es mi ___ clase de español.", answer: "primera",
+         l1: "Today is my first Spanish class.", note: "la clase is feminine → primera (the feminine form is never shortened)"}
+      - {id: es-14-c3, type: cloze, text: "Es la ___ calle a la izquierda.", answer: "segunda",
+         l1: "It's the second street on the left.", note: "la calle is feminine → segunda"}
+      - {id: es-14-c4, type: cloze, text: "Marzo es el ___ mes del año.", answer: "tercer",
+         l1: "March is the third month of the year.", note: "tercero → tercer before a masculine singular noun (el mes)"}
+      - {id: es-14-c5, type: cloze, text: "La fiesta es ___ cinco de agosto.", answer: "el",
+         l1: "The party is on the fifth of August.", note: "'on' + a date is simply el: el cinco de agosto"}
+      - {id: es-14-c6, type: cloze, text: "Hace mucho calor ___ verano.", answer: "en",
+         l1: "It is very hot in summer.", note: "en + month or season: en verano, en julio"}
+
+  # ---------------------------------------------------------------- 15
+  - id: es-15
+    title: "My things: possessives & demonstratives"
+    goal: "I can say whose something is and point things out with this, that and that over there."
+    notes: |
+      **Possessives** go before the noun and agree with the **thing owned**, not with the owner. Add **-s** when the thing is plural.
+
+      | Owner | One thing | Several things |
+      | my | mi | mis |
+      | your (tú) | tu | tus |
+      | his / her / their / your (usted) | su | sus |
+      | our | nuestro / nuestra | nuestros / nuestras |
+      | your (vosotros) | vuestro / vuestra | vuestros / vuestras |
+
+      - **su** covers his, her, its, their and formal your; context tells you which. *Su casa* can be his, her or their house.
+      - Only *nuestro* and *vuestro* change for gender: *nuestra casa*.
+      - *tu* (your) has no accent; *tú* (you) does.
+
+      **Demonstratives** show three distances and also agree with the noun:
+
+      | Distance | Masc. | Fem. | Masc. pl. | Fem. pl. |
+      | this (near me) | este | esta | estos | estas |
+      | that (near you) | ese | esa | esos | esas |
+      | that (far from both) | aquel | aquella | aquellos | aquellas |
+
+      The neuter forms **esto**, **eso** and **aquello** are used alone, for an unnamed thing or an idea: *¿Qué es eso?*
+    items:
+      - {id: es-15-mi, type: vocab, l2: "mi", l1: "my (before a singular noun)",
+         ex: "Mi casa está cerca.", ex_l1: "My house is nearby.",
+         note: "The same for masculine and feminine: mi padre, mi madre. Plural: mis."}
+      - {id: es-15-tu, type: vocab, l2: "tu", l1: "your (informal, to one person; before a singular noun)",
+         ex: "¿Es tu coche?", ex_l1: "Is it your car?",
+         note: "No accent: tu = your, tú = you. Plural: tus."}
+      - {id: es-15-su, type: vocab, l2: "su", l1: "his / her / their / your (formal) — one word, before a singular noun",
+         ex: "Su hermano vive en Perú.", ex_l1: "His (or her, or their) brother lives in Peru.",
+         note: "One word for five English ones. To be clear you can add de él, de ella, de usted: la casa de ella."}
+      - {id: es-15-nuestro, type: vocab, l2: "nuestro", l1: "our (before a masculine singular noun)",
+         ex: "Nuestro profesor es de Chile.", ex_l1: "Our teacher is from Chile.",
+         note: "Agrees with the thing owned: nuestro hijo, nuestra hija, nuestros hijos, nuestras hijas."}
+      - {id: es-15-vuestro, type: vocab, l2: "vuestro", l1: "your (informal, to a group, Spain; before a masculine singular noun)",
+         ex: "¿Es vuestro perro?", ex_l1: "Is it your dog?",
+         note: "Goes with vosotros. Latin America does not use it: su perro or el perro de ustedes."}
+      - {id: es-15-este, type: vocab, l2: "este", l1: "this (before a masculine noun)",
+         ex: "Este libro es bueno.", ex_l1: "This book is good.",
+         note: "The masculine is este, not 'esto'. Esto is only used alone, with no noun."}
+      - {id: es-15-esta, type: vocab, l2: "esta", l1: "this (before a feminine noun)",
+         ex: "Esta ciudad es muy bonita.", ex_l1: "This city is very pretty.",
+         note: "No accent. Está (with an accent) is the verb 'is'."}
+      - {id: es-15-ese, type: vocab, l2: "ese", l1: "that (before a masculine noun; near the person you are talking to)",
+         ex: "Ese coche es caro.", ex_l1: "That car is expensive."}
+      - {id: es-15-esa, type: vocab, l2: "esa", l1: "that (before a feminine noun; near the person you are talking to)",
+         ex: "Esa silla es de Ana.", ex_l1: "That chair is Ana's."}
+      - {id: es-15-aquel, type: vocab, l2: "aquel", l1: "that … over there (before a masculine noun; far from both of us)",
+         ex: "Aquel hombre es mi padre.", ex_l1: "That man over there is my father.",
+         note: "Feminine: aquella. Plural: aquellos, aquellas."}
+      - {id: es-15-eso, type: vocab, l2: "eso", l1: "that (used alone for a thing or idea, with no noun — neuter)",
+         ex: "Eso es un problema.", ex_l1: "That is a problem.",
+         note: "Never before a noun: ese libro, but ¿Qué es eso?"}
+      - {id: es-15-gafas, type: vocab, l2: "las gafas", l1: "the glasses (for your eyes)", alt: ["los lentes", "los anteojos"],
+         ex: "Mis gafas son nuevas.", ex_l1: "My glasses are new.",
+         note: "Always plural. Latin America: los lentes or los anteojos."}
+      - {id: es-15-reloj, type: vocab, l2: "el reloj", l1: "the watch / the clock",
+         ex: "Este reloj es muy caro.", ex_l1: "This watch is very expensive.",
+         note: "One word for both watch and clock. The final j is a soft throaty h."}
+      - {id: es-15-cartera, type: vocab, l2: "la cartera", l1: "the wallet", alt: ["la billetera"],
+         ex: "No tengo dinero en la cartera.", ex_l1: "I have no money in my wallet.",
+         note: "In much of Latin America la cartera is a handbag, and a wallet is la billetera."}
+      - {id: es-15-paraguas, type: vocab, l2: "el paraguas", l1: "the umbrella", alt: ["la sombrilla"],
+         ex: "¿Dónde está mi paraguas?", ex_l1: "Where is my umbrella?",
+         note: "Masculine although it ends in -as, and the same in the plural: los paraguas."}
+      - {id: es-15-de-quien, type: phrase, l2: "¿De quién es este reloj?", l1: "Whose watch is this?",
+         alt: ["¿De quién es el reloj?"],
+         note: "Literally 'Of whom is this watch?' Spanish has no single word for 'whose' in questions."}
+      - {id: es-15-esta-es-mi-familia, type: phrase, l2: "Esta es mi familia.", l1: "This is my family.",
+         alt: ["Ésta es mi familia", "Es mi familia"],
+         note: "Introducing people, the demonstrative agrees: Este es Juan, esta es Ana."}
+      - {id: es-15-que-es-eso, type: phrase, l2: "¿Qué es eso?", l1: "What is that? (a thing near you)",
+         alt: ["¿Eso qué es?"],
+         note: "Neuter eso, because you don't yet know what the thing is."}
+      - {id: es-15-me-gusta-este, type: phrase, l2: "Me gusta este.", l1: "I like this one. (a masculine thing)",
+         alt: ["Este me gusta", "Me gusta éste", "A mí me gusta este"],
+         note: "Spanish needs no word for 'one': este = this one, esa = that one."}
+      - {id: es-15-c1, type: cloze, text: "___ padres viven en Bilbao.", answer: "Mis",
+         l1: "My parents live in Bilbao.", note: "plural noun → mis"}
+      - {id: es-15-c2, type: cloze, text: "Carlos, ¿dónde están ___ llaves?", answer: "tus",
+         l1: "Carlos, where are your keys?", note: "plural noun → tus (informal, one person)"}
+      - {id: es-15-c3, type: cloze, text: "___ casa es pequeña, pero bonita.", answer: "Nuestra",
+         l1: "Our house is small but pretty.", note: "nuestro agrees with the thing owned: la casa → nuestra"}
+      - {id: es-15-c4, type: cloze, text: "Ana vive con ___ padres.", answer: "sus",
+         l1: "Ana lives with her parents.", note: "su → sus because padres is plural, not because of the owner"}
+      - {id: es-15-c5, type: cloze, text: "___ libros son muy caros.", answer: "Estos",
+         l1: "These books are very expensive.", note: "masculine plural of este → estos"}
+      - {id: es-15-c6, type: cloze, text: "___ gafas son nuevas.", answer: "Estas",
+         l1: "These glasses are new.", note: "feminine plural of esta → estas"}
+      - {id: es-15-c7, type: cloze, text: "___ mujer es la madre de Luis.", answer: "Aquella",
+         l1: "That woman over there is Luis's mother.", note: "far from both speakers, feminine singular → aquella"}
+
+  # ---------------------------------------------------------------- 16
+  - id: es-16
+    title: "My day: reflexive verbs & routine"
+    goal: "I can describe my daily routine and ask what time someone gets up, eats and goes to bed."
+    notes: |
+      Many routine verbs are **reflexive**: you do the action to yourself. The dictionary form ends in **-se** (*levantarse*, *ducharse*). To use one, conjugate the verb as normal and put the matching pronoun **in front**:
+
+      | Pronoun | ducharse |
+      | yo | me ducho |
+      | tú | te duchas |
+      | él / ella / usted | se ducha |
+      | nosotros | nos duchamos |
+      | vosotros | os ducháis |
+      | ellos / ustedes | se duchan |
+
+      - In the negative, *no* goes before the pronoun: *No me ducho por la noche.*
+      - Some of these verbs also change their stem vowel when it is stressed (every form except *nosotros* and *vosotros*): *despertarse → me despierto*, *acostarse → me acuesto*, *vestirse → me visto*, *dormir → duermo*.
+      - With parts of the body Spanish uses **the article**, not a possessive: *Me lavo las manos*, "I wash my hands".
+      - Meals have their own verbs: *desayunar*, *comer*, *cenar*. Spaniards eat late: lunch around two, dinner around nine or ten.
+    items:
+      - {id: es-16-despertarse, type: vocab, l2: "despertarse", l1: "to wake up",
+         ex: "Me despierto a las seis.", ex_l1: "I wake up at six.",
+         note: "Stem change e → ie: me despierto, te despiertas, se despierta; but nos despertamos."}
+      - {id: es-16-ducharse, type: vocab, l2: "ducharse", l1: "to have a shower", alt: ["bañarse", "darse una ducha"],
+         ex: "Me ducho todos los días.", ex_l1: "I have a shower every day.",
+         note: "In much of Latin America people say bañarse, which in Spain means to have a bath."}
+      - {id: es-16-lavarse, type: vocab, l2: "lavarse", l1: "to wash (yourself)",
+         ex: "Me lavo con agua fría.", ex_l1: "I wash with cold water.",
+         note: "Without se, lavar is to wash something else: Lavo el coche."}
+      - {id: es-16-vestirse, type: vocab, l2: "vestirse", l1: "to get dressed",
+         ex: "Me visto y voy al trabajo.", ex_l1: "I get dressed and go to work.",
+         note: "Stem change e → i: me visto, te vistes, se viste; but nos vestimos."}
+      - {id: es-16-acostarse, type: vocab, l2: "acostarse", l1: "to go to bed", alt: ["irse a la cama", "ir a la cama"],
+         ex: "Los niños se acuestan a las nueve.", ex_l1: "The children go to bed at nine.",
+         note: "Stem change o → ue: me acuesto, te acuestas, se acuesta; but nos acostamos."}
+      - {id: es-16-dormir, type: vocab, l2: "dormir", l1: "to sleep",
+         ex: "¿Duermes bien?", ex_l1: "Do you sleep well?",
+         note: "Not reflexive. Stem change o → ue: duermo, duermes, duerme; but dormimos."}
+      - {id: es-16-desayunar, type: vocab, l2: "desayunar", l1: "to have breakfast",
+         ex: "Desayuno a las ocho.", ex_l1: "I have breakfast at eight.",
+         note: "One verb, no 'have': Desayuno café con leche = I have white coffee for breakfast."}
+      - {id: es-16-cenar, type: vocab, l2: "cenar", l1: "to have dinner (the evening meal)",
+         ex: "Cenamos a las nueve y media.", ex_l1: "We have dinner at half past nine."}
+      - {id: es-16-desayuno, type: vocab, l2: "el desayuno", l1: "breakfast (the meal)",
+         ex: "El desayuno es a las ocho.", ex_l1: "Breakfast is at eight."}
+      - {id: es-16-cena, type: vocab, l2: "la cena", l1: "dinner (the evening meal, as a noun)",
+         ex: "La cena es a las nueve.", ex_l1: "Dinner is at nine.",
+         note: "The midday meal is la comida in Spain, el almuerzo in much of Latin America."}
+      - {id: es-16-temprano, type: vocab, l2: "temprano", l1: "early", alt: ["pronto"],
+         ex: "Me levanto temprano.", ex_l1: "I get up early.",
+         note: "In Spain pronto is also common for 'early'."}
+      - {id: es-16-tarde, type: vocab, l2: "tarde", l1: "late",
+         ex: "Hoy vuelvo tarde a casa.", ex_l1: "Today I'm coming home late.",
+         note: "Without an article it means late; la tarde is the afternoon."}
+      - {id: es-16-despues, type: vocab, l2: "después", l1: "afterwards / after that", alt: ["luego"],
+         ex: "Como y después leo.", ex_l1: "I eat and afterwards I read.",
+         note: "'After' + a noun or verb is después de: después de comer."}
+      - {id: es-16-normalmente, type: vocab, l2: "normalmente", l1: "normally / usually", alt: ["generalmente", "por lo general"],
+         ex: "Normalmente como en casa.", ex_l1: "I usually eat at home.",
+         note: "-mente is the Spanish '-ly'."}
+      - {id: es-16-a-veces, type: vocab, l2: "a veces", l1: "sometimes", alt: ["algunas veces"],
+         ex: "A veces voy al trabajo en autobús.", ex_l1: "Sometimes I go to work by bus."}
+      - {id: es-16-a-que-hora, type: phrase, l2: "¿A qué hora te levantas?", l1: "What time do you get up? (informal)",
+         alt: ["¿A qué hora te levantas tú?"],
+         note: "'At what time' — the a cannot be left out."}
+      - {id: es-16-los-dientes, type: phrase, l2: "Me lavo los dientes.", l1: "I brush my teeth.",
+         alt: ["Me cepillo los dientes", "Yo me lavo los dientes"],
+         note: "Literally 'I wash myself the teeth': the article, not mis. Also: me cepillo los dientes."}
+      - {id: es-16-me-acuesto-tarde, type: phrase, l2: "Me acuesto tarde.", l1: "I go to bed late.",
+         alt: ["Yo me acuesto tarde", "Me voy a la cama tarde"]}
+      - {id: es-16-me-ducho, type: phrase, l2: "Me ducho por la mañana.", l1: "I have a shower in the morning.",
+         alt: ["Me ducho por las mañanas", "Me ducho en la mañana", "Me baño por la mañana", "Yo me ducho por la mañana"],
+         note: "por la mañana = in the morning. Latin America also says en la mañana."}
+      - {id: es-16-c1, type: cloze, text: "Yo ___ ducho por la noche.", answer: "me",
+         l1: "I have a shower at night.", note: "yo → me"}
+      - {id: es-16-c2, type: cloze, text: "¿Cuándo ___ duchas?", answer: "te",
+         l1: "When do you have a shower?", note: "tú → te"}
+      - {id: es-16-c3, type: cloze, text: "Mi hermano ___ levanta a las ocho.", answer: "se",
+         l1: "My brother gets up at eight.", note: "él / ella / usted → se"}
+      - {id: es-16-c4, type: cloze, text: "Los domingos ___ levantamos tarde.", answer: "nos",
+         l1: "On Sundays we get up late.", note: "nosotros → nos"}
+      - {id: es-16-c5, type: cloze, text: "Me ___ a las siete, pero me levanto a las ocho.", answer: "despierto",
+         l1: "I wake up at seven, but I get up at eight.", note: "despertarse, e → ie: me despierto"}
+      - {id: es-16-c6, type: cloze, text: "Mi hija se ___ a las ocho.", answer: "acuesta",
+         l1: "My daughter goes to bed at eight.", note: "acostarse, o → ue: se acuesta"}
+      - {id: es-16-c7, type: cloze, text: "Yo ___ ocho horas todas las noches.", answer: "duermo",
+         l1: "I sleep eight hours every night.", note: "dormir, o → ue: duermo"}
+
+  # ---------------------------------------------------------------- 17
+  - id: es-17
+    title: "Home, rooms & where things are"
+    goal: "I can describe my home, say what is in each room and say exactly where things are."
+    notes: |
+      To describe a home you need two verbs you already know, used for different jobs.
+
+      - **hay** says that something **exists**. It is followed by *un / una*, a number, or no article at all: *Hay un sofá. Hay dos ventanas. No hay nevera.* It never changes for the plural.
+      - **estar** says **where** a known, specific thing is. It is followed by *el / la / mi…*: *El sofá está en el salón. Las llaves están en la mesa.*
+
+      A good test: if English says "there is / there are", use *hay*; if it says "the … is", use *está*.
+
+      **Prepositions of place** are followed by **de**, and *de + el* contracts to **del**:
+
+      | Spanish | English |
+      | encima de | on top of |
+      | debajo de | under |
+      | al lado de | next to |
+      | delante de | in front of |
+      | detrás de | behind |
+      | entre | between (no *de*) |
+
+      *El perro está debajo **de la** mesa. El banco está al lado **del** hotel.*
+
+      *En* covers both "in" and "on": *en la cocina*, *en la mesa*.
+    items:
+      - {id: es-17-piso, type: vocab, l2: "el piso", l1: "the flat / apartment", alt: ["el apartamento", "el departamento"],
+         ex: "Mi piso está en el centro.", ex_l1: "My flat is in the centre.",
+         note: "Spain: el piso (also 'floor, storey'). Latin America: el apartamento or el departamento."}
+      - {id: es-17-habitacion, type: vocab, l2: "la habitación", l1: "the room (in a house or a hotel)", alt: ["el cuarto"],
+         ex: "El hotel tiene veinte habitaciones.", ex_l1: "The hotel has twenty rooms.",
+         note: "Feminine, like all -ción words. The plural drops the accent: habitaciones."}
+      - {id: es-17-dormitorio, type: vocab, l2: "el dormitorio", l1: "the bedroom", alt: ["la recámara", "la alcoba"],
+         ex: "Mi dormitorio es pequeño.", ex_l1: "My bedroom is small.",
+         note: "From dormir. Mexico says la recámara; people also just say la habitación."}
+      - {id: es-17-cocina, type: vocab, l2: "la cocina", l1: "the kitchen",
+         ex: "Como en la cocina.", ex_l1: "I eat in the kitchen.",
+         note: "Also means the cooker and 'cooking, cuisine': la cocina española."}
+      - {id: es-17-salon, type: vocab, l2: "el salón", l1: "the living room", alt: ["la sala", "la sala de estar", "el cuarto de estar"],
+         ex: "El salón es grande.", ex_l1: "The living room is big.",
+         note: "Latin America usually says la sala."}
+      - {id: es-17-cama, type: vocab, l2: "la cama", l1: "the bed",
+         ex: "La cama es nueva.", ex_l1: "The bed is new."}
+      - {id: es-17-puerta, type: vocab, l2: "la puerta", l1: "the door",
+         ex: "La puerta está abierta.", ex_l1: "The door is open."}
+      - {id: es-17-ventana, type: vocab, l2: "la ventana", l1: "the window",
+         ex: "La ventana está cerrada.", ex_l1: "The window is closed."}
+      - {id: es-17-sofa, type: vocab, l2: "el sofá", l1: "the sofa",
+         ex: "El perro está en el sofá.", ex_l1: "The dog is on the sofa.",
+         note: "Masculine although it ends in -a; the accent puts the stress on the last syllable."}
+      - {id: es-17-nevera, type: vocab, l2: "la nevera", l1: "the fridge",
+         alt: ["el frigorífico", "el refrigerador", "la heladera", "la refrigeradora", "el frigo"],
+         ex: "La leche está en la nevera.", ex_l1: "The milk is in the fridge.",
+         note: "Spain: la nevera or el frigorífico. Latin America: el refrigerador, la heladera (Argentina)."}
+      - {id: es-17-encima-de, type: vocab, l2: "encima de", l1: "on top of", alt: ["sobre", "arriba de"],
+         ex: "El libro está encima de la mesa.", ex_l1: "The book is on top of the table.",
+         note: "Plain 'on' is usually just en: en la mesa."}
+      - {id: es-17-debajo-de, type: vocab, l2: "debajo de", l1: "under / underneath", alt: ["bajo", "abajo de"],
+         ex: "El móvil está debajo de la silla.", ex_l1: "The mobile is under the chair."}
+      - {id: es-17-al-lado-de, type: vocab, l2: "al lado de", l1: "next to / beside", alt: ["junto a"],
+         ex: "La farmacia está al lado del banco.", ex_l1: "The chemist's is next to the bank.",
+         note: "Literally 'at the side of'. de + el = del."}
+      - {id: es-17-delante-de, type: vocab, l2: "delante de", l1: "in front of", alt: ["adelante de"],
+         ex: "El coche está delante de la casa.", ex_l1: "The car is in front of the house.",
+         note: "Don't confuse with enfrente de, which means opposite, across from."}
+      - {id: es-17-detras-de, type: vocab, l2: "detrás de", l1: "behind", alt: ["atrás de"],
+         ex: "El supermercado está detrás del hotel.", ex_l1: "The supermarket is behind the hotel."}
+      - {id: es-17-vivo-en-un-piso, type: phrase, l2: "Vivo en un piso pequeño.", l1: "I live in a small flat.",
+         alt: ["Vivo en un apartamento pequeño", "Vivo en un departamento pequeño", "Yo vivo en un piso pequeño"],
+         note: "The adjective follows the noun: un piso pequeño."}
+      - {id: es-17-cuantas-habitaciones, type: phrase, l2: "¿Cuántas habitaciones hay?", l1: "How many rooms are there?",
+         alt: ["¿Cuántos cuartos hay?"],
+         note: "cuántas agrees with the feminine plural habitaciones; hay never changes."}
+      - {id: es-17-bano-al-lado, type: phrase, l2: "El baño está al lado de la cocina.", l1: "The bathroom is next to the kitchen.",
+         alt: ["El baño está junto a la cocina"],
+         note: "A specific, known thing → está, not hay."}
+      - {id: es-17-hay-una-cama, type: phrase, l2: "En mi dormitorio hay una cama grande.", l1: "In my bedroom there is a big bed.",
+         alt: ["Hay una cama grande en mi dormitorio", "En mi habitación hay una cama grande", "En mi cuarto hay una cama grande"],
+         note: "'There is' + un / una → hay."}
+      - {id: es-17-c1, type: cloze, text: "En el salón ___ dos ventanas.", answer: "hay",
+         l1: "There are two windows in the living room.", note: "'there is / there are' + a number → hay (never plural)"}
+      - {id: es-17-c2, type: cloze, text: "El sofá ___ delante de la ventana.", answer: "está",
+         l1: "The sofa is in front of the window.", note: "where a specific thing is (el sofá) → estar, singular"}
+      - {id: es-17-c3, type: cloze, text: "Las llaves ___ encima de la mesa.", answer: "están",
+         l1: "The keys are on top of the table.", note: "where specific things are (las llaves) → estar, plural"}
+      - {id: es-17-c4, type: cloze, text: "La farmacia está al lado ___ supermercado.", answer: "del",
+         l1: "The chemist's is next to the supermarket.", note: "de + el = del"}
+      - {id: es-17-c5, type: cloze, text: "El perro está ___ de la mesa.", answer: "debajo",
+         l1: "The dog is under the table.", note: "debajo de = under"}
+      - {id: es-17-c6, type: cloze, text: "El baño está ___ de esa puerta.", answer: "detrás",
+         l1: "The bathroom is behind that door.", note: "detrás de = behind"}
+      - {id: es-17-c7, type: cloze, text: "El banco está ___ la farmacia y el hotel.", answer: "entre",
+         l1: "The bank is between the chemist's and the hotel.", note: "entre = between; it takes no de"}
+
+  # ---------------------------------------------------------------- 18
+  - id: es-18
+    title: "Body, health & clothes: doler, llevar"
+    goal: "I can say what hurts and how I feel, ask for a doctor, and say what someone is wearing."
+    notes: |
+      **Doler** (to hurt) works exactly like **gustar**: the part that hurts is the subject, and the person is *me / te / le / nos / os / les*. Its stem changes o → ue.
+
+      | Spanish | English |
+      | Me duele la cabeza. | My head hurts. |
+      | Me duelen los pies. | My feet hurt. |
+      | ¿Te duele el estómago? | Does your stomach hurt? |
+      | A Luis le duele la espalda. | Luis's back hurts. |
+
+      - **duele** with one thing, **duelen** with several.
+      - Use **the article**, never *mi*, with parts of the body: *Me duele **la** cabeza*, not *mi cabeza*. The pronoun already says whose it is.
+      - Other health phrases use **tener**: *Tengo fiebre*, *tengo tos* (a cough), *tengo gripe* (flu).
+
+      **Llevar** is a regular -ar verb meaning "to wear" as well as "to carry" or "to take": *Llevo una chaqueta negra.* Spanish uses the simple present where English says "is wearing".
+
+      *La ropa* (clothes) is singular in Spanish: *La ropa es cara.* Colours follow the noun and agree with it: *unos zapatos negros*.
+    items:
+      - {id: es-18-cabeza, type: vocab, l2: "la cabeza", l1: "the head",
+         ex: "¿Te duele la cabeza?", ex_l1: "Does your head hurt?"}
+      - {id: es-18-ojo, type: vocab, l2: "el ojo", l1: "the eye",
+         ex: "Mi hija tiene los ojos verdes.", ex_l1: "My daughter has green eyes.",
+         note: "j is a throaty h: O-ho."}
+      - {id: es-18-brazo, type: vocab, l2: "el brazo", l1: "the arm",
+         ex: "Tengo un problema en el brazo.", ex_l1: "I have a problem with my arm."}
+      - {id: es-18-pierna, type: vocab, l2: "la pierna", l1: "the leg",
+         ex: "Tengo las piernas cansadas.", ex_l1: "My legs are tired."}
+      - {id: es-18-pie, type: vocab, l2: "el pie", l1: "the foot",
+         ex: "Voy al trabajo a pie.", ex_l1: "I go to work on foot.",
+         note: "a pie = on foot. Plural: los pies."}
+      - {id: es-18-espalda, type: vocab, l2: "la espalda", l1: "the back (part of the body)",
+         ex: "A mi padre le duele la espalda.", ex_l1: "My father's back hurts."}
+      - {id: es-18-doler, type: vocab, l2: "doler", l1: "to hurt / to ache",
+         ex: "Me duelen los ojos.", ex_l1: "My eyes hurt.",
+         note: "Works like gustar, with o → ue: me duele (one thing), me duelen (several)."}
+      - {id: es-18-medico, type: vocab, l2: "el médico", l1: "the doctor", alt: ["el doctor"],
+         ex: "Mañana voy al médico.", ex_l1: "Tomorrow I'm going to the doctor's.",
+         note: "A woman is la médica. You address a doctor as doctor / doctora."}
+      - {id: es-18-ropa, type: vocab, l2: "la ropa", l1: "clothes",
+         ex: "Compro ropa nueva.", ex_l1: "I buy new clothes.",
+         note: "Singular in Spanish: la ropa es cara, never 'las ropas'."}
+      - {id: es-18-camisa, type: vocab, l2: "la camisa", l1: "the shirt",
+         ex: "La camisa es blanca.", ex_l1: "The shirt is white.",
+         note: "A T-shirt is la camiseta."}
+      - {id: es-18-pantalones, type: vocab, l2: "los pantalones", l1: "the trousers / pants", alt: ["el pantalón"],
+         ex: "Estos pantalones son caros.", ex_l1: "These trousers are expensive.",
+         note: "Jeans are los vaqueros in Spain, los jeans in Latin America."}
+      - {id: es-18-zapatos, type: vocab, l2: "los zapatos", l1: "the shoes",
+         ex: "Estos zapatos son nuevos.", ex_l1: "These shoes are new.",
+         note: "One shoe is el zapato. z sounds like 'th' in Spain and like 's' in Latin America."}
+      - {id: es-18-chaqueta, type: vocab, l2: "la chaqueta", l1: "the jacket", alt: ["la chamarra", "la campera"],
+         ex: "Tengo una chaqueta negra.", ex_l1: "I have a black jacket.",
+         note: "Mexico: la chamarra. Argentina: la campera."}
+      - {id: es-18-jersey, type: vocab, l2: "el jersey", l1: "the jumper / sweater", alt: ["el suéter", "el pulóver"],
+         ex: "Hace frío y quiero un jersey.", ex_l1: "It's cold and I want a jumper.",
+         note: "Spain: el jersey (said her-SAY). Latin America: el suéter."}
+      - {id: es-18-llevar, type: vocab, l2: "llevar", l1: "to wear (also: to carry, to take with you)", alt: ["llevar puesto"],
+         ex: "Hoy llevo zapatos negros.", ex_l1: "Today I'm wearing black shoes.",
+         note: "Regular -ar verb. The simple present covers 'is wearing'."}
+      - {id: es-18-me-duele-la-cabeza, type: phrase, l2: "Me duele la cabeza.", l1: "I have a headache.",
+         alt: ["Tengo dolor de cabeza", "A mí me duele la cabeza"],
+         note: "Literally 'the head hurts me': la cabeza, not mi cabeza."}
+      - {id: es-18-no-me-encuentro-bien, type: phrase, l2: "No me encuentro bien.", l1: "I don't feel well.",
+         alt: ["No me siento bien", "No estoy bien", "Me encuentro mal", "Me siento mal"],
+         note: "encontrarse = to feel (literally 'to find oneself'). Latin America prefers No me siento bien."}
+      - {id: es-18-que-te-pasa, type: phrase, l2: "¿Qué te pasa?", l1: "What's the matter (with you)? (informal)",
+         alt: ["¿Qué te ocurre?", "¿Qué tienes?"],
+         note: "Literally 'What is happening to you?' Formal: ¿Qué le pasa?"}
+      - {id: es-18-tengo-fiebre, type: phrase, l2: "Tengo fiebre.", l1: "I have a temperature / a fever.",
+         alt: ["Tengo calentura", "Yo tengo fiebre"],
+         note: "No article: tengo fiebre, tengo tos (a cough), tengo gripe (flu)."}
+      - {id: es-18-necesito-un-medico, type: phrase, l2: "Necesito un médico.", l1: "I need a doctor.",
+         alt: ["Necesito un doctor", "Necesito una médica", "Yo necesito un médico"],
+         note: "necesitar = to need, a regular -ar verb."}
+      - {id: es-18-c1, type: cloze, text: "Me ___ el estómago.", answer: "duele",
+         l1: "My stomach hurts.", note: "one thing hurts → duele"}
+      - {id: es-18-c2, type: cloze, text: "Me ___ los pies.", answer: "duelen",
+         l1: "My feet hurt.", note: "several things hurt → duelen"}
+      - {id: es-18-c3, type: cloze, text: "A mi abuelo ___ duelen las piernas.", answer: "le",
+         l1: "My grandfather's legs hurt.", note: "a + person … le: the pronoun is still needed"}
+      - {id: es-18-c4, type: cloze, text: "Hoy Marta ___ un vestido rojo.", answer: "lleva",
+         l1: "Today Marta is wearing a red dress.", note: "llevar → (ella) lleva"}
+      - {id: es-18-c5, type: cloze, text: "Yo siempre ___ pantalones negros.", answer: "llevo",
+         l1: "I always wear black trousers.", note: "llevar → (yo) llevo"}
+      - {id: es-18-c6, type: cloze, text: "Me lavo ___ manos.", answer: "las",
+         l1: "I wash my hands.", note: "body parts take the article, not a possessive: las manos (la mano is feminine)"}
+
+  # ---------------------------------------------------------------- 19
+  - id: es-19
+    title: "What I love & what I'm doing: hobbies, encantar, estar + gerundio"
+    goal: "I can talk about hobbies I love or don't care for, agree and disagree, and say what is happening right now."
+    notes: |
+      **Encantar** (to love) and **interesar** (to interest) work like *gustar*: *Me encanta el cine. Me encantan los perros. ¿Te interesa el fútbol?* Use *encanta / interesa* with one thing or a verb, *encantan / interesan* with several. *Encantar* is already strong, so never add *mucho*.
+
+      **Agreeing and disagreeing.** With normal verbs: *Yo también* (me too), *Yo tampoco* (me neither). With gustar-type verbs the reply starts with **a mí**:
+
+      | They say | Same for me | Not for me |
+      | Me gusta el cine. | A mí también. | A mí no. |
+      | No me gusta el cine. | A mí tampoco. | A mí sí. |
+
+      **Estar + gerundio** describes what is happening **right now**. Form the gerund by replacing *-ar* with **-ando** and *-er / -ir* with **-iendo**:
+
+      *hablar → hablando · comer → comiendo · vivir → viviendo*
+
+      *Estoy trabajando. ¿Qué estás haciendo?* A few are irregular: *leer → leyendo*, *dormir → durmiendo*.
+
+      Unlike English, never use it for the future: "I'm working tomorrow" is *Trabajo mañana* or *Voy a trabajar mañana*.
+    items:
+      - {id: es-19-encantar, type: vocab, l2: "encantar", l1: "to love (a thing or activity — works like gustar)",
+         ex: "Me encanta España.", ex_l1: "I love Spain.",
+         note: "Literally 'to delight'. For loving a person, Spanish uses querer: Te quiero."}
+      - {id: es-19-interesar, type: vocab, l2: "interesar", l1: "to interest (works like gustar)",
+         ex: "¿Te interesa el cine?", ex_l1: "Are you interested in cinema?",
+         note: "Me interesa… = I'm interested in… No extra word for 'in'."}
+      - {id: es-19-tambien, type: vocab, l2: "también", l1: "also / too",
+         ex: "Yo también hablo inglés.", ex_l1: "I speak English too.",
+         note: "Usually goes before the verb, not at the end of the sentence."}
+      - {id: es-19-tampoco, type: vocab, l2: "tampoco", l1: "neither / not … either",
+         ex: "Yo tampoco tengo coche.", ex_l1: "I don't have a car either.",
+         note: "The negative of también. Before the verb it replaces no: Yo tampoco tengo…"}
+      - {id: es-19-ahora-mismo, type: vocab, l2: "ahora mismo", l1: "right now", alt: ["en este momento"],
+         ex: "Ahora mismo estoy en casa.", ex_l1: "Right now I'm at home.",
+         note: "ahora = now; mismo adds 'right'."}
+      - {id: es-19-musica, type: vocab, l2: "la música", l1: "music",
+         ex: "Escucho música en el coche.", ex_l1: "I listen to music in the car.",
+         note: "With gustar and encantar it needs the article: Me encanta la música."}
+      - {id: es-19-pelicula, type: vocab, l2: "la película", l1: "the film / movie", alt: ["la peli", "el filme"],
+         ex: "La película es muy buena.", ex_l1: "The film is very good.",
+         note: "El cine is the cinema, as a place or an art; la película is one film."}
+      - {id: es-19-deporte, type: vocab, l2: "el deporte", l1: "sport",
+         ex: "Hago deporte los sábados.", ex_l1: "I do sport on Saturdays.",
+         note: "hacer deporte = to do sport, to exercise."}
+      - {id: es-19-futbol, type: vocab, l2: "el fútbol", l1: "football (soccer)", alt: ["el futbol"],
+         ex: "Me gusta mucho el fútbol.", ex_l1: "I like football a lot.",
+         note: "Mexico and Central America write and say futbol, stressed on the last syllable."}
+      - {id: es-19-bailar, type: vocab, l2: "bailar", l1: "to dance",
+         ex: "Bailo con mis amigos los sábados.", ex_l1: "I dance with my friends on Saturdays."}
+      - {id: es-19-cantar, type: vocab, l2: "cantar", l1: "to sing",
+         ex: "Mi hermana canta muy bien.", ex_l1: "My sister sings very well."}
+      - {id: es-19-cocinar, type: vocab, l2: "cocinar", l1: "to cook",
+         ex: "Mi padre cocina todos los días.", ex_l1: "My father cooks every day.",
+         note: "From la cocina, the kitchen."}
+      - {id: es-19-nadar, type: vocab, l2: "nadar", l1: "to swim",
+         ex: "Nado los lunes y los jueves.", ex_l1: "I swim on Mondays and Thursdays."}
+      - {id: es-19-jugar, type: vocab, l2: "jugar", l1: "to play (a sport or a game)",
+         ex: "Juego al fútbol los domingos.", ex_l1: "I play football on Sundays.",
+         note: "Stem change u → ue: juego, juegas, juega; but jugamos. Spain: jugar al fútbol; Latin America often jugar fútbol. For an instrument use tocar."}
+      - {id: es-19-mucho, type: vocab, l2: "mucho", l1: "a lot / very much (after a verb)",
+         ex: "Trabajo mucho.", ex_l1: "I work a lot.",
+         note: "muy goes before adjectives (muy bueno); mucho goes after verbs (me gusta mucho)."}
+      - {id: es-19-a-mi-tambien, type: phrase, l2: "A mí también.", l1: "Me too. (agreeing with 'Me gusta…')",
+         alt: ["A mí también me gusta"],
+         note: "Not 'yo también' after a gustar-type verb. mí takes an accent after a preposition."}
+      - {id: es-19-a-mi-tampoco, type: phrase, l2: "A mí tampoco.", l1: "Me neither. (agreeing with 'No me gusta…')",
+         alt: ["A mí tampoco me gusta"],
+         note: "tampoco agrees with a negative; también agrees with a positive."}
+      - {id: es-19-me-encanta-bailar, type: phrase, l2: "Me encanta bailar.", l1: "I love dancing.",
+         alt: ["A mí me encanta bailar"],
+         note: "encanta + infinitive, where English uses -ing."}
+      - {id: es-19-que-estas-haciendo, type: phrase, l2: "¿Qué estás haciendo?", l1: "What are you doing (right now)? (informal)",
+         alt: ["¿Qué estás haciendo ahora?", "¿Qué haces?", "¿Qué haces ahora?"],
+         note: "hacer → haciendo. The simple ¿Qué haces? can mean the same."}
+      - {id: es-19-estoy-trabajando, type: phrase, l2: "Estoy trabajando.", l1: "I'm working (right now).",
+         alt: ["Yo estoy trabajando", "Estoy trabajando ahora"],
+         note: "estar + -ando. Only for something in progress, never for future plans."}
+      - {id: es-19-c1, type: cloze, text: "Me ___ la música española.", answer: "encanta",
+         l1: "I love Spanish music.", note: "one thing → encanta"}
+      - {id: es-19-c2, type: cloze, text: "Me ___ los perros.", answer: "encantan",
+         l1: "I love dogs.", note: "several things → encantan"}
+      - {id: es-19-c3, type: cloze, text: "No me ___ el fútbol.", answer: "interesa",
+         l1: "Football doesn't interest me.", note: "one thing → interesa (interesan with several)"}
+      - {id: es-19-c4, type: cloze, text: "Ana está ___ por teléfono.", answer: "hablando",
+         l1: "Ana is talking on the phone.", note: "-ar → -ando: hablar → hablando"}
+      - {id: es-19-c5, type: cloze, text: "Estamos ___ en un restaurante.", answer: "comiendo",
+         l1: "We are eating in a restaurant.", note: "-er / -ir → -iendo: comer → comiendo"}
+      - {id: es-19-c6, type: cloze, text: "Estoy ___ un libro muy bueno.", answer: "leyendo",
+         l1: "I'm reading a very good book.", note: "irregular: leer → leyendo (i becomes y between vowels)"}
+
+  # ---------------------------------------------------------------- 20
+  - id: es-20
+    title: "Travel, transport & jobs: lo, la, los, las"
+    goal: "I can buy a ticket, say how I travel and what I do for a living, and understand 'it' and 'them' in simple sentences."
+    notes: |
+      **Transport** takes **en**: *en tren, en avión, en metro, en coche, en bicicleta*. The exception is **a pie** (on foot).
+
+      **Jobs** take no article after *ser*: *Soy enfermero. Mi madre es abogada.* Most job words have a feminine form: *camarero / camarera*, *jefe / jefa*. To ask, say *¿A qué te dedicas?*
+
+      **Direct-object pronouns** replace a noun you have already mentioned, so you need not repeat it. They match its gender and number:
+
+      | Replaces | Pronoun |
+      | a masculine thing (el billete) | lo |
+      | a feminine thing (la maleta) | la |
+      | masculine plural (los billetes) | los |
+      | feminine plural (las llaves) | las |
+
+      They look like the articles, but **lo** replaces *el*. The big difference from English is position: the pronoun goes **before** the conjugated verb.
+
+      *¿Tienes el pasaporte? — Sí, **lo** tengo.* (Yes, I have it.)
+
+      *¿Las llaves? No **las** tengo.* (I don't have them.)
+
+      In the negative, *no* comes first: *no lo tengo*. For now, aim to recognise these; you already know one in *No lo sé*.
+    items:
+      - {id: es-20-tren, type: vocab, l2: "el tren", l1: "the train",
+         ex: "El tren sale a las diez.", ex_l1: "The train leaves at ten."}
+      - {id: es-20-avion, type: vocab, l2: "el avión", l1: "the plane",
+         ex: "Voy a México en avión.", ex_l1: "I'm going to Mexico by plane.",
+         note: "Plural without the accent: los aviones."}
+      - {id: es-20-metro, type: vocab, l2: "el metro", l1: "the underground / subway", alt: ["el subte"],
+         ex: "El metro de Madrid es muy bueno.", ex_l1: "The Madrid underground is very good.",
+         note: "Buenos Aires calls it el subte."}
+      - {id: es-20-bicicleta, type: vocab, l2: "la bicicleta", l1: "the bicycle", alt: ["la bici"],
+         ex: "Voy a la universidad en bicicleta.", ex_l1: "I go to university by bike.",
+         note: "Everyday short form: la bici."}
+      - {id: es-20-billete, type: vocab, l2: "el billete", l1: "the ticket (for a train, bus or plane)", alt: ["el boleto", "el pasaje"],
+         ex: "Compro un billete de tren.", ex_l1: "I buy a train ticket.",
+         note: "Spain: el billete (also a banknote). Latin America: el boleto or el pasaje. A cinema ticket is la entrada."}
+      - {id: es-20-pasaporte, type: vocab, l2: "el pasaporte", l1: "the passport",
+         ex: "¿Tiene usted el pasaporte?", ex_l1: "Do you have your passport?"}
+      - {id: es-20-maleta, type: vocab, l2: "la maleta", l1: "the suitcase", alt: ["la valija"],
+         ex: "Mi maleta es roja.", ex_l1: "My suitcase is red.",
+         note: "Argentina and Uruguay: la valija."}
+      - {id: es-20-viaje, type: vocab, l2: "el viaje", l1: "the trip / journey",
+         ex: "¡Buen viaje!", ex_l1: "Have a good trip!",
+         note: "Masculine. The verb is viajar, to travel."}
+      - {id: es-20-vacaciones, type: vocab, l2: "las vacaciones", l1: "the holidays / vacation",
+         ex: "En agosto tengo vacaciones.", ex_l1: "In August I have holidays.",
+         note: "Always plural in Spanish."}
+      - {id: es-20-trabajo, type: vocab, l2: "el trabajo", l1: "the job / work", alt: ["el empleo"],
+         ex: "Me gusta mi trabajo.", ex_l1: "I like my job.",
+         note: "The noun of trabajar. Also the workplace: Voy al trabajo."}
+      - {id: es-20-camarero, type: vocab, l2: "el camarero", l1: "the waiter", alt: ["el mesero", "el mozo"],
+         ex: "Mi hermano es camarero.", ex_l1: "My brother is a waiter.",
+         note: "Feminine: la camarera. Latin America: el mesero (Mexico), el mozo (Argentina)."}
+      - {id: es-20-enfermero, type: vocab, l2: "el enfermero", l1: "the nurse (a man)",
+         ex: "Mi amigo es enfermero en un hospital.", ex_l1: "My friend is a nurse in a hospital.",
+         note: "Feminine: la enfermera. Related to enfermo, ill."}
+      - {id: es-20-abogado, type: vocab, l2: "el abogado", l1: "the lawyer (a man)",
+         ex: "Su padre es abogado.", ex_l1: "His father is a lawyer.",
+         note: "Feminine: la abogada. No article after ser."}
+      - {id: es-20-jefe, type: vocab, l2: "el jefe", l1: "the boss (a man)",
+         ex: "Mi jefe es muy simpático.", ex_l1: "My boss is very nice.",
+         note: "Feminine: la jefa."}
+      - {id: es-20-oficina, type: vocab, l2: "la oficina", l1: "the office",
+         ex: "Trabajo en una oficina.", ex_l1: "I work in an office."}
+      - {id: es-20-a-que-te-dedicas, type: phrase, l2: "¿A qué te dedicas?", l1: "What do you do for a living? (informal)",
+         alt: ["¿En qué trabajas?", "¿Cuál es tu trabajo?", "¿De qué trabajas?"],
+         note: "Literally 'What do you dedicate yourself to?' Also: ¿En qué trabajas?"}
+      - {id: es-20-trabajo-en-hospital, type: phrase, l2: "Trabajo en un hospital.", l1: "I work in a hospital.",
+         alt: ["Yo trabajo en un hospital"],
+         note: "The h of hospital is silent."}
+      - {id: es-20-ida-y-vuelta, type: phrase, l2: "Un billete de ida y vuelta, por favor.", l1: "A return ticket, please.",
+         alt: ["Un boleto de ida y vuelta, por favor", "Un pasaje de ida y vuelta, por favor", "Un billete de ida y vuelta",
+               "Un boleto redondo, por favor"],
+         note: "ida y vuelta = going and coming back. A single is un billete de ida."}
+      - {id: es-20-a-que-hora-sale, type: phrase, l2: "¿A qué hora sale el tren?", l1: "What time does the train leave?",
+         note: "salir = to leave. 'Arrive' is llegar: ¿A qué hora llega?"}
+      - {id: es-20-de-vacaciones, type: phrase, l2: "Estoy de vacaciones.", l1: "I'm on holiday.",
+         alt: ["Yo estoy de vacaciones"],
+         note: "estar de vacaciones: de, not en."}
+      - {id: es-20-c1, type: cloze, text: "¿El pasaporte? No ___ tengo.", answer: "lo",
+         l1: "The passport? I don't have it.", note: "el pasaporte (masculine singular) → lo, placed before the verb"}
+      - {id: es-20-c2, type: cloze, text: "¿Mi maleta? ___ tengo aquí.", answer: "La",
+         l1: "My suitcase? I have it here.", note: "la maleta (feminine singular) → la"}
+      - {id: es-20-c3, type: cloze, text: "Compro dos billetes y ___ pago con tarjeta.", answer: "los",
+         l1: "I buy two tickets and pay for them by card.", note: "los billetes (masculine plural) → los"}
+      - {id: es-20-c4, type: cloze, text: "Necesito mis gafas, pero no ___ tengo aquí.", answer: "las",
+         l1: "I need my glasses, but I don't have them here.", note: "las gafas (feminine plural) → las"}
+      - {id: es-20-c5, type: cloze, text: "Vamos a Sevilla ___ tren.", answer: "en",
+         l1: "We are going to Seville by train.", note: "transport takes en: en tren, en avión, en coche"}
+      - {id: es-20-c6, type: cloze, text: "Mi hermano va al trabajo ___ pie.", answer: "a",
+         l1: "My brother goes to work on foot.", note: "the one exception: a pie (on foot)"}

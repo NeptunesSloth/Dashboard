@@ -1,11 +1,11 @@
 # Sect Academy — content authoring guide
 
-Courses are plain YAML "packs" in `maybot_control_center/academy/packs/`. They are
+Courses are plain YAML "packs" in `sect_academy/packs/`. They are
 curated, original, and work with no LLM and no network. Validate with:
 
 ```bash
-python -m maybot_control_center.academy.packs            # every pack
-python -m maybot_control_center.academy.packs path.yaml  # one pack
+python -m sect_academy.packs            # every pack
+python -m sect_academy.packs path.yaml  # one pack
 ```
 
 A pack that fails validation is skipped at load time (the app still boots).
@@ -17,19 +17,35 @@ id: french-a1                 # lowercase, [a-z0-9_.-]
 title: "French — A1 Foundations"
 kind: language                # language | cert
 blurb: "One line shown on the course card."
-hall: tongues_west            # the sect room this course powers (see game.ROOMS)
+hall: tongues_west            # a short key grouping related courses (tongues_west, tongues_south, ward_hall)
 language: French              # language packs only
 lang: fr-FR                   # language packs only: BCP-47 tag used for speech
 exam:                         # cert packs only
   name: CompTIA Security+
   code: SY0-701
-  questions: 30               # length of the in-app trial (mock exam)
+  questions: 30               # length of the quick in-app trial (mock exam)
   minutes: 30
-  pass_pct: 80                # in-app pass mark (readiness threshold)
+  pass_pct: 85                # in-app pass mark: deliberately above the real exam's
+  full: {questions: 90, minutes: 90}   # optional full-length mock
   domains:                    # official blueprint; weights must sum to 100
     - {id: "1", title: General Security Concepts, weight: 12}
 units: [...]
 ```
+
+## Splitting a course across files
+
+A large course can be written as several files. One file carries the header;
+each *part* file has only:
+
+```yaml
+part_of: security-plus        # the id of the course this extends
+units: [...]
+```
+
+Part units are appended to the course in filename order. A part must not repeat
+a unit id or item id that exists anywhere else. Validate one file with
+`python -m sect_academy.packs <file>.yaml` (the course it extends is loaded
+automatically).
 
 ## Units
 
@@ -88,5 +104,24 @@ pack, e.g. `fr-03-avoir`) and a `type`.
   correct choice, and `why` explains why it is right (and ideally why the nearest
   distractor is wrong). Choices are shuffled at ask time, so never write "all of
   the above" / "both A and B".
+```yaml
+- {id: sy-1-m01, type: multi,
+   q: "Which TWO of these are detective controls?",
+   choices: [Door lock, Audit log review, Security guard patrol report, Firewall deny rule, Encryption at rest],
+   answers: [1, 2],
+   why: "Log review and patrol reports find events after the fact; the others prevent."}
+- {id: sy-4-o01, type: order,
+   q: "Put the steps of handling a suspected compromise in order.",
+   steps: ["Confirm the event is an incident", "Contain the affected hosts", "Remove the cause", "Restore service", "Review lessons learned"],
+   why: "You cannot contain what you have not identified, and recovery follows eradication."}
+```
+
+- `multi` is the exam's "choose TWO / choose THREE": 5-6 distinct choices,
+  `answers` lists the 2-3 correct indices, and the stem must say how many to
+  choose. It is graded all-or-nothing, so every listed answer must be
+  unambiguously right and every other choice unambiguously wrong.
+- `order` gives 3-6 `steps` **in the correct order** (the app shuffles them). Use
+  it only where one order is defensible (a named process, a handshake, a
+  troubleshooting method), never for lists of equally valid things.
 - **Original questions only.** Write against the public exam objectives. Never
   copy real exam items or "brain dump" material.
