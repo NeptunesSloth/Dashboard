@@ -1,6 +1,8 @@
 // Sect Academy — one small app shell: sect home, study sessions, library, trials, progress.
 // Vanilla JS, no build step. All server/user text goes through esc() before innerHTML.
 
+import { ICON, SITES, portrait, sectScene, siteRect } from '/art.js';
+
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 // Anything shown as a number is forced to be one, so a doctored save file cannot inject markup.
@@ -106,14 +108,17 @@ function speak(text, lang) {
 
 /* ---------------- routing ---------------- */
 const ROUTES = { '/': renderSect, '/study': renderStudy, '/library': renderLibrary, '/trials': renderTrials, '/progress': renderProgress };
-const NAV = [['/', '宗', 'Sect'], ['/study', '修', 'Study'], ['/library', '經', 'Library'], ['/trials', '劫', 'Trials'], ['/progress', '道', 'Progress']];
+const NAV = [['/', 'sect', 'Sect'], ['/study', 'study', 'Study'], ['/library', 'library', 'Library'], ['/trials', 'trials', 'Trials'], ['/progress', 'progress', 'Progress']];
+const GUIDE = 'Elder Bai';
+const guide = (mood = 'calm', size = 56) => portrait(GUIDE, { kind: 'elder', mood, size });
+const face = (d, size = 48) => portrait(d.id + d.name, { root: d.root, size });
 
 function drawNav() {
   const path = ROUTES[location.pathname] ? location.pathname : '/';
   const due = OV ? OV.today.due : 0;
   $('#nav').innerHTML = NAV.map(([href, glyph, label]) =>
-    `<a href="${href}" data-link ${href === path ? 'aria-current="page"' : ''}><span class="glyph" aria-hidden="true">${glyph}</span>${label}${href === '/study' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</a>`).join('')
-    + `<a class="extra" href="/learn"><span class="glyph" aria-hidden="true">師</span>AI tutor</a><a class="extra" href="/command"><span class="glyph" aria-hidden="true">陣</span>Fleet</a>`;
+    `<a href="${href}" data-link ${href === path ? 'aria-current="page"' : ''}>${ICON[glyph]}${label}${href === '/study' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</a>`).join('')
+    + `<a class="extra" href="/learn">${ICON.scroll}AI tutor</a><a class="extra" href="/command">${ICON.fleet}Fleet</a>`;
 }
 async function refresh() {
   const tz = -new Date().getTimezoneOffset();
@@ -163,9 +168,11 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#she
 /* ================= founding ================= */
 function renderFounding() {
   const courses = OV.courses;
+  const preview = ['grand_hall', 'tongues_west', 'tongues_south', 'ward_hall', 'spirit_vein', 'meditation'].map((id) => ({ id, level: id === 'grand_hall' ? 3 : 2 }));
   view.innerHTML = `<div class="found">
+    <div class="hero">${sectScene(preview)}</div>
     <h1>Found your sect</h1>
-    <p class="dim">Every answer you give from memory becomes qi. Qi raises your realm, your realm raises the sect. Choose what you will cultivate — you can change this later in the Library.</p>
+    <p class="dim">Every answer you give from memory becomes qi. Qi raises your realm, and your realm raises the sect. Choose what you will cultivate — you can change this later in the library.</p>
     <label class="field"><span>Name of the sect</span><input type="text" id="f-name" maxlength="40" placeholder="Azure Lantern Sect" autocomplete="off"></label>
     <label class="field"><span>Your name as Sect Master</span><input type="text" id="f-master" maxlength="30" placeholder="Master Jay" autocomplete="off"></label>
     <h3 style="margin-top:20px">Arts to cultivate</h3>
@@ -173,7 +180,7 @@ function renderFounding() {
       <span><b>${esc(c.title)}</b><br><span class="dim small">${esc(c.blurb)} ${c.total} items in ${c.units.length} units.</span></span></label>`).join('')
     : '<p class="dim">No courses are installed. Add a pack under <code>academy/packs</code> and reload.</p>'}
     <p class="dim small" style="margin-top:14px">Each art adds about 8 new items a day. Two or three arts is a comfortable daily load; more is possible but the reviews add up.</p>
-    <p id="f-err" class="small" style="color:#ff9a8a" role="alert"></p>
+    <p id="f-err" class="small" style="color:var(--verm-d);font-weight:800" role="alert"></p>
     <button class="btn primary big" id="f-go" style="width:100%">Found the sect</button>
   </div>`;
   $('#f-go').onclick = async () => {
@@ -186,7 +193,6 @@ function renderFounding() {
 }
 
 /* ================= sect home ================= */
-const portrait = (p) => `/assets/sect/portraits/${encodeURIComponent(p)}.png`;
 const ago = (ts) => { const s = Date.now() / 1000 - ts; if (s < 90) return 'now'; if (s < 3600) return `${Math.round(s / 60)}m`; if (s < 86400) return `${Math.round(s / 3600)}h`; return `${Math.round(s / 86400)}d`; };
 const until = (ts) => { const s = Math.max(0, ts - Date.now() / 1000); return s >= 3600 ? `${Math.floor(s / 3600)}h ${Math.round((s % 3600) / 60)}m` : `${Math.max(1, Math.round(s / 60))}m`; };
 
@@ -196,74 +202,85 @@ function todayPanel() {
   const t = OV.today, g = OV.game;
   const mine = OV.courses.filter((c) => c.enrolled);
   const work = t.due + t.new_left;
-  let head, sub, btn;
+  let head, sub, btn, mood = 'calm', tone = '';
   if (!mine.length) {
-    head = 'Choose an art to cultivate'; sub = 'You are not enrolled in any course. Pick one in the library to begin.';
-    btn = `<a class="btn primary big" href="/library" data-link>Open the library</a>`;
+    head = 'Choose an art to cultivate'; sub = 'You are not enrolled in any course yet. Pick one in the library to begin.';
+    btn = `<a class="btn primary big" href="/library" data-link>Open the library</a>`; mood = 'think'; tone = 'rest';
   } else if (g.seclusion) {
     head = 'The gates are sealed'; sub = 'You are in closed-door seclusion. Your streak is frozen until you return.';
-    btn = `<button class="btn primary big" data-act="unseclude">Reopen the gates</button>`;
+    btn = `<button class="btn primary big" data-act="unseclude">Reopen the gates</button>`; tone = 'rest';
+  } else if (g.tribulation) {
+    head = 'A tribulation gathers'; sub = `Your qi is full. Pass a trial to break through to ${esc(g.next_realm)}.`;
+    btn = `<a class="btn seal big" href="/trials" data-link>Face a trial</a>${work > 0 ? ' <a class="btn big" href="/study" data-link>Study first</a>' : ''}`; mood = 'think'; tone = 'alert';
   } else if (work > 0) {
-    head = g.studied_today ? 'More cultivation awaits' : "Today's cultivation";
-    sub = `<span class="counts"><span><b class="num">${t.due}</b>to review</span><span><b class="num">${t.new_left}</b>new</span></span>`;
-    btn = `<a class="btn primary big" href="/study" data-link>${g.studied_today ? 'Continue cultivating' : 'Begin cultivation'}</a>`;
+    head = g.studied_today ? 'There is more, if you wish' : 'Your cultivation for today';
+    sub = `<span class="counts"><span class="count"><b class="num">${t.due}</b>to review</span><span class="count new"><b class="num">${t.new_left}</b>new</span></span>`;
+    btn = `<a class="btn primary big" href="/study" data-link>${g.studied_today ? 'Keep cultivating' : 'Begin cultivation'}</a>`;
+    mood = g.studied_today ? 'happy' : 'calm';
   } else {
-    head = 'Today is complete'; sub = 'Nothing is due until tomorrow. Rest, tend the sect, or sharpen your weakest items.';
-    btn = `<a class="btn big" href="/study?practice=1" data-link>Practice weak items</a>`;
+    head = 'Today is complete'; sub = 'Nothing more is due until tomorrow. Rest, tend the sect, or sharpen your weakest items.';
+    btn = `<a class="btn big" href="/study?practice=1" data-link>Practice weak items</a>`; mood = 'happy'; tone = 'rest';
   }
-  const risk = g.streak_at_risk && !g.seclusion ? `<p class="small" style="color:var(--lantern);margin:0">Study today to keep your ${g.streak}-day streak${g.grace ? ` (${g.grace} grace pill${g.grace > 1 ? 's' : ''} in reserve)` : ''}.</p>` : '';
-  const trib = g.tribulation ? `<p style="margin:0"><span class="tag red">Tribulation</span> Your qi is full. <a href="/trials" data-link>Pass a trial</a> to break through to ${esc(g.next_realm)}.</p>` : '';
+  const risk = g.streak_at_risk && !g.seclusion && work > 0 ? `<p class="small" style="margin:6px 0 0;font-weight:700">Study today to keep your ${g.streak}-day streak${g.grace ? ` (${g.grace} grace pill${g.grace > 1 ? 's' : ''} in reserve)` : ''}.</p>` : '';
   const chips = mine.length > 1 && work > 0 && !g.seclusion ? `<div class="chips">${mine.filter((c) => c.due + c.new_left > 0).map((c) =>
     `<a class="chip" href="/study?course=${encodeURIComponent(c.id)}" data-link>${esc(c.title.split(' — ')[0])} <span class="dim num">${c.due + c.new_left}</span></a>`).join('')}</div>` : '';
-  return `<section class="panel today"><h2>${head}</h2><div>${sub}</div>${trib}${risk}<div>${btn}</div>${chips}</section>`;
+  return `<section class="panel today ${tone}"><div class="says">${guide(mood)}<div class="bubble"><h2>${head}</h2><div style="margin-top:6px">${sub}</div>${risk}</div></div>
+    <div class="row">${btn}</div>${chips}</section>`;
 }
 
 function renderSect() {
   const g = OV.game;
   const week = Array.from({ length: g.week.goal }, (_, i) => `<i class="${i < g.week.days ? 'on' : ''}"></i>`).join('');
+  // which robe colour stands outside which room
+  const staff = {};
+  g.disciples.forEach((d, i) => { if (d.room && !d.away) (staff[d.room] = staff[d.room] || []).push(i); });
   const rooms = g.rooms.map((r) => {
-    const [x, y, w, h] = r.rect; const open = r.open;
-    const staff = (r.staff || []).map((id) => g.disciples.find((d) => d.id === id)).filter((d) => d && !d.away);
+    const [x, y, w, h] = siteRect(r.id); const open = r.open;
     return `<button class="room ${open ? '' : 'closed'}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${h}%"
-      aria-label="${esc(r.name)}, ${open ? `level ${r.level}` : 'not built'}">
-      ${canUpgrade(r, g) ? '<span class="can" title="You can afford this"></span>' : ''}
+      aria-label="${esc(r.name)}, ${open ? `level ${r.level}` : 'not built'}${canUpgrade(r, g) ? ', you can afford the next level' : ''}">
+      ${canUpgrade(r, g) ? '<span class="can" aria-hidden="true">↑</span>' : ''}
       <span class="plaque">${esc(r.name)}${open ? `<em>${r.level}</em>` : ''}</span>
-      ${staff.length ? `<span class="staff">${staff.map((d) => `<img src="${portrait(d.portrait)}" alt="">`).join('')}</span>` : ''}
     </button>`;
   }).join('');
-  const quests = g.quests.length ? g.quests.map((q) => `<li class="quest ${q.done ? 'done' : ''}"><span class="mark">${q.done ? '✓' : ''}</span>
-      <span class="grow">${esc(q.text)}</span><span class="dim small num">${q.progress}/${q.goal}</span></li>`).join('')
+  const vein = SITES.spirit_vein;
+  const bubble = g.pending > 0 ? `<button class="bubble-collect" data-act="collect" style="left:${(vein.x - 30) / 10}%;top:${(vein.y - vein.h - 46) / 7}%" aria-label="Collect ${g.pending} spirit stones">${ICON.stone}+${g.pending}</button>` : '';
+  const cards = g.rooms.map((r) => `<button class="hallcard ${r.open ? '' : 'closed'} ${canUpgrade(r, g) ? 'afford' : ''}" data-room="${esc(r.id)}">
+      <b>${esc(r.name)}</b><span>${r.open ? `Level ${r.level}` : 'Not built'}${canUpgrade(r, g) ? ` · ${r.open ? 'upgrade' : 'build'} for ${r.cost}` : ''}</span></button>`).join('');
+  const quests = g.quests.length ? g.quests.map((q) => `<li class="quest ${q.done ? 'done' : ''}"><span class="mark">${q.done ? ICON.check : ''}</span>
+      <div class="grow">${esc(q.text)}${q.done ? '' : `<div class="bar thin jade"><i style="width:${Math.round(100 * q.progress / Math.max(q.goal, 1))}%"></i></div>`}</div>
+      <span class="dim small num">${q.progress}/${q.goal}</span></li>`).join('')
     : '<li class="dim">Quests appear once you are enrolled in a course.</li>';
-  const chron = g.chronicle.slice(0, 12).map((e) => `<li class="chron"><time>${ago(e.ts)}</time>${esc(e.text)}</li>`).join('') || '<li class="dim">The chronicle is empty. Your first session will write its first line.</li>';
+  const chron = g.chronicle.slice(0, 10).map((e) => `<li class="chron"><time>${ago(e.ts)}</time>${esc(e.text)}</li>`).join('') || '<li class="dim">The chronicle is empty. Your first session will write its first line.</li>';
   view.innerHTML = `
-    <header class="masthead">
+    <header class="status">
       <h1>${esc(g.name)}<small>${esc(g.tier)}, led by ${esc(g.master)}</small></h1>
-      <div class="vitals">
-        <div class="vital"><b>${esc(g.realm)}</b><span>${esc(g.stage)} stage${g.tribulation ? ', tribulation ready' : ''}</span>
-          <div class="bar" title="${g.qi_into} of ${g.qi_need} qi"><i style="width:${g.qi_pct}%"></i></div></div>
-        <div class="vital"><b class="num">${g.stones.toLocaleString()}</b><span>spirit stones${g.per_day ? `, up to +${g.per_day} idle a day` : ''}</span>
-          ${g.pending > 0 ? `<br><button class="btn" data-act="collect">Collect ${g.pending}</button>` : ''}</div>
-        <div class="vital"><b class="num">${g.streak} day${g.streak === 1 ? '' : 's'}</b><span>streak, ${g.grace} grace pill${g.grace === 1 ? '' : 's'}</span>
-          <div class="week" style="margin-top:8px" title="${g.week.days} of ${g.week.goal} days this week">${week}</div></div>
-        <div class="vital"><b class="num">${g.power.toLocaleString()}</b><span>sect power, ${g.learned} items learned</span>
-          <div class="small dim" style="margin-top:6px">Qi flow ×${g.flow}</div></div>
-      </div>
+      <span class="pill flame ${g.streak ? '' : 'off'}" title="Day streak. Best: ${g.best_streak}">${ICON.flame}${g.streak}</span>
+      <span class="pill pillc" title="Grace pills: each one covers a missed day">${ICON.pill}${g.grace}</span>
+      <span class="pill stone" title="Spirit stones${g.per_day ? `. Up to +${g.per_day} idle a day` : ''}">${ICON.stone}${g.stones.toLocaleString()}</span>
     </header>
     <div class="grid2">
+      ${todayPanel()}
       <div>
-        ${todayPanel()}
-        <section class="panel" style="padding:10px">
-          <div class="hq"><img class="art" src="/assets/sect/hq.png" alt="A cut-away view of the sect's halls">${rooms}</div>
-          <p class="dim small" style="margin:8px 4px 0">Select a room to build it, upgrade it, or post disciples there. A gold dot marks what you can afford.</p>
-        </section>
+        <section class="panel realm"><div class="who">${portrait(g.master + g.name, { root: 'Heaven Grade', size: 64 })}<span class="ring"></span></div>
+          <div class="grow"><b>${esc(g.realm)}</b> <span class="tag ${g.tribulation ? 'red' : 'blue'}">${g.tribulation ? 'Tribulation ready' : `${esc(g.stage)} stage`}</span>
+            <div class="bar violet" title="${g.qi_into} of ${g.qi_need} qi"><i style="width:${g.qi_pct}%"></i></div>
+            <div class="small dim" style="margin-top:4px">${ICON.qi} ${g.qi_into.toLocaleString()} / ${g.qi_need.toLocaleString()} qi to the next stage</div>
+            <div class="mini"><span><b class="num">${g.learned}</b>items learned</span><span><b class="num">${g.power.toLocaleString()}</b>sect power</span><span><b class="num">×${g.flow}</b>qi flow</span></div></div></section>
       </div>
-      <div>
-        <section class="panel"><h2>Daily quests</h2><ul class="list" style="margin-top:6px">${quests}</ul></section>
+    </div>
+    <section class="panel scenewrap">
+      <div class="hq">${sectScene(g.rooms, staff)}${rooms}${bubble}</div>
+      <div class="halls">${cards}</div>
+      <p class="dim small" style="margin:10px 4px 0">Tap a hall to build it, raise it, or see who works there. An arrow marks what you can afford.</p>
+    </section>
+    <div class="grid3">
+        <section class="panel"><div class="row"><h2 class="grow">Daily quests</h2><span class="week" title="${g.week.days} of ${g.week.goal} study days this week">${week}</span></div>
+          <ul class="list" style="margin-top:6px">${quests}</ul></section>
         <section class="panel"><div class="row"><h2 class="grow">Disciples <span class="dim small num">${g.disciples.length}/${g.disciple_cap}</span></h2>
-          <button class="btn" data-act="recruit">${g.candidates.length ? 'See candidates' : `Recruit (${g.recruit_tokens})`}</button></div>
+          <button class="btn ${g.recruit_tokens || g.candidates.length ? 'gold' : ''}" data-act="recruit">${g.candidates.length ? 'See candidates' : `Recruit (${g.recruit_tokens})`}</button></div>
           <ul class="list" style="margin-top:6px">${disciplesList(g)}</ul></section>
-        <section class="panel"><h2>Chronicle</h2><ul class="list" style="margin-top:6px">${chron}</ul></section>
-      </div>
+        <section class="panel"><h2>Chronicle</h2><ul class="list" style="margin-top:6px">${chron}</ul>
+</section>
     </div>`;
   view.querySelectorAll('[data-room]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.room); });
   bindActs(view);
@@ -277,7 +294,7 @@ function disciplesList(g) {
     const where = d.away && mission ? `<span class="tag gold">${esc(mission.name)}, back in ${until(mission.ends)}</span>`
       : `<select data-assign="${esc(d.id)}" aria-label="Post for ${esc(d.name)}"><option value="">Resting</option>${posts.map((r) =>
         `<option value="${esc(r.id)}" ${d.room === r.id ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select>`;
-    return `<li class="disciple"><img src="${portrait(d.portrait)}" alt=""><div class="grow"><b>${esc(d.name)}</b>
+    return `<li class="disciple">${face(d)}<div class="grow"><b>${esc(d.name)}</b>
       <div class="dim small">${esc(d.rank)}, level ${d.level}. ${esc(d.root)} root</div></div>${where}</li>`;
   }).join('');
 }
@@ -309,7 +326,7 @@ async function recruitSheet() {
   if (res.ok === false) return;
   res.candidates.forEach((c) => fix(c, NUMERIC.disciple));
   openSheet(`<h2>Three seekers wait at the gate</h2><p class="dim">Choose one to join the sect. A finer spirit root earns more and grows faster.</p>
-    <div class="cands">${res.candidates.map((c) => `<div class="cand"><img src="${portrait(c.portrait)}" alt=""><b>${esc(c.name)}</b>
+    <div class="cands">${res.candidates.map((c) => `<div class="cand">${face(c, 72)}<b>${esc(c.name)}</b>
       <span class="tag ${c.talent >= 1.45 ? 'gold' : ''}">${esc(c.root)}</span><div class="dim small">${esc(c.traits.join(', '))}</div>
       <button class="btn primary" data-cand="${esc(c.id)}">Accept</button></div>`).join('')}</div>`);
   $('#sheet').querySelectorAll('[data-cand]').forEach((b) => {
@@ -406,7 +423,7 @@ function runSession(s) {
       <span class="dim small num">${st.done}/${total}</span></div><div class="ex">${inner}</div></div>`;
     $('#s-exit').onclick = () => go('/');
   };
-  const sayBtn = (text, lang, cls = '') => (canSpeak(lang) ? `<button class="say ${cls}" data-say="${esc(text)}" data-lang="${esc(lang)}" aria-label="Play audio">🔊</button>` : '');
+  const sayBtn = (text, lang, cls = '') => (canSpeak(lang) ? `<button class="say ${cls}" data-say="${esc(text)}" data-lang="${esc(lang)}" aria-label="Play audio">${ICON.sound}</button>` : '');
   const bindSay = () => view.querySelectorAll('[data-say]').forEach((b) => { b.onclick = () => speak(b.dataset.say, b.dataset.lang); });
 
   async function finish(silent) {
@@ -431,9 +448,10 @@ function runSession(s) {
     leaveGuard = null;
     const acc = st.first ? Math.round(100 * st.correct / st.first) : 0;
     const events = [...st.events, ...((res && res.events) || [])];
-    view.innerHTML = `<div class="session summary"><h1>${s.practice ? 'Practice complete' : 'Session complete'}</h1>
+    const petals = acc >= 70 ? `<div class="petals" aria-hidden="true">${Array.from({ length: 18 }, (_, i) => `<i style="left:${(i * 53) % 100}%;animation-delay:${(i % 6) * 0.18}s"></i>`).join('')}</div>` : '';
+    view.innerHTML = `<div class="session summary">${petals}${guide(acc >= 70 ? 'happy' : 'calm', 96)}<h1>${s.practice ? 'Practice complete' : 'Session complete'}</h1>
       <p class="dim">${acc >= 90 ? 'Clean recall. The sect grows stronger.' : acc >= 70 ? 'Solid work. The misses will come back until they stick.' : 'A hard session is where memory is built. The misses come back until they stick.'}</p>
-      <div class="gains"><div><b class="num">${acc}%</b>first-try accuracy</div><div><b class="num">+${num(st.qi)}</b>qi</div><div><b class="num">+${num(res && res.stones)}</b>spirit stones</div></div>
+      <div class="gains"><div><b class="num">${acc}%</b><span>first try</span></div><div><b class="num">+${num(st.qi)}</b><span>qi</span></div><div><b class="num">+${num(res && res.stones)}</b><span>spirit stones</span></div></div>
       ${res && res.counted === false && !s.practice ? '<p class="dim small">Finish a whole session for it to count toward your streak.</p>' : ''}
       ${events.length ? `<ul class="list panel">${events.map((e) => `<li>${esc(e.text)}</li>`).join('')}</ul>` : ''}
       <div class="foot"><div class="row">
@@ -444,7 +462,8 @@ function runSession(s) {
 
   function showNotes() {
     const n = notes.shift();
-    shell(`<div class="introcard"><p class="dim small" style="margin:0">New unit</p><h2 style="margin:2px 0 4px">${esc(n.title)}</h2>
+    shell(`<div class="guide">${guide('calm')}<div class="speech">A new chapter opens. Read this once, then we practise.</div></div>
+      <div class="introcard"><span class="newtag">New unit</span><h2 style="margin:2px 0 4px">${esc(n.title)}</h2>
       <p class="dim">${esc(n.goal)}</p>${md(n.notes)}</div><div class="foot"><button class="btn primary big" id="s-next">Start learning</button></div>`);
     $('#s-next').onclick = next; $('#s-next').focus();
   }
@@ -466,7 +485,8 @@ function runSession(s) {
     else body = `<div class="l2">${esc(c.l2)} ${sayBtn(c.l2, lang)}</div><div class="l1">${esc(c.l1)}</div>
       ${c.ex ? `<div class="exm"><div>${esc(c.ex)} ${sayBtn(c.ex, lang)}</div><div class="dim">${esc(c.ex_l1 || '')}</div></div>` : ''}`;
     const canClaim = c.type !== 'concept';
-    shell(`<p class="ask">New — read it, say it aloud, then continue</p><div class="introcard">${body}${c.note ? `<div class="note">${esc(c.note)}</div>` : ''}</div>
+    shell(`<div class="guide">${guide('calm')}<div class="speech">Something new. Read it, say it aloud, then continue.</div></div>
+      <div class="introcard"><span class="newtag">New</span>${body}${c.note ? `<div class="note">${esc(c.note)}</div>` : ''}</div>
       <div class="foot"><div class="row">${canClaim ? '<button class="btn grow" id="s-know">I know this already</button>' : ''}<button class="btn primary big grow" id="s-next">Got it</button></div></div>`);
     bindSay();
     if (c.type !== 'concept') speak(c.type === 'cloze' ? c.full : c.l2, lang);
@@ -493,7 +513,7 @@ function runSession(s) {
     const input = typed ? `<div class="typed"><input type="text" id="s-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" lang="${esc(lang)}" aria-label="Your answer" enterkeyhint="done">
         ${accents.length ? `<div class="accents">${accents.map((a) => `<button type="button" data-acc="${a}" tabindex="-1">${a}</button>`).join('')}</div>` : ''}</div>`
       : `<div class="opts">${ex.choices.map((c, i) => `<button class="opt" data-i="${i}"><kbd>${i + 1}</kbd><span>${esc(c)}</span></button>`).join('')}</div>`;
-    shell(`<p class="ask">${esc(ex.ask || '')}${ex.retry ? ' <span class="tag gold">again</span>' : ''}</p>${top}${input}
+    shell(`<div class="guide">${guide(ex.retry ? 'think' : 'calm')}<div class="speech">${esc(ex.ask || '')}${ex.retry ? ' <span class="tag gold">once more</span>' : ''}</div></div>${top}${input}
       <div class="foot" id="s-foot">${typed ? '<button class="btn primary big" id="s-check">Check</button>' : ''}</div>`);
     bindSay();
     if (ex.say && ex.mode !== 'choose_l2') speak(ex.say, lang);
@@ -544,9 +564,9 @@ function runSession(s) {
       detail = `${pair}${typedWrong}${x.note ? `<p class="dim small">${esc(x.note)}</p>` : ''}`;
     }
     const showExpected = x.why && !res.correct;
-    $('#s-foot').innerHTML = `<div class="verdict ${res.correct ? 'ok' : 'no'}" role="status"><h3>${res.correct ? flag : 'Not quite'}</h3>
+    $('#s-foot').innerHTML = `<div class="verdict ${res.correct ? 'ok' : 'no'}" role="status">${guide(res.correct ? 'happy' : 'oops', 52)}<div class="grow"><h3>${res.correct ? flag : 'Not quite'}</h3>
       ${showExpected ? `<div class="ans">${esc(res.expected)}</div>` : ''}${detail}
-      ${when ? `<p class="dim small">${when}${!ex.retry && res.rewards && res.rewards.qi ? ` +${num(res.rewards.qi)} qi` : ''}</p>` : ''}</div>
+      ${when ? `<p class="dim small">${when}${!ex.retry && res.rewards && res.rewards.qi ? ` +${num(res.rewards.qi)} qi` : ''}</p>` : ''}</div></div>
       <button class="btn ${res.correct ? 'primary' : 'seal'} big" id="s-next">Continue</button>`;
     if (TYPED.has(ex.mode) || ex.mode === 'choose_l2') speak(x.l2 || res.expected, ex.lang);
     const b = $('#s-next'); b.onclick = next; b.focus();
@@ -564,18 +584,28 @@ function renderLibrary(params) {
   const cid = params && params.get('course'); const uid = params && params.get('unit');
   if (cid && uid) return renderUnit(cid, uid);
   const mine = OV.courses.filter((c) => c.enrolled), rest = OV.courses.filter((c) => !c.enrolled);
-  const card = (c) => `<section class="panel course">
-    <header><div class="grow"><h2>${esc(c.title)}</h2><p class="dim small" style="margin:2px 0 0">${esc(c.blurb)}</p></div>
+  const HUE = { tongues_west: ['#5bb6ff', 'Fr'], tongues_south: ['#ff8a5c', 'Es'], ward_hall: ['#2fd39a', '盾'] };
+  const card = (c) => {
+    const [hue, mark] = HUE[c.hall] || ['#a78bfa', '道'];
+    const cur = c.units.find((u) => u.unlocked && !u.done);
+    return `<section class="panel course">
+    <header><span class="crest" style="background:${hue};color:#10233f" aria-hidden="true">${c.hall === 'ward_hall' ? esc((c.exam && c.exam.code || 'Sec').slice(0, 3)) : mark}</span>
+      <div class="grow"><h2>${esc(c.title)}</h2><p class="dim small" style="margin:2px 0 0">${esc(c.blurb)}</p></div>
       ${c.enrolled ? `<span class="tag jade">Enrolled</span>` : `<button class="btn primary" data-enroll="${esc(c.id)}">Begin this art</button>`}</header>
-    ${c.enrolled ? `<div class="row small"><span class="grow dim">${c.seen} of ${c.total} learned, ${c.mastered} mastered, memory ${c.strength}%</span></div>
-      <div class="bar jade"><i style="width:${Math.round(100 * c.seen / Math.max(c.total, 1))}%"></i></div>
-      <div class="row"><a class="btn" href="/study?course=${encodeURIComponent(c.id)}" data-link>Study this art <span class="dim num">${c.due + c.new_left}</span></a>
-        ${c.seen < c.total ? `<button class="btn quiet" data-more="${esc(c.id)}">Learn 5 more today</button>` : ''}
+    ${c.enrolled ? `<div class="row small"><span class="grow dim">${c.seen} of ${c.total} learned · ${c.mastered} mastered · memory ${c.strength}%</span></div>
+      <div class="bar jade" style="margin:6px 0 12px"><i style="width:${Math.round(100 * c.seen / Math.max(c.total, 1))}%"></i></div>
+      <div class="row"><a class="btn primary" href="/study?course=${encodeURIComponent(c.id)}" data-link>Study this art <span class="num">${c.due + c.new_left}</span></a>
+        ${c.seen < c.total ? `<button class="btn" data-more="${esc(c.id)}">Learn 5 more today</button>` : ''}
         <button class="btn quiet" data-drop="${esc(c.id)}">Set aside</button></div>` : ''}
-    <div>${c.units.map((u, i) => `<button class="unit" data-unit="${esc(u.id)}" data-course="${esc(c.id)}">
-        <span class="n">${i + 1}</span><span class="grow"><b>${esc(u.title)}</b><br><span class="dim small">${esc(u.goal)}</span></span>
-        ${c.enrolled ? `<span class="bar ${u.done ? 'jade' : ''}"><i style="width:${Math.round(100 * u.seen / u.items)}%"></i></span>` : `<span class="dim small num">${u.items}</span>`}</button>`).join('')}</div>
+    <div class="path">${c.units.map((u, i) => {
+      const state = !c.enrolled ? '' : u.done ? 'done' : (cur && cur.id === u.id) ? 'now' : u.unlocked ? '' : 'locked';
+      return `<button class="step ${state}" data-unit="${esc(u.id)}" data-course="${esc(c.id)}">
+        <span class="node">${state === 'done' ? ICON.check : state === 'locked' ? ICON.lock : i + 1}</span>
+        <span><b>${esc(u.title)}</b><span class="dim small">${esc(u.goal)}</span>
+        ${c.enrolled && u.seen > 0 && !u.done ? `<span class="bar thin jade" style="display:block"><i style="width:${Math.round(100 * u.seen / u.items)}%"></i></span>` : ''}</span></button>`;
+    }).join('')}</div>
   </section>`;
+  };
   view.innerHTML = `<h1 style="margin-bottom:14px">Library</h1>${mine.map(card).join('')}
     ${rest.length ? `<h2 style="margin:22px 0 10px">Other arts you can take up</h2>${rest.map(card).join('')}` : ''}`;
   view.querySelectorAll('[data-unit]').forEach((b) => { b.onclick = () => go(`/library?course=${encodeURIComponent(b.dataset.course)}&unit=${encodeURIComponent(b.dataset.unit)}`); });
@@ -593,8 +623,8 @@ async function renderUnit(cid, uid) {
     let a, b;
     if (it.type === 'concept') { a = esc(it.term); b = esc(it.def); }
     else if (it.type === 'mcq') { a = esc(it.q); b = `<span class="dim">${esc(it.correct)}.</span> ${esc(it.why || '')}`; }
-    else if (it.type === 'cloze') { const full = it.full; a = `${esc(full)} ${canSpeak(lang) ? `<button class="say" style="min-height:32px;min-width:32px;font-size:.8rem" data-say="${esc(full)}">🔊</button>` : ''}`; b = esc(it.l1 || ''); }
-    else { a = `${esc(it.l2)} ${canSpeak(lang) ? `<button class="say" style="min-height:32px;min-width:32px;font-size:.8rem" data-say="${esc(it.l2)}">🔊</button>` : ''}`; b = `${esc(it.l1)}${it.note ? `<br><span class="dim small">${esc(it.note)}</span>` : ''}`; }
+    else if (it.type === 'cloze') { const full = it.full; a = `${esc(full)} ${canSpeak(lang) ? `<button class="say tiny" data-say="${esc(full)}" aria-label="Play audio">${ICON.sound}</button>` : ''}`; b = esc(it.l1 || ''); }
+    else { a = `${esc(it.l2)} ${canSpeak(lang) ? `<button class="say tiny" data-say="${esc(it.l2)}" aria-label="Play audio">${ICON.sound}</button>` : ''}`; b = `${esc(it.l1)}${it.note ? `<br><span class="dim small">${esc(it.note)}</span>` : ''}`; }
     const hide = it.type === 'mcq' && it.state === 'new';
     return `<tr><td><span class="dot ${esc(it.state)}" title="${esc(it.state)}"></span>${a}</td><td>${hide ? '<span class="dim">Answer hidden until you have met this question.</span>' : b}</td>
       <td class="dim small num" style="white-space:nowrap">${it.state === 'new' ? '' : `${num(it.strength)}%`}</td></tr>`;
@@ -646,7 +676,7 @@ async function startTrial(course) {
       <div class="prompt ${(q.prompt || '').length > 90 ? 'long' : ''}">${esc(q.prompt)}</div>${q.sub ? `<div class="sub">${esc(q.sub)}</div>` : ''}
       ${typed ? `<div class="typed"><input type="text" id="t-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="${esc(answers[cur] || '')}" aria-label="Your answer">
           ${accents.length ? `<div class="accents">${accents.map((a) => `<button type="button" data-acc="${a}" tabindex="-1">${a}</button>`).join('')}</div>` : ''}</div>`
-        : `<div class="opts">${q.choices.map((c, i) => `<button class="opt ${answers[cur] === c ? 'right' : ''}" data-i="${i}"><kbd>${i + 1}</kbd><span>${esc(c)}</span></button>`).join('')}</div>`}
+        : `<div class="opts">${q.choices.map((c, i) => `<button class="opt ${answers[cur] === c ? 'picked' : ''}" data-i="${i}"><kbd>${i + 1}</kbd><span>${esc(c)}</span></button>`).join('')}</div>`}
       <div class="qnav">${qs.map((_, i) => `<button class="${i === cur ? 'cur' : ''} ${answers[i] ? 'done' : ''}" data-q="${i}" aria-label="Question ${i + 1}">${i + 1}</button>`).join('')}</div>
       <div class="foot"><div class="row"><button class="btn grow" id="t-prev" ${cur ? '' : 'disabled'}>Back</button>
         ${cur < qs.length - 1 ? '<button class="btn primary grow" id="t-next">Next</button>' : '<button class="btn seal grow" id="t-done">Submit trial</button>'}</div></div></div></div>`;
@@ -690,9 +720,9 @@ async function startTrial(course) {
     leaveGuard = null; document.body.classList.remove('in-session');
     showEvents(res.events);
     const misses = res.review.filter((r) => !r.correct);
-    view.innerHTML = `<div class="summary" style="max-width:720px;margin:0 auto"><h1>${res.passed ? 'You passed the trial' : 'The trial stands unbroken'}</h1>
+    view.innerHTML = `<div class="summary" style="max-width:720px;margin:0 auto">${guide(res.passed ? 'happy' : 'think', 96)}<h1>${res.passed ? 'You passed the trial' : 'The trial stands unbroken'}</h1>
       <p class="dim">${res.passed ? 'Your foundation holds.' : res.overtime ? 'The time ran out before you finished.' : `You need ${num(res.pass_pct)}% to pass. What you missed is listed below, and the ones you have studied are back in your review queue.`}</p>
-      <div class="gains"><div><b class="num">${num(res.pct)}%</b>score</div><div><b class="num">${num(res.right)}/${num(res.total)}</b>correct</div><div><b class="num">+${num(res.stones)}</b>spirit stones</div></div>
+      <div class="gains"><div><b class="num">${num(res.pct)}%</b><span>score</span></div><div><b class="num">${num(res.right)}/${num(res.total)}</b><span>correct</span></div><div><b class="num">+${num(res.stones)}</b><span>spirit stones</span></div></div>
       ${res.domains.length > 1 ? `<section class="panel" style="text-align:left"><h2>By domain</h2>${res.domains.map((d) => `<div style="margin-top:10px"><div class="row small"><span class="grow">${esc(d.title)}</span><b class="num">${num(d.pct)}%</b></div>
         <div class="bar ${num(d.pct) >= num(res.pass_pct) ? 'jade' : ''}"><i style="width:${num(d.pct)}%"></i></div></div>`).join('')}</section>` : ''}
       ${misses.length ? `<section class="panel" style="text-align:left"><h2>What you missed</h2><ul class="list">${misses.map((m) => `<li><b>${esc(m.prompt)}</b>
@@ -719,10 +749,10 @@ async function renderProgress() {
   const mine = OV.courses.filter((c) => c.enrolled);
   view.innerHTML = `<h1 style="margin-bottom:14px">Progress</h1>
     <div class="stats">
-      <div class="vital"><b class="num">${s.cards}</b><span>items learned</span></div>
-      <div class="vital"><b class="num">${s.mastered}</b><span>mastered (3+ weeks stable)</span></div>
-      <div class="vital"><b class="num">${s.accuracy == null ? '–' : `${s.accuracy}%`}</b><span>first-try accuracy</span></div>
-      <div class="vital"><b class="num">${s.minutes}</b><span>minutes studied over ${s.active_days} day${s.active_days === 1 ? '' : 's'}</span></div>
+      <div class="stat"><b class="num">${s.cards}</b><span>items learned</span></div>
+      <div class="stat"><b class="num">${s.mastered}</b><span>mastered (3+ weeks stable)</span></div>
+      <div class="stat"><b class="num">${s.accuracy == null ? '–' : `${s.accuracy}%`}</b><span>first-try accuracy</span></div>
+      <div class="stat"><b class="num">${s.minutes}</b><span>minutes studied over ${s.active_days} day${s.active_days === 1 ? '' : 's'}</span></div>
     </div>
     <section class="panel" style="margin-top:14px"><h2>The last 17 weeks</h2><p class="dim small">Each square is a day. Brighter means more answers. Best streak: ${g.best_streak} day${g.best_streak === 1 ? '' : 's'}.</p><div class="heat">${heat}</div></section>
     <section class="panel"><h2>Reviews coming due</h2><p class="dim small">How many items your memory will need you to revisit over the next two weeks.</p>
@@ -736,7 +766,7 @@ async function renderProgress() {
       <div class="setting"><div class="grow"><b>Target recall</b><span>How sure you want to be of remembering an item when it comes back. Higher means more reviews.</span></div>
         <select class="in" id="set-ret" style="width:110px">${[0.85, 0.9, 0.93].map((r) => `<option value="${r}" ${Math.abs(set.retention - r) < 0.005 ? 'selected' : ''}>${Math.round(r * 100)}%</option>`).join('')}</select></div>
       <div class="setting"><div class="grow"><b>Spoken audio</b><span>${synth ? 'Uses the voices installed on this device.' : 'This browser has no speech voices, so listening exercises become typing ones.'}</span></div>
-        <input type="checkbox" id="set-audio" style="width:22px;height:22px;accent-color:var(--lantern)" ${set.audio ? 'checked' : ''}></div>
+        <input type="checkbox" id="set-audio" style="width:24px;height:24px;accent-color:var(--jade)" ${set.audio ? 'checked' : ''}></div>
       <div class="setting"><div class="grow"><b>Seclusion</b><span>Holiday mode: freezes your streak and the sect's income until you return.</span></div>
         <button class="btn" id="set-sec">${g.seclusion ? 'Reopen the gates' : 'Enter seclusion'}</button></div>
       <div class="setting"><div class="grow"><b>Backup</b><span>Download everything (progress and sect) as one file, or restore from one.</span></div>

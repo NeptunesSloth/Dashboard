@@ -109,7 +109,7 @@ static/academy/       index.html, academy.css, academy.js (one app shell)
   three daily quests, a 5-of-7 weekly goal, trials, missions, and capped passive
   income. A 60-day simulated learner was used to tune this so idle income stays
   a minority share of what a day's study earns.
-- **Rooms** (the cut-away HQ artwork is the map): three course halls that grow
+- **Rooms** (drawn on the illustrated mountain, which changes as you build): three course halls that grow
   only by completing units, plus Spirit Vein, Meditation Chamber, Disciple
   Quarters, Trial Grounds, Mission Hall, Alchemy Hall, Treasure Vault and the
   Hall of the Sect Master (sect rank, gated on items learned).
@@ -130,6 +130,29 @@ static/academy/       index.html, academy.css, academy.js (one app shell)
 - Reads need any role; anything that changes progress needs the operator role.
 - All economy numbers are starting values to playtest, not researched constants.
 - Spain Spanish is the default form; Latin American variants are accepted.
+
+## Art and visual design
+
+Redone after studying real, well-liked learning apps and cozy management games
+(`docs/research/notes/ui_inspiration.md`). What was taken from that research is
+the set of genre conventions, not any product's look:
+
+- Progress is a *place*. The home screen is one illustrated mountain
+  (`static/academy/art.js`, original vector art): unbuilt sites are marked-out
+  plots, halls appear when built and gain tiers as they level, posted disciples
+  stand outside their hall, and a collect bubble appears only when there is
+  something to collect. The same scene has a night palette for dark mode.
+- A guide character (the elder) reacts to answers with distinct right/wrong
+  expressions; disciples and the Sect Master get generated portraits.
+- Tactile controls: solid colour, round corners, a pressable bottom edge, one
+  thick progress bar, one full-width action at the bottom of an exercise.
+- Colour is bound to meaning: gold = the main action and rewards, jade =
+  correct/progress, vermilion = wrong/trials, azure = audio and currency,
+  violet = qi. Bright faces carry dark text (white on them fails contrast).
+- Motion answers an action (press, right/wrong, sheet) and is removed under
+  `prefers-reduced-motion`; ambient motion is limited to the scene.
+- Deliberately not copied: any mascot, exact palette, typeface or the
+  snaking-circle lesson path. Course progress is shown as stamped steps.
 
 ## Persistence safety
 

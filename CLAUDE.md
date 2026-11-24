@@ -106,8 +106,11 @@ research: `docs/research/`. No LLM, network or DB needed.
   scheduled, graded work; nothing is ever destroyed by a missed day.
 - **`academy/state.py`** — always-on JSON persistence (`MAYBOT_ACADEMY_FILE`,
   `:memory:` in tests — the root `conftest.py` sets that default).
-- **`routers/academy.py`** + **`static/academy/`** — API and the one-file app
-  shell (`academy.js`), independent of `static/command/lib.js`.
+- **`routers/academy.py`** + **`static/academy/`** — API and the app shell
+  (`academy.js`), independent of `static/command/lib.js`. All artwork is vector
+  and generated in `art.js` (the sect scene, portraits, icons) from numbers and
+  known ids only — never pass user text into it. Colours live as CSS variables
+  in `academy.css` (light + dark); the scene reads the `--a-*` set.
 - Tests: `tests/test_academy.py` (engine/game on fixture packs),
   `tests/test_academy_api.py` (HTTP + every shipped item builds valid exercises).
 

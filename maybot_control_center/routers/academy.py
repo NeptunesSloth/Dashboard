@@ -34,6 +34,11 @@ def academy_js():
     return FileResponse(f"{_DIR}/academy.js", media_type="text/javascript", headers={"Cache-Control": "no-cache"})
 
 
+@router.get("/art.js")
+def academy_art_js():
+    return FileResponse(f"{_DIR}/art.js", media_type="text/javascript", headers={"Cache-Control": "no-cache"})
+
+
 @router.get("/academy.css")
 def academy_css():
     return FileResponse(f"{_DIR}/academy.css", media_type="text/css", headers={"Cache-Control": "no-cache"})

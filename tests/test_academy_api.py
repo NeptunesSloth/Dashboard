@@ -33,6 +33,7 @@ def test_pages_and_assets_served():
         r = client.get(path)
         assert r.status_code == 200 and "Sect Academy" in r.text
     assert client.get("/academy.js").status_code == 200
+    assert client.get("/art.js").status_code == 200
     assert client.get("/academy.css").status_code == 200
     assert client.get("/command").status_code == 200           # the fleet hall moved, not removed
 
