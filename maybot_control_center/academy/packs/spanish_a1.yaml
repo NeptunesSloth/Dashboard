@@ -132,10 +132,10 @@ units:
       - {id: es-02-usted, type: vocab, l2: "usted", l1: "you (formal, singular)", alt: ["Ud.", "Vd."],
          ex: "¿Usted es el señor Gil?", ex_l1: "Are you Mr Gil?",
          note: "Takes the he/she verb form. Often written Ud."}
-      - {id: es-02-nosotros, type: vocab, l2: "nosotros", l1: "we (masculine or mixed group)", alt: ["nosotras"],
+      - {id: es-02-nosotros, type: vocab, l2: "nosotros", l1: "we (masculine or mixed group)",
          ex: "Nosotros somos amigos.", ex_l1: "We are friends.",
          note: "An all-female group says nosotras."}
-      - {id: es-02-vosotros, type: vocab, l2: "vosotros", l1: "you (informal, plural — used in Spain)", alt: ["vosotras", "ustedes"],
+      - {id: es-02-vosotros, type: vocab, l2: "vosotros", l1: "you (informal, plural — used in Spain)", alt: ["vosotras"],
          ex: "¿Vosotros sois de aquí?", ex_l1: "Are you (all) from here?",
          note: "Spain only. Latin America uses ustedes instead. Feminine: vosotras."}
       - {id: es-02-ellos, type: vocab, l2: "ellos", l1: "they (masculine or mixed group)",
@@ -156,10 +156,10 @@ units:
       - {id: es-02-amigo, type: vocab, l2: "el amigo", l1: "the friend (male)",
          ex: "Luis es un amigo de Ana.", ex_l1: "Luis is a friend of Ana's.",
          note: "Female: la amiga. A mixed group: los amigos."}
-      - {id: es-02-espanol, type: vocab, l2: "español", l1: "Spanish (masculine singular; also the language)", alt: ["española", "castellano"],
+      - {id: es-02-espanol, type: vocab, l2: "español", l1: "Spanish (masculine singular; also the language)", alt: ["castellano"],
          ex: "Mi profesor es español.", ex_l1: "My teacher is Spanish.",
          note: "No capital letter. Feminine: española. Plural: españoles, españolas."}
-      - {id: es-02-ingles, type: vocab, l2: "inglés", l1: "English (masculine singular; also the language)", alt: ["inglesa"],
+      - {id: es-02-ingles, type: vocab, l2: "inglés", l1: "English (masculine singular; also the language)",
          ex: "Mi amigo es inglés.", ex_l1: "My friend is English.",
          note: "The accent disappears in inglesa, ingleses, inglesas."}
       - {id: es-02-soy-de-inglaterra, type: phrase, l2: "Soy de Inglaterra.", l1: "I am from England.",
@@ -419,7 +419,7 @@ units:
       - {id: es-05-veinte, type: vocab, l2: "veinte", l1: "twenty",
          ex: "Mi hermana tiene veinte años.", ex_l1: "My sister is twenty years old.",
          note: "b and v sound the same in Spanish. 21–29 are one word: veintiuno, veintidós…"}
-      - {id: es-05-cien, type: vocab, l2: "cien", l1: "one hundred", alt: ["ciento"],
+      - {id: es-05-cien, type: vocab, l2: "cien", l1: "one hundred",
          ex: "El libro tiene cien páginas.", ex_l1: "The book has a hundred pages.",
          note: "Exactly 100 is cien; 101 onwards uses ciento: ciento uno."}
       - {id: es-05-lunes, type: vocab, l2: "el lunes", l1: "Monday", alt: ["lunes"],
@@ -519,7 +519,7 @@ units:
       - {id: es-06-vivo-en-londres, type: phrase, l2: "Vivo en Londres.", l1: "I live in London.",
          alt: ["Yo vivo en Londres"]}
       - {id: es-06-hablo-un-poco, type: phrase, l2: "Hablo un poco de español.", l1: "I speak a little Spanish.",
-         alt: ["Yo hablo un poco de español"],
+         alt: ["Yo hablo un poco de español", "Hablo un poco español", "Hablo español un poco"],
          note: "un poco de + noun = a little…"}
       - {id: es-06-me-levanto, type: phrase, l2: "Me levanto a las siete.", l1: "I get up at seven.",
          alt: ["Yo me levanto a las siete", "Me levanto a las 7"],
@@ -580,19 +580,19 @@ units:
          note: "Always with estar: estoy bien (never soy bien)."}
       - {id: es-07-mal, type: vocab, l2: "mal", l1: "badly / unwell",
          ex: "Hoy estoy mal.", ex_l1: "I am not well today."}
-      - {id: es-07-cansado, type: vocab, l2: "cansado", l1: "tired (masculine singular)", alt: ["cansada"],
+      - {id: es-07-cansado, type: vocab, l2: "cansado", l1: "tired (masculine singular)",
          ex: "Mi padre está cansado.", ex_l1: "My father is tired.",
          note: "A woman says cansada. Feelings use estar."}
-      - {id: es-07-contento, type: vocab, l2: "contento", l1: "happy / pleased (masculine singular)", alt: ["contenta", "feliz", "alegre"],
+      - {id: es-07-contento, type: vocab, l2: "contento", l1: "happy / pleased (masculine singular)", alt: ["feliz", "alegre"],
          ex: "Estoy muy contento.", ex_l1: "I am very happy.",
          note: "Feminine: contenta."}
-      - {id: es-07-enfermo, type: vocab, l2: "enfermo", l1: "ill / sick (masculine singular)", alt: ["enferma", "malo"],
+      - {id: es-07-enfermo, type: vocab, l2: "enfermo", l1: "ill / sick (masculine singular)", alt: ["malo"],
          ex: "Mi hijo está enfermo.", ex_l1: "My son is ill.",
          note: "Feminine: enferma."}
       - {id: es-07-triste, type: vocab, l2: "triste", l1: "sad",
          ex: "¿Estás triste?", ex_l1: "Are you sad?",
          note: "Adjectives ending in -e do not change for gender."}
-      - {id: es-07-ocupado, type: vocab, l2: "ocupado", l1: "busy (masculine singular)", alt: ["ocupada"],
+      - {id: es-07-ocupado, type: vocab, l2: "ocupado", l1: "busy (masculine singular)",
          ex: "Hoy estoy muy ocupado.", ex_l1: "I am very busy today.",
          note: "Feminine: ocupada."}
       - {id: es-07-aqui, type: vocab, l2: "aquí", l1: "here", alt: ["acá"],
@@ -929,34 +929,34 @@ units:
       - {id: es-11-grande, type: vocab, l2: "grande", l1: "big / large",
          ex: "Mi casa es grande.", ex_l1: "My house is big.",
          note: "Same form for masculine and feminine. Plural: grandes."}
-      - {id: es-11-pequeno, type: vocab, l2: "pequeño", l1: "small / little (masculine singular)", alt: ["pequeña", "chico"],
+      - {id: es-11-pequeno, type: vocab, l2: "pequeño", l1: "small / little (masculine singular)", alt: ["chico"],
          ex: "Tengo un coche pequeño.", ex_l1: "I have a small car.",
          note: "Feminine: pequeña. ñ = 'ny'."}
-      - {id: es-11-bueno, type: vocab, l2: "bueno", l1: "good (masculine singular)", alt: ["buena", "buen"],
+      - {id: es-11-bueno, type: vocab, l2: "bueno", l1: "good (masculine singular)", alt: ["buen"],
          ex: "El vino es muy bueno.", ex_l1: "The wine is very good.",
          note: "Before a masculine singular noun it shortens to buen: un buen libro."}
-      - {id: es-11-nuevo, type: vocab, l2: "nuevo", l1: "new (masculine singular)", alt: ["nueva"],
+      - {id: es-11-nuevo, type: vocab, l2: "nuevo", l1: "new (masculine singular)",
          ex: "Tengo un móvil nuevo.", ex_l1: "I have a new mobile.",
          note: "Feminine: nueva."}
-      - {id: es-11-viejo, type: vocab, l2: "viejo", l1: "old (masculine singular)", alt: ["vieja", "antiguo"],
+      - {id: es-11-viejo, type: vocab, l2: "viejo", l1: "old (masculine singular)", alt: ["antiguo"],
          ex: "El coche es muy viejo.", ex_l1: "The car is very old.",
          note: "Feminine: vieja. For people, mayor is more polite: una señora mayor."}
-      - {id: es-11-bonito, type: vocab, l2: "bonito", l1: "pretty / lovely (masculine singular)", alt: ["bonita", "lindo", "linda", "hermoso"],
+      - {id: es-11-bonito, type: vocab, l2: "bonito", l1: "pretty / lovely (masculine singular)", alt: ["lindo", "hermoso"],
          ex: "Es un día muy bonito.", ex_l1: "It is a very lovely day.",
          note: "Feminine: bonita. Latin America often says lindo."}
-      - {id: es-11-alto, type: vocab, l2: "alto", l1: "tall / high (masculine singular)", alt: ["alta"],
+      - {id: es-11-alto, type: vocab, l2: "alto", l1: "tall / high (masculine singular)",
          ex: "Mi hermano es muy alto.", ex_l1: "My brother is very tall.",
          note: "Feminine: alta."}
-      - {id: es-11-bajo, type: vocab, l2: "bajo", l1: "short (in height) / low (masculine singular)", alt: ["baja"],
+      - {id: es-11-bajo, type: vocab, l2: "bajo", l1: "short (in height) / low (masculine singular)",
          ex: "Mi padre es bajo.", ex_l1: "My father is short.",
          note: "Feminine: baja. j is a throaty h."}
-      - {id: es-11-caro, type: vocab, l2: "caro", l1: "expensive (masculine singular)", alt: ["cara"],
+      - {id: es-11-caro, type: vocab, l2: "caro", l1: "expensive (masculine singular)",
          ex: "El hotel es muy caro.", ex_l1: "The hotel is very expensive.",
          note: "Feminine: cara. Single tapped r — carro (rr) means 'car' in Latin America."}
-      - {id: es-11-barato, type: vocab, l2: "barato", l1: "cheap (masculine singular)", alt: ["barata"],
+      - {id: es-11-barato, type: vocab, l2: "barato", l1: "cheap (masculine singular)",
          ex: "El pan es barato.", ex_l1: "Bread is cheap.",
          note: "Feminine: barata."}
-      - {id: es-11-rojo, type: vocab, l2: "rojo", l1: "red (masculine singular)", alt: ["roja"],
+      - {id: es-11-rojo, type: vocab, l2: "rojo", l1: "red (masculine singular)",
          ex: "Tengo un coche rojo.", ex_l1: "I have a red car.",
          note: "Feminine: roja. r at the start of a word is trilled; j is a throaty h."}
       - {id: es-11-azul, type: vocab, l2: "azul", l1: "blue",
@@ -965,10 +965,10 @@ units:
       - {id: es-11-verde, type: vocab, l2: "verde", l1: "green",
          ex: "Mi abuela tiene los ojos verdes.", ex_l1: "My grandmother has green eyes.",
          note: "No gender change. Plural: verdes."}
-      - {id: es-11-blanco, type: vocab, l2: "blanco", l1: "white (masculine singular)", alt: ["blanca"],
+      - {id: es-11-blanco, type: vocab, l2: "blanco", l1: "white (masculine singular)",
          ex: "Quiero vino blanco.", ex_l1: "I want white wine.",
          note: "Feminine: blanca."}
-      - {id: es-11-negro, type: vocab, l2: "negro", l1: "black (masculine singular)", alt: ["negra"],
+      - {id: es-11-negro, type: vocab, l2: "negro", l1: "black (masculine singular)",
          ex: "Tengo un perro negro.", ex_l1: "I have a black dog.",
          note: "Feminine: negra."}
       - {id: es-11-de-que-color-es, type: phrase, l2: "¿De qué color es?", l1: "What colour is it?",
@@ -1001,7 +1001,7 @@ units:
     title: "Irregular verbs, plans, weather & shopping"
     goal: "I can use common irregular verbs, talk about plans with ir a + infinitive, describe the weather and manage in a shop."
     notes: |
-      Many everyday verbs are irregular in the present, but in only two ways.
+      Many everyday verbs are irregular in the present, and most of them in just two ways (*ser*, *estar* and *ir* are the fully irregular exceptions).
 
       **1. Irregular yo form** (the rest is regular or nearly so):
 
@@ -1051,10 +1051,10 @@ units:
          note: "Latin America also says la plata."}
       - {id: es-12-precio, type: vocab, l2: "el precio", l1: "the price",
          ex: "El precio es muy bueno.", ex_l1: "The price is very good."}
-      - {id: es-12-abierto, type: vocab, l2: "abierto", l1: "open (masculine singular)", alt: ["abierta"],
+      - {id: es-12-abierto, type: vocab, l2: "abierto", l1: "open (masculine singular)",
          ex: "El banco está abierto.", ex_l1: "The bank is open.",
          note: "Feminine: abierta. Uses estar because it is a state."}
-      - {id: es-12-cerrado, type: vocab, l2: "cerrado", l1: "closed (masculine singular)", alt: ["cerrada"],
+      - {id: es-12-cerrado, type: vocab, l2: "cerrado", l1: "closed (masculine singular)",
          ex: "La tienda está cerrada los domingos.", ex_l1: "The shop is closed on Sundays.",
          note: "Feminine: cerrada. rr is a strong trill."}
       - {id: es-12-tarjeta, type: vocab, l2: "la tarjeta", l1: "the card (bank card)", alt: ["la tarjeta de crédito", "la tarjeta bancaria"],

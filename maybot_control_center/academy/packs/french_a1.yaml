@@ -43,7 +43,7 @@ units:
       - {id: fr-01-monsieur, type: vocab, l2: "monsieur", l1: "sir / Mr.", ex: "Merci, monsieur.", ex_l1: "Thank you, sir.", note: "Irregular pronunciation: 'muh-syuh'."}
       - {id: fr-01-madame, type: vocab, l2: "madame", l1: "ma'am / Mrs.", ex: "Bonjour, madame Martin.", ex_l1: "Hello, Mrs. Martin."}
       - {id: fr-01-a-bientot, type: vocab, l2: "à bientôt", l1: "see you soon", ex: "Au revoir, à bientôt !", ex_l1: "Goodbye, see you soon!"}
-      - {id: fr-01-enchante, type: vocab, l2: "enchanté", l1: "pleased to meet you (said by a man)", alt: ["enchantée"], ex: "Enchanté, madame.", ex_l1: "Pleased to meet you, ma'am.", note: "A woman writes enchantée; both sound the same."}
+      - {id: fr-01-enchante, type: vocab, l2: "enchanté", l1: "pleased to meet you (said by a man)", ex: "Enchanté, madame.", ex_l1: "Pleased to meet you, ma'am.", note: "A woman writes enchantée; both sound the same."}
       - {id: fr-01-comment-allez-vous, type: phrase, l2: "Comment allez-vous ?", l1: "How are you? (formal)", alt: ["Comment vous allez ?", "Vous allez bien ?"], note: "Liaison: the t of comment links to allez: 'co-man-ta-lay voo'."}
       - {id: fr-01-comment-ca-va, type: phrase, l2: "Comment ça va ?", l1: "How are you? (informal)", alt: ["Ça va ?", "Comment vas-tu ?", "Comment tu vas ?", "Tu vas bien ?"], note: "Often shortened to 'Ça va ?' and the answer can simply be 'Ça va.'"}
       - {id: fr-01-ca-va-bien, type: phrase, l2: "Ça va bien, merci.", l1: "I'm fine, thank you.", alt: ["Je vais bien, merci.", "Ça va, merci.", "Très bien, merci.", "Bien, merci."]}
@@ -92,7 +92,7 @@ units:
       - {id: fr-02-etre, type: vocab, l2: "être", l1: "to be", ex: "Je suis content d'être ici.", ex_l1: "I am happy to be here.", note: "Irregular: je suis, tu es, il est, nous sommes, vous êtes, ils sont."}
       - {id: fr-02-etudiant, type: vocab, l2: "un étudiant", l1: "a student (male)", ex: "Paul est étudiant à Paris.", ex_l1: "Paul is a student in Paris.", note: "The final t is silent. Liaison: un‿étudiant."}
       - {id: fr-02-etudiante, type: vocab, l2: "une étudiante", l1: "a student (female)", ex: "Marie est étudiante.", ex_l1: "Marie is a student.", note: "The added e makes the t audible."}
-      - {id: fr-02-professeur, type: vocab, l2: "un professeur", l1: "a teacher", alt: ["une professeure", "un prof", "une prof"], ex: "Le professeur est français.", ex_l1: "The teacher is French.", note: "Everyday short form: un prof / une prof."}
+      - {id: fr-02-professeur, type: vocab, l2: "un professeur", l1: "a teacher", alt: ["une professeure", "un prof", "une prof", "un enseignant", "une enseignante"], ex: "Le professeur est français.", ex_l1: "The teacher is French.", note: "Everyday short form: un prof / une prof."}
       - {id: fr-02-francais, type: vocab, l2: "français", l1: "French (adjective, masculine)", ex: "Il est français, de Lyon.", ex_l1: "He is French, from Lyon.", note: "No capital letter. Feminine: française (the s then sounds like z)."}
       - {id: fr-02-je-suis-de-londres, type: phrase, l2: "Je suis de Londres.", l1: "I am from London.", alt: ["Je viens de Londres."], note: "être de + city = to be from."}
       - {id: fr-02-d-ou-etes-vous, type: phrase, l2: "D'où êtes-vous ?", l1: "Where are you from? (formal)", alt: ["Vous êtes d'où ?", "D'où venez-vous ?", "Vous venez d'où ?"], note: "d'où = de + où ('from where')."}
@@ -197,8 +197,8 @@ units:
       - {id: fr-04-soeur, type: vocab, l2: "la sœur", l1: "the sister", ex: "Ma sœur est étudiante.", ex_l1: "My sister is a student.", note: "œ is one letter; typing 'soeur' is understood."}
       - {id: fr-04-fils, type: vocab, l2: "le fils", l1: "the son", ex: "Mon fils a dix ans.", ex_l1: "My son is ten years old.", note: "Pronounced 'feess': the l is silent and the s is heard. Same form in the plural."}
       - {id: fr-04-fille, type: vocab, l2: "la fille", l1: "the daughter / the girl", ex: "Ma fille a un chat.", ex_l1: "My daughter has a cat.", note: "Pronounced 'fee-y'. Context tells you daughter or girl."}
-      - {id: fr-04-mari, type: vocab, l2: "le mari", l1: "the husband", ex: "Mon mari est anglais.", ex_l1: "My husband is English."}
-      - {id: fr-04-femme, type: vocab, l2: "la femme", l1: "the wife", ex: "Ma femme est américaine.", ex_l1: "My wife is American.", note: "The same word as 'woman'; with mon / ma / sa it means wife."}
+      - {id: fr-04-mari, type: vocab, l2: "le mari", l1: "the husband", alt: ["l'époux"], ex: "Mon mari est anglais.", ex_l1: "My husband is English."}
+      - {id: fr-04-femme, type: vocab, l2: "la femme", l1: "the wife", alt: ["l'épouse"], ex: "Ma femme est américaine.", ex_l1: "My wife is American.", note: "The same word as 'woman'; with mon / ma / sa it means wife."}
       - {id: fr-04-mon, type: vocab, l2: "mon", l1: "my (before a masculine noun)", ex: "Mon ami est ici.", ex_l1: "My friend is here.", note: "Also used before a feminine noun that starts with a vowel: mon amie."}
       - {id: fr-04-mes, type: vocab, l2: "mes", l1: "my (before a plural noun)", ex: "Mes enfants sont à l'école.", ex_l1: "My children are at school.", note: "Liaison before a vowel: mes‿enfants."}
       - {id: fr-04-quel-age, type: phrase, l2: "Quel âge avez-vous ?", l1: "How old are you? (formal)", alt: ["Vous avez quel âge ?", "Quel âge vous avez ?"], note: "Literally 'What age do you have?'. To a friend: Tu as quel âge ?"}
@@ -346,7 +346,7 @@ units:
       - {id: fr-07-qui, type: vocab, l2: "qui", l1: "who", ex: "Qui parle français ici ?", ex_l1: "Who speaks French here?", note: "Pronounced 'kee'."}
       - {id: fr-07-quoi, type: vocab, l2: "quoi", l1: "what (casual, after the verb or on its own)", ex: "Tu manges quoi ?", ex_l1: "What are you eating?", note: "Pronounced 'kwa'. At the start of a question use qu'est-ce que instead."}
       - {id: fr-07-ou-where, type: vocab, l2: "où", l1: "where", ex: "Où est mon stylo ?", ex_l1: "Where is my pen?", note: "With a grave accent. Without it, ou means 'or'."}
-      - {id: fr-07-quand, type: vocab, l2: "quand", l1: "when", ex: "Quand est-ce que tu travailles ?", ex_l1: "When do you work?", note: "Final d silent: 'kan'."}
+      - {id: fr-07-quand, type: vocab, l2: "quand", l1: "when", ex: "Quand est-ce que tu travailles ?", ex_l1: "When do you work?", note: "Final d silent: 'kan'. In liaison it sounds like t: quand‿est-ce que ('kan-tess-kuh')."}
       - {id: fr-07-comment, type: vocab, l2: "comment", l1: "how", ex: "Comment est ta maison ?", ex_l1: "What is your house like?", note: "Also used alone to mean 'Pardon? What did you say?'"}
       - {id: fr-07-pourquoi, type: vocab, l2: "pourquoi", l1: "why", ex: "Pourquoi est-ce que tu étudies le français ?", ex_l1: "Why are you studying French?"}
       - {id: fr-07-combien, type: vocab, l2: "combien", l1: "how much / how many", ex: "Tu as combien de frères ?", ex_l1: "How many brothers do you have?", note: "combien de + noun, with no article."}
@@ -625,7 +625,7 @@ units:
 
       Time words: *hier* (yesterday), *hier soir* (last night), *la semaine dernière* (last week).
     items:
-      - {id: fr-12-magasin, type: vocab, l2: "le magasin", l1: "the shop / the store", ex: "Il y a un magasin près de l'hôtel.", ex_l1: "There is a shop near the hotel.", note: "False friend: a magazine is un magazine."}
+      - {id: fr-12-magasin, type: vocab, l2: "le magasin", l1: "the shop / the store", alt: ["la boutique"], ex: "Il y a un magasin près de l'hôtel.", ex_l1: "There is a shop near the hotel.", note: "False friend: a magazine is un magazine."}
       - {id: fr-12-acheter, type: vocab, l2: "acheter", l1: "to buy", ex: "Je vais acheter du pain.", ex_l1: "I am going to buy some bread.", note: "Takes a grave accent when the ending is silent: j'achète, but nous achetons."}
       - {id: fr-12-payer, type: vocab, l2: "payer", l1: "to pay", ex: "Je voudrais payer, s'il vous plaît.", ex_l1: "I would like to pay, please.", note: "No preposition for what you buy: payer le café = to pay FOR the coffee."}
       - {id: fr-12-argent, type: vocab, l2: "l'argent", l1: "the money", ex: "Je n'ai pas d'argent.", ex_l1: "I don't have any money.", note: "masculine. It also means 'silver'."}
