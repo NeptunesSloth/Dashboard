@@ -73,3 +73,24 @@ ORIGINS = [
     ("A deserter from a border garrison.", "combat", 3), ("A wandering storyteller who half believes the stories.", "scholar", 2),
     ("A fisherman's child who saw something in the lake.", "farm", 2), ("A mason who carved one grave too many.", "build", 3),
 ]
+
+# The five elements. A disciple's spirit root has one; so do most manuals.
+ELEMENTS = ["wood", "fire", "earth", "metal", "water"]
+SEASON_ELEMENT = ["wood", "fire", "metal", "water"]            # spring, summer, autumn, winter
+OVERCOMES = {"wood": "earth", "earth": "water", "water": "fire", "fire": "metal", "metal": "wood"}
+MANUAL_ELEMENT = {"azure_tide": "water", "star_river": "metal", "primordial": "earth", "blood_sutra": "fire",
+                  "falling_leaf": "wood", "nine_cuts": "metal", "thunder_palm": "fire", "sword_dao": "metal",
+                  "iron_skin": "metal", "bronze_body": "earth", "vajra": "earth", "herb_primer": "wood", "cauldron": "fire", "pill_sage": "wood"}
+
+# Artifacts: one per disciple. kind -> (what it does, bonus by quality: plain, fine, masterwork)
+ARTIFACT_KINDS = {
+    "sword":    ("fighting strength", (0.12, 0.20, 0.32)),
+    "talisman": ("qi from meditation", (0.08, 0.14, 0.22)),
+    "charm":    ("breakthrough chance", (4, 7, 11)),
+    "armour":   ("damage taken, reduced", (0.10, 0.16, 0.24)),
+}
+ARTIFACT_QUALITY = ["Plain", "Fine", "Masterwork"]
+ARTIFACT_ADJ = ["Frost-Jade", "Crimson Cloud", "Nine-Star", "Moonshadow", "Thunder-Vein", "Azure Dragon", "Golden Crow", "Silent Lotus",
+                "Black Tortoise", "White Tiger", "Wandering Cloud", "Ember-Heart"]
+ARTIFACT_NOUN = {"sword": ["Sword", "Sabre", "Spear", "Flying Dagger"], "talisman": ["Hairpin", "Jade Pendant", "Prayer Beads", "Fan"],
+                 "charm": ["Bronze Mirror", "Seal", "Bell", "Compass"], "armour": ["Inner Robe", "Bracers", "Mantle", "Soft Mail"]}

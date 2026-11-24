@@ -155,14 +155,16 @@ def _make_pawn(c: dict, n: int, master_name: str = "", lucky: bool = False) -> d
     if master_name:
         pawn["prio"].update(meditate=2, research=2, farm=3, build=2)
         pawn["origin"] = "Founder of the sect."
+        pawn["element"] = r.choice(lore.ELEMENTS)
     else:
+        pawn["element"] = r.choice(lore.ELEMENTS)
         text, skill, bonus = r.choice(lore.ORIGINS)
         pawn["origin"] = text
         pawn["skills"][skill]["lv"] = min(20, pawn["skills"][skill]["lv"] + bonus)
     return pawn
 
 
-PAWN_EXTRA = {"bt_tries": 0, "away_until": 0, "away_kind": "", "resolve_until": 0, "title": "", "hidden": False, "rank": 0, "origin": ""}
+PAWN_EXTRA = {"bt_tries": 0, "away_until": 0, "away_kind": "", "resolve_until": 0, "title": "", "hidden": False, "rank": 0, "origin": "", "element": "", "direct": False}
 
 
 def new_colony(now: float) -> dict:
@@ -175,7 +177,7 @@ def new_colony(now: float) -> dict:
         "research": {"done": [], "current": "", "progress": 0.0, "banked": {}},
         # the wider world
         "fame": 0.0, "sects": [], "manuals": ["breathing"], "treasures": [], "beast": None, "later": [], "adapt": 1.0,
-        "bonds": {}, "annals": [], "guide": {"i": 0, "skip": False}, "quest": None, "festival": "",
+        "bonds": {}, "annals": [], "artifacts": [], "next_art": 0, "guide": {"i": 0, "skip": False}, "quest": None, "festival": "",
         "flags": {}, "tournament_year": 0, "recruit_year": 0,
         "craft": 0.0, "insight": 0.0, "pending": None, "last_threat_day": 0, "last_event_day": 0,
         "log": [], "last_real": now, "hint": 0,
@@ -217,6 +219,8 @@ def _c(st: dict, now: float) -> dict:
         for pw in c["pawns"]:
             for k, v in PAWN_EXTRA.items():
                 pw.setdefault(k, v)
+            if pw["element"] not in lore.ELEMENTS:
+                pw["element"] = _rng(c, "elem", pw.get("id")).choice(lore.ELEMENTS)
         if c["name"] and not c["sects"]:
             _make_world(c)
     return c
@@ -257,6 +261,66 @@ def rank_of(p: dict) -> int:
     return 0 if realm <= 1 else 1 if realm == 2 else 2 if realm == 3 else 3
 
 
+def suit(p: dict, mid: str) -> tuple[str, float]:
+    """How well a manual's element sits with a disciple's spirit root: (word, multiplier on its bonus)."""
+    me, it = p.get("element"), lore.MANUAL_ELEMENT.get(mid)
+    if not it or not me:
+        return "", 1.0
+    if me == it:
+        return "well suited", 1.5
+    if lore.OVERCOMES[me] == it or lore.OVERCOMES[it] == me:
+        return "ill suited", 0.7
+    return "", 1.0
+
+
+def artifact_of(c: dict, p: dict) -> dict | None:
+    return next((a for a in c["artifacts"] if a["owner"] == p["id"]), None)
+
+
+def _art(c: dict, p: dict, kind: str) -> float:
+    a = artifact_of(c, p)
+    return float(lore.ARTIFACT_KINDS[kind][1][a["q"]]) if a and a["kind"] == kind else 0.0
+
+
+def season_tilt(c: dict, p: dict) -> tuple[str, float]:
+    """The season favours one element and presses on the one it overcomes."""
+    fav = lore.SEASON_ELEMENT[_season(c)]
+    if p["element"] == fav:
+        return f"{SEASONS[_season(c)]} favours {fav} roots", 1.12
+    if p["element"] == lore.OVERCOMES[fav]:
+        return f"{SEASONS[_season(c)]} presses on {p['element']} roots", 0.92
+    if p["element"] == "earth":
+        return "Earth roots are steady in every season", 1.03
+    return "", 1.0
+
+
+def qi_rate(c: dict, p: dict) -> list[tuple[str, float]]:
+    """Everything that multiplies a disciple's qi from meditation, as a ledger."""
+    rows = [(f"{p['root']} spirit root", float(p["root_mult"]))]
+    b, mid = _manual(c, p, "qi")
+    if mid:
+        word = suit(p, mid)[0]
+        rows.append((lore.MANUALS[mid]["name"] + (f" ({word})" if word else ""), 1 + b))
+    label, tilt = season_tilt(c, p)
+    if label:
+        rows.append((label, tilt))
+    if _lvl(c, "meditation"):
+        rows.append(("Meditation Chamber", 1 + 0.15 * _lvl(c, "meditation")))
+    if _lvl(c, "spirit_vein"):
+        rows.append(("Spirit Vein", 1 + 0.05 * _lvl(c, "spirit_vein")))
+    if _has(c, "qi_array"):
+        rows.append(("Qi-gathering array", 1.2))
+    if "spirit_spring" in c["treasures"]:
+        rows.append((lore.TREASURES["spirit_spring"]["name"], 1.1))
+    if _art(c, p, "talisman"):
+        rows.append((artifact_of(c, p)["name"], 1 + _art(c, p, "talisman")))
+    if p.get("direct"):
+        rows.append(("Direct disciple: the Master's own teaching", 1.25))
+    if p["resolve_until"] > c["hour"]:
+        rows.append(("Burning resolve", 1.5))
+    return rows
+
+
 def _manual(c: dict, p: dict, kind: str) -> tuple[float, str]:
     """The best manual of a kind this disciple's rank lets them study: (bonus, id)."""
     cap = 3 if p.get("master") else rank_of(p)
@@ -265,7 +329,7 @@ def _manual(c: dict, p: dict, kind: str) -> tuple[float, str]:
         m = lore.MANUALS.get(mid)
         if not m or m["kind"] != kind or (m["grade"] > cap and not m.get("demonic")):
             continue
-        b = lore.MANUAL_BONUS[kind][m["grade"]] + (0.15 if m.get("demonic") else 0.0)
+        b = (lore.MANUAL_BONUS[kind][m["grade"]] + (0.15 if m.get("demonic") else 0.0)) * suit(p, mid)[1]
         if b > best[0]:
             best = (b, mid)
     return best
@@ -340,7 +404,7 @@ def _xp(p: dict, skill: str, amount: float) -> None:
 def _hurt(p: dict, amount: float, c: dict | None = None) -> None:
     amount *= 0.6 if "Tough" in p["traits"] else 1.4 if "Frail" in p["traits"] else 1.0
     if c is not None:
-        amount *= 1.0 - _manual(c, p, "body")[0]
+        amount *= (1.0 - _manual(c, p, "body")[0]) * (1.0 - _art(c, p, "armour"))
     p["health"] = max(0.0, p["health"] - amount)
 
 
@@ -348,7 +412,7 @@ def combat_power(c: dict, p: dict) -> float:
     if p["health"] < 25 or p["break_until"] > c["hour"] or p["away_until"] > c["hour"]:
         return 0.0
     return (10 + 4 * p["skills"]["combat"]["lv"]) * (1 + 0.07 * p["step"]) * (p["health"] / 100.0) \
-        * (1.25 if _has(c, "sword_forms") else 1.0) * (1 + _manual(c, p, "sword")[0]) \
+        * (1.25 if _has(c, "sword_forms") else 1.0) * (1 + _manual(c, p, "sword")[0]) * (1 + _art(c, p, "sword")) \
         * (1.15 if "spirit_sword" in c["treasures"] else 1.0)
 
 
@@ -385,6 +449,10 @@ def _job_open(c: dict, job: str, taken: dict) -> bool:
 def _pick_job(c: dict, p: dict, taken: dict) -> str:
     best, best_key = "", None
     for job, level in p["prio"].items():
+        if p.get("direct") and job not in ("meditate", "train", "research"):
+            continue
+        if p.get("direct") and job == "meditate":
+            level = 1                                 # cultivation comes first for them
         if not level or job not in JOBS or not _job_open(c, job, taken):
             continue
         # Same priority: do what the sect is shortest of, then what you are best at.
@@ -435,10 +503,7 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
         if "Bookworm" in p["traits"]:
             p["joy"] = min(100.0, p["joy"] + 3)
     elif job == "meditate":
-        _gain_qi(c, p, _work_mult(p, hour) * p["root_mult"] * (1 + 0.15 * _lvl(c, "meditation"))
-                 * (1 + 0.05 * _lvl(c, "spirit_vein")) * (1.2 if _has(c, "qi_array") else 1.0)
-                 * (1 + _manual(c, p, "qi")[0]) * (1.1 if "spirit_spring" in c["treasures"] else 1.0)
-                 * (1.5 if p["resolve_until"] > hour else 1.0), quiet)
+        _gain_qi(c, p, _work_mult(p, hour) * math.prod(m for _, m in qi_rate(c, p)), quiet)
         p["joy"] = min(100.0, p["joy"] + 1.5)
 
 
@@ -498,6 +563,14 @@ def mood_mods(c: dict, p: dict) -> list[tuple[str, int]]:
         rows.append(("The sect is crowded", -4))
     if c["beast"]:
         rows.append(("The sect's spirit beast", 3))
+    if p.get("direct"):
+        rows.append(("Chosen as a direct disciple", 5))
+        if c["pawns"].index(p) >= beds(c):
+            rows.append(("A direct disciple without a bed", -10))
+        if p["joy"] < 40:
+            rows.append(("A direct disciple expects some ease", -6))
+    if _art(c, p, "sword") or artifact_of(c, p):
+        rows.append((f"Entrusted with the {artifact_of(c, p)['name']}", 3))
     if _friends(c, p):
         rows.append(("Has a friend in the sect", 4))
     if _friends(c, p, -1):
@@ -683,6 +756,7 @@ def _die(c: dict, p: dict) -> None:
             _think(o, "death", f"{p['name']} died. They never made peace", -4, 72, c["hour"])
         else:
             _think(o, "death", "A fellow disciple died", -10, 72, c["hour"])
+    _unequip(c, p)
     _annal(c, f"{p['name']} ({realm_label(p['step'])}) died." + (f" Mourned by {', '.join(o['name'] for o in _friends(c, p))}." if _friends(c, p) else ""))
     c["bonds"] = {k: v for k, v in c["bonds"].items() if p["id"] not in k.split("|")}
 
@@ -721,6 +795,10 @@ def bt_odds(c: dict, p: dict) -> list[tuple[str, int]]:
         rows.append(("Burning resolve", 10))
     if any(o["away_until"] <= c["hour"] for o in _friends(c, p)):
         rows.append(("A friend stands guard", 5))
+    if _art(c, p, "charm"):
+        rows.append((artifact_of(c, p)["name"], int(_art(c, p, "charm"))))
+    if trib and p["element"] == lore.SEASON_ELEMENT[_season(c)]:
+        rows.append((f"{SEASONS[_season(c)]} favours {p['element']} roots", 5))
     if trib and _lvl(c, "ward"):
         rows.append(("The Ward Formation draws off lightning", 3 * _lvl(c, "ward")))
     if trib and "lightning_rod" in c["treasures"]:
@@ -911,7 +989,9 @@ def _threat(c: dict, r: random.Random, kind: str, strength: float, how: str = "f
         for p in c["pawns"]:
             _think(p, "fought", "Drove off an attack", 5 if how == "fight" else 2, 36, c["hour"])
         return _letter(c, "good", f"{who} was driven off", "Your disciples and wards held without a scratch."
-                       + (f" The raiders dropped {loot} spirit stones." if loot else ""))
+                       + (f" The raiders dropped {loot} spirit stones." if loot else "")
+                       + (f" Their leader left behind the {_new_artifact(c, r, f'taken from {who[0].lower() + who[1:]}')['name']}."
+                          if kind == "raid" and how == "fight" and r.random() < 0.35 else ""))
     if ratio >= 0.9:
         names = wound(15, 35, 2)
         text = f"The sect won, but {' and '.join(names)} took wounds. Pills and rest will mend them."
@@ -1202,7 +1282,7 @@ def _daily_event(c: dict) -> None:
 # answering an event
 # ---------------------------------------------------------------------------
 def duel_power(c: dict, p: dict) -> float:
-    return (10 + 4 * p["skills"]["combat"]["lv"]) * (1 + 0.07 * p["step"]) * (1 + _manual(c, p, "sword")[0]) * max(0.3, p["health"] / 100.0)
+    return (10 + 4 * p["skills"]["combat"]["lv"]) * (1 + 0.07 * p["step"]) * (1 + _manual(c, p, "sword")[0]) * (1 + _art(c, p, "sword")) * max(0.3, p["health"] / 100.0)
 
 
 def _res_wanderer(c, ev, opt, r):
@@ -1410,6 +1490,7 @@ def _res_village(c, ev, opt, r):
 
 def _res_tournament(c, ev, opt, r):
     p = _p(c, opt)
+    p_name = p["name"] if p else ""
     if not p:
         for o in c["pawns"]:
             _think(o, "no_tourney", "The sect skipped the tournament", -3, 48, c["hour"])
@@ -1436,6 +1517,7 @@ def _res_tournament(c, ev, opt, r):
         mid = _loot_manual(c, r, min(3, _max_grade(c) + 1))
         prize += f" and the {_manual_name(mid)}" if mid else ""
         p["title"] = "Tournament Champion"
+        prize += f", and the {_new_artifact(c, r, f'won by {p_name} at the Hundred Sects Tournament', quality=1)['name']}"
     for o in c["pawns"]:
         _think(o, "tourney", "Our champion won the tournament" if wins == len(c["sects"]) else "Our champion fought in the tournament",
                10 if wins == len(c["sects"]) else 2 + 2 * wins, 72, c["hour"])
@@ -1661,6 +1743,105 @@ def _guide(c: dict) -> None:
                 + (" “You no longer need me. The Great Works are yours to attempt.”" if g["i"] == len(GUIDE) else ""))
 
 
+def _new_artifact(c: dict, r: random.Random, origin: str, quality: int | None = None, kind: str = "") -> dict:
+    kind = kind if kind in lore.ARTIFACT_KINDS else r.choice(list(lore.ARTIFACT_KINDS))
+    q = quality if quality is not None else r.choices([0, 1, 2], [60, 30, 10])[0]
+    a = {"id": f"a{c['next_art']}", "name": f"{r.choice(lore.ARTIFACT_ADJ)} {r.choice(lore.ARTIFACT_NOUN[kind])}", "kind": kind, "q": int(q),
+         "origin": f"{origin[:1].upper()}{origin[1:]}, day {_day(c) + 1}.", "owner": ""}
+    c["next_art"] += 1
+    c["artifacts"] = (c["artifacts"] + [a])[-40:]
+    if q == 2:
+        _annal(c, f"The masterwork {a['name']} came to the sect.")
+    return a
+
+
+def _unequip(c: dict, p: dict) -> None:
+    for a in c["artifacts"]:
+        if a["owner"] == p["id"]:
+            a["owner"] = ""
+
+
+def artifact_text(a: dict) -> str:
+    what, tiers = lore.ARTIFACT_KINDS[a["kind"]]
+    v = tiers[a["q"]]
+    return f"{lore.ARTIFACT_QUALITY[a['q']]}. " + (f"+{v} points of {what}" if a["kind"] == "charm" else f"{'-' if a['kind'] == 'armour' else '+'}{int(round(v * 100))}% {what.replace(', reduced', '')}") + "."
+
+
+FORGE_COST = {"stone": 40.0, "wood": 20.0, "stones": 8.0}
+
+
+def forge(st: dict, now: float) -> dict:
+    """The sect's best crafter makes an artifact. Skill decides how good it is."""
+    c = _c(st, now)
+    home = _home(c)
+    if not _lvl(c, "alchemy"):
+        return {"ok": False, "error": "The furnaces of an Alchemy Hall are needed to forge."}
+    if not home:
+        return {"ok": False, "error": "Nobody is home to work the forge."}
+    if any(c["res"][k] < v for k, v in FORGE_COST.items()):
+        return {"ok": False, "error": "Forging needs 40 stone, 20 wood and 8 spirit stones."}
+    for k, v in FORGE_COST.items():
+        c["res"][k] -= v
+    smith = max(home, key=lambda x: x["skills"]["craft"]["lv"])
+    r = _rng(c, "forge", c["hour"], c["next_art"])
+    lv = smith["skills"]["craft"]["lv"]
+    q = r.choices([0, 1, 2], [max(5, 70 - 4 * lv), 25 + 2 * lv, 2 + 2 * lv])[0]
+    a = _new_artifact(c, r, f"forged by {smith['name']}", quality=q)
+    _xp(smith, "craft", 40)
+    if q == 2:
+        _think(smith, "masterwork", "Forged a masterwork", 12, 120, c["hour"])
+        smith["title"] = smith.get("title") or "the Artificer"
+    return {"ok": True, "event": _letter(c, "good", f"{smith['name']} forged the {a['name']}", artifact_text(a) + " Give it to a disciple from their page.")}
+
+
+def equip(st: dict, pawn_id: str, art_id: str, now: float) -> dict:
+    """Give an artifact to a disciple (or take theirs back with an empty id). Rivals notice who is favoured."""
+    c = _c(st, now)
+    p = _p(c, pawn_id)
+    if not p:
+        return {"ok": False, "error": "Unknown disciple."}
+    old = artifact_of(c, p)
+    if not art_id:
+        if old:
+            old["owner"] = ""
+        return {"ok": True}
+    a = next((x for x in c["artifacts"] if x["id"] == art_id), None)
+    if not a:
+        return {"ok": False, "error": "That artifact is not in the vault."}
+    prev = _p(c, a["owner"]) if a["owner"] else None
+    if prev and prev is not p:
+        _think(prev, "stripped", f"The {a['name']} was taken from them", -8, 72, c["hour"])
+        _bond(c, prev, p, -10)
+    if old and old is not a:
+        old["owner"] = ""
+    a["owner"] = p["id"]
+    for o in _friends(c, p, -1):
+        _think(o, "passed_over", f"Passed over for {p['name']}", -6, 48, c["hour"])
+    return {"ok": True, "event": _letter(c, "info", f"{p['name']} received the {a['name']}", artifact_text(a))}
+
+
+def direct_cap(c: dict) -> int:
+    """One direct disciple for every three who still do the sect's work."""
+    return sum(1 for p in c["pawns"] if not p.get("master")) // 4
+
+
+def set_direct(st: dict, pawn_id: str, on: bool, now: float) -> dict:
+    c = _c(st, now)
+    p = _p(c, pawn_id)
+    if not p or p.get("master"):
+        return {"ok": False, "error": "Choose a disciple."}
+    if on and not p.get("direct") and sum(1 for x in c["pawns"] if x.get("direct")) >= direct_cap(c):
+        return {"ok": False, "error": "The sect can spare one direct disciple for every three who work. Take in more disciples first."}
+    if bool(on) != bool(p.get("direct")):
+        p["direct"] = bool(on)
+        if on:
+            for o in _friends(c, p, -1):
+                _think(o, "passed_over", f"{p['name']} was chosen over them", -6, 72, c["hour"])
+        else:
+            _think(p, "demoted", "No longer a direct disciple", -8, 72, c["hour"])
+    return {"ok": True}
+
+
 def skip_guide(st: dict, now: float) -> dict:
     _c(st, now)["guide"]["skip"] = True
     return {"ok": True}
@@ -1873,6 +2054,8 @@ def _trip_return(c: dict, item: dict, r: random.Random) -> None:
             tid = _loot_treasure(c, r)
             if tid:
                 found.append(f"the {lore.TREASURES[tid]['name']}")
+        if r.random() < 0.35 * luck:
+            found.append(f"the {_new_artifact(c, r, 'dug out of the Ruined Sect')['name']}")
     hurt = []
     for p in team:
         _xp(p, "combat", 20 * pl["risk"] * 2)
@@ -2047,6 +2230,7 @@ def banish(st: dict, pawn_id: str, now: float) -> dict:
         friend = bond(c, p, o) >= 30
         _think(o, "banish", f"{p['name']}, a friend, was sent away" if friend else "A disciple was sent away", -12 if friend else -4, 96 if friend else 48, c["hour"])
     c["bonds"] = {k: v for k, v in c["bonds"].items() if p["id"] not in k.split("|")}
+    _unequip(c, p)
     _annal(c, f"{p['name']} was sent away from the sect.")
     return {"ok": True, "event": _letter(c, "info", f"{p['name']} left the sect", "They bowed once at the gate and went down the mountain.")}
 
@@ -2222,7 +2406,10 @@ def _pawn_view(c: dict, p: dict) -> dict:
         "odds": [{"label": str(a), "v": _f(b)} for a, b in bt_odds(c, p)] if ready(p) else [],
         "mood_why": [{"label": str(a), "v": _f(b)} for a, b in mood_mods(c, p)],
         "arts": [lore.MANUALS[m]["name"] for m in (_manual(c, p, k)[1] for k in lore.MANUAL_BONUS) if m],
-        "origin": str(p.get("origin") or ""),
+        "origin": str(p.get("origin") or ""), "element": str(p["element"]), "direct": bool(p.get("direct")),
+        "qi_why": [{"label": str(a), "x": _f(b, 2)} for a, b in qi_rate(c, p)], "qi_x": _f(math.prod(b for _, b in qi_rate(c, p)), 2),
+        "artifact": ({"id": str(artifact_of(c, p)["id"]), "name": str(artifact_of(c, p)["name"]), "text": artifact_text(artifact_of(c, p))}
+                     if artifact_of(c, p) else None),
         "bonds": sorted(({"name": str(o["name"]), "v": _f(bond(c, p, o)), "kind": bond_kind(bond(c, p, o))}
                          for o in c["pawns"] if o is not p and abs(bond(c, p, o)) >= 8), key=lambda x: -abs(x["v"]))[:8],
     }
@@ -2293,6 +2480,11 @@ def view(st: dict, now: float) -> dict:
                    "ready": c["res"][c["quest"]["res"]] >= c["quest"]["n"]} if c["quest"] else None),
         "places": [{"id": k, "name": v["name"], "hours": v["hours"], "text": v["text"]} for k, v in PLACES.items()],
         "trip": any(x["kind"] == "trip_return" for x in c["later"]),
+        "artifacts": [{"id": str(a["id"]), "name": str(a["name"]), "text": artifact_text(a), "origin": str(a["origin"]),
+                       "owner": str((_p(c, a["owner"]) or {}).get("name", "")) if a["owner"] else ""} for a in c["artifacts"]],
+        "can_forge": _lvl(c, "alchemy") > 0 and all(c["res"][k] >= v for k, v in FORGE_COST.items()), "has_forge": _lvl(c, "alchemy") > 0,
+        "direct_cap": direct_cap(c), "direct_n": sum(1 for x in c["pawns"] if x.get("direct")),
+        "season_element": lore.SEASON_ELEMENT[_season(c)],
         "annals": [{"year": _f(e["hour"]) // (24 * DAYS_PER_SEASON * 4) + 1, "day": _f(e["hour"]) // 24 + 1, "text": str(e["text"])}
                    for e in reversed(c["annals"][-80:])],
         "sects": [{"id": str(x["id"]), "name": str(x["name"]), "kind": str(x["kind"]), "rel": _f(x["rel"]), "stance": stance(float(x["rel"])),
@@ -2402,6 +2594,8 @@ def _repair(c: dict) -> None:
         p["prio"] = {j: int(num((p.get("prio") or {}).get(j), 0, 4)) for j in JOBS}
         p["thoughts"] = [t for t in p.get("thoughts", []) if isinstance(t, dict) and isinstance(t.get("k"), str)
                          and isinstance(t.get("v"), (int, float)) and isinstance(t.get("until"), (int, float))][:40]
+        p["direct"] = bool(p.get("direct")) and not p.get("master")
+        p["element"] = p.get("element") if p.get("element") in lore.ELEMENTS else "earth"
         for k in ("id", "name", "root", "doing", "away_kind", "title", "origin"):
             p[k] = str(p.get(k) or "")
     if c["pawns"] and not any(p.get("master") for p in c["pawns"]):
@@ -2436,6 +2630,12 @@ def _repair(c: dict) -> None:
                    "days": int(num(q.get("days"), 1, 99, 7.0)), "src": str(q.get("src") or ""), "title": str(q.get("title") or "A promise")}
                   if isinstance(q, dict) and q.get("res") in RES else None)
     c["festival"] = str(c.get("festival") or "")
+    ids = {p["id"] for p in c["pawns"]}
+    c["artifacts"] = [{"id": str(a.get("id") or f"a{i}"), "name": str(a.get("name") or "Nameless artifact"), "kind": a["kind"], "q": int(num(a.get("q"), 0, 2)),
+                       "origin": str(a.get("origin") or ""), "owner": a.get("owner") if a.get("owner") in ids else ""}
+                      for i, a in enumerate(c["artifacts"]) if isinstance(a, dict) and a.get("kind") in lore.ARTIFACT_KINDS][:40] \
+        if isinstance(c.get("artifacts"), list) else []
+    c["next_art"] = int(num(c.get("next_art"), 0, 1e6)) + len(c["artifacts"])
     c["fame"] = num(c.get("fame"), 0, 1e7)
     c["adapt"] = num(c.get("adapt"), 0.55, 1.25, 0.85)
     r = c["research"]

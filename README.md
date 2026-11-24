@@ -77,6 +77,13 @@ python -m sect_academy
 - **Disciples have each other.** Those who work side by side become friends,
   sworn siblings or rivals. Friends guard a breakthrough and grieve a death;
   rivals envy success, sour the mood and sometimes come to blows.
+- **Depth you can read.** Every spirit root has one of five elements: the
+  season favours one and presses on another, and a manual of your own element
+  is half again as strong. Each disciple can carry one **artifact** (won, dug
+  up or forged; rivals notice who gets the good sword). You may take a few
+  **direct disciples**, who stop labouring and cultivate a quarter faster but
+  expect a bed and some ease. A ledger on each disciple's page shows exactly
+  what multiplies their cultivation speed.
 - **Things to aim at**: an elder's ten-step guided opening, a festival each
   season, promises to keep by a deadline with a reward you choose, expeditions
   you send out, five untimed **Great Works**, and the sect's permanent annals.

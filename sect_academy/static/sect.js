@@ -11,6 +11,7 @@ const SITE_OF = { farm: 'fields', quarry: 'spirit_vein', 'cut wood': 'storehouse
   research: 'library', train: 'training', meditate: 'meditation', sleeping: 'dormitory', recovering: 'dormitory', relaxing: 'main_hall', idle: 'main_hall' };
 const EVENT_ART = { omen: 'mission', young_master: 'leader', auction: 'treasure', secret_realm: 'seclusion', cave: 'seclusion', tournament: 'technique',
   demonic_offer: 'seclusion', merchant: 'treasure', wanderer: 'hall', recruit: 'hall', engagement: 'leader', spy: 'leader', village: 'map', beast_cub: 'map' };
+const ELEMENT_ICON = { wood: '🌿', fire: '🔥', earth: '⛰', metal: '⚔', water: '💧' };
 const store = { get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (_) { /* private mode */ } } };
 
 export function mountSect(h) {
@@ -169,6 +170,7 @@ export function mountSect(h) {
     z.querySelectorAll('[data-build]').forEach((b) => { b.onclick = () => order('build', { room: b.dataset.build }); });
     z.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => order('cancel-build', { index: Number(b.dataset.cancel) }); });
     z.querySelectorAll('[data-tech]').forEach((b) => { b.onclick = () => order('research', { tech: b.dataset.tech }); });
+    z.querySelectorAll('[data-forge]').forEach((b) => { b.onclick = () => order('forge'); });
     z.querySelectorAll('[data-trip]').forEach((b) => { b.onclick = () => order('expedition', { place: b.dataset.trip }); });
     z.querySelectorAll('[data-gift]').forEach((b) => { b.onclick = () => order('gift', { sect: b.dataset.gift }); });
     z.querySelectorAll('[data-burn]').forEach((b) => { b.onclick = () => { if (confirm('Burn this manual? It cannot be recovered.')) order('burn', { manual: b.dataset.burn }); }; });
@@ -178,7 +180,7 @@ export function mountSect(h) {
     return `<div class="pawns">${S.pawns.map((p) => `<button class="pawn ${p.away ? 'away' : ''}" data-pawn="${esc(p.id)}">
       ${face(p, 56)}
       <span class="grow"><b>${esc(p.name)}</b>${p.title ? ` <i class="dim">${esc(p.title)}</i>` : ''}${p.master ? ' <span class="tag gold">You</span>' : ''}
-        <span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="tag">${esc(p.rank)}</span>
+        <span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="tag">${esc(p.rank)}</span>${p.direct ? ' <span class="tag gold">Direct disciple</span>' : ''}
         ${p.bonds.filter((x) => x.kind).slice(0, 2).map((x) => `<span class="tag ${x.kind === 'rival' ? 'red' : 'jade'}">${x.kind === 'rival' ? '⚔' : '♥'} ${esc(x.name.split(' ')[0])}</span>`).join(' ')}
         <span class="doing">${p.ready ? `<span class="tag gold">⚡ Ready for ${esc(p.next_realm)}</span> ` : ''}${p.broken ? '<span class="tag red">Qi deviation</span> ' : ''}${p.inspired ? '<span class="tag jade">Inspired</span> ' : ''}${p.sick ? '<span class="tag red">Sick</span> ' : ''}${esc(p.doing)}</span>
         <span class="needs"><span title="Mood ${p.mood}">Mood ${bar(p.mood, moodCls(p.mood))}</span><span title="Food ${p.food}">Food ${bar(p.food, p.food < 25 ? 'verm' : 'azure')}</span>
@@ -242,6 +244,10 @@ export function mountSect(h) {
       <ul class="list">${S.manuals.map((m) => `<li class="row"><span class="grow"><b>${esc(m.name)}</b> <span class="tag ${m.demonic ? 'red' : 'gold'}">${m.demonic ? 'Forbidden' : `${esc(m.grade)} grade`}</span>
           <br><span class="small dim">${esc(m.kind)}, +${m.bonus}%${m.demonic ? ' and more. It darkens the heart of everyone who reads it' : ''}. ${esc(m.rank)}${m.demonic ? '' : ' and above'}.</span></span>
           ${m.demonic ? `<button class="btn quiet" data-burn="${esc(m.id)}">Burn it</button>` : ''}</li>`).join('')}</ul>
+      <h3 style="margin-top:16px">Artifacts</h3>
+      <p class="dim small">One per disciple; give them out from a disciple's page. They come from raids won at the gate, the tournament, the Ruined Sect, and your own forge. This season favours ${ELEMENT_ICON[S.season_element] || ''} ${esc(S.season_element)} roots.</p>
+      ${S.artifacts.length ? `<ul class="list">${S.artifacts.map((a) => `<li><b>${esc(a.name)}</b> ${a.owner ? `<span class="tag jade">${esc(a.owner)}</span>` : '<span class="tag">In the vault</span>'}<br><span class="small dim">${esc(a.text)} ${esc(a.origin)}</span></li>`).join('')}</ul>` : '<p class="dim">None yet.</p>'}
+      <button class="btn" data-forge ${S.can_forge ? '' : 'disabled'}>${S.has_forge ? 'Forge an artifact (40 stone, 20 wood, 8 💎)' : 'Forging needs an Alchemy Hall'}</button>
       <h3 style="margin-top:16px">Treasures</h3>
       ${S.treasures.length || S.beast ? `<ul class="list">${S.treasures.map((t) => `<li><b>${esc(t.name)}</b><br><span class="small dim">${esc(t.text)}</span></li>`).join('')}
         ${S.beast ? `<li><b>${esc(S.beast.name)}</b> <span class="tag jade">Guardian beast</span><br><span class="small dim">Guards the gate with strength ${S.beast.power}, growing with age. Eats one rice a day.</span></li>` : ''}</ul>`
@@ -267,7 +273,7 @@ export function mountSect(h) {
         <p class="small dim">${p.tribulation ? 'Heaven answers with lightning. A failure wounds badly, and a disciple who is already hurt may not survive it.' : 'A failure wounds them and scatters some of their qi.'} Each failure makes the next attempt a little surer.</p>
         <button class="btn primary big" data-attempt>${p.tribulation ? 'Face the tribulation' : 'Attempt the breakthrough'}</button></section>` : '';
     openSheet(`<div class="row" style="align-items:flex-start">${face(p, 84)}<div class="grow"><h2>${esc(p.name)}${p.title ? ` <i class="dim" style="font-size:.8em">${esc(p.title)}</i>` : ''}</h2>
-        <p class="dim" style="margin:0">${p.age} · ${esc(p.root)} spirit root · ${esc(p.rank)}${p.master ? ' (you)' : ''}</p>
+        <p class="dim" style="margin:0">${p.age} · ${ELEMENT_ICON[p.element] || ''} ${esc(p.root)} ${esc(p.element)} root · ${esc(p.rank)}${p.master ? ' (you)' : ''}</p>
         ${p.origin ? `<p class="small" style="margin:4px 0 0"><i>${esc(p.origin)}</i></p>` : ''}
         <p style="margin:6px 0 0"><span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="small dim">${p.qi} / ${p.qi_need} qi</span></p>${bar(p.qi_pct, 'violet')}</div></div>
       ${bt}
@@ -277,6 +283,16 @@ export function mountSect(h) {
       <h3 style="margin-top:14px">Why they feel this way</h3>
       ${why.length ? `<ul class="list">${why.map((t) => `<li class="row"><span class="grow">${esc(t.label)}</span>${signed(t.v)}</li>`).join('')}</ul>
         <p class="dim small">Mood settles toward 50 plus these. Below about 20 a disciple may suffer a qi deviation.</p>` : '<p class="dim">Nothing in particular. Their mood rests at 50.</p>'}
+      <h3 style="margin-top:14px">Cultivation speed <span class="tag violet num">×${p.qi_x}</span></h3>
+      <ul class="list">${p.qi_why.map((t) => `<li class="row"><span class="grow">${esc(t.label)}</span><b class="num" style="color:var(--${t.x < 1 ? 'verm' : 'jade'})">×${t.x}</b></li>`).join('')}</ul>
+      <p class="dim small">Qi gathered per hour of meditation is multiplied by each of these. A manual of the root's own element is well suited (half again as strong); one of a clashing element is ill suited.</p>
+      <h3 style="margin-top:14px">Artifact</h3>
+      ${p.artifact ? `<p><span class="tag gold">${esc(p.artifact.name)}</span> <span class="small dim">${esc(p.artifact.text)}</span> <button class="btn quiet" data-equip="">Return to the vault</button></p>` : '<p class="dim">Carries nothing.</p>'}
+      ${S.artifacts.filter((a) => !p.artifact || a.id !== p.artifact.id).length ? `<div class="row">${S.artifacts.filter((a) => !p.artifact || a.id !== p.artifact.id).map((a) => `<button class="btn" data-equip="${esc(a.id)}" title="${esc(a.text)}">Give: ${esc(a.name)}${a.owner ? ` (from ${esc(a.owner.split(' ')[0])})` : ''}</button>`).join('')}</div>
+        <p class="dim small">One artifact each. Taking one from another disciple hurts them, and rivals notice who is favoured.</p>` : ''}
+      ${p.master ? '' : `<h3 style="margin-top:14px">Standing</h3>
+      <p class="small dim">A direct disciple stops labouring and only meditates, trains and researches, gathering qi a quarter faster, but expects a bed and some ease. The sect can spare ${S.direct_cap} (${S.direct_n} chosen).</p>
+      <button class="btn" data-direct="${p.direct ? '0' : '1'}">${p.direct ? 'Return them to ordinary duties' : 'Take as a direct disciple'}</button>`}
       <h3 style="margin-top:14px">Bonds</h3>
       ${p.bonds.length ? `<ul class="list">${p.bonds.map((x) => `<li class="row"><span class="grow">${esc(x.name)}${x.kind ? ` <span class="tag ${x.kind === 'rival' ? 'red' : 'jade'}">${esc(x.kind)}</span>` : ''}</span>${signed(x.v)}</li>`).join('')}</ul>
         <p class="dim small">Disciples who work side by side talk. Friends (+30) steady each other and guard a breakthrough; rivals (-30) sour the mood, and may come to blows.</p>`
@@ -291,6 +307,8 @@ export function mountSect(h) {
     const s = $('#sheet');
     const heal = $('[data-heal]', s); if (heal) heal.onclick = async () => { await order('pill', { pawn: id }); pawnSheet(id); };
     const ban = $('[data-banish]', s); if (ban) ban.onclick = async () => { if (!confirm(`Send ${p.name} away from the sect for good?`)) return; closeSheet(); await order('banish', { pawn: id }); };
+    s.querySelectorAll('[data-equip]').forEach((b) => { b.onclick = async () => { await order('equip', { pawn: id, artifact: b.dataset.equip }); pawnSheet(id); }; });
+    const dd = $('[data-direct]', s); if (dd) dd.onclick = async () => { await order('direct', { pawn: id, on: dd.dataset.direct === '1' }); pawnSheet(id); };
     const go = $('[data-attempt]', s);
     if (go) go.onclick = async () => {
       go.disabled = true;

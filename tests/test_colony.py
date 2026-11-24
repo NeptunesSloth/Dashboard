@@ -552,3 +552,57 @@ def test_scarcity_is_real_on_balanced_and_winter_burns_wood(st):
     colony.advance(st, 1, T0)
     assert any(t["k"] == "no_fire" for p in c["pawns"] for t in p["thoughts"] if "Ascetic" not in p["traits"]) \
         or all("Ascetic" in p["traits"] for p in c["pawns"])
+
+
+def test_artifacts_elements_and_direct_disciples(st):
+    import random
+    from sect_academy import lore
+    c = st["colony"]
+    m, a, b = c["pawns"]
+    assert all(p["element"] in lore.ELEMENTS for p in c["pawns"])
+    # --- elements: the season tilts qi, and a manual of your own element suits you
+    a["element"] = "wood"
+    c["hour"] = 6                                              # spring favours wood
+    assert colony.season_tilt(c, a)[1] == 1.12
+    a["element"] = "earth"                                     # wood overcomes earth
+    assert colony.season_tilt(c, a)[1] == 0.92
+    a["element"] = "water"
+    a["step"] = 8                                              # an Inner Disciple may read Mystic grade
+    c["manuals"] = ["breathing", "azure_tide"]                 # a water scripture
+    well = colony._manual(c, a, "qi")
+    a["element"] = "fire"                                      # water overcomes fire
+    ill = colony._manual(c, a, "qi")
+    assert well[1] == "azure_tide" and colony.suit({"element": "water"}, "azure_tide") == ("well suited", 1.5) and well[0] > ill[0]
+    v = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == a["id"])
+    assert v["element"] == "fire" and abs(v["qi_x"] - __import__("math").prod(r["x"] for r in v["qi_why"])) < 0.05
+    # --- artifacts: forged, given, felt, and noticed
+    assert not colony.forge(st, T0)["ok"]                      # no Alchemy Hall yet
+    c["rooms"]["alchemy"] = 1
+    c["res"].update(stone=100.0, wood=100.0, stones=20.0)
+    assert colony.forge(st, T0)["ok"] and len(c["artifacts"]) == 1 and c["res"]["stones"] == 12
+    sword = colony._new_artifact(c, random.Random(1), "a test", quality=2, kind="sword")
+    charm = colony._new_artifact(c, random.Random(2), "a test", quality=1, kind="charm")
+    power = colony.combat_power(c, a)
+    colony._bond(c, a, b, -40)                                 # b is a's rival
+    assert colony.equip(st, a["id"], sword["id"], T0)["ok"] and colony.combat_power(c, a) > power * 1.3
+    assert any(t["k"] == "passed_over" for t in b["thoughts"])
+    assert any("Entrusted" in lab for lab, _ in colony.mood_mods(c, a))
+    assert colony.equip(st, b["id"], sword["id"], T0)["ok"]    # taken from a and given to their rival
+    assert colony.artifact_of(c, a) is None and any(t["k"] == "stripped" for t in a["thoughts"])
+    colony.equip(st, a["id"], charm["id"], T0)
+    a["step"], a["qi"] = 3, colony.step_need(3)
+    assert any(lab == charm["name"] and pts == 7 for lab, pts in colony.bt_odds(c, a))
+    view = colony.view(st, T0)
+    assert {x["owner"] for x in view["artifacts"]} >= {a["name"], b["name"]} and view["has_forge"]
+    colony._die(c, b)
+    assert sword["owner"] == ""                                # it goes back to the vault
+    # --- direct disciples: capped, faster, and they stop labouring
+    assert colony.direct_cap(c) == 0 and not colony.set_direct(st, a["id"], True, T0)["ok"]
+    for i in range(4):
+        c["pawns"].append(colony._make_pawn(c, 60 + i))
+    assert colony.direct_cap(c) == 1 and colony.set_direct(st, a["id"], True, T0)["ok"]
+    assert not colony.set_direct(st, c["pawns"][-1]["id"], True, T0)["ok"] and not colony.set_direct(st, m["id"], True, T0)["ok"]
+    assert any(lab.startswith("Direct disciple") and x == 1.25 for lab, x in colony.qi_rate(c, a))
+    a["prio"].update(farm=1, wood=1, meditate=4)
+    assert colony._pick_job(c, a, {}) == "meditate"
+    assert colony.set_direct(st, a["id"], False, T0)["ok"] and colony._pick_job(c, a, {}) in ("farm", "wood")

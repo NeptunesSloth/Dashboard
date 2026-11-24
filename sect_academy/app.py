@@ -210,6 +210,7 @@ class SectIn(BaseModel):
     sect: str = ""
     manual: str = ""
     place: str = ""
+    artifact: str = ""
     on: bool = False
 
 
@@ -399,6 +400,12 @@ def sect(action: str, body: SectIn):
             res = colony.gift(st, body.sect, now)
         elif action == "burn":
             res = colony.burn_manual(st, body.manual, now)
+        elif action == "forge":
+            res = colony.forge(st, now)
+        elif action == "equip":
+            res = colony.equip(st, body.pawn, body.artifact, now)
+        elif action == "direct":
+            res = colony.set_direct(st, body.pawn, body.on, now)
         elif action == "deliver":
             res = colony.deliver(st, now)
         elif action == "expedition":
