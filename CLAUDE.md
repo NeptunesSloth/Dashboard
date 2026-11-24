@@ -5,7 +5,12 @@ update it when the shape of the project changes.
 
 ## What this is
 
-MayBot Control Center — a self-hosted dashboard that watches a fleet of machines
+**Sect Academy** — an offline-first daily learning app (French A1, Spanish A1,
+Security+ SY0-801, Network+ N10-009, ISC2 CC) where study sessions raise a
+cultivation sect. It is the front door (`/`) and lives in
+`maybot_control_center/academy/` (see "Sect Academy" below).
+
+It grew out of, and still contains, MayBot Control Center — a self-hosted dashboard that watches a fleet of machines
 ("hosts") and the projects/bots running on them (trading bots, AI projects, game
 servers, websites…), wrapped in a cultivation-sect theme. It also includes an AI
 **Learning Center**, an **Ops Copilot**, persona "Sect Member" agents, and a
@@ -26,8 +31,9 @@ pip install -r requirements.txt
 
 # Dashboard with seeded demo data (no real agents needed) — easiest way to look around:
 MAYBOT_DEMO=1 python -m uvicorn maybot_control_center.app:app --reload --port 8200
-#   → http://127.0.0.1:8200   (Command Hall: /, Trade: /trade, Chamber: /chamber,
-#     Treasury: /treasury, Learning: /learn, legacy console: /console)
+#   → http://127.0.0.1:8200   (Academy: / /study /library /trials /progress,
+#     Command Hall: /command, Trade: /trade, Chamber: /chamber,
+#     Treasury: /treasury, AI tutor: /learn, legacy console: /console)
 
 # An agent on a host:
 MAYBOT_API_TOKEN=... python -m uvicorn maybot_agent.app:app --port 8100
@@ -83,6 +89,28 @@ python -m playwright install --with-deps chromium && python tests/smoke_browser.
 
 Deeper detail: `ARCHITECTURE.md`. Remaining ideas: `ROADMAP.md`.
 
+## Sect Academy (the learning app)
+
+Design + rationale: `docs/superpowers/specs/2026-11-24-sect-academy-design.md`;
+research: `docs/research/`. No LLM, network or DB needed.
+
+- **`academy/packs/*.yaml`** — the curated courses. Schema and authoring rules in
+  `docs/ACADEMY_CONTENT.md`; validate with `python -m maybot_control_center.academy.packs`.
+  An invalid pack is skipped at load, never a crash. Item ids are unique across
+  all packs and are the keys of saved progress — **never rename an item id**.
+- **`academy/fsrs.py`** — FSRS-6 with the published default weights. Don't tune
+  the constants by hand.
+- **`academy/engine.py`** — sessions (due reviews first, rationed new items),
+  server-side grading, exercise formats that harden with card maturity, trials.
+- **`academy/game.py`** — the sect game. Invariant: qi/stones are paid only for
+  scheduled, graded work; nothing is ever destroyed by a missed day.
+- **`academy/state.py`** — always-on JSON persistence (`MAYBOT_ACADEMY_FILE`,
+  `:memory:` in tests — the root `conftest.py` sets that default).
+- **`routers/academy.py`** + **`static/academy/`** — API and the one-file app
+  shell (`academy.js`), independent of `static/command/lib.js`.
+- Tests: `tests/test_academy.py` (engine/game on fixture packs),
+  `tests/test_academy_api.py` (HTTP + every shipped item builds valid exercises).
+
 ## Conventions
 
 - **Opt-in, default-off.** New capabilities are gated behind `MAYBOT_*` env vars
@@ -119,7 +147,8 @@ yet" state (not $0) when nothing reports. Tests: `tests/test_trading_bot_daybot.
 ## Gotchas
 
 - The dashboard is single-operator; the Learning Center's learner key is fixed
-  (`"scholar"`).
+  (`"scholar"`), and the academy has exactly one learner/sect.
+- `/` is the academy; the fleet Command Hall is `/command` (it used to be `/`).
 - Agent adapters run on the *host*, not the control center — adapter changes need
   the agent redeployed/restarted on each bot host to take effect.
 - `store.enabled()` is false without `MAYBOT_DB`; don't assume persistence in tests

@@ -41,8 +41,9 @@ def test_command_endpoint():
 
 
 def test_command_home_served():
-    r = client.get("/")
+    r = client.get("/command")
     assert r.status_code == 200 and "Command Hall" in r.text
+    assert "Sect Academy" in client.get("/").text      # the learning app is the front door
     # The full-featured console (formerly the standalone "/classic" dashboard) is
     # now reached at /console and carries the Sect Map the command rail links to.
     assert client.get("/console").status_code == 200

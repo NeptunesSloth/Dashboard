@@ -13,7 +13,8 @@ export const HEALTH_COLOR = { ok: 0x34d399, warning: 0xfbbf24, error: 0xfb5e7e, 
 
 /* ---------------- left command rail ---------------- */
 const NAV = [
-  ['command', '🏛', 'Command', '/'],
+  ['academy', '⛩', 'Academy', '/'],
+  ['command', '🏛', 'Command', '/command'],
   ['trade', '📈', 'Trade', '/trade'],
   ['disciples', '🧠', 'Sect Members', '/chamber'],
   ['missions', '⚔', 'Missions', '/console'],

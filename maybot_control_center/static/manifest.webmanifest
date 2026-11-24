@@ -1,7 +1,7 @@
 {
-  "name": "MayBot Control Center",
-  "short_name": "MayBot",
-  "description": "Distributed monitoring + autonomous agent ops dashboard.",
+  "name": "Sect Academy",
+  "short_name": "Academy",
+  "description": "Raise a sect by studying: French, Spanish and security certifications, every day.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

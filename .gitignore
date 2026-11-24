@@ -66,6 +66,9 @@ npm-debug.log*
 # ...and the documentation screenshots are tracked
 !docs/img/*.png
 sect_state.json
+academy_state.json*
+research_notes/
+reports/
 
 # Claude Code local state + ephemeral agent worktrees
 .claude/

@@ -102,7 +102,7 @@ def sect_disciples():
 _CMD = "maybot_control_center/static/command"
 
 
-@router.get("/")
+@router.get("/command")
 def home():
     return FileResponse(f"{_CMD}/index.html")
 

@@ -3917,7 +3917,7 @@ function scheduleStreamReconnect() {
 // ---- tabbed navigation (no more infinite scroll) ----
 // ---- unified left rail (shared with the Command Hall); drives section nav ----
 const SIDE_RAIL = [
-  ['command', '🏛', 'Command', { href: '/' }],
+  ['command', '🏛', 'Command', { href: '/command' }],
   ['trade', '📈', 'Trade', { href: '/trade' }],
   ['members', '🧠', 'Sect Members', { href: '/chamber' }],
   ['missions', '⚔', 'Missions', { tab: 'disciples' }],

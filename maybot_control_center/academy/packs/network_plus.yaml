@@ -1,0 +1,1174 @@
+id: network-plus
+title: "Network+ (N10-009) — Foundations"
+kind: cert
+blurb: "The OSI model, ports, subnetting, switching, routing, wireless, operations, security and troubleshooting — the core of CompTIA Network+."
+hall: ward_hall
+exam:
+  name: "CompTIA Network+"
+  code: "N10-009"
+  questions: 25
+  minutes: 25
+  pass_pct: 80
+  domains:
+    - {id: "1", title: "Networking Concepts", weight: 23}
+    - {id: "2", title: "Network Implementation", weight: 20}
+    - {id: "3", title: "Network Operations", weight: 19}
+    - {id: "4", title: "Network Security", weight: 14}
+    - {id: "5", title: "Network Troubleshooting", weight: 24}
+
+units:
+  # ───────────────────────────── 1a · OSI model ─────────────────────────────
+  - id: np-1a
+    title: "The OSI model and encapsulation"
+    domain: "1"
+    goal: "I can name the seven OSI layers, say what each one does, and place a device, address or data unit at the right layer."
+    notes: |
+      The **OSI model** splits networking into seven layers. Nobody builds products that follow it exactly, but everyone uses it as a shared map: "that is a Layer 2 problem" tells a colleague where to look.
+
+      | Layer | Name | Data unit | Typical examples |
+      | 7 | Application | Data | HTTP, DNS, SMTP |
+      | 6 | Presentation | Data | Encryption, compression, formats |
+      | 5 | Session | Data | Setting up and ending dialogues |
+      | 4 | Transport | Segment | TCP, UDP, port numbers |
+      | 3 | Network | Packet | IP, routers |
+      | 2 | Data link | Frame | Ethernet, MAC addresses, switches |
+      | 1 | Physical | Bits | Cables, connectors, hubs |
+
+      A common memory aid from Layer 1 upward is *Please Do Not Throw Sausage Pizza Away*.
+
+      When a host sends data, each layer wraps what it received from above in its own header. That is **encapsulation**. The receiver unwraps in the opposite order.
+
+      Two habits to build: tie every device to a layer (hub 1, switch 2, router 3), and remember that MAC addresses only matter on the local link while IP addresses travel end to end.
+    items:
+      - id: np-1a-physical
+        type: concept
+        term: "Physical layer"
+        def: "OSI Layer 1. It moves raw bits as electrical, light or radio signals across cables and connectors; hubs and repeaters work here."
+      - id: np-1a-datalink
+        type: concept
+        term: "Data link layer"
+        def: "OSI Layer 2. It builds frames and delivers them between nodes on the same local segment using MAC addresses; switches and bridges work here."
+      - id: np-1a-network
+        type: concept
+        term: "Network layer"
+        def: "OSI Layer 3. It provides logical (IP) addressing and chooses the path a packet takes from one subnet to another; routers work here."
+      - id: np-1a-transport
+        type: concept
+        term: "Transport layer"
+        def: "OSI Layer 4. It delivers data between processes end to end using port numbers, and can add sequencing, flow control and reliability; TCP and UDP live here."
+      - id: np-1a-session
+        type: concept
+        term: "Session layer"
+        def: "OSI Layer 5. It opens, maintains and closes the ongoing dialogue between two communicating applications."
+      - id: np-1a-presentation
+        type: concept
+        term: "Presentation layer"
+        def: "OSI Layer 6. It translates data formats and handles encryption and compression so that the receiving software can read what was sent."
+      - id: np-1a-application
+        type: concept
+        term: "Application layer"
+        def: "OSI Layer 7. The layer closest to the user, where protocols such as HTTP, DNS and SMTP offer network services to software."
+      - id: np-1a-encapsulation
+        type: concept
+        term: "Encapsulation"
+        def: "On the sending host, the process in which each layer wraps the data handed down from the layer above with its own header (and sometimes a trailer)."
+      - id: np-1a-decapsulation
+        type: concept
+        term: "Decapsulation"
+        def: "On the receiving host, the process of stripping off each layer's header in turn as the data moves up the stack."
+      - id: np-1a-pdu
+        type: concept
+        term: "Protocol data unit (PDU)"
+        def: "The generic name for a chunk of data as it exists at one particular layer; each layer has its own specific name for it."
+      - id: np-1a-segment
+        type: concept
+        term: "Segment"
+        def: "The Layer 4 unit of data created by TCP. Its header carries source and destination port numbers and a sequence number."
+      - id: np-1a-packet
+        type: concept
+        term: "Packet"
+        def: "The Layer 3 unit of data. Its header carries the source and destination IP addresses and a time-to-live value."
+      - id: np-1a-frame
+        type: concept
+        term: "Frame"
+        def: "The Layer 2 unit of data. It starts with destination and source hardware addresses and ends with an error-checking trailer."
+      - id: np-1a-mac
+        type: concept
+        term: "MAC address"
+        def: "A 48-bit hardware identifier, written as twelve hexadecimal digits, assigned to a network interface and used for delivery within the local segment."
+
+      - id: np-1a-q01
+        type: mcq
+        q: "A technician replaces an old hub with an unmanaged switch. At which OSI layer does the switch make its forwarding decisions?"
+        choices: ["Layer 1", "Layer 2", "Layer 3", "Layer 4"]
+        answer: 1
+        why: "A switch reads the destination MAC address in each frame, which is Layer 2 (data link) information. Layer 1 is where the hub it replaced worked: a hub just repeats bits out of every port without reading any address."
+      - id: np-1a-q02
+        type: mcq
+        q: "Before a file is sent, software converts it to a standard format, compresses it and encrypts it. Which OSI layer describes this work?"
+        choices: ["Application", "Session", "Presentation", "Transport"]
+        answer: 2
+        why: "Format translation, compression and encryption are the job of the presentation layer (Layer 6). The application layer (Layer 7) is where the user-facing protocol runs, not where the data is re-encoded."
+      - id: np-1a-q03
+        type: mcq
+        q: "In a packet capture you are looking at a TCP header with source and destination port numbers. What is the unit of data at this layer called?"
+        choices: ["Segment", "Packet", "Frame", "Bits"]
+        answer: 0
+        why: "TCP works at Layer 4, where the data unit is a segment. A packet is the Layer 3 unit (the IP header, with IP addresses), one layer further out."
+      - id: np-1a-q04
+        type: mcq
+        q: "A router receives a frame addressed to its own interface and must decide where to send the contents next. Which field does it use to make that decision?"
+        choices: ["Destination MAC address", "Source MAC address", "Source port number", "Destination IP address"]
+        answer: 3
+        why: "Routers work at Layer 3: they look up the destination IP address in the routing table. The destination MAC address only got the frame to the router; it is discarded and a new frame is built for the next hop."
+      - id: np-1a-q05
+        type: mcq
+        q: "A web server sends a page to a client. In what order is the data wrapped as it moves down the sending host's stack?"
+        choices:
+          - "Bits, frame, packet, segment, data"
+          - "Data, packet, segment, frame, bits"
+          - "Data, segment, packet, frame, bits"
+          - "Data, frame, packet, segment, bits"
+        answer: 2
+        why: "Going down the stack: application data gets a Layer 4 header (segment), then a Layer 3 header (packet), then a Layer 2 header and trailer (frame), and is finally sent as bits. The first choice is the receiving order, bottom to top."
+      - id: np-1a-q06
+        type: mcq
+        q: "A desktop PC has no link light on its network port, and the switch port it plugs into is also dark. Where in the OSI model should troubleshooting start?"
+        choices: ["Physical layer", "Data link layer", "Network layer", "Application layer"]
+        answer: 0
+        why: "No link light means no signal on the wire, so start at Layer 1: the cable, the connectors, the port and the NIC. Checking IP settings (Layer 3) is pointless until a link exists."
+      - id: np-1a-q07
+        type: mcq
+        q: "A PC sends a packet to a server three router hops away, with no NAT in the path. Which addresses are rewritten at every router along the way?"
+        choices:
+          - "The source and destination IP addresses"
+          - "The source and destination MAC addresses"
+          - "The source and destination port numbers"
+          - "Only the destination IP address"
+        answer: 1
+        why: "Each router strips the incoming frame and builds a new one for the next link, so the MAC addresses change hop by hop. Without NAT, the IP addresses stay the same from the original sender to the final receiver."
+      - id: np-1a-q08
+        type: mcq
+        q: "A firewall rule reads 'deny TCP destination port 23'. The field this rule inspects belongs to which OSI layer?"
+        choices: ["Layer 2 — Data link", "Layer 3 — Network", "Layer 7 — Application", "Layer 4 — Transport"]
+        answer: 3
+        why: "Port numbers live in the TCP or UDP header, which is Layer 4. The rule is aimed at an application (Telnet), but it does not read application content, so it is not Layer 7 filtering."
+      - id: np-1a-q09
+        type: mcq
+        q: "Which device works only at Layer 1, repeating every incoming signal out of all its other ports without reading any address?"
+        choices: ["Hub", "Switch", "Router", "Bridge"]
+        answer: 0
+        why: "A hub is a multiport repeater: it regenerates bits and has no idea what a frame is. A bridge may sound similar, but it reads MAC addresses and forwards selectively, which makes it a Layer 2 device like a switch."
+      - id: np-1a-q10
+        type: mcq
+        q: "A host knows the IP address of its default gateway and broadcasts an ARP request. What mapping is ARP providing?"
+        choices:
+          - "A Layer 7 name to a Layer 3 address"
+          - "A Layer 4 port to a Layer 3 address"
+          - "A Layer 3 address to a Layer 2 address"
+          - "A Layer 2 address to a Layer 1 port"
+        answer: 2
+        why: "ARP takes a known IPv4 address (Layer 3) and finds the MAC address (Layer 2) needed to build the frame. Turning a name into an IP address is DNS, not ARP."
+
+  # ─────────────────────── 1b · Ports, protocols, addressing ───────────────────────
+  - id: np-1b
+    title: "Ports, protocols and IPv4 addressing"
+    domain: "1"
+    goal: "I can match common protocols to their ports, recognise special IPv4 ranges, and work out the hosts and boundaries of a subnet."
+    notes: |
+      A **port number** identifies an application on a host, so one IP address can run many services. The well-known ones are worth memorising cold:
+
+      | Port | Protocol | Port | Protocol |
+      | 20/21 | FTP | 123 | NTP |
+      | 22 | SSH, SFTP | 161/162 | SNMP |
+      | 23 | Telnet | 389 / 636 | LDAP / LDAPS |
+      | 25 / 587 | SMTP | 443 | HTTPS |
+      | 53 | DNS | 445 | SMB |
+      | 67/68 | DHCP | 514 | Syslog |
+      | 69 | TFTP | 3389 | RDP |
+      | 80 | HTTP | 5060/5061 | SIP |
+
+      **TCP** is reliable and connection-oriented; **UDP** is fast and connectionless.
+
+      ## Subnetting in three steps
+
+      - Host bits = 32 minus the prefix length.
+      - Usable hosts = 2 to the power of the host bits, minus 2 (the network and broadcast addresses).
+      - Block size = 256 minus the interesting mask octet. Subnets start at multiples of the block size.
+
+      Example: a /26 has 6 host bits, so 64 addresses and 62 usable hosts; the mask is 255.255.255.192 and subnets start at .0, .64, .128 and .192.
+    items:
+      - id: np-1b-ssh
+        type: concept
+        term: "SSH"
+        def: "Gives an encrypted remote command-line session on a server or network device, using TCP port 22."
+      - id: np-1b-telnet
+        type: concept
+        term: "Telnet"
+        def: "Gives a remote command-line session with no encryption at all, so passwords cross the network in cleartext; it uses TCP port 23."
+      - id: np-1b-ftp
+        type: concept
+        term: "FTP"
+        def: "Moves files between hosts without encryption, using TCP port 21 for control commands and TCP port 20 for data."
+      - id: np-1b-dns
+        type: concept
+        term: "DNS"
+        def: "Translates host names into IP addresses. It uses port 53: UDP for most queries, TCP for zone transfers and large replies."
+      - id: np-1b-dhcp
+        type: concept
+        term: "DHCP"
+        def: "Automatically leases an IP address, mask, gateway and other settings to clients. Servers listen on UDP port 67 and clients on UDP port 68."
+      - id: np-1b-smtp
+        type: concept
+        term: "SMTP"
+        def: "Sends email from one mail server to another on TCP port 25; mail clients normally submit outgoing messages on port 587."
+      - id: np-1b-https
+        type: concept
+        term: "HTTPS"
+        def: "Carries web pages inside a TLS-encrypted connection, using TCP port 443."
+      - id: np-1b-snmp
+        type: concept
+        term: "SNMP"
+        def: "Lets a management station poll network devices for statistics on UDP port 161, and lets devices send unsolicited alerts to UDP port 162."
+      - id: np-1b-rdp
+        type: concept
+        term: "RDP"
+        def: "Gives a full graphical desktop session on a remote Windows computer, using port 3389."
+      - id: np-1b-tcp
+        type: concept
+        term: "TCP"
+        def: "The connection-oriented Layer 4 protocol. It opens with a three-way handshake and uses acknowledgements and retransmission to deliver data reliably and in order."
+      - id: np-1b-udp
+        type: concept
+        term: "UDP"
+        def: "The connectionless Layer 4 protocol. It has no handshake, acknowledgements or retransmission, which suits low-overhead, delay-sensitive traffic such as voice and video."
+      - id: np-1b-rfc1918
+        type: concept
+        term: "RFC 1918 private addresses"
+        def: "The IPv4 ranges reserved for internal use and never routed on the public internet: 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16."
+      - id: np-1b-apipa
+        type: concept
+        term: "APIPA"
+        def: "A 169.254.0.0/16 IPv4 address that a host assigns to itself when it asks for a lease and no server answers."
+      - id: np-1b-cidr
+        type: concept
+        term: "CIDR notation"
+        def: "A slash followed by the number of leading bits that identify the subnet, such as /24, written after an IPv4 address in place of a dotted-decimal mask."
+
+      - id: np-1b-q01
+        type: mcq
+        q: "An administrator needs an encrypted command-line session to a switch at a branch office. Which TCP port must the firewall allow?"
+        choices: ["23", "22", "3389", "443"]
+        answer: 1
+        why: "SSH provides an encrypted command-line session on TCP 22. Port 23 is Telnet, which gives the same kind of session but sends every keystroke, including the password, in cleartext."
+      - id: np-1b-q02
+        type: mcq
+        q: "After a firewall change, users can open a website by typing its IP address but not by typing its name. Which outbound port was most likely blocked?"
+        choices: ["UDP 53", "UDP 67", "TCP 25", "UDP 123"]
+        answer: 0
+        why: "Reaching the site by IP proves routing and HTTP work; only name resolution is broken, and DNS queries use UDP 53. UDP 67 is DHCP, but the clients clearly already have working IP settings."
+      - id: np-1b-q03
+        type: mcq
+        q: "A laptop set to obtain its address automatically shows 169.254.18.7 with mask 255.255.0.0. What is the most likely explanation?"
+        choices:
+          - "It was given a static address by an administrator"
+          - "It received a public address from the ISP"
+          - "Its DNS server is unreachable"
+          - "It could not reach a DHCP server"
+        answer: 3
+        why: "169.254.0.0/16 is the APIPA range: a host picks an address there itself when its DHCP request goes unanswered. A DNS failure would stop name lookups but would not change the host's own IP address."
+      - id: np-1b-q04
+        type: mcq
+        q: "You are reviewing an addressing plan. Which of these addresses is in a private (RFC 1918) range?"
+        choices: ["172.32.5.1", "172.20.5.1", "192.169.1.1", "11.0.0.5"]
+        answer: 1
+        why: "The private ranges are 10.0.0.0/8, 172.16.0.0/12 (172.16.0.0 to 172.31.255.255) and 192.168.0.0/16. 172.20.5.1 falls inside the second range. 172.32.5.1 is the tempting one, but it sits just past the end of that range, so it is public."
+      - id: np-1b-q05
+        type: mcq
+        q: "A new subnet is created as 10.4.8.0/26. How many usable host addresses does it provide?"
+        choices: ["30", "64", "62", "126"]
+        answer: 2
+        why: "32 - 26 = 6 host bits. 2^6 = 64 addresses, minus the network and broadcast addresses = 62 usable. 64 is the total address count, which forgets to subtract those two."
+      - id: np-1b-q06
+        type: mcq
+        q: "A server is configured as 192.168.10.77/27. What is the broadcast address of its subnet?"
+        choices: ["192.168.10.63", "192.168.10.79", "192.168.10.95", "192.168.10.127"]
+        answer: 2
+        why: "A /27 mask is 255.255.255.224, so the block size is 256 - 224 = 32 and subnets start at .0, .32, .64, .96. Host .77 is in the .64 subnet, which runs to one below the next subnet: .95. 192.168.10.63 is the broadcast of the previous subnet (.32)."
+      - id: np-1b-q07
+        type: mcq
+        q: "Each floor of a building needs its own subnet for 50 devices. Which prefix is the smallest subnet that will fit them?"
+        choices: ["/25", "/26", "/27", "/28"]
+        answer: 1
+        why: "A /26 leaves 6 host bits: 2^6 - 2 = 62 usable addresses, enough for 50. A /27 leaves 5 host bits: 2^5 - 2 = 30, too few. A /25 (126 hosts) would work but is not the smallest fit."
+      - id: np-1b-q08
+        type: mcq
+        q: "A router interface must be configured with the dotted-decimal mask for a /20 network. Which mask is correct?"
+        choices: ["255.255.192.0", "255.255.224.0", "255.255.248.0", "255.255.240.0"]
+        answer: 3
+        why: "A /20 is 16 bits for the first two octets plus 4 bits in the third. Four leading bits are 128 + 64 + 32 + 16 = 240, so the mask is 255.255.240.0. 255.255.224.0 uses only three bits in the third octet, which is a /19."
+      - id: np-1b-q09
+        type: mcq
+        q: "Two PCs on the same switch and VLAN are set to 10.1.1.120/25 and 10.1.1.130/25, with no gateway configured. They cannot ping each other. Why?"
+        choices:
+          - "They are in different subnets"
+          - "One of them is using a broadcast address"
+          - "A /25 mask is not valid for a 10.x.x.x address"
+          - "Both are using network addresses"
+        answer: 0
+        why: "A /25 splits the last octet in half: 10.1.1.0 to 10.1.1.127 and 10.1.1.128 to 10.1.1.255. Host .120 is in the first subnet and .130 in the second, so they need a router to talk. Neither is a broadcast address: those are .127 and .255."
+      - id: np-1b-q10
+        type: mcq
+        q: "After a firewall update, desk phones can no longer register with the VoIP call server. Which port was most likely blocked?"
+        choices: ["514", "1433", "3389", "5060"]
+        answer: 3
+        why: "IP phones register and set up calls with SIP, which uses port 5060 (5061 when protected by TLS). 3389 is RDP, a remote desktop protocol that has nothing to do with call signalling."
+      - id: np-1b-q11
+        type: mcq
+        q: "A public DNS provider announces the same IP address from data centres on several continents, and each query is routed to the nearest one. Which traffic type is this?"
+        choices: ["Anycast", "Multicast", "Broadcast", "Unicast"]
+        answer: 0
+        why: "Anycast gives one address to many nodes and lets routing deliver each packet to the closest. Multicast is the tempting distractor, but it delivers a copy to every member of a group rather than to just one nearest node."
+
+  # ───────────────────────────── 2 · Implementation ─────────────────────────────
+  - id: np-2
+    title: "Routing, switching, wireless and cabling"
+    domain: "2"
+    goal: "I can choose the right switching, routing, wireless or cabling feature for a small network design."
+    notes: |
+      This unit is about building the network.
+
+      **Switching.** A **VLAN** splits one switch into several broadcast domains. A **trunk** carries many VLANs between switches by tagging frames (802.1Q). **Spanning tree** blocks redundant links so that frames cannot loop for ever.
+
+      **Routing.** A router picks the *most specific* matching route (longest prefix). If two sources offer the same prefix, the lower **administrative distance** wins; within one protocol, the lower metric wins. Routes are entered by hand (static) or learned from a dynamic protocol such as OSPF, EIGRP or BGP.
+
+      **Wireless.**
+
+      | Standard | Wi-Fi name | Bands |
+      | 802.11a | — | 5 GHz |
+      | 802.11b / 802.11g | — | 2.4 GHz |
+      | 802.11n | Wi-Fi 4 | 2.4 and 5 GHz |
+      | 802.11ac | Wi-Fi 5 | 5 GHz |
+      | 802.11ax | Wi-Fi 6 / 6E | 2.4, 5 (and 6) GHz |
+
+      2.4 GHz reaches further but is crowded; 5 GHz and 6 GHz offer more channels and speed over a shorter range.
+
+      **Cabling.** Twisted-pair copper runs up to 100 m. Fiber goes further and ignores electrical interference: multimode for short runs, single-mode for long ones.
+    items:
+      - id: np-2-vlan
+        type: concept
+        term: "VLAN"
+        def: "A logical grouping of switch ports that forms its own broadcast domain, keeping its Layer 2 traffic separate from other groups on the same hardware."
+      - id: np-2-trunk
+        type: concept
+        term: "802.1Q trunk"
+        def: "A link between switches (or to a router) that carries traffic for many VLANs at once by inserting a tag into each frame."
+      - id: np-2-stp
+        type: concept
+        term: "Spanning Tree Protocol (STP)"
+        def: "A Layer 2 protocol that prevents loops by electing a root bridge and putting redundant switch links into a blocking state until they are needed."
+      - id: np-2-static-route
+        type: concept
+        term: "Static route"
+        def: "A path to a destination that an administrator types in by hand; it does not adapt on its own when the topology changes."
+      - id: np-2-ospf
+        type: concept
+        term: "OSPF"
+        def: "A link-state interior routing protocol that chooses paths by cost (derived from bandwidth) and organises routers into areas around a backbone, area 0."
+      - id: np-2-bgp
+        type: concept
+        term: "BGP"
+        def: "The path-vector routing protocol that exchanges routes between autonomous systems and holds the internet together; it runs over TCP port 179."
+      - id: np-2-pat
+        type: concept
+        term: "PAT (NAT overload)"
+        def: "Many-to-one translation: a whole LAN shares a single public IP address, and the router tells the conversations apart by their source port numbers."
+      - id: np-2-fhrp
+        type: concept
+        term: "FHRP"
+        def: "A family of protocols, such as VRRP and HSRP, that let two or more routers share a virtual IP address so hosts keep a working default gateway if one router fails."
+      - id: np-2-ad
+        type: concept
+        term: "Administrative distance"
+        def: "A number that ranks how trustworthy a source of routing information is; when two sources offer the same prefix, the route from the source with the lower number is installed."
+      - id: np-2-ssid
+        type: concept
+        term: "SSID"
+        def: "The human-readable name of a wireless network, advertised in an access point's beacons and shown in a client's list of available networks."
+      - id: np-2-wpa3
+        type: concept
+        term: "WPA3"
+        def: "The current Wi-Fi security standard. Its personal mode replaces the older pre-shared key handshake with SAE, which resists offline password guessing."
+      - id: np-2-poe
+        type: concept
+        term: "PoE"
+        def: "Lets a switch run devices such as access points, cameras and IP phones through the data cable itself, so they need no separate electrical outlet."
+      - id: np-2-cat6a
+        type: concept
+        term: "Cat 6A"
+        def: "The twisted-pair copper cable category rated to carry 10 Gbps over the full 100 m channel length."
+      - id: np-2-smf
+        type: concept
+        term: "Single-mode fiber"
+        def: "Optical cable with a very narrow core that carries one path of laser light, used for runs of many kilometres."
+
+      - id: np-2-q01
+        type: mcq
+        q: "Finance and Engineering PCs share one 48-port switch. Management wants each department in its own broadcast domain without buying hardware. What should be configured?"
+        choices:
+          - "A separate VLAN for each department"
+          - "A link aggregation group for each department"
+          - "Port mirroring between the departments"
+          - "A longer DHCP lease for each department"
+        answer: 0
+        why: "VLANs divide one physical switch into separate Layer 2 broadcast domains. Link aggregation bundles several cables into one faster, redundant link; it does nothing to separate traffic."
+      - id: np-2-q02
+        type: mcq
+        q: "A router has one spare physical interface, connected to a switch trunk, and must route between VLANs 10, 20 and 30. What should be configured on the router?"
+        choices:
+          - "Three static NAT entries, one per VLAN"
+          - "A first hop redundancy protocol group"
+          - "Three subinterfaces, each tagged for one VLAN"
+          - "Port address translation on the interface"
+        answer: 2
+        why: "A 'router on a stick' splits one physical interface into logical subinterfaces, each with an 802.1Q tag and an IP address that acts as the gateway for its VLAN. NAT translates addresses; it does not let one interface belong to several VLANs."
+      - id: np-2-q03
+        type: mcq
+        q: "A technician adds a second cable between two access switches for redundancy. Within seconds the LAN is saturated with endlessly circulating broadcasts. Which feature is missing or disabled?"
+        choices: ["Port security", "DHCP snooping", "Jumbo frames", "Spanning Tree Protocol"]
+        answer: 3
+        why: "Two parallel Layer 2 links form a loop, and Ethernet frames have no time-to-live, so broadcasts circulate for ever. Spanning tree would have blocked one link. Port security limits which MAC addresses may use a port; it does not detect loops."
+      - id: np-2-q04
+        type: mcq
+        q: "Three access points must cover one open-plan floor on 2.4 GHz in North America. Which channel plan avoids overlap between neighbouring access points?"
+        choices: ["1, 2 and 3", "1, 6 and 11", "2, 4 and 6", "3, 6 and 9"]
+        answer: 1
+        why: "2.4 GHz channels are only 5 MHz apart but each transmission is about 20 MHz wide, so channels must be five numbers apart to stay clear: 1, 6 and 11. Channels 3, 6 and 9 look evenly spaced but still overlap one another."
+      - id: np-2-q05
+        type: mcq
+        q: "An old barcode scanner cannot see an SSID that is offered only on 5 GHz. Which wireless standard is the scanner most likely limited to?"
+        choices: ["802.11a", "802.11g", "802.11ac", "802.11ax"]
+        answer: 1
+        why: "802.11g works only in the 2.4 GHz band, so a 5 GHz-only SSID is invisible to it. 802.11a is also an old standard, but it is a 5 GHz standard and would see this network."
+      - id: np-2-q06
+        type: mcq
+        q: "A router learns 10.50.0.0/24 from OSPF and also has a static route for 10.50.0.0/24, both with default settings. Which route goes into the routing table?"
+        choices:
+          - "The static route, because it has the lower administrative distance"
+          - "The OSPF route, because dynamic routes are preferred"
+          - "The OSPF route, because it has the lower metric"
+          - "Both routes, load-balanced equally"
+        answer: 0
+        why: "When two sources offer the same prefix, the lower administrative distance wins: a static route defaults to 1 and OSPF to 110 on common platforms. Metrics are only compared between routes from the same protocol, so the OSPF metric does not enter into it."
+      - id: np-2-q07
+        type: mcq
+        q: "A routing table holds 0.0.0.0/0, 10.0.0.0/8, 10.1.0.0/16 and 10.1.1.0/24. Which entry is used for a packet addressed to 10.1.1.200?"
+        choices: ["0.0.0.0/0", "10.0.0.0/8", "10.1.0.0/16", "10.1.1.0/24"]
+        answer: 3
+        why: "All four entries match 10.1.1.200, and a router always uses the longest (most specific) matching prefix: the /24. The default route 0.0.0.0/0 is the least specific and is used only when nothing else matches."
+      - id: np-2-q08
+        type: mcq
+        q: "A small office has 40 PCs with private addresses and a single public IP address from its ISP. What lets all 40 browse the internet at the same time?"
+        choices:
+          - "Static NAT"
+          - "A VLAN trunk to the ISP"
+          - "Port address translation"
+          - "A DHCP relay agent"
+        answer: 2
+        why: "PAT maps many private addresses to one public address and keeps conversations apart by source port number. Static NAT is a fixed one-to-one mapping, so it would need 40 public addresses."
+      - id: np-2-q09
+        type: mcq
+        q: "A design calls for 10 Gbps copper links to desks up to 90 m from the wiring closet. Which cable category is the minimum that meets this?"
+        choices: ["Cat 5", "Cat 5e", "Cat 6", "Cat 6A"]
+        answer: 3
+        why: "Cat 6A is rated for 10 Gbps over the full 100 m. Cat 6 is the tempting choice, but it supports 10 Gbps only to about 55 m; beyond that it is a 1 Gbps cable."
+      - id: np-2-q10
+        type: mcq
+        q: "Two campus buildings 8 km apart need a 10 Gbps link. Which medium is appropriate?"
+        choices: ["Cat 6A twisted pair", "Multimode fiber", "Single-mode fiber", "RG-6 coaxial cable"]
+        answer: 2
+        why: "Single-mode fiber carries laser light many kilometres. Multimode fiber is cheaper for links inside a building, but at 10 Gbps it is limited to a few hundred metres, far short of 8 km."
+      - id: np-2-q11
+        type: mcq
+        q: "Staff must join the office Wi-Fi with their own directory username and password, so that one person's access can be revoked without changing anything for the others. What should be deployed?"
+        choices:
+          - "WPA3-Personal with a long shared passphrase"
+          - "WPA3-Enterprise with 802.1X and a RADIUS server"
+          - "An open SSID with MAC address filtering"
+          - "A hidden SSID with a shared passphrase"
+        answer: 1
+        why: "Enterprise mode authenticates each user individually through 802.1X against a RADIUS server, so an account can be disabled on its own. WPA3-Personal is strong, but everyone shares one passphrase, so removing one person means changing it for all."
+
+  # ───────────────────────────── 3 · Operations ─────────────────────────────
+  - id: np-3
+    title: "Operations: monitoring, recovery and network services"
+    domain: "3"
+    goal: "I can pick the right monitoring source, recovery metric or network service for a day-to-day operations problem."
+    notes: |
+      Running a network is mostly knowing what *normal* looks like and being ready for when it stops.
+
+      **Monitoring.** Capture a **baseline** first. Then pick the right source: SNMP for device health and counters, flow data for *who is talking to whom*, syslog for events, and packet capture when you need the payload.
+
+      **Disaster recovery.** Four numbers drive every plan:
+
+      | Metric | Question it answers |
+      | RPO | How much data can we afford to lose? |
+      | RTO | How long can we be down? |
+      | MTTR | How long does a repair take on average? |
+      | MTBF | How long does it run between failures? |
+
+      **Services.** DHCP hands out addresses in four steps (*Discover, Offer, Request, Acknowledge*). DNS maps names to addresses with records such as A, AAAA, CNAME, MX and PTR. NTP keeps clocks in agreement so that logs line up.
+
+      **IPv6.** Addresses are 128 bits, written as eight groups of hex. Leading zeros in a group may be dropped and one run of all-zero groups may become `::`. There is no broadcast; hosts can configure themselves with SLAAC.
+    items:
+      - id: np-3-baseline
+        type: concept
+        term: "Baseline"
+        def: "A record of normal performance measurements gathered over time, kept so that later readings can be compared against it to spot anomalies."
+      - id: np-3-syslog
+        type: concept
+        term: "Syslog"
+        def: "A standard by which devices send event messages to a central collector, by default on UDP port 514, each tagged with a severity from 0 (emergency) to 7 (debug)."
+      - id: np-3-netflow
+        type: concept
+        term: "Flow data (NetFlow)"
+        def: "Summaries of conversations exported by routers and switches, listing who talked to whom, on which ports and how much, without storing any payload."
+      - id: np-3-mirroring
+        type: concept
+        term: "Port mirroring"
+        def: "A switch feature that copies the traffic of one port or VLAN to another port where an analyzer or sensor is attached."
+      - id: np-3-rpo
+        type: concept
+        term: "RPO"
+        def: "The maximum amount of data, measured as a span of time before the outage, that the business can tolerate losing; it sets how often backups must run."
+      - id: np-3-rto
+        type: concept
+        term: "RTO"
+        def: "The maximum length of time the business has agreed a service may stay down after a disruption before it must be running again."
+      - id: np-3-mttr
+        type: concept
+        term: "MTTR"
+        def: "The average time it actually takes to fix a failed component and return it to service, calculated from past incidents."
+      - id: np-3-mtbf
+        type: concept
+        term: "MTBF"
+        def: "The average operating time a repairable device is expected to run from one breakdown to the next; a measure of reliability."
+      - id: np-3-hot-site
+        type: concept
+        term: "Hot site"
+        def: "A fully equipped alternate location with live, current data, able to take over operations within minutes to hours."
+      - id: np-3-cold-site
+        type: concept
+        term: "Cold site"
+        def: "An alternate location offering only space, power and cooling; equipment and data must be brought in, so recovery takes days or longer."
+      - id: np-3-dhcp-relay
+        type: concept
+        term: "DHCP relay"
+        def: "A router or Layer 3 switch function that picks up a client's broadcast request for an address and forwards it as unicast to a server on another subnet."
+      - id: np-3-ntp
+        type: concept
+        term: "NTP"
+        def: "Keeps device clocks synchronised over UDP port 123, using a hierarchy of time sources whose levels are called strata."
+      - id: np-3-slaac
+        type: concept
+        term: "SLAAC"
+        def: "The IPv6 method by which a host builds its own address from the prefix in a router advertisement, with no server keeping track of leases."
+      - id: np-3-link-local
+        type: concept
+        term: "IPv6 link-local address"
+        def: "An address in fe80::/10 that every IPv6 interface generates for itself; it works only on the directly attached segment and is never routed."
+
+      - id: np-3-q01
+        type: mcq
+        q: "A retailer states that after a failure no more than 15 minutes of sales transactions may be lost. Which metric does this requirement define?"
+        choices: ["RTO", "RPO", "MTTR", "MTBF"]
+        answer: 1
+        why: "Tolerable data loss, expressed as time, is the recovery point objective. RTO is the one most often confused with it, but RTO limits how long the service may be down, not how much data may be lost."
+      - id: np-3-q02
+        type: mcq
+        q: "A payment processor must resume operations within one hour of losing its main data centre, and cost is a secondary concern. Which recovery site fits?"
+        choices: ["Cold site", "Warm site", "Cloud-stored backups only", "Hot site"]
+        answer: 3
+        why: "Only a hot site has equipment running and data kept current, so it can take over inside an hour. A warm site has hardware in place but needs data restored and systems brought up, which usually takes many hours to days."
+      - id: np-3-q03
+        type: mcq
+        q: "During an investigation, firewall and switch logs for the same event show timestamps several minutes apart, so the sequence of events cannot be reconstructed. What should be configured to prevent this?"
+        choices:
+          - "NTP on every device"
+          - "SNMP traps on every device"
+          - "A longer log retention period"
+          - "Port mirroring on the switch"
+        answer: 0
+        why: "Log correlation depends on all devices agreeing on the time, which is what NTP provides. Keeping logs for longer would simply preserve the same mismatched timestamps."
+      - id: np-3-q04
+        type: mcq
+        q: "A packet capture shows a new client obtaining an address from a DHCP server. In which order do the four messages appear?"
+        choices:
+          - "Request, Offer, Discover, Acknowledge"
+          - "Discover, Request, Offer, Acknowledge"
+          - "Discover, Offer, Request, Acknowledge"
+          - "Offer, Discover, Acknowledge, Request"
+        answer: 2
+        why: "The client broadcasts a Discover, a server replies with an Offer, the client sends a Request for that offer, and the server confirms with an Acknowledge (DORA). The Request cannot come before the Offer, because the client has nothing to request yet."
+      - id: np-3-q05
+        type: mcq
+        q: "Clients on a newly created VLAN receive no addresses. The only DHCP server is on another subnet and has a correct scope for the new VLAN; existing VLANs work normally. What is most likely missing?"
+        choices:
+          - "A relay (IP helper) address on the new VLAN's gateway interface"
+          - "A DNS reservation for each new client"
+          - "A second DHCP server placed on the server subnet"
+          - "A longer lease time on the new scope"
+        answer: 0
+        why: "DHCP Discover messages are broadcasts and routers do not forward broadcasts, so the gateway for the new VLAN must relay them to the server. A second server on the server subnet would be just as unreachable for the new VLAN's broadcasts."
+      - id: np-3-q06
+        type: mcq
+        q: "Mail from outside the company is not arriving. Which DNS record type tells other mail servers where to deliver email for the domain?"
+        choices: ["A", "CNAME", "PTR", "MX"]
+        answer: 3
+        why: "An MX (mail exchanger) record names the server that accepts mail for a domain. An A record is still needed to turn that server's name into an address, but it does not by itself say where the domain's mail should go."
+      - id: np-3-q07
+        type: mcq
+        q: "A new web server has only an IPv6 address. Which DNS record maps its host name to that address?"
+        choices: ["A", "AAAA", "PTR", "CNAME"]
+        answer: 1
+        why: "An AAAA record maps a name to a 128-bit IPv6 address. An A record does the same job but only holds a 32-bit IPv4 address."
+      - id: np-3-q08
+        type: mcq
+        q: "A host with no DHCPv6 server and no router on its segment still shows the address fe80::1c2b:3aff:fe4d:5e6f on its interface. What type of IPv6 address is this?"
+        choices: ["Global unicast", "Unique local", "Link-local", "Multicast"]
+        answer: 2
+        why: "Addresses in fe80::/10 are link-local: every IPv6 interface creates one automatically and it is valid only on that segment. Unique local addresses are the private-style range fc00::/7 (seen in practice as fd00::/8) and must be assigned or derived from a router's prefix."
+      - id: np-3-q09
+        type: mcq
+        q: "Which is the correct, fully shortened form of the IPv6 address 2001:0db8:0000:0000:0000:ff00:0042:8329?"
+        choices:
+          - "2001:db8::ff00:42:8329"
+          - "2001:db8::ff:42:8329"
+          - "2001:db8::ff00::42:8329"
+          - "21:db8::ff00:42:8329"
+        answer: 0
+        why: "Drop leading zeros in each group (0db8 becomes db8, 0042 becomes 42) and replace the single run of all-zero groups with '::'. The second choice wrongly removes trailing zeros from ff00, which changes the value; '::' may also appear only once."
+      - id: np-3-q10
+        type: mcq
+        q: "Management wants a monthly report of which hosts and applications use the most WAN bandwidth, without storing the contents of any packets. What should be deployed?"
+        choices:
+          - "Full packet capture on the WAN link"
+          - "SNMP polling of the WAN interface counters"
+          - "A syslog server for the WAN router"
+          - "Flow data export from the WAN router to a collector"
+        answer: 3
+        why: "Flow records summarise each conversation by addresses, ports and byte counts, which gives 'top talkers' without any payload. SNMP interface counters show how busy the link is in total but cannot say which host or application is responsible."
+      - id: np-3-q11
+        type: mcq
+        q: "An engineer plans to upgrade the firmware on a production core switch. Under a change management process, what should happen first?"
+        choices:
+          - "Apply the upgrade during lunch, when usage is lower"
+          - "Update the network diagram to show the new version"
+          - "Submit a change request with a rollback plan for approval"
+          - "Tell users afterwards that the change was made"
+        answer: 2
+        why: "Change management requires a documented, approved request, including impact and a way to back out, before production is touched. Updating documentation is part of the process too, but it comes after the change has been made and verified."
+
+  # ───────────────────────────── 4 · Security ─────────────────────────────
+  - id: np-4
+    title: "Network security"
+    domain: "4"
+    goal: "I can recognise common network attacks and choose the control that defends against each."
+    notes: |
+      Security on the exam is practical: recognise the attack, pick the control.
+
+      Start with the goals. The **CIA triad** (confidentiality, integrity, availability) says what you are protecting. **AAA** (authentication, authorization, accounting) says how you control who gets in, what they may do, and what record is kept.
+
+      Many LAN attacks abuse protocols that trust everyone:
+
+      | Attack | What is abused | Typical defence |
+      | ARP poisoning | ARP replies are not verified | Dynamic ARP inspection |
+      | Rogue DHCP server | Any host can answer a Discover | DHCP snooping |
+      | MAC flooding | The switch's address table is finite | Port security |
+      | VLAN hopping | Automatic trunking, native VLAN | Disable trunk negotiation |
+      | Evil twin | Clients trust a familiar name | 802.1X, user awareness |
+
+      Design defences in layers. **Segment** the network so that guests, IoT devices and servers cannot freely reach each other. Put public-facing servers in a **screened subnet**. Filter with **ACLs**, remembering that they are read top-down and end in an implicit deny. **Harden** devices: change default credentials, disable unused ports and services, and use SSH in place of Telnet.
+    items:
+      - id: np-4-cia
+        type: concept
+        term: "CIA triad"
+        def: "The three core goals of security: keeping data secret from the unauthorised, keeping it accurate and unaltered, and keeping it reachable when needed."
+      - id: np-4-least-privilege
+        type: concept
+        term: "Least privilege"
+        def: "The principle of granting each user or process only the minimum access it needs to do its job, and nothing more."
+      - id: np-4-mfa
+        type: concept
+        term: "MFA"
+        def: "Requiring two or more different kinds of evidence, such as something you know plus something you have, before granting access."
+      - id: np-4-radius
+        type: concept
+        term: "RADIUS"
+        def: "An AAA protocol that runs over UDP (1812 for authentication, 1813 for accounting) and encrypts only the password; the usual back end for Wi-Fi and VPN logins."
+      - id: np-4-tacacs
+        type: concept
+        term: "TACACS+"
+        def: "An AAA protocol that runs over TCP port 49, encrypts the whole payload and handles authentication, authorization and accounting separately; favoured for administrator logins to network devices."
+      - id: np-4-ldap
+        type: concept
+        term: "LDAP"
+        def: "The protocol used to query and update a directory of users, groups and computers, on TCP port 389, or port 636 when wrapped in TLS."
+      - id: np-4-8021x
+        type: concept
+        term: "802.1X"
+        def: "The port-based access control standard: a switch port or access point passes a device's traffic only after the device's credentials are checked with an authentication server."
+      - id: np-4-arp-poisoning
+        type: concept
+        term: "ARP poisoning"
+        def: "Sending forged address-resolution replies so that LAN hosts associate the gateway's IP address with the attacker's hardware address, putting the attacker in the traffic path."
+      - id: np-4-evil-twin
+        type: concept
+        term: "Evil twin"
+        def: "An attacker's access point that broadcasts the same network name as a legitimate one to lure clients into connecting through it."
+      - id: np-4-mac-flooding
+        type: concept
+        term: "MAC flooding"
+        def: "Overwhelming a switch's address table with frames from thousands of bogus source addresses, so that it starts sending traffic out of every port like a hub."
+      - id: np-4-vlan-hopping
+        type: concept
+        term: "VLAN hopping"
+        def: "An attack that reaches a Layer 2 segment the attacker's port does not belong to, by double-tagging frames or by negotiating a trunk with the switch."
+      - id: np-4-honeypot
+        type: concept
+        term: "Honeypot"
+        def: "A decoy system with no production value, deliberately left attractive to intruders so that their activity can be detected and studied."
+      - id: np-4-screened-subnet
+        type: concept
+        term: "Screened subnet"
+        def: "A network segment, formerly called a DMZ, that sits between the internet and the internal LAN and holds public-facing servers, with firewall rules on both sides."
+      - id: np-4-acl
+        type: concept
+        term: "ACL"
+        def: "An ordered list of permit and deny rules that a router or firewall checks from the top down, stopping at the first match and dropping anything that matches no rule."
+
+      - id: np-4-q01
+        type: mcq
+        q: "In a hotel lobby, employees' laptops join a network with exactly the same name as the corporate Wi-Fi, and their credentials are later found to be stolen. Which attack occurred?"
+        choices: ["MAC flooding", "VLAN hopping", "Evil twin", "DNS poisoning"]
+        answer: 2
+        why: "An evil twin imitates a trusted network name so that clients connect to the attacker's access point. DNS poisoning also sends users to the wrong place, but it works by corrupting name-resolution answers, not by imitating a wireless network."
+      - id: np-4-q02
+        type: mcq
+        q: "On a user's PC, the ARP cache now lists the default gateway's IP address against the MAC address of another workstation, and web sessions are being intercepted. Which attack is under way?"
+        choices: ["ARP poisoning", "MAC flooding", "Evil twin", "Distributed denial of service"]
+        answer: 0
+        why: "Forged ARP replies have made the PC send gateway-bound traffic to the attacker's MAC address: classic ARP poisoning leading to an on-path attack. MAC flooding targets the switch's address table and does not change entries in a host's ARP cache."
+      - id: np-4-q03
+        type: mcq
+        q: "A user plugs a home router into a wall jack and nearby PCs start receiving addresses and a gateway from it. Which switch feature would have prevented this?"
+        choices: ["Dynamic ARP inspection", "DHCP snooping", "Port mirroring", "Spanning Tree Protocol"]
+        answer: 1
+        why: "DHCP snooping marks only the uplink towards the real server as trusted and drops DHCP server messages arriving on any other port. Dynamic ARP inspection relies on the snooping table, but it validates ARP packets, not DHCP offers."
+      - id: np-4-q04
+        type: mcq
+        q: "A company is deploying a web server that the public must reach, while keeping internal file servers unreachable from the internet. Where should the web server be placed?"
+        choices:
+          - "On the internal server VLAN"
+          - "On the guest wireless network"
+          - "On the management network"
+          - "In a screened subnet"
+        answer: 3
+        why: "A screened subnet lets the internet reach the public server while a second set of firewall rules keeps it away from the internal LAN, so a compromise is contained. On the internal server VLAN, a compromised web server would sit beside the file servers."
+      - id: np-4-q05
+        type: mcq
+        q: "Network engineers need centralised logins to routers and switches, with each command authorised individually and the entire exchange with the AAA server encrypted. Which protocol fits best?"
+        choices: ["RADIUS", "LDAP", "SNMP", "TACACS+"]
+        answer: 3
+        why: "TACACS+ separates authorization from authentication, which allows per-command control, and it encrypts the whole payload. RADIUS is the tempting alternative, but it combines authentication with authorization and encrypts only the password."
+      - id: np-4-q06
+        type: mcq
+        q: "A security policy requires multifactor authentication for VPN access. Which combination satisfies it?"
+        choices:
+          - "A password and a security question"
+          - "A password and a one-time code from an authenticator app"
+          - "A fingerprint scan and a face scan"
+          - "A smart card and a hardware key fob"
+        answer: 1
+        why: "MFA needs factors of different kinds: a password is something you know and the app code proves something you have. A password plus a security question is two things you know, which is still a single factor."
+      - id: np-4-q07
+        type: mcq
+        q: "An interface ACL contains one line: permit TCP from any source to host 10.0.0.5 on port 443. A user tries to open an SSH session to 10.0.0.5 through that interface. What happens?"
+        choices:
+          - "It is dropped by the implicit deny at the end of the list"
+          - "It is permitted, because the destination host matches"
+          - "It is permitted, because no rule denies port 22"
+          - "It is redirected to port 443"
+        answer: 0
+        why: "SSH uses TCP 22, which does not match the only permit line, and every ACL ends with an unwritten 'deny everything else'. A rule must match on all its conditions, so matching the host alone is not enough."
+      - id: np-4-q08
+        type: mcq
+        q: "Several wall jacks in a public reception area are not in use. What is the best way to harden them?"
+        choices:
+          - "Configure the switch ports as trunks"
+          - "Leave the switch ports in the default VLAN"
+          - "Administratively disable the switch ports"
+          - "Turn off spanning tree on the switch ports"
+        answer: 2
+        why: "A disabled port gives a visitor no network at all, which is the standard hardening step for unused ports. Leaving them in the default VLAN means anyone who plugs in lands on a live network."
+      - id: np-4-q09
+        type: mcq
+        q: "A company's website becomes unreachable while its firewall logs show floods of requests arriving from tens of thousands of addresses around the world. Which attack is this?"
+        choices: ["Distributed denial of service", "On-path attack", "MAC flooding", "ARP poisoning"]
+        answer: 0
+        why: "Exhausting a target with traffic from a great many sources at once is a distributed denial of service. An on-path attack quietly intercepts traffic between two parties; its aim is eavesdropping or tampering, not knocking the service offline."
+      - id: np-4-q10
+        type: mcq
+        q: "A facilities team installs dozens of IP cameras whose firmware is rarely updated. What is the best way to limit the risk they pose to the rest of the network?"
+        choices:
+          - "Give each camera a static IP address"
+          - "Place them in their own VLAN with ACLs limiting what they can reach"
+          - "Hide the SSID they connect to"
+          - "Put them on the same VLAN as the servers that record their video"
+        answer: 1
+        why: "Segmenting IoT devices and filtering between segments contains a compromised camera. Sharing a VLAN with the recording servers is convenient but gives a compromised camera direct Layer 2 access to those servers."
+      - id: np-4-q11
+        type: mcq
+        q: "A person carrying a large box follows an employee through a badge-controlled door without presenting a badge. Which technique is this?"
+        choices: ["Phishing", "Shoulder surfing", "Dumpster diving", "Tailgating"]
+        answer: 3
+        why: "Tailgating is entering a secured area by following an authorised person through the door. Shoulder surfing is also done in person, but it means watching someone type or read sensitive information, not gaining physical entry."
+
+  # ──────────────────── 5a · Troubleshooting methodology and tools ────────────────────
+  - id: np-5a
+    title: "Troubleshooting methodology and tools"
+    domain: "5"
+    goal: "I can apply CompTIA's seven troubleshooting steps in order and choose the right command-line tool for a symptom."
+    notes: |
+      Troubleshooting is the largest exam domain, and it rewards a method over guesswork. CompTIA's methodology has **seven steps, in this order**:
+
+      - **1.** Identify the problem.
+      - **2.** Establish a theory of probable cause.
+      - **3.** Test the theory to determine the cause.
+      - **4.** Establish a plan of action and identify potential effects.
+      - **5.** Implement the solution, or escalate as necessary.
+      - **6.** Verify full system functionality and, if applicable, implement preventive measures.
+      - **7.** Document findings, actions, outcomes and lessons learned.
+
+      Two traps: *planning* (4) comes before *doing* (5), and you are not finished at the fix — you still verify (6) and document (7).
+
+      When forming a theory, pick an approach: **bottom-to-top** through the OSI model (start at the cable), **top-to-bottom** (start at the application), or **divide and conquer** (start in the middle, often with a ping).
+
+      Know what each tool proves. A successful `ping` shows Layer 3 reachability. `traceroute` shows where on the path it stops. `nslookup` or `dig` isolates name resolution. `ipconfig` or `ip` shows the host's own settings.
+    items:
+      - id: np-5a-step1
+        type: concept
+        term: "Step 1: Identify the problem"
+        def: "The first stage of the methodology: gather information, question users, note the symptoms, find out what changed and, if possible, reproduce the fault."
+      - id: np-5a-step2
+        type: concept
+        term: "Step 2: Establish a theory of probable cause"
+        def: "The second stage of the methodology: question the obvious and decide what is most likely wrong, using an approach such as top-to-bottom, bottom-to-top or divide and conquer."
+      - id: np-5a-step3
+        type: concept
+        term: "Step 3: Test the theory to determine the cause"
+        def: "The third stage of the methodology: check whether your suspected explanation is actually right; if it is not, form a new one or escalate."
+      - id: np-5a-step4
+        type: concept
+        term: "Step 4: Establish a plan of action"
+        def: "The fourth stage of the methodology: decide how the fix will be carried out and work out what side effects it could have, before changing anything."
+      - id: np-5a-step5
+        type: concept
+        term: "Step 5: Implement the solution or escalate"
+        def: "The fifth stage of the methodology: carry out the fix, or hand the issue to someone with the authority or skills to do so."
+      - id: np-5a-step6
+        type: concept
+        term: "Step 6: Verify full system functionality"
+        def: "The sixth stage of the methodology: confirm with the user that everything works end to end and, if applicable, put preventive measures in place."
+      - id: np-5a-step7
+        type: concept
+        term: "Step 7: Document findings"
+        def: "The seventh and final stage of the methodology: record what was found, what was done, the outcome and the lessons learned."
+      - id: np-5a-ping
+        type: concept
+        term: "ping"
+        def: "A command that sends ICMP echo requests to a host and reports whether replies come back and how long the round trip took."
+      - id: np-5a-traceroute
+        type: concept
+        term: "traceroute / tracert"
+        def: "A command that lists each router along the path to a destination by sending probes with steadily increasing TTL values."
+      - id: np-5a-nslookup
+        type: concept
+        term: "nslookup / dig"
+        def: "Commands that query a DNS server directly, showing which records it returns for a given name or address."
+      - id: np-5a-ipconfig
+        type: concept
+        term: "ipconfig / ip"
+        def: "Commands that display the local host's own interface settings, such as its IP address, mask and default gateway."
+      - id: np-5a-arp
+        type: concept
+        term: "arp"
+        def: "A command that displays the local host's cached table of IP-address-to-hardware-address mappings."
+      - id: np-5a-netstat
+        type: concept
+        term: "netstat"
+        def: "A command that lists the local host's active connections and the ports on which it is listening."
+      - id: np-5a-analyzer
+        type: concept
+        term: "Protocol analyzer"
+        def: "Software such as Wireshark or tcpdump that captures traffic from an interface and decodes each header for inspection."
+
+      - id: np-5a-q01
+        type: mcq
+        q: "A technician has interviewed the user, noted the symptoms and learned that a switch was replaced yesterday. According to the CompTIA methodology, what comes next?"
+        choices:
+          - "Implement the solution"
+          - "Establish a theory of probable cause"
+          - "Establish a plan of action"
+          - "Document findings"
+        answer: 1
+        why: "Gathering information and asking what changed is step 1 (identify the problem). Step 2 is to establish a theory of probable cause. Jumping straight to implementing a fix skips forming and testing a theory and planning the change."
+      - id: np-5a-q02
+        type: mcq
+        q: "By swapping in a known-good cable, a technician has confirmed the theory that a patch cable feeding a whole wiring closet is faulty. What is the next step in the methodology?"
+        choices:
+          - "Document findings, actions and outcomes"
+          - "Verify full system functionality"
+          - "Establish a plan of action and identify potential effects"
+          - "Establish a new theory of probable cause"
+        answer: 2
+        why: "Once the theory is confirmed (step 3), step 4 is to plan the fix and consider its effects, for example the outage while the uplink is replaced. Verification is step 6 and can only happen after the solution has been implemented."
+      - id: np-5a-q03
+        type: mcq
+        q: "A failed switch has been replaced and users confirm that everything works again. Which step remains?"
+        choices:
+          - "Test the theory to determine the cause"
+          - "Establish a plan of action"
+          - "Identify the problem"
+          - "Document findings, actions, outcomes and lessons learned"
+        answer: 3
+        why: "Documentation is the seventh and final step, done after functionality has been verified. It is the step most often skipped under time pressure, which is why the same fault takes just as long to solve next time."
+      - id: np-5a-q04
+        type: mcq
+        q: "A help-desk technician confirms that an outage is caused by a rule on the core firewall, which only the security team is permitted to change. What should the technician do?"
+        choices:
+          - "Escalate the issue to the security team"
+          - "Borrow a colleague's administrator credentials"
+          - "Restart the firewall to clear the fault"
+          - "Close the ticket with a note about the cause"
+        answer: 0
+        why: "Step 5 is 'implement the solution or escalate as necessary': when the fix is outside your authority, hand it to those who own the device. Closing the ticket with a note records the cause but leaves the outage unresolved."
+      - id: np-5a-q05
+        type: mcq
+        q: "A user can open an intranet site by typing its IP address but not by typing its name. Which tool should be used next?"
+        choices: ["ping", "tracert", "nslookup", "netstat"]
+        answer: 2
+        why: "Working by IP but not by name isolates the fault to name resolution, and nslookup queries the DNS server directly to show what it returns. tracert maps the routed path, which is already known to work because the IP address is reachable."
+      - id: np-5a-q06
+        type: mcq
+        q: "On a PC with no network access, 'ping 127.0.0.1' succeeds but pinging the default gateway fails. What has the first test established?"
+        choices:
+          - "The local TCP/IP stack is working"
+          - "The network cable is good"
+          - "The default gateway is reachable"
+          - "DNS resolution is working"
+        answer: 0
+        why: "The loopback address never leaves the host, so a reply proves only that TCP/IP is installed and running locally. It says nothing about the cable, because no signal is sent onto the wire."
+      - id: np-5a-q07
+        type: mcq
+        q: "Pings from head office to a branch server time out. Which tool shows the last router that responds along the path?"
+        choices: ["nslookup", "arp", "ipconfig", "traceroute"]
+        answer: 3
+        why: "traceroute lists each hop in turn, so the point where replies stop shows roughly where the path breaks. arp shows only IP-to-MAC mappings on the local segment and cannot see beyond the first hop."
+      - id: np-5a-q08
+        type: mcq
+        q: "A newly installed web service is not answering. On the server itself, which command confirms whether anything is listening on TCP port 443?"
+        choices: ["tracert", "netstat", "nslookup", "arp"]
+        answer: 1
+        why: "netstat lists the host's listening ports and active connections, so it shows whether the service has bound to port 443. nslookup would only confirm that the server's name resolves, not that the service is running."
+      - id: np-5a-q09
+        type: mcq
+        q: "A technician suspects that a PC is sending its gateway-bound traffic to the wrong device. Which command shows the MAC address the PC currently associates with the gateway's IP address?"
+        choices: ["netstat -an", "nslookup", "arp -a", "ping -t"]
+        answer: 2
+        why: "arp -a prints the local ARP cache, listing each known IP address with the MAC address learned for it. netstat -an lists connections and ports by IP address and does not show MAC addresses."
+      - id: np-5a-q10
+        type: mcq
+        q: "An application is intermittently slow. The engineer wants to see whether TCP segments between client and server are being retransmitted. Which tool is needed?"
+        choices: ["Protocol analyzer", "Cable tester", "Toner probe", "Loopback plug"]
+        answer: 0
+        why: "Only a protocol analyzer captures the traffic and decodes TCP sequence numbers and retransmissions. A cable tester checks wiring continuity and pinout; it cannot show what happens to individual segments."
+
+  # ───────────────────────── 5b · Common issues ─────────────────────────
+  - id: np-5b
+    title: "Common cable, wireless and service issues"
+    domain: "5"
+    goal: "I can match a symptom to its most likely cabling, wireless or network-service cause and choose the next step."
+    notes: |
+      Most faults fall into a small number of families. Learn the tell-tale symptom of each.
+
+      **Cabling and interfaces.** Read the interface counters first. Rising CRC errors point to a bad cable, interference or a duplex mismatch. Copper has a 100 m limit; beyond it the signal fades. Fiber links need matching transceivers (same wavelength, same fiber type) and the transmit strand at one end joined to the receive at the other.
+
+      **Services.**
+
+      | Symptom | Likely cause |
+      | 169.254.x.x address | DHCP unreachable or pool exhausted |
+      | Local hosts fine, nothing remote | Wrong or missing default gateway |
+      | Address from the wrong subnet | Switch port in the wrong VLAN |
+      | Reachable by IP, not by name | DNS |
+      | Some neighbours unreachable | Wrong subnet mask |
+
+      **Wireless.** The 2.4 GHz band is crowded and shared with microwave ovens and Bluetooth. Too many access points on one channel slow everyone down; walls and distance weaken the signal.
+
+      **Performance.** Separate *latency* (delay), *jitter* (variation in delay) and *packet loss*. Voice and video suffer from jitter and loss long before file transfers do.
+    items:
+      - id: np-5b-attenuation
+        type: concept
+        term: "Attenuation"
+        def: "The gradual weakening of a signal as it travels along a medium; it gets worse with distance and is why copper runs are limited to 100 m."
+      - id: np-5b-crosstalk
+        type: concept
+        term: "Crosstalk"
+        def: "A signal on one wire pair bleeding into a neighbouring pair in the same cable, often caused by poor termination with too much of the pairs untwisted."
+      - id: np-5b-emi
+        type: concept
+        term: "EMI"
+        def: "Disturbance from outside electrical sources such as motors, fluorescent lights and power cables that corrupts signals on copper cabling."
+      - id: np-5b-duplex
+        type: concept
+        term: "Duplex mismatch"
+        def: "A condition in which one end of a link sends and receives at the same time while the other end takes turns; the link stays up but shows late collisions and very poor throughput."
+      - id: np-5b-crc
+        type: concept
+        term: "CRC errors"
+        def: "An interface counter that rises each time a received frame fails its checksum, meaning the frame was damaged somewhere in transit."
+      - id: np-5b-runt
+        type: concept
+        term: "Runt"
+        def: "A received frame smaller than the 64-byte Ethernet minimum, often the leftover fragment of a collision."
+      - id: np-5b-giant
+        type: concept
+        term: "Giant"
+        def: "A received frame larger than the maximum size the interface is configured to accept, often seen where the MTU differs between the two ends."
+      - id: np-5b-toner
+        type: concept
+        term: "Toner probe"
+        def: "A two-part tool: one part puts a signal onto a cable and a handheld wand makes a sound when held near that same cable, used to find one cable among many."
+      - id: np-5b-tdr
+        type: concept
+        term: "TDR"
+        def: "A tester that sends a pulse down a copper cable and times the reflection to calculate the distance to a break or short."
+      - id: np-5b-wifi-analyzer
+        type: concept
+        term: "Wi-Fi analyzer"
+        def: "A tool that lists nearby wireless networks with their channels and signal strengths, used to find congestion and coverage gaps."
+      - id: np-5b-cochannel
+        type: concept
+        term: "Co-channel interference"
+        def: "Slowdown that occurs when nearby access points use the same frequency, so they and their clients must wait for each other before transmitting."
+      - id: np-5b-pool-exhaustion
+        type: concept
+        term: "Address pool exhaustion"
+        def: "The condition in which a DHCP server has leased every address in its scope, so new clients get no configuration and fall back to self-assigned addresses."
+      - id: np-5b-latency
+        type: concept
+        term: "Latency"
+        def: "The time a packet takes to travel from source to destination, usually measured in milliseconds."
+      - id: np-5b-jitter
+        type: concept
+        term: "Jitter"
+        def: "Variation in the arrival delay from one packet to the next; it makes voice and video sound or look choppy."
+
+      - id: np-5b-q01
+        type: mcq
+        q: "A server's switch link is up, but file transfers crawl. The switch port counts late collisions and the server's NIC counts CRC errors. What is the most likely cause?"
+        choices:
+          - "Address pool exhaustion"
+          - "A VLAN mismatch"
+          - "An incorrect default gateway"
+          - "A duplex mismatch"
+        answer: 3
+        why: "A link that stays up but performs badly, with late collisions on one end and CRC errors on the other, is the signature of one side running half duplex and the other full. A VLAN mismatch would stop communication outright and would not produce collisions."
+      - id: np-5b-q02
+        type: mcq
+        q: "A new, correctly terminated Cat 6 run of 130 m to a warehouse office links at a low speed and drops frequently. No machinery or power cables are nearby. What is the most likely cause?"
+        choices: ["Crosstalk", "Attenuation", "A duplex mismatch", "EMI"]
+        answer: 1
+        why: "Twisted-pair Ethernet is specified for a maximum of 100 m; at 130 m the signal has weakened too much, which is attenuation. EMI is ruled out by the stem, since there are no nearby sources of electrical interference."
+      - id: np-5b-q03
+        type: mcq
+        q: "On Monday morning some users on a /24 network receive 169.254.x.x addresses, while colleagues who arrived earlier work normally. Many new devices joined last week and leases last eight days. What is the most likely cause?"
+        choices:
+          - "The DHCP scope has run out of addresses"
+          - "The DNS server is offline"
+          - "The default gateway is misconfigured"
+          - "The switch has a spanning tree loop"
+        answer: 0
+        why: "Early arrivals got leases and later ones fell back to APIPA, which shows that the server is reachable but has nothing left to give. A DNS outage would affect everyone and would not change the addresses clients receive."
+      - id: np-5b-q04
+        type: mcq
+        q: "On a LAN correctly addressed as 192.168.1.0/24, a PC configured with 192.168.1.50/24 and gateway 192.168.2.1 can reach other hosts on its own subnet but nothing beyond it. What is the problem?"
+        choices:
+          - "A duplicate IP address"
+          - "An incorrect subnet mask"
+          - "An incorrect default gateway"
+          - "An incorrect DNS server"
+        answer: 2
+        why: "The gateway 192.168.2.1 is not inside the PC's own subnet (192.168.1.0/24), so the PC cannot deliver frames to it and all off-subnet traffic fails. A wrong DNS server would break names only; remote IP addresses would still answer."
+      - id: np-5b-q05
+        type: mcq
+        q: "After a desk move, an accountant's PC obtains an address from the guest subnet and cannot reach the finance servers. The DHCP server is healthy. What is the most likely cause?"
+        choices:
+          - "The DHCP scope is exhausted"
+          - "The switch port is assigned to the wrong VLAN"
+          - "The PC has a duplex mismatch"
+          - "The patch cable exceeds its length limit"
+        answer: 1
+        why: "The PC received a valid lease, but from the wrong subnet, so the new wall jack's switch port must be in the guest VLAN. An exhausted scope would give no lease at all and leave the PC with a 169.254.x.x address."
+      - id: np-5b-q06
+        type: mcq
+        q: "Wi-Fi clients near a break room lose their 2.4 GHz connection whenever the microwave oven is running. What is the best fix?"
+        choices:
+          - "Rename the SSID"
+          - "Lengthen the DHCP lease time"
+          - "Move those clients to a 5 GHz SSID"
+          - "Disable SSID broadcast"
+        answer: 2
+        why: "Microwave ovens radiate in the 2.4 GHz band, so moving clients to 5 GHz takes them out of the interference entirely. Renaming or hiding the SSID changes only how the network is advertised, not the frequency it uses."
+      - id: np-5b-q07
+        type: mcq
+        q: "A new fiber link will not come up. One switch has a 1000BASE-SX (850 nm) transceiver and the other has a 1000BASE-LX (1310 nm) transceiver. What is the problem?"
+        choices:
+          - "A transceiver mismatch"
+          - "A duplex mismatch"
+          - "Co-channel interference"
+          - "Address pool exhaustion"
+        answer: 0
+        why: "Both ends of a fiber link must use the same wavelength and fiber type; SX and LX optics cannot talk to each other. A duplex mismatch produces a link that is up but slow, whereas this link never comes up."
+      - id: np-5b-q08
+        type: mcq
+        q: "An unshielded copper run passes beside an elevator motor room. Its interface shows bursts of CRC errors whenever the elevator moves. What is the best fix?"
+        choices:
+          - "Replace the run with a longer cable"
+          - "Change the port from access to trunk mode"
+          - "Lower the interface MTU"
+          - "Reroute the run or replace it with shielded cable"
+        answer: 3
+        why: "Errors that track the motor's activity indicate EMI, which is fixed by moving the cable away from the source or by using shielded twisted pair (or fiber). A longer cable would only add attenuation on top of the interference."
+      - id: np-5b-q09
+        type: mcq
+        q: "A technician must find which of 48 unlabeled cables at a patch panel leads to a particular wall jack. Which tool is the best choice?"
+        choices: ["TDR", "Toner probe", "Wi-Fi analyzer", "Protocol analyzer"]
+        answer: 1
+        why: "A tone generator attached at the wall jack lets the probe pick out the matching cable at the panel by sound. A TDR measures the distance to a fault on a cable you have already identified; it does not tell you which cable is which."
+      - id: np-5b-q10
+        type: mcq
+        q: "A new pan-tilt-zoom camera that needs 25 W starts to boot and then restarts repeatedly when plugged into a switch supporting only 802.3af. What is the most likely cause?"
+        choices:
+          - "The port is assigned to the wrong VLAN"
+          - "The cable has a crossed pair"
+          - "The switch cannot supply enough PoE power"
+          - "The camera has a duplicate IP address"
+        answer: 2
+        why: "802.3af supplies at most 15.4 W per port; a 25 W device needs 802.3at (PoE+, up to 30 W). A VLAN error would leave the camera powered on but unreachable; it would not make it reboot."
+      - id: np-5b-q11
+        type: mcq
+        q: "VoIP calls across a WAN link sound choppy, with words dropping out, although the link has plenty of spare bandwidth. Which condition is the most likely cause?"
+        choices: ["High jitter", "Attenuation", "Crosstalk", "Address pool exhaustion"]
+        answer: 0
+        why: "Voice needs packets to arrive at a steady rhythm; when the delay varies (jitter), the phone's buffer runs dry and audio breaks up. Attenuation is signal loss on a physical cable and would show up as interface errors, not as uneven packet timing."

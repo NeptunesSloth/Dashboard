@@ -101,6 +101,16 @@ Safe, non-conflicting wins that don't require architectural changes:
 - ✅ `ARCHITECTURE.md`, `CONTRIBUTING.md`, gated OpenAPI `/docs`
   (`MAYBOT_DOCS=1`). Remaining: diagrams.
 
+## ⛩ Sect Academy (offline learning app + sect game)
+- ✅ First usable version: FSRS-6 scheduling, five curated packs (French A1,
+  Spanish A1, Security+ SY0-801, Network+ N10-009, ISC2 CC), hardening exercise
+  formats, timed trials by domain weight, and the sect-raising game. See
+  `docs/superpowers/specs/2026-11-24-sect-academy-design.md`.
+- Next: A2 language packs; fill A1 gaps (months, larger numbers, pronominal
+  verbs); PBQ-style exam items; "reviews are due" reminders via the existing
+  notify/push plumbing; a human native-speaker pass on the language packs;
+  per-learner FSRS weight optimisation; playtest and tune the economy numbers.
+
 ## 🎓 Learning Center
 - ✅ **End-to-end pentest range** — a SIMULATED virtual network you attack stage
   by stage: enumerate a reachable host, exploit it, loot credentials that unlock

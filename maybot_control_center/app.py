@@ -232,7 +232,7 @@ def stream(token: str = Query(default="")):
 # Domain routers — every HTTP route lives in routers/<domain>.py; only the
 # middleware, startup wiring, the agent tunnel and the SSE stream live here.
 # ---------------------------------------------------------------------------
-from .routers import (accounts as _accounts_router, adminops as _adminops_router,
+from .routers import (academy as _academy_router, accounts as _accounts_router, adminops as _adminops_router,
                       agentops as _agentops_router, alerts as _alerts_router,
                       crew as _crew_router, economy as _economy_router,
                       enroll as _enroll_router, fleet as _fleet_router,
@@ -244,5 +244,5 @@ from .routers import (accounts as _accounts_router, adminops as _adminops_router
 for _router_mod in (_fleet_router, _hosts_router, _adminops_router, _accounts_router,
                     _members_router, _learning_router, _crew_router, _agentops_router,
                     _sect_router, _economy_router, _reliability_router, _alerts_router,
-                    _tasks_router, _enroll_router, _trading_router, _pages_router):
+                    _tasks_router, _enroll_router, _trading_router, _academy_router, _pages_router):
     app.include_router(_router_mod.router)

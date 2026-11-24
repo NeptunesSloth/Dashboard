@@ -1,4 +1,39 @@
-# MayBot Control Center
+# Sect Academy (MayBot Control Center)
+
+**Raise a sect by studying.** The front door of this project is now a daily
+learning app: French, Spanish and entry cyber-security certifications
+(Security+ SY0-801, Network+ N10-009, ISC2 CC), scheduled by spaced repetition
+and wrapped in a cultivation game where every answer you give from memory
+becomes qi. It needs no LLM, no network and no database.
+
+```bash
+pip install -r requirements.txt
+python -m uvicorn maybot_control_center.app:app --port 8200
+# open http://127.0.0.1:8200  → found your sect → "Begin cultivation"
+```
+
+| Page | What it is |
+|---|---|
+| `/` **Sect** | Your sect: today's session, the halls you build, disciples, quests, chronicle. |
+| `/study` **Study** | The session player: due reviews first, then a ration of new items. |
+| `/library` **Library** | Courses, units, teaching notes and every item with its memory strength. |
+| `/trials` **Trials** | Timed mock exams, sampled by the official domain weights. Passing one is how you break through a realm. |
+| `/progress` **Progress** | Activity, review forecast, settings, backup/restore. |
+
+- Progress is saved to `academy_state.json` (override with `MAYBOT_ACADEMY_FILE`);
+  download a backup any time from **Progress**.
+- On a phone, use "Add to Home Screen" to install it. Spoken audio uses the
+  voices installed on the device.
+- How it works and why: [`docs/superpowers/specs/2026-11-24-sect-academy-design.md`](docs/superpowers/specs/2026-11-24-sect-academy-design.md),
+  research in [`docs/research/`](docs/research/sect-academy-design-inputs.md).
+  Adding or editing courses: [`docs/ACADEMY_CONTENT.md`](docs/ACADEMY_CONTENT.md).
+
+The original fleet dashboard is still here, at **`/command`**; the LLM-backed
+tutor is at `/learn`. The rest of this README describes that side.
+
+---
+
+## The fleet dashboard
 
 MayBot Control Center is a **distributed monitoring + autonomous-ops dashboard** for the
 bots and projects you run across many machines — wrapped in a cultivation-"sect"
@@ -33,7 +68,8 @@ The same left rail appears on every page, so any page is one click away:
 
 | Rail item | Route | What it is |
 |---|---|---|
-| 🏛 **Command** | `/` | The Command Hall cockpit — fleet status, alerts, autopilot, KPIs at a glance. |
+| ⛩ **Academy** | `/` | The Sect Academy learning app (see above). |
+| 🏛 **Command** | `/command` | The Command Hall cockpit — fleet status, alerts, autopilot, KPIs at a glance. |
 | 📈 **Trade** | `/trade` | Trading cockpit — live PnL, positions, quotes, kill-switch / flatten. |
 | 🧠 **Sect Members** | `/chamber` | Rank **pyramid** of every member with their character portrait; click one for the cinematic **dossier** (full RPG sheet + Spirit Root). |
 | ⚔ **Missions** · 📜 **Realms** · 🗺 **Map** · ⛩ **Halls** · ⚙ **Ops** | `/console` | The operations console tabs (agent crew, projects, sect map, group halls, and the in-app **Hosts / Accounts** managers). |

@@ -9,7 +9,11 @@ _EXE = os.getenv("PW_EXECUTABLE")   # local override; CI uses the installed Chro
 # initial render. If a render function throws (the "CI-green but broken when
 # actually loaded" bug class), the page-error sweep below catches it.
 PAGES = [
-    ("/", "#rail .nav-item"),
+    ("/", "#nav a"),
+    ("/library", "#nav a"),
+    ("/trials", "#nav a"),
+    ("/progress", "#nav a"),
+    ("/command", "#rail .nav-item"),
     ("/trade", "#rail .nav-item"),
     ("/chamber", "#rail .nav-item"),
     ("/treasury", "#rail .nav-item"),
@@ -46,7 +50,7 @@ def _decree_flow(b):
     pg = b.new_page()
     errs = []
     pg.on("pageerror", lambda e: errs.append(str(e)))
-    pg.goto(BASE + "/", wait_until="load", timeout=25000)
+    pg.goto(BASE + "/command", wait_until="load", timeout=25000)
     pg.wait_for_selector("#decree-input", timeout=10000)
     out_len = "() => (document.querySelector('#decree-out')||{}).textContent?.trim().length || 0"
     # Ask mode (default).
@@ -94,6 +98,45 @@ def _learning_flow(b):
     pg.close()
 
 
+def _academy_flow(b):
+    """Found a sect, then play through a study session: intro cards, a few
+    answers, feedback. Every render path must run without an uncaught error."""
+    pg = b.new_page()
+    errs = []
+    pg.on("pageerror", lambda e: errs.append(str(e)))
+    pg.goto(BASE + "/", wait_until="load", timeout=25000)
+    pg.wait_for_selector("#f-go, .hq", timeout=10000)
+    if pg.query_selector("#f-go"):
+        pg.fill("#f-name", "Smoke Sect")
+        pg.click("#f-go")
+    pg.wait_for_selector(".hq .room", timeout=10000)
+    pg.click(".room[data-room='spirit_vein']")
+    pg.wait_for_selector("#sheet .body", timeout=5000)
+    pg.keyboard.press("Escape")
+    pg.goto(BASE + "/study", wait_until="load", timeout=25000)
+    pg.wait_for_selector(".session, .summary", timeout=10000)
+    answered = 0
+    for _ in range(60):
+        if answered >= 4 or pg.query_selector(".gains"):
+            break
+        nxt = pg.query_selector("#s-next")
+        if nxt:
+            nxt.click()
+        elif pg.query_selector(".opt:not(:disabled)"):
+            pg.click(".opt:not(:disabled)")
+            pg.wait_for_selector(".verdict", timeout=5000)
+            answered += 1
+        elif pg.query_selector("#s-in:not(:disabled)"):
+            pg.fill("#s-in", "test")
+            pg.click("#s-check")
+            pg.wait_for_selector(".verdict", timeout=5000)
+            answered += 1
+        pg.wait_for_timeout(80)
+    assert answered >= 1, "academy session produced no answerable exercise"
+    assert not errs, f"Academy raised: {errs}"
+    pg.close()
+
+
 def main() -> int:
     with sync_playwright() as p:
         b = p.chromium.launch(executable_path=_EXE) if _EXE else p.chromium.launch(args=["--no-sandbox"])
@@ -103,6 +146,7 @@ def main() -> int:
             _visit(b, path, sel)
 
         # 1b) Interactive flows (clicks, not just loads).
+        _academy_flow(b)
         _decree_flow(b)
         _learning_flow(b)
 
