@@ -87,14 +87,20 @@ def new_card() -> dict:
     return {"s": 0.0, "d": 0.0, "due": 0.0, "last": 0.0, "reps": 0, "lapses": 0}
 
 
-def review(card: dict, grade: int, now: float, retention: float = 0.9) -> dict:
-    """Apply one graded review at unix time ``now``; returns a new card dict."""
+def review(card: dict, grade: int, now: float, retention: float = 0.9,
+           elapsed_days: float | None = None) -> dict:
+    """Apply one graded review at unix time ``now``; returns a new card dict.
+
+    ``elapsed_days`` overrides the gap since the last review. Callers that know
+    the learner's day boundary pass whole calendar days (as Anki does), so a
+    review on the next calendar day uses the long-term formulas even when fewer
+    than 24 hours have passed."""
     grade = int(min(max(grade, AGAIN), EASY))
     c = dict(card)
     if not c.get("reps") or c.get("s", 0) <= 0:
         s, d = _init_s(grade), _init_d(grade)
     else:
-        elapsed = max(0.0, (now - c["last"]) / DAY)
+        elapsed = max(0.0, (now - c["last"]) / DAY) if elapsed_days is None else max(0.0, float(elapsed_days))
         s0, d0 = c["s"], c["d"]
         if elapsed < 1.0:
             s = _short_term_s(s0, grade)

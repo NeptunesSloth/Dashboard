@@ -3,6 +3,8 @@
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+// Anything shown as a number is forced to be one, so a doctored save file cannot inject markup.
+const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
 const TOKEN_KEY = 'maybot.control_token';
 const headers = () => { const t = localStorage.getItem(TOKEN_KEY) || ''; return t ? { 'x-control-token': t } : {}; };
 
@@ -22,9 +24,37 @@ const view = $('#view');
 let OV = null;            // last overview
 let leaveGuard = null;    // set while a session/trial is in flight
 
-function toast(text) {
+function toast(text, ms = 4200) {
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = text;
-  $('#toasts').appendChild(t); setTimeout(() => t.remove(), 4200);
+  $('#toasts').appendChild(t); setTimeout(() => t.remove(), ms);
+}
+let lastProblem = '';
+// Every field the UI prints as a bare number, by object. Strings are always esc()'d at the point of use.
+const NUMERIC = {
+  game: ['qi', 'qi_into', 'qi_need', 'qi_pct', 'stones', 'pending', 'rate', 'per_day', 'storage_hours', 'flow', 'streak', 'best_streak',
+    'grace', 'grace_cap', 'pill_cost', 'disciple_cap', 'recruit_tokens', 'mission_tokens', 'learned', 'power', 'step', 'tier_level'],
+  today: ['due', 'new_left', 'answers', 'correct', 'sessions', 'new', 'reviews'],
+  settings: ['new_per_day', 'session_size', 'retention', 'tz_offset_min'],
+  course: ['total', 'seen', 'mastered', 'due', 'new_left', 'strength', 'units_done'],
+  unit: ['items', 'seen', 'mastered'],
+  room: ['level', 'max', 'strength', 'capacity'],
+  quest: ['goal', 'progress'],
+  disciple: ['level', 'xp', 'xp_need', 'talent', 'away_until'],
+  trial: ['pct', 'right', 'total', 'ts'],
+};
+const fix = (o, keys) => { if (o && typeof o === 'object') keys.forEach((k) => { if (k in o && o[k] !== null) o[k] = num(o[k]); }); return o; };
+function scrub(ov) {
+  fix(ov.game, NUMERIC.game); fix(ov.today, NUMERIC.today); fix(ov.settings, NUMERIC.settings);
+  (ov.courses || []).forEach((c) => { fix(c, NUMERIC.course); (c.units || []).forEach((u) => fix(u, NUMERIC.unit)); });
+  const g = ov.game || {};
+  (g.rooms || []).forEach((r) => { fix(r, NUMERIC.room); if (r.cost !== null && r.cost !== undefined) r.cost = num(r.cost); });
+  (g.quests || []).forEach((q) => fix(q, NUMERIC.quest));
+  (g.disciples || []).concat(g.candidates || []).forEach((d) => fix(d, NUMERIC.disciple));
+  (g.missions || []).forEach((m) => { m.ends = num(m.ends); });
+  (g.mission_kinds || []).forEach((k) => { k.hours = num(k.hours); });
+  (g.chronicle || []).forEach((e) => { e.ts = num(e.ts); });
+  if (g.week) fix(g.week, ['days', 'goal']);
+  return ov;
 }
 function showEvents(events) { (events || []).slice(0, 4).forEach((e, i) => setTimeout(() => toast(e.text), i * 700)); }
 
@@ -88,20 +118,30 @@ function drawNav() {
 async function refresh() {
   const tz = -new Date().getTimezoneOffset();
   const ov = await api(`/api/academy/overview?tz=${tz}`);
-  if (ov && ov.courses) { OV = ov; if (ov.events && ov.events.length) showEvents(ov.events); }
+  if (ov && ov.courses) {
+    OV = scrub(ov);
+    if (ov.events && ov.events.length) showEvents(ov.events);
+    if (ov.problem && ov.problem !== lastProblem) { lastProblem = ov.problem; toast(ov.problem, 12000); }
+  }
   drawNav();
   return OV;
 }
+let herePath = location.pathname + location.search;
 async function go(path, push = true) {
-  if (leaveGuard && !(await leaveGuard())) return;
-  leaveGuard = null;
+  if (leaveGuard && !(await leaveGuard())) {
+    // The learner chose to stay: put the address bar back where the session lives.
+    if (!push && location.pathname + location.search !== herePath) history.pushState({}, '', herePath);
+    return;
+  }
+  leaveGuard = null; keyHandler = null;
   document.body.classList.remove('in-session');
   closeSheet();
   if (push && path !== location.pathname + location.search) history.pushState({}, '', path);
+  herePath = path;
   const url = new URL(path, location.origin);
   await refresh();
   if (!OV) { view.innerHTML = `<div class="panel"><h2>The mountain gate is closed</h2><p class="dim">The server did not answer. Check that it is running, then try again.</p><button class="btn primary" id="retry">Try again</button></div>`; $('#retry').onclick = () => go(path, false); return; }
-  if (!OV.onboarded || !OV.game.founded) { renderFounding(); return; }
+  if (!OV.game.founded) { renderFounding(); return; }
   (ROUTES[url.pathname] || renderSect)(url.searchParams);
   view.focus({ preventScroll: true }); window.scrollTo(0, 0);
 }
@@ -157,7 +197,10 @@ function todayPanel() {
   const mine = OV.courses.filter((c) => c.enrolled);
   const work = t.due + t.new_left;
   let head, sub, btn;
-  if (g.seclusion) {
+  if (!mine.length) {
+    head = 'Choose an art to cultivate'; sub = 'You are not enrolled in any course. Pick one in the library to begin.';
+    btn = `<a class="btn primary big" href="/library" data-link>Open the library</a>`;
+  } else if (g.seclusion) {
     head = 'The gates are sealed'; sub = 'You are in closed-door seclusion. Your streak is frozen until you return.';
     btn = `<button class="btn primary big" data-act="unseclude">Reopen the gates</button>`;
   } else if (work > 0) {
@@ -241,7 +284,7 @@ function disciplesList(g) {
 
 async function gameAct(action, body = {}) {
   const res = await api(`/api/academy/game/${action}`, body);
-  if (res.game) OV.game = res.game;
+  if (res.game) OV.game = scrub({ game: res.game }).game;
   if (res.ok === false) toast(res.error);
   else if (res.event) toast(res.event.text);
   return res;
@@ -264,6 +307,7 @@ function bindActs(root) {
 async function recruitSheet() {
   const res = await gameAct('recruit');
   if (res.ok === false) return;
+  res.candidates.forEach((c) => fix(c, NUMERIC.disciple));
   openSheet(`<h2>Three seekers wait at the gate</h2><p class="dim">Choose one to join the sect. A finer spirit root earns more and grows faster.</p>
     <div class="cands">${res.candidates.map((c) => `<div class="cand"><img src="${portrait(c.portrait)}" alt=""><b>${esc(c.name)}</b>
       <span class="tag ${c.talent >= 1.45 ? 'gold' : ''}">${esc(c.root)}</span><div class="dim small">${esc(c.traits.join(', '))}</div>
@@ -367,8 +411,19 @@ function runSession(s) {
 
   async function finish(silent) {
     if (st.finished) return null; st.finished = true;
-    const res = await api('/api/academy/session/finish', { answers: st.first, correct: st.correct, secs: Math.round((Date.now() - st.start) / 1000), practice: !!s.practice });
-    if (!silent) summary(res);
+    const body = { session: s.session, secs: Math.round((Date.now() - st.start) / 1000) };
+    let res = await api('/api/academy/session/finish', body);
+    if (res.ok === false) res = await api('/api/academy/session/finish', body);      // one retry on a dropped connection
+    if (silent) return res;
+    if (res.ok === false) {
+      leaveGuard = null;
+      view.innerHTML = `<div class="session summary"><h1>Your answers are saved</h1>
+        <p class="dim">The session could not be closed, so today's reward has not been paid yet: ${esc(res.error)}</p>
+        <div class="foot"><button class="btn primary big" id="s-again">Try again</button></div></div>`;
+      $('#s-again').onclick = () => { st.finished = false; finish(false); };
+      return res;
+    }
+    summary(res);
     return res;
   }
 
@@ -377,9 +432,9 @@ function runSession(s) {
     const acc = st.first ? Math.round(100 * st.correct / st.first) : 0;
     const events = [...st.events, ...((res && res.events) || [])];
     view.innerHTML = `<div class="session summary"><h1>${s.practice ? 'Practice complete' : 'Session complete'}</h1>
-      <p class="dim">${acc >= 90 ? 'Clean recall. The sect grows stronger.' : acc >= 70 ? 'Solid work. The misses will come back until they stick.' : 'A hard session is where memory is built. The misses return tomorrow.'}</p>
-      <div class="gains"><div><b class="num">${acc}%</b>first-try accuracy</div><div><b class="num">+${st.qi}</b>qi</div><div><b class="num">+${(res && res.stones) || 0}</b>spirit stones</div></div>
-      ${res && res.counted === false && !s.practice ? '<p class="dim small">Sessions under 8 answers do not count toward the streak.</p>' : ''}
+      <p class="dim">${acc >= 90 ? 'Clean recall. The sect grows stronger.' : acc >= 70 ? 'Solid work. The misses will come back until they stick.' : 'A hard session is where memory is built. The misses come back until they stick.'}</p>
+      <div class="gains"><div><b class="num">${acc}%</b>first-try accuracy</div><div><b class="num">+${num(st.qi)}</b>qi</div><div><b class="num">+${num(res && res.stones)}</b>spirit stones</div></div>
+      ${res && res.counted === false && !s.practice ? '<p class="dim small">Finish a whole session for it to count toward your streak.</p>' : ''}
       ${events.length ? `<ul class="list panel">${events.map((e) => `<li>${esc(e.text)}</li>`).join('')}</ul>` : ''}
       <div class="foot"><div class="row">
         ${res && res.due_left > 0 && !s.practice ? '<a class="btn grow" href="/study" data-link>Keep going</a>' : ''}
@@ -445,7 +500,7 @@ function runSession(s) {
     let locked = false;
     const submit = async (given, btn) => {
       if (locked) return; locked = true;
-      const res = await api('/api/academy/answer', { item: ex.item, mode: ex.mode, answer: given, retry: !!ex.retry, practice: !!s.practice, claim: !!ex.claim });
+      const res = await api('/api/academy/answer', { session: s.session, item: ex.item, mode: ex.mode, answer: given, retry: !!ex.retry, claim: !!ex.claim });
       if (res.ok === false) { locked = false; toast(res.error); return; }
       if (!ex.retry) {
         st.first += 1; st.correct += res.correct ? 1 : 0; st.qi += (res.rewards && res.rewards.qi) || 0;
@@ -479,7 +534,7 @@ function runSession(s) {
   function feedback(ex, res, given) {
     const x = res.explain || {};
     const flag = res.flag === 'accent' ? 'Right — mind the accents.' : res.flag === 'typo' ? 'Right — with a small slip.' : 'Correct';
-    const when = !ex.retry && !s.practice && res.next_days != null ? (res.next_days <= 0 ? 'It returns later in this session.' : `Next review in ${res.next_days} day${res.next_days === 1 ? '' : 's'}.`) : '';
+    const when = !ex.retry && !s.practice && res.next_days != null ? (num(res.next_days) <= 0 ? 'It returns later in this session.' : `Next review in ${num(res.next_days)} day${num(res.next_days) === 1 ? '' : 's'}.`) : '';
     let detail;
     if (x.why) detail = `<p>${esc(x.why)}</p>`;
     else {
@@ -491,7 +546,7 @@ function runSession(s) {
     const showExpected = x.why && !res.correct;
     $('#s-foot').innerHTML = `<div class="verdict ${res.correct ? 'ok' : 'no'}" role="status"><h3>${res.correct ? flag : 'Not quite'}</h3>
       ${showExpected ? `<div class="ans">${esc(res.expected)}</div>` : ''}${detail}
-      ${when ? `<p class="dim small">${when}${!ex.retry && res.rewards && res.rewards.qi ? ` +${res.rewards.qi} qi` : ''}</p>` : ''}</div>
+      ${when ? `<p class="dim small">${when}${!ex.retry && res.rewards && res.rewards.qi ? ` +${num(res.rewards.qi)} qi` : ''}</p>` : ''}</div>
       <button class="btn ${res.correct ? 'primary' : 'seal'} big" id="s-next">Continue</button>`;
     if (TYPED.has(ex.mode) || ex.mode === 'choose_l2') speak(x.l2 || res.expected, ex.lang);
     const b = $('#s-next'); b.onclick = next; b.focus();
@@ -542,7 +597,7 @@ async function renderUnit(cid, uid) {
     else { a = `${esc(it.l2)} ${canSpeak(lang) ? `<button class="say" style="min-height:32px;min-width:32px;font-size:.8rem" data-say="${esc(it.l2)}">🔊</button>` : ''}`; b = `${esc(it.l1)}${it.note ? `<br><span class="dim small">${esc(it.note)}</span>` : ''}`; }
     const hide = it.type === 'mcq' && it.state === 'new';
     return `<tr><td><span class="dot ${esc(it.state)}" title="${esc(it.state)}"></span>${a}</td><td>${hide ? '<span class="dim">Answer hidden until you have met this question.</span>' : b}</td>
-      <td class="dim small num" style="white-space:nowrap">${it.state === 'new' ? '' : `${it.strength}%`}</td></tr>`;
+      <td class="dim small num" style="white-space:nowrap">${it.state === 'new' ? '' : `${num(it.strength)}%`}</td></tr>`;
   };
   view.innerHTML = `<p><a href="/library" data-link>Library</a></p><h1>${esc(u.title)}</h1><p class="dim">${esc(u.goal)}</p>
     <section class="panel">${md(u.notes)}</section>
@@ -557,14 +612,14 @@ async function renderTrials() {
   view.innerHTML = '<p class="loading">Reading the heavens…</p>';
   const infos = await Promise.all(mine.map((c) => api(`/api/academy/trial?course=${encodeURIComponent(c.id)}`)));
   const g = OV.game;
-  view.innerHTML = `<h1>Trials</h1><p class="dim" style="max-width:68ch">A trial is a timed test with no hints. Passing one is how you survive a tribulation and enter the next great realm, and every question you miss joins your review queue.</p>
+  view.innerHTML = `<h1>Trials</h1><p class="dim" style="max-width:68ch">A trial is a timed test with no hints. Passing one is how you survive a tribulation and enter the next great realm. Anything you get wrong that you have already studied goes back into your review queue.</p>
     ${g.tribulation ? `<div class="panel today"><h2>A tribulation gathers</h2><p style="margin:0">Your qi is full at ${esc(g.realm)}, ${esc(g.stage)} stage. Pass any trial below to break through to ${esc(g.next_realm)}.</p></div>` : ''}
     ${infos.map((t, i) => (t.ok === false ? '' : `<section class="panel"><div class="row"><div class="grow"><h2>${esc(t.name)}</h2>
-        <p class="dim small" style="margin:2px 0 0">${t.questions} questions, ${t.minutes} minutes, ${t.pass_pct}% to pass${t.best != null ? `. Your best: ${t.best}%` : ''}</p></div>
+        <p class="dim small" style="margin:2px 0 0">${num(t.questions)} questions, ${num(t.minutes)} minutes, ${num(t.pass_pct)}% to pass${t.best != null ? `. Your best: ${num(t.best)}%` : ''}</p></div>
         <button class="btn seal" data-trial="${esc(mine[i].id)}" ${t.ready ? '' : 'disabled'}>Face the trial</button></div>
         ${t.need ? `<p class="dim small" style="margin:8px 0 0">${esc(t.need)}</p>` : ''}
-        ${mine[i].exam ? `<p class="dim small" style="margin:8px 0 0">Modelled on ${esc(mine[i].exam.name)} ${esc(mine[i].exam.code)}: questions are drawn across the official domains by their exam weights. Scoring ${t.pass_pct}% here consistently is a sign you are ready for the real exam.</p>` : ''}
-        ${t.history.length ? `<ul class="list small" style="margin-top:8px">${t.history.slice().reverse().slice(0, 5).map((h) => `<li><span class="tag ${h.passed ? 'jade' : 'red'}">${h.passed ? 'Passed' : 'Failed'}</span> ${h.pct}% (${h.right}/${h.total}) <span class="dim">${ago(h.ts)} ago</span></li>`).join('')}</ul>` : ''}
+        ${mine[i].exam ? `<p class="dim small" style="margin:8px 0 0">Modelled on ${esc(mine[i].exam.name)} ${esc(mine[i].exam.code)}: questions are drawn across the official domains by their exam weights. Scoring ${num(t.pass_pct)}% here consistently is a sign you are ready for the real exam.</p>` : ''}
+        ${t.history.length ? `<ul class="list small" style="margin-top:8px">${t.history.slice().reverse().slice(0, 5).map((h) => `<li><span class="tag ${h.passed ? 'jade' : 'red'}">${h.passed ? 'Passed' : 'Failed'}</span> ${num(h.pct)}% (${num(h.right)}/${num(h.total)}) <span class="dim">${ago(num(h.ts))} ago</span></li>`).join('')}</ul>` : ''}
       </section>`)).join('') || '<div class="panel dim">Enrol in a course to unlock its trial.</div>'}`;
   view.querySelectorAll('[data-trial]').forEach((b) => { b.onclick = () => startTrial(b.dataset.trial); });
 }
@@ -573,9 +628,16 @@ async function startTrial(course) {
   const t = await api('/api/academy/trial/start', { course });
   if (t.ok === false) { toast(t.error); return; }
   document.body.classList.add('in-session');
-  const qs = t.questions; const answers = qs.map(() => null); let cur = 0; let over = false;
-  const deadline = Date.now() + t.minutes * 60000;
-  leaveGuard = async () => over || confirm('Abandon this trial? It will count as unanswered.');
+  const qs = t.questions; const answers = qs.map(() => null); let cur = 0; let over = false; let sending = false;
+  const deadline = Date.now() + num(t.minutes) * 60000;
+  let timer = null;
+  leaveGuard = async () => {
+    if (over) return true;
+    if (!confirm('Abandon this trial? Nothing will be recorded.')) return false;
+    over = true; clearInterval(timer);                       // this trial's clock must never fire again
+    api('/api/academy/trial/abandon', { trial: t.trial });
+    return true;
+  };
   const draw = () => {
     const q = qs[cur]; const typed = TYPED.has(q.mode);
     const accents = typed ? (ACCENTS[(q.lang || '').slice(0, 2)] || []) : [];
@@ -596,7 +658,9 @@ async function startTrial(course) {
     const inp = $('#t-in');
     if (inp) {
       inp.focus(); inp.onkeydown = (e) => { if (e.key === 'Enter' && cur < qs.length - 1) move(cur + 1); };
-      view.querySelectorAll('[data-acc]').forEach((b) => { b.onclick = () => { inp.value += b.dataset.acc; inp.focus(); }; });
+      view.querySelectorAll('[data-acc]').forEach((b) => {
+        b.onclick = () => { const at = inp.selectionStart ?? inp.value.length; inp.value = inp.value.slice(0, at) + b.dataset.acc + inp.value.slice(inp.selectionEnd ?? at); inp.focus(); inp.setSelectionRange(at + 1, at + 1); };
+      });
     }
     $('#t-prev').onclick = () => move(cur - 1);
     if ($('#t-next')) $('#t-next').onclick = () => move(cur + 1);
@@ -604,25 +668,33 @@ async function startTrial(course) {
     keyHandler = (e) => { if (!typed && /^[1-4]$/.test(e.key)) { const o = view.querySelector(`.opt[data-i="${+e.key - 1}"]`); if (o) o.click(); } };
   };
   const tick = () => {
+    if (over) return;
     const el = $('#t-clock'); if (!el) return;
     const left = Math.max(0, Math.round((deadline - Date.now()) / 1000));
     el.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`; el.classList.toggle('low', left < 60);
     if (left <= 0 && !over) submit();
   };
-  const timer = setInterval(() => { if (over) clearInterval(timer); else tick(); }, 1000);
+  timer = setInterval(() => { if (over) clearInterval(timer); else tick(); }, 1000);
   const submit = async () => {
-    if (over) return; over = true; keyHandler = null; clearInterval(timer);
+    if (over || sending) return; sending = true;
     const i = $('#t-in'); if (i) answers[cur] = i.value.trim() || null;
     const res = await api('/api/academy/trial/submit', { trial: t.trial, answers });
+    sending = false;
+    if (res.ok === false) {
+      // Keep every answer: the learner can submit again once the connection is back.
+      toast(`${res.error} Your answers are still here — submit again.`, 8000);
+      if (Date.now() >= deadline) { over = true; clearInterval(timer); leaveGuard = null; }
+      return;
+    }
+    over = true; keyHandler = null; clearInterval(timer);
     leaveGuard = null; document.body.classList.remove('in-session');
-    if (res.ok === false) { toast(res.error); go('/trials', false); return; }
     showEvents(res.events);
     const misses = res.review.filter((r) => !r.correct);
     view.innerHTML = `<div class="summary" style="max-width:720px;margin:0 auto"><h1>${res.passed ? 'You passed the trial' : 'The trial stands unbroken'}</h1>
-      <p class="dim">${res.passed ? 'Your foundation holds.' : res.overtime ? 'The time ran out before you finished.' : `You need ${res.pass_pct}% to pass. The questions you missed are now in your review queue.`}</p>
-      <div class="gains"><div><b class="num">${res.pct}%</b>score</div><div><b class="num">${res.right}/${res.total}</b>correct</div><div><b class="num">+${res.stones || 0}</b>spirit stones</div></div>
-      ${res.domains.length > 1 ? `<section class="panel" style="text-align:left"><h2>By domain</h2>${res.domains.map((d) => `<div style="margin-top:10px"><div class="row small"><span class="grow">${esc(d.title)}</span><b class="num">${d.pct}%</b></div>
-        <div class="bar ${d.pct >= res.pass_pct ? 'jade' : ''}"><i style="width:${d.pct}%"></i></div></div>`).join('')}</section>` : ''}
+      <p class="dim">${res.passed ? 'Your foundation holds.' : res.overtime ? 'The time ran out before you finished.' : `You need ${num(res.pass_pct)}% to pass. What you missed is listed below, and the ones you have studied are back in your review queue.`}</p>
+      <div class="gains"><div><b class="num">${num(res.pct)}%</b>score</div><div><b class="num">${num(res.right)}/${num(res.total)}</b>correct</div><div><b class="num">+${num(res.stones)}</b>spirit stones</div></div>
+      ${res.domains.length > 1 ? `<section class="panel" style="text-align:left"><h2>By domain</h2>${res.domains.map((d) => `<div style="margin-top:10px"><div class="row small"><span class="grow">${esc(d.title)}</span><b class="num">${num(d.pct)}%</b></div>
+        <div class="bar ${num(d.pct) >= num(res.pass_pct) ? 'jade' : ''}"><i style="width:${num(d.pct)}%"></i></div></div>`).join('')}</section>` : ''}
       ${misses.length ? `<section class="panel" style="text-align:left"><h2>What you missed</h2><ul class="list">${misses.map((m) => `<li><b>${esc(m.prompt)}</b>
         <div class="small"><span style="color:#ff9a8a">${m.given ? esc(m.given) : 'No answer'}</span> <span class="dim">should be</span> <span style="color:var(--jade)">${esc(m.expected)}</span></div>
         ${m.explain.why ? `<div class="dim small">${esc(m.explain.why)}</div>` : ''}</li>`).join('')}</ul></section>` : ''}
@@ -638,6 +710,9 @@ async function renderProgress() {
   const s = await api('/api/academy/stats?days=119');
   if (s.ok === false) { view.innerHTML = `<div class="panel">${esc(s.error)}</div>`; return; }
   const set = OV.settings; const g = OV.game;
+  ['cards', 'mastered', 'minutes', 'active_days', 'answers'].forEach((k) => { s[k] = num(s[k]); });
+  s.accuracy = s.accuracy == null ? null : num(s.accuracy);
+  s.forecast = (s.forecast || []).map(num); s.days.forEach((d) => { d.answers = num(d.answers); });
   const max = Math.max(1, ...s.forecast);
   const first = new Date(`${s.days[0].day}T12:00:00`); const pad = (first.getDay() + 6) % 7;
   const heat = `${'<i style="visibility:hidden"></i>'.repeat(pad)}${s.days.map((d) => `<i class="${d.answers >= 40 ? 'l3' : d.answers >= 15 ? 'l2' : d.answers ? 'l1' : ''}" title="${esc(d.day)}: ${d.answers} answers"></i>`).join('')}`;

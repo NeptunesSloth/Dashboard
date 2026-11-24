@@ -82,13 +82,20 @@ static/academy/       index.html, academy.css, academy.js (one app shell)
 - Grading is server-side. Wrong = Again; right with a missing accent or a
   one-letter slip = Hard; right = Good. A wrong article is never forgiven, and
   on words under four letters the accent *is* the word (où/ou, tú/tu).
-- Only the first answer to an item in a session is scheduled. A missed item comes
-  back in the same session until it is answered correctly once.
+- The server records what each session issued. Only an issued item, and only its
+  first answer, is scheduled and paid; a session can be closed exactly once. A
+  missed item comes back in the same session until it is answered correctly.
+- Gaps between reviews are measured in the learner's calendar days, so a
+  morning review of last night's card is not treated as a same-day repeat.
+- A session counts toward the streak when you answer 8+ items or finish
+  everything it offered. A day with nothing scheduled counts by itself.
 - "I know this already" on an intro card converts the check into a typed answer;
   only a correct typed answer earns the Easy grade (an 8-day first interval).
 - Trials: certs draw `exam.questions` MCQs by largest-remainder apportionment of
   the official domain weights; languages draw 20 typed items from everything
-  introduced. Timed; overtime fails. Every miss becomes a card due tomorrow.
+  introduced. Timed; overtime fails. A wrong answer on an item you have already studied sends
+  it back to the review queue; unanswered questions and unseen items change
+  nothing, so a trial can never mark material as learned.
 - The learner's day is their local day (the UI reports its UTC offset).
 
 ### The game
@@ -123,6 +130,14 @@ static/academy/       index.html, academy.css, academy.js (one app shell)
 - Reads need any role; anything that changes progress needs the operator role.
 - All economy numbers are starting values to playtest, not researched constants.
 - Spain Spanish is the default form; Latin American variants are accepted.
+
+## Persistence safety
+
+Writes are atomic and fsynced. A save file that exists but cannot be read is
+never overwritten: it is moved aside to `.corrupt-<timestamp>` and the daily
+`.bak` is restored. Everything loaded or imported is coerced to the expected
+shapes and test-driven before it replaces the live state, and the UI coerces
+every number it prints. Run a single server worker (state is held in memory).
 
 ## Left for later
 

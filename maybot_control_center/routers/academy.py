@@ -5,14 +5,15 @@ needs the operator role (open mode grants it, as everywhere else).
 """
 from __future__ import annotations
 
+import json
 import time
 
-from fastapi import APIRouter, Header, HTTPException, Query
+from fastapi import APIRouter, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from ..academy import engine, game, packs, state
-from ..deps import check_operator, check_token
+from ..deps import check_operator, check_token, role
 
 router = APIRouter()
 _DIR = "maybot_control_center/static/academy"
@@ -65,19 +66,17 @@ class SessionIn(BaseModel):
 
 
 class AnswerIn(BaseModel):
+    session: str
     item: str
     mode: str
     answer: str = ""
     retry: bool = False
-    practice: bool = False
     claim: bool = False
 
 
 class FinishIn(BaseModel):
-    answers: int = 0
-    correct: int = 0
+    session: str
     secs: int = 0
-    practice: bool = False
 
 
 class LearnMoreIn(BaseModel):
@@ -92,6 +91,10 @@ class TrialStartIn(BaseModel):
 class TrialSubmitIn(BaseModel):
     trial: str
     answers: list[str | None] = []
+
+
+class TrialAbandonIn(BaseModel):
+    trial: str
 
 
 class GameIn(BaseModel):
@@ -114,8 +117,10 @@ def _game(fn, *args):
 # ---- study ----
 @router.get("/api/academy/overview")
 def academy_overview(tz: int | None = Query(default=None), x_control_token: str = Header(default="")):
-    check_token(x_control_token)
-    if tz is not None and -840 <= tz <= 840 and state.get()["settings"].get("tz_offset_min") != tz:
+    # The learner's own browser reports its UTC offset so "today" is their day.
+    # That changes state, so only an operator's request may set it.
+    if (role(x_control_token) == "operator" and tz is not None and -840 <= tz <= 840
+            and state.get()["settings"].get("tz_offset_min") != tz):
         engine.set_settings({"tz_offset_min": tz})
     return engine.overview()
 
@@ -165,7 +170,7 @@ def academy_session(body: SessionIn, x_control_token: str = Header(default="")):
 def academy_answer(body: AnswerIn, x_control_token: str = Header(default="")):
     check_operator(x_control_token)
     res = engine.answer(body.item, body.mode, body.answer[:400], retry=body.retry,
-                        practice=body.practice, claim=body.claim)
+                        claim=body.claim, session=body.session)
     if not res["ok"]:
         raise HTTPException(400, res["error"])
     return res
@@ -174,7 +179,7 @@ def academy_answer(body: AnswerIn, x_control_token: str = Header(default="")):
 @router.post("/api/academy/session/finish")
 def academy_finish(body: FinishIn, x_control_token: str = Header(default="")):
     check_operator(x_control_token)
-    return engine.finish_session(body.answers, body.correct, body.secs, body.practice)
+    return engine.finish_session(secs=body.secs, session=body.session)
 
 
 @router.post("/api/academy/learn-more")
@@ -201,6 +206,12 @@ def academy_trial_submit(body: TrialSubmitIn, x_control_token: str = Header(defa
     return engine.submit_trial(body.trial, body.answers)
 
 
+@router.post("/api/academy/trial/abandon")
+def academy_trial_abandon(body: TrialAbandonIn, x_control_token: str = Header(default="")):
+    check_operator(x_control_token)
+    return engine.abandon_trial(body.trial)
+
+
 @router.get("/api/academy/stats")
 def academy_stats(days: int = Query(default=60, ge=7, le=365), x_control_token: str = Header(default="")):
     check_token(x_control_token)
@@ -214,9 +225,17 @@ def academy_export(x_control_token: str = Header(default="")):
 
 
 @router.post("/api/academy/import")
-def academy_import(body: dict, x_control_token: str = Header(default="")):
+async def academy_import(request: Request, x_control_token: str = Header(default="")):
     check_operator(x_control_token)
-    if not state.import_(body):
+    raw = await request.body()
+    if len(raw) > state.MAX_IMPORT_BYTES:
+        raise HTTPException(413, "backup file is too large")
+    try:
+        body = json.loads(raw)
+    except Exception:
+        raise HTTPException(400, "not an academy export") from None
+    # The blob is coerced to safe shapes and test-driven before it replaces anything.
+    if not state.import_(body, probe=engine.overview):
         raise HTTPException(400, "not an academy export")
     return {"ok": True}
 

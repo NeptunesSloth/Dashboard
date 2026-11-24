@@ -99,7 +99,95 @@ def _blank(now: float) -> dict:
         "quests": {"day": "", "list": []}, "week": {"id": "", "days": [], "paid": False},
         "chronicle": [], "learned_tokens": 0, "trials_passed": {}, "practice_qi": {"day": "", "n": 0},
         "daily": {"day": "", "sessions": 0, "cleared": False},
+        "carry": 0.0, "secluded_on": "",
     }
+
+
+def _day_str(v) -> str:
+    try:
+        return _dt.date.fromisoformat(v).isoformat() if isinstance(v, str) else ""
+    except ValueError:
+        return ""
+
+
+def sanitize(raw, now: float) -> dict:
+    """A well-formed game dict from an untrusted one (a loaded or imported file)."""
+    import math
+
+    def num(v, default=0.0, lo=None, hi=None):
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v):
+            return default
+        v = max(lo, v) if lo is not None else v
+        return min(hi, v) if hi is not None else v
+
+    def text(v, limit=200):
+        return v[:limit] if isinstance(v, str) else ""
+
+    if not isinstance(raw, dict) or "step" not in raw:
+        return {}
+    g = _blank(now)
+    g["name"], g["master"] = text(raw.get("name"), 40), text(raw.get("master"), 30)
+    for key, lo, hi in (("seed", 0, 1 << 31), ("qi", 0, None), ("step", 0, MAX_STEP), ("stones", 0, None),
+                        ("recruit_tokens", 0, 999), ("mission_tokens", 0, 3), ("recruit_n", 0, None),
+                        ("grace", 0, 9), ("streak", 0, None), ("best_streak", 0, None), ("learned_tokens", 0, None)):
+        g[key] = int(num(raw.get(key), g[key], lo, hi))
+    g["tribulation"] = raw.get("tribulation") is True
+    g["seclusion"] = raw.get("seclusion") is True
+    g["flow"] = float(num(raw.get("flow"), 1.0, MIN_FLOW, MAX_FLOW))
+    g["collected_at"] = float(num(raw.get("collected_at"), now, 0.0))
+    g["carry"] = float(num(raw.get("carry"), 0.0, 0.0, 1.0))
+    g["last_study_day"] = _day_str(raw.get("last_study_day"))
+    g["secluded_on"] = _day_str(raw.get("secluded_on"))
+    rooms = raw.get("rooms") if isinstance(raw.get("rooms"), dict) else {}
+    g["rooms"] = {rid: int(num(rooms.get(rid), 0, 0, r["max"])) for rid, r in ROOMS.items()
+                  if not r.get("course_hall") and num(rooms.get(rid), 0) > 0}
+    g["rooms"]["grand_hall"] = max(1, g["rooms"].get("grand_hall", 1))
+
+    def person(d):
+        if not isinstance(d, dict) or not text(d.get("id"), 16) or not text(d.get("name"), 40):
+            return None
+        return {"id": text(d["id"], 16), "name": text(d["name"], 40), "root": text(d.get("root"), 30) or "Common",
+                "talent": float(num(d.get("talent"), 1.0, 1.0, 2.0)),
+                "portrait": d.get("portrait") if d.get("portrait") in PORTRAITS else "disciple",
+                "traits": [text(t, 30) for t in d.get("traits", []) if isinstance(t, str)][:4]
+                if isinstance(d.get("traits"), list) else [],
+                "level": int(num(d.get("level"), 0, 0, 999)), "xp": float(num(d.get("xp"), 0.0, 0.0)),
+                "room": d.get("room") if d.get("room") in ASSIGNABLE else None,
+                "away_until": float(num(d.get("away_until"), 0.0, 0.0)), "joined": float(num(d.get("joined"), now, 0.0))}
+
+    for key in ("disciples", "candidates"):
+        seen: set[str] = set()
+        out = []
+        for d in raw.get(key) if isinstance(raw.get(key), list) else []:
+            d = person(d)
+            if d and d["id"] not in seen:
+                seen.add(d["id"])
+                out.append(d)
+        g[key] = out[:40] if key == "disciples" else out[:3]
+    ids = {d["id"] for d in g["disciples"]}
+    g["missions"] = [{"disciple": m["disciple"], "kind": m["kind"], "ends": float(num(m.get("ends"), now, 0.0))}
+                     for m in (raw.get("missions") if isinstance(raw.get("missions"), list) else [])
+                     if isinstance(m, dict) and m.get("disciple") in ids and m.get("kind") in MISSIONS]
+    q = raw.get("quests") if isinstance(raw.get("quests"), dict) else {}
+    g["quests"] = {"day": _day_str(q.get("day")), "bonus": q.get("bonus") is True,
+                   "list": [{"id": text(x.get("id"), 20), "text": text(x.get("text"), 120),
+                             "goal": int(num(x.get("goal"), 1, 1, 999)), "progress": int(num(x.get("progress"), 0, 0, 999)),
+                             "done": x.get("done") is True}
+                            for x in (q.get("list") if isinstance(q.get("list"), list) else []) if isinstance(x, dict)][:5]}
+    w = raw.get("week") if isinstance(raw.get("week"), dict) else {}
+    g["week"] = {"id": text(w.get("id"), 10), "paid": w.get("paid") is True,
+                 "days": [d for d in (_day_str(x) for x in (w.get("days") if isinstance(w.get("days"), list) else [])) if d][:7]}
+    g["chronicle"] = [{"ts": float(num(e.get("ts"), now, 0.0)), "kind": text(e.get("kind"), 20), "text": text(e.get("text"), 300)}
+                      for e in (raw.get("chronicle") if isinstance(raw.get("chronicle"), list) else [])
+                      if isinstance(e, dict)][-120:]
+    tp = raw.get("trials_passed") if isinstance(raw.get("trials_passed"), dict) else {}
+    g["trials_passed"] = {text(k, 64): _day_str(v) for k, v in tp.items() if isinstance(k, str)}
+    pq = raw.get("practice_qi") if isinstance(raw.get("practice_qi"), dict) else {}
+    g["practice_qi"] = {"day": _day_str(pq.get("day")), "n": int(num(pq.get("n"), 0, 0, 30))}
+    dd = raw.get("daily") if isinstance(raw.get("daily"), dict) else {}
+    g["daily"] = {"day": _day_str(dd.get("day")), "sessions": int(num(dd.get("sessions"), 0, 0)),
+                  "cleared": dd.get("cleared") is True}
+    return g
 
 
 def _g(st: dict, now: float) -> dict:
@@ -253,7 +341,9 @@ def _pending(st: dict, g: dict, now: float, halls: dict | None = None) -> float:
 
 def collect(st: dict, now: float) -> dict:
     g = _g(st, now)
-    amount = max(0, int(_pending(st, g, now)))
+    exact = max(0.0, _pending(st, g, now)) + float(g.get("carry", 0.0))
+    amount = int(exact)
+    g["carry"] = exact - amount   # keep the fraction, so frequent actions never lose income
     g["stones"] += amount
     g["collected_at"] = now       # always restart the clock, so a new room never back-pays
     return {"ok": True, "stones": amount}
@@ -452,13 +542,20 @@ def set_seclusion(st: dict, on: bool, now: float) -> dict:
     if on and not g["seclusion"]:
         collect(st, now)
         g["seclusion"] = True
+        g["secluded_on"] = _today(st, now)
         _log(g, now, "seclusion", "The sect sealed its gates. Your streak is safe until you return.")
     elif not on and g["seclusion"]:
         g["seclusion"] = False
         g["collected_at"] = now
-        if g["last_study_day"]:
-            # Returning: the gap spent in seclusion does not count against the streak.
-            g["last_study_day"] = (_date(_today(st, now)) - _dt.timedelta(days=1)).isoformat()
+        today = _date(_today(st, now))
+        if g["last_study_day"] and g.get("secluded_on"):
+            # Returning: only the days actually spent in seclusion are forgiven.
+            away = max(0, (today - _date(g["secluded_on"])).days)
+            shifted = _date(g["last_study_day"]) + _dt.timedelta(days=away)
+            latest = today - _dt.timedelta(days=1)
+            if _date(g["last_study_day"]) < latest:
+                g["last_study_day"] = min(shifted, latest).isoformat()
+        g["secluded_on"] = ""
         _log(g, now, "seclusion", "The sect reopened its gates.")
     return {"ok": True, "seclusion": g["seclusion"]}
 
@@ -508,7 +605,7 @@ def on_answer(st: dict, course: str, *, correct: bool, is_new: bool, practice: b
 def _mark_study_day(st: dict, g: dict, now: float) -> list[dict]:
     events = []
     today = _today(st, now)
-    if g["last_study_day"] == today:
+    if g["last_study_day"] and g["last_study_day"] >= today:
         return events
     if g["last_study_day"]:
         missed = max(0, (_date(today) - _date(g["last_study_day"])).days - 1)
@@ -545,6 +642,15 @@ def _mark_study_day(st: dict, g: dict, now: float) -> list[dict]:
     return events
 
 
+def credit_rest_day(st: dict, now: float) -> list[dict]:
+    """Nothing was scheduled today: the day counts, so the streak is never
+    broken by the schedule itself. No stones, no tokens — just continuity."""
+    g = _g(st, now)
+    if g["seclusion"] or not g["last_study_day"] or g["last_study_day"] >= _today(st, now):
+        return []
+    return _mark_study_day(st, g, now)
+
+
 def on_session(st: dict, *, answers: int, correct: int, counted: bool, due_left: int, now: float) -> dict:
     g = _g(st, now)
     events: list[dict] = []
@@ -559,14 +665,19 @@ def on_session(st: dict, *, answers: int, correct: int, counted: bool, due_left:
         stones = int(round(base * scale))
         if n == 0:
             stones += 25                                            # the day's first offering
-        if due_left == 0 and not g["daily"]["cleared"]:
-            g["daily"]["cleared"] = True
-            stones += 15
         g["daily"]["sessions"] = n + 1
-        g["stones"] += stones
         g["mission_tokens"] = min(3, g["mission_tokens"] + 1)
         events += _mark_study_day(st, g, now)
         events += _disciple_xp(g, 10, now)
+    if answers > 0 and due_left == 0:
+        # Clearing the queue pays once a day, however small the last session was.
+        today = _today(st, now)
+        if g["daily"]["day"] != today:
+            g["daily"] = {"day": today, "sessions": 0, "cleared": False}
+        if not g["daily"]["cleared"]:
+            g["daily"]["cleared"] = True
+            stones += 15
+    g["stones"] += stones
     events += _eval_quests(st, g, now)
     return {"stones": stones, "events": events, "streak": g["streak"]}
 
@@ -606,16 +717,19 @@ QUEST_REWARD = 20
 
 def _quest_defs(ctx: dict) -> list[dict]:
     pool = []
-    if ctx.get("due", 0) >= 10:
+    due, new = ctx.get("due", 0), ctx.get("new_offered", 0)
+    if due >= 10:
         pool.append({"id": "reviews", "text": "Review 10 items", "goal": 10})
+    if due >= 1:
         pool.append({"id": "clear", "text": "Clear every due review", "goal": 1})
-    if ctx.get("new_left", 0) >= 5:
+    if new >= 5:
         pool.append({"id": "new", "text": "Learn 5 new items", "goal": 5})
-    if ctx.get("typed_possible"):
+    if ctx.get("typed_due", 0) >= 8:
         pool.append({"id": "typed", "text": "Type 8 answers from memory", "goal": 8})
-    if ctx.get("courses", 0) >= 2:
+    if ctx.get("active_courses", 0) >= 2:
         pool.append({"id": "two", "text": "Cultivate two different arts today", "goal": 2})
-    pool.append({"id": "accuracy", "text": "Answer 15 items at 85% accuracy or better", "goal": 15})
+    if due + new >= 15:
+        pool.append({"id": "accuracy", "text": "Answer 15 items at 85% accuracy or better", "goal": 15})
     return pool
 
 
@@ -626,7 +740,7 @@ def _roll_quests(st: dict, g: dict, now: float, ctx: dict) -> None:
     rng = random.Random(f"{g['seed']}:{today}")
     pool = _quest_defs(ctx)
     picks = rng.sample(pool, min(2, len(pool)))
-    quests = [{"id": "session", "text": "Complete a cultivation session", "goal": 1}] + picks
+    quests = [{"id": "session", "text": "Complete today's cultivation", "goal": 1}] + picks
     g["quests"] = {"day": today, "list": [dict(q, progress=0, done=False) for q in quests]}
 
 
@@ -641,7 +755,7 @@ def _eval_quests(st: dict, g: dict, now: float) -> list[dict]:
             continue
         qid = q["id"]
         if qid == "session":
-            p = d.get("sessions", 0)
+            p = 1 if g["last_study_day"] == today and d.get("answers", 0) > 0 else 0
         elif qid == "reviews":
             p = d.get("reviews", 0)
         elif qid == "new":

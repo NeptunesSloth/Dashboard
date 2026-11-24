@@ -66,11 +66,15 @@ def test_full_day_over_http():
     for ex in s["exercises"]:
         if ex["mode"] == "intro":
             continue
-        r = client.post("/api/academy/answer", json={"item": ex["item"], "mode": ex["mode"], "answer": _truth(ex)}).json()
+        r = client.post("/api/academy/answer", json={"session": s["session"], "item": ex["item"], "mode": ex["mode"],
+                                                     "answer": _truth(ex)}).json()
         assert r["correct"] and r["rewards"]["qi"] > 0
         n += 1
-    fin = client.post("/api/academy/session/finish", json={"answers": n, "correct": n, "secs": 420}).json()
+    assert client.post("/api/academy/answer", json={"item": "fr-01-bonjour", "mode": "choose_l1", "answer": "x"}).status_code == 422
+    fin = client.post("/api/academy/session/finish", json={"session": s["session"], "secs": 420}).json()
     assert fin["counted"] and fin["streak"] == 1 and fin["stones"] >= 40
+    again = client.post("/api/academy/session/finish", json={"session": s["session"], "secs": 1}).json()
+    assert again["stones"] == 0 and again["already"]             # a replayed finish pays nothing
     ov = client.get("/api/academy/overview").json()
     assert ov["today"]["new_left"] == 0 and ov["game"]["studied_today"] and ov["game"]["quests"][0]["done"]
     # spend the earnings: build the spirit vein, recruit, post the disciple
@@ -105,6 +109,13 @@ def test_cert_trial_over_http_and_backup_roundtrip():
     assert client.post("/api/academy/import", json=blob).json()["ok"]
     assert client.get("/api/academy/overview").json()["game"]["name"] == "S"
     assert client.post("/api/academy/import", json={"nope": 1}).status_code == 400
+    assert client.post("/api/academy/import", content=b"{not json").status_code == 400
+    assert client.post("/api/academy/import", content=b" " * (state.MAX_IMPORT_BYTES + 1)).status_code == 413
+    bad = client.post("/api/academy/import", json={"cards": {}, "days": [], "game": {"step": "x", "streak": "<img>"}})
+    assert bad.status_code == 200 and isinstance(client.get("/api/academy/overview").json()["game"]["streak"], int)
+    t = client.post("/api/academy/trial/start", json={"course": "security-plus"}).json()
+    assert client.post("/api/academy/trial/abandon", json={"trial": t["trial"]}).json()["abandoned"]
+    assert not client.post("/api/academy/trial/submit", json={"trial": t["trial"], "answers": []}).json()["ok"]
 
 
 def test_viewers_can_look_but_not_study():
@@ -113,6 +124,10 @@ def test_viewers_can_look_but_not_study():
     v = {"x-control-token": vw}
     assert client.get("/api/academy/overview").status_code == 401
     assert client.get("/api/academy/overview", headers=v).status_code == 200
+    client.get("/api/academy/overview?tz=300", headers=v)        # a viewer's GET must not change settings
+    assert state.get()["settings"]["tz_offset_min"] == 0
+    client.get("/api/academy/overview?tz=300", headers={"x-control-token": op})
+    assert state.get()["settings"]["tz_offset_min"] == 300
     assert client.post("/api/academy/session", json={}, headers=v).status_code == 403
     assert client.post("/api/academy/game/collect", json={}, headers=v).status_code == 403
     assert client.get("/api/academy/export", headers=v).status_code == 403

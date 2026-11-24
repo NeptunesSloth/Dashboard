@@ -48,6 +48,21 @@ def end_of_day(st: dict, now: float) -> float:
     return (int(local // 86400) + 1) * 86400 - _offset(st)
 
 
+def days_since(st: dict, then: float, now: float) -> int:
+    """Whole learner-local calendar days between two instants (0 = same day)."""
+    off = _offset(st)
+    return max(0, int((now + off) // 86400) - int((then + off) // 86400))
+
+
+def _review(st: dict, card: dict | None, grade: int, now: float) -> dict:
+    """One FSRS review, measuring the gap in the learner's calendar days so an
+    early-morning review of yesterday evening's card is not treated as same-day."""
+    elapsed = days_since(st, card["last"], now) if card and card.get("reps") else None
+    new = fsrs.review(card or fsrs.new_card(), grade, now, float(st["settings"]["retention"]), elapsed_days=elapsed)
+    new["seen"] = (card or {}).get("seen") or now
+    return new
+
+
 def _day(st: dict, now: float) -> dict:
     return st["days"].setdefault(day_of(st, now), {
         "answers": 0, "correct": 0, "reviews": 0, "new": 0, "sessions": 0,
@@ -76,29 +91,30 @@ def enroll(course: str, on: bool = True) -> dict:
     return {"ok": True, "courses": cur}
 
 
-def _quest_ctx(st: dict, mine: list[dict]) -> dict:
-    """What is feasible today, so daily quests are never impossible."""
-    known_lang = any(c["kind"] == "language" and c["seen"] >= 8 for c in mine)
-    return {"due": sum(c["due"] for c in mine), "new_left": sum(c["new_left"] for c in mine),
-            "courses": len(mine), "typed_possible": known_lang}
+def _quest_ctx(st: dict, mine: list[dict], now: float) -> dict:
+    """What today can actually supply, so a daily quest is never impossible."""
+    due = sum(c["due"] for c in mine)
+    held = due > 2 * int(st["settings"]["session_size"])        # review debt holds new items back
+    typed_due = 0
+    for it, card in _due_cards(st, [c["id"] for c in mine], now):
+        if _mode_for(it, card, packs.get(it["pack"])) in ("type_l2", "listen", "cloze_type"):
+            typed_due += 1
+    return {"due": due, "new_offered": 0 if held else sum(c["new_left"] for c in mine),
+            "typed_due": typed_due, "active_courses": sum(1 for c in mine if c["due"] + c["new_left"] > 0)}
 
 
 def set_settings(patch: dict) -> dict:
     with state.LOCK:
         st = state.get()
-        s = st["settings"]
-        if "new_per_day" in patch:
-            s["new_per_day"] = int(min(max(int(patch["new_per_day"]), 0), 40))
-        if "session_size" in patch:
-            s["session_size"] = int(min(max(int(patch["session_size"]), 5), 60))
-        if "retention" in patch:
-            s["retention"] = float(min(max(float(patch["retention"]), 0.8), 0.95))
-        if "tz_offset_min" in patch:
-            s["tz_offset_min"] = int(min(max(int(patch["tz_offset_min"]), -840), 840))
-        if "audio" in patch:
-            s["audio"] = bool(patch["audio"])
+        merged = dict(st["settings"])
+        for key in ("new_per_day", "session_size", "retention", "tz_offset_min", "audio"):
+            if key in patch and patch[key] is not None:
+                merged[key] = patch[key]
+        clean = state.clean_settings(merged)      # clamps; non-finite/ill-typed values fall back
+        clean["courses"] = st["settings"].get("courses", [])
+        st["settings"] = clean
         state.save()
-        return dict(s)
+        return dict(clean)
 
 
 def _card_view(card: dict | None, now: float) -> dict:
@@ -194,6 +210,9 @@ def _public_item(it: dict) -> dict:
 _PUNCT = re.compile(r"[¿¡?!.,;:\"“”«»()\[\]…]")
 
 
+_ARTICLES = {"le", "la", "les", "un", "une", "des", "du", "el", "los", "las", "unos", "unas", "lo"}
+
+
 def _norm(s: str) -> str:
     s = unicodedata.normalize("NFC", str(s or "")).replace("’", "'").replace("‘", "'").replace("`", "'")
     s = _PUNCT.sub(" ", s.lower())
@@ -243,9 +262,12 @@ def check_typed(answer: str, accepted: list[str]) -> dict:
             return {"correct": True, "flag": "accent", "expected": a}
     for a, n in zip(accepted, normed):
         plain = _strip_accents(n)
-        # One slip is forgiven on longer answers — but never the article (le/la,
+        # One slip is forgiven on longer answers — but never in the article (le/la,
         # el/la, un/une): that single letter *is* the thing being learned.
-        if len(plain) >= 6 and _edit1(got_plain, plain) and got_plain.split(" ")[0] == plain.split(" ")[0]:
+        if len(plain) >= 6 and _edit1(got_plain, plain):
+            first = plain.split(" ")[0]
+            if " " in plain and first in _ARTICLES and got_plain.split(" ")[0] != first:
+                continue
             return {"correct": True, "flag": "typo", "expected": a}
     return {"correct": False, "flag": None, "expected": expected}
 
@@ -293,7 +315,8 @@ def _distractors(it: dict, pack: dict, field: str, rng: random.Random, n: int = 
         for o in u["items"]:
             if o["id"] == it["id"] or field not in o:
                 continue
-            if field in ("l1", "l2") and (o["type"] == "phrase") != (it["type"] == "phrase"):
+            if field in ("l1", "l2") and (o["type"] == "cloze"
+                                           or (o["type"] == "phrase") != (it["type"] == "phrase")):
                 continue
             (same_unit if u["id"] == it["unit"] else others).append(o[field])
     target = _norm(it[field])
@@ -418,15 +441,27 @@ def _new_items(st: dict, pack: dict, limit: int) -> list[dict]:
     return out
 
 
+def _open_session(st: dict, items: list[str], practice: bool, now: float) -> str:
+    """Remember what a session issued, so only those items — once each — are
+    scheduled and paid, and the session can be closed exactly once."""
+    sessions = st.setdefault("sessions", {})
+    for old in sorted(sessions, key=lambda k: sessions[k]["started"])[:-5]:
+        sessions.pop(old, None)
+    sid = uuid.uuid4().hex[:12]
+    sessions[sid] = {"started": now, "practice": practice, "items": {i: 0 for i in items},
+                     "n": 0, "c": 0, "done": False}
+    return sid
+
+
 def build_session(course: str | None = None, size: int | None = None, now: float | None = None) -> dict:
     now = now or time.time()
     with state.LOCK:
         st = state.get()
-        ids = [course] if course else _enrolled(st)
-        ids = [c for c in ids if packs.get(c)]
+        enrolled = _enrolled(st)
+        ids = [c for c in ([course] if course else enrolled) if c in enrolled]
         if not ids:
             return {"ok": False, "error": "no course", "exercises": []}
-        size = int(size or st["settings"]["session_size"])
+        size = int(min(max(int(size or st["settings"]["session_size"]), 5), 60))
         due = _due_cards(st, ids, now)
         backlog = len(due)
         reviews = due[:size]
@@ -472,9 +507,11 @@ def build_session(course: str | None = None, size: int | None = None, now: float
         for i, ex in enumerate(woven):
             ex["n"] = i
             ex["new"] = ex["mode"] == "intro" or not (st["cards"].get(ex["item"]) or {}).get("reps")
+        sid = _open_session(st, [ex["item"] for ex in woven if ex["mode"] != "intro"], False, now)
+        state.save()
         return {"ok": True, "exercises": woven, "notes": unit_notes, "due_total": backlog,
                 "reviews": len(reviews), "new": len(new_exs), "courses": ids,
-                "session": uuid.uuid4().hex[:12], "practice": False}
+                "session": sid, "practice": False}
 
 
 def build_practice(course: str | None = None, now: float | None = None) -> dict:
@@ -482,7 +519,8 @@ def build_practice(course: str | None = None, now: float | None = None) -> dict:
     now = now or time.time()
     with state.LOCK:
         st = state.get()
-        ids = [c for c in ([course] if course else _enrolled(st)) if packs.get(c)]
+        enrolled = _enrolled(st)
+        ids = [c for c in ([course] if course else enrolled) if c in enrolled]
         index = packs.item_index()
         known = []
         for iid, c in st["cards"].items():
@@ -499,13 +537,19 @@ def build_practice(course: str | None = None, now: float | None = None) -> dict:
         for i, ex in enumerate(exs):
             ex["n"] = i
             ex["new"] = False
+        sid = _open_session(st, [ex["item"] for ex in exs], True, now) if exs else ""
+        state.save()
         return {"ok": bool(exs), "exercises": exs, "notes": [], "practice": True, "courses": ids,
-                "session": uuid.uuid4().hex[:12], "error": None if exs else "nothing learned yet"}
+                "session": sid, "error": None if exs else "nothing learned yet"}
 
 
 def answer(item_id: str, mode: str, given: str, *, retry: bool = False, practice: bool = False,
-           claim: bool = False, now: float | None = None) -> dict:
-    """Grade one answer; schedule the card (first attempt only); pay the sect."""
+           claim: bool = False, session: str | None = None, now: float | None = None) -> dict:
+    """Grade one answer; schedule the card (first attempt only); pay the sect.
+
+    With ``session`` (always, over HTTP) the server decides what counts: only an
+    item that session issued, and only its first answer, is scheduled and paid.
+    Anything else is graded for feedback but changes nothing."""
     now = now or time.time()
     it = packs.item_index().get(item_id)
     if not it:
@@ -515,6 +559,17 @@ def answer(item_id: str, mode: str, given: str, *, retry: bool = False, practice
         return {"ok": False, "error": res["error"]}
     with state.LOCK:
         st = state.get()
+        if session is not None:
+            rec = st.get("sessions", {}).get(session)
+            if not rec:
+                return {"ok": False, "error": "This session has expired. Start a new one."}
+            practice = bool(rec["practice"])
+            if rec["done"] or rec["items"].get(item_id, 1):
+                retry = True                    # not issued, already answered, or session closed
+            else:
+                rec["items"][item_id] = 1
+                rec["n"] += 1
+                rec["c"] += 1 if res["correct"] else 0
         card = st["cards"].get(item_id)
         was_new = not (card or {}).get("reps")
         out = {"ok": True, "correct": res["correct"], "flag": res["flag"], "expected": res["expected"],
@@ -533,8 +588,7 @@ def answer(item_id: str, mode: str, given: str, *, retry: bool = False, practice
             grade = fsrs.EASY       # "I already know this" — and proved it by typing it cold
         else:
             grade = fsrs.GOOD
-        new_card = fsrs.review(card or fsrs.new_card(), grade, now, float(st["settings"]["retention"]))
-        new_card["seen"] = (card or {}).get("seen") or now
+        new_card = _review(st, card, grade, now)
         st["cards"][item_id] = new_card
         d = _day(st, now)
         d["answers"] += 1
@@ -555,24 +609,43 @@ def answer(item_id: str, mode: str, given: str, *, retry: bool = False, practice
         return out
 
 
-def finish_session(answers: int, correct: int, secs: int = 0, practice: bool = False,
-                   now: float | None = None) -> dict:
-    """Close a session: counts toward the streak/quests and pays the session reward."""
+def finish_session(answers: int = 0, correct: int = 0, secs: int = 0, practice: bool = False,
+                   session: str | None = None, now: float | None = None) -> dict:
+    """Close a session: counts toward the streak/quests and pays the session reward.
+
+    A session counts when you answered at least ``MIN_SESSION_ANSWERS`` items,
+    or finished everything it offered, however little the schedule had for you."""
     now = now or time.time()
     with state.LOCK:
         st = state.get()
         d = _day(st, now)
-        # Trust the server's own tally, not the client's, for anything that pays.
-        answers = min(int(answers), d["answers"]) if not practice else int(answers)
+        if session is not None:
+            rec = st.get("sessions", {}).get(session)
+            if not rec:
+                return {"ok": False, "error": "This session has expired.", "counted": False, "stones": 0, "events": []}
+            if rec["done"]:
+                return {"ok": True, "counted": False, "already": True, "stones": 0, "events": [],
+                        "due_left": len(_due_cards(st, _enrolled(st), now)), "streak": st["game"].get("streak", 0)}
+            rec["done"] = True
+            answers, correct, practice = rec["n"], rec["c"], bool(rec["practice"])
+            complete = answers >= 1 and all(rec["items"].values())      # did everything this session offered
+        else:
+            # Library callers (tests, scripts): never trust more than the day's own tally.
+            answers = min(int(answers), d["answers"]) if not practice else int(answers)
+            correct = min(int(correct), answers)
+            complete = False
         d["secs"] = d.get("secs", 0) + int(min(max(secs, 0), 3 * 3600))
-        counted = (not practice) and answers >= MIN_SESSION_ANSWERS
+        enrolled = _enrolled(st)
+        due_left = len(_due_cards(st, enrolled, now))
+        new_left = sum(course_stats(st, packs.get(c), now)["new_left"] for c in enrolled)
+        all_done = answers >= 1 and due_left == 0 and new_left == 0
+        counted = (not practice) and (answers >= MIN_SESSION_ANSWERS or complete or all_done)
         if counted:
             d["sessions"] += 1
-        due_left = len(_due_cards(st, _enrolled(st), now))
-        res = game.on_session(st, answers=answers, correct=min(int(correct), answers), counted=counted,
+        res = game.on_session(st, answers=0 if practice else answers, correct=correct, counted=counted,
                               due_left=due_left, now=now)
         state.save()
-        return {"ok": True, "counted": counted, "due_left": due_left, **res}
+        return {"ok": True, "counted": counted, "due_left": due_left, "new_left": new_left, **res}
 
 
 def learn_more(course: str, n: int = 5, now: float | None = None) -> dict:
@@ -678,6 +751,15 @@ def start_trial(course: str, now: float | None = None) -> dict:
                 "pass_pct": info["pass_pct"], "questions": qs}
 
 
+def abandon_trial(trial_id: str) -> dict:
+    """Drop an in-flight trial without recording or grading anything."""
+    with state.LOCK:
+        st = state.get()
+        found = st["open_trials"].pop(trial_id, None) is not None
+        state.save()
+        return {"ok": True, "abandoned": found}
+
+
 def submit_trial(trial_id: str, answers: list, now: float | None = None) -> dict:
     now = now or time.time()
     index = packs.item_index()
@@ -706,13 +788,12 @@ def submit_trial(trial_id: str, answers: list, now: float | None = None) -> dict
             by_dom[dom][1] += 1
             review.append({"n": i, "correct": ok, "given": given, "expected": res["expected"],
                            "prompt": it.get("q") or it.get("l1") or it.get("text", ""), "explain": _explain(it)})
-            # A miss joins tomorrow's review queue (unseen items become cards).
-            if not ok:
-                card = st["cards"].get(iid)
-                nc = fsrs.review(card or fsrs.new_card(), fsrs.AGAIN, now, float(st["settings"]["retention"]))
-                nc["seen"] = (card or {}).get("seen") or now
-                nc["due"] = now + fsrs.DAY * 0.5
-                st["cards"][iid] = nc
+            # A wrong answer on something you have studied sends it back to the review
+            # queue. Unanswered questions and items you have not met yet change nothing:
+            # a trial must never mark material as learned or punish a timeout.
+            card = st["cards"].get(iid)
+            if not ok and given and card and card.get("reps"):
+                st["cards"][iid] = _review(st, card, fsrs.AGAIN, now)
         total = len(tr["items"]) or 1
         pct = round(100 * right / total)
         passed = pct >= tr["pass_pct"] and not overtime
@@ -737,17 +818,20 @@ def overview(now: float | None = None) -> dict:
         st = state.get()
         all_courses = [course_stats(st, p, now) for p in packs.load_all().values()]
         mine = [c for c in all_courses if c["enrolled"]]
-        events = game.ensure(st, now, _quest_ctx(st, mine) if mine else None)
+        events = game.ensure(st, now, _quest_ctx(st, mine, now) if mine else None)
         d = _day(st, now)
+        if mine and d["answers"] == 0 and not any(c["due"] or c["new_left"] for c in mine):
+            events += game.credit_rest_day(st, now)      # nothing scheduled: the day counts
         out = {
             "events": events,
+            "problem": state.take_error(),
             "courses": all_courses,
             "today": {"due": sum(c["due"] for c in mine), "new_left": sum(c["new_left"] for c in mine),
                       "answers": d["answers"], "correct": d["correct"], "sessions": d["sessions"],
                       "new": d["new"], "reviews": d["reviews"], "day": day_of(st, now)},
             "settings": dict(st["settings"]),
             "game": game.view(st, now),
-            "onboarded": bool(mine),
+            "onboarded": bool(st["game"].get("name")),
         }
         state.save()
         return out

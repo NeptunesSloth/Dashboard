@@ -33,6 +33,7 @@ _ID = re.compile(r"^[a-z0-9][a-z0-9_.\-]{1,63}$")
 _Loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)      # the C loader is ~10x faster when present
 _lock = threading.Lock()
 _cache: dict[str, dict] | None = None
+_index: dict[str, dict] | None = None
 
 
 def _s(v) -> str:
@@ -172,10 +173,11 @@ def _normalise(pack: dict) -> dict:
 
 def load_all(force: bool = False) -> dict[str, dict]:
     """All valid packs by id (invalid packs are skipped, never crash the app)."""
-    global _cache
+    global _cache, _index
     with _lock:
         if _cache is not None and not force:
             return _cache
+        _index = None
         out: dict[str, dict] = {}
         for path in sorted(PACK_DIR.glob("*.yaml")):
             try:
@@ -194,8 +196,12 @@ def get(pack_id: str) -> dict | None:
 
 
 def item_index() -> dict[str, dict]:
-    """item_id -> item, across every pack."""
-    return {it["id"]: it for p in load_all().values() for u in p["units"] for it in u["items"]}
+    """item_id -> item, across every pack (cached until the packs are reloaded)."""
+    global _index
+    all_packs = load_all()
+    if _index is None:
+        _index = {it["id"]: it for p in all_packs.values() for u in p["units"] for it in u["items"]}
+    return _index
 
 
 def main(argv: list[str]) -> int:

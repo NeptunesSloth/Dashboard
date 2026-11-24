@@ -193,6 +193,7 @@ input[type=text], input[type=number], textarea, select.in { width: 100%; min-hei
 .gains div { background: var(--wood); border: 1px solid var(--edge); border-radius: 10px; padding: 14px 6px; }
 .gains b { display: block; font: 600 1.7rem var(--serif); color: var(--lantern); }
 .summary .list { text-align: left; }
+.summary .list.panel { padding: 6px 16px; }
 
 /* notes (light markdown) */
 .md h2, .md h3 { margin: 14px 0 6px; font-size: 1.08rem; color: var(--lantern); }
