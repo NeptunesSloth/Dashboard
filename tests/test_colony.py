@@ -12,8 +12,8 @@ T0 = 1_800_000_000.0
 def st(monkeypatch):
     monkeypatch.setenv("SECT_ACADEMY_FILE", ":memory:")
     s = state.reset_for_tests()
+    colony._c(s, T0)["seed"] = 12345     # set before founding: the same disciples and storyteller every run
     colony.setup(s, "Azure Lantern", "Jay", T0)
-    s["colony"]["seed"] = 12345          # deterministic storyteller
     return s
 
 
@@ -351,13 +351,20 @@ def test_trope_consequences_chain(st):
 
 
 def test_calm_storyteller_sends_no_raids_and_harsh_sends_many(st):
-    def raids(mode):
+    def raids(mode, peaceful):
         s = copy.deepcopy(st)
-        s["colony"]["storyteller"] = mode
-        _run(s, 60)
-        return sum(1 for e in s["colony"]["annals"] if "beast tide" in e["text"].lower() or " raid " in e["text"].lower())
-    assert raids("calm") <= 2          # the scripted lone wolf, and at most a revenge the player provoked
-    assert raids("harsh") >= 2
+        c = s["colony"]
+        c["storyteller"] = mode
+        for _ in range(60 * 24):
+            colony.advance(s, 1, T0)
+            if c["pending"]:
+                # a peaceful player walks away from provocations, so nobody comes looking for revenge
+                colony.resolve(s, c["pending"]["options"][-1 if peaceful else 0]["id"], T0)
+                if c["pending"]:
+                    colony.resolve(s, c["pending"]["options"][-1]["id"], T0)
+        return sum(1 for e in c["annals"] if "beast tide" in e["text"].lower() or " raid " in e["text"].lower())
+    assert raids("calm", True) == 1            # only the scripted lone wolf that teaches the first fight
+    assert raids("harsh", False) >= 2
 
 
 def test_wanderers_and_merchants_wait_for_a_decision(st):
