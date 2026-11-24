@@ -353,9 +353,10 @@ def test_rooms_income_is_capped_and_scaled_by_memory():
     assert not game.upgrade(st, "tongues_west", T0)["ok"]        # course halls grow by study only
     assert game.upgrade(st, "spirit_vein", T0)["ok"] and g["stones"] == 0
     assert not game.upgrade(st, "spirit_vein", T0)["error"] == ""
-    assert game.view(st, T0 + 2 * 3600)["pending"] == 3          # 1.5/h
-    assert game.view(st, T0 + 100 * 3600)["pending"] == 12       # capped at 8h of storage
-    assert game.collect(st, T0 + 100 * 3600)["stones"] == 12 and game.view(st, T0 + 100 * 3600)["pending"] == 0
+    g["rooms"]["spirit_vein"] = 5                                # 1 stone/hour
+    assert game.view(st, T0 + 2 * 3600)["pending"] == 2
+    assert game.view(st, T0 + 100 * 3600)["pending"] == 8        # capped at 8h of storage
+    assert game.collect(st, T0 + 100 * 3600)["stones"] == 8 and game.view(st, T0 + 100 * 3600)["pending"] == 0
     # a disciple in a course hall earns in proportion to how well the course is remembered
     t = T0 + 100 * 3600
     game.recruit_offer(st, t)

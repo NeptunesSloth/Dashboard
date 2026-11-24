@@ -96,11 +96,12 @@ static/academy/       index.html, academy.css, academy.js (one app shell)
 - **Qi** (your cultivation) comes only from graded answers: due review 10, new
   item 6, wrong 3/2, +2 for typed recall, practice 1 (capped at 30/day). Since
   the schedule bounds how many graded answers exist, qi cannot be farmed.
-- **Realms**: 8 realms × 4 stages; stage cost `250 + 200·step` qi. A stage at
+- **Realms**: 8 realms × 4 stages; stage cost `120 + 320·step` qi (about a year of daily study for the whole ladder). A stage at
   Peak waits for a **tribulation** — passing any trial — before the next realm.
 - **Spirit stones**: session reward with daily diminishing returns (100/50/10%),
   three daily quests, a 5-of-7 weekly goal, trials, missions, and capped passive
-  income.
+  income. A 60-day simulated learner was used to tune this so idle income stays
+  a minority share of what a day's study earns.
 - **Rooms** (the cut-away HQ artwork is the map): three course halls that grow
   only by completing units, plus Spirit Vein, Meditation Chamber, Disciple
   Quarters, Trial Grounds, Mission Hall, Alchemy Hall, Treasure Vault and the

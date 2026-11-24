@@ -54,7 +54,7 @@ ROOMS = {
     "treasury":      {"name": "Treasure Vault", "rect": [64.5, 57.7, 35.5, 18.1], "base": 100, "growth": 1.6, "max": 8,
                       "tier": 2, "effect": "Holds more idle income: +2 hours of storage per level (base 8h, max 24h)."},
     "spirit_vein":   {"name": "Spirit Vein", "rect": [0, 76.5, 42.8, 23], "base": 60, "growth": 1.6, "max": 10,
-                      "tier": 0, "effect": "+1.5 spirit stones per hour per level."},
+                      "tier": 0, "effect": "A steady trickle of spirit stones while you are away: about 5 a day per level."},
     "meditation":    {"name": "Meditation Chamber", "rect": [43.2, 76.5, 56.8, 23], "base": 100, "growth": 1.6, "max": 10,
                       "tier": 1, "effect": "+5% qi from every answer, per level."},
 }
@@ -76,6 +76,10 @@ MISSIONS = {
 }
 
 START_STONES = 60
+# Idle income is deliberately a minority share: a well-run sect trickles a few
+# dozen stones a day, against ~100-150 from a day's study (sessions + quests).
+VEIN_RATE = 0.2          # stones/hour per Spirit Vein level
+DISCIPLE_RATE = 0.07     # stones/hour per disciple in a course hall, before modifiers
 MAX_FLOW, MIN_FLOW = 2.0, 0.5
 WEEK_GOAL = 5
 
@@ -131,7 +135,7 @@ MAX_STEP = len(REALMS) * len(STAGES) - 1
 
 
 def step_cost(step: int) -> int:
-    return 250 + 200 * step
+    return 120 + 320 * step      # ~160k qi for the whole ladder: about a year of daily study
 
 
 def _cum(step: int) -> int:
@@ -225,18 +229,19 @@ def storage_hours(g: dict) -> int:
 def _rate(st: dict, g: dict, now: float, halls: dict | None = None) -> float:
     """Passive spirit stones per hour (before the qi-flow multiplier)."""
     halls = halls if halls is not None else _course_halls(st, now)
-    vein = 1.5 * _lvl(g, "spirit_vein")
+    vein = VEIN_RATE * _lvl(g, "spirit_vein")
+    tenders = 0.0
     total = 0.0
     for d in g["disciples"]:
         if d.get("away_until", 0) > now or not d.get("room"):
             continue
-        power = d["talent"] * (1 + 0.1 * d["level"])
+        power = d["talent"] * (1 + 0.1 * min(d["level"], 15))
         if d["room"] == "spirit_vein" and _lvl(g, "spirit_vein"):
-            vein *= 1 + 0.25 * power
+            tenders += power
         elif d["room"] in halls:
             h = halls[d["room"]]
-            total += 1.0 * power * h["strength"] * (1 + 0.1 * h["level"])
-    return total + vein
+            total += DISCIPLE_RATE * power * h["strength"] * (1 + 0.1 * h["level"])
+    return total + vein * (1 + 0.25 * tenders)
 
 
 def _pending(st: dict, g: dict, now: float, halls: dict | None = None) -> float:
@@ -410,7 +415,7 @@ def _resolve_missions(st: dict, g: dict, now: float) -> list[dict]:
             continue
         spec = MISSIONS[m["kind"]]
         rng = random.Random(f"{g['seed']}:{m['ends']}:{d['id']}")
-        stones = int(12 * spec["hours"] ** 0.8 * d["talent"] * (1 + 0.1 * d["level"])
+        stones = int(5 * spec["hours"] ** 0.8 * d["talent"] * (1 + 0.1 * d["level"])
                      * (1 + 0.2 * _lvl(g, "mission_hall")) * rng.uniform(0.85, 1.25))
         g["stones"] += stones
         text = f"{d['name']} returned from the expedition with {stones} spirit stones."
@@ -721,7 +726,7 @@ def view(st: dict, now: float) -> dict:
         "qi": g["qi"], "qi_into": min(into, need), "qi_need": need,
         "qi_pct": min(100, round(100 * into / need)), "tribulation": g["tribulation"],
         "stones": g["stones"], "pending": int(_pending(st, g, now, halls)),
-        "rate": round(_rate(st, g, now, halls) * g["flow"], 1), "storage_hours": storage_hours(g),
+        "rate": round(_rate(st, g, now, halls) * g["flow"], 2), "per_day": int(_rate(st, g, now, halls) * g["flow"] * storage_hours(g)), "storage_hours": storage_hours(g),
         "flow": g["flow"], "streak": 0 if lost else g["streak"], "best_streak": g["best_streak"],
         "studied_today": last == today, "streak_at_risk": at_risk and not lost and last != today,
         "grace": g["grace"], "grace_cap": grace_cap(g), "pill_cost": pill_cost(g), "seclusion": g["seclusion"],

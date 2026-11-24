@@ -198,7 +198,7 @@ function renderSect() {
       <div class="vitals">
         <div class="vital"><b>${esc(g.realm)}</b><span>${esc(g.stage)} stage${g.tribulation ? ', tribulation ready' : ''}</span>
           <div class="bar" title="${g.qi_into} of ${g.qi_need} qi"><i style="width:${g.qi_pct}%"></i></div></div>
-        <div class="vital"><b class="num">${g.stones.toLocaleString()}</b><span>spirit stones, +${g.rate}/h</span>
+        <div class="vital"><b class="num">${g.stones.toLocaleString()}</b><span>spirit stones${g.per_day ? `, up to +${g.per_day} idle a day` : ''}</span>
           ${g.pending > 0 ? `<br><button class="btn" data-act="collect">Collect ${g.pending}</button>` : ''}</div>
         <div class="vital"><b class="num">${g.streak} day${g.streak === 1 ? '' : 's'}</b><span>streak, ${g.grace} grace pill${g.grace === 1 ? '' : 's'}</span>
           <div class="week" style="margin-top:8px" title="${g.week.days} of ${g.week.goal} days this week">${week}</div></div>
