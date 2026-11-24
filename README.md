@@ -26,6 +26,7 @@ python -m sect_academy
 | French A1, A2, B1 | 20 + 12 + 12 units | From zero to intermediate; typed recall and dictation |
 | French Conversations | 8 units, 56 dialogues | Rehearsed exchanges, A1 to B1: you speak one side |
 | Spanish A1, A2, B1 | 20 + 12 + 12 units | Spain Spanish, Latin American variants accepted |
+| Spanish Conversations | 8 units, 56 dialogues | Rehearsed exchanges, A1 to B1: you speak one side |
 | CompTIA Security+ (SY0-801) | 25 units | Every exam domain, plus exam-hard practice |
 | CompTIA Network+ (N10-009) | 22 units | Every exam domain, heavy on subnetting and troubleshooting |
 | ISC2 Certified in Cybersecurity | 15 units | Sept 2026 outline |
