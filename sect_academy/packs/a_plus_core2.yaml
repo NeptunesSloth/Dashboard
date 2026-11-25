@@ -1,0 +1,1723 @@
+id: a-plus-core2
+title: "A+ Core 2 (220-1202) — Foundations"
+kind: cert
+blurb: "Windows, macOS and Linux, security and malware removal, software troubleshooting and professional procedures — the core of CompTIA A+ Core 2."
+hall: ward_hall
+exam:
+  name: "CompTIA A+ Core 2"
+  code: "220-1202"
+  questions: 25
+  minutes: 25
+  pass_pct: 85
+  full: {questions: 90, minutes: 90}
+  domains:
+    - {id: "1", title: "Operating Systems", weight: 28}
+    - {id: "2", title: "Security", weight: 28}
+    - {id: "3", title: "Software Troubleshooting", weight: 23}
+    - {id: "4", title: "Operational Procedures", weight: 21}
+
+units:
+  # ───────────────── 1a · OS types, filesystems, installation ─────────────────
+  - id: ap2-1a
+    title: "Operating systems, filesystems and installation"
+    domain: "1"
+    goal: "I can choose a filesystem and partition style, pick the right kind of installation, and say what each Windows edition can and cannot do."
+    notes: |
+      Core 2 expects you to support four desktop systems (**Windows, macOS, Linux, Chrome OS**) and three mobile ones (**iOS, iPadOS, Android**). Most questions are about Windows 10 and 11.
+
+      ## Filesystems
+
+      | Filesystem | Home | Remember |
+      | NTFS | Windows | Permissions, encryption, compression, large files |
+      | FAT32 | Anything | No single file of 4 GB or more |
+      | exFAT | Flash media | Large files, readable by Windows and macOS |
+      | APFS | macOS | Apple's current default |
+      | ext4 | Linux | The usual Linux default |
+
+      ## Partition styles
+
+      **MBR** allows four primary partitions and disks up to 2 TB. **GPT** removes both limits and is what UEFI firmware boots from.
+
+      ## Installing
+
+      A **clean install** wipes the target and starts fresh. An **in-place upgrade** keeps applications, settings and files. **Image deployment** copies one prepared installation to many machines. Before any upgrade: back up user data, and check hardware, driver and application compatibility.
+
+      ## Windows editions
+
+      | Feature | Home | Pro and above |
+      | Join a domain | No | Yes |
+      | BitLocker | No | Yes |
+      | Group Policy Editor (gpedit.msc) | No | Yes |
+      | Accept Remote Desktop connections | No | Yes |
+
+      Home supports 128 GB of RAM; Pro supports 2 TB. Windows 11 needs **UEFI with Secure Boot** and a **TPM 2.0** chip. An operating system past its **end-of-life** date gets no more security patches and should be replaced or isolated.
+    items:
+      - id: ap2-1a-ntfs
+        type: concept
+        term: "NTFS"
+        def: "The default Windows filesystem. It supports per-user file permissions, encryption, compression and very large files and volumes."
+      - id: ap2-1a-fat32
+        type: concept
+        term: "FAT32"
+        def: "An old filesystem that almost every device can read, but which cannot store a single file of 4 GB or larger."
+      - id: ap2-1a-exfat
+        type: concept
+        term: "exFAT"
+        def: "A Microsoft filesystem designed for flash drives and memory cards; it holds very large files and is read and written by both Windows and macOS."
+      - id: ap2-1a-apfs
+        type: concept
+        term: "APFS"
+        def: "Apple's current default filesystem for the internal storage of Macs, iPhones and iPads."
+      - id: ap2-1a-ext4
+        type: concept
+        term: "ext4"
+        def: "The journaling filesystem that most Linux distributions use by default for their system partition."
+      - id: ap2-1a-gpt
+        type: concept
+        term: "GPT"
+        def: "The modern partition style used with UEFI firmware. It supports disks larger than 2 TB and, in Windows, up to 128 partitions."
+      - id: ap2-1a-mbr
+        type: concept
+        term: "MBR"
+        def: "The legacy partition style used with BIOS firmware. It is limited to four primary partitions and to disks of 2 TB."
+      - id: ap2-1a-inplace
+        type: concept
+        term: "In-place upgrade"
+        def: "Installing a newer version of the operating system over the existing one so that applications, settings and user files are kept."
+      - id: ap2-1a-eol
+        type: concept
+        term: "End-of-life (EOL)"
+        def: "The date after which a vendor stops issuing security patches and support for a product, leaving new vulnerabilities permanently unfixed."
+
+      - id: ap2-1a-q01
+        type: mcq
+        q: "A video editor needs one USB flash drive to carry 12 GB project files between a Windows PC and a Mac, and both must be able to write to it. Which filesystem should the drive be formatted with?"
+        choices: ["FAT32", "NTFS", "exFAT", "ext4"]
+        answer: 2
+        why: "exFAT handles very large files and both Windows and macOS can read and write it. FAT32 is also cross-platform, but it cannot hold a single file of 4 GB or more; macOS can read NTFS but cannot write to it without extra software."
+      - id: ap2-1a-q02
+        type: mcq
+        q: "A technician adds a new 4 TB data disk to a Windows PC and initialises it. Disk Management will only let 2 TB be used; the rest shows as unusable. What is the most likely cause?"
+        choices:
+          - "The disk was initialised as MBR"
+          - "The disk was formatted with exFAT"
+          - "The PC is running a 64-bit edition of Windows"
+          - "The disk was initialised as GPT"
+        answer: 0
+        why: "MBR cannot address more than 2 TB on a standard disk, so the space beyond that is unusable. Converting the empty disk to GPT removes the limit; GPT is the fix, not the cause."
+      - id: ap2-1a-q03
+        type: mcq
+        q: "A small firm buys laptops with Windows 11 Home and then sets up an Active Directory domain. The laptops offer no option to join it. What is the correct fix?"
+        choices:
+          - "Enable the TPM in the UEFI setup"
+          - "Convert the system disk from MBR to GPT"
+          - "Install the N version of Windows 11 Home"
+          - "Upgrade the laptops to Windows 11 Pro"
+        answer: 3
+        why: "Home editions cannot join a domain; Pro and above can. The N versions only remove media features, and TPM or partition style has nothing to do with domain membership."
+      - id: ap2-1a-q04
+        type: mcq
+        q: "A 2016 desktop with 16 GB of RAM, a 500 GB SSD and a 64-bit quad-core CPU runs Windows 10 well, but the Windows 11 upgrade check fails. It boots in legacy BIOS mode. Which requirement is it MOST likely missing?"
+        choices:
+          - "At least 32 GB of RAM"
+          - "UEFI with Secure Boot and TPM 2.0"
+          - "A dedicated graphics card"
+          - "An NTFS-formatted data drive"
+        answer: 1
+        why: "Windows 11 requires UEFI firmware capable of Secure Boot and a TPM 2.0. The machine's RAM (minimum 4 GB), storage (minimum 64 GB) and CPU type already qualify, and no dedicated graphics card is required."
+      - id: ap2-1a-q05
+        type: mcq
+        q: "A school must put the same Windows build, drivers and applications on 200 identical new PCs before term starts. Which installation method is the MOST efficient?"
+        choices:
+          - "A clean install from USB on each PC"
+          - "An in-place upgrade on each PC"
+          - "Image deployment over the network"
+          - "A repair installation on each PC"
+        answer: 2
+        why: "One prepared image pushed over the network installs the OS, drivers and applications identically on every machine. A clean install from USB works, but each PC would then need its applications and settings added by hand."
+      - id: ap2-1a-m01
+        type: multi
+        q: "A user is choosing between Windows 11 Home and Pro. Which TWO features are available in Pro but NOT in Home?"
+        choices:
+          - "BitLocker drive encryption"
+          - "Windows Defender Firewall"
+          - "Group Policy Editor (gpedit.msc)"
+          - "Task Manager"
+          - "Microsoft Store"
+        answers: [0, 2]
+        why: "BitLocker and the local Group Policy Editor are reserved for Pro and above. The firewall, Task Manager and the Store are present in every edition."
+
+  # ───────────────────── 1b · Windows tools and settings ─────────────────────
+  - id: ap2-1b
+    title: "Windows tools and settings"
+    domain: "1"
+    goal: "I can pick the Windows tool that answers a given support question and know the file name that launches it."
+    notes: |
+      Most Core 2 tool questions are really "which tool would you open?" Learn what each one is *for*, and the name you type in the Run box.
+
+      | Tool | Run name | Use it to |
+      | Task Manager | taskmgr | End a frozen app, see live CPU/RAM/disk use, disable startup apps |
+      | Event Viewer | eventvwr.msc | Read the System, Application and Security logs |
+      | Device Manager | devmgmt.msc | Update, roll back, disable or remove a driver |
+      | Disk Management | diskmgmt.msc | Initialise, partition, format, extend or shrink volumes |
+      | Task Scheduler | taskschd.msc | Run a program at a time or on a trigger |
+      | Performance Monitor | perfmon.msc | Record counters over time |
+      | Resource Monitor | resmon.exe | See which process is using a file, port or disk right now |
+      | System Configuration | msconfig.exe | Choose a diagnostic or safe boot for the next restart |
+      | System Information | msinfo32.exe | Read a full hardware and software inventory |
+      | Registry Editor | regedit.exe | Edit the configuration database directly (back it up first) |
+
+      The **.msc** tools are snap-ins for the Microsoft Management Console (MMC).
+
+      ## Settings worth knowing
+
+      - **File Explorer Options**: show hidden files, and show or hide file extensions.
+      - **Power Options**: *sleep* keeps the session in RAM on low power; *hibernate* writes it to disk and powers off; you can also choose what closing the lid does and turn fast startup on or off.
+      - **Programs and Features** uninstalls or repairs desktop applications.
+      - **Network and Sharing Center** and **Windows Defender Firewall** hold the classic network settings.
+    items:
+      - id: ap2-1b-taskmgr
+        type: concept
+        term: "Task Manager"
+        def: "The Windows utility with Processes, Performance, Startup, Users and Services tabs, used to end an unresponsive program or see live resource use."
+      - id: ap2-1b-eventvwr
+        type: concept
+        term: "Event Viewer"
+        def: "The Windows snap-in (eventvwr.msc) that displays the System, Application and Security logs of errors, warnings and audit records."
+      - id: ap2-1b-devmgmt
+        type: concept
+        term: "Device Manager"
+        def: "The Windows snap-in (devmgmt.msc) that lists installed hardware and lets you update, roll back, disable or uninstall a driver."
+      - id: ap2-1b-diskmgmt
+        type: concept
+        term: "Disk Management"
+        def: "The Windows snap-in (diskmgmt.msc) used to initialise drives and to create, format, extend, shrink and assign letters to volumes."
+      - id: ap2-1b-taskschd
+        type: concept
+        term: "Task Scheduler"
+        def: "The Windows snap-in (taskschd.msc) that starts a program or script automatically at a set time or when a trigger such as logon occurs."
+      - id: ap2-1b-perfmon
+        type: concept
+        term: "Performance Monitor"
+        def: "The Windows snap-in (perfmon.msc) that graphs chosen counters and can record them to a log over hours or days for later analysis."
+      - id: ap2-1b-resmon
+        type: concept
+        term: "Resource Monitor"
+        def: "The Windows tool (resmon.exe) that shows, in real time and per process, which files, network connections and disk activity each program is responsible for."
+      - id: ap2-1b-msconfig
+        type: concept
+        term: "System Configuration"
+        def: "The Windows tool (msconfig.exe) used to select a normal, diagnostic or selective startup and to set safe-boot options for the next restart."
+      - id: ap2-1b-regedit
+        type: concept
+        term: "Registry Editor"
+        def: "The Windows tool (regedit.exe) for directly viewing and changing the hierarchical database of keys and values that stores system and application configuration."
+
+      - id: ap2-1b-q01
+        type: mcq
+        q: "A spreadsheet program stops responding and its window cannot be closed. The rest of the desktop still works. Which tool lets the user end just that program?"
+        choices: ["Task Manager", "Event Viewer", "System Configuration", "Disk Management"]
+        answer: 0
+        why: "Task Manager's Processes tab lists running applications and offers End task. Event Viewer would only show a record of the hang afterwards; it cannot stop a program."
+      - id: ap2-1b-q02
+        type: mcq
+        q: "Straight after a graphics driver update, a PC shows a low-resolution display and the adapter has a warning icon. Where does the technician go to return to the previous driver?"
+        choices:
+          - "Programs and Features"
+          - "Task Scheduler"
+          - "Device Manager"
+          - "Performance Monitor"
+        answer: 2
+        why: "The adapter's Driver tab in Device Manager has a Roll Back Driver button that restores the previously installed driver. Programs and Features removes applications, not individual device drivers."
+      - id: ap2-1b-q03
+        type: mcq
+        q: "A backup service did not start when a server-class workstation booted last night. The technician wants the recorded error and its time. Which tool and log should be checked FIRST?"
+        choices:
+          - "Resource Monitor, Disk tab"
+          - "Event Viewer, System log"
+          - "Task Manager, Startup tab"
+          - "Event Viewer, Security log"
+        answer: 1
+        why: "Service start failures are written to the System log by the Service Control Manager. The Security log holds audit events such as logons, not service errors."
+      - id: ap2-1b-q04
+        type: mcq
+        q: "Users say a PC is slow 'at some point most afternoons'. The technician wants processor and memory counters recorded every minute for a week and reviewed later. Which tool is designed for this?"
+        choices:
+          - "Task Manager"
+          - "Resource Monitor"
+          - "System Information"
+          - "Performance Monitor"
+        answer: 3
+        why: "Performance Monitor can log chosen counters to a file over days using a data collector set. Task Manager and Resource Monitor show what is happening now and keep no long-term record."
+      - id: ap2-1b-q05
+        type: mcq
+        q: "A Windows 11 laptop takes several minutes to become usable after sign-in because many programs launch themselves. Where can the user stop those programs from starting automatically?"
+        choices:
+          - "Task Manager, Startup apps tab"
+          - "Disk Management"
+          - "Event Viewer, Application log"
+          - "Device Manager"
+        answer: 0
+        why: "The Startup tab in Task Manager lists programs that launch at sign-in, with their impact, and lets each be disabled. In current Windows the Startup tab of System Configuration simply points you to Task Manager."
+      - id: ap2-1b-q06
+        type: mcq
+        q: "A user receives an attachment that appears as 'invoice.pdf' but is really 'invoice.pdf.exe'. Which Windows setting should be changed so that the true file type is always visible?"
+        choices:
+          - "Indexing Options: rebuild the index"
+          - "Power Options: turn off fast startup"
+          - "File Explorer Options: stop hiding extensions for known file types"
+          - "File Explorer Options: show hidden files"
+        answer: 2
+        why: "With 'Hide extensions for known file types' cleared, the final .exe is displayed. Showing hidden files reveals files with the hidden attribute; it does not reveal extensions."
+
+  # ─────────────── 1c · Command line and Windows networking ───────────────
+  - id: ap2-1c
+    title: "The Windows command line and client networking"
+    domain: "1"
+    goal: "I can choose the Windows command that fits a task and configure a client's IP settings, network profile and shared resources."
+    notes: |
+      Every command explains itself: type the command followed by `/?`.
+
+      | Command | What it does |
+      | ipconfig /all | Show full IP settings; /release, /renew and /flushdns fix lease and name-cache problems |
+      | ping | Test whether a host answers |
+      | tracert | List the routers on the way to a host |
+      | pathping | Tracert plus loss statistics per hop |
+      | nslookup | Ask a DNS server for a record |
+      | netstat | List open connections and listening ports |
+      | net use | Map or remove a network drive |
+      | net user | List or manage local accounts |
+      | chkdsk /f | Check a volume and fix filesystem errors |
+      | sfc /scannow | Verify and repair protected system files |
+      | gpupdate /force | Re-apply Group Policy now |
+      | gpresult /r | Show which policies were applied |
+      | robocopy | Copy whole folder trees reliably |
+      | diskpart | Partition disks from the command line |
+
+      Smaller ones: `cd`, `dir`, `md`, `rmdir`, `format`, `hostname`, `whoami`, `winver`.
+
+      ## Client networking
+
+      A client needs four things: an **IP address**, a **subnet mask**, a **default gateway** (to leave the subnet) and a **DNS server** (to resolve names). They are set by hand (*static*) or leased by DHCP (*dynamic*).
+
+      A **workgroup** is a peer network where every PC keeps its own accounts; a **domain** authenticates everyone centrally. Shared folders are reached by UNC path, such as `\\server\share`, or as a mapped drive letter.
+
+      The **Public** network profile hides the PC and tightens the firewall; **Private** allows discovery and sharing. A **metered connection** tells Windows to hold back large downloads.
+    items:
+      - id: ap2-1c-ipconfig
+        type: concept
+        term: "ipconfig"
+        def: "The Windows command that displays the computer's IP address, mask, gateway and DNS servers, and can release or renew a DHCP lease or flush the DNS cache."
+      - id: ap2-1c-tracert
+        type: concept
+        term: "tracert"
+        def: "The Windows command that lists each router hop on the route to a destination, showing where along the path replies stop."
+      - id: ap2-1c-nslookup
+        type: concept
+        term: "nslookup"
+        def: "The Windows command that queries a DNS server directly to show which address a host name resolves to."
+      - id: ap2-1c-netstat
+        type: concept
+        term: "netstat"
+        def: "The Windows command that lists the computer's active network connections and the ports on which it is listening."
+      - id: ap2-1c-chkdsk
+        type: concept
+        term: "chkdsk"
+        def: "The Windows command that examines a volume for filesystem errors and bad sectors and, with the /f and /r switches, repairs what it finds."
+      - id: ap2-1c-sfc
+        type: concept
+        term: "sfc"
+        def: "The Windows command that verifies protected operating system files and replaces any that are corrupted with a known-good copy."
+      - id: ap2-1c-gpupdate
+        type: concept
+        term: "gpupdate"
+        def: "The Windows command that makes a computer re-read and apply its Group Policy settings immediately instead of waiting for the next refresh."
+      - id: ap2-1c-robocopy
+        type: concept
+        term: "robocopy"
+        def: "The Windows command built for copying whole directory trees; it can mirror a folder, keep permissions and resume after an interruption."
+      - id: ap2-1c-netuse
+        type: concept
+        term: "net use"
+        def: "The Windows command that connects a drive letter to a shared folder on another computer, or disconnects it."
+
+      - id: ap2-1c-q01
+        type: mcq
+        q: "An intranet server was moved to a new IP address and its DNS record was updated an hour ago. One PC still reaches the old address by name; other PCs are fine. Which command should be run on that PC?"
+        choices: ["ipconfig /release", "ipconfig /flushdns", "netstat -a", "chkdsk /f"]
+        answer: 1
+        why: "The PC is using a stale entry from its local resolver cache; ipconfig /flushdns clears it so the name is looked up again. /release gives up the DHCP lease, which is unrelated to cached name lookups."
+      - id: ap2-1c-q02
+        type: mcq
+        q: "After an unexpected power loss, several built-in Windows tools fail to open with 'file is missing or corrupt' messages. The disk itself tests healthy. Which command should the technician run FIRST?"
+        choices: ["gpupdate /force", "format c:", "diskpart", "sfc /scannow"]
+        answer: 3
+        why: "System File Checker compares protected Windows files against known-good copies and replaces damaged ones. Formatting would destroy the installation, and gpupdate only refreshes policy."
+      - id: ap2-1c-q03
+        type: mcq
+        q: "An administrator changes a domain policy that sets the screen-lock timeout. A user at a test PC needs the new setting applied now, without waiting for the background refresh. Which command does this?"
+        choices: ["gpupdate /force", "gpresult /r", "net user", "whoami"]
+        answer: 0
+        why: "gpupdate /force re-applies all policy settings immediately. gpresult /r only reports which policies have been applied; it is how you would verify the result afterwards."
+      - id: ap2-1c-q04
+        type: mcq
+        q: "A PC is given a static configuration. It can ping other PCs on its own subnet, but it cannot ping any address on the internet, even by IP. Which setting is MOST likely wrong?"
+        choices: ["DNS server", "Host name", "Default gateway", "Proxy server"]
+        answer: 2
+        why: "Traffic leaving the local subnet is sent to the default gateway, so a wrong gateway breaks everything beyond the subnet. A wrong DNS server would break names only; pinging by IP address would still work."
+      - id: ap2-1c-q05
+        type: mcq
+        q: "A consultant connects a Windows laptop to the Wi-Fi in an airport lounge. Which network profile should be selected, and why?"
+        choices:
+          - "Private, so that file and printer sharing is switched on"
+          - "Private, so that the firewall is switched off"
+          - "Public, so that the connection is treated as metered"
+          - "Public, so that the laptop is not discoverable by other devices"
+        answer: 3
+        why: "The Public profile turns off network discovery and applies the stricter firewall rules, which is what you want on an untrusted network. Private is for networks you trust, such as home or the office; neither profile turns the firewall off."
+      - id: ap2-1c-q06
+        type: mcq
+        q: "A ten-person office keeps separate user accounts on each PC and staff complain about remembering different passwords on different machines. Which change gives central sign-in and central control of shared folders?"
+        choices:
+          - "Put every PC in the same workgroup"
+          - "Join the PCs to a domain"
+          - "Set every network connection to Private"
+          - "Map the same drive letter on every PC"
+        answer: 1
+        why: "A domain stores accounts on a domain controller, so one account works on every joined PC and permissions are managed centrally. A workgroup is what they already have in effect: each PC still holds its own accounts."
+
+  # ───────────────────────── 1d · macOS and Linux ─────────────────────────
+  - id: ap2-1d
+    title: "macOS and Linux essentials"
+    domain: "1"
+    goal: "I can name the main macOS tools and features and use the basic Linux commands for files, permissions, packages and system information."
+    notes: |
+      ## macOS
+
+      Applications arrive as a **.dmg** (a disk image you mount, then drag the **.app** to /Applications), as a **.pkg** installer, or from the **App Store**. To uninstall, drag the app to the Trash.
+
+      | Feature | What it is |
+      | Time Machine | Built-in versioned backup to an external or network disk |
+      | FileVault | Full-disk encryption |
+      | Keychain | Stores passwords and certificates |
+      | Spotlight | System-wide search |
+      | Mission Control | Overview of all windows and desktops |
+      | Disk Utility | Partition, erase and repair disks |
+      | Force Quit | Close a frozen app (Option + Command + Esc) |
+      | Terminal | The command line |
+
+      Finder is the file manager and the Dock is the launcher. iCloud ties Apple devices together under one Apple ID.
+
+      ## Linux
+
+      | Job | Commands |
+      | Files | ls, pwd, cp, mv, rm, cat, find, grep |
+      | Permissions | chmod (mode), chown (owner) |
+      | Admin rights | sudo (one command), su (switch user) |
+      | Packages | apt (Debian, Ubuntu), dnf (Fedora, Red Hat) |
+      | Processes | ps (snapshot), top (live) |
+      | Disk | df (free space per filesystem), du (size of folders), fsck, mount |
+      | Network | ip, ping, traceroute, dig, curl |
+      | Help | man |
+
+      Permissions are read (4), write (2) and execute (1), given for owner, group and others: `chmod 754` means rwx, r-x, r--.
+
+      Key files: `/etc/passwd` (accounts), `/etc/shadow` (password hashes), `/etc/fstab` (filesystems mounted at boot), `/etc/hosts` and `/etc/resolv.conf` (name resolution). The all-powerful account is **root**.
+    items:
+      - id: ap2-1d-timemachine
+        type: concept
+        term: "Time Machine"
+        def: "The backup feature built into macOS that keeps hourly, daily and weekly versions of files on an external or network disk."
+      - id: ap2-1d-filevault
+        type: concept
+        term: "FileVault"
+        def: "The macOS feature that encrypts the entire startup disk so its contents cannot be read without the user's login password or a recovery key."
+      - id: ap2-1d-keychain
+        type: concept
+        term: "Keychain"
+        def: "The macOS store that securely saves a user's passwords, Wi-Fi keys and certificates and fills them in when needed."
+      - id: ap2-1d-diskutility
+        type: concept
+        term: "Disk Utility"
+        def: "The macOS application used to partition, erase and format drives and to check and repair them with First Aid."
+      - id: ap2-1d-chmod
+        type: concept
+        term: "chmod"
+        def: "The Linux command that changes the read, write and execute permission bits on a file or directory."
+      - id: ap2-1d-sudo
+        type: concept
+        term: "sudo"
+        def: "The Linux command placed in front of another command to run that one command with root privileges, after the user confirms their own password."
+      - id: ap2-1d-grep
+        type: concept
+        term: "grep"
+        def: "The Linux command that searches text or files for lines matching a pattern and prints those lines."
+      - id: ap2-1d-apt
+        type: concept
+        term: "apt"
+        def: "The package manager used to install, update and remove software on Debian-based Linux distributions such as Ubuntu."
+      - id: ap2-1d-shadow
+        type: concept
+        term: "/etc/shadow"
+        def: "The Linux file, readable only by root, that holds the hashed passwords and password-ageing settings for user accounts."
+
+      - id: ap2-1d-q01
+        type: mcq
+        q: "On a Mac, a drawing application shows the spinning wait cursor and ignores all input. Other applications still respond. What should the user do?"
+        choices:
+          - "Open Disk Utility and run First Aid"
+          - "Turn on FileVault"
+          - "Open Mission Control"
+          - "Use Force Quit (Option + Command + Esc)"
+        answer: 3
+        why: "Force Quit ends a single unresponsive application without restarting the Mac. Mission Control only shows the open windows; it does not close a frozen program."
+      - id: ap2-1d-q02
+        type: mcq
+        q: "A Mac user downloads a utility as a file ending in .dmg and double-clicks it. What happens?"
+        choices:
+          - "It mounts as a virtual disk, from which the application is normally dragged to the Applications folder"
+          - "It runs a step-by-step installer script that requires an administrator password"
+          - "It opens the App Store page for the utility"
+          - "It restores the Mac from a backup"
+        answer: 0
+        why: "A .dmg is a disk image: macOS mounts it like a drive, and the .app inside is usually dragged to /Applications. The step-by-step installer describes a .pkg file."
+      - id: ap2-1d-q03
+        type: mcq
+        q: "A Linux administrator runs 'chmod 754 report.sh'. What can a user who is in the file's group, but is not its owner, do with the file?"
+        choices:
+          - "Read, write and execute it"
+          - "Read it only"
+          - "Read and execute it, but not modify it"
+          - "Nothing at all"
+        answer: 2
+        why: "The digits apply to owner, group and others in that order. The group digit is 5 = 4 (read) + 1 (execute), so no write. 7 (read, write, execute) is the owner; 4 (read only) is everyone else."
+      - id: ap2-1d-q04
+        type: mcq
+        q: "A Linux workstation reports that a save failed because no space is left. Which command shows how full each mounted filesystem is?"
+        choices: ["ps", "df -h", "pwd", "chown"]
+        answer: 1
+        why: "df reports used and free space for every mounted filesystem (-h prints it in readable units). ps lists processes and pwd prints the current directory. The related du command sizes individual folders, which is the next step once you know which filesystem is full."
+      - id: ap2-1d-q05
+        type: mcq
+        q: "A technician must install a text-editor package on a Fedora workstation from the distribution's repositories. Which command is appropriate?"
+        choices:
+          - "sudo apt install nano"
+          - "sudo mount nano"
+          - "sudo chown nano"
+          - "sudo dnf install nano"
+        answer: 3
+        why: "Fedora and other Red Hat-family distributions use dnf as the package manager. apt does the same job on Debian-family systems such as Ubuntu, so it is the wrong tool here."
+      - id: ap2-1d-q06
+        type: mcq
+        q: "A Linux desktop has become sluggish. Which command gives a continuously updating list of processes, sorted by how much CPU each is using?"
+        choices: ["top", "ps", "cat", "man"]
+        answer: 0
+        why: "top refreshes every few seconds and sorts by CPU use by default. ps prints a single snapshot of processes and then exits, so it does not show activity as it changes."
+
+  # ───────────────── 2a · Security measures and authentication ─────────────────
+  - id: ap2-2a
+    title: "Security measures, authentication and wireless security"
+    domain: "2"
+    goal: "I can match a physical or logical control to the risk it addresses, recognise real multifactor authentication, and compare wireless security and authentication protocols."
+    notes: |
+      ## Physical controls
+
+      **Bollards** stop vehicles. An **access control vestibule** (two interlocked doors) stops tailgating. **Badge readers**, **key fobs**, **smart cards** and **biometrics** (fingerprint, palm, retina, face, voice) decide who gets in; **cameras**, **motion sensors**, **alarms**, **lighting** and **guards** deter and detect. **Equipment locks** keep laptops and servers where they are.
+
+      ## Logical controls
+
+      - **Least privilege**: give each account only what its job needs.
+      - **Zero Trust**: never trust a request because of where it comes from; verify every time.
+      - **ACLs** list who may do what to a resource.
+      - **MDM** enforces settings on phones and tablets; **DLP** stops sensitive data leaving.
+      - **SSO** signs you in once for many services; **SAML** is a standard that carries the sign-in between an identity provider and a service.
+      - **PAM** with **just-in-time access** grants administrator rights only when needed and only briefly.
+
+      ## Multifactor authentication
+
+      MFA needs factors from **different** categories:
+
+      | Factor | Examples |
+      | Something you know | Password, PIN |
+      | Something you have | Hardware token, smart card, phone with authenticator app |
+      | Something you are | Fingerprint, face, retina |
+
+      A password plus a PIN is still one factor. Authenticator apps produce a **TOTP**, a code valid for about 30 seconds.
+
+      ## Wireless and authentication servers
+
+      | Standard | Encryption | Notes |
+      | WPA2 | AES (CCMP) | TKIP is the legacy option; avoid it |
+      | WPA3 | AES (GCMP) | Replaces the pre-shared key handshake with SAE |
+
+      **RADIUS** centralises network logins (Wi-Fi, VPN). **TACACS+** does the same for administering network devices, over TCP, with the whole exchange encrypted. **Kerberos** issues time-stamped tickets in a Windows domain.
+    items:
+      - id: ap2-2a-vestibule
+        type: concept
+        term: "Access control vestibule"
+        def: "A small room with two interlocked doors where only one can open at a time, so a person must be verified before the inner door releases."
+      - id: ap2-2a-leastpriv
+        type: concept
+        term: "Principle of least privilege"
+        def: "Giving each user or process only the permissions required to do its job and nothing more."
+      - id: ap2-2a-zerotrust
+        type: concept
+        term: "Zero Trust"
+        def: "A security model in which no user or device is trusted because of its network location; every request is authenticated and authorised each time."
+      - id: ap2-2a-mfa
+        type: concept
+        term: "Multifactor authentication (MFA)"
+        def: "Proving identity with two or more different kinds of evidence, such as something you know together with something you have."
+      - id: ap2-2a-totp
+        type: concept
+        term: "TOTP"
+        def: "A numeric code generated from a shared secret and the current time, typically by an authenticator app, that stays valid for only about 30 seconds."
+      - id: ap2-2a-sso
+        type: concept
+        term: "Single sign-on (SSO)"
+        def: "An arrangement in which a user authenticates once and is then given access to many separate applications without logging in again."
+      - id: ap2-2a-dlp
+        type: concept
+        term: "Data loss prevention (DLP)"
+        def: "Software that inspects data in use, in motion or at rest and blocks sensitive information from being sent or copied outside the organisation."
+      - id: ap2-2a-radius
+        type: concept
+        term: "RADIUS"
+        def: "A protocol that lets access points, switches and VPN gateways pass each user's login to one central server for authentication, authorisation and accounting."
+      - id: ap2-2a-kerberos
+        type: concept
+        term: "Kerberos"
+        def: "The ticket-based authentication protocol used by Active Directory domains; it depends on the clocks of clients and servers being closely synchronised."
+
+      - id: ap2-2a-q01
+        type: mcq
+        q: "A company wants multifactor authentication for remote access. Which combination meets that requirement?"
+        choices:
+          - "A password and a PIN"
+          - "A fingerprint and a face scan"
+          - "A password and a code from a hardware token"
+          - "A security question and a password"
+        answer: 2
+        why: "A password is something you know and a hardware token is something you have: two different factor types. Password plus PIN (both knowledge) and fingerprint plus face (both biometric) are each two examples of one factor."
+      - id: ap2-2a-q02
+        type: mcq
+        q: "A data-centre door has a badge reader, but staff routinely hold the door for the person behind them. Which control is designed specifically to stop this?"
+        choices:
+          - "An access control vestibule"
+          - "Bollards at the entrance"
+          - "Brighter exterior lighting"
+          - "A magnetometer"
+        answer: 0
+        why: "A vestibule admits one verified person at a time through interlocked doors, which defeats tailgating. Bollards block vehicles, and a magnetometer detects metal objects; neither controls who follows whom through a door."
+      - id: ap2-2a-q03
+        type: mcq
+        q: "A home user replaces a router and sees WPA3-Personal offered. What is the main security improvement over WPA2-Personal?"
+        choices:
+          - "It replaces AES with TKIP"
+          - "It uses SAE in place of the pre-shared key handshake, resisting offline password guessing"
+          - "It hides the SSID automatically"
+          - "It requires a RADIUS server for every client"
+        answer: 1
+        why: "WPA3-Personal uses Simultaneous Authentication of Equals, so a captured handshake cannot be attacked offline with a dictionary as the WPA2 four-way handshake can. TKIP is the older, weaker option, and a RADIUS server belongs to Enterprise mode."
+      - id: ap2-2a-q04
+        type: mcq
+        q: "A network team wants administrators' logins to routers and switches checked centrally, with each command authorised separately, the entire session exchange encrypted and TCP as the transport. Which protocol fits?"
+        choices: ["RADIUS", "Kerberos", "SAML", "TACACS+"]
+        answer: 3
+        why: "TACACS+ runs over TCP, encrypts the whole payload and separates authentication, authorisation and accounting, which allows per-command authorisation. RADIUS runs over UDP, encrypts only the password and combines authentication with authorisation."
+      - id: ap2-2a-q05
+        type: mcq
+        q: "An older access point offers 'WPA2 with TKIP' or 'WPA2 with AES'. All clients support both. Which should be chosen, and why?"
+        choices:
+          - "AES, because it is the stronger cipher and TKIP is deprecated"
+          - "TKIP, because it is newer than AES"
+          - "TKIP, because AES cannot be used with a pre-shared key"
+          - "AES, because it makes a password unnecessary"
+        answer: 0
+        why: "AES (in CCMP mode) is the strong cipher WPA2 was designed around. TKIP was a stopgap created to patch WEP-era hardware; it is deprecated and also limits connection speeds."
+      - id: ap2-2a-m01
+        type: multi
+        q: "Which TWO of these are examples of the 'something you have' authentication factor?"
+        choices:
+          - "A fingerprint"
+          - "A smart card"
+          - "A PIN"
+          - "A hardware token"
+          - "A retina scan"
+        answers: [1, 3]
+        why: "A smart card and a hardware token are physical objects the user possesses. A fingerprint and a retina scan are something you are; a PIN is something you know."
+
+  # ─────────────────── 2b · Malware and social engineering ───────────────────
+  - id: ap2-2b
+    title: "Malware, social engineering and malware removal"
+    domain: "2"
+    goal: "I can identify a type of malware or attack from its behaviour and carry out the malware-removal steps in the right order."
+    notes: |
+      ## Malware by behaviour
+
+      | Type | Giveaway |
+      | Virus | Attaches to files and needs a user to run it |
+      | Trojan | Pretends to be useful software |
+      | Rootkit | Hides deep in the OS and conceals itself from tools |
+      | Ransomware | Encrypts files and demands payment |
+      | Spyware / keylogger | Watches the user / records keystrokes |
+      | Cryptominer | Steals CPU and GPU time to mine currency |
+      | Fileless | Lives in memory and abuses built-in tools |
+      | Boot sector virus | Loads before the operating system |
+
+      Defences include antivirus and anti-malware, **EDR** (watches endpoint behaviour and can respond), email security gateways, software firewalls and, above all, user education.
+
+      ## Social engineering
+
+      **Phishing** arrives by email; **vishing** by voice; **smishing** by text; **spear phishing** targets a named person; **whaling** targets executives. Physical tricks include **tailgating**, **shoulder surfing**, **impersonation** and **dumpster diving**.
+
+      Other threats to recognise: **evil twin** (a fake access point), **on-path** attacks, **DoS/DDoS**, **brute-force** and **dictionary** password attacks, **SQL injection**, **cross-site scripting**, **zero-day** attacks, and **business email compromise**.
+
+      ## Removing malware
+
+      The exam expects this sequence:
+
+      - Investigate and verify the symptoms.
+      - Quarantine the infected system.
+      - Disable System Restore.
+      - Remediate: update the anti-malware software, then scan and remove (safe mode or a preinstallation environment helps); reimage if that fails.
+      - Schedule scans and run updates.
+      - Enable System Restore and create a restore point.
+      - Educate the end user.
+
+      System Restore is switched off during cleaning because restore points can hold copies of the malware.
+    items:
+      - id: ap2-2b-trojan
+        type: concept
+        term: "Trojan"
+        def: "Malware disguised as a legitimate or desirable program, which the victim installs willingly; it does not replicate by itself."
+      - id: ap2-2b-rootkit
+        type: concept
+        term: "Rootkit"
+        def: "Malware that gains privileged, low-level control of a system and hides its own files and processes from the operating system and security tools."
+      - id: ap2-2b-ransomware
+        type: concept
+        term: "Ransomware"
+        def: "Malware that encrypts the victim's files and demands payment in exchange for the decryption key."
+      - id: ap2-2b-keylogger
+        type: concept
+        term: "Keylogger"
+        def: "Software or a small hardware device that records everything typed on a keyboard, capturing passwords and messages."
+      - id: ap2-2b-fileless
+        type: concept
+        term: "Fileless malware"
+        def: "Malicious code that runs in memory and abuses legitimate built-in tools such as PowerShell, leaving little or nothing on disk for a scanner to find."
+      - id: ap2-2b-spear
+        type: concept
+        term: "Spear phishing"
+        def: "A fraudulent message crafted for one specific person or small group, using details about them to appear genuine."
+      - id: ap2-2b-whaling
+        type: concept
+        term: "Whaling"
+        def: "A fraudulent message aimed specifically at a senior executive or other high-value individual."
+      - id: ap2-2b-eviltwin
+        type: concept
+        term: "Evil twin"
+        def: "A rogue wireless access point that broadcasts the same network name as a legitimate one so that victims connect to it instead."
+      - id: ap2-2b-zeroday
+        type: concept
+        term: "Zero-day attack"
+        def: "An attack that exploits a vulnerability the vendor does not yet know about or has not yet patched."
+
+      - id: ap2-2b-q01
+        type: mcq
+        q: "A user receives a text message saying a parcel could not be delivered, with a link to 'reschedule' that asks for card details. Which attack is this?"
+        choices: ["Vishing", "Smishing", "Whaling", "Tailgating"]
+        answer: 1
+        why: "Phishing delivered by SMS text message is smishing. Vishing is the same trick carried out by voice call."
+      - id: ap2-2b-o01
+        type: order
+        q: "Put these steps of the malware-removal procedure in the correct order."
+        steps:
+          - "Investigate and verify the malware symptoms"
+          - "Quarantine the infected system"
+          - "Disable System Restore"
+          - "Update the anti-malware software, then scan and remove"
+          - "Enable System Restore and create a restore point"
+          - "Educate the end user"
+        why: "Confirm it is malware, then isolate it before it spreads. System Restore is disabled before cleaning so infected restore points are discarded, and re-enabled only once the system is clean. User education comes last."
+      - id: ap2-2b-q02
+        type: mcq
+        q: "During malware removal on a Windows PC, why is System Restore disabled before the system is cleaned?"
+        choices:
+          - "It speeds up the anti-malware scan"
+          - "It stops the malware from reaching the network"
+          - "It prevents Windows Update from running"
+          - "Existing restore points may contain the malware and could reinfect the system"
+        answer: 3
+        why: "Restore points snapshot system files, so they can include infected files; turning the feature off deletes them. Stopping network spread is the purpose of the quarantine step, not this one."
+      - id: ap2-2b-q03
+        type: mcq
+        q: "An accounts clerk gets an email that appears to come from the managing director, sent from a look-alike domain, asking for a supplier's bank details to be changed before today's payment run. There is no link or attachment. Which threat is this?"
+        choices:
+          - "Business email compromise"
+          - "Cross-site scripting"
+          - "A denial-of-service attack"
+          - "A zero-day attack"
+        answer: 0
+        why: "Business email compromise impersonates a trusted sender to trick staff into moving money or data, often with no malware at all. Cross-site scripting injects script into a web page; it is not an email fraud."
+      - id: ap2-2b-q04
+        type: mcq
+        q: "A web application's log shows this value submitted in the user name field of a login form: ' OR '1'='1' --. Which attack is being attempted?"
+        choices:
+          - "Cross-site scripting"
+          - "A dictionary attack"
+          - "SQL injection"
+          - "An on-path attack"
+        answer: 2
+        why: "The input tries to change the database query so its condition is always true, which is SQL injection. Cross-site scripting would submit script (for example a <script> tag) intended to run in another user's browser."
+      - id: ap2-2b-q05
+        type: mcq
+        q: "A user in a shared office reports that files on their PC are being renamed and a payment demand has appeared. The PC is on the wired LAN with mapped drives. What should the technician do FIRST?"
+        choices:
+          - "Run a full anti-malware scan"
+          - "Disconnect the PC from the network"
+          - "Restore the files from last night's backup"
+          - "Create a restore point"
+        answer: 1
+        why: "The symptoms are already verified, so the next step is quarantine: isolating the PC stops the ransomware reaching mapped drives and other machines. Scanning and restoring come later; a restore point made now would capture the infection."
+
+  # ─────────────── 2c · Windows security and workstation hardening ───────────────
+  - id: ap2-2c
+    title: "Windows security settings and workstation hardening"
+    domain: "2"
+    goal: "I can work out effective NTFS and share permissions, choose the right Windows encryption feature, and apply account and workstation hardening."
+    notes: |
+      ## Accounts
+
+      A **standard** account runs applications but cannot change the system; an **administrator** can. **User Account Control (UAC)** makes even administrators confirm before a program gets elevated rights. A **local** account exists on one PC; a **Microsoft** account syncs settings across devices. **Windows Hello** signs in with a PIN, fingerprint or face.
+
+      ## Permissions
+
+      | | NTFS permissions | Share permissions |
+      | Apply when | Local and network access | Network access only |
+      | Levels | Full control, Modify, Read & execute, Read, Write | Full control, Change, Read |
+
+      - Over the network both apply and the **more restrictive** result wins.
+      - Within each type a user's group permissions add up, but an explicit **Deny** beats Allow.
+      - Files **inherit** permissions from their folder. A file *moved* within the same NTFS volume keeps its permissions; a *copied* file inherits those of its destination.
+
+      ## Encryption
+
+      | Feature | Protects |
+      | BitLocker | A whole fixed volume; the key is normally held in the TPM |
+      | BitLocker To Go | Removable USB drives |
+      | EFS | Individual files and folders, tied to one user account |
+
+      ## Hardening checklist
+
+      - Long, unique passwords; a password manager; a BIOS/UEFI password.
+      - Lock the screen after a timeout; lock out accounts after repeated failed attempts.
+      - Disable the guest account; change the default administrator name and password.
+      - Restrict log-in hours and set expiry dates on temporary accounts.
+      - Disable AutoRun and unused services.
+
+      In a domain, **Active Directory** organises users and computers into **organizational units**, and **Group Policy** applies settings, log-in scripts, home folders and folder redirection to them.
+    items:
+      - id: ap2-2c-bitlocker
+        type: concept
+        term: "BitLocker"
+        def: "The Windows feature that encrypts an entire fixed volume, usually keeping the key in the computer's TPM, so that a stolen drive cannot be read."
+      - id: ap2-2c-togo
+        type: concept
+        term: "BitLocker To Go"
+        def: "The Windows feature that encrypts a removable USB flash drive or external disk and asks for a password when it is plugged into another computer."
+      - id: ap2-2c-efs
+        type: concept
+        term: "Encrypting File System (EFS)"
+        def: "The NTFS feature that encrypts individual files or folders with a key tied to one user account, leaving the rest of the volume unencrypted."
+      - id: ap2-2c-uac
+        type: concept
+        term: "User Account Control (UAC)"
+        def: "The Windows feature that prompts for consent or administrator credentials before a program is allowed to make system-level changes."
+      - id: ap2-2c-ntfsperm
+        type: concept
+        term: "NTFS permissions"
+        def: "Access rules stored on files and folders themselves, which apply whether the user reaches them across the network or while signed in at the computer."
+      - id: ap2-2c-shareperm
+        type: concept
+        term: "Share permissions"
+        def: "Access rules of Read, Change or Full control that are enforced only when a folder is reached across the network."
+      - id: ap2-2c-inherit
+        type: concept
+        term: "Permission inheritance"
+        def: "The behaviour by which a new file or subfolder automatically receives the access rules of the folder that contains it."
+      - id: ap2-2c-hello
+        type: concept
+        term: "Windows Hello"
+        def: "The Windows sign-in feature that replaces a password with a device-specific PIN, a fingerprint or facial recognition."
+      - id: ap2-2c-ou
+        type: concept
+        term: "Organizational unit (OU)"
+        def: "A container in Active Directory used to group users and computers so that Group Policy and delegated administration can be applied to them."
+
+      - id: ap2-2c-q01
+        type: mcq
+        q: "A folder is shared with the share permission Everyone: Full control. Its NTFS permissions give the Sales group Read only. A Sales user opens the folder across the network. What is that user's effective access?"
+        choices: ["Full control", "Change", "No access", "Read"]
+        answer: 3
+        why: "Over the network both sets of permissions apply and the more restrictive wins: Full control at the share, Read at NTFS, so Read. The open share permission does not override the tighter NTFS permission."
+      - id: ap2-2c-q02
+        type: mcq
+        q: "A sales manager's laptop holds customer records and is often carried on trains. Which Windows feature protects ALL the data on the internal drive if the laptop is stolen?"
+        choices: ["BitLocker", "EFS", "User Account Control", "Windows Defender Firewall"]
+        answer: 0
+        why: "BitLocker encrypts the whole volume, including the page file and temporary files. EFS encrypts only the files or folders the user chooses, so anything saved elsewhere on the drive is left readable."
+      - id: ap2-2c-q03
+        type: mcq
+        q: "The Security log of a PC shows hundreds of failed sign-in attempts against one account within a few minutes. Which setting BEST limits this kind of attack?"
+        choices:
+          - "A screensaver lock"
+          - "A password expiration period"
+          - "An account lockout threshold"
+          - "Restricted log-in hours"
+        answer: 2
+        why: "Locking the account after a small number of failed attempts stops rapid password guessing. Password expiry only limits how long a stolen password stays useful; it does nothing to slow guessing."
+      - id: ap2-2c-q04
+        type: mcq
+        q: "Several PCs were infected when staff plugged in USB sticks found in the car park; the malware started as soon as each stick was inserted. Which hardening step addresses this directly?"
+        choices:
+          - "Enable the guest account"
+          - "Disable AutoRun/AutoPlay"
+          - "Set a BIOS/UEFI password"
+          - "Turn on EFS"
+        answer: 1
+        why: "Disabling AutoRun/AutoPlay stops Windows launching content from removable media automatically. A firmware password protects setup and boot settings; it does not affect what happens when a drive is inserted in Windows."
+      - id: ap2-2c-q05
+        type: mcq
+        q: "A file with its own explicit permissions is MOVED from one folder to another on the same NTFS volume. What happens to those permissions?"
+        choices:
+          - "It keeps its original explicit permissions"
+          - "It loses all permissions"
+          - "It takes only the destination folder's permissions"
+          - "It is given Everyone: Full control"
+        answer: 0
+        why: "A move within one NTFS volume only changes the file's directory entry, so its explicit permissions stay with it. A copy creates a new file, and that new file inherits the destination folder's permissions."
+      - id: ap2-2c-m01
+        type: multi
+        q: "A technician is hardening a new Windows workstation before handing it to a user. Which TWO actions are recognised hardening steps?"
+        choices:
+          - "Enable AutoRun for removable media"
+          - "Disable the guest account"
+          - "Give the user a local administrator account for daily work"
+          - "Change the default administrator account's password"
+          - "Turn off the screen-lock timeout"
+        answers: [1, 3]
+        why: "Disabling the guest account and changing default administrator credentials both remove well-known ways in. The other three each weaken the workstation: AutoRun launches untrusted media, daily admin rights break least privilege, and no screen lock leaves sessions open."
+
+  # ───────────── 2d · Mobile, data destruction, SOHO and browsers ─────────────
+  - id: ap2-2d
+    title: "Mobile devices, data destruction, SOHO networks and browsers"
+    domain: "2"
+    goal: "I can secure a phone, dispose of storage safely, lock down a small-office router and configure a browser securely."
+    notes: |
+      ## Mobile devices
+
+      Harden with **device encryption**, a **screen lock** (PIN, pattern, fingerprint or face; a plain swipe gives no protection), OS and app updates, and a limit on **failed log-in attempts**. Lost devices are handled with a **locator application** and, if necessary, a **remote wipe**. Organisations enforce all this through **MDM**, with different rules for **BYOD** and corporate-owned devices.
+
+      ## Destroying data
+
+      | Method | Result |
+      | Standard format | Data is still recoverable |
+      | Erasing/wiping (overwriting) | Data gone, drive reusable |
+      | Degaussing | Magnetic media erased and unusable; no effect on SSDs |
+      | Shredding, drilling, incineration | Drive physically destroyed |
+
+      If a contractor does the work, obtain a **certificate of destruction**.
+
+      ## SOHO router
+
+      - Change the default administrator password first, then update the firmware.
+      - Use WPA2 or WPA3 with a strong passphrase; change the default SSID.
+      - Disabling SSID broadcast hides the name from casual users only; it is not real security.
+      - Put visitors on a **guest network**.
+      - Disable **UPnP** and unused ports; restrict remote management.
+      - **Port forwarding** publishes one internal service; a **screened subnet** isolates servers that must face the internet.
+      - Keep the router somewhere physically secure.
+
+      ## Browsers
+
+      Install browsers and extensions only from trusted sources, and check a download's **hash** against the publisher's value. Keep the browser patched. Useful settings: pop-up blocker, clearing cache and browsing data, **private-browsing mode**, password manager, **secure DNS**, and a check that a site's **certificate** is valid before trusting it.
+    items:
+      - id: ap2-2d-wipe
+        type: concept
+        term: "Remote wipe"
+        def: "A command sent over the network to a lost or stolen phone or laptop that erases its data and returns it to factory state."
+      - id: ap2-2d-degauss
+        type: concept
+        term: "Degaussing"
+        def: "Exposing a hard disk or tape to a powerful magnetic field so that the stored data is scrambled and the media can no longer be used."
+      - id: ap2-2d-stdformat
+        type: concept
+        term: "Standard formatting"
+        def: "Creating a new, empty filesystem on a drive without overwriting the old contents, which therefore remain recoverable with the right tools."
+      - id: ap2-2d-certdest
+        type: concept
+        term: "Certificate of destruction"
+        def: "A document from a third-party disposal vendor recording which media were destroyed, when and by what method, kept as proof for audits."
+      - id: ap2-2d-upnp
+        type: concept
+        term: "UPnP"
+        def: "A router feature that lets devices on the internal network open inbound ports for themselves automatically, with no administrator approval."
+      - id: ap2-2d-portfwd
+        type: concept
+        term: "Port forwarding"
+        def: "A router rule that sends traffic arriving on a chosen external port to one specific device and port on the internal network."
+      - id: ap2-2d-screened
+        type: concept
+        term: "Screened subnet"
+        def: "A separate network segment between the internet and the internal LAN where public-facing servers are placed, so that a compromise there does not expose internal hosts."
+      - id: ap2-2d-private
+        type: concept
+        term: "Private-browsing mode"
+        def: "A browser window that discards history, cookies and form data when closed, while doing nothing to hide activity from the network or the websites visited."
+      - id: ap2-2d-securedns
+        type: concept
+        term: "Secure DNS"
+        def: "A browser or operating system setting that encrypts name lookups, for example by sending them over HTTPS, so that others on the network cannot read or alter them."
+
+      - id: ap2-2d-q01
+        type: mcq
+        q: "A clinic is retiring laptops whose SSDs held patient records. Policy requires that the data can never be recovered and the drives will not be reused. Which method is appropriate?"
+        choices:
+          - "A standard format of each SSD"
+          - "Degaussing each SSD"
+          - "Deleting the files and emptying the Recycle Bin"
+          - "Physically shredding each SSD"
+        answer: 3
+        why: "Shredding destroys the flash chips themselves. Degaussing is the tempting choice, but SSDs store data as electrical charge, not magnetism, so a magnetic field does not erase them; formatting and deleting leave the data recoverable."
+      - id: ap2-2d-q02
+        type: mcq
+        q: "A technician unboxes a new wireless router for a small office. Which task should be done FIRST during setup?"
+        choices:
+          - "Change the default administrator password"
+          - "Configure port forwarding for the office printer"
+          - "Disable SSID broadcast"
+          - "Enable UPnP"
+        answer: 0
+        why: "Default credentials are published and are the first thing an attacker tries, so they are changed before anything else. Hiding the SSID is minor obscurity, and enabling UPnP would weaken the router."
+      - id: ap2-2d-q03
+        type: mcq
+        q: "A charity will donate twenty working PCs to a school. The hard drives must stay usable, but none of the charity's data may be recoverable. Which method is BEST?"
+        choices:
+          - "Degauss each drive"
+          - "Perform a standard format"
+          - "Wipe each drive with a tool that overwrites all sectors"
+          - "Drill through each drive"
+        answer: 2
+        why: "Overwriting every sector removes the data while leaving the drive reusable. A standard format leaves the data recoverable, and degaussing or drilling would make the drives useless to the school."
+      - id: ap2-2d-q04
+        type: mcq
+        q: "Before installing a browser downloaded from a mirror site, a technician compares the file's SHA-256 value with the one published on the vendor's website. What does a match confirm?"
+        choices:
+          - "The download was encrypted in transit"
+          - "The file is identical to the one the vendor published"
+          - "The mirror site has a valid certificate"
+          - "The browser has no known vulnerabilities"
+        answer: 1
+        why: "A matching hash shows the file has not been altered or corrupted since the vendor computed the value. Hashing proves integrity only; it says nothing about encryption in transit or about flaws in the software."
+      - id: ap2-2d-q05
+        type: mcq
+        q: "A café owner wants customers to have internet access without being able to reach the till system and office PCs that use the same router. Which router feature should be used?"
+        choices:
+          - "Port forwarding"
+          - "MAC address cloning"
+          - "Disabling SSID broadcast"
+          - "A guest network"
+        answer: 3
+        why: "A guest network gives visitors internet access while isolating them from the internal LAN. Port forwarding does the opposite of what is wanted: it opens an internal device to outside traffic."
+      - id: ap2-2d-q06
+        type: mcq
+        q: "A manager's company phone is stolen. It is encrypted, enrolled in MDM and holds confidential email. Which action BEST protects the data?"
+        choices:
+          - "Send a remote wipe from the MDM console"
+          - "Change the SSID of the office Wi-Fi"
+          - "Wait for the failed log-in limit to be reached"
+          - "Disable the phone's Bluetooth pairing"
+        answer: 0
+        why: "A remote wipe erases the device as soon as it next connects, removing the data whatever the thief does. Waiting for the failed-attempt limit depends on the thief guessing the PIN repeatedly, which may never happen."
+
+  # ───────────────────── 3a · Troubleshooting Windows ─────────────────────
+  - id: ap2-3a
+    title: "Troubleshooting Windows"
+    domain: "3"
+    goal: "I can read a Windows symptom, name its most likely cause and choose the least destructive fix that will work."
+    notes: |
+      Work from the least destructive fix to the most: **restart**, then **repair**, then **restore**, then **reimage**. Always ask "what changed?" first.
+
+      | Symptom | Likely causes | First moves |
+      | Blue screen (BSOD) | Bad driver, faulty RAM, corrupt system files | Note the stop code; roll back the last driver or update; test memory |
+      | No OS found | Wrong boot order, removable media left in, damaged boot files, failed drive | Remove USB media; check boot order; run Startup Repair |
+      | Degraded performance | Too many startup apps, low RAM, full or failing disk, malware | Task Manager; free disk space; scan |
+      | Frequent shutdowns | Overheating, failing power supply | Clean dust, check fans and vents |
+      | Low memory warnings | Too many apps, a memory leak, a small page file | Close apps; add RAM; let Windows manage virtual memory |
+      | Applications crashing | Corrupt install, missing update, incompatibility | Update, repair or reinstall the application |
+      | Services not starting | Dependency failed, service disabled, wrong logon account | Services console and Event Viewer |
+      | Slow profile load | Large roaming profile, slow link, corrupt profile | Shrink or rebuild the profile |
+      | Time drift | Dead CMOS battery, no time synchronisation | Sync the clock; replace the battery |
+      | USB controller resource warning | Too many devices on one controller | Move devices to another port or controller |
+
+      ## Recovery tools
+
+      - **Safe Mode** loads only basic drivers and services.
+      - The **Windows Recovery Environment (WinRE)** offers Startup Repair, System Restore, Uninstall Updates, Command Prompt and Reset this PC.
+      - **System Restore** returns system files, drivers and the registry to an earlier restore point without touching personal files.
+      - `sfc /scannow` repairs system files; `chkdsk /f` repairs the filesystem.
+    items:
+      - id: ap2-3a-bsod
+        type: concept
+        term: "Blue screen of death (BSOD)"
+        def: "A Windows stop error: the system halts on a full-screen message with a stop code because it hit a fault it cannot safely recover from."
+      - id: ap2-3a-safemode
+        type: concept
+        term: "Safe Mode"
+        def: "A Windows startup option that loads only a minimal set of drivers and services, used to remove a faulty driver or program that prevents a normal start."
+      - id: ap2-3a-winre
+        type: concept
+        term: "Windows Recovery Environment (WinRE)"
+        def: "The repair system held on a hidden partition that loads when Windows cannot start, offering a menu of tools such as a command prompt, update removal and a PC reset."
+      - id: ap2-3a-sysrestore
+        type: concept
+        term: "System Restore"
+        def: "The Windows feature that returns system files, drivers and registry settings to an earlier saved point in time without changing personal documents."
+      - id: ap2-3a-startuprepair
+        type: concept
+        term: "Startup Repair"
+        def: "The automated Windows tool that diagnoses and fixes damaged boot files and boot configuration when the operating system will not load."
+      - id: ap2-3a-timedrift
+        type: concept
+        term: "Time drift"
+        def: "The gradual slipping of a computer's clock away from the correct time, which can break domain sign-in and certificate checks."
+      - id: ap2-3a-reimage
+        type: concept
+        term: "Reimaging"
+        def: "Replacing everything on a computer's system drive with a known-good copy of the operating system and applications; the last resort when repair fails."
+      - id: ap2-3a-pagefile
+        type: concept
+        term: "Virtual memory (page file)"
+        def: "Disk space that Windows uses as an overflow for RAM, moving idle memory pages there when physical memory runs short."
+
+      - id: ap2-3a-q01
+        type: mcq
+        q: "A PC that worked yesterday now shows 'No operating system found' at power-on. The user mentions a USB flash drive was left plugged in overnight. What should be tried FIRST?"
+        choices:
+          - "Reinstall Windows"
+          - "Replace the internal drive"
+          - "Remove the USB drive and restart"
+          - "Run sfc /scannow"
+        answer: 2
+        why: "The firmware is probably trying to boot from the non-bootable USB drive; removing it is the quickest, least destructive test. sfc cannot be run at all until an operating system has loaded."
+      - id: ap2-3a-q02
+        type: mcq
+        q: "Since a new video driver was installed this morning, a PC shows a blue screen about a minute after every sign-in. What is the BEST next step?"
+        choices:
+          - "Reimage the PC"
+          - "Start in Safe Mode and roll back the driver"
+          - "Replace the graphics card"
+          - "Increase the page file size"
+        answer: 1
+        why: "The crashes began with the driver change, and Safe Mode loads a basic display driver so the faulty one can be rolled back. Reimaging would work but destroys far more than is needed, and nothing yet points to failed hardware."
+      - id: ap2-3a-q03
+        type: mcq
+        q: "A domain PC that has been in storage for months rejects every domain sign-in, although the passwords are correct and the network works. Its clock is 25 minutes slow. What is the MOST likely cause?"
+        choices:
+          - "The user profile is corrupt"
+          - "The default gateway is wrong"
+          - "The disk is nearly full"
+          - "Kerberos is rejecting the PC because of the time difference"
+        answer: 3
+        why: "Kerberos tickets are time-stamped, and by default a difference of more than five minutes between client and domain controller causes authentication to fail. Correct the clock and, if it resets again when powered off, replace the CMOS battery."
+      - id: ap2-3a-q04
+        type: mcq
+        q: "A desktop PC powers off without warning after about twenty minutes of video rendering, and can be switched on again a few minutes later. Light office work never triggers it. What is the MOST likely cause?"
+        choices:
+          - "Overheating"
+          - "A corrupt user profile"
+          - "Time drift"
+          - "A full recycle bin"
+        answer: 0
+        why: "A shutdown under heavy load followed by recovery after a cool-down is the classic thermal protection pattern; check for dust, failed fans and blocked vents. A profile problem would show at sign-in, not under load."
+      - id: ap2-3a-q05
+        type: mcq
+        q: "A print service fails to start and Event Viewer records 'The dependency service or group failed to start'. What should the technician do next?"
+        choices:
+          - "Reinstall the printer driver"
+          - "Run chkdsk /r"
+          - "Find the service it depends on in the Services console and get that running"
+          - "Disable the firewall"
+        answer: 2
+        why: "The message says another service that this one needs did not start; the Dependencies tab in the Services console names it. Fixing that service is the direct remedy, whereas the driver and the disk are not implicated by this error."
+      - id: ap2-3a-q06
+        type: mcq
+        q: "After plugging a fourth device into a USB 3.0 hub, a user sees 'Not enough USB controller resources'. What is the BEST fix?"
+        choices:
+          - "Increase the page file"
+          - "Move some devices to a different controller or to USB 2.0 ports"
+          - "Run System Restore"
+          - "Replace the CMOS battery"
+        answer: 1
+        why: "Each USB controller supports a limited number of endpoints, and the devices on this one have used them up. Spreading devices across another controller or onto USB 2.0 ports frees resources; this is not a memory or system-file problem."
+      - id: ap2-3a-q07
+        type: mcq
+        q: "On a domain PC, a user waits ten minutes at 'Welcome' each morning. Other users on the same PC sign in quickly. The slow user's roaming profile is 40 GB. What is the MOST likely cause?"
+        choices:
+          - "A failing power supply"
+          - "A blocked USB controller"
+          - "An expired Windows licence"
+          - "The large roaming profile is copied from the server at every sign-in"
+        answer: 3
+        why: "A roaming profile is downloaded at sign-in, so a very large one means a long wait for that user only. Reducing its size, for example by redirecting folders to a server share, fixes it; a hardware fault would affect every user."
+
+  # ──────────── 3b · Mobile and security troubleshooting ────────────
+  - id: ap2-3b
+    title: "Troubleshooting mobile devices and security problems"
+    domain: "3"
+    goal: "I can troubleshoot common phone and tablet faults and recognise the signs of malware on a mobile device or PC."
+    notes: |
+      ## Mobile faults
+
+      | Symptom | Check first |
+      | App will not launch, crashes or will not close | Force stop it, restart the device, update or reinstall the app |
+      | App or OS will not install or update | Free storage, network connection, OS version compatibility |
+      | Slow to respond | Too many apps open, storage nearly full, restart |
+      | Battery drains quickly | Screen brightness, background apps, location services, an ageing battery |
+      | Random reboots | Overheating, failing battery, a faulty app or update |
+      | No Wi-Fi, Bluetooth or NFC | Airplane mode, the radio's own switch, forget and re-pair or re-join |
+      | Screen will not autorotate | Rotation lock is on |
+
+      ## Mobile security concerns
+
+      **Rooting** (Android) and **jailbreaking** (iOS) remove the operating system's built-in restrictions and its protections with them. **Sideloading** from unofficial stores, and leaving **developer mode** on, let unvetted apps in. A **spoofed application** imitates a genuine one.
+
+      Warning signs: high network traffic or data-limit notices, unusual battery drain and heat, many adverts, fake security warnings, unexpected app behaviour, and leaked personal data.
+
+      ## PC security symptoms
+
+      | Symptom | Think of |
+      | Fake antivirus alerts, desktop pop-ups | Rogue security software |
+      | Files missing, renamed or unreadable | Ransomware |
+      | Browser redirection | Changed DNS settings, hosts file, proxy or a malicious extension |
+      | Certificate warnings on every site | Wrong date and time, or interception |
+      | A warning on a single site | That site's certificate has expired or does not match |
+      | OS updates fail, security tools will not open | Malware defending itself |
+
+      When the signs point to malware, follow the removal procedure from the Security domain: verify, quarantine, then clean.
+    items:
+      - id: ap2-3b-jailbreak
+        type: concept
+        term: "Jailbreaking"
+        def: "Removing Apple's built-in restrictions from an iPhone or iPad so that unapproved software can be installed, which also disables security protections."
+      - id: ap2-3b-rooting
+        type: concept
+        term: "Rooting"
+        def: "Gaining full superuser control of an Android device, bypassing the manufacturer's restrictions and the operating system's app sandboxing."
+      - id: ap2-3b-devmode
+        type: concept
+        term: "Developer mode"
+        def: "A hidden set of mobile operating system options, such as USB debugging, intended for people building apps and risky to leave switched on."
+      - id: ap2-3b-spoof
+        type: concept
+        term: "Application spoofing"
+        def: "Publishing a malicious app that copies the name, icon and look of a well-known genuine one in order to trick users into installing it."
+      - id: ap2-3b-sideload
+        type: concept
+        term: "Sideloading"
+        def: "Installing a mobile app from a file or third-party source and not from the platform's official store, so it has not been vetted."
+      - id: ap2-3b-rogueav
+        type: concept
+        term: "Rogue antivirus"
+        def: "Fake security software that displays alarming, invented infection alerts to frighten the user into paying or installing more malware."
+      - id: ap2-3b-redirect
+        type: concept
+        term: "Browser redirection"
+        def: "A symptom in which entering one web address, or clicking a search result, takes the user to a different and unwanted site."
+      - id: ap2-3b-rotlock
+        type: concept
+        term: "Rotation lock"
+        def: "A mobile setting that fixes the display in its current orientation so it does not turn when the device is tilted."
+
+      - id: ap2-3b-q01
+        type: mcq
+        q: "On a tablet, one app is frozen on screen and does not respond to touch. The home gesture still works. What should be tried FIRST?"
+        choices:
+          - "Factory reset the tablet"
+          - "Force stop the app and reopen it"
+          - "Replace the battery"
+          - "Turn on developer mode"
+        answer: 1
+        why: "Force stopping ends the hung app's process so it can start cleanly, and costs nothing. A factory reset erases the whole device and is a last resort."
+      - id: ap2-3b-q02
+        type: mcq
+        q: "Since installing a free torch app from a third-party store, an Android phone runs hot, its battery lasts half as long, and the carrier has sent a data-limit warning. What is the MOST likely explanation?"
+        choices:
+          - "The battery has reached the end of its life"
+          - "Rotation lock is enabled"
+          - "The phone needs a new SIM card"
+          - "The app is malicious and is working in the background"
+        answer: 3
+        why: "Heat, battery drain and unexplained data use together, starting with an unvetted app, point to malware running in the background. A worn battery would not cause a jump in data usage. Uninstall the app and scan the phone."
+      - id: ap2-3b-q03
+        type: mcq
+        q: "A phone will not install a new app or the latest OS update; both attempts stop partway. Wi-Fi is strong and other downloads on the network are fast. What should be checked FIRST?"
+        choices:
+          - "Available storage space"
+          - "Bluetooth pairing list"
+          - "NFC setting"
+          - "Screen brightness"
+        answer: 0
+        why: "Apps and OS updates both need free space to download and unpack, so a nearly full device fails at exactly this point. The network is already known to be good, and Bluetooth and NFC play no part in installs."
+      - id: ap2-3b-q04
+        type: mcq
+        q: "A PC suddenly shows certificate warnings on every HTTPS site, including well-known ones. Other PCs on the same network do not. What should be checked FIRST?"
+        choices:
+          - "The monitor cable"
+          - "The printer queue"
+          - "The system date and time"
+          - "The size of the page file"
+        answer: 2
+        why: "Certificates are valid only between two dates, so a badly wrong clock makes every certificate look expired or not yet valid. Because only this PC is affected, a local setting is far more likely than a problem with every website."
+      - id: ap2-3b-q05
+        type: mcq
+        q: "On one PC, typing the bank's address opens a look-alike site. On that PC, nslookup returns the bank's correct IP address, and other PCs reach the real site. Where should the technician look?"
+        choices:
+          - "The router's DHCP scope"
+          - "The PC's hosts file"
+          - "The ISP's DNS server"
+          - "The bank's web server"
+        answer: 1
+        why: "nslookup queries DNS directly and ignores the hosts file, whereas the browser checks the hosts file first; a malicious entry there explains a wrong site on one PC while DNS answers correctly. The DNS server and the bank are ruled out by the correct lookup and the other PCs."
+      - id: ap2-3b-q06
+        type: mcq
+        q: "A user reports that documents now end in '.locked', none will open, and a text file in each folder demands payment. The PC has already been disconnected from the network. Which recovery approach is BEST?"
+        choices:
+          - "Rename the files back to their original extensions"
+          - "Run Disk Cleanup"
+          - "Pay the demand to obtain the key"
+          - "Remove the malware or reimage, then restore the files from a clean backup"
+        answer: 3
+        why: "The files are encrypted, so only a clean backup reliably brings them back once the malware has been removed. Renaming changes the label, not the encryption, and paying funds criminals with no guarantee of a working key."
+      - id: ap2-3b-q07
+        type: mcq
+        q: "A user's phone will no longer make tap-to-pay purchases at shop terminals. Calls, mobile data, Wi-Fi and Bluetooth all work. What is the MOST likely cause?"
+        choices:
+          - "NFC is switched off"
+          - "The phone is in airplane mode"
+          - "The storage is full"
+          - "The screen is locked in portrait"
+        answer: 0
+        why: "Contactless payment uses near-field communication, which has its own switch. Airplane mode is ruled out because calls and data still work."
+      - id: ap2-3b-m01
+        type: multi
+        q: "Which TWO of these symptoms MOST strongly suggest that a Windows PC is infected with malware?"
+        choices:
+          - "Alerts from a 'security scanner' that nobody installed, urging payment to remove threats"
+          - "A notification that a restart is needed to finish installing updates"
+          - "A low-toner message from the office printer"
+          - "Personal files renamed with an unfamiliar extension and no longer opening"
+          - "A calendar reminder for a meeting"
+        answers: [0, 3]
+        why: "Fake antivirus alerts and altered or inaccessible personal files are both listed malware symptoms (rogue security software and ransomware). The update restart, the toner message and the reminder are normal system behaviour."
+
+  # ───────────── 4a · Documentation, change management and backup ─────────────
+  - id: ap2-4a
+    title: "Documentation, change management and backup"
+    domain: "4"
+    goal: "I can document support work properly, take a change through approval, and choose and restore from the right kind of backup."
+    notes: |
+      ## Documentation
+
+      A **ticket** records who has the problem, on which device, what the problem is, its category and **severity**, and every step taken: issue description, progress notes and resolution. If you cannot solve it at your level, **escalate** it with those notes attached.
+
+      **Asset management** tracks hardware and software through tags, inventory lists and a **CMDB**, including warranty, licences and the assigned user. Standard documents include **SOPs**, onboarding and off-boarding checklists, incident reports, knowledge-base articles and **SLAs**.
+
+      ## Change management
+
+      | Change type | Meaning |
+      | Standard | Routine, low risk, pre-approved |
+      | Normal | Assessed and approved by the change board before it is scheduled |
+      | Emergency | Must happen now; approval is fast-tracked and paperwork is completed afterwards |
+
+      A request states the purpose, scope, affected systems, risk level, responsible staff and the date and time, normally inside a **maintenance window** and never during a **change freeze**. Test in a **sandbox** first, and always have a **rollback plan**. Finish with end-user acceptance.
+
+      ## Backups
+
+      | Type | Copies | To restore you need |
+      | Full | Everything | That one backup |
+      | Incremental | Changes since the last backup of any type | The full plus every incremental since |
+      | Differential | Changes since the last full | The full plus the latest differential |
+      | Synthetic full | A full assembled from an earlier full and later incrementals | That one backup |
+
+      The **3-2-1 rule**: three copies, on two kinds of media, one offsite. **Grandfather-father-son** rotates monthly, weekly and daily sets. A backup that has never been test-restored is not yet a backup.
+    items:
+      - id: ap2-4a-cmdb
+        type: concept
+        term: "Configuration management database (CMDB)"
+        def: "A central repository that records IT assets and services as configuration items, together with their attributes and the relationships between them."
+      - id: ap2-4a-sop
+        type: concept
+        term: "Standard operating procedure (SOP)"
+        def: "A written set of step-by-step instructions that makes sure a routine task is carried out the same way every time."
+      - id: ap2-4a-sla
+        type: concept
+        term: "Service-level agreement (SLA)"
+        def: "A document in which a provider commits to measurable targets, such as uptime or response time, for a service it delivers to a customer."
+      - id: ap2-4a-rollback
+        type: concept
+        term: "Rollback plan"
+        def: "The documented steps for returning a system to its previous working state if a change fails or causes problems."
+      - id: ap2-4a-cab
+        type: concept
+        term: "Change board"
+        def: "The group of stakeholders that reviews proposed changes for risk and impact and decides whether each one may go ahead."
+      - id: ap2-4a-incremental
+        type: concept
+        term: "Incremental backup"
+        def: "A backup job that copies only the data changed since the most recent backup of any kind; quick to run but slowest to restore."
+      - id: ap2-4a-differential
+        type: concept
+        term: "Differential backup"
+        def: "A backup job that copies all data changed since the last full backup, so it grows each day until the next full is taken."
+      - id: ap2-4a-synthetic
+        type: concept
+        term: "Synthetic full backup"
+        def: "A complete backup set that the backup server assembles from an earlier full and the incrementals that followed, without reading everything from the source again."
+      - id: ap2-4a-321
+        type: concept
+        term: "3-2-1 backup rule"
+        def: "The guideline to keep three copies of data, on two different types of media, with one copy stored offsite."
+
+      - id: ap2-4a-q01
+        type: mcq
+        q: "A workstation gets a full backup every Sunday night and an incremental backup every other night. Its drive fails on Thursday morning. How many backup sets are needed for a complete restore?"
+        choices: ["1", "2", "3", "4"]
+        answer: 3
+        why: "Each incremental holds only the changes since the previous backup, so you need Sunday's full plus the Monday, Tuesday and Wednesday incrementals: four sets. Two would be the answer for a differential scheme."
+      - id: ap2-4a-q02
+        type: mcq
+        q: "Another workstation gets a full backup on Sunday night and a differential backup every other night. Its drive fails on Thursday morning. Which sets must be restored?"
+        choices:
+          - "Wednesday's differential only"
+          - "Sunday's full and Wednesday's differential"
+          - "Sunday's full and the Monday, Tuesday and Wednesday differentials"
+          - "Sunday's full only"
+        answer: 1
+        why: "Each differential contains everything changed since the last full, so the latest one replaces the earlier ones: the full plus Wednesday's differential. Restoring every nightly set is what an incremental scheme requires."
+      - id: ap2-4a-o01
+        type: order
+        q: "Put these stages of a normal change in the order they should happen."
+        steps:
+          - "Submit a change request stating purpose and scope"
+          - "Analyse the risk and test the change in a sandbox"
+          - "Obtain change board approval"
+          - "Implement the change in the maintenance window"
+          - "Confirm end-user acceptance and close the change"
+        why: "The board cannot approve what has not been requested and risk-assessed, and nothing is implemented before approval. Acceptance by the users comes after implementation and closes the change."
+      - id: ap2-4a-q03
+        type: mcq
+        q: "A vulnerability in the company's VPN gateway is being actively exploited across the internet, and the vendor has just released a fix. Which change type applies to installing it today?"
+        choices:
+          - "Emergency change"
+          - "Standard change"
+          - "Normal change"
+          - "No change record is needed"
+        answer: 0
+        why: "An emergency change addresses an urgent risk through an expedited approval, with full documentation completed afterwards. A normal change would wait for the scheduled board review; skipping the record entirely is never correct."
+      - id: ap2-4a-q04
+        type: mcq
+        q: "The help desk replaces failed keyboards and mice several times a week, following a documented procedure that was risk-assessed and approved once. Which change type is this?"
+        choices:
+          - "Emergency change"
+          - "Normal change"
+          - "Standard change"
+          - "Rollback"
+        answer: 2
+        why: "A standard change is routine, low risk and pre-approved, so it does not go back to the board each time. A normal change needs individual assessment and approval."
+      - id: ap2-4a-q05
+        type: mcq
+        q: "A first-line technician has spent the time allowed for a ticket and cannot resolve it. What is the correct next action?"
+        choices:
+          - "Close the ticket and ask the user to call again"
+          - "Keep trying until the end of the shift without updating the ticket"
+          - "Tell the user to search online for a fix"
+          - "Escalate the ticket to the next level with notes on what was tried"
+        answer: 3
+        why: "Escalation with clear progress notes lets the next tier continue without repeating work and keeps the ticket within its service target. Closing an unresolved ticket hides the problem and misreports the service level."
+
+  # ──────────── 4b · Safety, environment, incidents and licensing ────────────
+  - id: ap2-4b
+    title: "Safety, environment, incident response and licensing"
+    domain: "4"
+    goal: "I can work safely on equipment, protect it from power and environmental problems, respond correctly to prohibited content, and tell licence and policy documents apart."
+    notes: |
+      ## Safety
+
+      - **ESD**: wear an **ESD strap** clipped to bare metal on the case, work on an **ESD mat**, and store parts in **antistatic bags**.
+      - Disconnect power before opening a PC. Never open a power supply.
+      - Lift with your legs, keep the load close, and get help with heavy items.
+      - Wear safety goggles and an air filter mask when blowing out dust or handling toner.
+      - Keep cables tidy; they are a trip hazard.
+
+      ## Environment and power
+
+      | Problem | Meaning | Protection |
+      | Surge / spike | Voltage briefly too high | Surge suppressor |
+      | Brownout | Voltage sags for a while | UPS |
+      | Blackout | Power lost completely | UPS, long enough to shut down cleanly |
+
+      Heat, humidity (too low invites static, too high invites condensation) and dust shorten equipment life: ventilate, and clean with compressed air or an ESD-safe vacuum. The **MSDS** for a product explains safe handling and disposal. Batteries, toner and old electronics go to proper recycling, never general waste.
+
+      ## Incident response
+
+      If you find prohibited content or activity: stop, preserve the evidence, and report it through the proper channel (management, and law enforcement where required). Document what you saw. Evidence is collected in **order of volatility** (memory before disk), analysed on a **copy of the drive**, and tracked with a **chain of custody**.
+
+      ## Licences and policy
+
+      - **EULA**: the terms a user accepts to use software. Licences may be perpetual or subscription, personal-use or corporate-use, proprietary or open-source. **DRM** enforces usage limits technically.
+      - **AUP**: what users may do with company systems.
+      - **NDA**: a promise to keep information confidential.
+      - **Regulated data**: PII, payment card data, healthcare data and government-issued identifiers, each with handling and retention rules.
+    items:
+      - id: ap2-4b-esdstrap
+        type: concept
+        term: "ESD strap"
+        def: "A wristband wired to a ground point that keeps a technician at the same electrical potential as the equipment, preventing static damage to components."
+      - id: ap2-4b-msds
+        type: concept
+        term: "Material safety data sheet (MSDS)"
+        def: "A document supplied for a chemical product that lists its hazards and explains safe handling, first aid and proper disposal."
+      - id: ap2-4b-ups
+        type: concept
+        term: "Uninterruptible power supply (UPS)"
+        def: "A battery-backed unit that keeps equipment running for a short time during a power loss or voltage sag, long enough to shut down cleanly."
+      - id: ap2-4b-surge
+        type: concept
+        term: "Surge suppressor"
+        def: "A device that diverts brief over-voltage away from connected equipment; it provides no power when the supply fails."
+      - id: ap2-4b-brownout
+        type: concept
+        term: "Brownout"
+        def: "A period in which mains voltage drops below its normal level without failing completely."
+      - id: ap2-4b-custody
+        type: concept
+        term: "Chain of custody"
+        def: "The unbroken, documented record of who has held an item of evidence, when and why, from its collection onwards."
+      - id: ap2-4b-volatility
+        type: concept
+        term: "Order of volatility"
+        def: "The principle of collecting digital evidence from the most short-lived sources first, such as memory, before more durable ones such as disks."
+      - id: ap2-4b-eula
+        type: concept
+        term: "End-user license agreement (EULA)"
+        def: "The legal terms, accepted at installation, that set out how a person or organisation may use a piece of software."
+      - id: ap2-4b-aup
+        type: concept
+        term: "Acceptable use policy (AUP)"
+        def: "An organisation's rules stating what employees may and may not do with its computers, network and internet access."
+
+      - id: ap2-4b-q01
+        type: mcq
+        q: "While repairing an office PC, a technician comes across material on it that appears to be illegal. What should the technician do FIRST?"
+        choices:
+          - "Delete the material so that nobody else sees it"
+          - "Confront the user and ask for an explanation"
+          - "Stop work, preserve the system as it is, and report it through the proper channel"
+          - "Copy the files to a personal USB drive as proof"
+        answer: 2
+        why: "The first response is to stop, preserve the evidence and report to management or the designated contact, who decide whether to involve law enforcement. Deleting destroys evidence, and copying it to personal media breaks the chain of custody."
+      - id: ap2-4b-q02
+        type: mcq
+        q: "An investigator is handed a hard drive as evidence. Why is a bit-for-bit copy made and hashed before any analysis begins?"
+        choices:
+          - "The analysis can be done on the copy while the hash proves the original has not changed"
+          - "Copying the drive decrypts its contents"
+          - "The copy is smaller and therefore quicker to search"
+          - "It removes any malware from the original"
+        answer: 0
+        why: "Working on a verified copy preserves the integrity of the original, and matching hashes prove nothing was altered. An image is the same size as the source and does nothing to decrypt or clean it."
+      - id: ap2-4b-q03
+        type: mcq
+        q: "A technician must move a 30 kg UPS from the floor onto a low shelf. Which approach is correct?"
+        choices:
+          - "Bend at the waist and lift quickly"
+          - "Get help or a trolley, and lift with the legs while keeping the back straight"
+          - "Twist the body while lifting to save time"
+          - "Hold the unit at arm's length for better balance"
+        answer: 1
+        why: "Heavy loads are lifted with the legs, back straight and load held close, and help or equipment is used when the item is heavy. Bending at the waist, twisting and holding the load away from the body are the main causes of back injury."
+      - id: ap2-4b-q04
+        type: mcq
+        q: "An office has a box of empty laser printer toner cartridges. What is the proper way to dispose of them?"
+        choices:
+          - "Put them in the general waste"
+          - "Break them open and vacuum out the remaining toner with an ordinary vacuum cleaner"
+          - "Burn them"
+          - "Return them through the manufacturer's or a local recycling programme, as the MSDS directs"
+        answer: 3
+        why: "Toner is a fine powder and cartridges are recyclable; the MSDS and local regulations direct them to a recycling scheme. An ordinary vacuum would blow the fine particles back into the air."
+      - id: ap2-4b-o01
+        type: order
+        q: "An investigator must collect evidence from a running computer. Put these sources in order from MOST volatile (collect first) to LEAST volatile."
+        steps:
+          - "CPU cache and registers"
+          - "Contents of RAM"
+          - "Swap/page file and temporary files"
+          - "Files on the hard drive"
+          - "Archived backups"
+        why: "Evidence is collected from the shortest-lived source first: processor state and memory vanish at power-off, temporary data is overwritten quickly, disk contents persist, and archives are the most stable of all."
+      - id: ap2-4b-q05
+        type: mcq
+        q: "An audit finds that a design program bought by one employee under a personal-use licence has been installed on thirty company PCs. What is the issue?"
+        choices:
+          - "The company is breaching the licence terms and needs corporate-use licences"
+          - "The software is open source and may not be used commercially"
+          - "The licence is perpetual, so it has expired"
+          - "There is no issue, because the software was paid for"
+        answer: 0
+        why: "A personal-use licence covers one individual's non-commercial use; business use on thirty machines needs corporate licences. A perpetual licence, by definition, does not expire."
+
+  # ─────── 4c · Professionalism, scripting, remote access and AI ───────
+  - id: ap2-4c
+    title: "Professionalism, scripting, remote access and AI"
+    domain: "4"
+    goal: "I can deal with customers professionally, recognise script types and their risks, choose a remote access tool, and explain the limits of AI tools."
+    notes: |
+      ## Professionalism
+
+      - Be on time; if you will be late, contact the customer.
+      - Listen actively, do not interrupt, and avoid jargon and acronyms.
+      - With a difficult customer: do not argue or get defensive, do not dismiss the problem, do not judge. Ask **open-ended questions**, then restate the issue to confirm it.
+      - Set expectations, give status updates, offer repair or replacement options, document the work and follow up afterwards.
+      - Avoid distractions such as personal calls and texting.
+      - Treat anything confidential on a screen, desk or printer as private.
+
+      ## Scripts
+
+      | Extension | Language |
+      | .bat | Windows batch (Command Prompt) |
+      | .ps1 | PowerShell |
+      | .vbs | VBScript |
+      | .sh | Linux/macOS shell |
+      | .js | JavaScript |
+      | .py | Python |
+
+      Scripts automate restarts, drive mapping, installs, backups, updates and information gathering. Risks: introducing malware, changing settings by accident, and exhausting resources until something crashes. Read and test a script before deploying it.
+
+      ## Remote access
+
+      | Tool | Use | Default port |
+      | RDP | Graphical Windows desktop | 3389 |
+      | VNC | Cross-platform screen sharing | 5900 |
+      | SSH | Encrypted command line | 22 |
+      | WinRM | Remote Windows management and PowerShell | 5985 / 5986 |
+      | SPICE | Display for virtual machine desktops | |
+      | VPN | Encrypted tunnel into the network | |
+      | RMM | Agent-based monitoring and management of many devices | |
+
+      Never expose RDP or VNC directly to the internet; put them behind a VPN and use MFA.
+
+      ## AI
+
+      AI assistants are built into many applications. Their limits are **bias**, **hallucinations** (confident but false output) and general inaccuracy, so check the result. Follow company policy on appropriate use, do not present generated work as your own, and never put confidential data into a **public** AI service; a **private** one keeps data inside the organisation.
+    items:
+      - id: ap2-4c-ps1
+        type: concept
+        term: ".ps1"
+        def: "The file extension of a PowerShell script, used to automate administration on Windows."
+      - id: ap2-4c-sh
+        type: concept
+        term: ".sh"
+        def: "The file extension of a shell script run by Bash or a similar interpreter on Linux and macOS."
+      - id: ap2-4c-bat
+        type: concept
+        term: ".bat"
+        def: "The file extension of a batch file: a plain list of Command Prompt commands that Windows runs in sequence."
+      - id: ap2-4c-rdp
+        type: concept
+        term: "Remote Desktop Protocol (RDP)"
+        def: "Microsoft's protocol for controlling the graphical desktop of a Windows computer across the network, listening on TCP port 3389 by default."
+      - id: ap2-4c-vnc
+        type: concept
+        term: "VNC"
+        def: "A cross-platform screen-sharing system that sends the remote display and returns keyboard and mouse input, listening on TCP port 5900 by default."
+      - id: ap2-4c-ssh
+        type: concept
+        term: "Secure Shell (SSH)"
+        def: "A protocol that provides an encrypted command-line session on a remote computer, listening on TCP port 22 by default."
+      - id: ap2-4c-rmm
+        type: concept
+        term: "Remote monitoring and management (RMM)"
+        def: "Software, typically used by managed service providers, that places an agent on each client device to watch its health, push patches and allow remote support."
+      - id: ap2-4c-winrm
+        type: concept
+        term: "Windows Remote Management (WinRM)"
+        def: "Microsoft's service for running management commands and PowerShell sessions on another Windows computer over HTTP or HTTPS."
+      - id: ap2-4c-halluc
+        type: concept
+        term: "AI hallucination"
+        def: "Output from a generative model that is stated confidently and reads plausibly but is factually wrong or invented."
+
+      - id: ap2-4c-q01
+        type: mcq
+        q: "A customer is angry that the same fault has returned for the third time and is speaking loudly. What should the technician do?"
+        choices:
+          - "Explain that the earlier repairs were done correctly"
+          - "Listen without interrupting, then restate the problem to confirm it"
+          - "Ask the customer to calm down before continuing"
+          - "Use detailed technical terms to show expertise"
+        answer: 1
+        why: "Active listening followed by restating the issue shows the customer they have been heard and confirms the facts. Defending the earlier work is arguing, which the technician should avoid."
+      - id: ap2-4c-q02
+        type: mcq
+        q: "Because an earlier job overran, a field technician will arrive about forty minutes late for the next appointment. What is the correct action?"
+        choices:
+          - "Arrive late and apologise at the door"
+          - "Skip the appointment and rebook it for another day"
+          - "Rush the remaining work on the current job"
+          - "Contact the customer now, explain the delay and give a new arrival time"
+        answer: 3
+        why: "If you will be late, contact the customer as soon as you know and reset the expectation. Simply turning up late leaves the customer waiting without information."
+      - id: ap2-4c-q03
+        type: mcq
+        q: "While fixing a printer in the HR office, a technician finds a printed page of salary figures in the output tray. What should the technician do?"
+        choices:
+          - "Read it to check the print quality"
+          - "Take a photo in case it is needed for the ticket"
+          - "Without reading it, hand it face down to the HR staff or ask them to remove it"
+          - "Put it in the recycling bin"
+        answer: 2
+        why: "Customers' confidential material must be handled discreetly: do not read, copy or dispose of it yourself, and return it to its owner. Throwing it in a bin leaves the data exposed."
+      - id: ap2-4c-q04
+        type: mcq
+        q: "A technician finds a PowerShell script on a public forum that promises to remove unwanted software from every PC. What should be done BEFORE using it?"
+        choices:
+          - "Read through the script and test it on an isolated, non-production machine"
+          - "Run it with administrator rights on all PCs at once to save time"
+          - "Rename it from .ps1 to .bat"
+          - "Turn off the anti-malware software so that it runs faster"
+        answer: 0
+        why: "An unreviewed script can introduce malware or change settings unintentionally, so it is read and then tested where it can do no harm. Running it everywhere with full rights turns one mistake into an outage."
+      - id: ap2-4c-q05
+        type: mcq
+        q: "An administrator needs an encrypted command-line session to a Linux server in another building. Which tool and default port should be used?"
+        choices:
+          - "RDP on port 3389"
+          - "SSH on port 22"
+          - "VNC on port 5900"
+          - "WinRM on port 5985"
+        answer: 1
+        why: "SSH gives an encrypted remote shell and listens on TCP 22. RDP and VNC provide graphical desktops, and WinRM is a Windows management service."
+      - id: ap2-4c-q06
+        type: mcq
+        q: "To write a reply faster, a support agent pastes a customer's full name, address and account history into a free public AI chatbot. What is the MAIN concern?"
+        choices:
+          - "The reply may contain spelling mistakes"
+          - "The chatbot may answer too slowly"
+          - "The customer may prefer a phone call"
+          - "Confidential personal data has been disclosed to a third party outside the company's control"
+        answer: 3
+        why: "Data entered into a public AI service leaves the organisation and may be stored or reused, which is a privacy and policy breach. Accuracy of the reply still matters, but the disclosure of PII is the primary issue."

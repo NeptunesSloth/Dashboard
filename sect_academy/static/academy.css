@@ -555,3 +555,15 @@ a { color: var(--gold); }
 .glyph { font-size: 1.6rem; font-weight: 700; }
 .prompt.big { font-size: clamp(3rem, 14vw, 5.5rem); line-height: 1.15; text-align: center; margin: 6px 0; }
 :lang(zh), :lang(ja), :lang(ko) { font-family: "Noto Sans CJK SC", "Noto Sans CJK JP", "Noto Sans CJK KR", "PingFang SC", "Hiragino Sans", "Yu Gothic", "Malgun Gothic", "Microsoft YaHei", system-ui, sans-serif; }
+
+/* trust track, meridians, party picker */
+.track { position: relative; height: 10px; border-radius: 6px; background: #0006; margin: 10px 0 14px; }
+.track i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--gold-d), var(--gold)); }
+.track span { position: absolute; top: -9px; transform: translateX(-50%); color: var(--dim); font-size: 1.1rem; } .track span.done { color: var(--gold); }
+.nodes { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.node { all: unset; box-sizing: border-box; display: grid; gap: 2px; padding: 9px 11px; border-radius: 12px; border: 1px solid var(--line); background: #0000002e; cursor: pointer; }
+.node small { color: var(--dim); font-size: .8rem; } .node em { font-style: normal; font-size: .74rem; font-weight: 700; color: var(--dim); }
+.node.open { border-color: var(--violet); background: var(--violet-soft); cursor: default; } .node.open em { color: var(--violet); }
+.node.ready { border-color: var(--gold); box-shadow: 0 0 10px #e9b44c33; } .node.ready em { color: var(--gold); }
+.node.blocked { opacity: .6; cursor: default; }
+.pawn.chosen { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }

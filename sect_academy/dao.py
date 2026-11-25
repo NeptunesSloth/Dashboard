@@ -18,7 +18,7 @@ PAWN = {"mentor": "", "companion": "", "demon": 0, "merit": 0.0, "path": "", "to
 
 
 def defaults() -> dict:
-    return {"precepts": [], "kingdom": 0.0, "elixirs": {"marrow": 0, "berserk": 0}, "rare": 0.0, "recipe": "pill", "demonic": False,
+    return {**road.defaults(), "precepts": [], "kingdom": 0.0, "elixirs": {"marrow": 0, "berserk": 0}, "rare": 0.0, "recipe": "pill", "demonic": False,
             "blessings": [], "dead": [], "siege": None, "sutra_days": 0, "marks": {},
             "karma": 0.0, "branches": [], "style": {"colour": "gold", "motto": ""}}
 
@@ -131,7 +131,7 @@ def qi_rows(c: dict, p: dict) -> list[tuple[str, float]]:
             rows.append((f"Fate: {f['name']}", f["qi"]))
         if "qi_alone" in f and not C._friends(c, p):
             rows.append((f"Fate: {f['name']}", f["qi_alone"]))
-    return rows
+    return rows + road.qi_rows(c, p)
 
 
 def mood_rows(c: dict, p: dict) -> list[tuple[str, int]]:
@@ -151,7 +151,7 @@ def mood_rows(c: dict, p: dict) -> list[tuple[str, int]]:
     if p.get("beast"):
         rows.append((f"{p['beast']['name']} at their heel", 3))
     rows += [(f"Fate: {f['name']}", f["mood"]) for f in _fates(p) if "mood" in f]
-    return rows
+    return rows + road.mood_rows(c, p)
 
 
 def bt_rows(c: dict, p: dict) -> list[tuple[str, int]]:
@@ -168,7 +168,7 @@ def bt_rows(c: dict, p: dict) -> list[tuple[str, int]]:
     elif c["karma"] <= -20:
         rows.append(("The sect's karmic debt", -6))
     rows += [(f"Fate: {f['name']}", f["bt"]) for f in _fates(p) if "bt" in f]
-    return rows
+    return rows + road.bt_rows(c, p)
 
 
 def _fates(p: dict) -> list[dict]:
@@ -240,15 +240,15 @@ def beast_x(c: dict, p: dict) -> float:
 
 
 def combat_x(c: dict, p: dict) -> float:
-    return beast_x(c, p) * _fx(p, "combat") * (1.2 if p.get("path") == "sword" else 1.0) * (1.1 if has(c, "strength") else 1.0) * (1.15 if "dread" in c["blessings"] else 1.0)
+    return road._nx(p, "combat") * beast_x(c, p) * _fx(p, "combat") * (1.2 if p.get("path") == "sword" else 1.0) * (1.1 if has(c, "strength") else 1.0) * (1.15 if "dread" in c["blessings"] else 1.0)
 
 
 def hurt_x(c: dict, p: dict) -> float:
-    return (0.8 if p.get("path") == "body" else 1.0) * _fx(p, "hurt")
+    return (0.8 if p.get("path") == "body" else 1.0) * _fx(p, "hurt") * road._nx(p, "hurt")
 
 
 def hunger_x(c: dict, p: dict) -> float:
-    return (0.85 if has(c, "frugality") else 1.0) * (1.1 if p.get("path") == "body" else 1.0) * _fx(p, "hunger")
+    return (0.85 if has(c, "frugality") else 1.0) * (1.1 if p.get("path") == "body" else 1.0) * _fx(p, "hunger") * road._nx(p, "hunger")
 
 
 def research_x(c: dict) -> float:
@@ -278,6 +278,7 @@ def hourly(c: dict, quiet: bool) -> None:
 
 
 def daily(c: dict, quiet: bool) -> None:
+    road.daily(c, quiet)
     for p in c["pawns"]:
         m = _mentor(c, p)
         if p.get("mentor") and not m:
@@ -324,6 +325,8 @@ def daily(c: dict, quiet: bool) -> None:
 def after_fight(c: dict, fighters: list[dict], ratio: float, how: str, src: dict | None, kind: str) -> None:
     c["marks"]["last_foe"] = src["id"] if src else ""
     for p in fighters:
+        if _mentor(c, p) in fighters:
+            road._trust(c, p, 8)                       # they stood at the gate together
         p["merit"] += 4 + (3 if ratio >= 0.9 else 0)
         if c["demonic"] and ratio >= 0.9:
             C._gain_qi(c, p, C.step_need(p["step"]) * 0.08)
@@ -404,6 +407,8 @@ def on_bt(c: dict, p: dict, success: bool, perfect: bool, trib: bool) -> None:
         C._annal(c, f"{p['name']} was revealed as a reincarnated ancient.")
     if success and perfect:
         poem(c, p["name"])
+    if _is_home(c, _mentor(c, p)):
+        road.on_guard(c, p)
 
 
 def on_broken_promise(c: dict) -> None:
@@ -802,6 +807,8 @@ LATER = {"nemesis", "lord_return", "ally_return", "retreat_return"}
 
 def later(c: dict, item: dict, r: random.Random) -> bool:
     kind = item["kind"]
+    if kind in road.LATER:
+        return road.later(c, item, r)
     if kind == "nemesis":
         if c["pending"]:
             return False
@@ -1119,6 +1126,7 @@ def pawn_view(c: dict, p: dict) -> dict:
         "demon": C._f(p["demon"]), "merit": C._f(p["merit"]), "toxin": C._f(p["toxin"], 1),
         "path": PATHS[p["path"]]["name"] if p.get("path") in PATHS else "", "can_path": p["step"] >= 8 and not p.get("path"),
         "can_marrow": c["elixirs"]["marrow"] >= 1 and not p.get("marrow"),
+        **road.pawn_view(c, p),
         "can_retreat": not p.get("master") and _is_home(c, p),
         "fates": [{"name": f["name"], "text": f["text"]} for f in _fates(p)],
         "grade": ({"name": GRADES[bt_grade(c, p)[0]][0], "bonus": C._f(100 * GRADES[bt_grade(c, p)[0]][1]),
@@ -1139,6 +1147,7 @@ def view(c: dict) -> dict:
         "demonic": bool(c["demonic"]), "blessings": [BLESSINGS[b] for b in c["blessings"] if b in BLESSINGS],
         "tombs": [{"name": str(d["name"]), "realm": str(d["realm"]), "day": C._f(d["day"])} for d in reversed(c["dead"][-20:])],
         "siege": ({"sect": str((C._sect(c, c["siege"]["src"]) or {}).get("name", "")), "stage": C._f(min(3, c["siege"]["stage"]))} if c["siege"] else None),
+        **road.view(c),
         "rumours": rumours(c), "council": len(_elders(c)) >= 2,
         "branches": [{"name": str(b["name"]), "leader": str(b["leader"]), "sulking": b.get("sulking", 0) > C._day(c)} for b in c["branches"]],
         "style": {"colour": str(c["style"]["colour"]), "hex": COLOURS.get(c["style"]["colour"], COLOURS["gold"]), "motto": str(c["style"]["motto"])},
@@ -1168,6 +1177,7 @@ def repair(c: dict, num) -> None:
     c["sutra_days"] = int(num(c.get("sutra_days"), 0, 1e5))
     c["marks"] = {str(k): (v if isinstance(v, (int, float, str)) else 0) for k, v in c["marks"].items()} if isinstance(c["marks"], dict) else {}
     c["karma"] = num(c.get("karma"), -100, 100)
+    road.repair(c, num)
     c["branches"] = [{"name": str(b.get("name") or "Branch"), "leader": str(b.get("leader") or ""), "founded": int(num(b.get("founded"), 0, 1e7)),
                       "sulking": int(num(b.get("sulking"), 0, 1e7))} for b in c["branches"] if isinstance(b, dict)][:3] if isinstance(c["branches"], list) else []
     st_ = c["style"] if isinstance(c["style"], dict) else {}
@@ -1190,3 +1200,10 @@ def repair(c: dict, num) -> None:
     for s in c["sects"]:
         s["ally"] = bool(s.get("ally"))
         s["broken_until"] = int(num(s.get("broken_until"), 0, 1e7))
+
+
+from . import road  # noqa: E402  (road needs this module; imported last, like dao in colony)
+
+PAWN.update(road.PAWN)
+RESOLVERS.update(road.RESOLVERS)
+LATER |= road.LATER

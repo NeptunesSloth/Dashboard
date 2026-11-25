@@ -169,7 +169,7 @@ def test_a_conversation_is_rehearsed_line_by_line_and_graded_as_a_whole():
 
 def test_best_answer_questions_explain_every_option():
     best = [i for i in packs.item_index().values() if i.get("best")]
-    assert len(best) >= 250 and {i["pack"] for i in best} == {"security-plus", "network-plus", "isc2-cc"}
+    assert len(best) >= 250 and {i["pack"] for i in best} >= {"security-plus", "network-plus", "isc2-cc"}
     it = best[0]
     ex = engine.build_exercise(it, "mcq", packs.get(it["pack"]), 3)
     assert ex["best"] and "BEST" in ex["ask"] and "whys" not in ex and sorted(ex["choices"]) == sorted(it["choices"])

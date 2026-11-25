@@ -108,6 +108,15 @@ python -m sect_academy
   (mood, health, a pill, someone keeping vigil, the season, the chamber); the
   grade is a permanent bonus, and afterwards the disciple chooses one of three
   fates, each a trade, fixed so it cannot be rerolled.
+- **Each great realm asks for one thing**, always with two ways to have it,
+  and each disciple has a small **meridian chart** to spend stage points on.
+- **Expeditions are yours to plan**: choose who goes and how boldly; halfway
+  there they send word and ask what to do, and the choices depend on who went.
+- **Rival cultivators have names** and advance by a rule you can read; you meet
+  them at the tournament. A master's **trust** in a disciple grows through
+  three stations, each an evening and a gift.
+- **Standing orders**: keep N pills in stock, send the same party out again,
+  and two saved sets of work priorities.
 - **Also**: spirit beasts that choose a disciple, branch sects that pay
   tribute, a quiet karma tally, a map of the region, and a banner colour and
   motto of your own.

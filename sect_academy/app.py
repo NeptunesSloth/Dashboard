@@ -237,6 +237,11 @@ class SectIn(BaseModel):
     path: str = ""
     recipe: str = ""
     colour: str = ""
+    pawns: list[str] = []
+    stance: str = ""
+    node: str = ""
+    name: str = ""
+    count: int = 0
     motto: str = ""
     on: bool = False
 
@@ -483,7 +488,15 @@ def sect(action: str, body: SectIn):
         elif action == "deliver":
             res = colony.deliver(st, now)
         elif action == "expedition":
-            res = colony.expedition(st, body.place, now)
+            res = colony.expedition(st, body.place, now, [str(x)[:16] for x in body.pawns[:3]], body.stance)
+        elif action == "meridian":
+            res = dao.road.open_node(st, body.pawn, body.node, now)
+        elif action == "standing":
+            res = dao.road.set_standing(st, body.count, body.on, now)
+        elif action == "preset-save":
+            res = dao.road.preset_save(st, body.name, now)
+        elif action == "preset-apply":
+            res = dao.road.preset_apply(st, body.name, now)
         elif action == "guide-skip":
             res = colony.skip_guide(st, now)
         elif action == "storyteller":

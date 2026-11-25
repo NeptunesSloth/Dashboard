@@ -191,6 +191,8 @@ def test_tribulations_ranks_and_manuals(st):
     c["storyteller"] = "harsh"
     p = c["pawns"][1]
     p["step"], p["qi"], p["health"] = 11, colony.step_need(11), 100.0              # Foundation peak -> Core Formation
+    assert not colony.attempt(st, p["id"], T0)["ok"]                                # Core Formation asks for a method, or a vigil
+    colony._bond(c, p, c["pawns"][2], 40)                                           # a friend to keep vigil
     v = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == p["id"])
     assert v["tribulation"] and v["next_realm"] == "Core Formation" and v["rank"] == "Inner Disciple"
     c["rooms"]["ward"] = 3

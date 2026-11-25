@@ -45,6 +45,9 @@ sect_academy/
   dao.py        the deeper systems (lineage, companions, heart demons, precepts,
                 merit, council, alchemy, paths, kingdom, alliances, sieges,
                 demonic path, succession); colony.py calls its small hooks
+  road.py       staffed expeditions, master-disciple trust, named rivals,
+                meridians, per-realm requirements, standing orders (dao.py
+                calls its hooks)
   state.py      one JSON file, always on; sanitises everything it loads
   static/       index.html, academy.js (shell + study), sect.js (colony UI),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js

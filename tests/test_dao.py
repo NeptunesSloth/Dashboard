@@ -468,3 +468,140 @@ def test_beasts_branches_karma_banner_and_the_map(st):
     assert rice == 20.0
     back = colony.sanitize(copy.deepcopy(c), T0)
     assert back["branches"] == c["branches"] and back["style"]["colour"] == "jade" and back["karma"] == c["karma"]
+
+
+def test_expeditions_you_staff_and_steer(st):
+    from sect_academy import road
+    c = st["colony"]
+    m, a, b = c["pawns"]
+    assert not colony.expedition(st, "ruins", T0, [m["id"]], "bold")["ok"]         # the Sect Master stays
+    a["skills"]["scholar"]["lv"] = 12
+    assert colony.expedition(st, "ruins", T0, [a["id"]], "bold")["ok"]
+    assert a["away_until"] > c["hour"] and b["away_until"] <= c["hour"]            # only who you named
+    ret = next(x for x in c["later"] if x["kind"] == "trip_return")
+    assert ret["stance"] == "bold" and ret["risk_x"] == 1.4 and c["trip_plan"]["pawns"] == [a["id"]]
+    # halfway there the party sends word, and what you can do depends on who went
+    for _ in range(26):
+        colony.advance(st, 1, T0)
+        if c["pending"] and c["pending"]["kind"] != "trip_choice":
+            _answer(st)
+    ev = c["pending"]
+    assert ev["kind"] == "trip_choice" and a["name"] in ev["options"][1]["label"] and "scholarship 12" in ev["options"][1]["label"]
+    manuals = len(c["manuals"])
+    _answer(st, "read")
+    assert ret["bonus"] == "manual"
+    for _ in range(30):
+        colony.advance(st, 1, T0)
+        if c["pending"]:
+            _answer(st)
+    assert len(c["manuals"]) >= manuals + 1 and not any(x["kind"] in ("trip_return", "trip_mid") for x in c["later"])
+    # a standing order sends the same party again
+    assert road.set_standing(st, 0, True, T0)["ok"]
+    a["health"] = 100.0
+    c["hour"] = (c["hour"] // 24 + 1) * 24 + 4
+    colony.advance(st, 1, T0)
+    assert any(x["kind"] == "trip_return" for x in c["later"]) and c["log"][-1]["title"].startswith("Standing order")
+    assert colony.view(st, T0)["trip_plan"]["who"] == [a["name"]] and colony.view(st, T0)["standing"]["repeat"]
+
+
+def test_trust_between_master_and_disciple_has_three_stations(st):
+    from sect_academy import road
+    c = st["colony"]
+    m, a, b = c["pawns"]
+    m["step"] = 9
+    dao.apprentice(st, a["id"], m["id"], T0)
+    best = max(colony.SKILLS, key=lambda s: m["skills"][s]["lv"])
+    lv = a["skills"][best]["lv"]
+    road._trust(c, a, 31)
+    assert a["stations"] == 1 and a["skills"][best]["lv"] == min(20, lv + 2) and any("told the story" in e["title"] for e in c["log"])
+    road._trust(c, a, 30)
+    assert a["stations"] == 2 and ("Their master's private teaching", 1.08) in colony.qi_rate(c, a)
+    road._trust(c, a, 30)
+    a["step"], a["qi"] = 3, colony.step_need(3)
+    assert a["stations"] == 3 and ("Heir to their master's line", 5) in colony.bt_odds(c, a) and a["title"].startswith("Heir of")
+    v = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == a["id"])
+    assert v["trust"] == 91 and [s["done"] for s in v["station_marks"]] == [True, True, True]
+    road._trust(c, b, 50)                                                           # no master, no track
+    assert b["trust"] == 0
+    t = a["trust"] = 10.0
+    road.daily(c, False)
+    assert a["trust"] > t                                                           # a day at home together
+
+
+def test_named_rivals_advance_by_a_rule_you_can_read(st):
+    from sect_academy import road
+    c = st["colony"]
+    v = colony.view(st, T0)
+    s = c["sects"][0]
+    info = v["champs"][s["id"]]
+    assert len(info["list"]) == 2 and info["list"][0]["name"] == s["young"] and info["every"] == road.champ_days(s)
+    before = [ch["step"] for ch in s["champs"]]
+    for _ in range(road.champ_days(s)):
+        road.daily(c, True)
+    assert [ch["step"] for ch in s["champs"]] == [x + 1 for x in before]            # exactly as the rule says, no hidden growth
+    champ = road.champion(c, s)
+    assert champ["step"] == max(ch["step"] for ch in s["champs"])
+    lo, hi = road.champ_power(champ) * 0.85, road.champ_power(champ) * 1.15
+    assert all(lo <= road.tournament_foe(c, s, random.Random(i)) <= hi for i in range(20))
+    # the tournament names who was beaten
+    for p in c["pawns"]:
+        p["skills"]["combat"]["lv"], p["step"] = 20, 20
+    colony._ask(c, "tournament", "t", "x", [(c["pawns"][1]["id"], "go"), ("decline", "no")])
+    res = _answer(st, c["pawns"][1]["id"])
+    assert any(ch["name"] in res["event"]["text"] for sx in c["sects"] for ch in sx["champs"])
+
+
+def test_meridians_realm_requirements_and_standing_orders(st):
+    from sect_academy import road
+    c = st["colony"]
+    m, a, b = c["pawns"]
+    # meridians: a point per stage, prerequisites, and conditions you can read
+    assert road.points(a) == 0 and not road.open_node(st, a["id"], "sea", T0)["ok"]
+    a["step"] = 4
+    assert road.points(a) == 4 and not road.open_node(st, a["id"], "pillow", T0)["ok"]      # Sea of Qi first
+    assert road.open_node(st, a["id"], "sea", T0)["ok"] and road.open_node(st, a["id"], "pillow", T0)["ok"] and road.points(a) == 2
+    assert ("Meridian: Sea of Qi", 1.04) in colony.qi_rate(c, a) and not road.open_node(st, a["id"], "sea", T0)["ok"]
+    assert "friend" in road.open_node(st, a["id"], "linked", T0)["error"]
+    colony._bond(c, a, b, 40)
+    assert road.open_node(st, a["id"], "linked", T0)["ok"] and ("Meridian: Linked Hearts", 1.06) in colony.qi_rate(c, a)
+    power = colony.combat_power(c, a)
+    assert road.open_node(st, a["id"], "wrist", T0)["ok"] and colony.combat_power(c, a) == pytest.approx(power * 1.05) and road.points(a) == 0
+    nodes = {n["id"]: n for n in next(x for x in colony.view(st, T0)["pawns"] if x["id"] == a["id"])["meridians"]}
+    assert nodes["sea"]["open"] and nodes["heaven"]["blocked"] and len(nodes) == 12
+    # each great realm asks for one thing, with two ways to have it
+    a["step"], a["qi"] = 7, colony.step_need(7)                                    # at the door of Foundation Establishment
+    c["res"]["pills"] = 0.0
+    gate = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == a["id"])["gate"]
+    assert not gate["ok"] and "pill" in gate["text"] and "Meditation Chamber" in gate["text"]
+    assert colony.attempt(st, a["id"], T0)["error"] == gate["text"]
+    c["rooms"]["meditation"] = 1                                                    # the second route
+    assert road.realm_gate(c, a)[0]
+    a["step"] = 3
+    assert road.realm_gate(c, a) == (True, "")                                      # the first great realm asks nothing
+    a["step"] = 15
+    assert not road.realm_gate(c, a)[0]
+    c["rooms"]["ward"] = 3
+    assert road.realm_gate(c, a)[0]
+    # standing orders: keep pills in stock, and saved priorities
+    c["rooms"]["alchemy"] = 1
+    c["res"].update(pills=0.0, herbs=30.0)
+    a["step"] = 0
+    a["skills"]["craft"]["lv"], b["skills"]["craft"]["lv"], m["skills"]["craft"]["lv"] = 15, 2, 1
+    a["prio"]["craft"] = 0                                                          # even with brewing switched off for them
+    assert colony._pick_job(c, a, {}) != "craft"
+    road.set_standing(st, 3, False, T0)
+    assert colony._pick_job(c, a, {}) == "craft" and colony._pick_job(c, b, {}) != "craft"
+    assert any(e["title"] == "Standing order: brewing" for e in c["log"])
+    c["res"]["pills"] = 3.0
+    assert colony._pick_job(c, a, {}) != "craft"
+    assert not road.preset_apply(st, "war", T0)["ok"] and not road.preset_save(st, "lunch", T0)["ok"]
+    road.preset_save(st, "peace", T0)
+    for p in c["pawns"]:
+        p["prio"]["train"] = 1
+    road.preset_save(st, "war", T0)
+    road.preset_apply(st, "peace", T0)
+    assert all(p["prio"]["train"] != 1 for p in c["pawns"]) and colony.view(st, T0)["presets"] == ["peace", "war"]
+    road.preset_apply(st, "war", T0)
+    assert all(p["prio"]["train"] == 1 for p in c["pawns"])
+    back = colony.sanitize(copy.deepcopy(c), T0)
+    assert back["standing"] == {"pills": 3, "repeat": False} and set(back["presets"]) == {"peace", "war"} and back["pawns"][1]["meridians"] == a["meridians"]

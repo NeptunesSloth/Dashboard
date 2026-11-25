@@ -1,0 +1,1628 @@
+id: a-plus-core1
+title: "A+ Core 1 (220-1201) — Foundations"
+kind: cert
+blurb: "Mobile devices, networking, PC hardware, printers, virtualization, cloud and hands-on troubleshooting — the core of CompTIA A+ Core 1."
+hall: ward_hall
+exam:
+  name: "CompTIA A+ Core 1"
+  code: "220-1201"
+  questions: 25
+  minutes: 25
+  pass_pct: 85
+  full: {questions: 90, minutes: 90}
+  domains:
+    - {id: "1", title: "Mobile Devices", weight: 13}
+    - {id: "2", title: "Networking", weight: 23}
+    - {id: "3", title: "Hardware", weight: 25}
+    - {id: "4", title: "Virtualization and Cloud Computing", weight: 11}
+    - {id: "5", title: "Hardware and Network Troubleshooting", weight: 28}
+
+units:
+  # ─────────────────── 1a · Mobile hardware and accessories ───────────────────
+  - id: ap1-1a
+    title: "Laptop and mobile hardware, ports and accessories"
+    domain: "1"
+    goal: "I can replace the common parts of a laptop safely and choose the right connection or accessory for a mobile device."
+    notes: |
+      Laptops and phones pack the same parts as a desktop into far less space, so many parts are smaller, proprietary or soldered down. The exam expects you to know **what can be replaced** and **how to do it safely**.
+
+      Before opening any portable device: shut it down, unplug the charger and disconnect the battery (many batteries are now internal and unplug from the board). Keep track of screws, and follow the maker's service manual.
+
+      | Part | What to remember |
+      | Battery | Wears out with charge cycles; a swollen one is replaced at once |
+      | RAM | Laptops use the short **SODIMM** module; on thin models it is soldered |
+      | Storage | 2.5-inch SATA drives or M.2 SSDs |
+      | Wireless card | Small card with two or more antenna leads that run up into the lid |
+      | Keyboard, camera, microphone | Usually joined to the board by thin ribbon cables |
+
+      ## Connections
+
+      | Connection | Use |
+      | USB-C | Reversible; data, video and charging on one port |
+      | Lightning | Older Apple phones and tablets |
+      | microUSB / miniUSB | Older small devices |
+      | Bluetooth | Short-range wireless for headsets, keyboards, speakers |
+      | NFC | Tap range only: payments and badges |
+      | Tethering / hotspot | Sharing a phone's cellular data |
+
+      At a desk, a **docking station** turns a laptop into a desktop with one connection, while a **port replicator** only repeats ports the laptop already has.
+    items:
+      - id: ap1-1a-sodimm
+        type: concept
+        term: "SODIMM"
+        def: "The short memory-module form factor, roughly half the length of a desktop module, used in laptops and other small computers."
+      - id: ap1-1a-dock
+        type: concept
+        term: "Docking station"
+        def: "A desk unit a laptop attaches to with one connection, which supplies power and adds features the laptop may lack, such as extra video outputs, wired Ethernet or drive bays."
+      - id: ap1-1a-replicator
+        type: concept
+        term: "Port replicator"
+        def: "A simple desk accessory that only duplicates the connectors a laptop already has, so peripherals can stay plugged in; it adds no new functions of its own."
+      - id: ap1-1a-lightning
+        type: concept
+        term: "Lightning"
+        def: "Apple's proprietary reversible 8-pin connector, used for charging and data on iPhones and iPads before those devices moved to a universal oval connector."
+      - id: ap1-1a-usbc
+        type: concept
+        term: "USB-C"
+        def: "A small, reversible, oval 24-pin connector that can carry data, video and enough power to charge a laptop, depending on what the port supports."
+      - id: ap1-1a-nfc
+        type: concept
+        term: "NFC"
+        def: "A radio technology that works only over a few centimetres, used for tap-to-pay, door badges and tap-to-pair."
+      - id: ap1-1a-tethering
+        type: concept
+        term: "Tethering"
+        def: "Sharing a phone's cellular data connection with one other device, typically over a USB cable or Bluetooth."
+      - id: ap1-1a-hotspot
+        type: concept
+        term: "Mobile hotspot"
+        def: "A phone feature that turns its cellular data connection into a small Wi-Fi network that several nearby devices can join."
+      - id: ap1-1a-biometrics
+        type: concept
+        term: "Biometrics"
+        def: "Unlocking or signing in with a measurement of the body, such as a fingerprint reader or a face-recognition camera built into a laptop or phone."
+
+      - id: ap1-1a-q01
+        type: mcq
+        q: "A technician replaces a cracked laptop screen. Afterwards the display works, but Wi-Fi shows only one bar next to the access point. What is the MOST likely cause?"
+        choices:
+          - "The wireless card driver was removed during the repair"
+          - "The antenna leads in the lid were not reconnected to the wireless card"
+          - "The new panel uses a different refresh rate"
+          - "The access point changed channel"
+        answer: 1
+        why: "Laptop Wi-Fi antennas run up beside the screen in the lid, and their thin leads must be clipped back onto the wireless card after display work. Hardware work does not uninstall a driver, and a missing driver would give no Wi-Fi at all rather than a weak signal."
+      - id: ap1-1a-q02
+        type: mcq
+        q: "A laptop with a removable memory cover needs more RAM. Which module form factor should the technician order?"
+        choices: ["DIMM", "M.2", "mSATA", "SODIMM"]
+        answer: 3
+        why: "Laptops use the short SODIMM form factor. A DIMM is the full-length desktop module and will not fit; M.2 and mSATA are storage form factors, not memory."
+      - id: ap1-1a-q03
+        type: mcq
+        q: "A user wants to connect a laptop at her desk with a single cable and gain two extra monitor outputs and a wired Ethernet port that the laptop itself does not have. What should be supplied?"
+        choices: ["A docking station", "A port replicator", "A USB hub", "A KVM switch"]
+        answer: 0
+        why: "A docking station adds functions beyond the laptop's own ports, such as extra video outputs and Ethernet, through one connection. A port replicator only repeats ports the laptop already has, so it cannot add the missing ones."
+      - id: ap1-1a-q04
+        type: mcq
+        q: "A technician is about to replace the keyboard on a laptop with an internal battery. What should be done FIRST?"
+        choices:
+          - "Remove the display bezel"
+          - "Update the firmware"
+          - "Unplug the charger and disconnect the battery"
+          - "Remove the wireless card"
+        answer: 2
+        why: "All power must be removed before touching internal parts: unplug the charger and disconnect the internal battery from the board. Pulling ribbon cables with the battery still connected can short the board."
+      - id: ap1-1a-q05
+        type: mcq
+        q: "A three-year-old laptop shows 100% charge but runs for only 20 minutes on battery. The operating system's battery report shows a full-charge capacity far below the design capacity. What is the BEST fix?"
+        choices:
+          - "Replace the AC adapter"
+          - "Reinstall the operating system"
+          - "Lower the screen brightness"
+          - "Replace the battery"
+        answer: 3
+        why: "A full-charge capacity far below design capacity means the cells have worn out, and only a new battery restores the run time. The adapter is fine, because the battery does reach 100% of what it can still hold."
+      - id: ap1-1a-m01
+        type: multi
+        q: "Which TWO of these are wireless ways to connect an accessory to a mobile device?"
+        choices: ["Lightning", "Bluetooth", "microUSB", "NFC", "USB-C"]
+        answers: [1, 3]
+        why: "Bluetooth and NFC are radio technologies. Lightning, microUSB and USB-C are all physical connectors that need a cable or plug."
+
+  # ─────────────────── 1b · Mobile connectivity and management ───────────────────
+  - id: ap1-1b
+    title: "Mobile networks, pairing, MDM and synchronisation"
+    domain: "1"
+    goal: "I can get a phone or tablet online, pair it with an accessory, bring it under company management and keep its data in sync."
+    notes: |
+      A mobile device has several radios, and each can be switched on or off by itself: **cellular data** (3G, 4G, 5G), **Wi-Fi**, **Bluetooth**, **NFC** and location. *Airplane mode* turns them all off at once, which makes it the first thing to check when "nothing connects".
+
+      A phone proves who it is to the carrier with a **SIM**: a small removable card, or an **eSIM**, a profile downloaded into a chip built into the device.
+
+      ## Pairing a Bluetooth accessory
+
+      - Turn Bluetooth on.
+      - Put the accessory into pairing mode.
+      - Pick it from the list of devices found.
+      - Enter the PIN if one is asked for.
+      - Test it.
+
+      ## Location
+
+      **GPS** listens to satellites: precise outdoors, poor indoors. **Cellular location** estimates position from nearby towers: it works indoors but is rougher.
+
+      ## Company devices
+
+      **Mobile device management (MDM)** enrols devices, pushes Wi-Fi and mail settings, installs corporate apps and enforces policy (screen lock, encryption, remote wipe). Devices are either corporate-owned or **BYOD**, where the company should control only its own data.
+
+      ## Synchronisation
+
+      Mail, contacts, calendars and files are kept the same on every device through a cloud account. Sync uses data, so watch the plan's **data cap**: large uploads such as photos are best limited to Wi-Fi.
+    items:
+      - id: ap1-1b-sim
+        type: concept
+        term: "SIM card"
+        def: "A small removable card that identifies a subscriber to a cellular carrier's network; moving it to another unlocked phone moves the service."
+      - id: ap1-1b-esim
+        type: concept
+        term: "eSIM"
+        def: "A carrier profile downloaded into a chip built into the device, so cellular service can be activated or changed without inserting anything."
+      - id: ap1-1b-gps
+        type: concept
+        term: "GPS"
+        def: "Finds a device's position by timing signals received from satellites; precise outdoors, but it needs a view of the sky."
+      - id: ap1-1b-cell-location
+        type: concept
+        term: "Cellular location services"
+        def: "Estimates a device's position from the carrier towers it can hear; it works indoors but is less precise than a satellite fix."
+      - id: ap1-1b-mdm
+        type: concept
+        term: "Mobile device management (MDM)"
+        def: "Software with which an organisation enrols phones and tablets, pushes settings and apps to them, enforces rules such as screen locks, and can wipe them remotely."
+      - id: ap1-1b-byod
+        type: concept
+        term: "BYOD"
+        def: "A policy under which staff use their personally owned phones or laptops for work, with the employer controlling only the work data on them."
+      - id: ap1-1b-datacap
+        type: concept
+        term: "Data cap"
+        def: "A monthly limit a carrier sets on cellular data use; going past it brings slower speeds or extra charges."
+      - id: ap1-1b-sync
+        type: concept
+        term: "Synchronisation"
+        def: "Keeping mail, contacts, calendars and files identical on a mobile device and a cloud account or computer, so a change made in one place appears in the others."
+
+      - id: ap1-1b-o01
+        type: order
+        q: "Put the steps for connecting a new Bluetooth headset to a phone in order."
+        steps:
+          - "Enable Bluetooth on the phone"
+          - "Put the headset into pairing mode"
+          - "Select the headset from the list of discovered devices"
+          - "Enter the PIN code if prompted"
+          - "Test the connection by playing audio"
+        why: "The radio must be on before anything can be found, the accessory must be discoverable before it appears in the list, and the PIN is only requested once a device has been chosen. Testing comes last."
+      - id: ap1-1b-q01
+        type: mcq
+        q: "A user has Bluetooth turned on, but a brand-new wireless keyboard never appears in the phone's list of available devices. What is the MOST likely reason?"
+        choices:
+          - "The keyboard has not been put into pairing mode"
+          - "The phone needs a SIM card"
+          - "The wrong PIN was entered"
+          - "Location services are turned off"
+        answer: 0
+        why: "An accessory only advertises itself to new devices while it is in pairing (discoverable) mode. A wrong PIN cannot be the cause yet, because the PIN is only requested after the device has been found and selected."
+      - id: ap1-1b-q02
+        type: mcq
+        q: "A company wants every phone that receives work email to have a screen lock and encryption, and wants to erase a phone remotely if it is lost. Which solution provides this?"
+        choices: ["A VPN client", "A cloud storage app", "Mobile device management", "A mobile hotspot"]
+        answer: 2
+        why: "MDM enrols devices, enforces policies such as screen lock and encryption, and can send a remote wipe. A VPN protects traffic in transit but cannot enforce device settings or erase a lost phone."
+      - id: ap1-1b-q03
+        type: mcq
+        q: "An employee who used a personal phone for work under a BYOD policy leaves the company. What is the BEST action for the MDM administrator?"
+        choices:
+          - "Factory-reset the phone remotely"
+          - "Ask the carrier to disable the SIM"
+          - "Leave the phone enrolled in case the employee returns"
+          - "Remove only the corporate apps, accounts and data from the phone"
+        answer: 3
+        why: "On a personally owned device the company should remove just its own apps and data (a selective or corporate wipe). A full factory reset would also destroy the owner's personal photos and apps, which the company has no right to erase."
+      - id: ap1-1b-q04
+        type: mcq
+        q: "A traveller wants to add a local carrier's data plan to a phone while abroad, without visiting a shop or swapping any card. Which feature makes this possible?"
+        choices: ["NFC", "eSIM", "Tethering", "Airplane mode"]
+        answer: 1
+        why: "An eSIM is a carrier profile downloaded into the phone, often by scanning a QR code, so no physical card is needed. Tethering shares a connection the phone already has; it does not create a new subscription."
+      - id: ap1-1b-q05
+        type: mcq
+        q: "A phone's map app is accurate to a few metres on the street, but inside an underground car park it shows the user somewhere within a circle hundreds of metres wide. Why?"
+        choices:
+          - "The map app has lost its login"
+          - "Bluetooth is interfering with the map"
+          - "Satellite signals cannot reach the phone, so it is estimating from cell towers"
+          - "The phone has passed its data cap"
+        answer: 2
+        why: "GPS needs a view of the sky. Underground, the phone falls back on cellular location, which is far less precise. A data cap would slow the loading of map tiles but would not change how accurately the position is found."
+      - id: ap1-1b-q06
+        type: mcq
+        q: "A user's phone backs up every photo to cloud storage, and the monthly cellular allowance is used up within a week. What is the BEST change?"
+        choices:
+          - "Set the backup to synchronise over Wi-Fi only"
+          - "Turn off location services"
+          - "Disable Bluetooth"
+          - "Replace the SIM card"
+        answer: 0
+        why: "Photo uploads are large; restricting them to Wi-Fi keeps the backup while protecting the data cap. Location and Bluetooth use almost no cellular data, so turning them off would change nothing."
+      - id: ap1-1b-q07
+        type: mcq
+        q: "After a flight, a user reports that the phone has no cellular service, no Wi-Fi and no Bluetooth. What should be checked FIRST?"
+        choices:
+          - "Whether the SIM card has failed"
+          - "Whether the carrier has an outage"
+          - "Whether the phone needs a factory reset"
+          - "Whether airplane mode is still on"
+        answer: 3
+        why: "All radios being off together, straight after a flight, points to airplane mode. A failed SIM or a carrier outage would affect cellular service only, not Wi-Fi and Bluetooth."
+
+  # ─────────────────── 2a · Ports and protocols ───────────────────
+  - id: ap1-2a
+    title: "Ports, protocols and TCP versus UDP"
+    domain: "2"
+    goal: "I can match each common protocol to its port number and purpose, and say when TCP or UDP is used."
+    notes: |
+      A **port number** tells a computer which program a piece of network traffic is for, so one machine can be a web server, a mail server and a file server at once. A+ expects this list from memory, in both directions (port to protocol and protocol to port):
+
+      | Port | Protocol | What it does |
+      | 20-21 | FTP | File transfer, no encryption |
+      | 22 | SSH | Encrypted remote command line |
+      | 23 | Telnet | Remote command line, no encryption |
+      | 25 | SMTP | Sending mail |
+      | 53 | DNS | Names to addresses |
+      | 67/68 | DHCP | Automatic IP settings |
+      | 80 | HTTP | Web, no encryption |
+      | 110 | POP3 | Downloading mail |
+      | 143 | IMAP | Mail kept and synced on the server |
+      | 137-139 | NetBIOS / NetBT | Legacy Windows naming and sharing |
+      | 389 | LDAP | Directory lookups |
+      | 443 | HTTPS | Encrypted web |
+      | 445 | SMB / CIFS | Windows file and printer sharing |
+      | 3389 | RDP | Remote Windows desktop |
+
+      ## TCP or UDP?
+
+      **TCP** sets up a connection first and resends anything lost: use it when every byte must arrive (web pages, mail, file transfers). **UDP** just sends: no set-up and no resending, so it is quicker and suits short queries (DNS, DHCP) and live voice or video, where a late packet is useless anyway.
+
+      Two pairs are tested constantly: SSH replaces Telnet, and HTTPS replaces HTTP, because the older one sends everything, passwords included, in cleartext.
+    items:
+      - id: ap1-2a-ftp
+        type: concept
+        term: "FTP"
+        def: "Transfers files between hosts with no encryption, using TCP ports 20 and 21."
+      - id: ap1-2a-ssh
+        type: concept
+        term: "SSH"
+        def: "Provides an encrypted remote command-line session on TCP port 22."
+      - id: ap1-2a-telnet
+        type: concept
+        term: "Telnet"
+        def: "Provides a remote command-line session on TCP port 23 with no encryption, so everything typed crosses the network in cleartext."
+      - id: ap1-2a-smtp
+        type: concept
+        term: "SMTP"
+        def: "The protocol used to send email and to pass it from one mail server to another, on TCP port 25."
+      - id: ap1-2a-pop3
+        type: concept
+        term: "POP3"
+        def: "A mail-retrieval protocol on TCP port 110 that normally downloads messages to one device and removes them from the server."
+      - id: ap1-2a-imap
+        type: concept
+        term: "IMAP"
+        def: "A mail-retrieval protocol on TCP port 143 that leaves messages and folders on the server, so several devices see the same mailbox."
+      - id: ap1-2a-ldap
+        type: concept
+        term: "LDAP"
+        def: "The protocol used to query and update a directory of users, groups and computers, on port 389."
+      - id: ap1-2a-smb
+        type: concept
+        term: "SMB"
+        def: "The Windows file- and printer-sharing protocol, also known as CIFS, which uses TCP port 445."
+      - id: ap1-2a-rdp
+        type: concept
+        term: "RDP"
+        def: "Gives a full graphical session on a remote Windows computer, using port 3389."
+      - id: ap1-2a-tcp
+        type: concept
+        term: "TCP"
+        def: "The connection-oriented transport protocol: it performs a handshake, acknowledges what arrives and resends what is lost, so data is delivered complete and in order."
+      - id: ap1-2a-udp
+        type: concept
+        term: "UDP"
+        def: "The connectionless transport protocol: it sends without a handshake or acknowledgements, trading reliability for low overhead and speed."
+
+      - id: ap1-2a-q01
+        type: mcq
+        q: "A small business has put an online shop on its own web server, and customers must reach it over an encrypted connection. Which port must the firewall allow in?"
+        choices: ["80", "443", "445", "3389"]
+        answer: 1
+        why: "Encrypted web traffic is HTTPS on port 443. Port 80 is plain HTTP, which would carry customers' details in cleartext."
+      - id: ap1-2a-q02
+        type: mcq
+        q: "A user reads mail on a phone, a laptop and a tablet, and wants read status and folders to match on all three. Which protocol and port should the mail apps use to receive mail?"
+        choices: ["POP3 on 110", "SMTP on 25", "IMAP on 143", "LDAP on 389"]
+        answer: 2
+        why: "IMAP keeps mail and folders on the server, so every device sees the same mailbox. POP3 normally downloads messages to one device and removes them from the server, which is exactly what this user does not want."
+      - id: ap1-2a-q03
+        type: mcq
+        q: "A technician cannot open a remote desktop session to a Windows PC at a branch office, although the PC answers pings. Which port should be checked on the branch firewall?"
+        choices: ["3389", "22", "23", "389"]
+        answer: 0
+        why: "Remote Desktop Protocol listens on port 3389. Port 22 is SSH, which gives a command line rather than the Windows desktop."
+      - id: ap1-2a-q04
+        type: mcq
+        q: "Users in one office can no longer open shared folders on a Windows file server in another office after a firewall change, but they can still browse the web. Which port was MOST likely blocked?"
+        choices: ["21", "53", "143", "445"]
+        answer: 3
+        why: "Windows file sharing uses SMB on TCP 445. Port 21 is FTP, a different way of moving files that mapped Windows shares do not use."
+      - id: ap1-2a-m01
+        type: multi
+        q: "A security review flags protocols that send logins across the network unencrypted. Which TWO of these protocols does that describe?"
+        choices: ["SSH", "Telnet", "HTTPS", "FTP", "RDP"]
+        answers: [1, 3]
+        why: "Telnet and FTP were designed without encryption, so user names and passwords can be read by anyone capturing the traffic. SSH, HTTPS and RDP all encrypt the session."
+
+  # ─────────────────── 2b · Network services and IP configuration ───────────────────
+  - id: ap1-2b
+    title: "DNS, DHCP and IP addressing for a small network"
+    domain: "2"
+    goal: "I can read a host's IP settings, explain what DNS and DHCP supply, and recognise private, public and APIPA addresses."
+    notes: |
+      To talk on a network a host needs four settings: an **IP address**, a **subnet mask** (which part of the address is the local network), a **default gateway** (the router that leads everywhere else) and a **DNS server** (which turns names into addresses).
+
+      Settings are either **static** (typed in by hand: servers, printers, routers) or **dynamic** (handed out by DHCP: almost everything else).
+
+      ## DHCP
+
+      A DHCP server leases addresses from a **scope** (its pool). A **reservation** ties one address to one device's MAC address; an **exclusion** keeps part of the range out of the pool. A client gets its **lease** in four messages: Discover, Offer, Request, Acknowledge. If nobody answers, a Windows host gives itself an **APIPA** address, 169.254.x.x, which only works on the local link.
+
+      ## IPv4 and IPv6
+
+      | Kind | Addresses |
+      | Private IPv4 | 10.x.x.x, 172.16.x.x to 172.31.x.x, 192.168.x.x |
+      | Public IPv4 | Everything routable on the internet |
+      | APIPA | 169.254.x.x |
+      | IPv6 | 128 bits, written in hexadecimal with colons |
+
+      ## DNS records
+
+      | Record | Points a name to |
+      | A | An IPv4 address |
+      | AAAA | An IPv6 address |
+      | CNAME | Another name (an alias) |
+      | MX | The domain's mail server |
+      | TXT | Free text, used for mail checks such as SPF, DKIM and DMARC |
+
+      A **VLAN** splits one switch into separate logical networks; a **VPN** builds an encrypted tunnel across the internet.
+    items:
+      - id: ap1-2b-scope
+        type: concept
+        term: "DHCP scope"
+        def: "The range of addresses, with the mask, gateway and other options, that a server is configured to hand out on one subnet."
+      - id: ap1-2b-reservation
+        type: concept
+        term: "DHCP reservation"
+        def: "A server setting that always gives the same IP address to one particular device, identified by its MAC address."
+      - id: ap1-2b-a-record
+        type: concept
+        term: "A record"
+        def: "The DNS entry that maps a host name to an IPv4 address."
+      - id: ap1-2b-aaaa-record
+        type: concept
+        term: "AAAA record"
+        def: "The DNS entry that maps a host name to an IPv6 address."
+      - id: ap1-2b-mx-record
+        type: concept
+        term: "MX record"
+        def: "The DNS entry that names the server which accepts email for a domain."
+      - id: ap1-2b-cname
+        type: concept
+        term: "CNAME record"
+        def: "The DNS entry that makes one host name an alias of another host name."
+      - id: ap1-2b-apipa
+        type: concept
+        term: "APIPA"
+        def: "A 169.254.x.x address that a host assigns to itself when it is set to obtain an address automatically and no server replies."
+      - id: ap1-2b-gateway
+        type: concept
+        term: "Default gateway"
+        def: "The address of the local router, to which a host sends any traffic bound for a destination outside its own subnet."
+      - id: ap1-2b-vlan
+        type: concept
+        term: "VLAN"
+        def: "A logical grouping of switch ports into a separate broadcast domain, so devices on one physical switch can be kept on different networks."
+      - id: ap1-2b-vpn
+        type: concept
+        term: "VPN"
+        def: "An encrypted tunnel across a public network that lets a remote user or site work as if connected directly to the private network."
+
+      - id: ap1-2b-o01
+        type: order
+        q: "Put the four messages by which a client obtains an address from a DHCP server in order."
+        steps: ["Discover", "Offer", "Request", "Acknowledge"]
+        why: "The client broadcasts a Discover, a server answers with an Offer, the client formally Requests the offered address, and the server confirms with an Acknowledge. The initials spell DORA."
+      - id: ap1-2b-q01
+        type: mcq
+        q: "A network printer must keep the same IP address so that PCs can always find it, but the administrator wants all addressing managed in one place. What should be configured?"
+        choices:
+          - "A shorter lease time"
+          - "A DHCP reservation for the printer's MAC address"
+          - "A second DHCP scope"
+          - "An APIPA address on the printer"
+        answer: 1
+        why: "A reservation makes the DHCP server always give that device the same address, while keeping management central. A shorter lease only makes clients renew more often; it does not guarantee the same address."
+      - id: ap1-2b-q02
+        type: mcq
+        q: "A PC with a static address can reach the file server and printer in its own office but nothing on the internet, by name or by IP address. Other PCs are fine. Which setting is MOST likely wrong?"
+        choices: ["DNS server", "MAC address", "Default gateway", "Host name"]
+        answer: 2
+        why: "Reaching local hosts but nothing beyond them means traffic is not getting to the router: the default gateway is missing or wrong. A bad DNS server would break names only, and here remote IP addresses fail too."
+      - id: ap1-2b-q03
+        type: mcq
+        q: "A technician is checking which devices on a list have private IPv4 addresses. Which address is private?"
+        choices: ["172.40.1.1", "8.8.4.4", "193.168.1.1", "192.168.44.10"]
+        answer: 3
+        why: "The private ranges are 10.0.0.0/8, 172.16.0.0 to 172.31.255.255, and 192.168.0.0/16. 172.40.1.1 is outside the 172.16-172.31 block and 193.168.1.1 is not 192.168, so both are public."
+      - id: ap1-2b-q04
+        type: mcq
+        q: "A company moves its email to a new hosting provider. Web browsing to the company site still works, but incoming mail is still delivered to the old server. Which DNS record must be updated?"
+        choices: ["MX", "A", "CNAME", "AAAA"]
+        answer: 0
+        why: "Sending servers look up the domain's MX record to find where to deliver mail. The A record points the website's name at an address and is clearly still correct."
+      - id: ap1-2b-q05
+        type: mcq
+        q: "A laptop set to obtain an address automatically shows 169.254.77.3 and cannot reach anything beyond its own switch. What does this tell the technician?"
+        choices:
+          - "The DNS server is down"
+          - "The laptop did not receive an answer from a DHCP server"
+          - "The laptop has a public address"
+          - "The default gateway has the wrong mask"
+        answer: 1
+        why: "169.254.x.x is an APIPA address, self-assigned when no DHCP server answers. Check the cable, the switch port and the DHCP server. A DNS failure would not change the laptop's own address."
+
+  # ─────────────────── 2c · Wireless, devices and tools ───────────────────
+  - id: ap1-2c
+    title: "Wi-Fi bands, network hardware, internet connections and tools"
+    domain: "2"
+    goal: "I can choose a Wi-Fi band and channel, name the job of each network device and connection type, and pick the right cabling tool."
+    notes: |
+      ## Wi-Fi bands
+
+      | Band | Strength | Weakness |
+      | 2.4GHz | Longest range, passes walls best | Slow and crowded; only channels 1, 6 and 11 do not overlap (North America) |
+      | 5GHz | Faster, many more channels | Shorter range |
+      | 6GHz | Fastest and cleanest (Wi-Fi 6E and Wi-Fi 7) | Shortest range, needs new devices |
+
+      Wider channels carry more data but overlap more neighbours. Which channels and power levels are legal depends on each country's regulations.
+
+      ## Devices
+
+      | Device | Job |
+      | Router | Joins networks; the way out to the internet |
+      | Switch | Connects wired devices on a LAN (managed = configurable, unmanaged = plug in and go) |
+      | Access point | Connects Wi-Fi clients to the wired LAN |
+      | Firewall | Allows or blocks traffic by rule |
+      | Patch panel | Where the building's cable runs end, ready to be patched to a switch |
+      | Cable modem / DSL modem / ONT | Connects to the provider over coax / phone line / fiber |
+
+      **Power over Ethernet (PoE)** sends power down the network cable from a PoE switch or an injector.
+
+      ## Internet connections
+
+      Fiber is fastest; cable uses TV coax; DSL uses phone lines; satellite reaches anywhere but traditionally has high latency; cellular uses the mobile network; a **WISP** beams service from a tower to a fixed antenna.
+
+      ## Tools
+
+      **Crimper**: fits RJ45 plugs. **Punchdown tool**: seats wires in jacks and patch panels. **Cable tester**: checks every wire. **Toner probe**: finds one cable among many. **Loopback plug**: tests a port by returning its own signal. **Wi-Fi analyzer**: shows channels and signal strength. **Network tap**: copies traffic for monitoring.
+    items:
+      - id: ap1-2c-24ghz
+        type: concept
+        term: "2.4GHz band"
+        def: "The Wi-Fi frequency range with the longest reach and best wall penetration, but the lowest speeds and only three non-overlapping channels in North America."
+      - id: ap1-2c-5ghz
+        type: concept
+        term: "5GHz band"
+        def: "The Wi-Fi frequency range that trades some reach for higher speed and many more non-overlapping channels; it is the only range 802.11ac uses."
+      - id: ap1-2c-6ghz
+        type: concept
+        term: "6GHz band"
+        def: "The newest Wi-Fi frequency range, opened with Wi-Fi 6E, offering wide, uncrowded channels at the cost of the shortest reach."
+      - id: ap1-2c-ap
+        type: concept
+        term: "Access point"
+        def: "A device that connects wireless clients to the wired LAN."
+      - id: ap1-2c-managed
+        type: concept
+        term: "Managed switch"
+        def: "A LAN switch that can be logged into and configured, for example to create VLANs, set port speeds or monitor traffic."
+      - id: ap1-2c-poe
+        type: concept
+        term: "Power over Ethernet (PoE)"
+        def: "Delivering electrical power to a device such as an access point, camera or desk phone through the same twisted-pair cable that carries its data."
+      - id: ap1-2c-ont
+        type: concept
+        term: "Optical network terminal (ONT)"
+        def: "The box at the customer's premises that converts a provider's fiber signal into Ethernet for the home or office router."
+      - id: ap1-2c-patch-panel
+        type: concept
+        term: "Patch panel"
+        def: "A rack-mounted block of numbered jacks where a building's permanent cable runs end, so each can be linked to a switch port with a short cord."
+      - id: ap1-2c-punchdown
+        type: concept
+        term: "Punchdown tool"
+        def: "A hand tool that pushes individual wires into the slots of a wall jack or 110 block and trims the excess."
+      - id: ap1-2c-toner
+        type: concept
+        term: "Toner probe"
+        def: "A two-part tool: a generator puts a signal on one end of a cable and a wand, swept over a bundle or panel, sounds when it is near the other end."
+      - id: ap1-2c-crimper
+        type: concept
+        term: "Crimper"
+        def: "A hand tool that presses the metal contacts of a modular plug such as RJ45 onto the wires at the end of a cable."
+
+      - id: ap1-2c-q01
+        type: mcq
+        q: "A Wi-Fi analyzer in a North American office shows strong neighbouring 2.4GHz networks on channels 1 and 6. Which channel should the new access point use on that band?"
+        choices: ["3", "4", "11", "8"]
+        answer: 2
+        why: "On 2.4GHz only channels 1, 6 and 11 do not overlap one another. With 1 and 6 in use, 11 is the clear one; channels 3, 4 and 8 would overlap the neighbours and suffer interference from both sides."
+      - id: ap1-2c-q02
+        type: mcq
+        q: "An access point is to be mounted on a warehouse ceiling where there is a network cable but no electrical outlet, and the existing switch is a basic non-PoE model. What is the simplest way to power the access point?"
+        choices:
+          - "Add a PoE injector between the switch and the access point"
+          - "Replace the cable with fiber"
+          - "Add a patch panel"
+          - "Use a loopback plug"
+        answer: 0
+        why: "A PoE injector adds power to the existing Ethernet run, so no outlet is needed at the ceiling. Fiber carries light and cannot deliver power at all."
+      - id: ap1-2c-q03
+        type: mcq
+        q: "In a wiring closet, forty unlabelled cables arrive at a patch panel. A technician must find which one runs to a wall jack in office 12. Which tool should be used?"
+        choices: ["Crimper", "Cable tester", "Loopback plug", "Toner probe"]
+        answer: 3
+        why: "A toner probe puts a tone on the cable at the wall jack and the wand finds that cable among the bundle. A cable tester checks the wiring of a cable once you already know both of its ends."
+      - id: ap1-2c-q04
+        type: mcq
+        q: "A technician has pulled new cable through a wall and must terminate it onto a keystone wall jack. Which tool is needed?"
+        choices: ["Crimper", "Punchdown tool", "Toner probe", "Network tap"]
+        answer: 1
+        why: "Jacks and patch panels are terminated by punching each wire into a slot with a punchdown tool. A crimper is for fitting RJ45 plugs onto the end of a patch cord, not for jacks."
+      - id: ap1-2c-q05
+        type: mcq
+        q: "A farm has no cable, DSL or fiber service. It can see a local provider's tower on a nearby hill, and the owner needs low delay for video calls. Geostationary satellite service is also available. Which connection type is the BEST choice?"
+        choices: ["Geostationary satellite", "Dial-up", "A wireless internet service provider (WISP)", "A personal area network"]
+        answer: 2
+        why: "A WISP link to a tower in line of sight has low latency, which suits video calls. A geostationary satellite adds around half a second of delay because of the distance the signal travels."
+
+  # ─────────────────── 3a · Motherboards, CPUs, RAM and power ───────────────────
+  - id: ap1-3a
+    title: "Motherboards, CPUs, memory and power supplies"
+    domain: "3"
+    goal: "I can choose compatible core components for a PC, set the key firmware options and pick a suitable power supply."
+    notes: |
+      Building or upgrading a PC is mostly a question of **compatibility**: the case must fit the motherboard, the motherboard's socket must match the CPU, and the memory slots must match the RAM generation.
+
+      | Form factor | Size | Typical use |
+      | ATX | 305 x 244 mm | Full-size desktop, most slots |
+      | microATX | up to 244 x 244 mm | Smaller desktop, fewer slots |
+      | Mini-ITX | 170 x 170 mm | Compact PC, one slot |
+
+      **CPU**: Intel and AMD use different sockets, so a board accepts one maker's chips only. x86 is 32-bit, x64 is 64-bit; **ARM** is a different, power-saving architecture used in phones and some laptops. More cores means more work done at once.
+
+      **RAM**: desktops use DIMMs, laptops SODIMMs. DDR3, DDR4 and DDR5 are keyed differently and cannot be mixed. Matching modules in the correct slots run in dual-channel mode. **ECC** memory corrects errors and belongs in servers.
+
+      **Firmware (BIOS/UEFI)** settings to know: boot order, Secure Boot, the TPM, boot and setup passwords, USB port permissions, fan and temperature monitoring, and virtualization support.
+
+      **Cooling**: a heat sink with thermal paste and a fan, or a liquid loop.
+
+      ## Power supply
+
+      | Point | Detail |
+      | Input | 110-120 VAC or 220-240 VAC |
+      | Output | 3.3V, 5V and 12V DC |
+      | Main connector | 20+4 pin |
+      | Wattage | Must exceed the total draw with headroom |
+      | Modular | Attach only the cables needed |
+      | Redundant | Two units; one can fail without downtime |
+
+      Efficiency ratings tell you how little of the input is wasted as heat.
+    items:
+      - id: ap1-3a-atx
+        type: concept
+        term: "ATX"
+        def: "The standard full-size desktop motherboard form factor, 305 x 244 mm, with the most room for expansion slots."
+      - id: ap1-3a-matx
+        type: concept
+        term: "microATX"
+        def: "A desktop motherboard form factor up to 244 x 244 mm: shorter than the full-size standard, with fewer expansion slots, but using compatible mounting holes."
+      - id: ap1-3a-itx
+        type: concept
+        term: "Mini-ITX"
+        def: "A 170 x 170 mm motherboard form factor for compact PCs, normally with a single expansion slot."
+      - id: ap1-3a-pcie
+        type: concept
+        term: "PCIe"
+        def: "The current expansion-slot standard, built from serial lanes in x1, x4, x8 and x16 sizes; video cards use the longest slot."
+      - id: ap1-3a-ecc
+        type: concept
+        term: "ECC RAM"
+        def: "Memory that carries extra bits so it can detect and correct single-bit errors; used in servers and workstations and needs a board that supports it."
+      - id: ap1-3a-dual-channel
+        type: concept
+        term: "Dual-channel memory"
+        def: "A configuration in which matched modules installed in paired slots are accessed at the same time, increasing the rate at which data moves between RAM and the CPU."
+      - id: ap1-3a-tpm
+        type: concept
+        term: "TPM"
+        def: "A security chip on the motherboard that generates and stores cryptographic keys, used for example to hold a full-disk encryption key."
+      - id: ap1-3a-secure-boot
+        type: concept
+        term: "Secure Boot"
+        def: "A UEFI feature that lets the computer start only boot loaders carrying a trusted digital signature, blocking tampered or unsigned ones."
+      - id: ap1-3a-thermal-paste
+        type: concept
+        term: "Thermal paste"
+        def: "A compound spread thinly between a processor and its cooler to fill microscopic air gaps and carry heat across."
+      - id: ap1-3a-modular-psu
+        type: concept
+        term: "Modular power supply"
+        def: "A power supply whose output cables are detachable, so only the ones a build needs are fitted, reducing clutter and improving airflow."
+      - id: ap1-3a-redundant-psu
+        type: concept
+        term: "Redundant power supply"
+        def: "Two or more power units in one system, each able to carry the full load, so the machine keeps running if one fails."
+
+      - id: ap1-3a-q01
+        type: mcq
+        q: "A technician tries to fit DDR4 memory from an old PC into a new motherboard that takes DDR5. The modules will not seat. Why?"
+        choices:
+          - "The new board needs ECC memory"
+          - "The modules must be installed in pairs"
+          - "The firmware must be updated first"
+          - "The notch is in a different position, because the generations are not interchangeable"
+        answer: 3
+        why: "Each DDR generation is keyed with its notch in a different place so that the wrong type cannot be inserted; DDR4 and DDR5 also differ electrically. No firmware update can make a board accept a different generation."
+      - id: ap1-3a-q02
+        type: mcq
+        q: "A user installs a hypervisor on a desktop PC, but it reports that hardware virtualization is not available. The CPU is a recent model that supports it. What should the technician do?"
+        choices:
+          - "Enable virtualization support in the BIOS/UEFI settings"
+          - "Install a second video card"
+          - "Disable Secure Boot"
+          - "Replace the power supply with a higher-wattage unit"
+        answer: 0
+        why: "CPU virtualization extensions (Intel VT-x or AMD-V) are often switched off in firmware by default and must be enabled there. Secure Boot controls which boot loaders may start and has nothing to do with these extensions."
+      - id: ap1-3a-q03
+        type: mcq
+        q: "A desktop PC with a manual voltage selector on its power supply is shipped from a 120V country to an office in a 230V country. What must be done before it is plugged in?"
+        choices:
+          - "Remove the CMOS battery"
+          - "Fit a modular power supply"
+          - "Set the selector switch to the 230V position"
+          - "Disable the TPM"
+        answer: 2
+        why: "A supply left at the 115V setting and fed 230V will be damaged the moment it is powered. Many modern supplies switch automatically, but one with a manual selector must be set to match the local mains."
+      - id: ap1-3a-q04
+        type: mcq
+        q: "A user buys a laptop with an ARM processor and finds that an older program, released only for x64 processors, runs slowly. What is the MOST likely explanation?"
+        choices:
+          - "The laptop needs ECC memory"
+          - "The program is being translated by an emulation layer because it was not built for ARM"
+          - "ARM processors have only one core"
+          - "Secure Boot is blocking the program"
+        answer: 1
+        why: "ARM and x64 are different instruction sets, so x64 software must run through emulation on an ARM machine unless an ARM version exists, and emulation costs performance. ARM chips are multicore, so the core count is not the reason."
+
+  # ─────────────────── 3b · Storage, cables and displays ───────────────────
+  - id: ap1-3b
+    title: "Storage, RAID, cables and displays"
+    domain: "3"
+    goal: "I can choose a drive and RAID level, identify common cables and connectors, and compare display types."
+    notes: |
+      ## Storage
+
+      **Hard drives** spin platters (5,400, 7,200, 10,000 or 15,000 rpm; faster means quicker access) and come in 3.5-inch (desktop) and 2.5-inch (laptop) sizes. **SSDs** have no moving parts. Do not confuse an SSD's *shape* with its *interface*: an **M.2** stick may speak SATA (capped near 600 MB/s) or **NVMe** over PCIe (several times faster).
+
+      | RAID | How | Minimum drives | Survives |
+      | 0 | Striping | 2 | No failure |
+      | 1 | Mirroring | 2 | One drive |
+      | 5 | Striping + one parity | 3 | One drive |
+      | 6 | Striping + two parity | 4 | Two drives |
+      | 10 | Striped mirrors | 4 | One drive per mirror |
+
+      RAID is not a backup.
+
+      ## Cables
+
+      | Cable | Note |
+      | Cat 5e | 1 Gbps to 100 m |
+      | Cat 6 | 10 Gbps to 55 m |
+      | Cat 6a | 10 Gbps to 100 m |
+      | Coaxial | F-type connector; cable TV and internet |
+      | Single-mode fiber | Laser light, long distance |
+      | Multimode fiber | LED light, shorter runs |
+
+      Twisted pair ends in RJ45 (phone lines use the smaller RJ11) and is wired to T568A or T568B. **Plenum-rated** cable is required in air-handling spaces. Fiber uses ST, SC and LC connectors. Video uses HDMI, DisplayPort, DVI and the analog VGA; USB-C and Thunderbolt can carry video too.
+
+      ## Displays
+
+      LCD panels need a backlight: **TN** is fast but has poor viewing angles, **IPS** has the best colour and angles, **VA** has the best LCD contrast. **OLED** pixels make their own light. **Mini-LED** is an LCD with thousands of tiny backlight zones.
+    items:
+      - id: ap1-3b-nvme
+        type: concept
+        term: "NVMe"
+        def: "A storage interface designed for solid-state drives that talks to the system directly over PCIe lanes, giving far higher speeds than the interface inherited from hard drives."
+      - id: ap1-3b-m2
+        type: concept
+        term: "M.2"
+        def: "A small stick-shaped form factor for SSDs and wireless cards that plugs flat into the motherboard and is held by one screw."
+      - id: ap1-3b-raid0
+        type: concept
+        term: "RAID 0"
+        def: "Striping across two or more drives for speed and full capacity, with no redundancy at all: one drive failure loses everything."
+      - id: ap1-3b-raid1
+        type: concept
+        term: "RAID 1"
+        def: "Mirroring: the same data is written to two drives, so one can fail without loss, at the cost of half the total capacity."
+      - id: ap1-3b-raid5
+        type: concept
+        term: "RAID 5"
+        def: "Striping with one drive's worth of distributed parity across at least three drives; the array survives a single drive failure."
+      - id: ap1-3b-raid6
+        type: concept
+        term: "RAID 6"
+        def: "Striping with two drives' worth of distributed parity across at least four drives; the array survives two drive failures."
+      - id: ap1-3b-raid10
+        type: concept
+        term: "RAID 10"
+        def: "Pairs of mirrored drives that are then striped together; it needs at least four drives and gives half the total capacity."
+      - id: ap1-3b-plenum
+        type: concept
+        term: "Plenum-rated cable"
+        def: "Cable with a fire-resistant, low-smoke jacket, required where it runs through air-handling spaces such as the gap above a dropped ceiling."
+      - id: ap1-3b-smf
+        type: concept
+        term: "Single-mode fiber"
+        def: "Optical cable with a very narrow core that carries one path of laser light, used for the longest distances."
+      - id: ap1-3b-ips
+        type: concept
+        term: "IPS"
+        def: "The LCD panel type with the most accurate colour and the widest viewing angles, favoured for design work."
+      - id: ap1-3b-oled
+        type: concept
+        term: "OLED"
+        def: "A display in which every pixel emits its own light, so no backlight is needed and black is truly black."
+
+      - id: ap1-3b-q01
+        type: mcq
+        q: "A small server has four 4TB drives configured as RAID 5. About how much usable capacity does the array provide?"
+        choices: ["16TB", "12TB", "8TB", "4TB"]
+        answer: 1
+        why: "RAID 5 uses the equivalent of one drive for parity, so four 4TB drives give 3 x 4 = 12TB. 8TB is what the same four drives would give in RAID 6 or RAID 10."
+      - id: ap1-3b-q02
+        type: mcq
+        q: "A motherboard manual states that its M.2 slot supports PCIe (NVMe) drives only. A technician installs an M.2 SATA SSD and the drive is not detected. What is the reason?"
+        choices:
+          - "M.2 drives need a separate SATA power cable"
+          - "The drive must first be formatted in another PC"
+          - "The drive uses an interface that the slot does not support"
+          - "Secure Boot is hiding the drive"
+        answer: 2
+        why: "M.2 is only the physical form factor; a drive on it speaks either SATA or NVMe, and the slot must support the one the drive uses. An unformatted drive would still be detected by the firmware."
+      - id: ap1-3b-q03
+        type: mcq
+        q: "A design studio needs 10 Gbps Ethernet over copper runs of up to 90 metres. What is the minimum cable category that supports this?"
+        choices: ["Cat 6a", "Cat 5", "Cat 5e", "Cat 6"]
+        answer: 0
+        why: "Cat 6a carries 10 Gbps for the full 100 metres. Cat 6 supports 10 Gbps only to about 55 metres, so it falls short on a 90-metre run."
+      - id: ap1-3b-m01
+        type: multi
+        q: "Which TWO of these connectors are used on fiber-optic cable?"
+        choices: ["RJ45", "LC", "F-type", "SC", "RJ11", "DB9"]
+        answers: [1, 3]
+        why: "LC and SC (along with ST) are fiber connectors. RJ45 and RJ11 terminate twisted-pair copper, F-type terminates coaxial cable, and DB9 is a serial connector."
+
+  # ─────────────────── 3c · Printers ───────────────────
+  - id: ap1-3c
+    title: "Printers and multifunction devices"
+    domain: "3"
+    goal: "I can set up and share a printer or multifunction device and carry out the right maintenance for each printer type."
+    notes: |
+      ## Setting up
+
+      Unbox with care (remove every piece of packing tape), and place the device where it has ventilation, power and a network connection. Install the driver that matches the operating system. Drivers speak a page language: **PCL** is quick and fine for office documents; **PostScript** is device-independent and preferred for graphics. Keep the firmware current.
+
+      A printer connects by USB, Ethernet or wireless, and is shared either from one PC (a printer share) or through a **print server** that queues everyone's jobs. Settings to know: duplex, orientation (portrait or landscape), tray and paper size, and quality.
+
+      On shared devices, security matters: user authentication, **badging**, audit logs and **secured prints** that wait for the owner. Multifunction devices scan from the flatbed glass or the **ADF** and send the result to email, an SMB folder or a cloud service.
+
+      ## Maintenance by type
+
+      | Type | How it prints | Maintenance |
+      | Laser | Toner fused to paper by heat | Replace toner, fit the maintenance kit, calibrate, clean |
+      | Inkjet | Liquid ink sprayed from a printhead | Clean printheads, replace cartridges, calibrate, clear jams |
+      | Thermal | Heating element on heat-sensitive paper | Replace paper, clean the heating element, remove debris |
+      | Impact | Pins strike an inked ribbon | Replace ribbon, printhead and paper |
+
+      A laser printer builds each page in a fixed sequence: processing, charging, exposing, developing, transferring, fusing and cleaning. Knowing it lets you trace most print defects to a single part. Let a laser printer cool before servicing: the fuser is hot.
+    items:
+      - id: ap1-3c-pcl
+        type: concept
+        term: "PCL"
+        def: "A page-description language originally from HP that is fast and widely supported, well suited to everyday office documents."
+      - id: ap1-3c-postscript
+        type: concept
+        term: "PostScript"
+        def: "A device-independent page-description language from Adobe, preferred for graphics and professional publishing because output looks the same on any device."
+      - id: ap1-3c-duplex
+        type: concept
+        term: "Duplex printing"
+        def: "Printing on both sides of each sheet automatically."
+      - id: ap1-3c-adf
+        type: concept
+        term: "Automatic document feeder (ADF)"
+        def: "A tray on top of a scanner or multifunction device that pulls a stack of pages through one at a time, so they need not be placed on the glass singly."
+      - id: ap1-3c-maintkit
+        type: concept
+        term: "Maintenance kit"
+        def: "A set of wear parts for a laser printer, typically a fuser and rollers, fitted when the page counter reaches the maker's interval."
+      - id: ap1-3c-fuser
+        type: concept
+        term: "Fuser"
+        def: "The heated roller assembly in a laser printer that melts toner and presses it permanently into the paper."
+      - id: ap1-3c-thermal
+        type: concept
+        term: "Thermal printer"
+        def: "A printer that forms an image by heating spots on chemically coated paper; common for receipts and labels, and it uses no ink or toner."
+      - id: ap1-3c-impact
+        type: concept
+        term: "Impact printer"
+        def: "A printer that strikes an inked ribbon against the paper with pins, which lets it print through multipart carbon forms."
+      - id: ap1-3c-secured
+        type: concept
+        term: "Secured print"
+        def: "A feature that holds a job at the device until its owner releases it there with a PIN or badge, so pages are not left lying in the tray."
+
+      - id: ap1-3c-o01
+        type: order
+        q: "After the page image has been processed, a laser printer carries out six further stages. Put them in order."
+        steps: ["Charging", "Exposing", "Developing", "Transferring", "Fusing", "Cleaning"]
+        why: "The drum is given a uniform charge, the laser writes the image onto it, toner sticks to the written areas, the toner is pulled onto the paper, heat and pressure fix it, and finally the drum is wiped ready for the next page."
+      - id: ap1-3c-q01
+        type: mcq
+        q: "A freight office must print on three-part carbonless forms so that every copy is marked in one pass. Which printer type is required?"
+        choices: ["Impact", "Laser", "Inkjet", "Thermal"]
+        answer: 0
+        why: "Only an impact printer physically strikes the paper, and that pressure is what marks the lower copies of a multipart form. Laser, inkjet and thermal printers mark the top sheet only."
+      - id: ap1-3c-q02
+        type: mcq
+        q: "A departmental laser printer displays 'Perform printer maintenance' after 200,000 pages. Print quality is still acceptable. What should the technician do?"
+        choices:
+          - "Replace the toner cartridge only"
+          - "Update the printer driver"
+          - "Switch the driver from PCL to PostScript"
+          - "Install the maintenance kit and reset the page counter"
+        answer: 3
+        why: "The message is triggered by the page count and calls for the maker's maintenance kit; the counter must then be reset or the message returns. A new toner cartridge does not renew the fuser and rollers that the kit replaces."
+      - id: ap1-3c-q03
+        type: mcq
+        q: "An inkjet printer that has stood unused for two months now prints with thin horizontal gaps across text and pictures. The cartridges are half full. What should be tried FIRST?"
+        choices:
+          - "Replace the pickup roller"
+          - "Run the printhead cleaning cycle"
+          - "Replace all the cartridges"
+          - "Change the paper orientation"
+        answer: 1
+        why: "Ink dries in the nozzles of an idle inkjet, leaving gaps; the built-in cleaning cycle clears them. Replacing half-full cartridges is costly and should wait until cleaning has been tried."
+      - id: ap1-3c-q04
+        type: mcq
+        q: "Staff in a human-resources office send confidential letters to a shared hallway printer and worry that other people will pick the pages up first. Which feature BEST addresses this?"
+        choices: ["Duplex printing", "A printer share", "Secured print with release at the device", "An automatic document feeder"]
+        answer: 2
+        why: "A secured print job waits until its owner authenticates at the device with a PIN or badge, so pages come out only while the owner is standing there. Duplexing and sharing change how pages are printed, not who can collect them."
+      - id: ap1-3c-q05
+        type: mcq
+        q: "After a cashier fits a new roll, a thermal receipt printer feeds paper normally but every receipt is completely blank. What is the MOST likely cause?"
+        choices:
+          - "The ink ribbon has run out"
+          - "The toner is low"
+          - "The print queue is frozen"
+          - "The roll is in upside down or is not thermal paper"
+        answer: 3
+        why: "Thermal paper is coated on one side only; loaded the wrong way round, or replaced with plain paper, nothing darkens when heated. A direct thermal printer has no ribbon or toner to run out."
+
+  # ─────────────────── 4a · Virtualization ───────────────────
+  - id: ap1-4a
+    title: "Virtual machines, hypervisors and containers"
+    domain: "4"
+    goal: "I can explain what a virtual machine is for, tell the two hypervisor types apart and say what a host needs to run guests."
+    notes: |
+      **Virtualization** lets one physical computer (the *host*) run several independent computers in software (the *guests*, or virtual machines). Each VM has its own virtual CPU, memory, disk and network card, and its own operating system.
+
+      The software that makes this possible is the **hypervisor**:
+
+      | Type | Runs on | Used for |
+      | Type 1 | The hardware itself ("bare metal") | Servers and data centres |
+      | Type 2 | An ordinary operating system, as an application | Desktops, testing, learning |
+
+      ## Why use a VM?
+
+      - **Sandbox**: try risky software where it cannot harm the real system.
+      - **Test and development**: build, break and rebuild machines in minutes.
+      - **Legacy software**: keep an old program alive on the old operating system it needs.
+      - **Cross-platform**: run one operating system's programs on another.
+
+      **Application virtualization** delivers a single program without installing it locally. **VDI** hosts whole desktops in the data centre, and users reach them from thin clients or any device. A **container** packages an application with its dependencies but shares the host's kernel, so it is lighter and starts faster than a full VM.
+
+      ## What the host needs
+
+      - **Resources**: enough CPU cores (with virtualization support switched on in firmware), RAM and storage for every guest plus the host itself.
+      - **Network**: virtual switches and adapters decide whether a guest can see the real network.
+      - **Security**: every guest must be patched and protected like a real machine, and the hypervisor even more so, because whoever controls it controls every guest.
+    items:
+      - id: ap1-4a-vm
+        type: concept
+        term: "Virtual machine"
+        def: "A complete computer implemented in software, with its own virtual hardware and operating system, running as a guest on a physical host."
+      - id: ap1-4a-type1
+        type: concept
+        term: "Type 1 hypervisor"
+        def: "Virtualization software installed directly on the physical hardware, with no general-purpose operating system beneath it; the kind used on data-centre servers."
+      - id: ap1-4a-type2
+        type: concept
+        term: "Type 2 hypervisor"
+        def: "Virtualization software installed as an application on top of an ordinary desktop operating system."
+      - id: ap1-4a-sandbox
+        type: concept
+        term: "Sandbox"
+        def: "An isolated environment in which untrusted or experimental software can be run without any risk to the real system or network."
+      - id: ap1-4a-vdi
+        type: concept
+        term: "VDI"
+        def: "Hosting users' entire desktops as guests in the data centre and delivering them over the network to thin clients or other devices."
+      - id: ap1-4a-container
+        type: concept
+        term: "Container"
+        def: "A lightweight package holding an application and its dependencies that runs isolated from others but shares the host operating system's kernel."
+      - id: ap1-4a-appvirt
+        type: concept
+        term: "Application virtualization"
+        def: "Delivering a single program so that it runs for the user without being conventionally installed on the local operating system."
+      - id: ap1-4a-crossplatform
+        type: concept
+        term: "Cross-platform virtualization"
+        def: "Running software written for one operating system or processor family on a different one, by means of a guest or an emulation layer."
+
+      - id: ap1-4a-q01
+        type: mcq
+        q: "A student wants to practise Linux commands on a Windows laptop without repartitioning the disk or changing how the laptop starts. What should be installed?"
+        choices:
+          - "A Type 1 hypervisor"
+          - "A Type 2 hypervisor"
+          - "A second hard drive"
+          - "A VDI server"
+        answer: 1
+        why: "A Type 2 hypervisor installs like any Windows program and runs Linux in a window. A Type 1 hypervisor would replace Windows as the software that the laptop boots."
+      - id: ap1-4a-q02
+        type: mcq
+        q: "A company is replacing twelve ageing physical servers with guests on three powerful hosts in its server room. Which software should be installed on the hosts for the best performance?"
+        choices:
+          - "A Type 2 hypervisor on a desktop operating system"
+          - "An application virtualization client"
+          - "A Type 1 hypervisor"
+          - "A container for each server"
+        answer: 2
+        why: "A Type 1 hypervisor runs directly on the hardware, so no host operating system takes a share of the resources: the standard choice for server consolidation. A Type 2 hypervisor adds the overhead of a full desktop operating system underneath."
+      - id: ap1-4a-q03
+        type: mcq
+        q: "A help-desk technician receives a suspicious program from a user and wants to see what it does when run. What is the SAFEST way?"
+        choices:
+          - "Run it in a sandboxed virtual machine with no access to the company network"
+          - "Run it on the technician's own PC with antivirus enabled"
+          - "Run it on the user's PC while watching Task Manager"
+          - "Email it to a colleague for a second opinion"
+        answer: 0
+        why: "An isolated VM lets the program run where it can reach nothing of value and can simply be deleted afterwards. Antivirus on a real PC may miss new malware, and that PC is attached to the company network."
+      - id: ap1-4a-q04
+        type: mcq
+        q: "A host PC has 16GB of RAM. A user starts three virtual machines, each assigned 8GB, and everything, including the host, becomes extremely slow. What is the cause?"
+        choices:
+          - "The guests need Secure Boot"
+          - "The virtual switch is misconfigured"
+          - "The host is using a Type 1 hypervisor"
+          - "More memory has been assigned to the guests than the host physically has"
+        answer: 3
+        why: "Three guests at 8GB ask for 24GB, more than the 16GB installed and with nothing left for the host, so the system swaps to disk constantly. A network misconfiguration would affect connectivity, not overall speed."
+      - id: ap1-4a-q05
+        type: mcq
+        q: "A factory depends on a control program that runs only on an operating system no longer sold or supported, and the old PC it runs on is failing. What is the BEST way to keep the program in use?"
+        choices:
+          - "Install the program directly on the newest operating system"
+          - "Move the program to a SaaS provider"
+          - "Run the old operating system as a virtual machine on new hardware"
+          - "Buy a used PC of the same age"
+        answer: 2
+        why: "A VM can run the legacy operating system on modern, reliable hardware and can be kept isolated from the network. A used PC of the same age is just as likely to fail soon."
+      - id: ap1-4a-q06
+        type: mcq
+        q: "A developer needs twenty isolated copies of a small web service on one server and wants each to start in seconds and use as little memory as possible. Which technology fits BEST?"
+        choices: ["Containers", "Full virtual machines", "VDI", "A Type 2 hypervisor"]
+        answer: 0
+        why: "Containers share the host's kernel, so each carries only the application and its dependencies and starts almost at once. Twenty full virtual machines would each need their own operating system, memory and boot time."
+
+  # ─────────────────── 4b · Cloud ───────────────────
+  - id: ap1-4b
+    title: "Cloud models and characteristics"
+    domain: "4"
+    goal: "I can tell the cloud service and deployment models apart and explain the characteristics that make cloud computing different."
+    notes: |
+      **Cloud computing** means renting computing from a provider's data centre over the network instead of owning the hardware.
+
+      ## Who is it for? (deployment models)
+
+      | Model | Meaning |
+      | Public | A provider's shared infrastructure, open to any paying customer |
+      | Private | Infrastructure used by one organisation only |
+      | Hybrid | Private and public used together |
+      | Community | Shared by several organisations with a common need, such as hospitals or councils |
+
+      ## What do you rent? (service models)
+
+      | Model | You get | You still manage |
+      | IaaS | Virtual machines, storage, networks | Operating system, applications, data |
+      | PaaS | A ready platform to run your code on | Your application and data |
+      | SaaS | A finished application | Only your data and settings |
+
+      A quick test: if you are installing an operating system, it is IaaS; if you are deploying code, PaaS; if you are just logging in and using it, SaaS.
+
+      ## Characteristics
+
+      - **Shared or dedicated resources**: most cloud hardware is shared between customers (**multitenancy**), with each customer's data kept separate; dedicated hardware costs more.
+      - **Metered utilization**: you pay for what you use. Data flowing in is *ingress*; data flowing out is *egress*, and it is usually the one that is billed.
+      - **Elasticity**: capacity grows and shrinks automatically with demand.
+      - **Availability**: providers spread services over several sites and promise an uptime figure.
+      - **File synchronization**: files stored in the cloud stay identical on every device.
+    items:
+      - id: ap1-4b-public
+        type: concept
+        term: "Public cloud"
+        def: "Computing services run by a provider on infrastructure shared among any customers who sign up, and reached over the internet."
+      - id: ap1-4b-private
+        type: concept
+        term: "Private cloud"
+        def: "Cloud infrastructure operated for a single organisation alone, giving it the most control at the highest cost."
+      - id: ap1-4b-hybrid
+        type: concept
+        term: "Hybrid cloud"
+        def: "A deployment that combines an organisation's own exclusive infrastructure with a provider's shared services, moving workloads between the two."
+      - id: ap1-4b-community
+        type: concept
+        term: "Community cloud"
+        def: "Cloud infrastructure shared by several organisations that have the same mission or compliance needs, and closed to everyone else."
+      - id: ap1-4b-iaas
+        type: concept
+        term: "IaaS"
+        def: "The service model that rents out raw virtual servers, storage and networking; the customer installs and manages the operating system and everything above it."
+      - id: ap1-4b-paas
+        type: concept
+        term: "PaaS"
+        def: "The service model that provides a managed environment of operating system, runtime and database, on which customers deploy their own code."
+      - id: ap1-4b-saas
+        type: concept
+        term: "SaaS"
+        def: "The service model that provides a finished, provider-run application, normally used through a browser on subscription."
+      - id: ap1-4b-elasticity
+        type: concept
+        term: "Elasticity"
+        def: "The ability of a cloud service to add capacity automatically when demand rises and release it again when demand falls."
+      - id: ap1-4b-metered
+        type: concept
+        term: "Metered utilization"
+        def: "Being billed for the amount of computing, storage and data transfer actually consumed, in the way a utility bills for electricity."
+      - id: ap1-4b-multitenancy
+        type: concept
+        term: "Multitenancy"
+        def: "Many customers being served from the same physical hardware and software, with each customer's data logically separated from the others'."
+
+      - id: ap1-4b-q01
+        type: mcq
+        q: "A ten-person firm pays a monthly fee per user for email and office applications that everyone uses through a web browser. Nothing is installed or maintained locally. Which cloud model is this?"
+        choices: ["IaaS", "PaaS", "Private cloud", "SaaS"]
+        answer: 3
+        why: "A finished application run entirely by the provider and used by subscription is software as a service. With IaaS the firm would be renting virtual servers and installing and patching the mail software itself."
+      - id: ap1-4b-q02
+        type: mcq
+        q: "An administrator rents four virtual servers from a provider, chooses their CPU and disk sizes, then installs and patches the operating system on each. Which service model is being used?"
+        choices: ["SaaS", "IaaS", "PaaS", "Community cloud"]
+        answer: 1
+        why: "Renting virtual hardware and managing the operating system yourself is infrastructure as a service. Under PaaS the provider would supply and patch the operating system, leaving only the code to deploy."
+      - id: ap1-4b-q03
+        type: mcq
+        q: "A clinic keeps patient records on its own servers for compliance, but runs its public website and overflow computing with a large provider, with the two linked together. Which deployment model is this?"
+        choices: ["Hybrid cloud", "Public cloud", "Private cloud", "Community cloud"]
+        answer: 0
+        why: "Using private infrastructure and a public provider together is a hybrid cloud. A community cloud would be one shared environment used jointly by several similar organisations."
+      - id: ap1-4b-q04
+        type: mcq
+        q: "A company stores video archives with a cloud provider. Its bill is far higher than expected in a month when staff downloaded most of the archive to edit it locally. Which charge explains this?"
+        choices: ["Ingress fees", "Multitenancy fees", "Egress fees", "Elasticity fees"]
+        answer: 2
+        why: "Data leaving the provider's network is egress, and metered plans commonly charge for it per gigabyte. Ingress is data going in, which providers generally do not charge for."
+
+  # ─────────────────── 5a · PC hardware and drive faults ───────────────────
+  - id: ap1-5a
+    title: "Troubleshooting motherboards, memory, power and drives"
+    domain: "5"
+    goal: "I can read the symptoms of a failing PC or drive and choose the most likely cause and the right first step."
+    notes: |
+      Troubleshooting questions give you symptoms and ask for the *most likely* cause or the *first* thing to do. Work in a fixed order and change one thing at a time:
+
+      - Identify the problem (ask what changed; back up data first).
+      - Establish a theory of probable cause, starting with the obvious.
+      - Test the theory.
+      - Plan the fix and carry it out.
+      - Verify the whole system works, and prevent a repeat.
+      - Document what you found and did.
+
+      (CompTIA no longer tests these steps by name on this exam, but every scenario assumes them.)
+
+      ## Common symptoms
+
+      | Symptom | Think of |
+      | No power, no lights, no fans | Wall outlet, power cable, PSU switch, PSU |
+      | Fans spin, beeps, blank screen | A failed POST: reseat RAM and video card |
+      | Clock and settings reset | CMOS battery |
+      | Random shutdowns, sluggish under load | Overheating: dust, dead fan, dried thermal paste |
+      | Crash screens, application crashes | Bad RAM, bad driver, overheating |
+      | Burning smell, swollen capacitors | Power off now; failing PSU or motherboard |
+      | Clicking or grinding drive | Mechanical failure: back up immediately |
+      | "Bootable device not found" | Boot order, loose cable, dead drive |
+      | S.M.A.R.T. warning | The drive predicts its own failure: back up, replace |
+      | Slow reads and writes, low IOPS | Failing or nearly full drive, degraded array |
+
+      ## RAID
+
+      An amber LED or an alarm from a storage enclosure usually marks one failed disk. A redundant array keeps working in a *degraded* state: replace the failed disk promptly and let the array rebuild. If the whole array is missing, look at the controller and its configuration before touching the disks.
+    items:
+      - id: ap1-5a-post
+        type: concept
+        term: "POST"
+        def: "The hardware check that firmware runs every time a computer is switched on, before any operating system loads; failures are reported with beeps, lights or codes."
+      - id: ap1-5a-bsod
+        type: concept
+        term: "Proprietary crash screen"
+        def: "The full-screen stop error an operating system shows when it hits a fault it cannot recover from, such as the Windows blue screen or the macOS kernel panic."
+      - id: ap1-5a-cmos
+        type: concept
+        term: "CMOS battery"
+        def: "The coin cell on a motherboard that keeps the real-time clock running and preserves firmware settings while the computer is unplugged."
+      - id: ap1-5a-capacitor
+        type: concept
+        term: "Capacitor swelling"
+        def: "Bulging or leaking tops on the small cylindrical components of a motherboard or power supply: visible proof of failure that leads to instability and shutdowns."
+      - id: ap1-5a-smart
+        type: concept
+        term: "S.M.A.R.T."
+        def: "The self-monitoring built into a drive that tracks indicators such as reallocated sectors and warns that failure is likely before it happens."
+      - id: ap1-5a-iops
+        type: concept
+        term: "IOPS"
+        def: "A measure of storage performance: the number of read and write operations a drive or array completes each second."
+      - id: ap1-5a-degraded
+        type: concept
+        term: "Degraded array"
+        def: "The state of a redundant set of disks after one member has failed: data is still available, but protection is reduced or gone until the member is replaced and rebuilt."
+
+      - id: ap1-5a-o01
+        type: order
+        q: "Put the steps of the standard troubleshooting methodology in order."
+        steps:
+          - "Identify the problem"
+          - "Establish a theory of probable cause"
+          - "Test the theory to determine the cause"
+          - "Establish a plan of action and implement the solution"
+          - "Verify full system functionality and apply preventive measures"
+          - "Document findings, actions and outcomes"
+        why: "You cannot theorise about a problem you have not identified, you test a theory before acting on it, you verify after fixing, and documentation always comes last."
+      - id: ap1-5a-q01
+        type: mcq
+        q: "Each morning a desktop PC shows the wrong date and time and reports that its firmware settings were reset to defaults. Once started, it runs normally all day. What should be replaced?"
+        choices: ["The power supply", "The CMOS battery", "The RAM", "The system drive"]
+        answer: 1
+        why: "The coin cell keeps the clock and firmware settings alive while the PC is off; when it is flat they are lost overnight. A failing power supply would cause trouble while the PC is running, not only after it has been off."
+      - id: ap1-5a-q02
+        type: mcq
+        q: "Straight after a memory upgrade, a PC powers on and its fans spin, but the screen stays blank and the speaker gives a repeating pattern of beeps. What should the technician do FIRST?"
+        choices:
+          - "Reinstall the operating system"
+          - "Replace the monitor"
+          - "Reseat the memory modules"
+          - "Replace the CMOS battery"
+        answer: 2
+        why: "Beeps with a blank screen mean POST has failed, and the only thing that changed was the memory: a module is not fully seated or is incompatible. The operating system has not even begun to load, so reinstalling it cannot help."
+      - id: ap1-5a-q03
+        type: mcq
+        q: "A dusty five-year-old PC works for light tasks but shuts itself off a few minutes into video rendering, with the fans at full speed beforehand. What is the MOST likely cause?"
+        choices:
+          - "The CPU is overheating"
+          - "The system drive is failing"
+          - "The CMOS battery is flat"
+          - "The monitor cable is loose"
+        answer: 0
+        why: "Shutdowns under heavy load with fans racing are the CPU's thermal protection at work: clean out the dust, check the fan and renew the thermal paste. A failing drive causes read errors and slowness rather than load-related power-offs."
+      - id: ap1-5a-q04
+        type: mcq
+        q: "A user reports that a desktop's hard drive has started to make a rhythmic clicking sound and files are slow to open. What should the technician do FIRST?"
+        choices:
+          - "Defragment the drive"
+          - "Update the firmware of the motherboard"
+          - "Run a full-surface format"
+          - "Back up the user's data"
+        answer: 3
+        why: "Clicking means the drive's mechanism is failing and it may stop at any moment, so the data must be copied off before anything else. Defragmenting or formatting would work the dying drive even harder."
+      - id: ap1-5a-q05
+        type: mcq
+        q: "After a technician adds a second drive for extra storage, a PC shows 'Bootable device not found'. The original drive is still connected and appears in the firmware setup screen. What is the MOST likely cause?"
+        choices:
+          - "The original drive has failed"
+          - "The boot order now starts with the new, empty drive"
+          - "The power supply is too small"
+          - "The RAM is faulty"
+        answer: 1
+        why: "Adding a drive can change the boot sequence so that the firmware tries the blank drive first; correcting the boot order fixes it. The original drive is detected, so a failure of that drive is unlikely."
+      - id: ap1-5a-q06
+        type: mcq
+        q: "A file server with four disks in RAID 5 sounds an alarm; one disk has an amber LED and the controller reports the array as degraded. Users can still open their files. What should be done?"
+        choices:
+          - "Delete the array and restore everything from backup"
+          - "Power the server off until a new server arrives"
+          - "Replace the failed disk and let the array rebuild"
+          - "Replace all four disks at once"
+        answer: 2
+        why: "RAID 5 survives one failed disk; replacing it and rebuilding restores protection with no data loss. Waiting is dangerous, because a second failure while degraded would destroy the array."
+      - id: ap1-5a-q07
+        type: mcq
+        q: "A desktop PC is completely dead: no lights, no fans and no sound when the power button is pressed. What should be checked FIRST?"
+        choices:
+          - "The wall outlet, the power cable and the switch on the power supply"
+          - "The RAM modules"
+          - "The CMOS battery"
+          - "The boot order"
+        answer: 0
+        why: "Question the obvious first: a dead outlet, a loose cable or a rear switch left off is common and takes seconds to check. Faulty RAM or a wrong boot order would still leave the fans and lights working."
+      - id: ap1-5a-q08
+        type: mcq
+        q: "While a PC is running, a user notices a burning smell coming from the case. What is the correct immediate action?"
+        choices:
+          - "Run a hardware diagnostic program"
+          - "Open the case and look for the source while it runs"
+          - "Save the work and restart"
+          - "Shut the PC down and unplug it"
+        answer: 3
+        why: "A burning smell means a component is failing electrically and could start a fire, so power is removed at once and the PC inspected afterwards. Leaving it running, whether to test or to look inside, risks more damage and injury."
+
+  # ─────────────────── 5b · Displays and mobile devices ───────────────────
+  - id: ap1-5b
+    title: "Troubleshooting displays, projectors and mobile devices"
+    domain: "5"
+    goal: "I can diagnose common picture problems and common faults on phones, tablets and laptops."
+    notes: |
+      ## Displays and projectors
+
+      Start with the simplest causes: is it switched on, is the right **input source** selected, and is the cable firmly seated and undamaged?
+
+      | Symptom | Likely cause |
+      | "No signal" | Wrong input selected, loose or faulty cable |
+      | Fuzzy image | Not running at the panel's native resolution; projector out of focus |
+      | Wrong colours or a tint | Damaged cable or bent pin, bad colour settings |
+      | Flashing or flickering | Loose cable, wrong refresh rate, failing backlight |
+      | Dim image | Brightness or eco setting, ageing lamp or backlight |
+      | Dead pixels | Panel defect: replace the panel if there are too many |
+      | Burn-in | A static image shown for too long |
+      | Wrong size, stretched | Wrong resolution or aspect ratio |
+      | Slanted (trapezoid) picture | Projector not square to the screen: keystone correction |
+      | Projector shuts down, then works again later | Overheating: blocked vent or clogged filter |
+      | No sound over HDMI or DisplayPort | Wrong audio output device selected |
+
+      ## Mobile devices
+
+      | Symptom | Likely cause or action |
+      | Short battery life | Worn battery; apps running in the background |
+      | Swollen battery | Stop using and charging it; replace and recycle safely |
+      | Will not charge properly | Cable, charger, or lint or damage in the port |
+      | Touch not responding, or responding in the wrong place | Digitizer fault, screen protector, calibration |
+      | Overheating | Heavy apps, direct sun, charging, failing battery |
+      | Cannot install apps | Storage full, OS too old |
+      | Slow | Storage nearly full, too many apps, malware |
+      | Liquid damage | Power off at once; do not charge |
+
+      A cracked screen that still responds to touch has a broken glass or display layer; a perfect picture that ignores touch has a broken **digitizer**.
+    items:
+      - id: ap1-5b-dead-pixel
+        type: concept
+        term: "Dead pixel"
+        def: "A single dot on a flat panel that stays permanently black or one fixed colour whatever the picture shows."
+      - id: ap1-5b-burn-in
+        type: concept
+        term: "Display burn-in"
+        def: "A faint permanent ghost of an image, such as a taskbar or logo, left on a screen that showed the same static picture for a very long time."
+      - id: ap1-5b-digitizer
+        type: concept
+        term: "Digitizer"
+        def: "The layer of a touch screen that senses where a finger or stylus touches and reports the position to the device."
+      - id: ap1-5b-native
+        type: concept
+        term: "Native resolution"
+        def: "The exact number of physical pixels a flat panel has, across and down; the setting at which its image is sharpest."
+      - id: ap1-5b-keystone
+        type: concept
+        term: "Keystone correction"
+        def: "A projector adjustment that squares up an image which appears wider at the top or bottom because the projector is not perpendicular to the screen."
+      - id: ap1-5b-swollen
+        type: concept
+        term: "Swollen battery"
+        def: "A lithium-ion cell that has bulged from gas build-up, often lifting a screen, trackpad or back cover; a fire risk that requires immediate replacement."
+
+      - id: ap1-5b-q01
+        type: mcq
+        q: "A user moves a PC's video cable from the monitor's DisplayPort socket to its HDMI 2 socket. The monitor powers on but shows 'No signal'. The PC is running. What is the MOST likely cause?"
+        choices:
+          - "The video card has failed"
+          - "The monitor has dead pixels"
+          - "The monitor is still set to the DisplayPort input"
+          - "The refresh rate is set too low"
+        answer: 2
+        why: "A monitor shows only the input it is set to; after the cable is moved, the source must be changed to HDMI 2 (or set to automatic). A failed video card is far less likely than a setting nobody changed."
+      - id: ap1-5b-q02
+        type: mcq
+        q: "A ceiling projector in a meeting room turns itself off about twenty minutes into every presentation and will switch back on only after a wait. What should be checked FIRST?"
+        choices:
+          - "The projector's air filter and vents"
+          - "The laptop's screen resolution"
+          - "The HDMI cable"
+          - "The keystone setting"
+        answer: 0
+        why: "Shutting down after a period of use and recovering after a rest is thermal protection; a clogged filter or blocked vent is the usual cause. A faulty cable would cause signal loss, not a power-off followed by a cool-down."
+      - id: ap1-5b-q03
+        type: mcq
+        q: "An older monitor connected by VGA suddenly shows everything with a strong pink tint. When the cable is wiggled, the colours briefly return to normal. What is the MOST likely cause?"
+        choices:
+          - "Display burn-in"
+          - "A loose connector or bent pin on the video cable"
+          - "An incorrect input source"
+          - "A wrong screen resolution"
+        answer: 1
+        why: "A VGA cable carries red, green and blue on separate pins; losing one through a loose plug or bent pin tints the whole picture, and movement restoring it confirms the diagnosis. A wrong input source would give no picture at all."
+      - id: ap1-5b-q04
+        type: mcq
+        q: "Text on a new 2560 x 1440 LCD monitor looks soft and slightly blurred. The operating system is set to 1920 x 1080. What should the technician do?"
+        choices:
+          - "Replace the video cable"
+          - "Lower the refresh rate"
+          - "Enable keystone correction"
+          - "Set the resolution to 2560 x 1440"
+        answer: 3
+        why: "An LCD is sharpest only at its native resolution; at any other setting the image has to be scaled across the fixed pixels, which blurs text. The cable is delivering a stable picture, so it is not at fault."
+      - id: ap1-5b-q05
+        type: mcq
+        q: "A user brings in a phone whose back cover has lifted because the battery inside is bulging. What should the technician do?"
+        choices:
+          - "Press the cover back down and tape it"
+          - "Fully charge the phone to test the battery"
+          - "Stop using and charging it, and replace the battery, sending the old one for proper recycling"
+          - "Pierce the battery to release the pressure"
+        answer: 2
+        why: "A swollen lithium-ion battery can catch fire: it must not be charged, pressed or punctured, only removed carefully and disposed of through proper recycling. Charging it adds energy to a cell that is already failing."
+      - id: ap1-5b-q06
+        type: mcq
+        q: "After a drop, a tablet's picture is perfect and the glass is not cracked, but touches are ignored across the lower third of the screen. Which component has MOST likely failed?"
+        choices: ["The battery", "The digitizer", "The backlight", "The wireless card"]
+        answer: 1
+        why: "The digitizer is the layer that senses touch; a dead zone with a normal picture points straight to it. A backlight fault would make the image dim or dark but would not affect touch."
+      - id: ap1-5b-q07
+        type: mcq
+        q: "A phone charges only while its cable is held at a certain angle. The same cable and charger work perfectly with other phones. What should be done FIRST?"
+        choices:
+          - "Inspect the charging port for lint or damage and clean it carefully"
+          - "Replace the battery"
+          - "Factory-reset the phone"
+          - "Buy a higher-wattage charger"
+        answer: 0
+        why: "A known-good cable that makes contact only at an angle points to the port: packed pocket lint or a worn connector. The battery does accept charge when contact is made, so it is not the first suspect."
+      - id: ap1-5b-q08
+        type: mcq
+        q: "A user drops a phone into a sink full of water and pulls it out still switched on. What should be done FIRST?"
+        choices:
+          - "Plug it into a charger to check that it still charges"
+          - "Dry it with a hair dryer on high heat"
+          - "Shake it hard and carry on using it"
+          - "Power it off immediately"
+        answer: 3
+        why: "Water does most of its damage by shorting powered circuits, so removing power comes first; the phone can then be dried and inspected. Connecting a charger pushes current through wet contacts and makes a short far more likely."
+      - id: ap1-5b-q09
+        type: mcq
+        q: "A user cannot install a new app on a phone: the download starts and then fails each time. Photos and videos fill the device, and the operating system is up to date. What is the MOST likely cause?"
+        choices:
+          - "The digitizer is faulty"
+          - "The storage is full"
+          - "The battery health is poor"
+          - "Bluetooth is turned off"
+        answer: 1
+        why: "Installing an app needs free space; a phone packed with photos and video has none. Moving media to cloud storage or removing unused apps solves it. Battery health affects run time, not whether an app can be installed."
+      - id: ap1-5b-m01
+        type: multi
+        q: "A projector shows a correctly sized, sharp image that is much dimmer than it used to be. Which TWO of these are likely causes?"
+        choices:
+          - "The lamp is near the end of its life"
+          - "The wrong input source is selected"
+          - "Eco (low-brightness) mode has been turned on"
+          - "The audio cable is loose"
+          - "The screen resolution is set too high"
+        answers: [0, 2]
+        why: "An ageing lamp loses brightness, and eco mode deliberately lowers lamp power. A wrong input gives no image at all, a wrong resolution changes size or sharpness, and audio cabling has no effect on the picture."
+
+  # ─────────────────── 5c · Networks and printers ───────────────────
+  - id: ap1-5c
+    title: "Troubleshooting networks and printers"
+    domain: "5"
+    goal: "I can trace common wired and wireless network symptoms and common print defects to their cause."
+    notes: |
+      ## Networks
+
+      First find out how far the problem reaches: one device, one room or everyone? Then work outwards: link light, IP settings, gateway, a public IP address, a name.
+
+      | Symptom | Likely cause |
+      | Limited or no connectivity, 169.254.x.x address | No answer from DHCP |
+      | Sites open by IP address but not by name | DNS |
+      | Intermittent Wi-Fi | Weak signal, interference, channel overlap |
+      | Slow speeds | Congestion, bad cable, speed or duplex mismatch, far from the access point |
+      | Choppy VoIP or video calls | Jitter, high latency, packet loss |
+      | Link light going on and off | Port flapping: bad cable, failing port or NIC |
+      | Authentication failures | Wrong or changed passphrase, expired credentials |
+      | Everyone loses internet now and then | Modem, router or provider line |
+
+      Microwave ovens, cordless phones and Bluetooth all share the 2.4GHz band: the classic **external interference**.
+
+      ## Printers
+
+      | Symptom | Likely cause |
+      | Vertical lines down the page | Scratched drum or dirty scanner glass (laser); clogged nozzles (inkjet) |
+      | Faded print | Low toner or ink, draft mode |
+      | Toner smears or rubs off | Fuser not hot enough |
+      | Double or echo image | Drum not being cleaned or discharged |
+      | Speckles | Loose toner inside, damaged drum |
+      | Garbled characters | Wrong or corrupt driver |
+      | Jams, no feed, several sheets at once | Worn rollers or separation pad, damp or wrong paper |
+      | Grinding noise | Worn gears, foreign object |
+      | Jobs stuck in the queue | Stalled print spooler: clear the queue and restart the service |
+      | Wrong orientation, tray not recognised | Driver or tray settings do not match the paper loaded |
+      | Staple or hole-punch jams | Finisher needs clearing or its capacity was exceeded |
+    items:
+      - id: ap1-5c-jitter
+        type: concept
+        term: "Jitter"
+        def: "Variation in the delay between packets as they arrive, which makes voice and video calls sound choppy even when average delay is acceptable."
+      - id: ap1-5c-latency
+        type: concept
+        term: "Latency"
+        def: "The time a packet takes to travel from sender to receiver, usually measured in milliseconds with a ping."
+      - id: ap1-5c-flapping
+        type: concept
+        term: "Port flapping"
+        def: "A switch interface that keeps going up and down, typically because of a bad cable, a failing connector or a faulty network card."
+      - id: ap1-5c-ghost
+        type: concept
+        term: "Double or echo image"
+        def: "A print defect in which a faint copy of part of the page repeats further down, caused by a drum that was not fully cleaned or discharged between rotations."
+      - id: ap1-5c-spooler
+        type: concept
+        term: "Print spooler"
+        def: "The operating-system service that holds jobs in a queue and feeds them to the printer one at a time."
+      - id: ap1-5c-pickup
+        type: concept
+        term: "Pickup roller"
+        def: "The rubber wheel that pulls the top sheet from the paper tray into a printer; when worn smooth, paper fails to feed."
+
+      - id: ap1-5c-q01
+        type: mcq
+        q: "Office phone calls over VoIP sound choppy and robotic. Repeated pings to the provider return 12 ms, 140 ms, 20 ms, 165 ms and 15 ms with no loss. Which problem do these results show?"
+        choices: ["Port flapping", "Authentication failure", "DNS failure", "Jitter"]
+        answer: 3
+        why: "Delay that swings widely from packet to packet is jitter, and real-time audio cannot hide it. Port flapping would show as the link dropping and packets being lost, not as varying delay with every ping answered."
+      - id: ap1-5c-q02
+        type: mcq
+        q: "Laptops in a break room lose their 2.4GHz Wi-Fi connection for a minute or two around lunchtime every day, and work well otherwise. What is the MOST likely cause?"
+        choices:
+          - "The DHCP scope is exhausted"
+          - "The Wi-Fi passphrase was changed"
+          - "Interference from the microwave oven"
+          - "A failing patch panel"
+        answer: 2
+        why: "Microwave ovens radiate in the 2.4GHz band and drown out nearby Wi-Fi while they run. Moving the clients to 5GHz avoids the problem. An exhausted scope would stop new devices from getting addresses, not drop existing ones for a minute."
+      - id: ap1-5c-q03
+        type: mcq
+        q: "A managed switch logs one port going down and coming up every few seconds. The desktop PC on that port keeps losing its connection. What should the technician try FIRST?"
+        choices:
+          - "Replace the patch cable with a known-good one"
+          - "Replace the switch"
+          - "Reinstall the PC's operating system"
+          - "Change the DNS server address"
+        answer: 0
+        why: "A flapping port is most often a damaged cable or poor connector, and swapping the cable is the quickest and cheapest test. Replacing the whole switch is not justified while its other ports work normally."
+      - id: ap1-5c-q04
+        type: mcq
+        q: "A PC can ping its default gateway and can ping 8.8.8.8, but the browser cannot open any website by name. What is the MOST likely cause?"
+        choices:
+          - "A faulty network cable"
+          - "A DNS problem"
+          - "A wrong subnet mask"
+          - "A missing default gateway"
+        answer: 1
+        why: "Successful pings to a public IP address prove that the cable, addressing and gateway all work; only name resolution is failing. A missing gateway would have prevented the ping to 8.8.8.8."
+      - id: ap1-5c-q05
+        type: mcq
+        q: "Pages from a laser printer look normal, but the toner smears when rubbed and comes off on the fingers. Which component is MOST likely at fault?"
+        choices: ["The pickup roller", "The toner cartridge", "The print spooler", "The fuser"]
+        answer: 3
+        why: "The fuser melts toner into the paper; when it is not hot enough the toner just sits on the surface. A fault in the toner cartridge would change how much toner reaches the page, not whether it sticks."
+      - id: ap1-5c-q06
+        type: mcq
+        q: "Every page from a laser printer has a thin black vertical line in the same position, on prints from every PC. What is the MOST likely cause?"
+        choices:
+          - "A corrupt printer driver"
+          - "The wrong paper size in the tray"
+          - "A scratched imaging drum"
+          - "A stalled print spooler"
+        answer: 2
+        why: "A mark in the same place on every page comes from a damaged part the paper passes each time; a scratch on the drum attracts toner along its length. A driver fault would not appear identically from every PC."
+      - id: ap1-5c-q07
+        type: mcq
+        q: "Nobody can print to a shared office printer. The queue on the print server shows fifteen waiting jobs, and the first one, marked 'Error', cannot be deleted. The printer itself is online and idle. What should be done?"
+        choices:
+          - "Restart the print spooler service and clear the queue"
+          - "Replace the toner cartridge"
+          - "Install the maintenance kit"
+          - "Replace the network cable"
+        answer: 0
+        why: "One stuck job is blocking all those behind it; restarting the spooler releases the queue so that the bad job can be removed. The printer is online and idle, so its hardware and cabling are working."
+      - id: ap1-5c-q08
+        type: mcq
+        q: "A laser printer regularly pulls two or three sheets through at once. The paper is the correct type, freshly opened and dry. Which part is MOST likely worn?"
+        choices: ["The fuser", "The separation pad", "The imaging drum", "The duplex unit"]
+        answer: 1
+        why: "The separation pad holds back the sheets under the top one; when it wears smooth, several feed together. The fuser comes after the paper has been picked up and has no part in separating sheets."
+      - id: ap1-5c-q09
+        type: mcq
+        q: "After a new printer is added, a user's documents print as page after page of random symbols. The printer's own built-in test page prints perfectly. What is the MOST likely cause?"
+        choices:
+          - "Low toner"
+          - "A worn pickup roller"
+          - "A failing fuser"
+          - "An incorrect or corrupt printer driver"
+        answer: 3
+        why: "Garbled characters mean the printer is being sent a language it does not understand, which is a driver problem; a clean built-in test page proves the hardware is sound. Low toner gives faded print, not wrong characters."
+      - id: ap1-5c-m01
+        type: multi
+        q: "A laser printer's pages are evenly faded from top to bottom. Which TWO of these are likely causes?"
+        choices:
+          - "The toner cartridge is nearly empty"
+          - "The print queue is frozen"
+          - "The page orientation is wrong"
+          - "A toner-saving (draft) mode is enabled"
+          - "The pickup roller is worn"
+        answers: [0, 3]
+        why: "Too little toner reaching the page, whether because the cartridge is running out or because a draft mode is on, gives pale print. A frozen queue prints nothing, orientation only turns the layout, and a worn pickup roller causes feeding faults."

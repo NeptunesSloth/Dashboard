@@ -448,6 +448,9 @@ def _job_open(c: dict, job: str, taken: dict) -> bool:
 
 
 def _pick_job(c: dict, p: dict, taken: dict) -> str:
+    forced = dao.road.forced_job(c, p, taken)
+    if forced:
+        return forced
     best, best_key = "", None
     for job, level in p["prio"].items():
         if p.get("direct") and job not in ("meditate", "train", "research"):
@@ -827,6 +830,9 @@ def attempt(st: dict, pawn_id: str, now: float) -> dict:
     p = _p(c, pawn_id)
     if not p or not ready(p) or p["away_until"] > c["hour"]:
         return {"ok": False, "error": "They are not ready to break through."}
+    gate_ok, gate_text = dao.road.realm_gate(c, p)
+    if not gate_ok:
+        return {"ok": False, "error": gate_text}
     target = p["step"] // 4 + 1
     trib = target >= 3
     chance = bt_chance(c, p) / 100.0
@@ -1520,13 +1526,14 @@ def _res_tournament(c, ev, opt, r):
     wins, lines = 0, []
     me = duel_power(c, p)
     for i, s in enumerate(sorted(c["sects"], key=lambda x: x["power"])):
-        foe = (16 + _day(c) * 0.75) * s["power"] * (1 + 0.15 * i) * r.uniform(0.75, 1.25)
+        champ = dao.road.champion(c, s)
+        foe = dao.road.tournament_foe(c, s, r)
         if me >= foe:
             wins += 1
             _rel(s, -3)
-            lines.append(f"beat the {s['name']}'s champion")
+            lines.append(f"beat {champ['name']} of the {s['name']} ({realm_label(int(champ['step'])).split(' · ')[0]})")
         else:
-            lines.append(f"fell to the {s['name']}'s champion")
+            lines.append(f"fell to {champ['name']} of the {s['name']} ({realm_label(int(champ['step'])).split(' · ')[0]})")
             _hurt(p, 15, c)
             break
     _fame(c, 4 * wins)
@@ -2039,22 +2046,9 @@ PLACES = {
 }
 
 
-def expedition(st: dict, place: str, now: float) -> dict:
-    c = _c(st, now)
-    if place not in PLACES:
-        return {"ok": False, "error": "Unknown destination."}
-    if any(x["kind"] == "trip_return" for x in c["later"]):
-        return {"ok": False, "error": "A party is already out."}
-    team = _strongest(c, 2)
-    if len(team) < 2:
-        return {"ok": False, "error": "You need two healthy disciples besides yourself."}
-    pl = PLACES[place]
-    back = c["hour"] + pl["hours"]
-    for p in team:
-        p["away_until"], p["away_kind"] = back, f"travelling to the {pl['name']}"
-    c["later"].append({"at": back, "kind": "trip_return", "place": place, "pawns": [p["id"] for p in team]})
-    return {"ok": True, "event": _letter(c, "info", f"A party left for the {pl['name']}",
-                                         f"{' and '.join(p['name'] for p in team)} will be gone {pl['hours']} hours. They cannot work or defend the sect until then.")}
+def expedition(st: dict, place: str, now: float, pawns: list[str] | None = None, stance: str = "balanced") -> dict:
+    """Send a party out. Name the disciples and how they should travel, or leave it to the two strongest."""
+    return dao.road.expedition(st, place, list(pawns or []), stance, now)
 
 
 def _trip_return(c: dict, item: dict, r: random.Random) -> None:
@@ -2063,7 +2057,7 @@ def _trip_return(c: dict, item: dict, r: random.Random) -> None:
     if not team:
         return
     power = sum(duel_power(c, p) for p in team)
-    luck = min(1.6, power / max(1.0, (26 + _day(c) * 0.9) * (0.6 + pl["risk"])))
+    luck = min(1.6, power / max(1.0, (26 + _day(c) * 0.9) * (0.6 + pl["risk"]))) * float(item.get("loot_x", 1.0))
     found = []
     if item.get("place") == "valley":
         n = int(r.randint(14, 24) * min(1.3, luck + 0.3))
@@ -2097,10 +2091,12 @@ def _trip_return(c: dict, item: dict, r: random.Random) -> None:
     for p in team:
         _xp(p, "combat", 20 * pl["risk"] * 2)
         _xp(p, "gather", 15)
-        if r.random() < pl["risk"] / max(0.5, luck):
+        if r.random() < pl["risk"] * float(item.get("risk_x", 1.0)) / max(0.5, luck):
             _hurt(p, r.randint(15, 45), c)
             p["health"] = max(p["health"], 8.0)
             hurt.append(p["name"])
+    dao.road.trip_bonus(c, item, r, found, team)
+    c["later"] = [x for x in c["later"] if x.get("kind") != "trip_mid"]
     for i, a in enumerate(team):
         for b in team[i + 1:]:
             _bond(c, a, b, 10 if hurt else 6)
