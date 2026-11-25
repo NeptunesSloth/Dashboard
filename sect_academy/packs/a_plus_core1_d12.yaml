@@ -259,9 +259,9 @@ units:
         why: "All power is removed before any component is touched, and the battery can only be disconnected once the cover is off. Verification comes last, after reassembly."
       - id: ap1-1x-o02
         type: order
-        q: "Put the steps by which an employee's phone is brought under MDM and receives its work tools in order."
+        q: "This company's MDM enrols phones through the vendor's management app, and its rules release work apps and mail only to devices that have passed the compliance check. Put the steps by which an employee's phone is brought under MDM and receives its work tools in order."
         steps: ["The user installs the company's management app", "The user signs in with corporate credentials", "The user accepts the management profile, which enrols the device", "The MDM system checks the device against the compliance policy", "Corporate apps and mail settings are pushed to the device"]
-        why: "A device must be enrolled before it can be checked, and corporate apps and mail are released only to a device that has passed the compliance check."
+        why: "The app must be installed before the user can sign in through it, and signing in identifies the organisation whose profile is then accepted. A device must be enrolled before it can be checked, and here apps and mail are released only after the check is passed."
 
   # ─────────────────────── 2x · Networking: full coverage ───────────────────────
   - id: ap1-2x
@@ -575,10 +575,10 @@ units:
         why: "The 2.4GHz band is too narrow for wide channels; 20MHz on a non-overlapping channel avoids the neighbours. More power would only increase the mutual interference."
       - id: ap1-2y-q06
         type: mcq
-        q: "An access point is configured to broadcast only on 2.4GHz so that old barcode scanners can connect. A laptop whose adapter has been set to 802.11ac-only mode cannot see the network at all, although a phone beside it can. Why?"
-        choices: ["The laptop's adapter needs a wider channel", "The network name is hidden from laptops", "The laptop is too close to the access point", "802.11ac operates only in the 5GHz band"]
+        q: "An access point is configured to broadcast only on 2.4GHz so that old barcode scanners can connect. An old ruggedised handheld whose radio supports only 802.11a cannot see the network at all, although a phone beside it can. Why?"
+        choices: ["The handheld's radio needs a wider channel", "The network name is hidden from handhelds", "The handheld is too close to the access point", "802.11a operates only in the 5GHz band"]
         answer: 3
-        why: "Wi-Fi 5 (802.11ac) is a 5GHz-only standard, so an adapter restricted to it cannot hear a 2.4GHz network. The phone has a dual-band radio."
+        why: "802.11a is a 5GHz-only standard (as is 802.11ac), so a radio limited to it cannot hear a 2.4GHz network. The phone has a dual-band radio."
       - id: ap1-2y-q07
         type: mcq
         q: "A warehouse wants every tagged pallet counted automatically as a forklift carries it through a dock door, from a few metres away and without anyone aiming a scanner. Which technology fits?"
@@ -644,7 +644,7 @@ units:
         q: "A pan-tilt camera with a built-in heater needs up to 51W at the device. It is connected to a switch whose ports are 802.3at (PoE+). The camera starts, then restarts whenever the heater and motors run. What does the installation need?"
         choices: ["A port or injector that supports 802.3bt", "A port that supports 802.3af", "A shorter DHCP lease time for the camera's address", "A fiber link to the camera"]
         answer: 0
-        why: "802.3at supplies about 30W per port, which is not enough; 802.3bt supplies 60W or more. 802.3af is the oldest standard and supplies even less, about 15W."
+        why: "802.3at supplies 30W at the port, only about 25.5W of which reaches the device; 802.3bt Type 3 supplies 60W at the port and about 51W at the device. 802.3af is the oldest standard and supplies even less (15.4W at the port, about 13W at the device)."
       - id: ap1-2y-q18
         type: mcq
         q: "An office is installing 24 desk phones. The desks have network jacks but no spare power outlets, and the existing 24-port switch is a basic model with no PoE. Which solution is BEST?"
@@ -756,9 +756,9 @@ units:
         why: "The wires must be exposed, ordered and trimmed before they will slide into the plug; crimping fixes them, and testing can only follow."
       - id: ap1-2y-o02
         type: order
-        q: "Put the stages of an email's journey from sender to recipient in order."
+        q: "The recipient reads her mail on both a phone and a laptop and keeps every message on the server. Put the stages of an email's journey from sender to recipient in order."
         steps: ["The sender's mail app submits the message to the sender's mail server using SMTP", "The sender's server looks up the MX record of the recipient's domain", "The sender's server delivers the message to the recipient's mail server using SMTP", "The recipient's mail app retrieves the message using IMAP"]
-        why: "SMTP carries mail to and between servers, and the MX lookup must come before server-to-server delivery because it names the destination. Retrieval by the recipient's app is the last step."
+        why: "SMTP carries mail to and between servers, and the MX lookup must come before server-to-server delivery because it names the destination. Retrieval by the recipient's app is the last step, and IMAP is the protocol that leaves mail on the server for several devices."
       - id: ap1-2y-o03
         type: order
         q: "An office has a fiber internet service. Starting at a desk PC, put in order the equipment that a request to a website passes through on its way out of the building."

@@ -79,9 +79,9 @@ units:
       - id: ap1-3x-q02
         type: mcq
         q: "An old laptop with a fluorescent-backlit screen shows an image so faint it can only be seen by shining a torch at the panel. An external monitor shows a normal picture. Which part has MOST likely failed?"
-        choices: ["Digitizer", "Inverter", "Graphics chip", "Lid-closed sensor"]
+        choices: ["Digitizer", "Inverter", "Graphics chip", "Memory module"]
         answer: 1
-        why: "The image is being drawn but not lit, so the backlight or the inverter that powers it has failed. The graphics chip is proven good by the external monitor, and a digitizer only senses touch."
+        why: "The image is being drawn but not lit, so the backlight or the inverter that powers it has failed. The graphics chip and memory are proven good by the external monitor, and a digitizer only senses touch."
 
       - id: ap1-3x-q03
         type: mcq
@@ -149,7 +149,7 @@ units:
         q: "Two wiring closets in the same building are 220 metres apart and need a 10 Gbps link using the lowest-cost transceivers that will work. Which medium should be chosen?"
         choices: ["Cat 6a twisted pair", "Single-mode fiber", "RG-6 coaxial cable", "Multimode fiber"]
         answer: 3
-        why: "Twisted pair stops at 100 metres. Both fiber types cover 220 metres, but multimode uses cheaper optics; single-mode is for runs of kilometres."
+        why: "Twisted pair stops at 100 metres. Both fiber types cover 220 metres (10 Gbps over laser-optimised OM3 multimode reaches about 300 metres), but multimode uses cheaper optics; single-mode is for runs of kilometres."
 
       # ---- peripheral and video cables ----
       - id: ap1-3x-thunderbolt
@@ -344,12 +344,12 @@ units:
       - id: ap1-3x-printserver
         type: concept
         term: "Print server"
-        def: "A computer or built-in device function that accepts jobs from many clients, queues them and feeds them to one or more printers, and hands out drivers centrally."
+        def: "A networked computer or appliance that shares printers with many client PCs, holding their queues in one place and supplying each client with the right driver."
 
       - id: ap1-3x-badging
         type: concept
         term: "Badging"
-        def: "Signing in at a printer or copier by tapping an ID card on its reader, which releases the user's held jobs and ties usage to that person."
+        def: "Identifying yourself at a printer or copier by tapping an ID card on its reader, so the device knows who is using it and can tie every copy, scan and print to that person."
 
       - id: ap1-3x-auditlog
         type: concept
@@ -691,7 +691,7 @@ units:
       - id: ap1-4x-testdev
         type: concept
         term: "Test development environment"
-        def: "One or more guest machines built to try out new code, patches or configurations safely before they are released to production."
+        def: "A set of guest machines that copies the production systems, so developers and administrators can build and try changes there before releasing them."
 
       - id: ap1-4x-snapshot
         type: concept
@@ -771,9 +771,9 @@ units:
       - id: ap1-4x-q06
         type: mcq
         q: "A virtual machine on a desktop PC runs a web server that colleagues on the office LAN must reach. The guest should get its own address from the office DHCP server. Which virtual network mode is required?"
-        choices: ["NAT", "Host-only", "Internal", "Bridged"]
+        choices: ["NAT", "Host-only", "A private virtual network that joins only the VMs", "Bridged"]
         answer: 3
-        why: "Bridged mode connects the guest to the physical network as if it were another PC on the LAN. NAT hides the guest behind the host's address, so colleagues could not reach it directly."
+        why: "Bridged mode (an external virtual switch in Hyper-V) connects the guest to the physical network as if it were another PC on the LAN. NAT hides the guest behind the host's address, so colleagues could not reach it directly; host-only and VM-only networks (VirtualBox internal, or Hyper-V private and internal switches) never reach the office LAN at all."
 
       - id: ap1-4x-q07
         type: mcq
@@ -868,9 +868,9 @@ units:
 
       - id: ap1-4x-o01
         type: order
-        q: "A technician is setting up a first virtual machine on a desktop PC with a Type 2 hypervisor. Put the steps in order."
+        q: "A technician is setting up a first virtual machine on a desktop PC with a Type 2 hypervisor whose installer refuses to run unless hardware virtualization is already enabled. Put the steps in order."
         steps: ["Turn on virtualization support in UEFI setup", "Install the hypervisor on the host operating system", "Create the virtual machine and assign CPU, memory and disk", "Attach the installation image and install the guest operating system", "Patch the guest operating system"]
-        why: "The hypervisor needs the CPU feature enabled before it can run guests, a machine must exist before an operating system can be installed in it, and patching comes once the guest is running."
+        why: "This installer checks for the CPU feature, so it must be enabled in firmware first; a machine must exist before an operating system can be installed in it, and patching comes once the guest is running."
 
       - id: ap1-4x-o02
         type: order

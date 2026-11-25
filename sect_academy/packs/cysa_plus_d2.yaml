@@ -346,9 +346,9 @@ units:
       - id: cy-2y-q14
         type: mcq
         q: "A finding shows the vector CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N/E:H/RL:O/RC:C. What do the last three metrics add?"
-        choices: ["Attacks have been seen in the wild, a temporary workaround exists, and the score is certified", "Exploit code is hard to write, only a workaround exists, and the report is unconfirmed", "Functional exploit code exists, an official fix is available, and the flaw is confirmed", "The asset has a high confidentiality requirement, and its attack vector has been modified"]
+        choices: ["Attacks have been seen in the wild, a temporary workaround exists, and the score is certified", "Exploit code is hard to write, only a workaround exists, and the report is unconfirmed", "Exploit code that works in every situation exists (or none is needed), an official fix is available, and the flaw is confirmed", "The asset has a high confidentiality requirement, and its attack vector has been modified"]
         answer: 2
-        why: "These are temporal metrics: E:H means functional, reliable exploit code exists (or none is needed), RL:O means an official vendor fix is available, and RC:C means the flaw is confirmed. E:H measures exploit code maturity, not attacks in the wild, which come from threat intelligence such as the KEV catalog."
+        why: "These are temporal metrics: E:H, the top exploit code maturity level above Functional, means exploit code works in every situation, is delivered autonomously, or is not needed at all, RL:O means an official vendor fix is available, and RC:C means the flaw is confirmed. E:H measures exploit code maturity, not attacks in the wild, which come from threat intelligence such as the KEV catalog."
       - id: cy-2y-q15
         type: mcq
         q: "A finding's threat context shows: CVSS 6.5; EPSS 0.71 (percentile 0.99). Which reading of the EPSS figures is correct?"
@@ -507,6 +507,6 @@ units:
         why: "Each step narrows the next: fast discovery finds live ports, version detection says what is running, the scanner matches those services to known flaws, and exploitation validates a specific finding. Exploiting before a finding exists has nothing to aim at."
       - id: cy-2y-o04
         type: order
-        q: "A vendor patch fixes a high-severity finding on a set of production servers. Put the remediation steps in order."
+        q: "A vendor patch fixes a high-severity finding on a set of production servers. The change board approves only changes that come with test evidence. Put the remediation steps in order."
         steps: ["Test the patch on a staging copy of the system", "Get the change approved through change management", "Deploy the patch in the approved maintenance window", "Rescan the servers to confirm the finding is gone", "Close the ticket, attaching the rescan evidence"]
         why: "Testing gives the change board evidence that the patch is safe, approval comes before production is touched, and only a rescan after deployment shows the fix worked. Closing the ticket on the deployment alone skips validation."
