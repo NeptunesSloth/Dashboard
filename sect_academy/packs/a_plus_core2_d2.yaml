@@ -106,10 +106,6 @@ units:
         type: concept
         term: "Microsoft account"
         def: "A sign-in identity based on an email address and held in Microsoft's cloud, which carries settings, OneDrive files and Store purchases across every Windows device it signs in to."
-      - id: ap2-2x-guest
-        type: concept
-        term: "Guest account"
-        def: "A built-in Windows account for occasional visitors with very limited rights and no password, disabled by default and best left that way."
       - id: ap2-2x-poweruser
         type: concept
         term: "Power Users group"
@@ -735,7 +731,7 @@ units:
         why: "Only a control in the mail flow can stop a message before delivery, and one that decodes images can read the hidden link. Wi-Fi content filtering does nothing for phones browsing over mobile data, and it acts after the email has already arrived."
       - id: ap2-2z2-q07
         type: mcq
-        q: "One morning a domain user cannot sign in on a single PC: 'The system cannot log you on due to a time and date difference'. Other users sign in fine elsewhere. The PC's clock reads 09:14; the domain controller reads 09:27. What should be fixed?"
+        q: "One morning a domain user cannot sign in on a single PC; the error mentions a time and date difference between the client and the server. Other users sign in fine elsewhere. The PC's clock reads 09:14; the domain controller reads 09:27. What should be fixed?"
         choices:
           - "The PC's clock, by resynchronising its time with the domain"
           - "The user's password, which has expired"
@@ -877,14 +873,20 @@ units:
         why: "An expiry date disables the account automatically when the project ends, and log-in hours keep it to office time. Password expiration only forces a change of password; the account would stay usable after March."
       - id: ap2-2z2-q20
         type: mcq
-        q: "A hardening review finds the Remote Registry, Telnet Server and Fax services running on reception PCs that use none of them. Why should they be disabled?"
+        q: "A hardening review of reception PCs finds the Remote Registry service, a Telnet server and an FTP server running. Nobody uses any of them. The PCs are fully patched and run antivirus. What is the BEST action?"
+        best: true
         choices:
-          - "To free memory for the screen saver"
-          - "To prevent the guest account being enabled"
-          - "To stop AutoRun on removable media"
-          - "To reduce the attack surface: unused services can still be exploited"
+          - "Add firewall rules blocking the services' ports"
+          - "Leave them, since the PCs are patched and protected"
+          - "Move the reception PCs to a separate network segment"
+          - "Disable the unused services"
         answer: 3
-        why: "Each running service is code that can be attacked, so services nobody uses are pure risk. The other choices describe separate settings that these services do not control."
+        why: "A service that is not running cannot be attacked, so disabling unused services removes the risk outright. Firewall rules leave the services running and depend on the rules staying correct."
+        whys:
+          - "Reduces exposure but leaves the code running and reachable if a rule changes."
+          - "Patches fix known flaws only; unused services are still needless attack surface."
+          - "Limits who can reach them but keeps the needless services alive."
+          - "Removes the attack surface entirely at no cost."
       - id: ap2-2z2-q21
         type: mcq
         q: "A user signed in to her personal browser profile and sync on a shared library PC, then signed out of the PC. The next user found her saved passwords offered on her email site. What should the technician do on the shared PC?"
@@ -930,10 +932,10 @@ units:
           - "Use a security group for the team and grant it Modify on the folder"
           - "Add each user's home folder to the share"
         answer: 2
-        why: "Only security groups can appear in permissions, and in Active Directory a security group can also be mail-enabled for team email. An OU groups objects for policy but cannot be granted permissions."
+        why: "Only security groups can be named in permissions, and where the mail system supports it a security group can also be mail-enabled for team email. An OU groups objects for policy but cannot be granted permissions."
       - id: ap2-2z2-q25
         type: mcq
-        q: "A fine-arts PC has had Windows Home reinstalled after a malware infection. Its definitions are current and a full scan is clean. Which malware-removal step comes next?"
+        q: "A home PC running Windows 11 Home has been reinstalled after a malware infection. Its definitions are current and a full scan is clean. Which malware-removal step comes next?"
         choices:
           - "Disable System Restore"
           - "Schedule scans and run updates"
@@ -959,12 +961,12 @@ units:
         q: "A company's 'BYOD' policy for phones that read company email is being drafted. Which TWO requirements are appropriate to enforce through MDM before a personal phone may connect? Choose TWO."
         choices:
           - "Device encryption and a PIN or biometric screen lock"
-          - "Installing the employer's location tracking that runs at all times"
+          - "Rooting or jailbreaking the phone so MDM has full control"
           - "A minimum supported OS version with current updates"
           - "Removal of all personal apps"
           - "Disabling the phone's camera permanently"
         answers: [0, 2]
-        why: "Encryption with a screen lock and a patched, supported OS are standard profile security requirements that protect company data. Permanent tracking, removing personal apps and disabling the camera intrude on the owner's own device beyond what protecting company data needs."
+        why: "Encryption with a screen lock and a patched, supported OS are standard profile security requirements that protect company data. Rooting or jailbreaking weakens the phone's security, and removing personal apps or disabling the camera goes far beyond protecting company data on a personal device."
       - id: ap2-2z2-m03
         type: multi
         q: "An SSD that held payroll data must be destroyed so that it can never be read again. Which TWO methods are suitable? Choose TWO."
@@ -1012,7 +1014,7 @@ units:
         why: "Patching, trusted extensions and blocking pop-ups and malicious adverts all reduce exposure. Turning off the pop-up blocker, accepting certificate warnings or stopping updates each makes the browser less safe."
       - id: ap2-2z2-m07
         type: multi
-        q: "A technician is hardening the firewall on a Windows 11 PC used as a small file server. Which TWO approaches are correct? Choose TWO."
+        q: "A technician is hardening the firewall on a Windows 11 PC that shares files to a small office workgroup. Which TWO approaches are correct? Choose TWO."
         choices:
           - "Keep the firewall on for all network profiles"
           - "Turn the firewall off on the Private profile so shares work"
