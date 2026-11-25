@@ -21,11 +21,13 @@ There are two published blueprints under the same exam number, 200-301:
 
 Both dates are on Cisco's CCNA certification page. [VENDOR]
 
-The `ccna` base course is written against **v1.1**, because that is the exam a
-candidate can sit today. It has roughly ten weeks left. Section 4 lists the v2.0
-topics and what a v2.0 revision of the course would have to change (new header
-domains and weights, and re-tagging every unit's `domain`). Unit ids and item ids
-can stay as they are.
+The `ccna` course now follows **v2.0** (revised November 2026): the header has
+the five v2.0 domains (25/25/20/20/10), every unit is tagged to one of them, the
+topics v2.0 added are in `ccna_v2.yaml` (units `cn-v2a`..`cn-v2e`), and topics it
+dropped sit in background units `cn-bg-1`..`cn-bg-3` under domain `x` with weight
+0, so mock exams never draw them. v1.1 stays the live exam until 2 February 2027;
+someone sitting it before then should still study the background units. No unit
+or item id changed. Sections 1-3 below describe v1.1 and are kept for reference.
 
 ## 1. Exam facts (v1.1)
 

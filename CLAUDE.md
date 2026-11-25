@@ -99,8 +99,9 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   or romanisation, spacing ignored, pinyin tone numbers accepted, no typo
   forgiveness). An alternative answer written in the script needs its own
   romanisation listed in `alt` too.
-- **Exam versions**: CySA+ is CS0-004 (June 2026). CCNA is v1.1; Cisco replaces
-  it with v2.0 (different domains) on 3 February 2027.
+- **Exam versions**: CySA+ is CS0-004 (June 2026). CCNA follows v2.0 (first
+  test 3 February 2027; v1.1 is live until then). Topics v2.0 dropped sit in
+  `cn-bg-*` units under domain `x` (weight 0), so trials never draw them.
 - **Offline is a hard rule**: no CDN, no web font, no external URL in anything
   the page loads. The CSP in `app.py` is `default-src 'self'`.
 - **State safety** (`state.py`): atomic fsynced writes, a daily `.bak`, a

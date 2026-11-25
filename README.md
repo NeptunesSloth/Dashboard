@@ -36,7 +36,7 @@ python -m sect_academy
 | CompTIA A+ Core 1 (220-1201) | 26 units, 654 items | Hardware, networking, mobile, cloud, troubleshooting |
 | CompTIA A+ Core 2 (220-1202) | 26 units, 712 items | Operating systems, security, software troubleshooting, procedures |
 | CompTIA CySA+ (CS0-004) | 27 units, 670 items | Analyst practice built on real-looking logs and tool output |
-| Cisco CCNA (200-301 v1.1) | 33 units, 736 items | Configuration and verification; subnetting and routing worked |
+| Cisco CCNA (200-301 v2.0, from 3 Feb 2027) | 43 units, 920 items | v2.0 domains; configuration and verification; subnetting and routing worked; topics v2.0 dropped kept as background units outside the mocks |
 
 **Studying**
 
