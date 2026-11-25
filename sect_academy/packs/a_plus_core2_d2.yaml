@@ -7,11 +7,11 @@ units:
     domain: "2"
     goal: "I can name every physical and logical control, MFA method, Windows account type and Active Directory task on the blueprint, and recognise each listed kind of malware and the tool that deals with it."
     notes: |
-      This unit fills in the Security topics that the first pass only touched. Treat it as a checklist: every term here appears in the official objectives.
+      Every term in this unit appears in the official objectives.
 
       ## Physical controls
 
-      **Bollards** stop vehicles; **fences** and **lighting** deter and delay; **motion sensors**, **alarms** and **video surveillance** detect; **guards** can judge and respond. **Badge readers** accept **key fobs**, **smart cards** or a **mobile digital key** on a phone. A **magnetometer** screens people for metal. **Cable locks** keep laptops on desks.
+      **Bollards** stop vehicles; **fences** and **lighting** deter and delay; **motion sensors**, **alarms** and **video surveillance** detect; **guards** respond. **Badge readers** accept **key fobs**, **smart cards** or a **mobile digital key** on a phone. A **magnetometer** screens people for metal. **Cable locks** keep laptops on desks.
 
       ## Identity
 
@@ -22,11 +22,11 @@ units:
       | PAM + JIT | Admin rights only on approval, only for a while |
       | MDM | Policy and remote control for phones and tablets |
 
-      MFA methods differ in strength: a **hardware security key** or **authenticator app** beats codes sent by **SMS**, **voice call** or **email**, which travel through channels an attacker can hijack.
+      MFA methods differ in strength: a **hardware security key** or **authenticator app** beats codes sent by **SMS**, **voice call** or **email**, because those channels can be hijacked.
 
       ## Windows
 
-      Use a **standard** account day to day and **Run as administrator** only when needed. Keep the **guest** account disabled. A **Microsoft account** syncs settings; a local account does not. **Defender Antivirus** and **Defender Firewall** live in Windows Security; allow a *program* through the firewall in preference to opening a port range.
+      Use a **standard** account day to day and **Run as administrator** only when needed. A **Microsoft account** syncs settings; a local account does not. **Defender Antivirus** and **Defender Firewall** live in Windows Security; allow a *program* through the firewall rather than open a port range.
 
       In Active Directory, **GPOs** linked to **OUs** apply settings, **logon scripts**, **home folders** and **folder redirection**; **security groups** carry permissions.
 
@@ -368,7 +368,7 @@ units:
     domain: "2"
     goal: "I can name each listed social-engineering attack, threat and vulnerability, and apply the hardening, disposal, router and browser settings that counter them."
     notes: |
-      The second checklist unit covers the rest of the Security blueprint.
+      The rest of the Security checklist.
 
       ## Social engineering
 
@@ -509,6 +509,14 @@ units:
         type: concept
         term: "Locator application"
         def: "A service that shows a lost phone or laptop's last known position on a map and can make it play a sound or lock it."
+      - id: ap2-2y-remotebackup
+        type: concept
+        term: "Remote backup application"
+        def: "A phone service that copies contacts, photos, settings and app data to cloud storage automatically, so a lost, wiped or replaced device can be restored."
+      - id: ap2-2y-drilling
+        type: concept
+        term: "Drilling"
+        def: "Boring holes through a hard disk's platters on site so that it can no longer be read by ordinary means, although undamaged areas could in theory still be examined by a forensic lab."
 
       - id: ap2-2y-q01
         type: mcq

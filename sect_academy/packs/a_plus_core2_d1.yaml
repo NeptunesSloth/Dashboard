@@ -228,7 +228,7 @@ units:
       - id: ap2-1x-q22
         type: mcq
         q: "A contractor's local account must stop working today but be kept for an audit. Which command disables it without deleting it?"
-        choices: ["net user contractor /delete", "net use contractor /delete", "whoami /user contractor", "net localgroup contractor /delete"]
+        choices: ["net user contractor /delete", "net use contractor /delete", "net localgroup contractor /delete", "net user contractor /active:no"]
         answer: 3
         why: "/active:no disables the account while keeping it and its profile. /delete removes the account entirely, which the audit requirement rules out."
       - id: ap2-1x-q23
@@ -236,13 +236,13 @@ units:
         q: "A user says a folder should hold a hidden configuration file, but 'dir' does not list it. Which command also lists hidden and system files?"
         choices: ["dir /s /p", "dir /w", "dir /o:d", "dir /a"]
         answer: 3
-        why: "dir /a shows files regardless of attributes, including hidden and system ones. /p pauses after each screen and /w uses a wide layout; neither reveals hidden files."
+        why: "dir /a shows files regardless of attributes, including hidden and system ones. /s adds subfolders, /w uses a wide layout and /o:d sorts by date, but none of them reveals hidden files."
       - id: ap2-1x-q24
         type: mcq
         q: "A technician must copy D:\\Data to \\\\NAS01\\backup so that the destination becomes an exact copy, including deleting files that no longer exist in the source. Which command does this?"
         choices: ["robocopy D:\\Data \\\\NAS01\\backup /mir", "copy D:\\Data \\\\NAS01\\backup", "robocopy D:\\Data \\\\NAS01\\backup /e /z", "md \\\\NAS01\\backup D:\\Data"]
         answer: 0
-        why: "robocopy /mir mirrors the tree, copying new and changed files and deleting extra ones at the destination. /z only makes copies restartable after an interruption; it does not delete anything."
+        why: "robocopy /mir mirrors the tree, copying new and changed files and deleting extra ones at the destination. /e copies subfolders and /z makes copies restartable, but neither deletes files that are gone from the source."
       - id: ap2-1x-q25
         type: mcq
         q: "A helpdesk caller is unsure which Windows version and build he is running. Which command opens a small window that shows both?"
@@ -363,7 +363,7 @@ units:
 
       ## Applications and cloud
 
-      A 64-bit Windows runs 32-bit apps; a 32-bit Windows cannot run 64-bit ones. Check RAM, CPU, storage, dedicated **VRAM**, any **hardware token** and the supported OS. Cloud suites need a **licence assigned** to each user, and **identity synchronisation** lets staff use their existing directory account.
+      64-bit Windows runs 32-bit apps, never the reverse. Check RAM, CPU, storage, dedicated **VRAM**, any **hardware token** and the supported OS. Cloud suites need a **licence assigned** to each user, and **identity synchronisation** lets staff use their existing directory account.
     items:
       # ── macOS ──
       - id: ap2-1y-rsr
@@ -390,7 +390,7 @@ units:
         why: "Per-user preferences and application support files live in the hidden ~/Library folder and survive deleting the .app. /System is the protected operating system, which apps do not write their settings into."
       - id: ap2-1y-q02
         type: mcq
-        q: "A Mac shows an available update named 'macOS 15.x (a)' that installs in minutes with a quick restart. What is it?"
+        q: "A Mac shows an available update named 'macOS Ventura 13.4.1 (a)' that installs in minutes with a quick restart. What is it?"
         choices: ["A beta release of the next major macOS version", "A firmware update for the Mac's SSD", "A Time Machine snapshot", "A Rapid Security Response"]
         answer: 3
         why: "Rapid Security Responses carry urgent security fixes between full updates and are labelled with a letter suffix. A beta release is installed only through the beta programme and is a full update, not a small patch."
@@ -493,11 +493,11 @@ units:
         q: "A user saved a PDF somewhere under his home folder but cannot remember where. Which command lists every PDF beneath /home/raj?"
         choices:
           - "grep /home/raj *.pdf"
-          - "ls /home/raj | pwd"
+          - "ls -R /home/raj/*.pdf"
           - "find /home/raj -name \"*.pdf\""
           - "cat /home/raj/*.pdf"
         answer: 2
-        why: "find searches the whole tree below the starting directory for names matching the pattern. grep searches inside files for text; it does not locate files by name through subfolders."
+        why: "find searches the whole tree below the starting directory for names matching the pattern. grep searches inside files for text, and the shell expands *.pdf only in /home/raj itself, so ls misses PDFs in subfolders."
       - id: ap2-1y-q07
         type: mcq
         q: "A Linux data partition /dev/sdb1, mounted at /data, reports filesystem errors. What must be done before running fsck on it?"
@@ -519,9 +519,9 @@ units:
       - id: ap2-1y-q10
         type: mcq
         q: "On a default Ubuntu desktop, a user in the sudo group types 'su -' to get a root shell and the password is always rejected. Which command gives a root shell instead?"
-        choices: ["sudo -i", "su root -c", "chown root", "man su"]
+        choices: ["sudo -i", "su - root", "sudo -l", "su -l"]
         answer: 0
-        why: "Ubuntu locks the root password by default, so su cannot authenticate; sudo -i starts a root login shell using the user's own password. su root -c still needs the root password."
+        why: "Ubuntu locks the root password by default, so su cannot authenticate; sudo -i starts a root login shell using the user's own password. Every su form still asks for the root password, and sudo -l only lists what the user may run."
       - id: ap2-1y-m02
         type: multi
         q: "Which TWO Linux files does a technician check when a workstation resolves host names wrongly? Choose TWO."
@@ -540,7 +540,7 @@ units:
         why: "You need the device name and an empty mount point before mounting, and the filesystem must be mounted before files can be copied; unmounting last flushes the writes so the drive can be removed safely."
       - id: ap2-1y-o02
         type: order
-        q: "A technician changes a setting in an SSH server's config file with nano and applies it. Put the steps in order."
+        q: "On Ubuntu, a technician changes a setting in the SSH server's config file with nano and applies it. Put the steps in order."
         steps:
           - "sudo nano /etc/ssh/sshd_config"
           - "Edit the setting"
@@ -581,7 +581,7 @@ units:
       - id: ap2-1y-identity
         type: concept
         term: "Identity synchronization"
-        def: "Copying user accounts, and usually password hashes, from an on-premises directory to a cloud identity service so staff sign in to cloud apps with the same credentials."
+        def: "Copying user accounts, and often password hashes, from an on-premises directory to a cloud identity service so staff sign in to cloud apps with the same credentials."
       - id: ap2-1y-licence
         type: concept
         term: "Licence assignment"
@@ -640,7 +640,7 @@ units:
         why: "Search reads the index, and a stale or damaged index misses new files; rebuilding it from Indexing Options fixes this. The files are not hidden, so changing File Explorer's view would not help."
       - id: ap2-1z2-q03
         type: mcq
-        q: "A developer needs the Windows Subsystem for Linux and Hyper-V turned on. Neither is a downloadable app. Where are optional Windows components like these enabled in Control Panel?"
+        q: "A developer on Windows 11 Pro needs Hyper-V and Windows Sandbox turned on. Where are built-in optional components like these enabled from Control Panel?"
         choices: ["Devices and Printers", "System, Advanced system settings", "Administrative Tools, Services", "Turn Windows features on or off"]
         answer: 3
         why: "'Turn Windows features on or off', reached from Programs and Features, adds built-in optional components such as Hyper-V. The Services console starts and stops services that are already installed."
@@ -774,7 +774,7 @@ units:
         why: "This is an OS compatibility problem: Chrome OS runs web, Android and Linux apps, not Windows .exe files. A web version or a Windows machine is needed; more RAM would not change that."
       - id: ap2-1z2-q18
         type: mcq
-        q: "A company's in-house app is distributed as an .apk file emailed to staff. Which mobile operating system can install it directly once 'install unknown apps' is allowed for the source app?"
+        q: "A company's in-house app is distributed as an .apk file emailed to staff. Which operating system can install it directly once 'install unknown apps' is allowed for the source app?"
         choices: ["iOS", "Android", "iPadOS", "macOS"]
         answer: 1
         why: ".apk is Android's package format, and Android can install one from outside the store when the user allows that source. iOS, iPadOS and macOS cannot install an .apk at all; iOS and iPadOS take apps from the App Store or through managed distribution."
@@ -807,7 +807,7 @@ units:
           - "At least 16 GB of RAM"
           - "An NVMe solid-state drive"
         answers: [0, 1, 2]
-        why: "Windows 11 requires TPM 2.0, Secure Boot-capable UEFI, 64 GB of storage, 4 GB of RAM and a supported 64-bit CPU. It needs no dedicated GPU, no NVMe drive and only 4 GB of RAM."
+        why: "Windows 11 requires TPM 2.0, Secure Boot-capable UEFI, 64 GB of storage, 4 GB of RAM and a supported 64-bit CPU. It needs no dedicated GPU or NVMe drive, and the RAM minimum is 4 GB, not 16 GB."
       - id: ap2-1z2-q19
         type: mcq
         q: "A user's Windows 10 PC has damaged system files that sfc cannot fix, but she wants to keep her installed applications and files. Which installation type BEST fits?"
