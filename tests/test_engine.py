@@ -78,6 +78,8 @@ def _truth(ex):
     it = packs.item_index()[ex["item"]]
     if ex["mode"] in ("type_l2", "listen", "build_l2"):
         return it["l2"]
+    if ex["mode"] == "glyph_type":
+        return it["rom"]
     if ex["mode"] == "cloze_type":
         return it["answer"]
     if ex["mode"] in engine.LIST_MODES:

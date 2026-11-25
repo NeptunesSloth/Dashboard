@@ -1,0 +1,885 @@
+part_of: a-plus-core1
+
+units:
+  # ─────────────────── 3x · Hardware: complete coverage ───────────────────
+  - id: ap1-3x
+    title: "Hardware in full: cables, displays, storage, boards, power, printers"
+    domain: "3"
+    goal: "I can identify every cable, connector, display, storage, motherboard, power and printer feature the hardware objectives name, and say what each is for."
+    notes: |
+      This unit fills in every hardware topic the first three hardware units left out. It is a naming unit: the exam shows a picture or a short description and expects the exact term.
+
+      ## Sort connectors by family
+
+      - **Copper network**: RJ45 on twisted pair (terminated to **T568A** or **T568B**), RJ11 on telephone and DSL lines, F-type on coaxial cable.
+      - **Fiber**: ST twists, SC snaps, LC is the small latched one.
+      - **Video**: VGA is analog; DVI is mostly digital with no sound; HDMI and DisplayPort carry digital picture and sound.
+      - **Drives and power**: SATA inside the case, eSATA outside it, Molex for older peripherals, the 20+4-pin plug for the board.
+
+      ## Numbers worth knowing
+
+      | Thing | Figure |
+      | Cat 5e | 1 Gbps at 100 m |
+      | Cat 6 | 10 Gbps to about 55 m |
+      | USB 2.0 / 3.0 | 480 Mbps / 5 Gbps |
+      | SATA | 6 Gbps |
+      | Hard disk speeds | 5,400 to 15,000 rpm |
+
+      ## Displays and boards
+
+      **TN** is fast and cheap, **VA** has the best LCD contrast, **Mini-LED** is an LCD with a finely zoned backlight. Firmware holds two different passwords: one to *start* the PC, one to *change settings*. A **TPM** belongs to one board; an **HSM** is a separate device that serves many systems.
+
+      ## Printers
+
+      Know who feeds the queue (a **print server**), who may print (**badging**), and what is recorded (**audit logs**).
+    items:
+      # ---- displays ----
+      - id: ap1-3x-tn
+        type: concept
+        term: "TN panel"
+        def: "The oldest and cheapest LCD panel technology: very fast pixel response, but narrow viewing angles and the weakest colour of the LCD types."
+
+      - id: ap1-3x-va
+        type: concept
+        term: "VA panel"
+        def: "The LCD panel technology with the deepest blacks and highest contrast of the LCD types, sitting between the other two for viewing angle and response time."
+
+      - id: ap1-3x-miniled
+        type: concept
+        term: "Mini-LED"
+        def: "An LCD whose backlight is made of thousands of tiny diodes grouped into many independently dimmed zones, giving more contrast and brightness than an ordinary backlit panel."
+
+      - id: ap1-3x-inverter
+        type: concept
+        term: "Inverter"
+        def: "A small board in older laptop lids and monitors that converts DC into the high-voltage AC needed by a fluorescent (CCFL) backlight tube."
+
+      - id: ap1-3x-ppi
+        type: concept
+        term: "Pixel density"
+        def: "The number of picture elements packed into each inch of a screen; a higher figure gives a sharper image at the same viewing distance."
+
+      - id: ap1-3x-refresh
+        type: concept
+        term: "Refresh rate"
+        def: "How many times per second a display redraws its image, measured in hertz; 60, 120 and 144 are common values."
+
+      - id: ap1-3x-gamut
+        type: concept
+        term: "Colour gamut"
+        def: "The range of colours a display is able to reproduce, usually stated as a percentage of a standard space such as sRGB or DCI-P3."
+
+      - id: ap1-3x-q01
+        type: mcq
+        q: "A school is buying budget monitors for a typing lab. Low price and fast pixel response matter; colour accuracy and viewing angle do not. Which panel type fits BEST?"
+        choices: ["TN", "IPS", "VA", "OLED"]
+        answer: 0
+        why: "TN is the cheapest LCD type and has fast response; its weak colour and narrow viewing angles do not matter here. IPS is chosen for colour and viewing angle and costs more."
+
+      - id: ap1-3x-q02
+        type: mcq
+        q: "An old laptop with a fluorescent-backlit screen shows an image so faint it can only be seen by shining a torch at the panel. An external monitor shows a normal picture. Which part has MOST likely failed?"
+        choices: ["Digitizer", "Inverter", "Graphics chip", "Lid-closed sensor"]
+        answer: 1
+        why: "The image is being drawn but not lit, so the backlight or the inverter that powers it has failed. The graphics chip is proven good by the external monitor, and a digitizer only senses touch."
+
+      - id: ap1-3x-q03
+        type: mcq
+        q: "Two 27-inch monitors stand side by side. One is 1920 x 1080 and the other 3840 x 2160, and text on the second looks far sharper. Which attribute explains the difference?"
+        choices: ["Refresh rate", "Colour gamut", "Pixel density", "Viewing angle"]
+        answer: 2
+        why: "The same screen size with four times as many pixels means more pixels per inch, which is pixel density. Refresh rate affects motion, not sharpness of still text."
+
+      # ---- network cables ----
+      - id: ap1-3x-t568
+        type: concept
+        term: "T568A and T568B"
+        def: "The two standard colour orders for terminating the eight wires of twisted-pair cable in a modular plug or jack; they differ by swapping the orange and green pairs."
+
+      - id: ap1-3x-coax
+        type: concept
+        term: "Coaxial cable"
+        def: "Copper cable with a single centre conductor surrounded by insulation, a braided shield and an outer jacket; used for cable television and cable internet."
+
+      - id: ap1-3x-stp
+        type: concept
+        term: "Shielded twisted pair (STP)"
+        def: "Copper network cable whose paired wires are wrapped in foil or braid to block electromagnetic interference, at a higher cost and with a need for grounding."
+
+      - id: ap1-3x-burial
+        type: concept
+        term: "Direct-burial cable"
+        def: "Cable built with a tough, waterproof, often gel-filled jacket so that it can be laid in the ground without conduit."
+
+      - id: ap1-3x-mmf
+        type: concept
+        term: "Multimode fiber"
+        def: "Optical cable with a wider core that carries several light paths from an LED or low-cost laser; cheaper to equip but limited to shorter runs, such as within a building."
+
+      - id: ap1-3x-q04
+        type: mcq
+        q: "A technician terminates one end of a twisted-pair cable to T568A and the other end to T568B. What kind of cable has been made?"
+        choices: ["Straight-through cable", "Rollover cable", "Loopback cable", "Crossover cable"]
+        answer: 3
+        why: "Using a different standard at each end swaps the transmit and receive pairs, which is a crossover cable. A straight-through cable uses the same standard at both ends."
+
+      - id: ap1-3x-q05
+        type: mcq
+        q: "A technician is crimping an RJ45 plug to the T568B standard. Which wire goes to pin 1?"
+        choices: ["White/orange", "White/green", "Blue", "White/brown"]
+        answer: 0
+        why: "T568B runs white/orange, orange, white/green, blue, white/blue, green, white/brown, brown. White/green on pin 1 is T568A."
+
+      - id: ap1-3x-q06
+        type: mcq
+        q: "On a factory floor, network links fail intermittently on the runs that pass beside large electric motors. The cable is ordinary UTP Cat 6. Which replacement BEST addresses the cause?"
+        choices: ["Plenum-rated UTP", "Shielded twisted pair", "Direct-burial UTP", "Cat 5e UTP"]
+        answer: 1
+        why: "Motors produce electromagnetic interference, which shielding blocks. A plenum rating concerns fire and smoke behaviour, not interference."
+
+      - id: ap1-3x-q07
+        type: mcq
+        q: "A camera on a gatepost must be cabled to the main building along a shallow trench with no conduit. Which cable type is designed for this?"
+        choices: ["Plenum-rated cable", "Riser-rated cable", "Direct-burial cable", "Shielded patch cable"]
+        answer: 2
+        why: "Direct-burial cable has a waterproof, crush-resistant jacket made for contact with soil. Plenum cable is made for air-handling spaces indoors and would soon fail underground."
+
+      - id: ap1-3x-q08
+        type: mcq
+        q: "Two wiring closets in the same building are 220 metres apart and need a 10 Gbps link using the lowest-cost transceivers that will work. Which medium should be chosen?"
+        choices: ["Cat 6a twisted pair", "Single-mode fiber", "RG-6 coaxial cable", "Multimode fiber"]
+        answer: 3
+        why: "Twisted pair stops at 100 metres. Both fiber types cover 220 metres, but multimode uses cheaper optics; single-mode is for runs of kilometres."
+
+      # ---- peripheral and video cables ----
+      - id: ap1-3x-thunderbolt
+        type: concept
+        term: "Thunderbolt"
+        def: "A high-speed peripheral interface that carries data, DisplayPort video and power over one cable, allows devices to be daisy-chained, and from version 3 uses the USB-C connector."
+
+      - id: ap1-3x-hdmi
+        type: concept
+        term: "HDMI"
+        def: "The digital audio-and-video interface found on televisions, consoles and most monitors, using a 19-pin friction-fit plug with no latch."
+
+      - id: ap1-3x-dp
+        type: concept
+        term: "DisplayPort"
+        def: "A digital video-and-audio interface from VESA, common on business PCs, whose full-size plug has one angled corner and a latch, and which can drive several monitors in a chain."
+
+      - id: ap1-3x-dvi
+        type: concept
+        term: "DVI"
+        def: "An older video connector, usually white with a flat blade and thumbscrews, made in digital-only, analog-only and combined versions, and not normally carrying sound."
+
+      - id: ap1-3x-sata
+        type: concept
+        term: "SATA"
+        def: "The internal drive interface that uses a thin 7-pin data cable and a separate 15-pin power connector, topping out at 6 Gbps."
+
+      - id: ap1-3x-esata
+        type: concept
+        term: "eSATA"
+        def: "An external port that gives a drive enclosure outside the case the same signalling as an internal disk, over a shielded cable of up to two metres."
+
+      - id: ap1-3x-q09
+        type: mcq
+        q: "A designer wants one cable from a laptop to carry video to two daisy-chained displays, fast data to an external SSD array, and charging power for the laptop. Which interface provides all of this?"
+        choices: ["Thunderbolt", "DisplayPort", "VGA", "DVI-D"]
+        answer: 0
+        why: "Thunderbolt combines data, DisplayPort video and power delivery and supports daisy-chaining. DisplayPort can chain monitors but does not carry general data or charge the laptop."
+
+      - id: ap1-3x-q10
+        type: mcq
+        q: "A laptop has only an HDMI video output, and a ceiling projector has only a VGA input. What is needed to connect them?"
+        choices: ["A VGA gender changer", "An active HDMI-to-VGA converter", "An HDMI coupler", "A VGA splitter"]
+        answer: 1
+        why: "HDMI is digital and VGA is analog, so the signal must be converted by an active adapter. Couplers, splitters and gender changers only join like to like."
+
+      - id: ap1-3x-q11
+        type: mcq
+        q: "An external SSD rated for 5 Gbps copies files at only about 35 MB per second. It is plugged into a front port with a black insert; the rear ports have blue inserts. What is the MOST likely cause?"
+        choices: ["The drive needs an eSATA port", "The drive is formatted with NTFS", "The front port is USB 2.0", "The rear ports are disabled"]
+        answer: 2
+        why: "A black insert normally marks USB 2.0, which is limited to 480 Mbps, and about 35 MB per second is typical of it. The blue ports are USB 3.0 and allow 5 Gbps."
+
+      - id: ap1-3x-q12
+        type: mcq
+        q: "A user needs a new charging cable for a 2015 Android phone. The phone's port is thin, tapered and fits only one way up; it is slimmer than the port on the user's old digital camera. Which connector is it?"
+        choices: ["miniUSB", "Lightning", "USB-C", "microUSB"]
+        answer: 3
+        why: "microUSB is the thin, tapered, one-way-up connector used on phones before USB-C. miniUSB is the thicker, older connector seen on cameras; USB-C and Lightning are reversible."
+
+      # ---- connectors ----
+      - id: ap1-3x-rj11
+        type: concept
+        term: "RJ11"
+        def: "The small modular plug used on telephone and DSL lines, with six positions and normally two or four wires."
+
+      - id: ap1-3x-ftype
+        type: concept
+        term: "F-type connector"
+        def: "The threaded, screw-on connector on the end of coaxial cable, as found on the back of a cable modem or television."
+
+      - id: ap1-3x-st
+        type: concept
+        term: "ST connector"
+        def: "A fiber-optic connector with a round bayonet body that is pushed in and twisted to lock."
+
+      - id: ap1-3x-sc
+        type: concept
+        term: "SC connector"
+        def: "A square, push-pull, snap-in fiber-optic connector, often supplied as a clipped pair."
+
+      - id: ap1-3x-lc
+        type: concept
+        term: "LC connector"
+        def: "A small-form-factor fiber-optic connector about half the size of the square type, with a latch like a telephone plug; the usual fit for SFP modules."
+
+      - id: ap1-3x-molex
+        type: concept
+        term: "Molex connector"
+        def: "A four-pin peripheral power plug from the power supply that provides 12V and 5V to older drives, fans and accessories."
+
+      - id: ap1-3x-db9
+        type: concept
+        term: "DB9"
+        def: "A nine-pin D-shaped connector used for RS-232 serial links, such as the console port of older network equipment."
+
+      - id: ap1-3x-punchblock
+        type: concept
+        term: "Punchdown block"
+        def: "A wiring-closet block of insulation-displacement contacts, such as the 110 or 66 type, onto which individual wires of building cabling are pressed to terminate them."
+
+      - id: ap1-3x-q13
+        type: mcq
+        q: "Which connector is on the cable that runs from a wall telephone socket to the line port of a DSL modem?"
+        choices: ["RJ11", "RJ45", "F-type", "LC"]
+        answer: 0
+        why: "DSL arrives on the telephone pair, which uses the small RJ11 plug. The modem's LAN side uses RJ45; F-type is for a cable modem's coaxial feed."
+
+      # ---- storage ----
+      - id: ap1-3x-spindle
+        type: concept
+        term: "Spindle speed"
+        def: "How fast a hard disk's platters rotate, in revolutions per minute; typical values are 5,400, 7,200, 10,000 and 15,000."
+
+      - id: ap1-3x-sas
+        type: concept
+        term: "SAS"
+        def: "An enterprise drive interface descended from SCSI, used in servers for its reliability and 12 Gbps speed; its controllers can also run SATA drives."
+
+      - id: ap1-3x-msata
+        type: concept
+        term: "mSATA"
+        def: "An older small SSD form factor shaped like a Mini PCIe card, since replaced in new machines by a narrower gumstick-shaped module."
+
+      - id: ap1-3x-q14
+        type: mcq
+        q: "An archivist must burn a 20GB set of files onto a single optical disc. Which is the smallest-capacity disc type that will hold it?"
+        choices: ["Dual-layer DVD", "Single-layer Blu-ray", "Single-layer DVD", "CD-R"]
+        answer: 1
+        why: "A single-layer Blu-ray disc holds 25GB. A DVD holds 4.7GB on one layer and 8.5GB on two, and a CD about 700MB."
+
+      # ---- motherboards, CPUs, cooling ----
+      - id: ap1-3x-header
+        type: concept
+        term: "Motherboard header"
+        def: "A group of bare pins on the system board to which internal cables attach: front-panel buttons and lights, extra USB ports, audio jacks and fans."
+
+      - id: ap1-3x-lga
+        type: concept
+        term: "LGA socket"
+        def: "A processor socket in which the springy contact pins are in the socket and the chip has only flat pads; used by Intel desktop CPUs and by AMD's AM5."
+
+      - id: ap1-3x-multisocket
+        type: concept
+        term: "Multisocket motherboard"
+        def: "A server or workstation system board that accepts two or more physical processors."
+
+      - id: ap1-3x-hsm
+        type: concept
+        term: "Hardware security module (HSM)"
+        def: "A dedicated, tamper-resistant appliance or plug-in device that generates, stores and uses cryptographic keys on behalf of many systems, rather than being built into one computer's board."
+
+      - id: ap1-3x-heatsink
+        type: concept
+        term: "Heat sink"
+        def: "A finned block of aluminium or copper that draws heat off a chip and spreads it into the surrounding air."
+
+      - id: ap1-3x-liquid
+        type: concept
+        term: "Liquid cooling"
+        def: "Removing processor heat with a pumped coolant loop that carries it to a radiator, allowing quieter running under heavy load."
+
+      - id: ap1-3x-bootpw
+        type: concept
+        term: "Boot password"
+        def: "A firmware-level password, also called a user or power-on password, that must be typed before the computer will start any operating system."
+
+      - id: ap1-3x-adminpw
+        type: concept
+        term: "BIOS administrator password"
+        def: "A firmware-level password, also called a supervisor password, that must be typed before the setup utility's settings can be changed."
+
+      # ---- power ----
+      - id: ap1-3x-24pin
+        type: concept
+        term: "20+4-pin connector"
+        def: "The main power plug from the power supply to the system board, made in two pieces so that it fits both older and current boards."
+
+      - id: ap1-3x-80plus
+        type: concept
+        term: "80 Plus"
+        def: "A certification scheme showing that a power supply turns at least four-fifths of the AC it draws into DC output, with Bronze to Titanium tiers for higher efficiency."
+
+      - id: ap1-3x-q15
+        type: mcq
+        q: "Which power supply output carries the bulk of a modern PC's load, feeding the CPU's voltage regulators, PCIe graphics cards and drive motors?"
+        choices: ["3.3V", "5V", "12V", "5V standby"]
+        answer: 2
+        why: "The CPU, graphics card and motors all draw from 12V. The 3.3V and 5V outputs feed logic circuits and USB, and 5V standby only keeps the board able to wake."
+
+      # ---- printers and multifunction devices ----
+      - id: ap1-3x-printserver
+        type: concept
+        term: "Print server"
+        def: "A computer or built-in device function that accepts jobs from many clients, queues them and feeds them to one or more printers, and hands out drivers centrally."
+
+      - id: ap1-3x-badging
+        type: concept
+        term: "Badging"
+        def: "Signing in at a printer or copier by tapping an ID card on its reader, which releases the user's held jobs and ties usage to that person."
+
+      - id: ap1-3x-auditlog
+        type: concept
+        term: "Print audit log"
+        def: "A record kept by a printer or its server of who printed, copied or scanned what and when, used for accountability and cost tracking."
+
+      - id: ap1-3x-scanfolder
+        type: concept
+        term: "Scan to folder (SMB)"
+        def: "A multifunction-device feature that saves a scanned document straight into a shared directory on a file server or PC."
+
+      - id: ap1-3x-q16
+        type: mcq
+        q: "A wide spreadsheet prints with its right-hand columns pushed onto extra pages. Which print setting should be changed FIRST?"
+        choices: ["Duplex", "Print quality", "Tray selection", "Orientation"]
+        answer: 3
+        why: "Landscape orientation turns the page so its long edge runs across, giving room for more columns. Duplex, quality and tray do not change the printable width."
+
+      - id: ap1-3x-q17
+        type: mcq
+        q: "A dot-matrix printer on tractor-fed forms prints every character complete, but the print grows fainter each week. What should be replaced?"
+        choices: ["The ribbon", "The printhead", "The tractor feed", "The platen"]
+        answer: 0
+        why: "An impact printer's ink comes from its ribbon, which fades evenly as it wears out. A failing printhead leaves characters with missing dots or lines, not complete but faint ones."
+
+  # ─────────────────── 3y · Hardware: exam-hard practice ───────────────────
+  - id: ap1-3y
+    title: "Hardware under pressure: scenario practice"
+    domain: "3"
+    goal: "I can choose the right part, setting or next step in hardware and printer scenarios that are harder than the exam's."
+    notes: |
+      Nothing new is taught here. These questions take the hardware facts you already hold and hide them inside scenarios, the way the exam does, only harder.
+
+      ## How to read a hardware scenario
+
+      - **Find the constraint.** A length, a wattage, a slot type, a number of drives, a label on a port. The stem always contains one detail that rules out the tempting answer.
+      - **Do the sum.** RAID capacity, power budgets and cable limits are arithmetic. Work the number out before you look at the choices.
+      - **Separate the near neighbours.** TPM or HSM. Boot password or administrator password. Cleaning cycle or alignment. PCL or PostScript. Paste or pad. The question usually turns on one such pair.
+      - **Respect the qualifier.** FIRST means the cheapest, least invasive check. BEST means every option may work, but one fits the stated constraint.
+
+      ## Choose TWO and ordering questions
+
+      A "choose TWO" item is marked all-or-nothing, so test each choice on its own as true or false. Ordering questions stand in for the exam's performance-based tasks: picture yourself at the bench and ask what must already be done before each step is possible. Power comes off before hands go in, and a test comes last.
+
+      Expect to get some of these wrong the first time. Read the explanation, then let the review schedule bring the question back.
+    items:
+      - id: ap1-3y-q01
+        type: mcq
+        q: "Two switches 30 metres apart are joined by a certified Cat 6 run. Both are being upgraded to 10GBASE-T ports and the budget is tight. Which is the MOST cost-effective choice that supports 10 Gbps?"
+        choices: ["Replace the run with Cat 6a", "Keep the existing Cat 6 run", "Replace the run with multimode fiber", "Replace the run with Cat 5e"]
+        answer: 1
+        why: "Cat 6 carries 10 Gbps up to about 55 metres, so a 30-metre run already qualifies. Cat 6a is only needed to reach the full 100 metres."
+
+      - id: ap1-3y-q02
+        type: mcq
+        q: "A lobby sign will show the same logo and menu layout for 18 hours a day in bright daylight. The owner wants the highest contrast and brightness available with no risk of permanent image retention. Which display type is BEST?"
+        choices: ["OLED", "TN with an edge backlight", "Mini-LED", "IPS with an edge backlight"]
+        answer: 2
+        why: "Mini-LED gives very high brightness and zoned-backlight contrast, and as an LCD it does not burn in. OLED has the best contrast but static images shown for long hours can leave permanent burn-in."
+
+      - id: ap1-3y-q03
+        type: mcq
+        q: "A technician wants to reuse two 12 Gbps SAS drives from a retired server in a desktop PC whose motherboard has only SATA ports. The drives will not connect. What is needed to use them?"
+        choices: ["A UEFI firmware update", "A SATA power adapter for each drive", "AHCI mode enabled on the ports", "A SAS host bus adapter card"]
+        answer: 3
+        why: "A SAS controller can run SATA drives, but a SATA controller cannot run SAS drives, so a SAS adapter card must be added. No firmware or mode setting changes what the SATA ports can speak."
+
+      - id: ap1-3y-q04
+        type: mcq
+        q: "A file server has six 8TB drives. The array must survive the failure of ANY two drives at the same time and give as much usable space as that allows. Which level should be configured?"
+        choices: ["RAID 6", "RAID 10", "RAID 5", "RAID 0"]
+        answer: 0
+        why: "RAID 6 keeps two drives' worth of parity, so any two can fail, and leaves 32TB. RAID 10 gives only 24TB and is lost if both drives of one mirrored pair fail."
+
+      - id: ap1-3y-q05
+        type: mcq
+        q: "A workstation motherboard supports quad-channel memory. To save money the builder installs two 32GB modules instead of four 16GB modules. What is the result?"
+        choices: ["It will not start until all four channels are filled", "It runs in dual-channel mode with less memory throughput", "It runs in quad-channel mode at half capacity", "It turns off error correction on both modules"]
+        answer: 1
+        why: "The number of channels in use equals the number of matched modules in the right slots, so two modules give dual-channel operation. The capacity is the same 64GB, but less data can move per second than with four modules."
+
+      - id: ap1-3y-q06
+        type: mcq
+        q: "A PC with a 64-bit processor reports 'Installed RAM: 16.0 GB (3.4 GB usable)'. Both modules pass a memory test and show at full size in UEFI setup. What is the MOST likely cause?"
+        choices: ["One module is faulty", "The memory is in single-channel mode", "A 32-bit operating system is installed", "The page file has been disabled"]
+        answer: 2
+        why: "A 32-bit (x86) operating system can address only about 4GB, however much is fitted; a 64-bit (x64) edition is needed. Single-channel mode costs speed, not capacity."
+
+      - id: ap1-3y-q07
+        type: mcq
+        q: "A technician has a PCIe x4 adapter card. The motherboard's only free slots are one PCIe x16 slot and one legacy PCI slot. Where can the card be used?"
+        choices: ["In neither slot; an x4 card needs an x4 slot", "In the PCI slot, at reduced speed", "In either slot; the connectors are the same", "In the x16 slot, where it runs at x4"]
+        answer: 3
+        why: "A PCIe card works in any PCIe slot at least as long as itself and simply uses the lanes it has. PCI is a different, older parallel bus with an incompatible connector."
+
+      - id: ap1-3y-q08
+        type: mcq
+        q: "A technician clones a PC's SATA hard disk to a new NVMe SSD and leaves both installed. The PC still starts slowly, and Disk Management shows Windows running from the hard disk. What should be done FIRST?"
+        choices: ["Change the boot order in UEFI setup", "Reinstall the operating system", "Turn on Secure Boot", "Clear the TPM"]
+        answer: 0
+        why: "Both drives now hold a bootable copy, and the firmware is still choosing the old one; moving the SSD to the top of the boot order fixes it. Reinstalling would throw away a working clone."
+
+      - id: ap1-3y-q09
+        type: mcq
+        q: "A newly built PC powers off about ten minutes into any game. The UEFI hardware monitor shows: CPU 96 C and rising at idle, CPU_FAN 0 RPM, SYS_FAN1 1,200 RPM. What should be checked FIRST?"
+        choices: ["The power supply's wattage rating", "The CPU cooler's fan and its header connection", "The graphics card's driver version", "The seating of the memory modules"]
+        answer: 1
+        why: "The temperature monitor shows the processor overheating and the fan monitor shows its fan not turning, so the shutdown is thermal protection. An undersized power supply would not make the CPU read 96 C at idle."
+
+      - id: ap1-3y-q10
+        type: mcq
+        q: "While refitting a laptop's cooler, a technician tears the thick rubbery squares that sat between the heat-sink plate and the voltage-regulator chips, where there is a gap of about one millimetre. What should go on those chips?"
+        choices: ["A thick layer of thermal paste", "Nothing; a small air gap is acceptable", "New thermal pads of the same thickness", "Double-sided adhesive tape"]
+        answer: 2
+        why: "Thermal pads are made to bridge a set gap between a chip and the cooler. Paste only fills microscopic gaps between surfaces already in contact and cannot span a millimetre."
+
+      - id: ap1-3y-q11
+        type: mcq
+        q: "A streamer wants to record a game console's HDMI output on a desktop PC. The PC's graphics card has two unused HDMI ports. What is needed?"
+        choices: ["Nothing; use a spare graphics-card port", "A second graphics card", "A sound card with a digital input", "A capture card"]
+        answer: 3
+        why: "The HDMI ports on a graphics card are outputs only. A capture card provides a video input that software can record or stream."
+
+      - id: ap1-3y-q12
+        type: mcq
+        q: "After a thunderstorm, a desktop's built-in Ethernet port shows no link light with any cable or switch port, and the operating system reports the adapter has failed. Everything else works, and a PCIe x1 slot is free. Which repair is MOST economical?"
+        choices: ["Install a PCIe network card", "Replace the motherboard", "Re-terminate the cable run", "Reinstall the operating system"]
+        answer: 0
+        why: "An add-on network card replaces the one dead function for little cost. The cabling has been ruled out, and replacing the whole board is far more work and expense."
+
+      - id: ap1-3y-q13
+        type: mcq
+        q: "A build's peak draw is estimated as: CPU 125W, graphics card 320W, everything else 100W. The builder wants 25-30% headroom over that peak without paying for far more than is needed. Which power supply fits BEST?"
+        choices: ["550W", "750W", "450W", "1,600W"]
+        answer: 1
+        why: "The peak is 545W, and 25-30% more is roughly 680-710W, so 750W is the nearest size above it. A 550W unit would run at its limit with no headroom."
+
+      - id: ap1-3y-q14
+        type: mcq
+        q: "After a new graphics card is fitted, the PC's fans spin but the screen stays blank. The card has an 8-pin power socket with nothing plugged into it. Which power supply cable belongs there?"
+        choices: ["4+4-pin EPS 12V", "4-pin Molex", "6+2-pin PCIe", "15-pin SATA power"]
+        answer: 2
+        why: "Graphics cards take the 6+2-pin PCIe cable. The 4+4-pin EPS plug also has eight pins but is keyed and wired differently and powers the CPU socket on the motherboard."
+
+      - id: ap1-3y-q15
+        type: mcq
+        q: "A certificate authority's signing key must be generated and kept inside tamper-resistant hardware, be usable by three clustered servers, and survive the replacement of any one server. What should be deployed?"
+        choices: ["A TPM on each server's motherboard", "Secure Boot with custom keys", "A UEFI administrator password", "A hardware security module"]
+        answer: 3
+        why: "An HSM is a separate device that protects keys for many systems. A TPM is bound to one motherboard, so its keys cannot be shared by a cluster and are lost with that board."
+
+      - id: ap1-3y-q16
+        type: mcq
+        q: "After a queue is moved to a new print server, every job comes out as pages of text beginning '%!PS-Adobe'. The printer's configuration page lists 'Languages: PCL 5, PCL 6'. What should the technician do?"
+        choices: ["Install the PCL driver for that model", "Restart the print spooler service", "Replace the network cable", "Run the calibration routine"]
+        answer: 0
+        why: "The new queue is sending PostScript to a printer that understands only PCL, so it prints the code as text. Restarting the spooler would just send the same wrong language again."
+
+      - id: ap1-3y-q17
+        type: mcq
+        q: "A laser printer is delivered on a winter morning after a night in an unheated van, and the office is warm. What should the technician do before switching it on?"
+        choices: ["Run the calibration routine twice", "Let it stand until it reaches room temperature", "Fit the maintenance kit", "Update the firmware from a USB stick"]
+        answer: 1
+        why: "Cold equipment brought into warm air collects condensation inside, which can cause shorts and print defects, so it must acclimatise first. Calibration and firmware come after it is safely running."
+
+      - id: ap1-3y-q18
+        type: mcq
+        q: "An office uses only A4 paper. Every job from one newly installed PC stops with 'Load Letter in Tray 1' until someone presses Continue. Jobs from other PCs print normally. What is the BEST fix?"
+        choices: ["Replace the pickup roller in Tray 1", "Update the firmware on the printer", "Set that PC's driver paper size to A4", "Change that PC to a PostScript driver"]
+        answer: 2
+        why: "That one PC is asking for Letter paper, which the tray does not hold, so its driver default must be changed to A4. Other PCs print, so the printer and its tray are fine."
+
+      - id: ap1-3y-q19
+        type: mcq
+        q: "Immediately after a new toner cartridge is fitted, every page comes out completely blank. The old cartridge had been printing faintly but legibly. What is the MOST likely cause?"
+        choices: ["The fuser has failed", "The pickup roller is worn", "The driver is set to draft mode", "The cartridge's sealing tape is still in place"]
+        answer: 3
+        why: "New cartridges ship with a sealing strip that holds the toner in; left in place, no toner reaches the drum. A failed fuser gives toner that smears off the page, not a clean blank sheet."
+
+      - id: ap1-3y-q20
+        type: mcq
+        q: "On a multifunction device, printing, copying and scan-to-folder all work. Scan-to-email stopped on the day the company moved its mail to a new hosted provider. What should be changed on the device?"
+        choices: ["The SMTP server settings and credentials", "The SMB share path and account", "The DHCP reservation", "The PCL driver version"]
+        answer: 0
+        why: "The device sends scans by logging in to a mail server, and that server has changed. The SMB settings belong to scan-to-folder, which still works."
+
+      - id: ap1-3y-q21
+        type: mcq
+        q: "A direct-thermal label printer prints every label with a thin blank vertical stripe in the same place. The roll is the correct type and is loaded the right way round. What should be done FIRST?"
+        choices: ["Replace the feed assembly", "Clean the heating element", "Replace the ink ribbon", "Lower the darkness setting"]
+        answer: 1
+        why: "A stripe in a fixed position means one spot on the heating element is not reaching the paper, usually because of adhesive or dust; clean it with isopropyl alcohol first. A direct-thermal printer has no ribbon."
+
+      - id: ap1-3y-q22
+        type: mcq
+        q: "After new cartridges are fitted to an inkjet printer, ruled vertical lines print stepped and coloured text has a slight fringe. No colour is missing and there are no gaps. What should be run?"
+        choices: ["The nozzle cleaning cycle", "The roller cleaning routine", "The printhead alignment routine", "The firmware update utility"]
+        answer: 2
+        why: "Stepped lines and colour fringes mean the heads are out of register, which alignment (calibration) corrects. A cleaning cycle is for blocked nozzles, which show as gaps or missing colours."
+
+      - id: ap1-3y-q23
+        type: mcq
+        q: "A vendor bulletin says a flaw in a printer's built-in web administration page lets attackers change its settings, and that a fixed version has been released. What must be updated?"
+        choices: ["The print driver on each client", "The spooler service on the print server", "The PostScript language module", "The printer's firmware"]
+        answer: 3
+        why: "The web administration page is part of the software that runs inside the printer, which is its firmware. Drivers run on the computers that print and do not change the device itself."
+
+      - id: ap1-3y-q24
+        type: mcq
+        q: "An older camera's card slot is marked SDHC. The photographer buys a 128GB SDXC card; the camera shows a card error, yet the card works in a laptop's reader with its lock tab off. What is the MOST likely reason?"
+        choices: ["The camera supports cards only up to 32GB", "The card's speed class is too high", "The card's contacts are dirty", "The card is a microSD in an adapter"]
+        answer: 0
+        why: "SDHC devices handle cards up to 32GB; larger cards are SDXC, which an SDHC-only device cannot read. A faster speed class is backward compatible and would not cause an error."
+
+      - id: ap1-3y-q25
+        type: mcq
+        q: "A USB printer is shared from the receptionist's PC. Whenever that PC sleeps or is switched off, nobody else can print. Which is the BEST fix that keeps the printer available to everyone?"
+        choices: ["Make every user a local administrator", "Attach the printer to the network itself", "Install PostScript drivers on every PC", "Turn on secured print at the device"]
+        answer: 1
+        why: "A printer shared from a workstation is only reachable while that workstation is on. Connecting it to the network directly, or through a dedicated print server, removes that dependency."
+
+      - id: ap1-3y-m01
+        type: multi
+        q: "Visitors keep starting a public kiosk PC from their own USB sticks. The kiosk must still start by itself with no one typing anything. Which TWO firmware settings together stop this?"
+        choices: ["Set a UEFI administrator password", "Remove USB devices from the boot options", "Set a boot (power-on) password", "Turn on virtualization support", "Set the fan profile to silent"]
+        answers: [0, 1]
+        why: "Taking USB out of the boot options stops the sticks starting, and the administrator password stops anyone putting it back. A boot password would stop the kiosk starting unattended."
+
+      - id: ap1-3y-m02
+        type: multi
+        q: "An office wants to cut what it spends on paper and toner for internal drafts. Which TWO driver defaults do this?"
+        choices: ["Duplex printing", "Toner-save (draft) quality", "1,200 dpi best quality", "Landscape orientation", "Collated copies"]
+        answers: [0, 1]
+        why: "Duplex halves the sheets used and draft quality lays down less toner. Higher resolution uses more toner, and orientation and collation change neither."
+
+      - id: ap1-3y-m03
+        type: multi
+        q: "A hospital wants printed pages never to lie unattended in the output tray, and wants to be able to show afterwards who printed each document. Which TWO features meet these needs?"
+        choices: ["Badge release of held jobs", "Audit logging", "Duplex printing", "Scan to folder", "A PostScript driver"]
+        answers: [0, 1]
+        why: "Holding jobs until the owner badges in at the device means pages only print when collected, and the audit log records who printed what. The other features do not control or record access."
+
+      - id: ap1-3y-m04
+        type: multi
+        q: "Which THREE of these connections can carry digital video and audio together in one cable?"
+        choices: ["HDMI", "DisplayPort", "USB-C in DisplayPort alternate mode", "VGA", "DVI-A"]
+        answers: [0, 1, 2]
+        why: "HDMI and DisplayPort were designed for digital picture and sound, and USB-C can carry a DisplayPort signal. VGA and DVI-A are analog video only."
+
+      - id: ap1-3y-m05
+        type: multi
+        q: "Which TWO of these RAID levels need a minimum of four drives?"
+        choices: ["RAID 0", "RAID 1", "RAID 5", "RAID 6", "RAID 10"]
+        answers: [3, 4]
+        why: "RAID 6 needs four drives for striping with double parity, and RAID 10 needs two mirrored pairs. RAID 0 and RAID 1 start at two drives and RAID 5 at three."
+
+      - id: ap1-3y-m06
+        type: multi
+        q: "A multifunction device has an automatic document feeder and a flatbed. Which TWO of these jobs call for the flatbed glass?"
+        choices: ["A bound ledger that cannot be taken apart", "A small, brittle photograph", "Forty loose single-sided pages", "A double-sided loose contract", "A stack of unstapled invoices"]
+        answers: [0, 1]
+        why: "Bound and fragile originals cannot safely be pulled through feed rollers, so they are laid on the glass. Loose, sturdy sheets are exactly what the feeder is for."
+
+      - id: ap1-3y-m07
+        type: multi
+        q: "Which THREE of these are routine maintenance tasks for a laser printer?"
+        choices: ["Replacing the toner cartridge", "Fitting the maintenance kit", "Running calibration", "Replacing the ribbon", "Running a nozzle cleaning cycle", "Loading thermal paper"]
+        answers: [0, 1, 2]
+        why: "Laser upkeep is toner, the maintenance kit, calibration and cleaning. Ribbons belong to impact printers, nozzles to inkjets and heat-sensitive paper to thermal printers."
+
+      - id: ap1-3y-o01
+        type: order
+        q: "A technician is fitting a processor and air cooler to a new motherboard with an LGA socket. Put the steps in order."
+        steps: ["Open the socket's retention lever and load plate", "Line up the CPU's corner marker and lower it straight into the socket", "Close the load plate and lever", "Apply thermal paste to the top of the CPU", "Mount and fasten the heat sink", "Plug the fan into the CPU fan header"]
+        why: "The chip must be seated and clamped before paste goes on its lid, the cooler presses onto the paste, and the fan is connected once the cooler is fixed."
+
+      - id: ap1-3y-o02
+        type: order
+        q: "A technician is adding an M.2 NVMe SSD to a desktop PC as a second drive. Put the steps in order."
+        steps: ["Shut down and unplug the PC", "Ground yourself against static", "Slide the drive into the slot at an angle", "Press the drive flat and fasten the retaining screw", "Start the PC and confirm UEFI detects the drive", "Initialise and format the drive in the operating system"]
+        why: "Power is removed and static controlled before touching the board; the drive goes in at an angle and is then screwed flat; detection in firmware comes before the operating system can prepare it."
+
+      - id: ap1-3y-o03
+        type: order
+        q: "One drive in a hot-swap RAID 5 array has failed. Put the technician's steps in order."
+        steps: ["Identify the failed drive from the controller status and its fault light", "Pull the failed drive from its bay", "Insert a replacement of equal or greater capacity", "Let the array rebuild onto the new drive", "Confirm the controller reports the array as healthy"]
+        why: "Pulling the wrong drive from a degraded RAID 5 array destroys it, so identification comes first. The rebuild can only start once the new drive is in, and the job is not finished until the array is healthy again."
+
+      - id: ap1-3y-o04
+        type: order
+        q: "A new network laser printer has arrived for an office. Put the deployment steps in order."
+        steps: ["Unbox it and remove all packing tape and shipping locks", "Place it on a stable, ventilated surface, then fit the toner and load paper", "Power it on and connect it to the network", "Install the correct driver and add the printer on a client PC", "Print a test page from that PC"]
+        why: "Packing material must come out before anything moves, consumables go in before power-up, the device must be on the network before a client can add it, and a test page proves the whole chain."
+
+      - id: ap1-3y-o05
+        type: order
+        q: "A laser printer is asking for its maintenance kit. Put the technician's steps in order."
+        steps: ["Switch the printer off and unplug it", "Wait for the fuser to cool", "Replace the fuser and rollers from the kit", "Power the printer on and reset the maintenance counter", "Print a test page"]
+        why: "The fuser is hot enough to burn, so the printer is powered down and left to cool before parts are swapped. The counter is reset after the new parts are in, or the message stays."
+
+      - id: ap1-3y-o06
+        type: order
+        q: "A technician is making a straight-through patch cable. Put the steps for terminating one end in order."
+        steps: ["Strip back the outer jacket", "Untwist the pairs and arrange the wires in T568B order", "Trim the wires to an even length", "Push the wires fully into the RJ45 plug", "Crimp the plug", "Check the finished cable with a cable tester"]
+        why: "The wires can only be ordered once the jacket is off, they are trimmed after ordering so that all eight reach the contacts, and crimping fixes them for good, so testing comes last."
+
+  # ─────────────────── 4x · Virtualization and cloud: coverage and practice ───────────────────
+  - id: ap1-4x
+    title: "Virtualization and cloud: the gaps and the hard cases"
+    domain: "4"
+    goal: "I can state what a virtual machine host needs for security, networking and storage, and pick the right cloud model or characteristic in a scenario."
+    notes: |
+      This unit completes domain 4 and then tests all of it with harder scenarios.
+
+      ## What a host needs
+
+      A **hypervisor** shares one machine among many guests, so the host must be sized for all of them together.
+
+      - **Storage**: every guest needs a virtual disk. Disks that grow on demand can fill the host's real storage long after the guests were created.
+      - **Network**: guests connect to a **virtual switch**. *Bridged* puts a guest on the real LAN with its own address; *NAT* hides it behind the host; *host-only* keeps it off the LAN.
+      - **Security**: each guest is a full computer and needs its own patches and protection. The hypervisor must be patched too, because a **VM escape** reaches every guest on the host.
+
+      **Snapshots** make virtual machines ideal for **test development**: try, break, roll back.
+
+      ## Cloud characteristics
+
+      - **Shared or dedicated**: by default tenants share hardware; a dedicated host is yours alone and costs more.
+      - **Metered**: you pay for what is allocated and what leaves. **Ingress** (data in) is usually free; **egress** (data out) is charged.
+      - **Availability** is an uptime percentage; **elasticity** is capacity that follows demand. They are different promises.
+      - **File synchronisation** keeps a folder identical everywhere, and keeps both versions when two edits collide.
+
+      For service models, ask who patches what: the customer manages least in SaaS and most in IaaS.
+    items:
+      - id: ap1-4x-hypervisor
+        type: concept
+        term: "Hypervisor"
+        def: "The software layer that creates guest computers and shares a physical host's processor, memory, storage and network among them."
+
+      - id: ap1-4x-testdev
+        type: concept
+        term: "Test development environment"
+        def: "One or more guest machines built to try out new code, patches or configurations safely before they are released to production."
+
+      - id: ap1-4x-snapshot
+        type: concept
+        term: "Snapshot"
+        def: "A saved point-in-time state of a guest machine that it can be rolled back to, for example after a failed update."
+
+      - id: ap1-4x-vswitch
+        type: concept
+        term: "Virtual switch"
+        def: "A software network device inside a host that connects guests' virtual network adapters to one another and to the host's physical adapter."
+
+      - id: ap1-4x-vmescape
+        type: concept
+        term: "VM escape"
+        def: "An attack in which code running inside a guest breaks out of its isolation to reach the host or the other guests."
+
+      - id: ap1-4x-dedicated
+        type: concept
+        term: "Dedicated host"
+        def: "A physical server in a provider's data centre that is rented to one customer only, so that no other customer's workloads run on that machine."
+
+      - id: ap1-4x-ha
+        type: concept
+        term: "High availability"
+        def: "The property of a service staying reachable almost all of the time, expressed as an uptime percentage such as 99.99% and achieved through redundancy."
+
+      - id: ap1-4x-filesync
+        type: concept
+        term: "Cloud file synchronisation"
+        def: "A storage service that mirrors a chosen folder between a user's computers through the provider, keeping earlier versions and making a conflict copy when two edits collide."
+
+      - id: ap1-4x-egress
+        type: concept
+        term: "Egress"
+        def: "Data transferred out of a cloud provider's network, which most providers charge for by the gigabyte."
+
+      - id: ap1-4x-ingress
+        type: concept
+        term: "Ingress"
+        def: "Data transferred into a cloud provider's network, which is typically free of charge."
+
+      - id: ap1-4x-q01
+        type: mcq
+        q: "A provider's service-level agreement promises 99.9% availability measured over a 365-day year. About how much downtime does that allow?"
+        choices: ["About 5 minutes", "About 53 minutes", "About 8.8 hours", "About 3.7 days"]
+        answer: 2
+        why: "0.1% of 8,760 hours is 8.76 hours. About 53 minutes is what 99.99% allows, and about 3.7 days is 99%."
+
+      - id: ap1-4x-q02
+        type: mcq
+        q: "On a sale day a retailer's cloud platform adds web servers within minutes as traffic climbs, and removes them again overnight. Which cloud characteristic is the automatic adding and removing of capacity?"
+        choices: ["High availability", "Multitenancy", "Metered utilization", "Elasticity"]
+        answer: 3
+        why: "Elasticity is capacity that grows and shrinks with demand. Metered utilization is how the result is billed, not the scaling itself."
+
+      - id: ap1-4x-q03
+        type: mcq
+        q: "An auditor rules that no other organisation's workloads may run on the same physical server as a company's payroll system. The company wants to stay with its public cloud provider. What should it buy?"
+        choices: ["A dedicated host", "A community cloud", "A larger shared instance", "A second availability zone"]
+        answer: 0
+        why: "A dedicated host is single-tenant hardware inside the public provider. A larger shared instance still runs beside other tenants, and a community cloud is shared with other organisations by design."
+
+      - id: ap1-4x-q04
+        type: mcq
+        q: "Developers upload their application code to a provider. The provider supplies and patches the operating system, the language runtime and the database; the developers manage only their code and data. Which service model is this?"
+        choices: ["IaaS", "PaaS", "SaaS", "VDI"]
+        answer: 1
+        why: "A managed platform on which customers run their own code is PaaS. In IaaS the developers would patch the operating system themselves; in SaaS they would not write the application at all."
+
+      - id: ap1-4x-q05
+        type: mcq
+        q: "Five regional hospitals jointly fund a cloud platform built to meet the health-records rules they all share. No other organisation may use it. Which deployment model is this?"
+        choices: ["Public", "Hybrid", "Community", "Private"]
+        answer: 2
+        why: "Infrastructure shared by several organisations with the same compliance needs, and closed to everyone else, is a community cloud. A private cloud serves a single organisation."
+
+      - id: ap1-4x-q06
+        type: mcq
+        q: "A virtual machine on a desktop PC runs a web server that colleagues on the office LAN must reach. The guest should get its own address from the office DHCP server. Which virtual network mode is required?"
+        choices: ["NAT", "Host-only", "Internal", "Bridged"]
+        answer: 3
+        why: "Bridged mode connects the guest to the physical network as if it were another PC on the LAN. NAT hides the guest behind the host's address, so colleagues could not reach it directly."
+
+      - id: ap1-4x-q07
+        type: mcq
+        q: "A host has a 500GB datastore. Three guests were each created with a 300GB dynamically expanding virtual disk. Months later all three pause with storage errors, although each still shows free space inside its own disk. What has happened?"
+        choices: ["The host's datastore is full", "The guests need more virtual RAM", "The virtual switch has failed", "The guests' clocks have drifted"]
+        answer: 0
+        why: "Expanding disks start small and grow as data is written; 900GB was promised on 500GB of real storage, and it has run out. The guests' own free space is space the host can no longer supply."
+
+      - id: ap1-4x-q08
+        type: mcq
+        q: "An administrator argues that twelve guest servers need no security updates because the hypervisor host is fully patched. What is the BEST response?"
+        choices: ["The hypervisor scans its guests automatically, so nothing more is needed", "Each guest runs its own operating system and must be patched itself", "Only the guests with internet access need updates", "Guests need updates only when the host is a Type 2 hypervisor"]
+        answer: 1
+        why: "A guest is a complete computer with its own operating system and its own vulnerabilities. Patching the host protects the hypervisor, not the software inside each guest."
+
+      - id: ap1-4x-q09
+        type: mcq
+        q: "A vendor advisory says that specially crafted code running inside a guest can execute commands on the physical host. What is this attack, and what is the right response?"
+        choices: ["Denial of service; add memory to the host", "Cross-site scripting; patch the guests' browsers", "VM escape; patch the hypervisor", "Privilege escalation in a guest; patch that guest only"]
+        answer: 2
+        why: "Breaking out of a guest to the host is a VM escape, and the flaw is in the hypervisor, so that is what must be patched. Patching one guest leaves every other guest able to exploit the host."
+
+      - id: ap1-4x-q10
+        type: mcq
+        q: "One Linux server must run a service that exists only for Linux and a legacy program that exists only for Windows Server. The team's first plan, two containers on the Linux host, fails. Which approach works?"
+        choices: ["Two containers, each with its own base image", "One larger container holding both programs", "A sandbox for the Windows program", "A virtual machine for each operating system"]
+        answer: 3
+        why: "Containers share the host's kernel, so a Linux host cannot run a Windows program in a container. Virtual machines each carry a full operating system of their own."
+
+      - id: ap1-4x-q11
+        type: mcq
+        q: "Contractors work from their own home PCs. They need a full company Windows desktop, and company data must never be stored on those PCs. Which solution fits BEST?"
+        choices: ["VDI", "A Type 2 hypervisor on each PC", "Cloud file synchronisation", "A Type 1 hypervisor on each PC"]
+        answer: 0
+        why: "With VDI the desktop and its data stay in the data centre and only the screen is sent to the contractor. A local hypervisor or a synced folder would put company data on the contractor's own disk."
+
+      - id: ap1-4x-q12
+        type: mcq
+        q: "A user edits a report on a laptop with no connection, and later edits the same report on a desktop. Once the laptop is back online, the synced folder holds the report plus a second file marked 'conflicted copy'. What happened?"
+        choices: ["The storage quota was exceeded", "The file was changed in two places before syncing", "Egress limits blocked the upload", "The file was encrypted by malware"]
+        answer: 1
+        why: "The service found two different new versions and could not tell which should win, so it kept both. This protects the user's work; nothing was lost or blocked."
+
+      - id: ap1-4x-q13
+        type: mcq
+        q: "A developer leaves ten large cloud virtual machines running over a two-week shutdown. Nobody logs in to them. How will those machines be billed for the two weeks?"
+        choices: ["Nothing, because nobody used them", "Storage only, because the CPUs were idle", "The full running rate, because they stayed allocated", "A reduced rate, because of elasticity"]
+        answer: 2
+        why: "Metering counts the resources allocated while a machine is running, whether or not anyone uses them. Elasticity only saves money if something actually shuts the machines down."
+
+      - id: ap1-4x-q14
+        type: mcq
+        q: "A tester must install each nightly software build on a clean, identical Windows system several times a day. Which method is MOST efficient?"
+        choices: ["Reinstall Windows on a spare PC each time", "Uninstall the previous build before each test", "Run each build in a Linux container", "Revert a VM to a clean snapshot each time"]
+        answer: 3
+        why: "Rolling a virtual machine back to a snapshot restores an identical clean system in seconds. Uninstalling leaves files and settings behind, so the system is no longer clean."
+
+      - id: ap1-4x-m01
+        type: multi
+        q: "Which TWO statements are true of containers when compared with virtual machines?"
+        choices: ["They share the host operating system's kernel", "They start faster and use less memory", "Each one includes a complete guest operating system", "They need a Type 1 hypervisor", "They can run a different operating system kernel from the host's"]
+        answers: [0, 1]
+        why: "A container packages only the application and its dependencies and uses the host's kernel, which makes it small and quick to start. A full guest operating system and a different kernel are features of virtual machines."
+
+      - id: ap1-4x-m02
+        type: multi
+        q: "A company rents virtual servers under an IaaS agreement. Which TWO of these remain the company's responsibility?"
+        choices: ["Patching the guest operating systems", "Securing its own applications and data", "Replacing failed physical servers", "Patching the hypervisor", "Powering and cooling the data centre"]
+        answers: [0, 1]
+        why: "In IaaS the provider runs everything up to and including the hypervisor; the customer manages the operating system and everything above it."
+
+      - id: ap1-4x-m03
+        type: multi
+        q: "A Type 2 hypervisor on a desktop PC refuses to start 64-bit guests. Which TWO conditions must both be true before it can?"
+        choices: ["The CPU supports hardware virtualization extensions", "Virtualization support is turned on in UEFI setup", "The PC has error-correcting memory", "The drives are in a RAID 1 mirror", "The PC has a second network card"]
+        answers: [0, 1]
+        why: "Guests of this kind need the processor's virtualization extensions (Intel VT-x or AMD-V), and those are often switched off in firmware by default. ECC, RAID and extra network cards are optional extras."
+
+      - id: ap1-4x-m04
+        type: multi
+        q: "A firm is moving to a multitenant public cloud. Which TWO concerns arise specifically from multitenancy?"
+        choices: ["Its data is kept apart from other customers' only by logical separation", "Other customers' heavy workloads may slow its own", "It must buy and install its own servers", "Capacity can no longer be scaled up", "It pays a fixed fee whatever it uses"]
+        answers: [0, 1]
+        why: "Sharing hardware means isolation depends on the provider's software, and neighbours compete for the same resources. The other three statements are simply untrue of public cloud."
+
+      - id: ap1-4x-m05
+        type: multi
+        q: "Which TWO of these situations call for a Type 1 hypervisor rather than a Type 2?"
+        choices: ["A data centre consolidating forty production servers onto six hosts", "A VDI platform serving three hundred desktops", "A student trying Linux on a Windows laptop", "A developer testing an app on her own desktop", "A technician opening a suspect file on his workstation"]
+        answers: [0, 1]
+        why: "Production consolidation and VDI need the efficiency and stability of a hypervisor that runs directly on the hardware. The other three are occasional guests on a PC that must stay a normal desktop, which is what Type 2 is for."
+
+      - id: ap1-4x-o01
+        type: order
+        q: "A technician is setting up a first virtual machine on a desktop PC with a Type 2 hypervisor. Put the steps in order."
+        steps: ["Turn on virtualization support in UEFI setup", "Install the hypervisor on the host operating system", "Create the virtual machine and assign CPU, memory and disk", "Attach the installation image and install the guest operating system", "Patch the guest operating system"]
+        why: "The hypervisor needs the CPU feature enabled before it can run guests, a machine must exist before an operating system can be installed in it, and patching comes once the guest is running."
+
+      - id: ap1-4x-o02
+        type: order
+        q: "An administrator uses a virtual machine to test a risky update, and the update turns out to break the application. Put the steps in order."
+        steps: ["Take a snapshot of the virtual machine", "Install the update", "Test the application", "Revert the virtual machine to the snapshot", "Report the failure before production is touched"]
+        why: "The snapshot must exist before the change is made, or there is nothing to return to. Testing reveals the fault, the snapshot undoes it, and the result decides what happens in production."
+
+      - id: ap1-4x-o03
+        type: order
+        q: "Arrange these ways of running an application from the one where the customer manages the MOST of the technology stack to the one where the customer manages the LEAST."
+        steps: ["Servers in the company's own server room", "IaaS", "PaaS", "SaaS"]
+        why: "On its own premises the company manages everything. IaaS hands over the hardware and hypervisor, PaaS also hands over the operating system and runtime, and SaaS hands over the application itself."
