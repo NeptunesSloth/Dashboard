@@ -147,8 +147,10 @@ units:
       - {id: zh1-03-g-liang, type: glyph, l2: "两", rom: "liǎng", l1: "two (before a measure word)"}
       - {id: zh1-03-g-you, type: glyph, l2: "有", rom: "yǒu", l1: "to have; there is"}
       - {id: zh1-03-g-mei, type: glyph, l2: "没", rom: "méi", l1: "not (the negative used with yǒu)"}
-      - {id: zh1-03-shiyi, type: vocab, l2: "十一", rom: "shíyī", l1: "eleven", note: "Ten + one. Twelve is 十二, and so on to 十九."}
-      - {id: zh1-03-ershi, type: vocab, l2: "二十", rom: "èrshí", l1: "twenty", note: "Two tens. Twenty-one is 二十一."}
+      - {id: zh1-03-shier, type: vocab, l2: "十二", rom: "shí'èr", l1: "twelve", note: "Ten + two. Eleven is 十一, and so on to 十九."}
+      - {id: zh1-03-sishiwu, type: vocab, l2: "四十五", rom: "sìshíwǔ", l1: "forty-five", note: "Four tens + five."}
+      - {id: zh1-03-liushiqi, type: vocab, l2: "六十七", rom: "liùshíqī", l1: "sixty-seven"}
+      - {id: zh1-03-bashijiu, type: vocab, l2: "八十九", rom: "bāshíjiǔ", l1: "eighty-nine"}
       - {id: zh1-03-yibai, type: vocab, l2: "一百", rom: "yìbǎi", l1: "one hundred", note: "一 changes to yì before a third tone."}
       - {id: zh1-03-meiyou, type: vocab, l2: "没有", rom: "méiyǒu", l1: "to not have; there isn't", ex: "我没有书。", ex_l1: "Wǒ méiyǒu shū. — I don't have a book.", note: "Never 不有."}
       - {id: zh1-03-pengyou, type: vocab, l2: "朋友", rom: "péngyou", l1: "friend", ex: "他是我的朋友。", ex_l1: "Tā shì wǒ de péngyou. — He is my friend."}
@@ -192,7 +194,6 @@ units:
       - {id: zh1-04-g-nin, type: glyph, l2: "您", rom: "nín", l1: "you (polite, to one person)", note: "你 with a heart (心) underneath."}
       - {id: zh1-04-ninhao, type: vocab, l2: "您好", rom: "nín hǎo", l1: "hello (polite: to an elder, a teacher, a customer)"}
       - {id: zh1-04-zaoshanghao, type: vocab, l2: "早上好", rom: "zǎoshang hǎo", l1: "good morning", alt: ["早", "zǎo", "早安", "zǎo'ān"], note: "早上 = early morning. Friends often just say 早！"}
-      - {id: zh1-04-wanshanghao, type: vocab, l2: "晚上好", rom: "wǎnshang hǎo", l1: "good evening"}
       - {id: zh1-04-wanan, type: vocab, l2: "晚安", rom: "wǎn'ān", l1: "good night (going to bed)", note: "The apostrophe only shows where the syllables divide: wǎn + ān."}
       - {id: zh1-04-duibuqi, type: vocab, l2: "对不起", rom: "duìbuqǐ", l1: "sorry", note: "不 is neutral in the middle of this word."}
       - {id: zh1-04-meiguanxi, type: vocab, l2: "没关系", rom: "méi guānxi", l1: "it's all right / never mind (reply to an apology)", alt: ["没事", "méi shì", "没事儿", "méi shìr"]}
@@ -380,7 +381,6 @@ units:
       - {id: zh1-07-xingqiyi, type: vocab, l2: "星期一", rom: "xīngqī yī", l1: "Monday", alt: ["周一", "zhōu yī"], note: "Week + one. Tuesday is 星期二, and so on to 星期六."}
       - {id: zh1-07-xingqitian, type: vocab, l2: "星期天", rom: "xīngqītiān", l1: "Sunday", alt: ["星期日", "xīngqīrì", "周日", "zhōu rì"], note: "The one weekday that is not a number."}
       - {id: zh1-07-shengri, type: vocab, l2: "生日", rom: "shēngrì", l1: "birthday", ex: "我的生日是三月五号。", ex_l1: "Wǒ de shēngrì shì sān yuè wǔ hào. — My birthday is the 5th of March."}
-      - {id: zh1-07-jinnian, type: vocab, l2: "今年", rom: "jīnnián", l1: "this year", note: "Next year is 明年 (míngnián)."}
       - {id: zh1-07-jiyuejihao, type: phrase, l2: "今天几月几号？", rom: "Jīntiān jǐ yuè jǐ hào?", l1: "What is the date today?", alt: ["今天是几月几号？", "今天几号？"]}
       - {id: zh1-07-xingqiji, type: phrase, l2: "今天星期几？", rom: "Jīntiān xīngqī jǐ?", l1: "What day of the week is it today?", alt: ["今天是星期几？"]}
       - {id: zh1-07-c1, type: cloze, text: "明天是十月一___。", answer: "号", alt: ["hào", "日", "rì"], l1: "Tomorrow is the first of October.", note: "Month first, then the day + 号 (日 in writing)."}
@@ -394,7 +394,7 @@ units:
           - {who: A, l2: "今天几月几号？", rom: "Jīntiān jǐ yuè jǐ hào?", l1: "What's the date today?"}
           - {who: B, l2: "今天五月八号。", rom: "Jīntiān wǔ yuè bā hào.", l1: "Today is the 8th of May.", alt: ["今天是五月八号。", "五月八号。", "今天五月八日。"]}
           - {who: A, l2: "明天是我的生日。", rom: "Míngtiān shì wǒ de shēngrì.", l1: "Tomorrow is my birthday."}
-          - {who: B, l2: "你今年多大？", rom: "Nǐ jīnnián duō dà?", l1: "How old are you this year?", alt: ["你今年多大了？", "你多大？", "你今年几岁？"]}
+          - {who: B, l2: "你今年多大？", rom: "Nǐ jīnnián duō dà?", l1: "How old are you this year?", alt: ["你今年多大了？", "你多大？"]}
           - {who: A, l2: "我今年二十岁。", rom: "Wǒ jīnnián èrshí suì.", l1: "I am twenty this year."}
           - {who: B, l2: "生日快乐！", rom: "Shēngrì kuàilè!", l1: "Happy birthday!", alt: ["祝你生日快乐！"]}
 
@@ -437,7 +437,6 @@ units:
       - {id: zh1-08-g-xia, type: glyph, l2: "下", rom: "xià", l1: "down; under; the later part", note: "A mark below the line."}
       - {id: zh1-08-g-wu, type: glyph, l2: "午", rom: "wǔ", l1: "noon (the character in shàngwǔ and xiàwǔ)"}
       - {id: zh1-08-xianzai, type: vocab, l2: "现在", rom: "xiànzài", l1: "now", ex: "现在我没有时间。", ex_l1: "Xiànzài wǒ méiyǒu shíjiān. — I have no time right now."}
-      - {id: zh1-08-zaoshang, type: vocab, l2: "早上", rom: "zǎoshang", l1: "early morning (around getting up)", ex: "早上七点", ex_l1: "zǎoshang qī diǎn — seven in the morning"}
       - {id: zh1-08-shangwu, type: vocab, l2: "上午", rom: "shàngwǔ", l1: "morning (the hours before noon, a.m.)", ex: "上午十点", ex_l1: "shàngwǔ shí diǎn — 10 a.m."}
       - {id: zh1-08-zhongwu, type: vocab, l2: "中午", rom: "zhōngwǔ", l1: "noon / midday", ex: "中午十二点", ex_l1: "zhōngwǔ shí'èr diǎn — twelve noon"}
       - {id: zh1-08-xiawu, type: vocab, l2: "下午", rom: "xiàwǔ", l1: "afternoon", ex: "下午三点半", ex_l1: "xiàwǔ sān diǎn bàn — half past three in the afternoon"}
@@ -507,7 +506,7 @@ units:
       - {id: zh1-09-xishoujianzainar, type: phrase, l2: "洗手间在哪儿？", rom: "Xǐshǒujiān zài nǎr?", l1: "Where is the toilet?", alt: ["洗手间在哪里？", "请问，洗手间在哪儿？", "厕所在哪儿？"]}
       - {id: zh1-09-wozhuzai, type: phrase, l2: "我住在北京。", rom: "Wǒ zhù zài Běijīng.", l1: "I live in Beijing.", alt: ["我在北京住。"]}
       - {id: zh1-09-c1, type: cloze, text: "明天我___学校。", answer: "去", alt: ["qù"], l1: "Tomorrow I am going to school.", note: "去 + place, with no word for 'to'."}
-      - {id: zh1-09-c2, type: cloze, text: "妈妈现在不___家。", answer: "在", alt: ["zài"], l1: "Mum is not at home right now.", note: "Location needs 在, never 是."}
+      - {id: zh1-09-c2, type: cloze, text: "妈妈今天不___家。", answer: "在", alt: ["zài"], l1: "Mum is not at home today.", note: "Location needs 在, never 是."}
       - id: zh1-09-d1
         type: dialogue
         title: "Where are you?"
@@ -569,7 +568,7 @@ units:
       - {id: zh1-10-huochezhan, type: vocab, l2: "火车站", rom: "huǒchēzhàn", l1: "railway station", ex: "火车站在哪儿？", ex_l1: "Huǒchēzhàn zài nǎr? — Where is the railway station?", note: "火车 = 'fire vehicle', a train; 站 = station."}
       - {id: zh1-10-zuo, type: vocab, l2: "坐", rom: "zuò", l1: "to sit; to go by (taxi, train, subway)", ex: "我坐地铁去学校。", ex_l1: "Wǒ zuò dìtiě qù xuéxiào. — I go to school by subway."}
       - {id: zh1-10-zenmezou, type: phrase, l2: "请问，地铁站怎么走？", rom: "Qǐngwèn, dìtiězhàn zěnme zǒu?", l1: "Excuse me, how do I get to the subway station?", alt: ["地铁站怎么走？", "请问，去地铁站怎么走？"]}
-      - {id: zh1-10-yizhi, type: phrase, l2: "一直往前走。", rom: "Yìzhí wǎng qián zǒu.", l1: "Go straight ahead.", alt: ["一直走。", "往前走。", "一直往前走"]}
+      - {id: zh1-10-yizhi, type: phrase, l2: "一直往前走。", rom: "Yìzhí wǎng qián zǒu.", l1: "Go straight ahead.", alt: ["一直走。", "往前走。"]}
       - {id: zh1-10-c1, type: cloze, text: "我们___出租车去火车站。", answer: "坐", alt: ["zuò"], l1: "We are taking a taxi to the railway station.", note: "坐 + transport comes before 去."}
       - {id: zh1-10-c2, type: cloze, text: "医院在学校的___边。", answer: "左", alt: ["zuǒ"], l1: "The hospital is to the left of the school.", note: "Landmark + 的 + position."}
       - id: zh1-10-d1
@@ -620,7 +619,7 @@ units:
       - {id: zh1-11-g-rou, type: glyph, l2: "肉", rom: "ròu", l1: "meat", note: "On a menu, plain 肉 usually means pork."}
       - {id: zh1-11-g-mi, type: glyph, l2: "米", rom: "mǐ", l1: "rice (the uncooked grain)"}
       - {id: zh1-11-mifan, type: vocab, l2: "米饭", rom: "mǐfàn", l1: "rice (cooked, as served)", ex: "我吃米饭。", ex_l1: "Wǒ chī mǐfàn. — I eat rice."}
-      - {id: zh1-11-miantiao, type: vocab, l2: "面条", rom: "miàntiáo", l1: "noodles", alt: ["面条儿", "miàntiáor", "面"], ex: "我妈妈喜欢吃面条。", ex_l1: "Wǒ māma xǐhuan chī miàntiáo. — My mum likes eating noodles."}
+      - {id: zh1-11-miantiao, type: vocab, l2: "面条", rom: "miàntiáo", l1: "noodles", alt: ["面条儿", "miàntiáor", "面"], ex: "我中午吃面条。", ex_l1: "Wǒ zhōngwǔ chī miàntiáo. — I eat noodles at noon."}
       - {id: zh1-11-jiaozi, type: vocab, l2: "饺子", rom: "jiǎozi", l1: "dumplings", ex: "中国人吃饺子。", ex_l1: "Zhōngguó rén chī jiǎozi. — Chinese people eat dumplings."}
       - {id: zh1-11-shuiguo, type: vocab, l2: "水果", rom: "shuǐguǒ", l1: "fruit", ex: "我早上吃水果。", ex_l1: "Wǒ zǎoshang chī shuǐguǒ. — I eat fruit in the morning.", note: "'Water fruit'. An apple is 苹果 (píngguǒ)."}
       - {id: zh1-11-niunai, type: vocab, l2: "牛奶", rom: "niúnǎi", l1: "milk", ex: "孩子喝牛奶。", ex_l1: "Háizi hē niúnǎi. — The child drinks milk.", note: "'Cow milk'."}
@@ -630,7 +629,7 @@ units:
       - {id: zh1-11-wobuchirou, type: phrase, l2: "我不吃肉。", rom: "Wǒ bù chī ròu.", l1: "I don't eat meat."}
       - {id: zh1-11-zhongguocai, type: phrase, l2: "中国菜很好吃。", rom: "Zhōngguó cài hěn hǎochī.", l1: "Chinese food is delicious."}
       - {id: zh1-11-c1, type: cloze, text: "妹妹晚上___牛奶。", answer: "喝", alt: ["hē"], l1: "My younger sister drinks milk in the evening.", note: "喝 for anything liquid."}
-      - {id: zh1-11-c2, type: cloze, text: "他们中午___面条。", answer: "吃", alt: ["chī"], l1: "They eat noodles at noon.", note: "The time word comes before the verb."}
+      - {id: zh1-11-c2, type: cloze, text: "他们晚上___饺子。", answer: "吃", alt: ["chī"], l1: "They eat dumplings in the evening.", note: "The time word comes before the verb."}
       - id: zh1-11-d1
         type: dialogue
         title: "What do you eat?"
@@ -640,7 +639,7 @@ units:
           - {who: A, l2: "你中午吃什么？", rom: "Nǐ zhōngwǔ chī shénme?", l1: "What do you eat at noon?"}
           - {who: B, l2: "我吃米饭和菜。你呢？", rom: "Wǒ chī mǐfàn hé cài. Nǐ ne?", l1: "I eat rice and vegetables. And you?", alt: ["米饭和菜。你呢？", "我中午吃米饭和菜。你呢？"]}
           - {who: A, l2: "我吃饺子。你喝茶吗？", rom: "Wǒ chī jiǎozi. Nǐ hē chá ma?", l1: "I eat dumplings. Do you drink tea?"}
-          - {who: B, l2: "喝，我很喜欢中国茶。", rom: "Hē, wǒ hěn xǐhuan Zhōngguó chá.", l1: "Yes, I like Chinese tea a lot.", alt: ["我喝，我很喜欢中国茶。", "喝，我很喜欢喝中国茶。"]}
+          - {who: B, l2: "喝，中国茶很好喝。", rom: "Hē, Zhōngguó chá hěn hǎohē.", l1: "Yes, Chinese tea tastes very good.", alt: ["我喝，中国茶很好喝。", "喝，中国的茶很好喝。"]}
           - {who: A, l2: "你不喝咖啡吗？", rom: "Nǐ bù hē kāfēi ma?", l1: "Don't you drink coffee?"}
           - {who: B, l2: "我早上喝咖啡。", rom: "Wǒ zǎoshang hē kāfēi.", l1: "I drink coffee in the morning.", alt: ["我早上喝。", "早上喝。", "我早上喝咖啡，下午喝茶。"]}
 
@@ -687,11 +686,10 @@ units:
       - {id: zh1-12-yibeicha, type: vocab, l2: "一杯茶", rom: "yì bēi chá", l1: "a cup of tea", ex: "我想喝一杯茶。", ex_l1: "Wǒ xiǎng hē yì bēi chá. — I'd like to drink a cup of tea."}
       - {id: zh1-12-yiwanmifan, type: vocab, l2: "一碗米饭", rom: "yì wǎn mǐfàn", l1: "a bowl of rice", ex: "我要一碗米饭。", ex_l1: "Wǒ yào yì wǎn mǐfàn. — I'll have a bowl of rice."}
       - {id: zh1-12-yipingshui, type: vocab, l2: "一瓶水", rom: "yì píng shuǐ", l1: "a bottle of water", ex: "请给我一瓶水。", ex_l1: "Qǐng gěi wǒ yì píng shuǐ. — Please give me a bottle of water."}
-      - {id: zh1-12-pijiu, type: vocab, l2: "啤酒", rom: "píjiǔ", l1: "beer", ex: "我要两瓶啤酒。", ex_l1: "Wǒ yào liǎng píng píjiǔ. — I'll have two bottles of beer."}
       - {id: zh1-12-maidan, type: vocab, l2: "买单", rom: "mǎidān", l1: "to pay the bill; the bill, please", alt: ["结账", "jiézhàng"], ex: "服务员，买单！", ex_l1: "Fúwùyuán, mǎidān! — Waiter, the bill, please!"}
       - {id: zh1-12-nixiangchi, type: phrase, l2: "你想吃什么？", rom: "Nǐ xiǎng chī shénme?", l1: "What would you like to eat?", alt: ["您想吃什么？", "你想吃点儿什么？"]}
-      - {id: zh1-12-qinggeiwo, type: phrase, l2: "请给我菜单。", rom: "Qǐng gěi wǒ càidān.", l1: "Please give me the menu.", alt: ["请给我看一下菜单。", "请给我一下菜单。"]}
-      - {id: zh1-12-haiyao, type: phrase, l2: "还要别的吗？", rom: "Hái yào biéde ma?", l1: "Would you like anything else?", alt: ["还要什么吗？", "还要别的吗"]}
+      - {id: zh1-12-qinggeiwo, type: phrase, l2: "请给我菜单。", rom: "Qǐng gěi wǒ càidān.", l1: "Please give me the menu.", alt: ["请给我看一下菜单。", "请给我菜单，谢谢。"]}
+      - {id: zh1-12-haiyao, type: phrase, l2: "还要别的吗？", rom: "Hái yào biéde ma?", l1: "Would you like anything else?", alt: ["还要什么吗？"]}
       - {id: zh1-12-c1, type: cloze, text: "我要两___咖啡。", answer: "杯", alt: ["bēi"], l1: "I'll have two cups of coffee.", note: "Number + measure word + noun."}
       - {id: zh1-12-c2, type: cloze, text: "服务员，请___我一碗米饭。", answer: "给", alt: ["gěi"], l1: "Waiter, please give me a bowl of rice.", note: "给 + person + thing."}
       - id: zh1-12-d1
@@ -753,7 +751,7 @@ units:
       - {id: zh1-13-yifu, type: vocab, l2: "衣服", rom: "yīfu", l1: "clothes", ex: "我想买衣服。", ex_l1: "Wǒ xiǎng mǎi yīfu. — I'd like to buy clothes."}
       - {id: zh1-13-yijianyifu, type: vocab, l2: "一件衣服", rom: "yí jiàn yīfu", l1: "one piece of clothing", note: "件 is the measure word for clothes. 一 is yí before the fourth tone of jiàn."}
       - {id: zh1-13-zhege, type: vocab, l2: "这个", rom: "zhège", l1: "this one; this", alt: ["zhèige"], ex: "我要这个。", ex_l1: "Wǒ yào zhège. — I want this one.", note: "'That one' is 那个 (nàge)."}
-      - {id: zh1-13-duoshaoqian, type: phrase, l2: "这个多少钱？", rom: "Zhège duōshao qián?", l1: "How much is this?", alt: ["这个多少钱", "这个多少钱一个？", "这多少钱？"]}
+      - {id: zh1-13-duoshaoqian, type: phrase, l2: "这个多少钱？", rom: "Zhège duōshao qián?", l1: "How much is this?", alt: ["这个多少钱一个？", "这多少钱？"]}
       - {id: zh1-13-taiguile, type: phrase, l2: "太贵了！", rom: "Tài guì le!", l1: "That's too expensive!"}
       - {id: zh1-13-pianyiyidianr, type: phrase, l2: "便宜一点儿，可以吗？", rom: "Piányi yìdiǎnr, kěyǐ ma?", l1: "A bit cheaper, OK?", alt: ["可以便宜一点儿吗？", "便宜一点儿，好吗？", "便宜一点，可以吗？", "便宜一点儿吧。"]}
       - {id: zh1-13-c1, type: cloze, text: "这本书二十___钱。", answer: "块", alt: ["kuài", "元", "yuán"], l1: "This book costs twenty yuan.", note: "块 in speech, 元 on the price tag."}
@@ -1003,7 +1001,6 @@ units:
       - {id: zh1-17-piaoliang, type: vocab, l2: "漂亮", rom: "piàoliang", l1: "pretty, beautiful", ex: "你女儿很漂亮。", ex_l1: "Nǐ nǚ'ér hěn piàoliang. — Your daughter is pretty."}
       - {id: zh1-17-feichang, type: vocab, l2: "非常", rom: "fēicháng", l1: "extremely, very (stronger than hěn)", ex: "北京非常大。", ex_l1: "Běijīng fēicháng dà. — Beijing is extremely big."}
       - {id: zh1-17-juede, type: vocab, l2: "觉得", rom: "juéde", l1: "to think, to feel (to have an opinion)", ex: "我觉得汉语不太难。", ex_l1: "Wǒ juéde Hànyǔ bú tài nán. — I think Chinese is not too hard."}
-      - {id: zh1-17-haokan, type: vocab, l2: "好看", rom: "hǎokàn", l1: "good-looking; good to watch", ex: "这个电影很好看。", ex_l1: "Zhège diànyǐng hěn hǎokàn. — This film is good.", note: "好 + verb, like 好吃."}
       - {id: zh1-17-tianqizenmeyang, type: phrase, l2: "今天天气怎么样？", rom: "Jīntiān tiānqì zěnmeyàng?", l1: "What is the weather like today?", alt: ["今天的天气怎么样？"]}
       - {id: zh1-17-butaileng, type: phrase, l2: "今天不太冷。", rom: "Jīntiān bú tài lěng.", l1: "It is not very cold today.", alt: ["今天天气不太冷。"]}
       - {id: zh1-17-xiayule, type: phrase, l2: "下雨了。", rom: "Xià yǔ le.", l1: "It's raining (the rain has started)."}
@@ -1018,7 +1015,7 @@ units:
           - {who: A, l2: "今天天气怎么样？", rom: "Jīntiān tiānqì zěnmeyàng?", l1: "What's the weather like today?"}
           - {who: B, l2: "今天很热。", rom: "Jīntiān hěn rè.", l1: "It's hot today.", alt: ["很热。", "今天天气很热。"]}
           - {who: A, l2: "明天呢？", rom: "Míngtiān ne?", l1: "And tomorrow?"}
-          - {who: B, l2: "明天下雨，不太热。", rom: "Míngtiān xià yǔ, bú tài rè.", l1: "Tomorrow it will rain; not too hot.", alt: ["明天下雨，不太热", "明天有雨，不太热。", "明天会下雨，不太热。"]}
+          - {who: B, l2: "明天下雨，不太热。", rom: "Míngtiān xià yǔ, bú tài rè.", l1: "Tomorrow it will rain; not too hot.", alt: ["明天有雨，不太热。", "明天会下雨，不太热。"]}
           - {who: A, l2: "太好了！我不喜欢热的天气。", rom: "Tài hǎo le! Wǒ bù xǐhuan rè de tiānqì.", l1: "Great! I don't like hot weather."}
           - {who: B, l2: "我也不喜欢。", rom: "Wǒ yě bù xǐhuan.", l1: "I don't like it either.", alt: ["我也不喜欢热的天气。"]}
 
