@@ -7,7 +7,7 @@ units:
     domain: "1"
     goal: "I can pick the best installation, tool or configuration choice for Windows, macOS, Linux and cloud productivity tools when every option on offer is reasonable."
     notes: |
-      In these questions **every choice is something a working technician might do**. One detail in the stem decides between them - find it before you read the choices.
+      **Every choice here is something a working technician might do.** One detail in the stem decides between them.
 
       **What to look for in Domain 1**
 
@@ -850,10 +850,10 @@ units:
 
       - **Scope.** If one user, one app or one pairing is affected, fix that thing - not the whole profile, the phone or Windows.
       - **What the evidence names.** A log that says the disk is full, a battery screen that names an app, safe mode that stops the reboots: follow it.
-      - **Root cause over symptom.** Update the leaking app instead of scheduling reboots; restrict the app that drains the battery instead of living in low-power mode.
+      - **Root cause over symptom.** Update the leaking app instead of scheduling reboots.
       - **Least disruptive first.** Forget one network before resetting all network settings; roll back before reimaging; reset an app before a factory reset.
       - **Data first when hardware is failing.** A SMART warning means copy the data before any repair.
-      - **Security symptoms come in clusters.** Disabled protection plus blocked updates plus blocked security sites means malware.
+      - **Security symptoms come in clusters.** Protection disabled, updates and security sites blocked: malware.
 
       **Usual traps:** the factory reset or reinstall that would technically fix it; a change that only hides the symptom.
     items:
@@ -942,7 +942,7 @@ units:
         best: true
         q: "Since a second memory module was added last week, a PC shows blue screens with a different stop code each time. No drivers have changed. What should the technician do FIRST?"
         choices:
-          - "Update every device driver"
+          - "Update every device driver from the makers' websites"
           - "Run sfc /scannow"
           - "Test the memory with Windows Memory Diagnostic"
           - "Reinstall Windows"
@@ -1008,7 +1008,7 @@ units:
         choices:
           - "Replace the battery"
           - "Factory reset the phone"
-          - "Keep low-power mode on all the time"
+          - "Keep the phone in low-power mode all day long"
           - "Restrict that app's background activity"
         answer: 3
         why: "The usage figures name one app; limiting its background activity fixes the drain with no loss of data."
@@ -1038,7 +1038,7 @@ units:
         best: true
         q: "After the office Wi-Fi password was changed, one phone keeps failing to join while every other device connects. Which action is BEST?"
         choices:
-          - "Reset the phone's network settings"
+          - "Reset the phone's network settings to their defaults"
           - "Forget the network and rejoin with the new password"
           - "Restart the office access point"
           - "Factory reset the phone"
@@ -1071,7 +1071,7 @@ units:
         q: "MDM reports that a company-owned phone has been jailbroken. Policy says a non-compliant device loses access to company data until it is restored to a compliant state. What should happen FIRST?"
         choices:
           - "Wipe the phone remotely"
-          - "Phone the user to ask why the device was jailbroken"
+          - "Phone the user first to ask why and by whom it was jailbroken"
           - "Send the user a reminder of the mobile device policy"
           - "Let the MDM compliance rule block its access to company data"
         answer: 3
