@@ -388,10 +388,10 @@ units:
 
       - id: cn-1d-q01
         type: mcq
-        q: "Three access points hang in a row along one corridor, all using 2.4 GHz. Which channel plan avoids overlap between neighbours?"
+        q: "Three access points hang in a row along one corridor, all using 2.4 GHz and serving a mix of older 802.11b and newer 802.11g/n clients. Which channel plan avoids overlap between neighbours?"
         choices: ["1, 2, 3", "1, 5, 9", "6, 6, 6", "1, 6, 11"]
         answer: 3
-        why: "Only channels 1, 6 and 11 are far enough apart (25 MHz) not to overlap in the 2.4 GHz band. Channels 1, 5 and 9 are 20 MHz apart, which is not enough for 22 MHz-wide channels, and reusing 6 everywhere makes the cells contend with each other."
+        why: "Only channels 1, 6 and 11 are far enough apart (25 MHz) not to overlap in the 2.4 GHz band. Channels 1, 5 and 9 are only 20 MHz apart, less than the 22 MHz width of an 802.11b channel, so their edges overlap, and reusing 6 everywhere makes the cells contend with each other."
       - id: cn-1d-q02
         type: mcq
         q: "Compared with 2.4 GHz, what is true of the 5 GHz Wi-Fi band?"
@@ -510,7 +510,7 @@ units:
         why: "Dynamic auto only answers DTP; it never initiates. With auto on both ends nobody asks, so both remain access ports. At least one end must be 'dynamic desirable' or 'trunk' for a trunk to form."
       - id: cn-2a-q03
         type: mcq
-        q: "SW1 logs '%CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch discovered on GigabitEthernet0/1 (99), with SW2 GigabitEthernet0/1 (1)'. Which configuration explains it?"
+        q: "SW1 and SW2 are joined by an 802.1Q trunk on Gi0/1. SW1 logs '%CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch discovered on GigabitEthernet0/1 (99), with SW2 GigabitEthernet0/1 (1)'. Which configuration explains it?"
         choices:
           - "SW1 has 'switchport trunk native vlan 99' and SW2 is still at the default"
           - "SW1 allows only VLAN 99 on the trunk"
@@ -671,7 +671,7 @@ units:
       | Autonomous AP, or FlexConnect with local switching | Trunk: client VLANs are dropped off at the AP |
       | WLC | Trunk, often a LAG of several ports |
 
-      A LAG on a classic (AireOS) controller does not negotiate, so the switch side is an EtherChannel in mode **on**.
+      A LAG on a classic (AireOS) controller does not negotiate, so the switch side is an EtherChannel in mode **on**. (The newer Catalyst 9800 controllers can also negotiate with LACP.)
 
       **AP modes.** *Local* is the default and serves clients. *FlexConnect* suits branches: it can switch traffic locally and survive loss of the WLC. *Monitor* only scans. *Sniffer* captures frames for an analyser.
 
@@ -1120,14 +1120,14 @@ units:
       | Protocol | Origin | Roles | Preemption by default |
       | HSRP | Cisco | Active, standby | Off |
       | VRRP | Open standard | Master, backup | On |
-      | GLBP | Cisco | AVG and forwarders; load-balances | Off for the AVG |
+      | GLBP | Cisco | AVG and forwarders; load-balances | Off for the AVG (on for the forwarders) |
 
       In HSRP the highest priority (default 100) becomes active. Typical lines: `standby 1 ip 10.1.1.1`, `standby 1 priority 110`, `standby 1 preempt`. Check with `show standby brief`.
     items:
       - id: cn-3d-dr
         type: concept
         term: "Designated router (DR)"
-        def: "On a multi-access OSPF segment, the router with which all the others form full adjacencies and which floods link-state updates on the segment's behalf."
+        def: "On a multi-access OSPF segment, the winner of the election: the router that receives the link-state updates sent by the others and refloods them to the whole segment on their behalf."
       - id: cn-3d-drother
         type: concept
         term: "DROTHER"
@@ -1176,7 +1176,7 @@ units:
           - "It forces a new election among all routers"
           - "It stays a DROTHER until the DR or BDR fails"
         answer: 3
-        why: "The DR election is not preemptive: existing DR and BDR keep their roles whatever arrives later. The high priority counts only at the next election, for example after the OSPF process is cleared on the current DR."
+        why: "The DR election is not preemptive: existing DR and BDR keep their roles whatever arrives later. The high priority counts only when a role falls vacant: if the DR fails, the BDR is promoted and the new router wins the BDR election; if the BDR fails, the new router takes that role."
       - id: cn-3d-q03
         type: mcq
         q: "On R1, 'show ip ospf neighbor' shows: '2.2.2.2  1  2WAY/DROTHER', '3.3.3.3  1  FULL/BDR', '4.4.4.4  1  FULL/DR', all on Gi0/0. What is true?"
@@ -1640,7 +1640,7 @@ units:
       | Generation | Encryption | Personal mode |
       | WPA | TKIP | Pre-shared key |
       | WPA2 | AES-CCMP | Pre-shared key, 4-way handshake |
-      | WPA3 | AES (CCMP, or GCMP in its strongest mode) | SAE, resists offline guessing |
+      | WPA3 | AES: CCMP, or GCMP-256 in the Enterprise 192-bit mode | SAE, resists offline guessing |
 
       In the WLC GUI a WPA2-PSK WLAN is set under the WLAN's Security, Layer 2 tab: WPA2 policy with AES, key management PSK, and a key of 8 to 63 ASCII characters.
     items:
@@ -1714,7 +1714,7 @@ units:
           - "WPA3 with TKIP"
           - "WPA with AES-GCMP"
         answer: 0
-        why: "WPA was a stop-gap that kept old hardware working by using TKIP. WPA2 moved to AES-CCMP and WPA3 keeps AES (adding GCMP for its strongest mode); WEP is the broken scheme that WPA replaced."
+        why: "WPA was a stop-gap that kept old hardware working by using TKIP. WPA2 moved to AES-CCMP and WPA3 keeps AES (adding GCMP-256 for its Enterprise 192-bit mode); WEP is the broken scheme that WPA replaced."
       - id: cn-5c-m01
         type: multi
         q: "An access port has only 'switchport mode access' and 'switchport port-security' configured. Which TWO statements describe the defaults now in force?"

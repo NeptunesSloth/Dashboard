@@ -395,7 +395,7 @@ units:
 
       `exec-timeout 5 0` logs an idle line out after five minutes.
 
-      **IPsec.** IKE negotiates keys and security associations. *Tunnel mode* wraps the whole original packet in a new IP header; *transport mode* keeps the original header. IPsec alone does not carry multicast, so routing protocols need **GRE over IPsec**. Remote users connect with a TLS or IPsec client.
+      **IPsec.** IKE negotiates keys and security associations. *Tunnel mode* wraps the whole original packet in a new IP header; *transport mode* keeps the original header. Policy-based (crypto-map) IPsec does not carry multicast, so routing protocols need **GRE over IPsec** (or a tunnel interface such as a VTI). Remote users connect with a TLS or IPsec client.
 
       **Named ACLs** are edited by sequence number: `15 permit ...` inserts a line, `no 20` removes one.
 
@@ -546,14 +546,14 @@ units:
         why: "'login block-for 120 attempts 3 within 60' refuses all logins for 120 seconds after three failures inside 60 seconds. 'ip ssh authentication-retries' only limits the tries within one session, and the attacker simply opens another."
       - id: cn-5x-q10
         type: mcq
-        q: "Two sites connect over the internet and must run OSPF between their routers, with all traffic encrypted. A plain IPsec tunnel comes up, but OSPF hellos never cross it. Which design solves this?"
+        q: "Two sites connect over the internet and must run OSPF between their routers, with all traffic encrypted. A plain crypto-map IPsec tunnel comes up, but OSPF hellos never cross it. Which design solves this?"
         choices:
           - "IPsec with AH instead of ESP"
           - "GRE over IPsec"
           - "IPsec in transport mode with no tunnel interface"
           - "A clientless TLS VPN between the two routers"
         answer: 1
-        why: "A plain IPsec tunnel carries only the unicast traffic its policy selects, so multicast OSPF hellos are not sent through it. GRE encapsulates multicast and routing protocols in unicast packets, and IPsec then encrypts the GRE packets. AH would remove the encryption and still not carry multicast."
+        why: "A crypto-map IPsec tunnel carries only the unicast traffic its policy selects, so multicast OSPF hellos are not sent through it. GRE encapsulates multicast and routing protocols in unicast packets, and IPsec then encrypts the GRE packets. AH would remove the encryption and still not carry multicast."
       - id: cn-5x-q11
         type: mcq
         q: "A capture taken between two VPN gateways shows packets whose outer IP header carries the gateways' public addresses, followed by an ESP header; the original IP header and payload cannot be read. Which IPsec protocol and mode are in use?"
@@ -1052,8 +1052,7 @@ units:
         steps:
           - "Confirm the cause with 'show port-security interface'"
           - "Remove the unauthorised device"
-          - "Enter 'shutdown' on the interface"
-          - "Enter 'no shutdown' on the interface"
+          - "Enter 'shutdown' and then 'no shutdown' on the interface"
           - "Check that the port status is Secure-up"
         why: "If the port is re-enabled while the offending device is still attached, it is disabled again at once, so the cause is found and removed first. The port is then bounced and verified."
 

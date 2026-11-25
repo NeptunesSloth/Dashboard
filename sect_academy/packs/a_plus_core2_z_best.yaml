@@ -842,117 +842,118 @@ units:
   - id: ap2-3z
     title: "Best-answer practice: Software Troubleshooting"
     domain: "3"
-    goal: "I can choose the fix that removes the cause of a Windows, mobile or security problem with the least disruption when several fixes would work."
+    goal: "I can choose the fix that removes the cause of a Windows, mobile or PC security problem with the least disruption when several fixes would work."
     notes: |
       These questions describe a symptom and offer four fixes that would all work to some degree. Pick the one that **removes the cause with the least disruption**.
 
       **What to look for in Domain 3**
 
-      - **Scope.** If one user, one app or one pairing is affected, fix that thing - not the whole profile, the phone or Windows.
-      - **What the evidence names.** A log that says the disk is full, a battery screen that names an app, safe mode that stops the reboots: follow it.
-      - **Root cause over symptom.** Update the leaking app instead of scheduling reboots.
-      - **Least disruptive first.** Forget one network before resetting all network settings; roll back before reimaging; reset an app before a factory reset.
+      - **Scope.** If one printer, one app, one mapping or one pairing is involved, fix that thing - not the profile, the phone or Windows.
+      - **What changed just before.** A firmware tweak, a new keyboard app, a fixed IP from a home guide: undo or test the change first.
+      - **What the evidence names.** A log naming a blocked file, a timeout waiting for the network, safe mode that stops the reboots: follow it.
+      - **Least disruptive first.** Remove one pairing before resetting network settings; repair one program before resetting the PC; reset before reimage.
       - **Data first when hardware is failing.** A SMART warning means copy the data before any repair.
-      - **Security symptoms come in clusters.** Protection disabled, updates and security sites blocked: malware.
+      - **Security tools cause faults too.** A false positive or two competing firewalls is fixed narrowly, never by switching protection off.
+      - **Contain before you clean** when data may be leaving.
 
       **Usual traps:** the factory reset or reinstall that would technically fix it; a change that only hides the symptom.
     items:
       - id: ap2-3z-b01
         type: mcq
         best: true
-        q: "After this month's cumulative update, a line-of-business application crashes at start-up on every updated PC. The vendor confirms the conflict and promises a fix within a week; staff need the application today. Which action is BEST?"
+        q: "An older line-of-business installer stops with a message that it needs .NET Framework 3.5. The PC runs Windows 11, and the vendor confirms the application is supported there. Which action is BEST?"
         choices:
-          - "Reinstall the application on the affected PCs"
-          - "Roll each affected PC back with System Restore to last week"
-          - "Uninstall that update and pause updates until the fix"
-          - "Reimage the affected PCs from last month's standard image"
+          - "Run the installer in compatibility mode for Windows 7"
+          - "Install a .NET 3.5 package downloaded from a third-party site"
+          - "Turn on .NET Framework 3.5 in Windows Features"
+          - "Install the application in a Windows 10 virtual machine instead"
         answer: 2
-        why: "Removing the one known cause restores the application with the least disruption, and the pause stops the update returning before the vendor's fix."
+        why: ".NET Framework 3.5 ships with Windows 11 as an optional feature, so turning it on supplies the missing component from a trusted source."
         whys:
-          - "The application is not damaged; the conflict with the update remains."
-          - "Would remove the update, but also undoes other recent changes and may not have a restore point on every PC."
-          - "Best: targets the known cause, briefly, until the vendor fixes it."
-          - "Removes the update, but at far greater effort and with loss of local changes."
+          - "Changes how the installer sees Windows, but does not supply the missing component."
+          - "Supplies it, but from an untrusted source, when Windows already includes it."
+          - "Best: the built-in optional feature provides exactly what the installer needs."
+          - "Works, but builds a whole VM to supply one built-in component."
       - id: ap2-3z-b02
         type: mcq
         best: true
-        q: "A desktop publishing app crashes whenever one user opens it. Other users on the same PC run it normally, and reinstalling the app did not help. Which action is BEST to try next?"
+        q: "An accounting program crashes every time a user prints to one particular printer. Printing to any other printer from the same program works, and the program is fully up to date. Which action is BEST?"
         choices:
-          - "Reset that user's settings for the app"
-          - "Rebuild the user's whole Windows profile"
-          - "Run a repair installation of Windows"
-          - "Restore the PC to last week's restore point"
+          - "Update or reinstall that printer's driver"
+          - "Reinstall the accounting program"
+          - "Run sfc /scannow"
+          - "Create a new Windows profile for the user"
         answer: 0
-        why: "The fault follows one user, so that user's app settings are the likely cause, and resetting them touches nothing else."
+        why: "The crash follows one printer, so that printer's driver is the likely cause."
         whys:
-          - "Best: the smallest change that addresses a fault confined to one user and one app."
-          - "Would probably clear it too, but is far more disruptive than resetting one app's settings."
-          - "Other users run the app fine, so Windows itself is not the problem."
-          - "Rolls back system-wide changes, but nothing suggests a system change; the fault follows one user."
+          - "Best: targets the one component the evidence points to."
+          - "The program prints to every other printer, so it is unlikely to be damaged."
+          - "Checks Windows system files, but the evidence points to one third-party driver."
+          - "The fault follows the printer, not the user."
       - id: ap2-3z-b03
         type: mcq
         best: true
-        q: "A backup service fails to start with a logon failure error. It runs under a dedicated domain account whose password was changed yesterday under the password policy. What is the BEST fix?"
+        q: "A monitoring service set to Automatic fails at every boot with a timeout, but starts normally if a technician starts it by hand a few minutes later. Event Viewer shows it gave up waiting for a network resource. Which change is BEST?"
         choices:
-          - "Change the service to run as Local System"
-          - "Restart the PC and try again"
-          - "Reinstall the backup software"
-          - "Enter the new password in the service's Log On settings"
+          - "Reinstall the monitoring software"
+          - "Add a scheduled task that restarts the service every hour"
+          - "Run the service under a domain administrator account"
+          - "Set its startup type to Automatic (Delayed Start)"
         answer: 3
-        why: "The service still holds the old password; updating it fixes the cause without changing the service's rights."
+        why: "Delayed start lets the service begin after boot has settled, when the network resource it waits for is available."
         whys:
-          - "The service may start, but with far wider rights than it needs, and it may lose access to network locations."
-          - "A restart does not change the stored password, so it fails the same way."
-          - "Rebuilds the service, but the cause is only a stale password."
-          - "Best: fixes the root cause and keeps the dedicated account."
+          - "It works once started, so the software is not damaged."
+          - "Gets it running eventually, but leaves it down after every boot and restarts it needlessly."
+          - "Gives far wider rights and does nothing about the timing."
+          - "Best: fixes the timing problem the log describes."
       - id: ap2-3z-b04
         type: mcq
         best: true
-        q: "Over a working day, one accounting application's memory use climbs steadily until Windows shows low-memory warnings. Closing and reopening the application clears it each time. The installed version is two releases behind. Which action BEST addresses the cause?"
+        q: "A PC with 4 GB of RAM is very slow. Task Manager shows memory 97% in use and the disk busy paging. No single process is abnormal, and the user needs all of these applications open together. Which action BEST fixes the slowness?"
         choices:
-          - "Add more RAM to the PC"
-          - "Install the vendor's latest version of the application"
+          - "Turn off Windows visual effects"
+          - "Add more RAM"
           - "Increase the size of the page file"
-          - "Schedule the PC to restart every lunchtime"
+          - "Reinstall Windows"
         answer: 1
-        why: "Steady growth that resets when the app restarts is a memory leak in the application; only a fixed version removes it."
+        why: "The normal workload needs more memory than the PC has, so it pages constantly; only more RAM removes that."
         whys:
-          - "Delays the warnings, but the leak keeps growing into whatever memory is added."
-          - "Best: targets the leaking program itself."
-          - "Raises the commit limit, but the leak still grows and the PC slows as it pages."
-          - "Treats the symptom; the leak returns every afternoon."
+          - "Saves a little memory, not enough to stop the constant paging."
+          - "Best: gives the workload the memory it needs."
+          - "Prevents out-of-memory errors, but the PC still pages heavily, which is the slowness."
+          - "The workload, not the installation, is the cause."
       - id: ap2-3z-b05
         type: mcq
         best: true
-        q: "After a phone OS update, one banking app closes as soon as it opens. Other apps are fine, and the app store shows an update waiting for that app. What should the technician try FIRST?"
+        q: "Typing on a user's phone lags by a second or more, but scrolling and other apps are smooth. The user installed a third-party keyboard app last month. What should the technician try FIRST?"
         choices:
-          - "Install the waiting app update"
-          - "Clear the app's data and sign in again"
-          - "Uninstall and reinstall the app"
+          - "Switch to the built-in keyboard and test again"
+          - "Clear the cache of every app on the phone"
           - "Factory reset the phone"
+          - "Install the latest OS update"
         answer: 0
-        why: "The app most likely needs its new version to work with the new OS, and updating loses nothing."
+        why: "The lag affects only typing, so the keyboard app is the obvious suspect, and switching away from it is a quick, reversible test."
         whys:
-          - "Best: the likeliest fix, and the least disruptive."
-          - "May help a corrupt cache, but leaves an outdated app on the new OS."
-          - "Would also fetch the new version, but loses the app's saved settings and sign-in for no gain."
-          - "Far too much for one app."
+          - "Best: tests the likely cause in seconds with nothing lost."
+          - "Broad and slow, and does not target the keyboard."
+          - "Far too drastic before the obvious suspect is tested."
+          - "Worth doing at some point, but does not test the likely cause."
       - id: ap2-3z-b06
         type: mcq
         best: true
-        q: "Since a second memory module was added last week, a PC shows blue screens with a different stop code each time. No drivers have changed. What should the technician do FIRST?"
+        q: "Since a 'registry cleaner' was run, one CAD program refuses to start, with an error naming a missing DLL that belongs to the program. Other programs work. Which action is BEST?"
         choices:
-          - "Update every device driver from the makers' websites"
+          - "Download the DLL from a DLL download website"
           - "Run sfc /scannow"
-          - "Test the memory with Windows Memory Diagnostic"
-          - "Reinstall Windows"
+          - "Run the program's repair option, or reinstall it"
+          - "Reset this PC, keeping personal files"
         answer: 2
-        why: "Random stop codes that began with new RAM point to faulty or mismatched memory; a memory test is quick and confirms it."
+        why: "The program's own installer puts back its files and registry entries from a trusted source."
         whys:
-          - "Drivers did not change, so this tests the wrong thing first."
-          - "Checks system files, but varied stop codes after a RAM change point to the hardware."
-          - "Best: tests the one thing that changed."
-          - "Drastic, and the crashes would continue if the memory is faulty."
+          - "May work, but the file's origin and version are unverified."
+          - "Restores Windows system files, not a program's own DLL."
+          - "Best: restores exactly what the program needs, from its own installer."
+          - "Far too drastic for one program."
       - id: ap2-3z-b07
         type: mcq
         best: true
@@ -1004,19 +1005,19 @@ units:
       - id: ap2-3z-b10
         type: mcq
         best: true
-        q: "Since a recent app update, a phone's battery lasts half a day instead of a full day. The battery settings show one messaging app using 45% of the battery, mostly in the background. Which action is BEST?"
+        q: "Network monitoring shows a desktop uploading several gigabytes each night to an unfamiliar cloud storage service. The user says they have never used that service. What should the technician do FIRST?"
         choices:
-          - "Replace the battery"
-          - "Factory reset the phone"
-          - "Keep the phone in low-power mode all day long"
-          - "Restrict that app's background activity"
+          - "Block that cloud service's domain at the firewall"
+          - "Ask the user's manager whether anyone else uses the PC"
+          - "Run an anti-malware scan while the PC stays connected"
+          - "Disconnect the PC from the network"
         answer: 3
-        why: "The usage figures name one app; limiting its background activity fixes the drain with no loss of data."
+        why: "Unexplained bulk uploads suggest data theft by malware; quarantining the PC stops the loss while it is investigated."
         whys:
-          - "The figures point at one app, not the battery's health."
-          - "Would clear it, but erases everything to fix one app."
-          - "Stretches the battery, but limits the whole phone instead of the one app."
-          - "Best: targets the app shown draining the battery."
+          - "Stops this one destination, but the malware can switch to another."
+          - "Useful context, but data keeps leaving while the question is asked."
+          - "Part of the process, but scanning while connected lets the upload continue."
+          - "Best: containment comes before remediation."
       - id: ap2-3z-b11
         type: mcq
         best: true
@@ -1036,35 +1037,35 @@ units:
       - id: ap2-3z-b12
         type: mcq
         best: true
-        q: "After the office Wi-Fi password was changed, one phone keeps failing to join while every other device connects. Which action is BEST?"
+        q: "Since a file server was decommissioned, one user's sign-in hangs for about 30 seconds, and File Explorer shows a red X on drive M:, which still points to that server. Which action is BEST?"
         choices:
-          - "Reset the phone's network settings to their defaults"
-          - "Forget the network and rejoin with the new password"
-          - "Restart the office access point"
-          - "Factory reset the phone"
+          - "Rebuild the user's Windows profile"
+          - "Remove the stale M: drive mapping"
+          - "Turn off fast startup"
+          - "Point the old server name at a live server in the hosts file"
         answer: 1
-        why: "The phone is still offering the old password; forgetting that one network clears it with nothing else lost."
+        why: "The PC waits at sign-in for a server that no longer exists; removing the mapping removes the wait."
         whys:
-          - "Would also work, but erases every saved network and Bluetooth pairing."
-          - "Best: clears only the stale password."
-          - "Every other device connects, so the access point is fine, and a restart disrupts them all."
-          - "Far more than one saved password needs."
+          - "Would also drop the mapping, but rebuilds everything for one setting."
+          - "Best: removes the cause with nothing else changed."
+          - "Affects how Windows shuts down and starts, not the wait for a missing drive at sign-in."
+          - "Hides the error by sending the user to the wrong data, and confuses the next technician."
       - id: ap2-3z-b13
         type: mcq
         best: true
-        q: "A phone shows notifications saying 'Virus detected - tap to clean', even when the browser is closed. They began after the user tapped Allow on a pop-up from a news site. Which action is BEST?"
+        q: "After the company switched antivirus vendors, one PC has no network access. Its adapter shows connected, and both the old and the new security suites are still installed, each with its own firewall. Which action is BEST?"
         choices:
-          - "Remove that site's notification permission in the browser"
-          - "Install a reputable mobile security app and run a scan"
-          - "Factory reset the phone"
-          - "Uninstall and reinstall the browser"
+          - "Remove the old suite with its vendor's removal tool"
+          - "Reset the TCP/IP stack and Winsock"
+          - "Turn off the new suite's firewall"
+          - "Replace the network adapter"
         answer: 0
-        why: "The alerts are site notifications the user allowed; revoking that permission stops them at the source."
+        why: "Two security suites conflict; removing the leftover one cleanly fixes the cause and keeps the new protection."
         whys:
-          - "Best: removes the cause with no other change."
-          - "Reasonable to check, but the alerts come from a permission, not an infection, so a scan does not stop them."
-          - "Removes them, but erases the phone to change one setting."
-          - "Usually clears the permission too, but is more disruptive than needed."
+          - "Best: ends the conflict without losing protection."
+          - "Resets networking settings, but the conflicting suite stays."
+          - "Restores access by removing protection, and leaves the conflict in place."
+          - "The adapter shows connected, so the hardware is not the problem."
       - id: ap2-3z-b14
         type: mcq
         best: true
@@ -1084,67 +1085,67 @@ units:
       - id: ap2-3z-b15
         type: mcq
         best: true
-        q: "A Windows feature update fails every night. The update log reports insufficient disk space, and C: has 6 GB free. What is the BEST next step?"
+        q: "A user enabled the memory overclocking profile (XMP) in the firmware last night. Since then, applications crash at random and Windows occasionally freezes. What should the technician do FIRST?"
         choices:
-          - "Reset the Windows Update components"
-          - "Run a full malware scan"
-          - "Free up space on C:, then retry"
-          - "Reinstall Windows from USB"
+          - "Reinstall the graphics driver"
+          - "Run sfc /scannow"
+          - "Turn the memory profile off and test again"
+          - "Replace the memory modules"
         answer: 2
-        why: "The log names the cause; freeing space with Disk Cleanup or by moving large files fixes it with no risk to the system."
+        why: "The instability began with one firmware change; reversing it is quick, free and confirms the cause."
         whys:
-          - "Fixes a corrupt update cache, but the log names a different cause."
-          - "Failing updates can be a malware sign, but here the log names a simple cause."
-          - "Best: fixes what the log actually reports."
-          - "Removes the problem the long way, with far more disruption."
+          - "No driver changed; the timing points to the firmware change."
+          - "Checks system files, but the cause is unstable memory settings, which would keep corrupting things."
+          - "Best: undoes the one change that was made."
+          - "May be needed if it stays unstable at default settings, but costly as a first step."
       - id: ap2-3z-b16
         type: mcq
         best: true
-        q: "On one PC, Windows Update fails every time, Microsoft Defender has been switched off and cannot be turned back on, and the user cannot reach security vendors' websites. What is the MOST likely cause?"
+        q: "A laptop connects to the office Wi-Fi but cannot reach anything, while every other device works. Last weekend the user followed a guide to give the laptop a fixed IP address so a home printer would work. What is the MOST likely cause?"
         choices:
-          - "A corrupted Windows Update cache"
-          - "Malware that is protecting itself"
-          - "The system drive running out of space"
-          - "A wrong date and time on the PC"
+          - "The office DHCP server has run out of addresses"
+          - "The fixed home address settings are still on the adapter"
+          - "The Wi-Fi adapter's driver has failed"
+          - "Malware is blocking network access"
         answer: 1
-        why: "Disabling protection, blocking updates and blocking security sites together is classic malware self-defence."
+        why: "A home subnet address and gateway do not work on the office network, and the change was made just before the fault."
         whys:
-          - "Explains the update failures, but not the disabled Defender or blocked security sites."
-          - "Best: the only cause that explains all three symptoms."
-          - "Could stop updates, but not Defender or website access."
-          - "Can break updates and HTTPS, but would not stop Defender being turned back on."
+          - "Other devices still work, and a laptop with a fixed address does not ask DHCP at all."
+          - "Best: explains the fault and its timing."
+          - "It associates with the access point, so the adapter is working."
+          - "Possible in general, but the recent manual change explains the fault directly."
       - id: ap2-3z-b17
         type: mcq
         best: true
-        q: "A full-screen browser page with a loud alarm claims the PC is infected and gives a support number to call. The user has not clicked anything on it. What should the technician do FIRST?"
+        q: "After a new endpoint protection agent was rolled out, an in-house reporting tool fails to start on every PC with the agent. The agent's log shows it blocking one of the tool's files. The tool is signed and built by the company's own developers. What is the BEST action?"
         choices:
-          - "End the browser in Task Manager"
-          - "Run a full anti-malware scan"
-          - "Reinstall the browser"
-          - "Disconnect the PC from the network"
+          - "Confirm it is a false positive, then add a narrow exclusion"
+          - "Uninstall the endpoint agent from the affected PCs"
+          - "Turn off the agent's real-time protection on those PCs"
+          - "Submit the file to the security vendor and wait for a verdict"
         answer: 0
-        why: "This is a scam page, not a real detection; closing the browser without touching the page removes it."
+        why: "Verifying the detection and then allowing only that one file restores the tool while keeping protection everywhere else."
         whys:
-          - "Best: closes the scam page safely, and nothing was clicked."
-          - "Sensible afterwards, but the page itself is the immediate problem."
-          - "Disruptive and unnecessary; a web page has not changed the browser."
-          - "The right move for a real infection, but nothing has run, and the page stays on screen."
+          - "Best: the smallest change that fixes the tool and keeps the PCs protected."
+          - "Gets the tool working, but removes protection from every affected PC."
+          - "Same problem: protection goes for everything to fix one file."
+          - "Worth doing, but the tool stays broken meanwhile, when the company can verify its own file."
       - id: ap2-3z-b18
         type: mcq
         best: true
-        q: "Since a free wallpaper app was installed, full-screen ads appear on an Android phone's home screen, even when no app is open. No other problems are reported. Which action is BEST?"
+        q: "A newly domain-joined PC takes several minutes to reach the sign-in screen, Group Policy often fails to apply, and file shares open slowly. Its network adapter uses a public DNS server set by hand. Which change is BEST?"
         choices:
-          - "Install an ad blocker in the browser"
-          - "Clear the browser's cache and data"
-          - "Factory reset the phone"
-          - "Uninstall the wallpaper app"
+          - "Add the domain controller to the PC's hosts file"
+          - "Remove the PC from the domain and join it again"
+          - "Turn off fast startup"
+          - "Point the PC at the domain's DNS servers"
         answer: 3
-        why: "The ads began with that app and appear outside every other app, so removing it removes the adware."
+        why: "Domain members find domain controllers and services through the domain's DNS; a public DNS server cannot answer those lookups."
         whys:
-          - "Only blocks ads inside the browser, not those on the home screen."
-          - "The ads do not come from the browser."
-          - "Removes the adware, but erases everything to remove one app."
-          - "Best: removes the cause with nothing else lost."
+          - "Patches one name, but Active Directory also relies on DNS service records a hosts file cannot provide."
+          - "Does not change where the PC looks up domain names, so the problems return."
+          - "Unrelated to finding domain controllers."
+          - "Best: fixes the lookups every domain function depends on."
       - id: ap2-3z-b19
         type: mcq
         best: true
@@ -1197,20 +1198,21 @@ units:
   - id: ap2-4z
     title: "Best-answer practice: Operational Procedures"
     domain: "4"
-    goal: "I can choose the right next step in change, backup, safety, evidence and customer-service situations when every option on offer is reasonable."
+    goal: "I can choose the right next step in change, documentation, safety, compliance and customer-service situations when every option on offer is reasonable."
     notes: |
       Operational questions test **process and judgement**. Every choice is something a careful technician might do; the stem says which step of a process you are at, or which duty applies.
 
       **What to look for in Domain 4**
 
-      - **Where you are in the change process.** Test and plan the rollback before approval; respect a change freeze; roll back when a change fails inside its window; get end-user acceptance before closing.
-      - **Backups must be proven and separated.** Test restores, keep a copy off-site, restore to an alternative location when both versions matter.
-      - **Safety first.** Unplug, then ground yourself; the SDS is the authority for a chemical.
-      - **Evidence and regulated data.** Document custody; follow retention rules even when a user asks otherwise.
-      - **People.** Open questions before closed ones; cut access at the moment of dismissal; pilot a script before it reaches every PC.
-      - **Verify what AI produces** before anyone relies on it.
+      - **Where you are in the change process.** Test and plan the rollback before approval; roll back when a change fails inside its window.
+      - **Backups must survive the attack.** Keep a copy offline or off-site, out of reach of user PCs.
+      - **Safety first.** Unplug, then ground yourself; use a toner vacuum, not an ordinary one; the SDS is the authority for a chemical.
+      - **Compliance is enforced centrally.** A notice every user must see belongs in a logon banner; retention rules beat a user's request.
+      - **Incidents.** Preserve evidence and report; it is not the technician's investigation.
+      - **People.** Open questions first; offer options and let the customer decide; follow up on intermittent faults; cut access at the moment of dismissal.
+      - **AI output** must be checked for accuracy and bias before anyone relies on it.
 
-      **Usual traps:** the quick fix that skips a step of the process; trusting a 'success' message; the right outcome through the wrong channel.
+      **Usual traps:** the quick fix that skips a step; relying on people to remember; the right outcome through the wrong channel.
     items:
       - id: ap2-4z-b01
         type: mcq
@@ -1279,99 +1281,99 @@ units:
       - id: ap2-4z-b05
         type: mcq
         best: true
-        q: "A retailer has a change freeze from mid-November to early January. In December, a manager asks for a new printer driver that fixes a minor cosmetic glitch on receipts. What should the technician do?"
+        q: "Laptop records are kept in three technicians' separate spreadsheets, and an audit could not match devices to staff or warranty dates. Which change BEST fixes this?"
         choices:
-          - "Raise it as an emergency change so it can go in now"
-          - "Install it in the next weekend maintenance window"
-          - "Install it on one till to test, then on the rest"
-          - "Log it and schedule it for after the freeze"
+          - "Merge the three spreadsheets into one shared file"
+          - "Run a physical audit of every laptop once a year"
+          - "Ask staff to report their laptop's serial number each quarter"
+          - "An asset system, with an asset tag on each laptop"
         answer: 3
-        why: "A minor, non-urgent change waits until the freeze ends."
+        why: "One asset management system links each tagged device to its user, warranty and licences, and is updated as part of the normal process."
         whys:
-          - "Emergency changes are for urgent problems such as outages or active exploits, not a cosmetic issue."
-          - "A freeze suspends routine changes, maintenance windows included."
-          - "Still a change during the freeze."
-          - "Best: respects the freeze without losing the request."
+          - "Better than three, but a shared file has no ownership or checks and drifts again."
+          - "Catches errors once a year, but records are wrong in between."
+          - "Relies on staff, and still lands in an unmanaged record."
+          - "Best: a single authoritative record tied to physical tags."
       - id: ap2-4z-b06
         type: mcq
         best: true
-        q: "A new scanning workflow has been installed under an approved change, and the technician's own tests pass. Which step BEST confirms the change met its purpose before it is closed?"
+        q: "A laser printer's toner cartridge split and spilled powder over the paper path inside the printer. Which cleanup method is BEST?"
         choices:
-          - "Confirm with the users that it works for their tasks"
-          - "Have a second technician repeat the same tests"
-          - "Update the configuration management database"
-          - "Send a summary of the change to the change board"
+          - "A toner vacuum, wearing a suitable mask"
+          - "An ordinary office vacuum cleaner"
+          - "Compressed air to blow the toner out"
+          - "A cloth dampened with warm water"
         answer: 0
-        why: "End-user acceptance confirms the change does what the business asked for, which technical tests alone cannot show."
+        why: "A toner vacuum has a filter fine enough to trap toner and is built to collect it safely; a mask protects the lungs."
         whys:
-          - "Best: the people the change was for confirm it works."
-          - "Peer review catches technical errors, but does not show the users' work is supported."
-          - "Necessary record-keeping, but says nothing about whether the change met its purpose."
-          - "Reports the outcome, but does not establish it."
+          - "Best: traps the powder instead of spreading it, safely."
+          - "Fine toner passes through ordinary filters into the air, and the dust can be ignited by the motor."
+          - "Spreads fine powder through the printer and into the room."
+          - "Water inside a printer is risky, and warmth makes toner smear and stick."
       - id: ap2-4z-b07
         type: mcq
         best: true
-        q: "A user overwrote a report this morning and needs last Tuesday's version back, but the newer version must also be kept. Which recovery option is BEST?"
+        q: "A regulator requires every user to see a notice about monitoring and authorised use before signing in to any workstation. The company has 300 domain PCs. Which method is BEST?"
         choices:
-          - "Restore the file to its original location, overwriting the current one"
-          - "Restore Tuesday's file to an alternative location"
-          - "Restore the whole folder from Tuesday's backup"
-          - "Look for the old version in the Recycle Bin"
+          - "A printed notice fixed beside each workstation"
+          - "A logon banner set through Group Policy"
+          - "Email the notice to all staff once a year"
+          - "Add the notice to the acceptable use policy"
         answer: 1
-        why: "Restoring to an alternative location brings back Tuesday's version without touching the newer one."
+        why: "A Group Policy logon banner shows the notice on every PC before sign-in, centrally and consistently."
         whys:
-          - "Brings back Tuesday's version, but destroys the newer one the user must keep."
-          - "Best: both versions survive side by side."
-          - "Overwrites every other file in the folder with older copies."
-          - "Quick to check, but an overwritten file is replaced in place and does not go there."
+          - "Visible, but easily removed and not shown as part of signing in."
+          - "Best: meets the requirement on every PC from one setting."
+          - "Informs staff, but not at sign-in, as required."
+          - "The policy should include it, but it is not shown at each sign-in."
       - id: ap2-4z-b08
         type: mcq
         best: true
-        q: "A small firm's backup software has reported 'success' every night for two years, but no one has ever restored anything from it. Which action BEST reduces the risk that the backups are unusable?"
+        q: "A customer's four-year-old laptop needs a new motherboard, which will cost about 70% of the price of a comparable new laptop. What should the technician do?"
         choices:
-          - "Add a second backup job to another disk"
-          - "Read the backup logs each morning"
-          - "Schedule regular test restores"
-          - "Switch from incremental to full backups each night"
+          - "Order the motherboard, since the customer asked for a repair"
+          - "Recommend a new laptop and close the repair ticket"
+          - "Explain both options and costs, and let the customer decide"
+          - "Ask a manager which option the company would rather sell"
         answer: 2
-        why: "Only a real restore proves the backups can be used; a success message only shows the job ran."
+        why: "Offering repair and replacement options with clear costs lets the customer make an informed choice; the decision is theirs."
         whys:
-          - "More copies, but neither has been proven to restore."
-          - "Catches failures the software reports, but 'success' does not prove the data can be restored."
-          - "Best: proves recovery works, and shows problems while there is time to fix them."
-          - "Simplifies restores, but still unproven."
+          - "Honours the request, but the customer may not know a repair costs nearly as much as a replacement."
+          - "May be the better deal, but the decision belongs to the customer."
+          - "Best: sets clear expectations and leaves the choice with the customer."
+          - "Puts the company's sales preference ahead of the customer's interest."
       - id: ap2-4z-b09
         type: mcq
         best: true
-        q: "An office backs up its server to a NAS in the same room. The insurer points out that a fire would destroy both. Which change BEST addresses this?"
+        q: "A technician has fixed a fault that used to appear only once or twice a week. Which way of finishing the job BEST serves the customer?"
         choices:
-          - "Add a second NAS in the same rack"
-          - "Rebuild the NAS with RAID 6"
-          - "Run the backups hourly instead of nightly"
-          - "Add an off-site copy, such as encrypted cloud backup"
+          - "Close the ticket once the fault cannot be reproduced"
+          - "Ask the customer to call back if the fault returns"
+          - "Email the customer the full technical log of the repair"
+          - "Explain the fix simply and check back in a week"
         answer: 3
-        why: "An off-site copy survives a disaster at the office and completes the 3-2-1 rule."
+        why: "An intermittent fault cannot be proven fixed on the day; a plain explanation and a follow-up confirm the customer is satisfied."
         whys:
-          - "Gives a second copy, but in the same fire."
-          - "Survives disk failures, not a fire."
-          - "Fresher copies, all in the same room."
-          - "Best: the only option that survives losing the room."
+          - "A weekly fault will rarely reproduce on the day, so this proves little."
+          - "Leaves the customer to chase a fault that may not be fixed."
+          - "Documents the work, but in a form the customer may not understand, with no check that it worked."
+          - "Best: the customer understands the fix, and the follow-up confirms it held."
       - id: ap2-4z-b10
         type: mcq
         best: true
-        q: "Weekly full backups of a branch file server to the cloud no longer finish over the weekend. Nightly incrementals complete easily, and the company wants a recent full backup to restore from quickly. Which option is BEST?"
+        q: "A small office keeps its file server in a closed wooden cupboard. In summer it overheats and shuts itself down. It cannot be moved this year. Which action BEST addresses the cause?"
         choices:
-          - "Synthetic full backups"
-          - "Switch the nightly jobs to differential backups"
-          - "Run full backups monthly instead of weekly"
-          - "Upgrade the branch's internet connection"
+          - "Ventilate the cupboard so hot air can escape"
+          - "Clean the server's fans with compressed air every month"
+          - "Set the server to shut down at a lower temperature"
+          - "Prop the cupboard door open during hot weather"
         answer: 0
-        why: "A synthetic full is assembled by the backup system from the last full and the incrementals it already holds, so nothing large crosses the link."
+        why: "The cause is trapped heat; ventilating the cupboard fixes it permanently while the server stays where it is."
         whys:
-          - "Best: a fresh full backup without sending one over the link."
-          - "Differentials grow larger each night and still need a full to start from."
-          - "Finishes, but restores need a long chain of incrementals, which slows recovery."
-          - "May work, but adds a recurring cost when the software can solve it."
+          - "Best: removes the trapped heat for good."
+          - "Good maintenance, but clean fans still recirculate hot air in a closed box."
+          - "Protects the hardware, but makes outages more frequent."
+          - "Helps, but only when someone remembers, and leaves the server exposed."
       - id: ap2-4z-b11
         type: mcq
         best: true
@@ -1423,19 +1425,19 @@ units:
       - id: ap2-4z-b14
         type: mcq
         best: true
-        q: "A laptop seized in an investigation must be handed to the legal team tomorrow morning. Tonight it is in the technician's care. Which approach BEST preserves its value as evidence?"
+        q: "While reimaging a PC, a technician notices that the user's files include other employees' salary and medical records, which the user's role should never see. What should the technician do?"
         choices:
-          - "Keep it in the technician's bag overnight so it never leaves their sight"
-          - "Lock it in a desk drawer with a note saying whose it is"
-          - "Make a forensic image of it tonight to save time tomorrow"
-          - "Seal it in evidence storage and log it on the custody form"
+          - "Delete the folder, since the user should not have it"
+          - "Ask the user why the files are on the PC"
+          - "Copy the folder to a USB drive as evidence"
+          - "Stop, leave the files untouched and report it to a manager"
         answer: 3
-        why: "Secure storage plus a documented chain of custody shows the evidence was not tampered with."
+        why: "Possible misuse of regulated data is an incident: preserve the evidence and pass it to those responsible under the incident policy."
         whys:
-          - "Well meant, but undocumented, and the laptop leaves controlled storage."
-          - "Locked, but a drawer is not controlled storage and nothing records who had it."
-          - "Imaging is for the investigators to do under their procedure; doing it now adds an undocumented step."
-          - "Best: controlled storage and an unbroken, recorded chain of custody."
+          - "Destroys evidence of a possible breach."
+          - "Alerts the user, and the investigation is not the technician's to run."
+          - "Creates another uncontrolled copy of sensitive data and breaks evidence handling."
+          - "Best: preserves the evidence and informs management."
       - id: ap2-4z-b15
         type: mcq
         best: true
@@ -1455,19 +1457,19 @@ units:
       - id: ap2-4z-b16
         type: mcq
         best: true
-        q: "A caller says only 'the system is broken again' and sounds frustrated. What should the technician do FIRST to narrow down the problem?"
+        q: "Ransomware on one PC encrypted the office's files and also the backup NAS, which every PC reached through a mapped drive. Which change BEST protects future backups from the same attack?"
         choices:
-          - "Run through a set of yes/no questions about common faults"
-          - "Ask open-ended questions, then restate the problem"
-          - "Ask them to restart the PC and call back if it continues"
-          - "Escalate the call to second-line support"
+          - "Hide the NAS share by adding $ to its name"
+          - "Keep a backup copy offline, out of reach of user PCs"
+          - "Back up more often so less work is lost"
+          - "Install anti-malware software on the NAS"
         answer: 1
-        why: "Open questions draw out the details, and restating confirms the technician has understood."
+        why: "Malware on a user's PC cannot reach or alter a copy that is offline or locked against change."
         whys:
-          - "Useful later to confirm details, but closed questions this early can miss the real issue."
-          - "Best: gathers the facts and shows the caller they are heard."
-          - "May fix a common fault, but dismisses the caller before the problem is known."
-          - "Too early; nothing is known yet to show it needs escalation."
+          - "A hidden share is still reachable by malware that has the path and the user's access."
+          - "Best: the attack can no longer touch every copy."
+          - "Reduces loss, but the backups are still encrypted along with everything else."
+          - "May catch some threats, but the encryption came from a PC with legitimate write access."
       - id: ap2-4z-b17
         type: mcq
         best: true
@@ -1503,16 +1505,16 @@ units:
       - id: ap2-4z-b19
         type: mcq
         best: true
-        q: "A technician used an AI assistant to draft a knowledge-base article. It names a registry value to change that the technician has never seen before. What should happen BEFORE the article is published?"
+        q: "HR trialled an AI tool that shortlists job applicants, and noticed it rarely selects applicants from one university even when their qualifications are similar. What should happen BEFORE the tool is used further?"
         choices:
-          - "Add a note saying the article was written with AI"
-          - "Ask the AI assistant to confirm the value is correct"
-          - "Check it against vendor documentation and test it"
-          - "Have a second technician read the article for clarity"
+          - "Keep using it, since it saves a great deal of time"
+          - "Add a note to job adverts saying AI is used"
+          - "Pause it and check its picks for bias against human review"
+          - "Remove university names from applications before the tool sees them"
         answer: 2
-        why: "AI output can be invented or inaccurate, so an independent source and a test are needed before others rely on it."
+        why: "Bias is a known AI limitation; checking its results against human judgement shows whether it is real before it affects decisions."
         whys:
-          - "Honest, but does not stop wrong instructions reaching readers."
-          - "The same tool may repeat the same hallucination with confidence."
-          - "Best: an independent source and a lab test prove the value is real and safe."
-          - "Improves the writing, but a reader of prose cannot tell if the value is real."
+          - "Saves time, but risks unfair decisions the company is accountable for."
+          - "Transparency helps, but does not fix a biased tool."
+          - "Best: tests the suspected bias before the tool makes more decisions."
+          - "Hides one signal, but a biased model can find others, and the cause is unexamined."

@@ -213,7 +213,7 @@ units:
           - "Fast for each client, but uses so much spectrum that neighbouring APs must share channels."
           - "Best: the most channels to spread 30 APs across, and enough capacity for the traffic described."
           - "Better than 80 MHz, but still halves the number of channels compared with 20 MHz."
-          - "160 MHz takes most of the band, so those APs overlap nearly every neighbour."
+          - "Only a couple of 160 MHz channels fit in the 5 GHz band, so those APs overlap nearly every neighbour."
 
       - id: cn-1b2-b12
         type: mcq
@@ -480,11 +480,11 @@ units:
       - id: cn-2b2-b06
         type: mcq
         best: true
-        q: "'show etherchannel summary' shows 'Po1(SU) LACP Gi0/1(P) Gi0/2(s)'. The cable on Gi0/2 tests good, and LACP is configured on both ends. Which should be done FIRST?"
+        q: "On a Catalyst 9300 (IOS XE), 'show etherchannel summary' shows 'Po1(SU) LACP Gi1/0/1(P) Gi1/0/2(s)', where (s) means suspended: the switch will not bundle Gi1/0/2 with Gi1/0/1. The cable on Gi1/0/2 tests good, and LACP is configured on both ends. Which should be done FIRST?"
         choices:
-          - "Remove Gi0/2 from the bundle and add it back"
-          - "Replace the cable on Gi0/2"
-          - "Compare the configurations of Gi0/1 and Gi0/2"
+          - "Remove Gi1/0/2 from the bundle and add it back"
+          - "Replace the cable on Gi1/0/2"
+          - "Compare the configurations of Gi1/0/1 and Gi1/0/2"
           - "Reload the switch in the next maintenance window"
         answer: 2
         why: "A suspended member usually differs from the others in speed, duplex, mode, native VLAN or allowed VLANs; comparing the configurations finds it."
@@ -723,7 +723,7 @@ units:
           - "Put the guest WLAN in its own VLAN"
           - "WPA2-PSK, so only people with the key can join"
           - "An ACL on the guest VLAN's gateway blocking the guest subnet"
-          - "P2P Blocking set to Drop on the WLAN's Advanced tab"
+          - "P2P Blocking Action set to Drop on the WLAN's Advanced tab"
         answer: 3
         why: "Peer-to-peer blocking makes the controller drop client-to-client traffic on that WLAN."
         whys:
@@ -981,7 +981,7 @@ units:
       - id: cn-3b2-b14
         type: mcq
         best: true
-        q: "R1's IPv6 default route goes to ISP A. ISP B, on Gi0/2, gives only its link-local next hop, FE80::B. ISP B must be used only if the route to ISP A disappears. Which is BEST?"
+        q: "R1's static IPv6 default route (AD 1) goes to ISP A. ISP B, on Gi0/2, gives only its link-local next hop, FE80::B. ISP B must be used only if the route to ISP A disappears. Which is BEST?"
         choices:
           - "'ipv6 route ::/0 GigabitEthernet0/2 FE80::B'"
           - "'ipv6 route 2000::/3 GigabitEthernet0/2 FE80::B'"

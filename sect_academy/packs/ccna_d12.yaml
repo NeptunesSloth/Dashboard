@@ -257,14 +257,14 @@ units:
         why: "Smooth metal surfaces bounce radio waves, so several copies take different paths to the receiver: reflection. Absorption weakens a signal passing through water or walls, refraction bends it through a change of medium, and diffraction bends it around an edge."
       - id: cn-1x-q17
         type: mcq
-        q: "Why are 40 MHz channels usually discouraged in the 2.4 GHz band?"
+        q: "Where 2.4 GHz channels 1 to 11 are available, why are 40 MHz channels usually discouraged in that band?"
         choices:
           - "The band has room for only one 40 MHz channel that overlaps no other"
           - "802.11n does not allow channel bonding in the 2.4 GHz band"
           - "A 40 MHz channel halves the data rate of a 20 MHz channel"
           - "40 MHz channels work only with WPA3"
         answer: 0
-        why: "Bonding two 20 MHz channels uses most of the narrow 2.4 GHz band, leaving no second non-overlapping channel for neighbouring APs. 802.11n does permit it there, and wider channels raise the data rate rather than halve it."
+        why: "Bonding two 20 MHz channels uses most of the 72 MHz spanned by channels 1 to 11, leaving no second non-overlapping channel for neighbouring APs. 802.11n does permit it there, and wider channels raise the data rate rather than halve it."
       - id: cn-1x-q18
         type: mcq
         q: "A developer runs VirtualBox on a Windows laptop to test two Linux virtual machines. What kind of hypervisor is this?"
@@ -337,14 +337,14 @@ units:
         why: "An RA carries the prefix information and its source is the router's link-local address, which hosts use as the gateway. The host makes its own interface ID, an RA says nothing about IPv4, and it only flags that DHCPv6 is in use: clients find the server by multicasting to ff02::1:2."
       - id: cn-1x-o01
         type: order
-        q: "Put the steps by which a newly connected IPv6 host gets a global address by SLAAC in order."
+        q: "Put the steps by which a newly connected IPv6 host gets a global address by SLAAC in order, following the usual sequence in which it verifies its link-local address before soliciting a router."
         steps:
           - "Form a link-local address and check it with duplicate address detection"
           - "Send a router solicitation to ff02::2"
           - "Receive a router advertisement that carries the /64 prefix"
           - "Combine the prefix with an interface ID"
           - "Check the new global address with duplicate address detection before using it"
-        why: "The host needs a working link-local address to send the solicitation from; the RA supplies the prefix, the host adds its own interface ID, and DAD must confirm the address is unique before it is used."
+        why: "The host first gets a verified link-local address to use as the source of its solicitation; the RA supplies the prefix, the host adds its own interface ID, and DAD must confirm the address is unique before it is used."
       - id: cn-1x-o02
         type: order
         q: "Put the four messages of a stateful DHCPv6 address assignment in order."
@@ -453,7 +453,7 @@ units:
         why: "Split the MAC into 02005e and 123456, insert fffe, then flip the seventh bit of the first byte: 02 (00000010) becomes 00. The interface ID is 0000:5eff:fe12:3456. Forgetting the flip gives 200:...; the other two put fffe in the wrong place."
       - id: cn-1y-q10
         type: mcq
-        q: "PCs on VLAN 30 get IPv6 addresses by SLAAC and can ping servers by address, but name lookups fail. A stateless DHCPv6 server is ready on the router. 'show ipv6 interface Vlan30' includes 'Hosts use stateless autoconfig for addresses.' and nothing about DHCP. Which interface command completes the setup?"
+        q: "PCs on VLAN 30 get IPv6 addresses by SLAAC and can ping servers by address, but name lookups fail. A stateless DHCPv6 pool holding the DNS server is already applied to Vlan30 with 'ipv6 dhcp server'. 'show ipv6 interface Vlan30' includes 'Hosts use stateless autoconfig for addresses.' but no line saying hosts use DHCP to obtain other configuration. Which interface command completes the setup?"
         choices:
           - "ipv6 nd managed-config-flag"
           - "ipv6 address dhcp"
@@ -473,7 +473,7 @@ units:
         why: "Clients multicast their Solicit to ff02::1:2, which never leaves the link; 'ipv6 dhcp relay destination' forwards it as unicast to the server. 'ip helper-address' is the IPv4 relay and takes only IPv4 addresses."
       - id: cn-1y-q12
         type: mcq
-        q: "To stop rogue configuration, an engineer added 'ipv6 nd ra suppress all' to a LAN interface. Hosts still receive addresses from a stateful DHCPv6 server but can no longer reach other subnets. Why?"
+        q: "While hardening a router, an engineer added 'ipv6 nd ra suppress all' to a LAN interface. Hosts still receive addresses from a stateful DHCPv6 server but can no longer reach other subnets. Why?"
         choices:
           - "Hosts learn their default gateway only from router advertisements"
           - "DHCPv6 cannot work without the O flag"
@@ -1044,7 +1044,7 @@ units:
         why: "'s' means suspended, which IOS does when a member's configuration does not match the bundle. A shut port shows D, a hot-standby LACP member shows H, and a neighbour that sends no LACP leaves the port stand-alone (I)."
       - id: cn-2y-q07
         type: mcq
-        q: "SW1 has 'channel-group 1 mode active' on Gi0/1-2 and shows 'Po1(SD)  LACP  Gi0/1(I)  Gi0/2(I)'. SW2 shows 'Po1(SU)  -  Gi0/1(P)  Gi0/2(P)', with no protocol listed. How is SW2 configured?"
+        q: "SW1 has 'channel-group 1 mode active' on Gi0/1-2 and shows 'Po1(SD)  LACP  Gi0/1(I)  Gi0/2(I)'. SW2, whose EtherChannel misconfiguration guard has been disabled, shows 'Po1(SU)  -  Gi0/1(P)  Gi0/2(P)', with no protocol listed. How is SW2 configured?"
         choices:
           - "channel-group 1 mode passive"
           - "channel-group 1 mode active"
@@ -1077,7 +1077,7 @@ units:
           - "Neither; both ports forward because the costs tie"
           - "Gi0/1, because the costs tie and the root has the lower bridge ID than SW2"
         answer: 3
-        why: "Path via Gi0/1 costs 4; via Te0/2 it costs 2 + 2 = 4. On a tie the next test is the sender's bridge ID: Gi0/1 hears the root itself, which has the lowest ID of all, so Gi0/1 is the root port and Te0/2 becomes alternate (or designated, if SW3 wins that segment)."
+        why: "Path via Gi0/1 costs 4; via Te0/2 it costs 2 + 2 = 4. On a tie the next test is the sender's bridge ID: Gi0/1 hears the root itself, which has the lowest ID of all, so Gi0/1 is the root port. Te0/2 becomes alternate, because SW2 advertises the lower root cost (2) onto that link and is designated there."
       - id: cn-2y-q11
         type: mcq
         q: "SW2 has two parallel links to the root bridge: SW2 Gi0/1 to root Gi0/24, and SW2 Gi0/2 to root Gi0/23. All ports are 1 Gbps with default port priorities. Which port does SW2 choose as its root port?"
@@ -1207,7 +1207,7 @@ units:
           - "Neither, because both have the same cost to the root"
           - "Both, until an administrator sets a priority"
         answer: 1
-        why: "Both advertise cost 4 onto the shared link, so the designated port goes to the lower bridge ID: SW2 (lower MAC). SW3's port on that link becomes alternate and discards."
+        why: "Both advertise cost 4 onto the link between them, so the designated port goes to the lower bridge ID: SW2 (lower MAC). SW3's port on that link becomes alternate and discards."
       - id: cn-2y-q24
         type: mcq
         q: "An AireOS WLC with LAG enabled connects to a switch over four ports. The switch has 'channel-group 1 mode active' on those ports, and they never bundle. What should the switch use instead?"
