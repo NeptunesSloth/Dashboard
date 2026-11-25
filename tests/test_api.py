@@ -109,6 +109,14 @@ def test_first_day_placement_study_and_the_sect():
     assert r["ok"] and r["hours"] >= 1 and r["sect"]["hour"] > ov["sect"]["hour"]
     assert client.post("/api/sect/build", json={"room": "nonsense"}).json()["ok"] is False
     assert client.post("/api/sect/nonsense", json={}).status_code == 404
+    # a result scene waits in the view until it is dismissed
+    from sect_academy import colony
+    colony._scene(state.get()["colony"], "festival", True, "The Winter Vigil")
+    sc = client.post("/api/sect/tick", json={"hours": 0}).json()["sect"]["scenes"]
+    assert sc and sc[-1]["title"] == "The Winter Vigil" and isinstance(sc[-1]["painted"], bool)
+    r = client.post("/api/sect/scene-seen", json={"index": sc[-1]["id"]}).json()
+    assert r["ok"] and all(x["id"] != sc[-1]["id"] for x in r["sect"]["scenes"])
+    assert client.post("/api/sect/scene-seen", json={"index": sc[-1]["id"]}).json()["ok"] is False
     assert client.get("/api/stats").json()["cards"] >= 28
 
 

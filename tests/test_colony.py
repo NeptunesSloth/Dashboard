@@ -608,3 +608,169 @@ def test_artifacts_elements_and_direct_disciples(st):
     a["prio"].update(farm=1, wood=1, meditate=4)
     assert colony._pick_job(c, a, {}) == "meditate"
     assert colony.set_direct(st, a["id"], False, T0)["ok"] and colony._pick_job(c, a, {}) in ("farm", "wood")
+
+
+# ---------------------------------------------------------------------------
+# result scenes
+# ---------------------------------------------------------------------------
+def _scenes(s):
+    return colony.view(s, T0)["scenes"]
+
+
+def _last(s, kind):
+    return next(x for x in reversed(_scenes(s)) if x["kind"] == kind)
+
+
+def test_every_big_outcome_queues_a_result_scene(st):
+    import json
+    import random
+    c = st["colony"]
+    c["hour"] = 24 * 120
+    # raids: a beaten sect gets a defeat card, a strong one a victory card
+    weak = copy.deepcopy(st)
+    for p in weak["colony"]["pawns"]:
+        p["skills"]["combat"]["lv"] = 0
+    colony._omen(weak["colony"], random.Random(1), "raid", colony._rival(weak["colony"]))
+    colony.resolve(weak, "fight", T0)
+    lost = _last(weak, "raid")
+    assert not lost["ok"] and lost["verdict"] == "Defeat" and any(ch["label"] == "Wounded" and ch["v"] > 0 for ch in lost["changes"])
+    assert lost["party"] and any(ln["text"].startswith("lost ") for ln in lost["lines"])
+    strong = copy.deepcopy(st)
+    sc = strong["colony"]
+    sc["rooms"]["ward"], sc["res"]["stones"] = 5, 500.0
+    for p in sc["pawns"]:
+        p["skills"]["combat"]["lv"] = 18
+    colony._omen(sc, random.Random(1), "beasts")
+    colony.resolve(strong, "fight", T0)
+    won = _last(strong, "raid")
+    assert won["ok"] and won["verdict"].startswith("Victory") and won["title"] == sc["log"][-1]["title"]
+    paid = copy.deepcopy(st)
+    paid["colony"]["res"]["stones"] = 500.0
+    colony._omen(paid["colony"], random.Random(1), "raid", colony._rival(paid["colony"]))
+    colony.resolve(paid, "tribute", T0)
+    tr = _last(paid, "raid")
+    assert not tr["ok"] and tr["verdict"] == "Tribute paid" and any(ch["label"] == "Spirit stones" and ch["v"] < 0 for ch in tr["changes"])
+    # the tournament, round by round
+    t = copy.deepcopy(st)
+    tc = t["colony"]
+    champ = tc["pawns"][1]
+    colony._ask(tc, "tournament", "The Hundred Sects Tournament", "x", [(champ["id"], champ["name"]), ("decline", "Stay home")])
+    colony.resolve(t, champ["id"], T0)
+    tn = _last(t, "tournament")
+    assert tn["party"][0]["name"] == champ["name"] and tn["lines"][0]["who"] == "Round 1"
+    assert tn["ok"] == any(ln["ok"] for ln in tn["lines"] if ln["who"].startswith("Round"))
+    # festivals: held and skipped look different
+    for opt, ok in (("hold", True), ("skip", False)):
+        f = copy.deepcopy(st)
+        colony._ask(f["colony"], "festival", "Winter Vigil", "x", [("hold", "Hold"), ("skip", "Skip")], name="Winter Vigil", flavour="Lanterns.", cost=12)
+        colony.resolve(f, opt, T0)
+        fs = _last(f, "festival")
+        assert fs["ok"] is ok and (not ok or any(ch["label"] == "Rice" and ch["v"] == -12 for ch in fs["changes"]))
+    # a death is a funeral, with the mourners and what it costs them
+    d = copy.deepcopy(st)
+    dc = d["colony"]
+    a, b = dc["pawns"][1], dc["pawns"][2]
+    colony._bond(dc, a, b, 80)
+    colony._die(dc, a)
+    fu = _last(d, "funeral")
+    assert not fu["ok"] and fu["verdict"] == "Mourning" and fu["party"][0]["name"] == a["name"]
+    assert any(ln["who"] == b["name"] and "-20 mood" in ln["text"] for ln in fu["lines"])
+    # breakthroughs and tribulations: both outcomes, each with its own card
+    for step, kind in ((3, "breakthrough"), (11, "tribulation")):
+        seen = set()
+        for seed in range(80):
+            s2 = copy.deepcopy(st)
+            c2 = s2["colony"]
+            c2["seed"], c2["rooms"]["ward"] = seed, 3
+            q = c2["pawns"][1]
+            q["step"], q["qi"], q["health"] = step, colony.step_need(step), 100.0
+            c2["res"]["pills"] = 2.0
+            colony._bond(c2, q, c2["pawns"][2], 40)
+            res = colony.attempt(s2, q["id"], T0)
+            assert res["ok"], res
+            x = _last(s2, kind)
+            assert x["ok"] is res["success"] and x["title"] == res["event"]["title"]
+            seen.add((x["ok"], x["verdict"]))
+        assert {ok for ok, _ in seen} == {True, False} and len({v for _, v in seen}) == 2
+    # a tribulation that kills shows the lightning first, then the funeral
+    for seed in range(200):
+        s3 = copy.deepcopy(st)
+        c3 = s3["colony"]
+        c3["seed"], c3["storyteller"] = seed, "harsh"
+        q = c3["pawns"][1]
+        q["step"], q["qi"], q["health"] = 11, colony.step_need(11), 10.0
+        colony._bond(c3, q, c3["pawns"][2], 40)
+        if not colony.attempt(s3, q["id"], T0)["success"] and len(c3["pawns"]) == 2:
+            assert [x["kind"] for x in _scenes(s3)][-2:] == ["tribulation", "funeral"]
+            break
+    else:
+        raise AssertionError("no death in 200 tries")
+    # a secret realm and an expedition come home as a scene
+    r = copy.deepcopy(st)
+    colony._ask(r["colony"], "secret_realm", "A secret realm opens", "x", [("send1", "Send one"), ("decline", "No")])
+    colony.resolve(r, "send1", T0)
+    for _ in range(50):
+        colony.advance(r, 1, T0)
+        if r["colony"]["pending"]:
+            colony.resolve(r, r["colony"]["pending"]["options"][-1]["id"], T0)
+    rs = _last(r, "realm")
+    assert "secret realm" in rs["title"] and any(ch["label"] == "Spirit stones" and ch["v"] > 0 for ch in rs["changes"])
+    e = copy.deepcopy(st)
+    e["colony"]["hour"] = 24 * 5 + 7
+    e["colony"]["festival"] = "x"
+    assert colony.expedition(e, "valley", T0)["ok"]
+    for _ in range(30):
+        colony.advance(e, 1, T0)
+        if e["colony"]["pending"]:
+            colony.resolve(e, e["colony"]["pending"]["options"][-1]["id"], T0)
+    ex = _last(e, "realm")
+    assert "Herb Valley" in ex["title"] and any(ch["label"] == "Herbs" for ch in ex["changes"])
+    # every scene renders as plain JSON with numbers cast, and art is decided server-side
+    for s in (weak, strong, t, d, r, e):
+        for x in _scenes(s):
+            json.dumps(x)
+            assert isinstance(x["id"], int) and isinstance(x["painted"], bool) and all(isinstance(ch["v"], int) for ch in x["changes"])
+            assert x["painted"] == (x["kind"] in colony.SCENE_ART)
+
+
+def test_the_scene_queue_is_capped_and_scenes_can_be_dismissed(st):
+    c = st["colony"]
+    for i in range(12):
+        colony._scene(c, "festival", True, f"Feast {i}")
+    v = _scenes(st)
+    assert len(v) == colony.SCENE_CAP and [x["title"] for x in v] == [f"Feast {i}" for i in range(7, 12)]
+    first = v[0]["id"]
+    assert colony.scene_seen(st, first, T0)["ok"] and first not in [x["id"] for x in _scenes(st)]
+    assert not colony.scene_seen(st, first, T0)["ok"] and len(_scenes(st)) == colony.SCENE_CAP - 1
+    # time away (quiet mode) never pushes the queue past the cap
+    c["last_real"] = T0 - 10 * 24 * 3600
+    colony.catch_up(st, T0)
+    assert len(c["scenes"]) <= colony.SCENE_CAP
+    # a battle that kills goes in front of the funerals it caused, and the cap still holds
+    colony._scene(c, "raid", False, "Battle", first=_scenes(st)[-1]["id"])
+    assert [x["title"] for x in _scenes(st)][-2:] == ["Battle", "Feast 11"] and len(c["scenes"]) == colony.SCENE_CAP
+
+
+def test_a_hostile_scene_queue_is_cleaned_on_load(st):
+    good = copy.deepcopy(st["colony"])
+    colony._scene(good, "raid", True, "Fine")
+    evil = copy.deepcopy(good)
+    evil["next_scene"] = "nope"
+    evil["scenes"] = ([1, None, "x", {"kind": "<script>", "title": "x"}, {"kind": "raid", "title": 5}]
+                      + [{"id": 3, "kind": "raid", "title": "<img src=x onerror=alert(1)>", "ok": "yes", "hour": float("nan"),
+                          "party": [{"id": 1, "name": "<b>", "root": "<svg onload=1>", "master": "x"}, "junk"],
+                          "lines": "nope", "changes": [{"label": 7, "v": "1e99"}, {"label": "Fame", "v": 1e99}, 3]}] * 3
+                      + [{"id": i, "kind": "funeral", "title": f"t{i}", "party": [], "lines": [{"who": "a", "text": "b", "ok": None}], "changes": []}
+                         for i in range(10, 50)])
+    out = colony.sanitize(evil, T0)
+    assert out and len(out["scenes"]) <= colony.SCENE_CAP and len({x["id"] for x in out["scenes"]}) == len(out["scenes"])
+    assert out["next_scene"] > max(x["id"] for x in out["scenes"])
+    s = {"colony": out, "settings": {"tz_offset_min": 0}}
+    v = colony.view(s, T0)["scenes"]
+    assert [x["title"] for x in v] == [f"t{i}" for i in range(45, 50)]
+    bad = copy.deepcopy(good)
+    bad["scenes"] = evil["scenes"][5:6]
+    one = colony.view({"colony": colony.sanitize(bad, T0), "settings": {"tz_offset_min": 0}}, T0)["scenes"][0]
+    assert one["party"][0]["root"] == "Common" and one["lines"] == [] and one["ok"] is True
+    assert all(isinstance(ch["v"], int) and abs(ch["v"]) <= 1e7 for ch in one["changes"]) and one["changes"][0]["label"] == "7"
+    assert colony.sanitize(dict(good, scenes="nope"), T0)["scenes"] == []

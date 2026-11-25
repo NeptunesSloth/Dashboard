@@ -497,6 +497,8 @@ def sect(action: str, body: SectIn):
             res = dao.road.preset_save(st, body.name, now)
         elif action == "preset-apply":
             res = dao.road.preset_apply(st, body.name, now)
+        elif action == "scene-seen":
+            res = colony.scene_seen(st, body.index, now)
         elif action == "guide-skip":
             res = colony.skip_guide(st, now)
         elif action == "storyteller":

@@ -30,6 +30,16 @@ const BACKDROPS = new Set(['map', 'seclusion', 'technique', 'treasure', 'leader'
 /** A painted backdrop by known name (falls back to the mountain). */
 export function backdrop(name) { return `/art/bg_${BACKDROPS.has(name) ? name : 'map'}.webp`; }
 
+/* Result scenes: each kind has its own painting (static/art/scene_<kind>.webp) once one is painted.
+   The server says whether that file exists (scene.painted), so a missing picture is never requested;
+   until then the closest backdrop stands in. */
+const SCENE_FALLBACK = { raid: 'map', tournament: 'technique', festival: 'hall', funeral: 'leader', tribulation: 'seclusion', breakthrough: 'seclusion', realm: 'treasure' };
+/** The backdrop for a result scene of a known kind. */
+export function scene(kind, painted = false) {
+  if (!Object.prototype.hasOwnProperty.call(SCENE_FALLBACK, kind)) return backdrop('hall');
+  return painted === true ? `/art/scene_${kind}.webp` : backdrop(SCENE_FALLBACK[kind]);
+}
+
 /* ---------------- characters ---------------- */
 function hash(str) { let h = 2166136261; for (const ch of String(str)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; }
 const FACES = ['disciple', 'analyst', 'architect', 'engineer', 'researcher', 'trader'];

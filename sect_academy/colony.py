@@ -28,6 +28,7 @@ import copy
 import datetime as _dt
 import math
 import random
+from pathlib import Path
 
 from . import lore
 
@@ -178,7 +179,7 @@ def new_colony(now: float) -> dict:
         # the wider world
         "fame": 0.0, "sects": [], "manuals": ["breathing"], "treasures": [], "beast": None, "later": [], "adapt": 1.0,
         "bonds": {}, "annals": [], "artifacts": [], "next_art": 0, "guide": {"i": 0, "skip": False}, "quest": None, "festival": "",
-        "flags": {}, "tournament_year": 0, "recruit_year": 0,
+        "flags": {}, "tournament_year": 0, "recruit_year": 0, "scenes": [], "next_scene": 0,
         "craft": 0.0, "insight": 0.0, "pending": None, "last_threat_day": 0, "last_event_day": 0,
         "log": [], "last_real": now, "hint": 0,
         # study habit (kept here so one object holds the whole game)
@@ -234,6 +235,114 @@ def _letter(c: dict, kind: str, title: str, text: str) -> dict:
     ev = {"hour": c["hour"], "kind": kind, "title": title, "text": text}
     c["log"] = (c["log"] + [ev])[-80:]
     return ev
+
+
+# ---------------------------------------------------------------------------
+# result scenes: a big outcome is shown as a framed card, not just a log line
+# ---------------------------------------------------------------------------
+SCENE_KINDS = ("raid", "tournament", "festival", "funeral", "tribulation", "breakthrough", "realm")
+SCENE_CAP = 5                       # unseen scenes kept; older ones drop off (the chronicle still has them)
+SCENE_ART = frozenset(k for k in SCENE_KINDS if (Path(__file__).parent / "static" / "art" / f"scene_{k}.webp").is_file())
+
+
+def _snap(c: dict) -> dict:
+    """What the sect looks like before an outcome, so the scene can say what changed."""
+    return {"res": dict(c["res"]), "fame": float(c["fame"]), "rare": float(c.get("rare", 0.0)), "next": int(c.get("next_scene", 0)),
+            "pawns": {p["id"]: (float(p["health"]), float(p["qi"]), int(p["step"])) for p in c["pawns"]}}
+
+
+def _scene(c: dict, kind: str, ok: bool, title: str, text: str = "", *, verdict: str = "", party=(), lines=(),
+           snap: dict | None = None, extra=(), first: int | None = None) -> dict:
+    """Queue a result scene. Reads the sect only; it never changes the sim.
+    party: pawn dicts (alive or just dead); lines: (who, text, ok|None); extra: (label, value, good, signed).
+    first: put this scene before any scene queued since that id (a battle shows before the funerals it caused)."""
+    out_lines = [{"who": str(w), "text": str(t), "ok": o if o is None else bool(o)} for w, t, o in lines]
+    changes = []
+    if snap:
+        for k in RES:
+            d = c["res"][k] - snap["res"].get(k, 0.0)
+            if abs(d) >= 0.5:
+                changes.append((RES_NAMES[k], d, d > 0, True))
+        d = float(c.get("rare", 0.0)) - snap["rare"]
+        if abs(d) >= 0.5:
+            changes.append(("Rare herbs", d, d > 0, True))
+        d = float(c["fame"]) - snap["fame"]
+        if abs(d) >= 0.5:
+            changes.append(("Fame", d, d > 0, True))
+        alive = {p["id"]: p for p in c["pawns"]}
+        wounded = sum(1 for pid, (hp, _, _) in snap["pawns"].items() if pid in alive and alive[pid]["health"] <= hp - 5)
+        dead = sum(1 for pid in snap["pawns"] if pid not in alive)
+        qi = 0.0
+        for p in party:
+            before = snap["pawns"].get(p["id"])
+            if not before:
+                continue
+            q = alive.get(p["id"])
+            if not q:
+                out_lines.append({"who": str(p["name"]), "text": "died", "ok": False})
+                continue
+            if q["step"] != before[2]:
+                out_lines.append({"who": str(q["name"]), "text": f"now {realm_label(q['step'])}", "ok": q["step"] > before[2]})
+            else:
+                qi += q["qi"] - before[1]
+            if q["health"] <= before[0] - 1:
+                out_lines.append({"who": str(q["name"]), "text": f"lost {int(round(before[0] - q['health']))} health", "ok": False})
+        if abs(qi) >= 1:
+            changes.append(("Qi", qi, qi > 0, True))
+        if wounded:
+            changes.append(("Wounded", wounded, False, False))
+        if dead:
+            changes.append(("Dead", dead, False, False))
+    changes += list(extra)
+    sc = {"id": int(c.get("next_scene", 0)), "hour": int(c["hour"]), "kind": kind if kind in SCENE_KINDS else "realm", "ok": bool(ok),
+          "title": str(title), "text": str(text), "verdict": str(verdict or ("Success" if ok else "Failure")),
+          "party": [{"id": str(p["id"]), "name": str(p["name"]), "root": str(p["root"]), "master": bool(p.get("master"))} for p in party][:6],
+          "lines": out_lines[:10],
+          "changes": [{"label": str(lab), "v": round(float(v)), "good": bool(g), "signed": bool(s)} for lab, v, g, s in changes][:10]}
+    c["next_scene"] = sc["id"] + 1
+    q = list(c.get("scenes") or [])
+    at = next((i for i, x in enumerate(q) if first is not None and x["id"] >= first), len(q))
+    q.insert(at, sc)
+    c["scenes"] = q[-SCENE_CAP:]
+    return sc
+
+
+def scene_seen(st: dict, scene_id: int, now: float) -> dict:
+    """The player dismissed a scene: drop it from the queue."""
+    c = _c(st, now)
+    n = len(c["scenes"])
+    c["scenes"] = [x for x in c["scenes"] if x["id"] != int(scene_id)]
+    return {"ok": True} if len(c["scenes"]) < n else {"ok": False, "error": "No such scene."}
+
+
+def _scene_view(x: dict) -> dict:
+    return {"id": _f(x["id"]), "day": _f(x["hour"]) // 24 + 1, "kind": str(x["kind"]), "ok": bool(x["ok"]), "painted": x["kind"] in SCENE_ART,
+            "title": str(x["title"]), "text": str(x["text"]), "verdict": str(x["verdict"]),
+            "party": [{"id": str(p["id"]), "name": str(p["name"]), "root": str(p["root"]), "master": bool(p["master"])} for p in x["party"]],
+            "lines": [{"who": str(ln["who"]), "text": str(ln["text"]), "ok": ln["ok"] if ln["ok"] is None else bool(ln["ok"])} for ln in x["lines"]],
+            "changes": [{"label": str(ch["label"]), "v": _f(ch["v"]), "good": bool(ch["good"]), "signed": bool(ch["signed"])} for ch in x["changes"]]}
+
+
+def _repair_scenes(c: dict, num) -> None:
+    out = []
+    raw = c.get("scenes") if isinstance(c.get("scenes"), list) else []
+    roots = {name for name, _, _ in ROOTS} | {"Heaven-Defying", "Crippled"}
+    for x in raw:
+        if not (isinstance(x, dict) and x.get("kind") in SCENE_KINDS and isinstance(x.get("title"), str)):
+            continue
+        party = [{"id": str(p.get("id") or ""), "name": str(p.get("name") or ""), "root": p.get("root") if p.get("root") in roots else "Common",
+                  "master": bool(p.get("master"))} for p in (x.get("party") if isinstance(x.get("party"), list) else []) if isinstance(p, dict)][:6]
+        lines = [{"who": str(ln.get("who") or ""), "text": str(ln.get("text") or ""),
+                  "ok": ln.get("ok") if ln.get("ok") is None else bool(ln.get("ok"))}
+                 for ln in (x.get("lines") if isinstance(x.get("lines"), list) else []) if isinstance(ln, dict)][:10]
+        changes = [{"label": str(ch.get("label") or ""), "v": int(num(ch.get("v"), -1e7, 1e7)), "good": bool(ch.get("good")), "signed": bool(ch.get("signed"))}
+                   for ch in (x.get("changes") if isinstance(x.get("changes"), list) else []) if isinstance(ch, dict)][:10]
+        out.append({"id": int(num(x.get("id"), 0, 1e9)), "hour": int(num(x.get("hour"), 0, 1e9)), "kind": x["kind"], "ok": bool(x.get("ok")),
+                    "title": x["title"], "text": str(x.get("text") or ""), "verdict": str(x.get("verdict") or ""),
+                    "party": party, "lines": lines, "changes": changes})
+    seen_ids: set = set()
+    c["scenes"] = [x for x in out if not (x["id"] in seen_ids or seen_ids.add(x["id"]))][-SCENE_CAP:]
+    c["next_scene"] = max([int(num(c.get("next_scene"), 0, 1e9))] + [x["id"] + 1 for x in c["scenes"]])
 
 
 def _day(c: dict) -> int:
@@ -752,18 +861,29 @@ def _die(c: dict, p: dict) -> None:
     c["pawns"].remove(p)
     c["graves"] += 1
     c["adapt"] = max(0.55, c["adapt"] - 0.1)
+    mourners, lines, rest = [], [], 0
     for o in c["pawns"]:
         b = bond(c, p, o)
         if b >= 30:
-            _think(o, "death", f"{p['name']}, a {'sworn sibling' if b >= 70 else 'friend'}, died", -20 if b >= 70 else -16, 240, c["hour"])
+            v = -20 if b >= 70 else -16
+            _think(o, "death", f"{p['name']}, a {'sworn sibling' if b >= 70 else 'friend'}, died", v, 240, c["hour"])
+            mourners.append(o)
+            lines.append((o["name"], f"grieves a {'sworn sibling' if b >= 70 else 'friend'}: {v} mood for 10 days", False))
         elif b <= -30:
             _think(o, "death", f"{p['name']} died. They never made peace", -4, 72, c["hour"])
+            lines.append((o["name"], "never made peace with them: -4 mood for 3 days", None))
         else:
             _think(o, "death", "A fellow disciple died", -10, 72, c["hour"])
+            rest += 1
+    if rest:
+        lines.append(("", f"{rest} other disciple{'s' if rest != 1 else ''} mourn{'s' if rest == 1 else ''} a fellow disciple: -10 mood for 3 days", None))
     _unequip(c, p)
     dao.on_death(c, p)
     _annal(c, f"{p['name']} ({realm_label(p['step'])}) died." + (f" Mourned by {', '.join(o['name'] for o in _friends(c, p))}." if _friends(c, p) else ""))
     c["bonds"] = {k: v for k, v in c["bonds"].items() if p["id"] not in k.split("|")}
+    _scene(c, "funeral", False, f"The funeral of {p['name']}",
+           f"{p['name']} ({realm_label(p['step'])}) was laid to rest on the north slope. Incense, a bowl of rice, and a name cut into stone.",
+           verdict="Mourning", party=[p] + mourners, lines=lines, extra=[("Graves on the slope", c["graves"], False, False)])
 
 
 # ---------------------------------------------------------------------------
@@ -836,6 +956,9 @@ def attempt(st: dict, pawn_id: str, now: float) -> dict:
     target = p["step"] // 4 + 1
     trib = target >= 3
     chance = bt_chance(c, p) / 100.0
+    snap = _snap(c)
+    kind = "tribulation" if trib else "breakthrough"
+    odds = ("", f"The odds were {bt_chance(c, p)}%" + (f"; heaven sent {target * 3} bolts of lightning" if trib else ""), None)
     if c["res"]["pills"] >= 1:
         c["res"]["pills"] -= 1
     roll = _rng(c, "bt", p["id"], c["hour"], p["bt_tries"]).random()
@@ -849,15 +972,18 @@ def attempt(st: dict, pawn_id: str, now: float) -> dict:
         died = p["health"] <= 0 and trib and STORYTELLERS[c["storyteller"]]["deaths"] and not p.get("master")
         if died:
             _die(c, p)
-            return {"ok": True, "success": False, "event": _letter(
-                c, "bad", f"{p['name']} perished under the tribulation",
-                f"The {_ordinal(max(1, int(bolts * roll)))} bolt found a body already broken. Never send the wounded to face heaven.")}
+            ev = _letter(c, "bad", f"{p['name']} perished under the tribulation",
+                         f"The {_ordinal(max(1, int(bolts * roll)))} bolt found a body already broken. Never send the wounded to face heaven.")
+            _scene(c, kind, False, ev["title"], ev["text"], verdict="Struck down", party=[p], lines=[odds], snap=snap, first=snap["next"])
+            return {"ok": True, "success": False, "event": ev}
         p["health"] = max(p["health"], 5.0)
         text = (f"Of {bolts} bolts of heavenly lightning, the last ones broke through their guard. " if trib
                 else f"The attempt on {REALMS[target]} backfired. ")
-        return {"ok": True, "success": False, "event": _letter(
-            c, "bad", f"{p['name']} failed {'the tribulation' if trib else 'a breakthrough'}",
-            text + "They are hurt and must gather qi again. Each failure teaches something for the next attempt.")}
+        ev = _letter(c, "bad", f"{p['name']} failed {'the tribulation' if trib else 'a breakthrough'}",
+                     text + "They are hurt and must gather qi again. Each failure teaches something for the next attempt.")
+        _scene(c, kind, False, ev["title"], ev["text"], verdict="The bottleneck held", party=[p],
+               lines=[odds, (p["name"], f"{int(p['bt_tries'])} failed attempt{'s' if p['bt_tries'] != 1 else ''}: the next try gets +{min(20, 6 * int(p['bt_tries']))}", None)], snap=snap)
+        return {"ok": True, "success": False, "event": ev}
     grade = dao.bt_grade(c, p)[0]                    # how well it was prepared, decided before the roll
     perfect = grade >= 4
     p["bt_tries"] = 0
@@ -880,6 +1006,8 @@ def attempt(st: dict, pawn_id: str, now: float) -> dict:
     ev["text"] = text + dao.after_breakthrough(c, p, grade) + "The whole sect feels it."
     _promote(c, p)
     dao.on_bt(c, p, True, perfect, trib)
+    _scene(c, kind, True, ev["title"], ev["text"], verdict="Heaven was weathered" if trib else "Breakthrough", party=[p],
+           lines=[odds, (p["name"], f"a {dao.GRADES[grade][0].lower()} breakthrough", grade >= 2)], snap=snap)
     if p["step"] // 4 == len(REALMS) - 1 and p.get("master") and not c["flags"].get("ascended"):
         c["flags"]["ascended"] = 1
         _fame(c, 100)
@@ -955,6 +1083,35 @@ def _omen(c: dict, r: random.Random, kind: str, src: dict | None = None, boost: 
 
 
 def _threat(c: dict, r: random.Random, kind: str, strength: float, how: str = "fight", src: dict | None = None) -> dict:
+    """A threat is met. The battle itself is _battle; this frames its result as a scene."""
+    snap = _snap(c)
+    siege = copy.deepcopy(c.get("siege"))
+    fighters = [] if how == "tribute" else [p for p in _home(c) if combat_power(c, p) > 0]
+    ev = _battle(c, r, kind, strength, how, src)
+    won = ev["kind"] != "bad" and how != "tribute"
+    foe = "Beast tide" if kind == "beasts" else f"{src['name']} raiders" if src else "Mountain bandits"
+    lines = [("", f"{foe}: strength about {int(strength)}. The sect "
+              + ("paid them off" if how == "tribute" else "held behind the wards" if how == "wards"
+                 else "charged on Berserk Pills" if how == "berserk" else "met them at the gate") + ".", None)]
+    verdict = "Tribute paid" if how == "tribute" else "Victory" if ev["kind"] == "good" else "Victory, with wounds" if won else "Defeat"
+    title = ev["title"]
+    if siege and src and siege.get("src") == src["id"]:
+        if c.get("siege") is None and won:
+            title, verdict = f"The {src['name']} is broken", "The siege is lifted"
+            lines.append(("", "Three battles, three victories. The siege is over.", True))
+        elif c.get("siege") is None:
+            verdict = "The gate fell"
+            lines.append(("", "The siege ended in defeat.", False))
+        else:
+            lines.append(("", f"Siege: battle {siege.get('stage', 1)} of three won.", True))
+    unhurt = [p["name"] for p in fighters if p in c["pawns"] and p["health"] > snap["pawns"].get(p["id"], (0.0,))[0] - 1]
+    if unhurt:
+        lines.append(("", f"Came through unhurt: {', '.join(unhurt)}.", True))
+    _scene(c, "raid", won, title, ev["text"], verdict=verdict, party=fighters, lines=lines, snap=snap, first=snap["next"])
+    return ev
+
+
+def _battle(c: dict, r: random.Random, kind: str, strength: float, how: str = "fight", src: dict | None = None) -> dict:
     tell = STORYTELLERS[c["storyteller"]]
     who = "The beast tide" if kind == "beasts" else f"The {src['name']} raid" if src else "The bandit raid"
     c["last_threat_day"] = _day(c)
@@ -1523,7 +1680,8 @@ def _res_tournament(c, ev, opt, r):
         for o in c["pawns"]:
             _think(o, "no_tourney", "The sect skipped the tournament", -3, 48, c["hour"])
         return None
-    wins, lines = 0, []
+    wins, lines, rounds = 0, [], []
+    snap = _snap(c)
     me = duel_power(c, p)
     for i, s in enumerate(sorted(c["sects"], key=lambda x: x["power"])):
         champ = dao.road.champion(c, s)
@@ -1532,8 +1690,10 @@ def _res_tournament(c, ev, opt, r):
             wins += 1
             _rel(s, -3)
             lines.append(f"beat {champ['name']} of the {s['name']} ({realm_label(int(champ['step'])).split(' · ')[0]})")
+            rounds.append((f"Round {i + 1}", f"{lines[-1]}: {int(me)} against {int(foe)}", True))
         else:
             lines.append(f"fell to {champ['name']} of the {s['name']} ({realm_label(int(champ['step'])).split(' · ')[0]})")
+            rounds.append((f"Round {i + 1}", f"{lines[-1]}: {int(me)} against {int(foe)}", False))
             _hurt(p, 15, c)
             break
     _fame(c, 4 * wins)
@@ -1550,8 +1710,13 @@ def _res_tournament(c, ev, opt, r):
     for o in c["pawns"]:
         _think(o, "tourney", "Our champion won the tournament" if wins == len(c["sects"]) else "Our champion fought in the tournament",
                10 if wins == len(c["sects"]) else 2 + 2 * wins, 72, c["hour"])
-    return _letter(c, "good" if wins else "info", f"{p['name']} at the Hundred Sects Tournament",
-                   f"{p['name']} {', then '.join(lines)}.{prize}{'.' if prize else ''}")
+    ev = _letter(c, "good" if wins else "info", f"{p['name']} at the Hundred Sects Tournament",
+                 f"{p['name']} {', then '.join(lines)}.{prize}{'.' if prize else ''}")
+    champion = wins == len(c["sects"])
+    _scene(c, "tournament", wins > 0, ev["title"], f"{p['name']} carried the banner of the {c['name']} into the ring against the champions of {len(c['sects'])} sects.",
+           verdict="Champion" if champion else f"{wins} of {len(c['sects'])} rounds won" if wins else "Out in the first round",
+           party=[p], lines=rounds + ([("", prize.strip() + ".", True)] if prize else []), snap=snap)
+    return ev
 
 
 _RESOLVERS = {"wanderer": _res_wanderer, "recruit": _res_recruit, "merchant": _res_merchant, "omen": _res_omen,
@@ -1599,6 +1764,7 @@ def _later(c: dict, item: dict) -> bool:
         team = [p for p in (_p(c, i) for i in item.get("pawns", [])) if p]
         if not team:
             return True
+        snap = _snap(c)
         power = sum(duel_power(c, p) for p in team)
         need = (30 + _day(c) * 1.2) * r.uniform(0.7, 1.3)
         luck = power / max(need, 1.0)
@@ -1629,8 +1795,11 @@ def _later(c: dict, item: dict) -> bool:
                 p["health"] = max(p["health"], 8.0)
                 hurt.append(p["name"])
         _fame(c, 2 if luck >= 1 else 0)
-        _letter(c, "good" if not hurt else "info", "The disciples return from the secret realm",
-                f"They brought back {', '.join(found)}." + (f" {' and '.join(hurt)} crossed swords with rival disciples and came back wounded." if hurt else ""))
+        ev = _letter(c, "good" if not hurt else "info", "The disciples return from the secret realm",
+                     f"They brought back {', '.join(found)}." + (f" {' and '.join(hurt)} crossed swords with rival disciples and came back wounded." if hurt else ""))
+        _scene(c, "realm", not hurt, ev["title"], ev["text"], verdict="Back unharmed" if not hurt else "Back, bloodied", party=team,
+               lines=[("", f"Brought back {', '.join(found)}.", True), ("", "Each gathered a fifth of a stage of qi, and they grew closer (+8 bond)", True)],
+               snap=snap)
     elif kind == "trip_return":
         _trip_return(c, item, r)
     elif kind == "cliff_return":
@@ -2022,6 +2191,7 @@ def _res_festival(c, ev, opt, r):
     if opt == "hold":
         if c["res"]["rice"] < ev["cost"]:
             return ("err", f"A feast needs {ev['cost']} rice.")
+        snap = _snap(c)
         c["res"]["rice"] -= ev["cost"]
         home = _home(c)
         for p in home:
@@ -2030,10 +2200,20 @@ def _res_festival(c, ev, opt, r):
         for i, a in enumerate(home):
             for b in home[i + 1:]:
                 _bond(c, a, b, 4)
-        return _letter(c, "good", f"The {name}", ev["flavour"] + " Everyone is closer for it.")
+        out = _letter(c, "good", f"The {name}", ev["flavour"] + " Everyone is closer for it.")
+        away = len(c["pawns"]) - len(home)
+        _scene(c, "festival", True, out["title"], out["text"], verdict="The feast is held", party=home,
+               lines=[("", f"{len(home)} disciple{'s' if len(home) != 1 else ''} feasted: joy full, +10 mood for 3 days", True),
+                      ("", "Every pair at the table grew closer (+4 bond)", True)]
+               + ([("", f"{away} away from the sect missed it", None)] if away else []),
+               snap=snap, extra=[("Mood, 3 days", 10, True, True)])
+        return out
     for p in c["pawns"]:
         _think(p, "festival", f"The {name} was skipped", -4, 48, c["hour"])
-    return _letter(c, "info", f"The {name} passed unmarked", "There was work to do.")
+    out = _letter(c, "info", f"The {name} passed unmarked", "There was work to do.")
+    _scene(c, "festival", False, out["title"], out["text"], verdict="No feast this year", party=c["pawns"],
+           lines=[("", "Every disciple is disappointed: -4 mood for 2 days", False)], extra=[("Mood, 2 days", -4, False, True)])
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -2056,6 +2236,7 @@ def _trip_return(c: dict, item: dict, r: random.Random) -> None:
     pl = PLACES.get(item.get("place"), PLACES["valley"])
     if not team:
         return
+    snap = _snap(c)
     power = sum(duel_power(c, p) for p in team)
     luck = min(1.6, power / max(1.0, (26 + _day(c) * 0.9) * (0.6 + pl["risk"]))) * float(item.get("loot_x", 1.0))
     found = []
@@ -2100,8 +2281,13 @@ def _trip_return(c: dict, item: dict, r: random.Random) -> None:
     for i, a in enumerate(team):
         for b in team[i + 1:]:
             _bond(c, a, b, 10 if hurt else 6)
-    _letter(c, "good" if not hurt else "info", f"The party is back from the {pl['name']}",
-            f"They brought {', '.join(found)}." + (f" {' and '.join(hurt)} came back wounded." if hurt else "") + " The road brought them closer.")
+    ev = _letter(c, "good" if not hurt else "info", f"The party is back from the {pl['name']}",
+                 f"They brought {', '.join(found)}." + (f" {' and '.join(hurt)} came back wounded." if hurt else "") + " The road brought them closer.")
+    st_name = dao.road.STANCES.get(item.get("stance"), dao.road.STANCES["balanced"])["name"]
+    _scene(c, "realm", not hurt, ev["title"], ev["text"], verdict="Back unharmed" if not hurt else "Back, bloodied", party=team,
+           lines=[("", f"{pl['name']}, travelling {st_name.lower()}: {pl['hours']} hours on the road.", None),
+                  ("", f"Brought back {', '.join(found)}.", True)],
+           snap=snap)
 
 
 _RESOLVERS.update(quest_offer=_res_quest_offer, quest_reward=_res_quest_reward, festival=_res_festival)
@@ -2509,7 +2695,7 @@ def view(st: dict, now: float) -> dict:
                  "cap": _f(_cap(c)) if k in ("rice", "wood", "stone", "herbs") else None} for k in RES],
         "insight": _f(c["insight"]), "wealth": _f(wealth(c)), "defense": _f(defense(c)),
         **dao.view(c),
-        "fame": _f(c["fame"]), "alerts": _alerts(c), "renown": renown(float(c["fame"])),
+        "fame": _f(c["fame"]), "alerts": _alerts(c), "scenes": [_scene_view(x) for x in c["scenes"][-SCENE_CAP:]], "renown": renown(float(c["fame"])),
         "guide": ({"text": GUIDE[c["guide"]["i"]][1], "n": _f(c["guide"]["i"]) + 1, "total": len(GUIDE)}
                   if not c["guide"]["skip"] and c["guide"]["i"] < len(GUIDE) and c["name"] else None),
         "works": [{"id": w["id"], "name": w["name"], "text": w["text"], "done": bool(w["done"]),
@@ -2669,6 +2855,7 @@ def _repair(c: dict) -> None:
                    "days": int(num(q.get("days"), 1, 99, 7.0)), "src": str(q.get("src") or ""), "title": str(q.get("title") or "A promise")}
                   if isinstance(q, dict) and q.get("res") in RES else None)
     c["festival"] = str(c.get("festival") or "")
+    _repair_scenes(c, num)
     dao.repair(c, num)
     ids = {p["id"] for p in c["pawns"]}
     c["artifacts"] = [{"id": str(a.get("id") or f"a{i}"), "name": str(a.get("name") or "Nameless artifact"), "kind": a["kind"], "q": int(num(a.get("q"), 0, 2)),

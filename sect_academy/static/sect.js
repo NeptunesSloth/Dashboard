@@ -2,7 +2,7 @@
 // this module draws it, sends orders, and asks for sim hours as real time passes.
 // All text from the server goes through esc(); every number arrives already cast.
 
-import { ICON, VAULT, backdrop, portrait, sectScene, siteRect } from '/art.js';
+import { ICON, VAULT, backdrop, portrait, scene, sectScene, siteRect } from '/art.js';
 
 const SPEED_KEY = 'sect.speed';
 const SECS_PER_HOUR = { 1: 4, 2: 2, 3: 1 };          // real seconds per sim hour
@@ -26,6 +26,11 @@ export function mountSect(h) {
   let owed = 0;
   let idle = 0;
   let seq = 0;
+  let shown = -1;                                   // the result scene on screen, if any
+  const gone = new Set();                           // scenes dismissed here, while the server catches up
+  const sceneTop = () => Math.max(-1, ...(S.scenes || []).map((x) => x.id));
+  let lastScene = sceneTop();
+  const freshScene = () => { const top = sceneTop(); const f = top > lastScene; lastScene = Math.max(lastScene, top); return f; };
 
   const face = (p, size = 48, mood) => portrait(p.id + p.name, { root: p.root, size, kind: p.master ? 'master' : '', mood: mood || (p.broken ? 'oops' : p.mood >= 65 ? 'happy' : 'calm') });
   const bar = (v, cls = '') => `<span class="bar thin ${cls}"><i style="width:${Math.max(0, Math.min(100, v))}%"></i></span>`;
@@ -41,8 +46,9 @@ export function mountSect(h) {
     const mine = ++seq;
     const res = await api(`/api/sect/${action}`, body);
     take(res, mine);
+    const framed = freshScene();                     // a result scene says it better than a toast
     if (res.ok === false && !quiet) toast(res.error || 'That did not work.');
-    else if (res.event && !quiet) toast(res.event.title, res.event.kind === 'bad' ? 6000 : 3500);
+    else if (res.event && !quiet && !framed) toast(res.event.title, res.event.kind === 'bad' ? 6000 : 3500);
     paint();
     return res;
   }
@@ -52,6 +58,7 @@ export function mountSect(h) {
   async function beat() {
     if (!view.isConnected || !$('#sect-root')) { stop(); return; }
     if (document.hidden || busy) return;
+    paintScenes();
     const waiting = !speed || S.pending || S.seclusion || !$('#sheet').hidden;
     let hours = 0;
     if (waiting) {
@@ -72,7 +79,7 @@ export function mountSect(h) {
     busy = false;
     if (take(res, mine)) {
       const top = S.log[0];
-      if (top && top.hour + top.title !== before && top.hour > 0) toast(top.title, top.kind === 'bad' ? 6000 : 3500);
+      if (!freshScene() && top && top.hour + top.title !== before && top.hour > 0) toast(top.title, top.kind === 'bad' ? 6000 : 3500);
       paint();
     }
   }
@@ -407,11 +414,9 @@ export function mountSect(h) {
       go.disabled = true;
       const res = await order('attempt', { pawn: id }, true);
       if (res.ok === false) { toast(res.error); return; }
-      const ev = res.event || {};
-      openSheet(`<section class="breakthrough result ${res.success ? 'won' : 'lost'}" style="background-image:linear-gradient(#120d0a99,#120d0aee),url(${backdrop('seclusion')})">
-          <h2>${esc(ev.title || '')}</h2><p>${esc(ev.text || '')}</p></section>
-        <button class="btn primary big" data-close style="margin-top:12px">Continue</button>`);
-      $('[data-close]', $('#sheet')).onclick = closeSheet;
+      closeSheet();
+      paintScenes();                                  // the result arrives as a scene card, success and failure framed differently
+      if (shown < 0 && res.event) toast(res.event.title, res.success ? 3500 : 6000);
     };
   }
 
@@ -459,7 +464,40 @@ export function mountSect(h) {
     d.className = `daylight ${hh >= 21 || hh < 5 ? 'night' : hh < 8 ? 'dawn' : hh >= 18 ? 'dusk' : 'day'} ${S.season === 'Winter' ? 'winter' : ''}`;
   }
 
-  function paint() { paintStyle(); paintTop(); paintEvent(); paintScene(); paintLight(); paintTabs(); }
+  function paint() { paintStyle(); paintTop(); paintEvent(); paintScene(); paintLight(); paintTabs(); paintScenes(); }
+
+  /* ---------------- result scenes: a big outcome gets a framed card ---------------- */
+  function sceneCard(x) {
+    const mood = x.kind === 'funeral' ? 'calm' : x.ok ? 'happy' : 'oops';
+    const tone = (ok) => (ok === true ? 'up' : ok === false ? 'down' : '');
+    return `<section class="breakthrough result scenecard ${x.ok ? 'won' : 'lost'} k-${esc(x.kind)}" style="background-image:${x.ok
+        ? 'linear-gradient(#120d0a66,#120d0ae6 62%)' : 'linear-gradient(#1a080a8c,#0d0607f0 58%)'},url(${scene(x.kind, x.painted)})">
+        <p class="verdict">${esc(x.verdict)} <span class="dim">· day ${x.day}</span></p>
+        <h2>${esc(x.title)}</h2>
+        ${x.party.length ? `<div class="party">${x.party.map((p) => `<span class="who">${portrait(p.id + p.name, { root: p.root, kind: p.master ? 'master' : '', size: 44, mood })}<small>${esc(p.name)}</small></span>`).join('')}</div>` : ''}
+        ${x.text ? `<p class="story">${esc(x.text)}</p>` : ''}
+        ${x.lines.length ? `<ul class="beats">${x.lines.map((l) => `<li class="${tone(l.ok)}">${l.who ? `<b>${esc(l.who)}</b> ` : ''}${esc(l.text)}</li>`).join('')}</ul>` : ''}
+        ${x.changes.length ? `<div class="changes">${x.changes.map((c) => `<span class="chg ${c.good ? 'up' : 'down'}"><b class="num">${c.signed && c.v > 0 ? '+' : ''}${c.v}</b> ${esc(c.label)}</span>`).join('')}</div>` : ''}
+      </section>
+      <button class="btn primary big scene-ok" data-seen>${x.kind === 'funeral' ? 'Bow, and go on' : 'Continue'}</button>`;
+  }
+  function dismissScene(id) {
+    gone.add(id);
+    if (shown === id) shown = -1;
+    order('scene-seen', { index: id }, true);
+  }
+  function paintScenes() {
+    const sheet = $('#sheet');
+    if (shown >= 0 && sheet.hidden) dismissScene(shown);          // closed with Escape or the backdrop: that counts as seen
+    if (shown >= 0 || !sheet.hidden || !view.isConnected) return;
+    const x = (S.scenes || []).find((y) => !gone.has(y.id));
+    if (!x) return;
+    shown = x.id;
+    openSheet(sceneCard(x));
+    const ok = $('[data-seen]', sheet);
+    ok.onclick = () => { closeSheet(); dismissScene(x.id); };
+    ok.focus({ preventScroll: true });
+  }
 
   view.innerHTML = `<div id="sect-root"><div id="z-top"></div><div class="grid2">${h.todayPanel()}${h.masterPanel()}</div>
     <div id="z-event"></div><section class="panel scenewrap" id="z-scene"></section><section class="panel" id="z-tabs" style="margin-top:14px"></section></div>`;
