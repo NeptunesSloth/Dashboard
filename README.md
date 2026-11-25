@@ -19,7 +19,7 @@ python -m sect_academy
 
 ## What is in it
 
-**Courses** (about 4,800 items, all original, each independently re-checked)
+**Courses** (about 8,900 items, all original, each independently re-checked)
 
 | Course | Size | Notes |
 |---|---|---|
@@ -27,9 +27,16 @@ python -m sect_academy
 | French Conversations | 8 units, 56 dialogues | Rehearsed exchanges, A1 to B1: you speak one side |
 | Spanish A1, A2, B1 | 20 + 12 + 12 units | Spain Spanish, Latin American variants accepted |
 | Spanish Conversations | 8 units, 56 dialogues | Rehearsed exchanges, A1 to B1: you speak one side |
+| Mandarin Chinese A1 | 18 units, 352 items | Pinyin and tones first; 122 characters; simplified script |
+| Japanese A1 | 18 units, 550 items | All hiragana and katakana, 40 kanji, polite style |
+| Korean A1 | 18 units, 391 items | Hangul first, then polite speech; Revised Romanization |
 | CompTIA Security+ (SY0-801) | 25 units | Every exam domain, plus exam-hard practice |
 | CompTIA Network+ (N10-009) | 22 units | Every exam domain, heavy on subnetting and troubleshooting |
 | ISC2 Certified in Cybersecurity | 15 units | Sept 2026 outline |
+| CompTIA A+ Core 1 (220-1201) | 26 units, 654 items | Hardware, networking, mobile, cloud, troubleshooting |
+| CompTIA A+ Core 2 (220-1202) | 26 units, 712 items | Operating systems, security, software troubleshooting, procedures |
+| CompTIA CySA+ (CS0-004) | 27 units, 670 items | Analyst practice built on real-looking logs and tool output |
+| Cisco CCNA (200-301 v1.1) | 33 units, 736 items | Configuration and verification; subnetting and routing worked |
 
 **Studying**
 
@@ -37,6 +44,9 @@ python -m sect_academy
   you already know (skipped items come back as reviews, so a lucky pass is caught).
 - A **daily session** is scheduled for you by spaced repetition (FSRS-6): what
   is due for review first, then a ration of new items.
+- **Chinese, Japanese and Korean** start with the writing system itself. You can
+  answer in the script or its romanisation; pinyin takes tone marks or numbers
+  (`ni3 hao3`), and a wrong tone is wrong.
 - Exercises get harder as you remember more: recognise, recall, type from
   memory, build a sentence from word tiles, type from audio. Certification
   items include single-answer, choose-two and put-in-order questions.

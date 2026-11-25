@@ -6,7 +6,8 @@ update it when the shape of the project changes.
 ## What this is
 
 **Sect Academy** — an offline, self-hosted study app (French and Spanish A1 to
-B1 plus conversation courses, Security+ SY0-801, Network+ N10-009, ISC2 CC)
+B1 plus conversation courses, Mandarin, Japanese and Korean A1, Security+,
+Network+, ISC2 CC, A+ Core 1 and 2, CySA+, CCNA)
 wrapped in a cultivation-world colony sim. One FastAPI process, one JSON state file, a
 vanilla-JS front end. No network, no database, no LLM.
 
@@ -92,6 +93,14 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   A new modifier goes through the `dao.*_rows` hooks, not a hidden multiplier.
 - **Only known hostnames are answered** (`_allowed_hosts` in `app.py`); serving
   on a LAN name needs `SECT_ACADEMY_HOSTS`.
+- **Chinese, Japanese, Korean**: `rom` (romanisation) on items and dialogue
+  lines, `ex_rom` on example sentences, `glyph` items for the script. Typed
+  answers in these scripts are graded by `_check_script` in engine.py (script
+  or romanisation, spacing ignored, pinyin tone numbers accepted, no typo
+  forgiveness). An alternative answer written in the script needs its own
+  romanisation listed in `alt` too.
+- **Exam versions**: CySA+ is CS0-004 (June 2026). CCNA is v1.1; Cisco replaces
+  it with v2.0 (different domains) on 3 February 2027.
 - **Offline is a hard rule**: no CDN, no web font, no external URL in anything
   the page loads. The CSP in `app.py` is `default-src 'self'`.
 - **State safety** (`state.py`): atomic fsynced writes, a daily `.bak`, a
