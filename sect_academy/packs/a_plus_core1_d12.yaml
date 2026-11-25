@@ -1,0 +1,771 @@
+part_of: a-plus-core1
+
+units:
+  # ─────────────── 1x · Mobile devices: full coverage and hard practice ───────────────
+  - id: ap1-1x
+    title: "Mobile devices — the rest of the domain, then exam-hard practice"
+    domain: "1"
+    goal: "I can service every replaceable laptop part, pick the right connector or accessory, and set up cellular, location, MDM and sync on a mobile device under exam-style pressure."
+    notes: |
+      This unit finishes Domain 1 and then tests it harder than the exam does.
+
+      ## Inside the laptop
+
+      Storage is either a **2.5-inch SATA** drive or an **M.2** stick. An M.2 slot may accept SATA drives only, NVMe drives only, or both, so check before ordering. The **wireless card** is a small module that often carries Bluetooth as well as Wi-Fi. A single loose keycap can usually be clipped back on; a dead keyboard is replaced as a unit. A black webcam image is often just a closed privacy shutter.
+
+      ## Connectors and accessories
+
+      | Connector | Shape |
+      | USB-C, Lightning | Reversible |
+      | microUSB, miniUSB | One way up only; mini is the thicker, older one |
+
+      A **trackpad** and a **track point** are built in; a **drawing pad** and a **stylus** are for pen input.
+
+      ## Networks and management
+
+      - Cellular generations: 3G (retired by many carriers), **4G/LTE**, **5G**.
+      - **Airplane mode** switches every radio off; turning off cellular data or roaming is the narrower tool.
+      - **Location services** combine satellite, cell-tower and Wi-Fi information, and each app needs permission.
+      - MDM treats a **corporate-owned** device as wholly the company's, and a BYOD device as personal with a separate work area. **Policy enforcement** blocks devices that break the rules.
+
+      In the scenario questions, decide what is actually wrong before reading the choices.
+    items:
+      - id: ap1-1x-microusb
+        type: concept
+        term: "microUSB"
+        def: "A thin, five-pin, trapezoid-shaped connector that fits one way up only; it was the usual charging and data port on Android phones and small accessories before the reversible oval connector replaced it."
+      - id: ap1-1x-miniusb
+        type: concept
+        term: "miniUSB"
+        def: "An older five-pin, one-way-up connector, noticeably thicker than the phone connector that succeeded it, once common on digital cameras, early satnav units and music players."
+      - id: ap1-1x-bluetooth
+        type: concept
+        term: "Bluetooth"
+        def: "A short-range 2.4GHz radio standard, typically reaching about ten metres, that links headsets, speakers, keyboards and mice to a device once the two have been paired."
+      - id: ap1-1x-stylus
+        type: concept
+        term: "Stylus"
+        def: "A pen-shaped accessory used to write, draw or tap on a touch screen; active models report pressure and tilt to the device."
+      - id: ap1-1x-trackpad
+        type: concept
+        term: "Trackpad"
+        def: "The flat touch-sensitive panel below a laptop's keyboard, across which a finger is slid to move the pointer and tapped or pressed to click."
+      - id: ap1-1x-trackpoint
+        type: concept
+        term: "Track point"
+        def: "A small pressure-sensitive nub set among the keys of a laptop keyboard and pushed with a fingertip to steer the pointer."
+      - id: ap1-1x-drawingpad
+        type: concept
+        term: "Drawing pad"
+        def: "An external flat tablet, worked with a pen, that turns hand strokes and pen pressure into input for sketching, photo retouching or signing documents on a computer."
+      - id: ap1-1x-headset
+        type: concept
+        term: "Headset"
+        def: "A wearable accessory that combines earphones with a microphone, connected by cable or wirelessly, used for calls and video meetings."
+      - id: ap1-1x-webcam
+        type: concept
+        term: "Webcam"
+        def: "A small video camera, built into a display bezel or attached by USB, used for video calls and sometimes for face-recognition sign-in."
+      - id: ap1-1x-wificard
+        type: concept
+        term: "Wireless card"
+        def: "A small internal laptop module, usually in an M.2 or Mini PCIe slot, that provides Wi-Fi and often Bluetooth, with thin antenna leads clipped onto it."
+      - id: ap1-1x-4g
+        type: concept
+        term: "4G (LTE)"
+        def: "The cellular generation, shown on many phones by a three-letter indicator, that made mobile broadband routine; it is the fallback where the newest generation has no coverage."
+      - id: ap1-1x-5g
+        type: concept
+        term: "5G"
+        def: "The newest widely deployed cellular generation, giving the highest speeds and lowest delay, although its fastest high-frequency bands cover only short distances."
+      - id: ap1-1x-airplane
+        type: concept
+        term: "Airplane mode"
+        def: "A single switch that turns off all of a device's radios at once: cellular, Wi-Fi and Bluetooth."
+      - id: ap1-1x-locsvc
+        type: concept
+        term: "Location services"
+        def: "The operating-system feature through which apps request the device's position; it can be switched off entirely or allowed and denied app by app."
+      - id: ap1-1x-corpowned
+        type: concept
+        term: "Corporate-owned device"
+        def: "A phone or tablet that the employer buys and fully manages, so the whole device can be restricted, tracked and erased by the organisation."
+      - id: ap1-1x-policy
+        type: concept
+        term: "Policy enforcement"
+        def: "Automatically checking enrolled devices against required settings such as passcode, encryption and operating-system version, and restricting any that do not comply."
+
+      - id: ap1-1x-q01
+        type: mcq
+        q: "A laptop with a slow 2.5-inch SATA hard drive is to be made faster. The system board has no M.2 slot. Which replacement drive will fit without any other change?"
+        choices: ["A 2.5-inch SATA SSD", "A 3.5-inch SATA hard drive", "An M.2 NVMe SSD", "An mSATA SSD"]
+        answer: 0
+        why: "A 2.5-inch SATA SSD uses the same bay, connector and interface as the old drive. An M.2 NVMe drive needs an M.2 slot, which this board lacks."
+      - id: ap1-1x-q02
+        type: mcq
+        q: "A single keycap has popped off a laptop keyboard. The hinge clip and the switch underneath are undamaged. What is the LEAST invasive repair?"
+        choices: ["Replace the whole keyboard assembly", "Replace the top case and palm rest", "Issue an external USB keyboard and disable the built-in one", "Press the keycap back onto its hinge clip"]
+        answer: 3
+        why: "With the clip and switch intact, the cap simply snaps back on. Replacing the whole keyboard is the repair when keys or the membrane have failed, not for one loose cap."
+      - id: ap1-1x-q03
+        type: mcq
+        q: "A technician replaces a failed laptop wireless card with a spare one. Wi-Fi now works, but Bluetooth has disappeared from the operating system. What is the MOST likely explanation?"
+        choices: ["The two antenna leads were swapped over when the card was fitted", "The replacement card is a Wi-Fi-only model", "Airplane mode was switched on during the repair", "The laptop battery was not reconnected"]
+        answer: 1
+        why: "Most laptop wireless cards carry both radios, so fitting a Wi-Fi-only card removes Bluetooth. Airplane mode would have turned off Wi-Fi as well."
+      - id: ap1-1x-q04
+        type: mcq
+        q: "A laptop's built-in webcam shows a black picture in every application, although the operating system reports that the camera is working. What should be checked FIRST?"
+        choices: ["Whether the display cable in the hinge needs to be replaced", "Whether the webcam driver should be rolled back", "Whether the privacy shutter or camera-disable key is on", "Whether the wireless card is seated"]
+        answer: 2
+        why: "A camera that is detected but shows black is most often covered by its sliding shutter or turned off by a function key. Check that before touching drivers or cables."
+      - id: ap1-1x-q05
+        type: mcq
+        q: "In an open-plan office, people on a user's video calls complain that they hear the whole room through her laptop's built-in microphone. Which accessory BEST solves this?"
+        choices: ["A headset with a boom microphone", "An external webcam mounted on the monitor", "A port replicator", "A pair of desktop speakers"]
+        answer: 0
+        why: "A headset puts a microphone close to the mouth, so the voice dominates the room noise. Speakers would add output only and can make echo worse."
+      - id: ap1-1x-q06
+        type: mcq
+        q: "A company wants staff to sign in to their laptops by tapping their ID badge on a marked spot on the palm rest. Which laptop component does this require?"
+        choices: ["A fingerprint reader", "An infrared camera", "A Bluetooth radio", "An NFC reader"]
+        answer: 3
+        why: "A tap at a few centimetres is near-field communication. A fingerprint reader and an infrared camera are biometric components and read the body, not a badge."
+      - id: ap1-1x-q07
+        type: mcq
+        q: "A team wants a portable speaker for a meeting table that any colleague's phone can play through from a few metres away, with no cable. Which connection method should the speaker support?"
+        choices: ["NFC", "Bluetooth", "Lightning", "Tethering"]
+        answer: 1
+        why: "Bluetooth carries audio over several metres. NFC works only at a few centimetres, so at most it could help start the pairing."
+      - id: ap1-1x-q08
+        type: mcq
+        q: "An illustrator's tablet responds to finger touches, but she needs lines that thicken as she presses harder. Which accessory provides this?"
+        choices: ["A trackpad", "A track point", "An active stylus", "A docking station"]
+        answer: 2
+        why: "An active stylus reports pressure to the tablet. A trackpad and a track point only move a pointer."
+      - id: ap1-1x-q09
+        type: mcq
+        q: "A designer uses a desktop PC with an ordinary non-touch monitor and wants to sketch and retouch photos by hand with pen pressure. Which device should be added?"
+        choices: ["A drawing pad", "A trackpad", "A port replicator", "A webcam"]
+        answer: 0
+        why: "A drawing pad adds pen input with pressure to a computer that has no touch screen. An external trackpad is still worked with a finger and senses no pen pressure."
+      - id: ap1-1x-q10
+        type: mcq
+        q: "Three colleagues on a train need internet access on their laptops, and only one of them has a phone with a data plan. Which phone feature serves all three at once?"
+        choices: ["USB tethering", "Bluetooth pairing", "Airplane mode", "Mobile hotspot"]
+        answer: 3
+        why: "A hotspot makes the phone a small Wi-Fi network that several devices can join. USB tethering shares the connection with the one computer on the cable."
+      - id: ap1-1x-q11
+        type: mcq
+        q: "A company needs to restrict which apps can be installed, track devices at all times and erase a whole device at will. Staff refuse to allow this on phones they bought themselves. Which approach fits?"
+        choices: ["Enrol the personal phones under BYOD", "Issue corporate-owned devices", "Ask staff to turn on location services", "Give each employee a second SIM"]
+        answer: 1
+        why: "Full control and full wipe are appropriate only on devices the company owns. BYOD management is limited to the work data on a personal phone."
+      - id: ap1-1x-q12
+        type: mcq
+        q: "A sales application must be installed on 200 enrolled company phones and kept up to date without any action from the users. What is the BEST method?"
+        choices: ["Email the installer file to every user", "Ask every user to search for it in the public app store and install it themselves", "Push it from the MDM system as a managed corporate application", "Share it from one phone to the next over Bluetooth"]
+        answer: 2
+        why: "MDM can install and update corporate apps silently on enrolled devices. The other methods all depend on each user acting and leave no central control."
+      - id: ap1-1x-q13
+        type: mcq
+        q: "A user adds her work account to a new phone. Mail arrives normally, but the contacts list and the calendar stay empty. What is the MOST likely fix?"
+        choices: ["Enable contact and calendar sync on the account", "Remove the account and replace the phone's SIM card", "Turn on location services", "Re-pair the phone's Bluetooth devices"]
+        answer: 0
+        why: "Each kind of data is synchronised by its own switch on the account. Mail is on, so the account works; contacts and calendar are simply not enabled."
+      - id: ap1-1x-q15
+        type: mcq
+        q: "A user travelling abroad wants to avoid data roaming charges but must still receive phone calls and use the hotel Wi-Fi. What should she do?"
+        choices: ["Turn on airplane mode", "Turn off cellular data (or data roaming) and leave Wi-Fi on", "Remove the SIM card", "Turn off location services"]
+        answer: 1
+        why: "Disabling cellular data stops roaming data charges while the phone stays registered for calls. Airplane mode or removing the SIM would stop the calls as well."
+      - id: ap1-1x-q16
+        type: mcq
+        q: "A user modifies his enrolled phone to remove the manufacturer's operating-system restrictions. Within minutes the phone can no longer open company mail, with no action by any administrator. Which MDM function did this?"
+        choices: ["Synchronisation", "Corporate application deployment", "Policy enforcement", "Location tracking"]
+        answer: 2
+        why: "MDM checks devices against the compliance rules and automatically cuts off any that break them. Application deployment installs software; it does not judge the state of the device."
+      - id: ap1-1x-q17
+        type: mcq
+        q: "A ride-hailing app reports 'location unavailable', yet the map app on the same phone, used at the same spot, shows the user's exact position. What is the MOST likely cause?"
+        choices: ["The ride-hailing app has been denied location permission", "The GPS receiver has failed", "The phone is in airplane mode", "The phone has no view of the sky"]
+        answer: 0
+        why: "Location works for one app, so the hardware and signals are fine; permission is granted per app. A failed receiver or blocked sky would affect the map app too."
+
+      - id: ap1-1x-h01
+        type: mcq
+        q: "A user reports that her laptop's trackpad has become hard to click, the laptop rocks on the desk, and the bottom cover no longer sits flat. What should the technician do?"
+        choices: ["Tighten the base screws firmly and recalibrate the trackpad in settings", "Replace the trackpad assembly", "Update the trackpad driver and firmware", "Power the laptop off, stop charging it and replace the battery"]
+        answer: 3
+        why: "A stiff trackpad with a bulging case is the classic sign of a swollen battery pressing from underneath, which is a fire risk. Tightening screws would press on the cell and could puncture it."
+      - id: ap1-1x-h02
+        type: mcq
+        q: "A user connects a new USB-C docking station to a budget laptop. The keyboard and mouse on the dock work, but both monitors stay black and the laptop does not charge. The same dock works fully with a colleague's laptop. What is the MOST likely cause?"
+        choices: ["The dock's power supply has failed", "The laptop's USB-C port carries data only, without video output or power input", "The monitors are set to the wrong refresh rate", "The laptop needs a port replicator instead"]
+        answer: 1
+        why: "USB-C is a connector shape; whether a port also carries video and charging depends on the laptop. The dock is proven good on another machine, and data devices work, so the port's capabilities are the limit."
+      - id: ap1-1x-h03
+        type: mcq
+        q: "A user tethers her laptop to her phone for a day of travel. That evening the carrier warns that the monthly allowance is nearly gone. The laptop's history shows that it downloaded several large operating-system updates. What is the BEST way to prevent this next time?"
+        choices: ["Use Bluetooth tethering instead of USB tethering next time", "Turn off location services on the phone", "Mark the phone's connection as metered on the laptop", "Turn off contact synchronisation"]
+        answer: 2
+        why: "A metered setting tells the laptop to hold back large background downloads on that connection. Changing how the laptop attaches to the phone does not change how much data it pulls."
+      - id: ap1-1x-h04
+        type: mcq
+        q: "A headset that supports one active connection is paired with both a user's phone and her laptop. The laptop lists it as paired, but audio will not play through it, while phone calls ring in the headset. What should she try FIRST?"
+        choices: ["Disconnect the headset from the phone", "Delete the pairing on the laptop and replace the headset", "Replace the laptop's wireless card", "Turn on airplane mode on the laptop"]
+        answer: 0
+        why: "Paired is not the same as connected: the headset's single connection is held by the phone. Freeing it lets the laptop connect, with no hardware change."
+      - id: ap1-1x-h05
+        type: mcq
+        q: "A user upgrades to a new phone. The old phone had cellular service but nothing in its SIM tray, and the new phone shows 'No service'. How is the service moved?"
+        choices: ["Move the SIM tray from the old phone to the new one", "Pair the two phones over Bluetooth", "Synchronise the cloud account on the new phone", "Transfer or download the carrier's eSIM profile onto the new phone"]
+        answer: 3
+        why: "An empty tray with working service means the old phone used an eSIM, which is a downloaded profile, not a card. Cloud synchronisation restores data but not the carrier subscription."
+      - id: ap1-1x-h06
+        type: mcq
+        q: "A technician fits an M.2 NVMe SSD into a laptop. The drive seats correctly, but the firmware does not list it. The service manual labels the slot 'M.2 SATA'. What is the cause?"
+        choices: ["The drive must be partitioned before the firmware can see it", "The slot accepts only SATA drives, and this drive uses NVMe", "The laptop needs a SODIMM of matching capacity", "The antenna leads are blocking the slot"]
+        answer: 1
+        why: "M.2 is a form factor; the slot must also support the drive's interface. Firmware lists a connected drive whether or not it is partitioned."
+      - id: ap1-1x-h07
+        type: mcq
+        q: "Under a BYOD policy, a company must be able to erase its mail and documents from an employee's phone without touching personal photos, and must stop work files being copied into personal apps. Which configuration BEST meets both needs?"
+        choices: ["Full device management with remote factory reset", "A VPN client that connects on demand", "A managed work profile that keeps corporate apps and data in a separate container", "A stronger screen-lock passcode"]
+        answer: 2
+        why: "A work profile separates corporate from personal data, so it can be wiped alone and copying out of it can be blocked. A factory reset would destroy the personal photos."
+      - id: ap1-1x-m01
+        type: multi
+        q: "Which TWO of these connectors are reversible, so the plug can be inserted either way up?"
+        choices: ["microUSB", "Lightning", "miniUSB", "USB-C", "USB Type-A"]
+        answers: [1, 3]
+        why: "Lightning and USB-C are symmetrical. microUSB, miniUSB and Type-A plugs fit one way only."
+      - id: ap1-1x-m02
+        type: multi
+        q: "A technician is about to open a laptop to replace an internal part. Which THREE actions belong in the preparation?"
+        choices: ["Shut the laptop down fully", "Unplug the AC adapter", "Remove the display panel", "Disconnect the internal battery", "Update the firmware", "Run the battery down to empty"]
+        answers: [0, 1, 3]
+        why: "Power must be removed completely: shut down, unplug the charger and disconnect the battery. Removing the display, flashing firmware or draining the battery are not part of making the device safe to work on."
+      - id: ap1-1x-m03
+        type: multi
+        q: "Which TWO of these are pointing devices built into the keyboard deck of a laptop?"
+        choices: ["Drawing pad", "Trackpad", "Port replicator", "Webcam", "Track point"]
+        answers: [1, 4]
+        why: "The trackpad sits below the keys and the track point among them. A drawing pad is an external accessory, and the others are not pointing devices."
+      - id: ap1-1x-o01
+        type: order
+        q: "Put the steps for replacing the M.2 SSD in a laptop with an internal battery in order."
+        steps: ["Shut the laptop down and unplug the AC adapter", "Remove the bottom cover", "Disconnect the battery from the system board", "Remove the old drive and fit the new one", "Reconnect the battery and refit the cover", "Power on and confirm that the firmware detects the drive"]
+        why: "All power is removed before any component is touched, and the battery can only be disconnected once the cover is off. Verification comes last, after reassembly."
+      - id: ap1-1x-o02
+        type: order
+        q: "Put the steps by which an employee's phone is brought under MDM and receives its work tools in order."
+        steps: ["The user installs the company's management app", "The user signs in with corporate credentials", "The user accepts the management profile, which enrols the device", "The MDM system checks the device against the compliance policy", "Corporate apps and mail settings are pushed to the device"]
+        why: "A device must be enrolled before it can be checked, and corporate apps and mail are released only to a device that has passed the compliance check."
+
+  # ─────────────────────── 2x · Networking: full coverage ───────────────────────
+  - id: ap1-2x
+    title: "Networking — the rest of the domain"
+    domain: "2"
+    goal: "I can name the purpose of every listed port, wireless standard, server role, appliance, DNS and DHCP setting, device, connection type and tool in the networking domain."
+    notes: |
+      This unit fills every gap left in Domain 2. Most of it is vocabulary, so learn it in families.
+
+      ## Ports still to learn
+
+      | Port | Service |
+      | 53 | DNS |
+      | 67 / 68 | DHCP (server / client) |
+      | 80 | HTTP |
+      | 137-139 | NetBIOS over TCP/IP |
+
+      ## Wi-Fi standards
+
+      | Standard | Bands |
+      | 802.11a | 5GHz |
+      | 802.11b, g | 2.4GHz |
+      | 802.11n (Wi-Fi 4) | 2.4 and 5GHz |
+      | 802.11ac (Wi-Fi 5) | 5GHz only |
+      | 802.11ax (Wi-Fi 6 / 6E) | 2.4 and 5GHz; 6E adds 6GHz |
+      | 802.11be (Wi-Fi 7) | 2.4, 5 and 6GHz |
+
+      Wider channels are faster but leave fewer clear ones, and each country's regulations decide which channels may be used.
+
+      ## Services and appliances
+
+      Server roles each do one job: name lookup, addressing, files, printing, mail, logs, web pages, sign-in checks, data, time. Appliances sit in the traffic path: a **spam gateway** for mail, a **proxy** for web requests, a **load balancer** in front of servers, and a **UTM** that combines several protections.
+
+      ## Mail and TXT records
+
+      **SPF** lists who may send, **DKIM** signs each message, and **DMARC** says what to do when those checks fail.
+
+      ## Addresses
+
+      Private IPv4 ranges are 10.x.x.x, 172.16-31.x.x and 192.168.x.x. Everything else that is routable is public.
+    items:
+      - id: ap1-2x-dns
+        type: concept
+        term: "DNS"
+        def: "The service that translates host names into IP addresses, answering queries on port 53."
+      - id: ap1-2x-dhcp
+        type: concept
+        term: "DHCP"
+        def: "The service that automatically gives hosts an IP address, mask, gateway and name-server settings, using UDP ports 67 and 68."
+      - id: ap1-2x-netbios
+        type: concept
+        term: "NetBIOS over TCP/IP (NetBT)"
+        def: "A legacy Windows naming and session service on ports 137 to 139, which older systems use to find each other by short computer name."
+      - id: ap1-2x-width
+        type: concept
+        term: "Channel width"
+        def: "How much spectrum one Wi-Fi transmission occupies, such as 20, 40, 80 or 160MHz; a larger value carries more data but leaves fewer non-overlapping choices."
+      - id: ap1-2x-ax
+        type: concept
+        term: "802.11ax (Wi-Fi 6)"
+        def: "The wireless standard that followed Wi-Fi 5, works in both 2.4GHz and 5GHz, serves crowded networks more efficiently, and in its 'E' extension added the 6GHz band."
+      - id: ap1-2x-be
+        type: concept
+        term: "802.11be (Wi-Fi 7)"
+        def: "The newest listed wireless standard, operating in 2.4GHz, 5GHz and 6GHz, with channels up to 320MHz wide."
+      - id: ap1-2x-rfid
+        type: concept
+        term: "RFID"
+        def: "Radio identification in which a reader detects small tags attached to goods, badges or animals, at ranges from centimetres to several metres depending on the tag, with no line of sight needed."
+      - id: ap1-2x-syslog
+        type: concept
+        term: "Syslog server"
+        def: "A central host that collects and stores the event messages sent to it by routers, switches, firewalls and other servers."
+      - id: ap1-2x-aaa
+        type: concept
+        term: "AAA server"
+        def: "A host that checks who a user or device is, decides what it may do, and records what it did, for services such as Wi-Fi and VPN sign-in."
+      - id: ap1-2x-ntp
+        type: concept
+        term: "NTP server"
+        def: "A host that supplies the correct time to the other devices on the network, so that their clocks agree."
+      - id: ap1-2x-spamgw
+        type: concept
+        term: "Spam gateway"
+        def: "An appliance or service that inspects email on its way in or out and blocks junk, phishing and malicious attachments before they reach the mail server."
+      - id: ap1-2x-utm
+        type: concept
+        term: "Unified threat management (UTM)"
+        def: "A single security appliance that combines a firewall with functions such as intrusion prevention, anti-malware scanning, content filtering and VPN."
+      - id: ap1-2x-lb
+        type: concept
+        term: "Load balancer"
+        def: "A device that spreads incoming requests across a group of identical servers and stops sending traffic to one that has failed."
+      - id: ap1-2x-proxy
+        type: concept
+        term: "Proxy server"
+        def: "An intermediary that makes web requests on behalf of internal clients, and can cache pages, filter content and log what each user visited."
+      - id: ap1-2x-scada
+        type: concept
+        term: "SCADA"
+        def: "A system of computers and controllers that monitors and operates industrial equipment such as pumps, valves and power lines, often built on old software that is hard to patch."
+      - id: ap1-2x-iot
+        type: concept
+        term: "IoT device"
+        def: "A networked everyday object, such as a smart thermostat, camera, lock or speaker, with limited built-in security and usually managed through an app."
+      - id: ap1-2x-txt
+        type: concept
+        term: "TXT record"
+        def: "The DNS entry that holds free-form text for a domain, used for domain verification and to publish email anti-spoofing information."
+      - id: ap1-2x-spf
+        type: concept
+        term: "SPF"
+        def: "A published DNS list of the servers that are allowed to send email for a domain, which receiving servers compare with the sending server's address."
+      - id: ap1-2x-dkim
+        type: concept
+        term: "DKIM"
+        def: "An email check in which the sending server adds a digital signature to each message and the receiver verifies it with a public key published in the sender's DNS."
+      - id: ap1-2x-dmarc
+        type: concept
+        term: "DMARC"
+        def: "A published DNS policy that tells receiving mail servers whether to deliver, quarantine or reject messages failing the sender checks, and where to send reports."
+      - id: ap1-2x-lease
+        type: concept
+        term: "DHCP lease"
+        def: "The limited period for which a client may keep the address a server gave it, after which the address must be renewed or returned to the pool."
+      - id: ap1-2x-exclusion
+        type: concept
+        term: "DHCP exclusion"
+        def: "A block of addresses inside a server's range that it is told never to hand out, because devices there are configured by hand."
+      - id: ap1-2x-unmanaged
+        type: concept
+        term: "Unmanaged switch"
+        def: "A plug-and-play LAN device with no settings and no login: every port simply forwards frames in one shared network."
+      - id: ap1-2x-firewall
+        type: concept
+        term: "Firewall"
+        def: "A device or program that permits or blocks traffic between networks according to rules about addresses, ports and protocols."
+      - id: ap1-2x-cablemodem
+        type: concept
+        term: "Cable modem"
+        def: "The device that connects a home or office router to an internet provider over the coaxial television line."
+      - id: ap1-2x-nic
+        type: concept
+        term: "Network interface card (NIC)"
+        def: "The adapter, built in or added, that gives a computer its physical connection to a network and carries a unique hardware address."
+      - id: ap1-2x-private
+        type: concept
+        term: "Private IPv4 address"
+        def: "An address from 10.0.0.0/8, 172.16.0.0/12 or 192.168.0.0/16, usable freely inside any organisation but never routed across the internet."
+      - id: ap1-2x-ipv6
+        type: concept
+        term: "IPv6 address"
+        def: "A 128-bit address written as eight groups of hexadecimal digits separated by colons."
+      - id: ap1-2x-mask
+        type: concept
+        term: "Subnet mask"
+        def: "The value, such as 255.255.255.0, that marks which part of an IPv4 address identifies the network and which part identifies the host."
+      - id: ap1-2x-wisp
+        type: concept
+        term: "Wireless internet service provider (WISP)"
+        def: "A company that delivers internet access by a fixed radio link from its tower to an antenna mounted on the customer's building."
+      - id: ap1-2x-pan
+        type: concept
+        term: "PAN"
+        def: "A network of devices within arm's reach of one person, such as a phone, a watch and earbuds linked by Bluetooth."
+      - id: ap1-2x-man
+        type: concept
+        term: "MAN"
+        def: "A network that spans a city or a large campus, linking several sites within one urban area."
+      - id: ap1-2x-san
+        type: concept
+        term: "SAN"
+        def: "A dedicated high-speed network that gives servers block-level access to shared disk arrays."
+      - id: ap1-2x-stripper
+        type: concept
+        term: "Cable stripper"
+        def: "A hand tool that scores and removes the outer jacket of a cable without cutting the conductors inside."
+      - id: ap1-2x-wifianalyzer
+        type: concept
+        term: "Wi-Fi analyzer"
+        def: "Software or a handheld device that shows nearby wireless networks with their channels and signal strengths, used to choose a channel and find weak coverage."
+      - id: ap1-2x-loopback
+        type: concept
+        term: "Loopback plug"
+        def: "A small connector that wires a port's transmit pins back to its own receive pins, so the port can be tested without any other equipment."
+      - id: ap1-2x-tap
+        type: concept
+        term: "Network tap"
+        def: "A hardware device inserted into a link that passes traffic through unchanged while sending a copy of it to a monitoring port."
+
+      - id: ap1-2x-q01
+        type: mcq
+        q: "An old intranet page is served without encryption, and the firewall between two office networks must let staff reach it. Which port should be allowed?"
+        choices: ["443", "80", "53", "23"]
+        answer: 1
+        why: "Unencrypted web traffic is HTTP on TCP port 80. Port 443 is HTTPS, the encrypted form."
+      - id: ap1-2x-q02
+        type: mcq
+        q: "Which 802.11 standard was the first to operate in both the 2.4GHz and the 5GHz bands?"
+        choices: ["802.11g", "802.11a", "802.11n", "802.11ac"]
+        answer: 2
+        why: "802.11n (Wi-Fi 4) works in both bands. 802.11a and 802.11ac are 5GHz only, and 802.11g is 2.4GHz only."
+      - id: ap1-2x-q03
+        type: mcq
+        q: "An access point bought in North America is installed in an office in Europe. Why should its country or region setting be changed?"
+        choices: ["Each country's regulations set which channels and transmit power are permitted", "The setting selects the DNS servers that clients are given", "The setting chooses between IPv4 and IPv6", "European clients use different port numbers"]
+        answer: 0
+        why: "Radio spectrum is regulated nationally, so the permitted channels and power levels differ between regions. The setting has nothing to do with addressing or ports."
+      - id: ap1-2x-q04
+        type: mcq
+        q: "Twenty PCs print to one office printer. The administrator wants the jobs queued centrally and the driver installed on each PC automatically. Which server role provides this?"
+        choices: ["File share", "Web server", "Database server", "Print server"]
+        answer: 3
+        why: "A print server holds the queue and shares the printer and its drivers. A file share stores documents but does not manage print jobs."
+      - id: ap1-2x-q05
+        type: mcq
+        q: "Which statement about a MAC address is correct?"
+        choices: ["It is 32 bits long and assigned by the DHCP server", "It is 48 bits long, assigned to the network adapter by its maker", "It is 128 bits long and written in eight groups", "It changes whenever the device joins a different subnet"]
+        answer: 1
+        why: "A MAC address is a 48-bit hardware address written as twelve hexadecimal digits, with the first half identifying the manufacturer. 32 bits is an IPv4 address and 128 bits is IPv6."
+      - id: ap1-2x-q06
+        type: mcq
+        q: "A small office's file server must be reachable at the same address even when the DHCP service is down. How should its address be configured?"
+        choices: ["Dynamically, with a long lease", "By APIPA", "Statically, entered by hand on the server", "By a DHCP reservation"]
+        answer: 2
+        why: "Only a static configuration does not depend on the DHCP service at all. A reservation gives a fixed address but still needs the DHCP server to answer."
+      - id: ap1-2x-q07
+        type: mcq
+        q: "Which of these IPv4 addresses is a public address?"
+        choices: ["172.32.0.1", "10.99.0.1", "172.20.0.1", "192.168.200.1"]
+        answer: 0
+        why: "The private block in the 172 range runs only from 172.16 to 172.31, so 172.32.0.1 is public. The other three fall inside the private ranges."
+      - id: ap1-2x-q08
+        type: mcq
+        q: "A provider delivers internet service over a home's existing copper telephone line, and voice calls still work on the same line. Which connection type is this?"
+        choices: ["Cable", "Fiber", "Satellite", "DSL"]
+        answer: 3
+        why: "DSL carries data over the telephone pair alongside voice. Cable internet uses the coaxial television line instead."
+      - id: ap1-2x-q09
+        type: mcq
+        q: "A remote cabin uses a dish pointed at a geostationary satellite for internet access. Which characteristic should the owner expect?"
+        choices: ["Uploads as fast as downloads", "High latency that makes real-time calls awkward", "Immunity to the weather", "A need for a telephone line"]
+        answer: 1
+        why: "The signal's long journey to orbit and back adds a delay of around half a second. Heavy rain can degrade the link, and no telephone line is involved."
+      - id: ap1-2x-q10
+        type: mcq
+        q: "A company connects its head office to a branch in another country over leased provider links. Which network type describes this connection?"
+        choices: ["LAN", "PAN", "WAN", "WLAN"]
+        answer: 2
+        why: "A WAN joins sites across large distances using a provider's links. A LAN covers one building or site, and a WLAN is a LAN that uses Wi-Fi."
+      - id: ap1-2x-q11
+        type: mcq
+        q: "A technician has just crimped a patch cable and wants to confirm that all eight wires are continuous and in the right pin order. Which tool does this?"
+        choices: ["Cable tester", "Toner probe", "Loopback plug", "Wi-Fi analyzer"]
+        answer: 0
+        why: "A cable tester checks each conductor end to end and shows opens, shorts and crossed pairs. A toner probe only helps find which cable is which."
+      - id: ap1-2x-q12
+        type: mcq
+        q: "A studio must upload very large video files every night and wants upload speeds equal to download speeds, with no electrical interference on the line. Every connection type is available. Which is the BEST choice?"
+        choices: ["DSL", "Cable", "Satellite", "Fiber"]
+        answer: 3
+        why: "Fiber offers the highest speeds, commonly symmetrical, and light is immune to electrical interference. DSL and cable normally give much slower uploads than downloads."
+
+  # ─────────────────────── 2y · Networking: exam-hard practice ───────────────────────
+  - id: ap1-2y
+    title: "Networking — exam-hard practice"
+    domain: "2"
+    goal: "I can work out what is wrong or what is needed in a small network from addresses, rule lists and symptoms, and choose the port, record, device or tool that fits."
+    notes: |
+      These questions are harder than the exam on purpose. Each one hides a simple fact inside a scenario, so work in two steps: **name what is happening**, then **pick the response**.
+
+      ## Habits that win marks
+
+      - **Read the numbers.** An address starting 169.254 means no DHCP answer. An address starting fe80 is a link-local IPv6 address. A gateway outside the host's own subnet can never be reached.
+      - **Match the port to the symptom.** Names fail but addresses work: think 53. No address at all: think 67 and 68. Web works but shares do not: think 445.
+      - **Compare near neighbours.** A reservation needs the DHCP server; a static address does not. A VLAN separates devices inside a building; a VPN joins them across the internet. SPF lists senders, DKIM signs messages, DMARC sets the policy.
+      - **Check the power budget.** 802.3af supplies about 15W per port, 802.3at about 30W, and 802.3bt 60W or more.
+      - **Know each Wi-Fi standard's bands.** A client can only see networks in bands its radio supports.
+
+      "Choose TWO" and "Choose THREE" items are all-or-nothing, as on the exam. The ordering items stand in for the exam's performance-based questions: picture the real task and walk through it.
+    items:
+      - id: ap1-2y-q01
+        type: mcq
+        q: "A new outbound firewall policy reads: allow TCP 80, allow TCP 443, deny everything else. Users can open https://203.0.113.10 by typing the address, but no site opens by name. Which rule must be added?"
+        choices: ["Allow port 53", "Allow UDP 67 and 68", "Allow TCP 25", "Allow TCP 389"]
+        answer: 0
+        why: "Reaching a site by address but not by name means DNS queries on port 53 are being dropped. Ports 67 and 68 are DHCP, and the clients clearly already have addresses."
+      - id: ap1-2y-q02
+        type: mcq
+        q: "A firewall separates the guest Wi-Fi from the server that issues addresses. Its rules allow ports 53, 80 and 443 from the guest network. Every guest device shows an address beginning 169.254. Which traffic must also be allowed?"
+        choices: ["TCP 445", "TCP 110 and 143", "TCP 3389", "UDP 67 and 68"]
+        answer: 3
+        why: "A 169.254 address means no DHCP reply arrived, and DHCP uses UDP 67 (server) and 68 (client). The other ports carry file sharing, mail retrieval and remote desktop."
+      - id: ap1-2y-q03
+        type: mcq
+        q: "A developer is choosing the transport for a live voice application. A packet that arrives late is useless, and pausing to resend lost packets would cause audible gaps. Which choice is BEST, and why?"
+        choices: ["TCP, because it guarantees delivery in order", "UDP, because it sends without handshakes or retransmissions", "TCP, because it uses port numbers", "UDP, because it encrypts the stream"]
+        answer: 1
+        why: "Real-time voice prefers the low overhead of connectionless UDP and tolerates a little loss. TCP's retransmission is exactly what would cause the gaps, and UDP provides no encryption."
+      - id: ap1-2y-q04
+        type: mcq
+        q: "An office installs Wi-Fi 6E access points that broadcast one network name on 5GHz and another on 6GHz. Two-year-old laptops with Wi-Fi 6 (802.11ax) adapters see the 5GHz name but never the 6GHz one. Why?"
+        choices: ["The 6GHz network is on an overlapping channel", "The laptops need a DHCP reservation", "Their adapters have no 6GHz radio; only Wi-Fi 6E and later include one", "6GHz signals cannot pass through the office air"]
+        answer: 2
+        why: "Plain Wi-Fi 6 works in 2.4GHz and 5GHz only; the 6GHz band arrived with Wi-Fi 6E. A client cannot see a network in a band its radio lacks."
+      - id: ap1-2y-q05
+        type: mcq
+        q: "In a crowded apartment block, an access point's 2.4GHz radio is set to a 40MHz channel width. A Wi-Fi analyzer shows that it overlaps neighbours on both sides, and throughput is poor. What is the BEST change on that band?"
+        choices: ["Set the width to 20MHz on channel 1, 6 or 11", "Set the width to 80MHz", "Move to channel 3 at 40MHz", "Turn the transmit power up to its maximum setting"]
+        answer: 0
+        why: "The 2.4GHz band is too narrow for wide channels; 20MHz on a non-overlapping channel avoids the neighbours. More power would only increase the mutual interference."
+      - id: ap1-2y-q06
+        type: mcq
+        q: "An access point is configured to broadcast only on 2.4GHz so that old barcode scanners can connect. A laptop whose adapter has been set to 802.11ac-only mode cannot see the network at all, although a phone beside it can. Why?"
+        choices: ["The laptop's adapter needs a wider channel", "The network name is hidden from laptops", "The laptop is too close to the access point", "802.11ac operates only in the 5GHz band"]
+        answer: 3
+        why: "Wi-Fi 5 (802.11ac) is a 5GHz-only standard, so an adapter restricted to it cannot hear a 2.4GHz network. The phone has a dual-band radio."
+      - id: ap1-2y-q07
+        type: mcq
+        q: "A warehouse wants every tagged pallet counted automatically as a forklift carries it through a dock door, from a few metres away and without anyone aiming a scanner. Which technology fits?"
+        choices: ["NFC", "RFID", "Bluetooth pairing", "Infrared"]
+        answer: 1
+        why: "RFID readers detect tags at a distance with no line of sight and no pairing. NFC works only within a few centimetres."
+      - id: ap1-2y-q08
+        type: mcq
+        q: "An office Wi-Fi uses one shared passphrase, which has to be changed on every device whenever someone leaves. Management wants each person to sign in with their own account, and wants a record of who connected and when. Which server role makes this possible?"
+        choices: ["Syslog server", "DHCP server", "AAA server", "Proxy server"]
+        answer: 2
+        why: "An AAA server authenticates each user, authorises access and keeps accounting records. A syslog server only stores log messages; it does not check credentials."
+      - id: ap1-2y-q09
+        type: mcq
+        q: "After a break-in, logs from the firewall, the switch and the file server are gathered on the syslog server. Their timestamps disagree by several minutes, so the events cannot be put in sequence. What should be configured to prevent this in future?"
+        choices: ["The same NTP server on every device", "A longer DHCP lease on every device", "A second syslog server", "A load balancer in front of the syslog server"]
+        answer: 0
+        why: "Logs can be correlated only if every clock agrees, which is the job of NTP. A second log collector would store the same mismatched times."
+      - id: ap1-2y-q10
+        type: mcq
+        q: "An online shop runs on three identical web servers. The owner wants customers to use one address, requests to be shared among the servers, and a crashed server to be skipped automatically. Which appliance is needed?"
+        choices: ["Proxy server", "Spam gateway", "Managed switch", "Load balancer"]
+        answer: 3
+        why: "A load balancer presents one address, distributes requests and health-checks the servers behind it. A proxy server acts for internal clients going out, not for a server group."
+      - id: ap1-2y-q11
+        type: mcq
+        q: "A company starts sending invoices through a third-party bulk-mail service, and many now land in customers' junk folders. A message header reads: spf=fail (sending IP is not permitted by the domain). What is the fix?"
+        choices: ["Change the MX record to point to the mail service", "Add the mail service's servers to the domain's SPF TXT record", "Create a CNAME record for the mail service", "Add an AAAA record for the mail server"]
+        answer: 1
+        why: "SPF fails because the service's servers are not on the domain's list of permitted senders, which is published in a TXT record. The MX record controls where incoming mail is delivered, not who may send."
+      - id: ap1-2y-q12
+        type: mcq
+        q: "A domain already publishes SPF and signs its mail with DKIM. Forged messages using the domain are still being delivered by other organisations, and the owner receives no information about them. Which addition tells receivers to reject failing mail and to send reports?"
+        choices: ["A second MX record", "A longer DKIM key", "A DMARC TXT record", "An A record for the mail server"]
+        answer: 2
+        why: "DMARC publishes the policy for messages that fail SPF and DKIM, and an address for reports. A stronger key changes nothing about how receivers treat a failure."
+      - id: ap1-2y-q13
+        type: mcq
+        q: "A café's DHCP scope holds 200 addresses with an eight-day lease. About 150 different customers connect each day, and by the second day new devices receive 169.254 addresses. What is the BEST fix?"
+        choices: ["Shorten the lease to an hour or two", "Create a reservation for every customer", "Add an exclusion for half of the scope", "Lengthen the lease to thirty days"]
+        answer: 0
+        why: "Addresses stay assigned to customers who left days ago, so the pool runs out; a short lease returns them quickly. An exclusion would shrink the pool further."
+      - id: ap1-2y-q14
+        type: mcq
+        q: "A DHCP scope hands out 192.168.1.10 to 192.168.1.200. A contractor installs ten devices with hand-entered addresses 192.168.1.20 to 192.168.1.29, and address-conflict warnings begin to appear. The contractor's devices must keep their manual settings. What should the administrator configure?"
+        choices: ["A shorter lease time", "A different default gateway in the scope options", "A second scope covering the same range", "An exclusion for 192.168.1.20 to 192.168.1.29"]
+        answer: 3
+        why: "An exclusion stops the server from issuing addresses that are set by hand elsewhere. A shorter lease would only make the conflicts move around faster."
+      - id: ap1-2y-q15
+        type: mcq
+        q: "A shop's card terminals and its free guest Wi-Fi share one managed switch. The terminals must be isolated from guest devices, and no new hardware may be bought. What is the BEST solution?"
+        choices: ["Give the terminals a different subnet mask", "Put the terminals and the guests in separate VLANs", "Install a VPN client on each terminal", "Give the terminals DHCP reservations"]
+        answer: 1
+        why: "VLANs on the existing managed switch place the two groups in separate broadcast domains. Changing a mask alone leaves every device in the same layer-2 network, where they can still reach each other."
+      - id: ap1-2y-q16
+        type: mcq
+        q: "An accountant working from hotels needs to open shared folders on the office file server. The security policy forbids exposing file-sharing or remote-desktop ports to the internet. What should be set up?"
+        choices: ["Port forwarding of TCP 445 to the file server", "Port forwarding of TCP 3389 to her office PC", "A VPN connection into the office network", "A public A record for the file server"]
+        answer: 2
+        why: "A VPN gives an encrypted tunnel into the private network, so the shares are reached without opening their ports to the internet. Both port-forwarding options expose exactly what the policy forbids."
+      - id: ap1-2y-q17
+        type: mcq
+        q: "A pan-tilt camera with a built-in heater needs up to 51W at the device. It is connected to a switch whose ports are 802.3at (PoE+). The camera starts, then restarts whenever the heater and motors run. What does the installation need?"
+        choices: ["A port or injector that supports 802.3bt", "A port that supports 802.3af", "A shorter DHCP lease time for the camera's address", "A fiber link to the camera"]
+        answer: 0
+        why: "802.3at supplies about 30W per port, which is not enough; 802.3bt supplies 60W or more. 802.3af is the oldest standard and supplies even less, about 15W."
+      - id: ap1-2y-q18
+        type: mcq
+        q: "An office is installing 24 desk phones. The desks have network jacks but no spare power outlets, and the existing 24-port switch is a basic model with no PoE. Which solution is BEST?"
+        choices: ["Run an extension lead to every desk", "Fit a PoE injector on each of the 24 runs", "Replace the patch panel", "Replace the switch with a PoE switch"]
+        answer: 3
+        why: "One PoE switch powers every port and is far simpler than 24 separate injectors, each needing its own outlet in the closet. A patch panel is passive and supplies no power."
+      - id: ap1-2y-q19
+        type: mcq
+        q: "A small office puts its PCs in 192.168.1.0/24 and its cameras in 192.168.2.0/24, with every device plugged into the same unmanaged switch. The PCs cannot reach the cameras. Which device is needed to pass traffic between the two networks?"
+        choices: ["An access point", "A router", "A second unmanaged switch", "A patch panel"]
+        answer: 1
+        why: "Hosts in different IP networks need a router to forward packets between them. Adding another switch only extends the same layer-2 network."
+      - id: ap1-2y-q20
+        type: mcq
+        q: "A home's internet is down. On the wall is the provider's box, with a thin optical cable entering and an Ethernet cable running to the router. A light on the box labelled for the optical signal is red. What is this box, and what should the technician do?"
+        choices: ["A cable modem; replace the coaxial splitter", "A DSL modem; fit a filter to the telephone", "An optical network terminal; report the loss of signal to the provider", "A patch panel; punch the cable down again"]
+        answer: 2
+        why: "A box that converts the provider's fiber to Ethernet is an ONT, and a red optical light means the fault is on the provider's side. Cable and DSL modems connect to coaxial and telephone lines, not fiber."
+      - id: ap1-2y-q21
+        type: mcq
+        q: "A shop's card terminals must keep working if the street cabling is cut during road works. The landlord forbids any dish or outdoor antenna, and the terminals need low delay. Which backup internet connection is BEST?"
+        choices: ["A cellular (4G/5G) connection", "A second cable line from the same street cabinet", "Geostationary satellite", "DSL over the building's telephone line"]
+        answer: 0
+        why: "A cellular modem needs no physical line and no dish, and has low latency. A second cable line or DSL would be cut by the same road works, and satellite needs a dish and adds delay."
+      - id: ap1-2y-q22
+        type: mcq
+        q: "A PC is set by hand to address 192.168.10.70, mask 255.255.255.0, gateway 192.168.11.1. It can print to 192.168.10.5 but cannot reach anything on the internet. What is wrong?"
+        choices: ["The address is an APIPA address", "The address is public, not private", "The mask is invalid for this class of address", "The gateway is not in the PC's own subnet"]
+        answer: 3
+        why: "With that mask the PC's network is 192.168.10.0, so a gateway at 192.168.11.1 is outside it and cannot be reached directly. The address is an ordinary private one and the mask is valid."
+      - id: ap1-2y-q23
+        type: mcq
+        q: "A PC shows only one IPv6 address, beginning fe80::, and cannot reach IPv6 sites on the internet. What does that address indicate?"
+        choices: ["A public address issued by the provider", "A link-local address the PC assigned itself, valid only on its own network segment", "An IPv4 address written in hexadecimal", "The address of the DNS server"]
+        answer: 1
+        why: "Addresses starting fe80 are link-local: every IPv6 interface creates one, and routers never forward them. Reaching the internet needs a global address as well."
+      - id: ap1-2y-q24
+        type: mcq
+        q: "On Monday morning the office DHCP server is found to have failed during the weekend. PCs that were left running still work normally, while PCs switched on this morning show 169.254 addresses. Why are the running PCs still working?"
+        choices: ["They have switched to static addresses", "They are using IPv6 link-local addresses to reach the internet", "Their leases have not yet expired", "They have DHCP exclusions"]
+        answer: 2
+        why: "A client keeps using its address until the lease runs out, so those PCs will fail later unless the server is restored. Newly started PCs got no answer and fell back to APIPA."
+      - id: ap1-2y-q25
+        type: mcq
+        q: "A newly made patch cable gives a link, but the PC negotiates only 100Mbps on a gigabit switch port. A cable tester shows that pins 7 and 8 are open. What is the cause and the fix?"
+        choices: ["Gigabit needs all four pairs; re-terminate the cable", "The switch port is faulty; move the cable to another port", "The cable is too short; make a longer one", "The NIC driver is old; update it"]
+        answer: 0
+        why: "100Mbps Ethernet uses only the pairs on pins 1, 2, 3 and 6, so it still links, but gigabit requires all eight conductors. The tester has already located the fault in the cable."
+      - id: ap1-2y-q26
+        type: mcq
+        q: "A security analyst must capture every frame passing between the firewall and the internet router for a week, without changing the configuration of either device. Which tool should be installed on that link?"
+        choices: ["A loopback plug", "A toner probe", "A cable tester", "A network tap"]
+        answer: 3
+        why: "A tap sits in line and copies all traffic to a monitoring port while passing it through untouched. A loopback plug only tests a single port by returning its own signal."
+      - id: ap1-2y-q27
+        type: mcq
+        q: "A water utility's pump controllers are run from SCADA workstations whose operating system no longer receives patches. The vendor will not certify an upgrade for two years. What is the BEST way to reduce the risk meanwhile?"
+        choices: ["Give the workstations public addresses so the vendor can monitor them", "Isolate the SCADA systems on their own network segment with tightly restricted access", "Move the workstations onto the office Wi-Fi", "Shorten the DHCP lease for the workstations"]
+        answer: 1
+        why: "Legacy systems that cannot be patched are protected by isolating them and limiting what can reach them. Public addresses or the office Wi-Fi would expose them to more threats."
+      - id: ap1-2y-q28
+        type: mcq
+        q: "An intranet ordering application has a web front end that reads and writes customer orders with SQL queries to a separate back-end host. Which server role does the back-end host perform?"
+        choices: ["File share server", "Mail server", "Database server", "Syslog server"]
+        answer: 2
+        why: "A database server stores structured records and answers queries from applications. A file share stores whole documents and has no query language."
+
+      - id: ap1-2y-m01
+        type: multi
+        q: "An office installs smart cameras that arrive with a well-known factory username and password. Which TWO actions BEST reduce the risk they bring to the office network?"
+        choices: ["Change the factory credentials on every camera", "Forward the cameras' ports from the internet", "Turn off automatic firmware updates", "Place the cameras in a separate VLAN from the office PCs", "Give the cameras public IP addresses"]
+        answers: [0, 3]
+        why: "Default credentials are the commonest way IoT devices are taken over, and segmentation limits the damage if one is. The other three actions increase exposure or leave flaws unpatched."
+      - id: ap1-2y-m02
+        type: multi
+        q: "A firewall must let mail clients collect mail using either of the two standard retrieval protocols, unencrypted. Which TWO ports must be open?"
+        choices: ["25", "110", "23", "143", "389", "445"]
+        answers: [1, 3]
+        why: "POP3 uses 110 and IMAP uses 143. Port 25 is SMTP, which sends mail and does not retrieve it."
+      - id: ap1-2y-m03
+        type: multi
+        q: "Which THREE of these are private IPv4 addresses?"
+        choices: ["172.15.0.1", "10.200.3.4", "192.169.1.1", "172.31.255.1", "11.0.0.1", "192.168.0.250"]
+        answers: [1, 3, 5]
+        why: "The private ranges are 10.0.0.0-10.255.255.255, 172.16.0.0-172.31.255.255 and 192.168.0.0-192.168.255.255. 172.15, 192.169 and 11 all lie just outside them."
+      - id: ap1-2y-m04
+        type: multi
+        q: "Which TWO DNS record types map a host name directly to an IP address?"
+        choices: ["MX", "A", "CNAME", "TXT", "AAAA"]
+        answers: [1, 4]
+        why: "A gives an IPv4 address and AAAA gives an IPv6 address. CNAME and MX point to other names, and TXT holds text."
+      - id: ap1-2y-m05
+        type: multi
+        q: "Which TWO of these 802.11 standards operate only in the 5GHz band?"
+        choices: ["802.11a", "802.11b", "802.11g", "802.11n", "802.11ac", "802.11ax"]
+        answers: [0, 4]
+        why: "802.11a and 802.11ac are 5GHz only. 802.11b and g are 2.4GHz only, and 802.11n and ax work in both bands."
+      - id: ap1-2y-m06
+        type: multi
+        q: "A technician must make a patch cable from a box of bulk twisted-pair cable and a bag of RJ45 plugs. Which TWO tools are needed to make it?"
+        choices: ["Punchdown tool", "Cable stripper", "Toner probe", "Crimper", "Loopback plug", "Network tap"]
+        answers: [1, 3]
+        why: "The stripper removes the jacket and the crimper fixes the plug onto the wires. A punchdown tool terminates cable on jacks and panels, not on plugs."
+
+      - id: ap1-2y-o01
+        type: order
+        q: "Put the steps for fitting an RJ45 plug to the end of a twisted-pair cable in order."
+        steps: ["Strip back the outer jacket", "Untwist the pairs and arrange the wires in the T568B colour order", "Trim the wires to an even length", "Push the wires fully into the plug", "Crimp the plug", "Check the cable with a cable tester"]
+        why: "The wires must be exposed, ordered and trimmed before they will slide into the plug; crimping fixes them, and testing can only follow."
+      - id: ap1-2y-o02
+        type: order
+        q: "Put the stages of an email's journey from sender to recipient in order."
+        steps: ["The sender's mail app submits the message to the sender's mail server using SMTP", "The sender's server looks up the MX record of the recipient's domain", "The sender's server delivers the message to the recipient's mail server using SMTP", "The recipient's mail app retrieves the message using IMAP"]
+        why: "SMTP carries mail to and between servers, and the MX lookup must come before server-to-server delivery because it names the destination. Retrieval by the recipient's app is the last step."
+      - id: ap1-2y-o03
+        type: order
+        q: "An office has a fiber internet service. Starting at a desk PC, put in order the equipment that a request to a website passes through on its way out of the building."
+        steps: ["Wall jack", "Patch panel", "Switch", "Router", "Optical network terminal"]
+        why: "The wall jack's permanent cable ends at the patch panel, which is patched to the switch; the switch passes outbound traffic to the router, whose WAN side connects to the ONT and the provider's fiber."
+      - id: ap1-2y-o04
+        type: order
+        q: "A laptop is switched on, joins the network and opens a secure website. Put the events in order."
+        steps: ["The laptop obtains an IP address and DNS server setting by DHCP", "The laptop asks the DNS server for the website's address", "The laptop opens a TCP connection to the web server on port 443", "The browser sends its HTTPS request for the page"]
+        why: "Without an address and a DNS server the laptop can ask nothing; the name must be resolved before a connection can be opened, and the request travels over that connection."
