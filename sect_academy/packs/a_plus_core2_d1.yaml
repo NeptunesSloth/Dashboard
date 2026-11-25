@@ -188,7 +188,7 @@ units:
         q: "A user asks for a weekly 'defrag' of the SSD in his laptop. What does Windows Optimize Drives do to an SSD on its schedule?"
         choices: ["It performs a full defragmentation, as for a hard disk", "It sends TRIM so the SSD knows which blocks are free", "It runs chkdsk /r to find bad sectors", "It skips solid-state drives entirely"]
         answer: 1
-        why: "For SSDs, Optimize Drives sends TRIM rather than moving files around, which would only add wear. It does not skip SSDs, and checking for bad sectors is chkdsk's job."
+        why: "Optimize Drives detects the media type and, for an SSD, runs a retrim instead of a hard-disk defragmentation, which would only add wear (Windows defragments an SSD only rarely, when a very fragmented volume with shadow copies needs it). It does not skip SSDs, and checking for bad sectors is chkdsk's job."
 
       # ── Command line ──
       - id: ap2-1x-pathping
@@ -278,7 +278,7 @@ units:
         why: "diskpart acts on the selected object, so you identify and select the disk first; clean removes the old partition table, after which the empty disk can be converted to GPT before a partition is created and formatted."
       - id: ap2-1x-m01
         type: multi
-        q: "A technician needs to find which program is listening on TCP port 8080 on a Windows PC. Which TWO tools can show this?"
+        q: "A technician needs to find which process is listening on TCP port 8080 on a Windows PC. Which TWO tools can show this? Choose TWO."
         choices:
           - "netstat -ano"
           - "Resource Monitor, Network tab"
@@ -346,7 +346,7 @@ units:
       | ~/Library | The same, for one user (hidden in Finder) |
       | /System | The protected operating system itself |
 
-      Uninstall by dragging the app to the Trash; leftovers sit in `~/Library`. **Rapid Security Responses** patch urgent flaws between full updates. App permissions such as screen recording are granted in **Privacy & Security**. **Continuity** passes work between devices on the same Apple account.
+      Uninstall by dragging the app to the Trash; leftovers sit in `~/Library`. **Rapid Security Responses** patch urgent flaws between full updates (macOS 26 Tahoe delivers them as **Background Security Improvements**). App permissions such as screen and audio recording are granted in **Privacy & Security**. **Continuity** passes work between devices on the same Apple account.
 
       ## Linux syntax
 
@@ -369,7 +369,7 @@ units:
       - id: ap2-1y-rsr
         type: concept
         term: "Rapid Security Response"
-        def: "A small Apple update that delivers urgent security fixes to macOS or iOS between full releases, usually needing only a quick restart and shown with a letter suffix such as (a)."
+        def: "A small Apple update, introduced with macOS Ventura and iOS 16, that delivers urgent security fixes between full releases, needs only a quick restart and is shown with a letter suffix such as (a); macOS 26 replaces it with Background Security Improvements."
       - id: ap2-1y-continuity
         type: concept
         term: "Continuity"
@@ -390,10 +390,10 @@ units:
         why: "Per-user preferences and application support files live in the hidden ~/Library folder and survive deleting the .app. /System is the protected operating system, which apps do not write their settings into."
       - id: ap2-1y-q02
         type: mcq
-        q: "A Mac shows an available update named 'macOS Ventura 13.4.1 (a)' that installs in minutes with a quick restart. What is it?"
+        q: "In 2023 a Mac running macOS Ventura was offered an update named 'macOS Ventura 13.4.1 (a)' that installed in minutes with a quick restart. What was it?"
         choices: ["A beta release of the next major macOS version", "A firmware update for the Mac's SSD", "A Time Machine snapshot", "A Rapid Security Response"]
         answer: 3
-        why: "Rapid Security Responses carry urgent security fixes between full updates and are labelled with a letter suffix. A beta release is installed only through the beta programme and is a full update, not a small patch."
+        why: "Rapid Security Responses carry urgent security fixes between full updates and are labelled with a letter suffix; 13.4.1 (a) was a real one. A beta release is installed only through the beta programme and is a full update, not a small patch. In macOS 26 Tahoe the same job is done by Background Security Improvements, which also carry a letter suffix."
       - id: ap2-1y-q03
         type: mcq
         q: "A user copies text on her iPhone and expects to paste it on her Mac with Universal Clipboard, but nothing appears. Both have Bluetooth and Wi-Fi on. What should be checked next?"
@@ -403,9 +403,9 @@ units:
       - id: ap2-1y-q04
         type: mcq
         q: "During a video call on a Mac, the conferencing app shows only a blank desktop when the user tries to share her screen. What is the MOST likely fix?"
-        choices: ["Turn on Screen Sharing under General > Sharing", "Grant Screen Recording in Privacy & Security", "Add the app to the Dock", "Run First Aid in Disk Utility"]
+        choices: ["Turn on Screen Sharing under General > Sharing", "Allow the app under Privacy & Security > Screen & System Audio Recording", "Add the app to the Dock", "Run First Aid in Disk Utility"]
         answer: 1
-        why: "macOS requires each app to be granted the Screen Recording permission in Privacy & Security before it can capture the screen. Screen Sharing in Sharing lets other people remotely control the Mac, which is a different feature."
+        why: "macOS requires each app to be allowed in Privacy & Security > Screen & System Audio Recording (called Screen Recording before macOS Sequoia) before it can capture the screen. Screen Sharing in Sharing lets other people remotely control the Mac, which is a different feature."
       - id: ap2-1y-m01
         type: multi
         q: "A Mac user asks which kinds of files or sources can be used to install software on macOS. Choose THREE."
@@ -530,24 +530,23 @@ units:
         why: "/etc/hosts holds local name-to-address entries and /etc/resolv.conf names the DNS servers. fstab controls mounts, and shadow and passwd hold account data."
       - id: ap2-1y-o01
         type: order
-        q: "A technician plugs a USB drive into a Linux workstation and copies files to it from the terminal. Put the steps in order."
+        q: "A technician plugs a USB drive into a Linux workstation, where the empty folder /mnt/usb already exists, and copies files to it from the terminal. Put the steps in order."
         steps:
           - "Identify the drive's partition, for example with lsblk"
-          - "sudo mkdir /mnt/usb"
           - "sudo mount /dev/sdb1 /mnt/usb"
           - "Copy the files to /mnt/usb with cp"
           - "sudo umount /mnt/usb"
-        why: "You need the device name and an empty mount point before mounting, and the filesystem must be mounted before files can be copied; unmounting last flushes the writes so the drive can be removed safely."
+        why: "You need the device name before you can mount it on the existing mount point, and the filesystem must be mounted before files can be copied; unmounting last flushes the writes so the drive can be removed safely."
       - id: ap2-1y-o02
         type: order
-        q: "On Ubuntu, a technician changes a setting in the SSH server's config file with nano and applies it. Put the steps in order."
+        q: "On Ubuntu, a technician sets PasswordAuthentication no in the SSH server's config file with nano and applies it. Put the steps in order."
         steps:
           - "sudo nano /etc/ssh/sshd_config"
           - "Edit the setting"
           - "Press Ctrl+O and Enter to save"
           - "Press Ctrl+X to exit nano"
           - "sudo systemctl restart ssh"
-        why: "The file is opened, changed and written out before the editor is closed, and the service only reads the new setting when it is restarted afterwards."
+        why: "The file is opened, changed and written out before the editor is closed, and the service only reads the new setting when it is restarted afterwards. On Ubuntu and Debian the unit is called ssh; on Red Hat and Fedora it is sshd."
 
       # ── Application requirements and distribution ──
       - id: ap2-1y-iso
@@ -556,7 +555,7 @@ units:
         def: "A single file containing an exact image of an optical disc, which Windows and macOS can mount as a virtual drive to install software without physical media."
       - id: ap2-1y-token
         type: concept
-        term: "Hardware token (dongle)"
+        term: "Licence dongle"
         def: "A small USB device that some licensed applications require to be plugged in before they will run, proving the licence is present."
       - id: ap2-1y-q11
         type: mcq
@@ -653,9 +652,9 @@ units:
       - id: ap2-1z2-q05
         type: mcq
         q: "A user's video-call app shows a black image, while the Camera app works. The technician suspects the call app was denied camera access. Which Settings category holds the per-app switch?"
-        choices: ["Bluetooth and devices", "Apps", "Privacy and security", "Gaming"]
+        choices: ["Bluetooth & devices", "Apps", "Privacy & security", "Gaming"]
         answer: 2
-        why: "Privacy and security > Camera lists the apps allowed to use the camera. Bluetooth and devices covers the camera hardware and its driver, which already works because the Camera app works."
+        why: "Privacy & security > Camera lists the apps allowed to use the camera. Bluetooth & devices covers the camera hardware and its driver, which already works because the Camera app works."
       - id: ap2-1z2-q06
         type: mcq
         q: "A user who moved from the US to the UK wants dates shown as day/month/year and prices in pounds on Windows. Which Settings category is used?"
@@ -671,9 +670,9 @@ units:
       - id: ap2-1z2-q08
         type: mcq
         q: "A user wants to sign in with a PIN instead of her password and also add her employer's work account to her personal Windows 11 PC. Which Settings category holds both?"
-        choices: ["Accounts", "Privacy and security", "Network and internet", "System"]
+        choices: ["Accounts", "Privacy & security", "Network & internet", "System"]
         answer: 0
-        why: "Accounts contains Sign-in options (PIN, Windows Hello) and Access work or school. Privacy and security controls app permissions and Windows Security, not sign-in methods."
+        why: "Accounts contains Sign-in options (PIN, Windows Hello) and Access work or school. Privacy & security controls app permissions and Windows Security, not sign-in methods."
       - id: ap2-1z2-q09
         type: mcq
         q: "A Windows PC set to obtain an address automatically shows IPv4 169.254.37.12 and no default gateway. Other PCs on the same switch are fine. What is the MOST likely cause?"
@@ -793,9 +792,9 @@ units:
           - "Back up the user's files and settings"
           - "Boot the PC from the Windows 11 installation USB drive"
           - "Delete the old partitions and install to the unallocated space"
-          - "Install drivers and Windows updates"
-          - "Restore the user's files and settings"
-        why: "The backup must come before anything is wiped, the old partitions are removed during Setup, and data goes back only once the new system is patched and working."
+          - "Complete the out-of-box setup and create the user's new account"
+          - "Restore the user's files and settings into that account"
+        why: "The backup must come before anything is wiped, the old partitions are removed during Setup, and files and settings can only go back once the account they belong to exists on the new system."
       - id: ap2-1z2-m02
         type: multi
         q: "A technician checks whether an old PC meets Windows 11's minimum hardware requirements. Which THREE are actual requirements? Choose THREE."
@@ -895,7 +894,7 @@ units:
       - id: ap2-1z2-q31
         type: mcq
         q: "Staff must browse the web through the corporate proxy at 10.0.0.8 port 3128, but internal sites must be reached directly. Where is this set for the whole Windows 11 session?"
-        choices: ["Settings, Network and internet, Proxy", "Network and Sharing Center, adapter properties, DNS tab", "Windows Defender Firewall, outbound rules", "Device Manager, network adapter, Advanced tab"]
+        choices: ["Settings, Network & internet, Proxy", "Network and Sharing Center, adapter properties, DNS tab", "Windows Defender Firewall, outbound rules", "Device Manager, network adapter, Advanced tab"]
         answer: 0
         why: "The Proxy page in Settings takes the proxy address and port and can skip the proxy for local (intranet) addresses. Firewall rules allow or block traffic but cannot forward it to a proxy."
       - id: ap2-1z2-m03

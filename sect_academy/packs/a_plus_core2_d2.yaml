@@ -65,7 +65,7 @@ units:
       - id: ap2-2x-otp
         type: concept
         term: "One-time password (OTP)"
-        def: "A code that is accepted for one sign-in only, so a copy captured after use cannot be replayed."
+        def: "The general name for any code, however it is generated or delivered, that is accepted for one sign-in only, so a copy captured after use cannot be replayed."
       - id: ap2-2x-hwtoken
         type: concept
         term: "Hardware token"
@@ -113,7 +113,7 @@ units:
       - id: ap2-2x-passwordless
         type: concept
         term: "Passwordless authentication"
-        def: "Signing in without any reusable typed secret: the user proves possession of a private key held on a device or security key, unlocked locally by a PIN or biometric gesture."
+        def: "The general, vendor-neutral approach of signing in with no password at all, on any platform or service, using methods such as FIDO2 security keys, synced passkeys or an authenticator app's push approval, so there is no shared secret to phish or reuse."
       - id: ap2-2x-attrib
         type: concept
         term: "File attributes"
@@ -279,7 +279,7 @@ units:
           - "Forward the printer's port on the router"
           - "Sign in with a Microsoft account"
         answer: 0
-        why: "Answering No made the network Public, which turns off network discovery and file and printer sharing; Private is right for a trusted home network. Disabling the firewall would also work but removes protection, which is never the proper fix."
+        why: "Answering No made the network Public, which turns off network discovery and file and printer sharing; Private is right for a trusted home network. Disabling the firewall would remove protection and still leave network discovery off, because discovery is a separate setting of the Public profile."
       - id: ap2-2x-q10
         type: mcq
         q: "A user who signs in with a local account wants her wallpaper, browser favourites and OneDrive files to follow her from her home PC to a new laptop. What should the technician set up?"
@@ -492,7 +492,7 @@ units:
       - id: ap2-2y-lowlevel
         type: concept
         term: "Low-level formatting"
-        def: "In everyday support use, running a drive maker's utility that writes zeros to every sector and removes all partitions, leaving the drive empty but reusable."
+        def: "Strictly, the factory process that lays out a drive's tracks and sectors, which users cannot repeat on modern drives; in everyday support use, the name for a drive maker's utility that writes zeros to every sector and removes all partitions, leaving the drive empty but reusable."
       - id: ap2-2y-ipfilter
         type: concept
         term: "IP filtering"
@@ -937,7 +937,7 @@ units:
         choices:
           - "Grant 'Projects-All' Modify on the folder as it is"
           - "Create an organizational unit named Projects and grant that OU Modify"
-          - "Use a security group for the team and grant it Modify on the folder"
+          - "Use a security group for the team (convert Projects-All or create a new, mail-enabled one) and grant it Modify"
           - "Add each user's home folder to the share"
         answer: 2
         why: "Only security groups can be named in permissions, and where the mail system supports it a security group can also be mail-enabled for team email. An OU groups objects for policy but cannot be granted permissions."
@@ -972,7 +972,7 @@ units:
           - "Rooting or jailbreaking the phone so MDM has full control"
           - "A minimum supported OS version with current updates"
           - "Removal of all personal apps"
-          - "Disabling the phone's camera permanently"
+          - "Disabling the phone's camera permanently, including for personal use"
         answers: [0, 2]
         why: "Encryption with a screen lock and a patched, supported OS are standard profile security requirements that protect company data. Rooting or jailbreaking weakens the phone's security, and removing personal apps or disabling the camera goes far beyond protecting company data on a personal device."
       - id: ap2-2z2-m03
@@ -1030,7 +1030,7 @@ units:
           - "Allow all inbound traffic from the internet on TCP 445"
           - "Disable the firewall while Defender Antivirus is running"
         answers: [0, 2]
-        why: "The firewall stays on everywhere, and only the specific application rule the server needs is allowed on the trusted profile. Opening SMB on 445 to the internet or turning the firewall off invites attack, and antivirus does not replace a firewall."
+        why: "The firewall stays on everywhere, and only the File and Printer Sharing rule group the shares need is allowed, on the trusted profile. Opening SMB on 445 to the internet or turning the firewall off invites attack, and antivirus does not replace a firewall."
 
       - id: ap2-2z2-o01
         type: order
