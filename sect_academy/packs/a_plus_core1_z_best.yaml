@@ -26,7 +26,6 @@ units:
       - Choosing an accessory that works at the desk when the user needs it on the road.
       - Re-pairing or reinstalling before checking a battery, a setting or a dirty sensor.
 
-      Name the user's need in one phrase before you read the choices.
     items:
       - id: ap1-1z-b01
         type: mcq
@@ -52,7 +51,7 @@ units:
         choices:
           - "Give her a USB-C power bank to carry"
           - "Turn on the operating system's battery-saver mode"
-          - "Order the manufacturer's replacement battery and fit it"
+          - "Fit a new manufacturer's battery"
           - "Replace the laptop with a newer model"
         answer: 2
         why: "The cells have worn out; a new battery restores the six hours she needs at the cost of one part."
@@ -171,7 +170,7 @@ units:
         choices:
           - "Plug in a USB Wi-Fi 6E adapter"
           - "Connect it to a USB Ethernet dongle at her desk"
-          - "Replace the M.2 card with a Wi-Fi 6E card from the laptop maker's supported parts list"
+          - "Fit a supported internal Wi-Fi 6E M.2 card"
           - "Leave the card and have her join the office's 5GHz network"
         answer: 2
         why: "A supported internal 6E card adds the 6GHz band with nothing external, and uses the laptop's own antennas."
@@ -189,7 +188,7 @@ units:
           - "A different manufacturer's proprietary dock for each laptop brand"
           - "A universal USB-C docking station with Power Delivery and two display outputs"
           - "A USB-C port replicator that passes video and USB but has no power delivery"
-          - "Separate cables at each desk for power, network and both monitors"
+          - "Separate cables at each desk for the charger, the network and both of the monitors"
         answer: 1
         why: "A standards-based USB-C dock works with every brand's USB-C port and does charging, video and network over one cable."
         whys:
@@ -205,7 +204,7 @@ units:
         choices:
           - "Have a technician unbox and configure each phone before it is handed out"
           - "Send drivers instructions to install the MDM app themselves"
-          - "Register the phones for automatic enrolment in the MDM as corporate-owned devices"
+          - "Use the MDM's automatic enrolment for corporate-owned phones"
           - "Issue the phones bare and push apps later by email link"
         answer: 2
         why: "Automatic corporate enrolment ties each purchased phone to the MDM, so it configures itself on first start."
@@ -220,16 +219,16 @@ units:
         best: true
         q: "A survey app must record where field staff stand to within a few metres. Much of the work is outdoors in hills with no cellular signal and no Wi-Fi. Which location source should the app rely on MOST?"
         choices:
-          - "Wi-Fi network positioning"
-          - "Cellular tower positioning"
           - "The device's GPS receiver"
+          - "Cellular tower positioning"
+          - "Wi-Fi network positioning"
           - "Staff typing in a grid reference by hand"
-        answer: 2
+        answer: 0
         why: "GPS works from satellites alone and gives metre-level accuracy outdoors, with no network needed."
         whys:
-          - "Accurate in towns, but needs nearby known Wi-Fi networks, which the hills lack."
-          - "Works without GPS, but needs a signal and is accurate to hundreds of metres at best."
           - "Best: satellite positioning needs no network and is accurate to a few metres under open sky."
+          - "Works without GPS, but needs a signal and is accurate to hundreds of metres at best."
+          - "Accurate in towns, but needs nearby known Wi-Fi networks, which the hills lack."
           - "Possible, but slow and prone to typing errors when a receiver does it automatically."
 
   - id: ap1-2z
@@ -261,15 +260,15 @@ units:
         best: true
         q: "An administrator must change settings on twenty branch switches from the head office. Policy forbids sending administrator logins across the network in cleartext, and the work is done at the command line. Which access method is BEST?"
         choices:
-          - "Telnet, restricted to a management VLAN"
           - "SSH to each switch"
+          - "Telnet, restricted to a management VLAN"
           - "Remote Desktop to a PC at each branch, then a console cable"
           - "Drive to each branch and use the console port"
-        answer: 1
+        answer: 0
         why: "SSH gives an encrypted command-line session from anywhere, which meets the policy without travel."
         whys:
-          - "Limits who can see it, but Telnet still sends the login in cleartext, which the policy forbids."
           - "Best: encrypted remote command-line access to every switch from one desk."
+          - "Limits who can see it, but Telnet still sends the login in cleartext, which the policy forbids."
           - "Works, but needs a PC and a cable fitted at every branch and adds a hop to manage."
           - "Secure, but takes days of travel for routine remote work."
 
@@ -298,7 +297,7 @@ units:
           - "Change the shared password every month"
           - "Create six local accounts on each of the forty switches"
           - "Keep a paper change log beside the rack"
-          - "Point the switches at a central AAA server and give each admin their own account"
+          - "Use a central AAA server with one account per admin"
         answer: 3
         why: "AAA authenticates each person centrally and records what they did, across every switch at once."
         whys:
@@ -330,7 +329,7 @@ units:
         q: "An office has smart TVs and thermostats on the same network as its PCs. The vendor has stopped issuing firmware, and the devices must keep working. Which is the BEST way to reduce the risk they pose to the PCs?"
         choices:
           - "Remove the devices from the network"
-          - "Put the devices on their own VLAN or network, blocked from reaching the PCs"
+          - "Isolate the devices on their own VLAN"
           - "Turn off UPnP on the router"
           - "Check the vendor's site monthly for new firmware"
         answer: 1
@@ -346,15 +345,15 @@ units:
         best: true
         q: "A company's website is hosted by a provider whose server address changes a few times a year. The company wants www.example.com to keep pointing at it without anyone editing DNS each time. The provider publishes a stable host name for the site. Which record is BEST for www?"
         choices:
-          - "An A record with the server's current IPv4 address"
           - "A CNAME record pointing to the provider's host name"
+          - "An A record with the server's current IPv4 address"
           - "An AAAA record with the server's current IPv6 address"
           - "A TXT record with the provider's address in it"
-        answer: 1
+        answer: 0
         why: "A CNAME follows the provider's name, so address changes on the provider's side need no edit by the company."
         whys:
-          - "Works today, but must be edited every time the provider changes the address."
           - "Best: the alias follows the provider's own record, so it stays right automatically."
+          - "Works today, but must be edited every time the provider changes the address."
           - "Works for IPv6 clients, but has the same manual-update problem as an A record."
           - "TXT records carry text such as SPF, not addresses that browsers look up."
 
@@ -399,15 +398,15 @@ units:
         choices:
           - "An eight-port managed switch"
           - "An eight-port PoE managed switch"
-          - "An eight-port unmanaged switch"
           - "A second router with a four-port switch"
-        answer: 2
+          - "An eight-port unmanaged switch"
+        answer: 3
         why: "An unmanaged switch adds ports with no configuration, and nothing in the stem needs management features."
         whys:
           - "Works, but costs more for VLAN and monitoring features nobody will use."
           - "Works, but pays for power the devices do not need and management features nobody will use."
-          - "Best: the cheapest device that adds the ports, with nothing to configure."
           - "Adds ports, but has too few and risks a second NAT layer if wired wrongly."
+          - "Best: the cheapest device that adds the ports, with nothing to configure."
 
       - id: ap1-2z-b10
         type: mcq
@@ -415,7 +414,7 @@ units:
         q: "A user's VPN connects from home, but she cannot reach any office server. Her home router and the office both use 192.168.1.0/24. She owns her home router, and the office network serves 300 people. Which is the BEST fix?"
         choices:
           - "Renumber the office network to a different range"
-          - "Change her home router's LAN to a different private range such as 192.168.77.0/24"
+          - "Move her home LAN to another range, e.g. 192.168.77.0/24"
           - "Add a route for each office server on her laptop every time she connects"
           - "Give her a web-based remote desktop gateway instead of the VPN"
         answer: 1
@@ -432,16 +431,16 @@ units:
         q: "A construction firm needs internet in a site office from next week for six months. There is no cable, DSL or fiber, but every phone on site shows a strong 5G signal. Which connection is BEST?"
         choices:
           - "Order a fiber line to the site"
-          - "A 5G cellular router with a business data plan"
-          - "A satellite service with a dish on the site office roof"
           - "Staff tether their laptops to their own phones"
-        answer: 1
+          - "A satellite service with a dish on the site office roof"
+          - "A 5G cellular router with a business data plan"
+        answer: 3
         why: "Strong 5G is already there, so a cellular router gives a proper shared connection in days with no installation."
         whys:
           - "Fast, but a new fiber line takes far longer than a week and is wasted after six months."
-          - "Best: quick to set up, no digging or dish, and uses the strong signal already on site."
-          - "Works with no ground infrastructure, but needs a dish fitted and usually costs more when good 5G is available."
           - "Works for a day, but drains personal phones and plans and gives no shared office network."
+          - "Works with no ground infrastructure, but needs a dish fitted and usually costs more when good 5G is available."
+          - "Best: quick to set up, no digging or dish, and uses the strong signal already on site."
 
       - id: ap1-2z-b12
         type: mcq
@@ -484,7 +483,7 @@ units:
         choices:
           - "Mount them in the two corners nearest the network closet"
           - "Set both access points to maximum transmit power"
-          - "Carry out a site survey with a Wi-Fi analyzer to choose the positions"
+          - "Do a site survey with a Wi-Fi analyzer"
           - "Buy a third access point in case coverage is short"
         answer: 2
         why: "Metal shelving blocks and reflects signal unpredictably, so a survey finds positions that work before anything is fixed in place."
@@ -500,7 +499,7 @@ units:
         q: "A technician has a crimper, a spool of Cat 6 and a bag of plugs. Tomorrow a new rack needs forty patch cables of standard lengths, and they must all pass at gigabit speed first time. Which is the BEST approach?"
         choices:
           - "Crimp the forty cables tonight and test each with a cable tester"
-          - "Buy forty factory-made, tested Cat 6 patch cables in the needed lengths"
+          - "Buy forty factory-made Cat 6 patch cables"
           - "Crimp the cables and fix any failures after the rack goes live"
           - "Reuse patch cables from a decommissioned rack"
         answer: 1
@@ -519,7 +518,7 @@ units:
           - "Forward 3389, and require long passwords on the PCs"
           - "Forward Remote Desktop on a non-standard port number instead of 3389"
           - "Forward 3389 only from each user's home IP address"
-          - "Keep 3389 closed to the internet and have staff connect through the VPN first"
+          - "Keep 3389 closed and require the VPN first"
         answer: 3
         why: "Through the VPN, Remote Desktop is never exposed to internet-wide scanning and password guessing."
         whys:
@@ -535,7 +534,7 @@ units:
         choices:
           - "Add the file server's name to the hosts file on every PC"
           - "Tell staff to keep using the IP address"
-          - "Run internal DNS on the office server with an A record for the file server, and hand it out to the PCs"
+          - "Run internal DNS with an A record for the server"
           - "Ask the ISP to add the file server's private address to its DNS"
         answer: 2
         why: "An internal DNS server resolves local names for every PC from one place, and grows with the office."
@@ -550,7 +549,7 @@ units:
         best: true
         q: "An office of 80 PCs that receive their addresses by DHCP must start using a new DNS server address by tomorrow. Which approach is BEST?"
         choices:
-          - "Change the DNS server option in the DHCP scope so PCs pick it up as they renew"
+          - "Change the DNS option in the DHCP scope"
           - "Visit each PC and type in the new DNS address"
           - "Send staff instructions to change the setting themselves"
           - "Set every PC to a static address that includes the new DNS server"
@@ -604,7 +603,7 @@ units:
           - "A cloud file-sharing service"
           - "Each user backs up their desktop to a USB drive"
           - "Email files to each other as needed"
-          - "A file server or NAS on the office network with shared folders"
+          - "A NAS with shared folders on the office LAN"
         answer: 3
         why: "A local file share gives central storage, permissions and backups, and works with no internet."
         whys:
@@ -634,7 +633,6 @@ units:
       - Choosing the fastest part when the stem asked for capacity or cost.
       - Mistaking RAID for backup, or a UPS for a redundant power supply.
       - Buying first and checking compatibility after: check the board's support list first.
-      - Lifting or opening equipment before thinking about safety.
     items:
       - id: ap1-3z-b01
         type: mcq
@@ -643,22 +641,22 @@ units:
         choices:
           - "TN"
           - "VA"
-          - "IPS"
           - "OLED"
-        answer: 2
+          - "IPS"
+        answer: 3
         why: "IPS gives good colour and wide viewing angles at mid-range prices, without burn-in risk from static toolbars."
         whys:
           - "Cheap and fast, but colour shifts badly when viewed off-centre."
           - "Strong contrast, but colour and viewing angles are weaker than IPS."
-          - "Best: accurate colour and wide angles at a mid-range price, with no burn-in risk."
           - "Superb colour, but costs more and static toolbars all day risk burn-in."
+          - "Best: accurate colour and wide angles at a mid-range price, with no burn-in risk."
 
       - id: ap1-3z-b02
         type: mcq
         best: true
         q: "A gamer's graphics card renders 200 frames per second in his favourite game, but his 1080p monitor refreshes at 60Hz, and fast motion looks juddery. He has a fixed budget for one upgrade. Which is BEST?"
         choices:
-          - "A 1080p monitor with a 240Hz refresh rate"
+          - "A 240Hz 1080p monitor"
           - "A 4K monitor at 60Hz"
           - "A more powerful graphics card"
           - "A monitor with a wider colour gamut"
@@ -677,7 +675,7 @@ units:
         choices:
           - "OLED"
           - "Mini-LED backlit LCD"
-          - "Edge-lit IPS LCD"
+          - "An edge-lit IPS LCD with HDR support"
           - "TN LCD"
         answer: 1
         why: "Mini-LED uses thousands of dimming zones for high brightness and deep blacks, and as an LCD it does not burn in."
@@ -709,15 +707,15 @@ units:
         best: true
         q: "A new monitor runs at 3840 x 2160 at 144Hz. It has HDMI 2.0 and DisplayPort 1.4 inputs; the graphics card has HDMI 2.0 and DisplayPort 1.4 outputs. Which connection is BEST?"
         choices:
-          - "HDMI 2.0"
           - "DisplayPort 1.4"
+          - "HDMI 2.0"
           - "Dual-link DVI-D through an adapter"
           - "A USB-C to HDMI adapter"
-        answer: 1
+        answer: 0
         why: "DisplayPort 1.4 can carry 4K at 144Hz (with DSC or reduced colour depth); HDMI 2.0 tops out at 4K 60Hz."
         whys:
-          - "Gives a 4K picture, but only up to 60Hz."
           - "Best: the only link here with the bandwidth for 4K at 144Hz."
+          - "Gives a 4K picture, but only up to 60Hz."
           - "Dual-link DVI tops out far below 4K at 144Hz."
           - "The card has no USB-C output, and the HDMI end has the same 60Hz limit."
 
@@ -743,16 +741,16 @@ units:
         best: true
         q: "A builder is choosing memory for a small accounting file server. Its board and CPU support both ECC and non-ECC modules, and silent data corruption is the owner's main worry. Which memory is BEST?"
         choices:
-          - "The fastest non-ECC modules the board supports"
-          - "Twice as much non-ECC memory"
           - "ECC modules at the board's rated speed"
+          - "Twice as much non-ECC memory"
+          - "The fastest non-ECC modules the board supports"
           - "Non-ECC modules with heat spreaders"
-        answer: 2
+        answer: 0
         why: "ECC detects and corrects single-bit memory errors, the cause of silent corruption that the owner fears."
         whys:
-          - "Faster, but speed does nothing against corrupted data."
-          - "More headroom, but no protection against memory errors."
           - "Best: it corrects memory errors before they reach the accounting data."
+          - "More headroom, but no protection against memory errors."
+          - "Faster, but speed does nothing against corrupted data."
           - "Cooler, but heat spreaders do not detect or correct errors."
 
       - id: ap1-3z-b08
@@ -761,7 +759,7 @@ units:
         q: "A desktop board has four slots and supports dual-channel memory. The user wants 32GB now, the best memory performance, and room for a later upgrade. Which purchase is BEST?"
         choices:
           - "One 32GB module"
-          - "A matched kit of two 16GB modules in the board's paired slots"
+          - "A matched 2 x 16GB kit in the paired slots"
           - "Four 8GB modules"
           - "Two 16GB modules of different brands and speeds"
         answer: 1
@@ -813,7 +811,7 @@ units:
         choices:
           - "Add a third drive as a hot spare"
           - "Rebuild the array as RAID 5 with a third drive"
-          - "Set up regular versioned backups, with a copy kept off-site"
+          - "Add versioned backups with an off-site copy"
           - "Replace the drives with enterprise-grade models"
         answer: 2
         why: "RAID copies a deletion to every drive instantly; only a backup keeps older versions to restore."
@@ -828,16 +826,16 @@ units:
         best: true
         q: "A customer wants the smallest possible desktop for a living room that still holds one full-size, double-width graphics card. Which motherboard form factor is BEST?"
         choices:
-          - "ATX"
-          - "microATX"
           - "Mini-ITX"
+          - "microATX"
+          - "ATX"
           - "A laptop motherboard in a custom case"
-        answer: 2
+        answer: 0
         why: "Mini-ITX has one PCIe x16 slot, enough for a single graphics card, in the smallest standard case."
         whys:
-          - "Holds the card easily, but needs a large case."
-          - "Smaller than ATX, but still larger than Mini-ITX, with slots the build does not need."
           - "Best: the smallest standard board that still takes a full graphics card."
+          - "Smaller than ATX, but still larger than Mini-ITX, with slots the build does not need."
+          - "Holds the card easily, but needs a large case."
           - "Small, but laptop boards do not take standard desktop graphics cards."
 
       - id: ap1-3z-b13
@@ -846,7 +844,7 @@ units:
         q: "A user wants a faster processor for an existing desktop. The new CPU uses the same socket as the old one. What should the technician do FIRST?"
         choices:
           - "Order the fastest CPU that fits the socket"
-          - "Check the motherboard maker's CPU support list and the BIOS version it needs"
+          - "Check the board's CPU support list"
           - "Check that the power supply has enough wattage"
           - "Buy new thermal paste and a larger cooler"
         answer: 1
@@ -880,7 +878,7 @@ units:
         q: "In a school lab, students keep entering firmware setup to change boot order and overclock the CPUs. The PCs must still start without anyone typing a password. Which is the BEST control?"
         choices:
           - "Set a BIOS/UEFI setup (administrator) password"
-          - "Set a BIOS/UEFI boot (power-on) password"
+          - "Set a BIOS/UEFI power-on password for every start-up"
           - "Fit chassis locks to the cases"
           - "Enable Secure Boot"
         answer: 0
@@ -898,7 +896,7 @@ units:
         choices:
           - "A 2.5GbE USB adapter"
           - "A Wi-Fi 6E PCIe card"
-          - "A 10GbE PCIe network card in the free slot"
+          - "A 10GbE PCIe network card"
           - "A second 1GbE network card"
         answer: 2
         why: "Only a 10GbE card reaches the stated speed, and a PCIe x4 slot has the bandwidth for it."
@@ -914,7 +912,7 @@ units:
         q: "A builder is putting a mid-range PC into a very small case where airflow is tight. Several cables from the last build were left bundled unused behind the drive cage, blocking air. Which power supply feature is BEST for this build?"
         choices:
           - "A higher wattage rating"
-          - "A modular design, so only the cables in use are attached"
+          - "A fully modular design"
           - "A higher energy-efficiency rating"
           - "A redundant pair of supplies"
         answer: 1
@@ -930,7 +928,7 @@ units:
         best: true
         q: "A file server is protected by a UPS. The owner wants it to keep running, with no restart, if one of its power supply units fails. Which is the BEST addition?"
         choices:
-          - "A second, larger UPS"
+          - "A second, larger UPS on a separate circuit"
           - "A higher-wattage power supply"
           - "A spare power supply kept on the shelf"
           - "Redundant hot-swappable power supplies"
@@ -948,16 +946,16 @@ units:
         q: "A design studio prints complex vector artwork from both Macs and Windows PCs, and the clients need identical output whichever system sends the job. The printer supports PCL and PostScript. Which driver choice is BEST?"
         choices:
           - "The PCL driver on every computer"
-          - "The PostScript driver on every computer"
-          - "The operating systems' generic built-in drivers"
           - "Whichever driver each computer installs automatically"
-        answer: 1
+          - "The operating systems' generic built-in drivers"
+          - "The PostScript driver on every computer"
+        answer: 3
         why: "PostScript describes pages device-independently and is the long-standing standard for graphics work on every platform."
         whys:
           - "Fast for office documents, but rendering can differ between drivers and platforms."
-          - "Best: consistent, device-independent rendering of vector graphics on Mac and Windows alike."
-          - "Easy to install, but may omit features and render differently."
           - "Likely mixes driver types, which is what causes differing output."
+          - "Easy to install, but may omit features and render differently."
+          - "Best: consistent, device-independent rendering of vector graphics on Mac and Windows alike."
 
       - id: ap1-3z-b20
         type: mcq
@@ -966,7 +964,7 @@ units:
         choices:
           - "Scan to email"
           - "Scan to a USB stick in the device's front port"
-          - "Scan to an SMB shared folder on the file server"
+          - "Scan to an SMB share"
           - "Scan to a cloud storage service"
         answer: 2
         why: "Scan to SMB writes large files straight to the file server, with no size limit from the mail system."
@@ -981,10 +979,10 @@ units:
         best: true
         q: "A colour laser printer was moved to another floor. Since then the colours print slightly out of line with each other, leaving coloured fringes on text. What should the technician do FIRST?"
         choices:
-          - "Replace the toner cartridges"
+          - "Replace all four toner cartridges with new ones"
           - "Fit the maintenance kit"
           - "Replace the imaging drums"
-          - "Run the printer's calibration (colour registration) routine"
+          - "Run the colour calibration routine"
         answer: 3
         why: "Movement can shift colour alignment; calibration realigns it and costs nothing."
         whys:
@@ -1000,7 +998,7 @@ units:
         choices:
           - "Two people lift it out of the crate, bending at the knees, and carry it up the stairs"
           - "One strong technician carries it, keeping it close to the body"
-          - "Unbox it, move it on the trolley by lift, and use two people for any lift onto its stand"
+          - "Trolley it up by lift; two people lift it onto its stand"
           - "Take off the trays and toner to lighten it, then carry it up the stairs"
         answer: 2
         why: "Equipment does the carrying; people only lift at the end, together and over a short distance."
@@ -1033,7 +1031,6 @@ units:
       - Choosing IaaS when the stem wants the provider to patch the software.
       - Treating a password as enough when a management interface has a known flaw: keep it off the user network.
 
-      Decide who manages each layer, then pick the model that leaves the stated layers with the provider.
     items:
       - id: ap1-4z-b01
         type: mcq
@@ -1043,7 +1040,7 @@ units:
           - "Three spare physical PCs, one per operating system"
           - "Dual-boot the laptop into each operating system"
           - "Rent cloud virtual machines for each operating system"
-          - "A Type 2 hypervisor on the laptop running a VM for each operating system"
+          - "VMs under a Type 2 hypervisor on the laptop"
         answer: 3
         why: "A Type 2 hypervisor runs all three systems side by side on the laptop he has, offline and at no cost."
         whys:
@@ -1059,8 +1056,8 @@ units:
         choices:
           - "Bridged networking"
           - "NAT networking"
-          - "An internal (private) virtual network shared only by the three VMs"
-          - "Host-only networking"
+          - "An internal (private) virtual network"
+          - "Host-only networking between the VMs and the host"
         answer: 2
         why: "An internal network connects the VMs to each other and to nothing else, not even the host."
         whys:
@@ -1077,7 +1074,7 @@ units:
           - "Give each department its own set of PCs"
           - "Deliver each version through application virtualization"
           - "Run each version in a full virtual machine on every PC"
-          - "Uninstall one version and reinstall the other as needed"
+          - "Uninstall one version and reinstall the other whenever it is needed"
         answer: 1
         why: "Application virtualization runs each version in its own isolated package, so both work on the same PC."
         whys:
@@ -1091,9 +1088,9 @@ units:
         best: true
         q: "A retailer's website runs on cloud virtual machines in one availability zone. Management wants it to stay up if that provider's data centre suffers an outage. Which is BEST?"
         choices:
-          - "Run the virtual machines in two or more availability zones behind a load balancer"
+          - "Spread the VMs across two or more availability zones"
           - "Take daily snapshots of the virtual machines"
-          - "Move to larger virtual machines in the same zone"
+          - "Move to larger virtual machines in the same availability zone"
           - "Buy a UPS for the office"
         answer: 0
         why: "Separate zones fail independently, so the site keeps running from the zone that is still up."
@@ -1125,14 +1122,14 @@ units:
         best: true
         q: "Staff move between office desktops and laptops, often work on trains with no connection, and need the latest copy of their files on whichever device they open. The firm already pays for cloud storage. Which is BEST?"
         choices:
-          - "A file share on the office server"
-          - "A cloud file-synchronisation client on each device, with files kept offline"
+          - "A file share on the office server, reached over the VPN"
+          - "A cloud sync client with files kept offline"
           - "Email files to themselves"
           - "A USB stick for each user"
         answer: 1
         why: "Sync keeps a local copy on every device that updates automatically, so files are current and available offline."
         whys:
-          - "Central, but unreachable on the train without a VPN and a connection."
+          - "Central, but unreachable on the train with no connection, even over the VPN."
           - "Best: up-to-date files on every device, available offline, using a service already paid for."
           - "Works, but creates many versions and relies on people remembering to send them."
           - "Portable, but one copy to lose, and it is easily out of date."
@@ -1194,7 +1191,7 @@ units:
         q: "A hypervisor's web management page has a published flaw, and the vendor's fix is a month away. The page is currently reachable from the whole staff network. Until the patch arrives, which control is BEST?"
         choices:
           - "Change the administrator password to a long one"
-          - "Move the management interface to a separate management network reachable only by admins"
+          - "Put the management page on an admin-only network"
           - "Change the management page to a non-standard port"
           - "Review the hypervisor logs each week"
         answer: 1
@@ -1236,8 +1233,8 @@ units:
         q: "A user's laptop shuts itself off during evening video calls she takes from her bed, but never when used at her desk. Its fans and vents are clean. Which is the BEST fix?"
         choices:
           - "Replace the thermal paste"
-          - "Advise her to use the laptop on a hard, flat surface"
-          - "Buy her a cooling pad"
+          - "Use it on a hard, flat surface"
+          - "Buy her a cooling pad to put under the laptop"
           - "Replace the cooling fan"
         answer: 1
         why: "Bedding blocks the intake vents; keeping them clear removes the cause at no cost."
@@ -1272,7 +1269,7 @@ units:
           - "Defragment the array overnight"
           - "Add more RAM to the server"
           - "Move the database to an SSD array"
-          - "Rebuild the array as RAID 6"
+          - "Rebuild the array as RAID 6 with a fifth drive"
         answer: 2
         why: "Small random writes are limited by disk IOPS, and SSDs provide many times more."
         whys:
@@ -1288,8 +1285,8 @@ units:
         choices:
           - "Replace the monitor"
           - "Replace the video cable"
-          - "Reinstall the graphics driver"
-          - "Start Windows in low-resolution video mode and set a supported refresh rate"
+          - "Reinstall the graphics driver from the maker's website"
+          - "Use low-resolution video mode and reset the rate"
         answer: 3
         why: "The PC is sending a signal the monitor cannot show; low-resolution mode displays a picture so the setting can be undone."
         whys:
@@ -1305,7 +1302,7 @@ units:
         choices:
           - "Switch the display mode to Duplicate"
           - "Replace the HDMI cable"
-          - "Update the graphics driver"
+          - "Update the laptop's graphics driver to the latest"
           - "Change the TV to another HDMI input"
         answer: 0
         why: "The laptop is extending the desktop onto the TV; Duplicate shows the same screen on both."
@@ -1321,7 +1318,7 @@ units:
         q: "Since an operating system update two days ago, a phone's battery lasts half as long as before. The battery health reads 92%, and the phone is warm even when idle. What should the technician do FIRST?"
         choices:
           - "Replace the battery"
-          - "Reset the phone to factory settings"
+          - "Back up and reset the phone to factory settings"
           - "Check battery usage by app in settings"
           - "Turn on low-power mode permanently"
         answer: 2
@@ -1337,10 +1334,10 @@ units:
         best: true
         q: "A tablet always stops charging at 80% and stays there, although it is plugged in overnight. The battery health is good, and the charger and cable work with another tablet. What should the technician check FIRST?"
         choices:
-          - "Whether a battery-protection or optimised-charging setting is limiting the charge"
+          - "Whether a charge-limit setting is turned on"
           - "Whether the charging port needs cleaning"
           - "Whether the battery needs replacing"
-          - "Whether the charging board needs replacing"
+          - "Whether the charging board inside needs replacing"
         answer: 0
         why: "Stopping at exactly 80% is the signature of a charge-limit setting that protects the battery."
         whys:
@@ -1355,8 +1352,8 @@ units:
         q: "One user in a 30-person office cannot reach any website. Everyone else, on the same switch and router, is working normally. What should the technician do FIRST?"
         choices:
           - "Restart the office router"
-          - "Check the user's PC IP configuration and link light"
-          - "Call the internet provider"
+          - "Check that PC's link light and IP settings"
+          - "Call the internet provider to report an outage"
           - "Replace the PC's network card"
         answer: 1
         why: "Everyone else works, so the fault is at this PC; checking its link and address settings narrows it quickly."
@@ -1372,7 +1369,7 @@ units:
         q: "Every weekday from 1 pm to 3 pm the office internet is sluggish for everyone. The router's statistics show one PC uploading at full line speed then; it is the PC's cloud backup, which is scheduled for 1 pm. Which is the BEST fix?"
         choices:
           - "Upgrade to a faster internet plan"
-          - "Replace the router with a more powerful one"
+          - "Replace the router with a more powerful business model"
           - "Move the backup to run outside office hours"
           - "Disable the cloud backup"
         answer: 2
@@ -1389,9 +1386,9 @@ units:
         q: "A newly installed ceiling access point powered by PoE reboots every few minutes, especially when many clients connect. Its datasheet says it needs 802.3at (PoE+) for full operation. What should the technician check FIRST?"
         choices:
           - "The access point's firmware version"
-          - "The switch port's PoE standard and the switch's remaining power budget"
+          - "The port's PoE class and the switch's power budget"
           - "The Wi-Fi channel in use"
-          - "The length of the cable run"
+          - "The length of the cable run from the switch to the access point"
         answer: 1
         why: "Reboots under load on a device that needs PoE+ point to too little power from the switch port."
         whys:
@@ -1405,10 +1402,10 @@ units:
         best: true
         q: "One user's documents no longer reach the shared network printer, while everyone else prints to it normally. What should the technician check FIRST?"
         choices:
-          - "The printer's network settings"
+          - "The printer's own IP address and network settings"
           - "The printer's firmware version"
           - "The print server's spooler service"
-          - "The printer queue, port and driver on the user's PC"
+          - "That user's print queue, port and driver"
         answer: 3
         why: "Everyone else prints, so the printer and server are fine; the problem lies in this PC's printer set-up."
         whys:
@@ -1422,7 +1419,7 @@ units:
         best: true
         q: "A laser printer warns that toner is low, and prints are fading. The user must print 20 more pages for a meeting in 30 minutes, and no spare cartridge is on site. Which is the BEST immediate step?"
         choices:
-          - "Remove the cartridge, gently rock it side to side, and refit it"
+          - "Gently rock the cartridge and refit it"
           - "Raise the print density setting"
           - "Turn off toner-save mode"
           - "Order a new cartridge for next-day delivery"
@@ -1440,7 +1437,7 @@ units:
         q: "A laser printer that has been printing continuously reports a jam in the fuser area. The sheet is visible just inside the rear door. What should the technician do FIRST?"
         choices:
           - "Pull the sheet out quickly before it tears"
-          - "Turn the printer off, open the rear door and let the fuser cool"
+          - "Power off, open the door and let it cool"
           - "Print a test page to see whether it clears itself"
           - "Remove the toner cartridge"
         answer: 1
@@ -1458,8 +1455,8 @@ units:
         choices:
           - "Replace the cassette's pickup roller"
           - "Fit the printer's maintenance kit"
-          - "Load card in the bypass tray and set the media type to heavy"
-          - "Stop printing on card stock"
+          - "Feed card from the bypass tray as heavy media"
+          - "Tell staff to stop printing on card stock from now on"
         answer: 2
         why: "Plain paper feeds fine, so the hardware is sound; card needs the straighter path and the right fuser setting."
         whys:
@@ -1473,7 +1470,7 @@ units:
         best: true
         q: "After cleaning dust out of a desktop, a technician powers it on and the firmware shows 'CPU fan error' and halts. The CPU fan spins. What should the technician check FIRST?"
         choices:
-          - "That the fan's cable is plugged into the CPU_FAN header, not another fan header"
+          - "Which header the fan cable is plugged into"
           - "Whether a firmware update is available"
           - "Whether the fan needs replacing"
           - "Whether the fan warning can be disabled in firmware"
@@ -1490,16 +1487,16 @@ units:
         best: true
         q: "A laptop will not power on, on battery or on its charger, and the charger's own light is off. Another laptop of the same model is at the next desk. What should the technician do FIRST?"
         choices:
-          - "Open the laptop and check the DC jack"
-          - "Replace the battery"
           - "Test with the other laptop's charger"
+          - "Replace the battery"
+          - "Open the laptop and check the DC jack"
           - "Send the laptop for motherboard repair"
-        answer: 2
+        answer: 0
         why: "The charger's light is off, so swapping in a known-good charger tests the most likely cause in seconds."
         whys:
-          - "Possible later, but the dead charger light points elsewhere first."
-          - "Might be flat as well, but a working charger would still power the laptop."
           - "Best: a free, instant test of the part that is already showing a fault."
+          - "Might be flat as well, but a working charger would still power the laptop."
+          - "Possible later, but the dead charger light points elsewhere first."
           - "Expensive and slow, before a ten-second test."
 
       - id: ap1-5z-b17
@@ -1525,16 +1522,16 @@ units:
         q: "A user's account is locked out every morning. He changed his password on Friday, and his company phone is set up for work email and Wi-Fi. What should the technician check FIRST?"
         choices:
           - "Whether someone is trying to guess his password"
-          - "Whether the phone still has the old password saved for email or Wi-Fi"
-          - "Whether the account lockout threshold is too low"
           - "Whether his PC's clock is wrong"
-        answer: 1
+          - "Whether the account lockout threshold is too low"
+          - "Whether the phone still has the old password"
+        answer: 3
         why: "A device retrying an old password after a change is the most common cause of a lockout that starts then."
         whys:
           - "Possible, but the timing points to his own change first."
-          - "Best: the phone retrying the old password would lock him out the same way every day."
-          - "A policy change for one user's problem, which hides the cause."
           - "Clock errors cause sign-in failures, not lockouts that began with a password change."
+          - "A policy change for one user's problem, which hides the cause."
+          - "Best: the phone retrying the old password would lock him out the same way every day."
 
       - id: ap1-5z-b19
         type: mcq
@@ -1559,9 +1556,9 @@ units:
         q: "After a storm, a NAS that lost power mid-write had a corrupted volume. It has been repaired and restored from backup. Which preventive measure is BEST?"
         choices:
           - "Replace the NAS drives"
-          - "Add a second NAS"
+          - "Add a second NAS that copies the first one nightly"
           - "Run a file-system check weekly"
-          - "Connect the NAS to a UPS that signals it to shut down cleanly"
+          - "Put the NAS on a UPS with clean shutdown"
         answer: 3
         why: "The cause was sudden power loss; a UPS with a shutdown signal stops it happening again."
         whys:
@@ -1576,8 +1573,8 @@ units:
         q: "One laptop drops off the office Wi-Fi several times an hour. Twenty other laptops on the same access points stay connected all day. What should the technician check FIRST?"
         choices:
           - "The access points' channel settings"
-          - "The access points' firmware"
-          - "The laptop's wireless driver and its power-saving settings"
+          - "Whether the access points need a firmware update"
+          - "The laptop's Wi-Fi driver and power saving"
           - "Interference from nearby equipment"
         answer: 2
         why: "Only one device has the fault, so the cause is most likely on that device."
@@ -1592,10 +1589,10 @@ units:
         best: true
         q: "An external monitor on a desktop flickers on and off. The technician notices its DisplayPort cable is partly pulled out at the back of the PC. What should the technician do FIRST?"
         choices:
-          - "Update the graphics driver"
+          - "Download and install the latest graphics driver"
           - "Lower the refresh rate"
           - "Replace the monitor"
-          - "Push the cable in fully, then try a known-good cable if it still flickers"
+          - "Reseat the cable; then try a known-good one"
         answer: 3
         why: "A loose cable is a visible, likely cause, and reseating it costs nothing."
         whys:
@@ -1610,7 +1607,7 @@ units:
         q: "A user has a new phone. His car no longer connects to it over Bluetooth, although the car lists his old phone's name. What should he do FIRST?"
         choices:
           - "Update the car's infotainment software"
-          - "Remove the old phone from the car's paired list, then pair the new phone"
+          - "Delete the old pairing and pair the new phone"
           - "Reset the car's infotainment system to factory settings"
           - "Use a USB cable instead"
         answer: 1
@@ -1628,23 +1625,23 @@ units:
         choices:
           - "Close the ticket"
           - "Write up the repair in the ticketing system"
-          - "Verify the whole system works, including drives, ports and the user's main applications"
           - "Order a spare power supply"
-        answer: 2
+          - "Verify the whole system works"
+        answer: 3
         why: "Verifying full functionality comes before documenting and closing, so nothing else damaged is missed."
         whys:
           - "Comes last, after verification and documentation."
           - "Necessary, but comes after confirming everything works."
-          - "Best: a failed supply can damage other parts, so check the whole system first."
           - "Optional, and does not confirm the repair worked."
+          - "Best: a failed supply can damage other parts, so check the whole system first."
 
       - id: ap1-5z-b25
         type: mcq
         best: true
         q: "A user calls to say her PC is 'really slow'. The technician has remote access and many tools. What should the technician do FIRST?"
         choices:
-          - "Run a full malware scan"
-          - "Ask her when it started, what she was doing, and whether anything changed"
+          - "Run a full malware scan from the remote tool"
+          - "Ask her when it started and what changed"
           - "Restart the PC"
           - "Check for and install updates"
         answer: 1
