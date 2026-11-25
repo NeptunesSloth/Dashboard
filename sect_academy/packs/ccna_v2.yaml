@@ -201,7 +201,7 @@ units:
         why: "The ping to 10.1.99.53 crosses the gateway, so addressing and routing work; only the name query fails. A wrong gateway or mask would break that ping too."
       - id: cn-v2a-q16
         type: mcq
-        q: "A MacBook moved from the second floor (10.1.20.0/24) to the third (10.1.30.0/24) and now reaches nothing, wired or wireless. 'networksetup -getinfo Wi-Fi' shows 'Manual Configuration', IP address 10.1.20.15, router 10.1.20.1. What is the fix?"
+        q: "A MacBook moved from the second floor (10.1.20.0/24) to the third (10.1.30.0/24) and now reaches nothing over Wi-Fi. 'networksetup -getinfo Wi-Fi' shows 'Manual Configuration', IP address 10.1.20.15, router 10.1.20.1. What is the fix?"
         choices:
           - "Set the adapter to obtain its address automatically"
           - "Add 10.1.30.1 as a second router"
@@ -211,14 +211,14 @@ units:
         why: "The address was typed by hand for the old subnet, so the Mac never asks the third-floor DHCP server. Renewing a lease does nothing for an adapter that does not use DHCP."
       - id: cn-v2a-q17
         type: mcq
-        q: "A Linux server's 'ip addr show' gives 'inet 10.1.30.77/16' on eth0; the VLAN is really 10.1.30.0/24 with gateway 10.1.30.1. The server reaches its own VLAN and the internet, but not hosts in 10.1.40.0/24. Why?"
+        q: "A Linux server's 'ip addr show' gives 'inet 10.1.30.77/16' on eth0; the VLAN is really 10.1.30.0/24 with gateway 10.1.30.1. The server reaches its own VLAN and the internet, but not hosts in 10.1.40.0/24. Proxy ARP is disabled on the gateway. Why?"
         choices:
           - "The /16 makes 10.1.40.0/24 look local, so it ARPs instead of using the gateway"
           - "The gateway drops traffic from a host whose mask does not match its own"
           - "A /16 mask cannot be used with a 10.0.0.0 address"
           - "The default route is missing, so only hosts on directly connected subnets ever answer"
         answer: 0
-        why: "With a /16 the host thinks every 10.1.x.x address is on its own link and never sends that traffic to the gateway. The internet still works because it lies outside the /16 and goes to the gateway."
+        why: "With a /16 the host thinks every 10.1.x.x address is on its own link and never sends that traffic to the gateway. The internet still works because it lies outside the /16 and goes to the gateway. (With proxy ARP on, an IOS gateway would answer those ARPs and mask the fault.)"
       - id: cn-v2a-q18
         type: mcq
         q: "On a Linux laptop, 'iw dev wlan0 link' prints 'Not connected.' and NetworkManager reports that secrets were required but not provided for the Corp SSID, which uses WPA2-Personal. What is the MOST likely problem?"
@@ -471,10 +471,10 @@ units:
         choices:
           - "Po1 is a Layer 2 trunk with both links in use"
           - "Gi1/0/50 is a hot-standby member, waiting to replace Gi1/0/49 if it fails"
-          - "Po1 is routed and up, but Gi1/0/50 is stand-alone, with no LACP partner"
+          - "Po1 is routed and in use, but Gi1/0/50 is stand-alone: not bundled, running as an individual port"
           - "Po1 is down because one member failed"
         answer: 2
-        why: "R means Layer 3 and U in use; P is bundled and I is stand-alone, which an LACP port becomes when no partner answers. Hot standby would be flagged H, and Layer 2 would be S."
+        why: "R means Layer 3 and U in use; P is bundled and I is stand-alone, a member that did not join the bundle, typically because no LACPDUs arrive from a partner (some platforms suspend such a port instead, flag s). Hot standby would be flagged H, and Layer 2 would be S."
       - id: cn-v2b-q12
         type: mcq
         q: "The cabling record says SW-ACC3 Gi1/0/48 connects to SW-DIST1 Gi1/0/12. On SW-ACC3, 'show cdp neighbors' shows: 'SW-DIST1  Gig 1/0/48  152  R S I  C9300-48P  Gig 1/0/21'. What does this show?"
@@ -971,7 +971,7 @@ units:
       - `aaa authentication login VTY group ADMINS local` and `aaa authorization exec VTY group ADMINS local`
       - under `line vty 0 4`: `login authentication VTY` and `authorization exec VTY`
 
-      RADIUS is the same with `radius server` (UDP 1812/1813) and `aaa group server radius`. Methods are tried in order, and `local` is reached only when the servers give **no answer**, never after a rejection. With `aaa new-model`, a vty line that has no list applied, when no default list exists, uses the local username database.
+      RADIUS is the same with `radius server` and `aaa group server radius`; the standard ports are UDP 1812/1813, but IOS defaults to the older 1645/1646 unless `auth-port` and `acct-port` are set. Methods are tried in order, and `local` is reached only when the servers give **no answer**, never after a rejection. With `aaa new-model`, a vty line that has no list applied, when no default list exists, uses the local username database.
 
       **Files.** SCP and SFTP both run inside SSH (TCP 22). To push files *to* a router, configure `ip scp server enable` (SSH, AAA login and exec authorization at level 15 are prerequisites). From the router: `copy running-config scp://user@host/r1.cfg` or `copy scp: flash:`.
 
@@ -1028,7 +1028,7 @@ units:
       - id: cn-v2d-storm
         type: concept
         term: "Storm control"
-        def: "Port feature that measures broadcast, multicast or unicast traffic against a threshold and drops the excess, or shuts the port, while the threshold is exceeded."
+        def: "Port feature that measures broadcast, multicast or unicast traffic against a threshold and filters that traffic, or shuts the port, when the threshold is exceeded."
       - id: cn-v2d-raguard
         type: concept
         term: "RA guard"
@@ -1231,7 +1231,7 @@ units:
           - "'storm-control broadcast level 5.00' with 'storm-control action shutdown'"
           - "'ip dhcp snooping limit rate 5'"
         answer: 2
-        why: "The shutdown action err-disables the port when the level is exceeded. The default action only drops the excess, and trap adds a notification; port security and DHCP rate limits count other things."
+        why: "The shutdown action err-disables the port when the level is exceeded. The default action only filters the traffic, and trap adds a notification; port security and DHCP rate limits count other things."
       - id: cn-v2d-q20
         type: mcq
         q: "'show storm-control Gi1/0/5 broadcast' shows 'Filter State Blocking, Upper 5.00%, Lower 5.00%, Current 38.71%'. No action is configured. What is happening?"
@@ -1534,7 +1534,7 @@ units:
           - "Network connection variables: ansible_connection and ansible_network_os"
           - "NETCONF enabled on every router, because Ansible cannot drive the CLI"
         answer: 2
-        why: "Without a network connection type and platform, Ansible treats the router like a server it would copy Python to, which a router cannot run. Ansible stays agentless; network_cli works over plain SSH."
+        why: "Ansible's default connection is for servers, where it copies Python modules over SSH and runs them there; the IOS modules refuse it. Setting ansible_connection to ansible.netcommon.network_cli and ansible_network_os to cisco.ios.ios makes the control node drive the CLI over plain SSH. Ansible stays agentless."
       - id: cn-v2e-q16
         type: mcq
         q: "'show running-config' through 'cisco.ios.ios_command' fails because the automation account lands in user exec mode. Which change fixes it?"
