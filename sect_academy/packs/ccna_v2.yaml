@@ -664,3 +664,282 @@ units:
           - "Put the IP address on 'interface Port-channel1'"
           - "Check that 'show etherchannel summary' shows Po1(RU) with members P"
         why: "Members must be routed before they join so the bundle is created as Layer 3; the port-channel exists only after channel-group; verification comes last."
+
+  # ─────────────── v2c · OSPFv3 and IPv6 static routes ───────────────
+  - id: cn-v2c
+    title: "v2.0: OSPFv3 for IPv6 and fixing IPv6 static routes"
+    domain: "3"
+    goal: "I can configure single-area OSPFv3, explain why it needs a router ID and uses link-local neighbours, read its neighbour and route output, and find the fault in an IPv6 static route."
+    notes: |
+      **OSPFv3** is OSPF for IPv6. The algorithm, areas, costs, DR/BDR election, timers and administrative distance (110) are the same as OSPFv2; what changes is how you switch it on and what it talks over.
+
+      ```
+      ipv6 unicast-routing
+      ipv6 router ospf 1
+       router-id 1.1.1.1
+      interface GigabitEthernet0/0
+       ipv6 ospf 1 area 0
+      ```
+
+      - **No network statements**: each interface joins with `ipv6 ospf <pid> area <a>`.
+      - **Router ID** is still a 32-bit dotted number. It is taken from an IPv4 address if the router has one; a router with only IPv6 addresses cannot start the process until you type `router-id`.
+      - **Neighbours** talk from link-local addresses to FF02::5 (all OSPF routers) and FF02::6 (DR and BDR). Routes therefore point to an FE80:: next hop, and the hello carries no prefix, so the global prefixes on a link need not match.
+      - Interface commands mirror v2: `ipv6 ospf cost`, `ipv6 ospf priority`, `ipv6 ospf network point-to-point`. `passive-interface` and `default-information originate` go under the process.
+      - Verify with `show ipv6 ospf neighbor`, `show ipv6 ospf interface brief` and `show ipv6 route ospf` (codes O, OI, OE1, OE2).
+
+      **IPv6 static faults.** A link-local next hop needs the exit interface as well. A global next hop must resolve to a connected prefix, and Neighbor Discovery must then find it. The far end needs a route back. A floating static needs an administrative distance *above* the route it backs up.
+    items:
+      - id: cn-v2c-router-ospf
+        type: concept
+        term: "ipv6 router ospf <process-id>"
+        def: "Global command that starts the IPv6 link-state routing process and enters its mode, where the router ID, passive interfaces and default-route origination are set."
+      - id: cn-v2c-if-area
+        type: concept
+        term: "ipv6 ospf <process-id> area <area-id>"
+        def: "Interface command that runs the IPv6 link-state protocol on that link and places it in an area; this protocol has no network statements."
+      - id: cn-v2c-rid
+        type: concept
+        term: "router-id (under ipv6 router ospf)"
+        def: "Process command that sets the 32-bit dotted-decimal identity the IPv6 link-state process needs; it must be typed by hand on a router that has no IPv4 address."
+      - id: cn-v2c-ff025
+        type: concept
+        term: "FF02::5"
+        def: "Link-local multicast group on which every IPv6 link-state router listens for hellos."
+      - id: cn-v2c-ff026
+        type: concept
+        term: "FF02::6"
+        def: "Link-local multicast group to which IPv6 link-state routers send updates meant only for the designated and backup designated routers."
+      - id: cn-v2c-show-nbr
+        type: concept
+        term: "show ipv6 ospf neighbor"
+        def: "Lists IPv6 link-state neighbours by router ID, with priority, state, dead time, the neighbour's interface ID and the local interface."
+      - id: cn-v2c-oi
+        type: concept
+        term: "OI (IPv6 route code)"
+        def: "IPv6 routing-table code for a prefix learned from the link-state protocol but originating in a different area of the same domain."
+
+      - id: cn-v2c-q01
+        type: mcq
+        q: "R3 has only IPv6 addresses. The engineer enters 'ipv6 router ospf 1' and 'ipv6 ospf 1 area 0' on its interfaces, but the process will not start and the console complains that no router ID could be chosen. What fixes it?"
+        choices:
+          - "'ipv6 ospf router-id 3.3.3.3' on each interface"
+          - "'network 2001:db8::/32 area 0' under the process"
+          - "'router-id 3.3.3.3' under 'ipv6 router ospf 1'"
+          - "'ipv6 address autoconfig' on each interface"
+        answer: 2
+        why: "The router ID is still a 32-bit value taken from an IPv4 address when one exists; with none, it must be configured under the process. There is no per-interface router-ID command and no network statement in OSPFv3."
+      - id: cn-v2c-q02
+        type: mcq
+        q: "R1's table shows 'O 2001:db8:20::/64 [110/2] via FE80::2, GigabitEthernet0/0'. R2's global address on that link is 2001:db8:12::2. Why does the next hop show FE80::2?"
+        choices:
+          - "OSPFv3 neighbours talk from link-local addresses, so routes use the neighbour's link-local address as next hop"
+          - "R2's global address is down, so R1 fell back to the link-local one"
+          - "The route is a static route that someone typed with a link-local next hop"
+          - "FE80::2 is R2's router ID written in IPv6 form"
+        answer: 0
+        why: "OSPFv3 packets are sourced from link-local addresses, so the next hop learned is link-local, together with the exit interface. The router ID is a 32-bit dotted value, not an address."
+      - id: cn-v2c-q03
+        type: mcq
+        q: "R1 Gi0/0 is 2001:db8:12::1/64. On R2 Gi0/0 the engineer typed 2001:db8:21::2/64 by mistake. Both interfaces are in OSPFv3 area 0 with default timers. What happens?"
+        choices:
+          - "No adjacency forms because the subnets differ"
+          - "The routers become FULL neighbours, because hellos come from link-local addresses and carry no prefix; each advertises its own /64"
+          - "They stop at 2-WAY because the prefixes differ"
+          - "The adjacency forms, but neither router advertises a prefix for the link"
+        answer: 1
+        why: "OSPFv3 hellos have no network mask field and are exchanged between link-local addresses, so the mismatch does not block the adjacency. In OSPFv2 a mask mismatch on a broadcast link would block it."
+      - id: cn-v2c-q04
+        type: mcq
+        q: "R1 Gi0/0 has 'ipv6 ospf 1 area 0' and R2 Gi0/0, on the same link, has 'ipv6 ospf 10 area 0'. Timers are default and router IDs differ. What happens?"
+        choices:
+          - "The routers become neighbours, because the process ID is local to each router"
+          - "No adjacency forms because the process IDs differ"
+          - "They become neighbours but exchange no routes"
+          - "R2 ignores the hellos until its process is renumbered to 1"
+        answer: 0
+        why: "The process ID only distinguishes processes inside one router and is not carried in hellos. Area, timers and unique router IDs are what must line up."
+      - id: cn-v2c-q05
+        type: mcq
+        q: "Two new routers were built from the same template, which contains 'router-id 1.1.1.1' under 'ipv6 router ospf 1'. They share a link in area 0 and never reach FULL; the logs mention a duplicate router ID. What is the fix?"
+        choices:
+          - "Give the two interfaces different global prefixes"
+          - "Change the process ID on one router"
+          - "Configure 'ipv6 ospf network point-to-point' on both"
+          - "Give one router a unique router ID, then clear its OSPFv3 process"
+        answer: 3
+        why: "Each router must have a unique router ID, and a changed ID takes effect when the process restarts. Process IDs and prefixes are irrelevant here, and the network type does not remove the conflict."
+      - id: cn-v2c-q06
+        type: mcq
+        q: "After 'passive-interface default' is added under 'ipv6 router ospf 1', R1 loses its only neighbour, on Gi0/0, but its LAN prefix on Gi0/1 is still advertised in the topology. Which command restores the neighbour?"
+        choices:
+          - "'no passive-interface GigabitEthernet0/0' under 'ipv6 router ospf 1'"
+          - "'ipv6 ospf 1 area 0' on Gi0/1"
+          - "'no ipv6 ospf passive' on Gi0/0"
+          - "'passive-interface GigabitEthernet0/1' under the process"
+        answer: 0
+        why: "Passive interfaces still advertise their prefixes but send no hellos, so the uplink must be made active again under the process. Gi0/1 is already passive by default and should stay so."
+      - id: cn-v2c-q07
+        type: mcq
+        q: "R1 has 'ipv6 route ::/0 2001:db8:ffff::1' to the ISP and 'default-information originate' under 'ipv6 router ospf 1'. How does the default route appear in R2's IPv6 table?"
+        choices:
+          - "As 'S ::/0'"
+          - "As 'OE2 ::/0'"
+          - "As 'O ::/0'"
+          - "As 'OI ::/0'"
+        answer: 1
+        why: "An originated default is an external route, type 2 by default, so other routers list it as OE2. It is static only on R1 itself."
+      - id: cn-v2c-q08
+        type: mcq
+        q: "On a new router, 'ipv6 router ospf 1' is rejected with a message that IPv6 routing is not enabled. Which command is missing?"
+        choices: ["ipv6 enable", "ip routing", "ipv6 address autoconfig", "ipv6 unicast-routing"]
+        answer: 3
+        why: "OSPFv3 needs the router to route IPv6, which 'ipv6 unicast-routing' turns on. 'ipv6 enable' only creates a link-local address on one interface, and 'ip routing' is for IPv4."
+      - id: cn-v2c-q09
+        type: mcq
+        q: "'show ipv6 ospf neighbor' on R1 shows 'Neighbor ID 2.2.2.2, Pri 1, State FULL/  -, Interface GigabitEthernet0/1'. What explains the dash after FULL?"
+        choices:
+          - "The neighbour has priority 0"
+          - "The adjacency is still forming"
+          - "The link runs as OSPF point-to-point, so no DR or BDR is elected"
+          - "R1 is the DR and the neighbour is the BDR"
+        answer: 2
+        why: "With 'ipv6 ospf network point-to-point' there is no election, so the role field shows a dash. A priority-0 router on a broadcast link would show DROTHER."
+      - id: cn-v2c-q10
+        type: mcq
+        q: "R3 must never become DR on an IPv6 LAN that runs OSPFv3. Which interface command does that?"
+        choices: ["ip ospf priority 0", "ipv6 ospf priority 0", "ipv6 ospf cost 65535", "passive-interface"]
+        answer: 1
+        why: "Priority 0 removes the router from the DR/BDR election, and for OSPFv3 the command starts with 'ipv6'. 'ip ospf priority' sets OSPFv2 only, and cost does not affect the election."
+      - id: cn-v2c-q11
+        type: mcq
+        q: "R1 reaches R4's LAN two ways. Via R2: R1's exit cost 10, R2's exit cost towards R4 10. Via R3: R1's exit cost 1, R3's exit cost towards R4 30. R4's LAN interface has cost 1. Which route does R1 install?"
+        choices:
+          - "Via R3, metric 32"
+          - "Via R3, metric 31"
+          - "Both, as equal-cost paths"
+          - "Via R2, metric 21"
+        answer: 3
+        why: "OSPF adds the cost of each outgoing interface to the destination: via R2 10 + 10 + 1 = 21; via R3 1 + 30 + 1 = 32. The lower total wins, even though R1's first hop via R3 is cheaper."
+      - id: cn-v2c-q12
+        type: mcq
+        q: "An engineer types 'ipv6 route 2001:db8:30::/64 FE80::3' and IOS rejects it. What must be added?"
+        choices:
+          - "The exit interface, for example 'ipv6 route 2001:db8:30::/64 GigabitEthernet0/1 FE80::3'"
+          - "An administrative distance after the next hop"
+          - "The prefix length on the next hop, FE80::3/64"
+          - "The keyword 'permanent'"
+        answer: 0
+        why: "Every interface has its own FE80::/10 range, so a link-local next hop is ambiguous unless the exit interface is named."
+      - id: cn-v2c-q13
+        type: mcq
+        q: "R1 shows 'S 2001:db8:40::/64 [1/0] via 2001:db8:13::33'. R1 and R3 share 2001:db8:13::/64, and R3's address is 2001:db8:13::3. Pings to 2001:db8:40::1 fail. What is wrong?"
+        choices:
+          - "The route is not installed because its next hop is not a neighbour"
+          - "The next hop is mistyped: it lies in a connected prefix, so the route is installed, but Neighbor Discovery for ::33 gets no answer"
+          - "Static IPv6 routes need a link-local next hop"
+          - "The administrative distance of 1 is too low"
+        answer: 1
+        why: "IOS installs a static route whose next hop resolves to a connected prefix; it cannot know no host owns ::33 until ND fails at forwarding time. A global next hop is perfectly valid."
+      - id: cn-v2c-q14
+        type: mcq
+        q: "R1 has 'ipv6 route 2001:db8:60::/64 GigabitEthernet0/2 FE80::6'. Gi0/2 goes down, and 'show ipv6 route 2001:db8:60::1' now finds nothing. What happened?"
+        choices:
+          - "The route was deleted from the configuration"
+          - "IOS replaced the route with a host route"
+          - "The static route left the table because its exit interface is down; it returns when the interface comes up"
+          - "The route moved to the floating table with distance 255"
+        answer: 2
+        why: "A static route is withdrawn while its exit interface is down but stays in the configuration and is reinstalled automatically. There is no separate floating table."
+      - id: cn-v2c-q15
+        type: mcq
+        q: "R1 learns 'OE2 ::/0' from OSPFv3. As a backup, the engineer adds 'ipv6 route ::/0 2001:db8:f::1 100'. What happens?"
+        choices:
+          - "The static route stays hidden until the OSPF default disappears"
+          - "Both defaults are installed and share the load"
+          - "IOS rejects a static default while OSPF supplies one"
+          - "The static route replaces the OSPF default at once, because 100 is lower than 110"
+        answer: 3
+        why: "The lower administrative distance wins, so the 'backup' becomes the primary. A floating static needs a distance above 110, such as 200."
+      - id: cn-v2c-q16
+        type: mcq
+        q: "R1 has 'O 2001:db8:50::/64 via FE80::4, Gi0/0' and 'S 2001:db8:50::10/128 via 2001:db8:15::5'. Where does R1 send a packet for 2001:db8:50::10?"
+        choices:
+          - "To the static next hop, because /128 is the longer match"
+          - "To FE80::4, because OSPF routes are dynamic"
+          - "To FE80::4, because /64 covers the address"
+          - "To both, alternating packets"
+        answer: 0
+        why: "Longest prefix match is applied before administrative distance; the /128 host route beats the /64 for that one address. Every other address in the /64 still goes via OSPF."
+      - id: cn-v2c-q17
+        type: mcq
+        q: "R1 has a static route to R3's LAN 2001:db8:3::/64 and 'traceroute' from R1 completes. A PC on R1's LAN 2001:db8:1::/64 cannot reach R3's LAN, though R1 can. R3 runs no routing protocol. What is the MOST likely cause?"
+        choices:
+          - "R1 is missing 'ipv6 unicast-routing'"
+          - "R3 has no route back to 2001:db8:1::/64"
+          - "The PC needs a static route to R3"
+          - "R1's static route has the wrong prefix length"
+        answer: 1
+        why: "R1's own traffic is sourced from the link it shares with R3, which R3 knows as connected; the PC's traffic needs a route back to R1's LAN. The PC needs only its default gateway, R1, and R1's route evidently works."
+      - id: cn-v2c-q18
+        type: mcq
+        q: "'show ipv6 ospf interface brief' on R1 lists Gi0/0 and Loopback0 in area 0, but not Gi0/1, which faces R2 and is up/up with a global address. R2 shows no neighbour on that link. What is the MOST likely cause?"
+        choices:
+          - "Gi0/1 is passive under the process"
+          - "R1 has no router ID"
+          - "Gi0/1 is missing 'ipv6 ospf 1 area 0'"
+          - "R2 uses a different process ID"
+        answer: 2
+        why: "The brief output lists every interface on which OSPFv3 is enabled, passive or not, so Gi0/1 was never added to the process. A router with no router ID would have no OSPFv3 interfaces running at all."
+      - id: cn-v2c-q19
+        type: mcq
+        q: "The transit link between R1 and R2 has only 'ipv6 enable' on both ends, so each interface has just a link-local address. Both have 'ipv6 ospf 1 area 0' on it and on their LANs. What is the result?"
+        choices:
+          - "No adjacency forms until global addresses are added"
+          - "The adjacency forms, but LAN prefixes are not exchanged"
+          - "The adjacency forms and each LAN is reachable via the other router's FE80:: next hop"
+          - "The adjacency forms only if the network type is point-to-point"
+        answer: 2
+        why: "OSPFv3 runs entirely over link-local addresses, so the routers become neighbours and exchange their LAN prefixes; only the transit link itself has no global prefix to advertise."
+      - id: cn-v2c-m01
+        type: multi
+        q: "Which TWO must match for two routers to form an OSPFv3 adjacency on an Ethernet link? (Choose TWO)"
+        choices:
+          - "Area ID"
+          - "Hello and dead intervals"
+          - "Global IPv6 prefix on the link"
+          - "OSPF process ID"
+          - "Router ID"
+          - "Interface cost"
+        answers: [0, 1]
+        why: "Hellos carry the area and timers, and a mismatch stops the adjacency. Prefixes are not in OSPFv3 hellos, process IDs are local, router IDs must differ, and cost is local to each router."
+      - id: cn-v2c-m02
+        type: multi
+        q: "Which TWO statements about OSPFv3 are true? (Choose TWO)"
+        choices:
+          - "Neighbours exchange packets from their link-local addresses"
+          - "The router ID is a 32-bit value written in dotted decimal"
+          - "Interfaces join the process through network statements"
+          - "Hellos are sent to 224.0.0.5"
+          - "Every interface needs an IPv4 address"
+        answers: [0, 1]
+        why: "OSPFv3 uses link-local sources and keeps the 32-bit router ID. Interfaces are enabled one by one with 'ipv6 ospf', hellos go to FF02::5, and no IPv4 is needed if the router ID is set by hand."
+      - id: cn-v2c-m03
+        type: multi
+        q: "'show ipv6 ospf neighbor' on R1 is empty. R1 and R2 share Gi0/0, which is up/up on both. Which TWO findings would each explain it? (Choose TWO)"
+        choices:
+          - "R2's Gi0/0 is in area 1 while R1's is in area 0"
+          - "R1 has 'passive-interface GigabitEthernet0/0' under its OSPFv3 process"
+          - "R1 uses process ID 1 and R2 uses process ID 2"
+          - "R1's and R2's global prefixes on the link differ"
+          - "R1's interface cost is 10 and R2's is 100"
+        answers: [0, 1]
+        why: "An area mismatch rejects the hellos, and a passive interface sends none. Process IDs are local, OSPFv3 ignores prefixes in hellos, and costs need not match."
+      - id: cn-v2c-o01
+        type: order
+        q: "R1 has 'ipv6 route 2001:db8:30::/64 2001:db8:13::3' and Gi0/1 is in 2001:db8:13::/64. A packet for 2001:db8:30::9 arrives. Put R1's work in order."
+        steps:
+          - "Find the longest match: the static route via 2001:db8:13::3"
+          - "Look up 2001:db8:13::3 itself and find the connected prefix on Gi0/1"
+          - "Check the neighbour cache for 2001:db8:13::3, sending a Neighbor Solicitation if it is missing"
+          - "Rewrite the frame with R3's MAC address as destination and send it out of Gi0/1"
+        why: "A recursive static route needs a second lookup to find the exit interface; only then can ND resolve the next hop's MAC and the frame be built."
