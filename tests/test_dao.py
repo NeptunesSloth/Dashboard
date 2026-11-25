@@ -366,3 +366,105 @@ def test_rumours_the_graveyard_and_a_long_fuzzed_life(st):
         assert v["pawns"] and sum(1 for p in v["pawns"] if p["master"]) == 1
         back = colony.sanitize(copy.deepcopy(c2), T0)
         assert back and len(back["pawns"]) == len(c2["pawns"]) and back["precepts"] == c2["precepts"]
+
+
+def test_a_breakthrough_is_graded_by_preparation_and_ends_in_a_chosen_fate(st):
+    c = st["colony"]
+    m, a, b = c["pawns"]
+    a["step"], a["qi"], a["health"], a["mood"] = 3, colony.step_need(3), 100.0, 50.0
+    c["res"]["pills"] = 0.0
+    a["element"] = "metal"                                                         # not spring's element
+    grade, checks = dao.bt_grade(c, a)
+    assert grade == 1 and sum(ok for _, ok in checks) == 2                        # healthy, and nothing weighing on them
+    v = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == a["id"])
+    assert v["grade"]["name"] == "Common" and len(v["grade"]["checks"]) == 8
+    # arrange things: a calm heart, a pill, a friend on watch, the right season, a good chamber
+    a["mood"], a["element"] = 80.0, "wood"
+    c["res"]["pills"] = 2.0
+    colony._bond(c, a, b, 40)
+    c["rooms"]["meditation"] = 2
+    assert dao.bt_grade(c, a)[0] == 3
+    root = a["root_mult"]
+    for seed in range(40):
+        s2 = copy.deepcopy(st)
+        c2 = s2["colony"]
+        c2["seed"] = seed
+        res = colony.attempt(s2, a["id"], T0)
+        if res["success"]:
+            a2 = c2["pawns"][1]
+            assert a2["root_mult"] == pytest.approx(root + 0.07) and "superior foundation" in res["event"]["text"]
+            ev = c2["pending"]
+            assert ev["kind"] == "fate" and len(ev["options"]) == 3
+            again = copy.deepcopy(s2)                                              # the same three every time: no rerolling
+            assert [o["id"] for o in again["colony"]["pending"]["options"]] == [o["id"] for o in ev["options"]]
+            pick = ev["options"][0]["id"]
+            colony.resolve(s2, pick, T0)
+            assert a2["fates"] == [pick] and next(x for x in colony.view(s2, T0)["pawns"] if x["id"] == a2["id"])["fates"][0]["name"] == dao.FATES[pick]["name"]
+            break
+    else:
+        raise AssertionError("no success in 40 seeds")
+    # fates are trades, and they show in the ledgers
+    a["fates"] = ["hungry_ghost", "sword_heart", "clear_mind"]
+    assert ("Fate: Hungry Ghost Meridians", 1.12) in colony.qi_rate(c, a) and dao.hunger_x(c, a) == pytest.approx(1.2)
+    assert ("Fate: Sword Heart", -2) in colony.mood_mods(c, a) and ("Fate: Clear Mind", 5) in colony.bt_odds(c, a)
+    # a rare fate needs a well-prepared breakthrough
+    assert not any(dao.FATES[o["id"]].get("rare") for s_ in range(30) for o in _fate_opts(st, a, 2, s_))
+    assert any(dao.FATES[o["id"]].get("rare") for s_ in range(30) for o in _fate_opts(st, a, 4, s_))
+
+
+def _fate_opts(st, a, grade, seed):
+    s2 = copy.deepcopy(st)
+    c2 = s2["colony"]
+    c2["seed"] = seed
+    p = c2["pawns"][1]
+    p["fates"] = []
+    c2["pending"] = None
+    dao.offer_fate(c2, p, grade)
+    return c2["pending"]["options"]
+
+
+def test_beasts_branches_karma_banner_and_the_map(st):
+    c = st["colony"]
+    m, a, b = c["pawns"]
+    # a spirit beast chooses a disciple
+    power = colony.combat_power(c, a)
+    assert dao.raise_event(c, random.Random(3), "beast_bond")
+    owner = next(p for p in c["pawns"] if p.get("beast"))
+    assert colony.combat_power(c, owner) > (power if owner is a else 0) and any("at their heel" in lab for lab, _ in colony.mood_mods(c, owner))
+    # karma is kept quietly and felt at the tribulation
+    colony._ask(c, "village", "t", "x", [("send", "s"), ("decline", "d")], pawn=a["id"])
+    _answer(st, "decline")
+    assert c["karma"] == -3
+    c["karma"] = -25.0
+    a["step"], a["qi"] = 3, colony.step_need(3)
+    assert ("The sect's karmic debt", -6) in colony.bt_odds(c, a) and any("hush their children" in x for x in colony.view(st, T0)["rumours"])
+    c["karma"] = 25.0
+    assert ("Heaven remembers the sect's kindness", 4) in colony.bt_odds(c, a)
+    # banner and motto: a known colour, and text that is only ever text
+    assert dao.set_style(st, "jade", "  Ask the   mountain <b>first</b>  ", T0)["ok"] and not dao.set_style(st, "puce", "x", T0)["ok"]
+    v = colony.view(st, T0)
+    assert v["style"] == {"colour": "jade", "hex": "#3fae82", "motto": "Ask the mountain <b>first</b>"} and len(dao.set_style(st, "", "x" * 200, T0)) and len(c["style"]["motto"]) == 60
+    # the map knows home, the places, and every sect
+    kinds = [x["kind"] for x in v["map"]]
+    assert kinds.count("home") == 1 and kinds.count("place") == 6 and len(v["map"]) == 10 and all(0 <= x["x"] <= 100 and 0 <= x["y"] <= 100 for x in v["map"])
+    # a branch sect: an elder and two disciples leave for good, and tribute comes home
+    a["step"] = 12
+    assert not dao.found_branch(st, a["id"], T0)["ok"]                             # the sect is too small
+    for i in range(6):
+        c["pawns"].append(colony._make_pawn(c, 70 + i))
+    c["rooms"]["main_hall"] = 4
+    assert not dao.found_branch(st, m["id"], T0)["ok"] and dao.found_branch(st, a["id"], T0)["ok"]
+    assert len(c["pawns"]) == 6 and a not in c["pawns"] and c["res"]["stones"] == 0 and c["branches"][0]["leader"] == a["name"]
+    assert any(x["kind"] == "branch" for x in colony.view(st, T0)["map"])
+    c["storyteller"] = "calm"
+    c["festival"] = "9-9"
+    rice = c["res"]["rice"] = 20.0
+    for _ in range(24 * 13):
+        colony.advance(st, 1, T0)
+        if c["pending"]:
+            _answer(st)
+        c["res"]["rice"] = max(c["res"]["rice"], 20.0)
+    assert any(e["title"].startswith("Tribute from") for e in c["log"]) or c["res"]["stones"] >= 5
+    assert rice == 20.0
+    back = colony.sanitize(copy.deepcopy(c), T0)
+    assert back["branches"] == c["branches"] and back["style"]["colour"] == "jade" and back["karma"] == c["karma"]

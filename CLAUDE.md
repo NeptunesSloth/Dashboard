@@ -5,9 +5,9 @@ update it when the shape of the project changes.
 
 ## What this is
 
-**Sect Academy** — an offline, self-hosted study app (French A1/A2, Spanish
-A1/A2, Security+ SY0-801, Network+ N10-009, ISC2 CC) wrapped in a
-cultivation-world colony sim. One FastAPI process, one JSON state file, a
+**Sect Academy** — an offline, self-hosted study app (French and Spanish A1 to
+B1 plus conversation courses, Security+ SY0-801, Network+ N10-009, ISC2 CC)
+wrapped in a cultivation-world colony sim. One FastAPI process, one JSON state file, a
 vanilla-JS front end. No network, no database, no LLM.
 
 (The repo used to be "MayBot Control Center", a fleet dashboard. That code was
@@ -37,6 +37,7 @@ sect_academy/
   packs.py      load + validate packs/*.yaml (courses and their part files)
   packs/        the courses (see docs/ACADEMY_CONTENT.md)
   fsrs.py       FSRS-6 scheduler, published default weights
+  drills.py     generated subnetting and port drills (graded here, never scheduled)
   engine.py     enrolment, sessions, server-side grading, placement, trials
   colony.py     the sect: pawns, needs, work, building, research, storyteller,
                 breakthroughs, rival sects, choice events (see _RESOLVERS)
@@ -82,6 +83,12 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   balanced/harsh, careful should survive balanced.
 - **A new event needs** a branch in `_daily_event`, a `_res_<kind>` in
   `_RESOLVERS`, and to survive `test_every_trope_event_can_be_raised...`.
+- **Every number the player is affected by must appear in a ledger** (mood,
+  cultivation speed, breakthrough odds, breakthrough grade). Opaque systems are
+  the genre's standing complaint (docs/research/notes/competitors_cultivation_games.md).
+  A new modifier goes through the `dao.*_rows` hooks, not a hidden multiplier.
+- **Only known hostnames are answered** (`_allowed_hosts` in `app.py`); serving
+  on a LAN name needs `SECT_ACADEMY_HOSTS`.
 - **Offline is a hard rule**: no CDN, no web font, no external URL in anything
   the page loads. The CSP in `app.py` is `default-src 'self'`.
 - **State safety** (`state.py`): atomic fsynced writes, a daily `.bak`, a

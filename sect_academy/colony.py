@@ -852,12 +852,11 @@ def attempt(st: dict, pawn_id: str, now: float) -> dict:
         return {"ok": True, "success": False, "event": _letter(
             c, "bad", f"{p['name']} failed {'the tribulation' if trib else 'a breakthrough'}",
             text + "They are hurt and must gather qi again. Each failure teaches something for the next attempt.")}
-    perfect = roll < chance * 0.2
+    grade = dao.bt_grade(c, p)[0]                    # how well it was prepared, decided before the roll
+    perfect = grade >= 4
     p["bt_tries"] = 0
     p["qi"] = 0.0
     p["step"] += 1
-    if perfect:
-        p["root_mult"] = round(p["root_mult"] + 0.05, 2)
     _think(p, "bt", "Broke through to a new realm", 15, 72, c["hour"])
     for o in c["pawns"]:
         if o is not p:
@@ -871,9 +870,8 @@ def attempt(st: dict, pawn_id: str, now: float) -> dict:
     _annal(c, f"{p['name']} reached {REALMS[target]}" + (" under heavenly tribulation." if trib else "."))
     text = (f"{bolts} bolts of heavenly lightning fell on the peak, and {p['name']} stood through every one. " if trib
             else "The bottleneck gave way. ")
-    if perfect:
-        text += "A flawless breakthrough: their foundation is firmer than before, and they will gather qi a little faster for life. "
     ev = _letter(c, "good", f"{p['name']} reached {REALMS[target]}", text + "The whole sect feels it.")
+    ev["text"] = text + dao.after_breakthrough(c, p, grade) + "The whole sect feels it."
     _promote(c, p)
     dao.on_bt(c, p, True, perfect, trib)
     if p["step"] // 4 == len(REALMS) - 1 and p.get("master") and not c["flags"].get("ascended"):

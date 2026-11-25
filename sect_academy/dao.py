@@ -11,14 +11,16 @@ from __future__ import annotations
 import random
 
 from . import colony as C
+from . import lore
 
 # extra fields on every disciple, and on the colony
-PAWN = {"mentor": "", "companion": "", "demon": 0, "merit": 0.0, "path": "", "toxin": 0.0, "marrow": False, "ancient": 0, "xp_x": 1.0}
+PAWN = {"mentor": "", "companion": "", "demon": 0, "merit": 0.0, "path": "", "toxin": 0.0, "marrow": False, "ancient": 0, "xp_x": 1.0, "beast": None, "fates": [], "fate_due": -1}
 
 
 def defaults() -> dict:
     return {"precepts": [], "kingdom": 0.0, "elixirs": {"marrow": 0, "berserk": 0}, "rare": 0.0, "recipe": "pill", "demonic": False,
-            "blessings": [], "dead": [], "siege": None, "sutra_days": 0, "marks": {}}
+            "blessings": [], "dead": [], "siege": None, "sutra_days": 0, "marks": {},
+            "karma": 0.0, "branches": [], "style": {"colour": "gold", "motto": ""}}
 
 
 PRECEPTS = {
@@ -45,6 +47,34 @@ RECIPES = {
 }
 BLESSINGS = {"enduring": "Blessing of the Ascended: +10% cultivation speed.", "renowned": "Renown of the Ascended: fame draws finer recruits.",
              "harmonious": "Harmony of the Ascended: +5 mood for everyone.", "dread": "Dread of the Ascended: +15% fighting strength."}
+GRADES = [("Flawed", 0.0), ("Common", 0.02), ("Fine", 0.04), ("Superior", 0.07), ("Heaven-defying", 0.10)]
+# A fate is chosen at each great realm: one of three, fixed for that disciple and realm. Each is a trade.
+FATES = {
+    "iron_bones":   {"name": "Iron Bones", "text": "Takes 15% less damage.", "hurt": 0.85},
+    "sword_heart":  {"name": "Sword Heart", "text": "+15% fighting strength, -2 mood: they see enemies everywhere.", "combat": 1.15, "mood": -2},
+    "clear_mind":   {"name": "Clear Mind", "text": "+5 to every later breakthrough.", "bt": 5},
+    "hungry_ghost": {"name": "Hungry Ghost Meridians", "text": "+12% cultivation speed, eats 20% more.", "qi": 1.12, "hunger": 1.2},
+    "hermit":       {"name": "Hermit's Bearing", "text": "+18% cultivation speed while they have no friends in the sect, -2 mood.", "qi_alone": 1.18, "mood": -2},
+    "warm_heart":   {"name": "Warm Heart", "text": "+5 mood, always.", "mood": 5},
+    "quick_study":  {"name": "Quick Study", "text": "Skills grow 25% faster.", "xp": 1.25},
+    "fasting_body": {"name": "Fasting Body", "text": "Eats 20% less, -5% fighting strength.", "hunger": 0.8, "combat": 0.95},
+    "storm_tested": {"name": "Storm-Tested", "text": "+8 to later breakthroughs, takes 10% more damage.", "bt": 8, "hurt": 1.1},
+    "steady_flame": {"name": "Steady Flame", "text": "+7% cultivation speed. No catch.", "qi": 1.07},
+    # only a Superior or Heaven-defying breakthrough can draw these
+    "heaven_chosen": {"name": "Heaven's Chosen", "text": "+20% cultivation speed.", "qi": 1.2, "rare": True},
+    "dao_body":      {"name": "Innate Dao Body", "text": "Takes 25% less damage and fights 10% harder.", "hurt": 0.75, "combat": 1.1, "rare": True},
+}
+COLOURS = {"gold": "#e9b44c", "azure": "#5fa8e0", "jade": "#3fae82", "vermilion": "#e0563f", "violet": "#a58af0", "white": "#e8e2d4"}
+# what heaven keeps count of: (event kind, option prefix) -> karma
+KARMA = {("village", "send"): 3, ("village", "decline"): -3, ("quest_offer", "accept"): 2, ("beast_cub", "adopt"): 2, ("beast_cub", "sell"): -1,
+         ("spy", "forgive"): 2, ("spy", "banish"): -1, ("wanderer", "accept"): 1, ("lord", "flatter"): -2, ("lord", "honest"): 1, ("lord", "send"): 2,
+         ("demonic_offer", "accept"): -5, ("demonic_offer", "fight"): 2, ("embrace", "embrace"): -12, ("embrace", "burn"): 4,
+         ("qingming", "visit"): 2, ("qingming", "skip"): -2, ("quest_reward", ""): 3, ("ally_call", "send"): 2, ("ally_call", "refuse"): -3,
+         ("branch_call", "send"): 2, ("branch_call", "refuse"): -3, ("festival", "hold"): 1, ("discipline", "forgive"): 1}
+# the country around the mountain: (name, what it is, x%, y% on the painted map)
+PLACES_ON_MAP = [("Herb Valley", "A day's walk east. Herbs, and the rare hundred-year kind.", 78, 70), ("Beast Forest", "A day and a half north. Spirit stones in the dens.", 30, 22),
+                 ("Ruined Sect", "Two days west. Manuals and artifacts under the rubble.", 12, 58), ("Misty Marsh", "Where the secret realm opens.", 62, 28),
+                 ("Willow Village", "Mortals at the mountain's foot. They ask for help, and remember it.", 44, 84), ("The lord's seat", "The lowland kingdom.", 86, 88)]
 POEMS = [
     "Lanterns on ten thousand steps; one more is lit tonight for {name}.",
     "The mountain did not bow to the storm. Neither did {name}.",
@@ -96,6 +126,11 @@ def qi_rows(c: dict, p: dict) -> list[tuple[str, float]]:
         rows.append(("Blessing of the Ascended", 1.1))
     if p["toxin"] > 3:
         rows.append(("Pill toxin clogs the meridians", 0.9))
+    for f in _fates(p):
+        if "qi" in f:
+            rows.append((f"Fate: {f['name']}", f["qi"]))
+        if "qi_alone" in f and not C._friends(c, p):
+            rows.append((f"Fate: {f['name']}", f["qi_alone"]))
     return rows
 
 
@@ -113,6 +148,9 @@ def mood_rows(c: dict, p: dict) -> list[tuple[str, int]]:
         rows.append(("Has a dao companion", 4))
     if c["demonic"] and "Iron will" not in p["traits"]:
         rows.append(("The path is dark", -3))
+    if p.get("beast"):
+        rows.append((f"{p['beast']['name']} at their heel", 3))
+    rows += [(f"Fate: {f['name']}", f["mood"]) for f in _fates(p) if "mood" in f]
     return rows
 
 
@@ -125,19 +163,92 @@ def bt_rows(c: dict, p: dict) -> list[tuple[str, int]]:
         rows.append((f"{m['name']} watches over their disciple", 4))
     if _is_home(c, _companion(c, p)):
         rows.append(("Their dao companion keeps vigil", 5))
+    if c["karma"] >= 20:
+        rows.append(("Heaven remembers the sect's kindness", 4))
+    elif c["karma"] <= -20:
+        rows.append(("The sect's karmic debt", -6))
+    rows += [(f"Fate: {f['name']}", f["bt"]) for f in _fates(p) if "bt" in f]
     return rows
 
 
+def _fates(p: dict) -> list[dict]:
+    return [FATES[k] for k in p.get("fates", []) if k in FATES]
+
+
+def _fx(p: dict, key: str) -> float:
+    out = 1.0
+    for f in _fates(p):
+        out *= f.get(key, 1.0)
+    return out
+
+
+def bt_grade(c: dict, p: dict) -> tuple[int, list[tuple[str, bool]]]:
+    """How well prepared a breakthrough is. Nothing here is luck: every line is something you can arrange."""
+    b, mid = C._manual(c, p, "qi")
+    checks = [
+        ("A calm heart (mood 70 or more)", p["mood"] >= 70),
+        ("In full health (95 or more)", p["health"] >= 95),
+        ("A pill ready to steady the meridians", c["res"]["pills"] >= 1),
+        ("Someone keeping vigil: a friend, master or dao companion at home",
+         any(_is_home(c, o) for o in C._friends(c, p)) or _is_home(c, _mentor(c, p)) or _is_home(c, _companion(c, p))),
+        ("The season favours their element", p["element"] == lore.SEASON_ELEMENT[C._season(c)]),
+        ("No heart demon and no pill toxin", not p["demon"] and p["toxin"] <= 3),
+        ("A Meditation Chamber of level 2 or more", C._lvl(c, "meditation") >= 2),
+        ("A cultivation method well suited to their root", bool(mid) and C.suit(p, mid)[0] == "well suited"),
+    ]
+    return min(4, sum(1 for _, ok in checks if ok) // 2), checks
+
+
+def offer_fate(c: dict, p: dict, grade: int) -> None:
+    """After a great realm: choose one of three fates. The three are fixed for this disciple and realm."""
+    if c["pending"]:
+        p["fate_due"] = grade                       # something else is waiting; the choice comes after it
+        return
+    p["fate_due"] = -1
+    realm = p["step"] // 4
+    r = C._rng(c, "fate", p["id"], realm)
+    pool = [k for k, f in FATES.items() if k not in p["fates"] and (grade >= 3 or not f.get("rare"))]
+    r.shuffle(pool)
+    picks = pool[:3]
+    if not picks:
+        return
+    C._ask(c, "fate", f"{p['name']} at the threshold of {C.REALMS[realm]}",
+           f"A {GRADES[grade][0].lower()} breakthrough. In the stillness afterwards three roads open, and only one can be walked. "
+           "The choice is for life." + (" A breakthrough this well prepared opens roads most never see." if grade >= 3 else ""),
+           [(k, f"{FATES[k]['name']}: {FATES[k]['text']}") for k in picks], pawn=p["id"])
+
+
+def after_breakthrough(c: dict, p: dict, grade: int) -> str:
+    bonus = GRADES[grade][1]
+    p["root_mult"] = round(p["root_mult"] + bonus, 2)
+    offer_fate(c, p, grade)
+    return (f"A {GRADES[grade][0].lower()} foundation" + (f": they will gather qi {int(round(bonus * 100))}% faster for life. " if bonus else ": nothing gained beyond the realm itself. "))
+
+
+def _res_fate(c, ev, opt, r):
+    p = C._p(c, ev["pawn"])
+    if not p or opt not in FATES:
+        return None
+    p["fates"].append(opt)
+    C._annal(c, f"{p['name']} took the fate “{FATES[opt]['name']}”.")
+    return C._letter(c, "good", f"{p['name']}: {FATES[opt]['name']}", FATES[opt]["text"])
+
+
+def beast_x(c: dict, p: dict) -> float:
+    b = p.get("beast")
+    return min(1.3, 1.08 + (c["hour"] - b["born"]) / 24.0 * 0.004) if b else 1.0
+
+
 def combat_x(c: dict, p: dict) -> float:
-    return (1.2 if p.get("path") == "sword" else 1.0) * (1.1 if has(c, "strength") else 1.0) * (1.15 if "dread" in c["blessings"] else 1.0)
+    return beast_x(c, p) * _fx(p, "combat") * (1.2 if p.get("path") == "sword" else 1.0) * (1.1 if has(c, "strength") else 1.0) * (1.15 if "dread" in c["blessings"] else 1.0)
 
 
 def hurt_x(c: dict, p: dict) -> float:
-    return 0.8 if p.get("path") == "body" else 1.0
+    return (0.8 if p.get("path") == "body" else 1.0) * _fx(p, "hurt")
 
 
 def hunger_x(c: dict, p: dict) -> float:
-    return (0.85 if has(c, "frugality") else 1.0) * (1.1 if p.get("path") == "body" else 1.0)
+    return (0.85 if has(c, "frugality") else 1.0) * (1.1 if p.get("path") == "body" else 1.0) * _fx(p, "hunger")
 
 
 def research_x(c: dict) -> float:
@@ -173,7 +284,9 @@ def daily(c: dict, quiet: bool) -> None:
             p["mentor"] = ""
         if p.get("companion") and not _companion(c, p):
             p["companion"] = ""
-        p["xp_x"] = (1.3 if m else 1.0) * (1.1 if has(c, "scholarship") else 1.0)
+        p["xp_x"] = (1.3 if m else 1.0) * (1.1 if has(c, "scholarship") else 1.0) * _fx(p, "xp")
+        if p.get("fate_due", -1) >= 0 and not c["pending"] and not quiet:
+            offer_fate(c, p, int(p["fate_due"]))
         p["toxin"] = max(0.0, p["toxin"] - 0.2)
         if m and _is_home(c, m) and _is_home(c, p):
             C._bond(c, m, p, 0.6)
@@ -183,6 +296,13 @@ def daily(c: dict, quiet: bool) -> None:
             C._letter(c, "bad", f"The alliance with the {s['name']} has lapsed", "Relations cooled too far. Their envoy took down the banner.")
         if c["demonic"]:
             C._rel(s, -0.5 if s["kind"] == "righteous" else 0.2 if s["kind"] == "demonic" else 0)
+    day = C._day(c)
+    for br in c["branches"]:
+        if br.get("sulking", 0) <= day and day % 12 == br["founded"] % 12 and day > br["founded"]:
+            C._add(c, "rice", 15)
+            C._add(c, "stones", 5)
+            if not quiet:
+                C._letter(c, "good", f"Tribute from the {br['name']}", "Fifteen rice and five spirit stones, with the branch master's respects.")
     if quiet:
         return
     # merit buys what the vault holds: the best artifact goes to whoever has earned it
@@ -247,6 +367,8 @@ def saved_by_companion(c: dict, p: dict, fighters: list[dict]) -> bool:
 def on_death(c: dict, p: dict) -> None:
     foe = C._sect(c, c["marks"].get("last_foe", ""))
     c["dead"] = (c["dead"] + [{"name": p["name"], "realm": C.realm_label(p["step"]), "day": C._day(c) + 1}])[-60:]
+    if p.get("beast"):
+        C._annal(c, f"{p['beast']['name']} lay on {p['name']}'s grave for nine days, then walked into the forest.")
     for o in c["pawns"]:
         if o is p:
             continue
@@ -285,6 +407,7 @@ def on_bt(c: dict, p: dict, success: bool, perfect: bool, trib: bool) -> None:
 
 
 def on_broken_promise(c: dict) -> None:
+    c["karma"] = max(-100.0, c["karma"] - 4)
     m = C._master(c)
     if m:
         m["demon"] = min(3, m["demon"] + 1)
@@ -347,6 +470,9 @@ def counsel(c: dict, ev: dict) -> str:
 
 
 def before_choice(c: dict, ev: dict, option: str) -> None:
+    for (k, o), v in KARMA.items():
+        if k == ev["kind"] and option.startswith(o):
+            c["karma"] = max(-100.0, min(100.0, c["karma"] + v))
     broke = breaks(c, ev["kind"], option)
     if broke:
         for p in c["pawns"]:
@@ -425,6 +551,9 @@ def table(c: dict, day: int, others: list[dict]) -> list[tuple[str, int]]:
         ("prodigy", 6 if not marks.get("prodigy") and day >= 15 and room else 0),
         ("wanderer", 10 if has(c, "hospitality") and room else 0),
         ("rare_herb", 5),
+        ("beast_bond", 5 if day >= 8 and any(not p.get("beast") for p in others) else 0),
+        ("branch_call", 6 if c["branches"] and len(others) >= 3 else 0),
+        ("wanderer", 6 if c["karma"] >= 20 and room else 0),
     ]
 
 
@@ -462,6 +591,16 @@ def raise_event(c: dict, r: random.Random, kind: str) -> bool:
                f"{cand['name']}, twelve, walked up the ten thousand steps alone. {cand['root']} spirit root, the stone says. "
                "The child looks at the sect's formations the way a carpenter looks at someone else's joinery.",
                [("accept", "Take the child in"), ("decline", "Send the child home")], cand=cand)
+    elif kind == "beast_bond":
+        p = r.choice([x for x in others if not x.get("beast")])
+        name = r.choice(lore.BEASTS)
+        p["beast"] = {"name": name, "born": c["hour"]}
+        C._think(p, "beast", f"A {name} chose them", 8, 120, c["hour"])
+        C._letter(c, "good", f"A {name} followed {p['name']} home", "It will not leave their side. It fights beside them, and it will grow.")
+    elif kind == "branch_call":
+        br = r.choice(c["branches"])
+        C._ask(c, "branch_call", f"The {br['name']} asks for help", f"{br['leader']} writes that bandits are testing the branch's walls. Two disciples for two days would settle it.",
+               [("send", "Send two disciples"), ("refuse", "They must stand on their own")], branch=br["name"])
     elif kind == "rare_herb":
         c["rare"] += 1
         C._letter(c, "good", "A hundred-year spirit herb", "A forager found it under a fallen pine, glowing faintly. It is in the stores for the alchemists.")
@@ -640,7 +779,23 @@ def _res_succession(c, ev, opt, r):
                      "Your study now strengthens the new master.")
 
 
-RESOLVERS = {"lord": _res_lord, "taxes": _res_taxes, "ally_call": _res_ally_call, "qingming": _res_qingming, "embrace": _res_embrace,
+def _res_branch_call(c, ev, opt, r):
+    br = next((b for b in c["branches"] if b["name"] == ev["branch"]), None)
+    if not br:
+        return None
+    if opt != "send":
+        br["sulking"] = C._day(c) + 24
+        return C._letter(c, "info", f"The {br['name']} was left to itself", "They held, barely. No tribute will come for a while.")
+    team = C._strongest(c, 2)
+    if len(team) < 2:
+        return ("err", "You do not have two healthy disciples to send.")
+    for p in team:
+        p["away_until"], p["away_kind"] = c["hour"] + 48, f"defending the {br['name']}"
+    c["later"].append({"at": c["hour"] + 48, "kind": "ally_return", "pawns": [p["id"] for p in team], "src": ""})
+    return C._letter(c, "info", f"Help sent to the {br['name']}", f"{' and '.join(p['name'] for p in team)} went down the mountain.")
+
+
+RESOLVERS = {"fate": _res_fate, "branch_call": _res_branch_call, "lord": _res_lord, "taxes": _res_taxes, "ally_call": _res_ally_call, "qingming": _res_qingming, "embrace": _res_embrace,
              "discipline": _res_discipline, "demon": _res_demon, "succession": _res_succession}
 LATER = {"nemesis", "lord_return", "ally_return", "retreat_return"}
 
@@ -675,7 +830,7 @@ def later(c: dict, item: dict, r: random.Random) -> bool:
             p["merit"] += 6
         if len(team) == 2:
             C._bond(c, team[0], team[1], 8)
-        C._letter(c, "good", "The disciples are back from the ally's war", f"The {s['name'] if s else 'ally'} sent ten spirit stones and a promise to return the favour.")
+        C._letter(c, "good", "The disciples are back", f"The {s['name'] if s else 'branch'} sent ten spirit stones and its thanks.")
     elif kind == "retreat_return":
         p = C._p(c, item.get("pawn", ""))
         if p:
@@ -858,6 +1013,45 @@ def ally(st: dict, sect_id: str, now: float) -> dict:
     return {"ok": True, "event": C._letter(c, "good", f"Alliance with the {s['name']}", "They will send disciples when you are attacked, and will expect the same of you.")}
 
 
+def found_branch(st: dict, pawn_id: str, now: float) -> dict:
+    """Send an elder and two disciples away for good to raise a branch sect. It pays tribute, and sometimes calls for help."""
+    c = C._c(st, now)
+    leader = C._p(c, pawn_id)
+    if not leader or leader.get("master") or C.rank_of(leader) < 2:
+        return {"ok": False, "error": "A branch needs a Core Disciple or an Elder to lead it."}
+    if len(c["branches"]) >= 3:
+        return {"ok": False, "error": "Three branches is as far as one mountain's name reaches."}
+    if C._lvl(c, "main_hall") < 4 or len(c["pawns"]) < 8 or c["res"]["stones"] < 100:
+        return {"ok": False, "error": "A branch needs Main Hall level 4, eight disciples, and 100 spirit stones to endow it."}
+    followers = sorted((p for p in C._home(c) if p is not leader and not p.get("master") and not p.get("direct")), key=lambda p: p["step"])[:2]
+    if len(followers) < 2:
+        return {"ok": False, "error": "Two disciples must be home to go with them."}
+    c["res"]["stones"] -= 100
+    name = f"{c['name']}, {('Eastern', 'Southern', 'Western')[len(c['branches'])]} Branch"
+    for p in [leader, *followers]:
+        C._unequip(c, p)
+        c["pawns"].remove(p)
+        c["bonds"] = {k: v for k, v in c["bonds"].items() if p["id"] not in k.split("|")}
+    for p in c["pawns"]:
+        C._think(p, "branch", "The sect founded a branch", 8, 120, c["hour"])
+    c["branches"].append({"name": name, "leader": leader["name"], "founded": C._day(c), "sulking": 0})
+    C._fame(c, 20)
+    C._annal(c, f"{leader['name']} left with {followers[0]['name']} and {followers[1]['name']} to found the {name}.")
+    poem(c, leader["name"])
+    return {"ok": True, "event": C._letter(c, "good", f"The {name} is founded", f"{leader['name']} bowed nine times at the gate and did not look back. "
+                                           "Tribute will come every twelve days, and sometimes a call for help.")}
+
+
+def set_style(st: dict, colour: str, motto: str, now: float) -> dict:
+    c = C._c(st, now)
+    if colour and colour not in COLOURS:
+        return {"ok": False, "error": "Unknown colour."}
+    if colour:
+        c["style"]["colour"] = colour
+    c["style"]["motto"] = " ".join(str(motto or "").split())[:60]
+    return {"ok": True}
+
+
 def succession(c: dict) -> None:
     heirs = sorted((p for p in c["pawns"] if not p.get("master")), key=lambda p: -p["step"])[:3]
     if heirs and not c["pending"]:
@@ -894,6 +1088,10 @@ def rumours(c: dict) -> list[str]:
         out.append("Disciples who read the Blood Sutra have started to dream the same dream.")
     if c["kingdom"] <= -20:
         out.append("The lord's stewards have been measuring the mountain road.")
+    if c["karma"] >= 20:
+        out.append("Beggars at the temple gate bless the sect by name.")
+    elif c["karma"] <= -20:
+        out.append("Mothers in the valley hush their children with the sect's name.")
     return out[:4]
 
 
@@ -922,6 +1120,11 @@ def pawn_view(c: dict, p: dict) -> dict:
         "path": PATHS[p["path"]]["name"] if p.get("path") in PATHS else "", "can_path": p["step"] >= 8 and not p.get("path"),
         "can_marrow": c["elixirs"]["marrow"] >= 1 and not p.get("marrow"),
         "can_retreat": not p.get("master") and _is_home(c, p),
+        "fates": [{"name": f["name"], "text": f["text"]} for f in _fates(p)],
+        "grade": ({"name": GRADES[bt_grade(c, p)[0]][0], "bonus": C._f(100 * GRADES[bt_grade(c, p)[0]][1]),
+                   "checks": [{"label": str(a), "ok": bool(b)} for a, b in bt_grade(c, p)[1]]} if C.ready(p) else None),
+        "beast": ({"name": str(p["beast"]["name"]), "bonus": C._f(100 * (beast_x(c, p) - 1))} if p.get("beast") else None),
+        "can_lead_branch": not p.get("master") and C.rank_of(p) >= 2,
     }
 
 
@@ -937,6 +1140,14 @@ def view(c: dict) -> dict:
         "tombs": [{"name": str(d["name"]), "realm": str(d["realm"]), "day": C._f(d["day"])} for d in reversed(c["dead"][-20:])],
         "siege": ({"sect": str((C._sect(c, c["siege"]["src"]) or {}).get("name", "")), "stage": C._f(min(3, c["siege"]["stage"]))} if c["siege"] else None),
         "rumours": rumours(c), "council": len(_elders(c)) >= 2,
+        "branches": [{"name": str(b["name"]), "leader": str(b["leader"]), "sulking": b.get("sulking", 0) > C._day(c)} for b in c["branches"]],
+        "style": {"colour": str(c["style"]["colour"]), "hex": COLOURS.get(c["style"]["colour"], COLOURS["gold"]), "motto": str(c["style"]["motto"])},
+        "colours": list(COLOURS),
+        "map": [{"name": str(c["name"]), "text": "Home.", "x": 50, "y": 52, "kind": "home"}]
+               + [{"name": n, "text": t, "x": x, "y": y, "kind": "place"} for n, t, x, y in PLACES_ON_MAP]
+               + [{"name": str(s["name"]), "text": f"{s['kind'].capitalize()} sect. {C.stance(float(s['rel']))}.", "kind": "ally" if s.get("ally") else "foe" if s["rel"] <= -15 else "sect",
+                   "x": (18, 84, 60)[i % 3], "y": (36, 44, 10)[i % 3]} for i, s in enumerate(c["sects"])]
+               + [{"name": str(b["name"]), "text": f"Led by {b['leader']}.", "kind": "branch", "x": (70, 36, 22)[i % 3], "y": (50, 66, 80)[i % 3]} for i, b in enumerate(c["branches"])],
     }
 
 
@@ -956,8 +1167,17 @@ def repair(c: dict, num) -> None:
                   if isinstance(sg, dict) else None)
     c["sutra_days"] = int(num(c.get("sutra_days"), 0, 1e5))
     c["marks"] = {str(k): (v if isinstance(v, (int, float, str)) else 0) for k, v in c["marks"].items()} if isinstance(c["marks"], dict) else {}
+    c["karma"] = num(c.get("karma"), -100, 100)
+    c["branches"] = [{"name": str(b.get("name") or "Branch"), "leader": str(b.get("leader") or ""), "founded": int(num(b.get("founded"), 0, 1e7)),
+                      "sulking": int(num(b.get("sulking"), 0, 1e7))} for b in c["branches"] if isinstance(b, dict)][:3] if isinstance(c["branches"], list) else []
+    st_ = c["style"] if isinstance(c["style"], dict) else {}
+    c["style"] = {"colour": st_.get("colour") if st_.get("colour") in COLOURS else "gold", "motto": str(st_.get("motto") or "")[:60]}
     ids = {p["id"] for p in c["pawns"]}
     for p in c["pawns"]:
+        b = p.get("beast")
+        p["beast"] = {"name": str(b.get("name") or "Spirit beast"), "born": int(num(b.get("born"), 0, 1e9))} if isinstance(b, dict) else None
+        p["fates"] = [f for f in p.get("fates", []) if f in FATES][:8] if isinstance(p.get("fates"), list) else []
+        p["fate_due"] = int(num(p.get("fate_due"), -1, 4, -1.0))
         p["mentor"] = p.get("mentor") if p.get("mentor") in ids else ""
         p["companion"] = p.get("companion") if p.get("companion") in ids else ""
         p["demon"] = int(num(p.get("demon"), 0, 3))

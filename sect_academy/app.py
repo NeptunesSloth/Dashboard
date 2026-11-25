@@ -236,6 +236,8 @@ class SectIn(BaseModel):
     precept: str = ""
     path: str = ""
     recipe: str = ""
+    colour: str = ""
+    motto: str = ""
     on: bool = False
 
 
@@ -468,6 +470,10 @@ def sect(action: str, body: SectIn):
             res = dao.take_marrow(st, body.pawn, now)
         elif action == "ally":
             res = dao.ally(st, body.sect, now)
+        elif action == "branch":
+            res = dao.found_branch(st, body.pawn, now)
+        elif action == "style":
+            res = dao.set_style(st, body.colour, body.motto[:80], now)
         elif action == "forge":
             res = colony.forge(st, now)
         elif action == "equip":

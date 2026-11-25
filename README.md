@@ -46,10 +46,18 @@ python -m sect_academy
 - **Best-answer questions** (300+): four options that are all reasonable, and
   you must pick the BEST, the FIRST or the MOST effective, as on the real exams.
   Afterwards every option gets its own reason.
+- **Mistakes log**: anything you get wrong, in a session or a trial, stays on a
+  list until you answer it right, and one tap starts a session of just those.
+- **Listening practice** (languages): hear a word or phrase you already know,
+  and type it.
+- **Drills** (certifications): ten freshly generated subnetting or port
+  questions at a time, with the working shown.
 - **Trials** are timed mock exams drawn across the official domains by their
   exam weights. They are deliberately harder than the real thing: the questions
   are scenario-based and the pass mark is 85%. Each cert course has a
   full-length mock and a four-point "ready for the real exam" checklist.
+  You can flag questions for review before submitting, and the trials page
+  shows which exam domains have cost you the most marks lately.
 
 **The sect** (the game)
 
@@ -95,6 +103,14 @@ python -m sect_academy
   lowland lord to please or defy, sworn alliances, three-stage sieges, the
   demonic path, a reincarnated ancient, succession when the founder ascends,
   tea-house rumours, verses carved for great days, and tomb-sweeping.
+- **Breakthroughs are prepared, then chosen.** A second ledger grades the
+  breakthrough from Flawed to Heaven-defying by what you arranged beforehand
+  (mood, health, a pill, someone keeping vigil, the season, the chamber); the
+  grade is a permanent bonus, and afterwards the disciple chooses one of three
+  fates, each a trade, fixed so it cannot be rerolled.
+- **Also**: spirit beasts that choose a disciple, branch sects that pay
+  tribute, a quiet karma tally, a map of the region, and a banner colour and
+  motto of your own.
 - **Things to aim at**: an elder's ten-step guided opening, a festival each
   season, promises to keep by a deadline with a reward you choose, expeditions
   you send out, five untimed **Great Works**, and the sect's permanent annals.
@@ -123,6 +139,11 @@ python -m sect_academy
   a language, listening exercises become typing ones.
 - **Docker:** `docker compose up -d` (progress is kept in a named volume).
 - Run a single process: the app holds its state in memory.
+
+To use it from another device on your network, start it with
+`SECT_ACADEMY_HOST=0.0.0.0`, set `SECT_ACADEMY_TOKEN`, and list the name or
+address you will type into the browser in `SECT_ACADEMY_HOSTS` (for example
+`SECT_ACADEMY_HOSTS=192.168.1.20`). Requests for any other hostname are refused.
 
 ## Developing
 

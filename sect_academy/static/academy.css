@@ -528,3 +528,24 @@ a { color: var(--gold); }
 .choices .btn .tag { margin-left: 6px; }
 
 .qnav button.flag { border-color: var(--gold); box-shadow: inset 0 -4px 0 var(--gold); }
+
+/* banner, motto, map */
+:root { --c-gold: #e9b44c; --c-azure: #5fa8e0; --c-jade: #3fae82; --c-vermilion: #e0563f; --c-violet: #a58af0; --c-white: #e8e2d4; }
+.motto { display: block; font-size: .95rem; font-style: italic; font-weight: 500; color: var(--sect-colour, var(--gold)); }
+.hq { border-color: var(--sect-colour, #5a4426); }
+.swatch { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #0008; } .swatch.on { box-shadow: 0 0 0 3px #f8e6bf; }
+.worldmap { position: relative; aspect-ratio: 1152 / 620; border-radius: 18px; border: 1px solid #5a4426; background-size: cover; background-position: center; overflow: hidden; margin-bottom: 6px; }
+.pin { all: unset; position: absolute; transform: translate(-50%, -50%); cursor: pointer; display: grid; justify-items: center; gap: 2px; }
+.pin i { width: 14px; height: 14px; border-radius: 50%; background: #f8e6bf; border: 2px solid #120d0a; box-shadow: 0 0 0 2px #120d0a66; }
+.pin span { font: 700 .72rem var(--serif); color: #f8e6bf; background: #120d0acc; padding: 1px 7px; border-radius: 9px; white-space: nowrap; }
+.pin.home i { background: var(--sect-colour, var(--gold)); width: 18px; height: 18px; } .pin.foe i { background: var(--verm); } .pin.ally i { background: var(--jade); }
+.pin.sect i { background: #b7a488; } .pin.branch i { background: var(--sect-colour, var(--gold)); border-radius: 3px; }
+.pin:focus-visible span, .pin:hover span { background: #f8e6bf; color: #120d0a; }
+@media (max-width: 640px) { .pin span { font-size: .56rem; padding: 0 4px; } }
+
+.breakthrough .odds li.ok { color: var(--jade); }
+
+.fold { border-top: 1px solid var(--line); padding: 4px 0; }
+.fold > summary { cursor: pointer; padding: 10px 2px; font: 800 1.05rem var(--serif); color: #f8e6bf; list-style: none; display: flex; align-items: center; gap: 8px; }
+.fold > summary::before { content: "▸"; color: var(--gold); transition: transform .15s; } .fold[open] > summary::before { transform: rotate(90deg); }
+.fold > summary::-webkit-details-marker { display: none; }

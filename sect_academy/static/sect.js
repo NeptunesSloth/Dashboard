@@ -10,7 +10,7 @@ const RES_ICON = { rice: '🌾', wood: '🪵', stone: '🪨', herbs: '🌿', pil
 const SITE_OF = { farm: 'fields', quarry: 'spirit_vein', 'cut wood': 'storehouse', 'forage herbs': 'fields', 'brew pills': 'alchemy',
   research: 'library', train: 'training', meditate: 'meditation', sleeping: 'dormitory', recovering: 'dormitory', relaxing: 'main_hall', idle: 'main_hall' };
 const EVENT_ART = { omen: 'mission', young_master: 'leader', auction: 'treasure', secret_realm: 'seclusion', cave: 'seclusion', tournament: 'technique',
-  demonic_offer: 'seclusion', merchant: 'treasure', wanderer: 'hall', recruit: 'hall', engagement: 'leader', spy: 'leader', village: 'map', beast_cub: 'map' };
+  demonic_offer: 'seclusion', fate: 'seclusion', succession: 'leader', qingming: 'map', lord: 'leader', taxes: 'leader', embrace: 'seclusion', discipline: 'hall', demon: 'seclusion', festival: 'hall', merchant: 'treasure', wanderer: 'hall', recruit: 'hall', engagement: 'leader', spy: 'leader', village: 'map', beast_cub: 'map' };
 const ELEMENT_ICON = { wood: '🌿', fire: '🔥', earth: '⛰', metal: '⚔', water: '💧' };
 const store = { get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (_) { /* private mode */ } } };
 
@@ -82,7 +82,7 @@ export function mountSect(h) {
   function paintTop() {
     const z = $('#z-top'); if (!z) return;
     z.innerHTML = `<header class="status">
-        <h1>${esc(S.name)}<small>${esc(S.renown)}${S.demonic ? ' · demonic path' : ''} · Day ${S.season_day} of ${esc(S.season)}, year ${S.year} · ${clock()}${S.seclusion ? ' · gates sealed' : ''}</small></h1>
+        <h1 style="border-left:6px solid ${S.colours.includes(S.style.colour) ? `var(--sect-colour)` : 'var(--gold)'};padding-left:10px">${esc(S.name)}${S.style.motto ? `<em class="motto">“${esc(S.style.motto)}”</em>` : ''}<small>${esc(S.renown)}${S.demonic ? ' · demonic path' : ''} · Day ${S.season_day} of ${esc(S.season)}, year ${S.year} · ${clock()}${S.seclusion ? ' · gates sealed' : ''}</small></h1>
         <span class="pill flame ${S.streak ? '' : 'off'}" title="Study streak. Best: ${S.best_streak}">${ICON.flame}${S.streak}</span>
         <span class="speed" role="group" aria-label="Game speed">
           <button class="${speed === 0 ? 'on' : ''}" data-speed="0" aria-label="Pause">${ICON.pause}</button>
@@ -159,6 +159,7 @@ export function mountSect(h) {
     const html = `<div class="tabs" role="tablist">${tabs.map(([id, label]) => `<button role="tab" aria-selected="${tab === id}" class="${tab === id ? 'on' : ''}" data-tab="${id}">${esc(label)}</button>`).join('')}</div>
       <div class="tabbody">${{ disciples, work, build, research, world, chronicle }[tab]()}</div>`;
     if (html === tabSig && z.firstChild) return;        // nothing changed: keep scroll position and focus
+    if (z.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return;   // do not repaint under someone typing
     tabSig = html;
     const sx = $('.scroll-x', z) ? $('.scroll-x', z).scrollLeft : 0;
     z.innerHTML = html;
@@ -171,6 +172,13 @@ export function mountSect(h) {
     z.querySelectorAll('[data-build]').forEach((b) => { b.onclick = () => order('build', { room: b.dataset.build }); });
     z.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => order('cancel-build', { index: Number(b.dataset.cancel) }); });
     z.querySelectorAll('[data-tech]').forEach((b) => { b.onclick = () => order('research', { tech: b.dataset.tech }); });
+    z.querySelectorAll('details[data-fold]').forEach((d) => { d.ontoggle = () => {
+      if (d.open) openFolds.add(d.dataset.fold); else openFolds.delete(d.dataset.fold);
+      sessionStorage.setItem('sect.folds', JSON.stringify([...openFolds])); tabSig = '';
+    }; });
+    z.querySelectorAll('[data-pin]').forEach((b) => { b.onclick = () => { const [n, t] = b.dataset.pin.split('|'); const el = $('#pin-note'); if (el) el.textContent = `${n}: ${t}`; }; });
+    z.querySelectorAll('[data-colour]').forEach((b) => { b.onclick = () => order('style', { colour: b.dataset.colour, motto: S.style.motto }, true); });
+    const mt = $('[data-motto]', z); if (mt) mt.onclick = () => order('style', { colour: S.style.colour, motto: $('#motto').value }, true);
     z.querySelectorAll('[data-precept]').forEach((b) => { b.onclick = () => order('precept', { precept: b.dataset.precept, on: b.dataset.on === '1' }); });
     z.querySelectorAll('[data-recipe]').forEach((b) => { b.onclick = () => order('recipe', { recipe: b.dataset.recipe }); });
     z.querySelectorAll('[data-ally]').forEach((b) => { b.onclick = () => order('ally', { sect: b.dataset.ally }); });
@@ -227,11 +235,30 @@ export function mountSect(h) {
     }).join('')}</ul><p class="dim small" style="margin:8px 0 0">Switching topic keeps what was already learned.</p>`;
   }
 
-  function world() {
+  // The World tab holds a great deal: every section folds, and stays as you left it.
+  const openFolds = new Set(JSON.parse(sessionStorage.getItem('sect.folds') || '["Great Works"]'));
+  function fold(html) {
+    const parts = html.split(/<h3[^>]*>/);
+    return parts[0] + parts.slice(1).map((part) => {
+      const end = part.indexOf('</h3>');
+      const title = part.slice(0, end); const key = title.replace(/<[^>]*>/g, '').trim();
+      return `<details class="fold" data-fold="${esc(key)}" ${openFolds.has(key) ? 'open' : ''}><summary>${title}</summary>${part.slice(end + 5)}</details>`;
+    }).join('');
+  }
+
+  function world() { return fold(worldRaw()); }
+
+  function worldRaw() {
     const stones = (S.res.find((r) => r.id === 'stones') || {}).n || 0;
     const relCls = (r) => (r >= 15 ? 'jade' : r > -15 ? '' : 'red');
     return `<div class="banner" style="background-image:linear-gradient(#120d0a55,#120d0acc),url(${backdrop('map')})"><h2>${esc(S.name)}</h2>
         <p>Fame <b class="num">${S.fame}</b>. Fame is won at the gate, in the arena and under the lightning; talented youths seek out famous sects.</p></div>
+      <div class="worldmap" style="background-image:url(${backdrop('map')})">${S.map.map((m) => `<button class="pin ${esc(m.kind)}" style="left:${m.x}%;top:${m.y}%" title="${esc(m.text)}" data-pin="${esc(m.name)}|${esc(m.text)}"><i></i><span>${esc(m.name)}</span></button>`).join('')}</div>
+      <p class="dim small" id="pin-note">Tap a place on the map.</p>
+      <h3>Banner and motto</h3>
+      <div class="row">${S.colours.map((k) => `<button class="swatch ${S.style.colour === k ? 'on' : ''}" data-colour="${esc(k)}" aria-label="${esc(k)}" style="background:var(--c-${esc(k)})"></button>`).join('')}
+        <input class="in grow" id="motto" maxlength="60" placeholder="A motto for the sect" value="${esc(S.style.motto)}"><button class="btn" data-motto>Set</button></div>
+      ${S.branches.length ? `<h3 style="margin-top:16px">Branch sects</h3><ul class="list">${S.branches.map((b) => `<li><b>${esc(b.name)}</b> <span class="dim small">led by ${esc(b.leader)}. ${b.sulking ? 'Sends nothing for now: you left them to stand alone.' : 'Sends 15 rice and 5 spirit stones every twelve days.'}</span></li>`).join('')}</ul>` : ''}
       ${S.blessings.length ? `<p>${S.blessings.map((b) => `<span class="tag gold">${esc(b)}</span>`).join(' ')}</p>` : ''}
       <h3>Precepts</h3>
       <p class="dim small">What the sect stands for: up to three. Each helps every day, and each makes some choices a betrayal the disciples will feel.${S.council ? ' The elders now offer counsel on great decisions; overruling them costs their goodwill.' : ''}</p>
@@ -291,6 +318,9 @@ export function mountSect(h) {
         <h3>${p.tribulation ? '⚡ Heavenly tribulation' : 'Great-realm breakthrough'}: ${esc(p.next_realm)}</h3>
         <ul class="list odds">${p.odds.map((o) => `<li class="row"><span class="grow">${esc(o.label)}</span>${signed(o.v)}</li>`).join('')}
           <li class="row"><span class="grow"><b>Chance of success</b></span><b class="num">${p.chance}%</b></li></ul>
+        ${p.grade ? `<h3 style="margin-top:10px">Foundation: ${esc(p.grade.name)}${p.grade.bonus ? ` <span class="tag gold">+${p.grade.bonus}% qi for life</span>` : ''}</h3>
+        <ul class="list odds">${p.grade.checks.map((x) => `<li class="${x.ok ? 'ok' : ''}">${x.ok ? '✓' : '○'} ${esc(x.label)}</li>`).join('')}</ul>
+        <p class="small dim">The odds above decide whether it succeeds. This list decides how good it is: every two lines met raise the grade, and a Superior or better breakthrough opens rarer fates. Nothing here is luck.</p>` : ''}
         <p class="small dim">${p.tribulation ? 'Heaven answers with lightning. A failure wounds badly, and a disciple who is already hurt may not survive it.' : 'A failure wounds them and scatters some of their qi.'} Each failure makes the next attempt a little surer.</p>
         <button class="btn primary big" data-attempt>${p.tribulation ? 'Face the tribulation' : 'Attempt the breakthrough'}</button></section>` : '';
     openSheet(`<div class="row" style="align-items:flex-start">${face(p, 84)}<div class="grow"><h2>${esc(p.name)}${p.title ? ` <i class="dim" style="font-size:.8em">${esc(p.title)}</i>` : ''}</h2>
@@ -322,11 +352,13 @@ export function mountSect(h) {
           ${p.can_bind.map((m) => `<button class="btn" data-bind="${esc(m.id)}">Bind with ${esc(m.name.split(' ')[0])}</button>`).join('')}</li>
         <li class="row"><span class="grow">Path: <b>${p.path ? esc(p.path) : 'none yet'}</b>${p.can_path ? '' : p.path ? '' : ' <span class="dim small">(chosen at Foundation Establishment)</span>'}</span>
           ${p.can_path ? S.paths.map((x) => `<button class="btn" data-path="${esc(x.id)}" title="${esc(x.text)}">${esc(x.name)}</button>`).join('') : ''}</li>
+        ${p.beast ? `<li><span class="tag jade">🐾 ${esc(p.beast.name)}</span> <span class="small dim">+${p.beast.bonus}% fighting strength, growing with age; +3 mood.</span></li>` : ''}
         <li class="row"><span class="grow">Merit: <b class="num">${p.merit}</b> <span class="dim small">earned by work and at the gate; spent on artifacts from the vault</span></span></li>
+        ${p.fates.map((f) => `<li><span class="tag violet">Fate: ${esc(f.name)}</span> <span class="small dim">${esc(f.text)}</span></li>`).join('')}
         ${p.demon ? `<li class="row"><span class="grow"><span class="tag red">Heart demon ×${p.demon}</span> <span class="small dim">-${8 * p.demon} to every breakthrough, -${3 * p.demon} mood</span></span><button class="btn seal" data-demon>Face it</button></li>` : ''}
         ${p.toxin > 3 ? `<li><span class="tag red">Pill toxin ${p.toxin}</span> <span class="small dim">Too many pills. It fades with time.</span></li>` : ''}
       </ul>
-      <div class="row">${p.can_retreat ? '<button class="btn" data-retreat title="Twelve days sealed in: no work, a great deal of qi, a chance of an epiphany or a qi deviation.">Closed-door seclusion (10 rice)</button>' : ''}
+      <div class="row">${p.can_lead_branch ? '<button class="btn" data-branch title="They leave for good with two disciples. Needs Main Hall 4, eight disciples and 100 spirit stones.">Send to found a branch sect</button>' : ''}${p.can_retreat ? '<button class="btn" data-retreat title="Twelve days sealed in: no work, a great deal of qi, a chance of an epiphany or a qi deviation.">Closed-door seclusion (10 rice)</button>' : ''}
         ${p.can_marrow ? '<button class="btn" data-marrow>Give the Marrow-Cleansing Pill</button>' : ''}</div>
       <h3 style="margin-top:14px">Bonds</h3>
       ${p.bonds.length ? `<ul class="list">${p.bonds.map((x) => `<li class="row"><span class="grow">${esc(x.name)}${x.kind ? ` <span class="tag ${x.kind === 'rival' ? 'red' : 'jade'}">${esc(x.kind)}</span>` : ''}</span>${signed(x.v)}</li>`).join('')}</ul>
@@ -349,6 +381,7 @@ export function mountSect(h) {
     s.querySelectorAll('[data-path]').forEach((b) => { b.onclick = async () => { if (!confirm('A path is chosen once and for life. Choose this one?')) return; await order('path', { pawn: id, path: b.dataset.path }); pawnSheet(id); }; });
     const dm = $('[data-demon]', s); if (dm) dm.onclick = async () => { closeSheet(); await order('face-demon', { pawn: id }); };
     const rt = $('[data-retreat]', s); if (rt) rt.onclick = async () => { if (!confirm(`Seal ${p.name} in for twelve days?`)) return; closeSheet(); await order('retreat', { pawn: id }); };
+    const brn = $('[data-branch]', s); if (brn) brn.onclick = async () => { if (!confirm(`${p.name} and two disciples will leave the sect for good to found a branch. Send them?`)) return; const r = await order('branch', { pawn: id }); if (r.ok !== false) closeSheet(); };
     const mw = $('[data-marrow]', s); if (mw) mw.onclick = async () => { await order('marrow', { pawn: id }); pawnSheet(id); };
     const go = $('[data-attempt]', s);
     if (go) go.onclick = async () => {
@@ -373,13 +406,19 @@ export function mountSect(h) {
     const go = $('[data-go]', $('#sheet')); if (go) go.onclick = async () => { closeSheet(); await order('build', { room: id }); };
   }
 
+  function paintStyle() {
+    const root = $('#sect-root'); if (!root) return;
+    const hex = /^#[0-9a-f]{6}$/i.test(S.style.hex) ? S.style.hex : '#e9b44c';      // a known colour from the server, checked anyway
+    root.style.setProperty('--sect-colour', hex);
+  }
+
   function paintLight() {
     const d = $('#daylight'); if (!d) return;
     const hh = S.hod;
     d.className = `daylight ${hh >= 21 || hh < 5 ? 'night' : hh < 8 ? 'dawn' : hh >= 18 ? 'dusk' : 'day'} ${S.season === 'Winter' ? 'winter' : ''}`;
   }
 
-  function paint() { paintTop(); paintEvent(); paintScene(); paintLight(); paintTabs(); }
+  function paint() { paintStyle(); paintTop(); paintEvent(); paintScene(); paintLight(); paintTabs(); }
 
   view.innerHTML = `<div id="sect-root"><div id="z-top"></div><div class="grid2">${h.todayPanel()}${h.masterPanel()}</div>
     <div id="z-event"></div><section class="panel scenewrap" id="z-scene"></section><section class="panel" id="z-tabs" style="margin-top:14px"></section></div>`;
