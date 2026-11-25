@@ -9,7 +9,7 @@ units:
     domain: "1"
     goal: "I can pick the best part, accessory or mobile setting for a user's stated need when every option on offer would work."
     notes: |
-      Domain 1 best-answer questions give four fixes that would all do something useful for a laptop or phone user. The stem decides between them, so look for **the need the user actually stated** and pick the option that meets it in full with the least cost or disruption.
+      Every choice here would help a laptop or phone user. Find **the need the user actually stated** and pick the option that meets it in full with the least cost or disruption.
 
       **Constraints to look for**
 
@@ -712,7 +712,7 @@ units:
           - "Dual-link DVI-D through an adapter"
           - "A USB-C to HDMI adapter"
         answer: 0
-        why: "DisplayPort 1.4 can carry 4K at 144Hz (with DSC or reduced colour depth); HDMI 2.0 tops out at 4K 60Hz."
+        why: "DisplayPort 1.4 can carry 4K at 144Hz (using DSC or chroma subsampling); HDMI 2.0 tops out at 4K 60Hz."
         whys:
           - "Best: the only link here with the bandwidth for 4K at 144Hz."
           - "Gives a 4K picture, but only up to 60Hz."
@@ -869,7 +869,7 @@ units:
         whys:
           - "Strong, but adds the start-up step management ruled out."
           - "Strong, but adds a device to carry and lose and a start-up step."
-          - "HSMs protect server keys; laptops cannot reach one before the OS starts."
+          - "An HSM guards server-side keys; it is not how a laptop unlocks its own disk at start-up, and it fails away from the network."
           - "Best: no extra step for users, and a removed disk cannot be read."
 
       - id: ap1-3z-b15
@@ -885,7 +885,7 @@ units:
         why: "A setup password locks the firmware settings but lets the PC boot normally."
         whys:
           - "Best: firmware settings are locked, and normal start-up needs no password."
-          - "Stops the settings being changed, but also stops anyone starting the PC without the password."
+          - "Makes every start-up need a password, which the stem rules out, and anyone given it may still reach setup."
           - "Stops hardware tampering, but students still reach firmware setup from the keyboard."
           - "Blocks unsigned boot code, but does not stop anyone changing settings."
 

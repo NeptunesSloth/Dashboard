@@ -1,0 +1,768 @@
+part_of: ccna
+
+units:
+  # ─────────────── 3x · IP connectivity in depth ───────────────
+  - id: cn-3x
+    title: "IP connectivity in depth: route codes, static routes, OSPF and HSRP"
+    domain: "3"
+    goal: "I can read every routing-table code and pick the route a router uses, configure each kind of IPv4 and IPv6 static route, read OSPF interface and neighbour output, and explain how HSRP versions, timers and tracking keep a gateway alive."
+    notes: |
+      **More route codes.** `O IA` is an OSPF route from another area. `O E2` and `O E1` are routes injected into OSPF from outside: E2 keeps the metric the injecting router (the ASBR) gave it, E1 adds the internal cost. `D EX` is an external EIGRP route, `B` is BGP and `R` is RIP. An asterisk marks a candidate default. A line such as `10.0.0.0/8 is variably subnetted, 4 subnets, 3 masks` is only a heading for the child routes beneath it. The time after the next hop is the route's age.
+
+      | Source | AD |
+      | EIGRP summary | 5 |
+      | eBGP | 20 |
+      | Internal EIGRP | 90 |
+      | OSPF | 110 |
+      | RIP | 120 |
+      | External EIGRP | 170 |
+      | iBGP | 200 |
+      | Unusable | 255 |
+
+      **Static extras.** A route that names only an Ethernet exit interface makes the router ARP for every destination. A `Null0` route discards what it matches.
+
+      **OSPF in depth.** `show ip ospf interface` gives the network type, cost, role, priority and timers; `show ip protocols` gives the router ID, passive interfaces and distance. DROTHERs send updates to 224.0.0.6; every router listens on 224.0.0.5. `default-information originate` advertises the router's own default as `O*E2 0.0.0.0/0 [110/1]`. A new router ID needs `clear ip ospf process`.
+
+      **HSRP.** Version 1: groups 0-255, MAC `0000.0c07.acXX`. Version 2: groups 0-4095, MAC `0000.0c9f.fXXX`, IPv6. Hello 3 s, hold 10 s. Tracking lowers the priority when an uplink fails; preemption lets the other router act on it.
+    items:
+      - id: cn-3x-oia
+        type: concept
+        term: "O IA route"
+        def: "A routing-table entry for a prefix in a different area of the same link-state domain, learned from an area border router's summary advertisement."
+      - id: cn-3x-oe2
+        type: concept
+        term: "O E2 route"
+        def: "An externally injected link-state route whose metric stays at the value the injecting router assigned, however many internal links it crosses; the default external type."
+      - id: cn-3x-oe1
+        type: concept
+        term: "O E1 route"
+        def: "An externally injected link-state route whose metric grows as it travels: the external value plus the internal cost of reaching the router that injected it."
+      - id: cn-3x-dex
+        type: concept
+        term: "D EX route"
+        def: "An entry redistributed into Cisco's advanced distance-vector protocol from some other source, trusted at a default distance of 170."
+      - id: cn-3x-candidate
+        type: concept
+        term: "Asterisk after a route code"
+        def: "Marks an entry such as S* or O*E2 for 0.0.0.0/0 as a candidate default, the entry from which the gateway of last resort is taken."
+      - id: cn-3x-parent
+        type: concept
+        term: "Parent route line"
+        def: "A heading in the IPv4 table, such as '10.0.0.0/8 is variably subnetted, 3 subnets, 2 masks', that groups the real entries indented beneath it and forwards nothing itself."
+      - id: cn-3x-ad255
+        type: concept
+        term: "Administrative distance 255"
+        def: "The trust value meaning that a source must never be believed: a route given it is not placed in the routing table at all."
+      - id: cn-3x-maxpaths
+        type: concept
+        term: "maximum-paths"
+        def: "Routing-process command that sets how many equal-metric routes to one prefix may be installed for load sharing; four by default for OSPF on IOS."
+      - id: cn-3x-exit-only
+        type: concept
+        term: "Static route with only an exit interface"
+        def: "A manual route that names an outgoing port but no neighbour address; the table lists it as directly connected, and on Ethernet it works only if the neighbour answers ARP for remote addresses."
+      - id: cn-3x-null0
+        type: concept
+        term: "Null0 route"
+        def: "A manual route to a software interface that silently discards whatever it matches, used to stop loops for summarised or unused address space."
+      - id: cn-3x-init
+        type: concept
+        term: "INIT state"
+        def: "The neighbour state in which a router has heard a peer's hellos but has not yet seen its own router ID listed in them."
+      - id: cn-3x-exstart
+        type: concept
+        term: "EXSTART state"
+        def: "The neighbour state in which two routers compare router IDs to decide which of them leads the database description exchange; links with mismatched MTUs commonly stall here."
+      - id: cn-3x-allspf
+        type: concept
+        term: "224.0.0.5"
+        def: "The multicast group on which every OSPFv2 router listens; hellos are sent to it, and the elected leader of a segment floods updates to it."
+      - id: cn-3x-alldr
+        type: concept
+        term: "224.0.0.6"
+        def: "The multicast group on which only the two elected routers of an OSPF segment listen; the other routers send their link-state updates to it."
+      - id: cn-3x-bdr
+        type: concept
+        term: "Backup designated router (BDR)"
+        def: "The router on a multi-access OSPF segment that also forms full adjacencies with every other router and takes over the leader's role at once if the leader fails."
+      - id: cn-3x-show-ospf-int
+        type: concept
+        term: "show ip ospf interface"
+        def: "Reports for each OSPF-enabled port its area, network type, cost, its own role and priority, the IDs of the elected routers on the segment, and the hello, dead and wait timers."
+      - id: cn-3x-show-protocols
+        type: concept
+        term: "show ip protocols"
+        def: "Summarises each running routing process: router ID, the networks it is enabled for, passive interfaces, the neighbours it learns from, maximum paths and its distance."
+      - id: cn-3x-definfo
+        type: concept
+        term: "default-information originate"
+        def: "OSPF process command that advertises the router's own default route to the domain as an external entry; without the 'always' keyword it does so only while that default is in the router's table."
+      - id: cn-3x-asbr
+        type: concept
+        term: "Autonomous system boundary router (ASBR)"
+        def: "An OSPF router that injects routes from outside the protocol into the domain, for example by advertising its default route or redistributing static routes."
+      - id: cn-3x-passive-default
+        type: concept
+        term: "passive-interface default"
+        def: "Process command that stops hellos on every interface at once, so that neighbours can form only on the interfaces where the setting is then reversed one by one."
+      - id: cn-3x-clear
+        type: concept
+        term: "clear ip ospf process"
+        def: "Privileged command that restarts the link-state process and drops every adjacency; needed before a newly configured router ID takes effect."
+      - id: cn-3x-cost-cmd
+        type: concept
+        term: "ip ospf cost"
+        def: "Interface command that sets the link-state metric of an outgoing link directly, overriding the value calculated from the interface bandwidth."
+      - id: cn-3x-bandwidth
+        type: concept
+        term: "bandwidth (interface command)"
+        def: "Interface setting, in kilobits per second, that changes the speed routing protocols and QoS assume for a link in their calculations, without changing how fast the link really runs."
+      - id: cn-3x-hsrpv2
+        type: concept
+        term: "standby version 2"
+        def: "Interface command that moves Cisco's hot-standby gateway protocol to the release with group numbers up to 4095, IPv6 support and virtual MACs in the 0000.0c9f.fxxx range."
+      - id: cn-3x-track
+        type: concept
+        term: "HSRP tracking"
+        def: "Lowering a gateway router's priority by a set amount (10 unless stated) when a watched uplink or object goes down, so that a peer configured to preempt can take over."
+      - id: cn-3x-ssb
+        type: concept
+        term: "show standby brief"
+        def: "One-line-per-group summary of Cisco's hot-standby protocol: interface, group, priority, a P when preemption is set, state, active and standby addresses, and the virtual IP."
+
+      - id: cn-3x-q01
+        type: mcq
+        q: "'show ip route' on R3 includes 'O E2 172.20.0.0/16 [110/20] via 10.1.1.2, 00:04:10, GigabitEthernet0/0'. What does this entry tell you?"
+        choices:
+          - "It is an OSPF route to a prefix in another area, with a total cost of 20"
+          - "It was injected into OSPF from another source, and 20 is the external metric with no internal cost added"
+          - "It is an external EIGRP route with a distance of 110 and a metric of 20"
+          - "It was injected into OSPF, and its metric of 20 already includes the cost of reaching the injecting router"
+        answer: 1
+        why: "E2 marks a type 2 external route, whose metric stays at the value the ASBR set. A type 1 (E1) route would include the internal cost, an inter-area route is coded O IA, and an EIGRP external is D EX with a distance of 170."
+      - id: cn-3x-q02
+        type: mcq
+        q: "R1 receives 198.18.0.0/15 from an external BGP peer, from OSPF as an external route, from an EIGRP neighbour that redistributed it, and from RIP. All distances are defaults. Which line appears in 'show ip route'?"
+        choices:
+          - "O E2 198.18.0.0/15 [110/20] via 10.0.0.2"
+          - "D EX 198.18.0.0/15 [170/2816] via 10.0.0.3"
+          - "R 198.18.0.0/15 [120/1] via 10.0.0.4"
+          - "B 198.18.0.0/15 [20/0] via 203.0.113.9"
+        answer: 3
+        why: "Between sources the lowest distance wins: eBGP 20, OSPF 110, RIP 120, external EIGRP 170. External EIGRP loses even to RIP, because a redistributed EIGRP route is trusted less than an internal one."
+      - id: cn-3x-q03
+        type: mcq
+        q: "What does '3d02h' mean in 'O 10.3.3.0/24 [110/65] via 10.0.0.2, 3d02h, Serial0/0/0'?"
+        choices:
+          - "The time left before the route is flushed from the table"
+          - "How long the neighbour 10.0.0.2 has been in the FULL state"
+          - "How long the route has been in the table since it was learned or last changed"
+          - "How long Serial0/0/0 has been up without a flap"
+        answer: 2
+        why: "The field after the next hop is the route's age: three days and two hours since it was installed or last changed. It is not a countdown, and the adjacency or the interface may have been up for longer than the route has existed."
+      - id: cn-3x-q04
+        type: mcq
+        q: "'show ip route' contains the line '10.0.0.0/8 is variably subnetted, 4 subnets, 3 masks' followed by four indented entries. What does that line itself mean?"
+        choices:
+          - "It is a summary route that forwards any packet for 10.x.x.x"
+          - "Three of the four subnets under it are currently unreachable"
+          - "It is a heading: four entries inside 10.0.0.0/8 follow, using three prefix lengths"
+          - "Automatic summarisation is enabled for the classful network 10.0.0.0"
+        answer: 2
+        why: "A parent line only groups its child routes; it has no next hop and matches nothing itself. A packet for an address in 10.0.0.0/8 that no child covers falls through to the default route, if there is one."
+      - id: cn-3x-q05
+        type: mcq
+        q: "R1 reaches 2001:db8:50::/64 with 'ipv6 route 2001:db8:50::/64 2001:db8:12::2'. A second path through 2001:db8:13::3 must be used only if that route leaves the table. Which command adds it?"
+        choices:
+          - "ipv6 route 2001:db8:50::/64 2001:db8:13::3"
+          - "ipv6 route 2001:db8:50::/64 2001:db8:13::3 5"
+          - "ipv6 route 2001:db8:50::/64 2001:db8:13::3 floating"
+          - "ipv6 route 2001:db8:50::/128 2001:db8:13::3 5"
+        answer: 1
+        why: "Any distance above the primary's 1 makes the second route float, so 5 works. With no distance both routes have distance 1 and are installed together, sharing the load. IOS has no 'floating' keyword, and a /128 covers a single address, not the subnet."
+      - id: cn-3x-q06
+        type: mcq
+        q: "Only traffic to the server 2001:db8:a::10 must go through 2001:db8:12::2; the rest of 2001:db8:a::/64 keeps its current route. Which command does that?"
+        choices:
+          - "ipv6 route 2001:db8:a::10/64 2001:db8:12::2"
+          - "ipv6 route 2001:db8:a::/64 2001:db8:12::2"
+          - "ipv6 route 2001:db8:a::10/127 2001:db8:12::2"
+          - "ipv6 route 2001:db8:a::10/128 2001:db8:12::2"
+        answer: 3
+        why: "A /128 matches exactly one address and, as the longest match, overrides the /64 for that server only. A /127 also takes in 2001:db8:a::11, and either /64 form redirects the whole subnet."
+      - id: cn-3x-q07
+        type: mcq
+        q: "R1 has 'ip route 10.30.0.0 255.255.0.0 GigabitEthernet0/1', and Gi0/1 reaches R2 through a switch. Traffic to 10.30.0.0/16 works only while R2 answers ARP requests for addresses it does not own. Why?"
+        choices:
+          - "With no next hop, R1 treats every destination as on-link and sends an ARP request for each one"
+          - "R1 performs a recursive lookup and resolves the route through its default gateway"
+          - "The route has a distance of 0, so R1 skips ARP and broadcasts the frames"
+          - "R1 floods each packet out of Gi0/1 until R2 confirms the destination"
+        answer: 0
+        why: "An interface-only route on Ethernet makes R1 ARP for the final destination itself, so it relies on proxy ARP at R2. Adding R2's address as the next hop removes the dependency; a recursive lookup only happens when a next hop is given."
+      - id: cn-3x-q08
+        type: mcq
+        q: "In 'show ip ospf neighbor' on R1, the Dead Time for neighbour 2.2.2.2 reads 00:00:31, and a few seconds later 00:00:39. Both routers use default Ethernet timers. What does this show?"
+        choices:
+          - "The adjacency with 2.2.2.2 dropped and restarted"
+          - "A hello from 2.2.2.2 arrived and reset the 40-second countdown"
+          - "2.2.2.2 has changed its dead interval to 39 seconds"
+          - "The adjacency with 2.2.2.2 has been up for 39 seconds"
+        answer: 1
+        why: "Dead Time counts down from the dead interval and is reset whenever a hello arrives; with 10-second hellos it normally swings between about 30 and 40. It is not the adjacency's uptime, and a restarted adjacency would pass through the lower states again."
+      - id: cn-3x-q09
+        type: mcq
+        q: "'show ip ospf interface Gi0/0' on R2 shows: 'Network Type BROADCAST, Cost: 10' / 'State BDR, Priority 1' / 'Designated Router (ID) 3.3.3.3, Interface address 10.1.1.3' / 'Backup Designated router (ID) 2.2.2.2, Interface address 10.1.1.2' / 'Neighbor Count is 2, Adjacent neighbor count is 2'. R2's router ID is 2.2.2.2. What is true?"
+        choices:
+          - "R2 is the DR, with 3.3.3.3 as its backup"
+          - "R2 is the BDR and is fully adjacent with both of its neighbours"
+          - "R2 is a DROTHER, adjacent only with the DR"
+          - "R2 is the BDR, but one of its two neighbours is stuck at 2-Way"
+        answer: 1
+        why: "R2's own router ID appears as the backup designated router and its state is BDR. The DR and BDR form full adjacencies with every router on the segment, and the adjacent count (2) equals the neighbour count (2), so nothing is stuck."
+      - id: cn-3x-q10
+        type: mcq
+        q: "R1 (10.0.12.1 on the link to R2) has 'ip route 0.0.0.0 0.0.0.0 203.0.113.1' and, under 'router ospf 1', 'default-information originate'. Which entry appears in R2's routing table?"
+        choices:
+          - "O*E2 0.0.0.0/0 [110/1] via 10.0.12.1"
+          - "S* 0.0.0.0/0 [1/0] via 203.0.113.1"
+          - "O* 0.0.0.0/0 [110/2] via 10.0.12.1"
+          - "O*IA 0.0.0.0/0 [110/1] via 10.0.12.1"
+        answer: 0
+        why: "The default is advertised as a type 2 external route with a default metric of 1, so R2 shows O*E2 with [110/1]. The static entry exists only on R1, and IA would mean a route from another area."
+      - id: cn-3x-q11
+        type: mcq
+        q: "OSPF has run on R1 for weeks with router ID 1.1.1.1, taken from Loopback0. An engineer adds 'router-id 9.9.9.9' under 'router ospf 1', but 'show ip protocols' still reports 'Router ID 1.1.1.1'. What must be done?"
+        choices:
+          - "Shut down Loopback0 so that 1.1.1.1 is released"
+          - "Wait for the dead interval to expire on every neighbour"
+          - "Configure 9.9.9.9 on a loopback interface as well"
+          - "Restart the process with 'clear ip ospf process', or reload"
+        answer: 3
+        why: "The router ID is chosen only when the process starts, and IOS warns that a reload or 'clear ip ospf process' is needed. Shutting the loopback does not change the ID of a running process, and the manual ID needs no matching interface address."
+      - id: cn-3x-q12
+        type: mcq
+        q: "R1 has no loopbacks and no 'router-id' command. Gi0/0 is 10.1.1.1 and up, Gi0/1 is 192.168.50.1 and administratively down, and Gi0/2 is 172.16.1.1 and up. OSPF starts. Which router ID does it choose?"
+        choices: ["192.168.50.1", "10.1.1.1", "172.16.1.1", "0.0.0.0"]
+        answer: 2
+        why: "With no manual ID and no loopback, OSPF takes the highest address on an interface that is up. 192.168.50.1 is higher but its interface is shut down, so 172.16.1.1 is chosen."
+      - id: cn-3x-q13
+        type: mcq
+        q: "A serial interface has 'bandwidth 1544', and the OSPF reference bandwidth is left at its default. What OSPF cost does the interface get?"
+        choices: ["1", "65", "1544", "64"]
+        answer: 3
+        why: "100,000 kbps divided by 1544 kbps is 64.77, and OSPF drops the fraction, giving 64. A cost of 1 applies only at 100 Mbps and faster."
+      - id: cn-3x-q14
+        type: mcq
+        q: "An engineer enters 'bandwidth 10000' on a GigabitEthernet interface that is linked at 1 Gbps. What changes?"
+        choices:
+          - "The port renegotiates and now runs at 10 Mbps"
+          - "The port is rate-limited to 10 Gbps, its new maximum"
+          - "Nothing until the interface is shut and re-enabled"
+          - "Only calculations that read the setting, such as OSPF cost"
+        answer: 3
+        why: "The bandwidth command is in kilobits per second (here 10 Mbps) and is only a number that metric and QoS calculations read; the port still runs at 1 Gbps. Speed is changed with the 'speed' command."
+      - id: cn-3x-q15
+        type: mcq
+        q: "On an Ethernet segment, a DROTHER sees one of its own links change. To which address does it send the link-state update?"
+        choices: ["224.0.0.5", "224.0.0.6", "The DR's unicast interface address", "255.255.255.255"]
+        answer: 1
+        why: "DROTHERs send updates to 224.0.0.6, on which only the DR and BDR listen; the DR then floods the change to 224.0.0.5, which every OSPF router hears."
+      - id: cn-3x-q16
+        type: mcq
+        q: "'show standby' reports 'Active virtual MAC address is 0000.0c9f.f014'. Which HSRP version and group is this?"
+        choices: ["Version 1, group 20", "Version 2, group 14", "Version 1, group 14", "Version 2, group 20"]
+        answer: 3
+        why: "The 0000.0c9f.fxxx range belongs to HSRP version 2 and the last three hex digits are the group: 0x014 is 20. Version 1 uses 0000.0c07.acxx with the group in the last two digits."
+      - id: cn-3x-q17
+        type: mcq
+        q: "R1 is the HSRP active router and R2 the standby, both with default timers. R1 loses power. At most, about how long until R2 becomes active?"
+        choices: ["1 second", "10 seconds", "3 seconds", "40 seconds"]
+        answer: 1
+        why: "HSRP hellos go every 3 seconds and the hold time is 10; R2 takes over when it has heard no hello for the hold time. 40 seconds is OSPF's dead interval on Ethernet."
+      - id: cn-3x-q18
+        type: mcq
+        q: "A PC's ARP cache maps its default gateway to 0000.5e00.0105. What is providing the gateway?"
+        choices: ["HSRP version 1, group 5", "VRRP, group 5", "GLBP, group 5", "HSRP version 2, group 261"]
+        answer: 1
+        why: "0000.5e00.01xx is the IPv4 VRRP virtual MAC, with the group in the last byte: 0x05. HSRP uses 0000.0c07.acxx (v1) or 0000.0c9f.fxxx (v2), and GLBP uses 0007.b4xx.xxxx."
+
+      - id: cn-3x-m01
+        type: multi
+        q: "Which TWO route sources have a default administrative distance higher than OSPF's 110? (Choose TWO.)"
+        choices: ["RIP", "External EIGRP", "External BGP", "Internal EIGRP", "Static route", "EIGRP summary route"]
+        answers: [0, 1]
+        why: "RIP is 120 and external EIGRP 170, both above 110. External BGP is 20, internal EIGRP 90, a static route 1 and an EIGRP summary 5."
+      - id: cn-3x-m02
+        type: multi
+        q: "Which TWO are features of HSRP version 2 that version 1 lacks? (Choose TWO.)"
+        choices:
+          - "Group numbers from 0 to 4095"
+          - "Support for IPv6 gateways"
+          - "Hellos sent to 224.0.0.2"
+          - "Virtual MACs in the 0000.0c07.acxx range"
+          - "Preemption enabled by default"
+          - "A priority range of 0 to 1023"
+        answers: [0, 1]
+        why: "Version 2 widens the group range to 4095 and supports IPv6. Hellos to 224.0.0.2 and the 0000.0c07.acxx MACs belong to version 1, preemption is off by default in both, and priority is 0 to 255 in both."
+      - id: cn-3x-m03
+        type: multi
+        q: "Which THREE pieces of information does 'show ip protocols' display for an OSPF process? (Choose THREE.)"
+        choices:
+          - "The router ID"
+          - "The passive interfaces"
+          - "The administrative distance"
+          - "Each neighbour's adjacency state"
+          - "Each interface's OSPF cost"
+          - "The DR on each segment"
+        answers: [0, 1, 2]
+        why: "'show ip protocols' lists the router ID, the networks, passive interfaces, information sources and the distance. Neighbour states come from 'show ip ospf neighbor', and cost and DR from 'show ip ospf interface'."
+
+      - id: cn-3x-o01
+        type: order
+        q: "Put the OSPF packet types in the order they are first used as two new neighbours build a full adjacency."
+        steps:
+          - "Hello"
+          - "Database description (DBD)"
+          - "Link-state request (LSR)"
+          - "Link-state update (LSU)"
+          - "Link-state acknowledgement (LSAck)"
+        why: "Hellos form the neighbour relationship, DBDs summarise each database, LSRs ask for the missing entries, LSUs carry them, and LSAcks confirm their arrival."
+      - id: cn-3x-o02
+        type: order
+        q: "Put the sources of an OSPF router ID in the order IOS consults them, from first choice to last resort."
+        steps:
+          - "The 'router-id' command under the OSPF process"
+          - "The highest address on a loopback interface that is up"
+          - "The highest address on a non-loopback interface that is up"
+        why: "A manual ID always wins. Without it a loopback is preferred, because it never goes down with a link, even when a physical address is numerically higher."
+      - id: cn-3x-o03
+        type: order
+        q: "A router with a configured virtual IP joins an HSRP group in which no other router is present. Put the states it passes through in order."
+        steps: ["Initial", "Listen", "Speak", "Standby", "Active"]
+        why: "The router starts in Initial, listens for existing routers, then speaks (sends hellos) to take part in the election. Hearing no better router, it becomes standby and then, with no active router present, active."
+
+  # ─────────────── 3y · exam-hard practice ───────────────
+  - id: cn-3y
+    title: "IP connectivity practice: which route, which neighbour, which gateway?"
+    domain: "3"
+    goal: "I can take a routing table, OSPF show output, HSRP status or a configuration snippet and say which route forwards a packet, why an adjacency is stuck, and which command fixes the fault."
+    notes: |
+      This unit is practice at exam difficulty. Work every item the same way.
+
+      **Which route forwards the packet?** Write each prefix as a range: a /21 in the third octet is a block of 8, a /22 a block of 4, and an IPv6 /60 is a block of 16 values in the fourth hextet. Keep every entry that contains the destination and take the longest. Administrative distance never overrides a longer prefix; it only decides which source's route to one prefix enters the table.
+
+      **Floating statics.** The backup's distance must be higher than the primary's and lower than 255. A static route leaves the table only when its next hop becomes unresolvable, so a primary over Ethernet through a switch may never fail over.
+
+      **OSPF neighbours.**
+
+      | Symptom | Usual cause |
+      | No entry at all | Timers, area, subnet, passive interface, duplicate router ID, a filter |
+      | INIT | Hellos arrive here but this router's hellos do not reach the peer |
+      | 2WAY | Normal between DROTHERs; a fault only if nobody can be DR |
+      | EXSTART or EXCHANGE | MTU mismatch |
+
+      **Cost.** Reference bandwidth divided by interface bandwidth, fraction dropped, minimum 1. Add the outgoing interfaces along the path, including the destination LAN.
+
+      **HSRP.** Priority minus any tracking decrement decides who *should* be active; preemption decides whether the change happens.
+    items:
+      - id: cn-3y-q01
+        type: mcq
+        q: "R1's table: 'S 172.16.0.0/16 [1/0] via 10.0.0.1' / 'O 172.16.32.0/19 [110/20] via 10.0.0.2' / 'O 172.16.40.0/21 [110/30] via 10.0.0.3' / 'D 172.16.44.0/22 [90/3072] via 10.0.0.4'. To which next hop does R1 send a packet for 172.16.43.10?"
+        choices: ["10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4"]
+        answer: 2
+        why: "The /22 covers 172.16.44.0 to 172.16.47.255 and misses .43. The /21 covers 172.16.40.0 to 172.16.47.255 and is the longest remaining match, ahead of the /19 (32 to 63) and the /16."
+      - id: cn-3y-q02
+        type: mcq
+        q: "R1's table: 'O 10.10.0.0/20 via 192.168.1.2' / 'S 10.10.16.0/21 via 192.168.1.3' / 'O 10.10.24.0/22 via 192.168.1.4' / 'S* 0.0.0.0/0 via 192.168.1.1'. A packet for which destination leaves through the default route?"
+        choices: ["10.10.28.5", "10.10.15.250", "10.10.23.1", "10.10.26.200"]
+        answer: 0
+        why: "The /20 covers 10.10.0.0 to 10.10.15.255, the /21 16.0 to 23.255 and the /22 24.0 to 27.255. 10.10.28.5 is outside all three, so only 0.0.0.0/0 matches it."
+      - id: cn-3y-q03
+        type: mcq
+        q: "R1's table: 'D 192.168.8.0/22 [90/2816] via 10.1.1.1' / 'O 192.168.10.0/23 [110/40] via 10.1.2.1' / 'S 192.168.10.0/24 [1/0] via 10.1.3.1' / 'S* 0.0.0.0/0 [1/0] via 10.1.4.1'. To which next hop is a packet for 192.168.11.5 sent?"
+        choices: ["10.1.1.1", "10.1.2.1", "10.1.3.1", "10.1.4.1"]
+        answer: 1
+        why: "The static /24 covers only 192.168.10.x. Both the /22 (8.0 to 11.255) and the /23 (10.0 to 11.255) contain 192.168.11.5, and the /23 is longer; EIGRP's better distance does not matter because the prefixes differ."
+      - id: cn-3y-q04
+        type: mcq
+        q: "R1 learns 10.20.0.0/16 from internal EIGRP, OSPF and RIP, and also has 'ip route 10.20.0.0 255.255.0.0 10.9.9.9 200'. All other distances are defaults. The EIGRP neighbour goes down. Which route to 10.20.0.0/16 is installed now?"
+        choices: ["The RIP route", "The static route", "None until EIGRP reconverges", "The OSPF route"]
+        answer: 3
+        why: "With EIGRP (90) gone, the lowest remaining distance is OSPF's 110, ahead of RIP's 120 and the static route's 200. A floating static is not automatically the next choice: it waits until every source with a lower distance has gone."
+      - id: cn-3y-q05
+        type: mcq
+        q: "R1 learns its default route from OSPF as 'O*E2 0.0.0.0/0 [110/1]'. For a backup, the engineer adds 'ip route 0.0.0.0 0.0.0.0 198.51.100.1 100'. All internet traffic now uses the backup link. Which change restores the intended design?"
+        choices:
+          - "Re-enter the static route with a distance of 90"
+          - "Add 'default-information originate' to R1's OSPF process"
+          - "Re-enter the static route with a distance of 120"
+          - "Lower the OSPF cost of R1's primary interface"
+        answer: 2
+        why: "A distance of 100 beats OSPF's 110, so the static route displaced the OSPF default at once. A floating route needs a distance above the primary's, such as 120. OSPF cost cannot help, because metric is compared only within OSPF."
+      - id: cn-3y-q06
+        type: mcq
+        q: "R1's Gi0/0 connects through a switch to ISP router A (10.0.0.2). R1 has 'ip route 0.0.0.0 0.0.0.0 10.0.0.2' and 'ip route 0.0.0.0 0.0.0.0 172.31.0.2 10'. Router A loses power, but traffic never moves to 172.31.0.2. Why?"
+        choices:
+          - "A distance of 10 is too low for a backup to float above a static route"
+          - "IOS accepts only one default route, so the second line was ignored"
+          - "Gi0/0 stays up through the switch, so 10.0.0.2 still resolves"
+          - "The backup is used only after 'clear ip route *' is entered"
+        answer: 2
+        why: "A static route leaves the table only when its next hop becomes unresolvable, and the connected subnet stays because the switch keeps Gi0/0 up. Distance 10 is above the primary's 1, so it floats correctly; the fix is tracking or a dynamic protocol that notices the dead neighbour."
+      - id: cn-3y-q07
+        type: mcq
+        q: "R1's IPv6 table: 'S 2001:db8:a::/48 via 2001:db8:ff::1' / 'O 2001:db8:a:10::/60 via 2001:db8:ff::2' / 'S 2001:db8:a:1f::/64 via 2001:db8:ff::3' / 'S ::/0 via 2001:db8:ff::4'. To which next hop is a packet for 2001:db8:a:1e::5 sent?"
+        choices: ["2001:db8:ff::1", "2001:db8:ff::2", "2001:db8:ff::3", "2001:db8:ff::4"]
+        answer: 1
+        why: "A /60 fixes the first 12 bits of the fourth hextet, so 2001:db8:a:10::/60 covers :10 to :1f in that hextet and includes :1e. The /64 matches only :1f, and the /60 is longer than the /48."
+      - id: cn-3y-q08
+        type: mcq
+        q: "R1 has 'ipv6 route 2001:db8:c::/64 2001:db8:12::2' and 'ipv6 route 2001:db8:c::99/128 2001:db8:13::3 250'. Both appear in 'show ipv6 route'. Where does R1 send a packet for 2001:db8:c::99?"
+        choices:
+          - "To 2001:db8:12::2, because its route has the lower distance"
+          - "To both next hops, sharing the load"
+          - "Nowhere, because a distance of 250 marks the route unusable"
+          - "To 2001:db8:13::3, because the /128 is the longest match"
+        answer: 3
+        why: "Distance only chooses between routes to the same prefix and length; once both are in the table, the /128 is the longest match. Only a distance of 255 makes a route unusable."
+      - id: cn-3y-q09
+        type: mcq
+        q: "On R1, 'show ip ospf neighbor' has shown '2.2.2.2  1  EXSTART/DR  00:00:36  10.1.1.2  GigabitEthernet0/0' for twenty minutes. What is the MOST likely cause?"
+        choices:
+          - "Mismatched hello and dead intervals"
+          - "Every router on the link has priority 0"
+          - "An area ID mismatch on the link"
+          - "An IP MTU mismatch on the link"
+        answer: 3
+        why: "Routers stuck in EXSTART or EXCHANGE have exchanged hellos but reject each other's database description packets, which carry the interface MTU. Timer or area mismatches stop the neighbour appearing at all, and priority 0 everywhere leaves routers at 2-Way."
+      - id: cn-3y-q10
+        type: mcq
+        q: "Two routers are stuck in EXSTART because one interface has 'ip mtu 1400' and the other uses 1500. The 1400 value is required and must stay. Which interface command lets the adjacency complete without changing either MTU?"
+        choices: ["ip ospf mtu-ignore", "ip ospf network point-to-point", "ip ospf priority 0", "ip ospf dead-interval 120"]
+        answer: 0
+        why: "'ip ospf mtu-ignore' stops OSPF checking the MTU field in database description packets. The other commands change the network type, the election or the timers, none of which is the fault."
+      - id: cn-3y-q11
+        type: mcq
+        q: "R1's 'show ip ospf neighbor' lists '2.2.2.2  1  INIT/DROTHER' on Gi0/0, while R2's output lists no neighbour on that link. Which is the MOST likely cause?"
+        choices:
+          - "Mismatched hello and dead intervals"
+          - "R2's Gi0/0 is a passive interface"
+          - "An inbound ACL on R2's Gi0/0 is dropping R1's hellos"
+          - "An MTU mismatch between the two interfaces"
+        answer: 2
+        why: "INIT on R1 means R1 receives R2's hellos but R2's hellos do not list R1, so R1's hellos are not reaching R2. Mismatched timers would make R1 ignore R2's hellos too, a passive R2 would send none, and an MTU mismatch shows only after 2-Way."
+      - id: cn-3y-q12
+        type: mcq
+        q: "Three routers share an Ethernet segment. On R1, 'show ip ospf neighbor' lists both peers as '2WAY/DROTHER', and 'show ip ospf interface Gi0/0' shows 'State DROTHER' and 'No designated router on this network'. No OSPF routes are learned over the segment. What is wrong?"
+        choices:
+          - "The routers use different OSPF process IDs"
+          - "Every router on the segment has 'ip ospf priority 0'"
+          - "The segment is configured as point-to-point"
+          - "R1 has a mismatched dead interval"
+        answer: 1
+        why: "With priority 0 everywhere nobody can be elected DR or BDR, so no pair goes beyond 2-Way and no databases are exchanged. Process IDs are local, a point-to-point type would show FULL/ -, and mismatched timers would leave no neighbour entry."
+      - id: cn-3y-q13
+        type: mcq
+        q: "R1 has 'router ospf 1' with 'network 10.1.1.0 0.0.0.255 area 0' and default timers. R2 runs 'router ospf 2'. Which configuration on R2's Gi0/0 (10.1.1.2/24) lets the two routers become neighbours?"
+        choices:
+          - "'ip ospf 2 area 1' on Gi0/0"
+          - "'ip ospf 2 area 0' and 'ip ospf hello-interval 5' on Gi0/0"
+          - "'ip ospf 2 area 0' on Gi0/0 and 'passive-interface GigabitEthernet0/0' under the process"
+          - "'ip ospf 2 area 0.0.0.0' on Gi0/0"
+        answer: 3
+        why: "Area 0.0.0.0 is area 0 written in dotted form, and process IDs are local, so this matches R1. Area 1 does not match, a 5-second hello also makes the dead interval 20, and a passive interface sends no hellos."
+      - id: cn-3y-q14
+        type: mcq
+        q: "R1's Gi0/1 is 10.1.1.130/25. Under 'router ospf 1' the only network command is 'network 10.1.1.0 0.0.0.127 area 0', and Gi0/1 is missing from 'show ip ospf interface brief'. Which command, added under the process, matches exactly Gi0/1's subnet?"
+        choices:
+          - "network 10.1.1.128 0.0.0.127 area 0"
+          - "network 10.1.1.130 0.0.0.0 area 0"
+          - "network 10.1.1.128 255.255.255.128 area 0"
+          - "network 10.1.1.0 0.0.0.255 area 0"
+        answer: 0
+        why: "The existing wildcard covers .0 to .127, so .130 is not matched. 10.1.1.128 0.0.0.127 covers .128 to .255, exactly the /25. A wildcard of 0.0.0.0 matches the one address only, and 0.0.0.255 takes in both halves."
+      - id: cn-3y-q15
+        type: mcq
+        q: "Four routers start OSPF together on one Ethernet segment: R1 (priority 1, RID 4.4.4.4), R2 (priority 10, RID 1.1.1.1), R3 (priority 10, RID 2.2.2.2) and R4 (priority 0, RID 9.9.9.9). Which become DR and BDR?"
+        choices: ["DR R4, BDR R1", "DR R2, BDR R3", "DR R1, BDR R3", "DR R3, BDR R2"]
+        answer: 3
+        why: "R4 with priority 0 cannot be elected. R2 and R3 tie on the highest priority, 10, so the higher router ID (R3, 2.2.2.2) becomes DR and R2 BDR. Router ID only breaks ties, so R1's higher ID does not beat a higher priority."
+      - id: cn-3y-q16
+        type: mcq
+        q: "On one segment R1 (priority 100) is DR, R2 (priority 50) is BDR and R3 (priority 1) is a DROTHER. R1 reloads. Once it is back and converged, what is R1's role?"
+        choices:
+          - "DR, because it has the highest priority"
+          - "BDR, because R2 keeps the DR role"
+          - "DROTHER, because R2 is now DR and R3 is BDR"
+          - "DR, after a new election triggered by its return"
+        answer: 2
+        why: "When R1 failed, R2 was promoted to DR and R3 elected BDR. Both roles are filled when R1 returns, and the election never preempts, so R1 stays a DROTHER until a role falls vacant."
+      - id: cn-3y-q17
+        type: mcq
+        q: "'show ip ospf interface brief' on R1 shows 'Gi0/0  1  0  10.1.1.1/24  1  DROTH  2/3' and 'Gi0/1  1  0  10.2.2.1/30  1  P2P  1/1'. The columns are Interface, PID, Area, IP Address/Mask, Cost, State, Nbrs F/C. What does this tell you?"
+        choices:
+          - "One neighbour on Gi0/0 is stuck and needs troubleshooting"
+          - "Gi0/1 has no DR because its election failed"
+          - "R1 is full with the DR and BDR on Gi0/0 and at 2-Way with a third router, as expected"
+          - "Gi0/0 has three neighbours, and the two DROTHERs among them are full with R1"
+        answer: 2
+        why: "F/C is full adjacencies over neighbours. A DROTHER reaches FULL only with the DR and BDR, so 2 of 3 is expected. A point-to-point link holds no election, so having no DR there is normal."
+      - id: cn-3y-q18
+        type: mcq
+        q: "R2's Loopback0 is 10.2.2.1/24 and is in OSPF. R1's table shows 'O 10.2.2.1/32 [110/2] via 10.0.12.2', not the /24. Which interface command on R2's Loopback0 makes OSPF advertise 10.2.2.0/24?"
+        choices: ["ip ospf cost 1", "ip ospf network point-to-point", "ip ospf priority 255", "ip ospf network broadcast"]
+        answer: 1
+        why: "OSPF's default loopback network type advertises the interface as a /32 host route whatever its mask. Setting the type to point-to-point makes OSPF advertise the configured prefix, 10.2.2.0/24."
+      - id: cn-3y-q19
+        type: mcq
+        q: "Every router has 'auto-cost reference-bandwidth 1000'. R1's FastEthernet interface (100 Mbps) links to R2, R2's GigabitEthernet interface links to R3, and R3's GigabitEthernet LAN is 10.3.3.0/24. There is no other path. What cost does R1 show for 10.3.3.0/24?"
+        choices: ["3", "11", "21", "12"]
+        answer: 3
+        why: "With a 1000 Mbps reference, FastEthernet costs 10 and GigabitEthernet 1. R1 adds the outgoing interfaces along the way: its own 10, R2's 1 and R3's LAN interface 1, a total of 12. Forgetting the LAN gives 11."
+      - id: cn-3y-q20
+        type: mcq
+        q: "With 'auto-cost reference-bandwidth 10000' everywhere, R1 reaches 10.9.9.0/24 (a GigabitEthernet LAN on R4) two ways: R1-R2 over FastEthernet then R2-R4 over 10 GbE, or R1-R3 and R3-R4, both GigabitEthernet. An engineer sets 'ip ospf cost 50' on R1's interface to R3. Which path does R1 now use, and at what cost?"
+        choices: ["Through R3, cost 70", "Through R2, cost 111", "Through R3, cost 30", "Through R2, cost 102"]
+        answer: 0
+        why: "FastEthernet costs 100, GigabitEthernet 10 and 10 GbE 1. Through R2: 100 + 1 + 10 = 111. Through R3 after the change: 50 + 10 + 10 = 70, still the lower, so R1 keeps that path."
+      - id: cn-3y-q21
+        type: mcq
+        q: "R1 has 'auto-cost reference-bandwidth 10000'; its OSPF neighbours keep the default. What is the result?"
+        choices:
+          - "The adjacencies fail because the reference bandwidths differ"
+          - "Adjacencies form, but routers weigh the same links differently, so paths can be suboptimal"
+          - "The neighbours adopt R1's reference bandwidth from its hellos"
+          - "R1 ignores the command until every router uses the same value"
+        answer: 1
+        why: "The reference bandwidth is not carried in hellos, so it cannot block an adjacency, but each router computes costs from its own value. IOS warns that it should be set the same on every router."
+      - id: cn-3y-q22
+        type: mcq
+        q: "R1 has 'ip route 0.0.0.0 0.0.0.0 203.0.113.1' and 'default-information originate always' under its OSPF process. R1 is the domain's only exit. R1's ISP-facing interface goes down. What happens to internet-bound traffic from the other routers?"
+        choices:
+          - "The others drop it themselves, because the O*E2 default is withdrawn"
+          - "R1 queues it until the ISP link comes back"
+          - "It is still sent to R1, which has no default route and drops it"
+          - "It is redirected to R1's next-best static route automatically"
+        answer: 2
+        why: "'always' keeps the default advertised even when R1 has none, so the others keep sending traffic to R1, which discards it. Without 'always' the O*E2 route would be withdrawn and the others would drop it at once."
+      - id: cn-3y-q23
+        type: mcq
+        q: "R4, three routers away from the router that runs 'default-information originate', shows 'O*E2 0.0.0.0/0 [110/1] via 10.3.4.3'. Why is the metric only 1?"
+        choices:
+          - "R4's path to the originating router happens to cost 1"
+          - "OSPF always gives a default route a metric of 1"
+          - "The second number in the brackets is a hop count, not a cost"
+          - "A type 2 external route keeps the originator's metric and adds no internal cost"
+        answer: 3
+        why: "An E2 route carries the metric the ASBR assigned (1 by default for an originated default) unchanged across the domain. An E1 route would add the internal cost, and the originator can set another value with the 'metric' keyword."
+      - id: cn-3y-q24
+        type: mcq
+        q: "R1 has no 'router-id' command. Loopback0 is 10.0.0.1 and up, Loopback1 is 10.255.255.1 but administratively down, and Gi0/0 is 192.168.1.1 and up. Which router ID does OSPF choose when it starts?"
+        choices: ["10.255.255.1", "192.168.1.1", "0.0.0.0", "10.0.0.1"]
+        answer: 3
+        why: "Only loopbacks that are up count. Loopback1 is down, so the highest up loopback, 10.0.0.1, is chosen; a loopback is preferred over a physical interface even when the physical address is higher."
+      - id: cn-3y-q25
+        type: mcq
+        q: "R1's OSPF configuration is 'router ospf 1' / 'passive-interface default' / 'network 10.0.0.0 0.255.255.255 area 0'. No neighbour forms on the uplink Gi0/0, and 'show ip protocols' lists Gi0/0 under 'Passive Interface(s)'. The LAN ports must stay passive. Which command fixes it?"
+        choices:
+          - "'no passive-interface default' under router ospf 1"
+          - "'ip ospf 1 area 0' on Gi0/0"
+          - "'no passive-interface GigabitEthernet0/0' under router ospf 1"
+          - "'no shutdown' on Gi0/0"
+        answer: 2
+        why: "With 'passive-interface default' every interface that should form neighbours must be released by name. Removing the default would make the LAN ports active too, and enabling OSPF on the interface does not undo passive mode."
+      - id: cn-3y-q26
+        type: mcq
+        q: "On R1 only, an engineer enters 'ip ospf hello-interval 5' on Gi0/0; no dead interval was configured. What does 'show ip ospf interface Gi0/0' on R1 now show, and what happens to neighbour R2?"
+        choices:
+          - "Hello 5, Dead 40; the adjacency stays up because the dead intervals still match"
+          - "Hello 5, Dead 20; the timers no longer match and the adjacency is lost"
+          - "Hello 5, Dead 20; the adjacency stays up because R2 keeps sending hellos"
+          - "Hello 10, Dead 40; the change applies only after a process restart"
+        answer: 1
+        why: "On IOS, changing the hello interval also sets the dead interval to four times the hello unless the dead interval was configured separately. Both timers must match, so each router now rejects the other's hellos and the neighbour times out."
+      - id: cn-3y-q27
+        type: mcq
+        q: "R1 has 'standby 10 priority 110', 'standby 10 preempt' and 'standby 10 track 1 decrement 20'. R2 has priority 100 and preempt. 'show standby brief' on R1 shows 'Gi0/0  10  90  P  Standby  10.1.1.3  local  10.1.1.1'. What explains this?"
+        choices:
+          - "Tracked object 1 is down, lowering R1 to 90, so R2 preempted"
+          - "R1 has lost its preempt setting, so it stays standby"
+          - "Priorities tie, so R2's higher address won"
+          - "The two routers have different virtual IPs for group 10"
+        answer: 0
+        why: "110 minus the decrement of 20 is 90, the value in the Pri column, so R2's 100 is higher and R2 preempts. The P shows R1 still has preemption; it will take the active role back when the object recovers."
+      - id: cn-3y-q28
+        type: mcq
+        q: "R1 (HSRP priority 110, preempt) tracks its WAN link with 'standby 1 track 1 decrement 5'. R2 has priority 100 and 'standby 1 preempt'. When R1's WAN link fails, R1 stays active and drops off-site traffic. Which change on R1 fixes this?"
+        choices:
+          - "standby 1 priority 120"
+          - "standby 1 preempt delay minimum 60"
+          - "standby 1 track 1 decrement 20"
+          - "standby 1 timers 1 3"
+        answer: 2
+        why: "110 minus 5 leaves R1 at 105, still above R2's 100, so R2 never preempts. A decrement of 20 drops R1 to 90. A priority of 120 would leave R1 at 115 after the failure, and delays or faster timers do not change who should be active."
+      - id: cn-3y-q29
+        type: mcq
+        q: "On a router running HSRP with default settings, 'standby 300 ip 10.30.0.1' is rejected. What must be entered on the interface first?"
+        choices: ["standby 300 preempt", "standby version 2", "standby 300 priority 110", "standby use-bia"]
+        answer: 1
+        why: "HSRP version 1, the default, supports groups 0 to 255; version 2 extends the range to 4095. Preempt or priority lines for group 300 would be rejected for the same reason."
+      - id: cn-3y-q30
+        type: mcq
+        q: "R1 and R2 run HSRP version 1, group 1, virtual IP 10.1.1.1, and R1 is active. A PC has the gateway in its ARP cache when R1 fails and R2 takes over. What happens to that ARP entry?"
+        choices:
+          - "It must be cleared, because it holds R1's burned-in MAC"
+          - "It is replaced by R2's burned-in MAC after a new ARP request"
+          - "It stays as 0000.0c07.ac01, which R2 now owns, so the PC changes nothing"
+          - "It changes to 0000.0c07.ac02, the standby router's virtual MAC"
+        answer: 2
+        why: "Hosts resolve the virtual IP to the group's virtual MAC, 0000.0c07.ac01 for version 1 group 1, and the new active router takes that MAC over. There is no separate virtual MAC for the standby router."
+      - id: cn-3y-q31
+        type: mcq
+        q: "R1 has 'standby 1 ip 10.1.1.1' on Gi0/0, and R2 has 'standby 2 ip 10.1.1.1' on its interface in the same VLAN. 'show standby brief' on each router shows itself 'Active' with the standby router 'unknown'. What is wrong?"
+        choices:
+          - "Both routers have the same priority"
+          - "Preemption is missing on both routers"
+          - "The virtual IP must be different on each router"
+          - "The group numbers differ, so each router is alone in its group"
+        answer: 3
+        why: "Routers cooperate only within the same group number; R1 is alone in group 1 and R2 in group 2, so both are active for the same virtual IP. Equal priorities would simply be settled by the higher interface address."
+      - id: cn-3y-q32
+        type: mcq
+        q: "R1's Gi0/0 is 10.1.1.1/24 with 'vrrp 1 ip 10.1.1.1'. R2's Gi0/0 is 10.1.1.2/24 with 'vrrp 1 ip 10.1.1.1' and 'vrrp 1 priority 200'. Which router is master while both are up?"
+        choices:
+          - "R2, because 200 beats the default of 100"
+          - "R1, because it owns the virtual address and so runs at priority 255"
+          - "R2, because VRRP preempts by default"
+          - "R1, because its interface address is lower"
+        answer: 1
+        why: "A VRRP router whose real interface address is the virtual address is the address owner and runs at priority 255. A non-owner can be set no higher than 254, so R1 stays master."
+      - id: cn-3y-q33
+        type: mcq
+        q: "R1's table shows 'O 10.4.0.0/16 [110/20] via 10.1.1.2, Gi0/0' and '[110/20] via 10.1.2.2, Gi0/1'. Both interfaces have an OSPF cost of 10. An engineer enters 'ip ospf cost 50' on Gi0/1. What does the table show for 10.4.0.0/16 afterwards?"
+        choices:
+          - "'[110/20] via 10.1.1.2' only"
+          - "'[110/20] via 10.1.1.2' and '[110/60] via 10.1.2.2'"
+          - "'[110/60] via 10.1.2.2' only"
+          - "'[110/20]' via both next hops, until the routes age out"
+        answer: 0
+        why: "Each path costs the local interface plus 10 beyond it, so the Gi0/1 path becomes 60. OSPF installs only its lowest-cost paths, never unequal-cost ones, so the second next hop disappears after SPF runs."
+      - id: cn-3y-q34
+        type: mcq
+        q: "R1 has six equal-cost OSPF paths to 10.50.0.0/16, but 'show ip route' lists only four next hops for it. What explains this?"
+        choices:
+          - "Two of the neighbours are stuck in 2-Way"
+          - "OSPF's default maximum-paths on IOS is 4"
+          - "OSPF can never use more than four interfaces"
+          - "The other two paths have a higher administrative distance"
+        answer: 1
+        why: "IOS installs up to four equal-cost OSPF paths by default, and 'maximum-paths 6' under the process raises the limit. Every OSPF route has the same distance, and the limit is configurable, not fixed."
+      - id: cn-3y-q35
+        type: mcq
+        q: "R1's table: 'S 10.0.0.0/8 is directly connected, Null0' / 'O 10.1.0.0/16 [110/20] via 10.255.0.2' / 'O 10.2.0.0/16 [110/30] via 10.255.0.6' / 'S* 0.0.0.0/0 [1/0] via 203.0.113.1'. A packet for which destination is discarded?"
+        choices: ["10.1.200.9", "11.0.0.1", "10.200.1.1", "172.16.0.1"]
+        answer: 2
+        why: "10.200.1.1 is in neither /16, so its longest match is the /8 to Null0, which discards it; the default is never consulted. 11.0.0.1 and 172.16.0.1 match only the default route."
+      - id: cn-3y-q36
+        type: mcq
+        q: "R1 learns 'O 2001:db8:77::/64 [110/2] via FE80::2, GigabitEthernet0/0' from OSPFv3. The engineer adds 'ipv6 route 2001:db8:77::/64 2001:db8:f::2 120'. When the OSPFv3 neighbour fails, what does 'show ipv6 route' show for the prefix?"
+        choices:
+          - "S 2001:db8:77::/64 [1/0] via 2001:db8:f::2"
+          - "S 2001:db8:77::/64 [0/120] via 2001:db8:f::2"
+          - "O 2001:db8:77::/64 [110/2] via FE80::2"
+          - "S 2001:db8:77::/64 [120/0] via 2001:db8:f::2"
+        answer: 3
+        why: "The floating route enters the table with the distance it was configured with, 120, and a static metric of 0; the brackets always read [distance/metric]. With the neighbour gone the OSPF route is no longer in the table."
+      - id: cn-3y-q37
+        type: mcq
+        q: "R1 uses 'ip route 10.30.0.0 255.255.0.0 GigabitEthernet0/1' towards R2 (10.0.12.2) across a switch. After R2's administrator enters 'no ip proxy-arp', R1 can no longer reach 10.30.0.0/16. Which replacement route fixes it?"
+        choices:
+          - "ip route 10.30.0.0 255.255.0.0 GigabitEthernet0/1 permanent"
+          - "ip route 10.30.0.0 0.0.255.255 10.0.12.2"
+          - "ip route 10.30.0.0 255.255.0.0 GigabitEthernet0/1 10.0.12.2"
+          - "ip route 10.30.0.0 255.255.0.0 GigabitEthernet0/1 200"
+        answer: 2
+        why: "Naming 10.0.12.2 lets R1 ARP once for R2 instead of for every destination. 'permanent' and a distance still leave an interface-only route that depends on proxy ARP, and 0.0.255.255 is a wildcard, not a mask."
+
+      - id: cn-3y-m01
+        type: multi
+        q: "Two routers joined by one Ethernet link both get 'ip ospf network point-to-point'. Which THREE results follow? (Choose THREE.)"
+        choices:
+          - "No DR or BDR is elected on the link"
+          - "No network (type 2) LSA is generated for the link"
+          - "'show ip ospf neighbor' shows the state as 'FULL/  -'"
+          - "The hello and dead intervals change to 30 and 120 seconds"
+          - "The two routers' process IDs must now match"
+          - "The interface priority is set to 255"
+        answers: [0, 1, 2]
+        why: "A point-to-point network has no election, so there is no DR to originate a network LSA and the role field is a dash. The timers stay at 10 and 40 on Ethernet, process IDs stay local, and priority is simply unused."
+      - id: cn-3y-m02
+        type: multi
+        q: "R1 and R2 were built from one template: both have Loopback0 1.1.1.1 and no 'router-id' command, and they will not become OSPF neighbours. Which TWO actions on R2, taken together, fix this? (Choose TWO.)"
+        choices:
+          - "Enter 'router-id 2.2.2.2' under the OSPF process"
+          - "Enter 'clear ip ospf process' and confirm"
+          - "Set 'ip ospf priority 0' on the shared link"
+          - "Move R2 to a different OSPF process number"
+          - "Shut down the shared interface and bring it back up"
+        answers: [0, 1]
+        why: "Router IDs must be unique, so R2 needs a new one, and a router ID takes effect only when the process restarts. Priority and process numbers do not touch the duplicate, and bouncing an interface does not restart the process."
+      - id: cn-3y-m03
+        type: multi
+        q: "R1 is a DROTHER on an Ethernet segment. These lines of its 'show ip ospf neighbor' output have not changed for ten minutes. Which TWO show a problem? (Choose TWO.)"
+        choices:
+          - "2.2.2.2  1  FULL/DR"
+          - "3.3.3.3  1  EXSTART/BDR"
+          - "4.4.4.4  1  2WAY/DROTHER"
+          - "5.5.5.5  1  INIT/DROTHER"
+          - "6.6.6.6  1  2WAY/DROTHER"
+        answers: [1, 3]
+        why: "A DROTHER must reach FULL with the BDR, so a neighbour held in EXSTART points to an MTU mismatch, and one held in INIT means one direction of hellos is lost. FULL with the DR and 2WAY with other DROTHERs are normal."
+      - id: cn-3y-m04
+        type: multi
+        q: "R1 learns 10.60.0.0/16 only from OSPF. A static backup must stay out of the table while the OSPF route exists and be installed when it disappears. Which TWO distances meet that? (Choose TWO.)"
+        choices: ["1", "90", "115", "200", "255"]
+        answers: [2, 3]
+        why: "The backup needs a distance above OSPF's 110 and below 255: 115 and 200 both work. A distance of 1 or 90 would displace the OSPF route at once, and 255 means the route is never installed."
+      - id: cn-3y-m05
+        type: multi
+        q: "Which TWO statements about HSRP with default settings are true? (Choose TWO.)"
+        choices:
+          - "The highest priority becomes active, and a tie goes to the highest interface IP address"
+          - "A router that comes up with a higher priority does not take over from a working active router"
+          - "The default priority is 255"
+          - "Hellos are sent every 10 seconds"
+          - "Both routers forward traffic for the virtual IP at the same time"
+          - "The standby router answers ARP requests for the virtual IP"
+        answers: [0, 1]
+        why: "Priority (default 100) decides, with the higher address breaking ties, and preemption is off by default. Hellos are every 3 seconds with a 10-second hold, and only the active router forwards and answers ARP for the virtual IP."
+
+      - id: cn-3y-o01
+        type: order
+        q: "The DR on an Ethernet segment of four OSPF routers loses power. Put what happens next in order."
+        steps:
+          - "The other routers stop hearing the DR's hellos until its dead interval expires"
+          - "The BDR takes over as DR"
+          - "The remaining routers elect a new BDR"
+          - "The remaining DROTHER forms a full adjacency with the new BDR"
+        why: "Nothing happens until the dead interval runs out. The BDR, already fully adjacent with everyone, is promoted first, which leaves the backup role empty; the election then fills it, and the newly elected BDR must synchronise with the router left as a DROTHER."
+      - id: cn-3y-o02
+        type: order
+        q: "An engineer must change a running router's OSPF router ID to 10.255.0.1. Put the steps in order."
+        steps:
+          - "Enter 'router ospf 1' in global configuration mode"
+          - "Enter 'router-id 10.255.0.1'"
+          - "Return to privileged EXEC mode with 'end'"
+          - "Enter 'clear ip ospf process' and confirm"
+          - "Check the new ID with 'show ip protocols'"
+        why: "The ID is set inside the process, but it takes effect only when the process restarts, which is done from privileged EXEC mode; verification comes last."
+      - id: cn-3y-o03
+        type: order
+        q: "R1 has 'S* 0.0.0.0/0 via 10.0.0.1', 'D 10.0.0.0/12 via 10.0.0.2', 'S 10.1.0.0/20 via 10.0.0.3' and 'O 10.1.1.0/26 via 10.0.0.4'. Order the routes from the one used for a packet to 10.1.1.1 down to the one used only if all the others were removed."
+        steps:
+          - "O 10.1.1.0/26 via 10.0.0.4"
+          - "S 10.1.0.0/20 via 10.0.0.3"
+          - "D 10.0.0.0/12 via 10.0.0.2"
+          - "S* 0.0.0.0/0 via 10.0.0.1"
+        why: "All four contain 10.1.1.1 (the /26 is .0 to .63, the /20 is 10.1.0.0 to 10.1.15.255, the /12 is 10.0.0.0 to 10.15.255.255), so the longest prefix is used first and distance plays no part."
