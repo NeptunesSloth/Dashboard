@@ -219,7 +219,7 @@ units:
         type: mcq
         q: "Hosts on a LAN receive their IPv6 addresses from a stateful DHCPv6 server. From where do they learn their default gateway?"
         choices:
-          - "From a DHCPv6 option that carries the router's global address"
+          - "From a DHCPv6 option that carries the global unicast address of the router's LAN interface"
           - "From the DNS server that DHCPv6 lists"
           - "From the source address of the router's advertisements, its link-local address"
           - "From a gateway the host derives from its own prefix"
@@ -279,7 +279,7 @@ units:
         type: mcq
         q: "A security team wants a device that stops an exploit before its packets reach the server. Where must an IPS be placed, and why?"
         choices:
-          - "On a SPAN port, so it receives a copy of every packet"
+          - "On a SPAN port, so it receives a copy of every packet on the VLANs it protects"
           - "Behind the server, so it inspects only the replies"
           - "Inline in the traffic path, so it can drop packets as they pass"
           - "On the management VLAN, so attackers cannot reach it"
@@ -500,7 +500,7 @@ units:
       - id: cn-1y-q15
         type: mcq
         q: "A laptop reports a signal of -67 dBm; the noise floor on that channel is -92 dBm. What is the signal-to-noise ratio?"
-        choices: ["-25 dB", "159 dB", "25 dB", "67 dB"]
+        choices: ["92 dB", "159 dB", "25 dB", "67 dB"]
         answer: 2
         why: "SNR is signal minus noise: -67 - (-92) = 25 dB. Adding the magnitudes gives 159, and a negative SNR would mean the noise is stronger than the signal."
       - id: cn-1y-q16
@@ -646,15 +646,15 @@ units:
     domain: "2"
     goal: "I can create and remove VLANs safely, control trunk negotiation, build Layer 2 and Layer 3 EtherChannels, set and predict the spanning-tree root and port roles, choose the right edge protection, and describe AP modes and controller interfaces."
     notes: |
-      **VLANs.** `vlan 10` then `name SALES` creates a VLAN. VLAN 1 and VLANs 1002 to 1005 cannot be deleted. Deleting a VLAN leaves its ports *inactive*, not moved to VLAN 1. A routed port needs `no switchport` first; routing between SVIs needs `ip routing`.
+      **VLANs.** `vlan 10` then `name SALES` creates a VLAN. VLAN 1 and VLANs 1002 to 1005 cannot be deleted. Deleting a VLAN makes its ports *inactive*. A routed port needs `no switchport` first; routing between SVIs needs `ip routing`.
 
       **Trunks.** An 802.1Q tag is 4 bytes after the source MAC: TPID 0x8100, then 3 priority bits, 1 DEI bit and a 12-bit VLAN ID. **DTP** negotiates trunking; `switchport nonegotiate` silences it. A switch that also supports ISL needs `switchport trunk encapsulation dot1q` before `switchport mode trunk`.
 
-      **Discovery.** CDP: 60 s timer, 180 s holdtime. LLDP: 30 s and 120 s. Per interface: `no cdp enable`, `no lldp transmit`, `no lldp receive`.
+      **Discovery.** CDP: 60 s timer, 180 s holdtime. LLDP: 30 s and 120 s. Per port: `no cdp enable`, `no lldp transmit`.
 
-      **EtherChannel.** LACP: active, passive. PAgP: desirable, auto. For Layer 3, put `no switchport` on the members and the IP address on the port-channel. Each flow is hashed to one link.
+      **EtherChannel.** LACP: active, passive. PAgP: desirable, auto. Layer 3: `no switchport` on members, IP address on the port-channel. Each flow is hashed to one link.
 
-      **Spanning tree.** `root primary` sets priority 24576 (or 4096 below the current root); `root secondary` sets 28672. Costs: 100 Mbps = 19, 1 Gbps = 4, 10 Gbps = 2. Roles: root, designated, alternate, backup. RSTP states: discarding, learning, forwarding.
+      **Spanning tree.** `root primary` sets priority 24576 (or 4096 below the current root); `root secondary` sets 28672. Costs: 100 Mbps = 19, 1 Gbps = 4, 10 Gbps = 2. RSTP states: discarding, learning, forwarding.
 
       | Feature | Reacts to | Result |
       | BPDU guard | any BPDU | err-disabled |
@@ -996,7 +996,7 @@ units:
         type: mcq
         q: "SW1 Gi0/1 has 'switchport trunk encapsulation dot1q', 'switchport mode trunk' and 'switchport nonegotiate'. SW2 Gi0/1 is left at 'switchport mode dynamic auto'. What is the result?"
         choices:
-          - "Both ends trunk, because SW1 is set to trunk"
+          - "Both ends trunk, because SW1 forces trunking and SW2 follows it"
           - "SW1 trunks but SW2 stays an access port, a mismatch"
           - "Both ends become access ports"
           - "SW2 err-disables because it receives tagged frames"
@@ -1016,7 +1016,7 @@ units:
         type: mcq
         q: "A port has 'switchport mode access', 'switchport access vlan 10', 'switchport voice vlan 20' and 'no cdp enable'. The Cisco IP phone on it boots and takes an address from the VLAN 10 data scope instead of the voice scope. What is the MOST likely cause?"
         choices:
-          - "The port must be a trunk to carry a voice VLAN"
+          - "The port must be configured as a trunk before it can carry a voice VLAN for the phone"
           - "PortFast is missing, so the phone times out"
           - "VLAN 20 must be the native VLAN"
           - "With CDP off, the phone never learns the voice VLAN and sends untagged"
@@ -1037,9 +1037,9 @@ units:
         q: "'show etherchannel summary' on SW1 shows: '1  Po1(SU)  LACP  Gi0/1(P)  Gi0/2(s)'. What is the most likely reason for Gi0/2's state?"
         choices:
           - "Gi0/2 is administratively shut down"
-          - "The neighbour on Gi0/2 is set to mode on"
-          - "Gi0/2's settings, such as its allowed VLANs, differ from the port-channel's"
           - "Gi0/2 is waiting as a hot-standby member"
+          - "Gi0/2's settings, such as its allowed VLANs, differ from the port-channel's"
+          - "The neighbour on Gi0/2 is set to mode on, so no LACP partner answers on that port"
         answer: 2
         why: "'s' means suspended, which IOS does when a member's configuration does not match the bundle. A shut port shows D, a hot-standby LACP member shows H, and a neighbour that sends no LACP leaves the port stand-alone (I)."
       - id: cn-2y-q07
@@ -1082,7 +1082,7 @@ units:
         type: mcq
         q: "SW2 has two parallel links to the root bridge: SW2 Gi0/1 to root Gi0/24, and SW2 Gi0/2 to root Gi0/23. All ports are 1 Gbps with default port priorities. Which port does SW2 choose as its root port?"
         choices:
-          - "Gi0/1, because it has the lower local port number"
+          - "Gi0/1, because its own port number is the lower of SW2's two ports"
           - "Gi0/2, because it connects to the root's lower port number"
           - "Whichever link came up first"
           - "Both, because the paths cost the same"
@@ -1103,9 +1103,9 @@ units:
         q: "Distribution switch DS1 logs '%SPANTREE-2-ROOTGUARD_BLOCK: Root guard blocking port GigabitEthernet1/0/24 on VLAN0010.' just after a contractor set 'spanning-tree vlan 10 priority 0' on the access switch on Gi1/0/24. What happens next if nothing else changes?"
         choices:
           - "The access switch becomes root and DS1 forwards on Gi1/0/24"
-          - "Gi1/0/24 is err-disabled until an administrator bounces it"
+          - "Gi1/0/24 is err-disabled and stays down until an administrator shuts it and brings it back up"
           - "DS1 removes the root guard configuration"
-          - "Gi1/0/24 stays blocked for VLAN 10 until the superior BPDUs stop, then recovers by itself"
+          - "Gi1/0/24 stays blocked until the superior BPDUs stop, then recovers by itself"
         answer: 3
         why: "Root guard puts the port root-inconsistent, blocking it while superior BPDUs keep arriving. When the access switch's priority is put back and those BPDUs stop, the port recovers without intervention. Err-disabling is what BPDU guard does."
       - id: cn-2y-q14
@@ -1113,7 +1113,7 @@ units:
         q: "SW3 logs '%SPANTREE-2-LOOPGUARD_BLOCK: Loop guard blocking port GigabitEthernet0/2 on VLAN0010.' Gi0/2 was an alternate port and its link is still up. What has happened?"
         choices:
           - "Gi0/2 stopped receiving BPDUs, possibly from a one-way link fault"
-          - "Gi0/2 received a superior BPDU from a new switch"
+          - "Gi0/2 received a superior BPDU from a newly connected switch claiming to be root"
           - "A host on Gi0/2 sent a BPDU"
           - "Gi0/2 has a duplex mismatch"
         answer: 0
@@ -1133,7 +1133,7 @@ units:
         q: "A user connects two wall ports, Gi0/5 and Gi0/6 on the same access switch, with one patch cable, and a broadcast storm follows. Both ports have 'spanning-tree portfast' and 'spanning-tree bpdufilter enable'. Why did spanning tree not block the loop?"
         choices:
           - "PortFast turns off spanning tree entirely on a port"
-          - "Interface-level BPDU filter stops the ports sending and processing BPDUs, so the loop is never seen"
+          - "Interface BPDU filter stops the ports sending and reading BPDUs"
           - "BPDU guard was missing, and it is the only loop protection on access ports"
           - "Spanning tree cannot detect a loop that stays inside one switch"
         answer: 1
@@ -1143,7 +1143,7 @@ units:
         q: "SW1 has 'spanning-tree portfast default' and 'spanning-tree portfast bpdufilter default' and no other edge features. A switch is plugged into access port Gi0/12 and starts sending BPDUs. What does Gi0/12 do?"
         choices:
           - "It err-disables at once"
-          - "It ignores the BPDUs and keeps forwarding as an edge port"
+          - "It ignores the BPDUs and keeps forwarding as an edge port, because filtering is on"
           - "It goes root-inconsistent"
           - "It loses PortFast and BPDU filtering and runs normal spanning tree"
         answer: 3
