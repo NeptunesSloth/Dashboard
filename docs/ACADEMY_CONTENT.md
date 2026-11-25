@@ -202,3 +202,7 @@ with spaces between words (わたし は がくせい です) so the tiles are w
 
 For a `cloze`, `text` and `answer` are in the script; put the romanised answer
 in `alt`.
+
+An example sentence (`ex`) has its own romanisation field, **`ex_rom`**, shown
+between the sentence and its translation `ex_l1`. Do not put romanisation inside
+`ex_l1`.

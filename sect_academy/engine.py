@@ -195,7 +195,7 @@ def unit_detail(course: str, unit_id: str, now: float | None = None) -> dict:
 
 
 def _public_item(it: dict) -> dict:
-    keys = ("id", "type", "l1", "l2", "rom", "alt", "note", "ex", "ex_l1", "text", "answer", "term", "def", "q", "why",
+    keys = ("id", "type", "l1", "l2", "rom", "alt", "note", "ex", "ex_rom", "ex_l1", "text", "answer", "term", "def", "q", "why",
             "title", "scene", "you", "lines", "best")
     out = {k: it[k] for k in keys if k in it and it[k] not in ("", None, [])}
     if it["type"] == "mcq":
@@ -601,7 +601,7 @@ def _explain(it: dict) -> dict:
     elif it["type"] == "concept":
         out["why"] = f"{it['term']} — {it['def']}"
     else:
-        for k in ("l1", "l2", "rom", "note", "ex", "ex_l1"):
+        for k in ("l1", "l2", "rom", "note", "ex", "ex_rom", "ex_l1"):
             if it.get(k):
                 out[k] = it[k]
         if it["type"] == "cloze":

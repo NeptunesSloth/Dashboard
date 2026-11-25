@@ -469,7 +469,7 @@ function runSession(s) {
     if (c.type === 'concept') body = `<div class="l2">${esc(c.term)}</div><div class="l1">${esc(c.def)}</div>`;
     else if (c.type === 'cloze') body = `<div class="l2">${esc(c.full)} ${sayBtn(c.full, lang)}</div><div class="l1">${esc(c.l1 || '')}</div>`;
     else body = `<div class="l2 ${c.type === 'glyph' ? 'prompt big' : ''}" lang="${esc(lang)}">${esc(c.l2)} ${sayBtn(c.l2, lang)}</div>${c.rom ? `<div class="rom">${esc(c.rom)}</div>` : ''}<div class="l1">${esc(c.l1 || '')}</div>
-      ${c.ex ? `<div class="exm"><div>${esc(c.ex)} ${sayBtn(c.ex, lang)}</div><div class="dim">${esc(c.ex_l1 || '')}</div></div>` : ''}`;
+      ${c.ex ? `<div class="exm"><div lang="${esc(lang)}">${esc(c.ex)} ${sayBtn(c.ex, lang)}</div>${c.ex_rom ? `<div class="rom">${esc(c.ex_rom)}</div>` : ''}<div class="dim">${esc(c.ex_l1 || '')}</div></div>` : ''}`;
     const canClaim = c.type !== 'concept';
     shell(`<div class="guide">${guide('calm')}<div class="speech">Something new. Read it, say it aloud, then continue.</div></div>
       <div class="introcard"><span class="newtag">New</span>${body}${c.note ? `<div class="note">${esc(c.note)}</div>` : ''}</div>
