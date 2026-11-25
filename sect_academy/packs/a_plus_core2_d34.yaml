@@ -57,7 +57,7 @@ units:
         q: "A three-year-old PC now takes six minutes to become usable after sign-in. Task Manager's Startup tab shows fourteen enabled items, nine rated 'High' impact. Disk health is good. What is the BEST first fix?"
         choices:
           - "Disable the startup items that are not needed"
-          - "Run chkdsk /r on the system drive"
+          - "Run chkdsk /r on the system drive to repair bad sectors"
           - "Reimage the PC"
           - "Increase the size of the page file"
         answer: 0
@@ -66,7 +66,7 @@ units:
         type: mcq
         q: "A PC shows 'Your computer is low on memory' each afternoon. Task Manager shows one reporting application rising from 400 MB at 9 a.m. to 9 GB by 3 p.m.; closing and reopening it brings it back to 400 MB. What is the MOST likely cause and fix?"
         choices:
-          - "Too little RAM; install more memory"
+          - "Too little physical RAM for the workload; install more memory"
           - "The application has a memory leak; update or patch it"
           - "A failing disk; replace the drive"
           - "Time drift; resynchronise the clock"
@@ -79,7 +79,7 @@ units:
           - "sfc /scannow"
           - "chkdsk /f"
           - "bootrec /rebuildbcd"
-          - "gpupdate /force"
+          - "diskpart, then clean"
         answer: 2
         why: "The error names the boot configuration data, and bootrec /rebuildbcd rebuilds that store. sfc repairs Windows system files and cannot help before Windows has loaded its boot manager correctly."
       - id: ap2-3x-q04
@@ -88,7 +88,7 @@ units:
         choices:
           - "Convert the SSD to FAT32"
           - "Replace the SSD under warranty"
-          - "Run sfc /scannow from Safe Mode"
+          - "Run sfc /scannow from Safe Mode to repair boot files"
           - "Switch the firmware to UEFI boot mode"
         answer: 3
         why: "Windows boots from a GPT system disk only through UEFI, so legacy mode finds nothing to start. The drive is detected, so it has not failed, and sfc cannot run until Windows boots."
@@ -106,7 +106,7 @@ units:
         type: mcq
         q: "After the password of the account used by a backup service was changed, the service no longer starts and logs 'The service did not start due to a logon failure'. What is the fix?"
         choices:
-          - "Set the service to start Manually"
+          - "Change the service's startup type from Automatic to Manual"
           - "Enter the new password on the service's Log On tab"
           - "Reinstall Windows"
           - "Run gpupdate /force"
@@ -118,18 +118,18 @@ units:
         choices:
           - "Rebuild each user's profile"
           - "Replace the RAM in the affected PCs"
-          - "Check for and install the vendor's update for the application"
-          - "Run chkdsk on each PC"
+          - "Install the vendor's update for the app"
+          - "Run chkdsk /r on every affected PC's drive"
         answer: 2
         why: "One application failing on every updated PC, for all users, suggests an incompatibility with the new Windows build, which a vendor update or repair fixes. A profile problem would affect one user, and a hardware fault would not appear on every PC at once."
       - id: ap2-3x-q08
         type: mcq
         q: "Since two RAM modules were added, a PC freezes or shows a blue screen several times a day, each time with a different stop code. Which step should come FIRST?"
         choices:
-          - "Reinstall the graphics driver"
+          - "Reinstall the graphics driver from the vendor"
           - "Roll back the last Windows update"
           - "Reset this PC"
-          - "Run Windows Memory Diagnostic and reseat or remove the new modules"
+          - "Test the memory and reseat the new modules"
         answer: 3
         why: "System instability that began with new RAM and produces varied stop codes points to memory, which is tested directly. A single bad driver usually gives the same stop code each time."
       - id: ap2-3x-q09
@@ -137,7 +137,7 @@ units:
         q: "sfc /scannow reports that it found corrupt system files but was unable to fix some of them. What should the technician run next?"
         choices:
           - "DISM /Online /Cleanup-Image /RestoreHealth, then sfc again"
-          - "chkdsk /f, then reboot"
+          - "chkdsk /f on the system drive, then restart and run sfc again"
           - "gpupdate /force"
           - "bootrec /fixmbr"
         answer: 0
@@ -146,7 +146,7 @@ units:
         type: mcq
         q: "A PC shows 'No bootable device'. In the firmware setup the internal drive is not listed at all, although it was there last week. What is the MOST likely cause?"
         choices:
-          - "Damaged boot configuration data"
+          - "Damaged boot configuration data on the system partition"
           - "A loose or failed drive cable, or a failed drive"
           - "A corrupt user profile"
           - "A missing Windows update"
@@ -157,8 +157,8 @@ units:
         q: "A user signs in and sees 'You've been signed in with a temporary profile', and none of their desktop files appear. Other users sign in normally. What is the MOST likely cause?"
         choices:
           - "The disk is full"
-          - "The network cable is unplugged"
-          - "The user's profile is corrupt and must be repaired or rebuilt"
+          - "The user's mapped network drives are disconnected"
+          - "The user's profile is corrupt"
           - "The CMOS battery is flat"
         answer: 2
         why: "Windows falls back to a temporary profile when it cannot load the user's own, usually because it is damaged; the fix is to repair the profile or create a new one and copy the data across. Other users signing in normally rules out a PC-wide cause."
@@ -178,7 +178,7 @@ units:
         choices:
           - "Uninstall Updates, removing the latest quality update"
           - "Reset this PC, removing everything"
-          - "Command Prompt, then format C:"
+          - "Command Prompt, then format the C: drive and reinstall"
           - "Replace the system drive"
         answer: 0
         why: "The fault began with the update, and the recovery environment can remove it without touching anything else. A full reset or format would also work but destroys data and settings needlessly."
@@ -188,7 +188,7 @@ units:
         type: mcq
         q: "Right after a phone updated to a new major OS version, one older banking app shows its logo and immediately closes. Other apps work. What should be done FIRST?"
         choices:
-          - "Factory reset the phone"
+          - "Factory reset the phone and restore from backup"
           - "Update the app from the official store"
           - "Turn on developer mode"
           - "Replace the battery"
@@ -198,8 +198,8 @@ units:
         type: mcq
         q: "An Android photo app crashes every time its gallery view is opened, after months of normal use. Force stopping and restarting the phone did not help. What is the next least destructive step?"
         choices:
-          - "Factory reset the device"
-          - "Root the phone"
+          - "Factory reset the device and restore from cloud backup"
+          - "Root the phone to repair the app's files"
           - "Clear the app's cache in the app settings"
           - "Disable Wi-Fi"
         answer: 2
@@ -208,10 +208,10 @@ units:
         type: mcq
         q: "An app update fails with the store message 'Requires iOS 17 or later'. The tablet runs iOS 15 and Settings offers no newer version. What is the cause?"
         choices:
-          - "The store account is locked"
+          - "The store account is locked by too many failed sign-ins"
           - "Storage is full"
           - "The Wi-Fi password has changed"
-          - "The device hardware no longer receives the OS version the app needs"
+          - "The device cannot run the required OS version"
         answer: 3
         why: "If the device cannot be updated to the required OS, its hardware is no longer supported, and the app version cannot be installed; the fix is a newer device or an older compatible app version. Full storage gives a space message, not an OS requirement."
       - id: ap2-3x-q17
@@ -219,7 +219,7 @@ units:
         q: "On a company-managed phone, a user cannot install a game from the public store; the install is blocked with a message naming the organisation. Personal phones install it. What is the cause?"
         choices:
           - "The MDM policy restricts which apps may be installed"
-          - "The phone is jailbroken"
+          - "The phone has been rooted and the store is refusing to serve it"
           - "The battery is too low to install apps"
           - "NFC is switched off"
         answer: 0
@@ -228,7 +228,7 @@ units:
         type: mcq
         q: "A phone left on a car dashboard in summer becomes very slow to respond and dims its screen. It works normally indoors an hour later. What is the cause?"
         choices:
-          - "Malware"
+          - "Malware running in the background and using the processor"
           - "The phone is throttling itself because it is too hot"
           - "Storage is nearly full"
           - "Rotation lock is on"
@@ -238,7 +238,7 @@ units:
         type: mcq
         q: "Personal iPhones show an iOS update released last week, but none of the company-managed iPhones are offering it. What is the MOST likely reason?"
         choices:
-          - "The managed phones are out of storage"
+          - "The managed phones do not have enough free storage for it"
           - "Apple has withdrawn the update"
           - "The MDM is deferring the update for a set period"
           - "The phones have been jailbroken"
@@ -259,7 +259,7 @@ units:
         q: "An older phone restarts by itself, usually when the battery is below about 30% and a demanding app is open. It never happens on the charger. What is the MOST likely cause?"
         choices:
           - "A worn battery that cannot supply peak current"
-          - "A malicious app"
+          - "A malicious app that restarts the phone to hide itself"
           - "A full photo library"
           - "A corrupt Wi-Fi profile"
         answer: 0
@@ -269,8 +269,8 @@ units:
         q: "A user's wireless headset pairs with their new phone but drops straight away, and it auto-connects to their laptop in the same room. What is the BEST fix?"
         choices:
           - "Turn on NFC"
-          - "Disconnect it from the laptop, then forget and re-pair it on the phone"
-          - "Reset the phone's network settings"
+          - "Remove the laptop pairing, then re-pair the phone"
+          - "Reset all of the phone's network settings and pair again"
           - "Update the laptop's operating system"
         answer: 1
         why: "Many headsets keep only one active connection and grab the last paired device; removing the laptop link and re-pairing fixes the contention. A network-settings reset is a heavier step aimed at a problem nobody has found yet."
@@ -280,8 +280,8 @@ units:
         choices:
           - "Turn on airplane mode"
           - "Replace the Wi-Fi access point"
-          - "Forget the saved network and join it again with the new password"
-          - "Disable Bluetooth"
+          - "Forget the network and rejoin it"
+          - "Change the phone's DNS server to a public one"
         answer: 2
         why: "A saved network entry can keep retrying old credentials; forgetting it clears them so the phone joins cleanly. The access point works, as the laptops show."
       - id: ap2-3x-q24
@@ -289,7 +289,7 @@ units:
         q: "Tap-to-pay worked until a user fitted a new case with a metal plate for a magnetic car mount. NFC is still switched on. What is the MOST likely cause?"
         choices:
           - "The phone needs a new SIM card"
-          - "The payment app needs reinstalling"
+          - "The payment app's stored card has expired and needs re-adding"
           - "Rotation lock is on"
           - "The metal plate is blocking the NFC antenna"
         answer: 3
@@ -299,7 +299,7 @@ units:
         q: "A dropped phone no longer rotates its screen in any app, including the video player. Rotation lock is confirmed off and a restart did not help. What is the MOST likely cause?"
         choices:
           - "The motion sensor (accelerometer) is damaged"
-          - "The video app supports portrait only"
+          - "The video player only supports portrait orientation"
           - "Storage is full"
           - "Developer mode is on"
         answer: 0
@@ -310,7 +310,7 @@ units:
         type: mcq
         q: "An Android user tries to install an app file sent in a chat and sees 'For your security, your phone is not allowed to install unknown apps from this source'. What is the correct response?"
         choices:
-          - "Allow unknown apps for the chat app so it installs"
+          - "Allow the chat app to install unknown apps, then install it"
           - "Get the app from the official store, or not at all"
           - "Enable developer mode and retry"
           - "Root the phone to bypass the warning"
@@ -320,9 +320,9 @@ units:
         type: mcq
         q: "A manager's phone is found with developer options turned on and USB debugging enabled. The manager does not write apps and does not remember changing anything. What should the technician do?"
         choices:
-          - "Leave it, since it speeds up the phone"
+          - "Leave it on, since developer options make the phone faster"
           - "Enable unknown sources too"
-          - "Turn off developer options and check for unknown apps and authorised computers"
+          - "Disable developer options and check what was installed"
           - "Factory reset without investigating"
         answer: 2
         why: "USB debugging lets a connected computer install apps and read data, so it should be off on an ordinary user's phone, and the device should be checked for anything installed through it. Resetting without looking loses the evidence of what happened."
@@ -331,7 +331,7 @@ units:
         q: "A user's banking and work apps refuse to open on a second-hand phone, reporting that the device failed an integrity or security check. What is the MOST likely cause?"
         choices:
           - "The battery is worn"
-          - "The SIM card is from another carrier"
+          - "The SIM card is from a carrier the banking app does not support"
           - "The screen protector is cracked"
           - "The phone was rooted or jailbroken by its previous owner"
         answer: 3
@@ -350,7 +350,7 @@ units:
         type: mcq
         q: "A carrier sends a phone a 'You have used 90% of your data' notice on the 8th of the month. The data usage screen shows a wallpaper app used 6 GB in the background. What should be done?"
         choices:
-          - "Buy a larger data plan"
+          - "Move the user to a larger data plan from the carrier"
           - "Uninstall the wallpaper app and scan the phone"
           - "Restart the phone daily"
           - "Turn off rotation lock"
@@ -360,7 +360,7 @@ units:
         type: mcq
         q: "Full-screen adverts appear over an Android phone's home screen and over other apps, even when the browser is closed. What is the MOST likely cause?"
         choices:
-          - "A web page left open in the browser"
+          - "A web page left open in a browser tab, still loading adverts"
           - "The carrier's network"
           - "An adware app with permission to display over other apps"
           - "A worn battery"
@@ -372,7 +372,7 @@ units:
         choices:
           - "Install CleanerPro to remove the viruses"
           - "Call the phone number on the page"
-          - "Factory reset the phone immediately"
+          - "Factory reset the phone immediately to remove the viruses"
           - "Close the tab, install nothing, and clear that site's data"
         answer: 3
         why: "A web page cannot scan a phone; this is a fake security warning designed to push malware. Closing it is enough unless something was installed, so a factory reset is unnecessary."
@@ -381,7 +381,7 @@ units:
         q: "Several of a user's contacts receive texts containing a link 'from' the user, which the user never sent. Sent messages show nothing. What is the MOST likely explanation?"
         choices:
           - "A malicious app on the phone is sending messages"
-          - "The carrier is resending old messages"
+          - "The carrier's network is resending old messages to the contacts"
           - "The screen is locked in portrait"
           - "The phone's storage is full"
         answer: 0
@@ -391,8 +391,8 @@ units:
         q: "A user's personal photos appear on a site, and the cloud account that backs up their phone shows a sign-in from another country last week. What should be done FIRST?"
         choices:
           - "Delete the photos from the phone"
-          - "Change the cloud password, sign out all sessions and enable MFA"
-          - "Turn off the phone's camera"
+          - "Change the cloud password and turn on MFA"
+          - "Factory reset the phone to remove any spyware"
           - "Replace the phone"
         answer: 1
         why: "The leak came through the compromised cloud account, so locking the attacker out of it stops further loss. Deleting the phone's copies does nothing to the copies the attacker can still reach."
@@ -400,9 +400,9 @@ units:
         type: mcq
         q: "Since installing a free 'video downloader', some sites on a phone load and others fail. Settings now shows a VPN configuration the user did not create. What is the fix?"
         choices:
-          - "Reset the home router"
-          - "Change the Wi-Fi channel"
-          - "Remove the VPN profile and uninstall the app that installed it"
+          - "Reset the home router to factory settings"
+          - "Change the Wi-Fi channel to avoid interference"
+          - "Remove the VPN profile and the app behind it"
           - "Clear the browser cache"
         answer: 2
         why: "A malicious app routing traffic through its own VPN causes limited connectivity and lets it read or alter traffic. The router and Wi-Fi are not at fault because only this phone was changed."
@@ -413,7 +413,7 @@ units:
         q: "After malware was removed from a PC, no website will load, but ping to a public IP address works. Internet Options shows a proxy server of 127.0.0.1:8080 that nobody configured. What is the fix?"
         choices:
           - "Replace the network card"
-          - "Renew the DHCP lease"
+          - "Release and renew the DHCP lease with ipconfig"
           - "Reinstall the browser"
           - "Remove the proxy setting"
         answer: 3
@@ -435,16 +435,16 @@ units:
           - "A licence reminder"
           - "Rogue security software giving false antivirus alerts"
           - "A Group Policy notice"
-          - "A real infection report"
+          - "A genuine infection report from a trial antivirus product"
         answer: 1
         why: "Unrequested security software that invents threats and demands payment is rogue antivirus, itself malware. Remove it with the malware-removal procedure, not by paying."
       - id: ap2-3x-q39
         type: mcq
         q: "On a home PC with no domain, Task Manager will not open ('Task Manager has been disabled by your administrator') and Windows Security will not start. What is the MOST likely cause and next step?"
         choices:
-          - "A Group Policy from the domain; run gpupdate"
+          - "A Group Policy from the domain; run gpupdate /force to refresh"
           - "Low memory; close applications"
-          - "Malware has changed system settings; scan offline or from Safe Mode"
+          - "Malware changed system settings; scan offline"
           - "A corrupt profile; rebuild it"
         answer: 2
         why: "A home PC has no domain policy, so a disabled Task Manager plus a blocked security tool means malware altered system settings to protect itself. Scan from outside its control, such as an offline or Safe Mode scan."
@@ -453,9 +453,9 @@ units:
         q: "On a USB drive used at a print shop, every folder now appears as a shortcut, and the real folders are missing in File Explorer. Disk space used has not changed. What is the MOST likely cause?"
         choices:
           - "The drive is failing"
-          - "The files were encrypted by ransomware"
+          - "The files were encrypted by ransomware and renamed"
           - "The drive was formatted"
-          - "Malware hid the folders and replaced them with shortcuts"
+          - "Malware hid the folders behind shortcuts"
         answer: 3
         why: "Unchanged space with the originals invisible means the data is still there, hidden; this 'shortcut' malware sets the hidden attribute and plants shortcuts that run itself. Scan the drive, then unhide the folders; do not open the shortcuts."
       - id: ap2-3x-q41
@@ -463,7 +463,7 @@ units:
         q: "Windows Update has failed for weeks, Windows Security will not open, and the browser cannot reach antivirus vendors' websites while other sites load. What is the BEST next step?"
         choices:
           - "Run an offline scan from bootable anti-malware media"
-          - "Reset the Windows Update components"
+          - "Reset the Windows Update components and retry the updates"
           - "Increase the page file"
           - "Replace the hard drive"
         answer: 0
@@ -473,8 +473,8 @@ units:
         q: "Advert notifications from a 'news' site pop up in the corner of the Windows desktop even when the browser is minimised. The user clicked 'Allow' on a prompt last week. What is the fix?"
         choices:
           - "Reinstall Windows"
-          - "Remove that site's notification permission in the browser settings"
-          - "Disable Windows Update"
+          - "Revoke the site's notification permission"
+          - "Disable Windows Update notifications in Settings"
           - "Uninstall the antivirus"
         answer: 1
         why: "Allowing site notifications lets that site push messages through the OS notification area; revoking the permission stops them. Nothing was installed, so a reinstall is unnecessary."
@@ -482,7 +482,7 @@ units:
         type: mcq
         q: "A browser's home page and search engine keep changing to an unfamiliar search site, and searches open sponsored pages. A newly installed 'coupon' extension appears in the toolbar. What should be done?"
         choices:
-          - "Clear the browser cache"
+          - "Clear the browser cache, cookies and browsing history"
           - "Change the DNS server"
           - "Remove the extension and reset the browser settings"
           - "Reinstall the network driver"
@@ -492,10 +492,10 @@ units:
         type: mcq
         q: "Every HTTPS site on one PC shows a certificate warning. The clock is correct. The certificate details show the issuer as 'SafeWeb Inspection Root', which the company does not use. What is the MOST likely cause?"
         choices:
-          - "Every website's certificate has expired"
+          - "The browser's list of trusted certificate authorities is outdated"
           - "The PC's time zone is wrong"
           - "The browser cache is full"
-          - "A rogue root certificate was installed to intercept traffic"
+          - "A rogue root certificate is intercepting traffic"
         answer: 3
         why: "Malware or adware that installs its own root certificate can intercept HTTPS; sites then carry an issuer nobody chose. Remove the root certificate in Certificate Manager and the software that planted it; the clock is already ruled out."
 
@@ -530,10 +530,10 @@ units:
         type: mcq
         q: "A user docks a laptop with a webcam, a headset, a keyboard, a mouse and a USB network adapter all on one USB 3 hub, and Windows reports 'Not enough USB controller resources'. A colleague suggests a powered hub. What is the BEST fix?"
         choices:
-          - "Replace the hub with a powered hub"
+          - "Replace the hub with a powered hub that has its own supply"
           - "Lower the screen resolution"
           - "Increase the page file"
-          - "Move some devices to a port served by a different USB controller"
+          - "Move some devices to another USB controller"
         answer: 3
         why: "The message is about the controller running out of endpoints, not power, so spreading devices across another controller fixes it. A powered hub supplies more current but leaves every device on the same controller."
       - id: ap2-3y-q02
@@ -541,8 +541,8 @@ units:
         q: "An Android phone says 'Connected, no internet' on every Wi-Fi network and on mobile data, while other phones on the same networks work. Settings shows Private DNS set to a hostname the user does not recognise. What is the MOST likely cause?"
         choices:
           - "The phone's Wi-Fi radio has failed"
-          - "The Private DNS setting points to a server the phone cannot use"
-          - "The carrier has suspended the account"
+          - "Private DNS points to an unusable server"
+          - "The carrier has suspended the account for non-payment"
           - "The battery is too low"
         answer: 1
         why: "A bad Private DNS host breaks name resolution on every connection, Wi-Fi and cellular alike, which a failed Wi-Fi radio would not do. Set Private DNS back to automatic and find out who changed it."
@@ -551,7 +551,7 @@ units:
         q: "A phone is slow to respond and warm. Storage is 92% full. Battery settings show an app named 'System Helper', installed last week, using 55% of the battery with the screen off. What is the MOST likely cause?"
         choices:
           - "Nearly full storage"
-          - "Thermal throttling from a hot room"
+          - "Thermal throttling because the phone is in a hot room"
           - "A malicious app running in the background"
           - "A worn battery"
         answer: 2
@@ -561,7 +561,7 @@ units:
         q: "A PC's browser becomes sluggish and the fans roar whenever one free sports-streaming site is open, even when the video is paused. The browser's own task manager shows that one tab at 85% CPU. What is the MOST likely cause?"
         choices:
           - "A cryptomining script running in that page"
-          - "Too many extensions installed"
+          - "Too many browser extensions loading on every page"
           - "A full browser cache"
           - "A failing graphics card"
         answer: 0
@@ -571,7 +571,7 @@ units:
         q: "A PC shows a blue screen three or four times a week. Every dump names the same stop code and the same file, a network adapter vendor's .sys driver, updated a week ago. Memory tests pass. What is the BEST fix?"
         choices:
           - "Replace the RAM"
-          - "Reimage the PC"
+          - "Reimage the PC from the company's standard image"
           - "Replace the motherboard"
           - "Roll back or update the network adapter driver"
         answer: 3
@@ -581,8 +581,8 @@ units:
         q: "A laptop shows a blue screen with DRIVER_POWER_STATE_FAILURE, but only when it wakes from sleep. It runs all day without trouble if sleep is disabled. What is the MOST likely cause?"
         choices:
           - "Failing RAM"
-          - "A device driver that mishandles the sleep and wake transition"
-          - "An overheating CPU"
+          - "A driver that mishandles sleep and wake"
+          - "The CPU overheating while the laptop is closed"
           - "A corrupt user profile"
         answer: 1
         why: "The stop code names a driver power-state problem and the trigger is the sleep and wake transition, so the cause is a driver; update the drivers, starting with chipset, graphics, storage and network. Bad RAM would crash during normal running too."
@@ -610,17 +610,17 @@ units:
         type: mcq
         q: "A design application crashes at launch for one user. An administrator signing in to the same PC opens it without trouble, and reinstalling it did not help the user. What is the BEST next step?"
         choices:
-          - "Reset the application's settings in the affected user's profile"
+          - "Reset the app's settings in that user's profile"
           - "Reimage the PC"
           - "Replace the graphics card"
-          - "Install the application again"
+          - "Uninstall, then install the latest application version"
         answer: 0
         why: "The program works for another account on the same hardware, so the fault lives in the user's own settings; resetting the app's per-user data, or rebuilding the profile if that fails, targets it. Hardware and a reinstall are ruled out by the facts given."
       - id: ap2-3y-q10
         type: mcq
         q: "A PC with 16 GB of RAM shows low memory warnings. Task Manager reports memory 'In use' 6 GB, but 'Committed' 15.8 / 16 GB. What is the MOST likely cause?"
         choices:
-          - "A failed RAM module"
+          - "A failed RAM module, so Windows can only use part of the 16 GB"
           - "The page file has been disabled or made very small"
           - "The CPU is overheating"
           - "The disk is fragmented"
@@ -630,9 +630,9 @@ units:
         type: mcq
         q: "After a firmware update reset all settings, a PC shows a blue screen with INACCESSIBLE_BOOT_DEVICE on every start. Nothing in Windows changed. What is the MOST likely cause?"
         choices:
-          - "The boot drive has failed"
+          - "The boot drive failed during the firmware update"
           - "A Windows update is corrupt"
-          - "The storage controller mode changed, for example from AHCI to RAID"
+          - "The SATA controller mode was changed"
           - "The user profile is damaged"
         answer: 2
         why: "Changing the SATA mode swaps the driver Windows needs to reach its own disk, causing this exact stop code. Restore the previous mode; the disk itself is fine, as it worked moments before the reset."
@@ -641,7 +641,7 @@ units:
         q: "A user's PC clock is always exactly one hour ahead of everyone else's, even right after it synchronises with the time server. What is the MOST likely cause?"
         choices:
           - "A flat CMOS battery"
-          - "The time server is unreachable"
+          - "The time server cannot be reached through the firewall"
           - "Malware altering the clock"
           - "The wrong time zone or daylight-saving setting"
         answer: 3
@@ -650,8 +650,8 @@ units:
         type: mcq
         q: "A domain user's sign-in takes eight minutes when working from home over the VPN, but under one minute in the office on the same laptop. The profile is 9 GB and roaming. What is the MOST likely cause?"
         choices:
-          - "The roaming profile is being copied across the slow VPN link"
-          - "The profile is corrupt"
+          - "The roaming profile copies over the slow VPN"
+          - "The user's profile is corrupt and loads slowly"
           - "The laptop's drive is failing"
           - "Time drift"
         answer: 0
@@ -660,8 +660,8 @@ units:
         type: mcq
         q: "A phone has 30 GB free, but an app will not install. The store page shows 'Your device isn't compatible with this version'. What is the cause?"
         choices:
-          - "Not enough free storage"
-          - "The app does not support the phone's OS version or hardware"
+          - "Not enough free storage to unpack the app"
+          - "The app does not support this device"
           - "The store cache is full"
           - "The phone is in airplane mode"
         answer: 1
@@ -672,8 +672,8 @@ units:
         choices:
           - "Replace the battery"
           - "Turn on rotation lock"
-          - "Change the app's location access from 'Always' to 'While using the app'"
-          - "Factory reset the phone"
+          - "Limit the app's location access to 'While using'"
+          - "Factory reset the phone, then reinstall only essential apps"
         answer: 2
         why: "The battery is healthy, and constant location use by one app explains the drain; limiting its location permission stops it. A reset is out of proportion when a single setting is the cause."
       - id: ap2-3y-q16
@@ -681,9 +681,9 @@ units:
         q: "An office's Wi-Fi uses MAC address filtering. A user's new phone sees the network and is told the password is accepted but never gets a connection; laptops on the allow-list connect. The phone's MAC was added. What is the MOST likely cause?"
         choices:
           - "The access point is overloaded"
-          - "The Wi-Fi password is wrong"
+          - "The Wi-Fi password was typed with the wrong case"
           - "Bluetooth is interfering"
-          - "The phone is using a private, randomised MAC address for that network"
+          - "The phone is using a private MAC address"
         answer: 3
         why: "Modern phones present a randomised address per network, so the address on the allow-list is not the one being sent; turn off the private address for that network. A wrong password would be rejected outright."
       - id: ap2-3y-q17
@@ -691,7 +691,7 @@ units:
         q: "A user's company email stops syncing on their iPhone, and the MDM console marks the device non-compliant with the reason 'compromised device'. The user admits installing a tool to customise the home screen. What must happen?"
         choices:
           - "Restore iOS to remove the jailbreak, then re-enrol"
-          - "Turn off the company's compliance rule"
+          - "Ask the MDM administrator to exempt the device from the rule"
           - "Reinstall the mail app"
           - "Update the mail server certificate"
         answer: 0
@@ -700,8 +700,8 @@ units:
         type: mcq
         q: "After copying their Documents folder from an old PC's drive, a user gets 'Access denied' on every copied file. The files are not renamed, other users' files open fine, and the folder's owner shows an unknown account ID. What is the MOST likely cause?"
         choices:
-          - "Ransomware has encrypted the files"
-          - "NTFS ownership and permissions still belong to the old PC's account"
+          - "Ransomware has encrypted the files without renaming them"
+          - "The files' NTFS owner is the old PC's account"
           - "The drive is failing"
           - "The files are compressed"
         answer: 1
@@ -710,7 +710,7 @@ units:
         type: mcq
         q: "On one PC, search results in Chrome open unrelated shopping sites. The same searches in Edge on that PC behave normally. Where is the fault MOST likely to be?"
         choices:
-          - "The hosts file"
+          - "A malicious redirect entry in the PC's hosts file"
           - "The DNS server"
           - "A Chrome extension or Chrome's settings"
           - "The router"
@@ -723,7 +723,7 @@ units:
           - "The certificate has expired"
           - "The browser is infected"
           - "The certificate's issuer is untrusted"
-          - "The name typed does not match the name on the certificate"
+          - "The typed name is not on the certificate"
         answer: 3
         why: "The certificate lists the full name, so the short name fails the name check. An expired or untrusted certificate would warn for both names."
       - id: ap2-3y-q21
@@ -731,7 +731,7 @@ units:
         q: "Windows Update fails with error 0x80070070. Windows Security runs and is up to date, and the browser reaches every site. What should be done?"
         choices:
           - "Free up space on the system drive"
-          - "Run an offline malware scan"
+          - "Run an offline malware scan from boot media"
           - "Reset the network adapter"
           - "Replace the RAM"
         answer: 0
@@ -743,14 +743,14 @@ units:
           - "Replace the network card"
           - "Reset the Winsock catalog with netsh winsock reset"
           - "Edit the hosts file"
-          - "Flush the DNS cache"
+          - "Flush the DNS resolver cache with ipconfig /flushdns"
         answer: 1
         why: "Some malware hooks the Windows networking stack, and removing it can leave the Winsock catalog broken, so applications cannot open sockets. Flushing DNS or editing hosts cannot help, because connections by IP address fail too."
       - id: ap2-3y-q23
         type: mcq
         q: "After a child borrowed a phone, it shows crosshair lines and coordinates wherever the screen is touched, and animations are gone. There are no new apps, ads or data use. What is the MOST likely cause?"
         choices:
-          - "Malware controlling the screen"
+          - "Malware that is controlling the touchscreen remotely"
           - "A failing digitizer"
           - "Settings changed in the developer options"
           - "The accessibility magnifier is on"
@@ -763,15 +763,15 @@ units:
           - "Reimage the PC"
           - "Run an offline malware scan"
           - "Replace the drive"
-          - "Let indexing finish, or pause it until the end of the day"
+          - "Let indexing finish"
         answer: 3
         why: "Windows indexes newly added files, which briefly loads the CPU and disk after a large copy; it settles once done. With a known cause and no other symptoms, malware and hardware explanations do not fit."
       - id: ap2-3y-q25
         type: mcq
         q: "The Print Spooler service starts, then stops within seconds, every time. A print job shows in the queue with 0 bytes and cannot be cancelled. What should be done?"
         choices:
-          - "Stop the spooler, delete the files in the spool's PRINTERS folder, then start it"
-          - "Reinstall Windows"
+          - "Stop the spooler, clear its spool folder, restart it"
+          - "Reinstall the printer driver and restart the computer"
           - "Replace the printer"
           - "Disable the firewall"
         answer: 0
@@ -997,10 +997,10 @@ units:
         type: mcq
         q: "Two tickets arrive at once: the CEO's desktop wallpaper has reset, and the 40-person sales floor cannot print invoices. How should severity be set?"
         choices:
-          - "Both equal, because both are faults"
+          - "Both equal, since each ticket reports a fault"
           - "The CEO's ticket higher, because of rank"
           - "Whichever ticket arrived first is higher"
-          - "The sales floor higher, because it stops business for many people"
+          - "The sales floor, because of business impact"
         answer: 3
         why: "Severity reflects business impact: forty people unable to invoice outweighs a cosmetic setting. Rank and arrival order do not decide severity."
       - id: ap2-4x-q03
@@ -1008,7 +1008,7 @@ units:
         q: "A laptop's screen fails. Before ordering a paid repair, where should the technician check whether the laptop is still under warranty?"
         choices:
           - "The asset's inventory record, found by its asset tag"
-          - "The knowledge base"
+          - "The knowledge base article for that model of laptop screen"
           - "The change calendar"
           - "The acceptable use policy"
         answer: 0
@@ -1019,7 +1019,7 @@ units:
         choices:
           - "An external SLA"
           - "An internal SLA"
-          - "A mutual NDA"
+          - "A mutual non-disclosure agreement"
           - "An EULA"
         answer: 1
         why: "An SLA between two parts of the same organisation is internal; an external SLA is with an outside provider or customer. An NDA covers confidentiality, not service targets."
@@ -1027,7 +1027,7 @@ units:
         type: mcq
         q: "Three weeks after an employee left, their account is used to sign in to the VPN. Which process was MOST likely missed?"
         choices:
-          - "The onboarding checklist"
+          - "The new-user onboarding checklist"
           - "The backup rotation"
           - "The off-boarding checklist"
           - "The change freeze"
@@ -1037,10 +1037,10 @@ units:
         type: mcq
         q: "Each technician installs a lab's custom statistics package a slightly different way, and the installs behave differently. What document would fix this?"
         choices:
-          - "An incident report"
+          - "An incident report for each failed install"
           - "A service-level agreement"
           - "An acceptable use policy"
-          - "A standard operating procedure for the installation"
+          - "A standard operating procedure"
         answer: 3
         why: "An SOP sets out the exact steps so the task is done the same way every time. An incident report records an event after it happens."
       - id: ap2-4x-q07
@@ -1090,7 +1090,7 @@ units:
           - "Perform test restores on a regular schedule"
           - "Run the backups twice a night"
           - "Trust the success reports"
-          - "Switch to differential backups"
+          - "Switch to differential backups, which restore faster"
         answer: 0
         why: "Only a test restore proves the data can actually be recovered, and testing on a schedule catches problems before they matter. A second run on the same untested job proves nothing more."
       - id: ap2-4x-q12
@@ -1119,8 +1119,8 @@ units:
         choices:
           - "It voids the operating system licence"
           - "It makes the PC run more slowly"
-          - "It disables the UPS"
-          - "The ground pin carries fault current to earth, away from people"
+          - "It stops the UPS from detecting a power cut"
+          - "It removes the safe path for fault current"
         answer: 3
         why: "Equipment grounding gives fault current a safe path; without it a live chassis could shock someone. The right fix is a properly grounded outlet."
       - id: ap2-4x-q15
@@ -1129,7 +1129,7 @@ units:
         choices:
           - "A CO2 extinguisher rated for electrical fires"
           - "A water extinguisher"
-          - "A foam extinguisher rated for paper and wood"
+          - "A water-based foam extinguisher for paper and wood"
           - "A bucket of water"
         answer: 0
         why: "Carbon dioxide does not conduct electricity and leaves no residue, so it suits electrical fires. Water and water-based foam conduct and risk electric shock."
@@ -1150,7 +1150,7 @@ units:
           - "Condensation; add dehumidifiers"
           - "Overheating; add fans"
           - "Electrostatic discharge damage; raise the humidity"
-          - "Power surges; add surge suppressors"
+          - "Power surges; add surge suppressors to every workstation"
         answer: 2
         why: "Dry air lets static build up, raising the risk of ESD damage; raising humidity to a moderate level helps. Condensation is the danger of air that is too humid."
       - id: ap2-4x-q18
@@ -1159,25 +1159,25 @@ units:
         choices:
           - "To keep dust on the blades"
           - "To stop the fan's lights flashing"
-          - "To avoid static on the air can"
-          - "So it is not spun past its rated speed, which can damage it"
+          - "To avoid static building up on the air can"
+          - "So it is not over-spun and damaged"
         answer: 3
         why: "Air blown through a free fan can over-spin it, damaging its bearings and back-feeding a current into the board. Hold each fan, and wear goggles and a mask against the dust."
       - id: ap2-4x-q19
         type: mcq
         q: "A laptop battery has swollen so much that the case is bulging. How should it be handled?"
         choices:
-          - "Remove it carefully and take it to an approved battery recycling point"
+          - "Take it to an approved battery recycler"
           - "Press it flat and reinstall it"
           - "Put it in the general waste"
-          - "Puncture it to release the gas"
+          - "Puncture it carefully to release the trapped gas"
         answer: 0
         why: "A swollen lithium-ion battery can catch fire if pierced or crushed; it is removed gently and recycled through a proper hazardous-waste route, as its safety sheet directs."
       - id: ap2-4x-q20
         type: mcq
         q: "A company bought training videos that play on one laptop, but on a second laptop the player says the device limit has been reached. What is enforcing this?"
         choices:
-          - "The EULA alone"
+          - "The EULA the company accepted"
           - "Digital rights management"
           - "The acceptable use policy"
           - "The firewall"
@@ -1187,7 +1187,7 @@ units:
         type: mcq
         q: "A spreadsheet of staff passport numbers is found on an open file share. How should these numbers be classed?"
         choices:
-          - "Protected health information"
+          - "Protected health information, as HR holds it"
           - "Payment card data"
           - "Government-issued personal information"
           - "Public information"
@@ -1197,7 +1197,7 @@ units:
         type: mcq
         q: "A technician is booked to work in the boardroom during an executive meeting. The usual dress code for the server room is jeans and a company T-shirt. What is appropriate?"
         choices:
-          - "The usual server-room clothing"
+          - "The usual jeans and company T-shirt, as on any job"
           - "Whatever is most comfortable"
           - "Sportswear, for ease of movement"
           - "Business attire suited to the boardroom"
@@ -1208,7 +1208,7 @@ units:
         q: "A customer introduces herself as Dr. Amara Osei, head of radiology. How should the technician address her?"
         choices:
           - "As Dr. Osei, unless she asks otherwise"
-          - "By her first name straight away"
+          - "By her first name straight away, to seem friendly"
           - "As 'mate' to build rapport"
           - "Without using any name"
         answer: 0
@@ -1217,7 +1217,7 @@ units:
         type: mcq
         q: "While a customer is explaining a problem, the technician's personal phone rings. What should the technician do?"
         choices:
-          - "Answer it, since it may be urgent"
+          - "Answer it quickly, since it may be an emergency"
           - "Let it go to voicemail and keep listening"
           - "Read the text message, then carry on"
           - "Ask the customer to wait"
@@ -1229,7 +1229,7 @@ units:
         choices:
           - "Explaining the cause in plain language"
           - "Setting a time for follow-up"
-          - "Describing the finance director's problem and what was on their PC"
+          - "Discussing the director's problem"
           - "Asking open-ended questions"
         answer: 2
         why: "Discretion means not discussing other customers' problems or data. The other choices are good practice."
@@ -1239,7 +1239,7 @@ units:
         choices:
           - "Disabling the antivirus on every PC"
           - "Deleting users' Documents folders weekly"
-          - "Granting every user administrator rights"
+          - "Granting every user local administrator rights at sign-in"
           - "Remapping department network drives at sign-in"
         answer: 3
         why: "Remapping network drives at sign-in is a standard scripting use case. The other choices weaken security or destroy data."
@@ -1248,7 +1248,7 @@ units:
         q: "A script that writes a log entry in a loop has no exit condition. Within an hour the PC's disk is full and applications crash. What scripting risk does this show?"
         choices:
           - "Mishandled resources causing a system crash"
-          - "A malware infection"
+          - "Malware introduced by the script's log files"
           - "A licensing breach"
           - "A change freeze violation"
         answer: 0
@@ -1257,7 +1257,7 @@ units:
         type: mcq
         q: "A caller claiming to be from 'Microsoft Support' asks a user to install a screen-sharing tool so they can fix a virus. What is the main security concern with this third-party remote access tool?"
         choices:
-          - "It uses too much bandwidth"
+          - "It uses too much bandwidth on the office connection"
           - "It gives an unverified outsider control of the PC"
           - "It is not compatible with Windows"
           - "It needs a paid licence"
@@ -1267,7 +1267,7 @@ units:
         type: mcq
         q: "An employee submits a report written entirely by an AI chatbot as their own analysis, against company policy. Which AI concern does this MOST directly raise?"
         choices:
-          - "Hallucination"
+          - "Hallucination of false facts in the report"
           - "Bias"
           - "Plagiarism and inappropriate use"
           - "Data privacy"
@@ -1279,8 +1279,8 @@ units:
         choices:
           - "That it uses the company's colour scheme"
           - "That it works offline"
-          - "That it summarises in under a minute"
-          - "Where the data is sent and processed, and whether policy allows it"
+          - "That it can summarise long documents in under a minute"
+          - "Where the content is sent and processed"
         answer: 3
         why: "An AI feature integrated into an application may send content to an outside service, so its data handling must meet company policy. Speed and appearance do not affect privacy."
 
@@ -1315,9 +1315,9 @@ units:
         type: mcq
         q: "A branch office has a slow WAN link to the backup server. The company wants a fresh full backup every week without reading all 2 TB from the branch again. Which backup approach fits?"
         choices:
-          - "A weekly full backup across the WAN"
+          - "A weekly full backup copied across the WAN link"
           - "Daily differentials only"
-          - "A synthetic full built on the server from earlier backups"
+          - "A synthetic full built on the server"
           - "A copy of the data to a USB stick"
         answer: 2
         why: "A synthetic full is assembled on the backup server from the last full and later incrementals, so the source is not read again. A differential still depends on an old full and grows each day."
@@ -1336,7 +1336,7 @@ units:
         q: "A grandfather-father-son scheme keeps 6 daily, 4 weekly and 12 monthly sets. A user needs a file, which had existed for years, that was deleted 7 weeks ago. Which set should be used?"
         choices:
           - "A monthly set from before the deletion"
-          - "The most recent weekly set"
+          - "The oldest weekly set still in the rotation"
           - "The most recent daily set"
           - "None; it cannot be recovered"
         answer: 0
@@ -1346,7 +1346,7 @@ units:
         q: "Replacing failed desk switches is a pre-approved standard change. This week the faulty switch is the core switch that links every floor. How should the replacement be handled?"
         choices:
           - "As a standard change, since switch swaps are pre-approved"
-          - "As a normal change with its own risk assessment and approval"
+          - "As a normal change, assessed and approved"
           - "Without a record, since it is like-for-like"
           - "During business hours, to save overtime"
         answer: 1
@@ -1357,7 +1357,7 @@ units:
         choices:
           - "Wait until the freeze ends"
           - "Patch it with no record"
-          - "Raise an emergency change and patch with expedited approval"
+          - "Raise an emergency change"
           - "Disable the VPN for the rest of the year"
         answer: 2
         why: "A freeze stops routine changes, not urgent risk responses; the emergency change route lets the fix go in now with paperwork completed afterwards. Waiting leaves an active exploit open."
@@ -1365,7 +1365,7 @@ units:
         type: mcq
         q: "After a new invoicing client is deployed, the change stays open until the accounts team confirms they can run a full month-end close with it. Which step is this?"
         choices:
-          - "Peer review"
+          - "Peer review by a colleague"
           - "Risk analysis"
           - "Sandbox testing"
           - "End-user acceptance"
@@ -1378,15 +1378,15 @@ units:
           - "The rollback plan"
           - "The backup plan"
           - "The scope"
-          - "The purpose"
+          - "The purpose of the change"
         answer: 0
         why: "The rollback plan documents the steps to return to the previous state. The backup plan secures a copy of the data first; it does not by itself say how to revert."
       - id: ap2-4y-q08
         type: mcq
         q: "A technician finds a spreadsheet of full card numbers with expiry dates saved on a shared drive that every employee can open. What should the technician do?"
         choices:
-          - "Delete it to remove the risk"
-          - "Restrict access if authorised, and report it to management or security under policy"
+          - "Delete the file at once so nobody else can open it"
+          - "Restrict access if allowed and report it"
           - "Email it to the finance team to check"
           - "Ignore it, as it is not an IT problem"
         answer: 1
@@ -1397,7 +1397,7 @@ units:
         choices:
           - "None, because the hash matches"
           - "The drive must be degaussed"
-          - "The chain of custody is broken, so the evidence may be challenged"
+          - "The chain of custody is broken"
           - "The image must be made on a different drive"
         answer: 2
         why: "Chain of custody requires a continuous record of who held the evidence; an unrecorded gap lets its handling be challenged even if it is intact. The hash shows integrity, not custody."
@@ -1415,7 +1415,7 @@ units:
         type: mcq
         q: "A developer wants to include an open-source library in a product the company sells. What must be checked FIRST?"
         choices:
-          - "That library's licence terms, since some require sharing source code"
+          - "The library's licence terms"
           - "The library's download count"
           - "Whether the library has a logo"
           - "Whether the company's EULA mentions open source"
@@ -1435,7 +1435,7 @@ units:
         type: mcq
         q: "A user calls and says only 'the internet is broken'. Which question should the technician ask FIRST to narrow the scope?"
         choices:
-          - "Have you restarted your router?"
+          - "Have you tried restarting your router and your PC?"
           - "Is your cable plugged in?"
           - "What happens when you try to open a website?"
           - "Are you using Windows 11?"
@@ -1456,7 +1456,7 @@ units:
         q: "An administrator runs Enter-PSSession to work in PowerShell on a remote Windows server using its default configuration. Which service carries the session?"
         choices:
           - "WinRM"
-          - "RDP"
+          - "Remote Desktop Protocol"
           - "VNC"
           - "SPICE"
         answer: 0
@@ -1465,8 +1465,8 @@ units:
         type: mcq
         q: "A contractor offers to send confidential drawings with a plain FTP file-transfer tool. What is the security concern, and the better option?"
         choices:
-          - "FTP is too slow; use email"
-          - "FTP sends credentials and data unencrypted; use SFTP or another encrypted transfer"
+          - "FTP is too slow for large drawings; use email instead"
+          - "Data and logins travel unencrypted; use SFTP"
           - "FTP needs a licence; use a free tool"
           - "FTP cannot send large files; use a USB stick"
         answer: 1
@@ -1475,7 +1475,7 @@ units:
         type: mcq
         q: "An AI tool built into the help desk system drafts a fix that cites a registry setting nobody can find documented anywhere. What should the technician do?"
         choices:
-          - "Apply it, since the tool is approved by the company"
+          - "Apply it, since the company approved the tool for support work"
           - "Send it to the user to try"
           - "Verify it against trusted documentation before using it"
           - "Delete the AI feature"
@@ -1488,7 +1488,7 @@ units:
           - "A free public chatbot with a warning banner"
           - "A public chatbot, after removing names only"
           - "Any tool, provided staff sign the AUP"
-          - "A private AI model hosted under the company's control"
+          - "A private AI model under company control"
         answer: 3
         why: "A private model keeps prompts and data within the company's control. A public service would send the records outside, which the policy forbids however carefully names are stripped."
       - id: ap2-4y-q19
@@ -1496,7 +1496,7 @@ units:
         q: "A server room's humidity reads 85% after a cooling unit fault. What is the main risk to the equipment?"
         choices:
           - "Condensation and corrosion"
-          - "Static discharge"
+          - "Static discharge damaging components"
           - "Brownouts"
           - "Time drift"
         answer: 0
@@ -1505,7 +1505,7 @@ units:
         type: mcq
         q: "A sign-in screen must warn users that the system is for authorised use only and that activity is monitored, to meet a regulatory requirement. What should be configured?"
         choices:
-          - "A screensaver lock"
+          - "A screensaver lock with a password after five minutes"
           - "A splash screen shown before sign-in"
           - "A desktop wallpaper"
           - "An email signature"

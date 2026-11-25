@@ -7,7 +7,7 @@ units:
     domain: "3"
     goal: "I can read every routing-table code and pick the route a router uses, configure each kind of IPv4 and IPv6 static route, read OSPF interface and neighbour output, and explain how HSRP versions, timers and tracking keep a gateway alive."
     notes: |
-      **More route codes.** `O IA` is an OSPF route from another area. `O E2` and `O E1` are routes injected into OSPF from outside: E2 keeps the metric the injecting router (the ASBR) gave it, E1 adds the internal cost. `D EX` is an external EIGRP route, `B` is BGP and `R` is RIP. An asterisk marks a candidate default. A line such as `10.0.0.0/8 is variably subnetted, 4 subnets, 3 masks` is only a heading for the child routes beneath it. The time after the next hop is the route's age.
+      **More route codes.** `O IA` is an OSPF route from another area. `O E2` and `O E1` are routes injected into OSPF from outside: E2 keeps the metric the injecting router (the ASBR) gave it, E1 adds the internal cost. `D EX` is an external EIGRP route and `B` is BGP. An asterisk marks a candidate default. A line such as `10.0.0.0/8 is variably subnetted, 4 subnets, 3 masks` only heads the child routes beneath it.
 
       | Source | AD |
       | EIGRP summary | 5 |
@@ -214,11 +214,11 @@ units:
         type: mcq
         q: "'show ip ospf interface Gi0/0' on R2 shows: 'Network Type BROADCAST, Cost: 10' / 'State BDR, Priority 1' / 'Designated Router (ID) 3.3.3.3, Interface address 10.1.1.3' / 'Backup Designated router (ID) 2.2.2.2, Interface address 10.1.1.2' / 'Neighbor Count is 2, Adjacent neighbor count is 2'. R2's router ID is 2.2.2.2. What is true?"
         choices:
+          - "R2 is the BDR and is fully adjacent with both neighbours"
           - "R2 is the DR, with 3.3.3.3 as its backup"
-          - "R2 is the BDR and is fully adjacent with both of its neighbours"
           - "R2 is a DROTHER, adjacent only with the DR"
           - "R2 is the BDR, but one of its two neighbours is stuck at 2-Way"
-        answer: 1
+        answer: 0
         why: "R2's own router ID appears as the backup designated router and its state is BDR. The DR and BDR form full adjacencies with every router on the segment, and the adjacent count (2) equals the neighbour count (2), so nothing is stuck."
       - id: cn-3x-q10
         type: mcq
@@ -235,7 +235,7 @@ units:
         q: "OSPF has run on R1 for weeks with router ID 1.1.1.1, taken from Loopback0. An engineer adds 'router-id 9.9.9.9' under 'router ospf 1', but 'show ip protocols' still reports 'Router ID 1.1.1.1'. What must be done?"
         choices:
           - "Shut down Loopback0 so that 1.1.1.1 is released"
-          - "Wait for the dead interval to expire on every neighbour"
+          - "Wait for the dead interval to expire on every OSPF neighbour first"
           - "Configure 9.9.9.9 on a loopback interface as well"
           - "Restart the process with 'clear ip ospf process', or reload"
         answer: 3
@@ -258,7 +258,7 @@ units:
         choices:
           - "The port renegotiates and now runs at 10 Mbps"
           - "The port is rate-limited to 10 Gbps, its new maximum"
-          - "Nothing until the interface is shut and re-enabled"
+          - "Nothing changes until the interface is shut down and re-enabled"
           - "Only calculations that read the setting, such as OSPF cost"
         answer: 3
         why: "The bandwidth command is in kilobits per second (here 10 Mbps) and is only a number that metric and QoS calculations read; the port still runs at 1 Gbps. Speed is changed with the 'speed' command."
@@ -283,8 +283,8 @@ units:
       - id: cn-3x-q18
         type: mcq
         q: "A PC's ARP cache maps its default gateway to 0000.5e00.0105. What is providing the gateway?"
-        choices: ["HSRP version 1, group 5", "VRRP, group 5", "GLBP, group 5", "HSRP version 2, group 261"]
-        answer: 1
+        choices: ["VRRP, group 5", "HSRP version 1, group 5", "GLBP, group 5", "HSRP version 2, group 261"]
+        answer: 0
         why: "0000.5e00.01xx is the IPv4 VRRP virtual MAC, with the group in the last byte: 0x05. HSRP uses 0000.0c07.acxx (v1) or 0000.0c9f.fxxx (v2), and GLBP uses 0007.b4xx.xxxx."
 
       - id: cn-3x-m01
@@ -420,11 +420,11 @@ units:
         type: mcq
         q: "R1 has 'ipv6 route 2001:db8:c::/64 2001:db8:12::2' and 'ipv6 route 2001:db8:c::99/128 2001:db8:13::3 250'. Both appear in 'show ipv6 route'. Where does R1 send a packet for 2001:db8:c::99?"
         choices:
+          - "To 2001:db8:13::3, because the /128 is the longest match"
           - "To 2001:db8:12::2, because its route has the lower distance"
           - "To both next hops, sharing the load"
           - "Nowhere, because a distance of 250 marks the route unusable"
-          - "To 2001:db8:13::3, because the /128 is the longest match"
-        answer: 3
+        answer: 0
         why: "Distance only chooses between routes to the same prefix and length; once both are in the table, the /128 is the longest match. Only a distance of 255 makes a route unusable."
       - id: cn-3y-q09
         type: mcq
@@ -459,7 +459,7 @@ units:
           - "The routers use different OSPF process IDs"
           - "Every router on the segment has 'ip ospf priority 0'"
           - "The segment is configured as point-to-point"
-          - "R1 has a mismatched dead interval"
+          - "R1 has a dead interval that does not match its neighbours"
         answer: 1
         why: "With priority 0 everywhere nobody can be elected DR or BDR, so no pair goes beyond 2-Way and no databases are exchanged. Process IDs are local, a point-to-point type would show FULL/ -, and mismatched timers would leave no neighbour entry."
       - id: cn-3y-q13
@@ -485,8 +485,8 @@ units:
       - id: cn-3y-q15
         type: mcq
         q: "Four routers start OSPF together on one Ethernet segment: R1 (priority 1, RID 4.4.4.4), R2 (priority 10, RID 1.1.1.1), R3 (priority 10, RID 2.2.2.2) and R4 (priority 0, RID 9.9.9.9). Which become DR and BDR?"
-        choices: ["DR R4, BDR R1", "DR R2, BDR R3", "DR R1, BDR R3", "DR R3, BDR R2"]
-        answer: 3
+        choices: ["DR R3, BDR R2", "DR R4, BDR R1", "DR R2, BDR R3", "DR R1, BDR R3"]
+        answer: 0
         why: "R4 with priority 0 cannot be elected. R2 and R3 tie on the highest priority, 10, so the higher router ID (R3, 2.2.2.2) becomes DR and R2 BDR. Router ID only breaks ties, so R1's higher ID does not beat a higher priority."
       - id: cn-3y-q16
         type: mcq
@@ -511,7 +511,7 @@ units:
       - id: cn-3y-q18
         type: mcq
         q: "R2's Loopback0 is 10.2.2.1/24 and is in OSPF. R1's table shows 'O 10.2.2.1/32 [110/2] via 10.0.12.2', not the /24. Which interface command on R2's Loopback0 makes OSPF advertise 10.2.2.0/24?"
-        choices: ["ip ospf cost 1", "ip ospf network point-to-point", "ip ospf priority 255", "ip ospf network broadcast"]
+        choices: ["ip ospf cost 1", "ip ospf network point-to-point", "ip ospf priority 255", "ip ospf hello-interval 10"]
         answer: 1
         why: "OSPF's default loopback network type advertises the interface as a /32 host route whatever its mask. Setting the type to point-to-point makes OSPF advertise the configured prefix, 10.2.2.0/24."
       - id: cn-3y-q19
@@ -531,8 +531,8 @@ units:
         q: "R1 has 'auto-cost reference-bandwidth 10000'; its OSPF neighbours keep the default. What is the result?"
         choices:
           - "The adjacencies fail because the reference bandwidths differ"
-          - "Adjacencies form, but routers weigh the same links differently, so paths can be suboptimal"
-          - "The neighbours adopt R1's reference bandwidth from its hellos"
+          - "Adjacencies form, but the routers cost the same links differently"
+          - "The neighbours learn R1's reference bandwidth from its hellos and adopt it"
           - "R1 ignores the command until every router uses the same value"
         answer: 1
         why: "The reference bandwidth is not carried in hellos, so it cannot block an adjacency, but each router computes costs from its own value. IOS warns that it should be set the same on every router."
@@ -567,7 +567,7 @@ units:
         q: "R1's OSPF configuration is 'router ospf 1' / 'passive-interface default' / 'network 10.0.0.0 0.255.255.255 area 0'. No neighbour forms on the uplink Gi0/0, and 'show ip protocols' lists Gi0/0 under 'Passive Interface(s)'. The LAN ports must stay passive. Which command fixes it?"
         choices:
           - "'no passive-interface default' under router ospf 1"
-          - "'ip ospf 1 area 0' on Gi0/0"
+          - "'ip ospf 1 area 0' on Gi0/0, which overrides the process setting"
           - "'no passive-interface GigabitEthernet0/0' under router ospf 1"
           - "'no shutdown' on Gi0/0"
         answer: 2
@@ -588,7 +588,7 @@ units:
         choices:
           - "Tracked object 1 is down, lowering R1 to 90, so R2 preempted"
           - "R1 has lost its preempt setting, so it stays standby"
-          - "Priorities tie, so R2's higher address won"
+          - "R2 has the higher interface address and wins the election on a tie"
           - "The two routers have different virtual IPs for group 10"
         answer: 0
         why: "110 minus the decrement of 20 is 90, the value in the Pri column, so R2's 100 is higher and R2 preempts. The P shows R1 still has preemption; it will take the active role back when the object recovers."
@@ -605,8 +605,8 @@ units:
       - id: cn-3y-q29
         type: mcq
         q: "On a router running HSRP with default settings, 'standby 300 ip 10.30.0.1' is rejected. What must be entered on the interface first?"
-        choices: ["standby 300 preempt", "standby version 2", "standby 300 priority 110", "standby use-bia"]
-        answer: 1
+        choices: ["standby version 2", "standby 300 preempt", "standby 300 priority 110", "standby use-bia"]
+        answer: 0
         why: "HSRP version 1, the default, supports groups 0 to 255; version 2 extends the range to 4095. Preempt or priority lines for group 300 would be rejected for the same reason."
       - id: cn-3y-q30
         type: mcq
@@ -625,7 +625,7 @@ units:
           - "Both routers have the same priority"
           - "Preemption is missing on both routers"
           - "The virtual IP must be different on each router"
-          - "The group numbers differ, so each router is alone in its group"
+          - "The two routers use different group numbers"
         answer: 3
         why: "Routers cooperate only within the same group number; R1 is alone in group 1 and R2 in group 2, so both are active for the same virtual IP. Equal priorities would simply be settled by the higher interface address."
       - id: cn-3y-q32
@@ -652,11 +652,11 @@ units:
         type: mcq
         q: "R1 has six equal-cost OSPF paths to 10.50.0.0/16, but 'show ip route' lists only four next hops for it. What explains this?"
         choices:
-          - "Two of the neighbours are stuck in 2-Way"
           - "OSPF's default maximum-paths on IOS is 4"
+          - "Two of the neighbours are stuck in 2-Way"
           - "OSPF can never use more than four interfaces"
           - "The other two paths have a higher administrative distance"
-        answer: 1
+        answer: 0
         why: "IOS installs up to four equal-cost OSPF paths by default, and 'maximum-paths 6' under the process raises the limit. Every OSPF route has the same distance, and the limit is configurable, not fixed."
       - id: cn-3y-q35
         type: mcq

