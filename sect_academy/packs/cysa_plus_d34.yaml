@@ -687,11 +687,11 @@ units:
          why: "The playbook acts after the alert, so it should shorten the time to containment, and the share of clean hosts isolated shows whether it is disrupting the business by mistake. Detection happens before the playbook runs, so the time to detect does not change."}
       - {id: cy-4y-o01, type: order,
          q: "An analyst confirms that customer personal data has been exfiltrated. Put the notification steps in order.",
-         steps: ["Record the confirmed facts and the time they were confirmed", "Escalate to the incident manager, who declares a major incident", "Legal counsel determines which notification duties apply and their deadlines", "The designated spokespeople send the approved notifications", "The post-incident report records each notification and when it was made"],
-         why: "Facts and the awareness time come first because deadlines run from them; declaration brings in the people with authority; counsel works out the duties before anyone speaks outside; and the record of what was sent comes after it is sent."}
+         steps: ["Escalate to the incident manager, who declares a major incident", "Legal counsel determines which notification duties apply and their deadlines", "The designated spokespeople send the approved notifications", "The post-incident report records each notification and when it was made"],
+         why: "Declaration brings in the people with authority to act; counsel works out the duties and deadlines before anyone speaks outside; only approved spokespeople send the notices; and the record of what was sent can only be written after it was sent."}
       - {id: cy-4y-o02, type: order,
          q: "A critical finding cannot be patched until after the peak trading season. Put the steps for handling it in order.",
-         steps: ["Document why the fix cannot be applied now and the risk that remains", "Propose a compensating control and a target date", "The risk owner approves a time-limited exception", "Apply the fix in the agreed window", "Rescan to verify and close the finding"],
+         steps: ["Document the inhibitor, the remaining risk, a proposed compensating control and a target date", "The risk owner approves a time-limited exception", "Apply the fix in the agreed window", "Rescan to verify and close the finding"],
          why: "The risk owner can only weigh a documented risk and a proposed mitigation, the exception sets the date by which the real fix must happen, and the finding closes only when a rescan proves the fix."}
       - {id: cy-4y-o03, type: order,
          q: "Put these moments in one incident's life in the order they occur. The gaps between them are what the SOC's 'mean time to' metrics measure.",

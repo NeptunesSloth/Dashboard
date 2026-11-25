@@ -238,3 +238,275 @@ units:
          choices: ["The analyst who found the flaw", "The administrator who would apply the patch", "A risk owner with the authority the policy assigns", "The scanner vendor's support team"],
          answer: 2,
          why: "Accepting risk beyond policy is a business decision, so it belongs to an accountable owner at the level the policy names. The analyst advises and the administrator implements; neither should approve their own exception."}
+
+  - id: cy-2y
+    title: "Vulnerability management: exam-hard practice"
+    domain: "2"
+    goal: "I can read scanner, Nmap, web-test and cloud-audit output, decode a CVSS vector metric by metric, and choose the priority and fix that fit the business."
+    notes: |
+      These questions are above exam difficulty, and almost every one hands you an artefact to read. Work in three steps.
+
+      **1. Say what the output proves, not what it suggests.** A banner suggests a version; a credentialed check proves it. *open|filtered* means no reply came back. A shell opening proves a finding is exploitable. A severity tag is the tool's opinion: an exposed **.git** directory may be tagged medium and still be the worst thing on the page.
+
+      **2. Decode CVSS one metric at a time.**
+
+      | Metric | Ask |
+      |---|---|
+      | AV | Internet, same segment, logged in, or touching it? |
+      | AC | Must the attacker win a race or find an odd setting? |
+      | PR / UI | Does the attacker need an account? Must a victim act? |
+      | S | Does the damage land in another security authority? |
+      | E, RL, RC | Temporal: exploit code, fix status, confidence |
+      | M* | Environmental: rescored for *your* deployment |
+
+      EPSS is a 30-day probability of exploitation activity; the KEV catalog says exploitation has already happened.
+
+      **3. Fit the fix to the cause and the business.** Parameterize queries, avoid the shell, turn off external entities, allowlist URLs, rebuild images rather than patching containers, and remove a public grant rather than encrypting behind it. Then validate with the same check that raised the finding.
+    items:
+      # ── reading network and vulnerability scanner output ──
+      - id: cy-2y-q01
+        type: mcq
+        q: "An external Nmap scan of a development server returns: 22/tcp open ssh OpenSSH 9.6p1; 443/tcp open ssl/http nginx 1.24.0; 2375/tcp open docker Docker 24.0.7 (API 1.43). The team says the server only hosts a test website. Which result is the MOST serious, and why?"
+        choices: ["Port 2375: a plain-text Docker API, which normally lets anyone run containers as root", "Port 22: remote administration is reachable, so passwords can be guessed", "Port 443: the version banner tells attackers which nginx release to target", "Port 2375: the Docker release is old, so its images may hold known flaws"]
+        answer: 0
+        why: "2375 is the Docker daemon's unencrypted TCP port; with no TLS client authentication, anyone who reaches it can start a privileged container that mounts the host's file system. Exposed SSH deserves tightening, but an attacker still needs a credential."
+      - id: cy-2y-q02
+        type: mcq
+        q: "A UDP scan of a firewall returns: 53/udp open domain; 123/udp closed ntp; 500/udp open|filtered isakmp. What does the result for port 500 mean?"
+        choices: ["A firewall rule dropped the probe, so the port is certainly blocked", "No reply came back, so the port may be open or a filter may have dropped the probe", "The host answered with an ICMP port unreachable message", "The service replied, but Nmap could not identify its version"]
+        answer: 1
+        why: "For UDP, silence is ambiguous: an open service may ignore an empty probe and a filter drops it the same way, so Nmap reports open|filtered. An ICMP port unreachable reply is what produced 'closed' for port 123."
+      - id: cy-2y-q03
+        type: mcq
+        q: "Nmap's smb2-security-mode script reports the same line for every workstation and file server: 'Message signing enabled but not required'. Which attack does this setting leave the network MOST exposed to?"
+        choices: ["Pass-the-hash with hashes dumped from memory", "Brute-forcing of local administrator passwords", "Relaying captured NTLM authentications to these hosts", "Forcing SMB sessions down to SMBv1"]
+        answer: 2
+        why: "When signing is not required, an attacker who captures an NTLM authentication (for example by poisoning name resolution) can relay it to these hosts and act as that user; requiring signing breaks the relay. Pass-the-hash is the near miss, but an attacker holding the hash can sign the session, so signing does not stop it."
+      - id: cy-2y-q04
+        type: mcq
+        q: "Nmap's ssl-enum-ciphers script reports for an internal HR portal: 'TLSv1.0: TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C; warnings: 64-bit block cipher 3DES vulnerable to SWEET32 attack'. The portal also offers TLS 1.2 with AES-GCM suites. Which change remediates the finding?"
+        choices: ["Replace the 2048-bit RSA certificate with a 4096-bit one", "Turn on HTTP Strict Transport Security for the portal", "Put the portal behind the VPN so that only staff reach it", "Disable TLS 1.0 and the 3DES suites, keeping TLS 1.2 and later"]
+        answer: 3
+        why: "SWEET32 attacks 64-bit block ciphers such as 3DES, so removing those suites (and the obsolete TLS 1.0 that carries them) removes the weakness. A larger RSA key strengthens the key exchange, not the bulk cipher that is the problem."
+      - id: cy-2y-q05
+        type: mcq
+        q: "Last week an administrator upgraded a web server from Apache 2.4.49 to 2.4.50, as the first advisory for a path traversal flaw instructed. Today's credentialed scan still reports: 'Installed version: 2.4.50; Fixed version: 2.4.51; path traversal and remote code execution'. How should the analyst read this?"
+        choices: ["True positive: the 2.4.50 fix was incomplete, so the server must go to 2.4.51", "False positive: the plugin feed predates the upgrade to 2.4.50", "False positive: the distribution kept an old banner after patching", "True positive that clears once the web service is restarted"]
+        answer: 0
+        why: "The 2.4.50 fix for the path traversal flaw was incomplete, and the follow-up flaw was fixed in 2.4.51, so the report is accurate. A stale banner is unlikely: the scan is credentialed and the version it reports is the one that was installed."
+      - id: cy-2y-q06
+        type: mcq
+        q: "A Nuclei run against the shop's website prints: [tech-detect:nginx] [http] [info] https://shop.example.com; [http-missing-security-headers:content-security-policy] [http] [info] https://shop.example.com; [git-config] [http] [medium] https://shop.example.com/.git/config. What does the git-config match MOST likely let an attacker do?"
+        choices: ["Push malicious commits to the shop's source repository", "Download the site's source and history, with any secrets ever committed", "Inject script into pages because no content security policy is set", "Read the nginx configuration file of the web server"]
+        answer: 1
+        why: "A web-readable .git directory lets tools rebuild the repository from its objects, exposing the source code and anything ever committed to it, such as keys. It is read access to a copy; it does not give the right to push to the real repository."
+      - id: cy-2y-q07
+        type: mcq
+        q: "A report header reads: 'Scanner: vendor-hosted cloud scanner; Scan type: external; Targets: 10.10.0.0/16; Hosts alive: 0'. The 10.10 network holds 900 running servers. What is the MOST likely cause?"
+        choices: ["The servers drop ICMP, so the host discovery phase failed", "The scan was run without credentials", "Private addresses cannot be routed to from an internet-based scanner", "The scanner's plugin feed is out of date"]
+        answer: 2
+        why: "10.10.0.0/16 is RFC 1918 private space, which is not routed across the internet, so an external scanner never reaches it; internal ranges need an internal scanner or agents. Dropped ICMP can hide hosts, but it would not explain zero results for a whole private range scanned from outside."
+      - id: cy-2y-q08
+        type: mcq
+        q: "A scan from the DMZ of 40 internal servers reports all 65,535 TCP ports open on every host, all with the same response time, and version detection identifies no service on any of them. What is the MOST likely explanation?"
+        choices: ["The servers have been compromised and run backdoor listeners on every port", "A firewall or IPS on the path is completing the handshakes itself", "The scan was non-credentialed, so closed ports could not be told apart", "The scan used UDP probes, which report every port as open"]
+        answer: 1
+        why: "No real server listens on every port with identical timing and no identifiable service; a device in the path that answers on the hosts' behalf (a SYN proxy or a deception feature) produces exactly this. Scan from a position the device does not intercept, or exempt the scanner."
+      - id: cy-2y-q09
+        type: mcq
+        q: "During an authorised test of a finding the server owner disputes, the analyst's console shows: [*] Started reverse TCP handler on 10.0.5.20:4444; [*] Sending stage (201798 bytes) to 10.0.8.31; [*] Meterpreter session 1 opened (10.0.5.20:4444 -> 10.0.8.31:49711). What does this establish?"
+        choices: ["The finding was a false positive, because the exploit used a different port", "The server was already compromised by an outside attacker using port 4444", "The host firewall on 10.0.8.31 blocks every inbound connection", "The finding is a true positive, exploitable from the analyst's network position"]
+        answer: 3
+        why: "A session opening on the target proves the flaw is real and reachable from where the analyst sits, which settles the dispute and raises its priority. 10.0.5.20:4444 is the analyst's own listener, so this is not evidence of an outside attacker."
+      # ── CVSS, EPSS and prioritisation ──
+      - id: cy-2y-q10
+        type: mcq
+        q: "A finding on a building-management controller carries CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H (8.8). The controller sits alone on a VLAN that only the facilities workstation can reach. What does the vector say an attacker needs?"
+        choices: ["Physical access to the controller's console port", "A low-privileged account on the controller", "A foothold on the same network segment, with no account and no victim action", "Only an internet connection, since no privileges are needed"]
+        answer: 2
+        why: "AV:A limits the attack to the same local segment or logically adjacent network, and PR:N and UI:N mean no account and no victim action. So reaching this controller first means compromising the facilities workstation or plugging into its VLAN; an internet connection alone is not enough."
+      - id: cy-2y-q11
+        type: mcq
+        q: "A browser flaw is scored CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:N/A:N (5.3). Which description fits every metric in the vector?"
+        choices: ["A logged-in user reads other users' data with a crafted request that works every time", "Visiting a malicious page crashes the browser, but only with an unusual setting", "Opening a crafted local file discloses memory, with no further conditions", "Visiting a malicious page can leak other sites' data if the attacker wins a timing race"]
+        answer: 3
+        why: "UI:R is the victim visiting the page, AC:H is the race the attacker must win, and confidentiality is the only impact. The crash description has the right interaction and complexity but the wrong impact: availability, not confidentiality."
+      - id: cy-2y-q12
+        type: mcq
+        q: "A ZAP alert reads: 'Cross Site Scripting (Reflected); URL: https://intranet.example.com/search?q=; Attack: </p><script>alert(1);</script><p>; Evidence: the same string in the response'. The team scores it CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N (6.1). Why is scope Changed?"
+        choices: ["The flaw is in the web application but the script runs in the victim's browser", "The victim has to click a crafted link before anything happens", "The script can steal session cookies and so reach every user of the site", "The payload crosses the firewall from the internet into the intranet"]
+        answer: 0
+        why: "Scope asks whether the impact lands outside the vulnerable component's security authority: the flaw is in the web application, but the injected script runs in the browser, which is governed separately. The victim clicking the link is recorded by UI:R, not by scope."
+      - id: cy-2y-q13
+        type: mcq
+        q: "Firmware in a public kiosk mounts any USB storage device inserted into its front port, and a crafted device gives full control of the kiosk without anyone logging in or doing anything else. Which CVSS v3.1 base vector fits?"
+        choices: ["AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H", "AV:P/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H", "AV:P/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H", "AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"]
+        answer: 1
+        why: "The attacker must physically insert the device (AV:P), needs no account (PR:N) and relies on nobody else (UI:N); the vector scores 6.8. AV:L is the near miss: it describes an attacker acting through the system's own interfaces with local access, not one who must touch the hardware."
+      - id: cy-2y-q14
+        type: mcq
+        q: "A finding shows the vector CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N/E:H/RL:O/RC:C. What do the last three metrics add?"
+        choices: ["Attacks have been seen in the wild, a temporary workaround exists, and the score is certified", "Exploit code is hard to write, only a workaround exists, and the report is unconfirmed", "Functional exploit code exists, an official fix is available, and the flaw is confirmed", "The asset has a high confidentiality requirement, and its attack vector has been modified"]
+        answer: 2
+        why: "These are temporal metrics: E:H means functional, reliable exploit code exists (or none is needed), RL:O means an official vendor fix is available, and RC:C means the flaw is confirmed. E:H measures exploit code maturity, not attacks in the wild, which come from threat intelligence such as the KEV catalog."
+      - id: cy-2y-q15
+        type: mcq
+        q: "A finding's threat context shows: CVSS 6.5; EPSS 0.71 (percentile 0.99). Which reading of the EPSS figures is correct?"
+        choices: ["71% of the organization's hosts are exposed, more than for 99% of other findings", "The flaw featured in 71% of the incidents reported to FIRST in the last year", "Its severity is in the top 1%, so the CVSS score understates it by 71%", "A 71% estimated chance of exploitation activity in the next 30 days, above about 99% of scored flaws"]
+        answer: 3
+        why: "EPSS estimates the probability that exploitation activity will be observed in the next 30 days, and the percentile ranks that probability against all scored CVEs. It says nothing about severity or about how many of your hosts are affected, which is why it is used beside CVSS rather than instead of it."
+      - id: cy-2y-q16
+        type: mcq
+        q: "A flaw on a database server is scored CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H (9.8). In this company a firewall lets the server accept connections only from hosts on its own subnet. Which metric lets the organization record that fact in its score?"
+        choices: ["Exploit Code Maturity: Unproven", "Confidentiality Requirement: Low", "Modified Attack Vector: Adjacent", "Remediation Level: Workaround"]
+        answer: 2
+        why: "Environmental modified base metrics rescore the flaw for one deployment, and MAV:A records that the attacker must be on the same subnet. Exploit code maturity and remediation level are temporal metrics: they describe the flaw everywhere, not this deployment."
+      - id: cy-2y-q17
+        type: mcq
+        best: true
+        q: "A retailer has one change window tonight and room for one fix. Findings: A, internet-facing payment API, CVSS 8.1, in the KEV catalog; B, internal print server, CVSS 9.8, EPSS 0.03; C, lab VM on an isolated network, CVSS 10.0, in the KEV catalog; D, internal HR portal, CVSS 7.5, EPSS 0.40, public exploit code. Which finding is the BEST use of the window?"
+        choices: ["A, the payment API", "B, the print server", "C, the lab VM", "D, the HR portal"]
+        answer: 0
+        why: "A combines known exploitation, internet exposure and a business-critical asset, so both likelihood and impact are highest. B has the higher base score, but it is internal and very unlikely to be exploited soon."
+        whys: ["Known exploitation on an exposed, business-critical system: the highest likelihood and impact.", "The top base score, but internal and with a very low EPSS, so exploitation is unlikely soon.", "Known exploitation matters less on a host nobody can reach; its isolation already protects it.", "A public exploit makes it urgent, but it is internal and less likely to be hit than a flaw already exploited in the wild on an exposed system."]
+      # ── web application scanner output ──
+      - id: cy-2y-q18
+        type: mcq
+        q: "Burp Suite shows for the id parameter of /api/orders: baseline request 140 ms; id=1' AND SLEEP(5)-- - took 5,012 ms; id=1' AND SLEEP(0)-- - took 151 ms. No error message and no extra rows appear in any response. What has been found?"
+        choices: ["Boolean-based blind SQL injection", "Error-based SQL injection", "Time-based blind SQL injection", "UNION-based SQL injection"]
+        answer: 2
+        why: "The database ran the injected SLEEP, delaying the response by exactly the time asked for while the content stayed the same: time-based blind injection. Boolean-based blind injection shows up as a difference in the response content, not its timing."
+      - id: cy-2y-q19
+        type: mcq
+        q: "A code review finds: query = 'SELECT * FROM invoices WHERE id = ' + escape_quotes(request.id). A DAST scan confirms that id=7 OR 1=1 returns every invoice. Why did escaping fail, and what is the fix?"
+        choices: ["The escaping routine is outdated; upgrade the database driver", "The payload used encoded quotes; decode input before escaping it", "The WAF missed the request; add a SQL injection signature", "The value sits outside quotes, so none are needed; bind it as a parameter"]
+        answer: 3
+        why: "In a numeric context the attacker never needs a quotation mark, so escaping quotes does nothing; a parameterized query keeps the value as data whatever it contains. A WAF signature might block this payload but leaves the flaw in the code."
+      - id: cy-2y-q20
+        type: mcq
+        q: "A web scanner reports on a network-diagnostics page: 'Parameter: host; Payload: 127.0.0.1;id; Response contains: uid=33(www-data) gid=33(www-data)'. Which fix removes the root cause?"
+        choices: ["Call ping without a shell and accept only a validated IP address", "Run the web server under an account with fewer rights than www-data", "Encode the page's output so the injected command's result is not shown", "Put the page behind a web application firewall in blocking mode"]
+        answer: 0
+        why: "The parameter is handed to an operating system shell, which ran the injected id command; not using a shell and allowlisting the input removes the injection. Fewer rights or a WAF only limit or filter the damage, and hiding the output leaves blind injection possible."
+      - id: cy-2y-q21
+        type: mcq
+        q: "A tester posts this body to an order-import endpoint: <?xml version='1.0'?><!DOCTYPE o [<!ENTITY x SYSTEM 'file:///etc/hostname'>]><order><note>&x;</note></order>. The response reads 'Order saved. Note: web-prod-03'. What is the flaw, and the fix?"
+        choices: ["Local file inclusion; map the file parameter to an allowlist", "XML external entity injection; disable DTDs and external entities in the parser", "Server-side request forgery; block all outbound requests from the server", "Stored cross-site scripting; encode the note field when it is displayed"]
+        answer: 1
+        why: "The parser resolved an external entity and put the file's contents into the note, which is XXE; disabling DTDs or external entity resolution in the XML parser closes it. It reads a local file as LFI does, but through the XML parser, not through an include parameter."
+      - id: cy-2y-q22
+        type: mcq
+        q: "A web server log shows: GET /index.php?page=php://filter/convert.base64-encode/resource=config 200, and the response body is a long base64 string. Decoded, it begins '<?php $db_user ='. What happened?"
+        choices: ["Remote file inclusion: the server fetched and ran the attacker's code", "Directory traversal: the request climbed out of the web root", "Local file inclusion: the config file's source was returned instead of run", "Server-side request forgery: the server called an internal service"]
+        answer: 2
+        why: "The page parameter includes a local file, and the php://filter wrapper base64-encodes it so its source is returned instead of executed, exposing the database credentials. Nothing was fetched from an outside server, so this is not RFI, and no ../ sequence left the web root."
+      - id: cy-2y-q23
+        type: mcq
+        q: "A Nikto scan of an internal application server lists: + Server: Apache-Coyote/1.1; + /: The X-Content-Type-Options header is not set; + OPTIONS: Allowed HTTP Methods: GET, HEAD, POST, PUT, DELETE, OPTIONS; + /manager/html: Default account found for Tomcat Manager Application (ID tomcat, PW tomcat). Which finding should be fixed FIRST?"
+        choices: ["The missing X-Content-Type-Options header", "The Apache-Coyote server banner", "The advertised PUT and DELETE methods", "The default Tomcat Manager account"]
+        answer: 3
+        why: "The manager application with known credentials lets anyone deploy a WAR file, which is remote code execution. The advertised PUT and DELETE methods deserve a check, but Nikto only shows that they are listed, not that an upload succeeds."
+      # ── cloud and container findings ──
+      - id: cy-2y-q24
+        type: mcq
+        q: "ScoutSuite flags a bucket named payroll-exports whose policy has the statement: Effect Allow; Principal *; Action s3:GetObject; Resource arn:aws:s3:::payroll-exports/*. A monthly export lands there and HR downloads it with their own AWS credentials. Which change fixes the finding?"
+        choices: ["Remove the statement and turn on Block Public Access", "Turn on default server-side encryption for the bucket", "Enable versioning so overwritten exports can be recovered", "Move the bucket to a region with stricter privacy law"]
+        answer: 0
+        why: "Principal * with s3:GetObject lets anyone on the internet read every export, and HR does not need it because they use their own credentials; Block Public Access stops it being added back. Server-side encryption does not help, because S3 decrypts objects transparently for any request the policy allows."
+      - id: cy-2y-q25
+        type: mcq
+        best: true
+        q: "Prowler reports: 'FAIL: security group sg-0a1b allows 0.0.0.0/0 to TCP port 22'. The group is attached to six Linux build servers that already run the cloud provider's session manager agent, and admins connect only from 203.0.113.0/28. Policy says no inbound administrative port may stay open where an alternative exists. Which change is BEST?"
+        choices: ["Move SSH to a high port such as 2222", "Remove the port 22 rule and administer through the session manager", "Restrict the port 22 rule to 203.0.113.0/28", "Keep the rule and allow only key-based SSH logins"]
+        answer: 1
+        why: "The agent is already in place, so administration needs no inbound port at all, which is what the policy asks for. Restricting the rule to the corporate range is a large improvement but still leaves an inbound port open."
+        whys: ["Obscurity only: scanners find a moved port within minutes and the exposure is unchanged.", "Meets the policy: with the agent installed, no inbound administrative port is needed.", "A large improvement, but it keeps an inbound port open when the policy says an alternative must be used.", "Stops password guessing, but the service stays exposed to the whole internet."]
+      - id: cy-2y-q26
+        type: mcq
+        q: "Trivy scans the image billing-api:4.2 (debian 12) and reports two rows: libexpat1, CRITICAL, status fixed, installed 2.5.0-1, fixed in 2.5.0-1+deb12u1; perl-base, HIGH, status will_not_fix, installed 5.36.0-7+deb12u1, no fixed version. Forty containers run from the image. Which plan is correct?"
+        choices: ["Wait for the next Trivy database update, which will clear both rows", "Patch libexpat1 inside each running container and ignore the perl row", "Rebuild the image for libexpat1; assess the perl row or formally except it", "Mark both rows as false positives, since Debian has reviewed them"]
+        answer: 2
+        why: "'fixed' means a patched package exists, so rebuilding and redeploying the image clears that row; 'will_not_fix' means the distribution will ship no fix, so the team must judge reachability and record an exception or remove the package. Patching inside running containers is lost when they are recreated from the image."
+      - id: cy-2y-q27
+        type: mcq
+        q: "A pipeline log shows Checkov output: 'Check: Ensure S3 bucket has server-side encryption enabled. SKIPPED for resource: aws_s3_bucket.audit_logs. Suppress comment: temp, fix later'. A developer added the skip to the Terraform file and nobody reviewed it. How should the vulnerability team treat this?"
+        choices: ["As a passed check, because the pipeline completed without failing", "As a false positive, because the developer has assessed the resource", "As accepted risk, because the developer owns the module", "As an unapproved exception: route it through the exception process or fix it"]
+        answer: 3
+        why: "An inline suppression is a risk exception granted by the person who would otherwise have to fix the finding; it needs an owner's approval, a reason and an expiry like any other exception. Calling it accepted risk is the trap: the developer is not the risk owner the policy names."
+      - id: cy-2y-q28
+        type: mcq
+        q: "A cloud assessment reports for a storage account holding signed contract PDFs: allowBlobPublicAccess: true; container 'contracts' access level: Blob (anonymous read access for blobs only); minimumTlsVersion: TLS1_0; supportsHttpsTrafficOnly: true. Which setting exposes the contracts MOST directly?"
+        choices: ["The minimum TLS version of 1.0", "HTTPS-only traffic being enforced", "No customer-managed encryption key", "Anonymous read access on the contracts container"]
+        answer: 3
+        why: "Anonymous blob access lets anyone who knows or guesses a blob's URL download a contract with no credentials. TLS 1.0 weakens the transport for legitimate users, but it is not an open door to the files."
+      - id: cy-2y-q29
+        type: mcq
+        q: "A Caldera operation against a test workstation returns: T1003.001 LSASS Memory: ran, blocked by EDR, no SIEM alert; T1059.001 PowerShell: ran, not blocked, SIEM alert raised; T1053.005 Scheduled Task: ran, not blocked, SIEM alert raised. What gap does this show?"
+        choices: ["The EDR stops credential dumping, but its block events never reach the SIEM", "The EDR fails to prevent credential dumping on this workstation", "PowerShell is unrestricted, so constrained language mode must be enforced", "The SIEM rules for scheduled tasks are producing false positives"]
+        answer: 0
+        why: "The LSASS technique was blocked, so prevention works, but the SOC never learned of the attempt, and a failed credential dump by a real intruder is an important lead. Saying the EDR failed misreads the 'blocked' result; the fix is to forward or alert on EDR prevention events."
+      # ── mitigation and validation ──
+      - id: cy-2y-q30
+        type: mcq
+        best: true
+        q: "A ticket for 'SMB signing not required' on 80 file servers is closed with the note 'GPO updated'. Which validation is BEST before the finding is closed in the vulnerability system?"
+        choices: ["Confirm the GPO is linked to the file servers' OU", "Rerun the same scan check against all 80 servers and confirm it no longer fires", "Ask the administrator for a screenshot of the GPO setting", "Check one file server's registry for the signing value"]
+        answer: 1
+        why: "Rescanning with the check that raised the finding tests the real state of every affected host. A linked GPO only shows the setting could apply, not that all 80 servers have applied it."
+        whys: ["Shows the policy could apply, not that every server has applied it.", "Tests the actual state of every affected host with the check that raised the finding.", "Evidence of intent, not of the servers' state.", "Proves the change on one server out of 80."]
+      - id: cy-2y-m01
+        type: multi
+        q: "Burp Repeater shows: POST /api/preview with body url=http://169.254.169.254/latest/meta-data/iam/security-credentials/ returns 200 and the text 'app-preview-role'. The application runs on an AWS EC2 instance. Which TWO measures BEST address this? (Choose TWO.)"
+        choices: ["Require IMDSv2 session tokens on the instance", "Rewrite the database queries as parameterized queries", "Encode the url value wherever it is shown in a page", "Validate the url parameter against an allowlist of destinations", "Turn on HTTP Strict Transport Security for the API", "Rotate the TLS certificate on the load balancer"]
+        answers: [0, 3]
+        why: "The response proves server-side request forgery reaching the instance metadata service, which hands out the role's temporary credentials. IMDSv2 needs a token obtained with a PUT request that a simple SSRF usually cannot make, and an allowlist stops the server fetching arbitrary addresses; the other choices fix different flaws."
+      - id: cy-2y-m02
+        type: multi
+        q: "A scan policy reads: Safe checks: off; Port range: all; Targets: 10.40.0.0/16 (production plant network, including PLCs); Window: Tuesday 14:00. The plant runs around the clock. Which TWO changes are MOST needed? (Choose TWO.)"
+        choices: ["Add domain credentials so the scan authenticates", "Turn safe checks on", "Send the report to every member of the plant staff", "Add all UDP ports to the port range", "Exclude the PLCs and monitor them with passive discovery instead", "Run the scan from an internet-facing scanner"]
+        answers: [1, 4]
+        why: "Intrusive checks against a live plant risk stopping production, so safe checks must be on, and PLCs that can fault under active probing are better watched passively. Credentials and more ports make the scan deeper, not safer, and an internet-facing scanner cannot see the plant network."
+      - id: cy-2y-m03
+        type: multi
+        q: "At 10:00 on a Monday an analyst runs: masscan 10.0.0.0/8 -p0-65535 --rate 5000000. Within minutes the core firewall's session table fills, VPN users are disconnected and the order system times out. Which TWO planning considerations were neglected? (Choose TWO.)"
+        choices: ["Regulatory requirements", "Performance impact on the network", "Credential management", "Scheduling around business hours", "Agent deployment"]
+        answers: [1, 3]
+        why: "Millions of packets a second across a /8 overloaded shared infrastructure (performance), and launching it on a working morning put the outage in front of users (scheduling). The other choices are real planning topics, but none of them caused this outage."
+      - id: cy-2y-m04
+        type: multi
+        q: "A finding on a multi-tenant hosting panel is scored CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H (9.9). Which THREE statements does the vector support? (Choose THREE.)"
+        choices: ["The attacker needs an ordinary account on the panel", "The attacker must be on the same network segment as the panel", "No other user has to do anything for the attack to work", "A successful attack affects resources outside the panel's security authority", "Working exploit code is publicly available", "The attacker needs administrative rights on the panel"]
+        answers: [0, 2, 3]
+        why: "PR:L is an ordinary low-privileged account, UI:N needs no victim action, and S:C means the impact crosses into another security authority. AV:N means reachable over the network, not limited to a segment, and the base vector says nothing about exploit code, which is a temporal metric."
+      - id: cy-2y-m05
+        type: multi
+        q: "Prowler reports for the IAM user ci-deployer: policy allows Action * on Resource *; access key 1 last rotated 412 days ago; access key 1 last used today from the CI runner. The pipeline only updates one Lambda function and one S3 bucket. Which TWO actions BEST reduce the risk? (Choose TWO.)"
+        choices: ["Replace the policy with one limited to the actions and resources the pipeline uses", "Delete the user straight away, since its key is over a year old", "Move the pipeline to short-lived role credentials instead of a stored access key", "Also attach the managed ReadOnlyAccess policy to the user", "Tag the user as a service account in the asset inventory"]
+        answers: [0, 2]
+        why: "Least privilege shrinks what a stolen key can do, and short-lived role credentials remove the long-lived key altogether. Adding a read-only policy takes nothing away, because permissions from attached policies add up, and deleting the user would break a pipeline that ran today."
+      - id: cy-2y-m06
+        type: multi
+        q: "A finding reads: 'CVSS 9.8, remote code execution in the switch's web management interface'. Which TWO facts would justify LOWERING its priority? (Choose TWO.)"
+        choices: ["Exploit code was published yesterday", "The switch carries the payment network's traffic", "The interface is reachable only from an isolated out-of-band management network", "The flaw is listed in the KEV catalog", "The switch sits at the internet edge", "A credentialed check confirms the web interface is disabled on the switch"]
+        answers: [2, 5]
+        why: "Isolation removes most attackers' path to the flaw, and a disabled interface means the vulnerable code cannot be reached at all. Published exploit code, KEV listing, an edge position and payment traffic all raise the priority instead."
+      - id: cy-2y-o01
+        type: order
+        q: "Put these CVSS v3.1 base vectors in order from the HIGHEST base score to the LOWEST."
+        steps: ["CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H", "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H", "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N", "CVSS:3.1/AV:P/AC:H/PR:H/UI:R/S:U/C:L/I:N/A:N"]
+        why: "They score 10.0, 7.2, 6.1 and 1.6. The first has no barriers and full impact across a scope change; the second has full impact but needs high privileges; the third needs a victim and has only low impact; the fourth needs physical access, high privileges, a victim and a hard attack for a small leak."
+      - id: cy-2y-o02
+        type: order
+        q: "Put these metrics in the order in which they appear in a CVSS v3.1 base vector string."
+        steps: ["Attack vector", "Privileges required", "User interaction", "Scope", "Confidentiality impact"]
+        why: "The base vector is written AV, AC, PR, UI, S, C, I, A: how the attacker gets there and what they need come first, then scope, then the three impacts. Reading a vector quickly depends on knowing this fixed order."
+      - id: cy-2y-o03
+        type: order
+        q: "An authorised assessment of a large address range uses four tools. Put them in the order they would be used."
+        steps: ["Masscan, to find open ports quickly across the whole range", "Nmap with version detection, on the hosts and ports found", "Nessus, to check the identified services for known vulnerabilities", "Metasploit, to confirm that a reported flaw can really be exploited"]
+        why: "Each step narrows the next: fast discovery finds live ports, version detection says what is running, the scanner matches those services to known flaws, and exploitation validates a specific finding. Exploiting before a finding exists has nothing to aim at."
+      - id: cy-2y-o04
+        type: order
+        q: "A vendor patch fixes a high-severity finding on a set of production servers. Put the remediation steps in order."
+        steps: ["Test the patch on a staging copy of the system", "Get the change approved through change management", "Deploy the patch in the approved maintenance window", "Rescan the servers to confirm the finding is gone", "Close the ticket, attaching the rescan evidence"]
+        why: "Testing gives the change board evidence that the patch is safe, approval comes before production is touched, and only a rescan after deployment shows the fix worked. Closing the ticket on the deployment alone skips validation."
