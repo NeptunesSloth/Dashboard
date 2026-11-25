@@ -117,7 +117,7 @@ units:
         why: "Home editions cannot join a domain; Pro and above can. The N versions only remove media features, and TPM or partition style has nothing to do with domain membership."
       - id: ap2-1a-q04
         type: mcq
-        q: "A 2016 desktop with 16 GB of RAM, a 500 GB SSD and a 64-bit quad-core CPU runs Windows 10 well, but the Windows 11 upgrade check fails. It boots in legacy BIOS mode. Which requirement is it MOST likely missing?"
+        q: "A 2019 desktop with 16 GB of RAM, a 500 GB SSD and a 64-bit quad-core CPU that is on Microsoft's supported-processor list runs Windows 10 well, but the Windows 11 upgrade check fails. It boots in legacy BIOS mode. Which requirement is it MOST likely missing?"
         choices:
           - "At least 32 GB of RAM"
           - "UEFI with Secure Boot and TPM 2.0"
@@ -548,7 +548,7 @@ units:
 
       | Standard | Encryption | Notes |
       | WPA2 | AES (CCMP) | TKIP is the legacy option; avoid it |
-      | WPA3 | AES (GCMP) | Replaces the pre-shared key handshake with SAE |
+      | WPA3 | AES: CCMP, or GCMP-256 in the Enterprise 192-bit mode | Replaces the pre-shared key handshake with SAE |
 
       **RADIUS** centralises network logins (Wi-Fi, VPN). **TACACS+** does the same for administering network devices, over TCP, with the whole exchange encrypted. **Kerberos** issues time-stamped tickets in a Windows domain.
     items:
@@ -679,7 +679,7 @@ units:
 
       - Investigate and verify the symptoms.
       - Quarantine the infected system.
-      - Disable System Restore.
+      - Disable System Restore (CompTIA words this step for Windows Home).
       - Remediate: update the anti-malware software, then scan and remove (safe mode or a preinstallation environment helps); reimage if that fails.
       - Schedule scans and run updates.
       - Enable System Restore and create a restore point.
@@ -710,7 +710,7 @@ units:
       - id: ap2-2b-spear
         type: concept
         term: "Spear phishing"
-        def: "A fraudulent message crafted for one specific person or small group, using details about them to appear genuine."
+        def: "A fraudulent message crafted for one specific person or small group, such as the staff of one department, using details about them to appear genuine."
       - id: ap2-2b-whaling
         type: concept
         term: "Whaling"
@@ -887,7 +887,7 @@ units:
           - "Set a BIOS/UEFI password"
           - "Turn on EFS"
         answer: 1
-        why: "Disabling AutoRun/AutoPlay stops Windows launching content from removable media automatically. A firmware password protects setup and boot settings; it does not affect what happens when a drive is inserted in Windows."
+        why: "Disabling AutoRun/AutoPlay stops Windows launching or offering to launch content from removable media automatically (current Windows already ignores autorun.inf on USB sticks, but the setting is still the listed hardening step). A firmware password protects setup and boot settings; it does not affect what happens when a drive is inserted in Windows."
       - id: ap2-2c-q05
         type: mcq
         q: "A file with its own explicit permissions is MOVED from one folder to another on the same NTFS volume. What happens to those permissions?"
@@ -923,7 +923,7 @@ units:
       ## Destroying data
 
       | Method | Result |
-      | Standard format | Data is still recoverable |
+      | Standard (quick) format | Data is still recoverable |
       | Erasing/wiping (overwriting) | Data gone, drive reusable |
       | Degaussing | Magnetic media erased and unusable; no effect on SSDs |
       | Shredding, drilling, incineration | Drive physically destroyed |
@@ -955,7 +955,7 @@ units:
       - id: ap2-2d-stdformat
         type: concept
         term: "Standard formatting"
-        def: "Creating a new, empty filesystem on a drive without overwriting the old contents, which therefore remain recoverable with the right tools."
+        def: "Creating a new, empty filesystem on a drive without first overwriting the old contents, as a quick format does, so the old data remains recoverable with the right tools."
       - id: ap2-2d-certdest
         type: concept
         term: "Certificate of destruction"
@@ -985,7 +985,7 @@ units:
         type: mcq
         q: "A clinic is retiring laptops whose SSDs held patient records. Policy requires that the data can never be recovered and the drives will not be reused. Which method is appropriate?"
         choices:
-          - "A standard format of each SSD"
+          - "A quick format of each SSD"
           - "Degaussing each SSD"
           - "Deleting the files and emptying the Recycle Bin"
           - "Physically shredding each SSD"
@@ -1006,11 +1006,11 @@ units:
         q: "A charity will donate twenty working PCs to a school. The hard drives must stay usable, but none of the charity's data may be recoverable. Which method is BEST?"
         choices:
           - "Degauss each drive"
-          - "Perform a standard format"
+          - "Perform a quick format"
           - "Wipe each drive with a tool that overwrites all sectors"
           - "Drill through each drive"
         answer: 2
-        why: "Overwriting every sector removes the data while leaving the drive reusable. A standard format leaves the data recoverable, and degaussing or drilling would make the drives useless to the school."
+        why: "Overwriting every sector removes the data while leaving the drive reusable. A quick format leaves the data recoverable, and degaussing or drilling would make the drives useless to the school."
       - id: ap2-2d-q04
         type: mcq
         q: "Before installing a browser downloaded from a mirror site, a technician compares the file's SHA-256 value with the one published on the vendor's website. What does a match confirm?"
