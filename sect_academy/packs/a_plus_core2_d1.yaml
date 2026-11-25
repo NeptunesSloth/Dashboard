@@ -54,11 +54,7 @@ units:
       - id: ap2-1x-q02
         type: mcq
         q: "A technician formats a new data volume on a Windows file server as ReFS and then tries to encrypt individual folders on it with EFS. What happens?"
-        choices:
-          - "The folders are encrypted, as they would be on NTFS"
-          - "Windows converts the volume to NTFS first"
-          - "The option is not available, because ReFS does not support EFS"
-          - "The folders are encrypted with BitLocker To Go instead"
+        choices: ["The folders are encrypted just as they are on NTFS", "Windows first converts the volume to NTFS silently", "EFS is unavailable because ReFS lacks it", "BitLocker To Go encrypts the folders instead"]
         answer: 2
         why: "ReFS omits several NTFS features, including EFS file encryption, so the option is unavailable; BitLocker can still encrypt the whole volume. Windows never converts a ReFS volume to NTFS in place."
 
@@ -96,11 +92,7 @@ units:
       - id: ap2-1x-q04
         type: mcq
         q: "During a clean install of Windows 11 on a workstation with a new RAID controller, Setup reports that it cannot find any drives. The disks work in the firmware setup. What should the technician do?"
-        choices:
-          - "Convert the disks from GPT to MBR"
-          - "Choose a repair installation instead"
-          - "Disable the TPM and restart Setup"
-          - "Use 'Load driver' to supply the controller's storage driver"
+        choices: ["Convert the disks from GPT to MBR first", "Choose a repair installation instead", "Disable the TPM and then restart Setup", "Load the controller's driver in Setup"]
         answer: 3
         why: "Windows Setup cannot see disks behind a controller whose driver it lacks; the vendor's third-party driver is loaded from a USB stick with 'Load driver'. The partition style is irrelevant until the disks are visible."
       - id: ap2-1x-q05
@@ -112,12 +104,8 @@ units:
       - id: ap2-1x-q07
         type: mcq
         q: "A technician compares a full format with a quick format of a hard disk in Windows. What does the full format do that the quick format does not?"
-        choices:
-          - "It scans the volume for bad sectors and overwrites it with zeros"
-          - "It converts the disk from MBR to GPT"
-          - "It creates a recovery partition"
-          - "It encrypts the volume with BitLocker"
-        answer: 0
+        choices: ["It converts the disk from MBR to GPT format", "It creates a hidden recovery partition", "It encrypts the volume with BitLocker", "It checks for bad sectors and writes zeros"]
+        answer: 3
         why: "In current Windows a full format checks every sector and writes zeros; a quick format only builds a new empty file table. Changing the partition style is a separate operation in Disk Management or diskpart."
 
       # ── Editions, upgrade paths, life cycle ──
@@ -140,12 +128,8 @@ units:
       - id: ap2-1x-q09
         type: mcq
         q: "A freelancer on Windows 11 Home now needs BitLocker. She does not want to reinstall anything. What should she do?"
-        choices:
-          - "Buy a Pro licence and enter its product key under Activation in Settings"
-          - "Download Windows 11 Pro installation media and perform a clean install"
-          - "Enable BitLocker from the Local Group Policy Editor"
-          - "Install the Media Feature Pack"
-        answer: 0
+        choices: ["Clean install Windows 11 Pro from new media", "Enable BitLocker in the Local Group Policy Editor", "Enter a Pro product key under Activation", "Install the Media Feature Pack"]
+        answer: 2
         why: "Home to Pro is an edition upgrade: entering a Pro key unlocks the Pro features with apps and files untouched. gpedit.msc is itself a Pro feature, so it cannot be used to enable anything on Home."
       - id: ap2-1x-q10
         type: mcq
@@ -202,11 +186,7 @@ units:
       - id: ap2-1x-q18
         type: mcq
         q: "A user asks for a weekly 'defrag' of the SSD in his laptop. What does Windows Optimize Drives do to an SSD on its schedule?"
-        choices:
-          - "It performs a full defragmentation, the same as for a hard disk"
-          - "It sends TRIM (retrim) so the drive knows which blocks are free"
-          - "It runs chkdsk /r to find bad sectors"
-          - "It skips solid-state drives entirely"
+        choices: ["It performs a full defragmentation, as for a hard disk", "It sends TRIM so the SSD knows which blocks are free", "It runs chkdsk /r to find bad sectors", "It skips solid-state drives entirely"]
         answer: 1
         why: "For SSDs, Optimize Drives sends TRIM rather than moving files around, which would only add wear. It does not skip SSDs, and checking for bad sectors is chkdsk's job."
 
@@ -236,43 +216,31 @@ units:
       - id: ap2-1x-q20
         type: mcq
         q: "Which command maps drive P: to the share 'projects' on server FS01 so that it reconnects at every sign-in?"
-        choices:
-          - "net user P: \\\\FS01\\projects /active:yes"
-          - "net use P: \\\\FS01\\projects /persistent:yes"
-          - "net share P: \\\\FS01\\projects /remember"
-          - "net view P: \\\\FS01\\projects /map"
+        choices: ["net use P: \\\\FS01\\projects /persistent:no", "net use P: \\\\FS01\\projects /persistent:yes", "net use \\\\FS01\\projects /savecred /persistent:yes", "net use P: /delete"]
         answer: 1
-        why: "net use attaches a drive letter to a UNC path, and /persistent:yes restores it at each sign-in. net user manages accounts; net share creates shares on the local PC rather than mapping remote ones."
+        why: "A drive letter followed by the UNC path maps the share, and /persistent:yes restores it at each sign-in. /persistent:no maps it only for this session, and a command with no drive letter connects to the share without mapping P: at all."
       - id: ap2-1x-q21
         type: mcq
         q: "A technician at a command prompt must remove C:\\Temp\\old, which contains many files and subfolders, without being asked to confirm. Which command does this?"
-        choices: ["rmdir C:\\Temp\\old", "md C:\\Temp\\old /d", "rmdir /s /q C:\\Temp\\old", "del C:\\Temp\\old"]
+        choices: ["rmdir C:\\Temp\\old", "rmdir /q C:\\Temp\\old", "rmdir /s /q C:\\Temp\\old", "del /q C:\\Temp\\old"]
         answer: 2
-        why: "/s removes the folder and everything below it, and /q suppresses the confirmation prompt. Plain rmdir fails on a folder that is not empty, and del deletes files but leaves the folder tree."
+        why: "/s removes the folder and everything below it, and /q suppresses the confirmation prompt. Without /s, rmdir refuses to remove a folder that is not empty; del /q deletes the files in the folder but leaves the folder and its subfolders."
       - id: ap2-1x-q22
         type: mcq
         q: "A contractor's local account must stop working today but be kept for an audit. Which command disables it without deleting it?"
-        choices:
-          - "net user contractor /delete"
-          - "net use contractor /delete"
-          - "whoami /user contractor"
-          - "net user contractor /active:no"
+        choices: ["net user contractor /delete", "net use contractor /delete", "whoami /user contractor", "net localgroup contractor /delete"]
         answer: 3
         why: "/active:no disables the account while keeping it and its profile. /delete removes the account entirely, which the audit requirement rules out."
       - id: ap2-1x-q23
         type: mcq
         q: "A user says a folder should hold a hidden configuration file, but 'dir' does not list it. Which command also lists hidden and system files?"
-        choices: ["dir /a", "dir /p", "dir /w", "cd /d"]
-        answer: 0
+        choices: ["dir /s /p", "dir /w", "dir /o:d", "dir /a"]
+        answer: 3
         why: "dir /a shows files regardless of attributes, including hidden and system ones. /p pauses after each screen and /w uses a wide layout; neither reveals hidden files."
       - id: ap2-1x-q24
         type: mcq
         q: "A technician must copy D:\\Data to \\\\NAS01\\backup so that the destination becomes an exact copy, including deleting files that no longer exist in the source. Which command does this?"
-        choices:
-          - "robocopy D:\\Data \\\\NAS01\\backup /mir"
-          - "copy D:\\Data \\\\NAS01\\backup"
-          - "robocopy D:\\Data \\\\NAS01\\backup /z"
-          - "md \\\\NAS01\\backup D:\\Data"
+        choices: ["robocopy D:\\Data \\\\NAS01\\backup /mir", "copy D:\\Data \\\\NAS01\\backup", "robocopy D:\\Data \\\\NAS01\\backup /e /z", "md \\\\NAS01\\backup D:\\Data"]
         answer: 0
         why: "robocopy /mir mirrors the tree, copying new and changed files and deleting extra ones at the destination. /z only makes copies restartable after an interruption; it does not delete anything."
       - id: ap2-1x-q25
@@ -378,7 +346,7 @@ units:
       | ~/Library | The same, for one user (hidden in Finder) |
       | /System | The protected operating system itself |
 
-      Uninstalling is dragging the app to the Trash; leftovers sit in `~/Library`. **Rapid Security Responses** patch urgent flaws between full updates. Privacy permissions (camera, screen recording) are granted in **System Settings > Privacy & Security**. **Continuity** passes work between Apple devices signed in to the same Apple account.
+      Uninstall by dragging the app to the Trash; leftovers sit in `~/Library`. **Rapid Security Responses** patch urgent flaws between full updates. App permissions such as screen recording are granted in **Privacy & Security**. **Continuity** passes work between devices on the same Apple account.
 
       ## Linux syntax
 
@@ -395,7 +363,7 @@ units:
 
       ## Applications and cloud
 
-      A 64-bit Windows runs 32-bit apps; a 32-bit Windows cannot run 64-bit ones. Check RAM, CPU, storage, graphics (dedicated **VRAM**), any **hardware token**, and the app's supported OS. Cloud suites need a **licence assigned** to each user, and **identity synchronisation** lets staff use their existing directory account.
+      A 64-bit Windows runs 32-bit apps; a 32-bit Windows cannot run 64-bit ones. Check RAM, CPU, storage, dedicated **VRAM**, any **hardware token** and the supported OS. Cloud suites need a **licence assigned** to each user, and **identity synchronisation** lets staff use their existing directory account.
     items:
       # ── macOS ──
       - id: ap2-1y-rsr
@@ -423,31 +391,19 @@ units:
       - id: ap2-1y-q02
         type: mcq
         q: "A Mac shows an available update named 'macOS 15.x (a)' that installs in minutes with a quick restart. What is it?"
-        choices:
-          - "A beta release of the next major macOS version"
-          - "A firmware update for the Mac's SSD"
-          - "A Time Machine snapshot"
-          - "A Rapid Security Response delivering urgent security fixes"
+        choices: ["A beta release of the next major macOS version", "A firmware update for the Mac's SSD", "A Time Machine snapshot", "A Rapid Security Response"]
         answer: 3
         why: "Rapid Security Responses carry urgent security fixes between full updates and are labelled with a letter suffix. A beta release is installed only through the beta programme and is a full update, not a small patch."
       - id: ap2-1y-q03
         type: mcq
         q: "A user copies text on her iPhone and expects to paste it on her Mac with Universal Clipboard, but nothing appears. Both have Bluetooth and Wi-Fi on. What should be checked next?"
-        choices:
-          - "That both devices are signed in to the same Apple account"
-          - "That FileVault is turned on"
-          - "That the Mac has a Time Machine disk attached"
-          - "That Spotlight indexing has finished"
+        choices: ["Both use the same Apple account", "FileVault is on for the Mac", "A Time Machine disk is attached to the Mac", "Spotlight indexing has finished"]
         answer: 0
         why: "Continuity features such as Universal Clipboard and Handoff only work between nearby devices signed in to the same Apple account, with Handoff allowed. FileVault encrypts the disk and has no effect on Continuity."
       - id: ap2-1y-q04
         type: mcq
         q: "During a video call on a Mac, the conferencing app shows only a blank desktop when the user tries to share her screen. What is the MOST likely fix?"
-        choices:
-          - "Turn on Screen Sharing in General > Sharing"
-          - "Allow the app under Screen Recording in Privacy & Security settings"
-          - "Add the app to the Dock"
-          - "Run First Aid in Disk Utility"
+        choices: ["Turn on Screen Sharing under General > Sharing", "Grant Screen Recording in Privacy & Security", "Add the app to the Dock", "Run First Aid in Disk Utility"]
         answer: 1
         why: "macOS requires each app to be granted the Screen Recording permission in Privacy & Security before it can capture the screen. Screen Sharing in Sharing lets other people remotely control the Mac, which is a different feature."
       - id: ap2-1y-m01
@@ -545,11 +501,7 @@ units:
       - id: ap2-1y-q07
         type: mcq
         q: "A Linux data partition /dev/sdb1, mounted at /data, reports filesystem errors. What must be done before running fsck on it?"
-        choices:
-          - "Unmount it with 'umount /data'"
-          - "Add it to /etc/fstab"
-          - "Run 'du -sh /data'"
-          - "Change its owner with chown"
+        choices: ["Unmount it with 'umount /data'", "Add an entry for it to /etc/fstab first", "Run 'du -sh /data'", "Change its owner with chown"]
         answer: 0
         why: "fsck must run on an unmounted filesystem, or the repair can itself cause corruption while files are changing. Adding a line to /etc/fstab only controls mounting at boot."
       - id: ap2-1y-q08
@@ -609,21 +561,13 @@ units:
       - id: ap2-1y-q11
         type: mcq
         q: "A user on 64-bit Windows 11 must install an accounting program that is offered only as a 32-bit build. What will happen?"
-        choices:
-          - "It cannot be installed on a 64-bit operating system"
-          - "It must be run inside a virtual machine"
-          - "It installs and runs normally, usually under Program Files (x86)"
-          - "It installs only after switching the firmware to legacy BIOS"
+        choices: ["It cannot be installed on a 64-bit operating system", "It must be run inside a virtual machine", "It installs and runs, usually in Program Files (x86)", "It installs only after switching the firmware to legacy BIOS"]
         answer: 2
         why: "64-bit Windows runs 32-bit applications through its compatibility layer and installs them under Program Files (x86). The reverse is the problem: a 32-bit Windows cannot run 64-bit applications."
       - id: ap2-1y-q12
         type: mcq
         q: "A vendor sends a software installer as a single .iso file. The Windows 11 PC has no optical drive. What is the simplest way to install from it?"
-        choices:
-          - "Burn it to a DVD on another PC"
-          - "Rename the file to .exe"
-          - "Extract it with diskpart"
-          - "Double-click the .iso to mount it as a virtual drive and run Setup"
+        choices: ["Burn it to a DVD using another computer", "Rename the file to .exe and run it", "Extract it with diskpart", "Double-click it to mount it as a drive"]
         answer: 3
         why: "Windows mounts an ISO as a virtual DVD drive with a double-click, so Setup can be run directly. Burning a disc would work but needs another PC and an optical drive this one does not have."
       - id: ap2-1y-q13
@@ -649,11 +593,7 @@ units:
       - id: ap2-1y-q14
         type: mcq
         q: "A laptop with a 128 GB SSD syncs a 400 GB company cloud library. The user needs to see every file but cannot store them all locally. Which sync setting fits?"
-        choices:
-          - "Back up the Desktop folder to the cloud"
-          - "Files On-Demand, with folders left online-only until needed"
-          - "Mark every folder 'Always keep on this device'"
-          - "Pause syncing permanently"
+        choices: ["Back up the Desktop folder to the cloud", "Files On-Demand, leaving files online-only", "Mark every folder 'Always keep on this device'", "Pause syncing permanently"]
         answer: 1
         why: "Files On-Demand lists all files but downloads each only when it is opened. 'Always keep on this device' forces full local copies, which cannot fit on the drive."
 
@@ -701,11 +641,7 @@ units:
       - id: ap2-1z2-q03
         type: mcq
         q: "A developer needs the Windows Subsystem for Linux and Hyper-V turned on. Neither is a downloadable app. Where are optional Windows components like these enabled in Control Panel?"
-        choices:
-          - "Devices and Printers"
-          - "System, Advanced system settings"
-          - "Administrative Tools, Services"
-          - "Programs and Features, Turn Windows features on or off"
+        choices: ["Devices and Printers", "System, Advanced system settings", "Administrative Tools, Services", "Turn Windows features on or off"]
         answer: 3
         why: "'Turn Windows features on or off', reached from Programs and Features, adds built-in optional components such as Hyper-V. The Services console starts and stops services that are already installed."
       - id: ap2-1z2-q04
@@ -741,11 +677,7 @@ units:
       - id: ap2-1z2-q09
         type: mcq
         q: "A Windows PC set to obtain an address automatically shows IPv4 169.254.37.12 and no default gateway. Other PCs on the same switch are fine. What is the MOST likely cause?"
-        choices:
-          - "The DNS server address is wrong"
-          - "The PC could not reach a DHCP server and assigned itself an APIPA address"
-          - "The network profile is set to Public"
-          - "The proxy server is unreachable"
+        choices: ["The DNS server address on the PC is wrong", "No DHCP server answered, so it self-assigned", "The Windows network profile is set to Public", "The proxy server for the PC is unreachable"]
         answer: 1
         why: "A 169.254.x.x address is self-assigned when no DHCP reply arrives, so the fault is between this PC and the DHCP server (cable, port, VLAN or adapter). A wrong DNS server would not stop the PC getting a lease."
       - id: ap2-1z2-b01
@@ -825,31 +757,19 @@ units:
       - id: ap2-1z2-q15
         type: mcq
         q: "An employee wants her Desktop, Documents and Pictures folders protected automatically, so nothing is lost if her laptop dies. The company already provides cloud storage with a sync client. What should be configured?"
-        choices:
-          - "Files On-Demand for the existing synced library"
-          - "A metered connection"
-          - "A mapped network drive"
-          - "The sync client's folder backup for Desktop, Documents and Pictures"
+        choices: ["Files On-Demand for the existing synced library", "A metered connection", "A mapped network drive", "Folder backup for those three folders"]
         answer: 3
         why: "Folder backup (Known Folder Move) redirects those folders into the synced cloud folder, so every file in them is kept in the cloud. Files On-Demand only saves local space; it does not decide which folders are protected."
       - id: ap2-1z2-q16
         type: mcq
         q: "A new hire can sign in to the company's cloud portal with her synced directory account but sees 'You don't have a licence' when opening the mail and office apps. What should the administrator do?"
-        choices:
-          - "Assign her a productivity licence in the admin centre"
-          - "Reset her password"
-          - "Run identity synchronisation again"
-          - "Add her PC to the domain"
+        choices: ["Assign her a licence in the admin centre", "Reset her password in the directory", "Force identity synchronisation to run again now", "Join her PC to the on-premises domain"]
         answer: 0
         why: "She authenticates fine, so identity sync worked; what is missing is a licence, which is what enables the mailbox and apps. Resetting the password fixes sign-in failures, which she does not have."
       - id: ap2-1z2-q17
         type: mcq
         q: "A teacher installs a Windows-only accounting program's .exe on a school Chromebook and it will not run. What is the underlying issue?"
-        choices:
-          - "The Chromebook needs more RAM"
-          - "The Chromebook uses the exFAT filesystem"
-          - "Chrome OS does not run Windows executables natively"
-          - "The program needs a hardware token"
+        choices: ["The Chromebook needs more RAM", "The Chromebook uses the exFAT filesystem", "Chrome OS cannot run Windows .exe files", "The program needs a hardware token"]
         answer: 2
         why: "This is an OS compatibility problem: Chrome OS runs web, Android and Linux apps, not Windows .exe files. A web version or a Windows machine is needed; more RAM would not change that."
       - id: ap2-1z2-q18
@@ -891,11 +811,7 @@ units:
       - id: ap2-1z2-q19
         type: mcq
         q: "A user's Windows 10 PC has damaged system files that sfc cannot fix, but she wants to keep her installed applications and files. Which installation type BEST fits?"
-        choices:
-          - "A clean install from USB"
-          - "A repair installation using the in-place 'keep everything' option"
-          - "Restoring the recovery partition's factory image"
-          - "A multiboot setup with a second copy of Windows"
+        choices: ["A clean install from USB", "A repair installation that keeps everything", "Restoring the recovery partition's factory image", "A multiboot setup with a second copy of Windows"]
         answer: 1
         why: "A repair installation rewrites the operating system files while keeping applications, settings and data. Both a clean install and a factory restore remove the user's applications."
       - id: ap2-1z2-q20
@@ -917,11 +833,7 @@ units:
       - id: ap2-1z2-q22
         type: mcq
         q: "A manager wants to connect from home with Remote Desktop to his office PC, which runs Windows 11 Home. His home laptop runs Windows 11 Pro. What must change?"
-        choices:
-          - "His home laptop must be upgraded to Enterprise"
-          - "Both PCs must join the same workgroup"
-          - "The office PC must be given an N edition"
-          - "The office PC must be upgraded to Pro so it can accept connections"
+        choices: ["His home laptop must be upgraded to Enterprise", "Both PCs must join the same workgroup", "The office PC must be given an N edition", "The office PC must be upgraded to Pro"]
         answer: 3
         why: "Every edition includes the Remote Desktop client, but only Pro and above can host incoming RDP sessions, so the office PC is the one to upgrade. The laptop already has the client it needs."
       - id: ap2-1z2-q23
@@ -943,12 +855,8 @@ units:
       - id: ap2-1z2-q25
         type: mcq
         q: "After a Windows 11 feature update, a PC's C: drive is nearly full. The update has been stable for weeks. Which tool safely removes the previous Windows installation files?"
-        choices:
-          - "Optimize Drives"
-          - "chkdsk /r"
-          - "Disk Cleanup, using 'Clean up system files'"
-          - "Resource Monitor"
-        answer: 2
+        choices: ["Disk Cleanup, 'Clean up system files'", "Optimize Drives", "chkdsk /r", "Resource Monitor"]
+        answer: 0
         why: "Disk Cleanup's system-file option can delete the previous Windows installation, often many gigabytes. Optimize Drives rearranges or trims data; it does not free space."
       - id: ap2-1z2-q26
         type: mcq
@@ -965,11 +873,7 @@ units:
       - id: ap2-1z2-q28
         type: mcq
         q: "A USB barcode scanner stops responding after the laptop has been idle on battery for a while, and works again when replugged. Which power setting should be changed?"
-        choices:
-          - "Turn off USB selective suspend in the power plan"
-          - "Turn off fast startup"
-          - "Set closing the lid to 'Do nothing'"
-          - "Switch the network profile to Private"
+        choices: ["Turn off USB selective suspend", "Turn off fast startup", "Set closing the lid to 'Do nothing'", "Switch the network profile to Private"]
         answer: 0
         why: "USB selective suspend powers down idle USB ports, which some devices do not recover from. Fast startup only changes how the PC shuts down and starts."
       - id: ap2-1z2-q29
@@ -985,22 +889,14 @@ units:
       - id: ap2-1z2-q30
         type: mcq
         q: "An administrator created a share named 'Payroll$' on server HR01. Users report they cannot see it when browsing \\\\HR01 in File Explorer. What should they do to open it?"
-        choices:
-          - "Type \\\\HR01\\Payroll$ in the File Explorer address bar"
-          - "Change their network profile to Private"
-          - "Map it with 'net user Payroll$'"
-          - "Ask for the share to be moved to an OU"
+        choices: ["Type \\\\HR01\\Payroll$ in the address bar", "Change their network profile to Private", "Map it with 'net user Payroll$'", "Ask for the share to be moved to an OU"]
         answer: 0
         why: "A share name ending in $ is hidden from browsing but opens normally when its full UNC path is typed (permissions still apply). net user manages accounts, not shares."
       - id: ap2-1z2-q31
         type: mcq
         q: "Staff must browse the web through the corporate proxy at 10.0.0.8 port 3128, but internal sites must be reached directly. Where is this set for the whole Windows 11 session?"
-        choices:
-          - "Network and Sharing Center, adapter properties, DNS tab"
-          - "Windows Defender Firewall, outbound rules"
-          - "Settings, Network and internet, Proxy, with the option to bypass the proxy for local addresses"
-          - "Device Manager, network adapter, Advanced tab"
-        answer: 2
+        choices: ["Settings, Network and internet, Proxy", "Network and Sharing Center, adapter properties, DNS tab", "Windows Defender Firewall, outbound rules", "Device Manager, network adapter, Advanced tab"]
+        answer: 0
         why: "The Proxy page in Settings takes the proxy address and port and can skip the proxy for local (intranet) addresses. Firewall rules allow or block traffic but cannot forward it to a proxy."
       - id: ap2-1z2-m03
         type: multi

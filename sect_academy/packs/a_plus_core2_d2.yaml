@@ -209,7 +209,7 @@ units:
         choices:
           - "A mobile digital key"
           - "A key fob"
-          - "A smart card"
+          - "A contactless smart card"
           - "A hardware token"
         answer: 0
         why: "A credential held on the phone and presented over NFC or Bluetooth is a mobile digital key. Key fobs and smart cards are the separate physical items the company is trying to move away from."
@@ -247,14 +247,14 @@ units:
           - "Move the accounts into the Power Users group"
           - "Turn off User Account Control for the admins"
           - "Force the admin passwords to change every month"
-          - "Just-in-time elevation through privileged access management"
+          - "Just-in-time access through PAM"
         answer: 3
         why: "JIT access through PAM removes standing privilege and grants it only for an approved window. Rotating passwords leaves the fourteen accounts with permanent rights, and Power Users grants nothing useful on current Windows."
       - id: ap2-2x-q07
         type: mcq
         q: "A user switched off Microsoft Defender Antivirus real-time protection in Windows Security to speed up a large copy. Later it is on again, and nobody touched it. What is the explanation?"
         choices:
-          - "Turning it off there is temporary, and Windows turns it back on"
+          - "The switch-off is temporary by design"
           - "Malware switched it back on to hide its presence"
           - "A firewall rule overrode the antivirus setting"
           - "A definition update reinstalled the antivirus engine"
@@ -265,7 +265,7 @@ units:
         q: "A licensed design program receives files from colleagues on a port it picks at random each time it starts. It must work through Windows Defender Firewall without opening a wide port range. Which rule is BEST?"
         choices:
           - "An inbound port rule for TCP 1024-65535"
-          - "Turn off the firewall for the Private profile"
+          - "Turn off the firewall for the Private network profile only"
           - "An inbound port rule for the port seen yesterday"
           - "Allow the program's executable through the firewall"
         answer: 3
@@ -294,7 +294,7 @@ units:
         type: mcq
         q: "A standard user must run a vendor's diagnostic tool once, and the tool needs administrative rights. Policy forbids giving staff admin accounts. What should the technician do?"
         choices:
-          - "Add the user to Administrators until tomorrow"
+          - "Add the user to the local Administrators group until tomorrow"
           - "Turn off User Account Control"
           - "Choose Run as administrator and enter admin credentials"
           - "Add the user to the Power Users group"
@@ -304,10 +304,10 @@ units:
         type: mcq
         q: "On a shared family PC, a user set the Hidden attribute on a folder of tax returns and believes the others can no longer open it. What should the technician tell her?"
         choices:
-          - "Hidden folders are encrypted automatically with EFS"
+          - "Hidden folders are encrypted automatically with EFS for her account"
           - "Hidden folders can be opened only by administrators"
           - "Hidden folders are removed from network shares"
-          - "Hidden only affects display; set NTFS permissions to restrict it"
+          - "It only changes display; NTFS permissions control access"
         answer: 3
         why: "Attributes change how Explorer shows a folder, and anyone can tick 'Show hidden items'; access is controlled by NTFS permissions. Encryption is a separate, deliberate step."
       - id: ap2-2x-q13
@@ -315,7 +315,7 @@ units:
         q: "Joining a PC to corp.example.local fails with 'An Active Directory domain controller for the domain could not be contacted'. The PC can ping the domain controller by IP address, and ipconfig shows its DNS server is 8.8.8.8. What is the fix?"
         choices:
           - "Set the PC's DNS server to the domain's DNS server"
-          - "Change the PC's subnet mask"
+          - "Change the PC's subnet mask to match the domain controller's"
           - "Run gpupdate /force"
           - "Enable the local Guest account"
         answer: 0
@@ -334,7 +334,7 @@ units:
         type: mcq
         q: "Staff save to Documents and the Desktop out of habit and lose work whenever a PC is replaced. The manager wants those folders stored on the file server without users changing where they save. Which feature fits?"
         choices:
-          - "A home folder"
+          - "A home folder on the file server"
           - "A logon script"
           - "BitLocker To Go"
           - "Folder redirection"
@@ -513,7 +513,7 @@ units:
       - id: ap2-2y-q01
         type: mcq
         q: "Stickers appear on a council car park's pay machines: 'Pay faster — scan here'. Drivers who scan are taken to a convincing payment page that takes their card details. Which attack is this?"
-        choices: ["Smishing", "Vishing", "QR code phishing", "Whaling"]
+        choices: ["Smishing", "Vishing", "QR code phishing", "Business email compromise"]
         answer: 2
         why: "The lure is a printed QR code scanned with a phone, which is QR code phishing. Smishing would arrive as a text message; here no message was sent at all."
       - id: ap2-2y-q02
@@ -611,7 +611,7 @@ units:
         q: "Someone booted a reception PC from a USB stick and reset the local administrator password. The drive is not encrypted. Which setting would have stopped this method?"
         choices:
           - "A longer screen-lock timeout"
-          - "A password expiration policy"
+          - "A domain password expiration policy of 30 days"
           - "Disabling the guest account"
           - "A BIOS/UEFI password with USB boot disabled"
         answer: 3
@@ -630,7 +630,7 @@ units:
         type: mcq
         q: "A user installed a 'free coupon finder' browser extension from a link on a deals website, not from the browser's store. Since then shopping pages show extra adverts and links go to unfamiliar sites. What should the technician do FIRST?"
         choices:
-          - "Clear the browser cache"
+          - "Clear the browser cache, cookies and browsing history"
           - "Remove the extension and review the others installed"
           - "Turn on private-browsing mode"
           - "Turn off the pop-up blocker"
@@ -668,8 +668,8 @@ units:
         q: "After a company installs a third-party endpoint protection suite, a user reports that Windows Security now says Microsoft Defender Antivirus is off and asks for it to be turned back on. The suite shows as active and up to date. What should the technician do?"
         choices:
           - "Turn Defender's real-time protection back on as well"
-          - "Uninstall the suite so Defender can run again"
-          - "Leave it; Defender stands down while another registered antivirus is active"
+          - "Uninstall the third-party suite so Defender can run again"
+          - "Leave it; this is expected with another antivirus active"
           - "Reinstall Windows Security from the Microsoft Store"
         answer: 2
         why: "Defender Antivirus switches itself off when another registered antivirus product is active, so this is expected. Running two real-time scanners together causes conflicts and slowdowns, so forcing Defender back on is not the fix."
@@ -678,7 +678,7 @@ units:
         q: "A user's PC fans roar even when it is idle overnight. Task Manager shows a process named 'svchost32.exe' using 95% CPU from the user's Downloads folder, and the electricity bill has gone up. What is this MOST likely to be?"
         choices:
           - "A cryptominer"
-          - "Spyware"
+          - "A remote access trojan"
           - "A keylogger"
           - "Ransomware"
         answer: 0
@@ -690,7 +690,7 @@ units:
           - "A rootkit; reimage the PC immediately"
           - "Potentially unwanted programs; uninstall them and reset the browser"
           - "A boot sector virus; scan from WinPE"
-          - "Ransomware; isolate the PC and restore from backup"
+          - "Ransomware; isolate the PC at once and restore every file from backup"
         answer: 1
         why: "Bundled extras accepted through pre-ticked boxes are PUPs: unwanted but installed with nominal consent, and removable with normal uninstall and reset tools. Nothing hides itself or encrypts files, so reimaging or ransomware handling would be out of proportion."
       - id: ap2-2z2-q04
@@ -726,15 +726,15 @@ units:
           - "A software firewall on each PC"
           - "Disabling AutoRun on the PCs"
           - "An email security gateway that decodes QR images"
-          - "Content filtering on the office Wi-Fi"
+          - "Content filtering on the office Wi-Fi and wired network"
         answer: 2
         why: "Only a control in the mail flow can stop a message before delivery, and one that decodes images can read the hidden link. Wi-Fi content filtering does nothing for phones browsing over mobile data, and it acts after the email has already arrived."
       - id: ap2-2z2-q07
         type: mcq
         q: "One morning a domain user cannot sign in on a single PC; the error mentions a time and date difference between the client and the server. Other users sign in fine elsewhere. The PC's clock reads 09:14; the domain controller reads 09:27. What should be fixed?"
         choices:
-          - "The PC's clock, by resynchronising its time with the domain"
-          - "The user's password, which has expired"
+          - "The PC's clock, by resyncing it with the domain"
+          - "The user's password, which may have expired overnight"
           - "The PC's DNS server address"
           - "The user's group memberships"
         answer: 0
@@ -745,7 +745,7 @@ units:
         choices:
           - "Deny statements are only checked for inbound traffic"
           - "Rule 1 permits all HTTPS, so every host is allowed"
-          - "ACLs need an explicit 'deny any' at the end to work"
+          - "ACLs need an explicit 'deny any' line at the very end to work"
           - "Rule 2 matches the host first, so rule 3 is never read"
         answer: 3
         why: "ACLs are processed top-down and stop at the first match; .66 falls inside 192.168.1.0/24, so rule 2 permits it before rule 3 is reached. The deny must be placed above the broader permit."
@@ -780,8 +780,8 @@ units:
         q: "A hospital will send 300 old hard drives to a disposal contractor for shredding. Some may hold records the hospital is legally required to keep for several more years. What must be done FIRST?"
         choices:
           - "Degauss the drives before collection"
-          - "Request a certificate of destruction in advance"
-          - "Confirm data-retention requirements and keep any records still in their retention period"
+          - "Request a certificate of destruction from the contractor in advance"
+          - "Confirm retention requirements and keep any records still needed"
           - "Perform a standard format of each drive"
         answer: 2
         why: "Once destroyed the data is gone forever, so retention obligations must be met before anything leaves. The certificate of destruction proves the work was done afterwards; it cannot be obtained before the destruction it records."
@@ -791,7 +791,7 @@ units:
         choices:
           - "A full-device remote wipe policy"
           - "A locator application"
-          - "Disabling the phone's developer mode"
+          - "Disabling developer mode and USB debugging on the phone"
           - "MDM enrolment with a separate work profile"
         answer: 3
         why: "A work profile keeps company apps and data in their own container that MDM can wipe on its own, leaving personal data alone. A full-device wipe would erase her photos, which is exactly what the constraint rules out."
@@ -801,7 +801,7 @@ units:
         choices:
           - "A malicious configuration profile; remove it and report the email"
           - "A jailbroken phone; restore iOS from backup"
-          - "A failed OS update; reinstall the latest iOS update"
+          - "A failed OS update; reinstall the latest iOS update from a computer"
           - "Stalkerware; reset the phone to factory settings"
         answer: 0
         why: "A configuration profile can install VPN settings and certificates in one step, which is why profiles must come only from the company's MDM. Removing the profile undoes its settings, so a factory reset is unnecessary."
@@ -809,7 +809,7 @@ units:
         type: mcq
         q: "A small office's router sits on the open reception desk. One morning its settings are back to factory defaults with the default admin password, and the Wi-Fi is unencrypted. Which change prevents a repeat?"
         choices:
-          - "Change the SSID to something less obvious"
+          - "Change the SSID to something that does not identify the firm"
           - "Move the router to a locked cabinet or room"
           - "Enable UPnP"
           - "Disable remote (WAN-side) management"
@@ -821,18 +821,18 @@ units:
         choices:
           - "Change the SSID to a random string"
           - "Lower the access point's transmit power"
-          - "Enable WPA3 (or WPA2-AES) encryption with a strong passphrase"
-          - "Turn off DHCP and use static addresses"
+          - "Enable WPA3 or WPA2-AES with a strong passphrase"
+          - "Turn off DHCP and give every customer a static address"
         answer: 2
         why: "A hidden network name is still revealed in probe traffic, and an open network sends everything unencrypted; turning on WPA3 or WPA2 with AES is the real control. Renaming the SSID changes nothing about who can join or read the traffic."
       - id: ap2-2z2-q16
         type: mcq
         q: "A router vendor publishes a firmware release fixing a flaw that lets attackers take over its devices from the internet. The office router runs the vulnerable version. What should the technician do?"
         choices:
-          - "Back up the router configuration and apply the vendor's firmware update"
+          - "Save the configuration, then apply the firmware update"
           - "Change the Wi-Fi passphrase"
           - "Enable content filtering"
-          - "Reset the router to factory defaults"
+          - "Reset the router to factory defaults and set it up again"
         answer: 0
         why: "Only the firmware update removes the flaw itself, and saving the configuration first allows recovery if the update fails. A factory reset keeps the same vulnerable firmware."
       - id: ap2-2z2-q17
@@ -850,8 +850,8 @@ units:
         q: "Staff often leave their desks for meetings while still signed in, and a visitor was seen reading an open payroll screen. Which control BEST addresses this with no extra cost?"
         best: true
         choices:
-          - "Enforce a short inactivity timeout with a password-protected screen lock"
-          - "Require 16-character passwords"
+          - "A short inactivity timeout with a screen lock"
+          - "Require 16-character passwords for every account"
           - "Lock accounts after five failed attempts"
           - "Install video surveillance in the office"
         answer: 0
@@ -867,7 +867,7 @@ units:
         choices:
           - "Password expiration and a lockout threshold"
           - "An account expiration date and restricted log-in hours"
-          - "Membership of Power Users and a home folder"
+          - "Membership of the Power Users group and a personal home folder"
           - "Guest account access and a logon script"
         answer: 1
         why: "An expiry date disables the account automatically when the project ends, and log-in hours keep it to office time. Password expiration only forces a change of password; the account would stay usable after March."
@@ -891,10 +891,10 @@ units:
         type: mcq
         q: "A user signed in to her personal browser profile and sync on a shared library PC, then signed out of the PC. The next user found her saved passwords offered on her email site. What should the technician do on the shared PC?"
         choices:
-          - "Clear the cache only"
+          - "Clear the browser cache and restart the computer"
           - "Turn on the pop-up blocker"
-          - "Sign her out of browser sync, delete the profile's data, and disable sync for shared accounts"
-          - "Enable secure DNS"
+          - "Remove her browser profile and turn off sync on the PC"
+          - "Enable secure DNS and HTTPS-only mode for every profile"
         answer: 2
         why: "Browser sync stores her passwords and history in the PC's browser profile, which survives the Windows sign-out; removing that profile and disabling sync on shared machines stops it. Clearing the cache leaves saved passwords and cookies in place."
       - id: ap2-2z2-q22
@@ -904,7 +904,7 @@ units:
           - "Malware that installed a local proxy to intercept traffic"
           - "An expired certificate on the bank's website"
           - "A full browser cache"
-          - "A misconfigured DNS server on the router"
+          - "A misconfigured DNS server address handed out by the office router"
         answer: 0
         why: "An unknown local proxy on one PC means software on that PC is routing and intercepting its traffic, which explains both slowness and certificate warnings. An expired bank certificate would warn on every PC, not just this one."
       - id: ap2-2z2-q23
@@ -912,10 +912,10 @@ units:
         q: "A user reaches her online bank and the browser warns that the certificate was issued to a different name. She is on hotel Wi-Fi and in a hurry to pay a bill. What should she do?"
         best: true
         choices:
-          - "Accept the warning once, since the address looks right"
+          - "Accept the warning just this once, because the address bar looks right"
           - "Clear the browser cache and try again"
           - "Use private-browsing mode for the payment"
-          - "Close the page and use a trusted connection, such as mobile data, instead"
+          - "Leave and pay later over a trusted connection such as mobile data"
         answer: 3
         why: "A name mismatch on a known site over untrusted Wi-Fi suggests interception, so she should not proceed on that network. Private browsing only stops local history being saved; it does nothing about who sits on the connection."
         whys:
@@ -928,7 +928,7 @@ units:
         q: "A manager wants a group that lets the Projects team open the \\\\files\\projects share with Modify rights and also lets them receive team-wide emails. The existing 'Projects-All' group is a distribution group. What should the technician do?"
         choices:
           - "Grant 'Projects-All' Modify on the folder as it is"
-          - "Create an organizational unit named Projects and grant it Modify"
+          - "Create an organizational unit named Projects and grant that OU Modify"
           - "Use a security group for the team and grant it Modify on the folder"
           - "Add each user's home folder to the share"
         answer: 2
@@ -939,7 +939,7 @@ units:
         choices:
           - "Disable System Restore"
           - "Schedule scans and run updates"
-          - "Educate the end user"
+          - "Educate the end user about the infection"
           - "Quarantine the system"
         answer: 1
         why: "After scanning, removal and reinstallation, the next steps are to schedule scans and run updates, then re-enable System Restore and create a restore point, and only then educate the user. Disabling System Restore belongs before cleaning."
