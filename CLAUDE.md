@@ -78,6 +78,10 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
 - **The art is painted, not vector.** The owner disliked the bright vector look;
   keep the lantern-night palette that matches `static/art/`. New images go in
   `static/art/` as WebP and are served from the fixed list in `app.py`.
+- **Result scenes**: big outcomes (raid, tournament, festival, funeral,
+  tribulation, breakthrough, realm) queue a card via `colony._scene` (cap 5,
+  repaired on load). Painting `static/art/scene_<kind>.webp` is used when the
+  file exists; until then `art.scene()` falls back to a backdrop.
 - **Time waits for the player**: while an event is pending or the gates are
   sealed the sim does not advance (watching or away). Great-realm breakthroughs
   are never automatic; the player orders them (`colony.attempt`).
