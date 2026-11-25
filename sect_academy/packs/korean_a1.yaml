@@ -54,7 +54,7 @@ units:
       - {id: ko1-01-uyu, type: vocab, l2: "우유", rom: "uyu", l1: "milk"}
       - {id: ko1-01-gogi, type: vocab, l2: "고기", rom: "gogi", l1: "meat"}
       - {id: ko1-01-nugu, type: vocab, l2: "누구", rom: "nugu", l1: "who"}
-      - {id: ko1-01-aniyo, type: vocab, l2: "아니요", rom: "aniyo", l1: "no", note: "The polite 'no'. 'Yes' is 네, in unit 4."}
+      - {id: ko1-01-aniyo, type: vocab, l2: "아니요", rom: "aniyo", alt: ["아뇨", "anyo"], l1: "no", note: "The polite 'no'. 'Yes' is 네, in unit 4."}
       - {id: ko1-01-yeogi, type: vocab, l2: "여기", rom: "yeogi", l1: "here"}
 
   # ───────────────────────────────────────────────────────────────── 2
@@ -77,7 +77,7 @@ units:
       ㄱ ㄷ ㅂ ㅈ are not as strong as English g, d, b, j. Between vowels they are clearly voiced (바**다** = ba**d**a); at the very start of a word they have a little of k, t, p, ch in them. The romanisation writes g, d, b, j in both places.
 
       ## Borrowed words
-      A Korean block cannot end in most consonants, and two consonants cannot sit together, so loanwords get the neutral vowel ㅡ added: *bus* becomes 버스 (beo-seu), *juice* becomes 주스 (ju-seu).
+      A Korean syllable cannot begin with two consonants, and a final s is not heard as s (unit 5), so loanwords get the neutral vowel ㅡ added to keep the sound: *bus* becomes 버스 (beo-seu), *juice* becomes 주스 (ju-seu).
 
       Each consonant also has a value at the **end** of a block. That value is noted on the cards and explained in unit 5.
     items:
@@ -189,7 +189,7 @@ units:
       - {id: ko1-04-oe, type: glyph, l2: "ㅚ", rom: "oe", l1: "ㅗ + ㅣ: also said like 'we' in 'wet'"}
       - {id: ko1-04-wo, type: glyph, l2: "ㅝ", rom: "wo", l1: "ㅜ + ㅓ"}
       - {id: ko1-04-we, type: glyph, l2: "ㅞ", rom: "we", l1: "ㅜ + ㅔ (rare)"}
-      - {id: ko1-04-wi, type: glyph, l2: "ㅟ", rom: "wi", l1: "ㅜ + ㅣ: like 'we'"}
+      - {id: ko1-04-wi, type: glyph, l2: "ㅟ", rom: "wi", l1: "ㅜ + ㅣ: like 'wee'"}
       - {id: ko1-04-ui, type: glyph, l2: "ㅢ", rom: "ui", l1: "ㅡ + ㅣ, said quickly as one sound"}
       - {id: ko1-04-gae, type: glyph, l2: "개", rom: "gae", l1: "ㄱ + ㅐ; as a word it means 'dog'"}
       - {id: ko1-04-se, type: glyph, l2: "세", rom: "se", l1: "ㅅ + ㅔ"}
@@ -203,7 +203,7 @@ units:
       - {id: ko1-04-sagwa, type: vocab, l2: "사과", rom: "sagwa", l1: "apple"}
       - {id: ko1-04-hoesa, type: vocab, l2: "회사", rom: "hoesa", l1: "company / the office (workplace)"}
       - {id: ko1-04-uisa, type: vocab, l2: "의사", rom: "uisa", l1: "doctor"}
-      - {id: ko1-04-yaegi, type: vocab, l2: "얘기", rom: "yaegi", l1: "talk / story (everyday short form)", alt: ["이야기", "iyagi"], note: "Short for 이야기."}
+      - {id: ko1-04-yaegi, type: vocab, l2: "얘기", rom: "yaegi", l1: "talk / story (everyday short form)", note: "Short for 이야기."}
       - {id: ko1-04-seuweteo, type: vocab, l2: "스웨터", rom: "seuweteo", l1: "sweater"}
 
   # ───────────────────────────────────────────────────────────────── 5
@@ -214,7 +214,7 @@ units:
       A block can have a third part: a **final consonant**, called *batchim* ("support"), written at the **bottom**. ㅎ + ㅏ + ㄴ = **한** (han); ㄱ + ㅡ + ㄹ = **글** (geul).
 
       ## Only seven final sounds
-      Any consonant can be written as a final, but only seven sounds are heard there, and they are cut short, never released.
+      Almost every consonant can be written as a final (not ㄸ ㅃ ㅉ), but only seven sounds are heard there, and they are cut short, never released.
 
       | written | heard | example |
       |---|---|---|
@@ -300,10 +300,10 @@ units:
       - {id: ko1-06-joesonghamnida, type: phrase, l2: "죄송합니다.", rom: "joesonghamnida", alt: ["joesonghabnida"], l1: "I'm sorry. (formal style)", note: "The safe apology with strangers and elders."}
       - {id: ko1-06-gwaenchanayo, type: phrase, l2: "괜찮아요.", rom: "gwaenchanayo", alt: ["gwaenchanhayo"], l1: "It's okay. / I'm fine.", note: "The ㅎ in 찮 is silent before a vowel and the ㄴ moves over: gwaen-cha-na-yo."}
       - {id: ko1-06-anieyo, type: phrase, l2: "아니에요.", rom: "anieyo", l1: "Not at all. (reply to thanks)", note: "Literally 'it is not'. The usual modest answer to 감사합니다."}
-      - {id: ko1-06-bangapseumnida, type: phrase, l2: "만나서 반갑습니다.", rom: "mannaseo bangapseumnida", alt: ["반갑습니다.", "bangapseumnida", "mannaseo bangabseubnida", "만나서 반가워요.", "mannaseo bangawoyo"], l1: "Nice to meet you. (formal style)", note: "Literally 'having met you, I am glad'."}
+      - {id: ko1-06-bangapseumnida, type: phrase, l2: "만나서 반갑습니다.", rom: "mannaseo bangapseumnida", alt: ["반갑습니다.", "bangapseumnida", "mannaseo bangabseubnida"], l1: "Nice to meet you. (formal style)", note: "Literally 'having met you, I am glad'."}
       - {id: ko1-06-jeogiyo, type: phrase, l2: "저기요!", rom: "jeogiyo", l1: "Excuse me! (to call a waiter or get a stranger's attention)"}
       - {id: ko1-06-ttomannayo, type: phrase, l2: "또 만나요.", rom: "tto mannayo", l1: "See you again.", note: "또 = again, 만나요 = (we) meet."}
-      - {id: ko1-06-ssi, type: vocab, l2: "씨", rom: "ssi", l1: "Mr. / Ms. (polite, after a given name or full name)", ex: "민수 씨, 안녕하세요?", ex_l1: "Hello, Minsu.", note: "Never use it for yourself, and not for teachers or bosses: use their title."}
+      - {id: ko1-06-ssi, type: vocab, l2: "씨", rom: "ssi", l1: "Mr. / Ms. (polite, after a given name or full name)", ex: "민수 씨, 안녕하세요?", ex_rom: "minsu ssi, annyeonghaseyo?", ex_l1: "Hello, Minsu.", note: "Never use it for yourself, and not for teachers or bosses: use their title."}
       - {id: ko1-06-c1, type: cloze, text: "안녕히 ___.", answer: "계세요", alt: ["gyeseyo"], l1: "Goodbye. (you are leaving; the other person stays)", note: "The one who stays is told 계세요, 'please stay'."}
       - {id: ko1-06-c2, type: cloze, text: "감사___.", answer: "합니다", alt: ["hamnida", "habnida"], l1: "Thank you. (formal style)", note: "감사 (thanks) + 합니다 (do, formal). Said 'hamnida'."}
       - {id: ko1-06-c3, type: cloze, text: "민수 ___, 안녕하세요?", answer: "씨", alt: ["ssi"], l1: "Hello, Minsu. (polite)", note: "Name + 씨 replaces 'you'."}
@@ -348,18 +348,18 @@ units:
     items:
       - {id: ko1-07-ram, type: glyph, l2: "람", rom: "ram", l1: "ㄹ + ㅏ + ㅁ, as in 사람 (person)"}
       - {id: ko1-07-saeng, type: glyph, l2: "생", rom: "saeng", l1: "ㅅ + ㅐ + ㅇ, as in 학생, 선생님"}
-      - {id: ko1-07-miguk, type: vocab, l2: "미국", rom: "miguk", l1: "the USA", ex: "저는 미국 사람이에요.", ex_l1: "I am American."}
-      - {id: ko1-07-hanguksaram, type: vocab, l2: "한국 사람", rom: "hanguk saram", l1: "a Korean (person)", alt: ["한국인", "hangugin"], ex: "선생님은 한국 사람이에요.", ex_l1: "The teacher is Korean."}
-      - {id: ko1-07-hoesawon, type: vocab, l2: "회사원", rom: "hoesawon", l1: "office worker / company employee", ex: "제 친구는 회사원이에요.", ex_l1: "My friend is an office worker."}
-      - {id: ko1-07-daehaksaeng, type: vocab, l2: "대학생", rom: "daehaksaeng", l1: "university student", ex: "저는 대학생이에요.", ex_l1: "I am a university student."}
-      - {id: ko1-07-je, type: vocab, l2: "제", rom: "je", l1: "my (polite)", ex: "제 친구예요.", ex_l1: "This is my friend.", note: "Short for 저의."}
+      - {id: ko1-07-miguk, type: vocab, l2: "미국", rom: "miguk", l1: "the USA", ex: "저는 미국 사람이에요.", ex_rom: "jeoneun miguk saramieyo.", ex_l1: "I am American."}
+      - {id: ko1-07-hanguksaram, type: vocab, l2: "한국 사람", rom: "hanguk saram", l1: "a Korean (person)", alt: ["한국인", "hangugin"], ex: "선생님은 한국 사람이에요.", ex_rom: "seonsaengnimeun hanguk saramieyo.", ex_l1: "The teacher is Korean."}
+      - {id: ko1-07-hoesawon, type: vocab, l2: "회사원", rom: "hoesawon", l1: "office worker / company employee", ex: "제 친구는 회사원이에요.", ex_rom: "je chinguneun hoesawonieyo.", ex_l1: "My friend is an office worker."}
+      - {id: ko1-07-daehaksaeng, type: vocab, l2: "대학생", rom: "daehaksaeng", l1: "university student", ex: "저는 대학생이에요.", ex_rom: "jeoneun daehaksaengieyo.", ex_l1: "I am a university student."}
+      - {id: ko1-07-je, type: vocab, l2: "제", rom: "je", l1: "my (polite)", ex: "제 친구예요.", ex_rom: "je chinguyeyo.", ex_l1: "This is my friend.", note: "Short for 저의."}
       - {id: ko1-07-haksaengieyo, type: phrase, l2: "저는 학생이에요.", rom: "jeoneun haksaengieyo", l1: "I am a student.", alt: ["학생이에요."], note: "학생 ends in a consonant, so 이에요."}
-      - {id: ko1-07-ireumi, type: phrase, l2: "이름이 뭐예요?", rom: "ireumi mwoyeyo", l1: "What is your name?", alt: ["이름이 뭐예요", "이름이 무엇이에요?", "이름은 뭐예요?"], note: "Literally 'name is what?'. No word for 'your' is needed."}
+      - {id: ko1-07-ireumi, type: phrase, l2: "이름이 뭐예요?", rom: "ireumi mwoyeyo", l1: "What is your name?", alt: ["이름이 무엇이에요?", "이름은 뭐예요?"], note: "Literally 'name is what?'. No word for 'your' is needed."}
       - {id: ko1-07-jeireumeun, type: phrase, l2: "제 이름은 사라예요.", rom: "je ireumeun sarayeyo", l1: "My name is Sara.", alt: ["저는 사라예요.", "jeoneun sarayeyo"], note: "사라 ends in a vowel, so 예요."}
       - {id: ko1-07-eoneunara, type: phrase, l2: "어느 나라 사람이에요?", rom: "eoneu nara saramieyo", l1: "Which country are you from?", note: "Literally 'which-country person are (you)?'. 어느 = which."}
       - {id: ko1-07-uisagaanieyo, type: phrase, l2: "저는 의사가 아니에요.", rom: "jeoneun uisaga anieyo", l1: "I am not a doctor.", alt: ["의사가 아니에요.", "저는 의사 아니에요."], note: "의사 ends in a vowel, so 가 before 아니에요."}
       - {id: ko1-07-c1, type: cloze, text: "저___ 회사원이에요.", answer: "는", alt: ["neun"], l1: "I am an office worker.", note: "Topic particle after a vowel (저): 는."}
-      - {id: ko1-07-c2, type: cloze, text: "선생님___ 한국 사람이에요.", answer: "은", alt: ["eun"], l1: "The teacher is Korean.", note: "Topic particle after a consonant (님): 은."}
+      - {id: ko1-07-c2, type: cloze, text: "선생님___ 한국 사람이에요.", answer: "은", alt: ["eun"], l1: "The teacher is Korean. (topic particle)", note: "Topic particle after a consonant (님): 은."}
       - {id: ko1-07-c3, type: cloze, text: "제 친구는 의사___.", answer: "예요", alt: ["yeyo"], l1: "My friend is a doctor.", note: "After a vowel (사): 예요."}
       - {id: ko1-07-c4, type: cloze, text: "저는 대학생___.", answer: "이에요", alt: ["ieyo"], l1: "I am a university student.", note: "After a consonant (생): 이에요."}
       - {id: ko1-07-c5, type: cloze, text: "저는 학생___ 아니에요.", answer: "이", alt: ["i"], l1: "I am not a student.", note: "After a consonant: 이 아니에요. After a vowel it would be 가."}
@@ -419,17 +419,17 @@ units:
       - {id: ko1-08-igeo, type: vocab, l2: "이거", rom: "igeo", l1: "this (thing near me; spoken form)", alt: ["이것", "igeot"]}
       - {id: ko1-08-geugeo, type: vocab, l2: "그거", rom: "geugeo", l1: "that (thing near you; spoken form)", alt: ["그것", "geugeot"]}
       - {id: ko1-08-jeogeo, type: vocab, l2: "저거", rom: "jeogeo", l1: "that over there (thing far from us both; spoken form)", alt: ["저것", "jeogeot"]}
-      - {id: ko1-08-gabang, type: vocab, l2: "가방", rom: "gabang", l1: "bag", ex: "가방이 있어요.", ex_l1: "I have a bag."}
-      - {id: ko1-08-hyudaepon, type: vocab, l2: "휴대폰", rom: "hyudaepon", l1: "mobile phone", alt: ["핸드폰", "haendeupon"], ex: "휴대폰이 없어요.", ex_l1: "I don't have my phone."}
-      - {id: ko1-08-don, type: vocab, l2: "돈", rom: "don", l1: "money", ex: "돈이 있어요?", ex_l1: "Do you have money?"}
-      - {id: ko1-08-sigan, type: vocab, l2: "시간", rom: "sigan", l1: "time", ex: "시간이 없어요.", ex_l1: "I have no time."}
-      - {id: ko1-08-hwajangsil, type: vocab, l2: "화장실", rom: "hwajangsil", l1: "toilet / restroom", ex: "화장실이 여기에 있어요.", ex_l1: "The toilet is here."}
-      - {id: ko1-08-isseoyo, type: vocab, l2: "있어요", rom: "isseoyo", l1: "there is / (I) have", ex: "물이 있어요.", ex_l1: "There is water."}
-      - {id: ko1-08-eopseoyo, type: vocab, l2: "없어요", rom: "eopseoyo", alt: ["eobseoyo"], l1: "there isn't / (I) don't have", ex: "우유가 없어요.", ex_l1: "There is no milk."}
+      - {id: ko1-08-gabang, type: vocab, l2: "가방", rom: "gabang", l1: "bag", ex: "가방이 있어요.", ex_rom: "gabangi isseoyo.", ex_l1: "I have a bag."}
+      - {id: ko1-08-hyudaepon, type: vocab, l2: "휴대폰", rom: "hyudaepon", l1: "mobile phone", alt: ["핸드폰", "haendeupon"], ex: "휴대폰이 없어요.", ex_rom: "hyudaeponi eopseoyo.", ex_l1: "I don't have my phone."}
+      - {id: ko1-08-don, type: vocab, l2: "돈", rom: "don", l1: "money", ex: "돈이 있어요?", ex_rom: "doni isseoyo?", ex_l1: "Do you have money?"}
+      - {id: ko1-08-sigan, type: vocab, l2: "시간", rom: "sigan", l1: "time", ex: "시간이 없어요.", ex_rom: "sigani eopseoyo.", ex_l1: "I have no time."}
+      - {id: ko1-08-hwajangsil, type: vocab, l2: "화장실", rom: "hwajangsil", l1: "toilet / restroom", ex: "화장실이 여기에 있어요.", ex_rom: "hwajangsiri yeogie isseoyo.", ex_l1: "The toilet is here."}
+      - {id: ko1-08-isseoyo, type: vocab, l2: "있어요", rom: "isseoyo", l1: "there is / (I) have", ex: "물이 있어요.", ex_rom: "muri isseoyo.", ex_l1: "There is water."}
+      - {id: ko1-08-eopseoyo, type: vocab, l2: "없어요", rom: "eopseoyo", alt: ["eobseoyo"], l1: "there isn't / (I) don't have", ex: "우유가 없어요.", ex_rom: "uyuga eopseoyo.", ex_l1: "There is no milk."}
       - {id: ko1-08-igeomwoyeyo, type: phrase, l2: "이거 뭐예요?", rom: "igeo mwoyeyo", l1: "What is this?", alt: ["이게 뭐예요?", "ige mwoyeyo", "이것은 뭐예요?", "이거는 뭐예요?"]}
       - {id: ko1-08-hwajangsileodi, type: phrase, l2: "화장실이 어디에 있어요?", rom: "hwajangsiri eodie isseoyo", l1: "Where is the toilet?", alt: ["화장실이 어디예요?", "화장실 어디예요?", "화장실이 어디 있어요?", "화장실 어디에 있어요?", "hwajangsiri eodiyeyo"], note: "The final ㄹ of 실 moves over and becomes r: hwa-jang-si-ri."}
-      - {id: ko1-08-c1, type: cloze, text: "시간___ 있어요.", answer: "이", alt: ["i"], l1: "I have time.", note: "Subject particle after a consonant (간): 이."}
-      - {id: ko1-08-c2, type: cloze, text: "친구___ 없어요.", answer: "가", alt: ["ga"], l1: "I have no friends.", note: "Subject particle after a vowel (구): 가."}
+      - {id: ko1-08-c1, type: cloze, text: "시간___ 있어요.", answer: "이", alt: ["i"], l1: "I have time. (subject particle)", note: "Subject particle after a consonant (간): 이."}
+      - {id: ko1-08-c2, type: cloze, text: "친구___ 없어요.", answer: "가", alt: ["ga"], l1: "I have no friends. (subject particle)", note: "Subject particle after a vowel (구): 가."}
       - {id: ko1-08-c3, type: cloze, text: "책이 가방___ 있어요.", answer: "에", alt: ["e"], l1: "The book is in the bag.", note: "Place + 에 + 있어요 says where something is."}
       - {id: ko1-08-c4, type: cloze, text: "돈이 ___.", answer: "없어요", alt: ["eopseoyo", "eobseoyo"], l1: "I have no money.", note: "없어요 is the opposite of 있어요."}
       - id: ko1-08-d1
@@ -473,23 +473,23 @@ units:
       Phone numbers are read digit by digit; 0 is 공.
     items:
       - {id: ko1-09-beon, type: glyph, l2: "번", rom: "beon", l1: "number, as in 전화번호 (phone number), 일 번 (number 1)"}
-      - {id: ko1-09-il, type: vocab, l2: "일", rom: "il", l1: "one (Sino-Korean)", ex: "일 번", ex_l1: "number one", note: "The same block also means 'day' in dates."}
-      - {id: ko1-09-i, type: vocab, l2: "이", rom: "i", l1: "two (Sino-Korean)", ex: "이 번", ex_l1: "number two"}
-      - {id: ko1-09-sam, type: vocab, l2: "삼", rom: "sam", l1: "three (Sino-Korean)", ex: "삼월", ex_l1: "March"}
-      - {id: ko1-09-sa, type: vocab, l2: "사", rom: "sa", l1: "four (Sino-Korean)", ex: "사월", ex_l1: "April"}
-      - {id: ko1-09-o, type: vocab, l2: "오", rom: "o", l1: "five (Sino-Korean)", ex: "오월", ex_l1: "May"}
-      - {id: ko1-09-yuk, type: vocab, l2: "육", rom: "yuk", l1: "six (Sino-Korean)", ex: "육 번", ex_l1: "number six", note: "June is irregular: 유월, not 육월."}
-      - {id: ko1-09-chil, type: vocab, l2: "칠", rom: "chil", l1: "seven (Sino-Korean)", ex: "칠월", ex_l1: "July"}
-      - {id: ko1-09-pal, type: vocab, l2: "팔", rom: "pal", l1: "eight (Sino-Korean)", ex: "팔월", ex_l1: "August"}
-      - {id: ko1-09-gu, type: vocab, l2: "구", rom: "gu", l1: "nine (Sino-Korean)", ex: "구월", ex_l1: "September"}
-      - {id: ko1-09-sip, type: vocab, l2: "십", rom: "sip", l1: "ten (Sino-Korean)", ex: "이십오", ex_l1: "twenty-five", note: "October is irregular: 시월, not 십월."}
-      - {id: ko1-09-baek, type: vocab, l2: "백", rom: "baek", l1: "hundred", ex: "삼백", ex_l1: "three hundred"}
-      - {id: ko1-09-cheon, type: vocab, l2: "천", rom: "cheon", l1: "thousand", ex: "오천 원", ex_l1: "5,000 won"}
-      - {id: ko1-09-man, type: vocab, l2: "만", rom: "man", l1: "ten thousand", ex: "삼만 원", ex_l1: "30,000 won", note: "10,000 is 만 alone, not 일만."}
-      - {id: ko1-09-won, type: vocab, l2: "원", rom: "won", l1: "won (Korean currency)", ex: "천 원이에요.", ex_l1: "It is 1,000 won."}
-      - {id: ko1-09-oneul, type: vocab, l2: "오늘", rom: "oneul", l1: "today", ex: "오늘은 오월 오 일이에요.", ex_l1: "Today is the 5th of May."}
-      - {id: ko1-09-jeonhwabeonho, type: vocab, l2: "전화번호", rom: "jeonhwabeonho", l1: "phone number", ex: "전화번호가 뭐예요?", ex_l1: "What is your phone number?"}
-      - {id: ko1-09-eolmayeyo, type: phrase, l2: "얼마예요?", rom: "eolmayeyo", l1: "How much is it?", alt: ["얼마예요", "이거 얼마예요?", "igeo eolmayeyo"]}
+      - {id: ko1-09-il, type: vocab, l2: "일", rom: "il", l1: "one (Sino-Korean)", ex: "일 번", ex_rom: "il beon", ex_l1: "number one", note: "The same block also means 'day' in dates."}
+      - {id: ko1-09-i, type: vocab, l2: "이", rom: "i", l1: "two (Sino-Korean)", ex: "이 번", ex_rom: "i beon", ex_l1: "number two"}
+      - {id: ko1-09-sam, type: vocab, l2: "삼", rom: "sam", l1: "three (Sino-Korean)", ex: "삼월", ex_rom: "samwol", ex_l1: "March"}
+      - {id: ko1-09-sa, type: vocab, l2: "사", rom: "sa", l1: "four (Sino-Korean)", ex: "사월", ex_rom: "sawol", ex_l1: "April"}
+      - {id: ko1-09-o, type: vocab, l2: "오", rom: "o", l1: "five (Sino-Korean)", ex: "오월", ex_rom: "owol", ex_l1: "May"}
+      - {id: ko1-09-yuk, type: vocab, l2: "육", rom: "yuk", l1: "six (Sino-Korean)", ex: "육 번", ex_rom: "yuk beon", ex_l1: "number six", note: "June is irregular: 유월, not 육월."}
+      - {id: ko1-09-chil, type: vocab, l2: "칠", rom: "chil", l1: "seven (Sino-Korean)", ex: "칠월", ex_rom: "chirwol", ex_l1: "July"}
+      - {id: ko1-09-pal, type: vocab, l2: "팔", rom: "pal", l1: "eight (Sino-Korean)", ex: "팔월", ex_rom: "parwol", ex_l1: "August"}
+      - {id: ko1-09-gu, type: vocab, l2: "구", rom: "gu", l1: "nine (Sino-Korean)", ex: "구월", ex_rom: "guwol", ex_l1: "September"}
+      - {id: ko1-09-sip, type: vocab, l2: "십", rom: "sip", l1: "ten (Sino-Korean)", ex: "이십오", ex_rom: "isibo", ex_l1: "twenty-five", note: "October is irregular: 시월, not 십월."}
+      - {id: ko1-09-baek, type: vocab, l2: "백", rom: "baek", l1: "hundred", ex: "삼백", ex_rom: "sambaek", ex_l1: "three hundred"}
+      - {id: ko1-09-cheon, type: vocab, l2: "천", rom: "cheon", l1: "thousand", ex: "오천 원", ex_rom: "ocheon won", ex_l1: "5,000 won"}
+      - {id: ko1-09-man, type: vocab, l2: "만", rom: "man", l1: "ten thousand", ex: "삼만 원", ex_rom: "samman won", ex_l1: "30,000 won", note: "10,000 is 만 alone, not 일만."}
+      - {id: ko1-09-won, type: vocab, l2: "원", rom: "won", l1: "won (Korean currency)", ex: "천 원이에요.", ex_rom: "cheon wonieyo.", ex_l1: "It is 1,000 won."}
+      - {id: ko1-09-oneul, type: vocab, l2: "오늘", rom: "oneul", l1: "today", ex: "오늘은 오월 오 일이에요.", ex_rom: "oneureun owol o irieyo.", ex_l1: "Today is the 5th of May."}
+      - {id: ko1-09-jeonhwabeonho, type: vocab, l2: "전화번호", rom: "jeonhwabeonho", l1: "phone number", ex: "전화번호가 뭐예요?", ex_rom: "jeonhwabeonhoga mwoyeyo?", ex_l1: "What is your phone number?"}
+      - {id: ko1-09-eolmayeyo, type: phrase, l2: "얼마예요?", rom: "eolmayeyo", l1: "How much is it?", alt: ["이거 얼마예요?", "igeo eolmayeyo"]}
       - {id: ko1-09-myeochil, type: phrase, l2: "오늘 며칠이에요?", rom: "oneul myeochirieyo", l1: "What is the date today?", alt: ["오늘은 며칠이에요?", "오늘이 며칠이에요?", "오늘 몇 월 며칠이에요?"], note: "며칠 = which day of the month."}
       - {id: ko1-09-c1, type: cloze, text: "커피는 사천 ___이에요.", answer: "원", alt: ["won"], l1: "The coffee is 4,000 won.", note: "Prices: Sino-Korean number + 원."}
       - {id: ko1-09-c2, type: cloze, text: "제 생일은 삼___ 이 일이에요.", answer: "월", alt: ["wol"], l1: "My birthday is the 2nd of March.", note: "Month = Sino-Korean number + 월. 생일 = birthday."}
@@ -552,11 +552,11 @@ units:
       - {id: ko1-10-yeodeol, type: vocab, l2: "여덟", rom: "yeodeol", l1: "eight (native Korean)", note: "The ㅂ is silent: yeo-deol."}
       - {id: ko1-10-ahop, type: vocab, l2: "아홉", rom: "ahop", l1: "nine (native Korean)"}
       - {id: ko1-10-yeol, type: vocab, l2: "열", rom: "yeol", l1: "ten (native Korean)"}
-      - {id: ko1-10-hangae, type: vocab, l2: "한 개", rom: "han gae", l1: "one (of a thing; with the general counter)", ex: "사과 한 개 주세요.", ex_l1: "One apple, please."}
-      - {id: ko1-10-dumyeong, type: vocab, l2: "두 명", rom: "du myeong", l1: "two people (with the counter for people)", ex: "학생이 두 명 있어요.", ex_l1: "There are two students."}
-      - {id: ko1-10-sejan, type: vocab, l2: "세 잔", rom: "se jan", l1: "three cups / glasses (with the counter)", ex: "커피 세 잔 주세요.", ex_l1: "Three coffees, please."}
-      - {id: ko1-10-nebyeong, type: vocab, l2: "네 병", rom: "ne byeong", l1: "four bottles (with the counter)", ex: "물 네 병 주세요.", ex_l1: "Four bottles of water, please."}
-      - {id: ko1-10-myeot, type: vocab, l2: "몇", rom: "myeot", l1: "how many", ex: "몇 개 있어요?", ex_l1: "How many are there?"}
+      - {id: ko1-10-hangae, type: vocab, l2: "한 개", rom: "han gae", l1: "one (of a thing; with the general counter)", ex: "사과 한 개 주세요.", ex_rom: "sagwa han gae juseyo.", ex_l1: "One apple, please."}
+      - {id: ko1-10-dumyeong, type: vocab, l2: "두 명", rom: "du myeong", l1: "two people (with the counter for people)", ex: "학생이 두 명 있어요.", ex_rom: "haksaengi du myeong isseoyo.", ex_l1: "There are two students."}
+      - {id: ko1-10-sejan, type: vocab, l2: "세 잔", rom: "se jan", l1: "three cups / glasses (with the counter)", ex: "커피 세 잔 주세요.", ex_rom: "keopi se jan juseyo.", ex_l1: "Three coffees, please."}
+      - {id: ko1-10-nebyeong, type: vocab, l2: "네 병", rom: "ne byeong", l1: "four bottles (with the counter)", ex: "물 네 병 주세요.", ex_rom: "mul ne byeong juseyo.", ex_l1: "Four bottles of water, please."}
+      - {id: ko1-10-myeot, type: vocab, l2: "몇", rom: "myeot", l1: "how many", ex: "몇 개 있어요?", ex_rom: "myeot gae isseoyo?", ex_l1: "How many are there?"}
       - {id: ko1-10-myeotsal, type: phrase, l2: "몇 살이에요?", rom: "myeot sarieyo", l1: "How old are you?", note: "Fine between equals. To an older person, 연세가 어떻게 되세요? is used."}
       - {id: ko1-10-seumusal, type: phrase, l2: "스무 살이에요.", rom: "seumu sarieyo", l1: "I am twenty years old.", alt: ["저는 스무 살이에요.", "20살이에요."], note: "스물 → 스무 before a counter. Age uses native numbers + 살."}
       - {id: ko1-10-c1, type: cloze, text: "물 한 ___ 주세요.", answer: "병", alt: ["byeong"], l1: "One bottle of water, please.", note: "병 counts bottles."}
@@ -574,7 +574,7 @@ units:
           - {who: A, l2: "뭐 드릴까요?", rom: "mwo deurilkkayo?", l1: "What can I get you?"}
           - {who: B, l2: "커피 두 잔 주세요.", rom: "keopi du jan juseyo.", l1: "Two coffees, please.", alt: ["커피 2잔 주세요."]}
           - {who: A, l2: "물도 드릴까요?", rom: "muldo deurilkkayo?", l1: "Shall I bring water as well?"}
-          - {who: B, l2: "네, 물 한 병 주세요.", rom: "ne, mul han byeong juseyo.", l1: "Yes, one bottle of water, please.", alt: ["네, 물 한 병 주세요", "네, 물도 한 병 주세요."]}
+          - {who: B, l2: "네, 물 한 병 주세요.", rom: "ne, mul han byeong juseyo.", l1: "Yes, one bottle of water, please.", alt: ["네, 물도 한 병 주세요."]}
           - {who: A, l2: "여기 있어요.", rom: "yeogi isseoyo.", l1: "Here you are."}
           - {who: B, l2: "감사합니다.", rom: "gamsahamnida.", l1: "Thank you.", alt: ["고맙습니다."]}
 
@@ -606,11 +606,11 @@ units:
       The 해요 form also means "let's": 세 시에 만나요 = "let's meet at three". **좋아요** = "good, okay". **어때요?** = "how about…?"
     items:
       - {id: ko1-11-geum, type: glyph, l2: "금", rom: "geum", l1: "as in 지금 (now) and 금요일 (Friday)"}
-      - {id: ko1-11-jigeum, type: vocab, l2: "지금", rom: "jigeum", l1: "now", ex: "지금 시간이 있어요?", ex_l1: "Do you have time now?"}
-      - {id: ko1-11-bun, type: vocab, l2: "분", rom: "bun", l1: "minute (counter, with Sino-Korean numbers)", ex: "오 분", ex_l1: "five minutes"}
-      - {id: ko1-11-ban, type: vocab, l2: "반", rom: "ban", l1: "half (past the hour)", ex: "한 시 반", ex_l1: "half past one"}
-      - {id: ko1-11-ojeon, type: vocab, l2: "오전", rom: "ojeon", l1: "a.m. / before noon", ex: "오전 열 시", ex_l1: "10 a.m."}
-      - {id: ko1-11-ohu, type: vocab, l2: "오후", rom: "ohu", l1: "p.m. / afternoon", ex: "오후 세 시", ex_l1: "3 p.m."}
+      - {id: ko1-11-jigeum, type: vocab, l2: "지금", rom: "jigeum", l1: "now", ex: "지금 시간이 있어요?", ex_rom: "jigeum sigani isseoyo?", ex_l1: "Do you have time now?"}
+      - {id: ko1-11-bun, type: vocab, l2: "분", rom: "bun", l1: "minute (counter, with Sino-Korean numbers)", ex: "오 분", ex_rom: "o bun", ex_l1: "five minutes"}
+      - {id: ko1-11-ban, type: vocab, l2: "반", rom: "ban", l1: "half (past the hour)", ex: "한 시 반", ex_rom: "han si ban", ex_l1: "half past one"}
+      - {id: ko1-11-ojeon, type: vocab, l2: "오전", rom: "ojeon", l1: "a.m. / before noon", ex: "오전 열 시", ex_rom: "ojeon yeol si", ex_l1: "10 a.m."}
+      - {id: ko1-11-ohu, type: vocab, l2: "오후", rom: "ohu", l1: "p.m. / afternoon", ex: "오후 세 시", ex_rom: "ohu se si", ex_l1: "3 p.m."}
       - {id: ko1-11-woryoil, type: vocab, l2: "월요일", rom: "woryoil", l1: "Monday", alt: ["wolyoil"]}
       - {id: ko1-11-hwayoil, type: vocab, l2: "화요일", rom: "hwayoil", l1: "Tuesday"}
       - {id: ko1-11-suyoil, type: vocab, l2: "수요일", rom: "suyoil", l1: "Wednesday"}
@@ -618,10 +618,10 @@ units:
       - {id: ko1-11-geumyoil, type: vocab, l2: "금요일", rom: "geumyoil", l1: "Friday"}
       - {id: ko1-11-toyoil, type: vocab, l2: "토요일", rom: "toyoil", l1: "Saturday"}
       - {id: ko1-11-iryoil, type: vocab, l2: "일요일", rom: "iryoil", l1: "Sunday", alt: ["ilyoil"]}
-      - {id: ko1-11-jumal, type: vocab, l2: "주말", rom: "jumal", l1: "weekend", ex: "주말에 시간이 있어요.", ex_l1: "I have time at the weekend."}
-      - {id: ko1-11-naeil, type: vocab, l2: "내일", rom: "naeil", l1: "tomorrow", ex: "내일은 토요일이에요.", ex_l1: "Tomorrow is Saturday."}
-      - {id: ko1-11-joayo, type: vocab, l2: "좋아요", rom: "joayo", alt: ["johayo"], l1: "(it is) good / okay, sounds good", ex: "네, 좋아요!", ex_l1: "Yes, sounds good!", note: "The ㅎ is silent before a vowel: jo-a-yo."}
-      - {id: ko1-11-myeotsi, type: phrase, l2: "지금 몇 시예요?", rom: "jigeum myeot siyeyo", l1: "What time is it now?", alt: ["지금 몇 시예요", "몇 시예요?"]}
+      - {id: ko1-11-jumal, type: vocab, l2: "주말", rom: "jumal", l1: "weekend", ex: "주말에 시간이 있어요.", ex_rom: "jumare sigani isseoyo.", ex_l1: "I have time at the weekend."}
+      - {id: ko1-11-naeil, type: vocab, l2: "내일", rom: "naeil", l1: "tomorrow", ex: "내일은 토요일이에요.", ex_rom: "naeireun toyoirieyo.", ex_l1: "Tomorrow is Saturday."}
+      - {id: ko1-11-joayo, type: vocab, l2: "좋아요", rom: "joayo", alt: ["johayo"], l1: "(it is) good / okay, sounds good", ex: "네, 좋아요!", ex_rom: "ne, joayo!", ex_l1: "Yes, sounds good!", note: "The ㅎ is silent before a vowel: jo-a-yo."}
+      - {id: ko1-11-myeotsi, type: phrase, l2: "지금 몇 시예요?", rom: "jigeum myeot siyeyo", l1: "What time is it now?", alt: ["몇 시예요?"]}
       - {id: ko1-11-dusiban, type: phrase, l2: "두 시 반이에요.", rom: "du si banieyo", l1: "It is half past two.", alt: ["두 시 삼십 분이에요.", "du si samsip bunieyo", "2시 반이에요.", "지금 두 시 반이에요."]}
       - {id: ko1-11-c1, type: cloze, text: "지금 세 ___예요.", answer: "시", alt: ["si"], l1: "It is three o'clock now.", note: "Hours: native number + 시."}
       - {id: ko1-11-c2, type: cloze, text: "토요일___ 친구를 만나요.", answer: "에", alt: ["e"], l1: "I am meeting a friend on Saturday.", note: "Time particle 에 after a day or a clock time."}
@@ -668,24 +668,24 @@ units:
     items:
       - {id: ko1-12-meok, type: glyph, l2: "먹", rom: "meok", l1: "the stem of 먹어요 (eat)"}
       - {id: ko1-12-ik, type: glyph, l2: "읽", rom: "ik", l1: "the stem of 읽어요 (read): alone, only ㄱ is said"}
-      - {id: ko1-12-gayo, type: vocab, l2: "가요", rom: "gayo", l1: "go / goes (polite present)", ex: "학교에 가요.", ex_l1: "I go to school.", note: "Dictionary form: 가다."}
-      - {id: ko1-12-wayo, type: vocab, l2: "와요", rom: "wayo", l1: "come / comes (polite present)", ex: "친구가 와요.", ex_l1: "A friend is coming.", note: "Dictionary form: 오다. 오 + 아요 → 와요."}
-      - {id: ko1-12-meogeoyo, type: vocab, l2: "먹어요", rom: "meogeoyo", l1: "eat / eats (polite present)", ex: "사과를 먹어요.", ex_l1: "I eat an apple.", note: "Dictionary form: 먹다."}
-      - {id: ko1-12-masyeoyo, type: vocab, l2: "마셔요", rom: "masyeoyo", l1: "drink / drinks (polite present)", ex: "물을 마셔요.", ex_l1: "I drink water.", note: "Dictionary form: 마시다. 마시 + 어요 → 마셔요."}
-      - {id: ko1-12-bwayo, type: vocab, l2: "봐요", rom: "bwayo", l1: "see / watch (polite present)", ex: "영화를 봐요.", ex_l1: "I watch a film.", note: "Dictionary form: 보다. 보 + 아요 → 봐요."}
-      - {id: ko1-12-haeyo, type: vocab, l2: "해요", rom: "haeyo", l1: "do / does (polite present)", ex: "지금 뭐 해요?", ex_l1: "What are you doing now?", note: "Dictionary form: 하다."}
-      - {id: ko1-12-gongbuhaeyo, type: vocab, l2: "공부해요", rom: "gongbuhaeyo", l1: "study / studies (polite present)", ex: "한국어를 공부해요.", ex_l1: "I study Korean.", note: "공부 (study) + 해요. Many verbs are noun + 하다."}
-      - {id: ko1-12-jayo, type: vocab, l2: "자요", rom: "jayo", l1: "sleep / sleeps (polite present)", ex: "아이가 자요.", ex_l1: "The child is sleeping.", note: "Dictionary form: 자다."}
-      - {id: ko1-12-ilgeoyo, type: vocab, l2: "읽어요", rom: "ilgeoyo", l1: "read / reads (polite present)", ex: "책을 읽어요.", ex_l1: "I read a book.", note: "Dictionary form: 읽다."}
-      - {id: ko1-12-jip, type: vocab, l2: "집", rom: "jip", l1: "house / home", ex: "집에 가요.", ex_l1: "I am going home."}
-      - {id: ko1-12-hakgyo, type: vocab, l2: "학교", rom: "hakgyo", l1: "school", ex: "학교에서 공부해요.", ex_l1: "I study at school."}
-      - {id: ko1-12-achim, type: vocab, l2: "아침", rom: "achim", l1: "morning / breakfast", ex: "아침에 우유를 마셔요.", ex_l1: "I drink milk in the morning."}
-      - {id: ko1-12-jeonyeok, type: vocab, l2: "저녁", rom: "jeonyeok", l1: "evening / dinner", ex: "저녁에 책을 읽어요.", ex_l1: "I read a book in the evening."}
-      - {id: ko1-12-yeonghwa, type: vocab, l2: "영화", rom: "yeonghwa", l1: "film / movie", ex: "주말에 영화를 봐요.", ex_l1: "I watch a film at the weekend."}
-      - {id: ko1-12-mwohaeyo, type: phrase, l2: "오늘 뭐 해요?", rom: "oneul mwo haeyo", l1: "What are you doing today?", alt: ["오늘 뭐 해요", "오늘은 뭐 해요?", "오늘 뭐 하세요?"]}
+      - {id: ko1-12-gayo, type: vocab, l2: "가요", rom: "gayo", l1: "go / goes (polite present)", ex: "학교에 가요.", ex_rom: "hakgyoe gayo.", ex_l1: "I go to school.", note: "Dictionary form: 가다."}
+      - {id: ko1-12-wayo, type: vocab, l2: "와요", rom: "wayo", l1: "come / comes (polite present)", ex: "친구가 와요.", ex_rom: "chinguga wayo.", ex_l1: "A friend is coming.", note: "Dictionary form: 오다. 오 + 아요 → 와요."}
+      - {id: ko1-12-meogeoyo, type: vocab, l2: "먹어요", rom: "meogeoyo", l1: "eat / eats (polite present)", ex: "사과를 먹어요.", ex_rom: "sagwareul meogeoyo.", ex_l1: "I eat an apple.", note: "Dictionary form: 먹다."}
+      - {id: ko1-12-masyeoyo, type: vocab, l2: "마셔요", rom: "masyeoyo", l1: "drink / drinks (polite present)", ex: "물을 마셔요.", ex_rom: "mureul masyeoyo.", ex_l1: "I drink water.", note: "Dictionary form: 마시다. 마시 + 어요 → 마셔요."}
+      - {id: ko1-12-bwayo, type: vocab, l2: "봐요", rom: "bwayo", l1: "see / watch (polite present)", ex: "영화를 봐요.", ex_rom: "yeonghwareul bwayo.", ex_l1: "I watch a film.", note: "Dictionary form: 보다. 보 + 아요 → 봐요."}
+      - {id: ko1-12-haeyo, type: vocab, l2: "해요", rom: "haeyo", l1: "do / does (polite present)", ex: "지금 뭐 해요?", ex_rom: "jigeum mwo haeyo?", ex_l1: "What are you doing now?", note: "Dictionary form: 하다."}
+      - {id: ko1-12-gongbuhaeyo, type: vocab, l2: "공부해요", rom: "gongbuhaeyo", l1: "study / studies (polite present)", ex: "한국어를 공부해요.", ex_rom: "hangugeoreul gongbuhaeyo.", ex_l1: "I study Korean.", note: "공부 (study) + 해요. Many verbs are noun + 하다."}
+      - {id: ko1-12-jayo, type: vocab, l2: "자요", rom: "jayo", l1: "sleep / sleeps (polite present)", ex: "아이가 자요.", ex_rom: "aiga jayo.", ex_l1: "The child is sleeping.", note: "Dictionary form: 자다."}
+      - {id: ko1-12-ilgeoyo, type: vocab, l2: "읽어요", rom: "ilgeoyo", l1: "read / reads (polite present)", ex: "책을 읽어요.", ex_rom: "chaegeul ilgeoyo.", ex_l1: "I read a book.", note: "Dictionary form: 읽다."}
+      - {id: ko1-12-jip, type: vocab, l2: "집", rom: "jip", l1: "house / home", ex: "집에 가요.", ex_rom: "jibe gayo.", ex_l1: "I am going home."}
+      - {id: ko1-12-hakgyo, type: vocab, l2: "학교", rom: "hakgyo", l1: "school", ex: "학교에서 공부해요.", ex_rom: "hakgyoeseo gongbuhaeyo.", ex_l1: "I study at school."}
+      - {id: ko1-12-achim, type: vocab, l2: "아침", rom: "achim", l1: "morning / breakfast", ex: "아침에 우유를 마셔요.", ex_rom: "achime uyureul masyeoyo.", ex_l1: "I drink milk in the morning."}
+      - {id: ko1-12-jeonyeok, type: vocab, l2: "저녁", rom: "jeonyeok", l1: "evening / dinner", ex: "저녁에 책을 읽어요.", ex_rom: "jeonyeoge chaegeul ilgeoyo.", ex_l1: "I read a book in the evening."}
+      - {id: ko1-12-yeonghwa, type: vocab, l2: "영화", rom: "yeonghwa", l1: "film / movie", ex: "주말에 영화를 봐요.", ex_rom: "jumare yeonghwareul bwayo.", ex_l1: "I watch a film at the weekend."}
+      - {id: ko1-12-mwohaeyo, type: phrase, l2: "오늘 뭐 해요?", rom: "oneul mwo haeyo", l1: "What are you doing today?", alt: ["오늘은 뭐 해요?", "오늘 뭐 하세요?"]}
       - {id: ko1-12-hoesaegayo, type: phrase, l2: "저는 회사에 가요.", rom: "jeoneun hoesae gayo", l1: "I go to the office.", alt: ["회사에 가요."]}
-      - {id: ko1-12-c1, type: cloze, text: "저는 아침에 커피___ 마셔요.", answer: "를", alt: ["reul"], l1: "I drink coffee in the morning.", note: "Object particle after a vowel (피): 를."}
-      - {id: ko1-12-c2, type: cloze, text: "저는 책___ 읽어요.", answer: "을", alt: ["eul"], l1: "I read a book.", note: "Object particle after a consonant (책): 을."}
+      - {id: ko1-12-c1, type: cloze, text: "저는 아침에 커피___ 마셔요.", answer: "를", alt: ["reul"], l1: "I drink coffee in the morning. (object particle)", note: "Object particle after a vowel (피): 를."}
+      - {id: ko1-12-c2, type: cloze, text: "저는 책___ 읽어요.", answer: "을", alt: ["eul"], l1: "I read a book. (object particle)", note: "Object particle after a consonant (책): 을."}
       - {id: ko1-12-c3, type: cloze, text: "학교___ 한국어를 공부해요.", answer: "에서", alt: ["eseo"], l1: "I study Korean at school.", note: "An action happens there, so 에서."}
       - {id: ko1-12-c4, type: cloze, text: "오늘 친구가 집___ 와요.", answer: "에", alt: ["e"], l1: "A friend is coming to my house today.", note: "Destination of 가요 / 와요: 에."}
       - id: ko1-12-d1
@@ -731,22 +731,22 @@ units:
       Sound: 할아버지 is *harabeoji* (liaison turns ㄹ into r).
     items:
       - {id: ko1-13-hal, type: glyph, l2: "할", rom: "hal", l1: "ㅎ + ㅏ + ㄹ, as in 할머니 and 할아버지"}
-      - {id: ko1-13-gajok, type: vocab, l2: "가족", rom: "gajok", l1: "family", ex: "우리 가족은 한국에 있어요.", ex_l1: "My family is in Korea."}
-      - {id: ko1-13-bumonim, type: vocab, l2: "부모님", rom: "bumonim", l1: "parents", ex: "부모님은 미국에 있어요.", ex_l1: "My parents are in the USA."}
-      - {id: ko1-13-hyeong, type: vocab, l2: "형", rom: "hyeong", l1: "older brother (said by a male)", ex: "형은 회사원이에요.", ex_l1: "My older brother is an office worker."}
-      - {id: ko1-13-nuna, type: vocab, l2: "누나", rom: "nuna", l1: "older sister (said by a male)", ex: "누나는 의사예요.", ex_l1: "My older sister is a doctor."}
-      - {id: ko1-13-oppa, type: vocab, l2: "오빠", rom: "oppa", l1: "older brother (said by a female)", ex: "오빠는 대학생이에요.", ex_l1: "My older brother is a university student."}
-      - {id: ko1-13-eonni, type: vocab, l2: "언니", rom: "eonni", l1: "older sister (said by a female)", ex: "언니가 한 명 있어요.", ex_l1: "I have one older sister."}
-      - {id: ko1-13-dongsaeng, type: vocab, l2: "동생", rom: "dongsaeng", l1: "younger brother or sister", ex: "동생은 학생이에요.", ex_l1: "My younger sibling is a student.", note: "남동생 = younger brother, 여동생 = younger sister."}
+      - {id: ko1-13-gajok, type: vocab, l2: "가족", rom: "gajok", l1: "family", ex: "우리 가족은 한국에 있어요.", ex_rom: "uri gajogeun hanguge isseoyo.", ex_l1: "My family is in Korea."}
+      - {id: ko1-13-bumonim, type: vocab, l2: "부모님", rom: "bumonim", l1: "parents", ex: "부모님은 미국에 있어요.", ex_rom: "bumonimeun miguge isseoyo.", ex_l1: "My parents are in the USA."}
+      - {id: ko1-13-hyeong, type: vocab, l2: "형", rom: "hyeong", l1: "older brother (said by a male)", ex: "형은 회사원이에요.", ex_rom: "hyeongeun hoesawonieyo.", ex_l1: "My older brother is an office worker."}
+      - {id: ko1-13-nuna, type: vocab, l2: "누나", rom: "nuna", l1: "older sister (said by a male)", ex: "누나는 의사예요.", ex_rom: "nunaneun uisayeyo.", ex_l1: "My older sister is a doctor."}
+      - {id: ko1-13-oppa, type: vocab, l2: "오빠", rom: "oppa", l1: "older brother (said by a female)", ex: "오빠는 대학생이에요.", ex_rom: "oppaneun daehaksaengieyo.", ex_l1: "My older brother is a university student."}
+      - {id: ko1-13-eonni, type: vocab, l2: "언니", rom: "eonni", l1: "older sister (said by a female)", ex: "언니가 한 명 있어요.", ex_rom: "eonniga han myeong isseoyo.", ex_l1: "I have one older sister."}
+      - {id: ko1-13-dongsaeng, type: vocab, l2: "동생", rom: "dongsaeng", l1: "younger brother or sister", ex: "동생은 학생이에요.", ex_rom: "dongsaengeun haksaengieyo.", ex_l1: "My younger sibling is a student.", note: "남동생 = younger brother, 여동생 = younger sister."}
       - {id: ko1-13-halmeoni, type: vocab, l2: "할머니", rom: "halmeoni", l1: "grandmother"}
       - {id: ko1-13-harabeoji, type: vocab, l2: "할아버지", rom: "harabeoji", alt: ["halabeoji"], l1: "grandfather"}
-      - {id: ko1-13-nampyeon, type: vocab, l2: "남편", rom: "nampyeon", l1: "husband", ex: "남편은 한국 사람이에요.", ex_l1: "My husband is Korean."}
-      - {id: ko1-13-anae, type: vocab, l2: "아내", rom: "anae", l1: "wife", ex: "아내는 선생님이에요.", ex_l1: "My wife is a teacher."}
-      - {id: ko1-13-adeul, type: vocab, l2: "아들", rom: "adeul", l1: "son", ex: "아들이 한 명 있어요.", ex_l1: "I have one son."}
-      - {id: ko1-13-ttal, type: vocab, l2: "딸", rom: "ttal", l1: "daughter", ex: "딸이 두 명 있어요.", ex_l1: "I have two daughters."}
-      - {id: ko1-13-uri, type: vocab, l2: "우리", rom: "uri", l1: "we / our", ex: "우리 집이에요.", ex_l1: "This is my (our) home."}
-      - {id: ko1-13-gajogimyeot, type: phrase, l2: "가족이 몇 명이에요?", rom: "gajogi myeot myeongieyo", l1: "How many people are there in your family?", alt: ["가족이 몇 명이에요", "가족이 몇 명 있어요?"]}
-      - {id: ko1-13-nemyeongieyo, type: phrase, l2: "우리 가족은 네 명이에요.", rom: "uri gajogeun ne myeongieyo", l1: "There are four people in my family.", alt: ["우리 가족은 4명이에요.", "네 명이에요.", "우리 가족은 네 명 있어요."]}
+      - {id: ko1-13-nampyeon, type: vocab, l2: "남편", rom: "nampyeon", l1: "husband", ex: "남편은 한국 사람이에요.", ex_rom: "nampyeoneun hanguk saramieyo.", ex_l1: "My husband is Korean."}
+      - {id: ko1-13-anae, type: vocab, l2: "아내", rom: "anae", l1: "wife", ex: "아내는 선생님이에요.", ex_rom: "anaeneun seonsaengnimieyo.", ex_l1: "My wife is a teacher."}
+      - {id: ko1-13-adeul, type: vocab, l2: "아들", rom: "adeul", l1: "son", ex: "아들이 한 명 있어요.", ex_rom: "adeuri han myeong isseoyo.", ex_l1: "I have one son."}
+      - {id: ko1-13-ttal, type: vocab, l2: "딸", rom: "ttal", l1: "daughter", ex: "딸이 두 명 있어요.", ex_rom: "ttari du myeong isseoyo.", ex_l1: "I have two daughters."}
+      - {id: ko1-13-uri, type: vocab, l2: "우리", rom: "uri", l1: "we / our", ex: "우리 집이에요.", ex_rom: "uri jibieyo.", ex_l1: "This is my (our) home."}
+      - {id: ko1-13-gajogimyeot, type: phrase, l2: "가족이 몇 명이에요?", rom: "gajogi myeot myeongieyo", l1: "How many people are there in your family?", alt: ["가족이 몇 명 있어요?"]}
+      - {id: ko1-13-nemyeongieyo, type: phrase, l2: "우리 가족은 네 명이에요.", rom: "uri gajogeun ne myeongieyo", l1: "There are four people in my family.", alt: ["우리 가족은 4명이에요.", "네 명이에요."]}
       - {id: ko1-13-c1, type: cloze, text: "저는 누나가 있어요. 형___ 있어요.", answer: "도", alt: ["do"], l1: "I have an older sister. I have an older brother too.", note: "도 (too) replaces 이/가."}
       - {id: ko1-13-c2, type: cloze, text: "아버지___ 어머니는 한국에 있어요.", answer: "하고", alt: ["hago", "와", "wa", "랑", "rang"], l1: "My father and mother are in Korea.", note: "하고 joins two nouns. Written style: 아버지와; casual speech: 아버지랑."}
       - {id: ko1-13-c3, type: cloze, text: "저는 ___이 두 명 있어요.", answer: "동생", alt: ["dongsaeng"], l1: "I have two younger siblings.", note: "동생 covers both younger brothers and younger sisters."}
@@ -795,24 +795,24 @@ units:
       Sound: 맛있어요 is *masisseoyo*; 싫어해요 is *sireohaeyo*.
     items:
       - {id: ko1-14-mat, type: glyph, l2: "맛", rom: "mat", l1: "taste, as in 맛있어요"}
-      - {id: ko1-14-bap, type: vocab, l2: "밥", rom: "bap", l1: "cooked rice / a meal", ex: "밥을 먹어요.", ex_l1: "I am eating (a meal)."}
-      - {id: ko1-14-gimchi, type: vocab, l2: "김치", rom: "gimchi", alt: ["kimchi"], l1: "kimchi", ex: "김치가 매워요.", ex_l1: "The kimchi is spicy."}
-      - {id: ko1-14-bulgogi, type: vocab, l2: "불고기", rom: "bulgogi", l1: "bulgogi (marinated grilled beef)", ex: "불고기를 좋아해요.", ex_l1: "I like bulgogi."}
-      - {id: ko1-14-bibimbap, type: vocab, l2: "비빔밥", rom: "bibimbap", l1: "bibimbap (rice mixed with vegetables)", ex: "비빔밥이 맛있어요.", ex_l1: "The bibimbap is tasty."}
-      - {id: ko1-14-maekju, type: vocab, l2: "맥주", rom: "maekju", l1: "beer", ex: "맥주 한 병 주세요.", ex_l1: "One bottle of beer, please."}
-      - {id: ko1-14-eumsik, type: vocab, l2: "음식", rom: "eumsik", l1: "food", ex: "한국 음식을 좋아해요.", ex_l1: "I like Korean food."}
-      - {id: ko1-14-sikdang, type: vocab, l2: "식당", rom: "sikdang", l1: "restaurant", ex: "식당에서 밥을 먹어요.", ex_l1: "I eat at a restaurant."}
-      - {id: ko1-14-masisseoyo, type: vocab, l2: "맛있어요", rom: "masisseoyo", l1: "(it is) tasty / delicious", ex: "이거 맛있어요!", ex_l1: "This is delicious!", note: "The opposite is 맛없어요 (madeopseoyo)."}
-      - {id: ko1-14-maewoyo, type: vocab, l2: "매워요", rom: "maewoyo", l1: "(it is) spicy", ex: "이거 매워요?", ex_l1: "Is this spicy?"}
-      - {id: ko1-14-joahaeyo, type: vocab, l2: "좋아해요", rom: "joahaeyo", alt: ["johahaeyo"], l1: "like / likes (verb, takes 을/를)", ex: "저는 커피를 좋아해요.", ex_l1: "I like coffee."}
-      - {id: ko1-14-sireohaeyo, type: vocab, l2: "싫어해요", rom: "sireohaeyo", alt: ["silheohaeyo"], l1: "dislike / dislikes (verb, takes 을/를)", ex: "저는 우유를 싫어해요.", ex_l1: "I dislike milk.", note: "Quite strong. 안 좋아해요 (I don't like) is gentler."}
+      - {id: ko1-14-bap, type: vocab, l2: "밥", rom: "bap", l1: "cooked rice / a meal", ex: "밥을 먹어요.", ex_rom: "babeul meogeoyo.", ex_l1: "I am eating (a meal)."}
+      - {id: ko1-14-gimchi, type: vocab, l2: "김치", rom: "gimchi", alt: ["kimchi"], l1: "kimchi", ex: "김치가 매워요.", ex_rom: "gimchiga maewoyo.", ex_l1: "The kimchi is spicy."}
+      - {id: ko1-14-bulgogi, type: vocab, l2: "불고기", rom: "bulgogi", l1: "bulgogi (marinated grilled beef)", ex: "불고기를 좋아해요.", ex_rom: "bulgogireul joahaeyo.", ex_l1: "I like bulgogi."}
+      - {id: ko1-14-bibimbap, type: vocab, l2: "비빔밥", rom: "bibimbap", l1: "bibimbap (rice mixed with vegetables)", ex: "비빔밥이 맛있어요.", ex_rom: "bibimbabi masisseoyo.", ex_l1: "The bibimbap is tasty."}
+      - {id: ko1-14-maekju, type: vocab, l2: "맥주", rom: "maekju", l1: "beer", ex: "맥주 한 병 주세요.", ex_rom: "maekju han byeong juseyo.", ex_l1: "One bottle of beer, please."}
+      - {id: ko1-14-eumsik, type: vocab, l2: "음식", rom: "eumsik", l1: "food", ex: "한국 음식을 좋아해요.", ex_rom: "hanguk eumsigeul joahaeyo.", ex_l1: "I like Korean food."}
+      - {id: ko1-14-sikdang, type: vocab, l2: "식당", rom: "sikdang", l1: "restaurant", ex: "식당에서 밥을 먹어요.", ex_rom: "sikdangeseo babeul meogeoyo.", ex_l1: "I eat at a restaurant."}
+      - {id: ko1-14-masisseoyo, type: vocab, l2: "맛있어요", rom: "masisseoyo", l1: "(it is) tasty / delicious", ex: "이거 맛있어요!", ex_rom: "igeo masisseoyo!", ex_l1: "This is delicious!", note: "The opposite is 맛없어요 (madeopseoyo)."}
+      - {id: ko1-14-maewoyo, type: vocab, l2: "매워요", rom: "maewoyo", l1: "(it is) spicy", ex: "이거 매워요?", ex_rom: "igeo maewoyo?", ex_l1: "Is this spicy?"}
+      - {id: ko1-14-joahaeyo, type: vocab, l2: "좋아해요", rom: "joahaeyo", alt: ["johahaeyo"], l1: "like / likes (verb, takes 을/를)", ex: "저는 커피를 좋아해요.", ex_rom: "jeoneun keopireul joahaeyo.", ex_l1: "I like coffee."}
+      - {id: ko1-14-sireohaeyo, type: vocab, l2: "싫어해요", rom: "sireohaeyo", alt: ["silheohaeyo"], l1: "dislike / dislikes (verb, takes 을/를)", ex: "저는 우유를 싫어해요.", ex_rom: "jeoneun uyureul sireohaeyo.", ex_l1: "I dislike milk.", note: "Quite strong. 안 좋아해요 (I don't like) is gentler."}
       - {id: ko1-14-baegopayo, type: vocab, l2: "배고파요", rom: "baegopayo", l1: "(I am) hungry", alt: ["배가 고파요", "baega gopayo"]}
       - {id: ko1-14-hanajuseyo, type: phrase, l2: "비빔밥 하나 주세요.", rom: "bibimbap hana juseyo", l1: "One bibimbap, please.", alt: ["비빔밥 한 개 주세요.", "비빔밥 주세요.", "비빔밥 한 그릇 주세요."]}
       - {id: ko1-14-anmeogeoyo, type: phrase, l2: "저는 고기를 안 먹어요.", rom: "jeoneun gogireul an meogeoyo", l1: "I don't eat meat.", alt: ["고기를 안 먹어요.", "저는 고기 안 먹어요.", "고기 안 먹어요."]}
-      - {id: ko1-14-muljom, type: phrase, l2: "물 좀 주세요.", rom: "mul jom juseyo", l1: "Some water, please.", alt: ["물 주세요.", "물 좀 주세요"]}
+      - {id: ko1-14-muljom, type: phrase, l2: "물 좀 주세요.", rom: "mul jom juseyo", l1: "Some water, please.", alt: ["물 주세요."]}
       - {id: ko1-14-gyesan, type: phrase, l2: "계산해 주세요.", rom: "gyesanhae juseyo", l1: "The bill, please.", alt: ["계산할게요.", "계산이요."], note: "Literally 'please calculate'. In most Korean restaurants you pay at the counter by the door."}
       - {id: ko1-14-jalmeokgesseumnida, type: phrase, l2: "잘 먹겠습니다.", rom: "jal meokgesseumnida", alt: ["jal meokgetseumnida"], l1: "(said before eating) I will eat well. / Thank you for the meal.", note: "A fixed formal phrase, said to whoever cooked or is paying."}
-      - {id: ko1-14-c1, type: cloze, text: "저는 김치___ 좋아해요.", answer: "를", alt: ["reul"], l1: "I like kimchi.", note: "좋아해요 is a verb with an object: 를 after a vowel."}
+      - {id: ko1-14-c1, type: cloze, text: "저는 김치___ 좋아해요.", answer: "를", alt: ["reul"], l1: "I like kimchi. (object particle)", note: "좋아해요 is a verb with an object: 를 after a vowel."}
       - {id: ko1-14-c2, type: cloze, text: "저는 맥주를 ___ 마셔요.", answer: "안", alt: ["an"], l1: "I don't drink beer.", note: "안 goes directly before the verb."}
       - {id: ko1-14-c3, type: cloze, text: "불고기가 ___.", answer: "맛있어요", alt: ["masisseoyo"], l1: "The bulgogi is delicious.", note: "맛 (taste) + 있어요."}
       - id: ko1-14-d1
@@ -861,19 +861,19 @@ units:
       못 ends in a t sound and reacts to what follows: 못 가요 is "mot gayo", but 못 먹어요 is heard as "mon meogeoyo". The romanisation here writes each word separately: *mot meogeoyo*.
     items:
       - {id: ko1-15-kkak, type: glyph, l2: "깎", rom: "kkak", l1: "as in 깎아 주세요: tense ㄲ twice; the final one is said k"}
-      - {id: ko1-15-sayo, type: vocab, l2: "사요", rom: "sayo", l1: "buy / buys (polite present)", ex: "시장에서 사과를 사요.", ex_l1: "I buy apples at the market.", note: "Dictionary form: 사다."}
-      - {id: ko1-15-bissayo, type: vocab, l2: "비싸요", rom: "bissayo", l1: "(it is) expensive", ex: "이 가방은 비싸요.", ex_l1: "This bag is expensive."}
-      - {id: ko1-15-ssayo, type: vocab, l2: "싸요", rom: "ssayo", l1: "(it is) cheap", ex: "시장은 싸요.", ex_l1: "The market is cheap."}
-      - {id: ko1-15-keoyo, type: vocab, l2: "커요", rom: "keoyo", l1: "(it is) big", ex: "이 옷은 커요.", ex_l1: "These clothes are big.", note: "Dictionary form: 크다."}
-      - {id: ko1-15-jagayo, type: vocab, l2: "작아요", rom: "jagayo", l1: "(it is) small", ex: "가방이 작아요.", ex_l1: "The bag is small.", note: "Dictionary form: 작다."}
-      - {id: ko1-15-ot, type: vocab, l2: "옷", rom: "ot", l1: "clothes", ex: "옷을 사요.", ex_l1: "I am buying clothes.", note: "With a particle the ㅅ is heard: 옷을 = oseul."}
-      - {id: ko1-15-sinbal, type: vocab, l2: "신발", rom: "sinbal", l1: "shoes", ex: "이 신발 얼마예요?", ex_l1: "How much are these shoes?"}
-      - {id: ko1-15-sijang, type: vocab, l2: "시장", rom: "sijang", l1: "market", ex: "시장에 가요.", ex_l1: "I am going to the market."}
-      - {id: ko1-15-kadeu, type: vocab, l2: "카드", rom: "kadeu", l1: "card (bank card)", ex: "카드가 없어요.", ex_l1: "I don't have a card."}
-      - {id: ko1-15-neomu, type: vocab, l2: "너무", rom: "neomu", l1: "too / so (very)", ex: "너무 커요.", ex_l1: "It's too big."}
+      - {id: ko1-15-sayo, type: vocab, l2: "사요", rom: "sayo", l1: "buy / buys (polite present)", ex: "시장에서 사과를 사요.", ex_rom: "sijangeseo sagwareul sayo.", ex_l1: "I buy apples at the market.", note: "Dictionary form: 사다."}
+      - {id: ko1-15-bissayo, type: vocab, l2: "비싸요", rom: "bissayo", l1: "(it is) expensive", ex: "이 가방은 비싸요.", ex_rom: "i gabangeun bissayo.", ex_l1: "This bag is expensive."}
+      - {id: ko1-15-ssayo, type: vocab, l2: "싸요", rom: "ssayo", l1: "(it is) cheap", ex: "시장은 싸요.", ex_rom: "sijangeun ssayo.", ex_l1: "The market is cheap."}
+      - {id: ko1-15-keoyo, type: vocab, l2: "커요", rom: "keoyo", l1: "(it is) big", ex: "이 옷은 커요.", ex_rom: "i oseun keoyo.", ex_l1: "These clothes are big.", note: "Dictionary form: 크다."}
+      - {id: ko1-15-jagayo, type: vocab, l2: "작아요", rom: "jagayo", l1: "(it is) small", ex: "가방이 작아요.", ex_rom: "gabangi jagayo.", ex_l1: "The bag is small.", note: "Dictionary form: 작다."}
+      - {id: ko1-15-ot, type: vocab, l2: "옷", rom: "ot", l1: "clothes", ex: "옷을 사요.", ex_rom: "oseul sayo.", ex_l1: "I am buying clothes.", note: "With a particle the ㅅ is heard: 옷을 = oseul."}
+      - {id: ko1-15-sinbal, type: vocab, l2: "신발", rom: "sinbal", l1: "shoes", ex: "이 신발 얼마예요?", ex_rom: "i sinbal eolmayeyo?", ex_l1: "How much are these shoes?"}
+      - {id: ko1-15-sijang, type: vocab, l2: "시장", rom: "sijang", l1: "market", ex: "시장에 가요.", ex_rom: "sijange gayo.", ex_l1: "I am going to the market."}
+      - {id: ko1-15-kadeu, type: vocab, l2: "카드", rom: "kadeu", l1: "card (bank card)", ex: "카드가 없어요.", ex_rom: "kadeuga eopseoyo.", ex_l1: "I don't have a card."}
+      - {id: ko1-15-neomu, type: vocab, l2: "너무", rom: "neomu", l1: "too / so (very)", ex: "너무 커요.", ex_rom: "neomu keoyo.", ex_l1: "It's too big."}
       - {id: ko1-15-igeojuseyo, type: phrase, l2: "이거 주세요.", rom: "igeo juseyo", l1: "I'll take this one, please.", alt: ["이것 주세요.", "이걸 주세요.", "이거로 주세요."]}
       - {id: ko1-15-kkakkajuseyo, type: phrase, l2: "좀 깎아 주세요.", rom: "jom kkakka juseyo", l1: "Please give me a little discount.", alt: ["깎아 주세요.", "kkakka juseyo", "조금 깎아 주세요."]}
-      - {id: ko1-15-kadeudwaeyo, type: phrase, l2: "카드 돼요?", rom: "kadeu dwaeyo", l1: "Can I pay by card?", alt: ["카드 되나요?", "카드로 돼요?", "카드 돼요"]}
+      - {id: ko1-15-kadeudwaeyo, type: phrase, l2: "카드 돼요?", rom: "kadeu dwaeyo", l1: "Can I pay by card?", alt: ["카드 되나요?", "카드로 돼요?"]}
       - {id: ko1-15-c1, type: cloze, text: "돈이 없어요. 그래서 ___ 사요.", answer: "못", alt: ["mot"], l1: "I have no money. So I can't buy it.", note: "Something prevents it: 못. 그래서 = so."}
       - {id: ko1-15-c2, type: cloze, text: "이 옷은 ___ 비싸요. 싸요!", answer: "안", alt: ["an"], l1: "These clothes are not expensive. They're cheap!", note: "Adjectives are negated with 안."}
       - {id: ko1-15-c3, type: cloze, text: "이 신발은 너무 ___. 큰 거 있어요?", answer: "작아요", alt: ["jagayo"], l1: "These shoes are too small. Do you have big ones?", note: "큰 거 = a big one."}
@@ -925,22 +925,22 @@ units:
       왼쪽으로 is *oenjjogeuro* and 앞에 is *ape*: the final consonant moves over as always. 편의점 is written *pyeonuijeom* but usually said "pyeo-ni-jeom".
     items:
       - {id: ko1-16-jjok, type: glyph, l2: "쪽", rom: "jjok", l1: "side / direction, as in 왼쪽 and 오른쪽"}
-      - {id: ko1-16-yeok, type: vocab, l2: "역", rom: "yeok", l1: "station (train or underground)", ex: "역에 가요.", ex_l1: "I am going to the station."}
-      - {id: ko1-16-byeongwon, type: vocab, l2: "병원", rom: "byeongwon", l1: "hospital / doctor's clinic", ex: "병원이 어디에 있어요?", ex_l1: "Where is the hospital?"}
-      - {id: ko1-16-eunhaeng, type: vocab, l2: "은행", rom: "eunhaeng", l1: "bank", ex: "은행에 가요.", ex_l1: "I am going to the bank."}
-      - {id: ko1-16-pyeonuijeom, type: vocab, l2: "편의점", rom: "pyeonuijeom", alt: ["pyeonijeom"], l1: "convenience store", ex: "편의점에서 물을 사요.", ex_l1: "I buy water at the convenience store."}
-      - {id: ko1-16-oenjjok, type: vocab, l2: "왼쪽", rom: "oenjjok", l1: "left (side)", ex: "화장실은 왼쪽에 있어요.", ex_l1: "The toilet is on the left."}
-      - {id: ko1-16-oreunjjok, type: vocab, l2: "오른쪽", rom: "oreunjjok", l1: "right (side)", ex: "은행은 오른쪽에 있어요.", ex_l1: "The bank is on the right."}
-      - {id: ko1-16-ap, type: vocab, l2: "앞", rom: "ap", l1: "front / in front of", ex: "학교 앞에 있어요.", ex_l1: "It is in front of the school."}
-      - {id: ko1-16-yeop, type: vocab, l2: "옆", rom: "yeop", l1: "side / next to", ex: "제 옆에 있어요.", ex_l1: "It is next to me."}
-      - {id: ko1-16-dwi, type: vocab, l2: "뒤", rom: "dwi", l1: "back / behind", ex: "집 뒤에 있어요.", ex_l1: "It is behind the house."}
-      - {id: ko1-16-geuncheo, type: vocab, l2: "근처", rom: "geuncheo", l1: "nearby area / vicinity", ex: "이 근처에 식당이 있어요?", ex_l1: "Is there a restaurant near here?"}
-      - {id: ko1-16-meoreoyo, type: vocab, l2: "멀어요", rom: "meoreoyo", l1: "(it is) far", ex: "학교가 멀어요.", ex_l1: "The school is far."}
-      - {id: ko1-16-gakkawoyo, type: vocab, l2: "가까워요", rom: "gakkawoyo", l1: "(it is) near / close", ex: "역이 가까워요.", ex_l1: "The station is close."}
+      - {id: ko1-16-yeok, type: vocab, l2: "역", rom: "yeok", l1: "station (train or underground)", ex: "역에 가요.", ex_rom: "yeoge gayo.", ex_l1: "I am going to the station."}
+      - {id: ko1-16-byeongwon, type: vocab, l2: "병원", rom: "byeongwon", l1: "hospital / doctor's clinic", ex: "병원이 어디에 있어요?", ex_rom: "byeongwoni eodie isseoyo?", ex_l1: "Where is the hospital?"}
+      - {id: ko1-16-eunhaeng, type: vocab, l2: "은행", rom: "eunhaeng", l1: "bank", ex: "은행에 가요.", ex_rom: "eunhaenge gayo.", ex_l1: "I am going to the bank."}
+      - {id: ko1-16-pyeonuijeom, type: vocab, l2: "편의점", rom: "pyeonuijeom", alt: ["pyeonijeom"], l1: "convenience store", ex: "편의점에서 물을 사요.", ex_rom: "pyeonuijeomeseo mureul sayo.", ex_l1: "I buy water at the convenience store."}
+      - {id: ko1-16-oenjjok, type: vocab, l2: "왼쪽", rom: "oenjjok", l1: "left (side)", ex: "화장실은 왼쪽에 있어요.", ex_rom: "hwajangsireun oenjjoge isseoyo.", ex_l1: "The toilet is on the left."}
+      - {id: ko1-16-oreunjjok, type: vocab, l2: "오른쪽", rom: "oreunjjok", l1: "right (side)", ex: "은행은 오른쪽에 있어요.", ex_rom: "eunhaengeun oreunjjoge isseoyo.", ex_l1: "The bank is on the right."}
+      - {id: ko1-16-ap, type: vocab, l2: "앞", rom: "ap", l1: "front / in front of", ex: "학교 앞에 있어요.", ex_rom: "hakgyo ape isseoyo.", ex_l1: "It is in front of the school."}
+      - {id: ko1-16-yeop, type: vocab, l2: "옆", rom: "yeop", l1: "side / next to", ex: "제 옆에 있어요.", ex_rom: "je yeope isseoyo.", ex_l1: "It is next to me."}
+      - {id: ko1-16-dwi, type: vocab, l2: "뒤", rom: "dwi", l1: "back / behind", ex: "집 뒤에 있어요.", ex_rom: "jip dwie isseoyo.", ex_l1: "It is behind the house."}
+      - {id: ko1-16-geuncheo, type: vocab, l2: "근처", rom: "geuncheo", l1: "nearby area / vicinity", ex: "이 근처에 식당이 있어요?", ex_rom: "i geuncheoe sikdangi isseoyo?", ex_l1: "Is there a restaurant near here?"}
+      - {id: ko1-16-meoreoyo, type: vocab, l2: "멀어요", rom: "meoreoyo", l1: "(it is) far", ex: "학교가 멀어요.", ex_rom: "hakgyoga meoreoyo.", ex_l1: "The school is far."}
+      - {id: ko1-16-gakkawoyo, type: vocab, l2: "가까워요", rom: "gakkawoyo", l1: "(it is) near / close", ex: "역이 가까워요.", ex_rom: "yeogi gakkawoyo.", ex_l1: "The station is close."}
       - {id: ko1-16-sillyehamnida, type: phrase, l2: "실례합니다.", rom: "sillyehamnida", alt: ["sillyehabnida", "silryehamnida"], l1: "Excuse me. (formal, when stopping or disturbing someone)"}
       - {id: ko1-16-yeogieodi, type: phrase, l2: "역이 어디예요?", rom: "yeogi eodiyeyo", l1: "Where is the station?", alt: ["역이 어디에 있어요?", "역 어디예요?", "역이 어디 있어요?", "역은 어디예요?", "yeogi eodie isseoyo"]}
       - {id: ko1-16-ttokbaro, type: phrase, l2: "똑바로 가세요.", rom: "ttokbaro gaseyo", l1: "Go straight on.", alt: ["쭉 가세요.", "jjuk gaseyo", "직진하세요."]}
-      - {id: ko1-16-oenjjogeuro, type: phrase, l2: "왼쪽으로 가세요.", rom: "oenjjogeuro gaseyo", l1: "Go to the left.", alt: ["왼쪽으로 가세요"]}
+      - {id: ko1-16-oenjjogeuro, type: phrase, l2: "왼쪽으로 가세요.", rom: "oenjjogeuro gaseyo", l1: "Go to the left."}
       - {id: ko1-16-c1, type: cloze, text: "은행은 병원 ___에 있어요.", answer: "옆", alt: ["yeop"], l1: "The bank is next to the hospital.", note: "Reference point + position word + 에."}
       - {id: ko1-16-c2, type: cloze, text: "오른쪽___ 가세요.", answer: "으로", alt: ["euro"], l1: "Go to the right.", note: "Direction particle after a consonant: 으로."}
       - {id: ko1-16-c3, type: cloze, text: "집에서 학교___ 멀어요.", answer: "까지", alt: ["kkaji"], l1: "It is far from home to school.", note: "에서 … 까지 = from … to."}
@@ -991,18 +991,18 @@ units:
     items:
       - {id: ko1-17-gat, type: glyph, l2: "갔", rom: "gat", l1: "as in 갔어요 (went): alone, the final ㅆ is said t"}
       - {id: ko1-17-haet, type: glyph, l2: "했", rom: "haet", l1: "as in 했어요 (did): ㅎ + ㅐ + ㅆ"}
-      - {id: ko1-17-eoje, type: vocab, l2: "어제", rom: "eoje", l1: "yesterday", ex: "어제는 일요일이었어요.", ex_l1: "Yesterday was Sunday."}
-      - {id: ko1-17-jinanju, type: vocab, l2: "지난주", rom: "jinanju", l1: "last week", ex: "지난주에 시간이 없었어요.", ex_l1: "I had no time last week."}
-      - {id: ko1-17-eonje, type: vocab, l2: "언제", rom: "eonje", l1: "when", ex: "언제 한국에 왔어요?", ex_l1: "When did you come to Korea?"}
-      - {id: ko1-17-eotteoke, type: vocab, l2: "어떻게", rom: "eotteoke", alt: ["eotteohge"], l1: "how", ex: "학교에 어떻게 가요?", ex_l1: "How do you get to school?", note: "ㅎ + ㄱ merge into k: eo-tteo-ke."}
-      - {id: ko1-17-gasseoyo, type: vocab, l2: "갔어요", rom: "gasseoyo", l1: "went (polite past)", ex: "어제 시장에 갔어요.", ex_l1: "I went to the market yesterday."}
-      - {id: ko1-17-wasseoyo, type: vocab, l2: "왔어요", rom: "wasseoyo", l1: "came (polite past)", ex: "친구가 집에 왔어요.", ex_l1: "A friend came to my house."}
-      - {id: ko1-17-meogeosseoyo, type: vocab, l2: "먹었어요", rom: "meogeosseoyo", l1: "ate (polite past)", ex: "저녁에 불고기를 먹었어요.", ex_l1: "I ate bulgogi in the evening."}
-      - {id: ko1-17-haesseoyo, type: vocab, l2: "했어요", rom: "haesseoyo", l1: "did (polite past)", ex: "주말에 뭐 했어요?", ex_l1: "What did you do at the weekend?"}
-      - {id: ko1-17-bwasseoyo, type: vocab, l2: "봤어요", rom: "bwasseoyo", l1: "saw / watched (polite past)", ex: "어제 영화를 봤어요.", ex_l1: "I watched a film yesterday."}
-      - {id: ko1-17-jaemiisseosseoyo, type: vocab, l2: "재미있었어요", rom: "jaemiisseosseoyo", l1: "(it) was fun / interesting", ex: "영화가 재미있었어요.", ex_l1: "The film was fun.", note: "Present: 재미있어요 (재미 = fun, + 있어요)."}
-      - {id: ko1-17-eojemwo, type: phrase, l2: "어제 뭐 했어요?", rom: "eoje mwo haesseoyo", l1: "What did you do yesterday?", alt: ["어제 뭐 했어요", "어제는 뭐 했어요?", "어제 뭐 하셨어요?"]}
-      - {id: ko1-17-jumaljal, type: phrase, l2: "주말 잘 보냈어요?", rom: "jumal jal bonaesseoyo", l1: "Did you have a good weekend?", alt: ["주말 잘 보내셨어요?", "주말을 잘 보냈어요?", "주말 잘 보냈어요"], note: "Literally 'did you spend the weekend well?'. The Monday-morning greeting."}
+      - {id: ko1-17-eoje, type: vocab, l2: "어제", rom: "eoje", l1: "yesterday", ex: "어제는 일요일이었어요.", ex_rom: "eojeneun iryoirieosseoyo.", ex_l1: "Yesterday was Sunday."}
+      - {id: ko1-17-jinanju, type: vocab, l2: "지난주", rom: "jinanju", l1: "last week", ex: "지난주에 시간이 없었어요.", ex_rom: "jinanjue sigani eopseosseoyo.", ex_l1: "I had no time last week."}
+      - {id: ko1-17-eonje, type: vocab, l2: "언제", rom: "eonje", l1: "when", ex: "언제 한국에 왔어요?", ex_rom: "eonje hanguge wasseoyo?", ex_l1: "When did you come to Korea?"}
+      - {id: ko1-17-eotteoke, type: vocab, l2: "어떻게", rom: "eotteoke", alt: ["eotteohge"], l1: "how", ex: "학교에 어떻게 가요?", ex_rom: "hakgyoe eotteoke gayo?", ex_l1: "How do you get to school?", note: "ㅎ + ㄱ merge into k: eo-tteo-ke."}
+      - {id: ko1-17-gasseoyo, type: vocab, l2: "갔어요", rom: "gasseoyo", l1: "went (polite past)", ex: "어제 시장에 갔어요.", ex_rom: "eoje sijange gasseoyo.", ex_l1: "I went to the market yesterday."}
+      - {id: ko1-17-wasseoyo, type: vocab, l2: "왔어요", rom: "wasseoyo", l1: "came (polite past)", ex: "친구가 집에 왔어요.", ex_rom: "chinguga jibe wasseoyo.", ex_l1: "A friend came to my house."}
+      - {id: ko1-17-meogeosseoyo, type: vocab, l2: "먹었어요", rom: "meogeosseoyo", l1: "ate (polite past)", ex: "저녁에 불고기를 먹었어요.", ex_rom: "jeonyeoge bulgogireul meogeosseoyo.", ex_l1: "I ate bulgogi in the evening."}
+      - {id: ko1-17-haesseoyo, type: vocab, l2: "했어요", rom: "haesseoyo", l1: "did (polite past)", ex: "주말에 뭐 했어요?", ex_rom: "jumare mwo haesseoyo?", ex_l1: "What did you do at the weekend?"}
+      - {id: ko1-17-bwasseoyo, type: vocab, l2: "봤어요", rom: "bwasseoyo", l1: "saw / watched (polite past)", ex: "어제 영화를 봤어요.", ex_rom: "eoje yeonghwareul bwasseoyo.", ex_l1: "I watched a film yesterday."}
+      - {id: ko1-17-jaemiisseosseoyo, type: vocab, l2: "재미있었어요", rom: "jaemiisseosseoyo", l1: "(it) was fun / interesting", ex: "영화가 재미있었어요.", ex_rom: "yeonghwaga jaemiisseosseoyo.", ex_l1: "The film was fun.", note: "Present: 재미있어요 (재미 = fun, + 있어요)."}
+      - {id: ko1-17-eojemwo, type: phrase, l2: "어제 뭐 했어요?", rom: "eoje mwo haesseoyo", l1: "What did you do yesterday?", alt: ["어제는 뭐 했어요?", "어제 뭐 하셨어요?"]}
+      - {id: ko1-17-jumaljal, type: phrase, l2: "주말 잘 보냈어요?", rom: "jumal jal bonaesseoyo", l1: "Did you have a good weekend?", alt: ["주말 잘 보내셨어요?", "주말을 잘 보냈어요?"], note: "Literally 'did you spend the weekend well?'. The Monday-morning greeting."}
       - {id: ko1-17-c1, type: cloze, text: "어제 친구를 ___.", answer: "만났어요", alt: ["mannasseoyo"], l1: "I met a friend yesterday.", note: "만나요 → 만났어요."}
       - {id: ko1-17-c2, type: cloze, text: "아침에 커피를 ___.", answer: "마셨어요", alt: ["masyeosseoyo"], l1: "I drank coffee in the morning.", note: "마셔요 → 마셨어요."}
       - {id: ko1-17-c3, type: cloze, text: "지난주에 책을 ___.", answer: "읽었어요", alt: ["ilgeosseoyo"], l1: "I read a book last week.", note: "읽어요 → 읽었어요."}
@@ -1014,11 +1014,11 @@ units:
         you: B
         lines:
           - {who: A, l2: "주말 잘 보냈어요?", rom: "jumal jal bonaesseoyo?", l1: "Did you have a good weekend?"}
-          - {who: B, l2: "네, 잘 보냈어요.", rom: "ne, jal bonaesseoyo.", l1: "Yes, I had a good one.", alt: ["네, 주말 잘 보냈어요.", "네, 잘 보냈어요"]}
+          - {who: B, l2: "네, 잘 보냈어요.", rom: "ne, jal bonaesseoyo.", l1: "Yes, I had a good one.", alt: ["네, 주말 잘 보냈어요."]}
           - {who: A, l2: "뭐 했어요?", rom: "mwo haesseoyo?", l1: "What did you do?"}
           - {who: B, l2: "친구하고 부산에 갔어요.", rom: "chinguhago busane gasseoyo.", l1: "I went to Busan with a friend.", alt: ["친구와 부산에 갔어요.", "친구랑 부산에 갔어요.", "친구하고 같이 부산에 갔어요."]}
           - {who: A, l2: "와! 부산에서 뭐 먹었어요?", rom: "wa! busaneseo mwo meogeosseoyo?", l1: "Wow! What did you eat in Busan?"}
-          - {who: B, l2: "불고기를 먹었어요.", rom: "bulgogireul meogeosseoyo.", l1: "I ate bulgogi.", alt: ["불고기 먹었어요.", "불고기를 먹었어요"]}
+          - {who: B, l2: "불고기를 먹었어요.", rom: "bulgogireul meogeosseoyo.", l1: "I ate bulgogi.", alt: ["불고기 먹었어요."]}
           - {who: A, l2: "재미있었어요?", rom: "jaemiisseosseoyo?", l1: "Was it fun?"}
           - {who: B, l2: "네, 너무 재미있었어요.", rom: "ne, neomu jaemiisseosseoyo.", l1: "Yes, it was so much fun.", alt: ["네, 재미있었어요.", "네, 아주 재미있었어요.", "네, 정말 재미있었어요."]}
 
@@ -1053,17 +1053,17 @@ units:
       못해요 is said *motaeyo*: the t of 못 and the ㅎ merge. 싶어요 is *sipeoyo*. In 할 거예요 the 거 is often heard as "kkeo"; the romanisation still writes *geo*.
     items:
       - {id: ko1-18-sip, type: glyph, l2: "싶", rom: "sip", l1: "as in 싶어요 (sipeoyo): alone, the final ㅍ is said p"}
-      - {id: ko1-18-daeumju, type: vocab, l2: "다음 주", rom: "daeum ju", l1: "next week", ex: "다음 주에 한국에 갈 거예요.", ex_l1: "I am going to Korea next week."}
-      - {id: ko1-18-galgeoyeyo, type: vocab, l2: "갈 거예요", rom: "gal geoyeyo", l1: "am going to go / will go", ex: "내일 학교에 갈 거예요.", ex_l1: "I am going to go to school tomorrow.", note: "가다: the stem ends in a vowel, so ㄹ goes under it."}
-      - {id: ko1-18-halgeoyeyo, type: vocab, l2: "할 거예요", rom: "hal geoyeyo", l1: "am going to do / will do", ex: "주말에 뭐 할 거예요?", ex_l1: "What are you going to do at the weekend?"}
-      - {id: ko1-18-meogeulgeoyeyo, type: vocab, l2: "먹을 거예요", rom: "meogeul geoyeyo", l1: "am going to eat / will eat", ex: "저녁에 비빔밥을 먹을 거예요.", ex_l1: "I am going to eat bibimbap this evening.", note: "먹다: the stem ends in a consonant, so 을."}
-      - {id: ko1-18-gagosipeoyo, type: vocab, l2: "가고 싶어요", rom: "gago sipeoyo", l1: "(I) want to go", ex: "바다에 가고 싶어요.", ex_l1: "I want to go to the sea."}
-      - {id: ko1-18-baeugosipeoyo, type: vocab, l2: "배우고 싶어요", rom: "baeugo sipeoyo", l1: "(I) want to learn", ex: "한국어를 배우고 싶어요.", ex_l1: "I want to learn Korean.", note: "배우다 = to learn."}
-      - {id: ko1-18-cheoncheonhi, type: vocab, l2: "천천히", rom: "cheoncheonhi", l1: "slowly", ex: "천천히 가세요.", ex_l1: "Go slowly, please."}
-      - {id: ko1-18-dasi, type: vocab, l2: "다시", rom: "dasi", l1: "again (once more, from the start)", ex: "다시 해요.", ex_l1: "Let's do it again."}
-      - {id: ko1-18-jogeum, type: vocab, l2: "조금", rom: "jogeum", l1: "a little", ex: "한국어를 조금 해요.", ex_l1: "I speak a little Korean.", note: "The short form is 좀."}
-      - {id: ko1-18-moreugesseoyo, type: phrase, l2: "잘 모르겠어요.", rom: "jal moreugesseoyo", l1: "I'm not sure. / I don't really know.", alt: ["모르겠어요.", "moreugesseoyo", "잘 모르겠어요"]}
-      - {id: ko1-18-ihaemot, type: phrase, l2: "이해 못 했어요.", rom: "ihae mot haesseoyo", l1: "I didn't understand.", alt: ["이해 못 했어요", "이해를 못 했어요.", "못 알아들었어요.", "이해가 안 돼요.", "ihae motaesseoyo"]}
+      - {id: ko1-18-daeumju, type: vocab, l2: "다음 주", rom: "daeum ju", l1: "next week", ex: "다음 주에 한국에 갈 거예요.", ex_rom: "daeum jue hanguge gal geoyeyo.", ex_l1: "I am going to Korea next week."}
+      - {id: ko1-18-galgeoyeyo, type: vocab, l2: "갈 거예요", rom: "gal geoyeyo", l1: "am going to go / will go", ex: "내일 학교에 갈 거예요.", ex_rom: "naeil hakgyoe gal geoyeyo.", ex_l1: "I am going to go to school tomorrow.", note: "가다: the stem ends in a vowel, so ㄹ goes under it."}
+      - {id: ko1-18-halgeoyeyo, type: vocab, l2: "할 거예요", rom: "hal geoyeyo", l1: "am going to do / will do", ex: "주말에 뭐 할 거예요?", ex_rom: "jumare mwo hal geoyeyo?", ex_l1: "What are you going to do at the weekend?"}
+      - {id: ko1-18-meogeulgeoyeyo, type: vocab, l2: "먹을 거예요", rom: "meogeul geoyeyo", l1: "am going to eat / will eat", ex: "저녁에 비빔밥을 먹을 거예요.", ex_rom: "jeonyeoge bibimbabeul meogeul geoyeyo.", ex_l1: "I am going to eat bibimbap this evening.", note: "먹다: the stem ends in a consonant, so 을."}
+      - {id: ko1-18-gagosipeoyo, type: vocab, l2: "가고 싶어요", rom: "gago sipeoyo", l1: "(I) want to go", ex: "바다에 가고 싶어요.", ex_rom: "badae gago sipeoyo.", ex_l1: "I want to go to the sea."}
+      - {id: ko1-18-baeugosipeoyo, type: vocab, l2: "배우고 싶어요", rom: "baeugo sipeoyo", l1: "(I) want to learn", ex: "한국어를 배우고 싶어요.", ex_rom: "hangugeoreul baeugo sipeoyo.", ex_l1: "I want to learn Korean.", note: "배우다 = to learn."}
+      - {id: ko1-18-cheoncheonhi, type: vocab, l2: "천천히", rom: "cheoncheonhi", l1: "slowly", ex: "천천히 가세요.", ex_rom: "cheoncheonhi gaseyo.", ex_l1: "Go slowly, please."}
+      - {id: ko1-18-dasi, type: vocab, l2: "다시", rom: "dasi", l1: "again (once more, from the start)", ex: "다시 해요.", ex_rom: "dasi haeyo.", ex_l1: "Let's do it again."}
+      - {id: ko1-18-jogeum, type: vocab, l2: "조금", rom: "jogeum", l1: "a little", ex: "한국어를 조금 해요.", ex_rom: "hangugeoreul jogeum haeyo.", ex_l1: "I speak a little Korean.", note: "The short form is 좀."}
+      - {id: ko1-18-moreugesseoyo, type: phrase, l2: "잘 모르겠어요.", rom: "jal moreugesseoyo", l1: "I'm not sure. / I don't really know.", alt: ["모르겠어요.", "moreugesseoyo"]}
+      - {id: ko1-18-ihaemot, type: phrase, l2: "이해 못 했어요.", rom: "ihae mot haesseoyo", l1: "I didn't understand.", alt: ["이해를 못 했어요.", "못 알아들었어요.", "ihae motaesseoyo"]}
       - {id: ko1-18-dasihanbeon, type: phrase, l2: "다시 한번 말해 주세요.", rom: "dasi hanbeon malhae juseyo", l1: "Please say it once more.", alt: ["다시 말해 주세요.", "dasi malhae juseyo", "다시 한번 말씀해 주세요.", "한 번 더 말해 주세요.", "다시 한 번 말해 주세요."]}
       - {id: ko1-18-cheoncheonhimal, type: phrase, l2: "천천히 말해 주세요.", rom: "cheoncheonhi malhae juseyo", l1: "Please speak slowly.", alt: ["천천히 말씀해 주세요.", "좀 천천히 말해 주세요."]}
       - {id: ko1-18-jalmotaeyo, type: phrase, l2: "한국어를 잘 못해요.", rom: "hangugeoreul jal motaeyo", l1: "I can't speak Korean well.", alt: ["한국어 잘 못해요.", "한국말을 잘 못해요.", "한국어를 잘 못 해요.", "hangugeoreul jal moshaeyo", "hangugeoreul jal mothaeyo"]}
@@ -1086,4 +1086,4 @@ units:
           - {who: A, l2: "주말에, 뭐, 할 거예요?", rom: "jumare, mwo, hal geoyeyo?", l1: "At the weekend, what, are you going to do?"}
           - {who: B, l2: "아! 친구하고 서울에 갈 거예요.", rom: "a! chinguhago seoure gal geoyeyo.", l1: "Ah! I'm going to go to Seoul with a friend.", alt: ["친구하고 서울에 갈 거예요.", "아! 친구와 서울에 갈 거예요.", "아! 친구랑 서울에 갈 거예요."]}
           - {who: A, l2: "서울에서 뭐 하고 싶어요?", rom: "seoureseo mwo hago sipeoyo?", l1: "What do you want to do in Seoul?"}
-          - {who: B, l2: "한국 음식을 먹고 싶어요.", rom: "hanguk eumsigeul meokgo sipeoyo.", l1: "I want to eat Korean food.", alt: ["한국 음식 먹고 싶어요.", "한국 음식을 먹고 싶어요"]}
+          - {who: B, l2: "한국 음식을 먹고 싶어요.", rom: "hanguk eumsigeul meokgo sipeoyo.", l1: "I want to eat Korean food.", alt: ["한국 음식 먹고 싶어요."]}
