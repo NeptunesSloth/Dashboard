@@ -549,3 +549,9 @@ a { color: var(--gold); }
 .fold > summary { cursor: pointer; padding: 10px 2px; font: 800 1.05rem var(--serif); color: #f8e6bf; list-style: none; display: flex; align-items: center; gap: 8px; }
 .fold > summary::before { content: "▸"; color: var(--gold); transition: transform .15s; } .fold[open] > summary::before { transform: rotate(90deg); }
 .fold > summary::-webkit-details-marker { display: none; }
+
+/* Chinese, Japanese, Korean */
+.rom { color: var(--gold); font-size: .9rem; font-weight: 600; letter-spacing: .01em; }
+.glyph { font-size: 1.6rem; font-weight: 700; }
+.prompt.big { font-size: clamp(3rem, 14vw, 5.5rem); line-height: 1.15; text-align: center; margin: 6px 0; }
+:lang(zh), :lang(ja), :lang(ko) { font-family: "Noto Sans CJK SC", "Noto Sans CJK JP", "Noto Sans CJK KR", "PingFang SC", "Hiragino Sans", "Yu Gothic", "Malgun Gothic", "Microsoft YaHei", system-ui, sans-serif; }

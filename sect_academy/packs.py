@@ -35,7 +35,7 @@ import yaml
 
 PACK_DIR = Path(__file__).parent / "packs"
 KINDS = ("language", "cert")
-ITEM_TYPES = ("vocab", "phrase", "cloze", "dialogue", "concept", "mcq", "multi", "order")
+ITEM_TYPES = ("vocab", "phrase", "cloze", "dialogue", "glyph", "concept", "mcq", "multi", "order")
 CERT_TYPES = ("concept", "mcq", "multi", "order")
 _ID = re.compile(r"^[a-z0-9][a-z0-9_.\-]{1,63}$")
 _Loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)      # the C loader is ~10x faster when present
@@ -87,6 +87,11 @@ def _validate_units(units, kind, domains: set[str], err, seen_units: set[str], s
                 err(f"item {iid}: {t} items belong in cert packs")
             if kind == "cert" and t not in CERT_TYPES:
                 err(f"item {iid}: {t} items belong in language packs")
+            if "rom" in it and not _s(it.get("rom")):
+                err(f"item {iid}: rom must be a non-empty string (the romanisation of l2)")
+            if t == "glyph":
+                if kind != "language" or not _s(it.get("l2")) or not _s(it.get("rom")):
+                    err(f"item {iid}: glyph needs l2 (the character) and rom (how it is read), in a language pack")
             if t in ("vocab", "phrase"):
                 if not _s(it.get("l2")) or not _s(it.get("l1")):
                     err(f"item {iid}: needs l2 and l1")

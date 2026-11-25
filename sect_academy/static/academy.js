@@ -312,7 +312,7 @@ async function runPlacement(course, done) {
 /* A question with no feedback (placement, trials): text box, single choice, choose-N or put-in-order. */
 function questionHtml(q, value, idp) {
   const long = (q.prompt || '').length > 90;
-  const head = `<div class="prompt ${long ? 'long' : ''}">${esc(q.prompt || '')}</div>${q.sub ? `<div class="sub">${esc(q.sub)}</div>` : ''}`;
+  const head = `<div class="prompt ${long ? 'long' : ''} ${q.big ? 'big' : ''}" lang="${esc(q.lang || '')}">${esc(q.prompt || '')}</div>${q.rom ? `<div class="rom">${esc(q.rom)}</div>` : ''}${q.sub ? `<div class="sub">${esc(q.sub)}</div>` : ''}`;
   if (q.mode === 'order') {
     const picked = Array.isArray(value) ? value : [];
     return `${head}<p class="dim small">Tap the steps in the order they happen. Tap a numbered step to take it back.</p>
@@ -367,8 +367,9 @@ function bindQuestion(q, value, onChange) {
 }
 
 /* ================= study session ================= */
-const ACCENTS = { fr: 'é è ê à ç ù â î ô û ë ï œ'.split(' '), es: 'á é í ó ú ñ ü ¿ ¡'.split(' ') };
-const TYPED = new Set(['type_l2', 'listen', 'cloze_type', 'build_l2']);
+const ACCENTS = { fr: 'é è ê à ç ù â î ô û ë ï œ'.split(' '), es: 'á é í ó ú ñ ü ¿ ¡'.split(' '),
+  zh: 'ā á ǎ à ē é ě è ī í ǐ ì ō ó ǒ ò ū ú ǔ ù ǖ ǘ ǚ ǜ'.split(' '), ja: 'ā ī ū ē ō'.split(' ') };
+const TYPED = new Set(['type_l2', 'listen', 'cloze_type', 'build_l2', 'glyph_type']);
 const TILES = new Set(['build_l2']);
 
 async function renderStudy(params) {
@@ -467,7 +468,7 @@ function runSession(s) {
     let body;
     if (c.type === 'concept') body = `<div class="l2">${esc(c.term)}</div><div class="l1">${esc(c.def)}</div>`;
     else if (c.type === 'cloze') body = `<div class="l2">${esc(c.full)} ${sayBtn(c.full, lang)}</div><div class="l1">${esc(c.l1 || '')}</div>`;
-    else body = `<div class="l2">${esc(c.l2)} ${sayBtn(c.l2, lang)}</div><div class="l1">${esc(c.l1)}</div>
+    else body = `<div class="l2 ${c.type === 'glyph' ? 'prompt big' : ''}" lang="${esc(lang)}">${esc(c.l2)} ${sayBtn(c.l2, lang)}</div>${c.rom ? `<div class="rom">${esc(c.rom)}</div>` : ''}<div class="l1">${esc(c.l1 || '')}</div>
       ${c.ex ? `<div class="exm"><div>${esc(c.ex)} ${sayBtn(c.ex, lang)}</div><div class="dim">${esc(c.ex_l1 || '')}</div></div>` : ''}`;
     const canClaim = c.type !== 'concept';
     shell(`<div class="guide">${guide('calm')}<div class="speech">Something new. Read it, say it aloud, then continue.</div></div>
@@ -543,10 +544,10 @@ function runSession(s) {
     const given = []; const marks = [];
     let at = 0;                                   // index into ex.lines
     const log = [];                               // rendered bubbles so far
-    const bubble = (who, l2, l1, cls = '') => `<div class="say ${who === 'me' ? 'me' : 'them'} ${cls}"><div class="l2">${esc(l2)}</div><div class="l1">${esc(l1)}</div></div>`;
+    const bubble = (who, l2, l1, cls = '', rom = '') => `<div class="say ${who === 'me' ? 'me' : 'them'} ${cls}"><div class="l2" lang="${esc(ex.lang)}">${esc(l2)}</div>${rom ? `<div class="rom">${esc(rom)}</div>` : ''}<div class="l1">${esc(l1)}</div></div>`;
     const step = () => {
       while (at < ex.lines.length && !ex.lines[at].mine) {
-        const ln = ex.lines[at]; log.push(bubble('them', ln.l2, ln.l1)); speak(ln.l2, ex.lang); at += 1;
+        const ln = ex.lines[at]; log.push(bubble('them', ln.l2, ln.l1, '', ln.rom)); speak(ln.l2, ex.lang); at += 1;
       }
       if (at >= ex.lines.length) return finishDialogue();
       const ln = ex.lines[at];
@@ -574,10 +575,10 @@ function runSession(s) {
         const res = await api('/api/line', { item: ex.item, index: ln.index, answer: said });
         if (res.ok === false) { locked = false; toast(res.error); return; }
         given.push(said); marks.push(!!res.correct);
-        log.push(bubble('me', res.expected, ln.l1, res.correct ? 'ok' : 'no'));
+        log.push(bubble('me', res.l2 || res.expected, ln.l1, res.correct ? 'ok' : 'no', res.rom));
         speak(res.expected, ex.lang);
         $('#s-foot').innerHTML = `<div class="verdict ${res.correct ? 'ok' : 'no'}" role="status">${guide(res.correct ? 'happy' : 'oops', 52)}<div class="grow">
-            <h3>${res.correct ? (res.flag ? 'Right, with a small slip' : 'Good') : 'A native speaker would say'}</h3><div class="ans">${esc(res.expected)}</div>
+            <h3>${res.correct ? (res.flag ? 'Right, with a small slip' : 'Good') : 'A native speaker would say'}</h3><div class="ans" lang="${esc(ex.lang)}">${esc(res.l2 || res.expected)}</div>${res.rom ? `<div class="rom">${esc(res.rom)}</div>` : ''}
             ${res.correct ? '' : `<p class="dim small">You said: ${esc(said)}</p>`}<p class="dim small">Now say it aloud.</p></div></div>
           <button class="btn ${res.correct ? 'primary' : 'seal'} big" id="s-next">Continue</button>`;
         const b = $('#s-next'); b.focus(); b.onclick = () => { at += 1; step(); };
@@ -594,7 +595,7 @@ function runSession(s) {
       if (res.correct) st.done += 1; else queue.splice(Math.min(3, queue.length), 0, { ...ex, retry: true });
       const right = marks.filter(Boolean).length;
       shell(`<div class="guide">${guide(res.correct ? 'happy' : 'think')}<div class="speech">${res.correct ? (right === mine.length ? 'That conversation went well.' : 'You got through it. A few lines to polish.') : 'Let us run that conversation again.'}</div></div>
-        <div class="chat full">${(res.explain.dialogue || []).map((l) => bubble(l.mine ? 'me' : 'them', l.l2, l.l1)).join('')}</div>
+        <div class="chat full">${(res.explain.dialogue || []).map((l) => bubble(l.mine ? 'me' : 'them', l.l2, l.l1, '', l.rom)).join('')}</div>
         <p class="dim small">${right} of ${mine.length} of your lines were right${!ex.retry && res.next_days != null ? (num(res.next_days) <= 0 ? '. It returns later in this session.' : `. Next rehearsal in ${num(res.next_days)} day${num(res.next_days) === 1 ? '' : 's'}.`) : '.'}</p>
         <div class="foot"><button class="btn primary big" id="s-next">Continue</button></div>`);
       const b = $('#s-next'); b.onclick = next; b.focus();
@@ -609,7 +610,7 @@ function runSession(s) {
     const long = (ex.prompt || '').length > 90;
     let top;
     if (ex.mode === 'listen') top = `<div style="text-align:center">${sayBtn(ex.say, lang, 'huge')}<p class="dim small">Tap to hear it again. <button class="btn quiet" id="s-mute" style="min-height:32px;padding:0 8px">I can't listen now</button></p></div>`;
-    else top = `<div class="prompt ${long ? 'long' : ''}">${esc(ex.prompt)} ${ex.say ? sayBtn(ex.say, lang) : ''}</div>${ex.sub ? `<div class="sub">${esc(ex.sub)}</div>` : ''}`;
+    else top = `<div class="prompt ${long ? 'long' : ''} ${ex.big ? 'big' : ''}" lang="${esc(lang)}">${esc(ex.prompt)} ${ex.say ? sayBtn(ex.say, lang) : ''}</div>${ex.rom ? `<div class="rom">${esc(ex.rom)}</div>` : ''}${ex.sub ? `<div class="sub">${esc(ex.sub)}</div>` : ''}`;
     const tile = TILES.has(ex.mode) ? tiles(ex.bank) : null;
     const accents = typed && !tile ? (ACCENTS[(lang || '').slice(0, 2)] || []) : [];
     const input = tile ? tile.html : typed ? `<div class="typed"><input type="text" id="s-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" lang="${esc(lang)}" aria-label="Your answer" enterkeyhint="done">
@@ -658,7 +659,7 @@ function runSession(s) {
 
   function feedback(ex, res, given) {
     const x = res.explain || {};
-    const flag = res.flag === 'accent' ? 'Right — mind the accents.' : res.flag === 'typo' ? 'Right — with a small slip.' : 'Correct';
+    const flag = res.flag === 'tone' ? 'Right — but mind the tones.' : res.flag === 'accent' ? 'Right — mind the accents.' : res.flag === 'typo' ? 'Right — with a small slip.' : 'Correct';
     const when = !ex.retry && !s.practice && res.next_days != null ? (num(res.next_days) <= 0 ? 'It returns later in this session.' : `Next review in ${num(res.next_days)} day${num(res.next_days) === 1 ? '' : 's'}.`) : '';
     let detail;
     if (x.whys) {
@@ -671,7 +672,7 @@ function runSession(s) {
     if (x.why) detail = `<p>${esc(x.why)}</p>`;
     else {
       // Show the pair once: the target-language form, then its meaning.
-      const pair = x.l2 ? `<div class="ans">${esc(x.l2)}</div>${x.l1 ? `<p class="dim">${esc(x.l1)}</p>` : ''}` : '';
+      const pair = x.l2 ? `<div class="ans" lang="${esc(ex.lang)}">${esc(x.l2)}</div>${x.rom ? `<div class="rom">${esc(x.rom)}</div>` : ''}${x.l1 ? `<p class="dim">${esc(x.l1)}</p>` : ''}` : '';
       const typedWrong = TYPED.has(ex.mode) && (!res.correct || res.flag) && res.expected !== x.l2 ? `<p>Answer: <b>${esc(res.expected)}</b></p>` : '';
       detail = `${pair}${typedWrong}${x.note ? `<p class="dim small">${esc(x.note)}</p>` : ''}`;
     }
@@ -740,7 +741,8 @@ async function renderUnit(cid, uid) {
     else if (it.type === 'mcq' || it.type === 'multi' || it.type === 'order') { a = esc(it.q); b = `<span class="dim">${esc(it.correct)}.</span> ${esc(it.why || '')}`; }
     else if (it.type === 'dialogue') { a = `<b>${esc(it.title)}</b>`; b = esc(it.scene || ''); }
     else if (it.type === 'cloze') { const full = it.full; a = `${esc(full)} ${canSpeak(lang) ? `<button class="say tiny" data-say="${esc(full)}" aria-label="Play audio">${ICON.sound}</button>` : ''}`; b = esc(it.l1 || ''); }
-    else { a = `${esc(it.l2)} ${canSpeak(lang) ? `<button class="say tiny" data-say="${esc(it.l2)}" aria-label="Play audio">${ICON.sound}</button>` : ''}`; b = `${esc(it.l1)}${it.note ? `<br><span class="dim small">${esc(it.note)}</span>` : ''}`; }
+    else if (it.type === 'glyph') { a = `<span class="glyph" lang="${esc(lang)}">${esc(it.l2)}</span> ${canSpeak(lang) ? `<button class="say tiny" data-say="${esc(it.l2)}" aria-label="Play audio">${ICON.sound}</button>` : ''}`; b = `${esc(it.rom)}${it.l1 ? ` <span class="dim small">${esc(it.l1)}</span>` : ''}`; }
+    else { a = `<span lang="${esc(lang)}">${esc(it.l2)}</span>${it.rom ? ` <span class="rom">${esc(it.rom)}</span>` : ''} ${canSpeak(lang) ? `<button class="say tiny" data-say="${esc(it.l2)}" aria-label="Play audio">${ICON.sound}</button>` : ''}`; b = `${esc(it.l1)}${it.note ? `<br><span class="dim small">${esc(it.note)}</span>` : ''}`; }
     const hide = (it.type === 'mcq' || it.type === 'multi' || it.type === 'order') && it.state === 'new';
     return `<tr><td><span class="dot ${esc(it.state)}" title="${esc(it.state)}"></span>${a}</td><td>${hide ? '<span class="dim">Answer hidden until you have met this question.</span>' : b}</td>
       <td class="dim small num" style="white-space:nowrap">${it.state === 'new' ? '' : `${num(it.strength)}%`}</td></tr>`;

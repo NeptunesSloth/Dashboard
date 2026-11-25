@@ -488,3 +488,86 @@ def test_cert_placement_samples_every_unit_and_readiness_is_strict():
     info = engine.trial_info("testcert", now=T0)
     assert not info["readiness"]["ready"] and len(info["readiness"]["checks"]) == 4
     assert info["full"] is None                                                       # fixture pack has no full mock
+
+
+SCRIPT = textwrap.dedent("""
+    id: testish-zh
+    title: Testish Mandarin
+    kind: language
+    language: Mandarin
+    lang: zh-CN
+    hall: tongues_west
+    blurb: A tiny script course.
+    units:
+      - id: tz-01
+        title: One
+        goal: I can greet.
+        notes: "Say **hello**."
+        items:
+          - {id: tz-01-g1, type: glyph, l2: "你", rom: "nǐ", l1: "you"}
+          - {id: tz-01-g2, type: glyph, l2: "好", rom: "hǎo", l1: "good"}
+          - {id: tz-01-g3, type: glyph, l2: "我", rom: "wǒ", l1: "I"}
+          - {id: tz-01-g4, type: glyph, l2: "吗", rom: "ma", l1: "question particle"}
+          - {id: tz-01-a, type: vocab, l2: "你好", rom: "nǐ hǎo", l1: hello}
+          - {id: tz-01-b, type: vocab, l2: "谢谢", rom: "xièxie", l1: thank you}
+          - {id: tz-01-c, type: phrase, l2: "你好吗？", rom: "nǐ hǎo ma?", l1: "How are you?"}
+          - {id: tz-01-d, type: vocab, l2: "女", rom: "nǚ", l1: woman}
+          - id: tz-01-talk
+            type: dialogue
+            title: Hello
+            scene: Two people meet.
+            you: B
+            lines:
+              - {who: A, l2: "你好！", rom: "nǐ hǎo!", l1: "Hello!"}
+              - {who: B, l2: "你好！", rom: "nǐ hǎo!", l1: "Hello!"}
+              - {who: A, l2: "你好吗？", rom: "nǐ hǎo ma?", l1: "How are you?"}
+              - {who: B, l2: "我很好。", rom: "wǒ hěn hǎo.", l1: "I am well."}
+""")
+
+
+def test_script_languages_accept_the_script_or_its_romanisation(tmp_path, monkeypatch):
+    (tmp_path / "zh.yaml").write_text(SCRIPT, encoding="utf-8")
+    monkeypatch.setattr(packs, "PACK_DIR", tmp_path)
+    packs.load_all(force=True)
+    try:
+        ix = packs.item_index()
+        hello, how, woman, you = ix["tz-01-a"], ix["tz-01-c"], ix["tz-01-d"], ix["tz-01-g1"]
+        pack = packs.get("testish-zh")
+        ok = lambda it, mode, a: engine.check(it, mode, a)          # noqa: E731
+        # the characters themselves, pinyin with marks, pinyin with numbers, spaced or not
+        for a in ("你好", "nǐ hǎo", "ni3 hao3", "nǐhǎo", "Ni3hao3"):
+            assert ok(hello, "type_l2", a)["correct"] and ok(hello, "type_l2", a)["flag"] is None, a
+        assert ok(hello, "type_l2", "ni hao")["flag"] == "tone"                       # no tones: accepted, but it comes back sooner
+        assert not ok(hello, "type_l2", "ni2 hao4")["correct"]                        # wrong tones are wrong
+        assert not ok(hello, "type_l2", "ni hai")["correct"]                          # and no typo is forgiven
+        assert ok(how, "type_l2", "你好吗")["correct"] and ok(how, "type_l2", "ni3 hao3 ma")["correct"]
+        assert ok(woman, "type_l2", "nv3")["correct"] and ok(woman, "type_l2", "nü3")["correct"] and not ok(woman, "type_l2", "nu")["correct"]
+        assert engine._tone_marks("lv4 xiong2 liu2 gui4 er2") == "lǜ xióng liú guì ér"
+        # characters are tiles; a short syllable needs its tone
+        assert engine._tiles("你好吗？") == ["你", "好", "吗"] and engine._tiles("Bonjour ! Oui, ici.") == ["Bonjour", "Oui", "ici"]
+        ex = engine.build_exercise(how, "build_l2", pack, 1)
+        assert {"你", "好", "吗"} <= set(ex["bank"]) and ok(how, "build_l2", "你 好 吗")["correct"]
+        # glyphs: see it and choose the sound, hear the sound and choose it, then read it cold
+        assert [engine._mode_for(you, {"reps": n}, pack) for n in (0, 1, 2, 5)] == ["glyph_choose", "glyph_pick", "glyph_type", "glyph_type"]
+        e1 = engine.build_exercise(you, "glyph_choose", pack, 1)
+        assert e1["prompt"] == "你" and "nǐ" in e1["choices"] and len(e1["choices"]) == 4 and e1["big"]
+        assert set(e1["choices"]) <= {"nǐ", "hǎo", "wǒ", "ma"}                       # only other characters, never words
+        e2 = engine.build_exercise(you, "glyph_pick", pack, 1)
+        assert e2["prompt"] == "nǐ" and "你" in e2["choices"]
+        assert ok(you, "glyph_choose", "nǐ")["correct"] and ok(you, "glyph_pick", "你")["correct"]
+        assert ok(you, "glyph_type", "ni3")["correct"] and not ok(you, "glyph_type", "ni")["correct"]
+        # prompts carry the romanisation; a dialogue line can be answered either way
+        assert engine.build_exercise(hello, "choose_l1", pack, 1)["rom"] == "nǐ hǎo" and engine._explain(hello)["rom"] == "nǐ hǎo"
+        talk = ix["tz-01-talk"]
+        d = engine.build_exercise(talk, "dialogue_build", pack, 1)
+        assert d["lines"][0]["rom"] == "nǐ hǎo!" and "rom" not in d["lines"][1] and set("我很好") <= set(d["lines"][3]["bank"])
+        assert engine.check_line(talk, 3, "wo3 hen3 hao3")["correct"] and engine.check_line(talk, 3, "我很好")["correct"]
+        assert engine.check(talk, "dialogue_type", ["ni3 hao3", "我很好"])["correct"]
+    finally:
+        monkeypatch.undo()
+        packs.load_all(force=True)
+
+
+def test_a_glyph_needs_its_reading_and_only_lives_in_language_packs():
+    bad = packs.validate_pack(__import__("yaml").safe_load(SCRIPT.replace('rom: "nǐ", l1: "you"', 'l1: "you"')), "x.yaml")
+    assert any("glyph needs" in e for e in bad)

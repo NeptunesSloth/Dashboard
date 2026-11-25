@@ -318,7 +318,7 @@ def line(body: LineIn):
     if res.get("error"):
         raise HTTPException(400, res["error"])
     ln = it["lines"][body.index]
-    return {**res, "l2": ln["l2"], "l1": ln["l1"]}
+    return {**res, "l2": ln["l2"], "l1": ln["l1"], "rom": ln.get("rom", "")}
 
 
 @app.post("/api/session/finish", dependencies=API)

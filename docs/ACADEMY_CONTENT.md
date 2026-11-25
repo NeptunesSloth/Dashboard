@@ -162,3 +162,43 @@ pack, e.g. `fr-03-avoir`) and a `type`.
   troubleshooting method), never for lists of equally valid things.
 - **Original questions only.** Write against the public exam objectives. Never
   copy real exam items or "brain dump" material.
+
+## Languages not written in the Latin alphabet (Chinese, Japanese, Korean)
+
+Three additions make these work with the same engine.
+
+**`rom`** — an optional field on `vocab` and `phrase` items and on every line of
+a `dialogue`: the romanisation of `l2` (pinyin with tone marks, Hepburn romaji,
+Revised Romanization). It is shown under the script wherever the learner is
+reading, and it is accepted as a typed answer.
+
+```yaml
+- {id: zh-01-nihao, type: phrase, l2: "你好", rom: "nǐ hǎo", l1: "hello"}
+```
+
+**`glyph`** — a new item type for learning a writing system: one character or
+letter and how it is read. `l2` is the character, `rom` its reading, `l1` an
+optional meaning or note. It is practised by choosing the reading, choosing the
+character, then typing the reading.
+
+```yaml
+- {id: ja-01-a, type: glyph, l2: "あ", rom: "a"}
+- {id: zh-02-ren, type: glyph, l2: "人", rom: "rén", l1: "person"}
+```
+
+**How typed answers are graded** when `l2` is in one of these scripts:
+
+- The script itself or the romanisation is accepted; spaces never matter
+  (`你好`, `nǐ hǎo`, `nǐhǎo`).
+- Pinyin may use tone marks or tone numbers (`ni3 hao3`, `lv4` for `lǜ`).
+- Pinyin typed with no tones at all is accepted on answers of four letters or
+  more, flagged as a slip so the item returns sooner. A wrong tone is wrong.
+- No typo is forgiven: one letter is usually a different word.
+- Other accepted spellings go in `alt` as usual (for example a romaji variant).
+
+**Word tiles**: text with spaces is split into words; Chinese or Japanese text
+with no spaces is split into single characters. Write beginner Japanese in kana
+with spaces between words (わたし は がくせい です) so the tiles are words.
+
+For a `cloze`, `text` and `answer` are in the script; put the romanised answer
+in `alt`.

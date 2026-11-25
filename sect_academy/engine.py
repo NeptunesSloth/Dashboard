@@ -195,7 +195,7 @@ def unit_detail(course: str, unit_id: str, now: float | None = None) -> dict:
 
 
 def _public_item(it: dict) -> dict:
-    keys = ("id", "type", "l1", "l2", "alt", "note", "ex", "ex_l1", "text", "answer", "term", "def", "q", "why",
+    keys = ("id", "type", "l1", "l2", "rom", "alt", "note", "ex", "ex_l1", "text", "answer", "term", "def", "q", "why",
             "title", "scene", "you", "lines", "best")
     out = {k: it[k] for k in keys if k in it and it[k] not in ("", None, [])}
     if it["type"] == "mcq":
@@ -210,7 +210,30 @@ def _public_item(it: dict) -> dict:
 # ---------------------------------------------------------------------------
 # answer normalisation + checking
 # ---------------------------------------------------------------------------
-_PUNCT = re.compile(r"[¿¡?!.,;:\"“”«»()\[\]…]")
+_PUNCT = re.compile(r"[¿¡?!.,;:\"“”«»()\[\]…。，、？！：；「」『』（）《》·〜～]")
+_TONES = {"a": "āáǎàa", "e": "ēéěèe", "i": "īíǐìi", "o": "ōóǒòo", "u": "ūúǔùu", "ü": "ǖǘǚǜü"}
+_PINYIN_NUM = re.compile(r"([a-zü]+?)([1-5])(?![0-9])")
+
+
+def is_script(s: str) -> bool:
+    """True if the text is written in Chinese characters, kana or hangul."""
+    return any(ord(ch) >= 0x2E80 for ch in str(s or ""))
+
+
+def _tone_marks(s: str) -> str:
+    """Pinyin typed with tone numbers ("ni3 hao3", "lv4") becomes pinyin with tone marks."""
+    def one(m: re.Match) -> str:
+        syl, tone = m.group(1).replace("u:", "ü").replace("v", "ü"), int(m.group(2))
+        for v in ("a", "e"):
+            if v in syl:
+                return syl.replace(v, _TONES[v][tone - 1], 1)
+        if "ou" in syl:
+            return syl.replace("o", _TONES["o"][tone - 1], 1)
+        for i in range(len(syl) - 1, -1, -1):
+            if syl[i] in _TONES:
+                return syl[:i] + _TONES[syl[i]][tone - 1] + syl[i + 1:]
+        return syl
+    return _PINYIN_NUM.sub(one, s.lower().replace("u:", "ü"))
 
 
 _ARTICLES = {"le", "la", "les", "un", "une", "des", "du", "el", "los", "las", "unos", "unas", "lo"}
@@ -249,6 +272,32 @@ def _edit1(a: str, b: str) -> bool:
 
 
 def check_typed(answer: str, accepted: list[str], slips: bool = True) -> dict:
+    if any(is_script(a) for a in accepted):
+        return _check_script(answer, accepted)
+    return _check_typed(answer, accepted, slips)
+
+
+def _check_script(answer: str, accepted: list[str]) -> dict:
+    """Chinese, Japanese, Korean: the answer may be typed in the script itself or in its romanisation
+    (the last accepted forms). Spacing never matters. Pinyin may carry tone marks or tone numbers; pinyin
+    with no tones at all is accepted on longer answers, marked as a slip so it comes back sooner."""
+    expected = accepted[0]
+    tight = lambda s: _norm(s).replace(" ", "").replace("'", "")       # noqa: E731
+    got = tight(_tone_marks(answer) if not is_script(answer) else answer)
+    if not got:
+        return {"correct": False, "flag": None, "expected": expected}
+    forms = [tight(a) for a in accepted if a]
+    if got in forms:
+        return {"correct": True, "flag": None, "expected": expected}
+    plain = _strip_accents(got)
+    for a, f in zip(accepted, forms):
+        # no tones typed at all is a slip; the wrong tone is the wrong word
+        if not is_script(a) and got == plain and len(plain) >= 4 and plain == _strip_accents(f):
+            return {"correct": True, "flag": "tone", "expected": a}
+    return {"correct": False, "flag": None, "expected": expected}
+
+
+def _check_typed(answer: str, accepted: list[str], slips: bool = True) -> dict:
     """Grade a typed answer. Returns {correct, flag, expected}.
 
     ``slips=False`` (cloze blanks) forgives no typo and no final-letter accent: there one
@@ -279,7 +328,11 @@ def check_typed(answer: str, accepted: list[str], slips: bool = True) -> dict:
 
 
 def _tiles(text: str) -> list[str]:
-    """A sentence as word tiles: no loose punctuation, no full stop to give away the last word."""
+    """A sentence as word tiles: no loose punctuation, no full stop to give away the last word.
+    Chinese and Japanese are written without spaces, so there each character is a tile."""
+    text = str(text)
+    if is_script(text) and " " not in text.strip():
+        return [ch for ch in _PUNCT.sub("", text) if not ch.isspace()]
     out = []
     for w in str(text).split():
         w = w.strip(".,!?;:…«»¿¡\"“”")
@@ -299,7 +352,9 @@ def fill_cloze(it: dict) -> str:
 def _accepted(it: dict) -> list[str]:
     if it["type"] == "cloze":
         return [it["answer"], *it.get("alt", [])]
-    return [it["l2"], *it.get("alt", [])]
+    if it["type"] == "glyph":
+        return [it["rom"], *it.get("alt", []), it["l2"]]
+    return [it["l2"], *it.get("alt", []), *([it["rom"]] if it.get("rom") else [])]
 
 
 # ---------------------------------------------------------------------------
@@ -313,11 +368,14 @@ def _mode_for(it: dict, card: dict | None, pack: dict) -> str:
             return "choose_l1"
         if reps == 1:
             return "choose_l2"
-        if reps == 2 and len(it["l2"].split()) >= 3:
+        if reps == 2 and len(_tiles(it["l2"])) >= 3:
             return "build_l2"            # assemble the sentence from tiles before typing it cold
         if pack.get("lang") and reps >= 3 and reps % 3 == 0:
             return "listen"
         return "type_l2"
+    if t == "glyph":
+        # see it and pick its sound; hear the sound and pick it; then read it cold
+        return "glyph_choose" if reps == 0 else "glyph_pick" if reps == 1 else "glyph_type"
     if t == "cloze":
         return "cloze_choose" if reps == 0 else "cloze_type"
     if t == "concept":
@@ -336,6 +394,8 @@ def _distractors(it: dict, pack: dict, field: str, rng: random.Random, n: int = 
         for o in u["items"]:
             if o["id"] == it["id"] or field not in o:
                 continue
+            if (o["type"] == "glyph") != (it["type"] == "glyph"):
+                continue                               # characters are only ever confused with characters
             if field in ("l1", "l2") and (o["type"] == "cloze"
                                            or (o["type"] == "phrase") != (it["type"] == "phrase")):
                 continue
@@ -345,6 +405,8 @@ def _distractors(it: dict, pack: dict, field: str, rng: random.Random, n: int = 
     def clashes(v: str) -> bool:
         # An option that contains the answer (or is contained in it) is a trick, not a test.
         nv = _norm(v)
+        if it["type"] == "glyph":
+            return nv in truth or not nv              # "a" and "ka" are honest neighbours, not a trick
         return nv in truth or not nv or nv in target or target in nv
 
     out: list[str] = []
@@ -375,10 +437,19 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
         ex["card"] = _public_item(it)
     elif mode == "choose_l1":
         ex.update(prompt=it["l2"], say=it["l2"], ask="What does this mean?", choices=choices("l1", it["l1"]))
+        if it.get("rom"):
+            ex["rom"] = it["rom"]
+    elif mode == "glyph_choose":
+        ex.update(prompt=it["l2"], say=it["l2"], ask="How is this read?", choices=choices("rom", it["rom"]), big=True)
+    elif mode == "glyph_pick":
+        ex.update(prompt=it["rom"], say=it["l2"], sub=it.get("l1", ""), ask="Which one is it?", choices=choices("l2", it["l2"]), big=True)
+    elif mode == "glyph_type":
+        ex.update(prompt=it["l2"], sub=it.get("l1", ""), ask="Type how it is read", big=True)
     elif mode == "choose_l2":
         ex.update(prompt=it["l1"], ask=f"Choose the {pack.get('language', 'translation')}", choices=choices("l2", it["l2"]))
     elif mode == "type_l2":
-        ex.update(prompt=it["l1"], ask=f"Type it in {pack.get('language', 'the language')}")
+        ex.update(prompt=it["l1"], ask=f"Type it in {pack.get('language', 'the language')}"
+                  + (" (romanised, or in the script)" if is_script(it["l2"]) else ""))
     elif mode == "build_l2":
         words = _tiles(it["l2"])
         pool = [w for o in next(u for u in pack["units"] if u["id"] == it["unit"])["items"]
@@ -388,7 +459,7 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
         rng.shuffle(bank)
         ex.update(prompt=it["l1"], ask="Build the sentence", bank=bank)
     elif mode == "listen":
-        ex.update(say=it["l2"], hint=it["l1"], ask="Type what you hear")
+        ex.update(say=it["l2"], hint=it["l1"], ask="Type what you hear" + (" (romanised, or in the script)" if is_script(it["l2"]) else ""))
     elif mode == "cloze_choose":
         ex.update(prompt=it["text"], sub=it.get("l1", ""), ask="Fill the blank", choices=choices("answer", it["answer"]))
     elif mode == "cloze_type":
@@ -424,6 +495,8 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
                     row["bank"] = bank
             else:
                 row["l2"] = ln["l2"]
+                if ln.get("rom"):
+                    row["rom"] = ln["rom"]
             lines.append(row)
         ex.update(title=it["title"], scene=it["scene"], lines=lines,
                   ask="Arrange your reply" if mode == "dialogue_build" else "Reply from memory")
@@ -444,6 +517,7 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
 
 def _truth(it: dict, mode: str) -> str:
     return {"choose_l1": it.get("l1"), "choose_l2": it.get("l2"), "cloze_choose": it.get("answer"),
+            "glyph_choose": it.get("rom"), "glyph_pick": it.get("l2"),
             "choose_term": it.get("term"), "choose_def": it.get("def"),
             "mcq": it["choices"][it["answer"]] if it["type"] == "mcq" else None}.get(mode) or ""
 
@@ -453,6 +527,7 @@ _MODES = {"multi": {"multi"}, "order": {"order"}, "dialogue": {"dialogue_build",
           "vocab": {"choose_l1", "choose_l2", "build_l2", "type_l2", "listen"},
           "phrase": {"choose_l1", "choose_l2", "build_l2", "type_l2", "listen"},
           "cloze": {"cloze_choose", "cloze_type"},
+          "glyph": {"glyph_choose", "glyph_pick", "glyph_type"},
           "concept": {"choose_term", "choose_def"},
           "mcq": {"mcq"}}
 
@@ -467,7 +542,7 @@ def check_line(it: dict, index: int, answer: str) -> dict:
     if it["type"] != "dialogue" or index not in my_lines(it):
         return {"correct": False, "flag": None, "expected": "", "error": "not one of your lines"}
     ln = it["lines"][index]
-    return check_typed(answer if isinstance(answer, str) else "", [ln["l2"], *ln.get("alt", [])])
+    return check_typed(answer if isinstance(answer, str) else "", [ln["l2"], *ln.get("alt", []), *([ln["rom"]] if ln.get("rom") else [])])
 
 
 def truth_list(it: dict) -> list[str]:
@@ -508,7 +583,7 @@ def check(it: dict, mode: str, answer) -> dict:
         return {"correct": ok, "flag": None, "expected": (" + " if mode == "multi" else " → ").join(truth_list(it)),
                 "expected_list": truth_list(it)}
     answer = answer if isinstance(answer, str) else ""
-    if mode in ("type_l2", "listen", "cloze_type", "build_l2"):
+    if mode in ("type_l2", "listen", "cloze_type", "build_l2", "glyph_type"):
         return check_typed(answer, _accepted(it), slips=mode != "cloze_type")
     truth = _truth(it, mode)
     return {"correct": answer.strip() == str(truth).strip(), "flag": None, "expected": truth}
@@ -522,11 +597,11 @@ def _explain(it: dict) -> dict:
             # per-choice reasons, keyed by the choice text (the choices are shuffled when asked)
             out["whys"] = {str(c): str(w) for c, w in zip(it["choices"], it["whys"])}
     elif it["type"] == "dialogue":
-        out["dialogue"] = [{"who": ln["who"], "l2": ln["l2"], "l1": ln["l1"], "mine": ln["who"] == it["you"]} for ln in it["lines"]]
+        out["dialogue"] = [{"who": ln["who"], "l2": ln["l2"], "l1": ln["l1"], "rom": ln.get("rom", ""), "mine": ln["who"] == it["you"]} for ln in it["lines"]]
     elif it["type"] == "concept":
         out["why"] = f"{it['term']} — {it['def']}"
     else:
-        for k in ("l1", "l2", "note", "ex", "ex_l1"):
+        for k in ("l1", "l2", "rom", "note", "ex", "ex_l1"):
             if it.get(k):
                 out[k] = it[k]
         if it["type"] == "cloze":
@@ -792,7 +867,7 @@ def answer(item_id: str, mode: str, given, *, retry: bool = False, practice: boo
             grade = fsrs.AGAIN
         elif res["flag"]:
             grade = fsrs.HARD
-        elif claim and was_new and mode in ("type_l2", "cloze_type"):
+        elif claim and was_new and mode in ("type_l2", "cloze_type", "glyph_type"):
             grade = fsrs.EASY       # "I already know this" — and proved it by typing it cold
         else:
             grade = fsrs.GOOD
@@ -801,7 +876,7 @@ def answer(item_id: str, mode: str, given, *, retry: bool = False, practice: boo
         d = _day(st, now)
         d["answers"] += 1
         d["correct"] += 1 if res["correct"] else 0
-        typed = mode in ("type_l2", "listen", "cloze_type", "dialogue_type")
+        typed = mode in ("type_l2", "listen", "cloze_type", "dialogue_type", "glyph_type")
         d["typed"] = d.get("typed", 0) + (1 if typed and res["correct"] else 0)
         if it["pack"] not in d["courses"]:
             d["courses"].append(it["pack"])
@@ -926,6 +1001,8 @@ def _typed_mode(it: dict, rng: random.Random) -> str:
     """The typed-from-memory form of a language item (one line, for a dialogue)."""
     if it["type"] == "cloze":
         return "cloze_type"
+    if it["type"] == "glyph":
+        return "glyph_type"
     if it["type"] == "dialogue":
         return f"line:{rng.choice(my_lines(it))}"
     return "type_l2"
