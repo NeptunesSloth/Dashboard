@@ -844,7 +844,7 @@ units:
     domain: "3"
     goal: "I can choose the fix that removes the cause of a Windows, mobile or PC security problem with the least disruption when several fixes would work."
     notes: |
-      These questions describe a symptom and offer four fixes that would all work to some degree. Pick the one that **removes the cause with the least disruption**.
+      Four fixes that would all work to some degree: pick the one that **removes the cause with the least disruption**.
 
       **What to look for in Domain 3**
 
@@ -856,7 +856,7 @@ units:
       - **Security tools cause faults too.** A false positive or two competing firewalls is fixed narrowly, never by switching protection off.
       - **Contain before you clean** when data may be leaving.
 
-      **Usual traps:** the factory reset or reinstall that would technically fix it; a change that only hides the symptom.
+      **Usual traps:** the reset that would technically fix it; a change that only hides the symptom.
     items:
       - id: ap2-3z-b01
         type: mcq
@@ -1200,7 +1200,7 @@ units:
     domain: "4"
     goal: "I can choose the right next step in change, documentation, safety, compliance and customer-service situations when every option on offer is reasonable."
     notes: |
-      Operational questions test **process and judgement**. Every choice is something a careful technician might do; the stem says which step of a process you are at, or which duty applies.
+      Operational questions test **process and judgement**. The stem says which step you are at, or which duty applies.
 
       **What to look for in Domain 4**
 
