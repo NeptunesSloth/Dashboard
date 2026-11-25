@@ -303,3 +303,364 @@ units:
           - "Pings the address to check nothing is using it"
           - "Sends an Offer to the relay at giaddr"
         why: "The pool cannot be chosen before giaddr is read, the address comes from that pool, the ping check comes before anything is offered, and the reply goes back through the relay."
+
+  # ─────────────── v2b · edge ports, PoE, SVIs, L3 bundles, troubleshooting tools ───────────────
+  - id: cn-v2b
+    title: "v2.0: edge ports, PoE, SVIs, routed bundles and the troubleshooting toolkit"
+    domain: "2"
+    goal: "I can configure a switch port for each kind of edge device, set and read PoE, build SVIs and a routed LACP bundle, check cabling records with CDP and LLDP, and read ping, traceroute, log and packet-capture output."
+    notes: |
+      **Edge ports by device.**
+
+      | Device | Port |
+      | Desktop, printer, IoT | Access port in its own VLAN, PortFast, BPDU guard |
+      | IP phone with PC | Access VLAN for the PC plus `switchport voice vlan`; PoE |
+      | Lightweight AP (local mode) | Access port in the AP's management VLAN; client traffic rides CAPWAP |
+      | Autonomous or FlexConnect AP | Trunk: SSID VLANs tagged, AP management usually native |
+      | Hypervisor host | Trunk carrying every VM VLAN; LACP only if its virtual switch runs LACP |
+      | Firewall or other appliance | Trunk or routed link, often an LACP bundle |
+
+      **PoE.** `power inline auto` is the default; `power inline never` disables power; `power inline static` reserves power in advance; `max` caps it in milliwatts. `show power inline` lists Admin, Oper (on, off, power-deny, faulty), watts, device and class.
+
+      **SVIs and routed bundles.** An SVI comes up only while a port in its VLAN is up and forwarding (autostate). For a routed LACP bundle, enter `no switchport` on the members before `channel-group N mode active`, then put the address on `interface port-channel N`; `show etherchannel summary` should show `RU` with members `P`.
+
+      **Records.** CDP and LLDP name the neighbour and *its* port, the quickest check of a cabling record. Third-party devices speak only LLDP.
+
+      **Tools.** In ping output `!` is a reply, `.` a timeout, `U` an unreachable and `M` "could not fragment". Extended ping sets the source, size, count and DF bit. Embedded Packet Capture (`monitor capture`) records packets on the switch itself.
+    items:
+      - id: cn-v2b-never
+        type: concept
+        term: "power inline never"
+        def: "Interface command that stops a port from ever supplying power over its cable, whatever device is attached."
+      - id: cn-v2b-static
+        type: concept
+        term: "power inline static"
+        def: "PoE setting that reserves a fixed allocation from the switch's budget for the port in advance, so its device keeps power ahead of ports left on automatic."
+      - id: cn-v2b-autostate
+        type: concept
+        term: "SVI autostate"
+        def: "Behaviour that holds a VLAN interface's line protocol down until at least one port carrying that VLAN is up and forwarding."
+      - id: cn-v2b-lldp-med
+        type: concept
+        term: "LLDP-MED"
+        def: "Extension of the vendor-neutral discovery protocol that tells endpoints such as third-party phones their voice VLAN and markings, and lets them report their power needs."
+      - id: cn-v2b-extping
+        type: concept
+        term: "Extended ping"
+        def: "Interactive form of the echo test, started by typing the command with no target, that prompts for repeat count, datagram size, source interface, the don't-fragment bit and a sweep of sizes."
+      - id: cn-v2b-epc
+        type: concept
+        term: "Embedded Packet Capture (EPC)"
+        def: "IOS XE feature, driven by 'monitor capture' commands, that records packets seen on an interface into a buffer on the device itself, from which they can be shown or exported as a .pcap file."
+      - id: cn-v2b-ec-summary
+        type: concept
+        term: "show etherchannel summary"
+        def: "Lists each link bundle with its protocol and flags, such as RU for a routed bundle in use and P for a member that has joined it."
+      - id: cn-v2b-lldp-detail
+        type: concept
+        term: "show lldp neighbors detail"
+        def: "Lists, for each neighbour learned through the vendor-neutral discovery protocol, its system name and description, port ID, capabilities and management address."
+      - id: cn-v2b-macflap
+        type: concept
+        term: "MAC address flapping"
+        def: "Logged condition in which a switch keeps learning the same source address on two different ports in turn, a common sign of a Layer 2 loop."
+
+      - id: cn-v2b-q01
+        type: mcq
+        q: "An autonomous AP bridges SSID Staff to VLAN 10 and SSID Guest to VLAN 20; its own management address is in VLAN 99, which it sends untagged. Which switch-port configuration fits?"
+        choices:
+          - "switchport mode access / switchport access vlan 99"
+          - "switchport mode trunk / switchport trunk native vlan 99 / switchport trunk allowed vlan 10,20,99"
+          - "switchport mode access / switchport access vlan 99 / switchport voice vlan 10"
+          - "switchport mode trunk / switchport trunk allowed vlan 10,20"
+        answer: 1
+        why: "An autonomous AP puts each SSID's traffic onto its own VLAN itself, so the port must trunk 10 and 20 and carry the untagged management VLAN as native. Leaving 99 out of the allowed list cuts off management."
+      - id: cn-v2b-q02
+        type: mcq
+        q: "AP-A is autonomous and AP-B is a lightweight AP in local mode; both serve the same three SSIDs in VLANs 10, 20 and 30. Which statement about their switch ports is correct?"
+        choices:
+          - "Both need trunks allowing VLANs 10, 20 and 30"
+          - "AP-A needs a trunk; AP-B needs only an access port in its management VLAN, because client traffic travels to the controller inside CAPWAP"
+          - "AP-A needs only an access port; AP-B needs a trunk, because the controller tags each SSID"
+          - "Both need access ports in VLAN 10, the first SSID's VLAN"
+        answer: 1
+        why: "In local mode all client frames are tunnelled to the WLC, which drops them onto the SSID VLANs, so the AP's port carries only its own management VLAN. An autonomous AP does that bridging itself and needs every SSID VLAN on its port."
+      - id: cn-v2b-q03
+        type: mcq
+        q: "A hypervisor host runs VMs in VLANs 10, 20 and 30, and its own management address is in VLAN 40. Its virtual switch tags every VLAN. How should its switch port be configured?"
+        choices:
+          - "switchport mode access in VLAN 40; the virtual switch routes the other VLANs"
+          - "switchport mode dynamic desirable, so the hypervisor negotiates the trunk"
+          - "switchport mode trunk, with allowed VLANs 10, 20, 30 and 40"
+          - "switchport access vlan 10 with switchport voice vlan 20"
+        answer: 2
+        why: "The host sends tagged frames for four VLANs, so the port must trunk all four. Hypervisor virtual switches do not run DTP, and an access port would drop every tagged frame."
+      - id: cn-v2b-q04
+        type: mcq
+        q: "A firewall's two 10 Gb/s ports form an 802.3ad (LACP) bundle that carries several VLANs. On the switch, Te1/0/1 and Te1/0/2 are trunks. Which line completes the switch side?"
+        choices:
+          - "channel-group 5 mode active"
+          - "channel-group 5 mode on"
+          - "channel-group 5 mode desirable"
+          - "channel-group 5 mode auto"
+        answer: 0
+        why: "802.3ad is LACP, and 'active' starts LACP negotiation. 'on' forms a static bundle with no protocol, and 'desirable' and 'auto' are PAgP, which non-Cisco devices do not speak."
+      - id: cn-v2b-q05
+        type: mcq
+        q: "Third-party SIP phones on ports with 'switchport access vlan 10' and 'switchport voice vlan 20' come up in VLAN 10. Cisco phones on identical ports use VLAN 20 correctly. CDP is running and nothing has been configured for LLDP. What fixes the third-party phones?"
+        choices:
+          - "Change the ports to 'switchport mode trunk'"
+          - "Enter 'lldp run' so the switch can advertise the voice VLAN with LLDP-MED"
+          - "Enter 'cdp run' on every port"
+          - "Add 'spanning-tree portfast' to the ports"
+        answer: 1
+        why: "Cisco phones learn the voice VLAN from CDP; other vendors' phones learn it from LLDP-MED, which needs LLDP running and is off by default on Catalyst switches. A trunk would not tell the phone which VLAN to tag."
+      - id: cn-v2b-q06
+        type: mcq
+        q: "Ports for building sensors must keep them apart from user traffic and must shut down if someone plugs a switch into them. Which configuration fits?"
+        choices:
+          - "Trunk ports allowing only the sensor VLAN"
+          - "Access ports in the user VLAN with an ACL on the SVI"
+          - "Access ports in a sensor VLAN, with PortFast and BPDU guard"
+          - "Access ports in a sensor VLAN, with PortFast and root guard"
+        answer: 2
+        why: "A separate VLAN isolates the sensors, and BPDU guard err-disables a port that hears a switch's BPDU. Root guard blocks only a superior BPDU, so a plugged-in switch with a worse priority would still be accepted."
+      - id: cn-v2b-q07
+        type: mcq
+        q: "'show power inline' shows: 'Gi1/0/3 auto on 15.4 IP Phone 8851 3 30.0' / 'Gi1/0/4 auto off 0.0 n/a n/a 30.0' / 'Gi1/0/5 static on 30.0 AP 4 30.0' (columns: Interface, Admin, Oper, Power, Device, Class, Max). Which statement is correct?"
+        choices:
+          - "Gi1/0/4 has PoE disabled with 'power inline never'"
+          - "Gi1/0/5 draws power only while the budget has spare watts"
+          - "Gi1/0/3 is limited to 15.4 W by a 'max' setting"
+          - "Gi1/0/4 is ready to supply power but has detected no powered device"
+        answer: 3
+        why: "Admin auto with Oper off means the port is willing to power but sees no powered device. 'power inline never' would show Admin off, and Gi1/0/5 is static, so its power is reserved."
+      - id: cn-v2b-q08
+        type: mcq
+        q: "A new AP that needs PoE+ (class 4) stays dark on Gi1/0/12, which has 'power inline auto max 15400'. The switch has plenty of power left. What is the cause?"
+        choices:
+          - "The port's maximum is below what the AP's class requires, so power is denied"
+          - "PoE+ devices need 'power inline static' on every port"
+          - "The switch's total budget is exhausted"
+          - "The AP needs a voice VLAN to request power"
+        answer: 0
+        why: "The max is in milliwatts, so 15400 caps the port at 15.4 W, below class 4's 30 W, and the switch refuses to power the device. The stem says the budget has plenty left."
+      - id: cn-v2b-q09
+        type: mcq
+        q: "On a Layer 3 switch, 'show ip interface brief' lists 'Vlan30 10.1.30.1 YES manual up down'. VLAN 30 exists. Its only access port, Gi1/0/7, is err-disabled, and the uplink trunk's allowed list does not include 30. What keeps Vlan30's line protocol down?"
+        choices:
+          - "'ip routing' is not configured"
+          - "No port carrying VLAN 30 is up and forwarding"
+          - "The SVI was never given 'no shutdown'"
+          - "VLAN 30 is missing from the VLAN database"
+        answer: 1
+        why: "Autostate keeps the SVI down until some port in VLAN 30 forwards; here the access port is err-disabled and the trunk does not carry 30. A shut-down SVI would read 'administratively down', and 'ip routing' does not affect line state."
+      - id: cn-v2b-q10
+        type: mcq
+        q: "SW1 needs a routed LACP bundle of Gi1/0/49 and Gi1/0/50 with address 10.0.12.1/30. Which configuration achieves it?"
+        choices:
+          - "Members: 'no switchport', then 'channel-group 1 mode active'. Then 'interface Port-channel1' with 'ip address 10.0.12.1 255.255.255.252'"
+          - "Members: 'channel-group 1 mode active' only. Then 'interface Port-channel1' with 'ip address 10.0.12.1 255.255.255.252'"
+          - "Members: 'no switchport', an 'ip address' on each member, then 'channel-group 1 mode on'"
+          - "Members: 'no switchport', then 'channel-group 1 mode desirable'. Then the address on 'interface Port-channel1'"
+        answer: 0
+        why: "Members must be routed ports before they join, so the bundle is created as Layer 3, and the address goes on the port-channel. Without 'no switchport' the bundle is Layer 2 and refuses an address; 'on' and 'desirable' are not LACP."
+      - id: cn-v2b-q11
+        type: mcq
+        q: "'show etherchannel summary' on SW1 shows: '1  Po1(RU)  LACP  Gi1/0/49(P) Gi1/0/50(I)'. What does this show?"
+        choices:
+          - "Po1 is a Layer 2 trunk with both links in use"
+          - "Gi1/0/50 is a hot-standby member waiting to replace Gi1/0/49"
+          - "Po1 is routed and up, but Gi1/0/50 is stand-alone because it hears no LACP partner, so only Gi1/0/49 carries the bundle's traffic"
+          - "Po1 is down because one member failed"
+        answer: 2
+        why: "R means Layer 3 and U in use; P is bundled and I is stand-alone, which an LACP port becomes when no partner answers. Hot standby would be flagged H, and Layer 2 would be S."
+      - id: cn-v2b-q12
+        type: mcq
+        q: "The cabling record says SW-ACC3 Gi1/0/48 connects to SW-DIST1 Gi1/0/12. On SW-ACC3, 'show cdp neighbors' shows: 'SW-DIST1  Gig 1/0/48  152  R S I  C9300-48P  Gig 1/0/21'. What does this show?"
+        choices:
+          - "SW-ACC3's uplink is really Gi1/0/21"
+          - "The cable lands on SW-DIST1's Gi1/0/21, so the record or the patching is wrong"
+          - "SW-DIST1 is a router, not a switch, so the record is wrong"
+          - "The record is right; CDP shows the holdtime, not the port"
+        answer: 1
+        why: "'Local Intrfce' (Gig 1/0/48) is SW-ACC3's own port, which matches; 'Port ID' is the neighbour's port, Gi1/0/21, which does not. R S I means a Layer 3 switch."
+      - id: cn-v2b-q13
+        type: mcq
+        q: "The record lists a non-Cisco firewall on SW1's Gi1/0/1, but 'show cdp neighbors' on SW1 does not list it, although the link is up. What is the BEST next step to confirm the record?"
+        choices:
+          - "Enable LLDP with 'lldp run' and check 'show lldp neighbors'"
+          - "Enter 'cdp enable' on Gi1/0/1"
+          - "Check 'show mac address-table interface Gi1/0/1' for the firewall's hostname"
+          - "Shut and re-enable Gi1/0/1 to restart CDP"
+        answer: 0
+        why: "Non-Cisco devices rarely speak CDP but usually speak LLDP, which reports the neighbour's name and port. The MAC table shows addresses, never hostnames."
+      - id: cn-v2b-q14
+        type: mcq
+        q: "'show lldp neighbors' on SW1 lists, on Gi1/0/14, a device named 'SEP0050568A1B2C' with capability T. The record says Gi1/0/14 is a printer. What is the BEST conclusion?"
+        choices:
+          - "The printer is reporting itself as a telephone by mistake"
+          - "LLDP lists the switch's own capabilities, so the record is right"
+          - "A telephone is attached to Gi1/0/14, so the record or the cabling has changed"
+          - "Gi1/0/14 is a trunk carrying both devices"
+        answer: 2
+        why: "Capability T means telephone, and the name has the usual form of an IP phone's. The neighbour table describes the attached device, so the record no longer matches reality."
+      - id: cn-v2b-q15
+        type: mcq
+        q: "From R1, 'ping 10.9.9.9' prints 'U.U.U'. What does this show?"
+        choices:
+          - "Every echo reached 10.9.9.9 but alternate replies were lost"
+          - "A router on the path is returning ICMP unreachable messages, rate-limited so that alternate ones are missing"
+          - "The first packets waited for ARP, then the rest succeeded"
+          - "The path MTU is smaller than the default 100-byte ping"
+        answer: 1
+        why: "U is an unreachable sent back by some router; IOS rate-limits those messages, so alternate probes time out and print as dots. ARP delay gives '.!!!!', and an MTU problem would print M."
+      - id: cn-v2b-q16
+        type: mcq
+        q: "Right after a reload, the first 'ping 10.1.20.5' from R1 prints '.!!!!' and every later ping prints '!!!!!'. What explains the first dot?"
+        choices:
+          - "An ACL dropped the first packet"
+          - "The first echo timed out while R1 resolved the next hop's MAC address with ARP"
+          - "Spanning tree was still converging on the far switch"
+          - "The target rate-limits echo replies"
+        answer: 1
+        why: "A router with an empty ARP cache drops the packet that triggers the request, so the first echo times out. An ACL or rate limit would keep failing on later pings."
+      - id: cn-v2b-q17
+        type: mcq
+        q: "From R1, 'ping 10.3.3.3' succeeds. 'ping 10.3.3.3 source Loopback0' (10.1.1.1) prints '.....'. What is the MOST likely cause?"
+        choices:
+          - "R3 has no route back to 10.1.1.1"
+          - "R1 has no route to 10.3.3.3"
+          - "Loopback interfaces cannot source pings"
+          - "10.3.3.3 does not answer pings larger than 100 bytes"
+        answer: 0
+        why: "The forward path works, as the plain ping shows; only the return to the new source fails, which usually means the loopback is not advertised. Loopbacks can source pings, and both pings use the same size."
+      - id: cn-v2b-q18
+        type: mcq
+        q: "'ping 10.5.5.5 size 1500 df-bit' prints 'M.M.M', and 'ping 10.5.5.5 size 1400 df-bit' prints '!!!!!'. What does this show?"
+        choices:
+          - "10.5.5.5 is down"
+          - "An ACL blocks large packets"
+          - "A router on the path has an MTU below 1500 and cannot forward the packet without fragmenting it"
+          - "The destination's ARP entry keeps timing out"
+        answer: 2
+        why: "M means 'could not fragment': a router needed to fragment, but DF was set. The 1,400-byte success shows the host is up and reachable; an ACL would answer with U or silence, not M."
+      - id: cn-v2b-q19
+        type: mcq
+        q: "From R1, 'traceroute 10.40.1.10' prints: '1 10.1.10.1 1 msec 1 msec 1 msec' / '2 10.0.12.2 2 msec 2 msec 1 msec' / '3 * * *' / '4 * * *', and continues with asterisks. Where should troubleshooting start?"
+        choices:
+          - "At 10.1.10.1, the first hop"
+          - "At the destination host's NIC"
+          - "At R1's own routing table"
+          - "At the router 10.0.12.2 and the next hop it uses towards 10.40.1.10"
+        answer: 3
+        why: "Hops 1 and 2 answered, so the path works that far; the probes are lost after 10.0.12.2, so its route and its next hop come first. Starting at the first hop ignores what the trace has already proved."
+      - id: cn-v2b-q20
+        type: mcq
+        q: "A capture on the switch shows: '1 10.1.10.25 -> 10.1.99.80 TCP 51544 -> 443 [SYN]' then '2 10.1.99.80 -> 10.1.10.25 TCP 443 -> 51544 [RST, ACK]' less than a millisecond later. What is the MOST likely explanation?"
+        choices:
+          - "A firewall silently drops the SYN"
+          - "The client has no route to 10.1.99.80"
+          - "The server's TLS certificate has expired"
+          - "The server is reachable but nothing is listening on TCP 443"
+        answer: 3
+        why: "A reset in reply to a SYN comes from a host that received it but has no service on that port. A silent drop would show repeated SYNs, and TLS never starts without a completed handshake."
+      - id: cn-v2b-q21
+        type: mcq
+        q: "A capture on the access port facing a web server, in both directions, shows the client's SYN to port 443 arriving three times, one and then two seconds apart, and nothing sent back by the server. What does this prove?"
+        choices:
+          - "The network between the client and the server's port is dropping the SYNs"
+          - "The SYNs reach the server's port, so the fault is at the server, such as its host firewall, or on its return path"
+          - "The client has the wrong default gateway"
+          - "The server is answering, but the capture cannot see replies"
+        answer: 1
+        why: "The SYNs are seen on the server's own port, so delivery works. Since a two-way capture saw no reply leave, the server is not answering or is sending its replies elsewhere."
+      - id: cn-v2b-q22
+        type: mcq
+        q: "An engineer needs to record traffic in both directions on Gi1/0/5 of a Catalyst 9300 into a buffer on the switch. Which sequence does that?"
+        choices:
+          - "monitor session 1 source interface Gi1/0/5 both / monitor session 1 destination interface Gi1/0/6"
+          - "monitor capture CAP interface Gi1/0/5 both / monitor capture CAP match any / monitor capture CAP start"
+          - "debug ip packet detail / terminal monitor"
+          - "monitor capture CAP start / show monitor capture CAP buffer brief"
+        answer: 1
+        why: "EPC needs a capture point (interface and direction), a match filter and a start. A monitor session is SPAN, which copies frames to another port for an external analyser instead of storing them; starting a capture that was never defined has nothing to record."
+      - id: cn-v2b-q23
+        type: mcq
+        q: "From R1, 1,000 echoes of 1,400 bytes must be sent to 10.9.9.9 from interface Vlan10. Which IOS command does that in one line?"
+        choices:
+          - "ping 10.9.9.9 repeat 1000 size 1400 source Vlan10"
+          - "ping 10.9.9.9 count 1000 length 1400 interface Vlan10"
+          - "ping -n 1000 -l 1400 10.9.9.9"
+          - "ping 10.9.9.9 -c 1000 -s 1400 -I Vlan10"
+        answer: 0
+        why: "IOS uses the keywords repeat, size and source. '-n' and '-l' are Windows switches, '-c', '-s' and '-I' are Linux ones, and 'count' is not an IOS ping keyword."
+      - id: cn-v2b-b01
+        type: mcq
+        best: true
+        q: "A security camera on Gi1/0/30 must stay powered even when more PoE devices are added and the switch's budget runs short. Which port setting is BEST?"
+        choices:
+          - "power inline auto"
+          - "power inline auto max 30000"
+          - "power inline static"
+          - "power inline never, with a local power injector"
+        answer: 2
+        why: "Static reserves the port's power in advance, so it is served before ports left on auto when the budget is tight."
+        whys:
+          - "The default: powered first come, first served, so a later shortage can leave the camera dark."
+          - "Caps the port's power but reserves nothing, so the camera can still lose out."
+          - "Best: the allocation is reserved ahead of every auto port."
+          - "Works, but adds hardware and a mains socket instead of using the switch it already has."
+      - id: cn-v2b-m01
+        type: multi
+        q: "Which TWO statements about Embedded Packet Capture on IOS XE are true? (Choose TWO)"
+        choices:
+          - "Captured packets are held in a buffer on the device"
+          - "The capture can be exported as a .pcap file for Wireshark"
+          - "It needs a second switch port and an external analyser"
+          - "It changes how the captured packets are forwarded"
+          - "It sees only packets addressed to the switch itself"
+        answers: [0, 1]
+        why: "EPC stores packets locally and can export them. A second port and external analyser describe SPAN; capture copies packets without altering forwarding, and it records transit traffic on the chosen interface."
+      - id: cn-v2b-m02
+        type: multi
+        q: "CDP and LLDP both run on SW1 and SW2. Which TWO commands on SW1 alone confirm which port on SW2 a documented link lands on? (Choose TWO)"
+        choices:
+          - "show cdp neighbors"
+          - "show lldp neighbors"
+          - "show interfaces status"
+          - "show mac address-table"
+          - "show vlan brief"
+        answers: [0, 1]
+        why: "Both discovery protocols report the neighbour's name and its port ID. The other commands describe only SW1's own ports and tables."
+      - id: cn-v2b-m03
+        type: multi
+        q: "Which TWO edge devices normally need an 802.1Q trunk port rather than an access port? (Choose TWO)"
+        choices:
+          - "An autonomous AP whose SSIDs map to several VLANs"
+          - "A hypervisor host whose VMs are in several VLANs"
+          - "A lightweight AP in local mode"
+          - "An IP phone with a PC behind it"
+          - "A network printer"
+        answers: [0, 1]
+        why: "Both put frames for several VLANs on the wire with tags. A local-mode AP tunnels clients to the controller, and a phone uses an access port with a voice VLAN."
+      - id: cn-v2b-o01
+        type: order
+        q: "Put the steps of capturing a problem with Embedded Packet Capture in order."
+        steps:
+          - "Define the capture with its interface, direction and match filter"
+          - "Start the capture"
+          - "Reproduce the problem"
+          - "Stop the capture"
+          - "Export the buffer to a .pcap file and open it in Wireshark"
+        why: "Nothing is recorded until the capture is defined and started, the problem must happen while it runs, and stopping before exporting gives a complete file."
+      - id: cn-v2b-o02
+        type: order
+        q: "Put the steps of building a routed LACP bundle between two Layer 3 switches in order, on one side."
+        steps:
+          - "Select the member interfaces with 'interface range'"
+          - "Make the members routed ports with 'no switchport'"
+          - "Add them with 'channel-group 1 mode active'"
+          - "Put the IP address on 'interface Port-channel1'"
+          - "Check that 'show etherchannel summary' shows Po1(RU) with members P"
+        why: "Members must be routed before they join so the bundle is created as Layer 3; the port-channel exists only after channel-group; verification comes last."
