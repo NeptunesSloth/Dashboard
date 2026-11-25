@@ -101,9 +101,9 @@ units:
         best: true
         q: "Company A uses 10.0.0.0/8 throughout; Company B, which it has just bought, uses 192.168.0.0/16 throughout. A new site needs about 4,000 host addresses, must not overlap either company, and will be routed across the merged WAN. Which block is BEST?"
         choices:
-          - "172.16.0.0/20, from the RFC 1918 172.16.0.0/12 range"
+          - "172.16.0.0/20, from the RFC 1918 private range"
           - "An unused-looking /20 taken from 10.0.0.0/8"
-          - "100.64.0.0/20, from the shared address space"
+          - "100.64.0.0/20, from the RFC 6598 shared address space"
           - "The company's own registered public /24"
         answer: 0
         why: "172.16.0.0/20 is private, sits outside both companies' ranges, and holds 4,094 hosts."
@@ -120,7 +120,7 @@ units:
         choices:
           - "Stateful DHCPv6, with the M flag set in router advertisements"
           - "SLAAC alone, with the DNS server carried in the RA"
-          - "SLAAC plus stateless DHCPv6, using 'ipv6 nd other-config-flag'"
+          - "SLAAC plus stateless DHCPv6 ('ipv6 nd other-config-flag')"
           - "Static IPv6 addresses and DNS settings typed on each host"
         answer: 2
         why: "Hosts build their own addresses with SLAAC, and the O flag sends them to a stateless DHCPv6 server for DNS only, with no per-host bindings."
@@ -136,7 +136,7 @@ units:
         q: "Three DNS resolvers sit in three data centres. Clients must reach the nearest one through a single IPv6 address, chosen by routing with no extra hardware, and must fail over automatically if a site is lost. Which is BEST?"
         choices:
           - "Give each resolver its own global unicast address and list all three on clients"
-          - "Configure one anycast address on all three resolvers and advertise it from each site"
+          - "One anycast address on all three resolvers, advertised from each site"
           - "Have clients send queries to a multicast group that all three resolvers join"
           - "Put a load balancer in one data centre in front of all three resolvers"
         answer: 1
@@ -155,7 +155,7 @@ units:
           - "Link-local addresses (fe80::/10) on every management interface"
           - "Global unicast addresses from the ISP's block, filtered at the edge"
           - "Site-local addresses from fec0::/10"
-          - "Unique local addresses: a /48 with a random Global ID from fd00::/8"
+          - "Unique local addresses from a random /48 in fd00::/8"
         answer: 3
         why: "Unique local addresses route inside the organisation, are not routed on the internet, and belong to no ISP."
         whys:
@@ -169,7 +169,7 @@ units:
         best: true
         q: "A Linux server can reach hosts on its own subnet but nothing beyond it. 'ip addr' shows 10.1.5.20/24, which matches the subnet plan. Which command should be run FIRST to check the most likely cause?"
         choices:
-          - "'ip route', to see whether a default route exists and where it points"
+          - "'ip route', to check for a default route"
           - "'traceroute' to a remote host, to see where packets stop"
           - "'cat /etc/resolv.conf', to see which DNS servers are set"
           - "'ping' to the subnet's documented gateway address"
@@ -255,7 +255,7 @@ units:
         q: "A syslog collector on Gi0/10 only receives traffic and never transmits. Every five minutes its MAC address ages out of the switch's table, and the switch floods its traffic to every port in VLAN 10 until the collector next sends a frame. Which change BEST stops the flooding for this server alone?"
         choices:
           - "'mac address-table static 0050.56aa.0001 vlan 10 interface Gi0/10'"
-          - "'mac address-table aging-time 3600', for longer-lived entries"
+          - "'mac address-table aging-time 3600', to keep all entries far longer"
           - "Storm control on the other access ports in VLAN 10"
           - "Move the collector into a VLAN of its own"
         answer: 0
@@ -289,7 +289,7 @@ units:
         q: "A single-building campus has 8 access switches and expects at most 12. Budget is tight and the team is small. Which architecture is BEST?"
         choices:
           - "Three-tier: access, distribution and a separate core layer"
-          - "Two-tier: access switches uplinked to a collapsed-core pair"
+          - "Two-tier: access switches uplinked to a collapsed core"
           - "Spine-leaf, with every access switch linked to every spine"
           - "Daisy-chained access switches with one router at the end"
         answer: 1
@@ -484,7 +484,7 @@ units:
         choices:
           - "Remove Gi0/2 from the bundle and add it back"
           - "Replace the cable on Gi0/2"
-          - "Compare 'show running-config interface' for Gi0/1 and Gi0/2"
+          - "Compare the configurations of Gi0/1 and Gi0/2"
           - "Reload the switch in the next maintenance window"
         answer: 2
         why: "A suspended member usually differs from the others in speed, duplex, mode, native VLAN or allowed VLANs; comparing the configurations finds it."
@@ -587,7 +587,7 @@ units:
           - "Make sure CDP is enabled on the Cisco port"
           - "Find the neighbour's MAC in 'show mac address-table'"
           - "Poll the new switch with SNMP from the NMS"
-          - "Enter 'lldp run' and check 'show lldp neighbors detail'"
+          - "'lldp run', then 'show lldp neighbors detail'"
         answer: 3
         why: "LLDP is the IEEE standard both ends understand, and it is off by default on many Cisco switches."
         whys:
@@ -633,9 +633,9 @@ units:
       - id: cn-2b2-b15
         type: mcq
         best: true
-        q: "Branch APs are joined to a WLC at headquarters over the WAN. When the WAN fails, branch users lose Wi-Fi, and even traffic to the branch's own file server goes to headquarters and back. No controllers may be added. Which AP mode BEST fixes both problems?"
+        q: "Branch APs are joined to a WLC at headquarters over the WAN. When the WAN fails, branch users lose Wi-Fi, and even traffic to the branch's own file server goes to headquarters and back. No controllers may be added at the branches. Which AP mode BEST fixes both problems?"
         choices:
-          - "Local mode, with a second WLC at headquarters"
+          - "Local mode, with a second WLC added at headquarters for redundancy"
           - "FlexConnect, with local switching of the branch VLANs"
           - "Bridge mode"
           - "Local mode, with a WLC in every branch"
@@ -669,10 +669,10 @@ units:
         best: true
         q: "The team must be able to reach a remote branch router's CLI even when its WAN link is down or a bad change has broken its routing. Which access method BEST meets this?"
         choices:
-          - "A console server with a cellular modem, cabled to the console port"
+          - "A console server with a cellular modem on the console port"
           - "SSH to the router's loopback over the WAN"
           - "HTTPS to the router's web interface"
-          - "SSH through a second ISP link on the same router"
+          - "SSH through a backup internet link added to the same router"
         answer: 0
         why: "Out-of-band console access needs neither the WAN nor working routing on the router."
         whys:
@@ -689,14 +689,14 @@ units:
           - "'aaa authentication login default local group tacacs+'"
           - "'aaa authentication login default group tacacs+'"
           - "'aaa authentication login default group tacacs+ local'"
-          - "'aaa authentication login default group tacacs+ line'"
+          - "'aaa authentication login default group tacacs+ enable'"
         answer: 2
         why: "The local database is tried only when TACACS+ returns an error (no server answered), not when a server rejects the login."
         whys:
           - "Tries the local database first, so the break-glass account works all the time."
           - "Central only: if both servers are down, nobody can log in."
           - "Best: TACACS+ first, and the named local account only when no server responds."
-          - "Falls back when the servers are down, but to a shared line password, not the named account."
+          - "Falls back when the servers are down, but to the shared enable password, not the named account."
 
       - id: cn-2b2-b19
         type: mcq
@@ -1035,7 +1035,7 @@ units:
         q: "R1 and R2 run HSRP for ten VLANs, with R1 active for all ten and R2 idle. The team wants both routers forwarding while keeping HSRP and per-VLAN failover. Which is BEST?"
         choices:
           - "Replace HSRP with GLBP"
-          - "Make R1 active for five VLANs and R2 for the other five, by priority per group"
+          - "R1 active for five VLANs, R2 for the other five, via group priorities"
           - "Give hosts R2's real address as gateway in half the VLANs"
           - "Two HSRP groups in every VLAN, with half the hosts using each virtual address"
         answer: 1
@@ -1052,7 +1052,7 @@ units:
         q: "During a maintenance window, after an HSRP change on R1 and R2, test hosts in VLAN 20 cannot reach their gateway 10.1.20.1. Which should be done FIRST?"
         choices:
           - "Reload both routers"
-          - "Ping 10.1.20.1 from each router"
+          - "Ping 10.1.20.1 from each router and from a host"
           - "'show standby brief' on both routers"
           - "'debug standby' on both routers"
         answer: 2
@@ -1212,7 +1212,7 @@ units:
         best: true
         q: "An office of 60 users gets one public address by DHCP from its ISP on Gi0/1, and that address changes from time to time. Every user needs internet access. Which NAT configuration is BEST?"
         choices:
-          - "A one-address pool holding today's public address, with 'overload'"
+          - "A one-address NAT pool holding today's public address, with 'overload'"
           - "Static NAT for each of the 60 users"
           - "'ip nat inside source list 1 interface GigabitEthernet0/1 overload'"
           - "Dynamic NAT to a pool, without 'overload'"
@@ -1249,7 +1249,7 @@ units:
           - "Point all 300 devices at public internet NTP servers"
           - "'ntp master' on one core router, and every device pointed at it"
           - "Set each clock by hand during maintenance windows"
-          - "Two core routers sync externally and the rest use both as servers"
+          - "Two core routers sync externally; the rest use both of them"
         answer: 3
         why: "Two internal servers give redundancy, only they reach the internet, and everything else syncs inside the network."
         whys:
@@ -1265,7 +1265,7 @@ units:
         choices:
           - "A DHCP server in each of the 15 VLANs"
           - "'ip helper-address 10.99.0.5' on each of the 15 SVIs"
-          - "An IOS DHCP pool per VLAN on the Layer 3 switch"
+          - "An IOS DHCP pool for each VLAN on the Layer 3 switch itself"
           - "A trunk to the DHCP server carrying all 15 VLANs"
         answer: 1
         why: "Each SVI relays its VLAN's DHCP broadcasts to the server and adds its own address so the right scope is chosen."
@@ -1297,7 +1297,7 @@ units:
         best: true
         q: "After a router crashed and reloaded, the messages leading up to the crash were gone. Logs must survive future reloads and be kept centrally. Which is BEST?"
         choices:
-          - "'logging buffered 64000', to keep more messages"
+          - "'logging buffered 64000', to keep many more messages in memory"
           - "'logging console debugging'"
           - "'logging host 10.1.1.50' with a suitable 'logging trap' level"
           - "'service timestamps log datetime msec'"
@@ -1408,7 +1408,7 @@ units:
         q: "Only the management subnet 10.99.0.0/24 may open SSH sessions to a router that has 12 interfaces. Which is BEST?"
         choices:
           - "An extended ACL inbound on all 12 interfaces permitting SSH only from 10.99.0.0/24"
-          - "A standard ACL permitting 10.99.0.0 0.0.0.255, applied with 'access-class' on the vty lines"
+          - "'access-class' on the vty lines with a standard ACL for 10.99.0.0/24"
           - "'login local' with strong passwords on the vty lines"
           - "Move SSH to a non-standard port with 'ip ssh port'"
         answer: 1
@@ -1425,7 +1425,7 @@ units:
         q: "A small router with no firewall feature set connects to the internet. Inside users may open any TCP session outwards; from outside, only replies to those sessions may enter. Which inbound entry on the WAN interface BEST meets this?"
         choices:
           - "'deny ip any any'"
-          - "'permit tcp any any gt 1023'"
+          - "'permit tcp any any range 1024 65535'"
           - "'permit tcp any eq 443 any'"
           - "'permit tcp any any established'"
         answer: 3
@@ -1458,7 +1458,7 @@ units:
         best: true
         q: "A laptop in VLAN 10 answers ARP requests for the default gateway's address and intercepts traffic. All hosts get addresses by DHCP, and DHCP snooping is already running. Which is BEST?"
         choices:
-          - "Static ARP entries for the gateway on every PC"
+          - "Static ARP entries for the default gateway on every PC"
           - "Port security on every access port"
           - "'ip arp inspection vlan 10', with the uplink trusted"
           - "An ACL on the gateway denying the laptop's address"
@@ -1475,7 +1475,7 @@ units:
         best: true
         q: "The routers' console lines have 'exec-timeout 0 0'. An auditor found a console session left logged in at privileged EXEC in a wiring closet. Which configuration change BEST reduces this risk?"
         choices:
-          - "'logging synchronous' on the console line"
+          - "'logging synchronous' on the console and vty lines"
           - "'exec-timeout 5 0' on the console and vty lines"
           - "A login banner warning against unauthorised use"
           - "'login local' on the console line"
@@ -1689,7 +1689,7 @@ units:
         choices:
           - "An engineer reviews ten random switches each week"
           - "Push the approved configuration to all switches every night"
-          - "Run the Ansible playbook in check mode and report what it would change"
+          - "Run the playbook in Ansible check mode and report the differences"
           - "Send all switch logs to syslog and search for configuration messages"
         answer: 2
         why: "Check mode compares every switch with the desired state and reports differences without applying them."
@@ -1704,7 +1704,7 @@ units:
         best: true
         q: "A campus of 150 switches is managed by Catalyst Center. A new QoS policy must be applied the same way to every access port, and any switch added later must get it automatically. Which is BEST?"
         choices:
-          - "Define the policy once in Catalyst Center and let it deploy it"
+          - "Define the policy once in Catalyst Center"
           - "Paste the commands from a text file into each switch"
           - "Ask each site's technician to configure it locally"
           - "Run an Ansible playbook by hand whenever a switch is added"
@@ -1739,7 +1739,7 @@ units:
         q: "A script runs unattended on a server and calls a controller's REST API every five minutes to read device status. The team wants the least exposure if the script's credentials leak. Which approach is BEST?"
         choices:
           - "HTTP basic authentication with an admin account on every call"
-          - "A dedicated read-only account that obtains a short-lived token"
+          - "A read-only account that obtains a short-lived token"
           - "An admin account whose password is written in the script"
           - "Allow the server's IP address with no authentication"
         answer: 1
@@ -1823,7 +1823,7 @@ units:
         best: true
         q: "The team wants to flag unusual traffic patterns on its WAN links. It has months of flow data but no record of which periods were abnormal. Which approach is BEST?"
         choices:
-          - "Unsupervised learning that builds a baseline and flags deviations"
+          - "Unsupervised anomaly detection against a learned baseline"
           - "A supervised classifier trained on labelled incidents"
           - "Fixed utilisation thresholds on each link"
           - "A generative model that writes daily summaries of the traffic"

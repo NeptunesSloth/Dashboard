@@ -74,7 +74,7 @@ units:
       - {id: cy-1a-secrets-management, type: concept, term: "Secrets management",
          def: "Keeping API keys, tokens and service passwords in a central vault that hands them to software at run time and rotates them, instead of leaving them in code or configuration files."}
       - {id: cy-1a-ot, type: concept, term: "Operational technology (OT)",
-         def: "Hardware and software that monitors and controls physical processes such as pumps, valves and production lines, where safety and uptime outrank confidentiality."}
+         def: "The broad category of hardware and software that monitors and controls physical processes such as pumps, valves and production lines, where safety and uptime outrank confidentiality."}
       - {id: cy-1a-q01, type: mcq,
          q: "An analyst is tracing one session through two sources. The firewall logs the connection at 14:02:10; the server it reached logs the resulting login at 13:57:44. Both devices are healthy. Which logging weakness does this MOST likely show?",
          choices: ["The retention period is too short", "The server log has been tampered with", "The two clocks are not synchronized", "The firewall log failed to parse on ingestion"],
@@ -190,7 +190,7 @@ units:
          answer: 2,
          why: "A taken-over trusted mailbox used to redirect a payment, with no malware, is BEC. Whaling is phishing aimed at an executive; here the executive's account is the weapon and a clerk is the target."}
       - {id: cy-1b-q08, type: mcq,
-         q: 'A cloud audit log shows: {"eventName":"RunInstances","awsRegion":"ap-southeast-3","userIdentity":{"userName":"ci-deploy"},"requestParameters":{"instanceType":"p3.16xlarge","maxCount":40},"eventTime":"03:12:07Z"}. The company has never used this region and ci-deploy normally updates one web service. What does this MOST likely show?',
+         q: 'A cloud audit log shows: {"eventTime":"2026-11-02T03:12:07Z","eventName":"RunInstances","awsRegion":"ap-southeast-1","userIdentity":{"type":"IAMUser","userName":"ci-deploy"},"requestParameters":{"instanceType":"p3.16xlarge","instancesSet":{"items":[{"minCount":40,"maxCount":40}]}}}. The company has never used this region and ci-deploy normally updates one web service. What does this MOST likely show?',
          choices: ["A planned disaster-recovery test", "Autoscaling responding to customer demand", "A misconfigured storage bucket being read", "A stolen access key being used to start costly resources"],
          answer: 3,
          why: "Forty large GPU instances in an unused region, started by a deployment identity at 03:00, is resource compromise, typically for mining. Autoscaling would act in the service's own region with its usual instance type."}
@@ -501,7 +501,7 @@ units:
       - {id: cy-2b-checkov, type: concept, term: "Checkov",
          def: "A static analysis tool that inspects infrastructure-as-code templates, such as Terraform or Kubernetes manifests, for insecure settings before anything is deployed."}
       - {id: cy-2b-bas, type: concept, term: "Breach and attack simulation (BAS)",
-         def: "Tooling that safely runs scripted adversary techniques against live defences to show which ones are detected or blocked and which are missed."}
+         def: "The category of tooling that safely runs scripted adversary techniques against live defences to show which ones are detected or blocked and which are missed."}
       - {id: cy-2b-q01, type: mcq,
          q: "An Nmap scan of a server returns the line: 3389/tcp filtered ms-wbt-server. What does 'filtered' mean?",
          choices: ["The port is open and the service version could not be identified", "The port is closed because no service is listening", "Nmap got no usable reply, so a firewall or filter is probably dropping the probes", "The host is down"],

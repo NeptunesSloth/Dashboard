@@ -280,7 +280,7 @@ units:
         best: true
         q: "A cloud virtual machine is found mining cryptocurrency for an intruder. The team must cut the intruder off now and keep evidence, including what is in memory, for the investigation. Which response is BEST?"
         choices:
-          - "Snapshot the disk, then apply a security group that blocks all traffic"
+          - "Apply a security group that blocks all traffic, then snapshot the disk"
           - "Terminate the instance and deploy a replacement from the template"
           - "Stop the instance and take a snapshot of its disk afterwards"
           - "Leave it running untouched and watch its traffic for a day"
@@ -703,7 +703,7 @@ units:
           - "The EDR vendor's published ATT&CK coverage results"
           - "A peer review of each rule change before it goes live"
         answer: 1
-        why: "Breach and attack simulation runs small, repeatable tests of named techniques, so detection can be re-proved after every change."
+        why: "Atomic Red Team is a library of small, repeatable tests each mapped to a named ATT&CK technique, so detection can be re-proved after every change."
         whys:
           - "Realistic, but once a year cannot validate weekly changes."
           - "Best: repeatable tests mapped to the chosen techniques, run as often as rules change."

@@ -256,10 +256,10 @@ units:
          answer: 1,
          why: "The mail gateway acts at delivery, the first stage the defender can touch here. Allowlisting acts at exploitation or installation, egress filtering at command and control, and DLP only at actions on objectives."}
       - {id: cy-3y-q06, type: mcq,
-         q: "Two intrusions at different companies used unrelated malware families. In both, the control servers sat in the same small netblock and were registered with the same email address, and both targets were regional water utilities. Which Diamond Model features do the two events share?",
-         choices: ["Infrastructure and victim", "Capability and infrastructure", "Capability and victim", "Adversary and capability"],
+         q: "Two intrusions, one at a hospital and one at a retailer, used unrelated malware families. In both, the control servers sat in the same small netblock and were registered with the same email address. Which Diamond Model feature do the two events demonstrably share, giving the analyst a pivot that links them?",
+         choices: ["Infrastructure", "Capability", "Victim", "Adversary"],
          answer: 0,
-         why: "The servers and registration details are infrastructure, and the common type of target is the victim feature. The malware differs, so capability is not shared, and the adversary is only inferred from the overlap, not observed."}
+         why: "The servers, netblock and registration email are all infrastructure. The malware differs, so capability is not shared; the victims are different organizations in different sectors; and the adversary is only inferred from the shared infrastructure, not observed."}
       - {id: cy-3y-q07, type: mcq,
          q: "An analyst has one infected host and the malicious DLL recovered from it. The goal is to find other victims inside the company. Which step is the BEST next pivot?",
          choices: ["Block the DLL's hash on every endpoint", "Compare the code style with known groups to name the adversary", "Extract the control-server addresses from the DLL and search network logs for them", "Search endpoint telemetry for the first victim's host name"],
@@ -448,7 +448,7 @@ units:
       - {id: cy-4x-top-risks, type: concept, term: "Top risks (reporting)",
          def: "The short, ranked set of exposures with the greatest combined likelihood and business impact, singled out in a report so that leaders know where attention and money should go first."}
       - {id: cy-4x-stakeholder-id, type: concept, term: "Stakeholder identification",
-         def: "Working out in advance every group with an interest in an outcome, what each needs to know, what each must decide and who is responsible for speaking to it."}
+         def: "The analysis step of listing every group with an interest in an outcome, what each needs to know and what each must decide, done first because a reporting or communication plan is then built from it."}
       - {id: cy-4x-patch-availability, type: concept, term: "Patch availability (inhibitor)",
          def: "The obstacle that exists when a weakness is known but its vendor or maintainers have not yet released a fix, so only workarounds and compensating controls are possible."}
       - {id: cy-4x-degrading-functionality, type: concept, term: "Degrading functionality (inhibitor)",
@@ -491,7 +491,7 @@ units:
          q: "A review finds that a payment server keeps its audit logs for 30 days, while PCI DSS, which the company must meet, requires at least one year of audit log history. No software flaw is involved. How should this be reported?",
          choices: ["As a false positive, because no CVE applies", "As an accepted risk, because logs are not a vulnerability", "As a compliance finding citing the requirement it fails", "As an incident, because evidence may be lost"],
          answer: 2,
-         why: "A system failing a requirement of a standard the company must meet is a compliance finding, and citing the requirement tells the owner and the auditor exactly what has to change. The gap is real, so it is not a false positive, and nobody with authority has accepted it."}
+         why: "A system failing a requirement of a standard the company must meet is a compliance finding, and citing the requirement (PCI DSS v4.0 requirement 10.5.1: at least 12 months of audit log history, the latest three months immediately available) tells the owner and the auditor exactly what has to change. The gap is real, so it is not a false positive, and nobody with authority has accepted it."}
       - {id: cy-4x-q06, type: mcq,
          q: "Last month the SOC closed 1,200 alerts. Investigation confirmed 180 of them as genuine malicious activity; the rest were benign. What was the true-positive rate?",
          choices: ["15%", "85%", "18%", "1.5%"],
@@ -541,7 +541,7 @@ units:
          q: "A company's contract with its managed security provider says critical alerts will be escalated to the company within 15 minutes, with a fee credit for each miss. What is this commitment?",
          choices: ["A service-level agreement", "A service-level objective", "A key performance indicator", "A memorandum of understanding"],
          answer: 0,
-         why: "A documented commitment between two parties, with a consequence when it is missed, is an SLA. An SLO is an internal target with no contractual penalty, and an MOU is usually not binding."}
+         why: "A documented commitment between two parties, with a consequence when it is missed, is an SLA. An SLO is a measurable target, often one figure inside an SLA, that carries no consequence by itself; a KPI is an internal performance measure; and an MOU is usually not binding."}
       - {id: cy-4x-m01, type: multi,
          q: "Which THREE items belong in the notification sent to customers whose personal data was taken? (Choose THREE.)",
          choices: ["The types of personal data involved", "The internal IP addresses of the compromised servers", "Steps customers can take to protect themselves", "The name of the employee who opened the phishing email", "A contact point for questions", "The unpatched flaw and how it was exploited"],
@@ -619,7 +619,7 @@ units:
          q: "A regulation requires notice to the supervisory authority within 72 hours of the organization becoming aware of a personal data breach, meaning reasonably certain that personal data has been compromised. An EDR alert fired on Wednesday at 09:00; analysts confirmed on Thursday at 14:00 that customer records had been exfiltrated. When is the notification due at the latest?",
          choices: ["Saturday at 09:00", "Sunday at 14:00", "Tuesday at 14:00", "Friday at 14:00"],
          answer: 1,
-         why: "The clock starts at awareness, Thursday 14:00, and runs in calendar hours, weekend included: 72 hours later is Sunday 14:00. Counting from the unconfirmed alert gives Saturday 09:00, and treating the deadline as three working days gives Tuesday."}
+         why: "The clock starts at awareness, Thursday 14:00, and runs in calendar hours, weekend included (as under GDPR Article 33): 72 hours later is Sunday 14:00. Counting from the unconfirmed alert gives Saturday 09:00, and treating the deadline as three working days gives Tuesday."}
       - {id: cy-4y-q10, type: mcq,
          q: "Police investigating a breach ask the company to hold off notifying affected customers for a few days so that the suspects are not alerted. Several notification laws apply. Who should decide how to answer the request?",
          choices: ["The SOC lead, who holds the evidence", "Public relations, who own external messages", "The police, whose request overrides every law", "Leadership, advised by counsel on each law"],
@@ -686,7 +686,7 @@ units:
          answers: [0, 3],
          why: "The playbook acts after the alert, so it should shorten the time to containment, and the share of clean hosts isolated shows whether it is disrupting the business by mistake. Detection happens before the playbook runs, so the time to detect does not change."}
       - {id: cy-4y-o01, type: order,
-         q: "An analyst confirms that customer personal data has been exfiltrated. Put the notification steps in order.",
+         q: "An analyst confirms that customer personal data has been exfiltrated. Under the communication plan, only the incident manager can engage legal counsel, and only approved spokespeople may contact anyone outside the company. Put the notification steps in order.",
          steps: ["Escalate to the incident manager, who declares a major incident", "Legal counsel determines which notification duties apply and their deadlines", "The designated spokespeople send the approved notifications", "The post-incident report records each notification and when it was made"],
          why: "Declaration brings in the people with authority to act; counsel works out the duties and deadlines before anyone speaks outside; only approved spokespeople send the notices; and the record of what was sent can only be written after it was sent."}
       - {id: cy-4y-o02, type: order,
