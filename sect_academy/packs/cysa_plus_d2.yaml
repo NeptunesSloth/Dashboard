@@ -267,43 +267,43 @@ units:
       - id: cy-2y-q01
         type: mcq
         q: "An external Nmap scan of a development server returns: 22/tcp open ssh OpenSSH 9.6p1; 443/tcp open ssl/http nginx 1.24.0; 2375/tcp open docker Docker 24.0.7 (API 1.43). The team says the server only hosts a test website. Which result is the MOST serious, and why?"
-        choices: ["Port 2375: a plain-text Docker API, which normally lets anyone run containers as root", "Port 22: remote administration is reachable, so passwords can be guessed", "Port 443: the version banner tells attackers which nginx release to target", "Port 2375: the Docker release is old, so its images may hold known flaws"]
+        choices: ["Port 2375: an unauthenticated Docker API that gives root on the host", "Port 22: remote administration is reachable, so passwords can be guessed", "Port 443: the version banner tells attackers which nginx release to target", "Port 2375: the Docker release is old, so its images may hold known flaws"]
         answer: 0
         why: "2375 is the Docker daemon's unencrypted TCP port; with no TLS client authentication, anyone who reaches it can start a privileged container that mounts the host's file system. Exposed SSH deserves tightening, but an attacker still needs a credential."
       - id: cy-2y-q02
         type: mcq
         q: "A UDP scan of a firewall returns: 53/udp open domain; 123/udp closed ntp; 500/udp open|filtered isakmp. What does the result for port 500 mean?"
-        choices: ["A firewall rule dropped the probe, so the port is certainly blocked", "No reply came back, so the port may be open or a filter may have dropped the probe", "The host answered with an ICMP port unreachable message", "The service replied, but Nmap could not identify its version"]
+        choices: ["A firewall rule dropped the probe, so the port is certainly blocked", "No reply came, so the port is either open or filtered", "The host answered with an ICMP port unreachable message", "The service replied, but Nmap could not identify its version"]
         answer: 1
         why: "For UDP, silence is ambiguous: an open service may ignore an empty probe and a filter drops it the same way, so Nmap reports open|filtered. An ICMP port unreachable reply is what produced 'closed' for port 123."
       - id: cy-2y-q03
         type: mcq
         q: "Nmap's smb2-security-mode script reports the same line for every workstation and file server: 'Message signing enabled but not required'. Which attack does this setting leave the network MOST exposed to?"
-        choices: ["Pass-the-hash with hashes dumped from memory", "Brute-forcing of local administrator passwords", "Relaying captured NTLM authentications to these hosts", "Forcing SMB sessions down to SMBv1"]
+        choices: ["Pass-the-hash with hashes dumped from memory", "Brute-forcing of local administrator passwords", "Relaying captured NTLM logons to these hosts", "Forcing SMB sessions down to SMBv1"]
         answer: 2
         why: "When signing is not required, an attacker who captures an NTLM authentication (for example by poisoning name resolution) can relay it to these hosts and act as that user; requiring signing breaks the relay. Pass-the-hash is the near miss, but an attacker holding the hash can sign the session, so signing does not stop it."
       - id: cy-2y-q04
         type: mcq
         q: "Nmap's ssl-enum-ciphers script reports for an internal HR portal: 'TLSv1.0: TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C; warnings: 64-bit block cipher 3DES vulnerable to SWEET32 attack'. The portal also offers TLS 1.2 with AES-GCM suites. Which change remediates the finding?"
-        choices: ["Replace the 2048-bit RSA certificate with a 4096-bit one", "Turn on HTTP Strict Transport Security for the portal", "Put the portal behind the VPN so that only staff reach it", "Disable TLS 1.0 and the 3DES suites, keeping TLS 1.2 and later"]
+        choices: ["Replace the 2048-bit RSA certificate with a 4096-bit one", "Turn on HTTP Strict Transport Security for the portal", "Put the portal behind the VPN so that only staff reach it", "Disable TLS 1.0 and every 3DES cipher suite on the portal"]
         answer: 3
         why: "SWEET32 attacks 64-bit block ciphers such as 3DES, so removing those suites (and the obsolete TLS 1.0 that carries them) removes the weakness. A larger RSA key strengthens the key exchange, not the bulk cipher that is the problem."
       - id: cy-2y-q05
         type: mcq
         q: "Last week an administrator upgraded a web server from Apache 2.4.49 to 2.4.50, as the first advisory for a path traversal flaw instructed. Today's credentialed scan still reports: 'Installed version: 2.4.50; Fixed version: 2.4.51; path traversal and remote code execution'. How should the analyst read this?"
-        choices: ["True positive: the 2.4.50 fix was incomplete, so the server must go to 2.4.51", "False positive: the plugin feed predates the upgrade to 2.4.50", "False positive: the distribution kept an old banner after patching", "True positive that clears once the web service is restarted"]
+        choices: ["True positive: 2.4.50's fix was incomplete; upgrade to 2.4.51", "False positive: the plugin feed predates the upgrade to 2.4.50", "False positive: the distribution kept an old banner after patching", "True positive that clears once the web service is restarted"]
         answer: 0
         why: "The 2.4.50 fix for the path traversal flaw was incomplete, and the follow-up flaw was fixed in 2.4.51, so the report is accurate. A stale banner is unlikely: the scan is credentialed and the version it reports is the one that was installed."
       - id: cy-2y-q06
         type: mcq
         q: "A Nuclei run against the shop's website prints: [tech-detect:nginx] [http] [info] https://shop.example.com; [http-missing-security-headers:content-security-policy] [http] [info] https://shop.example.com; [git-config] [http] [medium] https://shop.example.com/.git/config. What does the git-config match MOST likely let an attacker do?"
-        choices: ["Push malicious commits to the shop's source repository", "Download the site's source and history, with any secrets ever committed", "Inject script into pages because no content security policy is set", "Read the nginx configuration file of the web server"]
+        choices: ["Push malicious commits to the shop's source repository", "Download the source and history, including committed secrets", "Inject script into pages because no content security policy is set", "Read the nginx configuration file of the web server"]
         answer: 1
         why: "A web-readable .git directory lets tools rebuild the repository from its objects, exposing the source code and anything ever committed to it, such as keys. It is read access to a copy; it does not give the right to push to the real repository."
       - id: cy-2y-q07
         type: mcq
         q: "A report header reads: 'Scanner: vendor-hosted cloud scanner; Scan type: external; Targets: 10.10.0.0/16; Hosts alive: 0'. The 10.10 network holds 900 running servers. What is the MOST likely cause?"
-        choices: ["The servers drop ICMP, so the host discovery phase failed", "The scan was run without credentials", "Private addresses cannot be routed to from an internet-based scanner", "The scanner's plugin feed is out of date"]
+        choices: ["The servers drop ICMP echo requests, so the host discovery phase found nothing", "The scan was run without credentials", "The targets are private addresses an internet scanner cannot reach", "The scanner's plugin feed is out of date"]
         answer: 2
         why: "10.10.0.0/16 is RFC 1918 private space, which is not routed across the internet, so an external scanner never reaches it; internal ranges need an internal scanner or agents. Dropped ICMP can hide hosts, but it would not explain zero results for a whole private range scanned from outside."
       - id: cy-2y-q08
@@ -315,26 +315,26 @@ units:
       - id: cy-2y-q09
         type: mcq
         q: "During an authorised test of a finding the server owner disputes, the analyst's console shows: [*] Started reverse TCP handler on 10.0.5.20:4444; [*] Sending stage (201798 bytes) to 10.0.8.31; [*] Meterpreter session 1 opened (10.0.5.20:4444 -> 10.0.8.31:49711). What does this establish?"
-        choices: ["The finding was a false positive, because the exploit used a different port", "The server was already compromised by an outside attacker using port 4444", "The host firewall on 10.0.8.31 blocks every inbound connection", "The finding is a true positive, exploitable from the analyst's network position"]
+        choices: ["The finding was a false positive, because the exploit used a different port", "The server was already compromised by an outside attacker using port 4444", "The host firewall on 10.0.8.31 blocks every inbound connection", "The finding is a true positive, exploitable from where the analyst sits"]
         answer: 3
         why: "A session opening on the target proves the flaw is real and reachable from where the analyst sits, which settles the dispute and raises its priority. 10.0.5.20:4444 is the analyst's own listener, so this is not evidence of an outside attacker."
       # ── CVSS, EPSS and prioritisation ──
       - id: cy-2y-q10
         type: mcq
         q: "A finding on a building-management controller carries CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H (8.8). The controller sits alone on a VLAN that only the facilities workstation can reach. What does the vector say an attacker needs?"
-        choices: ["Physical access to the controller's console port", "A low-privileged account on the controller", "A foothold on the same network segment, with no account and no victim action", "Only an internet connection, since no privileges are needed"]
+        choices: ["Physical access to the controller's console port", "A low-privileged account on the controller", "A foothold on the same segment; no account or victim action needed", "Only an internet connection, since the vector says no privileges are needed"]
         answer: 2
         why: "AV:A limits the attack to the same local segment or logically adjacent network, and PR:N and UI:N mean no account and no victim action. So reaching this controller first means compromising the facilities workstation or plugging into its VLAN; an internet connection alone is not enough."
       - id: cy-2y-q11
         type: mcq
         q: "A browser flaw is scored CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:N/A:N (5.3). Which description fits every metric in the vector?"
-        choices: ["A logged-in user reads other users' data with a crafted request that works every time", "Visiting a malicious page crashes the browser, but only with an unusual setting", "Opening a crafted local file discloses memory, with no further conditions", "Visiting a malicious page can leak other sites' data if the attacker wins a timing race"]
+        choices: ["A logged-in user reads other users' data with a crafted request that works every time", "Visiting a malicious page crashes the browser, but only with an unusual setting", "Opening a crafted local file discloses memory, with no further conditions", "Visiting a malicious page may leak other sites' data if a timing race is won"]
         answer: 3
         why: "UI:R is the victim visiting the page, AC:H is the race the attacker must win, and confidentiality is the only impact. The crash description has the right interaction and complexity but the wrong impact: availability, not confidentiality."
       - id: cy-2y-q12
         type: mcq
         q: "A ZAP alert reads: 'Cross Site Scripting (Reflected); URL: https://intranet.example.com/search?q=; Attack: </p><script>alert(1);</script><p>; Evidence: the same string in the response'. The team scores it CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N (6.1). Why is scope Changed?"
-        choices: ["The flaw is in the web application but the script runs in the victim's browser", "The victim has to click a crafted link before anything happens", "The script can steal session cookies and so reach every user of the site", "The payload crosses the firewall from the internet into the intranet"]
+        choices: ["The flaw is in the web app, but the script runs in the victim's browser", "The victim has to click a crafted link before anything happens", "The script can steal session cookies and so reach every user of the site", "The payload crosses the firewall from the internet into the intranet"]
         answer: 0
         why: "Scope asks whether the impact lands outside the vulnerable component's security authority: the flaw is in the web application, but the injected script runs in the browser, which is governed separately. The victim clicking the link is recorded by UI:R, not by scope."
       - id: cy-2y-q13
@@ -352,7 +352,7 @@ units:
       - id: cy-2y-q15
         type: mcq
         q: "A finding's threat context shows: CVSS 6.5; EPSS 0.71 (percentile 0.99). Which reading of the EPSS figures is correct?"
-        choices: ["71% of the organization's hosts are exposed, more than for 99% of other findings", "The flaw featured in 71% of the incidents reported to FIRST in the last year", "Its severity is in the top 1%, so the CVSS score understates it by 71%", "A 71% estimated chance of exploitation activity in the next 30 days, above about 99% of scored flaws"]
+        choices: ["71% of the organization's hosts are exposed to it, more than for 99% of other findings", "The flaw featured in 71% of the incidents reported to FIRST in the last year", "Its severity is in the top 1%, so the CVSS score understates it by 71%", "An estimated 71% chance of exploitation within 30 days; higher than 99% of CVEs"]
         answer: 3
         why: "EPSS estimates the probability that exploitation activity will be observed in the next 30 days, and the percentile ranks that probability against all scored CVEs. It says nothing about severity or about how many of your hosts are affected, which is why it is used beside CVSS rather than instead of it."
       - id: cy-2y-q16
@@ -360,7 +360,7 @@ units:
         q: "A flaw on a database server is scored CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H (9.8). In this company a firewall lets the server accept connections only from hosts on its own subnet. Which metric lets the organization record that fact in its score?"
         choices: ["Exploit Code Maturity: Unproven", "Confidentiality Requirement: Low", "Modified Attack Vector: Adjacent", "Remediation Level: Workaround"]
         answer: 2
-        why: "Environmental modified base metrics rescore the flaw for one deployment, and MAV:A records that the attacker must be on the same subnet. Exploit code maturity and remediation level are temporal metrics: they describe the flaw everywhere, not this deployment."
+        why: "Environmental modified base metrics rescore the flaw for one deployment, and MAV:A records that the attacker must be on the same subnet. Exploit code maturity and remediation level are temporal metrics that describe the flaw everywhere, and Confidentiality Requirement weights the asset's importance, not how reachable it is."
       - id: cy-2y-q17
         type: mcq
         best: true
@@ -379,7 +379,7 @@ units:
       - id: cy-2y-q19
         type: mcq
         q: "A code review finds: query = 'SELECT * FROM invoices WHERE id = ' + escape_quotes(request.id). A DAST scan confirms that id=7 OR 1=1 returns every invoice. Why did escaping fail, and what is the fix?"
-        choices: ["The escaping routine is outdated; upgrade the database driver", "The payload used encoded quotes; decode input before escaping it", "The WAF missed the request; add a SQL injection signature", "The value sits outside quotes, so none are needed; bind it as a parameter"]
+        choices: ["The escaping routine is outdated; upgrade the database driver", "The payload used URL-encoded quotes; decode all input before escaping it", "The WAF missed the request; add a SQL injection signature", "Numeric values need no quotes to inject; bind it as a parameter"]
         answer: 3
         why: "In a numeric context the attacker never needs a quotation mark, so escaping quotes does nothing; a parameterized query keeps the value as data whatever it contains. A WAF signature might block this payload but leaves the flaw in the code."
       - id: cy-2y-q20
@@ -391,13 +391,13 @@ units:
       - id: cy-2y-q21
         type: mcq
         q: "A tester posts this body to an order-import endpoint: <?xml version='1.0'?><!DOCTYPE o [<!ENTITY x SYSTEM 'file:///etc/hostname'>]><order><note>&x;</note></order>. The response reads 'Order saved. Note: web-prod-03'. What is the flaw, and the fix?"
-        choices: ["Local file inclusion; map the file parameter to an allowlist", "XML external entity injection; disable DTDs and external entities in the parser", "Server-side request forgery; block all outbound requests from the server", "Stored cross-site scripting; encode the note field when it is displayed"]
+        choices: ["Local file inclusion; map the file parameter to an allowlist", "XML external entity injection; turn off DTDs and external entities", "Server-side request forgery; block all outbound requests from the server", "Stored cross-site scripting; encode the note field when it is displayed"]
         answer: 1
         why: "The parser resolved an external entity and put the file's contents into the note, which is XXE; disabling DTDs or external entity resolution in the XML parser closes it. It reads a local file as LFI does, but through the XML parser, not through an include parameter."
       - id: cy-2y-q22
         type: mcq
         q: "A web server log shows: GET /index.php?page=php://filter/convert.base64-encode/resource=config 200, and the response body is a long base64 string. Decoded, it begins '<?php $db_user ='. What happened?"
-        choices: ["Remote file inclusion: the server fetched and ran the attacker's code", "Directory traversal: the request climbed out of the web root", "Local file inclusion: the config file's source was returned instead of run", "Server-side request forgery: the server called an internal service"]
+        choices: ["Remote file inclusion: the server fetched and ran the attacker's code", "Directory traversal: the request climbed out of the web root", "Local file inclusion: the config file's source was returned", "Server-side request forgery: the server called an internal service"]
         answer: 2
         why: "The page parameter includes a local file, and the php://filter wrapper base64-encodes it so its source is returned instead of executed, exposing the database credentials. Nothing was fetched from an outside server, so this is not RFI, and no ../ sequence left the web root."
       - id: cy-2y-q23
@@ -417,32 +417,32 @@ units:
         type: mcq
         best: true
         q: "Prowler reports: 'FAIL: security group sg-0a1b allows 0.0.0.0/0 to TCP port 22'. The group is attached to six Linux build servers that already run the cloud provider's session manager agent, and admins connect only from 203.0.113.0/28. Policy says no inbound administrative port may stay open where an alternative exists. Which change is BEST?"
-        choices: ["Move SSH to a high port such as 2222", "Remove the port 22 rule and administer through the session manager", "Restrict the port 22 rule to 203.0.113.0/28", "Keep the rule and allow only key-based SSH logins"]
+        choices: ["Move SSH to a high port such as 2222", "Remove the rule; administer through the session manager", "Restrict the port 22 rule to 203.0.113.0/28", "Keep the rule open but allow only key-based SSH logins to the servers"]
         answer: 1
         why: "The agent is already in place, so administration needs no inbound port at all, which is what the policy asks for. Restricting the rule to the corporate range is a large improvement but still leaves an inbound port open."
         whys: ["Obscurity only: scanners find a moved port within minutes and the exposure is unchanged.", "Meets the policy: with the agent installed, no inbound administrative port is needed.", "A large improvement, but it keeps an inbound port open when the policy says an alternative must be used.", "Stops password guessing, but the service stays exposed to the whole internet."]
       - id: cy-2y-q26
         type: mcq
         q: "Trivy scans the image billing-api:4.2 (debian 12) and reports two rows: libexpat1, CRITICAL, status fixed, installed 2.5.0-1, fixed in 2.5.0-1+deb12u1; perl-base, HIGH, status will_not_fix, installed 5.36.0-7+deb12u1, no fixed version. Forty containers run from the image. Which plan is correct?"
-        choices: ["Wait for the next Trivy database update, which will clear both rows", "Patch libexpat1 inside each running container and ignore the perl row", "Rebuild the image for libexpat1; assess the perl row or formally except it", "Mark both rows as false positives, since Debian has reviewed them"]
+        choices: ["Wait for the next Trivy database update, which will clear both rows", "Patch libexpat1 inside each running container and ignore the perl row", "Rebuild the image for libexpat1; assess or except the perl row", "Mark both rows as false positives, since Debian has reviewed them"]
         answer: 2
         why: "'fixed' means a patched package exists, so rebuilding and redeploying the image clears that row; 'will_not_fix' means the distribution will ship no fix, so the team must judge reachability and record an exception or remove the package. Patching inside running containers is lost when they are recreated from the image."
       - id: cy-2y-q27
         type: mcq
         q: "A pipeline log shows Checkov output: 'Check: Ensure S3 bucket has server-side encryption enabled. SKIPPED for resource: aws_s3_bucket.audit_logs. Suppress comment: temp, fix later'. A developer added the skip to the Terraform file and nobody reviewed it. How should the vulnerability team treat this?"
-        choices: ["As a passed check, because the pipeline completed without failing", "As a false positive, because the developer has assessed the resource", "As accepted risk, because the developer owns the module", "As an unapproved exception: route it through the exception process or fix it"]
+        choices: ["As a passed check, because the pipeline completed without failing", "As a false positive, because the developer has assessed the resource", "As accepted risk, because the developer owns the module", "As an unapproved exception that needs the exception process"]
         answer: 3
         why: "An inline suppression is a risk exception granted by the person who would otherwise have to fix the finding; it needs an owner's approval, a reason and an expiry like any other exception. Calling it accepted risk is the trap: the developer is not the risk owner the policy names."
       - id: cy-2y-q28
         type: mcq
         q: "A cloud assessment reports for a storage account holding signed contract PDFs: allowBlobPublicAccess: true; container 'contracts' access level: Blob (anonymous read access for blobs only); minimumTlsVersion: TLS1_0; supportsHttpsTrafficOnly: true. Which setting exposes the contracts MOST directly?"
-        choices: ["The minimum TLS version of 1.0", "HTTPS-only traffic being enforced", "No customer-managed encryption key", "Anonymous read access on the contracts container"]
+        choices: ["The minimum TLS version of 1.0", "HTTPS-only traffic being enforced", "No customer-managed key for encrypting the account", "Anonymous read on the contracts container"]
         answer: 3
         why: "Anonymous blob access lets anyone who knows or guesses a blob's URL download a contract with no credentials. TLS 1.0 weakens the transport for legitimate users, but it is not an open door to the files."
       - id: cy-2y-q29
         type: mcq
         q: "A Caldera operation against a test workstation returns: T1003.001 LSASS Memory: ran, blocked by EDR, no SIEM alert; T1059.001 PowerShell: ran, not blocked, SIEM alert raised; T1053.005 Scheduled Task: ran, not blocked, SIEM alert raised. What gap does this show?"
-        choices: ["The EDR stops credential dumping, but its block events never reach the SIEM", "The EDR fails to prevent credential dumping on this workstation", "PowerShell is unrestricted, so constrained language mode must be enforced", "The SIEM rules for scheduled tasks are producing false positives"]
+        choices: ["Credential dumping is blocked, but those blocks never reach the SIEM", "The EDR fails to prevent credential dumping on this workstation", "PowerShell is unrestricted, so constrained language mode must be enforced", "The SIEM rules for scheduled tasks are producing false positives"]
         answer: 0
         why: "The LSASS technique was blocked, so prevention works, but the SOC never learned of the attempt, and a failed credential dump by a real intruder is an important lead. Saying the EDR failed misreads the 'blocked' result; the fix is to forward or alert on EDR prevention events."
       # ── mitigation and validation ──
@@ -450,7 +450,7 @@ units:
         type: mcq
         best: true
         q: "A ticket for 'SMB signing not required' on 80 file servers is closed with the note 'GPO updated'. Which validation is BEST before the finding is closed in the vulnerability system?"
-        choices: ["Confirm the GPO is linked to the file servers' OU", "Rerun the same scan check against all 80 servers and confirm it no longer fires", "Ask the administrator for a screenshot of the GPO setting", "Check one file server's registry for the signing value"]
+        choices: ["Confirm the GPO is linked to the file servers' OU", "Rescan all 80 servers with the check that raised it", "Ask the administrator for a screenshot of the GPO setting", "Check one file server's registry for the signing value"]
         answer: 1
         why: "Rescanning with the check that raised the finding tests the real state of every affected host. A linked GPO only shows the setting could apply, not that all 80 servers have applied it."
         whys: ["Shows the policy could apply, not that every server has applied it.", "Tests the actual state of every affected host with the check that raised the finding.", "Evidence of intent, not of the servers' state.", "Proves the change on one server out of 80."]

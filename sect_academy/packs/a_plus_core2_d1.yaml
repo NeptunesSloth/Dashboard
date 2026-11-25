@@ -109,16 +109,6 @@ units:
         choices: ["Image deployment", "Remote network installation", "Zero-touch deployment", "Repair installation"]
         answer: 2
         why: "Zero-touch deployment configures a device from the cloud the first time the user signs in, with no technician. Image deployment copies a prepared image onto the disk, which needs someone to start it."
-      - id: ap2-1x-q06
-        type: mcq
-        q: "A user's Windows 10 PC has damaged system files that sfc cannot fix, but she wants to keep her installed applications and files. Which installation type BEST fits?"
-        choices:
-          - "A clean install from USB"
-          - "A repair installation using the in-place 'keep everything' option"
-          - "Restoring the recovery partition's factory image"
-          - "A multiboot setup with a second copy of Windows"
-        answer: 1
-        why: "A repair installation rewrites the operating system files while keeping applications, settings and data. Both a clean install and a factory restore remove the user's applications."
       - id: ap2-1x-q07
         type: mcq
         q: "A technician compares a full format with a quick format of a hard disk in Windows. What does the full format do that the quick format does not?"
@@ -147,16 +137,6 @@ units:
         type: concept
         term: "Trusted Platform Module (TPM)"
         def: "A secure cryptographic chip, or firmware equivalent in the CPU, that stores keys and records measurements of the boot process; version 2.0 is required by Windows 11."
-      - id: ap2-1x-q08
-        type: mcq
-        q: "A Windows 10 Home PC runs the 32-bit version on a 64-bit capable CPU with TPM 2.0 and UEFI. The owner wants Windows 11 and to keep her files. What is the correct approach?"
-        choices:
-          - "Run the Windows 11 in-place upgrade directly"
-          - "Upgrade to Windows 10 Pro first, then run the in-place upgrade"
-          - "Install the N edition of Windows 11"
-          - "Back up her files, then clean install 64-bit Windows 11"
-        answer: 3
-        why: "Windows 11 exists only in 64-bit, and Windows cannot be upgraded in place from 32-bit to 64-bit, so a clean install with a backup is required. Changing edition does not change the architecture."
       - id: ap2-1x-q09
         type: mcq
         q: "A freelancer on Windows 11 Home now needs BitLocker. She does not want to reinstall anything. What should she do?"
@@ -177,22 +157,6 @@ units:
           - "The PC is joined to a workgroup"
         answer: 1
         why: "N editions omit Windows Media Player and media components; installing the free Media Feature Pack restores them. A rolled-back graphics driver would affect the display generally, not only media playback."
-      - id: ap2-1x-q11
-        type: mcq
-        q: "An engineer orders a workstation with 256 GB of RAM. Which is the LOWEST Windows 11 edition that can use all of it?"
-        choices: ["Home", "Home N", "Pro", "Enterprise"]
-        answer: 2
-        why: "Windows 11 Home is limited to 128 GB of RAM; Pro supports up to 2 TB. Enterprise also supports it, but it is not the lowest edition that does."
-      - id: ap2-1x-q12
-        type: mcq
-        q: "A manager wants to connect from home with Remote Desktop to his office PC, which runs Windows 11 Home. His home laptop runs Windows 11 Pro. What must change?"
-        choices:
-          - "His home laptop must be upgraded to Enterprise"
-          - "Both PCs must join the same workgroup"
-          - "The office PC must be given an N edition"
-          - "The office PC must be upgraded to Pro so it can accept connections"
-        answer: 3
-        why: "Every edition includes the Remote Desktop client, but only Pro and above can host incoming RDP sessions, so the office PC is the one to upgrade. The laptop already has the client it needs."
 
       # ── Task Manager, MMC snap-ins and other tools ──
       - id: ap2-1x-mmc
@@ -223,22 +187,6 @@ units:
         type: concept
         term: "Optimize Drives"
         def: "The tool (dfrgui.exe) that defragments hard disks and sends TRIM to solid-state drives, on demand or on a weekly schedule."
-      - id: ap2-1x-q13
-        type: mcq
-        q: "A user wants to add RAM to a desktop and asks how many memory slots are free. The technician cannot open the case today. Where can this be read?"
-        choices:
-          - "Device Manager, Memory devices"
-          - "Task Manager, Performance tab, Memory"
-          - "Disk Management"
-          - "Resource Monitor, Disk tab"
-        answer: 1
-        why: "Task Manager's Performance > Memory page shows 'Slots used', speed and form factor. Device Manager lists devices and drivers; it does not report memory slots."
-      - id: ap2-1x-q14
-        type: mcq
-        q: "On a shared Windows PC, a user who switched away without signing out is still running a large program that slows the machine. Which Task Manager tab lets an administrator sign that user out?"
-        choices: ["Processes", "Startup apps", "Users", "Services"]
-        answer: 2
-        why: "The Users tab lists every signed-in session with its resource use and offers Sign out and Disconnect. The Processes tab can end individual programs but does not end another user's session."
       - id: ap2-1x-q15
         type: mcq
         q: "A user's browser warns that an internal web site's certificate is untrusted. IT supplies the company's root CA certificate file for just this user to install. Which snap-in is used?"
@@ -251,16 +199,6 @@ units:
         choices: ["lusrmgr.msc", "gpedit.msc", "certmgr.msc", "eventvwr.msc"]
         answer: 0
         why: "Local Users and Groups creates local accounts and manages group membership. gpedit.msc sets policies; it does not create user accounts."
-      - id: ap2-1x-q17
-        type: mcq
-        q: "After a Windows 11 feature update, a PC's C: drive is nearly full. The update has been stable for weeks. Which tool safely removes the previous Windows installation files?"
-        choices:
-          - "Optimize Drives"
-          - "chkdsk /r"
-          - "Disk Cleanup, using 'Clean up system files'"
-          - "Resource Monitor"
-        answer: 2
-        why: "Disk Cleanup's system-file option can delete the previous Windows installation, often many gigabytes. Optimize Drives rearranges or trims data; it does not free space."
       - id: ap2-1x-q18
         type: mcq
         q: "A user asks for a weekly 'defrag' of the SSD in his laptop. What does Windows Optimize Drives do to an SSD on its schedule?"
@@ -343,12 +281,6 @@ units:
         choices: ["hostname", "whoami", "winver", "gpresult /r"]
         answer: 2
         why: "winver opens the About Windows dialog with the version (such as 24H2) and the OS build. hostname prints only the computer name."
-      - id: ap2-1x-q26
-        type: mcq
-        q: "A user cannot open a share that requires membership of the group 'Finance-RW'. Without opening any GUI, how can the user confirm whether the current sign-in token contains that group?"
-        choices: ["net use", "hostname", "gpupdate /force", "whoami /groups"]
-        answer: 3
-        why: "whoami /groups lists every group in the current access token. If the user was added recently, the group appears only after signing out and in again; gpupdate refreshes policy but not group membership in the token."
       - id: ap2-1x-q27
         type: mcq
         q: "A technician needs to watch a server's reachability during a reboot, sending echo requests until stopping with Ctrl+C. Which command does this on Windows?"
@@ -405,39 +337,21 @@ units:
         type: concept
         term: "Ease of Access"
         def: "The group of Windows settings, called Accessibility in Windows 11, that provides Narrator, Magnifier, high-contrast themes, Sticky Keys and other aids for users with impairments."
-      - id: ap2-1x-q29
-        type: mcq
-        q: "A driver update says 'restart required'. The user instead chose Shut down and powered on the next morning, but the change still has not applied. Which setting explains this?"
-        choices: ["USB selective suspend", "Hibernate after 3 hours", "Fast startup", "Indexing Options"]
-        answer: 2
-        why: "With fast startup on, Shut down saves the kernel session rather than ending it, so only Restart fully reloads the system. Hibernate on a timer applies to idle machines, not to a chosen shutdown."
-      - id: ap2-1x-q30
-        type: mcq
-        q: "A USB barcode scanner stops responding after the laptop has been idle on battery for a while, and works again when replugged. Which power setting should be changed?"
-        choices:
-          - "Turn off USB selective suspend in the power plan"
-          - "Turn off fast startup"
-          - "Set closing the lid to 'Do nothing'"
-          - "Switch the network profile to Private"
-        answer: 0
-        why: "USB selective suspend powers down idle USB ports, which some devices do not recover from. Fast startup only changes how the PC shuts down and starts."
       - id: ap2-1x-q31
         type: mcq
         q: "A partially sighted user needs on-screen text enlarged around the mouse pointer and spoken aloud. Where in Windows 10 are these settings found?"
         choices: ["Personalization", "Ease of Access", "Devices", "Time and Language"]
         answer: 1
         why: "Magnifier and Narrator live under Ease of Access (Accessibility in Windows 11). Personalization changes backgrounds, colours and themes, not assistive tools."
-      - id: ap2-1x-m02
-        type: multi
-        q: "A user's Windows 11 laptop must stay usable after a flight with no charger, picking up exactly where she left off with zero battery drain in her bag. Which TWO statements are correct?"
-        choices:
-          - "Hibernate saves the session to disk and powers off"
-          - "Sleep keeps the session in RAM and still draws a little power"
-          - "Sleep writes the session to disk and powers off"
-          - "Hibernate keeps the session in RAM on low power"
-          - "Fast startup restores open applications after a shutdown"
-        answers: [0, 1]
-        why: "Hibernate writes memory to disk and turns the power off, so it is the right choice for her; sleep keeps RAM powered and slowly drains the battery. Fast startup saves only the kernel session, not the user's open applications."
+
+      - id: ap2-1x-indexing
+        type: concept
+        term: "Indexing Options"
+        def: "The Control Panel item that chooses which locations Windows Search catalogues and can rebuild that catalogue when search results go missing."
+      - id: ap2-1x-mail
+        type: concept
+        term: "Mail (Control Panel item)"
+        def: "The Control Panel item, present when the desktop Outlook client is installed, that creates and manages Outlook profiles and the email accounts in them."
 
       # ── Client networking ──
       - id: ap2-1x-wwan
@@ -448,36 +362,6 @@ units:
         type: concept
         term: "UNC path"
         def: "The \\\\server\\share\\folder form used in File Explorer or commands to reach a shared folder on another computer by name, without mapping a drive letter."
-      - id: ap2-1x-q32
-        type: mcq
-        q: "A laptop is tethered to a phone hotspot with a small data allowance. Large Windows updates keep downloading over it. Which setting BEST limits this while still allowing normal use?"
-        choices:
-          - "Change the network profile to Public"
-          - "Disable the Wi-Fi adapter"
-          - "Set a proxy server for the connection"
-          - "Mark the connection as metered"
-        answer: 3
-        why: "A metered connection tells Windows and many apps to defer large downloads such as updates. The Public profile changes discovery and firewall rules, not download behaviour."
-      - id: ap2-1x-q33
-        type: mcq
-        q: "An administrator created a share named 'Payroll$' on server HR01. Users report they cannot see it when browsing \\\\HR01 in File Explorer. What should they do to open it?"
-        choices:
-          - "Type \\\\HR01\\Payroll$ in the File Explorer address bar"
-          - "Change their network profile to Private"
-          - "Map it with 'net user Payroll$'"
-          - "Ask for the share to be moved to an OU"
-        answer: 0
-        why: "A share name ending in $ is hidden from browsing but opens normally when its full UNC path is typed (permissions still apply). net user manages accounts, not shares."
-      - id: ap2-1x-q34
-        type: mcq
-        q: "Staff must browse the web through the corporate proxy at 10.0.0.8 port 3128, but internal sites must be reached directly. Where is this set for the whole Windows 11 session?"
-        choices:
-          - "Network and Sharing Center, adapter properties, DNS tab"
-          - "Windows Defender Firewall, outbound rules"
-          - "Settings, Network and internet, Proxy, with the option to bypass the proxy for local addresses"
-          - "Device Manager, network adapter, Advanced tab"
-        answer: 2
-        why: "The Proxy page in Settings takes the proxy address and port and can skip the proxy for local (intranet) addresses. Firewall rules allow or block traffic but cannot forward it to a proxy."
 
   # ───────── 1y · macOS, Linux, application installs, cloud productivity ─────────
   - id: ap2-1y
@@ -772,3 +656,360 @@ units:
           - "Pause syncing permanently"
         answer: 1
         why: "Files On-Demand lists all files but downloads each only when it is opened. 'Always keep on this device' forces full local copies, which cannot fit on the drive."
+
+  # ───────────────── 1z2 · Exam-hard practice: operating systems ─────────────────
+  - id: ap2-1z2
+    title: "Exam-hard practice: operating systems"
+    domain: "1"
+    goal: "I can read a short support ticket, work out what is really wrong, and pick the exact tool, command, edition or setting that fixes it within the stated constraint."
+    notes: |
+      These questions are written to be harder than the exam. Each one is a support ticket: a symptom, a constraint and a request. Work in two steps.
+
+      1. **Name the problem.** Is it an edition limit, a power setting, a network setting, a permission, a missing driver, an architecture mismatch?
+      2. **Apply the constraint.** "Without reinstalling", "for this user only", "until it is stopped", "on every sign-in" usually decides between two near-neighbours.
+
+      ## Near-neighbours to keep apart
+
+      | These | Differ in |
+      | Shut down and Restart | Fast startup only fully reloads Windows on Restart |
+      | Sleep and Hibernate | RAM kept powered, or written to disk |
+      | Public and metered | Firewall and discovery, or download behaviour |
+      | gpupdate and gpresult | Apply policy, or report it |
+      | tracert and pathping | Path only, or loss per hop |
+      | /etc/hosts and /etc/resolv.conf | A name entry, or which DNS server |
+      | systemctl start and enable | Now, or at every boot |
+      | Edition upgrade and clean install | Keeps everything, or wipes |
+
+      Choose TWO and Choose THREE items are marked all-or-nothing, as on the exam. Order items stand in for the performance-based questions: think about what each step needs to have happened first.
+    items:
+      - id: ap2-1z2-q01
+        type: mcq
+        q: "Since an unexpected shutdown, classic Outlook on a Windows 11 PC closes as soon as it opens, even in safe mode. Webmail works. Which Control Panel item lets the technician create a fresh profile for the account?"
+        choices: ["Internet Options", "Credential Manager", "Mail", "Programs and Features"]
+        answer: 2
+        why: "The Mail item manages Outlook profiles, so a new profile can be created and set as the default. Repairing Office from Programs and Features fixes program files, not a damaged profile."
+      - id: ap2-1z2-q02
+        type: mcq
+        q: "A user's Start menu search no longer finds documents she saved this week, although older files still appear. The files are in her Documents folder. What should the technician do?"
+        choices:
+          - "Run chkdsk /f on the C: drive"
+          - "Rebuild the index from Indexing Options"
+          - "Turn on 'Show hidden files' in File Explorer Options"
+          - "Run sfc /scannow"
+        answer: 1
+        why: "Search reads the index, and a stale or damaged index misses new files; rebuilding it from Indexing Options fixes this. The files are not hidden, so changing File Explorer's view would not help."
+      - id: ap2-1z2-q03
+        type: mcq
+        q: "A developer needs the Windows Subsystem for Linux and Hyper-V turned on. Neither is a downloadable app. Where are optional Windows components like these enabled in Control Panel?"
+        choices:
+          - "Devices and Printers"
+          - "System, Advanced system settings"
+          - "Administrative Tools, Services"
+          - "Programs and Features, Turn Windows features on or off"
+        answer: 3
+        why: "'Turn Windows features on or off', reached from Programs and Features, adds built-in optional components such as Hyper-V. The Services console starts and stops services that are already installed."
+      - id: ap2-1z2-q04
+        type: mcq
+        q: "On Windows 11, PDFs keep opening in the browser, but the user wants them in a dedicated PDF reader that is already installed. Which Settings category is used?"
+        choices: ["Apps", "System", "Personalization", "Accounts"]
+        answer: 0
+        why: "Apps > Default apps sets which program opens each file type. Personalization changes the look of the desktop, not file associations."
+      - id: ap2-1z2-q05
+        type: mcq
+        q: "A user's video-call app shows a black image, while the Camera app works. The technician suspects the call app was denied camera access. Which Settings category holds the per-app switch?"
+        choices: ["Bluetooth and devices", "Apps", "Privacy and security", "Gaming"]
+        answer: 2
+        why: "Privacy and security > Camera lists the apps allowed to use the camera. Bluetooth and devices covers the camera hardware and its driver, which already works because the Camera app works."
+      - id: ap2-1z2-q06
+        type: mcq
+        q: "A user who moved from the US to the UK wants dates shown as day/month/year and prices in pounds on Windows. Which Settings category is used?"
+        choices: ["System", "Time and Language", "Personalization", "Accessibility"]
+        answer: 1
+        why: "Time and Language holds the region, regional format and language settings that control date and currency formats. System covers display, sound, notifications and storage, not regional formats."
+      - id: ap2-1z2-q07
+        type: mcq
+        q: "A user wants Windows to prioritise a game while it runs and to record short clips with the built-in Xbox Game Bar. Which Settings category holds both options?"
+        choices: ["Apps", "Ease of Access", "Devices", "Gaming"]
+        answer: 3
+        why: "Gaming contains Game Mode and the Game Bar and capture settings. Apps manages installed programs and defaults, not game performance."
+      - id: ap2-1z2-q08
+        type: mcq
+        q: "A user wants to sign in with a PIN instead of her password and also add her employer's work account to her personal Windows 11 PC. Which Settings category holds both?"
+        choices: ["Accounts", "Privacy and security", "Network and internet", "System"]
+        answer: 0
+        why: "Accounts contains Sign-in options (PIN, Windows Hello) and Access work or school. Privacy and security controls app permissions and Windows Security, not sign-in methods."
+      - id: ap2-1z2-q09
+        type: mcq
+        q: "A Windows PC set to obtain an address automatically shows IPv4 169.254.37.12 and no default gateway. Other PCs on the same switch are fine. What is the MOST likely cause?"
+        choices:
+          - "The DNS server address is wrong"
+          - "The PC could not reach a DHCP server and assigned itself an APIPA address"
+          - "The network profile is set to Public"
+          - "The proxy server is unreachable"
+        answer: 1
+        why: "A 169.254.x.x address is self-assigned when no DHCP reply arrives, so the fault is between this PC and the DHCP server (cable, port, VLAN or adapter). A wrong DNS server would not stop the PC getting a lease."
+      - id: ap2-1z2-b01
+        type: mcq
+        best: true
+        q: "A design tool on one Windows PC must accept connections from colleagues' PCs on the office network. The firewall blocks it. Security policy says to allow as little as possible. Which change is BEST?"
+        choices:
+          - "Turn Windows Defender Firewall off for the Private profile"
+          - "Allow the tool's program through the firewall for the Private profile only"
+          - "Allow the tool's program through the firewall for Private and Public profiles"
+          - "Change the office network to the Public profile"
+        answer: 1
+        why: "An application exception for that one program, on the trusted Private profile only, opens the least while making the tool work."
+        whys:
+          - "Works, but removes protection from every port and program on the network."
+          - "Opens only this program, only on the trusted network: the least access that works."
+          - "Works, but also exposes the tool on untrusted networks such as hotel Wi-Fi."
+          - "Tightens the firewall further, so the tool would still be blocked."
+      - id: ap2-1z2-m01
+        type: multi
+        q: "A technician must connect a Windows laptop by hand to a wireless network whose SSID is not broadcast. Which THREE pieces of information must be entered? Choose THREE."
+        choices:
+          - "The network name (SSID)"
+          - "The security type, such as WPA2-Personal"
+          - "The security key or passphrase"
+          - "The access point's MAC address"
+          - "The radio channel"
+          - "The default gateway address"
+        answers: [0, 1, 2]
+        why: "Windows' manual wireless setup asks for the network name, security type and key. The client scans channels itself, never needs the AP's MAC address, and receives the gateway by DHCP."
+      - id: ap2-1z2-q10
+        type: mcq
+        q: "A Linux file server reports /var at 100 per cent in df -h. The technician must find which folder under /var is using the space. Which command is BEST?"
+        choices: ["df -h /var", "du -sh /var/*", "ls -l /var", "fsck /var"]
+        answer: 1
+        why: "du -sh totals each folder's contents, showing which one is large. df already showed the filesystem is full but cannot break it down by folder, and ls -l shows only a directory entry's own size, not its contents."
+      - id: ap2-1z2-q11
+        type: mcq
+        q: "A web server on Linux works after 'sudo systemctl start nginx', but after every reboot the site is down until someone starts it again. Which command fixes this permanently?"
+        choices:
+          - "sudo systemctl restart nginx"
+          - "sudo systemctl status nginx"
+          - "sudo apt install nginx"
+          - "sudo systemctl enable nginx"
+        answer: 3
+        why: "enable makes systemd start the service at every boot. restart only restarts it now, so the problem would return at the next reboot."
+      - id: ap2-1z2-q12
+        type: mcq
+        q: "A Linux technician wants to check whether an internal web API answers and what HTTP status it returns, without downloading the page body. Which command is BEST?"
+        choices:
+          - "curl -I https://api.intranet.example"
+          - "dig api.intranet.example"
+          - "ping api.intranet.example"
+          - "traceroute api.intranet.example"
+        answer: 0
+        why: "curl -I sends a HEAD request and prints only the status line and headers. ping proves the host answers ICMP, not that the web service works."
+      - id: ap2-1z2-q13
+        type: mcq
+        q: "A second disk, /dev/sdb1, has to appear at /srv/media on a Linux workstation automatically after every restart. What should the technician do?"
+        choices:
+          - "Run 'mount /dev/sdb1 /srv/media' once"
+          - "Add the mount point to /etc/hosts"
+          - "Add a line for it to /etc/fstab"
+          - "Run 'fsck /dev/sdb1' at each boot"
+        answer: 2
+        why: "Entries in /etc/fstab are mounted at every boot. A manual mount works only until the next restart."
+      - id: ap2-1z2-q14
+        type: mcq
+        q: "A CAD program's requirements list a 64-bit CPU, 16 GB RAM and a graphics card with 4 GB of dedicated VRAM. A user's laptop has a 64-bit CPU, 32 GB RAM and integrated graphics only. What will MOST likely stop the program running well?"
+        choices:
+          - "Too little system RAM"
+          - "The 64-bit processor"
+          - "No dedicated graphics memory"
+          - "The amount of storage"
+        answer: 2
+        why: "Integrated graphics share system RAM and have no dedicated VRAM, which the program requires. The laptop's 32 GB of RAM is double the stated minimum."
+      - id: ap2-1z2-q15
+        type: mcq
+        q: "An employee wants her Desktop, Documents and Pictures folders protected automatically, so nothing is lost if her laptop dies. The company already provides cloud storage with a sync client. What should be configured?"
+        choices:
+          - "Files On-Demand for the existing synced library"
+          - "A metered connection"
+          - "A mapped network drive"
+          - "The sync client's folder backup for Desktop, Documents and Pictures"
+        answer: 3
+        why: "Folder backup (Known Folder Move) redirects those folders into the synced cloud folder, so every file in them is kept in the cloud. Files On-Demand only saves local space; it does not decide which folders are protected."
+      - id: ap2-1z2-q16
+        type: mcq
+        q: "A new hire can sign in to the company's cloud portal with her synced directory account but sees 'You don't have a licence' when opening the mail and office apps. What should the administrator do?"
+        choices:
+          - "Assign her a productivity licence in the admin centre"
+          - "Reset her password"
+          - "Run identity synchronisation again"
+          - "Add her PC to the domain"
+        answer: 0
+        why: "She authenticates fine, so identity sync worked; what is missing is a licence, which is what enables the mailbox and apps. Resetting the password fixes sign-in failures, which she does not have."
+      - id: ap2-1z2-q17
+        type: mcq
+        q: "A teacher installs a Windows-only accounting program's .exe on a school Chromebook and it will not run. What is the underlying issue?"
+        choices:
+          - "The Chromebook needs more RAM"
+          - "The Chromebook uses the exFAT filesystem"
+          - "Chrome OS does not run Windows executables natively"
+          - "The program needs a hardware token"
+        answer: 2
+        why: "This is an OS compatibility problem: Chrome OS runs web, Android and Linux apps, not Windows .exe files. A web version or a Windows machine is needed; more RAM would not change that."
+      - id: ap2-1z2-q18
+        type: mcq
+        q: "A company's in-house app is distributed as an .apk file emailed to staff. Which mobile operating system can install it directly once 'install unknown apps' is allowed for the source app?"
+        choices: ["iOS", "Android", "iPadOS", "macOS"]
+        answer: 1
+        why: ".apk is Android's package format, and Android can install one from outside the store when the user allows that source. iOS, iPadOS and macOS cannot install an .apk at all; iOS and iPadOS take apps from the App Store or through managed distribution."
+      - id: ap2-1z2-o01
+        type: order
+        q: "An administrator changes a screen-lock setting in a domain GPO and wants to confirm it on a test PC straight away. Put the steps in order."
+        steps:
+          - "Change the setting in the GPO linked to the test PC's OU"
+          - "Run gpupdate /force on the test PC"
+          - "Run gpresult /r to confirm the GPO is listed as applied"
+        why: "The policy must exist before it can be applied, and gpresult can only report it after gpupdate has pulled it down."
+      - id: ap2-1z2-o02
+        type: order
+        q: "A user's ageing Windows 10 PC is getting a clean install of Windows 11 from USB. Put the steps in order."
+        steps:
+          - "Back up the user's files and settings"
+          - "Boot the PC from the Windows 11 installation USB drive"
+          - "Delete the old partitions and install to the unallocated space"
+          - "Install drivers and Windows updates"
+          - "Restore the user's files and settings"
+        why: "The backup must come before anything is wiped, the old partitions are removed during Setup, and data goes back only once the new system is patched and working."
+      - id: ap2-1z2-m02
+        type: multi
+        q: "A technician checks whether an old PC meets Windows 11's minimum hardware requirements. Which THREE are actual requirements? Choose THREE."
+        choices:
+          - "TPM version 2.0"
+          - "UEFI firmware capable of Secure Boot"
+          - "At least 64 GB of storage"
+          - "A dedicated graphics card"
+          - "At least 16 GB of RAM"
+          - "An NVMe solid-state drive"
+        answers: [0, 1, 2]
+        why: "Windows 11 requires TPM 2.0, Secure Boot-capable UEFI, 64 GB of storage, 4 GB of RAM and a supported 64-bit CPU. It needs no dedicated GPU, no NVMe drive and only 4 GB of RAM."
+      - id: ap2-1z2-q19
+        type: mcq
+        q: "A user's Windows 10 PC has damaged system files that sfc cannot fix, but she wants to keep her installed applications and files. Which installation type BEST fits?"
+        choices:
+          - "A clean install from USB"
+          - "A repair installation using the in-place 'keep everything' option"
+          - "Restoring the recovery partition's factory image"
+          - "A multiboot setup with a second copy of Windows"
+        answer: 1
+        why: "A repair installation rewrites the operating system files while keeping applications, settings and data. Both a clean install and a factory restore remove the user's applications."
+      - id: ap2-1z2-q20
+        type: mcq
+        q: "A Windows 10 Home PC runs the 32-bit version on a 64-bit capable CPU with TPM 2.0 and UEFI. The owner wants Windows 11 and to keep her files. What is the correct approach?"
+        choices:
+          - "Run the Windows 11 in-place upgrade directly"
+          - "Upgrade to Windows 10 Pro first, then run the in-place upgrade"
+          - "Install the N edition of Windows 11"
+          - "Back up her files, then clean install 64-bit Windows 11"
+        answer: 3
+        why: "Windows 11 exists only in 64-bit, and Windows cannot be upgraded in place from 32-bit to 64-bit, so a clean install with a backup is required. Changing edition does not change the architecture."
+      - id: ap2-1z2-q21
+        type: mcq
+        q: "An engineer orders a workstation with 256 GB of RAM. Which is the LOWEST Windows 11 edition that can use all of it?"
+        choices: ["Home", "Home N", "Pro", "Enterprise"]
+        answer: 2
+        why: "Windows 11 Home is limited to 128 GB of RAM; Pro supports up to 2 TB. Enterprise also supports it, but it is not the lowest edition that does."
+      - id: ap2-1z2-q22
+        type: mcq
+        q: "A manager wants to connect from home with Remote Desktop to his office PC, which runs Windows 11 Home. His home laptop runs Windows 11 Pro. What must change?"
+        choices:
+          - "His home laptop must be upgraded to Enterprise"
+          - "Both PCs must join the same workgroup"
+          - "The office PC must be given an N edition"
+          - "The office PC must be upgraded to Pro so it can accept connections"
+        answer: 3
+        why: "Every edition includes the Remote Desktop client, but only Pro and above can host incoming RDP sessions, so the office PC is the one to upgrade. The laptop already has the client it needs."
+      - id: ap2-1z2-q23
+        type: mcq
+        q: "A user wants to add RAM to a desktop and asks how many memory slots are free. The technician cannot open the case today. Where can this be read?"
+        choices:
+          - "Device Manager, Memory devices"
+          - "Task Manager, Performance tab, Memory"
+          - "Disk Management"
+          - "Resource Monitor, Disk tab"
+        answer: 1
+        why: "Task Manager's Performance > Memory page shows 'Slots used', speed and form factor. Device Manager lists devices and drivers; it does not report memory slots."
+      - id: ap2-1z2-q24
+        type: mcq
+        q: "On a shared Windows PC, a user who switched away without signing out is still running a large program that slows the machine. Which Task Manager tab lets an administrator sign that user out?"
+        choices: ["Processes", "Startup apps", "Users", "Services"]
+        answer: 2
+        why: "The Users tab lists every signed-in session with its resource use and offers Sign out and Disconnect. The Processes tab can end individual programs but does not end another user's session."
+      - id: ap2-1z2-q25
+        type: mcq
+        q: "After a Windows 11 feature update, a PC's C: drive is nearly full. The update has been stable for weeks. Which tool safely removes the previous Windows installation files?"
+        choices:
+          - "Optimize Drives"
+          - "chkdsk /r"
+          - "Disk Cleanup, using 'Clean up system files'"
+          - "Resource Monitor"
+        answer: 2
+        why: "Disk Cleanup's system-file option can delete the previous Windows installation, often many gigabytes. Optimize Drives rearranges or trims data; it does not free space."
+      - id: ap2-1z2-q26
+        type: mcq
+        q: "A user cannot open a share that requires membership of the group 'Finance-RW'. Without opening any GUI, how can the user confirm whether the current sign-in token contains that group?"
+        choices: ["net use", "hostname", "gpupdate /force", "whoami /groups"]
+        answer: 3
+        why: "whoami /groups lists every group in the current access token. If the user was added recently, the group appears only after signing out and in again; gpupdate refreshes policy but not group membership in the token."
+      - id: ap2-1z2-q27
+        type: mcq
+        q: "A driver update says 'restart required'. The user instead chose Shut down and powered on the next morning, but the change still has not applied. Which setting explains this?"
+        choices: ["USB selective suspend", "Hibernate after 3 hours", "Fast startup", "Indexing Options"]
+        answer: 2
+        why: "With fast startup on, Shut down saves the kernel session rather than ending it, so only Restart fully reloads the system. Hibernate on a timer applies to idle machines, not to a chosen shutdown."
+      - id: ap2-1z2-q28
+        type: mcq
+        q: "A USB barcode scanner stops responding after the laptop has been idle on battery for a while, and works again when replugged. Which power setting should be changed?"
+        choices:
+          - "Turn off USB selective suspend in the power plan"
+          - "Turn off fast startup"
+          - "Set closing the lid to 'Do nothing'"
+          - "Switch the network profile to Private"
+        answer: 0
+        why: "USB selective suspend powers down idle USB ports, which some devices do not recover from. Fast startup only changes how the PC shuts down and starts."
+      - id: ap2-1z2-q29
+        type: mcq
+        q: "A laptop is tethered to a phone hotspot with a small data allowance. Large Windows updates keep downloading over it. Which setting BEST limits this while still allowing normal use?"
+        choices:
+          - "Change the network profile to Public"
+          - "Disable the Wi-Fi adapter"
+          - "Set a proxy server for the connection"
+          - "Mark the connection as metered"
+        answer: 3
+        why: "A metered connection tells Windows and many apps to defer large downloads such as updates. The Public profile changes discovery and firewall rules, not download behaviour."
+      - id: ap2-1z2-q30
+        type: mcq
+        q: "An administrator created a share named 'Payroll$' on server HR01. Users report they cannot see it when browsing \\\\HR01 in File Explorer. What should they do to open it?"
+        choices:
+          - "Type \\\\HR01\\Payroll$ in the File Explorer address bar"
+          - "Change their network profile to Private"
+          - "Map it with 'net user Payroll$'"
+          - "Ask for the share to be moved to an OU"
+        answer: 0
+        why: "A share name ending in $ is hidden from browsing but opens normally when its full UNC path is typed (permissions still apply). net user manages accounts, not shares."
+      - id: ap2-1z2-q31
+        type: mcq
+        q: "Staff must browse the web through the corporate proxy at 10.0.0.8 port 3128, but internal sites must be reached directly. Where is this set for the whole Windows 11 session?"
+        choices:
+          - "Network and Sharing Center, adapter properties, DNS tab"
+          - "Windows Defender Firewall, outbound rules"
+          - "Settings, Network and internet, Proxy, with the option to bypass the proxy for local addresses"
+          - "Device Manager, network adapter, Advanced tab"
+        answer: 2
+        why: "The Proxy page in Settings takes the proxy address and port and can skip the proxy for local (intranet) addresses. Firewall rules allow or block traffic but cannot forward it to a proxy."
+      - id: ap2-1z2-m03
+        type: multi
+        q: "A user's Windows 11 laptop must stay usable after a flight with no charger, picking up exactly where she left off with zero battery drain in her bag. Which TWO statements are correct?"
+        choices:
+          - "Hibernate saves the session to disk and powers off"
+          - "Sleep keeps the session in RAM and still draws a little power"
+          - "Sleep writes the session to disk and powers off"
+          - "Hibernate keeps the session in RAM on low power"
+          - "Fast startup restores open applications after a shutdown"
+        answers: [0, 1]
+        why: "Hibernate writes memory to disk and turns the power off, so it is the right choice for her; sleep keeps RAM powered and slowly drains the battery. Fast startup saves only the kernel session, not the user's open applications."

