@@ -1,7 +1,7 @@
 part_of: ccna
 
 units:
-  # ─────────────── 3x · IP connectivity in depth ───────────────
+  # ─────────────── 3x · IP routing in depth ───────────────
   - id: cn-3x
     title: "IP connectivity in depth: route codes, static routes, OSPF and HSRP"
     domain: "3"

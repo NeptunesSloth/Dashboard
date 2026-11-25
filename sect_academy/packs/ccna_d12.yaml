@@ -1,13 +1,13 @@
 part_of: ccna
 
 units:
-  # ─────────────── 1x · network fundamentals in depth ───────────────
+  # ─────────────── 1x · infrastructure and connectivity in depth ───────────────
   - id: cn-1x
-    title: "Network fundamentals in depth: power, cabling, counters, VLSM, IPv6 hosts and RF"
+    title: "Network fundamentals in depth: cabling, counters, VLSM, IPv6 hosts, RF and Wi-Fi security"
     domain: "1"
-    goal: "I can choose cabling and PoE for a device, read interface error counters, design a VLSM plan, explain how an IPv6 host gets its address and gateway, and describe Wi-Fi cells, RF behaviour and virtualization types."
+    goal: "I can choose cabling for a link, read interface error counters, design a VLSM plan, explain how an IPv6 host gets its address and gateway, describe Wi-Fi cells, RF behaviour and virtualization types, and explain WPA2-Enterprise and WPA3."
     notes: |
-      This unit fills in the Network Fundamentals topics the first pass left out.
+      This unit fills in the infrastructure and connectivity topics the first pass left out.
 
       **Roles.** Endpoints use the network; servers offer services to many clients; an **IPS** sits inline and drops attacks. Switches power phones, cameras and APs with **PoE**: 802.3af gives 15.4 W per port, 802.3at (PoE+) 30 W, 802.3bt 60 or 90 W. `show power inline` shows each port's draw and the remaining budget.
 
@@ -26,50 +26,6 @@ units:
 
       **Wireless.** A BSS is one AP's cell; an ESS joins cells under one SSID. Walls and water absorb, metal reflects. WPA2 encrypts with CCMP (AES).
     items:
-      - id: cn-1x-endpoint
-        type: concept
-        term: "Endpoint"
-        def: "A device at the edge of the network that originates or consumes user traffic, such as a laptop, phone, printer or IP camera."
-      - id: cn-1x-ips
-        type: concept
-        term: "Intrusion prevention system (IPS)"
-        def: "A device or engine placed in the traffic path that compares packets against signatures and behaviour rules and drops matching ones before they reach the target."
-      - id: cn-1x-poe-plus
-        type: concept
-        term: "802.3at (PoE+)"
-        def: "The power standard that lets a switch port supply up to 30 W over twisted pair, about double the 15.4 W of the original standard."
-      - id: cn-1x-show-power
-        type: concept
-        term: "show power inline"
-        def: "The IOS command that lists, per port, whether power is being supplied, how many watts are drawn and the detected device class, together with the switch's remaining power budget."
-      - id: cn-1x-distribution
-        type: concept
-        term: "Distribution layer"
-        def: "The middle layer of a hierarchical campus that aggregates access switches, routes between their VLANs, applies policy and connects upward to the core."
-      - id: cn-1x-core
-        type: concept
-        term: "Core layer"
-        def: "The top layer of a large hierarchical campus, built only to move traffic between distribution blocks as fast and reliably as possible, with little or no policy applied."
-      - id: cn-1x-soho
-        type: concept
-        term: "SOHO network"
-        def: "A small site served by one integrated box that combines a router, switch, wireless access point and firewall, with a broadband link to the internet."
-      - id: cn-1x-mpls
-        type: concept
-        term: "MPLS VPN"
-        def: "A provider WAN service that forwards customer packets across its network by labels, letting every customer site reach every other through the provider's edge routers."
-      - id: cn-1x-metro
-        type: concept
-        term: "Metro Ethernet"
-        def: "A provider WAN service that hands each customer site an Ethernet port and carries frames between sites as point-to-point, multipoint or rooted-multipoint services."
-      - id: cn-1x-sdwan
-        type: concept
-        term: "SD-WAN"
-        def: "A centrally managed overlay that builds encrypted tunnels across any mix of transports, such as broadband, LTE and MPLS, and steers each application onto the path that currently meets its policy."
-      - id: cn-1x-iaas
-        type: concept
-        term: "IaaS"
-        def: "A cloud model in which the provider supplies virtual servers, storage and networks, while the customer installs and manages the operating systems and applications."
       - id: cn-1x-smf
         type: concept
         term: "Single-mode fiber"
@@ -130,23 +86,19 @@ units:
         type: concept
         term: "Type 2 hypervisor"
         def: "Virtualization software that runs as an application on top of an ordinary desktop or server operating system."
+      - id: cn-5x-dot1x
+        type: concept
+        term: "802.1X"
+        def: "The port-based access standard in which a supplicant proves its identity with EAP, through an authenticator, to a RADIUS server before it may send data."
+      - id: cn-5x-sae
+        type: concept
+        term: "SAE"
+        def: "The WPA3 personal-mode key exchange that replaces the plain pre-shared-key handshake and defeats offline dictionary attacks on a captured exchange."
+      - id: cn-5x-pmf
+        type: concept
+        term: "PMF (protected management frames)"
+        def: "The 802.11w protection, mandatory in WPA3, that stops forged deauthentication and disassociation frames from knocking clients off a WLAN."
 
-      - id: cn-1x-q01
-        type: mcq
-        q: "A new access point draws up to 25 W at the device and must run at full capability. Which is the earliest PoE standard whose switch port can power it?"
-        choices: ["802.3at", "802.3af", "802.3bt", "802.3ad"]
-        answer: 0
-        why: "802.3at (PoE+) supplies 30 W at the port, about 25.5 W at the device after cable loss. 802.3af stops at 15.4 W; 802.3bt would also work but is a later standard than needed, and 802.3ad is link aggregation, not power."
-      - id: cn-1x-q02
-        type: mcq
-        q: "On a 48-port PoE switch, 'show power inline' reports 370.0 W available, 362.4 W used and 7.6 W remaining. Every port has the default 'power inline auto'. A new class 3 IP phone, budgeted at 15.4 W, is plugged in and stays dark. What is the cause?"
-        choices:
-          - "The port must be given 'power inline static' before it can supply power"
-          - "The switch has too little budget left to grant the phone's class"
-          - "The phone needs a voice VLAN before it will draw power"
-          - "PoE works only on the first 24 ports of a 48-port switch"
-        answer: 1
-        why: "The switch grants power by class, and 15.4 W is more than the 7.6 W left, so the port is denied power. 'power inline static' only reserves power in advance and cannot create budget that does not exist; the voice VLAN has nothing to do with power."
       - id: cn-1x-q03
         type: mcq
         q: "Two buildings 8 km apart need a 10 Gbps link over the campus fibre. Which optic and fibre combination fits?"
@@ -275,38 +227,6 @@ units:
           - "Type 1, because it uses hardware virtualization extensions"
         answer: 1
         why: "A hypervisor that runs as a program on top of a normal operating system is Type 2. Both types use the CPU's virtualization extensions, so that does not make it Type 1, and each Linux guest boots its own kernel rather than sharing the Windows one."
-      - id: cn-1x-q19
-        type: mcq
-        q: "A security team wants a device that stops an exploit before its packets reach the server. Where must an IPS be placed, and why?"
-        choices:
-          - "On a SPAN port, so it receives a copy of every packet on the VLANs it protects"
-          - "Behind the server, so it inspects only the replies"
-          - "Inline in the traffic path, so it can drop packets as they pass"
-          - "On the management VLAN, so attackers cannot reach it"
-        answer: 2
-        why: "An IPS can only block what flows through it, so it must sit inline. A sensor on a SPAN port sees copies and can only alert, which is how an IDS works."
-      - id: cn-1x-q20
-        type: mcq
-        q: "In a three-tier campus, at which layer are routing between a building's VLANs and policies such as ACLs normally applied?"
-        choices: ["Access", "Core", "Spine", "Distribution"]
-        answer: 3
-        why: "The distribution layer aggregates the access switches, routes between their VLANs and applies policy. The core is kept free of policy so it can move traffic fast, and spine is a data-centre term."
-      - id: cn-1x-q21
-        type: mcq
-        q: "A retailer's 200 stores each have a broadband line and an LTE backup. It wants one central policy that sends voice over whichever path currently has the least loss, inside encrypted tunnels between sites. Which WAN approach fits?"
-        choices:
-          - "SD-WAN"
-          - "Leased lines between every pair of stores"
-          - "A Metro Ethernet E-Line to each store"
-          - "An MPLS VPN on a single provider circuit"
-        answer: 0
-        why: "SD-WAN builds encrypted tunnels across any transport and steers each application by measured path quality under central policy. Leased lines, E-Lines and a single MPLS circuit all need provider circuits the stores do not have and offer no per-application path choice."
-      - id: cn-1x-q22
-        type: mcq
-        q: "A team wants to deploy its own web application code without patching or managing any operating system or runtime. Which cloud model fits?"
-        choices: ["IaaS", "PaaS", "SaaS", "On-premises virtual machines"]
-        answer: 1
-        why: "PaaS supplies a managed platform on which the customer deploys its own code. IaaS leaves the OS to the customer, and SaaS is a finished application, with no code of the customer's own."
       - id: cn-1x-m01
         type: multi
         q: "Which THREE counters are included in the 'input errors' total of 'show interfaces'?"
@@ -355,7 +275,51 @@ units:
           - "The server confirms the lease with a Reply"
         why: "Solicit, Advertise, Request, Reply is the DHCPv6 counterpart of DHCPv4's Discover, Offer, Request, Acknowledge."
 
-  # ─────────────── 1y · network fundamentals practice ───────────────
+      - id: cn-5x-q22
+        type: mcq
+        q: "A company wants every employee to join the WLAN with their own directory username and password, so that one person's access can be removed without touching anyone else's device. Which setting provides this?"
+        choices:
+          - "WPA2-Personal with a long pre-shared key"
+          - "WPA2-Enterprise with 802.1X and a RADIUS server"
+          - "WPA3-Personal with SAE"
+          - "An open SSID with MAC address filtering"
+        answer: 1
+        why: "Enterprise mode authenticates each user individually through 802.1X and EAP against a RADIUS server, so an account can be disabled centrally. Both personal modes share one passphrase, which must be changed on every device when one person leaves."
+      - id: cn-5x-q23
+        type: mcq
+        q: "An attacker records months of encrypted traffic from a WPA3-Personal network and later learns the passphrase. Why can the recorded traffic still not be decrypted?"
+        choices:
+          - "WPA3 encrypts with TKIP, which changes the key for every single packet sent"
+          - "WPA3 requires a RADIUS server, which keeps the keys away from the access point"
+          - "SAE gives forward secrecy: session keys do not follow from the passphrase"
+          - "Protected management frames encrypt the passphrase inside every beacon frame"
+        answer: 2
+        why: "SAE derives fresh keys for each session in a way that cannot be reproduced later from the passphrase and a capture. With WPA2-Personal, a captured four-way handshake plus the passphrase is enough to decrypt that session. WPA3 uses AES, not TKIP."
+      - id: cn-5x-m03
+        type: multi
+        q: "Which TWO are improvements that WPA3 makes over WPA2?"
+        choices:
+          - "SAE replaces the pre-shared-key exchange in personal mode"
+          - "TKIP becomes the mandatory cipher"
+          - "Protected management frames are required"
+          - "Enterprise mode no longer needs an authentication server"
+          - "Passphrases are limited to 8 ASCII characters"
+        answers: [0, 2]
+        why: "WPA3-Personal uses SAE, which resists offline dictionary attacks, and WPA3 makes protected management frames mandatory. TKIP is not allowed in WPA3, and enterprise mode still depends on 802.1X with a RADIUS server."
+
+      - id: cn-5x-o02
+        type: order
+        q: "A client joins a WPA2-Enterprise WLAN. Put the events in order."
+        steps:
+          - "The client associates with the access point using open authentication"
+          - "The client sends its identity and credentials in EAP messages"
+          - "The controller relays the EAP exchange to the RADIUS server"
+          - "The RADIUS server returns Access-Accept"
+          - "The four-way handshake derives the encryption keys"
+          - "The client's data frames are encrypted and forwarded"
+        why: "Association comes first, but the port stays blocked for data until 802.1X succeeds. The key material from a successful EAP exchange feeds the four-way handshake, and only then is user traffic encrypted and passed."
+
+  # ─────────────── 1y · infrastructure and connectivity practice ───────────────
   - id: cn-1y
     title: "Fundamentals practice: counters, subnets, IPv6 hosts and RF"
     domain: "1"
@@ -503,16 +467,6 @@ units:
         choices: ["92 dB", "159 dB", "25 dB", "67 dB"]
         answer: 2
         why: "SNR is signal minus noise: -67 - (-92) = 25 dB. Adding the magnitudes gives 159, and a negative SNR would mean the noise is stronger than the signal."
-      - id: cn-1y-q16
-        type: mcq
-        q: "R1 has 'interface Gi0/2' / 'vrf forwarding CUST-A' / 'ip address 10.1.1.1 255.255.255.0'. 'ping 10.1.1.10' from R1 fails, though the host at 10.1.1.10 is up. Which command tests it correctly?"
-        choices:
-          - "ping 10.1.1.10 source Gi0/2"
-          - "ping ip 10.1.1.10"
-          - "traceroute 10.1.1.10"
-          - "ping vrf CUST-A 10.1.1.10"
-        answer: 3
-        why: "Gi0/2 is in VRF CUST-A, whose routes are in a separate table. A plain ping looks in the global table, which has no route to 10.1.1.0/24. Naming the VRF makes the router use the right table."
       - id: cn-1y-q17
         type: mcq
         q: "VM1 and VM2 run on one hypervisor host and connect to the same virtual switch port group in VLAN 10. The host's only physical uplink is unplugged. Can VM1 still ping VM2?"
@@ -523,18 +477,6 @@ units:
           - "Yes, but only if the hypervisor is Type 2"
         answer: 0
         why: "A virtual switch is a Layer 2 switch in software; traffic between two VMs on the same host and VLAN never leaves the host. The physical uplink matters only for traffic to the outside network, whatever the hypervisor type."
-      - id: cn-1y-q18
-        type: mcq
-        q: "A company wants every one of its 6 sites joined directly to every other site by its own WAN circuit. How many circuits are needed?"
-        choices: ["6", "15", "30", "36"]
-        answer: 1
-        why: "A full mesh of n sites needs n(n-1)/2 links: 6 × 5 / 2 = 15. 30 counts each link twice, once from each end; 36 is 6 squared."
-      - id: cn-1y-q19
-        type: mcq
-        q: "A PoE+ switch has a 370 W power budget. Every port is to power an access point that the switch budgets at the 30 W class maximum. How many APs can be powered?"
-        choices: ["11", "13", "24", "12"]
-        answer: 3
-        why: "370 / 30 is 12.33: twelve APs use 360 W, and a thirteenth would need 390 W. Port count is not the limit here; the power budget is."
       - id: cn-1y-q20
         type: mcq
         q: "On a Linux server, 'ip addr' shows 'inet 192.168.4.20/24' on eth0 and 'ip route' shows only '192.168.4.0/24 dev eth0 proto kernel scope link src 192.168.4.20'. Pings to other subnets fail with 'Network is unreachable'. What is missing?"
@@ -555,26 +497,6 @@ units:
           - "Separate processes on one server"
         answer: 1
         why: "Each virtual machine boots its own guest kernel, isolated by the hypervisor. Containers share the host's kernel, which is exactly what the policy forbids, and VRFs separate routing tables, not workloads."
-      - id: cn-1y-q22
-        type: mcq
-        q: "A company needs private any-to-any connectivity between 30 sites, with a provider contract that guarantees priority for voice across the WAN. Which service fits BEST?"
-        choices:
-          - "Site-to-site IPsec VPNs over the internet"
-          - "A single Metro Ethernet E-Line"
-          - "Broadband with no tunnels"
-          - "An MPLS VPN"
-        answer: 3
-        why: "An MPLS VPN gives any-to-any reach across the provider's network with contractual QoS classes. Internet VPNs are private but the internet offers no QoS guarantee, and an E-Line joins only two sites."
-      - id: cn-1y-q23
-        type: mcq
-        q: "An IDS attached to a SPAN port alerts on an exploit but cannot stop it. The team wants such traffic dropped. What change achieves this?"
-        choices:
-          - "Deploy the sensor inline as an IPS"
-          - "Mirror more VLANs to the SPAN port"
-          - "Increase the SPAN session's buffer"
-          - "Move the SPAN destination to a trunk port"
-        answer: 0
-        why: "A sensor fed by a SPAN port sees only copies, so it can alert but not block. Dropping traffic needs the device in the path, as an IPS. More or differently mirrored traffic is still only a copy."
       - id: cn-1y-q24
         type: mcq
         q: "A switch port connects to an old hub. 'show interfaces' shows 'Half-duplex, 10Mb/s', '845 collisions, 0 late collision' and no CRC errors. What does this indicate?"
@@ -640,11 +562,21 @@ units:
           - "10.0.0.240/30 for the router link"
         why: "Allocating largest first keeps every block on its natural boundary: 128, then 64, 32, 16 and 4 addresses, each starting where the previous one ended."
 
-  # ─────────────── 2x · network access in depth ───────────────
+      - id: cn-5y-o01
+        type: order
+        q: "Put the messages of the WPA2 four-way handshake in order."
+        steps:
+          - "The access point sends its nonce (ANonce) to the client"
+          - "The client sends its nonce (SNonce) with a message integrity code"
+          - "The access point sends the group key, protected by a message integrity code"
+          - "The client acknowledges, and both sides install the keys"
+        why: "The access point speaks first. Once the client has both nonces it can derive the pairwise key and prove it with an integrity code; the access point then does the same and delivers the group key, and the client confirms."
+
+  # ─────────────── 2x · switching and network access in depth ───────────────
   - id: cn-2x
-    title: "Network access in depth: VLANs, DTP, EtherChannel, spanning tree and wireless"
+    title: "Network access in depth: VLANs, DTP, EtherChannel, spanning tree and PoE"
     domain: "2"
-    goal: "I can create and remove VLANs safely, control trunk negotiation, build Layer 2 and Layer 3 EtherChannels, set and predict the spanning-tree root and port roles, choose the right edge protection, and describe AP modes and controller interfaces."
+    goal: "I can create and remove VLANs safely, control trunk negotiation, build Layer 2 and Layer 3 EtherChannels, set and predict the spanning-tree root and port roles, choose the right edge protection, and budget PoE for a device."
     notes: |
       **VLANs.** `vlan 10` then `name SALES` creates a VLAN. VLAN 1 and VLANs 1002 to 1005 cannot be deleted. Deleting a VLAN makes its ports *inactive*. A routed port needs `no switchport` first; routing between SVIs needs `ip routing`.
 
@@ -736,30 +668,18 @@ units:
         type: concept
         term: "Loop guard"
         def: "Holds a root or alternate port in an inconsistent, blocking state when BPDUs stop arriving on it, instead of letting it age into forwarding."
-      - id: cn-2x-bpdufilter
-        type: concept
-        term: "BPDU filter"
-        def: "Stops a port sending spanning-tree messages; enabled directly on an interface it also ignores incoming ones, which can let a loop form."
       - id: cn-2x-errdisable-recovery
         type: concept
         term: "errdisable recovery cause bpduguard"
         def: "Global command that brings ports shut by the BPDU protection feature back up automatically after a timer, 300 seconds by default."
-      - id: cn-2x-bridge-mode
+      - id: cn-1x-poe-plus
         type: concept
-        term: "Bridge mode (AP)"
-        def: "An access point mode that links networks over the air, point to point or point to multipoint, and forms mesh links where cabling is impossible."
-      - id: cn-2x-se-connect
+        term: "802.3at (PoE+)"
+        def: "The power standard that lets a switch port supply up to 30 W over twisted pair, about double the 15.4 W of the original standard."
+      - id: cn-1x-show-power
         type: concept
-        term: "SE-Connect mode"
-        def: "An access point mode that makes the radio a dedicated spectrum analyser, to which a remote analysis program connects to find non-Wi-Fi interference."
-      - id: cn-2x-embedded-wlc
-        type: concept
-        term: "Embedded wireless controller"
-        def: "Controller software that runs inside a Catalyst switch or an access point to manage a small site's APs, with no separate controller appliance."
-      - id: cn-2x-virtual-int
-        type: concept
-        term: "Virtual interface (WLC)"
-        def: "A controller interface with a non-routed address that serves web-authentication redirects, DHCP relay to clients and mobility, and is never used for management."
+        term: "show power inline"
+        def: "The IOS command that lists, per port, whether power is being supplied, how many watts are drawn and the detected device class, together with the switch's remaining power budget."
 
       - id: cn-2x-q01
         type: mcq
@@ -881,24 +801,6 @@ units:
         choices: ["Root guard", "BPDU guard", "PortFast", "Loop guard"]
         answer: 3
         why: "Loop guard treats the sudden absence of BPDUs on a root or alternate port as a fault and holds the port loop-inconsistent. Root guard reacts to superior BPDUs, not to missing ones, and BPDU guard reacts to any BPDU arriving."
-      - id: cn-2x-q15
-        type: mcq
-        q: "Two buildings 300 m apart have no cable between them. The company wants to join their networks over the air with a pair of access points. Which AP mode is used?"
-        choices: ["Local", "Bridge", "FlexConnect", "Monitor"]
-        answer: 1
-        why: "Bridge mode builds point-to-point or point-to-multipoint wireless links and mesh. Local and FlexConnect serve clients, and monitor only scans."
-      - id: cn-2x-q16
-        type: mcq
-        q: "An engineer must find a microwave oven and a wireless camera that interfere with Wi-Fi, by connecting a remote spectrum-analysis program to one dedicated AP. Which AP mode is chosen?"
-        choices: ["Sniffer", "Monitor", "SE-Connect", "Rogue detector"]
-        answer: 2
-        why: "SE-Connect dedicates the radio to spectrum analysis and lets a remote analysis program read it. Sniffer captures 802.11 frames for a packet analyser, which cannot see non-Wi-Fi sources like a microwave."
-      - id: cn-2x-q17
-        type: mcq
-        q: "On a WLC, guest clients on a web-authentication WLAN are redirected to the login page. Which controller interface supplies the address of that page?"
-        choices: ["Virtual interface", "Management interface", "Service port", "Dynamic interface"]
-        answer: 0
-        why: "The virtual interface carries a non-routed address used for web-authentication redirects and DHCP relay. The management interface handles management and AP tunnels, the service port is out-of-band, and a dynamic interface places clients in a VLAN."
       - id: cn-2x-m01
         type: multi
         q: "Which THREE settings must match on every member port before an EtherChannel will bundle them? (Choose THREE.)"
@@ -923,17 +825,6 @@ units:
           - "desirable and active"
         answers: [0, 1]
         why: "LACP needs at least one active side and PAgP at least one desirable side. Two passive or two auto ports never start negotiating, 'on' sends no LACP, and a PAgP port cannot pair with an LACP port."
-      - id: cn-2x-m03
-        type: multi
-        q: "A router's web interface must be reachable only over an encrypted session. Which TWO global commands achieve that? (Choose TWO.)"
-        choices:
-          - "ip http server"
-          - "no ip http server"
-          - "ip http secure-server"
-          - "transport input ssh"
-          - "ip http authentication local"
-        answers: [1, 2]
-        why: "'no ip http server' turns off clear-text HTTP and 'ip http secure-server' turns on HTTPS. 'transport input ssh' is a vty line command for the CLI, and 'ip http authentication local' chooses how web users log in, not whether the session is encrypted."
       - id: cn-2x-m04
         type: multi
         q: "Which TWO Rapid PVST+ port roles forward user traffic? (Choose TWO.)"
@@ -959,7 +850,24 @@ units:
           - "Remaining ports become alternate or backup and discard"
         why: "Every cost is measured towards the root, so it must be known first; root ports and designated ports follow from those costs, and whatever is left over blocks."
 
-  # ─────────────── 2y · network access practice ───────────────
+      - id: cn-1x-q01
+        type: mcq
+        q: "A new access point draws up to 25 W at the device and must run at full capability. Which is the earliest PoE standard whose switch port can power it?"
+        choices: ["802.3at", "802.3af", "802.3bt", "802.3ad"]
+        answer: 0
+        why: "802.3at (PoE+) supplies 30 W at the port, about 25.5 W at the device after cable loss. 802.3af stops at 15.4 W; 802.3bt would also work but is a later standard than needed, and 802.3ad is link aggregation, not power."
+      - id: cn-1x-q02
+        type: mcq
+        q: "On a 48-port PoE switch, 'show power inline' reports 370.0 W available, 362.4 W used and 7.6 W remaining. Every port has the default 'power inline auto'. A new class 3 IP phone, budgeted at 15.4 W, is plugged in and stays dark. What is the cause?"
+        choices:
+          - "The port must be given 'power inline static' before it can supply power"
+          - "The switch has too little budget left to grant the phone's class"
+          - "The phone needs a voice VLAN before it will draw power"
+          - "PoE works only on the first 24 ports of a 48-port switch"
+        answer: 1
+        why: "The switch grants power by class, and 15.4 W is more than the 7.6 W left, so the port is denied power. 'power inline static' only reserves power in advance and cannot create budget that does not exist; the voice VLAN has nothing to do with power."
+
+  # ─────────────── 2y · switching and network access practice ───────────────
   - id: cn-2y
     title: "Access practice: trunks, bundles and spanning tree from show output"
     domain: "2"
@@ -1138,16 +1046,6 @@ units:
           - "Spanning tree cannot detect a loop that stays inside one switch"
         answer: 1
         why: "Configured on the interface, BPDU filter both suppresses and ignores BPDUs, effectively removing the port from spanning tree. With PortFast alone, each port would still send BPDUs, the other would hear them, and one port would be blocked."
-      - id: cn-2y-q17
-        type: mcq
-        q: "SW1 has 'spanning-tree portfast default' and 'spanning-tree portfast bpdufilter default' and no other edge features. A switch is plugged into access port Gi0/12 and starts sending BPDUs. What does Gi0/12 do?"
-        choices:
-          - "It err-disables at once"
-          - "It ignores the BPDUs and keeps forwarding as an edge port, because filtering is on"
-          - "It goes root-inconsistent"
-          - "It loses PortFast and BPDU filtering and runs normal spanning tree"
-        answer: 3
-        why: "Global BPDU filter applies only to operational PortFast ports, and as soon as such a port receives a BPDU it drops both PortFast and filtering and takes part in spanning tree normally. Ignoring BPDUs is the interface-level behaviour; err-disabling is BPDU guard."
       - id: cn-2y-q18
         type: mcq
         q: "Gi0/1 is a trunk to a virtualization host. After 'spanning-tree portfast' is entered, IOS replies '%Portfast has been configured on GigabitEthernet0/1 but will only have effect when the interface is in a non-trunking mode.' Which command makes PortFast apply?"
@@ -1178,16 +1076,6 @@ units:
           - "Gi0/4 and Gi0/5 attach to the same shared segment, such as a hub"
         answer: 3
         why: "A backup port hears a better BPDU from another port of its own switch, which happens when two ports share one segment; 'Shr' marks shared (half-duplex) links. A spare path through another switch would be an alternate port."
-      - id: cn-2y-q21
-        type: mcq
-        q: "R1 has 'aaa new-model' and 'aaa authentication login default group tacacs+ local'. The TACACS+ server is reachable but has no account for 'netadmin'; R1 has 'username netadmin secret ...'. What happens when netadmin logs in over SSH?"
-        choices:
-          - "The login fails, because the server rejected it"
-          - "The login succeeds through the local account"
-          - "R1 asks the user to choose a method"
-          - "The login succeeds, but no commands are authorised"
-        answer: 0
-        why: "The next method is tried only if the server gives no answer (an error). A reply rejecting the user is a final answer, so the local account is never consulted. 'local' is a fallback for a server outage."
       - id: cn-2y-q22
         type: mcq
         q: "Which command is accepted on a Catalyst switch running Rapid PVST+?"
@@ -1208,16 +1096,6 @@ units:
           - "Both, until an administrator sets a priority"
         answer: 1
         why: "Both advertise cost 4 onto the link between them, so the designated port goes to the lower bridge ID: SW2 (lower MAC). SW3's port on that link becomes alternate and discards."
-      - id: cn-2y-q24
-        type: mcq
-        q: "An AireOS WLC with LAG enabled connects to a switch over four ports. The switch has 'channel-group 1 mode active' on those ports, and they never bundle. What should the switch use instead?"
-        choices:
-          - "channel-group 1 mode passive"
-          - "channel-group 1 mode desirable"
-          - "channel-group 1 mode auto"
-          - "channel-group 1 mode on"
-        answer: 3
-        why: "The controller's LAG sends neither LACP nor PAgP, so the switch must bundle unconditionally with mode on. Every negotiating mode waits for protocol messages that never arrive."
       - id: cn-2y-m01
         type: multi
         q: "Which TWO pairs of switchport settings result in an operational trunk? (Choose TWO.)"
@@ -1278,3 +1156,9 @@ units:
           - "Payload"
           - "Frame check sequence"
         why: "The tag is inserted after the two addresses, ahead of the original EtherType, and the FCS at the end is recalculated to cover it."
+      - id: cn-1y-q19
+        type: mcq
+        q: "A PoE+ switch has a 370 W power budget. Every port is to power an access point that the switch budgets at the 30 W class maximum. How many APs can be powered?"
+        choices: ["11", "13", "24", "12"]
+        answer: 3
+        why: "370 / 30 is 12.33: twelve APs use 360 W, and a thirteenth would need 390 W. Port count is not the limit here; the power budget is."
