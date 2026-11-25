@@ -478,3 +478,297 @@ units:
           - "Device Manager, network adapter, Advanced tab"
         answer: 2
         why: "The Proxy page in Settings takes the proxy address and port and can skip the proxy for local (intranet) addresses. Firewall rules allow or block traffic but cannot forward it to a proxy."
+
+  # ───────── 1y · macOS, Linux, application installs, cloud productivity ─────────
+  - id: ap2-1y
+    title: "macOS and Linux in depth, installing apps and cloud tools"
+    domain: "1"
+    goal: "I can find my way round macOS folders and features, type the Linux command or edit the config file a task needs, check an application's requirements and set up cloud productivity tools."
+    notes: |
+      ## macOS
+
+      | Folder | Holds |
+      | /Applications | Apps for every user |
+      | /Users | Each user's home folder |
+      | /Library | Fonts, preferences and support files shared by all users |
+      | ~/Library | The same, for one user (hidden in Finder) |
+      | /System | The protected operating system itself |
+
+      Uninstalling is dragging the app to the Trash; leftovers sit in `~/Library`. **Rapid Security Responses** patch urgent flaws between full updates. Privacy permissions (camera, screen recording) are granted in **System Settings > Privacy & Security**. **Continuity** passes work between Apple devices signed in to the same Apple account.
+
+      ## Linux syntax
+
+      | Task | Command |
+      | Change owner and group | chown alice:sales file |
+      | Find files by name | find /home -name "*.pdf" |
+      | Mount a partition | mount /dev/sdb1 /mnt/usb |
+      | Size of each folder | du -sh /var/* |
+      | Mail servers for a domain | dig example.com MX |
+      | Headers only from a URL | curl -I https://host |
+      | Start a service at boot | systemctl enable nginx |
+
+      Name resolution reads `/etc/hosts` and then the servers in `/etc/resolv.conf`. Check a filesystem with `fsck` only while it is **unmounted**.
+
+      ## Applications and cloud
+
+      A 64-bit Windows runs 32-bit apps; a 32-bit Windows cannot run 64-bit ones. Check RAM, CPU, storage, graphics (dedicated **VRAM**), any **hardware token**, and the app's supported OS. Cloud suites need a **licence assigned** to each user, and **identity synchronisation** lets staff use their existing directory account.
+    items:
+      # ── macOS ──
+      - id: ap2-1y-rsr
+        type: concept
+        term: "Rapid Security Response"
+        def: "A small Apple update that delivers urgent security fixes to macOS or iOS between full releases, usually needing only a quick restart and shown with a letter suffix such as (a)."
+      - id: ap2-1y-continuity
+        type: concept
+        term: "Continuity"
+        def: "The set of Apple features, such as Handoff and Universal Clipboard, that lets work move between a Mac, iPhone and iPad signed in to the same Apple account and near each other."
+      - id: ap2-1y-missionctl
+        type: concept
+        term: "Mission Control"
+        def: "The macOS view that spreads out every open window and shows a strip of desktops (Spaces) at the top, where extra desktops can be added."
+      - id: ap2-1y-userlib
+        type: concept
+        term: "~/Library"
+        def: "The hidden folder inside a Mac user's home folder that holds that user's preferences, caches and application support files."
+      - id: ap2-1y-q01
+        type: mcq
+        q: "A Mac user dragged a video app to the Trash and emptied it, but reinstalling it brings back her old broken settings. Where are those settings MOST likely stored?"
+        choices: ["/System/Library", "/Applications", "~/Library", "/Users/Shared"]
+        answer: 2
+        why: "Per-user preferences and application support files live in the hidden ~/Library folder and survive deleting the .app. /System is the protected operating system, which apps do not write their settings into."
+      - id: ap2-1y-q02
+        type: mcq
+        q: "A Mac shows an available update named 'macOS 15.x (a)' that installs in minutes with a quick restart. What is it?"
+        choices:
+          - "A beta release of the next major macOS version"
+          - "A firmware update for the Mac's SSD"
+          - "A Time Machine snapshot"
+          - "A Rapid Security Response delivering urgent security fixes"
+        answer: 3
+        why: "Rapid Security Responses carry urgent security fixes between full updates and are labelled with a letter suffix. A beta release is installed only through the beta programme and is a full update, not a small patch."
+      - id: ap2-1y-q03
+        type: mcq
+        q: "A user copies text on her iPhone and expects to paste it on her Mac with Universal Clipboard, but nothing appears. Both have Bluetooth and Wi-Fi on. What should be checked next?"
+        choices:
+          - "That both devices are signed in to the same Apple account"
+          - "That FileVault is turned on"
+          - "That the Mac has a Time Machine disk attached"
+          - "That Spotlight indexing has finished"
+        answer: 0
+        why: "Continuity features such as Universal Clipboard and Handoff only work between nearby devices signed in to the same Apple account, with Handoff allowed. FileVault encrypts the disk and has no effect on Continuity."
+      - id: ap2-1y-q04
+        type: mcq
+        q: "During a video call on a Mac, the conferencing app shows only a blank desktop when the user tries to share her screen. What is the MOST likely fix?"
+        choices:
+          - "Turn on Screen Sharing in General > Sharing"
+          - "Allow the app under Screen Recording in Privacy & Security settings"
+          - "Add the app to the Dock"
+          - "Run First Aid in Disk Utility"
+        answer: 1
+        why: "macOS requires each app to be granted the Screen Recording permission in Privacy & Security before it can capture the screen. Screen Sharing in Sharing lets other people remotely control the Mac, which is a different feature."
+      - id: ap2-1y-m01
+        type: multi
+        q: "A Mac user asks which kinds of files or sources can be used to install software on macOS. Choose THREE."
+        choices: [".dmg disk image", ".pkg installer package", "The App Store", ".msi package", ".deb package", ".exe setup file"]
+        answers: [0, 1, 2]
+        why: "macOS installs from .dmg images, .pkg packages and the App Store. .msi and .exe are Windows installers, and .deb is a Debian Linux package."
+
+      # ── Linux ──
+      - id: ap2-1y-chown
+        type: concept
+        term: "chown"
+        def: "The Linux command that changes which user, and optionally which group, owns a file or directory."
+      - id: ap2-1y-find
+        type: concept
+        term: "find"
+        def: "The Linux command that walks a directory tree and lists the files matching tests such as name, size, owner or modification time."
+      - id: ap2-1y-fsck
+        type: concept
+        term: "fsck"
+        def: "The Linux command that checks a filesystem for inconsistencies and repairs them, run while that filesystem is unmounted."
+      - id: ap2-1y-mount
+        type: concept
+        term: "mount"
+        def: "The Linux command that attaches a filesystem on a device, such as /dev/sdb1, to a directory in the single file tree so its contents can be used."
+      - id: ap2-1y-su
+        type: concept
+        term: "su"
+        def: "The Linux command that starts a shell as another user, by default root, after that other user's password is entered."
+      - id: ap2-1y-dig
+        type: concept
+        term: "dig"
+        def: "The Linux command that sends a DNS query for a chosen record type, optionally to a chosen server, and prints the full answer."
+      - id: ap2-1y-curl
+        type: concept
+        term: "curl"
+        def: "The Linux command-line tool that transfers data to or from a URL, used to download files or test a web service and see its response."
+      - id: ap2-1y-nano
+        type: concept
+        term: "nano"
+        def: "A simple terminal text editor that lists its keyboard shortcuts at the bottom of the screen, saving with Ctrl+O and exiting with Ctrl+X."
+      - id: ap2-1y-passwd
+        type: concept
+        term: "/etc/passwd"
+        def: "The world-readable Linux file with one line per account giving the user name, user ID, group ID, home directory and login shell."
+      - id: ap2-1y-hosts
+        type: concept
+        term: "/etc/hosts"
+        def: "The Linux file that maps host names to IP addresses locally and is normally consulted before any DNS server."
+      - id: ap2-1y-fstab
+        type: concept
+        term: "/etc/fstab"
+        def: "The Linux file that lists which filesystems to mount, where, with what type and options, at every boot."
+      - id: ap2-1y-resolv
+        type: concept
+        term: "/etc/resolv.conf"
+        def: "The Linux file that lists the DNS name servers and search domains the system uses to resolve names."
+      - id: ap2-1y-systemd
+        type: concept
+        term: "systemd"
+        def: "The first process started on most modern Linux systems; it brings up and supervises services and is controlled with systemctl."
+      - id: ap2-1y-kernel
+        type: concept
+        term: "Kernel"
+        def: "The core of an operating system that manages memory, processes and hardware through drivers, sitting between applications and the hardware."
+      - id: ap2-1y-grub
+        type: concept
+        term: "Bootloader (GRUB)"
+        def: "The small program the firmware starts first on most Linux systems; it shows a menu of installed systems and loads the chosen kernel."
+      - id: ap2-1y-root
+        type: concept
+        term: "root account"
+        def: "The Linux superuser with user ID 0, which bypasses all file permissions and should not be used for everyday work."
+      - id: ap2-1y-q05
+        type: mcq
+        q: "A shared file on a Linux workstation must now belong to user 'maria' and group 'sales'. Which command does this in one step?"
+        choices:
+          - "chmod maria:sales q3.ods"
+          - "sudo chown maria:sales q3.ods"
+          - "sudo su maria sales q3.ods"
+          - "chgrp maria sales q3.ods"
+        answer: 1
+        why: "chown takes user:group and changes both at once (root rights are needed to give a file away). chmod changes permission bits, not ownership."
+      - id: ap2-1y-q06
+        type: mcq
+        q: "A user saved a PDF somewhere under his home folder but cannot remember where. Which command lists every PDF beneath /home/raj?"
+        choices:
+          - "grep /home/raj *.pdf"
+          - "ls /home/raj | pwd"
+          - "find /home/raj -name \"*.pdf\""
+          - "cat /home/raj/*.pdf"
+        answer: 2
+        why: "find searches the whole tree below the starting directory for names matching the pattern. grep searches inside files for text; it does not locate files by name through subfolders."
+      - id: ap2-1y-q07
+        type: mcq
+        q: "A Linux data partition /dev/sdb1, mounted at /data, reports filesystem errors. What must be done before running fsck on it?"
+        choices:
+          - "Unmount it with 'umount /data'"
+          - "Add it to /etc/fstab"
+          - "Run 'du -sh /data'"
+          - "Change its owner with chown"
+        answer: 0
+        why: "fsck must run on an unmounted filesystem, or the repair can itself cause corruption while files are changing. Adding a line to /etc/fstab only controls mounting at boot."
+      - id: ap2-1y-q08
+        type: mcq
+        q: "Mail to a domain is bouncing and a technician on Linux wants to see which mail servers DNS publishes for it. Which command shows them?"
+        choices: ["curl example.com MX", "ping -c 4 example.com", "traceroute example.com", "dig example.com MX"]
+        answer: 3
+        why: "dig queries DNS for the named record type, here the MX records that point to mail servers. curl fetches content from a URL and does not query DNS records."
+      - id: ap2-1y-q09
+        type: mcq
+        q: "A developer needs the name 'testsite.local' to resolve to 192.168.1.50 on her Linux laptop only, without changing any DNS server. Which file should she edit?"
+        choices: ["/etc/resolv.conf", "/etc/hosts", "/etc/fstab", "/etc/passwd"]
+        answer: 1
+        why: "/etc/hosts maps names to addresses locally and is checked before DNS. /etc/resolv.conf only says which DNS servers to ask, so it cannot hold a single name-to-address entry."
+      - id: ap2-1y-q10
+        type: mcq
+        q: "On a default Ubuntu desktop, a user in the sudo group types 'su -' to get a root shell and the password is always rejected. Which command gives a root shell instead?"
+        choices: ["sudo -i", "su root -c", "chown root", "man su"]
+        answer: 0
+        why: "Ubuntu locks the root password by default, so su cannot authenticate; sudo -i starts a root login shell using the user's own password. su root -c still needs the root password."
+      - id: ap2-1y-m02
+        type: multi
+        q: "Which TWO Linux files does a technician check when a workstation resolves host names wrongly? Choose TWO."
+        choices: ["/etc/hosts", "/etc/resolv.conf", "/etc/fstab", "/etc/shadow", "/etc/passwd"]
+        answers: [0, 1]
+        why: "/etc/hosts holds local name-to-address entries and /etc/resolv.conf names the DNS servers. fstab controls mounts, and shadow and passwd hold account data."
+      - id: ap2-1y-o01
+        type: order
+        q: "A technician plugs a USB drive into a Linux workstation and copies files to it from the terminal. Put the steps in order."
+        steps:
+          - "Identify the drive's partition, for example with lsblk"
+          - "sudo mkdir /mnt/usb"
+          - "sudo mount /dev/sdb1 /mnt/usb"
+          - "Copy the files to /mnt/usb with cp"
+          - "sudo umount /mnt/usb"
+        why: "You need the device name and an empty mount point before mounting, and the filesystem must be mounted before files can be copied; unmounting last flushes the writes so the drive can be removed safely."
+      - id: ap2-1y-o02
+        type: order
+        q: "A technician changes a setting in an SSH server's config file with nano and applies it. Put the steps in order."
+        steps:
+          - "sudo nano /etc/ssh/sshd_config"
+          - "Edit the setting"
+          - "Press Ctrl+O and Enter to save"
+          - "Press Ctrl+X to exit nano"
+          - "sudo systemctl restart ssh"
+        why: "The file is opened, changed and written out before the editor is closed, and the service only reads the new setting when it is restarted afterwards."
+
+      # ── Application requirements and distribution ──
+      - id: ap2-1y-iso
+        type: concept
+        term: "ISO file"
+        def: "A single file containing an exact image of an optical disc, which Windows and macOS can mount as a virtual drive to install software without physical media."
+      - id: ap2-1y-token
+        type: concept
+        term: "Hardware token (dongle)"
+        def: "A small USB device that some licensed applications require to be plugged in before they will run, proving the licence is present."
+      - id: ap2-1y-q11
+        type: mcq
+        q: "A user on 64-bit Windows 11 must install an accounting program that is offered only as a 32-bit build. What will happen?"
+        choices:
+          - "It cannot be installed on a 64-bit operating system"
+          - "It must be run inside a virtual machine"
+          - "It installs and runs normally, usually under Program Files (x86)"
+          - "It installs only after switching the firmware to legacy BIOS"
+        answer: 2
+        why: "64-bit Windows runs 32-bit applications through its compatibility layer and installs them under Program Files (x86). The reverse is the problem: a 32-bit Windows cannot run 64-bit applications."
+      - id: ap2-1y-q12
+        type: mcq
+        q: "A vendor sends a software installer as a single .iso file. The Windows 11 PC has no optical drive. What is the simplest way to install from it?"
+        choices:
+          - "Burn it to a DVD on another PC"
+          - "Rename the file to .exe"
+          - "Extract it with diskpart"
+          - "Double-click the .iso to mount it as a virtual drive and run Setup"
+        answer: 3
+        why: "Windows mounts an ISO as a virtual DVD drive with a double-click, so Setup can be run directly. Burning a disc would work but needs another PC and an optical drive this one does not have."
+      - id: ap2-1y-q13
+        type: mcq
+        q: "Before buying a new design application, a manager asks what it will do to the office. It needs 50 GB per PC, uploads large files to the vendor's cloud all day, and staff need two days of training. Which impact consideration does the all-day uploading fall under?"
+        choices: ["Network", "Device", "Operational", "Business"]
+        answer: 0
+        why: "Constant uploads consume bandwidth shared by everyone, a network impact. The 50 GB per PC is a device impact and the training is an operational one."
+
+      # ── Cloud productivity tools ──
+      - id: ap2-1y-identity
+        type: concept
+        term: "Identity synchronization"
+        def: "Copying user accounts, and usually password hashes, from an on-premises directory to a cloud identity service so staff sign in to cloud apps with the same credentials."
+      - id: ap2-1y-licence
+        type: concept
+        term: "Licence assignment"
+        def: "Allocating one of an organisation's purchased cloud subscriptions to a particular user account, which is what turns on that user's mailbox and apps."
+      - id: ap2-1y-ondemand
+        type: concept
+        term: "Files On-Demand"
+        def: "A cloud sync client setting that shows every cloud file in the local folder but downloads its contents only when the file is opened or marked to keep on the device."
+      - id: ap2-1y-q14
+        type: mcq
+        q: "A laptop with a 128 GB SSD syncs a 400 GB company cloud library. The user needs to see every file but cannot store them all locally. Which sync setting fits?"
+        choices:
+          - "Back up the Desktop folder to the cloud"
+          - "Files On-Demand, with folders left online-only until needed"
+          - "Mark every folder 'Always keep on this device'"
+          - "Pause syncing permanently"
+        answer: 1
+        why: "Files On-Demand lists all files but downloads each only when it is opened. 'Always keep on this device' forces full local copies, which cannot fit on the drive."
