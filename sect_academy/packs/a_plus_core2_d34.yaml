@@ -206,7 +206,7 @@ units:
         why: "A damaged cache often makes one view crash, and clearing it removes only temporary data. Reinstalling or resetting come later; rooting creates security problems and fixes nothing."
       - id: ap2-3x-q16
         type: mcq
-        q: "An app update fails with the store message 'Requires iOS 17 or later'. The tablet runs iOS 15 and Settings offers no newer version. What is the cause?"
+        q: "An app update fails with the store message 'Requires iOS 17 or later'. The phone runs iOS 15 and Settings offers no newer version. What is the cause?"
         choices:
           - "The store account is locked by too many failed sign-ins"
           - "Storage is full"
@@ -775,7 +775,7 @@ units:
           - "Replace the printer"
           - "Disable the firewall"
         answer: 0
-        why: "A corrupt job in the spool folder crashes the spooler each time it loads; clearing the folder while the service is stopped removes it. The printer and the network are not involved."
+        why: "A corrupt job in the spool folder crashes the spooler each time it loads; clearing the folder while the service is stopped removes it. A new driver or a reinstall leaves the corrupt job in place."
 
       - id: ap2-3y-m01
         type: multi
@@ -1103,16 +1103,17 @@ units:
           - "A synthetic full backup"
         answer: 1
         why: "Keeping one copy offsite protects against a disaster that destroys the whole site. The backup type does not matter if every copy burns."
-      - id: ap2-4x-q13
-        type: mcq
-        q: "In a grandfather-father-son rotation, which set of media is reused MOST often?"
+      - id: ap2-4x-m01
+        type: multi
+        q: "A user phones the help desk. Which TWO details must the new ticket record so that anyone can pick it up? (Choose TWO.)"
         choices:
-          - "The monthly (grandfather) set"
-          - "The weekly (father) set"
-          - "The daily (son) set"
-          - "The yearly archive"
-        answer: 2
-        why: "Daily backups are overwritten in the shortest cycle, so their media are reused most; monthly sets are kept longest."
+          - "The user's name and contact details"
+          - "The user's account password, to save time later"
+          - "The device's asset tag or hostname"
+          - "The technician's opinion of the user's skills"
+          - "The user's salary band"
+        answers: [0, 2]
+        why: "A ticket needs user information and device information, plus a clear description, category and severity. Passwords must never be recorded, and personal opinions or unrelated HR data do not belong in a ticket."
       - id: ap2-4x-q14
         type: mcq
         q: "A technician wants to plug a workstation into an old two-slot outlet by breaking off the power cord's ground pin. Why must this not be done?"
@@ -1493,24 +1494,24 @@ units:
         why: "A private model keeps prompts and data within the company's control. A public service would send the records outside, which the policy forbids however carefully names are stripped."
       - id: ap2-4y-q19
         type: mcq
-        q: "A server room's humidity reads 85% after a cooling unit fault. What is the main risk to the equipment?"
+        q: "To reach a new hot-desk, network and power cables have been laid loose across a busy walkway. What is the BEST fix?"
         choices:
-          - "Condensation and corrosion"
-          - "Static discharge damaging components"
-          - "Brownouts"
-          - "Time drift"
+          - "Reroute the cables along the wall or under a rated floor cover"
+          - "Put a warning sign beside the cables"
+          - "Tape the cables down with office tape"
+          - "Leave them, since the walkway is well lit"
         answer: 0
-        why: "Very humid air can condense on cooler surfaces and corrode or short components; dehumidify and restore cooling. Static is the danger of air that is too dry."
+        why: "Good cable management removes the trip hazard itself by routing cables out of the walkway or protecting them under a proper cover. A sign or tape still leaves something to trip on and wears out quickly."
       - id: ap2-4y-q20
         type: mcq
-        q: "A sign-in screen must warn users that the system is for authorised use only and that activity is monitored, to meet a regulatory requirement. What should be configured?"
+        q: "A technician helps a customer over a videoconference and shares their screen to show a setting. Another customer's open ticket, with their name and phone number, is visible on the technician's desktop. What should the technician do in future?"
         choices:
-          - "A screensaver lock with a password after five minutes"
-          - "A splash screen shown before sign-in"
-          - "A desktop wallpaper"
-          - "An email signature"
+          - "Turn off the camera during sessions"
+          - "Share only the single application window being demonstrated"
+          - "Record every session for quality purposes"
+          - "Use a different videoconferencing product"
         answer: 1
-        why: "A log-in banner or splash screen displays the notice before access, which is what compliance requires. A screensaver lock protects an unattended session but shows no notice."
+        why: "Sharing one window instead of the whole desktop keeps other customers' confidential data out of view. The camera and the choice of product do nothing to stop the screen share exposing data."
 
       - id: ap2-4y-m01
         type: multi
@@ -1547,15 +1548,15 @@ units:
         why: "Leaving means removing access and recovering company equipment. Ordering hardware, creating a mailbox and enrolling in training are onboarding tasks."
       - id: ap2-4y-m04
         type: multi
-        q: "Which TWO limitations of AI tools mean a person must check the output before it is sent to a customer? (Choose TWO.)"
+        q: "A change request form arrives with the purpose and scope filled in, but the board returns it as incomplete. Which TWO items must be added? (Choose TWO.)"
         choices:
-          - "Hallucinations"
-          - "RAID level"
-          - "Bias from the training data"
-          - "Page file size"
-          - "Screen resolution"
+          - "The staff member responsible for carrying out the change"
+          - "The administrator passwords needed for the change"
+          - "The systems affected and the impact on users"
+          - "The home addresses of the change board members"
+          - "Last month's help desk call statistics"
         answers: [0, 2]
-        why: "AI can invent confident falsehoods and reflect skew in its training data, so output needs review. The other choices are unrelated hardware and OS settings."
+        why: "A change request names who is responsible and which systems and users it affects, so the board can judge the risk. Passwords must never go on a form, and the other items have no bearing on the change."
 
       - id: ap2-4y-o01
         type: order

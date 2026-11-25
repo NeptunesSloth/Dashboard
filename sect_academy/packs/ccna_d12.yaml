@@ -1,0 +1,1280 @@
+part_of: ccna
+
+units:
+  # ─────────────── 1x · network fundamentals in depth ───────────────
+  - id: cn-1x
+    title: "Network fundamentals in depth: power, cabling, counters, VLSM, IPv6 hosts and RF"
+    domain: "1"
+    goal: "I can choose cabling and PoE for a device, read interface error counters, design a VLSM plan, explain how an IPv6 host gets its address and gateway, and describe Wi-Fi cells, RF behaviour and virtualization types."
+    notes: |
+      This unit fills in the Network Fundamentals topics the first pass left out.
+
+      **Roles.** Endpoints use the network; servers offer services to many clients; an **IPS** sits inline and drops attacks. Switches power phones, cameras and APs with **PoE**: 802.3af gives 15.4 W per port, 802.3at (PoE+) 30 W, 802.3bt 60 or 90 W. `show power inline` shows each port's draw and the remaining budget.
+
+      **Designs.** Three tiers: *access* (hosts), *distribution* (inter-VLAN routing and policy), *core* (fast transport). WAN services include MPLS VPNs, Metro Ethernet, internet VPNs and SD-WAN.
+
+      | Medium | Typical reach |
+      | Cat5e (1 Gbps) or Cat6a (10 Gbps) copper | 100 m |
+      | Multimode fibre | a few hundred metres |
+      | Single-mode fibre | 10 km and beyond |
+
+      **Counters.** *Runts* are under 64 bytes, *giants* over the maximum frame size, *CRC* errors fail the checksum; all three are counted in *input errors*.
+
+      **VLSM.** Size each subnet to its own host count and allocate the largest first, each on its own block boundary.
+
+      **IPv6 hosts.** A router advertisement gives the prefix and the gateway. SLAAC builds the address; the **O** flag sends hosts to stateless DHCPv6 for DNS; the **M** flag to stateful DHCPv6 for the address itself.
+
+      **Wireless.** A BSS is one AP's cell; an ESS joins cells under one SSID. Walls and water absorb, metal reflects. WPA2 encrypts with CCMP (AES).
+    items:
+      - id: cn-1x-endpoint
+        type: concept
+        term: "Endpoint"
+        def: "A device at the edge of the network that originates or consumes user traffic, such as a laptop, phone, printer or IP camera."
+      - id: cn-1x-ips
+        type: concept
+        term: "Intrusion prevention system (IPS)"
+        def: "A device or engine placed in the traffic path that compares packets against signatures and behaviour rules and drops matching ones before they reach the target."
+      - id: cn-1x-poe-plus
+        type: concept
+        term: "802.3at (PoE+)"
+        def: "The power standard that lets a switch port supply up to 30 W over twisted pair, about double the 15.4 W of the original standard."
+      - id: cn-1x-show-power
+        type: concept
+        term: "show power inline"
+        def: "The IOS command that lists, per port, whether power is being supplied, how many watts are drawn and the detected device class, together with the switch's remaining power budget."
+      - id: cn-1x-distribution
+        type: concept
+        term: "Distribution layer"
+        def: "The middle layer of a hierarchical campus that aggregates access switches, routes between their VLANs, applies policy and connects upward to the core."
+      - id: cn-1x-core
+        type: concept
+        term: "Core layer"
+        def: "The top layer of a large hierarchical campus, built only to move traffic between distribution blocks as fast and reliably as possible, with little or no policy applied."
+      - id: cn-1x-soho
+        type: concept
+        term: "SOHO network"
+        def: "A small site served by one integrated box that combines a router, switch, wireless access point and firewall, with a broadband link to the internet."
+      - id: cn-1x-mpls
+        type: concept
+        term: "MPLS VPN"
+        def: "A provider WAN service that forwards customer packets across its network by labels, letting every customer site reach every other through the provider's edge routers."
+      - id: cn-1x-metro
+        type: concept
+        term: "Metro Ethernet"
+        def: "A provider WAN service that hands each customer site an Ethernet port and carries frames between sites as point-to-point, multipoint or rooted-multipoint services."
+      - id: cn-1x-sdwan
+        type: concept
+        term: "SD-WAN"
+        def: "A centrally managed overlay that builds encrypted tunnels across any mix of transports, such as broadband, LTE and MPLS, and steers each application onto the path that currently meets its policy."
+      - id: cn-1x-iaas
+        type: concept
+        term: "IaaS"
+        def: "A cloud model in which the provider supplies virtual servers, storage and networks, while the customer installs and manages the operating systems and applications."
+      - id: cn-1x-smf
+        type: concept
+        term: "Single-mode fiber"
+        def: "Optical cable with a core of about 9 microns that carries one light path from a laser, reaching tens of kilometres."
+      - id: cn-1x-mmf
+        type: concept
+        term: "Multimode fiber"
+        def: "Optical cable with a 50 or 62.5 micron core that carries many light paths, usually from LED or VCSEL sources, over a few hundred metres."
+      - id: cn-1x-runt
+        type: concept
+        term: "Runt"
+        def: "A received frame shorter than the 64-byte Ethernet minimum, counted and discarded by the interface."
+      - id: cn-1x-giant
+        type: concept
+        term: "Giant"
+        def: "A received frame longer than the interface's maximum frame size, counted and discarded."
+      - id: cn-1x-crc
+        type: concept
+        term: "CRC error"
+        def: "A received frame whose frame check sequence does not match its contents, pointing to noise, a damaged cable or a duplex problem."
+      - id: cn-1x-vlsm
+        type: concept
+        term: "VLSM"
+        def: "Using different prefix lengths for subnets carved from the same address block, so each subnet is sized to its own host count."
+      - id: cn-1x-slaac
+        type: concept
+        term: "SLAAC"
+        def: "The IPv6 method in which a host takes the /64 prefix from a router's advertisement and builds its own interface ID, with no server recording the address."
+      - id: cn-1x-stateless-dhcpv6
+        type: concept
+        term: "Stateless DHCPv6"
+        def: "A server hands out options such as DNS servers and the domain name while each host still forms its own IPv6 address; signalled by the O flag."
+      - id: cn-1x-stateful-dhcpv6
+        type: concept
+        term: "Stateful DHCPv6"
+        def: "A server assigns each host its IPv6 address and records the lease; signalled by the M flag in router advertisements."
+      - id: cn-1x-solicited-node
+        type: concept
+        term: "Solicited-node multicast address"
+        def: "ff02::1:ff followed by the last 24 bits of a unicast address; neighbour solicitations and duplicate address detection are sent to it so only a few hosts must process them."
+      - id: cn-1x-ra
+        type: concept
+        term: "Router advertisement (RA)"
+        def: "The ICMPv6 type 134 message that tells hosts the prefixes on a link, which address-assignment flags to follow, and offers the sender's link-local address as a default gateway."
+      - id: cn-1x-ess
+        type: concept
+        term: "ESS (extended service set)"
+        def: "Several access points advertising the same network name, joined by a wired distribution system so clients can roam from cell to cell."
+      - id: cn-1x-absorption
+        type: concept
+        term: "Absorption (RF)"
+        def: "The loss of signal strength as a radio wave passes through a material such as water, a wall or a human body, its energy turning into heat."
+      - id: cn-1x-ccmp
+        type: concept
+        term: "CCMP"
+        def: "The AES-based encryption and integrity protocol required by WPA2, replacing the RC4-based scheme of the first WPA."
+      - id: cn-1x-type2
+        type: concept
+        term: "Type 2 hypervisor"
+        def: "Virtualization software that runs as an application on top of an ordinary desktop or server operating system."
+
+      - id: cn-1x-q01
+        type: mcq
+        q: "A new access point draws up to 25 W at the device and must run at full capability. Which is the earliest PoE standard whose switch port can power it?"
+        choices: ["802.3at", "802.3af", "802.3bt", "802.3ad"]
+        answer: 0
+        why: "802.3at (PoE+) supplies 30 W at the port, about 25.5 W at the device after cable loss. 802.3af stops at 15.4 W; 802.3bt would also work but is a later standard than needed, and 802.3ad is link aggregation, not power."
+      - id: cn-1x-q02
+        type: mcq
+        q: "On a 48-port PoE switch, 'show power inline' reports 370.0 W available, 362.4 W used and 7.6 W remaining. Every port has the default 'power inline auto'. A new class 3 IP phone, budgeted at 15.4 W, is plugged in and stays dark. What is the cause?"
+        choices:
+          - "The port must be given 'power inline static' before it can supply power"
+          - "The switch has too little budget left to grant the phone's class"
+          - "The phone needs a voice VLAN before it will draw power"
+          - "PoE works only on the first 24 ports of a 48-port switch"
+        answer: 1
+        why: "The switch grants power by class, and 15.4 W is more than the 7.6 W left, so the port is denied power. 'power inline static' only reserves power in advance and cannot create budget that does not exist; the voice VLAN has nothing to do with power."
+      - id: cn-1x-q03
+        type: mcq
+        q: "Two buildings 8 km apart need a 10 Gbps link over the campus fibre. Which optic and fibre combination fits?"
+        choices:
+          - "10GBASE-SR over multimode fibre"
+          - "10GBASE-T over Category 6a copper"
+          - "10GBASE-LR over single-mode fibre"
+          - "1000BASE-SX over multimode fibre"
+        answer: 2
+        why: "LR (long reach) uses a 1310 nm laser on single-mode fibre and reaches 10 km. SR on multimode stops at a few hundred metres, 10GBASE-T at 100 m, and 1000BASE-SX is short-range and only 1 Gbps."
+      - id: cn-1x-q04
+        type: mcq
+        q: "A server sits 90 metres of cable from its switch and needs a 10GBASE-T link. What is the lowest cable category rated for that?"
+        choices: ["Category 5e", "Category 6", "Category 3", "Category 6a"]
+        answer: 3
+        why: "Category 6a is rated for 10 Gbps over the full 100 m channel. Category 6 carries 10GBASE-T only to about 55 m, and Category 5e is rated for 1 Gbps."
+      - id: cn-1x-q05
+        type: mcq
+        q: "Six PCs are connected to an old hub. Which statement describes that segment?"
+        choices:
+          - "All six PCs share one collision domain and must run half duplex"
+          - "Each PC port is its own collision domain and runs full duplex"
+          - "The hub keeps a MAC table and sends each frame to one port"
+          - "The hub puts the PCs in six separate broadcast domains"
+        answer: 0
+        why: "A hub repeats every bit out of every port, so all attached devices share one medium, take turns with CSMA/CD and run half duplex. Per-port collision domains and MAC-based forwarding are what a switch adds."
+      - id: cn-1x-q06
+        type: mcq
+        q: "'show interfaces Gi1/0/10' on an access switch shows '0 runts, 18342 giants' and 0 CRC errors. The attached storage server was recently set to send 9000-byte frames; the switch still has its default MTU. What explains the counter?"
+        choices:
+          - "A duplex mismatch is cutting the server's frames short"
+          - "The server's frames are longer than the switch port accepts"
+          - "The cable is damaged and corrupting the frame checksums"
+          - "The switch is receiving frames shorter than 64 bytes"
+        answer: 1
+        why: "Giants are frames above the maximum size; 9000-byte jumbo frames exceed the default 1500-byte MTU, so the switch counts and drops them. Short frames would be runts, and a cable fault would raise the CRC counter."
+      - id: cn-1x-q07
+        type: mcq
+        q: "Both ends of a link show 'Full-duplex, 1000Mb/s'. On SW1 the CRC counter climbs steadily, with no collisions and no late collisions. What should be checked FIRST?"
+        choices:
+          - "The duplex setting at both ends"
+          - "The native VLAN at both ends"
+          - "The cable, its connectors and nearby sources of interference"
+          - "The spanning-tree state of the port"
+        answer: 2
+        why: "Both ends are full duplex at the same speed, so a duplex mismatch is ruled out; CRC errors alone point to the physical layer: a damaged or badly terminated cable, or electrical noise. VLAN and spanning-tree settings do not corrupt frames."
+      - id: cn-1x-q08
+        type: mcq
+        q: "From 172.16.10.0/24 an engineer assigns subnets largest first: LAN A needs 120 hosts, LAN B 60 hosts, LAN C 28 hosts, and three router links need 2 hosts each. Which subnet does LAN C receive?"
+        choices: ["172.16.10.160/27", "172.16.10.192/26", "172.16.10.224/27", "172.16.10.192/27"]
+        answer: 3
+        why: "LAN A takes 172.16.10.0/25 (.0 to .127) and LAN B 172.16.10.128/26 (.128 to .191), so the next free block starts at .192. 28 hosts need a /27 (30 usable): 172.16.10.192/27, leaving .224 onward for the /30 links. A subnet at .160 would overlap LAN B."
+      - id: cn-1x-q09
+        type: mcq
+        q: "10.1.1.0/26 and 10.1.1.64/27 are already in use. A new LAN needs 14 hosts. Which is the lowest-numbered subnet that fits it without overlap or waste?"
+        choices: ["10.1.1.96/28", "10.1.1.80/28", "10.1.1.96/27", "10.1.1.112/28"]
+        answer: 0
+        why: "The /26 covers .0 to .63 and the /27 covers .64 to .95, so the first free address is .96. 14 hosts need a /28 (14 usable): 10.1.1.96/28. A block at .80 lies inside the /27, a /27 wastes 16 addresses, and .112 skips a free block."
+      - id: cn-1x-q10
+        type: mcq
+        q: "A router's advertisements on a LAN carry the managed flag M = 0 and the other-configuration flag O = 1. How do the hosts configure themselves?"
+        choices:
+          - "They take both address and DNS servers from a stateful DHCPv6 server"
+          - "They form an address by SLAAC and ask DHCPv6 only for options such as DNS"
+          - "They form an address by SLAAC and learn no DNS settings from the network"
+          - "They use only their link-local address"
+        answer: 1
+        why: "M = 0 means no stateful DHCPv6 for addresses, so hosts use SLAAC; O = 1 tells them to ask a stateless DHCPv6 server for other settings such as DNS. M = 1 would send them to a server for the address itself."
+      - id: cn-1x-q11
+        type: mcq
+        q: "Hosts on a LAN receive their IPv6 addresses from a stateful DHCPv6 server. From where do they learn their default gateway?"
+        choices:
+          - "From a DHCPv6 option that carries the router's global address"
+          - "From the DNS server that DHCPv6 lists"
+          - "From the source address of the router's advertisements, its link-local address"
+          - "From a gateway the host derives from its own prefix"
+        answer: 2
+        why: "DHCPv6 has no default-router option. Hosts take the gateway from router advertisements, whose source is the router's link-local address, so RAs must still reach the LAN even when DHCPv6 assigns the addresses."
+      - id: cn-1x-q12
+        type: mcq
+        q: "A branch router's internet-facing interface must take its IPv6 address from the provider's router advertisements, with no DHCPv6 server involved. Which interface command does that?"
+        choices: ["ipv6 address dhcp", "ipv6 enable", "ipv6 nd managed-config-flag", "ipv6 address autoconfig"]
+        answer: 3
+        why: "'ipv6 address autoconfig' makes the interface use SLAAC from received RAs. 'ipv6 address dhcp' makes it a DHCPv6 client, 'ipv6 enable' gives only a link-local address, and 'ipv6 nd managed-config-flag' sets the M flag in RAs this router sends."
+      - id: cn-1x-q13
+        type: mcq
+        q: "Which solicited-node multicast group does a host with the address 2001:db8:acad:10::7a:2b9c join?"
+        choices: ["ff02::1:ff7a:2b9c", "ff02::1:ff00:2b9c", "ff02::2:ff7a:2b9c", "ff05::1:ff7a:2b9c"]
+        answer: 0
+        why: "The group is ff02::1:ff followed by the last 24 bits (six hex digits) of the unicast address, here 7a2b9c, giving ff02::1:ff7a:2b9c. Taking only the last 16 bits gives the second choice, and ff05 is site scope rather than link scope."
+      - id: cn-1x-q14
+        type: mcq
+        q: "A router has 'ipv6 unicast-routing' and a global address on Gi0/0; no routing protocol runs. In 'show ipv6 interface Gi0/0', which joined group shows that the interface is acting as a router?"
+        choices: ["FF02::1", "FF02::2", "FF02::5", "FF02::1:2"]
+        answer: 1
+        why: "FF02::2 is the all-routers group, joined once IPv6 forwarding is on. FF02::1 (all nodes) is joined by every IPv6 interface, FF02::5 belongs to OSPFv3, and FF02::1:2 is the group of DHCPv6 servers and relays."
+      - id: cn-1x-q15
+        type: mcq
+        q: "On a Mac, which command lists the IP address, subnet mask and router (default gateway) of the Wi-Fi service in one short output?"
+        choices: ["ipconfig /all", "ip route show", "networksetup -getinfo Wi-Fi", "netsh interface ip show config"]
+        answer: 2
+        why: "'networksetup -getinfo Wi-Fi' prints the service's IP address, subnet mask and router on macOS. 'ipconfig /all' and 'netsh' are Windows commands, and 'ip route' belongs to Linux."
+      - id: cn-1x-q16
+        type: mcq
+        q: "In a warehouse lined with large flat metal shelving, a site survey finds strong multipath: copies of each signal arrive a moment apart. Which RF behaviour is the main cause?"
+        choices: ["Absorption", "Refraction", "Diffraction", "Reflection"]
+        answer: 3
+        why: "Smooth metal surfaces bounce radio waves, so several copies take different paths to the receiver: reflection. Absorption weakens a signal passing through water or walls, refraction bends it through a change of medium, and diffraction bends it around an edge."
+      - id: cn-1x-q17
+        type: mcq
+        q: "Why are 40 MHz channels usually discouraged in the 2.4 GHz band?"
+        choices:
+          - "The band has room for only one 40 MHz channel that overlaps no other"
+          - "802.11n does not allow channel bonding in the 2.4 GHz band"
+          - "A 40 MHz channel halves the data rate of a 20 MHz channel"
+          - "40 MHz channels work only with WPA3"
+        answer: 0
+        why: "Bonding two 20 MHz channels uses most of the narrow 2.4 GHz band, leaving no second non-overlapping channel for neighbouring APs. 802.11n does permit it there, and wider channels raise the data rate rather than halve it."
+      - id: cn-1x-q18
+        type: mcq
+        q: "A developer runs VirtualBox on a Windows laptop to test two Linux virtual machines. What kind of hypervisor is this?"
+        choices:
+          - "Type 1, because the virtual machines run on the CPU"
+          - "Type 2, because it runs as an application on a host OS"
+          - "A container engine, because the guests share the Windows kernel"
+          - "Type 1, because it uses hardware virtualization extensions"
+        answer: 1
+        why: "A hypervisor that runs as a program on top of a normal operating system is Type 2. Both types use the CPU's virtualization extensions, so that does not make it Type 1, and each Linux guest boots its own kernel rather than sharing the Windows one."
+      - id: cn-1x-q19
+        type: mcq
+        q: "A security team wants a device that stops an exploit before its packets reach the server. Where must an IPS be placed, and why?"
+        choices:
+          - "On a SPAN port, so it receives a copy of every packet"
+          - "Behind the server, so it inspects only the replies"
+          - "Inline in the traffic path, so it can drop packets as they pass"
+          - "On the management VLAN, so attackers cannot reach it"
+        answer: 2
+        why: "An IPS can only block what flows through it, so it must sit inline. A sensor on a SPAN port sees copies and can only alert, which is how an IDS works."
+      - id: cn-1x-q20
+        type: mcq
+        q: "In a three-tier campus, at which layer are routing between a building's VLANs and policies such as ACLs normally applied?"
+        choices: ["Access", "Core", "Spine", "Distribution"]
+        answer: 3
+        why: "The distribution layer aggregates the access switches, routes between their VLANs and applies policy. The core is kept free of policy so it can move traffic fast, and spine is a data-centre term."
+      - id: cn-1x-q21
+        type: mcq
+        q: "A retailer's 200 stores each have a broadband line and an LTE backup. It wants one central policy that sends voice over whichever path currently has the least loss, inside encrypted tunnels between sites. Which WAN approach fits?"
+        choices:
+          - "SD-WAN"
+          - "Leased lines between every pair of stores"
+          - "A Metro Ethernet E-Line to each store"
+          - "An MPLS VPN on a single provider circuit"
+        answer: 0
+        why: "SD-WAN builds encrypted tunnels across any transport and steers each application by measured path quality under central policy. Leased lines, E-Lines and a single MPLS circuit all need provider circuits the stores do not have and offer no per-application path choice."
+      - id: cn-1x-q22
+        type: mcq
+        q: "A team wants to deploy its own web application code without patching or managing any operating system or runtime. Which cloud model fits?"
+        choices: ["IaaS", "PaaS", "SaaS", "On-premises virtual machines"]
+        answer: 1
+        why: "PaaS supplies a managed platform on which the customer deploys its own code. IaaS leaves the OS to the customer, and SaaS is a finished application, with no code of the customer's own."
+      - id: cn-1x-m01
+        type: multi
+        q: "Which THREE counters are included in the 'input errors' total of 'show interfaces'?"
+        choices: ["Runts", "Giants", "CRC", "Late collisions", "Output drops", "Collisions"]
+        answers: [0, 1, 2]
+        why: "Input errors sum the receive-side faults: runts, giants, CRC, frame, overrun and ignored. Collisions and late collisions happen while sending and output drops are a transmit-queue counter."
+      - id: cn-1x-m02
+        type: multi
+        q: "Which TWO characteristics distinguish single-mode fibre from multimode fibre? (Choose TWO.)"
+        choices:
+          - "A much smaller core, about 9 microns"
+          - "Reach of tens of kilometres with laser optics"
+          - "A core of 50 or 62.5 microns"
+          - "Usually driven by LED or VCSEL sources"
+          - "A limit of 100 metres per run"
+        answers: [0, 1]
+        why: "Single-mode fibre has a tiny core carrying one light path from a laser, so it reaches kilometres. The 50 or 62.5 micron core and LED or VCSEL sources describe multimode, and 100 metres is the twisted-pair copper limit."
+      - id: cn-1x-m03
+        type: multi
+        q: "Which TWO pieces of information does a host take from an IPv6 router advertisement? (Choose TWO.)"
+        choices:
+          - "The on-link prefix and its length"
+          - "The router's link-local address, used as the default gateway"
+          - "A complete interface ID chosen for the host by the router"
+          - "The host's IPv4 default gateway"
+          - "The address of the stateful DHCPv6 server"
+        answers: [0, 1]
+        why: "An RA carries the prefix information and its source is the router's link-local address, which hosts use as the gateway. The host makes its own interface ID, an RA says nothing about IPv4, and it only flags that DHCPv6 is in use: clients find the server by multicasting to ff02::1:2."
+      - id: cn-1x-o01
+        type: order
+        q: "Put the steps by which a newly connected IPv6 host gets a global address by SLAAC in order."
+        steps:
+          - "Form a link-local address and check it with duplicate address detection"
+          - "Send a router solicitation to ff02::2"
+          - "Receive a router advertisement that carries the /64 prefix"
+          - "Combine the prefix with an interface ID"
+          - "Check the new global address with duplicate address detection before using it"
+        why: "The host needs a working link-local address to send the solicitation from; the RA supplies the prefix, the host adds its own interface ID, and DAD must confirm the address is unique before it is used."
+      - id: cn-1x-o02
+        type: order
+        q: "Put the four messages of a stateful DHCPv6 address assignment in order."
+        steps:
+          - "The client multicasts a Solicit to ff02::1:2"
+          - "A server answers with an Advertise"
+          - "The client sends a Request for the offered address"
+          - "The server confirms the lease with a Reply"
+        why: "Solicit, Advertise, Request, Reply is the DHCPv6 counterpart of DHCPv4's Discover, Offer, Request, Acknowledge."
+
+  # ─────────────── 1y · network fundamentals practice ───────────────
+  - id: cn-1y
+    title: "Fundamentals practice: counters, subnets, IPv6 hosts and RF"
+    domain: "1"
+    goal: "I can diagnose a cabling, duplex, addressing, IPv6 or Wi-Fi fault from a short piece of show output or a client listing, and choose the fix."
+    notes: |
+      This unit is practice at exam difficulty. Most stems give you a piece of output. Work it the same way every time.
+
+      **1. Physical first.** Is the link up/up? Do both ends agree on speed and duplex? CRC errors and runts on a full-duplex port, with late collisions at the far end, mean a duplex mismatch. Ordinary collisions on a half-duplex port into a hub are normal; late ones are not. A link that never comes up with fibre optics usually means mismatched optics or fibre type.
+
+      **2. Then the address.** Convert the mask to a block size, find the subnet, and check that the gateway sits inside it. macOS writes masks in hex: 0xffffffc0 is 255.255.255.192.
+
+      **3. IPv6 hosts need router advertisements.** No `ipv6 unicast-routing`, or suppressed RAs, means no SLAAC and no gateway, even when DHCPv6 works. Missing DNS with working SLAAC means the O flag is not set.
+
+      **4. RF arithmetic.** +3 dB doubles power and −3 dB halves it; +10 dB multiplies it by ten. 20 dBm is 100 mW. SNR is signal minus noise, in dB.
+
+      **5. Re-derive.** For every subnet answer, compute the network and broadcast twice before you commit.
+    items:
+      - id: cn-1y-q01
+        type: mcq
+        q: "SW1 Gi0/4 has 'speed 100' and 'duplex full'; the PC on it is left on autonegotiation. SW1 shows 'Full-duplex, 100Mb/s', '0 collisions, 0 late collision' and '4210 input errors, 3988 CRC'; it also counts 222 runts. Users report slow transfers. Which change fixes it?"
+        choices:
+          - "Replace the cable between SW1 and the PC"
+          - "Set 'duplex half' on Gi0/4 to stop the CRC errors"
+          - "Configure 'speed auto' and 'duplex auto' on Gi0/4"
+          - "Configure 'switchport nonegotiate' on Gi0/4"
+        answer: 2
+        why: "The PC hears no negotiation from the hard-set port, senses 100 Mbps and falls back to half duplex: a duplex mismatch, with CRC errors and runts on the full-duplex side. Returning the port to auto lets both ends agree on full. A cable fault would not explain the pattern, and nonegotiate affects trunking, not duplex."
+      - id: cn-1y-q02
+        type: mcq
+        q: "A 2 km single-mode link between buildings stays 'down, line protocol is down (notconnect)'. SW1 has a 1000BASE-LX SFP and SW2 a 1000BASE-SX SFP. The fibre tests clean. What is the problem?"
+        choices:
+          - "The optics use different wavelengths and media, so they cannot form a link"
+          - "Single-mode fibre cannot carry 1 Gbps"
+          - "Both ends need 'speed 1000' configured before an SFP link comes up"
+          - "The link needs a crossover fibre patch at one end"
+        answer: 0
+        why: "SX uses 850 nm light for multimode fibre and LX 1310 nm for single-mode, so they cannot talk to each other; SX is also far too short-range for 2 km. Both ends need matching LX optics. Single-mode fibre carries far more than 1 Gbps."
+      - id: cn-1y-q03
+        type: mcq
+        q: "Which address can be configured on a router interface with mask 255.255.254.0?"
+        choices: ["172.16.4.0", "172.16.4.255", "172.16.5.255", "172.16.6.0"]
+        answer: 1
+        why: "A /23 has a block size of 2 in the third octet, so 172.16.4.0/23 runs from 172.16.4.0 to 172.16.5.255. 172.16.4.255 is a host in the middle of it. 172.16.4.0 and 172.16.6.0 are network addresses and 172.16.5.255 is the broadcast."
+      - id: cn-1y-q04
+        type: mcq
+        q: "A Windows PC cannot reach other subnets. 'ipconfig' shows IPv4 address 10.20.30.45, subnet mask 255.255.255.248, default gateway 10.20.30.49. The router's LAN interface is 10.20.30.49/29. What is wrong?"
+        choices:
+          - "The mask should be 255.255.255.240"
+          - "The PC needs a DNS server"
+          - "10.20.30.49 is a broadcast address"
+          - "The PC and the gateway are in different /29 subnets"
+        answer: 3
+        why: "A /29 has a block size of 8: the PC's subnet is 10.20.30.40 to .47, and the gateway is in 10.20.30.48/29. The PC must be readdressed into .49's subnet (.50 to .54) or the gateway moved. .49 is a host address, not a broadcast."
+      - id: cn-1y-q05
+        type: mcq
+        q: "On a Mac, 'ifconfig en0' shows 'inet 10.1.1.50 netmask 0xffffffc0 broadcast 10.1.1.63' and 'netstat -rn' shows 'default 10.1.1.65'. Local pings work but nothing beyond the subnet answers. Why?"
+        choices:
+          - "The netmask 0xffffffc0 is invalid"
+          - "The gateway 10.1.1.65 lies outside the host's 10.1.1.0/26 subnet"
+          - "The broadcast address should be 10.1.1.255"
+          - "macOS needs the gateway written in hex as well"
+        answer: 1
+        why: "0xffffffc0 is 255.255.255.192, a /26: the subnet runs from 10.1.1.0 to 10.1.1.63, which matches the broadcast shown. 10.1.1.65 is in the next /26, so the host cannot reach it directly."
+      - id: cn-1y-q06
+        type: mcq
+        q: "LAN1 uses 192.168.50.0/25 and LAN2 uses 192.168.50.128/26. Which proposed subnet for LAN3 overlaps an existing one?"
+        choices: ["192.168.50.192/27", "192.168.50.224/28", "192.168.50.176/28", "192.168.50.240/29"]
+        answer: 2
+        why: "LAN2's /26 runs from .128 to .191, so 192.168.50.176/28 (.176 to .191) sits inside it. The other three all start at .192 or above, beyond LAN2."
+      - id: cn-1y-q07
+        type: mcq
+        q: "A /26 is shared between a 25-host LAN and router links that each use a /30. The LAN takes the first /27. How many /30 links fit in what is left?"
+        choices: ["4", "6", "16", "8"]
+        answer: 3
+        why: "A /26 holds 64 addresses; the /27 uses 32, leaving 32. Each /30 uses 4 addresses, so 32 / 4 = 8 links."
+      - id: cn-1y-q08
+        type: mcq
+        q: "Hosts on R1's Gi0/0 LAN receive no IPv6 global address by SLAAC. Gi0/0 has 'ipv6 address 2001:db8:5:1::1/64'. 'show ipv6 interface Gi0/0' lists 'Joined group address(es): FF02::1 FF02::1:FF00:1' and nothing else, and IPv6 pings to the router itself work. Which command fixes it?"
+        choices:
+          - "ipv6 unicast-routing"
+          - "ipv6 enable"
+          - "ipv6 address autoconfig"
+          - "ipv6 nd other-config-flag"
+        answer: 0
+        why: "With no FF02::2 joined, the router is not routing IPv6, and an IOS router sends no router advertisements until 'ipv6 unicast-routing' is on. 'ipv6 enable' and 'autoconfig' change the router's own addressing, and the O flag affects DNS, not addresses."
+      - id: cn-1y-q09
+        type: mcq
+        q: "An interface with MAC address 0200.5e12.3456 is configured with 'ipv6 address 2001:db8:1:1::/64 eui-64'. Which address does it get?"
+        choices:
+          - "2001:db8:1:1:200:5eff:fe12:3456"
+          - "2001:db8:1:1:0:5eff:fe12:3456"
+          - "2001:db8:1:1:200:5e12:fffe:3456"
+          - "2001:db8:1:1:0:5efe:ff12:3456"
+        answer: 1
+        why: "Split the MAC into 02005e and 123456, insert fffe, then flip the seventh bit of the first byte: 02 (00000010) becomes 00. The interface ID is 0000:5eff:fe12:3456. Forgetting the flip gives 200:...; the other two put fffe in the wrong place."
+      - id: cn-1y-q10
+        type: mcq
+        q: "PCs on VLAN 30 get IPv6 addresses by SLAAC and can ping servers by address, but name lookups fail. A stateless DHCPv6 server is ready on the router. 'show ipv6 interface Vlan30' includes 'Hosts use stateless autoconfig for addresses.' and nothing about DHCP. Which interface command completes the setup?"
+        choices:
+          - "ipv6 nd managed-config-flag"
+          - "ipv6 address dhcp"
+          - "ipv6 nd other-config-flag"
+          - "ipv6 dhcp relay destination 2001:db8:99::5"
+        answer: 2
+        why: "Setting the O flag tells SLAAC hosts to ask DHCPv6 for other settings such as DNS. The M flag would push them to stateful DHCPv6 for their addresses too, and 'ipv6 address dhcp' makes the router itself a client."
+      - id: cn-1y-q11
+        type: mcq
+        q: "The only DHCPv6 server is 2001:db8:99::5, two routers away. Hosts on R2's Gi0/1 LAN must get addresses from it. Which command, under Gi0/1 on R2, makes that work?"
+        choices:
+          - "ip helper-address 2001:db8:99::5"
+          - "ipv6 address dhcp"
+          - "ipv6 nd other-config-flag"
+          - "ipv6 dhcp relay destination 2001:db8:99::5"
+        answer: 3
+        why: "Clients multicast their Solicit to ff02::1:2, which never leaves the link; 'ipv6 dhcp relay destination' forwards it as unicast to the server. 'ip helper-address' is the IPv4 relay and takes only IPv4 addresses."
+      - id: cn-1y-q12
+        type: mcq
+        q: "To stop rogue configuration, an engineer added 'ipv6 nd ra suppress all' to a LAN interface. Hosts still receive addresses from a stateful DHCPv6 server but can no longer reach other subnets. Why?"
+        choices:
+          - "Hosts learn their default gateway only from router advertisements"
+          - "DHCPv6 cannot work without the O flag"
+          - "Suppressing RAs disables IPv6 forwarding on the router"
+          - "The DHCPv6 server gave out link-local addresses"
+        answer: 0
+        why: "DHCPv6 provides no gateway; hosts use the source of router advertisements. With every RA suppressed they have addresses but no default route. The router still forwards IPv6, and DHCPv6 addressing works without the O flag."
+      - id: cn-1y-q13
+        type: mcq
+        q: "A survey shows AP1 on 2.4 GHz channel 1 and AP2, whose cell overlaps it, on channel 4. Both show many retransmissions. Which change BEST fixes this?"
+        choices:
+          - "Move AP2 to channel 2"
+          - "Move AP2 to channel 6"
+          - "Raise AP2's transmit power"
+          - "Set both APs to 40 MHz channels"
+        answer: 1
+        why: "Channels 1 and 4 partly overlap, so each AP sees the other as noise. Channel 6 is 25 MHz from channel 1 and does not overlap. Channel 2 overlaps even more, more power widens the overlap, and 40 MHz would make it worse."
+      - id: cn-1y-q14
+        type: mcq
+        q: "An AP transmits at 20 dBm. To shrink its cell the engineer lowers the power by 3 dB. What is the new transmit power?"
+        choices: ["50 mW", "17 mW", "97 mW", "10 mW"]
+        answer: 0
+        why: "20 dBm is 100 mW, and a 3 dB reduction halves the power: 50 mW. 10 mW would be a 10 dB reduction. A decibel change is a ratio, not a number of milliwatts to subtract."
+      - id: cn-1y-q15
+        type: mcq
+        q: "A laptop reports a signal of -67 dBm; the noise floor on that channel is -92 dBm. What is the signal-to-noise ratio?"
+        choices: ["-25 dB", "159 dB", "25 dB", "67 dB"]
+        answer: 2
+        why: "SNR is signal minus noise: -67 - (-92) = 25 dB. Adding the magnitudes gives 159, and a negative SNR would mean the noise is stronger than the signal."
+      - id: cn-1y-q16
+        type: mcq
+        q: "R1 has 'interface Gi0/2' / 'vrf forwarding CUST-A' / 'ip address 10.1.1.1 255.255.255.0'. 'ping 10.1.1.10' from R1 fails, though the host at 10.1.1.10 is up. Which command tests it correctly?"
+        choices:
+          - "ping 10.1.1.10 source Gi0/2"
+          - "ping ip 10.1.1.10"
+          - "traceroute 10.1.1.10"
+          - "ping vrf CUST-A 10.1.1.10"
+        answer: 3
+        why: "Gi0/2 is in VRF CUST-A, whose routes are in a separate table. A plain ping looks in the global table, which has no route to 10.1.1.0/24. Naming the VRF makes the router use the right table."
+      - id: cn-1y-q17
+        type: mcq
+        q: "VM1 and VM2 run on one hypervisor host and connect to the same virtual switch port group in VLAN 10. The host's only physical uplink is unplugged. Can VM1 still ping VM2?"
+        choices:
+          - "Yes: the virtual switch forwards frames between them inside the host"
+          - "No: all VM traffic must leave through a physical NIC"
+          - "No: the virtual switch shuts down when its uplink fails"
+          - "Yes, but only if the hypervisor is Type 2"
+        answer: 0
+        why: "A virtual switch is a Layer 2 switch in software; traffic between two VMs on the same host and VLAN never leaves the host. The physical uplink matters only for traffic to the outside network, whatever the hypervisor type."
+      - id: cn-1y-q18
+        type: mcq
+        q: "A company wants every one of its 6 sites joined directly to every other site by its own WAN circuit. How many circuits are needed?"
+        choices: ["6", "15", "30", "36"]
+        answer: 1
+        why: "A full mesh of n sites needs n(n-1)/2 links: 6 × 5 / 2 = 15. 30 counts each link twice, once from each end; 36 is 6 squared."
+      - id: cn-1y-q19
+        type: mcq
+        q: "A PoE+ switch has a 370 W power budget. Every port is to power an access point that the switch budgets at the 30 W class maximum. How many APs can be powered?"
+        choices: ["11", "13", "24", "12"]
+        answer: 3
+        why: "370 / 30 is 12.33: twelve APs use 360 W, and a thirteenth would need 390 W. Port count is not the limit here; the power budget is."
+      - id: cn-1y-q20
+        type: mcq
+        q: "On a Linux server, 'ip addr' shows 'inet 192.168.4.20/24' on eth0 and 'ip route' shows only '192.168.4.0/24 dev eth0 proto kernel scope link src 192.168.4.20'. Pings to other subnets fail with 'Network is unreachable'. What is missing?"
+        choices:
+          - "A DNS server in /etc/resolv.conf"
+          - "A second IP address on eth0"
+          - "A default route through the subnet's gateway"
+          - "A broadcast address on eth0"
+        answer: 2
+        why: "With no 'default via' line the server knows only its own subnet, so the kernel reports other networks as unreachable. A missing DNS server breaks names, not pings to addresses."
+      - id: cn-1y-q21
+        type: mcq
+        q: "A policy says each workload must run its own operating-system kernel, so that a kernel exploit in one cannot reach the others. Which platform meets the rule?"
+        choices:
+          - "Containers on one Linux host"
+          - "Virtual machines on a hypervisor"
+          - "Separate VRFs on a router"
+          - "Separate processes on one server"
+        answer: 1
+        why: "Each virtual machine boots its own guest kernel, isolated by the hypervisor. Containers share the host's kernel, which is exactly what the policy forbids, and VRFs separate routing tables, not workloads."
+      - id: cn-1y-q22
+        type: mcq
+        q: "A company needs private any-to-any connectivity between 30 sites, with a provider contract that guarantees priority for voice across the WAN. Which service fits BEST?"
+        choices:
+          - "Site-to-site IPsec VPNs over the internet"
+          - "A single Metro Ethernet E-Line"
+          - "Broadband with no tunnels"
+          - "An MPLS VPN"
+        answer: 3
+        why: "An MPLS VPN gives any-to-any reach across the provider's network with contractual QoS classes. Internet VPNs are private but the internet offers no QoS guarantee, and an E-Line joins only two sites."
+      - id: cn-1y-q23
+        type: mcq
+        q: "An IDS attached to a SPAN port alerts on an exploit but cannot stop it. The team wants such traffic dropped. What change achieves this?"
+        choices:
+          - "Deploy the sensor inline as an IPS"
+          - "Mirror more VLANs to the SPAN port"
+          - "Increase the SPAN session's buffer"
+          - "Move the SPAN destination to a trunk port"
+        answer: 0
+        why: "A sensor fed by a SPAN port sees only copies, so it can alert but not block. Dropping traffic needs the device in the path, as an IPS. More or differently mirrored traffic is still only a copy."
+      - id: cn-1y-q24
+        type: mcq
+        q: "A switch port connects to an old hub. 'show interfaces' shows 'Half-duplex, 10Mb/s', '845 collisions, 0 late collision' and no CRC errors. What does this indicate?"
+        choices:
+          - "A duplex mismatch with the hub"
+          - "A cable longer than 100 metres"
+          - "Normal operation on a shared half-duplex segment"
+          - "A speed mismatch with the hub"
+        answer: 2
+        why: "Collisions are expected on a hub, where devices share the medium; CSMA/CD handles them. Late collisions or CRC errors would suggest a duplex mismatch or an over-long cable, and a speed mismatch would keep the link down."
+      - id: cn-1y-m01
+        type: multi
+        q: "There is a duplex mismatch between SW1 (full duplex) and SW2 (half duplex). Which TWO counters rise on SW1? (Choose TWO.)"
+        choices: ["CRC", "Runts", "Late collisions", "Giants", "Output drops"]
+        answers: [0, 1]
+        why: "The half-duplex side stops sending mid-frame when it senses SW1 transmitting, so SW1 receives truncated, corrupt frames: runts and CRC errors. Late collisions are counted on the half-duplex side, and giants and output drops are unrelated."
+      - id: cn-1y-m02
+        type: multi
+        q: "'show ipv6 interface brief' on R1 lists FE80::1, 2001:DB8:A:1::1 and FD12:3456:789A:1::1 on Gi0/0. Treating 2001:DB8::/32 as a global prefix, which TWO of these addresses can be reached from another subnet inside the organisation? (Choose TWO.)"
+        choices: ["FE80::1", "2001:DB8:A:1::1", "FD12:3456:789A:1::1", "FF02::1", "::1"]
+        answers: [1, 2]
+        why: "Global unicast and unique local addresses are both routed inside the organisation; only the global one is routed on the internet. FE80::1 is link-local, FF02::1 is a link-scope multicast group, and ::1 is the loopback."
+      - id: cn-1y-m03
+        type: multi
+        q: "Two switches 400 m apart need a 1 Gbps link. Which TWO choices will work? (Choose TWO.)"
+        choices:
+          - "1000BASE-SX on 50-micron OM2 multimode fibre"
+          - "1000BASE-LX on single-mode fibre"
+          - "1000BASE-T on Category 6 copper"
+          - "1000BASE-T on Category 6a copper"
+          - "10GBASE-T on Category 6a copper"
+        answers: [0, 1]
+        why: "1000BASE-SX reaches about 550 m on 50-micron OM2 fibre and 1000BASE-LX several kilometres on single-mode. Every twisted-pair option, whatever the category, is limited to 100 m."
+      - id: cn-1y-m04
+        type: multi
+        q: "Three 2.4 GHz APs whose cells overlap are all on channel 6, and clients see poor throughput. Which TWO changes reduce the interference? (Choose TWO.)"
+        choices:
+          - "Assign them channels 1, 6 and 11"
+          - "Lower their transmit power so the cells overlap less"
+          - "Raise their transmit power"
+          - "Bond each to a 40 MHz channel"
+          - "Stop broadcasting the SSID"
+        answers: [0, 1]
+        why: "Separate non-overlapping channels remove the co-channel contention, and lower power shrinks the overlap. More power and wider channels increase contention, and hiding the SSID changes nothing about RF."
+      - id: cn-1y-o01
+        type: order
+        q: "A PC cannot open a web page on a server in another subnet. Put the checks of a bottom-up troubleshooting approach in order."
+        steps:
+          - "Check the link: cable, port status and link light"
+          - "Check the PC's IP address, mask and default gateway"
+          - "Ping the default gateway"
+          - "Ping the server by IP address"
+          - "Resolve the server's name and open the page"
+        why: "Bottom-up works from Layer 1 upward: each check depends on the ones below it, so a failure points straight at the layer where the fault lies."
+      - id: cn-1y-o02
+        type: order
+        q: "10.0.0.0/24 is divided with VLSM, largest requirement first, each subnet on the next free boundary. Put the allocations in the order they are made."
+        steps:
+          - "10.0.0.0/25 for the 100-host LAN"
+          - "10.0.0.128/26 for the 50-host LAN"
+          - "10.0.0.192/27 for the 20-host LAN"
+          - "10.0.0.224/28 for the 10-host LAN"
+          - "10.0.0.240/30 for the router link"
+        why: "Allocating largest first keeps every block on its natural boundary: 128, then 64, 32, 16 and 4 addresses, each starting where the previous one ended."
+
+  # ─────────────── 2x · network access in depth ───────────────
+  - id: cn-2x
+    title: "Network access in depth: VLANs, DTP, EtherChannel, spanning tree and wireless"
+    domain: "2"
+    goal: "I can create and remove VLANs safely, control trunk negotiation, build Layer 2 and Layer 3 EtherChannels, set and predict the spanning-tree root and port roles, choose the right edge protection, and describe AP modes and controller interfaces."
+    notes: |
+      **VLANs.** `vlan 10` then `name SALES` creates a VLAN. VLAN 1 and VLANs 1002 to 1005 cannot be deleted. Deleting a VLAN leaves its ports *inactive*, not moved to VLAN 1. A routed port needs `no switchport` first; routing between SVIs needs `ip routing`.
+
+      **Trunks.** An 802.1Q tag is 4 bytes after the source MAC: TPID 0x8100, then 3 priority bits, 1 DEI bit and a 12-bit VLAN ID. **DTP** negotiates trunking; `switchport nonegotiate` silences it. A switch that also supports ISL needs `switchport trunk encapsulation dot1q` before `switchport mode trunk`.
+
+      **Discovery.** CDP: 60 s timer, 180 s holdtime. LLDP: 30 s and 120 s. Per interface: `no cdp enable`, `no lldp transmit`, `no lldp receive`.
+
+      **EtherChannel.** LACP: active, passive. PAgP: desirable, auto. For Layer 3, put `no switchport` on the members and the IP address on the port-channel. Each flow is hashed to one link.
+
+      **Spanning tree.** `root primary` sets priority 24576 (or 4096 below the current root); `root secondary` sets 28672. Costs: 100 Mbps = 19, 1 Gbps = 4, 10 Gbps = 2. Roles: root, designated, alternate, backup. RSTP states: discarding, learning, forwarding.
+
+      | Feature | Reacts to | Result |
+      | BPDU guard | any BPDU | err-disabled |
+      | Root guard | superior BPDU | root-inconsistent |
+      | Loop guard | BPDUs stop | loop-inconsistent |
+      | BPDU filter | — | sends no BPDUs |
+
+      **Wireless.** AP modes add *bridge* (wireless links and mesh) and *SE-Connect* (spectrum analysis). Controllers may be appliances, embedded or cloud. On a WLC the *virtual interface* serves web authentication and DHCP relay.
+    items:
+      - id: cn-2x-vlan1
+        type: concept
+        term: "VLAN 1 (default VLAN)"
+        def: "The VLAN every switch port belongs to out of the box; it cannot be deleted or renamed, and by default it carries CDP, VTP and DTP control traffic."
+      - id: cn-2x-extended
+        type: concept
+        term: "Extended-range VLANs"
+        def: "VLAN IDs 1006 to 4094, available beyond the normal range of 1 to 1005."
+      - id: cn-2x-no-switchport
+        type: concept
+        term: "no switchport"
+        def: "Interface command on a multilayer switch that turns the port into a routed interface that takes an IP address and belongs to no VLAN."
+      - id: cn-2x-ip-routing
+        type: concept
+        term: "ip routing"
+        def: "Global command that lets a multilayer switch forward IPv4 packets between its SVIs and routed ports."
+      - id: cn-2x-dtp
+        type: concept
+        term: "DTP"
+        def: "Cisco's protocol by which two switch ports negotiate whether the link between them becomes a trunk."
+      - id: cn-2x-desirable
+        type: concept
+        term: "switchport mode dynamic desirable"
+        def: "A port mode that actively asks the neighbour to trunk, and becomes a trunk if the neighbour is set to trunk, desirable or auto."
+      - id: cn-2x-nonegotiate
+        type: concept
+        term: "switchport nonegotiate"
+        def: "Interface command that stops a port sending trunk-negotiation frames; accepted only when the port mode is set to access or trunk."
+      - id: cn-2x-vid
+        type: concept
+        term: "VLAN ID field (802.1Q)"
+        def: "The 12-bit part of the 4-byte tag that names the frame's VLAN, giving usable values 1 to 4094."
+      - id: cn-2x-no-cdp-enable
+        type: concept
+        term: "no cdp enable"
+        def: "Interface command that stops Cisco's discovery protocol on one port while leaving it running on all the others."
+      - id: cn-2x-no-lldp-transmit
+        type: concept
+        term: "no lldp transmit"
+        def: "Interface command that stops a port sending vendor-neutral discovery advertisements while still letting it learn from neighbours that send them."
+      - id: cn-2x-l3-etherchannel
+        type: concept
+        term: "Layer 3 EtherChannel"
+        def: "A bundle of routed ports presented as one routed port-channel interface, which holds the IP address; its members are configured with no switchport."
+      - id: cn-2x-pagp
+        type: concept
+        term: "PAgP"
+        def: "Cisco's own negotiation protocol for bundling parallel links, using the desirable and auto modes."
+      - id: cn-2x-load-balance
+        type: concept
+        term: "port-channel load-balance"
+        def: "Global command that chooses which header fields, such as source or destination MAC or IP address, are hashed to pick the member link for each flow."
+      - id: cn-2x-root-primary
+        type: concept
+        term: "spanning-tree vlan 10 root primary"
+        def: "A macro that sets the switch's priority for one VLAN to 24576, or to 4096 below the current root's priority if that is already lower, so the switch becomes root."
+      - id: cn-2x-designated
+        type: concept
+        term: "Designated port"
+        def: "The single forwarding port on each segment that offers that segment the best path to the root; every port on the root bridge has this role."
+      - id: cn-2x-backup
+        type: concept
+        term: "Backup port"
+        def: "A discarding port that hears superior BPDUs from another port on the same switch, giving a spare path onto a shared segment that switch already serves."
+      - id: cn-2x-discarding
+        type: concept
+        term: "Discarding state"
+        def: "The RSTP port state that neither forwards frames nor learns MAC addresses, replacing the older disabled, blocking and listening states."
+      - id: cn-2x-loopguard
+        type: concept
+        term: "Loop guard"
+        def: "Holds a root or alternate port in an inconsistent, blocking state when BPDUs stop arriving on it, instead of letting it age into forwarding."
+      - id: cn-2x-bpdufilter
+        type: concept
+        term: "BPDU filter"
+        def: "Stops a port sending spanning-tree messages; enabled directly on an interface it also ignores incoming ones, which can let a loop form."
+      - id: cn-2x-errdisable-recovery
+        type: concept
+        term: "errdisable recovery cause bpduguard"
+        def: "Global command that brings ports shut by the BPDU protection feature back up automatically after a timer, 300 seconds by default."
+      - id: cn-2x-bridge-mode
+        type: concept
+        term: "Bridge mode (AP)"
+        def: "An access point mode that links networks over the air, point to point or point to multipoint, and forms mesh links where cabling is impossible."
+      - id: cn-2x-se-connect
+        type: concept
+        term: "SE-Connect mode"
+        def: "An access point mode that makes the radio a dedicated spectrum analyser, to which a remote analysis program connects to find non-Wi-Fi interference."
+      - id: cn-2x-embedded-wlc
+        type: concept
+        term: "Embedded wireless controller"
+        def: "Controller software that runs inside a Catalyst switch or an access point to manage a small site's APs, with no separate controller appliance."
+      - id: cn-2x-virtual-int
+        type: concept
+        term: "Virtual interface (WLC)"
+        def: "A controller interface with a non-routed address that serves web-authentication redirects, DHCP relay to clients and mobility, and is never used for management."
+
+      - id: cn-2x-q01
+        type: mcq
+        q: "On SW1, ports Gi0/5 to Gi0/8 are access ports in VLAN 10. An engineer enters 'no vlan 10' in global configuration. What happens to those four ports?"
+        choices:
+          - "They move to VLAN 1 and keep forwarding"
+          - "They become trunk ports"
+          - "They are err-disabled until the VLAN is re-created"
+          - "They stay assigned to VLAN 10 but become inactive"
+        answer: 3
+        why: "Deleting a VLAN does not reassign its ports: they keep 'switchport access vlan 10', forward nothing, and drop out of 'show vlan brief'. Re-creating VLAN 10 brings them back. Nothing err-disables them."
+      - id: cn-2x-q02
+        type: mcq
+        q: "Which VLAN can be deleted from a Catalyst switch's VLAN database?"
+        choices: ["VLAN 1", "VLAN 20", "VLAN 1002", "VLAN 1005"]
+        answer: 1
+        why: "VLAN 1 and VLANs 1002 to 1005 are defaults that IOS will not delete. Any other normal-range VLAN, such as 20, can be removed."
+      - id: cn-2x-q03
+        type: mcq
+        q: "A Cisco IP phone is plugged into a port with 'switchport access vlan 10' and 'switchport voice vlan 20'. How does the phone learn that it should tag its voice traffic for VLAN 20?"
+        choices:
+          - "From a DHCP option 150 reply"
+          - "From DTP frames"
+          - "From CDP messages sent by the switch"
+          - "From VTP advertisements"
+        answer: 2
+        why: "The switch announces the voice VLAN to a Cisco phone in CDP. DHCP option 150 tells the phone where its TFTP configuration server is, DTP negotiates trunks, and VTP synchronises VLAN databases between switches."
+      - id: cn-2x-q04
+        type: mcq
+        q: "On a Catalyst 9300, an engineer enters 'interface Gi1/0/24' then 'ip address 10.0.0.1 255.255.255.252', and IOS rejects the address command. What must be entered first?"
+        choices:
+          - "no switchport"
+          - "ip routing"
+          - "switchport mode access"
+          - "encapsulation dot1Q 1"
+        answer: 0
+        why: "A switch port is Layer 2 and takes no IP address until 'no switchport' makes it a routed port. 'ip routing' enables forwarding between routed interfaces but does not convert a port, and 'encapsulation dot1Q' is a router subinterface command."
+      - id: cn-2x-q05
+        type: mcq
+        q: "On a switch that supports both ISL and 802.1Q, 'switchport mode trunk' returns 'Command rejected: An interface whose trunk encapsulation is \"Auto\" can not be configured to \"trunk\" mode.' Which command must come first?"
+        choices:
+          - "switchport nonegotiate"
+          - "switchport trunk native vlan 1"
+          - "switchport mode dynamic desirable"
+          - "switchport trunk encapsulation dot1q"
+        answer: 3
+        why: "A port that can do both encapsulations must have one fixed before it is forced to trunk. 'switchport nonegotiate' is refused while the mode is dynamic, and the native VLAN is unrelated to the encapsulation."
+      - id: cn-2x-q06
+        type: mcq
+        q: "Where in an Ethernet frame does a switch insert the 4-byte 802.1Q tag?"
+        choices:
+          - "Before the destination MAC address"
+          - "Between the source MAC address and the EtherType"
+          - "Between the EtherType and the payload"
+          - "After the payload, before the FCS"
+        answer: 1
+        why: "The tag goes straight after the source MAC, where its TPID of 0x8100 sits in the position a receiver expects the EtherType; the original EtherType follows the tag. The FCS is then recalculated."
+      - id: cn-2x-q07
+        type: mcq
+        q: "LLDP runs with default timers. A neighbouring switch loses power. At most how long can its entry remain in 'show lldp neighbors'?"
+        choices: ["30 seconds", "60 seconds", "120 seconds", "180 seconds"]
+        answer: 2
+        why: "LLDP advertises every 30 seconds with a holdtime of 120 seconds, so a silent neighbour is removed after at most 120. 60 and 180 seconds are CDP's timer and holdtime."
+      - id: cn-2x-q08
+        type: mcq
+        q: "R1 must keep CDP running towards its internal switches but stop sending it out of Gi0/0, which faces the internet. Which configuration does that?"
+        choices:
+          - "'no cdp run' in global configuration"
+          - "'no cdp enable' under interface Gi0/0"
+          - "'no lldp transmit' under interface Gi0/0"
+          - "'cdp holdtime 0' in global configuration"
+        answer: 1
+        why: "'no cdp enable' turns CDP off on one interface only. 'no cdp run' disables it on the whole device, the LLDP command affects a different protocol, and a holdtime of zero is not how CDP is stopped."
+      - id: cn-2x-q09
+        type: mcq
+        q: "Gi1/0/1 and Gi1/0/2 on a multilayer switch form a Layer 3 EtherChannel. Where is the IP address configured?"
+        choices:
+          - "On interface Port-channel1"
+          - "On Gi1/0/1 only, the lowest-numbered member"
+          - "On both Gi1/0/1 and Gi1/0/2, with the same address"
+          - "On an SVI for the port-channel's VLAN"
+        answer: 0
+        why: "The members carry 'no switchport' and the channel-group command; the logical routed interface Port-channel1 holds the address. A routed port-channel belongs to no VLAN, so no SVI is involved."
+      - id: cn-2x-q10
+        type: mcq
+        q: "Both switches have 'channel-group 2 mode auto' on their two connecting ports. What is the result?"
+        choices:
+          - "A PAgP bundle forms"
+          - "An LACP bundle forms"
+          - "The ports err-disable"
+          - "No bundle forms; the links run as separate ports"
+        answer: 3
+        why: "Auto is the PAgP mode that only answers; with auto on both ends no one starts the negotiation. One side must be desirable. LACP is not involved, and spanning tree simply blocks the redundant link."
+      - id: cn-2x-q11
+        type: mcq
+        q: "Two servers are joined through a four-link 1 Gbps LACP EtherChannel. A single large backup between them never exceeds 1 Gbps. Why?"
+        choices:
+          - "LACP limits each bundle to the speed of one member"
+          - "Each flow is hashed to one member link, so one conversation uses one link"
+          - "The other three links are in hot-standby"
+          - "The servers' NICs must be set to 4 Gbps"
+        answer: 1
+        why: "EtherChannel load balancing hashes header fields per flow, so all frames of one conversation take the same member, which also keeps them in order. Many flows spread across the links, but one flow cannot exceed one link."
+      - id: cn-2x-q12
+        type: mcq
+        q: "For VLAN 10 the current root shows 'Priority 16394 (priority 16384 sys-id-ext 10)'. 'spanning-tree vlan 10 root primary' is entered on SW2, which has the default priority. What priority does SW2 then show for VLAN 10?"
+        choices: ["24586", "16394", "12298", "4106"]
+        answer: 2
+        why: "The root is already below 24576, so the macro sets SW2 to 4096 less than the root's base value: 16384 - 4096 = 12288, which plus the VLAN number gives 12298. 24586 would not beat the existing root."
+      - id: cn-2x-q13
+        type: mcq
+        q: "In Rapid PVST+, which port state learns MAC addresses from incoming frames but does not yet forward them?"
+        choices: ["Learning", "Discarding", "Listening", "Forwarding"]
+        answer: 0
+        why: "Learning fills the MAC table so the port does not flood when it starts forwarding. Discarding does neither, and listening exists only in the original 802.1D protocol."
+      - id: cn-2x-q14
+        type: mcq
+        q: "A fibre link to the root has a broken transmit strand on the far side, so SW3's alternate port stops receiving BPDUs while its link stays up. Which feature keeps that port from moving to forwarding and creating a loop?"
+        choices: ["Root guard", "BPDU guard", "PortFast", "Loop guard"]
+        answer: 3
+        why: "Loop guard treats the sudden absence of BPDUs on a root or alternate port as a fault and holds the port loop-inconsistent. Root guard reacts to superior BPDUs, not to missing ones, and BPDU guard reacts to any BPDU arriving."
+      - id: cn-2x-q15
+        type: mcq
+        q: "Two buildings 300 m apart have no cable between them. The company wants to join their networks over the air with a pair of access points. Which AP mode is used?"
+        choices: ["Local", "Bridge", "FlexConnect", "Monitor"]
+        answer: 1
+        why: "Bridge mode builds point-to-point or point-to-multipoint wireless links and mesh. Local and FlexConnect serve clients, and monitor only scans."
+      - id: cn-2x-q16
+        type: mcq
+        q: "An engineer must find a microwave oven and a wireless camera that interfere with Wi-Fi, by connecting a remote spectrum-analysis program to one dedicated AP. Which AP mode is chosen?"
+        choices: ["Sniffer", "Monitor", "SE-Connect", "Rogue detector"]
+        answer: 2
+        why: "SE-Connect dedicates the radio to spectrum analysis and lets a remote analysis program read it. Sniffer captures 802.11 frames for a packet analyser, which cannot see non-Wi-Fi sources like a microwave."
+      - id: cn-2x-q17
+        type: mcq
+        q: "On a WLC, guest clients on a web-authentication WLAN are redirected to the login page. Which controller interface supplies the address of that page?"
+        choices: ["Virtual interface", "Management interface", "Service port", "Dynamic interface"]
+        answer: 0
+        why: "The virtual interface carries a non-routed address used for web-authentication redirects and DHCP relay. The management interface handles management and AP tunnels, the service port is out-of-band, and a dynamic interface places clients in a VLAN."
+      - id: cn-2x-m01
+        type: multi
+        q: "Which THREE settings must match on every member port before an EtherChannel will bundle them? (Choose THREE.)"
+        choices:
+          - "Speed"
+          - "Duplex"
+          - "Allowed VLAN list on a trunk"
+          - "Interface description"
+          - "CDP enabled or disabled"
+          - "Physical port number"
+        answers: [0, 1, 2]
+        why: "Members must agree on speed, duplex and VLAN settings (access VLAN, or trunk mode, native and allowed VLANs); a mismatched port is suspended. Descriptions, CDP and port numbers do not affect bundling."
+      - id: cn-2x-m02
+        type: multi
+        q: "Which TWO pairs of channel-group modes form a bundle? (Choose TWO.)"
+        choices:
+          - "active and passive"
+          - "desirable and auto"
+          - "passive and passive"
+          - "auto and auto"
+          - "on and active"
+          - "desirable and active"
+        answers: [0, 1]
+        why: "LACP needs at least one active side and PAgP at least one desirable side. Two passive or two auto ports never start negotiating, 'on' sends no LACP, and a PAgP port cannot pair with an LACP port."
+      - id: cn-2x-m03
+        type: multi
+        q: "A router's web interface must be reachable only over an encrypted session. Which TWO global commands achieve that? (Choose TWO.)"
+        choices:
+          - "ip http server"
+          - "no ip http server"
+          - "ip http secure-server"
+          - "transport input ssh"
+          - "ip http authentication local"
+        answers: [1, 2]
+        why: "'no ip http server' turns off clear-text HTTP and 'ip http secure-server' turns on HTTPS. 'transport input ssh' is a vty line command for the CLI, and 'ip http authentication local' chooses how web users log in, not whether the session is encrypted."
+      - id: cn-2x-m04
+        type: multi
+        q: "Which TWO Rapid PVST+ port roles forward user traffic? (Choose TWO.)"
+        choices: ["Root", "Designated", "Alternate", "Backup", "Disabled"]
+        answers: [0, 1]
+        why: "Root and designated ports forward. Alternate and backup ports discard while standing by as replacements, and a disabled port takes no part in spanning tree."
+      - id: cn-2x-o01
+        type: order
+        q: "A non-root switch has several paths to the root bridge. Put the tie-breakers it uses to choose its root port in order."
+        steps:
+          - "Lowest total path cost to the root"
+          - "Lowest bridge ID of the neighbour sending the BPDU"
+          - "Lowest port priority of the neighbour's sending port"
+          - "Lowest port number of the neighbour's sending port"
+        why: "Cost is compared first; each later test is reached only on a tie. The port values that matter are the neighbour's, carried in its BPDUs, not the local switch's."
+      - id: cn-2x-o02
+        type: order
+        q: "Put the stages of spanning-tree convergence for one VLAN in order."
+        steps:
+          - "Elect the root bridge"
+          - "Each non-root switch selects its root port"
+          - "Each segment selects a designated port"
+          - "Remaining ports become alternate or backup and discard"
+        why: "Every cost is measured towards the root, so it must be known first; root ports and designated ports follow from those costs, and whatever is left over blocks."
+
+  # ─────────────── 2y · network access practice ───────────────
+  - id: cn-2y
+    title: "Access practice: trunks, bundles and spanning tree from show output"
+    domain: "2"
+    goal: "I can read switchport, EtherChannel and spanning-tree output, predict the root bridge, root ports and blocked ports, and pick the command that fixes a trunk, bundle, edge-port or management fault."
+    notes: |
+      This unit is practice at exam difficulty. Work the same way every time.
+
+      **Trunks.** Read `show interfaces <port> switchport`: compare *Administrative Mode* with *Operational Mode*. Auto with auto stays access; `nonegotiate` on one side stops DTP, so a dynamic neighbour never trunks. A VLAN allowed on a trunk but missing from the VLAN database is not *active* and is not carried.
+
+      **EtherChannel.** In `show etherchannel summary`: P bundled, I stand-alone, s suspended (a settings mismatch), D down, S Layer 2, R Layer 3, U in use.
+
+      **Spanning tree, step by step.**
+
+      - Root: lowest priority, then lowest MAC.
+      - Root port on each other switch: lowest path cost (1 Gbps = 4, 10 Gbps = 2), then lowest neighbour bridge ID, then lowest neighbour port priority, then lowest neighbour port number.
+      - Designated port on each segment: lowest cost to root, then lowest bridge ID of the two switches.
+      - Everything else: alternate (or backup on a shared segment) and discarding.
+
+      **Edge protection.** BPDU guard err-disables and needs manual or timed recovery. Root guard and loop guard block and recover by themselves. Interface BPDU filter hides loops; global BPDU filter gives up as soon as a BPDU arrives.
+
+      **AAA.** The `local` fallback is used only when no server answers, never when a server rejects the login.
+    items:
+      - id: cn-2y-q01
+        type: mcq
+        q: "SW1 Gi0/1 connects to SW2. 'show interfaces Gi0/1 switchport' on SW1 shows 'Administrative Mode: dynamic auto' and 'Operational Mode: static access'. SW2's port is also dynamic auto. Which single command on SW1 Gi0/1 makes the link a trunk?"
+        choices:
+          - "switchport nonegotiate"
+          - "switchport trunk allowed vlan all"
+          - "switchport mode dynamic desirable"
+          - "switchport trunk native vlan 1"
+        answer: 2
+        why: "Desirable actively asks, and an auto neighbour agrees, so the link trunks. 'switchport nonegotiate' is refused on a dynamic port, and the allowed and native VLAN settings apply only once the port is a trunk."
+      - id: cn-2y-q02
+        type: mcq
+        q: "SW1 Gi0/1 has 'switchport trunk encapsulation dot1q', 'switchport mode trunk' and 'switchport nonegotiate'. SW2 Gi0/1 is left at 'switchport mode dynamic auto'. What is the result?"
+        choices:
+          - "Both ends trunk, because SW1 is set to trunk"
+          - "SW1 trunks but SW2 stays an access port, a mismatch"
+          - "Both ends become access ports"
+          - "SW2 err-disables because it receives tagged frames"
+        answer: 1
+        why: "With nonegotiate SW1 sends no DTP, so SW2's auto port never hears a request and stays access, while SW1 trunks regardless. The fix is to set SW2 to trunk as well, or to remove nonegotiate."
+      - id: cn-2y-q03
+        type: mcq
+        q: "Hosts in VLAN 20 on SW1 cannot reach VLAN 20 hosts on SW3, which connect through SW2. On SW2, 'show interfaces trunk' shows 'Vlans allowed on trunk: 1-4094' but 'Vlans allowed and active in management domain: 1,10,30' for both trunks. What is the fix?"
+        choices:
+          - "Create VLAN 20 on SW2 with 'vlan 20'"
+          - "Enter 'switchport trunk allowed vlan add 20' on both trunks"
+          - "Make VLAN 20 the native VLAN on both trunks"
+          - "Enter 'switchport trunk encapsulation dot1q' on SW2"
+        answer: 0
+        why: "VLAN 20 is allowed but not active, because SW2 has no VLAN 20 in its database, so SW2 drops its frames. Creating the VLAN on SW2 fixes it. The allowed list already includes 20."
+      - id: cn-2y-q04
+        type: mcq
+        q: "A port has 'switchport mode access', 'switchport access vlan 10', 'switchport voice vlan 20' and 'no cdp enable'. The Cisco IP phone on it boots and takes an address from the VLAN 10 data scope instead of the voice scope. What is the MOST likely cause?"
+        choices:
+          - "The port must be a trunk to carry a voice VLAN"
+          - "PortFast is missing, so the phone times out"
+          - "VLAN 20 must be the native VLAN"
+          - "With CDP off, the phone never learns the voice VLAN and sends untagged"
+        answer: 3
+        why: "The switch tells a Cisco phone its voice VLAN through CDP. Without it the phone sends untagged frames, which land in the access VLAN 10. A voice VLAN works on an access port; no trunk is needed."
+      - id: cn-2y-q05
+        type: mcq
+        q: "A Catalyst multilayer switch has 'interface vlan 10' (10.1.10.1/24) and 'interface vlan 20' (10.1.20.1/24), both up/up. Hosts in each VLAN can ping their own gateway but not hosts in the other VLAN. 'show ip route' prints only 'Default gateway is not set'. Which command fixes it?"
+        choices:
+          - "no switchport"
+          - "ip routing"
+          - "ip default-gateway 10.1.10.1"
+          - "ipv6 unicast-routing"
+        answer: 1
+        why: "Output listing only a default gateway, with no routing table, shows the switch is not routing; 'ip routing' turns IPv4 forwarding on between its SVIs. 'ip default-gateway' is for a switch that does not route, and 'no switchport' is for physical ports."
+      - id: cn-2y-q06
+        type: mcq
+        q: "'show etherchannel summary' on SW1 shows: '1  Po1(SU)  LACP  Gi0/1(P)  Gi0/2(s)'. What is the most likely reason for Gi0/2's state?"
+        choices:
+          - "Gi0/2 is administratively shut down"
+          - "The neighbour on Gi0/2 is set to mode on"
+          - "Gi0/2's settings, such as its allowed VLANs, differ from the port-channel's"
+          - "Gi0/2 is waiting as a hot-standby member"
+        answer: 2
+        why: "'s' means suspended, which IOS does when a member's configuration does not match the bundle. A shut port shows D, a hot-standby LACP member shows H, and a neighbour that sends no LACP leaves the port stand-alone (I)."
+      - id: cn-2y-q07
+        type: mcq
+        q: "SW1 has 'channel-group 1 mode active' on Gi0/1-2 and shows 'Po1(SD)  LACP  Gi0/1(I)  Gi0/2(I)'. SW2 shows 'Po1(SU)  -  Gi0/1(P)  Gi0/2(P)', with no protocol listed. How is SW2 configured?"
+        choices:
+          - "channel-group 1 mode passive"
+          - "channel-group 1 mode active"
+          - "channel-group 1 mode desirable"
+          - "channel-group 1 mode on"
+        answer: 3
+        why: "SW2 bundled with no protocol, which only mode on does; it sends no LACP, so SW1's active ports never hear a partner and stay stand-alone. Passive or active would have formed an LACP bundle on both sides, and desirable is PAgP, which SW2 would list."
+      - id: cn-2y-q08
+        type: mcq
+        q: "Two hundred clients in VLAN 10 reach one server in VLAN 10 across a four-link EtherChannel, all on TCP port 443. 'show etherchannel load-balance' on the client-side switch shows 'dst-mac', and one link carries nearly all the traffic. Which setting on that switch spreads the load?"
+        choices: ["dst-ip", "src-dst-ip", "dst-port", "dst-mac"]
+        answer: 1
+        why: "Every frame has the server as its destination, so any hash of destination fields alone (MAC, IP or port 443) picks the same link. Including the source IP gives two hundred different hash inputs."
+      - id: cn-2y-q09
+        type: mcq
+        q: "For VLAN 10: SW1 shows 'Bridge ID Priority 24586, Address 0011.1111.1111'; SW2 shows 'Bridge ID Priority 24586, Address 0011.1111.0aaa'; SW3 shows 'Bridge ID Priority 32778, Address 0000.0000.0001'. Which switch is the root bridge?"
+        choices:
+          - "SW2, because it ties on priority and has the lower MAC"
+          - "SW1, because it ties on priority and has the higher MAC"
+          - "SW3, because it has the lowest MAC address"
+          - "SW1 and SW2 share the role"
+        answer: 0
+        why: "Priority is compared first, so SW3 (32778) is out despite its low MAC. SW1 and SW2 tie at 24586, and the lower MAC wins: 0011.1111.0aaa is lower than 0011.1111.1111."
+      - id: cn-2y-q10
+        type: mcq
+        q: "SW3's Gi0/1 is a 1 Gbps link straight to the root. Its Te0/2 is a 10 Gbps link to SW2, and SW2 reaches the root over another 10 Gbps link. Costs are 4 for 1 Gbps and 2 for 10 Gbps. Which is SW3's root port?"
+        choices:
+          - "Te0/2, because 10 Gbps links always win"
+          - "Te0/2, because it has the lower local cost"
+          - "Neither; both ports forward because the costs tie"
+          - "Gi0/1, because the costs tie and the root has the lower bridge ID than SW2"
+        answer: 3
+        why: "Path via Gi0/1 costs 4; via Te0/2 it costs 2 + 2 = 4. On a tie the next test is the sender's bridge ID: Gi0/1 hears the root itself, which has the lowest ID of all, so Gi0/1 is the root port and Te0/2 becomes alternate (or designated, if SW3 wins that segment)."
+      - id: cn-2y-q11
+        type: mcq
+        q: "SW2 has two parallel links to the root bridge: SW2 Gi0/1 to root Gi0/24, and SW2 Gi0/2 to root Gi0/23. All ports are 1 Gbps with default port priorities. Which port does SW2 choose as its root port?"
+        choices:
+          - "Gi0/1, because it has the lower local port number"
+          - "Gi0/2, because it connects to the root's lower port number"
+          - "Whichever link came up first"
+          - "Both, because the paths cost the same"
+        answer: 1
+        why: "Cost and sender bridge ID tie, as do the sender port priorities (128). The next test is the sender's port number: the root's Gi0/23 is lower than Gi0/24, so SW2's Gi0/2, which hears Gi0/23, wins. SW2's own port numbers do not count."
+      - id: cn-2y-q12
+        type: mcq
+        q: "In that same topology (SW2 Gi0/1 to root Gi0/24, SW2 Gi0/2 to root Gi0/23), the engineer enters 'spanning-tree port-priority 64' on the root's Gi0/24. What changes?"
+        choices:
+          - "Nothing, because port priority matters only on the local switch"
+          - "SW2's Gi0/2 stays root port, because Gi0/23 is still the lower port number"
+          - "SW2's Gi0/1 becomes the root port, because it now hears port ID 64.24"
+          - "The root's Gi0/24 becomes a root port"
+        answer: 2
+        why: "Port priority is compared before port number, and the value advertised by the root is what SW2 compares: 64.24 beats 128.23. Changing the priority on SW2's own ports would have no effect on SW2's choice."
+      - id: cn-2y-q13
+        type: mcq
+        q: "Distribution switch DS1 logs '%SPANTREE-2-ROOTGUARD_BLOCK: Root guard blocking port GigabitEthernet1/0/24 on VLAN0010.' just after a contractor set 'spanning-tree vlan 10 priority 0' on the access switch on Gi1/0/24. What happens next if nothing else changes?"
+        choices:
+          - "The access switch becomes root and DS1 forwards on Gi1/0/24"
+          - "Gi1/0/24 is err-disabled until an administrator bounces it"
+          - "DS1 removes the root guard configuration"
+          - "Gi1/0/24 stays blocked for VLAN 10 until the superior BPDUs stop, then recovers by itself"
+        answer: 3
+        why: "Root guard puts the port root-inconsistent, blocking it while superior BPDUs keep arriving. When the access switch's priority is put back and those BPDUs stop, the port recovers without intervention. Err-disabling is what BPDU guard does."
+      - id: cn-2y-q14
+        type: mcq
+        q: "SW3 logs '%SPANTREE-2-LOOPGUARD_BLOCK: Loop guard blocking port GigabitEthernet0/2 on VLAN0010.' Gi0/2 was an alternate port and its link is still up. What has happened?"
+        choices:
+          - "Gi0/2 stopped receiving BPDUs, possibly from a one-way link fault"
+          - "Gi0/2 received a superior BPDU from a new switch"
+          - "A host on Gi0/2 sent a BPDU"
+          - "Gi0/2 has a duplex mismatch"
+        answer: 0
+        why: "Loop guard acts when BPDUs stop arriving on a root or alternate port while the link stays up, which typically means a unidirectional fault. Without it the port would age out its information and start forwarding into a loop. A superior BPDU is root guard's trigger."
+      - id: cn-2y-q15
+        type: mcq
+        q: "SW1 has 'errdisable recovery cause bpduguard' and 'errdisable recovery interval 120'. A user's small switch, still plugged into Gi0/9, put the port into err-disabled. What happens over the next few minutes if the user does nothing?"
+        choices:
+          - "The port stays err-disabled until someone enters 'shutdown' and 'no shutdown'"
+          - "After 120 seconds the port recovers and stays up"
+          - "After 120 seconds the port recovers, then err-disables again when the next BPDU arrives"
+          - "After 300 seconds the port recovers and BPDU guard is removed"
+        answer: 2
+        why: "Recovery re-enables the port after the configured 120 seconds, but BPDU guard is still on and the switch is still sending BPDUs, so the port err-disables again, in a cycle. 300 seconds is only the default interval."
+      - id: cn-2y-q16
+        type: mcq
+        q: "A user connects two wall ports, Gi0/5 and Gi0/6 on the same access switch, with one patch cable, and a broadcast storm follows. Both ports have 'spanning-tree portfast' and 'spanning-tree bpdufilter enable'. Why did spanning tree not block the loop?"
+        choices:
+          - "PortFast turns off spanning tree entirely on a port"
+          - "Interface-level BPDU filter stops the ports sending and processing BPDUs, so the loop is never seen"
+          - "BPDU guard was missing, and it is the only loop protection on access ports"
+          - "Spanning tree cannot detect a loop that stays inside one switch"
+        answer: 1
+        why: "Configured on the interface, BPDU filter both suppresses and ignores BPDUs, effectively removing the port from spanning tree. With PortFast alone, each port would still send BPDUs, the other would hear them, and one port would be blocked."
+      - id: cn-2y-q17
+        type: mcq
+        q: "SW1 has 'spanning-tree portfast default' and 'spanning-tree portfast bpdufilter default' and no other edge features. A switch is plugged into access port Gi0/12 and starts sending BPDUs. What does Gi0/12 do?"
+        choices:
+          - "It err-disables at once"
+          - "It ignores the BPDUs and keeps forwarding as an edge port"
+          - "It goes root-inconsistent"
+          - "It loses PortFast and BPDU filtering and runs normal spanning tree"
+        answer: 3
+        why: "Global BPDU filter applies only to operational PortFast ports, and as soon as such a port receives a BPDU it drops both PortFast and filtering and takes part in spanning tree normally. Ignoring BPDUs is the interface-level behaviour; err-disabling is BPDU guard."
+      - id: cn-2y-q18
+        type: mcq
+        q: "Gi0/1 is a trunk to a virtualization host. After 'spanning-tree portfast' is entered, IOS replies '%Portfast has been configured on GigabitEthernet0/1 but will only have effect when the interface is in a non-trunking mode.' Which command makes PortFast apply?"
+        choices:
+          - "spanning-tree portfast trunk"
+          - "switchport mode access"
+          - "spanning-tree portfast default"
+          - "spanning-tree bpduguard enable"
+        answer: 0
+        why: "'spanning-tree portfast trunk' enables PortFast on a trunk port, which suits a host carrying several VLANs. Changing to access mode would break the host's other VLANs, and the global default also applies only to access ports."
+      - id: cn-2y-q19
+        type: mcq
+        q: "'show spanning-tree vlan 10' on SW2 lists 'Gi1/0/1 Root FWD 4 128.1 P2p', 'Gi1/0/2 Altn BLK 4 128.2 P2p' and 'Gi1/0/3 Desg FWD 19 128.3 P2p Edge'. Which statement is true?"
+        choices:
+          - "Gi1/0/2 forwards traffic for VLAN 10 as a backup path"
+          - "SW2 is the root bridge for VLAN 10"
+          - "Gi1/0/3 is a 100 Mbps PortFast port"
+          - "Gi1/0/3 has a lower port priority than Gi1/0/1"
+        answer: 2
+        why: "A cost of 19 is 100 Mbps, and Edge marks an operational PortFast port. SW2 has a root port, so it is not the root; Altn BLK means Gi1/0/2 discards; and all three ports have priority 128."
+      - id: cn-2y-q20
+        type: mcq
+        q: "SW4 lists 'Gi0/4 Desg FWD 19 128.4 Shr' and 'Gi0/5 Back BLK 19 128.5 Shr' for VLAN 1. What explains Gi0/5's role?"
+        choices:
+          - "Gi0/5 is a second path to the root through another switch"
+          - "Gi0/5 connects to an end host with PortFast"
+          - "Gi0/5 received a superior BPDU from a rogue switch"
+          - "Gi0/4 and Gi0/5 attach to the same shared segment, such as a hub"
+        answer: 3
+        why: "A backup port hears a better BPDU from another port of its own switch, which happens when two ports share one segment; 'Shr' marks shared (half-duplex) links. A spare path through another switch would be an alternate port."
+      - id: cn-2y-q21
+        type: mcq
+        q: "R1 has 'aaa new-model' and 'aaa authentication login default group tacacs+ local'. The TACACS+ server is reachable but has no account for 'netadmin'; R1 has 'username netadmin secret ...'. What happens when netadmin logs in over SSH?"
+        choices:
+          - "The login fails, because the server rejected it"
+          - "The login succeeds through the local account"
+          - "R1 asks the user to choose a method"
+          - "The login succeeds, but no commands are authorised"
+        answer: 0
+        why: "The next method is tried only if the server gives no answer (an error). A reply rejecting the user is a final answer, so the local account is never consulted. 'local' is a fallback for a server outage."
+      - id: cn-2y-q22
+        type: mcq
+        q: "Which command is accepted on a Catalyst switch running Rapid PVST+?"
+        choices:
+          - "spanning-tree vlan 10 priority 30000"
+          - "spanning-tree vlan 10 priority 32769"
+          - "spanning-tree vlan 10 priority 28672"
+          - "spanning-tree vlan 10 priority 65536"
+        answer: 2
+        why: "With the extended system ID only the top four bits of the priority are configurable, so the value must be a multiple of 4096 from 0 to 61440. 28672 is 7 × 4096. 30000 and 32769 are not multiples, and 65536 is out of range."
+      - id: cn-2y-q23
+        type: mcq
+        q: "SW2 (priority 32778, MAC 0022.2222.2222) and SW3 (priority 32778, MAC 0033.3333.3333) each have a 1 Gbps root port straight to the root bridge, and a 1 Gbps link between them. Which port on the SW2-SW3 link discards?"
+        choices:
+          - "SW2's port, because SW2 has the lower MAC"
+          - "SW3's port, because SW3 has the higher bridge ID"
+          - "Neither, because both have the same cost to the root"
+          - "Both, until an administrator sets a priority"
+        answer: 1
+        why: "Both advertise cost 4 onto the shared link, so the designated port goes to the lower bridge ID: SW2 (lower MAC). SW3's port on that link becomes alternate and discards."
+      - id: cn-2y-q24
+        type: mcq
+        q: "An AireOS WLC with LAG enabled connects to a switch over four ports. The switch has 'channel-group 1 mode active' on those ports, and they never bundle. What should the switch use instead?"
+        choices:
+          - "channel-group 1 mode passive"
+          - "channel-group 1 mode desirable"
+          - "channel-group 1 mode auto"
+          - "channel-group 1 mode on"
+        answer: 3
+        why: "The controller's LAG sends neither LACP nor PAgP, so the switch must bundle unconditionally with mode on. Every negotiating mode waits for protocol messages that never arrive."
+      - id: cn-2y-m01
+        type: multi
+        q: "Which TWO pairs of switchport settings result in an operational trunk? (Choose TWO.)"
+        choices:
+          - "trunk on one end, dynamic auto on the other"
+          - "dynamic desirable on one end, dynamic auto on the other"
+          - "dynamic auto on both ends"
+          - "access on one end, dynamic desirable on the other"
+          - "trunk with nonegotiate on one end, dynamic desirable on the other"
+        answers: [0, 1]
+        why: "An auto port trunks when the other side asks, through trunk or desirable. Two auto ports never ask; an access port never trunks; and with nonegotiate the trunk side ignores the desirable side's DTP, so that side stays access."
+      - id: cn-2y-m02
+        type: multi
+        q: "With default settings, which TWO features block a port and then restore it automatically once the triggering condition ends? (Choose TWO.)"
+        choices: ["Root guard", "Loop guard", "BPDU guard", "Port security in shutdown mode", "DHCP snooping rate limiting"]
+        answers: [0, 1]
+        why: "Root guard and loop guard hold the port in an inconsistent, blocking state and release it when superior BPDUs stop or normal BPDUs return. BPDU guard, port security shutdown and the snooping rate limit all err-disable the port, which needs manual or configured recovery."
+      - id: cn-2y-m03
+        type: multi
+        q: "Access port Gi0/5 serves one PC. It must forward as soon as the link comes up, and must shut itself down if anyone connects a switch. Which TWO interface commands are needed? (Choose TWO.)"
+        choices:
+          - "spanning-tree portfast"
+          - "spanning-tree bpduguard enable"
+          - "spanning-tree guard root"
+          - "spanning-tree bpdufilter enable"
+          - "spanning-tree guard loop"
+        answers: [0, 1]
+        why: "PortFast skips the wait for the PC, and BPDU guard err-disables the port when a switch's BPDU arrives. Root guard only blocks superior BPDUs, BPDU filter would hide the switch, and loop guard is for ports that expect BPDUs."
+      - id: cn-2y-m04
+        type: multi
+        q: "Which TWO are configured on each member port of a Layer 3 EtherChannel? (Choose TWO.)"
+        choices:
+          - "no switchport"
+          - "channel-group 1 mode active"
+          - "ip address 10.0.0.1 255.255.255.252"
+          - "switchport mode trunk"
+          - "spanning-tree portfast"
+        answers: [0, 1]
+        why: "Members are made routed ports and joined to the group; the IP address belongs on the Port-channel interface, not the members. A trunk is a Layer 2 setting, and PortFast is for host-facing switch ports."
+      - id: cn-2y-o01
+        type: order
+        q: "Gi0/9 was err-disabled by BPDU guard after a user plugged in a small switch. No automatic recovery is configured. Put the steps to restore service in order."
+        steps:
+          - "Read the log to confirm the cause and the port"
+          - "Have the user remove the switch from the port"
+          - "Enter 'shutdown' on Gi0/9"
+          - "Enter 'no shutdown' on Gi0/9"
+          - "Confirm with 'show interfaces status' that the port is connected"
+        why: "Confirm the cause first and remove it, or the port fails again at once; an err-disabled port is cleared by shutting it and bringing it back up, and verification comes last."
+      - id: cn-2y-o02
+        type: order
+        q: "Put the fields of an 802.1Q-tagged Ethernet frame in the order they are sent."
+        steps:
+          - "Destination MAC address"
+          - "Source MAC address"
+          - "802.1Q tag (TPID 0x8100 and the VLAN ID)"
+          - "EtherType of the payload"
+          - "Payload"
+          - "Frame check sequence"
+        why: "The tag is inserted after the two addresses, ahead of the original EtherType, and the FCS at the end is recalculated to cover it."
