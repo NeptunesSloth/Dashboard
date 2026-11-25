@@ -618,14 +618,14 @@ units:
         why: "The program works for another account on the same hardware, so the fault lives in the user's own settings; resetting the app's per-user data, or rebuilding the profile if that fails, targets it. Hardware and a reinstall are ruled out by the facts given."
       - id: ap2-3y-q10
         type: mcq
-        q: "A PC with 16 GB of RAM shows low memory warnings. Task Manager reports memory 'In use' 6 GB, but 'Committed' 15.8 / 16 GB. What is the MOST likely cause?"
+        q: "A PC with 16 GB of RAM shows low memory warnings. Task Manager lists all 16 GB as installed and reports memory 'In use' 6 GB, but 'Committed' 15.8 / 16 GB. What is the MOST likely cause?"
         choices:
           - "A failed RAM module, so Windows can only use part of the 16 GB"
           - "The page file has been disabled or made very small"
           - "The CPU is overheating"
           - "The disk is fragmented"
         answer: 1
-        why: "The commit limit is RAM plus page file; a limit equal to RAM means there is effectively no page file, so commitments run out while physical memory is still free. Set the page file back to system-managed size."
+        why: "The commit limit is RAM plus page file; a limit equal to RAM means there is effectively no page file, so commitments run out while physical memory is still free. A failed module would shrink the installed total, which still shows 16 GB. Set the page file back to system-managed size."
       - id: ap2-3y-q11
         type: mcq
         q: "After a firmware update reset all settings, a PC shows a blue screen with INACCESSIBLE_BOOT_DEVICE on every start. Nothing in Windows changed. What is the MOST likely cause?"
@@ -678,14 +678,14 @@ units:
         why: "The battery is healthy, and constant location use by one app explains the drain; limiting its location permission stops it. A reset is out of proportion when a single setting is the cause."
       - id: ap2-3y-q16
         type: mcq
-        q: "An office's Wi-Fi uses MAC address filtering. A user's new phone sees the network and is told the password is accepted but never gets a connection; laptops on the allow-list connect. The phone's MAC was added. What is the MOST likely cause?"
+        q: "An office's Wi-Fi uses MAC address filtering. A technician added the hardware MAC address from the About screen of a user's new phone to the allow-list, but the phone still cannot join; laptops on the list connect. The access point's log shows each of the phone's attempts refused by the MAC filter. What is the MOST likely cause?"
         choices:
           - "The access point is overloaded"
           - "The Wi-Fi password was typed with the wrong case"
           - "Bluetooth is interfering"
           - "The phone is using a private MAC address"
         answer: 3
-        why: "Modern phones present a randomised address per network, so the address on the allow-list is not the one being sent; turn off the private address for that network. A wrong password would be rejected outright."
+        why: "Modern phones present a randomised address per network, so the hardware address on the allow-list is not the one being sent; turn off the private address for that network. A wrong password or an overloaded access point would not be logged as a MAC-filter refusal."
       - id: ap2-3y-q17
         type: mcq
         q: "A user's company email stops syncing on their iPhone, and the MDM console marks the device non-compliant with the reason 'compromised device'. The user admits installing a tool to customise the home screen. What must happen?"
@@ -853,7 +853,7 @@ units:
           - "Force stop the app and reopen it"
           - "Restart the device"
           - "Clear the app's cache"
-          - "Update or reinstall the app"
+          - "Uninstall and reinstall the app"
           - "Back up and factory reset the device"
         why: "Each step costs more than the one before: a restart clears more than a force stop, clearing cache loses only temporary data, a reinstall loses the app's data, and a reset erases everything."
       - id: ap2-3y-o02
@@ -1548,7 +1548,7 @@ units:
         why: "Leaving means removing access and recovering company equipment. Ordering hardware, creating a mailbox and enrolling in training are onboarding tasks."
       - id: ap2-4y-m04
         type: multi
-        q: "A change request form arrives with the purpose and scope filled in, but the board returns it as incomplete. Which TWO items must be added? (Choose TWO.)"
+        q: "A change request form arrives with only the purpose and scope filled in, and the board returns it as incomplete. Which TWO of these items belong on the form? (Choose TWO.)"
         choices:
           - "The staff member responsible for carrying out the change"
           - "The administrator passwords needed for the change"

@@ -66,7 +66,7 @@ units:
           - "NTFS is the safe default, but chkdsk repairs filesystem structures, not silently corrupted file contents."
           - "Gives older versions to restore from, but does not detect or repair corruption by itself."
           - "Portable, but exFAT has no journaling or integrity checking at all."
-          - "Best: ReFS checksums (integrity streams) let it detect corruption and repair it from the mirror's good copy."
+          - "Best: ReFS checksums its metadata and, through integrity streams (on by default on a mirrored space), file data too, repairing corruption from the mirror's good copy."
       - id: ap2-1z-b04
         type: mcq
         best: true
@@ -681,19 +681,19 @@ units:
       - id: ap2-2z-b16
         type: mcq
         best: true
-        q: "During malware removal, a malicious process restarts whenever it is ended, the scanner cannot delete its files because they are in use, and it is also set to load in Safe Mode. Which scan technique is BEST?"
+        q: "A home PC's malware has been removed twice, once by a Safe Mode scan and once by a scan from a preinstallation environment, and each time it returned within two days. The user's documents are backed up and the backup has been scanned clean. Which step is BEST now?"
         choices:
-          - "Scan in Safe Mode with Networking"
-          - "End the process in Task Manager and scan straight away"
-          - "Scan in normal mode with a second product"
-          - "Scan from a preinstallation environment"
+          - "Scan again from boot media using a different anti-malware product"
+          - "Return Windows to a restore point from before the infection"
+          - "Reset this PC, keeping the user's personal files in place"
+          - "Reimage the PC, then restore the documents from the clean backup"
         answer: 3
-        why: "Booted into a preinstallation environment, the installed Windows is not running, so the malware cannot start or lock its files."
+        why: "When scanning has failed to remove the malware, the removal procedure moves to reimaging, which replaces everything on the drive; the documents come back from a backup already known to be clean."
         whys:
-          - "Often works, but this malware loads in Safe Mode too, so its files stay locked."
-          - "The process restarts itself as soon as it is ended."
-          - "Changes the scanner, not the fact that the malware is running and guarding its files."
-          - "Best: the malware never starts, so its files can be removed."
+          - "Another product might catch it, but two full removal attempts have already failed, and a third may leave it behind again."
+          - "System Restore stays off during removal, and an old restore point may itself hold the infection."
+          - "Reinstalls Windows, but leaves the user's folders on the infected drive, where the malware may be hiding."
+          - "Best: nothing from the infected drive survives, and only data known to be clean is restored."
       - id: ap2-2z-b17
         type: mcq
         best: true
@@ -745,7 +745,7 @@ units:
       - id: ap2-2z-b20
         type: mcq
         best: true
-        q: "A hard drive that held patient records has failed in a clinic's PC and cannot be wiped. It is under warranty, and the manufacturer's standard process is to swap it for a free replacement once the faulty drive is returned. Which action BEST meets the clinic's data-protection duty?"
+        q: "A solid-state drive that held patient records has failed in a clinic's PC and cannot be wiped. It is under warranty, and the manufacturer's standard process is to swap it for a free replacement once the faulty drive is returned. Which action BEST meets the clinic's data-protection duty?"
         choices:
           - "Return it, trusting the manufacturer to handle returned drives securely"
           - "Degauss it, then return it for the warranty swap"
@@ -755,7 +755,7 @@ units:
         why: "Regulated data must stay under the clinic's control until it is destroyed; that outweighs the cost of a replacement drive."
         whys:
           - "Saves money, but hands patient data to a third party with no guarantee of destruction."
-          - "Destroys the data, but the manufacturer may reject a degaussed drive, and the clinic still loses track of it."
+          - "Degaussing does not erase flash memory, so the patient data would leave the clinic still readable."
           - "Adds a second outside party handling the patient data."
           - "Best: the data never leaves the clinic's control, at the cost of the warranty swap."
       - id: ap2-2z-b21
@@ -929,7 +929,7 @@ units:
         choices:
           - "Switch to the built-in keyboard and test again"
           - "Clear the cache of every app on the phone"
-          - "Factory reset the phone"
+          - "Back up and factory reset the phone, then restore apps"
           - "Install the latest OS update"
         answer: 0
         why: "The lag affects only typing, so the keyboard app is the obvious suspect, and switching away from it is a quick, reversible test."
@@ -943,7 +943,7 @@ units:
         best: true
         q: "Since a 'registry cleaner' was run, one CAD program refuses to start, with an error naming a missing DLL that belongs to the program. Other programs work. Which action is BEST?"
         choices:
-          - "Download the DLL from a DLL download website"
+          - "Download the missing DLL from a DLL download website"
           - "Run sfc /scannow"
           - "Run the program's repair option, or reinstall it"
           - "Reset this PC, keeping personal files"
@@ -992,7 +992,7 @@ units:
         q: "After a phone OS update, the phone no longer connects to the user's car over Bluetooth. Other phones still connect to the car, and the phone's earbuds work. Which action is BEST to try first?"
         choices:
           - "Remove the pairing on both phone and car, then pair again"
-          - "Reset all network settings on the phone"
+          - "Reset all network settings on the phone, then pair the car again"
           - "Factory reset the car's infotainment system"
           - "Factory reset the phone"
         answer: 0
@@ -1005,14 +1005,14 @@ units:
       - id: ap2-3z-b10
         type: mcq
         best: true
-        q: "Network monitoring shows a desktop uploading several gigabytes each night to an unfamiliar cloud storage service. The user says they have never used that service. What should the technician do FIRST?"
+        q: "Network monitoring shows a desktop uploading several gigabytes each night to an unfamiliar cloud storage service, and an upload is running now. The user has never used that service, and no approved backup or sync software on the PC uses it. What should the technician do FIRST?"
         choices:
           - "Block that cloud service's domain at the firewall"
           - "Ask the user's manager whether anyone else uses the PC"
           - "Run an anti-malware scan while the PC stays connected"
           - "Disconnect the PC from the network"
         answer: 3
-        why: "Unexplained bulk uploads suggest data theft by malware; quarantining the PC stops the loss while it is investigated."
+        why: "The symptom is already verified: bulk uploads that no user or approved software explains suggest data theft by malware, so quarantining the PC is the next step, and it stops the loss while the cause is investigated."
         whys:
           - "Stops this one destination, but the malware can switch to another."
           - "Useful context, but data keeps leaving while the question is asked."
@@ -1056,7 +1056,7 @@ units:
         q: "After the company switched antivirus vendors, one PC has no network access. Its adapter shows connected, and both the old and the new security suites are still installed, each with its own firewall. Which action is BEST?"
         choices:
           - "Remove the old suite with its vendor's removal tool"
-          - "Reset the TCP/IP stack and Winsock"
+          - "Reset the TCP/IP stack and Winsock with netsh, then restart"
           - "Turn off the new suite's firewall"
           - "Replace the network adapter"
         answer: 0
@@ -1184,7 +1184,7 @@ units:
         q: "One user's browser has become slow and freezes for seconds at a time. Another browser on the same PC is fast, and the slow one has fourteen extensions. Which action is BEST to try first?"
         choices:
           - "Disable all extensions, then re-enable them one at a time"
-          - "Reinstall the browser"
+          - "Uninstall the browser, reinstall it and sign back in to sync"
           - "Clear the browser's cache"
           - "Add more memory to the PC"
         answer: 0
@@ -1302,14 +1302,14 @@ units:
           - "A toner vacuum, wearing a suitable mask"
           - "An ordinary office vacuum cleaner"
           - "Compressed air to blow the toner out"
-          - "A cloth dampened with warm water"
+          - "Toner cloths wiped carefully along the paper path"
         answer: 0
         why: "A toner vacuum has a filter fine enough to trap toner and is built to collect it safely; a mask protects the lungs."
         whys:
           - "Best: traps the powder instead of spreading it, safely."
           - "Fine toner passes through ordinary filters into the air, and the dust can be ignited by the motor."
           - "Spreads fine powder through the printer and into the room."
-          - "Water inside a printer is risky, and warmth makes toner smear and stick."
+          - "Right for the last film of residue, but wiping a heavy spill pushes loose powder deeper into the rollers and paper path."
       - id: ap2-4z-b07
         type: mcq
         best: true
@@ -1361,14 +1361,14 @@ units:
       - id: ap2-4z-b10
         type: mcq
         best: true
-        q: "A small office keeps its file server in a closed wooden cupboard. In summer it overheats and shuts itself down. It cannot be moved this year. Which action BEST addresses the cause?"
+        q: "A small office keeps its file server in a closed wooden cupboard. In summer it overheats and shuts itself down, although the office itself stays at a comfortable temperature. It cannot be moved this year. Which action BEST addresses the cause?"
         choices:
           - "Ventilate the cupboard so hot air can escape"
           - "Clean the server's fans with compressed air every month"
           - "Set the server to shut down at a lower temperature"
           - "Prop the cupboard door open during hot weather"
         answer: 0
-        why: "The cause is trapped heat; ventilating the cupboard fixes it permanently while the server stays where it is."
+        why: "The room is comfortable, so the cause is heat trapped in the cupboard; ventilating it fixes that permanently while the server stays where it is."
         whys:
           - "Best: removes the trapped heat for good."
           - "Good maintenance, but clean fans still recirculate hot air in a closed box."
@@ -1377,12 +1377,12 @@ units:
       - id: ap2-4z-b11
         type: mcq
         best: true
-        q: "A technician is fitting a memory module in a desktop at a user's desk. There is no ESD mat, but the technician has a wrist strap. Which approach is BEST?"
+        q: "A technician is fitting a new expansion card in a desktop at a user's desk. There is no ESD mat, but the technician has a wrist strap. Which approach is BEST?"
         choices:
           - "Leave the PC plugged in but switched off, so the case stays grounded"
           - "Unplug the PC and clip the strap to bare chassis metal"
           - "Touch the metal case every few minutes while working"
-          - "Rest the module on its antistatic bag until it is fitted"
+          - "Rest the card on its antistatic bag until it is fitted"
         answer: 1
         why: "Power is removed for safety, and the strap keeps technician and chassis at the same potential throughout."
         whys:
