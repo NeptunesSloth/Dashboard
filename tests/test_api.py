@@ -205,3 +205,102 @@ def test_a_cloze_blank_forgives_no_slip_in_the_grammar():
 def test_the_paintings_are_served_from_a_fixed_list():
     assert client.get("/art/hq.webp").headers["content-type"] == "image/webp"
     assert client.get("/art/nope.webp").status_code == 404 and client.get("/art/..%2Fapp.py").status_code == 404
+
+
+def test_mistakes_are_remembered_until_put_right():
+    client.post("/api/setup", json={"name": "S", "master": "M", "courses": ["security-plus"]})
+    s = client.post("/api/session", json={"course": "security-plus"}).json()
+    ex = next(e for e in s["exercises"] if e.get("mode") not in (None, "intro", "multi", "order"))
+    client.post("/api/answer", json={"session": s["session"], "item": ex["item"], "mode": ex["mode"], "answer": "definitely wrong"})
+    assert client.get("/api/overview").json()["mistakes"] == 1
+    m = client.get("/api/mistakes").json()
+    assert m["count"] == 1 and m["items"][0]["item"] == ex["item"] and m["items"][0]["given"] == "definitely wrong" and m["items"][0]["expected"]
+    fix = client.post("/api/session", json={"kind": "mistakes"}).json()
+    assert fix["ok"] and fix["practice"] and [e["item"] for e in fix["exercises"]] == [ex["item"]]
+    e2 = fix["exercises"][0]
+    cards = dict(state.get()["cards"])
+    r = client.post("/api/answer", json={"session": fix["session"], "item": e2["item"], "mode": e2["mode"], "answer": _truth(e2)}).json()
+    assert r["correct"] and client.get("/api/overview").json()["mistakes"] == 0
+    assert state.get()["cards"] == cards                                        # putting a mistake right never reschedules
+    assert not client.post("/api/session", json={"kind": "mistakes"}).json()["ok"]
+    assert not client.post("/api/session", json={"kind": "nonsense"}).json()["ok"]
+
+
+def test_trials_feed_the_missed_bank_and_show_where_marks_are_lost():
+    client.post("/api/setup", json={"name": "S", "master": "M", "courses": ["isc2-cc"]})
+    t = client.post("/api/trial/start", json={"course": "isc2-cc", "full": True}).json()
+    assert t["ok"], t
+    res = client.post("/api/trial/submit", json={"trial": t["trial"], "answers": ["wrong"] * len(t["questions"])}).json()
+    assert res["pct"] == 0 and len(res["domains"]) >= 3
+    answered = sum(1 for q in t["questions"] if q["mode"] not in ("multi", "order"))       # a bare string is no answer to a list question
+    assert client.get("/api/overview").json()["mistakes"] == answered
+    info = client.get("/api/trial?course=isc2-cc").json()
+    assert info["weak"] and all(w["pct"] == 0 for w in info["weak"]) and len(info["weak"]) <= 3
+    blob = client.get("/api/export").json()
+    assert client.post("/api/import", json=blob).json()["ok"]                    # mistakes and domain scores survive a backup
+    assert client.get("/api/overview").json()["mistakes"] == answered
+    assert client.get("/api/trial?course=isc2-cc").json()["weak"]
+
+
+def test_listening_practice_draws_on_words_you_know():
+    client.post("/api/setup", json={"name": "S", "master": "M", "courses": ["french-a1"]})
+    assert not client.post("/api/session", json={"kind": "listen"}).json()["ok"]
+    assert not client.get("/api/overview").json()["can_listen"]
+    s = client.post("/api/session", json={"course": "french-a1"}).json()
+    for ex in s["exercises"]:
+        if ex.get("mode") not in (None, "intro"):
+            client.post("/api/answer", json={"session": s["session"], "item": ex["item"], "mode": ex["mode"], "answer": _truth(ex)})
+    li = client.post("/api/session", json={"kind": "listen"}).json()
+    assert li["ok"] and li["exercises"] and all(e["mode"] == "listen" for e in li["exercises"])
+    assert client.get("/api/overview").json()["can_listen"]
+
+
+def test_drills_are_generated_graded_and_show_their_working():
+    import ipaddress
+
+    from sect_academy import drills
+    for seed in range(60):
+        d = drills.start("subnet", seed)
+        key = drills._open[d["drill"]]["qs"]
+        assert len(d["questions"]) == 10 and len({q["q"] for q in d["questions"]}) == 10 and all("a" not in q for q in d["questions"])
+        for q in key:
+            if q["q"].startswith("What is the network address of"):
+                host = q["q"].split(" of ")[1].rstrip("?")
+                assert q["a"][0] == str(ipaddress.IPv4Network(host, strict=False).network_address)
+            if q["q"].startswith("What is the broadcast address of"):
+                host = q["q"].split(" of ")[1].rstrip("?")
+                assert q["a"][0] == str(ipaddress.IPv4Network(host, strict=False).broadcast_address)
+            if "usable host addresses are in a /" in q["q"]:
+                p = int(q["q"].split("/")[1].split(" ")[0])
+                assert int(q["a"][0]) == 2 ** (32 - p) - 2
+            if q["q"].startswith("Are "):
+                a, b = q["q"].split(" ")[1], q["q"].split(" ")[3]
+                p = int(q["q"].split("/")[1].split(" ")[0])
+                same = ipaddress.IPv4Address(b) in ipaddress.IPv4Network(f"{a}/{p}", strict=False)
+                assert q["a"][0] == ("yes" if same else "no") and a != b
+            if "fits" in q["q"]:
+                need = int(q["q"].split("fits ")[1].split(" ")[0])
+                p = int(q["a"][1])
+                assert 2 ** (32 - p) - 2 >= need > 2 ** (32 - p - 1) - 2
+    assert len({p for _, p, _ in drills.PORTS}) == len(drills.PORTS)             # one service per port in the table
+    d = client.post("/api/drill", json={"kind": "ports"}).json()
+    key = drills._open[d["drill"]]["qs"]
+    for q in d["questions"]:
+        r = client.post("/api/drill/answer", json={"drill": d["drill"], "n": q["n"], "answer": key[q["n"]]["a"][0]}).json()
+        assert r["correct"] and r["why"]
+        if q["choices"]:
+            assert key[q["n"]]["a"][0] in q["choices"] and len(set(q["choices"])) == 4
+    assert r["finished"] and r["score"] == 10 and client.get("/api/overview").json()["drills"]["ports"] == {"best": 100, "runs": 1}
+    client.post("/api/drill/answer", json={"drill": d["drill"], "n": 0, "answer": "x"})
+    assert client.get("/api/overview").json()["drills"]["ports"]["runs"] == 1    # a finished drill is counted once
+    assert not client.post("/api/drill", json={"kind": "nope"}).json()["ok"]
+    assert not client.post("/api/drill/answer", json={"drill": "nope", "n": 0, "answer": "1"}).json()["ok"]
+
+
+def test_only_known_hostnames_are_answered(monkeypatch):
+    assert client.get("/api/overview", headers={"host": "evil.example"}).status_code == 421
+    assert client.get("/", headers={"host": "evil.example:8200"}).status_code == 421
+    assert client.get("/api/overview", headers={"host": "localhost:8200"}).status_code == 200
+    assert client.get("/api/overview", headers={"host": "127.0.0.1:8200"}).status_code == 200
+    monkeypatch.setenv("SECT_ACADEMY_HOSTS", "study.lan, 192.168.1.20")
+    assert client.get("/api/overview", headers={"host": "study.lan:8200"}).status_code == 200

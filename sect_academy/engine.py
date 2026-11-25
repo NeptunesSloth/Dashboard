@@ -562,6 +562,86 @@ def _new_items(st: dict, pack: dict, limit: int) -> list[dict]:
     return out
 
 
+def _miss(st: dict, iid: str, given, now: float) -> None:
+    """Remember a wrong answer until it has been put right."""
+    m = st.setdefault("mistakes", {})
+    shown = " / ".join(str(g) for g in given) if isinstance(given, (list, tuple)) else str(given or "")
+    m[iid] = {"n": min(9, m.get(iid, {}).get("n", 0) + 1), "ts": now, "given": shown[:200]}
+    if len(m) > 2000:
+        for old in sorted(m, key=lambda k: m[k]["ts"])[:len(m) - 2000]:
+            m.pop(old, None)
+
+
+def _unmiss(st: dict, iid: str) -> None:
+    m = st.setdefault("mistakes", {})
+    if iid in m:
+        m[iid]["n"] -= 1
+        if m[iid]["n"] <= 0:
+            m.pop(iid, None)
+
+
+def mistakes(course: str | None = None, limit: int = 40) -> dict:
+    """What you have got wrong and not yet put right, worst first."""
+    index = packs.item_index()
+    with state.LOCK:
+        st = state.get()
+        rows = []
+        for iid, m in st.get("mistakes", {}).items():
+            it = index.get(iid)
+            if not it or (course and it["pack"] != course):
+                continue
+            pack = packs.get(it["pack"])
+            rows.append({"item": iid, "course": pack["title"], "n": m["n"], "ts": m["ts"], "given": m["given"],
+                         "prompt": it.get("q") or it.get("l1") or it.get("term") or it.get("title") or it.get("text", ""),
+                         "expected": _explain(it).get("answer") or (it.get("l2") or it.get("def") or it.get("answer") or "")})
+        rows.sort(key=lambda r: (-r["n"], -r["ts"]))
+        return {"ok": True, "count": len(rows), "items": rows[:limit]}
+
+
+def build_special(kind: str, course: str | None = None, now: float | None = None) -> dict:
+    """An off-schedule session with a purpose: 'mistakes' (put right what you got wrong) or
+    'listen' (hear it, type it). Nothing here reschedules a card."""
+    now = now or time.time()
+    index = packs.item_index()
+    with state.LOCK:
+        st = state.get()
+        enrolled = _enrolled(st)
+        ids = [c for c in ([course] if course else enrolled) if c in enrolled]
+        seed = int(now // 60)
+        rng = random.Random(seed)
+        picked: list[tuple[dict, str]] = []
+        if kind == "mistakes":
+            ms = st.get("mistakes", {})
+            for iid in sorted(ms, key=lambda k: (-ms[k]["n"], -ms[k]["ts"])):
+                it = index.get(iid)
+                if it and it["pack"] in ids:
+                    pack = packs.get(it["pack"])
+                    card = st["cards"].get(iid)
+                    hard = _typed_mode(it, rng) if pack["kind"] == "language" and it["type"] != "dialogue" else _mode_for(it, card, pack)
+                    picked.append((it, hard))
+                if len(picked) >= 15:
+                    break
+        elif kind == "listen":
+            pool = [(c, index[iid]) for iid, c in st["cards"].items() if iid in index and c.get("reps") and index[iid]["pack"] in ids
+                    and index[iid]["type"] in ("vocab", "phrase") and packs.get(index[iid]["pack"])["kind"] == "language"]
+            # hardest for the ear first: longer phrases you know least well
+            pool.sort(key=lambda t: (fsrs.retrievability(max(0.0, (now - t[0]["last"]) / fsrs.DAY), t[0]["s"]), -len(t[1]["l2"])))
+            picked = [(it, "listen") for _, it in pool[:PRACTICE_SIZE]]
+        else:
+            return {"ok": False, "error": "unknown session"}
+        exs = [build_exercise(it, mode, packs.get(it["pack"]), seed) for it, mode in picked]
+        rng.shuffle(exs)
+        for i, ex in enumerate(exs):
+            ex["n"] = i
+            ex["new"] = False
+        sid = _open_session(st, [ex["item"] for ex in exs], True, now) if exs else ""
+        if sid:
+            st["sessions"][sid]["kind"] = kind
+        state.save()
+        return {"ok": bool(exs), "exercises": exs, "notes": [], "practice": True, "kind": kind, "courses": ids, "session": sid,
+                "error": None if exs else ("No mistakes are waiting. Well done." if kind == "mistakes" else "Learn some words first; listening practice draws on what you know.")}
+
+
 def _open_session(st: dict, items: list[str], practice: bool, now: float) -> str:
     """Remember what a session issued, so only those items — once each — are
     scheduled and paid, and the session can be closed exactly once."""
@@ -697,6 +777,11 @@ def answer(item_id: str, mode: str, given, *, retry: bool = False, practice: boo
                "explain": _explain(it), "rewards": {}, "events": []}
         if "expected_list" in res:
             out["expected_list"] = res["expected_list"]
+        if not retry:
+            if res["correct"]:
+                _unmiss(st, item_id)
+            elif not practice:
+                _miss(st, item_id, given, now)
         if retry or practice:
             if practice and not retry:
                 out["rewards"] = game.on_answer(st, it["pack"], correct=res["correct"], is_new=False,
@@ -873,9 +958,17 @@ def trial_info(course: str, now: float | None = None) -> dict:
             minutes, pass_pct = 10, 80
             name = f"{pack['title'].split(' — ')[0]} {pack['title'].split(' — ')[-1].split(' ')[0]} checkpoint trial"
         history = [t for t in st["trials"] if t["course"] == course][-8:]
+        # where the marks are being lost, over the last three trials
+        agg: dict[str, list] = {}
+        for t in history[-3:]:
+            for d in t.get("domains", []):
+                a = agg.setdefault(d["id"], [d["title"], 0, 0])
+                a[1] += d["right"]
+                a[2] += d["total"]
+        weak = sorted(({"title": v[0], "pct": round(100 * v[1] / v[2]), "total": v[2]} for v in agg.values() if v[2] >= 3), key=lambda x: x["pct"])
         return {"ok": True, "course": course, "name": name, "questions": n, "minutes": minutes,
                 "pass_pct": pass_pct, "ready": ready, "need": need, "history": history, "full": full,
-                "readiness": ready_for_exam, "best": max((t["pct"] for t in history), default=None)}
+                "readiness": ready_for_exam, "best": max((t["pct"] for t in history), default=None), "weak": weak[:3]}
 
 
 def start_trial(course: str, full: bool = False, now: float | None = None) -> dict:
@@ -966,6 +1059,8 @@ def submit_trial(trial_id: str, answers: list, now: float | None = None) -> dict
             card = st["cards"].get(iid)
             if not ok and given and card and card.get("reps"):
                 st["cards"][iid] = _review(st, card, fsrs.AGAIN, now)
+            if not ok and given:
+                _miss(st, iid, given, now)              # the missed-questions bank
         total = len(tr["items"]) or 1
         pct = round(100 * right / total)
         passed = pct >= tr["pass_pct"] and not overtime
@@ -973,7 +1068,8 @@ def submit_trial(trial_id: str, answers: list, now: float | None = None) -> dict
         domains = [{"id": k, "title": titles.get(k, k), "right": v[0], "total": v[1],
                     "pct": round(100 * v[0] / v[1])} for k, v in by_dom.items()]
         summary = {"id": trial_id, "course": tr["course"], "ts": now, "pct": pct, "passed": passed,
-                   "right": right, "total": total, "overtime": overtime, "full": bool(tr.get("full"))}
+                   "right": right, "total": total, "overtime": overtime, "full": bool(tr.get("full")),
+                   "domains": [{"id": d["id"], "title": d["title"], "right": d["right"], "total": d["total"]} for d in domains]}
         st["trials"] = (st["trials"] + [summary])[-200:]
         rewards = game.on_trial(st, tr["course"], passed=passed, pct=pct, now=now)
         state.save()
@@ -1131,6 +1227,9 @@ def overview(now: float | None = None) -> dict:
                       "new": d["new"], "reviews": d["reviews"], "day": day_of(st, now)},
             "settings": dict(st["settings"]),
             "placements": {k: dict(v) for k, v in st.get("placements", {}).items()},
+            "mistakes": sum(1 for iid in st.get("mistakes", {}) if iid in packs.item_index() and packs.item_index()[iid]["pack"] in _enrolled(st)),
+            "drills": {k: dict(v) for k, v in st.get("drills", {}).items()},
+            "can_listen": any(c["kind"] == "language" and c["enrolled"] and c["seen"] > 0 for c in all_courses),
             "sect": game.view(st, now),
             "onboarded": bool(st.get("colony", {}).get("name")),
         }

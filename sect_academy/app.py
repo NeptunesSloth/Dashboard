@@ -22,7 +22,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from . import colony, dao, engine, packs, state
+from . import colony, dao, drills, engine, packs, state
 
 STATIC = Path(__file__).parent / "static"
 app = FastAPI(title="Sect Academy", docs_url=None, redoc_url=None, openapi_url=None)
@@ -34,12 +34,25 @@ def guard(x_academy_token: str = Header(default="")) -> None:
         raise HTTPException(401, "token required")
 
 
+def _allowed_hosts() -> set[str]:
+    """Hostnames this server answers to: this machine's own names, plus SECT_ACADEMY_HOSTS
+    (comma-separated) for a LAN name or address you choose to serve on."""
+    extra = {h.strip().lower() for h in os.getenv("SECT_ACADEMY_HOSTS", "").split(",") if h.strip()}
+    bind = os.getenv("SECT_ACADEMY_HOST", "127.0.0.1").lower()
+    return {"localhost", "127.0.0.1", "::1", "testserver", bind} | extra
+
+
 API = [Depends(guard)]
 
 
 @app.middleware("http")
 async def no_surprises(request: Request, call_next):
     """Same-origin only, and never let a browser cache API answers."""
+    # A page on another site can point its own hostname at 127.0.0.1 (DNS rebinding) and then read
+    # the API as "same origin". It cannot fake the Host header, so only known names are answered.
+    host_only = request.headers.get("host", "").rsplit(":", 1)[0].strip("[]").lower()
+    if host_only not in _allowed_hosts():
+        return JSONResponse({"detail": "unknown host"}, status_code=421)
     if request.url.path.startswith("/api/") and request.method not in ("GET", "HEAD", "OPTIONS"):
         # Another web page must never be able to change (or wipe) your progress.
         origin = request.headers.get("origin", "")
@@ -152,6 +165,14 @@ class SessionIn(BaseModel):
     course: str = ""
     size: int = 0
     practice: bool = False
+    kind: str = ""
+
+
+class DrillIn(BaseModel):
+    kind: str = ""
+    drill: str = ""
+    n: int = 0
+    answer: str = ""
 
 
 class AnswerIn(BaseModel):
@@ -270,6 +291,8 @@ def unit(course: str, unit: str):
 
 @app.post("/api/session", dependencies=API)
 def session(body: SessionIn):
+    if body.kind:
+        return engine.build_special(body.kind, body.course or None)
     if body.practice:
         return engine.build_practice(body.course or None)
     return engine.build_session(body.course or None, body.size or None)
@@ -334,6 +357,29 @@ def trial_submit(body: TrialSubmitIn):
 @app.post("/api/trial/abandon", dependencies=API)
 def trial_abandon(body: IdIn):
     return engine.abandon_trial(body.trial)
+
+
+@app.get("/api/mistakes", dependencies=API)
+def mistakes(course: str = ""):
+    return engine.mistakes(course or None)
+
+
+@app.post("/api/drill", dependencies=API)
+def drill_start(body: DrillIn):
+    return drills.start(body.kind)
+
+
+@app.post("/api/drill/answer", dependencies=API)
+def drill_answer(body: DrillIn):
+    res = drills.answer(body.drill, body.n, body.answer[:80])
+    if res.get("finished"):
+        with state.LOCK:
+            d = state.get().setdefault("drills", {}).setdefault(res["kind"], {"best": 0, "runs": 0})
+            if not res.get("counted"):
+                d["runs"] += 1
+                d["best"] = max(d["best"], round(100 * res["score"] / res["total"]))
+            state.save()
+    return res
 
 
 @app.get("/api/stats", dependencies=API)

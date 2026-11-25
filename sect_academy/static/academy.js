@@ -217,12 +217,14 @@ function todayPanel() {
     head = 'Today is complete'; sub = 'Nothing more is due until tomorrow. Tend the sect, or sharpen your weakest items.';
     btn = `<a class="btn big" href="/study?practice=1" data-link>Practice weak items</a>`; mood = 'happy'; tone = 'rest';
   }
+  const extras = [OV.mistakes ? `<a class="chip" href="/study?kind=mistakes" data-link>Put right ${num(OV.mistakes)} mistake${num(OV.mistakes) === 1 ? '' : 's'}</a>` : '',
+    OV.can_listen && synth ? '<a class="chip" href="/study?kind=listen" data-link>Listening practice</a>' : ''].join('');
   const risk = g.streak_at_risk && !g.seclusion && work > 0 ? `<p class="small" style="margin:6px 0 0;font-weight:700">Study today to keep your ${g.streak}-day streak${g.grace ? ` (${g.grace} rest day${g.grace > 1 ? 's' : ''} in reserve)` : ''}.</p>` : '';
   const chips = mine.length > 1 && work > 0 && !g.seclusion ? `<div class="chips">${mine.filter((c) => c.due + c.new_left > 0).map((c) =>
     `<a class="chip" href="/study?course=${encodeURIComponent(c.id)}" data-link>${esc(shortName(c))} <span class="dim num">${c.due + c.new_left}</span></a>`).join('')}</div>` : '';
   return `<section class="panel today ${tone}"><div class="says">${guide(mood)}<div class="bubble"><h2>${head}</h2><div style="margin-top:6px">${sub}</div>${risk}
       <p class="dim small" style="margin:8px 0 0">Each correct answer gives you qi and the sect a point of insight for research. A finished session lifts every disciple's mood.</p></div></div>
-    <div class="row">${btn}</div>${chips}</section>`;
+    <div class="row">${btn}</div>${chips}${extras ? `<div class="chips">${extras}</div>` : ''}</section>`;
 }
 
 function masterPanel() {
@@ -373,11 +375,12 @@ async function renderStudy(params) {
   const practice = params && params.get('practice') === '1';
   const course = (params && params.get('course')) || '';
   view.innerHTML = '<p class="loading">Preparing your session…</p>';
-  const s = await api('/api/session', { course, practice });
+  const kind = params && ['mistakes', 'listen'].includes(params.get('kind')) ? params.get('kind') : '';
+  const s = await api('/api/session', { course, practice, kind });
   if (!s.exercises || !s.exercises.length) {
     const t = OV.today;
-    view.innerHTML = `<div class="panel summary" style="max-width:560px;margin:8vh auto"><h1>${practice ? 'Nothing to practice yet' : 'Nothing is due'}</h1>
-      <p class="dim">${practice ? 'Practice draws on items you have already learned. Finish a first session and come back.'
+    view.innerHTML = `<div class="panel summary" style="max-width:560px;margin:8vh auto"><h1>${kind ? 'Nothing here yet' : practice ? 'Nothing to practice yet' : 'Nothing is due'}</h1>
+      <p class="dim">${kind ? esc(s.error || '') : practice ? 'Practice draws on items you have already learned. Finish a first session and come back.'
         : (t.sessions ? 'You have finished today\'s reviews and new items. They will return when your memory needs them.' : 'There is nothing scheduled right now.')}</p>
       <div class="row" style="justify-content:center;margin-top:16px">
         ${!practice && OV.courses.some((c) => c.seen > 0) ? '<a class="btn" href="/study?practice=1" data-link>Practice weak items</a>' : ''}
@@ -763,17 +766,65 @@ async function renderTrials() {
         ${mine[i].exam ? `<p class="dim small" style="margin:8px 0 0">Modelled on ${esc(mine[i].exam.name)} ${esc(mine[i].exam.code)}: questions are drawn across the official domains by their exam weights, including choose-two and put-in-order questions.</p>` : ''}
         ${t.readiness ? `<div class="ready ${t.readiness.ready ? 'yes' : ''}"><b>${t.readiness.ready ? 'You are ready to book the real exam.' : 'Ready for the real exam when all four are ticked:'}</b>
           <ul class="list">${t.readiness.checks.map((c) => `<li class="quest ${c.ok ? 'done' : ''}"><span class="mark">${c.ok ? ICON.check : ''}</span><span class="grow">${esc(c.label)}</span><span class="dim small">${esc(c.detail)}</span></li>`).join('')}</ul></div>` : ''}
+        ${t.weak && t.weak.length ? `<p class="small" style="margin:8px 0 0"><b>Where the marks are going</b> (last three trials): ${t.weak.map((w) => `${esc(w.title)} <span class="tag ${num(w.pct) >= num(t.pass_pct) ? 'jade' : 'red'}">${num(w.pct)}%</span>`).join(' · ')}</p>` : ''}
         ${t.history.length ? `<ul class="list small" style="margin-top:8px">${t.history.slice().reverse().slice(0, 5).map((h) => `<li><span class="tag ${h.passed ? 'jade' : 'red'}">${h.passed ? 'Passed' : 'Failed'}</span> ${num(h.pct)}% (${num(h.right)}/${num(h.total)})${h.full ? ' full mock' : ''} <span class="dim">${ago(num(h.ts))} ago</span></li>`).join('')}</ul>` : ''}
       </section>`)).join('') || '<div class="panel dim">Enrol in a course to unlock its trial.</div>'}`;
+  if (mine.some((c) => c.kind === 'cert')) {
+    const best = (k) => (OV.drills && OV.drills[k] ? ` <span class="dim small">best ${num(OV.drills[k].best)}%, ${num(OV.drills[k].runs)} run${num(OV.drills[k].runs) === 1 ? '' : 's'}</span>` : '');
+    view.insertAdjacentHTML('beforeend', `<section class="panel"><h2>Drills</h2><p class="dim small">Ten fresh questions made on the spot, with the working shown. Speed at these comes only from doing a great many.</p>
+      <div class="row"><button class="btn" data-drill="subnet">Subnetting</button>${best('subnet')}<button class="btn" data-drill="ports">Ports and protocols</button>${best('ports')}</div></section>`);
+    view.querySelectorAll('[data-drill]').forEach((b) => { b.onclick = () => runDrill(b.dataset.drill); });
+  }
+  if (OV.mistakes) view.insertAdjacentHTML('beforeend', `<section class="panel"><h2>Missed questions</h2><p class="dim small">${num(OV.mistakes)} question${num(OV.mistakes) === 1 ? '' : 's'} you got wrong, in sessions or trials, and have not yet put right.</p>
+    <a class="btn primary" href="/study?kind=mistakes" data-link>Work through them</a></section>`);
   view.querySelectorAll('[data-trial]').forEach((b) => { b.onclick = () => startTrial(b.dataset.trial, false); });
   view.querySelectorAll('[data-full]').forEach((b) => { b.onclick = () => startTrial(b.dataset.full, true); });
+}
+
+async function runDrill(kind) {
+  const d = await api('/api/drill', { kind });
+  if (d.ok === false) { toast(d.error); return; }
+  document.body.classList.add('in-session');
+  leaveGuard = null;
+  let cur = 0; let score = 0;
+  const done = () => {
+    document.body.classList.remove('in-session');
+    view.innerHTML = `<div class="session summary">${guide(score >= 8 ? 'happy' : 'calm', 96)}<h1>${esc(d.name)}: ${score}/${d.questions.length}</h1>
+      <p class="dim">${score === d.questions.length ? 'Clean. Do it again tomorrow, faster.' : 'Read the working on the ones you missed, then go again.'}</p>
+      <div class="foot"><div class="row"><button class="btn grow" id="d-again">Another ten</button><a class="btn primary grow" href="/trials" data-link>Done</a></div></div></div>`;
+    $('#d-again').onclick = () => runDrill(kind);
+    refresh();
+  };
+  const draw = () => {
+    const q = d.questions[cur];
+    view.innerHTML = `<div class="session"><div class="top"><button aria-label="Stop the drill" id="d-exit">✕</button><div class="bar azure"><i style="width:${Math.round(100 * cur / d.questions.length)}%"></i></div><span class="dim small num">${cur + 1}/${d.questions.length}</span></div>
+      <div class="ex"><p class="ask">${esc(d.name)}</p><h2 class="prompt">${esc(q.q)}</h2>
+      ${q.choices ? `<div class="opts">${q.choices.map((c, i) => `<button class="opt" data-c="${i}"><span>${esc(c)}</span></button>`).join('')}</div>`
+        : '<div class="typed"><input type="text" id="d-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" aria-label="Your answer" enterkeyhint="done"></div>'}
+      <div class="foot" id="d-foot">${q.choices ? '' : '<button class="btn primary big" id="d-check">Check</button>'}</div></div></div>`;
+    $('#d-exit').onclick = () => { document.body.classList.remove('in-session'); go('/trials', false); };
+    let locked = false;
+    const send = async (val) => {
+      if (locked || !String(val).trim()) return; locked = true;
+      const res = await api('/api/drill/answer', { drill: d.drill, n: q.n, answer: String(val) });
+      if (res.ok === false) { toast(res.error); locked = false; return; }
+      if (res.correct) score += 1;
+      view.querySelectorAll('.opt').forEach((o) => { o.disabled = true; if (q.choices[+o.dataset.c] === res.expected) o.classList.add('right'); else if (q.choices[+o.dataset.c] === val) o.classList.add('wrong'); });
+      $('#d-foot').innerHTML = `<div class="verdict ${res.correct ? 'ok' : 'no'}" role="status">${guide(res.correct ? 'happy' : 'oops', 52)}<div class="grow"><h3>${res.correct ? 'Right' : 'Not quite'}</h3>
+        <div class="ans">${esc(res.expected)}</div><p class="small">${esc(res.why)}</p></div></div><button class="btn ${res.correct ? 'primary' : 'seal'} big" id="d-next">Continue</button>`;
+      const b = $('#d-next'); b.focus(); b.onclick = () => { cur += 1; if (cur >= d.questions.length) done(); else draw(); };
+    };
+    if (q.choices) view.querySelectorAll('.opt').forEach((o) => { o.onclick = () => send(q.choices[+o.dataset.c]); });
+    else { const inp = $('#d-in'); inp.focus(); inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); send(inp.value); } }; $('#d-check').onclick = () => send(inp.value); }
+  };
+  draw();
 }
 
 async function startTrial(course, full) {
   const t = await api('/api/trial/start', { course, full: !!full });
   if (t.ok === false) { toast(t.error); return; }
   document.body.classList.add('in-session');
-  const qs = t.questions; const answers = qs.map(() => null); let cur = 0; let over = false; let sending = false;
+  const qs = t.questions; const answers = qs.map(() => null); const flagged = new Set(); let cur = 0; let over = false; let sending = false;
   const deadline = Date.now() + num(t.minutes) * 60000;
   let timer = null;
   leaveGuard = async () => {
@@ -788,7 +839,8 @@ async function startTrial(course, full) {
     view.innerHTML = `<div class="session"><div class="top"><b class="grow">${esc(t.name)}</b><span class="timer" id="t-clock"></span></div>
       <div class="ex"><p class="ask">Question ${cur + 1} of ${qs.length}. ${esc(q.ask || '')}</p>
       ${questionHtml(q, answers[cur], 't')}
-      <div class="qnav">${qs.map((_, i) => `<button class="${i === cur ? 'cur' : ''} ${answers[i] ? 'done' : ''}" data-q="${i}" aria-label="Question ${i + 1}">${i + 1}</button>`).join('')}</div>
+      <p style="margin:10px 0 0"><button class="btn quiet" id="t-flag" aria-pressed="${flagged.has(cur)}">${flagged.has(cur) ? '⚑ Flagged for review (tap to clear)' : '⚐ Flag for review'}</button></p>
+      <div class="qnav">${qs.map((_, i) => `<button class="${i === cur ? 'cur' : ''} ${answers[i] ? 'done' : ''} ${flagged.has(i) ? 'flag' : ''}" data-q="${i}" aria-label="Question ${i + 1}${flagged.has(i) ? ', flagged' : ''}${answers[i] ? '' : ', unanswered'}">${i + 1}</button>`).join('')}</div>
       <div class="foot"><div class="row"><button class="btn grow" id="t-prev" ${cur ? '' : 'disabled'}>Back</button>
         ${cur < qs.length - 1 ? '<button class="btn primary grow" id="t-next">Next</button>' : '<button class="btn seal grow" id="t-done">Submit trial</button>'}</div></div></div></div>`;
     const read = bindQuestion(q, answers[cur], (v) => {
@@ -801,9 +853,12 @@ async function startTrial(course, full) {
     view.querySelectorAll('[data-q]').forEach((b) => { b.onclick = () => move(+b.dataset.q); });
     const inp = $('#t-in');
     if (inp) inp.onkeydown = (e) => { if (e.key === 'Enter' && cur < qs.length - 1) move(cur + 1); };
+    $('#t-flag').onclick = () => { keep(); if (flagged.has(cur)) flagged.delete(cur); else flagged.add(cur); draw(); };
     $('#t-prev').onclick = () => move(cur - 1);
     if ($('#t-next')) $('#t-next').onclick = () => move(cur + 1);
-    if ($('#t-done')) $('#t-done').onclick = () => { keep(); const blank = answers.filter((a) => !a).length; if (!blank || confirm(`${blank} question${blank > 1 ? 's are' : ' is'} unanswered. Submit anyway?`)) submit(); };
+    if ($('#t-done')) $('#t-done').onclick = () => { keep(); const blank = answers.filter((a) => !a).length; const fl = flagged.size;
+      const msg = [blank ? `${blank} unanswered` : '', fl ? `${fl} flagged for review` : ''].filter(Boolean).join(' and ');
+      if (!msg || confirm(`You have ${msg}. Submit anyway?`)) submit(); else { const first = [...flagged].sort((a, b) => a - b)[0]; const b0 = answers.findIndex((a) => !a); move(first != null ? first : b0 >= 0 ? b0 : cur); } };
     keyHandler = (e) => { if (!typed && !listq && /^[1-4]$/.test(e.key)) { const o = view.querySelector(`.opt[data-i="${+e.key - 1}"]`); if (o) o.click(); } };
   };
   const tick = () => {
@@ -870,6 +925,7 @@ async function renderProgress() {
       <div class="row small dim" style="justify-content:space-between;margin-top:4px"><span>Today</span><span>In 2 weeks</span></div></section>
     <section class="panel"><h2>Arts</h2>${mine.map((c) => `<div style="margin-top:12px"><div class="row small"><span class="grow"><b>${esc(c.title)}</b></span><span class="dim num">${c.seen}/${c.total} learned, ${c.mastered} mastered</span></div>
       <div class="bar jade" style="margin-top:4px"><i style="width:${Math.round(100 * c.seen / Math.max(c.total, 1))}%"></i></div></div>`).join('')}</section>
+    <section class="panel" id="mistakes-panel" hidden></section>
     <section class="panel"><h2>Settings</h2>
       <div class="setting"><div class="grow"><b>New items a day, per art</b><span>More items now means more reviews later. 8 is a steady pace.</span></div><input type="number" id="set-new" min="0" max="40" value="${set.new_per_day}"></div>
       <div class="setting"><div class="grow"><b>Session length</b><span>The number of exercises in one session.</span></div><input type="number" id="set-size" min="5" max="60" value="${set.session_size}"></div>
@@ -886,6 +942,15 @@ async function renderProgress() {
     </section>
     <p class="dim small" style="margin-top:18px">Everything runs on this device: no account, no internet, nothing sent anywhere.</p>`;
   const save = async (patch) => { const r = await api('/api/settings', patch, 'PUT'); if (r.ok === false) toast(r.error); else { Object.assign(OV.settings, r); toast('Saved.'); } };
+  api('/api/mistakes').then((m) => {
+    const el = $('#mistakes-panel'); if (!el || m.ok === false || !m.count) return;
+    el.hidden = false;
+    el.innerHTML = `<h2>Mistakes to put right <span class="tag red">${num(m.count)}</span></h2>
+      <p class="dim small">Everything you answered wrong in a session or a trial stays here until you get it right. The number is how many times it still has to be answered correctly.</p>
+      <ul class="list">${m.items.slice(0, 20).map((x) => `<li><b>${esc(x.prompt)}</b> <span class="tag red">×${num(x.n)}</span> <span class="dim small">${esc(x.course)}</span>
+        <div class="small"><span style="color:#ff9a8a">${x.given ? esc(x.given) : 'No answer'}</span> <span class="dim">should be</span> <span style="color:var(--jade)">${esc(x.expected)}</span></div></li>`).join('')}</ul>
+      <a class="btn primary" href="/study?kind=mistakes" data-link style="margin-top:10px">Work through them</a>`;
+  });
   $('#set-new').onchange = (e) => save({ new_per_day: +e.target.value });
   $('#set-size').onchange = (e) => save({ session_size: +e.target.value });
   $('#set-ret').onchange = (e) => save({ retention: +e.target.value });

@@ -68,6 +68,8 @@ def blank() -> dict:
         "sessions": {},               # session_id -> issued items + what was answered (bounded)
         "open_placements": {},        # placement_id -> in-flight placement test
         "placements": {},             # course -> last placement result
+        "mistakes": {},               # item_id -> {n, ts, given}: what you got wrong and still owe
+        "drills": {},                 # kind -> {best, runs}
         "colony": {},                 # the sect (see colony.py)
     }
 
@@ -152,7 +154,10 @@ def _clean_trials(raw) -> list:
                     "ts": float(_num(t.get("ts"), 0.0, 0.0)), "pct": _int(t.get("pct"), 0, 0, 100),
                     "passed": t.get("passed") is True, "right": _int(t.get("right"), 0, 0),
                     "total": _int(t.get("total"), 1, 1), "overtime": t.get("overtime") is True,
-                    "full": t.get("full") is True})
+                    "full": t.get("full") is True,
+                    "domains": [{"id": _str(d.get("id"), "", 64), "title": _str(d.get("title"), "", 120), "right": _int(d.get("right"), 0, 0),
+                                 "total": _int(d.get("total"), 1, 1)} for d in (t.get("domains") if isinstance(t.get("domains"), list) else [])
+                                if isinstance(d, dict)][:20]})
     return out[-200:]
 
 
@@ -176,6 +181,12 @@ def sanitize(data: dict) -> dict:
     st["trials"] = _clean_trials(data.get("trials"))
     # In-flight trials/sessions are not worth carrying across a restore.
     st["colony"] = colony.sanitize(data.get("colony"), time.time())
+    ms = data.get("mistakes")
+    st["mistakes"] = {_str(k, "", 96): {"n": _int(v.get("n"), 1, 1, 9), "ts": float(_num(v.get("ts"), 0.0, 0.0)), "given": _str(v.get("given"), "", 200)}
+                      for k, v in list(ms.items() if isinstance(ms, dict) else [])[:5000] if isinstance(k, str) and isinstance(v, dict)}
+    dr = data.get("drills")
+    st["drills"] = {_str(k, "", 32): {"best": _int(v.get("best"), 0, 0, 100), "runs": _int(v.get("runs"), 0, 0)}
+                    for k, v in list(dr.items() if isinstance(dr, dict) else [])[:20] if isinstance(k, str) and isinstance(v, dict)}
     pl = data.get("placements")
     st["placements"] = {_str(k, "", 64): {x: _int(v.get(x), 0, 0) for x in ("passed_units", "units", "placed", "asked", "right")}
                         for k, v in (pl.items() if isinstance(pl, dict) else []) if isinstance(k, str) and isinstance(v, dict)}

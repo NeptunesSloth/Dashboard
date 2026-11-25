@@ -526,3 +526,5 @@ a { color: var(--gold); }
 .rumours { padding: 10px 14px; border-radius: 14px; border: 1px dashed var(--line); margin-bottom: 12px; font-family: var(--serif); }
 .rumours ul { margin: 6px 0 0; padding-left: 18px; color: var(--dim); }
 .choices .btn .tag { margin-left: 6px; }
+
+.qnav button.flag { border-color: var(--gold); box-shadow: inset 0 -4px 0 var(--gold); }
