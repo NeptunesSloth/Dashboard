@@ -1,0 +1,1412 @@
+part_of: ccna
+
+units:
+  # ─────────────── 4x · IP services in depth ───────────────
+  - id: cn-4x
+    title: "IP services in depth: NAT, time, DHCP, DNS, monitoring, QoS and files"
+    domain: "4"
+    goal: "I can read NAT, NTP, DHCP and syslog output and configuration to find a fault, choose the right SNMP version and QoS tool, and manage images and files on an IOS device."
+    notes: |
+      **NAT has four address names.** *Inside* or *outside* says whose host it is; *local* or *global* says where the address is seen from: local is the view from the inside network, global the view from the outside. `ip nat inside source list 1 interface GigabitEthernet0/1 overload` is PAT to the WAN interface's own address. Hosts that the list does not match are routed untranslated. `clear ip nat translation *` empties the dynamic entries; `debug ip nat` shows each translation as it happens.
+
+      **IOS as a DHCP server:** `ip dhcp excluded-address` (global), then `ip dhcp pool` with `network`, `default-router`, `dns-server` and `lease`. Check with `show ip dhcp binding`.
+
+      **DNS records:** A (IPv4), AAAA (IPv6), CNAME (alias), MX (mail), NS (name server), PTR (address to name).
+
+      **NTP** carries UTC; `clock timezone` sets the local offset. Authentication needs a key, a trusted key **and** `ntp authenticate`.
+
+      **SNMP:** versions 1 and 2c use clear-text community strings (`ro` or `rw`); version 3 has users, authentication and encryption.
+
+      **Syslog destinations:** console, monitor (vty lines, needs `terminal monitor`), buffer (`show logging`) and a server (`logging trap`). Each has its own severity threshold.
+
+      **QoS:** CoS is 3 bits in the 802.1Q tag; DSCP is 6 bits in the IP header. CBWFQ guarantees bandwidth per class; LLQ adds a strict-priority queue; WRED drops early so the queue never fills.
+
+      **Files:** `flash:` holds IOS images, `nvram:` holds the startup configuration, and `boot system` chooses the image to load.
+    items:
+      - id: cn-4x-outside-local
+        type: concept
+        term: "Outside local address"
+        def: "The address by which a host on the far side of the translating router is known to hosts on the private network; it equals that host's real address unless destination translation is configured."
+      - id: cn-4x-outside-global
+        type: concept
+        term: "Outside global address"
+        def: "The real, routable address that an external host's own administrator gave it, as seen on the public side of the translating router."
+      - id: cn-4x-excluded
+        type: concept
+        term: "ip dhcp excluded-address"
+        def: "Global command that keeps an IOS address server from leasing a given address or range, such as the addresses typed by hand on routers and printers."
+      - id: cn-4x-ntp-source
+        type: concept
+        term: "ntp source Loopback0"
+        def: "Makes a device send all its time-protocol packets from one always-up interface address, so that servers and filters see the same source whichever link the packets leave by."
+      - id: cn-4x-mib
+        type: concept
+        term: "MIB"
+        def: "The hierarchical collection of variables that an SNMP agent can report or change, each one identified by a dotted string of numbers called an OID."
+      - id: cn-4x-inform
+        type: concept
+        term: "SNMP inform"
+        def: "A notification from an agent that the management station must acknowledge; the agent sends it again if no acknowledgement arrives."
+      - id: cn-4x-community
+        type: concept
+        term: "Community string"
+        def: "The clear-text shared word that SNMP versions 1 and 2c use in place of real authentication, configured as read-only or read-write."
+      - id: cn-4x-facility
+        type: concept
+        term: "Syslog facility"
+        def: "The field of a log message that names the component or protocol that produced it, such as LINK, SYS or OSPF in the IOS format."
+      - id: cn-4x-cos
+        type: concept
+        term: "CoS (class of service)"
+        def: "A 3-bit priority marking carried in the 802.1Q tag of an Ethernet frame, so it exists only on tagged links; voice is normally given the value 5."
+      - id: cn-4x-llq
+        type: concept
+        term: "LLQ (low latency queuing)"
+        def: "Class-based weighted fair queuing with a strict-priority queue added, so that voice is always sent first, up to a policed limit."
+      - id: cn-4x-wred
+        type: concept
+        term: "WRED"
+        def: "A congestion-avoidance tool that discards a growing share of packets before the queue is full, choosing lower-priority markings first."
+      - id: cn-4x-nbar
+        type: concept
+        term: "NBAR"
+        def: "A Cisco classification engine that recognises applications by inspecting packets up to Layer 7 instead of relying on addresses and port numbers alone."
+
+      - id: cn-4x-q01
+        type: mcq
+        q: "'show ip nat translations' lists 'tcp 203.0.113.5:1030  10.0.0.10:51000  198.51.100.7:443  198.51.100.7:443', with the columns in their default order. What does the last column hold?"
+        choices:
+          - "The outside global address: the server's real address on the internet"
+          - "The outside local address: the server as inside hosts address it"
+          - "The inside global address: the inside host as the internet sees it"
+          - "The inside local address: the inside host's own private address"
+        answer: 0
+        why: "The columns are inside global, inside local, outside local, outside global. The last is the outside global address, the far host's real address. It equals the outside local address here only because no destination translation is configured."
+      - id: cn-4x-q02
+        type: mcq
+        q: "R1 has 'access-list 1 permit 10.1.0.0 0.0.0.255' and 'ip nat inside source list 1 interface GigabitEthernet0/1 overload'. Both LAN interfaces carry 'ip nat inside' and Gi0/1 carries 'ip nat outside'. Hosts in 10.1.0.0/24 browse the internet; hosts in 10.1.1.0/24 cannot, and no translation ever appears for them. Which change to the ACL line fixes it?"
+        choices:
+          - "Change the wildcard mask to 0.0.0.254"
+          - "Change the wildcard mask to 0.0.1.255"
+          - "Change the wildcard mask to 0.0.255.0"
+          - "Change the wildcard mask to 0.0.2.255"
+        answer: 1
+        why: "Hosts the list does not match are forwarded untranslated, with private source addresses the internet cannot answer. 0.0.1.255 lets the last bit of the third octet vary, so the line covers 10.1.0.0 to 10.1.1.255. 0.0.2.255 would match third octets 0 and 2, not 1."
+      - id: cn-4x-q03
+        type: mcq
+        q: "'show ip nat statistics' on R1 includes 'Total active translations: 6 (0 static, 6 dynamic; 0 extended)' and, for the pool, 'total addresses 6, allocated 6 (100%), misses 21'. Thirty inside hosts need internet access at the same time and no more public addresses can be obtained. Which change BEST solves this?"
+        choices:
+          - "Run 'clear ip nat translation *' from a script every few minutes"
+          - "Add a static translation for each of the remaining twenty-four hosts"
+          - "Add 'overload' to the 'ip nat inside source list' command"
+          - "Widen the wildcard mask of the ACL so that it matches more hosts"
+        answer: 2
+        why: "The pool is fully allocated and the misses counter shows hosts being refused. 'overload' turns the pool into PAT, so many hosts share each address by port. Static entries would each need a public address that does not exist, and the ACL already matches the hosts."
+      - id: cn-4x-q04
+        type: mcq
+        q: "An engineer tries to change the address range of a NAT pool and IOS answers '%Pool POOL in use, cannot redefine'. What must be done FIRST?"
+        choices:
+          - "Remove 'ip nat inside' and 'ip nat outside' from every interface"
+          - "Save the configuration and reload the router"
+          - "Delete and re-create the ACL that the NAT statement refers to"
+          - "Enter 'clear ip nat translation *'"
+        answer: 3
+        why: "IOS will not redefine a pool while dynamic translations still use its addresses. Clearing the dynamic entries releases them, after which the pool can be changed. A reload would also empty the table, but at the cost of an outage that is not needed."
+      - id: cn-4x-q05
+        type: mcq
+        q: "R1 has 'ip nat inside source static tcp 10.1.1.10 443 203.0.113.10 8443'. Which destination must an internet client use to reach the web server that listens on 10.1.1.10?"
+        choices:
+          - "203.0.113.10, TCP port 8443"
+          - "203.0.113.10, TCP port 443"
+          - "10.1.1.10, TCP port 8443"
+          - "10.1.1.10, TCP port 443"
+        answer: 0
+        why: "The command gives the inside local address and port first, then the inside global address and port. Outside clients connect to the global pair, 203.0.113.10 port 8443, and the router rewrites it to 10.1.1.10 port 443. Port 443 on the public address is not translated by this entry."
+      - id: cn-4x-q06
+        type: mcq
+        q: "R1's WAN interface is configured with 'ip address dhcp' and the configuration contains no 'ip route' command. 'show ip route' nevertheless shows 'S* 0.0.0.0/0 [254/0] via 203.0.113.1'. Where did this route come from?"
+        choices:
+          - "A routing protocol on the WAN link advertised it to R1 as an external route"
+          - "The DHCP client installed it from the gateway in its lease"
+          - "NAT created it when 'ip nat outside' was applied to the interface"
+          - "It is the 'ip default-gateway' setting, displayed as a route"
+        answer: 1
+        why: "An IOS DHCP client installs a default static route to the default router named in its lease, with an administrative distance of 254 so that any other default route is preferred. A route from a routing protocol would carry that protocol's code, not S."
+      - id: cn-4x-q07
+        type: mcq
+        q: "R2 has 'ntp authentication-key 1 md5 T1meKey', 'ntp trusted-key 1' and 'ntp server 192.0.2.10 key 1'. A test shows that R2 still accepts time from a server that sends no authentication at all. Which command is missing?"
+        choices:
+          - "ntp master 1"
+          - "ntp source Loopback0"
+          - "ntp authenticate"
+          - "ntp update-calendar"
+        answer: 2
+        why: "Defining and trusting a key does nothing until 'ntp authenticate' turns the feature on; only then does the device refuse to synchronise to unauthenticated sources. 'ntp source' fixes the source address and has nothing to do with keys."
+      - id: cn-4x-q08
+        type: mcq
+        q: "R1 has only 'ntp server 192.0.2.10' and is synchronised at stratum 4. R2 is then configured with 'ntp server 10.0.0.1', which is R1's address. Nothing else is added to R1. What happens on R2?"
+        choices:
+          - "It stays unsynchronised, because R1 lacks 'ntp master'"
+          - "It synchronises to R1 and reports stratum 4"
+          - "It stays unsynchronised until 'ntp peer' is set on both routers"
+          - "It synchronises to R1 and reports stratum 5"
+        answer: 3
+        why: "An IOS device that is itself synchronised answers NTP clients automatically, so R1 acts as client and server at once. R2 is one hop further from the reference clock: stratum 5. 'ntp master' is needed only when a device must serve time from its own clock."
+      - id: cn-4x-q09
+        type: mcq
+        q: "Two routers are both synchronised to the same NTP server, yet their log timestamps for a single event differ by exactly one hour. What is the MOST likely cause?"
+        choices:
+          - "Their 'clock timezone' settings differ"
+          - "They sit at different strata, and each stratum adds delay"
+          - "Only one of them has 'ntp authenticate' configured"
+          - "One of them uses a loopback interface as its NTP source"
+        answer: 0
+        why: "NTP distributes UTC; each device applies its own 'clock timezone' and 'clock summer-time' offset when it displays the time. A whole-hour difference points at those settings. Stratum is a hop count, not a time offset."
+      - id: cn-4x-q10
+        type: mcq
+        q: "An IOS DHCP server has: 'ip dhcp pool LAN10' / 'network 10.1.10.0 255.255.255.0' / 'dns-server 10.1.99.53' / 'lease 7'. Clients receive addresses and can ping each other, but reach nothing outside their subnet, and 'ipconfig' shows an empty default gateway. Which pool command is missing?"
+        choices:
+          - "ip helper-address 10.1.10.1"
+          - "default-router 10.1.10.1"
+          - "ip default-gateway 10.1.10.1"
+          - "domain-name example.com"
+        answer: 1
+        why: "Inside a DHCP pool the gateway handed to clients is set with 'default-router'. 'ip default-gateway' is a global command that gives a Layer 2 switch its own gateway, and 'ip helper-address' is an interface command for relaying."
+      - id: cn-4x-q11
+        type: mcq
+        q: "A router is the DHCP server for a LAN. Which command lists each leased address together with the client that holds it and the time the lease expires?"
+        choices:
+          - "show ip dhcp pool"
+          - "show ip dhcp conflict"
+          - "show ip dhcp binding"
+          - "show dhcp lease"
+        answer: 2
+        why: "'show ip dhcp binding' is the server's table of address, client identifier or hardware address, and lease expiry. 'show ip dhcp pool' gives totals for each pool, and 'show dhcp lease' shows the lease the router itself obtained as a client."
+      - id: cn-4x-q12
+        type: mcq
+        q: "An engineer runs 'nslookup 192.0.2.25' and the resolver answers with the name mail.example.com. Which DNS record type supplied that answer?"
+        choices: ["A", "MX", "CNAME", "PTR"]
+        answer: 3
+        why: "A PTR record maps an address back to a name; it is what a reverse lookup reads. An A record goes the other way, from name to IPv4 address, and an MX record names the mail server for a domain."
+      - id: cn-4x-q13
+        type: mcq
+        q: "An engineer mistypes a command at the privileged prompt. The router prints 'Translating \"shwo\"...domain server (255.255.255.255)' and hangs for many seconds. The router never needs to resolve names. Which global command stops this?"
+        choices:
+          - "no ip domain lookup"
+          - "ip name-server 255.255.255.255"
+          - "no ip domain name"
+          - "no service dhcp"
+        answer: 0
+        why: "With lookups enabled, IOS treats an unknown word as a hostname and broadcasts a DNS query for it. 'no ip domain lookup' turns name resolution off. Removing the domain name only changes the suffix that is appended, not whether a lookup is attempted."
+      - id: cn-4x-q14
+        type: mcq
+        q: "A policy says that all polling of switches by the management station must be authenticated per user and encrypted. Which choice meets it?"
+        choices:
+          - "SNMPv2c with a read-write community string"
+          - "SNMPv3 at the authPriv level"
+          - "SNMPv3 at the authNoPriv level"
+          - "SNMPv3 at the noAuthNoPriv level"
+        answer: 1
+        why: "Only SNMPv3 has user-based security, and only its authPriv level adds encryption (privacy) to authentication. authNoPriv authenticates but sends the data in clear text, and a v2c community string is itself sent in clear text."
+      - id: cn-4x-q15
+        type: mcq
+        q: "A switch has 'snmp-server community NetMon ro'. The management station reads interface counters without trouble, but its attempt to change an interface description by SNMP is rejected. Why?"
+        choices:
+          - "SNMP Set messages use UDP port 162, which the switch has closed"
+          - "SNMP version 2c can read objects but can never modify a device"
+          - "The community is read-only, so Set is refused"
+          - "Interface descriptions are not objects in any MIB"
+        answer: 2
+        why: "'ro' allows Get requests only; a Set needs a community configured with 'rw'. Get and Set both go to the agent on UDP 161. Port 162 is where the management station listens for traps and informs."
+      - id: cn-4x-q16
+        type: mcq
+        q: "An administrator connected by SSH enables 'debug ip ospf adj' while a neighbour is flapping, but sees no output. A colleague at the console sees the debug messages scroll past. What should the SSH user enter?"
+        choices:
+          - "logging synchronous"
+          - "logging trap debugging"
+          - "service timestamps debug datetime msec"
+          - "terminal monitor"
+        answer: 3
+        why: "Log and debug messages go to the console by default but reach a vty session only after that session enters 'terminal monitor'. 'logging trap' sets the level sent to a syslog server, and 'logging synchronous' only stops messages from breaking up typed input."
+      - id: cn-4x-q17
+        type: mcq
+        q: "A log shows '*Nov 25 10:14:02.123: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to down'. How is '%LINEPROTO-5-UPDOWN' read?"
+        choices:
+          - "Facility LINEPROTO, severity 5 (notification), mnemonic UPDOWN"
+          - "Mnemonic LINEPROTO, severity 5 (notification), facility UPDOWN"
+          - "Facility LINEPROTO, sequence number 5, mnemonic UPDOWN"
+          - "Facility LINEPROTO, severity 5 (warning), mnemonic UPDOWN"
+        answer: 0
+        why: "The IOS format is %FACILITY-SEVERITY-MNEMONIC followed by the description. Severity 5 is notification; warning is 4. A sequence number, when 'service sequence-numbers' is on, appears at the very start of the line instead."
+      - id: cn-4x-q18
+        type: mcq
+        q: "A router has 'logging console 2', 'logging buffered 6' and 'logging trap 4', and a reachable 'logging host'. Nobody is connected to the vty lines. Where does the message '%SYS-5-CONFIG_I' end up?"
+        choices:
+          - "On the console only"
+          - "In the buffer only"
+          - "In the buffer and on the syslog server"
+          - "On the console, in the buffer and on the server"
+        answer: 1
+        why: "Each destination has its own threshold and takes messages at that level or more urgent. A severity 5 message passes the buffer's level 6, but is less urgent than the console's level 2 and the server's level 4, so it appears only in 'show logging'."
+      - id: cn-4x-q19
+        type: mcq
+        q: "An IP phone marks its voice packets with CoS 5 and DSCP EF. The packets leave the access switch on a trunk, are routed by a distribution switch, and then cross a routed point-to-point link that carries no 802.1Q tag. Which marking is still present on that link?"
+        choices:
+          - "CoS 5 only"
+          - "Both CoS 5 and DSCP EF"
+          - "DSCP EF only"
+          - "Neither marking"
+        answer: 2
+        why: "CoS lives in the 802.1Q tag, so it disappears wherever the frame is untagged. DSCP sits in the IP header and travels end to end unless a device rewrites it, which is why it is the marking designs rely on across routed hops."
+      - id: cn-4x-q20
+        type: mcq
+        q: "Voice has a CBWFQ class with a guaranteed 20 percent of a WAN link. During congestion calls still suffer jitter, because voice packets wait while the scheduler serves the other classes in turn. Which change BEST fixes this?"
+        choices:
+          - "Enable WRED in the voice class so that it drops early"
+          - "Shape the voice class to its 20 percent share"
+          - "Merge all classes into a single FIFO queue"
+          - "Make voice a strict-priority queue (LLQ)"
+        answer: 3
+        why: "CBWFQ guarantees bandwidth but not delay. LLQ adds a priority queue that is always served first, which removes the waiting that causes jitter. WRED and shaping would drop or delay voice, the opposite of what it needs."
+      - id: cn-4x-q21
+        type: mcq
+        q: "On a congested WAN interface the queue fills, tail drop discards packets from many TCP sessions at once, and all of them slow down and then speed up together, so throughput swings up and down. Which tool is designed to prevent this?"
+        choices: ["WRED", "LLQ", "NBAR", "Policing"]
+        answer: 0
+        why: "WRED discards a few packets early and at random as the queue grows, so sessions back off at different times instead of all together (global synchronisation). LLQ decides who is served first; it does not prevent the queue from filling."
+      - id: cn-4x-q22
+        type: mcq
+        q: "A PC is plugged into the back of an IP phone, and a game on the PC marks its own frames with CoS 5. The design places the trust boundary at the phone. What should happen?"
+        choices:
+          - "The switch trusts every marking that arrives on the port, including the PC's"
+          - "The phone's markings are trusted; the PC's frames are re-marked to CoS 0"
+          - "The switch re-marks both the phone's and the PC's traffic to CoS 0"
+          - "The phone discards every frame from the PC that carries a marking"
+        answer: 1
+        why: "A trust boundary is the point up to which markings are believed. The phone is a managed device, so its voice markings are kept, while traffic from the PC behind it is rewritten to best effort so that a user cannot claim priority."
+      - id: cn-4x-q23
+        type: mcq
+        q: "An engineer runs 'crypto key generate rsa modulus 512' and then 'ip ssh version 2'. IOS refuses the second command. Why?"
+        choices:
+          - "SSH version 2 needs a local username first"
+          - "The vty lines must have 'transport input ssh' first"
+          - "SSH version 2 needs an RSA key of at least 768 bits"
+          - "SSH version 2 needs 'ip domain lookup' enabled"
+        answer: 2
+        why: "IOS will not enable SSH version 2 with a key shorter than 768 bits; in practice 2048 bits is the sensible choice. The username and the vty settings are needed for a login to succeed, but they do not block the version command."
+      - id: cn-4x-q24
+        type: mcq
+        q: "A client behind a firewall logs in to an FTP server successfully, but every directory listing or download hangs. The firewall allows outbound connections and blocks all inbound ones. Which change is MOST likely to fix it?"
+        choices:
+          - "Use active mode, so the server opens the data connection from port 20"
+          - "Open TCP port 21 outbound on the firewall"
+          - "Move the control connection to TCP port 20"
+          - "Use passive mode, so the client opens the data connection too"
+        answer: 3
+        why: "The login works, so the control connection on TCP 21 is fine. In active mode the server connects back to the client for data, which the firewall blocks. In passive mode the client opens both connections outbound."
+      - id: cn-4x-q25
+        type: mcq
+        q: "A new image, c1100-new.bin, has been copied to flash: beside the old one and verified. After a reload the router is still running the old image. Which step was missed?"
+        choices:
+          - "'boot system flash:c1100-new.bin', then save"
+          - "'copy flash:c1100-new.bin nvram:' to load it into NVRAM"
+          - "'copy running-config tftp:' just before the reload"
+          - "'erase startup-config' just before the reload"
+        answer: 0
+        why: "With no 'boot system' command the router loads the first usable image it finds in flash, here the old one. The command must also be saved to the startup configuration, because that is what the router reads at boot. NVRAM holds the configuration, not images."
+
+      - id: cn-4x-m01
+        type: multi
+        q: "A switch has 'logging trap errors'. Which THREE of these severities are sent to the syslog server?"
+        choices: ["Emergency", "Warning", "Critical", "Notification", "Error", "Debugging"]
+        answers: [0, 2, 4]
+        why: "'errors' is level 3, so levels 0 to 3 are sent: emergency (0), alert (1), critical (2) and error (3). Warning (4), notification (5) and debugging (7) are less urgent than the threshold."
+      - id: cn-4x-m02
+        type: multi
+        q: "Which TWO statements describe policing, as opposed to shaping?"
+        choices:
+          - "Excess traffic is dropped or re-marked at once"
+          - "Excess traffic is held in a queue and sent later"
+          - "It can be applied to traffic arriving on an interface"
+          - "It smooths bursts at the cost of added delay"
+          - "It needs a buffer for the packets it holds back"
+        answers: [0, 2]
+        why: "A policer measures the rate and immediately drops or re-marks what exceeds it, in either direction. A shaper buffers the excess, which smooths bursts but adds delay, and so works only on traffic leaving an interface."
+      - id: cn-4x-m03
+        type: multi
+        q: "Which TWO statements are true of TFTP?"
+        choices:
+          - "It runs over UDP port 69"
+          - "It asks for a username and password"
+          - "It can list the files in a directory"
+          - "It has no authentication of any kind"
+          - "It opens a separate data connection from TCP port 20"
+        answers: [0, 3]
+        why: "TFTP is a minimal protocol on UDP 69 that can only read or write a named file, with no login. Usernames, directory listings and a data connection from TCP port 20 are all features of FTP."
+
+      - id: cn-4x-o01
+        type: order
+        q: "A PC with an empty cache looks up www.example.com through its configured recursive resolver, whose cache is also empty. Put the events in order."
+        steps:
+          - "The PC sends the query to its configured resolver"
+          - "The resolver asks a root server, which refers it to the .com servers"
+          - "The resolver asks a .com server, which refers it to example.com's name servers"
+          - "The resolver asks an authoritative server for example.com and receives the A record"
+          - "The resolver returns the address to the PC and caches it"
+        why: "The client asks only its resolver. The resolver walks the hierarchy from the root down, following each referral, until an authoritative server answers, and then caches the result for later queries."
+      - id: cn-4x-o02
+        type: order
+        q: "A packet from an untrusted host enters a router that applies QoS and leaves on a congested WAN interface. Put the per-hop treatment in order."
+        steps:
+          - "Classify the packet by matching its headers or its application"
+          - "Mark it with the DSCP value for its class"
+          - "Place it in the egress queue that serves that class"
+          - "The scheduler transmits it, serving the priority queue first"
+        why: "A packet must be identified before it can be marked, and it is queued on the way out according to that marking. The scheduler then decides which queue is sent next."
+      - id: cn-4x-o03
+        type: order
+        q: "Put the steps of upgrading a router's IOS image from a file server in a safe order."
+        steps:
+          - "Check the free space with 'show flash:'"
+          - "Copy the image with 'copy ftp: flash:'"
+          - "Check the file with 'verify /md5' against the published hash"
+          - "Point 'boot system' at the new image and save the configuration"
+          - "Reload and confirm the version with 'show version'"
+        why: "Space is checked before copying, and the copy is verified before the router is told to boot from it, so that a truncated or corrupt image is never the one loaded at the next reload."
+
+  # ─────────────── 5x · security fundamentals: full coverage ───────────────
+  - id: cn-5x
+    title: "Security in depth: attacks, device hardening, VPNs, ACL editing, Layer 2 and wireless"
+    domain: "5"
+    goal: "I can name an attack from its symptoms and choose the mitigation, harden device logins, describe how IPsec VPNs are built, edit and place ACLs, and tune port security, DHCP snooping, ARP inspection and WPA settings."
+    notes: |
+      **Attacks to recognise.** *Spoofing* fakes a source address (IP, MAC or a DHCP server). *Denial of service* exhausts a target; a **reflection and amplification** attack spoofs the victim's address so that third parties flood it with large replies. *Man-in-the-middle* (ARP poisoning) puts the attacker in the path. *Reconnaissance* maps the target first. Malware: a **virus** needs a host file and a user, a **worm** spreads by itself, a **Trojan** pretends to be useful. *Social engineering* attacks people: phishing by mail, vishing by voice, smishing by text, tailgating through a door.
+
+      **A security program** has three human elements: user awareness, training, and physical access control.
+
+      **IOS password types.**
+
+      | Type | Meaning |
+      | 0 | Clear text |
+      | 7 | Weak, reversible encoding |
+      | 5 | MD5 hash |
+      | 8 | PBKDF2 with SHA-256 |
+      | 9 | scrypt, the strongest |
+
+      `exec-timeout 5 0` logs an idle line out after five minutes.
+
+      **IPsec.** IKE negotiates keys and security associations. *Tunnel mode* wraps the whole original packet in a new IP header; *transport mode* keeps the original header. IPsec alone does not carry multicast, so routing protocols need **GRE over IPsec**. Remote users connect with a TLS or IPsec client.
+
+      **Named ACLs** are edited by sequence number: `15 permit ...` inserts a line, `no 20` removes one.
+
+      **Wireless.** Personal mode shares one key; **enterprise** mode authenticates each user with 802.1X, EAP and a RADIUS server. WPA3 replaces the pre-shared-key exchange with SAE, adds forward secrecy and requires protected management frames.
+    items:
+      - id: cn-5x-amplification
+        type: concept
+        term: "Reflection and amplification attack"
+        def: "A denial-of-service method that sends small requests with the victim's address forged as the source, so that many third-party servers answer the victim with far larger replies."
+      - id: cn-5x-recon
+        type: concept
+        term: "Reconnaissance attack"
+        def: "Information gathering, such as ping sweeps and port scans, carried out to map a target before the real attack begins."
+      - id: cn-5x-awareness
+        type: concept
+        term: "User awareness"
+        def: "The security-program element that keeps every employee conscious of threats and policies through reminders, campaigns and simulated phishing, without formal instruction."
+      - id: cn-5x-physical
+        type: concept
+        term: "Physical access control"
+        def: "The security-program element that keeps unauthorised people away from equipment with locked rooms and racks, badge readers and similar barriers."
+      - id: cn-5x-type9
+        type: concept
+        term: "Type 9 secret"
+        def: "The IOS password format that stores a scrypt hash, the hardest of the available formats to crack; it is selected with 'algorithm-type scrypt'."
+      - id: cn-5x-exec-timeout
+        type: concept
+        term: "exec-timeout"
+        def: "Line command that disconnects an idle management session after a set number of minutes and seconds; two zeros disable it."
+      - id: cn-5x-ike
+        type: concept
+        term: "IKE"
+        def: "The protocol that authenticates two IPsec peers and negotiates their keys and security associations, normally on UDP port 500."
+      - id: cn-5x-tunnel-mode
+        type: concept
+        term: "Tunnel mode (IPsec)"
+        def: "The IPsec mode that protects the entire original IP packet and adds a new outer IP header carrying the gateways' addresses."
+      - id: cn-5x-remote-access
+        type: concept
+        term: "Remote-access VPN"
+        def: "An on-demand encrypted connection from one user's device to a company gateway, made by client software or a browser using TLS or IPsec."
+      - id: cn-5x-cert
+        type: concept
+        term: "Digital certificate"
+        def: "A file, signed by a trusted authority, that binds an identity to a public key and can prove that identity without a password."
+      - id: cn-5x-dot1x
+        type: concept
+        term: "802.1X"
+        def: "The port-based access standard in which a supplicant proves its identity with EAP, through an authenticator, to a RADIUS server before it may send data."
+      - id: cn-5x-sae
+        type: concept
+        term: "SAE"
+        def: "The WPA3 personal-mode key exchange that replaces the plain pre-shared-key handshake and defeats offline dictionary attacks on a captured exchange."
+      - id: cn-5x-pmf
+        type: concept
+        term: "PMF (protected management frames)"
+        def: "The 802.11w protection, mandatory in WPA3, that stops forged deauthentication and disassociation frames from knocking clients off a WLAN."
+      - id: cn-5x-opt82
+        type: concept
+        term: "DHCP option 82"
+        def: "The relay agent information field that a snooping switch adds to client requests by default, and that some servers and relays reject when the gateway address field is zero."
+      - id: cn-5x-block-for
+        type: concept
+        term: "login block-for"
+        def: "Global command that refuses all login attempts for a quiet period after a set number of failures within a set time, which slows password guessing."
+
+      - id: cn-5x-q01
+        type: mcq
+        q: "A web server is flooded with large DNS responses from thousands of open resolvers around the world, although it never sent a DNS query. What kind of attack is this?"
+        choices:
+          - "Reflection and amplification"
+          - "TCP SYN flood from a single host"
+          - "ARP poisoning man-in-the-middle"
+          - "Reconnaissance by port scanning"
+        answer: 0
+        why: "The attacker sent queries with the victim's address forged as the source, so the resolvers reflect their much larger answers at the victim. A SYN flood would show half-open TCP connections, not unsolicited DNS responses."
+      - id: cn-5x-q02
+        type: mcq
+        q: "On a user's PC, 'arp -a' shows the default gateway 10.1.10.1 mapped to a MAC address that belongs to another user's laptop in the same VLAN. Traffic still flows. Which attack is under way, and which switch feature is designed to stop it?"
+        choices:
+          - "A rogue DHCP server; DHCP snooping"
+          - "ARP poisoning; dynamic ARP inspection"
+          - "MAC address flooding; port security"
+          - "A spanning-tree root takeover; root guard"
+        answer: 1
+        why: "A forged ARP reply has tied the gateway's IP address to the attacker's MAC, so traffic passes through the laptop: a man-in-the-middle. Dynamic ARP inspection drops ARP messages whose pairing is not in the snooping binding table. A rogue DHCP server would hand out a wrong gateway address, not a wrong MAC for the right one."
+      - id: cn-5x-q03
+        type: mcq
+        q: "Malware enters one PC and within minutes has infected hundreds of others by exploiting an unpatched file-sharing service, with no user opening or running anything. Which class of malware behaves this way?"
+        choices: ["Virus", "Trojan horse", "Worm", "Spyware"]
+        answer: 2
+        why: "A worm propagates by itself across the network by exploiting a vulnerability. A virus needs a host file and a user action to spread, and a Trojan relies on a user being tricked into running it."
+      - id: cn-5x-q04
+        type: mcq
+        q: "An employee receives a phone call from someone claiming to be the help desk, who asks her to read out the code from her authenticator app. Which technique is this?"
+        choices: ["Phishing", "Smishing", "Pharming", "Vishing"]
+        answer: 3
+        why: "Vishing is social engineering by voice call. Phishing uses e-mail, smishing uses text messages, and pharming redirects a victim to a fake site by corrupting name resolution."
+      - id: cn-5x-q05
+        type: mcq
+        q: "Which activity is an example of the TRAINING element of a security program, rather than user awareness?"
+        choices:
+          - "A mandatory yearly course with a test, tailored to each job role"
+          - "Posters in the corridors about locking the screen"
+          - "A monthly e-mail reminding all staff to report any suspicious messages"
+          - "A login banner warning that use of the system is monitored"
+        answer: 0
+        why: "Training is formal, scheduled instruction, often mandatory and specific to a role, with its completion checked. Posters, reminders and banners keep security in mind, which is awareness, but they do not teach or test anything."
+      - id: cn-5x-q06
+        type: mcq
+        q: "A configuration contains 'enable secret 9 $9$nhEm...', 'username admin secret 5 $1$mERr...' and, under 'line con 0', 'password 7 0822455D0A16'. If the file leaks, which credential can be recovered almost instantly with a freely available tool?"
+        choices:
+          - "The enable secret"
+          - "The console line password"
+          - "The admin user's secret"
+          - "All three equally, because each is only encoded"
+        answer: 1
+        why: "Type 7 is a reversible encoding produced by 'service password-encryption', and decoders for it are everywhere. Type 5 (MD5) and type 9 (scrypt) are one-way hashes that must be guessed by brute force, type 9 being far the slower to attack."
+      - id: cn-5x-q07
+        type: mcq
+        q: "Policy requires that the local account on a router be stored with the scrypt algorithm. Which command does this?"
+        choices:
+          - "username admin algorithm-type md5 secret Str0ngPass"
+          - "username admin algorithm-type sha256 secret Str0ngPass"
+          - "username admin algorithm-type scrypt secret Str0ngPass"
+          - "username admin privilege 9 secret Str0ngPass"
+        answer: 2
+        why: "'algorithm-type scrypt' stores a type 9 secret. 'sha256' gives type 8 (PBKDF2 with SHA-256) and 'md5' gives the older type 5. 'privilege 9' sets a privilege level and has nothing to do with the hash."
+      - id: cn-5x-q08
+        type: mcq
+        q: "A router has 'line console 0' followed by 'password C0nsole!' and no other command under the line. What happens when someone connects a console cable and presses Enter?"
+        choices:
+          - "The router asks for the line password, C0nsole!"
+          - "The router asks for a local username and password"
+          - "The router refuses the session until 'login' is added"
+          - "A prompt appears with no password asked"
+        answer: 3
+        why: "A line password is checked only when the line also has 'login', and the console has no login by default. The password therefore sits unused and the user reaches the prompt directly. A refusal is what the vty lines do when 'login' is set and no password exists."
+      - id: cn-5x-q09
+        type: mcq
+        q: "The log of an internet-facing router shows hundreds of failed SSH logins per minute from one address, trying common passwords. Which command slows this attack by refusing every login for a while after repeated failures?"
+        choices:
+          - "login block-for 120 attempts 3 within 60"
+          - "ip ssh authentication-retries 3"
+          - "security passwords min-length 12"
+          - "service password-encryption"
+        answer: 0
+        why: "'login block-for 120 attempts 3 within 60' refuses all logins for 120 seconds after three failures inside 60 seconds. 'ip ssh authentication-retries' only limits the tries within one session, and the attacker simply opens another."
+      - id: cn-5x-q10
+        type: mcq
+        q: "Two sites connect over the internet and must run OSPF between their routers, with all traffic encrypted. A plain IPsec tunnel comes up, but OSPF hellos never cross it. Which design solves this?"
+        choices:
+          - "IPsec with AH instead of ESP"
+          - "GRE over IPsec"
+          - "IPsec in transport mode with no tunnel interface"
+          - "A clientless TLS VPN between the two routers"
+        answer: 1
+        why: "A plain IPsec tunnel carries only the unicast traffic its policy selects, so multicast OSPF hellos are not sent through it. GRE encapsulates multicast and routing protocols in unicast packets, and IPsec then encrypts the GRE packets. AH would remove the encryption and still not carry multicast."
+      - id: cn-5x-q11
+        type: mcq
+        q: "A capture taken between two VPN gateways shows packets whose outer IP header carries the gateways' public addresses, followed by an ESP header; the original IP header and payload cannot be read. Which IPsec protocol and mode are in use?"
+        choices:
+          - "AH, tunnel mode"
+          - "AH, transport mode"
+          - "ESP, tunnel mode"
+          - "ESP, transport mode"
+        answer: 2
+        why: "ESP encrypts, and a new outer header with the original header hidden inside means the whole packet was encapsulated: tunnel mode. In transport mode the original IP header would stay visible, and AH would leave the payload readable."
+      - id: cn-5x-q12
+        type: mcq
+        q: "Contractors must reach one internal web application from hotel and home PCs on which nothing may be installed. Which VPN type fits BEST?"
+        choices:
+          - "Site-to-site IPsec VPN"
+          - "GRE over IPsec"
+          - "Remote-access VPN with an installed IPsec client"
+          - "Clientless TLS VPN through a web browser"
+        answer: 3
+        why: "A clientless TLS VPN needs only a browser and suits access to a few web applications from unmanaged machines. An IPsec client must be installed, and site-to-site designs join whole networks through gateways rather than single users."
+      - id: cn-5x-q13
+        type: mcq
+        q: "'show access-lists' shows: 'Extended IP access list WEB' / '10 permit tcp any host 10.0.0.5 eq www' / '20 deny ip any any'. HTTPS to the same server must also be allowed, without removing the list from the interface. Which input does it?"
+        choices:
+          - "'ip access-list extended WEB', then '15 permit tcp any host 10.0.0.5 eq 443'"
+          - "'ip access-list extended WEB', then 'permit tcp any host 10.0.0.5 eq 443'"
+          - "'access-list WEB permit tcp any host 10.0.0.5 eq 443'"
+          - "'ip access-list extended WEB', then 'no 20'"
+        answer: 0
+        why: "A sequence number of 15 inserts the entry between lines 10 and 20, above the deny. Without a number the entry is appended as line 30, after 'deny ip any any', and is never reached. Removing line 20 changes nothing, because the implicit deny still drops HTTPS."
+      - id: cn-5x-q14
+        type: mcq
+        q: "ACL 110 has five lines. To remove just the Telnet line, an engineer enters 'no access-list 110 deny tcp any any eq 23' in global configuration mode. What is the result?"
+        choices:
+          - "Only the Telnet line is removed"
+          - "The whole of ACL 110 is deleted"
+          - "IOS rejects the command as incomplete"
+          - "The line is changed from deny to permit"
+        answer: 1
+        why: "In global configuration mode, 'no access-list 110' followed by anything deletes the entire list. To remove one entry, enter 'ip access-list extended 110' and use 'no' with the entry's sequence number."
+      - id: cn-5x-q15
+        type: mcq
+        q: "R1 has 'access-list 101 deny icmp any any' and 'access-list 101 permit ip any any', applied with 'ip access-group 101 out' on Gi0/1. A ping from a LAN host through R1 to 10.9.9.9 fails, but a ping from R1's own command line to 10.9.9.9 succeeds. Why?"
+        choices:
+          - "Pings sent from the IOS command line use UDP rather than ICMP"
+          - "An ACL cannot match ICMP unless a message type is named"
+          - "Outbound ACLs skip packets the router itself creates"
+          - "R1 sources its pings from Gi0/0, which has no ACL"
+        answer: 2
+        why: "An outbound ACL filters only traffic passing through the router. Packets that the router originates are not checked against it, so R1's own echo requests leave, and the replies meet no inbound list on Gi0/1."
+      - id: cn-5x-q16
+        type: mcq
+        q: "Hosts in 10.1.1.0/24 are on R1 Gi0/0. The path to the server LAN 10.3.3.0/24 is R1, R2, R3, and the servers are on R3 Gi0/0. A standard ACL, 'deny 10.1.1.0 0.0.0.255' then 'permit any', must stop those hosts reaching the servers and nothing else. Where should it be applied?"
+        choices:
+          - "Inbound on R1 Gi0/0"
+          - "Outbound on R1's link towards R2"
+          - "Inbound on R3 Gi0/0"
+          - "Outbound on R3 Gi0/0"
+        answer: 3
+        why: "A standard ACL sees only the source address, so anywhere near the source it would cut those hosts off from every destination. Outbound on the server-facing interface it affects only traffic going to the servers. Inbound on R3 Gi0/0 would test packets coming from the servers, whose source is 10.3.3.0/24."
+      - id: cn-5x-q17
+        type: mcq
+        q: "Which entry lets clients in 192.168.10.0/24 send DNS queries to the resolver 10.0.0.53?"
+        choices:
+          - "permit udp 192.168.10.0 0.0.0.255 host 10.0.0.53 eq 53"
+          - "permit udp 192.168.10.0 0.0.0.255 eq 53 host 10.0.0.53"
+          - "permit udp host 10.0.0.53 192.168.10.0 0.0.0.255 eq 53"
+          - "permit udp 192.168.10.0 0.0.0.255 host 10.0.0.53 eq 67"
+        answer: 0
+        why: "The clients are the source, the resolver is the destination, and 53 is the port the resolver listens on, so 'eq 53' follows the destination. Written after the source it would test the client's source port, and port 67 is the DHCP server port."
+      - id: cn-5x-q18
+        type: mcq
+        q: "Access ports use port security in shutdown mode. Each violation leaves a port err-disabled until the help desk enters 'shutdown' and 'no shutdown'. Which global command makes such ports come back by themselves after the recovery interval, 300 seconds by default?"
+        choices:
+          - "switchport port-security aging time 5"
+          - "errdisable recovery cause psecure-violation"
+          - "switchport port-security violation restrict"
+          - "errdisable detect cause all"
+        answer: 1
+        why: "'errdisable recovery cause psecure-violation' re-enables ports disabled by a port-security violation once 'errdisable recovery interval' has passed. Aging controls how long a learned address stays secure; it does not revive a disabled port."
+      - id: cn-5x-q19
+        type: mcq
+        q: "An untrusted access port has 'ip dhcp snooping limit rate 15'. The port goes down, and 'show interfaces status err-disabled' gives the reason 'dhcp-rate-limit'. What happened?"
+        choices:
+          - "A DHCP Offer from a rogue server arrived on the untrusted port"
+          - "The DHCP lease of the host on the port expired"
+          - "More than 15 DHCP packets per second arrived on the port"
+          - "More than 15 clients were learned on the port"
+        answer: 2
+        why: "The limit is in DHCP packets per second; exceeding it err-disables the port, which is the defence against a host flooding requests to exhaust the pool. A server message on an untrusted port is simply dropped and does not disable the port."
+      - id: cn-5x-q20
+        type: mcq
+        q: "DHCP snooping is enabled on an access switch and the uplink is trusted. The next hop is an IOS router acting as DHCP relay. Clients now get no address, and the router's debug shows their Discovers discarded because they carry relay information (option 82) with a gateway address of 0.0.0.0. Snooping must stay active. Which command on the access switch fixes this?"
+        choices:
+          - "ip dhcp snooping trust, on every client port"
+          - "no ip dhcp snooping vlan 10"
+          - "ip dhcp snooping limit rate 100"
+          - "no ip dhcp snooping information option"
+        answer: 3
+        why: "A snooping switch inserts option 82 by default, and an IOS relay or server distrusts a packet that has option 82 but no gateway address. Turning the insertion off on the access switch cures it. Trusting the client ports would abandon the protection altogether."
+      - id: cn-5x-q21
+        type: mcq
+        q: "DHCP snooping and 'ip arp inspection vlan 10' are active. A printer in VLAN 10 with a manually typed address loses all connectivity, while the DHCP clients work. Why?"
+        choices:
+          - "Its ARP messages match no snooping binding and are dropped"
+          - "Dynamic ARP inspection permits only one MAC address on each port"
+          - "DHCP snooping blocks every frame from a host that never sent a Discover"
+          - "The printer's port must be an 802.1Q trunk for inspection to pass"
+        answer: 0
+        why: "Inspection validates ARP against the snooping binding table, and a host that never used DHCP has no entry. The remedy is an ARP ACL that lists the printer's IP and MAC pairing, or trusting that port. Snooping itself filters DHCP messages only, not ordinary frames."
+      - id: cn-5x-q22
+        type: mcq
+        q: "A company wants every employee to join the WLAN with their own directory username and password, so that one person's access can be removed without touching anyone else's device. Which setting provides this?"
+        choices:
+          - "WPA2-Personal with a long pre-shared key"
+          - "WPA2-Enterprise with 802.1X and a RADIUS server"
+          - "WPA3-Personal with SAE"
+          - "An open SSID with MAC address filtering"
+        answer: 1
+        why: "Enterprise mode authenticates each user individually through 802.1X and EAP against a RADIUS server, so an account can be disabled centrally. Both personal modes share one passphrase, which must be changed on every device when one person leaves."
+      - id: cn-5x-q23
+        type: mcq
+        q: "An attacker records months of encrypted traffic from a WPA3-Personal network and later learns the passphrase. Why can the recorded traffic still not be decrypted?"
+        choices:
+          - "WPA3 encrypts with TKIP, which changes the key for every single packet sent"
+          - "WPA3 requires a RADIUS server, which keeps the keys away from the access point"
+          - "SAE gives forward secrecy: session keys do not follow from the passphrase"
+          - "Protected management frames encrypt the passphrase inside every beacon frame"
+        answer: 2
+        why: "SAE derives fresh keys for each session in a way that cannot be reproduced later from the passphrase and a capture. With WPA2-Personal, a captured four-way handshake plus the passphrase is enough to decrypt that session. WPA3 uses AES, not TKIP."
+      - id: cn-5x-q24
+        type: mcq
+        q: "On a WLC a new WLAN with WPA2-PSK is enabled. Clients join and authenticate, but receive addresses from the management subnet instead of the user VLAN 20. What was missed in the GUI?"
+        choices:
+          - "The pre-shared key was typed in hexadecimal rather than ASCII"
+          - "The WLAN's QoS profile was left at the default, Silver"
+          - "The WPA2 policy uses AES encryption instead of TKIP"
+          - "The WLAN is still mapped to the management interface"
+        answer: 3
+        why: "A WLAN places its clients in the VLAN of the controller interface it is mapped to. A dynamic interface for VLAN 20 must be created and selected on the WLAN's General tab. The key format, cipher and QoS profile do not decide the client's subnet."
+
+      - id: cn-5x-m01
+        type: multi
+        q: "Which TWO of these are social engineering attacks?"
+        choices: ["Phishing", "TCP SYN flood", "Tailgating", "Port scan", "Buffer overflow"]
+        answers: [0, 2]
+        why: "Phishing and tailgating both work by deceiving or exploiting a person. A SYN flood is a denial-of-service attack, a port scan is reconnaissance, and a buffer overflow exploits a software flaw."
+      - id: cn-5x-m02
+        type: multi
+        q: "Which THREE IOS password types store a one-way hash, rather than clear text or a reversible encoding?"
+        choices: ["Type 0", "Type 5", "Type 7", "Type 8", "Type 9"]
+        answers: [1, 3, 4]
+        why: "Type 5 is an MD5 hash, type 8 is PBKDF2 with SHA-256 and type 9 is scrypt. Type 0 is clear text and type 7 is the reversible encoding applied by 'service password-encryption'."
+      - id: cn-5x-m03
+        type: multi
+        q: "Which TWO are improvements that WPA3 makes over WPA2?"
+        choices:
+          - "SAE replaces the pre-shared-key exchange in personal mode"
+          - "TKIP becomes the mandatory cipher"
+          - "Protected management frames are required"
+          - "Enterprise mode no longer needs an authentication server"
+          - "Passphrases are limited to 8 ASCII characters"
+        answers: [0, 2]
+        why: "WPA3-Personal uses SAE, which resists offline dictionary attacks, and WPA3 makes protected management frames mandatory. TKIP is not allowed in WPA3, and enterprise mode still depends on 802.1X with a RADIUS server."
+
+      - id: cn-5x-o01
+        type: order
+        q: "Put the life of a site-to-site IPsec tunnel in order."
+        steps:
+          - "Traffic that the policy marks as interesting reaches the gateway"
+          - "IKE phase 1: the peers authenticate each other and build a secure channel"
+          - "IKE phase 2: the peers negotiate the IPsec security associations"
+          - "User traffic is encrypted with ESP and sent through the tunnel"
+          - "The security associations expire or are deleted, and the tunnel is torn down"
+        why: "Interesting traffic triggers the negotiation. Phase 1 must protect the channel before phase 2 can agree the IPsec security associations inside it, and data can flow only once those exist."
+      - id: cn-5x-o02
+        type: order
+        q: "A client joins a WPA2-Enterprise WLAN. Put the events in order."
+        steps:
+          - "The client associates with the access point using open authentication"
+          - "The client sends its identity and credentials in EAP messages"
+          - "The controller relays the EAP exchange to the RADIUS server"
+          - "The RADIUS server returns Access-Accept"
+          - "The four-way handshake derives the encryption keys"
+          - "The client's data frames are encrypted and forwarded"
+        why: "Association comes first, but the port stays blocked for data until 802.1X succeeds. The key material from a successful EAP exchange feeds the four-way handshake, and only then is user traffic encrypted and passed."
+
+  # ─────────────── 5y · security: exam-hard practice ───────────────
+  - id: cn-5y
+    title: "Security practice: what does this ACL do to this packet?"
+    domain: "5"
+    goal: "I can take an ACL, its interface and direction, and a packet, and say which line decides the packet's fate, and I can diagnose Layer 2 security and device-access faults from show output."
+    notes: |
+      This unit is practice at exam difficulty. Most items give you an ACL and a packet. Work the same way every time.
+
+      **1. Which packets does the list see?** Find the interface and the direction. `in` checks packets arriving on that interface, including packets addressed to the router itself. `out` checks packets leaving it, but never packets the router generates. Traffic that does not cross that interface in that direction is not checked at all.
+
+      **2. Walk the lines top down.** For each line test, in order: protocol, source, source port, destination, destination port. A port written straight after the source is a *source* port. `ip` matches every protocol; `tcp` or `udp` does not match ICMP or OSPF.
+
+      **3. Do the wildcard arithmetic.** For an ordinary (contiguous) wildcard the range starts at the address given and its size is the wildcard plus one: `10.1.1.0 0.0.0.127` is .0 to .127; `172.16.4.0 0.0.3.255` is 172.16.4.0 to 172.16.7.255.
+
+      **4. Stop at the first match.** If nothing matches, the implicit deny drops the packet.
+
+      **5. Think about the return path.** A reply has the addresses and ports swapped, and it may meet a different list.
+
+      Remember the silent travellers: a DHCP Discover comes from 0.0.0.0, and routing protocols are neither TCP nor UDP.
+
+      The remaining items mix port security, DHCP snooping, ARP inspection, device passwords and VPNs.
+    items:
+      - id: cn-5y-q01
+        type: mcq
+        q: "This list is applied inbound on a LAN interface: 'access-list 105 deny tcp 10.1.1.0 0.0.0.127 any eq 23' / 'access-list 105 permit tcp 10.1.1.0 0.0.0.255 any'. Host 10.1.1.130 opens a Telnet session to 10.9.9.9. What happens to its first packet?"
+        choices:
+          - "It is permitted by the second line"
+          - "It is denied by the first line"
+          - "It is dropped by the implicit deny"
+          - "It is denied, because deny lines override permit lines"
+        answer: 0
+        why: "A wildcard of 0.0.0.127 covers 10.1.1.0 to 10.1.1.127, and .130 lies outside it, so the first line does not match. The second line matches any TCP from 10.1.1.0 to 10.1.1.255 and permits the packet."
+      - id: cn-5y-q02
+        type: mcq
+        q: "A standard list reads 'access-list 15 deny 192.168.5.64 0.0.0.63' / 'access-list 15 permit 192.168.5.0 0.0.0.255'. Which source address is denied?"
+        choices: ["192.168.5.63", "192.168.5.100", "192.168.5.128", "192.168.5.200"]
+        answer: 1
+        why: "192.168.5.64 with wildcard 0.0.0.63 covers .64 to .127, which includes .100. The addresses .63, .128 and .200 fall outside that block and are permitted by the second line."
+      - id: cn-5y-q03
+        type: mcq
+        q: "Which of these TCP packets matches 'access-list 101 permit tcp 192.168.1.0 0.0.0.255 eq 80 any'?"
+        choices:
+          - "From 192.168.1.10 port 51000 to 10.0.0.5 port 80"
+          - "From 10.0.0.5 port 80 to 192.168.1.10 port 51000"
+          - "From 192.168.1.10 port 80 to 10.0.0.5 port 51000"
+          - "From 10.0.0.5 port 51000 to 192.168.1.10 port 80"
+        answer: 2
+        why: "'eq 80' is written directly after the source, so it tests the source port: the line matches traffic sent from port 80 on a host in 192.168.1.0/24, such as a web server's replies. A client's request has a random high source port and does not match."
+      - id: cn-5y-q04
+        type: mcq
+        q: "R1's internet-facing interface Gi0/1 has this list applied inbound: '10 permit tcp any host 203.0.113.10 eq 443' / '20 deny ip any any'. NAT is working, yet inside users can no longer browse any website. Why?"
+        choices:
+          - "Line 10 uses 'host', which is not valid for a destination"
+          - "An inbound list on Gi0/1 filters the users' outgoing requests"
+          - "NAT runs before the list, so line 10 can never match anything"
+          - "The replies from web servers match only line 20 and are dropped"
+        answer: 3
+        why: "The users' requests leave through Gi0/1 and are not checked by an inbound list. The replies arrive on Gi0/1 from source port 443 or 80 towards a high destination port on the PAT address, which line 10 does not describe, so line 20 drops them."
+      - id: cn-5y-q05
+        type: mcq
+        q: "A named list reads: '10 permit ip 10.2.0.0 0.0.255.255 any' / '20 deny ip host 10.2.3.4 any' / '30 permit ip any any'. It is meant to block host 10.2.3.4, but that host still reaches everything. Which entry, typed in the list's configuration mode, makes the block work?"
+        choices:
+          - "5 deny ip host 10.2.3.4 any"
+          - "25 deny ip host 10.2.3.4 any"
+          - "40 deny ip host 10.2.3.4 any"
+          - "15 deny ip host 10.2.3.4 any"
+        answer: 0
+        why: "10.2.3.4 is inside 10.2.0.0/16, so line 10 permits it before the deny on line 20 is read. The deny has to come before line 10, and sequence number 5 puts it there. Numbers 15, 25 and 40 all place it after the permit."
+      - id: cn-5y-q06
+        type: mcq
+        q: "One ACL entry must match every address from 10.4.0.0 to 10.7.255.255 and nothing else. Which address and wildcard mask do that?"
+        choices:
+          - "10.4.0.0 0.4.255.255"
+          - "10.4.0.0 0.3.255.255"
+          - "10.4.0.0 0.7.255.255"
+          - "10.4.0.0 0.252.255.255"
+        answer: 1
+        why: "10.4.0.0 to 10.7.255.255 is 10.4.0.0/14, whose mask is 255.252.0.0; subtracting it from 255.255.255.255 gives 0.3.255.255. A wildcard of 0.7.255.255 would also take in 10.0.0.0 to 10.3.255.255."
+      - id: cn-5y-q07
+        type: mcq
+        q: "Which source address is permitted by 'access-list 30 permit 192.168.0.0 0.0.254.255'?"
+        choices: ["192.168.7.10", "192.168.33.1", "192.168.18.200", "192.169.2.1"]
+        answer: 2
+        why: "254 is 11111110 in binary, so every bit of the third octet is ignored except the last, which must be 0 as in the address given. The entry therefore matches even third octets only: 18 matches, 7 and 33 do not, and 192.169 fails on the second octet."
+      - id: cn-5y-q08
+        type: mcq
+        q: "A list has exactly two entries: '10 permit tcp any 10.5.5.0 0.0.0.255 range 20 21' / '20 permit tcp any 10.5.5.0 0.0.0.255 gt 1023'. A TCP packet arrives for 10.5.5.9, destination port 22. What happens?"
+        choices:
+          - "It is permitted by line 10"
+          - "It is permitted by line 20"
+          - "It is permitted, because 'range 20 21' includes the next port"
+          - "It is dropped by the implicit deny"
+        answer: 3
+        why: "'range 20 21' matches ports 20 and 21 only, and 'gt 1023' matches 1024 and above. Port 22 matches neither entry, so the packet reaches the end of the list and is dropped."
+      - id: cn-5y-q09
+        type: mcq
+        q: "The list '10 deny icmp any any' / '20 permit ip any any' is applied inbound on the LAN interface Gi0/0, whose address is 10.1.1.1. Which test from a LAN host still succeeds?"
+        choices:
+          - "Opening https://198.51.100.7"
+          - "ping 198.51.100.7"
+          - "ping 10.1.1.1, the router's own LAN address"
+          - "A Windows 'tracert 198.51.100.7'"
+        answer: 0
+        why: "HTTPS is TCP, which line 20 permits. Every ICMP packet arriving on Gi0/0 is dropped by line 10, including echo requests addressed to the router's own interface and the echo requests that Windows tracert sends."
+      - id: cn-5y-q10
+        type: mcq
+        q: "After 'ip access-group 120 in' is applied to Gi0/1, the OSPF neighbour on that link goes down when its dead timer expires. ACL 120 is: 'permit tcp any any' / 'permit udp any any' / 'permit icmp any any'. What is the cause?"
+        choices:
+          - "OSPF hellos are multicast, and an ACL can never permit multicast"
+          - "OSPF is IP protocol 89, so the implicit deny drops it"
+          - "An inbound ACL changes the OSPF network type of the interface"
+          - "OSPF adjacencies need the same ACL applied outbound as well"
+        answer: 1
+        why: "OSPF rides directly on IP as protocol 89; it is neither TCP, UDP nor ICMP, so no entry matches and the hellos are discarded. Adding 'permit ospf any any' restores the adjacency. Multicast destinations are matched like any other address."
+      - id: cn-5y-q11
+        type: mcq
+        q: "Router interface Gi0/0 (10.1.10.1/24) has 'ip helper-address 10.1.99.5' and an inbound ACL with the single entry 'permit ip 10.1.10.0 0.0.0.255 any'. Hosts that already hold a lease work normally, but a newly connected PC gets no address. Why?"
+        choices:
+          - "The helper address must be listed in the ACL as a destination"
+          - "DHCP runs over TCP, which 'permit ip' does not cover"
+          - "Its Discover has source 0.0.0.0, which the entry does not match"
+          - "An inbound ACL disables 'ip helper-address' on the interface"
+        answer: 2
+        why: "A client with no address sends its Discover from 0.0.0.0 to 255.255.255.255. That source is outside 10.1.10.0/24, so the implicit deny drops it before the relay sees it. An entry such as 'permit udp any eq 68 any eq 67' above it fixes the problem."
+      - id: cn-5y-q12
+        type: mcq
+        q: "A router has 'access-list 5 permit 10.10.10.0 0.0.0.15' and, under 'line vty 0 4', 'access-class 5 in'. From which address can an administrator open an SSH session to the router?"
+        choices: ["10.10.10.16", "10.10.10.31", "10.10.11.5", "10.10.10.14"]
+        answer: 3
+        why: "A wildcard of 0.0.0.15 covers 10.10.10.0 to 10.10.10.15, which includes .14. The addresses .16 and .31 are in the next block and 10.10.11.5 is in another subnet, so the implicit deny refuses them."
+      - id: cn-5y-q13
+        type: mcq
+        q: "Users are on Gi0/0. 'show access-lists 150' shows '10 deny tcp any any eq 443' with no matches and '20 permit ip any any (2310 matches)', and HTTPS still works. 'show ip interface Gi0/0' says 'Outgoing access list is 150' and 'Inbound access list is not set'. What is the fix?"
+        choices:
+          - "Apply it with 'ip access-group 150 in'"
+          - "Change line 10 to 'deny udp any any eq 443'"
+          - "Move line 20 above line 10"
+          - "Add 'deny ip any any' as line 30"
+        answer: 0
+        why: "The users' requests, with destination port 443, enter Gi0/0, but the list checks only packets leaving it. Those are the replies, whose destination port is a high number, so line 10 never matches. Applied inbound, the list sees the requests."
+      - id: cn-5y-q14
+        type: mcq
+        q: "An interface has 'ip access-group 101 in'. An engineer then enters 'ip access-group 102 in' on the same interface. What is the result?"
+        choices:
+          - "Both lists are checked in turn, 101 first and then 102"
+          - "List 102 replaces list 101 for inbound traffic"
+          - "IOS rejects the second command"
+          - "List 102 is applied outbound automatically"
+        answer: 1
+        why: "An interface holds one IPv4 ACL per direction. A second 'ip access-group ... in' overwrites the first, so only list 102 now filters inbound traffic and the rules in 101 no longer apply there."
+      - id: cn-5y-q15
+        type: mcq
+        q: "Which entry is exactly equivalent to 'permit ip 0.0.0.0 255.255.255.255 10.1.1.1 0.0.0.0'?"
+        choices:
+          - "permit ip host 10.1.1.1 any"
+          - "permit ip any any"
+          - "permit ip any host 10.1.1.1"
+          - "permit ip host 0.0.0.0 host 10.1.1.1"
+        answer: 2
+        why: "A wildcard of 255.255.255.255 ignores every bit, which is 'any'; a wildcard of 0.0.0.0 must match every bit, which is 'host'. The source is therefore any address and the destination is the single host 10.1.1.1."
+      - id: cn-5y-q16
+        type: mcq
+        q: "The management subnet 10.50.0.0/28 may open SSH sessions to any device in 10.60.0.0/22. Which entry expresses exactly that?"
+        choices:
+          - "permit tcp 10.50.0.0 0.0.0.31 10.60.0.0 0.0.3.255 eq 22"
+          - "permit tcp 10.50.0.0 0.0.0.15 10.60.0.0 0.0.4.255 eq 22"
+          - "permit tcp 10.50.0.0 0.0.0.15 eq 22 10.60.0.0 0.0.3.255"
+          - "permit tcp 10.50.0.0 0.0.0.15 10.60.0.0 0.0.3.255 eq 22"
+        answer: 3
+        why: "A /28 is 255.255.255.240, giving wildcard 0.0.0.15; a /22 is 255.255.252.0, giving 0.0.3.255. SSH is the destination port, so 'eq 22' comes last. 0.0.0.31 would admit a /27, and 0.0.4.255 is not the inverse of any /22 mask."
+      - id: cn-5y-q17
+        type: mcq
+        q: "A router logs '%SEC-6-IPACCESSLOGDP: list 140 denied icmp 192.168.1.10 -> 10.0.0.53 (8/0), 1 packet'. What does the message show?"
+        choices:
+          - "An echo request from 192.168.1.10 hit a deny entry with 'log'"
+          - "An echo reply sent by 10.0.0.53 was dropped by list 140 on its way back"
+          - "Eight packets from 192.168.1.10 were dropped by the implicit deny"
+          - "A packet for ICMP port 8 on 10.0.0.53 was denied by list 140"
+        answer: 0
+        why: "The arrow runs from source to destination, and (8/0) is the ICMP type and code: type 8 is an echo request. Such messages come only from entries that carry the 'log' keyword; the implicit deny logs nothing, and ICMP has no ports."
+      - id: cn-5y-q18
+        type: mcq
+        q: "R1 has Gi0/0 (10.1.1.0/24), Gi0/1 (10.1.2.0/24) and Gi0/2 (WAN). The list 'deny ip 10.1.1.0 0.0.0.255 10.1.2.0 0.0.0.255' / 'permit ip any any' is applied outbound on Gi0/2. Can 10.1.1.20 reach 10.1.2.20?"
+        choices:
+          - "No, because the first line of the list denies exactly that traffic"
+          - "Yes, because that traffic never leaves through Gi0/2"
+          - "No, because the implicit deny drops it"
+          - "Yes, but the replies from 10.1.2.20 are dropped"
+        answer: 1
+        why: "The packet enters Gi0/0 and leaves Gi0/1. A list applied outbound on Gi0/2 examines only packets leaving through Gi0/2, so it never sees this traffic in either direction. To block it, apply the list inbound on Gi0/0 or outbound on Gi0/1."
+      - id: cn-5y-q19
+        type: mcq
+        q: "'show port-security interface Gi0/4' shows 'Port Status: Secure-up', 'Violation Mode: Restrict', 'Maximum MAC Addresses: 2', 'Total MAC Addresses: 2' and 'Security Violation Count: 37'. A phone and a PC are attached, and the user has added a small switch with a laptop. What is the effect?"
+        choices:
+          - "The port is err-disabled, so none of the three devices works"
+          - "All three devices work, and the counter only records them"
+          - "Phone and PC work; the laptop's frames are dropped"
+          - "The laptop's address replaces the oldest secure address"
+        answer: 2
+        why: "The two allowed addresses are in use, so the laptop is a violation. Restrict mode drops its frames, counts and logs them, and leaves the port up (Secure-up) for the two secure addresses. Only shutdown mode would err-disable the port."
+      - id: cn-5y-q20
+        type: mcq
+        q: "An engineer enters 'ip arp inspection vlan 20' on an access switch. DHCP snooping has never been enabled and no ARP ACLs exist. Only the uplink is trusted for inspection. What happens to the hosts on the access ports in VLAN 20?"
+        choices:
+          - "Nothing changes for them until an attacker sends a forged ARP reply"
+          - "Only the hosts with manually typed addresses lose connectivity"
+          - "They keep working, because without snooping every ARP is accepted"
+          - "Their ARP messages are all dropped, because the binding table is empty"
+        answer: 3
+        why: "Inspection checks every ARP message on an untrusted port against the snooping binding table or an ARP ACL. With neither in place nothing can be validated, so all ARP from the access ports is discarded and the hosts lose connectivity."
+      - id: cn-5y-q21
+        type: mcq
+        q: "The snooping binding table holds '00:11:22:33:44:55  10.1.10.50  VLAN 10  Gi0/5'. An ARP reply claiming that 10.1.10.50 is at 00:AA:BB:CC:DD:EE arrives on Gi0/24, which has 'ip arp inspection trust'. What does the switch do?"
+        choices:
+          - "Forwards it without checking, because the port is trusted"
+          - "Drops it, because the pairing is not in the binding table"
+          - "Drops it and puts Gi0/24 into the err-disabled state"
+          - "Forwards it after correcting the MAC address from the table"
+        answer: 0
+        why: "ARP messages arriving on a trusted port are not inspected at all. That is why only links to other switches that perform their own inspection, or to routers, should be trusted: a forged reply entering on a trusted port passes straight through."
+      - id: cn-5y-q22
+        type: mcq
+        q: "A router has 'username ops secret Pa55' and 'login local' on its vty lines, but neither 'enable secret' nor 'enable password'. An administrator logs in over SSH at privilege level 1 and types 'enable'. What happens?"
+        choices:
+          - "Privileged EXEC mode opens at once, with no password requested"
+          - "IOS answers '% No password set' and stays in user mode"
+          - "IOS asks for the user's own password a second time"
+          - "The SSH session is disconnected"
+        answer: 1
+        why: "With no enable password or secret, IOS refuses to enter privileged mode from a remote session and prints '% No password set'. Only the console is allowed in without one. Setting 'enable secret' fixes it."
+      - id: cn-5y-q23
+        type: mcq
+        q: "A router has run 'service password-encryption' for years. An engineer now enters 'no service password-encryption'. What happens to the line passwords already shown as type 7?"
+        choices:
+          - "They are converted back to clear text at once"
+          - "They are deleted and must be typed again"
+          - "They stay as type 7 until each one is entered again"
+          - "They are upgraded to type 5 hashes"
+        answer: 2
+        why: "Turning the service off only stops new passwords from being encoded. Existing type 7 strings are left as they are; each becomes clear text only when its password command is entered again."
+
+      - id: cn-5y-m01
+        type: multi
+        q: "A named list reads: '10 permit tcp 10.20.0.0 0.0.7.255 host 10.99.1.10 eq 22' / '20 deny ip 10.20.0.0 0.0.15.255 10.99.0.0 0.0.255.255' / '30 permit ip any any'. Which TWO packets are permitted?"
+        choices:
+          - "10.20.5.5 to 10.99.1.10, TCP port 22"
+          - "10.20.5.5 to 10.99.1.10, TCP port 443"
+          - "10.20.9.5 to 10.99.1.10, TCP port 22"
+          - "10.20.16.1 to 10.99.1.10, TCP port 23"
+          - "10.20.15.254 to 10.99.200.1, ICMP echo"
+        answers: [0, 3]
+        why: "Line 10 covers sources 10.20.0.0 to 10.20.7.255 for SSH to the one host, so the first packet is permitted. Line 20 denies sources 10.20.0.0 to 10.20.15.255 towards 10.99.0.0/16, which catches the second, third and fifth. 10.20.16.1 is outside both ranges and falls through to line 30."
+      - id: cn-5y-m02
+        type: multi
+        q: "A TCP packet goes from 172.16.5.9 to 10.0.0.1, destination port 443. Which TWO entries would each match it?"
+        choices:
+          - "permit tcp 172.16.0.0 0.0.3.255 any eq 443"
+          - "permit tcp 172.16.4.0 0.0.3.255 any eq 443"
+          - "permit udp 172.16.5.0 0.0.0.255 any eq 443"
+          - "permit ip host 172.16.5.9 10.0.0.0 0.0.0.3"
+          - "permit tcp 172.16.5.0 0.0.0.7 any eq 443"
+        answers: [1, 3]
+        why: "172.16.4.0 with 0.0.3.255 covers 172.16.4.0 to 172.16.7.255, which includes the source. 'ip' includes TCP, and 10.0.0.0 with 0.0.0.3 covers 10.0.0.0 to 10.0.0.3, which includes the destination. 172.16.0.0 0.0.3.255 stops at 172.16.3.255, 172.16.5.0 0.0.0.7 stops at 172.16.5.7, and the UDP entry names the wrong protocol."
+      - id: cn-5y-m03
+        type: multi
+        q: "An attacker's tool floods DHCP Discovers from one access port, each frame carrying a new forged source MAC address, to exhaust the address pool. Which TWO access-port features directly limit this attack?"
+        choices:
+          - "Port security with a low maximum"
+          - "BPDU guard"
+          - "DHCP snooping rate limiting"
+          - "Root guard"
+          - "PortFast"
+        answers: [0, 2]
+        why: "Port security caps the number of source MAC addresses the port will accept, and 'ip dhcp snooping limit rate' err-disables a port that sends DHCP packets too fast. BPDU guard, root guard and PortFast are spanning-tree features."
+      - id: cn-5y-m04
+        type: multi
+        q: "Which TWO statements about the IPsec Authentication Header (AH) are true?"
+        choices:
+          - "It is IP protocol number 51"
+          - "It negotiates keys on UDP port 500"
+          - "It is IP protocol number 50"
+          - "It does not encrypt the payload"
+          - "It carries multicast routing updates inside a tunnel"
+        answers: [0, 3]
+        why: "AH is IP protocol 51 and provides integrity and origin authentication with no confidentiality. Protocol 50 is ESP, UDP 500 is IKE, and carrying multicast across a tunnel is the job of GRE."
+
+      - id: cn-5y-o01
+        type: order
+        q: "Put the messages of the WPA2 four-way handshake in order."
+        steps:
+          - "The access point sends its nonce (ANonce) to the client"
+          - "The client sends its nonce (SNonce) with a message integrity code"
+          - "The access point sends the group key, protected by a message integrity code"
+          - "The client acknowledges, and both sides install the keys"
+        why: "The access point speaks first. Once the client has both nonces it can derive the pairwise key and prove it with an integrity code; the access point then does the same and delivers the group key, and the client confirms."
+      - id: cn-5y-o02
+        type: order
+        q: "A packet crosses a router that has an inbound ACL on the arriving interface and an outbound ACL on the exit interface. Put the events in order."
+        steps:
+          - "The packet arrives and is compared with the inbound list, line by line"
+          - "The first matching line permits it, and the rest of that list is ignored"
+          - "The routing table lookup chooses the exit interface"
+          - "The packet is compared with the outbound list on that interface"
+          - "The packet is transmitted"
+        why: "An inbound list is checked before routing, so a denied packet costs no lookup. An outbound list can be checked only after routing has chosen the exit interface."
+      - id: cn-5y-o03
+        type: order
+        q: "A port-security violation has err-disabled an access port. Put the recovery in order."
+        steps:
+          - "Confirm the cause with 'show port-security interface'"
+          - "Remove the unauthorised device"
+          - "Enter 'shutdown' on the interface"
+          - "Enter 'no shutdown' on the interface"
+          - "Check that the port status is Secure-up"
+        why: "If the port is re-enabled while the offending device is still attached, it is disabled again at once, so the cause is found and removed first. The port is then bounced and verified."
+
+  # ─────────────── 6x · automation and programmability in depth ───────────────
+  - id: cn-6x
+    title: "Automation in depth: controllers, fabrics, AI, REST, JSON and configuration tools"
+    domain: "6"
+    goal: "I can name the parts of Cisco's controller-based designs, judge what AI can and cannot be trusted with, read a REST exchange and a nested JSON document, and tell Ansible, Terraform and agent-based tools apart."
+    notes: |
+      **Three planes, again.** Control decides, data forwards, and the **management plane** is how people and tools reach the device: SSH, SNMP, syslog, NETCONF.
+
+      **Cisco controllers.** *Catalyst Center* (formerly DNA Center) manages the campus: discovery, software image management (SWIM), Plug and Play, Assurance and Path Trace. *SD-Access* is its fabric: **edge nodes** connect endpoints, **border nodes** join the fabric to the outside, the **control plane node** maps each endpoint to its location with LISP, and VXLAN carries the traffic. *SD-WAN* separates the roles: vManage (management), vSmart (control), vBond (orchestration; it admits new routers) and the WAN edge routers (data).
+
+      **Southbound** choices: NETCONF (XML over SSH, port 830), RESTCONF (HTTP verbs, JSON or XML), OpenFlow, or plain CLI and SNMP.
+
+      **Machine learning.** *Supervised* learning trains on labelled examples; *unsupervised* learning finds groups and outliers in unlabelled data; *reinforcement* learning learns from rewards. Generative output can be a **hallucination**, and a prompt can leak secrets.
+
+      **REST details.** A URI is scheme, host, path, then `?` and query parameters. Authentication: *basic* (Base64 of `user:password`, which is not encryption), *API key*, *bearer token*, *OAuth 2.0*. Codes: 200, 201, 204; 400, 401, 403, 404; 500, 503. GET, PUT and DELETE are idempotent; POST is not.
+
+      **Encodings.** JSON uses braces and brackets, XML uses `<tags>`, YAML uses indentation.
+
+      **Tools.** Ansible: push, agentless; inventory, playbook, module, Jinja2 template. Puppet and Chef: an agent pulls from a server. Terraform: providers, a state file, plan then apply.
+    items:
+      - id: cn-6x-mgmt-plane
+        type: concept
+        term: "Management plane"
+        def: "The functions through which administrators and tools configure and monitor a device, such as SSH, SNMP and syslog; it neither chooses paths nor forwards user traffic."
+      - id: cn-6x-southbound
+        type: concept
+        term: "Southbound API"
+        def: "The interface between a controller and the network devices below it, carried by protocols such as NETCONF, RESTCONF and OpenFlow."
+      - id: cn-6x-fabric
+        type: concept
+        term: "Fabric"
+        def: "The physical network and the virtual tunnels built across it, managed together by a controller as one system."
+      - id: cn-6x-edge-node
+        type: concept
+        term: "Fabric edge node"
+        def: "The SD-Access switch that endpoints plug into; it registers them and tunnels their traffic into the virtual network."
+      - id: cn-6x-border-node
+        type: concept
+        term: "Fabric border node"
+        def: "The SD-Access device through which traffic passes between the fabric and outside networks such as the WAN or the internet."
+      - id: cn-6x-restconf
+        type: concept
+        term: "RESTCONF"
+        def: "A protocol that reads and changes YANG-modelled device configuration using HTTP verbs, with JSON or XML bodies."
+      - id: cn-6x-unsupervised
+        type: concept
+        term: "Unsupervised learning"
+        def: "Machine learning that finds clusters and outliers in data that carries no labels, for example to spot devices that behave unlike their peers."
+      - id: cn-6x-hallucination
+        type: concept
+        term: "Hallucination (AI)"
+        def: "Plausible-looking but false output from a generative model, such as a command that does not exist on the platform."
+      - id: cn-6x-basic-auth
+        type: concept
+        term: "HTTP basic authentication"
+        def: "Sends the username and password, Base64-encoded but not encrypted, in the Authorization header of every request."
+      - id: cn-6x-api-key
+        type: concept
+        term: "API key"
+        def: "A long static string issued to a client program and sent with each request, usually in a header, to identify and admit that program."
+      - id: cn-6x-oauth
+        type: concept
+        term: "OAuth 2.0"
+        def: "A framework in which an authorization server issues a limited access token, so that an application can act for a user without ever holding the user's password."
+      - id: cn-6x-inventory
+        type: concept
+        term: "Inventory (Ansible)"
+        def: "The file that lists the managed hosts and arranges them into groups for an agentless push tool to target."
+      - id: cn-6x-provider
+        type: concept
+        term: "Provider (Terraform)"
+        def: "A plug-in that teaches a declarative provisioning tool how to talk to one platform's API, such as a cloud or a network controller."
+      - id: cn-6x-drift
+        type: concept
+        term: "Configuration drift"
+        def: "The gradual divergence of devices from their intended standard as one-off manual changes accumulate."
+
+      - id: cn-6x-q01
+        type: mcq
+        q: "Which activity belongs to the management plane of a router?"
+        choices:
+          - "Answering an SNMP Get from the monitoring station"
+          - "Exchanging OSPF hellos and LSAs with a neighbouring router"
+          - "Rewriting the Layer 2 header of a packet that is in transit"
+          - "Choosing the best route to install in the routing table"
+        answer: 0
+        why: "SNMP, like SSH and syslog, exists so that people and tools can monitor and configure the device: the management plane. OSPF and route selection are control-plane work, and rewriting headers on transit packets is the data plane."
+      - id: cn-6x-q02
+        type: mcq
+        q: "A new switch is shipped straight to a branch and cabled by non-technical staff. It must find the controller and receive its image and configuration with no engineer on site. Which Catalyst Center capability provides this?"
+        choices:
+          - "Path Trace"
+          - "Plug and Play (PnP)"
+          - "Assurance"
+          - "Software image management (SWIM)"
+        answer: 1
+        why: "Plug and Play gives zero-touch onboarding: a factory-default device contacts the controller and is provisioned automatically. SWIM manages image upgrades on devices that are already managed, and Assurance reports on network health."
+      - id: cn-6x-q03
+        type: mcq
+        q: "In an SD-Access fabric, which role keeps the database that maps each endpoint to the edge node it is attached to?"
+        choices:
+          - "Fabric edge node"
+          - "Fabric border node"
+          - "Control plane node"
+          - "Intermediate (underlay) node"
+        answer: 2
+        why: "The control plane node runs the LISP mapping system that records where every endpoint is. Edge nodes register their endpoints with it and query it; they do not hold the whole database themselves."
+      - id: cn-6x-q04
+        type: mcq
+        q: "A new WAN edge router boots at a branch in a Cisco SD-WAN deployment. Which component authenticates it first and tells it how to reach the other controllers?"
+        choices:
+          - "vManage (SD-WAN Manager)"
+          - "vSmart (SD-WAN Controller)"
+          - "Another WAN edge router"
+          - "vBond (SD-WAN Validator)"
+        answer: 3
+        why: "vBond is the orchestrator: the first point of contact that authenticates a joining router and passes it the addresses of vManage and vSmart. vSmart then distributes routing and policy, and vManage is the management interface."
+      - id: cn-6x-q05
+        type: mcq
+        q: "The Catalyst Center appliance that manages a campus is switched off for an hour of maintenance. What is the effect on user traffic?"
+        choices:
+          - "Forwarding continues; only management and monitoring stop"
+          - "All switches stop forwarding until the controller comes back"
+          - "Switches fall back to flooding every frame, as a hub would"
+          - "Each switch erases its configuration and awaits a new push"
+        answer: 0
+        why: "The controller is not in the data path. The switches keep the configuration and tables they already have and go on forwarding; what is lost for the hour is central provisioning, visibility and assurance."
+      - id: cn-6x-q06
+        type: mcq
+        q: "A controller configures a router through an SSH session on TCP port 830, exchanging XML documents that follow YANG models. Which southbound protocol is this?"
+        choices: ["RESTCONF", "NETCONF", "OpenFlow", "SNMP"]
+        answer: 1
+        why: "NETCONF runs over SSH, by default on port 830, and encodes its operations in XML. RESTCONF exposes the same YANG-modelled data but over HTTPS with HTTP verbs and JSON or XML."
+      - id: cn-6x-q07
+        type: mcq
+        q: "A model is trained on two years of trouble tickets, each tagged by engineers with its confirmed root cause, so that it can assign a likely cause to new tickets. Which kind of machine learning is this?"
+        choices:
+          - "Unsupervised learning"
+          - "Reinforcement learning"
+          - "Supervised learning"
+          - "Generative AI"
+        answer: 2
+        why: "Supervised learning learns from examples that carry the correct answer, here the confirmed root cause, and then predicts that label for new inputs. Unsupervised learning would be given the tickets with no labels and left to find groupings."
+      - id: cn-6x-q08
+        type: mcq
+        q: "To get help with a fault, an engineer pastes a router's full running configuration, including SNMP community strings and password hashes, into a public generative-AI chatbot. What is the MAIN risk of doing this?"
+        choices:
+          - "The chatbot may push a changed configuration back to the router"
+          - "The answer will take longer than a search engine would"
+          - "The router's software licence is invalidated"
+          - "Sensitive data has left the company's control"
+        answer: 3
+        why: "Whatever is typed into a public service is disclosed to a third party and may be stored or reused. Secrets and topology details should be removed first, or an approved private tool used. A chatbot has no connection to the router through which to change it."
+      - id: cn-6x-q09
+        type: mcq
+        q: "A script authenticates to a controller with a read-only account and receives a valid token. It then sends DELETE for a device and gets an error. Which status code fits BEST?"
+        choices:
+          - "403 Forbidden"
+          - "401 Unauthorized"
+          - "404 Not Found"
+          - "500 Internal Server Error"
+        answer: 0
+        why: "The server knows who the caller is but that account is not allowed to perform the action: 403. A 401 would mean the request was not authenticated at all, which is not the case with a valid token."
+      - id: cn-6x-q10
+        type: mcq
+        q: "A script with a valid token sends GET to 'https://cc.example.com/api/v1/device', but the documented resource is '/api/v1/devices'. Which response should it expect?"
+        choices:
+          - "401 Unauthorized"
+          - "404 Not Found"
+          - "201 Created"
+          - "503 Service Unavailable"
+        answer: 1
+        why: "The URI does not identify any resource on the server, which is 404. The token is valid, so it is not 401, and a 5xx code would mean the fault lay with the server rather than with the request."
+      - id: cn-6x-q11
+        type: mcq
+        q: "Only the 'description' field of an existing interface resource must change; every other field must be left as it is. Which HTTP verb is designed for this?"
+        choices: ["POST", "PUT", "PATCH", "GET"]
+        answer: 2
+        why: "PATCH applies a partial modification, changing only the fields that are sent. PUT replaces the whole resource with the body supplied, so fields left out of the body may be reset or removed."
+      - id: cn-6x-q12
+        type: mcq
+        q: "A script's request times out, so it sends exactly the same request again. With which verb could the retry leave two copies of a resource on the server?"
+        choices: ["GET", "PUT", "DELETE", "POST"]
+        answer: 3
+        why: "POST creates a new resource each time it is processed, so it is not idempotent. Repeating a GET, a PUT of the same body or a DELETE leaves the server in the same state as doing it once."
+      - id: cn-6x-q13
+        type: mcq
+        q: "A capture of an API call made over plain HTTP shows 'Authorization: Basic YWRtaW46Y2lzY28='. What does this reveal?"
+        choices:
+          - "The username and password, which are only Base64-encoded"
+          - "A one-time token that has already expired"
+          - "An API key that identifies the script but no user"
+          - "A password hash that cannot be reversed"
+        answer: 0
+        why: "Basic authentication sends 'username:password' in Base64, an encoding anyone can reverse; this string decodes to admin:cisco. It is safe only inside HTTPS. A token would normally follow the word Bearer, not Basic."
+      - id: cn-6x-q14
+        type: mcq
+        q: "A script obtains a token from a controller by sending its username and password once, then sends the token in a header with every call. After working for an hour, every call starts returning 401. What is the MOST likely cause and fix?"
+        choices:
+          - "The account is not permitted to read; grant it a role"
+          - "The token expired; request a new one"
+          - "The URI changed; correct the path"
+          - "The server is overloaded; retry later"
+        answer: 1
+        why: "Tokens have a limited lifetime, and an expired one no longer authenticates the request: 401. The script should request a fresh token and retry. A permission problem would be 403, a wrong path 404 and an overloaded server a 5xx code."
+      - id: cn-6x-q15
+        type: mcq
+        q: "In 'https://cc.example.com:8443/api/v1/devices?role=ACCESS&limit=5', what is the job of 'role=ACCESS&limit=5'?"
+        choices:
+          - "It names the resource that is being requested"
+          - "It carries the credentials for the request"
+          - "It filters and limits the result"
+          - "It selects the TCP port on the server"
+        answer: 2
+        why: "Everything after the question mark is the query string: parameters, joined by ampersands, that filter, sort or page the result. The resource is named by the path, /api/v1/devices, and the port is the 8443 that follows the host."
+      - id: cn-6x-q16
+        type: mcq
+        q: "In this JSON, what is the value of 'ip' in the second element of 'interfaces'? '{\"device\": {\"hostname\": \"R1\", \"interfaces\": [{\"name\": \"Gi0/0\", \"ip\": \"10.1.1.1\", \"up\": true}, {\"name\": \"Gi0/1\", \"ip\": null, \"up\": false}]}}'"
+        choices:
+          - "The string 10.1.1.1"
+          - "The boolean false"
+          - "The string Gi0/1"
+          - "The value null"
+        answer: 3
+        why: "'interfaces' is an array of two objects. The second object is the one whose name is Gi0/1, and its 'ip' key holds null, meaning no value. 10.1.1.1 belongs to the first element."
+      - id: cn-6x-q17
+        type: mcq
+        q: "How many key and value pairs does the object stored under 'device' hold directly? '{\"device\": {\"hostname\": \"R1\", \"interfaces\": [{\"name\": \"Gi0/0\", \"ip\": \"10.1.1.1\", \"up\": true}, {\"name\": \"Gi0/1\", \"ip\": null, \"up\": false}]}}'"
+        choices: ["2", "3", "6", "8"]
+        answer: 0
+        why: "The object under 'device' has two keys: 'hostname' and 'interfaces'. The name, ip and up pairs belong to the two objects nested inside the 'interfaces' array, one level further down."
+      - id: cn-6x-q18
+        type: mcq
+        q: "Which of these is valid JSON?"
+        choices:
+          - "{'vlan': 10, 'name': 'USERS'}"
+          - "{\"vlan\": 10, \"name\": \"USERS\"}"
+          - "{\"vlan\": 10, \"name\": \"USERS\",}"
+          - "{vlan: 10, name: \"USERS\"}"
+        answer: 1
+        why: "JSON requires double quotes around every key and every text value, and allows no comma after the last pair. Single quotes, a trailing comma and unquoted keys are each enough to make a parser reject the document."
+      - id: cn-6x-q19
+        type: mcq
+        q: "A file begins with '---', followed by '- name: Set NTP', then '  hosts: access_switches' and an indented 'tasks:' list. What is this file?"
+        choices:
+          - "A Terraform configuration in HCL"
+          - "A Puppet manifest"
+          - "An Ansible playbook in YAML"
+          - "A JSON inventory"
+        answer: 2
+        why: "Three dashes, list items that start with a dash, and structure shown by indentation are YAML, and plays with 'hosts' and 'tasks' are how an Ansible playbook is laid out. HCL and JSON both mark structure with braces."
+      - id: cn-6x-q20
+        type: mcq
+        q: "An Ansible playbook that sets the NTP server is run twice against the same switches. The second run reports 'changed=0' for every host. What does that show?"
+        choices:
+          - "The second run could not open an SSH session to any host"
+          - "The playbook was skipped because of a YAML syntax error"
+          - "The inventory file listed no hosts in the target group"
+          - "The devices already matched the desired state"
+        answer: 3
+        why: "Ansible modules are idempotent: they compare the device with the desired state and act only on a difference. After the first run nothing differs, so nothing is changed. A connection failure would be reported as unreachable, not as zero changes."
+      - id: cn-6x-q21
+        type: mcq
+        q: "Switches cannot run any extra software. Changes must be sent to them over SSH from a central server, as ordered tasks written in YAML. Which tool matches?"
+        choices: ["Ansible", "Puppet", "Chef", "Terraform"]
+        answer: 0
+        why: "Ansible is agentless, pushes over SSH from a control node, and runs the tasks of a YAML playbook in order. Puppet and Chef normally rely on an agent on the managed device, and Terraform describes resources in HCL."
+      - id: cn-6x-q22
+        type: mcq
+        q: "In which tool does an agent on each managed device check in with a central server at intervals and pull the manifest that describes its intended state?"
+        choices: ["Ansible", "Puppet", "Terraform", "RESTCONF"]
+        answer: 1
+        why: "Puppet is the classic pull model: the agent contacts the Puppet server periodically and applies its manifest. Ansible pushes from a control node with no agent, and RESTCONF is a protocol rather than a configuration management tool."
+      - id: cn-6x-q23
+        type: mcq
+        q: "'terraform plan' ends with 'Plan: 2 to add, 1 to change, 0 to destroy.' What has changed on the real infrastructure at this point?"
+        choices:
+          - "Two resources have been created and one has been modified"
+          - "Two resources have been created; the modification is pending"
+          - "Nothing; this is a preview of what 'terraform apply' would do"
+          - "Nothing, and the state file has been reset to empty"
+        answer: 2
+        why: "A plan only compares the desired configuration with the recorded state and the real resources, and reports the difference. Nothing is created, changed or destroyed until 'terraform apply' is run and approved."
+      - id: cn-6x-q24
+        type: mcq
+        q: "Terraform created three VLANs through a controller's API. Someone later deletes one of them by hand in the controller's GUI. The Terraform files are unchanged. What does the next 'terraform plan' propose?"
+        choices:
+          - "To destroy the two remaining VLANs"
+          - "No changes, because the files are unchanged"
+          - "To remove the VLAN from the configuration files"
+          - "To create the missing VLAN again"
+        answer: 3
+        why: "Terraform is declarative: the files still describe three VLANs, and a plan refreshes its view of what really exists. It finds one missing and proposes adding it back. Terraform never edits the configuration files to suit reality."
+      - id: cn-6x-q25
+        type: mcq
+        q: "One playbook must give each of 50 switches its own hostname and management address, while the rest of the configuration stays identical. Which approach is BEST?"
+        choices:
+          - "A Jinja2 template filled from per-host variables"
+          - "Fifty separate playbooks, one for each switch"
+          - "A Terraform state file that holds the 50 hostnames"
+          - "One static configuration file copied to every switch"
+        answer: 0
+        why: "A template holds the common configuration once, with placeholders that Ansible fills from each host's variables. Fifty playbooks would bring back the drift and typing errors that automation is meant to remove, and one static file cannot differ per device."
+
+      - id: cn-6x-m01
+        type: multi
+        q: "Which TWO HTTP status codes report that a request succeeded?"
+        choices:
+          - "201 Created"
+          - "401 Unauthorized"
+          - "204 No Content"
+          - "404 Not Found"
+          - "503 Service Unavailable"
+        answers: [0, 2]
+        why: "Every 2xx code is a success: 201 after a resource is created, 204 when the request worked and there is no body to return. The 4xx codes report a problem with the request and the 5xx codes a problem on the server."
+      - id: cn-6x-m02
+        type: multi
+        q: "Which TWO are characteristics of a controller-based network, compared with a traditional one?"
+        choices:
+          - "Each device is configured separately through its own CLI"
+          - "Policy and visibility for the whole network come from one central point"
+          - "Devices no longer need a data plane"
+          - "The physical underlay is no longer required"
+          - "Applications can drive the network through a northbound API"
+        answers: [1, 4]
+        why: "A controller gives one place from which to see and set policy for the whole network, and exposes a northbound API to software. The devices still forward traffic themselves, and an overlay always needs a physical underlay to run across."
+      - id: cn-6x-m03
+        type: multi
+        q: "Which TWO of these are valid JSON values exactly as written?"
+        choices: ["true", "yes", "[1, 2]", "'up'", "undefined"]
+        answers: [0, 2]
+        why: "JSON's literals are lower-case true, false and null, and an array is written in square brackets. A bare word such as yes, a single-quoted string and 'undefined' are not part of JSON."
+
+      - id: cn-6x-o01
+        type: order
+        q: "A script reads the device list from a controller that uses token authentication. Put the steps in order."
+        steps:
+          - "POST the username and password to the token URI"
+          - "Receive the token in the response body"
+          - "Send GET for the device list with the token in a request header"
+          - "Receive 200 OK with a JSON body"
+          - "Parse the JSON and read each hostname"
+        why: "The credentials are exchanged once for a token, and the token then authenticates the real request. The data can be parsed only after the response has arrived."
+      - id: cn-6x-o02
+        type: order
+        q: "Put the stages of an intent-based change through a controller in order."
+        steps:
+          - "An engineer or application states the intent through the GUI or the northbound API"
+          - "The controller translates the intent into device-level configuration"
+          - "The controller sends the configuration to the devices through its southbound API"
+          - "The devices apply it and forward traffic accordingly"
+          - "Telemetry from the devices lets the controller verify that the intent is met"
+        why: "Intent enters from above, is translated by the controller, and goes down to the devices. Verification closes the loop, and it can happen only after the devices have applied the change."

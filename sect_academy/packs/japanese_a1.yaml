@@ -1,0 +1,1227 @@
+id: japanese-a1
+title: "Japanese — A1 Beginner"
+kind: language
+language: Japanese
+lang: ja-JP
+hall: tongues_west
+blurb: "Start Japanese from zero: hiragana, katakana and your first 40 kanji, then polite everyday Japanese for introductions, shopping, time, daily life and getting help."
+
+units:
+  # ───────────────────────────────────────────────────────────────── 1
+  - id: ja1-01
+    title: "Hiragana 1: あ to そ"
+    goal: "I can read and type the first fifteen hiragana and a few real words written with them."
+    notes: |
+      Japanese is written with three scripts side by side. **Hiragana** (46 basic signs) spells grammar and native words, **katakana** spells foreign words, and **kanji** (Chinese characters) carry meaning. You start with hiragana, because everything can be written in it.
+
+      Each sign is one beat of sound, and it is always read the same way. There are only five vowels, short and clean:
+
+      | あ a | い i | う u | え e | お o |
+      |---|---|---|---|---|
+      | f**a**ther | mach**i**ne | fl**u**te, lips relaxed | p**e**t | **o**ld |
+
+      A consonant row just adds a consonant in front:
+
+      | | a | i | u | e | o |
+      |---|---|---|---|---|---|
+      | k | か | き | く | け | こ |
+      | s | さ | **し shi** | す | せ | そ |
+
+      - **し** is *shi*, not "si". It is the first of a handful of irregular readings.
+      - Every beat is the same length and the same loudness: *su-shi*, not "SOO-shee".
+      - Look-alikes: **あ / お**, **い / こ**, **き / さ** (き has two bars).
+
+      When the app asks how a sign is read, type the rōmaji (*ka*). When it asks for a word, you may type rōmaji (*sushi*) or the kana themselves (すし).
+    items:
+      - {id: ja1-01-a, type: glyph, l2: "あ", rom: "a"}
+      - {id: ja1-01-i, type: glyph, l2: "い", rom: "i"}
+      - {id: ja1-01-u, type: glyph, l2: "う", rom: "u"}
+      - {id: ja1-01-e, type: glyph, l2: "え", rom: "e"}
+      - {id: ja1-01-o, type: glyph, l2: "お", rom: "o", alt: ["を"]}
+      - {id: ja1-01-ka, type: glyph, l2: "か", rom: "ka"}
+      - {id: ja1-01-ki, type: glyph, l2: "き", rom: "ki"}
+      - {id: ja1-01-ku, type: glyph, l2: "く", rom: "ku"}
+      - {id: ja1-01-ke, type: glyph, l2: "け", rom: "ke"}
+      - {id: ja1-01-ko, type: glyph, l2: "こ", rom: "ko"}
+      - {id: ja1-01-sa, type: glyph, l2: "さ", rom: "sa"}
+      - {id: ja1-01-shi, type: glyph, l2: "し", rom: "shi"}
+      - {id: ja1-01-su, type: glyph, l2: "す", rom: "su"}
+      - {id: ja1-01-se, type: glyph, l2: "せ", rom: "se"}
+      - {id: ja1-01-so, type: glyph, l2: "そ", rom: "so"}
+      - {id: ja1-01-sushi, type: vocab, l2: "すし", rom: "sushi", l1: "sushi", alt: ["寿司"], note: "Kanji: 寿司."}
+      - {id: ja1-01-eki, type: vocab, l2: "えき", rom: "eki", l1: "station (train station)", alt: ["駅"], note: "Kanji: 駅."}
+      - {id: ja1-01-ie, type: vocab, l2: "いえ", rom: "ie", l1: "house", alt: ["家"], note: "Kanji: 家."}
+      - {id: ja1-01-kasa, type: vocab, l2: "かさ", rom: "kasa", l1: "umbrella", alt: ["傘"], note: "Kanji: 傘."}
+      - {id: ja1-01-asa, type: vocab, l2: "あさ", rom: "asa", l1: "morning", alt: ["朝"], note: "Kanji: 朝."}
+      - {id: ja1-01-isu, type: vocab, l2: "いす", rom: "isu", l1: "chair", alt: ["椅子"], note: "Usually written in kana. Kanji: 椅子."}
+
+  # ───────────────────────────────────────────────────────────────── 2
+  - id: ja1-02
+    title: "Hiragana 2: た to ほ"
+    goal: "I can read and type the t-, n- and h-rows of hiragana and say yes and no."
+    notes: |
+      Three more rows. The pattern is the same, with three irregular readings that you must learn exactly, because they are how the signs are really pronounced.
+
+      | | a | i | u | e | o |
+      |---|---|---|---|---|---|
+      | t | た | **ち chi** | **つ tsu** | て | と |
+      | n | な | に | ぬ | ね | の |
+      | h | は | ひ | **ふ fu** | へ | ほ |
+
+      - **ち** is *chi* and **つ** is *tsu* (the "ts" of "cats"). There is no "ti" or "tu" in native Japanese words.
+      - **ふ** is *fu*, but softer than English f: blow air between both lips, without touching your teeth.
+      - Later you will meet **は** and **へ** used as grammar particles. Then, and only then, they are read *wa* and *e*. As plain letters they are *ha* and *he*.
+
+      ## Look-alikes
+      - **は / ほ**: ほ has an extra bar on top.
+      - **た / な**, **に / こ**, **ぬ / ね**: check the loop.
+      - **つ / し**: つ curls from left to right, し drops down and hooks up.
+      - **ち / さ**: mirror images.
+
+      ## Yes and no
+      **はい** is "yes" and **いいえ** is "no". The doubled い in いいえ is held for two beats: *i-i-e*.
+    items:
+      - {id: ja1-02-ta, type: glyph, l2: "た", rom: "ta"}
+      - {id: ja1-02-chi, type: glyph, l2: "ち", rom: "chi"}
+      - {id: ja1-02-tsu, type: glyph, l2: "つ", rom: "tsu"}
+      - {id: ja1-02-te, type: glyph, l2: "て", rom: "te"}
+      - {id: ja1-02-to, type: glyph, l2: "と", rom: "to"}
+      - {id: ja1-02-na, type: glyph, l2: "な", rom: "na"}
+      - {id: ja1-02-ni, type: glyph, l2: "に", rom: "ni"}
+      - {id: ja1-02-nu, type: glyph, l2: "ぬ", rom: "nu"}
+      - {id: ja1-02-ne, type: glyph, l2: "ね", rom: "ne"}
+      - {id: ja1-02-no, type: glyph, l2: "の", rom: "no"}
+      - {id: ja1-02-ha, type: glyph, l2: "は", rom: "ha"}
+      - {id: ja1-02-hi, type: glyph, l2: "ひ", rom: "hi"}
+      - {id: ja1-02-fu, type: glyph, l2: "ふ", rom: "fu"}
+      - {id: ja1-02-he, type: glyph, l2: "へ", rom: "he"}
+      - {id: ja1-02-ho, type: glyph, l2: "ほ", rom: "ho"}
+      - {id: ja1-02-hai, type: vocab, l2: "はい", rom: "hai", l1: "yes"}
+      - {id: ja1-02-iie, type: vocab, l2: "いいえ", rom: "iie", l1: "no", note: "Three beats: i-i-e."}
+      - {id: ja1-02-inu, type: vocab, l2: "いぬ", rom: "inu", l1: "dog", alt: ["犬"], note: "Kanji: 犬."}
+      - {id: ja1-02-neko, type: vocab, l2: "ねこ", rom: "neko", l1: "cat", alt: ["猫"], note: "Kanji: 猫."}
+      - {id: ja1-02-hito, type: vocab, l2: "ひと", rom: "hito", l1: "person", alt: ["人"], note: "Kanji: 人."}
+      - {id: ja1-02-tsukue, type: vocab, l2: "つくえ", rom: "tsukue", l1: "desk", alt: ["机"], note: "Kanji: 机."}
+      - {id: ja1-02-sakana, type: vocab, l2: "さかな", rom: "sakana", l1: "fish", alt: ["魚"], note: "Kanji: 魚."}
+      - {id: ja1-02-niku, type: vocab, l2: "にく", rom: "niku", l1: "meat", alt: ["肉"], note: "Kanji: 肉."}
+      - {id: ja1-02-nani, type: vocab, l2: "なに", rom: "nani", l1: "what", alt: ["何"], note: "Shortens to なん before です. Kanji: 何."}
+
+  # ───────────────────────────────────────────────────────────────── 3
+  - id: ja1-03
+    title: "Hiragana 3: ま to ん, and long vowels"
+    goal: "I can read all 46 basic hiragana, hear long vowels, and greet someone."
+    notes: |
+      The last rows complete the basic table.
+
+      | | a | i | u | e | o |
+      |---|---|---|---|---|---|
+      | m | ま | み | む | め | も |
+      | y | や | | ゆ | | よ |
+      | r | ら | り | る | れ | ろ |
+      | w | わ | | | | **を o** |
+
+      - **ら-row**: the Japanese r is a quick tap of the tongue, between English r, l and d.
+      - **を** sounds exactly like お. It is used for one thing only: the object particle you meet later. Type it *o* (or *wo*, which is how you type it on a keyboard).
+      - **ん** (*n*) is the only consonant that stands alone. It is a full beat: に-ほ-ん is three beats.
+
+      ## Long vowels
+      A vowel can be held for two beats, and that changes the word. In hiragana you add a vowel sign:
+
+      - long o is usually written **おう**: おはよう (*ohayou*)
+      - long e is usually written **えい**: せんせい (*sensei*)
+      - long a, i, u double the vowel: ああ, いい, うう
+
+      This course types rōmaji the way the kana are written (*ou*, *ei*), which is also how you type Japanese on a keyboard.
+
+      In **こんにちは** the last sign is は but it is read *wa*: it was once the particle.
+
+      Look-alikes: **ぬ / め**, **ね / れ / わ**, **る / ろ**, **ま / ほ**.
+    items:
+      - {id: ja1-03-ma, type: glyph, l2: "ま", rom: "ma"}
+      - {id: ja1-03-mi, type: glyph, l2: "み", rom: "mi"}
+      - {id: ja1-03-mu, type: glyph, l2: "む", rom: "mu"}
+      - {id: ja1-03-me, type: glyph, l2: "め", rom: "me"}
+      - {id: ja1-03-mo, type: glyph, l2: "も", rom: "mo"}
+      - {id: ja1-03-ya, type: glyph, l2: "や", rom: "ya"}
+      - {id: ja1-03-yu, type: glyph, l2: "ゆ", rom: "yu"}
+      - {id: ja1-03-yo, type: glyph, l2: "よ", rom: "yo"}
+      - {id: ja1-03-ra, type: glyph, l2: "ら", rom: "ra"}
+      - {id: ja1-03-ri, type: glyph, l2: "り", rom: "ri"}
+      - {id: ja1-03-ru, type: glyph, l2: "る", rom: "ru"}
+      - {id: ja1-03-re, type: glyph, l2: "れ", rom: "re"}
+      - {id: ja1-03-ro, type: glyph, l2: "ろ", rom: "ro"}
+      - {id: ja1-03-wa, type: glyph, l2: "わ", rom: "wa"}
+      - {id: ja1-03-wo, type: glyph, l2: "を", rom: "o", l1: "the object particle; sounds like お", alt: ["wo", "お"]}
+      - {id: ja1-03-n, type: glyph, l2: "ん", rom: "n"}
+      - {id: ja1-03-watashi, type: vocab, l2: "わたし", rom: "watashi", l1: "I / me", alt: ["私"], note: "Kanji: 私."}
+      - {id: ja1-03-nihon, type: vocab, l2: "にほん", rom: "Nihon", l1: "Japan", alt: ["日本", "にっぽん", "nippon"], note: "Kanji: 日本."}
+      - {id: ja1-03-hon, type: vocab, l2: "ほん", rom: "hon", l1: "book", alt: ["本"], note: "Kanji: 本."}
+      - {id: ja1-03-namae, type: vocab, l2: "なまえ", rom: "namae", l1: "name", alt: ["名前"], note: "Kanji: 名前."}
+      - {id: ja1-03-sensei, type: vocab, l2: "せんせい", rom: "sensei", l1: "teacher", alt: ["先生"], note: "Long e, written えい. Also a title: たなか せんせい. Kanji: 先生."}
+      - {id: ja1-03-kuruma, type: vocab, l2: "くるま", rom: "kuruma", l1: "car", alt: ["車"], note: "Kanji: 車."}
+      - {id: ja1-03-yama, type: vocab, l2: "やま", rom: "yama", l1: "mountain", alt: ["山"], note: "Kanji: 山."}
+      - {id: ja1-03-konnichiwa, type: phrase, l2: "こんにちは。", rom: "Konnichiwa.", l1: "Hello. / Good afternoon.", alt: ["今日は", "Konnichiha."], note: "The final は is read wa. Used from late morning to early evening. With kanji: 今日は"}
+      - {id: ja1-03-sayounara, type: phrase, l2: "さようなら。", rom: "Sayounara.", l1: "Goodbye.", alt: ["Sayōnara."], note: "Long o: sa-yo-o-na-ra. Fairly final; not used when you will meet again in an hour."}
+      - {id: ja1-03-sumimasen, type: phrase, l2: "すみません。", rom: "Sumimasen.", l1: "Excuse me. / I'm sorry.", note: "The all-purpose word: to get attention, to apologise, even to thank someone for their trouble."}
+      - {id: ja1-03-ohayou, type: phrase, l2: "おはよう。", rom: "Ohayou.", l1: "Morning! (casual 'good morning')", alt: ["Ohayō.", "お早う"], note: "Long o at the end. The polite form adds ございます (next unit)."}
+
+  # ───────────────────────────────────────────────────────────────── 4
+  - id: ja1-04
+    title: "Hiragana 4: voiced sounds and the small っ"
+    goal: "I can read the voiced and p-sounds, hear a doubled consonant, and use the polite greetings."
+    notes: |
+      No new shapes here: two small marks change signs you already know.
+
+      **゛ (dakuten)** adds voice, and **゜ (handakuten)** turns h into p:
+
+      | | a | i | u | e | o |
+      |---|---|---|---|---|---|
+      | k → g | が | ぎ | ぐ | げ | ご |
+      | s → z | ざ | **じ ji** | ず | ぜ | ぞ |
+      | t → d | だ | **ぢ ji** | **づ zu** | で | ど |
+      | h → b | ば | び | ぶ | べ | ぼ |
+      | h → p | ぱ | ぴ | ぷ | ぺ | ぽ |
+
+      - **じ** is *ji*. **ぢ** and **づ** sound the same as じ and ず and are rare; じ and ず are the ones you will normally see.
+
+      ## The small っ
+      A small **っ** is not read "tsu". It doubles the consonant that follows: you stop for one beat, then release.
+
+      - がっこう = *gakkou* (ga-k-ko-o, four beats)
+      - きって = *kitte* (stamp); compare きて = *kite*
+
+      ## Being polite
+      **ございます** makes a greeting polite. *ありがとう* is for friends; **ありがとう ございます** is for everyone else. The same goes for *おはよう* and **おはよう ございます**.
+
+      From now on words are printed **with a space between them**, as in textbooks for beginners. Real Japanese has no spaces.
+    items:
+      - {id: ja1-04-ga, type: glyph, l2: "が", rom: "ga"}
+      - {id: ja1-04-gi, type: glyph, l2: "ぎ", rom: "gi"}
+      - {id: ja1-04-gu, type: glyph, l2: "ぐ", rom: "gu"}
+      - {id: ja1-04-ge, type: glyph, l2: "げ", rom: "ge"}
+      - {id: ja1-04-go, type: glyph, l2: "ご", rom: "go"}
+      - {id: ja1-04-za, type: glyph, l2: "ざ", rom: "za"}
+      - {id: ja1-04-ji, type: glyph, l2: "じ", rom: "ji", alt: ["ぢ"]}
+      - {id: ja1-04-zu, type: glyph, l2: "ず", rom: "zu", alt: ["づ"]}
+      - {id: ja1-04-ze, type: glyph, l2: "ぜ", rom: "ze"}
+      - {id: ja1-04-zo, type: glyph, l2: "ぞ", rom: "zo"}
+      - {id: ja1-04-da, type: glyph, l2: "だ", rom: "da"}
+      - {id: ja1-04-di, type: glyph, l2: "ぢ", rom: "ji", l1: "rare; sounds the same as じ", alt: ["di", "じ"]}
+      - {id: ja1-04-du, type: glyph, l2: "づ", rom: "zu", l1: "rare; sounds the same as ず", alt: ["du", "dzu", "ず"]}
+      - {id: ja1-04-de, type: glyph, l2: "で", rom: "de"}
+      - {id: ja1-04-do, type: glyph, l2: "ど", rom: "do"}
+      - {id: ja1-04-ba, type: glyph, l2: "ば", rom: "ba"}
+      - {id: ja1-04-bi, type: glyph, l2: "び", rom: "bi"}
+      - {id: ja1-04-bu, type: glyph, l2: "ぶ", rom: "bu"}
+      - {id: ja1-04-be, type: glyph, l2: "べ", rom: "be"}
+      - {id: ja1-04-bo, type: glyph, l2: "ぼ", rom: "bo"}
+      - {id: ja1-04-pa, type: glyph, l2: "ぱ", rom: "pa"}
+      - {id: ja1-04-pi, type: glyph, l2: "ぴ", rom: "pi"}
+      - {id: ja1-04-pu, type: glyph, l2: "ぷ", rom: "pu"}
+      - {id: ja1-04-pe, type: glyph, l2: "ぺ", rom: "pe"}
+      - {id: ja1-04-po, type: glyph, l2: "ぽ", rom: "po"}
+      - {id: ja1-04-gakusei, type: vocab, l2: "がくせい", rom: "gakusei", l1: "student", alt: ["学生"], note: "Kanji: 学生."}
+      - {id: ja1-04-gakkou, type: vocab, l2: "がっこう", rom: "gakkou", l1: "school", alt: ["学校", "gakkō"], note: "Small っ doubles the k; the o is long. Kanji: 学校."}
+      - {id: ja1-04-mizu, type: vocab, l2: "みず", rom: "mizu", l1: "water (cold water)", alt: ["水"], note: "Kanji: 水."}
+      - {id: ja1-04-tomodachi, type: vocab, l2: "ともだち", rom: "tomodachi", l1: "friend", alt: ["友達"], note: "Kanji: 友達."}
+      - {id: ja1-04-denwa, type: vocab, l2: "でんわ", rom: "denwa", l1: "telephone", alt: ["電話"], note: "Kanji: 電話."}
+      - {id: ja1-04-hiragana, type: vocab, l2: "ひらがな", rom: "hiragana", l1: "hiragana (the script)", alt: ["平仮名"], note: "Normally written in hiragana itself; the kanji 平仮名 is rare."}
+      - {id: ja1-04-arigatou-gozaimasu, type: phrase, l2: "ありがとう ございます。", rom: "Arigatou gozaimasu.", l1: "Thank you. (polite)", alt: ["Arigatō gozaimasu.", "有難うございます", "有り難うございます"], note: "To friends, just ありがとう. Usually all in kana."}
+      - {id: ja1-04-ohayou-gozaimasu, type: phrase, l2: "おはよう ございます。", rom: "Ohayou gozaimasu.", l1: "Good morning. (polite)", alt: ["Ohayō gozaimasu.", "お早うございます"]}
+      - {id: ja1-04-konbanwa, type: phrase, l2: "こんばんは。", rom: "Konbanwa.", l1: "Good evening.", alt: ["今晩は", "Konbanha."], note: "As in こんにちは, the final は is read wa. With kanji: 今晩は"}
+      - {id: ja1-04-oyasuminasai, type: phrase, l2: "おやすみなさい。", rom: "Oyasuminasai.", l1: "Good night. (when going to bed or parting late)", alt: ["お休みなさい"], note: "With kanji: お休みなさい"}
+      - {id: ja1-04-douzo, type: phrase, l2: "どうぞ。", rom: "Douzo.", l1: "Here you are. / Go ahead. (offering something)", alt: ["Dōzo."], note: "Said when handing something over or letting someone go first."}
+      - {id: ja1-04-gomennasai, type: phrase, l2: "ごめんなさい。", rom: "Gomennasai.", l1: "I'm sorry. (a real apology)", alt: ["御免なさい"], note: "More personal than すみません. Usually in kana. With kanji: 御免なさい"}
+      - {id: ja1-04-douitashimashite, type: phrase, l2: "どういたしまして。", rom: "Douitashimashite.", l1: "You're welcome.", alt: ["Dōitashimashite."], note: "One long word: dou-itashimashite."}
+
+  # ───────────────────────────────────────────────────────────────── 5
+  - id: ja1-05
+    title: "Hiragana 5: small ゃ ゅ ょ"
+    goal: "I can read combined sounds such as きゃ, しゅ and ちょ and ask someone to wait a moment."
+    notes: |
+      The last piece of hiragana. A sign from the **い-column** (き, し, ち, に …) followed by a **small** ゃ, ゅ or ょ melts into **one** beat:
+
+      き + ゃ = **きゃ** *kya* (not "ki-ya")
+
+      | | ゃ | ゅ | ょ |
+      |---|---|---|---|
+      | き | きゃ kya | きゅ kyu | きょ kyo |
+      | し | しゃ **sha** | しゅ **shu** | しょ **sho** |
+      | ち | ちゃ **cha** | ちゅ **chu** | ちょ **cho** |
+      | に | にゃ nya | にゅ nyu | にょ nyo |
+      | ひ | ひゃ hya | ひゅ hyu | ひょ hyo |
+      | み | みゃ mya | みゅ myu | みょ myo |
+      | り | りゃ rya | りゅ ryu | りょ ryo |
+      | ぎ | ぎゃ gya | ぎゅ gyu | ぎょ gyo |
+      | じ | じゃ **ja** | じゅ **ju** | じょ **jo** |
+      | び | びゃ bya | びゅ byu | びょ byo |
+      | ぴ | ぴゃ pya | ぴゅ pyu | ぴょ pyo |
+
+      - し, ち and じ lose the y: *sha*, *cha*, *ja*.
+      - Size matters. **びょういん** (*byouin*) is a hospital; **びよういん** (*biyouin*, with a full-size よ) is a hair salon.
+      - These sounds are very often long: **きょう** *kyou* (today), **ぎゅうにゅう** *gyuunyuu* (milk).
+
+      That is all of hiragana: 46 basic signs, 25 voiced ones and these 33 combinations. You can now read any Japanese word written in kana.
+    items:
+      - {id: ja1-05-kya, type: glyph, l2: "きゃ", rom: "kya"}
+      - {id: ja1-05-kyu, type: glyph, l2: "きゅ", rom: "kyu"}
+      - {id: ja1-05-kyo, type: glyph, l2: "きょ", rom: "kyo"}
+      - {id: ja1-05-sha, type: glyph, l2: "しゃ", rom: "sha"}
+      - {id: ja1-05-shu, type: glyph, l2: "しゅ", rom: "shu"}
+      - {id: ja1-05-sho, type: glyph, l2: "しょ", rom: "sho"}
+      - {id: ja1-05-cha, type: glyph, l2: "ちゃ", rom: "cha"}
+      - {id: ja1-05-chu, type: glyph, l2: "ちゅ", rom: "chu"}
+      - {id: ja1-05-cho, type: glyph, l2: "ちょ", rom: "cho"}
+      - {id: ja1-05-nya, type: glyph, l2: "にゃ", rom: "nya"}
+      - {id: ja1-05-nyu, type: glyph, l2: "にゅ", rom: "nyu"}
+      - {id: ja1-05-nyo, type: glyph, l2: "にょ", rom: "nyo"}
+      - {id: ja1-05-hya, type: glyph, l2: "ひゃ", rom: "hya"}
+      - {id: ja1-05-hyu, type: glyph, l2: "ひゅ", rom: "hyu"}
+      - {id: ja1-05-hyo, type: glyph, l2: "ひょ", rom: "hyo"}
+      - {id: ja1-05-mya, type: glyph, l2: "みゃ", rom: "mya"}
+      - {id: ja1-05-myu, type: glyph, l2: "みゅ", rom: "myu"}
+      - {id: ja1-05-myo, type: glyph, l2: "みょ", rom: "myo"}
+      - {id: ja1-05-rya, type: glyph, l2: "りゃ", rom: "rya"}
+      - {id: ja1-05-ryu, type: glyph, l2: "りゅ", rom: "ryu"}
+      - {id: ja1-05-ryo, type: glyph, l2: "りょ", rom: "ryo"}
+      - {id: ja1-05-gya, type: glyph, l2: "ぎゃ", rom: "gya"}
+      - {id: ja1-05-gyu, type: glyph, l2: "ぎゅ", rom: "gyu"}
+      - {id: ja1-05-gyo, type: glyph, l2: "ぎょ", rom: "gyo"}
+      - {id: ja1-05-ja, type: glyph, l2: "じゃ", rom: "ja"}
+      - {id: ja1-05-ju, type: glyph, l2: "じゅ", rom: "ju"}
+      - {id: ja1-05-jo, type: glyph, l2: "じょ", rom: "jo"}
+      - {id: ja1-05-bya, type: glyph, l2: "びゃ", rom: "bya"}
+      - {id: ja1-05-byu, type: glyph, l2: "びゅ", rom: "byu"}
+      - {id: ja1-05-byo, type: glyph, l2: "びょ", rom: "byo"}
+      - {id: ja1-05-pya, type: glyph, l2: "ぴゃ", rom: "pya"}
+      - {id: ja1-05-pyu, type: glyph, l2: "ぴゅ", rom: "pyu"}
+      - {id: ja1-05-pyo, type: glyph, l2: "ぴょ", rom: "pyo"}
+      - {id: ja1-05-ocha, type: vocab, l2: "おちゃ", rom: "ocha", l1: "tea (green tea)", alt: ["お茶"], note: "The お is a polite prefix that has become part of the word. Kanji: お茶."}
+      - {id: ja1-05-shashin, type: vocab, l2: "しゃしん", rom: "shashin", l1: "photograph", alt: ["写真"], note: "Kanji: 写真."}
+      - {id: ja1-05-jisho, type: vocab, l2: "じしょ", rom: "jisho", l1: "dictionary", alt: ["辞書"], note: "Kanji: 辞書."}
+      - {id: ja1-05-densha, type: vocab, l2: "でんしゃ", rom: "densha", l1: "train (electric train)", alt: ["電車"], note: "Kanji: 電車."}
+      - {id: ja1-05-kaisha, type: vocab, l2: "かいしゃ", rom: "kaisha", l1: "company / the office", alt: ["会社"], note: "Kanji: 会社."}
+      - {id: ja1-05-gyuunyuu, type: vocab, l2: "ぎゅうにゅう", rom: "gyuunyuu", l1: "milk", alt: ["牛乳", "gyūnyū"], note: "Both vowels are long: gyuu-nyuu. Kanji: 牛乳."}
+      - {id: ja1-05-toshokan, type: vocab, l2: "としょかん", rom: "toshokan", l1: "library", alt: ["図書館"], note: "Kanji: 図書館."}
+      - {id: ja1-05-chotto-matte, type: phrase, l2: "ちょっと まって ください。", rom: "Chotto matte kudasai.", l1: "Please wait a moment.", alt: ["ちょっと待ってください"], note: "ちょっと = a little. Small ょ and small っ in one word: cho-t-to. With kanji: ちょっと待ってください"}
+      - {id: ja1-05-ja-mata, type: phrase, l2: "じゃ、 また。", rom: "Ja, mata.", l1: "See you. (casual goodbye)", alt: ["じゃあ、 また。", "Jaa, mata.", "Jā, mata.", "では、 また。", "Dewa, mata.", "Deha, mata."], note: "Literally 'well then, again'. What friends and colleagues say instead of さようなら."}
+
+  # ───────────────────────────────────────────────────────────────── 6
+  - id: ja1-06
+    title: "Katakana 1: ア to ト, and the long mark"
+    goal: "I can read the first twenty katakana and loanwords with a long vowel."
+    notes: |
+      **Katakana** has the same 46 sounds as hiragana, in straighter, sharper shapes. It is used for words borrowed from other languages, foreign names and places, and sometimes for emphasis, like italics.
+
+      | | a | i | u | e | o |
+      |---|---|---|---|---|---|
+      | | ア | イ | ウ | エ | オ |
+      | k | カ | キ | ク | ケ | コ |
+      | s | サ | シ shi | ス | セ | ソ |
+      | t | タ | チ chi | ツ tsu | テ | ト |
+
+      ## What works the same
+      - **゛ and ゜**: ガ *ga*, ギ *gi*, ド *do*, パ *pa*. You already know these, so they are not drilled again.
+      - The small **ッ** doubles the next consonant: サッカー *sakkaa*.
+
+      ## What is different: ー
+      A long vowel is written with a bar, **ー**, not with a second vowel: ケーキ is *ke-e-ki*. The rōmaji here doubles the vowel (*keeki*). The mark is called *chōon*.
+
+      ## Loanwords are reshaped
+      Japanese syllables end in a vowel, so extra vowels appear: "test" becomes **テスト** *tesuto*, "taxi" becomes **タクシー** *takushii*. Say the katakana aloud and the English word usually jumps out.
+
+      Look-alikes: **ク / ケ / タ**, **ウ / ワ** (later), and above all **シ / ツ**: the small strokes of シ lie flat, those of ツ stand up.
+    items:
+      - {id: ja1-06-a, type: glyph, l2: "ア", rom: "a"}
+      - {id: ja1-06-i, type: glyph, l2: "イ", rom: "i"}
+      - {id: ja1-06-u, type: glyph, l2: "ウ", rom: "u"}
+      - {id: ja1-06-e, type: glyph, l2: "エ", rom: "e"}
+      - {id: ja1-06-o, type: glyph, l2: "オ", rom: "o", alt: ["ヲ"]}
+      - {id: ja1-06-ka, type: glyph, l2: "カ", rom: "ka"}
+      - {id: ja1-06-ki, type: glyph, l2: "キ", rom: "ki"}
+      - {id: ja1-06-ku, type: glyph, l2: "ク", rom: "ku"}
+      - {id: ja1-06-ke, type: glyph, l2: "ケ", rom: "ke"}
+      - {id: ja1-06-ko, type: glyph, l2: "コ", rom: "ko"}
+      - {id: ja1-06-sa, type: glyph, l2: "サ", rom: "sa"}
+      - {id: ja1-06-shi, type: glyph, l2: "シ", rom: "shi"}
+      - {id: ja1-06-su, type: glyph, l2: "ス", rom: "su"}
+      - {id: ja1-06-se, type: glyph, l2: "セ", rom: "se"}
+      - {id: ja1-06-so, type: glyph, l2: "ソ", rom: "so"}
+      - {id: ja1-06-ta, type: glyph, l2: "タ", rom: "ta"}
+      - {id: ja1-06-chi, type: glyph, l2: "チ", rom: "chi"}
+      - {id: ja1-06-tsu, type: glyph, l2: "ツ", rom: "tsu"}
+      - {id: ja1-06-te, type: glyph, l2: "テ", rom: "te"}
+      - {id: ja1-06-to, type: glyph, l2: "ト", rom: "to"}
+      - {id: ja1-06-chouon, type: glyph, l2: "ー", rom: "chouon", l1: "the long-vowel mark (called chōon): it lengthens the vowel before it, so カー is kaa", alt: ["chōon", "chouonpu", "chōonpu"]}
+      - {id: ja1-06-keeki, type: vocab, l2: "ケーキ", rom: "keeki", l1: "cake", alt: ["kēki"]}
+      - {id: ja1-06-takushii, type: vocab, l2: "タクシー", rom: "takushii", l1: "taxi", alt: ["takushī"]}
+      - {id: ja1-06-tesuto, type: vocab, l2: "テスト", rom: "tesuto", l1: "test / exam"}
+      - {id: ja1-06-sukii, type: vocab, l2: "スキー", rom: "sukii", l1: "skiing / skis", alt: ["sukī"]}
+      - {id: ja1-06-seetaa, type: vocab, l2: "セーター", rom: "seetaa", l1: "sweater", alt: ["sētā"]}
+      - {id: ja1-06-gitaa, type: vocab, l2: "ギター", rom: "gitaa", l1: "guitar", alt: ["gitā"], note: "ギ is キ with ゛."}
+
+  # ───────────────────────────────────────────────────────────────── 7
+  - id: ja1-07
+    title: "Katakana 2: ナ to ヨ"
+    goal: "I can read the n-, h-, m- and y-rows of katakana and everyday loanwords."
+    notes: |
+      Eighteen more signs.
+
+      | | a | i | u | e | o |
+      |---|---|---|---|---|---|
+      | n | ナ | ニ | ヌ | ネ | ノ |
+      | h | ハ | ヒ | フ fu | ヘ | ホ |
+      | m | マ | ミ | ム | メ | モ |
+      | y | ヤ | | ユ | | ヨ |
+
+      ## Help from hiragana
+      Some katakana are close to their hiragana twins: **ヘ / へ** (almost identical), **モ / も**, **ヤ / や**, **カ / か**, **キ / き**, **リ / り** (next unit).
+
+      ## Look-alikes
+      - **ナ / メ**: a cross and a slash.
+      - **ヌ / ス**: ヌ has a stroke crossing through.
+      - **マ / ム / ア**: ム is the one that opens upwards.
+      - **ノ / ソ**: ノ is a single stroke.
+      - **コ / ユ / ヨ**: one, two and three bars.
+
+      ## Japanese-made words
+      Loanwords are often cut short: **スマホ** is *sumaato-fon*, a smartphone. Some change meaning: **ノート** is a notebook, not a note.
+
+      Voiced forms work as before: **バ** is ハ with ゛, so **バナナ** is *banana*.
+
+      The word **カタカナ** itself uses four signs you now know.
+    items:
+      - {id: ja1-07-na, type: glyph, l2: "ナ", rom: "na"}
+      - {id: ja1-07-ni, type: glyph, l2: "ニ", rom: "ni"}
+      - {id: ja1-07-nu, type: glyph, l2: "ヌ", rom: "nu"}
+      - {id: ja1-07-ne, type: glyph, l2: "ネ", rom: "ne"}
+      - {id: ja1-07-no, type: glyph, l2: "ノ", rom: "no"}
+      - {id: ja1-07-ha, type: glyph, l2: "ハ", rom: "ha"}
+      - {id: ja1-07-hi, type: glyph, l2: "ヒ", rom: "hi"}
+      - {id: ja1-07-fu, type: glyph, l2: "フ", rom: "fu"}
+      - {id: ja1-07-he, type: glyph, l2: "ヘ", rom: "he"}
+      - {id: ja1-07-ho, type: glyph, l2: "ホ", rom: "ho"}
+      - {id: ja1-07-ma, type: glyph, l2: "マ", rom: "ma"}
+      - {id: ja1-07-mi, type: glyph, l2: "ミ", rom: "mi"}
+      - {id: ja1-07-mu, type: glyph, l2: "ム", rom: "mu"}
+      - {id: ja1-07-me, type: glyph, l2: "メ", rom: "me"}
+      - {id: ja1-07-mo, type: glyph, l2: "モ", rom: "mo"}
+      - {id: ja1-07-ya, type: glyph, l2: "ヤ", rom: "ya"}
+      - {id: ja1-07-yu, type: glyph, l2: "ユ", rom: "yu"}
+      - {id: ja1-07-yo, type: glyph, l2: "ヨ", rom: "yo"}
+      - {id: ja1-07-koohii, type: vocab, l2: "コーヒー", rom: "koohii", l1: "coffee", alt: ["kōhī"], note: "Two long vowels: ko-o-hi-i."}
+      - {id: ja1-07-nooto, type: vocab, l2: "ノート", rom: "nooto", l1: "notebook", alt: ["nōto"], note: "Not 'a note'."}
+      - {id: ja1-07-tomato, type: vocab, l2: "トマト", rom: "tomato", l1: "tomato"}
+      - {id: ja1-07-naifu, type: vocab, l2: "ナイフ", rom: "naifu", l1: "knife"}
+      - {id: ja1-07-sumaho, type: vocab, l2: "スマホ", rom: "sumaho", l1: "smartphone", note: "Short for スマートフォン."}
+      - {id: ja1-07-banana, type: vocab, l2: "バナナ", rom: "banana", l1: "banana", note: "バ is ハ with ゛."}
+      - {id: ja1-07-katakana, type: vocab, l2: "カタカナ", rom: "katakana", l1: "katakana (the script)", alt: ["かたかな", "片仮名"], note: "Normally written in katakana itself."}
+
+  # ───────────────────────────────────────────────────────────────── 8
+  - id: ja1-08
+    title: "Katakana 3: ラ to ン, and loanwords"
+    goal: "I can read all katakana and recognise common loanwords for food, places and things."
+    notes: |
+      The last eight signs.
+
+      | | a | i | u | e | o |
+      |---|---|---|---|---|---|
+      | r | ラ | リ | ル | レ | ロ |
+      | w | ワ | | | | ヲ o |
+      | | ン n | | | | |
+
+      **ヲ** exists but is almost never used.
+
+      ## The two hardest pairs
+      - **シ** (*shi*) / **ツ** (*tsu*)
+      - **ン** (*n*) / **ソ** (*so*)
+
+      In シ and ン the small strokes lie flat and the long stroke sweeps **up**. In ツ and ソ the small strokes stand up and the long stroke sweeps **down**.
+
+      ## Small signs
+      Small ャ ュ ョ work as in hiragana: **ジュース** *juusu*, **メニュー** *menyuu*. Katakana also has extra combinations for foreign sounds: ティ *ti* (パーティー, party), ファ *fa*, ウィ *wi*, チェ *che*, ジェ *je*.
+
+      ## Not always English
+      - **パン** (bread) is from Portuguese.
+      - **コンビニ** is a convenience store, **パソコン** a personal computer, **スーパー** a supermarket.
+      - **ジュース** is any soft drink, not only fruit juice.
+
+      Your own name is written in katakana too: Smith is **スミス**, Anna is **アンナ**.
+    items:
+      - {id: ja1-08-ra, type: glyph, l2: "ラ", rom: "ra"}
+      - {id: ja1-08-ri, type: glyph, l2: "リ", rom: "ri"}
+      - {id: ja1-08-ru, type: glyph, l2: "ル", rom: "ru"}
+      - {id: ja1-08-re, type: glyph, l2: "レ", rom: "re"}
+      - {id: ja1-08-ro, type: glyph, l2: "ロ", rom: "ro"}
+      - {id: ja1-08-wa, type: glyph, l2: "ワ", rom: "wa"}
+      - {id: ja1-08-wo, type: glyph, l2: "ヲ", rom: "o", l1: "almost never used; sounds like オ", alt: ["wo", "オ"]}
+      - {id: ja1-08-n, type: glyph, l2: "ン", rom: "n"}
+      - {id: ja1-08-hoteru, type: vocab, l2: "ホテル", rom: "hoteru", l1: "hotel"}
+      - {id: ja1-08-resutoran, type: vocab, l2: "レストラン", rom: "resutoran", l1: "restaurant"}
+      - {id: ja1-08-toire, type: vocab, l2: "トイレ", rom: "toire", l1: "toilet / restroom"}
+      - {id: ja1-08-terebi, type: vocab, l2: "テレビ", rom: "terebi", l1: "television"}
+      - {id: ja1-08-pan, type: vocab, l2: "パン", rom: "pan", l1: "bread", note: "From Portuguese pão."}
+      - {id: ja1-08-basu, type: vocab, l2: "バス", rom: "basu", l1: "bus"}
+      - {id: ja1-08-pen, type: vocab, l2: "ペン", rom: "pen", l1: "pen"}
+      - {id: ja1-08-amerika, type: vocab, l2: "アメリカ", rom: "Amerika", l1: "America / the USA"}
+      - {id: ja1-08-konbini, type: vocab, l2: "コンビニ", rom: "konbini", l1: "convenience store", note: "Short for コンビニエンスストア."}
+      - {id: ja1-08-juusu, type: vocab, l2: "ジュース", rom: "juusu", l1: "juice / soft drink", alt: ["jūsu"]}
+      - {id: ja1-08-biiru, type: vocab, l2: "ビール", rom: "biiru", l1: "beer", alt: ["bīru"], note: "Long i. ビル with a short i means 'building'."}
+      - {id: ja1-08-raamen, type: vocab, l2: "ラーメン", rom: "raamen", l1: "ramen (noodle soup)", alt: ["rāmen"]}
+      - {id: ja1-08-kamera, type: vocab, l2: "カメラ", rom: "kamera", l1: "camera"}
+      - {id: ja1-08-menyuu, type: vocab, l2: "メニュー", rom: "menyuu", l1: "menu", alt: ["menyū"]}
+      - {id: ja1-08-pasokon, type: vocab, l2: "パソコン", rom: "pasokon", l1: "PC / personal computer", note: "Short for パーソナルコンピューター."}
+      - {id: ja1-08-suupaa, type: vocab, l2: "スーパー", rom: "suupaa", l1: "supermarket", alt: ["sūpā"]}
+
+  # ───────────────────────────────────────────────────────────────── 9
+  - id: ja1-09
+    title: "Introducing yourself: A は B です"
+    goal: "I can say who I am, where I am from and what I do, and ask someone the same."
+    notes: |
+      The basic Japanese sentence is **A は B です**: "A is B".
+
+      - **は** marks the topic, "as for A". As a particle it is written は but read **wa**.
+      - **です** is the polite "is / am / are". It never changes for I, you or they. The u is whispered: *des*.
+      - The verb always comes **last**.
+
+      | | pattern | example |
+      |---|---|---|
+      | is | A は B です | わたし は がくせい です。 |
+      | is not | A は B じゃ ありません | わたし は がくせい じゃ ありません。 |
+      | is …? | A は B です か | たなかさん は がくせい です か。 |
+      | also | A も B です | わたし も がくせい です。 |
+
+      - A question just adds **か**. The word order does not change, and no question mark is needed.
+      - **も** ("too") replaces は.
+      - In writing and formal speech じゃ is **では** (*dewa*).
+      - Japanese has no "a / the" and no plural, and it drops what is obvious: once people know you are talking about yourself, leave わたし out.
+      - Add **さん** to other people's names, never to your own.
+      - A country + **じん** is a person from there; + **ご** is its language: にほん**じん**, にほん**ご**.
+
+      ## Kanji
+      From here on each unit teaches a few kanji. The words stay in kana, and each note shows how the word is normally written.
+    items:
+      - {id: ja1-09-k-watashi, type: glyph, l2: "私", rom: "watashi", l1: "I, me"}
+      - {id: ja1-09-k-hito, type: glyph, l2: "人", rom: "hito", l1: "person (ひと; read じん after a country: にほんじん)", alt: ["jin", "nin"]}
+      - {id: ja1-09-k-nichi, type: glyph, l2: "日", rom: "nichi", l1: "sun; day (にち; also ひ. In 日本 it is に: にほん)", alt: ["hi", "ni"]}
+      - {id: ja1-09-k-hon, type: glyph, l2: "本", rom: "hon", l1: "book; origin (日本 = にほん, 'origin of the sun')"}
+      - {id: ja1-09-desu, type: vocab, l2: "です", rom: "desu", l1: "is / am / are (polite; ends the sentence)", ex: "わたし は がくせい です。", ex_l1: "I am a student.", note: "The u is whispered: 'des'."}
+      - {id: ja1-09-san, type: vocab, l2: "さん", rom: "san", l1: "Mr. / Ms. (added after someone's name)", ex: "たなかさん は せんせい です。", ex_l1: "Mr. Tanaka is a teacher.", note: "For men and women, family names and first names. Never use it for yourself."}
+      - {id: ja1-09-nihonjin, type: vocab, l2: "にほんじん", rom: "Nihonjin", l1: "a Japanese person", alt: ["日本人"], ex: "たなかさん は にほんじん です。", ex_l1: "Ms. Tanaka is Japanese.", note: "Kanji: 日本人."}
+      - {id: ja1-09-amerikajin, type: vocab, l2: "アメリカじん", rom: "Amerikajin", l1: "an American (person)", alt: ["アメリカ人"], ex: "わたし は アメリカじん です。", ex_l1: "I am American.", note: "Kanji: アメリカ人."}
+      - {id: ja1-09-igirisu, type: vocab, l2: "イギリス", rom: "Igirisu", l1: "the UK / Britain", ex: "スミスさん は イギリスじん です。", ex_l1: "Mr. Smith is British.", note: "From Portuguese 'inglês'."}
+      - {id: ja1-09-chuugoku, type: vocab, l2: "ちゅうごく", rom: "Chuugoku", l1: "China", alt: ["中国", "Chūgoku"], ex: "ちゅうごく から きました。", ex_l1: "I came from China.", note: "Kanji: 中国."}
+      - {id: ja1-09-kaishain, type: vocab, l2: "かいしゃいん", rom: "kaishain", l1: "company employee / office worker", alt: ["会社員"], ex: "わたし は かいしゃいん です。", ex_l1: "I am a company employee.", note: "かいしゃ (company) + いん (member). Kanji: 会社員."}
+      - {id: ja1-09-isha, type: vocab, l2: "いしゃ", rom: "isha", l1: "doctor (medical)", alt: ["医者"], ex: "やまださん は いしゃ です。", ex_l1: "Mr. Yamada is a doctor.", note: "Kanji: 医者."}
+      - {id: ja1-09-anata, type: vocab, l2: "あなた", rom: "anata", l1: "you (avoid it when you know the person's name)", alt: ["貴方"], ex: "あなた は がくせい です か。", ex_l1: "Are you a student?", note: "To someone whose name you know, say the name + さん instead; あなた can sound distant or too direct. Kanji 貴方 is rare."}
+      - {id: ja1-09-hajimemashite, type: phrase, l2: "はじめまして。", rom: "Hajimemashite.", l1: "How do you do? (the first thing you say when you meet someone)", alt: ["初めまして"], note: "Literally 'for the first time'. Only at a first meeting. With kanji: 初めまして"}
+      - {id: ja1-09-yoroshiku, type: phrase, l2: "どうぞ よろしく おねがいします。", rom: "Douzo yoroshiku onegaishimasu.", l1: "Pleased to meet you. (the closing line of a self-introduction)", alt: ["どうぞよろしくお願いします", "Dōzo yoroshiku onegaishimasu.", "よろしく おねがいします。", "Yoroshiku onegaishimasu.", "どうぞ よろしく。", "Douzo yoroshiku.", "Dōzo yoroshiku.", "よろしくお願いします"], note: "Literally 'please treat me well'. Shorter: よろしく おねがいします. With kanji: どうぞよろしくお願いします"}
+      - {id: ja1-09-watashi-wa-sumisu, type: phrase, l2: "わたし は スミス です。", rom: "Watashi wa Sumisu desu.", l1: "I am Smith. / My name is Smith.", alt: ["私はスミスです", "Watashi ha Sumisu desu.", "スミス です。", "Sumisu desu."], note: "The everyday way to give your name. With kanji: 私はスミスです"}
+      - {id: ja1-09-gakusei-janai, type: phrase, l2: "わたし は がくせい じゃ ありません。", rom: "Watashi wa gakusei ja arimasen.", l1: "I am not a student.", alt: ["私は学生じゃありません", "Watashi ha gakusei ja arimasen.", "わたし は がくせい では ありません。", "Watashi wa gakusei dewa arimasen.", "Watashi ha gakusei deha arimasen.", "がくせい じゃ ありません。", "Gakusei ja arimasen.", "がくせい では ありません。", "Gakusei dewa arimasen.", "Gakusei deha arimasen.", "私は学生ではありません"], note: "じゃ ありません is the negative of です. More formal: では ありません. With kanji: 私は学生じゃありません"}
+      - {id: ja1-09-onamae, type: phrase, l2: "おなまえ は なん です か。", rom: "Onamae wa nan desu ka.", l1: "What is your name? (polite)", alt: ["お名前は何ですか", "Onamae ha nan desu ka.", "おなまえ は？", "Onamae wa?", "Onamae ha?"], note: "お makes なまえ polite: 'your name'. Often cut short to おなまえ は？ With kanji: お名前は何ですか"}
+      - {id: ja1-09-okuni, type: phrase, l2: "おくに は どちら です か。", rom: "Okuni wa dochira desu ka.", l1: "Where are you from? (polite: 'which is your country?')", alt: ["お国はどちらですか", "Okuni ha dochira desu ka.", "おくに は どこ です か。", "Okuni wa doko desu ka.", "Okuni ha doko desu ka."], note: "くに = country; どちら is the polite 'where / which'. With kanji: お国はどちらですか"}
+      - {id: ja1-09-amerika-kara, type: phrase, l2: "アメリカ から きました。", rom: "Amerika kara kimashita.", l1: "I came from America. / I am from America.", alt: ["アメリカから来ました", "わたし は アメリカ から きました。", "Watashi wa Amerika kara kimashita.", "Watashi ha Amerika kara kimashita."], note: "から = from; きました = came. With kanji: アメリカから来ました"}
+      - {id: ja1-09-hai-sou-desu, type: phrase, l2: "はい、 そう です。", rom: "Hai, sou desu.", l1: "Yes, that's right.", alt: ["Hai, sō desu."], note: "そう = so. The easy way to say yes to a です question."}
+      - {id: ja1-09-c1, type: cloze, text: "わたし ___ がくせい です。", answer: "は", l1: "I am a student.", alt: ["wa", "ha"], note: "は marks the topic. As a particle it is read wa."}
+      - {id: ja1-09-c2, type: cloze, text: "たなかさん は せんせい です ___。", answer: "か", l1: "Is Mr. Tanaka a teacher?", alt: ["ka"], note: "か at the end turns a statement into a question."}
+      - {id: ja1-09-c3, type: cloze, text: "スミスさん は かいしゃいん です。 わたし ___ かいしゃいん です。", answer: "も", l1: "Mr. Smith is a company employee. I am a company employee too.", alt: ["mo"], note: "も = also; it takes the place of は."}
+      - {id: ja1-09-c4, type: cloze, text: "わたし は いしゃ ___ ありません。", answer: "じゃ", l1: "I am not a doctor.", alt: ["ja", "では", "dewa", "deha"], note: "じゃ ありません is the negative of です (formal: では ありません)."}
+      - {id: ja1-09-c5, type: cloze, text: "イギリス ___ きました。", answer: "から", l1: "I came from Britain.", alt: ["kara"], note: "から = from."}
+      - id: ja1-09-d-meeting
+        type: dialogue
+        title: "Meeting someone new"
+        scene: "You are Smith, a new arrival. Tanaka introduces himself at a welcome party."
+        you: B
+        lines:
+          - {who: A, l2: "はじめまして。 たなか です。", rom: "Hajimemashite. Tanaka desu.", l1: "How do you do? I'm Tanaka."}
+          - {who: B, l2: "はじめまして。 スミス です。", rom: "Hajimemashite. Sumisu desu.", l1: "How do you do? I'm Smith.", alt: ["はじめまして。 わたし は スミス です。", "Hajimemashite. Watashi wa Sumisu desu.", "Hajimemashite. Watashi ha Sumisu desu."]}
+          - {who: A, l2: "スミスさん は がくせい です か。", rom: "Sumisu-san wa gakusei desu ka.", l1: "Are you a student, Mr. Smith?"}
+          - {who: B, l2: "いいえ、 かいしゃいん です。", rom: "Iie, kaishain desu.", l1: "No, I'm a company employee.", alt: ["いいえ、 わたし は かいしゃいん です。", "Iie, watashi wa kaishain desu.", "Iie, watashi ha kaishain desu."]}
+          - {who: A, l2: "そう です か。 おくに は どちら です か。", rom: "Sou desu ka. Okuni wa dochira desu ka.", l1: "I see. Where are you from?"}
+          - {who: B, l2: "アメリカ から きました。", rom: "Amerika kara kimashita.", l1: "I came from America.", alt: ["わたし は アメリカ から きました。", "Watashi wa Amerika kara kimashita.", "Watashi ha Amerika kara kimashita."]}
+          - {who: A, l2: "どうぞ よろしく おねがいします。", rom: "Douzo yoroshiku onegaishimasu.", l1: "Pleased to meet you."}
+          - {who: B, l2: "こちらこそ、 どうぞ よろしく。", rom: "Kochirakoso, douzo yoroshiku.", l1: "Likewise, pleased to meet you.", alt: ["Kochirakoso, dōzo yoroshiku.", "こちらこそ、 よろしく おねがいします。", "Kochirakoso, yoroshiku onegaishimasu.", "こちらこそ、 どうぞ よろしく おねがいします。", "Kochirakoso, douzo yoroshiku onegaishimasu.", "Kochirakoso, dōzo yoroshiku onegaishimasu.", "こちらこそ、 よろしく。", "Kochirakoso, yoroshiku."]}
+
+  # ───────────────────────────────────────────────────────────────── 10
+  - id: ja1-10
+    title: "This and that: これ, それ, あれ and の"
+    goal: "I can ask what something is and whose it is, and say that something belongs to someone."
+    notes: |
+      Japanese divides space into three zones, not two.
+
+      | | thing | meaning |
+      |---|---|---|
+      | こ | **これ** | this (near me) |
+      | そ | **それ** | that (near you) |
+      | あ | **あれ** | that over there (far from us both) |
+      | ど | **どれ** | which one? |
+
+      So if you hold a book and ask *これ は なん です か*, the answer starts with **それ は …**.
+
+      ## の
+      **の** joins two nouns: **A の B** means "A's B" or "the B of A". The describing word always comes first.
+
+      - わたし **の** ほん — my book
+      - やまださん **の** くるま — Mr. Yamada's car
+      - にほんご **の** ほん — a Japanese-language book
+      - だいがく **の** せんせい — a university teacher
+
+      The second noun can be dropped when it is clear: *それ は わたし の です* = "That is mine". **だれ の** asks "whose?".
+
+      ## なに / なん
+      "What" is なに, but it shortens to **なん** before です: *なん です か*.
+
+      ## Kanji in names
+      山, 川 and 田 are in countless surnames: 山田 **やまだ**, 田中 **たなか**, 山川 **やまかわ**. Inside a name た often becomes だ.
+    items:
+      - {id: ja1-10-k-nani, type: glyph, l2: "何", rom: "nani", l1: "what (なに; なん before です)", alt: ["nan"]}
+      - {id: ja1-10-k-yama, type: glyph, l2: "山", rom: "yama", l1: "mountain"}
+      - {id: ja1-10-k-kawa, type: glyph, l2: "川", rom: "kawa", l1: "river"}
+      - {id: ja1-10-k-ta, type: glyph, l2: "田", rom: "ta", l1: "rice field (た; often だ inside a name: やまだ)", alt: ["da"]}
+      - {id: ja1-10-kore, type: vocab, l2: "これ", rom: "kore", l1: "this one (a thing near me)", ex: "これ は ほん です。", ex_l1: "This is a book."}
+      - {id: ja1-10-sore, type: vocab, l2: "それ", rom: "sore", l1: "that one (a thing near you)", ex: "それ は じしょ です か。", ex_l1: "Is that a dictionary?"}
+      - {id: ja1-10-are, type: vocab, l2: "あれ", rom: "are", l1: "that one over there (far from both of us)", ex: "あれ は がっこう です。", ex_l1: "That over there is a school."}
+      - {id: ja1-10-dore, type: vocab, l2: "どれ", rom: "dore", l1: "which one (of three or more)", ex: "たなかさん の かさ は どれ です か。", ex_l1: "Which one is Mr. Tanaka's umbrella?"}
+      - {id: ja1-10-dare, type: vocab, l2: "だれ", rom: "dare", l1: "who", alt: ["誰"], ex: "せんせい は だれ です か。", ex_l1: "Who is the teacher?", note: "だれ の = whose. Kanji: 誰."}
+      - {id: ja1-10-nan, type: vocab, l2: "なん", rom: "nan", l1: "what (the short form used before です)", alt: ["何"], ex: "それ は なん です か。", ex_l1: "What is that?", note: "The same word as なに."}
+      - {id: ja1-10-daigaku, type: vocab, l2: "だいがく", rom: "daigaku", l1: "university", alt: ["大学"], ex: "たなかさん は だいがく の せんせい です。", ex_l1: "Mr. Tanaka is a university teacher.", note: "Kanji: 大学."}
+      - {id: ja1-10-kaban, type: vocab, l2: "かばん", rom: "kaban", l1: "bag", alt: ["鞄", "カバン"], ex: "これ は わたし の かばん です。", ex_l1: "This is my bag.", note: "Usually in kana."}
+      - {id: ja1-10-tokei, type: vocab, l2: "とけい", rom: "tokei", l1: "watch / clock", alt: ["時計"], ex: "それ は だれ の とけい です か。", ex_l1: "Whose watch is that?", note: "Kanji: 時計."}
+      - {id: ja1-10-kagi, type: vocab, l2: "かぎ", rom: "kagi", l1: "key", alt: ["鍵"], ex: "これ は くるま の かぎ です。", ex_l1: "This is the car key.", note: "Kanji: 鍵."}
+      - {id: ja1-10-enpitsu, type: vocab, l2: "えんぴつ", rom: "enpitsu", l1: "pencil", alt: ["鉛筆"], ex: "それ は えんぴつ です か、 ペン です か。", ex_l1: "Is that a pencil or a pen?", note: "Kanji: 鉛筆."}
+      - {id: ja1-10-shinbun, type: vocab, l2: "しんぶん", rom: "shinbun", l1: "newspaper", alt: ["新聞"], ex: "あれ は えいご の しんぶん です。", ex_l1: "That over there is an English-language newspaper.", note: "Kanji: 新聞."}
+      - {id: ja1-10-zasshi, type: vocab, l2: "ざっし", rom: "zasshi", l1: "magazine", alt: ["雑誌"], ex: "これ は くるま の ざっし です。", ex_l1: "This is a car magazine.", note: "Kanji: 雑誌."}
+      - {id: ja1-10-nihongo, type: vocab, l2: "にほんご", rom: "Nihongo", l1: "Japanese (the language)", alt: ["日本語"], ex: "これ は にほんご の ほん です。", ex_l1: "This is a Japanese book (a book in or about Japanese).", note: "Kanji: 日本語."}
+      - {id: ja1-10-eigo, type: vocab, l2: "えいご", rom: "eigo", l1: "English (the language)", alt: ["英語"], ex: "それ は えいご の じしょ です。", ex_l1: "That is an English dictionary.", note: "Kanji: 英語."}
+      - {id: ja1-10-kore-nan, type: phrase, l2: "これ は なん です か。", rom: "Kore wa nan desu ka.", l1: "What is this?", alt: ["これは何ですか", "Kore ha nan desu ka."], note: "With kanji: これは何ですか"}
+      - {id: ja1-10-dare-no-kasa, type: phrase, l2: "これ は だれ の かさ です か。", rom: "Kore wa dare no kasa desu ka.", l1: "Whose umbrella is this?", alt: ["これは誰の傘ですか", "Kore ha dare no kasa desu ka."], note: "With kanji: これは誰の傘ですか"}
+      - {id: ja1-10-watashi-no-desu, type: phrase, l2: "それ は わたし の です。", rom: "Sore wa watashi no desu.", l1: "That is mine. (the thing near you)", alt: ["それは私のです", "Sore ha watashi no desu."], note: "The noun after の is dropped: わたし の = mine. With kanji: それは私のです"}
+      - {id: ja1-10-sou-desu-ka, type: phrase, l2: "そう です か。", rom: "Sou desu ka.", l1: "I see. / Is that so? (reacting to news)", alt: ["Sō desu ka."], note: "Said with falling intonation it is not a real question."}
+      - {id: ja1-10-wakarimasen, type: phrase, l2: "わかりません。", rom: "Wakarimasen.", l1: "I don't understand. / I don't know.", alt: ["分かりません"], note: "The first survival phrase. Positive: わかります. With kanji: 分かりません"}
+      - {id: ja1-10-c1, type: cloze, text: "これ は わたし ___ ほん です。", answer: "の", l1: "This is my book.", alt: ["no"], note: "A の B: the owner comes first."}
+      - {id: ja1-10-c2, type: cloze, text: "___ は わたし の とけい です。", answer: "これ", l1: "This (here by me) is my watch.", alt: ["kore"], note: "これ = the thing near the speaker."}
+      - {id: ja1-10-c3, type: cloze, text: "それ は ___ の かぎ です か。", answer: "だれ", l1: "Whose key is that?", alt: ["dare", "誰"], note: "だれ の = whose."}
+      - {id: ja1-10-c4, type: cloze, text: "あれ は ___ です か。", answer: "なん", l1: "What is that over there?", alt: ["nan", "何"], note: "なに becomes なん before です."}
+      - {id: ja1-10-c5, type: cloze, text: "これ は やまださん の です。 それ ___ やまださん の です。", answer: "も", l1: "This is Mr. Yamada's. That is Mr. Yamada's too.", alt: ["mo"], note: "も replaces は: 'that one too'."}
+      - id: ja1-10-d-umbrella
+        type: dialogue
+        title: "Whose umbrella?"
+        scene: "You are Smith. At the door of a restaurant a member of staff holds up an umbrella."
+        you: B
+        lines:
+          - {who: A, l2: "すみません。 これ は だれ の かさ です か。", rom: "Sumimasen. Kore wa dare no kasa desu ka.", l1: "Excuse me. Whose umbrella is this?"}
+          - {who: B, l2: "それ は わたし の かさ です。", rom: "Sore wa watashi no kasa desu.", l1: "That is my umbrella.", alt: ["Sore ha watashi no kasa desu.", "それ は わたし の です。", "Sore wa watashi no desu.", "Sore ha watashi no desu.", "わたし の かさ です。", "Watashi no kasa desu.", "わたし の です。", "Watashi no desu."]}
+          - {who: A, l2: "そう です か。 どうぞ。", rom: "Sou desu ka. Douzo.", l1: "I see. Here you are."}
+          - {who: B, l2: "ありがとう ございます。", rom: "Arigatou gozaimasu.", l1: "Thank you.", alt: ["Arigatō gozaimasu.", "どうも ありがとう ございます。", "Doumo arigatou gozaimasu.", "Dōmo arigatō gozaimasu."]}
+          - {who: A, l2: "あれ も スミスさん の かばん です か。", rom: "Are mo Sumisu-san no kaban desu ka.", l1: "Is that bag over there yours too, Mr. Smith?"}
+          - {who: B, l2: "いいえ、 あれ は やまださん の です。", rom: "Iie, are wa Yamada-san no desu.", l1: "No, that one is Mr. Yamada's.", alt: ["Iie, are ha Yamada-san no desu.", "いいえ、 あれ は やまださん の かばん です。", "Iie, are wa Yamada-san no kaban desu.", "Iie, are ha Yamada-san no kaban desu.", "いいえ、 やまださん の です。", "Iie, Yamada-san no desu."]}
+          - {who: A, l2: "わかりました。", rom: "Wakarimashita.", l1: "Understood."}
+
+  # ───────────────────────────────────────────────────────────────── 11
+  - id: ja1-11
+    title: "Numbers, age and telephone numbers"
+    goal: "I can count to 99, give my age and say a telephone number."
+    notes: |
+      The numbers 1 to 10 are taught here as **kanji**: you will see them on every menu and price tag, and they are the easiest kanji there are.
+
+      Three numbers have two readings. Learn the first as your default:
+
+      - 4 = **よん** (also し)
+      - 7 = **なな** (also しち)
+      - 9 = **きゅう** (also く)
+
+      ## Beyond ten
+      Japanese numbers are pure arithmetic: say the tens, then the units.
+
+      | | | |
+      |---|---|---|
+      | 11 | じゅう + いち | じゅういち |
+      | 20 | に × じゅう | にじゅう |
+      | 35 | さん × じゅう + ご | さんじゅうご |
+      | 99 | | きゅうじゅうきゅう |
+
+      ## Telephone numbers
+      Read each digit on its own. Zero is **ゼロ** (or れい), and the hyphen is read **の**.
+
+      ## Age
+      Add **さい** to the number: にじゅうご**さい** = 25 years old. Three numbers squeeze: **いっさい** (1), **はっさい** (8), **じゅっさい** (10). Twenty has its own word, **はたち**. The polite question is **おいくつ です か**.
+
+      ## My family, your family
+      For your own parents say **ちち** and **はは**. For someone else's, the respectful words are おとうさん and おかあさん.
+    items:
+      - {id: ja1-11-k-ichi, type: glyph, l2: "一", rom: "ichi", l1: "one"}
+      - {id: ja1-11-k-ni, type: glyph, l2: "二", rom: "ni", l1: "two"}
+      - {id: ja1-11-k-san, type: glyph, l2: "三", rom: "san", l1: "three"}
+      - {id: ja1-11-k-yon, type: glyph, l2: "四", rom: "yon", l1: "four (よん; also し)", alt: ["shi"]}
+      - {id: ja1-11-k-go, type: glyph, l2: "五", rom: "go", l1: "five"}
+      - {id: ja1-11-k-roku, type: glyph, l2: "六", rom: "roku", l1: "six"}
+      - {id: ja1-11-k-nana, type: glyph, l2: "七", rom: "nana", l1: "seven (なな; also しち)", alt: ["shichi"]}
+      - {id: ja1-11-k-hachi, type: glyph, l2: "八", rom: "hachi", l1: "eight"}
+      - {id: ja1-11-k-kyuu, type: glyph, l2: "九", rom: "kyuu", l1: "nine (きゅう; also く)", alt: ["kyū", "ku"]}
+      - {id: ja1-11-k-juu, type: glyph, l2: "十", rom: "juu", l1: "ten", alt: ["jū"]}
+      - {id: ja1-11-zero, type: vocab, l2: "ゼロ", rom: "zero", l1: "zero", alt: ["れい", "rei", "零"], ex: "ゼロ、 いち、 に、 さん", ex_l1: "zero, one, two, three", note: "Also れい (零), especially in announcements."}
+      - {id: ja1-11-juuichi, type: vocab, l2: "じゅういち", rom: "juuichi", l1: "eleven (11)", alt: ["十一", "jūichi", "11"], note: "Ten plus one. Kanji: 十一."}
+      - {id: ja1-11-nijuu, type: vocab, l2: "にじゅう", rom: "nijuu", l1: "twenty (20)", alt: ["二十", "nijū", "20"], note: "Two tens. Kanji: 二十."}
+      - {id: ja1-11-sanjuugo, type: vocab, l2: "さんじゅうご", rom: "sanjuugo", l1: "thirty-five (35)", alt: ["三十五", "sanjūgo", "35"], note: "Three tens and five. Kanji: 三十五."}
+      - {id: ja1-11-kyuujuukyuu, type: vocab, l2: "きゅうじゅうきゅう", rom: "kyuujuukyuu", l1: "ninety-nine (99)", alt: ["九十九", "kyūjūkyū", "99"], note: "Nine tens and nine. Kanji: 九十九."}
+      - {id: ja1-11-bangou, type: vocab, l2: "ばんごう", rom: "bangou", l1: "number (a phone, room or seat number)", alt: ["番号", "bangō"], ex: "ばんごう は なんばん です か。", ex_l1: "What number is it?", note: "Kanji: 番号."}
+      - {id: ja1-11-denwabangou, type: vocab, l2: "でんわばんごう", rom: "denwabangou", l1: "telephone number", alt: ["電話番号", "denwabangō"], ex: "これ は がっこう の でんわばんごう です。", ex_l1: "This is the school's telephone number.", note: "Kanji: 電話番号."}
+      - {id: ja1-11-nanban, type: vocab, l2: "なんばん", rom: "nanban", l1: "what number", alt: ["何番"], ex: "がっこう の でんわ は なんばん です か。", ex_l1: "What is the school's phone number?", note: "Kanji: 何番."}
+      - {id: ja1-11-hatachi, type: vocab, l2: "はたち", rom: "hatachi", l1: "twenty years old (special word)", alt: ["二十歳"], ex: "わたし は はたち です。", ex_l1: "I am twenty.", note: "Twenty is the traditional age of adulthood. にじゅっさい is also heard. Kanji: 二十歳."}
+      - {id: ja1-11-nijuugosai, type: vocab, l2: "にじゅうごさい", rom: "nijuugosai", l1: "25 years old", alt: ["二十五歳", "nijūgosai", "25さい", "25歳", "二十五才"], ex: "ともだち は にじゅうごさい です。", ex_l1: "My friend is 25.", note: "Number + さい. Watch 1 いっさい, 8 はっさい, 10 じゅっさい. Kanji: 二十五歳."}
+      - {id: ja1-11-chichi, type: vocab, l2: "ちち", rom: "chichi", l1: "my father (humble word for your own)", alt: ["父"], ex: "ちち は いしゃ です。", ex_l1: "My father is a doctor.", note: "Someone else's father: おとうさん (お父さん). Kanji: 父."}
+      - {id: ja1-11-haha, type: vocab, l2: "はは", rom: "haha", l1: "my mother (humble word for your own)", alt: ["母"], ex: "はは は にほんじん です。", ex_l1: "My mother is Japanese.", note: "Someone else's mother: おかあさん (お母さん). Kanji: 母."}
+      - {id: ja1-11-oikutsu, type: phrase, l2: "おいくつ です か。", rom: "Oikutsu desu ka.", l1: "How old are you? (polite)", alt: ["なんさい です か。", "Nansai desu ka.", "何歳ですか"], note: "いくつ = how many; お makes it polite. Plainer: なんさい です か."}
+      - {id: ja1-11-denwa-nanban, type: phrase, l2: "でんわばんごう は なんばん です か。", rom: "Denwabangou wa nanban desu ka.", l1: "What is your telephone number?", alt: ["電話番号は何番ですか", "Denwabangou ha nanban desu ka.", "Denwabangō wa nanban desu ka.", "Denwabangō ha nanban desu ka."], note: "With kanji: 電話番号は何番ですか"}
+      - {id: ja1-11-mou-ichido, type: phrase, l2: "もう いちど おねがいします。", rom: "Mou ichido onegaishimasu.", l1: "Once more, please.", alt: ["もう一度お願いします", "Mō ichido onegaishimasu."], note: "もう = more, いちど = one time. おねがいします = 'please' when asking for something. With kanji: もう一度お願いします"}
+      - {id: ja1-11-yukkuri, type: phrase, l2: "ゆっくり おねがいします。", rom: "Yukkuri onegaishimasu.", l1: "Slowly, please.", alt: ["ゆっくりお願いします"], note: "ゆっくり = slowly. Small っ: yu-k-ku-ri. With kanji: ゆっくりお願いします"}
+      - {id: ja1-11-c1, type: cloze, text: "じゅう、 にじゅう、 ___、 よんじゅう", answer: "さんじゅう", l1: "ten, twenty, thirty, forty", alt: ["sanjuu", "三十", "sanjū", "30"], note: "Three tens."}
+      - {id: ja1-11-c2, type: cloze, text: "いち、 に、 さん、 ___、 ご", answer: "よん", l1: "one, two, three, four, five", alt: ["yon", "四", "し", "shi", "4"], note: "4 is よん or し."}
+      - {id: ja1-11-c3, type: cloze, text: "はは は ___ です。", answer: "ごじゅっさい", l1: "My mother is fifty years old.", alt: ["gojussai", "五十歳", "五十才", "ごじっさい", "gojissai", "50さい", "50歳"], note: "じゅう + さい squeezes to じゅっさい."}
+      - {id: ja1-11-c4, type: cloze, text: "でんわばんごう は ___ です か。", answer: "なんばん", l1: "What is the telephone number?", alt: ["nanban", "何番"], note: "なん (what) + ばん (number)."}
+      - id: ja1-11-d-reception
+        type: dialogue
+        title: "At the reception desk"
+        scene: "You are Smith, registering at a language school. The receptionist fills in your form."
+        you: B
+        lines:
+          - {who: A, l2: "おなまえ は？", rom: "Onamae wa?", l1: "Your name?"}
+          - {who: B, l2: "スミス です。", rom: "Sumisu desu.", l1: "It's Smith.", alt: ["わたし は スミス です。", "Watashi wa Sumisu desu.", "Watashi ha Sumisu desu."]}
+          - {who: A, l2: "スミスさん、 おいくつ です か。", rom: "Sumisu-san, oikutsu desu ka.", l1: "Mr. Smith, how old are you?"}
+          - {who: B, l2: "さんじゅうにさい です。", rom: "Sanjuunisai desu.", l1: "I'm 32.", alt: ["Sanjūnisai desu.", "わたし は さんじゅうにさい です。", "Watashi wa sanjuunisai desu.", "Watashi ha sanjuunisai desu.", "Watashi wa sanjūnisai desu.", "Watashi ha sanjūnisai desu.", "32さい です。", "三十二歳です"]}
+          - {who: A, l2: "でんわばんごう は なんばん です か。", rom: "Denwabangou wa nanban desu ka.", l1: "What is your telephone number?"}
+          - {who: B, l2: "よん ご の なな はち きゅう いち です。", rom: "Yon go no nana hachi kyuu ichi desu.", l1: "It's 45-7891.", alt: ["Yon go no nana hachi kyū ichi desu."]}
+          - {who: A, l2: "すみません、 もう いちど おねがいします。", rom: "Sumimasen, mou ichido onegaishimasu.", l1: "Sorry, once more, please."}
+          - {who: B, l2: "はい。 よん ご の、 なな はち きゅう いち です。", rom: "Hai. Yon go no, nana hachi kyuu ichi desu.", l1: "Sure. 45, 7891.", alt: ["Hai. Yon go no, nana hachi kyū ichi desu."]}
+
+  # ───────────────────────────────────────────────────────────────── 12
+  - id: ja1-12
+    title: "Shopping: prices and counting things"
+    goal: "I can ask a price, understand it, and ask for a number of things in a shop."
+    notes: |
+      ## Big numbers
+      | | | watch out |
+      |---|---|---|
+      | 100 | ひゃく | 300 さん**びゃく**, 600 ろっ**ぴゃく**, 800 はっ**ぴゃく** |
+      | 1,000 | せん | 3,000 さん**ぜん**, 8,000 はっ**せん** |
+      | 10,000 | いち**まん** | 50,000 = ご**まん** |
+
+      Japanese counts in ten-thousands, not thousands: 20,000 is "two man", にまん. Prices end in **えん** (yen): さんびゃく ごじゅう えん = ¥350.
+
+      ## この, その, あの
+      これ stands alone. Before a noun use **この / その / あの**: *これ は いくら です か*, but *この かばん は いくら です か*.
+
+      ## Asking for things
+      **[thing] を ください** = "[thing], please". **を** marks the thing acted on; it is read *o*. **と** joins two nouns: コーヒー **と** ケーキ.
+
+      ## Counters
+      You cannot put a bare number on a noun. For most objects use the native set:
+
+      **ひとつ, ふたつ, みっつ**, よっつ, いつつ, むっつ, ななつ, やっつ, ここのつ, とお
+
+      Some shapes have their own counter: flat things take **まい** (にまい), long thin things take **ほん** (いっぽん, にほん, さんぼん).
+
+      The number comes **after** を: りんご を **みっつ** ください.
+    items:
+      - {id: ja1-12-k-hyaku, type: glyph, l2: "百", rom: "hyaku", l1: "hundred"}
+      - {id: ja1-12-k-sen, type: glyph, l2: "千", rom: "sen", l1: "thousand"}
+      - {id: ja1-12-k-man, type: glyph, l2: "万", rom: "man", l1: "ten thousand"}
+      - {id: ja1-12-k-en, type: glyph, l2: "円", rom: "en", l1: "yen"}
+      - {id: ja1-12-ikura, type: vocab, l2: "いくら", rom: "ikura", l1: "how much (price)", ex: "この ほん は いくら です か。", ex_l1: "How much is this book?"}
+      - {id: ja1-12-mise, type: vocab, l2: "みせ", rom: "mise", l1: "shop / store", alt: ["店"], ex: "これ は たなかさん の みせ です。", ex_l1: "This is Mr. Tanaka's shop.", note: "Kanji: 店."}
+      - {id: ja1-12-kono, type: vocab, l2: "この", rom: "kono", l1: "this … (before a noun)", ex: "この かさ は わたし の です。", ex_l1: "This umbrella is mine."}
+      - {id: ja1-12-sono, type: vocab, l2: "その", rom: "sono", l1: "that … (before a noun; near you)", ex: "その ペン を ください。", ex_l1: "That pen, please."}
+      - {id: ja1-12-ano, type: vocab, l2: "あの", rom: "ano", l1: "that … over there (before a noun)", ex: "あの ひと は やまださん です。", ex_l1: "That person over there is Mr. Yamada."}
+      - {id: ja1-12-hitotsu, type: vocab, l2: "ひとつ", rom: "hitotsu", l1: "one (thing; general counter)", alt: ["一つ", "1つ"], ex: "ケーキ を ひとつ ください。", ex_l1: "One cake, please.", note: "Kanji: 一つ."}
+      - {id: ja1-12-futatsu, type: vocab, l2: "ふたつ", rom: "futatsu", l1: "two (things; general counter)", alt: ["二つ", "2つ"], ex: "りんご を ふたつ ください。", ex_l1: "Two apples, please.", note: "Kanji: 二つ."}
+      - {id: ja1-12-mittsu, type: vocab, l2: "みっつ", rom: "mittsu", l1: "three (things; general counter)", alt: ["三つ", "3つ"], ex: "トマト を みっつ ください。", ex_l1: "Three tomatoes, please.", note: "Kanji: 三つ."}
+      - {id: ja1-12-ikutsu, type: vocab, l2: "いくつ", rom: "ikutsu", l1: "how many (things)", alt: ["幾つ"], ex: "りんご は いくつ です か。", ex_l1: "How many apples?", note: "With お it also asks age: おいくつ です か."}
+      - {id: ja1-12-nimai, type: vocab, l2: "にまい", rom: "nimai", l1: "two (flat things: tickets, stamps, sheets, shirts)", alt: ["二枚", "2まい", "2枚"], ex: "きって を にまい ください。", ex_l1: "Two stamps, please.", note: "Kanji: 二枚."}
+      - {id: ja1-12-ippon, type: vocab, l2: "いっぽん", rom: "ippon", l1: "one (long thin thing: a bottle, a pen, an umbrella)", alt: ["一本", "1ぽん", "1本"], ex: "ビール を いっぽん ください。", ex_l1: "One (bottle of) beer, please.", note: "ほん changes with the number: いっぽん, にほん, さんぼん. Kanji: 一本."}
+      - {id: ja1-12-ringo, type: vocab, l2: "りんご", rom: "ringo", l1: "apple", alt: ["リンゴ", "林檎"], ex: "この りんご は ひゃく えん です。", ex_l1: "This apple is 100 yen.", note: "Usually in kana; also リンゴ."}
+      - {id: ja1-12-tamago, type: vocab, l2: "たまご", rom: "tamago", l1: "egg", alt: ["卵", "玉子"], ex: "たまご を ください。", ex_l1: "Eggs, please.", note: "Kanji: 卵."}
+      - {id: ja1-12-kitte, type: vocab, l2: "きって", rom: "kitte", l1: "postage stamp", alt: ["切手"], ex: "きって は いくら です か。", ex_l1: "How much are the stamps?", note: "Kanji: 切手."}
+      - {id: ja1-12-sanbyaku, type: vocab, l2: "さんびゃく", rom: "sanbyaku", l1: "three hundred (300)", alt: ["三百", "300"], note: "ひゃく becomes びゃく after さん. Kanji: 三百."}
+      - {id: ja1-12-happyaku, type: vocab, l2: "はっぴゃく", rom: "happyaku", l1: "eight hundred (800)", alt: ["八百", "800"], note: "はち + ひゃく squeezes to はっぴゃく. 600 is ろっぴゃく. Kanji: 八百."}
+      - {id: ja1-12-sanzen, type: vocab, l2: "さんぜん", rom: "sanzen", l1: "three thousand (3,000)", alt: ["三千", "3000"], note: "せん becomes ぜん after さん. Kanji: 三千."}
+      - {id: ja1-12-ichiman, type: vocab, l2: "いちまん", rom: "ichiman", l1: "ten thousand (10,000)", alt: ["一万", "10000"], note: "Always with いち: never just まん. Kanji: 一万."}
+      - {id: ja1-12-kore-ikura, type: phrase, l2: "これ は いくら です か。", rom: "Kore wa ikura desu ka.", l1: "How much is this?", alt: ["これはいくらですか", "Kore ha ikura desu ka."], note: "With kanji: これはいくらですか"}
+      - {id: ja1-12-kore-kudasai, type: phrase, l2: "これ を ください。", rom: "Kore o kudasai.", l1: "This one, please. / I'll take this.", alt: ["これをください", "Kore wo kudasai.", "これ ください。", "Kore kudasai."], note: "を is read o. ください = please give me. With kanji: これをください"}
+      - {id: ja1-12-ringo-mittsu, type: phrase, l2: "りんご を みっつ ください。", rom: "Ringo o mittsu kudasai.", l1: "Three apples, please.", alt: ["りんごを三つください", "Ringo wo mittsu kudasai.", "りんご を 3つ ください。"], note: "The number comes after を. With kanji: りんごを三つください"}
+      - {id: ja1-12-irasshaimase, type: phrase, l2: "いらっしゃいませ。", rom: "Irasshaimase.", l1: "Welcome! (said by staff as you enter a shop)", note: "You do not answer it; a nod is enough."}
+      - {id: ja1-12-kaado-de, type: phrase, l2: "カード で おねがいします。", rom: "Kaado de onegaishimasu.", l1: "By card, please. (paying)", alt: ["カードでお願いします", "Kādo de onegaishimasu."], note: "で = by means of. With kanji: カードでお願いします"}
+      - {id: ja1-12-c1, type: cloze, text: "この ケーキ は ___ です か。", answer: "いくら", l1: "How much is this cake?", alt: ["ikura"], note: "いくら asks a price."}
+      - {id: ja1-12-c2, type: cloze, text: "コーヒー ___ ください。", answer: "を", l1: "Coffee, please.", alt: ["o", "wo"], note: "を marks what you are asking for. Read o."}
+      - {id: ja1-12-c3, type: cloze, text: "___ かばん は いくら です か。", answer: "あの", l1: "How much is that bag over there?", alt: ["ano"], note: "Before a noun: この / その / あの, not これ / それ / あれ."}
+      - {id: ja1-12-c4, type: cloze, text: "たまご を ___ ください。", answer: "ふたつ", l1: "Two eggs, please.", alt: ["futatsu", "二つ", "2つ", "にこ", "niko", "二個", "2こ"], note: "General counter: ひとつ, ふたつ, みっつ …"}
+      - {id: ja1-12-c5, type: cloze, text: "コーヒー ___ ケーキ を ください。", answer: "と", l1: "Coffee and cake, please.", alt: ["to"], note: "と joins two nouns: A and B."}
+      - {id: ja1-12-c6, type: cloze, text: "きって を ___ ください。", answer: "にまい", l1: "Two stamps, please.", alt: ["nimai", "二枚", "2まい", "2枚"], note: "Flat things are counted with まい."}
+      - id: ja1-12-d-cake-shop
+        type: dialogue
+        title: "At the cake shop"
+        scene: "You are a customer at a cake shop counter."
+        you: B
+        lines:
+          - {who: A, l2: "いらっしゃいませ。", rom: "Irasshaimase.", l1: "Welcome!"}
+          - {who: B, l2: "すみません、 この ケーキ は いくら です か。", rom: "Sumimasen, kono keeki wa ikura desu ka.", l1: "Excuse me, how much is this cake?", alt: ["Sumimasen, kono keeki ha ikura desu ka.", "Sumimasen, kono kēki wa ikura desu ka.", "Sumimasen, kono kēki ha ikura desu ka.", "すみません、 これ は いくら です か。", "Sumimasen, kore wa ikura desu ka.", "Sumimasen, kore ha ikura desu ka."]}
+          - {who: A, l2: "さんびゃく ごじゅう えん です。", rom: "Sanbyaku gojuu en desu.", l1: "It's 350 yen."}
+          - {who: B, l2: "じゃ、 これ を ふたつ ください。", rom: "Ja, kore o futatsu kudasai.", l1: "Then two of these, please.", alt: ["Ja, kore wo futatsu kudasai.", "じゃ、 ふたつ ください。", "Ja, futatsu kudasai.", "じゃあ、 これ を ふたつ ください。", "Jaa, kore o futatsu kudasai.", "Jaa, kore wo futatsu kudasai.", "Jā, kore o futatsu kudasai.", "Jā, kore wo futatsu kudasai.", "では、 これ を ふたつ ください。", "Dewa, kore o futatsu kudasai.", "Dewa, kore wo futatsu kudasai.", "Deha, kore o futatsu kudasai.", "Deha, kore wo futatsu kudasai."]}
+          - {who: A, l2: "はい。 ぜんぶ で ななひゃく えん です。", rom: "Hai. Zenbu de nanahyaku en desu.", l1: "Certainly. That is 700 yen altogether."}
+          - {who: B, l2: "カード で おねがいします。", rom: "Kaado de onegaishimasu.", l1: "By card, please.", alt: ["Kādo de onegaishimasu."]}
+          - {who: A, l2: "はい、 ありがとう ございます。", rom: "Hai, arigatou gozaimasu.", l1: "Certainly, thank you."}
+
+  # ───────────────────────────────────────────────────────────────── 13
+  - id: ja1-13
+    title: "Telling the time"
+    goal: "I can ask and tell the time, say when a place opens and closes, and when I get up and go to bed."
+    notes: |
+      ## Hours
+      Number + **じ**: いちじ, にじ, さんじ … Three are irregular: **よじ** (4), **しちじ** (7), **くじ** (9).
+
+      - **はん** = half past: くじ はん = 9:30.
+      - **ごぜん** (a.m.) and **ごご** (p.m.) come **before** the time: ごご さんじ.
+
+      ## Minutes
+      ふん or ぷん, depending on the number:
+
+      | ふん | ぷん |
+      |---|---|
+      | 2 にふん, 5 ごふん, 7 ななふん, 9 きゅうふん | 1 いっぷん, 3 さんぷん, 4 よんぷん, 6 ろっぷん, 8 はっぷん, 10 じゅっぷん |
+
+      ## Particles of time
+      - **に** marks the point in time when something happens: しちじ **に** おきます.
+      - **から** = from, **まで** = until: くじ **から** さんじ **まで**.
+
+      ## Your first verbs
+      Polite verbs end in **ます**. This one form covers "I do", "I will do" and habits, for every person: おきます = I get up / she gets up / we will get up. Like です, the verb comes last.
+
+      The kanji 今 (now), 時 (o'clock) and 分 (minute) are on every clock and timetable.
+    items:
+      - {id: ja1-13-k-ji, type: glyph, l2: "時", rom: "ji", l1: "o'clock; time (じ after a number)"}
+      - {id: ja1-13-k-fun, type: glyph, l2: "分", rom: "fun", l1: "minute (ふん or ぷん after a number)", alt: ["pun"]}
+      - {id: ja1-13-k-ima, type: glyph, l2: "今", rom: "ima", l1: "now"}
+      - {id: ja1-13-nanji, type: vocab, l2: "なんじ", rom: "nanji", l1: "what time", alt: ["何時"], ex: "いま なんじ です か。", ex_l1: "What time is it now?", note: "Kanji: 何時."}
+      - {id: ja1-13-ichiji, type: vocab, l2: "いちじ", rom: "ichiji", l1: "one o'clock", alt: ["一時", "1じ", "1時"], ex: "いま いちじ です。", ex_l1: "It is one o'clock now.", note: "Kanji: 一時."}
+      - {id: ja1-13-yoji, type: vocab, l2: "よじ", rom: "yoji", l1: "four o'clock", alt: ["四時", "4じ", "4時"], ex: "テスト は よじ まで です。", ex_l1: "The test is until four.", note: "Irregular: not よんじ. Kanji: 四時."}
+      - {id: ja1-13-shichiji, type: vocab, l2: "しちじ", rom: "shichiji", l1: "seven o'clock", alt: ["七時", "7じ", "7時"], ex: "しちじ に おきます。", ex_l1: "I get up at seven.", note: "しち, not なな, with じ. Kanji: 七時."}
+      - {id: ja1-13-kuji, type: vocab, l2: "くじ", rom: "kuji", l1: "nine o'clock", alt: ["九時", "9じ", "9時"], ex: "がっこう は くじ から です。", ex_l1: "School starts at nine.", note: "Irregular: not きゅうじ. Kanji: 九時."}
+      - {id: ja1-13-han, type: vocab, l2: "はん", rom: "han", l1: "half past (said after the hour)", alt: ["半"], ex: "いま にじ はん です。", ex_l1: "It is half past two now.", note: "Kanji: 半."}
+      - {id: ja1-13-gozen, type: vocab, l2: "ごぜん", rom: "gozen", l1: "a.m. (said before the hour)", alt: ["午前"], ex: "ごぜん ろくじ です。", ex_l1: "It is 6 a.m.", note: "Kanji: 午前."}
+      - {id: ja1-13-gogo, type: vocab, l2: "ごご", rom: "gogo", l1: "p.m. (said before the hour)", alt: ["午後"], ex: "ごご はちじ です。", ex_l1: "It is 8 p.m.", note: "Kanji: 午後."}
+      - {id: ja1-13-gofun, type: vocab, l2: "ごふん", rom: "gofun", l1: "five minutes", alt: ["五分", "5ふん", "5分"], ex: "いま さんじ ごふん です。", ex_l1: "It is 3:05 now.", note: "Kanji: 五分."}
+      - {id: ja1-13-juppun, type: vocab, l2: "じゅっぷん", rom: "juppun", l1: "ten minutes", alt: ["十分", "じっぷん", "jippun", "10ぷん", "10分"], ex: "いま くじ じゅっぷん です。", ex_l1: "It is 9:10 now.", note: "Also じっぷん. Kanji: 十分."}
+      - {id: ja1-13-kara, type: vocab, l2: "から", rom: "kara", l1: "from (particle, after a time or a place)", ex: "テスト は じゅうじ から です。", ex_l1: "The test is from ten o'clock."}
+      - {id: ja1-13-made, type: vocab, l2: "まで", rom: "made", l1: "until / as far as (particle)", ex: "みせ は はちじ まで です。", ex_l1: "The shop is open until eight."}
+      - {id: ja1-13-hiru, type: vocab, l2: "ひる", rom: "hiru", l1: "noon / daytime", alt: ["昼"], ex: "いま ひる の じゅうにじ です。", ex_l1: "It is twelve noon now.", note: "Kanji: 昼."}
+      - {id: ja1-13-yoru, type: vocab, l2: "よる", rom: "yoru", l1: "night / evening", alt: ["夜"], ex: "よる じゅういちじ に ねます。", ex_l1: "I go to bed at eleven at night.", note: "Kanji: 夜."}
+      - {id: ja1-13-mainichi, type: vocab, l2: "まいにち", rom: "mainichi", l1: "every day", alt: ["毎日"], ex: "まいにち ろくじ に おきます。", ex_l1: "I get up at six every day.", note: "Kanji: 毎日."}
+      - {id: ja1-13-ginkou, type: vocab, l2: "ぎんこう", rom: "ginkou", l1: "bank", alt: ["銀行", "ginkō"], ex: "ぎんこう は さんじ まで です。", ex_l1: "The bank is open until three.", note: "Kanji: 銀行."}
+      - {id: ja1-13-okimasu, type: vocab, l2: "おきます", rom: "okimasu", l1: "to get up (polite ～ます form)", alt: ["起きます"], ex: "あさ しちじ に おきます。", ex_l1: "I get up at seven in the morning.", note: "Kanji: 起きます."}
+      - {id: ja1-13-nemasu, type: vocab, l2: "ねます", rom: "nemasu", l1: "to go to bed / to sleep (polite ～ます form)", alt: ["寝ます"], ex: "じゅうにじ に ねます。", ex_l1: "I go to bed at twelve.", note: "Kanji: 寝ます."}
+      - {id: ja1-13-ima-nanji, type: phrase, l2: "いま なんじ です か。", rom: "Ima nanji desu ka.", l1: "What time is it now?", alt: ["今何時ですか"], note: "With kanji: 今何時ですか"}
+      - {id: ja1-13-gogo-sanji-han, type: phrase, l2: "ごご さんじ はん です。", rom: "Gogo sanji han desu.", l1: "It is 3:30 p.m.", alt: ["午後三時半です", "午後3時半です"], note: "With kanji: 午後三時半です"}
+      - {id: ja1-13-ginkou-kuji-sanji, type: phrase, l2: "ぎんこう は くじ から さんじ まで です。", rom: "Ginkou wa kuji kara sanji made desu.", l1: "The bank is open from nine to three.", alt: ["銀行は九時から三時までです", "Ginkou ha kuji kara sanji made desu.", "Ginkō wa kuji kara sanji made desu.", "Ginkō ha kuji kara sanji made desu.", "銀行は9時から3時までです"], note: "With kanji: 銀行は九時から三時までです"}
+      - {id: ja1-13-nanji-ni-nemasu, type: phrase, l2: "なんじ に ねます か。", rom: "Nanji ni nemasu ka.", l1: "What time do you go to bed?", alt: ["何時に寝ますか"], note: "With kanji: 何時に寝ますか"}
+      - {id: ja1-13-c1, type: cloze, text: "まいにち ろくじ ___ おきます。", answer: "に", l1: "I get up at six every day.", alt: ["ni"], note: "に marks the point in time."}
+      - {id: ja1-13-c2, type: cloze, text: "みせ は じゅうじ ___ はちじ まで です。", answer: "から", l1: "The shop is open from ten until eight.", alt: ["kara"], note: "から = from."}
+      - {id: ja1-13-c3, type: cloze, text: "がっこう は くじ から さんじ ___ です。", answer: "まで", l1: "School is from nine until three.", alt: ["made"], note: "まで = until."}
+      - {id: ja1-13-c4, type: cloze, text: "いま よじ ___ です。", answer: "はん", l1: "It is half past four now.", alt: ["han", "半"], note: "はん (half) follows the hour."}
+      - {id: ja1-13-c5, type: cloze, text: "まいにち じゅうにじ に ___。", answer: "ねます", l1: "I go to bed at twelve every day.", alt: ["nemasu", "寝ます"], note: "The verb comes last."}
+      - {id: ja1-13-c6, type: cloze, text: "すみません、 いま ___ です か。", answer: "なんじ", l1: "Excuse me, what time is it now?", alt: ["nanji", "何時"], note: "なん (what) + じ (o'clock)."}
+      - id: ja1-13-d-time
+        type: dialogue
+        title: "What time is it?"
+        scene: "You are waiting outside a bank. A stranger asks you the time."
+        you: B
+        lines:
+          - {who: A, l2: "すみません、 いま なんじ です か。", rom: "Sumimasen, ima nanji desu ka.", l1: "Excuse me, what time is it now?"}
+          - {who: B, l2: "はちじ はん です。", rom: "Hachiji han desu.", l1: "It's half past eight.", alt: ["いま はちじ はん です。", "Ima hachiji han desu.", "8じ はん です。", "8時半です", "八時半です"]}
+          - {who: A, l2: "ありがとう ございます。 ぎんこう は なんじ から です か。", rom: "Arigatou gozaimasu. Ginkou wa nanji kara desu ka.", l1: "Thank you. What time does the bank open?"}
+          - {who: B, l2: "くじ から です。", rom: "Kuji kara desu.", l1: "From nine.", alt: ["ぎんこう は くじ から です。", "Ginkou wa kuji kara desu.", "Ginkou ha kuji kara desu.", "Ginkō wa kuji kara desu.", "Ginkō ha kuji kara desu.", "9じ から です。", "9時からです", "九時からです"]}
+          - {who: A, l2: "なんじ まで です か。", rom: "Nanji made desu ka.", l1: "Until what time is it open?"}
+          - {who: B, l2: "ごご さんじ まで です。", rom: "Gogo sanji made desu.", l1: "Until 3 p.m.", alt: ["さんじ まで です。", "Sanji made desu.", "ごご 3じ まで です。", "午後3時までです", "午後三時までです"]}
+          - {who: A, l2: "そう です か。 どうも ありがとう ございました。", rom: "Sou desu ka. Doumo arigatou gozaimashita.", l1: "I see. Thank you very much."}
+          - {who: B, l2: "いいえ、 どういたしまして。", rom: "Iie, douitashimashite.", l1: "Not at all, you're welcome.", alt: ["Iie, dōitashimashite.", "どういたしまして。", "Douitashimashite.", "Dōitashimashite."]}
+
+  # ───────────────────────────────────────────────────────────────── 14
+  - id: ja1-14
+    title: "The week and going places"
+    goal: "I can name the days of the week and say where I go, when, how and with whom."
+    notes: |
+      ## Days of the week
+      Each day is one kanji + **ようび**. The seven are the sun, the moon and five elements:
+
+      | 日 | 月 | 火 | 水 | 木 | 金 | 土 |
+      |---|---|---|---|---|---|---|
+      | にち | げつ | か | すい | もく | きん | ど |
+      | sun | moon | fire | water | wood | gold | earth |
+      | Sun | Mon | Tue | Wed | Thu | Fri | Sat |
+
+      ## Verbs of movement
+      **いきます** (go), **きます** (come), **かえります** (go back home). The particles around them do the work that prepositions do in English:
+
+      | particle | job | example |
+      |---|---|---|
+      | **へ** (read *e*) or **に** | destination | がっこう **へ** いきます |
+      | **で** | means of transport | バス **で** いきます |
+      | **と** | together with | ともだち **と** いきます |
+      | **に** | on a day, at a time | にちようび **に** いきます |
+
+      Everything goes before the verb, usually in the order *when – with whom – how – where to – verb*.
+
+      ## Negative
+      Change **ます** to **ません**: いきます → いき**ません** (I don't go / I won't go).
+
+      There is no separate future tense: あした いきます is "I will go tomorrow". Words like きょう and あした take no に.
+    items:
+      - {id: ja1-14-k-getsu, type: glyph, l2: "月", rom: "getsu", l1: "moon; month (げつ in げつようび; also がつ, つき)", alt: ["gatsu", "tsuki"]}
+      - {id: ja1-14-k-ka, type: glyph, l2: "火", rom: "ka", l1: "fire (か in かようび; ひ on its own)", alt: ["hi"]}
+      - {id: ja1-14-k-sui, type: glyph, l2: "水", rom: "sui", l1: "water (すい in すいようび; みず on its own)", alt: ["mizu"]}
+      - {id: ja1-14-k-moku, type: glyph, l2: "木", rom: "moku", l1: "tree; wood (もく in もくようび; き on its own)", alt: ["ki"]}
+      - {id: ja1-14-k-kin, type: glyph, l2: "金", rom: "kin", l1: "gold; money (きん in きんようび; かね = money)", alt: ["kane"]}
+      - {id: ja1-14-k-do, type: glyph, l2: "土", rom: "do", l1: "earth; soil (ど in どようび; つち on its own)", alt: ["tsuchi"]}
+      - {id: ja1-14-getsuyoubi, type: vocab, l2: "げつようび", rom: "getsuyoubi", l1: "Monday", alt: ["月曜日", "getsuyōbi"], ex: "げつようび に かいしゃ へ いきます。", ex_l1: "I go to the office on Monday.", note: "Kanji: 月曜日."}
+      - {id: ja1-14-kayoubi, type: vocab, l2: "かようび", rom: "kayoubi", l1: "Tuesday", alt: ["火曜日", "kayōbi"], ex: "テスト は かようび です。", ex_l1: "The test is on Tuesday.", note: "Kanji: 火曜日."}
+      - {id: ja1-14-suiyoubi, type: vocab, l2: "すいようび", rom: "suiyoubi", l1: "Wednesday", alt: ["水曜日", "suiyōbi"], ex: "すいようび は ごご いちじ まで です。", ex_l1: "On Wednesday it is until 1 p.m.", note: "Kanji: 水曜日."}
+      - {id: ja1-14-mokuyoubi, type: vocab, l2: "もくようび", rom: "mokuyoubi", l1: "Thursday", alt: ["木曜日", "mokuyōbi"], ex: "もくようび に ともだち が きます。", ex_l1: "A friend is coming on Thursday.", note: "Kanji: 木曜日."}
+      - {id: ja1-14-kin-youbi, type: vocab, l2: "きんようび", rom: "kin'youbi", l1: "Friday", alt: ["金曜日", "kin'yōbi"], ex: "きんようび の よる は うち へ かえりません。", ex_l1: "On Friday night I don't go home.", note: "Kanji: 金曜日."}
+      - {id: ja1-14-doyoubi, type: vocab, l2: "どようび", rom: "doyoubi", l1: "Saturday", alt: ["土曜日", "doyōbi"], ex: "どようび は がっこう へ いきません。", ex_l1: "I don't go to school on Saturday.", note: "Kanji: 土曜日."}
+      - {id: ja1-14-nichiyoubi, type: vocab, l2: "にちようび", rom: "nichiyoubi", l1: "Sunday", alt: ["日曜日", "nichiyōbi"], ex: "にちようび に としょかん へ いきます。", ex_l1: "I go to the library on Sunday.", note: "Kanji: 日曜日."}
+      - {id: ja1-14-nan-youbi, type: vocab, l2: "なんようび", rom: "nan'youbi", l1: "what day of the week", alt: ["何曜日", "nan'yōbi"], ex: "テスト は なんようび です か。", ex_l1: "What day is the test?", note: "Kanji: 何曜日."}
+      - {id: ja1-14-kyou, type: vocab, l2: "きょう", rom: "kyou", l1: "today", alt: ["今日", "kyō"], ex: "きょう は げつようび です。", ex_l1: "Today is Monday.", note: "Kanji: 今日."}
+      - {id: ja1-14-ashita, type: vocab, l2: "あした", rom: "ashita", l1: "tomorrow", alt: ["明日"], ex: "あした は やすみ です。", ex_l1: "Tomorrow is a day off.", note: "Kanji: 明日."}
+      - {id: ja1-14-itsu, type: vocab, l2: "いつ", rom: "itsu", l1: "when", ex: "いつ にほん へ いきます か。", ex_l1: "When are you going to Japan?"}
+      - {id: ja1-14-doko, type: vocab, l2: "どこ", rom: "doko", l1: "where", ex: "がっこう は どこ です か。", ex_l1: "Where is the school?"}
+      - {id: ja1-14-uchi, type: vocab, l2: "うち", rom: "uchi", l1: "home / my place", ex: "ろくじ に うち へ かえります。", ex_l1: "I go home at six.", note: "Your own home. Usually in kana; the kanji is 家, the same as いえ (a house)."}
+      - {id: ja1-14-ikimasu, type: vocab, l2: "いきます", rom: "ikimasu", l1: "to go (polite ～ます form)", alt: ["行きます"], ex: "まいにち かいしゃ へ いきます。", ex_l1: "I go to the office every day.", note: "Kanji: 行きます."}
+      - {id: ja1-14-kimasu, type: vocab, l2: "きます", rom: "kimasu", l1: "to come (polite ～ます form)", alt: ["来ます"], ex: "ともだち が うち へ きます。", ex_l1: "A friend is coming to my place.", note: "Kanji: 来ます."}
+      - {id: ja1-14-kaerimasu, type: vocab, l2: "かえります", rom: "kaerimasu", l1: "to go home / to return (polite ～ます form)", alt: ["帰ります"], ex: "でんしゃ で うち へ かえります。", ex_l1: "I go home by train.", note: "Kanji: 帰ります."}
+      - {id: ja1-14-chikatetsu, type: vocab, l2: "ちかてつ", rom: "chikatetsu", l1: "subway / underground", alt: ["地下鉄"], ex: "ちかてつ で いきます。", ex_l1: "I go by subway.", note: "Kanji: 地下鉄."}
+      - {id: ja1-14-shinkansen, type: vocab, l2: "しんかんせん", rom: "shinkansen", l1: "bullet train (Shinkansen)", alt: ["新幹線"], ex: "しんかんせん で きょうと へ いきます。", ex_l1: "I go to Kyoto by bullet train.", note: "Kanji: 新幹線."}
+      - {id: ja1-14-shuumatsu, type: vocab, l2: "しゅうまつ", rom: "shuumatsu", l1: "weekend", alt: ["週末", "shūmatsu"], ex: "しゅうまつ は うち へ かえります。", ex_l1: "At the weekend I go back home.", note: "Kanji: 週末."}
+      - {id: ja1-14-kyou-nanyoubi, type: phrase, l2: "きょう は なんようび です か。", rom: "Kyou wa nan'youbi desu ka.", l1: "What day of the week is it today?", alt: ["今日は何曜日ですか", "Kyou ha nan'youbi desu ka.", "Kyō wa nan'yōbi desu ka.", "Kyō ha nan'yōbi desu ka."], note: "With kanji: 今日は何曜日ですか"}
+      - {id: ja1-14-ashita-gakkou, type: phrase, l2: "あした がっこう へ いきます。", rom: "Ashita gakkou e ikimasu.", l1: "I am going to school tomorrow.", alt: ["明日学校へ行きます", "Ashita gakkou he ikimasu.", "Ashita gakkō e ikimasu.", "Ashita gakkō he ikimasu.", "あした がっこう に いきます。", "Ashita gakkou ni ikimasu.", "Ashita gakkō ni ikimasu.", "明日学校に行きます"], note: "へ is read e. に works too. With kanji: 明日学校へ行きます"}
+      - {id: ja1-14-doko-e, type: phrase, l2: "どこ へ いきます か。", rom: "Doko e ikimasu ka.", l1: "Where are you going?", alt: ["どこへ行きますか", "Doko he ikimasu ka.", "どこ に いきます か。", "Doko ni ikimasu ka.", "どこに行きますか"], note: "With kanji: どこへ行きますか"}
+      - {id: ja1-14-densha-de-kaerimasu, type: phrase, l2: "でんしゃ で かえります。", rom: "Densha de kaerimasu.", l1: "I go home by train.", alt: ["電車で帰ります", "でんしゃ で うち へ かえります。", "Densha de uchi e kaerimasu.", "Densha de uchi he kaerimasu.", "でんしゃ で うち に かえります。", "Densha de uchi ni kaerimasu."], note: "で marks the means of transport. With kanji: 電車で帰ります"}
+      - {id: ja1-14-c1, type: cloze, text: "ともだち ___ としょかん へ いきます。", answer: "と", l1: "I go to the library with a friend.", alt: ["to"], note: "と = together with."}
+      - {id: ja1-14-c2, type: cloze, text: "あした とうきょう ___ いきます。", answer: "へ", l1: "I am going to Tokyo tomorrow.", alt: ["e", "he", "に", "ni"], note: "へ (read e) marks the destination; に is also correct."}
+      - {id: ja1-14-c3, type: cloze, text: "バス ___ がっこう へ いきます。", answer: "で", l1: "I go to school by bus.", alt: ["de"], note: "で marks the means of transport."}
+      - {id: ja1-14-c4, type: cloze, text: "わたし は どようび に かいしゃ へ ___。", answer: "いきません", l1: "I do not go to the office on Saturday.", alt: ["ikimasen", "行きません"], note: "Negative: ます → ません."}
+      - {id: ja1-14-c5, type: cloze, text: "なんじ に うち へ ___ か。", answer: "かえります", l1: "What time do you go home?", alt: ["kaerimasu", "帰ります"], note: "かえります = to return to where you belong."}
+      - {id: ja1-14-c6, type: cloze, text: "しゅうまつ は ___ へ いきます か。", answer: "どこ", l1: "Where are you going at the weekend?", alt: ["doko"], note: "どこ = where."}
+      - id: ja1-14-d-weekend
+        type: dialogue
+        title: "Weekend plans"
+        scene: "You are Smith. On Friday a colleague, Tanaka, asks about your weekend."
+        you: B
+        lines:
+          - {who: A, l2: "スミスさん、 どようび は かいしゃ へ きます か。", rom: "Sumisu-san, doyoubi wa kaisha e kimasu ka.", l1: "Mr. Smith, are you coming to the office on Saturday?"}
+          - {who: B, l2: "いいえ、 きません。", rom: "Iie, kimasen.", l1: "No, I'm not.", alt: ["いいえ、 かいしゃ へ きません。", "Iie, kaisha e kimasen.", "Iie, kaisha he kimasen.", "いいえ、 どようび は きません。", "Iie, doyoubi wa kimasen.", "Iie, doyoubi ha kimasen.", "Iie, doyōbi wa kimasen.", "Iie, doyōbi ha kimasen."]}
+          - {who: A, l2: "じゃ、 どこ へ いきます か。", rom: "Ja, doko e ikimasu ka.", l1: "So where are you going?"}
+          - {who: B, l2: "ともだち と きょうと へ いきます。", rom: "Tomodachi to Kyouto e ikimasu.", l1: "I'm going to Kyoto with a friend.", alt: ["Tomodachi to Kyouto he ikimasu.", "Tomodachi to Kyōto e ikimasu.", "Tomodachi to Kyōto he ikimasu.", "ともだち と きょうと に いきます。", "Tomodachi to Kyouto ni ikimasu.", "Tomodachi to Kyōto ni ikimasu."]}
+          - {who: A, l2: "いい です ね。 くるま で いきます か。", rom: "Ii desu ne. Kuruma de ikimasu ka.", l1: "That's nice. Are you going by car?"}
+          - {who: B, l2: "いいえ、 しんかんせん で いきます。", rom: "Iie, shinkansen de ikimasu.", l1: "No, we're going by bullet train."}
+          - {who: A, l2: "いつ かえります か。", rom: "Itsu kaerimasu ka.", l1: "When are you coming back?"}
+          - {who: B, l2: "にちようび に かえります。", rom: "Nichiyoubi ni kaerimasu.", l1: "I'm coming back on Sunday.", alt: ["Nichiyōbi ni kaerimasu.", "にちようび かえります。", "Nichiyoubi kaerimasu.", "Nichiyōbi kaerimasu.", "にちようび の よる かえります。", "Nichiyoubi no yoru kaerimasu.", "Nichiyōbi no yoru kaerimasu."]}
+
+  # ───────────────────────────────────────────────────────────────── 15
+  - id: ja1-15
+    title: "Daily life: を and で"
+    goal: "I can say what I eat, drink, read, watch and study, and where I do it."
+    notes: |
+      Most verbs act on something. That something is marked with **を** (written を, read *o*):
+
+      **[thing] を [verb]** — コーヒー **を** のみます。 I drink coffee.
+
+      The place where an action happens is marked with **で**:
+
+      **[place] で [thing] を [verb]** — うち **で** ほん **を** よみます。 I read books at home.
+
+      Do not confuse the place particles: you *go* **へ / に** a place, but you *do things* **で** a place.
+
+      ## します
+      **します** means "to do", and it turns many nouns into verbs: べんきょう (study) → **べんきょう します** (to study); テニス を します (to play tennis).
+
+      ## How often
+      - **いつも** — always
+      - **ときどき** — sometimes
+      - **あまり** + negative — not much: テレビ は **あまり** みません。
+
+      ## At the table
+      Before eating say **いただきます**; after the meal, **ごちそうさま でした**. Both are said even when you eat alone.
+
+      ## Kanji
+      学, 生 and 先 build three words you already know: 学生 **がくせい** (student), 先生 **せんせい** (teacher, "born before") and 学校 **がっこう** (school).
+    items:
+      - {id: ja1-15-k-gaku, type: glyph, l2: "学", rom: "gaku", l1: "study; learning (がく in がくせい; がっ in がっこう)"}
+      - {id: ja1-15-k-sei, type: glyph, l2: "生", rom: "sei", l1: "life; birth (せい in がくせい and せんせい)"}
+      - {id: ja1-15-k-sen, type: glyph, l2: "先", rom: "sen", l1: "ahead; before (せん in せんせい)"}
+      - {id: ja1-15-tabemasu, type: vocab, l2: "たべます", rom: "tabemasu", l1: "to eat (polite ～ます form)", alt: ["食べます"], ex: "あさ パン を たべます。", ex_l1: "I eat bread in the morning.", note: "Kanji: 食べます."}
+      - {id: ja1-15-nomimasu, type: vocab, l2: "のみます", rom: "nomimasu", l1: "to drink (polite ～ます form)", alt: ["飲みます"], ex: "まいにち おちゃ を のみます。", ex_l1: "I drink tea every day.", note: "Kanji: 飲みます."}
+      - {id: ja1-15-mimasu, type: vocab, l2: "みます", rom: "mimasu", l1: "to see / to watch (polite ～ます form)", alt: ["見ます"], ex: "よる テレビ を みます。", ex_l1: "I watch television in the evening.", note: "Kanji: 見ます."}
+      - {id: ja1-15-yomimasu, type: vocab, l2: "よみます", rom: "yomimasu", l1: "to read (polite ～ます form)", alt: ["読みます"], ex: "でんしゃ で しんぶん を よみます。", ex_l1: "I read the newspaper on the train.", note: "Kanji: 読みます."}
+      - {id: ja1-15-kakimasu, type: vocab, l2: "かきます", rom: "kakimasu", l1: "to write (polite ～ます form)", alt: ["書きます"], ex: "ノート に なまえ を かきます。", ex_l1: "I write my name in the notebook.", note: "Kanji: 書きます."}
+      - {id: ja1-15-kikimasu, type: vocab, l2: "ききます", rom: "kikimasu", l1: "to listen / to hear (polite ～ます form)", alt: ["聞きます"], ex: "くるま で おんがく を ききます。", ex_l1: "I listen to music in the car.", note: "Also 'to ask'. Kanji: 聞きます."}
+      - {id: ja1-15-kaimasu, type: vocab, l2: "かいます", rom: "kaimasu", l1: "to buy (polite ～ます form)", alt: ["買います"], ex: "コンビニ で みず を かいます。", ex_l1: "I buy water at the convenience store.", note: "Kanji: 買います."}
+      - {id: ja1-15-shimasu, type: vocab, l2: "します", rom: "shimasu", l1: "to do (polite ～ます form)", ex: "にちようび は なに を します か。", ex_l1: "What do you do on Sundays?", note: "Irregular verb. Makes verbs out of nouns: べんきょう します."}
+      - {id: ja1-15-benkyou-shimasu, type: vocab, l2: "べんきょう します", rom: "benkyou shimasu", l1: "to study (polite ～ます form)", alt: ["勉強します", "benkyō shimasu"], ex: "としょかん で べんきょう します。", ex_l1: "I study at the library.", note: "With an object: にほんご を べんきょう します. Kanji: 勉強します."}
+      - {id: ja1-15-gohan, type: vocab, l2: "ごはん", rom: "gohan", l1: "a meal / cooked rice", alt: ["ご飯"], ex: "うち で ごはん を たべます。", ex_l1: "I eat (my meals) at home.", note: "Kanji: ご飯."}
+      - {id: ja1-15-asagohan, type: vocab, l2: "あさごはん", rom: "asagohan", l1: "breakfast", alt: ["朝ご飯", "朝ごはん", "朝御飯"], ex: "しちじ に あさごはん を たべます。", ex_l1: "I eat breakfast at seven.", note: "Kanji: 朝ご飯."}
+      - {id: ja1-15-hirugohan, type: vocab, l2: "ひるごはん", rom: "hirugohan", l1: "lunch", alt: ["昼ご飯", "昼ごはん", "昼御飯"], ex: "かいしゃ で ひるごはん を たべます。", ex_l1: "I eat lunch at the office.", note: "Kanji: 昼ご飯."}
+      - {id: ja1-15-eiga, type: vocab, l2: "えいが", rom: "eiga", l1: "movie / film", alt: ["映画"], ex: "ともだち と えいが を みます。", ex_l1: "I watch a movie with a friend.", note: "Kanji: 映画."}
+      - {id: ja1-15-ongaku, type: vocab, l2: "おんがく", rom: "ongaku", l1: "music", alt: ["音楽"], ex: "まいにち おんがく を ききます。", ex_l1: "I listen to music every day.", note: "Kanji: 音楽."}
+      - {id: ja1-15-itsumo, type: vocab, l2: "いつも", rom: "itsumo", l1: "always", ex: "いつも バス で いきます。", ex_l1: "I always go by bus."}
+      - {id: ja1-15-tokidoki, type: vocab, l2: "ときどき", rom: "tokidoki", l1: "sometimes", alt: ["時々"], ex: "ときどき レストラン で たべます。", ex_l1: "I sometimes eat at a restaurant.", note: "Kanji: 時々."}
+      - {id: ja1-15-sorekara, type: vocab, l2: "それから", rom: "sorekara", l1: "and then / after that", ex: "ごはん を たべます。 それから テレビ を みます。", ex_l1: "I eat. And then I watch TV."}
+      - {id: ja1-15-maiasa-koohii, type: phrase, l2: "まいあさ コーヒー を のみます。", rom: "Maiasa koohii o nomimasu.", l1: "I drink coffee every morning.", alt: ["毎朝コーヒーを飲みます", "Maiasa koohii wo nomimasu.", "Maiasa kōhī o nomimasu.", "Maiasa kōhī wo nomimasu."], note: "まいあさ = every morning (まい 'every' + あさ). With kanji: 毎朝コーヒーを飲みます"}
+      - {id: ja1-15-uchi-de-nihongo, type: phrase, l2: "うち で にほんご を べんきょう します。", rom: "Uchi de Nihongo o benkyou shimasu.", l1: "I study Japanese at home.", alt: ["うちで日本語を勉強します", "Uchi de Nihongo wo benkyou shimasu.", "Uchi de Nihongo o benkyō shimasu.", "Uchi de Nihongo wo benkyō shimasu.", "いえ で にほんご を べんきょう します。", "Ie de Nihongo o benkyou shimasu.", "Ie de Nihongo wo benkyou shimasu.", "Ie de Nihongo o benkyō shimasu.", "Ie de Nihongo wo benkyō shimasu.", "家で日本語を勉強します"], note: "With kanji: うちで日本語を勉強します"}
+      - {id: ja1-15-nani-o-tabemasu, type: phrase, l2: "なに を たべます か。", rom: "Nani o tabemasu ka.", l1: "What will you eat? / What do you eat?", alt: ["何を食べますか", "Nani wo tabemasu ka."], note: "With kanji: 何を食べますか"}
+      - {id: ja1-15-terebi-amari, type: phrase, l2: "テレビ は あまり みません。", rom: "Terebi wa amari mimasen.", l1: "I don't watch TV much.", alt: ["テレビはあまり見ません", "Terebi ha amari mimasen.", "テレビ を あまり みません。", "Terebi o amari mimasen.", "Terebi wo amari mimasen.", "あまり テレビ を みません。", "Amari terebi o mimasen.", "Amari terebi wo mimasen.", "あまり テレビ は みません。", "Amari terebi wa mimasen.", "Amari terebi ha mimasen."], note: "あまり + negative = not much. は here sets TV against other things. With kanji: テレビはあまり見ません"}
+      - {id: ja1-15-itadakimasu, type: phrase, l2: "いただきます。", rom: "Itadakimasu.", l1: "(said before eating: 'I gratefully receive')", alt: ["頂きます"], note: "Said by everyone at the table before the first bite. Usually in kana. With kanji: 頂きます"}
+      - {id: ja1-15-gochisousama, type: phrase, l2: "ごちそうさま でした。", rom: "Gochisousama deshita.", l1: "(said after a meal: 'thank you for the food')", alt: ["ご馳走様でした", "Gochisōsama deshita.", "ごちそうさま。", "Gochisousama.", "Gochisōsama."], note: "Said to the cook or the restaurant staff, or simply at the end of a meal. With kanji: ご馳走様でした"}
+      - {id: ja1-15-c1, type: cloze, text: "あさごはん ___ たべます。", answer: "を", l1: "I eat breakfast.", alt: ["o", "wo"], note: "を marks the thing the verb acts on."}
+      - {id: ja1-15-c2, type: cloze, text: "レストラン ___ ごはん を たべます。", answer: "で", l1: "I eat at a restaurant.", alt: ["de"], note: "で marks the place where an action happens."}
+      - {id: ja1-15-c3, type: cloze, text: "ともだち と えいが を ___。", answer: "みます", l1: "I watch a movie with a friend.", alt: ["mimasu", "見ます"], note: "みます = to see, to watch."}
+      - {id: ja1-15-c4, type: cloze, text: "コンビニ で ジュース を ___。", answer: "かいます", l1: "I buy juice at the convenience store.", alt: ["kaimasu", "買います"], note: "かいます = to buy."}
+      - {id: ja1-15-c5, type: cloze, text: "まいにち おんがく を ___。", answer: "ききます", l1: "I listen to music every day.", alt: ["kikimasu", "聞きます", "聴きます"], note: "ききます = to listen."}
+      - {id: ja1-15-c6, type: cloze, text: "___ を のみます か。", answer: "なに", l1: "What will you drink?", alt: ["nani", "何"], note: "なに + を: 'what' as the object."}
+      - id: ja1-15-d-lunch
+        type: dialogue
+        title: "Talking about your day"
+        scene: "You are Smith. Over coffee, your colleague Yamada asks about your daily routine."
+        you: B
+        lines:
+          - {who: A, l2: "スミスさん、 ひるごはん は どこ で たべます か。", rom: "Sumisu-san, hirugohan wa doko de tabemasu ka.", l1: "Mr. Smith, where do you eat lunch?"}
+          - {who: B, l2: "いつも かいしゃ で たべます。", rom: "Itsumo kaisha de tabemasu.", l1: "I always eat at the office.", alt: ["いつも かいしゃ で ひるごはん を たべます。", "Itsumo kaisha de hirugohan o tabemasu.", "Itsumo kaisha de hirugohan wo tabemasu.", "かいしゃ で たべます。", "Kaisha de tabemasu."]}
+          - {who: A, l2: "なに を たべます か。", rom: "Nani o tabemasu ka.", l1: "What do you eat?"}
+          - {who: B, l2: "パン を たべます。 それから コーヒー を のみます。", rom: "Pan o tabemasu. Sorekara koohii o nomimasu.", l1: "I eat bread. And then I drink coffee.", alt: ["Pan wo tabemasu. Sorekara koohii wo nomimasu.", "Pan o tabemasu. Sorekara kōhī o nomimasu.", "Pan wo tabemasu. Sorekara kōhī wo nomimasu."]}
+          - {who: A, l2: "よる は なに を します か。", rom: "Yoru wa nani o shimasu ka.", l1: "What do you do in the evening?"}
+          - {who: B, l2: "うち で にほんご を べんきょう します。", rom: "Uchi de Nihongo o benkyou shimasu.", l1: "I study Japanese at home.", alt: ["Uchi de Nihongo wo benkyou shimasu.", "Uchi de Nihongo o benkyō shimasu.", "Uchi de Nihongo wo benkyō shimasu.", "いえ で にほんご を べんきょう します。", "Ie de Nihongo o benkyou shimasu.", "Ie de Nihongo wo benkyou shimasu.", "Ie de Nihongo o benkyō shimasu.", "Ie de Nihongo wo benkyō shimasu."]}
+          - {who: A, l2: "すごい です ね。", rom: "Sugoi desu ne.", l1: "That's impressive."}
+
+  # ───────────────────────────────────────────────────────────────── 16
+  - id: ja1-16
+    title: "Yesterday, and let's …"
+    goal: "I can say what I did and did not do, invite someone, and accept or decline politely."
+    notes: |
+      ## The four polite endings
+      | | present / future | past |
+      |---|---|---|
+      | positive | たべ**ます** | たべ**ました** |
+      | negative | たべ**ません** | たべ**ませんでした** |
+
+      Every verb follows this table; only the ending changes. です has its own past: **でした**.
+
+      Past time words such as **きのう**, **せんしゅう** and **きょねん** take no に.
+
+      ## Nothing, nowhere
+      A question word + **も** + a negative verb: **なに も** たべませんでした (I ate nothing), **どこ も** いきませんでした (I went nowhere).
+
+      ## Inviting
+      - **～ません か** — "won't you …?", the polite way to invite: いっしょ に たべ**ません か**。
+      - **～ましょう** — "let's …": いき**ましょう**。
+
+      To accept: **ええ、いい です ね。** To decline, do not say a flat いいえ. Trail off instead: **すみません、ちょっと …** ("sorry, it's a bit …").
+
+      ## Meeting people
+      あいます takes **に** (or と) for the person you meet: ともだち **に** あいます.
+
+      ## Kanji
+      年 is "year": きょ**ねん** 去年 (last year), らい**ねん** 来年 (next year). In ことし 今年 (this year) it is read とし.
+    items:
+      - {id: ja1-16-k-nen, type: glyph, l2: "年", rom: "nen", l1: "year (ねん; とし in ことし)", alt: ["toshi"]}
+      - {id: ja1-16-kinou, type: vocab, l2: "きのう", rom: "kinou", l1: "yesterday", alt: ["昨日", "kinō"], ex: "きのう は にちようび でした。", ex_l1: "Yesterday was Sunday.", note: "Kanji: 昨日."}
+      - {id: ja1-16-kesa, type: vocab, l2: "けさ", rom: "kesa", l1: "this morning", alt: ["今朝"], ex: "けさ ろくじ に おきました。", ex_l1: "I got up at six this morning.", note: "Kanji: 今朝."}
+      - {id: ja1-16-senshuu, type: vocab, l2: "せんしゅう", rom: "senshuu", l1: "last week", alt: ["先週", "senshū"], ex: "せんしゅう きょうと へ いきました。", ex_l1: "I went to Kyoto last week.", note: "Kanji: 先週."}
+      - {id: ja1-16-raishuu, type: vocab, l2: "らいしゅう", rom: "raishuu", l1: "next week", alt: ["来週", "raishū"], ex: "らいしゅう テスト を します。", ex_l1: "We will have a test next week.", note: "Kanji: 来週."}
+      - {id: ja1-16-kyonen, type: vocab, l2: "きょねん", rom: "kyonen", l1: "last year", alt: ["去年"], ex: "きょねん にほん へ きました。", ex_l1: "I came to Japan last year.", note: "Kanji: 去年."}
+      - {id: ja1-16-kotoshi, type: vocab, l2: "ことし", rom: "kotoshi", l1: "this year", alt: ["今年"], ex: "ことし だいがく へ いきます。", ex_l1: "I am going to university this year.", note: "Kanji: 今年."}
+      - {id: ja1-16-aimasu, type: vocab, l2: "あいます", rom: "aimasu", l1: "to meet (a person; polite ～ます form)", alt: ["会います"], ex: "あした ともだち に あいます。", ex_l1: "I am meeting a friend tomorrow.", note: "The person met takes に (or と). Kanji: 会います."}
+      - {id: ja1-16-yasumimasu, type: vocab, l2: "やすみます", rom: "yasumimasu", l1: "to rest / to take time off (polite ～ます form)", alt: ["休みます"], ex: "きのう かいしゃ を やすみました。", ex_l1: "I took yesterday off work.", note: "Kanji: 休みます."}
+      - {id: ja1-16-yasumi, type: vocab, l2: "やすみ", rom: "yasumi", l1: "a day off / holiday / break", alt: ["休み"], ex: "あした は やすみ です。", ex_l1: "Tomorrow is a day off.", note: "Kanji: 休み."}
+      - {id: ja1-16-issho-ni, type: vocab, l2: "いっしょ に", rom: "issho ni", l1: "together", alt: ["一緒に"], ex: "いっしょ に かえりましょう。", ex_l1: "Let's go home together.", note: "Kanji: 一緒に."}
+      - {id: ja1-16-kouen, type: vocab, l2: "こうえん", rom: "kouen", l1: "park", alt: ["公園", "kōen"], ex: "こうえん で ひるごはん を たべました。", ex_l1: "I ate lunch in the park.", note: "Kanji: 公園."}
+      - {id: ja1-16-tenisu, type: vocab, l2: "テニス", rom: "tenisu", l1: "tennis", ex: "どようび に テニス を します。", ex_l1: "I play tennis on Saturdays.", note: "Sports and games take を します."}
+      - {id: ja1-16-deshita, type: vocab, l2: "でした", rom: "deshita", l1: "was / were (polite; past of です)", ex: "きのう は やすみ でした。", ex_l1: "Yesterday was a day off."}
+      - {id: ja1-16-kinou-eiga, type: phrase, l2: "きのう えいが を みました。", rom: "Kinou eiga o mimashita.", l1: "I watched a movie yesterday.", alt: ["昨日映画を見ました", "Kinou eiga wo mimashita.", "Kinō eiga o mimashita.", "Kinō eiga wo mimashita."], note: "With kanji: 昨日映画を見ました"}
+      - {id: ja1-16-kesa-nanimo, type: phrase, l2: "けさ は なに も たべませんでした。", rom: "Kesa wa nani mo tabemasendeshita.", l1: "I didn't eat anything this morning.", alt: ["今朝は何も食べませんでした", "Kesa ha nani mo tabemasendeshita.", "けさ なに も たべませんでした。", "Kesa nani mo tabemasendeshita."], note: "なに も + negative = nothing. With kanji: 今朝は何も食べませんでした"}
+      - {id: ja1-16-issho-ni-ikimashou, type: phrase, l2: "いっしょ に いきましょう。", rom: "Issho ni ikimashou.", l1: "Let's go together.", alt: ["一緒に行きましょう", "Issho ni ikimashō."], note: "With kanji: 一緒に行きましょう"}
+      - {id: ja1-16-tabemasen-ka, type: phrase, l2: "いっしょ に ひるごはん を たべません か。", rom: "Issho ni hirugohan o tabemasen ka.", l1: "Won't you have lunch with me? (invitation)", alt: ["一緒に昼ご飯を食べませんか", "Issho ni hirugohan wo tabemasen ka."], note: "～ません か is softer and more polite than ～ましょう. With kanji: 一緒に昼ご飯を食べませんか"}
+      - {id: ja1-16-ee-ii-desu-ne, type: phrase, l2: "ええ、 いい です ね。", rom: "Ee, ii desu ne.", l1: "Yes, that sounds good. (accepting an invitation)", alt: ["Ē, ii desu ne.", "はい、 いい です ね。", "Hai, ii desu ne.", "いい です ね。", "Ii desu ne."], note: "ええ is a softer, conversational はい."}
+      - {id: ja1-16-chotto, type: phrase, l2: "すみません、 ちょっと… 。", rom: "Sumimasen, chotto… .", l1: "Sorry, it's a bit … (politely declining)", alt: ["すみません、 ちょっと。", "Sumimasen, chotto.", "すみません。 ちょっと… 。", "Sumimasen. Chotto… ."], note: "Leaving the sentence unfinished is the polite refusal; the listener understands."}
+      - {id: ja1-16-shuumatsu-nani, type: phrase, l2: "しゅうまつ は なに を しました か。", rom: "Shuumatsu wa nani o shimashita ka.", l1: "What did you do at the weekend?", alt: ["週末は何をしましたか", "Shuumatsu wa nani wo shimashita ka.", "Shuumatsu ha nani o shimashita ka.", "Shuumatsu ha nani wo shimashita ka.", "Shūmatsu wa nani o shimashita ka.", "Shūmatsu wa nani wo shimashita ka.", "Shūmatsu ha nani o shimashita ka.", "Shūmatsu ha nani wo shimashita ka.", "しゅうまつ なに を しました か。", "Shuumatsu nani o shimashita ka.", "Shuumatsu nani wo shimashita ka.", "Shūmatsu nani o shimashita ka.", "Shūmatsu nani wo shimashita ka."], note: "With kanji: 週末は何をしましたか"}
+      - {id: ja1-16-c1, type: cloze, text: "きのう としょかん で にほんご を べんきょう ___。", answer: "しました", l1: "I studied Japanese at the library yesterday.", alt: ["shimashita"], note: "Past: ます → ました."}
+      - {id: ja1-16-c2, type: cloze, text: "せんしゅう は かいしゃ へ ___。", answer: "いきませんでした", l1: "I did not go to the office last week.", alt: ["ikimasendeshita", "行きませんでした"], note: "Negative past: ません → ませんでした."}
+      - {id: ja1-16-c3, type: cloze, text: "きのう ともだち ___ あいました。", answer: "に", l1: "I met a friend yesterday.", alt: ["ni", "と", "to"], note: "あいます takes に (or と) for the person."}
+      - {id: ja1-16-c4, type: cloze, text: "いっしょ に コーヒー を ___ か。", answer: "のみません", l1: "Won't you have a coffee with me?", alt: ["nomimasen", "飲みません"], note: "Invitation: ～ません か."}
+      - {id: ja1-16-c5, type: cloze, text: "あした いっしょ に テニス を ___。", answer: "しましょう", l1: "Let's play tennis together tomorrow.", alt: ["shimashou", "shimashō"], note: "Let's: ます → ましょう."}
+      - {id: ja1-16-c6, type: cloze, text: "きのう は げつようび ___。", answer: "でした", l1: "Yesterday was Monday.", alt: ["deshita"], note: "です → でした in the past."}
+      - id: ja1-16-d-invite
+        type: dialogue
+        title: "An invitation"
+        scene: "You are Smith. On Monday morning your colleague Tanaka asks about your weekend."
+        you: B
+        lines:
+          - {who: A, l2: "スミスさん、 しゅうまつ は なに を しました か。", rom: "Sumisu-san, shuumatsu wa nani o shimashita ka.", l1: "Mr. Smith, what did you do at the weekend?"}
+          - {who: B, l2: "ともだち と こうえん で テニス を しました。", rom: "Tomodachi to kouen de tenisu o shimashita.", l1: "I played tennis in the park with a friend.", alt: ["Tomodachi to kouen de tenisu wo shimashita.", "Tomodachi to kōen de tenisu o shimashita.", "Tomodachi to kōen de tenisu wo shimashita.", "こうえん で ともだち と テニス を しました。", "Kouen de tomodachi to tenisu o shimashita.", "Kouen de tomodachi to tenisu wo shimashita.", "Kōen de tomodachi to tenisu o shimashita.", "Kōen de tomodachi to tenisu wo shimashita."]}
+          - {who: A, l2: "いい です ね。 わたし は どこ も いきませんでした。", rom: "Ii desu ne. Watashi wa doko mo ikimasendeshita.", l1: "How nice. I didn't go anywhere."}
+          - {who: B, l2: "じゃ、 らいしゅう いっしょ に テニス を しません か。", rom: "Ja, raishuu issho ni tenisu o shimasen ka.", l1: "Then won't you play tennis with me next week?", alt: ["Ja, raishuu issho ni tenisu wo shimasen ka.", "Ja, raishū issho ni tenisu o shimasen ka.", "Ja, raishū issho ni tenisu wo shimasen ka.", "じゃあ、 らいしゅう いっしょ に テニス を しません か。", "Jaa, raishuu issho ni tenisu o shimasen ka.", "Jaa, raishuu issho ni tenisu wo shimasen ka.", "Jā, raishū issho ni tenisu o shimasen ka.", "Jā, raishū issho ni tenisu wo shimasen ka.", "では、 らいしゅう いっしょ に テニス を しません か。", "Dewa, raishuu issho ni tenisu o shimasen ka.", "Dewa, raishuu issho ni tenisu wo shimasen ka.", "Deha, raishuu issho ni tenisu o shimasen ka.", "Deha, raishuu issho ni tenisu wo shimasen ka.", "Dewa, raishū issho ni tenisu o shimasen ka.", "Dewa, raishū issho ni tenisu wo shimasen ka.", "Deha, raishū issho ni tenisu o shimasen ka.", "Deha, raishū issho ni tenisu wo shimasen ka."]}
+          - {who: A, l2: "ええ、 いい です ね。 なんようび に します か。", rom: "Ee, ii desu ne. Nan'youbi ni shimasu ka.", l1: "Yes, I'd like that. What day shall we make it?"}
+          - {who: B, l2: "どようび は どう です か。", rom: "Doyoubi wa dou desu ka.", l1: "How about Saturday?", alt: ["Doyoubi ha dou desu ka.", "Doyōbi wa dō desu ka.", "Doyōbi ha dō desu ka."]}
+          - {who: A, l2: "いい です よ。 じゃ、 どようび に あいましょう。", rom: "Ii desu yo. Ja, doyoubi ni aimashou.", l1: "That's fine. See you on Saturday, then."}
+          - {who: B, l2: "はい、 たのしみ です。", rom: "Hai, tanoshimi desu.", l1: "Yes, I'm looking forward to it.", alt: ["ええ、 たのしみ です。", "Ee, tanoshimi desu.", "Ē, tanoshimi desu.", "たのしみ です。", "Tanoshimi desu."]}
+
+  # ───────────────────────────────────────────────────────────────── 17
+  - id: ja1-17
+    title: "Describing things: adjectives and すき"
+    goal: "I can describe things and places, say what I like, and make small talk."
+    notes: |
+      Japanese has two kinds of adjective, and they behave differently.
+
+      | | い-adjectives | な-adjectives |
+      |---|---|---|
+      | example | たか**い** | しずか |
+      | is | たかい です | しずか です |
+      | is not | たか**くない** です | しずか **じゃ ありません** |
+      | before a noun | たかい ほん | しずか **な** まち |
+
+      - **い-adjectives** end in い. For the negative, drop い and add **くない**.
+      - One is irregular: **いい** (good) → **よくない**.
+      - **な-adjectives** behave like nouns, and need **な** before a noun. **きれい** ends in い but is a な-adjective: きれい **な** へや.
+
+      ## すき
+      "To like" is not a verb in Japanese but the な-adjective **すき**. The thing you like takes **が**: すし **が** すき です. Really like: だいすき.
+
+      ## How much
+      - **とても** — very
+      - **あまり** + negative — not very: あまり たかくない です.
+      - **ちょっと** — a little
+
+      ## ね and よ
+      At the end of a sentence **ね** asks for agreement ("isn't it?") and **よ** tells the listener something new ("you know").
+
+      ## Kanji
+      大 and 小 are in おおきい 大きい and ちいさい 小さい. Sizes are often labelled 大・中・小 (*dai, chuu, shou*): large, medium, small.
+    items:
+      - {id: ja1-17-k-dai, type: glyph, l2: "大", rom: "dai", l1: "big (だい in だいがく; おお in おおきい)", alt: ["oo", "ō"]}
+      - {id: ja1-17-k-shou, type: glyph, l2: "小", rom: "shou", l1: "small (しょう; ちい in ちいさい)", alt: ["shō", "chii"]}
+      - {id: ja1-17-k-naka, type: glyph, l2: "中", rom: "naka", l1: "inside; middle (なか; ちゅう in ちゅうごく)", alt: ["chuu", "chū"]}
+      - {id: ja1-17-ookii, type: vocab, l2: "おおきい", rom: "ookii", l1: "big (い-adjective)", alt: ["大きい", "ōkii"], ex: "この かばん は おおきい です。", ex_l1: "This bag is big.", note: "Kanji: 大きい."}
+      - {id: ja1-17-chiisai, type: vocab, l2: "ちいさい", rom: "chiisai", l1: "small (い-adjective)", alt: ["小さい"], ex: "わたし の へや は ちいさい です。", ex_l1: "My room is small.", note: "Kanji: 小さい."}
+      - {id: ja1-17-takai, type: vocab, l2: "たかい", rom: "takai", l1: "expensive; tall, high (い-adjective)", alt: ["高い"], ex: "この とけい は たかい です。", ex_l1: "This watch is expensive.", note: "Kanji: 高い."}
+      - {id: ja1-17-yasui, type: vocab, l2: "やすい", rom: "yasui", l1: "cheap (い-adjective)", alt: ["安い"], ex: "この みせ は やすい です。", ex_l1: "This shop is cheap.", note: "Kanji: 安い."}
+      - {id: ja1-17-oishii, type: vocab, l2: "おいしい", rom: "oishii", l1: "delicious / tasty (い-adjective)", alt: ["美味しい"], ex: "この ケーキ は おいしい です。", ex_l1: "This cake is delicious.", note: "Usually in kana; kanji 美味しい."}
+      - {id: ja1-17-atarashii, type: vocab, l2: "あたらしい", rom: "atarashii", l1: "new (い-adjective)", alt: ["新しい"], ex: "あたらしい くるま を かいました。", ex_l1: "I bought a new car.", note: "Kanji: 新しい."}
+      - {id: ja1-17-furui, type: vocab, l2: "ふるい", rom: "furui", l1: "old (of things, not people; い-adjective)", alt: ["古い"], ex: "これ は ふるい ほん です。", ex_l1: "This is an old book.", note: "Kanji: 古い."}
+      - {id: ja1-17-ii, type: vocab, l2: "いい", rom: "ii", l1: "good (い-adjective)", alt: ["良い", "よい", "yoi"], ex: "これ は いい じしょ です。", ex_l1: "This is a good dictionary.", note: "Irregular negative: よくない. Kanji 良い."}
+      - {id: ja1-17-atsui, type: vocab, l2: "あつい", rom: "atsui", l1: "hot (weather; い-adjective)", alt: ["暑い"], ex: "きょう は あつい です。", ex_l1: "It is hot today.", note: "Kanji: 暑い."}
+      - {id: ja1-17-samui, type: vocab, l2: "さむい", rom: "samui", l1: "cold (weather; い-adjective)", alt: ["寒い"], ex: "けさ は さむい です ね。", ex_l1: "It's cold this morning, isn't it?", note: "Kanji: 寒い."}
+      - {id: ja1-17-muzukashii, type: vocab, l2: "むずかしい", rom: "muzukashii", l1: "difficult (い-adjective)", alt: ["難しい"], ex: "この テスト は むずかしい です。", ex_l1: "This test is difficult.", note: "Kanji: 難しい."}
+      - {id: ja1-17-kirei, type: vocab, l2: "きれい", rom: "kirei", l1: "pretty; clean (な-adjective)", alt: ["綺麗"], ex: "きれい な へや です。", ex_l1: "It is a clean room.", note: "Ends in い but takes な. Usually in kana; kanji 綺麗."}
+      - {id: ja1-17-shizuka, type: vocab, l2: "しずか", rom: "shizuka", l1: "quiet (な-adjective)", alt: ["静か"], ex: "としょかん は しずか です。", ex_l1: "The library is quiet.", note: "Kanji: 静か."}
+      - {id: ja1-17-genki, type: vocab, l2: "げんき", rom: "genki", l1: "well / healthy / lively (な-adjective)", alt: ["元気"], ex: "はは は げんき です。", ex_l1: "My mother is well.", note: "Kanji: 元気."}
+      - {id: ja1-17-suki, type: vocab, l2: "すき", rom: "suki", l1: "liked ('I like …'; な-adjective)", alt: ["好き"], ex: "わたし は ねこ が すき です。", ex_l1: "I like cats.", note: "The thing liked takes が. だいすき = like very much. Kanji: 好き."}
+      - {id: ja1-17-totemo, type: vocab, l2: "とても", rom: "totemo", l1: "very", ex: "この えいが は とても いい です。", ex_l1: "This movie is very good."}
+      - {id: ja1-17-amari, type: vocab, l2: "あまり", rom: "amari", l1: "not very / not much (used with a negative)", ex: "きょう は あまり さむくない です。", ex_l1: "It is not very cold today."}
+      - {id: ja1-17-heya, type: vocab, l2: "へや", rom: "heya", l1: "room", alt: ["部屋"], ex: "この ホテル の へや は おおきい です。", ex_l1: "This hotel's rooms are big.", note: "Kanji: 部屋."}
+      - {id: ja1-17-machi, type: vocab, l2: "まち", rom: "machi", l1: "town / city", alt: ["町", "街"], ex: "きょうと は ふるい まち です。", ex_l1: "Kyoto is an old city.", note: "Kanji: 町."}
+      - {id: ja1-17-demo, type: vocab, l2: "でも", rom: "demo", l1: "but (at the start of a sentence)", ex: "この レストラン は おいしい です。 でも、 たかい です。", ex_l1: "This restaurant is good. But it is expensive."}
+      - {id: ja1-17-heya-ookikunai, type: phrase, l2: "この へや は あまり おおきくない です。", rom: "Kono heya wa amari ookikunai desu.", l1: "This room is not very big.", alt: ["この部屋はあまり大きくないです", "Kono heya ha amari ookikunai desu.", "Kono heya wa amari ōkikunai desu.", "Kono heya ha amari ōkikunai desu.", "この へや は あまり おおきく ありません。", "Kono heya wa amari ookiku arimasen.", "Kono heya ha amari ookiku arimasen.", "Kono heya wa amari ōkiku arimasen.", "Kono heya ha amari ōkiku arimasen.", "この部屋はあまり大きくありません"], note: "おおきい → おおきくない. With kanji: この部屋はあまり大きくないです"}
+      - {id: ja1-17-sushi-ga-suki, type: phrase, l2: "すし が すき です。", rom: "Sushi ga suki desu.", l1: "I like sushi.", alt: ["寿司が好きです", "わたし は すし が すき です。", "Watashi wa sushi ga suki desu.", "Watashi ha sushi ga suki desu.", "すしが好きです"], note: "With kanji: 寿司が好きです"}
+      - {id: ja1-17-kyou-atsui, type: phrase, l2: "きょう は あつい です ね。", rom: "Kyou wa atsui desu ne.", l1: "It's hot today, isn't it?", alt: ["今日は暑いですね", "Kyou ha atsui desu ne.", "Kyō wa atsui desu ne.", "Kyō ha atsui desu ne."], note: "The classic conversation opener. ね invites agreement. With kanji: 今日は暑いですね"}
+      - {id: ja1-17-machi-shizuka-janai, type: phrase, l2: "この まち は しずか じゃ ありません。", rom: "Kono machi wa shizuka ja arimasen.", l1: "This town is not quiet.", alt: ["この町は静かじゃありません", "Kono machi ha shizuka ja arimasen.", "この まち は しずか では ありません。", "Kono machi wa shizuka dewa arimasen.", "Kono machi ha shizuka deha arimasen.", "この町は静かではありません"], note: "With kanji: この町は静かじゃありません"}
+      - {id: ja1-17-ogenki, type: phrase, l2: "おげんき です か。", rom: "Ogenki desu ka.", l1: "How are you? (polite; to someone you have not seen for a while)", alt: ["お元気ですか"], note: "Not an everyday greeting. The reply: はい、げんき です. With kanji: お元気ですか"}
+      - {id: ja1-17-dou-desu-ka, type: phrase, l2: "にほん は どう です か。", rom: "Nihon wa dou desu ka.", l1: "How do you find Japan? / How is Japan?", alt: ["日本はどうですか", "Nihon ha dou desu ka.", "Nihon wa dō desu ka.", "Nihon ha dō desu ka."], note: "どう = how. X は どう です か asks for an opinion or makes a suggestion. With kanji: 日本はどうですか"}
+      - {id: ja1-17-c1, type: cloze, text: "この ケーキ は とても ___ です。", answer: "おいしい", l1: "This cake is very delicious.", alt: ["oishii", "美味しい"], note: "い-adjective + です."}
+      - {id: ja1-17-c2, type: cloze, text: "この かばん は たかくない です。 ___ です。", answer: "やすい", l1: "This bag is not expensive. It is cheap.", alt: ["yasui", "安い"], note: "たかい ↔ やすい."}
+      - {id: ja1-17-c3, type: cloze, text: "わたし は ねこ ___ すき です。", answer: "が", l1: "I like cats.", alt: ["ga"], note: "The thing you like takes が, not を."}
+      - {id: ja1-17-c4, type: cloze, text: "この ほん は あまり ___ です。", answer: "むずかしくない", l1: "This book is not very difficult.", alt: ["muzukashikunai", "難しくない"], note: "むずかしい → むずかしくない."}
+      - {id: ja1-17-c5, type: cloze, text: "きょうと は きれい ___ まち です。", answer: "な", l1: "Kyoto is a pretty city.", alt: ["na"], note: "A な-adjective needs な before a noun."}
+      - {id: ja1-17-c6, type: cloze, text: "この みせ は ___ です。", answer: "よくない", l1: "This shop is not good.", alt: ["yokunai", "良くない"], note: "いい is irregular: よくない."}
+      - {id: ja1-17-c7, type: cloze, text: "やまださん は きょう げんき ___ ありません。", answer: "じゃ", l1: "Mr. Yamada is not well today.", alt: ["ja", "では", "dewa", "deha"], note: "な-adjective negative: じゃ ありません."}
+      - id: ja1-17-d-smalltalk
+        type: dialogue
+        title: "Small talk about Japan"
+        scene: "You are Smith, a few months into life in Japan. Your neighbour Yamada chats with you."
+        you: B
+        lines:
+          - {who: A, l2: "スミスさん、 にほん の たべもの は どう です か。", rom: "Sumisu-san, Nihon no tabemono wa dou desu ka.", l1: "Mr. Smith, how do you find Japanese food?"}
+          - {who: B, l2: "とても おいしい です。", rom: "Totemo oishii desu.", l1: "It's very good.", alt: ["とても おいしい です ね。", "Totemo oishii desu ne."]}
+          - {who: A, l2: "なに が すき です か。", rom: "Nani ga suki desu ka.", l1: "What do you like?"}
+          - {who: B, l2: "すし が すき です。 でも、 ちょっと たかい です。", rom: "Sushi ga suki desu. Demo, chotto takai desu.", l1: "I like sushi. But it's a bit expensive.", alt: ["すし が すき です。 でも、 ちょっと たかい です ね。", "Sushi ga suki desu. Demo, chotto takai desu ne."]}
+          - {who: A, l2: "そう です ね。 にほんご は むずかしい です か。", rom: "Sou desu ne. Nihongo wa muzukashii desu ka.", l1: "That's true. Is Japanese difficult?"}
+          - {who: B, l2: "いいえ、 あまり むずかしくない です。", rom: "Iie, amari muzukashikunai desu.", l1: "No, it's not very difficult.", alt: ["いいえ、 あまり むずかしく ありません。", "Iie, amari muzukashiku arimasen."]}
+          - {who: A, l2: "すごい！ にほんご が じょうず です ね。", rom: "Sugoi! Nihongo ga jouzu desu ne.", l1: "Wow! Your Japanese is good."}
+          - {who: B, l2: "いいえ、 まだまだ です。", rom: "Iie, madamada desu.", l1: "No, I still have a long way to go.", alt: ["いいえ、 まだまだ です よ。", "Iie, madamada desu yo.", "まだまだ です。", "Madamada desu."]}
+
+  # ───────────────────────────────────────────────────────────────── 18
+  - id: ja1-18
+    title: "What there is, what I want, and getting help"
+    goal: "I can say where things and people are, say what I want to do, and ask for help when I am stuck."
+    notes: |
+      ## あります and います
+      Both mean "there is" and "to have". Things and plants take **あります**; people and animals take **います**.
+
+      - [place] **に** [thing] **が あります** — there is a … in/at …: えき の ちかく **に** コンビニ **が あります**。
+      - [thing] **は** [place] **に あります** — the … is in/at …: トイレ **は** あそこ **に あります**。
+
+      Position words are nouns, joined with の: つくえ **の うえ** に (on the desk), かばん **の なか** に (in the bag). うえ 上, した 下, なか 中, まえ, となり, ちかく, みぎ, ひだり.
+
+      **ここ / そこ / あそこ** follow the same three zones as これ / それ / あれ.
+
+      ## Counting people
+      **ひとり** (1), **ふたり** (2), then number + にん: さんにん, よにん … こども が ふたり います = I have two children.
+
+      ## I want to …
+      Swap ます for **たい** and add です: のみ**ます** → のみ**たい です**. Use it for your own wishes only.
+
+      ## Please …
+      **～て ください** is a polite request. The て-form belongs to the next course; for now learn these as whole phrases: **いって ください** (please say), **はなして ください** (please speak), **かいて ください** (please write), **まって ください** (please wait).
+    items:
+      - {id: ja1-18-k-ue, type: glyph, l2: "上", rom: "ue", l1: "up; above; on top"}
+      - {id: ja1-18-k-shita, type: glyph, l2: "下", rom: "shita", l1: "down; below; under"}
+      - {id: ja1-18-arimasu, type: vocab, l2: "あります", rom: "arimasu", l1: "there is / to have (things; polite ～ます form)", alt: ["有ります"], ex: "つくえ の うえ に ほん が あります。", ex_l1: "There is a book on the desk.", note: "Negative: ありません. Usually in kana."}
+      - {id: ja1-18-imasu, type: vocab, l2: "います", rom: "imasu", l1: "there is / to have (people and animals; polite ～ます form)", alt: ["居ます"], ex: "へや に ねこ が います。", ex_l1: "There is a cat in the room.", note: "Usually in kana."}
+      - {id: ja1-18-koko, type: vocab, l2: "ここ", rom: "koko", l1: "here (this place)", ex: "ここ は としょかん です。", ex_l1: "This (place) is the library."}
+      - {id: ja1-18-soko, type: vocab, l2: "そこ", rom: "soko", l1: "there (that place near you)", ex: "わたし の かばん は そこ に あります。", ex_l1: "My bag is there (by you)."}
+      - {id: ja1-18-asoko, type: vocab, l2: "あそこ", rom: "asoko", l1: "over there (that place away from us both)", ex: "えき は あそこ です。", ex_l1: "The station is over there."}
+      - {id: ja1-18-mae, type: vocab, l2: "まえ", rom: "mae", l1: "front / in front", alt: ["前"], ex: "えき の まえ に バス が あります。", ex_l1: "There is a bus in front of the station.", note: "Kanji: 前."}
+      - {id: ja1-18-tonari, type: vocab, l2: "となり", rom: "tonari", l1: "next to / next door", alt: ["隣"], ex: "ぎんこう は ホテル の となり です。", ex_l1: "The bank is next to the hotel.", note: "Kanji: 隣."}
+      - {id: ja1-18-chikaku, type: vocab, l2: "ちかく", rom: "chikaku", l1: "nearby / the neighbourhood", alt: ["近く"], ex: "うち の ちかく に こうえん が あります。", ex_l1: "There is a park near my home.", note: "Kanji: 近く."}
+      - {id: ja1-18-migi, type: vocab, l2: "みぎ", rom: "migi", l1: "right (side)", alt: ["右"], ex: "トイレ は みぎ に あります。", ex_l1: "The toilet is on the right.", note: "Kanji: 右."}
+      - {id: ja1-18-hidari, type: vocab, l2: "ひだり", rom: "hidari", l1: "left (side)", alt: ["左"], ex: "ぎんこう の ひだり に みせ が あります。", ex_l1: "There is a shop to the left of the bank.", note: "Kanji: 左."}
+      - {id: ja1-18-hitori, type: vocab, l2: "ひとり", rom: "hitori", l1: "one person", alt: ["一人", "1人"], ex: "せんせい が ひとり います。", ex_l1: "There is one teacher.", note: "Kanji: 一人."}
+      - {id: ja1-18-futari, type: vocab, l2: "ふたり", rom: "futari", l1: "two people", alt: ["二人", "2人"], ex: "がくせい が ふたり います。", ex_l1: "There are two students.", note: "From three on: さんにん, よにん, ごにん … Kanji: 二人."}
+      - {id: ja1-18-kazoku, type: vocab, l2: "かぞく", rom: "kazoku", l1: "family", alt: ["家族"], ex: "かぞく は アメリカ に います。", ex_l1: "My family is in America.", note: "Kanji: 家族."}
+      - {id: ja1-18-kodomo, type: vocab, l2: "こども", rom: "kodomo", l1: "child", alt: ["子供", "子ども"], ex: "こうえん に こども が います。", ex_l1: "There are children in the park.", note: "Kanji: 子供."}
+      - {id: ja1-18-toire-doko, type: phrase, l2: "トイレ は どこ です か。", rom: "Toire wa doko desu ka.", l1: "Where is the toilet?", alt: ["トイレはどこですか", "Toire ha doko desu ka.", "トイレ は どこ に あります か。", "Toire wa doko ni arimasu ka.", "Toire ha doko ni arimasu ka."], note: "With kanji: トイレはどこですか"}
+      - {id: ja1-18-mizu-nomitai, type: phrase, l2: "みず を のみたい です。", rom: "Mizu o nomitai desu.", l1: "I want to drink water.", alt: ["水を飲みたいです", "Mizu wo nomitai desu.", "みず が のみたい です。", "Mizu ga nomitai desu.", "水が飲みたいです"], note: "のみます → のみたい です. が is also used: みず が のみたい です. With kanji: 水を飲みたいです"}
+      - {id: ja1-18-nihon-ikitai, type: phrase, l2: "にほん へ いきたい です。", rom: "Nihon e ikitai desu.", l1: "I want to go to Japan.", alt: ["日本へ行きたいです", "Nihon he ikitai desu.", "にほん に いきたい です。", "Nihon ni ikitai desu.", "日本に行きたいです"], note: "With kanji: 日本へ行きたいです"}
+      - {id: ja1-18-mou-ichido-itte, type: phrase, l2: "もう いちど いって ください。", rom: "Mou ichido itte kudasai.", l1: "Please say it once more. (～て ください form)", alt: ["もう一度言ってください", "Mō ichido itte kudasai."], note: "いって = the て-form of いいます (to say). With kanji: もう一度言ってください"}
+      - {id: ja1-18-yukkuri-hanashite, type: phrase, l2: "ゆっくり はなして ください。", rom: "Yukkuri hanashite kudasai.", l1: "Please speak slowly. (～て ください form)", alt: ["ゆっくり話してください"], note: "はなして = the て-form of はなします (to speak). With kanji: ゆっくり話してください"}
+      - {id: ja1-18-koko-ni-kaite, type: phrase, l2: "ここ に かいて ください。", rom: "Koko ni kaite kudasai.", l1: "Please write it here.", alt: ["ここに書いてください"], note: "Useful for addresses, prices and names you could not catch. With kanji: ここに書いてください"}
+      - {id: ja1-18-tasukete, type: phrase, l2: "たすけて ください。", rom: "Tasukete kudasai.", l1: "Please help me! (in an emergency)", alt: ["助けてください"], note: "For real trouble. For everyday help say すみません. With kanji: 助けてください"}
+      - {id: ja1-18-nihongo-wakarimasen, type: phrase, l2: "にほんご が あまり わかりません。", rom: "Nihongo ga amari wakarimasen.", l1: "I don't understand Japanese very well.", alt: ["日本語があまり分かりません", "にほんご は あまり わかりません。", "Nihongo wa amari wakarimasen.", "Nihongo ha amari wakarimasen."], note: "わかります takes が for the thing understood. With kanji: 日本語があまり分かりません"}
+      - {id: ja1-18-eigo-wakarimasu-ka, type: phrase, l2: "えいご が わかります か。", rom: "Eigo ga wakarimasu ka.", l1: "Do you understand English?", alt: ["英語が分かりますか", "えいご は わかります か。", "Eigo wa wakarimasu ka.", "Eigo ha wakarimasu ka."], note: "With kanji: 英語が分かりますか"}
+      - {id: ja1-18-nihongo-de-nan, type: phrase, l2: "これ は にほんご で なん です か。", rom: "Kore wa Nihongo de nan desu ka.", l1: "What is this in Japanese?", alt: ["これは日本語で何ですか", "Kore ha Nihongo de nan desu ka."], note: "で = by means of, in (a language). With kanji: これは日本語で何ですか"}
+      - {id: ja1-18-c1, type: cloze, text: "つくえ の うえ に ほん が ___。", answer: "あります", l1: "There is a book on the desk.", alt: ["arimasu"], note: "Things take あります."}
+      - {id: ja1-18-c2, type: cloze, text: "へや に ねこ が ___。", answer: "います", l1: "There is a cat in the room.", alt: ["imasu"], note: "People and animals take います."}
+      - {id: ja1-18-c3, type: cloze, text: "えき の ちかく ___ コンビニ が あります。", answer: "に", l1: "There is a convenience store near the station.", alt: ["ni"], note: "に marks the place where something exists (not で)."}
+      - {id: ja1-18-c4, type: cloze, text: "かばん の ___ に かぎ が あります。", answer: "なか", l1: "There is a key in the bag.", alt: ["naka", "中"], note: "なか = inside. [thing] の なか に."}
+      - {id: ja1-18-c5, type: cloze, text: "こども が ___ います。", answer: "ふたり", l1: "I have two children.", alt: ["futari", "二人", "2人"], note: "People: ひとり, ふたり, さんにん …"}
+      - {id: ja1-18-c6, type: cloze, text: "おちゃ を ___ です。", answer: "のみたい", l1: "I want to drink tea.", alt: ["nomitai", "飲みたい"], note: "のみます → のみたい です."}
+      - {id: ja1-18-c7, type: cloze, text: "あそこ に せんせい ___ います。", answer: "が", l1: "There is a teacher over there.", alt: ["ga"], note: "が marks what exists."}
+      - id: ja1-18-d-lost
+        type: dialogue
+        title: "Asking the way"
+        scene: "You are a visitor at a big station and need the toilet. You stop a passer-by."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 トイレ は どこ です か。", rom: "Sumimasen, toire wa doko desu ka.", l1: "Excuse me, where is the toilet?", alt: ["Sumimasen, toire ha doko desu ka.", "すみません、 トイレ は どこ に あります か。", "Sumimasen, toire wa doko ni arimasu ka.", "Sumimasen, toire ha doko ni arimasu ka.", "すみません。 トイレ は どこ です か。", "Sumimasen. Toire wa doko desu ka.", "Sumimasen. Toire ha doko desu ka."]}
+          - {who: B, l2: "あそこ です。 コンビニ の となり に あります。", rom: "Asoko desu. Konbini no tonari ni arimasu.", l1: "Over there. It's next to the convenience store."}
+          - {who: A, l2: "すみません、 ゆっくり はなして ください。", rom: "Sumimasen, yukkuri hanashite kudasai.", l1: "Sorry, please speak slowly.", alt: ["すみません、 ゆっくり おねがいします。", "Sumimasen, yukkuri onegaishimasu.", "すみません。 ゆっくり はなして ください。", "Sumimasen. Yukkuri hanashite kudasai."]}
+          - {who: B, l2: "はい。 あそこ に コンビニ が あります ね。 トイレ は その みぎ です。", rom: "Hai. Asoko ni konbini ga arimasu ne. Toire wa sono migi desu.", l1: "Sure. There's a convenience store over there, see? The toilet is to the right of it."}
+          - {who: A, l2: "わかりました。 それから、 みず を かいたい です。", rom: "Wakarimashita. Sorekara, mizu o kaitai desu.", l1: "I understand. Also, I want to buy some water.", alt: ["Wakarimashita. Sorekara, mizu wo kaitai desu.", "わかりました。 それから、 みず が かいたい です。", "Wakarimashita. Sorekara, mizu ga kaitai desu."]}
+          - {who: B, l2: "みず は コンビニ に あります よ。", rom: "Mizu wa konbini ni arimasu yo.", l1: "They have water at the convenience store."}
+          - {who: A, l2: "どうも ありがとう ございました。", rom: "Doumo arigatou gozaimashita.", l1: "Thank you very much.", alt: ["Dōmo arigatō gozaimashita.", "ありがとう ございました。", "Arigatou gozaimashita.", "Arigatō gozaimashita.", "どうも ありがとう ございます。", "Doumo arigatou gozaimasu.", "Dōmo arigatō gozaimasu.", "ありがとう ございます。", "Arigatou gozaimasu.", "Arigatō gozaimasu."]}
+          - {who: B, l2: "いいえ。 き を つけて。", rom: "Iie. Ki o tsukete.", l1: "Not at all. Take care."}

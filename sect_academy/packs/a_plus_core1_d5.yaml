@@ -1,0 +1,1076 @@
+part_of: a-plus-core1
+
+units:
+  # ─────────────────── 5x · Domain 5 coverage: every symptom ───────────────────
+  - id: ap1-5x
+    title: "Troubleshooting — every listed symptom, its cause and its fix"
+    domain: "5"
+    goal: "I can take any symptom the exam lists for PCs, drives, displays, mobile devices, networks and printers and name its usual cause and the right fix."
+    notes: |
+      Domain 5 is the largest part of the exam, and every objective in it is a list of **symptoms**. This unit walks through the symptoms the earlier units did not drill, one question each. For every one, learn three things: the usual cause, the quick check that confirms it, and the fix.
+
+      ## How to read a symptom
+
+      - **What changed?** A fault that began straight after an update, an upgrade or a repair is almost always caused by that change.
+      - **How far does it reach?** One program or all of them, one PC or every PC, one input or every input. A narrow fault has a narrow cause.
+      - **What still works?** A clean built-in test page clears the printer's hardware. A steady external monitor clears the graphics chip. A good ping to the gateway clears the cable.
+
+      ## Pairs that are easy to confuse
+
+      | Looks like | But check for |
+      | Failing drive | A drive that is simply full, or a rebuild in progress |
+      | Dead array | A controller mode that was reset |
+      | Dead projector | A burnt-out lamp, or just no signal |
+      | Faulty digitizer | A touch screen that needs calibrating |
+      | Worn battery | An app or malware draining it |
+      | Printer hardware fault | Damp paper, a driver setting, a changed address |
+
+      Data comes first: when a drive is the suspect, protect what is on it before testing anything.
+    items:
+      - id: ap1-5x-beep-code
+        type: concept
+        term: "Beep code"
+        def: "A pattern of short and long tones from the system speaker that reports which start-up hardware check failed when nothing can be shown on screen; each firmware maker defines its own patterns."
+      - id: ap1-5x-throttling
+        type: concept
+        term: "Thermal throttling"
+        def: "A processor's automatic drop in clock speed when it gets too hot, which protects the chip but makes the computer feel sluggish."
+      - id: ap1-5x-hot-spare
+        type: concept
+        term: "Hot spare"
+        def: "An idle standby disk in a storage enclosure that the controller brings into use automatically, and starts filling with data, the moment an active member fails."
+      - id: ap1-5x-bad-sector
+        type: concept
+        term: "Bad sector"
+        def: "A small area of a disk's surface that can no longer be read or written reliably; a steadily growing number of them marks a dying drive."
+      - id: ap1-5x-overscan
+        type: concept
+        term: "Overscan"
+        def: "A television's habit of enlarging the picture slightly so that its outer edges fall outside the visible screen, hiding things such as a taskbar or menu bar."
+      - id: ap1-5x-cursor-drift
+        type: concept
+        term: "Cursor drift"
+        def: "A pointer that creeps or jumps across the screen on its own while nobody is touching the trackpad, pointing stick or touch screen."
+      - id: ap1-5x-duplex-mismatch
+        type: concept
+        term: "Duplex mismatch"
+        def: "A link fault in which one end sends and receives at the same time while the other end takes turns, producing collisions, errors and very slow transfers."
+      - id: ap1-5x-separation-pad
+        type: concept
+        term: "Separation pad"
+        def: "The friction surface facing the feed wheel of a paper tray that holds back the lower sheets so that only one enters the printer at a time."
+      - id: ap1-5x-finisher
+        type: concept
+        term: "Finisher"
+        def: "An optional output unit on a large printer or copier that staples, hole-punches, folds or stacks the completed pages."
+
+      # 5.1 Motherboards, RAM, CPUs and power
+      - id: ap1-5x-q01
+        type: mcq
+        q: "A Windows PC ran for two years without trouble. Since yesterday's graphics driver update it shows a blue stop screen several times a day, each time naming the same display driver file. What should the technician do FIRST?"
+        choices:
+          - "Roll back the graphics driver"
+          - "Replace the memory modules"
+          - "Replace the power supply"
+          - "Reinstall the operating system"
+        answer: 0
+        why: "The crashes began with one change and every stop screen names that driver, so undoing the change is the first test. Faulty memory would produce varying errors and would not have waited for the update."
+      - id: ap1-5x-q02
+        type: mcq
+        q: "A technician fits a dedicated video card in a desktop that had used the motherboard's built-in graphics. The PC now starts with its usual single beep and the drive light flickers as normal, but the monitor stays blank. The monitor cable has not been moved. What is the MOST likely cause?"
+        choices:
+          - "The new video card needs a firmware update first"
+          - "The monitor is still plugged into the motherboard port"
+          - "The power supply is unable to start the computer"
+          - "A memory module was knocked loose during the work"
+        answer: 1
+        why: "Most firmware switches the built-in graphics off when a dedicated card is detected, so the cable must move to the card's output. A loose memory module would fail POST with an error beep pattern, not the normal single beep."
+      - id: ap1-5x-q03
+        type: mcq
+        q: "A laptop becomes very slow a few minutes into any demanding task. A monitoring tool shows the processor at 97°C and running at 0.8GHz instead of its normal 3.4GHz; memory and disk use are both low. What is the MOST likely cause?"
+        choices:
+          - "A failing system drive with bad sectors"
+          - "Too little RAM for the applications in use"
+          - "Thermal throttling by an overheating processor"
+          - "A corrupt display driver loaded at start-up"
+        answer: 2
+        why: "A very hot processor that has cut its own clock speed is throttling; clearing the vents, fan and heat sink restores performance. Low disk and memory use rule out the drive and a shortage of RAM."
+      - id: ap1-5x-q04
+        type: mcq
+        q: "One accounting program closes with an error whenever a report is opened. Every other program on the PC is stable, a memory test passes and temperatures are normal. The same report opens on a colleague's PC, which has a newer version of the program. What should be tried FIRST?"
+        choices:
+          - "Replace the memory modules"
+          - "Replace the power supply"
+          - "Renew the processor's thermal paste"
+          - "Update or repair that program"
+        answer: 3
+        why: "A crash confined to one program, on a PC whose hardware tests clean, is a software fault in that program: update, repair or reinstall it. Hardware faults such as bad memory show up across many programs."
+      - id: ap1-5x-q05
+        type: mcq
+        q: "A desktop whose only storage is an M.2 SSD has developed a rattling, grinding noise that gets louder as the processor works harder. What is the MOST likely source?"
+        choices:
+          - "A cooling fan with a worn bearing"
+          - "The storage drive's read heads"
+          - "The CMOS battery"
+          - "A swollen capacitor"
+        answer: 0
+        why: "Fans are the main moving parts in this PC, and a noise that follows processor load follows fan speed. An SSD has no heads or platters, so it cannot grind."
+      - id: ap1-5x-q06
+        type: mcq
+        q: "A PC restarts at random. Inside, several of the small cylindrical components beside the processor socket have domed tops with a brown crust. What is the correct repair?"
+        choices:
+          - "Replace the CMOS battery"
+          - "Replace the motherboard"
+          - "Reseat the memory modules"
+          - "Reinstall the operating system"
+        answer: 1
+        why: "Bulging, leaking capacitors can no longer smooth the processor's power, which causes random restarts; the board is replaced. Reseating memory does nothing for failed components that are soldered to the board."
+
+      # 5.2 Drives and RAID
+      - id: ap1-5x-q07
+        type: mcq
+        q: "A hard drive holding the only copy of a firm's records makes a loud scraping, grinding noise and has dropped out of the operating system twice today. What is the BEST course of action?"
+        choices:
+          - "Run a full defragmentation overnight"
+          - "Keep restarting it until a full backup completes"
+          - "Power it off and use a data recovery service"
+          - "Reformat the drive and reinstall the system"
+        answer: 2
+        why: "Grinding means the heads are touching the platters, and every further minute of running destroys more of the only copy; a recovery specialist gives the best chance. Repeated restarts to force a backup may scrape away the data that is still readable."
+      - id: ap1-5x-q08
+        type: mcq
+        q: "Files copied to a USB flash drive are often found to be corrupt later. The user pulls the drive out the moment the copy window closes. What is the MOST likely cause?"
+        choices:
+          - "The flash drive was formatted with the wrong file system"
+          - "The USB port supplies too little power for the drive"
+          - "The files are too large for the drive's capacity"
+          - "Writes were still cached when it was removed"
+        answer: 3
+        why: "The operating system may still be writing buffered data after the progress window closes; ejecting the drive safely first makes sure everything has been written. A wrong file system or a full drive would stop the copy with an error rather than corrupt it afterwards."
+      - id: ap1-5x-q09
+        type: mcq
+        q: "A video editor's workstation stores its projects on two disks in RAID 0. One disk fails completely. What is the state of the data, and what must be done?"
+        choices:
+          - "It is lost: replace the disk, recreate the array and restore from backup"
+          - "It is intact: replace the disk and let the array rebuild itself"
+          - "It is intact on the surviving disk, which can be read on its own"
+          - "Half is lost: copy the remaining half from the surviving disk"
+        answer: 0
+        why: "RAID 0 stripes every file across both disks with no redundancy, so one failure destroys the whole array and only a backup brings the data back. Rebuilding is possible only in levels that keep a mirror or parity."
+      - id: ap1-5x-q10
+        type: mcq
+        q: "At start-up a PC displays 'S.M.A.R.T. status bad: back up and replace', then loads the operating system normally once a key is pressed. What should the technician do?"
+        choices:
+          - "Turn off the S.M.A.R.T. check in the firmware setup"
+          - "Back up the data now and replace the drive"
+          - "Defragment the drive to repair the sectors"
+          - "Reinstall the operating system on the same drive"
+        answer: 1
+        why: "The drive is predicting its own failure while it still works, which is the chance to copy the data and fit a new drive. Turning the warning off hides the message but not the fault."
+      - id: ap1-5x-q11
+        type: mcq
+        q: "Opening files from a 5,400rpm hard drive has become very slow. The drive is 98% full; its S.M.A.R.T. counters show no reallocated sectors and a surface scan finds no errors. What should be done FIRST?"
+        choices:
+          - "Replace the drive's data cable"
+          - "Replace the drive immediately"
+          - "Free up space, then defragment the drive"
+          - "Update the motherboard firmware"
+        answer: 2
+        why: "A nearly full hard drive has to scatter files into whatever gaps are left, which makes reads and writes very slow; clearing space and defragmenting cures it. The clean S.M.A.R.T. data and surface scan show the drive itself is healthy, so replacing it is not yet justified."
+      - id: ap1-5x-q12
+        type: mcq
+        q: "A database on a RAID 5 array has been slow since a failed disk was swapped this morning. The controller reports 'Rebuilding: 35%'. What explains the low IOPS?"
+        choices:
+          - "The new disk is the wrong size for the array to use"
+          - "The array has lost all of its parity information"
+          - "A second disk has silently failed as well"
+          - "The rebuild is taking a share of every disk's time"
+        answer: 3
+        why: "During a rebuild the controller reads every surviving disk to recalculate the missing data, competing with normal work; performance returns when it finishes. A wrong-sized disk would be rejected, and a second failure would take a RAID 5 array offline."
+      - id: ap1-5x-q13
+        type: mcq
+        q: "A technician installs a brand-new second hard drive. It is listed in the firmware setup and appears in Windows Disk Management as 'Unknown, Not Initialized', but it is not shown in File Explorer. What is needed?"
+        choices:
+          - "Initialize the disk, then create and format a partition"
+          - "Replace the drive's data cable and try another port"
+          - "Change the boot order so that the new disk is first"
+          - "Update the firmware of the motherboard and reboot"
+        answer: 0
+        why: "A new disk has no partition table or file system, so the operating system has nothing to show until it is initialized, partitioned and formatted. The firmware and Disk Management both see the disk, so its cabling is fine."
+      - id: ap1-5x-q14
+        type: mcq
+        q: "After a firmware update reset a motherboard's settings to their defaults, the PC's two-disk mirror is gone: the firmware lists two separate disks and the operating system will not start. Both disks pass diagnostics. What should be checked FIRST?"
+        choices:
+          - "Whether both disks failed at the same moment"
+          - "Whether the controller mode is still set to RAID"
+          - "Whether the power supply can run two disks"
+          - "Whether the operating system needs reinstalling"
+        answer: 1
+        why: "Default settings usually put the storage controller in AHCI mode, so the array disappears although the disks are healthy; setting the mode back to RAID brings it back. Two healthy disks failing together at the moment of an update is far less likely than a reset setting."
+
+      # 5.3 Video, projectors and displays
+      - id: ap1-5x-q15
+        type: mcq
+        q: "A lamp-based projector powers on and its fan runs, but no light at all leaves the lens and the lamp indicator shows red. A presenter heard a pop during the last session. What is the fix?"
+        choices:
+          - "Select the correct input source"
+          - "Adjust the focus ring"
+          - "Replace the lamp"
+          - "Replace the video cable"
+        answer: 2
+        why: "No light of any kind, a lamp warning and a pop mean the bulb has burnt out. A wrong input or a bad cable would still leave a lit screen showing a 'no signal' message."
+      - id: ap1-5x-q16
+        type: mcq
+        q: "A reception OLED display that showed the same welcome slide all day for a year now shows a faint outline of the company logo over everything. Which practice would have prevented this?"
+        choices:
+          - "Using a shorter video cable"
+          - "Raising the screen brightness"
+          - "Lowering the refresh rate"
+          - "Using a screen saver or sleep timer"
+        answer: 3
+        why: "Burn-in comes from showing one static image for too long, so changing the picture or blanking the screen when idle prevents it. Higher brightness would have made the uneven wear worse."
+      - id: ap1-5x-q17
+        type: mcq
+        q: "A new monitor has one tiny black dot that never changes. It is visible on every input, and even over the monitor's own settings menu with no cable attached. What is the cause?"
+        choices:
+          - "A defect in the panel"
+          - "A fault in the video card"
+          - "A damaged video cable"
+          - "A wrong refresh rate"
+        answer: 0
+        why: "A dot that stays put with no computer attached can only come from the panel: a dead pixel, dealt with under the maker's warranty policy. The video card and cable are not even in use when the monitor draws its own menu."
+      - id: ap1-5x-q18
+        type: mcq
+        q: "A laptop's built-in screen flickers and flashes whenever the lid is moved. An external monitor connected to the same laptop stays perfectly steady. What is the MOST likely cause?"
+        choices:
+          - "A corrupt graphics driver in the operating system"
+          - "A loose or pinched display cable in the hinge"
+          - "A failing graphics processor on the motherboard"
+          - "A refresh rate that the built-in panel cannot use"
+        answer: 1
+        why: "Flicker that follows lid movement is mechanical: the display cable runs through the hinge and has worked loose or been pinched. A driver or graphics chip fault would disturb the external monitor as well."
+      - id: ap1-5x-q19
+        type: mcq
+        q: "A laptop is connected to a meeting-room television by HDMI. The picture is fine, but the sound still comes from the laptop's own speakers. What should be done?"
+        choices:
+          - "Replace the HDMI cable with a longer one"
+          - "Lower the laptop's screen resolution"
+          - "Select the HDMI device as the audio output"
+          - "Switch the television to another input"
+        answer: 2
+        why: "HDMI carries sound, but the operating system keeps playing through whichever output device is selected; choosing the television fixes it. The cable is clearly working because the picture arrives."
+      - id: ap1-5x-q20
+        type: mcq
+        q: "A PC is connected to a television by HDMI at the set's native resolution. The picture is sharp, but the edges of the desktop, including the taskbar, are cut off. What should be adjusted?"
+        choices:
+          - "The refresh rate in the operating system"
+          - "The colour depth of the video card"
+          - "The keystone setting of the television"
+          - "The overscan or picture-size setting"
+        answer: 3
+        why: "Televisions often enlarge the picture past the edges of the screen; turning overscan off, or choosing a 1:1 picture size, shows the whole desktop. Keystone is a projector adjustment for a slanted image, not a cropped one."
+      - id: ap1-5x-q21
+        type: mcq
+        q: "A portable projector sits on a low table and is tilted upwards at the screen. The image is clearly wider at the top than at the bottom. Which adjustment corrects this?"
+        choices:
+          - "Keystone correction"
+          - "The focus ring"
+          - "The input source"
+          - "The lamp mode"
+        answer: 0
+        why: "A projector that is not square to the screen throws a trapezoid, and keystone correction squares it up. Focus sharpens a soft image but cannot change its shape."
+
+      # 5.4 Mobile devices
+      - id: ap1-5x-q22
+        type: mcq
+        q: "A three-year-old phone lasts half a day and switches off abruptly at about 30% charge. Its settings report a maximum battery capacity of 68%, and no app shows unusual usage. What is the fix?"
+        choices:
+          - "Factory-reset the phone"
+          - "Replace the battery"
+          - "Replace the charging cable"
+          - "Turn off location services"
+        answer: 1
+        why: "A low reported capacity and sudden shutdowns at a middling charge level are the marks of a worn-out battery. With no app misbehaving, a reset or a settings change would not restore the lost capacity."
+      - id: ap1-5x-q23
+        type: mcq
+        q: "After a drop, a phone's glass is cracked and part of the picture is covered by black blotches and coloured lines. Touches still register everywhere. What needs replacing?"
+        choices:
+          - "The digitizer layer only"
+          - "The battery"
+          - "The display assembly"
+          - "The charging port"
+        answer: 2
+        why: "Blotches and lines mean the panel under the glass is broken, so the whole display assembly is replaced. The digitizer is the one layer that still works, since touch is registered everywhere."
+      - id: ap1-5x-q24
+        type: mcq
+        q: "After a laptop's display panel is replaced, it shows one bar of Wi-Fi signal where identical laptops beside it show full strength. What is the MOST likely cause?"
+        choices:
+          - "The access point is overloaded"
+          - "The wireless driver was removed"
+          - "The Wi-Fi passphrase has changed"
+          - "The antenna leads were not reconnected"
+        answer: 3
+        why: "A laptop's Wi-Fi antennas sit in the lid and their leads are disturbed by a screen repair; left off the wireless card, they leave only a weak signal. An overloaded access point would affect the laptops beside it too."
+      - id: ap1-5x-q25
+        type: mcq
+        q: "A phone in a windscreen mount, in direct sun, running navigation while charging, shows a temperature warning and dims its screen. What should the user do?"
+        choices:
+          - "Unplug it and let it cool in the shade"
+          - "Put it in a freezer for a few minutes"
+          - "Keep driving, since the warning clears itself"
+          - "Replace the battery before using it again"
+        answer: 0
+        why: "Sun, charging and a busy processor all add heat; removing those sources lets the phone cool gradually. A freezer cools it too fast and causes condensation inside."
+      - id: ap1-5x-q26
+        type: mcq
+        q: "Since a user installed a game from outside the official app store, the phone shows full-screen adverts on the home screen, uses far more data and runs warm when idle. What is the MOST likely cause?"
+        choices:
+          - "A failing battery"
+          - "Malware"
+          - "A faulty digitizer"
+          - "A full storage volume"
+        answer: 1
+        why: "Adverts outside any app, unexplained data use and activity while idle, all starting with a sideloaded app, point to malware: remove the app, scan, and reset the phone if it persists. A failing battery drains quickly but does not display adverts or use data."
+      - id: ap1-5x-q27
+        type: mcq
+        q: "After a tablet's screen is replaced, every tap registers about a centimetre to the left of the finger, evenly across the whole screen. What should be tried FIRST?"
+        choices:
+          - "Replace the battery"
+          - "Factory-reset the tablet"
+          - "Run the touch calibration routine"
+          - "Replace the screen again"
+        answer: 2
+        why: "A constant offset over the whole screen means touch is being sensed but mapped to the wrong place, which calibration corrects. A faulty digitizer gives dead zones or erratic touches, not a uniform shift."
+      - id: ap1-5x-q28
+        type: mcq
+        q: "On a tablet, finger touch works normally but the active stylus draws nothing, and the light on the stylus stays off when its button is pressed. What should be checked FIRST?"
+        choices:
+          - "The tablet's digitizer"
+          - "The tablet's storage space"
+          - "The tablet's screen protector"
+          - "The stylus battery or charge"
+        answer: 3
+        why: "An active stylus is powered; with no light it has no charge, so charge it or change its battery and pair it again if needed. Working finger touch shows the tablet's own touch layer is alive."
+      - id: ap1-5x-q29
+        type: mcq
+        q: "A tablet has slowed to a crawl. Its storage is half empty and its battery is healthy, but it has not been restarted for months and dozens of apps are open in the background, leaving almost no free memory. What should be done FIRST?"
+        choices:
+          - "Close unused apps and restart the tablet"
+          - "Replace the tablet's battery"
+          - "Replace the tablet's display assembly"
+          - "Recalibrate the tablet's touch screen"
+        answer: 0
+        why: "Background apps have used up the memory; closing them and restarting frees it at no cost. The battery and storage were both checked and found healthy."
+      - id: ap1-5x-q30
+        type: mcq
+        q: "A laptop charges through its USB-C port only now and then. Three known-good chargers behave the same, the port is clean, and the connector tongue inside it is visibly bent and loose. What is the fix?"
+        choices:
+          - "Replace the battery"
+          - "Replace or repair the USB-C port"
+          - "Update the operating system"
+          - "Use a higher-wattage charger"
+        answer: 1
+        why: "Physical damage to the port is visible and three good chargers rule out the supply, so the port (or the board that carries it) is repaired. The battery charges whenever contact is made, so it is not the fault."
+
+      # 5.5 Networks
+      - id: ap1-5x-q31
+        type: mcq
+        q: "A desktop on a gigabit switch transfers files at about 11MB per second, and its adapter status reads 100Mbps. Other PCs on the same switch link at 1Gbps. Swapping in a new Cat 6 patch cable brings this PC up to 1Gbps. What was wrong?"
+        choices:
+          - "The switch port was faulty"
+          - "The DNS server was slow"
+          - "The old cable had a damaged pair"
+          - "The DHCP lease had expired"
+        answer: 2
+        why: "Gigabit Ethernet needs all four pairs; with a broken pair the link falls back to 100Mbps, which needs only two. The port is the same before and after the swap, so the port was not at fault."
+      - id: ap1-5x-q32
+        type: mcq
+        q: "A laptop brought from another office shows 'No internet access'. Its settings read: address 10.0.5.20, mask 255.255.255.0, gateway 10.0.5.1, all entered manually. Every other device here has a 192.168.1.x address from DHCP. What is the fix?"
+        choices:
+          - "Replace the network cable with a new Cat 6 lead"
+          - "Restart the DHCP server and the main router"
+          - "Change the laptop's DNS server to 8.8.8.8"
+          - "Set the adapter to obtain an address automatically"
+        answer: 3
+        why: "The laptop still carries a static configuration for another network, so it cannot reach this network's gateway; switching it to DHCP gives it a valid local address. The DHCP server is serving every other device, so it does not need restarting."
+      - id: ap1-5x-q33
+        type: mcq
+        q: "A rural office connects through a geostationary satellite service. Pings to every internet host take about 650 ms with no loss, while pings inside the LAN take under 1 ms. What should the technician conclude?"
+        choices:
+          - "The delay is normal for this type of link"
+          - "The office switch has a duplex mismatch"
+          - "The DNS server is answering slowly"
+          - "The Wi-Fi channel is suffering interference"
+        answer: 0
+        why: "A signal to a geostationary satellite and back travels so far that latency of roughly half a second or more is built in. LAN pings under 1 ms show there is no fault in the office's own switch."
+      - id: ap1-5x-q34
+        type: mcq
+        q: "The office Wi-Fi passphrase was changed yesterday. One laptop now reports 'Can't connect to this network' and never asks for a passphrase; phones set up today connect normally. What should be done?"
+        choices:
+          - "Replace the laptop's wireless card"
+          - "Forget the saved network and join again"
+          - "Change the access point's channel"
+          - "Give the laptop a static IP address"
+        answer: 1
+        why: "The laptop keeps offering the old saved passphrase and fails authentication; removing the saved profile lets the new one be entered. Its wireless card is working, since it finds the network and attempts to join."
+      - id: ap1-5x-q35
+        type: mcq
+        q: "Several times a day every device in a small office loses internet access for a few minutes. During each outage users can still print and open shared folders, and the cable modem's 'online' light is blinking. Where does the fault MOST likely lie?"
+        choices:
+          - "In the office's Ethernet switch"
+          - "In the office's DHCP server scope"
+          - "In the modem or the provider's line"
+          - "In the wireless access point"
+        answer: 2
+        why: "The local network keeps working, so the fault is beyond it, and a blinking online light shows the modem losing its connection: check its coaxial connections and call the provider. A switch or DHCP fault would also break local printing and file shares."
+
+      # 5.6 Printers
+      - id: ap1-5x-q36
+        type: mcq
+        q: "A laser printer has begun to jam on almost every job. Its paper comes from an open ream kept in a damp storeroom and feels limp and curled. A sealed ream from another room prints without a single jam. What is the fix?"
+        choices:
+          - "Replace the fuser"
+          - "Replace the toner cartridge"
+          - "Reinstall the driver"
+          - "Use dry paper and store it sealed"
+        answer: 3
+        why: "Damp paper curls and sticks, and the test with a sealed ream proves the paper is the cause. The fuser is cleared by the same test, because the dry paper passed through it without jamming."
+      - id: ap1-5x-q37
+        type: mcq
+        q: "A laser printer's motor runs and its feed mechanism turns, but no sheet leaves the full tray and a 'paper jam' error appears. The rubber feed wheel above the tray is shiny and smooth. What should be replaced?"
+        choices:
+          - "The pickup roller"
+          - "The fuser"
+          - "The toner cartridge"
+          - "The imaging drum"
+        answer: 0
+        why: "A pickup roller worn smooth can no longer grip the top sheet, so nothing feeds and the printer reports a jam. The fuser and drum come later in the paper path, which the sheet never reaches."
+      - id: ap1-5x-q38
+        type: mcq
+        q: "Since a toner cartridge leaked inside a laser printer, pages come out with tiny black specks scattered at random. A new cartridge is already fitted. What should be done next?"
+        choices:
+          - "Replace the fuser with a new unit"
+          - "Clean the loose toner out of the printer"
+          - "Reinstall the printer driver on each PC"
+          - "Change to a heavier grade of paper"
+        answer: 1
+        why: "Speckling is loose toner being picked up by passing pages; it must be removed, ideally with a toner-rated vacuum. A driver cannot place random specks, which differ on every page."
+      - id: ap1-5x-q39
+        type: mcq
+        q: "Pages from a laser printer show the page heading again, faintly, at regular intervals further down the sheet. Which component is MOST likely at fault?"
+        choices:
+          - "The pickup roller"
+          - "The separation pad"
+          - "The imaging drum"
+          - "The duplex unit"
+        answer: 2
+        why: "A repeating echo image means the drum is not being cleaned or discharged between turns, so the old image prints again one rotation later. The pickup roller and separation pad only move paper and cannot put an image on it."
+      - id: ap1-5x-q40
+        type: mcq
+        q: "A laser printer has made a loud grinding noise as it feeds ever since someone tore a jammed sheet out by force. What should the technician do FIRST?"
+        choices:
+          - "Replace the toner cartridge"
+          - "Update the printer firmware"
+          - "Restart the print spooler"
+          - "Check the paper path and gears for debris"
+        answer: 3
+        why: "Forcing a jam out can leave torn scraps behind or damage gear teeth, and either one grinds; inspect before running it further. Firmware and the spooler are software and make no mechanical noise."
+      - id: ap1-5x-q41
+        type: mcq
+        q: "A copier's finisher jams whenever users staple their 80-page reports. Its specification gives a stapling limit of 50 sheets, and shorter stapled jobs are fine. What is the fix?"
+        choices:
+          - "Keep stapled sets within the rated limit"
+          - "Replace the imaging drum"
+          - "Reinstall the print driver"
+          - "Replace the pickup rollers"
+        answer: 0
+        why: "The stapler jams because the sets are thicker than it is built for; split the job or bind it another way. Shorter jobs stapling correctly shows that nothing is broken."
+      - id: ap1-5x-q42
+        type: mcq
+        q: "A copier stops punching holes and shows a finisher warning, although stapling and plain printing still work. What should be checked FIRST?"
+        choices:
+          - "The toner level"
+          - "The punch waste container"
+          - "The fuser temperature"
+          - "The duplex unit"
+        answer: 1
+        why: "The punched-out paper discs collect in a waste box, and the punch stops when the box is full or missing. Toner and the fuser are working, because plain pages still print."
+      - id: ap1-5x-q43
+        type: mcq
+        q: "A wide spreadsheet prints upright on the page with its right-hand columns cut off. Other documents print normally. What should be changed?"
+        choices:
+          - "The printer's firmware"
+          - "The paper tray's guides"
+          - "The page orientation, to landscape"
+          - "The toner cartridge"
+        answer: 2
+        why: "The job is being printed in portrait when its layout needs landscape; the orientation is set in the application's page setup or the print dialog. The tray guides hold the paper straight but do not turn the layout."
+      - id: ap1-5x-q44
+        type: mcq
+        q: "An optional 500-sheet tray is added to a laser printer. The printer's own panel lists Tray 3, but the Windows print dialog does not offer it. What is the fix?"
+        choices:
+          - "Replace the new tray"
+          - "Restart the print spooler"
+          - "Load a different paper size"
+          - "Enable the tray in the driver's device settings"
+        answer: 3
+        why: "The printer recognises the tray, but the driver on the PC has not been told that the option is installed; it is switched on in the printer's properties. The tray hardware is proven good by the printer's own panel."
+      - id: ap1-5x-q45
+        type: mcq
+        q: "PCs print to a network printer by its IP address. Every time the router is restarted the printer shows as offline on the PCs, although its own panel reports that it is connected and ready. What is the BEST fix?"
+        choices:
+          - "Give the printer a reserved or static address"
+          - "Replace the printer's network cable"
+          - "Reinstall the driver after every restart"
+          - "Restart the print spooler on each PC"
+        answer: 0
+        why: "After a restart, DHCP hands the printer a different address while the PCs keep sending to the old one; a reservation or static address keeps it fixed. Reinstalling the driver only repairs the mismatch until the next restart."
+
+  # ─────────────────── 5y · Domain 5 exam-hard practice ───────────────────
+  - id: ap1-5y
+    title: "Troubleshooting — exam-hard practice"
+    domain: "5"
+    goal: "I can separate two plausible causes of a hardware, display, mobile, network or printer fault by the one detail in the scenario that decides between them."
+    notes: |
+      These scenarios are harder than the exam on purpose. In each one **two causes fit the headline symptom**, and a single detail in the stem rules one of them out. Find that detail before you look at the choices.
+
+      ## Details that decide
+
+      | Symptom | The deciding detail |
+      | Sudden shutdown | Temperature just before it: hot means cooling, cool means power |
+      | Stop screens | Same driver named each time, or random codes that follow the hardware |
+      | Blank laptop screen | Does an external monitor work? Is a faint image visible under a torch? |
+      | Projector shows nothing | A 'No signal' message proves the lamp is fine |
+      | Array trouble | How many disks failed, and in which mirror or parity set |
+      | Slow drive | Health counters, how full it is, which port it is plugged into |
+      | Internet drops | Wired and wireless, or wireless only? Does the LAN still work? |
+      | Bad calls | Delay that varies is jitter; missing replies are loss; steady long delay is latency |
+      | Print defect | Does it show on prints, on copies, or only through the feeder? |
+
+      ## Method
+
+      - Ask what changed last, and undo that first.
+      - Swap in one known-good part at a time. When the fault follows the device to a new port or cable, the device is at fault.
+      - Protect data before repairing anything.
+
+      "Choose TWO" and "Choose THREE" items are all-or-nothing, as on the exam. The ordering items stand in for performance-based questions: picture the real job and walk through it.
+    items:
+      # 5.1
+      - id: ap1-5y-q01
+        type: mcq
+        q: "A desktop switches off instantly, as if unplugged, several times a day, sometimes while idle. A logging tool shows the processor at 41°C just before each event, and no crash screen or dump file is ever produced. What is the MOST likely cause?"
+        choices:
+          - "An overheating processor"
+          - "A failing power supply"
+          - "A corrupt device driver"
+          - "A failing system drive"
+        answer: 1
+        why: "Power that vanishes at idle and at a cool 41°C is not thermal protection, and a driver fault would leave a stop screen or dump; the power supply is cutting out. Overheating shutdowns happen under load, with high temperatures recorded beforehand."
+      - id: ap1-5y-q02
+        type: mcq
+        q: "After a high-end video card is added, a PC with a 350W power supply shuts off within seconds of starting any game but runs office software all day. Temperatures stay below 65°C. The card's box states 'minimum 550W'. What is the fix?"
+        choices:
+          - "Renew the processor's thermal paste"
+          - "Add more case fans"
+          - "Fit a power supply with a higher wattage rating"
+          - "Roll back the graphics driver"
+        answer: 2
+        why: "The card draws its full power only in games, and at that point the system needs more than the 350W unit can supply, so it cuts out. Temperatures below 65°C rule out overheating, so paste and fans would change nothing."
+      - id: ap1-5y-q03
+        type: mcq
+        q: "A PC shows blue stop screens with a different error code each time. The same random crashes occur when it is started from a USB diagnostic environment with the internal drive unplugged. Which component is MOST likely faulty?"
+        choices:
+          - "The installed graphics driver"
+          - "The system drive"
+          - "The operating system installation"
+          - "The RAM"
+        answer: 3
+        why: "Crashes that continue with the internal drive unplugged cannot come from that drive or from anything installed on it; random, varying codes are typical of bad memory. An installed driver is not even loaded when the PC runs from the USB environment."
+      - id: ap1-5y-q04
+        type: mcq
+        q: "A technician builds a PC, connects the 24-pin motherboard plug and the drives, and presses the power button. The fans spin and the board's lights come on, but there is no beep and no picture. An 8-pin socket near the processor is empty. What is the MOST likely cause?"
+        choices:
+          - "The processor's power connector is not attached"
+          - "The CMOS battery is fitted upside down"
+          - "The boot order starts with an empty drive"
+          - "The monitor is set to the wrong input"
+        answer: 0
+        why: "The processor takes its 12V supply from its own 4- or 8-pin connector; without it the board powers its fans and lights but the processor never starts, so POST never runs. A wrong boot order would still pass POST and display an error message."
+      - id: ap1-5y-q05
+        type: mcq
+        q: "A desktop will not start from its front button. The motherboard's standby light is on, and when a technician briefly bridges the two power-switch header pins with a screwdriver, the PC starts and runs normally. What has failed?"
+        choices:
+          - "The power supply"
+          - "The case's power button or its lead"
+          - "The motherboard"
+          - "The processor"
+        answer: 1
+        why: "Bridging the header pins does exactly what the button should do, and it works, so the power supply and board are sound; the switch or its lead is broken or unplugged. A dead power supply would give no standby light and no start by any method."
+      - id: ap1-5y-q06
+        type: mcq
+        q: "A PC's clock is always exactly three hours behind, with the minutes correct. Its firmware settings survive being unplugged for a weekend, and straight after each automatic time synchronisation the clock is again three hours behind. What should be corrected?"
+        choices:
+          - "The CMOS battery"
+          - "The NTP server's address"
+          - "The time zone setting"
+          - "The firmware version"
+        answer: 2
+        why: "An error of whole hours that returns after every synchronisation is a wrong time zone: the synchronised time is right but is displayed for another region. A flat CMOS battery would lose the settings while unplugged and leave a random date, not a neat three-hour offset."
+      - id: ap1-5y-q07
+        type: mcq
+        q: "A PC takes ten minutes to start and freezes for seconds at a time. Processor use is 8% at 45°C and half the memory is free, but the disk shows 100% active time while moving almost no data, and its reallocated-sector count rises daily. What should be done?"
+        choices:
+          - "Clean the processor's heat sink and fan"
+          - "Add more memory"
+          - "Reinstall the graphics driver"
+          - "Back up the data and replace the drive"
+        answer: 3
+        why: "A disk that is busy all the time yet transfers almost nothing, with sectors being reallocated daily, is failing; save the data and replace it. A cool, lightly loaded processor rules out thermal throttling as the cause of the slowness."
+
+      # 5.2
+      - id: ap1-5y-q08
+        type: mcq
+        q: "A four-disk RAID 5 array ran degraded for a week with one amber light that nobody acted on. Today a second disk failed and the volume has gone offline. What is the correct recovery?"
+        choices:
+          - "Replace both disks, recreate the array and restore from backup"
+          - "Replace both disks and let the parity rebuild them"
+          - "Replace one disk now and the other after the rebuild"
+          - "Convert the two good disks to RAID 1 to recover the data"
+        answer: 0
+        why: "RAID 5 holds enough parity to rebuild only one missing disk; with two gone the data cannot be recalculated and must come from backup. A rebuild needs every remaining member to be readable, which is no longer the case."
+      - id: ap1-5y-q09
+        type: mcq
+        q: "A storage array with five active disks and one hot spare reports itself 'optimal', yet bay 2 shows an amber light and the log reads 'rebuild to spare completed'. What should the technician do?"
+        choices:
+          - "Nothing at all, because the array reports itself optimal"
+          - "Replace the disk in bay 2 so a spare exists again"
+          - "Delete the array and restore everything from backup"
+          - "Replace all the disks that came from the same batch"
+        answer: 1
+        why: "The spare has already taken the failed disk's place, so the array is protected again but has no standby left; replacing the dead disk restores that safety margin. Doing nothing leaves the next failure with no spare to rebuild to."
+      - id: ap1-5y-q10
+        type: mcq
+        q: "A RAID 10 array has four disks: disks 1 and 2 mirror each other, and disks 3 and 4 mirror each other. Disks 1 and 3 fail on the same day. What is the state of the array?"
+        choices:
+          - "Failed, because RAID 10 survives only one disk"
+          - "Failed, because half of the stripe is missing"
+          - "Online but degraded, as each mirror keeps one disk"
+          - "Online and fully protected, as parity covers both"
+        answer: 2
+        why: "RAID 10 survives one failure in each mirrored pair, and here each pair still has a working member, so the data is available but unprotected until both disks are replaced. It would have failed only if both disks of the same pair had died; RAID 10 has no parity."
+      - id: ap1-5y-q11
+        type: mcq
+        q: "Backups to an external SSD that used to take ten minutes now take over an hour, at a steady 35MB per second. The user recently moved its cable to a black front-panel port; on a blue rear port of another PC the same drive is as fast as ever. What is the MOST likely cause?"
+        choices:
+          - "The SSD is wearing out"
+          - "The file system is corrupt"
+          - "The backup software is outdated"
+          - "The drive is on a USB 2.0 port"
+        answer: 3
+        why: "A steady rate of about 35MB per second is the practical ceiling of USB 2.0, whose ports are usually black; USB 3.0 ports are usually blue and far faster. The drive is fast on another PC, so it is neither worn out nor corrupt."
+      - id: ap1-5y-q12
+        type: mcq
+        q: "A PC lost power once during a storm, and a disk check afterwards repaired some file-system errors. Three weeks later, with no further power cuts, files keep turning up corrupt and each new check reports more bad sectors than the last. What should the technician conclude?"
+        choices:
+          - "The drive is failing and must be replaced"
+          - "The storm damage is still being repaired"
+          - "The file system needs converting"
+          - "The RAM is corrupting the checks"
+        answer: 0
+        why: "A single power cut causes one-off file-system damage that a check repairs; a bad-sector count that keeps growing with no new cause is a physically failing drive. Back the data up and replace it."
+      - id: ap1-5y-q13
+        type: mcq
+        q: "A storage enclosure is sounding its alarm. All eight drive lights are green and the controller reports the array as healthy. At the rear, one of the two power modules has no light. What should be done?"
+        choices:
+          - "Replace the disk in the first bay"
+          - "Replace the failed power module"
+          - "Shut down and rebuild the array"
+          - "Silence the alarm and take no action"
+        answer: 1
+        why: "Enclosure alarms report more than disks: here a redundant power module has failed, and the second one is carrying the load alone. It is replaced promptly, usually without shutting down. The disks and array are healthy, so nothing needs rebuilding."
+
+      # 5.3
+      - id: ap1-5y-q14
+        type: mcq
+        q: "A laptop screen looks black, but under a bright torch a faint desktop can be seen on it. An external monitor shows a normal picture, and the brightness keys change nothing. What has MOST likely failed?"
+        choices:
+          - "The graphics processor"
+          - "The digitizer"
+          - "The backlight"
+          - "The memory"
+        answer: 2
+        why: "A faint image under a torch shows the panel is still drawing the picture with no light behind it, so the backlight (or its supply) has failed. The graphics processor is proven good by the external monitor."
+      - id: ap1-5y-q15
+        type: mcq
+        q: "Since a graphics driver update, a laptop's built-in screen and an external monitor both flicker and show the same blocky artefacts. Moving the lid makes no difference. What should be tried FIRST?"
+        choices:
+          - "Replace the display cable in the hinge"
+          - "Replace the laptop's backlight"
+          - "Replace the external monitor's cable"
+          - "Roll back the graphics driver"
+        answer: 3
+        why: "A fault that appears on both screens comes from what they share, the graphics adapter and its driver, and it began with a driver update, so undo that first. A hinge cable fault would affect only the built-in screen and would change as the lid moves."
+      - id: ap1-5y-q16
+        type: mcq
+        q: "A projector lights up and displays 'No signal' on the wall. The HDMI cable is known to be good and the projector is set to the HDMI input. The laptop's display mode reads 'PC screen only'. What is the fix?"
+        choices:
+          - "Set the laptop to duplicate or extend its display"
+          - "Replace the projector's lamp with a new one"
+          - "Clean the projector's air filter and vents"
+          - "Apply the projector's keystone correction"
+        answer: 0
+        why: "The laptop is not sending a picture to its external output; choosing duplicate or extend switches it on. The lamp is plainly working, because it is projecting the 'No signal' message."
+      - id: ap1-5y-q17
+        type: mcq
+        q: "A desktop is connected to a wall display by a VGA cable. The picture is fine, but there is no sound from the display's speakers, and the display does not appear in the PC's list of sound output devices. What is the reason?"
+        choices:
+          - "The display's speakers are faulty"
+          - "VGA carries video only"
+          - "The audio driver is corrupt"
+          - "The resolution is too high"
+        answer: 1
+        why: "VGA is an analogue video connection with no audio channel, so the PC has nothing to list; a separate audio cable, or an HDMI or DisplayPort connection, is needed. Faulty speakers would not stop a digital display from appearing as an output device."
+      - id: ap1-5y-q18
+        type: mcq
+        q: "A ceiling projector switches off during long meetings. Its filter is clean, its temperature light never comes on, and each time it shows 'No signal' for several minutes before powering down. The presenter's laptop is set to sleep after ten idle minutes. What is the MOST likely cause?"
+        choices:
+          - "The projector is overheating"
+          - "The lamp has reached the end of its life"
+          - "The laptop's sleep triggers the auto power-off"
+          - "The video cable is failing"
+        answer: 2
+        why: "The laptop sleeps, the signal stops, and the projector's no-signal timer turns it off; change the laptop's power settings. Overheating is ruled out by the clean filter, the unlit temperature light and the orderly 'No signal' period before each shutdown."
+
+      # 5.4
+      - id: ap1-5y-q19
+        type: mcq
+        q: "A laptop's pointer jumps and clicks on its own. The trackpad has risen above the palm rest and the bottom cover no longer sits flat. What should be done?"
+        choices:
+          - "Reinstall the trackpad driver"
+          - "Run the touch calibration routine"
+          - "Press the trackpad back into place"
+          - "Stop using it and have the battery replaced"
+        answer: 3
+        why: "A lifted trackpad and a bulging case mean the battery beneath is swelling and pressing on the trackpad, which causes the false clicks; it is a fire risk and must be replaced. Pressing the trackpad down squeezes a swollen lithium cell, which is dangerous."
+      - id: ap1-5y-q20
+        type: mcq
+        q: "A laptop that needs a 100W USB-C supply is plugged into a 45W phone charger. It reports 'slow charger' and its battery level still falls during video editing. With its original adapter it charges normally. What is the cause?"
+        choices:
+          - "The charger cannot supply enough power"
+          - "The battery has reached the end of its life"
+          - "The USB-C port has a bent contact"
+          - "The operating system needs an update"
+        answer: 0
+        why: "Under load the laptop uses more than 45W, so the small charger cannot both run it and charge the battery. Normal charging with the original adapter clears the battery and the port."
+      - id: ap1-5y-q21
+        type: mcq
+        q: "Near the end of each billing month a phone's cellular data slows to a crawl although it shows a full 5G signal. Wi-Fi stays fast, and cellular speed returns on the first day of the next month. What is the MOST likely cause?"
+        choices:
+          - "A failing cellular antenna"
+          - "The plan's data cap has been reached"
+          - "A damaged SIM card"
+          - "Malware using the connection"
+        answer: 1
+        why: "Slowness that arrives late in the billing period and clears when the period resets is the carrier slowing the line after the plan's allowance is used. A failing antenna would show weak signal and would not recover on a calendar date."
+      - id: ap1-5y-q22
+        type: mcq
+        q: "A phone's touch screen has missed taps and registered false ones ever since a thick glass protector was applied last week. The picture is perfect and the phone has not been dropped. What should be done FIRST?"
+        choices:
+          - "Replace the digitizer"
+          - "Factory-reset the phone"
+          - "Remove the protector and test again"
+          - "Replace the battery"
+        answer: 2
+        why: "The fault began when the protector was fitted, and a thick or badly seated protector interferes with touch sensing; removing it is a free, reversible test. Replacing the digitizer comes only if the fault remains without the protector."
+      - id: ap1-5y-q23
+        type: mcq
+        q: "A phone that will not charge is brought in as 'stopped working for no reason'. The port looks clean, and the small indicator sticker inside the SIM slot, normally white, has turned red. What does this show?"
+        choices:
+          - "The battery has swollen"
+          - "The phone has overheated"
+          - "The SIM card has failed"
+          - "The phone has been exposed to liquid"
+        answer: 3
+        why: "Makers fit liquid contact indicators that change from white to red when wetted, so the charging fault is very likely liquid damage. The sticker reacts to moisture, not to heat or to pressure from a swollen battery."
+
+      # 5.5
+      - id: ap1-5y-q24
+        type: mcq
+        best: true
+        q: "Laptops in a far meeting room, which seats twenty and is used for video calls, keep dropping off Wi-Fi. Signal there reads -85 dBm, against -50 dBm near the office's only access point. A spare network cable already runs to the room. Each option would help; which is the BEST fix?"
+        choices:
+          - "Add a wireless range extender halfway along the corridor"
+          - "Move the meeting room's laptops to the 2.4GHz band"
+          - "Raise the transmit power of the existing access point"
+          - "Install a second access point in the meeting room"
+        answer: 3
+        why: "The room has too little coverage for twenty video callers, and a cabled access point inside it gives both strong signal and full capacity. An extender improves signal but repeats traffic over the air, cutting throughput for a room that needs plenty."
+        whys:
+          - "Improves signal, but an extender relays everything over the air, which roughly halves throughput."
+          - "2.4GHz reaches further, but it is slower and more crowded, poor for twenty video calls."
+          - "The laptops would hear the access point better, but their own weak signals back to it are unchanged."
+          - "A wired access point in the room gives strong signal in both directions and full capacity, using the cable already there."
+      - id: ap1-5y-q25
+        type: mcq
+        q: "On busy afternoons, newly arriving guest devices get 169.254.x.x addresses while devices connected since the morning work normally. The guest scope runs from 192.168.50.100 to 192.168.50.150 with an eight-day lease, and the server's lease list shows 51 active leases. What is the MOST likely cause?"
+        choices:
+          - "The DHCP scope has run out of addresses"
+          - "The DHCP server is offline"
+          - "The DNS server is unreachable"
+          - "The guest passphrase was changed"
+        answer: 0
+        why: "The scope holds 51 addresses and all 51 are leased, with long leases keeping them tied up after guests leave, so newcomers get no offer and fall back to APIPA. The server is answering, since it can be queried and shows its active leases."
+      - id: ap1-5y-q26
+        type: mcq
+        q: "A server's switch port was manually set to 100Mbps full duplex, while the server's adapter is left on auto-negotiation. Transfers crawl; the switch port counts rising CRC errors and the server's adapter reports late collisions. What is the fix?"
+        choices:
+          - "Replace the server's network card"
+          - "Set both ends to auto-negotiate"
+          - "Move the server to another VLAN"
+          - "Change the server's DNS settings"
+        answer: 1
+        why: "A port forced to full duplex does not negotiate, so the automatic end falls back to half duplex: a duplex mismatch, shown by late collisions on one side and CRC errors on the other. Configuring both ends the same way cures it; the card itself is working as designed."
+      - id: ap1-5y-q27
+        type: mcq
+        q: "VoIP calls lose whole words. A run of 100 pings to the provider shows every reply arriving in 18 to 22 ms, but 9 of the requests time out. Which problem do the results show?"
+        choices:
+          - "Jitter"
+          - "High latency"
+          - "Packet loss"
+          - "DNS failure"
+        answer: 2
+        why: "Nine unanswered requests in a hundred is 9% packet loss, and lost voice packets are heard as missing words. The replies that do arrive are fast and steady, so neither latency nor jitter is the problem."
+      - id: ap1-5y-q28
+        type: mcq
+        q: "A PC is plugged straight into a switch, and that port flaps every few minutes. The patch cable has been replaced with a tested one, and when the PC is moved to a different port that has worked for months, the new port starts flapping too. What should be replaced next?"
+        choices:
+          - "The switch"
+          - "The router"
+          - "The patch panel"
+          - "The PC's network adapter"
+        answer: 3
+        why: "The fault follows the PC from port to port with a known-good cable, so the PC's adapter is the common factor. The switch is cleared because a port that had been stable began flapping only when this PC was attached."
+      - id: ap1-5y-q29
+        type: mcq
+        q: "After its CMOS battery died, a PC started with the date set to 2015. The network link is up and it has a valid address, but every HTTPS site gives a certificate warning and sign-in to the company domain is refused. Other PCs are fine. What should be done FIRST?"
+        choices:
+          - "Correct the date and time"
+          - "Reinstall the web browser"
+          - "Reset the user's password"
+          - "Replace the network card"
+        answer: 0
+        why: "Certificates and domain authentication both depend on the clock: with the date years out, every certificate looks not yet valid and the sign-in is rejected. Set the clock, then replace the battery. The network card is working, as the PC has a link and an address."
+      - id: ap1-5y-q30
+        type: mcq
+        q: "Phones and laptops on Wi-Fi all lose the network for a minute several times a day. Desktops wired to the same router keep their internet access throughout. Which device should be investigated FIRST?"
+        choices:
+          - "The cable modem"
+          - "The wireless access point"
+          - "The provider's line"
+          - "The DNS server"
+        answer: 1
+        why: "Wired devices stay online, so the modem, the line and DNS are all working during the outages; only the wireless side fails. A modem or provider fault would cut off the wired desktops as well."
+      - id: ap1-5y-q31
+        type: mcq
+        q: "Wi-Fi on channel 6 became unreliable the day a 2.4GHz wireless video sender, which is not a Wi-Fi device, was installed nearby. A Wi-Fi analyzer lists no other networks on any channel. What is the BEST fix?"
+        choices:
+          - "Change the Wi-Fi passphrase and security mode"
+          - "Shorten the lease time on the DHCP server"
+          - "Move the access point and clients to 5GHz"
+          - "Hide the SSID of the wireless network"
+        answer: 2
+        why: "The sender is external interference in the 2.4GHz band; because it is not a Wi-Fi network, the analyzer's network list does not show it. Moving to 5GHz takes the Wi-Fi out of its way. Security and addressing settings have no effect on radio noise."
+
+      # 5.6
+      - id: ap1-5y-q32
+        type: mcq
+        q: "Copies made through a multifunction device's document feeder have a thin vertical line. Copies of the same page made on the flatbed are clean, and so are prints sent from PCs. What should be cleaned?"
+        choices:
+          - "The imaging drum"
+          - "The fuser"
+          - "The toner cartridge"
+          - "The feeder's narrow scanning glass"
+        answer: 3
+        why: "Pages from the feeder pass over a narrow strip of glass, and a speck there is scanned as a line down every sheet. Clean prints and clean flatbed copies show the print engine, including the drum, is not at fault."
+      - id: ap1-5y-q33
+        type: mcq
+        q: "A new laser printer that supports only PCL prints dozens of pages of plain text beginning '%!PS-Adobe'. Its built-in test page is perfect. What is the cause?"
+        choices:
+          - "A PostScript driver is installed for it"
+          - "The toner cartridge is nearly empty"
+          - "The network cable is faulty"
+          - "The fuser is not reaching temperature"
+        answer: 0
+        why: "'%!PS' is the opening of a PostScript job; a printer that understands only PCL prints the commands as text. Installing the PCL driver fixes it. The hardware is cleared by the perfect built-in test page."
+      - id: ap1-5y-q34
+        type: mcq
+        q: "An inkjet printer that has stood unused for four months prints with horizontal white bands and no yellow at all. The cartridges are all more than half full. What should be done FIRST?"
+        choices:
+          - "Replace all the cartridges"
+          - "Run the printhead cleaning cycle"
+          - "Replace the feed rollers"
+          - "Reinstall the driver"
+        answer: 1
+        why: "Ink dries in the nozzles of an idle inkjet; the cleaning cycle flushes them, and a nozzle check confirms the result. The cartridges still hold ink, so replacing them wastes money before the cheap fix has been tried."
+      - id: ap1-5y-q35
+        type: mcq
+        q: "Straight after a new roll is fitted, a thermal receipt printer feeds paper normally but every receipt is blank. The previous roll printed well to its end. What is the MOST likely cause?"
+        choices:
+          - "The heating element has burnt out"
+          - "The ribbon needs replacing"
+          - "The roll is loaded the wrong way up"
+          - "The feed assembly is jammed"
+        answer: 2
+        why: "Thermal paper is coated on one side only; loaded upside down, the plain side meets the heating element and nothing appears. A burnt-out element is unlikely to coincide exactly with a roll change, and a direct thermal printer has no ribbon."
+      - id: ap1-5y-q36
+        type: mcq
+        q: "An impact printer's output has grown steadily lighter over several weeks. Every character is fully formed, with no missing dots, on all layers of its multipart forms. What should be replaced?"
+        choices:
+          - "The printhead"
+          - "The tractor feed"
+          - "The platen"
+          - "The ribbon"
+        answer: 3
+        why: "Print that is complete but evenly pale means the ribbon is running out of ink. A failing printhead shows as missing dots or lines where individual pins no longer strike."
+      - id: ap1-5y-q37
+        type: mcq
+        q: "Jobs pile up in a printer's queue with no error shown. The printer is powered, connected and idle, and the title of the queue window ends with 'Paused'. What is the fix?"
+        choices:
+          - "Restart the print spooler service"
+          - "Reinstall the printer driver"
+          - "Resume printing from the queue's menu"
+          - "Replace the printer's network cable"
+        answer: 2
+        why: "The queue has been paused, so jobs are accepted and held; clearing the pause releases them. Restarting the spooler is the fix for a job stuck in error, and a paused queue stays paused afterwards."
+
+      # Multiple response
+      - id: ap1-5y-m01
+        type: multi
+        q: "A PC shows random stop screens with a different code each time, and files copied between folders are sometimes corrupted. Which TWO steps BEST test the theory that its memory is faulty?"
+        choices:
+          - "Replace the CMOS battery"
+          - "Run a memory diagnostic for several passes"
+          - "Defragment the system drive"
+          - "Test with one memory module installed at a time"
+          - "Lower the screen resolution"
+        answers: [1, 3]
+        why: "A diagnostic exercises every memory cell, and running on one module at a time shows which module (or slot) carries the fault. The CMOS battery, defragmentation and screen resolution have no bearing on memory errors."
+      - id: ap1-5y-m02
+        type: multi
+        q: "A technician reads a hard drive's S.M.A.R.T. report. Which TWO readings warn that the drive is likely to fail soon?"
+        choices:
+          - "A reallocated-sector count that rises every week"
+          - "A power-on time of 900 hours"
+          - "A temperature of 35°C"
+          - "A used capacity of 60%"
+          - "A growing count of sectors pending reallocation"
+        answers: [0, 4]
+        why: "Sectors already remapped and sectors waiting to be remapped both show the surface going bad, and a rising trend predicts failure. 900 hours is a young drive, 35°C is a normal temperature, and how full a drive is says nothing about its health."
+      - id: ap1-5y-m03
+        type: multi
+        q: "An apartment's 2.4GHz Wi-Fi drops constantly. A Wi-Fi analyzer shows more than twenty neighbouring networks spread over channels 1 to 11, and every device in the apartment supports 5GHz. Which TWO changes are MOST likely to help?"
+        choices:
+          - "Widen the 2.4GHz channel to 40MHz"
+          - "Hide the network's SSID"
+          - "Move the devices to the 5GHz band"
+          - "Set the 2.4GHz radio to the least busy of channels 1, 6 and 11"
+          - "Shorten the DHCP lease time"
+          - "Switch from WPA3 to WPA2"
+        answers: [2, 3]
+        why: "5GHz has many more channels and far fewer neighbours, and on 2.4GHz the least busy non-overlapping channel suffers the least interference. A 40MHz channel on 2.4GHz overlaps even more neighbours; hiding the SSID, lease times and the security mode do nothing about congestion."
+      - id: ap1-5y-m04
+        type: multi
+        q: "Desk phones in an office share one Wi-Fi network with PCs that run large cloud backups all day, and calls are choppy during the backups. There is a free network socket at every desk. Which TWO changes would improve call quality?"
+        choices:
+          - "Connect the phones by Ethernet"
+          - "Lengthen the DHCP lease time"
+          - "Enable QoS so that voice traffic is sent first"
+          - "Change the DNS server address"
+          - "Hide the SSID of the Wi-Fi network"
+        answers: [0, 2]
+        why: "Wiring the phones takes them off the congested shared radio, and QoS puts voice packets ahead of bulk backup traffic, cutting jitter and loss. Lease times, DNS and a hidden SSID do not change how voice packets are delivered."
+      - id: ap1-5y-m05
+        type: multi
+        q: "A laser printer with 300,000 pages on its original rollers jams and misfeeds at the tray. Its paper is kept unwrapped in a damp basement. Which TWO actions address the likely causes?"
+        choices:
+          - "Replace the toner cartridge"
+          - "Fit the maintenance kit, with its new rollers"
+          - "Install a PostScript driver"
+          - "Turn on draft mode"
+          - "Switch to dry paper from a sealed ream"
+        answers: [1, 4]
+        why: "Worn feed rollers and damp, curled paper are the two classic causes of jams and misfeeds at the tray; the maintenance kit renews the rollers and dry paper feeds cleanly. Toner, the driver language and draft mode affect the image, not the feeding."
+      - id: ap1-5y-m06
+        type: multi
+        q: "Which THREE of these symptoms on a phone point to malware rather than to a hardware fault?"
+        choices:
+          - "Taps register a little to one side of the finger"
+          - "Adverts appear on the home screen with no app open"
+          - "The phone charges only when its cable is held at an angle"
+          - "Data use has tripled with no change in the user's habits"
+          - "Apps appear that the user did not install"
+          - "A faint static outline shows over every picture"
+        answers: [1, 3, 4]
+        why: "Unrequested adverts, unexplained data use and apps nobody installed are all software acting without the user's consent. Offset taps are a calibration or digitizer matter, angle-dependent charging is a port fault, and a static outline is display burn-in."
+      - id: ap1-5y-m07
+        type: multi
+        q: "A newly fitted NVMe M.2 drive does not appear in a desktop's firmware setup at all. Which TWO of these are plausible causes?"
+        choices:
+          - "The drive is not fully seated in its slot"
+          - "The disk has not been initialized"
+          - "No drive letter has been assigned"
+          - "The slot supports only SATA M.2 drives"
+          - "The partition uses the wrong file system"
+        answers: [0, 3]
+        why: "Firmware detects a drive at the hardware level, so only a poor connection or a slot that does not support NVMe can hide it there. Initialization, drive letters and file systems are operating-system matters and have no effect on whether firmware lists the drive."
+
+      # Ordering (performance-based stand-ins)
+      - id: ap1-5y-o01
+        type: order
+        q: "A hot-swap RAID 5 array reports that it is degraded. Put the repair steps in order."
+        steps:
+          - "Identify the failed disk from the controller report and its amber light"
+          - "Confirm that a current backup exists"
+          - "Remove the failed disk and insert a matching replacement"
+          - "Let the controller rebuild the array"
+          - "Confirm that the array reports a healthy state"
+        why: "Pulling the wrong disk from a degraded array destroys it, so identification comes first, and a backup is confirmed before anything is removed in case the rebuild fails. The job is finished only when the controller reports the array healthy again."
+      - id: ap1-5y-o02
+        type: order
+        q: "A wired PC cannot open any website. Put these checks in order, working outwards from the PC."
+        steps:
+          - "Check the link light on the network port"
+          - "Check the adapter's IP address, mask and gateway"
+          - "Ping the default gateway"
+          - "Ping a public IP address"
+          - "Ping a public host name"
+        why: "Each check depends on the one before: no link means no address, no valid address means no gateway, no gateway means no internet, and name resolution is tested last because it needs everything else to work."
+      - id: ap1-5y-o03
+        type: order
+        q: "A Windows print queue is frozen by a job that cannot be deleted. Put the steps to clear it in order."
+        steps:
+          - "Stop the Print Spooler service"
+          - "Delete the stuck job files from the spool folder"
+          - "Start the Print Spooler service"
+          - "Send a test page"
+        why: "The spooler keeps the job files locked while it runs, so it is stopped before they are deleted and started again afterwards. The test page verifies the fix."
+      - id: ap1-5y-o04
+        type: order
+        q: "A drink has been spilled into a running laptop. Put the response in order."
+        steps:
+          - "Shut the laptop down and unplug its charger"
+          - "Disconnect or remove the battery"
+          - "Dry and clean the inside, and wait until no moisture remains"
+          - "Reconnect power and test"
+        why: "Liquid does its damage by shorting live circuits, so all power, including the battery, is removed before anything else. Power is restored only when the inside is completely dry."
+      - id: ap1-5y-o05
+        type: order
+        q: "A desktop's processor overheats because its thermal paste has dried out. Put the repair steps in order."
+        steps:
+          - "Shut down and unplug the PC"
+          - "Remove the heat sink and fan from the processor"
+          - "Clean the old paste from both surfaces"
+          - "Apply a small amount of fresh paste"
+          - "Refit the heat sink and reconnect its fan"
+          - "Start the PC and watch the temperature"
+        why: "Power is removed before any work inside the case; old paste must be cleaned off before new paste goes on, or the layer is too thick and uneven. Watching the temperature afterwards verifies the repair."
