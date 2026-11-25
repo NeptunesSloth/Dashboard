@@ -971,9 +971,9 @@ units:
       - `aaa authentication login VTY group ADMINS local` and `aaa authorization exec VTY group ADMINS local`
       - under `line vty 0 4`: `login authentication VTY` and `authorization exec VTY`
 
-      RADIUS is the same with `radius server` (UDP 1812/1813) and `aaa group server radius`. Methods are tried in order, and `local` is reached only when the servers give **no answer**, never after a rejection. With `aaa new-model` and no list applied, vty logins use the local username database.
+      RADIUS is the same with `radius server` (UDP 1812/1813) and `aaa group server radius`. Methods are tried in order, and `local` is reached only when the servers give **no answer**, never after a rejection. With `aaa new-model`, a vty line that has no list applied, when no default list exists, uses the local username database.
 
-      **Files.** SCP and SFTP both run inside SSH (TCP 22). To push files *to* a router, enable `ip scp server enable` (SSH, AAA login and exec authorization at level 15 are prerequisites). From the router: `copy running-config scp://user@host/r1.cfg` or `copy scp: flash:`.
+      **Files.** SCP and SFTP both run inside SSH (TCP 22). To push files *to* a router, configure `ip scp server enable` (SSH, AAA login and exec authorization at level 15 are prerequisites). From the router: `copy running-config scp://user@host/r1.cfg` or `copy scp: flash:`.
 
       **DNS records.** A (IPv4), AAAA (IPv6), CNAME (alias for another name), MX (mail host for a domain, lowest preference first), NS (the zone's name servers), PTR (address to name). `nslookup` and `dig` ask DNS directly and ignore the hosts file.
 
@@ -1032,7 +1032,7 @@ units:
       - id: cn-v2d-raguard
         type: concept
         term: "RA guard"
-        def: "Switch feature that drops IPv6 router advertisements arriving on ports whose attached device is classed as a host, stopping rogue default gateways."
+        def: "Switch feature that drops IPv6 gateway announcements arriving on ports whose attached device is classed as a host, stopping rogue default gateways."
       - id: cn-v2d-transport
         type: concept
         term: "Transport mode (IPsec)"
@@ -1125,7 +1125,7 @@ units:
           - "scp running-config backup@10.1.99.20:r1.cfg"
           - "ip scp server enable"
         answer: 1
-        why: "IOS copies to an scp:// URL and prompts for the password. TFTP is unauthenticated and clear text; IOS has no 'scp' exec command; and enabling the SCP server is for copies initiated from outside."
+        why: "IOS copies to an scp:// URL and prompts for the password. TFTP is unauthenticated and clear text, 'scp user@host:file' is what a workstation types rather than an IOS command, and enabling the SCP server is for copies started from outside."
       - id: cn-v2d-q09
         type: mcq
         q: "During one session an administrator must list the backup server's directory, delete old images and upload a new one, all encrypted. Which protocol fits BEST?"
@@ -1527,14 +1527,14 @@ units:
         why: "ios_command runs the show command, register stores the result and debug prints it, for every host in the group. Nothing is configured or saved."
       - id: cn-v2e-q15
         type: mcq
-        q: "A playbook using 'cisco.ios.ios_command' fails on every router with errors about running Python modules on the remote host. The inventory gives only hostnames and credentials. What is missing?"
+        q: "A playbook using 'cisco.ios.ios_command' fails on every router with a connection error. The inventory gives only hostnames and credentials, and SSH logins by hand work. What is missing?"
         choices:
           - "An agent installed on each router, for the control node to hand modules to"
           - "A Terraform provider for IOS"
           - "Network connection variables: ansible_connection and ansible_network_os"
           - "NETCONF enabled on every router, because Ansible cannot drive the CLI"
         answer: 2
-        why: "Without a network connection type, Ansible tries to copy and run Python on the target, which a router cannot do. Ansible stays agentless; network_cli works over plain SSH."
+        why: "Without a network connection type and platform, Ansible treats the router like a server it would copy Python to, which a router cannot run. Ansible stays agentless; network_cli works over plain SSH."
       - id: cn-v2e-q16
         type: mcq
         q: "'show running-config' through 'cisco.ios.ios_command' fails because the automation account lands in user exec mode. Which change fixes it?"
