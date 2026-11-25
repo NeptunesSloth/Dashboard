@@ -422,7 +422,7 @@ units:
           - "In the modem or the provider's line"
           - "In the wireless access point"
         answer: 2
-        why: "The local network keeps working, so the fault is beyond it, and a blinking online light shows the modem losing its connection: check its coaxial connections and call the provider. A switch or DHCP fault would also break local printing and file shares."
+        why: "The local network keeps working, so the fault is beyond it, and a blinking online light shows the modem losing its connection: check its coaxial connections and call the provider. A switch fault would also break local printing and file shares, and a DHCP fault would not cut devices that already hold addresses off the internet only."
 
       # 5.6 Printers
       - id: ap1-5x-q36
@@ -1029,12 +1029,11 @@ units:
         type: order
         q: "A hot-swap RAID 5 array reports that it is degraded. Put the repair steps in order."
         steps:
-          - "Identify the failed disk from the controller report and its amber light"
           - "Confirm that a current backup exists"
-          - "Remove the failed disk and insert a matching replacement"
+          - "Pull the disk the controller and its amber light identify as failed, and insert a matching replacement"
           - "Let the controller rebuild the array"
           - "Confirm that the array reports a healthy state"
-        why: "Pulling the wrong disk from a degraded array destroys it, so identification comes first, and a backup is confirmed before anything is removed in case the rebuild fails. The job is finished only when the controller reports the array healthy again."
+        why: "A degraded array has no redundancy left, so a backup is confirmed before anything is touched in case the rebuild fails; the failed disk is identified from the controller, never guessed, because pulling a healthy one destroys the array. The job is finished only when the controller reports the array healthy again."
       - id: ap1-5y-o02
         type: order
         q: "A wired PC cannot open any website. Put these checks in order, working outwards from the PC."

@@ -378,7 +378,7 @@ units:
         q: "SW1 Gi0/4 has 'speed 100' and 'duplex full'; the PC on it is left on autonegotiation. SW1 shows 'Full-duplex, 100Mb/s', '0 collisions, 0 late collision' and '4210 input errors, 3988 CRC'; it also counts 222 runts. Users report slow transfers. Which change fixes it?"
         choices:
           - "Replace the cable between SW1 and the PC"
-          - "Set 'duplex half' on Gi0/4 to stop the CRC errors"
+          - "Shut and re-enable Gi0/4 to clear the error counters"
           - "Configure 'speed auto' and 'duplex auto' on Gi0/4"
           - "Configure 'switchport nonegotiate' on Gi0/4"
         answer: 2
@@ -433,7 +433,7 @@ units:
         why: "A /26 holds 64 addresses; the /27 uses 32, leaving 32. Each /30 uses 4 addresses, so 32 / 4 = 8 links."
       - id: cn-1y-q08
         type: mcq
-        q: "Hosts on R1's Gi0/0 LAN receive no IPv6 global address by SLAAC. Gi0/0 has 'ipv6 address 2001:db8:5:1::1/64'. 'show ipv6 interface Gi0/0' lists 'Joined group address(es): FF02::1 FF02::1:FF00:1' and nothing else, and IPv6 pings to the router itself work. Which command fixes it?"
+        q: "Hosts on R1's Gi0/0 LAN receive no IPv6 global address by SLAAC. Gi0/0 has 'ipv6 address 2001:db8:5:1::1/64'. 'show ipv6 interface Gi0/0' lists FF02::1 and two FF02::1:FF solicited-node groups under 'Joined group address(es)' but not FF02::2, and IPv6 pings to the router itself work. Which command fixes it?"
         choices:
           - "ipv6 unicast-routing"
           - "ipv6 enable"

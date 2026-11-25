@@ -194,18 +194,18 @@ units:
       - id: ap1-1b-sync
         type: concept
         term: "Synchronisation"
-        def: "Keeping mail, contacts, calendars and files identical on a mobile device and a cloud account or computer, so a change made in one place appears in the others."
+        def: "Keeping a phone's or tablet's mail, contacts and calendar identical with the same account on other devices, so a change made in one place appears in the others."
 
       - id: ap1-1b-o01
         type: order
-        q: "Put the steps for connecting a new Bluetooth headset to a phone in order."
+        q: "Put the steps of the standard Bluetooth pairing sequence for a new headset and a phone in order. (The headset drops out of pairing mode after a short time-out, so it is made discoverable only once the phone is ready to search.)"
         steps:
           - "Enable Bluetooth on the phone"
           - "Put the headset into pairing mode"
           - "Select the headset from the list of discovered devices"
           - "Enter the PIN code if prompted"
           - "Test the connection by playing audio"
-        why: "The radio must be on before anything can be found, the accessory must be discoverable before it appears in the list, and the PIN is only requested once a device has been chosen. Testing comes last."
+        why: "The phone's radio is switched on first so that the headset's short pairing window is not wasted; the accessory must be discoverable before it appears in the list, and the PIN is only requested once a device has been chosen. Testing comes last."
       - id: ap1-1b-q01
         type: mcq
         q: "A user has Bluetooth turned on, but a brand-new wireless keyboard never appears in the phone's list of available devices. What is the MOST likely reason?"
@@ -858,7 +858,7 @@ units:
       | Thermal | Heating element on heat-sensitive paper | Replace paper, clean the heating element, remove debris |
       | Impact | Pins strike an inked ribbon | Replace ribbon, printhead and paper |
 
-      A laser printer builds each page in a fixed sequence: processing, charging, exposing, developing, transferring, fusing and cleaning. Knowing it lets you trace most print defects to a single part. Let a laser printer cool before servicing: the fuser is hot.
+      A laser printer builds each page in a fixed sequence: processing, charging, exposing, developing, transferring, fusing and cleaning. The sequence is no longer a listed topic on 220-1201 (only laser maintenance is), but knowing it lets you trace most print defects to a single part. Let a laser printer cool before servicing: the fuser is hot.
     items:
       - id: ap1-3c-pcl
         type: concept
@@ -899,7 +899,7 @@ units:
 
       - id: ap1-3c-o01
         type: order
-        q: "After the page image has been processed, a laser printer carries out six further stages. Put them in order."
+        q: "After the page image has been processed, a laser printer carries out six further stages. Put them in order, as CompTIA lists the imaging process. (No longer a listed 220-1201 topic; kept because it explains print defects.)"
         steps: ["Charging", "Exposing", "Developing", "Transferring", "Fusing", "Cleaning"]
         why: "The drum is given a uniform charge, the laser writes the image onto it, toner sticks to the written areas, the toner is pulled onto the paper, heat and pressure fix it, and finally the drum is wiped ready for the next page."
       - id: ap1-3c-q01
@@ -989,7 +989,7 @@ units:
       - id: ap1-4a-sandbox
         type: concept
         term: "Sandbox"
-        def: "An isolated environment in which untrusted or experimental software can be run without any risk to the real system or network."
+        def: "An isolated environment in which untrusted or suspicious software can be run without being able to reach or change the real system or network."
       - id: ap1-4a-vdi
         type: concept
         term: "VDI"
@@ -1229,7 +1229,7 @@ units:
 
       - id: ap1-5a-o01
         type: order
-        q: "Put the steps of the standard troubleshooting methodology in order."
+        q: "Put the steps of CompTIA's troubleshooting methodology in order. (Printed in the 220-1201 objectives as a competency standard that is NOT tested; kept because every troubleshooting scenario assumes it.)"
         steps:
           - "Identify the problem"
           - "Establish a theory of probable cause"
@@ -1500,7 +1500,7 @@ units:
       ## Printers
 
       | Symptom | Likely cause |
-      | Vertical lines down the page | Scratched drum or dirty scanner glass (laser); clogged nozzles (inkjet) |
+      | Vertical lines down the page | Scratched drum (laser); dirty scanner glass (copies only); clogged nozzles (inkjet) |
       | Faded print | Low toner or ink, draft mode |
       | Toner smears or rubs off | Fuser not hot enough |
       | Double or echo image | Drum not being cleaned or discharged |
@@ -1519,7 +1519,7 @@ units:
       - id: ap1-5c-latency
         type: concept
         term: "Latency"
-        def: "The time a packet takes to travel from sender to receiver, usually measured in milliseconds with a ping."
+        def: "The delay a packet experiences crossing the network, usually measured in milliseconds as the round-trip time of a ping."
       - id: ap1-5c-flapping
         type: concept
         term: "Port flapping"

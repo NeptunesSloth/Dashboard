@@ -714,7 +714,7 @@ units:
         answer: 0
         why: "DisplayPort 1.4 can carry 4K at 144Hz (using DSC or chroma subsampling); HDMI 2.0 tops out at 4K 60Hz."
         whys:
-          - "Best: the only link here with the bandwidth for 4K at 144Hz."
+          - "Best: the only link here that can carry 4K at 144Hz, using Display Stream Compression or chroma subsampling."
           - "Gives a 4K picture, but only up to 60Hz."
           - "Dual-link DVI tops out far below 4K at 144Hz."
           - "The card has no USB-C output, and the HDMI end has the same 60Hz limit."
@@ -1056,10 +1056,10 @@ units:
         choices:
           - "Bridged networking"
           - "NAT networking"
-          - "An internal (private) virtual network"
+          - "A private virtual network that joins only the VMs"
           - "Host-only networking between the VMs and the host"
         answer: 2
-        why: "An internal network connects the VMs to each other and to nothing else, not even the host."
+        why: "A VM-only network connects the VMs to each other and to nothing else, not even the host. Names vary by product: VirtualBox calls it an internal network and Hyper-V a private switch (Hyper-V's 'internal' switch includes the host)."
         whys:
           - "Puts the VMs directly on the office LAN."
           - "Gives the VMs internet access through the host."
