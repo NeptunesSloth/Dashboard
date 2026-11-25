@@ -1,0 +1,305 @@
+part_of: ccna
+
+# Topics that CCNA 200-301 v2.0 (first test date 3 February 2027) adds to the
+# course, one unit per v2.0 domain. About a third of each unit is exam-hard
+# scenario practice.
+
+units:
+  # ─────────────── v2a · DHCPv4 on IOS, cable faults, client checks ───────────────
+  - id: cn-v2a
+    title: "v2.0: DHCP on IOS, cable faults and client troubleshooting"
+    domain: "1"
+    goal: "I can configure and troubleshoot an IOS DHCP server and relay, diagnose a copper or fibre link from its counters, and check a client's addressing on Windows, macOS and Linux."
+    notes: |
+      **The IOS DHCP server.** Keep static addresses out with `ip dhcp excluded-address`, then build `ip dhcp pool NAME` with `network`, `default-router`, `dns-server`, `domain-name` and `lease`. Before it offers an address the server pings it; if anything answers, the address goes into the conflict table (`show ip dhcp conflict`) and is not leased again until it is cleared. `show ip dhcp binding` lists leases, `show ip dhcp pool` shows how full each pool is, and `no service dhcp` turns off the server *and* the relay.
+
+      **The relay.** `ip helper-address` on the interface facing the clients turns their broadcast into a unicast and writes that interface's address into the *giaddr* field. The server picks the pool whose network contains giaddr and sends its reply to that address, so the server needs a route back to the client subnet.
+
+      **Links.** Read the status pair, then speed and duplex, then the counters. CRC errors with no collisions point at the cable; late collisions on one side and CRC errors on the other point at a duplex mismatch; down/down points at no signal, a speed mismatch or a broken pair. Catalyst switches can test copper pairs with TDR, and `show interfaces transceiver` shows a fibre optic's light levels in dBm. Copper Ethernet stops at 100 m whatever the cable category.
+
+      **Clients.** Check link, address and mask, gateway, then DNS.
+
+      | | Windows | macOS | Linux |
+      | Address | ipconfig /all | ifconfig en0 | ip addr show |
+      | Gateway | ipconfig | netstat -rn | ip route show |
+      | Wi-Fi | netsh wlan show interfaces | Wi-Fi menu (Option-click) | iw dev wlan0 link |
+    items:
+      - id: cn-v2a-pool
+        type: concept
+        term: "ip dhcp pool <name>"
+        def: "Global command that creates a named set of lease settings on an IOS router and opens the sub-mode where the client subnet, gateway and resolvers are entered."
+      - id: cn-v2a-default-router
+        type: concept
+        term: "default-router <address>"
+        def: "Command inside a lease pool that sets the gateway address an IOS address server hands to its clients."
+      - id: cn-v2a-conflict
+        type: concept
+        term: "show ip dhcp conflict"
+        def: "Lists addresses an IOS address server found already in use, by a ping before offering or a gratuitous ARP from a client, and has withdrawn from leasing until someone clears them."
+      - id: cn-v2a-giaddr
+        type: concept
+        term: "giaddr (relay agent address field)"
+        def: "Field a relay fills with the address of the interface that heard a client's broadcast; the server uses it to choose a pool and as the destination of its reply."
+      - id: cn-v2a-service-dhcp
+        type: concept
+        term: "no service dhcp"
+        def: "Global command that switches off both the address server and the relay agent on an IOS device, so pools and helper addresses stop working."
+      - id: cn-v2a-tdr
+        type: concept
+        term: "test cable-diagnostics tdr interface <id>"
+        def: "Catalyst command that sends a pulse down each copper pair and times the reflection, reporting per pair whether it is normal, open or shorted and roughly how far away the fault lies."
+      - id: cn-v2a-dom
+        type: concept
+        term: "show interfaces transceiver"
+        def: "Shows a pluggable optic's digital readings, such as temperature, voltage, and transmit and receive light levels in dBm, to judge a fibre link's signal."
+      - id: cn-v2a-mdix
+        type: concept
+        term: "Auto-MDIX"
+        def: "Port feature that detects whether a cable's transmit and receive pairs are crossed and swaps them in hardware, so a straight-through or a crossover cable both work."
+      - id: cn-v2a-ipaddr
+        type: concept
+        term: "ip addr show"
+        def: "Linux command that lists every interface with its link state, MAC address and assigned IPv4 and IPv6 prefixes."
+      - id: cn-v2a-netsh
+        type: concept
+        term: "netsh wlan show interfaces"
+        def: "Windows command that reports the wireless adapter's connected SSID, BSSID, radio type, authentication and cipher, channel and signal percentage."
+
+      - id: cn-v2a-q01
+        type: mcq
+        q: "A network printer was given 10.1.10.40 by hand. The router's pool covers 10.1.10.0/24 and excludes only 10.1.10.1 to 10.1.10.10. 'show ip dhcp conflict' lists '10.1.10.40  Ping'. What does this show, and what should be done?"
+        choices:
+          - "The server found 10.1.10.40 in use before offering it; exclude the printer's address, then clear the conflict"
+          - "Two clients were leased 10.1.10.40 at once; clear the bindings so that both renew"
+          - "A rogue server leased 10.1.10.40; enable DHCP snooping on the access switches"
+          - "The pool is exhausted at 10.1.10.40; shorten the lease so addresses return sooner"
+        answer: 0
+        why: "The IOS server pings each address before offering it; a reply means the address is taken, so it is logged as a conflict and withheld. Excluding the static address stops it recurring. No duplicate lease was handed out, which is the point of the ping check."
+      - id: cn-v2a-q02
+        type: mcq
+        q: "R2's Gi0/1 is 10.1.20.1/24 with 'ip helper-address 10.1.99.5'. The IOS server at 10.1.99.5 has pools for 10.1.10.0/24 and 10.1.30.0/24 only. A capture on the server shows the relayed Discovers arriving, but no Offer is ever sent. Why?"
+        choices:
+          - "The helper address must name the server's interface that faces R2"
+          - "No pool contains the relay address 10.1.20.1, so the server has no pool to lease from"
+          - "R2 should forward the Discover as a broadcast, not as a unicast"
+          - "The server must have 'ip helper-address' configured as well"
+        answer: 1
+        why: "The server matches giaddr (10.1.20.1) against its pools' networks and finds none. Any reachable address of the server works as the helper target, so the address choice is not the fault."
+      - id: cn-v2a-q03
+        type: mcq
+        q: "Relayed Discovers with giaddr 10.1.40.1 reach a central DHCP server, which has the right pool and sends Offers. Clients still get nothing. The server's only route is a default route to the internet firewall, which drops traffic to private addresses. What is the MOST likely cause?"
+        choices:
+          - "The relay should put the client's MAC address in giaddr instead"
+          - "The server must sit in the same VLAN as the clients for relaying to work"
+          - "The Offers to 10.1.40.1 follow the default route and never reach the relay"
+          - "The Offers are broadcast to 255.255.255.255, which routers never forward"
+        answer: 2
+        why: "The server unicasts its reply to giaddr, so it needs a route to the client subnet. A relay exists precisely so that the server need not be in the clients' VLAN."
+      - id: cn-v2a-q04
+        type: mcq
+        q: "A router has 'ip dhcp excluded-address 10.1.50.1 10.1.50.30' and a pool with 'network 10.1.50.0 255.255.255.192'. How many addresses can the pool lease?"
+        choices: ["30", "33", "62", "32"]
+        answer: 3
+        why: "A /26 has 62 usable host addresses (.1 to .62). Excluding .1 to .30 removes 30, leaving 32 (.31 to .62)."
+      - id: cn-v2a-q05
+        type: mcq
+        q: "A guest pool must hand out leases of 12 hours. Which pool command does that?"
+        choices: ["lease 12", "lease 0 12", "lease 12 0", "lease 0 0 12"]
+        answer: 1
+        why: "The arguments are days, then hours, then minutes, so 'lease 0 12' is 0 days 12 hours. 'lease 12' and 'lease 12 0' are 12 days; 'lease 0 0 12' is 12 minutes."
+      - id: cn-v2a-q06
+        type: mcq
+        q: "After a hardening template is applied to a branch router, clients on its LAN, which get addresses through 'ip helper-address', stop receiving leases. The helper line and the server are unchanged. Which template line is the MOST likely cause?"
+        choices: ["no ip domain-lookup", "no ip http server", "no service dhcp", "no cdp run"]
+        answer: 2
+        why: "'no service dhcp' disables the relay agent as well as the server, so the helper line stops doing anything. The other three remove name lookups, the web server and CDP, none of which relaying needs."
+      - id: cn-v2a-q07
+        type: mcq
+        q: "'show ip dhcp binding' shows a lease for 10.1.10.21 with the client ID '0100.5056.aa01.02'. Which client holds it?"
+        choices:
+          - "The client whose MAC address is 0100.5056.aa01"
+          - "The client whose MAC address is 0050.56aa.0102"
+          - "The relay with interface address 10.1.10.1"
+          - "The client whose MAC address is 5056.aa01.0201"
+        answer: 1
+        why: "A typical client ID is the hardware type (01 for Ethernet) followed by the MAC address, so dropping the leading 01 leaves 0050.56aa.0102. The first twelve digits include that type byte, so they are not the MAC."
+      - id: cn-v2a-q08
+        type: mcq
+        q: "A guest VLAN uses a /24 pool with 'lease 8'. On busy days new visitors get no address, and 'show ip dhcp pool' shows every address leased although most of the visitors have long gone. Which change addresses the cause?"
+        choices:
+          - "Clear the conflict table every morning"
+          - "Add a second dns-server line to the pool"
+          - "Exclude the addresses of the guest access points"
+          - "Shorten the lease to a few hours"
+        answer: 3
+        why: "An eight-day lease holds each departed visitor's address for days. A short lease returns addresses quickly. Conflicts and DNS settings do not consume leases."
+      - id: cn-v2a-q09
+        type: mcq
+        q: "Clients receive addresses from an IOS pool and can reach 'fs1.corp.example.com', but typing just 'fs1' fails. The pool has 'network', 'default-router' and 'dns-server' lines. Which pool command fixes this?"
+        choices: ["ip domain-name corp.example.com", "domain-name corp.example.com", "dns-server corp.example.com", "ip host fs1 10.1.99.20"]
+        answer: 1
+        why: "The pool's 'domain-name' gives clients a DNS suffix to append to short names. 'ip domain-name' is a global command for the router's own lookups and is not sent to clients."
+      - id: cn-v2a-q10
+        type: mcq
+        q: "A server NIC is fixed at 1000 Mb/s full duplex. The switch port it plugs into has 'speed 100' left over from an old device. What will 'show interfaces status' MOST likely show for the port?"
+        choices:
+          - "connected, a-full, 100, with rising CRC errors"
+          - "err-disabled, because of the speed mismatch"
+          - "connected, half, 100, with late collisions"
+          - "notconnect, because no link forms at mismatched speeds"
+        answer: 3
+        why: "Two ends forced to different speeds cannot agree on a signal, so the link stays down. Errors and collisions need a working link, which a duplex mismatch has but a speed mismatch does not."
+      - id: cn-v2a-q11
+        type: mcq
+        q: "An access port has no speed or duplex commands. 'show interfaces' reads 'Half-duplex, 100Mb/s', with 1,842 late collisions and climbing. The PC's NIC was set by hand to 100 Mb/s full duplex. What is happening?"
+        choices:
+          - "The PC sends no autonegotiation, so the switch fell back to half duplex while the PC runs full"
+          - "The switch forced the PC to 100 Mb/s because the cable is only Cat5"
+          - "The PC's NIC is faulty and is sending frames that are too short"
+          - "The port is in a different VLAN from the PC's gateway"
+        answer: 0
+        why: "A port that hears no negotiation senses the speed but must assume half duplex. The PC transmits whenever it likes, so the half-duplex switch sees late collisions. Setting both ends to auto (or both to full) fixes it."
+      - id: cn-v2a-q12
+        type: mcq
+        q: "SW1 logs '%CDP-4-DUPLEX_MISMATCH: duplex mismatch discovered on FastEthernet0/1 (not full duplex), with SW2 FastEthernet0/1 (full duplex)'. Which statement is correct?"
+        choices:
+          - "SW2's Fa0/1 runs half duplex and SW1's runs full"
+          - "Both ports run half duplex because CDP could not negotiate"
+          - "SW1's Fa0/1 runs half duplex while SW2's Fa0/1 runs full"
+          - "The two ports run at different speeds"
+        answer: 2
+        why: "The message is from SW1 and says its own port is not full duplex, while the neighbour's is. A speed mismatch would leave the link down and CDP could not report anything."
+      - id: cn-v2a-q13
+        type: mcq
+        q: "A 10 Gb/s fibre uplink takes input errors and drops several times a day. 'show interfaces transceiver' shows a receive power of -24.1 dBm, below the low alarm threshold of -14.0 dBm printed in the same output; transmit power is normal. What is the MOST likely cause?"
+        choices:
+          - "The receiver is overloaded because the run is too short"
+          - "The two ends are set to different duplex modes"
+          - "Too much light is lost on the path, for example a dirty connector or a bad splice"
+          - "The far-end optic is in a port in the wrong VLAN"
+        answer: 2
+        why: "Low received light with a normal transmitter means loss along the path. Overload would show receive power above the high threshold; duplex and VLANs do not affect light levels."
+      - id: cn-v2a-q14
+        type: mcq
+        q: "A PC on a 40 m run links only at 100 Mb/s although both ends are set to auto. A TDR test reports one of the four pairs open about 37 m away and the other three normal. What is the MOST likely explanation?"
+        choices:
+          - "A duplex mismatch forces the link down to 100 Mb/s"
+          - "The cable is longer than Gigabit Ethernet allows"
+          - "Auto-MDIX cannot swap pairs at 1000 Mb/s"
+          - "Gigabit needs all four pairs, Fast Ethernet only two, and the broken pair is one Fast Ethernet does not use"
+        answer: 3
+        why: "1000BASE-T transmits on all four pairs, so one open pair rules it out, while 100BASE-TX uses two pairs and still links. The run is 40 m, well inside the 100 m limit, and duplex does not choose the speed."
+      - id: cn-v2a-q15
+        type: mcq
+        q: "'ipconfig /all' shows DHCP enabled, 10.1.10.57/24, gateway 10.1.10.1 and DNS server 10.1.99.53. The PC can ping 10.1.10.1 and 10.1.99.53, but 'nslookup intranet.example.com' times out. What is the MOST likely cause?"
+        choices:
+          - "The default gateway is wrong"
+          - "The PC's subnet mask is too short"
+          - "The DNS service on 10.1.99.53 is not answering, or port 53 is blocked on the way"
+          - "The PC has a self-assigned address"
+        answer: 2
+        why: "The ping to 10.1.99.53 crosses the gateway, so addressing and routing work; only the name query fails. A wrong gateway or mask would break that ping too."
+      - id: cn-v2a-q16
+        type: mcq
+        q: "A MacBook moved from the second floor (10.1.20.0/24) to the third (10.1.30.0/24) and now reaches nothing, wired or wireless. 'networksetup -getinfo Wi-Fi' shows 'Manual Configuration', IP address 10.1.20.15, router 10.1.20.1. What is the fix?"
+        choices:
+          - "Set the adapter to obtain its address automatically"
+          - "Add 10.1.30.1 as a second router"
+          - "Renew the DHCP lease from the Wi-Fi menu"
+          - "Flush the DNS cache"
+        answer: 0
+        why: "The address was typed by hand for the old subnet, so the Mac never asks the third-floor DHCP server. Renewing a lease does nothing for an adapter that does not use DHCP."
+      - id: cn-v2a-q17
+        type: mcq
+        q: "A Linux server's 'ip addr show' gives 'inet 10.1.30.77/16' on eth0; the VLAN is really 10.1.30.0/24 with gateway 10.1.30.1. The server reaches its own VLAN and the internet, but not hosts in 10.1.40.0/24. Why?"
+        choices:
+          - "The /16 makes the server treat 10.1.40.0/24 as local, so it ARPs for those hosts instead of using the gateway"
+          - "The gateway drops traffic from a host whose mask does not match its own"
+          - "A /16 mask cannot be used with a 10.0.0.0 address"
+          - "The default route is missing, so only directly connected hosts answer"
+        answer: 0
+        why: "With a /16 the host thinks every 10.1.x.x address is on its own link and never sends that traffic to the gateway. The internet still works because it lies outside the /16 and goes to the gateway."
+      - id: cn-v2a-q18
+        type: mcq
+        q: "On a Linux laptop, 'iw dev wlan0 link' prints 'Not connected.' and NetworkManager reports that secrets were required but not provided for the Corp SSID, which uses WPA2-Personal. What is the MOST likely problem?"
+        choices:
+          - "The DHCP server has no free addresses"
+          - "The passphrase stored for the SSID is missing or wrong"
+          - "The DNS server is unreachable"
+          - "The access port's VLAN is wrong"
+        answer: 1
+        why: "The laptop never associated, and the error is about the key, so authentication is failing. DHCP, DNS and VLANs matter only after association succeeds."
+      - id: cn-v2a-q19
+        type: mcq
+        q: "A Windows laptop browses the internet but cannot reach the internal file server. 'netsh wlan show interfaces' shows SSID 'Corp-Guest', authentication WPA2-Personal, signal 92%. What is the MOST likely cause?"
+        choices:
+          - "The signal is too weak for file transfers"
+          - "The laptop needs a static address"
+          - "The laptop has joined the guest WLAN, whose VLAN is kept away from internal servers"
+          - "The file server's DNS record is missing"
+        answer: 2
+        why: "Guest networks normally allow only internet access. A 92% signal is strong, and a missing DNS record would not depend on which SSID the laptop joined."
+      - id: cn-v2a-q20
+        type: mcq
+        q: "A 120 m Cat6 cable between two closets shows CRC errors and occasional drops at 1 Gb/s. What should be done?"
+        choices:
+          - "Hard-code both ends to 1000 Mb/s full duplex"
+          - "Replace it with Cat6a, which carries 1000BASE-T to 150 m"
+          - "Turn off Auto-MDIX on both ports"
+          - "Run fibre, or add a switch midway so no copper segment exceeds 100 m"
+        answer: 3
+        why: "Twisted-pair Ethernet is specified to 100 m regardless of category; Cat6a raises the speed it supports, not the distance. Hard-coding speed cannot fix signal loss."
+      - id: cn-v2a-m01
+        type: multi
+        q: "Clients on R2's Gi0/1 (10.1.20.0/24) must lease addresses from the IOS DHCP server R1, whose address is 10.1.99.1 on another subnet. Which THREE are required? (Choose THREE)"
+        choices:
+          - "ip helper-address 10.1.99.1 on R2's Gi0/1"
+          - "A pool on R1 whose network contains 10.1.20.1, R2's address on Gi0/1"
+          - "A route on R1 back to 10.1.20.0/24"
+          - "ip helper-address 10.1.99.1 on R2's uplink towards R1"
+          - "ip dhcp excluded-address 10.1.20.0 on R2"
+          - "ip address dhcp on R2's Gi0/1"
+        answers: [0, 1, 2]
+        why: "The relay must hear the broadcast on the client interface, the server must find a pool for giaddr, and its reply to giaddr must be routable. A helper on the uplink never hears the clients, and R2 is not the server."
+      - id: cn-v2a-m02
+        type: multi
+        q: "A switch port is hard-coded to 100 Mb/s full duplex; the PC's NIC is left on auto. Which TWO results are MOST likely? (Choose TWO)"
+        choices:
+          - "The PC's NIC runs half duplex"
+          - "The switch port counts CRC errors and runts"
+          - "The switch port counts late collisions"
+          - "The link stays down"
+          - "The PC falls back to 10 Mb/s"
+        answers: [0, 1]
+        why: "The PC senses 100 Mb/s but hears no negotiation, so it picks half duplex. The full-duplex switch never counts collisions; it sees the frames the PC aborts as CRC errors and runts."
+      - id: cn-v2a-m03
+        type: multi
+        q: "A technician must find the default gateway on several machines. Which TWO pairings of operating system and command are correct? (Choose TWO)"
+        choices:
+          - "Windows: ipconfig"
+          - "Linux: ip route show"
+          - "macOS: ip route show"
+          - "Linux: ipconfig /all"
+          - "Windows: ifconfig -a"
+          - "macOS: ipconfig /all"
+        answers: [0, 1]
+        why: "Windows' ipconfig prints the default gateway and Linux's ip route shows 'default via'. macOS has no 'ip' command (it uses netstat -rn), and the /all switch exists only on Windows."
+      - id: cn-v2a-o01
+        type: order
+        q: "A client holds a DHCP lease and the server stops answering. Put what the client does in order."
+        steps:
+          - "Uses its address normally while the lease is fresh"
+          - "At half the lease time (T1), unicasts a Request to the server that granted the lease"
+          - "At 87.5 per cent of the lease time (T2), broadcasts a Request to any server"
+          - "When the lease expires, stops using the address and starts again with a Discover"
+        why: "Renewal is tried with the original server first, then rebinding with any server, and only an expired lease sends the client back to Discover."
+      - id: cn-v2a-o02
+        type: order
+        q: "An IOS DHCP server receives a relayed Discover. Put its handling in order."
+        steps:
+          - "Reads giaddr from the relayed message"
+          - "Selects the pool whose network contains giaddr"
+          - "Chooses a free address that is not excluded"
+          - "Pings the address to check nothing is using it"
+          - "Sends an Offer to the relay at giaddr"
+        why: "The pool cannot be chosen before giaddr is read, the address comes from that pool, the ping check comes before anything is offered, and the reply goes back through the relay."
