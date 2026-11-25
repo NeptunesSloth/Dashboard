@@ -11,11 +11,11 @@ units:
     domain: "1"
     goal: "I can configure and troubleshoot an IOS DHCP server and relay, diagnose a copper or fibre link from its counters, and check a client's addressing on Windows, macOS and Linux."
     notes: |
-      **The IOS DHCP server.** Keep static addresses out with `ip dhcp excluded-address`, then build `ip dhcp pool NAME` with `network`, `default-router`, `dns-server`, `domain-name` and `lease`. Before it offers an address the server pings it; if anything answers, the address goes into the conflict table (`show ip dhcp conflict`) and is not leased again until it is cleared. `show ip dhcp binding` lists leases, `show ip dhcp pool` shows how full each pool is, and `no service dhcp` turns off the server *and* the relay.
+      **The IOS DHCP server.** Keep static addresses out with `ip dhcp excluded-address`, then build `ip dhcp pool NAME` with `network`, `default-router`, `dns-server`, `domain-name` and `lease`. Before offering an address the server pings it; if anything answers, the address goes into the conflict table (`show ip dhcp conflict`) until cleared. `show ip dhcp binding` lists leases, `show ip dhcp pool` shows how full each pool is, and `no service dhcp` turns off the server *and* the relay.
 
-      **The relay.** `ip helper-address` on the interface facing the clients turns their broadcast into a unicast and writes that interface's address into the *giaddr* field. The server picks the pool whose network contains giaddr and sends its reply to that address, so the server needs a route back to the client subnet.
+      **The relay.** `ip helper-address` on the interface facing the clients relays their broadcast as a unicast, with that interface's address in *giaddr*. The server picks the pool containing giaddr and replies to that address, so it needs a route back.
 
-      **Links.** Read the status pair, then speed and duplex, then the counters. CRC errors with no collisions point at the cable; late collisions on one side and CRC errors on the other point at a duplex mismatch; down/down points at no signal, a speed mismatch or a broken pair. Catalyst switches can test copper pairs with TDR, and `show interfaces transceiver` shows a fibre optic's light levels in dBm. Copper Ethernet stops at 100 m whatever the cable category.
+      **Links.** Read the status pair, speed and duplex, then the counters. CRC errors alone point at the cable; late collisions on one side and CRC errors on the other at a duplex mismatch; down/down at no signal, a speed mismatch or a broken pair. TDR tests copper pairs; `show interfaces transceiver` shows fibre light levels in dBm. Copper Ethernet stops at 100 m whatever the cable category.
 
       **Clients.** Check link, address and mask, gateway, then DNS.
 
@@ -69,7 +69,7 @@ units:
         type: mcq
         q: "A network printer was given 10.1.10.40 by hand. The router's pool covers 10.1.10.0/24 and excludes only 10.1.10.1 to 10.1.10.10. 'show ip dhcp conflict' lists '10.1.10.40  Ping'. What does this show, and what should be done?"
         choices:
-          - "The server found 10.1.10.40 in use before offering it; exclude the printer's address, then clear the conflict"
+          - "It was found in use before being offered; exclude it, then clear the conflict"
           - "Two clients were leased 10.1.10.40 at once; clear the bindings so that both renew"
           - "A rogue server leased 10.1.10.40; enable DHCP snooping on the access switches"
           - "The pool is exhausted at 10.1.10.40; shorten the lease so addresses return sooner"
@@ -153,7 +153,7 @@ units:
         type: mcq
         q: "An access port has no speed or duplex commands. 'show interfaces' reads 'Half-duplex, 100Mb/s', with 1,842 late collisions and climbing. The PC's NIC was set by hand to 100 Mb/s full duplex. What is happening?"
         choices:
-          - "The PC sends no autonegotiation, so the switch fell back to half duplex while the PC runs full"
+          - "The PC sends no negotiation, so the switch fell back to half duplex"
           - "The switch forced the PC to 100 Mb/s because the cable is only Cat5"
           - "The PC's NIC is faulty and is sending frames that are too short"
           - "The port is in a different VLAN from the PC's gateway"
@@ -173,9 +173,9 @@ units:
         type: mcq
         q: "A 10 Gb/s fibre uplink takes input errors and drops several times a day. 'show interfaces transceiver' shows a receive power of -24.1 dBm, below the low alarm threshold of -14.0 dBm printed in the same output; transmit power is normal. What is the MOST likely cause?"
         choices:
-          - "The receiver is overloaded because the run is too short"
+          - "The receiver is overloaded because the fibre run is too short"
           - "The two ends are set to different duplex modes"
-          - "Too much light is lost on the path, for example a dirty connector or a bad splice"
+          - "Too much light is lost on the path, such as a dirty connector"
           - "The far-end optic is in a port in the wrong VLAN"
         answer: 2
         why: "Low received light with a normal transmitter means loss along the path. Overload would show receive power above the high threshold; duplex and VLANs do not affect light levels."
@@ -183,19 +183,19 @@ units:
         type: mcq
         q: "A PC on a 40 m run links only at 100 Mb/s although both ends are set to auto. A TDR test reports one of the four pairs open about 37 m away and the other three normal. What is the MOST likely explanation?"
         choices:
-          - "A duplex mismatch forces the link down to 100 Mb/s"
+          - "A duplex mismatch forces the link down to 100 Mb/s on both ends of the run"
           - "The cable is longer than Gigabit Ethernet allows"
           - "Auto-MDIX cannot swap pairs at 1000 Mb/s"
-          - "Gigabit needs all four pairs, Fast Ethernet only two, and the broken pair is one Fast Ethernet does not use"
+          - "Gigabit needs all four pairs; Fast Ethernet links on the two that work"
         answer: 3
         why: "1000BASE-T transmits on all four pairs, so one open pair rules it out, while 100BASE-TX uses two pairs and still links. The run is 40 m, well inside the 100 m limit, and duplex does not choose the speed."
       - id: cn-v2a-q15
         type: mcq
         q: "'ipconfig /all' shows DHCP enabled, 10.1.10.57/24, gateway 10.1.10.1 and DNS server 10.1.99.53. The PC can ping 10.1.10.1 and 10.1.99.53, but 'nslookup intranet.example.com' times out. What is the MOST likely cause?"
         choices:
-          - "The default gateway is wrong"
+          - "The default gateway is wrong, so the query never leaves the subnet"
           - "The PC's subnet mask is too short"
-          - "The DNS service on 10.1.99.53 is not answering, or port 53 is blocked on the way"
+          - "The DNS service is down, or port 53 is blocked on the way"
           - "The PC has a self-assigned address"
         answer: 2
         why: "The ping to 10.1.99.53 crosses the gateway, so addressing and routing work; only the name query fails. A wrong gateway or mask would break that ping too."
@@ -213,10 +213,10 @@ units:
         type: mcq
         q: "A Linux server's 'ip addr show' gives 'inet 10.1.30.77/16' on eth0; the VLAN is really 10.1.30.0/24 with gateway 10.1.30.1. The server reaches its own VLAN and the internet, but not hosts in 10.1.40.0/24. Why?"
         choices:
-          - "The /16 makes the server treat 10.1.40.0/24 as local, so it ARPs for those hosts instead of using the gateway"
+          - "The /16 makes 10.1.40.0/24 look local, so it ARPs instead of using the gateway"
           - "The gateway drops traffic from a host whose mask does not match its own"
           - "A /16 mask cannot be used with a 10.0.0.0 address"
-          - "The default route is missing, so only directly connected hosts answer"
+          - "The default route is missing, so only hosts on directly connected subnets ever answer"
         answer: 0
         why: "With a /16 the host thinks every 10.1.x.x address is on its own link and never sends that traffic to the gateway. The internet still works because it lies outside the /16 and goes to the gateway."
       - id: cn-v2a-q18
@@ -235,8 +235,8 @@ units:
         choices:
           - "The signal is too weak for file transfers"
           - "The laptop needs a static address"
-          - "The laptop has joined the guest WLAN, whose VLAN is kept away from internal servers"
-          - "The file server's DNS record is missing"
+          - "It joined the guest WLAN, whose VLAN cannot reach internal servers"
+          - "The file server's DNS record is missing from the internal DNS zone"
         answer: 2
         why: "Guest networks normally allow only internet access. A 92% signal is strong, and a missing DNS record would not depend on which SSID the laptop joined."
       - id: cn-v2a-q20
@@ -322,9 +322,9 @@ units:
 
       **PoE.** `power inline auto` is the default; `power inline never` disables power; `power inline static` reserves power in advance; `max` caps it in milliwatts. `show power inline` lists Admin, Oper (on, off, power-deny, faulty), watts, device and class.
 
-      **SVIs and routed bundles.** An SVI comes up only while a port in its VLAN is up and forwarding (autostate). For a routed LACP bundle, enter `no switchport` on the members before `channel-group N mode active`, then put the address on `interface port-channel N`; `show etherchannel summary` should show `RU` with members `P`.
+      **SVIs and routed bundles.** An SVI is up only while a port in its VLAN forwards (autostate). For a routed LACP bundle, enter `no switchport` on the members before `channel-group N mode active`, then address `interface port-channel N`; look for `RU` and members `P`.
 
-      **Records.** CDP and LLDP name the neighbour and *its* port, the quickest check of a cabling record. Third-party devices speak only LLDP.
+      **Records.** CDP and LLDP name the neighbour and *its* port. Third-party devices speak only LLDP.
 
       **Tools.** In ping output `!` is a reply, `.` a timeout, `U` an unreachable and `M` "could not fragment". Extended ping sets the source, size, count and DF bit. Embedded Packet Capture (`monitor capture`) records packets on the switch itself.
     items:
@@ -380,7 +380,7 @@ units:
         q: "AP-A is autonomous and AP-B is a lightweight AP in local mode; both serve the same three SSIDs in VLANs 10, 20 and 30. Which statement about their switch ports is correct?"
         choices:
           - "Both need trunks allowing VLANs 10, 20 and 30"
-          - "AP-A needs a trunk; AP-B needs only an access port in its management VLAN, because client traffic travels to the controller inside CAPWAP"
+          - "AP-A needs a trunk; AP-B needs only an access port, as client traffic rides CAPWAP"
           - "AP-A needs only an access port; AP-B needs a trunk, because the controller tags each SSID"
           - "Both need access ports in VLAN 10, the first SSID's VLAN"
         answer: 1
@@ -409,11 +409,11 @@ units:
         type: mcq
         q: "Third-party SIP phones on ports with 'switchport access vlan 10' and 'switchport voice vlan 20' come up in VLAN 10. Cisco phones on identical ports use VLAN 20 correctly. CDP is running and nothing has been configured for LLDP. What fixes the third-party phones?"
         choices:
-          - "Change the ports to 'switchport mode trunk'"
-          - "Enter 'lldp run' so the switch can advertise the voice VLAN with LLDP-MED"
-          - "Enter 'cdp run' on every port"
+          - "Change the ports to 'switchport mode trunk' so the phones can tag"
+          - "Enter 'cdp run' globally and 'cdp enable' on every port"
           - "Add 'spanning-tree portfast' to the ports"
-        answer: 1
+          - "Enter 'lldp run', so LLDP-MED can advertise the voice VLAN"
+        answer: 3
         why: "Cisco phones learn the voice VLAN from CDP; other vendors' phones learn it from LLDP-MED, which needs LLDP running and is off by default on Catalyst switches. A trunk would not tell the phone which VLAN to tag."
       - id: cn-v2b-q06
         type: mcq
@@ -439,8 +439,8 @@ units:
         type: mcq
         q: "A new AP that needs PoE+ (class 4) stays dark on Gi1/0/12, which has 'power inline auto max 15400'. The switch has plenty of power left. What is the cause?"
         choices:
-          - "The port's maximum is below what the AP's class requires, so power is denied"
-          - "PoE+ devices need 'power inline static' on every port"
+          - "The port's cap is below the AP's class, so power is denied"
+          - "PoE+ devices need 'power inline static' on every port they use"
           - "The switch's total budget is exhausted"
           - "The AP needs a voice VLAN to request power"
         answer: 0
@@ -470,8 +470,8 @@ units:
         q: "'show etherchannel summary' on SW1 shows: '1  Po1(RU)  LACP  Gi1/0/49(P) Gi1/0/50(I)'. What does this show?"
         choices:
           - "Po1 is a Layer 2 trunk with both links in use"
-          - "Gi1/0/50 is a hot-standby member waiting to replace Gi1/0/49"
-          - "Po1 is routed and up, but Gi1/0/50 is stand-alone because it hears no LACP partner, so only Gi1/0/49 carries the bundle's traffic"
+          - "Gi1/0/50 is a hot-standby member, waiting to replace Gi1/0/49 if it fails"
+          - "Po1 is routed and up, but Gi1/0/50 is stand-alone, with no LACP partner"
           - "Po1 is down because one member failed"
         answer: 2
         why: "R means Layer 3 and U in use; P is bundled and I is stand-alone, which an LACP port becomes when no partner answers. Hot standby would be flagged H, and Layer 2 would be S."
@@ -480,9 +480,9 @@ units:
         q: "The cabling record says SW-ACC3 Gi1/0/48 connects to SW-DIST1 Gi1/0/12. On SW-ACC3, 'show cdp neighbors' shows: 'SW-DIST1  Gig 1/0/48  152  R S I  C9300-48P  Gig 1/0/21'. What does this show?"
         choices:
           - "SW-ACC3's uplink is really Gi1/0/21"
-          - "The cable lands on SW-DIST1's Gi1/0/21, so the record or the patching is wrong"
-          - "SW-DIST1 is a router, not a switch, so the record is wrong"
-          - "The record is right; CDP shows the holdtime, not the port"
+          - "The cable lands on SW-DIST1 Gi1/0/21; the record or the patching is wrong"
+          - "SW-DIST1 is a router, not a switch, so the record names the wrong device"
+          - "The record is right; the last column is the holdtime, not the far-end port"
         answer: 1
         why: "'Local Intrfce' (Gig 1/0/48) is SW-ACC3's own port, which matches; 'Port ID' is the neighbour's port, Gi1/0/21, which does not. R S I means a Layer 3 switch."
       - id: cn-v2b-q13
@@ -510,7 +510,7 @@ units:
         q: "From R1, 'ping 10.9.9.9' prints 'U.U.U'. What does this show?"
         choices:
           - "Every echo reached 10.9.9.9 but alternate replies were lost"
-          - "A router on the path is returning ICMP unreachable messages, rate-limited so that alternate ones are missing"
+          - "A router is returning rate-limited ICMP unreachables"
           - "The first packets waited for ARP, then the rest succeeded"
           - "The path MTU is smaller than the default 100-byte ping"
         answer: 1
@@ -520,10 +520,10 @@ units:
         q: "Right after a reload, the first 'ping 10.1.20.5' from R1 prints '.!!!!' and every later ping prints '!!!!!'. What explains the first dot?"
         choices:
           - "An ACL dropped the first packet"
-          - "The first echo timed out while R1 resolved the next hop's MAC address with ARP"
-          - "Spanning tree was still converging on the far switch"
+          - "Spanning tree on the far switch was still moving its port to forwarding"
           - "The target rate-limits echo replies"
-        answer: 1
+          - "The first echo timed out while R1 resolved the next hop with ARP"
+        answer: 3
         why: "A router with an empty ARP cache drops the packet that triggers the request, so the first echo times out. An ACL or rate limit would keep failing on later pings."
       - id: cn-v2b-q17
         type: mcq
@@ -540,8 +540,8 @@ units:
         q: "'ping 10.5.5.5 size 1500 df-bit' prints 'M.M.M', and 'ping 10.5.5.5 size 1400 df-bit' prints '!!!!!'. What does this show?"
         choices:
           - "10.5.5.5 is down"
-          - "An ACL blocks large packets"
-          - "A router on the path has an MTU below 1500 and cannot forward the packet without fragmenting it"
+          - "An ACL on the path is configured to block every packet larger than 1,400 bytes"
+          - "A router on the path has an MTU below 1500 and DF forbids fragmenting"
           - "The destination's ARP entry keeps timing out"
         answer: 2
         why: "M means 'could not fragment': a router needed to fragment, but DF was set. The 1,400-byte success shows the host is up and reachable; an ACL would answer with U or silence, not M."
@@ -549,10 +549,10 @@ units:
         type: mcq
         q: "From R1, 'traceroute 10.40.1.10' prints: '1 10.1.10.1 1 msec 1 msec 1 msec' / '2 10.0.12.2 2 msec 2 msec 1 msec' / '3 * * *' / '4 * * *', and continues with asterisks. Where should troubleshooting start?"
         choices:
-          - "At 10.1.10.1, the first hop"
+          - "At 10.1.10.1, the first hop, where the path begins"
           - "At the destination host's NIC"
           - "At R1's own routing table"
-          - "At the router 10.0.12.2 and the next hop it uses towards 10.40.1.10"
+          - "At 10.0.12.2 and its next hop towards 10.40.1.10"
         answer: 3
         why: "Hops 1 and 2 answered, so the path works that far; the probes are lost after 10.0.12.2, so its route and its next hop come first. Starting at the first hop ignores what the trace has already proved."
       - id: cn-v2b-q20
@@ -569,8 +569,8 @@ units:
         type: mcq
         q: "A capture on the access port facing a web server, in both directions, shows the client's SYN to port 443 arriving three times, one and then two seconds apart, and nothing sent back by the server. What does this prove?"
         choices:
-          - "The network between the client and the server's port is dropping the SYNs"
-          - "The SYNs reach the server's port, so the fault is at the server, such as its host firewall, or on its return path"
+          - "The network between the client and the server's port is dropping the SYNs on the way"
+          - "The SYNs reach the server's port, so the server or its return path is at fault"
           - "The client has the wrong default gateway"
           - "The server is answering, but the capture cannot see replies"
         answer: 1
@@ -599,9 +599,9 @@ units:
         type: mcq
         q: "A network printer must always get 10.1.10.50 from the router's DHCP server, so print queues keep working. Its client ID is 0100.1122.3344.55. Which pool does that?"
         choices:
-          - "'ip dhcp pool PRN1' / 'network 10.1.10.50 255.255.255.255' / 'default-router 10.1.10.1'"
+          - "'ip dhcp pool PRN1' / 'network 10.1.10.50 255.255.255.255' / 'default-router 10.1.10.1' / 'dns-server 10.1.99.53'"
           - "'ip dhcp excluded-address 10.1.10.50' in the existing user pool"
-          - "'ip dhcp pool PRN1' / 'host 10.1.10.50 255.255.255.0' / 'client-identifier 0100.1122.3344.55' / 'default-router 10.1.10.1'"
+          - "'ip dhcp pool PRN1' / 'host 10.1.10.50 255.255.255.0' / 'client-identifier 0100.1122.3344.55'"
           - "'ip dhcp pool PRN1' / 'client-identifier 0100.1122.3344.55' / 'lease infinite'"
         answer: 2
         why: "A manual binding is a pool with 'host' and the client's identifier, so only that printer receives that address. Excluding the address stops it being leased at all, and a pool with no host address has nothing to give."
@@ -693,13 +693,7 @@ units:
     notes: |
       **OSPFv3** is OSPF for IPv6. The algorithm, areas, costs, DR/BDR election, timers and administrative distance (110) are the same as OSPFv2; what changes is how you switch it on and what it talks over.
 
-      ```
-      ipv6 unicast-routing
-      ipv6 router ospf 1
-       router-id 1.1.1.1
-      interface GigabitEthernet0/0
-       ipv6 ospf 1 area 0
-      ```
+      The minimum: `ipv6 unicast-routing`; `ipv6 router ospf 1` with `router-id 1.1.1.1`; and `ipv6 ospf 1 area 0` on each interface.
 
       - **No network statements**: each interface joins with `ipv6 ospf <pid> area <a>`.
       - **Router ID** is still a 32-bit dotted number. It is taken from an IPv4 address if the router has one; a router with only IPv6 addresses cannot start the process until you type `router-id`.
@@ -752,9 +746,9 @@ units:
         type: mcq
         q: "R1's table shows 'O 2001:db8:20::/64 [110/2] via FE80::2, GigabitEthernet0/0'. R2's global address on that link is 2001:db8:12::2. Why does the next hop show FE80::2?"
         choices:
-          - "OSPFv3 neighbours talk from link-local addresses, so routes use the neighbour's link-local address as next hop"
+          - "Neighbours talk from link-local addresses, so routes use them as next hops"
           - "R2's global address is down, so R1 fell back to the link-local one"
-          - "The route is a static route that someone typed with a link-local next hop"
+          - "The route is static: someone typed it with a link-local next hop and an exit interface"
           - "FE80::2 is R2's router ID written in IPv6 form"
         answer: 0
         why: "OSPFv3 packets are sourced from link-local addresses, so the next hop learned is link-local, together with the exit interface. The router ID is a 32-bit dotted value, not an address."
@@ -763,7 +757,7 @@ units:
         q: "R1 Gi0/0 is 2001:db8:12::1/64. On R2 Gi0/0 the engineer typed 2001:db8:21::2/64 by mistake. Both interfaces are in OSPFv3 area 0 with default timers. What happens?"
         choices:
           - "No adjacency forms because the subnets differ"
-          - "The routers become FULL neighbours, because hellos come from link-local addresses and carry no prefix; each advertises its own /64"
+          - "They become FULL neighbours; the hello carries no prefix"
           - "They stop at 2-WAY because the prefixes differ"
           - "The adjacency forms, but neither router advertises a prefix for the link"
         answer: 1
@@ -772,10 +766,10 @@ units:
         type: mcq
         q: "R1 Gi0/0 has 'ipv6 ospf 1 area 0' and R2 Gi0/0, on the same link, has 'ipv6 ospf 10 area 0'. Timers are default and router IDs differ. What happens?"
         choices:
-          - "The routers become neighbours, because the process ID is local to each router"
+          - "They become neighbours; the process ID is local to each router"
           - "No adjacency forms because the process IDs differ"
           - "They become neighbours but exchange no routes"
-          - "R2 ignores the hellos until its process is renumbered to 1"
+          - "R2 ignores R1's hellos until its own process is renumbered to 1"
         answer: 0
         why: "The process ID only distinguishes processes inside one router and is not carried in hellos. Area, timers and unique router IDs are what must line up."
       - id: cn-v2c-q05
@@ -820,8 +814,8 @@ units:
         choices:
           - "The neighbour has priority 0"
           - "The adjacency is still forming"
-          - "The link runs as OSPF point-to-point, so no DR or BDR is elected"
-          - "R1 is the DR and the neighbour is the BDR"
+          - "The link runs as point-to-point, so no DR or BDR is elected"
+          - "R1 is the DR here, and the dash marks its neighbour as the BDR"
         answer: 2
         why: "With 'ipv6 ospf network point-to-point' there is no election, so the role field shows a dash. A priority-0 router on a broadcast link would show DROTHER."
       - id: cn-v2c-q10
@@ -844,8 +838,8 @@ units:
         type: mcq
         q: "An engineer types 'ipv6 route 2001:db8:30::/64 FE80::3' and IOS rejects it. What must be added?"
         choices:
-          - "The exit interface, for example 'ipv6 route 2001:db8:30::/64 GigabitEthernet0/1 FE80::3'"
-          - "An administrative distance after the next hop"
+          - "The exit interface, as in 'ipv6 route 2001:db8:30::/64 Gi0/1 FE80::3'"
+          - "An administrative distance after the next hop, because link-local routes have none"
           - "The prefix length on the next hop, FE80::3/64"
           - "The keyword 'permanent'"
         answer: 0
@@ -855,7 +849,7 @@ units:
         q: "R1 shows 'S 2001:db8:40::/64 [1/0] via 2001:db8:13::33'. R1 and R3 share 2001:db8:13::/64, and R3's address is 2001:db8:13::3. Pings to 2001:db8:40::1 fail. What is wrong?"
         choices:
           - "The route is not installed because its next hop is not a neighbour"
-          - "The next hop is mistyped: it lies in a connected prefix, so the route is installed, but Neighbor Discovery for ::33 gets no answer"
+          - "The next hop is mistyped; ND for ::33 gets no answer"
           - "Static IPv6 routes need a link-local next hop"
           - "The administrative distance of 1 is too low"
         answer: 1
@@ -866,8 +860,8 @@ units:
         choices:
           - "The route was deleted from the configuration"
           - "IOS replaced the route with a host route"
-          - "The static route left the table because its exit interface is down; it returns when the interface comes up"
-          - "The route moved to the floating table with distance 255"
+          - "Its exit interface is down, so it left the table until the link returns"
+          - "IOS moved the route to a separate floating table with distance 255 for now"
         answer: 2
         why: "A static route is withdrawn while its exit interface is down but stays in the configuration and is reinstalled automatically. There is no separate floating table."
       - id: cn-v2c-q15
@@ -916,8 +910,8 @@ units:
         choices:
           - "No adjacency forms until global addresses are added"
           - "The adjacency forms, but LAN prefixes are not exchanged"
-          - "The adjacency forms and each LAN is reachable via the other router's FE80:: next hop"
-          - "The adjacency forms only if the network type is point-to-point"
+          - "The adjacency forms and each LAN is reached via an FE80:: next hop"
+          - "The adjacency forms, but only if the network type is point-to-point"
         answer: 2
         why: "OSPFv3 runs entirely over link-local addresses, so the routers become neighbours and exchange their LAN prefixes; only the transit link itself has no global prefix to advertise."
       - id: cn-v2c-m01
@@ -971,19 +965,12 @@ units:
     goal: "I can configure a device as a TACACS+ or RADIUS client with local fallback, move files with SCP and SFTP, find the DNS record behind a name failure, apply storm control and RA guard, and choose an IPsec VPN type and mode."
     notes: |
       **AAA client.**
-      ```
-      aaa new-model
-      tacacs server TAC1
-       address ipv4 10.1.99.10
-       key <shared-secret>
-      aaa group server tacacs+ ADMINS
-       server name TAC1
-      aaa authentication login VTY group ADMINS local
-      aaa authorization exec VTY group ADMINS local
-      line vty 0 4
-       login authentication VTY
-       authorization exec VTY
-      ```
+      - `aaa new-model`
+      - `tacacs server TAC1`, with `address ipv4 10.1.99.10` and `key <shared-secret>`
+      - `aaa group server tacacs+ ADMINS`, with `server name TAC1`
+      - `aaa authentication login VTY group ADMINS local` and `aaa authorization exec VTY group ADMINS local`
+      - under `line vty 0 4`: `login authentication VTY` and `authorization exec VTY`
+
       RADIUS is the same with `radius server` (UDP 1812/1813) and `aaa group server radius`. Methods are tried in order, and `local` is reached only when the servers give **no answer**, never after a rejection. With `aaa new-model` and no list applied, vty logins use the local username database.
 
       **Files.** SCP and SFTP both run inside SSH (TCP 22). To push files *to* a router, enable `ip scp server enable` (SSH, AAA login and exec authorization at level 15 are prerequisites). From the router: `copy running-config scp://user@host/r1.cfg` or `copy scp: flash:`.
@@ -1063,11 +1050,11 @@ units:
         type: mcq
         q: "A router's vty lines have 'password Vty-Pass1' and 'login', and no usernames are configured. An engineer enters 'aaa new-model' and nothing else. What happens to new Telnet sessions?"
         choices:
-          - "They still use the line password until a method list is defined"
-          - "They are checked against the local username database, which is empty, so nobody can log in remotely"
+          - "They still use the line password until a method list is defined and applied"
           - "They are let in without any check"
           - "They are sent to the first RADIUS server on the network"
-        answer: 1
+          - "They are checked against the empty local user database, so nobody gets in"
+        answer: 3
         why: "Once AAA is on, the line password is no longer used; with no list applied, vty logins use the local database. Make the username first, or you lock yourself out."
       - id: cn-v2d-q02
         type: mcq
@@ -1114,10 +1101,10 @@ units:
         q: "Admins log in to R1 through TACACS+, and the server's profile assigns privilege 15, but every session starts at 'R1>'. Authentication works. What is missing on R1?"
         choices:
           - "'aaa accounting exec default start-stop group ADMINS'"
-          - "'aaa authorization exec' with the TACACS+ group, applied to the vty lines"
           - "'enable secret' on R1"
           - "'privilege level 15' under 'tacacs server'"
-        answer: 1
+          - "'aaa authorization exec' with the TACACS+ group, applied to the vty lines"
+        answer: 3
         why: "The privilege level comes back from the server only when R1 asks for exec authorization. Accounting records sessions but grants nothing."
       - id: cn-v2d-q07
         type: mcq
@@ -1159,8 +1146,8 @@ units:
         type: mcq
         q: "'dig shop.example.com' returns only 'shop.example.com. 300 IN CNAME shop.hostingco.example.' and the status NXDOMAIN. Browsers cannot reach the shop. What is wrong?"
         choices:
-          - "A CNAME cannot point to another domain"
-          - "The alias points to a name that no longer exists, so there is no address to reach"
+          - "A CNAME cannot point to a name in another domain"
+          - "The alias points to a name that no longer exists"
           - "The TTL of 300 seconds is too short"
           - "The shop needs an MX record"
         answer: 1
@@ -1179,9 +1166,9 @@ units:
         type: mcq
         q: "An administrator created the MX record for example.com with the value '203.0.113.25'. Which is the correct design?"
         choices:
-          - "Keep the MX value, but add a PTR record for it"
-          - "Create a CNAME from example.com to 203.0.113.25"
-          - "Create 'mail.example.com A 203.0.113.25' and point the MX record at mail.example.com"
+          - "Keep the MX value as it is, but add a PTR record for 203.0.113.25"
+          - "Replace the MX with a CNAME from example.com to 203.0.113.25 instead"
+          - "Add 'mail.example.com A 203.0.113.25' and point the MX at that name"
           - "Point the NS record at 203.0.113.25"
         answer: 2
         why: "An MX record must name a host, not hold an address; the host's address comes from its own A or AAAA record. A CNAME also holds a name, and NS records delegate the zone."
@@ -1230,9 +1217,9 @@ units:
         q: "'nslookup www.example.com' prints 'Non-authoritative answer:' above the address. What does that mean?"
         choices:
           - "The answer is false and should be ignored"
-          - "The answer came from the resolver's cache or recursion, not from a server authoritative for the zone"
-          - "The record is signed but the signature failed"
-          - "The zone has no NS records"
+          - "A recursive resolver answered, not the zone's own server"
+          - "The record is signed, but its signature failed validation"
+          - "The zone has no NS records, so no server is authoritative for it"
         answer: 1
         why: "Recursive resolvers answer on behalf of the zone's servers, so their answers are labelled non-authoritative. It says nothing about whether the answer is correct."
       - id: cn-v2d-q19
@@ -1269,12 +1256,12 @@ units:
         why: "Hosts learn their IPv6 gateway from router advertisements, which RA guard drops on host ports. DHCPv6 guard filters server messages, and dynamic ARP inspection is IPv4 only."
       - id: cn-v2d-q23
         type: mcq
-        q: "Which configuration stops router advertisements arriving on user ports Gi1/0/1 to Gi1/0/46, while the router stays on uplink Gi1/0/48?"
+        q: "Router advertisements must be stopped on user ports Gi1/0/1 to Gi1/0/46, while the router stays on uplink Gi1/0/48. The policy is created with 'ipv6 nd raguard policy HOSTS' and attached with 'ipv6 nd raguard attach-policy HOSTS'. Which design is right?"
         choices:
-          - "'ipv6 nd raguard policy HOSTS' with 'device-role router', attached to Gi1/0/1 - 46"
-          - "'ipv6 nd raguard policy HOSTS' with 'device-role host', attached to Gi1/0/48 only"
-          - "'ipv6 nd raguard policy HOSTS' with 'device-role host', attached with 'ipv6 nd raguard attach-policy HOSTS' to Gi1/0/1 - 46"
-          - "'ipv6 dhcp guard policy HOSTS' with 'device-role client', attached to Gi1/0/1 - 46"
+          - "The policy with 'device-role router', attached to Gi1/0/1 - 46"
+          - "The policy with 'device-role host', attached to Gi1/0/48 only"
+          - "The policy with 'device-role host', attached to Gi1/0/1 - 46"
+          - "An 'ipv6 dhcp guard' policy with 'device-role client', on Gi1/0/1 - 46"
         answer: 2
         why: "A host-role policy on the user ports drops RAs arriving there. A router role would allow them, attaching to the uplink would block the real router, and DHCPv6 guard filters a different message type."
       - id: cn-v2d-q24
@@ -1307,10 +1294,10 @@ units:
         type: mcq
         q: "Video calls from 400 home-working staff saturate the headquarters internet link, because the remote-access VPN sends all of their traffic through headquarters. Which change addresses this directly?"
         choices:
-          - "Enable split tunnelling so that only company-bound traffic uses the tunnel"
+          - "Split tunnelling, so only company traffic uses the tunnel"
           - "Switch the VPN to transport mode"
           - "Replace ESP with AH to save overhead"
-          - "Move the users to site-to-site tunnels"
+          - "Move the home users onto site-to-site tunnels to headquarters"
         answer: 0
         why: "Split tunnelling sends internet-bound traffic such as video straight out of each home. The mode and protocol change overhead slightly but still haul everything through headquarters."
       - id: cn-v2d-m01
@@ -1445,7 +1432,7 @@ units:
         q: "Two IOS XE routers will not become OSPF neighbours. Which prompt to an approved assistant is MOST likely to give a useful, checkable answer?"
         choices:
           - "'Fix my OSPF. Give me the commands.'"
-          - "'You are a senior network engineer. Using only the sanitised OSPF configuration and neighbour output below, list the likely causes, most likely first, each with the line of evidence that supports it. Say if the output is not enough.'"
+          - "'You are a senior network engineer. Using only the sanitised OSPF output below, list the likely causes, most likely first, each with its evidence. Say if the output is not enough.'"
           - "'You are a senior network engineer. Here are both full running configurations, keys and passwords included, so you have everything. Fix OSPF and give me commands for every router in the network.'"
           - "'Write a script that logs in to every router and rewrites its OSPF configuration.'"
         answer: 1
@@ -1454,10 +1441,10 @@ units:
         type: mcq
         q: "An engineer wants an assistant's list of interface errors from twenty devices loaded straight into a spreadsheet. Which instruction helps MOST?"
         choices:
-          - "'Answer as a CSV with the columns hostname, interface, input_errors and crc'"
+          - "'Answer as CSV with columns hostname, interface, input_errors, crc'"
           - "'Be concise'"
           - "'You are an expert in spreadsheets'"
-          - "'Explain each error in detail'"
+          - "'Explain each error in detail, together with the likely cause of each'"
         answer: 0
         why: "Naming the output format and its columns gives text a spreadsheet can import. A persona or a request for brevity leaves the format to chance."
       - id: cn-v2e-q06
@@ -1466,16 +1453,16 @@ units:
         choices:
           - "Apply it; assistants are trained on Cisco documentation"
           - "Apply it during a change window and roll back if needed"
-          - "Treat it as an error: the interface command needs the process ID, as in 'ip ospf 1 area 0', so check the platform's syntax"
-          - "Ask the assistant again until it gives the same answer twice"
+          - "Reject it: the command needs the process ID, as in 'ip ospf 1 area 0'"
+          - "Ask the assistant again until it gives the same answer twice in a row"
         answer: 2
         why: "The command as given does not exist; the process ID is required. Repeating the question can repeat the error, so the check is against documentation or a lab."
       - id: cn-v2e-q07
         type: mcq
         q: "'show interfaces Gi1/0/9' shows 'Full-duplex, 1000Mb/s', 12,000 CRC errors and 0 collisions; the PC also reports 1000/full. An assistant concludes 'duplex mismatch; set duplex half on the port'. What should the engineer do?"
         choices:
-          - "Apply the change; duplex mismatches cause CRC errors"
-          - "Reject the advice: both ends report full duplex and there are no collisions, so check the cable instead"
+          - "Apply the change; duplex mismatches are the usual cause of CRC errors on access ports"
+          - "Reject it: both ends are full duplex with no collisions, so check the cable"
           - "Set both ends to half duplex as a compromise"
           - "Disable autonegotiation on the PC"
         answer: 1
@@ -1495,9 +1482,9 @@ units:
         q: "An assistant writes an Ansible task that uses 'cisco.ios.ios_command' with commands 'vlan 50' and 'name VOICE' to create a VLAN. What will happen?"
         choices:
           - "The VLAN is created and named"
-          - "Ansible enters configuration mode automatically"
-          - "The task fails or creates nothing, because ios_command sends exec-mode commands; configuration belongs to ios_config"
-          - "The commands are saved in the playbook for later"
+          - "Ansible enters configuration mode automatically, then creates and names the VLAN"
+          - "It fails or changes nothing; ios_command does not enter configuration mode"
+          - "The commands are stored in the playbook and applied on the next run"
         answer: 2
         why: "ios_command runs commands at the exec prompt and does not enter configuration mode. 'cisco.ios.ios_config' or a resource module such as ios_vlans makes configuration changes."
       - id: cn-v2e-q10
@@ -1506,8 +1493,8 @@ units:
         choices:
           - "Nothing; up/down means the port is shut"
           - "It should have said the cable is unplugged"
-          - "Line protocol refers to the routing protocol, which it ignored"
-          - "The interface is not shut down; Layer 1 is up and the fault is at Layer 2, such as a keepalive or encapsulation problem"
+          - "'Line protocol' refers to the routing protocol, which the assistant ignored"
+          - "It is not shut: Layer 1 is up and the fault is at the data-link layer"
         answer: 3
         why: "An administratively down interface says 'administratively down'. Up/down means the physical layer is fine but the data-link layer is not; an unplugged cable gives down/down."
       - id: cn-v2e-q11
@@ -1542,18 +1529,18 @@ units:
         type: mcq
         q: "A playbook using 'cisco.ios.ios_command' fails on every router with errors about running Python modules on the remote host. The inventory gives only hostnames and credentials. What is missing?"
         choices:
-          - "An agent installed on each router"
+          - "An agent installed on each router, for the control node to hand modules to"
           - "A Terraform provider for IOS"
-          - "The variables ansible_connection: ansible.netcommon.network_cli and ansible_network_os: cisco.ios.ios"
-          - "NETCONF enabled on every router"
+          - "Network connection variables: ansible_connection and ansible_network_os"
+          - "NETCONF enabled on every router, because Ansible cannot drive the CLI"
         answer: 2
         why: "Without a network connection type, Ansible tries to copy and run Python on the target, which a router cannot do. Ansible stays agentless; network_cli works over plain SSH."
       - id: cn-v2e-q16
         type: mcq
         q: "'show running-config' through 'cisco.ios.ios_command' fails because the automation account lands in user exec mode. Which change fixes it?"
         choices:
-          - "Set become: true and become_method: enable, with the enable password supplied"
-          - "Use 'cisco.ios.ios_config' instead"
+          - "become: true with become_method: enable, and the enable password"
+          - "Use 'cisco.ios.ios_config' instead, which always runs privileged"
           - "Add 'gather_facts: true'"
           - "Use the debug module"
         answer: 0
