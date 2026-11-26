@@ -181,9 +181,9 @@ python -m sect_academy
   scheduled and graded like every other course and paying the same qi and
   insight (*My words (French)*, *(Chinese)*, *(Japanese)*, *(Korean)* the same
   way; the last three accept the script or its romanisation).
-- The Spanish dictionary is Wiktionary data compiled by doozan/spanish_data;
-  French and Korean are English Wiktionary via kaikki.org; all CC BY-SA 4.0
-  (see `sect_academy/dict/<lang>/README.md`). The Chinese one is CC-CEDICT
+- The Spanish, French and Korean dictionaries are English Wiktionary via
+  kaikki.org, CC BY-SA 4.0, ranked with FrequencyWords (OpenSubtitles) counts,
+  CC BY-SA 4.0 (see `sect_academy/dict/<lang>/README.md`). The Chinese one is CC-CEDICT
   (CC BY-SA 4.0), with word frequencies from jieba (MIT). The Japanese one uses
   the JMdict dictionary files of the Electronic Dictionary Research and
   Development Group (EDRDG), under CC BY-SA 4.0 in accordance with the Group's

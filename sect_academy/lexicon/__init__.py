@@ -26,6 +26,18 @@ rather than splitting it itself. Optional extras a module may have:
 
 A result may also carry ``reading`` / ``rom`` (and per sense ``read``/``rom``),
 ``forms`` (other ways to write the word) and ``how_text`` (a conjugation, in words).
+
+``gram`` is a short grammar note, shown as it is: Korean the particle or ending taken off ("는: topic"),
+French an elision ("l' = le / la (the; him, her, it)", "qu' = que + elle"), and Spanish and French the
+tense and person of a conjugated form, from Wiktionary's conjugation tables ("ser / ir, preterite, 3rd
+person singular (él, ella, usted)", "aller, present, 1st person plural (nous)"; readings of different
+verbs are joined by " · ", attached Spanish pronouns added as "+ me + lo (pronouns attached)").
+
+Senses (Spanish, French, Korean) come one per Wiktionary entry — part of speech or homograph — best first,
+each with ``pos`` (Wiktionary's part of speech: "noun", "verb", "pron", "det" ...). ``src`` is "mine" (the
+learner's own), "core" (the short learner's glosses of ``dict/<lang>/function_*.tsv`` and the Spanish core
+list), "wiktionary", "cedict", "jmdict", or "rule"/"number"/"name" for what the module worked out itself.
+A sense added for the other half of a French elided pair ("que — that, than ...") has ``lemma`` too.
 """
 from __future__ import annotations
 

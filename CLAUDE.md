@@ -61,9 +61,8 @@ sect_academy/
                 + ja_rules.py (deinflection, rōmaji), cjk.py (the lattice
                 segmenter for unspaced text))
   dict/<lang>/  dictionary data, one folder per language, each with a README
-                naming source and licence (es/: Wiktionary via doozan/spanish_data,
-                CC BY-SA 4.0 — that file is under that licence, not ours;
-                fr/, ko/: English Wiktionary via kaikki.org, same licence)
+                naming source and licence (es/, fr/, ko/: English Wiktionary via
+                kaikki.org, CC BY-SA 4.0 — those files are under that licence, not ours)
   static/       index.html, academy.js (shell + study), sect.js (colony UI),
                 reader.js (Read: shelf, pages, lookup card, dictionary, My words),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js,
@@ -147,14 +146,21 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   folder in `dict/<lang>/` with its README + a module in `lexicon/` registered
   in `MODULES`; the reader asks the server to segment each page
   (`POST /api/dict/segment`) so CJK can segment by dictionary.
-- **Dictionary licence**: `dict/es/es_en.tsv.gz` is CC BY-SA 4.0 (Wiktionary
-  contributors, via doozan/spanish_data). Keep the credit line (`CREDIT` in
-  `lexicon/es.py`) shown with results, and keep `dict/es/README.md`.
-  `dict/fr/` and `dict/ko/` are CC BY-SA 4.0 too (English Wiktionary via
-  kaikki.org); rebuild them with `python scripts/build_dict_fr_ko.py` (streams
-  the JSONL, never stores it). `python scripts/lexicon_hit_rate.py fr ko`
-  measures lookup on every course sentence (99.9% / 99.7% when built;
-  `tests/test_lexicon_fr_ko.py` holds a floor). Korean results carry `rom`,
+- **Dictionary licence**: `dict/es/`, `dict/fr/` and `dict/ko/` are CC BY-SA 4.0
+  (English Wiktionary via kaikki.org). Keep the credit lines (`CREDIT` in each
+  module) shown with results, and keep each `dict/<lang>/README.md`. Rebuild
+  them with `python scripts/build_dict_kaikki.py` (streams the JSONL, never
+  stores it; frequencies from FrequencyWords, CC BY-SA, used at build time
+  only). A gloss is sections, one per Wiktionary entry (`pos: sense; sense |
+  pos: …`, best first: names, abbreviations and dialect last; `KO_FIRST`
+  orders common Korean homographs); `C` lines hold each verb form's
+  tense/person, given as `gram` ("ser / ir, preterite, 3rd person singular").
+  `dict/<lang>/function_*.tsv` (ours) gives function words a learner's gloss
+  shown first (src "core"). `python scripts/lexicon_hit_rate.py es fr ko`
+  measures lookup on every course sentence (99.7% / 99.9% / 99.7% when built;
+  `tests/test_lexicon_fr_ko.py` holds a floor), and `tests/lexicon_common.py`
+  checks the first meaning of ~200 common words per language (all five; held
+  at 100% by `tests/test_lexicon_common.py`). Korean results carry `rom`,
   `lemma_rom` and `gram` (the particle or ending taken off); My words (Korean)
   items get `rom` so the deck accepts romanised answers.
   `dict/zh/` is CC-CEDICT (CC BY-SA 4.0) plus jieba word counts (MIT);
@@ -170,7 +176,7 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   convention). Before tuning costs, run `python tests/lexicon_quality.py`
   (hit rate and boundary agreement on every course sentence; was zh 100% hit,
   boundaries P 100% / R 90%; ja 99.8% hit, P 95% / R 94%).
-- **Dictionary memory** (all five loaded: about 370 MB): indexes are `cjk.IdMap`
+- **Dictionary memory** (all five loaded: about 345 MB for the five tables alone): indexes are `cjk.IdMap`
   (a bare int for a key with one entry), JMdict entries stay raw UTF-8 lines
   split on access, kaikki form tables hold one interned lemma string per form
   and build their lowered-gloss list on the first English search. Keep results

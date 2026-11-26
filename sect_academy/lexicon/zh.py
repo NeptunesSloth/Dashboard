@@ -46,7 +46,8 @@ USUAL = {"了": "le5", "的": "de5", "着": "zhe5", "得": "de5", "地": "di4", 
          "说": "shuo1", "么": "me5", "那": "na4", "哪": "na3", "呢": "ne5", "吗": "ma5", "吧": "ba5", "啊": "a5", "一": "yi1",
          "不": "bu4", "个": "ge4", "们": "men5", "什": "shen2", "系": "xi4", "转": "zhuan3", "参": "can1", "降": "jiang4",
          "角": "jiao3", "背": "bei4", "头": "tou2", "量": "liang4", "乘": "cheng2", "载": "zai4", "这": "zhe4", "谁": "shei2",
-         "在": "zai4", "是": "shi4", "人": "ren2", "我": "wo3", "你": "ni3", "他": "ta1", "她": "ta1", "有": "you3"}
+         "在": "zai4", "是": "shi4", "人": "ren2", "我": "wo3", "你": "ni3", "他": "ta1", "她": "ta1", "有": "you3",
+         "雨": "yu3", "雪": "xue3", "衣": "yi1", "王": "wang2", "饮": "yin3", "思": "si1"}
 
 # ---------------------------------------------------------------------------
 # pinyin
@@ -190,8 +191,10 @@ def _weak(i: int) -> bool:
 def _order(word: str, i: int) -> tuple:
     d = dictionary()
     usual = USUAL.get(word)
+    # a reading whose first sense is literary, archaic or dialect (雨 yù "(literary) to rain") after the everyday one
+    marked = bool(_REGISTER.match(d.gloss[i]))
     return (_weak(i), "p" in d.flags[i] and not word[:1].isupper(), usual is not None and d.pin[i] != usual,
-            -d.gloss[i].count("; "), i)
+            marked, -d.gloss[i].count("; "), i)
 
 
 def _ranked(word: str) -> list[int]:
@@ -218,8 +221,8 @@ def _edges(s: str, i: int):
     out = []
     for j in range(i + 1, min(len(s), i + MAX_LEN) + 1):
         ids = d.head.get(s[i:j])
-        if ids:
-            out.append((j, _cost(ids, j - i)))
+        if ids and not (j < len(s) and s[j] in _DAY and s[j - 2:j] in ("星期", "礼拜")):
+            out.append((j, _cost(ids, j - i)))     # a word never ends inside a day name (上个|星期六, not 上个星期|六)
     j = i
     while j < len(s) and s[j] in _NUMERALS:
         j += 1
@@ -229,6 +232,7 @@ def _edges(s: str, i: int):
 
 
 _NUMERALS = set("零〇一二三四五六七八九十百千万亿两")
+_DAY = set("一二三四五六日天")
 _DIGIT = {"零": 0, "〇": 0, "一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
 _UNIT = {"十": 10, "百": 100, "千": 1000, "万": 10_000, "亿": 100_000_000}
 

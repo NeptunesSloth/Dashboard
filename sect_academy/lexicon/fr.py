@@ -7,8 +7,14 @@ feminine endings (-s, -x, -es, -aux -> -al, -euse -> -eur, -ive -> -if ...) and,
 
 A word that is both a headword and a form of one of the commonest verbs is read as the verb ("est" is être
 before it is "east", "fut" être before "fût"), unless an article stands elided in front of it ("l'été" is the
-summer); the other reading is listed under "also". A gloss that only says "surname", "spelling of …" or names a
-letter is weak: lookup keeps looking.
+summer); the other reading is listed under "also" unless it is far rarer (a word frequency list says so) or
+only a name or an abbreviation. A gloss that only says "surname", "spelling of …" or names a letter is weak:
+lookup keeps looking.
+
+A conjugated form says what it is in ``gram`` ("aller, present, 1st person plural (nous)", from Wiktionary's
+conjugation tables), and then shows only its verb's senses ("lue" is lire, to read, not the lira). Function
+words (le, de, du, y, en, que, lui ...) lead with a short learner's gloss from ``dict/fr/function_fr_en.tsv``
+(src "core"). An elided pronoun pair ("qu'elle", "s'il") is read as both words: the pronoun, then que / si.
 
 ``segment`` splits the same way, so "l'", "homme", "dit", "-", "il" are separate tappable words, while words
 the dictionary knows whole ("aujourd'hui", "peut-être", "quelqu'un") stay whole.
@@ -32,8 +38,9 @@ def fold(s: str) -> str:
 TABLE = kaikki.Table(LANG, fold)
 
 # an elided word and what it stands for
-ELISION = {"l'": "le / la", "d'": "de", "j'": "je", "qu'": "que", "n'": "ne", "s'": "se / si", "m'": "me", "t'": "te",
-           "c'": "ce", "jusqu'": "jusque", "lorsqu'": "lorsque", "puisqu'": "puisque", "quoiqu'": "quoique"}
+ELISION = {"l'": "le / la (the; him, her, it)", "d'": "de (of, from)", "j'": "je (I)", "qu'": "que (that, than, what)",
+           "n'": "ne (not)", "s'": "se / si (oneself; if)", "m'": "me (me, myself)", "t'": "te (you, yourself)",
+           "c'": "ce (it, that)", "jusqu'": "jusque", "lorsqu'": "lorsque", "puisqu'": "puisque", "quoiqu'": "quoique"}
 _ELISION_KEY = {"l'": "le", "d'": "de", "j'": "je", "qu'": "que", "n'": "ne", "s'": "se", "m'": "me", "t'": "te",
                 "c'": "ce", "jusqu'": "jusque", "lorsqu'": "lorsque", "puisqu'": "puisque", "quoiqu'": "quoique"}
 _ARTICLE = {"l'", "d'"}         # after these the next word is a noun far more often than a verb
@@ -45,6 +52,7 @@ TOP_VERBS = {"être", "avoir", "aller", "faire", "dire", "pouvoir", "vouloir", "
              "prendre", "mettre", "falloir", "croire", "parler", "donner", "tenir", "partir", "vivre", "connaître",
              "comprendre", "attendre", "répondre", "rester", "arriver", "penser", "aimer", "demander", "laisser",
              "appeler", "devenir", "revenir", "mourir", "naître", "boire", "manger", "recevoir", "pleuvoir", "suivre"}
+OWN_FIRST = {"bus"}             # the headword first all the same: "bus" is a bus before it is "drank" (boire)
 # plural and feminine endings -> what the masculine singular may end in (longest first)
 _ENDINGS = [("eaux", "eau"), ("aux", "al"), ("euses", "eur"), ("euse", "eur"), ("trices", "teur"), ("trice", "teur"),
             ("ives", "if"), ("ive", "if"), ("elles", "el"), ("elle", "el"), ("ennes", "en"), ("enne", "en"),
@@ -53,6 +61,16 @@ _ENDINGS = [("eaux", "eau"), ("aux", "al"), ("euses", "eur"), ("euse", "eur"), (
 _WEAK = re.compile(r"^(?:(?:[^;]*\b(?:given name|surname|family name)\b[^;]*|[^;]*name of the [^;]*letter[^;]*|"
                    r"[^;]*\b(?:spelling|abbreviation|initialism|acronym|clipping|contraction) of\b[^;]*|"
                    r"indicating a surname[^;]*|[^;]*\bletter of the [^;]*alphabet[^;]*)(?:; |$))+$", re.I)
+
+
+# a short learner's gloss for the function words, shown first (src "core")
+CORE: dict[str, str] = {}
+for _line in (kaikki.DICT_ROOT / LANG / "function_fr_en.tsv").read_text(encoding="utf-8").splitlines():
+    _p = _line.split("\t")
+    if len(_p) == 3 and _p[0] == "L":
+        CORE[_p[1]] = _p[2]
+_PAIR = {"qu'": "qu'", "s'": "s'", "lorsqu'": "qu'", "puisqu'": "qu'", "quoiqu'": "qu'", "jusqu'": "qu'"}
+_PAIR_WORD = {"il", "elle", "on", "ils", "elles", "un", "une"}     # qu'elle, s'il, jusqu'à l'... read as two words
 
 
 def norm_word(w) -> str:
@@ -72,12 +90,20 @@ def _known(k: str) -> bool:
     return TABLE.load().known(k)
 
 
+def _whole(k: str) -> bool:
+    """An elided word the dictionary knows as a word of its own ("aujourd'hui", "quelqu'un"), not one that is only a
+    contraction ("qu'elle: que + elle") or a place name ("L'Hôpital")."""
+    d = TABLE.load()
+    if k not in d.lem or d.flags.get(k) or _WEAK.match(d.text(k)):
+        return False
+    return any(pos != "contraction" for pos, _ in d.senses(k))
+
+
 def _split_word(t: str) -> list[str]:
     """One written word as the pieces a reader taps: elisions and inverted pronouns apart, known compounds whole."""
     k = generic_norm(t)
     m = _ELIDE.match(t)
-    lem = TABLE.load().lem
-    if not k or ((k in lem and not _WEAK.match(lem[k])) if m else _known(k)):   # "aujourd'hui" whole, "qu'il" in two
+    if not k or (_whole(k) if m else _known(k)):   # "aujourd'hui" whole, "qu'il" in two
         return [t]
     if m and len(t) > m.end():
         return [t[: m.end()], *_split_word(t[m.end():])]
@@ -121,7 +147,7 @@ def candidates(word: str) -> list[tuple[str, str, bool]]:
         return [(_ELISION_KEY[word], "elision", False)]
     m = _ELIDE.match(word)
     # "qu'il" is listed only as "contraction of que + il": read it as il; "aujourd'hui" stays whole
-    whole = not m or (word in d.lem and not _WEAK.match(d.lem[word]))
+    whole = not m or _whole(word)
     if whole:
         out.append((word, "exact", False))
     if m and len(word) > m.end():
@@ -152,9 +178,32 @@ def _senses(key: str, mine: dict) -> list[dict]:
     out = []
     if key in mine:
         out.append({"src": "mine", "text": mine[key]})
-    if key in d.lem:
-        out.append({"src": "wiktionary", "text": d.lem[key]})
+    if key in CORE:
+        out.append({"src": "core", "text": CORE[key]})
+    wik = [{"src": "wiktionary", "text": t, "pos": pos} for pos, t in d.senses(key)]
+    if any(not _WEAK.match(x["text"]) for x in wik):
+        wik = [x for x in wik if not _WEAK.match(x["text"])]       # elle: not also "the name of the letter L"
+    out += wik
     return out
+
+
+def _also_ok(row: dict, hit: dict) -> bool:
+    """Whether another reading is worth showing beside the answer: not only a name or an abbreviation, and not a
+    word ten times rarer than the answer ("étaient" is être; étayer, to prop up, is left out)."""
+    d = dictionary()
+    lem = row["lemma"]
+    if lem in CORE or any(s["src"] == "mine" for s in row["senses"]):
+        return True
+    if d.flags.get(lem):
+        return False
+    z_hit = d.zipf.get(hit["lemma"])
+    return z_hit is None or d.zipf.get(lem, -1) >= z_hit - 1
+
+
+def _verb_only(row: dict) -> None:
+    """A conjugated form: its verb's senses only ("lue" -> lire: to read, not "lira (unit of currency)")."""
+    if row.get("codes") and any(s.get("pos") == "verb" for s in row["senses"]):
+        row["senses"] = [s for s in row["senses"] if s["src"] != "wiktionary" or s.get("pos") == "verb"]
 
 
 def _strong(senses: list[dict]) -> bool:
@@ -174,7 +223,7 @@ def lookup(raw, mine: dict | None = None) -> dict:
         path0 = [word] if key == word else [word, key]
         own = [(key, path0, how)]
         forms = [(lem, path0 + [lem], "form" if how == "exact" else how) for lem in d.lemmas_of(key) if lem != key]
-        if not after_article and key not in mine and any(f[0] in TOP_VERBS for f in forms):
+        if not after_article and key not in mine and key not in OWN_FIRST and any(f[0] in TOP_VERBS for f in forms):
             tries = [f for f in forms if f[0] in TOP_VERBS] + own + [f for f in forms if f[0] not in TOP_VERBS]
         else:
             tries = own + forms
@@ -183,10 +232,20 @@ def lookup(raw, mine: dict | None = None) -> dict:
             if not senses:
                 continue
             row = {"lemma": lem, "path": path, "how": h, "senses": senses}
+            if lem != key and d.codes(key, lem):
+                row["codes"] = [(x, d.codes(key, x)) for x in [lem, *(y for y in d.lemmas_of(key) if y != lem)]
+                                if d.codes(key, x)]
+                z = d.zipf.get(lem)
+                row["codes"] = [c for c in row["codes"] if c[0] == lem or z is None or d.zipf.get(c[0], -1) >= z - 1][:2]
             if h == "elision":
                 el = _ELIDE.match(word)
                 row["gram"] = f"{el.group(0).lower()} = {ELISION.get(el.group(0).lower(), '')}" if el else \
                     f"{word} = {ELISION.get(word, '')}"
+                if el and el.group(0).lower() in _PAIR and word[el.end():] in _PAIR_WORD:
+                    first = "si" if el.group(0).lower() == "s'" else "que"
+                    row["gram"] = f"{el.group(0).lower()} = {first} + {word[el.end():]}"
+                    row["senses"] = senses + [{"src": "core", "text": f"{first} — {CORE.get(first, '')}",
+                                               "lemma": first}]
             if hit is None and _strong(senses):
                 hit = row
             elif all(lem != x["lemma"] for x in also) and (hit is None or lem != hit["lemma"]):
@@ -195,6 +254,15 @@ def lookup(raw, mine: dict | None = None) -> dict:
             break
     if hit is None and also:
         hit, also = also[0], also[1:]
+    if hit:
+        also = [a for a in also if _also_ok(a, hit)]
+        for row in (hit, *also):
+            _verb_only(row)
+            conj = kaikki.gram_text(row.pop("codes", []), LANG)
+            if conj:
+                row["gram"] = f"{row['gram']} · {conj}" if row.get("gram") else conj
+        if word in CORE and hit["lemma"] != word and not any(s["src"] == "core" for s in hit["senses"]):
+            hit["senses"] = [{"src": "core", "text": CORE[word]}, *hit["senses"]]      # l' -> le: the l' gloss
     out = {"ok": True, "word": word, "found": hit is not None, "also": also[:3], "credit": CREDIT}
     if hit:
         out.update(hit)

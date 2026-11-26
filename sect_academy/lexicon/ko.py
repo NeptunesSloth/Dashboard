@@ -416,6 +416,10 @@ COMMON_NOUNS = {"나", "저", "너", "우리", "저희", "그", "그녀", "이",
                 "돈", "일", "날", "씨", "분", "사람", "친구", "학교", "회사", "시간", "이름", "한국", "한국어", "영어", "밥", "책", "차"}
 
 # endings that mark a word as a verb (so a verb reading beats a noun spelled the same: 가요 "go", not "song")
+VERB_LIKE = {"할", "갈", "볼", "올", "될", "할까", "갈까"}      # far more often a verb (-ㄹ) than the noun spelled so
+# Sino-Korean digits: the number is a sense of its own (Wiktionary files most of them under the hanja); first where
+# the other meaning is rare (육 "meat", 칠 "lacquer"), second where it is common (팔 "arm", 일 "work")
+SINO_FIRST = {"육", "칠", "삼", "오", "십", "구"}
 _VERBAL = re.compile(r"(?:요|니다|니까|ㅆ어|습니다)$")
 
 
@@ -481,8 +485,8 @@ def candidates(word: str) -> list[tuple[str, str, str, float]]:
         cost = 0.1 * len(ps) if noun in COMMON_NOUNS else 0.9 * len(ps) + (0.6 if len(noun) == 1 else 0.0)
         label = " + ".join(f"{p}: {PARTICLES[p][1]}" for p in ps)
         out.append((noun, "particle", label, cost))
-    if verbal and word not in dictionary().phrases:
-        out[0] = (word, "exact", "", 1.6)             # 가요 is "song", but far more often "goes"
+    if (verbal or word in VERB_LIKE) and word not in dictionary().phrases:
+        out[0] = (word, "exact", "", 1.6)             # 가요 is "song", but far more often "goes"; 할 "will do", not "a tenth"
     seen: dict[str, int] = {}
     uniq: list[tuple[str, str, str, float]] = []
     for c in out:
@@ -501,8 +505,13 @@ def _senses(key: str, mine: dict) -> list[dict]:
     out = []
     if key in mine:
         out.append({"src": "mine", "text": mine[key]})
-    if key in d.lem:
-        out.append({"src": "wiktionary", "text": d.lem[key]})
+    # one sense per Wiktionary entry, the usual word first (시장: market, mayor, hunger)
+    wik = [{"src": "wiktionary", "text": t, "pos": p} for p, t in d.senses(key)]
+    if wik and (key in _DIGIT or key in _UNIT or key == "만") and not any(s["pos"] == "num" for s in wik):
+        n = _DIGIT.get(key) or _UNIT.get(key) or 10000
+        num = {"src": "rule", "text": f"{n:,} (Sino-Korean number)", "pos": "num"}
+        wik.insert(0 if key in SINO_FIRST else 1, num)
+    out += wik
     return out
 
 
@@ -546,6 +555,11 @@ def lookup(raw, mine: dict | None = None) -> dict:
     hits.sort(key=lambda x: (x[0], x[1]))
     out = {"ok": True, "word": word, "rom": romanise(word), "credit": CREDIT}
     num = sino_number(word)
+    if num is not None and hits and word not in d.lem:
+        # 삼만 is 30,000, not 삼 (hemp) + 만 (only): a number written out wins over taking it apart
+        hits.append((0.25, -1, {"lemma": word, "path": [word], "how": "number", "gram": "Sino-Korean number",
+                                "senses": [{"src": "rule", "text": f"{num:,}"}], "lemma_rom": romanise(word)}))
+        hits.sort(key=lambda x: (x[0], x[1]))
     if num is not None and not hits:
         hits.append((0.0, 0, {"lemma": word, "path": [word], "how": "number", "gram": "Sino-Korean number",
                               "senses": [{"src": "rule", "text": f"{num:,}"}], "lemma_rom": romanise(word)}))
