@@ -729,6 +729,19 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .pic .lab[hidden] { display: none; }
 .pic .lab.ok { color: #b8f5dc; } .pic .lab.no { color: #ffd0c8; }
 .pic.labelled .pin { width: 24px; height: 24px; font-size: .75rem; }
+/* On narrow screens the intro's labels crowd small figures: numbers on the picture, words in the list below. */
+@media (max-width: 640px) { .pic .lab { display: none; } }
+.pic-legend { display: none; }
+@media (max-width: 640px) {
+  .pic-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; }
+  .pic-scroll .pic { width: 600px; max-width: none; }
+}
+@media (max-width: 640px) {
+  .pic-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; list-style: none; margin: 6px 0 2px; padding: 0; font: 600 .85rem var(--round); }
+  .pic-legend li b { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #e9dfc6; color: #120d0a; font-size: .72rem; margin-right: 2px; }
+  .pic-legend li.ok b { background: var(--jade); } .pic-legend li.no b { background: var(--verm); color: #fff; }
+  .pic-legend li.ok span { color: #b8f5dc; } .pic-legend li.no span { color: #ffd0c8; }
+}
 @keyframes pinpulse { 50% { box-shadow: 0 0 0 7px rgba(47, 155, 255, .35); } }
 @media (prefers-reduced-motion: reduce) { .pic .pin.lit { animation: none; } }
 .chips .chip.used { opacity: .35; box-shadow: none; }

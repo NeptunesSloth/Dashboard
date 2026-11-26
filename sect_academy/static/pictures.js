@@ -24,8 +24,11 @@ export function figure(picture, pins, { buttons = true, cls = '' } = {}) {
   };
   // labels are siblings of the pins, drawn above all of them, so a label is never hidden under a neighbouring pin
   const lab = (p) => `<span class="lab" data-lab="${num(p.n)}" style="left:${pct(p.x)}%;top:${pct(p.y)}%" hidden></span>`;
-  return `<figure class="pic ${esc(cls)}">${src ? `<img src="${esc(src)}" alt="${esc(pic.title || 'Picture')}" draggable="false">` : '<div class="pic-blank"></div>'}
-    ${(pins || []).map(pin).join('')}${(pins || []).map(lab).join('')}</figure>`;
+  // On a phone the labels would cover neighbouring pins, so the words also go in a numbered list under the picture.
+  const legend = cls.includes('labelled') ? '' : `<ol class="pic-legend">${(pins || []).map((p) => `<li data-leg="${num(p.n)}" hidden><b>${num(p.n)}</b> <span></span></li>`).join('')}</ol>`;
+  const xs = (pins || []).map((p) => pct(p.x)); const cx = xs.length ? (Math.min(...xs) + Math.max(...xs)) / 2 : 50;
+  return `<div class="pic-scroll" data-cx="${num(cx)}"><figure class="pic ${esc(cls)}">${src ? `<img src="${esc(src)}" alt="${esc(pic.title || 'Picture')}" draggable="false">` : '<div class="pic-blank"></div>'}
+    ${(pins || []).map(pin).join('')}${(pins || []).map(lab).join('')}</figure></div>${legend}`;
 }
 
 /** Write a label under pin n (textContent: never markup). state: '', 'ok' or 'no'. */
@@ -35,6 +38,8 @@ export function label(root, n, text, state = '') {
   if (!el || !lab) return;
   lab.textContent = text || ''; lab.hidden = !text;
   for (const x of [el, lab]) { x.classList.toggle('ok', state === 'ok'); x.classList.toggle('no', state === 'no'); }
+  const leg = root.querySelector(`.pic-legend [data-leg="${num(n)}"]`);
+  if (leg) { leg.querySelector('span').textContent = text || ''; leg.hidden = !text; leg.classList.toggle('ok', state === 'ok'); leg.classList.toggle('no', state === 'no'); }
 }
 
 /** The introduction: the painting with every new word on it, and the list to read aloud. */
@@ -149,4 +154,20 @@ export function tapExercise(ex, ctx) {
       view.querySelectorAll('.pic .pin').forEach((p) => { p.disabled = true; });
     };
   });
+}
+
+// On a phone the painting is shown wider than the screen (so close pins stay apart) and
+// scrolls sideways; start each one centred on its pins.
+function centre(el) {
+  const fig = el.querySelector('.pic'); if (!fig || el.scrollWidth <= el.clientWidth) return;
+  el.scrollLeft = Math.max(0, fig.offsetWidth * num(el.dataset.cx) / 100 - el.clientWidth / 2);
+}
+if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {
+  new MutationObserver((muts) => {
+    for (const m of muts) for (const n of m.addedNodes) {
+      if (n.nodeType !== 1) continue;
+      if (n.matches && n.matches('.pic-scroll')) centre(n);
+      if (n.querySelectorAll) n.querySelectorAll('.pic-scroll').forEach(centre);
+    }
+  }).observe(document.documentElement, { childList: true, subtree: true });
 }
