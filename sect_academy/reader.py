@@ -1,8 +1,8 @@
 """The reader: dictionary lookup, your own words, and a book shelf.
 
 * **Dictionaries** are per language: ``lexicon/`` holds a registry of lookup
-  modules (Spanish today: ``lexicon/es.py``, data in ``dict/es/``, Wiktionary
-  via doozan/spanish_data, CC BY-SA 4.0). This module routes to them and adds
+  modules (es, fr, ko from English Wiktionary via kaikki.org; zh CC-CEDICT;
+  ja JMdict — all CC BY-SA 4.0, see each ``dict/<lang>/README.md``). This module routes to them and adds
   what the learner owns.
 * **Your words** live in the state file, per language, sanitised and capped in
   ``state.py`` like everything else: ``dict_user`` ({lang: {word: meaning}},
