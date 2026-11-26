@@ -13,3 +13,8 @@ that pair: a data folder here and a module there (see the module contract in
 | Folder | Source | Licence |
 | --- | --- | --- |
 | `es/` | Wiktionary data, compiled by doozan/spanish_data (+ a 200-word core list from the owner's Aprende app) | CC BY-SA 4.0 |
+| `zh/` | CC-CEDICT (MDBG), with word counts from jieba's dict.txt (MIT) | CC BY-SA 4.0 |
+| `ja/` | JMdict, Electronic Dictionary Research and Development Group (https://www.edrdg.org/edrdg/licence.html) | CC BY-SA 4.0 |
+
+`zh/` and `ja/` are built by `scripts/build_dict_zh_ja.py` (downloads, streams,
+keeps only the compact result).

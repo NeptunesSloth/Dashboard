@@ -152,17 +152,29 @@ python -m sect_academy
   the dictionary form behind plurals, conjugations and pronouns attached to a
   verb (*cúrale* → *curar*, *dímelo* → *decir*), with or without the accents.
   Hear the word (normal or slow) if your device has a Spanish voice; the card
-  says plainly when it has none. French, Chinese, Japanese and Korean books can
-  be read and heard; their lookup is still to come.
+  says plainly when it has none.
+- **Chinese and Japanese books** are cut into words by the dictionary (they are
+  written without spaces), and a tap shows the word, its reading — pinyin with
+  tone marks; kana and Hepburn rōmaji — and its meanings. Japanese
+  conjugations are undone and named (*食べました* → *食べる*, "polite past";
+  *勉強しています* → *勉強*). Traditional characters work too. Shift_JIS, EUC-JP,
+  GB18030 and Big5 text files are read, and Aozora Bunko ruby and notes are
+  taken out. French and Korean books can be read and heard.
 - **Dictionary**: search Spanish → English, or English → Spanish by meaning,
-  and add your own entries.
+  and add your own entries; Chinese by characters or pinyin (*xuéxí*,
+  *xue2xi2*, *xuexi*), Japanese by kanji, kana or rōmaji (*taberu*, *gakkō*).
 - **My words**: "Save word" keeps a word with its meaning and the sentence you
   met it in. Saved words are a course of their own, *My words (Spanish)*,
   scheduled and graded like every other course and paying the same qi and
   insight.
-- The dictionary is Wiktionary data compiled by doozan/spanish_data, under
-  CC BY-SA 4.0 (see `sect_academy/dict/es/README.md`); pdf.js is Apache-2.0
-  (`sect_academy/static/vendor/pdfjs/LICENSE`).
+- The Spanish dictionary is Wiktionary data compiled by doozan/spanish_data,
+  under CC BY-SA 4.0 (see `sect_academy/dict/es/README.md`). The Chinese one is
+  CC-CEDICT (CC BY-SA 4.0), with word frequencies from jieba (MIT)
+  (`sect_academy/dict/zh/README.md`). The Japanese one uses the JMdict
+  dictionary files of the Electronic Dictionary Research and Development Group
+  (EDRDG), under CC BY-SA 4.0 in accordance with the Group's licence,
+  https://www.edrdg.org/edrdg/licence.html (`sect_academy/dict/ja/README.md`).
+  pdf.js is Apache-2.0 (`sect_academy/static/vendor/pdfjs/LICENSE`).
 
 ## Running it
 

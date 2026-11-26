@@ -78,7 +78,7 @@ def test_search_both_ways():
 
 def test_languages_without_a_module_say_so():
     langs = client.get("/api/dict/langs").json()
-    assert langs["lookup"] == ["es"] and {"es", "fr", "zh", "ja", "ko"} <= set(langs["langs"])
+    assert {"es", "zh", "ja"} <= set(langs["lookup"]) and {"es", "fr", "zh", "ja", "ko"} <= set(langs["langs"])
     r = look("bonjour", "fr")
     assert r["available"] is False and not r["found"]
     assert client.get("/api/dict/search", params={"q": "x", "lang": "fr"}).json()["available"] is False
@@ -229,7 +229,7 @@ def test_book_round_trip_and_position():
     b = r["book"]
     assert b["title"] == "El pueblo junto al mar" and b["lang"] == "es" and b["chars"] == len(BOOK.strip())
     shelf = client.get("/api/books").json()
-    assert [x["id"] for x in shelf["books"]] == [b["id"]] and shelf["lookup"] == ["es"]
+    assert [x["id"] for x in shelf["books"]] == [b["id"]] and "es" in shelf["lookup"]
     assert client.put(f"/api/books/{b['id']}/pos", json={"pos": 120}).json()["pos"] == 120
     got = client.get(f"/api/books/{b['id']}").json()
     assert got["text"] == BOOK.strip() and got["book"]["pos"] == 120 and got["book"]["lookup"] is True

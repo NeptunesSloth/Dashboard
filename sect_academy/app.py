@@ -465,8 +465,10 @@ def dict_langs():
 
 
 @app.get("/api/dict", dependencies=API)
-def dict_lookup(w: str = Query(default="", max_length=200), lang: str = LangQ):
-    return reader.lookup(lang, w)
+def dict_lookup(w: str = Query(default="", max_length=200), lang: str = LangQ,
+                pre: str = Query(default="", max_length=40), post: str = Query(default="", max_length=40)):
+    """``pre``/``post``: a few characters of the text around a tapped word (Chinese, Japanese: a longer word it sits in)."""
+    return reader.lookup(lang, w, around=(pre, post))
 
 
 @app.get("/api/dict/search", dependencies=API)

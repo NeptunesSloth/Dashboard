@@ -1,4 +1,4 @@
-// Sect Academy — Read: a book shelf, a paginated reader with tap-to-translate, a Spanish dictionary and "My words".
+// Sect Academy — Read: a book shelf, a paginated reader with tap-to-translate, offline dictionaries and "My words".
 // Books are turned into plain text here in the browser (EPUB unzipped by hand, PDF through the vendored
 // pdf.js, loaded from this origin only when a PDF is imported), then kept by the server so every device
 // sees the same shelf. Lookups and saved words go to the server's offline dictionary.
@@ -26,7 +26,7 @@ async function loadLangs() {
   }
 }
 const hasLookup = (lang) => LOOKUP.includes(lang);
-const noLookupNote = (lang) => `Lookup for ${LANG_NAME[lang] || 'this language'} is coming; for now it is Spanish-only.`;
+const noLookupNote = (lang) => `Lookup for ${LANG_NAME[lang] || 'this language'} is coming.`;
 function voiceFor(lang) {
   const want = SPEECH[lang]; if (!want) return null;
   loadVoices();
@@ -91,7 +91,7 @@ function resolvePath(base, href) {
   try { return decodeURIComponent(joined); } catch (_) { return joined; }
 }
 function blockText(doc) {
-  doc.querySelectorAll('script,style').forEach((x) => x.remove());
+  doc.querySelectorAll('script,style,rt,rp').forEach((x) => x.remove());      // ruby readings (furigana) are not the text
   const body = doc.body || doc.documentElement; if (!body) return '';
   body.querySelectorAll('p,h1,h2,h3,h4,h5,h6,li,blockquote,div,br,tr').forEach((x) => x.after('\n\n'));
   return body.textContent.replace(/[ \t\r\f ]+/g, ' ').replace(/ ?\n ?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
@@ -149,13 +149,34 @@ async function pdfText(buf, progress) {
   } finally { doc.destroy(); }
   return out.replace(/ +\n/g, '\n').trim();
 }
-async function fileText(f, progress) {
+// A .txt/.html that is not UTF-8: Japanese books are often Shift_JIS (Aozora Bunko) or EUC-JP, Chinese GB18030 or Big5.
+const LEGACY = { ja: ['shift_jis', 'euc-jp'], zh: ['gb18030', 'big5'] };
+function decodeText(buf, lang) {
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (_) { /* not UTF-8: try the language's old encodings */ }
+  for (const label of LEGACY[lang] || []) {
+    try { return new TextDecoder(label, { fatal: true }).decode(buf); } catch (_) { /* not this one */ }
+  }
+  return new TextDecoder().decode(buf);
+}
+/** Aozora Bunko plain text: ruby 《reading》 and its ｜ base marker, ［＃…］ notes, the symbol key and the colophon go. */
+function aozora(text) {
+  if (!/《|［＃/.test(text)) return text;
+  let t = text.replace(/\r/g, '');
+  const dash = /^-{20,}\s*$/gm; const marks = [];
+  let m; while ((m = dash.exec(t)) && marks.length < 2) marks.push([m.index, m.index + m[0].length]);
+  if (marks.length === 2 && marks[0][0] < 4000) t = t.slice(0, marks[0][0]) + t.slice(marks[1][1]);
+  const end = t.search(/\n底本[：:]/);
+  if (end > t.length / 2) t = t.slice(0, end);
+  return t.replace(/｜([^《\n]+)《[^》\n]*》/g, '$1').replace(/《[^》\n]*》/g, '').replace(/※?［＃[^］\n]*］/g, '').replace(/[ \t]+\n/g, '\n');
+}
+async function fileText(f, progress, lang = '') {
   let title = f.name.replace(/\.[^.]+$/, ''), text;
   if (/\.epub$/i.test(f.name)) { const r = await epubText(await f.arrayBuffer()); text = r.text; if (r.title) title = r.title; }
   else if (/\.pdf$/i.test(f.name)) text = await pdfText(await f.arrayBuffer(), progress);
   else {
-    text = await f.text();
+    text = decodeText(await f.arrayBuffer(), lang);
     if (/\.html?$/i.test(f.name)) text = blockText(new DOMParser().parseFromString(text, 'text/html'));
+    else if (lang === 'ja') text = aozora(text);
   }
   return { title, text: String(text || '').replace(/\r/g, '') };
 }
@@ -170,7 +191,7 @@ function paginate(text) {
     if (end < n) {
       const win = text.slice(start, end); const min = PAGE * 0.4;
       let cut = win.lastIndexOf('\n\n');
-      if (cut < min) { let m, last = -1; const re = /[.!?…»”"]\s/g; while ((m = re.exec(win))) last = m.index + 1; cut = last; }
+      if (cut < min) { let m, last = -1; const re = /[.!?…»”"]\s|[。！？」』]/g; while ((m = re.exec(win))) last = m.index + 1; cut = last; }
       if (cut < min) cut = win.lastIndexOf(' ');
       if (cut > 0) end = start + cut;
     }
@@ -208,19 +229,22 @@ function pageHtml(toks, base) {
 }
 function sentenceAt(text, at) {
   let a = at, b = at;
-  while (a > 0 && !/[.!?…\n]/.test(text[a - 1])) a--;
-  while (b < text.length && !/[.!?…\n]/.test(text[b])) b++;
+  while (a > 0 && !/[.!?…\n。！？]/.test(text[a - 1])) a--;
+  while (b < text.length && !/[.!?…\n。！？]/.test(text[b])) b++;
   return text.slice(a, Math.min(text.length, b + 1)).replace(/\s+/g, ' ').trim().slice(0, 240);
 }
 
 /* ---------------- the lookup card ---------------- */
-const HOW = { form: 'a form of', pronouns: 'a verb with pronouns attached:', ending: 'probably from', accent: 'spelled', exact: '' };
-const SRC = { mine: 'Yours', core: 'Core', wiktionary: 'Wiktionary' };
+const HOW = { form: 'a form of', pronouns: 'a verb with pronouns attached:', ending: 'probably from', accent: 'spelled', exact: '',
+  variant: 'a variant of', inflected: 'a form of' };
+const SRC = { mine: 'Yours', core: 'Core', wiktionary: 'Wiktionary', cedict: 'CC-CEDICT', jmdict: 'JMdict', number: 'Number', name: 'Name' };
 const cache = new Map();
-async function lookup(word, lang) {
-  const k = `${lang}:${word.toLowerCase()}`;
+async function lookup(word, lang, around) {
+  const pre = around ? String(around.pre || '') : '', post = around ? String(around.post || '') : '';
+  const k = `${lang}:${word.toLowerCase()}:${pre}:${post}`;
   if (cache.has(k)) return cache.get(k);
-  const r = await C.api(`/api/dict?lang=${encodeURIComponent(lang)}&w=${encodeURIComponent(word)}`);
+  const ctx = pre || post ? `&pre=${encodeURIComponent(pre)}&post=${encodeURIComponent(post)}` : '';
+  const r = await C.api(`/api/dict?lang=${encodeURIComponent(lang)}&w=${encodeURIComponent(word)}${ctx}`);
   if (r.ok !== false) cache.set(k, r);
   return r;
 }
@@ -235,8 +259,8 @@ function firstMeaning(r) {
   const s = (r.senses || [])[0]; if (!s) return '';
   return String(s.text).split('; ').slice(0, 2).join('; ').slice(0, 120);
 }
-async function showCard(word, lang, ctx = '') {
-  const esc = C.esc; const el = cardEl(); card = { el, word, lang, ctx };
+async function showCard(word, lang, ctx = '', around = null) {
+  const esc = C.esc; const el = cardEl(); card = { el, word, lang, ctx, around };
   el.hidden = false;
   const note = speechNote(lang);
   const sayBtns = note ? '' : `<button class="say tiny" data-say="0" aria-label="Hear it">${C.ICON.sound}</button><button class="btn quiet slow" data-say="1">Slow</button>`;
@@ -248,18 +272,26 @@ async function showCard(word, lang, ctx = '') {
   }
   el.innerHTML = `${head(word)}<p class="dim small">Looking it up…</p>`;
   bindCard(word, lang);
-  const r = await lookup(word, lang);
+  const r = await lookup(word, lang, around);
   if (!card || card.word !== word) return;
   if (r.ok === false) { el.innerHTML = `${head(word)}<p class="dim">${esc(r.error)}</p>`; bindCard(word, lang); return; }
   const L = esc(lang);
-  const path = (r.path || []).length > 1 ? `<p class="lk-path small"><span class="dim">${esc(HOW[r.how] || '')}</span> ${r.path.slice(1).map((p) => `<b lang="${L}">${esc(p)}</b>`).join(' → ')}</p>` : '';
+  const how = r.how_text ? `${r.how_text} of` : (HOW[r.how] || '');
+  const path = (r.path || []).length > 1 ? `<p class="lk-path small"><span class="dim">${esc(how)}</span> ${r.path.slice(1).map((p) => `<b lang="${L}">${esc(p)}</b>`).join(' → ')}</p>` : '';
+  // Chinese and Japanese: the reading (pinyin; kana + rōmaji) and the other ways the word is written
+  const rd = r.reading ? `<span lang="${L}">${esc(r.reading)}</span>` : '';
+  const ro = r.rom && r.rom !== r.reading ? `<i>${esc(r.rom)}</i>` : '';
+  const forms = (r.forms || []).length ? `<span class="dim">also written</span> ${r.forms.map((x) => `<span lang="${L}">${esc(x)}</span>`).join(', ')}` : '';
+  const reading = rd || ro || forms ? `<p class="lk-read">${[rd, ro, forms].filter(Boolean).join(' · ')}</p>` : '';
+  const many = (r.senses || []).filter((s) => s.read).length > 1;
   const senses = (r.senses || []).map((s) => {
     const parts = String(s.text).split('; ');
-    return `<li><span class="tag ${s.src === 'mine' ? 'jade' : s.src === 'core' ? 'gold' : ''}">${esc(SRC[s.src] || s.src)}</span> ${esc(parts.slice(0, 4).join('; '))}${parts.length > 4 ? `<details><summary class="small">${parts.length - 4} more</summary>${esc(parts.slice(4).join('; '))}</details>` : ''}${s.src === 'mine' ? ` <button class="btn quiet small" data-unmine="${esc(r.lemma)}">Delete my meaning</button>` : ''}</li>`;
+    const sr = many && s.read ? `<b lang="${L}" class="lk-sr">${esc(s.read)}</b>${s.rom && s.rom !== s.read ? ` <i class="dim">${esc(s.rom)}</i>` : ''} ` : '';
+    return `<li><span class="tag ${s.src === 'mine' ? 'jade' : s.src === 'core' ? 'gold' : ''}">${esc(SRC[s.src] || s.src)}</span> ${sr}${esc(parts.slice(0, 4).join('; '))}${parts.length > 4 ? `<details><summary class="small">${parts.length - 4} more</summary>${esc(parts.slice(4).join('; '))}</details>` : ''}${s.src === 'mine' ? ` <button class="btn quiet small" data-unmine="${esc(r.lemma)}">Delete my meaning</button>` : ''}</li>`;
   }).join('');
-  const also = (r.also || []).map((a) => `<b lang="${L}">${esc(a.lemma)}</b> <span class="dim">${esc(String((a.senses[0] || {}).text || '').slice(0, 80))}</span>`).join(' · ');
+  const also = (r.also || []).map((a) => `<b lang="${L}">${esc(a.lemma)}</b>${a.reading && a.reading !== a.lemma ? ` <span lang="${L}">${esc(a.reading)}</span>` : ''} <span class="dim">${esc(String((a.senses[0] || {}).text || '').slice(0, 80))}</span>`).join(' · ');
   const target = r.found ? r.lemma : r.word;
-  el.innerHTML = `${head(r.word || word)}${path}
+  el.innerHTML = `${head(r.word || word)}${reading}${path}
     ${r.found ? `<ol class="lk-senses">${senses}</ol>${r.weak ? '<p class="dim small">The dictionary only knows this spelling as a name; its everyday meaning may be missing. Add your own below.</p>' : ''}`
     : '<p class="lk-only">Not in the dictionary yet.</p>'}
     ${also ? `<p class="small lk-also"><span class="dim">Also:</span> ${also}</p>` : ''}
@@ -288,12 +320,12 @@ function bindCard(word, lang, r) {
       const s = await C.api('/api/words', { lang, word: target, meaning, form: r.word, ctx: card ? card.ctx : '' });
       if (s.ok === false) { C.toast(s.error); return; }
       cache.clear(); C.toast(`Saved “${target}” to My words.`);
-      showCard(word, lang, card ? card.ctx : '');
+      showCard(word, lang, card ? card.ctx : '', card ? card.around : null);
     };
   }
   const q = `lang=${encodeURIComponent(lang)}&w=`;
-  el.querySelectorAll('[data-unsave]').forEach((b) => { b.onclick = async () => { await C.api(`/api/words?${q}${encodeURIComponent(b.dataset.unsave)}`, undefined, 'DELETE'); cache.clear(); showCard(word, lang, card ? card.ctx : ''); }; });
-  el.querySelectorAll('[data-unmine]').forEach((b) => { b.onclick = async () => { await C.api(`/api/dict/entry?${q}${encodeURIComponent(b.dataset.unmine)}`, undefined, 'DELETE'); cache.clear(); showCard(word, lang, card ? card.ctx : ''); }; });
+  el.querySelectorAll('[data-unsave]').forEach((b) => { b.onclick = async () => { await C.api(`/api/words?${q}${encodeURIComponent(b.dataset.unsave)}`, undefined, 'DELETE'); cache.clear(); showCard(word, lang, card ? card.ctx : '', card ? card.around : null); }; });
+  el.querySelectorAll('[data-unmine]').forEach((b) => { b.onclick = async () => { await C.api(`/api/dict/entry?${q}${encodeURIComponent(b.dataset.unmine)}`, undefined, 'DELETE'); cache.clear(); showCard(word, lang, card ? card.ctx : '', card ? card.around : null); }; });
 }
 
 /* ---------------- views ---------------- */
@@ -343,7 +375,7 @@ async function renderBooks() {
     const lang = $('#rb-lang').value;
     msg.textContent = `Importing ${f.name}…`;
     try {
-      const { title, text } = await fileText(f, (t) => { msg.textContent = t; });
+      const { title, text } = await fileText(f, (t) => { msg.textContent = t; }, lang);
       if (text.trim().length < 50) throw new Error('No readable text was found in that file. A scanned PDF made of images cannot be read.');
       msg.textContent = 'Saving it to the shelf…';
       const res = await C.api('/api/books', { title, text, lang });
@@ -389,7 +421,7 @@ async function renderBook(id) {
       C.view.querySelectorAll('.w.on').forEach((x) => x.classList.remove('on')); w.classList.add('on');
       const word = w.textContent; const at = num(w.dataset.o);
       const ov = C.ov(); if (ov && ov.settings && ov.settings.audio) speak(word, lang);
-      showCard(word, lang, sentenceAt(text, at));
+      showCard(word, lang, sentenceAt(text, at), { pre: text.slice(Math.max(0, at - 6), at), post: text.slice(at + word.length, at + word.length + 6) });
     };
   };
   const turn = (d) => {
@@ -405,6 +437,11 @@ async function renderBook(id) {
 }
 
 let dictLang = 'es', dictDir = 'from', dictQ = '';
+const DICT_HINT = { es: 'Busca una palabra: casas, dímelo, cúrale…', zh: 'Characters or pinyin: 学习, xuéxí, xue2xi2, xuexi…',
+  ja: 'Kanji, kana or rōmaji: 食べました, たべる, taberu…' };
+const DICT_SIZE = { es: 'About 85,000 Spanish words with their forms, plus your own entries. ',
+  zh: 'About 125,000 CC-CEDICT entries, simplified and traditional, plus your own entries. ',
+  ja: 'About 210,000 JMdict entries with their conjugations, plus your own entries. ' };
 function renderDict() {
   const { esc } = C;
   const name = LANG_NAME[dictLang] || dictLang;
@@ -412,9 +449,9 @@ function renderDict() {
     <section class="panel"><div class="row" style="margin-bottom:10px">${langPicker('d-lang', dictLang)}<div class="tabs seg" style="margin:0">
       <button data-dir="from" class="${dictDir === 'from' ? 'on' : ''}">${esc(name)} → English</button><button data-dir="en" class="${dictDir === 'en' ? 'on' : ''}">English → ${esc(name)}</button></div></div>
       <input type="text" id="dq" value="${esc(dictQ)}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Search the dictionary"
-        placeholder="${dictDir === 'from' ? (dictLang === 'es' ? 'Busca una palabra: casas, dímelo, cúrale…' : 'Search a word') : 'Search the English meanings: house, to heal…'}">
+        placeholder="${dictDir === 'from' ? (DICT_HINT[dictLang] || 'Search a word') : 'Search the English meanings: house, to heal…'}">
       <div id="dr" class="dres"></div>
-      <p class="dim tiny" id="d-credit" style="margin:10px 0 0">${dictLang === 'es' ? 'About 85,000 Spanish words with their forms, plus your own entries. ' : ''}</p></section>
+      <p class="dim tiny" id="d-credit" style="margin:10px 0 0">${esc(DICT_SIZE[dictLang] || '')}</p></section>
     <section class="panel"><h2>Add your own entry</h2><p class="dim small">For a word the dictionary lacks, or a meaning you prefer. Yours is shown first.</p>
       <form class="row" id="da"><input type="text" id="da-w" maxlength="40" placeholder="${esc(name)} word" autocomplete="off" style="flex:1 1 140px;width:auto">
       <input type="text" id="da-m" maxlength="200" placeholder="English meaning" autocomplete="off" style="flex:2 1 200px;width:auto"><button class="btn primary" type="submit">Add</button></form></section>`;
@@ -430,7 +467,7 @@ function renderDict() {
     if (mine !== seq || !$('#dr')) return;
     if (r.ok === false) { $('#dr').innerHTML = `<p class="dim">${esc(r.error)}</p>`; return; }
     credit.textContent = base + (r.credit || '');
-    $('#dr').innerHTML = r.results.length ? `<ul class="list">${r.results.map((x) => `<li><button class="dict-row" data-w="${esc(x.w)}"><b lang="${esc(dictLang)}">${esc(x.w)}</b>
+    $('#dr').innerHTML = r.results.length ? `<ul class="list">${r.results.map((x) => `<li><button class="dict-row" data-w="${esc(x.w)}"><b lang="${esc(dictLang)}">${esc(x.w)}</b>${x.read ? ` <span lang="${esc(dictLang)}">${esc(x.read)}</span>` : ''}${x.rom ? ` <i>${esc(x.rom)}</i>` : ''}
       ${x.src === 'mine' ? '<span class="tag jade">yours</span>' : ''}<span class="dim">${esc(String(x.en).slice(0, 160))}</span></button></li>`).join('')}</ul>`
       : '<p class="dim" style="margin:10px 0 0">No match. You can add it as your own entry below.</p>';
     $('#dr').querySelectorAll('[data-w]').forEach((b) => { b.onclick = () => showCard(b.dataset.w, dictLang); });
@@ -460,7 +497,7 @@ async function renderWords() {
       <p class="dim small" style="margin:2px 0 0">${num(n)} saved. They are a course of their own: reviewed on the same schedule as everything else, and every answer pays qi and insight like any other study.${n && n < 4 ? ' Save a few more and the multiple-choice questions get real choices.' : ''}</p></div>
       ${n ? (r.enrolled ? `<a class="btn primary" href="/study?course=${encodeURIComponent(r.course)}" data-link>Study my words</a>`
     : '<button class="btn primary" id="mw-enrol">Add to my studies</button>') : ''}</div></section>
-    <section class="panel">${n ? `<ul class="list">${r.words.map((w) => `<li class="row"><div class="grow"><b lang="${esc(wordsLang)}">${esc(w.word)}</b>
+    <section class="panel">${n ? `<ul class="list">${r.words.map((w) => `<li class="row"><div class="grow"><b lang="${esc(wordsLang)}">${esc(w.word)}</b>${w.rom ? ` <i class="dim">${esc(w.rom)}</i>` : ''}
         <span class="tag ${w.state === 'mastered' ? 'jade' : w.state === 'learning' ? 'blue' : ''}">${esc(w.state)}${w.state !== 'new' ? ` ${num(w.strength)}%` : ''}</span>
         <div>${esc(w.l1)}</div>${w.ctx ? `<div class="dim small" lang="${esc(wordsLang)}">“${esc(w.ctx)}”</div>` : ''}</div>
         <button class="say tiny" data-say="${esc(w.word)}" aria-label="Hear ${esc(w.word)}" ${canHear ? '' : 'disabled'}>${C.ICON.sound}</button>

@@ -77,13 +77,17 @@ def _mine(st: dict, lang: str) -> dict:
     return (st.get("dict_user") or {}).get(lang) or {}
 
 
-def lookup(lang, raw, st: dict | None = None) -> dict:
+def lookup(lang, raw, st: dict | None = None, around: tuple[str, str] = ("", "")) -> dict:
     mod = lexicon.get(lang)
     if mod is None:
         return {"ok": True, "available": False, "found": False, "word": lexicon.generic_norm(raw), "senses": [], "also": [],
                 "lang": lang if lexicon.valid_lang(lang) else "", "credit": ""}
     st = st if st is not None else state.get()
-    out = mod.lookup(raw, _mine(st, lang))
+    pre, post = (clean_line(x, 12) for x in around)
+    if getattr(mod, "USES_CONTEXT", False) and (pre or post):
+        out = mod.lookup(raw, _mine(st, lang), around=(pre, post))
+    else:
+        out = mod.lookup(raw, _mine(st, lang))
     saved = (st.get("words") or {}).get(lang) or {}
     out.update(available=True, lang=lang,
                saved=bool(out.get("word")) and (out.get("lemma") in saved or out["word"] in saved))
@@ -243,12 +247,13 @@ def list_words(lang, now: float | None = None) -> dict:
     with state.LOCK:
         st = state.get()
         rows = []
+        rom = getattr(lexicon.get(lang), "romanise", None)
         mine = (st.get("words") or {}).get(lang) or {}
         for w, v in sorted(mine.items(), key=lambda kv: -kv[1]["ts"]):
             iid = my_item_id(lang, w)
             view = engine._card_view(st["cards"].get(iid), now)
             rows.append({"word": w, "l1": v["l1"], "form": v["form"], "ctx": v["ctx"], "ts": v["ts"], "item": iid,
-                         "state": view["state"], "strength": view["strength"]})
+                         "state": view["state"], "strength": view["strength"], "rom": rom(w) if rom else ""})
         counts = {k: len(v) for k, v in (st.get("words") or {}).items() if v}
         return {"ok": True, "lang": lang, "words": rows, "course": pack_id(lang), "counts": counts,
                 "enrolled": pack_id(lang) in st["settings"].get("courses", []), "max": MAX_SAVED_WORDS}
@@ -259,15 +264,22 @@ def build_pack(lang: str, words: dict) -> dict:
     pid, uid = pack_id(lang), f"{pack_id(lang)}-words"
     name = LANGS.get(lang, lang)
     items = []
+    mod = lexicon.get(lang)
+    rom = getattr(mod, "romanise", None)
     for w, v in sorted(words.items(), key=lambda kv: (kv[1].get("ts", 0.0), kv[0])):
         it = {"id": my_item_id(lang, w), "type": "vocab", "l2": w, "l1": v["l1"], "alt": [], "unit": uid, "pack": pid}
+        if rom:                                           # Chinese, Japanese: typed in the script or its romanisation
+            r = rom(w)
+            if r:
+                it["rom"] = r
+                it["alt"] = [a for a in getattr(mod, "romanise_alt", lambda _w: [])(w) if a != r]
         if v.get("ctx"):
             it["ex"] = v["ctx"]
         if v.get("form") and v["form"] != w:
             it["note"] = f"You met it as “{v['form']}”."
         items.append(it)
     return {"id": pid, "title": f"My words ({name})", "kind": "language", "language": name, "lang": lexicon.SPEECH.get(lang, ""),
-            "hall": {"es": "tongues_south", "fr": "tongues_west"}.get(lang, ""), "personal": True,
+            "hall": {"es": "tongues_south", "fr": "tongues_west", "zh": "tongues_west", "ja": "tongues_west"}.get(lang, ""), "personal": True,
             "blurb": "Words you saved while reading, scheduled like any other course.",
             "units": [{"id": uid, "title": "Saved from your reading", "goal": "The words you chose to keep.",
                        "notes": "Every word here was saved from a book or the dictionary. Delete one in Read, My words.",

@@ -15,8 +15,17 @@ A module provides:
 
 ``mine`` is the learner's own entries for that language ({word: meaning}). Data
 is loaded lazily, once. Spanish segments on spaces and punctuation; Chinese and
-Japanese will need longest-match against their dictionary — that is why the
-reader asks the server to segment a page rather than splitting it itself.
+Japanese (``zh.py``, ``ja.py``, helpers in ``cjk.py``) cut unspaced text against
+their dictionary — that is why the reader asks the server to segment a page
+rather than splitting it itself. Optional extras a module may have:
+
+    USES_CONTEXT = True                 lookup(word, mine, around=(before, after)) is given the text round a
+                                        tapped word, to offer the longer word it may sit inside
+    romanise(word) -> str               the romanisation a "My words" item accepts as typed (pinyin, rōmaji)
+    romanise_alt(word) -> [str]         other spellings of it that are accepted too (gakkō for gakkou)
+
+A result may also carry ``reading`` / ``rom`` (and per sense ``read``/``rom``),
+``forms`` (other ways to write the word) and ``how_text`` (a conjugation, in words).
 """
 from __future__ import annotations
 
@@ -30,7 +39,8 @@ LANGS = {"es": "Spanish", "fr": "French", "zh": "Mandarin Chinese", "ja": "Japan
          "en": "English", "pt": "Portuguese", "it": "Italian", "de": "German", "other": "Another language"}
 SPEECH = {"es": "es-ES", "fr": "fr-FR", "zh": "zh-CN", "ja": "ja-JP", "ko": "ko-KR", "en": "en-GB",
           "pt": "pt-PT", "it": "it-IT", "de": "de-DE"}
-MODULES = {"es": "sect_academy.lexicon.es"}      # lang -> lookup module (import path)
+MODULES = {"es": "sect_academy.lexicon.es",      # lang -> lookup module (import path)
+           "zh": "sect_academy.lexicon.zh", "ja": "sect_academy.lexicon.ja"}
 MAX_WORD = 40
 _LANG_RE = re.compile(r"^[a-z]{2,5}$")
 

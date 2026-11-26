@@ -671,6 +671,7 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .lk-word { font-size: 1.45rem; font-weight: 800; overflow-wrap: anywhere; }
 .lk-head .slow, .lk-x { min-height: 34px; padding: 2px 8px; }
 .lk-path { margin: 4px 0 6px; }
+.lk-read { margin: 2px 0 4px; font-size: 1.05rem; overflow-wrap: anywhere; } .lk-sr { font-weight: 700; }
 .lk-senses { margin: 6px 0 8px; padding-left: 1.3em; } .lk-senses li { margin: 4px 0; line-height: 1.4; }
 .lk-senses details { display: inline; } .lk-senses summary { display: inline; cursor: pointer; color: var(--azure-d); font-weight: 800; }
 .lk-only { font-weight: 800; margin: 8px 0; }

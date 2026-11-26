@@ -16,6 +16,14 @@ BASE = os.getenv("SMOKE_BASE", "http://127.0.0.1:8200")
 _EXE = os.getenv("PW_EXECUTABLE")
 HOST = urlparse(BASE).hostname
 STORY = "Hola, Juan. Dimelo cuando puedas. Las casas del pueblo son blancas y el mar esta cerca."
+# An Aozora Bunko-style book: Shift_JIS, ruby 《reading》 with the ｜ base marker, a ［＃…］ note, the symbol key
+# between dashed lines at the top and the colophon (底本) at the end — all of which the import must take out.
+AOZORA = ("吾輩は猫である\n夏目漱石\n\n" + "-" * 55 + "\n【テキスト中に現れる記号について】\n《》：ルビ\n" + "-" * 55 + "\n\n"
+          "［＃８字下げ］一［＃「一」は中見出し］\n\n｜吾輩《わがはい》は猫である。名前《なまえ》はまだ無い。"
+          "昨日、友達と映画を見ました。私は寿司を食べました。日本語を勉強しています。\n\n\n\n"
+          "底本：「夏目漱石全集」\n入力：青空文庫\n").encode("cp932")
+HANZI = ("我喜欢学习中文。他们在图书馆看书。我们已经学了三年中文了，但是说得还不太好。"
+         "從前有座山，山裡有座廟，廟裡有個老和尚在給小和尚講故事。").encode("gb18030")
 
 
 def _pdf(text: str) -> bytes:
@@ -157,6 +165,20 @@ def main() -> int:
             pg.wait_for_selector(".lookup .lk-senses", timeout=10000)
             assert "casa" in pg.inner_text(".lookup .lk-path"), f"{name}: casas did not lead to casa"
         assert not pg.evaluate("window.__epubRan"), "a script inside an EPUB ran"
+        # Japanese (Shift_JIS, Aozora markup) and Chinese (GB18030) text files: decoded, cut into words, looked up
+        for name, data, lang, tap, want in (("neko.txt", AOZORA, "ja", "食べました", "polite past"),
+                                            ("shu.txt", HANZI, "zh", "图书馆", "library")):
+            pg.goto(BASE + "/read", wait_until="load", timeout=25000)
+            pg.wait_for_selector("#rb-file", state="attached", timeout=10000)
+            pg.select_option("#rb-lang", lang)
+            pg.set_input_files("#rb-file", files=[{"name": name, "mimeType": "text/plain", "buffer": data}])
+            pg.wait_for_selector("#rd .w", timeout=30000)
+            page_text = pg.inner_text("#rd")
+            assert "《" not in page_text and "［＃" not in page_text and "底本" not in page_text and "記号" not in page_text, page_text
+            assert ("吾輩は猫である。" in page_text) if lang == "ja" else ("图书馆" in page_text), page_text
+            pg.locator("#rd .w", has_text=tap).first.click()
+            pg.wait_for_selector(".lookup .lk-senses", timeout=10000)
+            assert want in pg.inner_text(".lookup"), f"{name}: {tap} gave {pg.inner_text('.lookup')}"
 
         # 6) phone width, dark mode
         m = b.new_context(viewport={"width": 390, "height": 800}, color_scheme="dark")
@@ -169,7 +191,7 @@ def main() -> int:
 
     assert not outside, f"the app tried to reach outside hosts: {outside[:5]}"
     assert not errors, f"JS errors: {errors[:5]}"
-    print("smoke OK (offline: no request left the app; sect, study, read (dictionary, PDF, EPUB), library, trials, progress, phone)")
+    print("smoke OK (offline: no request left the app; sect, study, read (dictionary, PDF, EPUB, Shift_JIS Japanese, GB18030 Chinese), library, trials, progress, phone)")
     return 0
 
 
