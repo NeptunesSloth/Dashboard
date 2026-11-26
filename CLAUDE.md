@@ -53,6 +53,7 @@ sect_academy/
   static/       index.html, academy.js (shell + study), sect.js (colony UI),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js
 tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py,
+                balance.py + test_balance.py (scripted 150-day games),
                 smoke_browser.py
 docs/           ACADEMY_CONTENT.md, the design spec, research
 ```
@@ -88,7 +89,9 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
 - **Difficulty is tuned by simulation, not by feel.** Before changing yields,
   appetite or threat strength, run a 150-day scripted game on each storyteller
   with an idle profile and a careful one: idle should starve or lose people on
-  balanced/harsh, careful should survive balanced.
+  balanced/harsh, careful should survive balanced. `python tests/balance.py 150
+  12345,7,99` prints the table; `tests/test_balance.py` pins its shape. Daily
+  costs (eating, winter, repairs, spoilage) all come from `colony.upkeep`.
 - **A new event needs** a branch in `_daily_event`, a `_res_<kind>` in
   `_RESOLVERS`, and to survive `test_every_trope_event_can_be_raised...`.
 - **Every number the player is affected by must appear in a ledger** (mood,

@@ -39,7 +39,7 @@ MAX_STEP = len(REALMS) * len(STAGES) - 1
 SEASONS = ["Spring", "Summer", "Autumn", "Winter"]
 DAYS_PER_SEASON = 12
 STORYTELLERS = {
-    "calm":     {"name": "Gentle Rain", "blurb": "Few dangers. Good for learning the ropes.", "event": 0.25, "threat_gap": 99999, "threat": 0.0, "deaths": False, "yield": 1.0},
+    "calm":     {"name": "Gentle Rain", "blurb": "Few dangers. Good for learning the ropes.", "event": 0.25, "threat_gap": 99999, "threat": 0.0, "deaths": False, "yield": 1.15},
     "balanced": {"name": "Turning Seasons", "blurb": "Trouble comes, with room to recover.", "event": 0.4, "threat_gap": 5, "threat": 1.0, "deaths": True, "yield": 0.85},
     "harsh":    {"name": "Heaven's Trial", "blurb": "Frequent raids. Disciples can die.", "event": 0.5, "threat_gap": 3, "threat": 1.35, "deaths": True, "yield": 0.7},
 }
@@ -89,7 +89,7 @@ ROOMS = {
                     "effect": "The heart of the sect. Other rooms can be at most one level above it, and each level houses the fame that draws wanderers."},
     "dormitory":   {"name": "Dormitory", "wood": 30, "stone": 10, "max": 5, "effect": "Three beds per level. Disciples without a bed sleep badly."},
     "fields":      {"name": "Rice Terraces", "wood": 20, "stone": 10, "max": 5, "effect": "Two farmers per level, and a better yield. Nothing grows in winter."},
-    "storehouse":  {"name": "Storehouse", "wood": 30, "stone": 20, "max": 5, "effect": "Raises how much rice, wood, stone and herbs you can keep."},
+    "storehouse":  {"name": "Storehouse", "wood": 30, "stone": 20, "max": 5, "effect": "Raises how much rice, wood, stone and herbs you can keep. Rice and herbs above half the store slowly spoil."},
     "library":     {"name": "Scripture Pavilion", "wood": 35, "stone": 20, "max": 5, "effect": "Lets disciples research. Faster per level."},
     "meditation":  {"name": "Meditation Chamber", "wood": 25, "stone": 25, "max": 5, "effect": "+15% qi from meditation per level."},
     "alchemy":     {"name": "Alchemy Hall", "wood": 25, "stone": 30, "max": 5, "effect": "Lets disciples brew pills from herbs. Pills heal and steady a breakthrough."},
@@ -101,7 +101,7 @@ ROOMS = {
 RESEARCH = {
     "irrigation": {"name": "Terraced irrigation", "cost": 150, "effect": "+25% rice from farming."},
     "masonry":    {"name": "Stone masonry", "cost": 180, "effect": "Rooms cost 20% less stone."},
-    "granary":    {"name": "Sealed granaries", "cost": 220, "effect": "Storehouse holds 50% more."},
+    "granary":    {"name": "Sealed granaries", "cost": 220, "effect": "Storehouse holds 50% more, and stores spoil half as fast."},
     "refinement": {"name": "Pill refinement", "cost": 260, "effect": "Pills need 2 herbs instead of 3."},
     "sword_forms": {"name": "Sword forms", "cost": 300, "effect": "+25% combat strength."},
     "qi_array":   {"name": "Qi-gathering array", "cost": 360, "effect": "+20% qi from meditation."},
@@ -115,6 +115,17 @@ SECS_PER_HOUR_OFFLINE = 1800.0     # away: one sim hour per 30 real minutes
 MAX_OFFLINE_HOURS = 48
 MAX_TICK = 24                      # most sim hours one request may advance
 WEEK_GOAL = 5
+# Upkeep and the slow pressures of a growing sect (all shown in view()["upkeep"]).
+HUNGER = 2.2                       # food a disciple burns an hour; a bowl of rice is 38
+WINTER_HUNGER = 1.25               # cold bodies burn a quarter more
+WINTER_WOOD = 2.0                  # firewood per disciple per winter night
+REPAIR_FREE = 3                    # room levels a sect keeps up without thinking about it
+REPAIR = {"wood": 0.35, "stone": 0.2}   # per room level beyond those, per day
+SPOIL_FROM = 0.5                   # rice and herbs above this share of the store start to spoil
+SPOIL = 0.15                       # share of that surplus lost per day
+FARM_YIELD = 0.32                  # rice per farmer-hour at skill 7 on one terrace, before the storyteller
+WORK_QI = 0.12                     # an hour of work gathers this share of an hour of meditation
+STALL_DAYS = 5                     # days without meditation before the sect says so
 
 
 # ---------------------------------------------------------------------------
@@ -151,7 +162,7 @@ def _make_pawn(c: dict, n: int, master_name: str = "", lucky: bool = False) -> d
         "food": 80.0, "rest": 80.0, "joy": 70.0, "mood": 60.0, "health": 100.0,
         "thoughts": [], "step": 0, "qi": 0.0, "prio": dict(DEFAULT_PRIO),
         "doing": "idle", "break_until": 0, "inspired_until": 0, "sick_until": 0, "joined": c["hour"],
-        **PAWN_EXTRA,
+        **copy.deepcopy(PAWN_EXTRA),             # fresh lists: fates and meridians are never shared
     }
     if master_name:
         pawn["prio"].update(meditate=2, research=2, farm=3, build=2)
@@ -165,7 +176,7 @@ def _make_pawn(c: dict, n: int, master_name: str = "", lucky: bool = False) -> d
     return pawn
 
 
-PAWN_EXTRA = {"bt_tries": 0, "away_until": 0, "away_kind": "", "resolve_until": 0, "title": "", "hidden": False, "rank": 0, "origin": "", "element": "", "direct": False}
+PAWN_EXTRA = {"bt_tries": 0, "away_until": 0, "away_kind": "", "resolve_until": 0, "title": "", "hidden": False, "rank": 0, "origin": "", "element": "", "direct": False, "sat_at": -1}
 
 
 def new_colony(now: float) -> dict:
@@ -220,7 +231,7 @@ def _c(st: dict, now: float) -> dict:
             c.setdefault(k, v)
         for pw in c["pawns"]:
             for k, v in PAWN_EXTRA.items():
-                pw.setdefault(k, v)
+                pw.setdefault(k, copy.deepcopy(v))
             if pw["element"] not in lore.ELEMENTS:
                 pw["element"] = _rng(c, "elem", pw.get("id")).choice(lore.ELEMENTS)
         if c["name"] and not c["sects"]:
@@ -583,7 +594,7 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
     out = _skill_mult(p, skill) * _work_mult(p, hour)
     _xp(p, skill, 1.0 * (2.0 if job == "train" and "Sword-mad" in p["traits"] else 1.0))
     if job == "farm":
-        y = 0.38 * (1 + 0.15 * (_lvl(c, "fields") - 1)) * (1.25 if _has(c, "irrigation") else 1.0)
+        y = FARM_YIELD * (1 + 0.15 * (_lvl(c, "fields") - 1)) * (1.25 if _has(c, "irrigation") else 1.0)
         _add(c, "rice", out * y * (1.25 if "Green thumb" in p["traits"] else 1.0) * (1.2 if _season(c) == 2 else 1.0)
              * STORYTELLERS[c["storyteller"]]["yield"])
     elif job == "wood":
@@ -601,6 +612,8 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
             c["builds"].pop(0)
             c["rooms"][b["room"]] = _lvl(c, b["room"]) + 1
             lv = c["rooms"][b["room"]]
+            if b["room"] == "main_hall":
+                _fame(c, 4)                       # the valley sees the sect's hall rise
             _letter(c, "good", f"{ROOMS[b['room']]['name']} {'built' if lv == 1 else f'raised to level {lv}'}",
                     f"{p['name']} set the last stone.")
     elif job == "craft":
@@ -617,6 +630,10 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
     elif job == "meditate":
         _gain_qi(c, p, _work_mult(p, hour) * math.prod(m for _, m in qi_rate(c, p)), quiet)
         p["joy"] = min(100.0, p["joy"] + 1.5)
+        p["sat_at"] = hour
+    if job != "meditate":
+        # daily life cultivates too, slowly: breath drawn while hauling stone is still breath
+        _gain_qi(c, p, WORK_QI * _work_mult(p, hour) * math.prod(m for _, m in qi_rate(c, p)), quiet)
 
 
 def _research(c: dict, points: float) -> None:
@@ -649,6 +666,8 @@ def _gain_qi(c: dict, p: dict, amount: float, quiet: bool = False) -> None:
         p["qi"] -= step_need(p["step"])
         p["step"] += 1
         p["told_ready"] = 0
+        if not p.get("master"):
+            _fame(c, 1)                               # word travels of every step a disciple takes
         _think(p, "bt", "Broke through", 6, 24, c["hour"])
         if p.get("master"):
             _letter(c, "good", f"{p['name']} reached {realm_label(p['step'])}", "A steady step forward.")
@@ -692,16 +711,68 @@ def mood_mods(c: dict, p: dict) -> list[tuple[str, int]]:
     return rows + dao.mood_rows(c, p)
 
 
+def appetite(c: dict, p: dict) -> float:
+    """Food a disciple burns in an hour."""
+    return HUNGER * (1.4 if "Glutton" in p["traits"] else 1.0) * dao.hunger_x(c, p) * (WINTER_HUNGER if _season(c) == 3 else 1.0)
+
+
+def upkeep(c: dict) -> list[tuple[str, str, float]]:
+    """What the sect uses up in a day, as a ledger: (resource, why, amount a day)."""
+    rows: list[tuple[str, str, float]] = []
+    n = len(c["pawns"])
+    if n:
+        eat = sum(appetite(c, p) for p in c["pawns"]) * 24 / 38.0
+        cold = eat - eat / WINTER_HUNGER if _season(c) == 3 else 0.0
+        rows.append(("rice", f"{n} disciple{'s' if n != 1 else ''} eat", eat - cold))
+        if cold:
+            rows.append(("rice", "Winter: cold bodies eat a quarter more", cold))
+            rows.append(("wood", "Winter: firewood for the nights", WINTER_WOOD * n))
+    if c["beast"]:
+        rows.append(("rice", f"{c['beast']['name']} eats", 1.0))
+    extra = sum(c["rooms"].values()) - REPAIR_FREE
+    if extra > 0:
+        for res, k in REPAIR.items():
+            rows.append((res, f"Repairs: {extra} room level{'s' if extra != 1 else ''} beyond the first {REPAIR_FREE}", k * extra))
+    keep = 0.5 if _has(c, "granary") else 1.0
+    for res in ("rice", "herbs"):
+        over = c["res"][res] - SPOIL_FROM * _cap(c)
+        if over > 0:
+            rows.append((res, f"{RES_NAMES[res]} spoiling above half the store", over * SPOIL * keep))
+    return rows
+
+
+def _upkeep(c: dict, quiet: bool) -> None:
+    """The morning's upkeep (eating is hourly, in _tick_pawn). Away, nothing spoils."""
+    short = set()
+    for res, label, amount in upkeep(c):
+        if res == "rice" and "eat" in label:
+            continue
+        if quiet and "spoiling" in label:
+            continue
+        if c["res"][res] < amount:
+            short.add(label)
+        c["res"][res] = max(0.0, c["res"][res] - amount)
+    if quiet:
+        return
+    for p in c["pawns"]:
+        if any(x.startswith("Winter: firewood") for x in short) and "Ascetic" not in p["traits"]:
+            _think(p, "no_fire", "A night without firewood", -7, 30, c["hour"])
+        if any(x.startswith("Repairs") for x in short):
+            _think(p, "repairs", "Leaking roofs and cracked steps", -4, 30, c["hour"])
+
+
 def _tick_pawn(c: dict, p: dict, taken: dict, quiet: bool) -> None:
     hour = c["hour"]
     hod = hour % 24
     night = hod >= 22 or hod < 6
     p["thoughts"] = [t for t in p["thoughts"] if t["until"] > hour]
+    if p["sat_at"] < 0 or p["away_until"] > hour:
+        p["sat_at"] = hour                # newly arrived (or an old save), or away: the count starts now
     if p["away_until"] > hour:
         p["doing"] = p["away_kind"] or "away"
         return
     # --- needs decay
-    p["food"] = max(0.0, p["food"] - 2.2 * (1.4 if "Glutton" in p["traits"] else 1.0) * dao.hunger_x(c, p))
+    p["food"] = max(0.0, p["food"] - appetite(c, p))
     p["joy"] = max(0.0, p["joy"] - 1.2 * (0.5 if "Ascetic" in p["traits"] else 1.0))
     # --- eat (instant) when hungry
     if p["food"] < 35 and c["res"]["rice"] >= 1:
@@ -1054,8 +1125,8 @@ def _ask(c: dict, kind: str, title: str, text: str, options: list[tuple[str, str
 def _omen(c: dict, r: random.Random, kind: str, src: dict | None = None, boost: float = 1.0, why: str = "") -> None:
     """A threat is seen coming: the player chooses how to meet it."""
     tell = STORYTELLERS[c["storyteller"]]
-    strength = (wealth(c) / 22 + len(c["pawns"]) * 9 + min(_day(c), 48) * 1.1) * r.uniform(0.7, 1.35) * max(tell["threat"], 0.6) \
-        * c["adapt"] * boost
+    strength = (wealth(c) / 22 + len(c["pawns"]) * 9 + min(_day(c), 48) * 1.1 + c["fame"] * 0.5) * r.uniform(0.7, 1.35) \
+        * max(tell["threat"], 0.6) * c["adapt"] * boost
     if kind == "raid" and src:
         strength *= src["power"]
     if kind == "beasts" and "beast_bell" in c["treasures"]:
@@ -1920,7 +1991,7 @@ def _annal(c: dict, text: str) -> None:
 
 
 def renown(fame: float) -> str:
-    return ("Nameless sect" if fame < 15 else "Known in the valley" if fame < 50 else "Regional power" if fame < 120
+    return ("Nameless sect" if fame < 20 else "Known in the valley" if fame < 50 else "Regional power" if fame < 120
             else "Great Sect" if fame < 300 else "Holy Land")
 
 
@@ -2193,6 +2264,7 @@ def _res_festival(c, ev, opt, r):
             return ("err", f"A feast needs {ev['cost']} rice.")
         snap = _snap(c)
         c["res"]["rice"] -= ev["cost"]
+        _fame(c, 2)                                   # the whole valley sees the lanterns
         home = _home(c)
         for p in home:
             _think(p, "festival", f"Celebrated the {name}", 10, 72, c["hour"])
@@ -2204,7 +2276,8 @@ def _res_festival(c, ev, opt, r):
         away = len(c["pawns"]) - len(home)
         _scene(c, "festival", True, out["title"], out["text"], verdict="The feast is held", party=home,
                lines=[("", f"{len(home)} disciple{'s' if len(home) != 1 else ''} feasted: joy full, +10 mood for 3 days", True),
-                      ("", "Every pair at the table grew closer (+4 bond)", True)]
+                      ("", "Every pair at the table grew closer (+4 bond)", True),
+                      ("", "The valley saw the lanterns (+2 fame)", True)]
                + ([("", f"{away} away from the sect missed it", None)] if away else []),
                snap=snap, extra=[("Mood, 3 days", 10, True, True)])
         return out
@@ -2318,17 +2391,7 @@ def _hour(c: dict, quiet: bool) -> None:
                     item["at"] = c["hour"] + 6
     if c["hour"] % 24 == 6:
         c["adapt"] = min(1.5, c["adapt"] + 0.006)
-        if _season(c) == 3 and c["pawns"]:
-            need = 1.2 * len(c["pawns"])                      # winter nights burn firewood
-            if c["res"]["wood"] >= need:
-                c["res"]["wood"] -= need
-            else:
-                c["res"]["wood"] = 0.0
-                for p in c["pawns"]:
-                    if "Ascetic" not in p["traits"]:
-                        _think(p, "no_fire", "A night without firewood", -7, 30, c["hour"])
-        if c["beast"]:
-            c["res"]["rice"] = max(0.0, c["res"]["rice"] - 1.0)
+        _upkeep(c, quiet)                                     # firewood, repairs, spoilage, the beast's rice
     if c["hour"] % 24 == 6 and not quiet:
         _daily_event(c)
         if c["res"]["rice"] < len(c["pawns"]) * 2 and _day(c) % 2 == 0:
@@ -2632,6 +2695,7 @@ def _pawn_view(c: dict, p: dict) -> dict:
         **dao.pawn_view(c, p),
         "origin": str(p.get("origin") or ""), "element": str(p["element"]), "direct": bool(p.get("direct")),
         "qi_why": [{"label": str(a), "x": _f(b, 2)} for a, b in qi_rate(c, p)], "qi_x": _f(math.prod(b for _, b in qi_rate(c, p)), 2),
+        "qi_work": _f(WORK_QI, 2),
         "artifact": ({"id": str(artifact_of(c, p)["id"]), "name": str(artifact_of(c, p)["name"]), "text": artifact_text(artifact_of(c, p))}
                      if artifact_of(c, p) else None),
         "bonds": sorted(({"name": str(o["name"]), "v": _f(bond(c, p, o)), "kind": bond_kind(bond(c, p, o))}
@@ -2639,20 +2703,33 @@ def _pawn_view(c: dict, p: dict) -> dict:
     }
 
 
+def stalled_days(c: dict, p: dict) -> int:
+    """Whole days since a disciple last sat down to meditate."""
+    return max(0, (c["hour"] - int(p["sat_at"])) // 24) if p["sat_at"] >= 0 else 0
+
+
 def _alerts(c: dict) -> list[dict]:
     """What needs the player's eye right now, most urgent first."""
     out = []
-    n = max(1, len(c["pawns"]))
-    days = c["res"]["rice"] / (n * 1.2)
+    eat = max(0.5, sum(v for res, label, v in upkeep(c) if res == "rice" and "spoiling" not in label))
+    days = c["res"]["rice"] / eat
     if days < 3:
         out.append({"kind": "bad", "text": f"About {int(days)} day{'s' if int(days) != 1 else ''} of rice left."})
     day = _day(c)
     to_winter = (3 * DAYS_PER_SEASON - day % (4 * DAYS_PER_SEASON)) % (4 * DAYS_PER_SEASON)
-    if 0 < to_winter <= 6 and c["res"]["rice"] < n * 1.2 * DAYS_PER_SEASON:
+    if 0 < to_winter <= 6 and c["res"]["rice"] < eat * WINTER_HUNGER * DAYS_PER_SEASON:
         out.append({"kind": "bad", "text": f"Winter is {to_winter} day{'s' if to_winter != 1 else ''} away and the granary will not last it. Nothing grows in winter."})
     for p in c["pawns"]:
         if ready(p):
             out.append({"kind": "good", "text": f"{p['name']} is ready to attempt {REALMS[p['step'] // 4 + 1]}.", "pawn": str(p["id"])})
+    stalled = sorted((p for p in c["pawns"] if stalled_days(c, p) >= STALL_DAYS and not ready(p)), key=lambda p: -stalled_days(c, p))
+    for p in stalled[:2]:
+        d = stalled_days(c, p)
+        out.append({"kind": "info", "pawn": str(p["id"]),
+                    "text": f"{p['name']} has not meditated in {d} days and is gathering only a trickle of qi from work. "
+                            "Give them meditation time in Work (the same priority as their chores)."})
+    if len(stalled) > 2:
+        out.append({"kind": "info", "text": f"{len(stalled) - 2} more disciple{'s have' if len(stalled) > 3 else ' has'} not meditated in {STALL_DAYS}+ days."})
     low = [p["name"] for p in c["pawns"] if p["mood"] < 25 and p["break_until"] <= c["hour"]]
     if low:
         out.append({"kind": "bad", "text": f"{' and '.join(low[:3])} {'is' if len(low) == 1 else 'are'} close to a qi deviation (very low mood)."})
@@ -2723,6 +2800,7 @@ def view(st: dict, now: float) -> dict:
         "beast": {"name": str(c["beast"]["name"]), "power": _f(beast_power(c))} if c["beast"] else None,
         "beds": beds(c), "pawn_cap": pawn_cap(c), "graves": _f(c["graves"]),
         "food_days": _f(c["res"]["rice"] / max(1, len(c["pawns"])), 1),
+        "upkeep": [{"res": res, "label": str(label), "n": _f(n, 1)} for res, label, n in upkeep(c)],
         "rooms": rooms,
         "builds": [{"room": b["room"], "name": ROOMS[b["room"]]["name"], "pct": _f(100.0 * b["done"] / b["need"])} for b in c["builds"]],
         "pawns": [_pawn_view(c, p) for p in c["pawns"]],
@@ -2815,6 +2893,7 @@ def _repair(c: dict) -> None:
             p[k] = num(p.get(k), 0, 100, 50.0)
         for k in ("qi", "break_until", "inspired_until", "sick_until", "away_until", "resolve_until", "bt_tries", "age"):
             p[k] = num(p.get(k), 0, 1e9)
+        p["sat_at"] = int(num(p.get("sat_at"), -1, 1e9, -1))
         p["root_mult"] = num(p.get("root_mult"), 0.3, 3.0, 1.0)
         p["prio"] = {j: int(num((p.get("prio") or {}).get(j), 0, 4)) for j in JOBS}
         p["thoughts"] = [t for t in p.get("thoughts", []) if isinstance(t, dict) and isinstance(t.get("k"), str)

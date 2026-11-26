@@ -96,11 +96,11 @@ export function mountSect(h) {
           ${[1, 2, 3].map((n) => `<button class="${speed === n ? 'on' : ''}" data-speed="${n}" aria-label="Speed ${n}">${'▸'.repeat(n)}</button>`).join('')}
         </span>
       </header>
-      <div class="resbar">${S.res.map((r) => `<span class="res ${r.id === 'rice' && S.food_days < 3 ? 'low' : ''}" title="${esc(r.name)}${r.cap ? ` (store holds ${r.cap})` : ''}">
+      <div class="resbar">${S.res.map((r) => `<span class="res ${r.id === 'rice' && S.food_days < 3 ? 'low' : ''}" title="${esc(r.name)}${r.cap ? ` (store holds ${r.cap})` : ''}${(S.upkeep || []).filter((u) => u.res === r.id).map((u) => `\n−${u.n} a day: ${esc(u.label)}`).join('')}">
           <span aria-hidden="true">${RES_ICON[r.id] || ''}</span><b class="num">${r.n}</b><small>${esc(r.name)}</small></span>`).join('')}
         <span class="res" title="Insight from your own study. It is spent on research automatically."><span aria-hidden="true">📜</span><b class="num">${S.insight}</b><small>Insight</small></span>
         <span class="res" title="How strong the sect's defence is"><span aria-hidden="true">🛡</span><b class="num">${S.defense}</b><small>Defence</small></span>
-        <span class="res" title="Fame: won in fights, tournaments and breakthroughs. Draws better recruits."><span aria-hidden="true">🏮</span><b class="num">${S.fame}</b><small>Fame</small></span>
+        <span class="res" title="Fame: won in fights, tournaments, festivals, a raised Main Hall and every step a disciple takes. Draws better recruits, and raiders."><span aria-hidden="true">🏮</span><b class="num">${S.fame}</b><small>Fame</small></span>
       </div>
       ${S.guide ? `<div class="guide tutor">${portrait('guide', { kind: 'elder', size: 52 })}<div class="speech"><small class="dim">The elder's counsel · ${S.guide.n} of ${S.guide.total}</small><br>${esc(S.guide.text)}
           <button class="linkish dim small" data-skipguide style="margin-left:8px">I know colony sims, skip</button></div></div>` : ''}
@@ -353,7 +353,8 @@ export function mountSect(h) {
       ${why.length ? `<ul class="list">${why.map((t) => `<li class="row"><span class="grow">${esc(t.label)}</span>${signed(t.v)}</li>`).join('')}</ul>
         <p class="dim small">Mood settles toward 50 plus these. Below about 20 a disciple may suffer a qi deviation.</p>` : '<p class="dim">Nothing in particular. Their mood rests at 50.</p>'}
       <h3 style="margin-top:14px">Cultivation speed <span class="tag violet num">×${p.qi_x}</span></h3>
-      <ul class="list">${p.qi_why.map((t) => `<li class="row"><span class="grow">${esc(t.label)}</span><b class="num" style="color:var(--${t.x < 1 ? 'verm' : 'jade'})">×${t.x}</b></li>`).join('')}</ul>
+      <ul class="list">${p.qi_why.map((t) => `<li class="row"><span class="grow">${esc(t.label)}</span><b class="num" style="color:var(--${t.x < 1 ? 'verm' : 'jade'})">×${t.x}</b></li>`).join('')}
+        <li class="row dim"><span class="grow">An hour of work instead of meditation gathers a share of this</span><b class="num">×${p.qi_work}</b></li></ul>
       <p class="dim small">Qi gathered per hour of meditation is multiplied by each of these. A manual of the root's own element is well suited (half again as strong); one of a clashing element is ill suited.</p>
       <h3 style="margin-top:14px">Artifact</h3>
       ${p.artifact ? `<p><span class="tag gold">${esc(p.artifact.name)}</span> <span class="small dim">${esc(p.artifact.text)}</span> <button class="btn quiet" data-equip="">Return to the vault</button></p>` : '<p class="dim">Carries nothing.</p>'}
