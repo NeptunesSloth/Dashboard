@@ -326,3 +326,214 @@ def test_a_weak_sect_can_send_an_observer_to_the_tournament(st):
     colony.resolve(st, "observe", T0)
     assert c["fame"] == fame + 1 and w["skills"]["combat"]["xp"] + 20 * w["skills"]["combat"]["lv"] > xp
     assert not any(t["k"] == "no_tourney" for p in c["pawns"] for t in p["thoughts"])
+
+
+# ---------------------------------------------------------------------------
+# the third playtest (70 days, balanced): flat after day 40
+# ---------------------------------------------------------------------------
+def _answer(st, c, hours):
+    for _ in range(hours):
+        colony.advance(st, 1, T0)
+        if c["pending"]:
+            colony.resolve(st, c["pending"]["options"][-1]["id"], T0)
+
+
+def test_a_build_just_queued_is_not_a_stall_and_meditation_is_never_blamed(st):
+    c = st["colony"]
+    c["res"].update(wood=500.0, stone=500.0)
+    for q in c["pawns"]:
+        q["prio"] = {j: 0 for j in colony.JOBS} | {"meditate": 1, "build": 1}
+    _answer(st, c, 14)                                       # half a day of meditating before anything was queued
+    assert colony.queue_build(st, "training", T0)["ok"]
+    assert colony.view(st, T0)["build_stall"] == ""          # queued this hour: the hours before say nothing about it
+    _answer(st, c, colony.BUILD_STALL_HOURS + 1)
+    assert colony.view(st, T0)["build_stall"] == ""          # meditation level with Build leaves half the hours to building
+    # a real stall: a chore ahead of Build for half a day; the advice never says to lower Meditate
+    for q in c["pawns"]:
+        q["prio"].update(build=3, wood=1)
+    if not c["builds"]:
+        assert colony.queue_build(st, "training", T0)["ok"]
+    c["builds"][0]["at"] = c["builds"][0]["moved"] = c["hour"]
+    _answer(st, c, colony.BUILD_STALL_HOURS + 1)
+    why = colony.view(st, T0)["build_stall"]
+    assert "ahead of Build at 3" in why and "Meditate" not in why, why
+
+
+def test_new_recruits_meditate_level_with_their_main_chore(st):
+    c = st["colony"]
+    p = colony._make_pawn(c, 40)
+    assert p["prio"]["meditate"] == p["prio"]["farm"] == 2
+    assert colony._make_pawn(c, 0, "Jay")["prio"]["meditate"] == 2          # the Master as before
+    assert colony.default_meditate({"build": 1, "wood": 3, "meditate": 4}) == 3
+    assert colony.default_meditate({"build": 1, "meditate": 4}) == 2
+    c["pawns"].append(p)
+    p["joined"] = c["hour"]
+    _answer(st, c, 24 * (colony.STALL_DAYS + 1))
+    assert not any(a.get("pawn") == p["id"] and "not meditated" in a["text"] for a in colony.view(st, T0)["alerts"])
+
+
+def test_the_tournament_bracket_fits_the_young_generation_and_is_priced_as_it_is_fought(st):
+    c = st["colony"]
+    c["hour"] = 24 * 31 + 5
+    for s in c["sects"]:
+        colony.dao.road.champion(c, s)
+        for ch in s["champs"]:
+            ch["step"] += 4                                  # the sects' best are far ahead by autumn
+    p = c["pawns"][1]
+    p["step"], p["skills"]["combat"]["lv"] = 4, 8            # a careful sect's champion in the first autumn
+    field = colony.tournament_field(c)
+    assert [int(ch["step"]) for _, ch, _ in field] == [colony.tournament_cap(c) + i for i in range(len(field))]
+    odds = colony.tournament_odds(c, p)
+    first = int(odds.split(": ")[1].split("%")[0])
+    assert 20 <= first <= 80, odds
+    wins = 0
+    for seed in range(40):
+        s2 = copy.deepcopy(st)
+        cc = s2["colony"]
+        cc["seed"] = seed
+        cc["pending"] = {"kind": "tournament", "title": "t", "text": "x", "options": [{"id": p["id"], "label": "s"}], "watcher": p["id"]}
+        colony.resolve(s2, p["id"], T0)
+        wins += cc["scenes"][-1]["verdict"] != "Out in the first round"
+    assert 0.1 * 40 <= wins <= 0.9 * 40, wins                  # the label's odds are the resolver's odds
+
+
+def test_the_pact_duel_shows_its_odds_before_and_a_scene_after(st, monkeypatch):
+    c = st["colony"]
+    ev = _force(monkeypatch, c, "engagement")
+    assert ev["kind"] == "engagement" and "their champion about" in ev["options"][0]["label"]
+    colony.resolve(st, "pact", T0)
+    due = next(x for x in c["later"] if x["kind"] == "pact_duel")
+    p = colony._p(c, due["pawn"])
+    c["hour"] = due["at"] - 1
+    c["later"] = [due]
+    colony.advance(st, 2, T0)
+    ev = c["pending"]
+    assert ev and ev["kind"] == "pact_duel", ev
+    s = colony._sect(c, ev["src"])
+    want = colony.win_odds(colony.duel_power(c, p), colony.pact_foe(c, s), 0.8, 1.2)
+    assert f"{want}% to win" in ev["options"][0]["label"]
+    assert colony.resolve(st, "fight", T0)["ok"]
+    sc = c["scenes"][-1]
+    assert sc["kind"] == "tournament" and sc["verdict"] in ("The pact is kept", "Defeated in the duel") and sc["lines"][0]["who"] == p["name"]
+    c["pending"] = dict(ev)                                  # withdrawing costs face, and no wound
+    fame, hp = c["fame"], p["health"]
+    colony.resolve(st, "forfeit", T0)
+    assert (c["fame"] < fame or fame == 0) and p["health"] == hp
+
+
+def test_a_returning_young_master_picks_on_someone_else(st, monkeypatch):
+    c = st["colony"]
+    _grow(c)
+    met = []
+    for day in (26, 60, 94):
+        ev = _force(monkeypatch, c, "young_master", day=day)
+        assert ev["kind"] == "young_master"
+        met.append((ev["pawn"], ev["text"].split("“")[1]))
+        colony.resolve(st, "endure", T0)
+    assert len({m[0] for m in met}) == 3 and len({m[1] for m in met}) == 3     # a different disciple, a different taunt
+
+
+def test_rivalries_are_capped_fade_and_can_be_mended(st, monkeypatch):
+    c = st["colony"]
+    _grow(c, 4)                                            # 7 disciples: room for one rival pair
+    ps = c["pawns"]
+    assert colony.rival_cap(c) == 1
+    for a, b in ((ps[1], ps[2]), (ps[3], ps[4]), (ps[5], ps[6])):
+        colony._bond(c, a, b, -60)
+    assert len(colony.rival_pairs(c)) == 1 and colony.bond(c, ps[3], ps[4]) > colony.RIVAL_AT
+    v = colony.bond(c, ps[1], ps[2])
+    colony._mend_grudges(c)
+    assert colony.bond(c, ps[1], ps[2]) == v + colony.RIVAL_MEND
+    ev = _force(monkeypatch, c, "feud")
+    assert ev["kind"] == "feud" and {o["id"] for o in ev["options"]} >= {"mediate", "spar", "apart"}
+    rice = c["res"]["rice"]
+    colony.resolve(st, "mediate", T0)
+    assert not colony.rival_pairs(c) and c["res"]["rice"] == rice - colony.FEUD_MEAL
+    assert any("no longer rivals" in e["title"] for e in c["log"][-3:])
+
+
+def test_a_thief_comes_to_a_strong_sect_too(st, monkeypatch):
+    c = st["colony"]
+    c["res"]["rice"] = 120.0
+    c["rooms"]["ward"] = 3                                    # walls do not stop a sneak
+    ev = _force(monkeypatch, c, "thief")
+    assert ev["kind"] == "thief" and ev["res"] == "rice" and c["res"]["rice"] == pytest.approx(120.0 - ev["n"])
+    assert all("% to" in o["label"] for o in ev["options"][:2])
+    outcomes = set()
+    for opt in ("chase", "track", "let_go"):
+        for seed in range(8):
+            s2 = copy.deepcopy(st)
+            s2["colony"]["seed"] = seed
+            s2["colony"]["hour"] += seed
+            colony.resolve(s2, opt, T0)
+            cc = s2["colony"]
+            sc = cc["scenes"][-1]
+            assert sc["kind"] == "theft"
+            back = cc["res"]["rice"] >= 120.0 - 0.01
+            assert back == sc["ok"] and (back or cc["tally"]["stolen"] >= ev["n"])
+            outcomes.add((opt, back))
+    assert ("let_go", False) in outcomes and ("let_go", True) not in outcomes
+    assert any(ok for o, ok in outcomes if o != "let_go")
+
+
+def test_the_pavilion_moves_research_without_any_study(st):
+    c = st["colony"]
+    c["rooms"]["library"] = 1
+    colony.set_research(st, "irrigation", T0)
+    for p in c["pawns"]:
+        p["prio"]["research"] = 0                              # nobody researches as work, nobody studies
+    c["hour"] = 24 * 3 + colony.READ_HOUR - 1
+    colony.advance(st, 1, T0)
+    n = len(colony._readers(c))
+    assert n and c["research"]["progress"] == pytest.approx(n * colony.PAVILION_READ)
+    rows = colony.view(st, T0)["research"]["rows"]
+    assert rows[0]["label"].startswith(f"Evening reading: {n} disciple") and any("study" in r["label"] for r in rows)
+
+
+def test_a_costly_win_is_headed_so_and_one_name_is_singular(st):
+    for n_more, verb in ((-2, " is wounded"), (3, " are wounded")):
+        s2 = copy.deepcopy(st)
+        cc = s2["colony"]
+        cc["pawns"] = cc["pawns"][:1] if n_more < 0 else cc["pawns"] + [colony._make_pawn(cc, 30 + i) for i in range(n_more)]
+        strength = colony.battle_strength(cc, "fight") / 0.7
+        colony._threat(cc, random.Random(1), "beasts", strength, "fight")
+        sc = cc["scenes"][-1]
+        assert sc["verdict"] == "A costly win" and verb in sc["text"], sc
+        if n_more > 0:
+            assert " and " in sc["text"].split(" wounded")[0]
+
+
+def test_every_letter_and_scene_reads_right_with_one_name_or_three(st):
+    """Drive the storyteller; every letter, scene and question it writes must agree with itself: no 'Mo Xue are',
+    no '1 days', no '..', no double spaces."""
+    import re
+    bad = [re.compile(r"(?<![.…])\.\.(?![.…])"), re.compile(r"  "),
+           re.compile(r"\b1 (days|pills|disciples|hours|herbs|nights|rounds|bolts|attempts)\b")]
+    seen = 0
+    for seed in range(5):
+        s = copy.deepcopy(st)
+        c = s["colony"]
+        c["seed"] = seed
+        c["storyteller"] = "harsh"
+        c["res"].update(rice=600.0, stones=120.0, wood=200.0, stone=200.0)
+        c["rooms"].update(main_hall=4, dormitory=4, alchemy=1, ward=1, fields=3)
+        names: set = set()
+        pick = random.Random(seed)
+        texts = []
+        for _ in range(24 * 90):
+            colony.advance(s, 1, T0)
+            names |= {p["name"] for p in c["pawns"]}
+            ev = c["pending"]
+            if ev:
+                texts += [ev["title"], ev["text"]] + [o["label"] for o in ev["options"]]
+                if not colony.resolve(s, pick.choice(ev["options"])["id"], T0)["ok"]:
+                    colony.resolve(s, ev["options"][-1]["id"], T0)
+            if c["hour"] % 24 == 0:
+                texts += [x for e in c["log"][-12:] for x in (e["title"], e["text"])]
+                texts += [x for sc in c.get("scenes") or [] for x in [sc["title"], sc["text"], sc["verdict"]] + [ln["text"] for ln in sc["lines"]]]
+        one = [re.compile(rf"(?<!and )(?<!, ){re.escape(n)} (are|were)\b") for n in names]
+        for t in set(texts):
+            seen += 1
+            for rx in bad + one:
+                assert not rx.search(t), (rx.pattern, t)
+    assert seen > 300

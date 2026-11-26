@@ -183,7 +183,25 @@ def test_a_great_realm_waits_for_the_order_and_is_a_gamble(st):
     s2 = copy.deepcopy(st)
     q = s2["colony"]["pawns"][1]
     q["bt_tries"] = 3
+    p["mood"] = q["mood"] = 30                                                     # below the realm's cap, so the lesson shows
     assert colony.bt_chance(s2["colony"], q) > colony.bt_chance(c, p)
+
+
+def test_breakthrough_odds_are_capped_by_realm_in_the_ledger(st):
+    c = st["colony"]
+    p = c["pawns"][1]
+    p["skills"]["scholar"]["lv"] = 20
+    p["mood"], p["bt_tries"] = 90, 3
+    c["res"]["pills"] = 5
+    c["rooms"]["meditation"] = 3
+    for step, cap in ((3, 85), (7, 82), (11, 80), (15, 76)):
+        p["step"], p["qi"] = step, colony.step_need(step)
+        rows = colony.bt_odds(c, p)
+        assert colony.bt_chance(c, p) == sum(v for _, v in rows) == cap, rows      # the cap is a row, so the ledger adds up
+        assert any(lab.startswith("The bottleneck of") and v < 0 for lab, v in rows)
+        pill = next(v for lab, v in rows if lab.startswith("A pill"))
+        assert pill == colony.pill_bt(step // 4 + 1)
+    assert colony.pill_bt(1) > colony.pill_bt(2) > colony.pill_bt(3) > colony.pill_bt(4)    # pills matter less as the realms deepen
 
 
 def test_tribulations_ranks_and_manuals(st):
@@ -300,7 +318,7 @@ def test_every_trope_event_can_be_raised_and_answered_every_way(st):
         assert c["pawns"] and any(p["master"] for p in c["pawns"])
         assert all(0 <= p["health"] <= 100 for p in c["pawns"])
     assert seen >= {"wanderer", "merchant", "omen", "young_master", "auction", "secret_realm", "beast_cub", "demonic_offer", "plague", "blight", "infiltrator", "festival",
-                    "cave", "engagement", "spy", "village", "tournament", "recruit"}, seen
+                    "cave", "engagement", "spy", "village", "tournament", "recruit", "thief", "feud", "pact_duel"}, seen
     assert {("young_master", "slap"), ("young_master", "endu"), ("secret_realm", "send"), ("tournament", "p")} - answered <= {("tournament", "p")}
 
 
