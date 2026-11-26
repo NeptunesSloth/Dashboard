@@ -3,13 +3,13 @@ id: house
 title: "The house"
 brief: "Cut-away of a two-storey house, front wall removed: bedroom and bathroom upstairs, living room and kitchen downstairs, stairs in the middle, garden on the right."
 pins:
-  - {id: roof, x: 40, y: 17, en: roof}
-  - {id: chimney, x: 66, y: 9, en: chimney}
-  - {id: bedroom, x: 26, y: 46, en: bedroom}
-  - {id: bathroom, x: 64, y: 46, en: bathroom}
-  - {id: window, x: 45, y: 40, en: window}
-  - {id: stairs, x: 45, y: 66, en: stairs}
-  - {id: living_room, x: 26, y: 80, en: living room}
-  - {id: kitchen, x: 64, y: 80, en: kitchen}
-  - {id: door, x: 45, y: 85, en: door}
-  - {id: garden, x: 88, y: 82, en: garden}
+  - {id: roof, x: 42, y: 21, en: roof}
+  - {id: chimney, x: 69.8, y: 14.5, en: chimney}
+  - {id: bedroom, x: 30, y: 50, en: bedroom}
+  - {id: bathroom, x: 63, y: 52, en: bathroom}
+  - {id: window, x: 65.5, y: 40.5, en: window}
+  - {id: stairs, x: 49.4, y: 73, en: stairs}
+  - {id: living_room, x: 33, y: 77, en: living room}
+  - {id: kitchen, x: 61, y: 77, en: kitchen}
+  - {id: door, x: 49, y: 46.5, en: door}
+  - {id: garden, x: 80, y: 80, en: garden}

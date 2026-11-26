@@ -3,12 +3,12 @@ id: skeleton
 title: "The skeleton"
 brief: "Cultivator's anatomy chart: one skeleton, front view, centred (x=50), arms a little away from the sides."
 pins:
-  - {id: skull, x: 50, y: 10, en: skull}
-  - {id: collarbone, x: 43.5, y: 21.5, en: collarbone}
-  - {id: breastbone, x: 50, y: 28, en: breastbone}
-  - {id: ribs, x: 42.5, y: 32.5, en: ribs}
-  - {id: spine, x: 50, y: 45, en: spine}
-  - {id: pelvis, x: 44.5, y: 53, en: pelvis}
-  - {id: thighbone, x: 45, y: 63, en: thighbone}
-  - {id: kneecap, x: 55, y: 72.5, en: kneecap}
-  - {id: shinbone, x: 45.5, y: 82, en: shinbone}
+  - {id: skull, x: 50, y: 19, en: skull}
+  - {id: collarbone, x: 45.5, y: 29.8, en: collarbone}
+  - {id: breastbone, x: 50, y: 34.5, en: breastbone}
+  - {id: ribs, x: 54.3, y: 39, en: ribs}
+  - {id: spine, x: 50, y: 46, en: spine}
+  - {id: pelvis, x: 45.8, y: 51.5, en: pelvis}
+  - {id: thighbone, x: 46.4, y: 63, en: thighbone}
+  - {id: kneecap, x: 52.8, y: 70.5, en: kneecap}
+  - {id: shinbone, x: 47, y: 80, en: shinbone}

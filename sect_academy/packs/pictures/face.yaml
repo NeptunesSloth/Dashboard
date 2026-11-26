@@ -4,13 +4,13 @@ title: "The face"
 brief: "Close front portrait: the head fills the frame from the hair to the chin, mouth open as if saying 'aah'."
 pins:
   - {id: hair, x: 50, y: 8, en: hair}
-  - {id: forehead, x: 50, y: 22, en: forehead}
-  - {id: eyebrow, x: 39, y: 30, en: eyebrow}
-  - {id: eye, x: 61, y: 36, en: eye}
-  - {id: ear, x: 26.5, y: 43, en: ear}
-  - {id: nose, x: 50, y: 48, en: nose}
-  - {id: cheek, x: 65, y: 53, en: cheek}
-  - {id: mouth, x: 58.5, y: 66, en: mouth}
-  - {id: teeth, x: 45.5, y: 62.5, en: teeth}
-  - {id: tongue, x: 50, y: 70.5, en: tongue}
-  - {id: chin, x: 50, y: 84, en: chin}
+  - {id: forehead, x: 50, y: 34, en: forehead}
+  - {id: eyebrow, x: 41, y: 41.5, en: eyebrow}
+  - {id: eye, x: 59.3, y: 51.5, en: eye}
+  - {id: ear, x: 31, y: 63, en: ear}
+  - {id: nose, x: 49.5, y: 58.5, en: nose}
+  - {id: cheek, x: 62.5, y: 63, en: cheek}
+  - {id: mouth, x: 55.5, y: 73.5, en: mouth}
+  - {id: teeth, x: 50.5, y: 68.5, en: teeth}
+  - {id: tongue, x: 50.5, y: 79, en: tongue}
+  - {id: chin, x: 50.5, y: 89, en: chin}
