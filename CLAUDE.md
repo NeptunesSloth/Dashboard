@@ -89,6 +89,12 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   work a disciple would do it takes half their hours (`MED_SHARE`), and any
   store under `LOW_STORE_DAYS` of use (not share of capacity) comes first. The
   stall alert names the exact priority to set (`stall_advice`).
+- **Mid-game risk** (tuned by `tests/balance.py`): great-realm breakthrough odds
+  are capped per realm (`BT_CAP`, shown as a ledger row; pills give less at
+  deeper realms), tournaments draw a field scaled to the sect (`tournament_field`,
+  odds shown match the resolver's roll), rival pairs are capped (`rival_cap`) and
+  mend daily, and disciples at home add research each evening (`PAVILION_READ`,
+  in the research ledger) so research never needs study.
 - **Nothing bad happens while the app is closed**: time away runs in quiet mode
   (no events, no starvation damage, no deaths), capped at 48 sim hours.
 - **Grading and scheduling are server-side.** The server records what each
