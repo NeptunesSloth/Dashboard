@@ -162,7 +162,7 @@ units:
         type: picture
         picture: clothes
         pins:
-          hat: {l2: le chapeau}
+          hat: {l2: le chapeau, alt: [le bonnet], note: "A woolly winter hat is le bonnet."}
           scarf: {l2: l'écharpe, note: "Feminine: une écharpe."}
           shirt: {l2: la chemise}
           jacket: {l2: la veste, alt: [le blouson]}
@@ -223,7 +223,7 @@ units:
           book: {l2: le livre}
           pen: {l2: le stylo}
           pencil: {l2: le crayon}
-          desk: {l2: le bureau, alt: [le pupitre, la table]}
+          desk: {l2: le bureau, alt: [le pupitre, la table], note: "In a French classroom a pupil's desk is often just une table."}
           bag: {l2: le sac, alt: [le cartable, le sac à dos]}
 
   - id: fr-pic-09

@@ -90,7 +90,7 @@ units:
           eye: {l2: め, rom: me, alt: [目], note: "Kanji: 目."}
           ear: {l2: みみ, rom: mimi, alt: [耳], note: "Kanji: 耳."}
           nose: {l2: はな, rom: hana, alt: [鼻], note: "Kanji: 鼻."}
-          cheek: {l2: ほお, rom: hoo, alt: [頬, hō, ほっぺ, hoppe], note: "Kanji: 頬."}
+          cheek: {l2: ほお, rom: hoo, alt: [頬, hō, ほほ, hoho, ほっぺ, hoppe], note: "Kanji: 頬."}
           mouth: {l2: くち, rom: kuchi, alt: [口], note: "Kanji: 口."}
           teeth: {l2: は, rom: ha, alt: [歯], note: "Kanji: 歯."}
           tongue: {l2: した, rom: shita, alt: [舌], note: "Kanji: 舌."}

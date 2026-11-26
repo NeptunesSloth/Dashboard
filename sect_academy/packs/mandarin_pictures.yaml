@@ -140,7 +140,7 @@ units:
         picture: kitchen
         pins:
           fridge: {l2: 冰箱, rom: bīngxiāng}
-          stove: {l2: 炉子, rom: lúzi, alt: [灶台, zàotái, 煤气灶, méiqìzào]}
+          stove: {l2: 炉子, rom: lúzi, alt: [灶台, zàotái, 炉灶, lúzào, 燃气灶, ránqìzào, 煤气灶, méiqìzào]}
           sink: {l2: 水槽, rom: shuǐcáo, alt: [水池, shuǐchí]}
           chair: {l2: 椅子, rom: yǐzi}
           table: {l2: 桌子, rom: zhuōzi, alt: [饭桌, fànzhuō]}
@@ -262,7 +262,7 @@ units:
 
       - **太阳** *tàiyáng* is the sun; **月亮** *yuèliang* the moon.
       - **星星** *xīngxing* is a star in the sky.
-      - **闪电** *shǎndiàn* is lightning; thunder is 打雷 *dǎ léi*.
+      - **闪电** *shǎndiàn* is lightning; thunder is 雷 *léi*, and "it thunders" 打雷 *dǎ léi*.
     items:
       - id: zh-pic-sky
         type: picture

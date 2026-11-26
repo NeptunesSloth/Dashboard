@@ -64,8 +64,8 @@ units:
           ribs: {l2: 갈비뼈, rom: galbippyeo}
           spine: {l2: 척추, rom: cheokchu, alt: [등뼈, deungppyeo]}
           pelvis: {l2: 골반, rom: golban}
-          thighbone: {l2: 넓적다리뼈, rom: neopjeokdarippyeo, alt: [대퇴골, daetoegol]}
-          kneecap: {l2: 무릎뼈, rom: mureupppyeo, alt: [mureuppyeo, 슬개골, seulgaegol]}
+          thighbone: {l2: 넓적다리뼈, rom: neopjeokdarippyeo, alt: [넙다리뼈, neopdarippyeo, 허벅지뼈, heobeokjippyeo, 대퇴골, daetoegol]}
+          kneecap: {l2: 무릎뼈, rom: mureupppyeo, alt: [mureuppyeo, 종지뼈, jongjippyeo, 슬개골, seulgaegol]}
           shinbone: {l2: 정강이뼈, rom: jeonggangippyeo}
 
   - id: ko-pic-03
@@ -83,7 +83,7 @@ units:
         type: picture
         picture: face
         pins:
-          hair: {l2: 머리카락, rom: meorikarak}
+          hair: {l2: 머리카락, rom: meorikarak, alt: [머리, meori]}
           forehead: {l2: 이마, rom: ima}
           eyebrow: {l2: 눈썹, rom: nunsseop}
           eye: {l2: 눈, rom: nun}
