@@ -141,6 +141,12 @@ def _rng(c: dict, *salt) -> random.Random:
     return random.Random(f"{c['seed']}:{':'.join(str(s) for s in salt)}")
 
 
+def default_meditate(prio: dict) -> int:
+    """A newcomer's Meditate: level with their main chore (building comes and goes with the queue, so it is not it), so they
+    sit half their working hours from the first day instead of never (MED_SHARE); 2 when they have no chore."""
+    return min((int(v) for j, v in prio.items() if j not in ("meditate", "build") and v), default=2)
+
+
 def _make_pawn(c: dict, n: int, master_name: str = "", lucky: bool = False) -> dict:
     r = _rng(c, "pawn", n)
     total = sum(w for _, _, w in ROOTS)
@@ -175,6 +181,7 @@ def _make_pawn(c: dict, n: int, master_name: str = "", lucky: bool = False) -> d
         pawn["origin"] = "Founder of the sect."
         pawn["element"] = r.choice(lore.ELEMENTS)
     else:
+        pawn["prio"]["meditate"] = default_meditate(pawn["prio"])
         pawn["element"] = r.choice(lore.ELEMENTS)
         text, skill, bonus = r.choice(lore.ORIGINS)
         pawn["origin"] = text
@@ -251,8 +258,36 @@ def _c(st: dict, now: float) -> dict:
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
+_DOUBLE_STOP = re.compile(r"(?<![.…])\.\.(?![.…])")
+
+
+def tidy(text: str) -> str:
+    """The punctuation slips templates make when a piece already ends in a full stop: 'everyone.. A', '  ', ' .'."""
+    text = _DOUBLE_STOP.sub(".", str(text))
+    text = re.sub(r" {2,}", " ", text)
+    return re.sub(r" +([.,;:!?])", r"\1", text)
+
+
+def _and(names) -> str:
+    """'A', 'A and B', 'A, B and C'."""
+    n = [str(x) for x in names]
+    return " and ".join(n) if len(n) < 3 else ", ".join(n[:-1]) + " and " + n[-1]
+
+
+def _be(n, one: str = "is", many: str = "are") -> str:
+    """The verb that agrees with a list of names (or a count): _be(['A']) 'is', _be(['A', 'B']) 'are'."""
+    k = n if isinstance(n, int) else len(n)
+    return one if k == 1 else many
+
+
+def _n(n, word: str, plural: str = "") -> str:
+    """'1 pill', '3 pills', '1 day', '2 days'."""
+    k = int(n)
+    return f"{k} {word if k == 1 else plural or word + 's'}"
+
+
 def _letter(c: dict, kind: str, title: str, text: str) -> dict:
-    ev = {"hour": c["hour"], "kind": kind, "title": title, "text": text}
+    ev = {"hour": c["hour"], "kind": kind, "title": tidy(title), "text": tidy(text)}
     c["log"] = (c["log"] + [ev])[-80:]
     return ev
 
@@ -284,7 +319,8 @@ def _scene(c: dict, kind: str, ok: bool, title: str, text: str = "", *, verdict:
     """Queue a result scene. Reads the sect only; it never changes the sim.
     party: pawn dicts (alive or just dead); lines: (who, text, ok|None); extra: (label, value, good, signed).
     first: put this scene before any scene queued since that id (a battle shows before the funerals it caused)."""
-    out_lines = [{"who": str(w), "text": str(t), "ok": o if o is None else bool(o)} for w, t, o in lines]
+    out_lines = [{"who": str(w), "text": tidy(t), "ok": o if o is None else bool(o)} for w, t, o in lines]
+    title, text = tidy(title), tidy(text)
     changes = []
     if snap:
         for k in RES:
@@ -684,6 +720,7 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
     elif job == "build":
         b = c["builds"][0]
         b["done"] += out
+        b["moved"] = hour
         if b["done"] >= b["need"]:
             c["builds"].pop(0)
             c["rooms"][b["room"]] = _lvl(c, b["room"]) + 1
@@ -734,6 +771,54 @@ def blight_left(c: dict) -> int:
     if not isinstance(b, dict) or _season(c) == 3:
         return 0
     return max(0, int(b.get("until", 0)) - c["hour"])
+
+
+PAVILION_READ = 7.0                # research points each disciple at home adds with an evening in the Scripture Pavilion
+READ_HOUR = 21                     # when the evening reading happens
+
+
+def _library_x(c: dict) -> float:
+    """What the Pavilion, the jade slip and the sect's scholarship multiply research by."""
+    lv = max(1, _lvl(c, "library"))
+    return (1 + 0.2 * (lv - 1)) * (1.25 if "jade_slip" in c["treasures"] else 1.0) * dao.research_x(c)
+
+
+def _readers(c: dict) -> list[dict]:
+    return [p for p in _home(c) if p["sick_until"] <= c["hour"] and p["health"] >= 20]
+
+
+def research_rows(c: dict) -> list[tuple[str, str]]:
+    """Where research comes from, as a ledger: (label, amount). The evening reading is the sect's own (no study needed);
+    research work and the Sect Master's study add to it."""
+    lv = _lvl(c, "library")
+    if not lv:
+        return [("No Scripture Pavilion: only your own study moves research", "1 per correct answer")]
+    n = len(_readers(c))
+    x = _library_x(c)
+    rows = [(f"Evening reading: {_n(n, 'disciple')} at home × {_f(PAVILION_READ)}", f"{round(n * PAVILION_READ, 1):g} a day")]
+    if lv > 1:
+        rows.append((f"Scripture Pavilion level {lv}", f"×{_f(1 + 0.2 * (lv - 1), 2)}"))
+    if "jade_slip" in c["treasures"]:
+        rows.append((lore.TREASURES["jade_slip"]["name"], "×1.25"))
+    if dao.research_x(c) != 1.0:
+        rows.append(("The sect's scholarship", f"×{_f(dao.research_x(c), 2)}"))
+    if len(rows) > 1:
+        rows.append(("Evening reading in all", f"{round(n * PAVILION_READ * x, 1):g} a day"))
+    rows.append(("Research work (Work: Research)", f"about {_f(x, 2)} an hour per disciple at scholarship 7, more with skill"))
+    rows.append(("Your own study", "+1 insight per correct answer"))
+    return rows
+
+
+def _evening_reading(c: dict) -> None:
+    """Once a day every disciple at home reads in the Pavilion: research moves even when nobody studies (research_rows)."""
+    lv = _lvl(c, "library")
+    if not lv:
+        return
+    pts = len(_readers(c)) * PAVILION_READ * _library_x(c)
+    if c["research"]["current"]:
+        _research(c, pts)
+    else:
+        c["insight"] += pts                              # kept, and spent on the next topic chosen
 
 
 def _research(c: dict, points: float) -> None:
@@ -1079,7 +1164,7 @@ def bt_odds(c: dict, p: dict) -> list[tuple[str, int]]:
     if lv:
         rows.append((f"Scholarship {lv}", round(1.5 * lv)))
     if c["res"]["pills"] >= 1:
-        rows.append(("A pill to steady the meridians (will be used)", 20))
+        rows.append(("A pill to steady the meridians (will be used)", pill_bt(target)))
     if _lvl(c, "meditation"):
         rows.append(("Meditation Chamber", 3 * _lvl(c, "meditation")))
     mid = _manual(c, p, "qi")[1]
@@ -1105,11 +1190,30 @@ def bt_odds(c: dict, p: dict) -> list[tuple[str, int]]:
         rows.append(("The Ward Formation draws off lightning", 3 * _lvl(c, "ward")))
     if trib and "lightning_rod" in c["treasures"]:
         rows.append((lore.TREASURES["lightning_rod"]["name"], 10))
-    return rows + dao.bt_rows(c, p)
+    rows += dao.bt_rows(c, p)
+    total, cap = sum(v for _, v in rows), bt_cap(target)
+    if total > cap:
+        rows.append((f"The bottleneck of {REALMS[min(target, len(REALMS) - 1)]}: no attempt is surer than {cap}%", cap - total))
+    elif total < 5:
+        rows.append(("Heaven always leaves a sliver of hope", 5 - total))
+    return rows
+
+
+BT_CAP = (85, 82, 80, 76, 72, 70, 68)      # the surest any attempt on great realm 1, 2, ... can be: heaven grows harder to fool
+
+
+def bt_cap(target: int) -> int:
+    return BT_CAP[max(0, min(len(BT_CAP) - 1, target - 1))]
+
+
+def pill_bt(target: int) -> int:
+    """What a pill adds to an attempt on great realm `target`: much at the first gates, less as the realms deepen."""
+    return max(6, 24 - 4 * target)
 
 
 def bt_chance(c: dict, p: dict) -> int:
-    return max(5, min(95, sum(v for _, v in bt_odds(c, p))))
+    """The odds of a great-realm attempt: the sum of its ledger (bt_odds), which already holds the realm's cap."""
+    return max(5, min(bt_cap(p["step"] // 4 + 1), sum(v for _, v in bt_odds(c, p))))
 
 
 def _promote(c: dict, p: dict) -> None:
@@ -1226,7 +1330,7 @@ def burn_manual(st: dict, manual: str, now: float) -> dict:
 # storyteller: threats
 # ---------------------------------------------------------------------------
 def _ask(c: dict, kind: str, title: str, text: str, options: list[tuple[str, str]], **data) -> None:
-    c["pending"] = {"kind": kind, "title": title, "text": text, "options": [{"id": i, "label": lab} for i, lab in options], **data}
+    c["pending"] = {"kind": kind, "title": tidy(title), "text": tidy(text), "options": [{"id": i, "label": tidy(lab)} for i, lab in options], **data}
     c["last_event_day"] = _day(c)          # a decision: the storyteller measures quiet spells from here
 
 
@@ -1315,6 +1419,7 @@ def _threat(c: dict, r: random.Random, kind: str, strength: float, how: str = "f
     siege = copy.deepcopy(c.get("siege"))
     fighters = [] if how == "tribute" else [p for p in _home(c) if combat_power(c, p) > 0]
     stolen = float(c["tally"].get("stolen", 0.0))
+    ratio = battle_strength(c, how, src) / max(strength, 1.0)      # what _battle measures, before it runs
     ev = _battle(c, r, kind, strength, how, src)
     stolen = float(c["tally"].get("stolen", 0.0)) - stolen
     won = ev["kind"] != "bad" and how != "tribute"
@@ -1323,7 +1428,9 @@ def _threat(c: dict, r: random.Random, kind: str, strength: float, how: str = "f
               + ("paid them off" if how == "tribute" else "held behind the wards" if how == "wards"
                  else "charged on Berserk Pills" if how == "berserk" else "guarded the storehouse doors" if how == "guard"
                  else "met them at the gate") + ".", None)]
-    verdict = "Tribute paid" if how == "tribute" else "Victory" if ev["kind"] == "good" else "Victory, with wounds" if won else "Defeat"
+    # the verdict says what the letter says: _battle's bands are 1.4 (clean), 0.9 (with wounds), 0.55 (a costly win), below that overrun
+    verdict = ("Tribute paid" if how == "tribute" else "Victory" if ev["kind"] == "good" else "Victory, with wounds" if won
+               else "A costly win" if ratio >= 0.55 else "Defeat")
     title = ev["title"]
     if siege and src and siege.get("src") == src["id"]:
         if c.get("siege") is None and won:
@@ -1419,7 +1526,7 @@ def _battle(c: dict, r: random.Random, kind: str, strength: float, how: str = "f
                           if kind == "raid" and how == "fight" and r.random() < 0.35 else ""))
     if ratio >= 0.9:
         names = wound(15, 35, 2)
-        text = f"The sect won, but {' and '.join(names)} took wounds. Pills and rest will mend them." + plunder()
+        text = f"The sect won, but {_and(names)} took wounds. Pills and rest will mend them." + plunder()
         kind_ = "info"
         if how == "fight":
             _fame(c, 3)
@@ -1427,11 +1534,11 @@ def _battle(c: dict, r: random.Random, kind: str, strength: float, how: str = "f
     elif ratio >= 0.55:
         names = wound(20, 50, max(2, len(c["pawns"]) // 2))
         if kind == "raid":
-            text = f"A costly win. {', '.join(names)} are wounded." + plunder()
+            text = f"A costly win. {_and(names)} {_be(names)} wounded." + plunder()
         else:
             for res in LOOTABLE:
                 c["res"][res] *= 0.9
-            text = f"A costly win. {', '.join(names)} are wounded and a tenth of the stores were trampled."
+            text = f"A costly win. {_and(names)} {_be(names)} wounded and a tenth of the stores were trampled."
         kind_ = "bad"
     else:
         wound(30, 70, len(c["pawns"]))
@@ -1475,9 +1582,9 @@ EVENT_REPEATS = frozenset({"beasts", "raid", "wanderer"})   # threats keep their
 YEAR = DAYS_PER_SEASON * 4
 # Stories wait longer: a second cave abode or a second plague in the river towns inside a year reads as a bug.
 EVENT_COOLDOWNS = {"cave": YEAR, "secret_realm": YEAR, "demonic_offer": YEAR, "spy": YEAR, "village": YEAR, "infiltrator": YEAR,
-                   "cliff": 30, "auction": 24, "elder": 24, "plague": 40, "blight": 30, "young_master": 20, "lord": 20}
+                   "cliff": 30, "auction": 24, "elder": 24, "plague": 40, "blight": 30, "young_master": 28, "lord": 20, "thief": 20, "feud": 10}
 QUEST_COOLDOWN = YEAR                            # the same request (the river-town plague, the bridge) at most once a year
-PRESSURE = frozenset({"beasts", "raid", "plague", "blight", "infiltrator", "young_master"})
+PRESSURE = frozenset({"beasts", "raid", "plague", "blight", "infiltrator", "young_master", "thief"})
 LETTERS = frozenset({"herbs", "meteor", "elder", "harvest", "sickness", "weevils", "cold", "cliff", "epiphany", "furnace", "rare_herb", "beast_bond"})
 
 
@@ -1527,7 +1634,8 @@ def _daily_event(c: dict) -> None:
             foes = tournament_field(c)
             watcher = champs[0]
             _ask(c, "tournament", "The Hundred Sects Tournament",
-                 f"Every autumn each sect of the region sends one champion to the arena. {len(foes)} rounds, weakest sect first; a loss ends the run; "
+                 f"Each autumn every sect sends a young champion (this year's bracket: up to {realm_label(tournament_cap(c) + len(foes) - 1)}). "
+                 f"{len(foes)} rounds, weakest first; a loss ends the run; "
                  "fame and prizes for every win. The champions' strength, round by round: "
                  + ", ".join(f"{ch['name']} {int(fp)}" for _, ch, fp in foes) + ". Whom do you send?",
                  [(p["id"], f"Send {p['name']} ({tournament_odds(c, p)})") for p in champs]
@@ -1551,7 +1659,9 @@ def _daily_event(c: dict) -> None:
              # the mid-game troubles
              ("plague", 7 if day >= 14 and len(others) >= 3 else 0),
              ("blight", 7 if day >= 10 and _lvl(c, "fields") and season != 3 and not blight_left(c) else 0),
-             ("infiltrator", 6 if day >= 18 and len(others) >= 3 and c["sects"] else 0),
+             ("infiltrator", 10 if day >= 16 and len(others) >= 2 and c["sects"] else 0),
+             ("thief", 9 if day >= 12 and max(c["res"][k] for k in LOOTABLE) >= 30 else 0),
+             ("feud", 12 if rival_pairs(c) else 0),
              # the tropes
              ("young_master", 11 if rival and others and day >= 4 else 0),
              ("auction", 8 if c["res"]["stones"] >= 15 and day >= 8 else 0),
@@ -1585,6 +1695,10 @@ def _daily_event(c: dict) -> None:
         _raise_blight(c, r) or _letter(c, "info", "Blight in the valley", "The lowland farms are burning blighted rice. The terraces look clean.")
     elif kind == "infiltrator":
         _raise_infiltrator(c, r) or _letter(c, "info", "Footprints on the wall", "Someone climbed in and out again in the night. Nothing seems to be missing.")
+    elif kind == "thief":
+        _raise_thief(c, r) or _letter(c, "info", "Footprints on the wall", "Someone climbed in and out again in the night. Nothing seems to be missing.")
+    elif kind == "feud":
+        _raise_feud(c, r)
     elif kind == "quest":
         _offer_quest(c, r)
     elif kind == "wanderer":
@@ -1650,11 +1764,18 @@ def _daily_event(c: dict) -> None:
         _letter(c, "bad" if short else "info", "A cold snap", f"The sect burned {int(burn)} wood to keep warm."
                 + (" It was not enough." if short else ""))
     elif kind == "young_master":
-        p = r.choice(others)
+        # The same young master stopping the same disciple again reads as a loop: the next one comes from another unfriendly
+        # sect when there is one, picks on someone he has not met, and says something new.
+        last = fl["ym"] if isinstance(fl.get("ym"), dict) else {}
+        met = [str(x) for x in last.get("pawns", [])][-3:] if isinstance(last.get("pawns"), list) else []
+        sects = [s for s in c["sects"] if s["rel"] < 20 and s["id"] != last.get("src")] or [rival]
+        rival = min(sects, key=lambda s: s["rel"])
+        p = r.choice([o for o in others if o["id"] not in met] or others)
+        fl["ym"] = {"src": rival["id"], "pawns": met + [p["id"]], "n": int(last.get("n", 0)) + 1 if isinstance(last.get("n"), int) else 1}
+        taunt = lore.YOUNG_TAUNTS[int(fl["ym"]["n"] - 1) % len(lore.YOUNG_TAUNTS)].format(realm=realm_label(p["step"]).split(" · ")[0])
         _ask(c, "young_master", "A young master blocks the road",
              f"{rival['young']}, young master of the {rival['name']}, has stopped {p['name']} on the mountain path with a dozen lackeys. "
-             f"“A {realm_label(p['step']).split(' · ')[0]} trash from a nameless sect dares to walk in front of me? Kneel, and I may forget it. "
-             "Do you know who my father is?”",
+             + taunt,
              [("slap", f"Have {p['name']} teach him a lesson (strength {int(duel_power(c, p))} against about {int(young_master_foe(c, rival))}: "
                        f"{win_odds(duel_power(c, p), young_master_foe(c, rival), 0.7, 1.3)}% to win)"),
               ("endure", "Swallow the insult and walk away")]
@@ -1717,7 +1838,8 @@ def _daily_event(c: dict) -> None:
              f"A lady of the {s['name']} has come with her elders to break her childhood engagement to {p['name']}, in front of the whole sect. "
              "“We walk different roads now. Take these spirit stones for your trouble.” "
              f"{p['name']}'s knuckles are white.",
-             [("pact", "“Twelve days from now, I will come to your sect.” (a pact to duel)"), ("stones", "Take the 15 spirit stones")],
+             [("pact", f"“Twelve days from now, I will come to your sect.” (a pact to duel: {p['name']} {int(duel_power(c, p))} today, "
+                       f"their champion about {int(pact_foe(c, s, 12))} by then)"), ("stones", "Take the 15 spirit stones")],
              pawn=p["id"], src=s["id"])
     elif kind == "spy":
         p = r.choice(others)
@@ -1767,14 +1889,38 @@ def win_odds(me: float, foe: float, lo: float, hi: float) -> int:
     return _f(100 * max(0.0, min(1.0, (me / foe - lo) / (hi - lo))))
 
 
+TOURNEY_ROLL = (0.75, 1.25)          # a champion fights between these times their strength: a good day, or a bad one
+
+
+def tournament_cap(c: dict) -> int:
+    """The highest stage allowed in round one of this year's tournament (each later round allows one more). It is a contest
+    of the young generation: the bracket opens at early Qi Condensation in the first year and widens two stages a year, and never sits
+    more than one stage below the sect's own best disciple, so a careful sect always meets its own generation."""
+    year = _day(c) // YEAR + 1
+    ours = max((int(p["step"]) for p in c["pawns"] if not p.get("master")), default=0)
+    return max(4 + 2 * (year - 1), ours - 1)
+
+
 def tournament_field(c: dict) -> list[tuple[dict, dict, float]]:
-    """(sect, champion, strength before the roll), in the order the rounds are fought."""
-    return [(s, dao.road.champion(c, s), dao.road.champ_power(dao.road.champion(c, s))) for s in sorted(c["sects"], key=lambda x: x["power"])]
+    """(sect, entrant, strength before the roll), in the order the rounds are fought. A sect sends its strongest
+    champion inside the bracket; if both of its champions are past it, a junior at the bracket's limit."""
+    out = []
+    for i, s in enumerate(sorted(c["sects"], key=lambda x: x["power"])):
+        cap = tournament_cap(c) + i
+        dao.road.champion(c, s)                           # makes the sect's champions on first sight
+        fits = [ch for ch in s["champs"] if int(ch["step"]) <= cap]
+        if fits:
+            ch = max(fits, key=lambda x: x["step"])
+        else:
+            r = _rng(c, "junior", s["id"], _day(c) // YEAR)
+            ch = {"name": f"{r.choice(SURNAMES)} {r.choice(GIVEN)}", "step": cap, "role": "junior disciple"}
+        out.append((s, ch, dao.road.champ_power(ch)))
+    return out
 
 
 def tournament_odds(c: dict, p: dict) -> str:
     me = duel_power(c, p)
-    each = [win_odds(me, fp, 0.85, 1.15) / 100.0 for _, _, fp in tournament_field(c)]
+    each = [win_odds(me, fp, *TOURNEY_ROLL) / 100.0 for _, _, fp in tournament_field(c)]
     first = _f(100 * each[0]) if each else 100
     return f"strength {int(me)}: {first}% to win round one, {_f(100 * math.prod(each))}% to win every round"
 
@@ -1782,6 +1928,43 @@ def tournament_odds(c: dict, p: dict) -> str:
 def young_master_foe(c: dict, s: dict) -> float:
     """The young master's strength before the roll (it varies 0.7 to 1.3 times this)."""
     return (14 + _day(c) * 0.7) * s["power"]
+
+
+def pact_foe(c: dict, s: dict | None, days_ahead: int = 0) -> float:
+    """The pact duel's opponent before the roll (it varies 0.8 to 1.2 times this), `days_ahead` days from now."""
+    return (16 + (_day(c) + days_ahead) * 0.65) * (float(s["power"]) if s else 1.0)
+
+
+def _res_pact_duel(c, ev, opt, r):
+    p, s = _p(c, ev.get("pawn", "")), _sect(c, ev.get("src", ""))
+    if not p:
+        return None
+    where = f"the {s['name']}" if s else "the rival sect"
+    if opt == "forfeit":
+        _fame(c, -3)
+        _think(p, "pact", "Withdrew from the pact duel", -10, 96, c["hour"])
+        return _letter(c, "bad", f"{p['name']} withdrew from the pact", f"Word went down to {where}. The laughter came back up the mountain.")
+    if p["away_until"] > c["hour"]:
+        return ("err", f"{p['name']} is away from the sect.")
+    snap = _snap(c)
+    me, base = duel_power(c, p), pact_foe(c, s)
+    foe = base * r.uniform(0.8, 1.2)
+    ok = me >= foe
+    line = (p["name"], f"strength {int(me)} against {int(foe)} ({win_odds(me, base, 0.8, 1.2)}% before the duel)", ok)
+    if ok:
+        _fame(c, 8)
+        _think(p, "pact", "Kept the pact and won", 15, 120, c["hour"])
+        p["title"] = p.get("title") or "the Unbowed"
+        out = _letter(c, "good", f"{p['name']} won the pact duel",
+                      f"On {where}'s own arena, before all its elders. “The engagement? I annul it.” Nobody in the stands breathes.")
+    else:
+        _hurt(p, 20, c)
+        p["health"] = max(p["health"], 5.0)
+        _think(p, "pact", "Lost the pact duel", -8, 72, c["hour"])
+        out = _letter(c, "bad", f"{p['name']} lost the pact duel", "They bowed, and walked home alone. There is always a higher mountain.")
+    _scene(c, "tournament", ok, out["title"], out["text"], verdict="The pact is kept" if ok else "Defeated in the duel", party=[p],
+           lines=[line] + ([(p["name"], f"known now as {p['title']}", True)] if ok and p.get("title") else []), snap=snap)
+    return out
 
 
 def duel_power(c: dict, p: dict) -> float:
@@ -1886,7 +2069,7 @@ def _res_auction(c, ev, opt, r):
         _add(c, "pills", 3)
     elif lot["what"] == "egg":
         c["beast"] = {"name": r.choice(lore.BEASTS), "born": c["hour"]}
-    return _letter(c, "good", "The hammer falls", f"Sold to the {c['name']}: {lot['label']}. A rival bidder crushes his teacup.")
+    return _letter(c, "good", "The hammer falls", f"Sold to the {c['name']}: {lot['label'].rstrip('.')}. A rival bidder crushes his teacup.")
 
 
 def _res_secret_realm(c, ev, opt, r):
@@ -2008,9 +2191,8 @@ def _res_tournament(c, ev, opt, r):
     wins, lines, rounds = 0, [], []
     snap = _snap(c)
     me = duel_power(c, p)
-    for i, s in enumerate(sorted(c["sects"], key=lambda x: x["power"])):
-        champ = dao.road.champion(c, s)
-        foe = dao.road.tournament_foe(c, s, r)
+    for i, (s, champ, fp) in enumerate(tournament_field(c)):
+        foe = fp * r.uniform(*TOURNEY_ROLL)                  # the same roll tournament_odds prices
         if me >= foe:
             wins += 1
             _rel(s, -3)
@@ -2047,7 +2229,7 @@ def _res_tournament(c, ev, opt, r):
 _RESOLVERS = {"wanderer": _res_wanderer, "recruit": _res_recruit, "merchant": _res_merchant, "omen": _res_omen,
               "young_master": _res_young_master, "auction": _res_auction, "secret_realm": _res_secret_realm,
               "beast_cub": _res_beast_cub, "demonic_offer": _res_demonic_offer, "cave": _res_cave, "engagement": _res_engagement,
-              "spy": _res_spy, "village": _res_village, "tournament": _res_tournament}
+              "spy": _res_spy, "village": _res_village, "tournament": _res_tournament, "pact_duel": _res_pact_duel}
 
 
 def resolve(st: dict, option: str, now: float) -> dict:
@@ -2149,17 +2331,16 @@ def _later(c: dict, item: dict) -> bool:
     elif kind == "pact_duel":
         p, s = _p(c, item.get("pawn", "")), _sect(c, item.get("src", ""))
         if p:
-            foe = (20 + _day(c) * 0.8) * (s["power"] if s else 1.0) * r.uniform(0.8, 1.2)
-            if duel_power(c, p) >= foe:
-                _fame(c, 8)
-                _think(p, "pact", "Kept the pact and won", 15, 120, c["hour"])
-                p["title"] = p.get("title") or "the Unbowed"
-                _letter(c, "good", f"{p['name']} won the pact duel",
-                        f"On the {s['name'] if s else 'rival sect'}'s own arena, before all its elders. “The engagement? I annul it.” Nobody in the stands breathes.")
-            else:
-                _hurt(p, 20, c)
-                _think(p, "pact", "Lost the pact duel", -8, 72, c["hour"])
-                _letter(c, "info", f"{p['name']} lost the pact duel", "They bowed, and walked home alone. There is always a higher mountain.")
+            if c["pending"]:
+                return False
+            me, foe = duel_power(c, p), pact_foe(c, s)
+            where = f"the {s['name']}" if s else "the rival sect"
+            _ask(c, "pact_duel", "The day of the pact duel",
+                 f"Twelve days are up. {p['name']} stands at the gate of {where} with the whole valley watching. "
+                 f"Their champion's strength is about {int(foe)}; {p['name']}'s is {int(me)}.",
+                 [("fight", f"Keep the pact (strength {int(me)} against about {int(foe)}: {win_odds(me, foe, 0.8, 1.2)}% to win; a loss is a wound)"),
+                  ("forfeit", "Send word that the pact is withdrawn (no wound, but the valley will laugh)")],
+                 pawn=p["id"], src=s["id"] if s else "")
     elif kind == "village_return":
         p = _p(c, item.get("pawn", ""))
         if p:
@@ -2199,6 +2380,25 @@ def bond_kind(v: float) -> str:
 RIVAL_AT, RIVAL_UNTIL = -30, -20    # a pair falls out at -30 and stays rivals until the bond climbs past -20
 
 
+RIVAL_PER = 4                       # at most one rival pair for every this many disciples (and always room for one)
+RIVAL_MEND = 1.0                    # a sour bond climbs this much a day on its own: grudges fade unless fed
+
+
+def rival_cap(c: dict) -> int:
+    return max(1, len(c["pawns"]) // RIVAL_PER)
+
+
+def _mend_grudges(c: dict) -> None:
+    """Once a day: every bond below zero eases a little toward it (old insults fade); a rivalry that eases past
+    RIVAL_UNTIL ends with its own letter (_bond)."""
+    ps = c["pawns"]
+    for i, a in enumerate(ps):
+        for b in ps[i + 1:]:
+            v = bond(c, a, b)
+            if v < 0:
+                _bond(c, a, b, min(RIVAL_MEND, -v))
+
+
 def _rivals(c: dict) -> dict:
     r = c["flags"].get("rivals")
     if not isinstance(r, dict):
@@ -2224,6 +2424,8 @@ def _bond(c: dict, a: dict, b: dict, delta: float) -> None:
     old = float(c["bonds"].get(k, 0.0))
     new = max(-100.0, min(100.0, old + delta))
     was_rival = is_rival(c, a, b)
+    if not was_rival and new <= RIVAL_AT and len(rival_pairs(c)) >= rival_cap(c):
+        new = RIVAL_AT + 1.0               # a sect has room for only so many feuds: this pair stays merely cool
     if was_rival:
         _rivals(c)[k] = 1
     c["bonds"][k] = new
@@ -2649,7 +2851,7 @@ def _raise_plague(c: dict, r: random.Random) -> bool:
     n = len(sick)
     opts = []
     if c["res"]["pills"] >= n:
-        opts.append(("pills", f"A pill each ({n} pills): they are well tomorrow, and it spreads no further"))
+        opts.append(("pills", f"{'A pill each' if n > 1 else 'A pill'} ({_n(n, 'pill')}): they are well tomorrow, and it spreads no further"))
     if c["res"]["herbs"] >= PLAGUE_HERBS * n:
         d, _ = plague_odds(c, sick, "herbs")
         opts.append(("herbs", f"Brew fever tea ({PLAGUE_HERBS * n} herbs): a day in bed; {d}% that someone dies"))
@@ -2673,15 +2875,15 @@ def _res_plague(c, ev, opt, r):
     n = len(sick)
     if opt == "pills":
         if c["res"]["pills"] < n:
-            return ("err", f"You need {n} pills.")
+            return ("err", f"You need {_n(n, 'pill')}.")
         snap = _snap(c)
         c["res"]["pills"] -= n
         for p in sick:
             p["sick_until"] = c["hour"] + 12
             _think(p, "fever", "Cured of a fever", 2, 24, c["hour"])
-        out = _letter(c, "good", "The fever was cut short", f"A pill each, and {_names(sick)} were sitting up by evening.")
+        out = _letter(c, "good", "The fever was cut short", f"A pill {'each' if len(sick) > 1 else 'was enough'}, and {_names(sick)} {_be(sick, 'was', 'were')} sitting up by evening.")
         _scene(c, "sickness", True, out["title"], out["text"], verdict="Cured", party=sick,
-               lines=[("", f"{n} pills used. Nobody else fell ill.", True)], snap=snap)
+               lines=[("", f"{_n(n, 'pill')} used. Nobody else fell ill.", True)], snap=snap)
         return out
     if opt == "herbs":
         if c["res"]["herbs"] < PLAGUE_HERBS * n:
@@ -2761,10 +2963,10 @@ def _raise_blight(c: dict, r: random.Random) -> bool:
     if c["res"]["herbs"] >= 6:
         opts.append(("ash", f"Dust the terraces with herb ash (6 herbs; {farmer['name']}, farming {farmer['skills']['farm']['lv']}): "
                             f"{pct}% it is stopped in 3 days, otherwise it runs on"))
-    opts.append(("endure", f"Let it run its course: half yield for {min(left, DAYS_PER_SEASON)} days"))
+    opts.append(("endure", f"Let it run its course: half yield for {_n(min(left, DAYS_PER_SEASON), 'day')}"))
     _ask(c, "blight", "Blight on the terraces",
          f"Black spots on the rice leaves, spreading from row to row. A farmer-hour on the terraces brings {per_hour:.2f} rice now; "
-         f"with the blight, half that. It will burn itself out in {min(left, DAYS_PER_SEASON)} days or at the winter frost. "
+         f"with the blight, half that. It will burn itself out in {_n(min(left, DAYS_PER_SEASON), 'day')} or at the winter frost. "
          "The sect's alerts show it while it lasts.", opts, seed=seed, pct=pct, days=min(left, DAYS_PER_SEASON))
     return True
 
@@ -2793,7 +2995,7 @@ def _res_blight(c, ev, opt, r):
                   f"Rice per farmer-hour falls from {before:.2f} to {after:.2f} for {days} day{'s' if days != 1 else ''}."
                   + (" Plan for a thinner granary." if days > 4 else ""))
     _scene(c, "blight", ok, out["title"], out["text"], verdict=verdict, party=[],
-           lines=[("", f"Rice per farmer-hour: {before:.2f} now {after:.2f} (half) for {days} days", False)]
+           lines=[("", f"Rice per farmer-hour: {before:.2f} now {after:.2f} (half) for {_n(days, 'day')}", False)]
            + ([("", "The burned rows will come back clean.", True)] if opt == "burn" else []), snap=snap)
     return out
 
@@ -2907,6 +3109,138 @@ def _res_infiltrator(c, ev, opt, r):
     return out
 
 
+# A thief in the night: walls and swords keep raiders out, not a sneak with a sack. It comes to a strong sect too.
+def thief_foe(c: dict) -> float:
+    """The thief's strength before the roll (it varies 0.7 to 1.3 times this): a runner has to catch and beat them."""
+    return 12 + _day(c) * 0.6
+
+
+def thief_track(c: dict, p: dict) -> int:
+    """Percent chance a tracker follows the thief's trail to where the goods were dropped."""
+    return int(min(85, max(10, 20 + 3 * p["skills"]["gather"]["lv"] + 5 * _lvl(c, "ward"))))
+
+
+def _raise_thief(c: dict, r: random.Random) -> bool:
+    home = [p for p in _home(c) if p["health"] >= 40]
+    if not home:
+        return False
+    target = loot_target(c)
+    n = int(min(60.0, c["res"][target] * r.uniform(0.15, 0.25)))
+    if n < 5:
+        return False
+    c["res"][target] -= n                              # it is already gone: the choice is whether it comes back
+    runner = (_strongest(c, 1) or _strongest(c, 1, master=True) or home)[0]
+    tracker = max(home, key=lambda p: p["skills"]["gather"]["lv"])
+    foe = thief_foe(c)
+    me = duel_power(c, runner)
+    _ask(c, "thief", "A thief in the storehouse",
+         f"At first light the storehouse door stood open and {n} {target} were gone. Wet footprints lead down the back stair "
+         f"toward the forest. Whoever it was is quick: about {int(foe)} strength, and an hour ahead.",
+         [("chase", f"Send {runner['name']} after them (strength {int(me)} against about {int(foe)}: {win_odds(me, foe, 0.7, 1.3)}% to catch them; "
+                    "a loss is a wound)"),
+          ("track", f"Have {tracker['name']} follow the trail (gathering {tracker['skills']['gather']['lv']}: {thief_track(c, tracker)}% to find the sacks)"),
+          ("let_go", f"Let it go and fit a better lock (the {n} {target} are lost)")],
+         res=target, n=n, runner=runner["id"], tracker=tracker["id"])
+    return True
+
+
+def _res_thief(c, ev, opt, r):
+    target, n = str(ev.get("res", "rice")), int(ev.get("n", 0))
+    if target not in LOOTABLE:
+        return None
+    snap = _snap(c)
+    party, lines, ok = [], [], False
+    if opt == "chase":
+        p = _p(c, ev.get("runner", ""))
+        if not p or p["away_until"] > c["hour"]:
+            return ("err", "They are not at the sect to give chase.")
+        party = [p]
+        base = thief_foe(c)
+        foe = base * r.uniform(0.7, 1.3)
+        ok = duel_power(c, p) >= foe
+        lines.append((p["name"], f"strength {int(duel_power(c, p))} against {int(foe)} ({win_odds(duel_power(c, p), base, 0.7, 1.3)}% before the chase)", ok))
+        _xp(p, "combat", 20)
+        if not ok:
+            _hurt(p, r.randint(10, 25), c)
+            p["health"] = max(p["health"], 5.0)
+    elif opt == "track":
+        p = _p(c, ev.get("tracker", ""))
+        if not p or p["away_until"] > c["hour"]:
+            return ("err", "They are not at the sect to follow the trail.")
+        party = [p]
+        chance = thief_track(c, p)
+        ok = r.random() * 100 < chance
+        lines.append((p["name"], f"followed the trail ({chance}% to find the sacks)", ok))
+        _xp(p, "gather", 20)
+    if ok:
+        c["res"][target] += n                          # the store's own goods coming home, even past the storehouse limit
+        _fame(c, 2)
+        lines.append(("", f"All {n} {target} carried back up the stair", True))
+        text = f"The sacks were found under a fallen pine, the thief's sandals beside them. The {n} {target} are back in the storehouse."
+    else:
+        c["tally"]["stolen"] = float(c["tally"].get("stolen", 0.0)) + n
+        for o in c["pawns"]:
+            _think(o, "robbed", "The storehouse was robbed", -3, 36, c["hour"])
+        lines.append(("", f"Carried off from the stores: {n} {target}", False))
+        text = ("The trail went cold at the river." if opt == "track" else "They were too quick on the forest paths." if opt == "chase"
+                else "The door has a new bronze lock.") + f" The {n} {target} are gone."
+    out = _letter(c, "good" if ok else "bad", "The thief was caught" if ok else "The thief got away", text)
+    _scene(c, "theft", ok, out["title"], out["text"], verdict="The stores are safe" if ok else "Robbed", party=party, lines=lines, snap=snap)
+    return out
+
+
+# A feud inside the walls: the player can end it, not only wait it out.
+def _raise_feud(c: dict, r: random.Random) -> bool:
+    pairs = rival_pairs(c)
+    if not pairs:
+        return False
+    a, b = min(pairs, key=lambda ab: bond(c, ab[0], ab[1]))
+    m = _master(c)
+    opts = []
+    if m and m["away_until"] <= c["hour"] and c["res"]["rice"] >= FEUD_MEAL:
+        opts.append(("mediate", f"{m['name']} sits them down over a shared meal ({int(FEUD_MEAL)} rice; it ends the rivalry)"))
+    opts += [("spar", f"Let them settle it in a formal spar (+{FEUD_MEND['spar']} bond and combat practice; the loser takes a bruising)"),
+             ("apart", f"Keep them on different work and let it lie (+{FEUD_MEND['apart']} bond)")]
+    _ask(c, "feud", f"{a['name']} and {b['name']} came to blows",
+         f"Words in the dining hall, then fists. {a['name']} and {b['name']} have been rivals for a while now (bond {int(bond(c, a, b))}), "
+         "and the rest of the sect is taking sides. Each resents the other's every success.",
+         opts, a=a["id"], b=b["id"])
+    return True
+
+
+FEUD_MEAL = 10.0
+FEUD_MEND = {"mediate": 35, "spar": 22, "apart": 6}
+
+
+def _res_feud(c, ev, opt, r):
+    a, b = _p(c, ev.get("a", "")), _p(c, ev.get("b", ""))
+    if not a or not b or opt not in FEUD_MEND:
+        return None
+    if opt == "mediate":
+        if c["res"]["rice"] < FEUD_MEAL:
+            return ("err", f"You need {int(FEUD_MEAL)} rice for the meal.")
+        c["res"]["rice"] -= FEUD_MEAL
+    mend = FEUD_MEND[opt]
+    if opt == "mediate":                                   # the Master's word ends it, however deep it ran
+        mend = max(mend, RIVAL_UNTIL + 5 - bond(c, a, b))
+    _bond(c, a, b, mend)
+    if opt == "mediate":
+        for p in (a, b):
+            _think(p, "mediated", "Made peace before the Sect Master", 4, 72, c["hour"])
+        return _letter(c, "good", f"{a['name']} and {b['name']} made peace",
+                       "Neither spoke for the first bowl. By the third they were arguing about sword forms instead of each other.")
+    if opt == "spar":
+        win, lose = sorted((a, b), key=lambda p: -duel_power(c, p) * r.uniform(0.8, 1.2))
+        for p in (a, b):
+            _xp(p, "combat", 25)
+        _hurt(lose, r.randint(8, 18), c)
+        lose["health"] = max(lose["health"], 5.0)
+        _think(win, "spar", f"Beat {lose['name']} fair and square", 4, 48, c["hour"])
+        return _letter(c, "info", f"{win['name']} won the spar",
+                       f"{lose['name']} got up, bowed, and meant it. A beating given by the rules is easier to forgive than an insult.")
+    return _letter(c, "info", "The rivals were kept apart", f"{a['name']} and {b['name']} work at opposite ends of the sect for now.")
+
+
 # ---------------------------------------------------------------------------
 # festivals: two a year, each its own, and a real choice each time
 # ---------------------------------------------------------------------------
@@ -2976,7 +3310,7 @@ def _res_festival(c, ev, opt, r):
             _think(p, "festival", f"Solved lantern riddles at the {name}", 6, 48, c["hour"])
             _xp(p, "scholar", 30)
         out = _letter(c, "good", f"Riddles at the {name}", "Lanterns on every eave, a riddle in each. The pavilion's scholars were insufferable all night.")
-        lines = [("", f"{len(home)} disciples: +6 mood for 2 days and 30 scholarship practice each", True)]
+        lines = [("", f"{_n(len(home), 'disciple')}: +6 mood for 2 days and 30 scholarship practice each", True)]
         extra = [("Mood, 2 days", 6, True, True)]
     elif opt == "offer":
         if c["res"]["wood"] < 6:
@@ -2986,14 +3320,14 @@ def _res_festival(c, ev, opt, r):
         for p in home:
             _think(p, "festival", f"Remembered the dead at the {name}", 6, 72, c["hour"])
         out = _letter(c, "good", f"Offerings at the {name}", "Paper money and paper houses burned at the crossroads. The night was very quiet, and nobody minded.")
-        lines = [("", f"{len(home)} disciples: +6 mood for 3 days", True), ("", "Heaven remembers kindness to the forgotten (+2 karma)", True)]
+        lines = [("", f"{_n(len(home), 'disciple')}: +6 mood for 3 days", True), ("", "Heaven remembers kindness to the forgotten (+2 karma)", True)]
         extra = [("Mood, 3 days", 6, True, True)]
     elif opt == "moon":
         for p in home:
             _gain_qi(c, p, step_need(p["step"]) * 0.1)
             _think(p, "festival", f"Watched the moon at the {name}", 5, 48, c["hour"])
         out = _letter(c, "good", f"Moon-viewing at the {name}", "They sat on the cold stone of the terrace until the moon set, breathing in its light.")
-        lines = [("", f"{len(home)} disciples gathered a tenth of a stage of qi each", True), ("", "+5 mood for 2 days", True)]
+        lines = [("", f"{_n(len(home), 'disciple')} gathered a tenth of a stage of qi each", True), ("", "+5 mood for 2 days", True)]
         extra = [("Mood, 2 days", 5, True, True)]
     elif opt == "vigil":
         for p in home:
@@ -3003,7 +3337,7 @@ def _res_festival(c, ev, opt, r):
             for b in home[i + 1:]:
                 _bond(c, a, b, 3)
         out = _letter(c, "good", f"The vigil of the {name}", "Stories until dawn: ghosts, first loves, the elder who fell in the latrine. Nobody got much work done the next day.")
-        lines = [("", f"{len(home)} disciples: +4 mood for 3 days, every pair +3 bond", True), ("", "Everyone is tired today", False)]
+        lines = [("", f"{_n(len(home), 'disciple')}: +4 mood for 3 days, every pair +3 bond", True), ("", "Everyone is tired today", False)]
         extra = [("Mood, 3 days", 4, True, True)]
     else:
         ghost = ev.get("fest") == "ghost"
@@ -3093,7 +3427,7 @@ def _trip_return(c: dict, item: dict, r: random.Random) -> None:
 
 
 _RESOLVERS.update(quest_offer=_res_quest_offer, quest_reward=_res_quest_reward, festival=_res_festival,
-                  plague=_res_plague, blight=_res_blight, infiltrator=_res_infiltrator)
+                  plague=_res_plague, blight=_res_blight, infiltrator=_res_infiltrator, thief=_res_thief, feud=_res_feud)
 
 
 # ---------------------------------------------------------------------------
@@ -3108,6 +3442,9 @@ def _hour(c: dict, quiet: bool) -> None:
     dao.hourly(c, quiet)
     if c["hour"] % 24 == 5:
         dao.daily(c, quiet)
+        _mend_grudges(c)
+    if c["hour"] % 24 == READ_HOUR:
+        _evening_reading(c)
     if not quiet:
         _quest_tick(c)
         _guide(c)
@@ -3162,7 +3499,7 @@ def catch_up(st: dict, now: float) -> int:
         _hour(c, quiet=True)
     c["last_real"] = now
     if hours >= 6:
-        _letter(c, "info", "While you were away", f"The sect carried on quietly for {hours} hours. No one came to harm.")
+        _letter(c, "info", "While you were away", f"The sect carried on quietly for {_n(hours, 'hour')}. No one came to harm.")
     return hours
 
 
@@ -3197,7 +3534,7 @@ def queue_build(st: dict, room: str, now: float) -> dict:
         return {"ok": False, "error": "Needs " + " and ".join(short) + "."}
     for k, v in cost.items():
         c["res"][k] -= v
-    c["builds"].append({"room": room, "need": build_hours(level), "done": 0.0, "cost": cost})
+    c["builds"].append({"room": room, "need": build_hours(level), "done": 0.0, "cost": cost, "at": c["hour"]})
     return {"ok": True}
 
 
@@ -3488,8 +3825,13 @@ def res_rates(c: dict) -> dict:
     return out
 
 
+BUILD_STALL_HOURS = 12              # a queued build this long without an hour of work is stalled (a night's sleep is not)
+
+
 def build_stall(c: dict) -> str:
-    """Why a queued build has nobody on it, from the priorities and what the builders did instead ('' if it is moving)."""
+    """Why a queued build has nobody on it, from the priorities and what the builders did instead ('' if it is moving).
+    Only a build that has waited BUILD_STALL_HOURS since it was queued (or last moved) counts: the hours before it
+    was queued say nothing about it."""
     if not c["builds"] or not c["name"]:
         return ""
     if any(p["doing"] == JOBS["build"][0].lower() for p in c["pawns"]):
@@ -3501,24 +3843,33 @@ def build_stall(c: dict) -> str:
     home = [p for p in builders if p["away_until"] <= c["hour"]]
     if not home:
         return "Nobody is building: everyone with Build in their priorities is away from the sect."
-    totals, span = _made(c, 12)
-    if span < 12 or any(v for (kind, job, _), v in totals.items() if kind == "h" and job == "build"):
+    b = c["builds"][0]
+    since = max((float(b[k]) for k in ("at", "moved") if isinstance(b.get(k), (int, float))), default=-1e9)
+    if c["hour"] - since < BUILD_STALL_HOURS:
+        return ""            # queued (or worked on) too recently to call it a stall
+    totals, span = _made(c, BUILD_STALL_HOURS)
+    if span < BUILD_STALL_HOURS or any(v for (kind, job, _), v in totals.items() if kind == "h" and job == "build"):
         return ""            # too soon to tell, or someone built recently (the night is not a stall)
     reasons, fix = [], []
     for p in sorted(home, key=lambda p: p["prio"]["build"])[:3]:
-        did = {job: v for (kind, job, pid), v in totals.items() if kind == "h" and pid == p["id"]}
+        # Meditation is not a chore: level with Build it takes a share of the hours (MED_SHARE) and leaves the rest to
+        # building, so it is never the reason and lowering it is never the advice.
+        worked = {job: v for (kind, job, pid), v in totals.items() if kind == "h" and pid == p["id"]}
+        did = {job: v for job, v in worked.items() if job != "meditate"}
         name, bl = p["name"], p["prio"]["build"]
         if not did:
-            reasons.append(f"{name} has not been fit to work (sleeping, sick or out of sorts)")
+            reasons.append(f"{name} only meditated" if worked else f"{name} has not been fit to work (sleeping, sick or out of sorts)")
             continue
         job = max(did, key=did.get)
         jl, jn = p["prio"].get(job, 0), JOBS[job][0]
         if jl and jl < bl:
             reasons.append(f"{name} has {jn} at priority {jl}, ahead of Build at {bl}")
             fix.append(f"raise Build to {jl - 1} for {name}" if jl > 1 else f"raise Build to 1 and lower {jn} for {name}")
-        elif jl == bl:
-            reasons.append(f"{name} has {jn} and Build both at priority {bl}; on a tie a disciple does what the sect is shortest of, so {jn} wins")
-            fix.append(f"raise Build to {bl - 1} for {name}" if bl > 1 else f"lower {jn} to 2 for {name}")
+        elif jl == bl and job in STORE_OF:
+            res = RES_NAMES[STORE_OF[job]].lower()
+            reasons.append(f"{name} has {jn} and Build both at priority {bl}, and {res} has been under {int(LOW_STORE_DAYS)} days of use: "
+                           "a short store comes before building on a tie")
+            fix.append(f"raise Build to {bl - 1} for {name}, or put more hands on {jn}" if bl > 1 else f"put more hands on {jn} until {res} is not short")
         else:
             reasons.append(f"{name} spent the day on {jn}")
     text = "Nobody is building. " + "; ".join(reasons) + "."
@@ -3715,7 +4066,8 @@ def view(st: dict, now: float) -> dict:
         "research": {"current": str(cur), "progress": _f(c["research"]["progress"]),
                      "items": [{"id": k, "name": v["name"], "cost": v["cost"], "effect": v["effect"], "done": k in c["research"]["done"]}
                                for k, v in RESEARCH.items()],
-                     "has_library": _lvl(c, "library") > 0},
+                     "has_library": _lvl(c, "library") > 0,
+                     "rows": [{"label": str(a), "v": str(b)} for a, b in research_rows(c)]},
         "pending": ({"title": str(pending["title"]), "text": str(pending["text"]), "kind": str(pending["kind"]),
                      "options": dao.annotate(c, pending)} if pending else None),
         "log": [{"hour": _f(e["hour"]), "day": _f(e["hour"]) // 24 + 1, "when": calendar_label(_f(e["hour"]) // 24), "kind": str(e["kind"]), "title": str(e["title"]), "text": str(e["text"])}

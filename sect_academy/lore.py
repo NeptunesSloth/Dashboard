@@ -56,6 +56,14 @@ SECTS = [
 KIND_START_REL = {"righteous": 10, "neutral": 0, "demonic": -25}
 YOUNG_GIVEN = ["Tianba", "Aotian", "Wushuang", "Shaoyu", "Baichuan", "Kuang", "Yunfei", "Longxiao"]
 EPITHETS = ["the Face-Slapper", "Young-Master's Bane", "the Unbowed"]
+# what a young master says on the mountain path; {realm} is the disciple's great realm
+YOUNG_TAUNTS = [
+    "“A {realm} trash from a nameless sect dares to walk in front of me? Kneel, and I may forget it. Do you know who my father is?”",
+    "“This path belongs to my sect. Crawl off it, {realm} ant, or be carried off it.”",
+    "“I heard your sect keeps chickens and calls them disciples. Show me, {realm}: cluck.”",
+    "“My servant wants your herb basket. Hand it over, {realm}, before I lose my patience.”",
+    "“You looked at me. A {realm} looked at me. Someone break his legs so it does not happen again.”",
+]
 
 RING_LINES = [
     "Thirty years east of the river, thirty years west of the river. Do not bully the young for being poor.",

@@ -10,7 +10,7 @@ const RES_ICON = { rice: '🌾', wood: '🪵', stone: '🪨', herbs: '🌿', pil
 const SITE_OF = { farm: 'fields', quarry: 'spirit_vein', 'cut wood': 'storehouse', 'forage herbs': 'fields', 'brew pills': 'alchemy',
   research: 'library', train: 'training', meditate: 'meditation', sleeping: 'dormitory', recovering: 'dormitory', relaxing: 'main_hall', idle: 'main_hall' };
 const EVENT_ART = { omen: 'mission', young_master: 'leader', auction: 'treasure', secret_realm: 'seclusion', cave: 'seclusion', tournament: 'technique',
-  demonic_offer: 'seclusion', trip_choice: 'map', fate: 'seclusion', succession: 'leader', qingming: 'map', lord: 'leader', taxes: 'leader', embrace: 'seclusion', discipline: 'hall', demon: 'seclusion', festival: 'hall', merchant: 'treasure', wanderer: 'hall', recruit: 'hall', engagement: 'leader', spy: 'leader', village: 'map', beast_cub: 'map' };
+  demonic_offer: 'seclusion', trip_choice: 'map', fate: 'seclusion', succession: 'leader', qingming: 'map', lord: 'leader', taxes: 'leader', embrace: 'seclusion', discipline: 'hall', demon: 'seclusion', festival: 'hall', merchant: 'treasure', wanderer: 'hall', recruit: 'hall', engagement: 'leader', spy: 'leader', village: 'map', beast_cub: 'map', pact_duel: 'technique', feud: 'hall', thief: 'treasure' };
 const RES_SHORT = { stones: 'Spirit st.' };          // phone chips keep a label; only the long one is cut
 const ELEMENT_ICON = { wood: '🌿', fire: '🔥', earth: '⛰', metal: '⚔', water: '💧' };
 const store = { get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (_) { /* private mode */ } } };
@@ -104,7 +104,7 @@ export function mountSect(h) {
     if (!openChip) return '';
     const r = S.res.find((x) => x.id === openChip);
     const NOTES = {
-      insight: ['Insight', 'Insight comes from your own study: each correct answer adds a point. It is spent on research automatically.'],
+      insight: ['Insight', 'Insight comes from your own study (each correct answer adds a point) and from what the evening reading in the Pavilion earns with no topic chosen. It is spent on research automatically.'],
       defense: ['Defence', 'How strong the sect stands against raids and beasts.'],
       fame: ['Fame', 'Won in fights, tournaments, festivals, a raised Main Hall and every step a disciple takes. Draws better recruits, and raiders.'],
     };
@@ -316,7 +316,8 @@ export function mountSect(h) {
   function research() {
     const R = S.research;
     const head = R.has_library ? '' : '<p class="warn">With no Scripture Pavilion, only your own study moves research along (each correct answer is one point of insight). Build one and disciples will research too.</p>';
-    return `${head}<ul class="list">${R.items.map((t) => {
+    const ledger = (R.rows || []).length ? `<details class="fold"><summary>Where research comes from</summary><ul class="list odds">${R.rows.map((o) => `<li class="row"><span class="grow">${esc(o.label)}</span><span class="num small">${esc(o.v)}</span></li>`).join('')}</ul></details>` : '';
+    return `${head}${ledger}<ul class="list">${R.items.map((t) => {
       const cur = R.current === t.id;
       return `<li class="row"><span class="grow"><b>${esc(t.name)}</b> ${t.done ? '<span class="tag jade">Known</span>' : ''}<br><span class="small dim">${esc(t.effect)}</span>
         ${cur ? bar(100 * R.progress / t.cost, 'violet') : ''}</span>
@@ -355,9 +356,9 @@ export function mountSect(h) {
     const relCls = (r) => (r >= 15 ? 'jade' : r > -15 ? '' : 'red');
     const gate = worldGates();
     const later = Object.values(gate).filter(Boolean);
-    return `<div class="banner" style="background-image:linear-gradient(#120d0a55,#120d0acc),url(${backdrop('map')})"><h2>${esc(S.name)}</h2>
+    return `<div class="banner" style="background-image:linear-gradient(#0c1228b0,#120d0ae0),url(${backdrop('map')})"><h2>${esc(S.name)}</h2>
         <p>Fame <b class="num">${S.fame}</b>. Fame is won at the gate, in the arena and under the lightning; talented youths seek out famous sects.</p></div>
-      <div class="worldmap" style="background-image:url(${backdrop('map')})">${S.map.map((m) => `<button class="pin ${esc(m.kind)}" style="left:${m.x}%;top:${m.y}%" title="${esc(m.text)}" data-pin="${esc(m.name)}|${esc(m.text)}"><i></i><span>${esc(m.name)}</span></button>`).join('')}</div>
+      <div class="worldmap night" style="background-image:radial-gradient(ellipse at 50% 45%,#f0a8501a,transparent 65%),linear-gradient(#0c1228a6,#120d0abf),url(${backdrop('map')});background-blend-mode:normal,multiply,normal">${S.map.map((m) => `<button class="pin ${esc(m.kind)}" style="left:${m.x}%;top:${m.y}%" title="${esc(m.text)}" data-pin="${esc(m.name)}|${esc(m.text)}"><i></i><span>${esc(m.name)}</span></button>`).join('')}</div>
       <p class="dim small" id="pin-note">Tap a place on the map.</p>
       <h3>Banner and motto</h3>
       <div class="row">${S.colours.map((k) => `<button class="swatch ${S.style.colour === k ? 'on' : ''}" data-colour="${esc(k)}" aria-label="${esc(k)}" style="background:var(--c-${esc(k)})"></button>`).join('')}

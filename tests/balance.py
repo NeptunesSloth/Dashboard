@@ -57,6 +57,14 @@ def _careful_choice(c: dict, ev: dict) -> str:
     if kind == "infiltrator":
         best = max((int(m.group(1)), o["id"]) for o in ev["options"] if (m := re.search(r"(\d+)% to", o["label"])))
         return best[1] if best[0] >= 35 else "wait"
+    if kind == "thief":
+        best = max((int(m.group(1)), o["id"]) for o in ev["options"] if (m := re.search(r"(\d+)% to", o["label"])))
+        return best[1] if best[0] >= 30 else "let_go"
+    if kind == "feud":
+        return "mediate" if "mediate" in ids else "spar"
+    if kind == "pact_duel":
+        m = re.search(r"(\d+)% to win", ev["options"][0]["label"])
+        return "fight" if m and int(m.group(1)) >= 35 else "forfeit"
     if kind == "tournament":
         m = re.search(r"(\d+)% to win round one", ev["options"][0]["label"])
         return ids[0] if m and int(m.group(1)) >= 40 else "observe" if "observe" in ids else ids[-1]
@@ -176,12 +184,24 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
         fights.append((colony._day(c_) + 1, how, round(ratio, 2), ev["kind"]))
         return ev
     colony._battle = battle
-    event_days: set = set()                # days with something to decide (a letter alone does not count)
+    real_attempt = colony.attempt
+    bts: list = []                         # (great realm aimed at, odds, success)
+
+    def attempt(st_, pid, now):
+        p = colony._p(st_["colony"], pid)
+        odds, target = (colony.bt_chance(st_["colony"], p), p["step"] // 4 + 1) if p and colony.ready(p) else (0, 0)
+        res = real_attempt(st_, pid, now)
+        if res.get("ok"):
+            bts.append((target, odds, bool(res.get("success"))))
+        return res
+    colony.attempt = attempt
+    stolen_was = 0.0
+    event_days: set = set()              # days with something to decide (a letter alone does not count)
     work_jobs = {v[0].lower() for v in colony.JOBS.values()}
     hours: dict = {}                       # pawn id -> [working hours, of which meditating, name]
     out = {"deaths": 0, "min_rice": 1e9, "min_food_days": 1e9, "lean_days": 0, "cap_days": 0, "rice_cap_days": 0, "short_days": 0,
            "mood": (100, 0), "rice_by_month": [], "raids": 0, "raid_losses": 0, "renown_day": None, "pop_max": 0, "qi60": {},
-           "steps60": {}, "fame60": 0, "others_up60": 0, "qc80": 0, "others80": 0, "steps80": {}}
+           "steps60": {}, "fame60": 0, "others_up60": 0, "qc80": 0, "others80": 0, "steps80": {}, "infil": 0, "thefts": 0}
     try:
         for _ in range(days * 24):
             colony.advance(st, 1, T0)
@@ -195,11 +215,15 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
                 if not ev:
                     break
                 event_days.add(colony._day(c))
-                opt = ev["options"][0]["id"] if profile == "idle" else _careful_choice(c, ev)
+                out["infil"] += ev["kind"] == "infiltrator"
+                opt =ev["options"][0]["id"] if profile == "idle" else _careful_choice(c, ev)
                 if not colony.resolve(st, opt, T0)["ok"]:
                     colony.resolve(st, ev["options"][-1]["id"], T0)
             if profile == "careful":
                 _careful_orders(st, c, seen_alerts)
+            if c["tally"]["stolen"] > stolen_was + 0.5:          # a raid or a thief carried something off
+                out["thefts"] += 1
+            stolen_was = c["tally"]["stolen"]
             if c["hour"] % 24 == 12:
                 day = colony._day(c)
                 if day >= 6:
@@ -230,13 +254,21 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
                     out["steps60"] = {p["name"]: p["step"] for p in c["pawns"]}
                     out["others_up60"] = sum(1 for p in others if p["step"] >= 1)
                     out["fame60"] = round(c["fame"])
+                out["rivals_max"] = max(out.get("rivals_max", 0), len(colony.rival_pairs(c)))
+                if day + 1 == 70:
+                    out["techs70"] = len(c["research"]["done"])
                 if day + 1 == 80:
+                    out["risk80"] = out["infil"] + out["thefts"]
                     others = [p for p in c["pawns"] if not p.get("master") and p.get("joined", 0) <= 24 * 25]   # in the sect since the first month
                     out["steps80"] = {p["name"]: p["step"] for p in c["pawns"]}
                     out["others80"] = len(others)
                     out["qc80"] = sum(1 for p in others if p["step"] >= 4)
     finally:
         colony._battle = real_battle
+        colony.attempt = real_attempt
+    out["bts"] = bts
+    out.setdefault("risk80", out["infil"] + out["thefts"])
+    out.setdefault("techs70", len(c["research"]["done"]))
     gaps, last = [], 4                        # counted from the first threat (day 5) on
     for d in sorted(x for x in event_days if x >= 4) + [days]:
         gaps.append(d - last - 1)
@@ -272,6 +304,9 @@ if __name__ == "__main__":
                       f"renown_day={r['renown_day']} fame60={r['fame60']} fame={r['fame']} rooms={r['rooms']} "
                       f"short={r['short_days']} up60={r.get('others_up60')} qi60={list(qi.values())} hurt={r['hurt']} mood={r['mood']} "
                       f"qc80={r['qc80']}/{r['others80']} gap={r['gap']} med={sorted(r['med_share'].values())} stolen={r['stolen']} "
-                      f"plague_dead={r['plague_dead']} loss={r['loss']} ({time.time() - t:.1f}s)", flush=True)
+                      f"plague_dead={r['plague_dead']} techs70={r['techs70']} rivals={r['rivals_max']} infil={r['infil']} thefts={r['thefts']} "
+                      f"risk80={r['risk80']} bt_fail={sum(1 for b in r['bts'] if not b[2])}/{len(r['bts'])} "
+                      f"bt_fail_fe+={sum(1 for b in r['bts'] if not b[2] and b[0] >= 2)}/{sum(1 for b in r['bts'] if b[0] >= 2)} "
+                      f"loss={r['loss']} ({time.time() - t:.1f}s)", flush=True)
                 if "-v" in sys.argv:
                     print("   ", r["fights"])

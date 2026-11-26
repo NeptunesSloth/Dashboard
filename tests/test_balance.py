@@ -51,6 +51,22 @@ def test_a_careful_sect_loses_something_on_most_seeds_and_is_never_left_idle(run
     assert sum(r["stolen"] for r in runs.values()) > 0                # raiders do reach the stores
 
 
+def test_the_second_month_still_has_teeth(runs):
+    """The third playtest: after day 40 nothing went wrong. A careful sect still meets a thief or an infiltrator by
+    day 80, its great-realm attempts are capped by realm and sometimes fail, and feuds do not pile up."""
+    assert sum(r["risk80"] >= 1 for r in runs.values()) >= 2, [r["risk80"] for r in runs.values()]
+    bts = [b for r in runs.values() for b in r["bts"]]
+    assert all(odds <= colony.bt_cap(target) for target, odds, _ in bts), bts
+    assert sum(1 for b in bts if not b[2]) >= 2, bts
+    for r in runs.values():
+        assert r["rivals_max"] <= max(1, r["pop_max"] // colony.RIVAL_PER), r["rivals_max"]
+
+
+def test_research_moves_without_study(runs):
+    for r in runs.values():
+        assert 5 <= r["techs70"] <= 8, r["techs70"]                   # no study at all in the scripted game
+
+
 def test_careful_disciples_meditate_and_reach_qi_condensation(runs):
     for r in runs.values():
         assert r["others_up60"] >= 2, r["steps60"]
