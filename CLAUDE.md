@@ -50,9 +50,19 @@ sect_academy/
                 meridians, per-realm requirements, standing orders (dao.py
                 calls its hooks)
   state.py      one JSON file, always on; sanitises everything it loads
+  reader.py     the Read section: routes lookups to lexicon/, your own entries and
+                saved words (per language, in the state), the "My words" courses
+                (served to packs via packs.set_personal), the book shelf
+  lexicon/      per-language lookup modules + registry (__init__.py: the module
+                contract; es.py: Spanish lookup, candidates, segmentation)
+  dict/<lang>/  dictionary data, one folder per language, each with a README
+                naming source and licence (es/: Wiktionary via doozan/spanish_data,
+                CC BY-SA 4.0 — that file is under that licence, not ours)
   static/       index.html, academy.js (shell + study), sect.js (colony UI),
-                art.js (places the painted art), art/*.webp, academy.css, sw.js
-tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py,
+                reader.js (Read: shelf, pages, lookup card, dictionary, My words),
+                art.js (places the painted art), art/*.webp, academy.css, sw.js,
+                vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
+tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py, test_reader.py,
                 balance.py + test_balance.py (scripted 150-day games),
                 smoke_browser.py
 docs/           ACADEMY_CONTENT.md, the design spec, research
@@ -115,4 +125,18 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   damaged file is moved aside (never overwritten), and loaded/imported state is
   coerced and test-driven before use. Tests run with `SECT_ACADEMY_FILE=:memory:`
   (set in the root `conftest.py`).
+- **Reader**: books are text only, extracted in the browser (EPUB by hand,
+  PDF by vendored pdf.js loaded on demand, `isEvalSupported: false`, same-origin
+  worker, so the CSP needed no change), stored in `<state file>.books/`
+  (`<id>.txt` + `<id>.json`; ids are 12 hex, checked before any path is built;
+  capped at 200 books / 64 MB; `:memory:` keeps them in a dict). Only reading
+  positions (`book_pos`) live in the state. Personal item ids are
+  `my-<lang>-<word>` (hashed suffix when the word is not plain a-z) and the
+  `my-` prefix is refused in YAML packs. Adding a language's lookup = a data
+  folder in `dict/<lang>/` with its README + a module in `lexicon/` registered
+  in `MODULES`; the reader asks the server to segment each page
+  (`POST /api/dict/segment`) so CJK can segment by dictionary.
+- **Dictionary licence**: `dict/es/es_en.tsv.gz` is CC BY-SA 4.0 (Wiktionary
+  contributors, via doozan/spanish_data). Keep the credit line (`CREDIT` in
+  `lexicon/es.py`) shown with results, and keep `dict/es/README.md`.
 - One process only: state is held in memory.

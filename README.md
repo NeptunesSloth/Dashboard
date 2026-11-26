@@ -140,6 +140,30 @@ python -m sect_academy
 - While the app is closed the sect carries on quietly (no events, nobody
   starves or dies) for at most two sim days per real day.
 
+**Reading**
+
+- **Read** holds a shelf of your own books: import EPUB, PDF, plain text,
+  Markdown or HTML. The text is pulled out in the browser (PDF through a
+  vendored copy of Mozilla pdf.js, served by the app itself) and kept by the
+  server beside the save file, so a phone and a PC share one shelf and each
+  book opens where you left it. Pick the book's language on import.
+- **Tap any word** of a Spanish book for its English meaning: an offline
+  dictionary of about 85,000 Spanish words and 133,000 of their forms. It finds
+  the dictionary form behind plurals, conjugations and pronouns attached to a
+  verb (*cúrale* → *curar*, *dímelo* → *decir*), with or without the accents.
+  Hear the word (normal or slow) if your device has a Spanish voice; the card
+  says plainly when it has none. French, Chinese, Japanese and Korean books can
+  be read and heard; their lookup is still to come.
+- **Dictionary**: search Spanish → English, or English → Spanish by meaning,
+  and add your own entries.
+- **My words**: "Save word" keeps a word with its meaning and the sentence you
+  met it in. Saved words are a course of their own, *My words (Spanish)*,
+  scheduled and graded like every other course and paying the same qi and
+  insight.
+- The dictionary is Wiktionary data compiled by doozan/spanish_data, under
+  CC BY-SA 4.0 (see `sect_academy/dict/es/README.md`); pdf.js is Apache-2.0
+  (`sect_academy/static/vendor/pdfjs/LICENSE`).
+
 ## Running it
 
 | Setting | Default | What it does |
@@ -149,6 +173,9 @@ python -m sect_academy
 | `SECT_ACADEMY_PORT` | `8200` | Port |
 | `SECT_ACADEMY_TOKEN` | unset | If set, every API call needs this token (the page asks for it once). Set it before binding to anything but localhost. |
 
+- **Books** are kept in `<save file>.books/` (one `.txt` and one small `.json`
+  per book; at most 200 books and 64 MB of text). They are not part of the
+  backup download: keep that folder if you want your shelf.
 - **Backups:** Progress → Download backup. A damaged save file is never
   overwritten; it is moved aside and yesterday's automatic backup is restored.
 - **Phone:** open it in the phone's browser and "Add to Home Screen". (The
@@ -191,4 +218,7 @@ python -m sect_academy & python tests/smoke_browser.py   # browser test, outside
   tutor, a language exchange or a conversation group and use what you built.
 - No app can guarantee an exam pass. The readiness checklist is deliberately
   strict so that ticking all four boxes means something.
+- The Spanish dictionary is as good as its source. Where a common word and a
+  name share a spelling, the compiled data sometimes kept only the name
+  ("luz" appears as a given name); the card says so, and your own entry fixes it.
 - One learner, one sect, one process.

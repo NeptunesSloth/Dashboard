@@ -4,8 +4,10 @@ Run the app first (``python -m sect_academy``), then ``python tests/smoke_browse
 Fails on any uncaught JS error, any console error, or any request to a host
 other than the app itself — which is how "works completely offline" is enforced.
 """
+import io
 import os
 import sys
+import zipfile
 from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
@@ -13,6 +15,42 @@ from playwright.sync_api import sync_playwright
 BASE = os.getenv("SMOKE_BASE", "http://127.0.0.1:8200")
 _EXE = os.getenv("PW_EXECUTABLE")
 HOST = urlparse(BASE).hostname
+STORY = "Hola, Juan. Dimelo cuando puedas. Las casas del pueblo son blancas y el mar esta cerca."
+
+
+def _pdf(text: str) -> bytes:
+    """A one-page PDF with real text (no PDF library needed)."""
+    stream = f"BT /F1 12 Tf 40 760 Td ({text}) Tj ET".encode("latin-1")
+    objs = [b"<< /Type /Catalog /Pages 2 0 R >>", b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+            b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
+            b"<< /Length %d >>\nstream\n" % len(stream) + stream + b"\nendstream"]
+    out, offs = bytearray(b"%PDF-1.4\n"), []
+    for i, o in enumerate(objs, 1):
+        offs.append(len(out))
+        out += b"%d 0 obj\n" % i + o + b"\nendobj\n"
+    xref = len(out)
+    out += b"xref\n0 %d\n0000000000 65535 f \n" % (len(objs) + 1) + b"".join(b"%010d 00000 n \n" % o for o in offs)
+    out += b"trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n" % (len(objs) + 1, xref)
+    return bytes(out)
+
+
+def _epub(text: str) -> bytes:
+    """A minimal EPUB 3 (deflated chapter, so the browser's own inflater is exercised). The chapter carries a
+    script and an outside image: neither may run or load."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        z.writestr("mimetype", "application/epub+zip")
+        z.writestr("META-INF/container.xml", '<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">'
+                   '<rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>')
+        z.writestr("OEBPS/content.opf", '<?xml version="1.0"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0">'
+                   '<metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Un cuento</dc:title></metadata>'
+                   '<manifest><item id="c1" href="text/ch1.xhtml" media-type="application/xhtml+xml"/></manifest>'
+                   '<spine><itemref idref="c1"/></spine></package>')
+        z.writestr("OEBPS/text/ch1.xhtml", f'<html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Uno</h1><p>{text}</p>'
+                   '<script>window.__epubRan = 1</script><img src="https://example.com/x.png"/></body></html>',
+                   compress_type=zipfile.ZIP_DEFLATED)
+    return buf.getvalue()
 
 
 def main() -> int:
@@ -101,7 +139,26 @@ def main() -> int:
             pg.wait_for_selector(sel, timeout=10000)
             pg.wait_for_timeout(300)
 
-        # 5) phone width, dark mode
+        # 5) Read: a dictionary lookup, then a PDF (through the vendored pdf.js and its worker) and an EPUB
+        #    imported, opened and a word tapped — all of it with the outside world blocked.
+        pg.goto(BASE + "/read?tab=dict", wait_until="load", timeout=25000)
+        pg.fill("#dq", "dímelo")
+        pg.wait_for_selector(".dict-row", timeout=10000)
+        pg.click(".dict-row")
+        pg.wait_for_selector(".lookup .lk-senses", timeout=10000)
+        assert "decir" in pg.inner_text(".lookup"), "dímelo did not lead to decir"
+        for name, data in (("cuento.pdf", _pdf(STORY)), ("cuento.epub", _epub(STORY))):
+            pg.goto(BASE + "/read", wait_until="load", timeout=25000)
+            pg.wait_for_selector("#rb-file", state="attached", timeout=10000)
+            mime = "application/pdf" if name.endswith(".pdf") else "application/epub+zip"
+            pg.set_input_files("#rb-file", files=[{"name": name, "mimeType": mime, "buffer": data}])
+            pg.wait_for_selector("#rd .w", timeout=30000)
+            pg.locator("#rd .w", has_text="casas").first.click()
+            pg.wait_for_selector(".lookup .lk-senses", timeout=10000)
+            assert "casa" in pg.inner_text(".lookup .lk-path"), f"{name}: casas did not lead to casa"
+        assert not pg.evaluate("window.__epubRan"), "a script inside an EPUB ran"
+
+        # 6) phone width, dark mode
         m = b.new_context(viewport={"width": 390, "height": 800}, color_scheme="dark")
         m.route("**/*", gate)
         mp = m.new_page()
@@ -112,7 +169,7 @@ def main() -> int:
 
     assert not outside, f"the app tried to reach outside hosts: {outside[:5]}"
     assert not errors, f"JS errors: {errors[:5]}"
-    print("smoke OK (offline: no request left the app; sect, study, library, trials, progress, phone)")
+    print("smoke OK (offline: no request left the app; sect, study, read (dictionary, PDF, EPUB), library, trials, progress, phone)")
     return 0
 
 

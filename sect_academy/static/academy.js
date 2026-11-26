@@ -4,6 +4,7 @@
 
 import { ICON, backdrop, portrait } from '/art.js';
 import { mountSect } from '/sect.js';
+import { renderRead } from '/reader.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -101,8 +102,10 @@ function speak(text, lang) {
 }
 
 /* ---------------- routing ---------------- */
-const ROUTES = { '/': renderSect, '/study': renderStudy, '/library': renderLibrary, '/trials': renderTrials, '/progress': renderProgress };
-const NAV = [['/', 'sect', 'Sect'], ['/study', 'study', 'Study'], ['/library', 'library', 'Library'], ['/trials', 'trials', 'Trials'], ['/progress', 'progress', 'Progress']];
+// The reader lives in its own module; it gets the shell's helpers rather than copies of them.
+const readCtx = { api, esc, num, toast, ICON, view, go: (p) => go(p), ov: () => OV, setKeys: (fn) => { keyHandler = fn; } };
+const ROUTES = { '/': renderSect, '/study': renderStudy, '/read': (params) => renderRead(params, readCtx), '/library': renderLibrary, '/trials': renderTrials, '/progress': renderProgress };
+const NAV = [['/', 'sect', 'Sect'], ['/study', 'study', 'Study'], ['/read', 'read', 'Read'], ['/library', 'library', 'Library'], ['/trials', 'trials', 'Trials'], ['/progress', 'progress', 'Progress']];
 const GUIDE = 'Elder Bai';
 const guide = (mood = 'calm', size = 56) => portrait(GUIDE, { kind: 'elder', mood, size });
 const face = (d, size = 48) => portrait(d.id + d.name, { root: d.root, size });

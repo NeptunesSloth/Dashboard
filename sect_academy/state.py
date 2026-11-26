@@ -71,6 +71,9 @@ def blank() -> dict:
         "mistakes": {},               # item_id -> {n, ts, given}: what you got wrong and still owe
         "drills": {},                 # kind -> {best, runs}
         "colony": {},                 # the sect (see colony.py)
+        "dict_user": {},              # word -> your own dictionary meaning (reader.py)
+        "words": {},                  # word -> {l1, form, ctx, ts}: saved to learn ("My words")
+        "book_pos": {},               # book id -> reading position (character offset); the books sit beside this file
     }
 
 
@@ -171,7 +174,7 @@ def _clean_extra(raw) -> dict:
 
 def sanitize(data: dict) -> dict:
     """A well-formed state built from an untrusted blob (unknown keys dropped)."""
-    from . import colony     # local import: colony imports nothing from state
+    from . import colony, reader     # local import: colony imports nothing from state
     st = blank()
     st["created"] = float(_num(data.get("created"), st["created"], 0.0))
     st["settings"] = clean_settings(data.get("settings"))
@@ -187,6 +190,9 @@ def sanitize(data: dict) -> dict:
     dr = data.get("drills")
     st["drills"] = {_str(k, "", 32): {"best": _int(v.get("best"), 0, 0, 100), "runs": _int(v.get("runs"), 0, 0)}
                     for k, v in list(dr.items() if isinstance(dr, dict) else [])[:20] if isinstance(k, str) and isinstance(v, dict)}
+    st["dict_user"] = reader.clean_user_entries(data.get("dict_user"))
+    st["words"] = reader.clean_words(data.get("words"))
+    st["book_pos"] = reader.clean_positions(data.get("book_pos"))
     pl = data.get("placements")
     st["placements"] = {_str(k, "", 64): {x: _int(v.get(x), 0, 0) for x in ("passed_units", "units", "placed", "asked", "right")}
                         for k, v in (pl.items() if isinstance(pl, dict) else []) if isinstance(k, str) and isinstance(v, dict)}
