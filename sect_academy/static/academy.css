@@ -683,3 +683,5 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .dict-row { all: unset; box-sizing: border-box; display: block; width: 100%; padding: 10px 4px; cursor: pointer; line-height: 1.4; overflow-wrap: anywhere; }
 .dict-row b, .dict-row .tag { margin-right: 8px; }
 .dict-row:hover, .dict-row:focus-visible { background: var(--azure-soft); border-radius: 10px; }
+
+.shelf-hero{background-size:cover;background-position:center right}

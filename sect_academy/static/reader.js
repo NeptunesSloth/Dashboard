@@ -374,7 +374,7 @@ async function renderBooks() {
   if (Array.isArray(r.lookup)) LOOKUP = r.lookup.map(String);
   const langs = r.langs || {};
   C.view.innerHTML = `${tabs('books')}
-    <section class="panel"><h2>Add a book</h2>
+    <section class="panel shelf-hero" style="background-image:linear-gradient(90deg,#120d0af2 0%,#120d0ad9 55%,#120d0a80 100%),url(/art/bg_library.webp)"><h2>Add a book</h2>
       <p class="dim small">EPUB, PDF, plain text, Markdown or HTML. The text is taken out here on this device and kept by your Sect Academy server, so your phone and your computer share one shelf. Scanned PDFs (pictures of pages) have no text to read.</p>
       <div class="row imp"><label class="field grow" style="margin:0"><span>Language of the book</span>
         <select class="in" id="rb-lang">${Object.entries(langs).map(([k, v]) => `<option value="${esc(k)}" ${k === 'es' ? 'selected' : ''}>${esc(v)}${hasLookup(k) || k === 'other' ? '' : ' (lookup coming)'}</option>`).join('')}</select></label>
