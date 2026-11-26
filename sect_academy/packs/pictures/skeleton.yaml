@@ -1,0 +1,14 @@
+# A shared picture (conventions: see body.yaml).
+id: skeleton
+title: "The skeleton"
+brief: "Cultivator's anatomy chart: one skeleton, front view, centred (x=50), arms a little away from the sides."
+pins:
+  - {id: skull, x: 50, y: 10, en: skull}
+  - {id: collarbone, x: 43.5, y: 21.5, en: collarbone}
+  - {id: breastbone, x: 50, y: 28, en: breastbone}
+  - {id: ribs, x: 42.5, y: 32.5, en: ribs}
+  - {id: spine, x: 50, y: 45, en: spine}
+  - {id: pelvis, x: 44.5, y: 53, en: pelvis}
+  - {id: thighbone, x: 45, y: 63, en: thighbone}
+  - {id: kneecap, x: 55, y: 72.5, en: kneecap}
+  - {id: shinbone, x: 45.5, y: 82, en: shinbone}

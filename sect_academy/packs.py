@@ -17,6 +17,10 @@ Item types:
     mcq             {id, type, q, choices[4], answer (index), why, best?, whys?}
     multi           {id, type, q, choices[5-6], answers [2-3 indices], why}   "choose TWO/THREE"
     order           {id, type, q, steps [3-6, in the correct order], why}
+    picture         {id, type, picture (an id in packs/pictures/), pins {pin id: {l2, rom?, alt?, l1?, note?}}}
+                    Each pin is expanded at load time into its own scheduled item, type ``pin``,
+                    id ``<item id>-<pin id>``. A unit holding a picture whose painting
+                    (static/art/pic_<picture>.webp) is missing is held back as "coming soon".
 
 A course can be split over several files: a *part* file holds only
 ``part_of: <pack id>`` and ``units: [...]``; its units are appended to that pack
@@ -35,7 +39,7 @@ import yaml
 
 PACK_DIR = Path(__file__).parent / "packs"
 KINDS = ("language", "cert")
-ITEM_TYPES = ("vocab", "phrase", "cloze", "dialogue", "glyph", "concept", "mcq", "multi", "order")
+ITEM_TYPES = ("vocab", "phrase", "cloze", "dialogue", "glyph", "concept", "mcq", "multi", "order", "picture")
 CERT_TYPES = ("concept", "mcq", "multi", "order")
 _ID = re.compile(r"^[a-z0-9][a-z0-9_.\-]{1,63}$")
 _Loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)      # the C loader is ~10x faster when present
@@ -47,10 +51,192 @@ _personal_fn = None
 _personal_token = None
 _personal: dict[str, dict] = {}
 PERSONAL_PREFIX = "my-"                    # item ids the YAML courses may not use: they belong to personal courses
+ART_DIR = Path(__file__).parent / "static" / "art"     # where a picture's painting (pic_<id>.webp) lives
+_PIC_ID = re.compile(r"^[a-z][a-z0-9_]{1,31}$")
+_PIN_ID = re.compile(r"^[a-z][a-z0-9_]{0,23}$")
+_PIN_KEYS = {"l2", "rom", "alt", "l1", "note"}
+_pictures_cache: tuple | None = None       # (PACK_DIR, pictures, errors)
 
 
 def _s(v) -> str:
     return v.strip() if isinstance(v, str) else ""
+
+
+# ---------------------------------------------------------------------------
+# picture lessons: shared pictures (packs/pictures/<id>.yaml) and the per-language
+# ``picture`` items that name each pin
+# ---------------------------------------------------------------------------
+def _script(s: str) -> bool:
+    """Chinese characters, kana or hangul (the same test as engine.is_script)."""
+    return any(ord(ch) >= 0x2E80 for ch in str(s or ""))
+
+
+def _coord(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and 0 <= v <= 100
+
+
+def validate_picture(pic, source: str = "") -> list[str]:
+    """A shared picture: {id, title, brief?, pins: [{id, x, y, en}]} (x, y in percent of the image)."""
+    w = f"{source}: " if source else ""
+    if not isinstance(pic, dict):
+        return [w + "picture is not a mapping"]
+    errs: list[str] = []
+    pid = _s(pic.get("id"))
+    if not _PIC_ID.match(pid):
+        errs.append(w + f"bad picture id {pid!r} (lowercase letters, digits, _)")
+    if not _s(pic.get("title")):
+        errs.append(w + f"picture {pid}: missing title")
+    extra = set(pic) - {"id", "title", "brief", "pins"}
+    if extra:
+        errs.append(w + f"picture {pid}: unknown keys {sorted(extra)}")
+    if "brief" in pic and not _s(pic.get("brief")):
+        errs.append(w + f"picture {pid}: brief must be text")
+    pins = pic.get("pins")
+    if not isinstance(pins, list) or not 4 <= len(pins) <= 16:
+        return errs + [w + f"picture {pid}: needs 4-16 pins"]
+    seen: set[str] = set()
+    for pin in pins:
+        if not isinstance(pin, dict):
+            errs.append(w + f"picture {pid}: a pin is not a mapping")
+            continue
+        qid = _s(pin.get("id"))
+        if not _PIN_ID.match(qid) or qid in seen:
+            errs.append(w + f"picture {pid}: bad/duplicate pin id {qid!r}")
+        seen.add(qid)
+        if not _coord(pin.get("x")) or not _coord(pin.get("y")):
+            errs.append(w + f"picture {pid}: pin {qid}: x and y must be numbers from 0 to 100 (percent of the image)")
+        if not _s(pin.get("en")):
+            errs.append(w + f"picture {pid}: pin {qid}: needs en (the English word)")
+        if set(pin) - {"id", "x", "y", "en"}:
+            errs.append(w + f"picture {pid}: pin {qid}: unknown keys {sorted(set(pin) - {'id', 'x', 'y', 'en'})}")
+    return errs
+
+
+def pictures() -> dict[str, dict]:
+    """The shared picture definitions (valid ones only), by id."""
+    return _load_pictures()[0]
+
+
+def _load_pictures() -> tuple[dict[str, dict], list[str]]:
+    global _pictures_cache
+    if _pictures_cache is not None and _pictures_cache[0] == PACK_DIR:
+        return _pictures_cache[1], _pictures_cache[2]
+    out: dict[str, dict] = {}
+    errs: list[str] = []
+    for path in sorted((PACK_DIR / "pictures").glob("*.yaml")):
+        pic = _read(path)
+        e = validate_picture(pic, f"pictures/{path.name}")
+        if not e and pic["id"] != path.stem:
+            e = [f"pictures/{path.name}: the file must be named after the picture id ({pic['id']}.yaml)"]
+        errs += e
+        if not e:
+            out[pic["id"]] = pic
+    _pictures_cache = (PACK_DIR, out, errs)
+    return out, errs
+
+
+def painted(picture_id: str) -> bool:
+    """Is this picture's painting in static/art? Only a known picture id is ever made into a path."""
+    return picture_id in pictures() and (ART_DIR / f"pic_{picture_id}.webp").is_file()
+
+
+def _validate_picture_item(it: dict, iid: str, kind, err, seen_items: set[str]) -> None:
+    """Check a ``picture`` item against its shared definition."""
+    if kind != "language":
+        err(f"item {iid}: picture items belong in language packs")
+        return
+    extra = set(it) - {"id", "type", "picture", "pins"}
+    if extra:
+        err(f"item {iid}: a picture item has only id, type, picture and pins (found {sorted(extra)})")
+    pic = pictures().get(_s(it.get("picture")))
+    if pic is None:
+        err(f"item {iid}: picture {it.get('picture')!r} is not defined in packs/pictures/")
+        return
+    pins = it.get("pins")
+    if not isinstance(pins, dict) or len(pins) < 4:
+        err(f"item {iid}: pins must map at least 4 pin ids of picture {pic['id']} to their words")
+        return
+    known = {p["id"] for p in pic["pins"]}
+    words: set[str] = set()
+    for qid, pin in pins.items():
+        where = f"item {iid}: pin {qid!r}"
+        if qid not in known:
+            err(f"{where}: not a pin of picture {pic['id']} ({', '.join(sorted(known))})")
+            continue
+        pid = f"{iid}-{qid}"
+        if not _ID.match(pid) or pid in seen_items:
+            err(f"{where}: item id {pid!r} is too long or already used")
+        seen_items.add(pid)
+        if not isinstance(pin, dict) or not _s(pin.get("l2")):
+            err(f"{where}: needs l2 (the word in the language)")
+            continue
+        if set(pin) - _PIN_KEYS:
+            err(f"{where}: unknown keys {sorted(set(pin) - _PIN_KEYS)}")
+        l2 = _s(pin["l2"])
+        if l2.lower() in words:
+            err(f"{where}: l2 {l2!r} is used by another pin of this picture")
+        words.add(l2.lower())
+        for key in ("rom", "l1", "note"):
+            if key in pin and not _s(pin.get(key)):
+                err(f"{where}: {key} must be a non-empty string")
+        if _script(l2) and not _s(pin.get("rom")):
+            err(f"{where}: rom is required when l2 is written in Chinese, Japanese or Korean script")
+        alt = pin.get("alt", [])
+        if not isinstance(alt, list) or not all(isinstance(a, str) and a.strip() for a in alt):
+            err(f"{where}: alt must be a list of strings")
+
+
+def item_ids(it) -> list[str]:
+    """The scheduled item ids an authored item becomes (a picture: one per pin)."""
+    if isinstance(it, dict) and it.get("type") == "picture" and isinstance(it.get("pins"), dict):
+        return [f"{_s(it.get('id'))}-{q}" for q in it["pins"]]
+    return [it.get("id")] if isinstance(it, dict) else []
+
+
+def _expand_pictures(pack: dict) -> dict:
+    """Replace each ``picture`` item by its pins: one ``pin`` item each, numbered in picture order."""
+    defs = pictures()
+    for u in pack["units"]:
+        out = []
+        for it in u["items"]:
+            if it.get("type") != "picture":
+                out.append(it)
+                continue
+            pic = defs[it["picture"]]
+            n = 0
+            for p in pic["pins"]:
+                mine = it["pins"].get(p["id"])
+                if mine is None:
+                    continue
+                n += 1
+                pin = {"id": f"{it['id']}-{p['id']}", "type": "pin", "l2": _s(mine["l2"]),
+                       "l1": _s(mine.get("l1")) or p["en"], "alt": [a.strip() for a in mine.get("alt", [])],
+                       "picture": pic["id"], "picture_title": pic["title"], "group": it["id"], "pin": p["id"],
+                       "n": n, "x": float(p["x"]), "y": float(p["y"])}
+                for key in ("rom", "note"):
+                    if _s(mine.get(key)):
+                        pin[key] = _s(mine[key])
+                out.append(pin)
+        u["items"] = out
+    return pack
+
+
+def _hold_back_unpainted(pack: dict) -> dict:
+    """A unit with a picture that has not been painted yet is taken out of the course and
+    listed in ``pack["soon"]``, so nothing ever asks for an image that does not exist.
+    Progress is keyed by item id, so the unit's cards wait untouched until the painting lands."""
+    keep, soon = [], []
+    for u in pack["units"]:
+        missing = sorted({it["picture"] for it in u["items"] if it["type"] == "pin" and not painted(it["picture"])})
+        if missing:
+            soon.append({"id": u["id"], "title": u["title"], "goal": u.get("goal", ""), "pictures": missing})
+        else:
+            keep.append(u)
+    for i, u in enumerate(keep):
+        u["index"] = i
+    pack["units"] = keep
+    pack["soon"] = soon
+    return pack
 
 
 def _validate_units(units, kind, domains: set[str], err, seen_units: set[str], seen_items: set[str]) -> None:
@@ -71,7 +257,7 @@ def _validate_units(units, kind, domains: set[str], err, seen_units: set[str], s
         if kind == "cert" and str(u.get("domain", "")) not in domains:
             err(f"unit {uid}: domain {u.get('domain')!r} not in exam.domains")
         items = u.get("items")
-        if not isinstance(items, list) or len(items) < 4:
+        if not isinstance(items, list) or sum(len(item_ids(it)) for it in items) < 4:
             err(f"unit {uid}: needs at least 4 items")
             continue
         for it in items:
@@ -88,8 +274,9 @@ def _validate_units(units, kind, domains: set[str], err, seen_units: set[str], s
             if t not in ITEM_TYPES:
                 err(f"item {iid}: type must be one of {ITEM_TYPES}")
                 continue
-            if t == "dialogue":
-                pass
+            if t == "picture":
+                _validate_picture_item(it, iid, kind, err, seen_items)
+                continue
             if kind == "language" and t in CERT_TYPES:
                 err(f"item {iid}: {t} items belong in cert packs")
             if kind == "cert" and t not in CERT_TYPES:
@@ -185,7 +372,7 @@ def validate_pack(pack, source: str = "", base: dict | None = None) -> list[str]
             err(f"a part file may only contain part_of and units (found {sorted(extra)})")
         domains = {str(d["id"]) for d in (base.get("exam") or {}).get("domains", [])}
         seen_units = {u["id"] for u in base.get("units", [])}
-        seen_items = {it["id"] for u in base.get("units", []) for it in u["items"]}
+        seen_items = {iid for u in base.get("units", []) for it in u["items"] for iid in item_ids(it)}
         _validate_units(pack.get("units"), base.get("kind"), domains, err, seen_units, seen_items)
         return errs
     pid = _s(pack.get("id"))
@@ -277,10 +464,12 @@ def _refresh_personal() -> bool:
 def load_all(force: bool = False) -> dict[str, dict]:
     """All valid packs by id (and the learner's personal course, when there is one).
     Invalid packs and parts are skipped, never a crash."""
-    global _files, _cache, _index
+    global _files, _cache, _index, _pictures_cache
     changed = _refresh_personal()
     with _lock:
         if _files is None or force:
+            if force:
+                _pictures_cache = None
             _files = _load_files()
             changed = True
         if changed or _cache is None:
@@ -305,12 +494,13 @@ def _load_files() -> dict[str, dict]:
         base["units"] = base["units"] + part["units"]
     ids: set[str] = set()
     for pid in list(out):                          # item ids are global: drop a pack that collides
+        out[pid] = _expand_pictures(out[pid])
         mine = {it.get("id") for u in out[pid]["units"] for it in u["items"]}
         if ids & mine:
             out.pop(pid)
             continue
         ids |= mine
-        out[pid] = _normalise(out[pid])
+        out[pid] = _hold_back_unpainted(_normalise(out[pid]))
     return out
 
 
@@ -334,6 +524,13 @@ def main(argv: list[str]) -> int:
     bad = 0
     ids: dict[str, str] = {}
     bases: dict[str, dict] = {}
+    defs, pic_errs = _load_pictures()
+    for e in pic_errs:
+        print("FAIL", e)
+    bad += bool(pic_errs)
+    if not only and not pic_errs and defs:
+        print(f"ok   pictures/: {len(defs)} shared pictures, {sum(len(p['pins']) for p in defs.values())} pins, "
+              f"{sum(painted(p) for p in defs)} painted")
     loaded = [(p, _read(p)) for p in sorted(PACK_DIR.glob("*.yaml"))]
     for path, pack in sorted(loaded, key=lambda t: (isinstance(t[1], dict) and "part_of" in t[1], t[0].name)):
         show = not only or path.name in only
@@ -348,11 +545,11 @@ def main(argv: list[str]) -> int:
         if isinstance(pack, dict):
             for u in pack.get("units") or []:
                 for it in (u.get("items") or []) if isinstance(u, dict) else []:
-                    iid = it.get("id") if isinstance(it, dict) else None
-                    if iid in ids and ids[iid] != path.name:
-                        errs.append(f"{path.name}: item id {iid!r} also used in {ids[iid]}")
-                    if iid:
-                        ids[iid] = path.name
+                    for iid in item_ids(it):
+                        if iid in ids and ids[iid] != path.name:
+                            errs.append(f"{path.name}: item id {iid!r} also used in {ids[iid]}")
+                        if iid:
+                            ids[iid] = path.name
         if not errs and not is_part:
             bases[pack["id"]] = {**pack, "units": list(pack["units"])}
         elif not errs and base is not None:
@@ -365,11 +562,12 @@ def main(argv: list[str]) -> int:
             for e in errs[:40]:
                 print("   ", e)
         else:
-            n = sum(len(u["items"]) for u in pack["units"])
+            n = sum(len(item_ids(it)) for u in pack["units"] for it in u["items"])
             kinds: dict[str, int] = {}
             for u in pack["units"]:
                 for it in u["items"]:
-                    kinds[it["type"]] = kinds.get(it["type"], 0) + 1
+                    t = "pin" if it["type"] == "picture" else it["type"]
+                    kinds[t] = kinds.get(t, 0) + len(item_ids(it))
             label = f"part of {pack['part_of']}" if is_part else pack["id"]
             print(f"ok   {path.name} [{label}]: {len(pack['units'])} units, {n} items {kinds}")
     return 1 if bad else 0

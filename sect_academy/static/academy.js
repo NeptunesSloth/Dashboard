@@ -5,6 +5,7 @@
 import { ICON, backdrop, portrait } from '/art.js';
 import { mountSect } from '/sect.js';
 import { renderRead } from '/reader.js';
+import { figure, label as pinLabel, introHtml as pictureIntro, labelAll, dragExercise, tapExercise } from '/pictures.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -333,7 +334,7 @@ async function runPlacement(course, done) {
 /* A question with no feedback (placement, trials): text box, single choice, choose-N or put-in-order. */
 function questionHtml(q, value, idp) {
   const long = (q.prompt || '').length > 90;
-  const head = `<div class="prompt ${long ? 'long' : ''} ${q.big ? 'big' : ''}" lang="${esc(q.lang || '')}">${esc(q.prompt || '')}</div>${q.rom ? `<div class="rom">${esc(q.rom)}</div>` : ''}${q.sub ? `<div class="sub">${esc(q.sub)}</div>` : ''}`;
+  const head = `${q.picture ? figure(q.picture, q.pins, { buttons: false }) : ''}<div class="prompt ${long ? 'long' : ''} ${q.big ? 'big' : ''}" lang="${esc(q.lang || '')}">${esc(q.prompt || '')}</div>${q.rom ? `<div class="rom">${esc(q.rom)}</div>` : ''}${q.sub ? `<div class="sub">${esc(q.sub)}</div>` : ''}`;
   if (q.mode === 'order') {
     const picked = Array.isArray(value) ? value : [];
     return `${head}<p class="dim small">Tap the steps in the order they happen. Tap a numbered step to take it back.</p>
@@ -486,6 +487,15 @@ function runSession(s) {
 
   function intro(ex) {
     const c = ex.card; const lang = ex.lang;
+    if (c.type === 'picture') {
+      // A picture's new words, all on the painting at once.
+      shell(`<div class="guide">${guide('calm')}<div class="speech">A new picture. Read each word on it aloud, then put them back yourself.</div></div>
+        <div class="introcard">${pictureIntro(c, lang, sayBtn)}</div>
+        <div class="foot"><button class="btn primary big" id="s-next">Got it</button></div>`);
+      labelAll(view, c.pins); bindSay();
+      $('#s-next').onclick = next; $('#s-next').focus();
+      return;
+    }
     let body;
     if (c.type === 'concept') body = `<div class="l2">${esc(c.term)}</div><div class="l1">${esc(c.def)}</div>`;
     else if (c.type === 'cloze') body = `<div class="l2">${esc(c.full)} ${sayBtn(c.full, lang)}</div><div class="l1">${esc(c.l1 || '')}</div>`;
@@ -624,14 +634,59 @@ function runSession(s) {
     step();
   }
 
+  // Picture lessons (pictures.js draws them; the scoring is the same as every other exercise).
+  const tally = (res, n, right) => {      // first answers only (callers skip retries)
+    st.first += n; st.correct += right; st.qi += (res.rewards && num(res.rewards.qi)) || 0; st.insight += (res.rewards && num(res.rewards.insight)) || 0;
+    if (res.rewards && res.rewards.events && res.rewards.events.length) { st.events.push(...res.rewards.events); showEvents(res.rewards.events); }
+  };
+  function picture(ex) {
+    const ctx = { view, shell, guide, sayBtn, bindSay, speak };
+    if (ex.mode === 'pic_drag') {
+      return dragExercise(ex, { ...ctx,
+        submit: async (placements) => {
+          const res = await api('/api/answer/picture', { session: s.session, pins: placements, retry: !!ex.retry });
+          if (res.ok === false) toast(res.error);
+          return res;
+        },
+        done: (res) => {
+          if (!ex.retry) tally(res, num(res.total), num(res.right));
+          const wrong = (res.pins || []).filter((r) => !r.correct);
+          if (!wrong.length) st.done += 1;
+          else {
+            // the missed pins come back, with their own words, until each is placed right once
+            const keep = new Set(wrong.map((r) => r.item));
+            queue.splice(Math.min(3, queue.length), 0, { ...ex, retry: true, pins: ex.pins.filter((p) => keep.has(p.item)),
+              chips: wrong.map((r) => ({ l2: (r.explain && r.explain.l2) || r.expected })) });
+          }
+          const nd = (res.pins || []).map((r) => r.next_days).filter((d) => d != null);
+          $('#s-foot').innerHTML = `<div class="verdict ${wrong.length ? 'no' : 'ok'}" role="status">${guide(wrong.length ? 'oops' : 'happy', 52)}<div class="grow">
+            <h3>${wrong.length ? `${num(res.right)} of ${num(res.total)} in place` : 'Every word in its place'}</h3>
+            ${wrong.length ? `<p class="dim small">The red labels show where each word belongs. ${wrong.length === 1 ? 'That one comes' : 'Those come'} back in a moment.</p>` : ''}
+            ${!ex.retry && !s.practice && nd.length ? `<p class="dim small">${Math.min(...nd.map(num)) <= 0 ? 'Some return later in this session.' : `Next review in ${Math.min(...nd.map(num))} day${Math.min(...nd.map(num)) === 1 ? '' : 's'}.`}${res.rewards && res.rewards.qi ? ` +${num(res.rewards.qi)} qi` : ''}</p>` : ''}</div></div>
+            <button class="btn ${wrong.length ? 'seal' : 'primary'} big" id="s-next">Continue</button>`;
+          const b = $('#s-next'); b.onclick = next; b.focus(); keyHandler = null;
+        } });
+    }
+    return tapExercise(ex, { ...ctx,
+      submit: async (given) => {
+        const res = await api('/api/answer', { session: s.session, item: ex.item, mode: ex.mode, answer: given, retry: !!ex.retry });
+        if (res.ok === false) { toast(res.error); return res; }
+        if (!ex.retry) tally(res, 1, res.correct ? 1 : 0);
+        if (res.correct) st.done += 1; else queue.splice(Math.min(3, queue.length), 0, { ...ex, retry: true });
+        feedback(ex, res, given);
+        return res;
+      } });
+  }
+
   function exercise(ex) {
+    if (ex.mode === 'pic_drag' || ex.mode === 'pic_tap') { keyHandler = null; return picture(ex); }
     if (ex.mode === 'multi' || ex.mode === 'order') return listExercise(ex);
     if (ex.mode === 'dialogue_build' || ex.mode === 'dialogue_type') return dialogue(ex);
     const lang = ex.lang; const typed = TYPED.has(ex.mode);
     const long = (ex.prompt || '').length > 90;
     let top;
     if (ex.mode === 'listen') top = `<div style="text-align:center">${sayBtn(ex.say, lang, 'huge')}<p class="dim small">Tap to hear it again. <button class="btn quiet" id="s-mute" style="min-height:32px;padding:0 8px">I can't listen now</button></p></div>`;
-    else top = `<div class="prompt ${long ? 'long' : ''} ${ex.big ? 'big' : ''}" lang="${esc(lang)}">${esc(ex.prompt)} ${ex.say ? sayBtn(ex.say, lang) : ''}</div>${ex.rom ? `<div class="rom">${esc(ex.rom)}</div>` : ''}${ex.sub ? `<div class="sub">${esc(ex.sub)}</div>` : ''}`;
+    else top = `${ex.picture ? figure(ex.picture, ex.pins, { buttons: false }) : ''}<div class="prompt ${long ? 'long' : ''} ${ex.big ? 'big' : ''}" lang="${esc(lang)}">${esc(ex.prompt)} ${ex.say ? sayBtn(ex.say, lang) : ''}</div>${ex.rom ? `<div class="rom">${esc(ex.rom)}</div>` : ''}${ex.sub ? `<div class="sub">${esc(ex.sub)}</div>` : ''}`;
     const tile = TILES.has(ex.mode) ? tiles(ex.bank) : null;
     const accents = typed && !tile ? (ACCENTS[(lang || '').slice(0, 2)] || []) : [];
     const input = tile ? tile.html : typed ? `<div class="typed"><input type="text" id="s-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" lang="${esc(lang)}" aria-label="Your answer" enterkeyhint="done">
@@ -680,6 +735,7 @@ function runSession(s) {
 
   function feedback(ex, res, given) {
     const x = res.explain || {};
+    if (ex.picture && x.pin && ex.mode !== 'pic_tap') pinLabel(view, x.pin.n, x.l2, res.correct ? 'ok' : 'no');   // the word, on its place
     const flag = res.flag === 'tone' ? 'Right — but mind the tones.' : res.flag === 'accent' ? 'Right — mind the accents.' : res.flag === 'typo' ? 'Right — with a small slip.' : 'Correct';
     const when = !ex.retry && !s.practice && res.next_days != null ? (num(res.next_days) <= 0 ? 'It returns later in this session.' : `Next review in ${num(res.next_days)} day${num(res.next_days) === 1 ? '' : 's'}.`) : '';
     let detail;
@@ -725,21 +781,22 @@ function renderLibrary(params) {
     return `<section class="panel course">
     <header><span class="crest" style="background:${hue};color:#10233f" aria-hidden="true">${c.hall === 'ward_hall' ? esc((c.exam && c.exam.code || 'Sec').slice(0, 3)) : mark}</span>
       <div class="grow"><h2>${esc(c.title)}</h2><p class="dim small" style="margin:2px 0 0">${esc(c.blurb)}</p></div>
-      ${c.enrolled ? `<span class="tag jade">Enrolled</span>` : `<button class="btn primary" data-enroll="${esc(c.id)}">Begin this course</button>`}</header>
+      ${c.enrolled ? `<span class="tag jade">Enrolled</span>` : !c.units.length && (c.soon || []).length ? '<span class="tag gold">Pictures coming soon</span>' : `<button class="btn primary" data-enroll="${esc(c.id)}">Begin this course</button>`}</header>
     ${c.enrolled ? `<div class="row small"><span class="grow dim">${c.seen} of ${c.total} learned · ${c.mastered} mastered · memory ${c.strength}%</span></div>
       <div class="bar jade" style="margin:6px 0 12px"><i style="width:${Math.round(100 * c.seen / Math.max(c.total, 1))}%"></i></div>
       <div class="row"><a class="btn primary" href="/study?course=${encodeURIComponent(c.id)}" data-link>Study this art <span class="num">${c.due + c.new_left}</span></a>
         ${c.seen < c.total ? `<button class="btn" data-more="${esc(c.id)}">Learn 5 more today</button>` : ''}
         ${c.seen < c.total ? `<button class="btn" data-place="${esc(c.id)}">${(OV.placements || {})[c.id] ? 'Retake the placement test' : 'Placement test'}</button>` : ''}
         <button class="btn quiet" data-drop="${esc(c.id)}">Set aside</button></div>` : ''}
-    <details class="units" ${c.enrolled && mine.length <= 2 ? 'open' : ''}><summary>${c.units.length} units${c.enrolled ? `, ${c.units_done} finished` : ''}</summary>
+    <details class="units" ${c.enrolled && mine.length <= 2 ? 'open' : ''}><summary>${c.units.length + (c.soon || []).length} units${c.enrolled ? `, ${c.units_done} finished` : ''}</summary>
     <div class="path">${c.units.map((u, i) => {
       const state = !c.enrolled ? '' : u.done ? 'done' : (cur && cur.id === u.id) ? 'now' : u.unlocked ? '' : 'locked';
       return `<button class="step ${state}" data-unit="${esc(u.id)}" data-course="${esc(c.id)}">
         <span class="node">${state === 'done' ? ICON.check : state === 'locked' ? ICON.lock : i + 1}</span>
         <span><b>${esc(u.title)}</b><span class="dim small">${esc(u.goal)}</span>
         ${c.enrolled && u.seen > 0 && !u.done ? `<span class="bar thin jade" style="display:block"><i style="width:${Math.round(100 * u.seen / u.items)}%"></i></span>` : ''}</span></button>`;
-    }).join('')}</div></details>
+    }).join('')}${(c.soon || []).map((u) => `<div class="step locked soon"><span class="node">${ICON.lock}</span>
+        <span><b>${esc(u.title)}</b><span class="dim small">Picture coming soon: this lesson opens once its painting is in.</span></span></div>`).join('')}</div></details>
   </section>`;
   };
   view.innerHTML = `<h1 style="margin-bottom:14px">Library</h1>${mine.map(card).join('')}

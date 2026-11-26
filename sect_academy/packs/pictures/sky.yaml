@@ -1,0 +1,14 @@
+# A shared picture (conventions: see body.yaml).
+id: sky
+title: "The sky and the weather"
+brief: "One wide landscape that changes from left to right: a sunny day with a rainbow, then a storm with rain, lightning and wind-bent trees, then a snowy night with the moon and stars."
+pins:
+  - {id: sun, x: 12, y: 13, en: sun}
+  - {id: cloud, x: 32, y: 13, en: cloud}
+  - {id: rainbow, x: 22, y: 42, en: rainbow}
+  - {id: lightning, x: 58, y: 32, en: lightning}
+  - {id: rain, x: 49, y: 50, en: rain}
+  - {id: wind, x: 50, y: 78, en: wind}
+  - {id: star, x: 72, y: 10, en: star}
+  - {id: moon, x: 87, y: 13, en: moon}
+  - {id: snow, x: 82, y: 58, en: snow}

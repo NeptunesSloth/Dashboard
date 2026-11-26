@@ -206,3 +206,65 @@ in `alt`.
 An example sentence (`ex`) has its own romanisation field, **`ex_rom`**, shown
 between the sentence and its translation `ex_l1`. Do not put romanisation inside
 `ex_l1`.
+
+## Picture lessons
+
+A picture lesson puts words on a painting: the learner drags word chips onto
+numbered pins, taps the pin a word names, and later types the word for a lit pin.
+The **picture and its pin positions are shared by every language**; each language
+pack only names the pins.
+
+**1. The shared picture**: `sect_academy/packs/pictures/<id>.yaml`, one file per
+picture, named after its id. `x` and `y` are percent of the painting from the top
+left. `en` is the English word: the prompt and the meaning shown with the answer.
+`brief` is a one-line note of the composition the pins assume.
+
+```yaml
+id: body
+title: "The body"
+brief: "Front view on the left, back view on the right, standing."
+pins:
+  - {id: head, x: 33, y: 9, en: head}
+  - {id: back, x: 68, y: 33, en: back}
+```
+
+**2. The language's `picture` item** names a picture and gives each pin its word,
+with the same keys and rules as a `vocab` item (`l2` with its article in
+French/Spanish, `rom` required for Chinese, Japanese and Korean, `alt`, `note`,
+and `l1` only to override the English):
+
+```yaml
+- id: es-pic-body
+  type: picture
+  picture: body
+  pins:
+    head: {l2: la cabeza}
+    back: {l2: la espalda}
+- id: zh-pic-body
+  type: picture
+  picture: body
+  pins:
+    head: {l2: 头, rom: tóu}
+    arm: {l2: 胳膊, rom: gēbo, alt: [手臂, shǒubì]}
+```
+
+- **Each pin becomes its own card**, id `<item id>-<pin id>` (`es-pic-body-head`):
+  progress is per word. **Never rename an item id or a pin id**; to move a pin,
+  change only its `x`/`y`.
+- A pack may name a subset of the pins (at least 4; Japanese leaves out `foot`,
+  since あし is both leg and foot). Pins are numbered in the picture's order.
+- Within one picture no two pins may share an `l2`.
+- **The painting** is `sect_academy/static/art/pic_<id>.webp` (1200x900; brief in
+  `docs/ART_PIPELINE.md`, "Round 3"). A unit holding a picture that has not been
+  painted yet is **held back**: it is listed as "Picture coming soon" and nothing
+  asks for the image. So put each picture in **its own unit**. Progress is kept by
+  item id, so a lesson simply opens when its painting lands (on the next start).
+- Check pin positions against the painting with `python scripts/pin_preview.py <id>`.
+
+**How it is practised.** New pins: the picture with all its new words is
+introduced, then **put the words on the picture** (one exercise for the picture,
+but every pin is answered, graded, scheduled and paid on its own; only the first
+answer to each issued pin counts). Met once: **tap the place** the word names.
+After that: **type the word** for a lit pin (the ordinary typed answer: accents,
+articles and CJK romanisation graded exactly as in `type_l2`). Trials, placement
+and the mistakes session ask pins typed.

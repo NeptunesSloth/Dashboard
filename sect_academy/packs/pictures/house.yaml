@@ -1,0 +1,15 @@
+# A shared picture (conventions: see body.yaml).
+id: house
+title: "The house"
+brief: "Cut-away of a two-storey house, front wall removed: bedroom and bathroom upstairs, living room and kitchen downstairs, stairs in the middle, garden on the right."
+pins:
+  - {id: roof, x: 40, y: 17, en: roof}
+  - {id: chimney, x: 66, y: 9, en: chimney}
+  - {id: bedroom, x: 26, y: 46, en: bedroom}
+  - {id: bathroom, x: 64, y: 46, en: bathroom}
+  - {id: window, x: 45, y: 40, en: window}
+  - {id: stairs, x: 45, y: 66, en: stairs}
+  - {id: living_room, x: 26, y: 80, en: living room}
+  - {id: kitchen, x: 64, y: 80, en: kitchen}
+  - {id: door, x: 45, y: 85, en: door}
+  - {id: garden, x: 88, y: 82, en: garden}

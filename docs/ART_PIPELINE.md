@@ -198,3 +198,71 @@ wires them); until then they are simply unused.
 
 Use `bg_mission` as the style reference at denoise ~0.85. The cloud session wires
 it into the Read shelf once the file exists.
+
+## Round 3: picture lessons
+
+The language courses now have **picture lessons**: the learner drags words onto
+numbered pins on a painting, taps the pin a word names, or types the word for a lit
+pin. Ten paintings serve all five languages (the same picture and pin positions for
+Spanish, French, Mandarin, Japanese and Korean). Until a painting exists its lesson
+is held back and shown as "Picture coming soon", so each one can land on its own.
+
+### What every picture needs
+
+- **File**: `sect_academy/static/art/pic_<id>.webp`, **1200x900** (4:3). Generate at
+  1216x912 (or the nearest size the model likes, 4:3) and fit to 1200x900.
+- **Readable at phone size.** The picture is shown about 360 px wide on a phone.
+  Every labelled thing must be **large, clearly visible and separated** from its
+  neighbours (no two labelled things touching), drawn plainly from the front or
+  a gentle three-quarter view, with nothing overlapping it.
+- **Clean and uncluttered**: a plain, dark, softly lit background (deep indigo,
+  a faint lantern glow), few extra props. Leave a little empty space round each
+  labelled thing so a numbered pin and its label can sit on it.
+- **No text of any kind**: no labels, letters, numbers, arrows, lines, signs, or
+  writing on scrolls, boards, books or shop fronts (the app draws the pins and
+  labels itself). The blackboard is blank or holds a simple drawing.
+- **The same look** as the rest of `static/art`: lantern-night painterly
+  pixel-art, warm gold lanterns, deep indigo shadows, rich fine detail. Not
+  bright, flat or vector. Modern everyday objects (a fridge, a bus stop, a
+  traffic light) are fine: draw them in the same painterly style, softly lit at
+  night, as if in a xianxia town at dusk.
+
+Start each prompt with the usual opening line, then the subject from the table,
+then: *clean uncluttered composition, plain dark background, every object large
+and clearly separated, centred, educational picture-dictionary illustration*, and
+end with the usual *no text, no writing, no letters, no signs, no watermark*. Make
+3 variants each and a contact sheet, as before.
+
+### The ten pictures
+
+| File | Subject and composition (the pins assume this layout) |
+|---|---|
+| `pic_body` | **A cultivator's anatomy chart**: an old unrolled paper scroll on a dark table, showing one young cultivator twice, standing, barefoot, in plain short trousers and bare-chested: on the left from the **front** (centred about a third of the way across), on the right from the **back** (about two thirds across). Arms held a little away from the sides, fingers slightly spread, feet a little apart. Head at the top of the scroll, feet near the bottom; the figures fill the height. |
+| `pic_skeleton` | **The same anatomy scroll, the skeleton**: one human skeleton, front view, standing, centred, arms a little away from the sides, filling the height. Clear, friendly, not scary (no gore, no horror lighting); the skull, collarbones, breastbone, ribs, spine below the ribs, pelvis, thighbones, kneecaps and shinbones clearly drawn. |
+| `pic_face` | **A close front portrait** of a young cultivator, the head filling the frame from the top of the hair (tied in a topknot) to the chin, ears visible, both eyes and eyebrows clear, mouth open wide as if saying "aah" so the upper teeth and the tongue show. Plain dark background. |
+| `pic_house` | **A cut-away of a two-storey house**, the front wall removed like a doll's house, centred-left (about 15-75% across). Pitched roof with a chimney on the right of the roof. Upstairs: a **bedroom** on the left (a bed), a **window** in the middle wall, a **bathroom** on the right (a bathtub). Downstairs: a **living room** on the left (a sofa), the **stairs** rising in the middle, the front **door** at the bottom middle, a **kitchen** on the right (a stove and counter). A small **garden** with flowers and a tree outside on the right. |
+| `pic_kitchen` | **A kitchen from the front**: along the back wall a tall **fridge** on the far left, a **stove** with a pot, a **sink** under a small window. In the front half, a wooden **table** laid for one: a white **plate** in the middle, a **fork** to its left, a **knife** to its right, a **spoon** lying across the top of the plate, a **cup** further right; a **chair** at the table's left end. The cutlery large enough to see. |
+| `pic_clothes` | **Two people standing side by side**, full length, facing us, dressed for a cold evening. Left (about 30% across): a **hat**, a **scarf**, an open **jacket** over a **shirt**, a **belt**, long **trousers**, **shoes**. Right (about 68% across): **gloves** on hands held a little out, a knee-length **skirt**, long **socks** visible above the shoes. Plain dark background. |
+| `pic_town` | **A town street at lantern-lit dusk**, seen from a little above. Along the back, five buildings, each obvious **without any writing**: a **bank** (stone columns, a big gold coin emblem), a **hospital** (a red cross symbol), a **school** (a bell tower, a small playground), a **station** (a train at a platform under a canopy), a **shop** (an awning, goods in the window). On the left a **restaurant** (tables outside, steaming bowls); on the right a **park** (trees, a bench, a pond). In front, a road with a striped **crosswalk** in the middle, a **traffic light** on the left of it, a **bus stop** shelter with a waiting bus on the right. |
+| `pic_classroom` | **A classroom seen from the back**: on the far wall a large blank **blackboard**, a round wall **clock** up on the right, the **teacher** standing beside the board on the left, a tall **window** on the right wall. In front, a **student** sitting at a desk (right of centre), and an empty **desk** in the front left holding an open **book**, a **pen** and a **pencil** laid apart; a school **bag** on the floor at the far left. |
+| `pic_meal` | **A long table of food seen from above** at a slight angle, ten dishes in three loose rows with space between: top row a loaf of **bread**, a bowl of white **rice**, a whole cooked **fish** on a plate, a plate of sliced roast **meat**; middle row two boiled **eggs** in a dish, a red **apple**, a basket of green **vegetables**, a bowl of **soup**; bottom row a glass jug of **water** (left of centre) and a teapot with a cup of **tea** (right of centre). |
+| `pic_sky` | **One wide landscape whose sky changes from left to right**: on the left a bright **sun** and a white **cloud** over green hills with a **rainbow**; in the middle a dark storm cloud with falling **rain**, a bolt of **lightning**, and trees bent by the **wind** with leaves blowing; on the right a night sky with **stars** and a crescent **moon** over snowy pines, **snow** falling. Painterly, soft transitions; keep each part clear. |
+
+### After painting: placing the pins
+
+The pin positions are **best guesses for the compositions above**, in
+`sect_academy/packs/pictures/<id>.yaml` (`x`, `y` in percent of the picture from
+the top-left). Do not try to make the painting fit the pins exactly; paint the
+best picture, deliver it, and the **cloud session sets the pin coordinates by
+looking at the image**. To check them:
+
+```bash
+python scripts/pin_preview.py body              # pin_preview_body.png: the painting, a 10% grid and the pins
+python scripts/pin_preview.py body --lang ja    # labelled with a course's words
+python scripts/pin_preview.py body --html pins.html   # drag the pins; copy the printed pins: block back
+python scripts/pin_preview.py --all             # every picture
+```
+
+Pin ids never change (they are the keys of the learner's progress); only `x` and
+`y` move. Commit each delivered painting as "Art: picture <id>"; the lesson opens
+on the next start of the app.

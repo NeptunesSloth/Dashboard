@@ -104,6 +104,11 @@ def reader_js():
     return _file("reader.js", "text/javascript")
 
 
+@app.get("/pictures.js")
+def pictures_js():
+    return _file("pictures.js", "text/javascript")
+
+
 # pdf.js (Apache-2.0, static/vendor/pdfjs/LICENSE) pulls the text out of an imported PDF in the browser.
 VENDOR = {"pdf.min.js", "pdf.worker.min.js"}
 
@@ -326,6 +331,27 @@ def session(body: SessionIn):
 @app.post("/api/answer", dependencies=API)
 def answer(body: AnswerIn):
     res = engine.answer(body.item, body.mode, _clip(body.answer), retry=body.retry, claim=body.claim, session=body.session)
+    if not res["ok"]:
+        raise HTTPException(400, res["error"])
+    return res
+
+
+class PicturePinIn(BaseModel):
+    item: str
+    answer: str = ""
+
+
+class PictureAnswerIn(BaseModel):
+    session: str
+    pins: list[PicturePinIn] = []
+    retry: bool = False
+
+
+@app.post("/api/answer/picture", dependencies=API)
+def answer_picture(body: PictureAnswerIn):
+    """A whole drag-the-words picture at once; each pin is graded and scheduled on its own."""
+    res = engine.answer_picture([{"item": p.item[:80], "answer": p.answer[:200]} for p in body.pins[:17]],
+                                session=body.session, retry=body.retry)
     if not res["ok"]:
         raise HTTPException(400, res["error"])
     return res

@@ -1,0 +1,275 @@
+id: korean-pictures
+title: "Korean — Picture lessons"
+kind: language
+language: Korean
+lang: ko-KR
+hall: tongues_west
+blurb: "Put the words on the picture: the body, the skeleton, the face, the house, the kitchen, clothes, the town, the classroom, food and the weather. Take it alongside A1."
+
+# Picture lessons (docs/ACADEMY_CONTENT.md, "Picture lessons"). The pictures and pin
+# positions are shared by every language in packs/pictures/; this file names the pins.
+# Each pin is its own card with the id <item id>-<pin id>: never rename either part.
+# rom is Revised Romanization, as in korean-a1; a different word in alt lists its own
+# romanisation in alt too.
+units:
+  - id: ko-pic-01
+    title: "Picture: the body"
+    goal: "I can name the main parts of the body."
+    notes: |
+      "My head hurts" is **머리가 아파요** (*meoriga apayo*): the body part, the
+      subject particle 이/가, then 아파요 (it hurts).
+
+      - **손** is the hand, **손가락** ("hand stick") a finger;
+        **발** the foot, **발가락** a toe.
+      - **배** is the stomach (it also means a boat and a pear).
+      - **다리** is the leg (and also a bridge).
+    items:
+      - id: ko-pic-body
+        type: picture
+        picture: body
+        pins:
+          head: {l2: 머리, rom: meori}
+          neck: {l2: 목, rom: mok}
+          shoulder: {l2: 어깨, rom: eokkae}
+          arm: {l2: 팔, rom: pal}
+          elbow: {l2: 팔꿈치, rom: palkkumchi}
+          hand: {l2: 손, rom: son}
+          finger: {l2: 손가락, rom: songarak}
+          chest: {l2: 가슴, rom: gaseum}
+          stomach: {l2: 배, rom: bae}
+          back: {l2: 등, rom: deung}
+          leg: {l2: 다리, rom: dari}
+          knee: {l2: 무릎, rom: mureup}
+          foot: {l2: 발, rom: bal}
+          toe: {l2: 발가락, rom: balgarak}
+
+  - id: ko-pic-02
+    title: "Picture: the skeleton"
+    goal: "I can name the main bones of the body."
+    notes: |
+      **뼈** (*ppyeo*) is bone. The everyday names are "place + 뼈":
+      **갈비뼈** ribs, **가슴뼈** breastbone, **무릎뼈** kneecap.
+      Doctors use Sino-Korean words ending in **골** (骨): 흉골, 슬개골, 대퇴골.
+
+      - **척추** is the spine; *등뼈* ("back bone") is the everyday word too.
+      - **두개골** is the skull; *해골* is a skull or skeleton in stories.
+    items:
+      - id: ko-pic-skeleton
+        type: picture
+        picture: skeleton
+        pins:
+          skull: {l2: 두개골, rom: dugaegol, alt: [해골, haegol]}
+          collarbone: {l2: 쇄골, rom: swaegol}
+          breastbone: {l2: 가슴뼈, rom: gaseumppyeo, alt: [흉골, hyunggol]}
+          ribs: {l2: 갈비뼈, rom: galbippyeo}
+          spine: {l2: 척추, rom: cheokchu, alt: [등뼈, deungppyeo]}
+          pelvis: {l2: 골반, rom: golban}
+          thighbone: {l2: 넓적다리뼈, rom: neopjeokdarippyeo, alt: [대퇴골, daetoegol]}
+          kneecap: {l2: 무릎뼈, rom: mureupppyeo, alt: [mureuppyeo, 슬개골, seulgaegol]}
+          shinbone: {l2: 정강이뼈, rom: jeonggangippyeo}
+
+  - id: ko-pic-03
+    title: "Picture: the face"
+    goal: "I can name the parts of the face."
+    notes: |
+      Describe a feature with **이/가**: *눈이 커요* (*nuni keoyo*), "(her) eyes are big".
+
+      - **눈** is the eye, and also snow (the weather picture).
+      - **머리카락** is the hair on your head; **머리** alone is the head, though
+        it is often used for hair too.
+      - **이** is a tooth; *이빨* is blunter, *치아* polite or medical.
+    items:
+      - id: ko-pic-face
+        type: picture
+        picture: face
+        pins:
+          hair: {l2: 머리카락, rom: meorikarak}
+          forehead: {l2: 이마, rom: ima}
+          eyebrow: {l2: 눈썹, rom: nunsseop}
+          eye: {l2: 눈, rom: nun}
+          ear: {l2: 귀, rom: gwi}
+          nose: {l2: 코, rom: ko}
+          cheek: {l2: 볼, rom: bol, alt: [뺨, ppyam]}
+          mouth: {l2: 입, rom: ip}
+          teeth: {l2: 이, rom: i, alt: [이빨, ippal, 치아, chia]}
+          tongue: {l2: 혀, rom: hyeo}
+          chin: {l2: 턱, rom: teok}
+
+  - id: ko-pic-04
+    title: "Picture: the house"
+    goal: "I can name the rooms and parts of a house."
+    notes: |
+      Say where a room is with **에 있어요**: *부엌은 일 층에 있어요*,
+      "the kitchen is on the first (ground) floor".
+
+      - **실** (室) means room: 침실 bedroom ("sleeping room"), 욕실 bathroom,
+        거실 living room.
+      - **부엌** is the kitchen; *주방* is the same room in newer houses and restaurants.
+      - **창문** is a window, **문** a door.
+    items:
+      - id: ko-pic-house
+        type: picture
+        picture: house
+        pins:
+          roof: {l2: 지붕, rom: jibung}
+          chimney: {l2: 굴뚝, rom: gulttuk}
+          bedroom: {l2: 침실, rom: chimsil, alt: [안방, anbang]}
+          bathroom: {l2: 욕실, rom: yoksil, alt: [화장실, hwajangsil]}
+          window: {l2: 창문, rom: changmun}
+          stairs: {l2: 계단, rom: gyedan}
+          living_room: {l2: 거실, rom: geosil}
+          kitchen: {l2: 부엌, rom: bueok, alt: [주방, jubang]}
+          door: {l2: 문, rom: mun}
+          garden: {l2: 정원, rom: jeongwon, alt: [마당, madang]}
+
+  - id: ko-pic-05
+    title: "Picture: the kitchen"
+    goal: "I can name the things in a kitchen and on the table."
+    notes: |
+      Korean tables are laid with **숟가락** (spoon) and **젓가락** (chopsticks);
+      **포크** and **칼** (fork, knife) are for Western food.
+
+      - **냉장고** is the fridge ("cold store").
+      - **식탁** is the dining table; any table is *탁자* or *테이블*.
+      - **싱크대** is the kitchen sink and counter.
+    items:
+      - id: ko-pic-kitchen
+        type: picture
+        picture: kitchen
+        pins:
+          fridge: {l2: 냉장고, rom: naengjanggo}
+          stove: {l2: 가스레인지, rom: gaseureinji, alt: [레인지, reinji]}
+          sink: {l2: 싱크대, rom: singkeudae}
+          chair: {l2: 의자, rom: uija}
+          table: {l2: 식탁, rom: siktak, alt: [탁자, takja, 테이블, teibeul]}
+          fork: {l2: 포크, rom: pokeu}
+          plate: {l2: 접시, rom: jeopsi}
+          knife: {l2: 칼, rom: kal}
+          spoon: {l2: 숟가락, rom: sutgarak}
+          cup: {l2: 컵, rom: keop, alt: [잔, jan]}
+
+  - id: ko-pic-06
+    title: "Picture: clothes"
+    goal: "I can name everyday clothes."
+    notes: |
+      Korean has different verbs for wearing: **입어요** for clothes (셔츠, 바지,
+      치마), **신어요** for shoes and socks, **써요** for a hat, **해요** for a
+      scarf or a belt, **껴요** for gloves.
+
+      - **옷** is clothes in general.
+      - **신발** is shoes; *구두* are smart leather shoes.
+    items:
+      - id: ko-pic-clothes
+        type: picture
+        picture: clothes
+        pins:
+          hat: {l2: 모자, rom: moja}
+          scarf: {l2: 목도리, rom: mokdori, alt: [스카프, seukapeu]}
+          shirt: {l2: 셔츠, rom: syeocheu}
+          jacket: {l2: 재킷, rom: jaekit, alt: [자켓, jaket]}
+          belt: {l2: 벨트, rom: belteu, alt: [허리띠, heoritti]}
+          trousers: {l2: 바지, rom: baji}
+          shoes: {l2: 신발, rom: sinbal, alt: [구두, gudu]}
+          gloves: {l2: 장갑, rom: janggap}
+          skirt: {l2: 치마, rom: chima, alt: [스커트, seukeoteu]}
+          socks: {l2: 양말, rom: yangmal}
+
+  - id: ko-pic-07
+    title: "Picture: the town"
+    goal: "I can name the places in a town."
+    notes: |
+      Ask with **어디예요?**: *은행이 어디예요?* "Where is the bank?"
+
+      - **역** is a train or underground station; *기차역* is a railway station.
+      - **신호등** is the traffic light; **횡단보도** the zebra crossing.
+      - **버스 정류장** is a bus stop.
+    items:
+      - id: ko-pic-town
+        type: picture
+        picture: town
+        pins:
+          bank: {l2: 은행, rom: eunhaeng}
+          hospital: {l2: 병원, rom: byeongwon}
+          school: {l2: 학교, rom: hakgyo}
+          station: {l2: 역, rom: yeok, alt: [기차역, gichayeok]}
+          shop: {l2: 가게, rom: gage, alt: [상점, sangjeom]}
+          restaurant: {l2: 식당, rom: sikdang, alt: [레스토랑, reseutorang]}
+          park: {l2: 공원, rom: gongwon}
+          traffic_light: {l2: 신호등, rom: sinhodeung}
+          bus_stop: {l2: 버스 정류장, rom: beoseu jeongnyujang}
+          crosswalk: {l2: 횡단보도, rom: hoengdanbodo}
+
+  - id: ko-pic-08
+    title: "Picture: the classroom"
+    goal: "I can name the people and things in a classroom."
+    notes: |
+      **선생님** is the teacher, and how you speak to one. **학생** is a student.
+
+      - **칠판** is the blackboard; **책상** a desk ("book table").
+      - **연필** is a pencil; a ballpoint pen is **볼펜**, any pen *펜*.
+      - **시계** is both a clock and a watch.
+    items:
+      - id: ko-pic-classroom
+        type: picture
+        picture: classroom
+        pins:
+          clock: {l2: 시계, rom: sigye}
+          blackboard: {l2: 칠판, rom: chilpan}
+          teacher: {l2: 선생님, rom: seonsaengnim}
+          window: {l2: 창문, rom: changmun}
+          student: {l2: 학생, rom: haksaeng}
+          book: {l2: 책, rom: chaek}
+          pen: {l2: 펜, rom: pen, alt: [볼펜, bolpen]}
+          pencil: {l2: 연필, rom: yeonpil}
+          desk: {l2: 책상, rom: chaeksang}
+          bag: {l2: 가방, rom: gabang}
+
+  - id: ko-pic-09
+    title: "Picture: a table of food"
+    goal: "I can name common foods and drinks."
+    notes: |
+      To eat is **먹어요**, to drink **마셔요**: *밥을 먹어요*, *차를 마셔요*.
+
+      - **밥** is cooked rice, and a meal; raw rice is *쌀*.
+      - **생선** is fish as food; a live fish is *물고기*.
+      - **국** is a Korean soup eaten with rice; *수프* is a Western soup.
+    items:
+      - id: ko-pic-meal
+        type: picture
+        picture: meal
+        pins:
+          bread: {l2: 빵, rom: ppang}
+          rice: {l2: 밥, rom: bap}
+          fish: {l2: 생선, rom: saengseon, alt: [물고기, mulgogi]}
+          meat: {l2: 고기, rom: gogi}
+          egg: {l2: 달걀, rom: dalgyal, alt: [계란, gyeran]}
+          apple: {l2: 사과, rom: sagwa}
+          vegetables: {l2: 채소, rom: chaeso, alt: [야채, yachae]}
+          soup: {l2: 국, rom: guk, alt: [수프, supeu]}
+          water: {l2: 물, rom: mul}
+          tea: {l2: 차, rom: cha}
+
+  - id: ko-pic-10
+    title: "Picture: the sky and the weather"
+    goal: "I can name the sun, the moon and the weather."
+    notes: |
+      Rain and snow "come": **비가 와요** (it's raining), **눈이 와요** (it's
+      snowing). The wind "blows": *바람이 불어요*.
+
+      - **해** is the sun in everyday speech; *태양* is the formal word.
+      - **눈** (snow) is the same word as 눈 (eye).
+      - **번개** is lightning; thunder is *천둥*.
+    items:
+      - id: ko-pic-sky
+        type: picture
+        picture: sky
+        pins:
+          sun: {l2: 해, rom: hae, alt: [태양, taeyang]}
+          cloud: {l2: 구름, rom: gureum}
+          rainbow: {l2: 무지개, rom: mujigae}
+          lightning: {l2: 번개, rom: beongae}
+          rain: {l2: 비, rom: bi}
+          wind: {l2: 바람, rom: baram}
+          star: {l2: 별, rom: byeol}
+          moon: {l2: 달, rom: dal}
+          snow: {l2: 눈, rom: nun}

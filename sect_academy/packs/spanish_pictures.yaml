@@ -1,0 +1,276 @@
+id: spanish-pictures
+title: "Spanish — Picture lessons"
+kind: language
+language: Spanish
+lang: es-ES
+hall: tongues_south
+blurb: "Put the words on the picture: the body, the skeleton, the face, the house, the kitchen, clothes, the town, the classroom, food and the weather. Take it alongside A1."
+
+# Picture lessons (docs/ACADEMY_CONTENT.md, "Picture lessons"). The pictures and pin
+# positions are shared by every language in packs/pictures/; this file names the pins.
+# Each pin is its own card with the id <item id>-<pin id>: never rename either part.
+units:
+  - id: es-pic-01
+    title: "Picture: the body"
+    goal: "I can name the main parts of the body."
+    notes: |
+      Spanish names a body part with **the article, not a possessive**:
+      *me duele **la** cabeza* (my head hurts), *me lavo **las** manos* (I wash my hands).
+
+      - **la mano** is feminine although it ends in -o.
+      - **el dedo** is a finger; a toe is **el dedo del pie**, "the finger of the foot".
+      - **la espalda** is the back of the body; *atrás* is "behind".
+    items:
+      - id: es-pic-body
+        type: picture
+        picture: body
+        pins:
+          head: {l2: la cabeza}
+          neck: {l2: el cuello}
+          shoulder: {l2: el hombro}
+          arm: {l2: el brazo}
+          elbow: {l2: el codo}
+          hand: {l2: la mano, note: "Feminine, although it ends in -o."}
+          finger: {l2: el dedo}
+          chest: {l2: el pecho}
+          stomach: {l2: el estómago, alt: [la barriga, la tripa]}
+          back: {l2: la espalda}
+          leg: {l2: la pierna}
+          knee: {l2: la rodilla}
+          foot: {l2: el pie}
+          toe: {l2: el dedo del pie}
+
+  - id: es-pic-02
+    title: "Picture: the skeleton"
+    goal: "I can name the main bones of the body."
+    notes: |
+      **el hueso** is a bone; *los huesos*, the bones. Most bone names are
+      close to English, because both come from Latin: *la clavícula*, *la pelvis*,
+      *el fémur*, *la tibia*.
+
+      - **la columna vertebral** is the spine; in speech, just *la columna*.
+      - **las costillas** (the ribs) is usually plural.
+      - **la rótula** is the kneecap: the little "wheel" of the knee.
+    items:
+      - id: es-pic-skeleton
+        type: picture
+        picture: skeleton
+        pins:
+          skull: {l2: el cráneo, alt: [la calavera]}
+          collarbone: {l2: la clavícula}
+          breastbone: {l2: el esternón}
+          ribs: {l2: las costillas}
+          spine: {l2: la columna vertebral, alt: [la columna]}
+          pelvis: {l2: la pelvis}
+          thighbone: {l2: el fémur}
+          kneecap: {l2: la rótula}
+          shinbone: {l2: la tibia}
+
+  - id: es-pic-03
+    title: "Picture: the face"
+    goal: "I can name the parts of the face."
+    notes: |
+      Describing a face uses **tener**: *tengo los ojos azules* (I have blue eyes),
+      *tiene el pelo largo* (she has long hair).
+
+      - **la oreja** is the outer ear you can see; *el oído* is the inner ear and hearing.
+      - **la nariz** is feminine.
+      - **el pelo** is everyday; *el cabello* is a little more formal.
+    items:
+      - id: es-pic-face
+        type: picture
+        picture: face
+        pins:
+          hair: {l2: el pelo, alt: [el cabello]}
+          forehead: {l2: la frente}
+          eyebrow: {l2: la ceja}
+          eye: {l2: el ojo}
+          ear: {l2: la oreja}
+          nose: {l2: la nariz}
+          cheek: {l2: la mejilla}
+          mouth: {l2: la boca}
+          teeth: {l2: los dientes}
+          tongue: {l2: la lengua}
+          chin: {l2: la barbilla, alt: [el mentón]}
+
+  - id: es-pic-04
+    title: "Picture: the house"
+    goal: "I can name the rooms and parts of a house."
+    notes: |
+      To say where something is, use **estar**: *la cocina está abajo* (the kitchen
+      is downstairs), *el dormitorio está arriba* (the bedroom is upstairs).
+
+      - **el dormitorio**, *la habitación* and *el cuarto* all mean bedroom.
+      - **el salón** is the living room in Spain; *la sala* in much of Latin America.
+      - **la escalera** (singular) is a staircase; *las escaleras* is just as common.
+    items:
+      - id: es-pic-house
+        type: picture
+        picture: house
+        pins:
+          roof: {l2: el tejado, alt: [el techo]}
+          chimney: {l2: la chimenea}
+          bedroom: {l2: el dormitorio, alt: [la habitación, el cuarto, la recámara, la alcoba]}
+          bathroom: {l2: el baño, alt: [el cuarto de baño]}
+          window: {l2: la ventana}
+          stairs: {l2: la escalera, alt: [las escaleras]}
+          living_room: {l2: el salón, alt: [la sala, la sala de estar, el cuarto de estar]}
+          kitchen: {l2: la cocina}
+          door: {l2: la puerta}
+          garden: {l2: el jardín}
+
+  - id: es-pic-05
+    title: "Picture: the kitchen"
+    goal: "I can name the things in a kitchen and on the table."
+    notes: |
+      *Poner la mesa* is to lay the table: **el plato**, **el tenedor** on the left,
+      **el cuchillo** and **la cuchara** on the right.
+
+      - **la cocina** is both the kitchen and the stove (the cooker) in Spain;
+        in Latin America the stove is *la estufa*.
+      - **la nevera** and *el frigorífico* are both used in Spain.
+      - **el fregadero** is the kitchen sink; a bathroom basin is *el lavabo*.
+    items:
+      - id: es-pic-kitchen
+        type: picture
+        picture: kitchen
+        pins:
+          fridge: {l2: la nevera, alt: [el frigorífico, el refrigerador, el frigo]}
+          stove: {l2: la cocina, alt: [la estufa, los fogones], note: "In Spain the cooker is la cocina, like the room."}
+          sink: {l2: el fregadero}
+          chair: {l2: la silla}
+          table: {l2: la mesa}
+          fork: {l2: el tenedor}
+          plate: {l2: el plato}
+          knife: {l2: el cuchillo}
+          spoon: {l2: la cuchara}
+          cup: {l2: la taza}
+
+  - id: es-pic-06
+    title: "Picture: clothes"
+    goal: "I can name everyday clothes."
+    notes: |
+      To wear is **llevar**: *llevo una bufanda* (I'm wearing a scarf). To put on
+      is *ponerse*: *me pongo los guantes*.
+
+      - **los pantalones** is plural, like English; *el pantalón* is also correct.
+      - **los calcetines** are socks; *las medias* are tights or stockings.
+      - **el sombrero** has a brim; a woolly hat is *el gorro*.
+    items:
+      - id: es-pic-clothes
+        type: picture
+        picture: clothes
+        pins:
+          hat: {l2: el sombrero, alt: [el gorro]}
+          scarf: {l2: la bufanda}
+          shirt: {l2: la camisa}
+          jacket: {l2: la chaqueta, alt: [la cazadora, la chamarra, la campera]}
+          belt: {l2: el cinturón}
+          trousers: {l2: los pantalones, alt: [el pantalón]}
+          shoes: {l2: los zapatos}
+          gloves: {l2: los guantes}
+          skirt: {l2: la falda}
+          socks: {l2: los calcetines}
+
+  - id: es-pic-07
+    title: "Picture: the town"
+    goal: "I can name the places in a town."
+    notes: |
+      Ask for a place with **¿Dónde está…?** or **¿Hay … cerca?**:
+      *¿Dónde está la estación?* — *¿Hay un banco cerca?*
+
+      - **el paso de peatones** is a zebra crossing (*peatón* = pedestrian).
+      - **el semáforo** is the traffic light.
+      - **la parada de autobús** is the bus stop; *el autobús* is the bus.
+    items:
+      - id: es-pic-town
+        type: picture
+        picture: town
+        pins:
+          bank: {l2: el banco}
+          hospital: {l2: el hospital}
+          school: {l2: la escuela, alt: [el colegio]}
+          station: {l2: la estación}
+          shop: {l2: la tienda}
+          restaurant: {l2: el restaurante}
+          park: {l2: el parque}
+          traffic_light: {l2: el semáforo}
+          bus_stop: {l2: la parada de autobús, alt: [la parada del autobús, la parada]}
+          crosswalk: {l2: el paso de peatones, alt: [el paso de cebra]}
+
+  - id: es-pic-08
+    title: "Picture: the classroom"
+    goal: "I can name the people and things in a classroom."
+    notes: |
+      **el profesor / la profesora** teaches; **el alumno / la alumna** is a
+      pupil at school, *el estudiante / la estudiante* a student.
+
+      - **la pizarra** is the blackboard (or whiteboard).
+      - **el bolígrafo** is a ballpoint pen, *el boli* for short.
+      - **la mochila** is a backpack, the usual school bag.
+    items:
+      - id: es-pic-classroom
+        type: picture
+        picture: classroom
+        pins:
+          clock: {l2: el reloj}
+          blackboard: {l2: la pizarra}
+          teacher: {l2: el profesor, alt: [la profesora, el maestro, la maestra]}
+          window: {l2: la ventana}
+          student: {l2: el alumno, alt: [la alumna, el estudiante, la estudiante]}
+          book: {l2: el libro}
+          pen: {l2: el bolígrafo, alt: [el boli]}
+          pencil: {l2: el lápiz}
+          desk: {l2: el pupitre, alt: [el escritorio, la mesa]}
+          bag: {l2: la mochila, alt: [la cartera]}
+
+  - id: es-pic-09
+    title: "Picture: a table of food"
+    goal: "I can name common foods and drinks."
+    notes: |
+      **el pescado** is fish as food; a live fish in the water is *el pez*.
+
+      - **el agua** is feminine, but takes *el* because it starts with a stressed
+        *a*: *el agua fría*, *las aguas*.
+      - **las verduras** are vegetables; the plural is the usual form.
+      - **el té** has an accent; *te* without it means "you".
+    items:
+      - id: es-pic-meal
+        type: picture
+        picture: meal
+        pins:
+          bread: {l2: el pan}
+          rice: {l2: el arroz}
+          fish: {l2: el pescado}
+          meat: {l2: la carne}
+          egg: {l2: el huevo}
+          apple: {l2: la manzana}
+          vegetables: {l2: las verduras, alt: [las hortalizas, los vegetales]}
+          soup: {l2: la sopa}
+          water: {l2: el agua, note: "Feminine (el agua fría), but el before a stressed a."}
+          tea: {l2: el té}
+
+  - id: es-pic-10
+    title: "Picture: the sky and the weather"
+    goal: "I can name the sun, the moon and the weather."
+    notes: |
+      Weather uses **hacer** and **hay**: *hace sol* (it's sunny), *hace viento*
+      (it's windy), *hay nubes* (it's cloudy). Rain and snow have their own verbs:
+      *llueve* (it's raining), *nieva* (it's snowing).
+
+      - **el arcoíris** is also written *el arco iris*.
+      - **el rayo** is a bolt of lightning; *el relámpago* is the flash.
+    items:
+      - id: es-pic-sky
+        type: picture
+        picture: sky
+        pins:
+          sun: {l2: el sol}
+          cloud: {l2: la nube}
+          rainbow: {l2: el arcoíris, alt: [el arco iris]}
+          lightning: {l2: el rayo, alt: [el relámpago]}
+          rain: {l2: la lluvia}
+          wind: {l2: el viento}
+          star: {l2: la estrella}
+          moon: {l2: la luna}
+          snow: {l2: la nieve}

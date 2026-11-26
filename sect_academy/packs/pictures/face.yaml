@@ -1,0 +1,16 @@
+# A shared picture (conventions: see body.yaml).
+id: face
+title: "The face"
+brief: "Close front portrait: the head fills the frame from the hair to the chin, mouth open as if saying 'aah'."
+pins:
+  - {id: hair, x: 50, y: 8, en: hair}
+  - {id: forehead, x: 50, y: 22, en: forehead}
+  - {id: eyebrow, x: 39, y: 30, en: eyebrow}
+  - {id: eye, x: 61, y: 36, en: eye}
+  - {id: ear, x: 26.5, y: 43, en: ear}
+  - {id: nose, x: 50, y: 48, en: nose}
+  - {id: cheek, x: 65, y: 53, en: cheek}
+  - {id: mouth, x: 58.5, y: 66, en: mouth}
+  - {id: teeth, x: 45.5, y: 62.5, en: teeth}
+  - {id: tongue, x: 50, y: 70.5, en: tongue}
+  - {id: chin, x: 50, y: 84, en: chin}
