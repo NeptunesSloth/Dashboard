@@ -228,6 +228,22 @@ function todayPanel() {
     <div class="row">${btn}</div>${chips}${extras ? `<div class="chips">${extras}</div>` : ''}</section>`;
 }
 
+// One line above the sect tabs, so study stays in reach without pushing the tabs down; the full panel sits below them.
+function studyStrip() {
+  const t = OV.today, g = OV.sect;
+  const mine = OV.courses.filter((c) => c.enrolled);
+  const work = t.due + t.new_left;
+  let text, btn, tone = '';
+  if (!mine.length) { text = 'Choose an art to study.'; btn = '<a class="btn primary" href="/library" data-link>Library</a>'; }
+  else if (g.seclusion) { text = 'The gates are sealed: the sect stands still.'; btn = '<button class="btn primary" data-act="unseclude">Reopen the gates</button>'; tone = 'rest'; }
+  else if (work > 0) {
+    text = `${g.studied_today ? 'More if you wish' : 'Study today'}: <b class="num">${num(t.due)}</b> to review, <b class="num">${num(t.new_left)}</b> new${g.streak_at_risk ? ` <span class="small">(keeps your ${num(g.streak)}-day streak)</span>` : ''}`;
+    btn = `<a class="btn primary" href="/study" data-link>${g.studied_today ? 'Keep studying' : 'Begin'}</a>`;
+  } else { text = 'Today\'s study is complete.'; btn = '<a class="btn" href="/study?practice=1" data-link>Practice</a>'; tone = 'rest'; }
+  return `<section class="panel studystrip ${tone}" aria-label="Today's study"><span class="grow">${text}</span>${btn}
+    <button type="button" class="linkish small" data-jump-study>Details ↓</button></section>`;
+}
+
 function masterPanel() {
   const g = OV.sect; const m = g.pawns.find((p) => p.master);
   if (!m) return '<section class="panel"></section>';
@@ -243,10 +259,11 @@ function masterPanel() {
 function renderSect() {
   sectView = mountSect({
     view, $, esc, api, toast, openSheet, closeSheet,
-    sect: () => OV.sect, setSect: (s) => { OV.sect = s; }, todayPanel, masterPanel,
+    sect: () => OV.sect, setSect: (s) => { OV.sect = s; }, todayPanel, masterPanel, studyStrip,
     bindToday: (root) => {
-      const un = root.querySelector('[data-act="unseclude"]');
-      if (un) un.onclick = async () => { await api('/api/sect/seclusion', { on: false }); go('/', false); };
+      root.querySelectorAll('[data-act="unseclude"]').forEach((un) => { un.onclick = async () => { await api('/api/sect/seclusion', { on: false }); go('/', false); }; });
+      const jump = root.querySelector('[data-jump-study]');
+      if (jump) jump.onclick = () => { const z = root.querySelector('#z-study'); if (z) z.scrollIntoView({ behavior: 'smooth' }); };
     },
   });
 }

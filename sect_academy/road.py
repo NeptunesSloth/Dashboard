@@ -126,7 +126,7 @@ def _trust(c: dict, p: dict, delta: float) -> None:
         elif n == 2:
             gift = f"{p['name']} will gather qi 8% faster for life."
         else:
-            p["title"] = p.get("title") or f"Heir of {m['name'].split(' ')[0]}"
+            p["title"] = p.get("title") or f"Heir of {m['name']}"
             gift = f"{p['name']} gains +5 to every breakthrough."
         C._think(p, "station", f"{m['name']} {STATIONS[n - 1][1]}", 10, 120, c["hour"])
         C._letter(c, "good", f"{m['name']} {STATIONS[n - 1][1]}", f"A long evening, the two of them and one lamp. {gift}")

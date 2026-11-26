@@ -774,3 +774,53 @@ def test_a_hostile_scene_queue_is_cleaned_on_load(st):
     assert one["party"][0]["root"] == "Common" and one["lines"] == [] and one["ok"] is True
     assert all(isinstance(ch["v"], int) and abs(ch["v"]) <= 1e7 for ch in one["changes"]) and one["changes"][0]["label"] == "7"
     assert colony.sanitize(dict(good, scenes="nope"), T0)["scenes"] == []
+
+
+def test_resource_chips_show_what_work_made_and_what_upkeep_spends(st):
+    c = st["colony"]
+    rice = next(r for r in colony.view(st, T0)["res"] if r["id"] == "rice")
+    assert not rice["full"] and rice["made"] == []                  # nothing measured yet: no net badge
+    _run(st, 2)
+    rice = next(r for r in colony.view(st, T0)["res"] if r["id"] == "rice")
+    assert rice["full"] and rice["hours"] == 24
+    assert any(m["label"].startswith("Farm: ") for m in rice["made"])
+    assert rice["spent"] and rice["spent_n"] == pytest.approx(sum(u["n"] for u in rice["spent"]), abs=0.3)
+    assert rice["net"] == pytest.approx(rice["made_n"] - rice["spent_n"], abs=0.2)
+    assert all(int(h) > c["hour"] - colony.MADE_HOURS for h in c["made"])   # only the last day is kept
+    c["made"] = {"x": 1, str(c["hour"]): {"rice|farm|p1": "lots", "bad": 2}}  # a damaged record is repaired, not trusted
+    colony._repair(c)
+    assert c["made"] == {str(c["hour"]): {"rice|farm|p1": 0.0}}
+
+
+def test_build_tab_says_why_nobody_is_building(st):
+    c = st["colony"]
+    c["res"].update(wood=500.0, stone=500.0)
+    for p in c["pawns"]:
+        p["prio"] = {j: 0 for j in colony.JOBS}
+    assert colony.queue_build(st, "fields", T0)["ok"]
+    assert "no disciple has Build" in colony.view(st, T0)["build_stall"]
+    for p in c["pawns"]:
+        p["prio"].update(build=3, wood=1)
+    _run(st, 1)
+    why = colony.view(st, T0)["build_stall"]
+    assert "Cut wood at priority 1, ahead of Build at 3" in why and "raise Build to 1" in why
+    for p in c["pawns"]:
+        p["prio"].update(build=1)
+    _run(st, 1)
+    assert colony.view(st, T0)["build_stall"] == ""
+
+
+def test_direct_disciple_rank_and_ledger(st):
+    c = st["colony"]
+    p = c["pawns"][1]
+    p["direct"] = True
+    p["prio"].update(train=0, research=0)
+    pv = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == p["id"])
+    assert pv["rank"] == "Direct Disciple" and pv["realm_rank"] == "Outer Disciple"
+    assert pv["qi_work"] == 0                          # only meditates: no work-trickle line
+    c["rooms"]["training"] = 1
+    p["prio"]["train"] = 1
+    pv = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == p["id"])
+    assert pv["qi_work"] > 0 and "training" in pv["qi_work_label"]
+    other = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == c["pawns"][2]["id"])
+    assert other["qi_work"] > 0 and other["rank"] == "Outer Disciple"

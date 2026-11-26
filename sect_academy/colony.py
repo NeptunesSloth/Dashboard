@@ -193,6 +193,7 @@ def new_colony(now: float) -> dict:
         "flags": {}, "tournament_year": 0, "recruit_year": 0, "scenes": [], "next_scene": 0,
         "craft": 0.0, "insight": 0.0, "pending": None, "last_threat_day": 0, "last_event_day": 0,
         "log": [], "last_real": now, "hint": 0,
+        "made": {},                  # {hour: {"res|job|pawn" or "h|job|pawn": amount}}: what work did, the last day
         # study habit (kept here so one object holds the whole game)
         "streak": 0, "best_streak": 0, "last_study_day": "", "grace": 2, "seclusion": False, "secluded_on": "",
         "week": {"id": "", "days": []},
@@ -817,7 +818,9 @@ def _tick_pawn(c: dict, p: dict, taken: dict, quiet: bool) -> None:
         p["rest"] = max(0.0, p["rest"] - 3.2)
         if job:
             taken[job] = taken.get(job, 0) + 1
+            before = dict(c["res"])
             _do_job(c, p, job, quiet)
+            _note_work(c, p, job, before)
             doing = JOBS[job][0].lower()
         else:
             doing = "idle"
@@ -2788,9 +2791,130 @@ def _whole(v) -> int:
     return int(math.floor(v)) if math.isfinite(v) else 0
 
 
+# ---------------------------------------------------------------------------
+# what work actually made over the last day of sect time (the net rates on the
+# resource chips, and why nobody is building). Recorded, not estimated.
+# ---------------------------------------------------------------------------
+MADE_HOURS = 24
+
+
+def _note_work(c: dict, p: dict, job: str, before: dict) -> None:
+    """Record one disciple's hour of work: the hour itself, and what it added to or took from the stores."""
+    made = c["made"]
+    c.setdefault("made_from", c["hour"])
+    key = str(c["hour"])
+    if key not in made:
+        for k in [k for k in made if int(k) <= c["hour"] - MADE_HOURS]:
+            del made[k]
+        made[key] = {}
+    b = made[key]
+    k = f"h|{job}|{p['id']}"
+    b[k] = b.get(k, 0.0) + 1.0
+    for res in RES:
+        d = c["res"][res] - before.get(res, 0.0)
+        if abs(d) > 1e-9:
+            k = f"{res}|{job}|{p['id']}"
+            b[k] = b.get(k, 0.0) + d
+
+
+def _repair_made(c: dict, num) -> None:
+    made = c.get("made") if isinstance(c.get("made"), dict) else {}
+    c["made"] = {str(int(h)): {str(k): num(v, -1e6, 1e6) for k, v in b.items() if str(k).count("|") == 2}
+                 for h, b in made.items() if str(h).lstrip("-").isdigit() and isinstance(b, dict)
+                 and c["hour"] - MADE_HOURS < int(h) <= c["hour"]}
+    if "made_from" in c:
+        c["made_from"] = int(num(c["made_from"], 0, c["hour"], c["hour"]))
+
+
+def _made(c: dict, hours: int = MADE_HOURS) -> tuple[dict, int]:
+    """Totals over the last `hours` sect hours: ({(kind, job, pawn): amount}, hours actually measured)."""
+    out: dict = {}
+    for h, b in c["made"].items():
+        if c["hour"] - hours < int(h) <= c["hour"]:
+            for k, v in b.items():
+                kind, job, pid = k.split("|")
+                out[(kind, job, pid)] = out.get((kind, job, pid), 0.0) + v
+    span = max(0, min(hours, c["hour"] - int(c.get("made_from", c["hour"] + 1)) + 1))
+    return out, span
+
+
+def _names(c: dict, ids) -> str:
+    known = [str((_p(c, i) or {}).get("name") or "") for i in ids]
+    names = [n for n in known if n]
+    gone = len(known) - len(names)
+    return ", ".join(names + ([f"{gone} who left"] if gone else []))
+
+
+def res_rates(c: dict) -> dict:
+    """Per resource: what work made (or used) in the last day, by job and by whom, what upkeep spends a day, and the net."""
+    totals, span = _made(c)
+    spend = {res: [] for res in RES}
+    for res, label, n in upkeep(c):
+        spend[res].append((label, n))
+    out = {}
+    for res in RES:
+        jobs: dict = {}
+        for (kind, job, pid), v in totals.items():
+            if kind == res and job in JOBS:
+                who = jobs.setdefault(job, {})
+                who[pid] = who.get(pid, 0.0) + v
+        made = sorted(((f"{JOBS[j][0]}: {_names(c, sorted(w, key=lambda i: -abs(w[i])))}", sum(w.values())) for j, w in jobs.items()),
+                      key=lambda x: -x[1])
+        made_n = sum(v for _, v in made)
+        spent_n = sum(n for _, n in spend[res])
+        out[res] = {"made": made, "spent": spend[res], "made_n": made_n, "spent_n": spent_n, "net": made_n - spent_n,
+                    "hours": span, "full": span >= MADE_HOURS}
+    return out
+
+
+def build_stall(c: dict) -> str:
+    """Why a queued build has nobody on it, from the priorities and what the builders did instead ('' if it is moving)."""
+    if not c["builds"] or not c["name"]:
+        return ""
+    if any(p["doing"] == JOBS["build"][0].lower() for p in c["pawns"]):
+        return ""
+    builders = [p for p in c["pawns"] if p["prio"].get("build", 0) and not p.get("direct")]
+    if not builders:
+        direct = " Direct disciples never build." if any(p.get("direct") for p in c["pawns"]) else ""
+        return f"Nobody is building: no disciple has Build in their work priorities. Set Build for someone in Work.{direct}"
+    home = [p for p in builders if p["away_until"] <= c["hour"]]
+    if not home:
+        return "Nobody is building: everyone with Build in their priorities is away from the sect."
+    totals, span = _made(c, 12)
+    if span < 12 or any(v for (kind, job, _), v in totals.items() if kind == "h" and job == "build"):
+        return ""            # too soon to tell, or someone built recently (the night is not a stall)
+    reasons, fix = [], []
+    for p in sorted(home, key=lambda p: p["prio"]["build"])[:3]:
+        did = {job: v for (kind, job, pid), v in totals.items() if kind == "h" and pid == p["id"]}
+        name, bl = p["name"], p["prio"]["build"]
+        if not did:
+            reasons.append(f"{name} has not been fit to work (sleeping, sick or out of sorts)")
+            continue
+        job = max(did, key=did.get)
+        jl, jn = p["prio"].get(job, 0), JOBS[job][0]
+        if jl and jl < bl:
+            reasons.append(f"{name} has {jn} at priority {jl}, ahead of Build at {bl}")
+            fix.append(f"raise Build to {jl - 1} for {name}" if jl > 1 else f"raise Build to 1 and lower {jn} for {name}")
+        elif jl == bl:
+            reasons.append(f"{name} has {jn} and Build both at priority {bl}; on a tie a disciple does what the sect is shortest of, so {jn} wins")
+            fix.append(f"raise Build to {bl - 1} for {name}" if bl > 1 else f"lower {jn} to 2 for {name}")
+        else:
+            reasons.append(f"{name} spent the day on {jn}")
+    text = "Nobody is building. " + "; ".join(reasons) + "."
+    if fix:
+        text += " To get it moving, " + fix[0] + "."
+    return text
+
+
 def _pawn_view(c: dict, p: dict) -> dict:
     hour = c["hour"]
     need = step_need(int(p["step"]))
+    # A direct disciple only meditates, trains and researches, with meditation always first: work gathers its
+    # trickle of qi only when Train or Research is set level with it (priority 1) and can be done.
+    direct = bool(p.get("direct"))
+    trickle = not direct or any(p["prio"].get(j) == 1 and _job_open(c, j, {}) for j in ("train", "research"))
+    rank = ("Sect Master" if p.get("master") else "Direct Disciple" if direct and rank_of(p) < 2
+            else lore.RANKS[rank_of(p)])
     return {
         "id": str(p["id"]), "name": str(p["name"]), "age": _f(p["age"]), "master": bool(p.get("master")),
         "root": str(p["root"]), "traits": [{"name": str(t), "text": TRAITS.get(t, "")} for t in p["traits"]],
@@ -2802,7 +2926,7 @@ def _pawn_view(c: dict, p: dict) -> dict:
         "prio": {j: _f(p["prio"].get(j, 0)) for j in JOBS}, "doing": str(p["doing"]),
         "broken": p["break_until"] > hour, "inspired": p["inspired_until"] > hour, "sick": p["sick_until"] > hour,
         "power": _f(combat_power(c, p)),
-        "rank": "Sect Master" if p.get("master") else lore.RANKS[rank_of(p)], "title": str(p.get("title") or ""),
+        "rank": rank, "realm_rank": lore.RANKS[rank_of(p)], "title": str(p.get("title") or ""),
         "away": p["away_until"] > hour, "ready": ready(p),
         "tribulation": int(p["step"]) // 4 + 1 >= 3, "next_realm": REALMS[min(len(REALMS) - 1, int(p["step"]) // 4 + 1)],
         "chance": _f(bt_chance(c, p)) if ready(p) else 0,
@@ -2812,7 +2936,9 @@ def _pawn_view(c: dict, p: dict) -> dict:
         **dao.pawn_view(c, p),
         "origin": str(p.get("origin") or ""), "element": str(p["element"]), "direct": bool(p.get("direct")),
         "qi_why": [{"label": str(a), "x": _f(b, 2)} for a, b in qi_rate(c, p)], "qi_x": _f(math.prod(b for _, b in qi_rate(c, p)), 2),
-        "qi_work": _f(WORK_QI, 2),
+        "qi_work": _f(WORK_QI, 2) if trickle else 0,
+        "qi_work_label": ("An hour of training or research instead of meditation gathers a share of this" if direct
+                          else "An hour of work instead of meditation gathers a share of this"),
         "artifact": ({"id": str(artifact_of(c, p)["id"]), "name": str(artifact_of(c, p)["name"]), "text": artifact_text(artifact_of(c, p))}
                      if artifact_of(c, p) else None),
         "bonds": sorted(({"name": str(o["name"]), "v": _f(bond(c, p, o)), "kind": pair_kind(c, p, o)}
@@ -2879,6 +3005,7 @@ def view(st: dict, now: float) -> dict:
     pending = c["pending"]
     cur = c["research"]["current"]
     m = _master(c)
+    rates = res_rates(c)
     return {
         "name": str(c["name"]), "founded": bool(c["name"]), "master": str(m["name"]) if m else "",
         "hour": _f(c["hour"]), "day": day + 1, "when": calendar_label(day), "hod": _f(c["hour"] % 24), "season": SEASONS[_season(c)],
@@ -2886,7 +3013,11 @@ def view(st: dict, now: float) -> dict:
         "storyteller": str(c["storyteller"]),
         "storytellers": [{"id": k, "name": v["name"], "blurb": v["blurb"]} for k, v in STORYTELLERS.items()],
         "res": [{"id": k, "name": RES_NAMES[k], "n": _whole(c["res"][k]),
-                 "cap": _f(_cap(c)) if k in ("rice", "wood", "stone", "herbs") else None} for k in RES],
+                 "cap": _f(_cap(c)) if k in ("rice", "wood", "stone", "herbs") else None,
+                 "made": [{"label": str(a), "n": _f(b, 1)} for a, b in rates[k]["made"]],
+                 "spent": [{"label": str(a), "n": _f(b, 1)} for a, b in rates[k]["spent"]],
+                 "made_n": _f(rates[k]["made_n"], 1), "spent_n": _f(rates[k]["spent_n"], 1), "net": _f(rates[k]["net"], 1),
+                 "hours": _f(rates[k]["hours"]), "full": bool(rates[k]["full"])} for k in RES],
         "insight": _f(c["insight"]), "wealth": _f(wealth(c)), "defense": _f(defense(c)),
         **dao.view(c),
         "fame": _f(c["fame"]), "alerts": _alerts(c), "scenes": [_scene_view(x) for x in c["scenes"][-SCENE_CAP:]], "renown": renown(float(c["fame"])),
@@ -2920,6 +3051,7 @@ def view(st: dict, now: float) -> dict:
         "upkeep": [{"res": res, "label": str(label), "n": _f(n, 1)} for res, label, n in upkeep(c)],
         "rooms": rooms,
         "builds": [{"room": b["room"], "name": ROOMS[b["room"]]["name"], "pct": _f(100.0 * b["done"] / b["need"])} for b in c["builds"]],
+        "build_stall": build_stall(c),
         "pawns": [_pawn_view(c, p) for p in c["pawns"]],
         "jobs": [{"id": j, "name": v[0], "skill": SKILL_NAMES[v[1]]} for j, v in JOBS.items()],
         "research": {"current": str(cur), "progress": _f(c["research"]["progress"]),
@@ -3052,6 +3184,7 @@ def _repair(c: dict) -> None:
                   if isinstance(q, dict) and q.get("res") in RES else None)
     c["festival"] = str(c.get("festival") or "")
     _repair_scenes(c, num)
+    _repair_made(c, num)
     dao.repair(c, num)
     ids = {p["id"] for p in c["pawns"]}
     c["artifacts"] = [{"id": str(a.get("id") or f"a{i}"), "name": str(a.get("name") or "Nameless artifact"), "kind": a["kind"], "q": int(num(a.get("q"), 0, 2)),

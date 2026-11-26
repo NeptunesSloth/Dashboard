@@ -622,3 +622,26 @@ a { color: var(--gold); }
 }
 @media (prefers-reduced-motion: no-preference) { .scenecard.lost { animation: dim-in .6s ease-out; } }
 @keyframes dim-in { from { filter: brightness(1.8) saturate(0); } to { filter: none; } }
+/* resource chips are buttons: tap for the breakdown; the badge is the net rate a day */
+button.res { font: inherit; color: var(--ink); cursor: pointer; text-align: left; }
+button.res:hover, button.res[aria-expanded="true"] { border-color: var(--gold-d); }
+button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.res .rate { font-size: .7rem; font-weight: 800; padding: 0 5px; border-radius: 8px; background: var(--line); color: var(--dim); }
+.res .rate.up { color: var(--jade); background: color-mix(in srgb, var(--jade) 16%, transparent); }
+.res .rate.down { color: var(--verm); background: color-mix(in srgb, var(--verm) 16%, transparent); }
+.chippop { margin: -4px 0 12px; padding: 10px 14px; border-radius: 14px; border: 2px solid var(--gold-d); background: var(--surface); max-width: 560px; }
+.chippop h4 { margin: 8px 0 2px; font-size: .82rem; color: var(--dim); text-transform: uppercase; letter-spacing: .04em; }
+.chippop .list li { padding: 3px 0; font-size: .9rem; } .chippop .net { margin: 6px 0 0; border-top: 1px solid var(--line); padding-top: 6px; }
+.chippop p.dim { margin: 6px 0 0; } .chippop .btn.quiet { min-height: 32px; padding: 2px 10px; }
+/* many alerts fold into one bar */
+.alertbar { margin-top: 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
+.alertbar.bad { border-color: var(--verm-d); } .alertbar.good { border-color: var(--gold-d); }
+.alerthead { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; width: 100%; padding: 7px 12px; border-radius: 12px; font-weight: 700; font-size: .92rem; }
+.alertbar.bad .alerthead { background: var(--verm-soft); } .alertbar.good .alerthead { background: var(--gold-soft); }
+.alerthead .alerttop { flex: 1 1 260px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.alerthead .alertn { color: var(--dim); font-size: .82rem; white-space: nowrap; text-decoration: underline; text-underline-offset: 3px; }
+.alertbar .alerts { margin: 0; padding: 6px; }
+/* the one-line study strip above the sect tabs */
+.studystrip { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding: 8px 14px; }
+.studystrip .grow { font-weight: 700; } .studystrip .btn { min-height: 36px; padding-block: 4px; }
+@media (max-width: 640px) { .studystrip { padding: 6px 10px; gap: 6px 10px; } .studystrip .grow { font-size: .88rem; } .res .rate { font-size: .62rem; padding: 0 3px; } }

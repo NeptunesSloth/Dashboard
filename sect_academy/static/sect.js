@@ -29,6 +29,8 @@ export function mountSect(h) {
   let seq = 0;
   let heldAt = 0;                                   // when a work cell was last long-pressed (touch)
   let shown = -1;                                   // the result scene on screen, if any
+  let openChip = '';                                // the resource chip whose breakdown is open
+  let alertsOpen = false;                           // the collapsed alert bar, expanded
   const gone = new Set();                           // scenes dismissed here, while the server catches up
   const sceneTop = () => Math.max(-1, ...(S.scenes || []).map((x) => x.id));
   let lastScene = sceneTop();
@@ -88,29 +90,82 @@ export function mountSect(h) {
   function stop() { if (timer) clearInterval(timer); timer = null; }
 
   /* ---------------- zones ---------------- */
+  // A resource chip is a button: it opens a small breakdown under the bar (tooltips do nothing on a phone).
+  function chip(id, inner, cls, label) {
+    return `<button type="button" class="res ${cls}" data-res="${esc(id)}" data-focus-key="res-${esc(id)}" aria-expanded="${openChip === id}" aria-controls="chippop" aria-label="${esc(label)}. Show the breakdown">${inner}</button>`;
+  }
+  const netText = (n) => `${n > 0 ? '+' : n < 0 ? '−' : '±'}${Math.abs(n)}`;
+  function rate(r) {
+    if (!r.full || !(r.made_n || r.spent_n)) return '';
+    return `<small class="rate ${r.net > 0 ? 'up' : r.net < 0 ? 'down' : ''}" aria-hidden="true">${netText(r.net)}/day</small>`;
+  }
+  function chipPop() {
+    if (!openChip) return '';
+    const r = S.res.find((x) => x.id === openChip);
+    const NOTES = {
+      insight: ['Insight', 'Insight comes from your own study: each correct answer adds a point. It is spent on research automatically.'],
+      defense: ['Defence', 'How strong the sect stands against raids and beasts.'],
+      fame: ['Fame', 'Won in fights, tournaments, festivals, a raised Main Hall and every step a disciple takes. Draws better recruits, and raiders.'],
+    };
+    let head; let body;
+    if (r) {
+      const line = (label, n) => `<li class="row"><span class="grow">${esc(label)}</span><b class="num" style="color:var(--${n < 0 ? 'verm' : 'jade'})">${netText(n)}</b></li>`;
+      const made = r.made.length ? r.made.map((m) => line(m.label, m.n)).join('') : '<li class="dim small">Nobody worked at it.</li>';
+      const spent = r.spent.length ? r.spent.map((u) => line(u.label, -u.n)).join('') : '<li class="dim small">Nothing.</li>';
+      head = `${esc(r.name)} <span class="dim small">${r.n}${r.cap ? ` in store, holds ${r.cap}` : ' in store'}</span>`;
+      body = `<h4>Made by work, ${r.full ? 'the last day' : `the last ${r.hours} hour${r.hours === 1 ? '' : 's'}`}</h4><ul class="list">${made}</ul>
+        <h4>Spent a day</h4><ul class="list">${spent}</ul>
+        ${r.full ? `<p class="row net"><span class="grow"><b>Net</b></span><b class="num" style="color:var(--${r.net < 0 ? 'verm' : 'jade'})">${netText(r.net)} a day</b></p>`
+    : `<p class="dim small">The net rate shows once a full day of work has been seen (${r.hours} of 24 hours so far).</p>`}
+        <p class="dim small">Made is what work actually added over the last day of sect time, nights included; spent is today's upkeep. Trades, gifts and loot are not counted.</p>`;
+    } else {
+      const n = NOTES[openChip] || ['', ''];
+      head = esc(n[0]); body = `<p class="small" style="margin:4px 0 0">${esc(n[1])}</p>`;
+    }
+    return `<div class="chippop" id="chippop" role="region" aria-label="Breakdown"><div class="row"><b class="grow">${head}</b>
+      <button type="button" class="btn quiet" data-chip-close data-focus-key="chip-close" aria-label="Close the breakdown">✕</button></div>${body}</div>`;
+  }
+  // Alerts fold into one bar when there is more than one, so the sect map stays on screen.
+  function alertsHtml() {
+    const A = S.alerts; if (!A.length) return '';
+    const item = (a) => `<li class="${esc(a.kind)}">${a.pawn ? `<button class="linkish" data-pawn="${esc(a.pawn)}">${esc(a.text)}</button>` : esc(a.text)}</li>`;
+    if (A.length === 1) return `<ul class="alerts">${item(A[0])}</ul>`;
+    const top = A.find((a) => a.kind === 'bad') || A[0];
+    return `<div class="alertbar ${esc(top.kind)}"><button type="button" class="alerthead" data-alerts data-focus-key="alerts" aria-expanded="${alertsOpen}" aria-controls="alertlist">
+        <span class="alerttop">${esc(top.text)}</span><span class="alertn">${A.length} things need attention ${alertsOpen ? '▴' : '▾'}</span></button>
+      ${alertsOpen ? `<ul class="alerts" id="alertlist">${A.map(item).join('')}</ul>` : ''}</div>`;
+  }
+
   function paintTop() {
     const z = $('#z-top'); if (!z) return;
+    const key = z.contains(document.activeElement) ? document.activeElement.getAttribute('data-focus-key') : null;   // repainting must not drop keyboard focus
     z.innerHTML = `<header class="status">
         <h1 style="border-left:6px solid ${S.colours.includes(S.style.colour) ? `var(--sect-colour)` : 'var(--gold)'};padding-left:10px">${esc(S.name)}${S.style.motto ? `<em class="motto">“${esc(S.style.motto)}”</em>` : ''}<small>${esc(S.renown)}${S.demonic ? ' · demonic path' : ''} · <span title="Day ${S.day} since the founding">${esc(S.when)}</span> · ${clock()}${S.seclusion ? ' · gates sealed' : ''}</small></h1>
         <span class="pill flame ${S.streak ? '' : 'off'}" title="Study streak. Best: ${S.best_streak}">${ICON.flame}${S.streak}</span>
         <span class="speed" role="group" aria-label="Game speed">
-          <button class="${speed === 0 ? 'on' : ''}" data-speed="0" aria-label="Pause">${ICON.pause}</button>
-          ${[1, 2, 3].map((n) => `<button class="${speed === n ? 'on' : ''}" data-speed="${n}" aria-label="Speed ${n}">${'▸'.repeat(n)}</button>`).join('')}
+          <button class="${speed === 0 ? 'on' : ''}" data-speed="0" data-focus-key="speed-0" aria-label="Pause">${ICON.pause}</button>
+          ${[1, 2, 3].map((n) => `<button class="${speed === n ? 'on' : ''}" data-speed="${n}" data-focus-key="speed-${n}" aria-label="Speed ${n}">${'▸'.repeat(n)}</button>`).join('')}
         </span>
       </header>
-      <div class="resbar">${S.res.map((r) => `<span class="res ${r.id === 'rice' && S.food_days < 3 ? 'low' : ''}" title="${esc(r.name)}${r.cap ? ` (store holds ${r.cap})` : ''}${(S.upkeep || []).filter((u) => u.res === r.id).map((u) => `\n−${u.n} a day: ${esc(u.label)}`).join('')}">
-          <span aria-hidden="true">${RES_ICON[r.id] || ''}</span><b class="num">${r.n}</b><small class="lbl">${esc(r.name)}</small><small class="lbl-s">${esc(RES_SHORT[r.id] || r.name)}</small></span>`).join('')}
-        <span class="res" title="Insight from your own study. It is spent on research automatically."><span aria-hidden="true">📜</span><b class="num">${S.insight}</b><small class="lbl">Insight</small><small class="lbl-s">Insight</small></span>
-        <span class="res" title="How strong the sect's defence is"><span aria-hidden="true">🛡</span><b class="num">${S.defense}</b><small class="lbl">Defence</small><small class="lbl-s">Defence</small></span>
-        <span class="res" title="Fame: won in fights, tournaments, festivals, a raised Main Hall and every step a disciple takes. Draws better recruits, and raiders."><span aria-hidden="true">🏮</span><b class="num">${S.fame}</b><small class="lbl">Fame</small><small class="lbl-s">Fame</small></span>
-      </div>
+      <div class="resbar">${S.res.map((r) => chip(r.id, `<span aria-hidden="true">${RES_ICON[r.id] || ''}</span><b class="num">${r.n}</b><small class="lbl">${esc(r.name)}</small><small class="lbl-s">${esc(RES_SHORT[r.id] || r.name)}</small>${rate(r)}`,
+          r.id === 'rice' && S.food_days < 3 ? 'low' : '', `${r.name}: ${r.n}${r.full && (r.made_n || r.spent_n) ? `, ${r.net >= 0 ? 'gaining' : 'losing'} ${Math.abs(r.net)} a day` : ''}`)).join('')}
+        ${chip('insight', `<span aria-hidden="true">📜</span><b class="num">${S.insight}</b><small class="lbl">Insight</small><small class="lbl-s">Insight</small>`, '', `Insight: ${S.insight}`)}
+        ${chip('defense', `<span aria-hidden="true">🛡</span><b class="num">${S.defense}</b><small class="lbl">Defence</small><small class="lbl-s">Defence</small>`, '', `Defence: ${S.defense}`)}
+        ${chip('fame', `<span aria-hidden="true">🏮</span><b class="num">${S.fame}</b><small class="lbl">Fame</small><small class="lbl-s">Fame</small>`, '', `Fame: ${S.fame}`)}
+      </div>${chipPop()}
       ${S.guide ? `<div class="guide tutor">${portrait('guide', { kind: 'elder', size: 52 })}<div class="speech"><small class="dim">The elder's counsel · ${S.guide.n} of ${S.guide.total}</small><br>${esc(S.guide.text)}
           <button class="linkish dim small" data-skipguide style="margin-left:8px">I know colony sims, skip</button></div></div>` : ''}
       ${S.siege ? `<p class="warn">⚔ Under siege by the ${esc(S.siege.sect)}: battle ${S.siege.stage} of three is coming. Train, brew, and mend the wounded.</p>` : ''}
       ${S.quest ? `<p class="questline ${S.quest.ready ? 'ready' : ''}">📜 <b>${esc(S.quest.title)}</b>: ${S.quest.have}/${S.quest.n} ${esc(S.quest.res)}, ${S.quest.days_left} day${S.quest.days_left === 1 ? '' : 's'} left.
           ${S.quest.ready ? '<button class="btn primary" data-deliver>Deliver</button>' : ''}</p>` : ''}
-      ${S.alerts.length ? `<ul class="alerts">${S.alerts.map((a) => `<li class="${esc(a.kind)}">${a.pawn ? `<button class="linkish" data-pawn="${esc(a.pawn)}">${esc(a.text)}</button>` : esc(a.text)}</li>`).join('')}</ul>` : ''}`;
+      ${alertsHtml()}`;
+    if (key) { const back = z.querySelector(`[data-focus-key="${key}"]`); if (back) back.focus({ preventScroll: true }); }
     z.querySelectorAll('[data-speed]').forEach((b) => { b.onclick = () => setSpeed(Number(b.dataset.speed)); });
+    const closeChip = () => { const was = openChip; openChip = ''; paintTop(); const c = $(`[data-res="${was}"]`, z); if (c) c.focus({ preventScroll: true }); };
+    z.querySelectorAll('[data-res]').forEach((b) => { b.onclick = () => { if (openChip === b.dataset.res) closeChip(); else { openChip = b.dataset.res; paintTop(); } }; });
+    const pc = $('[data-chip-close]', z); if (pc) pc.onclick = closeChip;
+    z.onkeydown = (e) => { if (e.key === 'Escape' && openChip) { e.stopPropagation(); closeChip(); } };
+    const ab = $('[data-alerts]', z); if (ab) ab.onclick = () => { alertsOpen = !alertsOpen; paintTop(); };
     z.querySelectorAll('[data-pawn]').forEach((b) => { b.onclick = () => pawnSheet(b.dataset.pawn); });
     const sk = $('[data-skipguide]', z); if (sk) sk.onclick = () => order('guide-skip', {}, true);
     const dv = $('[data-deliver]', z); if (dv) dv.onclick = () => order('deliver');
@@ -220,9 +275,9 @@ export function mountSect(h) {
     return `<div class="pawns">${S.pawns.map((p) => `<button class="pawn ${p.away ? 'away' : ''}" data-pawn="${esc(p.id)}">
       ${face(p, 56)}
       <span class="grow"><b>${esc(p.name)}</b>${p.title ? ` <i class="dim">${esc(p.title)}</i>` : ''}${p.master ? ' <span class="tag gold">You</span>' : ''}
-        <span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="tag">${esc(p.rank)}</span>${p.direct ? ' <span class="tag gold">Direct disciple</span>' : ''}
-        ${p.bonds.filter((x) => x.kind).slice(0, 2).map((x) => `<span class="tag ${x.kind === 'rival' ? 'red' : 'jade'}">${x.kind === 'rival' ? '⚔' : '♥'} ${esc(x.name.split(' ')[0])}</span>`).join(' ')}
-        ${p.companion ? `<span class="tag violet">☯ ${esc(p.companion.split(' ')[0])}</span>` : ''}${p.demon ? ` <span class="tag red">Heart demon${p.demon > 1 ? ` ×${p.demon}` : ''}</span>` : ''}
+        <span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="tag ${p.direct ? 'gold' : ''}">${esc(p.rank)}</span>${p.direct && !p.rank.startsWith('Direct') ? ' <span class="tag gold">Direct disciple</span>' : ''}
+        ${p.bonds.filter((x) => x.kind).slice(0, 2).map((x) => `<span class="tag ${x.kind === 'rival' ? 'red' : 'jade'}">${x.kind === 'rival' ? '⚔' : '♥'} ${esc(x.name)}</span>`).join(' ')}
+        ${p.companion ? `<span class="tag violet">☯ ${esc(p.companion)}</span>` : ''}${p.demon ? ` <span class="tag red">Heart demon${p.demon > 1 ? ` ×${p.demon}` : ''}</span>` : ''}
         <span class="doing">${p.ready ? `<span class="tag gold">⚡ Ready for ${esc(p.next_realm)}</span> ` : ''}${p.broken ? '<span class="tag red">Qi deviation</span> ' : ''}${p.inspired ? '<span class="tag jade">Inspired</span> ' : ''}${p.sick ? '<span class="tag red">Sick</span> ' : ''}${esc(p.doing)}</span>
         <span class="needs"><span title="Mood ${p.mood}">Mood ${bar(p.mood, moodCls(p.mood))}</span><span title="Food ${p.food}">Food ${bar(p.food, p.food < 25 ? 'verm' : 'azure')}</span>
           <span title="Rest ${p.rest}">Rest ${bar(p.rest, p.rest < 25 ? 'verm' : 'azure')}</span><span title="Health ${p.health}">Health ${bar(p.health, p.health < 50 ? 'verm' : 'jade')}</span></span>
@@ -234,7 +289,7 @@ export function mountSect(h) {
     return `<p class="dim small"><b>1</b> is done first, <b>4</b> last, blank never. Click or tap a cell to raise it (blank → 4 → … → 1); right-click or press and hold to lower it. When two jobs tie, a disciple does what the sect is shortest of.</p>
       <p class="dim small phone-only">Swipe the grid sideways for more jobs; the names stay put.</p>
       <div class="scroll-x workgrid"><table class="worktable"><tr><th class="who"></th>${S.jobs.map((j) => `<th title="Uses ${esc(j.skill)}"><span>${esc(j.name)}</span></th>`).join('')}</tr>
-      ${S.pawns.map((p) => `<tr><th class="who" scope="row">${esc(p.name.split(' ')[0])}</th>${S.jobs.map((j) => {
+      ${S.pawns.map((p) => `<tr><th class="who" scope="row">${esc(p.name)}</th>${S.jobs.map((j) => {
         const lv = p.prio[j.id]; const sk = p.skills.find((s) => s.name === j.skill);
         return `<td><button class="prio p${lv}" data-prio="${esc(p.id)}|${esc(j.id)}|${lv}" title="${esc(j.name)}: priority ${lv || 'off'}, skill ${sk ? sk.lv : 0}. Click to raise, right-click or hold to lower."
           aria-label="${esc(p.name)}: ${esc(j.name)}, priority ${lv || 'off'}; skill ${sk ? sk.lv : 0}. Activate to raise; context menu to lower.">
@@ -248,7 +303,8 @@ export function mountSect(h) {
   function build() {
     const queue = S.builds.length ? `<ul class="list">${S.builds.map((b, i) => `<li class="row"><span class="grow"><b>${esc(b.name)}</b>${bar(b.pct, 'azure')}</span>
         <span class="dim small num">${b.pct}%</span><button class="btn quiet" data-cancel="${i}">Cancel</button></li>`).join('')}</ul>` : '<p class="dim">Nothing is being built. Disciples with Build as a priority work on the first job in the queue.</p>';
-    return `${queue}<div class="buildgrid">${S.rooms.map((r) => `<div class="buildcard ${r.open ? '' : 'new'}">
+    const stall = S.build_stall ? `<p class="warn" role="status">${esc(S.build_stall)} <button class="linkish" data-tab="work">Open Work</button></p>` : '';
+    return `${queue}${stall}<div class="buildgrid">${S.rooms.map((r) => `<div class="buildcard ${r.open ? '' : 'new'}">
         <b>${esc(r.name)}</b> <span class="tag ${r.open ? 'blue' : ''}">${r.open ? `Level ${r.level}` : 'Not built'}${r.queued ? ` +${r.queued}` : ''}</span>
         <p class="small dim">${esc(r.effect)}</p>
         ${r.cost ? (r.locked ? `<p class="small" style="font-weight:800;margin:0">${esc(r.locked)}</p>`
@@ -378,7 +434,7 @@ export function mountSect(h) {
         ${p.gate ? `<p class="${p.gate.ok ? 'small dim' : 'warn'}">${p.gate.ok ? '✓' : '✗'} ${esc(p.gate.text)}</p>` : ''}
         <button class="btn primary big" data-attempt ${p.gate && !p.gate.ok ? 'disabled' : ''}>${p.tribulation ? 'Face the tribulation' : 'Attempt the breakthrough'}</button></section>` : '';
     openSheet(`<div class="row" style="align-items:flex-start">${face(p, 84)}<div class="grow"><h2>${esc(p.name)}${p.title ? ` <i class="dim" style="font-size:.8em">${esc(p.title)}</i>` : ''}</h2>
-        <p class="dim" style="margin:0">${p.age} · ${ELEMENT_ICON[p.element] || ''} ${esc(p.root)} ${esc(p.element)} root · ${esc(p.rank)}${p.master ? ' (you)' : ''}</p>
+        <p class="dim" style="margin:0">${p.age} · ${ELEMENT_ICON[p.element] || ''} ${esc(p.root)} ${esc(p.element)} root · ${esc(p.rank)}${p.master ? ' (you)' : ''}${p.direct ? ` <span class="small">(manuals up to ${esc(p.realm_rank)} grade, by realm)</span>` : ''}</p>
         ${p.origin ? `<p class="small" style="margin:4px 0 0"><i>${esc(p.origin)}</i></p>` : ''}
         <p style="margin:6px 0 0"><span class="tag blue">${esc(p.realm)} · ${esc(p.stage)}</span> <span class="small dim">${p.qi} / ${p.qi_need} qi</span></p>${bar(p.qi_pct, 'violet')}</div></div>
       ${bt}
@@ -390,7 +446,7 @@ export function mountSect(h) {
         <p class="dim small">Mood settles toward 50 plus these. Below about 20 a disciple may suffer a qi deviation.</p>` : '<p class="dim">Nothing in particular. Their mood rests at 50.</p>'}
       <h3 style="margin-top:14px">Cultivation speed <span class="tag violet num">×${p.qi_x}</span></h3>
       <ul class="list">${p.qi_why.map((t) => `<li class="row"><span class="grow">${esc(t.label)}</span><b class="num" style="color:var(--${t.x < 1 ? 'verm' : 'jade'})">×${t.x}</b></li>`).join('')}
-        <li class="row dim"><span class="grow">An hour of work instead of meditation gathers a share of this</span><b class="num">×${p.qi_work}</b></li></ul>
+        ${p.qi_work ? `<li class="row dim"><span class="grow">${esc(p.qi_work_label)}</span><b class="num">×${p.qi_work}</b></li>` : ''}</ul>
       <p class="dim small">Qi gathered per hour of meditation is multiplied by each of these. A manual of the root's own element is well suited (half again as strong); one of a clashing element is ill suited.</p>
       <h3 style="margin-top:14px">Artifact</h3>
       ${p.artifact ? `<p><span class="tag gold">${esc(p.artifact.name)}</span> <span class="small dim">${esc(p.artifact.text)}</span> <button class="btn quiet" data-equip="">Return to the vault</button></p>` : '<p class="dim">Carries nothing.</p>'}
@@ -402,12 +458,12 @@ export function mountSect(h) {
       <h3 style="margin-top:14px">Lineage and road</h3>
       <ul class="list">
         <li class="row"><span class="grow">Master: <b>${p.mentor ? esc(p.mentor) : p.master ? 'none (you lead the sect)' : 'none'}</b>${p.student ? ` · Personal disciple: <b>${esc(p.student)}</b>` : ''}</span>
-          ${p.mentors.map((m) => `<button class="btn" data-mentor="${esc(m.id)}">Kneel to ${esc(m.name.split(' ')[0])}</button>`).join('')}</li>
+          ${p.mentors.map((m) => `<button class="btn" data-mentor="${esc(m.id)}">Kneel to ${esc(m.name)}</button>`).join('')}</li>
         ${p.mentor ? `<li><span class="small">Trust in their master: <b class="num">${p.trust}</b>/100</span>
           <div class="track"><i style="width:${p.trust}%"></i>${p.station_marks.map((m) => `<span class="${m.done ? 'done' : ''}" style="left:${m.at}%" title="At ${m.at}: their master ${esc(m.text)}">${m.done ? '◆' : '◇'}</span>`).join('')}</div>
           <span class="dim small">Grows a little each day they are both home, and a lot when the master guards a breakthrough or they fight side by side. Each mark is an evening and a gift.</span></li>` : ''}
         <li class="row"><span class="grow">Dao companion: <b>${p.companion ? esc(p.companion) : 'none'}</b></span>
-          ${p.can_bind.map((m) => `<button class="btn" data-bind="${esc(m.id)}">Bind with ${esc(m.name.split(' ')[0])}</button>`).join('')}</li>
+          ${p.can_bind.map((m) => `<button class="btn" data-bind="${esc(m.id)}">Bind with ${esc(m.name)}</button>`).join('')}</li>
         <li class="row"><span class="grow">Path: <b>${p.path ? esc(p.path) : 'none yet'}</b>${p.can_path ? '' : p.path ? '' : ' <span class="dim small">(chosen at Foundation Establishment)</span>'}</span>
           ${p.can_path ? S.paths.map((x) => `<button class="btn" data-path="${esc(x.id)}" title="${esc(x.text)}">${esc(x.name)}</button>`).join('') : ''}</li>
         ${p.beast ? `<li><span class="tag jade">🐾 ${esc(p.beast.name)}</span> <span class="small dim">+${p.beast.bonus}% fighting strength, growing with age; +3 mood.</span></li>` : ''}
@@ -549,8 +605,9 @@ export function mountSect(h) {
 
   view.innerHTML = `<div id="sect-root"><div id="z-top"></div>
     <div id="z-event"></div><section class="panel scenewrap" id="z-scene"></section>
-    <div class="grid2 studyrow">${h.todayPanel()}<div id="z-master"></div></div>
-    <section class="panel" id="z-tabs" style="margin-top:14px"></section></div>`;
+    ${h.studyStrip()}
+    <section class="panel" id="z-tabs" style="margin-top:14px"></section>
+    <div class="grid2 studyrow" id="z-study">${h.todayPanel()}<div id="z-master"></div></div></div>`;
   h.bindToday(view);
   paint();
   stop();
