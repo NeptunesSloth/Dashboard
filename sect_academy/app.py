@@ -22,7 +22,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from . import colony, dao, drills, engine, packs, state
+from . import colony, dao, drills, engine, packs, reader, state
 
 STATIC = Path(__file__).parent / "static"
 app = FastAPI(title="Sect Academy", docs_url=None, redoc_url=None, openapi_url=None)
@@ -81,6 +81,7 @@ def _file(name: str, media: str | None = None) -> FileResponse:
 
 @app.get("/")
 @app.get("/study")
+@app.get("/read")
 @app.get("/library")
 @app.get("/trials")
 @app.get("/progress")
@@ -96,6 +97,23 @@ def js():
 @app.get("/sect.js")
 def sect_js():
     return _file("sect.js", "text/javascript")
+
+
+@app.get("/reader.js")
+def reader_js():
+    return _file("reader.js", "text/javascript")
+
+
+# pdf.js (Apache-2.0, static/vendor/pdfjs/LICENSE) pulls the text out of an imported PDF in the browser.
+VENDOR = {"pdf.min.js", "pdf.worker.min.js"}
+
+
+@app.get("/vendor/pdfjs/{name}")
+def vendor(name: str):
+    if name not in VENDOR:                    # a fixed list, like the art
+        raise HTTPException(404, "no such file")
+    return FileResponse(STATIC / "vendor" / "pdfjs" / name, media_type="text/javascript",
+                        headers={"Cache-Control": "public, max-age=604800"})
 
 
 @app.get("/art.js")
@@ -416,6 +434,135 @@ async def import_(request: Request):
     if not state.import_(body, probe=engine.overview):
         raise HTTPException(400, "not a Sect Academy backup")
     return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# the reader: dictionary, your words, books
+# ---------------------------------------------------------------------------
+class EntryIn(BaseModel):
+    lang: str = "es"
+    word: str = ""
+    meaning: str = ""
+    form: str = ""
+    ctx: str = ""
+
+
+class SegmentIn(BaseModel):
+    lang: str = "es"
+    text: str = ""
+
+
+class PosIn(BaseModel):
+    pos: int = 0
+
+
+LangQ = Query(default="es", max_length=8)
+
+
+@app.get("/api/dict/langs", dependencies=API)
+def dict_langs():
+    return reader.languages()
+
+
+@app.get("/api/dict", dependencies=API)
+def dict_lookup(w: str = Query(default="", max_length=200), lang: str = LangQ):
+    return reader.lookup(lang, w)
+
+
+@app.get("/api/dict/search", dependencies=API)
+def dict_search(q: str = Query(default="", max_length=200), dir: str = "from", lang: str = LangQ):
+    return reader.search(lang, q, "en" if dir == "en" else "from")
+
+
+@app.post("/api/dict/segment", dependencies=API)
+def dict_segment(body: SegmentIn):
+    """A page cut into tokens with their lookup keys (Spanish: split on spaces; CJK will need the dictionary)."""
+    if len(body.text) > reader.MAX_SEGMENT:
+        raise HTTPException(413, "Send one page at a time.")
+    return reader.segment(body.lang[:8], body.text)
+
+
+@app.post("/api/dict/entry", dependencies=API)
+def dict_add(body: EntryIn):
+    res = reader.add_entry(body.lang[:8], body.word[:200], body.meaning[:1000])
+    if not res["ok"]:
+        raise HTTPException(400, res["error"])
+    return res
+
+
+@app.delete("/api/dict/entry", dependencies=API)
+def dict_delete(w: str = Query(default="", max_length=200), lang: str = LangQ):
+    return reader.delete_entry(lang, w)
+
+
+@app.get("/api/words", dependencies=API)
+def words(lang: str = LangQ):
+    return reader.list_words(lang)
+
+
+@app.post("/api/words", dependencies=API)
+def word_save(body: EntryIn):
+    res = reader.save_word(body.lang[:8], body.word[:200], body.meaning[:1000], body.form[:200], body.ctx[:1000])
+    if not res["ok"]:
+        raise HTTPException(400, res["error"])
+    return res
+
+
+@app.delete("/api/words", dependencies=API)
+def word_delete(w: str = Query(default="", max_length=200), lang: str = LangQ):
+    return reader.delete_word(lang, w)
+
+
+@app.get("/api/books", dependencies=API)
+def books():
+    return reader.list_books()
+
+
+@app.post("/api/books", dependencies=API)
+async def book_add(request: Request):
+    # Books are large: refuse an oversized body before reading it, and only ever take JSON
+    # (a plain form post from another page cannot be JSON, and is refused here as well as by the middleware).
+    if int(request.headers.get("content-length") or 0) > reader.BOOK_POST_MAX_BYTES:
+        raise HTTPException(413, "That book is too large.")
+    if "application/json" not in request.headers.get("content-type", ""):
+        raise HTTPException(400, "Books are sent as JSON.")
+    raw = await request.body()
+    if len(raw) > reader.BOOK_POST_MAX_BYTES:
+        raise HTTPException(413, "That book is too large.")
+    try:
+        body = json.loads(raw)
+    except Exception:
+        raise HTTPException(400, "Books are sent as JSON.") from None
+    if not isinstance(body, dict) or not isinstance(body.get("text"), str):
+        raise HTTPException(400, "A book needs its text.")
+    res = reader.add_book(body.get("title"), body["text"], body.get("lang") if isinstance(body.get("lang"), str) else "es")
+    if not res["ok"]:
+        raise HTTPException(400, res["error"])
+    return res
+
+
+@app.get("/api/books/{bid}", dependencies=API)
+def book_get(bid: str):
+    res = reader.get_book(bid)
+    if not res:
+        raise HTTPException(404, "unknown book")
+    return res
+
+
+@app.put("/api/books/{bid}/pos", dependencies=API)
+def book_pos(bid: str, body: PosIn):
+    res = reader.set_position(bid, body.pos)
+    if not res["ok"]:
+        raise HTTPException(404, res["error"])
+    return res
+
+
+@app.delete("/api/books/{bid}", dependencies=API)
+def book_delete(bid: str):
+    res = reader.delete_book(bid)
+    if not res["ok"]:
+        raise HTTPException(404, res["error"])
+    return res
 
 
 # ---------------------------------------------------------------------------

@@ -645,3 +645,38 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .studystrip { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding: 8px 14px; }
 .studystrip .grow { font-weight: 700; } .studystrip .btn { min-height: 36px; padding-block: 4px; }
 @media (max-width: 640px) { .studystrip { padding: 6px 10px; gap: 6px 10px; } .studystrip .grow { font-size: .88rem; } .res .rate { font-size: .62rem; padding: 0 3px; } }
+
+/* ---------- Read: shelf, pages, tap-to-translate ---------- */
+.tiny { font-size: .76rem; }
+#nav a { min-width: 0; }
+@media (max-width: 420px) { #nav a { font-size: .66rem; margin: 6px 1px; } #nav a .ico { width: 24px; height: 24px; } }
+.imp { align-items: flex-end; } .imp .btn { margin-bottom: var(--edge); }
+.bk-title { font-size: 1.05rem; text-decoration: none; color: var(--ink); overflow-wrap: anywhere; }
+.readtop { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.readtop .rt-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.page { max-width: 68ch; margin: 0 auto; background: var(--surface); border: 2px solid var(--line); border-radius: 20px; padding: 22px 24px;
+  font: 400 1.16rem/1.75 "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif; overflow-wrap: break-word; }
+.page p { margin: 0 0 1em; } .page p:last-child { margin-bottom: 0; }
+.page .w { cursor: pointer; border-radius: 4px; padding: 0 1px; margin: 0 -1px; }
+.page .w:hover { background: var(--azure-soft); }
+.page .w.on { background: var(--gold-soft); box-shadow: 0 2px 0 var(--gold); }
+@media (max-width: 640px) { .page { padding: 16px; font-size: 1.1rem; border-radius: 16px; } }
+.pager { max-width: 68ch; margin: 12px auto 4px; display: flex; align-items: center; gap: 10px; }
+.lookup { position: fixed; z-index: 40; left: 8px; right: 8px; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 8px);
+  max-height: 52dvh; overflow: auto; background: var(--surface); border: 2px solid var(--gold); border-radius: 20px; padding: 12px 16px;
+  box-shadow: 0 10px 30px #0b142655; }
+@media (min-width: 900px) { .lookup { left: auto; right: 24px; bottom: 24px; width: 400px; max-height: 70vh; } }
+@media (prefers-reduced-motion: no-preference) { .lookup:not([hidden]) { animation: sheet .2s cubic-bezier(.2,.8,.2,1); } }
+.lk-head { display: flex; align-items: center; gap: 8px; }
+.lk-word { font-size: 1.45rem; font-weight: 800; overflow-wrap: anywhere; }
+.lk-head .slow, .lk-x { min-height: 34px; padding: 2px 8px; }
+.lk-path { margin: 4px 0 6px; }
+.lk-senses { margin: 6px 0 8px; padding-left: 1.3em; } .lk-senses li { margin: 4px 0; line-height: 1.4; }
+.lk-senses details { display: inline; } .lk-senses summary { display: inline; cursor: pointer; color: var(--azure-d); font-weight: 800; }
+.lk-only { font-weight: 800; margin: 8px 0; }
+.lk-save { margin: 8px 0 4px; } .lk-save .row { flex-wrap: nowrap; } .lk-save input { min-height: 44px; } .lk-save .btn { flex: none; min-height: 44px; }
+.lk-note { margin: 4px 0; }
+.dres .list li { padding: 0; }
+.dict-row { all: unset; box-sizing: border-box; display: block; width: 100%; padding: 10px 4px; cursor: pointer; line-height: 1.4; overflow-wrap: anywhere; }
+.dict-row b, .dict-row .tag { margin-right: 8px; }
+.dict-row:hover, .dict-row:focus-visible { background: var(--azure-soft); border-radius: 10px; }

@@ -40,8 +40,13 @@ CERT_TYPES = ("concept", "mcq", "multi", "order")
 _ID = re.compile(r"^[a-z0-9][a-z0-9_.\-]{1,63}$")
 _Loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)      # the C loader is ~10x faster when present
 _lock = threading.Lock()
-_cache: dict[str, dict] | None = None
+_files: dict[str, dict] | None = None      # the courses in packs/*.yaml
+_cache: dict[str, dict] | None = None      # those plus the personal course (see set_personal)
 _index: dict[str, dict] | None = None
+_personal_fn = None
+_personal_token = None
+_personal: dict[str, dict] = {}
+PERSONAL_PREFIX = "my-"                    # item ids the YAML courses may not use: they belong to personal courses
 
 
 def _s(v) -> str:
@@ -76,6 +81,8 @@ def _validate_units(units, kind, domains: set[str], err, seen_units: set[str], s
             iid = _s(it.get("id"))
             if not _ID.match(iid) or iid in seen_items:
                 err(f"unit {uid}: bad/duplicate item id {iid!r}")
+            elif iid.startswith(PERSONAL_PREFIX):
+                err(f"item {iid}: ids starting {PERSONAL_PREFIX!r} are kept for the learner's own words")
             seen_items.add(iid)
             t = it.get("type")
             if t not in ITEM_TYPES:
@@ -246,36 +253,65 @@ def _read(path: Path):
         return None
 
 
+def set_personal(fn) -> None:
+    """Register the source of personal courses (reader.py: "My words").
+
+    ``fn(token)`` returns ``(token, None)`` when nothing changed since ``token``, else
+    ``(new_token, {pack_id: pack})`` with packs already in normalised shape. It is
+    called outside this module's lock, because it reads the state (which has its own)."""
+    global _personal_fn, _personal_token, _personal
+    _personal_fn, _personal_token, _personal = fn, None, {}
+
+
+def _refresh_personal() -> bool:
+    global _personal_token, _personal
+    if _personal_fn is None:
+        return False
+    token, new = _personal_fn(_personal_token)
+    if new is None:
+        return False
+    _personal_token, _personal = token, new
+    return True
+
+
 def load_all(force: bool = False) -> dict[str, dict]:
-    """All valid packs by id. Invalid packs and parts are skipped, never a crash."""
-    global _cache, _index
+    """All valid packs by id (and the learner's personal course, when there is one).
+    Invalid packs and parts are skipped, never a crash."""
+    global _files, _cache, _index
+    changed = _refresh_personal()
     with _lock:
-        if _cache is not None and not force:
-            return _cache
-        _index = None
-        out: dict[str, dict] = {}
-        parts: list[tuple[str, dict]] = []
-        for path in sorted(PACK_DIR.glob("*.yaml")):
-            pack = _read(path)
-            if isinstance(pack, dict) and "part_of" in pack:
-                parts.append((path.name, pack))
-            elif not validate_pack(pack, path.name):
-                out[pack["id"]] = pack
-        for name, part in parts:                       # filename order
-            base = out.get(str(part.get("part_of")))
-            if base is None or validate_pack(part, name, base):
-                continue
-            base["units"] = base["units"] + part["units"]
-        ids: set[str] = set()
-        for pid in list(out):                          # item ids are global: drop a pack that collides
-            mine = {it.get("id") for u in out[pid]["units"] for it in u["items"]}
-            if ids & mine:
-                out.pop(pid)
-                continue
-            ids |= mine
-            out[pid] = _normalise(out[pid])
-        _cache = out
-        return out
+        if _files is None or force:
+            _files = _load_files()
+            changed = True
+        if changed or _cache is None:
+            _cache = {**_files, **{k: v for k, v in _personal.items() if k not in _files}}
+            _index = None
+        return _cache
+
+
+def _load_files() -> dict[str, dict]:
+    out: dict[str, dict] = {}
+    parts: list[tuple[str, dict]] = []
+    for path in sorted(PACK_DIR.glob("*.yaml")):
+        pack = _read(path)
+        if isinstance(pack, dict) and "part_of" in pack:
+            parts.append((path.name, pack))
+        elif not validate_pack(pack, path.name):
+            out[pack["id"]] = pack
+    for name, part in parts:                       # filename order
+        base = out.get(str(part.get("part_of")))
+        if base is None or validate_pack(part, name, base):
+            continue
+        base["units"] = base["units"] + part["units"]
+    ids: set[str] = set()
+    for pid in list(out):                          # item ids are global: drop a pack that collides
+        mine = {it.get("id") for u in out[pid]["units"] for it in u["items"]}
+        if ids & mine:
+            out.pop(pid)
+            continue
+        ids |= mine
+        out[pid] = _normalise(out[pid])
+    return out
 
 
 def get(pack_id: str) -> dict | None:
@@ -286,9 +322,10 @@ def item_index() -> dict[str, dict]:
     """item_id -> item, across every pack (cached until the packs are reloaded)."""
     global _index
     all_packs = load_all()
-    if _index is None:
-        _index = {it["id"]: it for p in all_packs.values() for u in p["units"] for it in u["items"]}
-    return _index
+    index = _index
+    if index is None:
+        index = _index = {it["id"]: it for p in all_packs.values() for u in p["units"] for it in u["items"]}
+    return index
 
 
 def main(argv: list[str]) -> int:
