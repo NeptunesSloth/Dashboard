@@ -327,7 +327,7 @@ def scene_seen(st: dict, scene_id: int, now: float) -> dict:
 
 
 def _scene_view(x: dict) -> dict:
-    return {"id": _f(x["id"]), "day": _f(x["hour"]) // 24 + 1, "kind": str(x["kind"]), "ok": bool(x["ok"]), "painted": x["kind"] in SCENE_ART,
+    return {"id": _f(x["id"]), "day": _f(x["hour"]) // 24 + 1, "when": calendar_label(_f(x["hour"]) // 24), "kind": str(x["kind"]), "ok": bool(x["ok"]), "painted": x["kind"] in SCENE_ART,
             "title": str(x["title"]), "text": str(x["text"]), "verdict": str(x["verdict"]),
             "party": [{"id": str(p["id"]), "name": str(p["name"]), "root": str(p["root"]), "master": bool(p["master"])} for p in x["party"]],
             "lines": [{"who": str(ln["who"]), "text": str(ln["text"]), "ok": ln["ok"] if ln["ok"] is None else bool(ln["ok"])} for ln in x["lines"]],
@@ -358,6 +358,12 @@ def _repair_scenes(c: dict, num) -> None:
 
 def _day(c: dict) -> int:
     return c["hour"] // 24
+
+
+def calendar_label(day0: int) -> str:
+    """The one way a date is written: the header, the chronicle, the annals and the graves all use it."""
+    day0 = max(0, int(day0))
+    return f"{SEASONS[(day0 // DAYS_PER_SEASON) % 4]} {day0 % DAYS_PER_SEASON + 1}, year {day0 // (DAYS_PER_SEASON * 4) + 1}"
 
 
 def _season(c: dict) -> int:
@@ -940,7 +946,7 @@ def _die(c: dict, p: dict) -> None:
             _think(o, "death", f"{p['name']}, a {'sworn sibling' if b >= 70 else 'friend'}, died", v, 240, c["hour"])
             mourners.append(o)
             lines.append((o["name"], f"grieves a {'sworn sibling' if b >= 70 else 'friend'}: {v} mood for 10 days", False))
-        elif b <= -30:
+        elif is_rival(c, p, o):
             _think(o, "death", f"{p['name']} died. They never made peace", -4, 72, c["hour"])
             lines.append((o["name"], "never made peace with them: -4 mood for 3 days", None))
         else:
@@ -973,7 +979,7 @@ def bt_odds(c: dict, p: dict) -> list[tuple[str, int]]:
     if lv:
         rows.append((f"Scholarship {lv}", round(1.5 * lv)))
     if c["res"]["pills"] >= 1:
-        rows.append(("A pill to steady the meridians (used up)", 20))
+        rows.append(("A pill to steady the meridians (will be used)", 20))
     if _lvl(c, "meditation"):
         rows.append(("Meditation Chamber", 3 * _lvl(c, "meditation")))
     mid = _manual(c, p, "qi")[1]
@@ -1032,6 +1038,7 @@ def attempt(st: dict, pawn_id: str, now: float) -> dict:
     odds = ("", f"The odds were {bt_chance(c, p)}%" + (f"; heaven sent {target * 3} bolts of lightning" if trib else ""), None)
     if c["res"]["pills"] >= 1:
         c["res"]["pills"] -= 1
+        odds = ("", odds[1] + "; a pill to steady the meridians was used", None)
     roll = _rng(c, "bt", p["id"], c["hour"], p["bt_tries"]).random()
     bolts = target * 3 if trib else 0
     if roll > chance:
@@ -1064,7 +1071,7 @@ def attempt(st: dict, pawn_id: str, now: float) -> dict:
     for o in c["pawns"]:
         if o is not p:
             b = bond(c, p, o)
-            if b <= -30:
+            if is_rival(c, p, o):
                 _think(o, "bt_other", f"Envious of {p['name']}", -6, 72, c["hour"])
                 o["resolve_until"] = max(o["resolve_until"], c["hour"] + 48)       # and spurred on
             else:
@@ -1289,6 +1296,10 @@ def _others(c: dict) -> list[dict]:
     return [p for p in _home(c) if not p.get("master")]
 
 
+EVENT_COOLDOWN = 16                              # days before the same daily event can come up again
+EVENT_REPEATS = frozenset({"beasts", "raid", "wanderer"})   # threats keep their own spacing; each wanderer is someone new
+
+
 def _daily_event(c: dict) -> None:
     tell = STORYTELLERS.get(c["storyteller"], STORYTELLERS["balanced"])
     day = _day(c)
@@ -1311,7 +1322,7 @@ def _daily_event(c: dict) -> None:
              "skipping it disappoints them.", [("hold", f"Hold the festival ({cost} rice)"), ("skip", "There is work to do")], name=name, flavour=flavour, cost=cost)
         return
     # --- the calendar: recruitment in spring, the tournament in autumn
-    if year >= 2 and doy >= 1 and c["recruit_year"] != year and len(c["pawns"]) < pawn_cap(c):
+    if year >= 2 and 1 <= doy < DAYS_PER_SEASON and c["recruit_year"] != year and len(c["pawns"]) < pawn_cap(c):
         c["recruit_year"] = year
         cands = []
         for _ in range(3):
@@ -1325,14 +1336,16 @@ def _daily_event(c: dict) -> None:
              "You may take one. " + " / ".join(line(p) for p in cands) + ".",
              [(f"pick{i}", f"Take {p['name']}") for i, p in enumerate(cands)] + [("decline", "Take no one this year")], cands=cands)
         return
-    if doy >= 30 and c["tournament_year"] != year and len(home) >= 2 and c["sects"]:
+    if 30 <= doy < 3 * DAYS_PER_SEASON and c["tournament_year"] != year and len(home) >= 2 and c["sects"]:
         c["tournament_year"] = year
         champs = _strongest(c, 3, master=False) or _strongest(c, 1, master=True)
         if champs:
+            foes = tournament_field(c)
             _ask(c, "tournament", "The Hundred Sects Tournament",
-                 "Every autumn the sects of the region send one champion each to the arena. Three rounds; fame and prizes for every win. "
-                 "Whom do you send?",
-                 [(p["id"], f"Send {p['name']} (strength {int(duel_power(c, p))})") for p in champs] + [("decline", "Stay home this year")])
+                 f"Every autumn each sect of the region sends one champion to the arena. {len(foes)} rounds, weakest sect first; a loss ends the run; "
+                 "fame and prizes for every win. The champions' strength, round by round: "
+                 + ", ".join(f"{ch['name']} {int(fp)}" for _, ch, fp in foes) + ". Whom do you send?",
+                 [(p["id"], f"Send {p['name']} ({tournament_odds(c, p)})") for p in champs] + [("decline", "Stay home this year")])
             return
     if dao.calendar(c, r, day, year, doy):
         return
@@ -1361,8 +1374,12 @@ def _daily_event(c: dict) -> None:
     table += dao.table(c, day, others)
     if tell["threat"] > 0 and day >= 6 and day - c["last_threat_day"] >= tell["threat_gap"] and not c["siege"]:
         table += [("beasts", 16), ("raid", 12 if day >= 12 else 0)]
-    kinds, weights = zip(*[(k, w) for k, w in table if w > 0])
+    # The same story twice in a fortnight reads as a bug: a kind that came up recently waits its turn.
+    seen = fl["seen"] = fl["seen"] if isinstance(fl.get("seen"), dict) else {}
+    fresh = [(k, w) for k, w in table if w > 0 and (k in EVENT_REPEATS or not isinstance(seen.get(k), (int, float)) or day - seen[k] >= EVENT_COOLDOWN)]
+    kinds, weights = zip(*(fresh or [(k, w) for k, w in table if w > 0]))
     kind = r.choices(kinds, weights)[0]
+    seen[kind] = day
     if dao.raise_event(c, r, kind):
         return
     if kind == "quest":
@@ -1435,7 +1452,9 @@ def _daily_event(c: dict) -> None:
              f"{rival['young']}, young master of the {rival['name']}, has stopped {p['name']} on the mountain path with a dozen lackeys. "
              f"“A {realm_label(p['step']).split(' · ')[0]} trash from a nameless sect dares to walk in front of me? Kneel, and I may forget it. "
              "Do you know who my father is?”",
-             [("slap", f"Have {p['name']} teach him a lesson"), ("endure", "Swallow the insult and walk away")]
+             [("slap", f"Have {p['name']} teach him a lesson (strength {int(duel_power(c, p))} against about {int(young_master_foe(c, rival))}: "
+                       f"{win_odds(duel_power(c, p), young_master_foe(c, rival), 0.7, 1.3)}% to win)"),
+              ("endure", "Swallow the insult and walk away")]
              + ([("pay", "Smooth it over with 8 spirit stones")] if c["res"]["stones"] >= 8 else []),
              pawn=p["id"], src=rival["id"])
     elif kind == "auction":
@@ -1463,7 +1482,8 @@ def _daily_event(c: dict) -> None:
         fl["genius"] = 1
         cand = _make_pawn(c, c["next_pawn"])
         c["next_pawn"] += 1
-        cand.update(root="Crippled", root_mult=0.6, hidden=True, age=r.randint(15, 17))
+        cand.update(root="Crippled", root_mult=0.6, hidden=True, age=r.randint(15, 17),
+                    origin="Once the pride of a great clan; crippled, his engagement annulled, cast out.")
         _ask(c, "wanderer", "A fallen genius at the gate",
              f"{cand['name']}, {cand['age']}, was the pride of a great clan until his meridians were crippled three years ago. "
              "His engagement was annulled in front of the whole clan and he was cast out. He wears a plain black ring and has nowhere to go. "
@@ -1494,7 +1514,7 @@ def _daily_event(c: dict) -> None:
              f"A lady of the {s['name']} has come with her elders to break her childhood engagement to {p['name']}, in front of the whole sect. "
              "“We walk different roads now. Take these spirit stones for your trouble.” "
              f"{p['name']}'s knuckles are white.",
-             [("pact", "“Three years from now, I will come to your sect.” (a pact to duel)"), ("stones", "Take the 15 spirit stones")],
+             [("pact", "“Twelve days from now, I will come to your sect.” (a pact to duel)"), ("stones", "Take the 15 spirit stones")],
              pawn=p["id"], src=s["id"])
     elif kind == "spy":
         p = r.choice(others)
@@ -1537,6 +1557,30 @@ def _daily_event(c: dict) -> None:
 # ---------------------------------------------------------------------------
 # answering an event
 # ---------------------------------------------------------------------------
+def win_odds(me: float, foe: float, lo: float, hi: float) -> int:
+    """Percent chance that `me` beats `foe` drawn uniformly between foe*lo and foe*hi: the roll the resolvers make."""
+    if foe <= 0:
+        return 100
+    return _f(100 * max(0.0, min(1.0, (me / foe - lo) / (hi - lo))))
+
+
+def tournament_field(c: dict) -> list[tuple[dict, dict, float]]:
+    """(sect, champion, strength before the roll), in the order the rounds are fought."""
+    return [(s, dao.road.champion(c, s), dao.road.champ_power(dao.road.champion(c, s))) for s in sorted(c["sects"], key=lambda x: x["power"])]
+
+
+def tournament_odds(c: dict, p: dict) -> str:
+    me = duel_power(c, p)
+    each = [win_odds(me, fp, 0.85, 1.15) / 100.0 for _, _, fp in tournament_field(c)]
+    first = _f(100 * each[0]) if each else 100
+    return f"strength {int(me)}: {first}% to win round one, {_f(100 * math.prod(each))}% to win every round"
+
+
+def young_master_foe(c: dict, s: dict) -> float:
+    """The young master's strength before the roll (it varies 0.7 to 1.3 times this)."""
+    return (14 + _day(c) * 0.7) * s["power"]
+
+
 def duel_power(c: dict, p: dict) -> float:
     return (10 + 4 * p["skills"]["combat"]["lv"]) * (1 + 0.07 * p["step"]) * (1 + _manual(c, p, "sword")[0]) * (1 + _art(c, p, "sword")) * max(0.3, p["health"] / 100.0)
 
@@ -1602,7 +1646,7 @@ def _res_young_master(c, ev, opt, r):
         _xp(p, "combat", 25)
         _rel(s, 3)
         return _letter(c, "info", f"{p['name']} walked away", "They said nothing, and trained until dawn. A gentleman's revenge can wait ten years.")
-    foe = (14 + _day(c) * 0.7) * s["power"] * r.uniform(0.7, 1.3)
+    foe = young_master_foe(c, s) * r.uniform(0.7, 1.3)
     if duel_power(c, p) >= foe:
         _think(p, "slap", "Slapped a young master's face", 12, 72, c["hour"])
         for o in c["pawns"]:
@@ -1712,7 +1756,7 @@ def _res_engagement(c, ev, opt, r):
         return _letter(c, "info", "The stones were taken", f"{p['name']} does not come out of their room that night.")
     p["resolve_until"] = c["hour"] + 24 * 12
     c["later"].append({"at": c["hour"] + 24 * 12, "kind": "pact_duel", "pawn": p["id"], "src": s["id"] if s else ""})
-    return _letter(c, "good", f"{p['name']} made a three-year pact",
+    return _letter(c, "good", f"{p['name']} made a pact to duel",
                    "“Do not bully the young for being poor.” For the next twelve days they gather qi half again as fast. Then the duel.")
 
 
@@ -1896,7 +1940,7 @@ def _later(c: dict, item: dict) -> bool:
             foe = (20 + _day(c) * 0.8) * (s["power"] if s else 1.0) * r.uniform(0.8, 1.2)
             if duel_power(c, p) >= foe:
                 _fame(c, 8)
-                _think(p, "pact", "Kept the three-year pact and won", 15, 120, c["hour"])
+                _think(p, "pact", "Kept the pact and won", 15, 120, c["hour"])
                 p["title"] = p.get("title") or "the Unbowed"
                 _letter(c, "good", f"{p['name']} won the pact duel",
                         f"On the {s['name'] if s else 'rival sect'}'s own arena, before all its elders. “The engagement? I annul it.” Nobody in the stands breathes.")
@@ -1930,21 +1974,57 @@ def bond_kind(v: float) -> str:
     return "sworn sibling" if v >= 70 else "friend" if v >= 30 else "rival" if v <= -30 else ""
 
 
+RIVAL_AT, RIVAL_UNTIL = -30, -20    # a pair falls out at -30 and stays rivals until the bond climbs past -20
+
+
+def _rivals(c: dict) -> dict:
+    r = c["flags"].get("rivals")
+    if not isinstance(r, dict):
+        r = c["flags"]["rivals"] = {}
+    return r
+
+
+def is_rival(c: dict, a: dict, b: dict) -> bool:
+    """The one rule for rivalry: mood, envy, the disciple's page, Great Works and the chronicle all ask this.
+    It has a margin so a pair hovering at -30 is not announced as rivals, then not, then rivals again."""
+    v = bond(c, a, b)
+    return a is not b and (v <= RIVAL_AT or (v <= RIVAL_UNTIL and _bkey(a["id"], b["id"]) in _rivals(c)))
+
+
+def pair_kind(c: dict, a: dict, b: dict) -> str:
+    return "rival" if is_rival(c, a, b) else "" if bond_kind(bond(c, a, b)) == "rival" else bond_kind(bond(c, a, b))
+
+
 def _bond(c: dict, a: dict, b: dict, delta: float) -> None:
     if a is b:
         return
     k = _bkey(a["id"], b["id"])
     old = float(c["bonds"].get(k, 0.0))
     new = max(-100.0, min(100.0, old + delta))
+    was_rival = is_rival(c, a, b)
+    if was_rival:
+        _rivals(c)[k] = 1
     c["bonds"][k] = new
+    if new <= RIVAL_AT:
+        _rivals(c)[k] = 1
+    elif new > RIVAL_UNTIL:
+        _rivals(c).pop(k, None)
+    rival_now = is_rival(c, a, b)
     was, now_ = bond_kind(old), bond_kind(new)
     seen = c["flags"].setdefault("bonds_told", {})
-    told = seen.get(k, "")
-    if now_ and now_ != was and now_ not in told.split(",") and not (was == "sworn sibling" and now_ == "friend"):
-        seen[k] = f"{told},{now_}".strip(",")          # each turn in a friendship is announced once
-        if now_ == "rival":
+    told = seen.get(k, "") if isinstance(seen.get(k, ""), str) else ""
+    if rival_now != was_rival:
+        if rival_now:
             _letter(c, "bad", f"{a['name']} and {b['name']} are now rivals", "They cannot stand each other. Each will resent the other's success, and try to outdo it.")
-        elif now_ == "friend" and was != "sworn sibling":
+            if "rival" not in told.split(","):
+                seen[k] = told = f"{told},rival".strip(",")
+                _annal(c, f"{a['name']} and {b['name']} became rivals.")
+        else:
+            # A rivalry that ends is news too: otherwise the toast and the Great Works disagree with no word why.
+            _letter(c, "info", f"{a['name']} and {b['name']} are no longer rivals", "Not friends, but they can share a room again.")
+    if now_ and now_ != "rival" and now_ != was and now_ not in told.split(",") and not (was == "sworn sibling" and now_ == "friend"):
+        seen[k] = f"{told},{now_}".strip(",")          # each turn in a friendship is announced once
+        if now_ == "friend" and was != "sworn sibling":
             _letter(c, "good", f"{a['name']} and {b['name']} have become friends", "They look out for one another. Losing one would hit the other hard.")
         elif now_ == "sworn sibling":
             for x in (a, b):
@@ -1955,7 +2035,7 @@ def _bond(c: dict, a: dict, b: dict, delta: float) -> None:
 
 
 def _friends(c: dict, p: dict, sign: int = 1) -> list[dict]:
-    return [o for o in c["pawns"] if o is not p and (bond(c, p, o) >= 30 if sign > 0 else bond(c, p, o) <= -30)]
+    return [o for o in c["pawns"] if o is not p and (bond(c, p, o) >= 30 if sign > 0 else is_rival(c, p, o))]
 
 
 def _socialise(c: dict, quiet: bool) -> None:
@@ -1999,7 +2079,7 @@ def renown(fame: float) -> str:
 # the guided opening: one goal at a time, each teaching one thing
 # ---------------------------------------------------------------------------
 GUIDE = [
-    ("prio", "Open Work and change one disciple's priority. Whoever has Farm at 1 keeps the sect fed.", lambda c: bool(c["flags"].get("prio"))),
+    ("prio", "Open Work and change one disciple's priority. Set someone's Farm to 1 and they tend the fields before anything else.", lambda c: bool(c["flags"].get("prio"))),
     ("library", "Queue a Scripture Pavilion in Build. Disciples with Build as a priority will raise it.", lambda c: _lvl(c, "library") > 0 or any(b["room"] == "library" for b in c["builds"])),
     ("research", "Choose something to research. Terraced irrigation pays for itself.", lambda c: bool(c["research"]["current"] or c["research"]["done"])),
     ("rice", "Store 70 rice. Nothing grows in winter, and everyone eats.", lambda c: c["res"]["rice"] >= 70),
@@ -2012,13 +2092,25 @@ GUIDE = [
 ]
 
 
+GUIDE_DONE = {"prio": "work set by priority", "library": "a Scripture Pavilion begun", "research": "research chosen",
+              "rice": "a granary for winter", "defend": "the sect can defend itself", "fight": "the first attacker driven off",
+              "pills": "pills in the stores", "fourth": "a fourth disciple", "realm": "a great realm crossed", "friend": "the first friendship"}
+
+
 def _guide(c: dict) -> None:
     g = c["guide"]
+    done = []
     while not g["skip"] and g["i"] < len(GUIDE) and GUIDE[g["i"]][2](c):
+        done.append(GUIDE_DONE.get(GUIDE[g["i"]][0], "a lesson"))
         g["i"] += 1
-        _add(c, "stones", 3)
-        _letter(c, "good", "The elder nods", "A lesson learned. He leaves three spirit stones on the table."
-                + (" “You no longer need me. The Great Works are yours to attempt.”" if g["i"] == len(GUIDE) else ""))
+    if not done:
+        return
+    n = len(done)
+    _add(c, "stones", 3 * n)
+    # One line per batch, named for what was learned, so the chronicle does not fill with the same nod.
+    _letter(c, "good", f"The elder's lesson{'s' if n > 1 else ''}: {', '.join(done)}",
+            f"He leaves {3 * n} spirit stones on the table ({g['i']} of {len(GUIDE)} lessons)."
+            + (" “You no longer need me. The Great Works are yours to attempt.”" if g["i"] == len(GUIDE) else ""))
 
 
 def _new_artifact(c: dict, r: random.Random, origin: str, quality: int | None = None, kind: str = "") -> dict:
@@ -2129,6 +2221,20 @@ def skip_guide(st: dict, now: float) -> dict:
 # ---------------------------------------------------------------------------
 # Great Works: long goals with no deadline
 # ---------------------------------------------------------------------------
+def rival_pairs(c: dict) -> list[tuple[dict, dict]]:
+    """Every pair of disciples who are rivals right now, by the same rule as the disciple's own page."""
+    ps = c["pawns"]
+    return [(a, b) for i, a in enumerate(ps) for b in ps[i + 1:] if is_rival(c, a, b)]
+
+
+def _no_rivals_line(c: dict) -> tuple[str, bool]:
+    pairs = rival_pairs(c)
+    if not pairs:
+        return ("No rivals within the walls", True)
+    names = "; ".join(f"{a['name']} and {b['name']}" for a, b in pairs[:3]) + ("; and more" if len(pairs) > 3 else "")
+    return (f"No rivals within the walls (still rivals: {names})", False)
+
+
 def works(c: dict) -> list[dict]:
     m = _master(c)
     out = [
@@ -2143,7 +2249,7 @@ def works(c: dict) -> list[dict]:
          "lines": [("All research complete", len(c["research"]["done"]) >= len(RESEARCH)), ("Ten manuals in the pavilion", len(c["manuals"]) >= 10),
                    ("A Heaven-grade manual", any(lore.MANUALS[k]["grade"] == 3 and not lore.MANUALS[k].get("demonic") for k in c["manuals"] if k in lore.MANUALS))]},
         {"id": "family", "name": "One Family", "text": "A sect is its people.",
-         "lines": [("A pair of sworn siblings", any(v >= 70 for v in c["bonds"].values())), ("No rivals within the walls", not any(v <= -30 for v in c["bonds"].values())),
+         "lines": [("A pair of sworn siblings", any(v >= 70 for v in c["bonds"].values())), _no_rivals_line(c),
                    ("Six disciples or more", len(c["pawns"]) >= 6)]},
     ]
     for w in out:
@@ -2384,6 +2490,8 @@ def _hour(c: dict, quiet: bool) -> None:
         if c["hour"] % 24 == 7:
             _check_works(c)
         for item in list(c["later"]):
+            if item not in c["later"]:                 # dropped by an earlier item this hour (a party home cancels its midway word)
+                continue
             if item.get("at", 0) <= c["hour"]:
                 if _later(c, item):
                     c["later"].remove(item)
@@ -2460,7 +2568,7 @@ def queue_build(st: dict, room: str, now: float) -> dict:
     if len(c["builds"]) >= 4:
         return {"ok": False, "error": "The builders already have four jobs queued."}
     cost = room_cost(c, room, level)
-    short = [f"{int(v - c['res'][k])} more {RES_NAMES[k].lower()}" for k, v in cost.items() if c["res"][k] < v]
+    short = [f"{math.ceil(v - c['res'][k])} more {RES_NAMES[k].lower()}" for k, v in cost.items() if c["res"][k] < v]
     if short:
         return {"ok": False, "error": "Needs " + " and ".join(short) + "."}
     for k, v in cost.items():
@@ -2671,6 +2779,15 @@ def _f(v, nd: int = 0):
     return int(round(v)) if nd == 0 else round(v, nd)
 
 
+def _whole(v) -> int:
+    """A stock as the player may count on it: rounded down, so 54.6 wood never shows as the 55 a build needs."""
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        return 0
+    return int(math.floor(v)) if math.isfinite(v) else 0
+
+
 def _pawn_view(c: dict, p: dict) -> dict:
     hour = c["hour"]
     need = step_need(int(p["step"]))
@@ -2698,7 +2815,7 @@ def _pawn_view(c: dict, p: dict) -> dict:
         "qi_work": _f(WORK_QI, 2),
         "artifact": ({"id": str(artifact_of(c, p)["id"]), "name": str(artifact_of(c, p)["name"]), "text": artifact_text(artifact_of(c, p))}
                      if artifact_of(c, p) else None),
-        "bonds": sorted(({"name": str(o["name"]), "v": _f(bond(c, p, o)), "kind": bond_kind(bond(c, p, o))}
+        "bonds": sorted(({"name": str(o["name"]), "v": _f(bond(c, p, o)), "kind": pair_kind(c, p, o)}
                          for o in c["pawns"] if o is not p and abs(bond(c, p, o)) >= 8), key=lambda x: -abs(x["v"]))[:8],
     }
 
@@ -2764,11 +2881,11 @@ def view(st: dict, now: float) -> dict:
     m = _master(c)
     return {
         "name": str(c["name"]), "founded": bool(c["name"]), "master": str(m["name"]) if m else "",
-        "hour": _f(c["hour"]), "day": day + 1, "hod": _f(c["hour"] % 24), "season": SEASONS[_season(c)],
+        "hour": _f(c["hour"]), "day": day + 1, "when": calendar_label(day), "hod": _f(c["hour"] % 24), "season": SEASONS[_season(c)],
         "year": day // (DAYS_PER_SEASON * 4) + 1, "season_day": day % DAYS_PER_SEASON + 1,
         "storyteller": str(c["storyteller"]),
         "storytellers": [{"id": k, "name": v["name"], "blurb": v["blurb"]} for k, v in STORYTELLERS.items()],
-        "res": [{"id": k, "name": RES_NAMES[k], "n": _f(c["res"][k]),
+        "res": [{"id": k, "name": RES_NAMES[k], "n": _whole(c["res"][k]),
                  "cap": _f(_cap(c)) if k in ("rice", "wood", "stone", "herbs") else None} for k in RES],
         "insight": _f(c["insight"]), "wealth": _f(wealth(c)), "defense": _f(defense(c)),
         **dao.view(c),
@@ -2778,7 +2895,7 @@ def view(st: dict, now: float) -> dict:
         "works": [{"id": w["id"], "name": w["name"], "text": w["text"], "done": bool(w["done"]),
                    "lines": [{"text": str(t), "ok": bool(ok)} for t, ok in w["lines"]]} for w in works(c)],
         "quest": ({"title": str(c["quest"]["title"]), "res": RES_NAMES[c["quest"]["res"]].lower(), "n": _f(c["quest"]["n"]),
-                   "have": _f(c["res"][c["quest"]["res"]]), "days_left": max(0, _f((c["quest"]["due"] - c["hour"]) / 24.0, 1)),
+                   "have": _whole(c["res"][c["quest"]["res"]]), "days_left": max(0, _f((c["quest"]["due"] - c["hour"]) / 24.0, 1)),
                    "ready": c["res"][c["quest"]["res"]] >= c["quest"]["n"]} if c["quest"] else None),
         "places": [{"id": k, "name": v["name"], "hours": v["hours"], "text": v["text"]} for k, v in PLACES.items()],
         "trip": any(x["kind"] == "trip_return" for x in c["later"]),
@@ -2787,7 +2904,7 @@ def view(st: dict, now: float) -> dict:
         "can_forge": _lvl(c, "alchemy") > 0 and all(c["res"][k] >= v for k, v in FORGE_COST.items()), "has_forge": _lvl(c, "alchemy") > 0,
         "direct_cap": direct_cap(c), "direct_n": sum(1 for x in c["pawns"] if x.get("direct")),
         "season_element": lore.SEASON_ELEMENT[_season(c)],
-        "annals": [{"year": _f(e["hour"]) // (24 * DAYS_PER_SEASON * 4) + 1, "day": _f(e["hour"]) // 24 + 1, "text": str(e["text"])}
+        "annals": [{"year": _f(e["hour"]) // (24 * DAYS_PER_SEASON * 4) + 1, "day": _f(e["hour"]) // 24 + 1, "when": calendar_label(_f(e["hour"]) // 24), "text": str(e["text"])}
                    for e in reversed(c["annals"][-80:])],
         "sects": [{"id": str(x["id"]), "name": str(x["name"]), "kind": str(x["kind"]), "rel": _f(x["rel"]), "stance": stance(float(x["rel"])),
                    "young": str(x["young"]), "ally": bool(x.get("ally"))} for x in c["sects"]],
@@ -2811,7 +2928,7 @@ def view(st: dict, now: float) -> dict:
                      "has_library": _lvl(c, "library") > 0},
         "pending": ({"title": str(pending["title"]), "text": str(pending["text"]), "kind": str(pending["kind"]),
                      "options": dao.annotate(c, pending)} if pending else None),
-        "log": [{"hour": _f(e["hour"]), "day": _f(e["hour"]) // 24 + 1, "kind": str(e["kind"]), "title": str(e["title"]), "text": str(e["text"])}
+        "log": [{"hour": _f(e["hour"]), "day": _f(e["hour"]) // 24 + 1, "when": calendar_label(_f(e["hour"]) // 24), "kind": str(e["kind"]), "title": str(e["title"]), "text": str(e["text"])}
                 for e in reversed(c["log"][-30:])],
         # study habit
         "streak": 0 if lost else _f(c["streak"]), "best_streak": _f(c["best_streak"]), "studied_today": last == today,

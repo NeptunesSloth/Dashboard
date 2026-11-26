@@ -1145,7 +1145,7 @@ def view(c: dict) -> dict:
         "elixirs": {"marrow": C._f(c["elixirs"]["marrow"]), "berserk": C._f(c["elixirs"]["berserk"])}, "rare": C._f(c["rare"]),
         "kingdom": {"favour": C._f(c["kingdom"]), "stance": "Grateful" if c["kingdom"] >= 30 else "Resentful" if c["kingdom"] <= -30 else "Indifferent"},
         "demonic": bool(c["demonic"]), "blessings": [BLESSINGS[b] for b in c["blessings"] if b in BLESSINGS],
-        "tombs": [{"name": str(d["name"]), "realm": str(d["realm"]), "day": C._f(d["day"])} for d in reversed(c["dead"][-20:])],
+        "tombs": [{"name": str(d["name"]), "realm": str(d["realm"]), "day": C._f(d["day"]), "when": C.calendar_label(C._f(d["day"]) - 1)} for d in reversed(c["dead"][-20:])],
         "siege": ({"sect": str((C._sect(c, c["siege"]["src"]) or {}).get("name", "")), "stage": C._f(min(3, c["siege"]["stage"]))} if c["siege"] else None),
         **road.view(c),
         "rumours": rumours(c), "council": len(_elders(c)) >= 2,
