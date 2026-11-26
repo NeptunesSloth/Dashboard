@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import gzip
 import re
+import sys
 import threading
 from bisect import bisect_left
 from collections.abc import Callable
@@ -29,12 +30,12 @@ class Table:
         self.fold = fold
         self.lem: dict[str, str] = {}             # lemma -> gloss
         self.rom: dict[str, str] = {}             # lemma -> romanisation (Korean)
-        self.frm: dict[str, tuple[str, ...]] = {}  # form -> lemmas
+        self.frm: dict[str, str | tuple[str, ...]] = {}  # form -> its lemma (a bare string), or a tuple of several
         self.phrases: set[str] = set()            # headwords that are set phrases or interjections (감사합니다)
         self.folded: dict[str, list[str]] = {}    # fold(key) -> keys spelled with accents
         self.keys: list[str] = []                 # every lemma, sorted (prefix search)
         self.by_rom: list[tuple[str, str]] = []   # (romanisation without spaces, lemma), sorted
-        self.low: list[tuple[str, str]] = []      # (lemma, gloss.lower()) for English -> language search
+        self._low: list[tuple[str, str]] | None = None   # (lemma, gloss.lower()), made on the first English search
         self._loaded = False
         self._lock = threading.Lock()
 
@@ -53,11 +54,13 @@ class Table:
                     elif len(parts) < 3:
                         continue
                     elif parts[0] == "L":
-                        lem[parts[1]] = parts[2]
+                        lem[sys.intern(parts[1])] = parts[2]
                         if len(parts) > 3 and parts[3]:
                             rom[parts[1]] = parts[3]
                     elif parts[0] == "F":
-                        frm[parts[1]] = tuple(parts[2].split("|"))
+                        # the lemma strings are interned, so 330,000 forms share one copy of each lemma
+                        lemmas = parts[2].split("|")
+                        frm[parts[1]] = sys.intern(lemmas[0]) if len(lemmas) == 1 else tuple(map(sys.intern, lemmas))
             self.lem, self.rom, self.frm, self.phrases = lem, rom, frm, phrases
             if self.fold:
                 folded: dict[str, list[str]] = {}
@@ -70,12 +73,19 @@ class Table:
                 self.folded = folded
             self.keys = sorted(lem)
             self.by_rom = sorted((r.replace(" ", "").replace("-", "").lower(), k) for k, r in rom.items())
-            self.low = [(k, g.lower()) for k, g in lem.items()]
             self._loaded = True
         return self
 
+    @property
+    def low(self) -> list[tuple[str, str]]:
+        """(lemma, gloss.lower()) for English -> language search, made when first needed."""
+        if self._low is None:
+            self._low = [(k, g.lower()) for k, g in self.load().lem.items()]
+        return self._low
+
     def lemmas_of(self, form: str) -> tuple[str, ...]:
-        return self.frm.get(form, ())
+        v = self.frm.get(form)
+        return () if v is None else (v,) if type(v) is str else v
 
     def known(self, key: str) -> bool:
         return key in self.lem or key in self.frm

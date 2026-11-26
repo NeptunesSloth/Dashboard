@@ -238,3 +238,22 @@ def test_course_sentences_hit_rate():
                     r = (zh if lang == "zh" else ja).lookup(t["k"])
                     hit += bool(r["found"] and not r.get("weak"))
         assert tok > 100 and hit / tok >= floor, (lang, hit / tok)
+
+
+# ---------------------------------------------------------------- compact tables (memory)
+def test_compact_tables_answer_as_before():
+    from sect_academy.lexicon import fr
+    m = cjk.IdMap()
+    for k, i in (("a", 3), ("b", 5), ("b", 2), ("c", 7), ("c", 7)):
+        m.add(k, i)
+    m.freeze(sort_key=lambda i: i)
+    assert m.get("a") == (3,) and m["b"] == (2, 5) and m["c"] == (7, 7) and m.get("z", []) == [] and "a" in m
+    assert dict.__getitem__(m, "a") == 3                                   # stored as a bare int
+    d = ja.dictionary()
+    assert isinstance(d.lines[0], bytes) and d.kanji[d.index["食べる"][0]].startswith("食べる")
+    assert sum(type(v) is int for v in dict.values(d.index)) > 0.9 * len(d.index)
+    assert type(dict.__getitem__(zh.dictionary().head, "图书馆")) is int
+    tb = fr.dictionary()
+    one = next(f for f, v in tb.frm.items() if type(v) is str)
+    assert tb.lemmas_of(one) == (tb.frm[one],) and tb.lemmas_of("zzzz-not-a-form") == ()
+    assert all(type(v) in (str, tuple) for v in list(tb.frm.values())[:1000])
