@@ -18,6 +18,7 @@ from __future__ import annotations
 import gzip
 import re
 import threading
+from array import array
 from bisect import bisect_left
 from functools import lru_cache
 from pathlib import Path
@@ -41,39 +42,64 @@ _PARTICLE_SET = {"は", "が", "を", "に", "で", "と", "も", "の", "へ", 
 _READ_FIX = {"こんにちは": "konnichiwa", "こんばんは": "konbanwa"}
 
 
+class _Column:
+    """One field of every entry, read out of the raw line when asked for (``d.kanji[i]``, ``for g in d.gloss``)."""
+
+    def __init__(self, lines: list[bytes], field: int) -> None:
+        self.lines, self.field = lines, field
+
+    def __getitem__(self, i: int) -> str:
+        return self.lines[i].split(b"\t", 4)[self.field].decode("utf-8")
+
+    def __len__(self) -> int:
+        return len(self.lines)
+
+    def __iter__(self):
+        f = self.field
+        for line in self.lines:
+            yield line.split(b"\t", 4)[f].decode("utf-8")
+
+
 class _Dict:
+    """JMdict, kept compact: each entry is its raw UTF-8 line (split only when an entry is read), the tags as shared
+    tuples, the rank as one byte, and the index of forms and readings as an ``IdMap`` (a bare int for one entry)."""
+
     def __init__(self) -> None:
-        self.kanji: list[str] = []
-        self.kana: list[str] = []
+        self.lines: list[bytes] = []
+        self.kanji = _Column(self.lines, 0)
+        self.kana = _Column(self.lines, 1)
+        self.gloss = _Column(self.lines, 4)
         self.tags: list[tuple[str, ...]] = []
-        self.rank: list[int] = []
-        self.gloss: list[str] = []
-        self.index: dict[str, list[int]] = {}      # any written form or reading (katakana as written) -> entry ids
+        self.rank = array("B")
+        self.index = cjk.IdMap()                 # any written form or reading (katakana as written) -> entry ids
         self.keys: list[str] = []
         self._loose: dict[str, list[str]] | None = None
         self.loose_keys: list[str] = []
 
     def load(self) -> _Dict:
-        tag_cache: dict[str, tuple[str, ...]] = {}
-        with gzip.open(DICT_DIR / "jmdict_ja_en.tsv.gz", "rt", encoding="utf-8") as f:
+        tag_cache: dict[bytes, tuple[str, ...]] = {}
+        index = cjk.IdMap()
+        with gzip.open(DICT_DIR / "jmdict_ja_en.tsv.gz", "rb") as f:
             for line in f:
-                if line.startswith("#"):
+                if line.startswith(b"#"):
                     continue
-                p = line.rstrip("\n").split("\t")
+                line = line.rstrip(b"\n")
+                p = line.split(b"\t")
                 if len(p) != 5:
                     continue
-                i = len(self.kanji)
-                self.kanji.append(p[0])
-                self.kana.append(p[1])
-                self.tags.append(tag_cache.setdefault(p[2], tuple(p[2].split())))
-                self.rank.append(int(p[3]) if p[3].isdigit() else 99)
-                self.gloss.append(p[4])
-                for form in p[0].split(",") if p[0] else ():
-                    self.index.setdefault(form.rstrip("!"), []).append(i)
-                for r in p[1].split(","):
-                    self.index.setdefault(r.split("@")[0].rstrip("!"), []).append(i)
-        for ids in self.index.values():
-            ids.sort(key=lambda i: self.rank[i])
+                i = len(self.lines)
+                self.lines.append(line)
+                tags = tag_cache.get(p[2])
+                if tags is None:
+                    tags = tag_cache[p[2]] = tuple(p[2].decode("utf-8").split())
+                self.tags.append(tags)
+                self.rank.append(min(255, int(p[3])) if p[3].isdigit() else 99)
+                kanji, kana = p[0].decode("utf-8"), p[1].decode("utf-8")
+                for form in kanji.split(",") if kanji else ():
+                    index.add(form.rstrip("!"), i)
+                for r in kana.split(","):
+                    index.add(r.split("@")[0].rstrip("!"), i)
+        self.index = index.freeze(sort_key=lambda i: self.rank[i])
         self.keys = sorted(self.index)
         return self
 
@@ -470,7 +496,12 @@ def search(q, direction: str = "from", mine: dict | None = None, limit: int = 40
             if ql in v.lower():
                 rows.append({"w": k, "en": v, "src": "mine", "read": "", "rom": romanise(k)})
         scored = []
-        for i, gl in enumerate(d.gloss):
+        qb = ql.encode("utf-8") if ql.isascii() else None
+        for i, line in enumerate(d.lines):
+            g = line.rsplit(b"\t", 1)[1]
+            if qb is not None and g.isascii() and qb not in g.lower():
+                continue                                      # most entries: ruled out without decoding them
+            gl = g.decode("utf-8")
             low = gl.lower()
             if ql not in low:
                 continue

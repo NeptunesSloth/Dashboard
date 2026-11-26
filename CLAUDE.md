@@ -170,4 +170,9 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   convention). Before tuning costs, run `python tests/lexicon_quality.py`
   (hit rate and boundary agreement on every course sentence; was zh 100% hit,
   boundaries P 100% / R 90%; ja 99.8% hit, P 95% / R 94%).
+- **Dictionary memory** (all five loaded: about 370 MB): indexes are `cjk.IdMap`
+  (a bare int for a key with one entry), JMdict entries stay raw UTF-8 lines
+  split on access, kaikki form tables hold one interned lemma string per form
+  and build their lowered-gloss list on the first English search. Keep results
+  identical when touching these (compare lookups before/after).
 - One process only: state is held in memory.

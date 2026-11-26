@@ -20,6 +20,7 @@ import gzip
 import math
 import re
 import threading
+from array import array
 import unicodedata
 from bisect import bisect_left
 from pathlib import Path
@@ -125,13 +126,14 @@ class _Dict:
         self.pin: list[str] = []
         self.gloss: list[str] = []
         self.flags: list[str] = []
-        self.freq: list[int] = []               # jieba's count for the simplified form (0: none)
-        self.head: dict[str, list[int]] = {}       # simplified or traditional -> entry ids
+        self.freq = array("q")                  # jieba's count for the simplified form (0: none)
+        self.head = cjk.IdMap()                  # simplified or traditional -> entry ids
         self.keys: list[str] = []                  # every headword, sorted (prefix search)
-        self._pinyin: dict[str, list[int]] | None = None
+        self._pinyin: cjk.IdMap | None = None
         self.pinyin_keys: list[str] = []
 
     def load(self) -> _Dict:
+        head = cjk.IdMap()
         with gzip.open(DICT_DIR / "cedict_zh_en.tsv.gz", "rt", encoding="utf-8") as f:
             for line in f:
                 if line.startswith("#"):
@@ -146,19 +148,20 @@ class _Dict:
                 self.gloss.append(p[3])
                 self.flags.append(p[4])
                 self.freq.append(int(p[5]) if p[5].isdigit() else 0)
-                self.head.setdefault(p[0], []).append(i)
+                head.add(p[0], i)
                 if p[1] and p[1] != p[0]:
-                    self.head.setdefault(p[1], []).append(i)
+                    head.add(p[1], i)
+        self.head = head.freeze()
         self.keys = sorted(self.head)
         return self
 
-    def pinyin_index(self) -> dict[str, list[int]]:
+    def pinyin_index(self) -> cjk.IdMap:
         """Toneless pinyin -> entry ids (built on the first pinyin search)."""
         if self._pinyin is None:
-            idx: dict[str, list[int]] = {}
+            idx = cjk.IdMap()
             for i, p in enumerate(self.pin):
-                idx.setdefault(_plain(p), []).append(i)
-            self._pinyin = idx
+                idx.add(_plain(p), i)
+            self._pinyin = idx.freeze()
             self.pinyin_keys = sorted(idx)
         return self._pinyin
 
