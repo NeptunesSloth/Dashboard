@@ -66,7 +66,7 @@ def test_a_daily_event_does_not_come_back_within_its_cooldown(st):
         kind = key.split(":", 1)[1]
         if kind in colony.EVENT_REPEATS:
             continue
-        assert all(b - a >= colony.EVENT_COOLDOWN for a, b in zip(days, days[1:])), (key, days)
+        assert all(b - a >= colony.EVENT_COOLDOWNS.get(kind, colony.EVENT_COOLDOWN) for a, b in zip(days, days[1:])), (key, days)
 
 
 def test_a_cave_seen_yesterday_is_not_offered_today(st, monkeypatch):
@@ -182,7 +182,7 @@ def test_risky_trope_choices_show_their_odds(st, monkeypatch):
     colony._daily_event(c)
     ev = c["pending"]
     assert ev and ev["kind"] == "tournament"
-    sends = [o["label"] for o in ev["options"] if o["id"] != "decline"]
+    sends = [o["label"] for o in ev["options"] if o["id"] not in ("decline", "observe")]
     assert sends and all("% to win round one" in x and "% to win every round" in x for x in sends)
     assert all(f"{ch['name']} {int(fp)}" in ev["text"] for _, ch, fp in colony.tournament_field(c)) and len(ev["text"]) <= 300
 

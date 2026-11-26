@@ -241,7 +241,7 @@ def test_raids_are_seen_coming_and_defences_matter(st):
     weak = copy.deepcopy(st)
     colony._omen(weak["colony"], random.Random(1), "raid", colony._rival(weak["colony"]))
     ev = weak["colony"]["pending"]
-    assert ev["kind"] == "omen" and rival["name"] in ev["title"] and [o["id"] for o in ev["options"]] == ["fight"]
+    assert ev["kind"] == "omen" and rival["name"] in ev["title"] and [o["id"] for o in ev["options"]] == ["fight", "guard"]   # stores at risk: guard them
     assert colony.advance(weak, 5, T0)["hours"] == 0                                # time waits for the answer
     colony.resolve(weak, "fight", T0)
     wc = weak["colony"]
@@ -299,7 +299,7 @@ def test_every_trope_event_can_be_raised_and_answered_every_way(st):
                 assert all(isinstance(x["rel"], int) for x in v["sects"]) and isinstance(v["fame"], int)
         assert c["pawns"] and any(p["master"] for p in c["pawns"])
         assert all(0 <= p["health"] <= 100 for p in c["pawns"])
-    assert seen >= {"wanderer", "merchant", "omen", "young_master", "auction", "secret_realm", "beast_cub", "demonic_offer",
+    assert seen >= {"wanderer", "merchant", "omen", "young_master", "auction", "secret_realm", "beast_cub", "demonic_offer", "plague", "blight", "infiltrator", "festival",
                     "cave", "engagement", "spy", "village", "tournament", "recruit"}, seen
     assert {("young_master", "slap"), ("young_master", "endu"), ("secret_realm", "send"), ("tournament", "p")} - answered <= {("tournament", "p")}
 
@@ -632,7 +632,7 @@ def test_every_big_outcome_queues_a_result_scene(st):
         p["skills"]["combat"]["lv"] = 0
     colony._omen(weak["colony"], random.Random(1), "raid", colony._rival(weak["colony"]))
     colony.resolve(weak, "fight", T0)
-    lost = _last(weak, "raid")
+    lost = _last(weak, "theft")                                      # beaten raiders carry off the stores
     assert not lost["ok"] and lost["verdict"] == "Defeat" and any(ch["label"] == "Wounded" and ch["v"] > 0 for ch in lost["changes"])
     assert lost["party"] and any(ln["text"].startswith("lost ") for ln in lost["lines"])
     strong = copy.deepcopy(st)

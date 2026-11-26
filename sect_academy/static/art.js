@@ -33,7 +33,9 @@ export function backdrop(name) { return `/art/bg_${BACKDROPS.has(name) ? name : 
 /* Result scenes: each kind has its own painting (static/art/scene_<kind>.webp) once one is painted.
    The server says whether that file exists (scene.painted), so a missing picture is never requested;
    until then the closest backdrop stands in. */
-const SCENE_FALLBACK = { raid: 'map', tournament: 'technique', festival: 'hall', funeral: 'leader', tribulation: 'seclusion', breakthrough: 'seclusion', realm: 'treasure' };
+const SCENE_FALLBACK = { raid: 'map', tournament: 'technique', festival: 'hall', funeral: 'leader', tribulation: 'seclusion', breakthrough: 'seclusion', realm: 'treasure',
+  sickness: 'pill', blight: 'map', infiltrator: 'leader', theft: 'treasure',
+  festival_spring: 'hall', festival_moon: 'hall', festival_ghost: 'hall', festival_winter: 'hall' };
 /** The backdrop for a result scene of a known kind. */
 export function scene(kind, painted = false) {
   if (!Object.prototype.hasOwnProperty.call(SCENE_FALLBACK, kind)) return backdrop('hall');

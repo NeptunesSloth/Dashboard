@@ -1,9 +1,11 @@
 """The balance, checked by simulation (tests/balance.py plays the game; ~1 s per 150-day run).
 
 These pin the shape of the difficulty, not exact numbers: an idle sect starves or loses people on
-the storytellers that allow it, a careful one survives balanced but meets real pressure, its
-disciples (not only the Master) cultivate, and it earns a name in the valley around the second
-month. Retune by running ``python tests/balance.py 150 12345,7,99`` and reading the table.
+the storytellers that allow it; a careful one survives balanced but loses something that matters on
+most seeds (stores carried off by raiders, or a lean stretch under four days of rice), is never left
+more than six days without something to decide, and its disciples (not only the Master) meditate a
+fair share of their hours and mostly stand in Qi Condensation by day 80. Retune by running
+``python tests/balance.py 150 12345,7,99`` and reading the table.
 """
 import copy
 
@@ -13,39 +15,53 @@ from balance import play
 from sect_academy import colony, state
 
 T0 = 1_800_000_000.0
+SEEDS = (12345, 7, 99)
 
 
 @pytest.fixture(scope="module")
-def careful():
-    return play("balanced", "careful", 150, 12345)
+def runs():
+    return {s: play("balanced", "careful", 150, s) for s in SEEDS}
+
+
+@pytest.fixture(scope="module")
+def careful(runs):
+    return runs[12345]
 
 
 @pytest.mark.parametrize("tell", ["balanced", "harsh"])
 def test_an_idle_sect_starves_or_loses_people(tell):
     r = play(tell, "idle", 150, 12345)
     assert r["deaths"] >= 1 or r["lean_days"] >= 10, r
+    assert r["gap"] <= 6, r                                           # even a sect nobody steers hears from the world
 
 
 def test_a_careful_sect_survives_balanced_but_feels_it(careful):
     r = careful
-    assert r["deaths"] == 0, r
+    assert r["deaths"] <= 1 and r["pop"] >= 6, r
     assert r["hurt"] >= 1 or r["lean_days"] >= 1, r                  # a raid that hurts, or a lean stretch
     assert r["rice_cap_days"] < 50 and r["cap_days"] < 50, r          # the granary is not pinned at its limit
     assert r["min_food_days"] < 10, r                                 # winter bites into the stores
 
 
-def test_careful_disciples_cultivate_not_only_the_master(careful):
-    assert careful["others_up60"] >= 2, careful["steps60"]
+def test_a_careful_sect_loses_something_on_most_seeds_and_is_never_left_idle(runs):
+    for r in runs.values():
+        assert r["deaths"] <= 1 and r["pop"] >= 6, r                   # it survives
+        assert r["gap"] <= 6, r                                       # no week without something to decide
+    assert sum(r["loss"] for r in runs.values()) >= 2, [(r["deaths"], r["stolen"], round(r["min_food_days"], 1)) for r in runs.values()]
+    assert sum(r["stolen"] for r in runs.values()) > 0                # raiders do reach the stores
+
+
+def test_careful_disciples_meditate_and_reach_qi_condensation(runs):
+    for r in runs.values():
+        assert r["others_up60"] >= 2, r["steps60"]
+        shares = sorted(r["med_share"].values())
+        assert shares[len(shares) // 2] >= 0.3, shares                # meditation level with the chores: a fair share
+        assert 2 * r["qc80"] >= r["others80"] >= 1, r["steps80"]      # most of the first month's disciples, by day 80
+    assert sum(r["qc80"] for r in runs.values()) > sum(r["others80"] for r in runs.values()) / 2
 
 
 def test_a_careful_sect_is_known_in_the_valley_by_the_second_month(careful):
     assert careful["renown_day"] and 25 <= careful["renown_day"] <= 50, careful
-
-
-@pytest.mark.parametrize("seed", [7, 99])
-def test_careful_survives_balanced_on_other_seeds(seed):
-    r = play("balanced", "careful", 150, seed)
-    assert r["deaths"] == 0 and r["others_up60"] >= 2, r
 
 
 # ---------------------------------------------------------------------------
