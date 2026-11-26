@@ -144,3 +144,48 @@ Python and the requirements are installed, run `python -m pytest -q` first. Comm
 in batches (backdrops, portraits, hq, scenes) so a bad batch is easy to revert.
 The cloud session will pull, check sizes and the room layout, and run the
 offline smoke test.
+
+## Round 2: more faces and scenes for the new threats
+
+### Extra disciple faces
+
+Any `sect_academy/static/art/p_<name>.webp` beyond the six originals is used
+automatically (lower-case letters, digits and `_` only; not `leader` or
+`elder`). Make **10**, chibi busts in the same style as the repainted
+portraits (1024x1024 from a portrait reference at denoise ~0.7, final 192x192
+WebP), each clearly a different person, with a prop for flavour:
+
+| File | Who |
+|---|---|
+| `p_swordswoman` | young woman, high ponytail, sword over the shoulder |
+| `p_monk` | shaven-headed young monk, prayer beads |
+| `p_herbalist` | older woman, grey bun, basket of herbs |
+| `p_scholar` | thin young man, scroll and brush, ink-stained fingers |
+| `p_hunter` | rugged young man, fur collar, bow |
+| `p_noble` | haughty young noblewoman, jade hairpin, folding fan |
+| `p_farmer` | sun-tanned boy, straw hat, rice sheaf |
+| `p_twin` | cheerful girl with two short braids, spinning top |
+| `p_veteran` | middle-aged man, scar across the brow, spear |
+| `p_mystic` | pale young woman, white hair, glowing talisman |
+
+Existing disciples may get a different face once these land (faces are picked
+from a hash of the disciple), which is fine.
+
+### Scenes for the new events
+
+Same rules as the first scenes (1152x768, a backdrop as style reference at
+denoise ~0.85, no text, trim the corner stamp):
+
+| File | Subject |
+|---|---|
+| `scene_sickness` | a plague ward at night: disciples on sickbeds, a physician with a lantern, herb smoke, pale green light |
+| `scene_blight` | rice terraces withered grey and black under a sickly moon, a disciple kneeling in dead stalks |
+| `scene_infiltrator` | a masked figure in black robes slipping through the sect at night, a dagger glinting, a disciple turning to look |
+| `scene_theft` | raiders fleeing over the wall with sacks of rice and spirit stones, an open storehouse door, lanterns overturned |
+| `scene_festival_spring` | Lantern Festival: paper lanterns released over the peaks, disciples guessing riddles at stalls |
+| `scene_festival_moon` | Mid-Autumn: a huge full moon, mooncakes and tea on a terrace, disciples admiring the moon |
+| `scene_festival_ghost` | Ghost Festival: river lanterns floating on dark water, offerings, incense, a gentle eerie mist |
+| `scene_festival_winter` | Winter solstice: snow on the eaves, disciples sharing dumplings around a brazier |
+
+The game picks these up once the matching event kinds exist (the cloud session
+wires them); until then they are simply unused.

@@ -824,3 +824,13 @@ def test_direct_disciple_rank_and_ledger(st):
     assert pv["qi_work"] > 0 and "training" in pv["qi_work_label"]
     other = next(x for x in colony.view(st, T0)["pawns"] if x["id"] == c["pawns"][2]["id"])
     assert other["qi_work"] > 0 and other["rank"] == "Outer Disciple"
+
+
+def test_view_lists_the_disciple_faces_that_exist():
+    import re as _re
+    from pathlib import Path
+    art = Path(colony.__file__).parent / "static" / "art"
+    assert colony.FACES[:6] == ("disciple", "analyst", "architect", "engineer", "researcher", "trader")
+    for n in colony.FACES:
+        assert _re.fullmatch(r"[a-z0-9_]{1,24}", n) and (art / f"p_{n}.webp").is_file()
+    assert "leader" not in colony.FACES and "elder" not in colony.FACES

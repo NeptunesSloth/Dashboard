@@ -28,6 +28,7 @@ import copy
 import datetime as _dt
 import math
 import random
+import re
 from pathlib import Path
 
 from . import lore
@@ -255,6 +256,13 @@ def _letter(c: dict, kind: str, title: str, text: str) -> dict:
 SCENE_KINDS = ("raid", "tournament", "festival", "funeral", "tribulation", "breakthrough", "realm")
 SCENE_CAP = 5                       # unseen scenes kept; older ones drop off (the chronicle still has them)
 SCENE_ART = frozenset(k for k in SCENE_KINDS if (Path(__file__).parent / "static" / "art" / f"scene_{k}.webp").is_file())
+# Disciple faces: the six originals first (so existing disciples keep their face
+# until more are added), then any extra static/art/p_<name>.webp, sorted.
+_FACE_BASE = ("disciple", "analyst", "architect", "engineer", "researcher", "trader")
+_FACE_DIR = Path(__file__).parent / "static" / "art"
+FACES = tuple(n for n in _FACE_BASE if (_FACE_DIR / f"p_{n}.webp").is_file()) + tuple(sorted(
+    f.stem[2:] for f in _FACE_DIR.glob("p_*.webp")
+    if f.stem[2:] not in _FACE_BASE and f.stem[2:] not in ("leader", "elder") and re.fullmatch(r"[a-z0-9_]{1,24}", f.stem[2:])))
 
 
 def _snap(c: dict) -> dict:
@@ -3020,7 +3028,7 @@ def view(st: dict, now: float) -> dict:
                  "hours": _f(rates[k]["hours"]), "full": bool(rates[k]["full"])} for k in RES],
         "insight": _f(c["insight"]), "wealth": _f(wealth(c)), "defense": _f(defense(c)),
         **dao.view(c),
-        "fame": _f(c["fame"]), "alerts": _alerts(c), "scenes": [_scene_view(x) for x in c["scenes"][-SCENE_CAP:]], "renown": renown(float(c["fame"])),
+        "fame": _f(c["fame"]), "alerts": _alerts(c), "scenes": [_scene_view(x) for x in c["scenes"][-SCENE_CAP:]], "faces": list(FACES), "renown": renown(float(c["fame"])),
         "guide": ({"text": GUIDE[c["guide"]["i"]][1], "n": _f(c["guide"]["i"]) + 1, "total": len(GUIDE)}
                   if not c["guide"]["skip"] and c["guide"]["i"] < len(GUIDE) and c["name"] else None),
         "works": [{"id": w["id"], "name": w["name"], "text": w["text"], "done": bool(w["done"]),

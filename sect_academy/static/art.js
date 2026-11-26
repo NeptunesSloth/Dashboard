@@ -42,7 +42,12 @@ export function scene(kind, painted = false) {
 
 /* ---------------- characters ---------------- */
 function hash(str) { let h = 2166136261; for (const ch of String(str)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; }
-const FACES = ['disciple', 'analyst', 'architect', 'engineer', 'researcher', 'trader'];
+let FACES = ['disciple', 'analyst', 'architect', 'engineer', 'researcher', 'trader'];
+/** The server lists the disciple faces that exist (static/art/p_<name>.webp); known-safe names only. */
+export function setFaces(list) {
+  const ok = Array.isArray(list) ? list.filter((n) => typeof n === 'string' && /^[a-z0-9_]{1,24}$/.test(n)) : [];
+  if (ok.length) FACES = ok;
+}
 const RING = { Common: 'r0', Good: 'r1', Superior: 'r2', 'Heaven Grade': 'r3', 'Saint Grade': 'r4', 'Heaven-Defying': 'r4', Crippled: 'r0' };
 
 /**

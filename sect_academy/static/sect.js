@@ -2,7 +2,7 @@
 // this module draws it, sends orders, and asks for sim hours as real time passes.
 // All text from the server goes through esc(); every number arrives already cast.
 
-import { ICON, VAULT, backdrop, portrait, scene, sectScene, siteRect } from '/art.js';
+import { ICON, VAULT, backdrop, portrait, scene, sectScene, setFaces, siteRect } from '/art.js';
 
 const SPEED_KEY = 'sect.speed';
 const SECS_PER_HOUR = { 1: 4, 2: 2, 3: 1 };          // real seconds per sim hour
@@ -18,6 +18,7 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch (_) { ret
 export function mountSect(h) {
   const { view, $, esc, api, toast, openSheet, closeSheet } = h;
   let S = h.sect();
+  setFaces(S && S.faces);
   let tab = sessionStorage.getItem('sect.tab') || 'disciples';
   let speed = [0, 1, 2, 3].includes(Number(store.get(SPEED_KEY))) && store.get(SPEED_KEY) !== null ? Number(store.get(SPEED_KEY)) : 1;
   let sceneSig = '';
@@ -44,7 +45,7 @@ export function mountSect(h) {
   const signed = (v) => `<b class="num" style="color:var(--${v < 0 ? 'verm' : 'jade'})">${v > 0 ? '+' : ''}${v}</b>`;
   const flames = (n) => '🔥'.repeat(Math.max(0, Math.min(2, n)));
 
-  function take(res, mine) { if (res.sect && mine >= seq) { seq = mine; S = res.sect; h.setSect(S); return true; } return false; }
+  function take(res, mine) { if (res.sect && mine >= seq) { seq = mine; S = res.sect; h.setSect(S); setFaces(S.faces); return true; } return false; }
 
   async function order(action, body = {}, quiet = false) {
     const mine = ++seq;
