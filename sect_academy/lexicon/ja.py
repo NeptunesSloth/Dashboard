@@ -195,6 +195,9 @@ def rom_of(i: int, reading: str, macrons: bool = True) -> str:
     if reading in PARTICLES and "prt" in tags:
         return PARTICLES[reading]
     verb = any(t.startswith("v5u") for t in tags)
+    if "exp" in tags and "を" in reading[1:-1]:          # しゃしんをとる -> shashin o toru (the particle is "o")
+        a, _, b = reading.partition("を")
+        return " o ".join(romaji(x, macrons=macrons, keep_final_ou=verb and x == b) for x in (a, b))
     return romaji(reading, macrons=macrons, keep_final_ou=verb)
 
 
@@ -213,6 +216,30 @@ def _score(i: int, surface: str) -> float:
 # ---------------------------------------------------------------------------
 # finding a word (with its conjugation undone)
 # ---------------------------------------------------------------------------
+# Beginner text is written in kana, and JMdict's frequency marks do not say which homograph a learner means:
+# for these readings the everyday word comes first (きのう is yesterday before it is "function"). A kanji form
+# of the entry, or "=" and the start of its gloss for a word with no kanji.
+KANA_PREFER = {"きのう": "昨日", "なん": "何", "いくら": "幾ら", "みる": "見る", "きく": "聞く", "あさ": "朝",
+               "いつ": "何時", "いち": "一", "どう": "如何", "さん": "=Mr", "そう": "然う", "くじ": "九時",
+               "あれ": "彼", "やすい": "安い", "じゅうじ": "十時", "なんばん": "何番", "にじゅう": "二十",
+               "おきる": "起きる", "かう": "買う", "あう": "会う", "かえる": "帰る", "はし": "橋", "かみ": "紙",
+               "あめ": "雨", "はな": "花", "き": "木", "め": "目", "て": "手", "ひ": "日", "よむ": "読む",
+               "かく": "書く", "はなす": "話す", "でる": "出る", "いる": "居る", "ある": "有る", "つく": "着く",
+               "はれ": "晴れ", "あつい": "暑い", "さむい": "寒い", "おもい": "重い", "ちかい": "近い",
+               "しゅうまつ": "週末", "こうえん": "公園", "せんせい": "先生", "じかん": "時間", "かいぎ": "会議",
+               "きかい": "機会", "いし": "石", "いしゃ": "医者", "かし": "菓子", "ごぜん": "午前", "ごご": "午後",
+               "ちかく": "近く", "とおく": "遠く"}
+
+
+def _preferred(i: int, term: str) -> bool:
+    want = KANA_PREFER.get(term)
+    if not want:
+        return False
+    if want.startswith("="):
+        return not dictionary().kanji[i] and dictionary().gloss[i].startswith(want[1:])
+    return any(f == want for f, _ in _forms(i))
+
+
 @lru_cache(maxsize=65536)
 def find(surface: str) -> tuple:
     """All readings of a written piece as (score, entry, term, reasons), best first."""
@@ -231,6 +258,10 @@ def find(surface: str) -> tuple:
         # the polite prefix お/ご on a word JMdict lists without it (おいくつ -> いくつ)
         out = [(sc + 8, i, t, (*rs, "polite prefix o-/go-")) for sc, i, t, rs in find(surface[1:])
                if any(p in _CONTENT or p == "adv" for p in d.tags[i])]
+    if any(_preferred(i, t) for _, i, t, _ in out):
+        # the preferred word comes first among the readings that undo as much (みず is 水 before it is 見る + -ず)
+        out = [(min(x[0] for x in out if len(x[3]) >= len(rs)) - 1, i, t, rs) if _preferred(i, t) else (sc, i, t, rs)
+               for sc, i, t, rs in out]
     out.sort(key=lambda x: (x[0], x[1]))
     seen, best = set(), []
     for x in out:
@@ -268,12 +299,14 @@ def _edges(s: str, i: int):
         if not hits:
             continue
         sc, i0, term, reasons = hits[0]
+        if _phrase_of_words(i0, term):
+            continue                          # 写真を撮りました: 写真 | を | 撮りました, unless the phrase is a common entry
         cost = 1.0 + min(sc, 99) / 220 + (0.25 if sub in SPLIT_OK else 0.0)
         tags = dictionary().tags[i0]
         if _is_kana(term) and not _uk(i0) and not (sub in _PARTICLE_SET and "prt" in tags) and sub not in _HONORIFIC:
             # kana for a word normally written in kanji: likely in beginner text, but a weaker guess
             cost += 0.45 if any(r == term and c for r, c, _ in _readings(i0)) else 0.9
-        if dictionary().rank[i0] >= 99 and _is_kana(sub):
+        if dictionary().rank[i0] >= 99 and _is_kana(sub) and not _preferred(i0, term):
             cost += 1.2                       # no frequency data at all: a rare word, seldom the right cut in kana
         if sub[0] in "んっゃゅょぁぃぅぇぉー":
             cost += 1.0                       # (んで, っす) colloquial pieces that rarely start a word in writing
@@ -301,6 +334,23 @@ def _edges(s: str, i: int):
 
 
 _HONORIFIC = ("さん", "くん", "ちゃん", "さま", "せんせい", "様", "君", "先生")
+_INNER = set("をがにでは")
+
+
+def _common_form(i: int, term: str) -> bool:
+    return any(f == term and c for f, c in _forms(i)) or any(r == term and c for r, c, _ in _readings(i))
+
+
+@lru_cache(maxsize=16384)
+def _phrase_of_words(i: int, term: str) -> bool:
+    """A noun + particle + verb expression (写真を撮る) that is not a common entry and whose pieces are words:
+    read as its words, so the particle can be tapped. 気に入る (common) stays whole."""
+    if _common_form(i, term):
+        return False
+    for k in range(1, len(term) - 1):
+        if term[k] in _INNER and cjk.kind(term[k - 1]) in ("h", "K") and has_word(term[:k]) and find(term[k + 1:]):
+            return True
+    return False
 
 
 _CONTENT = {"n", "v1", "vk", "vs", "vs-i", "vs-s", "adj-i", "adj-na", "adj-no", "pn", "n-adv", "n-t", "ctr", "num",
@@ -466,7 +516,9 @@ def lookup(raw, mine: dict | None = None, around: tuple[str, str] | None = None)
             if h:
                 s = _sense(h[0][1], big)
                 also.insert(0, {"lemma": big, "path": [big], "how": "compound", "reading": s["read"], "senses": [s]})
-    if len(word) > 1 and any(cjk.is_han(ch) for ch in word):
+    # each kanji of a word with one kanji (食べる: 食); a word of several kanji is read as a word, not as its
+    # characters (銀行 is "bank", not 銀 silver + 行 "samskara")
+    if len(word) > 1 and sum(cjk.is_han(ch) for ch in word) == 1:
         for ch in dict.fromkeys(c for c in word if cjk.is_han(c)):
             h = find(ch)
             if h:

@@ -6,8 +6,10 @@ starting with `#` are comments):
 
     simplified  traditional ("" if the same)  pinyin with tone numbers  gloss  flags  frequency
 
-125,474 entries (3.9 MB). The gloss keeps the first three senses (classifier
-"CL:" notes dropped, very long senses shortened), joined by "; ". Flags: `w`
+125,474 entries (4.0 MB). The gloss keeps every sense, in CC-CEDICT's order
+(classifier "CL:" notes dropped, very long senses shortened, at most 500
+characters), joined by "; ": 带 is "band; belt; … to wear; to carry; to take
+along; … to bring". Flags: `w`
 weak (the entry only says "variant of X", "surname X", "see X" or "used in X"),
 `p` proper noun. The reader shows pinyin with tone marks (*xuéxí*) and also
 finds a word typed with tone numbers (*xue2xi2*) or with no tones (*xuexi*).

@@ -61,6 +61,9 @@ _WEAK_GLOSS = re.compile(r"^(?:\([^)]*\) )?(?:(?:old|archaic|unofficial|erhua|Ja
                          r"variant of |^(?:see|see also|surname|used in)\b", re.I)
 
 
+MAX_GLOSS = 500                 # characters of senses kept per entry (a few have dozens: 打, 开)
+
+
 def build_zh(src: Path, out: Path, jieba: Path | None = None) -> dict:
     rows = []
     with gzip.open(src, "rt", encoding="utf-8") as f:
@@ -75,10 +78,12 @@ def build_zh(src: Path, out: Path, jieba: Path | None = None) -> dict:
             glosses = [g for g in glosses if not g.startswith("CL:")]
             strong = [g for g in glosses if not _WEAK_GLOSS.match(g)]
             weak = not strong
-            keep = (strong or glosses)[:3]
+            keep = strong or glosses                       # every sense, in CEDICT's order (带: band ... to carry)
             if not keep:
                 continue
             gloss = "; ".join(g if len(g) <= 90 else g[:87].rstrip() + "…" for g in keep).replace("\t", " ")
+            if len(gloss) > MAX_GLOSS:
+                gloss = gloss[:MAX_GLOSS].rsplit("; ", 1)[0]
             proper = pin[:1].isupper() and not weak
             rows.append([simp, "" if trad == simp else trad, pin.replace("u:", "v"), gloss, ("w" if weak else "") + ("p" if proper else "")])
     freq: dict[str, int] = {}

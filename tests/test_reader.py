@@ -45,9 +45,11 @@ def test_lookup_finds_the_dictionary_form(word, lemma):
 
 
 def test_lookup_paths_and_kinds():
-    assert look("cúrale")["path"] == ["cúrale", "curar"] and look("cúrale")["how"] == "form"
+    # pronouns attached to a verb are taken off by rule (the form table keeps no dímelo, cúrale)
+    assert look("cúrale")["path"] == ["cúrale", "curar"] and look("cúrale")["how"] == "pronouns"
     assert look("cúramelas")["how"] == "pronouns"
-    assert look("dimelo")["path"] == ["dimelo", "dímelo", "decir"] and look("dimelo")["how"] == "accent"
+    assert look("dimelo")["path"][-1] == "decir" and look("dimelo")["how"] == "pronouns"
+    assert "imperative" in look("dímelo")["gram"] and "me + lo" in look("dímelo")["gram"]
     # año and ano are different words: an accent is never dropped when the word exists as written
     assert "year" in [s["text"] for s in look("año")["senses"]]
     assert look("ano")["senses"][0]["text"] == "anus"
@@ -56,7 +58,7 @@ def test_lookup_paths_and_kinds():
 
 def test_candidates_order_is_aprende_like():
     c = [k for k, _ in es.candidates("casas")]
-    assert c[0] == "casas" and c.index("casa") < c.index("casás")
+    assert c[0] == "casas" and c[1] == "casa"           # the plural first, before any accent variant
     assert "curar" in [k for k, _ in es.candidates("cúramelas")]
 
 
