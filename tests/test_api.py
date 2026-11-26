@@ -37,7 +37,7 @@ def test_shell_is_self_contained_and_offline():
         r = client.get(path)
         assert r.status_code == 200 and "Sect Academy" in r.text
         assert "default-src 'self'" in r.headers["content-security-policy"]
-    for asset in ("/academy.js", "/sect.js", "/art.js", "/academy.css", "/sw.js", "/manifest.webmanifest", "/icon.svg"):
+    for asset in ("/academy.js", "/sect.js", "/art.js", "/pictures.js", "/academy.css", "/sw.js", "/manifest.webmanifest", "/icon.svg"):
         r = client.get(asset)
         assert r.status_code == 200, asset
         body = r.text.replace("http://www.w3.org/", "")           # the SVG namespace is a name, not a request

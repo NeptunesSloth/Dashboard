@@ -709,3 +709,32 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .dict-row:hover, .dict-row:focus-visible { background: var(--azure-soft); border-radius: 10px; }
 
 .shelf-hero{background-size:cover;background-position:center right}
+
+/* ---------------- picture lessons (pictures.js) ---------------- */
+.pic { position: relative; margin: 4px 0 12px; border-radius: 16px; background: #10162a; aspect-ratio: 4 / 3; box-shadow: 0 4px 0 var(--line-d); }
+.pic img, .pic .pic-blank { display: block; width: 100%; height: 100%; border-radius: 16px; object-fit: cover; user-select: none; -webkit-user-drag: none; }
+.pic .pin { position: absolute; transform: translate(-50%, -50%); width: 30px; height: 30px; min-height: 0; padding: 0; border-radius: 50%;
+  border: 2px solid #fff6dc; background: var(--gold); color: #3a2a00; font: 800 .85rem var(--round); display: grid; place-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .55); z-index: 1; touch-action: manipulation; }
+.pic .pin > b { pointer-events: none; }
+.pic button.pin:hover:not(:disabled), .pic .pin.over { transform: translate(-50%, -50%) scale(1.15); }
+.pic .pin.sel { background: var(--azure); color: #fff; outline: 3px solid #fff; z-index: 3; }
+.pic .pin.full { background: #e9dfc6; }
+.pic .pin.lit { background: var(--azure); color: #fff; animation: pinpulse 1.4s ease-in-out infinite; }
+.pic .pin.ok { background: var(--jade); color: #04281c; animation: none; }
+.pic .pin.no { background: var(--verm); color: #fff; animation: none; }
+.pic .pin:disabled { cursor: default; }
+.pic .lab { position: absolute; transform: translate(-50%, 17px); white-space: nowrap; pointer-events: none; z-index: 4;
+  background: rgba(10, 14, 26, .88); color: #fff6dc; font: 700 .8rem var(--round); padding: 2px 7px; border-radius: 8px; }
+.pic .lab[hidden] { display: none; }
+.pic .lab.ok { color: #b8f5dc; } .pic .lab.no { color: #ffd0c8; }
+.pic.labelled .pin { width: 24px; height: 24px; font-size: .75rem; }
+@keyframes pinpulse { 50% { box-shadow: 0 0 0 7px rgba(47, 155, 255, .35); } }
+@media (prefers-reduced-motion: reduce) { .pic .pin.lit { animation: none; } }
+.chips .chip.used { opacity: .35; box-shadow: none; }
+.chips .chip[draggable="true"] { cursor: grab; }
+.pic-help { margin: 0 0 4px; }
+.piclist { margin: 8px 0 0; padding-left: 26px; display: grid; gap: 4px; }
+.piclist li { font-weight: 600; } .piclist .say { vertical-align: middle; }
+.step.soon { cursor: default; opacity: .8; }
+@media (max-width: 520px) { .pic .pin { width: 26px; height: 26px; font-size: .78rem; } .pic .lab { font-size: .72rem; padding: 1px 5px; transform: translate(-50%, 14px); } }

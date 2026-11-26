@@ -1,0 +1,15 @@
+# A shared picture (conventions: see body.yaml).
+id: meal
+title: "A table of food"
+brief: "A long table seen from above at a slight angle, laid with ten foods in three loose rows: bread, rice, fish, meat; eggs, an apple, vegetables, soup; water and tea."
+pins:
+  - {id: bread, x: 14, y: 24, en: bread}
+  - {id: rice, x: 38, y: 24, en: rice}
+  - {id: fish, x: 62, y: 24, en: fish}
+  - {id: meat, x: 86, y: 24, en: meat}
+  - {id: egg, x: 14, y: 54, en: egg}
+  - {id: apple, x: 38, y: 54, en: apple}
+  - {id: vegetables, x: 62, y: 54, en: vegetables}
+  - {id: soup, x: 86, y: 54, en: soup}
+  - {id: water, x: 35, y: 84, en: water}
+  - {id: tea, x: 65, y: 84, en: tea}

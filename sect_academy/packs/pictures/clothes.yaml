@@ -1,0 +1,15 @@
+# A shared picture (conventions: see body.yaml).
+id: clothes
+title: "Clothes"
+brief: "Two people standing side by side, facing us, dressed for a cold evening: on the left hat, scarf, open jacket over a shirt, belt, trousers and shoes; on the right gloves, a skirt and long socks."
+pins:
+  - {id: hat, x: 30, y: 8, en: hat}
+  - {id: scarf, x: 30, y: 22, en: scarf}
+  - {id: shirt, x: 30, y: 34, en: shirt}
+  - {id: jacket, x: 21.5, y: 38, en: jacket}
+  - {id: belt, x: 30, y: 50, en: belt}
+  - {id: trousers, x: 27, y: 68, en: trousers}
+  - {id: shoes, x: 27.5, y: 93, en: shoes}
+  - {id: gloves, x: 57.5, y: 52, en: gloves}
+  - {id: skirt, x: 70, y: 58, en: skirt}
+  - {id: socks, x: 67.5, y: 83, en: socks}

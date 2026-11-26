@@ -1,0 +1,279 @@
+id: french-pictures
+title: "French — Picture lessons"
+kind: language
+language: French
+lang: fr-FR
+hall: tongues_west
+blurb: "Put the words on the picture: the body, the skeleton, the face, the house, the kitchen, clothes, the town, the classroom, food and the weather. Take it alongside A1."
+
+# Picture lessons (docs/ACADEMY_CONTENT.md, "Picture lessons"). The pictures and pin
+# positions are shared by every language in packs/pictures/; this file names the pins.
+# Each pin is its own card with the id <item id>-<pin id>: never rename either part.
+# Before a vowel the article is l', which hides the gender: the note gives it.
+units:
+  - id: fr-pic-01
+    title: "Picture: the body"
+    goal: "I can name the main parts of the body."
+    notes: |
+      French names a body part with **the article**, not a possessive, when it is
+      clear whose it is: *j'ai mal à **la** tête* (my head hurts),
+      *je me lave **les** mains* (I wash my hands).
+
+      - **le bras** and **le dos** end in a silent *s*, singular and plural alike.
+      - **le genou** makes *les genoux* in the plural.
+      - **l'épaule** is feminine, **l'orteil** masculine: the *l'* hides it.
+    items:
+      - id: fr-pic-body
+        type: picture
+        picture: body
+        pins:
+          head: {l2: la tête}
+          neck: {l2: le cou}
+          shoulder: {l2: l'épaule, note: "Feminine: une épaule."}
+          arm: {l2: le bras}
+          elbow: {l2: le coude}
+          hand: {l2: la main}
+          finger: {l2: le doigt}
+          chest: {l2: la poitrine, alt: [le torse]}
+          stomach: {l2: le ventre, alt: [l'estomac]}
+          back: {l2: le dos}
+          leg: {l2: la jambe}
+          knee: {l2: le genou, note: "Plural: les genoux."}
+          foot: {l2: le pied}
+          toe: {l2: l'orteil, alt: [le doigt de pied], note: "Masculine: un orteil."}
+
+  - id: fr-pic-02
+    title: "Picture: the skeleton"
+    goal: "I can name the main bones of the body."
+    notes: |
+      **l'os** (masculine) is a bone; *les os*. Many bone names are close to
+      English: *la clavicule*, *le fémur*, *le tibia*, *le sternum*.
+
+      - **le bassin** is the pelvis (the word also means a pond or a basin).
+      - **la colonne vertébrale** is the spine, "the column of vertebrae".
+      - **les côtes** are the ribs; *une côte* also means a coast or a hill.
+    items:
+      - id: fr-pic-skeleton
+        type: picture
+        picture: skeleton
+        pins:
+          skull: {l2: le crâne}
+          collarbone: {l2: la clavicule}
+          breastbone: {l2: le sternum}
+          ribs: {l2: les côtes}
+          spine: {l2: la colonne vertébrale}
+          pelvis: {l2: le bassin}
+          thighbone: {l2: le fémur}
+          kneecap: {l2: la rotule}
+          shinbone: {l2: le tibia}
+
+  - id: fr-pic-03
+    title: "Picture: the face"
+    goal: "I can name the parts of the face."
+    notes: |
+      Describing a face uses **avoir**: *il a les yeux bleus* (he has blue eyes),
+      *elle a les cheveux noirs* (she has black hair).
+
+      - **les cheveux** (hair on the head) is plural; *un cheveu* is a single hair.
+      - **l'œil** (masculine) has an irregular plural: *les yeux*.
+      - **l'oreille** is feminine.
+    items:
+      - id: fr-pic-face
+        type: picture
+        picture: face
+        pins:
+          hair: {l2: les cheveux}
+          forehead: {l2: le front}
+          eyebrow: {l2: le sourcil}
+          eye: {l2: l'œil, alt: [l'oeil], note: "Masculine; plural les yeux."}
+          ear: {l2: l'oreille, note: "Feminine: une oreille."}
+          nose: {l2: le nez}
+          cheek: {l2: la joue}
+          mouth: {l2: la bouche}
+          teeth: {l2: les dents}
+          tongue: {l2: la langue}
+          chin: {l2: le menton}
+
+  - id: fr-pic-04
+    title: "Picture: the house"
+    goal: "I can name the rooms and parts of a house."
+    notes: |
+      *En haut* is upstairs, *en bas* downstairs: *la chambre est en haut*.
+      In France *le rez-de-chaussée* is the ground floor and *le premier étage*
+      is one flight up.
+
+      - **la salle de bains** is also written *la salle de bain*.
+      - **le salon** is the living room; *le séjour* is the same room.
+      - **l'escalier** (masculine) is the staircase, usually singular.
+    items:
+      - id: fr-pic-house
+        type: picture
+        picture: house
+        pins:
+          roof: {l2: le toit}
+          chimney: {l2: la cheminée}
+          bedroom: {l2: la chambre}
+          bathroom: {l2: la salle de bains, alt: [la salle de bain]}
+          window: {l2: la fenêtre}
+          stairs: {l2: l'escalier, alt: [les escaliers], note: "Masculine: un escalier."}
+          living_room: {l2: le salon, alt: [le séjour, la salle de séjour]}
+          kitchen: {l2: la cuisine}
+          door: {l2: la porte}
+          garden: {l2: le jardin}
+
+  - id: fr-pic-05
+    title: "Picture: the kitchen"
+    goal: "I can name the things in a kitchen and on the table."
+    notes: |
+      *Mettre la table* is to lay the table: **l'assiette**, **la fourchette**
+      on the left, **le couteau** and **la cuillère** on the right.
+
+      - **la cuisinière** is the cooker; *la cuisine* is the kitchen (and cooking).
+      - **le frigo** is everyday French for *le réfrigérateur*.
+      - **l'évier** (masculine) is the kitchen sink; a washbasin is *le lavabo*.
+    items:
+      - id: fr-pic-kitchen
+        type: picture
+        picture: kitchen
+        pins:
+          fridge: {l2: le frigo, alt: [le réfrigérateur, le frigidaire]}
+          stove: {l2: la cuisinière}
+          sink: {l2: l'évier, note: "Masculine: un évier."}
+          chair: {l2: la chaise}
+          table: {l2: la table}
+          fork: {l2: la fourchette}
+          plate: {l2: l'assiette, note: "Feminine: une assiette."}
+          knife: {l2: le couteau}
+          spoon: {l2: la cuillère, alt: [la cuiller]}
+          cup: {l2: la tasse}
+
+  - id: fr-pic-06
+    title: "Picture: clothes"
+    goal: "I can name everyday clothes."
+    notes: |
+      To wear is **porter**: *je porte une écharpe*. To put on is *mettre*:
+      *je mets mes gants*.
+
+      - **le pantalon** is singular in French: *un pantalon* is one pair of trousers.
+      - **l'écharpe** (feminine) is a warm scarf; *le foulard* is a light silk one.
+      - **la veste** is a jacket; *le manteau* is a coat.
+    items:
+      - id: fr-pic-clothes
+        type: picture
+        picture: clothes
+        pins:
+          hat: {l2: le chapeau}
+          scarf: {l2: l'écharpe, note: "Feminine: une écharpe."}
+          shirt: {l2: la chemise}
+          jacket: {l2: la veste, alt: [le blouson]}
+          belt: {l2: la ceinture}
+          trousers: {l2: le pantalon, note: "Singular in French: un pantalon."}
+          shoes: {l2: les chaussures}
+          gloves: {l2: les gants}
+          skirt: {l2: la jupe}
+          socks: {l2: les chaussettes}
+
+  - id: fr-pic-07
+    title: "Picture: the town"
+    goal: "I can name the places in a town."
+    notes: |
+      Ask with **Où est… ?** or **Il y a … près d'ici ?**:
+      *Où est la gare ?* — *Il y a une banque près d'ici ?*
+
+      - **la gare** is the train station; a bus station is *la gare routière*.
+      - **le feu** (short for *le feu de signalisation*) is the traffic light:
+        *tournez au feu*, turn at the lights.
+      - **l'hôpital** is masculine; **l'école** is feminine.
+    items:
+      - id: fr-pic-town
+        type: picture
+        picture: town
+        pins:
+          bank: {l2: la banque}
+          hospital: {l2: l'hôpital, note: "Masculine: un hôpital."}
+          school: {l2: l'école, note: "Feminine: une école."}
+          station: {l2: la gare}
+          shop: {l2: le magasin, alt: [la boutique]}
+          restaurant: {l2: le restaurant}
+          park: {l2: le parc}
+          traffic_light: {l2: le feu, alt: [le feu rouge, le feu tricolore, le feu de signalisation, les feux]}
+          bus_stop: {l2: l'arrêt de bus, alt: [l'arrêt d'autobus], note: "Masculine: un arrêt."}
+          crosswalk: {l2: le passage piéton, alt: [le passage pour piétons, le passage clouté]}
+
+  - id: fr-pic-08
+    title: "Picture: the classroom"
+    goal: "I can name the people and things in a classroom."
+    notes: |
+      **le professeur** (*le prof* for short; *la professeure* for a woman) teaches;
+      **l'élève** is a pupil at school, boy or girl: *un élève*, *une élève*.
+
+      - **le tableau** is the board.
+      - **le stylo** is a pen, **le crayon** a pencil.
+      - **le cartable** is a school satchel; any bag is *un sac*.
+    items:
+      - id: fr-pic-classroom
+        type: picture
+        picture: classroom
+        pins:
+          clock: {l2: l'horloge, alt: [la pendule], note: "Feminine: une horloge. A watch is une montre."}
+          blackboard: {l2: le tableau, alt: [le tableau noir]}
+          teacher: {l2: le professeur, alt: [la professeure, le prof, la prof, l'enseignant, l'enseignante]}
+          window: {l2: la fenêtre}
+          student: {l2: l'élève, alt: [l'étudiant, l'étudiante], note: "Un élève or une élève: the same word for a boy or a girl."}
+          book: {l2: le livre}
+          pen: {l2: le stylo}
+          pencil: {l2: le crayon}
+          desk: {l2: le bureau, alt: [le pupitre, la table]}
+          bag: {l2: le sac, alt: [le cartable, le sac à dos]}
+
+  - id: fr-pic-09
+    title: "Picture: a table of food"
+    goal: "I can name common foods and drinks."
+    notes: |
+      To talk about some of a food, French uses **du, de la, des**:
+      *je mange du pain* (I eat bread), *je bois de l'eau* (I drink water).
+
+      - **l'œuf** (masculine): the *f* is spoken in *un œuf*, silent in *des œufs*.
+      - **l'eau** is feminine.
+      - **les légumes** (vegetables) is masculine: *des légumes verts*.
+    items:
+      - id: fr-pic-meal
+        type: picture
+        picture: meal
+        pins:
+          bread: {l2: le pain}
+          rice: {l2: le riz}
+          fish: {l2: le poisson}
+          meat: {l2: la viande}
+          egg: {l2: l'œuf, alt: [l'oeuf], note: "Masculine: un œuf."}
+          apple: {l2: la pomme, alt: [une pomme]}
+          vegetables: {l2: les légumes}
+          soup: {l2: la soupe}
+          water: {l2: l'eau, note: "Feminine: de l'eau fraîche."}
+          tea: {l2: le thé}
+
+  - id: fr-pic-10
+    title: "Picture: the sky and the weather"
+    goal: "I can name the sun, the moon and the weather."
+    notes: |
+      Weather uses **il fait** and **il y a**: *il fait beau* (it's fine),
+      *il y a du soleil / du vent* (it's sunny / windy). Rain and snow have verbs:
+      *il pleut*, *il neige*.
+
+      - **l'arc-en-ciel** (masculine) is the rainbow, "the arc in the sky".
+      - **l'éclair** (masculine) is the flash of lightning; *la foudre* is the strike.
+      - **l'étoile** is feminine.
+    items:
+      - id: fr-pic-sky
+        type: picture
+        picture: sky
+        pins:
+          sun: {l2: le soleil}
+          cloud: {l2: le nuage}
+          rainbow: {l2: l'arc-en-ciel, note: "Masculine: un arc-en-ciel."}
+          lightning: {l2: l'éclair, alt: [la foudre], note: "Masculine: un éclair."}
+          rain: {l2: la pluie}
+          wind: {l2: le vent}
+          star: {l2: l'étoile, note: "Feminine: une étoile."}
+          moon: {l2: la lune}
+          snow: {l2: la neige}

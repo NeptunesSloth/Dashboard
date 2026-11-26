@@ -1,0 +1,15 @@
+# A shared picture (conventions: see body.yaml).
+id: classroom
+title: "The classroom"
+brief: "A classroom seen from the back: blackboard and clock on the far wall, the teacher beside the board, a window on the right; in front, a student at a desk and an empty desk holding a book, a pen and a pencil, a bag on the floor."
+pins:
+  - {id: clock, x: 80, y: 10, en: clock}
+  - {id: blackboard, x: 52, y: 22, en: blackboard}
+  - {id: teacher, x: 24, y: 38, en: teacher}
+  - {id: window, x: 91, y: 40, en: window}
+  - {id: student, x: 72, y: 58, en: student}
+  - {id: book, x: 20, y: 70, en: book}
+  - {id: pen, x: 31, y: 70, en: pen}
+  - {id: pencil, x: 41, y: 73, en: pencil}
+  - {id: desk, x: 30, y: 85, en: desk}
+  - {id: bag, x: 9, y: 88, en: bag}

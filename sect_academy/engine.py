@@ -168,6 +168,7 @@ def course_stats(st: dict, pack: dict, now: float) -> dict:
         "units": units, "current_unit": current,
         "units_done": sum(1 for u in units if u["done"]),
         "enrolled": pack["id"] in st["settings"].get("courses", []),
+        "soon": [{"id": u["id"], "title": u["title"], "goal": u.get("goal", "")} for u in pack.get("soon", [])],
     }
 
 
@@ -196,7 +197,7 @@ def unit_detail(course: str, unit_id: str, now: float | None = None) -> dict:
 
 def _public_item(it: dict) -> dict:
     keys = ("id", "type", "l1", "l2", "rom", "alt", "note", "ex", "ex_rom", "ex_l1", "text", "answer", "term", "def", "q", "why",
-            "title", "scene", "you", "lines", "best")
+            "title", "scene", "you", "lines", "best", "n", "x", "y")
     out = {k: it[k] for k in keys if k in it and it[k] not in ("", None, [])}
     if it["type"] == "mcq":
         out["correct"] = it["choices"][it["answer"]]
@@ -204,6 +205,8 @@ def _public_item(it: dict) -> dict:
         out["correct"] = (" + " if it["type"] == "multi" else " → ").join(truth_list(it))
     if it["type"] == "cloze":
         out["full"] = fill_cloze(it)
+    if it["type"] == "pin":
+        out["picture"] = _pic_view(it)
     return out
 
 
@@ -392,6 +395,8 @@ def _mode_for(it: dict, card: dict | None, pack: dict) -> str:
         return "glyph_choose" if reps == 0 else "glyph_pick" if reps == 1 else "glyph_type"
     if t == "cloze":
         return "cloze_choose" if reps == 0 else "cloze_type"
+    if t == "pin":
+        return _pin_mode(reps)
     if t == "concept":
         return "choose_term" if reps % 2 == 0 else "choose_def"
     if t == "dialogue":
@@ -545,6 +550,8 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
         prev = it["lines"][i - 1] if i > 0 else None
         ex.update(prompt=it["lines"][i]["l1"], ask=f"Say it in {pack.get('language', 'the language')}",
                   sub=(f"{it['title']}. They said: “{prev['l2']}”" if prev else f"{it['title']}. You speak first."))
+    elif mode in PIC_MODES:
+        _pic_exercise(ex, it, mode, pack, rng)
     elif mode == "order":
         steps = list(it["steps"])
         for _ in range(8):                       # never hand over the answer already in order
@@ -552,6 +559,8 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
             if steps != it["steps"]:
                 break
         ex.update(prompt=it["q"], ask="Put these in order", steps=steps)
+    if it["type"] == "pin" and mode not in PIC_MODES and mode != "intro":
+        _pic_lit(ex, it, mode, pack)
     return ex
 
 
@@ -559,6 +568,7 @@ def _truth(it: dict, mode: str) -> str:
     return {"choose_l1": it.get("l1"), "choose_l2": it.get("l2"), "cloze_choose": it.get("answer"),
             "glyph_choose": it.get("rom"), "glyph_pick": it.get("l2"),
             "choose_term": it.get("term"), "choose_def": it.get("def"),
+            "pic_drag": it.get("l2"), "pic_tap": str(it.get("n", "")),
             "mcq": it["choices"][it["answer"]] if it["type"] == "mcq" else None}.get(mode) or ""
 
 
@@ -569,7 +579,8 @@ _MODES = {"multi": {"multi"}, "order": {"order"}, "dialogue": {"dialogue_build",
           "cloze": {"cloze_choose", "cloze_type"},
           "glyph": {"glyph_choose", "glyph_pick", "glyph_type"},
           "concept": {"choose_term", "choose_def"},
-          "mcq": {"mcq"}}
+          "mcq": {"mcq"},
+          "pin": {"pic_drag", "pic_tap", "type_l2"}}
 
 
 def my_lines(it: dict) -> list[int]:
@@ -650,7 +661,156 @@ def _explain(it: dict) -> dict:
                 out[k] = it[k]
         if it["type"] == "cloze":
             out["l2"] = fill_cloze(it)
+        if it["type"] == "pin":
+            out["pin"] = {"n": it["n"], "x": it["x"], "y": it["y"]}
     return out
+
+
+# ---------------------------------------------------------------------------
+# picture lessons: each pin of a picture is its own card (type "pin"); a session
+# shows a picture's new pins together as one drag-the-words exercise
+# ---------------------------------------------------------------------------
+PIC_MODES = ("pic_drag", "pic_tap")
+PIC_DECOYS = 2          # spare word chips on a drag exercise, when the picture has other pins
+
+
+def _pin_mode(reps: int) -> str:
+    """New: put the words on the picture. Met once: tap the pin a word names. Then type it."""
+    return "pic_drag" if reps == 0 else "pic_tap" if reps == 1 else "type_l2"
+
+
+def _pic_view(it: dict) -> dict:
+    """What the client needs to show a pin's picture: a known id only (packs checked the file exists)."""
+    return {"id": it["picture"], "src": f"/art/pic_{it['picture']}.webp", "title": it.get("picture_title", "")}
+
+
+def _pic_siblings(it: dict, pack: dict) -> list[dict]:
+    """Every pin of the same picture item, in picture order."""
+    unit = next((u for u in pack["units"] if u["id"] == it["unit"]), None)
+    return [o for o in (unit or {}).get("items", []) if o["type"] == "pin" and o.get("group") == it["group"]]
+
+
+def _pic_chips(targets: list[dict], sibs: list[dict], rng: random.Random) -> list[dict]:
+    """The word chips: one per target pin, plus a couple of the picture's other words as decoys."""
+    ids = {t["id"] for t in targets}
+    spare = [o for o in sibs if o["id"] not in ids]
+    rng.shuffle(spare)
+    chips = [{"l2": o["l2"], **({"rom": o["rom"]} if o.get("rom") else {})} for o in targets + spare[:PIC_DECOYS]]
+    rng.shuffle(chips)
+    return chips
+
+
+def _pic_exercise(ex: dict, it: dict, mode: str, pack: dict, rng: random.Random) -> None:
+    sibs = _pic_siblings(it, pack) or [it]
+    ex["picture"] = _pic_view(it)
+    if mode == "pic_tap":
+        ex.update(prompt=it["l2"], say=it["l2"], ask="Tap the place this word names",
+                  pins=[{"n": o["n"], "x": o["x"], "y": o["y"]} for o in sibs])
+        if it.get("rom"):
+            ex["rom"] = it["rom"]
+    else:       # pic_drag: one pin here; group_pictures() merges a picture's pins into one exercise
+        ex.update(ask="Put each word on its place in the picture",
+                  pins=[{"item": it["id"], "n": it["n"], "x": it["x"], "y": it["y"]}],
+                  chips=_pic_chips([it], sibs, rng))
+
+
+def _pic_lit(ex: dict, it: dict, mode: str, pack: dict) -> None:
+    """A pin asked in a typed form: the picture with that one pin lit."""
+    ex["picture"] = _pic_view(it)
+    ex["pins"] = [{"n": it["n"], "x": it["x"], "y": it["y"], "lit": True}]
+    if mode == "type_l2":
+        ex["ask"] = f"Name the lit place in {pack.get('language', 'the language')}" + (
+            " (romanised, or in the script)" if is_script(it["l2"]) else "")
+        if re.match(r"^(?:(?:el|la|los|las|le|les) |l')", it["l2"]):
+            ex["sub"] = "With its article: the article is part of the word."
+
+
+def group_pictures(exercises: list[dict], seed: int = 0) -> list[dict]:
+    """Merge the drag exercises of one picture into a single exercise (where the first one
+    was), and its pins' introductions into one labelled picture just before it. Each pin stays
+    its own item: the merged exercise lists them in ``pins`` and every pin is answered (and
+    scheduled) on its own."""
+    index = packs.item_index()
+    groups: dict[str, list[dict]] = {}
+    for ex in exercises:
+        if ex["mode"] == "pic_drag":
+            groups.setdefault(index[ex["item"]]["group"], []).append(ex)
+    if not groups:
+        return exercises
+    group_of = {ex["item"]: g for g, exs in groups.items() for ex in exs}
+    out: list[dict] = []
+    done: set[str] = set()
+    for ex in exercises:
+        g = group_of.get(ex["item"])
+        if g is None:
+            out.append(ex)
+            continue
+        if ex["mode"] == "intro" or g in done:
+            continue            # folded into the picture's own intro and exercise
+        done.add(g)
+        pins = sorted((index[e["item"]] for e in groups[g]), key=lambda o: o["n"])
+        first = pins[0]
+        pack = packs.get(first["pack"])
+        rng = random.Random(f"{g}:pic_drag:{seed}")
+        view = _pic_view(first)
+        base = {"item": first["id"], "course": pack["id"], "type": "pin", "unit": first["unit"],
+                "lang": pack.get("lang", ""), "group": g}
+        if any(e.get("new") for e in groups[g]):
+            out.append({**base, "mode": "intro", "new": True,
+                        "card": {"type": "picture", "picture": view, "title": view["title"],
+                                 "pins": [{"n": o["n"], "x": o["x"], "y": o["y"], "l2": o["l2"], "l1": o["l1"],
+                                           **({"rom": o["rom"]} if o.get("rom") else {})} for o in pins]}})
+        out.append({**base, "mode": "pic_drag", "new": any(e.get("new") for e in groups[g]), "picture": view,
+                    "ask": "Put each word on its place in the picture",
+                    "pins": [{"item": o["id"], "n": o["n"], "x": o["x"], "y": o["y"]} for o in pins],
+                    "chips": _pic_chips(pins, _pic_siblings(first, pack), rng)})
+    return out
+
+
+def issued_items(exercises: list[dict]) -> list[str]:
+    """The item ids a list of exercises asks (a merged picture asks each of its pins)."""
+    out: list[str] = []
+    for ex in exercises:
+        if ex["mode"] == "intro":
+            continue
+        out += [p["item"] for p in ex["pins"]] if ex["mode"] == "pic_drag" and ex.get("pins") else [ex["item"]]
+    return out
+
+
+def answer_picture(placements, *, session: str | None = None, retry: bool = False,
+                   now: float | None = None) -> dict:
+    """Grade a whole drag-the-words picture: ``placements`` is [{item, answer}], one per pin.
+    Each pin goes through ``answer`` on its own, so scheduling and pay are exactly those of
+    any other item: only a pin the session issued, and only its first answer, counts."""
+    now = now or time.time()
+    if not isinstance(placements, list) or not 1 <= len(placements) <= 16:
+        return {"ok": False, "error": "a picture has 1-16 pins"}
+    index = packs.item_index()
+    rows: list[tuple[str, str]] = []
+    for p in placements:
+        iid = p.get("item") if isinstance(p, dict) else None
+        if not isinstance(iid, str) or (index.get(iid) or {}).get("type") != "pin" or any(iid == r[0] for r in rows):
+            return {"ok": False, "error": "unknown or repeated pin"}
+        given = p.get("answer")
+        rows.append((iid, given[:200] if isinstance(given, str) else ""))
+    if len({index[i]["group"] for i, _ in rows}) != 1:
+        return {"ok": False, "error": "those pins are not one picture"}
+    results, rewards, events = [], {"qi": 0, "insight": 0}, []
+    for iid, given in rows:
+        r = answer(iid, "pic_drag", given, retry=retry, session=session, now=now)
+        if not r.get("ok"):
+            return r
+        results.append({"item": iid, "n": index[iid]["n"], "correct": r["correct"], "expected": r["expected"],
+                        "given": given, "explain": r["explain"], "next_days": r.get("next_days")})
+        rw = r.get("rewards") or {}
+        for k in ("qi", "insight"):
+            v = rw.get(k, 0)
+            rewards[k] += v if isinstance(v, (int, float)) and not isinstance(v, bool) else 0
+        events += rw.get("events") or []
+    rewards["events"] = events
+    right = sum(1 for r in results if r["correct"])
+    return {"ok": True, "pins": results, "right": right, "total": len(results),
+            "correct": right == len(results), "rewards": rewards}
 
 
 # ---------------------------------------------------------------------------
@@ -827,7 +987,10 @@ def build_session(course: str | None = None, size: int | None = None, now: float
         for i, ex in enumerate(woven):
             ex["n"] = i
             ex["new"] = ex["mode"] == "intro" or not (st["cards"].get(ex["item"]) or {}).get("reps")
-        sid = _open_session(st, [ex["item"] for ex in woven if ex["mode"] != "intro"], False, now)
+        woven = group_pictures(woven, seed)
+        for i, ex in enumerate(woven):
+            ex["n"] = i
+        sid = _open_session(st, issued_items(woven), False, now)
         state.save()
         return {"ok": True, "exercises": woven, "notes": unit_notes, "due_total": backlog,
                 "reviews": len(reviews), "new": len(new_exs), "courses": ids,
@@ -1216,7 +1379,7 @@ def _placement_block(st: dict, pl: dict, pack: dict) -> list[dict]:
     picks = rng.sample(pool, min(PLACEMENT_PER_UNIT[pack["kind"]], len(pool)))
     block = []
     for it in picks:
-        if it["type"] in ("cloze", "vocab", "phrase", "dialogue"):
+        if it["type"] in ("cloze", "vocab", "phrase", "dialogue", "pin"):
             mode = _typed_mode(it, rng)
         elif it["type"] == "concept":
             mode = "choose_term"
@@ -1233,6 +1396,8 @@ def placement_start(course: str, now: float | None = None) -> dict:
     pack = packs.get(course)
     if not pack:
         return {"ok": False, "error": "unknown course"}
+    if not pack["units"]:
+        return {"ok": False, "error": "This course has nothing to test yet."}     # only pictures still to be painted
     with state.LOCK:
         st = state.get()
         opens = st.setdefault("open_placements", {})

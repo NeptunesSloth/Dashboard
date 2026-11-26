@@ -1,0 +1,15 @@
+# A shared picture (conventions: see body.yaml).
+id: town
+title: "The town"
+brief: "A town street at lantern-lit dusk, seen from a little above: five buildings along the back, a restaurant and a park at the sides, a road with a crossing, a traffic light and a bus stop in front."
+pins:
+  - {id: bank, x: 10, y: 32, en: bank}
+  - {id: hospital, x: 27, y: 30, en: hospital}
+  - {id: school, x: 45, y: 30, en: school}
+  - {id: station, x: 64, y: 28, en: station}
+  - {id: shop, x: 83, y: 34, en: shop}
+  - {id: restaurant, x: 12, y: 58, en: restaurant}
+  - {id: park, x: 88, y: 60, en: park}
+  - {id: traffic_light, x: 32, y: 66, en: traffic light}
+  - {id: bus_stop, x: 68, y: 68, en: bus stop}
+  - {id: crosswalk, x: 48, y: 82, en: crosswalk}

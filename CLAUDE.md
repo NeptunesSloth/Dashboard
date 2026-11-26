@@ -37,6 +37,7 @@ sect_academy/
   app.py        the whole server: study API, sect API, static shell
   packs.py      load + validate packs/*.yaml (courses and their part files)
   packs/        the courses (see docs/ACADEMY_CONTENT.md)
+  packs/pictures/  shared picture-lesson pictures: pin ids + positions, one file each
   fsrs.py       FSRS-6 scheduler, published default weights
   drills.py     generated subnetting and port drills (graded here, never scheduled)
   engine.py     enrolment, sessions, server-side grading, placement, trials
@@ -66,6 +67,7 @@ sect_academy/
                 fr/, ko/: English Wiktionary via kaikki.org, same licence)
   static/       index.html, academy.js (shell + study), sect.js (colony UI),
                 reader.js (Read: shelf, pages, lookup card, dictionary, My words),
+                pictures.js (picture lessons: pins, drag/tap exercises),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js,
                 vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
 tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
@@ -188,4 +190,12 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   split on access, kaikki form tables hold one interned lemma string per form
   and build their lowered-gloss list on the first English search. Keep results
   identical when touching these (compare lookups before/after).
+- **Picture lessons** (docs/ACADEMY_CONTENT.md): a `picture` item names a shared
+  picture (`packs/pictures/<id>.yaml`) and gives each pin its word; each pin is
+  its own card `<item id>-<pin id>` (type `pin`). New pins are one drag exercise
+  (`engine.group_pictures`, answered by `/api/answer/picture`, which calls
+  `engine.answer` once per pin), then `pic_tap`, then `type_l2` with the pin lit.
+  A unit whose `static/art/pic_<id>.webp` is missing is held back (`pack["soon"]`,
+  "Picture coming soon"). `scripts/pin_preview.py <id>` draws the pins on the
+  painting to set coordinates; brief in docs/ART_PIPELINE.md "Round 3".
 - One process only: state is held in memory.
