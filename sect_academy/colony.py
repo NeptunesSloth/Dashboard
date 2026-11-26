@@ -3459,7 +3459,7 @@ def _made(c: dict, hours: int = MADE_HOURS) -> tuple[dict, int]:
     return out, span
 
 
-def _names(c: dict, ids) -> str:
+def _id_names(c: dict, ids) -> str:
     known = [str((_p(c, i) or {}).get("name") or "") for i in ids]
     names = [n for n in known if n]
     gone = len(known) - len(names)
@@ -3479,7 +3479,7 @@ def res_rates(c: dict) -> dict:
             if kind == res and job in JOBS:
                 who = jobs.setdefault(job, {})
                 who[pid] = who.get(pid, 0.0) + v
-        made = sorted(((f"{JOBS[j][0]}: {_names(c, sorted(w, key=lambda i: -abs(w[i])))}", sum(w.values())) for j, w in jobs.items()),
+        made = sorted(((f"{JOBS[j][0]}: {_id_names(c, sorted(w, key=lambda i: -abs(w[i])))}", sum(w.values())) for j, w in jobs.items()),
                       key=lambda x: -x[1])
         made_n = sum(v for _, v in made)
         spent_n = sum(n for _, n in spend[res])
