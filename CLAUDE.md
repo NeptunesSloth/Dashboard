@@ -68,6 +68,10 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   pass mark, `multi` (choose N) and `order` items, a full-length mock.
 - **The sect must not depend on study.** Everyone cultivates by meditating; study
   adds Master qi, research insight and mood. Don't make progress study-gated.
+- **Work choice** (`colony._pick_job`): meditation is not a chore; level with the
+  work a disciple would do it takes half their hours (`MED_SHARE`), and any
+  store under `LOW_STORE_DAYS` of use (not share of capacity) comes first. The
+  stall alert names the exact priority to set (`stall_advice`).
 - **Nothing bad happens while the app is closed**: time away runs in quiet mode
   (no events, no starvation damage, no deaths), capped at 48 sim hours.
 - **Grading and scheduling are server-side.** The server records what each

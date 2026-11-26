@@ -13,6 +13,7 @@ Run ``python tests/balance.py`` for the full table (150 days, every storyteller 
 """
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -34,15 +35,31 @@ def _careful_choice(c: dict, ev: dict) -> str:
     rice = c["res"]["rice"]
     if kind == "omen":
         ratio = colony.defense(c) / max(float(ev.get("strength", 1)), 1.0)
-        if ratio >= 1.1:
+        if ratio >= colony.THEFT_SAFE or (ratio >= 1.1 and "guard" not in ids):
             return "fight"
+        if "guard" in ids and ratio >= 0.9:
+            return "guard"
         if "wards" in ids and ratio < 0.9:
             return "wards"
         if "tribute" in ids and ratio < 0.7:
             return "tribute"
-        return "fight"
+        return "guard" if "guard" in ids else "fight"
     if kind == "festival":
-        return "hold" if rice >= ev["cost"] + n * 1.2 * 8 else "skip"
+        if rice >= ev["cost"] + n * 1.2 * 8:
+            return "hold"
+        return ids[1] if ids[1] in ("moon", "vigil") or (ids[1] == "offer" and c["res"]["wood"] >= 20) else "skip"
+    if kind == "plague":
+        return next(o for o in ("pills", "herbs", "quarantine") if o in ids)
+    if kind == "blight":
+        if "burn" in ids and rice >= ev.get("seed", 6) + n * 1.2 * 6:
+            return "burn"
+        return "ash" if "ash" in ids else "endure"
+    if kind == "infiltrator":
+        best = max((int(m.group(1)), o["id"]) for o in ev["options"] if (m := re.search(r"(\d+)% to", o["label"])))
+        return best[1] if best[0] >= 35 else "wait"
+    if kind == "tournament":
+        m = re.search(r"(\d+)% to win round one", ev["options"][0]["label"])
+        return ids[0] if m and int(m.group(1)) >= 40 else "observe" if "observe" in ids else ids[-1]
     if kind in ("wanderer", "recruit"):
         room = len(c["pawns"]) < colony.beds(c) + 1 and rice >= (n + 1) * 1.2 * 10
         if kind == "recruit":
@@ -54,8 +71,6 @@ def _careful_choice(c: dict, ev: dict) -> str:
         if "sell_rice" in ids and rice > colony._cap(c) * 0.8:
             return "sell_rice"
         return "decline"
-    if kind == "tournament":
-        return ids[0]
     if kind == "quest_offer":
         return "accept"
     if kind == "quest_reward":
@@ -89,7 +104,16 @@ def _careful_orders(st: dict, c: dict, seen_alerts: set) -> None:
         if nxt:
             colony.set_research(st, nxt, T0)
     # build: one job at a time, next in the plan, keeping some stock back
-    if len(c["builds"]) < 2:
+    short: set = set()
+    eat = sum(v for res, label, v in colony.upkeep(c) if res == "rice" and "spoiling" not in label)
+    farmers = sum(1 for p in c["pawns"] if p["work"] == "farm" and p["prio"].get("farm"))
+    # the winter alert (or a thin granary in autumn): the harvest comes before new building and before the cushion
+    winter_soon = any(a["text"].startswith("Winter is") for a in colony._alerts(c)) \
+        or (colony._season(c) == 2 and c["res"]["rice"] < eat * colony.WINTER_HUNGER * colony.DAYS_PER_SEASON * 1.2)
+    if colony._season(c) != 3 and c["res"]["rice"] < eat * 8 and farmers >= 2 * colony._lvl(c, "fields") \
+            and not any(b["room"] == "fields" for b in c["builds"]):
+        colony.queue_build(st, "fields", T0)            # the terraces are full and the granary is thin: more terraces
+    if len(c["builds"]) < 2 and not winter_soon:
         built: dict = {}
         for room in BUILD_ORDER:
             built[room] = built.get(room, 0) + 1
@@ -98,7 +122,26 @@ def _careful_orders(st: dict, c: dict, seen_alerts: set) -> None:
                 continue
             if colony.queue_build(st, room, T0)["ok"]:
                 break
+            short = {k for k, v in colony.room_cost(c, room, have).items() if c["res"][k] < v}
             break                   # wait for the materials for the next thing in the plan
+    # farmers put the harvest ahead of the cushion until the snow, then sit again
+    for p in c["pawns"]:
+        if winter_soon and p["prio"].get("farm") == 2 and p["prio"].get("meditate") == 2 and not p.get("master"):
+            colony.set_priority(st, p["id"], "meditate", 3, T0)
+            p["_harvest"] = 1
+        elif p.get("_harvest") and (colony._season(c) == 3 or not winter_soon) and c["res"]["rice"] > eat * 4:
+            colony.set_priority(st, p["id"], "meditate", 2, T0)
+            p.pop("_harvest")
+    # the plan waits on wood or stone and the granary is comfortable: put one disciple on it, and back when it is not
+    for job, res in (("wood", "wood"), ("mine", "stone")):
+        others = [p for p in c["pawns"] if not p.get("master") and not p.get("direct")]
+        on = [p for p in others if p["prio"].get(job) == 2]
+        if res in short and c["res"]["rice"] > eat * 8 and not on and others:
+            p = max(others, key=lambda x: (x["prio"].get("farm") != 2 or x["work"] != "farm", x["skills"]["gather"]["lv"]))
+            colony.set_priority(st, p["id"], job, 2, T0)
+        elif on and (res not in short or c["res"]["rice"] < eat * 5):
+            for p in on:
+                colony.set_priority(st, p["id"], job, 3, T0)
     # the wounded get pills
     for p in c["pawns"]:
         if p["health"] < 40 and c["res"]["pills"] >= 2:
@@ -108,12 +151,13 @@ def _careful_orders(st: dict, c: dict, seen_alerts: set) -> None:
         if colony.ready(p) and colony.bt_chance(c, p) >= 60:
             colony.attempt(st, p["id"], T0)
     # a careful player reads the alerts
-    for a in colony._alerts(c):
-        if "not meditated" in a["text"] and a.get("pawn") and a["text"] not in seen_alerts:
-            seen_alerts.add(a["text"])
-            p = colony._p(c, a["pawn"])
-            if p and p["prio"].get("meditate", 4) > 3:
-                colony.set_priority(st, p["id"], "meditate", 3, T0)
+    # (the alert names the Meditate priority that would put them back on the cushion half their working hours;
+    # the sect shows two by name and counts the rest, and a careful player fixes those too)
+    for p in c["pawns"]:
+        if colony.stalled_days(c, p) >= colony.STALL_DAYS and not colony.ready(p):
+            level = colony.stall_advice(c, p)[1]
+            if level and p["prio"].get("meditate") != level:
+                colony.set_priority(st, p["id"], "meditate", level, T0)
 
 
 def play(storyteller: str = "balanced", profile: str = "careful", days: int = 150, seed: int = 12345) -> dict:
@@ -132,16 +176,25 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
         fights.append((colony._day(c_) + 1, how, round(ratio, 2), ev["kind"]))
         return ev
     colony._battle = battle
+    event_days: set = set()                # days with something to decide (a letter alone does not count)
+    work_jobs = {v[0].lower() for v in colony.JOBS.values()}
+    hours: dict = {}                       # pawn id -> [working hours, of which meditating, name]
     out = {"deaths": 0, "min_rice": 1e9, "min_food_days": 1e9, "lean_days": 0, "cap_days": 0, "rice_cap_days": 0, "short_days": 0,
            "mood": (100, 0), "rice_by_month": [], "raids": 0, "raid_losses": 0, "renown_day": None, "pop_max": 0, "qi60": {},
-           "steps60": {}, "fame60": 0, "others_up60": 0}
+           "steps60": {}, "fame60": 0, "others_up60": 0, "qc80": 0, "others80": 0, "steps80": {}}
     try:
         for _ in range(days * 24):
             colony.advance(st, 1, T0)
+            for p in c["pawns"]:
+                if p["doing"] in work_jobs and not p.get("master"):
+                    h = hours.setdefault(p["id"], [0, 0, p["name"]])
+                    h[0] += 1
+                    h[1] += p["doing"] == "meditate"
             for _ in range(4):
                 ev = c["pending"]
                 if not ev:
                     break
+                event_days.add(colony._day(c))
                 opt = ev["options"][0]["id"] if profile == "idle" else _careful_choice(c, ev)
                 if not colony.resolve(st, opt, T0)["ok"]:
                     colony.resolve(st, ev["options"][-1]["id"], T0)
@@ -177,8 +230,21 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
                     out["steps60"] = {p["name"]: p["step"] for p in c["pawns"]}
                     out["others_up60"] = sum(1 for p in others if p["step"] >= 1)
                     out["fame60"] = round(c["fame"])
+                if day + 1 == 80:
+                    others = [p for p in c["pawns"] if not p.get("master") and p.get("joined", 0) <= 24 * 25]   # in the sect since the first month
+                    out["steps80"] = {p["name"]: p["step"] for p in c["pawns"]}
+                    out["others80"] = len(others)
+                    out["qc80"] = sum(1 for p in others if p["step"] >= 4)
     finally:
         colony._battle = real_battle
+    gaps, last = [], 4                        # counted from the first threat (day 5) on
+    for d in sorted(x for x in event_days if x >= 4) + [days]:
+        gaps.append(d - last - 1)
+        last = d
+    out["gap"] = max(gaps)
+    out["med_share"] = {h[2]: round(h[1] / h[0], 2) for h in hours.values() if h[0] >= 48}
+    out["stolen"] = round(c["tally"]["stolen"])
+    out["plague_dead"] = c["tally"]["plague_dead"]
     out["fights"] = fights
     out["hurt"] = sum(1 for f in fights if f[3] != "good")
     out["deaths"] = c["graves"]
@@ -187,6 +253,7 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
     out["fame"] = round(c["fame"])
     out["pop"] = len(c["pawns"])
     out["rooms"] = sum(c["rooms"].values())
+    out["loss"] = out["deaths"] > 0 or out["stolen"] >= 10 or out["min_food_days"] < 4      # lost something that mattered
     return out
 
 
@@ -203,6 +270,8 @@ if __name__ == "__main__":
                 print(f"{tell:8} {prof:7} s{seed:<6} deaths={r['deaths']} pop={r['pop']}/{r['pop_max']} min_rice={r['min_rice']:.0f} ({r['min_food_days']:.1f}d) "
                       f"lean={r['lean_days']} cap_days={r['cap_days']}/{r['rice_cap_days']} rice={r['rice_by_month']} raids={r['raids']} lost={r['raid_losses']} "
                       f"renown_day={r['renown_day']} fame60={r['fame60']} fame={r['fame']} rooms={r['rooms']} "
-                      f"short={r['short_days']} up60={r.get('others_up60')} qi60={list(qi.values())} hurt={r['hurt']} mood={r['mood']} ({time.time() - t:.1f}s)", flush=True)
+                      f"short={r['short_days']} up60={r.get('others_up60')} qi60={list(qi.values())} hurt={r['hurt']} mood={r['mood']} "
+                      f"qc80={r['qc80']}/{r['others80']} gap={r['gap']} med={sorted(r['med_share'].values())} stolen={r['stolen']} "
+                      f"plague_dead={r['plague_dead']} loss={r['loss']} ({time.time() - t:.1f}s)", flush=True)
                 if "-v" in sys.argv:
                     print("   ", r["fights"])

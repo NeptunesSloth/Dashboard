@@ -1089,7 +1089,7 @@ def rumours(c: dict) -> list[str]:
         out.append(f"The geese went south early. Winter in {to_winter} day{'s' if to_winter != 1 else ''}.")
     if 26 <= doy < 30:
         out.append("Every inn in the valley is full: the Hundred Sects Tournament is days away.")
-    if day % C.DAYS_PER_SEASON in (3, 4) and day >= 3:
+    if day % C.DAYS_PER_SEASON in (C.FESTIVAL_DAY - 2, C.FESTIVAL_DAY - 1) and C.festival_of(day):
         out.append("The cooks are counting rice sacks and looking hopeful. A festival is near.")
     if c["sutra_days"] >= 14 and not c["demonic"]:
         out.append("Disciples who read the Blood Sutra have started to dream the same dream.")
