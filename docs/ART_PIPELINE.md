@@ -189,3 +189,12 @@ denoise ~0.85, no text, trim the corner stamp):
 
 The game picks these up once the matching event kinds exist (the cloud session
 wires them); until then they are simply unused.
+
+### Read tab backdrop
+
+| File | Size | Subject |
+|---|---|---|
+| `bg_library` | 1152x768 | a scripture pavilion at night: tall shelves of scrolls and bound books, a low reading desk with an open book and a single lantern, a window onto misty peaks; calm, quiet, plenty of dark empty space in the centre for text |
+
+Use `bg_mission` as the style reference at denoise ~0.85. The cloud session wires
+it into the Read shelf once the file exists.
