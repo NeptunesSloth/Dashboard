@@ -666,6 +666,19 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
   max-height: 52dvh; overflow: auto; background: var(--surface); border: 2px solid var(--gold); border-radius: 20px; padding: 12px 16px;
   box-shadow: 0 10px 30px #0b142655; }
 @media (min-width: 900px) { .lookup { left: auto; right: 24px; bottom: 24px; width: 400px; max-height: 70vh; } }
+/* In a book the card never covers the page: docked in a column beside it on a wide screen, a bottom sheet
+   (with a spacer under the page, #rd-pad, so every word can be scrolled above it) on a narrow one. */
+.rd-hint { display: none; }
+@media (min-width: 900px) and (max-width: 1099.98px) { .rd-side .lookup { left: 128px; right: 24px; width: auto; bottom: 16px; max-height: 46vh; } }
+@media (min-width: 1100px) {
+  .rd-wrap { display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 28vw, 380px); gap: 22px; align-items: start; }
+  .rd-wrap .page, .rd-wrap .pager { margin-left: auto; margin-right: auto; }
+  .rd-side { position: sticky; top: 16px; }
+  .rd-side .lookup { position: static; width: auto; max-height: calc(100dvh - 32px); box-shadow: 0 6px 18px #0b142633; }
+  .rd-hint { display: block; margin: 0; padding: 16px; border: 2px dashed var(--line); border-radius: 20px; }
+  .rd-side:has(.lookup:not([hidden])) .rd-hint { display: none; }
+  #rd-pad { display: none; }
+}
 @media (prefers-reduced-motion: no-preference) { .lookup:not([hidden]) { animation: sheet .2s cubic-bezier(.2,.8,.2,1); } }
 .lk-head { display: flex; align-items: center; gap: 8px; }
 .lk-word { font-size: 1.45rem; font-weight: 800; overflow-wrap: anywhere; }
@@ -673,9 +686,20 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .lk-path { margin: 4px 0 6px; }
 .lk-read { margin: 2px 0 4px; font-size: 1.05rem; overflow-wrap: anywhere; } .lk-sr { font-weight: 700; }
 .lk-rom { font-size: .95rem; margin-left: 2px; }
-.lk-gram { margin: 0 0 6px; }
+.lk-gram { display: inline-block; margin-left: 6px; padding: 1px 9px; border-radius: 999px; background: var(--gold-soft); color: #8a6100;
+  border: 1px solid var(--gold-d); font-size: .82rem; font-weight: 800; line-height: 1.5; vertical-align: 1px; }
+@media (prefers-color-scheme: dark) { .lk-gram { color: #ffd66b; } }
+.lk-senses .gl { all: unset; cursor: pointer; border-radius: 6px; padding: 0 2px; margin: 0 -1px; box-shadow: inset 0 -2px 0 transparent; }
+.lk-senses .gl:hover { background: var(--azure-soft); }
+.lk-senses .gl:focus-visible { outline: 2px solid var(--azure); }
+.lk-senses .gl.on { background: var(--gold-soft); box-shadow: inset 0 -2px 0 var(--gold); font-weight: 700; }
+.lk-more { margin: 0 0 6px; } .lk-more summary { cursor: pointer; color: var(--azure-d); font-weight: 800; font-size: .9rem; }
+.lk-alsos { margin: 2px 0 4px; padding-left: 1.3em; font-size: .9rem; } .lk-also { margin: 6px 0 0; }
+.say.mute { background: transparent; border-color: var(--line); color: var(--dim); box-shadow: none; opacity: .75; }
+.say:disabled { background: transparent; border-color: var(--line); color: var(--dim); box-shadow: none; opacity: .45; cursor: not-allowed; }
+.say:disabled:active { transform: none; }
+.bk-row { flex-wrap: wrap; } .bk-row > .grow { flex: 1 1 220px; }
 .lk-senses { margin: 6px 0 8px; padding-left: 1.3em; } .lk-senses li { margin: 4px 0; line-height: 1.4; }
-.lk-senses details { display: inline; } .lk-senses summary { display: inline; cursor: pointer; color: var(--azure-d); font-weight: 800; }
 .lk-only { font-weight: 800; margin: 8px 0; }
 .lk-save { margin: 8px 0 4px; } .lk-save .row { flex-wrap: nowrap; } .lk-save input { min-height: 44px; } .lk-save .btn { flex: none; min-height: 44px; }
 .lk-note { margin: 4px 0; }

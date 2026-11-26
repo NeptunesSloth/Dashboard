@@ -559,6 +559,18 @@ def book_pos(bid: str, body: PosIn):
     return res
 
 
+class TitleIn(BaseModel):
+    title: str = ""
+
+
+@app.put("/api/books/{bid}/title", dependencies=API)
+def book_title(bid: str, body: TitleIn):
+    res = reader.rename_book(bid, body.title[:1000])
+    if not res["ok"]:
+        raise HTTPException(404 if res["error"] == "unknown book" else 400, res["error"])
+    return res
+
+
 @app.delete("/api/books/{bid}", dependencies=API)
 def book_delete(bid: str):
     res = reader.delete_book(bid)

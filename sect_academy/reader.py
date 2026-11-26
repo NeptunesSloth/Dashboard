@@ -259,6 +259,64 @@ def list_words(lang, now: float | None = None) -> dict:
                 "enrolled": pack_id(lang) in st["settings"].get("courses", []), "max": MAX_SAVED_WORDS}
 
 
+def _form_rom(form: str, romanise) -> str:
+    """The romanisation of a word as it stands in a sentence. Japanese ``romanise`` gives a conjugated
+    form its dictionary word's reading (食べました -> taberu), so there the reading of the conjugation is
+    rebuilt: the dictionary word's reading with its kana tail swapped for the form's (たべ + ました)."""
+    if not romanise:
+        return ""
+    mod = getattr(romanise, "__module__", "")
+    if not mod.endswith(".ja"):
+        return romanise(form)
+    try:
+        return _ja_form_rom(form, romanise)
+    except (AttributeError, ImportError, IndexError, TypeError, ValueError):      # the lexicon changed shape
+        return ""
+
+
+def _ja_form_rom(form: str, romanise) -> str:
+    ja = lexicon.get("ja")
+    from .lexicon.ja_rules import romaji
+    hits = ja.find(form)
+    if not hits:
+        return ""
+    _, i, term, _ = hits[0]
+    if term == form:
+        return romanise(form)
+    reading = ja.reading_for(i, term) if not ja._is_kana(term) else term
+    p = 0
+    while p < min(len(term), len(form)) and term[p] == form[p]:
+        p += 1
+    tail = term[p:]
+    if not ja._is_kana(form[p:] or "あ") or (tail and not (ja._is_kana(tail) and reading.endswith(tail))):
+        return ""
+    return romaji(reading[: len(reading) - len(tail)] + form[p:], macrons=False)
+
+
+def _cloze(ctx: str, forms: list[str], romanise=None) -> dict:
+    """The saved sentence with the word blanked, as the learner met it: {cloze, cloze_ans[, cloze_rom]},
+    or {} when the word cannot be found in it. A spaced language matches whole words only; Chinese,
+    Japanese and Korean match inside the text and need a romanisation of the blank, so it can be typed."""
+    for f in dict.fromkeys(x for x in forms if x):
+        if engine.is_script(f):
+            i = ctx.find(f)
+            m = (i, i + len(f)) if i >= 0 else None
+        else:
+            hit = re.search(rf"(?<![\w'’-]){re.escape(f)}(?![\w'’-])", ctx, re.IGNORECASE)
+            m = hit.span() if hit else None
+        if not m:
+            continue
+        ans = ctx[m[0]:m[1]]
+        out = {"cloze": ctx[:m[0]] + "___" + ctx[m[1]:], "cloze_ans": ans}
+        if engine.is_script(ans):
+            r = _form_rom(ans, romanise)
+            if not r:
+                continue                                  # not typable in romanisation: no cloze for this form
+            out["cloze_rom"] = r
+        return out
+    return {}
+
+
 def build_pack(lang: str, words: dict) -> dict:
     """A personal course, in the shape ``packs`` gives every course (already normalised)."""
     pid, uid = pack_id(lang), f"{pack_id(lang)}-words"
@@ -279,6 +337,7 @@ def build_pack(lang: str, words: dict) -> dict:
                 it["ex_rom"] = ex_rom
         if v.get("form") and v["form"] != w:
             it["note"] = f"You met it as “{v['form']}”."
+        it.update(_cloze(v.get("ctx", ""), [v.get("form") or w, w], romanise))
         items.append(it)
     return {"id": pid, "title": f"My words ({name})", "kind": "language", "language": name, "lang": lexicon.SPEECH.get(lang, ""),
             "hall": {"es": "tongues_south", "fr": "tongues_west", "zh": "tongues_west", "ja": "tongues_west",
@@ -444,6 +503,35 @@ def set_position(bid: str, pos) -> dict:
                 bp.pop(old, None)
         state.save()
     return {"ok": True, "pos": bp[bid]}
+
+
+def rename_book(bid: str, title) -> dict:
+    """A new title for a book on the shelf (its text and position are untouched)."""
+    if not isinstance(bid, str) or not _BOOK_ID.match(bid):
+        return {"ok": False, "error": "unknown book"}
+    t = clean_line(title, 120)
+    if not t:
+        return {"ok": False, "error": "A book needs a title."}
+    with _books_lock:
+        d = _dir()
+        if d is None:
+            b = _mem_books.get(bid)
+            if not b:
+                return {"ok": False, "error": "unknown book"}
+            b["meta"]["title"] = t
+        else:
+            f = d / f"{bid}.json"
+            try:
+                meta = _clean_meta(json.loads(f.read_text(encoding="utf-8")), bid)
+                if not meta or not (d / f"{bid}.txt").is_file():
+                    return {"ok": False, "error": "unknown book"}
+                meta["title"] = t
+                _write(f, json.dumps({k: meta[k] for k in ("title", "lang", "chars", "bytes", "added")}, ensure_ascii=False))
+            except FileNotFoundError:
+                return {"ok": False, "error": "unknown book"}
+            except (OSError, ValueError) as e:
+                return {"ok": False, "error": f"The title could not be saved ({getattr(e, 'strerror', None) or e})."}
+    return {"ok": True, "title": t}
 
 
 def delete_book(bid: str) -> dict:

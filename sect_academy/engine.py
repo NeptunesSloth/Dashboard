@@ -360,9 +360,23 @@ def _accepted(it: dict) -> list[str]:
 # ---------------------------------------------------------------------------
 # exercise construction
 # ---------------------------------------------------------------------------
+def _personal_mode(it: dict, card: dict | None) -> str:
+    """A saved word ("My words"): recognise it while the card is new or shaky (FSRS stability under two
+    days, which is also where a lapse puts it), then recall it: typed from its meaning, or typed into the
+    sentence it was saved from (when there is one), in turn."""
+    reps, s = int((card or {}).get("reps", 0)), float((card or {}).get("s", 0.0))
+    if reps == 0:
+        return "choose_l1"
+    if s < 2.0:
+        return "choose_l2" if reps % 2 else "choose_l1"
+    return "cloze_type" if it.get("cloze") and reps % 2 else "type_l2"
+
+
 def _mode_for(it: dict, card: dict | None, pack: dict) -> str:
     reps = int((card or {}).get("reps", 0))
     t = it["type"]
+    if pack.get("personal") and t == "vocab":
+        return _personal_mode(it, card)
     if t in ("vocab", "phrase"):
         if reps == 0:
             return "choose_l1"
@@ -410,17 +424,40 @@ def _distractors(it: dict, pack: dict, field: str, rng: random.Random, n: int = 
         return nv in truth or not nv or nv in target or target in nv
 
     out: list[str] = []
-    for pool in (same_unit, others):
+    pools = [(same_unit, set()), (others, set())]
+    if pack.get("personal") and field in ("l1", "l2") and len(set(same_unit + others)) < 2 * n:
+        pools.append(_course_vocab(pack, it, field))      # a small deck borrows wrong options from the courses
+    for pool, other_pos in pools:
         pool = [v for v in dict.fromkeys(pool) if not clashes(v)]
         rng.shuffle(pool)
-        # Prefer options of a similar length so the answer does not stand out.
-        pool.sort(key=lambda v: abs(len(v) - len(it[field])) > max(8, len(it[field])))
+        # The same part of speech first (borrowed options), then a similar length, so the answer does not stand out.
+        pool.sort(key=lambda v: (v in other_pos, abs(len(v) - len(it[field])) > max(8, len(it[field]))))
         for v in pool:
             if v not in out and not any(_norm(v) in _norm(o) or _norm(o) in _norm(v) for o in out):
                 out.append(v)
             if len(out) >= n:
                 return out
     return out
+
+
+def _course_vocab(pack: dict, it: dict, field: str) -> tuple[list[str], set[str]]:
+    """Wrong options for a small personal deck: vocab from the courses in its language, and the set of
+    those of another part of speech, where the English shows it ("to eat" is a verb, "house" is not)."""
+    is_verb = lambda o: str(o.get("l1", "")).lower().startswith("to ")      # noqa: E731
+    want, lang = is_verb(it), str(pack.get("lang", "")).split("-")[0]
+    pool, other = [], set()
+    if not lang:
+        return pool, other
+    for p in packs.load_all().values():
+        if p.get("personal") or p.get("kind") != "language" or str(p.get("lang", "")).split("-")[0] != lang:
+            continue
+        for u in p["units"]:
+            for o in u["items"]:
+                if o["type"] == "vocab" and o.get(field) and o.get("l1"):
+                    pool.append(o[field])
+                    if is_verb(o) != want:
+                        other.add(o[field])
+    return pool, other
 
 
 def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
@@ -462,6 +499,9 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
         ex.update(say=it["l2"], hint=it["l1"], ask="Type what you hear" + (" (romanised, or in the script)" if is_script(it["l2"]) else ""))
     elif mode == "cloze_choose":
         ex.update(prompt=it["text"], sub=it.get("l1", ""), ask="Fill the blank", choices=choices("answer", it["answer"]))
+    elif mode == "cloze_type" and it["type"] == "vocab":     # a saved word, blanked in the sentence it was saved from
+        ex.update(prompt=it["cloze"], sub=it["l1"], ask="Type the missing word"
+                  + (" (romanised, or in the script)" if is_script(it["cloze_ans"]) else ""))
     elif mode == "cloze_type":
         ex.update(prompt=it["text"], sub=it.get("l1", ""), ask="Type the missing word")
     elif mode == "choose_term":
@@ -562,6 +602,10 @@ def check(it: dict, mode: str, answer) -> dict:
             return check_line(it, int(mode.split(":", 1)[1]), answer)
         except ValueError:
             return {"correct": False, "flag": None, "expected": "", "error": "bad mode"}
+    if mode == "cloze_type" and it["type"] == "vocab" and it.get("cloze"):
+        # a saved word in its own sentence: the form as it was met, no typo forgiven (as in any cloze)
+        return check_typed(answer if isinstance(answer, str) else "",
+                           [it["cloze_ans"], *([it["cloze_rom"]] if it.get("cloze_rom") else [])], slips=False)
     if mode not in _MODES[it["type"]]:
         return {"correct": False, "flag": None, "expected": "", "error": "bad mode"}
     if it["type"] == "dialogue":

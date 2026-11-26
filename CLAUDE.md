@@ -68,7 +68,7 @@ sect_academy/
                 reader.js (Read: shelf, pages, lookup card, dictionary, My words),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js,
                 vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
-tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_lexicon_fr_ko.py,
+tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
                 test_lexicon_zh_ja.py, lexicon_quality.py (zh/ja hit rate and word boundaries on the courses),
                 balance.py + test_balance.py (scripted 150-day games),
                 smoke_browser.py
@@ -141,7 +141,14 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   worker, so the CSP needed no change), stored in `<state file>.books/`
   (`<id>.txt` + `<id>.json`; ids are 12 hex, checked before any path is built;
   capped at 200 books / 64 MB; `:memory:` keeps them in a dict). Only reading
-  positions (`book_pos`) live in the state. Personal item ids are
+  positions (`book_pos`: the END of the page last open, so shelf and pager
+  show the same "% read") live in the state. The lookup card docks beside the
+  page from 1100px wide and is a bottom sheet (with a spacer, `#rd-pad`) below
+  that: it must never cover a word. My words items (`personal: True` packs)
+  get their modes from `engine._personal_mode` (choose while FSRS stability
+  < 2 days, then `type_l2` / `cloze_type` on the saved sentence, built by
+  `reader._cloze`), and a small deck borrows distractors from the same
+  language's course vocab (`engine._course_vocab`). Personal item ids are
   `my-<lang>-<word>` (hashed suffix when the word is not plain a-z) and the
   `my-` prefix is refused in YAML packs. Adding a language's lookup = a data
   folder in `dict/<lang>/` with its README + a module in `lexicon/` registered
