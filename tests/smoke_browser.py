@@ -24,6 +24,11 @@ AOZORA = ("吾輩は猫である\n夏目漱石\n\n" + "-" * 55 + "\n【テキス
           "底本：「夏目漱石全集」\n入力：青空文庫\n").encode("cp932")
 HANZI = ("我喜欢学习中文。他们在图书馆看书。我们已经学了三年中文了，但是说得还不太好。"
          "從前有座山，山裡有座廟，廟裡有個老和尚在給小和尚講故事。").encode("gb18030")
+KO_STORY = "어제 저는 친구와 학교에서 밥을 먹었어요. 날씨가 너무 더워요. 그래서 우리는 집에 갔어요. 오늘은 한국어를 공부했습니다."
+FR_STORY = ("The Project Gutenberg eBook of Petit conte\n\n*** START OF THE PROJECT GUTENBERG EBOOK PETIT CONTE ***\n\n"
+            "Le matin, nous allons au marché. « Où est l'homme ? » dit-il. Les chevaux étaient déjà là, "
+            "et l'été arrivait doucement sur le village.\n\n*** END OF THE PROJECT GUTENBERG EBOOK PETIT CONTE ***\n"
+            "Licence text that is not the book.")
 
 
 def _pdf(text: str) -> bytes:
@@ -165,20 +170,28 @@ def main() -> int:
             pg.wait_for_selector(".lookup .lk-senses", timeout=10000)
             assert "casa" in pg.inner_text(".lookup .lk-path"), f"{name}: casas did not lead to casa"
         assert not pg.evaluate("window.__epubRan"), "a script inside an EPUB ran"
-        # Japanese (Shift_JIS, Aozora markup) and Chinese (GB18030) text files: decoded, cut into words, looked up
-        for name, data, lang, tap, want in (("neko.txt", AOZORA, "ja", "食べました", "polite past"),
-                                            ("shu.txt", HANZI, "zh", "图书馆", "library")):
+        # old plain-text encodings, each with the markup its source wraps it in: a Korean book in EUC-KR, a French one
+        # in windows-1252 inside a Gutenberg wrapper, a Japanese one in Shift_JIS with Aozora Bunko markup, a Chinese
+        # one in GB18030. Decoded, cut into words, looked up.
+        for name, lang, data, tap, want in (
+                ("ko.txt", "ko", KO_STORY.encode("euc-kr"), "먹었어요", "먹다"),
+                ("fr.txt", "fr", FR_STORY.encode("cp1252"), "allons", "aller"),
+                ("neko.txt", "ja", AOZORA, "食べました", "polite past"),
+                ("shu.txt", "zh", HANZI, "图书馆", "library")):
             pg.goto(BASE + "/read", wait_until="load", timeout=25000)
             pg.wait_for_selector("#rb-file", state="attached", timeout=10000)
             pg.select_option("#rb-lang", lang)
             pg.set_input_files("#rb-file", files=[{"name": name, "mimeType": "text/plain", "buffer": data}])
             pg.wait_for_selector("#rd .w", timeout=30000)
             page_text = pg.inner_text("#rd")
+            assert "GUTENBERG" not in page_text, f"{name}: the Gutenberg licence was left in"
             assert "《" not in page_text and "［＃" not in page_text and "底本" not in page_text and "記号" not in page_text, page_text
-            assert ("吾輩は猫である。" in page_text) if lang == "ja" else ("图书馆" in page_text), page_text
+            if lang in ("ja", "zh"):
+                assert ("吾輩は猫である。" in page_text) if lang == "ja" else ("图书馆" in page_text), page_text
             pg.locator("#rd .w", has_text=tap).first.click()
             pg.wait_for_selector(".lookup .lk-senses", timeout=10000)
-            assert want in pg.inner_text(".lookup"), f"{name}: {tap} gave {pg.inner_text('.lookup')}"
+            where = ".lookup .lk-path" if lang in ("ko", "fr") else ".lookup"
+            assert want in pg.inner_text(where), f"{name}: {tap} gave {pg.inner_text('.lookup')}"
 
         # 6) phone width, dark mode
         m = b.new_context(viewport={"width": 390, "height": 800}, color_scheme="dark")
@@ -191,7 +204,7 @@ def main() -> int:
 
     assert not outside, f"the app tried to reach outside hosts: {outside[:5]}"
     assert not errors, f"JS errors: {errors[:5]}"
-    print("smoke OK (offline: no request left the app; sect, study, read (dictionary, PDF, EPUB, Shift_JIS Japanese, GB18030 Chinese), library, trials, progress, phone)")
+    print("smoke OK (offline: no request left the app; sect, study, read (dictionary, PDF, EPUB, EUC-KR Korean, windows-1252 French, Shift_JIS Japanese, GB18030 Chinese), library, trials, progress, phone)")
     return 0
 
 

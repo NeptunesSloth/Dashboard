@@ -78,11 +78,12 @@ def test_search_both_ways():
 
 def test_languages_without_a_module_say_so():
     langs = client.get("/api/dict/langs").json()
-    assert {"es", "zh", "ja"} <= set(langs["lookup"]) and {"es", "fr", "zh", "ja", "ko"} <= set(langs["langs"])
-    r = look("bonjour", "fr")
+    assert {"es", "fr", "zh", "ja", "ko"} <= set(langs["lookup"]) and "de" not in langs["lookup"]
+    assert {"es", "fr", "zh", "ja", "ko"} <= set(langs["langs"])
+    r = look("hallo", "de")
     assert r["available"] is False and not r["found"]
-    assert client.get("/api/dict/search", params={"q": "x", "lang": "fr"}).json()["available"] is False
-    assert client.post("/api/words", json={"lang": "fr", "word": "chat", "meaning": "cat"}).status_code == 400
+    assert client.get("/api/dict/search", params={"q": "x", "lang": "de"}).json()["available"] is False
+    assert client.post("/api/words", json={"lang": "de", "word": "katze", "meaning": "cat"}).status_code == 400
     assert client.post("/api/dict/entry", json={"lang": "zz", "word": "x", "meaning": "y"}).status_code == 400
 
 
@@ -91,8 +92,8 @@ def test_segment_gives_the_text_back_with_keys():
     r = client.post("/api/dict/segment", json={"lang": "es", "text": text}).json()
     assert "".join(t["t"] for t in r["tokens"]) == text
     assert [t["k"] for t in r["tokens"] if t["k"]] == ["dímelo", "juan", "sí", "cúrale"]
-    other = client.post("/api/dict/segment", json={"lang": "fr", "text": "Le chat dort."}).json()
-    assert not other["available"] and [t["k"] for t in other["tokens"] if t["k"]] == ["le", "chat", "dort"]
+    other = client.post("/api/dict/segment", json={"lang": "de", "text": "Die Katze schläft."}).json()
+    assert not other["available"] and [t["k"] for t in other["tokens"] if t["k"]] == ["die", "katze", "schläft"]
     assert client.post("/api/dict/segment", json={"lang": "es", "text": "a" * (reader.MAX_SEGMENT + 1)}).status_code == 413
 
 
@@ -241,10 +242,10 @@ def test_book_round_trip_and_position():
 def test_books_on_disk_beside_the_state_file(tmp_path, monkeypatch):
     monkeypatch.setenv("SECT_ACADEMY_FILE", str(tmp_path / "s.json"))
     state.reset_for_tests()
-    b = client.post("/api/books", json={"title": "Uno", "text": BOOK, "lang": "fr"}).json()["book"]
+    b = client.post("/api/books", json={"title": "Uno", "text": BOOK, "lang": "de"}).json()["book"]
     files = sorted(p.name for p in (tmp_path / "s.json.books").iterdir())
     assert files == [f"{b['id']}.json", f"{b['id']}.txt"]
-    assert json.loads((tmp_path / "s.json.books" / f"{b['id']}.json").read_text())["lang"] == "fr"
+    assert json.loads((tmp_path / "s.json.books" / f"{b['id']}.json").read_text())["lang"] == "de"
     (tmp_path / "s.json.books" / "evil.json").write_text("{}")             # not a book id: ignored
     (tmp_path / "s.json.books" / "aaaaaaaaaaaa.json").write_text("not json")
     (tmp_path / "s.json.books" / "aaaaaaaaaaaa.txt").write_text("x")
@@ -330,4 +331,4 @@ def test_registry_contract():
     mod = lexicon.get("es")
     for name in ("LANG", "NAME", "SPEECH", "CREDIT", "norm_word", "lookup", "search", "segment"):
         assert hasattr(mod, name), name
-    assert lexicon.get("fr") is None and lexicon.get(None) is None
+    assert lexicon.get("de") is None and lexicon.get(None) is None
