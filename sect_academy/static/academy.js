@@ -163,6 +163,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#she
 /* ================= founding ================= */
 function renderFounding() {
   const courses = OV.courses;
+  const firstPick = (courses.find((c) => c.id.endsWith('-a1')) || courses[0] || {}).id;   // one art ticked to start; the learner adds the rest
   view.innerHTML = `<div class="found">
     <div class="hero"><img src="${backdrop('map')}" alt="A sect of pavilions on mountain peaks above the clouds"></div>
     <h1>Found your sect</h1>
@@ -170,10 +171,10 @@ function renderFounding() {
     <label class="field"><span>Name of the sect</span><input type="text" id="f-name" maxlength="40" placeholder="Azure Lantern Sect" autocomplete="off"></label>
     <label class="field"><span>Your name as Sect Master</span><input type="text" id="f-master" maxlength="30" placeholder="Master Jay" autocomplete="off"></label>
     <h3 style="margin-top:20px">Arts to cultivate</h3>
-    ${courses.length ? courses.map((c) => `<label class="pick"><input type="checkbox" value="${esc(c.id)}" ${c.id.endsWith('-a1') || c.id === 'isc2-cc' ? 'checked' : ''}>
+    ${courses.length ? courses.map((c) => `<label class="pick"><input type="checkbox" value="${esc(c.id)}" ${c.id === firstPick ? 'checked' : ''}>
       <span><b>${esc(c.title)}</b><br><span class="dim small">${esc(c.blurb)} ${c.total} items in ${c.units.length} units.</span></span></label>`).join('')
     : '<p class="dim">No courses are installed. Add a pack under <code>sect_academy/packs</code> and reload.</p>'}
-    <p class="dim small" style="margin-top:14px">Each art adds about 8 new items a day. Two or three arts is a comfortable daily load; more is possible but the reviews add up.</p>
+    <p class="dim small" style="margin-top:14px">Each art adds about 8 new items a day. One is ticked to start; two or three is a comfortable daily load, and more arts can be added later in the library.</p>
     <h3 style="margin-top:20px">How harsh should the world be?</h3>
     ${OV.sect.storytellers.map((t) => `<label class="pick"><input type="radio" name="f-tell" value="${esc(t.id)}" ${t.id === 'balanced' ? 'checked' : ''}>
       <span><b>${esc(t.name)}</b><br><span class="dim small">${esc(t.blurb)}</span></span></label>`).join('')}

@@ -395,7 +395,12 @@ table.items td:first-child { font-weight: 800; font-size: 1.02rem; }
 .res { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 12px; border-radius: 14px; background: var(--surface); border: 2px solid var(--line); }
 .res b { font-weight: 800; font-size: 1.05rem; } .res small { color: var(--dim); font-weight: 700; font-size: .76rem; }
 .res.low { border-color: var(--verm); background: var(--verm-soft); }
-@media (max-width: 640px) { .res small { display: none; } }
+.res .lbl-s { display: none; }
+@media (max-width: 640px) {
+  /* phone: every chip keeps a short label, so the scroll and the shield are never guesses */
+  .resbar { gap: 5px; } .res { padding: 3px 8px; gap: 4px; border-radius: 12px; }
+  .res b { font-size: .95rem; } .res .lbl { display: none; } .res .lbl-s { display: inline; font-size: .68rem; }
+}
 .warn { background: var(--verm-soft); border-radius: 14px; padding: 10px 14px; font-weight: 700; margin: 0 0 12px; }
 .event { margin-top: 14px; background: var(--gold-soft); border-color: var(--gold); }
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
@@ -411,7 +416,20 @@ table.items td:first-child { font-weight: 800; font-size: 1.02rem; }
 .bar.verm > i { background: var(--verm); }
 .worktable { border-collapse: separate; border-spacing: 4px; font-size: .82rem; }
 .worktable th { font-weight: 800; color: var(--dim); text-align: center; padding: 2px 4px; max-width: 74px; line-height: 1.15; vertical-align: bottom; }
-.worktable td:first-child { white-space: nowrap; padding-right: 8px; }
+.worktable th.who { white-space: nowrap; padding-right: 8px; text-align: left; color: var(--ink); vertical-align: middle; }
+/* the grid scrolls sideways inside itself (never the page), with the names pinned on the left */
+.workgrid { max-width: 100%; overscroll-behavior-x: contain; }
+.workgrid th.who { position: sticky; left: 0; z-index: 1; background: #1f1712; box-shadow: 6px 0 8px -6px #0009; }
+.prio > span { min-height: 1em; }
+.phone-only { display: none; }
+@media (max-width: 640px) {
+  .phone-only { display: block; }
+  .worktable { border-spacing: 3px; font-size: .7rem; }
+  .worktable th { padding: 2px 1px; } .worktable th > span { display: block; min-width: 42px; max-width: 46px; font-size: .62rem; margin: 0 auto; }
+  .worktable th.who { padding-right: 4px; font-size: .78rem; vertical-align: middle; }
+  .prio { width: 40px; height: 40px; border-radius: 10px; font-size: .95rem; }
+  .prio small { font-size: .56rem; }
+}
 .prio { width: 54px; height: 46px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); font-weight: 800; font-size: 1.05rem; display: grid; place-items: center; line-height: 1; color: var(--ink); }
 .prio small { display: block; font-size: .62rem; color: var(--dim); font-weight: 700; }
 .prio.p1 { background: var(--gold); border-color: var(--gold); color: #3a2a00; } .prio.p1 small { color: #5a4300; }
@@ -549,6 +567,12 @@ a { color: var(--gold); }
 .fold > summary { cursor: pointer; padding: 10px 2px; font: 800 1.05rem var(--serif); color: #f8e6bf; list-style: none; display: flex; align-items: center; gap: 8px; }
 .fold > summary::before { content: "▸"; color: var(--gold); transition: transform .15s; } .fold[open] > summary::before { transform: rotate(90deg); }
 .fold > summary::-webkit-details-marker { display: none; }
+.fold.meridians { margin-top: 10px; } .fold.meridians > summary { flex-wrap: wrap; } .fold.meridians > summary .dim { font: 600 .82rem/1.3 var(--round); flex-basis: 100%; }
+.list.later li { padding: 6px 2px; }
+/* the study panel sits under the sect, so it stays short there */
+.studyrow { margin-top: 14px; }
+.studyrow .today { gap: 8px; padding: 12px 14px; } .studyrow .today .bubble p.dim { display: none; }
+.studyrow .today .bubble h2 { font-size: 1.05rem; } .studyrow .realm { padding: 12px 14px; }
 
 /* Chinese, Japanese, Korean */
 .rom { color: var(--gold); font-size: .9rem; font-weight: 600; letter-spacing: .01em; }
