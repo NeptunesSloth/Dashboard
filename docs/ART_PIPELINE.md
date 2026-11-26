@@ -91,6 +91,31 @@ generating, draw those rectangles over each variant (scale the percentages to th
 image size) and show the owner; reject any variant where a room has moved out of
 its box. Lower the denoise if they drift.
 
+**Do `hq` room by room.** A whole-picture repaint (tried once, reverted) kept the
+boxes but lost what each room is: Buddha shrines in the storehouse and dormitory,
+a cauldron in training, the market no longer a market. Instead crop each box from
+the original, repaint each crop on its own at denoise about 0.5 with a
+room-specific prompt, and paste it back into the same box, keeping the original
+between the boxes (floors, beams):
+
+| Box | Prompt subject |
+|---|---|
+| dormitory | disciples' sleeping quarters: rows of sleeping mats and folded bedding, small chests |
+| main_hall | sect main hall: a golden seated patriarch statue on a dais, incense |
+| fields | spirit rice terraces and a blossoming spirit tree under the eaves |
+| market | trade post: market stalls with goods, hanging banners, merchants' counters |
+| storehouse | storehouse: sacks of rice, crates, barrels and stacked lumber |
+| library | scripture library: tall shelves of scrolls, a glowing blue array on the reading table |
+| ward | healing ward: beds with patients, herb cabinets, a physician's table |
+| alchemy | alchemy room: bronze pill furnace, shelves of bottles and herbs |
+| training | training yard: wooden dummies, weapon racks, a sparring circle |
+| vault | treasure vault: round vault door, jade guardian statues, treasure chests |
+| spirit_vein | spirit vein: a great blue spirit crystal over a glowing pool, carved steps |
+| meditation | meditation hall: round moon window, meditation cushions, violet qi flames |
+
+Show the owner 2 versions of the whole assembled painting, with the boxes drawn
+over them, before pushing.
+
 ### New result scenes (no reference; text to image)
 
 The game shows these on result cards; until they exist it borrows a backdrop.
