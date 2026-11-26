@@ -54,15 +54,19 @@ sect_academy/
                 saved words (per language, in the state), the "My words" courses
                 (served to packs via packs.set_personal), the book shelf
   lexicon/      per-language lookup modules + registry (__init__.py: the module
-                contract; es.py: Spanish lookup, candidates, segmentation)
+                contract; es.py: Spanish lookup, candidates, segmentation;
+                fr.py: elisions, inversions; ko.py: jamo, particles, endings,
+                irregulars, Revised Romanization; kaikki.py: the shared table
+                and search for the kaikki.org-built dictionaries)
   dict/<lang>/  dictionary data, one folder per language, each with a README
                 naming source and licence (es/: Wiktionary via doozan/spanish_data,
-                CC BY-SA 4.0 — that file is under that licence, not ours)
+                CC BY-SA 4.0 — that file is under that licence, not ours;
+                fr/, ko/: English Wiktionary via kaikki.org, same licence)
   static/       index.html, academy.js (shell + study), sect.js (colony UI),
                 reader.js (Read: shelf, pages, lookup card, dictionary, My words),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js,
                 vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
-tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py, test_reader.py,
+tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_lexicon_fr_ko.py,
                 balance.py + test_balance.py (scripted 150-day games),
                 smoke_browser.py
 docs/           ACADEMY_CONTENT.md, the design spec, research
@@ -143,4 +147,11 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
 - **Dictionary licence**: `dict/es/es_en.tsv.gz` is CC BY-SA 4.0 (Wiktionary
   contributors, via doozan/spanish_data). Keep the credit line (`CREDIT` in
   `lexicon/es.py`) shown with results, and keep `dict/es/README.md`.
+  `dict/fr/` and `dict/ko/` are CC BY-SA 4.0 too (English Wiktionary via
+  kaikki.org); rebuild them with `python scripts/build_dict_fr_ko.py` (streams
+  the JSONL, never stores it). `python scripts/lexicon_hit_rate.py fr ko`
+  measures lookup on every course sentence (99.9% / 99.7% when built;
+  `tests/test_lexicon_fr_ko.py` holds a floor). Korean results carry `rom`,
+  `lemma_rom` and `gram` (the particle or ending taken off); My words (Korean)
+  items get `rom` so the deck accepts romanised answers.
 - One process only: state is held in memory.

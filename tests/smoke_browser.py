@@ -16,6 +16,11 @@ BASE = os.getenv("SMOKE_BASE", "http://127.0.0.1:8200")
 _EXE = os.getenv("PW_EXECUTABLE")
 HOST = urlparse(BASE).hostname
 STORY = "Hola, Juan. Dimelo cuando puedas. Las casas del pueblo son blancas y el mar esta cerca."
+KO_STORY = "어제 저는 친구와 학교에서 밥을 먹었어요. 날씨가 너무 더워요. 그래서 우리는 집에 갔어요. 오늘은 한국어를 공부했습니다."
+FR_STORY = ("The Project Gutenberg eBook of Petit conte\n\n*** START OF THE PROJECT GUTENBERG EBOOK PETIT CONTE ***\n\n"
+            "Le matin, nous allons au marché. « Où est l'homme ? » dit-il. Les chevaux étaient déjà là, "
+            "et l'été arrivait doucement sur le village.\n\n*** END OF THE PROJECT GUTENBERG EBOOK PETIT CONTE ***\n"
+            "Licence text that is not the book.")
 
 
 def _pdf(text: str) -> bytes:
@@ -157,6 +162,19 @@ def main() -> int:
             pg.wait_for_selector(".lookup .lk-senses", timeout=10000)
             assert "casa" in pg.inner_text(".lookup .lk-path"), f"{name}: casas did not lead to casa"
         assert not pg.evaluate("window.__epubRan"), "a script inside an EPUB ran"
+        # old plain-text encodings: a Korean book in EUC-KR, a French one in windows-1252 inside a Gutenberg wrapper
+        for name, lang, data, tap, want in (
+                ("ko.txt", "ko", KO_STORY.encode("euc-kr"), "먹었어요", "먹다"),
+                ("fr.txt", "fr", FR_STORY.encode("cp1252"), "allons", "aller")):
+            pg.goto(BASE + "/read", wait_until="load", timeout=25000)
+            pg.wait_for_selector("#rb-file", state="attached", timeout=10000)
+            pg.select_option("#rb-lang", lang)
+            pg.set_input_files("#rb-file", files=[{"name": name, "mimeType": "text/plain", "buffer": data}])
+            pg.wait_for_selector("#rd .w", timeout=30000)
+            assert "GUTENBERG" not in pg.inner_text("#rd"), f"{name}: the Gutenberg licence was left in"
+            pg.locator("#rd .w", has_text=tap).first.click()
+            pg.wait_for_selector(".lookup .lk-senses", timeout=10000)
+            assert want in pg.inner_text(".lookup .lk-path"), f"{name}: {tap} did not lead to {want}"
 
         # 6) phone width, dark mode
         m = b.new_context(viewport={"width": 390, "height": 800}, color_scheme="dark")

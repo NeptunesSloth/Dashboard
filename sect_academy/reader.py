@@ -258,16 +258,21 @@ def build_pack(lang: str, words: dict) -> dict:
     """A personal course, in the shape ``packs`` gives every course (already normalised)."""
     pid, uid = pack_id(lang), f"{pack_id(lang)}-words"
     name = LANGS.get(lang, lang)
+    romanise = getattr(lexicon.get(lang), "romanise", None)      # Korean: shown and accepted as an answer
     items = []
     for w, v in sorted(words.items(), key=lambda kv: (kv[1].get("ts", 0.0), kv[0])):
         it = {"id": my_item_id(lang, w), "type": "vocab", "l2": w, "l1": v["l1"], "alt": [], "unit": uid, "pack": pid}
+        if romanise:
+            it["rom"] = romanise(w)
         if v.get("ctx"):
             it["ex"] = v["ctx"]
+            if romanise:
+                it["ex_rom"] = romanise(v["ctx"])
         if v.get("form") and v["form"] != w:
             it["note"] = f"You met it as “{v['form']}”."
         items.append(it)
     return {"id": pid, "title": f"My words ({name})", "kind": "language", "language": name, "lang": lexicon.SPEECH.get(lang, ""),
-            "hall": {"es": "tongues_south", "fr": "tongues_west"}.get(lang, ""), "personal": True,
+            "hall": {"es": "tongues_south", "fr": "tongues_west", "ko": "tongues_west"}.get(lang, ""), "personal": True,
             "blurb": "Words you saved while reading, scheduled like any other course.",
             "units": [{"id": uid, "title": "Saved from your reading", "goal": "The words you chose to keep.",
                        "notes": "Every word here was saved from a book or the dictionary. Delete one in Read, My words.",

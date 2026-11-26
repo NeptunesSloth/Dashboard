@@ -1,6 +1,6 @@
 """Per-language dictionaries for the reader: a registry of lookup modules.
 
-Each language with lookup is one module here (``es.py``) reading its data from
+Each language with lookup is one module here (``es.py``, ``fr.py``, ``ko.py``) reading its data from
 ``sect_academy/dict/<lang>/`` (whose README names the source and licence).
 A module provides:
 
@@ -30,7 +30,11 @@ LANGS = {"es": "Spanish", "fr": "French", "zh": "Mandarin Chinese", "ja": "Japan
          "en": "English", "pt": "Portuguese", "it": "Italian", "de": "German", "other": "Another language"}
 SPEECH = {"es": "es-ES", "fr": "fr-FR", "zh": "zh-CN", "ja": "ja-JP", "ko": "ko-KR", "en": "en-GB",
           "pt": "pt-PT", "it": "it-IT", "de": "de-DE"}
-MODULES = {"es": "sect_academy.lexicon.es"}      # lang -> lookup module (import path)
+MODULES = {                                     # lang -> lookup module (import path)
+    "es": "sect_academy.lexicon.es",
+    "fr": "sect_academy.lexicon.fr",
+    "ko": "sect_academy.lexicon.ko",
+}
 MAX_WORD = 40
 _LANG_RE = re.compile(r"^[a-z]{2,5}$")
 

@@ -151,17 +151,30 @@ python -m sect_academy
   dictionary of about 85,000 Spanish words and 133,000 of their forms. It finds
   the dictionary form behind plurals, conjugations and pronouns attached to a
   verb (*cúrale* → *curar*, *dímelo* → *decir*), with or without the accents.
-  Hear the word (normal or slow) if your device has a Spanish voice; the card
-  says plainly when it has none. French, Chinese, Japanese and Korean books can
-  be read and heard; their lookup is still to come.
-- **Dictionary**: search Spanish → English, or English → Spanish by meaning,
-  and add your own entries.
+  Hear the word (normal or slow) if your device has a voice for the language;
+  the card says plainly when it has none.
+- **French** books too: about 85,000 French words and 337,000 of their forms.
+  Elisions are split (*l'homme* → *homme*, *qu'il* → *il*), inverted verbs
+  freed of their pronoun (*dit-il* → *dire*, *va-t-on* → *aller*), plurals and
+  feminines taken back (*chevaux* → *cheval*, *heureuses* → *heureux*).
+- **Korean** books too: about 33,000 Korean words and 321,000 conjugated
+  forms. Particles come off (*학교에서* → *학교*, "에서: at / in"), endings
+  are taken back to the dictionary form with the grammar named (*먹었어요* →
+  *먹다*, "past polite"; *더워요* → *덥다*, ㅂ irregular), and every word is
+  shown with its romanisation. Chinese and Japanese books can be read and
+  heard; their lookup is coming.
+- **Old text files** are read in their own encoding: UTF-8 first, else EUC-KR
+  for a Korean book and windows-1252 for a French or Spanish one. A Project
+  Gutenberg licence header and footer are taken off.
+- **Dictionary**: search each language → English, or English → it by meaning
+  (Korean also by romanisation: *hakgyo* finds 학교), and add your own entries.
 - **My words**: "Save word" keeps a word with its meaning and the sentence you
   met it in. Saved words are a course of their own, *My words (Spanish)*,
   scheduled and graded like every other course and paying the same qi and
-  insight.
-- The dictionary is Wiktionary data compiled by doozan/spanish_data, under
-  CC BY-SA 4.0 (see `sect_academy/dict/es/README.md`); pdf.js is Apache-2.0
+  insight (*My words (French)*, *My words (Korean)* the same way).
+- The Spanish dictionary is Wiktionary data compiled by doozan/spanish_data;
+  French and Korean are English Wiktionary via kaikki.org; all CC BY-SA 4.0
+  (see `sect_academy/dict/<lang>/README.md`); pdf.js is Apache-2.0
   (`sect_academy/static/vendor/pdfjs/LICENSE`).
 
 ## Running it
@@ -221,4 +234,7 @@ python -m sect_academy & python tests/smoke_browser.py   # browser test, outside
 - The Spanish dictionary is as good as its source. Where a common word and a
   name share a spelling, the compiled data sometimes kept only the name
   ("luz" appears as a given name); the card says so, and your own entry fixes it.
+  French and Korean lookup has no word-frequency data, so a spelling with two
+  readings is a guess (French *joue* shows "cheek" first, *jouer* under Also;
+  Korean *삽니다* shows 사다 "buy" first, 살다 "live" under Also).
 - One learner, one sect, one process.

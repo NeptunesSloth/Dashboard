@@ -13,3 +13,5 @@ that pair: a data folder here and a module there (see the module contract in
 | Folder | Source | Licence |
 | --- | --- | --- |
 | `es/` | Wiktionary data, compiled by doozan/spanish_data (+ a 200-word core list from the owner's Aprende app) | CC BY-SA 4.0 |
+| `fr/` | English Wiktionary via kaikki.org (wiktextract), built by `scripts/build_dict_fr_ko.py` | CC BY-SA 4.0 |
+| `ko/` | English Wiktionary via kaikki.org (wiktextract), built by `scripts/build_dict_fr_ko.py` | CC BY-SA 4.0 |
