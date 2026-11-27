@@ -62,6 +62,12 @@ def test_the_second_month_still_has_teeth(runs):
         assert r["rivals_max"] <= max(1, r["pop_max"] // colony.RIVAL_PER), r["rivals_max"]
 
 
+def test_a_careful_sect_climbs_the_main_hall_ladder(runs):
+    """SECT_OVERHAUL_PLAN 3.2: careful play reaches about Hall 4 by day 60 and 6 to 8 by day 150."""
+    for r in runs.values():
+        assert r["hall_by_day"][60] >= 4 and 6 <= r["hall_by_day"][150] <= 8, r["hall_by_day"]
+
+
 def test_research_moves_without_study(runs):
     for r in runs.values():
         assert 5 <= r["techs70"] <= 8, r["techs70"]                   # no study at all in the scripted game

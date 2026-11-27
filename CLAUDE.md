@@ -131,8 +131,9 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   keep the lantern-night palette that matches `static/art/`. New images go in
   `static/art/` as WebP and are served from the fixed list in `app.py`.
 - **Sect overhaul** (`docs/SECT_OVERHAUL_PLAN.md`, approved; built stage by stage):
-  the home map has no upgrade badges (an affordable room glows and shows "+" after
-  its level); `colony.trays` lights a room with what its crew made since dawn (view
+  the home map has no upgrade badges (an affordable room's name plate glows; two
+  looks, `localStorage sect.look.label`/`sect.look.build` = A|B, for the owner to pick);
+  `colony.trays` lights a room with what its crew made since dawn (view
   only until stage 4); `colony.hall_next` feeds the "Main Hall n" card under the map.
   **Builders** (stage 2): building is builder slots (`builders`, ledger `builder_rows`:
   2, +1 at Hall 3/6/9, +1 while the Master is lent by a week of study). The first
@@ -143,6 +144,14 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   (`_builders_wait`); sealed gates stop them too. A counted session draws a Master's
   Blueprint (`use_blueprint`: 25% off one job, one a real day, 3 kept). The old
   `build_stall` alert is gone: a builder cannot stall.
+  **Main Hall ladder** (stage 3): Hall 1–10, rooms to 8 (Trade Post 3). `HALL_LADDER`
+  says which rooms each level opens and the room cap (never above Hall+1);
+  `build_block` gives the reason a build is refused (also the view's `locked`), and
+  raising the Hall to n+1 needs `HALL_ROOMS_NEEDED` other rooms at level n
+  (`hall_rooms_check`, the card's checklist). Costs: base × `COST_CURVE`**level,
+  spirit stones from level 4. Old saves above the new caps keep their rooms.
+  Builders still idle most hours: with timers capped at 36 h, materials pace the
+  ladder (balance columns `idle_builder`, `want_mat`, `hall`).
 - **Result scenes**: big outcomes (raid, tournament, festival, funeral,
   tribulation, breakthrough, realm) queue a card via `colony._scene` (cap 5,
   repaired on load). Painting `static/art/scene_<kind>.webp` is used when the
