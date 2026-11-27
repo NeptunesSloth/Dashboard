@@ -1,0 +1,942 @@
+id: korean-talk
+title: "Korean — Conversations"
+kind: language
+language: Korean
+lang: ko-KR
+hall: tongues_west
+blurb: "Spoken-conversation practice to take alongside A1 and A2: 50 everyday exchanges you rehearse line by line, from first meetings to restaurants, shops, the doctor's, phone calls, hotels and trains."
+
+# rom is Revised Romanization as in korean-a1 and korean-a2, written word by word.
+# Partner lines may use forms the learner has only met passively; learner lines stay short.
+units:
+  # ───────────────────────────────────────────────────────────────── 1
+  - id: ko-talk-01
+    title: "First meetings"
+    goal: "I can introduce myself, ask the same questions back, say how long I have been learning Korean and close a first conversation warmly."
+    notes: |
+      A first conversation runs on a few moves. Say them aloud as whole chunks.
+
+      - **Open**: 안녕하세요? 저는 ○○예요/이에요. With someone older, or at work, the formal style is safer: 처음 뵙겠습니다. 저는 ○○입니다.
+      - **Ask back**: add **-은요? / -는요?** to a name to return the question: 지민 씨는요? ("and you, Jimin?"). There is no word for "you": use the name + 씨, or a title.
+      - **Work**: business cards (명함) are given and taken with both hands, and the meeting ends with **잘 부탁드립니다** ("I look forward to working with you").
+      - **Buy time**: 다시 한번 말해 주세요. · 천천히 말해 주세요. · ○○이/가 무슨 뜻이에요?
+      - **Close**: 오늘 즐거웠어요. · 연락 주세요. · 조심히 가세요. · 또 만나요!
+
+      Koreans often ask your age early on, because it decides how you speak to each other. 나이가 어떻게 되세요? is the polite way.
+
+      Being praised for your Korean (한국말 잘하네요!) is answered modestly: 아니에요, 아직 잘 못해요.
+    items:
+      - id: ko-talk-01-class
+        type: dialogue
+        title: "First day at language school"
+        scene: "It is your first day at a Korean language school in Seoul. The student next to you says hello. You are Alex, from England."
+        you: B
+        lines:
+          - {who: A, l2: "안녕하세요? 저는 지민이에요. 이름이 뭐예요?", rom: "annyeonghaseyo? jeoneun jiminieyo. ireumi mwoyeyo?", l1: "Hello. I'm Jimin. What's your name?"}
+          - {who: B, l2: "안녕하세요? 저는 알렉스예요.", rom: "annyeonghaseyo? jeoneun allekseuyeyo.", l1: "Hello. I'm Alex.", alt: ["안녕하세요? 제 이름은 알렉스예요.", "저는 알렉스예요.", "안녕하세요? 알렉스예요."]}
+          - {who: A, l2: "알렉스 씨, 반가워요. 어느 나라에서 왔어요?", rom: "allekseu ssi, bangawoyo. eoneu naraeseo wasseoyo?", l1: "Nice to meet you, Alex. Which country are you from?"}
+          - {who: B, l2: "영국에서 왔어요. 지민 씨는요?", rom: "yeonggugeseo wasseoyo. jimin ssineunyo?", l1: "I'm from England. And you, Jimin?", alt: ["저는 영국에서 왔어요. 지민 씨는요?", "영국 사람이에요. 지민 씨는요?"]}
+          - {who: A, l2: "저는 부산에서 왔어요. 대학교 때문에 서울에 왔어요.", rom: "jeoneun busaneseo wasseoyo. daehakgyo ttaemune seoure wasseoyo.", l1: "I'm from Busan. I came to Seoul for university."}
+          - {who: B, l2: "아, 그래요? 만나서 반가워요.", rom: "a, geuraeyo? mannaseo bangawoyo.", l1: "Oh, really? Nice to meet you.", alt: ["만나서 반가워요.", "아, 그래요? 반가워요."]}
+          - {who: A, l2: "저도요. 앞으로 잘 지내요!", rom: "jeodoyo. apeuro jal jinaeyo!", l1: "Me too. Let's get on well from now on!"}
+          - {who: B, l2: "네, 잘 부탁해요!", rom: "ne, jal butakaeyo!", l1: "Yes, I'm glad to know you! (please treat me well)", alt: ["네, 잘 지내요!", "잘 부탁해요!"]}
+
+      - id: ko-talk-01-business
+        type: dialogue
+        title: "Meeting a business contact"
+        scene: "At a trade fair you meet a Korean manager for the first time. You are Sarah Jones. Use the formal style."
+        you: B
+        lines:
+          - {who: A, l2: "처음 뵙겠습니다. 저는 김민호라고 합니다.", rom: "cheoeum boepgesseumnida. jeoneun gimminhorago hamnida.", l1: "How do you do? My name is Kim Minho."}
+          - {who: B, l2: "처음 뵙겠습니다. 저는 사라 존스입니다.", rom: "cheoeum boepgesseumnida. jeoneun sara jonseuimnida.", l1: "How do you do? I'm Sarah Jones.", alt: ["반갑습니다. 저는 사라 존스입니다.", "처음 뵙겠습니다. 사라 존스라고 합니다.", "처음 뵙겠습니다. 사라 존스입니다."]}
+          - {who: A, l2: "만나서 반갑습니다. 여기 제 명함입니다.", rom: "mannaseo bangapseumnida. yeogi je myeonghamimnida.", l1: "Pleased to meet you. Here is my card."}
+          - {who: B, l2: "감사합니다. 이건 제 명함입니다.", rom: "gamsahamnida. igeon je myeonghamimnida.", l1: "Thank you. And this is my card.", alt: ["감사합니다. 제 명함입니다.", "고맙습니다. 이건 제 명함입니다.", "감사합니다. 여기 제 명함입니다."]}
+          - {who: A, l2: "한국에는 언제 오셨어요?", rom: "hangugeneun eonje osyeosseoyo?", l1: "When did you arrive in Korea?"}
+          - {who: B, l2: "지난주에 왔습니다.", rom: "jinanjue wasseumnida.", l1: "I arrived last week.", alt: ["지난주에 왔어요.", "지난주에 도착했습니다."]}
+          - {who: A, l2: "앞으로 잘 부탁드립니다.", rom: "apeuro jal butakdeurimnida.", l1: "I look forward to working with you."}
+          - {who: B, l2: "저도 잘 부탁드립니다.", rom: "jeodo jal butakdeurimnida.", l1: "Likewise, I look forward to working with you.", alt: ["잘 부탁드립니다.", "네, 저도 잘 부탁드립니다.", "저도요. 잘 부탁드립니다."]}
+
+      - id: ko-talk-01-learning
+        type: dialogue
+        title: "Why are you learning Korean?"
+        scene: "A Korean colleague is curious about your Korean lessons."
+        you: B
+        lines:
+          - {who: A, l2: "한국어를 어디에서 배웠어요?", rom: "hangugeoreul eodieseo baewosseoyo?", l1: "Where did you learn Korean?"}
+          - {who: B, l2: "학원에서 배우고 있어요.", rom: "hagwoneseo baeugo isseoyo.", l1: "I'm learning at a language school.", alt: ["학원에서 배워요.", "한국어 학원에서 배우고 있어요."]}
+          - {who: A, l2: "얼마나 배웠어요?", rom: "eolmana baewosseoyo?", l1: "How long have you been learning?"}
+          - {who: B, l2: "일 년쯤 배웠어요.", rom: "il nyeonjjeum baewosseoyo.", l1: "About a year.", alt: ["일 년 배웠어요.", "1년쯤 배웠어요.", "일 년쯤 됐어요."]}
+          - {who: A, l2: "와, 잘하네요! 왜 한국어를 배워요?", rom: "wa, jalhaneyo! wae hangugeoreul baewoyo?", l1: "Wow, you're good! Why are you learning Korean?"}
+          - {who: B, l2: "한국 드라마를 좋아해서 배워요.", rom: "hanguk deuramareul joahaeseo baewoyo.", l1: "I'm learning it because I like Korean dramas.", alt: ["한국 드라마를 좋아해요.", "한국 드라마가 좋아서 배워요.", "한국 드라마를 좋아해서요."]}
+          - {who: A, l2: "저도 드라마 좋아해요. 요즘 뭐 봐요?", rom: "jeodo deurama joahaeyo. yojeum mwo bwayo?", l1: "I like dramas too. What are you watching at the moment?"}
+          - {who: B, l2: "요즘은 바빠서 못 봐요.", rom: "yojeumeun bappaseo mot bwayo.", l1: "I'm too busy to watch anything these days.", alt: ["요즘은 시간이 없어서 못 봐요.", "요즘 바빠서 못 봐요."]}
+
+      - id: ko-talk-01-sorry
+        type: dialogue
+        title: "Sorry, could you say that again?"
+        scene: "In the lift of your block of flats, a neighbour starts chatting. You miss the first question."
+        you: B
+        lines:
+          - {who: A, l2: "이 아파트에 사세요?", rom: "i apateue saseyo?", l1: "Do you live in this block?"}
+          - {who: B, l2: "죄송해요. 다시 한번 말해 주세요.", rom: "joesonghaeyo. dasi hanbeon malhae juseyo.", l1: "Sorry. Please say that again.", alt: ["죄송해요. 다시 말해 주세요.", "죄송합니다. 다시 한번 말해 주세요.", "네? 다시 한번 말해 주세요."]}
+          - {who: A, l2: "이 아파트에 사세요?", rom: "i apateue saseyo?", l1: "Do you live in this block?"}
+          - {who: B, l2: "아, 네. 여기 살아요.", rom: "a, ne. yeogi sarayo.", l1: "Ah, yes. I live here.", alt: ["네, 여기 살아요.", "네, 이 아파트에 살아요."]}
+          - {who: A, l2: "저도 여기 살아요. 몇 동에 살아요?", rom: "jeodo yeogi sarayo. myeot donge sarayo?", l1: "I live here too. Which building number do you live in?"}
+          - {who: B, l2: "동이 무슨 뜻이에요?", rom: "dongi museun tteusieyo?", l1: "What does dong mean?", alt: ["동이 뭐예요?", "'동'이 무슨 뜻이에요?"]}
+          - {who: A, l2: "아파트 건물 번호예요. 백 동, 이백 동처럼요.", rom: "apateu geonmul beonhoyeyo. baek dong, ibaek dongcheoreomyo.", l1: "It's the building number in a block of flats. Like building 100, building 200."}
+          - {who: B, l2: "아, 알겠어요. 저는 백 동에 살아요.", rom: "a, algesseoyo. jeoneun baek donge sarayo.", l1: "Ah, I see. I live in building 100.", alt: ["아, 백 동에 살아요.", "백 동이에요.", "아, 알겠어요. 백 동이에요."]}
+          - {who: A, l2: "와, 이웃이네요! 반가워요.", rom: "wa, iusineyo! bangawoyo.", l1: "Oh, we're neighbours! Nice to meet you."}
+
+      - id: ko-talk-01-older
+        type: dialogue
+        title: "An older neighbour"
+        scene: "An older woman from your building stops you outside the convenience store. She speaks warmly and a little informally; you stay polite."
+        you: B
+        lines:
+          - {who: A, l2: "외국 사람이에요? 한국말 잘하네요.", rom: "oeguk saramieyo? hangungmal jalhaneyo.", l1: "Are you from abroad? Your Korean is good."}
+          - {who: B, l2: "감사합니다. 아직 많이 배우고 있어요.", rom: "gamsahamnida. ajik mani baeugo isseoyo.", l1: "Thank you. I'm still learning a lot.", alt: ["아니에요. 아직 많이 배우고 있어요.", "감사합니다. 아직 잘 못해요.", "아니에요. 아직 잘 못해요."]}
+          - {who: A, l2: "한국에 온 지 얼마나 됐어요?", rom: "hanguge on ji eolmana dwaesseoyo?", l1: "How long have you been in Korea?"}
+          - {who: B, l2: "육 개월 됐어요.", rom: "yuk gaewol dwaesseoyo.", l1: "Six months.", alt: ["여섯 달 됐어요.", "육 개월쯤 됐어요.", "6개월 됐어요."]}
+          - {who: A, l2: "혼자 살아요? 밥은 잘 먹고 다녀요?", rom: "honja sarayo? babeun jal meokgo danyeoyo?", l1: "Do you live on your own? Are you eating properly?"}
+          - {who: B, l2: "네, 잘 먹고 있어요. 걱정하지 마세요.", rom: "ne, jal meokgo isseoyo. geokjeonghaji maseyo.", l1: "Yes, I'm eating well. Don't worry.", alt: ["네, 잘 먹어요. 걱정하지 마세요.", "네, 잘 먹고 있어요."]}
+          - {who: A, l2: "다음에 우리 집에 밥 먹으러 와요.", rom: "daeume uri jibe bap meogeureo wayo.", l1: "Come round to my place for a meal some time."}
+          - {who: B, l2: "정말 감사합니다. 꼭 갈게요.", rom: "jeongmal gamsahamnida. kkok galgeyo.", l1: "Thank you so much. I'll definitely come.", alt: ["감사합니다. 꼭 갈게요.", "네, 감사합니다!", "정말 고맙습니다. 꼭 갈게요."]}
+
+      - id: ko-talk-01-job
+        type: dialogue
+        title: "What do you do?"
+        scene: "At a friend's party you get talking to a Korean office worker. You teach English at a primary school."
+        you: B
+        lines:
+          - {who: A, l2: "무슨 일 하세요?", rom: "museun il haseyo?", l1: "What do you do?"}
+          - {who: B, l2: "저는 영어 선생님이에요. 초등학교에서 가르쳐요.", rom: "jeoneun yeongeo seonsaengnimieyo. chodeunghakgyoeseo gareuchyeoyo.", l1: "I'm an English teacher. I teach at a primary school.", alt: ["영어 선생님이에요. 초등학교에서 가르쳐요.", "저는 초등학교에서 영어를 가르쳐요."]}
+          - {who: A, l2: "아, 그래요? 일이 재미있어요?", rom: "a, geuraeyo? iri jaemiisseoyo?", l1: "Oh, really? Do you enjoy the work?"}
+          - {who: B, l2: "네, 재미있지만 좀 피곤해요.", rom: "ne, jaemiitjiman jom pigonhaeyo.", l1: "Yes, it's fun but a bit tiring.", alt: ["재미있지만 좀 피곤해요.", "네, 재미있지만 조금 피곤해요."]}
+          - {who: A, l2: "저는 회사에 다녀요. 은행에서 일해요.", rom: "jeoneun hoesae danyeoyo. eunhaengeseo ilhaeyo.", l1: "I work for a company. At a bank."}
+          - {who: B, l2: "회사가 어디에 있어요?", rom: "hoesaga eodie isseoyo?", l1: "Where is your office?", alt: ["회사는 어디에 있어요?", "회사가 어디예요?"]}
+          - {who: A, l2: "강남에 있어요. 매일 지하철로 출근해요.", rom: "gangname isseoyo. maeil jihacheollo chulgeunhaeyo.", l1: "In Gangnam. I go to work by subway every day."}
+          - {who: B, l2: "와, 출근 시간이 길겠어요.", rom: "wa, chulgeun sigani gilgesseoyo.", l1: "Wow, your commute must be long.", alt: ["출근 시간이 길겠어요.", "와, 힘들겠어요."]}
+
+      - id: ko-talk-01-goodbye
+        type: dialogue
+        title: "Wrapping up an evening"
+        scene: "It is late after a language-exchange evening. Your new Korean friend has to go home."
+        you: B
+        lines:
+          - {who: A, l2: "벌써 열 시예요. 저는 이제 가야 해요.", rom: "beolsseo yeol siyeyo. jeoneun ije gaya haeyo.", l1: "It's already ten. I have to go now."}
+          - {who: B, l2: "저도 가야 돼요. 오늘 정말 즐거웠어요.", rom: "jeodo gaya dwaeyo. oneul jeongmal jeulgeowosseoyo.", l1: "I have to go too. I really enjoyed today.", alt: ["저도요. 오늘 정말 즐거웠어요.", "오늘 정말 즐거웠어요.", "저도 가야 해요. 오늘 즐거웠어요."]}
+          - {who: A, l2: "저도요. 전화번호 좀 알려 줄 수 있어요?", rom: "jeodoyo. jeonhwabeonho jom allyeo jul su isseoyo?", l1: "Me too. Could you give me your number?"}
+          - {who: B, l2: "네, 제 번호는 이거예요.", rom: "ne, je beonhoneun igeoyeyo.", l1: "Sure, this is my number.", alt: ["네, 이거예요.", "네, 여기요."]}
+          - {who: A, l2: "고마워요. 제가 문자 보낼게요.", rom: "gomawoyo. jega munja bonaelgeyo.", l1: "Thanks. I'll send you a text."}
+          - {who: B, l2: "네, 연락 주세요. 조심히 가세요.", rom: "ne, yeollak juseyo. josimhi gaseyo.", l1: "Okay, keep in touch. Get home safely.", alt: ["연락 주세요. 조심히 가세요.", "네, 연락 주세요."]}
+          - {who: A, l2: "네, 또 만나요!", rom: "ne, tto mannayo!", l1: "Okay, see you again!"}
+          - {who: B, l2: "안녕히 가세요!", rom: "annyeonghi gaseyo!", l1: "Bye!", alt: ["또 만나요!", "잘 가요!", "네, 또 만나요!"]}
+
+  # ───────────────────────────────────────────────────────────────── 2
+  - id: ko-talk-02
+    title: "At the restaurant"
+    goal: "I can get a table, order and change a dish, sort out a mistake, ask for more side dishes and pay."
+    notes: |
+      Restaurant staff speak in very polite forms. You do not need to copy them: polite 해요 Korean is exactly right for a customer.
+
+      | staff say | it means |
+      |---|---|
+      | 몇 분이세요? | how many of you? |
+      | 예약하셨어요? | do you have a booking? |
+      | 주문하시겠어요? / 뭐 드릴까요? | are you ready to order? |
+      | 잠시만 기다려 주세요. | one moment, please |
+      | 맛있게 드세요. | enjoy your meal |
+
+      ## Useful moves
+      - Call the staff with **저기요!** (or 여기요!). Many tables have a call button.
+      - Change a dish: 고기는 **빼** 주세요 (leave out the meat), 덜 맵게 해 주세요.
+      - Order rice by the bowl (공깃밥, often written 공기밥 on menus), grilled meat by the portion (이 인분), gimbap by the roll (한 줄).
+      - Pay at the counter by the door: 계산은 어디에서 해요? 카드로 할게요.
+      - On leaving: **잘 먹었습니다**.
+
+      **-(으)ㄹ게요** ("I'll …") is the natural way to tell someone what you have decided: 기다릴게요, 카드로 할게요. It is about your own action only.
+    items:
+      - id: ko-talk-02-table
+        type: dialogue
+        title: "Getting a table"
+        scene: "You arrive at a busy restaurant with two friends, without a booking. You are Sara."
+        you: B
+        lines:
+          - {who: A, l2: "어서 오세요. 몇 분이세요?", rom: "eoseo oseyo. myeot buniseyo?", l1: "Welcome. How many of you are there?"}
+          - {who: B, l2: "세 명이에요.", rom: "se myeongieyo.", l1: "Three.", alt: ["세 명이요.", "3명이에요.", "세 명입니다."]}
+          - {who: A, l2: "예약하셨어요?", rom: "yeyakasyeosseoyo?", l1: "Do you have a booking?"}
+          - {who: B, l2: "아니요, 예약 안 했어요.", rom: "aniyo, yeyak an haesseoyo.", l1: "No, we haven't booked.", alt: ["아니요, 안 했어요.", "아니요, 예약 안 했는데요."]}
+          - {who: A, l2: "죄송하지만 지금 자리가 없어요. 십 분쯤 기다리셔야 돼요.", rom: "joesonghajiman jigeum jariga eopseoyo. sip bunjjeum gidarisyeoya dwaeyo.", l1: "I'm sorry, there are no tables right now. You'll have to wait about ten minutes."}
+          - {who: B, l2: "괜찮아요. 기다릴게요.", rom: "gwaenchanayo. gidarilgeyo.", l1: "That's fine. We'll wait.", alt: ["네, 기다릴게요.", "괜찮아요. 기다릴 수 있어요."]}
+          - {who: A, l2: "성함이 어떻게 되세요?", rom: "seonghami eotteoke doeseyo?", l1: "May I have your name?"}
+          - {who: B, l2: "사라예요.", rom: "sarayeyo.", l1: "Sara.", alt: ["사라입니다.", "제 이름은 사라예요."]}
+
+      - id: ko-talk-02-order
+        type: dialogue
+        title: "Ordering for the table"
+        scene: "You are ordering for yourself and a friend in a Korean restaurant."
+        you: B
+        lines:
+          - {who: A, l2: "주문하시겠어요?", rom: "jumunhasigesseoyo?", l1: "Are you ready to order?"}
+          - {who: B, l2: "네, 김치찌개 하나하고 불고기 이 인분 주세요.", rom: "ne, gimchijjigae hanahago bulgogi i inbun juseyo.", l1: "Yes, one kimchi stew and two portions of bulgogi, please.", alt: ["김치찌개 하나하고 불고기 이 인분 주세요.", "네, 김치찌개 하나하고 불고기 2인분 주세요."]}
+          - {who: A, l2: "공깃밥은 몇 개 드릴까요?", rom: "gonggitbabeun myeot gae deurilkkayo?", l1: "How many bowls of rice would you like?"}
+          - {who: B, l2: "두 개 주세요.", rom: "du gae juseyo.", l1: "Two, please.", alt: ["공깃밥 두 개 주세요.", "공기밥 두 개 주세요.", "밥 두 개 주세요."]}
+          - {who: A, l2: "음료는 뭐 드릴까요?", rom: "eumnyoneun mwo deurilkkayo?", l1: "What would you like to drink?"}
+          - {who: B, l2: "콜라 한 병 주세요.", rom: "kolla han byeong juseyo.", l1: "A bottle of cola, please.", alt: ["콜라 하나 주세요.", "콜라 주세요."]}
+          - {who: A, l2: "네, 잠시만 기다려 주세요.", rom: "ne, jamsiman gidaryeo juseyo.", l1: "Certainly, one moment please."}
+          - {who: B, l2: "감사합니다.", rom: "gamsahamnida.", l1: "Thank you.", alt: ["고맙습니다.", "네, 감사합니다."]}
+
+      - id: ko-talk-02-nomeat
+        type: dialogue
+        title: "I don't eat meat"
+        scene: "You are vegetarian and ask the owner of a small restaurant what you can eat."
+        you: B
+        lines:
+          - {who: A, l2: "뭐 드시겠어요?", rom: "mwo deusigesseoyo?", l1: "What would you like?"}
+          - {who: B, l2: "저는 고기를 안 먹어요. 고기 없는 메뉴 있어요?", rom: "jeoneun gogireul an meogeoyo. gogi eomneun menyu isseoyo?", l1: "I don't eat meat. Is there anything without meat?", alt: ["고기를 안 먹어요. 고기 없는 메뉴 있어요?", "저는 고기를 안 먹어요. 고기 없는 음식 있어요?"]}
+          - {who: A, l2: "비빔밥은 고기를 빼 드릴 수 있어요.", rom: "bibimbabeun gogireul ppae deuril su isseoyo.", l1: "I can leave the meat out of the bibimbap for you."}
+          - {who: B, l2: "그럼 비빔밥 주세요. 고기는 빼 주세요.", rom: "geureom bibimbap juseyo. gogineun ppae juseyo.", l1: "Then bibimbap, please. Without the meat.", alt: ["그럼 비빔밥 하나 주세요. 고기는 빼 주세요.", "비빔밥 주세요. 고기는 빼 주세요."]}
+          - {who: A, l2: "계란은 괜찮으세요?", rom: "gyeraneun gwaenchaneuseyo?", l1: "Are eggs all right?"}
+          - {who: B, l2: "네, 계란은 먹어요.", rom: "ne, gyeraneun meogeoyo.", l1: "Yes, I eat eggs.", alt: ["네, 계란은 괜찮아요.", "계란은 괜찮아요."]}
+          - {who: A, l2: "알겠습니다. 매운 건 괜찮으세요?", rom: "algesseumnida. maeun geon gwaenchaneuseyo?", l1: "Certainly. Is spicy food all right?"}
+          - {who: B, l2: "조금 덜 맵게 해 주세요.", rom: "jogeum deol maepge hae juseyo.", l1: "Please make it a little less spicy.", alt: ["덜 맵게 해 주세요.", "좀 덜 맵게 해 주세요."]}
+
+      - id: ko-talk-02-wrong
+        type: dialogue
+        title: "The wrong dish"
+        scene: "The waiter brings you a dish you did not order. You ordered soybean-paste stew."
+        you: B
+        lines:
+          - {who: B, l2: "저기요!", rom: "jeogiyo!", l1: "Excuse me!", alt: ["여기요!"]}
+          - {who: A, l2: "네, 손님.", rom: "ne, sonnim.", l1: "Yes, sir / madam?"}
+          - {who: B, l2: "이거 제가 시킨 음식이 아니에요.", rom: "igeo jega sikin eumsigi anieyo.", l1: "This isn't what I ordered.", alt: ["이거 제가 주문한 음식이 아니에요.", "이거 안 시켰어요."]}
+          - {who: A, l2: "아, 죄송합니다. 뭐 시키셨어요?", rom: "a, joesonghamnida. mwo sikisyeosseoyo?", l1: "Oh, I'm sorry. What did you order?"}
+          - {who: B, l2: "된장찌개를 시켰어요.", rom: "doenjangjjigaereul sikyeosseoyo.", l1: "I ordered soybean-paste stew.", alt: ["된장찌개 시켰어요.", "된장찌개를 주문했어요."]}
+          - {who: A, l2: "정말 죄송합니다. 바로 갖다 드릴게요.", rom: "jeongmal joesonghamnida. baro gatda deurilgeyo.", l1: "I'm very sorry. I'll bring it right away."}
+          - {who: B, l2: "네, 괜찮아요.", rom: "ne, gwaenchanayo.", l1: "Okay, no problem.", alt: ["괜찮아요.", "네, 감사합니다."]}
+
+      - id: ko-talk-02-more
+        type: dialogue
+        title: "More side dishes, please"
+        scene: "Halfway through your meal you would like more side dishes and some water."
+        you: B
+        lines:
+          - {who: B, l2: "저기요, 반찬 좀 더 주세요.", rom: "jeogiyo, banchan jom deo juseyo.", l1: "Excuse me, could we have some more side dishes?", alt: ["저기요, 여기 반찬 좀 더 주세요.", "여기요, 반찬 좀 더 주세요.", "저기요, 반찬 더 주세요."]}
+          - {who: A, l2: "네, 잠시만요. 더 필요하신 거 있으세요?", rom: "ne, jamsimanyo. deo piryohasin geo isseuseyo?", l1: "Certainly, one moment. Do you need anything else?"}
+          - {who: B, l2: "물도 좀 주세요.", rom: "muldo jom juseyo.", l1: "Some water too, please.", alt: ["물 좀 주세요.", "물도 주세요."]}
+          - {who: A, l2: "여기 있습니다.", rom: "yeogi isseumnida.", l1: "Here you are."}
+          - {who: B, l2: "계산은 어디에서 해요?", rom: "gyesaneun eodieseo haeyo?", l1: "Where do we pay?", alt: ["계산은 어디서 해요?", "어디에서 계산해요?"]}
+          - {who: A, l2: "나가실 때 카운터에서 하시면 됩니다.", rom: "nagasil ttae kaunteoeseo hasimyeon doemnida.", l1: "You can pay at the counter on your way out."}
+          - {who: B, l2: "네, 감사합니다.", rom: "ne, gamsahamnida.", l1: "Okay, thank you.", alt: ["감사합니다.", "알겠습니다. 감사합니다."]}
+
+      - id: ko-talk-02-pay
+        type: dialogue
+        title: "Paying at the counter"
+        scene: "You have finished eating and go to the counter to pay."
+        you: B
+        lines:
+          - {who: A, l2: "맛있게 드셨어요?", rom: "masitge deusyeosseoyo?", l1: "Did you enjoy your meal?"}
+          - {who: B, l2: "네, 정말 맛있었어요.", rom: "ne, jeongmal masisseosseoyo.", l1: "Yes, it was really good.", alt: ["네, 맛있었어요.", "네, 잘 먹었습니다."]}
+          - {who: A, l2: "감사합니다. 모두 삼만 이천 원입니다.", rom: "gamsahamnida. modu samman icheon wonimnida.", l1: "Thank you. That's 32,000 won altogether."}
+          - {who: B, l2: "카드로 할게요.", rom: "kadeuro halgeyo.", l1: "I'll pay by card.", alt: ["카드로 계산할게요.", "카드 돼요?"]}
+          - {who: A, l2: "네, 영수증 드릴까요?", rom: "ne, yeongsujeung deurilkkayo?", l1: "Certainly. Would you like the receipt?"}
+          - {who: B, l2: "아니요, 괜찮아요.", rom: "aniyo, gwaenchanayo.", l1: "No, that's fine.", alt: ["괜찮아요.", "아니요, 안 주셔도 돼요."]}
+          - {who: A, l2: "안녕히 가세요. 또 오세요.", rom: "annyeonghi gaseyo. tto oseyo.", l1: "Goodbye. Please come again."}
+          - {who: B, l2: "잘 먹었습니다. 안녕히 계세요.", rom: "jal meogeosseumnida. annyeonghi gyeseyo.", l1: "Thank you for the meal. Goodbye.", alt: ["안녕히 계세요.", "잘 먹었습니다."]}
+
+      - id: ko-talk-02-takeaway
+        type: dialogue
+        title: "Food to take away"
+        scene: "You want to take some food home from a snack bar."
+        you: B
+        lines:
+          - {who: B, l2: "안녕하세요. 포장돼요?", rom: "annyeonghaseyo. pojangdwaeyo?", l1: "Hello. Can I get food to take away?", alt: ["포장돼요?", "안녕하세요. 포장할 수 있어요?"]}
+          - {who: A, l2: "네, 됩니다. 뭐 드릴까요?", rom: "ne, doemnida. mwo deurilkkayo?", l1: "Yes, you can. What would you like?"}
+          - {who: B, l2: "떡볶이 일 인분하고 김밥 두 줄 주세요.", rom: "tteokbokki il inbunhago gimbap du jul juseyo.", l1: "One portion of tteokbokki and two rolls of gimbap, please.", alt: ["떡볶이 1인분하고 김밥 두 줄 주세요.", "떡볶이 하나하고 김밥 두 줄 주세요."]}
+          - {who: A, l2: "십오 분쯤 걸려요. 괜찮으세요?", rom: "sibo bunjjeum geollyeoyo. gwaenchaneuseyo?", l1: "It'll take about fifteen minutes. Is that all right?"}
+          - {who: B, l2: "네, 괜찮아요. 여기서 기다릴게요.", rom: "ne, gwaenchanayo. yeogiseo gidarilgeyo.", l1: "Yes, that's fine. I'll wait here.", alt: ["네, 기다릴게요.", "괜찮아요. 여기서 기다릴게요."]}
+          - {who: A, l2: "젓가락 필요하세요?", rom: "jeotgarak piryohaseyo?", l1: "Do you need chopsticks?"}
+          - {who: B, l2: "아니요, 괜찮아요. 집에 있어요.", rom: "aniyo, gwaenchanayo. jibe isseoyo.", l1: "No, that's all right. I have some at home.", alt: ["아니요, 괜찮아요.", "아니요, 필요 없어요."]}
+
+  # ───────────────────────────────────────────────────────────────── 3
+  - id: ko-talk-03
+    title: "Shopping"
+    goal: "I can ask to try things on, ask for another size or colour, buy at a market and in a convenience store, bargain a little and return something."
+    notes: |
+      Shop staff greet you with 어서 오세요 and often follow you with 찾으시는 거 있으세요? ("are you looking for anything?"). 그냥 구경하고 있어요 ("I'm just looking") lets you browse in peace.
+
+      ## Asking permission: -아/어도 돼요?
+      입어 봐**도 돼요**? (May I try it on?) · 카드로 해**도 돼요**? The answer is 네, 돼요 / 네, 그러세요.
+
+      ## Deciding
+      - **이걸로 할게요** / 이걸로 주세요: I'll take this one.
+      - 딱 맞아요: it fits perfectly. 좀 커요 / 작아요 / 길어요.
+      - At a market, prices are often per item: 한 개에 이천 원. A seller may add one free: 하나 더 넣어 드릴게요.
+
+      ## Returning and exchanging
+      Start with the background and -는데요, which sounds polite and leaves the request open: 어제 이 신발을 샀는데요… Then: 환불돼요? / 다른 사이즈로 바꿀 수 있어요? Keep the receipt (영수증).
+
+      ## Convenience stores
+      You will be asked 봉투 필요하세요? (do you need a bag?): bags cost extra. Transport cards are topped up at the till: 교통카드 충전해 주세요.
+
+      Bargaining (깎아 주세요) is fine at traditional markets and street stalls, not in shops with price tags.
+    items:
+      - id: ko-talk-03-tryon
+        type: dialogue
+        title: "Trying trousers on"
+        scene: "You are in a clothes shop and like a pair of trousers."
+        you: B
+        lines:
+          - {who: A, l2: "찾으시는 거 있으세요?", rom: "chajeusineun geo isseuseyo?", l1: "Are you looking for anything in particular?"}
+          - {who: B, l2: "이 바지 입어 봐도 돼요?", rom: "i baji ibeo bwado dwaeyo?", l1: "May I try these trousers on?", alt: ["이거 입어 봐도 돼요?", "이 바지 입어 볼 수 있어요?"]}
+          - {who: A, l2: "네, 탈의실은 저쪽이에요. 사이즈가 어떻게 되세요?", rom: "ne, taruisireun jeojjogieyo. saijeuga eotteoke doeseyo?", l1: "Of course, the fitting room is over there. What size are you?"}
+          - {who: B, l2: "보통 미디엄 입어요.", rom: "botong midieom ibeoyo.", l1: "I usually wear a medium.", alt: ["미디엄이요.", "보통 M 사이즈 입어요."]}
+          - {who: A, l2: "어떠세요? 잘 맞으세요?", rom: "eotteoseyo? jal majeuseyo?", l1: "How are they? Do they fit?"}
+          - {who: B, l2: "좀 길어요. 더 짧은 거 있어요?", rom: "jom gireoyo. deo jjalbeun geo isseoyo?", l1: "They're a bit long. Do you have shorter ones?", alt: ["좀 길어요. 짧은 거 있어요?", "조금 길어요. 더 짧은 거 있어요?"]}
+          - {who: A, l2: "네, 이거 한번 입어 보세요.", rom: "ne, igeo hanbeon ibeo boseyo.", l1: "Yes, try these."}
+          - {who: B, l2: "이게 딱 맞아요. 이걸로 할게요.", rom: "ige ttak majayo. igeollo halgeyo.", l1: "These fit perfectly. I'll take them.", alt: ["딱 맞아요. 이걸로 할게요.", "이게 딱 맞아요. 이거 주세요.", "이걸로 주세요."]}
+
+      - id: ko-talk-03-market
+        type: dialogue
+        title: "Apples at the market"
+        scene: "A fruit seller at a traditional market calls out to you."
+        you: B
+        lines:
+          - {who: A, l2: "사과 사세요! 아주 달아요.", rom: "sagwa saseyo! aju darayo.", l1: "Buy some apples! They're very sweet."}
+          - {who: B, l2: "사과 한 개에 얼마예요?", rom: "sagwa han gaee eolmayeyo?", l1: "How much is it for one apple?", alt: ["사과 얼마예요?", "사과 하나에 얼마예요?"]}
+          - {who: A, l2: "한 개에 이천 원이에요. 다섯 개에 만 원이에요.", rom: "han gaee icheon wonieyo. daseot gaee man wonieyo.", l1: "2,000 won each. Five for 10,000 won."}
+          - {who: B, l2: "그럼 다섯 개 주세요.", rom: "geureom daseot gae juseyo.", l1: "Then I'll have five.", alt: ["다섯 개 주세요.", "그럼 다섯 개 살게요."]}
+          - {who: A, l2: "배도 맛있어요. 배도 드릴까요?", rom: "baedo masisseoyo. baedo deurilkkayo?", l1: "The pears are good too. Would you like some pears as well?"}
+          - {who: B, l2: "아니요, 사과만 주세요.", rom: "aniyo, sagwaman juseyo.", l1: "No, just the apples, please.", alt: ["아니요, 괜찮아요.", "사과만 주세요."]}
+          - {who: A, l2: "알겠어요. 하나 더 넣어 드릴게요.", rom: "algesseoyo. hana deo neoeo deurilgeyo.", l1: "All right. I'll put in one extra for you."}
+          - {who: B, l2: "와, 감사합니다!", rom: "wa, gamsahamnida!", l1: "Oh, thank you!", alt: ["감사합니다!", "고맙습니다!"]}
+
+      - id: ko-talk-03-refund
+        type: dialogue
+        title: "Returning shoes"
+        scene: "You bought shoes yesterday but they are too small. You go back to the shop with the receipt."
+        you: B
+        lines:
+          - {who: B, l2: "어제 이 신발을 샀는데요. 환불돼요?", rom: "eoje i sinbareul sanneundeyo. hwanbuldwaeyo?", l1: "I bought these shoes yesterday. Can I get a refund?", alt: ["어제 이 신발을 샀는데 환불돼요?", "이 신발 환불할 수 있어요?"]}
+          - {who: A, l2: "무슨 문제가 있으세요?", rom: "museun munjega isseuseyo?", l1: "Is there a problem with them?"}
+          - {who: B, l2: "사이즈가 너무 작아요.", rom: "saijeuga neomu jagayo.", l1: "They're too small.", alt: ["너무 작아요.", "사이즈가 안 맞아요."]}
+          - {who: A, l2: "다른 사이즈로 바꿔 드릴까요?", rom: "dareun saijeuro bakkwo deurilkkayo?", l1: "Shall I change them for another size?"}
+          - {who: B, l2: "아니요, 환불해 주세요.", rom: "aniyo, hwanbulhae juseyo.", l1: "No, I'd like a refund, please.", alt: ["아니요, 환불하고 싶어요.", "환불해 주세요."]}
+          - {who: A, l2: "영수증 있으세요?", rom: "yeongsujeung isseuseyo?", l1: "Do you have the receipt?"}
+          - {who: B, l2: "네, 여기 있어요.", rom: "ne, yeogi isseoyo.", l1: "Yes, here it is.", alt: ["네, 여기요.", "여기 있어요."]}
+          - {who: A, l2: "카드로 계산하셨으니까 카드로 환불해 드릴게요.", rom: "kadeuro gyesanhasyeosseunikka kadeuro hwanbulhae deurilgeyo.", l1: "You paid by card, so I'll refund it to your card."}
+
+      - id: ko-talk-03-gift
+        type: dialogue
+        title: "A present for your mother"
+        scene: "You are looking for a present for your mother in a department store."
+        you: B
+        lines:
+          - {who: A, l2: "어서 오세요. 뭐 찾으세요?", rom: "eoseo oseyo. mwo chajeuseyo?", l1: "Welcome. What are you looking for?"}
+          - {who: B, l2: "어머니 선물을 찾고 있어요.", rom: "eomeoni seonmureul chatgo isseoyo.", l1: "I'm looking for a present for my mother.", alt: ["어머니 선물을 사고 싶어요.", "어머니께 드릴 선물을 찾고 있어요."]}
+          - {who: A, l2: "이 스카프는 어떠세요? 요즘 인기가 많아요.", rom: "i seukapeuneun eotteoseyo? yojeum ingiga manayo.", l1: "How about this scarf? It's very popular at the moment."}
+          - {who: B, l2: "예뻐요. 다른 색도 있어요?", rom: "yeppeoyo. dareun saekdo isseoyo?", l1: "It's pretty. Do you have other colours too?", alt: ["예쁘네요. 다른 색도 있어요?", "다른 색도 있어요?"]}
+          - {who: A, l2: "빨간색하고 회색이 있어요.", rom: "ppalgansaekago hoesaegi isseoyo.", l1: "We have red and grey."}
+          - {who: B, l2: "빨간색이 더 예뻐요. 빨간색으로 주세요.", rom: "ppalgansaegi deo yeppeoyo. ppalgansaegeuro juseyo.", l1: "The red is prettier. I'll take the red one.", alt: ["빨간색으로 주세요.", "빨간색이 더 예뻐요. 이걸로 주세요."]}
+          - {who: A, l2: "선물 포장해 드릴까요?", rom: "seonmul pojanghae deurilkkayo?", l1: "Shall I gift-wrap it for you?"}
+          - {who: B, l2: "네, 포장해 주세요.", rom: "ne, pojanghae juseyo.", l1: "Yes, please wrap it.", alt: ["네, 부탁드려요.", "네, 부탁해요."]}
+
+      - id: ko-talk-03-convenience
+        type: dialogue
+        title: "At the convenience store"
+        scene: "You take a few things to the till of a convenience store."
+        you: B
+        lines:
+          - {who: A, l2: "어서 오세요.", rom: "eoseo oseyo.", l1: "Hello."}
+          - {who: B, l2: "이거 계산해 주세요.", rom: "igeo gyesanhae juseyo.", l1: "I'd like to pay for these, please.", alt: ["계산해 주세요.", "이거 계산할게요."]}
+          - {who: A, l2: "봉투 필요하세요?", rom: "bongtu piryohaseyo?", l1: "Do you need a bag?"}
+          - {who: B, l2: "네, 하나 주세요.", rom: "ne, hana juseyo.", l1: "Yes, one please.", alt: ["네, 주세요.", "네, 봉투 하나 주세요."]}
+          - {who: A, l2: "봉투는 백 원이에요. 모두 사천오백 원입니다.", rom: "bongtuneun baek wonieyo. modu sacheonobaek wonimnida.", l1: "The bag is 100 won. That's 4,500 won altogether."}
+          - {who: B, l2: "교통카드도 충전할 수 있어요?", rom: "gyotongkadeudo chungjeonhal su isseoyo?", l1: "Can I top up my transport card as well?", alt: ["교통카드 충전돼요?", "교통카드 충전도 돼요?"]}
+          - {who: A, l2: "네, 얼마 충전해 드릴까요?", rom: "ne, eolma chungjeonhae deurilkkayo?", l1: "Yes. How much would you like to put on it?"}
+          - {who: B, l2: "만 원 해 주세요.", rom: "man won hae juseyo.", l1: "10,000 won, please.", alt: ["만 원이요.", "만 원 충전해 주세요."]}
+
+      - id: ko-talk-03-bargain
+        type: dialogue
+        title: "A leather bag at a street stall"
+        scene: "At a street market you like a bag, but the price is high."
+        you: B
+        lines:
+          - {who: B, l2: "이 가방 얼마예요?", rom: "i gabang eolmayeyo?", l1: "How much is this bag?", alt: ["이 가방은 얼마예요?", "이거 얼마예요?"]}
+          - {who: A, l2: "육만 원이에요. 진짜 가죽이에요.", rom: "yungman wonieyo. jinjja gajugieyo.", l1: "60,000 won. It's real leather."}
+          - {who: B, l2: "좀 비싸요. 좀 깎아 주세요.", rom: "jom bissayo. jom kkakka juseyo.", l1: "That's a bit expensive. Can you give me a discount?", alt: ["너무 비싸요. 좀 깎아 주세요.", "좀 깎아 주세요."]}
+          - {who: A, l2: "그럼 오만 오천 원에 드릴게요.", rom: "geureom oman ocheon wone deurilgeyo.", l1: "Then I'll let you have it for 55,000 won."}
+          - {who: B, l2: "오만 원은 안 돼요?", rom: "oman woneun an dwaeyo?", l1: "How about 50,000?", alt: ["오만 원에 안 돼요?", "오만 원에 주세요."]}
+          - {who: A, l2: "아이고, 알겠어요. 오만 원에 가져가세요.", rom: "aigo, algesseoyo. oman wone gajyeogaseyo.", l1: "Oh, all right. Take it for 50,000."}
+          - {who: B, l2: "감사합니다! 현금으로 드릴게요.", rom: "gamsahamnida! hyeongeumeuro deurilgeyo.", l1: "Thank you! I'll pay in cash.", alt: ["감사합니다! 현금으로 할게요.", "감사합니다!"]}
+
+  # ───────────────────────────────────────────────────────────────── 4
+  - id: ko-talk-04
+    title: "Asking the way"
+    goal: "I can ask for and follow directions, check which bus or subway line to take, take a taxi and give simple directions myself."
+    notes: |
+      Stop someone with **실례합니다** or **저기요**, then ask with 어떻게 가요? or 어디에 있어요?
+
+      ## Following directions
+      | | |
+      |---|---|
+      | 쭉 가세요 / 똑바로 가세요 | go straight on |
+      | 사거리에서 오른쪽으로 도세요 | turn right at the crossroads |
+      | 길을 건너세요 | cross the road |
+      | 가면 왼쪽에 있어요 | when you get there it's on the left |
+      | 걸어서 오 분 | five minutes on foot |
+
+      **Check what you heard** by repeating the key words with 요: 사거리에서 오른쪽이요? It shows you are following and lets the other person correct you.
+
+      ## Transport
+      - Bus numbers are Sino-Korean: 백오십 번 버스 (bus 150).
+      - Subway lines: 삼 호선 (line 3). Change lines: ○○에서 갈아타세요.
+      - In a taxi, give the destination with **(으)로 가 주세요**, and say where to stop: 저기 앞에서 세워 주세요. The driver may say 어디로 모실까요? ("where can I take you?").
+
+      **-(으)ㄹ 거예요** in a partner's answer is often a polite guess: 이십 분쯤 걸릴 거예요, "it should take about twenty minutes".
+    items:
+      - id: ko-talk-04-pharmacy
+        type: dialogue
+        title: "Is there a pharmacy near here?"
+        scene: "You need a pharmacy and stop a passer-by."
+        you: A
+        lines:
+          - {who: A, l2: "실례합니다. 이 근처에 약국이 있어요?", rom: "sillyehamnida. i geuncheoe yakgugi isseoyo?", l1: "Excuse me. Is there a pharmacy near here?", alt: ["저기요. 이 근처에 약국이 있어요?", "실례합니다. 근처에 약국 있어요?"]}
+          - {who: B, l2: "네, 저기 사거리에서 오른쪽으로 가면 있어요.", rom: "ne, jeogi sageorieseo oreunjjogeuro gamyeon isseoyo.", l1: "Yes, go right at the crossroads over there and you'll find one."}
+          - {who: A, l2: "멀어요?", rom: "meoreoyo?", l1: "Is it far?", alt: ["여기에서 멀어요?", "많이 멀어요?"]}
+          - {who: B, l2: "아니요, 걸어서 오 분쯤 걸려요.", rom: "aniyo, georeoseo o bunjjeum geollyeoyo.", l1: "No, it's about five minutes on foot."}
+          - {who: A, l2: "사거리에서 오른쪽이요?", rom: "sageorieseo oreunjjogiyo?", l1: "Right at the crossroads?", alt: ["오른쪽이요?", "사거리에서 오른쪽으로요?"]}
+          - {who: B, l2: "네, 맞아요. 은행 옆에 있어요.", rom: "ne, majayo. eunhaeng yeope isseoyo.", l1: "Yes, that's right. It's next to the bank."}
+          - {who: A, l2: "감사합니다!", rom: "gamsahamnida!", l1: "Thank you!", alt: ["고맙습니다!", "네, 감사합니다!"]}
+
+      - id: ko-talk-04-bus
+        type: dialogue
+        title: "Is this the right bus?"
+        scene: "You want to get to City Hall and ask a woman at the bus stop."
+        you: A
+        lines:
+          - {who: A, l2: "저기요, 이 버스 시청에 가요?", rom: "jeogiyo, i beoseu sicheonge gayo?", l1: "Excuse me, does this bus go to City Hall?", alt: ["이 버스 시청에 가요?", "실례합니다. 이 버스가 시청에 가요?"]}
+          - {who: B, l2: "아니요, 이 버스는 안 가요. 백오십 번 버스를 타세요.", rom: "aniyo, i beoseuneun an gayo. baegosip beon beoseureul taseyo.", l1: "No, this one doesn't. Take the number 150."}
+          - {who: A, l2: "백오십 번은 어디에서 타요?", rom: "baegosip beoneun eodieseo tayo?", l1: "Where do I get the 150?", alt: ["어디에서 타요?", "백오십 번 버스는 어디에서 타요?", "백오십 번은 어디서 타요?"]}
+          - {who: B, l2: "길 건너편 정류장에서 타세요.", rom: "gil geonneopyeon jeongnyujangeseo taseyo.", l1: "From the stop across the road."}
+          - {who: A, l2: "시청까지 얼마나 걸려요?", rom: "sicheongkkaji eolmana geollyeoyo?", l1: "How long does it take to City Hall?", alt: ["얼마나 걸려요?", "시청까지 오래 걸려요?"]}
+          - {who: B, l2: "이십 분쯤 걸릴 거예요.", rom: "isip bunjjeum geollil geoyeyo.", l1: "It should take about twenty minutes."}
+          - {who: A, l2: "감사합니다.", rom: "gamsahamnida.", l1: "Thank you.", alt: ["고맙습니다.", "네, 감사합니다."]}
+
+      - id: ko-talk-04-subway
+        type: dialogue
+        title: "Changing lines"
+        scene: "You are at a subway station and want to go to Gangnam. You ask a station worker."
+        you: A
+        lines:
+          - {who: A, l2: "실례합니다. 강남에 어떻게 가요?", rom: "sillyehamnida. gangname eotteoke gayo?", l1: "Excuse me. How do I get to Gangnam?", alt: ["실례합니다. 강남까지 어떻게 가요?", "강남에 어떻게 가요?"]}
+          - {who: B, l2: "여기에서 삼 호선을 타세요. 그리고 교대에서 갈아타세요.", rom: "yeogieseo sam hoseoneul taseyo. geurigo gyodaeeseo garataseyo.", l1: "Take line 3 from here. Then change at Gyodae."}
+          - {who: A, l2: "교대에서 몇 호선을 타요?", rom: "gyodaeeseo myeot hoseoneul tayo?", l1: "Which line do I take at Gyodae?", alt: ["몇 호선을 타요?", "교대에서 몇 호선으로 갈아타요?"]}
+          - {who: B, l2: "초록색 이 호선을 타세요. 강남은 교대에서 한 정거장이에요.", rom: "choroksaek i hoseoneul taseyo. gangnameun gyodaeeseo han jeonggeojangieyo.", l1: "Take the green line, line 2. Gangnam is one stop from Gyodae."}
+          - {who: A, l2: "전부 얼마나 걸려요?", rom: "jeonbu eolmana geollyeoyo?", l1: "How long does it take altogether?", alt: ["얼마나 걸려요?", "모두 얼마나 걸려요?"]}
+          - {who: B, l2: "이십오 분쯤 걸려요.", rom: "isibo bunjjeum geollyeoyo.", l1: "About twenty-five minutes."}
+          - {who: A, l2: "알겠습니다. 감사합니다.", rom: "algesseumnida. gamsahamnida.", l1: "I see. Thank you.", alt: ["감사합니다.", "알겠어요. 감사합니다."]}
+
+      - id: ko-talk-04-lost
+        type: dialogue
+        title: "I'm lost"
+        scene: "You are trying to reach Namsan Tower on foot and have lost your way."
+        you: A
+        lines:
+          - {who: A, l2: "실례합니다. 길을 잃어버렸어요.", rom: "sillyehamnida. gireul ireobeoryeosseoyo.", l1: "Excuse me. I'm lost.", alt: ["죄송해요. 길을 잃어버렸어요.", "실례합니다. 길을 잃었어요.", "저기요. 길을 잃어버렸어요."]}
+          - {who: B, l2: "어디에 가세요?", rom: "eodie gaseyo?", l1: "Where are you going?"}
+          - {who: A, l2: "남산 타워에 가고 싶어요.", rom: "namsan tawoe gago sipeoyo.", l1: "I want to go to Namsan Tower.", alt: ["남산 타워에 가요.", "남산 타워요."]}
+          - {who: B, l2: "남산 타워요? 여기에서 좀 멀어요. 택시를 타세요.", rom: "namsan tawoyo? yeogieseo jom meoreoyo. taeksireul taseyo.", l1: "Namsan Tower? It's quite far from here. Take a taxi."}
+          - {who: A, l2: "택시는 어디에서 타요?", rom: "taeksineun eodieseo tayo?", l1: "Where can I get a taxi?", alt: ["택시는 어디서 타요?", "어디에서 택시를 타요?"]}
+          - {who: B, l2: "저기 호텔 앞에 택시가 많아요.", rom: "jeogi hotel ape taeksiga manayo.", l1: "There are lots of taxis in front of that hotel."}
+          - {who: A, l2: "알겠습니다. 정말 감사합니다.", rom: "algesseumnida. jeongmal gamsahamnida.", l1: "I see. Thank you so much.", alt: ["감사합니다.", "정말 고맙습니다."]}
+
+      - id: ko-talk-04-taxi
+        type: dialogue
+        title: "In a taxi"
+        scene: "You get into a taxi and want to go to Seoul National University's main gate."
+        you: B
+        lines:
+          - {who: A, l2: "어서 오세요. 어디로 모실까요?", rom: "eoseo oseyo. eodiro mosilkkayo?", l1: "Hello. Where to?"}
+          - {who: B, l2: "서울대학교로 가 주세요.", rom: "seouldaehakgyoro ga juseyo.", l1: "To Seoul National University, please.", alt: ["서울대학교요.", "서울대학교까지 가 주세요.", "서울대로 가 주세요."]}
+          - {who: A, l2: "네. 오늘은 길이 좀 막히네요.", rom: "ne. oneureun giri jom makineyo.", l1: "Okay. The traffic's a bit heavy today."}
+          - {who: B, l2: "얼마나 걸려요?", rom: "eolmana geollyeoyo?", l1: "How long will it take?", alt: ["시간이 얼마나 걸려요?", "오래 걸려요?"]}
+          - {who: A, l2: "삼십 분쯤 걸릴 거예요.", rom: "samsip bunjjeum geollil geoyeyo.", l1: "About thirty minutes, I'd say."}
+          - {who: B, l2: "정문 앞에서 세워 주세요.", rom: "jeongmun apeseo sewo juseyo.", l1: "Please stop in front of the main gate.", alt: ["정문 앞에서 내릴게요.", "정문에서 세워 주세요."]}
+          - {who: A, l2: "네, 도착했습니다. 만 이천 원입니다.", rom: "ne, dochakaesseumnida. man icheon wonimnida.", l1: "Here we are. That's 12,000 won."}
+          - {who: B, l2: "카드로 할게요. 감사합니다.", rom: "kadeuro halgeyo. gamsahamnida.", l1: "I'll pay by card. Thank you.", alt: ["카드 돼요?", "카드로 계산할게요. 감사합니다."]}
+
+      - id: ko-talk-04-helping
+        type: dialogue
+        title: "Giving directions"
+        scene: "Now someone asks you the way. The station is about 100 metres ahead on the left, next to a convenience store."
+        you: B
+        lines:
+          - {who: A, l2: "실례합니다. 이 근처에 역이 있어요?", rom: "sillyehamnida. i geuncheoe yeogi isseoyo?", l1: "Excuse me. Is there a station near here?"}
+          - {who: B, l2: "네, 있어요. 이 길로 쭉 가세요.", rom: "ne, isseoyo. i gillo jjuk gaseyo.", l1: "Yes, there is. Go straight along this road.", alt: ["네, 이 길로 쭉 가세요.", "네, 있어요. 똑바로 가세요."]}
+          - {who: A, l2: "얼마나 가야 돼요?", rom: "eolmana gaya dwaeyo?", l1: "How far do I have to go?"}
+          - {who: B, l2: "백 미터쯤 가면 왼쪽에 있어요.", rom: "baek miteojjeum gamyeon oenjjoge isseoyo.", l1: "About 100 metres, and it's on the left.", alt: ["조금 가면 왼쪽에 있어요.", "백 미터쯤 가면 있어요."]}
+          - {who: A, l2: "편의점 옆이에요?", rom: "pyeonuijeom yeopieyo?", l1: "Is it next to the convenience store?"}
+          - {who: B, l2: "네, 맞아요. 편의점 옆에 있어요.", rom: "ne, majayo. pyeonuijeom yeope isseoyo.", l1: "Yes, that's right. It's next to the convenience store.", alt: ["네, 맞아요.", "네, 편의점 옆에 있어요."]}
+          - {who: A, l2: "감사합니다!", rom: "gamsahamnida!", l1: "Thank you!"}
+          - {who: B, l2: "아니에요. 조심히 가세요.", rom: "anieyo. josimhi gaseyo.", l1: "Not at all. Take care.", alt: ["아니에요.", "천만에요."]}
+
+  # ───────────────────────────────────────────────────────────────── 5
+  - id: ko-talk-05
+    title: "At the doctor's and the pharmacy"
+    goal: "I can register at a clinic, describe symptoms and how long I have had them, understand instructions for medicine and call in sick."
+    notes: |
+      Clinic and pharmacy staff use very polite forms. Learn to recognise them:
+
+      | you hear | it means |
+      |---|---|
+      | 어떻게 오셨어요? | what brings you here? |
+      | 어디가 불편하세요? / 어디가 아프세요? | what's the matter? |
+      | 언제부터 그러셨어요? | since when? |
+      | 하루에 세 번, 식사 후에 드세요 | three times a day, after meals |
+
+      ## Describing what is wrong
+      - (body part)이/가 아파요: 배가 아파요, 목이 아파요.
+      - **-부터**: since: 어제부터, 사흘 전부터 (for three days).
+      - 열이 나요, 기침을 해요, 콧물이 나요, 몸이 안 좋아요 (I don't feel well).
+      - Injuries use the past: 발목을 다쳤어요, 넘어졌어요.
+
+      ## Asking about medicine
+      약은 하루에 몇 번 먹어야 돼요? · 이 약을 먹으면 졸려요? · 운동해도 돼요?
+
+      Clinics (병원, 의원) usually want your passport or alien registration card the first time: 처음 오셨어요? 신분증 있으세요?
+
+      To a manager on the phone, keep it short and formal: 죄송합니다. 오늘 몸이 너무 안 좋아서 출근을 못 하겠습니다.
+    items:
+      - id: ko-talk-05-reception
+        type: dialogue
+        title: "At the clinic reception"
+        scene: "You walk into a local clinic for the first time with a sore throat."
+        you: B
+        lines:
+          - {who: A, l2: "안녕하세요. 어떻게 오셨어요?", rom: "annyeonghaseyo. eotteoke osyeosseoyo?", l1: "Hello. What brings you here?"}
+          - {who: B, l2: "목이 아파서 왔어요.", rom: "mogi apaseo wasseoyo.", l1: "I've come because I have a sore throat.", alt: ["목이 아파요.", "감기에 걸렸어요.", "목이 너무 아파서 왔어요."]}
+          - {who: A, l2: "처음 오셨어요?", rom: "cheoeum osyeosseoyo?", l1: "Is this your first visit?"}
+          - {who: B, l2: "네, 처음이에요.", rom: "ne, cheoeumieyo.", l1: "Yes, it's my first time.", alt: ["네, 처음 왔어요.", "처음이에요."]}
+          - {who: A, l2: "신분증 있으세요? 그리고 여기에 이름하고 전화번호를 써 주세요.", rom: "sinbunjeung isseuseyo? geurigo yeogie ireumhago jeonhwabeonhoreul sseo juseyo.", l1: "Do you have ID? And please write your name and phone number here."}
+          - {who: B, l2: "네, 여권 여기 있어요.", rom: "ne, yeogwon yeogi isseoyo.", l1: "Yes, here's my passport.", alt: ["여기 여권이요.", "네, 여기 있어요."]}
+          - {who: A, l2: "감사합니다. 앉아서 잠시만 기다려 주세요.", rom: "gamsahamnida. anjaseo jamsiman gidaryeo juseyo.", l1: "Thank you. Please take a seat and wait a moment."}
+          - {who: B, l2: "네, 감사합니다.", rom: "ne, gamsahamnida.", l1: "Okay, thank you.", alt: ["감사합니다.", "네, 알겠습니다."]}
+
+      - id: ko-talk-05-stomach
+        type: dialogue
+        title: "A stomach ache"
+        scene: "You have had a stomach ache since eating raw fish last night. The doctor asks you about it."
+        you: B
+        lines:
+          - {who: A, l2: "어디가 불편하세요?", rom: "eodiga bulpyeonhaseyo?", l1: "What seems to be the problem?"}
+          - {who: B, l2: "어제부터 배가 아파요.", rom: "eojebuteo baega apayo.", l1: "I've had a stomach ache since yesterday.", alt: ["배가 아파요.", "어제부터 배가 너무 아파요."]}
+          - {who: A, l2: "어제 뭐 드셨어요?", rom: "eoje mwo deusyeosseoyo?", l1: "What did you eat yesterday?"}
+          - {who: B, l2: "저녁에 회를 먹었어요.", rom: "jeonyeoge hoereul meogeosseoyo.", l1: "I had raw fish in the evening.", alt: ["회를 먹었어요.", "어제 저녁에 회를 먹었어요."]}
+          - {who: A, l2: "배탈이 났네요. 오늘은 죽만 드세요.", rom: "baetari nanneyo. oneureun jungman deuseyo.", l1: "You have an upset stomach. Eat only rice porridge today."}
+          - {who: B, l2: "약은 하루에 몇 번 먹어야 돼요?", rom: "yageun harue myeot beon meogeoya dwaeyo?", l1: "How many times a day should I take the medicine?", alt: ["약은 몇 번 먹어요?", "하루에 몇 번 먹어야 해요?", "약은 하루에 몇 번 먹어요?"]}
+          - {who: A, l2: "하루에 세 번, 식사 후에 드세요.", rom: "harue se beon, siksa hue deuseyo.", l1: "Three times a day, after meals."}
+          - {who: B, l2: "네, 알겠습니다. 감사합니다.", rom: "ne, algesseumnida. gamsahamnida.", l1: "All right. Thank you.", alt: ["알겠습니다. 감사합니다.", "네, 감사합니다."]}
+
+      - id: ko-talk-05-pharmacy
+        type: dialogue
+        title: "At the pharmacy"
+        scene: "You have a headache and go into a pharmacy."
+        you: B
+        lines:
+          - {who: A, l2: "어서 오세요. 어떻게 오셨어요?", rom: "eoseo oseyo. eotteoke osyeosseoyo?", l1: "Hello. How can I help?"}
+          - {who: B, l2: "머리가 아파요. 진통제 있어요?", rom: "meoriga apayo. jintongje isseoyo?", l1: "I have a headache. Do you have painkillers?", alt: ["머리가 아파요. 약 있어요?", "머리가 아픈데 약 있어요?", "진통제 있어요?"]}
+          - {who: A, l2: "열도 있으세요?", rom: "yeoldo isseuseyo?", l1: "Do you have a temperature as well?"}
+          - {who: B, l2: "아니요, 열은 없어요.", rom: "aniyo, yeoreun eopseoyo.", l1: "No, I don't have a temperature.", alt: ["아니요, 열은 안 나요.", "열은 없어요."]}
+          - {who: A, l2: "그럼 이 약을 드세요. 네 시간마다 한 알씩 드세요.", rom: "geureom i yageul deuseyo. ne siganmada han alssik deuseyo.", l1: "Then take this. One tablet every four hours."}
+          - {who: B, l2: "이 약 먹으면 졸려요?", rom: "i yak meogeumyeon jollyeoyo?", l1: "Will this make me sleepy?", alt: ["먹으면 졸려요?", "이 약을 먹으면 졸려요?"]}
+          - {who: A, l2: "아니요, 괜찮아요. 사천 원입니다.", rom: "aniyo, gwaenchanayo. sacheon wonimnida.", l1: "No, it won't. That's 4,000 won."}
+          - {who: B, l2: "여기 있어요. 감사합니다.", rom: "yeogi isseoyo. gamsahamnida.", l1: "Here you are. Thank you.", alt: ["감사합니다.", "여기요. 감사합니다."]}
+
+      - id: ko-talk-05-ankle
+        type: dialogue
+        title: "A twisted ankle"
+        scene: "You fall over on the way to a café with a Korean friend."
+        you: B
+        lines:
+          - {who: A, l2: "어머, 괜찮아요?", rom: "eomeo, gwaenchanayo?", l1: "Oh no, are you all right?"}
+          - {who: B, l2: "넘어져서 발목을 다쳤어요.", rom: "neomeojyeoseo balmogeul dachyeosseoyo.", l1: "I fell and hurt my ankle.", alt: ["발목을 다쳤어요.", "넘어졌어요. 발목이 아파요."]}
+          - {who: A, l2: "많이 아파요? 걸을 수 있어요?", rom: "mani apayo? georeul su isseoyo?", l1: "Does it hurt a lot? Can you walk?"}
+          - {who: B, l2: "아니요, 너무 아파서 못 걷겠어요.", rom: "aniyo, neomu apaseo mot geotgesseoyo.", l1: "No, it hurts too much to walk.", alt: ["아니요, 걸을 수 없어요.", "너무 아파서 못 걸어요."]}
+          - {who: A, l2: "병원에 가야겠어요. 택시 부를게요.", rom: "byeongwone gayagesseoyo. taeksi bureulgeyo.", l1: "You need to see a doctor. I'll call a taxi."}
+          - {who: B, l2: "고마워요. 같이 가 줄 수 있어요?", rom: "gomawoyo. gachi ga jul su isseoyo?", l1: "Thank you. Could you come with me?", alt: ["고마워요. 같이 가 주세요.", "같이 가 줄 수 있어요?"]}
+          - {who: A, l2: "그럼요. 걱정하지 마세요.", rom: "geureomyo. geokjeonghaji maseyo.", l1: "Of course. Don't worry."}
+
+      - id: ko-talk-05-followup
+        type: dialogue
+        title: "Back at the doctor's"
+        scene: "A few days later you go back to the clinic about your cold."
+        you: B
+        lines:
+          - {who: A, l2: "오늘은 좀 어떠세요?", rom: "oneureun jom eotteoseyo?", l1: "How are you feeling today?"}
+          - {who: B, l2: "많이 좋아졌어요.", rom: "mani joajyeosseoyo.", l1: "Much better.", alt: ["좀 좋아졌어요.", "많이 나았어요."]}
+          - {who: A, l2: "기침은 아직도 하세요?", rom: "gichimeun ajikdo haseyo?", l1: "Are you still coughing?"}
+          - {who: B, l2: "네, 밤에 조금 해요.", rom: "ne, bame jogeum haeyo.", l1: "Yes, a little at night.", alt: ["네, 조금 해요.", "밤에 조금 해요."]}
+          - {who: A, l2: "약을 사흘 더 드세요. 그리고 물을 많이 드세요.", rom: "yageul saheul deo deuseyo. geurigo mureul mani deuseyo.", l1: "Take the medicine for three more days. And drink plenty of water."}
+          - {who: B, l2: "운동해도 돼요?", rom: "undonghaedo dwaeyo?", l1: "Can I do exercise?", alt: ["운동할 수 있어요?", "운동해도 괜찮아요?"]}
+          - {who: A, l2: "이번 주에는 푹 쉬세요.", rom: "ibeon jueneun puk swiseyo.", l1: "Get plenty of rest this week."}
+          - {who: B, l2: "네, 알겠습니다. 감사합니다.", rom: "ne, algesseumnida. gamsahamnida.", l1: "All right. Thank you.", alt: ["알겠습니다.", "네, 감사합니다."]}
+
+      - id: ko-talk-05-sickday
+        type: dialogue
+        title: "Calling in sick"
+        scene: "You wake up with a fever and phone your team leader. You are Sara."
+        you: B
+        lines:
+          - {who: A, l2: "여보세요?", rom: "yeoboseyo?", l1: "Hello?"}
+          - {who: B, l2: "팀장님, 저 사라예요. 오늘 몸이 너무 안 좋아요.", rom: "timjangnim, jeo sarayeyo. oneul momi neomu an joayo.", l1: "It's Sara. I'm feeling really unwell today.", alt: ["팀장님, 사라예요. 오늘 많이 아파요.", "팀장님, 저 사라입니다. 오늘 몸이 너무 안 좋아요."]}
+          - {who: A, l2: "어디가 아파요?", rom: "eodiga apayo?", l1: "What's wrong?"}
+          - {who: B, l2: "열이 많이 나고 기침을 해요.", rom: "yeori mani nago gichimeul haeyo.", l1: "I have a high temperature and a cough.", alt: ["열이 나고 기침을 해요.", "감기에 걸렸어요."]}
+          - {who: A, l2: "그럼 오늘은 쉬고 병원에 가 보세요.", rom: "geureom oneureun swigo byeongwone ga boseyo.", l1: "Then take today off and go to the doctor's."}
+          - {who: B, l2: "죄송합니다. 내일은 출근할게요.", rom: "joesonghamnida. naeireun chulgeunhalgeyo.", l1: "I'm sorry. I'll come in tomorrow.", alt: ["죄송합니다. 내일은 출근하겠습니다.", "감사합니다. 내일은 출근할게요."]}
+          - {who: A, l2: "무리하지 말고 푹 쉬어요.", rom: "murihaji malgo puk swieoyo.", l1: "Don't push yourself, get some proper rest."}
+          - {who: B, l2: "네, 감사합니다.", rom: "ne, gamsahamnida.", l1: "I will, thank you.", alt: ["감사합니다.", "네, 고맙습니다."]}
+
+  # ───────────────────────────────────────────────────────────────── 6
+  - id: ko-talk-06
+    title: "Making plans"
+    goal: "I can invite someone, accept or decline politely, suggest another time, change a plan and say I am running late."
+    notes: |
+      ## Inviting
+      | | |
+      |---|---|
+      | 이번 주말에 시간 있어요? | are you free this weekend? |
+      | 같이 영화 보러 갈까요? | shall we go and see a film? |
+      | 같이 갈래요? | do you want to come? (friendly) |
+      | 삼겹살 어때요? | how about pork belly? |
+
+      ## Saying yes
+      좋아요! · 네, 그래요. · 그때 봐요! (see you then).
+
+      ## Saying no without saying no
+      Koreans rarely refuse flatly. Apologise, give a short reason, and offer another time:
+
+      미안해요. 그날은 약속이 있어요. 다음 주는 어때요?
+
+      **약속** is any arrangement to meet someone, from a business meeting to coffee with a friend.
+
+      ## Changing plans and running late
+      - Start with **미안한데요** / 죄송한데요 ("sorry, but …"): 미안한데요, 시간을 좀 바꿀 수 있어요?
+      - Running late: 십 분쯤 늦을 거예요. 거의 다 왔어요 ("I'm nearly there").
+      - The other person will reassure you: 천천히 오세요.
+
+      **이따 봐요** is "see you later (today)"; **내일 봐요**, **그때 봐요** are "see you tomorrow / then".
+    items:
+      - id: ko-talk-06-movie
+        type: dialogue
+        title: "Inviting a friend to the cinema"
+        scene: "You want to see a new Korean film this weekend with your friend Jisu."
+        you: A
+        lines:
+          - {who: A, l2: "지수 씨, 이번 주말에 시간 있어요?", rom: "jisu ssi, ibeon jumare sigan isseoyo?", l1: "Jisu, are you free this weekend?", alt: ["이번 주말에 시간 있어요?", "지수 씨, 주말에 시간 있어요?"]}
+          - {who: B, l2: "토요일은 괜찮아요. 왜요?", rom: "toyoireun gwaenchanayo. waeyo?", l1: "Saturday is fine. Why?"}
+          - {who: A, l2: "같이 영화 보러 갈까요?", rom: "gachi yeonghwa boreo galkkayo?", l1: "Shall we go and see a film together?", alt: ["같이 영화 볼까요?", "같이 영화 보러 가요."]}
+          - {who: B, l2: "좋아요! 무슨 영화요?", rom: "joayo! museun yeonghwayo?", l1: "Great! Which film?"}
+          - {who: A, l2: "요즘 인기 있는 한국 영화요.", rom: "yojeum ingi inneun hanguk yeonghwayo.", l1: "That Korean film everyone's watching at the moment.", alt: ["새 한국 영화요.", "한국 영화요."]}
+          - {who: B, l2: "아, 저도 보고 싶었어요. 몇 시에 볼까요?", rom: "a, jeodo bogo sipeosseoyo. myeot sie bolkkayo?", l1: "Oh, I wanted to see that too. What time shall we go?"}
+          - {who: A, l2: "오후 세 시 어때요?", rom: "ohu se si eottaeyo?", l1: "How about 3 p.m.?", alt: ["세 시 어때요?", "오후 세 시에 볼까요?"]}
+          - {who: B, l2: "좋아요. 그럼 토요일에 봐요!", rom: "joayo. geureom toyoire bwayo!", l1: "Fine. See you on Saturday, then!"}
+
+      - id: ko-talk-06-decline
+        type: dialogue
+        title: "Not tomorrow, how about next week?"
+        scene: "A colleague invites you to dinner tomorrow, but you already have plans."
+        you: B
+        lines:
+          - {who: A, l2: "내일 저녁에 같이 밥 먹을까요?", rom: "naeil jeonyeoge gachi bap meogeulkkayo?", l1: "Shall we have dinner together tomorrow evening?"}
+          - {who: B, l2: "미안해요. 내일은 약속이 있어요.", rom: "mianhaeyo. naeireun yaksogi isseoyo.", l1: "Sorry. I already have plans tomorrow.", alt: ["죄송해요. 내일은 약속이 있어요.", "미안해요. 내일은 안 돼요."]}
+          - {who: A, l2: "아, 그래요? 그럼 다음 주는 어때요?", rom: "a, geuraeyo? geureom daeum juneun eottaeyo?", l1: "Oh, I see. How about next week, then?"}
+          - {who: B, l2: "다음 주 수요일은 괜찮아요.", rom: "daeum ju suyoireun gwaenchanayo.", l1: "Next Wednesday is fine.", alt: ["수요일은 괜찮아요.", "다음 주 수요일 어때요?"]}
+          - {who: A, l2: "좋아요. 수요일 저녁에 만나요.", rom: "joayo. suyoil jeonyeoge mannayo.", l1: "Great. Let's meet on Wednesday evening."}
+          - {who: B, l2: "네, 그때 봐요!", rom: "ne, geuttae bwayo!", l1: "Okay, see you then!", alt: ["네, 수요일에 봐요!", "좋아요. 그때 봐요!"]}
+
+      - id: ko-talk-06-change
+        type: dialogue
+        title: "Changing the time"
+        scene: "You are meeting Minsu at six, but a meeting has come up. You call him."
+        you: A
+        lines:
+          - {who: A, l2: "민수 씨, 미안한데요. 약속 시간을 좀 바꿀 수 있어요?", rom: "minsu ssi, mianhandeyo. yaksok siganeul jom bakkul su isseoyo?", l1: "Minsu, I'm sorry, but could we change the time?", alt: ["미안한데요. 약속 시간을 좀 바꿀 수 있어요?", "민수 씨, 죄송한데요. 약속 시간 좀 바꿀 수 있어요?"]}
+          - {who: B, l2: "네, 괜찮아요. 무슨 일 있어요?", rom: "ne, gwaenchanayo. museun il isseoyo?", l1: "Sure, no problem. Has something come up?"}
+          - {who: A, l2: "갑자기 회의가 생겼어요.", rom: "gapjagi hoeuiga saenggyeosseoyo.", l1: "A meeting has suddenly come up.", alt: ["회의가 생겼어요.", "갑자기 회의가 있어요."]}
+          - {who: B, l2: "그럼 몇 시에 만날까요?", rom: "geureom myeot sie mannalkkayo?", l1: "So what time shall we meet?"}
+          - {who: A, l2: "일곱 시 반은 어때요?", rom: "ilgop si baneun eottaeyo?", l1: "How about half past seven?", alt: ["일곱 시 반 어때요?", "7시 반은 어때요?"]}
+          - {who: B, l2: "좋아요. 그럼 일곱 시 반에 거기서 봐요.", rom: "joayo. geureom ilgop si bane geogiseo bwayo.", l1: "Fine. See you there at half past seven, then."}
+          - {who: A, l2: "고마워요. 이따 봐요!", rom: "gomawoyo. itta bwayo!", l1: "Thanks. See you later!", alt: ["고마워요. 이따가 봐요!", "이따 봐요!"]}
+
+      - id: ko-talk-06-where
+        type: dialogue
+        title: "What shall we eat?"
+        scene: "You and a friend are deciding where to have lunch. You had meat yesterday."
+        you: B
+        lines:
+          - {who: A, l2: "점심에 뭐 먹을까요?", rom: "jeomsime mwo meogeulkkayo?", l1: "What shall we have for lunch?"}
+          - {who: B, l2: "저는 다 좋아요. 뭐 먹고 싶어요?", rom: "jeoneun da joayo. mwo meokgo sipeoyo?", l1: "Anything's fine with me. What do you feel like?", alt: ["다 좋아요. 뭐 먹고 싶어요?", "저는 아무거나 괜찮아요. 뭐 먹고 싶어요?"]}
+          - {who: A, l2: "삼겹살 어때요?", rom: "samgyeopsal eottaeyo?", l1: "How about pork belly?"}
+          - {who: B, l2: "어제 고기를 먹었어요. 다른 거 먹어요.", rom: "eoje gogireul meogeosseoyo. dareun geo meogeoyo.", l1: "I had meat yesterday. Let's have something else.", alt: ["어제 고기 먹었어요. 다른 거 먹을까요?", "어제 고기를 먹었어요. 다른 거 먹을까요?"]}
+          - {who: A, l2: "그럼 칼국수는 어때요? 근처에 맛집이 있어요.", rom: "geureom kalguksuneun eottaeyo? geuncheoe matjibi isseoyo.", l1: "Then how about noodle soup? There's a great place nearby."}
+          - {who: B, l2: "좋아요! 칼국수 먹으러 가요.", rom: "joayo! kalguksu meogeureo gayo.", l1: "Great! Let's go and have noodle soup.", alt: ["좋아요. 칼국수 먹어요!", "좋아요! 거기 가요."]}
+
+      - id: ko-talk-06-hiking
+        type: dialogue
+        title: "A team hike"
+        scene: "A colleague tells you about a hike with the team on Saturday."
+        you: B
+        lines:
+          - {who: A, l2: "이번 토요일에 팀 사람들하고 등산 가요. 같이 갈래요?", rom: "ibeon toyoire tim saramdeulhago deungsan gayo. gachi gallaeyo?", l1: "The team is going hiking this Saturday. Do you want to come?"}
+          - {who: B, l2: "저도 가고 싶어요. 몇 시에 출발해요?", rom: "jeodo gago sipeoyo. myeot sie chulbalhaeyo?", l1: "I'd love to come. What time do you set off?", alt: ["좋아요. 몇 시에 출발해요?", "네, 갈게요. 몇 시에 출발해요?"]}
+          - {who: A, l2: "아침 일곱 시에 회사 앞에서 출발해요.", rom: "achim ilgop sie hoesa apeseo chulbalhaeyo.", l1: "We leave from outside the office at seven in the morning."}
+          - {who: B, l2: "일찍 가네요! 뭐 가져가야 돼요?", rom: "iljjik ganeyo! mwo gajyeogaya dwaeyo?", l1: "That's early! What should I bring?", alt: ["뭐 가져가야 돼요?", "뭐 가져가야 해요?"]}
+          - {who: A, l2: "물하고 간식만 가져오세요. 점심은 같이 먹어요.", rom: "mulhago gansingman gajyeooseyo. jeomsimeun gachi meogeoyo.", l1: "Just bring water and snacks. We'll have lunch together."}
+          - {who: B, l2: "등산화가 없는데 운동화도 괜찮아요?", rom: "deungsanhwaga eomneunde undonghwado gwaenchanayo?", l1: "I don't have hiking boots. Are trainers okay?", alt: ["운동화 신어도 돼요?", "운동화도 괜찮아요?"]}
+          - {who: A, l2: "네, 괜찮아요. 쉬운 산이에요.", rom: "ne, gwaenchanayo. swiun sanieyo.", l1: "Yes, that's fine. It's an easy mountain."}
+
+      - id: ko-talk-06-late
+        type: dialogue
+        title: "Running late"
+        scene: "You are on a bus stuck in traffic and will be late meeting Jisu. You phone her."
+        you: A
+        lines:
+          - {who: A, l2: "지수 씨, 미안해요. 십 분쯤 늦을 거예요.", rom: "jisu ssi, mianhaeyo. sip bunjjeum neujeul geoyeyo.", l1: "Jisu, I'm sorry. I'll be about ten minutes late.", alt: ["미안해요. 십 분쯤 늦을 거예요.", "죄송해요. 십 분쯤 늦어요."]}
+          - {who: B, l2: "괜찮아요. 지금 어디쯤이에요?", rom: "gwaenchanayo. jigeum eodijjeumieyo?", l1: "That's all right. Where are you now?"}
+          - {who: A, l2: "버스 안이에요. 길이 많이 막혀요.", rom: "beoseu anieyo. giri mani makyeoyo.", l1: "I'm on the bus. The traffic is really bad.", alt: ["지금 버스 안이에요. 길이 막혀요.", "버스 안이에요. 길이 막혀요."]}
+          - {who: B, l2: "천천히 오세요. 저는 카페에서 기다릴게요.", rom: "cheoncheonhi oseyo. jeoneun kapeeseo gidarilgeyo.", l1: "Take your time. I'll wait in a café."}
+          - {who: A, l2: "고마워요. 어느 카페예요?", rom: "gomawoyo. eoneu kapeyeyo?", l1: "Thanks. Which café?", alt: ["어느 카페예요?", "고마워요. 어느 카페에 있어요?"]}
+          - {who: B, l2: "역 앞에 있는 카페예요.", rom: "yeok ape inneun kapeyeyo.", l1: "The one in front of the station."}
+          - {who: A, l2: "알겠어요. 빨리 갈게요!", rom: "algesseoyo. ppalli galgeyo!", l1: "Okay. I'll be there as soon as I can!", alt: ["금방 갈게요!", "알겠어요. 금방 갈게요!"]}
+
+  # ───────────────────────────────────────────────────────────────── 7
+  - id: ko-talk-07
+    title: "On the phone"
+    goal: "I can ask for someone on the phone, leave and take a message, book a table, cope with a bad line and deal with a delivery call."
+    notes: |
+      A phone call starts with **여보세요?** Businesses answer with their name + 입니다: 네, 하나여행사입니다.
+
+      ## Asking for someone
+      - ○○ 씨 계세요? (is ○○ there?): 계시다, because you are being polite about them.
+      - ○○ 씨 좀 바꿔 주세요. (please put ○○ on)
+      - Answers: 지금 자리에 안 계세요 (not at their desk), 통화 중이세요 (on another call), 외근 중이세요 (out of the office).
+
+      ## Messages
+      | | |
+      |---|---|
+      | 메시지 남겨 드릴까요? | shall I take a message? |
+      | 전화 부탁드려요. | please ask them to call me |
+      | 전해 드릴게요. | I'll pass it on |
+
+      ## When the line is bad
+      잘 안 들려요 (I can't hear you well) · 다시 전화할게요 · 이제 들려요?
+
+      ## Phone numbers
+      Read digit by digit with Sino-Korean numbers; 0 is 공, and the groups are separated by a pause (or 에 in fast speech): 공일공, 일이삼사, 오육칠팔.
+
+      Delivery drivers (택배) phone to ask where to leave a parcel. 문 앞에 놓아 주세요 = leave it at the door.
+
+      End a call to someone working with **수고하세요** ("keep up the good work"), but not to a superior.
+    items:
+      - id: ko-talk-07-office
+        type: dialogue
+        title: "Calling an office"
+        scene: "You phone a travel agency to speak to Kim Minho. He is not at his desk. You are Sara."
+        you: B
+        lines:
+          - {who: A, l2: "네, 하나여행사입니다.", rom: "ne, hanayeohaengsaimnida.", l1: "Hello, Hana Travel."}
+          - {who: B, l2: "안녕하세요. 김민호 씨 계세요?", rom: "annyeonghaseyo. gimminho ssi gyeseyo?", l1: "Hello. Is Kim Minho there?", alt: ["안녕하세요. 김민호 씨 좀 바꿔 주세요.", "김민호 씨 계세요?", "안녕하세요. 김민호 씨하고 통화할 수 있어요?"]}
+          - {who: A, l2: "지금 자리에 안 계세요. 메시지 남겨 드릴까요?", rom: "jigeum jarie an gyeseyo. mesiji namgyeo deurilkkayo?", l1: "He's not at his desk at the moment. Shall I take a message?"}
+          - {who: B, l2: "네, 저는 사라예요. 전화 부탁드려요.", rom: "ne, jeoneun sarayeyo. jeonhwa butakdeuryeoyo.", l1: "Yes, this is Sara. Please ask him to call me.", alt: ["네, 사라예요. 전화 부탁드려요.", "제 이름은 사라예요. 전화 부탁드립니다."]}
+          - {who: A, l2: "네, 전화번호가 어떻게 되세요?", rom: "ne, jeonhwabeonhoga eotteoke doeseyo?", l1: "Certainly. What's your number?"}
+          - {who: B, l2: "공일공, 일이삼사, 오육칠팔이에요.", rom: "gongilgong, irisamsa, oyukchilparieyo.", l1: "It's 010-1234-5678.", alt: ["공일공 일이삼사 오육칠팔이에요.", "010-1234-5678이에요."]}
+          - {who: A, l2: "네, 전해 드릴게요.", rom: "ne, jeonhae deurilgeyo.", l1: "Thank you. I'll pass it on."}
+          - {who: B, l2: "감사합니다. 안녕히 계세요.", rom: "gamsahamnida. annyeonghi gyeseyo.", l1: "Thank you. Goodbye.", alt: ["감사합니다.", "네, 감사합니다."]}
+
+      - id: ko-talk-07-callback
+        type: dialogue
+        title: "Calling a friend back"
+        scene: "You missed a call from your friend Jisu during class, so you call her back. You are Sara."
+        you: B
+        lines:
+          - {who: A, l2: "여보세요?", rom: "yeoboseyo?", l1: "Hello?"}
+          - {who: B, l2: "지수 씨, 저 사라예요. 아까 전화했어요?", rom: "jisu ssi, jeo sarayeyo. akka jeonhwahaesseoyo?", l1: "Jisu, it's Sara. Did you call me earlier?", alt: ["지수 씨, 사라예요. 아까 전화했어요?", "저 사라예요. 아까 전화했어요?"]}
+          - {who: A, l2: "네, 했어요. 바빴어요?", rom: "ne, haesseoyo. bappasseoyo?", l1: "Yes, I did. Were you busy?"}
+          - {who: B, l2: "미안해요. 수업 중이라서 못 받았어요.", rom: "mianhaeyo. sueop jungiraseo mot badasseoyo.", l1: "Sorry. I was in class, so I couldn't answer.", alt: ["미안해요. 수업 중이었어요.", "미안해요. 수업 때문에 못 받았어요."]}
+          - {who: A, l2: "괜찮아요. 내일 제 생일 파티에 올 수 있어요?", rom: "gwaenchanayo. naeil je saengil patie ol su isseoyo?", l1: "That's okay. Can you come to my birthday party tomorrow?"}
+          - {who: B, l2: "그럼요! 몇 시에 가면 돼요?", rom: "geureomyo! myeot sie gamyeon dwaeyo?", l1: "Of course! What time should I come?", alt: ["네, 갈 수 있어요! 몇 시에 가요?", "물론이죠! 몇 시에 가면 돼요?"]}
+          - {who: A, l2: "저녁 여섯 시까지 오세요.", rom: "jeonyeok yeoseot sikkaji oseyo.", l1: "Come by six in the evening."}
+          - {who: B, l2: "알겠어요. 내일 봐요!", rom: "algesseoyo. naeil bwayo!", l1: "Okay. See you tomorrow!", alt: ["좋아요. 내일 봐요!", "네, 내일 봐요!"]}
+
+      - id: ko-talk-07-booking
+        type: dialogue
+        title: "Booking a table by phone"
+        scene: "You call a restaurant to book a table for four on Friday at seven. You are Sarah Jones."
+        you: B
+        lines:
+          - {who: A, l2: "네, 한강식당입니다.", rom: "ne, hangangsikdangimnida.", l1: "Hello, Hangang Restaurant."}
+          - {who: B, l2: "안녕하세요. 예약하고 싶어요.", rom: "annyeonghaseyo. yeyakago sipeoyo.", l1: "Hello. I'd like to make a booking.", alt: ["예약할 수 있어요?", "안녕하세요. 예약 좀 하고 싶은데요.", "예약하고 싶어요."]}
+          - {who: A, l2: "언제 오실 거예요?", rom: "eonje osil geoyeyo?", l1: "When would you like to come?"}
+          - {who: B, l2: "이번 금요일 저녁 일곱 시요.", rom: "ibeon geumyoil jeonyeok ilgop siyo.", l1: "This Friday at seven in the evening.", alt: ["금요일 저녁 일곱 시요.", "이번 금요일 일곱 시요."]}
+          - {who: A, l2: "몇 분이세요?", rom: "myeot buniseyo?", l1: "For how many people?"}
+          - {who: B, l2: "네 명이에요.", rom: "ne myeongieyo.", l1: "Four.", alt: ["네 명이요.", "4명이에요."]}
+          - {who: A, l2: "성함하고 연락처를 알려 주세요.", rom: "seonghamhago yeollakcheoreul allyeo juseyo.", l1: "Could I have your name and contact number?"}
+          - {who: B, l2: "사라 존스예요. 이 번호로 연락 주세요.", rom: "sara jonseuyeyo. i beonhoro yeollak juseyo.", l1: "Sarah Jones. Please contact me on this number.", alt: ["사라 존스입니다. 이 번호로 연락 주세요.", "사라 존스예요."]}
+          - {who: A, l2: "네, 예약되었습니다. 감사합니다.", rom: "ne, yeyakdoeeosseumnida. gamsahamnida.", l1: "That's booked. Thank you."}
+
+      - id: ko-talk-07-badline
+        type: dialogue
+        title: "A bad line"
+        scene: "A colleague phones while you are on the subway and you can hardly hear him."
+        you: B
+        lines:
+          - {who: A, l2: "여보세요? 사라 씨?", rom: "yeoboseyo? sara ssi?", l1: "Hello? Sara?"}
+          - {who: B, l2: "여보세요? 잘 안 들려요.", rom: "yeoboseyo? jal an deullyeoyo.", l1: "Hello? I can't hear you very well.", alt: ["잘 안 들려요.", "네? 잘 안 들려요."]}
+          - {who: A, l2: "지금 어디예요?", rom: "jigeum eodiyeyo?", l1: "Where are you right now?"}
+          - {who: B, l2: "지하철 안이에요. 조금 후에 다시 전화할게요.", rom: "jihacheol anieyo. jogeum hue dasi jeonhwahalgeyo.", l1: "I'm on the subway. I'll call you back in a bit.", alt: ["지하철이에요. 나중에 다시 전화할게요.", "지하철 안이에요. 이따가 다시 전화할게요."]}
+          - {who: A, l2: "네, 알겠어요.", rom: "ne, algesseoyo.", l1: "Okay, sure."}
+          - {who: B, l2: "여보세요? 이제 잘 들려요?", rom: "yeoboseyo? ije jal deullyeoyo?", l1: "Hello? Can you hear me now?", alt: ["이제 들려요?", "이제 잘 들려요?"]}
+          - {who: A, l2: "네, 잘 들려요. 내일 회의가 열 시로 바뀌었어요.", rom: "ne, jal deullyeoyo. naeil hoeuiga yeol siro bakkwieosseoyo.", l1: "Yes, I can hear you fine. Tomorrow's meeting has moved to ten."}
+          - {who: B, l2: "열 시요? 알겠어요. 고마워요.", rom: "yeol siyo? algesseoyo. gomawoyo.", l1: "Ten? Got it. Thanks.", alt: ["알겠어요. 고마워요.", "열 시요? 알겠습니다."]}
+
+      - id: ko-talk-07-delivery
+        type: dialogue
+        title: "A delivery call"
+        scene: "A delivery driver phones you while you are at work."
+        you: B
+        lines:
+          - {who: A, l2: "안녕하세요, 택배입니다. 지금 집에 계세요?", rom: "annyeonghaseyo, taekbaeimnida. jigeum jibe gyeseyo?", l1: "Hello, it's the delivery service. Are you at home now?"}
+          - {who: B, l2: "아니요, 지금 회사에 있어요.", rom: "aniyo, jigeum hoesae isseoyo.", l1: "No, I'm at work right now.", alt: ["아니요, 지금 집에 없어요.", "아니요, 회사에 있어요."]}
+          - {who: A, l2: "그럼 택배를 어디에 놓을까요?", rom: "geureom taekbaereul eodie noeulkkayo?", l1: "Then where shall I leave the parcel?"}
+          - {who: B, l2: "문 앞에 놓아 주세요.", rom: "mun ape noa juseyo.", l1: "Please leave it outside the door.", alt: ["문 앞에 놔 주세요.", "경비실에 맡겨 주세요."]}
+          - {who: A, l2: "네, 문 앞에 놓을게요.", rom: "ne, mun ape noeulgeyo.", l1: "Okay, I'll leave it outside the door."}
+          - {who: B, l2: "감사합니다. 수고하세요.", rom: "gamsahamnida. sugohaseyo.", l1: "Thank you. Have a good day. (to someone working)", alt: ["감사합니다.", "고맙습니다. 수고하세요."]}
+
+      - id: ko-talk-07-message
+        type: dialogue
+        title: "Taking a message for a colleague"
+        scene: "The phone rings on your manager's empty desk, and you answer it. Your manager, Manager Park, is out until three."
+        you: B
+        lines:
+          - {who: A, l2: "여보세요, 박 과장님 자리예요?", rom: "yeoboseyo, bak gwajangnim jariyeyo?", l1: "Hello, is this Manager Park's desk?"}
+          - {who: B, l2: "네, 맞아요. 지금 자리에 안 계세요.", rom: "ne, majayo. jigeum jarie an gyeseyo.", l1: "Yes, it is. She's not at her desk right now.", alt: ["네. 지금 안 계세요.", "네, 맞습니다. 지금 자리에 안 계세요."]}
+          - {who: A, l2: "언제 돌아오세요?", rom: "eonje doraoseyo?", l1: "When will she be back?"}
+          - {who: B, l2: "세 시쯤 돌아오실 거예요.", rom: "se sijjeum doraosil geoyeyo.", l1: "She should be back around three.", alt: ["세 시쯤 오실 거예요.", "세 시쯤 돌아오세요."]}
+          - {who: A, l2: "그럼 하나무역 이민수가 전화했다고 전해 주세요.", rom: "geureom hanamuyeok iminsuga jeonhwahaetdago jeonhae juseyo.", l1: "Then please tell her Lee Minsu from Hana Trading called."}
+          - {who: B, l2: "네, 알겠습니다. 전해 드릴게요.", rom: "ne, algesseumnida. jeonhae deurilgeyo.", l1: "Certainly. I'll let her know.", alt: ["네, 전해 드리겠습니다.", "알겠습니다. 전해 드릴게요."]}
+          - {who: A, l2: "감사합니다.", rom: "gamsahamnida.", l1: "Thank you."}
+
+  # ───────────────────────────────────────────────────────────────── 8
+  - id: ko-talk-08
+    title: "Hotels and stations"
+    goal: "I can check in and out of a hotel, sort out a problem with the room, buy a train ticket, find my seat and report lost property."
+    notes: |
+      Hotels, stations and airports use the formal **합쇼체** (-ㅂ니다, -습니까?, -십시오). You will hear far more of it than you say, but a few formal sentences of your own sound good here: 예약했습니다, 감사합니다.
+
+      | you hear | it means |
+      |---|---|
+      | 체크인하시겠습니까? | would you like to check in? |
+      | 확인했습니다. | I've found your booking |
+      | 잠시만 기다려 주십시오. | one moment, please |
+      | 내리실 문은 오른쪽입니다. | the doors will open on the right |
+
+      ## At the hotel
+      - Rooms are 호 with Sino-Korean numbers: 칠백십이 호 (room 712).
+      - Problems: (thing)이/가 안 돼요 (doesn't work), 고장 났어요 (is broken).
+      - Leaving bags: 짐 좀 맡길 수 있어요?
+
+      ## Trains
+      - Ask by destination: 부산 가는 기차표 한 장 주세요.
+      - 창가 자리 (window seat), 통로 자리 (aisle seat).
+      - The platform is 타는 곳: 삼 번 타는 곳.
+
+      ## Lost property
+      Leaving something behind is **두고 내리다** (get off leaving it): 지하철에 가방을 두고 내렸어요. Be ready to say which line, when, and what it looks like: 검은색 배낭이에요.
+    items:
+      - id: ko-talk-08-checkin
+        type: dialogue
+        title: "Checking in"
+        scene: "You arrive at your hotel in Seoul. You booked two nights under the name Sarah Jones."
+        you: B
+        lines:
+          - {who: A, l2: "어서 오십시오. 체크인하시겠습니까?", rom: "eoseo osipsio. chekeuinhasigesseumnikka?", l1: "Good evening. Would you like to check in?"}
+          - {who: B, l2: "네, 사라 존스로 예약했어요.", rom: "ne, sara jonseuro yeyakaesseoyo.", l1: "Yes, I have a booking under Sarah Jones.", alt: ["네, 사라 존스 이름으로 예약했어요.", "네, 사라 존스로 예약했습니다.", "사라 존스로 예약했어요."]}
+          - {who: A, l2: "네, 확인했습니다. 이틀 동안 묵으시죠?", rom: "ne, hwaginhaesseumnida. iteul dongan mugeusijyo?", l1: "Yes, I have it here. You're staying two nights, aren't you?"}
+          - {who: B, l2: "네, 맞아요. 아침 식사도 돼요?", rom: "ne, majayo. achim siksado dwaeyo?", l1: "Yes, that's right. Is breakfast included?", alt: ["네, 맞아요. 아침 식사도 포함돼요?", "네. 아침 식사 있어요?"]}
+          - {who: A, l2: "네, 아침 식사는 일 층 식당에서 일곱 시부터 열 시까지입니다.", rom: "ne, achim siksaneun il cheung sikdangeseo ilgop sibuteo yeol sikkajiimnida.", l1: "Yes, breakfast is in the restaurant on the ground floor, from seven to ten."}
+          - {who: B, l2: "와이파이 비밀번호가 뭐예요?", rom: "waipai bimilbeonhoga mwoyeyo?", l1: "What's the wifi password?", alt: ["와이파이 비밀번호 좀 알려 주세요.", "와이파이 비밀번호는 뭐예요?"]}
+          - {who: A, l2: "카드 키 봉투에 있습니다. 방은 칠백십이 호입니다.", rom: "kadeu ki bongtue isseumnida. bangeun chilbaeksibi hoimnida.", l1: "It's on the key-card envelope. Your room is 712."}
+          - {who: B, l2: "감사합니다.", rom: "gamsahamnida.", l1: "Thank you.", alt: ["고맙습니다.", "네, 감사합니다."]}
+
+      - id: ko-talk-08-room
+        type: dialogue
+        title: "A problem with the room"
+        scene: "The air conditioning in room 712 does not work. You phone reception."
+        you: B
+        lines:
+          - {who: A, l2: "네, 프런트입니다.", rom: "ne, peureonteuimnida.", l1: "Reception, good evening."}
+          - {who: B, l2: "여기 칠백십이 호인데요. 에어컨이 안 돼요.", rom: "yeogi chilbaeksibi hoindeyo. eeokeoni an dwaeyo.", l1: "This is room 712. The air conditioning isn't working.", alt: ["칠백십이 호인데요. 에어컨이 안 돼요.", "여기 칠백십이 호예요. 에어컨이 고장 났어요."]}
+          - {who: A, l2: "죄송합니다. 바로 직원을 보내 드리겠습니다.", rom: "joesonghamnida. baro jigwoneul bonae deurigesseumnida.", l1: "I'm sorry. I'll send someone up right away."}
+          - {who: B, l2: "그리고 수건도 좀 더 주세요.", rom: "geurigo sugeondo jom deo juseyo.", l1: "And some more towels too, please.", alt: ["수건도 좀 더 주세요.", "그리고 수건 좀 더 주세요."]}
+          - {who: A, l2: "네, 같이 가져다 드리겠습니다. 다른 필요하신 건 없으세요?", rom: "ne, gachi gajyeoda deurigesseumnida. dareun piryohasin geon eopseuseyo?", l1: "Certainly, we'll bring them up at the same time. Is there anything else you need?"}
+          - {who: B, l2: "아니요, 없어요. 감사합니다.", rom: "aniyo, eopseoyo. gamsahamnida.", l1: "No, that's all. Thank you.", alt: ["없어요. 감사합니다.", "아니요, 괜찮아요. 감사합니다."]}
+
+      - id: ko-talk-08-checkout
+        type: dialogue
+        title: "Checking out and leaving bags"
+        scene: "You check out in the morning but want to leave your luggage until the afternoon."
+        you: B
+        lines:
+          - {who: B, l2: "체크아웃할게요.", rom: "chekeuautalgeyo.", l1: "I'd like to check out, please.", alt: ["체크아웃하고 싶어요.", "체크아웃해 주세요."]}
+          - {who: A, l2: "네, 방 키 주시겠어요? 미니바 사용하셨습니까?", rom: "ne, bang ki jusigesseoyo? miniba sayonghasyeosseumnikka?", l1: "Certainly. May I have your key? Did you use the minibar?"}
+          - {who: B, l2: "아니요, 안 썼어요.", rom: "aniyo, an sseosseoyo.", l1: "No, I didn't.", alt: ["아니요, 사용 안 했어요.", "아니요, 안 했어요."]}
+          - {who: A, l2: "감사합니다. 편히 쉬셨어요?", rom: "gamsahamnida. pyeonhi swisyeosseoyo?", l1: "Thank you. Did you have a comfortable stay?"}
+          - {who: B, l2: "네, 아주 좋았어요. 짐 좀 맡길 수 있어요?", rom: "ne, aju joasseoyo. jim jom matgil su isseoyo?", l1: "Yes, it was lovely. Could I leave my luggage here?", alt: ["네, 좋았어요. 짐 좀 맡길 수 있어요?", "짐을 맡길 수 있어요?", "네. 짐 좀 맡아 주세요."]}
+          - {who: A, l2: "네, 몇 시에 찾으러 오실 거예요?", rom: "ne, myeot sie chajeureo osil geoyeyo?", l1: "Of course. What time will you be back for it?"}
+          - {who: B, l2: "오후 네 시쯤 찾으러 올게요.", rom: "ohu ne sijjeum chajeureo olgeyo.", l1: "I'll come and collect it around four in the afternoon.", alt: ["네 시쯤 찾으러 올게요.", "오후 네 시쯤 올게요."]}
+          - {who: A, l2: "알겠습니다. 이 번호표를 가지고 계세요.", rom: "algesseumnida. i beonhopyoreul gajigo gyeseyo.", l1: "Very good. Please keep this ticket."}
+
+      - id: ko-talk-08-ticket
+        type: dialogue
+        title: "Buying a train ticket"
+        scene: "At the station ticket office you want the fastest train to Busan, with a window seat."
+        you: B
+        lines:
+          - {who: B, l2: "부산 가는 기차표 한 장 주세요.", rom: "busan ganeun gichapyo han jang juseyo.", l1: "One ticket to Busan, please.", alt: ["부산까지 기차표 한 장 주세요.", "부산 가는 표 한 장 주세요.", "부산 한 장 주세요."]}
+          - {who: A, l2: "몇 시 기차로 드릴까요?", rom: "myeot si gicharo deurilkkayo?", l1: "Which train would you like?"}
+          - {who: B, l2: "제일 빠른 기차는 몇 시에 있어요?", rom: "jeil ppareun gichaneun myeot sie isseoyo?", l1: "What time is the earliest train?", alt: ["제일 빠른 거 몇 시예요?", "제일 빠른 기차는 몇 시예요?"]}
+          - {who: A, l2: "열 시 기차가 있습니다. 부산까지 두 시간 반 걸립니다.", rom: "yeol si gichaga isseumnida. busankkaji du sigan ban geollimnida.", l1: "There's one at ten. It takes two and a half hours to Busan."}
+          - {who: B, l2: "그걸로 주세요. 창가 자리 있어요?", rom: "geugeollo juseyo. changga jari isseoyo?", l1: "I'll take that one. Is there a window seat?", alt: ["그걸로 할게요. 창가 자리 있어요?", "그걸로 주세요. 창가 자리로 주세요."]}
+          - {who: A, l2: "네, 있습니다. 오만 구천 원입니다.", rom: "ne, isseumnida. oman gucheon wonimnida.", l1: "Yes, there is. That's 59,000 won."}
+          - {who: B, l2: "어디에서 타요?", rom: "eodieseo tayo?", l1: "Where do I board?", alt: ["몇 번 타는 곳이에요?", "어디서 타요?"]}
+          - {who: A, l2: "삼 번 타는 곳에서 타세요.", rom: "sam beon taneun goseseo taseyo.", l1: "From platform 3."}
+
+      - id: ko-talk-08-seat
+        type: dialogue
+        title: "Someone in your seat"
+        scene: "On the train, a man is sitting in your seat, number 15."
+        you: B
+        lines:
+          - {who: B, l2: "실례합니다. 여기 제 자리예요.", rom: "sillyehamnida. yeogi je jariyeyo.", l1: "Excuse me. This is my seat.", alt: ["실례합니다. 여기는 제 자리예요.", "저기요. 여기 제 자리예요."]}
+          - {who: A, l2: "아, 그래요? 몇 번이세요?", rom: "a, geuraeyo? myeot beoniseyo?", l1: "Oh, is it? What number are you?"}
+          - {who: B, l2: "십오 번이에요.", rom: "sibo beonieyo.", l1: "Number 15.", alt: ["저는 십오 번이에요.", "15번이에요."]}
+          - {who: A, l2: "아, 죄송합니다. 제가 잘못 앉았네요.", rom: "a, joesonghamnida. jega jalmot anjanneyo.", l1: "Oh, I'm sorry. I'm in the wrong seat."}
+          - {who: B, l2: "괜찮아요.", rom: "gwaenchanayo.", l1: "That's all right.", alt: ["아니에요, 괜찮아요.", "네, 괜찮아요."]}
+          - {who: A, l2: "어디까지 가세요?", rom: "eodikkaji gaseyo?", l1: "Where are you going?"}
+          - {who: B, l2: "부산까지 가요. 얼마나 더 가야 돼요?", rom: "busankkaji gayo. eolmana deo gaya dwaeyo?", l1: "To Busan. How much further is it?", alt: ["부산까지 가요. 얼마나 더 걸려요?", "부산까지요. 얼마나 더 가야 돼요?"]}
+          - {who: A, l2: "한 시간쯤 더 가야 돼요.", rom: "han siganjjeum deo gaya dwaeyo.", l1: "About another hour."}
+
+      - id: ko-talk-08-lost
+        type: dialogue
+        title: "Lost property"
+        scene: "You left your backpack on a line 4 train an hour ago. You go to the station's lost-property office."
+        you: B
+        lines:
+          - {who: B, l2: "실례합니다. 지하철에 가방을 두고 내렸어요.", rom: "sillyehamnida. jihacheore gabangeul dugo naeryeosseoyo.", l1: "Excuse me. I left my bag on the train.", alt: ["지하철에 가방을 두고 내렸어요.", "실례합니다. 가방을 잃어버렸어요."]}
+          - {who: A, l2: "몇 호선이었어요?", rom: "myeot hoseonieosseoyo?", l1: "Which line was it?"}
+          - {who: B, l2: "사 호선이었어요. 한 시간 전에 내렸어요.", rom: "sa hoseonieosseoyo. han sigan jeone naeryeosseoyo.", l1: "Line 4. I got off an hour ago.", alt: ["사 호선이에요. 한 시간 전에 내렸어요.", "사 호선이었어요."]}
+          - {who: A, l2: "가방이 어떻게 생겼어요?", rom: "gabangi eotteoke saenggyeosseoyo?", l1: "What does the bag look like?"}
+          - {who: B, l2: "검은색 배낭이에요. 안에 노트북이 있어요.", rom: "geomeunsaek baenangieyo. ane noteubugi isseoyo.", l1: "It's a black backpack. There's a laptop in it.", alt: ["검은색 배낭이에요.", "까만색 배낭이에요. 안에 노트북이 있어요."]}
+          - {who: A, l2: "잠시만 기다려 주십시오. 이 가방이에요?", rom: "jamsiman gidaryeo jusipsio. i gabangieyo?", l1: "One moment, please. Is this the one?"}
+          - {who: B, l2: "네, 맞아요! 정말 감사합니다.", rom: "ne, majayo! jeongmal gamsahamnida.", l1: "Yes, that's it! Thank you so much.", alt: ["네, 그거예요! 감사합니다.", "맞아요! 정말 감사합니다."]}

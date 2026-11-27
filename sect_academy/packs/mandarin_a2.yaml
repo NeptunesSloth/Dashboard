@@ -385,7 +385,7 @@ units:
         you: B
         lines:
           - {who: A, l2: "你觉得北京怎么样？", rom: "Nǐ juéde Běijīng zěnmeyàng?", l1: "What did you think of Beijing?"}
-          - {who: B, l2: "我很喜欢。北京比上海大。", rom: "Wǒ hěn xǐhuan. Běijīng bǐ Shànghǎi dà.", l1: "I liked it a lot. Beijing is bigger than Shanghai.", alt: ["很喜欢。北京比上海大。", "我很喜欢，北京比上海大。"]}
+          - {who: B, l2: "我很喜欢。北京比上海大。", rom: "Wǒ hěn xǐhuan. Běijīng bǐ Shànghǎi dà.", l1: "I liked it a lot. Beijing is bigger than Shanghai.", alt: ["很喜欢。北京比上海大。"]}
           - {who: A, l2: "对，北京的冬天也比上海冷得多。", rom: "Duì, Běijīng de dōngtiān yě bǐ Shànghǎi lěng de duō.", l1: "Yes, and winter in Beijing is much colder than in Shanghai."}
           - {who: B, l2: "上海没有北京那么冷。", rom: "Shànghǎi méiyǒu Běijīng nàme lěng.", l1: "Shanghai isn't as cold as Beijing.", alt: ["上海没有北京冷。", "对，上海没有北京那么冷。"]}
           - {who: A, l2: "那你最喜欢哪个城市？", rom: "Nà nǐ zuì xǐhuan nǎge chéngshì?", l1: "So which city do you like best?"}
@@ -622,7 +622,7 @@ units:
           - {who: A, l2: "又下雪！今年冬天越来越冷了。", rom: "Yòu xià xuě! Jīnnián dōngtiān yuè lái yuè lěng le.", l1: "Snow again! This winter keeps getting colder."}
           - {who: B, l2: "是啊，昨天零下十度。", rom: "Shì a, zuótiān língxià shí dù.", l1: "Yes, yesterday it was minus ten.", alt: ["对，昨天零下十度。", "是啊，昨天是零下十度。", "对啊，昨天零下十度。"]}
           - {who: A, l2: "你喜欢冬天吗？", rom: "Nǐ xǐhuan dōngtiān ma?", l1: "Do you like winter?"}
-          - {who: B, l2: "不喜欢，我最喜欢春天。", rom: "Bù xǐhuan, wǒ zuì xǐhuan chūntiān.", l1: "No, I like spring best.", alt: ["不喜欢。我最喜欢春天。", "我不喜欢冬天，我最喜欢春天。"]}
+          - {who: B, l2: "不喜欢，我最喜欢春天。", rom: "Bù xǐhuan, wǒ zuì xǐhuan chūntiān.", l1: "No, I like spring best.", alt: ["我不喜欢冬天，我最喜欢春天。"]}
           - {who: A, l2: "为什么？", rom: "Wèi shénme?", l1: "Why?"}
           - {who: B, l2: "因为春天很暖和。", rom: "Yīnwèi chūntiān hěn nuǎnhuo.", l1: "Because spring is warm.", alt: ["因为春天暖和。", "春天很暖和。"]}
 
@@ -1250,7 +1250,7 @@ units:
           - {who: B, l2: "钱包里有什么？", rom: "Qiánbāo li yǒu shénme?", l1: "What was in the wallet?"}
           - {who: A, l2: "有三百块钱和我的护照。", rom: "Yǒu sānbǎi kuài qián hé wǒ de hùzhào.", l1: "Three hundred yuan and my passport.", alt: ["三百块钱和我的护照。", "有三百块和我的护照。", "里面有三百块钱和我的护照。"]}
           - {who: B, l2: "好，我们马上帮你找。你别担心。", rom: "Hǎo, wǒmen mǎshàng bāng nǐ zhǎo. Nǐ bié dānxīn.", l1: "Right, we'll start looking for it straight away. Don't worry."}
-          - {who: A, l2: "谢谢，我真倒霉！", rom: "Xièxie, wǒ zhēn dǎoméi!", l1: "Thank you. I'm so unlucky!", alt: ["谢谢！我真倒霉！", "谢谢，真倒霉！", "谢谢您，我真倒霉！"]}
+          - {who: A, l2: "谢谢，我真倒霉！", rom: "Xièxie, wǒ zhēn dǎoméi!", l1: "Thank you. I'm so unlucky!", alt: ["谢谢，真倒霉！", "谢谢您，我真倒霉！"]}
 
   # ───────────────────────────────────────────────────────────────── 17
   - id: zh2-17
@@ -1397,7 +1397,7 @@ units:
         you: B
         lines:
           - {who: A, l2: "你这个周末有空吗？", rom: "Nǐ zhège zhōumò yǒu kòng ma?", l1: "Are you free this weekend?"}
-          - {who: B, l2: "星期六有空，星期天要上班。", rom: "Xīngqīliù yǒu kòng, xīngqītiān yào shàngbān.", l1: "I'm free on Saturday; I have to work on Sunday.", alt: ["星期六有空，星期天得上班。", "星期六有空。星期天我要上班。", "星期六有空，星期天我要上班。"]}
+          - {who: B, l2: "星期六有空，星期天要上班。", rom: "Xīngqīliù yǒu kòng, xīngqītiān yào shàngbān.", l1: "I'm free on Saturday; I have to work on Sunday.", alt: ["星期六有空，星期天得上班。", "星期六有空。星期天我要上班。"]}
           - {who: A, l2: "星期六是我的生日，我想请你参加我的生日聚会。", rom: "Xīngqīliù shì wǒ de shēngrì, wǒ xiǎng qǐng nǐ cānjiā wǒ de shēngrì jùhuì.", l1: "Saturday's my birthday; I'd like to invite you to my birthday party."}
           - {who: B, l2: "太好了！聚会在哪儿？", rom: "Tài hǎo le! Jùhuì zài nǎr?", l1: "Great! Where's the party?", alt: ["太好了！在哪儿？", "好啊！聚会在哪儿？", "太好了！聚会在哪里？"]}
           - {who: A, l2: "在我家，晚上七点。如果你有时间，早点儿来帮我做饭吧。", rom: "Zài wǒ jiā, wǎnshang qī diǎn. Rúguǒ nǐ yǒu shíjiān, zǎo diǎnr lái bāng wǒ zuò fàn ba.", l1: "At my place, at seven. If you have time, come early and help me cook."}

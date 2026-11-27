@@ -42,7 +42,7 @@ units:
           - {who: A, l2: "你好！你是新来的吧？", rom: "Nǐ hǎo! Nǐ shì xīn lái de ba?", l1: "Hello! You must be new here?"}
           - {who: B, l2: "对，我刚搬来。", rom: "Duì, wǒ gāng bān lái.", l1: "Yes, I've just moved in.", alt: ["是的，我刚搬来。", "对，我刚搬过来。", "对，我刚搬家。"]}
           - {who: A, l2: "欢迎欢迎！我姓李，住在你楼上。", rom: "Huānyíng huānyíng! Wǒ xìng Lǐ, zhù zài nǐ lóushàng.", l1: "Welcome! My name is Li; I live upstairs from you."}
-          - {who: B, l2: "李阿姨好！我叫安娜。", rom: "Lǐ āyí hǎo! Wǒ jiào Ānnà.", l1: "Hello, Mrs Li! My name is Anna. (to an older woman)", alt: ["您好！我叫安娜。", "李阿姨，您好！我叫安娜。", "您好，我叫安娜。"]}
+          - {who: B, l2: "李阿姨好！我叫安娜。", rom: "Lǐ āyí hǎo! Wǒ jiào Ānnà.", l1: "Hello, Mrs Li! My name is Anna. (to an older woman)", alt: ["您好！我叫安娜。", "李阿姨，您好！我叫安娜。"]}
           - {who: A, l2: "安娜，你是哪国人？", rom: "Ānnà, nǐ shì nǎ guó rén?", l1: "Anna, where are you from?"}
           - {who: B, l2: "我是英国人。", rom: "Wǒ shì Yīngguó rén.", l1: "I'm British.", alt: ["英国人。", "我是从英国来的。"]}
           - {who: A, l2: "你的汉语说得真好！", rom: "Nǐ de Hànyǔ shuō de zhēn hǎo!", l1: "Your Chinese is really good!"}
@@ -56,13 +56,13 @@ units:
         scene: "You are at Xiao Wang's birthday party. You go up to a man you have not met."
         you: A
         lines:
-          - {who: A, l2: "你好！我叫马克。你也是小王的朋友吗？", rom: "Nǐ hǎo! Wǒ jiào Mǎkè. Nǐ yě shì Xiǎo Wáng de péngyou ma?", l1: "Hi! I'm Mark. Are you a friend of Xiao Wang's too?", alt: ["你好！我是马克。你也是小王的朋友吗？", "你好，我叫马克。你也是小王的朋友吗？"]}
+          - {who: A, l2: "你好！我叫马克。你也是小王的朋友吗？", rom: "Nǐ hǎo! Wǒ jiào Mǎkè. Nǐ yě shì Xiǎo Wáng de péngyou ma?", l1: "Hi! I'm Mark. Are you a friend of Xiao Wang's too?", alt: ["你好！我是马克。你也是小王的朋友吗？"]}
           - {who: B, l2: "对，我们是同事。你呢？", rom: "Duì, wǒmen shì tóngshì. Nǐ ne?", l1: "Yes, we're colleagues. And you?"}
           - {who: A, l2: "我们是大学同学。", rom: "Wǒmen shì dàxué tóngxué.", l1: "We were at university together.", alt: ["我是他的大学同学。", "我们是同学。"]}
           - {who: B, l2: "你是做什么工作的？", rom: "Nǐ shì zuò shénme gōngzuò de?", l1: "What do you do?"}
           - {who: A, l2: "我是老师，教英语。", rom: "Wǒ shì lǎoshī, jiāo Yīngyǔ.", l1: "I'm a teacher; I teach English.", alt: ["我是英语老师。", "我是老师。我教英语。"]}
           - {who: B, l2: "真的吗？我很想学英语！", rom: "Zhēn de ma? Wǒ hěn xiǎng xué Yīngyǔ!", l1: "Really? I'd love to learn English!"}
-          - {who: A, l2: "好啊，我教你英语，你教我汉语！", rom: "Hǎo a, wǒ jiāo nǐ Yīngyǔ, nǐ jiāo wǒ Hànyǔ!", l1: "Great, I'll teach you English and you teach me Chinese!", alt: ["好！我教你英语，你教我汉语吧！", "好啊！我教你英语，你教我汉语。"]}
+          - {who: A, l2: "好啊，我教你英语，你教我汉语！", rom: "Hǎo a, wǒ jiāo nǐ Yīngyǔ, nǐ jiāo wǒ Hànyǔ!", l1: "Great, I'll teach you English and you teach me Chinese!", alt: ["好！我教你英语，你教我汉语吧！"]}
           - {who: B, l2: "太好了！我们加个微信吧。", rom: "Tài hǎo le! Wǒmen jiā ge Wēixìn ba.", l1: "Great! Let's add each other on WeChat."}
           - {who: A, l2: "好，我扫你。", rom: "Hǎo, wǒ sǎo nǐ.", l1: "OK, I'll scan your code.", alt: ["好，我扫你吧。", "好的，我扫你。"]}
 
@@ -224,7 +224,7 @@ units:
           - {who: B, l2: "可以，请扫这儿。", rom: "Kěyǐ, qǐng sǎo zhèr.", l1: "Yes, please scan here."}
           - {who: A, l2: "这些菜可以帮我们打包吗？", rom: "Zhèxiē cài kěyǐ bāng wǒmen dǎbāo ma?", l1: "Could you box up these dishes for us?", alt: ["这些菜可以打包吗？", "可以帮我们打包吗？", "请帮我们打包，好吗？"]}
           - {who: B, l2: "没问题，请稍等。", rom: "Méi wèntí, qǐng shāo děng.", l1: "No problem, just a moment."}
-          - {who: A, l2: "谢谢！你们的菜很好吃。", rom: "Xièxie! Nǐmen de cài hěn hǎochī.", l1: "Thanks! Your food is delicious.", alt: ["谢谢，你们的菜很好吃！", "谢谢！菜很好吃。", "谢谢，菜非常好吃。"]}
+          - {who: A, l2: "谢谢！你们的菜很好吃。", rom: "Xièxie! Nǐmen de cài hěn hǎochī.", l1: "Thanks! Your food is delicious.", alt: ["谢谢！菜很好吃。", "谢谢，菜非常好吃。"]}
           - {who: B, l2: "谢谢，欢迎下次再来！", rom: "Xièxie, huānyíng xià cì zài lái!", l1: "Thank you, please come again!"}
 
       - id: zh-talk-02-milktea
@@ -326,7 +326,7 @@ units:
           - {who: B, l2: "不，鸡蛋在水果旁边。", rom: "Bù, jīdàn zài shuǐguǒ pángbiān.", l1: "No, the eggs are next to the fruit."}
           - {who: A, l2: "谢谢。我买这些。", rom: "Xièxie. Wǒ mǎi zhèxiē.", l1: "Thanks. I'll take these.", alt: ["谢谢，我要买这些。", "好，谢谢。我买这些。"]}
           - {who: B, l2: "好的。要袋子吗？", rom: "Hǎo de. Yào dàizi ma?", l1: "OK. Do you need a bag?"}
-          - {who: A, l2: "要一个。可以刷卡吗？", rom: "Yào yí ge. Kěyǐ shuā kǎ ma?", l1: "One, please. Can I pay by card?", alt: ["要一个，可以刷卡吗？", "要。可以刷卡吗？", "要一个。能刷卡吗？"]}
+          - {who: A, l2: "要一个。可以刷卡吗？", rom: "Yào yí ge. Kěyǐ shuā kǎ ma?", l1: "One, please. Can I pay by card?", alt: ["要。可以刷卡吗？", "要一个。能刷卡吗？"]}
           - {who: B, l2: "可以。一共五十六块三。", rom: "Kěyǐ. Yígòng wǔshíliù kuài sān.", l1: "Yes. That's fifty-six thirty altogether."}
 
       - id: zh-talk-03-return
@@ -634,7 +634,7 @@ units:
         you: B
         lines:
           - {who: A, l2: "这个周末你打算做什么？", rom: "Zhège zhōumò nǐ dǎsuan zuò shénme?", l1: "What are you planning to do this weekend?"}
-          - {who: B, l2: "我打算去爬山。你呢？", rom: "Wǒ dǎsuan qù páshān. Nǐ ne?", l1: "I'm planning to go hiking. And you?", alt: ["我想去爬山。你呢？", "我打算去爬山，你呢？"]}
+          - {who: B, l2: "我打算去爬山。你呢？", rom: "Wǒ dǎsuan qù páshān. Nǐ ne?", l1: "I'm planning to go hiking. And you?", alt: ["我想去爬山。你呢？"]}
           - {who: A, l2: "我还没想好。我可以跟你一起去吗？", rom: "Wǒ hái méi xiǎng hǎo. Wǒ kěyǐ gēn nǐ yìqǐ qù ma?", l1: "I haven't decided. Can I come with you?"}
           - {who: B, l2: "当然可以！我们星期六早上出发。", rom: "Dāngrán kěyǐ! Wǒmen xīngqīliù zǎoshang chūfā.", l1: "Of course! We're setting off on Saturday morning.", alt: ["当然可以！星期六早上出发。", "可以啊！我们星期六早上出发。"]}
           - {who: A, l2: "几点？在哪儿见面？", rom: "Jǐ diǎn? Zài nǎr jiànmiàn?", l1: "What time? Where shall we meet?"}
@@ -795,7 +795,7 @@ units:
           - {who: B, l2: "可以。请问您贵姓？", rom: "Kěyǐ. Qǐngwèn nín guì xìng?", l1: "Yes. May I have your surname?"}
           - {who: A, l2: "我姓白。", rom: "Wǒ xìng Bái.", l1: "My surname is Bai.", alt: ["免贵姓白。", "姓白。"]}
           - {who: B, l2: "好的，白先生，星期六晚上六点半，四位，给您订好了。", rom: "Hǎo de, Bái xiānsheng, xīngqīliù wǎnshang liù diǎn bàn, sì wèi, gěi nín dìng hǎo le.", l1: "Very good, Mr Bai: Saturday evening, half past six, four people. You're booked."}
-          - {who: A, l2: "谢谢！星期六见。", rom: "Xièxie! Xīngqīliù jiàn.", l1: "Thank you! See you on Saturday.", alt: ["谢谢，星期六见！", "好，谢谢！"]}
+          - {who: A, l2: "谢谢！星期六见。", rom: "Xièxie! Xīngqīliù jiàn.", l1: "Thank you! See you on Saturday.", alt: ["好，谢谢！"]}
 
       - id: zh-talk-07-badline
         type: dialogue
