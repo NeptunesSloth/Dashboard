@@ -73,18 +73,117 @@ def _day(st: dict, now: float) -> dict:
 # courses
 # ---------------------------------------------------------------------------
 def _enrolled(st: dict) -> list[str]:
+    migrate_tracks(st)
     all_packs = packs.load_all()
     return [c for c in st["settings"].get("courses", []) if c in all_packs]
 
 
+# ---------------------------------------------------------------------------
+# tracks: a language's levels (A1, A2, B1, B2) are one long course (packs.tracks()).
+# Enrolment stays per pack in the state, but a track is enrolled or not as a whole;
+# only its current stage introduces new items, under one daily allowance.
+# ---------------------------------------------------------------------------
+def migrate_tracks(st: dict) -> bool:
+    """Any stage of a track enrolled means the whole track: the missing stages are added, in
+    level order, where the first enrolled one stood. Old saves with french-a1 + french-b1
+    become the whole French track (new items are still gated by the current stage)."""
+    cur = st["settings"].get("courses", [])
+    out: list[str] = []
+    for c in cur:
+        t, role = packs.track_of(c)
+        for x in (t["stages"] if role == "stage" else [c]):
+            if x not in out:
+                out.append(x)
+    if out != cur:
+        st["settings"]["courses"] = out
+        return True
+    return False
+
+
+def track_for(course: str) -> dict | None:
+    """The track a course id names: a track id itself, or any of its stages (not an add-on)."""
+    t = packs.tracks().get(course) if isinstance(course, str) else None
+    if t:
+        return t
+    t, role = packs.track_of(course) if isinstance(course, str) else (None, "")
+    return t if role == "stage" else None
+
+
+def _unseen(st: dict, pack: dict) -> int:
+    cards = st["cards"]
+    return sum(1 for u in pack["units"] for it in u["items"] if not (cards.get(it["id"]) or {}).get("reps"))
+
+
+def _quota(st: dict, now: float, *keys: str) -> int:
+    """Today's new-item allowance for a course or track (the setting plus any 'learn more')."""
+    extra = st.get("extra_new", {}).get(day_of(st, now), {})
+    return int(st["settings"]["new_per_day"]) + sum(int(extra.get(k, 0)) for k in keys)
+
+
+def track_state(st: dict, t: dict, now: float) -> dict:
+    """{current: the lowest stage with items not yet introduced (None when all are),
+    new_left: {stage: new items it may introduce today}, unseen: {stage: n}}.
+
+    The allowance is the track's, not each stage's: it goes to the current stage first and
+    only spills into the next one when the current stage has nothing left to introduce."""
+    today = _day(st, now)
+    used = sum(int(today["new_by_course"].get(s, 0)) for s in t["stages"])
+    left = max(0, _quota(st, now, t["id"], *t["stages"]) - used)
+    unseen, new_left, current = {}, {}, None
+    for sid in t["stages"]:
+        pack = packs.get(sid)
+        unseen[sid] = _unseen(st, pack) if pack else 0
+        if current is None and unseen[sid] > 0:
+            current = sid
+        take = min(unseen[sid], left)
+        new_left[sid] = take
+        left -= take
+    return {"current": current, "new_left": new_left, "unseen": unseen}
+
+
+def _lines(ids: list[str]) -> list[list[str]]:
+    """Enrolled courses as learning lines: one per track (its stages, in order), one per other course."""
+    out: list[list[str]] = []
+    by_track: dict[str, list[str]] = {}
+    for cid in ids:
+        t, role = packs.track_of(cid)
+        if role == "stage":
+            if t["id"] not in by_track:
+                by_track[t["id"]] = []
+                out.append(by_track[t["id"]])
+            by_track[t["id"]].append(cid)
+        else:
+            out.append([cid])
+    for line in out:
+        order = {s: i for i, s in enumerate((track_for(line[0]) or {"stages": line})["stages"])}
+        line.sort(key=lambda s: order.get(s, 0))
+    return out
+
+
+def _course_ids(st: dict, course: str | None) -> list[str]:
+    """The enrolled pack ids a session for ``course`` draws on (a track or one of its stages: the whole track)."""
+    enrolled = _enrolled(st)
+    if not course:
+        return enrolled
+    t = track_for(course)
+    want = t["stages"] if t else [course]
+    return [c for c in enrolled if c in want]
+
+
 def enroll(course: str, on: bool = True) -> dict:
-    if not packs.get(course):
+    """Take up or set aside a course. A track id, or any stage of it, means the whole track
+    (setting a track aside also sets aside its add-ons); an add-on is taken up on its own."""
+    t = track_for(course)
+    if not t and not packs.get(course):
         return {"ok": False, "error": "unknown course"}
     with state.LOCK:
         st = state.get()
-        cur = [c for c in st["settings"].get("courses", []) if c != course]
+        migrate_tracks(st)
+        group = t["stages"] if t else [course]
+        drop = set(group) | (set(t["addons"]) if t and not on else set())
+        cur = [c for c in st["settings"].get("courses", []) if c not in drop]
         if on:
-            cur.append(course)
+            cur += group
         st["settings"]["courses"] = cur
         game.ensure(st, time.time())
         state.save()
@@ -156,10 +255,19 @@ def course_stats(st: dict, pack: dict, now: float) -> dict:
             current = u["id"]
         unlocked = unlocked and u_seen >= n     # next unit opens once this one is fully introduced
     today = _day(st, now)
-    quota = int(st["settings"]["new_per_day"]) + int(st.get("extra_new", {}).get(day_of(st, now), {}).get(pack["id"], 0))
-    new_left = max(0, min(total - seen, quota - int(today["new_by_course"].get(pack["id"], 0))))
+    track, role = packs.track_of(pack["id"])
+    current_stage = False
+    if role == "stage":
+        ts = track_state(st, track, now)
+        new_left = ts["new_left"].get(pack["id"], 0)
+        current_stage = ts["current"] == pack["id"]
+    else:
+        quota = _quota(st, now, pack["id"])
+        new_left = max(0, min(total - seen, quota - int(today["new_by_course"].get(pack["id"], 0))))
     return {
         "id": pack["id"], "title": pack["title"], "kind": pack["kind"], "blurb": pack.get("blurb", ""),
+        "track": track["id"] if track else "", "level": pack.get("level", "") if role == "stage" else "",
+        "addon": pack.get("addon", "") if role == "addon" else "", "current_stage": current_stage,
         "hall": pack.get("hall", ""), "lang": pack.get("lang", ""), "language": pack.get("language", ""),
         "exam": ({k: pack["exam"][k] for k in ("name", "code", "questions", "minutes", "pass_pct")}
                  if pack["kind"] == "cert" else None),
@@ -176,7 +284,41 @@ def courses(now: float | None = None) -> list[dict]:
     now = now or time.time()
     with state.LOCK:
         st = state.get()
+        migrate_tracks(st)
         return [course_stats(st, p, now) for p in packs.load_all().values()]
+
+
+def track_views(st: dict, by_id: dict[str, dict]) -> list[dict]:
+    """Each language track as the learner sees it: one course, its stages as a strip, its add-ons."""
+    out = []
+    placed = st.get("placements", {})
+    for t in packs.tracks().values():
+        stages = [by_id[s] for s in t["stages"] if s in by_id]
+        addons = [by_id[a] for a in t["addons"] if a in by_id]
+        if not stages:
+            continue
+        cur = next((c for c in stages if c["current_stage"]), None)
+        seen = sum(c["seen"] for c in stages)
+        weight = sum(c["strength"] * c["seen"] for c in stages)
+        pl = placed.get(t["id"]) or next((placed[s] for s in t["stages"] if s in placed), None)
+        out.append({
+            "id": t["id"], "language": t["language"], "lang": t["lang"],
+            "enrolled": any(c["enrolled"] for c in stages),
+            "current": cur["id"] if cur else None, "level": cur["level"] if cur else stages[-1]["level"],
+            "span": f"{stages[0]['level']} → {stages[-1]['level']}" if len(stages) > 1 else stages[0]["level"],
+            "total": sum(c["total"] for c in stages), "seen": seen,
+            "mastered": sum(c["mastered"] for c in stages), "due": sum(c["due"] for c in stages),
+            "new_left": sum(c["new_left"] for c in stages), "strength": round(weight / seen) if seen else 0,
+            "units": sum(len(c["units"]) for c in stages),
+            "stages": [{"id": c["id"], "level": c["level"], "title": c["title"], "total": c["total"], "seen": c["seen"],
+                        "mastered": c["mastered"], "due": c["due"], "units": len(c["units"]), "current": c["current_stage"],
+                        "pct": round(100 * c["seen"] / c["total"]) if c["total"] else 0} for c in stages],
+            "addons": [{"id": c["id"], "addon": c["addon"], "title": c["title"], "enrolled": c["enrolled"],
+                        "total": c["total"], "seen": c["seen"], "due": c["due"], "new_left": c["new_left"],
+                        "units": len(c["units"]), "soon": len(c["soon"])} for c in addons],
+            "placement": dict(pl) if pl else None,
+        })
+    return out
 
 
 def unit_detail(course: str, unit_id: str, now: float | None = None) -> dict:
@@ -903,8 +1045,7 @@ def build_special(kind: str, course: str | None = None, now: float | None = None
     index = packs.item_index()
     with state.LOCK:
         st = state.get()
-        enrolled = _enrolled(st)
-        ids = [c for c in ([course] if course else enrolled) if c in enrolled]
+        ids = _course_ids(st, course)
         seed = int(now // 60)
         rng = random.Random(seed)
         picked: list[tuple[dict, str]] = []
@@ -956,8 +1097,7 @@ def build_session(course: str | None = None, size: int | None = None, now: float
     now = now or time.time()
     with state.LOCK:
         st = state.get()
-        enrolled = _enrolled(st)
-        ids = [c for c in ([course] if course else enrolled) if c in enrolled]
+        ids = _course_ids(st, course)
         if not ids:
             return {"ok": False, "error": "no course", "exercises": []}
         size = int(min(max(int(size or st["settings"]["session_size"]), 5), 60))
@@ -975,21 +1115,40 @@ def build_session(course: str | None = None, size: int | None = None, now: float
         random.Random(seed).shuffle(exercises)          # interleave courses and units
         new_exs: list[tuple[dict, dict]] = []
         unit_notes: list[dict] = []
-        per_course = max(1, new_budget // len(ids)) if new_budget else 0
-        for cid in ids:
+        lines = _lines(ids)
+        per_line = max(1, new_budget // len(lines)) if new_budget else 0
+        fresh: list[tuple[str, dict]] = []
+        for line in lines:
+            t = track_for(line[0])
+            if t:
+                # A track: only its current stage introduces; when that stage runs out of new
+                # items here, the next stage begins in the same session if there is room.
+                room_left, ts = per_line, track_state(st, t, now)
+                for cid in line:
+                    take = min(room_left, ts["new_left"].get(cid, 0))
+                    if take <= 0:
+                        continue
+                    got = _new_items(st, packs.get(cid), take)
+                    fresh += [(cid, it) for it in got]
+                    room_left -= len(got)
+                    if len(got) < ts["unseen"][cid] or room_left <= 0:
+                        break                  # this stage still has items to introduce: stay in it
+            else:
+                pack = packs.get(line[0])
+                stats = course_stats(st, pack, now)
+                fresh += [(line[0], it) for it in _new_items(st, pack, min(per_line, stats["new_left"]))]
+        for cid, it in fresh:
             pack = packs.get(cid)
-            stats = course_stats(st, pack, now)
-            for it in _new_items(st, pack, min(per_course, stats["new_left"])):
-                if it["type"] not in ("mcq", "multi", "order", "dialogue"):
-                    new_exs.append((build_exercise(it, "intro", pack, seed),
-                                    build_exercise(it, _mode_for(it, None, pack), pack, seed)))
-                else:
-                    new_exs.append((None, build_exercise(it, _mode_for(it, None, pack), pack, seed)))
-                unit = next(u for u in pack["units"] if u["id"] == it["unit"])
-                first_time = not any((st["cards"].get(x["id"]) or {}).get("reps") for x in unit["items"])
-                if first_time and not any(n["unit"] == unit["id"] for n in unit_notes):
-                    unit_notes.append({"unit": unit["id"], "course": cid, "title": unit["title"],
-                                       "goal": unit.get("goal", ""), "notes": unit.get("notes", "")})
+            if it["type"] not in ("mcq", "multi", "order", "dialogue"):
+                new_exs.append((build_exercise(it, "intro", pack, seed),
+                                build_exercise(it, _mode_for(it, None, pack), pack, seed)))
+            else:
+                new_exs.append((None, build_exercise(it, _mode_for(it, None, pack), pack, seed)))
+            unit = next(u for u in pack["units"] if u["id"] == it["unit"])
+            first_time = not any((st["cards"].get(x["id"]) or {}).get("reps") for x in unit["items"])
+            if first_time and not any(n["unit"] == unit["id"] for n in unit_notes):
+                unit_notes.append({"unit": unit["id"], "course": cid, "title": unit["title"],
+                                   "goal": unit.get("goal", ""), "notes": unit.get("notes", "")})
         # Weave new items in: a couple of warm-up reviews, then introduce in small
         # batches of 3 (meet three, then get tested on those three, shuffled).
         woven = exercises[:2]
@@ -1021,8 +1180,7 @@ def build_practice(course: str | None = None, now: float | None = None) -> dict:
     now = now or time.time()
     with state.LOCK:
         st = state.get()
-        enrolled = _enrolled(st)
-        ids = [c for c in ([course] if course else enrolled) if c in enrolled]
+        ids = _course_ids(st, course)
         index = packs.item_index()
         known = []
         for iid, c in st["cards"].items():
@@ -1158,10 +1316,13 @@ def finish_session(answers: int = 0, correct: int = 0, secs: int = 0, practice: 
 
 
 def learn_more(course: str, n: int = 5, now: float | None = None) -> dict:
-    """Grant extra new items today for one course (the learner's explicit choice)."""
+    """Grant extra new items today for one course or track (the learner's explicit choice).
+    For a track (or any stage of it) the extra goes to the track's one allowance."""
     now = now or time.time()
-    if not packs.get(course):
+    t = track_for(course)
+    if not t and not packs.get(course):
         return {"ok": False, "error": "unknown course"}
+    course = t["id"] if t else course
     with state.LOCK:
         st = state.get()
         day = day_of(st, now)
@@ -1384,12 +1545,14 @@ def submit_trial(trial_id: str, answers: list, now: float | None = None) -> dict
 # placement: find the learner's level when they start a course, then skip ahead
 # ---------------------------------------------------------------------------
 PLACEMENT_PER_UNIT = {"language": 3, "cert": 2}
-PLACEMENT_MAX_QUESTIONS = 60
+PLACEMENT_MAX_QUESTIONS = 60          # per course, and per stage of a track
+PLACEMENT_TRACK_MAX = 150             # over a whole track (it walks on into the next stage)
 
 
-def _placement_block(st: dict, pl: dict, pack: dict) -> list[dict]:
+def _placement_block(st: dict, pl: dict) -> list[dict]:
     """The next unit's questions: the hardest format for each sampled item."""
-    unit = pack["units"][pl["unit"]]
+    pack = packs.get(pl["stages"][pl["si"]])
+    unit = pack["units"][pl["su"]]
     rng = random.Random(f"{pl['seed']}:{unit['id']}")
     if pack["kind"] == "language":
         pool = list(unit["items"])
@@ -1410,26 +1573,45 @@ def _placement_block(st: dict, pl: dict, pack: dict) -> list[dict]:
     return block
 
 
+def _placement_where(pl: dict) -> dict:
+    """Where the test is: the unit counter over the whole walk, and the stage's level."""
+    pack = packs.get(pl["stages"][pl["si"]])
+    return {"unit": pl["unit"], "units": sum(len(packs.get(c)["units"]) for c in pl["stages"]),
+            "unit_title": pack["units"][pl["su"]]["title"], "stage": pack["id"],
+            "level": pack.get("level", "") if track_for(pack["id"]) else ""}
+
+
 def placement_start(course: str, now: float | None = None) -> dict:
+    """One placement test per course; for a track (a track id or any of its stages) one test for the
+    whole track: it starts at the current stage and walks on into the next stage only when every
+    unit of the stage before was tested out of."""
     now = now or time.time()
-    pack = packs.get(course)
-    if not pack:
+    t = track_for(course)
+    pack = packs.get(course) if not t else None
+    if not t and not pack:
         return {"ok": False, "error": "unknown course"}
-    if not pack["units"]:
-        return {"ok": False, "error": "This course has nothing to test yet."}     # only pictures still to be painted
     with state.LOCK:
         st = state.get()
+        if t:
+            walk = [c for c in t["stages"] if (packs.get(c) or {}).get("units")]
+            cur = track_state(st, t, now)["current"]
+            stages = walk[walk.index(cur):] if cur in walk else walk
+            key = t["id"]
+        else:
+            stages, key = ([course] if pack["units"] else []), course
+        if not stages:
+            return {"ok": False, "error": "This course has nothing to test yet."}     # only pictures still to be painted
         opens = st.setdefault("open_placements", {})
         for old in sorted(opens, key=lambda k: opens[k]["started"])[:-2]:
             opens.pop(old, None)
         pid = uuid.uuid4().hex[:12]
-        pl = {"course": course, "started": now, "seed": random.randrange(1 << 30), "unit": 0,
-              "fails": 0, "passed": [], "asked": 0, "right": 0}
+        pl = {"course": key, "stages": stages, "si": 0, "su": 0, "started": now, "seed": random.randrange(1 << 30),
+              "unit": 0, "fails": 0, "passed": [], "asked": 0, "right": 0, "stage_asked": 0, "stage_passed": 0}
         opens[pid] = pl
-        block = _placement_block(st, pl, pack)
+        block = _placement_block(st, pl)
         state.save()
-        return {"ok": True, "placement": pid, "units": len(pack["units"]), "unit": 0,
-                "unit_title": pack["units"][0]["title"], "questions": block, "kind": pack["kind"]}
+        return {"ok": True, "placement": pid, **_placement_where(pl), "questions": block,
+                "kind": packs.get(stages[0])["kind"], "course": key}
 
 
 def _mark_known(st: dict, pack: dict, unit: dict, proven: set[str], now: float) -> int:
@@ -1452,24 +1634,33 @@ def _mark_known(st: dict, pack: dict, unit: dict, proven: set[str], now: float) 
 def placement_answer(placement_id: str, answers: list, now: float | None = None, unit: int = -1) -> dict:
     """Grade the current block, then hand back the next one or the result.
 
-    Languages stop after two units in a row are failed (the level is found);
-    certifications sample every unit, since their units are not a ladder."""
+    Languages stop after two units in a row are failed (the level is found); in a track, a
+    stage tested out of from first unit to last leads on into the next stage (with the same
+    rules and its own question cap). Certifications sample every unit, since their units are
+    not a ladder."""
     now = now or time.time()
     index = packs.item_index()
     with state.LOCK:
         st = state.get()
         pl = st.get("open_placements", {}).get(placement_id)
-        if not pl:
+        if not pl or not pl.get("stages"):
             return {"ok": False, "error": "This placement test has expired. Start it again."}
-        if unit >= 0 and unit != pl["unit"]:
+        if not isinstance(unit, int) or (unit >= 0 and unit != pl["unit"]):
             return {"ok": False, "error": "That block was already answered."}     # a double tap
-        pack = packs.get(pl["course"])
-        unit = pack["units"][pl["unit"]]
+        pack = packs.get(pl["stages"][pl["si"]])
+        if not pack or pl["su"] >= len(pack["units"]):
+            st["open_placements"].pop(placement_id, None)
+            return {"ok": False, "error": "This placement test has expired. Start it again."}   # the course changed under it
+        cur_unit = pack["units"][pl["su"]]
+        answers = answers if isinstance(answers, list) else []
         right = 0
         proven: set[str] = set()
         feedback = []
         for i, (iid, mode) in enumerate(pl.get("block", [])):
             it = index.get(iid)
+            if not it:
+                feedback.append({"correct": False, "expected": ""})
+                continue
             raw = answers[i] if i < len(answers) else None
             given = ([str(a) for a in raw] if isinstance(raw, (list, tuple)) else "") if mode in LIST_MODES \
                 else (str(raw) if isinstance(raw, str) else "")
@@ -1481,29 +1672,46 @@ def placement_answer(placement_id: str, answers: list, now: float | None = None,
             feedback.append({"correct": ok, "expected": res["expected"]})
         n = len(pl.get("block", []))
         pl["asked"] += n
+        pl["stage_asked"] += n
         pl["right"] += right
-        passed = n > 0 and right >= (2 if pack["kind"] == "language" else n)
+        lang = pack["kind"] == "language"
+        passed = n > 0 and right >= (2 if lang else n)
         placed = 0
         if passed:
-            pl["passed"].append(unit["id"])
+            pl["passed"].append(cur_unit["id"])
+            pl["stage_passed"] += 1
             pl["fails"] = 0
-            placed = _mark_known(st, pack, unit, proven, now)
+            placed = _mark_known(st, pack, cur_unit, proven, now)
         else:
             pl["fails"] += 1
         pl["placed"] = pl.get("placed", 0) + placed
         pl["unit"] += 1
-        stop = pl["unit"] >= len(pack["units"]) or pl["asked"] >= PLACEMENT_MAX_QUESTIONS \
-            or (pack["kind"] == "language" and pl["fails"] >= 2)
+        pl["su"] += 1
+        if pl["su"] >= len(pack["units"]):
+            # the end of a stage: on into the next one only if every unit of this one was known
+            stop = not (pl["stage_passed"] == len(pack["units"]) and pl["si"] + 1 < len(pl["stages"]))
+            if not stop:
+                pl.update(si=pl["si"] + 1, su=0, stage_asked=0, stage_passed=0, fails=0)
+        else:
+            stop = pl["stage_asked"] >= PLACEMENT_MAX_QUESTIONS or (lang and pl["fails"] >= 2)
+        stop = stop or pl["asked"] >= PLACEMENT_TRACK_MAX
         if not stop:
-            block = _placement_block(st, pl, pack)
+            block = _placement_block(st, pl)
             state.save()
-            return {"ok": True, "done": False, "feedback": feedback, "unit": pl["unit"], "units": len(pack["units"]),
-                    "unit_title": pack["units"][pl["unit"]]["title"], "questions": block, "passed_unit": passed}
+            return {"ok": True, "done": False, "feedback": feedback, **_placement_where(pl),
+                    "questions": block, "passed_unit": passed}
         st["open_placements"].pop(placement_id, None)
-        stats = course_stats(st, pack, now)
-        start = next((u["title"] for u in stats["units"] if not u["done"]), None)
-        summary = {"ts": now, "passed_units": len(pl["passed"]), "units": len(pack["units"]), "placed": pl["placed"],
-                   "asked": pl["asked"], "right": pl["right"]}
+        start, level, stage = None, "", ""
+        for cid in pl["stages"]:
+            c = packs.get(cid)
+            stats = course_stats(st, c, now)
+            start = next((u["title"] for u in stats["units"] if not u["done"]), None)
+            if start:
+                level, stage = c.get("level", "") if track_for(cid) else "", cid
+                break
+        summary = {"ts": now, "passed_units": len(pl["passed"]),
+                   "units": sum(len(packs.get(c)["units"]) for c in pl["stages"]), "placed": pl["placed"],
+                   "asked": pl["asked"], "right": pl["right"], "level": level, "stage": stage}
         st.setdefault("placements", {})[pl["course"]] = summary
         state.save()
         return {"ok": True, "done": True, "feedback": feedback, "passed_unit": passed, **summary,
@@ -1517,6 +1725,7 @@ def overview(now: float | None = None) -> dict:
     now = now or time.time()
     with state.LOCK:
         st = state.get()
+        migrate_tracks(st)
         all_courses = [course_stats(st, p, now) for p in packs.load_all().values()]
         mine = [c for c in all_courses if c["enrolled"]]
         events = game.ensure(st, now, _quest_ctx(st, mine, now) if mine else None)
@@ -1527,6 +1736,7 @@ def overview(now: float | None = None) -> dict:
             "events": events,
             "problem": state.take_error(),
             "courses": all_courses,
+            "tracks": track_views(st, {c["id"]: c for c in all_courses}),
             "today": {"due": sum(c["due"] for c in mine), "new_left": sum(c["new_left"] for c in mine),
                       "answers": d["answers"], "correct": d["correct"], "sessions": d["sessions"],
                       "new": d["new"], "reviews": d["reviews"], "day": day_of(st, now)},
