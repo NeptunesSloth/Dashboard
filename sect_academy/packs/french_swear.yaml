@@ -1,0 +1,184 @@
+id: french-swear
+title: "French — Swearing & slang"
+kind: language
+language: French
+lang: fr-FR
+track: french
+addon: swear
+hall: tongues_west
+blurb: "Opt-in, for understanding: the swearing, insults and rude slang you hear in films, on the street and in games, with how strong each word is, and where France and Quebec part ways."
+
+# An opt-in add-on: the aim is to understand real speech and judge how strong a word is,
+# not to encourage anyone to use it. Every note gives: literal meaning, real meaning,
+# strength (mild / strong / very strong) and who says it where.
+# Excluded on purpose: slurs aimed at race, ethnicity, religion, disability, sexuality or
+# gender identity (e.g. no pédé, no gogol).
+
+units:
+  # ---------------------------------------------------------------- 1
+  - id: fr-sw-01
+    title: "Mild: the stubbed-toe words"
+    goal: "I can recognise the mild exclamations that anyone can say, in France and in Quebec."
+    notes: |
+      Many mild French exclamations are **disguised** strong ones: you start the bad word and swerve.
+
+      - **Mince !** and **Mercredi !** start like *merde*.
+      - **Punaise !** and **Purée !** start like *putain*.
+      - **Zut !** and **Flûte !** are old, harmless and a little childish.
+      - In **Quebec** the swearwords are church words (unit 2), and so are the softened ones: **Tabarouette !** (from *tabarnak*), **Câline !** (from *câlice*).
+
+      The strength scale used in this course is **mild** (fine almost anywhere), **strong** (crude: friends yes, work and elders no) and **very strong** (insulting or fighting words).
+    items:
+      - {id: fr-sw-01-zut, type: vocab, l2: "Zut !", l1: "Darn! (harmless, a bit old-fashioned)",
+         note: "Literal: no meaning of its own. Real meaning: mild annoyance. Strength: mild; children and grandparents say it. Heard: everywhere French is spoken."}
+      - {id: fr-sw-01-mince, type: vocab, l2: "Mince !", l1: "Shoot! / Darn! (the softened 'merde')", alt: ["Mince alors !"],
+         ex: "Mince, j'ai oublié mon parapluie !", ex_l1: "Shoot, I've forgotten my umbrella!",
+         note: "Literal: 'thin', chosen because it starts like merde. Real meaning: annoyance or surprise. Strength: mild, fine anywhere. Heard: France, Belgium, Switzerland; less in Quebec."}
+      - {id: fr-sw-01-punaise, type: vocab, l2: "Punaise !", l1: "Blimey! / Darn! (literally 'drawing pin'; the softened 'putain')",
+         note: "Literal: 'drawing pin' or 'bedbug'. Real meaning: surprise or annoyance, a polite putain. Strength: mild. Heard: France."}
+      - {id: fr-sw-01-puree, type: vocab, l2: "Purée !", l1: "Blast! (literally 'mash'; another softened 'putain')",
+         note: "Literal: 'mash, purée'. Real meaning: annoyance or surprise. Strength: mild and jokey. Heard: France, especially the south."}
+      - {id: fr-sw-01-flute, type: vocab, l2: "Flûte !", l1: "Drat! (literally 'flute'; old-fashioned)",
+         note: "Literal: 'flute'. Real meaning: mild annoyance. Strength: mild, rather old-fashioned or childish. Heard: France."}
+      - {id: fr-sw-01-mercredi, type: vocab, l2: "Mercredi !", l1: "Sugar! (jokey, literally 'Wednesday')",
+         note: "Literal: 'Wednesday', chosen because it starts like merde. Real meaning: merde, said as a joke. Strength: mild. Heard: France."}
+      - {id: fr-sw-01-la-vache, type: phrase, l2: "La vache !", l1: "Wow! / Holy cow! (literally 'the cow')",
+         ex: "La vache, c'est cher !", ex_l1: "Wow, that's expensive!",
+         note: "Literal: 'the cow'. Real meaning: surprise, often admiring. Strength: mild, informal. Heard: France."}
+      - {id: fr-sw-01-bon-sang, type: phrase, l2: "Bon sang !", l1: "Good grief! / For heaven's sake! (literally 'good blood')",
+         note: "Literal: 'good blood', a softening of bon Dieu. Real meaning: exasperation or surprise. Strength: mild. Heard: France and elsewhere; also in dubbed films for 'goddammit'."}
+      - {id: fr-sw-01-tabarouette, type: vocab, l2: "Tabarouette !", l1: "Gosh! / Wow! (Quebec, the softened 'tabarnak')",
+         note: "Literal: nothing, a disguised tabarnak. Real meaning: surprise. Strength: mild, fine with family. Heard: Quebec; unknown or comic in France."}
+      - {id: fr-sw-01-caline, type: vocab, l2: "Câline !", l1: "Darn! (Quebec, the softened 'câlice')", alt: ["Câline de bine !"],
+         note: "Literal: 'cuddly (girl)', chosen because it starts like câlice. Real meaning: annoyance. Strength: mild. Heard: Quebec."}
+
+  # ---------------------------------------------------------------- 2
+  - id: fr-sw-02
+    title: "Strong: the real swearwords, France and Quebec"
+    goal: "I can recognise the strong swearwords of France and of Quebec and know that they are different sets."
+    notes: |
+      **France** swears with sex and the toilet: **putain**, **merde**, **bordel**, **fait chier**. *Putain* is so common that in the south it is almost punctuation, but it is still **strong**: not at work or with your teacher.
+
+      **Quebec** swears with the **church** (*les sacres*): **tabarnak** (tabernacle), **câlice** (chalice), **ostie** (the host), **crisse** (Christ). They are the strongest words in Quebec, and they mostly make people in France smile. Quebec speakers understand and use *merde* (*marde*) too.
+
+      Spelling of the sacres varies (*tabarnak*, *tabarnac*, *câlisse*, *calice*, *hostie*); the pronunciation is what counts.
+    items:
+      - {id: fr-sw-02-merde, type: vocab, l2: "Merde !", l1: "Shit! (France and everywhere)",
+         note: "Literal: 'shit'. Real meaning: anger or frustration; also said to wish an actor luck before a show. Strength: strong, but heard every day. Heard: France, Belgium, Switzerland, Africa; Quebec often says marde."}
+      - {id: fr-sw-02-putain, type: vocab, l2: "Putain !", l1: "Fuck! / Bloody hell! (France; literally 'whore')", alt: ["Putain de merde !"],
+         ex: "Putain, j'ai raté le train !", ex_l1: "Fuck, I've missed the train!",
+         note: "Literal: 'whore'. Real meaning: the all-purpose exclamation: anger, surprise, even delight. Strength: strong; putain de merde ! is stronger still. Heard: France constantly, especially the south; much less in Quebec."}
+      - {id: fr-sw-02-bordel, type: vocab, l2: "Bordel !", l1: "Damn it! / What a mess! (literally 'brothel')",
+         note: "Literal: 'brothel'. Real meaning: frustration; c'est le bordel = it's chaos. Strength: strong but milder than putain. Heard: France. Bordel de merde ! is stronger."}
+      - {id: fr-sw-02-fait-chier, type: phrase, l2: "Ça me fait chier.", l1: "It pisses me off. / It's a pain in the arse.", alt: ["Ça fait chier.", "Fait chier !"],
+         note: "Literal: 'it makes me shit'. Real meaning: it annoys me, it's a nuisance. Strength: strong. Heard: France; the short Fait chier ! is a common grumble."}
+      - {id: fr-sw-02-nom-de-dieu, type: phrase, l2: "Nom de Dieu !", l1: "Goddammit! (literally 'name of God')",
+         note: "Literal: 'name of God'. Real meaning: anger or shock. Strength: strong, and blasphemous to believers; sounds a little old-fashioned. Heard: France."}
+      - {id: fr-sw-02-tabarnak, type: vocab, l2: "Tabarnak !", l1: "Fuck! (Quebec; literally 'tabernacle')", alt: ["Tabarnac !"],
+         note: "Literal: 'tabernacle' (the box for the host in church). Real meaning: anger, shock, or as an intensifier. Strength: very strong in Quebec, one of the heaviest words there. Heard: Quebec; in France it is known mostly as a Quebec joke."}
+      - {id: fr-sw-02-calisse, type: vocab, l2: "Câlisse !", l1: "Damn it! / Fuck! (Quebec; literally 'chalice')", alt: ["Câlice !", "Calice !", "Calisse !"],
+         note: "Literal: 'chalice' (the communion cup). Real meaning: anger; câlisse-moi la paix = fuck off and leave me alone. Strength: very strong. Heard: Quebec."}
+      - {id: fr-sw-02-ostie, type: vocab, l2: "Ostie !", l1: "Damn! / Fucking…! (Quebec; literally 'the host')", alt: ["Hostie !", "Estie !"],
+         note: "Literal: 'host' (the communion wafer). Real meaning: anger, or before a noun as 'fucking': un ostie de menteur = a fucking liar. Strength: strong to very strong. Heard: Quebec; often shortened to estie or 'stie."}
+      - {id: fr-sw-02-crisse, type: vocab, l2: "Crisse !", l1: "Christ! / Damn! (Quebec)", alt: ["Christ !"],
+         note: "Literal: 'Christ'. Real meaning: anger; crisser = to throw or to do roughly, crisse ton camp ! = get lost! Strength: strong, a bit lighter than tabarnak. Heard: Quebec."}
+
+  # ---------------------------------------------------------------- 3
+  - id: fr-sw-03
+    title: "Insults: from 'silly' to fighting words"
+    goal: "I can understand what someone is being called, and how bad it is."
+    notes: |
+      The workhorse is **con**: *c'est con* only means "that's stupid" (or "that's a shame"), but **connard** is a real insult.
+
+      From weakest to strongest, roughly: *crétin*, *imbécile*, *abruti* → *con*, *salaud*, *enfoiré* → *connard*, *trou du cul* → *enculé*, *fils de pute* (very strong).
+
+      Tone matters: friends say *salut, mon con* or *vieil enfoiré* with a grin. From a stranger, the same words are an attack.
+    items:
+      - {id: fr-sw-03-con, type: vocab, l2: "con", l1: "idiot / jerk; (of a thing) stupid", alt: ["conne"],
+         ex: "C'est con, j'ai oublié.", ex_l1: "That's stupid of me, I forgot.",
+         note: "Literal: a crude old word for the vulva. Real meaning: idiot (feminine conne); c'est con = that's dumb, or that's a shame. Strength: strong at a person, mild in c'est con. Heard: France; also Quebec."}
+      - {id: fr-sw-03-connard, type: vocab, l2: "connard", l1: "arsehole / prick", alt: ["connasse"],
+         note: "Literal: from con. Real meaning: a nasty or stupid person; the feminine connasse is harsher still. Strength: strong. Heard: France, very common (drivers, films)."}
+      - {id: fr-sw-03-salaud, type: vocab, l2: "salaud", l1: "bastard (a nasty man; literally 'dirty one')",
+         note: "Literal: from sale, 'dirty'. Real meaning: a man who behaves badly, a bastard. Strength: strong; among friends petit salaud ! can be teasing. Heard: France."}
+      - {id: fr-sw-03-enfoire, type: vocab, l2: "enfoiré", l1: "bastard / scumbag (from 'foire', the runs)",
+         note: "Literal: from foire, 'diarrhoea', roughly 'one smeared with it'. Real meaning: bastard, jerk. Strength: strong, but often affectionate between friends (vieil enfoiré !). Heard: France."}
+      - {id: fr-sw-03-encule, type: vocab, l2: "enculé", l1: "motherfucker / fucker (literally 'buggered')",
+         note: "Literal: 'one who has been sodomised'. Real meaning: the heaviest everyday French insult, for anyone who has wronged you; heard in films and at football grounds. Strength: very strong. Heard: France. Some people object to it because of its origin."}
+      - {id: fr-sw-03-fils-de-pute, type: vocab, l2: "fils de pute", l1: "son of a bitch (literally 'son of a whore')",
+         note: "Literal: 'son of a whore'. Real meaning: bastard. Strength: very strong. Heard: France and elsewhere; often shortened to fdp in writing online."}
+      - {id: fr-sw-03-trou-du-cul, type: vocab, l2: "trou du cul", l1: "arsehole (literally 'hole of the arse')", alt: ["trouduc"],
+         note: "Literal: 'arsehole' (the body part). Real meaning: an obnoxious person. Strength: strong. Heard: France; also Quebec."}
+      - {id: fr-sw-03-abruti, type: vocab, l2: "abruti", l1: "moron / dimwit (literally 'made like a brute')",
+         note: "Literal: 'stupefied, made like a beast'. Real meaning: idiot. Strength: mild to strong; not vulgar. Heard: France."}
+      - {id: fr-sw-03-cretin, type: vocab, l2: "crétin", l1: "cretin / twit", alt: ["imbécile"],
+         note: "Literal: an old medical word. Real meaning: idiot. Strength: mild; not vulgar, can be said on TV. Heard: France. Imbécile is the same strength."}
+      - {id: fr-sw-03-niaiseux, type: vocab, l2: "niaiseux", l1: "dumb / silly (Quebec)", alt: ["niaiseuse"],
+         note: "Literal: from niais, 'simple, naive'. Real meaning: silly, dumb; arrête de niaiser = stop fooling around. Strength: mild. Heard: Quebec; France says niais or idiot."}
+
+  # ---------------------------------------------------------------- 4
+  - id: fr-sw-04
+    title: "Rude but everyday: slang you hear all day"
+    goal: "I can follow the crude everyday slang of friends talking."
+    notes: |
+      **Foutre** (an old word for 'to fuck', now 'to do, to put') and **chier** ('to shit') are everywhere in casual French:
+
+      - *J'en ai rien à foutre* = I don't give a damn; *Tu te fous de moi ?* = are you kidding me?
+      - *C'est foutu* = it's had it; *chiant* = annoying; *se faire chier* = to be bored stiff.
+
+      These are **strong** but so common that they sound casual rather than angry. Quebec adds the church words as intensifiers: *fatigué en tabarnak* = fucking tired.
+    items:
+      - {id: fr-sw-04-rien-a-foutre, type: phrase, l2: "J'en ai rien à foutre.", l1: "I don't give a damn. / I couldn't give a toss.", alt: ["Je m'en fous.", "Je n'en ai rien à foutre."],
+         note: "Literal: 'I have nothing to fuck about it' (foutre: old 'to fuck'). Real meaning: I don't care. Strength: strong; Je m'en fous is milder and very common. Heard: France."}
+      - {id: fr-sw-04-te-fous-de-moi, type: phrase, l2: "Tu te fous de moi ?", l1: "Are you kidding me? / Are you taking the piss?", alt: ["Tu te fous de ma gueule ?"],
+         note: "Literal: 'are you fucking about with me?'. Real meaning: are you making fun of me / are you serious? Strength: strong; ...de ma gueule is stronger. Heard: France."}
+      - {id: fr-sw-04-foutu, type: phrase, l2: "C'est foutu.", l1: "It's had it. / We're screwed.",
+         note: "Literal: 'it's fucked' (from foutre). Real meaning: it's ruined, there is no hope. Strength: mild to strong; very common. Heard: France."}
+      - {id: fr-sw-04-chiant, type: vocab, l2: "chiant", l1: "annoying / a pain (from 'chier', to shit)", alt: ["chiante"],
+         ex: "Ce film est chiant.", ex_l1: "This film is a drag.",
+         note: "Literal: 'shitting'. Real meaning: annoying or boring. Strength: strong in form but everyday among friends. Heard: France."}
+      - {id: fr-sw-04-se-faire-chier, type: phrase, l2: "On se fait chier.", l1: "We're bored stiff. (crude)", alt: ["Je me fais chier."],
+         note: "Literal: 'we make ourselves shit'. Real meaning: we're terribly bored. Strength: strong. Heard: France. Milder: On s'ennuie."}
+      - {id: fr-sw-04-de-la-merde, type: phrase, l2: "C'est de la merde.", l1: "It's crap. / It's shit.",
+         note: "Literal: 'it's (some) shit'. Real meaning: it's worthless, badly made. Strength: strong. Heard: everywhere; Quebec also C'est de la marde."}
+      - {id: fr-sw-04-putain-de, type: phrase, l2: "ce putain de téléphone", l1: "this fucking phone", alt: ["ce putain de portable"],
+         note: "Literal: 'this whore of a phone'. Real meaning: putain de + noun is 'fucking + noun'. Strength: strong. Heard: France. Quebec says ce tabarnak de… or cet ostie de…."}
+      - {id: fr-sw-04-couilles, type: vocab, l2: "les couilles", l1: "balls (testicles, crude)",
+         note: "Literal: 'balls'. Real meaning: also courage (avoir des couilles), and il y a une couille = there's a snag. Strength: strong. Heard: France."}
+      - {id: fr-sw-04-bourre, type: vocab, l2: "bourré", l1: "drunk / hammered (literally 'stuffed')", alt: ["bourrée"],
+         note: "Literal: 'stuffed, crammed'. Real meaning: drunk. Strength: mild, just informal. Heard: France; Quebec says paqueté or chaud."}
+      - {id: fr-sw-04-degueulasse, type: vocab, l2: "dégueulasse", l1: "disgusting / gross (also of behaviour)", alt: ["dégueu"],
+         note: "Literal: from dégueuler, 'to puke'. Real meaning: disgusting; c'est dégueulasse = that's a dirty trick. Strength: mild to strong, informal. Heard: France; the short dégueu is everywhere."}
+      - {id: fr-sw-04-en-tabarnak, type: phrase, l2: "en tabarnak", l1: "fucking (Quebec, after an adjective: 'fucking cold')", alt: ["en câlisse", "en ostie"],
+         ex: "Il fait frette en tabarnak !", ex_l1: "It's fucking cold!",
+         note: "Literal: 'in tabernacle'. Real meaning: an intensifier after an adjective; être en tabarnak = to be furious. Strength: very strong. Heard: Quebec."}
+
+  # ---------------------------------------------------------------- 5
+  - id: fr-sw-05
+    title: "How strong is it? Shut up, get lost, and fighting words"
+    goal: "I can tell a rude-but-ordinary 'shut up' from fighting words."
+    notes: |
+      A ladder of telling someone to stop or go away:
+
+      - **mild**: *Tais-toi !*, *Ça va pas la tête ?* (are you mad?)
+      - **strong**: *Ferme-la !*, *Ta gueule !*, *Casse-toi !*, *Va chier !*
+      - **very strong**: *Va te faire foutre !*, and anything with *ta mère*: *Nique ta mère !* is fighting words.
+
+      *Ta gueule* is the most common strong one: *gueule* is an animal's mouth, a snout. Between close friends it can be half a joke; to anyone else it is an insult.
+    items:
+      - {id: fr-sw-05-ta-gueule, type: phrase, l2: "Ta gueule !", l1: "Shut up! / Shut your face! (literally 'your snout')", alt: ["Ferme ta gueule !"],
+         note: "Literal: 'your snout' (an animal's mouth). Real meaning: shut up. Strength: strong; Ferme ta gueule ! is stronger. Heard: France; very common in films."}
+      - {id: fr-sw-05-ferme-la, type: phrase, l2: "Ferme-la !", l1: "Shut it! (literally 'close it')",
+         note: "Literal: 'close it'. Real meaning: shut up. Strength: strong-ish; ruder than Tais-toi ! but not vulgar. Heard: France and elsewhere."}
+      - {id: fr-sw-05-casse-toi, type: phrase, l2: "Casse-toi !", l1: "Get lost! / Piss off! (literally 'break yourself')",
+         note: "Literal: 'break yourself (away)'. Real meaning: go away. Strength: strong. Heard: France; Quebec says Crisse ton camp ! or Décâlisse !."}
+      - {id: fr-sw-05-va-chier, type: phrase, l2: "Va chier !", l1: "Piss off! / Go to hell! (literally 'go shit')",
+         note: "Literal: 'go (and) shit'. Real meaning: get lost, leave me alone. Strength: strong. Heard: France and Quebec."}
+      - {id: fr-sw-05-va-te-faire-foutre, type: phrase, l2: "Va te faire foutre !", l1: "Go fuck yourself!",
+         note: "Literal: 'go get yourself fucked'. Real meaning: fuck off. Strength: very strong. Heard: France and elsewhere."}
+      - {id: fr-sw-05-nique-ta-mere, type: phrase, l2: "Nique ta mère !", l1: "Fuck your mother! (fighting words, street slang)",
+         note: "Literal: 'fuck your mother' (niquer, from Arabic, 'to fuck'). Real meaning: the heaviest insult, aimed at the listener's family. Strength: very strong; can start a fight. Heard: France, street and banlieue slang; written NTM."}
+      - {id: fr-sw-05-mange-marde, type: phrase, l2: "Mange de la marde !", l1: "Eat shit! (Quebec)", alt: ["Mange d'la marde !"],
+         note: "Literal: 'eat some shit' (marde is the Quebec form of merde). Real meaning: get lost, screw you. Strength: strong. Heard: Quebec."}
+      - {id: fr-sw-05-ca-va-pas-la-tete, type: phrase, l2: "Ça va pas la tête ?", l1: "Are you out of your mind? (literally 'is your head not OK?')", alt: ["Ça va pas, la tête ?", "T'es malade ?"],
+         note: "Literal: 'is the head not going well?'. Real meaning: are you crazy? Strength: mild; rude-ish but not vulgar. Heard: France."}

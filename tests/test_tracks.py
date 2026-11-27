@@ -97,9 +97,33 @@ def test_real_language_tracks_keep_their_pack_and_item_ids(monkeypatch):
     assert tr["spanish"]["stages"] == ["spanish-a1", "spanish-a2", "spanish-b1", "spanish-b2"]
     for lang in ("mandarin", "japanese", "korean"):
         assert tr[lang]["stages"] == [f"{lang}-a1", f"{lang}-a2"]
-        assert sorted(tr[lang]["addons"]) == [f"{lang}-pictures", f"{lang}-talk"]
+        assert sorted(tr[lang]["addons"]) == [f"{lang}-pictures", f"{lang}-swear", f"{lang}-talk"]
     assert packs.item_index()["fr-01-bonjour"]["pack"] == "french-a1"
     assert all(p.get("track") is None for p in packs.load_all().values() if p["kind"] == "cert")
+
+
+def test_every_language_has_the_swearing_addon_and_it_stays_off_unless_chosen(monkeypatch):
+    monkeypatch.undo()
+    packs.load_all(force=True)
+    state.reset_for_tests()
+    tr = packs.tracks()
+    for lang in ("spanish", "french", "mandarin", "japanese", "korean"):
+        sw = f"{lang}-swear"
+        assert sw in tr[lang]["addons"] and sw not in tr[lang]["stages"]
+        assert packs.load_all()[sw]["addon"] == "swear"
+        assert sw not in engine.enroll(lang)["courses"]                 # taking up the language leaves it off
+    ov = engine.overview(now=T0)
+    for t in ov["tracks"]:
+        if t["id"] in ("spanish", "french", "mandarin", "japanese", "korean"):
+            sw = next(a for a in t["addons"] if a["addon"] == "swear")
+            assert not sw["enrolled"] and sw["total"] >= 40
+    assert f"{lang}-swear" in engine.enroll(f"{lang}-swear")["courses"]   # and it can be turned on
+    # a My words deck never borrows its wrong options from the swearing add-on
+    rude = {it["l2"] for u in packs.load_all()["spanish-swear"]["units"] for it in u["items"]}
+    rude -= {it["l2"] for p in packs.load_all().values() if p["id"] != "spanish-swear"
+             for u in p["units"] for it in u["items"] if it.get("l2")}      # coger is also A2's 'to take'
+    pool, _ = engine._course_vocab({"lang": "es-ES"}, {"l1": "the house"}, "l2")
+    assert pool and not rude & set(pool)
 
 
 # ---------------------------------------------------------------- enrolment

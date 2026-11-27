@@ -22,7 +22,7 @@ language: French              # language packs only
 lang: fr-FR                   # language packs only: BCP-47 tag used for speech
 track: french                 # optional, language packs: the language's one long course
 level: A1                     # with track: a stage (A1-C2; stages run in level order) …
-# addon: talk                 # … or instead an add-on of the track (conversations, pictures)
+# addon: talk                 # … or instead an add-on of the track (talk, pictures, swear)
 exam:                         # cert packs only
   name: CompTIA Security+
   code: SY0-701
@@ -209,6 +209,21 @@ in `alt`.
 An example sentence (`ex`) has its own romanisation field, **`ex_rom`**, shown
 between the sentence and its translation `ex_l1`. Do not put romanisation inside
 `ex_l1`.
+
+## Swearing & slang (`addon: swear`)
+
+Each language has an opt-in add-on (`<language>_swear.yaml`, item ids
+`es-sw-…`, `fr-sw-…`, `zh-sw-…`, `ja-sw-…`, `ko-sw-…`) so learners understand
+real speech. Like every add-on it is off until the learner turns it on. Rules:
+
+- Every item's `note` gives, in this order: **Literal:** meaning, **Real
+  meaning:**, **Strength:** (mild / strong / very strong, the scale each pack's
+  first unit explains) and **Heard:** who says it and where (Spain vs Mexico vs
+  Argentina; France vs Quebec; mainland vs Taiwan; Tokyo vs Osaka).
+- Only well-established usages. Where a meaning differs by region, say so;
+  where an origin is disputed, say that instead of choosing one.
+- No slurs aimed at race, ethnicity, religion, disability, sexuality or gender
+  identity, including common words built on one (Korean 병신, 지랄; Chinese 弱智).
 
 ## Picture lessons
 

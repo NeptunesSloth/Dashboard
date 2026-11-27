@@ -221,7 +221,7 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   painting to set coordinates; brief in docs/ART_PIPELINE.md "Round 3".
 - **Tracks** (`packs.tracks()`): a language's levels are one course to the learner.
   A pack header with `track: french` + `level: A1` is a stage; `track: french` +
-  `addon: talk` is an add-on (conversations, pictures), never a stage. Pack and item
+  `addon: talk` is an add-on (conversations, pictures, `swear`: swearing & slang, opt-in), never a stage. Pack and item
   ids are unchanged; `settings.courses` still holds pack ids, but enrolling any
   stage (or the track id) enrols every stage, and `engine.migrate_tracks` widens
   old saves on load. Only the current stage (the lowest with unseen items) gets

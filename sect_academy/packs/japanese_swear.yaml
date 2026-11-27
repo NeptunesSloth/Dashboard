@@ -1,0 +1,181 @@
+id: japanese-swear
+title: "Japanese — Swearing & slang"
+kind: language
+language: Japanese
+lang: ja-JP
+track: japanese
+addon: swear
+hall: tongues_west
+blurb: "Opt-in, for understanding: the curses, insults, rough forms and rude slang you hear in anime, films, games and on the street, with how strong each one is and who says it."
+
+# An opt-in add-on: the aim is to understand real speech and judge how strong a word is,
+# not to encourage anyone to use it. Every note gives: literal meaning, real meaning,
+# strength (mild / strong / very strong) and who says it where.
+# rom is kana-as-written (urusee, kusogee), as in japanese-a1/a2; kanji spellings are in alt.
+# Excluded on purpose: slurs aimed at race, ethnicity, religion, disability, sexuality or
+# gender identity (e.g. no ガイジ, no かたわ, no ethnic slurs).
+
+units:
+  # ---------------------------------------------------------------- 1
+  - id: ja-sw-01
+    title: "Mild: oh no, seriously, ouch"
+    goal: "I can recognise the mild exclamations people say when something goes wrong or surprises them."
+    notes: |
+      Japanese has few true swearwords. Rudeness lives mostly in **how** you speak: rough endings, rough words for "you", and dropping polite forms (unit 5).
+
+      Everyday exclamations are mild:
+
+      - **しまった**: oh no, I messed up.
+      - **やばい**: uh-oh (and, from young people, "amazing").
+      - **まじか**, **うそでしょ**: seriously? no way!
+      - **さいあく**: this is the worst.
+
+      Rough, stretched forms like **いってえ** (for いたい) sound male and casual; that sound is part of the rudeness.
+
+      The strength scale used in this course is **mild** (fine almost anywhere), **strong** (crude: friends yes, work and elders no) and **very strong** (insulting or fighting words).
+    items:
+      - {id: ja-sw-01-shimatta, type: vocab, l2: "しまった", rom: "shimatta", l1: "Oh no! / Damn, I messed up!", alt: ["シマッタ"],
+         note: "Literal: past of しまう, 'it has ended up (done)'. Real meaning: I've made a mistake. Strength: mild, fine anywhere. Heard: everyone, everywhere."}
+      - {id: ja-sw-01-yabai, type: vocab, l2: "やばい", rom: "yabai", l1: "Uh-oh! / Oh crap! (young people: 'amazing')", alt: ["ヤバい", "ヤバイ", "やべえ", "yabee"],
+         note: "Literal: 'dangerous, risky'. Real meaning: this is bad, or (young people) this is incredible. Strength: mild, informal slang; the rough form やべえ is more male. Heard: everywhere, especially under-40s."}
+      - {id: ja-sw-01-majika, type: phrase, l2: "まじ か", rom: "maji ka", l1: "Seriously?! / No way!", alt: ["マジか", "まじで", "maji de", "マジで"],
+         note: "Literal: 'is it serious?' (まじ, from まじめ 'serious'). Real meaning: really?, no way. Strength: mild, casual slang. Heard: everywhere, younger people especially."}
+      - {id: ja-sw-01-uso-desho, type: phrase, l2: "うそ でしょ", rom: "uso desho", l1: "No way! / You're kidding! (literally 'that's a lie, right?')", alt: ["嘘でしょ", "うそ", "uso"],
+         note: "Literal: 'it's a lie, isn't it?'. Real meaning: I can't believe it. Strength: mild. Heard: everyone; うそ! alone is just as common."}
+      - {id: ja-sw-01-saiaku, type: vocab, l2: "さいあく", rom: "saiaku", l1: "This sucks! / The worst!", alt: ["最悪"],
+         note: "Literal: 'the worst'. Real meaning: terrible, this sucks. Strength: mild. Heard: everyone. Kanji: 最悪."}
+      - {id: ja-sw-01-nandayo, type: phrase, l2: "なん だ よ", rom: "nan da yo", l1: "What the heck? / What's your problem? (rough)", alt: ["なんだよ", "何だよ", "nanda yo"],
+         note: "Literal: 'what is it!'. Real meaning: irritation: what the heck, what do you want. Strength: mild to strong by tone; rough and mostly male. Heard: everywhere, in casual speech."}
+      - {id: ja-sw-01-mou, type: vocab, l2: "もう", rom: "mou", l1: "Ugh! / Geez! (exasperated)", alt: ["もう！", "もー", "mō"],
+         note: "Literal: 'already, any more'. Real meaning: said alone, exasperation: honestly!, geez! Strength: mild. Heard: everyone."}
+      - {id: ja-sw-01-ittee, type: vocab, l2: "いってえ", rom: "ittee", l1: "Ow! (rough 'it hurts')", alt: ["いてえ", "itee", "いってー"],
+         note: "Literal: a rough, stretched いたい ('painful'). Real meaning: ow!. Strength: mild, but the -ee sound is rough and casual, typically male. Heard: everywhere, in films and anime constantly."}
+
+  # ---------------------------------------------------------------- 2
+  - id: ja-sw-02
+    title: "Strong: curses and threats"
+    goal: "I can recognise the strongest common curses and threats, and know which are taken seriously."
+    notes: |
+      **くそ** (shit) and **ちくしょう** (beast) are the everyday curses. There is no word as heavy as English *fuck*: strength comes from rough grammar and direct attacks.
+
+      - **ふざけんな**, **なめんな** are rough negative commands: the ending -んな is a slurred -るな ("don't").
+      - **しね** ("die!") is genuinely hurtful; it is linked to school bullying and is not a joke to most people.
+      - **ぶっ-** is a rough intensifier: **ぶっころす** = I'll beat you to death.
+
+      These are mostly heard in anime, manga, yakuza films and from angry young men; women in fiction use them less, real people vary.
+    items:
+      - {id: ja-sw-02-kuso, type: vocab, l2: "くそ", rom: "kuso", l1: "Shit! / Damn! (literally 'dung')", alt: ["クソ", "糞", "くそっ"],
+         note: "Literal: 'shit, dung'. Real meaning: the commonest curse: damn!, shit!. Also a prefix: くそ+noun = damned, shitty. Strength: strong (as strong as everyday Japanese gets). Heard: everywhere, most often from men and in anime."}
+      - {id: ja-sw-02-chikushou, type: vocab, l2: "ちくしょう", rom: "chikushou", l1: "Damn it! / Dammit all! (literally 'beast')", alt: ["畜生", "チクショウ", "ちきしょう", "chikishou", "chikushō"],
+         note: "Literal: 'beast, animal' (in Buddhism, rebirth as an animal). Real meaning: damn it, frustration at bad luck. Strength: strong-ish; not aimed at anyone. Heard: everywhere, typically male."}
+      - {id: ja-sw-02-kusottare, type: vocab, l2: "くそったれ", rom: "kusottare", l1: "Damn it! / You piece of shit! (literally 'shit-dripper')", alt: ["クソッタレ", "糞ったれ"],
+         note: "Literal: 'one who drips shit'. Real meaning: damn it!, or an insult: bastard. Strength: strong. Heard: films, anime, dubbed Western films; rarer in real life."}
+      - {id: ja-sw-02-fuzakenna, type: phrase, l2: "ふざけんな", rom: "fuzakenna", l1: "Don't screw with me! / Are you kidding me?! (literally 'don't joke')", alt: ["ふざけるな", "fuzakeru na", "ふざけんなよ", "fuzakenna yo"],
+         note: "Literal: 'don't joke around' (ふざける + rough な). Real meaning: angry 'don't mess with me', 'this is outrageous'. Strength: strong. Heard: everywhere in fiction; from real angry people too."}
+      - {id: ja-sw-02-namenna, type: phrase, l2: "なめんな", rom: "namenna", l1: "Don't look down on me! / Don't mess with me! (literally 'don't lick')", alt: ["なめるな", "nameru na", "舐めんな", "なめんなよ", "namenna yo"],
+         note: "Literal: 'don't lick' (なめる also means 'to underestimate'). Real meaning: don't take me lightly. Strength: strong; a challenge. Heard: delinquents and fighters in manga, anime, films."}
+      - {id: ja-sw-02-shine, type: vocab, l2: "しね", rom: "shine", l1: "Die! / Drop dead!", alt: ["死ね", "シネ"],
+         note: "Literal: 'die' (command form of しぬ). Real meaning: drop dead. Strength: very strong; hurtful, linked to bullying, and taken seriously. Heard: anime, online abuse; disguised online as 氏ね. Do not use it as a joke."}
+      - {id: ja-sw-02-bukkorosu, type: vocab, l2: "ぶっころす", rom: "bukkorosu", l1: "I'll fucking kill you! (rough threat)", alt: ["ぶっ殺す", "ぶっころすぞ", "bukkorosu zo"],
+         note: "Literal: ぶっ (rough 'hit') + ころす ('to kill'). Real meaning: I'll kill you, a violent threat. Strength: very strong. Heard: yakuza films, manga, anime villains; real threats are a crime."}
+
+  # ---------------------------------------------------------------- 3
+  - id: ja-sw-03
+    title: "Insults: idiots, brats and hurtful words"
+    goal: "I can understand what someone is being called and how much it hurts, including the Tokyo / Osaka difference."
+    notes: |
+      **ばか** and **あほ** both mean "idiot", but region flips them:
+
+      - In **Tokyo** (Kanto) ばか is light and あほ sounds harsher.
+      - In **Osaka** (Kansai) あほ is light, even friendly, and ばか stings.
+
+      Adding **やろう** (fellow) makes an insult strong: *ばかやろう*, *このやろう*.
+
+      Comments on looks (**ブス**, **デブ**, **ハゲ**) are not vulgar words, but they are among the most hurtful things you can say in Japanese.
+    items:
+      - {id: ja-sw-03-baka, type: vocab, l2: "ばか", rom: "baka", l1: "idiot / fool (Tokyo's everyday word)", alt: ["バカ", "馬鹿"],
+         note: "Literal: written 'horse deer' (the kanji are chosen for sound). Real meaning: idiot, stupid. Strength: mild in Tokyo, often teasing; it stings more in Kansai. Heard: everywhere."}
+      - {id: ja-sw-03-aho, type: vocab, l2: "あほ", rom: "aho", l1: "idiot / dummy (Osaka's everyday word)", alt: ["アホ", "阿呆", "あほう", "ahou"],
+         note: "Literal: 'fool'. Real meaning: idiot. Strength: mild in Kansai (Osaka, Kyoto), almost friendly; harsher-sounding in Tokyo. Heard: Kansai above all."}
+      - {id: ja-sw-03-bakayarou, type: vocab, l2: "ばかやろう", rom: "bakayarou", l1: "You idiot! / You moron! (literally 'fool fellow')", alt: ["馬鹿野郎", "バカヤロー", "バカヤロウ", "bakayaro", "bakayarō"],
+         note: "Literal: 'fool' + 'fellow, guy'. Real meaning: you idiot, an angry shout. Strength: strong. Heard: mostly men; films, anime, angry drivers."}
+      - {id: ja-sw-03-konoyarou, type: phrase, l2: "この やろう", rom: "kono yarou", l1: "You bastard! (literally 'this fellow')", alt: ["この野郎", "コノヤロー", "このやろう", "kono yaro", "kono yarō"],
+         note: "Literal: 'this fellow'. Real meaning: you bastard. Strength: strong. Heard: mostly men; fights in films and anime."}
+      - {id: ja-sw-03-kusojijii, type: vocab, l2: "くそじじい", rom: "kusojijii", l1: "damn old man / old geezer", alt: ["クソジジイ", "くそジジイ", "kuso jijii"],
+         note: "Literal: 'shit grandpa'. Real meaning: a rude word for an old man (the women's form is くそばばあ, 'old hag'). Strength: strong. Heard: rebellious teenagers in fiction, angry people."}
+      - {id: ja-sw-03-gaki, type: vocab, l2: "がき", rom: "gaki", l1: "brat / kid (rude)", alt: ["ガキ", "餓鬼"],
+         note: "Literal: 'hungry ghost' (a Buddhist demon). Real meaning: a brat, or an immature adult: ガキっぽい = childish. Strength: mild to strong. Heard: everywhere, rough speech."}
+      - {id: ja-sw-03-busu, type: vocab, l2: "ブス", rom: "busu", l1: "ugly (said of a woman; very hurtful)", alt: ["ぶす"],
+         note: "Literal: 'ugly' (an old word). Real meaning: ugly woman. Strength: strong; deeply hurtful, a classic bullying word. Heard: everywhere; usually written in katakana."}
+      - {id: ja-sw-03-debu, type: vocab, l2: "デブ", rom: "debu", l1: "fatso / fat (hurtful)", alt: ["でぶ"],
+         note: "Literal: 'fat'. Real meaning: fat person. Strength: strong, hurtful; friends may use it teasingly. Heard: everywhere; usually in katakana."}
+      - {id: ja-sw-03-hage, type: vocab, l2: "ハゲ", rom: "hage", l1: "baldy / baldie (rude)", alt: ["はげ", "禿"],
+         note: "Literal: 'bald (patch)'. Real meaning: bald man, used as an insult. Strength: strong, hurtful. Heard: everywhere."}
+      - {id: ja-sw-03-hentai, type: vocab, l2: "へんたい", rom: "hentai", l1: "pervert / creep", alt: ["変態", "ヘンタイ"],
+         note: "Literal: 'abnormal state, metamorphosis'. Real meaning: pervert. Strength: strong. Heard: everywhere. In Japanese it is the person, not the genre of porn it names in English."}
+      - {id: ja-sw-03-manuke, type: vocab, l2: "まぬけ", rom: "manuke", l1: "dimwit / clumsy fool (literally 'missing the beat')", alt: ["間抜け", "マヌケ"],
+         note: "Literal: 'missing the interval' (from timing in music and drama). Real meaning: a dope, someone slow or clumsy. Strength: mild. Heard: everywhere, a bit old-fashioned."}
+      - {id: ja-sw-03-yakutatazu, type: vocab, l2: "やくたたず", rom: "yakutatazu", l1: "useless (person) / good-for-nothing", alt: ["役立たず"],
+         note: "Literal: 'does not stand to use'. Real meaning: a useless person. Strength: strong; hurtful. Heard: everywhere, angry bosses and parents in dramas."}
+
+  # ---------------------------------------------------------------- 4
+  - id: ja-sw-04
+    title: "Rude but everyday: slang you hear all day"
+    goal: "I can follow the rude everyday slang of young people talking, posting and gaming."
+    notes: |
+      Young people clip words and add rough endings:
+
+      - **うざい** (annoying), **きもい** (gross, from きもちわるい), **ださい** (lame), **むかつく** (it pisses me off).
+      - **くそ-** as a prefix: *くそあつい* = damn hot, *くそゲー* = a crap game. Some young people use it as an intensifier for good things too.
+      - **-くせえ / -ねえ**: rough forms of -くさい / -ない (*めんどくせえ*).
+
+      These are **mild to strong**: fine among friends, childish or rude elsewhere. Aimed at a person, *きもい* and *うざい* hurt.
+    items:
+      - {id: ja-sw-04-uzai, type: vocab, l2: "うざい", rom: "uzai", l1: "annoying / such a pain (slang)", alt: ["ウザい", "ウザイ", "うぜえ", "uzee"],
+         note: "Literal: from うざったい, 'bothersome'. Real meaning: annoying. Strength: mild to strong; rude when said of a person. Heard: everywhere, young people; うぜえ is the rough male form."}
+      - {id: ja-sw-04-kimoi, type: vocab, l2: "きもい", rom: "kimoi", l1: "gross / creepy (short for 'feeling bad')", alt: ["キモい", "キモイ", "きもっ"],
+         note: "Literal: short for きもちわるい, 'unpleasant feeling'. Real meaning: gross, creepy. Strength: strong when aimed at a person; very hurtful. Heard: young people, everywhere."}
+      - {id: ja-sw-04-dasai, type: vocab, l2: "ださい", rom: "dasai", l1: "lame / uncool / tacky", alt: ["ダサい", "ダサイ"],
+         note: "Literal: no clear literal sense. Real meaning: unfashionable, uncool. Strength: mild. Heard: everywhere, young people."}
+      - {id: ja-sw-04-mukatsuku, type: vocab, l2: "むかつく", rom: "mukatsuku", l1: "It pisses me off. / That makes me so mad.", alt: ["ムカつく", "むかつくな", "mukatsuku na"],
+         note: "Literal: 'to feel sick to the stomach'. Real meaning: to be infuriated. Strength: mild to strong. Heard: everywhere, informal."}
+      - {id: ja-sw-04-kuso-atsui, type: phrase, l2: "くそ あつい", rom: "kuso atsui", l1: "It's damn hot. / It's fucking hot. (くそ as intensifier)", alt: ["くそ暑い", "クソ暑い", "クソあつい"],
+         note: "Literal: 'shit hot'. Real meaning: really hot; くそ- before an adjective makes it 'damn / fucking'. Strength: strong-ish; casual. Heard: young people, mostly men."}
+      - {id: ja-sw-04-mendokusee, type: vocab, l2: "めんどくせえ", rom: "mendokusee", l1: "What a pain! / Can't be bothered! (rough)", alt: ["めんどくさい", "mendokusai", "面倒くさい", "めんどい", "mendoi"],
+         note: "Literal: rough form of めんどうくさい, 'smells of trouble'. Real meaning: it's a hassle. Strength: mild, but the -ee form is rough and casual. Heard: everywhere, typically male."}
+      - {id: ja-sw-04-kusogee, type: vocab, l2: "くそゲー", rom: "kusogee", l1: "crap game / shit game (gamer slang)", alt: ["クソゲー", "糞ゲー"],
+         note: "Literal: くそ 'shit' + ゲー (game). Real meaning: a terrible video game; also said of a frustrating match. Strength: mild to strong; standard gamer slang. Heard: gamers, online."}
+      - {id: ja-sw-04-chinko, type: vocab, l2: "ちんこ", rom: "chinko", l1: "dick / willy (crude)", alt: ["チンコ", "ちんぽ", "chinpo"],
+         note: "Literal: penis (crude). Real meaning: the same; ちんちん is the mild children's word. Strength: strong. Heard: crude jokes, comedians. The female counterpart まんこ is the most taboo word in Japanese and is bleeped on TV."}
+
+  # ---------------------------------------------------------------- 5
+  - id: ja-sw-05
+    title: "How strong is it? Rough 'you', shut up and get lost"
+    goal: "I can hear rudeness in words for 'you' and in commands, and tell a light 'be quiet' from a hostile one."
+    notes: |
+      In Japanese the word for **you** carries a lot of the rudeness. Polite speakers avoid "you" and use names.
+
+      - **おまえ**: rough; fine between close friends (mostly male), rude to a stranger.
+      - **こいつ**: rough 'this guy'.
+      - **てめえ**, **きさま**: openly hostile, fighting words; きさま sounds old-fashioned, like an anime villain.
+
+      Commands work the same way: plain command forms (**だまれ**, **きえろ**) are harsh, while *ちょっと しずかに して* is a normal "please be quiet".
+    items:
+      - {id: ja-sw-05-omae, type: vocab, l2: "おまえ", rom: "omae", l1: "you (rough; fine to close friends, rude to strangers)", alt: ["お前", "オマエ"],
+         note: "Literal: 'the honoured front' (once polite). Real meaning: a rough 'you'. Strength: mild between friends, strong to a stranger or a superior. Heard: men especially; in films and anime all the time."}
+      - {id: ja-sw-05-temee, type: vocab, l2: "てめえ", rom: "temee", l1: "you bastard (hostile 'you')", alt: ["手前", "てめー", "テメエ", "テメー", "temē"],
+         note: "Literal: from てまえ, 'the one in front of me'. Real meaning: an openly hostile 'you'. Strength: very strong; fighting words. Heard: fights in anime, yakuza films, delinquent dramas."}
+      - {id: ja-sw-05-kisama, type: vocab, l2: "きさま", rom: "kisama", l1: "you scum (old-fashioned hostile 'you')", alt: ["貴様", "キサマ"],
+         note: "Literal: 'noble sir' (it was once respectful). Real meaning: a contemptuous 'you'. Strength: strong; old-fashioned. Heard: anime villains, samurai and war films."}
+      - {id: ja-sw-05-koitsu, type: vocab, l2: "こいつ", rom: "koitsu", l1: "this guy / this jerk (rude 'this one')", alt: ["コイツ"],
+         note: "Literal: 'this fellow' (rough form of このひと). Real meaning: this guy, often with contempt; そいつ, あいつ = that guy. Strength: mild to strong. Heard: everywhere, casual speech."}
+      - {id: ja-sw-05-urusai, type: vocab, l2: "うるさい", rom: "urusai", l1: "Be quiet! / You're so noisy! (literally 'noisy')", alt: ["うるさいな", "urusai na", "煩い"],
+         note: "Literal: 'noisy, annoying'. Real meaning: shut up, leave me alone. Strength: mild to strong by tone. Heard: everyone; anime characters shout it."}
+      - {id: ja-sw-05-urusee, type: vocab, l2: "うるせえ", rom: "urusee", l1: "Shut up! (rough shout, literally 'noisy')", alt: ["うるせー", "ウルセー", "うっせえ", "ussee"],
+         note: "Literal: rough form of うるさい. Real meaning: shut up!. Strength: strong; rough, mostly male. Heard: films, anime, angry young men; うっせえ is even rougher."}
+      - {id: ja-sw-05-damare, type: vocab, l2: "だまれ", rom: "damare", l1: "Shut up! (a command; literally 'be silent')", alt: ["黙れ"],
+         note: "Literal: command form of だまる, 'to fall silent'. Real meaning: shut up. Strength: strong; a direct order. Heard: films, anime, arguments."}
+      - {id: ja-sw-05-kiero, type: vocab, l2: "きえろ", rom: "kiero", l1: "Get lost! (literally 'disappear')", alt: ["消えろ"],
+         note: "Literal: command form of きえる, 'to vanish'. Real meaning: get out of my sight. Strength: strong. Heard: films, anime; online abuse."}
+      - {id: ja-sw-05-acchi-ike, type: phrase, l2: "あっち いけ", rom: "acchi ike", l1: "Go away! (literally 'go over there')", alt: ["あっち行け", "あっちいけ", "あっち いって", "acchi itte"],
+         note: "Literal: 'go over there'. Real meaning: go away, shoo. Strength: mild to strong; said to children, animals, or in anger. Heard: everywhere; あっち いって is softer."}

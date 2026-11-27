@@ -599,14 +599,16 @@ def _distractors(it: dict, pack: dict, field: str, rng: random.Random, n: int = 
 
 def _course_vocab(pack: dict, it: dict, field: str) -> tuple[list[str], set[str]]:
     """Wrong options for a small personal deck: vocab from the courses in its language, and the set of
-    those of another part of speech, where the English shows it ("to eat" is a verb, "house" is not)."""
+    those of another part of speech, where the English shows it ("to eat" is a verb, "house" is not).
+    The opt-in swearing add-ons are never borrowed from: a learner who has not chosen them never sees them."""
     is_verb = lambda o: str(o.get("l1", "")).lower().startswith("to ")      # noqa: E731
     want, lang = is_verb(it), str(pack.get("lang", "")).split("-")[0]
     pool, other = [], set()
     if not lang:
         return pool, other
     for p in packs.load_all().values():
-        if p.get("personal") or p.get("kind") != "language" or str(p.get("lang", "")).split("-")[0] != lang:
+        if p.get("personal") or p.get("kind") != "language" or str(p.get("lang", "")).split("-")[0] != lang \
+                or p.get("addon") == "swear":
             continue
         for u in p["units"]:
             for o in u["items"]:
