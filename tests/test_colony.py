@@ -113,7 +113,7 @@ def test_building_costs_materials_takes_work_and_is_gated(st):
     assert colony.queue_build(st, "library", T0)["ok"]                              # -> level 2
     assert colony.queue_build(st, "library", T0)["ok"]                              # -> level 3, the cap at Hall 2
     c["rooms"]["fields"] = 3
-    assert "Main Hall" in colony.queue_build(st, "fields", T0)["error"]             # -> level 4 refused (a builder is free)
+    assert "Main Hall" in colony.queue_build(st, "fields", T0)["error"]             # -> level 4 refused, whatever the builders
     wood = c["res"]["wood"]
     assert colony.cancel_build(st, 0, T0)["ok"] and c["res"]["wood"] > wood        # materials come back
 

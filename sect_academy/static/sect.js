@@ -372,7 +372,7 @@ export function mountSect(h) {
         <li class="row dim small">A day of study draws a Master's Blueprint (${B.blueprint_cut}% off one job, up to 3 kept); five study days in a week lend the Master as a builder for 24 sect hours.</li></ul></details>`;
   }
   function benchButtons(i) {
-    return `${S.builders.blueprints ? `<button class="btn quiet" data-blueprint="${i}" title="Takes ${S.builders.blueprint_cut}% off the time this job has left">Use a blueprint</button>` : ''}<button class="btn quiet" data-cancel="${i}">Cancel</button>`;
+    return `${S.builders.blueprints ? `<button class="btn" data-blueprint="${i}" title="Takes ${S.builders.blueprint_cut}% off the time this job has left">Use a blueprint</button>` : ''}<button class="btn" data-cancel="${i}">Cancel</button>`;
   }
 
   // Look A, the workshop: builders as workbenches with a painted crop of the room and a big countdown; rooms as
@@ -383,7 +383,7 @@ export function mountSect(h) {
     const bench = (b, i) => (b ? `<li class="bench">
         <span class="bthumb" style="${siteCrop(b.room, 1.25)}" aria-hidden="true"></span>
         <div class="bbody"><span class="bname"><b>${esc(b.name)}</b> <span class="dim small">to level ${b.level}</span></span>
-          <span class="bcount"><b class="num">${esc(awayT(b.left))}</b><small class="dim">if you close the app · ${esc(watchT(b.left))} watching</small></span>
+          <span class="bcount"><b class="num">${esc(awayT(b.left))}</b><small class="dim">left with the app closed, ${esc(watchT(b.left))} if you watch</small></span>
           ${bar(b.pct, 'azure')}
           <div class="row bfoot">${benchSpeed(b, i)}<span class="grow"></span>${benchButtons(i)}</div></div></li>`
       : '<li class="bench empty"><span class="bthumb idle" aria-hidden="true"></span><div class="bbody"><b class="serif">A builder is free</b><span class="dim small">Choose a room below.</span></div></li>');
@@ -393,7 +393,7 @@ export function mountSect(h) {
       return `<li class="rtile ${st} ${r.open ? '' : 'new'}">
         <button class="rt-pic" data-roomtile="${esc(r.id)}" style="${siteCrop(r.id, 1.6)}" aria-label="${esc(r.name)}: details"><span class="rt-name">${esc(r.name)}</span></button>
         <div class="rt-body"><div class="row">${r.open ? lvPips(r) : `<span class="small dim">${r.queued ? 'Being built' : 'Not built'}</span>`}<span class="grow"></span>${r.queued ? '<span class="tag blue">building</span>' : ''}</div>
-          ${st === 'max' ? '<p class="small rt-note">Highest level</p>' : st === 'locked' ? `<p class="small rt-note">${esc(r.locked)}</p>`
+          ${st === 'max' ? '<p class="small rt-note">Highest level</p>' : st === 'locked' ? `<p class="small rt-note" title="${esc(r.locked)}">${esc(r.lock_short || r.locked)}</p>`
     : `<div class="rt-cost">${costChips(r.cost)}</div><div class="row rt-go"><small class="dim">ready in about ${esc(awayT(r.hours))}</small><span class="grow"></span>
             <button class="btn ${r.affordable ? 'primary' : ''}" data-build="${esc(r.id)}" ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}</button></div>`}</div></li>`;
     };
@@ -417,7 +417,7 @@ export function mountSect(h) {
     const shortOf = (r) => Object.entries(r.cost).filter(([k, v]) => haveRes(k) < v).map(([k, v]) => `${v - haveRes(k)} ${k === 'stones' ? 'spirit stones' : k}`).join(', ');
     const row = (r, st) => `<li class="lrow ${st}"><button class="lthumb" data-roomtile="${esc(r.id)}" style="${siteCrop(r.id, 1)}" aria-label="${esc(r.name)}: details"></button>
         <span class="grow"><b>${esc(r.name)}</b> ${r.open ? lvPips(r) : '<span class="small dim">new</span>'}<br>
-          ${st === 'locked' ? `<small class="dim">${esc(r.locked)}</small>` : st === 'max' ? '<small class="dim">Highest level</small>' : `<span class="rt-cost">${costChips(r.cost)}</span>`}</span>
+          ${st === 'locked' ? `<small class="dim">${esc(r.lock_short || r.locked)}</small>` : st === 'max' ? '<small class="dim">Highest level</small>' : `<span class="rt-cost">${costChips(r.cost)}</span>`}</span>
         ${st === 'can' ? `<span class="lgo"><button class="btn primary" data-build="${esc(r.id)}">${r.open ? 'Raise' : 'Build'}</button><small class="dim">ready in about ${esc(awayT(r.hours))}</small></span>`
     : st === 'short' ? `<small class="lneed">Needs ${esc(shortOf(r) || 'a free builder')}</small>` : ''}</li>`;
     const sect = (title, list, st) => (list.length ? `<h4 class="lhead">${esc(title)} <span class="dim small">${list.length}</span></h4><ul class="lrows">${list.map((r) => row(r, st)).join('')}</ul>` : '');

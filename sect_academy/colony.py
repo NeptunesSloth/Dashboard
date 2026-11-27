@@ -608,6 +608,16 @@ def hall_for_level(room_level: int) -> int:
     return next((h for h, x in HALL_LADDER.items() if x["cap"] >= room_level), 10)
 
 
+def build_block_short(c: dict, room: str, level: int) -> str:
+    """build_block in a few words, for a tile."""
+    if room == "main_hall":
+        short = sum(1 for x in hall_rooms_check(c, level + 1) if not x[2])
+        return f"Needs {_n(short, 'more room', 'more rooms')} at level {level}" if short else ""
+    if level == 0 and _lvl(c, "main_hall") < room_opens_at(room):
+        return f"Opens at Main Hall {room_opens_at(room)}"
+    return f"Waits on Main Hall {hall_for_level(level + 1)}" if level + 1 > room_cap(c) else ""
+
+
 def build_block(c: dict, room: str, level: int) -> str:
     """Why `room` cannot go from `level` to level+1 under the Main Hall ladder ("" when it can). Builders and
     materials are checked by the caller."""
@@ -4252,6 +4262,7 @@ def view(st: dict, now: float) -> dict:
         rooms.append({"id": rid, "name": r["name"], "effect": r["effect"], "level": level, "max": r["max"], "open": level > 0,
                       "hours": _f(build_hours(rid, nxt + 1)) if cost else 0,
                       "queued": queued, "cost": {k: _f(v) for k, v in cost.items()} if cost else None, "locked": locked,
+                      "lock_short": build_block_short(c, rid, nxt) if locked else "",
                       "affordable": bool(cost) and not locked and free and all(c["res"][k] >= v for k, v in cost.items()),
                       "tray": [{"res": res, "name": RES_NAMES[res].lower(), "n": _whole(n)} for res, n in tray.get(rid, [])]})
     last = c["last_study_day"]
