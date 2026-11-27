@@ -3,12 +3,24 @@
 These are skills, not facts to space out: the only way to get fast at subnetting is to do
 a great many fresh problems. Each drill is ten generated questions, graded here, with the
 working shown. Nothing is scheduled and nothing is paid; the best score is remembered.
+
+Language drills work the same way: verb forms (``drills_lang``: Spanish and French from the
+dictionary's conjugation tables, Japanese and Korean conjugated by rule) and numbers, times,
+dates, prices and counters (``drills_num``). Their kinds are ``conj-<lang>`` and ``num-<lang>``;
+the learner picks the tenses or question types and the length (``opts``). A typed answer is
+graded by the course's own rules (``engine.check_typed``, with no typo forgiveness: one letter
+is often the grammar), so a missing accent is accepted and flagged, and Chinese, Japanese and
+Korean may be answered in the script or its romanisation.
 """
 from __future__ import annotations
 
 import ipaddress
 import random
+import re
+import unicodedata
 import uuid
+
+from . import drills_lang, drills_num, engine
 
 SIZE = 10
 # (service, port, transport) as the Network+ and Security+ objectives list them
@@ -22,6 +34,14 @@ PORTS = [
     ("MySQL", 3306, "TCP"), ("RDP", 3389, "TCP"), ("SIP", 5060, "TCP and UDP"), ("SIP over TLS", 5061, "TCP"),
 ]
 KINDS = {"subnet": "Subnetting", "ports": "Ports and protocols"}
+LANGS = {"es": "Spanish", "fr": "French", "zh": "Chinese", "ja": "Japanese", "ko": "Korean"}
+CONJ_LANGS = ("es", "fr", "ja", "ko")
+for _l, _n in LANGS.items():
+    if _l in CONJ_LANGS:
+        KINDS[f"conj-{_l}"] = f"{_n} verbs"
+    KINDS[f"num-{_l}"] = f"{_n} numbers"
+MIN_SIZE, MAX_SIZE = 5, 30
+HINT = {"ja": "Type kana or rōmaji", "ko": "Type Hangul or romanisation", "zh": "Type characters or pinyin (tone marks or numbers)"}
 _open: dict[str, dict] = {}          # in-flight drills (answers stay on the server)
 
 
@@ -74,23 +94,58 @@ def _port_q(r: random.Random) -> dict:
     return {"q": f"What runs on port {port}?", "a": [name], "choices": choices, "why": f"Port {port} ({proto}) is {name}."}
 
 
-def start(kind: str, seed: int | None = None) -> dict:
+def options(lang: str) -> dict:
+    """What a learner can choose for this language's drills."""
+    if lang not in LANGS:
+        return {"ok": False, "error": "unknown language"}
+    out = {"ok": True, "lang": lang, "name": LANGS[lang], "num": drills_num.options(lang), "sizes": [10, 20, 30]}
+    if lang in CONJ_LANGS:
+        out["conj"] = drills_lang.options(lang)
+    return out
+
+
+def _ids(v, cap: int = 12) -> list[str]:
+    return [x for x in v if isinstance(x, str) and len(x) <= 16][:cap] if isinstance(v, list) else []
+
+
+def _maker(kind: str, r: random.Random, opts: dict):
+    if kind == "subnet":
+        return lambda: _subnet_q(r)
+    if kind == "ports":
+        return lambda: _port_q(r)
+    what, _, lang = kind.partition("-")
+    if what == "conj":
+        vset = opts.get("set") if isinstance(opts.get("set"), str) and opts["set"] in drills_lang.SETS else "all"
+        return drills_lang.make(lang, r, _ids(opts.get("tenses")), vset)
+    return drills_num.make(lang, r, _ids(opts.get("kinds")))
+
+
+def start(kind: str, seed: int | None = None, opts: dict | None = None) -> dict:
     if kind not in KINDS:
         return {"ok": False, "error": "unknown drill"}
+    opts = opts if isinstance(opts, dict) else {}
     r = random.Random(seed)
-    make = _subnet_q if kind == "subnet" else _port_q
+    make = _maker(kind, r, opts)
+    size = SIZE
+    if kind not in ("subnet", "ports") and isinstance(opts.get("size"), int) and not isinstance(opts.get("size"), bool):
+        size = max(MIN_SIZE, min(MAX_SIZE, opts["size"]))
     qs, seen = [], set()
-    while len(qs) < SIZE:
-        q = make(r)
-        if q["q"] not in seen:
+    for _ in range(size * 40):                 # a narrow choice (one tense, one kind) may run out of fresh questions
+        if len(qs) >= size:
+            break
+        q = make()
+        if q and q["q"] not in seen:
             seen.add(q["q"])
             qs.append(q)
+    if not qs:
+        return {"ok": False, "error": "Nothing to ask with those choices."}
     did = uuid.uuid4().hex[:12]
     for old in list(_open)[:-8]:
         _open.pop(old, None)
     _open[did] = {"kind": kind, "qs": qs, "done": {}}
     return {"ok": True, "drill": did, "kind": kind, "name": KINDS[kind],
-            "questions": [{"n": i, "q": q["q"], "choices": q.get("choices")} for i, q in enumerate(qs)]}
+            "questions": [{"n": i, "q": q["q"], "choices": q.get("choices"), "lang": q.get("lang", ""),
+                           "hint": HINT.get(q.get("lang", ""), "")} for i, q in enumerate(qs)]}
 
 
 def _norm(s: str) -> str:
@@ -102,13 +157,29 @@ def answer(drill: str, n: int, given: str) -> dict:
     if not d or not 0 <= n < len(d["qs"]):
         return {"ok": False, "error": "This drill has expired. Start a new one."}
     q = d["qs"][n]
-    ok = _norm(given) in {_norm(a) for a in q["a"]}
+    ok, flag = grade(q, given)
     first = n not in d["done"]
     d["done"].setdefault(n, ok)                      # only the first answer counts
     finished = len(d["done"]) == len(d["qs"])
     counted = finished and (d.get("counted") or not first)
     if finished:
         d["counted"] = True
-    return {"ok": True, "counted": bool(counted), "correct": ok, "expected": q["a"][0], "why": q["why"],
+    return {"ok": True, "counted": bool(counted), "correct": ok, "flag": flag, "expected": q.get("show") or q["a"][0], "why": q["why"],
             "score": sum(1 for v in d["done"].values() if v), "answered": len(d["done"]), "total": len(d["qs"]), "kind": d["kind"],
             "finished": finished}
+
+
+_GROUPING = re.compile(r"[\s,.'’_\u00a0\u202f]")
+
+
+def grade(q: dict, given) -> tuple[bool, str | None]:
+    """(correct, flag) for an answer to a generated question; flag is "accent" or "tone" for a forgiven slip."""
+    given = given if isinstance(given, str) else ""
+    how = q.get("grade", "plain")
+    if how == "digits":
+        got = _GROUPING.sub("", unicodedata.normalize("NFKC", given))
+        return got.isascii() and got.isdigit() and len(got) <= 12 and int(got) == int(q["a"][0]), None
+    if how == "typed":
+        res = engine.check_typed(given, q["a"], slips=False)
+        return bool(res["correct"]), res.get("flag")
+    return _norm(given) in {_norm(a) for a in q["a"]}, None
