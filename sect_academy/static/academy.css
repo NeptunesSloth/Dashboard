@@ -844,3 +844,11 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
   .rite-foot .btn.big { min-width: 0; flex: 1; }
 }
 @media (prefers-reduced-motion: reduce) { .tongue, .level, .seal, .fate { transition: none; } }
+
+.namebox { position: relative; display: block; }
+.namebox input { padding-right: 52px; }
+.namebox .dice { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 40px; height: 36px; border-radius: 10px; border: 1px solid rgba(255, 210, 140, .25); background: rgba(255, 240, 210, .06); font-size: 1.15rem; cursor: pointer; line-height: 1; }
+.namebox .dice:hover { border-color: var(--gold); }
+.namebox .dice:active { transform: translateY(-50%) rotate(-20deg) scale(.95); }
+.namebox .dice:focus-visible { outline: 3px solid var(--azure, #4aa3ff); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .namebox .dice:active { transform: translateY(-50%); } }

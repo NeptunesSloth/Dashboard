@@ -166,6 +166,20 @@ function closeSheet() { const s = $('#sheet'); s.hidden = true; s.innerHTML = ''
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
 
 /* ================= founding ================= */
+/* A sect name from three small word lists: "Azure Cloud Sect", "Nine Lantern Pavilion", "Frost Lotus Valley". */
+const SECT_FIRST = ['Azure', 'Crimson', 'Jade', 'Golden', 'Silver', 'Frost', 'Thunder', 'Cloud', 'Moon', 'Sun', 'Star', 'Nine', 'Seven', 'Hidden', 'Silent', 'Eternal', 'Heavenly', 'Misty', 'Scarlet', 'Violet', 'Iron', 'Ancient', 'Drifting', 'Burning', 'Falling', 'Endless', 'Twin', 'White', 'Black', 'Emerald'];
+const SECT_SECOND = ['Lantern', 'Lotus', 'Peak', 'Cloud', 'Sword', 'Crane', 'Dragon', 'Phoenix', 'Tiger', 'Pine', 'Bamboo', 'Willow', 'River', 'Spring', 'Mist', 'Blossom', 'Feather', 'Moon', 'Star', 'Wind', 'Rain', 'Snow', 'Flame', 'Jade', 'Bell', 'Scroll', 'Mirror', 'Tortoise', 'Qilin', 'Plum'];
+const SECT_KIND = ['Sect', 'Sect', 'Sect', 'Pavilion', 'Palace', 'Valley', 'Mountain', 'Peak', 'Hall', 'Manor', 'Temple', 'School', 'Gate', 'Sword Sect', 'Abode'];
+function sectName() {
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  let a = pick(SECT_FIRST), b = pick(SECT_SECOND);
+  while (b === a) b = pick(SECT_SECOND);
+  let k = pick(SECT_KIND);
+  if (k === 'Sword Sect' && b === 'Sword') k = 'Sect';
+  if (k === 'Peak' && b === 'Peak') k = 'Sect';
+  return `${a} ${b} ${k}`;
+}
+
 function renderFounding() {
   const courses = OV.courses;
   const LANGS = [
@@ -191,7 +205,7 @@ function renderFounding() {
       <section class="rite-step" data-step="1">
         <h1>Found your sect</h1>
         <p class="rite-lede">Every answer you give from memory becomes qi. Qi raises your realm, and your realm raises the sect.</p>
-        <label class="field"><span>Name of the sect</span><input type="text" id="f-name" maxlength="40" placeholder="Azure Lantern Sect" autocomplete="off"></label>
+        <label class="field"><span>Name of the sect</span><span class="namebox"><input type="text" id="f-name" maxlength="40" placeholder="${esc(sectName())}" autocomplete="off"><button type="button" class="dice" id="f-dice" title="Roll a sect name" aria-label="Roll a random sect name">🎲</button></span></label>
         <label class="field"><span>Your name as Sect Master</span><input type="text" id="f-master" maxlength="30" placeholder="Master Jay" autocomplete="off"></label>
         <div class="rite-foot"><span></span><button class="btn primary big" data-next>Choose your arts</button></div>
       </section>
@@ -260,6 +274,10 @@ function renderFounding() {
     }
     if (t.classList.contains('level') || t.classList.contains('seal')) { const id = t.dataset.id; if (picked.has(id)) picked.delete(id); else picked.add(id); sync(); return; }
     if (t.classList.contains('fate')) { tell = t.dataset.tell; root.querySelectorAll('.fate').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); }
+  });
+  root.querySelector('#f-dice').addEventListener('click', () => {
+    const f = root.querySelector('#f-name'); let n = sectName(); for (let i = 0; i < 5 && n === f.value; i++) n = sectName();
+    f.value = n; f.focus(); f.select();
   });
   root.querySelector('#f-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); root.querySelector('#f-master').focus(); } });
   root.querySelector('#f-master').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); show(2); } });
