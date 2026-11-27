@@ -323,7 +323,7 @@ units:
           - {who: A, l2: "请问，牛奶在哪儿？", rom: "Qǐngwèn, niúnǎi zài nǎr?", l1: "Excuse me, where's the milk?", alt: ["牛奶在哪儿？", "请问，牛奶在哪里？"]}
           - {who: B, l2: "在那边的冰箱里。", rom: "Zài nàbiān de bīngxiāng li.", l1: "In the fridge over there."}
           - {who: A, l2: "鸡蛋也在那儿吗？", rom: "Jīdàn yě zài nàr ma?", l1: "Are the eggs there too?", alt: ["鸡蛋也在那边吗？", "鸡蛋呢？"]}
-          - {who: B, l2: "不，鸡蛋在水果旁边。", rom: "Bù, jīdàn zài shuǐguǒ pángbiān.", l1: "No, the eggs are next to the fruit."}
+          - {who: B, l2: "不在，鸡蛋在水果旁边。", rom: "Bú zài, jīdàn zài shuǐguǒ pángbiān.", l1: "No, the eggs are next to the fruit."}
           - {who: A, l2: "谢谢。我买这些。", rom: "Xièxie. Wǒ mǎi zhèxiē.", l1: "Thanks. I'll take these.", alt: ["谢谢，我要买这些。", "好，谢谢。我买这些。"]}
           - {who: B, l2: "好的。要袋子吗？", rom: "Hǎo de. Yào dàizi ma?", l1: "OK. Do you need a bag?"}
           - {who: A, l2: "要一个。可以刷卡吗？", rom: "Yào yí ge. Kěyǐ shuā kǎ ma?", l1: "One, please. Can I pay by card?", alt: ["要。可以刷卡吗？", "要一个。能刷卡吗？"]}
@@ -509,7 +509,7 @@ units:
       ## Visiting someone ill
       听说你病了 (I heard you were ill). Bring fruit. Leave with 早点儿好起来！ (get well soon).
 
-      In 着急 and 急, 急 is "urgent": 有点儿急 = I'm a bit pressed for time.
+      **急** (jí) is "urgent, pressed": 有点儿急 = I'm a bit pressed for time. 着急 (zháojí) is worried, in a hurry.
     items:
       - id: zh-talk-05-register
         type: dialogue
@@ -751,7 +751,7 @@ units:
           - {who: B, l2: "好，我四点以后有空。", rom: "Hǎo, wǒ sì diǎn yǐhòu yǒu kòng.", l1: "OK, I'm free after four."}
           - {who: A, l2: "好的，四点以后给你打电话。", rom: "Hǎo de, sì diǎn yǐhòu gěi nǐ dǎ diànhuà.", l1: "Fine, I'll phone you after four.", alt: ["好，四点以后再打给你。", "好的，四点以后打给你。"]}
           - {who: B, l2: "好，拜拜！", rom: "Hǎo, báibái!", l1: "OK, bye!"}
-          - {who: A, l2: "拜拜！", rom: "Báibái!", l1: "Bye!", alt: ["再见！", "好，拜拜！"]}
+          - {who: A, l2: "拜拜！", rom: "Báibái!", l1: "Bye!", alt: ["再见！", "好，拜拜！", "bāibāi!", "bàibài!"]}
 
       - id: zh-talk-07-message
         type: dialogue
@@ -907,7 +907,7 @@ units:
           - {who: A, l2: "有下午的吗？", rom: "Yǒu xiàwǔ de ma?", l1: "Is there anything in the afternoon?", alt: ["有没有下午的？", "下午的有吗？"]}
           - {who: B, l2: "有，下午两点十分，还有二等座。", rom: "Yǒu, xiàwǔ liǎng diǎn shí fēn, hái yǒu èrděngzuò.", l1: "Yes, ten past two in the afternoon, with second-class seats still available."}
           - {who: A, l2: "多少钱？", rom: "Duōshao qián?", l1: "How much is it?", alt: ["二等座多少钱？", "一张多少钱？"]}
-          - {who: B, l2: "五百五十三块。请给我您的护照。", rom: "Wǔbǎi wǔshísān kuài. Qǐng gěi wǒ nín de hùzhào.", l1: "Five hundred and fifty-three yuan. Your passport, please."}
+          - {who: B, l2: "五百多块。请给我您的护照。", rom: "Wǔbǎi duō kuài. Qǐng gěi wǒ nín de hùzhào.", l1: "A little over five hundred yuan. Your passport, please."}
           - {who: A, l2: "给您。从哪个站出发？", rom: "Gěi nín. Cóng nǎge zhàn chūfā?", l1: "Here you are. Which station does it leave from?", alt: ["给你。从哪个站出发？", "给您。在哪个站上车？"]}
           - {who: B, l2: "北京南站。", rom: "Běijīng Nán zhàn.", l1: "Beijing South."}
 

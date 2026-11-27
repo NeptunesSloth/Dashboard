@@ -70,9 +70,9 @@ units:
       - {id: zh2-01-c2, type: cloze, text: "___十二点了，我们吃午饭吧。", answer: "快", alt: ["kuài", "快要", "kuàiyào"], l1: "It's almost twelve; let's have lunch.", note: "快 … 了 = nearly, about to."}
       - {id: zh2-01-c3, type: cloze, text: "我___喝一杯咖啡，然后上班。", answer: "先", alt: ["xiān"], l1: "First I have a cup of coffee, then I go to work.", note: "先 goes before the first verb."}
       - {id: zh2-01-c4, type: cloze, text: "我们先去商店，___回家。", answer: "然后", alt: ["ránhòu", "再", "zài"], l1: "We'll go to the shop first, and then go home.", note: "先 … 然后 … or 先 … 再 …."}
-      - {id: zh2-01-c5, type: cloze, text: "我___不喜欢喝茶，现在很喜欢。", answer: "以前", alt: ["yǐqián"], l1: "I didn't use to like tea; now I like it a lot."}
-      - {id: zh2-01-c6, type: cloze, text: "下班___，我去你家。", answer: "以后", alt: ["yǐhòu"], l1: "After work I'll come over to your place.", note: "以后 follows the event it is 'after'."}
-      - {id: zh2-01-c7, type: cloze, text: "他___喝了三杯咖啡，现在不想喝了。", answer: "刚才", alt: ["gāngcái", "刚", "gāng"], l1: "He's just had three cups of coffee, so he doesn't want any more now."}
+      - {id: zh2-01-c5, type: cloze, text: "我___不喜欢喝茶，现在很喜欢。", answer: "以前", alt: ["yǐqián", "原来", "yuánlái", "过去", "guòqù"], l1: "I didn't use to like tea; now I like it a lot."}
+      - {id: zh2-01-c6, type: cloze, text: "下班___，我去你家。", answer: "以后", alt: ["yǐhòu", "后", "hòu", "之后", "zhīhòu"], l1: "After work I'll come over to your place.", note: "以后 follows the event it is 'after'."}
+      - {id: zh2-01-c7, type: cloze, text: "他___喝了三杯咖啡，现在不想喝了。", answer: "刚才", alt: ["gāngcái", "刚", "gāng", "刚刚", "gānggāng"], l1: "He's just had three cups of coffee, so he doesn't want any more now."}
       - id: zh2-01-d1
         type: dialogue
         title: "How long have you been learning?"
@@ -143,7 +143,7 @@ units:
       - {id: zh2-02-haimeiquguo, type: phrase, l2: "我还没去过。", rom: "Wǒ hái méi qù guo.", l1: "I haven't been there yet.", alt: ["还没去过。", "我还没有去过。"]}
       - {id: zh2-02-c1, type: cloze, text: "我去___长城，长城很漂亮。", answer: "过", alt: ["guo", "guò"], l1: "I've been to the Great Wall; it's beautiful.", note: "Verb + 过 = have had the experience."}
       - {id: zh2-02-c2, type: cloze, text: "我___去过上海。", answer: "没", alt: ["méi", "没有", "méiyǒu", "从来没", "cónglái méi", "从来没有", "cónglái méiyǒu"], l1: "I have never been to Shanghai.", note: "没 + verb + 过: here 过 stays."}
-      - {id: zh2-02-c3, type: cloze, text: "他来过我家三___。", answer: "次", alt: ["cì"], l1: "He has been to my home three times.", note: "Number + 次 comes after the verb (and here after the place)."}
+      - {id: zh2-02-c3, type: cloze, text: "他来过我家三___。", answer: "次", alt: ["cì", "趟", "tàng", "回", "huí"], l1: "He has been to my home three times.", note: "Number + 次 comes after the verb (and here after the place)."}
       - {id: zh2-02-c4, type: cloze, text: "我___没看过中国电影。", answer: "从来", alt: ["cónglái"], l1: "I have never seen a Chinese film.", note: "从来没 … 过 = never (ever)."}
       - {id: zh2-02-c5, type: cloze, text: "这是我___一次坐飞机。", answer: "第", alt: ["dì"], l1: "This is my first time on a plane.", note: "第 + number gives an order: first, second, third."}
       - {id: zh2-02-c6, type: cloze, text: "他是___国人，他是美国人。", answer: "外", alt: ["wài"], l1: "He's a foreigner; he's American."}
@@ -217,7 +217,7 @@ units:
       - {id: zh2-03-gen, type: vocab, l2: "跟", rom: "gēn", l1: "with (together with someone)", ex: "我跟朋友去看电影。", ex_rom: "Wǒ gēn péngyou qù kàn diànyǐng.", ex_l1: "I'm going to see a film with a friend.", note: "跟 + person comes before the verb."}
       - {id: zh2-03-yiqi, type: vocab, l2: "一起", rom: "yìqǐ", l1: "together", ex: "我们一起吃饭吧。", ex_rom: "Wǒmen yìqǐ chī fàn ba.", ex_l1: "Let's eat together.", note: "一 is yì before the third tone of qǐ."}
       - {id: zh2-03-jiedianhua, type: vocab, l2: "接电话", rom: "jiē diànhuà", l1: "to answer the phone", ex: "他在洗澡，不能接电话。", ex_rom: "Tā zài xǐzǎo, bù néng jiē diànhuà.", ex_l1: "He's in the shower and can't answer the phone."}
-      - {id: zh2-03-zaizuoshenme, type: phrase, l2: "你在做什么？", rom: "Nǐ zài zuò shénme?", l1: "What are you doing?", alt: ["你在干什么？", "nǐ zài gàn shénme?", "你正在做什么？", "你在做什么呢？", "你在干嘛？", "nǐ zài gàn má?"]}
+      - {id: zh2-03-zaizuoshenme, type: phrase, l2: "你在做什么？", rom: "Nǐ zài zuò shénme?", l1: "What are you doing?", alt: ["你在干什么？", "nǐ zài gàn shénme?", "你正在做什么？", "你在做什么呢？", "你在干嘛？", "你在干吗？", "nǐ zài gàn má?"]}
       - {id: zh2-03-kandianshine, type: phrase, l2: "我在看电视呢。", rom: "Wǒ zài kàn diànshì ne.", l1: "I'm watching TV right now.", alt: ["我正在看电视。", "我在看电视。", "我正在看电视呢。"]}
       - {id: zh2-03-dengyixia, type: phrase, l2: "请等一下。", rom: "Qǐng děng yíxià.", l1: "Please wait a moment.", alt: ["请等一会儿。", "等一下。", "请稍等。", "qǐng shāo děng."], note: "Verb + 一下 = do it briefly. 一 is yí before the fourth tone of xià."}
       - {id: zh2-03-meizaigongzuo, type: phrase, l2: "他没在工作，他在玩游戏。", rom: "Tā méi zài gōngzuò, tā zài wán yóuxì.", l1: "He isn't working; he's playing games.", alt: ["他没有在工作，他在玩游戏。"]}
@@ -299,9 +299,9 @@ units:
       - {id: zh2-04-zuozheliaotian, type: phrase, l2: "我们坐着聊天吧。", rom: "Wǒmen zuò zhe liáotiān ba.", l1: "Let's sit and chat.", alt: ["我们坐着聊吧。", "坐着聊天吧。"]}
       - {id: zh2-04-c1, type: cloze, text: "他穿___一件黑大衣。", answer: "着", alt: ["zhe"], l1: "He is wearing a black overcoat.", note: "Verb + 着: the state lasts."}
       - {id: zh2-04-c2, type: cloze, text: "我爸爸___着眼镜。", answer: "戴", alt: ["dài"], l1: "My dad is wearing glasses.", note: "Glasses are 戴, not 穿."}
-      - {id: zh2-04-c3, type: cloze, text: "天气很冷，你___毛衣吧。", answer: "穿", alt: ["chuān"], l1: "It's cold, so put on a sweater."}
+      - {id: zh2-04-c3, type: cloze, text: "天气很冷，你___毛衣吧。", answer: "穿", alt: ["chuān", "穿上", "chuānshang", "chuānshàng"], l1: "It's cold, so put on a sweater."}
       - {id: zh2-04-c4, type: cloze, text: "空调___着，房间里很冷。", answer: "开", alt: ["kāi"], l1: "The air conditioning is on, so it's cold in the room."}
-      - {id: zh2-04-c5, type: cloze, text: "请___灯，我要睡觉了。", answer: "关", alt: ["guān"], l1: "Please turn off the light; I'm going to sleep."}
+      - {id: zh2-04-c5, type: cloze, text: "请___灯，我要睡觉了。", answer: "关", alt: ["guān", "关上", "guānshang", "guānshàng", "关掉", "guāndiào"], l1: "Please turn off the light; I'm going to sleep."}
       - {id: zh2-04-c6, type: cloze, text: "这件毛衣很___，我买了。", answer: "好看", alt: ["hǎokàn", "漂亮", "piàoliang"], l1: "This sweater looks nice, so I bought it."}
       - {id: zh2-04-c7, type: cloze, text: "这件大衣很___，不大也不小。", answer: "合适", alt: ["héshì"], l1: "This overcoat fits well: neither too big nor too small."}
       - id: zh2-04-d1
@@ -333,7 +333,7 @@ units:
       - **Never 很** in a 比 sentence: not 他比我很高. Use 更 (even more) instead, or put the amount *after* the adjective: 一点儿, 得多, 三岁.
 
       ## Not as … as: A 没有 B (那么) + adjective
-      北京没有上海那么热。 Beijing isn't as hot as Shanghai. This is the usual negative; 不比 is a contradiction ("no hotter").
+      北京没有上海那么热。 Beijing isn't as hot as Shanghai. This is the usual negative. 不比 means "no more … than" and is used to contradict someone: 北京不比上海热 = Beijing is no hotter than Shanghai.
 
       ## The same: A 跟 B 一样 (+ adjective)
       我的手机跟你的一样。 This one is as expensive as that one: 这个跟那个一样贵。 Different: 不一样.
@@ -530,10 +530,10 @@ units:
       - {id: zh2-07-c1, type: cloze, text: "这个汤___辣，我不太喜欢。", answer: "有点儿", alt: ["yǒudiǎnr", "有点", "yǒudiǎn"], l1: "This soup is a bit spicy; I don't really like it.", note: "有点儿 + adjective: a bit too …."}
       - {id: zh2-07-c2, type: cloze, text: "你们___位？", answer: "几", alt: ["jǐ"], l1: "How many of you are there?"}
       - {id: zh2-07-c3, type: cloze, text: "___喝了，你已经喝了三瓶啤酒了。", answer: "别", alt: ["bié", "不要", "bú yào"], l1: "Stop drinking: you've already had three bottles of beer."}
-      - {id: zh2-07-c4, type: cloze, text: "我还没吃饱，想___要一碗米饭。", answer: "再", alt: ["zài", "还", "hái"], l1: "I'm not full yet; I'd like another bowl of rice.", note: "再 + verb = one more, again."}
+      - {id: zh2-07-c4, type: cloze, text: "我还没吃饱，想___要一碗米饭。", answer: "再", alt: ["zài"], l1: "I'm not full yet; I'd like another bowl of rice.", note: "再 + verb = one more, again. 还 (also, still) would go before 想: 我还想要一碗米饭."}
       - {id: zh2-07-c5, type: cloze, text: "我不吃肉，我吃___。", answer: "素", alt: ["sù"], l1: "I don't eat meat; I'm vegetarian."}
       - {id: zh2-07-c6, type: cloze, text: "菜太多了，我们___吧。", answer: "打包", alt: ["dǎbāo"], l1: "There's too much food; let's take the rest away."}
-      - {id: zh2-07-c7, type: cloze, text: "我___了，请给我一杯水。", answer: "渴", alt: ["kě"], l1: "I'm thirsty; please give me a glass of water.", note: "了 here is the 'new situation': I've become thirsty."}
+      - {id: zh2-07-c7, type: cloze, text: "我___了，请给我一杯水。", answer: "渴", alt: ["kě", "口渴", "kǒukě"], l1: "I'm thirsty; please give me a glass of water.", note: "了 here is the 'new situation': I've become thirsty."}
       - id: zh2-07-d1
         type: dialogue
         title: "A table for two"
@@ -545,7 +545,7 @@ units:
           - {who: A, l2: "这边请。这是菜单，你们想吃什么？", rom: "Zhè biān qǐng. Zhè shì càidān, nǐmen xiǎng chī shénme?", l1: "This way, please. Here's the menu; what would you like?"}
           - {who: B, l2: "我们要一条鱼和两碗米饭。", rom: "Wǒmen yào yì tiáo yú hé liǎng wǎn mǐfàn.", l1: "We'll have a fish and two bowls of rice.", alt: ["一条鱼，两碗米饭。", "我们要一条鱼，两碗米饭。", "要一条鱼和两碗米饭。"]}
           - {who: A, l2: "好的。鱼要辣的吗？", rom: "Hǎo de. Yú yào là de ma?", l1: "Certainly. Would you like the fish spicy?"}
-          - {who: B, l2: "别太辣，谢谢。", rom: "Bié tài là, xièxie.", l1: "Not too spicy, thanks.", alt: ["不要太辣，谢谢。", "请不要太辣。", "别太辣。", "有点儿辣就可以。"]}
+          - {who: B, l2: "别太辣，谢谢。", rom: "Bié tài là, xièxie.", l1: "Not too spicy, thanks.", alt: ["不要太辣，谢谢。", "请不要太辣。", "别太辣。", "少放点儿辣，谢谢。"]}
           - {who: A, l2: "喝点儿什么？", rom: "Hē diǎnr shénme?", l1: "Anything to drink?"}
           - {who: B, l2: "两瓶啤酒。", rom: "Liǎng píng píjiǔ.", l1: "Two bottles of beer.", alt: ["我们要两瓶啤酒。", "两瓶啤酒，谢谢。", "要两瓶啤酒。"]}
 
@@ -657,7 +657,7 @@ units:
       - {id: zh2-09-g-yuan, type: glyph, l2: "远", rom: "yuǎn", l1: "far", note: "The walking part 辶."}
       - {id: zh2-09-g-jin, type: glyph, l2: "近", rom: "jìn", l1: "near, close", note: "The walking part 辶 again, with 斤 inside."}
       - {id: zh2-09-g-cong, type: glyph, l2: "从", rom: "cóng", l1: "from", note: "One person following another."}
-      - {id: zh2-09-g-lu, type: glyph, l2: "路", rom: "lù", l1: "road; route (of a bus)", note: "The foot part 足 on the left. 一路 = bus number one."}
+      - {id: zh2-09-g-lu, type: glyph, l2: "路", rom: "lù", l1: "road; route (of a bus)", note: "The foot part 足 on the left. Bus routes are numbered with it: 1路 = the number 1 bus."}
       - {id: zh2-09-g-zhan, type: glyph, l2: "站", rom: "zhàn", l1: "station, stop; to stand", note: "The standing part 立 on the left."}
       - {id: zh2-09-g-qi, type: glyph, l2: "骑", rom: "qí", l1: "to ride (sitting astride)", note: "The horse part 马 on the left."}
       - {id: zh2-09-gongjiaoche, type: vocab, l2: "公交车", rom: "gōngjiāochē", l1: "bus (city bus)", alt: ["公共汽车", "gōnggòng qìchē"], ex: "我坐公交车上班。", ex_rom: "Wǒ zuò gōngjiāochē shàngbān.", ex_l1: "I go to work by bus."}
@@ -682,7 +682,7 @@ units:
       - {id: zh2-09-congdao, type: phrase, l2: "从这儿到机场要多长时间？", rom: "Cóng zhèr dào jīchǎng yào duō cháng shíjiān?", l1: "How long does it take from here to the airport?", alt: ["从这里到机场要多长时间？", "从这儿到机场要多久？", "从这儿到机场要多少时间？"]}
       - {id: zh2-09-yilupingan, type: phrase, l2: "一路平安！", rom: "Yílù píng'ān!", l1: "Have a safe journey!", alt: ["一路顺风！", "yílù shùnfēng!"], note: "一 is yí before the fourth tone of lù."}
       - {id: zh2-09-c1, type: cloze, text: "学校___我家很近。", answer: "离", alt: ["lí"], l1: "The school is close to my home.", note: "A 离 B + 近 / 远."}
-      - {id: zh2-09-c2, type: cloze, text: "___北京到上海坐高铁要五个小时。", answer: "从", alt: ["cóng"], l1: "From Beijing to Shanghai takes five hours by high-speed train."}
+      - {id: zh2-09-c2, type: cloze, text: "___北京到上海坐高铁大概要五个小时。", answer: "从", alt: ["cóng"], l1: "From Beijing to Shanghai takes about five hours by high-speed train.", note: "大概 (dàgài) = about, roughly. 从 A 到 B = from A to B."}
       - {id: zh2-09-c3, type: cloze, text: "你是什么时候到___？", answer: "的", alt: ["de"], l1: "When did you arrive?", note: "是 … 的 for a detail (when) of something that has happened."}
       - {id: zh2-09-c4, type: cloze, text: "我每天___自行车上班。", answer: "骑", alt: ["qí"], l1: "I ride a bicycle to work every day."}
       - {id: zh2-09-c5, type: cloze, text: "我们在火车站___地铁。", answer: "换", alt: ["huàn"], l1: "We change to the subway at the railway station."}
@@ -709,8 +709,8 @@ units:
     notes: |
       **来** means movement **towards the speaker**, **去** movement **away**. Put them after a verb of motion and they become a direction complement, said with a light tone:
 
-      | | | |
-      |---|---|---|
+      | | | | |
+      |---|---|---|---|
       | 进来 jìnlai | come in | 出去 chūqu | go out |
       | 上来 shànglai | come up | 下去 xiàqu | go down |
       | 回来 huílai | come back | 过去 guòqu | go over |
@@ -736,7 +736,7 @@ units:
     items:
       - {id: zh2-10-g-jin, type: glyph, l2: "进", rom: "jìn", l1: "to enter", note: "The walking part 辶. Same sound as 近 (near)."}
       - {id: zh2-10-g-chu, type: glyph, l2: "出", rom: "chū", l1: "to go out, to come out", note: "You met it in chūzūchē (taxi)."}
-      - {id: zh2-10-g-men, type: glyph, l2: "门", rom: "mén", l1: "door, gate", note: "A picture of a double door. Inside 们, 问 and 间."}
+      - {id: zh2-10-g-men, type: glyph, l2: "门", rom: "mén", l1: "door, gate", note: "A picture of a double door. Also part of 们, 问 and 间."}
       - {id: zh2-10-g-lou, type: glyph, l2: "楼", rom: "lóu", l1: "building; floor (storey)", note: "The wood part 木 on the left."}
       - {id: zh2-10-g-wang, type: glyph, l2: "往", rom: "wǎng", l1: "towards", note: "The 'step' part 彳 on the left. 住 (to live) has 亻 instead."}
       - {id: zh2-10-g-dong, type: glyph, l2: "东", rom: "dōng", l1: "east", note: "The first half of dōngxi (thing)."}
@@ -841,7 +841,7 @@ units:
       - {id: zh2-11-haoduole, type: phrase, l2: "我好多了。", rom: "Wǒ hǎo duō le.", l1: "I'm much better.", alt: ["好多了。", "我好多了，谢谢。"]}
       - {id: zh2-11-c1, type: cloze, text: "我___了，咳嗽，头也疼。", answer: "感冒", alt: ["gǎnmào"], l1: "I've caught a cold: I'm coughing and my head hurts too."}
       - {id: zh2-11-c2, type: cloze, text: "你发烧了，___去看医生。", answer: "应该", alt: ["yīnggāi", "得", "děi", "要", "yào"], l1: "You've got a fever; you should see a doctor."}
-      - {id: zh2-11-c3, type: cloze, text: "我好了，不___吃药了。", answer: "用", alt: ["yòng"], l1: "I'm better; I don't need to take medicine any more.", note: "No need = 不用, never 不得."}
+      - {id: zh2-11-c3, type: cloze, text: "我好了，不___吃药了。", answer: "用", alt: ["yòng", "必", "bì", "需要", "xūyào"], l1: "I'm better; I don't need to take medicine any more.", note: "No need = 不用, never 不得."}
       - {id: zh2-11-c4, type: cloze, text: "医生说我要多___。", answer: "休息", alt: ["xiūxi"], l1: "The doctor says I need to rest more."}
       - {id: zh2-11-c5, type: cloze, text: "我昨天晚上___烧了，三十九度。", answer: "发", alt: ["fā"], l1: "Last night I had a fever: 39 degrees."}
       - {id: zh2-11-c6, type: cloze, text: "这种药一天吃三___。", answer: "次", alt: ["cì"], l1: "Take this medicine three times a day."}
@@ -915,7 +915,7 @@ units:
       - {id: zh2-12-xiecuole, type: phrase, l2: "这个字我写错了。", rom: "Zhège zì wǒ xiě cuò le.", l1: "I wrote this character wrong.", alt: ["我写错了这个字。", "我把这个字写错了。"]}
       - {id: zh2-12-zhaodaocidian, type: phrase, l2: "我找到我的词典了。", rom: "Wǒ zhǎodào wǒ de cídiǎn le.", l1: "I've found my dictionary.", alt: ["我的词典找到了。", "我找到词典了。"]}
       - {id: zh2-12-c1, type: cloze, text: "这本书我已经看___了。", answer: "完", alt: ["wán"], l1: "I've already finished reading this book."}
-      - {id: zh2-12-c2, type: cloze, text: "老师的话我听___了。", answer: "懂", alt: ["dǒng"], l1: "I understood what the teacher said."}
+      - {id: zh2-12-c2, type: cloze, text: "老师的话我听___了。", answer: "懂", alt: ["dǒng", "明白", "míngbai"], l1: "I understood what the teacher said."}
       - {id: zh2-12-c3, type: cloze, text: "对不起，我说___了。", answer: "错", alt: ["cuò"], l1: "Sorry, I said it wrong."}
       - {id: zh2-12-c4, type: cloze, text: "你看___我的手机了吗？", answer: "见", alt: ["jiàn", "到", "dào"], l1: "Have you seen my phone?"}
       - {id: zh2-12-c5, type: cloze, text: "我学___了五十个汉字。", answer: "会", alt: ["huì"], l1: "I've learned fifty characters (I can now write them)."}
@@ -988,7 +988,7 @@ units:
       - {id: zh2-13-zuobuwan, type: phrase, l2: "今天的工作我做不完。", rom: "Jīntiān de gōngzuò wǒ zuò bu wán.", l1: "I can't get today's work finished.", alt: ["我今天的工作做不完。", "今天的工作做不完。"]}
       - {id: zh2-13-tingdejian, type: phrase, l2: "你听得见吗？", rom: "Nǐ tīng de jiàn ma?", l1: "Can you hear (me)?", alt: ["你听得见我吗？", "听得见吗？", "你听得到吗？", "你能听见吗？"]}
       - {id: zh2-13-zaikaihui, type: phrase, l2: "经理在开会。", rom: "Jīnglǐ zài kāihuì.", l1: "The manager is in a meeting.", alt: ["经理正在开会。", "经理在开会呢。"]}
-      - {id: zh2-13-c1, type: cloze, text: "他说得太快，我听不___。", answer: "懂", alt: ["dǒng"], l1: "He speaks too fast; I can't follow."}
+      - {id: zh2-13-c1, type: cloze, text: "他说得太快，我听不___。", answer: "懂", alt: ["dǒng", "清楚", "qīngchu", "明白", "míngbai"], l1: "He speaks too fast; I can't follow."}
       - {id: zh2-13-c2, type: cloze, text: "工作太多了，你今天做得___吗？", answer: "完", alt: ["wán"], l1: "There's so much work: can you get it finished today?"}
       - {id: zh2-13-c3, type: cloze, text: "太晚了，我们来___及了。", answer: "不", alt: ["bu", "bù"], l1: "It's too late; we won't make it in time.", note: "来不及: there's no time left."}
       - {id: zh2-13-c4, type: cloze, text: "这种药在这儿买不___。", answer: "到", alt: ["dào", "着", "zháo"], l1: "You can't get this medicine here."}
@@ -1078,7 +1078,7 @@ units:
       - {id: zh2-14-c4, type: cloze, text: "昨天的比赛我们___了，三比一！", answer: "赢", alt: ["yíng"], l1: "We won yesterday's match, three-one!", note: "Scores are said with 比: 三比一."}
       - {id: zh2-14-c5, type: cloze, text: "这个电影很有___，我看了两次。", answer: "意思", alt: ["yìsi"], l1: "This film is very interesting; I've seen it twice."}
       - {id: zh2-14-c6, type: cloze, text: "你应该多___身体。", answer: "锻炼", alt: ["duànliàn"], l1: "You should get more exercise."}
-      - {id: zh2-14-c7, type: cloze, text: "她唱歌唱得___好听。", answer: "很", alt: ["hěn", "非常", "fēicháng", "真", "zhēn"], l1: "She sings very nicely.", note: "得 + (很) + adjective."}
+      - {id: zh2-14-c7, type: cloze, text: "她唱歌唱得___好听。", answer: "很", alt: ["hěn", "非常", "fēicháng", "真", "zhēn", "特别", "tèbié", "挺", "tǐng"], l1: "She sings very nicely.", note: "得 + (很) + adjective."}
       - id: zh2-14-d1
         type: dialogue
         title: "What do you do at the weekend?"
@@ -1232,7 +1232,7 @@ units:
       - {id: zh2-16-zhendaomei, type: phrase, l2: "真倒霉！", rom: "Zhēn dǎoméi!", l1: "What bad luck!", alt: ["太倒霉了！", "真倒霉啊！"]}
       - {id: zh2-16-c1, type: cloze, text: "我的苹果___弟弟吃了。", answer: "被", alt: ["bèi", "让", "ràng", "叫", "jiào"], l1: "My apple got eaten by my younger brother."}
       - {id: zh2-16-c2, type: cloze, text: "他被老师___了，很难过。", answer: "批评", alt: ["pīpíng"], l1: "He was told off by the teacher and is very upset."}
-      - {id: zh2-16-c3, type: cloze, text: "我的护照___了，怎么办？", answer: "丢", alt: ["diū"], l1: "I've lost my passport: what shall I do?"}
+      - {id: zh2-16-c3, type: cloze, text: "我的护照___了，怎么办？", answer: "丢", alt: ["diū", "不见", "bú jiàn"], l1: "I've lost my passport: what shall I do?"}
       - {id: zh2-16-c4, type: cloze, text: "电脑被弟弟弄___了。", answer: "坏", alt: ["huài"], l1: "The computer got broken by my younger brother.", note: "弄坏 = to break (by doing something to it)."}
       - {id: zh2-16-c5, type: cloze, text: "我的车被一辆出租车___了。", answer: "撞", alt: ["zhuàng"], l1: "My car was hit by a taxi."}
       - {id: zh2-16-c6, type: cloze, text: "别___，警察马上就来。", answer: "着急", alt: ["zháojí", "担心", "dānxīn", "害怕", "hàipà"], l1: "Don't panic; the police are coming right away."}
@@ -1263,7 +1263,7 @@ units:
       **因为** A，**所以** B. 因为下雨，所以我没去。 Either half can be dropped in speech (下雨了，所以我没去), but both together is normal and correct.
 
       ## Although … but …
-      **虽然** A，**但是** B. 虽然汉语很难，但是很有意思。 In English "although … but" is wrong; in Chinese, leaving out 但是 sounds unfinished. 可是 and 不过 are softer alternatives to 但是.
+      **虽然** A，**但是** B. 虽然汉语很难，但是很有意思。 In English "although … but" is wrong; in Chinese, 虽然 without 但是 (or 可是, 不过) usually sounds unfinished. 可是 and 不过 are softer alternatives to 但是.
 
       | | | |
       |---|---|---|
@@ -1308,7 +1308,7 @@ units:
       - {id: zh2-17-c1, type: cloze, text: "因为我很累，___我想早点儿睡觉。", answer: "所以", alt: ["suǒyǐ"], l1: "Because I'm tired, I want to go to bed early."}
       - {id: zh2-17-c2, type: cloze, text: "___这件衣服很贵，但是很好看。", answer: "虽然", alt: ["suīrán"], l1: "Although this piece of clothing is expensive, it looks good."}
       - {id: zh2-17-c3, type: cloze, text: "虽然我学了两年汉语，___我说得不好。", answer: "但是", alt: ["dànshì", "可是", "kěshì", "不过", "búguò"], l1: "Although I've studied Chinese for two years, I don't speak it well.", note: "虽然 needs its partner 但是 (or 可是, 不过)."}
-      - {id: zh2-17-c4, type: cloze, text: "他很聪明，___很热情。", answer: "而且", alt: ["érqiě", "也", "yě"], l1: "He's clever, and warm and friendly too."}
+      - {id: zh2-17-c4, type: cloze, text: "他很聪明，___很热情。", answer: "而且", alt: ["érqiě", "也", "yě", "还", "hái"], l1: "He's clever, and warm and friendly too."}
       - {id: zh2-17-c5, type: cloze, text: "明天要考试，我有点儿___。", answer: "紧张", alt: ["jǐnzhāng"], l1: "There's an exam tomorrow; I'm a bit nervous."}
       - {id: zh2-17-c6, type: cloze, text: "我___这个工作很满意。", answer: "对", alt: ["duì"], l1: "I'm very happy with this job.", note: "对 + thing + 满意 / 感兴趣."}
       - {id: zh2-17-c7, type: cloze, text: "他们去年___了，现在有一个孩子。", answer: "结婚", alt: ["jiéhūn"], l1: "They got married last year and now have a child."}
@@ -1319,7 +1319,7 @@ units:
         you: B
         lines:
           - {who: A, l2: "你昨天为什么没来？", rom: "Nǐ zuótiān wèi shénme méi lái?", l1: "Why didn't you come yesterday?"}
-          - {who: B, l2: "因为我生病了，所以没来。", rom: "Yīnwèi wǒ shēngbìng le, suǒyǐ méi lái.", l1: "Because I was ill, so I didn't come.", alt: ["因为我生病了。", "因为我病了，所以没来。", "我生病了，所以没来。", "因为我生病了，所以我没来。"]}
+          - {who: B, l2: "因为我生病了，所以没来。", rom: "Yīnwèi wǒ shēngbìng le, suǒyǐ méi lái.", l1: "Because I was ill, I didn't come.", alt: ["因为我生病了。", "因为我病了，所以没来。", "我生病了，所以没来。", "因为我生病了，所以我没来。"]}
           - {who: A, l2: "现在好了吗？", rom: "Xiànzài hǎo le ma?", l1: "Are you better now?"}
           - {who: B, l2: "好多了，但是还有点儿累。", rom: "Hǎo duō le, dànshì hái yǒudiǎnr lèi.", l1: "Much better, but I'm still a bit tired.", alt: ["好多了，可是还有点儿累。", "好多了，不过还有点儿累。", "好多了，但是还有点累。", "好多了，就是还有点儿累。"]}
           - {who: A, l2: "昨天的电影虽然很长，但是很有意思。", rom: "Zuótiān de diànyǐng suīrán hěn cháng, dànshì hěn yǒu yìsi.", l1: "Yesterday's film was long, but it was really interesting."}
@@ -1364,7 +1364,7 @@ units:
       - {id: zh2-18-g-ding, type: glyph, l2: "定", rom: "dìng", l1: "to fix, to settle (as in yídìng)", note: "Under a roof (宀)."}
       - {id: zh2-18-ruguo, type: vocab, l2: "如果", rom: "rúguǒ", l1: "if", ex: "如果你想去，我们一起去。", ex_rom: "Rúguǒ nǐ xiǎng qù, wǒmen yìqǐ qù.", ex_l1: "If you'd like to go, we'll go together."}
       - {id: zh2-18-dehua, type: vocab, l2: "的话", rom: "dehuà", l1: "if (at the end of the 'if' clause)", ex: "有时间的话，来我家玩吧。", ex_rom: "Yǒu shíjiān dehuà, lái wǒ jiā wán ba.", ex_l1: "If you have time, come round to my place."}
-      - {id: zh2-18-dasuan, type: vocab, l2: "打算", rom: "dǎsuan", l1: "to plan, to intend; a plan", ex: "我打算明年去中国。", ex_rom: "Wǒ dǎsuan míngnián qù Zhōngguó.", ex_l1: "I'm planning to go to China next year."}
+      - {id: zh2-18-dasuan, type: vocab, l2: "打算", rom: "dǎsuan", l1: "to plan, to intend; a plan", alt: ["dǎsuàn"], ex: "我打算明年去中国。", ex_rom: "Wǒ dǎsuan míngnián qù Zhōngguó.", ex_l1: "I'm planning to go to China next year."}
       - {id: zh2-18-youkong, type: vocab, l2: "有空", rom: "yǒu kòng", l1: "to be free (have free time)", alt: ["有空儿", "yǒu kòngr"], ex: "你今天晚上有空吗？", ex_rom: "Nǐ jīntiān wǎnshang yǒu kòng ma?", ex_l1: "Are you free this evening?"}
       - {id: zh2-18-jianmian, type: vocab, l2: "见面", rom: "jiànmiàn", l1: "to meet (each other)", ex: "我们在哪儿见面？", ex_rom: "Wǒmen zài nǎr jiànmiàn?", ex_l1: "Where shall we meet?", note: "No object: 跟他见面, not 见面他."}
       - {id: zh2-18-juhui, type: vocab, l2: "聚会", rom: "jùhuì", l1: "party, get-together", ex: "周末有一个聚会。", ex_rom: "Zhōumò yǒu yí ge jùhuì.", ex_l1: "There's a party at the weekend."}
@@ -1382,13 +1382,13 @@ units:
       - {id: zh2-18-ruguoxiayu, type: phrase, l2: "如果明天下雨，我们就不去了。", rom: "Rúguǒ míngtiān xià yǔ, wǒmen jiù bú qù le.", l1: "If it rains tomorrow, we won't go.", alt: ["如果明天下雨的话，我们就不去了。", "明天下雨的话，我们就不去了。"]}
       - {id: zh2-18-yidaojia, type: phrase, l2: "我一到家就给你打电话。", rom: "Wǒ yí dào jiā jiù gěi nǐ dǎ diànhuà.", l1: "I'll phone you as soon as I get home."}
       - {id: zh2-18-bujianbusan, type: phrase, l2: "不见不散！", rom: "Bú jiàn bú sàn!", l1: "See you there! (we won't leave until we've met)"}
-      - {id: zh2-18-c1, type: cloze, text: "___你有空，就来我家吃饭吧。", answer: "如果", alt: ["rúguǒ"], l1: "If you're free, come to my place for dinner."}
+      - {id: zh2-18-c1, type: cloze, text: "___你有空，就来我家吃饭吧。", answer: "如果", alt: ["rúguǒ", "要是", "yàoshi"], l1: "If you're free, come to my place for dinner."}
       - {id: zh2-18-c2, type: cloze, text: "如果你不舒服，___别去了。", answer: "就", alt: ["jiù"], l1: "If you're not feeling well, then don't go."}
       - {id: zh2-18-c3, type: cloze, text: "他___下课就回家了。", answer: "一", alt: ["yí", "yī"], l1: "He went home as soon as class ended.", note: "一 A 就 B. Here 一 is said yí before the fourth tone of xià."}
-      - {id: zh2-18-c4, type: cloze, text: "这个周末你___做什么？", answer: "打算", alt: ["dǎsuan", "想", "xiǎng", "要", "yào"], l1: "What are you planning to do this weekend?"}
+      - {id: zh2-18-c4, type: cloze, text: "这个周末你___做什么？", answer: "打算", alt: ["dǎsuan", "dǎsuàn", "想", "xiǎng", "要", "yào"], l1: "What are you planning to do this weekend?"}
       - {id: zh2-18-c5, type: cloze, text: "我想___你参加我的生日聚会。", answer: "邀请", alt: ["yāoqǐng", "请", "qǐng"], l1: "I'd like to invite you to my birthday party."}
       - {id: zh2-18-c6, type: cloze, text: "我给妈妈买了一个生日___。", answer: "礼物", alt: ["lǐwù"], l1: "I bought my mum a birthday present."}
-      - {id: zh2-18-c7, type: cloze, text: "明天八点见，你一定要___来！", answer: "准时", alt: ["zhǔnshí"], l1: "See you at eight tomorrow: make sure you're on time!"}
+      - {id: zh2-18-c7, type: cloze, text: "明天八点见，你一定要___来！", answer: "准时", alt: ["zhǔnshí", "按时", "ànshí"], l1: "See you at eight tomorrow: make sure you're on time!"}
       - {id: zh2-18-c8, type: cloze, text: "___你生日快乐！", answer: "祝", alt: ["zhù"], l1: "Happy birthday to you! (I wish you a happy birthday)"}
       - id: zh2-18-d1
         type: dialogue

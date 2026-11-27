@@ -20,7 +20,7 @@ units:
       *Le syndicat **exige que** la direction **prenne** une décision.*
 
       ## Verbs with two stems
-      The *nous* and *vous* forms come from *nous* in the present; the others from *ils*:
+      For most verbs the *nous* and *vous* forms come from *nous* in the present and the others from *ils* (*ils prennent → que je prenne*). *vouloir* and *savoir* are irregular: learn their stems.
 
       | verb | que je | que nous |
       |---|---|---|
@@ -134,7 +134,7 @@ units:
       - {id: fr-b2-02-il-me-semble, type: phrase, l2: "Il me semble que c'est injuste.", l1: "It seems to me that it's unfair.", alt: ["Il me semble que ce n'est pas juste."], note: "il me semble que (with a pronoun) + indicative; il semble que (without) usually + subjunctive."}
       - {id: fr-b2-02-il-se-peut, type: phrase, l2: "Il se peut qu'il y ait des grèves.", l1: "There may be strikes. (il se peut que…)", note: "il se peut que = it may be that, + subjunctive. il y a → qu'il y ait."}
       - {id: fr-b2-02-goutte-d-eau, type: phrase, l2: "C'est la goutte d'eau qui fait déborder le vase.", l1: "It's the last straw. (idiom)", alt: ["C'est la goutte qui fait déborder le vase."], note: "Literally 'the drop of water that makes the vase overflow'."}
-      - {id: fr-b2-02-huile-sur-le-feu, type: phrase, l2: "Il ne faut pas jeter de l'huile sur le feu.", l1: "We mustn't add fuel to the fire. (idiom)", alt: ["Il ne faut pas jeter d'huile sur le feu.", "Il ne faut pas mettre de l'huile sur le feu."], note: "To make a conflict worse. The fixed phrase keeps de l'huile even after ne pas."}
+      - {id: fr-b2-02-huile-sur-le-feu, type: phrase, l2: "Il ne faut pas jeter de l'huile sur le feu.", l1: "We mustn't add fuel to the fire. (idiom)", alt: ["Il ne faut pas jeter d'huile sur le feu.", "Il ne faut pas mettre de l'huile sur le feu."], note: "To make a conflict worse. After ne pas, strict grammar gives d'huile, but de l'huile is far more common in this fixed phrase; both are accepted."}
       - {id: fr-b2-02-c1, type: cloze, text: "Je crois que les électeurs ___ fatigués des promesses.", answer: "sont", l1: "I believe the voters are tired of promises.", note: "Affirmative croire / penser → indicative."}
       - {id: fr-b2-02-c2, type: cloze, text: "Je ne crois pas que cette réforme ___ juste.", answer: "soit", l1: "I don't believe this reform is fair.", note: "Negative croire / penser → subjunctive."}
       - {id: fr-b2-02-c3, type: cloze, text: "Il est probable que le président ___ un discours ce soir.", answer: "fera", alt: ["prononcera"], l1: "It's likely that the president will give a speech tonight.", note: "il est probable que → indicative, here the future."}
@@ -143,7 +143,7 @@ units:
       - {id: fr-b2-02-c6, type: cloze, text: "Il me semble que tu ___ tort.", answer: "as", l1: "It seems to me that you're wrong. (informal)", note: "il me semble que → indicative: avoir tort, tu as tort."}
       - {id: fr-b2-02-c7, type: cloze, text: "Je regrette que vous ne ___ pas venir au débat.", answer: "puissiez", l1: "I'm sorry that you can't come to the debate.", note: "regretter que + subjunctive: pouvoir → que vous puissiez."}
       - {id: fr-b2-02-c8, type: cloze, text: "J'espère que la réforme ___ adoptée.", answer: "sera", l1: "I hope the reform will be adopted.", note: "espérer que takes the indicative, here the future."}
-      - {id: fr-b2-02-c9, type: cloze, text: "Croyez-vous qu'ils ___ gagner les élections ?", answer: "puissent", alt: ["peuvent"], l1: "Do you think they can win the elections? (formal)", note: "In an inverted question the subjunctive is standard; the indicative is also heard."}
+      - {id: fr-b2-02-c9, type: cloze, text: "Croyez-vous qu'ils ___ gagner les élections ?", answer: "puissent", alt: ["peuvent", "pourront"], l1: "Do you think they can win the elections? (formal)", note: "In an inverted question the subjunctive is standard; the indicative (peuvent, pourront) is also correct and common."}
       - {id: fr-b2-02-c10, type: cloze, text: "Il nie qu'il y ___ un problème.", answer: "ait", l1: "He denies that there is a problem.", note: "nier que + subjunctive: il y a → qu'il y ait."}
       - {id: fr-b2-02-c11, type: cloze, text: "Je me réjouis que tu ___ à la manifestation avec nous.", answer: "viennes", l1: "I'm delighted you're coming to the demonstration with us. (informal)", note: "se réjouir que + subjunctive: venir → que tu viennes."}
       - {id: fr-b2-02-c12, type: cloze, text: "Il est évident que les inégalités ___.", answer: "augmentent", alt: ["progressent"], l1: "It is obvious that inequality is growing.", note: "il est évident / clair / certain que + indicative."}
@@ -220,7 +220,7 @@ units:
       - {id: fr-b2-03-c6, type: cloze, text: "Je viendrai à vélo, à condition qu'il ___ beau.", answer: "fasse", l1: "I'll come by bike, provided the weather is nice.", note: "à condition que + subjunctive: faire → qu'il fasse."}
       - {id: fr-b2-03-c7, type: cloze, text: "Attendons ici jusqu'à ce que la tempête ___.", answer: "passe", alt: ["cesse", "finisse"], l1: "Let's wait here until the storm passes.", note: "jusqu'à ce que + subjunctive."}
       - {id: fr-b2-03-c8, type: cloze, text: "On a fermé la plage de peur que les baigneurs ne ___ malades.", answer: "tombent", l1: "The beach was closed for fear that swimmers would fall ill.", note: "de peur que (ne) + subjunctive. tomber malade = to fall ill."}
-      - {id: fr-b2-03-c9, type: cloze, text: "Il est arrivé après que nous ___ partis.", answer: "étions", l1: "He arrived after we had left.", note: "après que takes the indicative, here the plus-que-parfait. 'après que nous soyons partis' is a common mistake."}
+      - {id: fr-b2-03-c9, type: cloze, text: "Il est arrivé après que nous ___ partis.", answer: "étions", l1: "He arrived after we had left.", note: "après que takes the indicative, here the plus-que-parfait. 'après que nous soyons partis' is a common mistake. Literary: après que nous fûmes partis."}
       - {id: fr-b2-03-c10, type: cloze, text: "Éteignez la lumière avant ___ sortir.", answer: "de", l1: "Turn off the light before you go out. (formal)", note: "Same subject → avant de + infinitive."}
       - {id: fr-b2-03-c11, type: cloze, text: "On peut se déplacer ___ polluer : à pied ou à vélo.", answer: "sans", l1: "You can get around without polluting: on foot or by bike.", note: "Same subject → sans + infinitive, never -ant."}
       - {id: fr-b2-03-c12, type: cloze, text: "Je baisse le chauffage afin que nous ___ de l'énergie.", answer: "économisions", l1: "I'm turning the heating down so that we save energy.", note: "afin que + subjunctive: que nous économisions."}
@@ -264,7 +264,7 @@ units:
       - {id: fr-b2-04-laboratoire, type: vocab, l2: "le laboratoire", l1: "the laboratory", alt: ["le labo"], ex: "Il travaille dans un laboratoire à Grenoble.", ex_l1: "He works in a laboratory in Grenoble.", note: "Casual: le labo."}
       - {id: fr-b2-04-ia, type: vocab, l2: "l'intelligence artificielle", l1: "artificial intelligence (AI)", alt: ["l'IA"], ex: "L'intelligence artificielle transforme de nombreux métiers.", ex_l1: "Artificial intelligence is transforming many jobs.", note: "Feminine. Abbreviation: l'IA (say 'i-a')."}
       - {id: fr-b2-04-donnees, type: vocab, l2: "les données", l1: "data", ex: "Cette appli collecte beaucoup de données personnelles.", ex_l1: "This app collects a lot of personal data.", note: "Feminine plural: une donnée, from donner (a 'given')."}
-      - {id: fr-b2-04-outil, type: vocab, l2: "l'outil", l1: "the tool", ex: "Internet est un outil formidable.", ex_l1: "The internet is a wonderful tool.", note: "Masculine; the final l is barely heard."}
+      - {id: fr-b2-04-outil, type: vocab, l2: "l'outil", l1: "the tool", ex: "Internet est un outil formidable.", ex_l1: "The internet is a wonderful tool.", note: "Masculine; the final l is silent: say 'ou-ti'."}
       - {id: fr-b2-04-progres, type: vocab, l2: "le progrès", l1: "progress / an advance", ex: "Tu as fait beaucoup de progrès en français !", ex_l1: "You've made a lot of progress in French!", note: "Countable in French: faire des progrès. The s is silent."}
       - {id: fr-b2-04-numerique, type: vocab, l2: "numérique", l1: "digital", ex: "Notre école passe au numérique.", ex_l1: "Our school is going digital.", note: "As a noun, le numérique = digital technology."}
       - {id: fr-b2-04-pirater, type: vocab, l2: "pirater", l1: "to hack (a computer) / to pirate (a film)", ex: "Mon compte a été piraté.", ex_l1: "My account has been hacked.", note: "le piratage = hacking; un pirate informatique = a hacker."}
@@ -423,14 +423,14 @@ units:
       - {id: fr-b2-06-c5, type: cloze, text: "Des médicaments ? J'en ai ___ trois.", answer: "pris", l1: "Medicines? I took three of them.", note: "No agreement with en."}
       - {id: fr-b2-06-c6, type: cloze, text: "Les infirmières ? Je leur ai ___ hier.", answer: "parlé", l1: "The nurses? I spoke to them yesterday.", note: "leur is an indirect object (parler à): no agreement."}
       - {id: fr-b2-06-c7, type: cloze, text: "Les vaccins que nous avons ___ sont efficaces.", answer: "reçus", l1: "The vaccines we received are effective.", note: "que = les vaccins (masculine plural), before the verb → reçus."}
-      - {id: fr-b2-06-c8, type: cloze, text: "Elle est ___ aux urgences hier soir.", answer: "allée", l1: "She went to A&E last night.", note: "With être the participle agrees with the subject: allée."}
+      - {id: fr-b2-06-c8, type: cloze, text: "Elle est ___ aux urgences hier soir.", answer: "allée", alt: ["partie", "passée"], l1: "She went to A&E last night.", note: "With être the participle agrees with the subject: allée."}
       - {id: fr-b2-06-c9, type: cloze, text: "Elle s'est ___ la jambe en skiant.", answer: "cassé", l1: "She broke her leg skiing.", note: "The direct object (la jambe) comes after: no agreement, elle s'est cassé la jambe."}
       - {id: fr-b2-06-c10, type: cloze, text: "Ses mains, elle se les est ___ avant de manger.", answer: "lavées", l1: "Her hands — she washed them before eating.", note: "Now the direct object les (= les mains) comes first: lavées."}
       - {id: fr-b2-06-c11, type: cloze, text: "Paul n'est pas venu ? Il ___ oublié.", answer: "aura", l1: "Paul didn't come? He must have forgotten.", note: "Futur antérieur for a guess about the past."}
       - {id: fr-b2-06-c12, type: cloze, text: "Une fois que tu ___ guéri, tu pourras reprendre le sport.", answer: "seras", alt: ["auras"], l1: "Once you have recovered, you'll be able to take up sport again. (informal)", note: "Future after une fois que: tu seras guéri (a state) or tu auras guéri (the action)."}
       - {id: fr-b2-06-c13, type: cloze, text: "Le médecin m'a dit que j'___ attrapé la grippe.", answer: "avais", l1: "The doctor told me I had caught the flu.", note: "Plus-que-parfait: the catching came before the telling."}
       - {id: fr-b2-06-c14, type: cloze, text: "Si seulement nous ___ su !", answer: "avions", l1: "If only we had known!", note: "si seulement + plus-que-parfait = a regret about the past."}
-      - {id: fr-b2-06-c15, type: cloze, text: "Combien de cigarettes as-tu ___ aujourd'hui ?", answer: "fumées", l1: "How many cigarettes have you smoked today? (informal)", note: "combien de + noun placed before the verb → agreement in careful writing."}
+      - {id: fr-b2-06-c15, type: cloze, text: "Combien de cigarettes as-tu ___ aujourd'hui ?", answer: "fumées", l1: "How many cigarettes have you smoked today? (informal)", note: "combien de + noun placed before the verb is a direct object placed before: fumées. With the noun after (Combien as-tu fumé de cigarettes ?) there is no agreement."}
       - {id: fr-b2-06-c16, type: cloze, text: "Dès que les résultats ___ arrivés, je vous appellerai.", answer: "seront", l1: "As soon as the results have come in, I'll call you.", note: "Futur antérieur after dès que: seront arrivés."}
 
   # ───────────────────────────────────────────────────────────────── 7
@@ -501,13 +501,13 @@ units:
       - {id: fr-b2-07-c6, type: cloze, text: "« J'ai raté l'examen. » → Il a avoué qu'il ___ raté l'examen.", answer: "avait", l1: "'I failed the exam.' → He admitted he had failed the exam.", note: "Passé composé → plus-que-parfait."}
       - {id: fr-b2-07-c7, type: cloze, text: "« Je révisais quand tu as appelé. » → Elle a expliqué qu'elle ___ quand j'avais appelé.", answer: "révisait", l1: "'I was revising when you called.' → She explained that she had been revising when I called.", note: "The imparfait does not change."}
       - {id: fr-b2-07-c8, type: cloze, text: "« Tu as réussi ? » → Ma mère m'a demandé ___ j'avais réussi.", answer: "si", l1: "'Did you pass?' → My mother asked me if I had passed.", note: "A yes/no question → si."}
-      - {id: fr-b2-07-c9, type: cloze, text: "« Le cours commence la semaine prochaine. » → Ils ont annoncé que le cours commençait la semaine ___.", answer: "suivante", l1: "'The course starts next week.' → They announced that the course started the following week.", note: "la semaine prochaine → la semaine suivante."}
+      - {id: fr-b2-07-c9, type: cloze, text: "« Le cours commence la semaine prochaine. » → Ils ont annoncé que le cours commençait la semaine ___.", answer: "suivante", alt: ["d'après"], l1: "'The course starts next week.' → They announced that the course started the following week.", note: "la semaine prochaine → la semaine suivante."}
       - {id: fr-b2-07-c10, type: cloze, text: "« Il faut que tu travailles. » → Elle m'a dit qu'il fallait que je ___.", answer: "travaille", l1: "'You have to work.' → She told me I had to work.", note: "The subjunctive stays; only il faut becomes il fallait."}
       - {id: fr-b2-07-c11, type: cloze, text: "« Je l'ai vu il y a deux jours. » → Il a dit qu'il l'avait vu deux jours plus ___.", answer: "tôt", l1: "'I saw him two days ago.' → He said he had seen him two days earlier.", note: "il y a deux jours → deux jours plus tôt (or auparavant)."}
       - {id: fr-b2-07-c12, type: cloze, text: "« Qu'est-ce que vous étudiez ? » → Il nous a demandé ce que nous ___.", answer: "étudiions", l1: "'What are you studying?' → He asked us what we were studying.", note: "Imparfait of étudier with nous: two i's, étudiions."}
       - {id: fr-b2-07-c13, type: cloze, text: "« Je suis fatigué. » → Il dit qu'il ___ fatigué.", answer: "est", l1: "'I'm tired.' → He says he is tired.", note: "The reporting verb is in the present (il dit): no shift."}
       - {id: fr-b2-07-c14, type: cloze, text: "« Je serais venue si j'avais pu. » → Elle a dit qu'elle ___ venue si elle avait pu.", answer: "serait", l1: "'I would have come if I had been able to.' → She said she would have come if she had been able to.", note: "The conditionnel passé does not change."}
-      - {id: fr-b2-07-c15, type: cloze, text: "« Rendez vos copies ! » → Le surveillant leur a ordonné de ___ leurs copies.", answer: "rendre", l1: "'Hand in your papers!' → The invigilator ordered them to hand in their papers.", note: "An order → de + infinitive. une copie = an exam paper."}
+      - {id: fr-b2-07-c15, type: cloze, text: "« Rendez vos copies ! » → Le surveillant leur a ordonné de ___ leurs copies.", answer: "rendre", alt: ["remettre"], l1: "'Hand in your papers!' → The invigilator ordered them to hand in their papers.", note: "An order → de + infinitive. une copie = an exam paper."}
 
   # ───────────────────────────────────────────────────────────────── 8
   - id: fr4-08
@@ -563,12 +563,12 @@ units:
       - {id: fr-b2-08-c3, type: cloze, text: "Elle s'est fait ___ à l'hôpital lundi.", answer: "opérer", l1: "She had an operation in hospital on Monday.", note: "se faire opérer = to have an operation. fait does not agree."}
       - {id: fr-b2-08-c4, type: cloze, text: "Le jardin était couvert ___ neige.", answer: "de", l1: "The garden was covered in snow.", note: "Passives of state or feeling often take de: couvert de, aimé de."}
       - {id: fr-b2-08-c5, type: cloze, text: "Je me suis ___ couper les cheveux.", answer: "fait", l1: "I had my hair cut.", note: "se faire couper les cheveux. A woman also writes fait: it never agrees before an infinitive."}
-      - {id: fr-b2-08-c6, type: cloze, text: "Elle s'est fait ___ son sac dans le métro.", answer: "voler", alt: ["arracher"], l1: "She had her bag stolen on the metro.", note: "se faire voler quelque chose."}
+      - {id: fr-b2-08-c6, type: cloze, text: "Elle s'est fait ___ son sac dans le métro.", answer: "voler", alt: ["arracher", "piquer"], l1: "She had her bag stolen on the metro.", note: "se faire voler quelque chose."}
       - {id: fr-b2-08-c7, type: cloze, text: "Nous faisons ___ notre maison par un architecte.", answer: "construire", alt: ["bâtir"], l1: "We are having our house built by an architect.", note: "faire + infinitive = to have something done."}
       - {id: fr-b2-08-c8, type: cloze, text: "Ce genre de vin se ___ très frais.", answer: "boit", alt: ["sert"], l1: "This kind of wine is drunk well chilled.", note: "Pronominal passive: se boire = to be drunk."}
       - {id: fr-b2-08-c9, type: cloze, text: "Ce modèle se ___ très bien en ce moment.", answer: "vend", l1: "This model is selling very well at the moment.", note: "se vendre = to sell, to be sold."}
       - {id: fr-b2-08-c10, type: cloze, text: "On m'a ___ de remplir ce formulaire.", answer: "demandé", l1: "I was asked to fill in this form.", note: "demander à quelqu'un cannot be passive: 'I was asked' = on m'a demandé."}
-      - {id: fr-b2-08-c11, type: cloze, text: "Les amendes ont été ___ en janvier.", answer: "augmentées", l1: "The fines were increased in January.", note: "The participle agrees with les amendes: feminine plural."}
+      - {id: fr-b2-08-c11, type: cloze, text: "Les amendes ont été ___ en janvier.", answer: "augmentées", alt: ["relevées"], l1: "The fines were increased in January.", note: "The participle agrees with les amendes: feminine plural."}
       - {id: fr-b2-08-c12, type: cloze, text: "Il s'est laissé ___ par l'avocat.", answer: "convaincre", alt: ["persuader"], l1: "He let himself be persuaded by the lawyer.", note: "se laisser + infinitive."}
       - {id: fr-b2-08-c13, type: cloze, text: "Le cambrioleur n'a jamais été ___.", answer: "retrouvé", l1: "The burglar was never found.", note: "Passive with a negative: n'a jamais été + participle."}
       - {id: fr-b2-08-c14, type: cloze, text: "Ça ne ___ fait pas de parler la bouche pleine.", answer: "se", l1: "It's not done to talk with your mouth full.", note: "ça ne se fait pas = that's not done."}
@@ -683,7 +683,7 @@ units:
       - {id: fr-b2-10-facture, type: vocab, l2: "la facture", l1: "the bill / the invoice", ex: "La facture d'électricité est arrivée.", ex_l1: "The electricity bill has arrived.", note: "In a restaurant the bill is l'addition."}
       - {id: fr-b2-10-remboursement, type: vocab, l2: "le remboursement", l1: "the refund / the repayment", ex: "J'attends toujours mon remboursement.", ex_l1: "I'm still waiting for my refund.", note: "From rembourser."}
       - {id: fr-b2-10-garantie, type: vocab, l2: "la garantie", l1: "the guarantee / the warranty", ex: "L'appareil est encore sous garantie.", ex_l1: "The appliance is still under warranty.", note: "sous garantie = under warranty."}
-      - {id: fr-b2-10-pourboire, type: vocab, l2: "le pourboire", l1: "the tip (for service)", ex: "En France, le pourboire n'est pas obligatoire.", ex_l1: "In France, tipping isn't compulsory.", note: "Service is included in French prices; in Québec a tip of about 15% is expected."}
+      - {id: fr-b2-10-pourboire, type: vocab, l2: "le pourboire", l1: "the tip (for service)", ex: "En France, le pourboire n'est pas obligatoire.", ex_l1: "In France, tipping isn't compulsory.", note: "Service is included in French prices; in Québec a tip of about 15% of the bill before tax is customary in restaurants (card terminals often suggest more)."}
       - {id: fr-b2-10-sans-contact, type: vocab, l2: "le paiement sans contact", l1: "contactless payment", ex: "Le paiement sans contact est accepté.", ex_l1: "Contactless payment is accepted.", note: "payer sans contact = to pay contactless."}
       - {id: fr-b2-10-endette, type: vocab, l2: "endetté", l1: "in debt (masculine)", ex: "Beaucoup d'étudiants sont endettés.", ex_l1: "Many students are in debt.", note: "une dette = a debt; s'endetter = to get into debt."}
       - {id: fr-b2-10-radin, type: vocab, l2: "radin", l1: "stingy / tight-fisted (casual; masculine)", ex: "Il ne laisse jamais de pourboire : il est radin !", ex_l1: "He never leaves a tip: he's so stingy!", note: "Feminine: radine. Neutral: avare."}
@@ -719,12 +719,12 @@ units:
     title: "History and stories: the passé simple and the ne explétif"
     goal: "I can read a tale, a novel or a history text written in the passé simple, and recognise the ne explétif in formal French."
     notes: |
-      The **passé simple** is the past tense of written narrative: novels, tales, history books, biographies. Speech uses the passé composé instead. You mainly need to **recognise** the third person.
+      The **passé simple** is the past tense of written narrative: novels, tales, history books, biographies. Speech uses the passé composé instead. You mainly need to **recognise** the third person; the forms in this table are common enough to practise writing too.
 
       | | il / elle | ils / elles |
       |---|---|---|
       | parler (all -er) | parla | parlèrent |
-      | finir, partir | finit, partit | finirent, partirent |
+      | finir, partir, perdre | finit, partit, perdit | finirent, partirent, perdirent |
       | prendre, mettre, dire | prit, mit, dit | prirent, mirent, dirent |
       | être | fut | furent |
       | avoir | eut | eurent |
@@ -768,7 +768,7 @@ units:
       - {id: fr-b2-11-c2, type: cloze, text: "Un jour, le roi ___ gravement malade.", answer: "tomba", l1: "One day, the king fell seriously ill. (passé simple)", note: "-er verbs: il tomba."}
       - {id: fr-b2-11-c3, type: cloze, text: "Les soldats ___ la ville au petit matin.", answer: "quittèrent", alt: ["attaquèrent"], l1: "The soldiers left the town at dawn. (passé simple)", note: "-er verbs in the plural: -èrent."}
       - {id: fr-b2-11-c4, type: cloze, text: "Marie Curie ___ deux prix Nobel.", answer: "obtint", alt: ["reçut", "eut", "remporta"], l1: "Marie Curie won two Nobel Prizes. (passé simple)", note: "obtenir → elle obtint, like venir → elle vint."}
-      - {id: fr-b2-11-c5, type: cloze, text: "Quand elle ouvrit la porte, elle ___ un grand loup.", answer: "aperçut", alt: ["vit"], l1: "When she opened the door, she caught sight of a big wolf. (passé simple)", note: "apercevoir → elle aperçut, like recevoir → elle reçut."}
+      - {id: fr-b2-11-c5, type: cloze, text: "« Elle aperçut un grand loup. » En parlant : « Elle a ___ un grand loup. »", answer: "aperçu", l1: "'She caught sight of a big wolf.' (passé simple) In speech: 'She caught sight of a big wolf.' (passé composé)", note: "Recognise the passé simple: elle aperçut (apercevoir, like recevoir → elle reçut) = elle a aperçu."}
       - {id: fr-b2-11-c6, type: cloze, text: "« Entrez ! » ___-il.", answer: "dit", alt: ["cria"], l1: "'Come in!' he said. (passé simple)", note: "After a quotation the verb and subject swap: dit-il, répondit-elle."}
       - {id: fr-b2-11-c7, type: cloze, text: "Ils ___ la bataille malgré leur courage.", answer: "perdirent", l1: "They lost the battle despite their courage. (passé simple)", note: "-re verbs: il perdit, ils perdirent."}
       - {id: fr-b2-11-c8, type: cloze, text: "En 1789, le peuple de Paris ___ la Bastille.", answer: "prit", l1: "In 1789, the people of Paris took the Bastille. (passé simple)", note: "prendre → il prit."}
@@ -800,7 +800,7 @@ units:
       **Or** (no accent) is not English "or" (*ou*). It introduces the fact that decides the argument: *Il dit qu'il était chez lui. **Or**, on l'a vu au café.* = Yet / Now.
 
       ## Inversion after aussi and ainsi
-      At the start of a clause, **aussi** means "therefore" and is followed by inversion in writing: ***Aussi a-t-il** dû vendre sa maison.* Not to be confused with *aussi* = also.
+      At the start of a clause, **aussi** means "therefore" and is followed by inversion in writing: ***Aussi a-t-il** dû vendre sa maison.* Not to be confused with *aussi* = also. After *ainsi* (thus) inversion is optional: *Ainsi a-t-il dû…* or *Ainsi, il a dû…*
 
       ## Abstract nouns
       Arguments run on nouns: *l'enjeu, le défi, la contrainte, la tendance, le constat*. They need their article: *Le défi est énorme.*
@@ -837,11 +837,11 @@ units:
       - {id: fr-b2-12-couper-la-poire, type: phrase, l2: "Coupons la poire en deux.", l1: "Let's split the difference. / Let's meet halfway. (idiom with a pear)", alt: ["On coupe la poire en deux."]}
       - {id: fr-b2-12-vitesse-precipitation, type: phrase, l2: "Il ne faut pas confondre vitesse et précipitation.", l1: "More haste, less speed. (saying)", note: "Literally 'don't confuse speed with haste'."}
       - {id: fr-b2-12-c1, type: cloze, text: "Tous les hommes sont mortels. ___ Socrate est un homme. Donc Socrate est mortel.", answer: "or", l1: "All men are mortal. Now Socrates is a man. So Socrates is mortal.", note: "or brings in the fact on which the conclusion turns."}
-      - {id: fr-b2-12-c2, type: cloze, text: "Le projet coûte cher. ___, il créera des emplois.", answer: "néanmoins", alt: ["cependant", "toutefois"], l1: "The project is expensive. Nevertheless, it will create jobs.", note: "A contrast that keeps the first point standing."}
+      - {id: fr-b2-12-c2, type: cloze, text: "Le projet coûte cher. ___, il créera des emplois.", answer: "néanmoins", alt: ["cependant", "toutefois", "pourtant"], l1: "The project is expensive. Nevertheless, it will create jobs.", note: "A contrast that keeps the first point standing."}
       - {id: fr-b2-12-c3, type: cloze, text: "Les prix ont augmenté ; par ___, les ventes ont baissé.", answer: "conséquent", l1: "Prices went up; as a result, sales fell.", note: "par conséquent = consequently."}
       - {id: fr-b2-12-c4, type: cloze, text: "Je suis végétarien, ___ je ne mange pas de viande.", answer: "c'est-à-dire", l1: "I'm a vegetarian, that is, I don't eat meat. (a man speaking)", note: "c'est-à-dire explains what came before."}
       - {id: fr-b2-12-c5, type: cloze, text: "___, la solution est efficace, mais elle coûte cher.", answer: "certes", l1: "Admittedly, the solution is effective, but it's expensive.", note: "certes … mais: concede, then counter."}
-      - {id: fr-b2-12-c6, type: cloze, text: "Beaucoup de pays, ___ la France, ont adopté cette loi.", answer: "notamment", alt: ["dont"], l1: "Many countries, notably France, have adopted this law.", note: "dont la France (including France) is also natural here."}
+      - {id: fr-b2-12-c6, type: cloze, text: "Beaucoup de pays, ___ la France, ont adopté cette loi.", answer: "notamment", alt: ["dont", "comme"], l1: "Many countries, notably France, have adopted this law.", note: "dont la France (including France) and comme la France (such as France) are also natural here."}
       - {id: fr-b2-12-c7, type: cloze, text: "Cela prendra des semaines, ___ des mois.", answer: "voire", l1: "It will take weeks, or even months.", note: "voire raises the stakes."}
       - {id: fr-b2-12-c8, type: cloze, text: "Il pleuvait beaucoup, si ___ que le match a été annulé.", answer: "bien", l1: "It was raining heavily, so the match was cancelled.", note: "si bien que + indicative = with the result that."}
       - {id: fr-b2-12-c9, type: cloze, text: "Moi, j'adore la ville ; ___ à mon frère, il préfère la campagne.", answer: "quant", l1: "I love the city; as for my brother, he prefers the countryside.", note: "quant à = as for."}
@@ -849,7 +849,7 @@ units:
       - {id: fr-b2-12-c11, type: cloze, text: "___ de temps, nous n'avons pas pu visiter le musée.", answer: "faute", l1: "For lack of time, we couldn't visit the museum.", note: "faute de + noun without an article."}
       - {id: fr-b2-12-c12, type: cloze, text: "Elle travaille beaucoup, ___ que son frère ne fait rien.", answer: "alors", alt: ["tandis"], l1: "She works a lot, whereas her brother does nothing.", note: "alors que / tandis que = whereas, + indicative."}
       - {id: fr-b2-12-c13, type: cloze, text: "D'une part, c'est trop cher ; d'___ part, ce n'est pas pratique.", answer: "autre", l1: "On the one hand, it's too expensive; on the other hand, it isn't practical.", note: "d'une part … d'autre part lists two arguments on the same side."}
-      - {id: fr-b2-12-c14, type: cloze, text: "De ___, ce produit est mauvais pour la santé.", answer: "plus", l1: "What's more, this product is bad for your health.", note: "de plus = what's more. In speech: en plus."}
+      - {id: fr-b2-12-c14, type: cloze, text: "De ___, ce produit est mauvais pour la santé.", answer: "plus", alt: ["surcroît"], l1: "What's more, this product is bad for your health.", note: "de plus = what's more. In speech: en plus."}
       - {id: fr-b2-12-c15, type: cloze, text: "Il a perdu son emploi ; ___ a-t-il dû vendre sa maison.", answer: "aussi", alt: ["ainsi"], l1: "He lost his job; he therefore had to sell his house. (formal, with inversion)", note: "aussi at the start of a clause = therefore, with inversion."}
       - {id: fr-b2-12-c16, type: cloze, text: "Autrement ___, tu refuses ?", answer: "dit", l1: "In other words, you're refusing? (informal)", note: "autrement dit = in other words."}
 
@@ -894,7 +894,7 @@ units:
       - {id: fr-b2-13-fric, type: vocab, l2: "le fric", l1: "money / cash (casual)", alt: ["le pognon"], ex: "Je n'ai plus de fric.", ex_l1: "I'm out of cash.", note: "Neutral: l'argent."}
       - {id: fr-b2-13-bosser, type: vocab, l2: "bosser", l1: "to work (casual)", ex: "Je bosse tout le week-end.", ex_l1: "I'm working all weekend.", note: "Neutral: travailler. le boulot = work, a job (casual)."}
       - {id: fr-b2-13-fringues, type: vocab, l2: "les fringues", l1: "clothes / gear (casual)", ex: "Elle dépense tout en fringues.", ex_l1: "She spends everything on clothes.", note: "Feminine plural. Neutral: les vêtements."}
-      - {id: fr-b2-13-mec, type: vocab, l2: "le mec", l1: "the guy / the bloke (casual)", ex: "C'est un mec sympa.", ex_l1: "He's a nice guy.", note: "Also 'boyfriend': mon mec. In Québec: le gars; a boyfriend is mon chum."}
+      - {id: fr-b2-13-mec, type: vocab, l2: "le mec", l1: "the guy / the bloke (casual)", ex: "C'est un mec sympa.", ex_l1: "He's a nice guy.", note: "Also 'boyfriend': mon mec. In Québec: le gars; a boyfriend is mon chum (a girlfriend, ma blonde); un chum is also a buddy."}
       - {id: fr-b2-13-cordialement, type: vocab, l2: "cordialement", l1: "kind regards (email closing)", alt: ["bien cordialement"], ex: "Merci d'avance. Cordialement, Julie Martin", ex_l1: "Thanks in advance. Kind regards, Julie Martin", note: "The standard neutral email ending to people you don't know well."}
       - {id: fr-b2-13-madame-monsieur, type: phrase, l2: "Madame, Monsieur,", l1: "Dear Sir or Madam, (opening of a formal letter)", note: "To a stranger, never Cher Monsieur: cher / chère is for people you know."}
       - {id: fr-b2-13-au-sujet-de, type: phrase, l2: "Je vous écris au sujet de ma commande.", l1: "I am writing to you about my order.", alt: ["Je vous écris à propos de ma commande.", "Je vous écris concernant ma commande."]}
