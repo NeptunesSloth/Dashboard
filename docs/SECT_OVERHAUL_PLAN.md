@@ -1,6 +1,7 @@
 # Sect overhaul plan: builders, a Main Hall ladder, raids, leagues and room play
 
-Status: **a proposal for the owner to approve. No code has been changed.** Written 2026-11-27
+Status: **approved by the owner on 2026-11-27, with the recommended default for every open
+question (section 7 records the decisions).** Written 2026-11-27
 against `sect_academy/colony.py`, `dao.py`, `road.py` and `tests/balance.py` as they stand on
 branch `claude/brave-volta-6tsola`.
 
@@ -73,8 +74,8 @@ what the Main Hall ladder, the raids and the seasons are for.
   accuracy (`ui_psychology.md`, overjustification).
 - **Nothing bad happens while the app is closed.** Quiet mode runs no raids, no rush incidents and
   no league losses. AI rivals do not climb while you are away.
-- **Time waits for the player.** Events still hold the sim. The one proposed exception is in
-  Open question 1: builders may keep working while an event waits, because building can only help.
+- **Time waits for the player.** Events still hold the sim. The one exception (decided, section 7
+  question 1): builders keep working while an event waits, because building can only help.
 - **Every number is in a ledger**: build time, rush odds, layout factor, star odds, league points.
   They go through the `*_rows` pattern (`dao.qi_rows`, `bt_rows`, `colony.farm_rows`,
   `research_rows`).
@@ -325,7 +326,7 @@ derbies gave socially [13], without other players.
   - Trays bank themselves at dawn and whenever they are full.
   - Quiet mode banks them as it goes.
 - A tap gives the crew a small "The Master inspected our work" thought: +3 mood for 12 sim hours,
-  once per room per day, in `mood_mods`. See Open question 3.
+  once per room per day, in `mood_mods` (decided, section 7 question 3).
 - Why: the return moment [7][8], made physical.
 
 **(3) Rush a room or a build, at a risk.**
@@ -437,7 +438,7 @@ filenames added to the fixed list in `app.py`. The full brief goes in `docs/ART_
    empty alcoves visible.
 2. **Room tiles, `room_<type>_<tier>.webp`**: 11 room types × 2 tiers (levels 1–4 and 5–8), each
    one alcove wide and painted so that 2 or 3 side by side read as one hall (shared
-   beams at the edges). That is 22 tiles. See Open question 4.
+   beams at the edges). That is 22 tiles; the owner chose 11 first (section 7 question 4).
 3. **`courtyard.webp`**: the gate courtyard seen from above at three-quarters, with an 8×5 tile
    grid you can just make out and three approaches (the gate road, the west stair, the cliff
    path).
@@ -453,20 +454,21 @@ filenames added to the fixed list in `app.py`. The full brief goes in `docs/ART_
 
 ---
 
-## 7. Open questions for the owner (each with a recommended default)
+## 7. Open questions: decided
 
-1. **Should builders keep working while an event waits for your answer?** Today the whole sim
-   holds. *Default: yes, builders only, at the away rate.* It can only help, and it stops "I left
-   a choice open and nothing got built" from becoming the new churn point.
-2. **Can a war party lose people to death?** *Default: no, wounds only on every storyteller.*
-   Deaths stay with defence, plague and tribulation, where the storyteller already rules on them.
-3. **Should tapping a tray give anything beyond banking it?** *Default: a small, once-a-day,
-   ledgered crew mood thought (+3) and nothing else.* No extra resources, so a player who never
-   taps loses nothing.
-4. **How much room art?** 22 tiles (two tiers) or 11 (one look per type, with level shown only by
-   the plaque). *Default: 11 first, so stage 5 ships sooner, and the second tier later.*
-5. **Season length:** one sim year (48 sim days, about 1–2 real weeks of normal play) or a real
-   calendar month? *Default: one sim year*, so a season can never run out while the app is closed.
+The owner approved every recommended default (2026-11-27).
+
+1. **Builders keep working while an event waits for your answer: yes, builders only, at the away
+   rate.** Building can only help, and it stops "I left a choice open and nothing got built" from
+   becoming the new churn point. Everything else still holds.
+2. **A war party never loses people to death: wounds only, on every storyteller.** Deaths stay
+   with defence, plague and tribulation, where the storyteller already rules on them.
+3. **Tapping a tray gives a small, once-a-day, ledgered crew mood thought (+3) and nothing
+   else.** No extra resources, so a player who never taps loses nothing.
+4. **Room art: 11 tiles first** (one look per type, level shown by the plaque), the second tier
+   later.
+5. **A season is one sim year (48 sim days)**, so a season can never run out while the app is
+   closed.
 
 ---
 
