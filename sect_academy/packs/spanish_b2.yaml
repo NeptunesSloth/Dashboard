@@ -395,3 +395,514 @@ units:
          l1: "When I arrived, the doctor had already left.", note: "a plain fact in the past → indicative pluperfect, not subjunctive"}
       - {id: es-b2-03-c16, type: cloze, text: "Me molestó que no me hubieras ___.", answer: "escrito",
          l1: "It annoyed me that you hadn't written to me. (informal)", note: "escribir → escrito (irregular participle)"}
+
+  # ---------------------------------------------------------------- 4
+  - id: es-b2-04
+    title: "If I had known: si-clauses of every type — politics and society"
+    goal: "I can discuss elections, parties and social problems, and say what would happen, would have happened, or would be different now."
+    notes: |
+      Spanish *si* sentences come in three types, and the halves can be mixed.
+
+      | Type | si + … | Result | Example |
+      | 1 real | present | present / future / imperative | Si **ganan**, **subirán** los impuestos. |
+      | 2 imagined | imperfect subj. | conditional | Si **fuera** alcaldesa, **construiría** viviendas. |
+      | 3 past, unreal | pluperfect subj. | conditional perfect | Si **hubiera votado**, **habría ganado** mi partido. |
+      | mixed | pluperfect subj. | conditional (now) | Si **hubieras votado**, ahora no te **quejarías**. |
+      | mixed | imperfect subj. | conditional perfect | Si **fueras** más prudente, no lo **habrías dicho**. |
+
+      - After *si* meaning "if", never the future, the conditional or the present subjunctive.
+      - In type 3 the result can also be *hubiera* + participle: *no hubiera ganado*.
+      - **De + infinitive** is a compact "if": *De haberlo sabido, no habría venido* = Had I known…
+      - When *si* means "whether", any tense is fine: *No sé si vendrá*; *No sabía si iría*.
+    items:
+      - {id: es-b2-04-elecciones, type: vocab, l2: "las elecciones", l1: "the elections / the election",
+         ex: "Las elecciones son en noviembre.", ex_l1: "The elections are in November.",
+         note: "Usually plural, even for one election. ganar / perder las elecciones."}
+      - {id: es-b2-04-partido, type: vocab, l2: "el partido", l1: "the (political) party / the match",
+         ex: "¿A qué partido vas a votar?", ex_l1: "Which party are you going to vote for?",
+         note: "The same word as a football match. A celebration is una fiesta. Spain says votar a un partido; Latin America votar por."}
+      - {id: es-b2-04-diputado, type: vocab, l2: "el diputado", l1: "the member of parliament / the deputy (male)", alt: ["el congresista"],
+         ex: "Los diputados votaron la ley ayer.", ex_l1: "The members of parliament voted on the law yesterday.",
+         note: "Feminine: la diputada. Some countries say el congresista."}
+      - {id: es-b2-04-ministro, type: vocab, l2: "el ministro", l1: "the minister (male)",
+         ex: "La ministra de Sanidad ha dado una rueda de prensa.", ex_l1: "The health minister has given a press conference.",
+         note: "Feminine: la ministra. el ministerio = the ministry."}
+      - {id: es-b2-04-ayuntamiento, type: vocab, l2: "el ayuntamiento", l1: "the town hall / the city council", alt: ["la alcaldía", "el municipio", "la municipalidad"],
+         ex: "El ayuntamiento va a cerrar el centro a los coches.", ex_l1: "The council is going to close the centre to cars.",
+         note: "Spain. Latin America: la alcaldía, el municipio or la municipalidad."}
+      - {id: es-b2-04-alcalde, type: vocab, l2: "el alcalde", l1: "the mayor (male)",
+         ex: "El alcalde ha prometido más parques.", ex_l1: "The mayor has promised more parks.",
+         note: "Feminine: la alcaldesa."}
+      - {id: es-b2-04-campana, type: vocab, l2: "la campaña electoral", l1: "the election campaign",
+         ex: "La campaña electoral empieza mañana.", ex_l1: "The election campaign starts tomorrow.",
+         note: "la campaña alone is any campaign (also advertising)."}
+      - {id: es-b2-04-voto, type: vocab, l2: "el voto", l1: "the vote",
+         ex: "Cada voto cuenta.", ex_l1: "Every vote counts.",
+         note: "el voto en blanco = a blank ballot. From votar."}
+      - {id: es-b2-04-encuesta, type: vocab, l2: "la encuesta", l1: "the poll / the survey",
+         ex: "Según las encuestas, el resultado será muy ajustado.", ex_l1: "According to the polls, the result will be very close.",
+         note: "hacer una encuesta = to carry out a survey."}
+      - {id: es-b2-04-manifestacion, type: vocab, l2: "la manifestación", l1: "the demonstration / the protest march", alt: ["la marcha"],
+         ex: "Miles de personas fueron a la manifestación.", ex_l1: "Thousands of people went to the demonstration.",
+         note: "Colloquially la mani in Spain. manifestarse = to demonstrate."}
+      - {id: es-b2-04-izquierda, type: vocab, l2: "la izquierda", l1: "the (political) left / the left-hand side",
+         ex: "La izquierda ha ganado en las grandes ciudades.", ex_l1: "The left has won in the big cities.",
+         note: "la derecha = the right. de izquierdas (Spain) / de izquierda = left-wing."}
+      - {id: es-b2-04-mayoria, type: vocab, l2: "la mayoría", l1: "the majority / most (people)",
+         ex: "La mayoría de la gente está en contra.", ex_l1: "Most people are against it.",
+         note: "la mayoría de + noun. 'Most' is la mayoría, never 'la más'. la minoría = the minority."}
+      - {id: es-b2-04-desigualdad, type: vocab, l2: "la desigualdad", l1: "inequality",
+         ex: "La desigualdad entre ricos y pobres está creciendo.", ex_l1: "Inequality between rich and poor is growing."}
+      - {id: es-b2-04-pobreza, type: vocab, l2: "la pobreza", l1: "poverty",
+         ex: "Millones de niños viven en la pobreza.", ex_l1: "Millions of children live in poverty.",
+         note: "From pobre. Spanish needs the article: luchar contra la pobreza."}
+      - {id: es-b2-04-derecho, type: vocab, l2: "el derecho", l1: "the right (e.g. to vote) / law (as a subject)",
+         ex: "Todos tenemos derecho a una vivienda digna.", ex_l1: "We all have the right to decent housing.",
+         note: "tener derecho a = to have the right to. los derechos humanos = human rights. Studying law = estudiar Derecho."}
+      - {id: es-b2-04-inmigrante, type: vocab, l2: "el inmigrante", l1: "the immigrant (male)",
+         ex: "Muchos inmigrantes trabajan en el campo.", ex_l1: "Many immigrants work on the land.",
+         note: "Same form for women: la inmigrante. la inmigración = immigration."}
+      - {id: es-b2-04-medida, type: vocab, l2: "la medida", l1: "the measure (a policy step)",
+         ex: "El gobierno ha tomado nuevas medidas contra el paro.", ex_l1: "The government has taken new measures against unemployment.",
+         note: "tomar medidas = to take measures. Also a measurement: a medida = made to measure."}
+      - {id: es-b2-04-apoyar, type: vocab, l2: "apoyar", l1: "to support (a person, an idea)",
+         ex: "Mis padres siempre me han apoyado.", ex_l1: "My parents have always supported me.",
+         note: "False friend: soportar means to put up with. el apoyo = support."}
+      - {id: es-b2-04-clavo, type: vocab, l2: "dar en el clavo", l1: "to hit the nail on the head (idiom)",
+         ex: "Has dado en el clavo: el problema es el precio.", ex_l1: "You've hit the nail on the head: the problem is the price."}
+      - {id: es-b2-04-pelos-lengua, type: vocab, l2: "no tener pelos en la lengua", l1: "to speak your mind / not to mince your words (idiom)",
+         ex: "La alcaldesa no tiene pelos en la lengua.", ex_l1: "The mayor doesn't mince her words.",
+         note: "Literally 'to have no hairs on your tongue'."}
+      - {id: es-b2-04-lena, type: vocab, l2: "echar leña al fuego", l1: "to add fuel to the fire (idiom)",
+         ex: "Ese comentario solo echa leña al fuego.", ex_l1: "That comment only adds fuel to the fire.",
+         note: "la leña = firewood."}
+      - {id: es-b2-04-espada-pared, type: vocab, l2: "estar entre la espada y la pared", l1: "to be between a rock and a hard place (idiom)",
+         ex: "Si acepto, pierdo a mis amigos; si no, pierdo el trabajo. Estoy entre la espada y la pared.", ex_l1: "If I accept, I lose my friends; if not, I lose my job. I'm between a rock and a hard place.",
+         note: "Literally 'between the sword and the wall'."}
+      - {id: es-b2-04-dicho-hecho, type: phrase, l2: "Del dicho al hecho hay mucho trecho.", l1: "Easier said than done. (proverb)",
+         alt: ["Del dicho al hecho hay un gran trecho"], note: "Literally 'from saying to doing there is a long way'. Often said about election promises."}
+      - {id: es-b2-04-si-hubiera-sabido, type: phrase, l2: "Si lo hubiera sabido, no habría venido.", l1: "If I had known, I wouldn't have come.",
+         alt: ["Si lo hubiese sabido, no habría venido", "Si lo hubiera sabido, no hubiera venido", "Si lo hubiese sabido, no hubiese venido", "De haberlo sabido, no habría venido", "No habría venido si lo hubiera sabido"],
+         note: "Type 3: si + pluperfect subjunctive, conditional perfect."}
+      - {id: es-b2-04-hecho-caso, type: phrase, l2: "Si me hubieras hecho caso, ahora no estarías así.", l1: "If you had listened to me, you wouldn't be in this state now. (informal)",
+         alt: ["Si me hubieses hecho caso, ahora no estarías así", "Si me hubieras hecho caso, no estarías así ahora"],
+         note: "Mixed type: past condition, present result. hacer caso a alguien = to take notice of someone's advice."}
+      - {id: es-b2-04-si-ganan, type: phrase, l2: "Si ganan las elecciones, subirán los impuestos.", l1: "If they win the election, taxes will go up.",
+         alt: ["Si ganan las elecciones, van a subir los impuestos", "Si ganan las elecciones, suben los impuestos"],
+         note: "Type 1: si + present, future result."}
+      - {id: es-b2-04-c1, type: cloze, text: "Si llueve el domingo, la gente no ___ a votar.", answer: "irá", alt: ["va", "saldrá", "sale"],
+         l1: "If it rains on Sunday, people won't go and vote.", note: "type 1: si + present → future (or present) in the result"}
+      - {id: es-b2-04-c2, type: cloze, text: "Si yo ___ alcalde, construiría más viviendas.", answer: "fuera", alt: ["fuese"],
+         l1: "If I were mayor, I would build more housing.", note: "type 2: si + imperfect subjunctive → conditional"}
+      - {id: es-b2-04-c3, type: cloze, text: "Si hubiera menos desigualdad, la sociedad ___ más justa.", answer: "sería",
+         l1: "If there were less inequality, society would be fairer.", note: "type 2 result: conditional (ser → sería)"}
+      - {id: es-b2-04-c4, type: cloze, text: "Si ___ votado, ahora no te quejarías.", answer: "hubieras", alt: ["hubieses"],
+         l1: "If you had voted, you wouldn't be complaining now. (informal)", note: "mixed: past condition (pluperfect subjunctive), present result (conditional)"}
+      - {id: es-b2-04-c5, type: cloze, text: "Si el partido hubiera hecho una buena campaña, ___ ganado.", answer: "habría", alt: ["hubiera", "hubiese"],
+         l1: "If the party had run a good campaign, it would have won.", note: "type 3 result: habría (or hubiera) + participle"}
+      - {id: es-b2-04-c6, type: cloze, text: "Si no ___ salido a la calle, nada habría cambiado.", answer: "hubiéramos", alt: ["hubiésemos"],
+         l1: "If we hadn't taken to the streets, nothing would have changed.", note: "type 3: si + pluperfect subjunctive"}
+      - {id: es-b2-04-c7, type: cloze, text: "Yo no ___ esa petición si fuera tú.", answer: "firmaría",
+         l1: "I wouldn't sign that petition if I were you.", note: "the result half can come first: conditional + si + imperfect subjunctive"}
+      - {id: es-b2-04-c8, type: cloze, text: "Si ___ tiempo, iría a la manifestación.", answer: "tuviera", alt: ["tuviese"],
+         l1: "If I had time, I'd go to the demonstration.", note: "never si + conditional: si tuviera, not si tendría"}
+      - {id: es-b2-04-c9, type: cloze, text: "De ___ sabido, no habría votado por ellos.", answer: "haberlo",
+         l1: "Had I known, I wouldn't have voted for them.", note: "de + perfect infinitive = a compact type 3 'if'"}
+      - {id: es-b2-04-c10, type: cloze, text: "Si ___ más prudente, no habrías dicho eso.", answer: "fueras", alt: ["fueses"],
+         l1: "If you were more careful, you wouldn't have said that. (informal)", note: "mixed: a permanent trait now, a past result"}
+      - {id: es-b2-04-c11, type: cloze, text: "Si ___ algo, llámame.", answer: "necesitas",
+         l1: "If you need anything, call me. (informal)", note: "type 1: si + present → imperative"}
+      - {id: es-b2-04-c12, type: cloze, text: "No sabía si ___ a votar o no.", answer: "iría", alt: ["iba"],
+         l1: "I didn't know whether I would go and vote or not.", note: "si = whether: the conditional is fine here"}
+      - {id: es-b2-04-c13, type: cloze, text: "Si me lo hubieras ___, te habría ayudado.", answer: "pedido",
+         l1: "If you had asked me, I would have helped you. (informal)", note: "type 3: pedir → pedido"}
+      - {id: es-b2-04-c14, type: cloze, text: "Si las elecciones ___ hoy, ganaría la izquierda.", answer: "fueran", alt: ["fuesen"],
+         l1: "If the elections were today, the left would win.", note: "type 2: ser → fueran (agrees with las elecciones)"}
+      - {id: es-b2-04-c15, type: cloze, text: "Si el ayuntamiento ___ el presupuesto, habrá más parques.", answer: "aprueba",
+         l1: "If the council approves the budget, there will be more parks.", note: "type 1: si + present; aprobar also means to approve"}
+      - {id: es-b2-04-c16, type: cloze, text: "Te lo diría si lo ___.", answer: "supiera", alt: ["supiese"],
+         l1: "I'd tell you if I knew.", note: "type 2 with the result first"}
+
+  # ---------------------------------------------------------------- 5
+  - id: es-b2-05
+    title: "Unless we act: conjunctions with the subjunctive — the environment"
+    goal: "I can talk about environmental problems and solutions, and set conditions, purposes and concessions."
+    notes: |
+      Some conjunctions **always** take the subjunctive, because what follows has not happened (yet).
+
+      | Conjunction | Meaning |
+      | para que | so that |
+      | antes de que | before |
+      | sin que | without (someone doing) |
+      | a menos que / a no ser que | unless |
+      | con tal de que / siempre que | provided that, as long as |
+      | en caso de que | in case, in the event that |
+
+      Others change meaning with the mood:
+
+      - **aunque** + indicative = although (a fact): *Aunque llovió, salimos*. + subjunctive = even if / even though it may: *Aunque llueva, saldremos*.
+      - **siempre que** + indicative = whenever: *Siempre que voy, llueve*. + subjunctive = provided that.
+      - **mientras** + indicative = while; + subjunctive = as long as: *Mientras usemos petróleo…*
+      - **cuando** + subjunctive for the future: *Cuando se agote el petróleo…*
+      - **por mucho que** + subjunctive = however much.
+      - Same subject: preposition + infinitive: *antes de salir*, *sin decir nada*, *para ahorrar*.
+    items:
+      - {id: es-b2-05-sequia, type: vocab, l2: "la sequía", l1: "the drought",
+         ex: "Este verano ha habido una sequía terrible.", ex_l1: "This summer there has been a terrible drought.",
+         note: "From seco (dry). The accent on the í breaks the diphthong: se-quí-a."}
+      - {id: es-b2-05-incendio, type: vocab, l2: "el incendio forestal", l1: "the forest fire / the wildfire",
+         ex: "El incendio forestal destruyó mil hectáreas.", ex_l1: "The forest fire destroyed a thousand hectares.",
+         note: "el incendio = a fire that destroys (a building, a forest); el fuego = fire in general."}
+      - {id: es-b2-05-inundacion, type: vocab, l2: "la inundación", l1: "the flood",
+         ex: "Las inundaciones dejaron a muchas familias sin casa.", ex_l1: "The floods left many families homeless.",
+         note: "inundar = to flood."}
+      - {id: es-b2-05-calentamiento, type: vocab, l2: "el calentamiento global", l1: "global warming",
+         ex: "El calentamiento global es una realidad.", ex_l1: "Global warming is a reality."}
+      - {id: es-b2-05-emisiones, type: vocab, l2: "las emisiones", l1: "the emissions",
+         ex: "Hay que reducir las emisiones de CO2.", ex_l1: "We must reduce CO2 emissions.",
+         note: "Singular la emisión; also a broadcast."}
+      - {id: es-b2-05-renovables, type: vocab, l2: "las energías renovables", l1: "renewable energy / renewables", alt: ["la energía renovable"],
+         ex: "España produce mucha electricidad con energías renovables.", ex_l1: "Spain produces a lot of electricity from renewables.",
+         note: "Spanish often uses the plural: las energías renovables."}
+      - {id: es-b2-05-placa-solar, type: vocab, l2: "la placa solar", l1: "the solar panel", alt: ["el panel solar"],
+         ex: "Hemos puesto placas solares en el tejado.", ex_l1: "We've put solar panels on the roof.",
+         note: "Spain: la placa solar; many countries: el panel solar."}
+      - {id: es-b2-05-residuos, type: vocab, l2: "los residuos", l1: "the waste (as a technical or environmental term)", alt: ["los desechos"],
+         ex: "Las fábricas producen muchos residuos.", ex_l1: "Factories produce a lot of waste.",
+         note: "More formal than la basura. Usually plural."}
+      - {id: es-b2-05-envase, type: vocab, l2: "el envase", l1: "the container / the packaging (bottle, carton, tin)",
+         ex: "Los envases de plástico van al contenedor amarillo.", ex_l1: "Plastic packaging goes in the yellow bin.",
+         note: "In Spain el contenedor amarillo is for plastic and cans."}
+      - {id: es-b2-05-desperdiciar, type: vocab, l2: "desperdiciar", l1: "to waste (food, water, a chance)", alt: ["malgastar"],
+         ex: "No desperdicies el agua.", ex_l1: "Don't waste water. (informal)",
+         note: "To waste time is perder el tiempo."}
+      - {id: es-b2-05-extincion, type: vocab, l2: "en peligro de extinción", l1: "endangered (in danger of extinction)",
+         ex: "El lince ibérico está en peligro de extinción.", ex_l1: "The Iberian lynx is endangered.",
+         note: "Goes with estar. la especie = the species (same form in the plural)."}
+      - {id: es-b2-05-sostenible, type: vocab, l2: "sostenible", l1: "sustainable",
+         ex: "Necesitamos un turismo más sostenible.", ex_l1: "We need more sustainable tourism.",
+         note: "la sostenibilidad = sustainability."}
+      - {id: es-b2-05-combustible, type: vocab, l2: "el combustible", l1: "the fuel",
+         ex: "Los combustibles fósiles contaminan mucho.", ex_l1: "Fossil fuels cause a lot of pollution."}
+      - {id: es-b2-05-huella, type: vocab, l2: "la huella de carbono", l1: "the carbon footprint",
+         ex: "Viajar en avión aumenta tu huella de carbono.", ex_l1: "Flying increases your carbon footprint.",
+         note: "la huella = the footprint, the trace; las huellas dactilares = fingerprints."}
+      - {id: es-b2-05-contaminar, type: vocab, l2: "contaminar", l1: "to pollute / to contaminate",
+         ex: "Los coches viejos contaminan más.", ex_l1: "Old cars pollute more."}
+      - {id: es-b2-05-recursos, type: vocab, l2: "los recursos naturales", l1: "natural resources",
+         ex: "No podemos agotar los recursos naturales.", ex_l1: "We can't use up natural resources.",
+         note: "el recurso = the resource; los recursos humanos = human resources (HR)."}
+      - {id: es-b2-05-ola-calor, type: vocab, l2: "la ola de calor", l1: "the heatwave",
+         ex: "Estamos en plena ola de calor.", ex_l1: "We're in the middle of a heatwave.",
+         note: "la ola = the wave. en pleno / plena + noun = in the middle of."}
+      - {id: es-b2-05-agotarse, type: vocab, l2: "agotarse", l1: "to run out / to be used up (sold out)",
+         ex: "Las entradas se agotaron en una hora.", ex_l1: "The tickets sold out in an hour.",
+         note: "agotar = to use up; agotado = sold out, or exhausted (a person)."}
+      - {id: es-b2-05-cantaros, type: vocab, l2: "llover a cántaros", l1: "to pour with rain / to rain cats and dogs",
+         ex: "Llevamos dos días sin salir: está lloviendo a cántaros.", ex_l1: "We haven't gone out for two days: it's pouring with rain.",
+         note: "el cántaro = a large jug."}
+      - {id: es-b2-05-dos-pajaros, type: vocab, l2: "matar dos pájaros de un tiro", l1: "to kill two birds with one stone (idiom)",
+         ex: "Si vamos en bici, matamos dos pájaros de un tiro: ahorramos y no contaminamos.", ex_l1: "If we go by bike, we kill two birds with one stone: we save money and don't pollute.",
+         note: "el tiro = the shot."}
+      - {id: es-b2-05-a-la-larga, type: vocab, l2: "a la larga", l1: "in the long run",
+         ex: "A la larga, las placas solares salen baratas.", ex_l1: "In the long run, solar panels work out cheap.",
+         note: "salir barato / caro = to work out cheap / expensive."}
+      - {id: es-b2-05-frio-pela, type: phrase, l2: "Hace un frío que pela.", l1: "It's bitterly cold. / It's freezing. (colloquial, Spain)",
+         note: "Literally 'a cold that peels'. Very common in Spain."}
+      - {id: es-b2-05-mal-bien, type: phrase, l2: "No hay mal que por bien no venga.", l1: "Every cloud has a silver lining. (proverb)",
+         note: "Literally 'there is no bad that does not come for some good'. Note the subjunctive venga."}
+      - {id: es-b2-05-por-si-acaso, type: phrase, l2: "Llévate el paraguas por si acaso.", l1: "Take the umbrella just in case. (informal)",
+         alt: ["Llévate el paraguas, por si acaso", "Coge el paraguas por si acaso", "Lleva el paraguas por si acaso"],
+         note: "por si acaso = just in case; por si + indicative: por si llueve."}
+      - {id: es-b2-05-con-tal-que, type: phrase, l2: "Iré con tal de que vengas tú.", l1: "I'll go as long as you come. (informal)",
+         alt: ["Iré con tal de que tú vengas", "Voy con tal de que vengas tú", "Iré siempre que vengas tú", "Iré con tal que vengas tú"],
+         note: "con tal de que + subjunctive. In Latin America con tal que (without de) is also common."}
+      - {id: es-b2-05-aunque-nadie, type: phrase, l2: "Lo haré aunque no me ayude nadie.", l1: "I'll do it even if nobody helps me.",
+         alt: ["Lo haré aunque nadie me ayude"], note: "aunque + subjunctive = even if."}
+      - {id: es-b2-05-c1, type: cloze, text: "Hay que reciclar para que nuestros hijos ___ un planeta limpio.", answer: "tengan", alt: ["hereden"],
+         l1: "We must recycle so that our children have a clean planet.", note: "para que + subjunctive"}
+      - {id: es-b2-05-c2, type: cloze, text: "Tenemos que actuar antes de que ___ demasiado tarde.", answer: "sea",
+         l1: "We have to act before it's too late.", note: "antes de que always takes the subjunctive"}
+      - {id: es-b2-05-c3, type: cloze, text: "No conseguiremos nada a menos que todos ___ algo.", answer: "hagamos",
+         l1: "We won't achieve anything unless we all do something.", note: "a menos que + subjunctive"}
+      - {id: es-b2-05-c4, type: cloze, text: "Te presto el coche con tal de que me lo ___ limpio.", answer: "devuelvas",
+         l1: "I'll lend you the car provided you give it back to me clean. (informal)", note: "con tal de que + subjunctive; devolver: o → ue"}
+      - {id: es-b2-05-c5, type: cloze, text: "En caso de que ___ un incendio, salgan por la escalera.", answer: "haya",
+         l1: "In the event of a fire, leave by the stairs. (to a group, formal)", note: "en caso de que + subjunctive; hay → haya"}
+      - {id: es-b2-05-c6, type: cloze, text: "Aunque ___ mucho el mes pasado, el río sigue seco.", answer: "llovió",
+         l1: "Although it rained a lot last month, the river is still dry.", note: "aunque + indicative: it really did rain"}
+      - {id: es-b2-05-c7, type: cloze, text: "Aunque ___ mañana, saldremos de excursión.", answer: "llueva",
+         l1: "Even if it rains tomorrow, we'll go on the trip.", note: "aunque + subjunctive: we don't know yet"}
+      - {id: es-b2-05-c8, type: cloze, text: "Se fue sin que nadie lo ___.", answer: "viera", alt: ["viese"],
+         l1: "He left without anyone seeing him.", note: "sin que + subjunctive; past → imperfect subjunctive"}
+      - {id: es-b2-05-c9, type: cloze, text: "Pusieron placas solares para que la escuela ___ menos energía.", answer: "gastara",
+         alt: ["gastase", "consumiera", "consumiese"],
+         l1: "They put in solar panels so that the school would use less energy.", note: "para que after a past verb → imperfect subjunctive"}
+      - {id: es-b2-05-c10, type: cloze, text: "Mientras ___ combustibles fósiles, las emisiones no bajarán.", answer: "usemos", alt: ["utilicemos", "quememos"],
+         l1: "As long as we use fossil fuels, emissions won't come down.", note: "mientras + subjunctive = as long as"}
+      - {id: es-b2-05-c11, type: cloze, text: "Cuando se ___ el petróleo, ¿qué haremos?", answer: "agote", alt: ["acabe", "termine"],
+         l1: "When oil runs out, what will we do?", note: "cuando + subjunctive for the future"}
+      - {id: es-b2-05-c12, type: cloze, text: "Siempre que ___ a la playa, recojo la basura que veo.", answer: "voy",
+         l1: "Whenever I go to the beach, I pick up the rubbish I see.", note: "siempre que + indicative = whenever (a habit)"}
+      - {id: es-b2-05-c13, type: cloze, text: "Puedes ir a la fiesta siempre que ___ antes de las doce.", answer: "vuelvas", alt: ["regreses"],
+         l1: "You can go to the party provided you're back before twelve. (informal)", note: "siempre que + subjunctive = provided that"}
+      - {id: es-b2-05-c14, type: cloze, text: "Apaga las luces antes de ___.", answer: "salir", alt: ["irte", "marcharte"],
+         l1: "Turn off the lights before you leave. (informal)", note: "same subject → antes de + infinitive"}
+      - {id: es-b2-05-c15, type: cloze, text: "Por mucho que ___, no me vas a convencer.", answer: "insistas",
+         l1: "However much you insist, you're not going to convince me.", note: "por mucho que + subjunctive = however much"}
+      - {id: es-b2-05-c16, type: cloze, text: "A no ser que el gobierno ___ medidas urgentes, muchas especies desaparecerán.", answer: "tome", alt: ["adopte"],
+         l1: "Unless the government takes urgent measures, many species will disappear.", note: "a no ser que = a menos que, + subjunctive"}
+
+  # ---------------------------------------------------------------- 6
+  - id: es-b2-06
+    title: "Whose work changed the world: relative clauses — science and technology"
+    goal: "I can describe discoveries, devices and apps precisely, using whose, which and whatever, and say what I am looking for."
+    notes: |
+      **Subjunctive or indicative?** In a relative clause, the mood depends on whether the thing is known to exist.
+
+      - Known, real: *Uso una aplicación que **funciona** sin conexión*.
+      - Unknown, wanted or denied: *Busco una aplicación que **funcione** sin conexión*; *No hay nadie que **sepa** arreglarlo*.
+      - "Whoever / whatever" is still open: *El que **llegue** primero…*, *Elige lo que **quieras***.
+
+      **Which relative word?**
+
+      | Word | Use | Example |
+      | lo que / lo cual | refers back to a whole idea | Falló, **lo cual** causó problemas. |
+      | el cual, la cual, los cuales, las cuales | after a preposition (formal) | las razones por **las cuales**… |
+      | quien / quienes | people; "whoever" | **Quien** quiera venir, que se apunte. |
+      | cuyo, cuya, cuyos, cuyas | whose | una científica **cuya** obra… |
+
+      - **cuyo** agrees with the thing possessed, not with the owner: *el investigador cuyas ideas…*
+      - Commas around a clause about people allow *quien(es)*: *Los médicos, quienes…*; without commas use *que*.
+      - In questions "whose?" is *¿de quién?*, never *cuyo*.
+    items:
+      - {id: es-b2-06-investigador, type: vocab, l2: "el investigador", l1: "the researcher (male)",
+         ex: "Un equipo de investigadores ha descubierto una nueva especie.", ex_l1: "A team of researchers has discovered a new species.",
+         note: "Feminine: la investigadora."}
+      - {id: es-b2-06-investigacion, type: vocab, l2: "la investigación", l1: "the research / the investigation",
+         ex: "La investigación científica necesita más dinero.", ex_l1: "Scientific research needs more money.",
+         note: "Uncountable in English, but Spanish can say una investigación (a study, a police inquiry)."}
+      - {id: es-b2-06-descubrimiento, type: vocab, l2: "el descubrimiento", l1: "the discovery",
+         ex: "Fue uno de los grandes descubrimientos del siglo.", ex_l1: "It was one of the great discoveries of the century.",
+         note: "descubrir → descubierto (irregular participle)."}
+      - {id: es-b2-06-invento, type: vocab, l2: "el invento", l1: "the invention",
+         ex: "La imprenta fue un invento revolucionario.", ex_l1: "The printing press was a revolutionary invention."}
+      - {id: es-b2-06-avance, type: vocab, l2: "el avance", l1: "the advance / the breakthrough",
+         ex: "Ha sido un gran avance en la lucha contra el cáncer.", ex_l1: "It has been a great breakthrough in the fight against cancer."}
+      - {id: es-b2-06-ia, type: vocab, l2: "la inteligencia artificial", l1: "artificial intelligence (AI)", alt: ["la IA"],
+         ex: "La inteligencia artificial está cambiando muchos trabajos.", ex_l1: "Artificial intelligence is changing many jobs.",
+         note: "Abbreviated la IA (not AI)."}
+      - {id: es-b2-06-dispositivo, type: vocab, l2: "el dispositivo", l1: "the device",
+         ex: "Puedes usar la aplicación en cualquier dispositivo.", ex_l1: "You can use the app on any device."}
+      - {id: es-b2-06-aplicacion, type: vocab, l2: "la aplicación", l1: "the app / the application", alt: ["la app"],
+         ex: "Me he descargado una aplicación para aprender idiomas.", ex_l1: "I've downloaded an app for learning languages.",
+         note: "A job application is una solicitud."}
+      - {id: es-b2-06-datos, type: vocab, l2: "los datos", l1: "the data / the (mobile) data",
+         ex: "Me he quedado sin datos en el móvil.", ex_l1: "I've run out of data on my phone.",
+         note: "Plural in Spanish: los datos son… el dato = one piece of information."}
+      - {id: es-b2-06-usuario, type: vocab, l2: "el usuario", l1: "the user (male)",
+         ex: "La aplicación tiene un millón de usuarios.", ex_l1: "The app has a million users.",
+         note: "Also the username: el nombre de usuario."}
+      - {id: es-b2-06-actualizar, type: vocab, l2: "actualizar", l1: "to update",
+         ex: "Tienes que actualizar el sistema.", ex_l1: "You have to update the system.",
+         note: "False friend: actual means current, not actual. Spelling: actualice (z → c before e)."}
+      - {id: es-b2-06-archivo, type: vocab, l2: "el archivo", l1: "the file (on a computer) / the archive", alt: ["el fichero"],
+         ex: "No puedo abrir el archivo.", ex_l1: "I can't open the file.",
+         note: "Spain also says el fichero."}
+      - {id: es-b2-06-guardar, type: vocab, l2: "guardar", l1: "to save (a file) / to keep, to put away",
+         ex: "No te olvides de guardar el documento.", ex_l1: "Don't forget to save the document.",
+         note: "To save money is ahorrar; to save a life is salvar."}
+      - {id: es-b2-06-cargar, type: vocab, l2: "cargar", l1: "to charge (a battery) / to load",
+         ex: "Tengo que cargar el móvil.", ex_l1: "I have to charge my phone.",
+         note: "el cargador = the charger. Spelling: cargue (g → gu before e)."}
+      - {id: es-b2-06-enchufe-plug, type: vocab, l2: "el enchufe", l1: "the plug / the (power) socket",
+         ex: "¿Hay algún enchufe libre?", ex_l1: "Is there a free socket?",
+         note: "enchufar = to plug in. Figuratively, tener enchufe = to have connections."}
+      - {id: es-b2-06-cientifico, type: vocab, l2: "el científico", l1: "the scientist (male)",
+         ex: "Los científicos llevan años estudiando el virus.", ex_l1: "Scientists have been studying the virus for years.",
+         note: "Feminine: la científica. As an adjective: scientific."}
+      - {id: es-b2-06-privacidad, type: vocab, l2: "la privacidad", l1: "privacy",
+         ex: "Me preocupa la privacidad de mis datos.", ex_l1: "I'm worried about the privacy of my data."}
+      - {id: es-b2-06-desarrollar, type: vocab, l2: "desarrollar", l1: "to develop",
+         ex: "La empresa está desarrollando un coche eléctrico.", ex_l1: "The company is developing an electric car.",
+         note: "Double r in the middle: de-sa-rro-llar. el desarrollo = development."}
+      - {id: es-b2-06-al-dia, type: vocab, l2: "estar al día", l1: "to be up to date / to keep up",
+         ex: "Es difícil estar al día con tantos avances.", ex_l1: "It's hard to keep up with so many advances.",
+         note: "ponerse al día = to catch up."}
+      - {id: es-b2-06-ciencia-cierta, type: vocab, l2: "a ciencia cierta", l1: "for certain / for sure (usually with saber)",
+         ex: "Nadie sabe a ciencia cierta cómo empezó.", ex_l1: "Nobody knows for certain how it started."}
+      - {id: es-b2-06-abrir-cerrar, type: vocab, l2: "en un abrir y cerrar de ojos", l1: "in the blink of an eye / in a flash",
+         ex: "El archivo se descargó en un abrir y cerrar de ojos.", ex_l1: "The file downloaded in the blink of an eye."}
+      - {id: es-b2-06-tres-pies, type: vocab, l2: "buscarle tres pies al gato", l1: "to overcomplicate things / to look for problems where there are none (idiom)",
+         ex: "No le busques tres pies al gato: funciona y ya está.", ex_l1: "Don't overcomplicate it: it works and that's that.",
+         note: "Literally 'to look for three feet on the cat' (the original was five feet)."}
+      - {id: es-b2-06-harina, type: phrase, l2: "Eso es harina de otro costal.", l1: "That's a different kettle of fish. / That's another matter. (idiom)",
+         alt: ["Eso es otro cantar"], note: "Literally 'that's flour from another sack'."}
+      - {id: es-b2-06-nadie-programar, type: phrase, l2: "No conozco a nadie que sepa programar.", l1: "I don't know anyone who can program.",
+         alt: ["No conozco a nadie que sepa programar bien"], note: "Denying that such a person exists → subjunctive."}
+      - {id: es-b2-06-cuyo-trabajo, type: phrase, l2: "Es una científica cuyo trabajo admiro mucho.", l1: "She's a scientist whose work I really admire.",
+         note: "cuyo agrees with trabajo (masculine), not with the woman."}
+      - {id: es-b2-06-lo-cual, type: phrase, l2: "Llegó tarde, lo cual no me sorprendió.", l1: "He arrived late, which didn't surprise me.",
+         alt: ["Llegó tarde, lo que no me sorprendió"], note: "lo cual / lo que refers back to the whole idea."}
+      - {id: es-b2-06-c1, type: cloze, text: "¿Hay alguien aquí que ___ arreglar esta impresora?", answer: "sepa",
+         l1: "Is there anyone here who knows how to fix this printer?", note: "we don't know if such a person exists → subjunctive"}
+      - {id: es-b2-06-c2, type: cloze, text: "Necesitamos una aplicación que ___ sin conexión.", answer: "funcione",
+         l1: "We need an app that works offline.", note: "a thing we're still looking for → subjunctive"}
+      - {id: es-b2-06-c3, type: cloze, text: "Uso un programa que ___ los archivos automáticamente.", answer: "guarda",
+         l1: "I use a program that saves files automatically.", note: "it exists and I use it → indicative"}
+      - {id: es-b2-06-c4, type: cloze, text: "Es una científica ___ investigación ha cambiado la medicina.", answer: "cuya",
+         l1: "She's a scientist whose research has changed medicine.", note: "cuya agrees with investigación (feminine singular)"}
+      - {id: es-b2-06-c5, type: cloze, text: "Es un invento ___ resultados todavía no conocemos.", answer: "cuyos",
+         l1: "It's an invention whose results we don't know yet.", note: "cuyos agrees with resultados (masculine plural)"}
+      - {id: es-b2-06-c6, type: cloze, text: "El sistema falló, lo ___ provocó muchos problemas.", answer: "cual", alt: ["que"],
+         l1: "The system failed, which caused a lot of problems.", note: "lo cual / lo que refers back to the whole sentence"}
+      - {id: es-b2-06-c7, type: cloze, text: "Son las razones por las ___ dejé la empresa.", answer: "cuales", alt: ["que"],
+         l1: "Those are the reasons why I left the company.", note: "preposition + las cuales (formal) or las que"}
+      - {id: es-b2-06-c8, type: cloze, text: "___ quiera participar, que se apunte aquí.", answer: "Quien",
+         l1: "Whoever wants to take part should sign up here.", note: "quien + subjunctive = whoever"}
+      - {id: es-b2-06-c9, type: cloze, text: "Puedes elegir lo que ___.", answer: "quieras", alt: ["prefieras"],
+         l1: "You can choose whatever you want. (informal)", note: "lo que + subjunctive = whatever"}
+      - {id: es-b2-06-c10, type: cloze, text: "No existe ninguna máquina que ___ hacer eso.", answer: "pueda",
+         l1: "There is no machine that can do that.", note: "a denied thing → subjunctive"}
+      - {id: es-b2-06-c11, type: cloze, text: "Los investigadores, ___ trabajan día y noche, esperan resultados pronto.", answer: "quienes",
+         alt: ["que"],
+         l1: "The researchers, who work day and night, hope for results soon.", note: "between commas, people can take quienes (or que)"}
+      - {id: es-b2-06-c12, type: cloze, text: "El que ___ primero, que encienda el ordenador.", answer: "llegue",
+         l1: "Whoever arrives first should switch on the computer.", note: "el que + subjunctive = whoever (not known yet)"}
+      - {id: es-b2-06-c13, type: cloze, text: "Busco un portátil que no ___ demasiado.", answer: "pese",
+         l1: "I'm looking for a laptop that doesn't weigh too much.", note: "something I'm still looking for → subjunctive"}
+      - {id: es-b2-06-c14, type: cloze, text: "La investigadora con la ___ trabajo es argentina.", answer: "que", alt: ["cual"],
+         l1: "The researcher I work with is Argentinian.", note: "the preposition goes first: con la que / con la cual (or con quien)"}
+      - {id: es-b2-06-c15, type: cloze, text: "Querían un candidato que ___ experiencia en inteligencia artificial.", answer: "tuviera", alt: ["tuviese"],
+         l1: "They wanted a candidate who had experience in artificial intelligence.", note: "past + a person who may not exist → imperfect subjunctive"}
+      - {id: es-b2-06-c16, type: cloze, text: "___ que más me preocupa es la privacidad.", answer: "Lo",
+         l1: "What worries me most is privacy.", note: "lo que = what (the thing that)"}
+      - {id: es-b2-06-c17, type: cloze, text: "Todavía hay gente que no ___ usar internet.", answer: "sabe",
+         l1: "There are still people who don't know how to use the internet.", note: "these people exist → indicative"}
+
+  # ---------------------------------------------------------------- 7
+  - id: es-b2-07
+    title: "The minister denied that…: reported speech in depth — the media"
+    goal: "I can report statements, questions and requests accurately, and talk about newspapers, television, advertising and fake news."
+    notes: |
+      With a past reporting verb, every tense moves one step back.
+
+      | Direct speech | Reported (dijo que…) |
+      | present: *trabajo* | imperfect: *trabajaba* |
+      | indefinido / perfecto: *vi, he visto* | pluperfect: *había visto* |
+      | future: *publicaremos* | conditional: *publicarían* |
+      | imperative / present subj.: *apaga* | imperfect subj.: *que apagara* |
+      | imperfect, conditional, pluperfect | no change |
+
+      - Time and place words shift: *hoy → aquel día*, *ayer → el día anterior*, *mañana → al día siguiente*, *aquí → allí*, *este → ese / aquel*.
+      - Use a precise reporting verb: **afirmar**, **asegurar** (to claim), **reconocer** (to admit), **añadir** (to add) + indicative; **negar que** (to deny) + subjunctive; **pedir**, **sugerir**, **aconsejar**, **advertir que** (to warn to) + subjunctive.
+      - With a present reporting verb nothing shifts: *dice que va a llover*.
+      - In everyday speech the indefinido often stays: *Dijo que lo vio* is heard as well as *Dijo que lo había visto*.
+    items:
+      - {id: es-b2-07-titular, type: vocab, l2: "el titular", l1: "the headline",
+         ex: "El titular no tiene nada que ver con la noticia.", ex_l1: "The headline has nothing to do with the story.",
+         note: "Also the holder of an account or passport."}
+      - {id: es-b2-07-prensa, type: vocab, l2: "la prensa", l1: "the press (newspapers, journalists)",
+         ex: "Lo he leído en la prensa.", ex_l1: "I read it in the press.",
+         note: "la prensa rosa = celebrity gossip magazines."}
+      - {id: es-b2-07-medios, type: vocab, l2: "los medios de comunicación", l1: "the media",
+         alt: ["los medios"],
+         ex: "Los medios de comunicación tienen mucho poder.", ex_l1: "The media have a lot of power.",
+         note: "Often shortened to los medios. Always plural."}
+      - {id: es-b2-07-cadena, type: vocab, l2: "la cadena", l1: "the (TV) channel / the network / the chain", alt: ["el canal"],
+         ex: "¿En qué cadena ponen el partido?", ex_l1: "Which channel is the match on?",
+         note: "poner (on TV) = to show: ¿qué ponen esta noche? Also a chain (of shops, a necklace)."}
+      - {id: es-b2-07-anuncio, type: vocab, l2: "el anuncio", l1: "the advert / the commercial / the announcement",
+         ex: "Hay demasiados anuncios en esta película.", ex_l1: "There are too many adverts during this film.",
+         note: "anunciar = to advertise / to announce."}
+      - {id: es-b2-07-publicidad, type: vocab, l2: "la publicidad", l1: "advertising",
+         ex: "La publicidad dirigida a niños debería estar prohibida.", ex_l1: "Advertising aimed at children should be banned.",
+         note: "Uncountable. Publicity in the PR sense is also la publicidad."}
+      - {id: es-b2-07-reportaje, type: vocab, l2: "el reportaje", l1: "the (news) report / the feature / the documentary piece",
+         ex: "Vimos un reportaje sobre la sequía.", ex_l1: "We watched a report on the drought.",
+         note: "Masculine (-aje). A written report at work is un informe."}
+      - {id: es-b2-07-presentador, type: vocab, l2: "el presentador", l1: "the presenter / the TV host (male)",
+         ex: "El presentador del telediario es muy serio.", ex_l1: "The newsreader is very serious.",
+         note: "Feminine: la presentadora. el telediario = the TV news (Spain)."}
+      - {id: es-b2-07-bulo, type: vocab, l2: "el bulo", l1: "the hoax / the piece of fake news", alt: ["la noticia falsa", "el fake"],
+         ex: "Ese mensaje es un bulo: no lo compartas.", ex_l1: "That message is a hoax: don't share it.",
+         note: "Spain. Elsewhere people say noticias falsas or fake news (pronounced feik)."}
+      - {id: es-b2-07-fuente, type: vocab, l2: "la fuente", l1: "the source (of information) / the fountain",
+         ex: "Siempre hay que comprobar la fuente.", ex_l1: "You always have to check the source.",
+         note: "según fuentes oficiales = according to official sources."}
+      - {id: es-b2-07-espectador, type: vocab, l2: "el espectador", l1: "the viewer / the spectator (male)",
+         ex: "El programa tuvo tres millones de espectadores.", ex_l1: "The programme had three million viewers.",
+         note: "Feminine: la espectadora. Radio listeners are los oyentes."}
+      - {id: es-b2-07-difundir, type: vocab, l2: "difundir", l1: "to spread / to circulate (news, information)",
+         ex: "Las redes sociales difunden los bulos muy rápido.", ex_l1: "Social media spread hoaxes very quickly.",
+         note: "la difusión = circulation, spreading."}
+      - {id: es-b2-07-rueda-prensa, type: vocab, l2: "la rueda de prensa", l1: "the press conference", alt: ["la conferencia de prensa"],
+         ex: "El entrenador dio una rueda de prensa después del partido.", ex_l1: "The coach gave a press conference after the match.",
+         note: "Spain: rueda de prensa; Latin America usually conferencia de prensa."}
+      - {id: es-b2-07-libertad-expresion, type: vocab, l2: "la libertad de expresión", l1: "freedom of speech / freedom of expression",
+         ex: "La libertad de expresión tiene límites.", ex_l1: "Freedom of speech has limits."}
+      - {id: es-b2-07-afirmar, type: vocab, l2: "afirmar", l1: "to state / to claim (firmly)",
+         ex: "El ministro afirmó que no había ningún problema.", ex_l1: "The minister stated that there was no problem."}
+      - {id: es-b2-07-negar, type: vocab, l2: "negar", l1: "to deny",
+         ex: "Siempre ha negado las acusaciones.", ex_l1: "He has always denied the accusations.",
+         note: "e → ie: niego, niegas. negar que + subjunctive: negó que fuera verdad."}
+      - {id: es-b2-07-reconocer, type: vocab, l2: "reconocer", l1: "to admit / to acknowledge / to recognise",
+         ex: "Reconozco que me equivoqué.", ex_l1: "I admit that I was wrong.",
+         note: "Like conocer: reconozco. + indicative."}
+      - {id: es-b2-07-advertir, type: vocab, l2: "advertir", l1: "to warn",
+         ex: "Ya te lo advertí.", ex_l1: "I did warn you.",
+         note: "False friend: to advertise is anunciar. advertir de algo = to warn about; advertir que + subjunctive = to warn (someone) to."}
+      - {id: es-b2-07-sugerir, type: vocab, l2: "sugerir", l1: "to suggest",
+         ex: "Te sugiero que leas otro periódico.", ex_l1: "I suggest you read another newspaper.",
+         note: "e → ie / i: sugiero, sugirió. sugerir que + subjunctive."}
+      - {id: es-b2-07-tomar-pelo, type: vocab, l2: "tomar el pelo", l1: "to pull someone's leg / to wind someone up (idiom)",
+         ex: "¿Me estás tomando el pelo?", ex_l1: "Are you pulling my leg?",
+         note: "The person goes in as an indirect object: me tomas el pelo."}
+      - {id: es-b2-07-ir-grano, type: vocab, l2: "ir al grano", l1: "to get (straight) to the point",
+         ex: "No tengo mucho tiempo, así que voy al grano.", ex_l1: "I don't have much time, so I'll get to the point.",
+         note: "Literally 'to go to the grain'."}
+      - {id: es-b2-07-ramas, type: vocab, l2: "irse por las ramas", l1: "to beat about the bush / to go off on a tangent", alt: ["andarse por las ramas"],
+         ex: "No te vayas por las ramas y contesta a la pregunta.", ex_l1: "Don't beat about the bush and answer the question."}
+      - {id: es-b2-07-correr-voz, type: vocab, l2: "correr la voz", l1: "to spread the word / for word to get around",
+         ex: "Corre la voz de que el alcalde va a dimitir.", ex_l1: "Word is going around that the mayor is going to resign."}
+      - {id: es-b2-07-pajarito, type: phrase, l2: "Me lo ha dicho un pajarito.", l1: "A little bird told me.",
+         alt: ["Me lo dijo un pajarito"]}
+      - {id: es-b2-07-nego-recibido, type: phrase, l2: "El ministro negó que hubiera recibido dinero.", l1: "The minister denied that he had received money.",
+         alt: ["El ministro negó que hubiese recibido dinero", "El ministro negó haber recibido dinero"],
+         note: "negar que + subjunctive; an earlier past → pluperfect subjunctive. Same subject: negó haber recibido."}
+      - {id: es-b2-07-dijo-llamara, type: phrase, l2: "Me dijo que la llamara al día siguiente.", l1: "She told me to call her the next day.",
+         alt: ["Me dijo que la llamase al día siguiente"], note: "«Llámame mañana.» → an order becomes que + imperfect subjunctive."}
+      - {id: es-b2-07-segun-fuentes, type: phrase, l2: "Según fuentes oficiales, no hay heridos.", l1: "According to official sources, nobody has been injured.",
+         alt: ["Según fuentes oficiales, no ha habido heridos"], note: "los heridos = the injured (from herir, to wound)."}
+      - {id: es-b2-07-c1, type: cloze, text: "«Trabajo en la radio.» → Dijo que ___ en la radio.", answer: "trabajaba",
+         l1: "“I work in radio.” → He said he worked in radio.", note: "present → imperfect"}
+      - {id: es-b2-07-c2, type: cloze, text: "«Vi el reportaje.» → Me contó que había ___ el reportaje.", answer: "visto",
+         l1: "“I saw the report.” → She told me she had seen the report.", note: "indefinido → pluperfect (había + participle)"}
+      - {id: es-b2-07-c3, type: cloze, text: "«Publicaremos la entrevista.» → Anunciaron que ___ la entrevista.", answer: "publicarían",
+         l1: "“We will publish the interview.” → They announced they would publish the interview.", note: "future → conditional"}
+      - {id: es-b2-07-c4, type: cloze, text: "«Apaga la tele.» → Mi madre me dijo que ___ la tele.", answer: "apagara", alt: ["apagase"],
+         l1: "“Turn off the TV.” → My mother told me to turn off the TV.", note: "imperative → que + imperfect subjunctive"}
+      - {id: es-b2-07-c5, type: cloze, text: "«¿Has leído el periódico?» → Me preguntó si ___ leído el periódico.", answer: "había",
+         l1: "“Have you read the paper?” → He asked me if I had read the paper.", note: "perfecto → pluperfect; a yes/no question → si"}
+      - {id: es-b2-07-c6, type: cloze, text: "«No es verdad.» → El portavoz negó que ___ verdad.", answer: "fuera", alt: ["fuese"],
+         l1: "“It isn't true.” → The spokesman denied that it was true.", note: "negar que + subjunctive; past → imperfect subjunctive"}
+      - {id: es-b2-07-c7, type: cloze, text: "«Estoy aquí desde ayer.» → Dijo que estaba allí desde el día ___.", answer: "anterior",
+         l1: "“I've been here since yesterday.” → He said he had been there since the day before.", note: "ayer → el día anterior; aquí → allí"}
+      - {id: es-b2-07-c8, type: cloze, text: "«Hoy hay rueda de prensa.» → Dijeron que ___ día había rueda de prensa.", answer: "aquel", alt: ["ese"],
+         l1: "“There's a press conference today.” → They said there was a press conference that day.", note: "hoy → aquel día"}
+      - {id: es-b2-07-c9, type: cloze, text: "«¿A qué hora sales?» → Me preguntó a qué hora ___.", answer: "salía",
+         l1: "“What time are you leaving?” → She asked me what time I was leaving.", note: "a reported question: present → imperfect; qué keeps its accent"}
+      - {id: es-b2-07-c10, type: cloze, text: "«¿Qué necesitas?» → Me preguntó qué ___.", answer: "necesitaba",
+         l1: "“What do you need?” → He asked me what I needed.", note: "a reported question: present → imperfect"}
+      - {id: es-b2-07-c11, type: cloze, text: "El presentador dice que mañana ___ a llover.", answer: "va",
+         l1: "The presenter says it's going to rain tomorrow.", note: "present reporting verb → no shift"}
+      - {id: es-b2-07-c12, type: cloze, text: "Le sugerí que ___ otra fuente.", answer: "buscara", alt: ["buscase"],
+         l1: "I suggested he look for another source.", note: "sugerir que + subjunctive; past → imperfect subjunctive"}
+      - {id: es-b2-07-c13, type: cloze, text: "Nos advirtieron que no ___ ese bulo.", answer: "difundiéramos", alt: ["difundiésemos", "compartiéramos", "compartiésemos"],
+         l1: "They warned us not to spread that hoax.", note: "advertir que (a warning to do / not do) + subjunctive"}
+      - {id: es-b2-07-c14, type: cloze, text: "El periódico reconoció que había ___ un error.", answer: "cometido",
+         l1: "The newspaper admitted it had made a mistake.", note: "cometer un error = to make a mistake (not hacer)"}
+      - {id: es-b2-07-c15, type: cloze, text: "«Llegaré tarde.» → Dijo que ___ tarde.", answer: "llegaría",
+         l1: "“I'll be late.” → She said she would be late.", note: "future → conditional"}
+      - {id: es-b2-07-c16, type: cloze, text: "«No sé nada del asunto.» → Afirmó que no ___ nada del asunto.", answer: "sabía",
+         l1: "“I know nothing about the matter.” → He stated that he knew nothing about the matter.", note: "afirmar + indicative; present → imperfect"}
