@@ -874,7 +874,7 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .levels .track-head { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
 .levels .track-head b { font-family: var(--serif); font-size: 1.15rem; color: #f6e7c8; }
 .levels .track-head .span { color: var(--gold); font-weight: 700; font-size: .9rem; }
-.levels .track-head .note { flex-basis: 100%; font-size: .82rem; color: #a8977a; }
+.levels .track-head .tnote { flex-basis: 100%; font-size: .82rem; color: #a8977a; }
 .levels .track-sub { grid-column: 1 / -1; margin-top: 4px; font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: #9c8a6c; }
 .levels .track-drop { grid-column: 1 / -1; justify-self: start; color: #a8977a; margin-top: 2px; }
 .level:disabled { cursor: default; opacity: .55; }

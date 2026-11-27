@@ -269,7 +269,7 @@ function renderFounding() {
     if (!t) { box.hidden = true; box.innerHTML = ''; return; }
     box.hidden = false;
     box.innerHTML = `<div class="track-head"><b>${esc(t.language)}</b> <span class="span">${esc(t.span)} · ${num(t.total).toLocaleString('en')} items</span>
-        <span class="note">One course: it begins at ${esc((t.stages[0] || {}).level || '')} and moves on to the next level by itself as you learn.</span></div>
+        <span class="tnote">One course: it begins at ${esc((t.stages[0] || {}).level || '')} and moves on to the next level by itself as you learn.</span></div>
       ${t.addons.length ? `<span class="track-sub">Add-ons, if you like</span>${t.addons.map((a) => `<button type="button" class="level" data-id="${esc(a.id)}" aria-pressed="false" ${a.units ? '' : 'disabled'}>
         <b>${esc(ADDON_NAME[a.addon] || a.title)}</b><span>${a.units ? `${esc(ADDON_NOTE[a.addon] || '')} · ${num(a.total)} items` : 'Pictures coming soon'}</span></button>`).join('')}` : ''}
       <button type="button" class="linkish small track-drop" data-unpick="${esc(t.id)}">Remove ${esc(t.language)}</button>`;
@@ -997,7 +997,7 @@ function renderLibrary(params) {
     }).join('')}</ol>`;
     const cur = curIdx >= 0 ? t.stages[curIdx] : null;
     const addons = t.addons.map((a) => byId(a.id)).filter(Boolean);
-    return `<section class="panel course track">
+    return `<section class="panel course langcourse">
     <header><span class="crest" style="background:${hue};color:#10233f" aria-hidden="true" lang="${esc(t.lang)}">${esc(mark)}</span>
       <div class="grow"><h2>${esc(t.language)}</h2><p class="dim small" style="margin:2px 0 0">One course, ${esc(t.span)}: ${num(t.total).toLocaleString('en')} items in ${num(t.units)} units. Each level opens as you finish introducing the one before.</p></div>
       ${t.enrolled ? `<span class="tag jade">Enrolled · ${esc(t.level)}</span>` : `<button class="btn primary" data-enroll="${esc(t.id)}">Begin ${esc(t.language)}</button>`}</header>
