@@ -2594,7 +2594,7 @@ def renown(fame: float) -> str:
 # ---------------------------------------------------------------------------
 GUIDE = [
     ("prio", "Open Work and change one disciple's priority. Set someone's Farm to 1 and they tend the fields before anything else.", lambda c: bool(c["flags"].get("prio"))),
-    ("library", "Queue a Scripture Pavilion in Build. Disciples with Build as a priority will raise it.", lambda c: _lvl(c, "library") > 0 or any(b["room"] == "library" for b in c["builds"])),
+    ("library", "Queue a Scripture Pavilion in Build. A builder raises it; disciples with Build as a priority help.", lambda c: _lvl(c, "library") > 0 or any(b["room"] == "library" for b in c["builds"])),
     ("research", "Choose something to research. Terraced irrigation pays for itself.", lambda c: bool(c["research"]["current"] or c["research"]["done"])),
     ("rice", "Store 70 rice. Nothing grows in winter, and everyone eats.", lambda c: c["res"]["rice"] >= 70),
     ("defend", "Build Training Grounds or a Ward Formation before something comes up the mountain.", lambda c: _lvl(c, "training") + _lvl(c, "ward") > 0),
@@ -3635,7 +3635,7 @@ def queue_build(st: dict, room: str, now: float) -> dict:
         return {"ok": False, "error": "Needs " + " and ".join(short) + "."}
     for k, v in cost.items():
         c["res"][k] -= v
-    c["builds"].append({"room": room, "need": build_hours(room, level + 1), "done": 0.0, "cost": cost, "at": c["hour"], "crew": []})
+    c["builds"].append({"room": room, "need": build_hours(room, level + 1), "done": 0.0, "cost": cost, "at": c["hour"], "crew": [], "slotted": 1})
     return {"ok": True}
 
 
@@ -4011,9 +4011,10 @@ def hall_next(c: dict) -> dict | None:
         opens.append("The first line of the Great Work “A Great Sect”")
     cost = queued[0]["cost"] if queued else room_cost(c, "main_hall", lvl)
     short = {k: v - c["res"][k] for k, v in cost.items() if c["res"][k] < v}
-    return {"level": target, "opens": opens, "cost": cost, "queued": bool(queued),
+    return {"level": target, "opens": opens, "cost": cost, "queued": bool(queued), "hours": build_hours("main_hall", target),
+            "left": build_left(c, queued[0]) if queued else 0.0, "free": len(c["builds"]) < builders(c),
             "pct": 100.0 * queued[0]["done"] / queued[0]["need"] if queued else 0.0,
-            "affordable": not queued and not short, "short": short}
+            "affordable": not queued and not short and len(c["builds"]) < builders(c), "short": short}
 
 
 def _id_names(c: dict, ids) -> str:
@@ -4043,59 +4044,6 @@ def res_rates(c: dict) -> dict:
         out[res] = {"made": made, "spent": spend[res], "made_n": made_n, "spent_n": spent_n, "net": made_n - spent_n,
                     "hours": span, "full": span >= MADE_HOURS}
     return out
-
-
-BUILD_STALL_HOURS = 12              # a queued build this long without an hour of work is stalled (a night's sleep is not)
-
-
-def build_stall(c: dict) -> str:
-    """Why a queued build has nobody on it, from the priorities and what the builders did instead ('' if it is moving).
-    Only a build that has waited BUILD_STALL_HOURS since it was queued (or last moved) counts: the hours before it
-    was queued say nothing about it."""
-    if not c["builds"] or not c["name"]:
-        return ""
-    if any(p["doing"] == JOBS["build"][0].lower() for p in c["pawns"]):
-        return ""
-    builders = [p for p in c["pawns"] if p["prio"].get("build", 0) and not p.get("direct")]
-    if not builders:
-        direct = " Direct disciples never build." if any(p.get("direct") for p in c["pawns"]) else ""
-        return f"Nobody is building: no disciple has Build in their work priorities. Set Build for someone in Work.{direct}"
-    home = [p for p in builders if p["away_until"] <= c["hour"]]
-    if not home:
-        return "Nobody is building: everyone with Build in their priorities is away from the sect."
-    b = c["builds"][0]
-    since = max((float(b[k]) for k in ("at", "moved") if isinstance(b.get(k), (int, float))), default=-1e9)
-    if c["hour"] - since < BUILD_STALL_HOURS:
-        return ""            # queued (or worked on) too recently to call it a stall
-    totals, span = _made(c, BUILD_STALL_HOURS)
-    if span < BUILD_STALL_HOURS or any(v for (kind, job, _), v in totals.items() if kind == "h" and job == "build"):
-        return ""            # too soon to tell, or someone built recently (the night is not a stall)
-    reasons, fix = [], []
-    for p in sorted(home, key=lambda p: p["prio"]["build"])[:3]:
-        # Meditation is not a chore: level with Build it takes a share of the hours (MED_SHARE) and leaves the rest to
-        # building, so it is never the reason and lowering it is never the advice.
-        worked = {job: v for (kind, job, pid), v in totals.items() if kind == "h" and pid == p["id"]}
-        did = {job: v for job, v in worked.items() if job != "meditate"}
-        name, bl = p["name"], p["prio"]["build"]
-        if not did:
-            reasons.append(f"{name} only meditated" if worked else f"{name} has not been fit to work (sleeping, sick or out of sorts)")
-            continue
-        job = max(did, key=did.get)
-        jl, jn = p["prio"].get(job, 0), JOBS[job][0]
-        if jl and jl < bl:
-            reasons.append(f"{name} has {jn} at priority {jl}, ahead of Build at {bl}")
-            fix.append(f"raise Build to {jl - 1} for {name}" if jl > 1 else f"raise Build to 1 and lower {jn} for {name}")
-        elif jl == bl and job in STORE_OF:
-            res = RES_NAMES[STORE_OF[job]].lower()
-            reasons.append(f"{name} has {jn} and Build both at priority {bl}, and {res} has been under {int(LOW_STORE_DAYS)} days of use: "
-                           "a short store comes before building on a tie")
-            fix.append(f"raise Build to {bl - 1} for {name}, or put more hands on {jn}" if bl > 1 else f"put more hands on {jn} until {res} is not short")
-        else:
-            reasons.append(f"{name} spent the day on {jn}")
-    text = "Nobody is building. " + "; ".join(reasons) + "."
-    if fix:
-        text += " To get it moving, " + fix[0] + "."
-    return text
 
 
 def _pawn_view(c: dict, p: dict) -> dict:
@@ -4216,6 +4164,7 @@ def view(st: dict, now: float) -> dict:
     day = _day(c)
     rooms = []
     tray = trays(c)
+    free = len(c["builds"]) < builders(c)
     for rid, r in ROOMS.items():
         level = _lvl(c, rid)
         queued = sum(1 for b in c["builds"] if b["room"] == rid)
@@ -4225,8 +4174,9 @@ def view(st: dict, now: float) -> dict:
         if cost and rid != "main_hall" and nxt > _lvl(c, "main_hall"):
             locked = f"Needs Main Hall level {nxt}."
         rooms.append({"id": rid, "name": r["name"], "effect": r["effect"], "level": level, "max": r["max"], "open": level > 0,
+                      "hours": _f(build_hours(rid, nxt + 1)) if cost else 0,
                       "queued": queued, "cost": {k: _f(v) for k, v in cost.items()} if cost else None, "locked": locked,
-                      "affordable": bool(cost) and not locked and all(c["res"][k] >= v for k, v in cost.items()),
+                      "affordable": bool(cost) and not locked and free and all(c["res"][k] >= v for k, v in cost.items()),
                       "tray": [{"res": res, "name": RES_NAMES[res].lower(), "n": _whole(n)} for res, n in tray.get(rid, [])]})
     last = c["last_study_day"]
     gap = (_date(today) - _date(last)).days if last else 0
@@ -4282,8 +4232,11 @@ def view(st: dict, now: float) -> dict:
                        "per_hour": _f(math.prod(x for _, x in farm_rows(c)), 2), "blight_days": _f(blight_left(c) / 24.0, 1)},
         "rooms": rooms,
         "hall_next": _hall_view(hall_next(c)),
-        "builds": [{"room": b["room"], "name": ROOMS[b["room"]]["name"], "pct": _f(100.0 * b["done"] / b["need"])} for b in c["builds"]],
-        "build_stall": build_stall(c),
+        "builds": [_build_view(c, i, b) for i, b in enumerate(c["builds"])],
+        "builders": {"n": builders(c), "busy": len(_running(c)), "rows": [{"label": str(a), "n": _f(b)} for a, b in builder_rows(c)],
+                     "next_hall": next((h for h in BUILDER_HALLS if h > _lvl(c, "main_hall")), 0),
+                     "master_hours": max(0, _f(c["master_builds_until"] - c["hour"])), "blueprints": _f(c["blueprints"]["n"]),
+                     "blueprint_cut": _f(BLUEPRINT_CUT * 100), "away_secs": _f(SECS_PER_HOUR_OFFLINE)},
         "pawns": [_pawn_view(c, p) for p in c["pawns"]],
         "jobs": [{"id": j, "name": v[0], "skill": SKILL_NAMES[v[1]]} for j, v in JOBS.items()],
         "research": {"current": str(cur), "progress": _f(c["research"]["progress"]),
@@ -4304,11 +4257,21 @@ def view(st: dict, now: float) -> dict:
     }
 
 
+def _build_view(c: dict, i: int, b: dict) -> dict:
+    running = i < builders(c)
+    rows = build_rate_rows(c, b) if running else []
+    return {"room": b["room"], "name": ROOMS[b["room"]]["name"], "level": _lvl(c, b["room"]) + 1 + sum(1 for x in c["builds"][:i] if x["room"] == b["room"]),
+            "pct": _f(100.0 * b["done"] / b["need"]), "need": _f(b["need"], 1), "done": _f(min(b["done"], b["need"]), 1),
+            "running": running, "left": _f(build_left(c, b), 1), "rate": _f(sum(x for _, x in rows), 2) if rows else 0,
+            "rows": [{"label": str(a), "x": _f(x, 2)} for a, x in rows], "blue": _f(b.get("blue", 0.0), 1)}
+
+
 def _hall_view(h: dict | None) -> dict | None:
     if not h:
         return None
     return {"level": _f(h["level"]), "opens": [str(x) for x in h["opens"]], "cost": {k: _f(v) for k, v in h["cost"].items()},
-            "queued": bool(h["queued"]), "pct": _f(h["pct"]), "affordable": bool(h["affordable"]),
+            "queued": bool(h["queued"]), "pct": _f(h["pct"]), "affordable": bool(h["affordable"]), "hours": _f(h["hours"]),
+            "left": _f(h["left"], 1), "free": bool(h["free"]),
             "short": {k: _f(math.ceil(v)) for k, v in h["short"].items()}}
 
 
@@ -4448,6 +4411,24 @@ def _repair(c: dict) -> None:
     c["rooms"] = {k: int(num(v, 0, ROOMS[k]["max"])) for k, v in c["rooms"].items() if k in ROOMS}
     c["builds"] = [x for x in c["builds"] if isinstance(x, dict) and x.get("room") in ROOMS
                    and isinstance(x.get("need"), (int, float)) and x["need"] > 0 and isinstance(x.get("done"), (int, float))][:20]
+    for i, x in enumerate(c["builds"]):
+        # a job from before builders (`need` in disciple work-hours) keeps the share it had done, on the builders' clock
+        lv = _lvl(c, x["room"]) + 1 + sum(1 for y in c["builds"][:i] if y["room"] == x["room"])
+        need = build_hours(x["room"], lv)
+        if not x.get("slotted"):
+            x["done"] = need * max(0.0, min(1.0, float(x["done"]) / float(x["need"])))
+            x["need"], x["slotted"] = need, 1
+        x["need"] = num(x["need"], 0.5, 100.0, need)
+        x["done"] = num(x["done"], 0.0, x["need"])
+        x["blue"] = num(x.get("blue"), 0.0, 100.0)
+        x["crew"] = [[str(a[0]), int(num(a[1], 0, 20)), num(a[2], 0, 5)] for a in x.get("crew", []) if isinstance(a, list) and len(a) == 3][:6]
+        x["crew_all"] = [[str(a[0])] for a in x.get("crew_all", []) if isinstance(a, list) and a][:12]
+        x.pop("boost", None), x.pop("crew_now", None)
+        x["cost"] = {k: num(v, 0, 1e6) for k, v in x.get("cost", {}).items() if k in RES} if isinstance(x.get("cost"), dict) else {}
+    bp = c.get("blueprints") if isinstance(c.get("blueprints"), dict) else {}
+    c["blueprints"] = {"n": int(num(bp.get("n"), 0, BLUEPRINT_BANK)), "day": str(bp.get("day") or "")[:10]}
+    c["master_builds_until"] = int(num(c.get("master_builds_until"), 0, 1e9))
+    c[HELD_SECS] = num(c.get(HELD_SECS), 0, MAX_OFFLINE_HOURS * SECS_PER_HOUR_OFFLINE)
     c["res"] = {k: num(c["res"].get(k), 0, 1e7) for k in RES}
 
 
