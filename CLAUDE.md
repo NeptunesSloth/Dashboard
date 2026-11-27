@@ -84,7 +84,7 @@ sect_academy/
                 art.js (places the painted art), art/*.webp, academy.css, sw.js,
                 vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
 tests/          test_engine.py, test_tracks.py, test_sect_optional.py, test_drills_lang.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
-                test_handwriting.py,
+                test_handwriting.py, test_overhaul.py (the sect overhaul, stage by stage),
                 test_lexicon_zh_ja.py, lexicon_quality.py (zh/ja hit rate and word boundaries on the courses),
                 balance.py + test_balance.py (scripted 150-day games),
                 smoke_browser.py
@@ -130,6 +130,10 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
 - **The art is painted, not vector.** The owner disliked the bright vector look;
   keep the lantern-night palette that matches `static/art/`. New images go in
   `static/art/` as WebP and are served from the fixed list in `app.py`.
+- **Sect overhaul** (`docs/SECT_OVERHAUL_PLAN.md`, approved; built stage by stage):
+  the home map has no upgrade badges (an affordable room glows and shows "+" after
+  its level); `colony.trays` lights a room with what its crew made since dawn (view
+  only until stage 4); `colony.hall_next` feeds the "Main Hall n" card under the map.
 - **Result scenes**: big outcomes (raid, tournament, festival, funeral,
   tribulation, breakthrough, realm) queue a card via `colony._scene` (cap 5,
   repaired on load). Painting `static/art/scene_<kind>.webp` is used when the
