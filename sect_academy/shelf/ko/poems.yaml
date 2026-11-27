@@ -10,17 +10,17 @@ poems:
     published: 1925
     first_published_in: "진달래꽃 (매문사, 1925)"
     level: "A2"
-    note: "The Chinese characters printed in brackets after 영변 and 약산 are left out."
+    note: "The Chinese characters printed in brackets after 영변 and 약산 are left out. The endings are -우리다 (드리우리다, 뿌리우리다, 흘리우리다), as in the 1925 text and school editions; the source page's modern text has -오리다."
     source: "https://ko.wikisource.org/wiki/진달래꽃_(시집)/진달래꽃"
     public_domain: "Author died 1934 (more than 90 years ago); first published 1925, before 1931, so also public domain in the US."
     lines:
       - ["나 보기가 역겨워", "na bogiga yeokgyeowo", "If you are sick of the sight of me"]
       - ["가실 때에는", "gasil ttaeeneun", "and go away,"]
-      - ["말없이 고이 보내드리오리다.", "mareopsi goi bonaedeuriorida.", "I will let you go quietly, without a word."]
+      - ["말없이 고이 보내드리우리다.", "mareopsi goi bonaedeuriurida.", "I will let you go quietly, without a word."]
       - []
       - ["영변에 약산", "yeongbyeone yaksan", "From Yaksan in Yeongbyeon,"]
       - ["진달래꽃", "jindallaekkot", "azaleas,"]
-      - ["아름 따다 가실 길에 뿌리오리다.", "areum ttada gasil gire ppuriorida.", "I will pick an armful and scatter them on the road you take."]
+      - ["아름 따다 가실 길에 뿌리우리다.", "areum ttada gasil gire ppuriurida.", "I will pick an armful and scatter them on the road you take."]
       - []
       - ["가시는 걸음 걸음", "gasineun georeum georeum", "Step by step as you go,"]
       - ["놓인 그 꽃을", "noin geu kkocheul", "on those flowers laid there"]
@@ -28,7 +28,7 @@ poems:
       - []
       - ["나 보기가 역겨워", "na bogiga yeokgyeowo", "If you are sick of the sight of me"]
       - ["가실 때에는", "gasil ttaeeneun", "and go away,"]
-      - ["죽어도 아니 눈물 흘리오리다.", "jugeodo ani nunmul heulliorida.", "I will not shed a tear, though I die."]
+      - ["죽어도 아니 눈물 흘리우리다.", "jugeodo ani nunmul heulliurida.", "I will not shed a tear, though I die."]
   - slug: "kim-sowol-sanyuhwa"
     title: "산유화"
     author: "김소월 (Kim Sowol)"
@@ -62,12 +62,12 @@ poems:
     title: "엄마야 누나야"
     author: "김소월 (Kim Sowol)"
     died: 1934
-    published: 1925
-    first_published_in: "진달래꽃 (매문사, 1925)"
+    published: 1922
+    first_published_in: "「개벽」 no. 19 (January 1922); 진달래꽃 (매문사, 1925)"
     level: "A2"
     note: "반짝이는 as it is usually printed (the source page has a dropped syllable)."
     source: "https://ko.wikisource.org/wiki/엄마야_누나야"
-    public_domain: "Author died 1934 (more than 90 years ago); first published 1925, before 1931, so also public domain in the US."
+    public_domain: "Author died 1934 (more than 90 years ago); first published 1922, before 1931, so also public domain in the US."
     lines:
       - ["엄마야 누나야 강변 살자,", "eommaya nunaya gangbyeon salja,", "Mum, big sister, let's live by the river,"]
       - ["뜰에는 반짝이는 금모래 빛,", "tteureneun banjjagineun geummorae bit,", "in the yard the glitter of golden sand,"]
@@ -136,7 +136,7 @@ poems:
     published: 1926
     first_published_in: "님의 침묵 (회동서관, 1926)"
     level: "B1"
-    note: "Wikisource's modern text writes 임; we keep the poem's own 님, as its title does."
+    note: "Wikisource's modern text writes 임; we keep the poem's own 님, as its title does. Three words follow the 1926 text where that modern text strays from it: 아니한 (not 않는), 들어부었습니다 (not 들이부었습니다), 갔지마는 (not 갔지만은)."
     source: "https://ko.wikisource.org/wiki/님의_침묵/님의_침묵"
     public_domain: "Author died 1944 (more than 80 years ago); first published 1926, before 1931, so also public domain in the US."
     lines:
@@ -145,10 +145,10 @@ poems:
       - ["황금의 꽃같이 굳고 빛나던 옛 맹세는 차디찬 티끌이 되어서 한숨의 미풍에 날아갔습니다.", "hwanggeumui kkotgachi gutgo binnadeon yet maengseneun chadichan tikkeuri doeeoseo hansumui mipunge naragasseumnida.", "Our old vow, firm and shining like a golden flower, became cold dust and flew away on the breeze of a sigh."]
       - ["날카로운 첫키스의 추억은 나의 운명의 지침을 돌려 놓고 뒷걸음쳐서 사라졌습니다.", "nalkaroun cheotkiseuui chueogeun naui unmyeongui jichimeul dollyeo noko dwitgeoreumchyeoseo sarajyeosseumnida.", "The memory of the sharp first kiss turned the needle of my fate around, stepped back, and vanished."]
       - ["나는 향기로운 님의 말소리에 귀먹고 꽃다운 님의 얼굴에 눈멀었습니다.", "naneun hyanggiroun nimui malsorie gwimeokgo kkotdaun nimui eolgure nunmeoreosseumnida.", "I went deaf to my beloved's fragrant voice and blind to my beloved's flower-like face."]
-      - ["사랑도 사람의 일이라 만날 때에 미리 떠날 것을 염려하고 경계하지 않는 것은 아니지만 이별은 뜻밖의 일이 되고 놀란 가슴은 새로운 슬픔에 터집니다.", "sarangdo saramui irira mannal ttaee miri tteonal geoseul yeomnyeohago gyeonggyehaji anneun geoseun anijiman ibyeoreun tteutbakkui iri doego nollan gaseumeun saeroun seulpeume teojimnida.", "Love too is a human thing, so when we met I did fear and guard against parting, yet the parting came unexpected and my startled heart bursts with new sorrow."]
-      - ["그러나 이별을 쓸데없는 눈물의 원천을 만들고 마는 것은 스스로 사랑을 깨치는 것인줄 아는 까닭에 걷잡을 수 없는 슬픔의 힘을 옮겨서 새 희망의 정수박이에 들이부었습니다.", "geureona ibyeoreul sseuldeeomneun nunmurui woncheoneul mandeulgo maneun geoseun seuseuro sarangeul kkaechineun geosinjul aneun kkadalge geotjabeul su eomneun seulpeumui himeul omgyeoseo sae huimangui jeongsubagie deuribueosseumnida.", "But because I know that making parting a useless spring of tears would break love by my own hand, I took the force of my uncontrollable sorrow and poured it onto the crown of a new hope."]
+      - ["사랑도 사람의 일이라 만날 때에 미리 떠날 것을 염려하고 경계하지 아니한 것은 아니지만 이별은 뜻밖의 일이 되고 놀란 가슴은 새로운 슬픔에 터집니다.", "sarangdo saramui irira mannal ttaee miri tteonal geoseul yeomnyeohago gyeonggyehaji anihan geoseun anijiman ibyeoreun tteutbakkui iri doego nollan gaseumeun saeroun seulpeume teojimnida.", "Love too is a human thing, so when we met I did fear and guard against parting, yet the parting came unexpected and my startled heart bursts with new sorrow."]
+      - ["그러나 이별을 쓸데없는 눈물의 원천을 만들고 마는 것은 스스로 사랑을 깨치는 것인줄 아는 까닭에 걷잡을 수 없는 슬픔의 힘을 옮겨서 새 희망의 정수박이에 들어부었습니다.", "geureona ibyeoreul sseuldeeomneun nunmurui woncheoneul mandeulgo maneun geoseun seuseuro sarangeul kkaechineun geosinjul aneun kkadalge geotjabeul su eomneun seulpeumui himeul omgyeoseo sae huimangui jeongsubagie deureobueosseumnida.", "But because I know that making parting a useless spring of tears would break love by my own hand, I took the force of my uncontrollable sorrow and poured it onto the crown of a new hope."]
       - ["우리는 만날 때에 떠날 것을 염려하는 것과 같이 떠날 때에 다시 만날 것을 믿습니다.", "urineun mannal ttaee tteonal geoseul yeomnyeohaneun geotgwa gachi tteonal ttaee dasi mannal geoseul mitseumnida.", "Just as we fear parting when we meet, when we part we believe we will meet again."]
-      - ["아아, 님은 갔지만은 나는 님을 보내지 아니하였습니다.", "aa, nimeun gatjimaneun naneun nimeul bonaeji anihayeosseumnida.", "Ah, my beloved has gone, but I have not let my beloved go."]
+      - ["아아, 님은 갔지마는 나는 님을 보내지 아니하였습니다.", "aa, nimeun gatjimaneun naneun nimeul bonaeji anihayeosseumnida.", "Ah, my beloved has gone, but I have not let my beloved go."]
       - ["제 곡조를 못 이기는 사랑의 노래는 님의 침묵을 휩싸고 돕니다.", "je gokjoreul mot igineun sarangui noraeneun nimui chimmugeul hwipssago domnida.", "A love song that cannot bear its own melody wraps round my beloved's silence and circles it."]
   - slug: "han-yongun-al-su-eopseoyo"
     title: "알 수 없어요"
@@ -187,7 +187,7 @@ poems:
       - ["만일 당신이 아니 오시면 나는 바람을 쐬고 눈비를 맞으며 밤에서 낮까지 당신을 기다리고 있습니다", "manil dangsini ani osimyeon naneun barameul ssoego nunbireul majeumyeo bameseo natkkaji dangsineul gidarigo isseumnida", "If you do not come, I stand in the wind, in snow and rain, waiting for you from night until day."]
       - ["당신은 물만 건너면 나를 돌아보지도 않고 가십니다 그려", "dangsineun mulman geonneomyeon nareul dorabojido anko gasimnida geuryeo", "Once you are across the water, you go without even looking back at me."]
       - ["그러나 당신이 언제든지 오실 줄만은 알아요", "geureona dangsini eonjedeunji osil julmaneun arayo", "But I do know that you will come, some time."]
-      - ["나는 당신을 기다리면서 날마다날마다 낡아갑니다", "naneun dangsineul gidarimyeonseo nalmadanalmada nalgagamnida", "Waiting for you, day after day, I grow old."]
+      - ["나는 당신을 기다리면서 날마다날마다 낡아갑니다", "naneun dangsineul gidarimyeonseo nalmadanalmada nalgagamnida", "Waiting for you, day after day, I grow old and worn."]
       - []
       - ["나는 나룻배", "naneun narutbae", "I am the ferryboat,"]
       - ["당신은 행인", "dangsineun haengin", "you are the traveller."]
@@ -200,7 +200,7 @@ poems:
     level: "A2"
     note: "Modern spelling and spacing (1948: 우르러, 한점, 죽어가는것을)."
     source: "https://ko.wikisource.org/wiki/하늘과_바람과_별과_시_(1948년)/서시"
-    public_domain: "Author died 1945 (more than 80 years ago). Public domain in Korea (its 1957 Act gave life+30, so the term ended in 1975 and the later, longer terms did not revive it) and in every life+70 or life+80 country."
+    public_domain: "Author died 1945 (more than 80 years ago). Public domain in Korea (its 1957 Act gave life+30, or 30 years from publication for a work first published after the author's death, so the term ended by 1978 at the latest, and the later, longer terms did not revive it) and in every life+70 or life+80 country."
     pd_exception: "First published 1948, after the 1931 cut-off. In the US it is public domain all the same: it was already out of copyright in Korea on 1 January 1996, the date the URAA would have restored a US copyright, so none was restored, and no US formalities were observed for the 1948 edition."
     lines:
       - ["죽는 날까지 하늘을 우러러", "jungneun nalkkaji haneureul ureoreo", "Until the day I die, looking up to the sky,"]

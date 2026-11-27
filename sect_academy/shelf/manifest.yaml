@@ -55,7 +55,7 @@ texts:
     published: 1781
     first_published_in: "Fábulas en verso castellano (Valencia, 1781–1784)"
     level: B1
-    note: "Four verse fables: La lechera, Los dos amigos y el oso, El ratón de la corte y el del campo, La zorra y la cigüeña. The last two come from an 1882 edition; its spelling (the preposition á, Raton, fué) is brought up to date."
+    note: "Four verse fables: La lechera, Los dos amigos y el oso, El ratón de la corte y el del campo, La zorra y la cigüeña. The last two come from an 1882 edition; its spelling (the preposition á, Raton, fué) is brought up to date. In La lechera, four slips of the online copy are put right from the standard text (sí, me rodeen, cómo, su cantarillo)."
     source: https://es.wikisource.org/wiki/F%C3%A1bulas_de_Samaniego
     public_domain: "Author died 1801; first published 1781–1784. Public domain everywhere."
   # --- French
@@ -152,6 +152,7 @@ texts:
     published: 1922
     first_published_in: "「大観」 March 1922"
     level: B1
+    note: "Aozora's 外字 「均のつくり」 (匀, Akutagawa's form of にお(い)) is written 匂, as modern editions print it."
     source: https://www.aozora.gr.jp/cards/000879/card43016.html
     public_domain: "Author died 1927; first published 1922. Public domain everywhere (Aozora Bunko lists it as out of copyright)."
   - slug: miyazawa-chumon-no-oi-ryoriten

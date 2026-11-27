@@ -42,7 +42,7 @@ poems:
     source: https://fr.wikisource.org/wiki/Romances_sans_paroles_(1891)/Il_pleure_dans_mon_c%C5%93ur
     public_domain: "Author died 1896; first published 1874. Public domain everywhere."
     lines:
-      - ["Il pleure dans mon cœur", "It is raining tears in my heart"]
+      - ["Il pleure dans mon cœur", "It weeps in my heart"]
       - ["Comme il pleut sur la ville,", "As it rains on the town,"]
       - ["Quelle est cette langueur", "What is this weariness"]
       - ["Qui pénètre mon cœur ?", "That goes into my heart?"]
@@ -138,7 +138,7 @@ poems:
       - ["Brillant à travers leurs larmes.", "Shining through their tears."]
       - []
       - ["Là, tout n’est qu’ordre et beauté,", "There, all is nothing but order and beauty,"]
-      - ["Luxe, calme et volupté.", "Richness, calm and pleasure."]
+      - ["Luxe, calme et volupté.", "Luxury, calm and pleasure."]
       - []
       - ["Des meubles luisants,", "Gleaming furniture,"]
       - ["Polis par les ans,", "Polished by the years,"]
@@ -154,7 +154,7 @@ poems:
       - ["Sa douce langue natale.", "Its own sweet native language."]
       - []
       - ["Là, tout n’est qu’ordre et beauté,", "There, all is nothing but order and beauty,"]
-      - ["Luxe, calme et volupté.", "Richness, calm and pleasure."]
+      - ["Luxe, calme et volupté.", "Luxury, calm and pleasure."]
       - []
       - ["Vois sur ces canaux", "See on those canals"]
       - ["Dormir ces vaisseaux", "Those ships sleeping"]
@@ -170,7 +170,7 @@ poems:
       - ["Dans une chaude lumière.", "In a warm light."]
       - []
       - ["Là, tout n’est qu’ordre et beauté,", "There, all is nothing but order and beauty,"]
-      - ["Luxe, calme et volupté.", "Richness, calm and pleasure."]
+      - ["Luxe, calme et volupté.", "Luxury, calm and pleasure."]
   - slug: rimbaud-le-dormeur-du-val
     title: Le Dormeur du val
     author: Arthur Rimbaud

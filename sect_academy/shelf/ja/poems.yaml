@@ -10,7 +10,7 @@ poems:
     published: 1895
     first_published_in: "Bashō 1686–1694, Buson 1770s, Issa 1810s, Shiki 1895"
     level: A2
-    note: "閑さや and 夏草や as in おくのほそ道 (1702); the others as they are usually printed today."
+    note: "閑さや and 夏草や are from おくのほそ道 (1702), given as they are usually printed today (しみ入る, 蝉), like the others."
     source: https://ja.wikisource.org/wiki/おくのほそ道
     public_domain: "Bashō died 1694, Buson 1784, Issa 1828, Shiki 1902; all first published before 1900. Public domain everywhere."
     lines:
@@ -22,7 +22,7 @@ poems:
       - []
       - ["旅に病んで夢は枯野をかけ廻る", "たびにやんで ゆめはかれのを かけめぐる | tabi ni yande yume wa kareno o kakemeguru", "Sick on a journey, my dreams go running over withered fields. (Bashō)"]
       - []
-      - ["菜の花や月は東に日は西に", "なのはなや つきはひがしに ひはにしに | na no hana ya tsuki wa higashi ni hi wa nishi ni", "Rape flowers: the moon in the east, the sun in the west. (Buson)"]
+      - ["菜の花や月は東に日は西に", "なのはなや つきはひがしに ひはにしに | na no hana ya tsuki wa higashi ni hi wa nishi ni", "Rapeseed flowers: the moon in the east, the sun in the west. (Buson)"]
       - []
       - ["春の海終日のたりのたりかな", "はるのうみ ひねもすのたり のたりかな | haru no umi hinemosu notari notari kana", "The spring sea, all day long, gently rising, gently falling. (Buson)"]
       - []
@@ -60,7 +60,7 @@ poems:
       - ["空に吸はれし", "そらにすわれし | sora ni suwareshi", "drawn up into the sky,"]
       - ["十五の心", "じゅうごのこころ | jūgo no kokoro", "my heart at fifteen."]
       - []
-      - ["ふるさとの訛なつかし", "ふるさとの なまりなつかし | furusato no namari natsukashi", "I miss the accent of my home country;"]
+      - ["ふるさとの訛なつかし", "ふるさとの なまりなつかし | furusato no namari natsukashi", "I miss the accent of my home town;"]
       - ["停車場の人ごみの中に", "ていしゃばの ひとごみのなかに | teishaba no hitogomi no naka ni", "into the crowd at the station"]
       - ["そを聴きにゆく", "そをききにゆく | so o kiki ni yuku", "I go to hear it."]
   - slug: akiko-sono-ko-hatachi
@@ -115,7 +115,7 @@ poems:
       - ["ツマラナイカラヤメロトイヒ", "つまらないからやめろといい | tsumaranai kara yamero to ii", "saying stop it, it is not worth it;"]
       - ["ヒデリノトキハナミダヲナガシ", "ひでりのときはなみだをながし | hideri no toki wa namida o nagashi", "shedding tears in the drought,"]
       - ["サムサノナツハオロオロアルキ", "さむさのなつはおろおろあるき | samusa no natsu wa orooro aruki", "walking about at a loss in a cold summer,"]
-      - ["ミンナニデクノボートヨバレ", "みんなにでくのぼーとよばれ | minna ni dekunobō to yobare", "called a blockhead by everyone,"]
+      - ["ミンナニデクノボートヨバレ", "みんなにでくのぼうとよばれ | minna ni dekunobō to yobare", "called a blockhead by everyone,"]
       - ["ホメラレモセズ", "ほめられもせず | homerare mo sezu", "not praised,"]
       - ["クニモサレズ", "くにもされず | ku ni mo sarezu", "and no trouble to anyone:"]
       - ["サウイフモノニ", "そういうものに | sō iu mono ni", "that kind of person"]

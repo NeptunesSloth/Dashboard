@@ -302,11 +302,12 @@ poems:
     published: 1891
     first_published_in: "Versos sencillos (New York, 1891), XXXIX"
     level: A2
+    note: "Line 2 is \"en julio como en enero\", as in the 1891 edition (the source page drops the second \"en\")."
     source: https://es.wikisource.org/wiki/Cultivo_una_rosa_blanca
     public_domain: "Author died 1895; first published 1891. Public domain everywhere."
     lines:
       - ["Cultivo una rosa blanca", "I grow a white rose"]
-      - ["en julio como enero,", "in July as in January,"]
+      - ["en julio como en enero,", "in July as in January,"]
       - ["para el amigo sincero", "for the true friend"]
       - ["que me da su mano franca.", "who gives me his open hand."]
       - []
