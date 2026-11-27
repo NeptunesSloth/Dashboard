@@ -690,6 +690,14 @@ def sect(action: str, body: SectIn):
             res = colony.cancel_build(st, body.index, now)
         elif action == "blueprint":
             res = colony.use_blueprint(st, body.index, now)
+        elif action == "post":
+            res = colony.set_post(st, body.pawn, body.room, now)
+        elif action == "inspect":
+            res = colony.inspect_tray(st, body.room, now)
+        elif action == "rush":
+            res = colony.rush(st, body.room, now)
+        elif action == "rush-build":
+            res = colony.rush(st, "", now, max(0, int(body.index)))
         elif action == "research":
             res = colony.set_research(st, body.tech, now)
         elif action == "resolve":

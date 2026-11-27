@@ -239,7 +239,7 @@ def _make_pawn(c: dict, n: int, master_name: str = "", lucky: bool = False) -> d
     return pawn
 
 
-PAWN_EXTRA = {"bt_tries": 0, "away_until": 0, "away_kind": "", "resolve_until": 0, "title": "", "hidden": False, "rank": 0, "origin": "", "element": "", "direct": False, "sat_at": -1, "work": ""}
+PAWN_EXTRA = {"bt_tries": 0, "away_until": 0, "away_kind": "", "resolve_until": 0, "title": "", "hidden": False, "rank": 0, "origin": "", "element": "", "direct": False, "sat_at": -1, "work": "", "post": ""}
 
 
 def new_colony(now: float) -> dict:
@@ -251,6 +251,8 @@ def new_colony(now: float) -> dict:
         "blueprints": {"n": 0, "day": ""},   # Master's Blueprints in hand, and the real day the last was drawn
         "master_builds_until": 0,    # the sect hour the Master stops lending a hand as a builder
         HELD_SECS: 0.0,
+        "tray_seen": {}, "inspected": {},   # per room: the hour the Master last looked at its tray, the day it cheered the crew
+        "rushes": [], "room_idle": {},      # rushes in the last two days ({k: room or "build", h}); rooms idle after an incident
         "pawns": [], "next_pawn": 0, "graves": 0,
         "research": {"done": [], "current": "", "progress": 0.0, "banked": {}},
         # the wider world
@@ -348,7 +350,7 @@ def _letter(c: dict, kind: str, title: str, text: str) -> dict:
 # ---------------------------------------------------------------------------
 # result scenes: a big outcome is shown as a framed card, not just a log line
 # ---------------------------------------------------------------------------
-SCENE_KINDS = ("raid", "tournament", "festival", "funeral", "tribulation", "breakthrough", "realm", "sickness", "blight", "infiltrator", "theft",
+SCENE_KINDS = ("raid", "tournament", "festival", "funeral", "tribulation", "breakthrough", "realm", "sickness", "blight", "infiltrator", "theft", "incident",
                "festival_spring", "festival_moon", "festival_ghost", "festival_winter")
 SCENE_CAP = 5                       # unseen scenes kept; older ones drop off (the chronicle still has them)
 SCENE_ART = frozenset(k for k in SCENE_KINDS if (Path(__file__).parent / "static" / "art" / f"scene_{k}.webp").is_file())
@@ -785,13 +787,19 @@ def defense(c: dict) -> float:
 # ---------------------------------------------------------------------------
 # one hour of one disciple
 # ---------------------------------------------------------------------------
+def _idle_room(c: dict, room: str) -> bool:
+    return int(c.get("room_idle", {}).get(room, 0)) > c["hour"]
+
+
 def _job_open(c: dict, job: str, taken: dict) -> bool:
+    if job in ("wood", "mine", "forage") and _idle_room(c, "storehouse"):
+        return False
     if job == "farm":
-        return _lvl(c, "fields") > 0 and _season(c) != 3 and taken.get("farm", 0) < 2 * _lvl(c, "fields")
+        return _lvl(c, "fields") > 0 and _season(c) != 3 and not _idle_room(c, "fields") and taken.get("farm", 0) < 2 * _lvl(c, "fields")
     if job == "build":
         return taken.get("build", 0) < HELPERS_PER_SITE * len(_running(c))
     if job == "craft":
-        return _lvl(c, "alchemy") > 0 and c["res"]["herbs"] >= (2 if _has(c, "refinement") else 3)
+        return _lvl(c, "alchemy") > 0 and not _idle_room(c, "alchemy") and c["res"]["herbs"] >= (2 if _has(c, "refinement") else 3)
     if job == "research":
         return _lvl(c, "library") > 0 and bool(c["research"]["current"])
     if job == "train":
@@ -879,7 +887,7 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
         _add(c, "wood", out * GATHER["wood"])
     elif job == "mine":
         _add(c, "stone", out * GATHER["stone"])
-        if _lvl(c, "spirit_vein"):
+        if _lvl(c, "spirit_vein") and not _idle_room(c, "spirit_vein"):
             _add(c, "stones", out * 0.1 * _lvl(c, "spirit_vein"))
     elif job == "forage":
         _add(c, "herbs", out * GATHER["herbs"] * (0.3 if _season(c) == 3 else 1.0) * STORYTELLERS[c["storyteller"]]["yield"])
@@ -3684,6 +3692,8 @@ def set_priority(st: dict, pawn_id: str, job: str, level: int, now: float) -> di
     if not p or job not in JOBS:
         return {"ok": False, "error": "Unknown disciple or job."}
     p["prio"][job] = int(min(max(int(level), 0), 4))
+    if p["prio"][job] != 1 and job in POSTS.get(p.get("post", ""), ()):
+        p["post"] = ""                                # moved off their post's work in the detailed grid
     c["flags"]["prio"] = 1
     _guide(c)
     return {"ok": True}
@@ -4037,31 +4047,282 @@ def _made(c: dict, hours: int = MADE_HOURS) -> tuple[dict, int]:
     return out, span
 
 
-# What each producing room's work made since the morning (the tray it will hold, once trays exist: SECT_OVERHAUL_PLAN 3.6).
-# For now it only lights the room on the map; nothing is collected and nothing changes in the stores.
+# Room play (SECT_OVERHAUL_PLAN 3.6, stage 4): posts by drag, trays to tap, rushes at a shown risk.
+# A tray shows what a room's work made since dawn, or since the Master last looked. It is already in the stores
+# (nothing waits in a tray, so nothing is lost by never tapping); tapping is the Master's inspection, which cheers
+# the crew once a room a day (decided by the owner: +3 mood, nothing else).
 TRAY_OF = {"fields": (("farm", "rice"),), "alchemy": (("craft", "pills"),), "spirit_vein": (("mine", "stones"),),
            "storehouse": (("wood", "wood"), ("mine", "stone"), ("forage", "herbs"))}
 TRAY_DAWN = 6                       # the hour a tray's count starts again
+TRAY_FULL_HOURS = 8                 # a tray this many hours in the making reads as full on the map
+INSPECT_MOOD, INSPECT_HOURS = 3, 12  # the crew's thought when the Master inspects a tray (once a room a day)
+POSTS = {"fields": ("farm",), "storehouse": ("wood", "mine", "forage"), "library": ("research",), "training": ("train",),
+         "meditation": ("meditate",), "alchemy": ("craft",), "spirit_vein": ("mine",), "main_hall": ("build",)}
+RUSH_BASE, RUSH_STEP, RUSH_DECAY, RUSH_WINDOW = 10, 15, 0.15, 48   # incident %: base, +15 a recent rush (less 15% a day), for 2 days
+RUSH_CAP = 70                       # the riskiest a rush can be
+RUSH_HOURS = 6                      # a rushed room delivers this many hours of its work now
+RUSH_IDLE = 6                       # a room whose rush went wrong stands idle this many hours
+RUSH_WOUND = (5, 15)                # health each of the crew loses when an incident is not contained (never a death)
+RUSH_BUILD_BACK, RUSH_BUILD_LOSS = 2.0, 0.10   # a failed build rush: 2 hours more work, and a tenth of its materials gone
 
 
-def trays(c: dict) -> dict:
-    """{room: [(res, amount), ...]} made by that room's work since the last dawn, largest first, whole units only."""
-    since = c["hour"] - ((c["hour"] - TRAY_DAWN) % 24)        # the last dawn at or before now
-    totals: dict = {}
+def _last_dawn(c: dict) -> int:
+    return c["hour"] - ((c["hour"] - TRAY_DAWN) % 24)
+
+
+def _tray_since(c: dict, room: str) -> int:
+    return max(_last_dawn(c), int(c["tray_seen"].get(room, -1)))
+
+
+def _room_made(c: dict, room: str, since: int) -> tuple[dict, set]:
+    """What a room's jobs made after hour `since`: ({res: amount}, {pawn ids who worked there})."""
+    pairs = TRAY_OF.get(room, ())
+    jobs = {job for job, _ in pairs} | set(POSTS.get(room, ()))
+    got: dict = {}
+    who: set = set()
     for h, b in c["made"].items():
         if since < int(h) <= c["hour"]:
             for k, v in b.items():
-                res, job, _ = k.split("|")
-                totals[(job, res)] = totals.get((job, res), 0.0) + v
+                kind, job, pid = k.split("|")
+                if (job, kind) in pairs:
+                    got[kind] = got.get(kind, 0.0) + v
+                if kind == "h" and job in jobs:
+                    who.add(pid)
+    return got, who
+
+
+def trays(c: dict) -> dict:
+    """{room: [(res, amount), ...]} made by that room's work since dawn (or the last inspection), largest first,
+    whole units only."""
     out = {}
     for room, pairs in TRAY_OF.items():
         if not _lvl(c, room):
             continue
-        got = sorted(((res, totals.get((job, res), 0.0)) for job, res in pairs), key=lambda x: -x[1])
-        got = [(res, n) for res, n in got if n >= 1]
-        if got:
-            out[room] = got
+        got, _ = _room_made(c, room, _tray_since(c, room))
+        rows = sorted(((res, got.get(res, 0.0)) for _, res in pairs), key=lambda x: -x[1])
+        rows = [(res, n) for res, n in rows if n >= 1]
+        if rows:
+            out[room] = rows
     return out
+
+
+def tray_full(c: dict, room: str) -> bool:
+    return c["hour"] - _tray_since(c, room) >= TRAY_FULL_HOURS
+
+
+def inspect_tray(st: dict, room: str, now: float) -> dict:
+    """Tap a tray: the Master looks over what the room made. The count starts again; the crew who made it take heart
+    (+INSPECT_MOOD for INSPECT_HOURS), once a room a day. Nothing is added to the stores: it is there already."""
+    c = _c(st, now)
+    t = trays(c).get(room)
+    if not t:
+        return {"ok": False, "error": "Nothing made here since the last look."}
+    _, who = _room_made(c, room, _tray_since(c, room))
+    crew = [p for p in c["pawns"] if p["id"] in who]
+    c["tray_seen"][room] = c["hour"]
+    day = _day(c)
+    cheered = []
+    if c["inspected"].get(room) != day and crew:
+        c["inspected"][room] = day
+        for p in crew:
+            _think(p, "inspect_" + room, "The Master inspected our work", INSPECT_MOOD, INSPECT_HOURS, c["hour"])
+        cheered = [p["name"] for p in crew]
+    made = ", ".join(f"{_whole(n)} {RES_NAMES[res].lower()}" for res, n in t)
+    text = (f"{_and(cheered)} {_be(len(cheered), 'is', 'are')} pleased the Master came to look (+{INSPECT_MOOD} mood for {INSPECT_HOURS} h)."
+            if cheered else "The crew already showed you their work today.")
+    return {"ok": True, "made": [{"res": res, "name": RES_NAMES[res].lower(), "n": _whole(n)} for res, n in t],
+            "event": {"kind": "good", "title": f"{ROOMS[room]['name']}: {made} since {'dawn' if _tray_since(c, room) == c['hour'] else 'the last look'}. {text}"}}
+
+
+def room_slots(c: dict, room: str) -> int:
+    """How many disciples a room takes as their post."""
+    lv = _lvl(c, room)
+    if not lv or room not in POSTS:
+        return 0
+    if room == "fields":
+        return 2 * lv                                  # the farmers the terraces hold (_job_open)
+    if room == "main_hall":
+        return HELPERS_PER_SITE * builders(c)          # helpers, two to a builder
+    return 2 + lv
+
+
+def posted(c: dict, room: str) -> list[dict]:
+    return [p for p in c["pawns"] if p.get("post") == room]
+
+
+def post_fit(c: dict, p: dict, room: str) -> str:
+    """How well a disciple suits a room, for the glow while dragging: "good", "fair" or "poor"."""
+    if room == "meditation":
+        return "good" if p.get("root_mult", 1.0) >= 1.2 else "fair"
+    skill = JOBS[POSTS[room][0]][1]
+    sk = p["skills"][skill]
+    return "good" if sk["lv"] >= 7 or (sk["passion"] and sk["lv"] >= 4) else "fair" if sk["lv"] >= 3 or sk["passion"] else "poor"
+
+
+def set_post(st: dict, pawn_id: str, room: str, now: float) -> dict:
+    """Drop a disciple on a room: that room's work becomes their first priority (their old post's falls to second),
+    the rest of their priorities unchanged. An empty room clears the post."""
+    c = _c(st, now)
+    p = _p(c, pawn_id)
+    if not p:
+        return {"ok": False, "error": "Unknown disciple."}
+    if not room:
+        p["post"] = ""
+        return {"ok": True}
+    if room not in POSTS or not _lvl(c, room):
+        return {"ok": False, "error": "No one can be posted there."}
+    if p.get("post") == room:
+        return {"ok": True}
+    n = room_slots(c, room)
+    if len(posted(c, room)) >= n:
+        return {"ok": False, "error": f"The {ROOMS[room]['name']} is full ({n} of {n})."}
+    old = p.get("post")
+    for j in POSTS.get(old, ()):
+        if p["prio"].get(j) == 1 and j not in POSTS[room]:
+            p["prio"][j] = 2
+    for j in POSTS[room]:
+        p["prio"][j] = 1
+    p["post"] = room
+    c["flags"]["prio"] = 1
+    _guide(c)
+    jobs = _and([JOBS[j][0] for j in POSTS[room]])
+    return {"ok": True, "event": {"kind": "good", "title": f"{p['name']} now works at the {ROOMS[room]['name']} ({jobs} first)."}}
+
+
+def rush_crew(c: dict, target: str) -> list[dict]:
+    """Who a rush leans on: the room's posted disciples at home, else whoever worked there today. For a build, the
+    disciples with Build as a first or second priority."""
+    home = [p for p in c["pawns"] if p["away_until"] <= c["hour"]]
+    if target == "build":
+        return [p for p in home if p["prio"].get("build") in (1, 2)]
+    crew = [p for p in home if p.get("post") == target]
+    if not crew:
+        _, who = _room_made(c, target, c["hour"] - 24)
+        crew = [p for p in home if p["id"] in who]
+    return crew
+
+
+def _crew_skill(c: dict, target: str, crew: list[dict]) -> float:
+    skill = "build" if target == "build" else JOBS[POSTS[target][0]][1]
+    return sum(p["skills"][skill]["lv"] for p in crew) / len(crew) if crew else 7.0
+
+
+def rush_rows(c: dict, target: str) -> list[tuple[str, int]]:
+    """The chance of an incident if `target` (a room, or "build") is rushed now, as a ledger of percentage points."""
+    rows = [("Any rush risks an incident", RUSH_BASE)]
+    for r in c["rushes"]:
+        ago = c["hour"] - int(r["h"])
+        if r["k"] == target and 0 <= ago < RUSH_WINDOW:
+            rows.append((f"Rushed {_n(ago, 'hour')} ago", int(round(RUSH_STEP * (1 - RUSH_DECAY * ago / 24.0)))))
+    crew = rush_crew(c, target)
+    above = _crew_skill(c, target, crew) - 7
+    if crew and above >= 1:
+        rows.append((f"A skilled crew (skill {_f(above + 7)})", -int(above)))
+    total = sum(v for _, v in rows)
+    if total > RUSH_CAP:
+        rows.append(("The risk goes no higher", RUSH_CAP - total))
+    elif total < 0:
+        rows.append(("Never below nothing", -total))
+    return rows
+
+
+def rush_chance(c: dict, target: str) -> int:
+    return int(sum(v for _, v in rush_rows(c, target)))
+
+
+def contain_rows(c: dict, target: str) -> list[tuple[str, int]]:
+    """If an incident comes, the chance the crew contain it (the rush then pays, and they are proud of it)."""
+    crew = rush_crew(c, target)
+    rows = [("A crew keeps its head", 40)]
+    if crew:
+        rows.append((f"{_n(len(crew), 'pair of hands', 'pairs of hands')}", 5 * min(len(crew), 4)))
+        d = int(round(4 * (_crew_skill(c, target, crew) - 7)))
+        if d:
+            rows.append((f"Their skill ({_f(_crew_skill(c, target, crew))})", d))
+    total = sum(v for _, v in rows)
+    if total > 90:
+        rows.append(("Nothing is certain", 90 - total))
+    elif total < 10:
+        rows.append(("Someone always tries", 10 - total))
+    return rows
+
+
+def contain_chance(c: dict, target: str) -> int:
+    return int(sum(v for _, v in contain_rows(c, target)))
+
+
+def rush_output(c: dict, room: str) -> dict:
+    """What a rushed room delivers now: RUSH_HOURS of what its work made an hour over the last day."""
+    got, _ = _room_made(c, room, c["hour"] - MADE_HOURS)
+    _, span = _made(c)
+    return {res: v * RUSH_HOURS / max(span, 1) for res, v in got.items() if v > 0}
+
+
+INCIDENTS = {"fields": ("A beast in the terraces", "boar"), "alchemy": ("A pill-furnace fire", "fire"),
+             "spirit_vein": ("A qi deviation at the vein", "qi"), "storehouse": ("A stack gives way in the yard", "stack"),
+             "build": ("The scaffolding gives way", "scaffold")}
+
+
+def rush(st: dict, room: str, now: float, index: int = -1) -> dict:
+    """Rush a room (RUSH_HOURS of its work now) or a running build (index >= 0: finished now), at the odds shown by
+    rush_rows and contain_rows: the same rolls are made here. A player action only, so never while away."""
+    c = _c(st, now)
+    if c["seclusion"]:
+        return {"ok": False, "error": "The gates are sealed."}
+    if index >= 0:
+        run = _running(c)
+        if not 0 <= index < len(run):
+            return {"ok": False, "error": "No builder is on that job."}
+        b, target = run[index], "build"
+        out: dict = {}
+    else:
+        if room not in TRAY_OF or not _lvl(c, room):
+            return {"ok": False, "error": "That room cannot be rushed."}
+        if int(c["room_idle"].get(room, 0)) > c["hour"]:
+            return {"ok": False, "error": f"The {ROOMS[room]['name']} is still putting things right."}
+        out = rush_output(c, room)
+        if not out:
+            return {"ok": False, "error": "No one has worked here today: there is nothing to hurry."}
+        b, target = None, room
+    chance, keep = rush_chance(c, target), contain_chance(c, target)
+    crew = rush_crew(c, target)
+    r = _rng(c, "rush", c["hour"], target, len(c["rushes"]))
+    incident = r.random() * 100 < chance
+    contained = incident and r.random() * 100 < keep
+    c["rushes"] = [x for x in c["rushes"] if c["hour"] - int(x["h"]) < RUSH_WINDOW][-20:] + [{"k": target, "h": c["hour"]}]
+    name, _ = INCIDENTS[target]
+    what = ROOMS[b["room"]]["name"] if b else ROOMS[room]["name"]
+    snap = _snap(c)
+    if not incident or contained:
+        if b:
+            b["done"] = b["need"]
+            _finish_build(c, b)
+        for res, v in out.items():
+            _add(c, res, v)
+        if contained:
+            for p in crew:
+                _xp(p, "build" if b else JOBS[POSTS[room][0]][1], 6.0)
+                _think(p, "proud", "Proud of the work", 4, 24, c["hour"])
+            _scene(c, "incident", True, f"{name}, and the crew held", f"The {what} was rushed. {name}, but the crew kept their heads and saw it through.",
+                   verdict="Contained", party=crew, snap=snap)
+            return {"ok": True, "incident": True, "contained": True}
+        got = ", ".join(f"{_whole(v)} {RES_NAMES[k].lower()}" for k, v in out.items())
+        return {"ok": True, "incident": False, "event": {"kind": "good", "title": f"{what} rushed" + (f": {got}" if got else ": finished")}}
+    # the incident was not contained
+    if b:
+        b["need"] = min(100.0, b["need"] + RUSH_BUILD_BACK)
+        b["cost"] = {k: v * (1 - RUSH_BUILD_LOSS) for k, v in b.get("cost", {}).items()}
+        text = f"The {what} loses ground: {_n(int(RUSH_BUILD_BACK), 'hour')} more work, and a tenth of its materials are spoiled."
+    else:
+        c["room_idle"][room] = c["hour"] + RUSH_IDLE
+        text = f"The rushed work is lost and the {what} stands idle for {RUSH_IDLE} hours."
+    for p in crew:
+        p["health"] = max(min(p["health"], 5.0), p["health"] - r.uniform(*RUSH_WOUND) * hurt_mult(p, c))
+    if crew:
+        text += f" {_and([p['name'] for p in crew])} {_be(len(crew), 'was', 'were')} hurt. No one died."
+    _scene(c, "incident", False, name, text, verdict="An incident", party=crew, snap=snap)
+    _letter(c, "bad", name, text)
+    return {"ok": True, "incident": True, "contained": False}
 
 
 def hall_opens(c: dict, target: int) -> list[str]:
@@ -4152,6 +4413,7 @@ def _pawn_view(c: dict, p: dict) -> dict:
         "step": _f(p["step"]), "realm": REALMS[int(p["step"]) // 4], "stage": STAGES[int(p["step"]) % 4],
         "qi": _f(p["qi"]), "qi_need": _f(need), "qi_pct": _f(min(100.0, 100.0 * float(p["qi"]) / need)),
         "prio": {j: _f(p["prio"].get(j, 0)) for j in JOBS}, "doing": str(p["doing"]),
+        "post": str(p.get("post") or ""), "fit": {r: post_fit(c, p, r) for r in POSTS if _lvl(c, r)},
         "broken": p["break_until"] > hour, "inspired": p["inspired_until"] > hour, "sick": p["sick_until"] > hour,
         "power": _f(combat_power(c, p)),
         "rank": rank, "realm_rank": lore.RANKS[rank_of(p)], "title": str(p.get("title") or ""),
@@ -4264,7 +4526,11 @@ def view(st: dict, now: float) -> dict:
                       "queued": queued, "cost": {k: _f(v) for k, v in cost.items()} if cost else None, "locked": locked,
                       "lock_short": build_block_short(c, rid, nxt) if locked else "",
                       "affordable": bool(cost) and not locked and free and all(c["res"][k] >= v for k, v in cost.items()),
-                      "tray": [{"res": res, "name": RES_NAMES[res].lower(), "n": _whole(n)} for res, n in tray.get(rid, [])]})
+                      "tray": [{"res": res, "name": RES_NAMES[res].lower(), "n": _whole(n)} for res, n in tray.get(rid, [])],
+                      "tray_full": bool(tray.get(rid)) and tray_full(c, rid),
+                      "slots": room_slots(c, rid), "posted": [str(p["id"]) for p in posted(c, rid)],
+                      "post_jobs": [JOBS[j][0] for j in POSTS.get(rid, ())] if level else [],
+                      "rush": _rush_view(c, rid) if rid in TRAY_OF and level else None})
     last = c["last_study_day"]
     gap = (_date(today) - _date(last)).days if last else 0
     lost = bool(last) and not c["seclusion"] and gap > 1 and c["grace"] < gap - 1
@@ -4350,7 +4616,18 @@ def _build_view(c: dict, i: int, b: dict) -> dict:
     return {"room": b["room"], "name": ROOMS[b["room"]]["name"], "level": _lvl(c, b["room"]) + 1 + sum(1 for x in c["builds"][:i] if x["room"] == b["room"]),
             "pct": _f(100.0 * b["done"] / b["need"]), "need": _f(b["need"], 1), "done": _f(min(b["done"], b["need"]), 1),
             "running": running, "left": _f(build_left(c, b), 1), "rate": _f(sum(x for _, x in rows), 2) if rows else 0,
-            "rows": [{"label": str(a), "x": _f(x, 2)} for a, x in rows], "blue": _f(b.get("blue", 0.0), 1)}
+            "rows": [{"label": str(a), "x": _f(x, 2)} for a, x in rows], "blue": _f(b.get("blue", 0.0), 1),
+            "rush": _rush_view(c, "build") if running else None}
+
+
+def _rush_view(c: dict, target: str) -> dict:
+    out = rush_output(c, target) if target != "build" else {}
+    return {"chance": _f(rush_chance(c, target)), "rows": [{"label": str(a), "v": _f(v)} for a, v in rush_rows(c, target)],
+            "contain": _f(contain_chance(c, target)), "contain_rows": [{"label": str(a), "v": _f(v)} for a, v in contain_rows(c, target)],
+            "out": [{"res": k, "name": RES_NAMES[k].lower(), "n": _whole(v)} for k, v in out.items() if v >= 1],
+            "crew": [str(p["name"]) for p in rush_crew(c, target)],
+            "idle": max(0, _f(int(c["room_idle"].get(target, 0)) - c["hour"])) if target != "build" else 0,
+            "incident": INCIDENTS[target][0]}
 
 
 def _hall_view(h: dict) -> dict:
@@ -4435,6 +4712,7 @@ def _repair(c: dict) -> None:
             p[k] = num(p.get(k), 0, 1e9)
         p["sat_at"] = int(num(p.get("sat_at"), -1, 1e9, -1))
         p["work"] = p.get("work") if p.get("work") in JOBS else ""
+        p["post"] = p.get("post") if p.get("post") in POSTS else ""
         p["root_mult"] = num(p.get("root_mult"), 0.3, 3.0, 1.0)
         p["prio"] = {j: int(num((p.get("prio") or {}).get(j), 0, 4)) for j in JOBS}
         p["thoughts"] = [t for t in p.get("thoughts", []) if isinstance(t, dict) and isinstance(t.get("k"), str)
@@ -4516,6 +4794,12 @@ def _repair(c: dict) -> None:
     c["blueprints"] = {"n": int(num(bp.get("n"), 0, BLUEPRINT_BANK)), "day": str(bp.get("day") or "")[:10]}
     c["master_builds_until"] = int(num(c.get("master_builds_until"), 0, 1e9))
     c[HELD_SECS] = num(c.get(HELD_SECS), 0, MAX_OFFLINE_HOURS * SECS_PER_HOUR_OFFLINE)
+    for k in ("tray_seen", "inspected", "room_idle"):
+        d = c.get(k) if isinstance(c.get(k), dict) else {}
+        c[k] = {r: int(num(v, -1, 1e9, -1)) for r, v in d.items() if r in ROOMS}
+    rushes = c.get("rushes") if isinstance(c.get("rushes"), list) else []
+    c["rushes"] = [{"k": str(x["k"]), "h": int(num(x.get("h"), 0, 1e9))} for x in rushes
+                   if isinstance(x, dict) and (x.get("k") in ROOMS or x.get("k") == "build")][-20:]
     c["res"] = {k: num(c["res"].get(k), 0, 1e7) for k in RES}
 
 
