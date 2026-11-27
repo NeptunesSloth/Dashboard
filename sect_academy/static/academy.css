@@ -1048,7 +1048,6 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .dragghost { position: fixed; z-index: 50; pointer-events: none; transform: translate(-50%, -60%) scale(1.15); filter: drop-shadow(0 6px 10px #000c); }
 .dragghost .face { width: 46px; height: 46px; }
 /* while a disciple is in hand: each room glows for how well they suit it */
-.hq.holding .room.closed { opacity: .5; }
 .hq.holding .room.fit-good { background: #3fae8226; box-shadow: inset 0 0 0 2px #3fae82, inset 0 0 30px #3fae8240; }
 .hq.holding .room.fit-fair { background: #e9b44c1f; box-shadow: inset 0 0 0 2px #e9b44ccc, inset 0 0 26px #e9b44c33; }
 .hq.holding .room.fit-poor { background: #9a8f8014; box-shadow: inset 0 0 0 2px #9a8f8099; }

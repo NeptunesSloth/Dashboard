@@ -5,6 +5,7 @@ simulation, not by feel").
 numbers the balance is judged by. Two profiles:
 
 * ``idle``: never builds, researches or reassigns anyone; clicks the first button on every event.
+* ``collect``: careful, and taps every tray twice a sect day (SECT_OVERHAUL_PLAN 3.6: tapping must be optional).
 * ``careful``: builds and researches in a sensible order, keeps a food reserve, fights only when
   the odds are good, heals the wounded, takes breakthroughs at good odds, and acts on the
   sect's alerts (a disciple who has stopped cultivating gets meditation time).
@@ -237,11 +238,14 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
                     break
                 event_days.add(colony._day(c))
                 out["infil"] += ev["kind"] == "infiltrator"
-                opt =ev["options"][0]["id"] if profile == "idle" else _careful_choice(c, ev)
+                opt = ev["options"][0]["id"] if profile == "idle" else _careful_choice(c, ev)
                 if not colony.resolve(st, opt, T0)["ok"]:
                     colony.resolve(st, ev["options"][-1]["id"], T0)
-            if profile == "careful":
+            if profile in ("careful", "collect"):
                 _careful_orders(st, c, seen_alerts)
+            if profile == "collect" and c["hour"] % 24 in (9, 17):     # taps every tray twice a sect day
+                for room in list(colony.trays(c)):
+                    colony.inspect_tray(st, room, T0)
             if hasattr(colony, "builders") and colony._day(c) < 60:
                 free = max(0, colony.builders(c) - len(c["builds"]))
                 slot_hours[0] += colony.builders(c)

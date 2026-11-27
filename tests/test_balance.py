@@ -68,6 +68,13 @@ def test_a_careful_sect_climbs_the_main_hall_ladder(runs):
         assert r["hall_by_day"][60] >= 4 and 6 <= r["hall_by_day"][150] <= 8, r["hall_by_day"]
 
 
+def test_tapping_trays_is_optional(careful):
+    """Collecting twice a day only cheers the crew: food and deaths match the careful player who never taps."""
+    r = play("balanced", "collect", 150, 12345)
+    assert r["deaths"] == careful["deaths"] and abs(r["min_food_days"] - careful["min_food_days"]) < 2.0, (r["min_food_days"], careful["min_food_days"])
+    assert abs(r["pop"] - careful["pop"]) <= 2
+
+
 def test_research_moves_without_study(runs):
     for r in runs.values():
         assert 5 <= r["techs70"] <= 8, r["techs70"]                   # no study at all in the scripted game

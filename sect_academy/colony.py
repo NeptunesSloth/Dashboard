@@ -4117,7 +4117,8 @@ def inspect_tray(st: dict, room: str, now: float) -> dict:
     t = trays(c).get(room)
     if not t:
         return {"ok": False, "error": "Nothing made here since the last look."}
-    _, who = _room_made(c, room, _tray_since(c, room))
+    since = _tray_since(c, room)
+    _, who = _room_made(c, room, since)
     crew = [p for p in c["pawns"] if p["id"] in who]
     c["tray_seen"][room] = c["hour"]
     day = _day(c)
@@ -4128,10 +4129,11 @@ def inspect_tray(st: dict, room: str, now: float) -> dict:
             _think(p, "inspect_" + room, "The Master inspected our work", INSPECT_MOOD, INSPECT_HOURS, c["hour"])
         cheered = [p["name"] for p in crew]
     made = ", ".join(f"{_whole(n)} {RES_NAMES[res].lower()}" for res, n in t)
-    text = (f"{_and(cheered)} {_be(len(cheered), 'is', 'are')} pleased the Master came to look (+{INSPECT_MOOD} mood for {INSPECT_HOURS} h)."
+    who_txt = _and(cheered) if len(cheered) <= 3 else f"The crew of {len(cheered)}"
+    text = (f"{who_txt} {_be(len(cheered), 'is', 'are')} pleased the Master came to look (+{INSPECT_MOOD} mood for {INSPECT_HOURS} h)."
             if cheered else "The crew already showed you their work today.")
     return {"ok": True, "made": [{"res": res, "name": RES_NAMES[res].lower(), "n": _whole(n)} for res, n in t],
-            "event": {"kind": "good", "title": f"{ROOMS[room]['name']}: {made} since {'dawn' if _tray_since(c, room) == c['hour'] else 'the last look'}. {text}"}}
+            "event": {"kind": "good", "title": f"{ROOMS[room]['name']}: {made} since {'dawn' if since == _last_dawn(c) else 'your last look'}. {text}"}}
 
 
 def room_slots(c: dict, room: str) -> int:
