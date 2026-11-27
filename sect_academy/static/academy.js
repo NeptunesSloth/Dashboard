@@ -53,6 +53,12 @@ function scrub(ov) {
   fix(ov.today, NUMERIC.today); fix(ov.settings, NUMERIC.settings);
   (ov.courses || []).forEach((c) => { fix(c, NUMERIC.course); (c.units || []).forEach((u) => fix(u, NUMERIC.unit)); });
   Object.values(ov.placements || {}).forEach((pl) => fix(pl, ['passed_units', 'units', 'placed', 'asked', 'right']));
+  (ov.tracks || []).forEach((t) => {
+    fix(t, ['total', 'seen', 'mastered', 'due', 'new_left', 'strength', 'units']);
+    (t.stages || []).forEach((x) => fix(x, ['total', 'seen', 'mastered', 'due', 'units', 'pct']));
+    (t.addons || []).forEach((x) => fix(x, ['total', 'seen', 'due', 'new_left', 'units', 'soon']));
+    if (t.placement) fix(t.placement, ['passed_units', 'units', 'placed', 'asked', 'right']);
+  });
   return ov;
 }
 function showEvents(events) { (events || []).slice(0, 4).forEach((e, i) => setTimeout(() => toast(e.text), i * 700)); }
@@ -182,17 +188,17 @@ function sectName() {
 
 function renderFounding() {
   const courses = OV.courses;
+  const tracks = OV.tracks || [];
   const LANGS = [
     ['Spanish', 'Español'], ['French', 'Français'], ['Mandarin', '中文'], ['Japanese', '日本語'], ['Korean', '한국어'],
   ];
-  const LEVEL_NOTE = { A1: 'Complete beginner', A2: 'Elementary', B1: 'Intermediate', B2: 'Upper intermediate', Talk: 'Spoken exchanges', Pictures: 'Words on pictures' };
-  const level = (c) => { const t = String(c.title).split(' — ')[1] || c.title; if (/^Conversations/.test(t)) return 'Talk'; if (/^Picture/.test(t)) return 'Pictures'; return t.split(' ')[0]; };
   const certName = (c) => String(c.title).split(' — ')[0].replace(/\s*\(.*\)$/, '');
   const known = new Set(LANGS.map((l) => l[0]));
-  const langs = [...LANGS.filter(([l]) => courses.some((c) => c.language === l)),
-    ...[...new Set(courses.filter((c) => c.kind === 'language' && !known.has(c.language)).map((c) => c.language || 'Other'))].map((l) => [l, l])];
+  const langs = [...LANGS.filter(([l]) => tracks.some((t) => t.language === l)),
+    ...tracks.filter((t) => !known.has(t.language)).map((t) => [t.language, t.language])];
+  const trackFor = (l) => tracks.find((t) => t.language === l);
   const certs = courses.filter((c) => c.kind !== 'language');
-  const picked = new Set();
+  const picked = new Set();        // track ids, add-on ids, certificate ids
   let step = 1; let openLang = null;
   const tells = OV.sect.storytellers;
   let tell = 'balanced';
@@ -211,9 +217,9 @@ function renderFounding() {
       </section>
       <section class="rite-step" data-step="2" hidden>
         <h2>What will you cultivate?</h2>
-        <p class="rite-lede">Pick one or two to start. Each adds about eight new items a day, and you can change them later in the library.</p>
-        <div class="tongues" role="list">${langs.map(([l, native]) => `<button type="button" class="tongue" role="listitem" data-lang="${esc(l)}" aria-expanded="false">
-            <span class="native" lang="${esc((courses.find((c) => c.language === l) || {}).lang || '')}">${esc(native)}</span><span class="en">${esc(l)}</span><span class="count" hidden></span></button>`).join('')}</div>
+        <p class="rite-lede">Pick one or two to start. Each language is one long course, from its first words upward, and adds about eight new items a day. You can change them later in the library.</p>
+        <div class="tongues" role="list">${langs.map(([l, native]) => `<button type="button" class="tongue" role="listitem" data-lang="${esc(l)}" aria-pressed="false" aria-expanded="false">
+            <span class="native" lang="${esc((trackFor(l) || {}).lang || '')}">${esc(native)}</span><span class="en">${esc(l)}</span><span class="count" hidden>✓</span></button>`).join('')}</div>
         <div class="levels" id="f-levels" hidden></div>
         ${certs.length ? `<h3 class="rite-sub">Or a technical art</h3>
         <div class="seals">${certs.map((c) => `<button type="button" class="seal" data-id="${esc(c.id)}" aria-pressed="false" title="${esc(`${c.blurb} ${c.total} items.`)}">${esc(certName(c))}</button>`).join('')}</div>` : ''}
@@ -238,24 +244,35 @@ function renderFounding() {
     const f = root.querySelector(`.rite-step[data-step="${n}"] h1, .rite-step[data-step="${n}"] h2`); if (f) { f.tabIndex = -1; f.focus({ preventScroll: true }); }
     window.scrollTo({ top: 0 });
   };
-  const label = (c) => c.kind === 'language' ? `${c.language} ${level(c)}` : certName(c);
   const sync = () => {
-    const list = courses.filter((c) => picked.has(c.id));
-    root.querySelector('#f-picked').textContent = list.length ? `Chosen: ${list.map(label).join(', ')}` : '';
+    const names = [];
+    for (const t of tracks) {
+      if (!picked.has(t.id)) continue;
+      const extra = t.addons.filter((a) => picked.has(a.id)).map((a) => ADDON_NAME[a.addon] || a.title);
+      names.push(`${t.language} (${t.span})${extra.length ? ` with ${extra.join(' and ')}` : ''}`);
+    }
+    certs.forEach((c) => { if (picked.has(c.id)) names.push(certName(c)); });
+    root.querySelector('#f-picked').textContent = names.length ? `Chosen: ${names.join(', ')}` : '';
     root.querySelectorAll('.tongue').forEach((b) => {
-      const n = courses.filter((c) => c.language === b.dataset.lang && picked.has(c.id)).length;
-      const ct = b.querySelector('.count'); ct.hidden = !n; ct.textContent = n ? String(n) : '';
-      b.classList.toggle('has', n > 0); b.classList.toggle('open', b.dataset.lang === openLang); b.setAttribute('aria-expanded', String(b.dataset.lang === openLang));
+      const t = trackFor(b.dataset.lang); const on = !!t && picked.has(t.id);
+      b.querySelector('.count').hidden = !on;
+      b.classList.toggle('has', on); b.classList.toggle('open', b.dataset.lang === openLang);
+      b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-expanded', String(b.dataset.lang === openLang));
     });
     root.querySelectorAll('.seal').forEach((b) => { const on = picked.has(b.dataset.id); b.setAttribute('aria-pressed', String(on)); });
     root.querySelectorAll('.level').forEach((b) => b.setAttribute('aria-pressed', String(picked.has(b.dataset.id))));
   };
+  // The open language's panel: the span of its one course, and its optional add-ons.
   const paintLevels = () => {
     const box = root.querySelector('#f-levels');
-    if (!openLang) { box.hidden = true; box.innerHTML = ''; return; }
-    const mine = courses.filter((c) => c.language === openLang);
+    const t = openLang && trackFor(openLang);
+    if (!t) { box.hidden = true; box.innerHTML = ''; return; }
     box.hidden = false;
-    box.innerHTML = mine.map((c) => `<button type="button" class="level" data-id="${esc(c.id)}" aria-pressed="false"><b>${esc(level(c))}</b><span>${esc(LEVEL_NOTE[level(c)] || '')} · ${num(c.total)} items</span></button>`).join('');
+    box.innerHTML = `<div class="track-head"><b>${esc(t.language)}</b> <span class="span">${esc(t.span)} · ${num(t.total).toLocaleString('en')} items</span>
+        <span class="note">One course: it begins at ${esc((t.stages[0] || {}).level || '')} and moves on to the next level by itself as you learn.</span></div>
+      ${t.addons.length ? `<span class="track-sub">Add-ons, if you like</span>${t.addons.map((a) => `<button type="button" class="level" data-id="${esc(a.id)}" aria-pressed="false" ${a.units ? '' : 'disabled'}>
+        <b>${esc(ADDON_NAME[a.addon] || a.title)}</b><span>${a.units ? `${esc(ADDON_NOTE[a.addon] || '')} · ${num(a.total)} items` : 'Pictures coming soon'}</span></button>`).join('')}` : ''}
+      <button type="button" class="linkish small track-drop" data-unpick="${esc(t.id)}">Remove ${esc(t.language)}</button>`;
     sync();
   };
   root.addEventListener('click', (e) => {
@@ -266,13 +283,22 @@ function renderFounding() {
     }
     if (t.matches('[data-back]')) { show(step - 1); return; }
     if (t.classList.contains('tongue')) {
-      openLang = openLang === t.dataset.lang ? null : t.dataset.lang;
-      if (openLang && !courses.some((c) => c.language === openLang && picked.has(c.id))) {
-        const first = courses.find((c) => c.language === openLang && /-a1$/.test(c.id)); if (first) picked.add(first.id);
-      }
+      const tr = trackFor(t.dataset.lang); if (!tr) return;
+      if (!picked.has(tr.id)) { picked.add(tr.id); openLang = t.dataset.lang; }      // tapping a language takes up all of it
+      else openLang = openLang === t.dataset.lang ? null : t.dataset.lang;
       paintLevels(); sync(); return;
     }
-    if (t.classList.contains('level') || t.classList.contains('seal')) { const id = t.dataset.id; if (picked.has(id)) picked.delete(id); else picked.add(id); sync(); return; }
+    if (t.matches('[data-unpick]')) {
+      const tr = tracks.find((x) => x.id === t.dataset.unpick);
+      if (tr) { picked.delete(tr.id); tr.addons.forEach((a) => picked.delete(a.id)); }
+      openLang = null; paintLevels(); sync(); return;
+    }
+    if (t.classList.contains('level')) {
+      const id = t.dataset.id; if (picked.has(id)) picked.delete(id); else picked.add(id);
+      const tr = tracks.find((x) => x.addons.some((a) => a.id === id)); if (tr && picked.has(id)) picked.add(tr.id);
+      sync(); return;
+    }
+    if (t.classList.contains('seal')) { const id = t.dataset.id; if (picked.has(id)) picked.delete(id); else picked.add(id); sync(); return; }
     if (t.classList.contains('fate')) { tell = t.dataset.tell; root.querySelectorAll('.fate').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); }
   });
   root.querySelector('#f-dice').addEventListener('click', () => {
@@ -297,6 +323,24 @@ function renderFounding() {
 const ago = (ts) => { const s = Date.now() / 1000 - ts; if (s < 90) return 'now'; if (s < 3600) return `${Math.round(s / 60)}m`; if (s < 86400) return `${Math.round(s / 3600)}h`; return `${Math.round(s / 86400)}d`; };
 
 const shortName = (c) => { const [a, b] = String(c.title).split(' — '); return c.kind === 'language' && b ? `${a} ${b.split(' ')[0]}` : a; };
+// A language's levels are one course (a track, OV.tracks); conversations and picture lessons are its add-ons.
+const ADDON_NAME = { talk: 'Conversations', pictures: 'Picture lessons' };
+const ADDON_NOTE = { talk: 'Spoken exchanges', pictures: 'Words on pictures' };
+const trackOf = (id) => (OV.tracks || []).find((t) => t.id === id) || null;
+const addonName = (c) => ADDON_NAME[c.addon] || String(c.title).split(' — ').pop();
+const isStage = (c) => !!c.track && !c.addon;
+// A course as the learner names it: "French · A2", "French · Conversations", "Security+".
+function courseLabel(c) {
+  const t = c.track ? trackOf(c.track) : null;
+  if (!t) return shortName(c);
+  return c.addon ? `${t.language} · ${addonName(c)}` : `${t.language} · ${t.level}`;
+}
+// What you study: one line per enrolled language (its current level), one per add-on or other course.
+function studyLines() {
+  const out = (OV.tracks || []).filter((t) => t.enrolled).map((t) => ({ id: t.id, label: `${t.language} · ${t.level}`, due: t.due, new_left: t.new_left, seen: t.seen, total: t.total, mastered: t.mastered, track: t }));
+  OV.courses.filter((c) => c.enrolled && !isStage(c)).forEach((c) => out.push({ id: c.id, label: courseLabel(c), due: c.due, new_left: c.new_left, seen: c.seen, total: c.total, mastered: c.mastered, course: c }));
+  return out;
+}
 
 function todayPanel() {
   const t = OV.today, g = OV.sect;
@@ -321,9 +365,11 @@ function todayPanel() {
   const extras = [OV.mistakes ? `<a class="chip" href="/study?kind=mistakes" data-link>Put right ${num(OV.mistakes)} mistake${num(OV.mistakes) === 1 ? '' : 's'}</a>` : '',
     OV.can_listen && synth ? '<a class="chip" href="/study?kind=listen" data-link>Listening practice</a>' : ''].join('');
   const risk = g.streak_at_risk && !g.seclusion && work > 0 ? `<p class="small" style="margin:6px 0 0;font-weight:700">Study today to keep your ${g.streak}-day streak${g.grace ? ` (${g.grace} rest day${g.grace > 1 ? 's' : ''} in reserve)` : ''}.</p>` : '';
-  const chips = mine.length > 1 && work > 0 && !g.seclusion ? `<div class="chips">${mine.filter((c) => c.due + c.new_left > 0).map((c) =>
-    `<a class="chip" href="/study?course=${encodeURIComponent(c.id)}" data-link>${esc(shortName(c))} <span class="dim num">${c.due + c.new_left}</span></a>`).join('')}</div>` : '';
-  return `<section class="panel today ${tone}"><div class="says">${guide(mood)}<div class="bubble"><h2>${head}</h2><div style="margin-top:6px">${sub}</div>${risk}
+  const lines = studyLines();
+  const chips = lines.length > 1 && work > 0 && !g.seclusion ? `<div class="chips">${lines.filter((c) => c.due + c.new_left > 0).map((c) =>
+    `<a class="chip" href="/study?course=${encodeURIComponent(c.id)}" data-link>${esc(c.label)} <span class="dim num">${num(c.due + c.new_left)}</span></a>`).join('')}</div>` : '';
+  const named = lines.length === 1 && work > 0 && !g.seclusion ? `<p class="dim small" style="margin:6px 0 0">${esc(lines[0].label)}</p>` : '';
+  return `<section class="panel today ${tone}"><div class="says">${guide(mood)}<div class="bubble"><h2>${head}</h2>${named}<div style="margin-top:6px">${sub}</div>${risk}
       <p class="dim small" style="margin:8px 0 0">Each correct answer gives you qi and the sect a point of insight for research. A finished session lifts every disciple's mood.</p></div></div>
     <div class="row">${btn}</div>${chips}${extras ? `<div class="chips">${extras}</div>` : ''}</section>`;
 }
@@ -369,45 +415,32 @@ function renderSect() {
 }
 
 /* ================= placement ================= */
-function offerPlacement(courses) {
-  // Levels of one language are a ladder: test the lowest first; if it does not test you out of the
-  // whole course, the higher levels need no test (you start them from their first unit).
-  const RANK = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5 };
-  const rankOf = (c) => RANK[(String(c.title).split(' — ')[1] || '').split(' ')[0]] || 0;
-  const list = OV.courses.filter((c) => courses.includes(c.id) && c.units.length);
+function offerPlacement(ids) {
+  // One test per language (it walks on through the levels) and one per other course.
   const placed = OV.placements || {};
   const rows = [];
-  const ladders = {};
-  for (const c of list) {
-    if (c.kind === 'language' && rankOf(c)) (ladders[c.language] = ladders[c.language] || []).push(c);
-    else rows.push({ c, state: placed[c.id] ? 'done' : 'test' });
+  for (const t of OV.tracks || []) {
+    if (!ids.includes(t.id) && !t.stages.some((x) => ids.includes(x.id))) continue;
+    rows.push({ id: t.id, title: `Find your ${t.language} level`, p: t.placement, lang: t.language,
+      sub: `${t.span} · ${num(t.units)} units. It starts at ${t.level} and goes on to the next level only if you know all of this one.` });
   }
-  for (const lad of Object.values(ladders)) {
-    lad.sort((x, y) => rankOf(x) - rankOf(y));
-    let blocked = null;
-    for (const c of lad) {
-      const p = placed[c.id];
-      if (p) { rows.push({ c, state: 'done' }); if (p.passed_units < p.units) blocked = blocked || c; continue; }
-      if (blocked) { rows.push({ c, state: 'skip', after: blocked }); continue; }
-      rows.push({ c, state: 'test' }); blocked = c;          // only the lowest untested level of each language is offered
-    }
+  for (const c of OV.courses) {
+    if (!ids.includes(c.id) || c.track || !c.units.length) continue;
+    rows.push({ id: c.id, title: c.title, p: placed[c.id], sub: `${num(c.units.length)} units` });
   }
-  rows.sort((x, y) => list.indexOf(x.c) - list.indexOf(y.c));
-  const short = (c) => c.kind === 'language' ? `${c.language} ${(String(c.title).split(' — ')[1] || '').split(' ')[0]}` : String(c.title).split(' — ')[0];
   const line = (r) => {
-    const p = placed[r.c.id];
-    if (r.state === 'done') return `<span class="dim small">Tested: ${num(p.right)}/${num(p.asked)} right, ${num(p.passed_units)} of ${num(p.units)} units known</span>`;
-    if (r.state === 'skip') return `<span class="dim small">No test needed: you will reach it after ${esc(short(r.after))}</span>`;
-    return `<span class="dim small">${num(r.c.units.length)} units</span>`;
+    if (!r.p) return `<span class="dim small">${esc(r.sub)}</span>`;
+    const where = r.p.level ? `, you start at ${esc(r.lang)} ${esc(r.p.level)}` : '';
+    return `<span class="dim small">Tested: ${num(r.p.right)}/${num(r.p.asked)} right, ${num(r.p.passed_units)} unit${num(r.p.passed_units) === 1 ? '' : 's'} known${where}</span>`;
   };
-  const todo = rows.filter((r) => r.state === 'test');
+  const todo = rows.filter((r) => !r.p);
   view.innerHTML = `<div class="found"><div class="guide">${guide('think', 72)}<div class="speech">${todo.length ? 'Before we begin: how much do you already know?' : 'Your levels are set.'}</div></div>
     <h1>Find your level</h1>
-    <p class="dim">A short test checks a course a unit at a time and stops when it finds your level. For a language, only the lowest level you chose is tested; the higher ones follow on from it. You can test again later from the library.</p>
-    ${rows.map((r) => `<div class="pick place-row ${r.state}" style="cursor:default"><span class="grow"><b>${esc(r.c.title)}</b><br>${line(r)}</span>
-      ${r.state === 'test' ? `<button class="btn primary" data-place="${esc(r.c.id)}">Take the test</button>` : `<span class="tag">${r.state === 'done' ? 'Done' : 'Skipped'}</span>`}</div>`).join('')}
-    <div class="foot"><button class="btn ${todo.length ? '' : 'primary'} big" id="pl-skip">${todo.length ? 'Skip the tests and start from the first unit' : 'Continue to the sect'}</button></div></div>`;
-  view.querySelectorAll('[data-place]').forEach((b) => { b.onclick = () => runPlacement(b.dataset.place, () => offerPlacement(courses)); });
+    <p class="dim">A short test checks a course a unit at a time and stops when it finds your level. Units you already know are skipped (they come back as reviews, so a lucky guess is caught). You can test again later from the library.</p>
+    ${rows.map((r) => `<div class="pick place-row ${r.p ? 'done' : 'test'}" style="cursor:default"><span class="grow"><b>${esc(r.title)}</b><br>${line(r)}</span>
+      ${r.p ? '<span class="tag">Done</span>' : `<button class="btn primary" data-place="${esc(r.id)}">Take the test</button>`}</div>`).join('')}
+    <div class="foot"><button class="btn ${todo.length ? '' : 'primary'} big" id="pl-skip">${todo.length ? 'Skip the tests and start from the beginning' : 'Continue to the sect'}</button></div></div>`;
+  view.querySelectorAll('[data-place]').forEach((b) => { b.onclick = () => runPlacement(b.dataset.place, () => offerPlacement(ids)); });
   $('#pl-skip').onclick = () => go('/', false);
 }
 
@@ -417,14 +450,15 @@ async function runPlacement(course, done) {
   document.body.classList.add('in-session');
   let over = false;
   leaveGuard = async () => over || confirm('Stop the placement test? What you have proven so far is kept.');
-  const title = (OV.courses.find((c) => c.id === course) || {}).title || '';
+  const tr = trackOf(course);
+  const title = tr ? tr.language : (OV.courses.find((c) => c.id === course) || {}).title || '';
   const block = (b) => {
     const qs = b.questions; const answers = qs.map(() => null); let cur = 0; let sending = false;
     const draw = () => {
       const q = qs[cur];
       view.innerHTML = `<div class="session"><div class="top"><button aria-label="Stop the test" id="pl-exit">✕</button>
-          <div class="bar azure"><i style="width:${Math.round(100 * b.unit / b.units)}%"></i></div><span class="dim small num">unit ${b.unit + 1}/${b.units}</span></div>
-        <div class="ex"><div class="guide">${guide('think')}<div class="speech">${esc(b.unit_title)}: ${esc(q.ask || '')}</div></div>
+          <div class="bar azure"><i style="width:${Math.round(100 * num(b.unit) / Math.max(num(b.units), 1))}%"></i></div><span class="dim small num">unit ${num(b.unit) + 1}/${num(b.units)}</span></div>
+        <div class="ex"><div class="guide">${guide('think')}<div class="speech">${b.level ? `${esc(b.level)} · ` : ''}${esc(b.unit_title)}: ${esc(q.ask || '')}</div></div>
           ${questionHtml(q, answers[cur], 'pl')}
           <div class="foot"><div class="row"><button class="btn grow" id="pl-idk">I don't know</button><button class="btn primary big grow" id="pl-next">Next</button></div></div></div></div>`;
       $('#pl-exit').onclick = async () => { if (await leaveGuard()) { over = true; leaveGuard = null; document.body.classList.remove('in-session'); (done || (() => go('/library', false)))(); } };
@@ -444,7 +478,7 @@ async function runPlacement(course, done) {
           <p class="dim">${esc(title)}</p>
           <div class="gains"><div><b class="num">${num(res.passed_units)}/${num(res.units)}</b><span>units known</span></div><div><b class="num">${num(res.placed)}</b><span>items skipped</span></div>
             <div><b class="num">${num(res.right)}/${num(res.asked)}</b><span>answered right</span></div></div>
-          <p>${res.start_at ? `You will start at <b>${esc(res.start_at)}</b>.` : 'You tested out of the whole course. It will come back as reviews.'}
+          <p>${res.start_at ? `You will start at <b>${res.level ? `${esc(title)} ${esc(res.level)}: ` : ''}${esc(res.start_at)}</b>.` : 'You tested out of the whole course. It will come back as reviews.'}
             ${res.placed ? ' The items you skipped return for a quick check over the next two weeks.' : ''}</p>
           <div class="foot"><button class="btn primary big" id="pl-done">Continue</button></div></div>`;
         $('#pl-done').onclick = () => (done || (() => go('/library', false)))();
@@ -915,38 +949,80 @@ window.addEventListener('beforeunload', (e) => { if (leaveGuard && document.body
 function renderLibrary(params) {
   const cid = params && params.get('course'); const uid = params && params.get('unit');
   if (cid && uid) return renderUnit(cid, uid);
-  const mine = OV.courses.filter((c) => c.enrolled), rest = OV.courses.filter((c) => !c.enrolled);
+  const others = OV.courses.filter((c) => !c.track);
+  const mine = others.filter((c) => c.enrolled), rest = others.filter((c) => !c.enrolled);
+  const tracks = OV.tracks || [];
+  const myTracks = tracks.filter((t) => t.enrolled), restTracks = tracks.filter((t) => !t.enrolled);
+  const few = myTracks.length + mine.length <= 2;
   const HUE = { tongues_west: ['#5bb6ff', 'Fr'], tongues_south: ['#ff8a5c', 'Es'], ward_hall: ['#2fd39a', 'Sec'] };
+  const LANG_HUE = { fr: ['#5bb6ff', 'Fr'], es: ['#ff8a5c', 'Es'], zh: ['#f2b84b', '中'], ja: ['#ec8fae', '日'], ko: ['#7fd1c7', '한'] };
+  const byId = (id) => OV.courses.find((c) => c.id === id);
+  // A course's units as a path. ``later``: a level not reached yet, so its units show as locked.
+  const units = (c, enrolled, open, label, later = false) => {
+    const cur = enrolled && !later ? c.units.find((u) => u.unlocked && !u.done) : null;
+    return `<details class="units" ${open ? 'open' : ''}><summary>${label}${num(c.units.length + (c.soon || []).length)} units${enrolled ? `, ${num(c.units_done)} finished` : ''}</summary>
+    <div class="path">${c.units.map((u, i) => {
+      const state = !enrolled ? '' : u.done ? 'done' : (cur && cur.id === u.id) ? 'now' : (u.unlocked && !later) ? '' : 'locked';
+      return `<button class="step ${state}" data-unit="${esc(u.id)}" data-course="${esc(c.id)}">
+        <span class="node">${state === 'done' ? ICON.check : state === 'locked' ? ICON.lock : i + 1}</span>
+        <span><b>${esc(u.title)}</b><span class="dim small">${esc(u.goal)}</span>
+        ${enrolled && u.seen > 0 && !u.done ? `<span class="bar thin jade" style="display:block"><i style="width:${Math.round(100 * u.seen / Math.max(u.items, 1))}%"></i></span>` : ''}</span></button>`;
+    }).join('')}${(c.soon || []).map((u) => `<div class="step locked soon"><span class="node">${ICON.lock}</span>
+        <span><b>${esc(u.title)}</b><span class="dim small">Picture coming soon: this lesson opens once its painting is in.</span></span></div>`).join('')}</div></details>`;
+  };
   const card = (c) => {
     const [hue, mark] = HUE[c.hall] || ['#a78bfa', '·'];
-    const cur = c.units.find((u) => u.unlocked && !u.done);
     return `<section class="panel course">
     <header><span class="crest" style="background:${hue};color:#10233f" aria-hidden="true">${c.hall === 'ward_hall' ? esc((c.exam && c.exam.code || 'Sec').slice(0, 3)) : mark}</span>
       <div class="grow"><h2>${esc(c.title)}</h2><p class="dim small" style="margin:2px 0 0">${esc(c.blurb)}</p></div>
       ${c.enrolled ? `<span class="tag jade">Enrolled</span>` : !c.units.length && (c.soon || []).length ? '<span class="tag gold">Pictures coming soon</span>' : `<button class="btn primary" data-enroll="${esc(c.id)}">Begin this course</button>`}</header>
-    ${c.enrolled ? `<div class="row small"><span class="grow dim">${c.seen} of ${c.total} learned · ${c.mastered} mastered · memory ${c.strength}%</span></div>
+    ${c.enrolled ? `<div class="row small"><span class="grow dim">${num(c.seen)} of ${num(c.total)} learned · ${num(c.mastered)} mastered · memory ${num(c.strength)}%</span></div>
       <div class="bar jade" style="margin:6px 0 12px"><i style="width:${Math.round(100 * c.seen / Math.max(c.total, 1))}%"></i></div>
-      <div class="row"><a class="btn primary" href="/study?course=${encodeURIComponent(c.id)}" data-link>Study this art <span class="num">${c.due + c.new_left}</span></a>
+      <div class="row"><a class="btn primary" href="/study?course=${encodeURIComponent(c.id)}" data-link>Study this art <span class="num">${num(c.due + c.new_left)}</span></a>
         ${c.seen < c.total ? `<button class="btn" data-more="${esc(c.id)}">Learn 5 more today</button>` : ''}
         ${c.seen < c.total ? `<button class="btn" data-place="${esc(c.id)}">${(OV.placements || {})[c.id] ? 'Retake the placement test' : 'Placement test'}</button>` : ''}
         <button class="btn quiet" data-drop="${esc(c.id)}">Set aside</button></div>` : ''}
-    <details class="units" ${c.enrolled && mine.length <= 2 ? 'open' : ''}><summary>${c.units.length + (c.soon || []).length} units${c.enrolled ? `, ${c.units_done} finished` : ''}</summary>
-    <div class="path">${c.units.map((u, i) => {
-      const state = !c.enrolled ? '' : u.done ? 'done' : (cur && cur.id === u.id) ? 'now' : u.unlocked ? '' : 'locked';
-      return `<button class="step ${state}" data-unit="${esc(u.id)}" data-course="${esc(c.id)}">
-        <span class="node">${state === 'done' ? ICON.check : state === 'locked' ? ICON.lock : i + 1}</span>
-        <span><b>${esc(u.title)}</b><span class="dim small">${esc(u.goal)}</span>
-        ${c.enrolled && u.seen > 0 && !u.done ? `<span class="bar thin jade" style="display:block"><i style="width:${Math.round(100 * u.seen / u.items)}%"></i></span>` : ''}</span></button>`;
-    }).join('')}${(c.soon || []).map((u) => `<div class="step locked soon"><span class="node">${ICON.lock}</span>
-        <span><b>${esc(u.title)}</b><span class="dim small">Picture coming soon: this lesson opens once its painting is in.</span></span></div>`).join('')}</div></details>
+    ${units(c, c.enrolled, c.enrolled && few, '')}
   </section>`;
   };
-  view.innerHTML = `<h1 style="margin-bottom:14px">Library</h1>${mine.map(card).join('')}
-    ${rest.length ? `<h2 style="margin:22px 0 10px">Other arts you can take up</h2>${rest.map(card).join('')}` : ''}`;
+  // One card per language: its levels as one strip, its add-ons below, each level's units to browse.
+  const trackCard = (t) => {
+    const [hue, mark] = LANG_HUE[String(t.lang).slice(0, 2)] || ['#a78bfa', '·'];
+    const stages = t.stages.map((x) => byId(x.id)).filter(Boolean);
+    const curIdx = t.stages.findIndex((x) => x.current);
+    const strip = `<ol class="stages" aria-label="Levels">${t.stages.map((x, i) => {
+      const cls = t.enrolled && x.current ? 'now' : x.pct >= 100 ? 'done' : '';
+      return `<li class="stage ${cls}" ${t.enrolled && x.current ? 'aria-current="step"' : ''} title="${esc(x.title)}: ${num(x.seen)} of ${num(x.total)} met">
+        <b>${esc(x.level)}</b><span class="bar thin ${cls === 'now' ? 'gold' : 'jade'}"><i style="width:${num(x.pct)}%"></i></span><span class="pct num">${num(x.pct)}%</span>${i < t.stages.length - 1 ? '<span class="arrow" aria-hidden="true">▸</span>' : ''}</li>`;
+    }).join('')}</ol>`;
+    const cur = curIdx >= 0 ? t.stages[curIdx] : null;
+    const addons = t.addons.map((a) => byId(a.id)).filter(Boolean);
+    return `<section class="panel course track">
+    <header><span class="crest" style="background:${hue};color:#10233f" aria-hidden="true" lang="${esc(t.lang)}">${esc(mark)}</span>
+      <div class="grow"><h2>${esc(t.language)}</h2><p class="dim small" style="margin:2px 0 0">One course, ${esc(t.span)}: ${num(t.total).toLocaleString('en')} items in ${num(t.units)} units. Each level opens as you finish introducing the one before.</p></div>
+      ${t.enrolled ? `<span class="tag jade">Enrolled · ${esc(t.level)}</span>` : `<button class="btn primary" data-enroll="${esc(t.id)}">Begin ${esc(t.language)}</button>`}</header>
+    ${strip}
+    ${t.enrolled ? `<div class="row small"><span class="grow dim">${cur ? `Now: <b>${esc(cur.title.split(' — ').pop())}</b> · ` : ''}${num(t.seen)} of ${num(t.total)} learned · ${num(t.mastered)} mastered · memory ${num(t.strength)}%</span></div>
+      <div class="row" style="margin-top:10px"><a class="btn primary" href="/study?course=${encodeURIComponent(t.id)}" data-link>Study ${esc(t.language)} <span class="num">${num(t.due + t.new_left)}</span></a>
+        ${t.seen < t.total ? `<button class="btn" data-more="${esc(t.id)}">Learn 5 more today</button>` : ''}
+        ${t.seen < t.total ? `<button class="btn" data-place="${esc(t.id)}">${t.placement ? 'Retake the placement test' : 'Placement test'}</button>` : ''}
+        <button class="btn quiet" data-drop="${esc(t.id)}">Set aside</button></div>` : ''}
+    ${addons.length ? `<div class="addons"><h3>Add-ons</h3>${addons.map((c) => `<div class="addon"><span class="grow"><b>${esc(addonName(c))}</b>
+        <span class="dim small">${c.units.length ? `${esc(ADDON_NOTE[c.addon] || '')} · ${num(c.total)} items${c.enrolled ? ` · ${num(c.seen)} learned` : ''}` : 'Pictures coming soon'}</span></span>
+        ${c.enrolled && c.due + c.new_left > 0 ? `<a class="btn" href="/study?course=${encodeURIComponent(c.id)}" data-link>Study <span class="num">${num(c.due + c.new_left)}</span></a>` : ''}
+        <button type="button" class="toggle" role="switch" aria-checked="${c.enrolled}" data-addon="${esc(c.id)}" ${c.units.length || c.enrolled ? '' : 'disabled'} aria-label="${esc(addonName(c))}: ${c.enrolled ? 'on' : 'off'}"><i></i><span>${c.enrolled ? 'On' : 'Off'}</span></button></div>
+        ${c.enrolled ? units(c, true, false, `${esc(addonName(c))}: `) : ''}`).join('')}</div>` : ''}
+    ${stages.map((c, i) => units(c, t.enrolled, t.enrolled && few && c.current_stage, `<b>${esc(c.level)}</b> ${esc(c.title.split(' — ').pop().replace(/^[A-C][12]\s*/, ''))}: `, curIdx >= 0 && i > curIdx)).join('')}
+  </section>`;
+  };
+  view.innerHTML = `<h1 style="margin-bottom:14px">Library</h1>${myTracks.map(trackCard).join('')}${mine.map(card).join('')}
+    ${restTracks.length + rest.length ? `<h2 style="margin:22px 0 10px">Other arts you can take up</h2>${restTracks.map(trackCard).join('')}${rest.map(card).join('')}` : ''}`;
   view.querySelectorAll('[data-unit]').forEach((b) => { b.onclick = () => go(`/library?course=${encodeURIComponent(b.dataset.course)}&unit=${encodeURIComponent(b.dataset.unit)}`); });
-  view.querySelectorAll('[data-enroll]').forEach((b) => { b.onclick = async () => { await api('/api/enroll', { course: b.dataset.enroll, on: true }); await refresh(); offerPlacement([b.dataset.enroll]); }; });
+  view.querySelectorAll('[data-enroll]').forEach((b) => { b.onclick = async () => { const r = await api('/api/enroll', { course: b.dataset.enroll, on: true }); if (r.ok === false) { toast(r.error); return; } await refresh(); offerPlacement([b.dataset.enroll]); }; });
   view.querySelectorAll('[data-place]').forEach((b) => { b.onclick = () => runPlacement(b.dataset.place, () => go('/library', false)); });
   view.querySelectorAll('[data-drop]').forEach((b) => { b.onclick = async () => { if (!confirm('Set this art aside? Your progress is kept, and you can take it up again any time.')) return; await api('/api/enroll', { course: b.dataset.drop, on: false }); go('/library', false); }; });
+  view.querySelectorAll('[data-addon]').forEach((b) => { b.onclick = async () => { const on = b.getAttribute('aria-checked') !== 'true'; const r = await api('/api/enroll', { course: b.dataset.addon, on }); if (r.ok === false) toast(r.error);
+    const y = window.scrollY; await refresh(); renderLibrary(); window.scrollTo(0, y); }; });
   view.querySelectorAll('[data-more]').forEach((b) => { b.onclick = async () => { const r = await api('/api/learn-more', { course: b.dataset.more, n: 5 }); if (r.ok !== false) { toast('5 more new items added to today.'); go(`/study?course=${encodeURIComponent(b.dataset.more)}`); } else toast(r.error); }; });
 }
 
@@ -976,7 +1052,8 @@ async function renderUnit(cid, uid) {
 
 /* ================= trials ================= */
 async function renderTrials() {
-  const mine = OV.courses.filter((c) => c.enrolled);
+  // A language's levels each have a checkpoint, shown once the level is begun (or is the current one).
+  const mine = OV.courses.filter((c) => c.enrolled && (!isStage(c) || c.seen > 0 || c.current_stage));
   view.innerHTML = '<p class="loading">Reading the heavens…</p>';
   const infos = await Promise.all(mine.map((c) => api(`/api/trial?course=${encodeURIComponent(c.id)}`)));
   view.innerHTML = `<h1>Trials</h1><p class="dim" style="max-width:68ch">A trial is a timed test with no hints and no feedback until the end. The pass mark here is set above the real exam's, and the questions are harder, so that passing here means something. Passing lifts the whole sect; anything you get wrong that you have studied goes back into your review queue.</p>
@@ -1185,7 +1262,7 @@ async function renderProgress() {
   const max = Math.max(1, ...s.forecast);
   const first = new Date(`${s.days[0].day}T12:00:00`); const pad = (first.getDay() + 6) % 7;
   const heat = `${'<i style="visibility:hidden"></i>'.repeat(pad)}${s.days.map((d) => `<i class="${d.answers >= 40 ? 'l3' : d.answers >= 15 ? 'l2' : d.answers ? 'l1' : ''}" title="${esc(d.day)}: ${d.answers} answers"></i>`).join('')}`;
-  const mine = OV.courses.filter((c) => c.enrolled);
+  const mine = studyLines();
   view.innerHTML = `<h1 style="margin-bottom:14px">Progress</h1>
     <div class="stats">
       <div class="stat"><b class="num">${s.cards}</b><span>items learned</span></div>
@@ -1197,11 +1274,12 @@ async function renderProgress() {
     <section class="panel"><h2>Reviews coming due</h2><p class="dim small">How many items your memory will need you to revisit over the next two weeks.</p>
       <div class="cols" style="margin-top:22px">${s.forecast.map((n, i) => `<div class="${i ? '' : 'today'}" style="height:${Math.round(100 * n / max)}%" title="${i ? `In ${i} day${i > 1 ? 's' : ''}` : 'Today'}: ${n}"><span>${n || ''}</span></div>`).join('')}</div>
       <div class="row small dim" style="justify-content:space-between;margin-top:4px"><span>Today</span><span>In 2 weeks</span></div></section>
-    <section class="panel"><h2>Arts</h2>${mine.map((c) => `<div style="margin-top:12px"><div class="row small"><span class="grow"><b>${esc(c.title)}</b></span><span class="dim num">${c.seen}/${c.total} learned, ${c.mastered} mastered</span></div>
-      <div class="bar jade" style="margin-top:4px"><i style="width:${Math.round(100 * c.seen / Math.max(c.total, 1))}%"></i></div></div>`).join('')}</section>
+    <section class="panel"><h2>Arts</h2>${mine.map((c) => `<div style="margin-top:12px"><div class="row small"><span class="grow"><b>${esc(c.label)}</b></span><span class="dim num">${num(c.seen)}/${num(c.total)} learned, ${num(c.mastered)} mastered</span></div>
+      <div class="bar jade" style="margin-top:4px"><i style="width:${Math.round(100 * num(c.seen) / Math.max(num(c.total), 1))}%"></i></div>
+      ${c.track ? `<div class="small dim levels-line">${c.track.stages.map((x) => `<span class="${x.current ? 'now' : ''}">${esc(x.level)} ${num(x.pct)}%</span>`).join(' ▸ ')}</div>` : ''}</div>`).join('')}</section>
     <section class="panel" id="mistakes-panel" hidden></section>
     <section class="panel"><h2>Settings</h2>
-      <div class="setting"><div class="grow"><b>New items a day, per art</b><span>More items now means more reviews later. 8 is a steady pace.</span></div><input type="number" id="set-new" min="0" max="40" value="${set.new_per_day}"></div>
+      <div class="setting"><div class="grow"><b>New items a day, per art</b><span>A language counts as one art, whatever its level. More items now means more reviews later. 8 is a steady pace.</span></div><input type="number" id="set-new" min="0" max="40" value="${set.new_per_day}"></div>
       <div class="setting"><div class="grow"><b>Session length</b><span>The number of exercises in one session.</span></div><input type="number" id="set-size" min="5" max="60" value="${set.session_size}"></div>
       <div class="setting"><div class="grow"><b>Target recall</b><span>How sure you want to be of remembering an item when it comes back. Higher means more reviews.</span></div>
         <select class="in" id="set-ret" style="width:110px">${[0.85, 0.9, 0.93].map((r) => `<option value="${r}" ${Math.abs(set.retention - r) < 0.005 ? 'selected' : ''}>${Math.round(r * 100)}%</option>`).join('')}</select></div>
