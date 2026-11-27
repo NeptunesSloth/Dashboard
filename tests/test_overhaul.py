@@ -232,3 +232,71 @@ def test_an_old_save_keeps_the_share_its_build_had_done(st):
     assert b["need"] == colony.build_hours("library", 1) and b["done"] == pytest.approx(b["need"] / 2) and b["slotted"]
     colony._repair(c)                                                # a second load changes nothing
     assert b["done"] == pytest.approx(b["need"] / 2)
+
+
+# ---------------------------------------------------------------------------
+# stage 3: the Main Hall ladder, 1 to 10
+# ---------------------------------------------------------------------------
+def test_the_ladder_reaches_ten_and_every_unlock_is_a_real_room():
+    assert colony.ROOMS["main_hall"]["max"] == 10 and sorted(colony.HALL_LADDER) == list(range(1, 11))
+    opened = [k for x in colony.HALL_LADDER.values() for k in x.get("rooms", ())]
+    assert sorted(opened) == sorted(k for k in colony.ROOMS if k != "main_hall")          # each room opens exactly once
+    caps = [colony.HALL_LADDER[h]["cap"] for h in range(1, 11)]
+    assert caps == sorted(caps) and all(cap <= h + 1 for h, cap in enumerate(caps, 1))    # never more than one above the Hall
+    assert caps[-1] == max(r["max"] for k, r in colony.ROOMS.items() if k != "market") == 8
+    for room in colony.ROOMS:
+        assert colony.room_opens_at(room) <= colony.ROOMS["main_hall"]["max"]
+    assert colony.room_cost({"research": {"done": []}}, "fields", 3)["wood"] == int(round(colony.ROOMS["fields"]["wood"] * 1.6 ** 3 / 5)) * 5
+
+
+def test_rooms_open_with_the_hall_and_stay_under_its_cap(st):
+    c = st["colony"]
+    c["res"].update(wood=9999.0, stone=9999.0, stones=999.0)
+    err = colony.queue_build(st, "library", T0)
+    assert not err["ok"] and "Opens at Main Hall level 2" in err["error"]
+    lib = next(r for r in colony.view(st, T0)["rooms"] if r["id"] == "library")
+    assert lib["locked"].startswith("Opens at Main Hall level 2") and not lib["affordable"]
+    c["rooms"]["fields"] = 2                                          # at the Hall 1 cap
+    err = colony.queue_build(st, "fields", T0)
+    assert not err["ok"] and "Main Hall to level 2" in err["error"]
+    c["rooms"].update(main_hall=2)
+    assert colony.queue_build(st, "library", T0)["ok"] and colony.queue_build(st, "fields", T0)["ok"]
+    c["builds"] = []
+    c["rooms"].update(main_hall=3, fields=3)                        # Hall 3 still holds rooms at 3
+    assert "Main Hall to level 4" in colony.queue_build(st, "fields", T0)["error"]
+
+
+def test_the_hall_waits_for_three_rooms_and_the_card_says_which(st):
+    c = st["colony"]
+    c["res"].update(wood=9999.0, stone=9999.0, stones=999.0)
+    c["rooms"] = {"main_hall": 1, "dormitory": 1, "fields": 1}
+    h = colony.view(st, T0)["hall_next"]
+    assert h["need_lv"] == 1 and [x["ok"] for x in h["check"]] == [True, True, False] and not h["ready"] and not h["affordable"]
+    err = colony.queue_build(st, "main_hall", T0)
+    assert not err["ok"] and "3 other rooms at level 1" in err["error"]
+    c["rooms"]["storehouse"] = 1
+    assert colony.view(st, T0)["hall_next"]["ready"] and colony.queue_build(st, "main_hall", T0)["ok"]
+    c["builds"] = []
+    c["rooms"].update(main_hall=4, fields=4, storehouse=4, dormitory=3)
+    h = colony.hall_next(c)
+    assert h["level"] == 5 and not h["ready"] and [x[1] for x in h["check"]] == [4, 4, 3]
+    assert any(o.startswith("New rooms: Trade Post") for o in h["opens"])
+
+
+def test_the_ladder_card_lists_builders_and_room_levels_as_they_come(st):
+    c = st["colony"]
+    c["rooms"]["main_hall"] = 2
+    opens = colony.hall_next(c)["opens"]
+    assert any(o.startswith("A builder more: 3 in all") for o in opens) and any(o.startswith("New rooms: Alchemy Hall") for o in opens)
+    assert not any(o.startswith("Other rooms up to") for o in opens)              # Hall 3 opens no room levels
+    c["rooms"]["main_hall"] = 9
+    opens = colony.hall_next(c)["opens"]
+    assert any("up to level 8" in o for o in opens) and any("summit" in o for o in opens)
+
+
+def test_an_old_save_over_the_new_caps_keeps_its_rooms(st):
+    c = st["colony"]
+    c["rooms"].update(main_hall=1, library=3, alchemy=2)            # built under the old one-above rule
+    s2 = {"colony": colony.sanitize(c, T0), "settings": {"tz_offset_min": 0}}
+    assert s2["colony"]["rooms"]["library"] == 3 and s2["colony"]["rooms"]["alchemy"] == 2
+    assert colony.view(s2, T0)["rooms"]

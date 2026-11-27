@@ -21,6 +21,19 @@ export const VAULT = [66, 59, 32, 16.5];        // the treasure vault: opens the
 
 export function siteRect(id) { return SITES[id] || [0, 0, 0, 0]; }
 
+/** A crop of the painted sect centred on one room, as inline CSS for a tile of the given aspect (width / height).
+ *  Numbers only: the id picks a known site, anything else gets the middle of the painting. */
+export function siteCrop(id, aspect = 1.5) {
+  const [x, y, w, h] = SITES[id] || [30, 30, 40, 40];
+  const art = 1620 / 971;                              // the painting's own aspect
+  const scale = 100 / Math.max(w, 1);                  // the painting is this many tiles wide
+  const imgH = scale / art * aspect;                   // and this many tiles tall
+  const cx = (x + w / 2) / 100; const cy = (y + h / 2) / 100;
+  const px = scale > 1 ? Math.max(0, Math.min(100, ((scale * cx - 0.5) / (scale - 1)) * 100)) : 50;
+  const py = imgH > 1 ? Math.max(0, Math.min(100, ((imgH * cy - 0.5) / (imgH - 1)) * 100)) : 50;
+  return `background-image:url(/art/hq.webp);background-size:${(scale * 100).toFixed(1)}% auto;background-position:${px.toFixed(1)}% ${py.toFixed(1)}%`;
+}
+
 /** The sect itself: one painting; the page lays rooms, crews and veils over it. */
 export function sectScene() {
   return '<img class="art" src="/art/hq.webp" alt="A cut-away painting of your sect: five lantern-lit floors of halls" draggable="false">';

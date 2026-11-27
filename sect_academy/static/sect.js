@@ -2,9 +2,11 @@
 // this module draws it, sends orders, and asks for sim hours as real time passes.
 // All text from the server goes through esc(); every number arrives already cast.
 
-import { ICON, VAULT, backdrop, portrait, scene, sectScene, setFaces, siteRect } from '/art.js';
+import { ICON, VAULT, backdrop, portrait, scene, sectScene, setFaces, siteCrop, siteRect } from '/art.js';
 
 const SPEED_KEY = 'sect.speed';
+// Two looks each for the map label and the Build tab, for the owner to choose between (A is the default).
+const LOOK = (k) => { try { return localStorage.getItem(`sect.look.${k}`) === 'B' ? 'B' : 'A'; } catch (_) { return 'A'; } };
 const SECS_PER_HOUR = { 1: 4, 2: 2, 3: 1 };          // real seconds per sim hour
 const RES_ICON = { rice: '🌾', wood: '🪵', stone: '🪨', herbs: '🌿', pills: '💊', stones: '💎' };
 const SITE_OF = { farm: 'fields', quarry: 'spirit_vein', 'cut wood': 'storehouse', 'forage herbs': 'fields', 'brew pills': 'alchemy',
@@ -199,17 +201,22 @@ export function mountSect(h) {
     const sig = JSON.stringify([S.rooms.map((r) => r.level), building, Object.entries(staff).map(([k, v]) => k + v.map((p) => p.id).join()), S.rooms.map((r) => r.affordable), S.rooms.map(trayText), S.treasures.length]);
     if (sig === sceneSig && z.firstChild) return;
     sceneSig = sig;
+    const lookL = LOOK('label');
+    const pips = (r) => `<i class="pips" aria-hidden="true">${Array.from({ length: r.max }, (_, i) => `<b class="${i < r.level ? 'on' : ''}"></b>`).join('')}</i>`;
     const rooms = S.rooms.map((r) => {
       const [x, y, w, hh] = siteRect(r.id);
       const crew = (staff[r.id] || []).slice(0, 5).map((p) => face(p, 30)).join('');
-      // A room you can afford to raise glows softly and shows "+" after its level; a room whose crew made something
-      // since dawn has its lanterns brightened and says what (visual only: nothing is collected yet).
+      // A room you can afford to raise glows softly on its name plate (no badge, no arrow); a room whose crew made
+      // something since dawn has its lanterns brightened and says what.
       const tray = trayText(r);
-      return `<button class="room ${r.open ? '' : 'closed'} ${building.includes(r.id) ? 'building' : ''} ${r.affordable ? 'can' : ''} ${tray ? 'tray' : ''}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
-        aria-label="${esc(r.name)}, ${r.open ? `level ${r.level}` : 'not built'}${r.affordable ? ', you can afford the next level' : ''}${tray ? `, made ${esc(tray)} since dawn` : ''}">
+      const name = lookL === 'B'
+        ? `<span class="pl-name">${esc(r.name)}</span>${r.open ? `<span class="pl-lv">${r.level}</span>` : building.includes(r.id) ? '<span class="pl-lv">building</span>' : ''}`
+        : `<span class="pl-name">${esc(r.name)}</span>${r.open ? pips(r) : building.includes(r.id) ? '<i class="pl-note">building</i>' : ''}`;
+      return `<button class="room look${lookL} ${r.open ? '' : 'closed'} ${building.includes(r.id) ? 'building' : ''} ${r.affordable ? 'can' : ''} ${tray ? 'tray' : ''}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
+        aria-label="${esc(r.name)}, ${r.open ? `level ${r.level} of ${r.max}` : 'not built'}${r.affordable ? ', you can afford the next level' : ''}${tray ? `, made ${esc(tray)} since dawn` : ''}"${r.affordable ? ' title="Ready to raise"' : ''}>
         <span class="crew" aria-hidden="true">${crew}</span>
         ${tray ? `<span class="trayn" aria-hidden="true">${esc(tray)}</span>` : ''}
-        <span class="plaque">${esc(r.name)}${r.open ? `<em>${r.level}${r.affordable ? '<b class="up" aria-hidden="true">+</b>' : ''}</em>` : building.includes(r.id) ? '<em>building</em>' : r.affordable ? '<em><b class="up" aria-hidden="true">+</b></em>' : ''}</span></button>`;
+        <span class="plaque">${name}</span></button>`;
     }).join('');
     const [vx, vy, vw, vh] = VAULT;
     z.innerHTML = `<div class="hq">${sectScene()}<div class="daylight" id="daylight"></div>${rooms}
@@ -219,17 +226,25 @@ export function mountSect(h) {
     $('[data-vault]', z).onclick = () => { tab = 'world'; sessionStorage.setItem('sect.tab', tab); paintTabs(); $('#z-tabs').scrollIntoView({ behavior: 'smooth' }); };
   }
 
-  // The near goal, always in view: the next Main Hall level and what it opens.
+  // The near goal, always in view: the next Main Hall level, what it opens, and the three rooms it waits on.
   function paintHall() {
     const z = $('#z-hall'); if (!z) return;
     const H = S.hall_next;
     const shortText = (o) => Object.entries(o).map(([k, v]) => `${v} more ${k === 'stones' ? 'spirit stones' : k}`).join(' and ');
-    const act = !H ? '' : H.queued ? `<div class="hn-prog"><span class="small">Being raised · <b class="num">${H.pct}%</b>, ready in ${simH(H.left)}</span>${bar(H.pct, 'azure')}<small class="dim">${esc(readyIn(H.left))}</small></div>`
-      : `<button class="btn ${H.affordable ? 'primary' : ''}" data-hall ${H.affordable ? '' : 'disabled'}>Raise it: ${esc(costText(H.cost))} · ${H.hours} h</button>
-         ${H.affordable ? `<small class="dim">${esc(readyIn(H.hours))}</small>` : `<small class="dim">${Object.keys(H.short).length ? `Needs ${esc(shortText(H.short))}` : 'Every builder is busy'}</small>`}`;
-    const html = !H ? '' : `<div class="hallnext ${H.affordable ? 'can' : ''}" style="background-image:linear-gradient(90deg,#1a130ef7 0%,#1a130eeb 62%,#1a130eb3 100%),url(${backdrop('hall')})">
-      <div class="hn-head"><small>The next step</small><b>Main Hall ${H.level}</b><span class="dim small">what it opens</span></div>
-      <ul class="hn-opens">${H.opens.map((o) => `<li>${esc(o)}</li>`).join('')}</ul>
+    const now = H.top ? H.level : H.level - 1;
+    const ladder = `<ol class="hn-ladder" aria-label="Main Hall level ${now} of 10">${Array.from({ length: 10 }, (_, i) => `<li class="${i < now ? 'on' : i === now ? 'next' : ''}">${i + 1}</li>`).join('')}</ol>`;
+    const check = H.check.length ? `<div class="hn-check"><span class="small">Three other rooms at level ${H.need_lv}</span><ul>${H.check.map((x) => `<li class="${x.ok ? 'ok' : ''}">${x.name ? `${esc(x.name)} <b class="num">${x.lv}</b>` : 'another room'}</li>`).join('')}</ul></div>` : '';
+    let act = '';
+    if (H.top) act = '<p class="small dim" style="margin:0">The ladder is climbed.</p>';
+    else if (H.queued) act = `<div class="hn-prog"><span class="small">Being raised, <b class="num">${H.pct}%</b></span>${bar(H.pct, 'azure')}<small class="dim">${esc(readyIn(H.left))}</small></div>`;
+    else {
+      const why = !H.ready ? `Raise three rooms to level ${H.need_lv} first` : Object.keys(H.short).length ? `Needs ${shortText(H.short)}` : !H.free ? 'Every builder is busy' : '';
+      act = `<button class="btn ${H.affordable ? 'primary' : ''}" data-hall ${H.affordable ? '' : 'disabled'}>Raise it: ${esc(costText(H.cost))}</button>
+        <small class="dim">${esc(why || readyIn(H.hours))}</small>`;
+    }
+    const html = `<div class="hallnext ${H.affordable ? 'can' : ''} ${H.top ? 'top' : ''}" style="background-image:linear-gradient(90deg,#1a130ef7 0%,#1a130eeb 62%,#1a130eb3 100%),url(${backdrop('hall')})">
+      <div class="hn-head"><small>${H.top ? 'The summit' : 'The next step'}</small><b>Main Hall ${H.level}</b>${ladder}</div>
+      <div class="hn-mid"><ul class="hn-opens">${H.opens.map((o) => `<li>${esc(o)}</li>`).join('')}</ul>${check}</div>
       <div class="hn-act">${act}</div></div>`;
     if (z.dataset.sig === html) return;
     z.dataset.sig = html;
@@ -272,6 +287,7 @@ export function mountSect(h) {
       b.onpointerup = b.onpointerleave = b.onpointercancel = () => { clearTimeout(press); };
     });
     z.querySelectorAll('[data-build]').forEach((b) => { b.onclick = () => order('build', { room: b.dataset.build }); });
+    z.querySelectorAll('[data-roomtile]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.roomtile); });
     z.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => order('cancel-build', { index: Number(b.dataset.cancel) }); });
     z.querySelectorAll('[data-blueprint]').forEach((b) => { b.onclick = () => order('blueprint', { index: Number(b.dataset.blueprint) }); });
     z.querySelectorAll('[data-tech]').forEach((b) => { b.onclick = () => order('research', { tech: b.dataset.tech }); });
@@ -329,40 +345,87 @@ export function mountSect(h) {
 
   // Sim hours as the player will feel them: away (one sim hour per 30 real minutes) and watching at speed 1.
   const span = (secs) => (secs < 90 ? `${Math.max(1, Math.round(secs))} s` : secs < 5400 ? `${Math.round(secs / 60)} min` : `${Math.round(secs / 360) / 10} h`);
-  const simH = (h) => `${h} sim hour${h === 1 ? '' : 's'}`;
-  const readyIn = (h) => `about ${span(h * S.builders.away_secs)} if you close the app, ${span(h * SECS_PER_HOUR[1])} watching`;
+    const readyIn = (h) => `Ready in about ${span(h * S.builders.away_secs)}, or ${span(h * SECS_PER_HOUR[1])} if you watch`;
 
-  function build() {
+  const awayT = (h) => span(h * S.builders.away_secs);
+  const watchT = (h) => span(h * SECS_PER_HOUR[1]);
+  const haveRes = (k) => (S.res.find((x) => x.id === k) || {}).n || 0;
+  const costChips = (cost) => Object.entries(cost).map(([k, v]) => `<span class="cchip ${haveRes(k) < v ? 'short' : ''}">${v} ${esc(k === 'stones' ? 'spirit stones' : k)}</span>`).join('');
+  const lvPips = (r) => `<i class="pips" aria-hidden="true">${Array.from({ length: r.max }, (_, i) => `<b class="${i < r.level ? 'on' : i < r.level + r.queued ? 'q' : ''}"></b>`).join('')}</i>`;
+  function roomState(r) {
+    if (!r.cost) return 'max';
+    if (r.locked) return 'locked';
+    return r.affordable ? 'can' : 'short';
+  }
+  function benchSpeed(b, i) {
+    return `<details class="fold" data-fold="speed-${i}" ${openFolds.has(`speed-${i}`) ? 'open' : ''}><summary>Speed ×${b.rate}</summary><ul class="list odds">
+      ${b.rows.map((o) => `<li class="row"><span class="grow">${esc(o.label)}</span><span class="num small">${o.x === 1 ? '×1' : `+${o.x}`}</span></li>`).join('')}
+      ${b.blue ? `<li class="row"><span class="grow">Master's Blueprint</span><span class="num small">−${b.blue} h</span></li>` : ''}
+      <li class="row dim small">${b.done} of ${b.need} hours of work done. Disciples with Build as a priority help, two to a job.</li></ul></details>`;
+  }
+  function builderHead() {
     const B = S.builders;
-    const running = S.builds.filter((b) => b.running);
-    const slot = (b, i) => (b ? `<li class="slot">
-        <div class="row"><span class="grow"><b>${esc(b.name)}</b> <span class="dim small">to level ${b.level}</span></span>
-          ${B.blueprints ? `<button class="btn quiet" data-blueprint="${i}" title="Takes ${B.blueprint_cut}% off the time this job has left">Use a blueprint</button>` : ''}
-          <button class="btn quiet" data-cancel="${i}">Cancel</button></div>
-        ${bar(b.pct, 'azure')}
-        <p class="small" style="margin:6px 0 0">Ready in <b class="num">${simH(b.left)}</b> <span class="dim">· ${esc(readyIn(b.left))}</span></p>
-        <details class="fold" data-fold="speed-${i}" ${openFolds.has(`speed-${i}`) ? 'open' : ''}><summary>Speed: ${b.rate} builder-hours an hour</summary><ul class="list odds">
-          ${b.rows.map((o) => `<li class="row"><span class="grow">${esc(o.label)}</span><span class="num small">${o.x === 1 ? '1' : `+${o.x}`}</span></li>`).join('')}
-          ${b.blue ? `<li class="row"><span class="grow">Master's Blueprint</span><span class="num small">−${b.blue} h</span></li>` : ''}
-          <li class="row dim small">${b.done} of ${b.need} builder-hours done. Disciples with Build as a priority help, two to a job at most.</li></ul></details></li>`
-      : '<li class="slot empty"><b>A builder is free</b><span class="dim small">Choose a room below.</span></li>');
-    const slots = Array.from({ length: B.n }, (_, i) => slot(running[i], i)).join('');
-    const waiting = S.builds.filter((b) => !b.running);
-    const head = `<div class="row buildhead"><span class="grow"><b>Builders</b> <span class="tag blue">${B.busy} of ${B.n} at work</span>
+    return `<div class="row buildhead"><span class="grow"><b class="serif">${B.busy} of ${B.n} builders at work</b>
         ${B.blueprints ? ` <span class="tag gold">${B.blueprints} blueprint${B.blueprints === 1 ? '' : 's'} in hand</span>` : ''}${B.master_hours ? ` <span class="tag jade">The Master builds for ${B.master_hours} more h</span>` : ''}</span></div>
       <details class="fold" data-fold="builders" ${openFolds.has('builders') ? 'open' : ''}><summary>Where builders come from</summary><ul class="list odds">${B.rows.map((o) => `<li class="row"><span class="grow">${esc(o.label)}</span><span class="num small">${o.n}</span></li>`).join('')}
         ${B.next_hall ? `<li class="row dim small">One more at Main Hall level ${B.next_hall}.</li>` : ''}
         <li class="row dim small">A day of study draws a Master's Blueprint (${B.blueprint_cut}% off one job, up to 3 kept); five study days in a week lend the Master as a builder for 24 sect hours.</li></ul></details>`;
-    return `${head}<ul class="slots">${slots}</ul>
-      ${waiting.length ? `<p class="small dim" style="margin:8px 0 0">Waiting for a builder: ${waiting.map((b) => esc(b.name)).join(', ')}</p>` : ''}
-      ${B.busy >= B.n ? '<p class="small dim" style="margin:10px 0 0">Every builder is busy. The rooms below can be started when one comes free.</p>' : ''}
-      <div class="buildgrid">${S.rooms.map((r) => `<div class="buildcard ${r.open ? '' : 'new'}">
-        <b>${esc(r.name)}</b> <span class="tag ${r.open ? 'blue' : ''}">${r.open ? `Level ${r.level}` : 'Not built'}${r.queued ? ` +${r.queued}` : ''}</span>
-        <p class="small dim">${esc(r.effect)}</p>
-        ${r.cost ? (r.locked ? `<p class="small" style="font-weight:800;margin:0">${esc(r.locked)}</p>`
-          : `<button class="btn ${r.affordable ? 'primary' : ''}" data-build="${esc(r.id)}" ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}: ${esc(costText(r.cost))} · ${r.hours} h</button>`)
-          : '<span class="tag gold">Highest level</span>'}</div>`).join('')}</div>`;
   }
+  function benchButtons(i) {
+    return `${S.builders.blueprints ? `<button class="btn quiet" data-blueprint="${i}" title="Takes ${S.builders.blueprint_cut}% off the time this job has left">Use a blueprint</button>` : ''}<button class="btn quiet" data-cancel="${i}">Cancel</button>`;
+  }
+
+  // Look A, the workshop: builders as workbenches with a painted crop of the room and a big countdown; rooms as
+  // painted tiles with level pips and cost chips, glowing when you can raise them, greyed while the Hall holds them.
+  function buildA() {
+    const B = S.builders;
+    const running = S.builds.filter((b) => b.running);
+    const bench = (b, i) => (b ? `<li class="bench">
+        <span class="bthumb" style="${siteCrop(b.room, 1.25)}" aria-hidden="true"></span>
+        <div class="bbody"><span class="bname"><b>${esc(b.name)}</b> <span class="dim small">to level ${b.level}</span></span>
+          <span class="bcount"><b class="num">${esc(awayT(b.left))}</b><small class="dim">if you close the app · ${esc(watchT(b.left))} watching</small></span>
+          ${bar(b.pct, 'azure')}
+          <div class="row bfoot">${benchSpeed(b, i)}<span class="grow"></span>${benchButtons(i)}</div></div></li>`
+      : '<li class="bench empty"><span class="bthumb idle" aria-hidden="true"></span><div class="bbody"><b class="serif">A builder is free</b><span class="dim small">Choose a room below.</span></div></li>');
+    const waiting = S.builds.filter((b) => !b.running);
+    const tile = (r) => {
+      const st = roomState(r);
+      return `<li class="rtile ${st} ${r.open ? '' : 'new'}">
+        <button class="rt-pic" data-roomtile="${esc(r.id)}" style="${siteCrop(r.id, 1.6)}" aria-label="${esc(r.name)}: details"><span class="rt-name">${esc(r.name)}</span></button>
+        <div class="rt-body"><div class="row">${r.open ? lvPips(r) : `<span class="small dim">${r.queued ? 'Being built' : 'Not built'}</span>`}<span class="grow"></span>${r.queued ? '<span class="tag blue">building</span>' : ''}</div>
+          ${st === 'max' ? '<p class="small rt-note">Highest level</p>' : st === 'locked' ? `<p class="small rt-note">${esc(r.locked)}</p>`
+    : `<div class="rt-cost">${costChips(r.cost)}</div><div class="row rt-go"><small class="dim">${esc(awayT(r.hours))} away</small><span class="grow"></span>
+            <button class="btn ${r.affordable ? 'primary' : ''}" data-build="${esc(r.id)}" ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}</button></div>`}</div></li>`;
+    };
+    return `<div class="lookA">${builderHead()}<ul class="benches">${Array.from({ length: B.n }, (_, i) => bench(running[i], i)).join('')}</ul>
+      ${waiting.length ? `<p class="small dim" style="margin:8px 0 0">Waiting for a builder: ${waiting.map((b) => esc(b.name)).join(', ')}</p>` : ''}
+      <ul class="rtiles">${S.rooms.map(tile).join('')}</ul></div>`;
+  }
+
+  // Look B, the ledger: builders as a strip of lantern timers; rooms sorted into what you can raise now, what waits
+  // on materials (saying what is missing), and what waits on the Main Hall.
+  function buildB() {
+    const B = S.builders;
+    const running = S.builds.filter((b) => b.running);
+    const lamp = (b, i) => (b ? `<li class="lamp" style="--p:${b.pct}">
+        <span class="ring"><span class="rthumb" style="${siteCrop(b.room, 1)}" aria-hidden="true"></span></span>
+        <span class="ltxt"><b>${esc(b.name)} ${b.level}</b><span class="num">${esc(awayT(b.left))}</span><small class="dim">${esc(watchT(b.left))} watching · ${b.pct}%</small>
+          <span class="row">${benchButtons(i)}</span>${benchSpeed(b, i)}</span></li>`
+      : '<li class="lamp empty"><span class="ring"></span><span class="ltxt"><b>Free</b><small class="dim">waiting for orders</small></span></li>');
+    const groups = { can: [], short: [], locked: [], max: [] };
+    S.rooms.forEach((r) => groups[roomState(r)].push(r));
+    const shortOf = (r) => Object.entries(r.cost).filter(([k, v]) => haveRes(k) < v).map(([k, v]) => `${v - haveRes(k)} ${k === 'stones' ? 'spirit stones' : k}`).join(', ');
+    const row = (r, st) => `<li class="lrow ${st}"><button class="lthumb" data-roomtile="${esc(r.id)}" style="${siteCrop(r.id, 1)}" aria-label="${esc(r.name)}: details"></button>
+        <span class="grow"><b>${esc(r.name)}</b> ${r.open ? lvPips(r) : '<span class="small dim">new</span>'}<br>
+          ${st === 'locked' ? `<small class="dim">${esc(r.locked)}</small>` : st === 'max' ? '<small class="dim">Highest level</small>' : `<span class="rt-cost">${costChips(r.cost)}</span>`}</span>
+        ${st === 'can' ? `<span class="lgo"><button class="btn primary" data-build="${esc(r.id)}">${r.open ? 'Raise' : 'Build'}</button><small class="dim">${esc(awayT(r.hours))} away</small></span>`
+    : st === 'short' ? `<small class="lneed">Needs ${esc(shortOf(r) || 'a free builder')}</small>` : ''}</li>`;
+    const sect = (title, list, st) => (list.length ? `<h4 class="lhead">${esc(title)} <span class="dim small">${list.length}</span></h4><ul class="lrows">${list.map((r) => row(r, st)).join('')}</ul>` : '');
+    return `<div class="lookB">${builderHead()}<ul class="lamps">${Array.from({ length: B.n }, (_, i) => lamp(running[i], i)).join('')}</ul>
+      ${sect('Ready to raise', groups.can, 'can')}${sect('Gathering materials', groups.short, 'short')}${sect('Waiting on the Main Hall', groups.locked, 'locked')}${sect('Complete', groups.max, 'max')}</div>`;
+  }
+
+  function build() { return LOOK('build') === 'B' ? buildB() : buildA(); }
 
   function research() {
     const R = S.research;
@@ -595,7 +658,7 @@ export function mountSect(h) {
     openSheet(`<h2>${esc(r.name)}</h2><p class="dim">${r.open ? `Level ${r.level} of ${r.max}` : 'Not built yet'}${r.queued ? ' · under construction' : ''}</p><p>${esc(r.effect)}</p>
       ${r.cost ? (r.locked ? `<p class="tag red">${esc(r.locked)}</p>`
         : `<button class="btn ${r.affordable ? 'primary' : ''}" data-go ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}: ${esc(costText(r.cost))}</button>
-           <p class="dim small" style="margin-top:8px">${r.affordable ? `Materials are spent now. A builder takes ${r.hours} h (${esc(readyIn(r.hours))}); disciples with Build as a priority help.`
+           <p class="dim small" style="margin-top:8px">${r.affordable ? `Materials are spent now. ${esc(readyIn(r.hours))}. Disciples with Build as a priority help.`
              : S.builders.busy >= S.builders.n ? 'Every builder is busy. One comes free when a job finishes.' : 'You do not have the materials yet.'}</p>`)
         : '<p class="tag gold">Highest level reached</p>'}`);
     const go = $('[data-go]', $('#sheet')); if (go) go.onclick = async () => { closeSheet(); await order('build', { room: id }); };
