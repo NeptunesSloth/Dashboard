@@ -655,3 +655,382 @@ units:
           - {who: A, l2: "わたし は しゃしん を とる の が すき です。", rom: "Watashi wa shashin o toru no ga suki desu.", l1: "I like taking photos.", alt: ["しゃしん を とる の が すき です。", "Shashin o toru no ga suki desu.", "しゃしん を とる こと が すき です。", "Shashin o toru koto ga suki desu.", "しゃしん です。", "Shashin desu.", "Watashi wa shashin wo toru no ga suki desu.", "Watashi ha shashin o toru no ga suki desu.", "Watashi ha shashin wo toru no ga suki desu.", "Shashin wo toru no ga suki desu.", "Shashin wo toru koto ga suki desu."]}
           - {who: B, l2: "へえ。 どんな しゃしん を とります か。", rom: "Hee. Donna shashin o torimasu ka.", l1: "Oh! What kind of photos do you take?"}
           - {who: A, l2: "けしき の しゃしん です。 さんぽ しながら とります。", rom: "Keshiki no shashin desu. Sanpo shinagara torimasu.", l1: "Landscapes. I take them while I'm out walking.", alt: ["けしき です。 さんぽ しながら とります。", "Keshiki desu. Sanpo shinagara torimasu."]}
+
+  # ───────────────────────────────────────────────────────────────── 9
+  - id: ja2-09
+    title: "Can do: the potential form"
+    goal: "I can say what I can and cannot do: languages, skills, and what is possible in a place."
+    notes: |
+      ## Making the potential form
+      | group | rule | example |
+      |---|---|---|
+      | る-verbs | る → **られる** | たべる → たべ**られる**, みる → み**られる** |
+      | う-verbs | う-sound → え-sound + **る** | かく → か**ける**, のむ → の**める**, はなす → はな**せる**, かう → か**える** |
+      | irregular | | する → **できる**, くる → **こられる** |
+
+      The result is itself a る-verb: かけ**ます**, かけ**ません**, かけ**た**.
+
+      - The thing you can do usually takes **が** instead of を: にほんご **が** はなせます. (を is heard too.)
+      - In speech, る-verbs often drop ら: たべれる, みれる. You will hear it; write られる.
+      - [dictionary form] こと が できる (unit 1) means the same and sounds a little more formal.
+      - With a noun, just use できる: うんてん が できます, テニス が できます.
+
+      ## Seeing and hearing
+      **みえる** (be visible) and **きこえる** (be audible) are not potential forms. They say that something can be seen or heard naturally: ここ から うみ が みえます — you can see the sea from here. みられる means you have the chance to see it: あの えいが は えいがかん で みられます.
+
+      ## Kanji
+      Four kanji combine into everyday words: 自転車 (bicycle, "self-turning vehicle"), 自動車 (motor car), 運転 (driving), 電車 (train).
+    items:
+      - {id: ja2-09-k-un, type: glyph, l2: "運", rom: "un", l1: "carry; luck (うん in 運転 うんてん and 運動 うんどう)"}
+      - {id: ja2-09-k-ten, type: glyph, l2: "転", rom: "ten", l1: "turn; roll (てん in 運転 うんてん and 自転車 じてんしゃ)"}
+      - {id: ja2-09-k-kuruma, type: glyph, l2: "車", rom: "kuruma", l1: "car; vehicle (くるま; しゃ in 電車 でんしゃ and 自転車 じてんしゃ)", alt: ["sha"]}
+      - {id: ja2-09-k-ji-self, type: glyph, l2: "自", rom: "ji", l1: "self (じ in 自分 じぶん, oneself, and 自転車 じてんしゃ)"}
+      - {id: ja2-09-k-dou, type: glyph, l2: "動", rom: "dou", l1: "move (どう in 運動 うんどう and 自動車 じどうしゃ; うご in 動く うごく)", alt: ["ugo", "dō"]}
+      - {id: ja2-09-k-ji-letter, type: glyph, l2: "字", rom: "ji", l1: "letter; written character (じ in 漢字 かんじ and ローマ字 ローマじ)"}
+      - {id: ja2-09-k-kan, type: glyph, l2: "漢", rom: "kan", l1: "China (in old words) (かん in 漢字 かんじ)"}
+      - {id: ja2-09-k-den, type: glyph, l2: "電", rom: "den", l1: "electricity (でん in 電車 でんしゃ, 電話 でんわ and 電気 でんき)"}
+      - {id: ja2-09-unten, type: vocab, l2: "うんてん", rom: "unten", l1: "driving (うんてん する = to drive)", alt: ["運転"], ex: "くるま の うんてん が できます か。", ex_rom: "Kuruma no unten ga dekimasu ka.", ex_l1: "Can you drive a car?", note: "Kanji: 運転."}
+      - {id: ja2-09-jitensha, type: vocab, l2: "じてんしゃ", rom: "jitensha", l1: "bicycle", alt: ["自転車"], ex: "じてんしゃ で がっこう へ いきます。", ex_rom: "Jitensha de gakkou e ikimasu.", ex_l1: "I go to school by bike.", note: "Ride: じてんしゃ に のる. Kanji: 自転車."}
+      - {id: ja2-09-undou, type: vocab, l2: "うんどう", rom: "undou", l1: "exercise (うんどう する = to exercise)", alt: ["運動", "undō"], ex: "まいにち すこし うんどう して います。", ex_rom: "Mainichi sukoshi undou shite imasu.", ex_l1: "I do a little exercise every day.", note: "Kanji: 運動."}
+      - {id: ja2-09-kanji, type: vocab, l2: "かんじ", rom: "kanji", l1: "kanji (Chinese characters)", alt: ["漢字"], ex: "あたらしい かんじ を たくさん おぼえました。", ex_rom: "Atarashii kanji o takusan oboemashita.", ex_l1: "I've learned lots of new kanji.", note: "Kanji: 漢字."}
+      - {id: ja2-09-jibun, type: vocab, l2: "じぶん", rom: "jibun", l1: "oneself (じぶん で = by yourself, on your own)", alt: ["自分"], ex: "じぶん で りょうり を つくります。", ex_rom: "Jibun de ryouri o tsukurimasu.", ex_l1: "I cook for myself.", note: "Kanji: 自分."}
+      - {id: ja2-09-mieru, type: vocab, l2: "みえる", rom: "mieru", l1: "to be visible / can be seen", alt: ["見える"], ex: "ここ から ふじさん が みえます。", ex_rom: "Koko kara Fujisan ga miemasu.", ex_l1: "You can see Mount Fuji from here.", note: "Seen without trying; the thing seen takes が. Kanji: 見える."}
+      - {id: ja2-09-kikoeru, type: vocab, l2: "きこえる", rom: "kikoeru", l1: "to be audible / can be heard", alt: ["聞こえる"], ex: "となり の へや から おんがく が きこえます。", ex_rom: "Tonari no heya kara ongaku ga kikoemasu.", ex_l1: "I can hear music from the room next door.", note: "Kanji: 聞こえる."}
+      - {id: ja2-09-ugoku, type: vocab, l2: "うごく", rom: "ugoku", l1: "to move; to work (a machine)", alt: ["動く"], ex: "この とけい は うごきません。", ex_rom: "Kono tokei wa ugokimasen.", ex_l1: "This clock doesn't work.", note: "Kanji: 動く."}
+      - {id: ja2-09-menkyo, type: vocab, l2: "めんきょ", rom: "menkyo", l1: "licence (driving licence: うんてん めんきょ)", alt: ["免許"], ex: "うんてん めんきょ を もって います。", ex_rom: "Unten menkyo o motte imasu.", ex_l1: "I have a driving licence.", note: "Kanji: 免許."}
+      - {id: ja2-09-kankokugo, type: vocab, l2: "かんこくご", rom: "kankokugo", l1: "Korean (the language)", alt: ["韓国語"], ex: "かんこくご が すこし できます。", ex_rom: "Kankokugo ga sukoshi dekimasu.", ex_l1: "I can speak a little Korean.", note: "The country: かんこく (South Korea). Any language: country + ご. Kanji: 韓国語."}
+      - {id: ja2-09-sukoshi, type: vocab, l2: "すこし", rom: "sukoshi", l1: "a little / a few", alt: ["少し"], ex: "にほんご が すこし わかります。", ex_rom: "Nihongo ga sukoshi wakarimasu.", ex_l1: "I understand a little Japanese.", note: "More casual: ちょっと. Kanji: 少し."}
+      - {id: ja2-09-zenbu, type: vocab, l2: "ぜんぶ", rom: "zenbu", l1: "all / everything", alt: ["全部"], ex: "ぜんぶ たべられません。", ex_rom: "Zenbu taberaremasen.", ex_l1: "I can't eat it all.", note: "ぜんぶ で = altogether. Kanji: 全部."}
+      - {id: ja2-09-eigakan, type: vocab, l2: "えいがかん", rom: "eigakan", l1: "cinema / movie theatre", alt: ["映画館"], ex: "あたらしい えいが は えいがかん で みられます。", ex_rom: "Atarashii eiga wa eigakan de miraremasu.", ex_l1: "You can see the new film at the cinema.", note: "Kanji: 映画館."}
+      - {id: ja2-09-kowareru, type: vocab, l2: "こわれる", rom: "kowareru", l1: "to break / to stop working (by itself)", alt: ["壊れる"], ex: "パソコン が こわれました。", ex_rom: "Pasokon ga kowaremashita.", ex_l1: "My computer has broken.", note: "No object: the thing breaks. Kanji: 壊れる."}
+      - {id: ja2-09-oboeru, type: vocab, l2: "おぼえる", rom: "oboeru", l1: "to memorise / to learn by heart; to remember", alt: ["覚える"], ex: "まいにち ことば を じゅう おぼえます。", ex_rom: "Mainichi kotoba o juu oboemasu.", ex_l1: "Every day I learn ten words.", note: "Still remember = おぼえて います. Kanji: 覚える."}
+      - {id: ja2-09-sukoshi-hanasemasu, type: phrase, l2: "にほんご が すこし はなせます。", rom: "Nihongo ga sukoshi hanasemasu.", l1: "I can speak a little Japanese.", alt: ["日本語が少し話せます", "にほんご を すこし はなせます。", "Nihongo o sukoshi hanasemasu.", "すこし にほんご が はなせます。", "Sukoshi Nihongo ga hanasemasu.", "にほんご が ちょっと はなせます。", "Nihongo ga chotto hanasemasu.", "Nihongo wo sukoshi hanasemasu."], note: "はなす → はなせる → はなせます. With kanji: 日本語が少し話せます"}
+      - {id: ja2-09-sashimi, type: phrase, l2: "さしみ が たべられます か。", rom: "Sashimi ga taberaremasu ka.", l1: "Can you eat sashimi (raw fish)?", alt: ["刺身が食べられますか", "さしみ は たべられます か。", "Sashimi wa taberaremasu ka.", "さしみ を たべられます か。", "Sashimi o taberaremasu ka.", "Sashimi ha taberaremasu ka.", "Sashimi wo taberaremasu ka."], note: "A kind question to a guest. With kanji: 刺身が食べられますか"}
+      - {id: ja2-09-kikoemasen, type: phrase, l2: "すみません、 よく きこえません。", rom: "Sumimasen, yoku kikoemasen.", l1: "Sorry, I can't hear you very well.", alt: ["すみません、よく聞こえません", "すみません、 きこえません。", "Sumimasen, kikoemasen."], note: "Useful on the phone and in noisy places. With kanji: すみません、よく聞こえません"}
+      - {id: ja2-09-kanji-kakemasen, type: phrase, l2: "かんじ は まだ あまり かけません。", rom: "Kanji wa mada amari kakemasen.", l1: "I still can't write kanji very well.", alt: ["漢字はまだあまり書けません", "かんじ は あまり かけません。", "Kanji wa amari kakemasen.", "まだ かんじ は あまり かけません。", "Mada kanji wa amari kakemasen.", "Kanji ha mada amari kakemasen.", "Kanji ha amari kakemasen.", "Mada kanji ha amari kakemasen."], note: "は sets kanji against reading or speaking. With kanji: 漢字はまだあまり書けません"}
+      - {id: ja2-09-c1, type: cloze, text: "にほんご の しんぶん が ___。", answer: "よめます", l1: "I can read Japanese newspapers.", alt: ["yomemasu", "読めます"], note: "よむ → よめる → よめます."}
+      - {id: ja2-09-c2, type: cloze, text: "うみ で ___ か。", answer: "およげます", l1: "Can you swim in the sea?", alt: ["oyogemasu", "泳げます"], note: "およぐ → およげる."}
+      - {id: ja2-09-c3, type: cloze, text: "なっとう が ___ か。", answer: "たべられます", l1: "Can you eat natto (fermented soybeans)?", alt: ["taberaremasu", "食べられます"], note: "る-verb: たべる → たべられる."}
+      - {id: ja2-09-c4, type: cloze, text: "ここ から うみ が ___。", answer: "みえます", l1: "You can see the sea from here.", alt: ["miemasu", "見えます"], note: "Visible without trying: みえる."}
+      - {id: ja2-09-c5, type: cloze, text: "あした は ___ か。", answer: "こられます", l1: "Can you come tomorrow?", alt: ["koraremasu", "来られます"], note: "くる → こられる (irregular)."}
+      - {id: ja2-09-c6, type: cloze, text: "すみません、 この かんじ が ___ か。", answer: "かけます", l1: "Excuse me, can you write this kanji?", alt: ["kakemasu", "書けます"], note: "かく → かける."}
+      - id: ja2-09-d-volunteer
+        type: dialogue
+        title: "Signing up to help"
+        scene: "You are Smith, signing up as a volunteer for the town festival. The organiser, Mr. Mori, asks about your skills."
+        you: B
+        lines:
+          - {who: A, l2: "スミスさん は えいご と にほんご の ほか に、 なにご が できます か。", rom: "Sumisu-san wa eigo to Nihongo no hoka ni, nanigo ga dekimasu ka.", l1: "Mr. Smith, apart from English and Japanese, what languages can you speak?"}
+          - {who: B, l2: "かんこくご が すこし できます。", rom: "Kankokugo ga sukoshi dekimasu.", l1: "I can speak a little Korean.", alt: ["かんこくご が すこし はなせます。", "Kankokugo ga sukoshi hanasemasu.", "かんこくご が ちょっと できます。", "Kankokugo ga chotto dekimasu."]}
+          - {who: A, l2: "そう です か。 かんじ は よめます か。", rom: "Sou desu ka. Kanji wa yomemasu ka.", l1: "I see. Can you read kanji?"}
+          - {who: B, l2: "すこし よめます。 でも、 あまり かけません。", rom: "Sukoshi yomemasu. Demo, amari kakemasen.", l1: "I can read a few. But I can't write many.", alt: ["すこし よめます。 でも、 かく の は あまり できません。", "Sukoshi yomemasu. Demo, kaku no wa amari dekimasen.", "Sukoshi yomemasu. Demo, kaku no ha amari dekimasen."]}
+          - {who: A, l2: "だいじょうぶ です よ。 くるま の うんてん は できます か。", rom: "Daijoubu desu yo. Kuruma no unten wa dekimasu ka.", l1: "That's fine. Can you drive?"}
+          - {who: B, l2: "いいえ、 できません。 でも、 じてんしゃ に のれます。", rom: "Iie, dekimasen. Demo, jitensha ni noremasu.", l1: "No, I can't. But I can ride a bike.", alt: ["いいえ、 できません。 じてんしゃ は のれます。", "Iie, dekimasen. Jitensha wa noremasu.", "Iie, dekimasen. Jitensha ha noremasu."]}
+          - {who: A, l2: "じゃ、 じてんしゃ で この チラシ を くばって ください。", rom: "Ja, jitensha de kono chirashi o kubatte kudasai.", l1: "Then please hand out these flyers by bike."}
+          - {who: B, l2: "わかりました。 がんばります。", rom: "Wakarimashita. Ganbarimasu.", l1: "Got it. I'll do my best.", alt: ["はい、 がんばります。", "Hai, ganbarimasu."]}
+
+  # ───────────────────────────────────────────────────────────────── 10
+  - id: ja2-10
+    title: "Plans: the volitional, 〜よう と おもう, 〜つもり"
+    goal: "I can suggest doing something together and say what I am thinking of doing and what I plan to do."
+    notes: |
+      ## The volitional: let's (casual)
+      | group | rule | example |
+      |---|---|---|
+      | る-verbs | る → **よう** | たべる → たべ**よう** |
+      | う-verbs | う-sound → お-sound + **う** | いく → い**こう**, のむ → の**もう**, かう → か**おう** |
+      | irregular | | する → **しよう**, くる → **こよう** |
+
+      It is the casual version of 〜ましょう: いっしょ に いこう！ — Let's go together!
+
+      ## I'm thinking of …
+      [volitional] + **と おもって います**: らいねん にほん へ いこう と おもって います. Said with おもいます, it is a decision made just now: こんばん は すし を たべよう と おもいます.
+
+      ## I intend to …
+      [dictionary form] + **つもり です**: なつやすみ に りょこう する つもり です. Not planning to: [ない-form] + つもり です.
+      つもり is firmer than 〜よう と おもう: the plan is made. Avoid asking a teacher or boss about their つもり; ask 〜ます か instead.
+
+      ## I think that …
+      [plain form] + **と おもいます** gives an opinion: にほんご は おもしろい と おもいます. After a noun or な-adjective add だ: いい まち だ と おもいます.
+
+      ## Becoming
+      [noun] **に なる** = to become: いしゃ に なりたい です.
+    items:
+      - {id: ja2-10-k-omo, type: glyph, l2: "思", rom: "omo", l1: "think (おも in 思う おもう; し in 意思 いし, intention)", alt: ["shi"]}
+      - {id: ja2-10-k-shi-test, type: glyph, l2: "試", rom: "shi", l1: "test; try (し in 試験 しけん and 試合 しあい, a match)"}
+      - {id: ja2-10-k-ken, type: glyph, l2: "験", rom: "ken", l1: "test; effect (けん in 試験 しけん and 経験 けいけん, experience)"}
+      - {id: ja2-10-k-ben, type: glyph, l2: "勉", rom: "ben", l1: "effort (べん in 勉強 べんきょう)"}
+      - {id: ja2-10-k-kyou, type: glyph, l2: "強", rom: "kyou", l1: "strong (きょう in 勉強 べんきょう; つよ in 強い つよい)", alt: ["tsuyo", "kyō"]}
+      - {id: ja2-10-k-shi-serve, type: glyph, l2: "仕", rom: "shi", l1: "serve; do (し in 仕事 しごと)"}
+      - {id: ja2-10-k-koto, type: glyph, l2: "事", rom: "koto", l1: "thing; matter (こと; ごと in 仕事 しごと; じ in 食事 しょくじ)", alt: ["goto", "ji"]}
+      - {id: ja2-10-k-go, type: glyph, l2: "語", rom: "go", l1: "language; word (ご in 日本語 にほんご and 英語 えいご)"}
+      - {id: ja2-10-tsumori, type: vocab, l2: "つもり", rom: "tsumori", l1: "intention, plan (dictionary form + つもり です)", ex: "なつ は うち で べんきょう する つもり です。", ex_rom: "Natsu wa uchi de benkyou suru tsumori desu.", ex_l1: "I plan to study at home this summer.", note: "Not planning to: 〜ない つもり です."}
+      - {id: ja2-10-yotei, type: vocab, l2: "よてい", rom: "yotei", l1: "plan / schedule", alt: ["予定"], ex: "しゅうまつ の よてい は なん です か。", ex_rom: "Shuumatsu no yotei wa nan desu ka.", ex_l1: "What are your plans for the weekend?", note: "〜する よてい です = it is scheduled. Kanji: 予定."}
+      - {id: ja2-10-shiken, type: vocab, l2: "しけん", rom: "shiken", l1: "exam / examination", alt: ["試験"], ex: "らいしゅう にほんご の しけん が あります。", ex_rom: "Raishuu Nihongo no shiken ga arimasu.", ex_l1: "I have a Japanese exam next week.", note: "テスト is a class test; しけん is a bigger exam. Kanji: 試験."}
+      - {id: ja2-10-goukaku, type: vocab, l2: "ごうかく", rom: "goukaku", l1: "passing (an exam) (ごうかく する = to pass)", alt: ["合格", "gōkaku"], ex: "しけん に ごうかく しました。", ex_rom: "Shiken ni goukaku shimashita.", ex_l1: "I passed the exam.", note: "The exam takes に. Kanji: 合格."}
+      - {id: ja2-10-sotsugyou, type: vocab, l2: "そつぎょう", rom: "sotsugyou", l1: "graduation (そつぎょう する = to graduate)", alt: ["卒業", "sotsugyō"], ex: "らいねん だいがく を そつぎょう します。", ex_rom: "Rainen daigaku o sotsugyou shimasu.", ex_l1: "I graduate from university next year.", note: "The school takes を. Kanji: 卒業."}
+      - {id: ja2-10-ryuugaku, type: vocab, l2: "りゅうがく", rom: "ryuugaku", l1: "studying abroad (りゅうがく する)", alt: ["留学", "ryūgaku"], ex: "あね は アメリカ に りゅうがく して います。", ex_rom: "Ane wa Amerika ni ryuugaku shite imasu.", ex_l1: "My older sister is studying in America.", note: "A student from abroad: りゅうがくせい. Kanji: 留学."}
+      - {id: ja2-10-shourai, type: vocab, l2: "しょうらい", rom: "shourai", l1: "the future (one's own future)", alt: ["将来", "shōrai"], ex: "しょうらい は にほん で はたらきたい です。", ex_rom: "Shourai wa Nihon de hatarakitai desu.", ex_l1: "In the future I want to work in Japan.", note: "Kanji: 将来."}
+      - {id: ja2-10-kondo, type: vocab, l2: "こんど", rom: "kondo", l1: "next time; this coming (…)", alt: ["今度"], ex: "こんど の にちようび に うみ へ いこう。", ex_rom: "Kondo no nichiyoubi ni umi e ikou.", ex_l1: "Let's go to the beach this coming Sunday. (casual)", note: "Kanji: 今度."}
+      - {id: ja2-10-raigetsu, type: vocab, l2: "らいげつ", rom: "raigetsu", l1: "next month", alt: ["来月"], ex: "らいげつ ほっかいどう へ いきます。", ex_rom: "Raigetsu Hokkaidou e ikimasu.", ex_l1: "I'm going to Hokkaido next month.", note: "Last month: せんげつ (先月). Kanji: 来月."}
+      - {id: ja2-10-natsuyasumi, type: vocab, l2: "なつやすみ", rom: "natsuyasumi", l1: "the summer holidays", alt: ["夏休み"], ex: "なつやすみ は いつ から です か。", ex_rom: "Natsuyasumi wa itsu kara desu ka.", ex_l1: "When do the summer holidays start?", note: "Kanji: 夏休み."}
+      - {id: ja2-10-yameru, type: vocab, l2: "やめる", rom: "yameru", l1: "to quit / to give up / to stop (doing)", alt: ["辞める", "止める"], ex: "らいねん かいしゃ を やめる つもり です。", ex_rom: "Rainen kaisha o yameru tsumori desu.", ex_l1: "I intend to leave the company next year.", note: "A job: 辞める; a habit: 止める. る-verb."}
+      - {id: ja2-10-kimeru, type: vocab, l2: "きめる", rom: "kimeru", l1: "to decide", alt: ["決める"], ex: "りょこう の ひ を きめましょう。", ex_rom: "Ryokou no hi o kimemashou.", ex_l1: "Let's decide the date of the trip.", note: "Not decided yet: まだ きめて いません. Kanji: 決める."}
+      - {id: ja2-10-ganbaru, type: vocab, l2: "がんばる", rom: "ganbaru", l1: "to do one's best / to keep at it", alt: ["頑張る"], ex: "あした の しけん、 がんばります。", ex_rom: "Ashita no shiken, ganbarimasu.", ex_l1: "I'll do my best in tomorrow's exam.", note: "がんばって！ = good luck! Kanji: 頑張る."}
+      - {id: ja2-10-omou, type: vocab, l2: "おもう", rom: "omou", l1: "to think", alt: ["思う"], ex: "にほん は いい くに だ と おもいます。", ex_rom: "Nihon wa ii kuni da to omoimasu.", ex_l1: "I think Japan is a good country.", note: "Plain form + と おもいます = I think that …. Kanji: 思う."}
+      - {id: ja2-10-naru, type: vocab, l2: "なる", rom: "naru", l1: "to become", ex: "あね は せんせい に なりました。", ex_rom: "Ane wa sensei ni narimashita.", ex_l1: "My older sister became a teacher.", note: "Noun + に なる; い-adjective: さむく なる (get cold)."}
+      - {id: ja2-10-issho-ni-ikou, type: phrase, l2: "いっしょ に いこう。", rom: "Issho ni ikou.", l1: "Let's go together. (casual)", alt: ["一緒に行こう", "いっしょ に いこう よ。", "Issho ni ikou yo.", "Issho ni ikō.", "Issho ni ikō yo."], note: "Polite: いっしょ に いきましょう. With kanji: 一緒に行こう"}
+      - {id: ja2-10-ikou-to-omotte, type: phrase, l2: "らいねん にほん へ いこう と おもって います。", rom: "Rainen Nihon e ikou to omotte imasu.", l1: "I'm thinking of going to Japan next year.", alt: ["来年日本へ行こうと思っています", "らいねん にほん に いこう と おもって います。", "Rainen Nihon ni ikou to omotte imasu.", "来年日本に行こうと思っています", "Rainen Nihon he ikou to omotte imasu.", "Rainen Nihon e ikō to omotte imasu.", "Rainen Nihon he ikō to omotte imasu.", "Rainen Nihon ni ikō to omotte imasu."], note: "With kanji: 来年日本へ行こうと思っています"}
+      - {id: ja2-10-suru-tsumori, type: phrase, l2: "なつやすみ に なに を する つもり です か。", rom: "Natsuyasumi ni nani o suru tsumori desu ka.", l1: "What are you planning to do in the summer holidays?", alt: ["夏休みに何をするつもりですか", "なつやすみ は なに を する つもり です か。", "Natsuyasumi wa nani o suru tsumori desu ka.", "Natsuyasumi ni nani wo suru tsumori desu ka.", "Natsuyasumi wa nani wo suru tsumori desu ka.", "Natsuyasumi ha nani o suru tsumori desu ka.", "Natsuyasumi ha nani wo suru tsumori desu ka."], note: "Fine between friends and classmates. With kanji: 夏休みに何をするつもりですか"}
+      - {id: ja2-10-ganbatte, type: phrase, l2: "がんばって ください。", rom: "Ganbatte kudasai.", l1: "Good luck! / Do your best!", alt: ["頑張ってください", "がんばって！", "Ganbatte!", "がんばって ね。", "Ganbatte ne."], note: "Said before an exam, a match, a new job. With kanji: 頑張ってください"}
+      - {id: ja2-10-c1, type: cloze, text: "あした うみ へ ___。", answer: "いこう", l1: "Let's go to the beach tomorrow. (casual)", alt: ["ikou", "行こう", "ikō"], note: "いく → いこう."}
+      - {id: ja2-10-c2, type: cloze, text: "こんばん は すし を ___ と おもいます。", answer: "たべよう", l1: "I think I'll have sushi tonight.", alt: ["tabeyou", "食べよう", "tabeyō"], note: "る-verb: たべる → たべよう."}
+      - {id: ja2-10-c3, type: cloze, text: "らいねん けっこん する ___ です。", answer: "つもり", l1: "I intend to get married next year.", alt: ["tsumori"], note: "Dictionary form + つもり です."}
+      - {id: ja2-10-c4, type: cloze, text: "たばこ を やめよう と ___ います。", answer: "おもって", l1: "I'm thinking of giving up smoking.", alt: ["omotte", "思って"], note: "Volitional + と おもって います."}
+      - {id: ja2-10-c5, type: cloze, text: "あした は かいしゃ へ ___ つもり です。", answer: "いかない", l1: "I don't intend to go to the office tomorrow.", alt: ["ikanai", "行かない"], note: "ない-form + つもり です."}
+      - {id: ja2-10-c6, type: cloze, text: "しょうらい は いしゃ に ___ です。", answer: "なりたい", l1: "In the future I want to become a doctor.", alt: ["naritai"], note: "に なる = become; + たい = want to."}
+      - id: ja2-10-d-summer
+        type: dialogue
+        title: "Summer plans"
+        scene: "You are Smith. In July your colleague Nakamura asks about your holiday."
+        you: B
+        lines:
+          - {who: A, l2: "スミスさん、 なつやすみ は どう します か。", rom: "Sumisu-san, natsuyasumi wa dou shimasu ka.", l1: "Mr. Smith, what are you doing for the summer holidays?"}
+          - {who: B, l2: "ほっかいどう へ いこう と おもって います。", rom: "Hokkaidou e ikou to omotte imasu.", l1: "I'm thinking of going to Hokkaido.", alt: ["ほっかいどう に いこう と おもって います。", "Hokkaidou ni ikou to omotte imasu.", "ほっかいどう へ いく つもり です。", "Hokkaidou e iku tsumori desu.", "ほっかいどう に いく つもり です。", "Hokkaidou ni iku tsumori desu.", "Hokkaidou he ikou to omotte imasu.", "Hokkaidō e ikō to omotte imasu.", "Hokkaidō he ikō to omotte imasu.", "Hokkaidō ni ikō to omotte imasu.", "Hokkaidou he iku tsumori desu.", "Hokkaidō e iku tsumori desu.", "Hokkaidō he iku tsumori desu.", "Hokkaidō ni iku tsumori desu."]}
+          - {who: A, l2: "いい です ね。 なんにち ぐらい いく つもり です か。", rom: "Ii desu ne. Nannichi gurai iku tsumori desu ka.", l1: "Lovely. How many days are you planning to go for?"}
+          - {who: B, l2: "まだ きめて いません。", rom: "Mada kimete imasen.", l1: "I haven't decided yet.", alt: ["まだ わかりません。", "Mada wakarimasen."]}
+          - {who: A, l2: "じつ は わたし も ほっかいどう に いきたい ん です。 いっしょ に いきません か。", rom: "Jitsu wa watashi mo Hokkaidou ni ikitai n desu. Issho ni ikimasen ka.", l1: "Actually, I want to go to Hokkaido too. Shall we go together?"}
+          - {who: B, l2: "いい です ね！ いっしょ に いきましょう。", rom: "Ii desu ne! Issho ni ikimashou.", l1: "Great idea! Let's go together.", alt: ["いい です ね。 いっしょ に いきましょう。", "Ii desu ne. Issho ni ikimashou.", "ぜひ、 いっしょ に いきましょう。", "Zehi, issho ni ikimashou.", "Ii desu ne! Issho ni ikimashō.", "Ii desu ne. Issho ni ikimashō.", "Zehi, issho ni ikimashō."]}
+          - {who: A, l2: "じゃ、 こんど いっしょ に よてい を きめましょう。", rom: "Ja, kondo issho ni yotei o kimemashou.", l1: "Then let's plan it together next time."}
+          - {who: B, l2: "はい。 たのしみ です ね。", rom: "Hai. Tanoshimi desu ne.", l1: "Yes. I'm looking forward to it.", alt: ["はい、 たのしみ です。", "Hai, tanoshimi desu.", "たのしみ です ね。", "Tanoshimi desu ne."]}
+
+  # ───────────────────────────────────────────────────────────────── 11
+  - id: ja2-11
+    title: "Wants: ほしい, 〜たい, 〜たがる; shopping for clothes"
+    goal: "I can say what I want, say what someone else seems to want, and shop for clothes by colour and size."
+    notes: |
+      ## Wanting things and wanting to do things
+      | | for yourself | about someone else |
+      |---|---|---|
+      | a thing | [noun] **が ほしい です** | [noun] **を ほしがって います** |
+      | an action | [ます-stem] **たい です** | [ます-stem] **たがって います** |
+
+      - あたらしい くつ が ほしい です — I want new shoes.
+      - いもうと は いぬ を ほしがって います — my sister wants a dog.
+      - こども は ゲーム を し**たがって います** — the children want to play games.
+
+      Japanese does not state another person's feelings as fact: you cannot see inside them, so you say they *show signs* of wanting (〜がる). And never ask a teacher or boss 〜たい です か or ほしい です か; offer instead: コーヒー は **いかが です か**.
+
+      ## Colours
+      | noun | い-adjective |
+      |---|---|
+      | あか | **あかい** red |
+      | あお | **あおい** blue |
+      | しろ | **しろい** white |
+      | くろ | **くろい** black |
+      | きいろ | **きいろい** yellow |
+      | みどり | — green |
+      A colour with no い-adjective takes の: みどり **の** シャツ.
+
+      ## In a clothes shop
+      **〜て みる** = try doing: きて みて も いい です か (may I try it on?). **〜の** stands in for a noun: もう すこし おおきい **の** (a slightly bigger one). Deciding: **これ に します**.
+    items:
+      - {id: ja2-11-k-ka, type: glyph, l2: "買", rom: "ka", l1: "buy (か in 買う かう and 買い物 かいもの)", alt: ["bai"]}
+      - {id: ja2-11-k-u, type: glyph, l2: "売", rom: "u", l1: "sell (う in 売る うる; ばい in 売店 ばいてん, a kiosk)", alt: ["bai"]}
+      - {id: ja2-11-k-aka, type: glyph, l2: "赤", rom: "aka", l1: "red (あか in 赤い あかい; せき in 赤道 せきどう, the equator)", alt: ["seki"]}
+      - {id: ja2-11-k-ao, type: glyph, l2: "青", rom: "ao", l1: "blue (あお in 青い あおい; せい in 青年 せいねん, a young man)", alt: ["sei"]}
+      - {id: ja2-11-k-shiro, type: glyph, l2: "白", rom: "shiro", l1: "white (しろ in 白い しろい; はく in 白紙 はくし, blank paper)", alt: ["haku"]}
+      - {id: ja2-11-k-kuro, type: glyph, l2: "黒", rom: "kuro", l1: "black (くろ in 黒い くろい; こく in 黒板 こくばん, blackboard)", alt: ["koku"]}
+      - {id: ja2-11-k-iro, type: glyph, l2: "色", rom: "iro", l1: "colour (いろ on its own and in 茶色 ちゃいろ, brown)"}
+      - {id: ja2-11-hoshii, type: vocab, l2: "ほしい", rom: "hoshii", l1: "wanted ('I want …'; い-adjective)", alt: ["欲しい"], ex: "あたらしい くるま が ほしい です。", ex_rom: "Atarashii kuruma ga hoshii desu.", ex_l1: "I want a new car.", note: "The thing wanted takes が. Usually in kana; kanji 欲しい."}
+      - {id: ja2-11-akai, type: vocab, l2: "あかい", rom: "akai", l1: "red (い-adjective)", alt: ["赤い"], ex: "あかい かさ を かいました。", ex_rom: "Akai kasa o kaimashita.", ex_l1: "I bought a red umbrella.", note: "Kanji: 赤い."}
+      - {id: ja2-11-aoi, type: vocab, l2: "あおい", rom: "aoi", l1: "blue (い-adjective)", alt: ["青い"], ex: "あおい シャツ を きて います。", ex_rom: "Aoi shatsu o kite imasu.", ex_l1: "He is wearing a blue shirt.", note: "A green traffic light is also あお. Kanji: 青い."}
+      - {id: ja2-11-shiroi, type: vocab, l2: "しろい", rom: "shiroi", l1: "white (い-adjective)", alt: ["白い"], ex: "しろい ねこ が います。", ex_rom: "Shiroi neko ga imasu.", ex_l1: "There is a white cat.", note: "Kanji: 白い."}
+      - {id: ja2-11-kuroi, type: vocab, l2: "くろい", rom: "kuroi", l1: "black (い-adjective)", alt: ["黒い"], ex: "くろい くつ を はいて います。", ex_rom: "Kuroi kutsu o haite imasu.", ex_l1: "She is wearing black shoes.", note: "Kanji: 黒い."}
+      - {id: ja2-11-kiiroi, type: vocab, l2: "きいろい", rom: "kiiroi", l1: "yellow (い-adjective)", alt: ["黄色い"], ex: "きいろい ぼうし を かぶって います。", ex_rom: "Kiiroi boushi o kabutte imasu.", ex_l1: "He is wearing a yellow hat.", note: "Kanji: 黄色い."}
+      - {id: ja2-11-midori, type: vocab, l2: "みどり", rom: "midori", l1: "green", alt: ["緑"], ex: "みどり の セーター が ほしい です。", ex_rom: "Midori no seetaa ga hoshii desu.", ex_l1: "I want a green sweater.", note: "A noun: みどり の + noun. Kanji: 緑."}
+      - {id: ja2-11-iro, type: vocab, l2: "いろ", rom: "iro", l1: "colour", alt: ["色"], ex: "どんな いろ が すき です か。", ex_rom: "Donna iro ga suki desu ka.", ex_l1: "What colour do you like?", note: "Kanji: 色."}
+      - {id: ja2-11-uru, type: vocab, l2: "うる", rom: "uru", l1: "to sell", alt: ["売る"], ex: "あの みせ で ふるい ほん を うって います。", ex_rom: "Ano mise de furui hon o utte imasu.", ex_l1: "That shop sells old books.", note: "う-verb: うります, うって. Kanji: 売る."}
+      - {id: ja2-11-kaimono, type: vocab, l2: "かいもの", rom: "kaimono", l1: "shopping (かいもの する / かいもの に いく)", alt: ["買い物"], ex: "デパート で かいもの を しました。", ex_rom: "Depaato de kaimono o shimashita.", ex_l1: "I went shopping at the department store.", note: "Kanji: 買い物."}
+      - {id: ja2-11-saifu, type: vocab, l2: "さいふ", rom: "saifu", l1: "wallet / purse", alt: ["財布"], ex: "さいふ は かばん の なか に あります。", ex_rom: "Saifu wa kaban no naka ni arimasu.", ex_l1: "My wallet is in my bag.", note: "Kanji: 財布."}
+      - {id: ja2-11-saizu, type: vocab, l2: "サイズ", rom: "saizu", l1: "size (clothes, shoes)", ex: "サイズ は いくつ です か。", ex_rom: "Saizu wa ikutsu desu ka.", ex_l1: "What size are you?", note: "Clothes: エス, エム, エル (S, M, L)."}
+      - {id: ja2-11-depaato, type: vocab, l2: "デパート", rom: "depaato", l1: "department store", alt: ["depāto"], ex: "デパート は じゅうじ に あきます。", ex_rom: "Depaato wa juuji ni akimasu.", ex_l1: "The department store opens at ten."}
+      - {id: ja2-11-niau, type: vocab, l2: "にあう", rom: "niau", l1: "to suit (someone)", alt: ["似合う"], ex: "スミスさん は あおい ネクタイ が にあいます ね。", ex_rom: "Sumisu-san wa aoi nekutai ga niaimasu ne.", ex_l1: "Blue ties suit you, Mr. Smith.", note: "The thing that suits takes が. Kanji: 似合う."}
+      - {id: ja2-11-sagasu, type: vocab, l2: "さがす", rom: "sagasu", l1: "to look for", alt: ["探す"], ex: "ちゃいろ の かばん を さがして います。", ex_rom: "Chairo no kaban o sagashite imasu.", ex_l1: "I'm looking for a brown bag.", note: "ちゃいろ = brown. Kanji: 探す."}
+      - {id: ja2-11-hoshii-desu, type: phrase, l2: "あたらしい スマホ が ほしい です。", rom: "Atarashii sumaho ga hoshii desu.", l1: "I want a new smartphone.", alt: ["新しいスマホが欲しいです"], note: "With kanji: 新しいスマホが欲しいです"}
+      - {id: ja2-11-kite-mite, type: phrase, l2: "きて みて も いい です か。", rom: "Kite mite mo ii desu ka.", l1: "May I try it on?", alt: ["着てみてもいいですか", "しちゃく して も いい です か。", "Shichaku shite mo ii desu ka.", "試着してもいいですか"], note: "しちゃく (試着) is the shop word for trying on. With kanji: 着てみてもいいですか"}
+      - {id: ja2-11-chiisai-no, type: phrase, l2: "もう すこし ちいさい の は あります か。", rom: "Mou sukoshi chiisai no wa arimasu ka.", l1: "Do you have a slightly smaller one?", alt: ["もう少し小さいのはありますか", "もう すこし ちいさい サイズ は あります か。", "Mou sukoshi chiisai saizu wa arimasu ka.", "もう すこし ちいさい の、 あります か。", "Mou sukoshi chiisai no, arimasu ka.", "Mou sukoshi chiisai no ha arimasu ka.", "Mō sukoshi chiisai no wa arimasu ka.", "Mō sukoshi chiisai no ha arimasu ka.", "Mou sukoshi chiisai saizu ha arimasu ka.", "Mō sukoshi chiisai saizu wa arimasu ka.", "Mō sukoshi chiisai saizu ha arimasu ka.", "Mō sukoshi chiisai no, arimasu ka."], note: "の = one (stands in for the noun). With kanji: もう少し小さいのはありますか"}
+      - {id: ja2-11-kore-ni-shimasu, type: phrase, l2: "これ に します。", rom: "Kore ni shimasu.", l1: "I'll take this one. (making your choice)", alt: ["これにします", "じゃ、 これ に します。", "Ja, kore ni shimasu."], note: "X に します = I'll go for X. Also when ordering food."}
+      - {id: ja2-11-c1, type: cloze, text: "あたらしい かばん ___ ほしい です。", answer: "が", l1: "I want a new bag.", alt: ["ga"], note: "ほしい takes が."}
+      - {id: ja2-11-c2, type: cloze, text: "こども は ゲーム を ___ います。", answer: "したがって", l1: "The children want to play games.", alt: ["shitagatte"], note: "Someone else: 〜たがって います."}
+      - {id: ja2-11-c3, type: cloze, text: "いもうと は ねこ を ___ います。", answer: "ほしがって", l1: "My younger sister wants a cat.", alt: ["hoshigatte", "欲しがって"], note: "Someone else wants a thing: を ほしがって います."}
+      - {id: ja2-11-c4, type: cloze, text: "みどり ___ シャツ を ください。", answer: "の", l1: "A green shirt, please.", alt: ["no"], note: "みどり is a noun: みどり の."}
+      - {id: ja2-11-c5, type: cloze, text: "その ___ セーター は いくら です か。", answer: "あかい", l1: "How much is that red sweater?", alt: ["akai", "赤い"], note: "あか (noun) → あかい (adjective) before a noun."}
+      - {id: ja2-11-c6, type: cloze, text: "その いろ、 よく ___ います よ。", answer: "にあって", l1: "That colour really suits you.", alt: ["niatte", "似合って"], note: "Usually にあって います."}
+      - id: ja2-11-d-sweater
+        type: dialogue
+        title: "Buying a sweater"
+        scene: "You are shopping for a sweater in a department store. An assistant approaches."
+        you: B
+        lines:
+          - {who: A, l2: "いらっしゃいませ。 なに か おさがし です か。", rom: "Irasshaimase. Nani ka osagashi desu ka.", l1: "Welcome. Are you looking for anything in particular?"}
+          - {who: B, l2: "セーター が ほしい です。", rom: "Seetaa ga hoshii desu.", l1: "I'd like a sweater.", alt: ["セーター を さがして います。", "Seetaa o sagashite imasu.", "えっと、 セーター が ほしい です。", "Etto, seetaa ga hoshii desu.", "Sētā ga hoshii desu.", "Seetaa wo sagashite imasu.", "Sētā o sagashite imasu.", "Sētā wo sagashite imasu.", "Etto, sētā ga hoshii desu."]}
+          - {who: A, l2: "こちら は いかが です か。 ことし の あたらしい いろ です。", rom: "Kochira wa ikaga desu ka. Kotoshi no atarashii iro desu.", l1: "How about this one? It's this year's new colour."}
+          - {who: B, l2: "きれい です ね。 きて みて も いい です か。", rom: "Kirei desu ne. Kite mite mo ii desu ka.", l1: "It's lovely. May I try it on?", alt: ["いい です ね。 きて みて も いい です か。", "Ii desu ne. Kite mite mo ii desu ka."]}
+          - {who: A, l2: "はい、 どうぞ。 … いかが です か。", rom: "Hai, douzo. … Ikaga desu ka.", l1: "Certainly, go ahead. ... How is it?"}
+          - {who: B, l2: "ちょっと ちいさい です。 もう すこし おおきい の は あります か。", rom: "Chotto chiisai desu. Mou sukoshi ookii no wa arimasu ka.", l1: "It's a bit small. Do you have a slightly bigger one?", alt: ["ちょっと ちいさい です。 もう すこし おおきい サイズ は あります か。", "Chotto chiisai desu. Mou sukoshi ookii saizu wa arimasu ka.", "Chotto chiisai desu. Mou sukoshi ookii no ha arimasu ka.", "Chotto chiisai desu. Mō sukoshi ōkii no wa arimasu ka.", "Chotto chiisai desu. Mō sukoshi ōkii no ha arimasu ka.", "Chotto chiisai desu. Mou sukoshi ookii saizu ha arimasu ka.", "Chotto chiisai desu. Mō sukoshi ōkii saizu wa arimasu ka.", "Chotto chiisai desu. Mō sukoshi ōkii saizu ha arimasu ka."]}
+          - {who: A, l2: "はい、 こちら は エルサイズ です。 よく おにあい です よ。", rom: "Hai, kochira wa erusaizu desu. Yoku oniai desu yo.", l1: "Yes, this is a large. It really suits you."}
+          - {who: B, l2: "じゃ、 これ に します。", rom: "Ja, kore ni shimasu.", l1: "Then I'll take this one.", alt: ["じゃあ、 これ に します。", "Jaa, kore ni shimasu.", "これ に します。", "Kore ni shimasu.", "じゃ、 これ を ください。", "Ja, kore o kudasai.", "Jā, kore ni shimasu.", "Ja, kore wo kudasai."]}
+
+  # ───────────────────────────────────────────────────────────────── 12
+  - id: ja2-12
+    title: "Musts: 〜なければ ならない, 〜なくても いい; health"
+    goal: "I can say what I have to do and don't have to do, describe my symptoms at a clinic and understand simple advice."
+    notes: |
+      ## Have to: 〜なければ なりません
+      Take the ない-form and swap ない for **なければ なりません**: のま**ない** → のま**なければ なりません** — I have to take (medicine).
+      - 〜なければ いけません means the same.
+      - In speech: 〜**なきゃ** (もう いかなきゃ — I've got to go).
+
+      ## Don't have to: 〜なくても いい です
+      ない → **なくても いい です**: あした は こ**なくても いい です** — you don't have to come tomorrow.
+
+      ## Please don't: 〜ないで ください
+      [ない-form] + **で ください**: むり を し**ないで ください** — please don't overdo it.
+
+      ## At the doctor's
+      | | |
+      |---|---|
+      | どう しました か | What seems to be the problem? |
+      | [part] が いたい です | My … hurts |
+      | ねつ が あります | I have a temperature |
+      | せき が でます | I've got a cough |
+      | かぜ を ひきました | I've caught a cold |
+      | ぐあい が わるい です | I feel unwell |
+      | おだいじに | Get well soon (to someone ill) |
+
+      Medicine is drunk, even pills: くすり を **のむ**. Bring your ほけんしょう (health-insurance card) to every visit.
+    items:
+      - {id: ja2-12-k-karada, type: glyph, l2: "体", rom: "karada", l1: "body (からだ; たい in 体育 たいいく, PE)", alt: ["tai"]}
+      - {id: ja2-12-k-byou, type: glyph, l2: "病", rom: "byou", l1: "illness (びょう in 病院 びょういん and 病気 びょうき)", alt: ["byō"]}
+      - {id: ja2-12-k-in, type: glyph, l2: "院", rom: "in", l1: "institution (いん in 病院 びょういん and 入院 にゅういん)"}
+      - {id: ja2-12-k-i, type: glyph, l2: "医", rom: "i", l1: "medicine; doctor (い in 医者 いしゃ)"}
+      - {id: ja2-12-k-ki, type: glyph, l2: "気", rom: "ki", l1: "spirit; air (き in 元気 げんき, 病気 びょうき and 天気 てんき)"}
+      - {id: ja2-12-k-te, type: glyph, l2: "手", rom: "te", l1: "hand (て; しゅ in 歌手 かしゅ, singer; ず in 上手 じょうず)", alt: ["shu", "zu"]}
+      - {id: ja2-12-k-ashi, type: glyph, l2: "足", rom: "ashi", l1: "foot; leg (あし; そく in 一足 いっそく, one pair of shoes)", alt: ["soku"]}
+      - {id: ja2-12-karada, type: vocab, l2: "からだ", rom: "karada", l1: "body; health", alt: ["体"], ex: "からだ に き を つけて ください。", ex_rom: "Karada ni ki o tsukete kudasai.", ex_l1: "Please look after yourself.", note: "Kanji: 体."}
+      - {id: ja2-12-byouki, type: vocab, l2: "びょうき", rom: "byouki", l1: "illness / sick", alt: ["病気", "byōki"], ex: "はは が びょうき です。", ex_rom: "Haha ga byouki desu.", ex_l1: "My mother is ill.", note: "Fall ill: びょうき に なる. Kanji: 病気."}
+      - {id: ja2-12-kusuri, type: vocab, l2: "くすり", rom: "kusuri", l1: "medicine", alt: ["薬"], ex: "くすり を のみました か。", ex_rom: "Kusuri o nomimashita ka.", ex_l1: "Have you taken your medicine?", note: "Medicine is drunk: くすり を のむ. A chemist's: くすりや. Kanji: 薬."}
+      - {id: ja2-12-netsu, type: vocab, l2: "ねつ", rom: "netsu", l1: "fever / temperature", alt: ["熱"], ex: "きのう から ねつ が あります。", ex_rom: "Kinou kara netsu ga arimasu.", ex_l1: "I've had a temperature since yesterday.", note: "Kanji: 熱."}
+      - {id: ja2-12-seki, type: vocab, l2: "せき", rom: "seki", l1: "cough", alt: ["咳"], ex: "せき が でます。", ex_rom: "Seki ga demasu.", ex_l1: "I've got a cough.", note: "A cough 'comes out': せき が でる. Kanji: 咳."}
+      - {id: ja2-12-itai, type: vocab, l2: "いたい", rom: "itai", l1: "painful / sore / it hurts (い-adjective)", alt: ["痛い"], ex: "あたま が いたい です。", ex_rom: "Atama ga itai desu.", ex_l1: "I have a headache.", note: "[body part] が いたい. Kanji: 痛い."}
+      - {id: ja2-12-guai, type: vocab, l2: "ぐあい", rom: "guai", l1: "condition (how you feel, how something works)", alt: ["具合"], ex: "ぐあい は どう です か。", ex_rom: "Guai wa dou desu ka.", ex_l1: "How are you feeling?", note: "Kanji: 具合."}
+      - {id: ja2-12-warui, type: vocab, l2: "わるい", rom: "warui", l1: "bad (い-adjective)", alt: ["悪い"], ex: "きょう は ちょっと ぐあい が わるい です。", ex_rom: "Kyou wa chotto guai ga warui desu.", ex_l1: "I'm feeling a bit unwell today.", note: "Kanji: 悪い."}
+      - {id: ja2-12-nodo, type: vocab, l2: "のど", rom: "nodo", l1: "throat", alt: ["喉"], ex: "のど が かわきました。", ex_rom: "Nodo ga kawakimashita.", ex_l1: "I'm thirsty.", note: "のど が かわく, 'the throat dries' = to be thirsty. Kanji: 喉."}
+      - {id: ja2-12-kega, type: vocab, l2: "けが", rom: "kega", l1: "injury (けが を する = to get hurt)", alt: ["怪我", "ケガ"], ex: "サッカー で あし に けが を しました。", ex_rom: "Sakkaa de ashi ni kega o shimashita.", ex_l1: "I hurt my leg playing football.", note: "Kanji: 怪我."}
+      - {id: ja2-12-nyuuin, type: vocab, l2: "にゅういん", rom: "nyuuin", l1: "hospital stay (にゅういん する = to go into hospital)", alt: ["入院", "nyūin"], ex: "おじいさん は いま にゅういん して います。", ex_rom: "Ojiisan wa ima nyuuin shite imasu.", ex_l1: "My grandfather is in hospital now.", note: "Leaving hospital: たいいん. Kanji: 入院."}
+      - {id: ja2-12-muri, type: vocab, l2: "むり", rom: "muri", l1: "impossible; overdoing it (な-adjective)", alt: ["無理"], ex: "それ は むり です。", ex_rom: "Sore wa muri desu.", ex_l1: "That's impossible.", note: "むり を する = to push yourself too hard. Kanji: 無理."}
+      - {id: ja2-12-hokenshou, type: vocab, l2: "ほけんしょう", rom: "hokenshou", l1: "health-insurance card", alt: ["保険証", "hokenshō"], ex: "ほけんしょう を もって きて ください。", ex_rom: "Hokenshou o motte kite kudasai.", ex_l1: "Please bring your insurance card.", note: "Kanji: 保険証."}
+      - {id: ja2-12-naoru, type: vocab, l2: "なおる", rom: "naoru", l1: "to get better / to heal", alt: ["治る"], ex: "かぜ は もう なおりました。", ex_rom: "Kaze wa mou naorimashita.", ex_l1: "My cold is better now.", note: "Kanji: 治る."}
+      - {id: ja2-12-shokugo, type: vocab, l2: "しょくご", rom: "shokugo", l1: "after meals (on medicine labels)", alt: ["食後"], ex: "この くすり は しょくご に のんで ください。", ex_rom: "Kono kusuri wa shokugo ni nonde kudasai.", ex_l1: "Take this medicine after meals.", note: "Before meals: しょくぜん (食前). Kanji: 食後."}
+      - {id: ja2-12-dou-shimashita, type: phrase, l2: "どう しました か。", rom: "Dou shimashita ka.", l1: "What seems to be the problem? (doctor to patient)", alt: ["どうしましたか", "どう しました？", "Dou shimashita?", "Dō shimashita ka.", "Dō shimashita?"], note: "Also 'what's wrong?' to anyone in trouble."}
+      - {id: ja2-12-kaze, type: phrase, l2: "かぜ を ひきました。", rom: "Kaze o hikimashita.", l1: "I've caught a cold.", alt: ["風邪をひきました", "風邪を引きました", "かぜ を ひいて しまいました。", "Kaze o hiite shimaimashita.", "Kaze wo hikimashita.", "Kaze wo hiite shimaimashita."], note: "かぜ (風邪) here is a cold, not the wind. With kanji: 風邪をひきました"}
+      - {id: ja2-12-odaijini, type: phrase, l2: "おだいじに。", rom: "Odaijini.", l1: "Get well soon. (to someone who is ill)", alt: ["お大事に", "おだいじ に。", "Odaiji ni.", "おだいじに して ください。", "Odaijini shite kudasai."], note: "Doctors and pharmacists say it as you leave. With kanji: お大事に"}
+      - {id: ja2-12-muri-shinaide, type: phrase, l2: "むり を しないで ください。", rom: "Muri o shinaide kudasai.", l1: "Please don't overdo it.", alt: ["無理をしないでください", "むり しないで ください。", "Muri shinaide kudasai.", "Muri wo shinaide kudasai."], note: "With kanji: 無理をしないでください"}
+      - {id: ja2-12-c1, type: cloze, text: "まいにち くすり を ___ なりません。", answer: "のまなければ", l1: "I have to take medicine every day.", alt: ["nomanakereba", "飲まなければ"], note: "のまない → のまなければ なりません."}
+      - {id: ja2-12-c2, type: cloze, text: "あした は がっこう へ ___ いい です。", answer: "いかなくても", l1: "You don't have to go to school tomorrow.", alt: ["ikanakutemo", "行かなくても"], note: "いかない → いかなくても いい です."}
+      - {id: ja2-12-c3, type: cloze, text: "きょう は おふろ に ___ ください。", answer: "はいらないで", l1: "Please don't take a bath today.", alt: ["hairanaide", "入らないで"], note: "ない-form + で ください = please don't."}
+      - {id: ja2-12-c4, type: cloze, text: "あした は あさ はやく ___ なりません。", answer: "おきなければ", l1: "I have to get up early tomorrow morning.", alt: ["okinakereba", "起きなければ"], note: "る-verb: おきない → おきなければ."}
+      - {id: ja2-12-c5, type: cloze, text: "きのう から せき ___ でます。", answer: "が", l1: "I've had a cough since yesterday.", alt: ["ga"], note: "せき が でる."}
+      - {id: ja2-12-c6, type: cloze, text: "くすり は しょくご に ___ ください。", answer: "のんで", l1: "Please take the medicine after meals.", alt: ["nonde", "飲んで"], note: "Medicine: のむ → のんで."}
+      - id: ja2-12-d-clinic
+        type: dialogue
+        title: "At the clinic"
+        scene: "You are Smith. You have been feeling ill and see a doctor at a local clinic."
+        you: B
+        lines:
+          - {who: A, l2: "どう しました か。", rom: "Dou shimashita ka.", l1: "What seems to be the problem?"}
+          - {who: B, l2: "きのう から のど が いたい です。", rom: "Kinou kara nodo ga itai desu.", l1: "My throat has been sore since yesterday.", alt: ["のど が いたい です。", "Nodo ga itai desu.", "きのう から のど が いたい ん です。", "Kinou kara nodo ga itai n desu.", "Kinō kara nodo ga itai desu.", "Kinō kara nodo ga itai n desu."]}
+          - {who: A, l2: "そう です か。 ねつ は あります か。", rom: "Sou desu ka. Netsu wa arimasu ka.", l1: "I see. Do you have a temperature?"}
+          - {who: B, l2: "はい、 すこし あります。 せき も でます。", rom: "Hai, sukoshi arimasu. Seki mo demasu.", l1: "Yes, a slight one. And I've got a cough.", alt: ["はい、 ちょっと あります。 せき も でます。", "Hai, chotto arimasu. Seki mo demasu."]}
+          - {who: A, l2: "かぜ です ね。 くすり を だします から、 しょくご に のんで ください。", rom: "Kaze desu ne. Kusuri o dashimasu kara, shokugo ni nonde kudasai.", l1: "It's a cold. I'll give you some medicine; take it after meals."}
+          - {who: B, l2: "しごと を やすまなければ なりません か。", rom: "Shigoto o yasumanakereba narimasen ka.", l1: "Do I have to take time off work?", alt: ["かいしゃ を やすまなければ なりません か。", "Kaisha o yasumanakereba narimasen ka.", "しごと を やすまなければ いけません か。", "Shigoto o yasumanakereba ikemasen ka.", "Shigoto wo yasumanakereba narimasen ka.", "Kaisha wo yasumanakereba narimasen ka.", "Shigoto wo yasumanakereba ikemasen ka."]}
+          - {who: A, l2: "いいえ、 やすまなくても いい です よ。 でも、 むり を しないで ください。", rom: "Iie, yasumanakutemo ii desu yo. Demo, muri o shinaide kudasai.", l1: "No, you don't have to. But don't overdo it."}
+          - {who: B, l2: "わかりました。 ありがとう ございました。", rom: "Wakarimashita. Arigatou gozaimashita.", l1: "I understand. Thank you very much.", alt: ["はい、 わかりました。 ありがとう ございました。", "Hai, wakarimashita. Arigatou gozaimashita.", "Wakarimashita. Arigatō gozaimashita.", "Hai, wakarimashita. Arigatō gozaimashita."]}
+          - {who: A, l2: "おだいじに。", rom: "Odaijini.", l1: "Take care of yourself."}
+
+  # ───────────────────────────────────────────────────────────────── 13
+  - id: ja2-13
+    title: "If and when: 〜たら, 〜ば, 〜と; finding the way"
+    goal: "I can give and follow directions and say what happens if or when something happens."
+    notes: |
+      ## 〜たら — if / when (the all-rounder)
+      [た-form] + **ら**: えき に つい**たら** でんわ して ください — call me when you get to the station. あめ が ふっ**たら** いきません — if it rains, I won't go. When in doubt, use たら.
+
+      ## 〜ば — if (the condition)
+      | | rule | example |
+      |---|---|---|
+      | verbs | う-sound → え-sound + **ば** | いく → いけ**ば**, たべる → たべれ**ば**, する → すれ**ば** |
+      | い-adj | い → **ければ** | やすい → やす**ければ** |
+      Common in advice: どう すれ**ば** いい です か — what should I do?
+
+      ## 〜と — whenever, and then (automatic results)
+      [dictionary form] + **と**: はし を わたる **と**、 こうえん が あります — cross the bridge and there's a park. Use it for directions, machines and nature, never for requests or wishes.
+
+      ## Directions
+      | | |
+      |---|---|
+      | まっすぐ いく | go straight |
+      | [corner] を みぎ に まがる | turn right at … |
+      | はし を わたる | cross the bridge |
+      | ふたつめ の かど | the second corner |
+      | つきあたり | the end of the road |
+
+      The route or the corner takes **を**; the direction takes **に**. Stations name their exits by compass point: ひがしぐち, にしぐち, みなみぐち, きたぐち.
+    items:
+      - {id: ja2-13-k-michi, type: glyph, l2: "道", rom: "michi", l1: "road; way (みち; どう in 北海道 ほっかいどう)", alt: ["dou", "dō"]}
+      - {id: ja2-13-k-migi, type: glyph, l2: "右", rom: "migi", l1: "right (みぎ; う in 右折 うせつ, a right turn)", alt: ["u"]}
+      - {id: ja2-13-k-hidari, type: glyph, l2: "左", rom: "hidari", l1: "left (ひだり; さ in 左折 させつ, a left turn)", alt: ["sa"]}
+      - {id: ja2-13-k-eki, type: glyph, l2: "駅", rom: "eki", l1: "station (えき; on signs: 東京駅 とうきょうえき)"}
+      - {id: ja2-13-k-higashi, type: glyph, l2: "東", rom: "higashi", l1: "east (ひがし; とう in 東京 とうきょう)", alt: ["tou", "tō"]}
+      - {id: ja2-13-k-nishi, type: glyph, l2: "西", rom: "nishi", l1: "west (にし; せい in 西洋 せいよう, the West; さい in 関西 かんさい)", alt: ["sei", "sai"]}
+      - {id: ja2-13-k-minami, type: glyph, l2: "南", rom: "minami", l1: "south (みなみ; なん in 南米 なんべい, South America)", alt: ["nan"]}
+      - {id: ja2-13-k-kita, type: glyph, l2: "北", rom: "kita", l1: "north (きた; ほく in 東北 とうほく; ほっ in 北海道 ほっかいどう)", alt: ["hoku"]}
+      - {id: ja2-13-michi, type: vocab, l2: "みち", rom: "michi", l1: "road / street / the way", alt: ["道"], ex: "すみません、 みち が わかりません。", ex_rom: "Sumimasen, michi ga wakarimasen.", ex_l1: "Excuse me, I'm lost.", note: "みち を おしえて ください = please tell me the way. Kanji: 道."}
+      - {id: ja2-13-massugu, type: vocab, l2: "まっすぐ", rom: "massugu", l1: "straight (ahead)", alt: ["真っ直ぐ"], ex: "まっすぐ あるいて ください。", ex_rom: "Massugu aruite kudasai.", ex_l1: "Please walk straight on.", note: "Usually in kana."}
+      - {id: ja2-13-magaru, type: vocab, l2: "まがる", rom: "magaru", l1: "to turn (a corner)", alt: ["曲がる"], ex: "あの かど を みぎ に まがって ください。", ex_rom: "Ano kado o migi ni magatte kudasai.", ex_l1: "Please turn right at that corner.", note: "The corner takes を, the direction に. Kanji: 曲がる."}
+      - {id: ja2-13-wataru, type: vocab, l2: "わたる", rom: "wataru", l1: "to cross (a road, a bridge)", alt: ["渡る"], ex: "ここ で みち を わたりましょう。", ex_rom: "Koko de michi o watarimashou.", ex_l1: "Let's cross the road here.", note: "The thing crossed takes を. Kanji: 渡る."}
+      - {id: ja2-13-hashi, type: vocab, l2: "はし", rom: "hashi", l1: "bridge", alt: ["橋"], ex: "かわ に ふるい はし が あります。", ex_rom: "Kawa ni furui hashi ga arimasu.", ex_l1: "There's an old bridge over the river.", note: "はし is also chopsticks (箸). Kanji: 橋."}
+      - {id: ja2-13-kado, type: vocab, l2: "かど", rom: "kado", l1: "corner (of a street)", alt: ["角"], ex: "かど に コンビニ が あります。", ex_rom: "Kado ni konbini ga arimasu.", ex_l1: "There's a convenience store on the corner.", note: "Kanji: 角."}
+      - {id: ja2-13-tsukiatari, type: vocab, l2: "つきあたり", rom: "tsukiatari", l1: "the end of the road (where it meets another)", alt: ["突き当たり"], ex: "つきあたり に ぎんこう が あります。", ex_rom: "Tsukiatari ni ginkou ga arimasu.", ex_l1: "There's a bank at the end of the road.", note: "Kanji: 突き当たり."}
+      - {id: ja2-13-kousaten, type: vocab, l2: "こうさてん", rom: "kousaten", l1: "crossroads / intersection", alt: ["交差点", "kōsaten"], ex: "ふたつめ の こうさてん を わたって ください。", ex_rom: "Futatsume no kousaten o watatte kudasai.", ex_l1: "Please go across the second intersection.", note: "Kanji: 交差点."}
+      - {id: ja2-13-kippu, type: vocab, l2: "きっぷ", rom: "kippu", l1: "ticket (train, bus)", alt: ["切符"], ex: "きっぷ は どこ で かえます か。", ex_rom: "Kippu wa doko de kaemasu ka.", ex_l1: "Where can I buy a ticket?", note: "A concert or film ticket is チケット. Kanji: 切符."}
+      - {id: ja2-13-norikaeru, type: vocab, l2: "のりかえる", rom: "norikaeru", l1: "to change (trains, buses)", alt: ["乗り換える"], ex: "とうきょうえき で しんかんせん に のりかえます。", ex_rom: "Toukyoueki de shinkansen ni norikaemasu.", ex_l1: "At Tokyo Station I change to the bullet train.", note: "The new train takes に. る-verb. Kanji: 乗り換える."}
+      - {id: ja2-13-oriru, type: vocab, l2: "おりる", rom: "oriru", l1: "to get off (a train, a bus)", alt: ["降りる"], ex: "しぶや で でんしゃ を おります。", ex_rom: "Shibuya de densha o orimasu.", ex_l1: "I get off the train at Shibuya.", note: "The vehicle takes を. る-verb. Kanji: 降りる."}
+      - {id: ja2-13-chikai, type: vocab, l2: "ちかい", rom: "chikai", l1: "near / close (い-adjective)", alt: ["近い"], ex: "えき は ここ から ちかい です。", ex_rom: "Eki wa koko kara chikai desu.", ex_l1: "The station is close to here.", note: "Kanji: 近い."}
+      - {id: ja2-13-tooi, type: vocab, l2: "とおい", rom: "tooi", l1: "far (い-adjective)", alt: ["遠い", "tōi"], ex: "くうこう は ちょっと とおい です。", ex_rom: "Kuukou wa chotto tooi desu.", ex_l1: "The airport is a bit far.", note: "Written とおい, not とうい. Kanji: 遠い."}
+      - {id: ja2-13-furu, type: vocab, l2: "ふる", rom: "furu", l1: "to fall (rain, snow)", alt: ["降る"], ex: "あめ が ふって います。", ex_rom: "Ame ga futte imasu.", ex_l1: "It's raining.", note: "あめ が ふる = it rains; ゆき が ふる = it snows. Kanji: 降る."}
+      - {id: ja2-13-aruku, type: vocab, l2: "あるく", rom: "aruku", l1: "to walk", alt: ["歩く"], ex: "えき まで あるいて じゅっぷん です。", ex_rom: "Eki made aruite juppun desu.", ex_l1: "It's ten minutes' walk to the station.", note: "あるいて = on foot. Kanji: 歩く."}
+      - {id: ja2-13-dou-ikeba, type: phrase, l2: "えき へ は どう いけば いい です か。", rom: "Eki e wa dou ikeba ii desu ka.", l1: "How do I get to the station?", alt: ["駅へはどう行けばいいですか", "えき まで どう いけば いい です か。", "Eki made dou ikeba ii desu ka.", "えき に は どう いけば いい です か。", "Eki ni wa dou ikeba ii desu ka.", "えき へ は どう いったら いい です か。", "Eki e wa dou ittara ii desu ka.", "Eki e ha dou ikeba ii desu ka.", "Eki he wa dou ikeba ii desu ka.", "Eki he ha dou ikeba ii desu ka.", "Eki e wa dō ikeba ii desu ka.", "Eki e ha dō ikeba ii desu ka.", "Eki he wa dō ikeba ii desu ka.", "Eki he ha dō ikeba ii desu ka.", "Eki made dō ikeba ii desu ka.", "Eki ni ha dou ikeba ii desu ka.", "Eki ni wa dō ikeba ii desu ka.", "Eki ni ha dō ikeba ii desu ka.", "Eki e ha dou ittara ii desu ka.", "Eki he wa dou ittara ii desu ka.", "Eki he ha dou ittara ii desu ka.", "Eki e wa dō ittara ii desu ka.", "Eki e ha dō ittara ii desu ka.", "Eki he wa dō ittara ii desu ka.", "Eki he ha dō ittara ii desu ka."], note: "With kanji: 駅へはどう行けばいいですか"}
+      - {id: ja2-13-futatsume, type: phrase, l2: "ふたつめ の かど を みぎ に まがって ください。", rom: "Futatsume no kado o migi ni magatte kudasai.", l1: "Turn right at the second corner, please.", alt: ["二つ目の角を右に曲がってください", "Futatsume no kado wo migi ni magatte kudasai."], note: "〜め makes an ordinal: ひとつめ, ふたつめ, みっつめ. With kanji: 二つ目の角を右に曲がってください"}
+      - {id: ja2-13-tsuitara, type: phrase, l2: "えき に ついたら、 でんわ して ください。", rom: "Eki ni tsuitara, denwa shite kudasai.", l1: "Please call me when you get to the station.", alt: ["駅に着いたら、電話してください"], note: "With kanji: 駅に着いたら、電話してください"}
+      - {id: ja2-13-aruite-nanpun, type: phrase, l2: "あるいて なんぷん です か。", rom: "Aruite nanpun desu ka.", l1: "How many minutes is it on foot?", alt: ["歩いて何分ですか", "あるいて なんぷん ぐらい です か。", "Aruite nanpun gurai desu ka.", "あるいて なんぷん かかります か。", "Aruite nanpun kakarimasu ka."], note: "With kanji: 歩いて何分ですか"}
+      - {id: ja2-13-c1, type: cloze, text: "あめ が ___、 うち で えいが を みます。", answer: "ふったら", l1: "If it rains, I'll watch a film at home.", alt: ["futtara", "降ったら"], note: "ふって → ふった → ふったら."}
+      - {id: ja2-13-c2, type: cloze, text: "だいがく を そつぎょう ___、 にほん で はたらきたい です。", answer: "したら", l1: "When I graduate from university, I want to work in Japan.", alt: ["shitara"], note: "する → した → したら."}
+      - {id: ja2-13-c3, type: cloze, text: "はし を わたる ___、 みぎ に こうえん が あります。", answer: "と", l1: "Cross the bridge and there's a park on the right.", alt: ["to"], note: "Directions: [dictionary form] と …."}
+      - {id: ja2-13-c4, type: cloze, text: "もっと ___ かいます。", answer: "やすければ", l1: "If it were cheaper, I would buy it.", alt: ["yasukereba", "安ければ"], note: "い-adjective: やすい → やすければ."}
+      - {id: ja2-13-c5, type: cloze, text: "つきあたり を ひだり ___ まがって ください。", answer: "に", l1: "Turn left at the end of the road.", alt: ["ni"], note: "The direction takes に."}
+      - {id: ja2-13-c6, type: cloze, text: "この みち を まっすぐ ___ と、 えき が あります。", answer: "いく", l1: "Go straight along this road and you'll come to the station.", alt: ["iku", "行く"], note: "と follows the dictionary form."}
+      - id: ja2-13-d-museum
+        type: dialogue
+        title: "Which way to the museum?"
+        scene: "You are looking for the city museum. You stop a woman in the street."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 はくぶつかん へ は どう いけば いい です か。", rom: "Sumimasen, hakubutsukan e wa dou ikeba ii desu ka.", l1: "Excuse me, how do I get to the museum?", alt: ["すみません、 はくぶつかん は どこ です か。", "Sumimasen, hakubutsukan wa doko desu ka.", "すみません、 はくぶつかん まで どう いけば いい です か。", "Sumimasen, hakubutsukan made dou ikeba ii desu ka.", "すみません、 はくぶつかん に は どう いけば いい です か。", "Sumimasen, hakubutsukan ni wa dou ikeba ii desu ka.", "Sumimasen, hakubutsukan e ha dou ikeba ii desu ka.", "Sumimasen, hakubutsukan he wa dou ikeba ii desu ka.", "Sumimasen, hakubutsukan he ha dou ikeba ii desu ka.", "Sumimasen, hakubutsukan e wa dō ikeba ii desu ka.", "Sumimasen, hakubutsukan e ha dō ikeba ii desu ka.", "Sumimasen, hakubutsukan he wa dō ikeba ii desu ka.", "Sumimasen, hakubutsukan he ha dō ikeba ii desu ka.", "Sumimasen, hakubutsukan ha doko desu ka.", "Sumimasen, hakubutsukan made dō ikeba ii desu ka.", "Sumimasen, hakubutsukan ni ha dou ikeba ii desu ka.", "Sumimasen, hakubutsukan ni wa dō ikeba ii desu ka.", "Sumimasen, hakubutsukan ni ha dō ikeba ii desu ka."]}
+          - {who: B, l2: "はくぶつかん です か。 この みち を まっすぐ いって、 はし を わたって ください。", rom: "Hakubutsukan desu ka. Kono michi o massugu itte, hashi o watatte kudasai.", l1: "The museum? Go straight along this road and cross the bridge."}
+          - {who: A, l2: "はし を わたって、 それから？", rom: "Hashi o watatte, sorekara?", l1: "Cross the bridge, and then?", alt: ["それから？", "Sorekara?", "はし を わたって、 それから どう します か。", "Hashi o watatte, sorekara dou shimasu ka.", "Hashi wo watatte, sorekara?", "Hashi wo watatte, sorekara dou shimasu ka.", "Hashi o watatte, sorekara dō shimasu ka.", "Hashi wo watatte, sorekara dō shimasu ka."]}
+          - {who: B, l2: "わたる と、 ひだり に こうえん が あります。 はくぶつかん は その となり です。", rom: "Wataru to, hidari ni kouen ga arimasu. Hakubutsukan wa sono tonari desu.", l1: "When you've crossed, there's a park on the left. The museum is next to it."}
+          - {who: A, l2: "あるいて なんぷん ぐらい です か。", rom: "Aruite nanpun gurai desu ka.", l1: "About how many minutes on foot?", alt: ["あるいて なんぷん です か。", "Aruite nanpun desu ka.", "あるいて なんぷん ぐらい かかります か。", "Aruite nanpun gurai kakarimasu ka."]}
+          - {who: B, l2: "じゅっぷん ぐらい です ね。", rom: "Juppun gurai desu ne.", l1: "About ten minutes, I'd say."}
+          - {who: A, l2: "わかりました。 どうも ありがとう ございました。", rom: "Wakarimashita. Doumo arigatou gozaimashita.", l1: "I see. Thank you very much.", alt: ["わかりました。 ありがとう ございました。", "Wakarimashita. Arigatou gozaimashita.", "わかりました。 ありがとう ございます。", "Wakarimashita. Arigatou gozaimasu.", "Wakarimashita. Dōmo arigatō gozaimashita.", "Wakarimashita. Arigatō gozaimashita.", "Wakarimashita. Arigatō gozaimasu."]}

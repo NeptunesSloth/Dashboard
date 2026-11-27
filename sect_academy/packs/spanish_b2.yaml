@@ -1694,3 +1694,533 @@ units:
          l1: "With nothing further to add, yours sincerely, (traditional letter closing)", note: "a set formula at the end of a formal letter"}
       - {id: es-b2-13-c16, type: cloze, text: "¿Le ___ si abro la ventana?", answer: "importa", alt: ["molesta"],
          l1: "Do you mind if I open the window? (formal)", note: "¿le importa si…? = do you mind if…? (usted)"}
+
+  # ---------------------------------------------------------------- 14
+  - id: es-b2-14
+    title: "Making your case: debates and discussions"
+    goal: "I can give and justify an opinion, challenge someone politely, concede a point and propose a solution in a discussion."
+    notes: |
+      A discussion runs on a few moves. Learn them as whole chunks.
+
+      - **State a view**: *A mi juicio…* · *Desde mi punto de vista…* · *Yo lo veo bien / mal.*
+      - **Doubt**: *No creo que* + subjunctive: *No creo que pase eso.* · *Me parece imposible que funcione.*
+      - **Ask for grounds**: *¿En qué te basas?* · *¿Por qué lo dices?*
+      - **Concede, then push back**: *En eso tienes razón, pero…* · *No digo que no, pero…* · *Eso no quita que…* (that doesn't mean… not)
+      - **Interrupt politely**: *Perdona / Perdone que te / le interrumpa, pero…* (note the subjunctive).
+      - **Propose**: *Habría que…* · *Lo ideal sería…* · *¿Y si…?*
+      - **Give way gracefully**: *Visto así…* · *Reconozco que tiene sentido.* · *Me has convencido.*
+
+      The conditional softens everything: *haría falta*, *sería mejor*, *yo limitaría*. In a public meeting or on the radio keep **usted**: *Con todo respeto…*
+    items:
+      - id: es-b2-14-coches
+        type: dialogue
+        title: "A car-free centre?"
+        scene: "Your friend Marta has just read that the council wants to close the city centre to cars. You use tú."
+        you: B
+        lines:
+          - {who: A, l2: "¿Has visto que el ayuntamiento quiere cerrar el centro a los coches? Me parece una locura.", l1: "Have you seen that the council wants to close the centre to cars? I think it's madness."}
+          - {who: B, l2: "Pues yo lo veo bien. Hay demasiada contaminación.", l1: "Well, I think it's a good idea. There's too much pollution.",
+             alt: ["Pues a mí me parece bien. Hay demasiada contaminación.", "Pues yo lo veo bien, hay demasiada contaminación.", "Yo lo veo bien. Hay demasiada contaminación.", "Pues yo lo veo bien. Hay mucha contaminación.", "Pues a mí me parece bien, hay demasiada contaminación.", "Pues yo lo veo bien. Hay demasiada polución."]}
+          - {who: A, l2: "Ya, pero ¿y las tiendas? Si la gente no puede aparcar, dejará de venir.", l1: "Sure, but what about the shops? If people can't park, they'll stop coming."}
+          - {who: B, l2: "No creo que pase eso.", l1: "I don't think that will happen.",
+             alt: ["No creo que eso pase.", "No creo que pase.", "No creo que ocurra eso.", "No creo que eso ocurra.", "Yo no creo que pase eso.", "No creo que suceda eso."]}
+          - {who: A, l2: "¿En qué te basas?", l1: "What are you basing that on?"}
+          - {who: B, l2: "En lo que ha pasado en otras ciudades.", l1: "On what has happened in other cities.",
+             alt: ["En lo que ha ocurrido en otras ciudades.", "En lo que pasó en otras ciudades.", "En lo que ha pasado en otras ciudades europeas.", "En lo que ha sucedido en otras ciudades."]}
+          - {who: A, l2: "Bueno, puede ser. Pero los que viven lejos lo van a tener muy difícil.", l1: "Well, maybe. But people who live far away are going to find it very hard."}
+          - {who: B, l2: "En eso tienes razón. Habría que mejorar el transporte público.", l1: "You're right about that. Public transport would have to be improved.",
+             alt: ["En eso tienes razón. Haría falta mejorar el transporte público.", "En eso tienes razón, habría que mejorar el transporte público.", "Ahí tienes razón. Habría que mejorar el transporte público.", "En eso tienes razón. Habría que mejorar el transporte.", "Tienes razón en eso. Habría que mejorar el transporte público.", "En eso tienes razón. Tendrían que mejorar el transporte público."]}
+
+      - id: es-b2-14-teletrabajo
+        type: dialogue
+        title: "Working from home: for or against?"
+        scene: "At the coffee machine, you chat with your colleague Dani about remote working. You use tú."
+        you: A
+        lines:
+          - {who: A, l2: "¿Tú qué opinas del teletrabajo?", l1: "What's your view on working from home?",
+             alt: ["¿Qué opinas del teletrabajo?", "¿Tú qué piensas del teletrabajo?", "¿Qué piensas del teletrabajo?", "¿Qué te parece el teletrabajo?", "¿A ti qué te parece el teletrabajo?"]}
+          - {who: B, l2: "A mí me encanta. Ahorro dos horas de transporte al día y rindo más.", l1: "I love it. I save two hours of travelling a day and I get more done."}
+          - {who: A, l2: "Ya, pero yo echo de menos a los compañeros.", l1: "Sure, but I miss my colleagues.",
+             alt: ["Ya, pero echo de menos a los compañeros.", "Sí, pero yo echo de menos a los compañeros.", "Ya, pero yo extraño a los compañeros.", "Ya, pero yo echo de menos a mis compañeros.", "Sí, pero echo de menos a los compañeros."]}
+          - {who: B, l2: "Eso no quita que se pueda hacer un par de días a la semana, ¿no?", l1: "That doesn't mean we can't do it a couple of days a week, does it?"}
+          - {who: A, l2: "Visto así, tienes razón. Lo ideal sería un sistema mixto.", l1: "Seen like that, you're right. The ideal would be a mixed system.",
+             alt: ["Visto así, tienes razón. Lo ideal sería un modelo mixto.", "Visto así, tienes razón, lo ideal sería un sistema mixto.", "Así visto, tienes razón. Lo ideal sería un sistema mixto.", "Visto así, tienes razón. Lo mejor sería un sistema mixto.", "Visto así tienes razón. Lo ideal sería un sistema mixto."]}
+          - {who: B, l2: "Exacto. Lo malo es que la empresa no quiere ni oír hablar del tema.", l1: "Exactly. The trouble is that the company won't even hear of it."}
+          - {who: A, l2: "Pues habría que proponérselo entre todos.", l1: "Well, we should all put it to them together.",
+             alt: ["Pues habría que proponérselo todos juntos.", "Pues deberíamos proponérselo entre todos.", "Pues tendríamos que proponérselo entre todos.", "Habría que proponérselo entre todos.", "Pues podríamos proponérselo entre todos."]}
+          - {who: B, l2: "Buena idea. Lo sacamos en la próxima reunión.", l1: "Good idea. We'll bring it up at the next meeting."}
+
+      - id: es-b2-14-radio
+        type: dialogue
+        title: "A radio phone-in on tourism"
+        scene: "You call a local radio programme in Barcelona that is debating tourism. The presenter speaks to you as usted."
+        you: B
+        lines:
+          - {who: A, l2: "Buenas tardes, está usted en antena. ¿Qué opina del turismo en la ciudad?", l1: "Good afternoon, you're on air. What do you think about tourism in the city?"}
+          - {who: B, l2: "Buenas tardes. A mi juicio, ya no es sostenible.", l1: "Good afternoon. In my view, it is no longer sustainable.",
+             alt: ["Buenas tardes. En mi opinión, ya no es sostenible.", "Buenas tardes. Desde mi punto de vista, ya no es sostenible.", "Buenas tardes. A mi juicio ya no es sostenible.", "Buenas tardes. Para mí, ya no es sostenible.", "Buenas tardes. Creo que ya no es sostenible.", "Buenas tardes. A mi modo de ver, ya no es sostenible."]}
+          - {who: A, l2: "¿Por qué lo dice?", l1: "Why do you say that?"}
+          - {who: B, l2: "Porque los vecinos ya no pueden pagar el alquiler.", l1: "Because local residents can no longer afford the rent.",
+             alt: ["Porque los vecinos no pueden pagar el alquiler.", "Porque los vecinos ya no pueden pagar los alquileres.", "Porque los vecinos ya no pueden permitirse el alquiler.", "Porque la gente del barrio ya no puede pagar el alquiler."]}
+          - {who: A, l2: "Pero el turismo crea mucho empleo; eso no lo puede negar.", l1: "But tourism creates a lot of jobs; you can't deny that."}
+          - {who: B, l2: "No digo que no, pero son trabajos mal pagados.", l1: "I'm not saying it doesn't, but they're badly paid jobs.",
+             alt: ["No lo niego, pero son trabajos mal pagados.", "No digo que no, pero son empleos mal pagados.", "No lo niego, pero son empleos mal pagados.", "No digo que no, pero son trabajos muy mal pagados.", "Es verdad, pero son trabajos mal pagados.", "No digo que no, pero son trabajos precarios."]}
+          - {who: A, l2: "¿Y qué propondría usted?", l1: "And what would you propose?"}
+          - {who: B, l2: "Yo limitaría los pisos turísticos en el centro.", l1: "I would limit tourist flats in the centre.",
+             alt: ["Limitaría los pisos turísticos en el centro.", "Yo limitaría los pisos turísticos del centro.", "Limitar los pisos turísticos en el centro.", "Yo limitaría los apartamentos turísticos en el centro.", "Limitaría los pisos turísticos del centro."]}
+          - {who: A, l2: "Muy bien. Muchas gracias por su llamada.", l1: "Very good. Thank you very much for your call."}
+
+      - id: es-b2-14-universidad
+        type: dialogue
+        title: "Should university be free?"
+        scene: "After class, you and your classmate Iván argue about university fees. You use tú."
+        you: A
+        lines:
+          - {who: A, l2: "Yo creo que la universidad debería ser gratuita para todos.", l1: "I think university should be free for everyone.",
+             alt: ["Creo que la universidad debería ser gratuita para todos.", "Yo creo que la universidad debería ser gratis para todos.", "Creo que la universidad debería ser gratis para todos.", "Yo creo que la universidad tendría que ser gratuita para todos.", "Para mí, la universidad debería ser gratuita para todos."]}
+          - {who: B, l2: "¿Para todos? ¿Incluso para los que pueden pagarla?", l1: "For everyone? Even for those who can pay for it?"}
+          - {who: A, l2: "Sí, porque la educación es un derecho, no un privilegio.", l1: "Yes, because education is a right, not a privilege.",
+             alt: ["Sí, porque la educación es un derecho y no un privilegio.", "Sí, la educación es un derecho, no un privilegio.", "Claro, porque la educación es un derecho, no un privilegio.", "Sí, porque la enseñanza es un derecho, no un privilegio."]}
+          - {who: B, l2: "Ya, pero alguien tiene que pagarla. Si fuera gratis, subirían los impuestos.", l1: "Sure, but someone has to pay for it. If it were free, taxes would go up."}
+          - {who: A, l2: "No necesariamente. Se podría ahorrar en otras cosas.", l1: "Not necessarily. Savings could be made elsewhere. (on other things)",
+             alt: ["No necesariamente. Se podría recortar en otras cosas.", "No necesariamente, se podría ahorrar en otras cosas.", "No tiene por qué. Se podría ahorrar en otras cosas.", "No necesariamente. Podríamos ahorrar en otras cosas."]}
+          - {who: B, l2: "¿En qué, por ejemplo?", l1: "On what, for example?"}
+          - {who: A, l2: "En obras que no sirven para nada.", l1: "On building projects that are no use at all.",
+             alt: ["En obras que no sirven de nada.", "Por ejemplo, en obras que no sirven para nada.", "En obras públicas que no sirven para nada.", "En las obras que no sirven para nada."]}
+          - {who: B, l2: "Bueno, en eso no te voy a llevar la contraria.", l1: "Well, I'm not going to argue with you on that."}
+
+      - id: es-b2-14-movil
+        type: dialogue
+        title: "A phone at twelve?"
+        scene: "Your sister asks whether you'll let your son Lucas have a mobile phone. You use tú."
+        you: B
+        lines:
+          - {who: A, l2: "¿Vas a dejar que Lucas tenga móvil con doce años?", l1: "Are you going to let Lucas have a mobile at twelve?"}
+          - {who: B, l2: "No lo sé. Me da miedo que se pase el día en las redes.", l1: "I don't know. I'm afraid he'll spend all day on social media.",
+             alt: ["No sé. Me da miedo que se pase el día en las redes.", "No lo sé. Me da miedo que se pase el día en las redes sociales.", "No lo sé, me da miedo que se pase el día en las redes.", "No lo sé. Tengo miedo de que se pase el día en las redes.", "No sé. Me da miedo que se pase todo el día en las redes."]}
+          - {who: A, l2: "Pues todos sus amigos ya tienen uno. Si no se lo compras, se va a sentir excluido.", l1: "Well, all his friends already have one. If you don't buy him one, he's going to feel left out."}
+          - {who: B, l2: "Ya, pero eso no es motivo suficiente.", l1: "Sure, but that isn't reason enough.",
+             alt: ["Ya, pero eso no es razón suficiente.", "Ya, pero ese no es motivo suficiente.", "Ya, pero eso no es suficiente motivo.", "Sí, pero eso no es motivo suficiente.", "Ya, pero eso no es una razón suficiente."]}
+          - {who: A, l2: "Podrías dárselo con condiciones: nada de móvil en la mesa ni en su habitación.", l1: "You could give it to him with conditions: no phone at the table or in his room."}
+          - {who: B, l2: "Eso me parece más razonable.", l1: "That seems more reasonable to me.",
+             alt: ["Eso me parece más sensato.", "Eso me parece más lógico.", "Así me parece más razonable.", "Eso ya me parece más razonable.", "Me parece más razonable."]}
+          - {who: A, l2: "Y que sepa que, si no cumple las normas, se lo quitas.", l1: "And make sure he knows that if he doesn't stick to the rules, you'll take it away."}
+          - {who: B, l2: "De acuerdo. Lo hablaré con él este fin de semana.", l1: "OK. I'll talk it over with him this weekend.",
+             alt: ["Vale. Lo hablaré con él este fin de semana.", "De acuerdo. Lo hablo con él este fin de semana.", "De acuerdo, lo hablaré con él este fin de semana.", "Vale, lo hablo con él este fin de semana.", "De acuerdo. Hablaré con él este fin de semana."]}
+
+      - id: es-b2-14-hotel
+        type: dialogue
+        title: "A neighbourhood meeting"
+        scene: "At a public meeting, a company representative presents plans for a big hotel in your street. You are a resident; you speak to him as usted."
+        you: B
+        lines:
+          - {who: A, l2: "El hotel creará cien puestos de trabajo y traerá vida al barrio.", l1: "The hotel will create a hundred jobs and bring life to the neighbourhood."}
+          - {who: B, l2: "Perdone que le interrumpa, pero ¿han pensado en el ruido?", l1: "Sorry to interrupt, but have you thought about the noise?",
+             alt: ["Perdone que lo interrumpa, pero ¿han pensado en el ruido?", "Disculpe que le interrumpa, pero ¿han pensado en el ruido?", "Disculpe que lo interrumpa, pero ¿han pensado en el ruido?", "Perdone la interrupción, pero ¿han pensado en el ruido?", "Perdone que le interrumpa, ¿pero han pensado en el ruido?"]}
+          - {who: A, l2: "Por supuesto. El edificio cumplirá todas las normas.", l1: "Of course. The building will comply with all the regulations."}
+          - {who: B, l2: "Con todo respeto, eso no es lo que pasó con el último hotel.", l1: "With all due respect, that's not what happened with the last hotel.",
+             alt: ["Con todo el respeto, eso no es lo que pasó con el último hotel.", "Con todo respeto, eso no fue lo que pasó con el último hotel.", "Con todos mis respetos, eso no es lo que pasó con el último hotel.", "Con todo respeto, no es lo que pasó con el último hotel.", "Con todo respeto, eso no es lo que ocurrió con el último hotel."]}
+          - {who: A, l2: "Entiendo su preocupación. Esta vez habrá un control mucho más estricto.", l1: "I understand your concern. This time there will be much stricter monitoring."}
+          - {who: B, l2: "Entonces, ¿se comprometen a ponerlo por escrito?", l1: "So, will you commit to putting that in writing?",
+             alt: ["¿Se comprometen a ponerlo por escrito?", "Entonces, ¿están dispuestos a ponerlo por escrito?", "Entonces ¿se comprometen a ponerlo por escrito?", "Entonces, ¿lo pondrán por escrito?", "Entonces, ¿se comprometen a dejarlo por escrito?"]}
+          - {who: A, l2: "Sí. Lo incluiremos en el acuerdo con la asociación de vecinos.", l1: "Yes. We'll include it in the agreement with the residents' association."}
+          - {who: B, l2: "En ese caso, no tengo nada en contra.", l1: "In that case, I have nothing against it.",
+             alt: ["En ese caso, no tengo nada en contra del hotel.", "En ese caso no tengo nada en contra.", "Entonces no tengo nada en contra.", "En ese caso, no tengo ninguna objeción.", "En ese caso, no me opongo."]}
+
+      - id: es-b2-14-luz
+        type: dialogue
+        title: "Paying more for green energy"
+        scene: "You want to switch your shared flat to a renewable electricity tariff. You talk to your flatmate Carla. You use tú."
+        you: A
+        lines:
+          - {who: A, l2: "He encontrado una tarifa de luz cien por cien renovable. ¿Nos cambiamos?", l1: "I've found a 100% renewable electricity tariff. Shall we switch?",
+             alt: ["He encontrado una tarifa de luz 100 % renovable. ¿Nos cambiamos?", "He encontrado una tarifa de luz cien por cien renovable, ¿nos cambiamos?", "He encontrado una tarifa de electricidad cien por cien renovable. ¿Nos cambiamos?", "Encontré una tarifa de luz cien por ciento renovable. ¿Nos cambiamos?", "He encontrado una tarifa de luz cien por cien renovable. ¿Cambiamos?"]}
+          - {who: B, l2: "¿Y cuánto cuesta? Porque no estamos para gastar más.", l1: "And how much is it? Because we're in no position to spend more."}
+          - {who: A, l2: "Unos cinco euros más al mes, pero merece la pena.", l1: "About five euros more a month, but it's worth it.",
+             alt: ["Unos cinco euros más al mes, pero vale la pena.", "Unos cinco euros más al mes, pero creo que merece la pena.", "Unos cinco euros más al mes pero merece la pena.", "Cinco euros más al mes, más o menos, pero merece la pena.", "Unos cinco euros más al mes, pero compensa."]}
+          - {who: B, l2: "No sé... No es que no me importe el planeta, es que no llegamos a fin de mes.", l1: "I don't know... It's not that I don't care about the planet, it's that we can't make ends meet."}
+          - {who: A, l2: "Lo entiendo. ¿Y si apagamos más las luces para compensar?", l1: "I understand. What if we turn the lights off more to make up for it?",
+             alt: ["Lo entiendo. ¿Y si apagamos más las luces para compensarlo?", "Te entiendo. ¿Y si apagamos más las luces para compensar?", "Lo entiendo. ¿Y si apagáramos más las luces para compensar?", "Lo entiendo, ¿y si apagamos más las luces para compensar?", "Lo comprendo. ¿Y si apagamos más las luces para compensar?"]}
+          - {who: B, l2: "Bueno, si lo pagamos a medias y ahorramos en otras cosas, vale.", l1: "Well, if we split it and save on other things, OK."}
+          - {who: A, l2: "¡Trato hecho!", l1: "It's a deal!",
+             alt: ["¡Hecho!", "¡Trato hecho, entonces!", "Trato hecho.", "¡Pues trato hecho!"]}
+          - {who: B, l2: "Pero si la factura sube mucho, volvemos a la de antes, ¿eh?", l1: "But if the bill goes up a lot, we go back to the old one, OK?"}
+
+      - id: es-b2-14-cuatro-dias
+        type: dialogue
+        title: "Won over: the four-day week"
+        scene: "Your friend Pablo tells you about companies trying out a four-day working week. You are sceptical at first. You use tú."
+        you: B
+        lines:
+          - {who: A, l2: "¿Te has enterado? Algunas empresas están probando la semana de cuatro días.", l1: "Have you heard? Some companies are trying out the four-day week."}
+          - {who: B, l2: "Me parece imposible que funcione.", l1: "I can't see it working. (It seems impossible to me that it works.)",
+             alt: ["Me parece imposible que eso funcione.", "Dudo que funcione.", "No creo que funcione.", "Me parece imposible que funcione bien.", "Dudo mucho que funcione."]}
+          - {who: A, l2: "Pues, según los estudios, la gente rinde igual o más y está menos estresada.", l1: "Well, according to the studies, people get just as much or more done and are less stressed."}
+          - {who: B, l2: "¿De verdad? No lo sabía.", l1: "Really? I didn't know that.",
+             alt: ["¿En serio? No lo sabía.", "¿De veras? No lo sabía.", "¿De verdad? No tenía ni idea.", "¿Sí? No lo sabía.", "¿En serio? No tenía ni idea."]}
+          - {who: A, l2: "Sí. Y además se reducen las bajas por enfermedad.", l1: "Yes. And on top of that, sick leave goes down."}
+          - {who: B, l2: "Bueno, reconozco que tiene sentido.", l1: "Well, I admit it makes sense.",
+             alt: ["Bueno, reconozco que tiene lógica.", "Vale, reconozco que tiene sentido.", "Bueno, tengo que reconocer que tiene sentido.", "Bueno, admito que tiene sentido.", "Reconozco que tiene sentido."]}
+          - {who: A, l2: "¿Ves? Si me hubieras hecho caso desde el principio...", l1: "See? If you'd listened to me from the start..."}
+          - {who: B, l2: "Vale, vale, me has convencido.", l1: "OK, OK, you've convinced me.",
+             alt: ["Vale, me has convencido.", "Está bien, me has convencido.", "Bueno, me has convencido.", "Vale, vale, me convenciste.", "Vale, vale. Me has convencido."]}
+
+  # ---------------------------------------------------------------- 15
+  - id: es-b2-15
+    title: "The job interview"
+    goal: "I can present my experience, explain why I want a job, talk about strengths, weaknesses and a past problem, and discuss pay and start dates."
+    notes: |
+      Interviews in Spanish are usually in **usted**, though young companies in Spain often switch to **tú** at once. Follow the interviewer's lead.
+
+      - **Your career**: *Estudié… y llevo seis años trabajando en…* · *Dirijo un equipo de…* · *Busco un puesto con más responsabilidad.*
+      - **Motivation**: *Admiro su compromiso con…* · *Podría aportar…* (to contribute; English speakers forget this verb).
+      - **Weaknesses**: *Me cuesta* + infinitive (I find it hard to…) · *Intento…*
+      - **A past problem** (the STAR answer): set the scene in the imperfect, tell the events in the indefinido, use the pluperfect for what had happened before: *Le habíamos prometido una fecha que no podíamos cumplir.*
+      - **Money and dates**: *la banda salarial* (salary range), *bruto / neto* (gross / net), *la incorporación* (start), *avisar con quince días de antelación* (give two weeks' notice), *¿Habría margen para negociar…?*
+      - **On the phone**: *Sí, soy yo, dígame.* · *¿Cuándo les vendría bien?*
+    items:
+      - id: es-b2-15-presentacion
+        type: dialogue
+        title: "Tell me about yourself"
+        scene: "You are being interviewed for a team-leader post at an engineering firm in Madrid. The interviewer uses usted."
+        you: B
+        lines:
+          - {who: A, l2: "Buenos días. Siéntese, por favor. Hábleme un poco de usted.", l1: "Good morning. Have a seat, please. Tell me a little about yourself."}
+          - {who: B, l2: "Pues estudié Ingeniería y llevo seis años trabajando en el sector.", l1: "Well, I studied engineering and I've been working in the sector for six years.",
+             alt: ["Estudié Ingeniería y llevo seis años trabajando en el sector.", "Pues estudié Ingeniería y llevo seis años en el sector.", "Pues estudié Ingeniería y hace seis años que trabajo en el sector.", "Pues estudié Ingeniería y trabajo en el sector desde hace seis años.", "Pues estudié ingeniería y llevo seis años trabajando en el sector."]}
+          - {who: A, l2: "¿Y qué hace actualmente?", l1: "And what are you doing at the moment?"}
+          - {who: B, l2: "Dirijo un equipo de cinco personas en una empresa de software.", l1: "I manage a team of five people at a software company.",
+             alt: ["Llevo un equipo de cinco personas en una empresa de software.", "Coordino un equipo de cinco personas en una empresa de software.", "Dirijo un equipo de cinco personas en una empresa de programas informáticos.", "Ahora dirijo un equipo de cinco personas en una empresa de software.", "Dirijo a un equipo de cinco personas en una empresa de software."]}
+          - {who: A, l2: "Muy bien. ¿Y por qué quiere cambiar de trabajo?", l1: "Very good. And why do you want to change jobs?"}
+          - {who: B, l2: "Busco un puesto con más responsabilidad.", l1: "I'm looking for a post with more responsibility.",
+             alt: ["Busco un puesto con más responsabilidades.", "Estoy buscando un puesto con más responsabilidad.", "Busco un puesto de más responsabilidad.", "Quiero un puesto con más responsabilidad.", "Estoy buscando un puesto con más responsabilidades."]}
+          - {who: A, l2: "Entiendo. Aquí tendría a su cargo un equipo bastante más grande.", l1: "I see. Here you would be in charge of a considerably larger team."}
+          - {who: B, l2: "Eso es justo lo que busco.", l1: "That's exactly what I'm looking for.",
+             alt: ["Eso es precisamente lo que busco.", "Es justo lo que busco.", "Eso es exactamente lo que busco.", "Eso es justo lo que estoy buscando.", "Es exactamente lo que busco."]}
+
+      - id: es-b2-15-motivacion
+        type: dialogue
+        title: "Why do you want to work here?"
+        scene: "The interview continues at a solar-energy company. The interviewer uses usted."
+        you: B
+        lines:
+          - {who: A, l2: "¿Por qué le interesa trabajar con nosotros?", l1: "Why are you interested in working with us?"}
+          - {who: B, l2: "Porque admiro su compromiso con la sostenibilidad.", l1: "Because I admire your commitment to sustainability.",
+             alt: ["Porque admiro mucho su compromiso con la sostenibilidad.", "Admiro su compromiso con la sostenibilidad.", "Porque admiro su compromiso con el medio ambiente.", "Porque me gusta su compromiso con la sostenibilidad."]}
+          - {who: A, l2: "¿Conoce nuestros proyectos?", l1: "Are you familiar with our projects?"}
+          - {who: B, l2: "Sí, he leído mucho sobre el último, el de la planta solar.", l1: "Yes, I've read a lot about the latest one, the solar plant.",
+             alt: ["Sí, he leído mucho sobre el último, el de la central solar.", "Sí, he leído bastante sobre el último, el de la planta solar.", "Sí, he leído mucho sobre el último proyecto, el de la planta solar.", "Sí, leí mucho sobre el último, el de la planta solar."]}
+          - {who: A, l2: "¿Y qué cree que podría aportar a la empresa?", l1: "And what do you think you could bring to the company?"}
+          - {who: B, l2: "Experiencia en gestión de equipos y muchas ganas de aprender.", l1: "Experience in managing teams and a real eagerness to learn.",
+             alt: ["Experiencia en la gestión de equipos y muchas ganas de aprender.", "Podría aportar experiencia en gestión de equipos y muchas ganas de aprender.", "Experiencia gestionando equipos y muchas ganas de aprender.", "Experiencia en gestión de equipos y ganas de aprender."]}
+          - {who: A, l2: "Nos gusta oír eso. ¿Habla otros idiomas?", l1: "We like to hear that. Do you speak other languages?"}
+          - {who: B, l2: "Sí, hablo inglés y francés con fluidez.", l1: "Yes, I speak English and French fluently.",
+             alt: ["Sí, hablo inglés y francés con soltura.", "Sí, hablo inglés y francés de forma fluida.", "Hablo inglés y francés con fluidez.", "Sí, hablo con fluidez inglés y francés.", "Sí, hablo inglés y francés perfectamente."]}
+
+      - id: es-b2-15-puntos
+        type: dialogue
+        title: "Strengths and weaknesses"
+        scene: "The interviewer asks the classic question. She uses usted."
+        you: B
+        lines:
+          - {who: A, l2: "Dígame un punto fuerte y uno débil.", l1: "Tell me one strength and one weakness."}
+          - {who: B, l2: "Mi punto fuerte es la organización.", l1: "My strong point is organisation.",
+             alt: ["Mi punto fuerte es que sé organizarme.", "Mi punto fuerte es la capacidad de organización.", "Mi punto fuerte es la organización del trabajo.", "Mi punto fuerte es que soy muy organizado.", "Mi punto fuerte es que soy muy organizada."]}
+          - {who: A, l2: "¿Y el débil?", l1: "And the weak one?"}
+          - {who: B, l2: "A veces me cuesta delegar.", l1: "Sometimes I find it hard to delegate.",
+             alt: ["A veces me resulta difícil delegar.", "A veces me cuesta mucho delegar.", "Me cuesta delegar a veces.", "A veces me cuesta delegar tareas.", "A veces me es difícil delegar."]}
+          - {who: A, l2: "¿Y cómo lo está trabajando?", l1: "And how are you working on it?"}
+          - {who: B, l2: "Intento confiar más en mi equipo.", l1: "I'm trying to trust my team more.",
+             alt: ["Estoy intentando confiar más en mi equipo.", "Intento fiarme más de mi equipo.", "Trato de confiar más en mi equipo.", "Procuro confiar más en mi equipo.", "Estoy tratando de confiar más en mi equipo."]}
+          - {who: A, l2: "Es una respuesta muy sincera.", l1: "That's a very honest answer."}
+          - {who: B, l2: "Creo que reconocerlo es el primer paso.", l1: "I think admitting it is the first step.",
+             alt: ["Creo que reconocerlo es el primer paso para mejorar.", "Reconocerlo es el primer paso, creo.", "Creo que admitirlo es el primer paso.", "Pienso que reconocerlo es el primer paso."]}
+
+      - id: es-b2-15-situacion
+        type: dialogue
+        title: "A difficult situation at work"
+        scene: "The interviewer asks you to describe a problem you solved. He uses usted."
+        you: B
+        lines:
+          - {who: A, l2: "Cuénteme una situación difícil que haya tenido en el trabajo y cómo la resolvió.", l1: "Tell me about a difficult situation you've had at work and how you solved it."}
+          - {who: B, l2: "Una vez, un cliente importante amenazó con irse.", l1: "Once, an important client threatened to leave.",
+             alt: ["Una vez un cliente importante amenazó con irse.", "Una vez, un cliente importante amenazó con marcharse.", "Una vez, un cliente muy importante amenazó con irse.", "Una vez, un cliente importante amenazó con dejarnos."]}
+          - {who: A, l2: "¿Y qué hizo usted?", l1: "And what did you do?"}
+          - {who: B, l2: "Le pedí que me explicara el problema con calma.", l1: "I asked him to explain the problem to me calmly.",
+             alt: ["Le pedí que me explicase el problema con calma.", "Le pedí que me explicara el problema tranquilamente.", "Le pedí que me contara el problema con calma.", "Le pedí que me explicara con calma el problema."]}
+          - {who: A, l2: "¿Y cuál era el problema?", l1: "And what was the problem?"}
+          - {who: B, l2: "Le habíamos prometido una fecha que no podíamos cumplir.", l1: "We had promised him a date we couldn't meet.",
+             alt: ["Le habíamos prometido un plazo que no podíamos cumplir.", "Le habíamos prometido una fecha que no podíamos respetar.", "Le habíamos dado una fecha que no podíamos cumplir.", "Le habíamos prometido una fecha de entrega que no podíamos cumplir."]}
+          - {who: A, l2: "¿Y cómo terminó?", l1: "And how did it end?"}
+          - {who: B, l2: "Negociamos un nuevo plazo y al final se quedó con nosotros.", l1: "We negotiated a new deadline and in the end he stayed with us.",
+             alt: ["Negociamos otro plazo y al final se quedó con nosotros.", "Negociamos un plazo nuevo y al final se quedó con nosotros.", "Negociamos un nuevo plazo y, al final, se quedó con nosotros.", "Negociamos un nuevo plazo y al final siguió con nosotros."]}
+
+      - id: es-b2-15-condiciones
+        type: dialogue
+        title: "Pay and conditions"
+        scene: "At the end of the interview, the HR manager asks if you have any questions. She uses usted."
+        you: B
+        lines:
+          - {who: A, l2: "¿Tiene alguna pregunta sobre las condiciones?", l1: "Do you have any questions about the terms and conditions?"}
+          - {who: B, l2: "Sí. ¿Podría decirme cuál es la banda salarial?", l1: "Yes. Could you tell me what the salary range is?",
+             alt: ["Sí. ¿Me podría decir cuál es la banda salarial?", "Sí, ¿podría decirme cuál es la banda salarial?", "Sí. ¿Cuál es la banda salarial?", "Sí. ¿Podría decirme cuál es el rango salarial?", "Sí. ¿Me podría decir cuál es el rango salarial?"]}
+          - {who: A, l2: "Entre cuarenta y cuarenta y cinco mil euros brutos al año, según la experiencia.", l1: "Between forty and forty-five thousand euros gross a year, depending on experience."}
+          - {who: B, l2: "¿Y el horario es flexible?", l1: "And are the hours flexible?",
+             alt: ["¿El horario es flexible?", "¿Y hay horario flexible?", "¿Y tienen horario flexible?", "¿Y el horario es flexible o fijo?"]}
+          - {who: A, l2: "Sí, y se puede teletrabajar dos días a la semana.", l1: "Yes, and you can work from home two days a week."}
+          - {who: B, l2: "Perfecto. ¿Cuándo sería la incorporación?", l1: "Perfect. When would the start date be?",
+             alt: ["Perfecto. ¿Cuándo tendría que incorporarme?", "Perfecto. ¿Cuándo empezaría?", "Perfecto, ¿cuándo sería la incorporación?", "Perfecto. ¿Para cuándo sería la incorporación?", "Perfecto. ¿Cuándo me incorporaría?"]}
+          - {who: A, l2: "Lo antes posible; idealmente, el mes que viene.", l1: "As soon as possible; ideally, next month."}
+          - {who: B, l2: "Tendría que avisar a mi empresa con quince días de antelación.", l1: "I would have to give my company two weeks' notice.",
+             alt: ["Tendría que avisar en mi empresa con quince días de antelación.", "Tendría que avisar a mi empresa con dos semanas de antelación.", "Tengo que avisar a mi empresa con quince días de antelación.", "Tendría que dar quince días de preaviso en mi empresa.", "Tendría que avisar a mi empresa con quince días de preaviso."]}
+
+      - id: es-b2-15-preguntas
+        type: dialogue
+        title: "Do you have any questions for us?"
+        scene: "A young start-up in Valencia interviews you. The two founders use tú with you from the start."
+        you: B
+        lines:
+          - {who: A, l2: "Bueno, eso es todo por nuestra parte. ¿Quieres preguntarnos algo?", l1: "Well, that's all from us. Do you want to ask us anything?"}
+          - {who: B, l2: "Sí, ¿cómo es un día normal en el equipo?", l1: "Yes, what's a normal day like in the team?",
+             alt: ["Sí, ¿cómo es un día típico en el equipo?", "Sí. ¿Cómo es un día normal en el equipo?", "¿Cómo es un día normal en el equipo?", "Sí, ¿cómo es un día normal de trabajo en el equipo?", "Sí, ¿cómo es un día cualquiera en el equipo?"]}
+          - {who: A, l2: "Empezamos con una reunión corta a las nueve y luego cada uno trabaja en lo suyo.", l1: "We start with a short meeting at nine and then everyone gets on with their own work."}
+          - {who: B, l2: "¿Y hay posibilidades de formación?", l1: "And are there opportunities for training?",
+             alt: ["¿Hay posibilidades de formación?", "¿Y hay oportunidades de formación?", "¿Y ofrecéis formación?", "¿Y dais formación?", "¿Y ofrecen formación?"]}
+          - {who: A, l2: "Sí, tenemos un presupuesto anual para cursos.", l1: "Yes, we have an annual budget for courses."}
+          - {who: B, l2: "¿Cuáles son los próximos pasos del proceso?", l1: "What are the next steps in the process?",
+             alt: ["¿Cuáles son los siguientes pasos del proceso?", "¿Cuál es el siguiente paso del proceso?", "¿Cuál es el próximo paso?", "¿Cuáles son los próximos pasos?", "¿Cuáles son los siguientes pasos?"]}
+          - {who: A, l2: "Te llamaremos antes del viernes para darte una respuesta.", l1: "We'll call you before Friday to give you an answer."}
+          - {who: B, l2: "Muchas gracias por vuestro tiempo.", l1: "Thank you very much for your time. (to both of them)",
+             alt: ["Gracias por vuestro tiempo.", "Muchas gracias por su tiempo.", "Muchísimas gracias por vuestro tiempo.", "Muchas gracias por todo.", "Gracias por su tiempo."]}
+
+      - id: es-b2-15-llamada
+        type: dialogue
+        title: "The call to arrange an interview"
+        scene: "Your phone rings: it's the HR department of a company called Ecolux. They use usted with you, and you with them."
+        you: B
+        lines:
+          - {who: A, l2: "¿Hablo con Alex Moreno? Le llamo del departamento de Recursos Humanos de Ecolux.", l1: "Am I speaking to Alex Moreno? I'm calling from the HR department at Ecolux."}
+          - {who: B, l2: "Sí, soy yo. Dígame.", l1: "Yes, speaking. Go ahead. (formal)",
+             alt: ["Sí, soy yo, dígame.", "Sí, soy yo. ¿Dígame?", "Sí, soy yo.", "Sí, al habla. Dígame.", "Sí, soy yo. Usted dirá."]}
+          - {who: A, l2: "Hemos recibido su candidatura y nos gustaría hacerle una entrevista.", l1: "We've received your application and we'd like to interview you."}
+          - {who: B, l2: "¡Qué buena noticia! ¿Cuándo les vendría bien?", l1: "What good news! When would suit you?",
+             alt: ["¡Qué buena noticia! ¿Cuándo les viene bien?", "¡Estupendo! ¿Cuándo les vendría bien?", "¡Qué buena noticia! ¿Cuándo les iría bien?", "¡Qué buena noticia! ¿Qué día les vendría bien?", "¡Qué bien! ¿Cuándo les vendría bien?"]}
+          - {who: A, l2: "¿Podría venir el jueves a las diez?", l1: "Could you come on Thursday at ten?"}
+          - {who: B, l2: "El jueves por la mañana no puedo. ¿Podría ser por la tarde?", l1: "I can't do Thursday morning. Could it be in the afternoon?",
+             alt: ["El jueves por la mañana me resulta imposible. ¿Podría ser por la tarde?", "El jueves por la mañana no me viene bien. ¿Podría ser por la tarde?", "El jueves por la mañana no puedo, ¿podría ser por la tarde?", "El jueves por la mañana no puedo. ¿Puede ser por la tarde?", "El jueves por la mañana me es imposible. ¿Podría ser por la tarde?"]}
+          - {who: A, l2: "Sí, a las cuatro, por ejemplo.", l1: "Yes, at four, for example."}
+          - {who: B, l2: "Perfecto. ¿Tengo que llevar algún documento?", l1: "Perfect. Do I need to bring any documents?",
+             alt: ["Perfecto. ¿Tengo que traer algún documento?", "Perfecto. ¿Necesito llevar algún documento?", "Perfecto, ¿tengo que llevar algún documento?", "Perfecto. ¿Debo llevar algún documento?", "Perfecto. ¿Hace falta que lleve algún documento?"]}
+          - {who: A, l2: "Solo una copia de su título. Le enviaré la dirección por correo.", l1: "Just a copy of your degree certificate. I'll send you the address by e-mail."}
+
+      - id: es-b2-15-oferta
+        type: dialogue
+        title: "The job offer"
+        scene: "A week later the HR manager at Ecolux calls you back. She uses usted."
+        you: B
+        lines:
+          - {who: A, l2: "Buenas tardes. Le llamo para comunicarle que el puesto es suyo.", l1: "Good afternoon. I'm calling to let you know that the job is yours."}
+          - {who: B, l2: "¡Muchísimas gracias! Me alegro mucho.", l1: "Thank you so much! I'm delighted.",
+             alt: ["¡Muchas gracias! Me alegro mucho.", "¡Muchísimas gracias! Me alegro muchísimo.", "¡Muchísimas gracias! Qué alegría.", "¡Muchísimas gracias! Estoy encantado.", "¡Muchísimas gracias! Estoy encantada."]}
+          - {who: A, l2: "La oferta es de cuarenta y dos mil euros al año.", l1: "The offer is forty-two thousand euros a year."}
+          - {who: B, l2: "¿Habría margen para negociar el sueldo?", l1: "Would there be any room to negotiate the salary?",
+             alt: ["¿Habría margen para negociar el salario?", "¿Hay margen para negociar el sueldo?", "¿Sería posible negociar el sueldo?", "¿Habría algún margen para negociar el sueldo?", "¿Habría posibilidad de negociar el sueldo?"]}
+          - {who: A, l2: "Podríamos llegar a cuarenta y cuatro mil, pero no más.", l1: "We could go up to forty-four thousand, but no more."}
+          - {who: B, l2: "Me parece justo. Acepto la oferta.", l1: "That seems fair. I accept the offer.",
+             alt: ["Me parece justo, acepto la oferta.", "Me parece bien. Acepto la oferta.", "Me parece razonable. Acepto la oferta.", "Me parece justo. Acepto.", "Es justo. Acepto la oferta."]}
+          - {who: A, l2: "Estupendo. Le enviaremos el contrato esta semana.", l1: "Excellent. We'll send you the contract this week."}
+          - {who: B, l2: "Lo firmaré en cuanto lo reciba.", l1: "I'll sign it as soon as I receive it.",
+             alt: ["Lo firmo en cuanto lo reciba.", "Lo firmaré en cuanto me llegue.", "Lo firmaré nada más recibirlo.", "En cuanto lo reciba, lo firmo.", "En cuanto lo reciba, lo firmaré."]}
+
+  # ---------------------------------------------------------------- 16
+  - id: es-b2-16
+    title: "Complaints and getting things fixed"
+    goal: "I can complain firmly but politely in shops, on the phone and to officials, insist on my rights and agree a solution."
+    notes: |
+      A good complaint has four steps: **state the problem**, **give the facts**, **say what you want**, **get it confirmed**.
+
+      - **The problem**: *Me han cobrado cuarenta euros de más.* · *Hice un pedido hace dos semanas y todavía no me ha llegado.* · *Quería poner una queja por…*
+      - **Facts against excuses**: *Eso es imposible: ese día estuve en casa.* · *Yo nunca he contratado ese servicio.* · *Llamé el lunes y me la confirmaron.*
+      - **What you want** (subjunctive): *Quiero que me devuelvan el dinero.* · *Preferiría que me la cambiaran.* · *Le agradecería que me informaran…*
+      - **Confirmation**: *¿Me lo puede confirmar por escrito?* · *¿Me pueden dar un justificante?*
+      - **Escalate**: *Me gustaría hablar con el responsable.* In Spain every business must give you **la hoja de reclamaciones** (the official complaints form); in Peru it is *el libro de reclamaciones*.
+
+      Useful words: *la garantía* (guarantee), *el tique* (receipt), *el reembolso / la devolución* (refund), *dar de baja* (to cancel a service), *la fianza* (rental deposit, Spain; *el depósito* in much of Latin America).
+    items:
+      - id: es-b2-16-cafetera
+        type: dialogue
+        title: "A faulty coffee machine"
+        scene: "You take a coffee machine back to the shop where you bought it a month ago. You and the assistant use usted."
+        you: A
+        lines:
+          - {who: A, l2: "Buenos días. Compré esta cafetera hace un mes y ya no funciona.", l1: "Good morning. I bought this coffee machine a month ago and it's already stopped working.",
+             alt: ["Buenos días. Compré esta cafetera hace un mes y ya no va.", "Buenos días, compré esta cafetera hace un mes y ya no funciona.", "Buenos días. Hace un mes compré esta cafetera y ya no funciona.", "Buenos días. Compré esta cafetera hace un mes y ha dejado de funcionar.", "Buenos días. Compré esta cafetera hace un mes y ya no anda."]}
+          - {who: B, l2: "Vaya, lo siento. ¿Trae el tique de compra?", l1: "Oh dear, I'm sorry. Have you brought the receipt?"}
+          - {who: A, l2: "Sí, aquí lo tiene. Está en garantía, ¿verdad?", l1: "Yes, here it is. It's under guarantee, isn't it?",
+             alt: ["Sí, aquí lo tiene. Está en garantía, ¿no?", "Sí, aquí tiene. Está en garantía, ¿verdad?", "Sí, aquí lo tiene. Está dentro de la garantía, ¿verdad?", "Sí, aquí está. Está en garantía, ¿verdad?", "Aquí lo tiene. Está en garantía, ¿verdad?"]}
+          - {who: B, l2: "Sí. Podemos enviarla al servicio técnico; tardarán unas tres semanas.", l1: "Yes. We can send it to the repair service; they'll take about three weeks."}
+          - {who: A, l2: "¿Tres semanas? Preferiría que me la cambiaran por otra.", l1: "Three weeks? I'd rather you exchanged it for another one.",
+             alt: ["¿Tres semanas? Preferiría que me la cambiasen por otra.", "¿Tres semanas? Prefiero que me la cambien por otra.", "¿Tres semanas? Preferiría que me dieran otra.", "¿Tres semanas? Preferiría que me la cambiaran por una nueva.", "¿Tres semanas? Me gustaría que me la cambiaran por otra."]}
+          - {who: B, l2: "Lo siento, pero la política de la tienda es repararla primero.", l1: "I'm sorry, but the shop's policy is to repair it first."}
+          - {who: A, l2: "Entonces quisiera la hoja de reclamaciones, por favor.", l1: "In that case, I'd like the complaints form, please.",
+             alt: ["Entonces quiero la hoja de reclamaciones, por favor.", "Entonces, ¿me da la hoja de reclamaciones, por favor?", "En ese caso, quisiera la hoja de reclamaciones, por favor.", "Entonces me gustaría la hoja de reclamaciones, por favor.", "Entonces, ¿me puede dar la hoja de reclamaciones, por favor?", "Entonces quisiera el libro de reclamaciones, por favor."]}
+          - {who: B, l2: "Espere, voy a hablar con la encargada. Seguro que encontramos una solución.", l1: "Wait, I'll talk to the manager. I'm sure we'll find a solution."}
+
+      - id: es-b2-16-factura
+        type: dialogue
+        title: "An overcharged phone bill"
+        scene: "You call your mobile phone company's customer service. You and the agent use usted."
+        you: B
+        lines:
+          - {who: A, l2: "Servicio de atención al cliente, buenos días. ¿En qué puedo ayudarle?", l1: "Customer service, good morning. How can I help you?"}
+          - {who: B, l2: "Me han cobrado cuarenta euros de más en la última factura.", l1: "I've been overcharged by forty euros on my last bill.",
+             alt: ["Me han cobrado cuarenta euros de más en la factura.", "Me han cobrado de más cuarenta euros en la última factura.", "En la última factura me han cobrado cuarenta euros de más.", "Me cobraron cuarenta euros de más en la última factura.", "Me han cobrado cuarenta euros de más en mi última factura."]}
+          - {who: A, l2: "Déjeme comprobarlo... Aparece un servicio de música que contrató en marzo.", l1: "Let me check... There's a music service on it that you signed up for in March."}
+          - {who: B, l2: "Yo nunca he contratado ese servicio.", l1: "I have never signed up for that service.",
+             alt: ["Nunca he contratado ese servicio.", "Yo no he contratado nunca ese servicio.", "Yo nunca contraté ese servicio.", "Yo no he contratado ese servicio nunca.", "Nunca contraté ese servicio."]}
+          - {who: A, l2: "Es posible que se activara por error al actualizar la aplicación.", l1: "It may have been switched on by mistake when the app was updated."}
+          - {who: B, l2: "Pues quiero que me devuelvan el dinero y que lo den de baja.", l1: "Well, I want you to refund the money and cancel it.",
+             alt: ["Pues quiero que me devuelvan el dinero y que lo cancelen.", "Quiero que me devuelvan el dinero y que lo den de baja.", "Pues quiero que me devuelvan el dinero y lo den de baja.", "Pues quiero que me devuelvan el dinero y que me lo den de baja.", "Pues quiero que me reembolsen el dinero y que lo den de baja."]}
+          - {who: A, l2: "Por supuesto. Le haremos el abono en la próxima factura.", l1: "Of course. We'll credit it to your next bill."}
+          - {who: B, l2: "¿Me lo puede confirmar por escrito?", l1: "Can you confirm that in writing?",
+             alt: ["¿Me lo podría confirmar por escrito?", "¿Puede confirmármelo por escrito?", "¿Podría confirmármelo por escrito?", "¿Me lo pueden confirmar por escrito?", "¿Me lo puede enviar por escrito?"]}
+          - {who: A, l2: "Sí, ahora mismo le envío un correo con el número de incidencia.", l1: "Yes, I'll send you an e-mail with the incident number right now."}
+
+      - id: es-b2-16-maleta
+        type: dialogue
+        title: "The missing suitcase"
+        scene: "You have just landed in Seville for a wedding. Your suitcase hasn't appeared, so you go to the airline's desk. You use usted."
+        you: A
+        lines:
+          - {who: A, l2: "Buenas tardes. Mi maleta no ha salido.", l1: "Good afternoon. My suitcase hasn't come out.",
+             alt: ["Buenas tardes, mi maleta no ha salido.", "Buenas tardes. Mi maleta no ha llegado.", "Buenas tardes. No ha salido mi maleta.", "Buenas tardes. Mi maleta no salió.", "Buenas tardes. Mi maleta no ha aparecido."]}
+          - {who: B, l2: "Lo siento mucho. ¿Me deja su tarjeta de embarque y la etiqueta de la maleta?", l1: "I'm very sorry. Could I have your boarding pass and the luggage tag?"}
+          - {who: A, l2: "Aquí tiene. Es una maleta roja, grande, con ruedas.", l1: "Here you are. It's a big red suitcase with wheels.",
+             alt: ["Aquí tiene. Es una maleta grande, roja, con ruedas.", "Aquí tiene. Es una maleta roja y grande, con ruedas.", "Aquí tiene. Es una maleta grande y roja con ruedas.", "Aquí tiene. Es una maleta roja grande con ruedas.", "Aquí la tiene. Es una maleta roja, grande, con ruedas."]}
+          - {who: B, l2: "Según el sistema, se ha quedado en Fráncfort. Llegará en el vuelo de mañana.", l1: "According to the system, it was left behind in Frankfurt. It will arrive on tomorrow's flight."}
+          - {who: A, l2: "Pero llevo dentro todo lo que necesito para una boda.", l1: "But everything I need for a wedding is in it.",
+             alt: ["Pero ahí llevo todo lo que necesito para una boda.", "Pero dentro llevo todo lo que necesito para una boda.", "Pero tengo dentro todo lo que necesito para una boda.", "Pero ahí dentro llevo todo lo que necesito para una boda.", "Pero en la maleta llevo todo lo que necesito para una boda."]}
+          - {who: B, l2: "Entiendo. Puede comprar lo imprescindible y la compañía se lo reembolsará.", l1: "I understand. You can buy the essentials and the airline will reimburse you."}
+          - {who: A, l2: "¿Hasta qué cantidad me reembolsan?", l1: "Up to what amount will you reimburse me?",
+             alt: ["¿Hasta cuánto me reembolsan?", "¿Hasta qué cantidad me devuelven?", "¿Hasta cuánto me devuelven?", "¿Hasta qué cantidad me reembolsarán?", "¿Hasta qué importe me reembolsan?"]}
+          - {who: B, l2: "Hasta cien euros. Guarde todos los tiques, por favor.", l1: "Up to a hundred euros. Please keep all your receipts."}
+          - {who: A, l2: "De acuerdo. ¿Me la pueden llevar al hotel?", l1: "All right. Can you deliver it to my hotel?",
+             alt: ["De acuerdo. ¿Me la podrían llevar al hotel?", "Vale. ¿Me la pueden llevar al hotel?", "De acuerdo, ¿me la pueden llevar al hotel?", "De acuerdo. ¿Me la pueden mandar al hotel?", "De acuerdo. ¿Me la pueden enviar al hotel?"]}
+
+      - id: es-b2-16-pedido
+        type: dialogue
+        title: "The parcel that never came"
+        scene: "You call an online shop because your order hasn't arrived. The agent uses usted."
+        you: B
+        lines:
+          - {who: A, l2: "Atención al cliente, le atiende Raúl. ¿En qué puedo ayudarle?", l1: "Customer service, Raúl speaking. How can I help you?"}
+          - {who: B, l2: "Hice un pedido hace dos semanas y todavía no me ha llegado.", l1: "I placed an order two weeks ago and it still hasn't arrived.",
+             alt: ["Hice un pedido hace dos semanas y aún no me ha llegado.", "Hice un pedido hace dos semanas y todavía no ha llegado.", "Hace dos semanas hice un pedido y todavía no me ha llegado.", "Hice un pedido hace dos semanas y no me ha llegado todavía.", "Hice un pedido hace dos semanas y todavía no me llegó."]}
+          - {who: A, l2: "¿Me da el número de pedido, por favor?", l1: "Can you give me the order number, please?"}
+          - {who: B, l2: "Ahora mismo no lo tengo. ¿Le vale mi correo electrónico?", l1: "I haven't got it to hand right now. Will my e-mail address do?",
+             alt: ["Ahora mismo no lo tengo. ¿Le sirve mi correo electrónico?", "Ahora mismo no lo tengo a mano. ¿Le vale mi correo electrónico?", "Ahora no lo tengo. ¿Le vale mi correo electrónico?", "Ahora mismo no lo tengo. ¿Le vale mi correo?", "Ahora mismo no lo tengo. ¿Le sirve mi correo?"]}
+          - {who: A, l2: "Sí... Aquí está. Según la empresa de transporte, se lo entregaron el martes.", l1: "Yes... Here it is. According to the delivery company, it was delivered to you on Tuesday."}
+          - {who: B, l2: "Eso es imposible: el martes estuve en casa todo el día.", l1: "That's impossible: I was at home all day on Tuesday.",
+             alt: ["Eso es imposible, el martes estuve en casa todo el día.", "Es imposible: el martes estuve todo el día en casa.", "Eso es imposible: el martes estuve todo el día en casa.", "No puede ser: el martes estuve en casa todo el día.", "Imposible: el martes estuve en casa todo el día."]}
+          - {who: A, l2: "Puede que lo dejaran en otra dirección. Voy a abrir una reclamación.", l1: "They may have left it at another address. I'm going to open a claim."}
+          - {who: B, l2: "Si no aparece, ¿me lo volverán a enviar?", l1: "If it doesn't turn up, will you send it again?",
+             alt: ["Si no aparece, ¿me lo enviarán otra vez?", "Si no aparece, ¿me lo volverán a mandar?", "Si no aparece, ¿me lo van a volver a enviar?", "Si no aparece, ¿me lo vuelven a enviar?", "Y si no aparece, ¿me lo volverán a enviar?"]}
+          - {who: A, l2: "Sí, o le devolvemos el importe, lo que usted prefiera.", l1: "Yes, or we'll refund the amount, whichever you prefer."}
+          - {who: B, l2: "Prefiero que me lo vuelvan a enviar.", l1: "I'd rather you sent it again.",
+             alt: ["Prefiero que me lo envíen otra vez.", "Prefiero que me lo envíen de nuevo.", "Preferiría que me lo volvieran a enviar.", "Prefiero que me lo manden otra vez.", "Preferiría que me lo enviaran de nuevo."]}
+
+      - id: es-b2-16-fianza
+        type: dialogue
+        title: "Getting your deposit back"
+        scene: "You moved out of your rented flat two months ago and your landlord, Jorge, still hasn't returned the deposit. You call him; you use tú."
+        you: A
+        lines:
+          - {who: A, l2: "Hola, Jorge. Te llamo por lo de la fianza.", l1: "Hi, Jorge. I'm calling about the deposit.",
+             alt: ["Hola, Jorge. Te llamo por la fianza.", "Hola, Jorge, te llamo por lo de la fianza.", "Hola, Jorge. Te llamo por el tema de la fianza.", "Hola, Jorge. Te llamaba por lo de la fianza.", "Hola, Jorge. Te llamo por lo del depósito."]}
+          - {who: B, l2: "Ya, perdona, sé que han pasado dos meses. Es que había que pintar el salón y arreglar una persiana.", l1: "Yes, sorry, I know it's been two months. The thing is, the living room needed painting and a blind needed fixing."}
+          - {who: A, l2: "El salón ya estaba así cuando entré; lo pone en el inventario.", l1: "The living room was already like that when I moved in; it says so in the inventory.",
+             alt: ["El salón ya estaba así cuando entré, lo pone en el inventario.", "El salón ya estaba así cuando llegué; lo pone en el inventario.", "El salón ya estaba así cuando entré; está en el inventario.", "El salón ya estaba así cuando entré; viene en el inventario.", "El salón ya estaba así cuando entré a vivir; lo pone en el inventario."]}
+          - {who: B, l2: "Ah, ¿sí? No me acordaba. ¿Y la persiana?", l1: "Oh, really? I didn't remember. And the blind?"}
+          - {who: A, l2: "Vale, la persiana la rompí yo. Descuéntamela de la fianza.", l1: "OK, I did break the blind. Take it off the deposit.",
+             alt: ["Vale, la persiana sí la rompí yo. Descuéntamela de la fianza.", "Vale, la persiana la rompí yo; descuéntamela de la fianza.", "Vale, la persiana la rompí yo. Descuéntala de la fianza.", "Bueno, la persiana la rompí yo. Descuéntamela de la fianza.", "Vale, la persiana la rompí yo. Quítamela de la fianza."]}
+          - {who: B, l2: "Me parece justo. Te devuelvo el resto esta semana.", l1: "That seems fair. I'll give you back the rest this week."}
+          - {who: A, l2: "Te agradecería que me lo ingresaras antes del viernes.", l1: "I'd be grateful if you paid it into my account before Friday.",
+             alt: ["Te agradecería que me lo ingresases antes del viernes.", "Te agradecería que me lo transfirieras antes del viernes.", "Te agradecería que me lo ingresaras antes de este viernes.", "Te agradecería que me lo pagaras antes del viernes.", "Te agradecería que me lo depositaras antes del viernes."]}
+          - {who: B, l2: "Sin problema. Te lo ingreso mañana mismo.", l1: "No problem. I'll pay it in tomorrow."}
+
+      - id: es-b2-16-reserva
+        type: dialogue
+        title: "The booking that wasn't"
+        scene: "You arrive at a busy restaurant with five friends, but they can't find your booking. You use usted with the head waiter."
+        you: A
+        lines:
+          - {who: A, l2: "Buenas noches. Tenemos una reserva a nombre de Moreno, para seis.", l1: "Good evening. We have a booking in the name of Moreno, for six.",
+             alt: ["Buenas noches. Tenemos una reserva a nombre de Moreno para seis personas.", "Buenas noches, tenemos una reserva a nombre de Moreno, para seis.", "Buenas noches. Tenemos reserva a nombre de Moreno, para seis.", "Buenas noches. Hay una reserva a nombre de Moreno, para seis.", "Buenas noches. Tenemos una reservación a nombre de Moreno, para seis."]}
+          - {who: B, l2: "Moreno... Lo siento, no me aparece ninguna reserva con ese nombre.", l1: "Moreno... I'm sorry, I can't see any booking under that name."}
+          - {who: A, l2: "No puede ser. Llamé el lunes y me la confirmaron.", l1: "That can't be right. I called on Monday and they confirmed it.",
+             alt: ["Es imposible. Llamé el lunes y me la confirmaron.", "No puede ser, llamé el lunes y me la confirmaron.", "No puede ser. Llamé el lunes y me confirmaron la reserva.", "No puede ser. Llamé el lunes y me lo confirmaron.", "No es posible. Llamé el lunes y me la confirmaron."]}
+          - {who: B, l2: "Quizás la apuntaron para otro día. Ahora mismo estamos completos.", l1: "Perhaps it was written down for another day. We're full right now."}
+          - {who: A, l2: "¿Y no podrían juntar dos mesas en la terraza?", l1: "And couldn't you put two tables together on the terrace?",
+             alt: ["¿No podrían juntar dos mesas en la terraza?", "¿Y no se podrían juntar dos mesas en la terraza?", "¿Y no podrían unir dos mesas en la terraza?", "¿Y no pueden juntar dos mesas en la terraza?", "¿Y no podrían juntarnos dos mesas en la terraza?"]}
+          - {who: B, l2: "Déjeme ver... Si esperan diez minutos, les preparo una mesa fuera.", l1: "Let me see... If you wait ten minutes, I'll get a table ready for you outside."}
+          - {who: A, l2: "Muy amable. Esperamos en la barra.", l1: "That's very kind. We'll wait at the bar.",
+             alt: ["Muy amable. Esperaremos en la barra.", "Muy amable, esperamos en la barra.", "Muchas gracias. Esperamos en la barra.", "Es usted muy amable. Esperamos en la barra.", "Muy amable. Le esperamos en la barra."]}
+          - {who: B, l2: "Y la primera ronda corre de nuestra cuenta, por las molestias.", l1: "And the first round is on us, for the inconvenience."}
+
+      - id: es-b2-16-obras
+        type: dialogue
+        title: "A complaint to the town hall"
+        scene: "Road works in your street start at dawn. You call the town hall's citizen helpline. You use usted."
+        you: B
+        lines:
+          - {who: A, l2: "Ayuntamiento, buenos días. ¿En qué puedo ayudarle?", l1: "Town hall, good morning. How can I help you?"}
+          - {who: B, l2: "Quería poner una queja por las obras de mi calle.", l1: "I'd like to make a complaint about the works in my street.",
+             alt: ["Quería presentar una queja por las obras de mi calle.", "Quisiera poner una queja por las obras de mi calle.", "Quería poner una queja sobre las obras de mi calle.", "Quería quejarme de las obras de mi calle.", "Quería hacer una queja por las obras de mi calle."]}
+          - {who: A, l2: "¿Cuál es exactamente el problema?", l1: "What exactly is the problem?"}
+          - {who: B, l2: "Empiezan a las seis de la mañana, incluso los sábados.", l1: "They start at six in the morning, even on Saturdays.",
+             alt: ["Empiezan a trabajar a las seis de la mañana, incluso los sábados.", "Empiezan a las seis de la mañana, hasta los sábados.", "Empiezan a las seis de la mañana, también los sábados.", "Comienzan a las seis de la mañana, incluso los sábados.", "Empiezan a las seis de la mañana incluso los sábados."]}
+          - {who: A, l2: "Según la normativa municipal, no pueden empezar antes de las ocho.", l1: "Under the local regulations, they can't start before eight."}
+          - {who: B, l2: "Pues no la cumplen. Llevo un mes sin dormir bien.", l1: "Well, they're not complying with them. I haven't slept properly for a month.",
+             alt: ["Pues no la cumplen, llevo un mes sin dormir bien.", "Pues no la cumplen. Hace un mes que no duermo bien.", "Pues no la están cumpliendo. Llevo un mes sin dormir bien.", "Pues no la respetan. Llevo un mes sin dormir bien.", "Pues no la cumplen. Llevo un mes sin poder dormir bien."]}
+          - {who: A, l2: "Tomo nota. Enviaremos a un inspector esta semana.", l1: "I've made a note of it. We'll send an inspector this week."}
+          - {who: B, l2: "Le agradecería que me informaran del resultado.", l1: "I'd be grateful if you would let me know the outcome.",
+             alt: ["Le agradecería que me informasen del resultado.", "Le agradecería que me informaran de los resultados.", "Le agradecería que me comunicaran el resultado.", "Les agradecería que me informaran del resultado.", "Le agradecería que me informaran sobre el resultado."]}
+          - {who: A, l2: "Por supuesto. ¿Me da un teléfono de contacto?", l1: "Of course. Could you give me a contact number?"}
+
+      - id: es-b2-16-curso
+        type: dialogue
+        title: "A refund for a cancelled course"
+        scene: "The photography course you paid for has been cancelled. You go to the school's reception. You use usted."
+        you: A
+        lines:
+          - {who: A, l2: "Buenos días. Han cancelado el curso en el que me matriculé.", l1: "Good morning. You've cancelled the course I enrolled on.",
+             alt: ["Buenos días. Han cancelado el curso en el que me inscribí.", "Buenos días. Han cancelado el curso al que me apunté.", "Buenos días, han cancelado el curso en el que me matriculé.", "Buenos días. Han cancelado el curso en el que estaba matriculado.", "Buenos días. Han cancelado el curso en el que estaba matriculada."]}
+          - {who: B, l2: "Sí, lo sentimos mucho. No hubo suficientes alumnos. Le podemos ofrecer otro curso.", l1: "Yes, we're very sorry. There weren't enough students. We can offer you another course."}
+          - {who: A, l2: "Se lo agradezco, pero prefiero que me devuelvan la matrícula.", l1: "Thank you, but I'd rather have my fee refunded.",
+             alt: ["Se lo agradezco, pero preferiría que me devolvieran la matrícula.", "Se lo agradezco, pero prefiero que me devuelvan el dinero.", "Gracias, pero prefiero que me devuelvan la matrícula.", "Se lo agradezco, pero prefiero que me devuelvan el importe de la matrícula.", "Se lo agradezco, pero preferiría que me devolviesen la matrícula."]}
+          - {who: B, l2: "Entiendo. La devolución tarda unos treinta días.", l1: "I understand. The refund takes about thirty days."}
+          - {who: A, l2: "¿Treinta días? Me cobraron en el momento.", l1: "Thirty days? They charged me straight away.",
+             alt: ["¿Treinta días? A mí me cobraron en el momento.", "¿Treinta días? Me cobraron al momento.", "¿Treinta días? Me cobraron en el acto.", "¿Treinta días? Pues me cobraron en el momento.", "¿Treinta días? Me lo cobraron en el momento."]}
+          - {who: B, l2: "Lo comprendo, pero es el plazo del banco; no depende de nosotros.", l1: "I understand, but that's the bank's timescale; it doesn't depend on us."}
+          - {who: A, l2: "Está bien. ¿Me pueden dar un justificante?", l1: "All right. Can you give me written proof (of the refund)?",
+             alt: ["Está bien. ¿Me podrían dar un justificante?", "Vale. ¿Me pueden dar un justificante?", "Está bien, ¿me pueden dar un justificante?", "Está bien. ¿Me puede dar un justificante?", "Está bien. ¿Me pueden dar un comprobante?"]}
+          - {who: B, l2: "Claro, se lo imprimo ahora mismo.", l1: "Of course, I'll print it for you right now."}
+
+      - id: es-b2-16-gimnasio
+        type: dialogue
+        title: "Taking it to the manager"
+        scene: "Your gym kept charging you after you cancelled. The receptionist couldn't help, so the manager comes out to speak to you. You use usted."
+        you: B
+        lines:
+          - {who: A, l2: "Buenas tardes, soy la directora del centro. Me dicen que tiene usted un problema.", l1: "Good afternoon, I'm the manager of the centre. I'm told you have a problem."}
+          - {who: B, l2: "Sí. Me di de baja en junio y me siguen cobrando la cuota.", l1: "Yes. I cancelled my membership in June and you're still charging me the fee.",
+             alt: ["Sí. Me di de baja en junio y me siguen cobrando.", "Sí, me di de baja en junio y me siguen cobrando la cuota.", "Sí. Me di de baja en junio y todavía me cobran la cuota.", "Sí. Me di de baja en junio y siguen cobrándome la cuota.", "Sí. Me di de baja en junio y me siguen cobrando la mensualidad."]}
+          - {who: A, l2: "¿Tiene algún comprobante de la baja?", l1: "Do you have any proof of the cancellation?"}
+          - {who: B, l2: "Sí, aquí tiene el correo en el que me la confirmaron.", l1: "Yes, here's the e-mail in which they confirmed it.",
+             alt: ["Sí, aquí tiene el correo donde me la confirmaron.", "Sí, aquí tiene el correo en el que me lo confirmaron.", "Sí, aquí tiene el correo en que me la confirmaron.", "Sí, aquí está el correo en el que me la confirmaron.", "Sí, aquí tiene el correo electrónico en el que me la confirmaron."]}
+          - {who: A, l2: "Tiene usted razón. Ha sido un error nuestro y le pido disculpas.", l1: "You're right. It was our mistake and I apologise."}
+          - {who: B, l2: "Lo que pido es que me devuelvan los tres meses.", l1: "What I'm asking is for you to refund the three months.",
+             alt: ["Lo que pido es que me devuelvan las tres cuotas.", "Solo pido que me devuelvan los tres meses.", "Lo único que pido es que me devuelvan los tres meses.", "Lo que quiero es que me devuelvan los tres meses.", "Lo que pido es que me devuelvan el dinero de los tres meses."]}
+          - {who: A, l2: "Por supuesto. Y, como compensación, le regalamos un mes si algún día vuelve.", l1: "Of course. And by way of compensation, we'll give you a free month if you ever come back."}
+          - {who: B, l2: "Se lo agradezco. Así da gusto.", l1: "Thank you. That's how it should be done.",
+             alt: ["Se lo agradezco mucho. Así da gusto.", "Muchas gracias. Así da gusto.", "Se lo agradezco, así da gusto.", "Se lo agradezco mucho.", "Muchas gracias, se lo agradezco."]}

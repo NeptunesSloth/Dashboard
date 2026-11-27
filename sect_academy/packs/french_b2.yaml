@@ -641,3 +641,489 @@ units:
       - {id: fr-b2-09-c13, type: cloze, text: "Le jour ___ je l'ai rencontrée, il pleuvait.", answer: "où", l1: "The day I met her, it was raining.", note: "For time, French uses où, not quand."}
       - {id: fr-b2-09-c14, type: cloze, text: "Les raisons pour ___ il a refusé restent mystérieuses.", answer: "lesquelles", l1: "The reasons why he refused remain mysterious.", note: "les raisons (feminine plural) → pour lesquelles."}
       - {id: fr-b2-09-c15, type: cloze, text: "Voici les documents sans ___ tu ne peux pas t'inscrire.", answer: "lesquels", l1: "Here are the documents without which you can't enrol. (informal)", note: "les documents (masculine plural) → sans lesquels."}
+
+  # ───────────────────────────────────────────────────────────────── 10
+  - id: fr4-10
+    title: "Money and shopping: the -ant forms"
+    goal: "I can talk about banking, spending and saving, and choose correctly between the gérondif, the present participle and the verbal adjective."
+    notes: |
+      French has three -ant forms that English lumps together.
+
+      ## 1. The gérondif: en + -ant
+      Same subject; how, when or while (B1). **tout en** adds "at the same time" or a contrast: ***Tout en** sachant que c'était cher, il l'a acheté.*
+
+      ## 2. The participe présent: -ant alone
+      Mostly written. It replaces *qui* + verb or gives a cause, and it **never agrees**: *Les clients **souhaitant** un remboursement…* (= qui souhaitent); ***Ne sachant** pas quoi faire, j'ai appelé.* The past form is **ayant / étant** + participle: ***Ayant perdu** sa carte, il n'a pas pu payer.*
+
+      ## 3. The adjectif verbal
+      An ordinary adjective: it **agrees**: *une offre **intéressante**, des enfants **obéissants***. Some are **spelled differently** from the participle:
+
+      | participe présent | adjectif verbal |
+      |---|---|
+      | fatiguant | fatigant |
+      | convainquant | convaincant |
+      | provoquant | provocant |
+      | négligeant | négligent |
+      | différant | différent |
+      | précédant | précédent |
+
+      Test: if it has an object or an adverb after it, it is the participle: *un travail **fatigant*** but *en **fatiguant** ses collègues*.
+
+      After every preposition except *en*, use the infinitive: *sans **payer***, *à **regarder***.
+    items:
+      - {id: fr-b2-10-virement, type: vocab, l2: "le virement", l1: "the bank transfer", ex: "Je vous paie par virement.", ex_l1: "I'll pay you by bank transfer.", note: "faire un virement. virer = to transfer money, and casually, to fire someone."}
+      - {id: fr-b2-10-prelevement, type: vocab, l2: "le prélèvement", l1: "the direct debit", ex: "Le loyer est payé par prélèvement automatique.", ex_l1: "The rent is paid by direct debit.", note: "prélever = to deduct, to take (money, a sample)."}
+      - {id: fr-b2-10-decouvert, type: vocab, l2: "le découvert", l1: "the overdraft", ex: "J'ai un découvert autorisé de cinq cents euros.", ex_l1: "I have an authorised overdraft of five hundred euros.", note: "être à découvert = to be overdrawn."}
+      - {id: fr-b2-10-pret, type: vocab, l2: "le prêt", l1: "the loan", alt: ["le crédit"], ex: "Nous avons obtenu un prêt pour acheter la maison.", ex_l1: "We got a loan to buy the house.", note: "From prêter. un prêt immobilier = a mortgage."}
+      - {id: fr-b2-10-economies, type: vocab, l2: "les économies", l1: "savings", ex: "J'ai dépensé toutes mes économies.", ex_l1: "I spent all my savings.", note: "faire des économies = to save money. l'économie (singular) = the economy."}
+      - {id: fr-b2-10-depenser, type: vocab, l2: "dépenser", l1: "to spend (money)", ex: "Il dépense tout son salaire en vêtements.", ex_l1: "He spends his whole salary on clothes.", note: "Time is spent with passer: passer une heure à lire. les dépenses = expenses."}
+      - {id: fr-b2-10-soldes, type: vocab, l2: "les soldes", l1: "the sales (seasonal reductions)", ex: "Les soldes commencent en janvier.", ex_l1: "The sales start in January.", note: "Masculine plural. en solde = reduced. In France the sales have fixed dates."}
+      - {id: fr-b2-10-en-promotion, type: vocab, l2: "en promotion", l1: "on special offer", alt: ["en promo"], ex: "Les fraises sont en promotion cette semaine.", ex_l1: "Strawberries are on special offer this week.", note: "Casual: en promo. une promotion is also a promotion at work."}
+      - {id: fr-b2-10-qualite-prix, type: vocab, l2: "le rapport qualité-prix", l1: "value for money", ex: "Ce restaurant a un excellent rapport qualité-prix.", ex_l1: "This restaurant is excellent value for money.", note: "Literally 'the quality-price ratio'."}
+      - {id: fr-b2-10-facture, type: vocab, l2: "la facture", l1: "the bill / the invoice", ex: "La facture d'électricité est arrivée.", ex_l1: "The electricity bill has arrived.", note: "In a restaurant the bill is l'addition."}
+      - {id: fr-b2-10-remboursement, type: vocab, l2: "le remboursement", l1: "the refund / the repayment", ex: "J'attends toujours mon remboursement.", ex_l1: "I'm still waiting for my refund.", note: "From rembourser."}
+      - {id: fr-b2-10-garantie, type: vocab, l2: "la garantie", l1: "the guarantee / the warranty", ex: "L'appareil est encore sous garantie.", ex_l1: "The appliance is still under warranty.", note: "sous garantie = under warranty."}
+      - {id: fr-b2-10-pourboire, type: vocab, l2: "le pourboire", l1: "the tip (for service)", ex: "En France, le pourboire n'est pas obligatoire.", ex_l1: "In France, tipping isn't compulsory.", note: "Service is included in French prices; in Québec a tip of about 15% is expected."}
+      - {id: fr-b2-10-sans-contact, type: vocab, l2: "le paiement sans contact", l1: "contactless payment", ex: "Le paiement sans contact est accepté.", ex_l1: "Contactless payment is accepted.", note: "payer sans contact = to pay contactless."}
+      - {id: fr-b2-10-endette, type: vocab, l2: "endetté", l1: "in debt (masculine)", ex: "Beaucoup d'étudiants sont endettés.", ex_l1: "Many students are in debt.", note: "une dette = a debt; s'endetter = to get into debt."}
+      - {id: fr-b2-10-radin, type: vocab, l2: "radin", l1: "stingy / tight-fisted (casual; masculine)", ex: "Il ne laisse jamais de pourboire : il est radin !", ex_l1: "He never leaves a tip: he's so stingy!", note: "Feminine: radine. Neutral: avare."}
+      - {id: fr-b2-10-depensier, type: vocab, l2: "dépensier", l1: "extravagant / free-spending (masculine)", ex: "Ma sœur est très dépensière.", ex_l1: "My sister spends money like water.", note: "Feminine: dépensière."}
+      - {id: fr-b2-10-fauche, type: vocab, l2: "fauché", l1: "broke / skint (casual; masculine)", ex: "Je ne peux pas sortir ce soir, je suis fauché.", ex_l1: "I can't go out tonight, I'm broke.", note: "Feminine: fauchée. Literally 'mown down'."}
+      - {id: fr-b2-10-abordable, type: vocab, l2: "abordable", l1: "affordable / reasonably priced", ex: "Les prix sont très abordables.", ex_l1: "The prices are very affordable.", note: "Also approachable, of a person."}
+      - {id: fr-b2-10-rentable, type: vocab, l2: "rentable", l1: "profitable / cost-effective", ex: "Ce magasin n'est plus rentable.", ex_l1: "This shop is no longer profitable.", note: "la rentabilité = profitability."}
+      - {id: fr-b2-10-fatigant, type: vocab, l2: "fatigant", l1: "tiring (masculine)", ex: "Ce voyage était très fatigant.", ex_l1: "This journey was very tiring.", note: "The adjective has no u: fatigant(e). The participle keeps it: en fatiguant."}
+      - {id: fr-b2-10-convaincant, type: vocab, l2: "convaincant", l1: "convincing (masculine)", ex: "Son argument est convaincant.", ex_l1: "His argument is convincing.", note: "The adjective has c: convaincant(e). The participle has qu: en convainquant."}
+      - {id: fr-b2-10-yeux-de-la-tete, type: phrase, l2: "Ça coûte les yeux de la tête.", l1: "It costs an arm and a leg. (idiom with eyes)", alt: ["Ça coûte un bras."], note: "Literally 'the eyes of the head'."}
+      - {id: fr-b2-10-je-suis-a-decouvert, type: phrase, l2: "Je suis à découvert.", l1: "I'm overdrawn."}
+      - {id: fr-b2-10-par-les-fenetres, type: phrase, l2: "Il jette l'argent par les fenêtres.", l1: "He throws his money away. (idiom with windows)", note: "Literally 'throws money out of the windows'."}
+      - {id: fr-b2-10-serrer-la-ceinture, type: phrase, l2: "Il va falloir se serrer la ceinture.", l1: "We'll have to tighten our belts. (idiom)", alt: ["Il faut se serrer la ceinture."], note: "falloir has only an il form: il va falloir = it is going to be necessary."}
+      - {id: fr-b2-10-pas-donne, type: phrase, l2: "Ce n'est pas donné.", l1: "It's not cheap. / It's pricey.", alt: ["C'est pas donné."], note: "donné = given away."}
+      - {id: fr-b2-10-c1, type: cloze, text: "Il a trouvé un bon prix en ___ les sites.", answer: "comparant", l1: "He found a good price by comparing the websites.", note: "Gérondif: en + -ant (nous comparons → comparant)."}
+      - {id: fr-b2-10-c2, type: cloze, text: "Tout en ___ beaucoup, il n'est jamais fauché.", answer: "dépensant", l1: "Although he spends a lot, he is never broke.", note: "tout en + -ant: two things at once, often with a contrast."}
+      - {id: fr-b2-10-c3, type: cloze, text: "Les clients ___ un remboursement doivent garder leur ticket de caisse.", answer: "souhaitant", alt: ["désirant", "voulant"], l1: "Customers wanting a refund must keep their receipt.", note: "Participe présent = qui souhaitent. Written style, invariable."}
+      - {id: fr-b2-10-c4, type: cloze, text: "___ perdu sa carte, il n'a pas pu payer.", answer: "ayant", l1: "Having lost his card, he couldn't pay.", note: "Past participle form: ayant + participle."}
+      - {id: fr-b2-10-c5, type: cloze, text: "___ arrivée en retard, elle a raté le début des soldes.", answer: "étant", l1: "Having arrived late, she missed the start of the sales.", note: "With être verbs: étant + participle, which agrees (arrivée)."}
+      - {id: fr-b2-10-c6, type: cloze, text: "Ce comptable est vraiment ___ : il fait toujours des erreurs.", answer: "négligent", l1: "This accountant is really careless: he always makes mistakes.", note: "Adjective: négligent. Participle: négligeant."}
+      - {id: fr-b2-10-c7, type: cloze, text: "Leurs publicités sont volontairement ___.", answer: "provocantes", l1: "Their adverts are deliberately provocative.", note: "Adjective provocant, agreeing with les publicités. Participle: provoquant."}
+      - {id: fr-b2-10-c8, type: cloze, text: "Les jours ___ la fête, nous avons tout préparé.", answer: "précédant", l1: "In the days before the party, we got everything ready.", note: "It has an object (la fête), so it is the participle: précédant, invariable."}
+      - {id: fr-b2-10-c9, type: cloze, text: "L'année ___, les prix étaient plus bas.", answer: "précédente", l1: "The previous year, prices were lower.", note: "An adjective, agreeing with l'année: précédente."}
+      - {id: fr-b2-10-c10, type: cloze, text: "Les deux banques proposent des tarifs très ___.", answer: "différents", l1: "The two banks offer very different rates.", note: "Adjective différent(s). The participle différant means 'differing'."}
+      - {id: fr-b2-10-c11, type: cloze, text: "On peut faire des économies en ___ ses abonnements.", answer: "réduisant", alt: ["résiliant", "supprimant"], l1: "You can save money by cutting down your subscriptions.", note: "réduire: nous réduisons → réduisant."}
+      - {id: fr-b2-10-c12, type: cloze, text: "Ne ___ pas quoi choisir, j'ai demandé conseil au vendeur.", answer: "sachant", l1: "Not knowing what to choose, I asked the sales assistant for advice.", note: "Participe présent giving a cause. savoir → sachant (irregular)."}
+      - {id: fr-b2-10-c13, type: cloze, text: "Il est parti sans ___ l'addition.", answer: "payer", alt: ["régler"], l1: "He left without paying the bill.", note: "After sans (and every preposition except en): infinitive."}
+      - {id: fr-b2-10-c14, type: cloze, text: "Elle a passé l'après-midi à ___ les vitrines.", answer: "lécher", alt: ["regarder", "faire"], l1: "She spent the afternoon window-shopping.", note: "passer du temps à + infinitive. lécher les vitrines (lick the windows) = to go window-shopping; also faire les vitrines."}
+      - {id: fr-b2-10-c15, type: cloze, text: "Ces enfants sont très ___ : ils écoutent toujours leurs parents.", answer: "obéissants", l1: "These children are very obedient: they always listen to their parents.", note: "A verbal adjective agrees: obéissants."}
+
+  # ───────────────────────────────────────────────────────────────── 11
+  - id: fr4-11
+    title: "History and stories: the passé simple and the ne explétif"
+    goal: "I can read a tale, a novel or a history text written in the passé simple, and recognise the ne explétif in formal French."
+    notes: |
+      The **passé simple** is the past tense of written narrative: novels, tales, history books, biographies. Speech uses the passé composé instead. You mainly need to **recognise** the third person.
+
+      | | il / elle | ils / elles |
+      |---|---|---|
+      | parler (all -er) | parla | parlèrent |
+      | finir, partir | finit, partit | finirent, partirent |
+      | prendre, mettre, dire | prit, mit, dit | prirent, mirent, dirent |
+      | être | fut | furent |
+      | avoir | eut | eurent |
+      | faire | fit | firent |
+      | venir, tenir | vint, tint | vinrent, tinrent |
+      | pouvoir, savoir, devoir | put, sut, dut | purent, surent, durent |
+      | naître, mourir, vivre | naquit, mourut, vécut | naquirent, moururent, vécurent |
+
+      It works with the **imparfait** just as the passé composé does: the imparfait sets the scene, the passé simple moves the story on. *Il **pleuvait**. Soudain, la porte **s'ouvrit**.*
+
+      ## The ne explétif
+      Formal French adds a **ne** that is **not negative** after *avant que, à moins que, de peur que, craindre que, avoir peur que, éviter que*, and in comparisons: *C'est plus difficile **que je ne** pensais.* It means exactly the same without it. A real negative needs *pas*: *avant qu'il **ne** pleuve* (before it rains) ≠ *qu'il ne pleuve **pas*** (that it doesn't rain).
+    items:
+      - {id: fr-b2-11-il-fut, type: vocab, l2: "il fut", l1: "he was / it was (passé simple of être)", ex: "Ce fut une journée terrible.", ex_l1: "It was a terrible day.", note: "Written narrative only. Plural: ils furent. In speech: il a été."}
+      - {id: fr-b2-11-il-eut, type: vocab, l2: "il eut", l1: "he had (passé simple of avoir)", ex: "Il eut soudain une idée.", ex_l1: "Suddenly he had an idea.", note: "eut sounds like 'u'. Plural: ils eurent."}
+      - {id: fr-b2-11-il-fit, type: vocab, l2: "il fit", l1: "he did / he made (passé simple of faire)", ex: "Il fit un long voyage en Orient.", ex_l1: "He made a long journey to the East.", note: "Plural: ils firent."}
+      - {id: fr-b2-11-il-vint, type: vocab, l2: "il vint", l1: "he came (passé simple of venir)", ex: "Il vint me voir un soir d'hiver.", ex_l1: "He came to see me one winter evening.", note: "Plural: ils vinrent. Same pattern: il tint (tenir), il devint (devenir)."}
+      - {id: fr-b2-11-il-prit, type: vocab, l2: "il prit", l1: "he took (passé simple of prendre)", ex: "Il prit son chapeau et sortit.", ex_l1: "He took his hat and went out.", note: "Plural: ils prirent."}
+      - {id: fr-b2-11-il-vit, type: vocab, l2: "il vit", l1: "he saw (passé simple of voir)", ex: "Il vit une lumière au loin.", ex_l1: "He saw a light in the distance.", note: "Spelled like il vit (he lives, from vivre). Context decides."}
+      - {id: fr-b2-11-il-mit, type: vocab, l2: "il mit", l1: "he put (passé simple of mettre)", ex: "Il mit la lettre dans sa poche.", ex_l1: "He put the letter in his pocket.", note: "se mettre à = to start: il se mit à pleurer."}
+      - {id: fr-b2-11-il-naquit, type: vocab, l2: "il naquit", l1: "he was born (passé simple of naître)", ex: "Il naquit dans un petit village.", ex_l1: "He was born in a small village.", note: "In speech: il est né."}
+      - {id: fr-b2-11-il-mourut, type: vocab, l2: "il mourut", l1: "he died (passé simple of mourir)", ex: "Il mourut à l'âge de quatre-vingts ans.", ex_l1: "He died at the age of eighty.", note: "In speech: il est mort."}
+      - {id: fr-b2-11-il-put, type: vocab, l2: "il put", l1: "he was able to / he managed to (passé simple of pouvoir)", ex: "Il ne put rien faire.", ex_l1: "He could do nothing.", note: "Plural: ils purent. Also il sut (savoir), il dut (devoir)."}
+      - {id: fr-b2-11-ils-parlerent, type: vocab, l2: "ils parlèrent", l1: "they spoke (passé simple of parler)", ex: "Ils parlèrent toute la nuit.", ex_l1: "They talked all night.", note: "Every -er verb: -a in the singular, -èrent in the plural: ils arrivèrent, ils allèrent."}
+      - {id: fr-b2-11-il-alla, type: vocab, l2: "il alla", l1: "he went (passé simple of aller)", ex: "Il alla frapper à la porte.", ex_l1: "He went to knock on the door.", note: "aller is regular in the passé simple: il alla, ils allèrent."}
+      - {id: fr-b2-11-siecle, type: vocab, l2: "le siècle", l1: "the century", ex: "Le château date du seizième siècle.", ex_l1: "The castle dates from the sixteenth century.", note: "Often written in Roman numerals: le XVIe siècle, le XXIe siècle."}
+      - {id: fr-b2-11-roi, type: vocab, l2: "le roi", l1: "the king", ex: "Louis XIV fut roi de France pendant soixante-douze ans.", ex_l1: "Louis XIV was king of France for seventy-two years.", note: "la reine = the queen. Say Louis Quatorze, with no 'the'."}
+      - {id: fr-b2-11-guerre, type: vocab, l2: "la guerre", l1: "the war", ex: "Mon arrière-grand-père a fait la guerre.", ex_l1: "My great-grandfather fought in the war.", note: "la Première / la Seconde Guerre mondiale."}
+      - {id: fr-b2-11-paix, type: vocab, l2: "la paix", l1: "peace", ex: "Laisse-moi en paix !", ex_l1: "Leave me in peace!", note: "Casual: Fiche-moi la paix ! = Leave me alone!"}
+      - {id: fr-b2-11-bataille, type: vocab, l2: "la bataille", l1: "the battle", ex: "Napoléon perdit la bataille de Waterloo en 1815.", ex_l1: "Napoleon lost the battle of Waterloo in 1815.", note: "perdit: passé simple of perdre."}
+      - {id: fr-b2-11-regne, type: vocab, l2: "le règne", l1: "the reign", ex: "Versailles fut agrandi sous le règne de Louis XIV.", ex_l1: "Versailles was enlarged during the reign of Louis XIV.", note: "régner = to reign."}
+      - {id: fr-b2-11-moyen-age, type: vocab, l2: "le Moyen Âge", l1: "the Middle Ages", ex: "Cette ville date du Moyen Âge.", ex_l1: "This town dates from the Middle Ages.", note: "Masculine singular. médiéval = medieval."}
+      - {id: fr-b2-11-conte, type: vocab, l2: "le conte", l1: "the tale / the fairy tale", alt: ["le conte de fées"], ex: "Les contes de Perrault commencent par « Il était une fois ».", ex_l1: "Perrault's tales begin with 'Once upon a time'.", note: "Not le compte (account) or le comte (count): all three sound the same."}
+      - {id: fr-b2-11-heros, type: vocab, l2: "le héros", l1: "the hero", ex: "Le héros du roman meurt à la fin.", ex_l1: "The hero of the novel dies at the end.", note: "The h is aspirate: le héros, les héros (no liaison). But l'héroïne."}
+      - {id: fr-b2-11-recit, type: vocab, l2: "le récit", l1: "the account / the narrative", ex: "Il a fait le récit de son voyage.", ex_l1: "He gave an account of his journey.", note: "From réciter; the noun of raconter in writing."}
+      - {id: fr-b2-11-il-etait-une-fois, type: phrase, l2: "Il était une fois…", l1: "Once upon a time…", note: "The imparfait of être: the fixed opening of fairy tales."}
+      - {id: fr-b2-11-vecurent-heureux, type: phrase, l2: "Ils vécurent heureux et eurent beaucoup d'enfants.", l1: "They lived happily ever after. (fairy-tale ending)", note: "Passé simple of vivre and avoir: literally 'and had many children'."}
+      - {id: fr-b2-11-plus-difficile-que-je-ne, type: phrase, l2: "C'est plus difficile que je ne le pensais.", l1: "It's harder than I thought. (formal, with the ne explétif)", alt: ["C'est plus difficile que je ne pensais."], note: "This ne does not make it negative. In speech: c'est plus dur que je pensais."}
+      - {id: fr-b2-11-peur-qu-il-ne-soit-parti, type: phrase, l2: "J'ai peur qu'il ne soit déjà parti.", l1: "I'm afraid he has already left. (formal, with the ne explétif)", note: "Not 'that he hasn't left': that would be qu'il ne soit pas parti."}
+      - {id: fr-b2-11-c1, type: cloze, text: "Il était une fois un roi qui ___ trois filles.", answer: "avait", l1: "Once upon a time there was a king who had three daughters.", note: "Background description → imparfait, even in a passé simple story."}
+      - {id: fr-b2-11-c2, type: cloze, text: "Un jour, le roi ___ gravement malade.", answer: "tomba", l1: "One day, the king fell seriously ill. (passé simple)", note: "-er verbs: il tomba."}
+      - {id: fr-b2-11-c3, type: cloze, text: "Les soldats ___ la ville au petit matin.", answer: "quittèrent", alt: ["attaquèrent"], l1: "The soldiers left the town at dawn. (passé simple)", note: "-er verbs in the plural: -èrent."}
+      - {id: fr-b2-11-c4, type: cloze, text: "Marie Curie ___ deux prix Nobel.", answer: "obtint", alt: ["reçut", "eut", "remporta"], l1: "Marie Curie won two Nobel Prizes. (passé simple)", note: "obtenir → elle obtint, like venir → elle vint."}
+      - {id: fr-b2-11-c5, type: cloze, text: "Quand elle ouvrit la porte, elle ___ un grand loup.", answer: "aperçut", alt: ["vit"], l1: "When she opened the door, she caught sight of a big wolf. (passé simple)", note: "apercevoir → elle aperçut, like recevoir → elle reçut."}
+      - {id: fr-b2-11-c6, type: cloze, text: "« Entrez ! » ___-il.", answer: "dit", alt: ["cria"], l1: "'Come in!' he said. (passé simple)", note: "After a quotation the verb and subject swap: dit-il, répondit-elle."}
+      - {id: fr-b2-11-c7, type: cloze, text: "Ils ___ la bataille malgré leur courage.", answer: "perdirent", l1: "They lost the battle despite their courage. (passé simple)", note: "-re verbs: il perdit, ils perdirent."}
+      - {id: fr-b2-11-c8, type: cloze, text: "En 1789, le peuple de Paris ___ la Bastille.", answer: "prit", l1: "In 1789, the people of Paris took the Bastille. (passé simple)", note: "prendre → il prit."}
+      - {id: fr-b2-11-c9, type: cloze, text: "Le prince ___ au château le lendemain.", answer: "revint", alt: ["retourna", "vint", "arriva"], l1: "The prince came back to the castle the next day. (passé simple)", note: "revenir → il revint."}
+      - {id: fr-b2-11-c10, type: cloze, text: "Après la guerre, elle ___ une écrivaine célèbre.", answer: "devint", l1: "After the war, she became a famous writer. (passé simple)", note: "devenir → elle devint."}
+      - {id: fr-b2-11-c11, type: cloze, text: "Les enfants ___ peur et s'enfuirent.", answer: "eurent", l1: "The children were frightened and ran away. (passé simple)", note: "avoir peur → ils eurent peur. s'enfuir = to run away."}
+      - {id: fr-b2-11-c12, type: cloze, text: "Rentrons avant qu'il ___ fasse nuit.", answer: "ne", l1: "Let's go home before it gets dark. (formal, with the ne explétif)", note: "Not a negative: the sentence means the same without it."}
+      - {id: fr-b2-11-c13, type: cloze, text: "Il est plus intelligent qu'il ne le ___.", answer: "paraît", alt: ["semble"], l1: "He is more intelligent than he seems.", note: "ne explétif in a comparison, plus the neuter le."}
+      - {id: fr-b2-11-c14, type: cloze, text: "Le roi craignait que son fils ne le ___.", answer: "trahisse", l1: "The king feared his son would betray him.", note: "craindre que + ne explétif + subjunctive. trahir → qu'il trahisse."}
+
+  # ───────────────────────────────────────────────────────────────── 12
+  - id: fr4-12
+    title: "Building an argument: discourse markers and abstract nouns"
+    goal: "I can structure a spoken or written argument, concede and counter points, and discuss ideas with abstract nouns."
+    notes: |
+      A B2 argument is signposted. You already know *cependant, en revanche, d'ailleurs, en effet, pourtant, donc*. Add these:
+
+      | job | markers |
+      |---|---|
+      | add | de plus, en outre, par ailleurs |
+      | contrast | néanmoins, toutefois, alors que, tandis que |
+      | concede | certes … mais, il est vrai que … mais |
+      | consequence | par conséquent, ainsi, si bien que (+ indicative) |
+      | clarify | c'est-à-dire, autrement dit, notamment, voire |
+      | structure | d'une part … d'autre part, quant à |
+      | conclude | en somme, en définitive, bref |
+
+      ## or
+      **Or** (no accent) is not English "or" (*ou*). It introduces the fact that decides the argument: *Il dit qu'il était chez lui. **Or**, on l'a vu au café.* = Yet / Now.
+
+      ## Inversion after aussi and ainsi
+      At the start of a clause, **aussi** means "therefore" and is followed by inversion in writing: ***Aussi a-t-il** dû vendre sa maison.* Not to be confused with *aussi* = also.
+
+      ## Abstract nouns
+      Arguments run on nouns: *l'enjeu, le défi, la contrainte, la tendance, le constat*. They need their article: *Le défi est énorme.*
+
+      Concede before you counter: ***Certes**, c'est cher, **mais** c'est efficace.*
+    items:
+      - {id: fr-b2-12-neanmoins, type: vocab, l2: "néanmoins", l1: "nevertheless / nonetheless", ex: "C'est difficile ; néanmoins, c'est possible.", ex_l1: "It's difficult; nevertheless, it's possible.", note: "Formal; close to toutefois and cependant."}
+      - {id: fr-b2-12-or, type: vocab, l2: "or", l1: "now / and yet (introducing a deciding fact)", ex: "Il dit qu'il était chez lui. Or, on l'a vu au café.", ex_l1: "He says he was at home. Yet he was seen at the café.", note: "No accent. English 'or' is ou."}
+      - {id: fr-b2-12-par-consequent, type: vocab, l2: "par conséquent", l1: "consequently / as a result", alt: ["en conséquence"], ex: "Les cheminots sont en grève ; par conséquent, la réunion est reportée.", ex_l1: "The railway workers are on strike; consequently, the meeting has been postponed.", note: "More formal than donc."}
+      - {id: fr-b2-12-c-est-a-dire, type: vocab, l2: "c'est-à-dire", l1: "that is to say / i.e.", ex: "Je pars dans huit jours, c'est-à-dire mardi prochain.", ex_l1: "I'm leaving in a week, that is, next Tuesday.", note: "Written c.-à-d. As a question, C'est-à-dire ? = Meaning what?"}
+      - {id: fr-b2-12-en-outre, type: vocab, l2: "en outre", l1: "furthermore / in addition (formal)", alt: ["de plus"], ex: "Ce logement est trop petit. En outre, il est mal situé.", ex_l1: "This flat is too small. Furthermore, it is badly located.", note: "In speech: en plus."}
+      - {id: fr-b2-12-par-ailleurs, type: vocab, l2: "par ailleurs", l1: "moreover / besides / in other respects", ex: "Il est très compétent ; par ailleurs, il parle trois langues.", ex_l1: "He is very competent; moreover, he speaks three languages.", note: "Also 'otherwise, in other respects': par ailleurs, tout va bien."}
+      - {id: fr-b2-12-certes, type: vocab, l2: "certes", l1: "admittedly / certainly (conceding a point)", ex: "Certes, il a fait des erreurs, mais il a beaucoup travaillé.", ex_l1: "Admittedly, he made mistakes, but he worked hard.", note: "Almost always followed by mais: concede, then counter."}
+      - {id: fr-b2-12-autrement-dit, type: vocab, l2: "autrement dit", l1: "in other words", alt: ["en d'autres termes"], ex: "Il n'a pas répondu. Autrement dit, c'est non.", ex_l1: "He didn't answer. In other words, it's a no."}
+      - {id: fr-b2-12-notamment, type: vocab, l2: "notamment", l1: "in particular / notably", alt: ["en particulier"], ex: "Elle a vécu dans plusieurs pays, notamment au Japon.", ex_l1: "She has lived in several countries, notably Japan.", note: "Very common in written French."}
+      - {id: fr-b2-12-voire, type: vocab, l2: "voire", l1: "even / or even (going one step further)", ex: "Il faudra des mois, voire des années.", ex_l1: "It will take months, or even years.", note: "Not voir (to see)."}
+      - {id: fr-b2-12-ainsi, type: vocab, l2: "ainsi", l1: "thus / in this way", ex: "Ainsi, nous avons pu réduire nos coûts.", ex_l1: "In this way, we were able to reduce our costs.", note: "ainsi que = as well as: le directeur ainsi que son équipe."}
+      - {id: fr-b2-12-alors-que, type: vocab, l2: "alors que", l1: "whereas / while (contrast)", alt: ["tandis que"], ex: "Il fait beau à Nice, alors qu'il pleut à Paris.", ex_l1: "It's sunny in Nice, whereas it's raining in Paris.", note: "Indicative. Also 'just as' for time: alors que je partais."}
+      - {id: fr-b2-12-en-somme, type: vocab, l2: "en somme", l1: "all in all / in short", alt: ["en résumé"], ex: "En somme, le projet est une réussite.", ex_l1: "All in all, the project is a success."}
+      - {id: fr-b2-12-quant-a, type: vocab, l2: "quant à", l1: "as for / as far as … is concerned", ex: "Quant à moi, je reste ici.", ex_l1: "As for me, I'm staying here.", note: "à contracts: quant au prix, quant aux résultats."}
+      - {id: fr-b2-12-si-bien-que, type: vocab, l2: "si bien que", l1: "so / with the result that (+ indicative)", alt: ["de sorte que"], ex: "Il a beaucoup neigé, si bien que les routes sont fermées.", ex_l1: "It snowed a lot, so the roads are closed.", note: "A result → indicative. A purpose (pour que) → subjunctive."}
+      - {id: fr-b2-12-au-lieu-de, type: vocab, l2: "au lieu de", l1: "instead of", ex: "Prends le train au lieu de la voiture.", ex_l1: "Take the train instead of the car.", note: "+ noun or infinitive: au lieu de travailler."}
+      - {id: fr-b2-12-faute-de, type: vocab, l2: "faute de", l1: "for lack of / for want of", ex: "Faute d'argent, ils ont annulé le projet.", ex_l1: "For lack of money, they cancelled the project.", note: "No article after it: faute de temps. faute de mieux = for want of anything better."}
+      - {id: fr-b2-12-enjeu, type: vocab, l2: "l'enjeu", l1: "the stake / what is at stake", ex: "L'enjeu de ces élections est énorme.", ex_l1: "What is at stake in these elections is huge.", note: "Masculine. Plural: les enjeux = the issues at stake."}
+      - {id: fr-b2-12-point-de-vue, type: vocab, l2: "le point de vue", l1: "the point of view", ex: "Je comprends ton point de vue.", ex_l1: "I understand your point of view.", note: "de mon point de vue = from my point of view."}
+      - {id: fr-b2-12-defi, type: vocab, l2: "le défi", l1: "the challenge", ex: "Le changement climatique est le défi du siècle.", ex_l1: "Climate change is the challenge of the century.", note: "relever un défi = to rise to a challenge."}
+      - {id: fr-b2-12-contrainte, type: vocab, l2: "la contrainte", l1: "the constraint", ex: "Nous avons beaucoup de contraintes de temps.", ex_l1: "We have a lot of time constraints.", note: "contraindre = to force."}
+      - {id: fr-b2-12-constat, type: vocab, l2: "le constat", l1: "the finding / the observation (of a fact)", ex: "Le constat est simple : nous consommons trop.", ex_l1: "The finding is simple: we consume too much.", note: "faire un constat. un constat amiable = an accident report form."}
+      - {id: fr-b2-12-prise-de-conscience, type: vocab, l2: "la prise de conscience", l1: "the awareness / the realisation", ex: "Il y a une vraie prise de conscience écologique.", ex_l1: "There is a real environmental awakening.", note: "prendre conscience de = to become aware of."}
+      - {id: fr-b2-12-tendance, type: vocab, l2: "la tendance", l1: "the trend / the tendency", ex: "La tendance est à la baisse.", ex_l1: "The trend is downward.", note: "avoir tendance à + infinitive = to tend to."}
+      - {id: fr-b2-12-n-en-reste-pas-moins, type: phrase, l2: "Il n'en reste pas moins que c'est risqué.", l1: "The fact remains that it's risky.", note: "A formal way to hold your ground after a concession."}
+      - {id: fr-b2-12-cela-dit, type: phrase, l2: "Cela dit, je comprends ta position.", l1: "That said, I understand your position. (informal)", alt: ["Ceci dit, je comprends ta position."], note: "cela dit / ceci dit = that said."}
+      - {id: fr-b2-12-revers-de-la-medaille, type: phrase, l2: "C'est le revers de la médaille.", l1: "That's the downside. / That's the other side of the coin. (idiom)", note: "Literally 'the reverse of the medal'."}
+      - {id: fr-b2-12-couper-la-poire, type: phrase, l2: "Coupons la poire en deux.", l1: "Let's split the difference. / Let's meet halfway. (idiom with a pear)", alt: ["On coupe la poire en deux."]}
+      - {id: fr-b2-12-vitesse-precipitation, type: phrase, l2: "Il ne faut pas confondre vitesse et précipitation.", l1: "More haste, less speed. (saying)", note: "Literally 'don't confuse speed with haste'."}
+      - {id: fr-b2-12-c1, type: cloze, text: "Tous les hommes sont mortels. ___ Socrate est un homme. Donc Socrate est mortel.", answer: "or", l1: "All men are mortal. Now Socrates is a man. So Socrates is mortal.", note: "or brings in the fact on which the conclusion turns."}
+      - {id: fr-b2-12-c2, type: cloze, text: "Le projet coûte cher. ___, il créera des emplois.", answer: "néanmoins", alt: ["cependant", "toutefois"], l1: "The project is expensive. Nevertheless, it will create jobs.", note: "A contrast that keeps the first point standing."}
+      - {id: fr-b2-12-c3, type: cloze, text: "Les prix ont augmenté ; par ___, les ventes ont baissé.", answer: "conséquent", l1: "Prices went up; as a result, sales fell.", note: "par conséquent = consequently."}
+      - {id: fr-b2-12-c4, type: cloze, text: "Je suis végétarien, ___ je ne mange pas de viande.", answer: "c'est-à-dire", l1: "I'm a vegetarian, that is, I don't eat meat. (a man speaking)", note: "c'est-à-dire explains what came before."}
+      - {id: fr-b2-12-c5, type: cloze, text: "___, la solution est efficace, mais elle coûte cher.", answer: "certes", l1: "Admittedly, the solution is effective, but it's expensive.", note: "certes … mais: concede, then counter."}
+      - {id: fr-b2-12-c6, type: cloze, text: "Beaucoup de pays, ___ la France, ont adopté cette loi.", answer: "notamment", alt: ["dont"], l1: "Many countries, notably France, have adopted this law.", note: "dont la France (including France) is also natural here."}
+      - {id: fr-b2-12-c7, type: cloze, text: "Cela prendra des semaines, ___ des mois.", answer: "voire", l1: "It will take weeks, or even months.", note: "voire raises the stakes."}
+      - {id: fr-b2-12-c8, type: cloze, text: "Il pleuvait beaucoup, si ___ que le match a été annulé.", answer: "bien", l1: "It was raining heavily, so the match was cancelled.", note: "si bien que + indicative = with the result that."}
+      - {id: fr-b2-12-c9, type: cloze, text: "Moi, j'adore la ville ; ___ à mon frère, il préfère la campagne.", answer: "quant", l1: "I love the city; as for my brother, he prefers the countryside.", note: "quant à = as for."}
+      - {id: fr-b2-12-c10, type: cloze, text: "Il a regardé la télé au ___ de travailler.", answer: "lieu", l1: "He watched TV instead of working.", note: "au lieu de + infinitive."}
+      - {id: fr-b2-12-c11, type: cloze, text: "___ de temps, nous n'avons pas pu visiter le musée.", answer: "faute", l1: "For lack of time, we couldn't visit the museum.", note: "faute de + noun without an article."}
+      - {id: fr-b2-12-c12, type: cloze, text: "Elle travaille beaucoup, ___ que son frère ne fait rien.", answer: "alors", alt: ["tandis"], l1: "She works a lot, whereas her brother does nothing.", note: "alors que / tandis que = whereas, + indicative."}
+      - {id: fr-b2-12-c13, type: cloze, text: "D'une part, c'est trop cher ; d'___ part, ce n'est pas pratique.", answer: "autre", l1: "On the one hand, it's too expensive; on the other hand, it isn't practical.", note: "d'une part … d'autre part lists two arguments on the same side."}
+      - {id: fr-b2-12-c14, type: cloze, text: "De ___, ce produit est mauvais pour la santé.", answer: "plus", l1: "What's more, this product is bad for your health.", note: "de plus = what's more. In speech: en plus."}
+      - {id: fr-b2-12-c15, type: cloze, text: "Il a perdu son emploi ; ___ a-t-il dû vendre sa maison.", answer: "aussi", alt: ["ainsi"], l1: "He lost his job; he therefore had to sell his house. (formal, with inversion)", note: "aussi at the start of a clause = therefore, with inversion."}
+      - {id: fr-b2-12-c16, type: cloze, text: "Autrement ___, tu refuses ?", answer: "dit", l1: "In other words, you're refusing? (informal)", note: "autrement dit = in other words."}
+
+  # ───────────────────────────────────────────────────────────────── 13
+  - id: fr4-13
+    title: "Register: tu, vous, formal letters and firm complaints"
+    goal: "I can move between casual and formal French, write a formal letter or email, and make a firm, polite complaint in person, by phone or in writing."
+    notes: |
+      ## tu or vous
+      Use **vous** until you are invited to switch: *On peut se **tutoyer** ?* The older or more senior person usually offers. Once you have switched, don't go back. In **Québec**, *tu* is far more widespread, even with strangers in shops.
+
+      ## Three registers
+      | familier | courant | soutenu |
+      |---|---|---|
+      | un bouquin | un livre | un ouvrage |
+      | une bagnole | une voiture | un véhicule |
+      | le fric | l'argent | les fonds |
+      | le boulot | le travail | l'emploi |
+      | les fringues | les vêtements | la tenue |
+
+      Understand the left column; use the middle one; write the right one in formal letters.
+
+      ## The formal letter
+      - Opening: **Madame, Monsieur,** (to a stranger, never *Cher Monsieur*).
+      - Purpose: *Je vous écris **au sujet de**… / **Suite à** notre conversation…* (purists prefer *À la suite de*).
+      - Requests: *Je vous **serais reconnaissant(e) de bien vouloir** + infinitive*; ***Veuillez trouver ci-joint**…*
+      - Closing: *Dans l'attente de votre réponse, je vous **prie d'agréer**, Madame, Monsieur, l'expression de mes **salutations distinguées**.*
+
+      An email is lighter: *Bonjour Madame,* … ***Cordialement**.*
+
+      ## Complaining well
+      State the facts, say what you want, and attach a condition: *J'aimerais un dédommagement, **à condition que** ce **soit** confirmé par écrit.*
+    items:
+      - {id: fr-b2-13-tutoyer, type: vocab, l2: "tutoyer", l1: "to call someone tu / to use tu with someone", ex: "On peut se tutoyer, si tu veux.", ex_l1: "We can say tu to each other, if you like.", note: "le tutoiement. In Québec, tu is used much more widely."}
+      - {id: fr-b2-13-vouvoyer, type: vocab, l2: "vouvoyer", l1: "to call someone vous / to use vous with someone", alt: ["vousoyer"], ex: "Je vouvoie toujours mes clients.", ex_l1: "I always say vous to my clients.", note: "le vouvoiement. je vouvoie: y becomes i before a silent e."}
+      - {id: fr-b2-13-service-client, type: vocab, l2: "le service client", l1: "customer service", alt: ["le service clientèle"], ex: "J'ai appelé trois fois le service client.", ex_l1: "I called customer service three times."}
+      - {id: fr-b2-13-commande, type: vocab, l2: "la commande", l1: "the order (from a shop or website)", ex: "Ma commande n'est jamais arrivée.", ex_l1: "My order never arrived.", note: "passer une commande = to place an order. Not a command (un ordre)."}
+      - {id: fr-b2-13-dedommagement, type: vocab, l2: "le dédommagement", l1: "the compensation", alt: ["l'indemnisation"], ex: "Les passagers ont droit à un dédommagement.", ex_l1: "Passengers are entitled to compensation.", note: "dédommager = to compensate."}
+      - {id: fr-b2-13-bouquin, type: vocab, l2: "le bouquin", l1: "the book (casual)", ex: "Tu m'as prêté un super bouquin.", ex_l1: "You lent me a great book.", note: "Neutral: le livre. Formal: l'ouvrage."}
+      - {id: fr-b2-13-ouvrage, type: vocab, l2: "l'ouvrage", l1: "the book / the work (formal)", ex: "Cet ouvrage est disponible en librairie.", ex_l1: "This book is available in bookshops.", note: "Masculine, like most nouns in -age: un ouvrage."}
+      - {id: fr-b2-13-bagnole, type: vocab, l2: "la bagnole", l1: "the car (casual)", ex: "Il roule encore dans une vieille bagnole.", ex_l1: "He still drives an old banger.", note: "Neutral: la voiture. Casual in Québec: le char."}
+      - {id: fr-b2-13-fric, type: vocab, l2: "le fric", l1: "money / cash (casual)", alt: ["le pognon"], ex: "Je n'ai plus de fric.", ex_l1: "I'm out of cash.", note: "Neutral: l'argent."}
+      - {id: fr-b2-13-bosser, type: vocab, l2: "bosser", l1: "to work (casual)", ex: "Je bosse tout le week-end.", ex_l1: "I'm working all weekend.", note: "Neutral: travailler. le boulot = work, a job (casual)."}
+      - {id: fr-b2-13-fringues, type: vocab, l2: "les fringues", l1: "clothes / gear (casual)", ex: "Elle dépense tout en fringues.", ex_l1: "She spends everything on clothes.", note: "Feminine plural. Neutral: les vêtements."}
+      - {id: fr-b2-13-mec, type: vocab, l2: "le mec", l1: "the guy / the bloke (casual)", ex: "C'est un mec sympa.", ex_l1: "He's a nice guy.", note: "Also 'boyfriend': mon mec. In Québec: le gars; a boyfriend is mon chum."}
+      - {id: fr-b2-13-cordialement, type: vocab, l2: "cordialement", l1: "kind regards (email closing)", alt: ["bien cordialement"], ex: "Merci d'avance. Cordialement, Julie Martin", ex_l1: "Thanks in advance. Kind regards, Julie Martin", note: "The standard neutral email ending to people you don't know well."}
+      - {id: fr-b2-13-madame-monsieur, type: phrase, l2: "Madame, Monsieur,", l1: "Dear Sir or Madam, (opening of a formal letter)", note: "To a stranger, never Cher Monsieur: cher / chère is for people you know."}
+      - {id: fr-b2-13-au-sujet-de, type: phrase, l2: "Je vous écris au sujet de ma commande.", l1: "I am writing to you about my order.", alt: ["Je vous écris à propos de ma commande.", "Je vous écris concernant ma commande."]}
+      - {id: fr-b2-13-ci-joint, type: phrase, l2: "Veuillez trouver ci-joint mon CV.", l1: "Please find my CV attached.", alt: ["Vous trouverez ci-joint mon CV.", "Veuillez trouver mon CV ci-joint.", "Veuillez trouver ci-joint mon curriculum vitae."], note: "ci-joint = attached, enclosed. veuillez = imperative of vouloir, very polite."}
+      - {id: fr-b2-13-reconnaissant, type: phrase, l2: "Je vous serais reconnaissant de bien vouloir me rembourser.", l1: "I would be grateful if you would kindly refund me. (a man writing)", note: "A woman writes reconnaissante. de bien vouloir + infinitive = kindly."}
+      - {id: fr-b2-13-salutations, type: phrase, l2: "Je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.", l1: "Yours faithfully. (the full closing formula of a formal letter)", alt: ["Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées.", "Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées."], note: "Repeat the opening (Madame, Monsieur) inside the formula."}
+      - {id: fr-b2-13-on-se-tutoie, type: phrase, l2: "On peut se tutoyer ?", l1: "Shall we say tu to each other?", alt: ["On se tutoie ?", "On peut se dire tu ?", "On se dit tu ?"], note: "Wait for the older or more senior person to offer, or ask with a smile."}
+      - {id: fr-b2-13-c1, type: cloze, text: "Je vous ___ d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.", answer: "prie", l1: "Yours faithfully. (literally: I ask you to accept the expression of my distinguished greetings)", note: "prier = to ask, to beg (formal)."}
+      - {id: fr-b2-13-c2, type: cloze, text: "Je vous ___ reconnaissante de me répondre rapidement.", answer: "serais", l1: "I would be grateful if you could reply quickly. (a woman writing)", note: "Conditional of être for a polite request."}
+      - {id: fr-b2-13-c3, type: cloze, text: "Je vous prie de bien ___ m'envoyer un devis.", answer: "vouloir", l1: "Could you kindly send me a quote. (formal letter)", note: "de bien vouloir + infinitive = kindly. un devis = a quote."}
+      - {id: fr-b2-13-c4, type: cloze, text: "___ à notre conversation téléphonique, je vous envoie le contrat.", answer: "suite", l1: "Following our telephone conversation, I am sending you the contract.", note: "Suite à is everywhere in business mail; careful writers prefer À la suite de."}
+      - {id: fr-b2-13-c5, type: cloze, text: "Dans l'___ de votre réponse, je reste à votre disposition.", answer: "attente", l1: "Looking forward to your reply, I remain at your disposal.", note: "dans l'attente de = awaiting."}
+      - id: fr-b2-13-cold-dish
+        type: dialogue
+        title: "The dish is cold"
+        scene: "You are having lunch in a restaurant. Your fish arrives lukewarm, and it happened last time too. You call the waiter over."
+        you: A
+        lines:
+          - {who: A, l2: "Excusez-moi, monsieur, mon plat est froid.", l1: "Excuse me, sir, my dish is cold.",
+             alt: ["Pardon, monsieur, mon plat est froid.", "Excusez-moi, mon plat est froid.", "S'il vous plaît, monsieur, mon plat est froid.", "Excusez-moi, monsieur, mon plat n'est pas chaud."]}
+          - {who: B, l2: "Ah bon ? Je suis désolé. Vous voulez que je le fasse réchauffer ?", l1: "Really? I'm sorry. Would you like me to have it warmed up?"}
+          - {who: A, l2: "Je préférerais que vous en apportiez un autre.", l1: "I'd rather you brought another one.",
+             alt: ["Je préférerais que vous m'en apportiez un autre.", "Je préfère que vous en apportiez un autre.", "Je préfère que vous m'en apportiez un autre.", "J'aimerais mieux que vous en apportiez un autre.", "J'aimerais mieux que vous m'en apportiez un autre.", "Je préférerais un autre plat."]}
+          - {who: B, l2: "Bien sûr. Ce sera prêt dans dix minutes.", l1: "Of course. It will be ready in ten minutes."}
+          - {who: A, l2: "D'accord, mais ce n'est pas la première fois.", l1: "All right, but it's not the first time.",
+             alt: ["D'accord, mais c'est pas la première fois.", "Bon, mais ce n'est pas la première fois.", "Très bien, mais ce n'est pas la première fois.", "D'accord, mais ça n'est pas la première fois."]}
+          - {who: B, l2: "Je comprends. Je vous offre le dessert pour m'excuser.", l1: "I understand. Dessert is on the house, to apologise."}
+          - {who: A, l2: "C'est gentil, merci. J'accepte volontiers.", l1: "That's kind, thank you. I'm happy to accept.",
+             alt: ["C'est gentil, merci. J'accepte avec plaisir.", "C'est très gentil, merci. J'accepte volontiers.", "Merci, c'est gentil. J'accepte volontiers.", "C'est gentil, merci. Avec plaisir."]}
+      - id: fr-b2-13-parcel
+        type: dialogue
+        title: "Where is my parcel?"
+        scene: "You ordered a lamp online three weeks ago and it never came. You phone the shop's customer service."
+        you: B
+        lines:
+          - {who: A, l2: "Service client, bonjour. Que puis-je faire pour vous ?", l1: "Customer service, hello. What can I do for you?"}
+          - {who: B, l2: "Bonjour. J'ai passé une commande il y a trois semaines.", l1: "Hello. I placed an order three weeks ago.",
+             alt: ["Bonjour. J'ai fait une commande il y a trois semaines.", "Bonjour. J'ai commandé une lampe il y a trois semaines.", "Bonjour. Il y a trois semaines, j'ai passé une commande.", "Bonjour. J'ai passé une commande il y a 3 semaines."]}
+          - {who: A, l2: "Vous avez votre numéro de commande ?", l1: "Do you have your order number?"}
+          - {who: B, l2: "Oui, je vous l'ai envoyé par mail hier.", l1: "Yes, I sent it to you by email yesterday.",
+             alt: ["Oui, je vous l'ai envoyé par e-mail hier.", "Oui, je vous l'ai envoyé par courriel hier.", "Oui, je vous l'ai déjà envoyé par mail hier.", "Oui, je vous l'ai envoyé hier par mail.", "Oui, je l'ai envoyé par mail hier."]}
+          - {who: A, l2: "Un instant… Je vois que le colis a été livré lundi.", l1: "One moment… I can see the parcel was delivered on Monday."}
+          - {who: B, l2: "C'est impossible, je n'ai rien reçu.", l1: "That's impossible, I haven't received anything.",
+             alt: ["Ce n'est pas possible, je n'ai rien reçu.", "Impossible, je n'ai rien reçu.", "C'est impossible, j'ai rien reçu.", "C'est impossible, je n'ai rien reçu du tout.", "Pourtant, je n'ai rien reçu."]}
+          - {who: A, l2: "Il a peut-être été déposé chez un voisin ?", l1: "Perhaps it was left with a neighbour?"}
+          - {who: B, l2: "J'ai vérifié. Je voudrais que vous ouvriez une enquête.", l1: "I've checked. I'd like you to open an investigation.",
+             alt: ["J'ai déjà vérifié. Je voudrais que vous ouvriez une enquête.", "J'ai vérifié. J'aimerais que vous ouvriez une enquête.", "J'ai vérifié. Je souhaiterais que vous ouvriez une enquête.", "J'ai vérifié. Je veux que vous ouvriez une enquête."]}
+          - {who: A, l2: "Très bien. Si le colis n'est pas retrouvé, vous serez remboursé sous dix jours.", l1: "Very well. If the parcel isn't found, you'll be refunded within ten days."}
+          - {who: B, l2: "Parfait. Merci de me tenir au courant.", l1: "Perfect. Thank you for keeping me informed.",
+             alt: ["Parfait. Merci de me tenir informé.", "Parfait. Merci de me tenir informée.", "Très bien. Merci de me tenir au courant.", "Parfait. Tenez-moi au courant, merci."]}
+      - id: fr-b2-13-bill
+        type: dialogue
+        title: "A mistake on the bill"
+        scene: "Your phone bill shows the same month charged twice. You call the operator's helpline."
+        you: A
+        lines:
+          - {who: A, l2: "Bonjour, j'appelle au sujet de ma dernière facture.", l1: "Hello, I'm calling about my latest bill.",
+             alt: ["Bonjour, j'appelle à propos de ma dernière facture.", "Bonjour, je vous appelle au sujet de ma dernière facture.", "Bonjour, je vous appelle à propos de ma dernière facture.", "Bonjour, j'appelle concernant ma dernière facture."]}
+          - {who: B, l2: "Bien sûr. Quel est le problème ?", l1: "Of course. What's the problem?"}
+          - {who: A, l2: "On m'a facturé deux fois le même mois.", l1: "I've been charged twice for the same month.",
+             alt: ["On m'a facturé le même mois deux fois.", "Vous m'avez facturé deux fois le même mois.", "On m'a fait payer deux fois le même mois.", "On m'a facturé deux fois pour le même mois.", "Le même mois m'a été facturé deux fois."]}
+          - {who: B, l2: "Je vérifie… Effectivement, il y a eu une erreur de notre part.", l1: "Let me check… Indeed, there was a mistake on our side."}
+          - {who: A, l2: "Je souhaiterais que vous me remboursiez rapidement.", l1: "I would like you to refund me quickly.",
+             alt: ["Je souhaite que vous me remboursiez rapidement.", "Je voudrais que vous me remboursiez rapidement.", "J'aimerais que vous me remboursiez rapidement.", "Je souhaiterais être remboursé rapidement.", "Je souhaiterais être remboursée rapidement.", "J'aimerais être remboursé rapidement.", "J'aimerais être remboursée rapidement."]}
+          - {who: B, l2: "Bien sûr. Le remboursement apparaîtra sur votre prochaine facture.", l1: "Of course. The refund will appear on your next bill."}
+          - {who: A, l2: "Vous pouvez me le confirmer par écrit ?", l1: "Can you confirm it to me in writing?",
+             alt: ["Pouvez-vous me le confirmer par écrit ?", "Est-ce que vous pouvez me le confirmer par écrit ?", "Vous pourriez me le confirmer par écrit ?", "Pourriez-vous me le confirmer par écrit ?", "Vous pouvez me confirmer ça par écrit ?"]}
+          - {who: B, l2: "Je vous envoie un mail tout de suite.", l1: "I'll send you an email right away."}
+          - {who: A, l2: "Merci beaucoup. Bonne journée.", l1: "Thank you very much. Have a good day.",
+             alt: ["Merci beaucoup. Bonne journée à vous.", "Merci bien. Bonne journée.", "Je vous remercie. Bonne journée.", "Merci beaucoup, bonne journée."]}
+      - id: fr-b2-13-hotel
+        type: dialogue
+        title: "The wrong room"
+        scene: "You booked a sea-view room for your holiday, but your window looks out on the car park. You go down to reception."
+        you: B
+        lines:
+          - {who: A, l2: "Bonsoir. Tout se passe bien dans votre chambre ?", l1: "Good evening. Is everything all right in your room?"}
+          - {who: B, l2: "Pas vraiment. J'avais réservé une chambre avec vue sur la mer.", l1: "Not really. I had booked a room with a sea view.",
+             alt: ["Pas vraiment. J'avais réservé une chambre avec vue sur mer.", "Pas vraiment. J'avais demandé une chambre avec vue sur la mer.", "Pas vraiment. J'avais demandé une chambre avec vue sur mer.", "Non, pas vraiment. J'avais réservé une chambre avec vue sur la mer."]}
+          - {who: A, l2: "Ah… Et votre chambre donne sur quoi ?", l1: "Oh… And what does your room look out on?"}
+          - {who: B, l2: "Elle donne sur le parking.", l1: "It looks out on the car park.",
+             alt: ["Sur le parking.", "Elle a vue sur le parking.", "Elle donne sur le parking, malheureusement."]}
+          - {who: A, l2: "Je suis vraiment désolée. L'hôtel est complet ce soir.", l1: "I'm really sorry. The hotel is full tonight."}
+          - {who: B, l2: "Dans ce cas, j'aimerais un dédommagement.", l1: "In that case, I'd like some compensation.",
+             alt: ["Dans ce cas, je voudrais un dédommagement.", "Dans ce cas, je souhaiterais un dédommagement.", "Dans ce cas, j'aimerais être dédommagé.", "Dans ce cas, j'aimerais être dédommagée.", "Dans ce cas, je voudrais être dédommagé.", "Dans ce cas, je voudrais être dédommagée.", "Alors, j'aimerais un dédommagement."]}
+          - {who: A, l2: "Je peux vous offrir le petit déjeuner et vous changer de chambre demain.", l1: "I can offer you breakfast and move you to another room tomorrow."}
+          - {who: B, l2: "C'est d'accord, à condition que ce soit confirmé par écrit.", l1: "That's fine, provided it's confirmed in writing.",
+             alt: ["D'accord, à condition que ce soit confirmé par écrit.", "Très bien, à condition que ce soit confirmé par écrit.", "Ça me va, à condition que ce soit confirmé par écrit.", "C'est d'accord, pourvu que ce soit confirmé par écrit.", "C'est d'accord, si c'est confirmé par écrit."]}
+          - {who: A, l2: "Bien sûr. Je vous l'imprime tout de suite.", l1: "Of course. I'll print it out for you right away."}
+      - id: fr-b2-13-train-delay
+        type: dialogue
+        title: "Compensation for a late train"
+        scene: "Yesterday your train arrived three hours late and you missed an important meeting. You go to the ticket office at the station."
+        you: A
+        lines:
+          - {who: A, l2: "Bonjour. Mon train a eu trois heures de retard hier.", l1: "Hello. My train was three hours late yesterday.",
+             alt: ["Bonjour. Mon train avait trois heures de retard hier.", "Bonjour. Hier, mon train a eu trois heures de retard.", "Bonjour. Mon train a eu 3 heures de retard hier.", "Bonjour. Mon train est arrivé avec trois heures de retard hier."]}
+          - {who: B, l2: "Ah oui, c'était à cause d'un incident sur la voie.", l1: "Ah yes, that was because of an incident on the line."}
+          - {who: A, l2: "J'ai raté un rendez-vous important à cause de ça.", l1: "I missed an important meeting because of it.",
+             alt: ["J'ai manqué un rendez-vous important à cause de ça.", "J'ai raté un rendez-vous important à cause de cela.", "À cause de ça, j'ai raté un rendez-vous important.", "J'ai loupé un rendez-vous important à cause de ça."]}
+          - {who: B, l2: "Je comprends. Vous avez droit à un dédommagement de cinquante pour cent.", l1: "I understand. You are entitled to fifty per cent compensation."}
+          - {who: A, l2: "Comment est-ce que je dois faire la demande ?", l1: "How do I make the claim?",
+             alt: ["Comment dois-je faire la demande ?", "Comment je dois faire la demande ?", "Comment je fais la demande ?", "Comment est-ce que je fais la demande ?", "Comment faire la demande ?"]}
+          - {who: B, l2: "Il suffit de remplir ce formulaire en ligne avec votre numéro de billet.", l1: "You just need to fill in this online form with your ticket number."}
+          - {who: A, l2: "Et le remboursement prendra combien de temps ?", l1: "And how long will the refund take?",
+             alt: ["Et combien de temps prendra le remboursement ?", "Et combien de temps va prendre le remboursement ?", "Et le remboursement va prendre combien de temps ?", "Et le remboursement prend combien de temps ?"]}
+          - {who: B, l2: "En général, il faut compter un mois.", l1: "Generally, allow about a month."}
+          - {who: A, l2: "Très bien. Merci pour votre aide.", l1: "Very good. Thank you for your help.",
+             alt: ["Très bien. Merci de votre aide.", "D'accord. Merci pour votre aide.", "Parfait. Merci pour votre aide.", "Très bien. Je vous remercie pour votre aide.", "Très bien. Je vous remercie de votre aide."]}
+      - id: fr-b2-13-sofa
+        type: dialogue
+        title: "A damaged delivery"
+        scene: "Your new sofa has just been delivered, torn and with a broken leg. The delivery men have already gone. You phone the furniture shop."
+        you: B
+        lines:
+          - {who: A, l2: "Magasin Duval, bonjour !", l1: "Duval's furniture shop, hello!"}
+          - {who: B, l2: "Bonjour. On vient de me livrer un canapé abîmé.", l1: "Hello. A damaged sofa has just been delivered to me.",
+             alt: ["Bonjour. On vient de me livrer un canapé endommagé.", "Bonjour. Je viens de recevoir un canapé abîmé.", "Bonjour. Je viens de me faire livrer un canapé abîmé.", "Bonjour. On m'a livré un canapé abîmé."]}
+          - {who: A, l2: "Oh, je suis désolé. Qu'est-ce qui ne va pas exactement ?", l1: "Oh, I'm sorry. What exactly is wrong?"}
+          - {who: B, l2: "Le tissu est déchiré et un pied est cassé.", l1: "The fabric is torn and one leg is broken.",
+             alt: ["Le tissu est déchiré et il y a un pied cassé.", "Le tissu est déchiré et un des pieds est cassé.", "Le tissu est déchiré et l'un des pieds est cassé."]}
+          - {who: A, l2: "Vous avez signé le bon de livraison ?", l1: "Did you sign the delivery note?"}
+          - {who: B, l2: "Oui, mais les livreurs sont partis tout de suite.", l1: "Yes, but the delivery men left straight away.",
+             alt: ["Oui, mais les livreurs sont repartis tout de suite.", "Oui, mais les livreurs sont partis immédiatement.", "Oui, mais les livreurs sont repartis immédiatement.", "Oui, mais les livreurs sont partis aussitôt."]}
+          - {who: A, l2: "Pas de problème. Envoyez-nous des photos et nous viendrons le reprendre.", l1: "No problem. Send us some photos and we'll come and take it back."}
+          - {who: B, l2: "D'accord, mais je veux un canapé neuf.", l1: "All right, but I want a brand-new sofa.",
+             alt: ["D'accord, mais je voudrais un canapé neuf.", "D'accord, mais j'exige un canapé neuf.", "Très bien, mais je veux un canapé neuf.", "D'accord, mais je souhaite un canapé neuf."]}
+          - {who: A, l2: "Bien entendu. Nous vous en livrerons un neuf la semaine prochaine.", l1: "Of course. We'll deliver a new one next week."}
+          - {who: B, l2: "Parfait. Je vous envoie les photos ce soir.", l1: "Perfect. I'll send you the photos this evening.",
+             alt: ["Très bien. Je vous envoie les photos ce soir.", "Parfait. Je vous enverrai les photos ce soir.", "D'accord. Je vous envoie les photos ce soir.", "Parfait. Je vous envoie les photos dès ce soir."]}
+      - id: fr-b2-13-building-works
+        type: dialogue
+        title: "The building work next door"
+        scene: "For a week, your neighbour's builders have started drilling at seven every morning. You catch your neighbour, Monsieur Perrin, on the landing."
+        you: A
+        lines:
+          - {who: A, l2: "Bonjour, excusez-moi de vous déranger.", l1: "Hello, sorry to bother you. (formal)",
+             alt: ["Bonjour, pardon de vous déranger.", "Bonjour, désolé de vous déranger.", "Bonjour, désolée de vous déranger.", "Bonjour, excusez-moi de vous embêter."]}
+          - {who: B, l2: "Bonjour. Oui ?", l1: "Hello. Yes?"}
+          - {who: A, l2: "Vos travaux commencent tous les jours à sept heures.", l1: "Your building work starts every day at seven.",
+             alt: ["Vos travaux commencent tous les matins à sept heures.", "Vos travaux commencent chaque jour à sept heures.", "Vos travaux commencent chaque matin à sept heures.", "Vos travaux commencent tous les jours à 7 heures."]}
+          - {who: B, l2: "Ah, je suis désolé, je ne pensais pas que ça s'entendait autant.", l1: "Oh, I'm sorry, I didn't think it could be heard so much."}
+          - {who: A, l2: "Il me semble que c'est interdit avant huit heures.", l1: "I believe it's not allowed before eight. (il me semble que…)",
+             alt: ["Il me semble que c'est interdit avant 8 heures.", "Il me semble que ce n'est pas autorisé avant huit heures.", "Il me semble que c'est interdit avant huit heures du matin.", "Il me semble que ce n'est pas permis avant huit heures."]}
+          - {who: B, l2: "Vous avez raison. Je vais demander aux ouvriers de commencer plus tard.", l1: "You're right. I'll ask the workmen to start later."}
+          - {who: A, l2: "Merci, ce serait vraiment gentil.", l1: "Thank you, that would be really kind.",
+             alt: ["Merci, ça serait vraiment gentil.", "Merci, ce serait très gentil.", "Merci, ce serait vraiment sympa.", "Merci beaucoup, ce serait vraiment gentil."]}
+          - {who: B, l2: "Et les travaux seront finis d'ici deux semaines, c'est promis.", l1: "And the work will be finished within two weeks, I promise."}
+          - {who: A, l2: "Parfait. Bon courage pour la suite !", l1: "Perfect. Good luck with the rest!",
+             alt: ["Très bien. Bon courage pour la suite !", "Super. Bon courage pour la suite !", "Parfait. Bonne continuation !"]}
+      - id: fr-b2-13-switch-to-tu
+        type: dialogue
+        title: "Switching to tu"
+        scene: "You have worked with Bastien for six months, always saying vous. At the coffee machine he suggests a change. Answer with tu from now on."
+        you: B
+        lines:
+          - {who: A, l2: "Au fait, ça fait six mois qu'on travaille ensemble. On pourrait se tutoyer, non ?", l1: "By the way, we've been working together for six months. We could say tu, couldn't we?"}
+          - {who: B, l2: "Oui, avec plaisir ! Je n'osais pas te le proposer.", l1: "Yes, gladly! I didn't dare suggest it to you.",
+             alt: ["Oui, volontiers ! Je n'osais pas te le proposer.", "Avec plaisir ! Je n'osais pas te le proposer.", "Oui, avec plaisir ! J'osais pas te le proposer.", "Oui, avec plaisir ! Je n'osais pas te le demander."]}
+          - {who: A, l2: "Super. Alors, tu viens à la réunion de cet après-midi ?", l1: "Great. So, are you coming to this afternoon's meeting?"}
+          - {who: B, l2: "Oui, mais je dois d'abord finir un rapport.", l1: "Yes, but first I have to finish a report.",
+             alt: ["Oui, mais d'abord je dois finir un rapport.", "Oui, mais je dois d'abord terminer un rapport.", "Oui, mais il faut d'abord que je finisse un rapport.", "Oui, mais il faut d'abord que je termine un rapport."]}
+          - {who: A, l2: "Pas de souci. Tu veux que je te garde une place ?", l1: "No worries. Do you want me to keep a seat for you?"}
+          - {who: B, l2: "Oui, je veux bien. C'est gentil de ta part.", l1: "Yes, please. That's kind of you.",
+             alt: ["Je veux bien, c'est gentil de ta part.", "Oui, volontiers. C'est gentil de ta part.", "Oui, je veux bien. C'est sympa de ta part.", "Oui, je veux bien. Merci, c'est gentil."]}
+          - {who: A, l2: "Et tu as vu le mail du directeur ? Il veut nous voir tous les deux.", l1: "And did you see the director's email? He wants to see both of us."}
+          - {who: B, l2: "Ah bon ? Tu sais de quoi il veut parler ?", l1: "Really? Do you know what he wants to talk about?",
+             alt: ["Ah bon ? Tu sais de quoi il veut nous parler ?", "Ah bon ? Est-ce que tu sais de quoi il veut parler ?", "Ah oui ? Tu sais de quoi il veut parler ?", "Ah bon ? Sais-tu de quoi il veut parler ?"]}
+          - {who: A, l2: "Aucune idée ! On verra bien.", l1: "No idea! We'll see."}
+
+  # ───────────────────────────────────────────────────────────────── 14
+  - id: fr4-14
+    title: "Idioms and set phrases"
+    goal: "I can understand and use the most common French idioms in everyday conversation, at the right moment and in the right register."
+    notes: |
+      French conversation is full of images: rabbits, cats, apples, sheep. Natives use them constantly, and a well-placed idiom makes you sound at home. Three tips:
+
+      - **Learn the whole phrase** and its register. Most of these are relaxed and spoken; *casser les pieds* or *raconter des salades* are fine with friends, not in a meeting.
+      - **Don't translate word for word.** *Poser un lapin* has nothing to do with rabbits for you; it means someone didn't turn up.
+      - **Fit the grammar.** Idioms still conjugate and agree: *Il m'a posé un lapin. Je me suis creusé la tête.* (no agreement: *la tête* is the object, after the verb).
+
+      ## A few by theme
+      | theme | idioms |
+      |---|---|
+      | mood | avoir le cafard, faire la tête, tenir le coup |
+      | effort | avoir un poil dans la main, avoir la flemme, les doigts dans le nez |
+      | talking | tourner autour du pot, mettre les pieds dans le plat, sauter du coq à l'âne |
+      | never | quand les poules auront des dents, ce n'est pas demain la veille |
+
+      **Québec** has its own: *il pleut à boire debout* (it's pouring), *c'est de valeur* (what a pity), *avoir la langue à terre* (to be exhausted). You'll be understood with the French ones everywhere.
+    items:
+      - {id: fr-b2-14-cafard, type: phrase, l2: "J'ai le cafard.", l1: "I'm feeling down. / I've got the blues.", note: "Literally 'I have the cockroach'."}
+      - {id: fr-b2-14-poser-un-lapin, type: phrase, l2: "Il m'a posé un lapin.", l1: "He stood me up.", note: "poser un lapin à quelqu'un = not to turn up to a date or a meeting."}
+      - {id: fr-b2-14-dans-la-lune, type: phrase, l2: "Tu es dans la lune !", l1: "You're daydreaming! (informal)", alt: ["T'es dans la lune !"], note: "être dans la lune = to have one's head in the clouds."}
+      - {id: fr-b2-14-langue-au-chat, type: phrase, l2: "Je donne ma langue au chat.", l1: "I give up. (on a riddle: tell me the answer)", note: "Literally 'I give my tongue to the cat'. Used only for guessing games."}
+      - {id: fr-b2-14-autour-du-pot, type: phrase, l2: "Arrête de tourner autour du pot !", l1: "Stop beating about the bush! (informal)", alt: ["Ne tourne pas autour du pot !"], note: "Literally 'turning around the pot'."}
+      - {id: fr-b2-14-poil-dans-la-main, type: phrase, l2: "Il a un poil dans la main.", l1: "He's bone idle.", note: "Literally 'he has a hair in his hand' (from never using it)."}
+      - {id: fr-b2-14-creuse-la-tete, type: phrase, l2: "Je me suis creusé la tête.", l1: "I racked my brains.", note: "No agreement for a woman either: la tête is the object, after the verb."}
+      - {id: fr-b2-14-casser-les-pieds, type: phrase, l2: "Tu me casses les pieds !", l1: "You're getting on my nerves! (informal)", note: "Literally 'you're breaking my feet'. casse-pieds = a pain in the neck."}
+      - {id: fr-b2-14-chats-a-fouetter, type: phrase, l2: "J'ai d'autres chats à fouetter.", l1: "I have bigger fish to fry.", note: "Literally 'other cats to whip'."}
+      - {id: fr-b2-14-nos-moutons, type: phrase, l2: "Revenons à nos moutons.", l1: "Let's get back to the subject.", note: "Literally 'let's get back to our sheep', from a medieval farce."}
+      - {id: fr-b2-14-tout-un-plat, type: phrase, l2: "Il ne faut pas en faire tout un plat.", l1: "There's no need to make such a fuss about it.", alt: ["Il ne faut pas en faire tout un fromage.", "Pas la peine d'en faire tout un plat."], note: "en faire tout un plat (or un fromage) = to make a big deal of it."}
+      - {id: fr-b2-14-taureau-par-les-cornes, type: phrase, l2: "Il faut prendre le taureau par les cornes.", l1: "You have to take the bull by the horns."}
+      - {id: fr-b2-14-anguille-sous-roche, type: phrase, l2: "Il y a anguille sous roche.", l1: "There's something going on. / I smell a rat.", note: "Literally 'there's an eel under the rock'."}
+      - {id: fr-b2-14-petite-bete, type: phrase, l2: "Tu cherches toujours la petite bête.", l1: "You're always nitpicking. (informal)", note: "chercher la petite bête = to look for tiny faults."}
+      - {id: fr-b2-14-flemme, type: phrase, l2: "J'ai la flemme.", l1: "I can't be bothered. (casual)", note: "avoir la flemme de + infinitive: j'ai la flemme de cuisiner."}
+      - {id: fr-b2-14-pleut-des-cordes, type: phrase, l2: "Il pleut des cordes.", l1: "It's pouring with rain. / It's raining cats and dogs.", alt: ["Il pleut à verse.", "Il pleut à torrents."], note: "Literally 'it's raining ropes'. Québec: il pleut à boire debout."}
+      - {id: fr-b2-14-pieds-dans-le-plat, type: phrase, l2: "Il a mis les pieds dans le plat.", l1: "He put his foot in it.", note: "Literally 'he put his feet in the dish': he said the awkward thing."}
+      - {id: fr-b2-14-raconter-des-salades, type: phrase, l2: "Arrête de raconter des salades !", l1: "Stop telling fibs! (informal)", note: "des salades = lies, tall stories."}
+      - {id: fr-b2-14-tomber-a-pic, type: phrase, l2: "Tu tombes à pic !", l1: "You've come at just the right moment! (informal)", alt: ["Tu tombes bien !"], note: "tomber à pic = to come at exactly the right time."}
+      - {id: fr-b2-14-grain-de-sel, type: phrase, l2: "Il faut toujours qu'il mette son grain de sel.", l1: "He always has to stick his oar in.", note: "mettre son grain de sel = to butt in. il faut que + subjunctive: mettre → qu'il mette."}
+      - {id: fr-b2-14-doigt-dans-l-oeil, type: phrase, l2: "Tu te mets le doigt dans l'œil.", l1: "You're completely wrong. (informal)", note: "Literally 'you're putting your finger in your eye'."}
+      - {id: fr-b2-14-tete-dans-le-guidon, type: phrase, l2: "J'ai la tête dans le guidon.", l1: "I'm too snowed under to see the big picture.", note: "Literally 'my head is in the handlebars', like a racing cyclist."}
+      - {id: fr-b2-14-tiens-le-coup, type: phrase, l2: "Tiens le coup !", l1: "Hang in there! (informal)", note: "tenir le coup = to hold up, to cope."}
+      - {id: fr-b2-14-belle-jambe, type: phrase, l2: "Ça me fait une belle jambe.", l1: "A fat lot of good that does me.", note: "Ironic: literally 'that gives me a fine leg'."}
+      - {id: fr-b2-14-chat-un-chat, type: phrase, l2: "Appelons un chat un chat.", l1: "Let's call a spade a spade."}
+      - {id: fr-b2-14-coup-de-foudre, type: phrase, l2: "Ça a été le coup de foudre.", l1: "It was love at first sight.", alt: ["J'ai eu le coup de foudre.", "Ç'a été le coup de foudre.", "C'était le coup de foudre."], note: "le coup de foudre = a bolt of lightning."}
+      - {id: fr-b2-14-doigts-dans-le-nez, type: phrase, l2: "Il a réussi les doigts dans le nez.", l1: "He passed easily / with no effort. (casual)", note: "Literally 'with his fingers up his nose'."}
+      - {id: fr-b2-14-poules-auront-des-dents, type: phrase, l2: "Quand les poules auront des dents.", l1: "When pigs fly. / Never.", note: "Literally 'when hens have teeth'. Note the future after quand."}
+      - {id: fr-b2-14-pas-demain-la-veille, type: phrase, l2: "Ce n'est pas demain la veille.", l1: "That won't happen any time soon.", alt: ["C'est pas demain la veille."], note: "Literally 'tomorrow is not the day before'."}
+      - {id: fr-b2-14-faim-de-loup, type: phrase, l2: "J'ai une faim de loup.", l1: "I'm starving. / I could eat a horse.", note: "Literally 'a wolf's hunger'."}
+      - {id: fr-b2-14-faire-la-tete, type: phrase, l2: "Pourquoi tu fais la tête ?", l1: "Why are you sulking? (informal)", alt: ["Pourquoi est-ce que tu fais la tête ?", "Pourquoi fais-tu la tête ?", "Tu fais la tête pourquoi ?"], note: "faire la tête = to sulk."}
+      - {id: fr-b2-14-coup-de-fil, type: phrase, l2: "Passe-moi un coup de fil.", l1: "Give me a ring. (informal)", alt: ["Donne-moi un coup de fil."], note: "un coup de fil = a phone call."}
+      - {id: fr-b2-14-coq-a-l-ane, type: phrase, l2: "Tu sautes du coq à l'âne.", l1: "You're jumping from one subject to another. (informal)", note: "Literally 'from the rooster to the donkey'."}
+      - {id: fr-b2-14-c1, type: cloze, text: "Hier soir, Marc m'a posé un ___ : je l'ai attendu une heure.", answer: "lapin", l1: "Last night Marc stood me up: I waited an hour for him.", note: "poser un lapin = to stand someone up."}
+      - {id: fr-b2-14-c2, type: cloze, text: "Prends ton parapluie, il pleut des ___.", answer: "cordes", l1: "Take your umbrella, it's pouring. (informal)", note: "il pleut des cordes = it's raining ropes."}
+      - {id: fr-b2-14-c3, type: cloze, text: "Je n'ai pas le temps pour ça, j'ai d'autres chats à ___.", answer: "fouetter", l1: "I haven't got time for that, I have bigger fish to fry.", note: "d'autres chats à fouetter."}
+      - {id: fr-b2-14-c4, type: cloze, text: "Dis-moi franchement ce que tu veux, ne tourne pas autour du ___.", answer: "pot", l1: "Tell me frankly what you want, don't beat about the bush.", note: "tourner autour du pot."}
+      - {id: fr-b2-14-c5, type: cloze, text: "Il ne fait jamais rien au bureau : il a un ___ dans la main.", answer: "poil", l1: "He never does anything at the office: he's bone idle.", note: "avoir un poil dans la main = to be lazy."}
+      - {id: fr-b2-14-c6, type: cloze, text: "Elle est toujours dans la ___ pendant les cours.", answer: "lune", l1: "She's always daydreaming in class.", note: "être dans la lune."}
+      - {id: fr-b2-14-c7, type: cloze, text: "Je ne trouve pas la réponse, je donne ma langue au ___.", answer: "chat", l1: "I can't find the answer, I give up.", note: "donner sa langue au chat."}
+      - {id: fr-b2-14-c8, type: cloze, text: "Bon, assez parlé des vacances : revenons à nos ___.", answer: "moutons", l1: "Right, enough about the holidays: let's get back to the subject.", note: "revenir à ses moutons."}
