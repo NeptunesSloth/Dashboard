@@ -6,7 +6,8 @@ update it when the shape of the project changes.
 ## What this is
 
 **Sect Academy** — an offline, self-hosted study app (French and Spanish A1 to
-B1 plus conversation courses, Mandarin, Japanese and Korean A1, Security+,
+B2 plus conversation courses, Mandarin, Japanese and Korean A1–A2 plus conversation
+courses, picture lessons, a reader with dictionaries, Security+,
 Network+, ISC2 CC, A+ Core 1 and 2, CySA+, CCNA)
 wrapped in a cultivation-world colony sim. One FastAPI process, one JSON state file, a
 vanilla-JS front end. No network, no database, no LLM.

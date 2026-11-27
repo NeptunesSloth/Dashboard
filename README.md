@@ -23,13 +23,17 @@ python -m sect_academy
 
 | Course | Size | Notes |
 |---|---|---|
-| French A1, A2, B1 | 20 + 12 + 12 units | From zero to intermediate; typed recall and dictation |
+| French A1, A2, B1, B2 | 20 + 12 + 12 + 16 units | From zero to upper intermediate; typed recall and dictation |
 | French Conversations | 8 units, 56 dialogues | Rehearsed exchanges, A1 to B1: you speak one side |
-| Spanish A1, A2, B1 | 20 + 12 + 12 units | Spain Spanish, Latin American variants accepted |
+| Spanish A1, A2, B1, B2 | 20 + 12 + 12 + 16 units | Spain Spanish, Latin American variants accepted |
 | Spanish Conversations | 8 units, 56 dialogues | Rehearsed exchanges, A1 to B1: you speak one side |
-| Mandarin Chinese A1 | 18 units, 352 items | Pinyin and tones first; 122 characters; simplified script |
-| Japanese A1 | 18 units, 550 items | All hiragana and katakana, 40 kanji, polite style |
-| Korean A1 | 18 units, 391 items | Hangul first, then polite speech; Revised Romanization |
+| Mandarin Chinese A1, A2 | 18 + 18 units, 1,002 items | Pinyin and tones first; ~260 characters; simplified script |
+| Mandarin Conversations | 8 units, 50 dialogues | Everyday situations: you speak one side |
+| Japanese A1, A2 | 18 + 18 units, 1,202 items | All kana, ~170 kanji; polite and plain style, conditionals, giving and receiving |
+| Japanese Conversations | 8 units, 50 dialogues | Everyday situations: you speak one side |
+| Korean A1, A2 | 18 + 17 units, 1,028 items | Hangul first, then polite and formal speech, honorifics, irregular verbs; Revised Romanization |
+| Korean Conversations | 8 units, 50 dialogues | Everyday situations: you speak one side |
+| Picture lessons (all five languages) | 10 pictures, ~103 words each | Drag the words onto the body, skeleton, house, town… |
 | CompTIA Security+ (SY0-801) | 25 units | Every exam domain, plus exam-hard practice |
 | CompTIA Network+ (N10-009) | 22 units | Every exam domain, heavy on subnetting and troubleshooting |
 | ISC2 Certified in Cybersecurity | 15 units | Sept 2026 outline |
