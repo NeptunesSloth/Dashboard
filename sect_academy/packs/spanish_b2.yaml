@@ -906,3 +906,791 @@ units:
          l1: "“I'll be late.” → She said she would be late.", note: "future → conditional"}
       - {id: es-b2-07-c16, type: cloze, text: "«No sé nada del asunto.» → Afirmó que no ___ nada del asunto.", answer: "sabía",
          l1: "“I know nothing about the matter.” → He stated that he knew nothing about the matter.", note: "afirmar + indicative; present → imperfect"}
+
+  # ---------------------------------------------------------------- 8
+  - id: es-b2-08
+    title: "It was painted in 1937: ser, estar and se with the participle — culture and the arts"
+    goal: "I can talk about films, plays, books and paintings, say who made them and when, and describe what state something is in."
+    notes: |
+      Spanish has three ways to put the focus on the thing rather than the doer.
+
+      | Form | Meaning | Example |
+      | ser + participle (+ por) | an action, often with its doer | El cuadro **fue pintado por** Picasso. |
+      | estar + participle | the resulting state | El museo **está cerrado**. |
+      | se + verb | an action, doer not named | **Se inauguró** la exposición. |
+
+      - In all three the participle agrees like an adjective: *las esculturas fueron restauradas*, *la sala está llena*.
+      - **ser** passives belong to news, history and formal writing; in speech, **se** is far more natural.
+      - Speech often keeps the active and moves the object to the front with a pronoun: ***Este cuadro lo** pintó Goya*.
+      - The doer goes with **por**, never *de* or *by*: *escrito por una autora chilena*.
+      - Compare: *La puerta **fue abierta** a las diez* (someone opened it then) and *La puerta **estaba abierta*** (it was open).
+    items:
+      - {id: es-b2-08-pintor, type: vocab, l2: "el pintor", l1: "the painter (male)",
+         ex: "Goya es mi pintor favorito.", ex_l1: "Goya is my favourite painter.",
+         note: "Feminine: la pintora. Also a house painter."}
+      - {id: es-b2-08-escultura, type: vocab, l2: "la escultura", l1: "the sculpture",
+         ex: "En el parque hay una escultura enorme.", ex_l1: "There's an enormous sculpture in the park.",
+         note: "el escultor / la escultora = the sculptor."}
+      - {id: es-b2-08-escenario, type: vocab, l2: "el escenario", l1: "the stage (in a theatre)",
+         ex: "Los actores salieron al escenario.", ex_l1: "The actors came out on stage.",
+         note: "Also the setting or scene of events. A stage of a process is una etapa."}
+      - {id: es-b2-08-estreno, type: vocab, l2: "el estreno", l1: "the premiere / the opening night / the release (of a film)",
+         ex: "Fuimos al estreno de la película.", ex_l1: "We went to the premiere of the film.",
+         note: "estrenar = to premiere, and also to use or wear something for the first time."}
+      - {id: es-b2-08-guion, type: vocab, l2: "el guion", l1: "the script / the screenplay",
+         ex: "El guion de la película es excelente.", ex_l1: "The film's script is excellent.",
+         note: "Written without an accent since 2010 (guión is the older spelling). Also a hyphen or dash."}
+      - {id: es-b2-08-critica, type: vocab, l2: "la crítica", l1: "the review / the criticism / the critics (as a group)",
+         ex: "La obra ha recibido muy buenas críticas.", ex_l1: "The play has received very good reviews.",
+         note: "el crítico / la crítica = the critic (a person)."}
+      - {id: es-b2-08-publico, type: vocab, l2: "el público", l1: "the audience / the public",
+         ex: "El público aplaudió durante diez minutos.", ex_l1: "The audience applauded for ten minutes.",
+         note: "Singular in Spanish: el público aplaudió."}
+      - {id: es-b2-08-patrimonio, type: vocab, l2: "el patrimonio", l1: "the heritage / the estate (what belongs to someone)",
+         ex: "La Alhambra es Patrimonio de la Humanidad.", ex_l1: "The Alhambra is a World Heritage Site.",
+         note: "Patrimonio de la Humanidad = UNESCO World Heritage."}
+      - {id: es-b2-08-siglo, type: vocab, l2: "el siglo", l1: "the century",
+         ex: "Es una iglesia del siglo XII.", ex_l1: "It's a twelfth-century church.",
+         note: "Centuries are written in Roman numerals and read as cardinals: el siglo XXI (veintiuno)."}
+      - {id: es-b2-08-obra-maestra, type: vocab, l2: "la obra maestra", l1: "the masterpiece",
+         ex: "Las Meninas es la obra maestra de Velázquez.", ex_l1: "Las Meninas is Velázquez's masterpiece.",
+         note: "Plural: las obras maestras."}
+      - {id: es-b2-08-poeta, type: vocab, l2: "el poeta", l1: "the poet (male)",
+         ex: "Lorca fue un poeta andaluz.", ex_l1: "Lorca was an Andalusian poet.",
+         note: "Masculine although it ends in -a. Feminine: la poeta or la poetisa. la poesía = poetry; el poema = the poem (also masculine)."}
+      - {id: es-b2-08-taquilla, type: vocab, l2: "la taquilla", l1: "the box office / the ticket office",
+         ex: "Las entradas se pueden comprar en taquilla.", ex_l1: "Tickets can be bought at the box office.",
+         note: "un éxito de taquilla = a box-office hit. Also a locker."}
+      - {id: es-b2-08-ensayo, type: vocab, l2: "el ensayo", l1: "the rehearsal / the essay",
+         ex: "Mañana tenemos el último ensayo antes del estreno.", ex_l1: "Tomorrow we have the last rehearsal before the premiere.",
+         note: "ensayar = to rehearse. el ensayo general = the dress rehearsal."}
+      - {id: es-b2-08-inaugurar, type: vocab, l2: "inaugurar", l1: "to open (officially) / to inaugurate",
+         ex: "La reina inauguró el nuevo museo.", ex_l1: "The queen opened the new museum.",
+         note: "la inauguración = the official opening."}
+      - {id: es-b2-08-banda-sonora, type: vocab, l2: "la banda sonora", l1: "the soundtrack",
+         ex: "La banda sonora es preciosa.", ex_l1: "The soundtrack is beautiful."}
+      - {id: es-b2-08-cuento, type: vocab, l2: "el cuento", l1: "the short story / the tale",
+         ex: "Mi abuela me contaba cuentos antes de dormir.", ex_l1: "My grandmother used to tell me stories at bedtime.",
+         note: "From contar. el cuento de hadas = the fairy tale."}
+      - {id: es-b2-08-retrato, type: vocab, l2: "el retrato", l1: "the portrait",
+         ex: "En el salón hay un retrato de mi bisabuelo.", ex_l1: "In the living room there's a portrait of my great-grandfather.",
+         note: "el autorretrato = the self-portrait."}
+      - {id: es-b2-08-traducir, type: vocab, l2: "traducir", l1: "to translate",
+         ex: "Esta novela se ha traducido a treinta idiomas.", ex_l1: "This novel has been translated into thirty languages.",
+         note: "Like conducir: traduzco, traduje, tradujeron. Translate into = traducir a."}
+      - {id: es-b2-08-moda, type: vocab, l2: "estar de moda", l1: "to be in fashion / to be trendy",
+         ex: "Ahora están de moda las series coreanas.", ex_l1: "Korean series are in fashion now.",
+         note: "pasar de moda = to go out of fashion."}
+      - {id: es-b2-08-rollo, type: vocab, l2: "ser un rollo", l1: "to be boring / to be a drag (colloquial, Spain)",
+         ex: "La conferencia fue un rollo.", ex_l1: "The lecture was a drag.",
+         note: "Spain. ¡Qué rollo! = how boring! / what a pain! Also: ¿de qué va el rollo? = what's it all about?"}
+      - {id: es-b2-08-de-piedra, type: vocab, l2: "quedarse de piedra", l1: "to be stunned / to be dumbfounded",
+         alt: ["quedarse helado", "quedarse con la boca abierta"],
+         ex: "Cuando vi el final de la película, me quedé de piedra.", ex_l1: "When I saw the end of the film, I was stunned.",
+         note: "Literally 'to turn to stone'."}
+      - {id: es-b2-08-pies-cabeza, type: vocab, l2: "no tener ni pies ni cabeza", l1: "to make no sense at all (idiom)",
+         ex: "El argumento no tiene ni pies ni cabeza.", ex_l1: "The plot makes no sense at all.",
+         note: "Literally 'to have neither feet nor head'."}
+      - {id: es-b2-08-gustos, type: phrase, l2: "Sobre gustos no hay nada escrito.", l1: "There's no accounting for taste.",
+         alt: ["Para gustos, los colores"],
+         note: "Also: Para gustos, los colores."}
+      - {id: es-b2-08-guernica, type: phrase, l2: "El Guernica fue pintado por Picasso en 1937.", l1: "Guernica was painted by Picasso in 1937.",
+         alt: ["Picasso pintó el Guernica en 1937", "El Guernica lo pintó Picasso en 1937"],
+         note: "ser + participle + por: the participle agrees with el Guernica."}
+      - {id: es-b2-08-cerrado-obras, type: phrase, l2: "El museo está cerrado por obras.", l1: "The museum is closed for building work.",
+         note: "estar + participle = a state. por obras = because of building work."}
+      - {id: es-b2-08-lo-pinto-goya, type: phrase, l2: "Este cuadro lo pintó Goya.", l1: "This painting was painted by Goya. (spoken style: object first, with lo)",
+         alt: ["Este cuadro fue pintado por Goya", "Goya pintó este cuadro"],
+         note: "The usual spoken way to focus on the painting: object first, repeated with lo."}
+      - {id: es-b2-08-c1, type: cloze, text: "La catedral fue ___ en el siglo XIII.", answer: "construida",
+         l1: "The cathedral was built in the thirteenth century.", note: "ser + participle; construida agrees with la catedral"}
+      - {id: es-b2-08-c2, type: cloze, text: "Estos cuadros fueron pintados ___ Velázquez.", answer: "por",
+         l1: "These paintings were painted by Velázquez.", note: "the doer of a passive takes por"}
+      - {id: es-b2-08-c3, type: cloze, text: "La exposición será ___ por la ministra de Cultura.", answer: "inaugurada",
+         l1: "The exhibition will be opened by the culture minister.", note: "future passive: será + participle"}
+      - {id: es-b2-08-c4, type: cloze, text: "Ya no quedan entradas: ___ todas vendidas.", answer: "están",
+         l1: "There are no tickets left: they're all sold.", note: "estar + participle = the resulting state"}
+      - {id: es-b2-08-c5, type: cloze, text: "La novela fue ___ a treinta idiomas.", answer: "traducida",
+         l1: "The novel was translated into thirty languages.", note: "traducir → traducido, agreeing: traducida"}
+      - {id: es-b2-08-c6, type: cloze, text: "Cuando llegamos, el teatro ya estaba ___.", answer: "cerrado",
+         l1: "When we arrived, the theatre was already closed.", note: "estar + participle: a state, not an action"}
+      - {id: es-b2-08-c7, type: cloze, text: "Los poemas ___ escritos en la cárcel.", answer: "fueron",
+         l1: "The poems were written in prison.", note: "a past action → ser in the indefinido"}
+      - {id: es-b2-08-c8, type: cloze, text: "La película se ___ el viernes pasado.", answer: "estrenó",
+         l1: "The film premiered last Friday.", note: "passive se: se estrenó"}
+      - {id: es-b2-08-c9, type: cloze, text: "En este museo se ___ obras de Frida Kahlo.", answer: "exponen", alt: ["muestran", "exhiben"],
+         l1: "Works by Frida Kahlo are exhibited in this museum.", note: "passive se with a plural noun → plural verb"}
+      - {id: es-b2-08-c10, type: cloze, text: "Las esculturas fueron ___ por un artista local.", answer: "restauradas",
+         l1: "The sculptures were restored by a local artist.", note: "the participle agrees: feminine plural"}
+      - {id: es-b2-08-c11, type: cloze, text: "El retrato está ___ al óleo.", answer: "pintado",
+         l1: "The portrait is painted in oils.", note: "estar + participle describes how it is"}
+      - {id: es-b2-08-c12, type: cloze, text: "Este cuento ___ escribió mi abuelo.", answer: "lo",
+         l1: "This story was written by my grandfather. (spoken style, object first)", note: "object first → repeat it with a pronoun"}
+      - {id: es-b2-08-c13, type: cloze, text: "La obra ha sido muy ___ por la crítica.", answer: "elogiada", alt: ["aplaudida", "alabada"],
+         l1: "The play has been highly praised by the critics.", note: "perfect passive: ha sido + participle"}
+      - {id: es-b2-08-c14, type: cloze, text: "Se ___ muchos cuadros durante la guerra.", answer: "perdieron",
+         l1: "Many paintings were lost during the war.", note: "passive se with a plural noun → plural verb"}
+      - {id: es-b2-08-c15, type: cloze, text: "El concierto ___ sido cancelado.", answer: "ha",
+         l1: "The concert has been cancelled.", note: "ha sido + participle"}
+      - {id: es-b2-08-c16, type: cloze, text: "El escenario ya estaba ___ cuando llegaron los actores.", answer: "montado", alt: ["preparado"],
+         l1: "The stage was already set up when the actors arrived.", note: "montar = to set up, assemble; estar montado = to be set up"}
+
+  # ---------------------------------------------------------------- 9
+  - id: es-b2-09
+    title: "I've been studying for years: verbal periphrases — education"
+    goal: "I can talk about my studies and qualifications, and say how long I've been doing something, what I've just done, stopped or started again."
+    notes: |
+      A **perífrasis** is a verb + infinitive or gerund that adds time or aspect. These are everywhere in speech.
+
+      | Periphrasis | Meaning | Example |
+      | llevar + time + gerund | to have been doing | **Llevo** dos años **estudiando**. |
+      | llevar + time + sin + inf. | not to have done for | **Llevo** un mes **sin** salir. |
+      | acabar de + inf. | to have just done | **Acabo de** llegar. |
+      | volver a + inf. | to do again | **Volví a** suspender. |
+      | dejar de + inf. | to stop doing | **Dejé de** fumar. |
+      | ponerse a + inf. | to start (suddenly) | **Se puso a** llorar. |
+      | seguir + gerund | to still be doing | **Sigo** trabajando allí. |
+      | seguir sin + inf. | still not to have done | **Sigo sin** entenderlo. |
+      | estar a punto de + inf. | to be about to | **Está a punto de** empezar. |
+      | ir + gerund | to be gradually doing | **Voy** mejorando. |
+
+      - *Llevo dos años estudiando* = *Estudio desde hace dos años* = *Hace dos años que estudio*. Never the English perfect: not *he estudiado por dos años*.
+      - **acababa de** (imperfect) = had just: *Cuando llamaste, acababa de salir*.
+      - **echarse a** + *reír / llorar* = to burst out laughing / crying.
+    items:
+      - {id: es-b2-09-carrera, type: vocab, l2: "la carrera", l1: "the degree (course at university) / the career / the race",
+         ex: "Estoy en el último año de la carrera.", ex_l1: "I'm in the last year of my degree.",
+         note: "estudiar una carrera = to do a degree. hacer carrera = to make a career."}
+      - {id: es-b2-09-beca, type: vocab, l2: "la beca", l1: "the scholarship / the grant (for study)",
+         ex: "Me han concedido una beca para estudiar en Chile.", ex_l1: "I've been awarded a grant to study in Chile.",
+         note: "conceder una beca = to award a grant. el becario = the grant holder, the intern."}
+      - {id: es-b2-09-matricularse, type: vocab, l2: "matricularse", l1: "to enrol / to register (on a course)", alt: ["inscribirse"],
+         ex: "Me he matriculado en un curso de alemán.", ex_l1: "I've enrolled on a German course.",
+         note: "la matrícula = the enrolment, and also the tuition fees (and a car number plate)."}
+      - {id: es-b2-09-titulo, type: vocab, l2: "el título", l1: "the degree certificate / the qualification / the title",
+         ex: "Tiene el título de enfermera.", ex_l1: "She's a qualified nurse. (has the nursing qualification)",
+         note: "sacarse el título = to get your qualification."}
+      - {id: es-b2-09-master, type: vocab, l2: "el máster", l1: "the master's degree", alt: ["la maestría"],
+         ex: "Después de la carrera hice un máster.", ex_l1: "After my degree I did a master's.",
+         note: "Spain: el máster. Latin America: la maestría."}
+      - {id: es-b2-09-suspender, type: vocab, l2: "suspender", l1: "to fail (an exam or subject)", alt: ["reprobar"],
+         ex: "He suspendido Matemáticas.", ex_l1: "I've failed maths.",
+         note: "Spain: suspender; Mexico and other countries: reprobar. Opposite: aprobar."}
+      - {id: es-b2-09-facultad, type: vocab, l2: "la facultad", l1: "the faculty / the university school (e.g. of medicine)",
+         ex: "Nos vemos en la cafetería de la facultad.", ex_l1: "See you in the faculty café.",
+         note: "Also an ability: tener facultades para = to have a gift for."}
+      - {id: es-b2-09-instituto, type: vocab, l2: "el instituto", l1: "the secondary school / the high school",
+         alt: ["el liceo", "la secundaria", "la preparatoria"],
+         ex: "Conocí a mi mejor amiga en el instituto.", ex_l1: "I met my best friend at secondary school.",
+         note: "Spain: el instituto (state secondary school). Chile: el liceo; Mexico: la secundaria, la prepa(ratoria)."}
+      - {id: es-b2-09-deberes, type: vocab, l2: "los deberes", l1: "the homework", alt: ["la tarea", "las tareas"],
+         ex: "Los niños tienen demasiados deberes.", ex_l1: "Children get too much homework.",
+         note: "Spain: los deberes. Latin America: la tarea."}
+      - {id: es-b2-09-asistencia, type: vocab, l2: "la asistencia", l1: "the attendance / the assistance",
+         ex: "La asistencia a clase es obligatoria.", ex_l1: "Attendance at classes is compulsory.",
+         note: "asistir a = to attend (not to assist: that is ayudar)."}
+      - {id: es-b2-09-apuntes, type: vocab, l2: "los apuntes", l1: "the (class) notes / the lecture notes",
+         ex: "¿Me dejas tus apuntes de ayer?", ex_l1: "Will you lend me your notes from yesterday?",
+         note: "tomar apuntes = to take notes. A short written message is una nota."}
+      - {id: es-b2-09-repasar, type: vocab, l2: "repasar", l1: "to revise / to go over (again)",
+         ex: "Tengo que repasar el temario antes del examen.", ex_l1: "I have to go over the syllabus before the exam.",
+         note: "el repaso = the revision. el temario = the syllabus (list of topics)."}
+      - {id: es-b2-09-ensenanza, type: vocab, l2: "la enseñanza", l1: "teaching / education (as a system)",
+         ex: "La enseñanza pública es gratuita.", ex_l1: "State education is free.",
+         note: "la enseñanza primaria / secundaria = primary / secondary education."}
+      - {id: es-b2-09-conocimiento, type: vocab, l2: "el conocimiento", l1: "the knowledge",
+         ex: "Se necesitan conocimientos de informática.", ex_l1: "Computer skills are required.",
+         note: "Often plural for skills on a CV: conocimientos de inglés."}
+      - {id: es-b2-09-aprendizaje, type: vocab, l2: "el aprendizaje", l1: "the learning (process)",
+         ex: "El aprendizaje de un idioma lleva tiempo.", ex_l1: "Learning a language takes time.",
+         note: "Masculine (-aje). From aprender."}
+      - {id: es-b2-09-curso, type: vocab, l2: "el curso", l1: "the course / the school year",
+         ex: "El curso empieza en septiembre.", ex_l1: "The school year starts in September.",
+         note: "¿En qué curso estás? = What year are you in?"}
+      - {id: es-b2-09-graduarse, type: vocab, l2: "graduarse", l1: "to graduate",
+         alt: ["licenciarse", "titularse", "recibirse"],
+         ex: "Me gradué en Historia en 2020.", ex_l1: "I graduated in History in 2020.",
+         note: "Accent in the present: me gradúo. Spain also licenciarse; Chile titularse; Argentina recibirse."}
+      - {id: es-b2-09-expediente, type: vocab, l2: "el expediente académico", l1: "the academic record / the transcript",
+         ex: "Tiene un expediente académico brillante.", ex_l1: "She has a brilliant academic record.",
+         note: "el expediente alone is a file or dossier."}
+      - {id: es-b2-09-blanco, type: vocab, l2: "quedarse en blanco", l1: "for your mind to go blank",
+         ex: "En el examen oral me quedé en blanco.", ex_l1: "In the oral exam my mind went blank."}
+      - {id: es-b2-09-codos, type: vocab, l2: "hincar los codos", l1: "to hit the books / to study hard (colloquial)",
+         alt: ["clavar los codos", "quemarse las pestañas"],
+         ex: "Si quieres aprobar, vas a tener que hincar los codos.", ex_l1: "If you want to pass, you're going to have to hit the books.",
+         note: "Literally 'to dig in your elbows' (on the desk). Spain."}
+      - {id: es-b2-09-pasar-pagina, type: vocab, l2: "pasar página", l1: "to turn the page / to move on (after something bad)",
+         ex: "Ya está, he suspendido. Ahora toca pasar página.", ex_l1: "That's it, I've failed. Now it's time to move on."}
+      - {id: es-b2-09-pie-letra, type: vocab, l2: "al pie de la letra", l1: "to the letter / exactly (as instructed)",
+         ex: "Sigue las instrucciones al pie de la letra.", ex_l1: "Follow the instructions to the letter. (informal)"}
+      - {id: es-b2-09-practica, type: phrase, l2: "La práctica hace al maestro.", l1: "Practice makes perfect. (proverb)"}
+      - {id: es-b2-09-llevo-tres-anos, type: phrase, l2: "Llevo tres años estudiando español.", l1: "I've been studying Spanish for three years.",
+         alt: ["Hace tres años que estudio español", "Estudio español desde hace tres años", "Llevo tres años aprendiendo español"],
+         note: "llevar + time + gerund. Never 'he estudiado por tres años'."}
+      - {id: es-b2-09-acabo-terminar, type: phrase, l2: "Acabo de terminar la carrera.", l1: "I've just finished my degree.",
+         alt: ["Acabo de terminar mi carrera", "Acabo de acabar la carrera"], note: "acabar de + infinitive = to have just done."}
+      - {id: es-b2-09-vuelto-suspender, type: phrase, l2: "He vuelto a suspender.", l1: "I've failed again.",
+         alt: ["Volví a suspender", "He suspendido otra vez", "Suspendí otra vez", "He vuelto a reprobar"],
+         note: "volver a + infinitive = to do again."}
+      - {id: es-b2-09-c1, type: cloze, text: "Llevo dos horas ___ para el examen.", answer: "estudiando", alt: ["repasando"],
+         l1: "I've been studying for the exam for two hours.", note: "llevar + time + gerund"}
+      - {id: es-b2-09-c2, type: cloze, text: "___ tres meses sin ver a mis padres.", answer: "Llevo",
+         l1: "I haven't seen my parents for three months.", note: "llevar + time + sin + infinitive"}
+      - {id: es-b2-09-c3, type: cloze, text: "Acabamos ___ llegar.", answer: "de",
+         l1: "We've just arrived.", note: "acabar de + infinitive = to have just"}
+      - {id: es-b2-09-c4, type: cloze, text: "Si vuelves ___ llegar tarde, hablaré con tus padres.", answer: "a",
+         l1: "If you're late again, I'll speak to your parents.", note: "volver a + infinitive = to do again"}
+      - {id: es-b2-09-c5, type: cloze, text: "Mi padre ___ de fumar hace diez años.", answer: "dejó",
+         l1: "My father gave up smoking ten years ago.", note: "dejar de + infinitive = to stop / give up"}
+      - {id: es-b2-09-c6, type: cloze, text: "En cuanto llegó a casa, se ___ a estudiar.", answer: "puso",
+         l1: "As soon as he got home, he started studying.", note: "ponerse a + infinitive = to start (doing)"}
+      - {id: es-b2-09-c7, type: cloze, text: "¿Sigues ___ en la misma academia?", answer: "trabajando",
+         l1: "Are you still working at the same language school? (informal)", note: "seguir + gerund = to still be doing"}
+      - {id: es-b2-09-c8, type: cloze, text: "Sigo ___ entender el subjuntivo.", answer: "sin",
+         l1: "I still don't understand the subjunctive.", note: "seguir sin + infinitive = still not to"}
+      - {id: es-b2-09-c9, type: cloze, text: "El curso está a ___ de empezar.", answer: "punto",
+         l1: "The course is about to start.", note: "estar a punto de + infinitive = to be about to"}
+      - {id: es-b2-09-c10, type: cloze, text: "Cuando le contamos el chiste, se echó a ___.", answer: "reír",
+         l1: "When we told him the joke, he burst out laughing.", note: "echarse a reír / llorar = to burst out laughing / crying"}
+      - {id: es-b2-09-c11, type: cloze, text: "Nunca ___ a ver a mi profesora de primaria.", answer: "volví",
+         l1: "I never saw my primary-school teacher again.", note: "volver a + infinitive in the past"}
+      - {id: es-b2-09-c12, type: cloze, text: "Poco a poco voy ___ el idioma.", answer: "entendiendo", alt: ["comprendiendo", "dominando"],
+         l1: "Little by little I'm getting to understand the language.", note: "ir + gerund = a gradual process"}
+      - {id: es-b2-09-c13, type: cloze, text: "¿Cuánto tiempo ___ viviendo en Sevilla?", answer: "llevas",
+         l1: "How long have you been living in Seville? (informal)", note: "¿cuánto tiempo llevas + gerund? = how long have you been…?"}
+      - {id: es-b2-09-c14, type: cloze, text: "Acabo de ___ de que me han dado la beca.", answer: "enterarme",
+         l1: "I've just found out that I've got the grant.", note: "enterarse de que = to find out that"}
+      - {id: es-b2-09-c15, type: cloze, text: "Cuando llamaste, acababa de ___.", answer: "salir", alt: ["irme", "marcharme"],
+         l1: "When you called, I had just gone out.", note: "acababa de (imperfect) = had just"}
+      - {id: es-b2-09-c16, type: cloze, text: "Ha dejado de ___ y ya ha salido el sol.", answer: "llover",
+         l1: "It has stopped raining and the sun has come out.", note: "dejar de + infinitive"}
+
+  # ---------------------------------------------------------------- 10
+  - id: es-b2-10
+    title: "Clever or ready? Adjectives that change with ser and estar — character and relationships"
+    goal: "I can describe people's character and moods precisely, and talk about friendship, quarrels and making up."
+    notes: |
+      With some adjectives, **ser** and **estar** give two different meanings: *ser* describes what someone or something is like; *estar* a state or how it seems right now.
+
+      | Adjective | with ser | with estar |
+      | listo | clever | ready |
+      | rico | rich | delicious |
+      | aburrido | boring | bored |
+      | malo | bad, naughty | ill (Spain), off (food) |
+      | verde | green | unripe; inexperienced |
+      | atento | considerate | paying attention |
+      | despierto | sharp, alert | awake |
+      | orgulloso | arrogant | proud (of someone) |
+      | seguro | safe | sure |
+      | cerrado / abierto | narrow- / open-minded | closed / open |
+
+      - **estar** with a looks adjective means "to look": *¡Qué guapa estás!* = You look lovely.
+      - Events take **ser** for where they happen: *La boda fue en Sevilla*.
+      - **caer bien / mal** works like *gustar* and is the natural way to say you like a person: *Tu hermana me cae muy bien*.
+    items:
+      - {id: es-b2-10-ser-listo, type: vocab, l2: "ser listo", l1: "to be clever / to be smart",
+         ex: "Mi hermana es muy lista.", ex_l1: "My sister is very clever."}
+      - {id: es-b2-10-estar-listo, type: vocab, l2: "estar listo", l1: "to be ready",
+         ex: "¿Estás lista? Nos vamos.", ex_l1: "Are you ready? We're leaving. (to a woman)",
+         note: "Same adjective, different verb, different meaning."}
+      - {id: es-b2-10-ser-rico, type: vocab, l2: "ser rico", l1: "to be rich / to be wealthy",
+         ex: "Su familia es muy rica.", ex_l1: "His family is very rich."}
+      - {id: es-b2-10-estar-rico, type: vocab, l2: "estar rico", l1: "to be delicious / to taste good",
+         ex: "El gazpacho está riquísimo.", ex_l1: "The gazpacho is delicious.",
+         note: "Food 'is' delicious with estar: está rico, está buenísimo."}
+      - {id: es-b2-10-ser-aburrido, type: vocab, l2: "ser aburrido", l1: "to be boring",
+         ex: "Su novio es un poco aburrido.", ex_l1: "Her boyfriend is a bit boring."}
+      - {id: es-b2-10-estar-aburrido, type: vocab, l2: "estar aburrido", l1: "to be bored",
+         ex: "Los niños están aburridos.", ex_l1: "The children are bored.",
+         note: "English -ing (boring) → ser; -ed (bored) → estar."}
+      - {id: es-b2-10-caracter, type: vocab, l2: "el carácter", l1: "the character / the personality (of a person)",
+         ex: "Tiene muy buen carácter.", ex_l1: "She has a very good nature.",
+         note: "Plural moves the stress: los caracteres. A character in a story is el personaje. tener mal carácter = to be bad-tempered."}
+      - {id: es-b2-10-egoista, type: vocab, l2: "egoísta", l1: "selfish",
+         ex: "No seas egoísta y comparte.", ex_l1: "Don't be selfish, share. (informal)",
+         note: "Same form for men and women: un hombre egoísta, una mujer egoísta."}
+      - {id: es-b2-10-testarudo, type: vocab, l2: "testarudo", l1: "stubborn / pig-headed", alt: ["terco", "cabezota", "cabezón"],
+         ex: "Es tan testarudo que nunca cambia de opinión.", ex_l1: "He's so stubborn that he never changes his mind.",
+         note: "Spain also says cabezota (same for both genders)."}
+      - {id: es-b2-10-sensible, type: vocab, l2: "sensible", l1: "sensitive",
+         ex: "Es una persona muy sensible: llora con todas las películas.", ex_l1: "She's a very sensitive person: she cries at every film.",
+         note: "False friend: sensible (reasonable) is sensato."}
+      - {id: es-b2-10-carinoso, type: vocab, l2: "cariñoso", l1: "affectionate / loving",
+         ex: "Mi abuelo es muy cariñoso con los nietos.", ex_l1: "My grandfather is very affectionate with his grandchildren.",
+         note: "From el cariño (affection). cariño = darling, love (as a term of endearment)."}
+      - {id: es-b2-10-maleducado, type: vocab, l2: "maleducado", l1: "rude / bad-mannered", alt: ["mal educado"],
+         ex: "Fue muy maleducado con el camarero.", ex_l1: "He was very rude to the waiter.",
+         note: "False friend: it is about manners, not schooling. Opposite: educado (polite)."}
+      - {id: es-b2-10-comprensivo, type: vocab, l2: "comprensivo", l1: "understanding (sympathetic)",
+         ex: "Mi jefa fue muy comprensiva cuando estuve enfermo.", ex_l1: "My boss was very understanding when I was ill.",
+         note: "Comprehensive (complete) is completo or exhaustivo."}
+      - {id: es-b2-10-envidia, type: vocab, l2: "la envidia", l1: "envy",
+         ex: "¡Qué envidia! Yo también quiero ir a Cuba.", ex_l1: "I'm so jealous! I want to go to Cuba too.",
+         note: "¡Qué envidia! = I'm so jealous (of your good luck). envidioso = envious."}
+      - {id: es-b2-10-celos, type: vocab, l2: "los celos", l1: "jealousy (in love)",
+         ex: "Los celos destruyeron la relación.", ex_l1: "Jealousy destroyed the relationship.",
+         note: "Plural. tener celos = to be jealous; celoso = jealous (of a partner)."}
+      - {id: es-b2-10-confiar, type: vocab, l2: "confiar en", l1: "to trust / to rely on",
+         ex: "Confío en ti.", ex_l1: "I trust you.",
+         note: "Stress on the í: confío, confías. Always with en."}
+      - {id: es-b2-10-soportar, type: vocab, l2: "soportar", l1: "to put up with / to stand (a person or situation)", alt: ["aguantar"],
+         ex: "No soporto el ruido.", ex_l1: "I can't stand the noise.",
+         note: "False friend: to support is apoyar. Colloquial: aguantar."}
+      - {id: es-b2-10-pelearse, type: vocab, l2: "pelearse", l1: "to fall out / to quarrel / to fight",
+         ex: "Se pelearon por una tontería.", ex_l1: "They fell out over something silly.",
+         note: "pelearse con alguien. A verbal argument is also discutir (B1)."}
+      - {id: es-b2-10-caer-bien, type: vocab, l2: "caer bien", l1: "to be liked by (someone) / to come across well (me cae bien = I like him)",
+         ex: "Tu novio me cae genial.", ex_l1: "I really like your boyfriend.",
+         note: "Works like gustar: me cae bien, nos caen mal. The natural way to say you like a person (not 'me gusta', which suggests attraction)."}
+      - {id: es-b2-10-una-carne, type: vocab, l2: "ser uña y carne", l1: "to be inseparable / to be as thick as thieves",
+         ex: "Mi hermana y su amiga son uña y carne.", ex_l1: "My sister and her friend are inseparable.",
+         note: "Literally 'to be nail and flesh'."}
+      - {id: es-b2-10-paces, type: vocab, l2: "hacer las paces", l1: "to make up / to make peace (after a quarrel)",
+         ex: "Ya han hecho las paces.", ex_l1: "They've made up now.",
+         note: "Plural: las paces."}
+      - {id: es-b2-10-cara, type: vocab, l2: "tener mucha cara", l1: "to have a nerve / to be cheeky (idiom)", alt: ["tener mucho morro", "tener mucho descaro", "ser un caradura"],
+         ex: "¡Qué cara tienes! Siempre me pides dinero.", ex_l1: "What a nerve you've got! You're always asking me for money.",
+         note: "Spain also tener mucho morro; un caradura = a cheeky so-and-so."}
+      - {id: es-b2-10-tomate, type: vocab, l2: "ponerse como un tomate", l1: "to go as red as a beetroot (to blush)", alt: ["ponerse rojo como un tomate"],
+         ex: "Cuando la vio, se puso como un tomate.", ex_l1: "When he saw her, he went as red as a beetroot."}
+      - {id: es-b2-10-dime-quien, type: phrase, l2: "Dime con quién andas y te diré quién eres.", l1: "You can tell a person by the company they keep. (proverb)",
+         note: "Literally 'tell me who you go around with and I'll tell you who you are'."}
+      - {id: es-b2-10-me-cae-bien, type: phrase, l2: "Tu hermana me cae muy bien.", l1: "I really like your sister. (as a person)",
+         alt: ["Me cae muy bien tu hermana"], note: "Literally 'your sister falls very well to me'."}
+      - {id: es-b2-10-no-soporto, type: phrase, l2: "No soporto a la gente maleducada.", l1: "I can't stand rude people.",
+         alt: ["No aguanto a la gente maleducada"], note: "Personal a before people: soportar a alguien."}
+      - {id: es-b2-10-que-guapa, type: phrase, l2: "¡Qué guapa estás hoy!", l1: "You look really lovely today! (to a woman, informal)",
+         alt: ["¡Qué guapa estás!", "Hoy estás muy guapa"], note: "estar + adjective of appearance = to look."}
+      - {id: es-b2-10-c1, type: cloze, text: "Tu hija ___ muy lista: siempre saca buenas notas.", answer: "es",
+         l1: "Your daughter is very clever: she always gets good marks.", note: "ser listo = to be clever"}
+      - {id: es-b2-10-c2, type: cloze, text: "¿___ listos? El taxi ya ha llegado.", answer: "Estáis", alt: ["Están"],
+         l1: "Are you (plural) ready? The taxi is here.", note: "estar listo = to be ready. Latin America: ¿Están listos?"}
+      - {id: es-b2-10-c3, type: cloze, text: "Esta sopa ___ muy rica.", answer: "está",
+         l1: "This soup is delicious.", note: "estar rico = to taste good"}
+      - {id: es-b2-10-c4, type: cloze, text: "Sus padres ___ muy ricos: tienen tres casas.", answer: "son",
+         l1: "His parents are very rich: they have three houses.", note: "ser rico = to be wealthy"}
+      - {id: es-b2-10-c5, type: cloze, text: "La película ___ tan aburrida que me dormí.", answer: "era", alt: ["fue"],
+         l1: "The film was so boring that I fell asleep.", note: "ser aburrido = to be boring"}
+      - {id: es-b2-10-c6, type: cloze, text: "No tengo nada que hacer: ___ aburridísimo.", answer: "estoy",
+         l1: "I have nothing to do: I'm really bored.", note: "estar aburrido = to be bored"}
+      - {id: es-b2-10-c7, type: cloze, text: "Ayer mi abuelo ___ malo y no pudo venir.", answer: "estaba",
+         l1: "Yesterday my grandfather was ill and couldn't come.", note: "estar malo (Spain) = to be ill"}
+      - {id: es-b2-10-c8, type: cloze, text: "¡Qué malo ___! Le has quitado el juguete a tu hermano.", answer: "eres",
+         l1: "How naughty you are! You've taken your brother's toy.", note: "ser malo = to be bad / naughty"}
+      - {id: es-b2-10-c9, type: cloze, text: "No te los comas: estos plátanos todavía ___ verdes.", answer: "están",
+         l1: "Don't eat them: these bananas are still unripe.", note: "estar verde = to be unripe (or inexperienced)"}
+      - {id: es-b2-10-c10, type: cloze, text: "Es una persona muy ___: siempre piensa en los demás.", answer: "atenta", alt: ["considerada"],
+         l1: "She's a very considerate person: she always thinks of others.", note: "ser atento = to be considerate; estar atento = to pay attention"}
+      - {id: es-b2-10-c11, type: cloze, text: "¿Estás ___ de que quieres dejar el trabajo?", answer: "seguro",
+         l1: "Are you sure you want to leave your job? (to a man)", note: "estar seguro de que = to be sure that; ser seguro = to be safe"}
+      - {id: es-b2-10-c12, type: cloze, text: "Son las tres de la mañana y todavía estoy ___.", answer: "despierto", alt: ["despierta"],
+         l1: "It's three in the morning and I'm still awake.", note: "estar despierto = to be awake; ser despierto = to be sharp"}
+      - {id: es-b2-10-c13, type: cloze, text: "Mi jefe es muy ___: solo acepta sus propias ideas.", answer: "cerrado",
+         l1: "My boss is very narrow-minded: he only accepts his own ideas.", note: "ser cerrado = narrow-minded; estar cerrado = to be closed"}
+      - {id: es-b2-10-c14, type: cloze, text: "Estoy muy ___ de ti.", answer: "orgulloso", alt: ["orgullosa"],
+         l1: "I'm very proud of you.", note: "estar orgulloso de = to be proud of; ser orgulloso = to be arrogant"}
+      - {id: es-b2-10-c15, type: cloze, text: "¡Qué guapo ___ con ese traje!", answer: "estás",
+         l1: "You look really handsome in that suit! (to a man, informal)", note: "estar + appearance = to look (right now)"}
+      - {id: es-b2-10-c16, type: cloze, text: "Es un chico muy ___: lo entiende todo a la primera.", answer: "listo",
+         alt: ["inteligente", "despierto", "espabilado"],
+         l1: "He's a very clever boy: he understands everything first time.", note: "ser listo = to be clever"}
+      - {id: es-b2-10-c17, type: cloze, text: "La boda ___ en una iglesia del centro.", answer: "fue",
+         l1: "The wedding was (held) in a church in the centre.", note: "events take ser for where and when they happen"}
+
+  # ---------------------------------------------------------------- 11
+  - id: es-b2-11
+    title: "For a foreigner, you speak well: por and para in depth — rights, values and abstract ideas"
+    goal: "I can discuss values such as freedom, equality and responsibility, and use por and para with precision."
+    notes: |
+      **para** looks ahead to a goal, a destination, a deadline or a point of view. **por** looks back to a cause, a means, a route or an exchange.
+
+      | para | por |
+      | purpose: *estudio **para** aprender* | cause: *lo despidieron **por** llegar tarde* |
+      | deadline: ***para** el lunes* | exchange, price: *te lo cambio **por** esto* |
+      | opinion: ***para** mí, es injusto* | through, around: *paseamos **por** el centro* |
+      | comparison: ***para** ser extranjero, hablas bien* | means: ***por** correo, **por** teléfono* |
+      | use: *¿**para** qué sirve?* | thanks: *gracias **por** todo* |
+      | not in the mood: *no estoy **para** bromas* | still to be done: *está **por** hacer* |
+
+      Fixed expressions with **por**: *por lo visto* (apparently), *por poco* (nearly, + present: *por poco me caigo*), *por si acaso* (just in case), *por culpa de* (because of, blaming), *por los pelos* (only just). With **para**: *para colmo* (to top it all), *para siempre* (for ever).
+
+      Abstract nouns take the article in general statements: ***La** libertad es importante*.
+    items:
+      - {id: es-b2-11-libertad, type: vocab, l2: "la libertad", l1: "freedom / liberty",
+         ex: "La libertad no se negocia.", ex_l1: "Freedom is not negotiable.",
+         note: "Nouns in -dad and -tad are feminine."}
+      - {id: es-b2-11-igualdad, type: vocab, l2: "la igualdad", l1: "equality",
+         ex: "Luchamos por la igualdad de oportunidades.", ex_l1: "We are fighting for equal opportunities.",
+         note: "From igual. la igualdad de género = gender equality."}
+      - {id: es-b2-11-justicia, type: vocab, l2: "la justicia", l1: "justice / the justice system",
+         ex: "Las víctimas piden justicia.", ex_l1: "The victims are asking for justice.",
+         note: "justo = fair; injusto = unfair."}
+      - {id: es-b2-11-confianza, type: vocab, l2: "la confianza", l1: "trust / confidence",
+         ex: "He perdido la confianza en él.", ex_l1: "I've lost my trust in him.",
+         note: "de confianza = trustworthy: una persona de confianza. Self-confidence: la confianza en uno mismo."}
+      - {id: es-b2-11-responsabilidad, type: vocab, l2: "la responsabilidad", l1: "responsibility",
+         ex: "Es un trabajo con mucha responsabilidad.", ex_l1: "It's a job with a lot of responsibility."}
+      - {id: es-b2-11-compromiso, type: vocab, l2: "el compromiso", l1: "the commitment / the engagement (to marry) / the obligation",
+         ex: "Tenemos un compromiso con el medio ambiente.", ex_l1: "We have a commitment to the environment.",
+         note: "False friend: a compromise is un acuerdo or una solución intermedia. comprometerse = to commit / get engaged."}
+      - {id: es-b2-11-reto, type: vocab, l2: "el reto", l1: "the challenge", alt: ["el desafío"],
+         ex: "Aprender chino es un gran reto.", ex_l1: "Learning Chinese is a great challenge.",
+         note: "Also el desafío. Not 'la challenge'."}
+      - {id: es-b2-11-desarrollo, type: vocab, l2: "el desarrollo", l1: "the development",
+         ex: "La educación es clave para el desarrollo de un país.", ex_l1: "Education is key to a country's development.",
+         note: "los países en (vías de) desarrollo = developing countries."}
+      - {id: es-b2-11-solidaridad, type: vocab, l2: "la solidaridad", l1: "solidarity / helping others",
+         ex: "Después del terremoto hubo mucha solidaridad.", ex_l1: "After the earthquake there was a great deal of solidarity.",
+         note: "solidario = caring, ready to help others: una persona muy solidaria."}
+      - {id: es-b2-11-respeto, type: vocab, l2: "el respeto", l1: "respect",
+         ex: "Hay que tratar a todo el mundo con respeto.", ex_l1: "You must treat everyone with respect.",
+         note: "respetar = to respect. Not 'el respecto' (con respecto a = with regard to)."}
+      - {id: es-b2-11-convivencia, type: vocab, l2: "la convivencia", l1: "living together / coexistence (getting along as neighbours, flatmates, a society)",
+         ex: "La convivencia con mis compañeros de piso es fácil.", ex_l1: "Living with my flatmates is easy.",
+         note: "convivir = to live together. No exact English word."}
+      - {id: es-b2-11-bienestar, type: vocab, l2: "el bienestar", l1: "well-being / welfare",
+         ex: "Lo más importante es el bienestar de los niños.", ex_l1: "The most important thing is the children's well-being.",
+         note: "One word. el estado del bienestar = the welfare state."}
+      - {id: es-b2-11-amenaza, type: vocab, l2: "la amenaza", l1: "the threat",
+         ex: "El cambio climático es una amenaza para todos.", ex_l1: "Climate change is a threat to everyone.",
+         note: "amenazar = to threaten. A threat 'to' = una amenaza para."}
+      - {id: es-b2-11-valor, type: vocab, l2: "el valor", l1: "courage / value (worth)",
+         ex: "Hace falta mucho valor para decir la verdad.", ex_l1: "It takes a lot of courage to tell the truth.",
+         note: "los valores = (moral) values. valiente = brave."}
+      - {id: es-b2-11-prejuicio, type: vocab, l2: "el prejuicio", l1: "the prejudice",
+         ex: "Tenemos que luchar contra los prejuicios.", ex_l1: "We have to fight against prejudice.",
+         note: "Usually plural. Damage or harm is el perjuicio (a different word)."}
+      - {id: es-b2-11-culpa, type: vocab, l2: "la culpa", l1: "the blame / the fault / guilt",
+         ex: "No es culpa tuya.", ex_l1: "It isn't your fault.",
+         note: "tener la culpa = to be to blame. echar la culpa a alguien = to blame someone."}
+      - {id: es-b2-11-esfuerzo, type: vocab, l2: "el esfuerzo", l1: "the effort",
+         ex: "Gracias por el esfuerzo.", ex_l1: "Thanks for the effort.",
+         note: "esforzarse (o → ue) = to make an effort."}
+      - {id: es-b2-11-esperanza, type: vocab, l2: "la esperanza", l1: "the hope",
+         ex: "Todavía hay esperanza.", ex_l1: "There is still hope.",
+         note: "From esperar. la esperanza de vida = life expectancy."}
+      - {id: es-b2-11-sentado, type: vocab, l2: "dar por sentado", l1: "to take for granted / to assume",
+         alt: ["dar por hecho", "dar por supuesto"],
+         ex: "No des por sentado que todo el mundo piensa como tú.", ex_l1: "Don't take it for granted that everyone thinks like you. (informal)"}
+      - {id: es-b2-11-regadientes, type: vocab, l2: "a regañadientes", l1: "reluctantly / grudgingly",
+         ex: "Al final aceptó, pero a regañadientes.", ex_l1: "In the end he accepted, but reluctantly.",
+         note: "One word. Literally 'while grumbling through your teeth'."}
+      - {id: es-b2-11-por-los-pelos, type: vocab, l2: "por los pelos", l1: "only just / by the skin of your teeth",
+         ex: "Aprobé por los pelos.", ex_l1: "I only just passed.",
+         note: "Literally 'by the hairs'."}
+      - {id: es-b2-11-pato, type: vocab, l2: "pagar el pato", l1: "to take the blame / to carry the can (for others)", alt: ["pagar los platos rotos"],
+         ex: "Siempre paga el pato el más débil.", ex_l1: "It's always the weakest who carries the can.",
+         note: "Literally 'to pay for the duck'. Also pagar los platos rotos (the broken plates)."}
+      - {id: es-b2-11-la-hace-paga, type: phrase, l2: "El que la hace, la paga.", l1: "Whoever does wrong pays for it. / You reap what you sow.",
+         alt: ["Quien la hace, la paga"]}
+      - {id: es-b2-11-para-extranjero, type: phrase, l2: "Para ser extranjero, hablas muy bien.", l1: "For a foreigner, you speak very well. (informal)",
+         alt: ["Para ser extranjero hablas muy bien", "Para ser extranjera, hablas muy bien"],
+         note: "para + ser = considering that you are."}
+      - {id: es-b2-11-por-lo-visto, type: phrase, l2: "Por lo visto, van a cerrar la fábrica.", l1: "Apparently, they're going to close the factory.",
+         alt: ["Al parecer, van a cerrar la fábrica", "Por lo visto van a cerrar la fábrica"],
+         note: "por lo visto = apparently (from what people say)."}
+      - {id: es-b2-11-no-estoy-para, type: phrase, l2: "No estoy para bromas.", l1: "I'm not in the mood for jokes.",
+         alt: ["No estoy de humor para bromas"], note: "estar para + noun or infinitive = to be in the mood for."}
+      - {id: es-b2-11-c1, type: cloze, text: "Tengo que terminar este trabajo ___ el viernes.", answer: "para",
+         l1: "I have to finish this work by Friday.", note: "para + a deadline"}
+      - {id: es-b2-11-c2, type: cloze, text: "___ mí, la libertad es lo más importante.", answer: "Para",
+         l1: "For me, freedom is the most important thing.", note: "para + a point of view"}
+      - {id: es-b2-11-c3, type: cloze, text: "Gracias ___ tu ayuda.", answer: "por",
+         l1: "Thanks for your help. (informal)", note: "gracias por = thanks for (the cause)"}
+      - {id: es-b2-11-c4, type: cloze, text: "___ ser tan joven, tiene mucha responsabilidad.", answer: "Para",
+         l1: "For someone so young, he has a lot of responsibility.", note: "para + ser = considering"}
+      - {id: es-b2-11-c5, type: cloze, text: "Lo despidieron ___ llegar tarde todos los días.", answer: "por",
+         l1: "They fired him for being late every day.", note: "por + the cause"}
+      - {id: es-b2-11-c6, type: cloze, text: "Estudio español ___ poder trabajar en México.", answer: "para",
+         l1: "I study Spanish so that I can work in Mexico.", note: "para + infinitive = purpose"}
+      - {id: es-b2-11-c7, type: cloze, text: "Esa novela todavía está ___ escribir.", answer: "por",
+         l1: "That novel is still to be written.", note: "estar por + infinitive = still to be done"}
+      - {id: es-b2-11-c8, type: cloze, text: "Por ___ tenemos un accidente.", answer: "poco",
+         l1: "We very nearly had an accident.", note: "por poco + present = nearly (in the past)"}
+      - {id: es-b2-11-c9, type: cloze, text: "Por lo ___, el ministro va a dimitir.", answer: "visto",
+         l1: "Apparently, the minister is going to resign.", note: "por lo visto = apparently"}
+      - {id: es-b2-11-c10, type: cloze, text: "Por si ___, guarda una copia del archivo.", answer: "acaso",
+         l1: "Just in case, keep a copy of the file. (informal)", note: "por si acaso = just in case"}
+      - {id: es-b2-11-c11, type: cloze, text: "Perdimos el tren por ___ tuya.", answer: "culpa",
+         l1: "We missed the train because of you. (it was your fault)", note: "por culpa de / por culpa mía, tuya… = because of (blaming)"}
+      - {id: es-b2-11-c12, type: cloze, text: "Luchan por la ___ entre hombres y mujeres.", answer: "igualdad",
+         l1: "They are fighting for equality between men and women.", note: "luchar por = to fight for (a cause)"}
+      - {id: es-b2-11-c13, type: cloze, text: "No hay convivencia sin ___ mutuo.", answer: "respeto",
+         l1: "There is no living together without mutual respect.", note: "el respeto (not respecto)"}
+      - {id: es-b2-11-c14, type: cloze, text: "Para ___, empezó a llover.", answer: "colmo",
+         l1: "To top it all, it started to rain.", note: "para colmo = to top it all / on top of everything"}
+      - {id: es-b2-11-c15, type: cloze, text: "Pagué cuarenta euros ___ la entrada.", answer: "por",
+         l1: "I paid forty euros for the ticket.", note: "por + price or exchange"}
+      - {id: es-b2-11-c16, type: cloze, text: "Hace falta ___ para decir la verdad.", answer: "valor", alt: ["valentía", "coraje"],
+         l1: "It takes courage to tell the truth.", note: "el valor = courage (and value)"}
+
+  # ---------------------------------------------------------------- 12
+  - id: es-b2-12
+    title: "It must have been him: the future and conditional of probability — crime and justice"
+    goal: "I can speculate about what is or was probably happening, and talk about crimes, the police and the courts."
+    notes: |
+      Spanish uses the future and the conditional to **guess**, where English says *must*, *probably* or *I wonder*.
+
+      | Form | Guess about | Example | Meaning |
+      | future | the present | **Estará** en casa. | He's probably at home. |
+      | future perfect | the recent past | **Habrá salido**. | He must have gone out. |
+      | conditional | the past | **Serían** las tres. | It must have been about three. |
+      | conditional perfect | an earlier past | Ya **habría salido**. | He must already have left. |
+
+      - In questions it means "I wonder": *¿Dónde **estará** mi cartera?* · *¿Quién **será** a estas horas?*
+      - A concession: ***Será** caro, pero es muy bueno* = It may be expensive, but…
+      - Other ways to guess: **deber de** + infinitive (*debe de estar enfermo*), **puede que** + subjunctive, **a lo mejor** + indicative, **quizás** + either mood.
+      - *deber* without *de* means obligation: *debes estudiar* = you must (have to).
+    items:
+      - {id: es-b2-12-delito, type: vocab, l2: "el delito", l1: "the crime / the offence",
+         ex: "Conducir sin carné es un delito.", ex_l1: "Driving without a licence is an offence.",
+         note: "cometer un delito = to commit a crime. Crime in general: la delincuencia."}
+      - {id: es-b2-12-ladron, type: vocab, l2: "el ladrón", l1: "the thief / the burglar (male)",
+         ex: "El ladrón entró por la ventana.", ex_l1: "The burglar got in through the window.",
+         note: "Feminine: la ladrona. Plural without the accent: los ladrones."}
+      - {id: es-b2-12-robo, type: vocab, l2: "el robo", l1: "the theft / the robbery / the burglary",
+         ex: "Ha habido varios robos en el barrio.", ex_l1: "There have been several burglaries in the neighbourhood.",
+         note: "robar = to steal; me han robado = I've been robbed."}
+      - {id: es-b2-12-juicio, type: vocab, l2: "el juicio", l1: "the trial / the judgement (good sense)",
+         ex: "El juicio empieza el lunes.", ex_l1: "The trial starts on Monday.",
+         note: "perder el juicio = to lose your mind. a mi juicio = in my opinion."}
+      - {id: es-b2-12-juez, type: vocab, l2: "el juez", l1: "the judge (male)",
+         ex: "El juez lo declaró inocente.", ex_l1: "The judge declared him innocent.",
+         note: "Plural: los jueces (z → c). Feminine: la jueza or la juez."}
+      - {id: es-b2-12-denunciar, type: vocab, l2: "denunciar", l1: "to report (a crime, to the police) / to denounce",
+         ex: "Tienes que denunciar el robo en comisaría.", ex_l1: "You have to report the theft at the police station.",
+         note: "la denuncia = the police report: poner una denuncia."}
+      - {id: es-b2-12-detener, type: vocab, l2: "detener", l1: "to arrest / to stop",
+         ex: "La policía ha detenido a dos sospechosos.", ex_l1: "The police have arrested two suspects.",
+         note: "Conjugated like tener: detengo, detuvo. el detenido = the person arrested."}
+      - {id: es-b2-12-sospechoso, type: vocab, l2: "el sospechoso", l1: "the suspect (male)",
+         ex: "El sospechoso no tiene coartada.", ex_l1: "The suspect has no alibi.",
+         note: "Also an adjective: suspicious. sospechar = to suspect."}
+      - {id: es-b2-12-victima, type: vocab, l2: "la víctima", l1: "the victim",
+         ex: "La víctima era un hombre de cincuenta años.", ex_l1: "The victim was a fifty-year-old man.",
+         note: "Always feminine, even for a man."}
+      - {id: es-b2-12-testigo, type: vocab, l2: "el testigo", l1: "the witness (male)",
+         ex: "Un testigo vio al ladrón huir.", ex_l1: "A witness saw the thief run away.",
+         note: "Same form for women: la testigo."}
+      - {id: es-b2-12-carcel, type: vocab, l2: "la cárcel", l1: "the prison / the jail", alt: ["la prisión"],
+         ex: "Pasó diez años en la cárcel.", ex_l1: "He spent ten years in prison.",
+         note: "Spanish uses the article: ir a la cárcel."}
+      - {id: es-b2-12-condena, type: vocab, l2: "la condena", l1: "the (prison) sentence / the conviction",
+         ex: "Le han puesto una condena de cinco años.", ex_l1: "He has been given a five-year sentence.",
+         note: "condenar = to sentence; also to condemn."}
+      - {id: es-b2-12-culpable, type: vocab, l2: "culpable", l1: "guilty",
+         ex: "El jurado lo declaró culpable.", ex_l1: "The jury found him guilty.",
+         note: "Also a noun: el / la culpable = the person to blame. From la culpa."}
+      - {id: es-b2-12-comisaria, type: vocab, l2: "la comisaría", l1: "the police station",
+         ex: "¿Dónde está la comisaría más cercana?", ex_l1: "Where is the nearest police station?",
+         note: "Spain. Latin America also says la estación de policía or la delegación (Mexico)."}
+      - {id: es-b2-12-asesinato, type: vocab, l2: "el asesinato", l1: "the murder",
+         ex: "La novela empieza con un asesinato.", ex_l1: "The novel opens with a murder.",
+         note: "el asesino / la asesina = the murderer."}
+      - {id: es-b2-12-estafa, type: vocab, l2: "la estafa", l1: "the scam / the fraud / the rip-off",
+         ex: "Ese mensaje del banco es una estafa.", ex_l1: "That message from the bank is a scam.",
+         note: "estafar = to swindle. Colloquially also a rip-off: ¡Qué estafa!"}
+      - {id: es-b2-12-pista, type: vocab, l2: "la pista", l1: "the clue / the lead (in an investigation)",
+         ex: "La policía no tiene ninguna pista.", ex_l1: "The police have no leads.",
+         note: "Also a track, a court (tennis) or a runway."}
+      - {id: es-b2-12-desaparecer, type: vocab, l2: "desaparecer", l1: "to disappear / to go missing",
+         ex: "Mi bici ha desaparecido.", ex_l1: "My bike has gone missing.",
+         note: "Like conocer: desaparezco. un desaparecido = a missing person."}
+      - {id: es-b2-12-vista-gorda, type: vocab, l2: "hacer la vista gorda", l1: "to turn a blind eye",
+         ex: "La policía hacía la vista gorda.", ex_l1: "The police turned a blind eye.",
+         note: "Literally 'to make the sight fat'."}
+      - {id: es-b2-12-manos-masa, type: vocab, l2: "con las manos en la masa", l1: "red-handed / in the act",
+         ex: "Pillaron al ladrón con las manos en la masa.", ex_l1: "They caught the thief red-handed.",
+         note: "Literally 'with your hands in the dough'. pillar (Spain) / agarrar = to catch."}
+      - {id: es-b2-12-con-la-suya, type: vocab, l2: "salirse con la suya", l1: "to get your own way / to get away with it",
+         ex: "Al final siempre se sale con la suya.", ex_l1: "In the end she always gets her own way.",
+         note: "The possessive changes: me salgo con la mía, te sales con la tuya."}
+      - {id: es-b2-12-dos-por-tres, type: vocab, l2: "cada dos por tres", l1: "all the time / every five minutes (colloquial)",
+         ex: "Mi vecino llama a la policía cada dos por tres.", ex_l1: "My neighbour calls the police every five minutes."}
+      - {id: es-b2-12-hecho-pecho, type: phrase, l2: "A lo hecho, pecho.", l1: "What's done is done. (face up to the consequences)",
+         note: "Literally 'to what is done, chest': stand up and take it."}
+      - {id: es-b2-12-donde-estara, type: phrase, l2: "¿Dónde estará mi cartera?", l1: "I wonder where my wallet is.",
+         alt: ["¿Dónde estará la cartera?"], note: "The future in a question = I wonder."}
+      - {id: es-b2-12-serian-tres, type: phrase, l2: "Serían las tres cuando oí el ruido.", l1: "It must have been about three when I heard the noise.",
+         alt: ["Serían como las tres cuando oí el ruido", "Serían más o menos las tres cuando oí el ruido"],
+         note: "The conditional guesses about the past."}
+      - {id: es-b2-12-habra-sido-error, type: phrase, l2: "Habrá sido un error.", l1: "It must have been a mistake.",
+         alt: ["Debe de haber sido un error", "Seguramente ha sido un error"], note: "The future perfect guesses about the recent past."}
+      - {id: es-b2-12-c1, type: cloze, text: "—¿Dónde está Juan? —No sé, ___ en la oficina.", answer: "estará",
+         l1: "“Where's Juan?” “I don't know, he's probably at the office.”", note: "future = a guess about the present"}
+      - {id: es-b2-12-c2, type: cloze, text: "—¿Qué hora es? —No tengo reloj, pero ___ las once.", answer: "serán",
+         l1: "“What time is it?” “I haven't got a watch, but it must be about eleven.”", note: "future of ser for the time: serán las once"}
+      - {id: es-b2-12-c3, type: cloze, text: "No contesta: ya se ___ acostado.", answer: "habrá",
+         l1: "He isn't answering: he must have gone to bed already.", note: "future perfect = a guess about the recent past"}
+      - {id: es-b2-12-c4, type: cloze, text: "No vino a la cita; ___ enfermo.", answer: "estaría",
+         l1: "He didn't come to the appointment; he must have been ill.", note: "conditional = a guess about the past"}
+      - {id: es-b2-12-c5, type: cloze, text: "No le vi bien la cara, pero ___ unos treinta años.", answer: "tendría",
+         l1: "I didn't see his face clearly, but he must have been about thirty.", note: "conditional of tener = a guess about the past"}
+      - {id: es-b2-12-c6, type: cloze, text: "No encuentro las llaves. ¿Dónde las ___ puesto?", answer: "habré",
+         l1: "I can't find my keys. Where can I have put them?", note: "future perfect in a question = I wonder"}
+      - {id: es-b2-12-c7, type: cloze, text: "Cuando la llamé, ya habría ___ el autobús.", answer: "perdido",
+         l1: "When I called her, she must already have missed the bus.", note: "conditional perfect = a guess about an earlier past"}
+      - {id: es-b2-12-c8, type: cloze, text: "Llaman a la puerta. ¿Quién ___ a estas horas?", answer: "será",
+         l1: "Someone's at the door. Who can it be at this time of night?", note: "future in a question = I wonder"}
+      - {id: es-b2-12-c9, type: cloze, text: "___ mucho dinero, pero no es feliz.", answer: "Tendrá",
+         l1: "He may have a lot of money, but he isn't happy.", note: "future + pero = a concession (granted, …)"}
+      - {id: es-b2-12-c10, type: cloze, text: "El sospechoso ___ de haber salido por la ventana.", answer: "debe",
+         l1: "The suspect must have got out through the window.", note: "deber de + infinitive = must (a deduction)"}
+      - {id: es-b2-12-c11, type: cloze, text: "Puede que el juez ___ la condena.", answer: "reduzca", alt: ["rebaje"],
+         l1: "The judge may reduce the sentence.", note: "puede que + subjunctive; reducir → reduzca"}
+      - {id: es-b2-12-c12, type: cloze, text: "—¿Por qué llegó tan tarde? —No sé, ___ mucho tráfico.", answer: "habría",
+         l1: "“Why did he arrive so late?” “I don't know, there must have been a lot of traffic.”", note: "conditional of hay → habría: a guess about the past"}
+      - {id: es-b2-12-c13, type: cloze, text: "Le ___ la cartera en el metro.", answer: "robaron",
+         l1: "They stole his wallet on the metro.", note: "robarle algo a alguien = to steal something from someone"}
+      - {id: es-b2-12-c14, type: cloze, text: "El ladrón fue ___ a la salida del banco.", answer: "detenido",
+         l1: "The thief was arrested as he left the bank.", note: "ser + participle (news style): detener → detenido"}
+      - {id: es-b2-12-c15, type: cloze, text: "¿Qué ___ hecho con el dinero?", answer: "habrán",
+         l1: "What can they have done with the money?", note: "future perfect (ellos) = I wonder"}
+      - {id: es-b2-12-c16, type: cloze, text: "Fui a la comisaría a ___ el robo.", answer: "denunciar",
+         l1: "I went to the police station to report the theft.", note: "denunciar = to report to the police"}
+
+  # ---------------------------------------------------------------- 13
+  - id: es-b2-13
+    title: "Dear Sir or Madam: register, formal letters and discourse markers"
+    goal: "I can choose between tú and usted, write a formal e-mail or letter, and structure an argument with connectors."
+    notes: |
+      **Tú or usted?** Spain uses *tú* with almost everyone of your age and in most workplaces; keep *usted* for older strangers, officials, customers and formal writing. Much of Latin America uses *usted* more widely. When unsure, start with *usted* and let the other person offer: *¿Nos tuteamos?* (Argentina, Uruguay and much of Central America say *vos* instead of *tú*.)
+
+      **A formal e-mail**
+
+      - Opening: *Estimado señor Ruiz:* / *Estimada señora:* — a **colon**, not a comma.
+      - Purpose: *Le escribo para… / Me dirijo a usted para…*
+      - Request: *Le agradecería que* + imperfect subjunctive.
+      - Attachments: *Adjunto le envío…*
+      - Close: *Quedo a la espera de su respuesta. Atentamente, / Un cordial saludo,*
+
+      **Discourse markers** for writing and debate:
+
+      | Job | Marker |
+      | order | en primer lugar, por un lado / por otro, por último |
+      | contrast | no obstante, sin embargo, en cambio |
+      | result | por consiguiente, por lo tanto, así pues |
+      | rephrase / reinforce | es decir, de hecho |
+      | topic | en cuanto a, con respecto a |
+      | conclude | en resumen, al fin y al cabo, en definitiva |
+
+      After a negative, "but rather" is **sino**: *No es caro, sino carísimo*.
+    items:
+      - {id: es-b2-13-estimado, type: vocab, l2: "estimado", l1: "dear (opening a formal letter or e-mail)",
+         ex: "Estimada señora Martín:", ex_l1: "Dear Mrs Martín,",
+         note: "Agrees: estimado señor, estimada señora, estimados señores. Followed by a colon."}
+      - {id: es-b2-13-atentamente, type: vocab, l2: "atentamente", l1: "yours sincerely / yours faithfully (closing a formal letter)",
+         ex: "Atentamente, Ana López", ex_l1: "Yours sincerely, Ana López",
+         note: "Less formal: un cordial saludo / saludos cordiales."}
+      - {id: es-b2-13-adjuntar, type: vocab, l2: "adjuntar", l1: "to attach (a file, a document)",
+         ex: "Le adjunto el informe.", ex_l1: "I attach the report. (formal)",
+         note: "adjunto = attached; also used as 'please find attached': Adjunto le envío…"}
+      - {id: es-b2-13-archivo-adjunto, type: vocab, l2: "el archivo adjunto", l1: "the attachment (to an e-mail)", alt: ["el adjunto", "el fichero adjunto"],
+         ex: "No puedo abrir el archivo adjunto.", ex_l1: "I can't open the attachment."}
+      - {id: es-b2-13-solicitud, type: vocab, l2: "la solicitud", l1: "the application (form) / the request",
+         ex: "He enviado la solicitud para la beca.", ex_l1: "I've sent off the application for the grant.",
+         note: "A phone app is una aplicación."}
+      - {id: es-b2-13-solicitar, type: vocab, l2: "solicitar", l1: "to apply for / to request (formal)",
+         ex: "Quisiera solicitar información sobre el curso.", ex_l1: "I would like to request information about the course.",
+         note: "The formal equivalent of pedir."}
+      - {id: es-b2-13-asunto, type: vocab, l2: "el asunto", l1: "the subject (of an e-mail) / the matter, the issue",
+         ex: "Escribe el asunto del correo.", ex_l1: "Write the subject line of the e-mail.",
+         note: "Also a matter or affair: es un asunto delicado."}
+      - {id: es-b2-13-destinatario, type: vocab, l2: "el destinatario", l1: "the recipient / the addressee",
+         ex: "Comprueba la dirección del destinatario.", ex_l1: "Check the recipient's address.",
+         note: "From el destino (destination)."}
+      - {id: es-b2-13-remitente, type: vocab, l2: "el remitente", l1: "the sender",
+         ex: "La carta no tiene remitente.", ex_l1: "The letter has no sender's name.",
+         note: "From remitir (to send, formal)."}
+      - {id: es-b2-13-firma, type: vocab, l2: "la firma", l1: "the signature / the firm (company)",
+         ex: "Falta tu firma en el contrato.", ex_l1: "Your signature is missing from the contract.",
+         note: "From firmar."}
+      - {id: es-b2-13-tutear, type: vocab, l2: "tutear", l1: "to address someone as tú",
+         ex: "En mi empresa todos nos tuteamos.", ex_l1: "In my company we all call each other tú.",
+         note: "The opposite: tratar de usted or hablar de usted."}
+      - {id: es-b2-13-tratar-usted, type: vocab, l2: "tratar de usted", l1: "to address someone as usted / to be formal with someone",
+         alt: ["hablar de usted"],
+         ex: "A mi suegra la trato de usted.", ex_l1: "I call my mother-in-law usted."}
+      - {id: es-b2-13-no-obstante, type: vocab, l2: "no obstante", l1: "nevertheless / however (formal)",
+         ex: "El plan es bueno; no obstante, es caro.", ex_l1: "The plan is good; nevertheless, it's expensive.",
+         note: "More formal than sin embargo."}
+      - {id: es-b2-13-de-hecho, type: vocab, l2: "de hecho", l1: "in fact / actually (reinforcing)",
+         ex: "No es tímido; de hecho, habla con todo el mundo.", ex_l1: "He isn't shy; in fact, he talks to everyone.",
+         note: "'Actually' meaning 'currently' is actualmente or ahora."}
+      - {id: es-b2-13-es-decir, type: vocab, l2: "es decir", l1: "that is to say / i.e.",
+         ex: "Vuelvo en una quincena, es decir, dentro de dos semanas.", ex_l1: "I'll be back in a fortnight, that is to say, in two weeks.",
+         note: "The written equivalent of o sea."}
+      - {id: es-b2-13-por-consiguiente, type: vocab, l2: "por consiguiente", l1: "consequently / as a result (formal)",
+         alt: ["en consecuencia"],
+         ex: "Han subido los costes; por consiguiente, subiremos los precios.", ex_l1: "Costs have risen; consequently, we will raise prices."}
+      - {id: es-b2-13-en-cuanto-a, type: vocab, l2: "en cuanto a", l1: "as regards / as for / with regard to",
+         alt: ["con respecto a", "respecto a", "en relación con"],
+         ex: "En cuanto al precio, no hay problema.", ex_l1: "As regards the price, there's no problem.",
+         note: "en cuanto + verb = as soon as; en cuanto a + noun = as regards."}
+      - {id: es-b2-13-en-resumen, type: vocab, l2: "en resumen", l1: "in short / to sum up", alt: ["en resumidas cuentas", "en suma"],
+         ex: "En resumen, el proyecto ha sido un éxito.", ex_l1: "In short, the project has been a success."}
+      - {id: es-b2-13-por-un-lado, type: vocab, l2: "por un lado", l1: "on the one hand", alt: ["por una parte"],
+         ex: "Por un lado, me gusta la ciudad; por otro, es muy cara.", ex_l1: "On the one hand, I like the city; on the other, it's very expensive.",
+         note: "Answered by por otro (lado) / por otra (parte)."}
+      - {id: es-b2-13-fin-cabo, type: vocab, l2: "al fin y al cabo", l1: "after all / when all is said and done",
+         ex: "Al fin y al cabo, es tu decisión.", ex_l1: "After all, it's your decision."}
+      - {id: es-b2-13-primer-lugar, type: vocab, l2: "en primer lugar", l1: "firstly / in the first place",
+         ex: "En primer lugar, quiero darles las gracias.", ex_l1: "Firstly, I want to thank you (all).",
+         note: "en segundo lugar = secondly."}
+      - {id: es-b2-13-por-ultimo, type: vocab, l2: "por último", l1: "lastly / finally (the last point)",
+         ex: "Por último, hablaremos del presupuesto.", ex_l1: "Lastly, we will talk about the budget.",
+         note: "For 'at last' (after waiting) say por fin."}
+      - {id: es-b2-13-puntos-ies, type: vocab, l2: "poner los puntos sobre las íes", l1: "to dot the i's and cross the t's / to make things perfectly clear",
+         ex: "Antes de firmar, quiero poner los puntos sobre las íes.", ex_l1: "Before signing, I want to make things perfectly clear.",
+         note: "Plural of i is íes, with an accent."}
+      - {id: es-b2-13-estimada-senora, type: phrase, l2: "Estimada señora García:", l1: "Dear Mrs García, (opening a formal e-mail)",
+         alt: ["Estimada Sra. García:"], note: "A colon, not a comma, after the greeting."}
+      - {id: es-b2-13-le-escribo, type: phrase, l2: "Le escribo para solicitar información sobre el curso.", l1: "I am writing to request information about the course. (formal)",
+         alt: ["Me dirijo a usted para solicitar información sobre el curso", "Le escribo para pedir información sobre el curso"]}
+      - {id: es-b2-13-agradeceria, type: phrase, l2: "Le agradecería que me respondiera lo antes posible.", l1: "I would be grateful if you could reply as soon as possible. (formal)",
+         alt: ["Le agradecería que me respondiese lo antes posible", "Le agradecería que me contestara lo antes posible", "Le agradecería que me contestase lo antes posible"],
+         note: "agradecería que + imperfect subjunctive: the politest way to ask."}
+      - {id: es-b2-13-quedo-espera, type: phrase, l2: "Quedo a la espera de su respuesta.", l1: "I look forward to your reply. (formal)",
+         alt: ["Quedo a la espera de sus noticias", "En espera de su respuesta"]}
+      - {id: es-b2-13-adjunto-envio, type: phrase, l2: "Adjunto le envío mi currículum.", l1: "Please find my CV attached. (formal: I send you attached)",
+         alt: ["Le adjunto mi currículum", "Le envío adjunto mi currículum", "Adjunto mi currículum"]}
+      - {id: es-b2-13-cordial-saludo, type: phrase, l2: "Un cordial saludo.", l1: "Kind regards. (closing an e-mail)",
+         alt: ["Saludos cordiales", "Reciba un cordial saludo"]}
+      - {id: es-b2-13-nos-tuteamos, type: phrase, l2: "¿Nos tuteamos?", l1: "Shall we call each other tú?",
+         alt: ["¿Podemos tutearnos?", "¿Nos podemos tutear?"], note: "The polite way to offer a less formal footing."}
+      - {id: es-b2-13-lamento, type: phrase, l2: "Lamento comunicarle que su solicitud ha sido rechazada.", l1: "I regret to inform you that your application has been rejected. (formal)",
+         alt: ["Lamento informarle de que su solicitud ha sido rechazada", "Siento comunicarle que su solicitud ha sido rechazada", "Lamento informarle que su solicitud ha sido rechazada"],
+         note: "informar de que (Spain, standard); informar que is common in Latin America."}
+      - {id: es-b2-13-c1, type: cloze, text: "El hotel era caro; no ___, merecía la pena.", answer: "obstante",
+         l1: "The hotel was expensive; nevertheless, it was worth it.", note: "no obstante = nevertheless (formal)"}
+      - {id: es-b2-13-c2, type: cloze, text: "No es mi jefe, ___ mi compañero.", answer: "sino",
+         l1: "He isn't my boss but my colleague.", note: "after a negative, 'but (rather)' = sino, not pero"}
+      - {id: es-b2-13-c3, type: cloze, text: "No es nada tímida; de ___, es la más habladora del grupo.", answer: "hecho",
+         l1: "She isn't shy at all; in fact, she's the most talkative in the group.", note: "de hecho = in fact"}
+      - {id: es-b2-13-c4, type: cloze, text: "El curso es intensivo, es ___, cinco horas al día.", answer: "decir",
+         l1: "The course is intensive, that is to say, five hours a day.", note: "es decir = that is to say"}
+      - {id: es-b2-13-c5, type: cloze, text: "En ___ a su pregunta, le informo de que el plazo sigue abierto.", answer: "cuanto", alt: ["relación"],
+         l1: "As regards your question, I can tell you that the application period is still open. (formal)", note: "en cuanto a = as regards"}
+      - {id: es-b2-13-c6, type: cloze, text: "Por un lado, el trabajo es interesante; por ___, el sueldo es bajo.", answer: "otro",
+         l1: "On the one hand, the job is interesting; on the other, the pay is low.", note: "por un lado… por otro (lado)"}
+      - {id: es-b2-13-c7, type: cloze, text: "Le agradecería que me ___ el formulario.", answer: "enviara", alt: ["enviase", "mandara", "mandase"],
+         l1: "I would be grateful if you could send me the form. (formal)", note: "agradecería que + imperfect subjunctive"}
+      - {id: es-b2-13-c8, type: cloze, text: "Al fin y al ___, es tu decisión.", answer: "cabo",
+         l1: "After all, it's your decision.", note: "al fin y al cabo = after all"}
+      - {id: es-b2-13-c9, type: cloze, text: "En primer ___, quiero agradecerles su presencia.", answer: "lugar",
+         l1: "Firstly, I want to thank you all for being here. (formal, to a group)", note: "en primer lugar = firstly"}
+      - {id: es-b2-13-c10, type: cloze, text: "Por ___, me gustaría hablar del presupuesto.", answer: "último",
+         l1: "Lastly, I'd like to talk about the budget.", note: "por último = lastly (por fin = at last)"}
+      - {id: es-b2-13-c11, type: cloze, text: "Disculpe, ¿___ usted dónde está la secretaría?", answer: "sabe",
+         l1: "Excuse me, do you know where the office is? (formal)", note: "usted takes the third-person form"}
+      - {id: es-b2-13-c12, type: cloze, text: "Señora López, ___ asiento, por favor.", answer: "tome",
+         l1: "Mrs López, please take a seat. (formal)", note: "formal imperative: tomar → tome (usted)"}
+      - {id: es-b2-13-c13, type: cloze, text: "La empresa ha perdido clientes; por ___, habrá recortes.", answer: "consiguiente", alt: ["tanto"],
+         l1: "The company has lost customers; consequently, there will be cuts.", note: "por consiguiente = consequently (formal)"}
+      - {id: es-b2-13-c14, type: cloze, text: "Le escribo para ___ una beca.", answer: "solicitar", alt: ["pedir"],
+         l1: "I am writing to apply for a grant. (formal)", note: "solicitar = to apply for (formal)"}
+      - {id: es-b2-13-c15, type: cloze, text: "Sin otro ___, le saluda atentamente,", answer: "particular",
+         l1: "With nothing further to add, yours sincerely, (traditional letter closing)", note: "a set formula at the end of a formal letter"}
+      - {id: es-b2-13-c16, type: cloze, text: "¿Le ___ si abro la ventana?", answer: "importa", alt: ["molesta"],
+         l1: "Do you mind if I open the window? (formal)", note: "¿le importa si…? = do you mind if…? (usted)"}

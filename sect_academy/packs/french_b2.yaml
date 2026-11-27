@@ -1,0 +1,229 @@
+id: french-b2
+title: "French — B2 Upper Intermediate"
+kind: language
+language: French
+lang: fr-FR
+hall: tongues_west
+blurb: "Argue, persuade and read for real: every use of the subjunctive, all three si clauses, reported speech, the passive, complex relatives, formal letters, sixty idioms, and conversations for debates, interviews and complaints."
+
+units:
+  # ───────────────────────────────────────────────────────────────── 1
+  - id: fr4-01
+    title: "Work and the economy: the subjunctive of will and necessity"
+    goal: "I can discuss jobs, careers and the economy and say what must happen or what people demand, expect or refuse, using the subjunctive."
+    notes: |
+      At B1 you met **il faut que**. Many more expressions of necessity and will take the **subjonctif**:
+
+      - **Necessity:** *il est nécessaire / essentiel / indispensable / important que, il est temps que, il vaut mieux que, il n'est pas question que*.
+      - **Will:** *exiger que, demander que, vouloir que, refuser que, accepter que, attendre que, tenir à ce que, s'attendre à ce que*.
+
+      *Le syndicat **exige que** la direction **prenne** une décision.*
+
+      ## Verbs with two stems
+      The *nous* and *vous* forms come from *nous* in the present; the others from *ils*:
+
+      | verb | que je | que nous |
+      |---|---|---|
+      | prendre | prenne | prenions |
+      | recevoir | reçoive | recevions |
+      | devoir | doive | devions |
+      | voir | voie | voyions |
+      | vouloir | veuille | voulions |
+      | savoir | sache | sachions |
+
+      ## Same subject? Use the infinitive
+      *Je tiens **à finir** ce soir* (I finish) but *je tiens **à ce que tu finisses*** (you finish). *Tenir à* and *s'attendre à* need **à ce que** before a clause.
+
+      English often hides the subjunctive behind a past tense or an infinitive: *It's time you **left*** = *Il est temps que tu **partes***.
+    items:
+      - {id: fr-b2-01-embaucher, type: vocab, l2: "embaucher", l1: "to hire / to take on (staff)", alt: ["recruter"], ex: "L'entreprise va embaucher dix personnes cette année.", ex_l1: "The company is going to hire ten people this year.", note: "l'embauche = hiring. The opposite is licencier."}
+      - {id: fr-b2-01-licencier, type: vocab, l2: "licencier", l1: "to dismiss / to lay off (an employee)", alt: ["renvoyer"], ex: "L'usine a licencié deux cents salariés.", ex_l1: "The factory laid off two hundred employees.", note: "le licenciement = the dismissal, the redundancy. Casual: virer (to fire)."}
+      - {id: fr-b2-01-demissionner, type: vocab, l2: "démissionner", l1: "to resign / to quit (a job)", ex: "Elle a démissionné pour créer sa propre entreprise.", ex_l1: "She resigned to start her own company.", note: "la démission = the resignation."}
+      - {id: fr-b2-01-entretien-d-embauche, type: vocab, l2: "l'entretien d'embauche", l1: "the job interview", alt: ["l'entretien"], ex: "J'ai un entretien d'embauche jeudi.", ex_l1: "I have a job interview on Thursday.", note: "Masculine: un entretien. une interview is for the media."}
+      - {id: fr-b2-01-candidature, type: vocab, l2: "la candidature", l1: "the application (for a job)", ex: "J'ai envoyé ma candidature par mail.", ex_l1: "I sent my application by email.", note: "poser sa candidature = to apply; postuler à un poste is also common. le candidat, la candidate = the applicant."}
+      - {id: fr-b2-01-employeur, type: vocab, l2: "l'employeur", l1: "the employer", ex: "Mon employeur me paie la formation.", ex_l1: "My employer is paying for my training.", note: "Masculine. The employee is le salarié or l'employé."}
+      - {id: fr-b2-01-pme, type: vocab, l2: "la PME", l1: "the small or medium-sized business (SME)", ex: "Les PME créent beaucoup d'emplois.", ex_l1: "Small businesses create a lot of jobs.", note: "Short for petite et moyenne entreprise, so feminine. Say 'pé-em-eu'."}
+      - {id: fr-b2-01-salarie, type: vocab, l2: "le salarié", l1: "the employee (on a salary; a man)", alt: ["l'employé"], ex: "Cette PME compte cinquante salariés.", ex_l1: "This SME has fifty employees.", note: "Feminine: la salariée. compter = to have, to number."}
+      - {id: fr-b2-01-cdi, type: vocab, l2: "le CDI", l1: "the permanent job contract (abbreviation)", alt: ["le contrat à durée indéterminée"], ex: "Après deux ans, elle a enfin obtenu un CDI.", ex_l1: "After two years, she finally got a permanent contract.", note: "Say 'cé-dé-i'. A fixed-term contract is un CDD (contrat à durée déterminée)."}
+      - {id: fr-b2-01-formation, type: vocab, l2: "la formation", l1: "training / a training course (for a job)", ex: "Je suis une formation en informatique.", ex_l1: "I'm doing a training course in IT.", note: "suivre une formation = to take a course. Je suis here is from suivre, not être."}
+      - {id: fr-b2-01-prime, type: vocab, l2: "la prime", l1: "the bonus (extra pay)", ex: "Les salariés ont reçu une prime en décembre.", ex_l1: "The employees received a bonus in December.", note: "Also an insurance premium."}
+      - {id: fr-b2-01-augmentation, type: vocab, l2: "l'augmentation", l1: "the pay rise / the raise", ex: "J'ai demandé une augmentation à mon patron.", ex_l1: "I asked my boss for a pay rise.", note: "Feminine. Also any increase: l'augmentation des prix."}
+      - {id: fr-b2-01-syndicat, type: vocab, l2: "le syndicat", l1: "the trade union", ex: "Les syndicats appellent à la grève.", ex_l1: "The unions are calling for a strike.", note: "un syndicaliste = a union activist."}
+      - {id: fr-b2-01-retraite, type: vocab, l2: "la retraite", l1: "retirement / the pension", ex: "Mon père prend sa retraite l'année prochaine.", ex_l1: "My father is retiring next year.", note: "prendre sa retraite = to retire; être à la retraite = to be retired; un retraité = a pensioner."}
+      - {id: fr-b2-01-teletravail, type: vocab, l2: "le télétravail", l1: "remote working / working from home", ex: "Je suis en télétravail deux jours par semaine.", ex_l1: "I work from home two days a week.", note: "être en télétravail. The verb télétravailler is also heard."}
+      - {id: fr-b2-01-croissance, type: vocab, l2: "la croissance", l1: "growth (economic)", ex: "La croissance a ralenti cette année.", ex_l1: "Growth slowed down this year.", note: "From croître, to grow. ralentir = to slow down."}
+      - {id: fr-b2-01-crise, type: vocab, l2: "la crise", l1: "the crisis", ex: "Beaucoup d'entreprises ont fermé pendant la crise.", ex_l1: "Many businesses closed during the crisis.", note: "Plural: les crises. une crise de nerfs = a fit of hysterics."}
+      - {id: fr-b2-01-pouvoir-d-achat, type: vocab, l2: "le pouvoir d'achat", l1: "purchasing power / spending power", ex: "L'inflation fait baisser le pouvoir d'achat.", ex_l1: "Inflation reduces purchasing power.", note: "A key phrase in French political debate."}
+      - {id: fr-b2-01-hausse, type: vocab, l2: "la hausse", l1: "the rise (in prices or figures)", ex: "Les prix de l'énergie sont en hausse.", ex_l1: "Energy prices are rising.", note: "en hausse = rising. The h is aspirate: la hausse, never l'hausse."}
+      - {id: fr-b2-01-baisse, type: vocab, l2: "la baisse", l1: "the fall / the drop (in prices or figures)", ex: "On observe une baisse du chômage.", ex_l1: "We are seeing a fall in unemployment.", note: "en baisse = falling. baisser = to go down, to lower."}
+      - {id: fr-b2-01-chiffre-d-affaires, type: vocab, l2: "le chiffre d'affaires", l1: "the turnover / the revenue (of a business)", ex: "Notre chiffre d'affaires a augmenté de dix pour cent.", ex_l1: "Our turnover has increased by ten per cent.", note: "The profit is le bénéfice."}
+      - {id: fr-b2-01-exiger, type: vocab, l2: "exiger", l1: "to demand / to require", ex: "Le client exige un remboursement.", ex_l1: "The customer is demanding a refund.", note: "nous exigeons (keep the e before o). exiger que + subjunctive."}
+      - {id: fr-b2-01-s-attendre-a, type: vocab, l2: "s'attendre à", l1: "to expect (something to happen)", ex: "Je ne m'attendais pas à une telle réponse.", ex_l1: "I wasn't expecting such an answer.", note: "s'attendre à ce que + subjunctive: Je m'attends à ce qu'il refuse."}
+      - {id: fr-b2-01-concurrence, type: vocab, l2: "la concurrence", l1: "competition (between businesses)", ex: "La concurrence est très forte dans ce secteur.", ex_l1: "Competition is very strong in this sector.", note: "un concurrent = a competitor. In sport, 'a competition' is une compétition."}
+      - {id: fr-b2-01-il-est-temps, type: phrase, l2: "Il est temps que tu prennes une décision.", l1: "It's time you made a decision. (informal)", alt: ["Il est temps que tu te décides."], note: "il est temps que + subjunctive, where English uses a past tense."}
+      - {id: fr-b2-01-je-tiens-a-ce-que, type: phrase, l2: "Je tiens à ce que tout soit prêt à neuf heures.", l1: "I insist that everything is ready at nine o'clock.", alt: ["Je tiens à ce que tout soit prêt à 9 heures.", "Je tiens à ce que tout soit prêt pour neuf heures.", "Je tiens à ce que tout soit prêt pour 9 heures."], note: "tenir à ce que + subjunctive = to insist, to be keen that. Same subject: je tiens à venir."}
+      - {id: fr-b2-01-il-vaudrait-mieux, type: phrase, l2: "Il vaudrait mieux que vous partiez tôt.", l1: "It would be better for you to leave early. (formal)", alt: ["Il vaut mieux que vous partiez tôt.", "Il serait préférable que vous partiez tôt."], note: "il vaut mieux que + subjunctive. partir → que vous partiez."}
+      - {id: fr-b2-01-pas-question, type: phrase, l2: "Il n'est pas question que je travaille le dimanche.", l1: "There's no question of my working on Sundays.", alt: ["Pas question que je travaille le dimanche.", "Il est hors de question que je travaille le dimanche."], note: "(il n'est) pas question que + subjunctive: a firm refusal."}
+      - {id: fr-b2-01-pain-sur-la-planche, type: phrase, l2: "J'ai du pain sur la planche.", l1: "I've got a lot on my plate. (idiom with bread)", note: "Literally 'I have bread on the board': a lot of work ahead."}
+      - {id: fr-b2-01-main-a-la-pate, type: phrase, l2: "Tout le monde doit mettre la main à la pâte.", l1: "Everyone has to pitch in. (idiom)", note: "Literally 'put your hand in the dough'."}
+      - {id: fr-b2-01-c1, type: cloze, text: "Le directeur exige que nous ___ le rapport avant vendredi.", answer: "rendions", alt: ["remettions"], l1: "The director demands that we hand in the report before Friday.", note: "exiger que + subjunctive. rendre → que nous rendions."}
+      - {id: fr-b2-01-c2, type: cloze, text: "Il est indispensable que vous ___ anglais.", answer: "parliez", l1: "It is essential that you speak English.", note: "il est indispensable / essentiel / nécessaire que + subjunctive. vous → -iez."}
+      - {id: fr-b2-01-c3, type: cloze, text: "Il est important que les salariés ___ ce qui se passe.", answer: "sachent", l1: "It is important that the employees know what is going on.", note: "savoir → qu'ils sachent (irregular stem sach-)."}
+      - {id: fr-b2-01-c4, type: cloze, text: "Il est normal qu'elle ___ une augmentation.", answer: "veuille", l1: "It's normal that she wants a pay rise.", note: "vouloir → qu'elle veuille, que nous voulions, qu'ils veuillent."}
+      - {id: fr-b2-01-c5, type: cloze, text: "Je ne veux pas que tu ___ partir si tôt.", answer: "doives", l1: "I don't want you to have to leave so early. (informal)", note: "devoir → que tu doives, but que nous devions."}
+      - {id: fr-b2-01-c6, type: cloze, text: "Il est temps que les salariés ___ leur prime.", answer: "reçoivent", alt: ["touchent"], l1: "It's time the employees received their bonus.", note: "recevoir → qu'ils reçoivent, but que nous recevions."}
+      - {id: fr-b2-01-c7, type: cloze, text: "Il vaut mieux que nous ___ une décision rapidement.", answer: "prenions", l1: "It's better that we make a decision quickly.", note: "Two stems: que je prenne, but que nous prenions (from nous prenons)."}
+      - {id: fr-b2-01-c8, type: cloze, text: "Mon patron veut que je ___ les clients demain matin.", answer: "voie", alt: ["rencontre", "reçoive"], l1: "My boss wants me to see the clients tomorrow morning.", note: "voir → que je voie, que nous voyions. It sounds just like vois."}
+      - {id: fr-b2-01-c9, type: cloze, text: "Je tiens à ce que tout le monde ___ à l'heure.", answer: "soit", l1: "I insist that everyone is on time.", note: "tenir à ce que + subjunctive. tout le monde takes a singular verb."}
+      - {id: fr-b2-01-c10, type: cloze, text: "Elle tient ___ finir avant ce soir.", answer: "à", l1: "She is keen to finish before this evening.", note: "Same subject → tenir à + infinitive, with no que."}
+      - {id: fr-b2-01-c11, type: cloze, text: "Nous nous attendons à ___ que les prix augmentent.", answer: "ce", l1: "We expect prices to go up.", note: "s'attendre à ce que + subjunctive (augmentent looks the same in both moods)."}
+      - {id: fr-b2-01-c12, type: cloze, text: "Il faut absolument que le gouvernement ___ quelque chose contre le chômage.", answer: "fasse", l1: "The government absolutely must do something about unemployment.", note: "faire → qu'il fasse."}
+      - {id: fr-b2-01-c13, type: cloze, text: "J'attends que le directeur me ___.", answer: "réponde", l1: "I'm waiting for the director to answer me.", note: "attendre que + subjunctive: you are waiting for someone else to act."}
+      - {id: fr-b2-01-c14, type: cloze, text: "Le syndicat demande que les salaires ___ augmentés.", answer: "soient", l1: "The union is demanding that wages be increased.", note: "demander que + subjunctive, here a passive: que les salaires soient augmentés."}
+      - {id: fr-b2-01-c15, type: cloze, text: "Il faudrait que tu ___ ta candidature avant lundi.", answer: "envoies", alt: ["déposes"], l1: "You ought to send your application before Monday. (informal)", note: "il faudrait que (conditional) + present subjunctive: a softer 'you ought to'."}
+
+  # ───────────────────────────────────────────────────────────────── 2
+  - id: fr4-02
+    title: "Society and politics: subjunctive or indicative?"
+    goal: "I can discuss social and political issues and choose correctly between the indicative and the subjunctive when I give opinions, weigh probability, doubt or react."
+    notes: |
+      The key question is: does the main clause present the fact as **real**, or as **doubtful, possible or felt**?
+
+      | indicative (presented as true) | subjunctive (doubted, possible, felt) |
+      |---|---|
+      | je pense / crois / trouve que | je ne pense pas que, penses-tu que… ? |
+      | je suis sûr que | je ne suis pas sûr que |
+      | il est probable que | il est possible que, il se peut que |
+      | il me semble que | il semble que |
+      | il est évident / clair / vrai que | il est peu probable que |
+      | j'espère que | je souhaite que |
+
+      - **Doubt and denial:** *douter que, nier que* → subjunctive.
+      - **Emotion and judgement:** *regretter que, se réjouir que, avoir honte que, craindre que, il est inadmissible / scandaleux / normal que* → subjunctive.
+      - **Questions:** with inversion (*Croyez-vous qu'il **ait** raison ?*) the subjunctive is standard; with *est-ce que* many speakers use the indicative.
+
+      Watch the little pronoun: ***il me semble que*** *c'est vrai* (my impression) but ***il semble que*** *ce **soit** vrai* (it appears).
+
+      *Craindre que* is often followed by a **ne** that is not negative: *je crains qu'il **ne** soit trop tard* (unit 11).
+    items:
+      - {id: fr-b2-02-elections, type: vocab, l2: "les élections", l1: "the elections", ex: "Les élections auront lieu en juin.", ex_l1: "The elections will take place in June.", note: "Feminine: une élection. élire = to elect; un électeur, une électrice = a voter."}
+      - {id: fr-b2-02-depute, type: vocab, l2: "le député", l1: "the member of parliament / the MP (a man)", ex: "Le député a voté contre le projet de loi.", ex_l1: "The MP voted against the bill.", note: "Feminine: la députée. French MPs sit in l'Assemblée nationale."}
+      - {id: fr-b2-02-citoyen, type: vocab, l2: "le citoyen", l1: "the citizen (a man)", ex: "Chaque citoyen a le droit de voter.", ex_l1: "Every citizen has the right to vote.", note: "Feminine: la citoyenne. la citoyenneté = citizenship."}
+      - {id: fr-b2-02-voter, type: vocab, l2: "voter", l1: "to vote / to pass (a law)", ex: "Tu as voté aux dernières élections ?", ex_l1: "Did you vote in the last elections?", note: "voter pour / contre quelqu'un. With a law as its object it means to pass: voter une loi."}
+      - {id: fr-b2-02-droit, type: vocab, l2: "le droit", l1: "the right (something you are entitled to)", ex: "Les Françaises ont obtenu le droit de vote en 1944.", ex_l1: "French women got the right to vote in 1944.", note: "avoir le droit de + infinitive = to be allowed to. le droit is also law as a subject."}
+      - {id: fr-b2-02-egalite, type: vocab, l2: "l'égalité", l1: "equality", ex: "Liberté, égalité, fraternité.", ex_l1: "Liberty, equality, fraternity.", note: "Feminine. The French national motto. Its opposite: les inégalités (inequality), usually plural."}
+      - {id: fr-b2-02-manifestation, type: vocab, l2: "la manifestation", l1: "the demonstration / the protest march", alt: ["la manif"], ex: "Des milliers de personnes ont participé à la manifestation.", ex_l1: "Thousands of people took part in the demonstration.", note: "manifester = to demonstrate. Casual: la manif."}
+      - {id: fr-b2-02-pouvoir, type: vocab, l2: "le pouvoir", l1: "power (political)", ex: "Ce parti est au pouvoir depuis dix ans.", ex_l1: "This party has been in power for ten years.", note: "The same word as the verb pouvoir. être au pouvoir = to be in power."}
+      - {id: fr-b2-02-gauche, type: vocab, l2: "la gauche", l1: "the left (in politics)", ex: "La gauche a gagné les élections.", ex_l1: "The left won the elections.", note: "être de gauche = to be left-wing. The opposite is la droite."}
+      - {id: fr-b2-02-droite, type: vocab, l2: "la droite", l1: "the right (in politics)", ex: "Elle a toujours voté à droite.", ex_l1: "She has always voted for the right.", note: "être de droite = to be right-wing."}
+      - {id: fr-b2-02-debat, type: vocab, l2: "le débat", l1: "the debate", ex: "Le débat entre les deux candidats était tendu.", ex_l1: "The debate between the two candidates was tense.", note: "débattre de quelque chose = to debate something."}
+      - {id: fr-b2-02-sondage, type: vocab, l2: "le sondage", l1: "the opinion poll", ex: "D'après le dernier sondage, elle est en tête.", ex_l1: "According to the latest poll, she is in the lead.", note: "être en tête = to be in the lead."}
+      - {id: fr-b2-02-reforme, type: vocab, l2: "la réforme", l1: "the reform", ex: "La réforme des retraites a provoqué des grèves.", ex_l1: "The pension reform led to strikes.", note: "réformer = to reform."}
+      - {id: fr-b2-02-pauvrete, type: vocab, l2: "la pauvreté", l1: "poverty", ex: "Des millions de personnes vivent dans la pauvreté.", ex_l1: "Millions of people live in poverty.", note: "With an article, like most abstract nouns. pauvre = poor."}
+      - {id: fr-b2-02-logement, type: vocab, l2: "le logement", l1: "housing / accommodation", ex: "Le prix du logement augmente dans les grandes villes.", ex_l1: "The cost of housing is rising in big cities.", note: "Also a single flat or house: chercher un logement."}
+      - {id: fr-b2-02-mondialisation, type: vocab, l2: "la mondialisation", l1: "globalisation", ex: "La mondialisation a des avantages et des inconvénients.", ex_l1: "Globalisation has advantages and disadvantages.", note: "From le monde. un inconvénient = a drawback."}
+      - {id: fr-b2-02-nier, type: vocab, l2: "nier", l1: "to deny", ex: "Il nie avoir menti.", ex_l1: "He denies having lied.", note: "nier que + subjunctive; nier + infinitive when the subject is the same."}
+      - {id: fr-b2-02-se-rejouir, type: vocab, l2: "se réjouir", l1: "to be delighted / to rejoice", ex: "Je me réjouis de vous revoir.", ex_l1: "I'm delighted to see you again.", note: "se réjouir que + subjunctive; se réjouir de + infinitive. In Switzerland and Belgium it also means 'to look forward to'."}
+      - {id: fr-b2-02-craindre, type: vocab, l2: "craindre", l1: "to fear", ex: "Je crains le pire.", ex_l1: "I fear the worst.", note: "je crains, nous craignons; past participle craint. craindre que + subjunctive."}
+      - {id: fr-b2-02-avoir-honte, type: vocab, l2: "avoir honte", l1: "to be ashamed", ex: "J'ai honte de mon comportement.", ex_l1: "I'm ashamed of my behaviour.", note: "No article: avoir honte de. The h is aspirate: la honte."}
+      - {id: fr-b2-02-fiable, type: vocab, l2: "fiable", l1: "reliable / trustworthy (a source, a machine)", ex: "Ce sondage n'est pas très fiable.", ex_l1: "This poll isn't very reliable.", note: "la fiabilité = reliability."}
+      - {id: fr-b2-02-inadmissible, type: vocab, l2: "inadmissible", l1: "unacceptable / intolerable", alt: ["inacceptable"], ex: "Ce comportement est inadmissible.", ex_l1: "This behaviour is unacceptable.", note: "Strong and common in political speech; not the legal 'inadmissible'."}
+      - {id: fr-b2-02-laicite, type: vocab, l2: "la laïcité", l1: "secularism (separation of religion and state)", ex: "La laïcité est un principe fondamental en France.", ex_l1: "Secularism is a fundamental principle in France.", note: "laïque = secular: l'école laïque. A very French debate."}
+      - {id: fr-b2-02-s-engager, type: vocab, l2: "s'engager", l1: "to get involved / to commit oneself", ex: "Elle s'engage dans une association de quartier.", ex_l1: "She is getting involved in a neighbourhood association.", note: "l'engagement = commitment. s'engager à + infinitive = to undertake to."}
+      - {id: fr-b2-02-peu-probable, type: phrase, l2: "Il est peu probable qu'il soit réélu.", l1: "It's unlikely that he'll be re-elected.", note: "il est probable que + indicative, but il est peu probable que + subjunctive."}
+      - {id: fr-b2-02-il-me-semble, type: phrase, l2: "Il me semble que c'est injuste.", l1: "It seems to me that it's unfair.", alt: ["Il me semble que ce n'est pas juste."], note: "il me semble que (with a pronoun) + indicative; il semble que (without) usually + subjunctive."}
+      - {id: fr-b2-02-il-se-peut, type: phrase, l2: "Il se peut qu'il y ait des grèves.", l1: "There may be strikes. (il se peut que…)", note: "il se peut que = it may be that, + subjunctive. il y a → qu'il y ait."}
+      - {id: fr-b2-02-goutte-d-eau, type: phrase, l2: "C'est la goutte d'eau qui fait déborder le vase.", l1: "It's the last straw. (idiom)", alt: ["C'est la goutte qui fait déborder le vase."], note: "Literally 'the drop of water that makes the vase overflow'."}
+      - {id: fr-b2-02-huile-sur-le-feu, type: phrase, l2: "Il ne faut pas jeter de l'huile sur le feu.", l1: "We mustn't add fuel to the fire. (idiom)", alt: ["Il ne faut pas jeter d'huile sur le feu.", "Il ne faut pas mettre de l'huile sur le feu."], note: "To make a conflict worse. The fixed phrase keeps de l'huile even after ne pas."}
+      - {id: fr-b2-02-c1, type: cloze, text: "Je crois que les électeurs ___ fatigués des promesses.", answer: "sont", l1: "I believe the voters are tired of promises.", note: "Affirmative croire / penser → indicative."}
+      - {id: fr-b2-02-c2, type: cloze, text: "Je ne crois pas que cette réforme ___ juste.", answer: "soit", l1: "I don't believe this reform is fair.", note: "Negative croire / penser → subjunctive."}
+      - {id: fr-b2-02-c3, type: cloze, text: "Il est probable que le président ___ un discours ce soir.", answer: "fera", alt: ["prononcera"], l1: "It's likely that the president will give a speech tonight.", note: "il est probable que → indicative, here the future."}
+      - {id: fr-b2-02-c4, type: cloze, text: "Il est possible que les élections ___ avancées.", answer: "soient", l1: "It's possible that the elections will be brought forward.", note: "Possibility → subjunctive. The present subjunctive also covers the future."}
+      - {id: fr-b2-02-c5, type: cloze, text: "Il semble que personne ne ___ la réponse.", answer: "sache", alt: ["connaisse"], l1: "It seems that nobody knows the answer.", note: "il semble que (no pronoun) → subjunctive."}
+      - {id: fr-b2-02-c6, type: cloze, text: "Il me semble que tu ___ tort.", answer: "as", l1: "It seems to me that you're wrong. (informal)", note: "il me semble que → indicative: avoir tort, tu as tort."}
+      - {id: fr-b2-02-c7, type: cloze, text: "Je regrette que vous ne ___ pas venir au débat.", answer: "puissiez", l1: "I'm sorry that you can't come to the debate.", note: "regretter que + subjunctive: pouvoir → que vous puissiez."}
+      - {id: fr-b2-02-c8, type: cloze, text: "J'espère que la réforme ___ adoptée.", answer: "sera", l1: "I hope the reform will be adopted.", note: "espérer que takes the indicative, here the future."}
+      - {id: fr-b2-02-c9, type: cloze, text: "Croyez-vous qu'ils ___ gagner les élections ?", answer: "puissent", alt: ["peuvent"], l1: "Do you think they can win the elections? (formal)", note: "In an inverted question the subjunctive is standard; the indicative is also heard."}
+      - {id: fr-b2-02-c10, type: cloze, text: "Il nie qu'il y ___ un problème.", answer: "ait", l1: "He denies that there is a problem.", note: "nier que + subjunctive: il y a → qu'il y ait."}
+      - {id: fr-b2-02-c11, type: cloze, text: "Je me réjouis que tu ___ à la manifestation avec nous.", answer: "viennes", l1: "I'm delighted you're coming to the demonstration with us. (informal)", note: "se réjouir que + subjunctive: venir → que tu viennes."}
+      - {id: fr-b2-02-c12, type: cloze, text: "Il est évident que les inégalités ___.", answer: "augmentent", alt: ["progressent"], l1: "It is obvious that inequality is growing.", note: "il est évident / clair / certain que + indicative."}
+      - {id: fr-b2-02-c13, type: cloze, text: "Je crains que la situation ne ___ pire.", answer: "devienne", alt: ["soit"], l1: "I fear the situation may get worse.", note: "craindre que + subjunctive. The ne is not a negative (ne explétif)."}
+      - {id: fr-b2-02-c14, type: cloze, text: "Il est inadmissible que des enfants ___ dans la pauvreté.", answer: "vivent", alt: ["grandissent"], l1: "It is unacceptable that children live in poverty.", note: "A judgement (il est inadmissible / scandaleux que) → subjunctive."}
+      - {id: fr-b2-02-c15, type: cloze, text: "Je ne suis pas sûr que les sondages ___ la réalité.", answer: "reflètent", l1: "I'm not sure the polls reflect reality. (a man speaking)", note: "ne pas être sûr que → subjunctive. refléter → qu'ils reflètent."}
+      - {id: fr-b2-02-c16, type: cloze, text: "Il est clair que nous ___ changer de politique.", answer: "devons", l1: "It is clear that we must change our policy.", note: "il est clair que + indicative."}
+
+  # ───────────────────────────────────────────────────────────────── 3
+  - id: fr4-03
+    title: "The environment: conjunctions with the subjunctive"
+    goal: "I can discuss environmental problems and solutions and link ideas with the conjunctions that take the subjunctive, and those that don't."
+    notes: |
+      These conjunctions always take the **subjunctive**:
+
+      | conjunction | meaning |
+      |---|---|
+      | bien que, quoique | although |
+      | pour que, afin que | so that |
+      | avant que | before |
+      | jusqu'à ce que | until |
+      | à moins que | unless |
+      | à condition que, pourvu que | provided that |
+      | sans que | without |
+      | de peur que, de crainte que | for fear that |
+
+      *Il faut agir **avant qu'il soit** trop tard.*
+
+      ## Same subject → preposition + infinitive
+      *pour, afin de, avant de, sans, à condition de, à moins de, de peur de*: *Je baisse le chauffage **pour économiser** de l'énergie* (I save) but *… **pour que** nous **économisions** de l'énergie* (we save).
+
+      ## The traps
+      - **après que** takes the **indicative**: *après qu'il **est** parti*. *Après qu'il soit parti* is heard everywhere but is a mistake.
+      - *pendant que, parce que, depuis que, alors que, dès que* take the indicative.
+      - In formal writing *avant que, à moins que* and *de peur que* often add a **ne** that is not negative: *avant qu'il **ne** soit trop tard*.
+
+      *Pourvu que* on its own means "let's hope": *Pourvu qu'il pleuve !*
+    items:
+      - {id: fr-b2-03-energies-renouvelables, type: vocab, l2: "les énergies renouvelables", l1: "renewable energy", ex: "La France investit dans les énergies renouvelables.", ex_l1: "France is investing in renewable energy.", note: "Usually plural in French. Coal, oil and gas are les énergies fossiles."}
+      - {id: fr-b2-03-effet-de-serre, type: vocab, l2: "l'effet de serre", l1: "the greenhouse effect", ex: "Le CO2 contribue à l'effet de serre.", ex_l1: "CO2 contributes to the greenhouse effect.", note: "Masculine. les gaz à effet de serre = greenhouse gases. une serre = a greenhouse."}
+      - {id: fr-b2-03-empreinte-carbone, type: vocab, l2: "l'empreinte carbone", l1: "the carbon footprint", ex: "Prendre l'avion augmente beaucoup notre empreinte carbone.", ex_l1: "Flying greatly increases our carbon footprint.", note: "Feminine: une empreinte = a print, a footprint."}
+      - {id: fr-b2-03-biodiversite, type: vocab, l2: "la biodiversité", l1: "biodiversity", ex: "La pollution menace la biodiversité.", ex_l1: "Pollution threatens biodiversity.", note: "menacer = to threaten."}
+      - {id: fr-b2-03-espece, type: vocab, l2: "l'espèce", l1: "the species", ex: "Cette espèce d'oiseau a presque disparu.", ex_l1: "This species of bird has almost disappeared.", note: "Always feminine: une espèce, even with a masculine noun after it."}
+      - {id: fr-b2-03-menace, type: vocab, l2: "menacé", l1: "endangered / threatened (masculine)", ex: "Le loup est une espèce menacée.", ex_l1: "The wolf is an endangered species.", note: "It agrees: une espèce menacée. Also: en voie de disparition (dying out)."}
+      - {id: fr-b2-03-secheresse, type: vocab, l2: "la sécheresse", l1: "the drought", ex: "La sécheresse a détruit les récoltes.", ex_l1: "The drought destroyed the crops.", note: "From sec, sèche (dry). la récolte = the harvest."}
+      - {id: fr-b2-03-inondation, type: vocab, l2: "l'inondation", l1: "the flood", ex: "Les inondations ont fait de gros dégâts.", ex_l1: "The floods caused a lot of damage.", note: "Feminine. inonder = to flood. les dégâts = damage."}
+      - {id: fr-b2-03-canicule, type: vocab, l2: "la canicule", l1: "the heatwave", ex: "Pendant la canicule, il a fait quarante degrés.", ex_l1: "During the heatwave, it was forty degrees.", note: "Also une vague de chaleur."}
+      - {id: fr-b2-03-recycler, type: vocab, l2: "recycler", l1: "to recycle", ex: "On peut recycler le verre à l'infini.", ex_l1: "Glass can be recycled endlessly.", note: "le recyclage = recycling. le verre = glass."}
+      - {id: fr-b2-03-gaspillage, type: vocab, l2: "le gaspillage", l1: "waste / wastefulness (the act of wasting)", ex: "Le gaspillage alimentaire est un vrai problème.", ex_l1: "Food waste is a real problem.", note: "From gaspiller. The rubbish itself is les déchets."}
+      - {id: fr-b2-03-economiser, type: vocab, l2: "économiser", l1: "to save (energy, water, money)", ex: "On économise l'eau en prenant des douches courtes.", ex_l1: "You save water by taking short showers.", note: "To save a file is sauvegarder; to save a life is sauver."}
+      - {id: fr-b2-03-consommer, type: vocab, l2: "consommer", l1: "to consume / to use (energy, fuel, food)", ex: "Cette voiture consomme peu d'essence.", ex_l1: "This car uses little petrol.", note: "la consommation = consumption; le consommateur = the consumer."}
+      - {id: fr-b2-03-durable, type: vocab, l2: "durable", l1: "sustainable / lasting", ex: "Il faut trouver une solution durable.", ex_l1: "We need to find a lasting solution.", note: "le développement durable = sustainable development."}
+      - {id: fr-b2-03-eolienne, type: vocab, l2: "l'éolienne", l1: "the wind turbine", ex: "On a installé des éoliennes au large de la côte.", ex_l1: "Wind turbines have been installed off the coast.", note: "Feminine. au large de = off (a coast)."}
+      - {id: fr-b2-03-nucleaire, type: vocab, l2: "le nucléaire", l1: "nuclear power", ex: "La France produit beaucoup d'électricité grâce au nucléaire.", ex_l1: "France produces a lot of electricity thanks to nuclear power.", note: "Short for l'énergie nucléaire. une centrale nucléaire = a nuclear power station."}
+      - {id: fr-b2-03-covoiturage, type: vocab, l2: "le covoiturage", l1: "car-sharing / carpooling", ex: "Je vais au travail en covoiturage.", ex_l1: "I carpool to work.", note: "faire du covoiturage. Used in France and Québec alike."}
+      - {id: fr-b2-03-pour-que, type: vocab, l2: "pour que", l1: "so that / in order that (+ subjunctive)", alt: ["afin que"], ex: "Je parle fort pour que tout le monde m'entende.", ex_l1: "I speak loudly so that everyone can hear me.", note: "Different subjects. Same subject: pour + infinitive."}
+      - {id: fr-b2-03-avant-que, type: vocab, l2: "avant que", l1: "before (+ subjunctive)", ex: "Rentrons avant qu'il fasse nuit.", ex_l1: "Let's go home before it gets dark.", note: "Same subject: avant de + infinitive. Formal French may add ne: avant qu'il ne fasse nuit."}
+      - {id: fr-b2-03-jusqu-a-ce-que, type: vocab, l2: "jusqu'à ce que", l1: "until (+ subjunctive)", ex: "Je reste jusqu'à ce que tu reviennes.", ex_l1: "I'll stay until you come back.", note: "Before a noun, jusqu'à: jusqu'à demain."}
+      - {id: fr-b2-03-a-moins-que, type: vocab, l2: "à moins que", l1: "unless (+ subjunctive)", ex: "On ira à la plage, à moins qu'il pleuve.", ex_l1: "We'll go to the beach, unless it rains.", note: "Formal: à moins qu'il ne pleuve. Same subject: à moins de + infinitive."}
+      - {id: fr-b2-03-a-condition-que, type: vocab, l2: "à condition que", l1: "provided that / on condition that (+ subjunctive)", alt: ["pourvu que"], ex: "Tu peux venir, à condition que tu sois à l'heure.", ex_l1: "You can come, provided you're on time.", note: "Same subject: à condition de + infinitive."}
+      - {id: fr-b2-03-sans-que, type: vocab, l2: "sans que", l1: "without (someone doing something) (+ subjunctive)", ex: "Il est parti sans que je le sache.", ex_l1: "He left without my knowing.", note: "Same subject: sans + infinitive: il est parti sans dire au revoir."}
+      - {id: fr-b2-03-de-peur-que, type: vocab, l2: "de peur que", l1: "for fear that (+ subjunctive)", alt: ["de crainte que"], ex: "Elle a pris un parapluie de peur qu'il ne pleuve.", ex_l1: "She took an umbrella for fear it would rain.", note: "Usually written with a ne that is not negative. Same subject: de peur de + infinitive."}
+      - {id: fr-b2-03-avant-qu-il-soit-trop-tard, type: phrase, l2: "Il faut agir avant qu'il soit trop tard.", l1: "We must act before it's too late.", alt: ["Il faut agir avant qu'il ne soit trop tard."], note: "avant que + subjunctive. The ne in the alternative is formal and does not mean 'not'."}
+      - {id: fr-b2-03-chaque-geste-compte, type: phrase, l2: "Chaque geste compte.", l1: "Every little action counts.", alt: ["Chaque petit geste compte."], note: "un geste = a gesture, and also a small action: un geste pour la planète."}
+      - {id: fr-b2-03-pierre-deux-coups, type: phrase, l2: "On fait d'une pierre deux coups.", l1: "We're killing two birds with one stone. (idiom; with on)", note: "Literally 'two blows with one stone'."}
+      - {id: fr-b2-03-mer-a-boire, type: phrase, l2: "Ce n'est pas la mer à boire.", l1: "It's not that hard. (idiom with the sea)", alt: ["C'est pas la mer à boire."], note: "Literally 'it isn't the sea to drink'."}
+      - {id: fr-b2-03-continuer-comme-ca, type: phrase, l2: "On ne peut pas continuer comme ça.", l1: "We can't go on like this. (with on)", alt: ["On peut pas continuer comme ça.", "On ne peut pas continuer ainsi."]}
+      - {id: fr-b2-03-grand-temps, type: phrase, l2: "Il est grand temps d'agir.", l1: "It's high time to act.", note: "il est grand temps de + infinitive, or que + subjunctive."}
+      - {id: fr-b2-03-c1, type: cloze, text: "Je t'explique le tri pour que tu ___ comment faire.", answer: "saches", l1: "I'm explaining the sorting to you so that you know what to do.", note: "pour que + subjunctive: savoir → que tu saches."}
+      - {id: fr-b2-03-c2, type: cloze, text: "Rentrons avant qu'il ___ à pleuvoir.", answer: "commence", l1: "Let's go home before it starts to rain.", note: "avant que + subjunctive. commencer à + infinitive."}
+      - {id: fr-b2-03-c3, type: cloze, text: "On ne résoudra rien à moins que tous les pays ___ ensemble.", answer: "agissent", alt: ["travaillent", "coopèrent"], l1: "We won't solve anything unless all countries act together.", note: "agir (to act) is like finir: qu'ils agissent."}
+      - {id: fr-b2-03-c4, type: cloze, text: "Bien que le nucléaire ___ peu de CO2, il reste controversé.", answer: "produise", alt: ["émette", "rejette"], l1: "Although nuclear power produces little CO2, it remains controversial.", note: "bien que + subjunctive: produire → qu'il produise."}
+      - {id: fr-b2-03-c5, type: cloze, text: "Il est entré sans que personne le ___.", answer: "voie", alt: ["remarque", "entende"], l1: "He came in without anyone seeing him.", note: "sans que + subjunctive. After sans que, personne needs no ne."}
+      - {id: fr-b2-03-c6, type: cloze, text: "Je viendrai à vélo, à condition qu'il ___ beau.", answer: "fasse", l1: "I'll come by bike, provided the weather is nice.", note: "à condition que + subjunctive: faire → qu'il fasse."}
+      - {id: fr-b2-03-c7, type: cloze, text: "Attendons ici jusqu'à ce que la tempête ___.", answer: "passe", alt: ["cesse", "finisse"], l1: "Let's wait here until the storm passes.", note: "jusqu'à ce que + subjunctive."}
+      - {id: fr-b2-03-c8, type: cloze, text: "On a fermé la plage de peur que les baigneurs ne ___ malades.", answer: "tombent", l1: "The beach was closed for fear that swimmers would fall ill.", note: "de peur que (ne) + subjunctive. tomber malade = to fall ill."}
+      - {id: fr-b2-03-c9, type: cloze, text: "Il est arrivé après que nous ___ partis.", answer: "étions", l1: "He arrived after we had left.", note: "après que takes the indicative, here the plus-que-parfait. 'après que nous soyons partis' is a common mistake."}
+      - {id: fr-b2-03-c10, type: cloze, text: "Éteignez la lumière avant ___ sortir.", answer: "de", l1: "Turn off the light before you go out. (formal)", note: "Same subject → avant de + infinitive."}
+      - {id: fr-b2-03-c11, type: cloze, text: "On peut se déplacer ___ polluer : à pied ou à vélo.", answer: "sans", l1: "You can get around without polluting: on foot or by bike.", note: "Same subject → sans + infinitive, never -ant."}
+      - {id: fr-b2-03-c12, type: cloze, text: "Je baisse le chauffage afin que nous ___ de l'énergie.", answer: "économisions", l1: "I'm turning the heating down so that we save energy.", note: "afin que + subjunctive: que nous économisions."}
+      - {id: fr-b2-03-c13, type: cloze, text: "Pourvu qu'il ___ demain ! Les jardins sont si secs.", answer: "pleuve", l1: "Let's hope it rains tomorrow! The gardens are so dry.", note: "pourvu que on its own = let's hope. pleuvoir → qu'il pleuve."}
+      - {id: fr-b2-03-c14, type: cloze, text: "Je parle lentement ___ que tout le monde comprenne.", answer: "pour", alt: ["afin"], l1: "I speak slowly so that everyone understands.", note: "pour que / afin que + subjunctive."}
+      - {id: fr-b2-03-c15, type: cloze, text: "Le maire a fermé la route avant que l'inondation ___ le village.", answer: "atteigne", l1: "The mayor closed the road before the flood reached the village.", note: "atteindre (to reach) → qu'elle atteigne. The present subjunctive is used even in a past story."}
