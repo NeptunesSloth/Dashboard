@@ -86,21 +86,60 @@ SURNAMES = ["Lin", "Zhao", "Mo", "Yun", "Feng", "Bai", "Xiao", "Shen", "Luo", "H
 GIVEN = ["Wei", "Yan", "Chen", "Xue", "Ling", "Hao", "Mei", "Rou", "Jin", "Tian", "Qing", "Yu", "An", "Zhi", "Lan", "Shuo",
          "Feiyan", "Wuji", "Ruoxi", "Changge", "Yichen", "Suyin"]
 
-# Rooms. cost(level) = base * 1.8**level, plus spirit stones from the third level.
+# Rooms. cost(level) = base * COST_CURVE**level, plus spirit stones from the third level (room_cost).
 ROOMS = {
-    "main_hall":   {"name": "Main Hall", "wood": 40, "stone": 30, "max": 5,
-                    "effect": "The heart of the sect. Other rooms can be at most one level above it, and each level houses the fame that draws wanderers."},
-    "dormitory":   {"name": "Dormitory", "wood": 30, "stone": 10, "max": 5, "effect": "Three beds per level. Disciples without a bed sleep badly."},
-    "fields":      {"name": "Rice Terraces", "wood": 20, "stone": 10, "max": 5, "effect": "Two farmers per level, and a better yield. Nothing grows in winter."},
-    "storehouse":  {"name": "Storehouse", "wood": 30, "stone": 20, "max": 5, "effect": "Raises how much rice, wood, stone and herbs you can keep. Rice and herbs above half the store slowly spoil."},
-    "library":     {"name": "Scripture Pavilion", "wood": 35, "stone": 20, "max": 5, "effect": "Lets disciples research. Faster per level."},
-    "meditation":  {"name": "Meditation Chamber", "wood": 25, "stone": 25, "max": 5, "effect": "+15% qi from meditation per level."},
-    "alchemy":     {"name": "Alchemy Hall", "wood": 25, "stone": 30, "max": 5, "effect": "Lets disciples brew pills from herbs. Pills heal and steady a breakthrough."},
-    "training":    {"name": "Training Grounds", "wood": 30, "stone": 15, "max": 5, "effect": "Lets disciples train for combat. Faster per level."},
-    "ward":        {"name": "Ward Formation", "wood": 15, "stone": 45, "max": 5, "effect": "Defends the sect on its own. Stronger per level."},
-    "spirit_vein": {"name": "Spirit Vein", "wood": 20, "stone": 40, "max": 5, "effect": "Quarrying also yields spirit stones, and meditation gains +5% per level."},
+    "main_hall":   {"name": "Main Hall", "wood": 40, "stone": 30, "max": 10,
+                    "effect": "The heart of the sect. Each level opens rooms and room levels, and houses more disciples and the fame that draws wanderers."},
+    "dormitory":   {"name": "Dormitory", "wood": 30, "stone": 10, "max": 8, "effect": "Three beds per level. Disciples without a bed sleep badly."},
+    "fields":      {"name": "Rice Terraces", "wood": 20, "stone": 10, "max": 8, "effect": "Two farmers per level, and a better yield. Nothing grows in winter."},
+    "storehouse":  {"name": "Storehouse", "wood": 30, "stone": 20, "max": 8, "effect": "Raises how much rice, wood, stone and herbs you can keep. Rice and herbs above half the store slowly spoil."},
+    "library":     {"name": "Scripture Pavilion", "wood": 35, "stone": 20, "max": 8, "effect": "Lets disciples research. Faster per level."},
+    "meditation":  {"name": "Meditation Chamber", "wood": 25, "stone": 25, "max": 8, "effect": "+15% qi from meditation per level."},
+    "alchemy":     {"name": "Alchemy Hall", "wood": 25, "stone": 30, "max": 8, "effect": "Lets disciples brew pills from herbs. Pills heal and steady a breakthrough."},
+    "training":    {"name": "Training Grounds", "wood": 30, "stone": 15, "max": 8, "effect": "Lets disciples train for combat. Faster per level."},
+    "ward":        {"name": "Ward Formation", "wood": 15, "stone": 45, "max": 8, "effect": "Defends the sect on its own. Stronger per level."},
+    "spirit_vein": {"name": "Spirit Vein", "wood": 20, "stone": 40, "max": 8, "effect": "Quarrying also yields spirit stones, and meditation gains +5% per level."},
     "market":      {"name": "Trade Post", "wood": 35, "stone": 15, "max": 3, "effect": "Merchants visit more often and pay better."},
 }
+# The Main Hall ladder (SECT_OVERHAUL_PLAN 3.2): the rooms each level opens, and the highest level any other room
+# may reach while the Hall stands there (never more than one above the Hall). Builders come at BUILDER_HALLS.
+HALL_LADDER = {
+    1: {"rooms": ("dormitory", "fields", "storehouse", "ward"), "cap": 2},
+    2: {"rooms": ("library", "training", "meditation"), "cap": 3},
+    3: {"rooms": ("alchemy",), "cap": 3},
+    4: {"rooms": ("spirit_vein",), "cap": 4, "more": ("Branch sects, with eight disciples and 100 spirit stones",)},
+    5: {"rooms": ("market",), "cap": 5, "more": ("The first line of the Great Work “A Great Sect”",)},
+    6: {"cap": 6},
+    7: {"cap": 6},
+    8: {"cap": 7},
+    9: {"cap": 7},
+    10: {"cap": 8, "more": ("The summit: the tallest hall in the valley",)},
+}
+HALL_ROOMS_NEEDED = 3              # to raise the Hall to n+1, this many other rooms must stand at level n or higher
+COST_CURVE = 1.6                   # each level of a room costs this many times the one before
+
+
+def room_opens_at(room: str) -> int:
+    """The Main Hall level a room can first be built at."""
+    return next((h for h, x in HALL_LADDER.items() if room in x.get("rooms", ())), 1)
+
+
+def room_cap(c: dict) -> int:
+    """The highest level other rooms may reach under the Hall as it stands."""
+    return HALL_LADDER[max(1, min(10, _lvl(c, "main_hall")))]["cap"]
+
+
+def hall_rooms_check(c: dict, target: int) -> list[tuple[str, int, bool]]:
+    """The anti-rush checklist for raising the Hall to `target`: the other rooms at level target-1 or higher
+    (best first), padded to HALL_ROOMS_NEEDED with the next best. [(room name, level, ok)]."""
+    need = target - 1
+    best = sorted(((_lvl(c, k), ROOMS[k]["name"]) for k in ROOMS if k != "main_hall" and _lvl(c, k)), key=lambda x: (-x[0], x[1]))
+    rows = [(name, lv, lv >= need) for lv, name in best[:HALL_ROOMS_NEEDED]]
+    while len(rows) < HALL_ROOMS_NEEDED:
+        rows.append(("", 0, False))
+    return rows
+
+
 RESEARCH = {
     "irrigation": {"name": "Terraced irrigation", "cost": 150, "effect": "+25% rice from farming."},
     "masonry":    {"name": "Stone masonry", "cost": 180, "effect": "Rooms cost 20% less stone."},
@@ -549,7 +588,7 @@ def realm_label(step: int) -> str:
 
 def room_cost(c: dict, room: str, level: int) -> dict:
     r = ROOMS[room]
-    k = 1.8 ** level
+    k = COST_CURVE ** level
     cost = {"wood": int(round(r["wood"] * k / 5.0)) * 5,
             "stone": int(round(r["stone"] * k * (0.8 if _has(c, "masonry") else 1.0) / 5.0)) * 5}
     if level >= 2:
@@ -561,6 +600,29 @@ def build_hours(room: str, level: int) -> float:
     """Sim hours one builder takes to bring `room` to `level` (helpers make it quicker)."""
     table = HALL_HOURS if room == "main_hall" else ROOM_HOURS
     return float(table.get(int(level), max(table.values())))
+
+
+def hall_for_level(room_level: int) -> int:
+    """The lowest Main Hall level that lets other rooms reach `room_level`."""
+    return next((h for h, x in HALL_LADDER.items() if x["cap"] >= room_level), 10)
+
+
+def build_block(c: dict, room: str, level: int) -> str:
+    """Why `room` cannot go from `level` to level+1 under the Main Hall ladder ("" when it can). Builders and
+    materials are checked by the caller."""
+    hall = _lvl(c, "main_hall")
+    if room == "main_hall":
+        short = [x for x in hall_rooms_check(c, level + 1) if not x[2]]
+        if short:
+            return (f"Raising the Main Hall to level {level + 1} needs {HALL_ROOMS_NEEDED} other rooms at level {level} or higher "
+                    f"({_n(len(short), 'more room', 'more rooms')}).")
+        return ""
+    opens = room_opens_at(room)
+    if level == 0 and hall < opens:
+        return f"Opens at Main Hall level {opens}."
+    if level + 1 > room_cap(c):
+        return f"Raise the Main Hall to level {hall_for_level(level + 1)} first (rooms up to level {room_cap(c)} for now)."
+    return ""
 
 
 def builder_rows(c: dict) -> list[tuple[str, int]]:
@@ -2593,7 +2655,7 @@ def renown(fame: float) -> str:
 # ---------------------------------------------------------------------------
 GUIDE = [
     ("prio", "Open Work and change one disciple's priority. Set someone's Farm to 1 and they tend the fields before anything else.", lambda c: bool(c["flags"].get("prio"))),
-    ("library", "Queue a Scripture Pavilion in Build. A builder raises it; disciples with Build as a priority help.", lambda c: _lvl(c, "library") > 0 or any(b["room"] == "library" for b in c["builds"])),
+    ("library", "Raise the Main Hall to level 2 (it needs three rooms first: build a Storehouse or a Ward Formation), then queue a Scripture Pavilion in Build. Builders raise them; disciples with Build as a priority help.", lambda c: _lvl(c, "library") > 0 or any(b["room"] == "library" for b in c["builds"])),
     ("research", "Choose something to research. Terraced irrigation pays for itself.", lambda c: bool(c["research"]["current"] or c["research"]["done"])),
     ("rice", "Store 70 rice. Nothing grows in winter, and everyone eats.", lambda c: c["res"]["rice"] >= 70),
     ("defend", "Build Training Grounds or a Ward Formation before something comes up the mountain.", lambda c: _lvl(c, "training") + _lvl(c, "ward") > 0),
@@ -3623,8 +3685,9 @@ def queue_build(st: dict, room: str, now: float) -> dict:
     level = _lvl(c, room) + sum(1 for b in c["builds"] if b["room"] == room)
     if level >= ROOMS[room]["max"]:
         return {"ok": False, "error": "Already at its highest level."}
-    if room != "main_hall" and level > _lvl(c, "main_hall"):
-        return {"ok": False, "error": f"Raise the Main Hall to level {level} first."}
+    why = build_block(c, room, level)
+    if why:
+        return {"ok": False, "error": why}
     if len(c["builds"]) >= builders(c):
         n = builders(c)
         return {"ok": False, "error": f"{'Both' if n == 2 else f'All {n}'} builders are busy. One comes free when a job finishes."}
@@ -3990,30 +4053,45 @@ def trays(c: dict) -> dict:
     return out
 
 
-def hall_next(c: dict) -> dict | None:
-    """The next Main Hall level and what it opens, for the card on the home view (None at the top)."""
+def hall_opens(c: dict, target: int) -> list[str]:
+    """What raising the Main Hall to `target` opens, from HALL_LADDER (and the builders and beds that come with it)."""
+    x = HALL_LADDER[target]
+    opens = [f"Room for {_n(2, 'more disciple', 'more disciples')}: {3 + 2 * target} in all, from {3 + 2 * (target - 1)}"]
+    if x.get("rooms"):
+        opens.append("New rooms: " + _and([ROOMS[k]["name"] for k in x["rooms"]]))
+    if target in BUILDER_HALLS:
+        opens.append(f"A builder more: {BUILDERS + sum(1 for h in BUILDER_HALLS if h <= target)} in all")
+    was = HALL_LADDER[target - 1]["cap"]
+    if x["cap"] > was:
+        held = [ROOMS[k]["name"] for k in ROOMS
+                if k != "main_hall" and _lvl(c, k) + sum(1 for b in c["builds"] if b["room"] == k) >= was and was < ROOMS[k]["max"]]
+        opens.append(f"Other rooms up to level {x['cap']}" + (f" ({_and(held)} {_be(len(held))} waiting on it)" if held else ""))
+    opens.extend(x.get("more", ()))
+    opens.append("+4 fame as the valley sees it rise")
+    return opens
+
+
+def hall_next(c: dict) -> dict:
+    """The next Main Hall level, what it opens and the three-rooms checklist, for the card on the home view. At the
+    top of the ladder the card says so ("top") and lists what the Hall gave."""
     lvl = _lvl(c, "main_hall")
+    top = ROOMS["main_hall"]["max"]
+    if lvl >= top:
+        return {"level": top, "top": True, "opens": [f"{builders(c)} builders, room for {pawn_cap(c)} disciples, other rooms up to level {room_cap(c)}"],
+                "check": [], "cost": {}, "queued": False, "hours": 0, "left": 0.0, "free": False, "pct": 100.0, "affordable": False,
+                "short": {}, "ready": False}
     queued = [b for b in c["builds"] if b["room"] == "main_hall"]
     target = lvl + 1
-    if target > ROOMS["main_hall"]["max"]:
-        return None
-    opens = [f"Room for {_n(2, 'more disciple', 'more disciples')}: {3 + 2 * target} in all, from {pawn_cap(c)}"]
-    top = min(target + 1, max(r["max"] for k, r in ROOMS.items() if k != "main_hall"))
-    held = [ROOMS[k]["name"] for k, r in ROOMS.items()
-            if k != "main_hall" and _lvl(c, k) + sum(1 for b in c["builds"] if b["room"] == k) == target and target < r["max"]]
-    if top > target:
-        opens.append(f"Other rooms up to level {top}" + (f" ({_and(held)} {_be(len(held))} waiting on it)" if held else ""))
-    opens.append("+4 fame as the valley sees it rise")
-    if target == 4:
-        opens.append("Branch sects, with eight disciples and 100 spirit stones")
-    if target == 5:
-        opens.append("The first line of the Great Work “A Great Sect”")
+    check = [] if queued else hall_rooms_check(c, target)
+    ready = all(ok for _, _, ok in check)
     cost = queued[0]["cost"] if queued else room_cost(c, "main_hall", lvl)
     short = {k: v - c["res"][k] for k, v in cost.items() if c["res"][k] < v}
-    return {"level": target, "opens": opens, "cost": cost, "queued": bool(queued), "hours": build_hours("main_hall", target),
-            "left": build_left(c, queued[0]) if queued else 0.0, "free": len(c["builds"]) < builders(c),
+    free = len(c["builds"]) < builders(c)
+    return {"level": target, "top": False, "opens": hall_opens(c, target), "check": check, "need_lv": target - 1, "ready": ready,
+            "cost": cost, "queued": bool(queued), "hours": build_hours("main_hall", target),
+            "left": build_left(c, queued[0]) if queued else 0.0, "free": free,
             "pct": 100.0 * queued[0]["done"] / queued[0]["need"] if queued else 0.0,
-            "affordable": not queued and not short and len(c["builds"]) < builders(c), "short": short}
+            "affordable": not queued and ready and not short and free, "short": short}
 
 
 def _id_names(c: dict, ids) -> str:
@@ -4169,9 +4247,7 @@ def view(st: dict, now: float) -> dict:
         queued = sum(1 for b in c["builds"] if b["room"] == rid)
         nxt = level + queued
         cost = room_cost(c, rid, nxt) if nxt < r["max"] else None
-        locked = ""
-        if cost and rid != "main_hall" and nxt > _lvl(c, "main_hall"):
-            locked = f"Needs Main Hall level {nxt}."
+        locked = build_block(c, rid, nxt) if cost and rid != "main_hall" else ""
         rooms.append({"id": rid, "name": r["name"], "effect": r["effect"], "level": level, "max": r["max"], "open": level > 0,
                       "hours": _f(build_hours(rid, nxt + 1)) if cost else 0,
                       "queued": queued, "cost": {k: _f(v) for k, v in cost.items()} if cost else None, "locked": locked,
@@ -4265,10 +4341,10 @@ def _build_view(c: dict, i: int, b: dict) -> dict:
             "rows": [{"label": str(a), "x": _f(x, 2)} for a, x in rows], "blue": _f(b.get("blue", 0.0), 1)}
 
 
-def _hall_view(h: dict | None) -> dict | None:
-    if not h:
-        return None
-    return {"level": _f(h["level"]), "opens": [str(x) for x in h["opens"]], "cost": {k: _f(v) for k, v in h["cost"].items()},
+def _hall_view(h: dict) -> dict:
+    return {"level": _f(h["level"]), "top": bool(h["top"]), "opens": [str(x) for x in h["opens"]], "cost": {k: _f(v) for k, v in h["cost"].items()},
+            "check": [{"name": str(n), "lv": _f(lv), "ok": bool(ok)} for n, lv, ok in h["check"]], "need_lv": _f(h.get("need_lv", 0)),
+            "ready": bool(h["ready"]),
             "queued": bool(h["queued"]), "pct": _f(h["pct"]), "affordable": bool(h["affordable"]), "hours": _f(h["hours"]),
             "left": _f(h["left"], 1), "free": bool(h["free"]),
             "short": {k: _f(math.ceil(v)) for k, v in h["short"].items()}}
