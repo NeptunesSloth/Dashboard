@@ -4,7 +4,8 @@ A pack is one course (a language level or a certification). Schema — see
 ``docs/ACADEMY_CONTENT.md`` for the authoring guide:
 
     id, title, kind (language|cert), blurb, hall
-    language packs:  language, lang (BCP-47 speech tag, e.g. fr-FR)
+    language packs:  language, lang (BCP-47 speech tag, e.g. fr-FR),
+                     track? + (level? | addon?)  — see "Tracks" below
     cert packs:      exam {name, code, questions, minutes, pass_pct,
                            domains: [{id, title, weight}]}
     units: [{id, title, goal, notes, domain?, items: [...]}]
@@ -25,6 +26,13 @@ Item types:
 A course can be split over several files: a *part* file holds only
 ``part_of: <pack id>`` and ``units: [...]``; its units are appended to that pack
 (in filename order). This is how large courses are authored in parallel.
+
+Tracks: the levels of one language are one long course to the learner. A language
+pack with ``track: french`` and ``level: A1`` (A1, A2, B1, B2, C1, C2) is a *stage* of
+the track ``french``; stages are ordered by level. A pack with ``track: french`` and
+``addon: talk`` is an *add-on* of the track (conversations, picture lessons): it is
+taken up on its own and is never a stage. Pack and item ids are unchanged by this —
+a track is only a grouping (``tracks()``); enrolment and progress stay per pack.
 
 Run ``python -m sect_academy.packs`` to validate every pack.
 """
@@ -56,6 +64,10 @@ _PIC_ID = re.compile(r"^[a-z][a-z0-9_]{1,31}$")
 _PIN_ID = re.compile(r"^[a-z][a-z0-9_]{0,23}$")
 _PIN_KEYS = {"l2", "rom", "alt", "l1", "note"}
 _pictures_cache: tuple | None = None       # (PACK_DIR, pictures, errors)
+LEVELS = ("A1", "A2", "B1", "B2", "C1", "C2")     # the stages of a track, in order
+_TRACK_ID = re.compile(r"^[a-z][a-z0-9_]{1,31}$")
+_ADDON_ID = re.compile(r"^[a-z][a-z0-9_]{1,23}$")
+_tracks: dict[str, dict] | None = None     # built from _files (see tracks())
 
 
 def _s(v) -> str:
@@ -351,6 +363,84 @@ def _validate_units(units, kind, domains: set[str], err, seen_units: set[str], s
                 err(f"item {iid}: alt must be a list of strings")
 
 
+def _validate_track_fields(pack: dict, kind, err) -> None:
+    """``track`` with exactly one of ``level`` (a stage) or ``addon`` (an add-on), language packs only."""
+    has = [k for k in ("track", "level", "addon") if k in pack]
+    if not has:
+        return
+    if kind != "language":
+        err("track, level and addon belong to language packs")
+        return
+    if pack.get("personal"):
+        err("a personal course is never part of a track")
+    track = pack.get("track")
+    if not isinstance(track, str) or not _TRACK_ID.match(track):
+        err(f"track must be a short lowercase id (e.g. french), not {track!r}")
+    if ("level" in pack) == ("addon" in pack):
+        err("a track pack needs exactly one of level (a stage: A1-C2) or addon (e.g. talk)")
+    if "level" in pack and pack.get("level") not in LEVELS:
+        err(f"level must be one of {LEVELS}, not {pack.get('level')!r}")
+    if "addon" in pack and not (isinstance(pack.get("addon"), str) and _ADDON_ID.match(pack["addon"])):
+        err(f"addon must be a short lowercase id (e.g. talk), not {pack.get('addon')!r}")
+
+
+def build_tracks(all_packs: dict[str, dict]) -> tuple[dict[str, dict], list[str]]:
+    """Group the packs that name a ``track`` into ordered tracks. Returns (tracks, problems).
+
+    A track is {id, language, lang, stages: [pack ids by level], levels: [...], addons: [pack ids]}.
+    A pack that would clash (a second pack at the same level, another language, a track id that
+    is also a pack id) is left out of the track and reported, so a bad file never breaks the rest."""
+    out: dict[str, dict] = {}
+    errs: list[str] = []
+    for pid in sorted(all_packs):
+        p = all_packs[pid]
+        tid = p.get("track")
+        if p.get("kind") != "language" or p.get("personal") or not isinstance(tid, str) or not _TRACK_ID.match(tid):
+            continue
+        if tid in all_packs:
+            errs.append(f"{pid}: track {tid!r} is also a pack id")
+            continue
+        t = out.setdefault(tid, {"id": tid, "language": p.get("language", ""), "lang": p.get("lang", ""),
+                                 "stages": [], "levels": [], "addons": []})
+        if p.get("lang") != t["lang"] or p.get("language") != t["language"]:
+            errs.append(f"{pid}: track {tid} is {t['language']} ({t['lang']}), this pack is {p.get('language')} ({p.get('lang')})")
+            continue
+        level, addon = p.get("level"), p.get("addon")
+        if level in LEVELS and not addon:
+            if level in t["levels"]:
+                errs.append(f"{pid}: track {tid} already has a level {level} stage")
+                continue
+            t["levels"].append(level)
+            t["stages"].append(pid)
+        elif isinstance(addon, str) and level is None:
+            t["addons"].append(pid)
+    for t in out.values():
+        order = sorted(range(len(t["levels"])), key=lambda i: LEVELS.index(t["levels"][i]))
+        t["levels"] = [t["levels"][i] for i in order]
+        t["stages"] = [t["stages"][i] for i in order]
+    return {k: v for k, v in out.items() if v["stages"] or v["addons"]}, errs
+
+
+def tracks() -> dict[str, dict]:
+    """The language tracks (see "Tracks" above), by track id, from the YAML courses."""
+    global _tracks
+    load_all()
+    with _lock:
+        if _tracks is None:
+            _tracks = build_tracks(_files or {})[0]
+        return _tracks
+
+
+def track_of(pack_id: str) -> tuple[dict | None, str]:
+    """(track, "stage" | "addon") for a pack in a track, else (None, "")."""
+    for t in tracks().values():
+        if pack_id in t["stages"]:
+            return t, "stage"
+        if pack_id in t["addons"]:
+            return t, "addon"
+    return None, ""
+
+
 def validate_pack(pack, source: str = "", base: dict | None = None) -> list[str]:
     """Return a list of human-readable problems (empty = valid).
 
@@ -387,6 +477,7 @@ def validate_pack(pack, source: str = "", base: dict | None = None) -> list[str]
     if kind == "language":
         if not _s(pack.get("language")) or not re.match(r"^[a-z]{2}-[A-Z]{2}$", _s(pack.get("lang"))):
             err("language packs need language + lang (e.g. fr-FR)")
+    _validate_track_fields(pack, kind, err)
     domains: set[str] = set()
     if kind == "cert":
         exam = pack.get("exam")
@@ -464,13 +555,14 @@ def _refresh_personal() -> bool:
 def load_all(force: bool = False) -> dict[str, dict]:
     """All valid packs by id (and the learner's personal course, when there is one).
     Invalid packs and parts are skipped, never a crash."""
-    global _files, _cache, _index, _pictures_cache
+    global _files, _cache, _index, _pictures_cache, _tracks
     changed = _refresh_personal()
     with _lock:
         if _files is None or force:
             if force:
                 _pictures_cache = None
             _files = _load_files()
+            _tracks = None
             changed = True
         if changed or _cache is None:
             _cache = {**_files, **{k: v for k, v in _personal.items() if k not in _files}}
@@ -570,6 +662,14 @@ def main(argv: list[str]) -> int:
                     kinds[t] = kinds.get(t, 0) + len(item_ids(it))
             label = f"part of {pack['part_of']}" if is_part else pack["id"]
             print(f"ok   {path.name} [{label}]: {len(pack['units'])} units, {n} items {kinds}")
+    if not only:
+        found, terrs = build_tracks(bases)
+        for e in terrs:
+            print("FAIL", e)
+        bad += bool(terrs)
+        for t in found.values():
+            print(f"ok   track {t['id']}: {' > '.join(t['levels']) or 'no stages'}"
+                  + (f" + add-ons {', '.join(t['addons'])}" if t["addons"] else ""))
     return 1 if bad else 0
 
 
