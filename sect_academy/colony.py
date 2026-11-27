@@ -86,20 +86,20 @@ SURNAMES = ["Lin", "Zhao", "Mo", "Yun", "Feng", "Bai", "Xiao", "Shen", "Luo", "H
 GIVEN = ["Wei", "Yan", "Chen", "Xue", "Ling", "Hao", "Mei", "Rou", "Jin", "Tian", "Qing", "Yu", "An", "Zhi", "Lan", "Shuo",
          "Feiyan", "Wuji", "Ruoxi", "Changge", "Yichen", "Suyin"]
 
-# Rooms. cost(level) = base * COST_CURVE**level, plus spirit stones from the third level (room_cost).
+# Rooms. cost(level) = base * COST_CURVE**level, plus spirit stones from the fourth level (room_cost). Tuned by tests/balance.py.
 ROOMS = {
-    "main_hall":   {"name": "Main Hall", "wood": 40, "stone": 30, "max": 10,
+    "main_hall":   {"name": "Main Hall", "wood": 15, "stone": 11, "max": 10,
                     "effect": "The heart of the sect. Each level opens rooms and room levels, and houses more disciples and the fame that draws wanderers."},
-    "dormitory":   {"name": "Dormitory", "wood": 30, "stone": 10, "max": 8, "effect": "Three beds per level. Disciples without a bed sleep badly."},
-    "fields":      {"name": "Rice Terraces", "wood": 20, "stone": 10, "max": 8, "effect": "Two farmers per level, and a better yield. Nothing grows in winter."},
-    "storehouse":  {"name": "Storehouse", "wood": 30, "stone": 20, "max": 8, "effect": "Raises how much rice, wood, stone and herbs you can keep. Rice and herbs above half the store slowly spoil."},
-    "library":     {"name": "Scripture Pavilion", "wood": 35, "stone": 20, "max": 8, "effect": "Lets disciples research. Faster per level."},
-    "meditation":  {"name": "Meditation Chamber", "wood": 25, "stone": 25, "max": 8, "effect": "+15% qi from meditation per level."},
-    "alchemy":     {"name": "Alchemy Hall", "wood": 25, "stone": 30, "max": 8, "effect": "Lets disciples brew pills from herbs. Pills heal and steady a breakthrough."},
-    "training":    {"name": "Training Grounds", "wood": 30, "stone": 15, "max": 8, "effect": "Lets disciples train for combat. Faster per level."},
-    "ward":        {"name": "Ward Formation", "wood": 15, "stone": 45, "max": 8, "effect": "Defends the sect on its own. Stronger per level."},
-    "spirit_vein": {"name": "Spirit Vein", "wood": 20, "stone": 40, "max": 8, "effect": "Quarrying also yields spirit stones, and meditation gains +5% per level."},
-    "market":      {"name": "Trade Post", "wood": 35, "stone": 15, "max": 3, "effect": "Merchants visit more often and pay better."},
+    "dormitory":   {"name": "Dormitory", "wood": 14, "stone": 5, "max": 8, "effect": "Three beds per level. Disciples without a bed sleep badly."},
+    "fields":      {"name": "Rice Terraces", "wood": 9, "stone": 5, "max": 8, "effect": "Two farmers per level, and a better yield. Nothing grows in winter."},
+    "storehouse":  {"name": "Storehouse", "wood": 14, "stone": 9, "max": 8, "effect": "Raises how much rice, wood, stone and herbs you can keep. Rice and herbs above half the store slowly spoil."},
+    "library":     {"name": "Scripture Pavilion", "wood": 16, "stone": 9, "max": 8, "effect": "Lets disciples research. Faster per level."},
+    "meditation":  {"name": "Meditation Chamber", "wood": 11, "stone": 11, "max": 8, "effect": "+15% qi from meditation per level."},
+    "alchemy":     {"name": "Alchemy Hall", "wood": 11, "stone": 14, "max": 8, "effect": "Lets disciples brew pills from herbs. Pills heal and steady a breakthrough."},
+    "training":    {"name": "Training Grounds", "wood": 14, "stone": 7, "max": 8, "effect": "Lets disciples train for combat. Faster per level."},
+    "ward":        {"name": "Ward Formation", "wood": 7, "stone": 20, "max": 8, "effect": "Defends the sect on its own. Stronger per level."},
+    "spirit_vein": {"name": "Spirit Vein", "wood": 9, "stone": 18, "max": 8, "effect": "Quarrying also yields spirit stones, and meditation gains +5% per level."},
+    "market":      {"name": "Trade Post", "wood": 16, "stone": 7, "max": 3, "effect": "Merchants visit more often and pay better."},
 }
 # The Main Hall ladder (SECT_OVERHAUL_PLAN 3.2): the rooms each level opens, and the highest level any other room
 # may reach while the Hall stands there (never more than one above the Hall). Builders come at BUILDER_HALLS.
@@ -117,6 +117,7 @@ HALL_LADDER = {
 }
 HALL_ROOMS_NEEDED = 3              # to raise the Hall to n+1, this many other rooms must stand at level n or higher
 COST_CURVE = 1.6                   # each level of a room costs this many times the one before
+STONES_PER_LEVEL = 5               # spirit stones a level from the fourth on: 5 for level 4, 10 for level 5, ...
 
 
 def room_opens_at(room: str) -> int:
@@ -176,8 +177,8 @@ BUILDERS = 2                       # builder slots a sect starts with
 BUILDER_HALLS = (3, 6, 9)          # one more builder at each of these Main Hall levels
 HELPER_X = 0.25                    # each disciple on Build adds this share of a builder's speed, times their Construction
 HELPERS_PER_SITE = 2
-ROOM_HOURS = {1: 1, 2: 2, 3: 4, 4: 6, 5: 9, 6: 12, 7: 16, 8: 20}          # sim hours to reach a room level
-HALL_HOURS = {2: 4, 3: 8, 4: 12, 5: 16, 6: 20, 7: 24, 8: 28, 9: 32, 10: 36}   # and a Main Hall level
+ROOM_HOURS = {1: 3, 2: 6, 3: 10, 4: 14, 5: 18, 6: 24, 7: 30, 8: 36}       # sim hours to reach a room level (tuned by tests/balance.py)
+HALL_HOURS = {2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 7: 28, 8: 32, 9: 34, 10: 36}   # and a Main Hall level
 BLUEPRINT_CUT = 0.25               # a Master's Blueprint takes this share off the time left on one running job
 BLUEPRINT_BANK = 3                 # blueprints kept at most (one is drawn per real day of counted study)
 MASTER_BUILDER_HOURS = 24          # meeting the weekly study goal lends the Master as a builder this long
@@ -591,8 +592,8 @@ def room_cost(c: dict, room: str, level: int) -> dict:
     k = COST_CURVE ** level
     cost = {"wood": int(round(r["wood"] * k / 5.0)) * 5,
             "stone": int(round(r["stone"] * k * (0.8 if _has(c, "masonry") else 1.0) / 5.0)) * 5}
-    if level >= 2:
-        cost["stones"] = 8 * (level - 1)
+    if level >= 3:
+        cost["stones"] = STONES_PER_LEVEL * (level - 2)
     return cost
 
 

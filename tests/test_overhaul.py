@@ -80,7 +80,8 @@ def test_the_next_main_hall_level_says_what_it_opens(st):
     c["builds"] = []
     assert any(o.startswith("Branch sects") for o in colony.hall_next(c)["opens"])
     c["rooms"]["main_hall"] = colony.ROOMS["main_hall"]["max"]
-    assert colony.hall_next(c) is None and colony.view(st, T0)["hall_next"] is None
+    top = colony.view(st, T0)["hall_next"]                       # the card stays at the top of the ladder, and says so
+    assert top["top"] and top["level"] == 10 and not top["affordable"] and top["opens"]
 
 
 # ---------------------------------------------------------------------------
@@ -96,7 +97,7 @@ def _idle_all(c):
 
 def test_no_build_takes_more_than_36_sim_hours():
     assert max(colony.ROOM_HOURS.values()) <= 36 and max(colony.HALL_HOURS.values()) <= 36
-    assert colony.build_hours("library", 1) == 1 and colony.build_hours("main_hall", 2) == 4
+    assert colony.build_hours("library", 1) == colony.ROOM_HOURS[1] and colony.build_hours("main_hall", 2) == colony.HALL_HOURS[2]
     assert colony.MAX_OFFLINE_HOURS >= max(colony.HALL_HOURS.values())
 
 

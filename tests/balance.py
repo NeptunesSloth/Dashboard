@@ -28,6 +28,7 @@ BUILD_ORDER = (["fields", "storehouse", "main_hall", "training", "library", "dor
                 "alchemy", "meditation", "dormitory", "training", "library", "main_hall", "spirit_vein", "ward", "fields", "storehouse",
                 "meditation", "dormitory", "alchemy", "main_hall", "library", "training", "ward", "market"]
                + ["main_hall", "fields", "storehouse", "dormitory", "meditation", "library", "training", "ward", "spirit_vein", "alchemy"] * 5)
+GATHER_RICE_DAYS = 8                     # a careful player sends someone for wood or stone with this many days of rice in hand
 RESEARCH_ORDER = ["irrigation", "masonry", "granary", "sword_forms", "qi_array", "refinement", "ward_ii", "dao_heart"]
 
 
@@ -163,7 +164,7 @@ def _careful_orders(st: dict, c: dict, seen_alerts: set) -> None:
     for job, res in (("wood", "wood"), ("mine", "stone")):
         others = [p for p in c["pawns"] if not p.get("master") and not p.get("direct")]
         on = [p for p in others if p["prio"].get(job) == 2]
-        if res in short and c["res"]["rice"] > eat * 8 and not on and others:
+        if res in short and c["res"]["rice"] > eat * GATHER_RICE_DAYS and not on and others:
             p = max(others, key=lambda x: (x["prio"].get("farm") != 2 or x["work"] != "farm", x["skills"]["gather"]["lv"]))
             colony.set_priority(st, p["id"], job, 2, T0)
         elif on and (res not in short or c["res"]["rice"] < eat * 5):
