@@ -152,10 +152,8 @@ def test_work_gathers_a_trickle_of_qi_and_a_stalled_disciple_is_named(st):
 def test_fame_for_a_raised_hall_and_a_held_festival(st):
     c = st["colony"]
     c["builds"] = [{"room": "main_hall", "need": 0.01, "done": 0.0}]
-    p = c["pawns"][1]
-    p["prio"] = {j: 0 for j in colony.JOBS} | {"build": 1}
-    p["rest"], p["joy"], c["hour"] = 100.0, 100.0, 24 * 2 + 9
-    colony._do_job(c, p, "build", False)
+    c["hour"] = 24 * 2 + 9
+    colony._tick_builds(c)
     assert c["fame"] == 4 and c["rooms"]["main_hall"] == 2
     c["res"]["rice"] = 100.0
     colony._ask(c, "festival", "Feast", "x", [("hold", "h"), ("skip", "s")], name="Feast", flavour="f", cost=12)

@@ -688,6 +688,8 @@ def sect(action: str, body: SectIn):
             res = colony.queue_build(st, body.room, now)
         elif action == "cancel-build":
             res = colony.cancel_build(st, body.index, now)
+        elif action == "blueprint":
+            res = colony.use_blueprint(st, body.index, now)
         elif action == "research":
             res = colony.set_research(st, body.tech, now)
         elif action == "resolve":

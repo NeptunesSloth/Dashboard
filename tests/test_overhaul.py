@@ -81,3 +81,153 @@ def test_the_next_main_hall_level_says_what_it_opens(st):
     assert any(o.startswith("Branch sects") for o in colony.hall_next(c)["opens"])
     c["rooms"]["main_hall"] = colony.ROOMS["main_hall"]["max"]
     assert colony.hall_next(c) is None and colony.view(st, T0)["hall_next"] is None
+
+
+# ---------------------------------------------------------------------------
+# stage 2: builders and short timers
+# ---------------------------------------------------------------------------
+DAY = 86400.0
+
+
+def _idle_all(c):
+    for p in c["pawns"]:
+        p["prio"] = {j: 0 for j in colony.JOBS}
+
+
+def test_no_build_takes_more_than_36_sim_hours():
+    assert max(colony.ROOM_HOURS.values()) <= 36 and max(colony.HALL_HOURS.values()) <= 36
+    assert colony.build_hours("library", 1) == 1 and colony.build_hours("main_hall", 2) == 4
+    assert colony.MAX_OFFLINE_HOURS >= max(colony.HALL_HOURS.values())
+
+
+def test_a_builder_finishes_with_nobody_helping(st):
+    c = st["colony"]
+    _idle_all(c)
+    c["res"].update(wood=999.0, stone=999.0, stones=99.0)
+    c["rooms"]["fields"] = 1
+    assert colony.queue_build(st, "fields", T0)["ok"]              # to level 2: 2 sim hours
+    colony.advance(st, 1, T0)
+    assert c["builds"] and c["builds"][0]["done"] == pytest.approx(1.0)
+    assert colony.view(st, T0)["builds"][0]["rows"] == [{"label": "The builder", "x": 1}]
+    colony.advance(st, 1, T0)
+    assert not c["builds"] and c["rooms"]["fields"] == 2
+    assert c["log"][-1]["title"] == "Rice Terraces raised to level 2"
+
+
+def test_helpers_speed_a_job_by_what_the_ledger_says(st):
+    c = st["colony"]
+    _idle_all(c)
+    c["hour"] = 24 + 9                                              # mid-morning: awake
+    for p in c["pawns"]:
+        p.update(rest=100.0, food=100.0, joy=100.0, mood=60.0, thoughts=[])
+    helper = c["pawns"][1]
+    helper["prio"]["build"] = 1
+    c["res"].update(wood=999.0, stone=999.0, stones=99.0)
+    c["rooms"]["main_hall"] = 3
+    assert colony.queue_build(st, "main_hall", T0)["ok"]           # level 4: 12 sim hours
+    colony.advance(st, 1, T0)
+    b = c["builds"][0]
+    rows = colony.build_rate_rows(c, b)
+    assert rows[0] == ("The builder", 1.0) and helper["name"] in rows[1][0] and len(rows) == 2
+    assert b["done"] == pytest.approx(sum(x for _, x in rows))     # the hour moved by exactly the ledger
+    assert rows[1][1] == pytest.approx(colony.HELPER_X * colony._skill_mult(helper, "build") * colony._work_mult(helper, c["hour"]), rel=0.02)
+    v = colony.view(st, T0)["builds"][0]
+    assert v["rate"] == pytest.approx(sum(r["x"] for r in v["rows"]), abs=0.02) and v["left"] < b["need"] - b["done"]
+
+
+def test_builder_slots_grow_with_the_hall_and_a_full_crew_refuses_more(st):
+    c = st["colony"]
+    c["res"].update(wood=9999.0, stone=9999.0, stones=999.0)
+    assert colony.builders(c) == 2
+    assert colony.queue_build(st, "fields", T0)["ok"] and colony.queue_build(st, "dormitory", T0)["ok"]
+    err = colony.queue_build(st, "storehouse", T0)
+    assert not err["ok"] and "builders are busy" in err["error"]
+    assert not next(r for r in colony.view(st, T0)["rooms"] if r["id"] == "storehouse")["affordable"]
+    c["rooms"]["main_hall"] = 3
+    assert colony.builders(c) == 3 and [label for label, _ in colony.builder_rows(c)][-1] == "Main Hall level 3"
+    assert colony.queue_build(st, "storehouse", T0)["ok"]
+    v = colony.view(st, T0)["builders"]
+    assert v["n"] == 3 and v["busy"] == 3 and sum(r["n"] for r in v["rows"]) == 3
+
+
+def test_away_the_builders_finish_and_the_letter_says_so(st):
+    c = st["colony"]
+    c["res"].update(wood=999.0, stone=999.0, stones=99.0)
+    assert colony.queue_build(st, "library", T0)["ok"]
+    c["last_real"] = T0
+    hours = colony.catch_up(st, T0 + 7 * colony.SECS_PER_HOUR_OFFLINE)
+    assert hours == 7 and c["rooms"].get("library") == 1
+    assert not any(e["kind"] == "bad" for e in c["log"])
+    away = [e for e in c["log"] if e["title"] == "While you were away"][-1]
+    assert "Scripture Pavilion built" in away["text"] and "No one came to harm" in away["text"]
+    assert "built_away" not in c
+
+
+def test_builders_work_on_while_an_event_waits_and_nothing_else_moves(st):
+    c = st["colony"]
+    c["res"].update(wood=999.0, stone=999.0, stones=99.0)
+    c["rooms"]["main_hall"] = 2
+    assert colony.queue_build(st, "main_hall", T0)["ok"]           # 8 sim hours
+    colony._ask(c, "festival", "Feast", "x", [("hold", "h"), ("skip", "s")], name="Feast", flavour="f", cost=12)
+    hour, rice = c["hour"], c["res"]["rice"]
+    c["last_real"] = T0
+    colony.advance(st, 5, T0 + 3 * colony.SECS_PER_HOUR_OFFLINE + 10)   # watching, with the event open
+    assert c["hour"] == hour and c["res"]["rice"] == rice
+    assert c["builds"][0]["done"] == pytest.approx(3.0)            # three builder hours at the away rate
+    colony.catch_up(st, c["last_real"] + 6 * colony.SECS_PER_HOUR_OFFLINE)   # away, event still open
+    assert c["hour"] == hour and c["rooms"]["main_hall"] == 3 and not c["builds"]
+    assert any(e["title"] == "The builders worked on" for e in c["log"])
+    c["seclusion"] = True                                          # sealed gates: everything waits, builders too
+    c["res"].update(wood=999.0, stone=999.0, stones=99.0)
+    assert colony.queue_build(st, "library", T0)["ok"]
+    colony.catch_up(st, c["last_real"] + 6 * colony.SECS_PER_HOUR_OFFLINE)
+    assert c["builds"][0]["done"] == 0
+
+
+def test_study_draws_blueprints_and_lends_the_master_but_never_gates(st):
+    c = st["colony"]
+    c["res"].update(wood=999.0, stone=999.0, stones=99.0)
+    c["rooms"]["main_hall"] = 3
+    assert colony.queue_build(st, "main_hall", T0)["ok"]           # 12 sim hours
+    ev = colony.on_session(st, answers=10, correct=9, counted=True, due_left=0, now=T0)
+    assert c["blueprints"]["n"] == 1 and any("blueprint" in e["text"] for e in ev["events"])
+    colony.on_session(st, answers=10, correct=9, counted=True, due_left=0, now=T0 + 60)
+    assert c["blueprints"]["n"] == 1                               # one a real day
+    for d in range(1, 6):
+        colony.on_session(st, answers=10, correct=9, counted=True, due_left=0, now=T0 + d * DAY)
+    assert c["blueprints"]["n"] == colony.BLUEPRINT_BANK            # banked up to the cap
+    b = c["builds"][0]
+    assert colony.use_blueprint(st, 0, T0)["ok"]
+    assert b["done"] == pytest.approx(12 * colony.BLUEPRINT_CUT) and b["blue"] == pytest.approx(3.0)
+    assert colony.view(st, T0)["builds"][0]["blue"] == 3                # shown in the job's ledger
+    assert not colony.use_blueprint(st, 5, T0)["ok"]                   # only a job a builder is on
+    # with the sect off, study pays the builders nothing
+    st["settings"]["sect_enabled"] = False
+    n = c["blueprints"]["n"]
+    colony.on_session(st, answers=10, correct=9, counted=True, due_left=0, now=T0 + 9 * DAY)
+    assert c["blueprints"]["n"] == n
+
+
+def test_the_master_is_lent_for_a_day_by_a_week_of_study(st):
+    c = st["colony"]
+    c["week"] = {"id": "2027-W02", "days": ["a", "b", "c", "d"]}
+    colony._study_builds(st, c, T0)
+    assert colony.builders(c) == 2
+    c["week"]["days"].append("e")
+    colony._study_builds(st, c, T0)
+    assert colony.builders(c) == 3 and c["master_builds_until"] == c["hour"] + colony.MASTER_BUILDER_HOURS
+    until = c["master_builds_until"]
+    colony._study_builds(st, c, T0 + DAY)
+    assert c["master_builds_until"] == until                         # once a week
+    c["hour"] = until
+    assert colony.builders(c) == 2
+
+
+def test_an_old_save_keeps_the_share_its_build_had_done(st):
+    c = st["colony"]
+    c["builds"] = [{"room": "library", "need": 16.0, "done": 8.0, "cost": {"wood": 10}}]   # disciple work-hours, half done
+    colony._repair(c)
+    b = c["builds"][0]
+    assert b["need"] == colony.build_hours("library", 1) and b["done"] == pytest.approx(b["need"] / 2) and b["slotted"]
+    colony._repair(c)                                                # a second load changes nothing
+    assert b["done"] == pytest.approx(b["need"] / 2)

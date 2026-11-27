@@ -817,7 +817,7 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
             b = sites[0]
             x = HELPER_X * out
             b["boost"] = b.get("boost", 0.0) + x
-            b.setdefault("crew_now", []).append([p["name"], int(p["skills"]["build"]["lv"]), round(x, 2)])
+            b.setdefault("crew_now", []).append([p["name"], int(p["skills"]["build"]["lv"]), x])
     elif job == "craft":
         c["craft"] += out * (1 + 0.15 * (_lvl(c, "alchemy") - 1)) * (1 + _manual(c, p, "alchemy")[0]) \
             * (1.3 if "pill_furnace" in c["treasures"] else 1.0)

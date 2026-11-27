@@ -224,9 +224,9 @@ export function mountSect(h) {
     const z = $('#z-hall'); if (!z) return;
     const H = S.hall_next;
     const shortText = (o) => Object.entries(o).map(([k, v]) => `${v} more ${k === 'stones' ? 'spirit stones' : k}`).join(' and ');
-    const act = !H ? '' : H.queued ? `<div class="hn-prog"><span class="small">Being raised · <b class="num">${H.pct}%</b></span>${bar(H.pct, 'azure')}</div>`
-      : `<button class="btn ${H.affordable ? 'primary' : ''}" data-hall ${H.affordable ? '' : 'disabled'}>Raise it: ${esc(costText(H.cost))}</button>
-         ${H.affordable ? '' : `<small class="dim">Needs ${esc(shortText(H.short))}</small>`}`;
+    const act = !H ? '' : H.queued ? `<div class="hn-prog"><span class="small">Being raised · <b class="num">${H.pct}%</b>, ready in ${simH(H.left)}</span>${bar(H.pct, 'azure')}<small class="dim">${esc(readyIn(H.left))}</small></div>`
+      : `<button class="btn ${H.affordable ? 'primary' : ''}" data-hall ${H.affordable ? '' : 'disabled'}>Raise it: ${esc(costText(H.cost))} · ${H.hours} h</button>
+         ${H.affordable ? `<small class="dim">${esc(readyIn(H.hours))}</small>` : `<small class="dim">${Object.keys(H.short).length ? `Needs ${esc(shortText(H.short))}` : 'Every builder is busy'}</small>`}`;
     const html = !H ? '' : `<div class="hallnext ${H.affordable ? 'can' : ''}" style="background-image:linear-gradient(90deg,#1a130ef7 0%,#1a130eeb 62%,#1a130eb3 100%),url(${backdrop('hall')})">
       <div class="hn-head"><small>The next step</small><b>Main Hall ${H.level}</b><span class="dim small">what it opens</span></div>
       <ul class="hn-opens">${H.opens.map((o) => `<li>${esc(o)}</li>`).join('')}</ul>
@@ -273,6 +273,7 @@ export function mountSect(h) {
     });
     z.querySelectorAll('[data-build]').forEach((b) => { b.onclick = () => order('build', { room: b.dataset.build }); });
     z.querySelectorAll('[data-cancel]').forEach((b) => { b.onclick = () => order('cancel-build', { index: Number(b.dataset.cancel) }); });
+    z.querySelectorAll('[data-blueprint]').forEach((b) => { b.onclick = () => order('blueprint', { index: Number(b.dataset.blueprint) }); });
     z.querySelectorAll('[data-tech]').forEach((b) => { b.onclick = () => order('research', { tech: b.dataset.tech }); });
     z.querySelectorAll('details[data-fold]').forEach((d) => { d.ontoggle = () => {
       if (d.open) openFolds.add(d.dataset.fold); else openFolds.delete(d.dataset.fold);
@@ -326,15 +327,40 @@ export function mountSect(h) {
 
 
 
+  // Sim hours as the player will feel them: away (one sim hour per 30 real minutes) and watching at speed 1.
+  const span = (secs) => (secs < 90 ? `${Math.max(1, Math.round(secs))} s` : secs < 5400 ? `${Math.round(secs / 60)} min` : `${Math.round(secs / 360) / 10} h`);
+  const simH = (h) => `${h} sim hour${h === 1 ? '' : 's'}`;
+  const readyIn = (h) => `about ${span(h * S.builders.away_secs)} if you close the app, ${span(h * SECS_PER_HOUR[1])} watching`;
+
   function build() {
-    const queue = S.builds.length ? `<ul class="list">${S.builds.map((b, i) => `<li class="row"><span class="grow"><b>${esc(b.name)}</b>${bar(b.pct, 'azure')}</span>
-        <span class="dim small num">${b.pct}%</span><button class="btn quiet" data-cancel="${i}">Cancel</button></li>`).join('')}</ul>` : '<p class="dim">Nothing is being built. Disciples with Build as a priority work on the first job in the queue.</p>';
-    const stall = S.build_stall ? `<p class="warn" role="status">${esc(S.build_stall)} <button class="linkish" data-tab="work">Open Work</button></p>` : '';
-    return `${queue}${stall}<div class="buildgrid">${S.rooms.map((r) => `<div class="buildcard ${r.open ? '' : 'new'}">
+    const B = S.builders;
+    const running = S.builds.filter((b) => b.running);
+    const slot = (b, i) => (b ? `<li class="slot">
+        <div class="row"><span class="grow"><b>${esc(b.name)}</b> <span class="dim small">to level ${b.level}</span></span>
+          ${B.blueprints ? `<button class="btn quiet" data-blueprint="${i}" title="Takes ${B.blueprint_cut}% off the time this job has left">Use a blueprint</button>` : ''}
+          <button class="btn quiet" data-cancel="${i}">Cancel</button></div>
+        ${bar(b.pct, 'azure')}
+        <p class="small" style="margin:6px 0 0">Ready in <b class="num">${simH(b.left)}</b> <span class="dim">· ${esc(readyIn(b.left))}</span></p>
+        <details class="fold" data-fold="speed-${i}" ${openFolds.has(`speed-${i}`) ? 'open' : ''}><summary>Speed: ${b.rate} builder-hours an hour</summary><ul class="list odds">
+          ${b.rows.map((o) => `<li class="row"><span class="grow">${esc(o.label)}</span><span class="num small">${o.x === 1 ? '1' : `+${o.x}`}</span></li>`).join('')}
+          ${b.blue ? `<li class="row"><span class="grow">Master's Blueprint</span><span class="num small">−${b.blue} h</span></li>` : ''}
+          <li class="row dim small">${b.done} of ${b.need} builder-hours done. Disciples with Build as a priority help, two to a job at most.</li></ul></details></li>`
+      : '<li class="slot empty"><b>A builder is free</b><span class="dim small">Choose a room below.</span></li>');
+    const slots = Array.from({ length: B.n }, (_, i) => slot(running[i], i)).join('');
+    const waiting = S.builds.filter((b) => !b.running);
+    const head = `<div class="row buildhead"><span class="grow"><b>Builders</b> <span class="tag blue">${B.busy} of ${B.n} at work</span>
+        ${B.blueprints ? ` <span class="tag gold">${B.blueprints} blueprint${B.blueprints === 1 ? '' : 's'} in hand</span>` : ''}${B.master_hours ? ` <span class="tag jade">The Master builds for ${B.master_hours} more h</span>` : ''}</span></div>
+      <details class="fold" data-fold="builders" ${openFolds.has('builders') ? 'open' : ''}><summary>Where builders come from</summary><ul class="list odds">${B.rows.map((o) => `<li class="row"><span class="grow">${esc(o.label)}</span><span class="num small">${o.n}</span></li>`).join('')}
+        ${B.next_hall ? `<li class="row dim small">One more at Main Hall level ${B.next_hall}.</li>` : ''}
+        <li class="row dim small">A day of study draws a Master's Blueprint (${B.blueprint_cut}% off one job, up to 3 kept); five study days in a week lend the Master as a builder for 24 sect hours.</li></ul></details>`;
+    return `${head}<ul class="slots">${slots}</ul>
+      ${waiting.length ? `<p class="small dim" style="margin:8px 0 0">Waiting for a builder: ${waiting.map((b) => esc(b.name)).join(', ')}</p>` : ''}
+      ${B.busy >= B.n ? '<p class="small dim" style="margin:10px 0 0">Every builder is busy. The rooms below can be started when one comes free.</p>' : ''}
+      <div class="buildgrid">${S.rooms.map((r) => `<div class="buildcard ${r.open ? '' : 'new'}">
         <b>${esc(r.name)}</b> <span class="tag ${r.open ? 'blue' : ''}">${r.open ? `Level ${r.level}` : 'Not built'}${r.queued ? ` +${r.queued}` : ''}</span>
         <p class="small dim">${esc(r.effect)}</p>
         ${r.cost ? (r.locked ? `<p class="small" style="font-weight:800;margin:0">${esc(r.locked)}</p>`
-          : `<button class="btn ${r.affordable ? 'primary' : ''}" data-build="${esc(r.id)}" ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}: ${esc(costText(r.cost))}</button>`)
+          : `<button class="btn ${r.affordable ? 'primary' : ''}" data-build="${esc(r.id)}" ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}: ${esc(costText(r.cost))} · ${r.hours} h</button>`)
           : '<span class="tag gold">Highest level</span>'}</div>`).join('')}</div>`;
   }
 
@@ -569,7 +595,8 @@ export function mountSect(h) {
     openSheet(`<h2>${esc(r.name)}</h2><p class="dim">${r.open ? `Level ${r.level} of ${r.max}` : 'Not built yet'}${r.queued ? ' · under construction' : ''}</p><p>${esc(r.effect)}</p>
       ${r.cost ? (r.locked ? `<p class="tag red">${esc(r.locked)}</p>`
         : `<button class="btn ${r.affordable ? 'primary' : ''}" data-go ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}: ${esc(costText(r.cost))}</button>
-           ${r.affordable ? '<p class="dim small" style="margin-top:8px">Materials are spent now; disciples with Build as a priority do the work.</p>' : '<p class="dim small" style="margin-top:8px">You do not have the materials yet.</p>'}`)
+           <p class="dim small" style="margin-top:8px">${r.affordable ? `Materials are spent now. A builder takes ${r.hours} h (${esc(readyIn(r.hours))}); disciples with Build as a priority help.`
+             : S.builders.busy >= S.builders.n ? 'Every builder is busy. One comes free when a job finishes.' : 'You do not have the materials yet.'}</p>`)
         : '<p class="tag gold">Highest level reached</p>'}`);
     const go = $('[data-go]', $('#sheet')); if (go) go.onclick = async () => { closeSheet(); await order('build', { room: id }); };
   }

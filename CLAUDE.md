@@ -134,6 +134,15 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   the home map has no upgrade badges (an affordable room glows and shows "+" after
   its level); `colony.trays` lights a room with what its crew made since dawn (view
   only until stage 4); `colony.hall_next` feeds the "Main Hall n" card under the map.
+  **Builders** (stage 2): building is builder slots (`builders`, ledger `builder_rows`:
+  2, +1 at Hall 3/6/9, +1 while the Master is lent by a week of study). The first
+  `builders(c)` jobs in `c["builds"]` each gain one sim hour an hour (`_tick_builds`)
+  whether or not anyone helps; disciples on Build are helpers (`HELPER_X` each, two
+  per job, ledger `build_rate_rows`). Times are `ROOM_HOURS`/`HALL_HOURS` (sim hours,
+  none over 36). While an event waits, only the builders work on, at the away rate
+  (`_builders_wait`); sealed gates stop them too. A counted session draws a Master's
+  Blueprint (`use_blueprint`: 25% off one job, one a real day, 3 kept). The old
+  `build_stall` alert is gone: a builder cannot stall.
 - **Result scenes**: big outcomes (raid, tournament, festival, funeral,
   tribulation, breakthrough, realm) queue a card via `colony._scene` (cap 5,
   repaired on load). Painting `static/art/scene_<kind>.webp` is used when the

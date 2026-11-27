@@ -106,11 +106,11 @@ def test_building_costs_materials_takes_work_and_is_gated(st):
             p.update(rest=max(p["rest"], 60), food=90, joy=90)
         colony.advance(st, 1, T0)
         hours += 1
-    assert c["rooms"]["library"] == 1 and hours > 3                                 # took real work
+    assert c["rooms"]["library"] == 1 and hours >= colony.build_hours("library", 1)  # a builder's hours, helped or not
     # level gate: a room may be at most one level above the Main Hall
     c["res"].update(wood=999, stone=999, stones=99)
     assert colony.queue_build(st, "library", T0)["ok"]                              # -> level 2, hall is 1
-    assert "Main Hall" in colony.queue_build(st, "library", T0)["error"]            # -> level 3 refused
+    assert "Main Hall" in colony.queue_build(st, "library", T0)["error"]            # -> level 3 refused (a builder is free)
     wood = c["res"]["wood"]
     assert colony.cancel_build(st, 0, T0)["ok"] and c["res"]["wood"] > wood        # materials come back
 
@@ -808,24 +808,6 @@ def test_resource_chips_show_what_work_made_and_what_upkeep_spends(st):
     c["made"] = {"x": 1, str(c["hour"]): {"rice|farm|p1": "lots", "bad": 2}}  # a damaged record is repaired, not trusted
     colony._repair(c)
     assert c["made"] == {str(c["hour"]): {"rice|farm|p1": 0.0}}
-
-
-def test_build_tab_says_why_nobody_is_building(st):
-    c = st["colony"]
-    c["res"].update(wood=500.0, stone=500.0)
-    for p in c["pawns"]:
-        p["prio"] = {j: 0 for j in colony.JOBS}
-    assert colony.queue_build(st, "fields", T0)["ok"]
-    assert "no disciple has Build" in colony.view(st, T0)["build_stall"]
-    for p in c["pawns"]:
-        p["prio"].update(build=3, wood=1)
-    _run(st, 1)
-    why = colony.view(st, T0)["build_stall"]
-    assert "Cut wood at priority 1, ahead of Build at 3" in why and "raise Build to 1" in why
-    for p in c["pawns"]:
-        p["prio"].update(build=1)
-    _run(st, 1)
-    assert colony.view(st, T0)["build_stall"] == ""
 
 
 def test_direct_disciple_rank_and_ledger(st):
