@@ -83,7 +83,7 @@ sect_academy/
                 handwriting.js (writing pad, live stroke hints, demo, self-check),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js,
                 vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
-tests/          test_engine.py, test_drills_lang.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
+tests/          test_engine.py, test_tracks.py, test_drills_lang.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
                 test_handwriting.py,
                 test_lexicon_zh_ja.py, lexicon_quality.py (zh/ja hit rate and word boundaries on the courses),
                 balance.py + test_balance.py (scripted 150-day games),
@@ -219,6 +219,18 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   A unit whose `static/art/pic_<id>.webp` is missing is held back (`pack["soon"]`,
   "Picture coming soon"). `scripts/pin_preview.py <id>` draws the pins on the
   painting to set coordinates; brief in docs/ART_PIPELINE.md "Round 3".
+- **Tracks** (`packs.tracks()`): a language's levels are one course to the learner.
+  A pack header with `track: french` + `level: A1` is a stage; `track: french` +
+  `addon: talk` is an add-on (conversations, pictures), never a stage. Pack and item
+  ids are unchanged; `settings.courses` still holds pack ids, but enrolling any
+  stage (or the track id) enrols every stage, and `engine.migrate_tracks` widens
+  old saves on load. Only the current stage (the lowest with unseen items) gets
+  new items, from one allowance per track (`engine.track_state`; it spills into
+  the next stage only once the current one is fully introduced); add-ons keep their
+  own. Placement for a track is one test that walks on into the next stage only
+  when every unit of the stage was passed (`PLACEMENT_MAX_QUESTIONS` per stage,
+  `PLACEMENT_TRACK_MAX` overall), saved under the track id. The UI deals in
+  `OV.tracks` (library card with a level strip, "French · A2" in today/progress).
 - One process only: state is held in memory.
 - **Handwriting** (`glyph_write`): a glyph item that is known (FSRS stability >=
   `hand.WRITE_MIN_S`, every other review, setting `handwriting` on) is asked

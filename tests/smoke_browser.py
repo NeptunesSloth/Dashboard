@@ -92,7 +92,7 @@ def main() -> int:
         if pg.query_selector("#f-go"):
             pg.fill("#f-name", "Smoke Sect")
             pg.click(".rite-step[data-step='1'] [data-next]")
-            pg.click(".tongue >> nth=0")          # opens the first language; its A1 is chosen
+            pg.click(".tongue >> nth=0")          # takes up the first language (its whole track: one course)
             pg.click(".rite-step[data-step='2'] [data-next]")
             pg.click("#f-go")
             pg.wait_for_selector("[data-place]", timeout=10000)

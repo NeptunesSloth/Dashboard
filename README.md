@@ -42,10 +42,18 @@ python -m sect_academy
 | CompTIA CySA+ (CS0-004) | 27 units, 670 items | Analyst practice built on real-looking logs and tool output |
 | Cisco CCNA (200-301 v2.0, from 3 Feb 2027) | 43 units, 920 items | v2.0 domains; configuration and verification; subnetting and routing worked; topics v2.0 dropped kept as background units outside the mocks |
 
+Each language is **one long course**: its levels (A1, A2, B1, B2) follow on from
+each other, so taking up French takes up all of it. Only the level you are on
+introduces new items, under one daily allowance for the language; when a level has
+introduced everything, the next one begins. Conversations and Picture lessons are
+optional add-ons of a language, switched on in the library.
+
 **Studying**
 
 - A **placement test** when you start a course finds your level and skips what
   you already know (skipped items come back as reviews, so a lucky pass is caught).
+  For a language there is one test: if you know every unit of A1 it carries on
+  into A2, and so on, so it can place you anywhere in the course.
 - A **daily session** is scheduled for you by spaced repetition (FSRS-6): what
   is due for review first, then a ration of new items.
 - **Chinese, Japanese and Korean** start with the writing system itself. You can

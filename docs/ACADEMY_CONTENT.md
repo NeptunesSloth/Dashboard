@@ -20,6 +20,9 @@ blurb: "One line shown on the course card."
 hall: tongues_west            # a short key grouping related courses (tongues_west, tongues_south, ward_hall)
 language: French              # language packs only
 lang: fr-FR                   # language packs only: BCP-47 tag used for speech
+track: french                 # optional, language packs: the language's one long course
+level: A1                     # with track: a stage (A1-C2; stages run in level order) …
+# addon: talk                 # … or instead an add-on of the track (conversations, pictures)
 exam:                         # cert packs only
   name: CompTIA Security+
   code: SY0-701
