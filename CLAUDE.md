@@ -61,6 +61,9 @@ sect_academy/
                 and search for the kaikki.org-built dictionaries; zh.py, ja.py
                 + ja_rules.py (deinflection, rōmaji), cjk.py (the lattice
                 segmenter for unspaced text))
+  shelf/        the starter shelf: public-domain stories (<lang>/<slug>.txt) and poems
+                (<lang>/poems.yaml, with our own English lines), manifest.yaml with the
+                evidence for each; read-only, ids shelf:<lang>:<slug> (see its README)
   dict/<lang>/  dictionary data, one folder per language, each with a README
                 naming source and licence (es/, fr/, ko/: English Wiktionary via
                 kaikki.org, CC BY-SA 4.0 — those files are under that licence, not ours)

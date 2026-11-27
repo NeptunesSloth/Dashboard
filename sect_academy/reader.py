@@ -30,6 +30,8 @@ import unicodedata
 import uuid
 from pathlib import Path
 
+import yaml
+
 from . import engine, lexicon, packs, state
 
 MAX_MEANING = 200
@@ -43,6 +45,13 @@ BOOKS_MAX_COUNT = 200
 BOOK_POST_MAX_BYTES = 20 * 1024 * 1024
 LANGS = lexicon.LANGS
 _BOOK_ID = re.compile(r"^[0-9a-f]{12}$")
+# The starter shelf (sect_academy/shelf/): read-only public-domain texts and poems shipped with the app.
+SHELF_DIR = Path(__file__).resolve().parent / "shelf"
+SHELF_LANGS = ("es", "fr", "zh", "ja", "ko")
+SHELF_MAX = 200                   # entries on the starter shelf (texts + poems); keeps book_pos bounded
+_SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+_SHELF_ID = re.compile(r"^shelf:(es|fr|zh|ja|ko):(?=[a-z0-9-]{1,60}$)([a-z0-9]+(?:-[a-z0-9]+)*)$")
+POS_MAX = BOOKS_MAX_COUNT * 2 + SHELF_MAX
 
 
 def pack_id(lang: str) -> str:
@@ -156,12 +165,17 @@ def clean_words(raw) -> dict:
     return _per_lang(raw, one)
 
 
+def _pos_key(k) -> bool:
+    """A key book_pos may hold: a shelf book's 12-hex id, or a starter-shelf id (``shelf:<lang>:<slug>``)."""
+    return isinstance(k, str) and bool(_BOOK_ID.match(k) or _SHELF_ID.match(k))
+
+
 def clean_positions(raw) -> dict:
     out: dict[str, int] = {}
     for k, v in (raw.items() if isinstance(raw, dict) else []):
-        if isinstance(k, str) and _BOOK_ID.match(k) and isinstance(v, int) and not isinstance(v, bool):
+        if _pos_key(k) and isinstance(v, int) and not isinstance(v, bool):
             out[k] = max(0, min(v, BOOK_MAX_CHARS))
-        if len(out) >= BOOKS_MAX_COUNT * 2:
+        if len(out) >= POS_MAX:
             break
     return out
 
@@ -422,7 +436,7 @@ def list_books() -> dict:
             m["pos"] = int(pos.get(m["id"], 0))
             m["language"] = LANGS[m["lang"]]
     return {"ok": True, "books": metas, "used": sum(m["bytes"] for m in metas), "max_bytes": BOOKS_MAX_BYTES,
-            "max_count": BOOKS_MAX_COUNT, "langs": LANGS, "lookup": lexicon.available()}
+            "max_count": BOOKS_MAX_COUNT, "langs": LANGS, "lookup": lexicon.available(), "shelf": list_shelf()}
 
 
 def _write(target: Path, text: str) -> None:
@@ -465,6 +479,8 @@ def add_book(title, text, lang="es", now: float | None = None) -> dict:
 
 
 def get_book(bid: str) -> dict | None:
+    if isinstance(bid, str) and _SHELF_ID.match(bid):
+        return get_shelf_book(bid)
     if not isinstance(bid, str) or not _BOOK_ID.match(bid):
         return None
     with _books_lock:
@@ -488,18 +504,21 @@ def get_book(bid: str) -> dict | None:
 
 
 def set_position(bid: str, pos) -> dict:
-    if not isinstance(bid, str) or not _BOOK_ID.match(bid) or not isinstance(pos, int) or isinstance(pos, bool):
+    if not _pos_key(bid) or not isinstance(pos, int) or isinstance(pos, bool):
         return {"ok": False, "error": "unknown book"}
-    with _books_lock:
-        known = {m["id"] for m in _metas()}
+    if _SHELF_ID.match(bid):
+        known = set(_shelf()["by_id"])
+    else:
+        with _books_lock:
+            known = {m["id"] for m in _metas()}
     if bid not in known:
         return {"ok": False, "error": "unknown book"}
     with state.LOCK:
         st = state.get()
         bp = st.setdefault("book_pos", {})
         bp[bid] = max(0, min(pos, BOOK_MAX_CHARS))
-        if len(bp) > BOOKS_MAX_COUNT * 2:
-            for old in list(bp)[: len(bp) - BOOKS_MAX_COUNT * 2]:
+        if len(bp) > POS_MAX:
+            for old in list(bp)[: len(bp) - POS_MAX]:
                 bp.pop(old, None)
         state.save()
     return {"ok": True, "pos": bp[bid]}
@@ -553,6 +572,170 @@ def delete_book(bid: str) -> dict:
         (state.get().get("book_pos") or {}).pop(bid, None)
         state.save()
     return {"ok": True, "deleted": found}
+
+
+# ---------------------------------------------------------------------------
+# the starter shelf: public-domain texts and poems shipped in sect_academy/shelf/
+# ---------------------------------------------------------------------------
+# Read-only and outside the user's caps: nothing is copied into ``<state file>.books/``; only the
+# reading position is kept, in ``book_pos`` under the entry's id ``shelf:<lang>:<slug>``.
+# ``shelf/manifest.yaml`` lists the texts (one UTF-8 file each, ``<lang>/<slug>.txt``) and each
+# language's poem file (``<lang>/poems.yaml``: per poem its lines as [original, (reading,) English]).
+_shelf_cache: dict | None = None
+_shelf_lock = threading.Lock()
+SHELF_FIELDS = ("title", "author", "died", "published", "source", "public_domain")
+SHELF_TEXT_MAX = 400_000          # characters in one starter-shelf text
+
+
+def _year(v) -> int | None:
+    return v if isinstance(v, int) and not isinstance(v, bool) and -1000 <= v <= 2100 else None
+
+
+def _shelf_meta(raw: dict, lang: str, kind: str, errs: list, where: str) -> dict | None:
+    slug = raw.get("slug")
+    if not isinstance(slug, str) or not _SLUG.match(slug) or len(slug) > 60:
+        errs.append(f"{where}: bad slug {slug!r}")
+        return None
+    for f in SHELF_FIELDS:
+        if raw.get(f) in (None, ""):
+            errs.append(f"{where} {slug}: missing {f}")
+            return None
+    died, pub = _year(raw.get("died")), _year(raw.get("published"))
+    if died is None or pub is None:
+        errs.append(f"{where} {slug}: died and published must be years")
+        return None
+    # The rule the shelf keeps: the author died before 1955 and the work appeared before 1931 — or, where a
+    # later first publication is argued public domain everywhere, the entry says why (``pd_exception``).
+    if died >= 1955 or (pub >= 1931 and not raw.get("pd_exception")):
+        errs.append(f"{where} {slug}: outside the public-domain rule (died {died}, published {pub})")
+        return None
+    src = raw.get("source")
+    if not isinstance(src, str) or not re.match(r"^https://[a-z0-9.-]+\.(?:org|jp)/", src):
+        errs.append(f"{where} {slug}: source must be an https URL on a known archive")
+        return None
+    return {"id": f"shelf:{lang}:{slug}", "slug": slug, "kind": kind, "lang": lang, "language": LANGS[lang],
+            "title": clean_line(raw.get("title"), 120), "author": clean_line(raw.get("author"), 120),
+            "died": died, "published": pub, "source": src, "level": clean_line(raw.get("level"), 20),
+            "public_domain": clean_line(raw.get("public_domain"), 600),
+            "pd_exception": clean_line(raw.get("pd_exception"), 600), "note": clean_line(raw.get("note"), 400),
+            "first_published_in": clean_line(raw.get("first_published_in"), 200)}
+
+
+def _poem_lines(raw, lang: str) -> list[dict] | None:
+    """[[original, (reading,) english], [], ...] -> [{t, r, en}], ``{t: ""}`` for a stanza break."""
+    width = 3 if lang in ("zh", "ja", "ko") else 2
+    if not isinstance(raw, list) or not raw or len(raw) > 400:
+        return None
+    out = []
+    for ln in raw:
+        if ln in (None, [], ""):
+            out.append({"t": "", "r": "", "en": ""})
+            continue
+        if not isinstance(ln, list) or len(ln) != width or not all(isinstance(x, str) and x.strip() for x in ln):
+            return None
+        t, en = clean_line(ln[0], 300), clean_line(ln[-1], 400)
+        out.append({"t": t, "r": clean_line(ln[1], 400) if width == 3 else "", "en": en})
+    while out and not out[-1]["t"]:
+        out.pop()
+    return out if any(x["t"] for x in out) else None
+
+
+def load_shelf() -> dict:
+    """The starter shelf, validated: {"entries": [...], "by_id": {id: entry with text}, "errors": [...]}.
+
+    A bad entry is left off (and named in ``errors``, which the tests require to be empty); the app never
+    fails to start over the shelf."""
+    errs: list[str] = []
+    entries: list[dict] = []
+    by_id: dict[str, dict] = {}
+
+    def add(meta: dict, text: str, lines: list | None = None):
+        if meta["id"] in by_id:
+            errs.append(f"duplicate id {meta['id']}")
+            return
+        if len(by_id) >= SHELF_MAX:
+            errs.append("the starter shelf is over its size cap")
+            return
+        entry = dict(meta, chars=len(text))
+        entries.append(entry)
+        by_id[meta["id"]] = dict(entry, text=text, lines=lines)
+
+    try:
+        man = yaml.safe_load((SHELF_DIR / "manifest.yaml").read_text(encoding="utf-8"))
+    except (OSError, ValueError, yaml.YAMLError) as e:
+        return {"entries": [], "by_id": {}, "errors": [f"manifest: {e}"]}
+    if not isinstance(man, dict):
+        return {"entries": [], "by_id": {}, "errors": ["manifest: not a mapping"]}
+    for i, raw in enumerate(man.get("texts") or []):
+        lang = raw.get("lang") if isinstance(raw, dict) else None
+        if lang not in SHELF_LANGS:
+            errs.append(f"texts[{i}]: bad lang {lang!r}")
+            continue
+        meta = _shelf_meta(raw, lang, "text", errs, f"texts[{i}]")
+        if not meta:
+            continue
+        try:
+            text = (SHELF_DIR / lang / f"{meta['slug']}.txt").read_bytes().decode("utf-8")
+        except (OSError, UnicodeDecodeError) as e:
+            errs.append(f"{meta['id']}: {e}")
+            continue
+        text = re.sub(r"\n{3,}", "\n\n", clean_text(text, SHELF_TEXT_MAX)).strip()
+        if len(text) < 200:
+            errs.append(f"{meta['id']}: text missing or too short")
+            continue
+        add(meta, text)
+    for lang, rel in (man.get("poems") or {}).items():
+        if lang not in SHELF_LANGS or rel != f"{lang}/poems.yaml":
+            errs.append(f"poems: bad entry {lang!r}: {rel!r}")
+            continue
+        try:
+            doc = yaml.safe_load((SHELF_DIR / rel).read_text(encoding="utf-8"))
+        except (OSError, ValueError, yaml.YAMLError) as e:
+            errs.append(f"{rel}: {e}")
+            continue
+        for j, raw in enumerate((doc or {}).get("poems") or []):
+            meta = _shelf_meta(raw if isinstance(raw, dict) else {}, lang, "poem", errs, f"{rel}[{j}]")
+            if not meta:
+                continue
+            lines = _poem_lines(raw.get("lines"), lang)
+            if not lines:
+                errs.append(f"{meta['id']}: bad lines (each is [original, {'reading, ' if lang in ('zh', 'ja', 'ko') else ''}English])")
+                continue
+            add(meta, "\n".join(x["t"] for x in lines), lines)
+    return {"entries": entries, "by_id": by_id, "errors": errs}
+
+
+def _shelf() -> dict:
+    global _shelf_cache
+    with _shelf_lock:
+        if _shelf_cache is None:
+            _shelf_cache = load_shelf()
+        return _shelf_cache
+
+
+def list_shelf() -> list[dict]:
+    with state.LOCK:
+        pos = dict(state.get().get("book_pos") or {})
+    out = []
+    for e in _shelf()["entries"]:
+        out.append({k: e[k] for k in ("id", "kind", "lang", "language", "title", "author", "level", "chars")}
+                   | {"pos": int(pos.get(e["id"], 0))})
+    return out
+
+
+def get_shelf_book(bid: str) -> dict | None:
+    e = _shelf()["by_id"].get(bid) if isinstance(bid, str) and _SHELF_ID.match(bid) else None
+    if not e:
+        return None
+    book = {k: v for k, v in e.items() if k not in ("text", "lines")}
+    with state.LOCK:
+        book["pos"] = int((state.get().get("book_pos") or {}).get(bid, 0))
+    book["lookup"] = lexicon.get(e["lang"]) is not None
+    book["readonly"] = True
+    out = {"ok": True, "book": book, "text": e["text"]}
+    if e["lines"]:
+        out["lines"] = [dict(x) for x in e["lines"]]
+    return out
 
 
 def reset_for_tests() -> None:
