@@ -278,6 +278,6 @@ def test_handwriting_page_is_served_and_offline():
 def test_js_matcher_constants_match_python():
     js = (ROOT / "sect_academy/static/handwriting.js").read_text(encoding="utf-8")
     for name, val in (("samples", hand.SAMPLES), ("end", hand.END_TOL), ("mean", hand.MEAN_TOL), ("lenLo", hand.LEN_LO),
-                      ("lenHi", hand.LEN_HI), ("minLen", hand.MIN_LEN), ("dirCos", hand.DIR_COS), ("dirLong", hand.DIR_LONG),
+                      ("lenHi", hand.LEN_HI), ("minLen", hand.MIN_LEN), ("short", hand.SHORT), ("dirCos", hand.DIR_COS), ("dirLong", hand.DIR_LONG),
                       ("dirShort", hand.DIR_SHORT), ("better", hand.BETTER), ("margin", hand.MARGIN), ("orderFloor", hand.ORDER_FLOOR)):
         assert f"{name}: {val}" in js, name

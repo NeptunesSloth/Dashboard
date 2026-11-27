@@ -13,8 +13,8 @@ const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
 const SEEN_KEY = 'sect.hw.seen';
 
 // --- the matcher (a port of hand.py: keep the two in step) -------------------------
-export const TOL = { samples: 16, end: 0.17, mean: 0.12, lenLo: 0.35, lenHi: 2.4, minLen: 0.06, dirCos: 0.5,
-  dirLong: 0.15, dirShort: 0.05, better: 0.6, margin: 0.04, orderFloor: 0.05 };
+export const TOL = { samples: 16, end: 0.17, mean: 0.12, lenLo: 0.35, lenHi: 2.4, minLen: 0.06, short: 0.1, dirCos: 0.5,
+  dirLong: 0.15, dirShort: 0.07, better: 0.6, margin: 0.04, orderFloor: 0.05 };
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 const length = (p) => { let s = 0; for (let i = 0; i < p.length - 1; i += 1) s += dist(p[i], p[i + 1]); return s; };
 
@@ -39,12 +39,12 @@ export function compare(drawn, expected) {
   const d = resample(drawn); const e = resample(expected);
   if (!d.length || !e.length) return { ok: false, mean: 9, why: 'empty' };
   let mean = 0; for (let i = 0; i < e.length; i += 1) mean += dist(d[i], e[i]); mean /= e.length;
-  const le = Math.max(length(expected), TOL.minLen); const ld = length(drawn);
+  const raw = length(expected); const le = Math.max(raw, TOL.minLen); const ld = length(drawn);
   let why = '';
   if (dist(d[0], e[0]) > TOL.end) why = 'start';
   else if (dist(d[d.length - 1], e[e.length - 1]) > TOL.end) why = 'end';
   else if (mean > TOL.mean) why = 'shape';
-  else if (!(ld / le >= TOL.lenLo && ld / le <= TOL.lenHi)) why = 'length';
+  else if (ld / le > TOL.lenHi || (raw >= TOL.short && ld / le < TOL.lenLo)) why = 'length';
   else {
     const ce = [e[e.length - 1][0] - e[0][0], e[e.length - 1][1] - e[0][1]];
     const cd = [d[d.length - 1][0] - d[0][0], d[d.length - 1][1] - d[0][1]];

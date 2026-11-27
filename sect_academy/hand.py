@@ -15,7 +15,8 @@ A drawn stroke matches the expected one when, in the unit box: its start and end
 each within ``END_TOL`` of the expected start and end; after both are resampled to
 ``SAMPLES`` points by arc length, the mean distance between paired points is within
 ``MEAN_TOL`` (this is the shape check, and it also catches a reversed loop); its length
-is between ``LEN_LO`` and ``LEN_HI`` times the expected length; and, for a stroke with a
+is between ``LEN_LO`` and ``LEN_HI`` times the expected length (a tick shorter than ``SHORT``
+has no lower limit: a dot will do); and, for a stroke with a
 clear direction, it points the same way. A stroke that fits a later stroke clearly better
 than the one due is a stroke-order mistake.
 """
@@ -41,8 +42,9 @@ END_TOL = 0.17          # start / end point, as a share of the box
 MEAN_TOL = 0.12         # mean distance of paired resampled points
 LEN_LO, LEN_HI = 0.35, 2.4
 MIN_LEN = 0.06          # a dot or a tick is judged as if it were this long
+SHORT = 0.1             # an expected stroke shorter than this (the tick of ㅎ, ㅊ) has no lower length limit
 DIR_COS = 0.5           # direction agreement for a stroke longer than DIR_LONG
-DIR_LONG, DIR_SHORT = 0.15, 0.05
+DIR_LONG, DIR_SHORT = 0.15, 0.07
 BETTER, MARGIN = 0.6, 0.04   # a later stroke "fits better": mean distance below this share, and this much lower
 ORDER_FLOOR = 0.05      # ... unless the stroke sits this close to the one that is due
 
@@ -159,7 +161,8 @@ def compare(drawn, expected) -> dict:
     if not d or not e:
         return {"ok": False, "mean": 9.0, "why": "empty"}
     mean = sum(math.dist(p, q) for p, q in zip(d, e)) / len(e)
-    le, ld = max(_length(expected), MIN_LEN), _length(drawn)
+    raw = _length(expected)
+    le, ld = max(raw, MIN_LEN), _length(drawn)
     why = ""
     if math.dist(d[0], e[0]) > END_TOL:
         why = "start"
@@ -167,7 +170,7 @@ def compare(drawn, expected) -> dict:
         why = "end"
     elif mean > MEAN_TOL:
         why = "shape"
-    elif not (LEN_LO <= ld / le <= LEN_HI):
+    elif ld / le > LEN_HI or (raw >= SHORT and ld / le < LEN_LO):
         why = "length"
     else:
         ce = (e[-1][0] - e[0][0], e[-1][1] - e[0][1])
