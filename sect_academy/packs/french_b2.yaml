@@ -494,9 +494,9 @@ units:
       - {id: fr-b2-07-secher, type: phrase, l2: "Il a séché les cours.", l1: "He skipped classes. (casual)", alt: ["Il a séché le cours."], note: "sécher = to dry; sécher un cours = to skip a class."}
       - {id: fr-b2-07-promis-qu-elle-le-ferait, type: phrase, l2: "Elle a promis qu'elle le ferait.", l1: "She promised she would do it.", alt: ["Elle a promis de le faire."], note: "« Je le ferai » → qu'elle le ferait."}
       - {id: fr-b2-07-c1, type: cloze, text: "« Je viendrai demain. » → Il a dit qu'il ___ le lendemain.", answer: "viendrait", l1: "'I'll come tomorrow.' → He said he would come the next day.", note: "Futur → conditionnel présent; demain → le lendemain."}
-      - {id: fr-b2-07-c2, type: cloze, text: "« J'aurai fini à midi. » → Elle a assuré qu'elle aurait ___ à midi.", answer: "fini", alt: ["terminé"], l1: "'I'll have finished by noon.' → She assured us she would have finished by noon.", note: "Futur antérieur → conditionnel passé."}
+      - {id: fr-b2-07-c2, type: cloze, text: "« J'aurai fini à midi. » → Elle a assuré qu'elle ___ fini à midi.", answer: "aurait", l1: "'I'll have finished by noon.' → She assured us she would have finished by noon.", note: "Futur antérieur → conditionnel passé."}
       - {id: fr-b2-07-c3, type: cloze, text: "« Où habites-tu ? » → Il m'a demandé où j'___.", answer: "habitais", l1: "'Where do you live?' → He asked me where I lived.", note: "Présent → imparfait. No inversion in a reported question."}
-      - {id: fr-b2-07-c4, type: cloze, text: "« Qu'est-ce qui te fait peur ? » → Elle m'a demandé ___ qui me faisait peur.", answer: "ce", l1: "'What frightens you?' → She asked me what frightened me.", note: "qu'est-ce qui → ce qui."}
+      - {id: fr-b2-07-c4, type: cloze, text: "« Que veux-tu faire plus tard ? » → Elle m'a demandé ___ que je voulais faire plus tard.", answer: "ce", l1: "'What do you want to do later on?' → She asked me what I wanted to do later on.", note: "que / qu'est-ce que → ce que; qu'est-ce qui → ce qui."}
       - {id: fr-b2-07-c5, type: cloze, text: "« Ne parlez pas ! » → Le professeur nous a demandé de ne pas ___.", answer: "parler", l1: "'Don't talk!' → The teacher asked us not to talk.", note: "An order → de + infinitive. ne pas stays together before the infinitive."}
       - {id: fr-b2-07-c6, type: cloze, text: "« J'ai raté l'examen. » → Il a avoué qu'il ___ raté l'examen.", answer: "avait", l1: "'I failed the exam.' → He admitted he had failed the exam.", note: "Passé composé → plus-que-parfait."}
       - {id: fr-b2-07-c7, type: cloze, text: "« Je révisais quand tu as appelé. » → Elle a expliqué qu'elle ___ quand j'avais appelé.", answer: "révisait", l1: "'I was revising when you called.' → She explained that she had been revising when I called.", note: "The imparfait does not change."}
@@ -506,7 +506,7 @@ units:
       - {id: fr-b2-07-c11, type: cloze, text: "« Je l'ai vu il y a deux jours. » → Il a dit qu'il l'avait vu deux jours plus ___.", answer: "tôt", l1: "'I saw him two days ago.' → He said he had seen him two days earlier.", note: "il y a deux jours → deux jours plus tôt (or auparavant)."}
       - {id: fr-b2-07-c12, type: cloze, text: "« Qu'est-ce que vous étudiez ? » → Il nous a demandé ce que nous ___.", answer: "étudiions", l1: "'What are you studying?' → He asked us what we were studying.", note: "Imparfait of étudier with nous: two i's, étudiions."}
       - {id: fr-b2-07-c13, type: cloze, text: "« Je suis fatigué. » → Il dit qu'il ___ fatigué.", answer: "est", l1: "'I'm tired.' → He says he is tired.", note: "The reporting verb is in the present (il dit): no shift."}
-      - {id: fr-b2-07-c14, type: cloze, text: "« J'aurais voulu être médecin. » → Elle a dit qu'elle ___ voulu être médecin.", answer: "aurait", l1: "'I would have liked to be a doctor.' → She said she would have liked to be a doctor.", note: "The conditionnel passé does not change."}
+      - {id: fr-b2-07-c14, type: cloze, text: "« Je serais venue si j'avais pu. » → Elle a dit qu'elle ___ venue si elle avait pu.", answer: "serait", l1: "'I would have come if I had been able to.' → She said she would have come if she had been able to.", note: "The conditionnel passé does not change."}
       - {id: fr-b2-07-c15, type: cloze, text: "« Rendez vos copies ! » → Le surveillant leur a ordonné de ___ leurs copies.", answer: "rendre", l1: "'Hand in your papers!' → The invigilator ordered them to hand in their papers.", note: "An order → de + infinitive. une copie = an exam paper."}
 
   # ───────────────────────────────────────────────────────────────── 8
@@ -617,7 +617,7 @@ units:
       - {id: fr-b2-09-emouvant, type: vocab, l2: "émouvant", l1: "moving / touching (masculine)", ex: "C'est un film très émouvant.", ex_l1: "It's a very moving film.", note: "Feminine: émouvante. From émouvoir, to move emotionally."}
       - {id: fr-b2-09-bouleversant, type: vocab, l2: "bouleversant", l1: "deeply moving / overwhelming (masculine)", ex: "Son témoignage est bouleversant.", ex_l1: "Her testimony is deeply moving.", note: "bouleverser = to upset deeply, to turn upside down."}
       - {id: fr-b2-09-bande-dessinee, type: vocab, l2: "la bande dessinée", l1: "the comic book / the comic strip", alt: ["la BD"], ex: "Astérix est une bande dessinée célèbre.", ex_l1: "Astérix is a famous comic.", note: "Short form: la BD (say 'bé-dé'), also written la bédé in Québec."}
-      - {id: fr-b2-09-court-metrage, type: vocab, l2: "le court-métrage", l1: "the short film", alt: ["le court métrage"], ex: "Elle a réalisé un court-métrage.", ex_l1: "She directed a short film.", note: "Plural: des courts-métrages. A feature film is un long-métrage."}
+      - {id: fr-b2-09-court-metrage, type: vocab, l2: "le court-métrage", l1: "the short film", ex: "Elle a réalisé un court-métrage.", ex_l1: "She directed a short film.", note: "Plural: des courts-métrages. A feature film is un long-métrage."}
       - {id: fr-b2-09-version-originale, type: vocab, l2: "en version originale", l1: "in the original language (with subtitles)", alt: ["en VO"], ex: "Je préfère voir les films en version originale.", ex_l1: "I prefer to watch films in the original language.", note: "VOST = original version with subtitles. The dubbed version is la VF (version française)."}
       - {id: fr-b2-09-vernissage, type: vocab, l2: "le vernissage", l1: "the private view / the opening (of an exhibition)", ex: "Nous sommes invités au vernissage de l'exposition.", ex_l1: "We're invited to the opening of the exhibition.", note: "From vernir, to varnish."}
       - {id: fr-b2-09-raison-pour-laquelle, type: phrase, l2: "C'est la raison pour laquelle je suis venu.", l1: "That's the reason why I came. (a man speaking)", alt: ["C'est pour cette raison que je suis venu."], note: "la raison is feminine → pour laquelle."}
@@ -964,7 +964,7 @@ units:
              alt: ["Pouvez-vous me le confirmer par écrit ?", "Est-ce que vous pouvez me le confirmer par écrit ?", "Vous pourriez me le confirmer par écrit ?", "Pourriez-vous me le confirmer par écrit ?", "Vous pouvez me confirmer ça par écrit ?"]}
           - {who: B, l2: "Je vous envoie un mail tout de suite.", l1: "I'll send you an email right away."}
           - {who: A, l2: "Merci beaucoup. Bonne journée.", l1: "Thank you very much. Have a good day.",
-             alt: ["Merci beaucoup. Bonne journée à vous.", "Merci bien. Bonne journée.", "Je vous remercie. Bonne journée.", "Merci beaucoup, bonne journée."]}
+             alt: ["Merci beaucoup. Bonne journée à vous.", "Merci bien. Bonne journée.", "Je vous remercie. Bonne journée."]}
       - id: fr-b2-13-hotel
         type: dialogue
         title: "The wrong room"
@@ -972,8 +972,8 @@ units:
         you: B
         lines:
           - {who: A, l2: "Bonsoir. Tout se passe bien dans votre chambre ?", l1: "Good evening. Is everything all right in your room?"}
-          - {who: B, l2: "Pas vraiment. J'avais réservé une chambre avec vue sur la mer.", l1: "Not really. I had booked a room with a sea view.",
-             alt: ["Pas vraiment. J'avais réservé une chambre avec vue sur mer.", "Pas vraiment. J'avais demandé une chambre avec vue sur la mer.", "Pas vraiment. J'avais demandé une chambre avec vue sur mer.", "Non, pas vraiment. J'avais réservé une chambre avec vue sur la mer."]}
+          - {who: B, l2: "Pas vraiment. J'avais réservé une chambre avec vue sur mer.", l1: "Not really. I had booked a room with a sea view.",
+             alt: ["Pas vraiment. J'avais réservé une chambre avec vue sur la mer.", "Pas vraiment. J'avais demandé une chambre avec vue sur la mer.", "Pas vraiment. J'avais demandé une chambre avec vue sur mer.", "Non, pas vraiment. J'avais réservé une chambre avec vue sur la mer."]}
           - {who: A, l2: "Ah… Et votre chambre donne sur quoi ?", l1: "Oh… And what does your room look out on?"}
           - {who: B, l2: "Elle donne sur le parking.", l1: "It looks out on the car park.",
              alt: ["Sur le parking.", "Elle a vue sur le parking.", "Elle donne sur le parking, malheureusement."]}
@@ -1269,7 +1269,7 @@ units:
         lines:
           - {who: A, l2: "Certains élèves utilisent l'intelligence artificielle pour faire leurs devoirs.", l1: "Some pupils use artificial intelligence to do their homework."}
           - {who: B, l2: "Je trouve ça inquiétant. Ils n'apprennent plus rien.", l1: "I find that worrying. They're not learning anything any more.",
-             alt: ["Je trouve cela inquiétant. Ils n'apprennent plus rien.", "C'est inquiétant. Ils n'apprennent plus rien.", "Je trouve ça inquiétant. Ils n'apprennent rien.", "Je trouve ça inquiétant, ils n'apprennent plus rien."]}
+             alt: ["Je trouve cela inquiétant. Ils n'apprennent plus rien.", "C'est inquiétant. Ils n'apprennent plus rien.", "Je trouve ça inquiétant. Ils n'apprennent rien."]}
           - {who: A, l2: "Pas forcément. Bien utilisée, c'est un outil comme un autre.", l1: "Not necessarily. Used well, it's a tool like any other."}
           - {who: B, l2: "Encore faut-il qu'on leur apprenne à s'en servir.", l1: "Still, someone has to teach them how to use it. (encore faut-il que…)",
              alt: ["Encore faut-il leur apprendre à s'en servir.", "Encore faut-il qu'on leur apprenne à l'utiliser.", "Encore faudrait-il qu'on leur apprenne à s'en servir.", "Encore faut-il leur apprendre à l'utiliser."]}
@@ -1393,7 +1393,7 @@ units:
         lines:
           - {who: A, l2: "Quelles sont, selon vous, vos principales qualités ?", l1: "What would you say are your main strengths?"}
           - {who: B, l2: "Je suis quelqu'un d'organisé et j'aime les défis.", l1: "I'm an organised person and I like challenges. (quelqu'un de…)",
-             alt: ["Je suis quelqu'un d'organisé et j'aime relever des défis.", "Je suis quelqu'un de très organisé et j'aime les défis.", "Je suis quelqu'un d'organisé, et j'aime les défis."]}
+             alt: ["Je suis quelqu'un d'organisé et j'aime relever des défis.", "Je suis quelqu'un de très organisé et j'aime les défis."]}
           - {who: A, l2: "Et vos défauts ?", l1: "And your weaknesses?"}
           - {who: B, l2: "Je suis parfois un peu trop perfectionniste.", l1: "I'm sometimes a little too much of a perfectionist.",
              alt: ["Je suis parfois trop perfectionniste.", "Parfois, je suis un peu trop perfectionniste.", "Je suis un peu trop perfectionniste, parfois."]}
