@@ -437,6 +437,123 @@ function langPicker(id, cur) {
   return `<select class="in" id="${id}" aria-label="Language" style="width:auto;min-height:40px">${LOOKUP.map((l) => `<option value="${esc(l)}" ${l === cur ? 'selected' : ''}>${esc(LANG_NAME[l] || l)}</option>`).join('')}</select>`;
 }
 
+/* ---------------- the starter shelf: public-domain stories and poems shipped with the app ---------------- */
+const store = { get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (_) { /* private mode */ } } };
+const SHELF_LANGS = ['es', 'fr', 'zh', 'ja', 'ko'];
+let starter = [];
+function shelfCss() {
+  if (document.getElementById('rd-shelf-css')) return;
+  const s = document.createElement('style'); s.id = 'rd-shelf-css';
+  s.textContent = `.st-langs{margin:6px 0 4px}.st-langs .chip[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft)}
+.st-h{margin:14px 0 2px;font-size:.82rem;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+.st-row .bk-title{font-weight:800}.st-row .btn{min-height:38px}
+.poem .pm-l{margin:0 0 .55em}.poem .pm-gap{height:.9em}
+.poem .pm-r{color:var(--dim);font-size:.86em;line-height:1.35}.poem .pm-en{color:var(--dim);font-style:italic;font-size:.86em;line-height:1.35}
+.poem.no-r .pm-r,.poem.no-en .pm-en{display:none}
+.pm-tog{justify-content:center;margin:0 auto 12px;max-width:68ch}.pm-tog .chip[aria-pressed="true"]{border-color:var(--jade);background:var(--jade-soft)}
+.st-credit{max-width:68ch;margin:10px auto 0;text-align:center}`;
+  document.head.appendChild(s);
+}
+function starterHtml(list) {
+  const { esc, num } = C;
+  starter = list.filter((e) => e && SHELF_LANGS.includes(String(e.lang)));
+  if (!starter.length) return '';
+  shelfCss();
+  let on = store.get('sa-starter-lang');
+  if (!SHELF_LANGS.includes(on)) on = starter[0].lang;
+  const langs = SHELF_LANGS.filter((l) => starter.some((e) => e.lang === l));
+  const row = (e) => {
+    const pct = readPct(num(e.pos), num(e.chars));
+    return `<li class="row st-row"><div class="grow"><a href="/read?book=${encodeURIComponent(e.id)}" data-link class="bk-title" lang="${esc(e.lang)}">${esc(e.title)}</a>
+      <div class="dim small">${esc(e.author)}${e.level ? ` · ${esc(e.level)}` : ''}${e.kind === 'poem' ? '' : ` · ${chars(num(e.chars))} characters`}${num(e.pos) ? ` · ${pct}% read` : ''}</div></div>
+      <a class="btn" href="/read?book=${encodeURIComponent(e.id)}" data-link>${num(e.pos) && pct < 100 ? 'Continue' : 'Open'}</a></li>`;
+  };
+  const part = (l) => {
+    const texts = starter.filter((e) => e.lang === l && e.kind !== 'poem'), poems = starter.filter((e) => e.lang === l && e.kind === 'poem');
+    return `<div data-stl="${esc(l)}" ${l === on ? '' : 'hidden'}>
+      ${texts.length ? `<h3 class="st-h">Stories</h3><ul class="list">${texts.map(row).join('')}</ul>` : ''}
+      ${poems.length ? `<h3 class="st-h">Poems <span class="dim small" style="text-transform:none;letter-spacing:0">with an English line to show or hide</span></h3><ul class="list">${poems.map(row).join('')}</ul>` : ''}</div>`;
+  };
+  return `<section class="panel shelf starter"><h2>Starter shelf</h2>
+    <p class="dim small" style="margin:0">Short public-domain stories and famous poems, ready to read with lookup. They come with the app and don't count against your shelf.</p>
+    <div class="chips st-langs" role="group" aria-label="Language">${langs.map((l) => `<button class="chip" data-stlang="${esc(l)}" aria-pressed="${l === on}">${esc(LANG_NAME[l] || l)}</button>`).join('')}</div>
+    ${langs.map(part).join('')}</section>`;
+}
+function bindStarter() {
+  C.view.querySelectorAll('[data-stlang]').forEach((b) => {
+    b.onclick = () => {
+      const l = b.dataset.stlang; store.set('sa-starter-lang', l);
+      C.view.querySelectorAll('[data-stlang]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      C.view.querySelectorAll('[data-stl]').forEach((x) => { x.hidden = x.dataset.stl !== l; });
+    };
+  });
+}
+/** Where a starter-shelf text comes from, under the page (plain text: the page loads nothing from outside). */
+function creditHtml(b) {
+  const { esc, num } = C;
+  if (!b.readonly) return '';
+  let host = ''; try { host = new URL(String(b.source)).hostname; } catch (_) { /* no source */ }
+  return `<p class="dim small st-credit">${esc(b.author)} (died ${num(b.died)}) · ${b.first_published_in ? esc(b.first_published_in) : `first published ${num(b.published)}`} · public domain${host ? ` · text from ${esc(host)}` : ''}${b.kind === 'poem' ? ' · English lines by Sect Academy' : ''}</p>`;
+}
+/** A poem's lines: the original (tappable), then its reading and an English line, each shown or hidden by a toggle. */
+function poemHtml(toks, lines) {
+  const esc = C.esc; let off = 0, li = 0, cur = ''; const rows = [];
+  const flush = () => {
+    const L = lines[li] || { t: '' };
+    rows.push(!String(L.t || '') ? '<div class="pm-gap"></div>'
+      : `<div class="pm-l"><div class="pm-t">${cur}</div>${L.r ? `<div class="pm-r">${esc(L.r).split(' | ').join('<br>')}</div>` : ''}${L.en ? `<div class="pm-en" lang="en">${esc(L.en)}</div>` : ''}</div>`);
+    cur = ''; li++;
+  };
+  for (const tok of toks) {
+    const t = String(tok.t);
+    if (tok.k) cur += `<span class="w" data-o="${off}">${esc(t)}</span>`;
+    else t.split('\n').forEach((p, j) => { if (j) flush(); cur += esc(p); });
+    off += t.length;
+  }
+  flush();
+  return rows.join('');
+}
+/** Tap a word: highlight it, speak it if audio is on, and look it up with its sentence around it. */
+function bindWords(el, text, lang) {
+  const num = C.num;
+  el.onclick = (ev) => {
+    const w = ev.target.closest('.w'); if (!w) return;
+    C.view.querySelectorAll('.w.on').forEach((x) => x.classList.remove('on')); w.classList.add('on');
+    const word = w.textContent; const at = num(w.dataset.o);
+    const ov = C.ov(); if (ov && ov.settings && ov.settings.audio) speak(word, lang);
+    showCard(word, lang, sentenceAt(text, at), { pre: text.slice(Math.max(0, at - 6), at), post: text.slice(at + word.length, at + word.length + 6) }, w);
+  };
+}
+async function renderPoem(id, r) {
+  const { esc, num } = C;
+  shelfCss();
+  const b = r.book, text = String(r.text || ''), lang = String(b.lang);
+  const lines = (Array.isArray(r.lines) ? r.lines : []).map((x) => ({ t: String((x && x.t) || ''), r: String((x && x.r) || ''), en: String((x && x.en) || '') }));
+  const hasR = lines.some((x) => x.r);
+  let showT = store.get('sa-poem-en') === '1', showR = store.get('sa-poem-rd') === '1';
+  const toks = await tokens(text, lang);
+  closeCard();
+  C.view.innerHTML = `<div class="readtop"><a href="/read" data-link class="btn quiet">Shelf</a><b class="grow rt-title" lang="${esc(lang)}">${esc(b.title)}</b><span class="tag">${esc(b.language)}</span></div>
+    <div class="rd-wrap"><div class="rd-main">
+    <div class="row chips pm-tog" role="group" aria-label="Show">
+      ${hasR ? `<button class="chip" id="pm-rd" aria-pressed="${showR}">${lang === 'zh' ? 'Pinyin' : lang === 'ja' ? 'Reading' : 'Romanisation'}</button>` : ''}
+      <button class="chip" id="pm-en" aria-pressed="${showT}">Translation</button></div>
+    <article class="page poem${showR ? '' : ' no-r'}${showT ? '' : ' no-en'}" lang="${esc(lang)}" id="rd">
+      <p class="dim small" style="margin:0 0 12px">${esc(b.author)}</p>${poemHtml(toks, lines)}</article>
+    ${creditHtml(b)}
+    <p class="dim small" style="text-align:center">${hasLookup(lang) ? 'Tap any word for its meaning.' : 'Tap any word to hear it.'}</p></div>
+    <div class="rd-side"><p class="rd-hint dim small">${hasLookup(lang) ? 'Tap a word in the poem: its meaning and a way to save it appear here.' : 'Tap a word to hear it.'}</p>
+      <aside id="lk" class="lookup" aria-live="polite" hidden></aside></div></div>
+    <div id="rd-pad" aria-hidden="true"></div>`;
+  const art = $('#rd');
+  const tog = (btn, cls, key, val) => { btn.setAttribute('aria-pressed', String(val)); art.classList.toggle(cls, !val); store.set(key, val ? '1' : '0'); };
+  $('#pm-en').onclick = () => { showT = !showT; tog($('#pm-en'), 'no-en', 'sa-poem-en', showT); };
+  if (hasR) $('#pm-rd').onclick = () => { showR = !showR; tog($('#pm-rd'), 'no-r', 'sa-poem-rd', showR); };
+  bindWords(art, text, lang);
+  if (num(b.pos) !== text.length) C.api(`/api/books/${encodeURIComponent(id)}/pos`, { pos: text.length }, 'PUT');
+  C.setKeys((ev) => { if (ev.key === 'Escape') closeCard(); });
+}
+
 async function renderBooks() {
   const { esc, num } = C;
   C.view.innerHTML = `${tabs('books')}<p class="loading">Taking the books down from the shelf…</p>`;
@@ -461,8 +578,10 @@ async function renderBooks() {
         <a class="btn" href="/read?book=${encodeURIComponent(b.id)}" data-link>${num(b.pos) ? 'Continue' : 'Open'}</a>
         <button class="btn quiet" data-ren="${esc(b.id)}" data-title="${esc(b.title)}">Rename</button>
         <button class="btn quiet" data-del="${esc(b.id)}" data-title="${esc(b.title)}">Delete</button></li>`;
-    }).join('')}</ul>` : '<p class="dim" style="margin:0">No books yet. Add one above: a short story in Spanish is a good start.</p>'}</section>`;
+    }).join('')}</ul>` : '<p class="dim" style="margin:0">No books of your own yet. Add one above, or start with the starter shelf below.</p>'}</section>
+    ${starterHtml(Array.isArray(r.shelf) ? r.shelf : [])}`;
   bindTabs();
+  bindStarter();
   const msg = $('#rb-msg');
   $('#rb-file').onchange = async (e) => {
     const f = e.target.files[0]; if (!f) return;
@@ -502,6 +621,7 @@ async function renderBook(id) {
   if (r.ok === false || !r.book) { C.view.innerHTML = `<div class="panel"><p>${esc(r.error || 'That book is not on the shelf.')}</p><a class="btn" href="/read" data-link>Back to the shelf</a></div>`; return; }
   const b = r.book, text = String(r.text || ''), lang = String(b.lang);
   if (b.lookup && !hasLookup(lang)) LOOKUP = [...LOOKUP, lang];
+  if (b.kind === 'poem' && Array.isArray(r.lines)) return renderPoem(id, r);
   const pages = paginate(text);
   // The saved position is the end of the page last open (so "% read" counts that page, on the shelf and here);
   // the book opens on the page that ends there. (An older position, a page's start, opens that page too.)
@@ -518,6 +638,7 @@ async function renderBook(id) {
       <div class="pager"><button class="btn" id="rd-prev" ${i ? '' : 'disabled'}>Previous</button>
         <span class="dim small num grow" style="text-align:center">Page ${i + 1} of ${pages.length} · ${readPct(e, num(b.chars) || text.length)}% read</span>
         <button class="btn primary" id="rd-next" ${i < pages.length - 1 ? '' : 'disabled'}>Next</button></div>
+      ${i === pages.length - 1 ? creditHtml(b) : ''}
       <p class="dim small" style="text-align:center">${hasLookup(lang) ? 'Tap any word for its meaning.' : `Tap any word to hear it. ${esc(noLookupNote(lang))}`}</p></div>
       <div class="rd-side"><p class="rd-hint dim small">${hasLookup(lang) ? 'Tap a word on the page: its meaning, its grammar and a way to save it appear here, beside the text.' : 'Tap a word on the page to hear it.'}</p>
         <aside id="lk" class="lookup" aria-live="polite" hidden></aside></div></div>
@@ -525,13 +646,7 @@ async function renderBook(id) {
     if (saved !== e) { saved = e; C.api(`/api/books/${encodeURIComponent(id)}/pos`, { pos: e }, 'PUT'); }
     $('#rd-prev').onclick = () => turn(-1);
     $('#rd-next').onclick = () => turn(1);
-    $('#rd').onclick = (ev) => {
-      const w = ev.target.closest('.w'); if (!w) return;
-      C.view.querySelectorAll('.w.on').forEach((x) => x.classList.remove('on')); w.classList.add('on');
-      const word = w.textContent; const at = num(w.dataset.o);
-      const ov = C.ov(); if (ov && ov.settings && ov.settings.audio) speak(word, lang);
-      showCard(word, lang, sentenceAt(text, at), { pre: text.slice(Math.max(0, at - 6), at), post: text.slice(at + word.length, at + word.length + 6) }, w);
-    };
+    bindWords($('#rd'), text, lang);
   };
   const turn = (d) => {
     const n = Math.max(0, Math.min(pages.length - 1, i + d)); if (n === i) return;

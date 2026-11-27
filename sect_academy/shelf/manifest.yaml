@@ -1,0 +1,237 @@
+# The starter shelf: short public-domain stories and famous poems shipped with Sect Academy, so the
+# Read tab has something to open on day one. Read-only; never copied into the user's books folder.
+# See README.md for the rules every entry must meet (checked by tests/test_shelf.py).
+#
+# Each text is sect_academy/shelf/<lang>/<slug>.txt (UTF-8, the work only: no archive header,
+# licence block or footer). Its id in the app is shelf:<lang>:<slug>.
+# Fields: title, author, died (year), published (year of first publication), first_published_in,
+# level (a guess, CEFR-style), source (the page the text was taken from), public_domain (why).
+# The rule: the author died before 1955 and the work was first published before 1931. An entry
+# outside it must argue its case in pd_exception (none of the texts needs one).
+
+licence: >
+  Every text and poem here is in the public domain. Our additions (the English lines of the poems,
+  the readings, this manifest) are released under the same terms as the rest of Sect Academy.
+  The texts were taken from Wikisource and Aozora Bunko transcriptions; we credit the work, its
+  author and the source page, and claim nothing in the texts themselves.
+
+texts:
+  # --- Spanish
+  - slug: quiroga-la-tortuga-gigante
+    lang: es
+    title: La tortuga gigante
+    author: Horacio Quiroga
+    died: 1937
+    published: 1918
+    first_published_in: "Cuentos de la selva para los niños (Buenos Aires, 1918)"
+    level: A2–B1
+    source: https://es.wikisource.org/wiki/La_tortuga_gigante
+    public_domain: "Author died 1937, more than 80 years ago: public domain in Uruguay, Argentina, Spain, the EU and every country with a term of life + 80 or less. First published 1918, before 1931, so public domain in the US."
+  - slug: quiroga-la-abeja-haragana
+    lang: es
+    title: La abeja haragana
+    author: Horacio Quiroga
+    died: 1937
+    published: 1918
+    first_published_in: "Cuentos de la selva para los niños (Buenos Aires, 1918)"
+    level: A2–B1
+    source: https://es.wikisource.org/wiki/La_abeja_haragana
+    public_domain: "Author died 1937, more than 80 years ago: public domain in every country with a term of life + 80 or less. First published 1918, before 1931, so public domain in the US."
+  - slug: quiroga-las-medias-de-los-flamencos
+    lang: es
+    title: Las medias de los flamencos
+    author: Horacio Quiroga
+    died: 1937
+    published: 1918
+    first_published_in: "Cuentos de la selva para los niños (Buenos Aires, 1918)"
+    level: A2–B1
+    source: https://es.wikisource.org/wiki/Las_medias_de_los_flamencos
+    public_domain: "Author died 1937, more than 80 years ago: public domain in every country with a term of life + 80 or less. First published 1918, before 1931, so public domain in the US."
+  - slug: samaniego-fabulas
+    lang: es
+    title: Fábulas (La lechera y otras tres)
+    author: Félix María Samaniego
+    died: 1801
+    published: 1781
+    first_published_in: "Fábulas en verso castellano (Valencia, 1781–1784)"
+    level: B1
+    note: "Four verse fables: La lechera, Los dos amigos y el oso, El ratón de la corte y el del campo, La zorra y la cigüeña. The last two come from an 1882 edition; its spelling (the preposition á, Raton, fué) is brought up to date."
+    source: https://es.wikisource.org/wiki/F%C3%A1bulas_de_Samaniego
+    public_domain: "Author died 1801; first published 1781–1784. Public domain everywhere."
+  # --- French
+  - slug: perrault-le-petit-chaperon-rouge
+    lang: fr
+    title: Le Petit Chaperon rouge
+    author: Charles Perrault
+    died: 1703
+    published: 1697
+    first_published_in: "Histoires ou contes du temps passé (Paris, 1697); text of the 1902 edition"
+    level: A2–B1
+    source: https://fr.wikisource.org/wiki/Contes_de_Perrault_(%C3%A9d._1902)/Le_petit_Chaperon_rouge
+    public_domain: "Author died 1703; first published 1697. Public domain everywhere."
+  - slug: daudet-la-chevre-de-monsieur-seguin
+    lang: fr
+    title: La Chèvre de M. Seguin
+    author: Alphonse Daudet
+    died: 1897
+    published: 1866
+    first_published_in: "L’Événement (1866); Lettres de mon moulin (Paris, 1869)"
+    level: B1
+    source: https://fr.wikisource.org/wiki/Lettres_de_mon_moulin/La_ch%C3%A8vre_de_monsieur_Seguin
+    public_domain: "Author died 1897; first published 1866. Public domain everywhere."
+  - slug: maupassant-la-parure
+    lang: fr
+    title: La Parure
+    author: Guy de Maupassant
+    died: 1893
+    published: 1884
+    first_published_in: "Le Gaulois (17 February 1884); Contes du jour et de la nuit (Paris, 1885)"
+    level: B1–B2
+    source: https://fr.wikisource.org/wiki/Contes_du_jour_et_de_la_nuit_(%C3%A9d._Flammarion,_1885)/La_Parure
+    public_domain: "Author died 1893; first published 1884. Public domain everywhere."
+  # --- Chinese (simplified, as zh.wikisource's own zh-hans conversion gives it)
+  - slug: luxun-yi-jian-xiao-shi
+    lang: zh
+    title: 一件小事
+    author: 鲁迅 (Lu Xun)
+    died: 1936
+    published: 1919
+    first_published_in: "《晨报·周年纪念增刊》 (1 December 1919); 《呐喊》 (1923)"
+    level: B1
+    source: https://zh.wikisource.org/wiki/一件小事
+    public_domain: "Author died 1936: public domain in China and Taiwan (life + 50) since 1987 and in every life + 70 or life + 80 country. First published 1919, before 1931, so public domain in the US."
+  - slug: luxun-kong-yi-ji
+    lang: zh
+    title: 孔乙己
+    author: 鲁迅 (Lu Xun)
+    died: 1936
+    published: 1919
+    first_published_in: "《新青年》 vol. 6 no. 4 (April 1919); 《呐喊》 (1923)"
+    level: B2
+    source: https://zh.wikisource.org/wiki/孔乙己
+    public_domain: "Author died 1936: public domain in China and Taiwan since 1987 and in every life + 70 or life + 80 country. First published 1919, before 1931, so public domain in the US."
+  - slug: luxun-gu-xiang
+    lang: zh
+    title: 故乡
+    author: 鲁迅 (Lu Xun)
+    died: 1936
+    published: 1921
+    first_published_in: "《新青年》 vol. 9 no. 1 (May 1921); 《呐喊》 (1923)"
+    level: B2
+    note: "馀 is written 余, as mainland simplified editions print it."
+    source: https://zh.wikisource.org/wiki/故鄉
+    public_domain: "Author died 1936: public domain in China and Taiwan since 1987 and in every life + 70 or life + 80 country. First published 1921, before 1931, so public domain in the US."
+  - slug: zhu-ziqing-bei-ying
+    lang: zh
+    title: 背影
+    author: 朱自清 (Zhu Ziqing)
+    died: 1948
+    published: 1925
+    first_published_in: "《文学周报》 no. 200 (November 1925)"
+    level: B1
+    note: "馀 is written 余, as mainland simplified editions print it."
+    source: https://zh.wikisource.org/wiki/背影
+    public_domain: "Author died 1948: public domain in China (life + 50) since 1999 and in every life + 70 country since 2019. First published 1925, before 1931, so public domain in the US."
+  # --- Japanese (Aozora Bunko, 新字新仮名 editions; ruby readings removed)
+  - slug: akutagawa-kumo-no-ito
+    lang: ja
+    title: 蜘蛛の糸
+    author: 芥川龍之介 (Akutagawa Ryūnosuke)
+    died: 1927
+    published: 1918
+    first_published_in: "「赤い鳥」 July 1918"
+    level: B1
+    note: "The one 外字 (犍, in 犍陀多) is written as the Unicode character."
+    source: https://www.aozora.gr.jp/cards/000879/card92.html
+    public_domain: "Author died 1927; first published 1918. Public domain everywhere (Aozora Bunko lists it as out of copyright)."
+  - slug: akutagawa-torokko
+    lang: ja
+    title: トロッコ
+    author: 芥川龍之介 (Akutagawa Ryūnosuke)
+    died: 1927
+    published: 1922
+    first_published_in: "「大観」 March 1922"
+    level: B1
+    source: https://www.aozora.gr.jp/cards/000879/card43016.html
+    public_domain: "Author died 1927; first published 1922. Public domain everywhere (Aozora Bunko lists it as out of copyright)."
+  - slug: miyazawa-chumon-no-oi-ryoriten
+    lang: ja
+    title: 注文の多い料理店
+    author: 宮沢賢治 (Miyazawa Kenji)
+    died: 1933
+    published: 1924
+    first_published_in: "「イーハトヴ童話　注文の多い料理店」 (杜陵出版部・東京光原社, 1 December 1924)"
+    level: A2–B1
+    source: https://www.aozora.gr.jp/cards/000081/card43754.html
+    public_domain: "Author died 1933; first published 1924. Public domain everywhere (Aozora Bunko lists it as out of copyright)."
+  - slug: miyazawa-donguri-to-yamaneko
+    lang: ja
+    title: どんぐりと山猫
+    author: 宮沢賢治 (Miyazawa Kenji)
+    died: 1933
+    published: 1924
+    first_published_in: "「イーハトヴ童話　注文の多い料理店」 (杜陵出版部・東京光原社, 1 December 1924)"
+    level: A2–B1
+    source: https://www.aozora.gr.jp/cards/000081/card43752.html
+    public_domain: "Author died 1933; first published 1924. Public domain everywhere (Aozora Bunko lists it as out of copyright)."
+  # --- Korean
+  - slug: bang-jeonghwan-geumdokki
+    lang: ko
+    title: 금도끼
+    author: 방정환 (Bang Jeong-hwan)
+    died: 1931
+    published: 1924
+    first_published_in: "「어린이」 February 1924"
+    level: A2
+    source: https://ko.wikisource.org/wiki/금도끼
+    public_domain: "Author died 1931; first published 1924. Public domain everywhere."
+  - slug: bang-jeonghwan-horangi-hyeongnim
+    lang: ko
+    title: 호랑이 형님
+    author: 방정환 (Bang Jeong-hwan)
+    died: 1931
+    published: 1926
+    first_published_in: "「어린이」 January 1926"
+    level: A2–B1
+    source: https://ko.wikisource.org/wiki/호랑이_형님
+    public_domain: "Author died 1931; first published 1926. Public domain everywhere."
+  - slug: bang-jeonghwan-sigoljwi-seoul-gugyeong
+    lang: ko
+    title: 시골쥐 서울 구경
+    author: 방정환 (Bang Jeong-hwan)
+    died: 1931
+    published: 1926
+    first_published_in: "「어린이」 October 1926"
+    level: A2–B1
+    source: https://ko.wikisource.org/wiki/시골쥐_서울_구경
+    public_domain: "Author died 1931; first published 1926. Public domain everywhere."
+  - slug: bang-jeonghwan-mannyeon-syeocheu
+    lang: ko
+    title: 만년 셔츠
+    author: 방정환 (Bang Jeong-hwan)
+    died: 1931
+    published: 1927
+    first_published_in: "「어린이」 March 1927"
+    level: B1
+    source: https://ko.wikisource.org/wiki/만년_셔츠
+    public_domain: "Author died 1931; first published 1927. Public domain everywhere."
+  - slug: hyeon-jingeon-unsu-joeun-nal
+    lang: ko
+    title: 운수 좋은 날
+    author: 현진건 (Hyeon Jin-geon)
+    died: 1943
+    published: 1924
+    first_published_in: "「개벽」 June 1924"
+    level: B2
+    source: https://ko.wikisource.org/wiki/운수_좋은_날
+    public_domain: "Author died 1943, more than 80 years ago: public domain in Korea and every life + 70 or life + 80 country. First published 1924, before 1931, so public domain in the US."
+
+# Poems: one file per language, each poem with the same fields as a text plus its lines
+# ([original, English] or, for zh/ja/ko, [original, reading, English]). The English lines and the
+# readings are ours (Sect Academy), written for this shelf; no published translation was used.
+poems:
+  es: es/poems.yaml
+  fr: fr/poems.yaml
+  zh: zh/poems.yaml
+  ja: ja/poems.yaml
+  ko: ko/poems.yaml

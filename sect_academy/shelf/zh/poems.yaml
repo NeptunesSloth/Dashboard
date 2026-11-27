@@ -1,0 +1,201 @@
+# Chinese poems for the starter shelf, in simplified characters. Each line is
+# [original, pinyin, English]; [] is a stanza break.
+# Pinyin gives each syllable its dictionary tone (no tone-change marks such as bù -> bú).
+# Where an old poem has variant readings we give the one taught in Chinese schools today.
+# The English lines are our own plain, literal translations (Sect Academy), written for learners.
+poems:
+  - slug: li-bai-jing-ye-si
+    title: 静夜思
+    author: 李白 (Li Bai)
+    died: 762
+    published: 762
+    first_published_in: "Tang dynasty (8th century)"
+    level: A1
+    note: "The school text (明月 twice); older editions read 看月光 and 望山月."
+    source: https://zh.wikisource.org/wiki/靜夜思
+    public_domain: "Tang-dynasty poem; the poet died in 762. Public domain everywhere."
+    lines:
+      - ["床前明月光，", "chuáng qián míng yuè guāng,", "Before my bed, bright moonlight;"]
+      - ["疑是地上霜。", "yí shì dì shàng shuāng.", "I wonder if it is frost on the ground."]
+      - ["举头望明月，", "jǔ tóu wàng míng yuè,", "I raise my head and look at the bright moon,"]
+      - ["低头思故乡。", "dī tóu sī gù xiāng.", "I lower my head and think of home."]
+  - slug: meng-haoran-chun-xiao
+    title: 春晓
+    author: 孟浩然 (Meng Haoran)
+    died: 740
+    published: 740
+    first_published_in: "Tang dynasty (8th century)"
+    level: A1
+    source: https://zh.wikisource.org/wiki/春曉_(孟浩然)
+    public_domain: "Tang-dynasty poem; the poet died in 740. Public domain everywhere."
+    lines:
+      - ["春眠不觉晓，", "chūn mián bù jué xiǎo,", "Sleeping in spring, I did not notice the dawn;"]
+      - ["处处闻啼鸟。", "chù chù wén tí niǎo.", "everywhere I hear birds singing."]
+      - ["夜来风雨声，", "yè lái fēng yǔ shēng,", "In the night came the sound of wind and rain;"]
+      - ["花落知多少。", "huā luò zhī duō shǎo.", "how many flowers have fallen, who knows?"]
+  - slug: wang-zhihuan-deng-guan-que-lou
+    title: 登鹳雀楼
+    author: 王之涣 (Wang Zhihuan)
+    died: 742
+    published: 742
+    first_published_in: "Tang dynasty (8th century)"
+    level: A2
+    source: https://zh.wikisource.org/wiki/登鸛雀樓_(王之渙)
+    public_domain: "Tang-dynasty poem; the poet died in 742. Public domain everywhere."
+    lines:
+      - ["白日依山尽，", "bái rì yī shān jìn,", "The white sun sinks away behind the mountains,"]
+      - ["黄河入海流。", "huáng hé rù hǎi liú.", "the Yellow River flows into the sea."]
+      - ["欲穷千里目，", "yù qióng qiān lǐ mù,", "If you want to see a thousand li to the end,"]
+      - ["更上一层楼。", "gèng shàng yī céng lóu.", "climb one more floor of the tower."]
+  - slug: wang-wei-xiang-si
+    title: 相思
+    author: 王维 (Wang Wei)
+    died: 761
+    published: 761
+    first_published_in: "Tang dynasty (8th century)"
+    level: A2
+    source: https://zh.wikisource.org/wiki/相思
+    public_domain: "Tang-dynasty poem; the poet died in 761. Public domain everywhere."
+    lines:
+      - ["红豆生南国，", "hóng dòu shēng nán guó,", "Red beans grow in the southern land;"]
+      - ["春来发几枝。", "chūn lái fā jǐ zhī.", "when spring comes, how many branches sprout?"]
+      - ["愿君多采撷，", "yuàn jūn duō cǎi xié,", "I hope you will pick many of them,"]
+      - ["此物最相思。", "cǐ wù zuì xiāng sī.", "these things most of all mean missing someone."]
+  - slug: li-bai-zao-fa-bai-di-cheng
+    title: 早发白帝城
+    author: 李白 (Li Bai)
+    died: 762
+    published: 762
+    first_published_in: "Tang dynasty (8th century)"
+    level: A2
+    note: "The school text (啼不住, 已过); older editions read 啼不尽."
+    source: https://zh.wikisource.org/wiki/早發白帝城
+    public_domain: "Tang-dynasty poem; the poet died in 762. Public domain everywhere."
+    lines:
+      - ["朝辞白帝彩云间，", "zhāo cí bái dì cǎi yún jiān,", "At dawn I leave Baidi among the coloured clouds,"]
+      - ["千里江陵一日还。", "qiān lǐ jiāng líng yī rì huán.", "a thousand li to Jiangling, back in a single day."]
+      - ["两岸猿声啼不住，", "liǎng àn yuán shēng tí bù zhù,", "On both banks the apes cry without stopping,"]
+      - ["轻舟已过万重山。", "qīng zhōu yǐ guò wàn chóng shān.", "the light boat has already passed ten thousand mountains."]
+  - slug: du-fu-chun-wang
+    title: 春望
+    author: 杜甫 (Du Fu)
+    died: 770
+    published: 770
+    first_published_in: "Tang dynasty (written 757)"
+    level: B1
+    source: https://zh.wikisource.org/wiki/春望
+    public_domain: "Tang-dynasty poem; the poet died in 770. Public domain everywhere."
+    lines:
+      - ["国破山河在，", "guó pò shān hé zài,", "The country is broken; mountains and rivers remain,"]
+      - ["城春草木深。", "chéng chūn cǎo mù shēn.", "spring in the city, grass and trees grow thick."]
+      - ["感时花溅泪，", "gǎn shí huā jiàn lèi,", "Grieving for the times, flowers splash tears,"]
+      - ["恨别鸟惊心。", "hèn bié niǎo jīng xīn.", "hating parting, birds startle the heart."]
+      - ["烽火连三月，", "fēng huǒ lián sān yuè,", "The beacon fires have burned three months on end,"]
+      - ["家书抵万金。", "jiā shū dǐ wàn jīn.", "a letter from home is worth ten thousand in gold."]
+      - ["白头搔更短，", "bái tóu sāo gèng duǎn,", "I scratch my white head and the hair grows shorter,"]
+      - ["浑欲不胜簪。", "hún yù bù shèng zān.", "soon it will be too thin to hold a hairpin."]
+  - slug: li-shen-min-nong
+    title: 悯农（其二）
+    author: 李绅 (Li Shen)
+    died: 846
+    published: 846
+    first_published_in: "Tang dynasty (9th century)"
+    level: A2
+    source: https://zh.wikisource.org/wiki/憫農_(李紳)
+    public_domain: "Tang-dynasty poem; the poet died in 846. Public domain everywhere."
+    lines:
+      - ["锄禾日当午，", "chú hé rì dāng wǔ,", "Hoeing the grain at the height of noon,"]
+      - ["汗滴禾下土。", "hàn dī hé xià tǔ.", "sweat drips onto the soil beneath the grain."]
+      - ["谁知盘中餐，", "shuí zhī pán zhōng cān,", "Who knows that the food on the plate,"]
+      - ["粒粒皆辛苦。", "lì lì jiē xīn kǔ.", "every single grain, is hard work?"]
+  - slug: su-shi-shui-diao-ge-tou
+    title: 水调歌头（明月几时有）
+    author: 苏轼 (Su Shi)
+    died: 1101
+    published: 1101
+    first_published_in: "Song dynasty (written 1076)"
+    level: B1
+    source: https://zh.wikisource.org/wiki/水調歌頭_(明月幾時有)
+    public_domain: "Song-dynasty ci; the poet died in 1101. Public domain everywhere."
+    lines:
+      - ["明月几时有？", "míng yuè jǐ shí yǒu?", "When did the bright moon first appear?"]
+      - ["把酒问青天。", "bǎ jiǔ wèn qīng tiān.", "Holding my wine, I ask the blue sky."]
+      - ["不知天上宫阙，", "bù zhī tiān shàng gōng què,", "I do not know, in the palaces of heaven,"]
+      - ["今夕是何年。", "jīn xī shì hé nián.", "what year it is tonight."]
+      - ["我欲乘风归去，", "wǒ yù chéng fēng guī qù,", "I would like to ride the wind and go back there,"]
+      - ["又恐琼楼玉宇，", "yòu kǒng qióng lóu yù yǔ,", "yet I fear that in the towers of jade and halls of jade,"]
+      - ["高处不胜寒。", "gāo chù bù shèng hán.", "so high up, I could not bear the cold."]
+      - ["起舞弄清影，", "qǐ wǔ nòng qīng yǐng,", "I rise and dance, playing with my clear shadow;"]
+      - ["何似在人间。", "hé sì zài rén jiān.", "how could that compare with being among people?"]
+      - []
+      - ["转朱阁，", "zhuǎn zhū gé,", "It turns past the red pavilions,"]
+      - ["低绮户，", "dī qǐ hù,", "sinks to the silk-hung windows,"]
+      - ["照无眠。", "zhào wú mián.", "shines on the one who cannot sleep."]
+      - ["不应有恨，", "bù yīng yǒu hèn,", "It should bear no grudge,"]
+      - ["何事长向别时圆？", "hé shì cháng xiàng bié shí yuán?", "so why is it always full when people are apart?"]
+      - ["人有悲欢离合，", "rén yǒu bēi huān lí hé,", "People have sorrow and joy, parting and meeting,"]
+      - ["月有阴晴圆缺，", "yuè yǒu yīn qíng yuán quē,", "the moon has dark and bright, full and waning;"]
+      - ["此事古难全。", "cǐ shì gǔ nán quán.", "since ancient times this has never been perfect."]
+      - ["但愿人长久，", "dàn yuàn rén cháng jiǔ,", "I only wish that we may live long,"]
+      - ["千里共婵娟。", "qiān lǐ gòng chán juān.", "and, a thousand li apart, share the moon's beauty."]
+  - slug: li-qingzhao-ru-meng-ling
+    title: 如梦令（常记溪亭日暮）
+    author: 李清照 (Li Qingzhao)
+    died: 1155
+    published: 1155
+    first_published_in: "Song dynasty (12th century)"
+    level: B1
+    source: https://zh.wikisource.org/wiki/如夢令_(常記溪亭日暮)
+    public_domain: "Song-dynasty ci; the poet died about 1155. Public domain everywhere."
+    lines:
+      - ["常记溪亭日暮，", "cháng jì xī tíng rì mù,", "I often remember sunset at the pavilion by the stream,"]
+      - ["沉醉不知归路。", "chén zuì bù zhī guī lù.", "so drunk I did not know the way home."]
+      - ["兴尽晚回舟，", "xìng jìn wǎn huí zhōu,", "Our fun over, late, we turned the boat back"]
+      - ["误入藕花深处。", "wù rù ǒu huā shēn chù.", "and strayed deep into the lotus flowers."]
+      - ["争渡，", "zhēng dù,", "Row hard, get through,"]
+      - ["争渡，", "zhēng dù,", "row hard, get through,"]
+      - ["惊起一滩鸥鹭。", "jīng qǐ yī tān ōu lù.", "we startled up a whole shore of gulls and herons."]
+  - slug: xu-zhimo-zai-bie-kang-qiao
+    title: 再别康桥
+    author: 徐志摩 (Xu Zhimo)
+    died: 1931
+    published: 1928
+    first_published_in: "《新月》 monthly, vol. 1 no. 10 (December 1928)"
+    level: B1
+    source: https://zh.wikisource.org/wiki/再别康桥
+    public_domain: "Author died 19 November 1931 (more than 90 years ago); first published 1928, before 1931, so public domain in the US too."
+    lines:
+      - ["轻轻的我走了，", "qīng qīng de wǒ zǒu le,", "Softly I go,"]
+      - ["正如我轻轻的来；", "zhèng rú wǒ qīng qīng de lái;", "just as softly I came;"]
+      - ["我轻轻的招手，", "wǒ qīng qīng de zhāo shǒu,", "softly I wave my hand"]
+      - ["作别西天的云彩。", "zuò bié xī tiān de yún cai.", "to say goodbye to the clouds of the western sky."]
+      - []
+      - ["那河畔的金柳，", "nà hé pàn de jīn liǔ,", "The golden willows on the river bank"]
+      - ["是夕阳中的新娘；", "shì xī yáng zhōng de xīn niáng;", "are brides in the setting sun;"]
+      - ["波光里的艳影，", "bō guāng lǐ de yàn yǐng,", "their bright reflections in the shining waves"]
+      - ["在我的心头荡漾。", "zài wǒ de xīn tóu dàng yàng.", "ripple in my heart."]
+      - []
+      - ["软泥上的青荇，", "ruǎn ní shàng de qīng xìng,", "The green water plants on the soft mud"]
+      - ["油油的在水底招摇；", "yóu yóu de zài shuǐ dǐ zhāo yáo;", "sway, glossy, on the riverbed;"]
+      - ["在康河的柔波里，", "zài kāng hé de róu bō lǐ,", "in the gentle waves of the Cam"]
+      - ["我甘心做一条水草！", "wǒ gān xīn zuò yī tiáo shuǐ cǎo!", "I would gladly be a waterweed!"]
+      - []
+      - ["那榆荫下的一潭，", "nà yú yìn xià de yī tán,", "The pool in the shade of the elms"]
+      - ["不是清泉，是天上虹", "bù shì qīng quán, shì tiān shàng hóng", "is not a clear spring, it is a rainbow from the sky,"]
+      - ["揉碎在浮藻间，", "róu suì zài fú zǎo jiān,", "crushed among the floating weeds,"]
+      - ["沉淀着彩虹似的梦。", "chén diàn zhe cǎi hóng shì de mèng.", "where a rainbow-like dream has settled."]
+      - []
+      - ["寻梦？撑一支长篙，", "xún mèng? chēng yī zhī cháng gāo,", "Looking for a dream? Pole a long punt pole"]
+      - ["向青草更青处漫溯，", "xiàng qīng cǎo gèng qīng chù màn sù,", "upstream to where the green grass is greener,"]
+      - ["满载一船星辉，", "mǎn zài yī chuán xīng huī,", "a boat loaded full of starlight,"]
+      - ["在星辉斑斓里放歌。", "zài xīng huī bān lán lǐ fàng gē.", "and sing out loud in the bright starlight."]
+      - []
+      - ["但我不能放歌，", "dàn wǒ bù néng fàng gē,", "But I cannot sing out loud,"]
+      - ["悄悄是别离的笙箫；", "qiǎo qiǎo shì bié lí de shēng xiāo;", "quiet is the music of parting;"]
+      - ["夏虫也为我沉默，", "xià chóng yě wèi wǒ chén mò,", "even the summer insects are silent for me,"]
+      - ["沉默是今晚的康桥！", "chén mò shì jīn wǎn de kāng qiáo!", "silent is Cambridge tonight!"]
+      - []
+      - ["悄悄的我走了，", "qiǎo qiǎo de wǒ zǒu le,", "Quietly I go,"]
+      - ["正如我悄悄的来；", "zhèng rú wǒ qiǎo qiǎo de lái;", "just as quietly I came;"]
+      - ["我挥一挥衣袖，", "wǒ huī yī huī yī xiù,", "I give my sleeve a wave,"]
+      - ["不带走一片云彩。", "bù dài zǒu yī piàn yún cai.", "and take away not a single cloud."]

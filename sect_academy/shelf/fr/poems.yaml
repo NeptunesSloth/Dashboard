@@ -1,0 +1,332 @@
+# French poems for the starter shelf. Each line is [original, English]; [] is a stanza break.
+# The English lines are our own plain, literal translations (Sect Academy), written for learners.
+# Ronsard is given in modern spelling (avoit -> avait, ceste -> cette), as school editions print him.
+poems:
+  - slug: verlaine-chanson-d-automne
+    title: Chanson d’automne
+    author: Paul Verlaine
+    died: 1896
+    published: 1866
+    first_published_in: "Poèmes saturniens (Paris, Lemerre, 1866)"
+    level: A2
+    source: https://fr.wikisource.org/wiki/Po%C3%A8mes_saturniens_(1866)/Chanson_d%E2%80%99automne
+    public_domain: "Author died 1896; first published 1866. Public domain everywhere."
+    lines:
+      - ["Les sanglots longs", "The long sobs"]
+      - ["Des violons", "Of the violins"]
+      - ["De l’automne", "Of autumn"]
+      - ["Blessent mon cœur", "Wound my heart"]
+      - ["D’une langueur", "With a weariness"]
+      - ["Monotone.", "That never changes."]
+      - []
+      - ["Tout suffocant", "All choking"]
+      - ["Et blême, quand", "And pale, when"]
+      - ["Sonne l’heure,", "The hour strikes,"]
+      - ["Je me souviens", "I remember"]
+      - ["Des jours anciens", "The days of old"]
+      - ["Et je pleure ;", "And I weep;"]
+      - []
+      - ["Et je m’en vais", "And I go away"]
+      - ["Au vent mauvais", "On the evil wind"]
+      - ["Qui m’emporte", "That carries me off"]
+      - ["Deçà, delà,", "This way, that way,"]
+      - ["Pareil à la", "Like the"]
+      - ["Feuille morte.", "Dead leaf."]
+  - slug: verlaine-il-pleure-dans-mon-coeur
+    title: Il pleure dans mon cœur
+    author: Paul Verlaine
+    died: 1896
+    published: 1874
+    first_published_in: "Romances sans paroles (Sens, 1874)"
+    level: A2
+    source: https://fr.wikisource.org/wiki/Romances_sans_paroles_(1891)/Il_pleure_dans_mon_c%C5%93ur
+    public_domain: "Author died 1896; first published 1874. Public domain everywhere."
+    lines:
+      - ["Il pleure dans mon cœur", "It is raining tears in my heart"]
+      - ["Comme il pleut sur la ville,", "As it rains on the town,"]
+      - ["Quelle est cette langueur", "What is this weariness"]
+      - ["Qui pénètre mon cœur ?", "That goes into my heart?"]
+      - []
+      - ["Ô bruit doux de la pluie", "O soft sound of the rain"]
+      - ["Par terre et sur les toits !", "On the ground and on the roofs!"]
+      - ["Pour un cœur qui s’ennuie", "For a heart that is weary"]
+      - ["Ô le chant de la pluie !", "O the song of the rain!"]
+      - []
+      - ["Il pleure sans raison", "It weeps for no reason"]
+      - ["Dans ce cœur qui s’écœure.", "In this heart sick of itself."]
+      - ["Quoi ! nulle trahison ?", "What! No betrayal?"]
+      - ["Ce deuil est sans raison.", "This grief has no reason."]
+      - []
+      - ["C’est bien la pire peine", "It is truly the worst pain"]
+      - ["De ne savoir pourquoi,", "Not to know why,"]
+      - ["Sans amour et sans haine,", "Without love and without hate,"]
+      - ["Mon cœur a tant de peine !", "My heart has so much pain!"]
+  - slug: hugo-demain-des-l-aube
+    title: Demain, dès l’aube…
+    author: Victor Hugo
+    died: 1885
+    published: 1856
+    first_published_in: "Les Contemplations (Paris, 1856), IV, 14"
+    level: A2
+    source: https://fr.wikisource.org/wiki/Les_Contemplations/%C2%AB_Demain,_d%C3%A8s_l%E2%80%99aube,_%C3%A0_l%E2%80%99heure_o%C3%B9_blanchit_la_campagne_%C2%BB
+    public_domain: "Author died 1885; first published 1856. Public domain everywhere."
+    lines:
+      - ["Demain, dès l’aube, à l’heure où blanchit la campagne,", "Tomorrow, at dawn, at the hour when the countryside turns white,"]
+      - ["Je partirai. Vois-tu, je sais que tu m’attends.", "I will set out. You see, I know that you are waiting for me."]
+      - ["J’irai par la forêt, j’irai par la montagne.", "I will go through the forest, I will go over the mountain."]
+      - ["Je ne puis demeurer loin de toi plus longtemps.", "I cannot stay far from you any longer."]
+      - []
+      - ["Je marcherai les yeux fixés sur mes pensées,", "I will walk with my eyes fixed on my thoughts,"]
+      - ["Sans rien voir au dehors, sans entendre aucun bruit,", "Seeing nothing outside, hearing no sound,"]
+      - ["Seul, inconnu, le dos courbé, les mains croisées,", "Alone, unknown, my back bent, my hands crossed,"]
+      - ["Triste, et le jour pour moi sera comme la nuit.", "Sad, and the day for me will be like the night."]
+      - []
+      - ["Je ne regarderai ni l’or du soir qui tombe,", "I will look neither at the gold of the falling evening,"]
+      - ["Ni les voiles au loin descendant vers Harfleur,", "Nor at the sails far off going down towards Harfleur,"]
+      - ["Et quand j’arriverai, je mettrai sur ta tombe", "And when I arrive, I will put on your grave"]
+      - ["Un bouquet de houx vert et de bruyère en fleur.", "A bunch of green holly and heather in flower."]
+  - slug: baudelaire-l-albatros
+    title: L’Albatros
+    author: Charles Baudelaire
+    died: 1867
+    published: 1859
+    first_published_in: "La Revue française (1859); Les Fleurs du mal, 2nd edition (1861)"
+    level: B1
+    source: https://fr.wikisource.org/wiki/Les_Fleurs_du_mal_(1868)/L%E2%80%99Albatros
+    public_domain: "Author died 1867; first published 1859. Public domain everywhere."
+    lines:
+      - ["Souvent, pour s’amuser, les hommes d’équipage", "Often, to amuse themselves, the men of the crew"]
+      - ["Prennent des albatros, vastes oiseaux des mers,", "Catch albatrosses, huge birds of the seas,"]
+      - ["Qui suivent, indolents compagnons de voyage,", "Which follow, idle companions on the journey,"]
+      - ["Le navire glissant sur les gouffres amers.", "The ship gliding over the bitter depths."]
+      - []
+      - ["À peine les ont-ils déposés sur les planches,", "No sooner have they set them down on the deck"]
+      - ["Que ces rois de l’azur, maladroits et honteux,", "Than these kings of the blue, clumsy and ashamed,"]
+      - ["Laissent piteusement leurs grandes ailes blanches", "Pitifully let their great white wings"]
+      - ["Comme des avirons traîner à côté d’eux.", "Drag beside them like oars."]
+      - []
+      - ["Ce voyageur ailé, comme il est gauche et veule !", "This winged traveller, how awkward and limp he is!"]
+      - ["Lui, naguère si beau, qu’il est comique et laid !", "He, so beautiful a moment ago, how comic and ugly he is!"]
+      - ["L’un agace son bec avec un brûle-gueule,", "One teases his beak with a short clay pipe,"]
+      - ["L’autre mime, en boitant, l’infirme qui volait !", "Another mimics, limping, the cripple who used to fly!"]
+      - []
+      - ["Le Poëte est semblable au prince des nuées", "The Poet is like the prince of the clouds"]
+      - ["Qui hante la tempête et se rit de l’archer ;", "Who haunts the storm and laughs at the archer;"]
+      - ["Exilé sur le sol au milieu des huées,", "Exiled on the ground among the jeers,"]
+      - ["Ses ailes de géant l’empêchent de marcher.", "His giant's wings keep him from walking."]
+  - slug: baudelaire-l-invitation-au-voyage
+    title: L’Invitation au voyage
+    author: Charles Baudelaire
+    died: 1867
+    published: 1855
+    first_published_in: "Revue des Deux Mondes (1855); Les Fleurs du mal (1857)"
+    level: B1
+    source: https://fr.wikisource.org/wiki/Les_Fleurs_du_mal_(1868)/L%E2%80%99Invitation_au_voyage
+    public_domain: "Author died 1867; first published 1855. Public domain everywhere."
+    lines:
+      - ["Mon enfant, ma sœur,", "My child, my sister,"]
+      - ["Songe à la douceur", "Think of the sweetness"]
+      - ["D’aller là-bas vivre ensemble !", "Of going over there to live together!"]
+      - ["Aimer à loisir,", "To love at leisure,"]
+      - ["Aimer et mourir", "To love and to die"]
+      - ["Au pays qui te ressemble !", "In the land that is like you!"]
+      - ["Les soleils mouillés", "The wet suns"]
+      - ["De ces ciels brouillés", "Of those misty skies"]
+      - ["Pour mon esprit ont les charmes", "For my mind have the charms,"]
+      - ["Si mystérieux", "So mysterious,"]
+      - ["De tes traîtres yeux,", "Of your treacherous eyes,"]
+      - ["Brillant à travers leurs larmes.", "Shining through their tears."]
+      - []
+      - ["Là, tout n’est qu’ordre et beauté,", "There, all is nothing but order and beauty,"]
+      - ["Luxe, calme et volupté.", "Richness, calm and pleasure."]
+      - []
+      - ["Des meubles luisants,", "Gleaming furniture,"]
+      - ["Polis par les ans,", "Polished by the years,"]
+      - ["Décoreraient notre chambre ;", "Would decorate our room;"]
+      - ["Les plus rares fleurs", "The rarest flowers,"]
+      - ["Mêlant leurs odeurs", "Mixing their scents"]
+      - ["Aux vagues senteurs de l’ambre,", "With the faint perfume of amber,"]
+      - ["Les riches plafonds,", "The rich ceilings,"]
+      - ["Les miroirs profonds,", "The deep mirrors,"]
+      - ["La splendeur orientale,", "The eastern splendour,"]
+      - ["Tout y parlerait", "Everything there would speak"]
+      - ["À l’âme en secret", "To the soul in secret"]
+      - ["Sa douce langue natale.", "Its own sweet native language."]
+      - []
+      - ["Là, tout n’est qu’ordre et beauté,", "There, all is nothing but order and beauty,"]
+      - ["Luxe, calme et volupté.", "Richness, calm and pleasure."]
+      - []
+      - ["Vois sur ces canaux", "See on those canals"]
+      - ["Dormir ces vaisseaux", "Those ships sleeping"]
+      - ["Dont l’humeur est vagabonde ;", "Whose mood is to wander;"]
+      - ["C’est pour assouvir", "It is to satisfy"]
+      - ["Ton moindre désir", "Your smallest wish"]
+      - ["Qu’ils viennent du bout du monde.", "That they come from the end of the world."]
+      - ["— Les soleils couchants", "— The setting suns"]
+      - ["Revêtent les champs,", "Clothe the fields,"]
+      - ["Les canaux, la ville entière,", "The canals, the whole town,"]
+      - ["D’hyacinthe et d’or ;", "In hyacinth and gold;"]
+      - ["Le monde s’endort", "The world falls asleep"]
+      - ["Dans une chaude lumière.", "In a warm light."]
+      - []
+      - ["Là, tout n’est qu’ordre et beauté,", "There, all is nothing but order and beauty,"]
+      - ["Luxe, calme et volupté.", "Richness, calm and pleasure."]
+  - slug: rimbaud-le-dormeur-du-val
+    title: Le Dormeur du val
+    author: Arthur Rimbaud
+    died: 1891
+    published: 1888
+    first_published_in: "Anthologie des poètes français du XIXe siècle (Lemerre, 1888)"
+    level: B1
+    source: https://fr.wikisource.org/wiki/Po%C3%A9sies_(Rimbaud)/%C3%A9d._Vanier,_1895/Le_Dormeur_du_val
+    public_domain: "Author died 1891; written 1870, first published 1888. Public domain everywhere."
+    lines:
+      - ["C’est un trou de verdure où chante une rivière", "It is a green hollow where a river sings"]
+      - ["Accrochant follement aux herbes des haillons", "Madly catching on the grass rags"]
+      - ["D’argent ; où le soleil, de la montagne fière,", "Of silver; where the sun, from the proud mountain,"]
+      - ["Luit : c’est un petit val qui mousse de rayons.", "Shines: it is a little valley that foams with light."]
+      - []
+      - ["Un soldat jeune, bouche ouverte, tête nue,", "A young soldier, mouth open, head bare,"]
+      - ["Et la nuque baignant dans le frais cresson bleu,", "And the back of his neck bathing in the cool blue cress,"]
+      - ["Dort ; il est étendu dans l’herbe, sous la nue,", "Sleeps; he is stretched out in the grass, under the sky,"]
+      - ["Pâle dans son lit vert où la lumière pleut.", "Pale in his green bed where the light rains down."]
+      - []
+      - ["Les pieds dans les glaïeuls, il dort. Souriant comme", "His feet in the gladioli, he sleeps. Smiling as"]
+      - ["Sourirait un enfant malade, il fait un somme :", "A sick child would smile, he is taking a nap:"]
+      - ["Nature, berce-le chaudement : il a froid.", "Nature, rock him warmly: he is cold."]
+      - []
+      - ["Les parfums ne font pas frissonner sa narine ;", "The scents do not make his nostril quiver;"]
+      - ["Il dort dans le soleil, la main sur sa poitrine", "He sleeps in the sun, his hand on his chest,"]
+      - ["Tranquille. Il a deux trous rouges au côté droit.", "Peaceful. He has two red holes in his right side."]
+  - slug: apollinaire-le-pont-mirabeau
+    title: Le Pont Mirabeau
+    author: Guillaume Apollinaire
+    died: 1918
+    published: 1912
+    first_published_in: "Les Soirées de Paris (February 1912); Alcools (1913)"
+    level: A2
+    source: https://fr.wikisource.org/wiki/Le_Pont_Mirabeau
+    public_domain: "Author died 1918 (mort pour la France); with the French wartime and mort-pour-la-France extensions his works entered the public domain in France on 29 September 2013, and long before elsewhere. First published 1912, before 1931, so public domain in the US too."
+    lines:
+      - ["Sous le pont Mirabeau coule la Seine", "Under the Mirabeau bridge flows the Seine"]
+      - ["Et nos amours", "And our loves"]
+      - ["Faut-il qu’il m’en souvienne", "Must I remember them"]
+      - ["La joie venait toujours après la peine", "Joy always came after sorrow"]
+      - []
+      - ["Vienne la nuit sonne l’heure", "Let night come let the hour strike"]
+      - ["Les jours s’en vont je demeure", "The days go by I remain"]
+      - []
+      - ["Les mains dans les mains restons face à face", "Hand in hand let us stay face to face"]
+      - ["Tandis que sous", "While under"]
+      - ["Le pont de nos bras passe", "The bridge of our arms passes"]
+      - ["Des éternels regards l’onde si lasse", "The wave of endless looks so weary"]
+      - []
+      - ["Vienne la nuit sonne l’heure", "Let night come let the hour strike"]
+      - ["Les jours s’en vont je demeure", "The days go by I remain"]
+      - []
+      - ["L’amour s’en va comme cette eau courante", "Love goes away like this running water"]
+      - ["L’amour s’en va", "Love goes away"]
+      - ["Comme la vie est lente", "How slow life is"]
+      - ["Et comme l’Espérance est violente", "And how violent Hope is"]
+      - []
+      - ["Vienne la nuit sonne l’heure", "Let night come let the hour strike"]
+      - ["Les jours s’en vont je demeure", "The days go by I remain"]
+      - []
+      - ["Passent les jours et passent les semaines", "The days pass and the weeks pass"]
+      - ["Ni temps passé", "Neither time gone by"]
+      - ["Ni les amours reviennent", "Nor loves come back"]
+      - ["Sous le pont Mirabeau coule la Seine", "Under the Mirabeau bridge flows the Seine"]
+      - []
+      - ["Vienne la nuit sonne l’heure", "Let night come let the hour strike"]
+      - ["Les jours s’en vont je demeure", "The days go by I remain"]
+  - slug: ronsard-mignonne-allons-voir-si-la-rose
+    title: Mignonne, allons voir si la rose
+    author: Pierre de Ronsard
+    died: 1585
+    published: 1553
+    first_published_in: "Les Amours (1553 edition), ode « À Cassandre »"
+    level: B1
+    note: "Modern spelling."
+    source: https://fr.wikisource.org/wiki/Les_Odes_(Ronsard)/%C2%AB_Mignonne,_allons_voir_si_la_rose_%C2%BB
+    public_domain: "Author died 1585; first published 1553. Public domain everywhere."
+    lines:
+      - ["Mignonne, allons voir si la rose", "Darling, let us go and see whether the rose"]
+      - ["Qui ce matin avait déclose", "Which this morning had opened"]
+      - ["Sa robe de pourpre au soleil,", "Its crimson gown to the sun,"]
+      - ["A point perdu cette vesprée", "Has not lost, this evening,"]
+      - ["Les plis de sa robe pourprée,", "The folds of its crimson gown,"]
+      - ["Et son teint au vôtre pareil.", "And its colour, so like your own."]
+      - []
+      - ["Las ! voyez comme en peu d’espace,", "Alas! See how in so short a time,"]
+      - ["Mignonne, elle a dessus la place", "Darling, it has, there on the ground,"]
+      - ["Las, las, ses beautés laissé choir !", "Alas, alas, let its beauties fall!"]
+      - ["Ô vraiment marâtre Nature,", "O Nature, truly a cruel stepmother,"]
+      - ["Puisqu’une telle fleur ne dure", "Since such a flower lasts"]
+      - ["Que du matin jusques au soir !", "Only from morning until evening!"]
+      - []
+      - ["Donc, si vous me croyez, mignonne,", "So, if you believe me, darling,"]
+      - ["Tandis que votre âge fleuronne", "While your age is in flower"]
+      - ["En sa plus verte nouveauté,", "In its greenest freshness,"]
+      - ["Cueillez, cueillez votre jeunesse :", "Gather, gather your youth:"]
+      - ["Comme à cette fleur la vieillesse", "As with this flower, old age"]
+      - ["Fera ternir votre beauté.", "Will make your beauty fade."]
+  - slug: la-fontaine-la-cigale-et-la-fourmi
+    title: La Cigale et la Fourmi
+    author: Jean de La Fontaine
+    died: 1695
+    published: 1668
+    first_published_in: "Fables choisies mises en vers, livre I (Paris, 1668)"
+    level: A2
+    source: https://fr.wikisource.org/wiki/Fables_de_La_Fontaine_(%C3%A9d._1874)/La_Cigale_et_la_Fourmi
+    public_domain: "Author died 1695; first published 1668. Public domain everywhere."
+    lines:
+      - ["La cigale, ayant chanté", "The cicada, having sung"]
+      - ["Tout l’été,", "All summer long,"]
+      - ["Se trouva fort dépourvue", "Found herself quite without food"]
+      - ["Quand la bise fut venue :", "When the north wind had come:"]
+      - ["Pas un seul petit morceau", "Not one little bit"]
+      - ["De mouche ou de vermisseau.", "Of fly or of worm."]
+      - ["Elle alla crier famine", "She went to cry hunger"]
+      - ["Chez la fourmi, sa voisine,", "At the home of the ant, her neighbour,"]
+      - ["La priant de lui prêter", "Begging her to lend her"]
+      - ["Quelque grain pour subsister", "Some grain to live on"]
+      - ["Jusqu’à la saison nouvelle.", "Until the new season."]
+      - ["Je vous paierai, lui dit-elle,", "I will pay you, she told her,"]
+      - ["Avant l’oût, foi d’animal,", "Before harvest, on my word as an animal,"]
+      - ["Intérêt et principal.", "Interest and the sum."]
+      - ["La fourmi n’est pas prêteuse :", "The ant is not a lender:"]
+      - ["C’est là son moindre défaut.", "That is the least of her faults."]
+      - ["Que faisiez-vous au temps chaud ?", "What were you doing in the warm weather?"]
+      - ["Dit-elle à cette emprunteuse. —", "She said to this borrower. —"]
+      - ["Nuit et jour à tout venant", "Night and day, to everyone who came by,"]
+      - ["Je chantais, ne vous déplaise. —", "I sang, if you don't mind. —"]
+      - ["Vous chantiez, j’en suis fort aise !", "You were singing, I am very glad of it!"]
+      - ["Eh bien ! dansez maintenant.", "Well then! Dance now."]
+  - slug: la-fontaine-le-corbeau-et-le-renard
+    title: Le Corbeau et le Renard
+    author: Jean de La Fontaine
+    died: 1695
+    published: 1668
+    first_published_in: "Fables choisies mises en vers, livre I (Paris, 1668)"
+    level: A2
+    source: https://fr.wikisource.org/wiki/Fables_de_La_Fontaine_(%C3%A9d._1874)/Le_Corbeau_et_le_Renard
+    public_domain: "Author died 1695; first published 1668. Public domain everywhere."
+    lines:
+      - ["Maître corbeau, sur un arbre perché,", "Master Crow, perched in a tree,"]
+      - ["Tenait en son bec un fromage.", "Was holding a cheese in his beak."]
+      - ["Maître renard, par l’odeur alléché,", "Master Fox, drawn by the smell,"]
+      - ["Lui tint à peu près ce langage :", "Spoke to him more or less like this:"]
+      - ["Hé ! bonjour, monsieur du corbeau.", "Hey! Good day, Sir Crow."]
+      - ["Que vous êtes joli ! que vous me semblez beau !", "How pretty you are! How handsome you seem to me!"]
+      - ["Sans mentir, si votre ramage", "Without a lie, if your song"]
+      - ["Se rapporte à votre plumage,", "Matches your feathers,"]
+      - ["Vous êtes le phénix des hôtes de ces bois.", "You are the phoenix of those who live in these woods."]
+      - ["À ces mots le corbeau ne se sent pas de joie ;", "At these words the crow is beside himself with joy;"]
+      - ["Et, pour montrer sa belle voix,", "And, to show off his fine voice,"]
+      - ["Il ouvre un large bec, laisse tomber sa proie.", "He opens his beak wide and drops his prize."]
+      - ["Le renard s’en saisit, et dit : Mon bon monsieur,", "The fox grabs it and says: My good sir,"]
+      - ["Apprenez que tout flatteur", "Learn that every flatterer"]
+      - ["Vit aux dépens de celui qui l’écoute :", "Lives at the expense of the one who listens to him:"]
+      - ["Cette leçon vaut bien un fromage, sans doute.", "This lesson is well worth a cheese, no doubt."]
+      - ["Le corbeau, honteux et confus,", "The crow, ashamed and embarrassed,"]
+      - ["Jura, mais un peu tard, qu’on ne l’y prendrait plus.", "Swore, but a little late, that he would never be caught that way again."]
