@@ -6,10 +6,10 @@ pins:
   - {id: bank, x: 11.5, y: 34, en: bank}
   - {id: hospital, x: 30, y: 33, en: hospital}
   - {id: school, x: 49, y: 35, en: school}
-  - {id: station, x: 47, y: 63, en: station}
+  - {id: station, x: 37, y: 63.5, en: station}
   - {id: shop, x: 88.5, y: 40, en: shop}
   - {id: restaurant, x: 14, y: 79, en: restaurant}
   - {id: park, x: 83, y: 77.5, en: park}
   - {id: traffic_light, x: 27.7, y: 79, en: traffic light}
-  - {id: bus_stop, x: 79, y: 85, en: bus stop}
+  - {id: bus_stop, x: 91.5, y: 79.5, en: bus stop}
   - {id: crosswalk, x: 45, y: 88.5, en: crosswalk}
