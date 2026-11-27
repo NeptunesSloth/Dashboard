@@ -370,13 +370,43 @@ function renderSect() {
 
 /* ================= placement ================= */
 function offerPlacement(courses) {
-  const list = OV.courses.filter((c) => courses.includes(c.id));
-  view.innerHTML = `<div class="found"><div class="guide">${guide('think', 72)}<div class="speech">Before we begin: how much do you already know?</div></div>
+  // Levels of one language are a ladder: test the lowest first; if it does not test you out of the
+  // whole course, the higher levels need no test (you start them from their first unit).
+  const RANK = { A1: 1, A2: 2, B1: 3, B2: 4, C1: 5 };
+  const rankOf = (c) => RANK[(String(c.title).split(' — ')[1] || '').split(' ')[0]] || 0;
+  const list = OV.courses.filter((c) => courses.includes(c.id) && c.units.length);
+  const placed = OV.placements || {};
+  const rows = [];
+  const ladders = {};
+  for (const c of list) {
+    if (c.kind === 'language' && rankOf(c)) (ladders[c.language] = ladders[c.language] || []).push(c);
+    else rows.push({ c, state: placed[c.id] ? 'done' : 'test' });
+  }
+  for (const lad of Object.values(ladders)) {
+    lad.sort((x, y) => rankOf(x) - rankOf(y));
+    let blocked = null;
+    for (const c of lad) {
+      const p = placed[c.id];
+      if (p) { rows.push({ c, state: 'done' }); if (p.passed_units < p.units) blocked = blocked || c; continue; }
+      if (blocked) { rows.push({ c, state: 'skip', after: blocked }); continue; }
+      rows.push({ c, state: 'test' }); blocked = c;          // only the lowest untested level of each language is offered
+    }
+  }
+  rows.sort((x, y) => list.indexOf(x.c) - list.indexOf(y.c));
+  const short = (c) => c.kind === 'language' ? `${c.language} ${(String(c.title).split(' — ')[1] || '').split(' ')[0]}` : String(c.title).split(' — ')[0];
+  const line = (r) => {
+    const p = placed[r.c.id];
+    if (r.state === 'done') return `<span class="dim small">Tested: ${num(p.right)}/${num(p.asked)} right, ${num(p.passed_units)} of ${num(p.units)} units known</span>`;
+    if (r.state === 'skip') return `<span class="dim small">No test needed: you will reach it after ${esc(short(r.after))}</span>`;
+    return `<span class="dim small">${num(r.c.units.length)} units</span>`;
+  };
+  const todo = rows.filter((r) => r.state === 'test');
+  view.innerHTML = `<div class="found"><div class="guide">${guide('think', 72)}<div class="speech">${todo.length ? 'Before we begin: how much do you already know?' : 'Your levels are set.'}</div></div>
     <h1>Find your level</h1>
-    <p class="dim">A short placement test checks each course a unit at a time and stops when it finds your level. Units you already know are skipped (they come back as reviews, so a lucky guess is caught). It takes a few minutes per course, and you can do it later from the library.</p>
-    ${list.map((c) => `<div class="pick" style="cursor:default"><span class="grow"><b>${esc(c.title)}</b><br><span class="dim small">${c.units.length} units</span></span>
-      <button class="btn primary" data-place="${esc(c.id)}">Take the test</button></div>`).join('')}
-    <div class="foot"><button class="btn big" id="pl-skip">I am a beginner — start from the first unit</button></div></div>`;
+    <p class="dim">A short test checks a course a unit at a time and stops when it finds your level. For a language, only the lowest level you chose is tested; the higher ones follow on from it. You can test again later from the library.</p>
+    ${rows.map((r) => `<div class="pick place-row ${r.state}" style="cursor:default"><span class="grow"><b>${esc(r.c.title)}</b><br>${line(r)}</span>
+      ${r.state === 'test' ? `<button class="btn primary" data-place="${esc(r.c.id)}">Take the test</button>` : `<span class="tag">${r.state === 'done' ? 'Done' : 'Skipped'}</span>`}</div>`).join('')}
+    <div class="foot"><button class="btn ${todo.length ? '' : 'primary'} big" id="pl-skip">${todo.length ? 'Skip the tests and start from the first unit' : 'Continue to the sect'}</button></div></div>`;
   view.querySelectorAll('[data-place]').forEach((b) => { b.onclick = () => runPlacement(b.dataset.place, () => offerPlacement(courses)); });
   $('#pl-skip').onclick = () => go('/', false);
 }
