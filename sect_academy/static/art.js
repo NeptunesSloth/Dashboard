@@ -26,7 +26,7 @@ export function siteRect(id) { return SITES[id] || [0, 0, 0, 0]; }
 export function siteCrop(id, aspect = 1.5) {
   const [x, y, w, h] = SITES[id] || [30, 30, 40, 40];
   const art = 1620 / 971;                              // the painting's own aspect
-  const scale = 100 / Math.max(w, 1);                  // the painting is this many tiles wide
+  const scale = Math.max(100 / Math.max(w, 1), (100 * art) / (aspect * Math.max(h, 1)));   // the room covers the tile: the painting is this many tiles wide
   const imgH = scale / art * aspect;                   // and this many tiles tall
   const cx = (x + w / 2) / 100; const cy = (y + h / 2) / 100;
   const px = scale > 1 ? Math.max(0, Math.min(100, ((scale * cx - 0.5) / (scale - 1)) * 100)) : 50;

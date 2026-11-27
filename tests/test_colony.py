@@ -93,6 +93,7 @@ def test_building_costs_materials_takes_work_and_is_gated(st):
     c = st["colony"]
     c["hour"] = 8
     c["res"].update(wood=200, stone=200)
+    c["rooms"]["main_hall"] = 2                                                     # the Pavilion opens at Main Hall 2
     cost = colony.room_cost(c, "library", 0)
     assert colony.queue_build(st, "library", T0)["ok"] and c["res"]["wood"] == 200 - cost["wood"]
     assert colony.view(st, T0)["builds"][0]["name"] == "Scripture Pavilion"
@@ -107,10 +108,12 @@ def test_building_costs_materials_takes_work_and_is_gated(st):
         colony.advance(st, 1, T0)
         hours += 1
     assert c["rooms"]["library"] == 1 and hours >= colony.build_hours("library", 1)  # a builder's hours, helped or not
-    # level gate: a room may be at most one level above the Main Hall
+    # level gate: the Hall's ladder caps the other rooms (level 3 under Hall 2)
     c["res"].update(wood=999, stone=999, stones=99)
-    assert colony.queue_build(st, "library", T0)["ok"]                              # -> level 2, hall is 1
-    assert "Main Hall" in colony.queue_build(st, "library", T0)["error"]            # -> level 3 refused (a builder is free)
+    assert colony.queue_build(st, "library", T0)["ok"]                              # -> level 2
+    assert colony.queue_build(st, "library", T0)["ok"]                              # -> level 3, the cap at Hall 2
+    c["rooms"]["fields"] = 3
+    assert "Main Hall" in colony.queue_build(st, "fields", T0)["error"]             # -> level 4 refused (a builder is free)
     wood = c["res"]["wood"]
     assert colony.cancel_build(st, 0, T0)["ok"] and c["res"]["wood"] > wood        # materials come back
 

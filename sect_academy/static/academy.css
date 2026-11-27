@@ -507,7 +507,8 @@ a { color: var(--gold); }
 .room .pl-note { display: block; font: italic 600 .62rem/1.2 var(--serif); color: #b7a488; }
 /* look A: pips under the name; a room you can raise lights the plate's edge like a lantern */
 .room.lookA .plaque { padding: 2px 10px 1px; border-radius: 8px; }
-.room.lookA.can .plaque { border-color: #e9b44c; box-shadow: 0 0 0 1px #e9b44c55, 0 0 14px #e9b44c66; }
+.room.lookA .plaque { border-color: #4a3a28; }
+.room.lookA.can .plaque { border-color: #f0c15e; color: #fff3d6; box-shadow: 0 0 0 1px #e9b44c88, 0 0 16px 2px #e9b44c88; }
 /* look B: the level as a quiet numeral; a room you can raise brightens and gains a thin gold underline */
 .room.lookB .plaque { display: inline-flex; align-items: baseline; gap: 7px; padding: 2px 10px; border-radius: 4px; }
 .room.lookB .pl-lv { font: 600 .9em var(--serif); color: #c9a560; padding-left: 7px; border-left: 1px solid #7d6a4a; }
@@ -517,7 +518,7 @@ a { color: var(--gold); }
 /* a room whose crew made something since dawn: its lanterns brighten, and a small note says what */
 .room.tray::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; mix-blend-mode: screen;
   background: radial-gradient(70% 60% at 50% 30%, #ffb64a2e 0%, #ffb64a12 45%, transparent 75%); }
-.room .trayn { position: absolute; left: 50%; bottom: calc(4px + 1.9em); transform: translateX(-50%); padding: 0 8px; border-radius: 9px; white-space: nowrap;
+.room .trayn { position: absolute; left: 50%; bottom: calc(10px + 2.6em); transform: translateX(-50%); padding: 0 8px; border-radius: 9px; white-space: nowrap;
   font: 700 clamp(.56rem, .95vw, .7rem)/1.6 var(--serif); color: #ffd98a; background: #120d0acc; border: 1px solid #a97a1c99; }
 @media (prefers-reduced-motion: no-preference) {
   .room.can::after { animation: glow 3.2s ease-in-out infinite; }
@@ -989,7 +990,7 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .bench details.fold summary { font-size: .82rem; }
 .bench.empty { border-style: dashed; align-items: center; } .bench.empty .bbody { gap: 2px; }
 .rtiles { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); }
-.rtile { border-radius: 14px; border: 1px solid #4a3a28; background: #1a130e; overflow: hidden; display: grid; transition: box-shadow .2s, border-color .2s; }
+.rtile { border-radius: 14px; border: 1px solid #4a3a28; background: #1a130e; overflow: hidden; display: grid; align-content: start; transition: box-shadow .2s, border-color .2s; }
 .rt-pic { all: unset; cursor: pointer; display: block; aspect-ratio: 1.6; position: relative; background-color: #0b0706; }
 .rt-pic:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 .rt-pic::after { content: ""; position: absolute; inset: 0; background: linear-gradient(#0000 45%, #120d0ae6); }
@@ -998,7 +999,7 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .rt-body .pips b { width: 7px; height: 7px; }
 .rt-body .pips { display: flex; gap: 3px; }
 .rt-note { margin: 2px 0 0; color: #b7a488; }
-.rt-go { margin-top: 2px; } .rt-go .btn { min-height: 34px; padding: 2px 16px; font-size: .88rem; }
+.rt-go { margin-top: 2px; flex-wrap: nowrap; } .rt-go .btn { min-height: 34px; padding: 2px 16px; font-size: .88rem; }
 .rtile.can { border-color: #e9b44c; box-shadow: 0 0 18px #e9b44c40; }
 .rtile.locked .rt-pic, .rtile.max .rt-pic { filter: grayscale(.85) brightness(.55); }
 .rtile.short .rt-pic { filter: saturate(.7) brightness(.8); }

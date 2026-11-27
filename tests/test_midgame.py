@@ -77,7 +77,7 @@ def test_a_queued_build_wins_a_tie_while_the_stores_hold(st):
     p = c["pawns"][1]
     p["prio"] = {j: 0 for j in colony.JOBS} | {"farm": 1, "build": 1}         # the elder's first lesson
     c["res"].update(rice=30.0, wood=200.0, stone=200.0)                       # under half the store, but days of food
-    assert colony.queue_build(st, "library", T0)["ok"]
+    assert colony.queue_build(st, "ward", T0)["ok"]
     assert colony._pick_job(c, p, {}) == "build"
     c["res"]["rice"] = 1.0                                                   # nearly out: the harvest comes first
     assert colony._pick_job(c, p, {}) == "farm"

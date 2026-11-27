@@ -4248,7 +4248,7 @@ def view(st: dict, now: float) -> dict:
         queued = sum(1 for b in c["builds"] if b["room"] == rid)
         nxt = level + queued
         cost = room_cost(c, rid, nxt) if nxt < r["max"] else None
-        locked = build_block(c, rid, nxt) if cost and rid != "main_hall" else ""
+        locked = build_block(c, rid, nxt) if cost else ""
         rooms.append({"id": rid, "name": r["name"], "effect": r["effect"], "level": level, "max": r["max"], "open": level > 0,
                       "hours": _f(build_hours(rid, nxt + 1)) if cost else 0,
                       "queued": queued, "cost": {k: _f(v) for k, v in cost.items()} if cost else None, "locked": locked,

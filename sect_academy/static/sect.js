@@ -394,7 +394,7 @@ export function mountSect(h) {
         <button class="rt-pic" data-roomtile="${esc(r.id)}" style="${siteCrop(r.id, 1.6)}" aria-label="${esc(r.name)}: details"><span class="rt-name">${esc(r.name)}</span></button>
         <div class="rt-body"><div class="row">${r.open ? lvPips(r) : `<span class="small dim">${r.queued ? 'Being built' : 'Not built'}</span>`}<span class="grow"></span>${r.queued ? '<span class="tag blue">building</span>' : ''}</div>
           ${st === 'max' ? '<p class="small rt-note">Highest level</p>' : st === 'locked' ? `<p class="small rt-note">${esc(r.locked)}</p>`
-    : `<div class="rt-cost">${costChips(r.cost)}</div><div class="row rt-go"><small class="dim">${esc(awayT(r.hours))} away</small><span class="grow"></span>
+    : `<div class="rt-cost">${costChips(r.cost)}</div><div class="row rt-go"><small class="dim">ready in about ${esc(awayT(r.hours))}</small><span class="grow"></span>
             <button class="btn ${r.affordable ? 'primary' : ''}" data-build="${esc(r.id)}" ${r.affordable ? '' : 'disabled'}>${r.open ? 'Raise' : 'Build'}</button></div>`}</div></li>`;
     };
     return `<div class="lookA">${builderHead()}<ul class="benches">${Array.from({ length: B.n }, (_, i) => bench(running[i], i)).join('')}</ul>
@@ -418,7 +418,7 @@ export function mountSect(h) {
     const row = (r, st) => `<li class="lrow ${st}"><button class="lthumb" data-roomtile="${esc(r.id)}" style="${siteCrop(r.id, 1)}" aria-label="${esc(r.name)}: details"></button>
         <span class="grow"><b>${esc(r.name)}</b> ${r.open ? lvPips(r) : '<span class="small dim">new</span>'}<br>
           ${st === 'locked' ? `<small class="dim">${esc(r.locked)}</small>` : st === 'max' ? '<small class="dim">Highest level</small>' : `<span class="rt-cost">${costChips(r.cost)}</span>`}</span>
-        ${st === 'can' ? `<span class="lgo"><button class="btn primary" data-build="${esc(r.id)}">${r.open ? 'Raise' : 'Build'}</button><small class="dim">${esc(awayT(r.hours))} away</small></span>`
+        ${st === 'can' ? `<span class="lgo"><button class="btn primary" data-build="${esc(r.id)}">${r.open ? 'Raise' : 'Build'}</button><small class="dim">ready in about ${esc(awayT(r.hours))}</small></span>`
     : st === 'short' ? `<small class="lneed">Needs ${esc(shortOf(r) || 'a free builder')}</small>` : ''}</li>`;
     const sect = (title, list, st) => (list.length ? `<h4 class="lhead">${esc(title)} <span class="dim small">${list.length}</span></h4><ul class="lrows">${list.map((r) => row(r, st)).join('')}</ul>` : '');
     return `<div class="lookB">${builderHead()}<ul class="lamps">${Array.from({ length: B.n }, (_, i) => lamp(running[i], i)).join('')}</ul>
