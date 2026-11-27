@@ -751,3 +751,28 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .piclist li { font-weight: 600; } .piclist .say { vertical-align: middle; }
 .step.soon { cursor: default; opacity: .8; }
 @media (max-width: 520px) { .pic .pin { width: 26px; height: 26px; font-size: .78rem; } .pic .lab { font-size: .72rem; padding: 1px 5px; transform: translate(-50%, 14px); } }
+
+/* handwriting (handwriting.js): a square of rice paper with the 米 guide lines, ink strokes, a lit hint */
+.hw { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; justify-content: center; margin: 6px 0 10px; }
+.hw-pad { width: min(100%, 380px); aspect-ratio: 1; border-radius: 18px; background: #f4ead6; box-shadow: inset 0 0 0 2px #d9c7a3, 0 4px 0 var(--line-d);
+  touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; overflow: hidden; }
+.hw-pad.done { cursor: default; }
+.hw-svg { display: block; width: 100%; height: 100%; }
+.hw-grid line { stroke: #c9ae80; stroke-width: 3; stroke-dasharray: 14 12; opacity: .6; }
+.hw-line, .hw-sweep { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.hw-line { stroke-width: 52; } .hw-sweep { stroke-width: 150; }
+.hw-ghost .hw-line { stroke: #b8a27c; opacity: .45; } .hw-ghost .hw-fill { fill: #b8a27c; opacity: .4; }
+.hw-done .hw-line { stroke: #1d1a24; } .hw-done .hw-fill { fill: #1d1a24; }
+.hw-hint .hw-line, .hw-hint .hw-sweep { stroke: #e0503c; opacity: .8; }
+.hw-demo .hw-line, .hw-demo .hw-sweep { stroke: #1d1a24; }
+.hw-ink { fill: none; stroke: #2b2633; stroke-width: 40; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+.hw-side { flex: 1 1 220px; max-width: 380px; display: grid; gap: 6px; }
+.hw-count { margin: 0; } .hw-msg { margin: 0; min-height: 1.5em; font-weight: 700; }
+.hw-msg.ok { color: var(--jade-d); } .hw-msg.no { color: var(--verm-d); }
+@media (prefers-color-scheme: dark) { .hw-msg.ok { color: #7fe9c3; } .hw-msg.no { color: #ffada0; } }
+.hw-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+.hw-tools .btn.on { background: var(--gold-soft); border-color: var(--gold-d); }
+.hw-credit { margin: 4px 0 0; font-size: .75rem; }
+.hw-self { margin-bottom: 12px; } .hw-self .row { gap: 8px; margin-top: 8px; }
+@media (prefers-reduced-motion: no-preference) { .hw-pad.shake { animation: shake .35s ease; } }
+@media (max-width: 520px) { .hw { gap: 10px; } .hw-pad { width: 100%; } .hw-side { max-width: none; } }

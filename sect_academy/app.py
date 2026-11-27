@@ -22,7 +22,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from . import colony, dao, drills, engine, packs, reader, state
+from . import colony, dao, drills, engine, hand, packs, reader, state
 
 STATIC = Path(__file__).parent / "static"
 app = FastAPI(title="Sect Academy", docs_url=None, redoc_url=None, openapi_url=None)
@@ -121,6 +121,11 @@ def vendor(name: str):
                         headers={"Cache-Control": "public, max-age=604800"})
 
 
+@app.get("/handwriting.js")
+def handwriting_js():
+    return _file("handwriting.js", "text/javascript")
+
+
 @app.get("/art.js")
 def art_js():
     return _file("art.js", "text/javascript")
@@ -182,6 +187,7 @@ class SettingsIn(BaseModel):
     retention: float | None = None
     tz_offset_min: int | None = None
     audio: bool | None = None
+    handwriting: bool | None = None
 
 
 class SessionIn(BaseModel):
@@ -352,6 +358,24 @@ def answer_picture(body: PictureAnswerIn):
     """A whole drag-the-words picture at once; each pin is graded and scheduled on its own."""
     res = engine.answer_picture([{"item": p.item[:80], "answer": p.answer[:200]} for p in body.pins[:17]],
                                 session=body.session, retry=body.retry)
+    if not res["ok"]:
+        raise HTTPException(400, res["error"])
+    return res
+
+
+class WriteIn(BaseModel):
+    session: str
+    item: str
+    chars: list = []           # per character: the strokes drawn, in order, each [x0, y0, x1, y1, ...] in the unit box
+    assisted: bool = False     # the outline or the demo was shown
+    retry: bool = False
+
+
+@app.post("/api/answer/write", dependencies=API)
+def answer_write(body: WriteIn):
+    """A glyph written by hand: every stroke drawn is replayed and matched here (hand.py), never on the page."""
+    res = engine.answer(body.item[:80], "glyph_write", {"chars": body.chars[:hand.MAX_CHARS], "assisted": body.assisted},
+                        retry=body.retry, session=body.session)
     if not res["ok"]:
         raise HTTPException(400, res["error"])
     return res

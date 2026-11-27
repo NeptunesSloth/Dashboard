@@ -22,7 +22,7 @@ import time
 import unicodedata
 import uuid
 
-from . import colony as game, fsrs, packs, state
+from . import colony as game, fsrs, hand, packs, state
 
 MATURE_DAYS = 21.0        # stability at which an item counts as "mastered"
 MIN_SESSION_ANSWERS = 8   # answers needed for a session to count for the streak
@@ -107,7 +107,7 @@ def set_settings(patch: dict) -> dict:
     with state.LOCK:
         st = state.get()
         merged = dict(st["settings"])
-        for key in ("new_per_day", "session_size", "retention", "tz_offset_min", "audio"):
+        for key in ("new_per_day", "session_size", "retention", "tz_offset_min", "audio", "handwriting"):
             if key in patch and patch[key] is not None:
                 merged[key] = patch[key]
         clean = state.clean_settings(merged)      # clamps; non-finite/ill-typed values fall back
@@ -391,6 +391,8 @@ def _mode_for(it: dict, card: dict | None, pack: dict) -> str:
             return "listen"
         return "type_l2"
     if t == "glyph":
+        if _write_due(it, card, pack):
+            return "glyph_write"         # known well enough: write it from its sound (handwriting.js)
         # see it and pick its sound; hear the sound and pick it; then read it cold
         return "glyph_choose" if reps == 0 else "glyph_pick" if reps == 1 else "glyph_type"
     if t == "cloze":
@@ -403,6 +405,14 @@ def _mode_for(it: dict, card: dict | None, pack: dict) -> str:
         # First rehearsals arrange the words; after that you answer from memory.
         return "dialogue_build" if reps < 2 else "dialogue_type"
     return t          # mcq, multi, order: always the test itself
+
+
+def _write_due(it: dict, card: dict | None, pack: dict) -> bool:
+    """Handwriting for a glyph that is known (stability >= hand.WRITE_MIN_S days), every other review,
+    when it is switched on and there is stroke data for every character."""
+    reps, s = int((card or {}).get("reps", 0)), float((card or {}).get("s", 0.0))
+    return (reps >= 2 and reps % 2 == 1 and s >= hand.WRITE_MIN_S and bool(state.get()["settings"].get("handwriting", True))
+            and hand.can_write(it["l2"], pack.get("lang", "")))
 
 
 def _distractors(it: dict, pack: dict, field: str, rng: random.Random, n: int = 3) -> list[str]:
@@ -487,6 +497,9 @@ def build_exercise(it: dict, mode: str, pack: dict, seed: int = 0) -> dict:
         ex.update(prompt=it["rom"], say=it["l2"], sub=it.get("l1", ""), ask="Which one is it?", choices=choices("l2", it["l2"]), big=True)
     elif mode == "glyph_type":
         ex.update(prompt=it["l2"], sub=it.get("l1", ""), ask="Type how it is read", big=True)
+    elif mode == "glyph_write":
+        ex.update(prompt=it["rom"], say=it["l2"], sub=it.get("l1", ""), ask="Write it, stroke by stroke",
+                  chars=hand.public(it["l2"], pack.get("lang", "")), credit=hand.credit(pack.get("lang", "")))
     elif mode == "choose_l2":
         ex.update(prompt=it["l1"], ask=f"Choose the {pack.get('language', 'translation')}", choices=choices("l2", it["l2"]))
     elif mode == "type_l2":
@@ -617,6 +630,10 @@ def check(it: dict, mode: str, answer) -> dict:
         # a saved word in its own sentence: the form as it was met, no typo forgiven (as in any cloze)
         return check_typed(answer if isinstance(answer, str) else "",
                            [it["cloze_ans"], *([it["cloze_rom"]] if it.get("cloze_rom") else [])], slips=False)
+    if it["type"] == "glyph" and mode == "glyph_write":     # drawn strokes, replayed and matched here (hand.py)
+        return hand.check(it, answer, (packs.get(it.get("pack", "")) or {}).get("lang", ""))
+    if it["type"] == "glyph" and mode == "glyph_self":      # "I wrote it on paper": a self-report, Hard at best
+        return {**hand.check_self(answer), "expected": it["l2"]}
     if mode not in _MODES[it["type"]]:
         return {"correct": False, "flag": None, "expected": "", "error": "bad mode"}
     if it["type"] == "dialogue":
@@ -845,6 +862,8 @@ def _miss(st: dict, iid: str, given, now: float) -> None:
     """Remember a wrong answer until it has been put right."""
     m = st.setdefault("mistakes", {})
     shown = " / ".join(str(g) for g in given) if isinstance(given, (list, tuple)) else str(given or "")
+    if isinstance(given, dict):
+        shown = "(handwriting)"
     m[iid] = {"n": min(9, m.get(iid, {}).get("n", 0) + 1), "ts": now, "given": shown[:200]}
     if len(m) > 2000:
         for old in sorted(m, key=lambda k: m[k]["ts"])[:len(m) - 2000]:
@@ -1083,7 +1102,7 @@ def answer(item_id: str, mode: str, given, *, retry: bool = False, practice: boo
         d = _day(st, now)
         d["answers"] += 1
         d["correct"] += 1 if res["correct"] else 0
-        typed = mode in ("type_l2", "listen", "cloze_type", "dialogue_type", "glyph_type")
+        typed = mode in ("type_l2", "listen", "cloze_type", "dialogue_type", "glyph_type", "glyph_write")
         d["typed"] = d.get("typed", 0) + (1 if typed and res["correct"] else 0)
         if it["pack"] not in d["courses"]:
             d["courses"].append(it["pack"])

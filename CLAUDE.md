@@ -40,6 +40,11 @@ sect_academy/
   packs/pictures/  shared picture-lesson pictures: pin ids + positions, one file each
   fsrs.py       FSRS-6 scheduler, published default weights
   drills.py     generated subnetting and port drills (graded here, never scheduled)
+  hand.py       handwriting: stroke data lookup + the stroke matcher that grades
+                `glyph_write` server-side; hangul.py composes Hangul strokes from jamo
+  strokes/<lang>/  stroke data, each folder with a README naming source and licence
+                (ja/: KanjiVG, CC BY-SA 3.0; zh/: Make Me a Hanzi, Arphic Public
+                License, ARPHICPL.TXT kept unaltered beside it)
   engine.py     enrolment, sessions, server-side grading, placement, trials
   colony.py     the sect: pawns, needs, work, building, research, storyteller,
                 breakthroughs, rival sects, choice events (see _RESOLVERS)
@@ -67,9 +72,11 @@ sect_academy/
   static/       index.html, academy.js (shell + study), sect.js (colony UI),
                 reader.js (Read: shelf, pages, lookup card, dictionary, My words),
                 pictures.js (picture lessons: pins, drag/tap exercises),
+                handwriting.js (writing pad, live stroke hints, demo, self-check),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js,
                 vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
 tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
+                test_handwriting.py,
                 test_lexicon_zh_ja.py, lexicon_quality.py (zh/ja hit rate and word boundaries on the courses),
                 balance.py + test_balance.py (scripted 150-day games),
                 smoke_browser.py
@@ -205,3 +212,16 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   "Picture coming soon"). `scripts/pin_preview.py <id>` draws the pins on the
   painting to set coordinates; brief in docs/ART_PIPELINE.md "Round 3".
 - One process only: state is held in memory.
+- **Handwriting** (`glyph_write`): a glyph item that is known (FSRS stability >=
+  `hand.WRITE_MIN_S`, every other review, setting `handwriting` on) is asked
+  written from its sound. The page checks each stroke with a JS port of the
+  matcher only to hint; it then posts every stroke drawn (failed ones too) to
+  `/api/answer/write`, and `hand.check` replays them: correct when every
+  character is complete with <= `slips_allowed` misses (any miss, or the
+  outline/demo, makes it Hard). Keep `TOL` in `handwriting.js` equal to the
+  constants in `hand.py` (a test compares them). "I wrote it on paper" is
+  `glyph_self`, a self-report capped at Hard. Both modes are handled before the
+  `_MODES` check in `engine.check` (they are never asked in trials). Stroke
+  data covers all kana and every CJK character in the ja/zh course files;
+  after adding characters run `python scripts/build_strokes.py` (the coverage
+  test names what is missing). Korean needs no file: `hangul.py` is ours.
