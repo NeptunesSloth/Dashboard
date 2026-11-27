@@ -534,7 +534,7 @@ units:
       - {id: ko2-07-bakkuda, type: vocab, l2: "바꾸다", rom: "bakkuda", l1: "to change / to exchange", ex: "이거 바꿀 수 있어요?", ex_rom: "igeo bakkul su isseoyo?", ex_l1: "Can I exchange this?"}
       - {id: ko2-07-hwanbul, type: vocab, l2: "환불", rom: "hwanbul", l1: "a refund", ex: "환불돼요?", ex_rom: "hwanbuldwaeyo?", ex_l1: "Can I get a refund?"}
       - {id: ko2-07-yeongsujeung, type: vocab, l2: "영수증", rom: "yeongsujeung", l1: "receipt", ex: "영수증 여기 있어요.", ex_rom: "yeongsujeung yeogi isseoyo.", ex_l1: "Here's the receipt."}
-      - {id: ko2-07-harin, type: vocab, l2: "할인", rom: "harin", l1: "a discount", alt: ["세일", "seil"], ex: "오늘 할인해요?", ex_rom: "oneul harinhaeyo?", ex_l1: "Is there a discount today?"}
+      - {id: ko2-07-harin, type: vocab, l2: "할인", rom: "harin", l1: "a discount", ex: "오늘 할인해요?", ex_rom: "oneul harinhaeyo?", ex_l1: "Is there a discount today?"}
       - {id: ko2-07-yeppeuda, type: vocab, l2: "예쁘다", rom: "yeppeuda", l1: "to be pretty", ex: "이 색이 예뻐요.", ex_rom: "i saegi yeppeoyo.", ex_l1: "This colour is pretty.", note: "ㅡ drops before 어: 예뻐요."}
       - {id: ko2-07-dareuda, type: vocab, l2: "다르다", rom: "dareuda", l1: "to be different", ex: "사이즈가 달라요.", ex_rom: "saijeuga dallayo.", ex_l1: "The sizes are different.", note: "르-irregular: 달라요. The opposite is 같다 (the same)."}
       - {id: ko2-07-deo, type: vocab, l2: "더", rom: "deo", l1: "more", ex: "더 싼 거 있어요?", ex_rom: "deo ssan geo isseoyo?", ex_l1: "Do you have a cheaper one?"}

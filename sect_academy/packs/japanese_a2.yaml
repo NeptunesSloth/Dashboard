@@ -124,7 +124,7 @@ units:
       - {id: ja2-02-k-de, type: glyph, l2: "出", rom: "de", l1: "go out (で in 出る でる and 出口 でぐち; だ in 出す だす, take out)", alt: ["da"]}
       - {id: ja2-02-akeru, type: vocab, l2: "あける", rom: "akeru", l1: "to open (something)", alt: ["開ける"], ex: "まど を あけて ください。", ex_rom: "Mado o akete kudasai.", ex_l1: "Please open the window.", note: "る-verb: あけます, あけて. Kanji: 開ける."}
       - {id: ja2-02-shimeru, type: vocab, l2: "しめる", rom: "shimeru", l1: "to close / shut (something)", alt: ["閉める"], ex: "ドア を しめて ください。", ex_rom: "Doa o shimete kudasai.", ex_l1: "Please shut the door.", note: "る-verb: しめます, しめて. Kanji: 閉める."}
-      - {id: ja2-02-tsukeru, type: vocab, l2: "つける", rom: "tsukeru", l1: "to turn on (a light, the TV)", ex: "テレビ を つけて も いい です か。", ex_rom: "Terebi o tsukete mo ii desu ka.", ex_l1: "May I turn on the TV?", note: "る-verb. Usually in kana (kanji 点ける)."}
+      - {id: ja2-02-tsukeru, type: vocab, l2: "つける", rom: "tsukeru", l1: "to turn on (a light, the TV)", ex: "テレビ を つけて ください。", ex_rom: "Terebi o tsukete kudasai.", ex_l1: "Please turn on the TV.", note: "る-verb. Usually in kana (kanji 点ける)."}
       - {id: ja2-02-kesu, type: vocab, l2: "けす", rom: "kesu", l1: "to turn off; to erase", alt: ["消す"], ex: "テレビ を けして ください。", ex_rom: "Terebi o keshite kudasai.", ex_l1: "Please turn off the TV.", note: "Also 'to erase': なまえ を けす. て-form: けして. Kanji: 消す."}
       - {id: ja2-02-matsu, type: vocab, l2: "まつ", rom: "matsu", l1: "to wait (for)", alt: ["待つ"], ex: "えき で ともだち を まちます。", ex_rom: "Eki de tomodachi o machimasu.", ex_l1: "I wait for my friend at the station.", note: "The person waited for takes を. て-form: まって. Kanji: 待つ."}
       - {id: ja2-02-iu, type: vocab, l2: "いう", rom: "iu", l1: "to say", alt: ["言う", "yuu", "yū"], ex: "なまえ を いって ください。", ex_rom: "Namae o itte kudasai.", ex_l1: "Please say your name.", note: "Written いう, pronounced yuu. て-form: いって. Kanji: 言う."}
@@ -149,11 +149,10 @@ units:
       - {id: ja2-02-c1, type: cloze, text: "すみません、 まど を ___ ください。", answer: "あけて", l1: "Excuse me, please open the window.", alt: ["akete", "開けて"], note: "る-verb: あける → あけて."}
       - {id: ja2-02-c2, type: cloze, text: "ここ で ___ ください。", answer: "まって", l1: "Please wait here.", alt: ["matte", "待って"], note: "つ → って."}
       - {id: ja2-02-c3, type: cloze, text: "この ペン を ___ ください。", answer: "つかって", l1: "Please use this pen.", alt: ["tsukatte", "使って"], note: "う → って."}
-      - {id: ja2-02-c4, type: cloze, text: "どうぞ、 おちゃ を ___ ください。", answer: "のんで", l1: "Please, have some tea.", alt: ["nonde", "飲んで"], note: "む → んで."}
-      - {id: ja2-02-c5, type: cloze, text: "ここ に なまえ を ___ ください。", answer: "かいて", l1: "Please write your name here.", alt: ["kaite", "書いて"], note: "く → いて."}
-      - {id: ja2-02-c6, type: cloze, text: "にほんご で ___ ください。", answer: "はなして", l1: "Please speak in Japanese.", alt: ["hanashite", "話して"], note: "す → して."}
-      - {id: ja2-02-c7, type: cloze, text: "あした も ___ ください。", answer: "きて", l1: "Please come tomorrow too.", alt: ["kite", "来て"], note: "くる → きて (irregular)."}
-      - {id: ja2-02-c8, type: cloze, text: "としょかん へ ___、 べんきょう しました。", answer: "いって", l1: "I went to the library and studied.", alt: ["itte", "行って"], note: "いく → いって: the one exception."}
+      - {id: ja2-02-c4, type: cloze, text: "ここ に なまえ を ___ ください。", answer: "かいて", l1: "Please write your name here.", alt: ["kaite", "書いて"], note: "く → いて."}
+      - {id: ja2-02-c5, type: cloze, text: "にほんご で ___ ください。", answer: "はなして", l1: "Please speak in Japanese.", alt: ["hanashite", "話して"], note: "す → して."}
+      - {id: ja2-02-c6, type: cloze, text: "あした も ___ ください。", answer: "きて", l1: "Please come tomorrow too.", alt: ["kite", "来て"], note: "くる → きて (irregular)."}
+      - {id: ja2-02-c7, type: cloze, text: "としょかん へ ___、 べんきょう しました。", answer: "いって", l1: "I went to the library and studied.", alt: ["itte", "行って"], note: "いく → いって: the one exception."}
       - id: ja2-02-d-visit
         type: dialogue
         title: "Visiting a colleague's home"
@@ -462,7 +461,7 @@ units:
       - {id: ja2-06-ojiisan, type: vocab, l2: "おじいさん", rom: "ojiisan", l1: "grandfather; old man", alt: ["お祖父さん"], ex: "おじいさん は はちじゅっさい です。", ex_rom: "Ojiisan wa hachijussai desu.", ex_l1: "My grandfather is eighty.", note: "Long i: おじいさん. おじさん (short i) is an uncle. Kanji: お祖父さん."}
       - {id: ja2-06-obaasan, type: vocab, l2: "おばあさん", rom: "obaasan", l1: "grandmother; old woman", alt: ["お祖母さん", "obāsan"], ex: "おばあさん は げんき です か。", ex_rom: "Obaasan wa genki desu ka.", ex_l1: "Is your grandmother well?", note: "Long a: おばあさん. おばさん (short a) is an aunt. Kanji: お祖母さん."}
       - {id: ja2-06-un, type: vocab, l2: "うん", rom: "un", l1: "yeah (casual yes)", ex: "うん、 いく。", ex_rom: "Un, iku.", ex_l1: "Yeah, I'll go.", note: "Only with friends and family."}
-      - {id: ja2-06-uun, type: vocab, l2: "ううん", rom: "uun", l1: "nah (casual no)", alt: ["ūn"], ex: "ううん、 いかない。", ex_rom: "Uun, ikanai.", ex_l1: "Nah, I'm not going.", note: "Two beats, falling then rising. Only with friends and family."}
+      - {id: ja2-06-uun, type: vocab, l2: "ううん", rom: "uun", l1: "nah (casual no)", ex: "ううん、 いかない。", ex_rom: "Uun, ikanai.", ex_l1: "Nah, I'm not going.", note: "Two beats, falling then rising. Only with friends and family."}
       - {id: ja2-06-daijoubu, type: vocab, l2: "だいじょうぶ", rom: "daijoubu", l1: "all right / OK / fine (な-adjective)", alt: ["大丈夫", "daijōbu"], ex: "だいじょうぶ です か。", ex_rom: "Daijoubu desu ka.", ex_l1: "Are you all right?", note: "Also a polite 'no thanks': だいじょうぶ です. Kanji: 大丈夫."}
       - {id: ja2-06-hontou, type: vocab, l2: "ほんとう", rom: "hontou", l1: "true; real (ほんとう？ = really?)", alt: ["本当", "hontō", "ほんと", "honto"], ex: "ほんとう に おいしい です。", ex_rom: "Hontou ni oishii desu.", ex_l1: "It's really delicious.", note: "ほんとう に = really, truly. Casual: ほんと？ Kanji: 本当."}
       - {id: ja2-06-hima, type: vocab, l2: "ひま", rom: "hima", l1: "free (time) (な-adjective)", alt: ["暇"], ex: "しゅうまつ は ひま です。", ex_rom: "Shuumatsu wa hima desu.", ex_l1: "I'm free at the weekend.", note: "Kanji: 暇."}
@@ -483,7 +482,6 @@ units:
       - {id: ja2-06-c5, type: cloze, text: "あの えいが、 すごく ___。", answer: "おもしろかった", l1: "That film was really good. (casual)", alt: ["omoshirokatta", "面白かった"], note: "い-adjective past: い → かった."}
       - {id: ja2-06-c6, type: cloze, text: "きのう は やすみ ___。", answer: "だった", l1: "Yesterday was a day off. (casual)", alt: ["datta"], note: "でした → だった."}
       - {id: ja2-06-c7, type: cloze, text: "ともだち が まだ ___。", answer: "こない", l1: "My friend still hasn't come. (casual)", alt: ["konai", "来ない"], note: "くる → こない (irregular)."}
-      - {id: ja2-06-c8, type: cloze, text: "いま おかね が ___。", answer: "ない", l1: "I have no money right now. (casual)", alt: ["nai", "無い"], note: "ある → ない (irregular)."}
       - id: ja2-06-d-casual
         type: dialogue
         title: "Are you free tomorrow?"
@@ -703,7 +701,7 @@ units:
       - {id: ja2-09-zenbu, type: vocab, l2: "ぜんぶ", rom: "zenbu", l1: "all / everything", alt: ["全部"], ex: "ぜんぶ たべられません。", ex_rom: "Zenbu taberaremasen.", ex_l1: "I can't eat it all.", note: "ぜんぶ で = altogether. Kanji: 全部."}
       - {id: ja2-09-eigakan, type: vocab, l2: "えいがかん", rom: "eigakan", l1: "cinema / movie theatre", alt: ["映画館"], ex: "あたらしい えいが は えいがかん で みられます。", ex_rom: "Atarashii eiga wa eigakan de miraremasu.", ex_l1: "You can see the new film at the cinema.", note: "Kanji: 映画館."}
       - {id: ja2-09-kowareru, type: vocab, l2: "こわれる", rom: "kowareru", l1: "to break / to stop working (by itself)", alt: ["壊れる"], ex: "パソコン が こわれました。", ex_rom: "Pasokon ga kowaremashita.", ex_l1: "My computer has broken.", note: "No object: the thing breaks. Kanji: 壊れる."}
-      - {id: ja2-09-oboeru, type: vocab, l2: "おぼえる", rom: "oboeru", l1: "to memorise / to learn by heart; to remember", alt: ["覚える"], ex: "まいにち ことば を じゅう おぼえます。", ex_rom: "Mainichi kotoba o juu oboemasu.", ex_l1: "Every day I learn ten words.", note: "Still remember = おぼえて います. Kanji: 覚える."}
+      - {id: ja2-09-oboeru, type: vocab, l2: "おぼえる", rom: "oboeru", l1: "to memorise / to learn by heart; to remember", alt: ["覚える"], ex: "まいにち あたらしい ことば を おぼえます。", ex_rom: "Mainichi atarashii kotoba o oboemasu.", ex_l1: "I learn new words every day.", note: "Still remember = おぼえて います. Kanji: 覚える."}
       - {id: ja2-09-sukoshi-hanasemasu, type: phrase, l2: "にほんご が すこし はなせます。", rom: "Nihongo ga sukoshi hanasemasu.", l1: "I can speak a little Japanese.", alt: ["日本語が少し話せます", "にほんご を すこし はなせます。", "Nihongo o sukoshi hanasemasu.", "すこし にほんご が はなせます。", "Sukoshi Nihongo ga hanasemasu.", "にほんご が ちょっと はなせます。", "Nihongo ga chotto hanasemasu.", "Nihongo wo sukoshi hanasemasu."], note: "はなす → はなせる → はなせます. With kanji: 日本語が少し話せます"}
       - {id: ja2-09-sashimi, type: phrase, l2: "さしみ が たべられます か。", rom: "Sashimi ga taberaremasu ka.", l1: "Can you eat sashimi (raw fish)?", alt: ["刺身が食べられますか", "さしみ は たべられます か。", "Sashimi wa taberaremasu ka.", "さしみ を たべられます か。", "Sashimi o taberaremasu ka.", "Sashimi ha taberaremasu ka.", "Sashimi wo taberaremasu ka."], note: "A kind question to a guest. With kanji: 刺身が食べられますか"}
       - {id: ja2-09-kikoemasen, type: phrase, l2: "すみません、 よく きこえません。", rom: "Sumimasen, yoku kikoemasen.", l1: "Sorry, I can't hear you very well.", alt: ["すみません、よく聞こえません", "すみません、 きこえません。", "Sumimasen, kikoemasen."], note: "Useful on the phone and in noisy places. With kanji: すみません、よく聞こえません"}
@@ -835,7 +833,7 @@ units:
       ## In a clothes shop
       **〜て みる** = try doing: きて みて も いい です か (may I try it on?). **〜の** stands in for a noun: もう すこし おおきい **の** (a slightly bigger one). Deciding: **これ に します**.
     items:
-      - {id: ja2-11-k-ka, type: glyph, l2: "買", rom: "ka", l1: "buy (か in 買う かう and 買い物 かいもの)", alt: ["bai"]}
+      - {id: ja2-11-k-ka, type: glyph, l2: "買", rom: "ka", l1: "buy (か in 買う かう and 買い物 かいもの; ばい in 売買 ばいばい, buying and selling)", alt: ["bai"]}
       - {id: ja2-11-k-u, type: glyph, l2: "売", rom: "u", l1: "sell (う in 売る うる; ばい in 売店 ばいてん, a kiosk)", alt: ["bai"]}
       - {id: ja2-11-k-aka, type: glyph, l2: "赤", rom: "aka", l1: "red (あか in 赤い あかい; せき in 赤道 せきどう, the equator)", alt: ["seki"]}
       - {id: ja2-11-k-ao, type: glyph, l2: "青", rom: "ao", l1: "blue (あお in 青い あおい; せい in 青年 せいねん, a young man)", alt: ["sei"]}

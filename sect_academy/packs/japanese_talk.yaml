@@ -1,0 +1,828 @@
+id: japanese-talk
+title: "Japanese — Conversations"
+kind: language
+language: Japanese
+lang: ja-JP
+hall: tongues_west
+blurb: "Spoken-conversation practice to take alongside A1 and A2: 50 everyday exchanges you rehearse line by line, from a first self-introduction to checking in at a hotel."
+
+units:
+  # ───────────────────────────────────────────────────────────────── 1
+  - id: ja-talk-01
+    title: "Introductions"
+    goal: "I can introduce myself, ask the same questions back, react to what I hear, ask people to repeat or explain a word, and take my leave politely."
+    notes: |
+      A Japanese first meeting follows a script that everyone knows, so learn it as whole chunks and say them aloud.
+
+      - **Open**: はじめまして。 [name] です。 At work or with someone older: [name] **と もうします**.
+      - **Close the introduction**: どうぞ よろしく おねがいします. The reply is **こちらこそ** (likewise).
+      - **Ask back**: **〜さん は？** — the easiest way to keep a conversation going. Use the person's name, not あなた.
+      - **React**: そう です か (I see), **へえ** (oh, really?), いい です ね, すごい です ね.
+      - **When you are lost**: もう いちど おねがいします · ゆっくり おねがいします · **〜って なん です か** (what does … mean?).
+      - **Compliments**: にほんご、 じょうず です ね！ The modest reply is いいえ、 まだまだ です — never just "thank you".
+      - **Business cards**: give and take them with both hands, and read the card before you put it away.
+      - **Leave**: **そろそろ しつれいします** (I'd better be going), じゃ、 また.
+    items:
+      - id: ja-talk-01-neighbour
+        type: dialogue
+        title: "Meeting the neighbour"
+        scene: "You have just moved into a flat. On your first morning the woman next door greets you in the corridor."
+        you: B
+        lines:
+          - {who: A, l2: "おはよう ございます。 となり に ひっこして きた かた です か。", rom: "Ohayou gozaimasu. Tonari ni hikkoshite kita kata desu ka.", l1: "Good morning. Are you the person who's just moved in next door?"}
+          - {who: B, l2: "はい、 スミス です。 はじめまして。", rom: "Hai, Sumisu desu. Hajimemashite.", l1: "Yes, I'm Smith. How do you do?", alt: ["はい。 はじめまして、 スミス です。", "Hai. Hajimemashite, Sumisu desu.", "はい、 スミス と もうします。 はじめまして。", "Hai, Sumisu to moushimasu. Hajimemashite.", "Hai, Sumisu to mōshimasu. Hajimemashite."]}
+          - {who: A, l2: "はじめまして。 となり の やまだ です。 どちら から いらっしゃいました か。", rom: "Hajimemashite. Tonari no Yamada desu. Dochira kara irasshaimashita ka.", l1: "How do you do? I'm Yamada from next door. Where have you come from?"}
+          - {who: B, l2: "イギリス から きました。", rom: "Igirisu kara kimashita.", l1: "I came from Britain.", alt: ["イギリス です。", "Igirisu desu.", "イギリス から きました。 ロンドン です。", "Igirisu kara kimashita. Rondon desu."]}
+          - {who: A, l2: "そう です か。 にほん は はじめて です か。", rom: "Sou desu ka. Nihon wa hajimete desu ka.", l1: "Really? Is this your first time in Japan?"}
+          - {who: B, l2: "はい、 はじめて です。", rom: "Hai, hajimete desu.", l1: "Yes, it's my first time.", alt: ["ええ、 はじめて です。", "Ee, hajimete desu.", "Ē, hajimete desu."]}
+          - {who: A, l2: "わからない こと が あったら、 いつでも きいて ください ね。", rom: "Wakaranai koto ga attara, itsudemo kiite kudasai ne.", l1: "If there's anything you're not sure about, just ask me any time."}
+          - {who: B, l2: "ありがとう ございます。 よろしく おねがいします。", rom: "Arigatou gozaimasu. Yoroshiku onegaishimasu.", l1: "Thank you. I hope we'll get on well.", alt: ["ありがとう ございます。 どうぞ よろしく おねがいします。", "Arigatou gozaimasu. Douzo yoroshiku onegaishimasu.", "Arigatō gozaimasu. Yoroshiku onegaishimasu.", "Arigatō gozaimasu. Dōzo yoroshiku onegaishimasu."]}
+      - id: ja-talk-01-exchange
+        type: dialogue
+        title: "At a language exchange"
+        scene: "You arrive at a language-exchange evening in a café and see a free seat next to a young man. You are Alex."
+        you: A
+        lines:
+          - {who: A, l2: "こんにちは。 ここ、 いい です か。", rom: "Konnichiwa. Koko, ii desu ka.", l1: "Hi. Is it OK if I sit here?", alt: ["すみません、 ここ、 いい です か。", "Sumimasen, koko, ii desu ka.", "こんにちは。 ここ に すわって も いい です か。", "Konnichiwa. Koko ni suwatte mo ii desu ka."]}
+          - {who: B, l2: "どうぞ、 どうぞ。 はじめまして。 けんた です。", rom: "Douzo, douzo. Hajimemashite. Kenta desu.", l1: "Sure, go ahead. Nice to meet you. I'm Kenta."}
+          - {who: A, l2: "はじめまして。 アレックス です。 よろしく。", rom: "Hajimemashite. Arekkusu desu. Yoroshiku.", l1: "Nice to meet you. I'm Alex. Good to meet you.", alt: ["はじめまして。 アレックス です。 よろしく おねがいします。", "Hajimemashite. Arekkusu desu. Yoroshiku onegaishimasu."]}
+          - {who: B, l2: "アレックスさん は がくせい です か。", rom: "Arekkusu-san wa gakusei desu ka.", l1: "Are you a student, Alex?"}
+          - {who: A, l2: "いいえ、 かいしゃいん です。 けんたさん は？", rom: "Iie, kaishain desu. Kenta-san wa?", l1: "No, I work for a company. What about you, Kenta?", alt: ["いいえ、 かいしゃいん です。 けんたさん は がくせい です か。", "Iie, kaishain desu. Kenta-san wa gakusei desu ka.", "Iie, kaishain desu. Kenta-san ha?", "Iie, kaishain desu. Kenta-san ha gakusei desu ka."]}
+          - {who: B, l2: "ぼく は だいがくせい です。 えいご を べんきょう して います。", rom: "Boku wa daigakusei desu. Eigo o benkyou shite imasu.", l1: "I'm a university student. I'm studying English."}
+          - {who: A, l2: "そう です か。 わたし は にほんご を べんきょう して います。", rom: "Sou desu ka. Watashi wa Nihongo o benkyou shite imasu.", l1: "Oh, I see. I'm studying Japanese.", alt: ["へえ。 わたし は にほんご を べんきょう して います。", "Hee. Watashi wa Nihongo o benkyou shite imasu.", "Sou desu ka. Watashi wa Nihongo wo benkyou shite imasu.", "Sou desu ka. Watashi ha Nihongo o benkyou shite imasu.", "Sou desu ka. Watashi ha Nihongo wo benkyou shite imasu.", "Sō desu ka. Watashi wa Nihongo o benkyō shite imasu.", "Sō desu ka. Watashi wa Nihongo wo benkyō shite imasu.", "Sō desu ka. Watashi ha Nihongo o benkyō shite imasu.", "Sō desu ka. Watashi ha Nihongo wo benkyō shite imasu.", "Hee. Watashi wa Nihongo wo benkyou shite imasu.", "Hee. Watashi ha Nihongo o benkyou shite imasu.", "Hee. Watashi ha Nihongo wo benkyou shite imasu.", "Hē. Watashi wa Nihongo o benkyō shite imasu.", "Hē. Watashi wa Nihongo wo benkyō shite imasu.", "Hē. Watashi ha Nihongo o benkyō shite imasu.", "Hē. Watashi ha Nihongo wo benkyō shite imasu."]}
+          - {who: B, l2: "じゃ、 いっしょ に がんばりましょう！", rom: "Ja, issho ni ganbarimashou!", l1: "Then let's both do our best!"}
+      - id: ja-talk-01-compliment
+        type: dialogue
+        title: "Your Japanese is good!"
+        scene: "At a barbecue, a friend of a friend hears you speaking Japanese and is impressed."
+        you: B
+        lines:
+          - {who: A, l2: "にほんご、 じょうず です ね！", rom: "Nihongo, jouzu desu ne!", l1: "Your Japanese is really good!"}
+          - {who: B, l2: "いいえ、 まだまだ です。", rom: "Iie, madamada desu.", l1: "Oh no, I've still got a long way to go.", alt: ["いえいえ、 まだまだ です。", "Ieie, madamada desu.", "いいえ、 まだまだ です よ。", "Iie, madamada desu yo."]}
+          - {who: A, l2: "どの ぐらい べんきょう して います か。", rom: "Dono gurai benkyou shite imasu ka.", l1: "How long have you been studying?"}
+          - {who: B, l2: "いちねん ぐらい です。", rom: "Ichinen gurai desu.", l1: "About a year.", alt: ["いちねん ぐらい べんきょう して います。", "Ichinen gurai benkyou shite imasu.", "いちねん ぐらい です ね。", "Ichinen gurai desu ne.", "Ichinen gurai benkyō shite imasu."]}
+          - {who: A, l2: "いちねん で？ すごい です ね。 どう やって べんきょう しました か。", rom: "Ichinen de? Sugoi desu ne. Dou yatte benkyou shimashita ka.", l1: "In a year? That's amazing. How did you study?"}
+          - {who: B, l2: "がっこう と アプリ で べんきょう しました。", rom: "Gakkou to apuri de benkyou shimashita.", l1: "At a language school and with an app.", alt: ["がっこう と アプリ です。", "Gakkou to apuri desu.", "Gakkō to apuri de benkyō shimashita.", "Gakkō to apuri desu."]}
+          - {who: A, l2: "そう なんです か。 わたし も えいご を べんきょう したい ん です。", rom: "Sou nan desu ka. Watashi mo eigo o benkyou shitai n desu.", l1: "Is that right? I want to study English too."}
+          - {who: B, l2: "じゃ、 こんど いっしょ に べんきょう しましょう。", rom: "Ja, kondo issho ni benkyou shimashou.", l1: "Then let's study together some time.", alt: ["じゃ、 こんど いっしょ に べんきょう しません か。", "Ja, kondo issho ni benkyou shimasen ka.", "じゃあ、 こんど いっしょ に べんきょう しましょう。", "Jaa, kondo issho ni benkyou shimashou.", "Ja, kondo issho ni benkyō shimashō.", "Ja, kondo issho ni benkyō shimasen ka.", "Jā, kondo issho ni benkyō shimashō."]}
+      - id: ja-talk-01-what-does-it-mean
+        type: dialogue
+        title: "What does that word mean?"
+        scene: "Your colleague Mr. Kondo is chatting with you over lunch and uses a word you don't know."
+        you: B
+        lines:
+          - {who: A, l2: "スミスさん、 しゅっしん は どちら です か。", rom: "Sumisu-san, shusshin wa dochira desu ka.", l1: "Mr. Smith, where are you from originally?"}
+          - {who: B, l2: "すみません、 しゅっしん って なん です か。", rom: "Sumimasen, shusshin tte nan desu ka.", l1: "Sorry, what does 'shusshin' mean?", alt: ["すみません、 「しゅっしん」 って なん です か。", "すみません、 しゅっしん は どういう いみ です か。", "Sumimasen, shusshin wa dou iu imi desu ka.", "Sumimasen, shusshin ha dou iu imi desu ka.", "Sumimasen, shusshin wa dō iu imi desu ka.", "Sumimasen, shusshin ha dō iu imi desu ka."]}
+          - {who: A, l2: "ああ、 うまれた ところ です。 どこ で うまれました か。", rom: "Aa, umareta tokoro desu. Doko de umaremashita ka.", l1: "Oh, the place you were born. Where were you born?"}
+          - {who: B, l2: "ああ、 わかりました。 マンチェスター です。", rom: "Aa, wakarimashita. Manchesutaa desu.", l1: "Ah, I see. Manchester.", alt: ["わかりました。 マンチェスター です。", "Wakarimashita. Manchesutaa desu.", "ああ、 わかりました。 マンチェスター で うまれました。", "Aa, wakarimashita. Manchesutaa de umaremashita.", "Ā, wakarimashita. Manchesutā desu.", "Wakarimashita. Manchesutā desu.", "Ā, wakarimashita. Manchesutā de umaremashita."]}
+          - {who: A, l2: "マンチェスター？ サッカー で ゆうめい な まち です よね。", rom: "Manchesutaa? Sakkaa de yuumei na machi desu yo ne.", l1: "Manchester? That's the city famous for football, isn't it?"}
+          - {who: B, l2: "すみません、 もう すこし ゆっくり おねがいします。", rom: "Sumimasen, mou sukoshi yukkuri onegaishimasu.", l1: "Sorry, a little more slowly, please.", alt: ["すみません、 ゆっくり おねがいします。", "Sumimasen, yukkuri onegaishimasu.", "すみません、 もう すこし ゆっくり はなして ください。", "Sumimasen, mou sukoshi yukkuri hanashite kudasai.", "Sumimasen, mō sukoshi yukkuri onegaishimasu.", "Sumimasen, mō sukoshi yukkuri hanashite kudasai."]}
+          - {who: A, l2: "あ、 すみません。 サッカー で、 ゆうめい な、 まち です よね。", rom: "A, sumimasen. Sakkaa de, yuumei na, machi desu yo ne.", l1: "Oh, sorry. It's a city... famous... for football, right?"}
+          - {who: B, l2: "はい、 そう です。 サッカー が すき です か。", rom: "Hai, sou desu. Sakkaa ga suki desu ka.", l1: "Yes, that's right. Do you like football?", alt: ["ええ、 そう です。 サッカー が すき です か。", "Ee, sou desu. Sakkaa ga suki desu ka.", "Hai, sō desu. Sakkā ga suki desu ka.", "Ē, sō desu. Sakkā ga suki desu ka."]}
+      - id: ja-talk-01-business-cards
+        type: dialogue
+        title: "Exchanging business cards"
+        scene: "You are Smith, visiting a client company in Tokyo. Mr. Tanaka meets you in reception."
+        you: B
+        lines:
+          - {who: A, l2: "はじめまして。 さくら しょうじ の たなか と もうします。", rom: "Hajimemashite. Sakura Shouji no Tanaka to moushimasu.", l1: "How do you do? My name is Tanaka, of Sakura Trading."}
+          - {who: B, l2: "はじめまして。 スミス と もうします。", rom: "Hajimemashite. Sumisu to moushimasu.", l1: "How do you do? My name is Smith.", alt: ["はじめまして。 スミス です。", "Hajimemashite. Sumisu desu.", "はじめまして。 わたくし は スミス と もうします。", "Hajimemashite. Watakushi wa Sumisu to moushimasu.", "Hajimemashite. Sumisu to mōshimasu.", "Hajimemashite. Watakushi ha Sumisu to moushimasu.", "Hajimemashite. Watakushi wa Sumisu to mōshimasu.", "Hajimemashite. Watakushi ha Sumisu to mōshimasu."]}
+          - {who: A, l2: "こちら、 わたくし の めいし です。 どうぞ よろしく おねがいします。", rom: "Kochira, watakushi no meishi desu. Douzo yoroshiku onegaishimasu.", l1: "Here is my card. I look forward to working with you."}
+          - {who: B, l2: "ありがとう ございます。 わたし の めいし です。", rom: "Arigatou gozaimasu. Watashi no meishi desu.", l1: "Thank you. And here is mine.", alt: ["ちょうだい します。 わたし の めいし です。", "Choudai shimasu. Watashi no meishi desu.", "ありがとう ございます。 こちら が わたし の めいし です。", "Arigatou gozaimasu. Kochira ga watashi no meishi desu.", "Arigatō gozaimasu. Watashi no meishi desu.", "Chōdai shimasu. Watashi no meishi desu.", "Arigatō gozaimasu. Kochira ga watashi no meishi desu."]}
+          - {who: A, l2: "スミスさん は ロンドン から いらっしゃいました か。", rom: "Sumisu-san wa Rondon kara irasshaimashita ka.", l1: "Have you come from London, Mr. Smith?"}
+          - {who: B, l2: "はい、 ロンドン の ほんしゃ から きました。", rom: "Hai, Rondon no honsha kara kimashita.", l1: "Yes, I've come from our head office in London.", alt: ["はい、 ロンドン から きました。", "Hai, Rondon kara kimashita.", "はい、 そう です。", "Hai, sou desu.", "Hai, sō desu."]}
+          - {who: A, l2: "にほん の せいかつ は いかが です か。", rom: "Nihon no seikatsu wa ikaga desu ka.", l1: "How are you finding life in Japan?"}
+          - {who: B, l2: "とても たのしい です。 たべもの が おいしい です。", rom: "Totemo tanoshii desu. Tabemono ga oishii desu.", l1: "I'm really enjoying it. The food is delicious.", alt: ["たのしい です。 たべもの が おいしい です ね。", "Tanoshii desu. Tabemono ga oishii desu ne."]}
+      - id: ja-talk-01-leaving
+        type: dialogue
+        title: "Taking your leave"
+        scene: "You have been chatting with a new acquaintance, Ms. Ueda, at a café for an hour. It's time to go."
+        you: A
+        lines:
+          - {who: A, l2: "あ、 すみません。 そろそろ しつれいします。", rom: "A, sumimasen. Sorosoro shitsurei shimasu.", l1: "Oh, sorry. I'd better be going.", alt: ["すみません、 そろそろ しつれいします。", "Sumimasen, sorosoro shitsurei shimasu.", "あ、 すみません。 そろそろ かえります。", "A, sumimasen. Sorosoro kaerimasu."]}
+          - {who: B, l2: "そう です か。 きょう は たのしかった です。", rom: "Sou desu ka. Kyou wa tanoshikatta desu.", l1: "Oh, OK. Today was fun."}
+          - {who: A, l2: "わたし も たのしかった です。", rom: "Watashi mo tanoshikatta desu.", l1: "I enjoyed it too.", alt: ["わたし も です。", "Watashi mo desu.", "こちらこそ、 たのしかった です。", "Kochirakoso, tanoshikatta desu."]}
+          - {who: B, l2: "また あいましょう。 れんらく します ね。", rom: "Mata aimashou. Renraku shimasu ne.", l1: "Let's meet again. I'll be in touch."}
+          - {who: A, l2: "はい、 ぜひ。 また あいましょう。", rom: "Hai, zehi. Mata aimashou.", l1: "Yes, I'd love to. Let's meet again.", alt: ["ぜひ。 また あいましょう。", "Zehi. Mata aimashou.", "はい、 ぜひ。", "Hai, zehi.", "Hai, zehi. Mata aimashō.", "Zehi. Mata aimashō."]}
+          - {who: B, l2: "き を つけて かえって ください ね。", rom: "Ki o tsukete kaette kudasai ne.", l1: "Get home safely."}
+          - {who: A, l2: "ありがとう ございます。 じゃ、 また。", rom: "Arigatou gozaimasu. Ja, mata.", l1: "Thank you. See you, then.", alt: ["ありがとう。 じゃ、 また。", "Arigatou. Ja, mata.", "ありがとう ございます。 しつれいします。", "Arigatou gozaimasu. Shitsurei shimasu.", "Arigatō gozaimasu. Ja, mata.", "Arigatō. Ja, mata.", "Arigatō gozaimasu. Shitsurei shimasu."]}
+
+  # ───────────────────────────────────────────────────────────────── 2
+  - id: ja-talk-02
+    title: "At a restaurant"
+    goal: "I can get a table, order food and drink, ask what something is and what is recommended, explain what I can't eat, sort out a mistake and pay."
+    notes: |
+      Japanese restaurants run on set phrases from the staff, so most of your job is to understand them and answer briefly.
+
+      - **Arriving**: staff call **いらっしゃいませ！ なんめいさま です か** (how many of you?). Answer with the people counter: ひとり, **ふたり**, さんにん.
+      - **Calling staff**: **すみません！** is normal and polite. Many tables have a call button.
+      - **Ordering**: [dish] を ください / [dish] を おねがいします / [dish] に します. Count with ひとつ, ふたつ.
+      - **Asking**: **おすすめ は なん です か** (what do you recommend?) · これ は なん です か · 〜って なん です か.
+      - **Food limits**: [food] が たべられません · [food] の **アレルギー が あります**.
+      - **Problems**: すみません、 これ は たのんで いません (I didn't order this). Stay soft: すみません first, the fact second.
+      - **Paying**: **おかいけい おねがいします**. You usually pay at the till by the door, and there is no tipping.
+      - **Leaving**: ごちそうさま でした — the staff will thank you as you go.
+    items:
+      - id: ja-talk-02-table
+        type: dialogue
+        title: "Getting a table"
+        scene: "You and a friend arrive at a busy restaurant at lunchtime. A waiter greets you at the door."
+        you: B
+        lines:
+          - {who: A, l2: "いらっしゃいませ！ なんめいさま です か。", rom: "Irasshaimase! Nanmeisama desu ka.", l1: "Welcome! How many people?"}
+          - {who: B, l2: "ふたり です。", rom: "Futari desu.", l1: "Two.", alt: ["ふたり おねがいします。", "Futari onegaishimasu.", "二人です"]}
+          - {who: A, l2: "すみません、 いま まんせき です。 じゅっぷん ぐらい おまち いただけます か。", rom: "Sumimasen, ima manseki desu. Juppun gurai omachi itadakemasu ka.", l1: "I'm sorry, we're full at the moment. Could you wait about ten minutes?"}
+          - {who: B, l2: "はい、 まちます。", rom: "Hai, machimasu.", l1: "Yes, we'll wait.", alt: ["はい、 だいじょうぶ です。", "Hai, daijoubu desu.", "はい、 まちます よ。", "Hai, machimasu yo.", "Hai, daijōbu desu."]}
+          - {who: A, l2: "では、 こちら に おなまえ を おねがいします。", rom: "Dewa, kochira ni onamae o onegaishimasu.", l1: "Then could I have your name here, please?"}
+          - {who: B, l2: "スミス です。", rom: "Sumisu desu.", l1: "It's Smith.", alt: ["スミス で おねがいします。", "Sumisu de onegaishimasu."]}
+          - {who: A, l2: "スミスさま、 おふたりさま です ね。 しょうしょう おまち ください。", rom: "Sumisu-sama, ofutarisama desu ne. Shoushou omachi kudasai.", l1: "Mr. Smith, a table for two. Just a moment, please."}
+          - {who: B, l2: "はい、 おねがいします。", rom: "Hai, onegaishimasu.", l1: "OK, thank you.", alt: ["はい。", "Hai.", "はい、 わかりました。", "Hai, wakarimashita."]}
+      - id: ja-talk-02-ordering
+        type: dialogue
+        title: "Ordering a set meal"
+        scene: "You are in a small set-meal restaurant. The waitress comes to take your order."
+        you: B
+        lines:
+          - {who: A, l2: "ごちゅうもん は おきまり です か。", rom: "Gochuumon wa okimari desu ka.", l1: "Are you ready to order?"}
+          - {who: B, l2: "はい。 この てんぷら ていしょく を ひとつ ください。", rom: "Hai. Kono tenpura teishoku o hitotsu kudasai.", l1: "Yes. One of these tempura set meals, please.", alt: ["はい。 この てんぷら ていしょく を ひとつ おねがいします。", "Hai. Kono tenpura teishoku o hitotsu onegaishimasu.", "てんぷら ていしょく を ひとつ ください。", "Tenpura teishoku o hitotsu kudasai.", "はい。 てんぷら ていしょく に します。", "Hai. Tenpura teishoku ni shimasu.", "Hai. Kono tenpura teishoku wo hitotsu kudasai.", "Hai. Kono tenpura teishoku wo hitotsu onegaishimasu.", "Tenpura teishoku wo hitotsu kudasai."]}
+          - {who: A, l2: "てんぷら ていしょく です ね。 おのみもの は いかが です か。", rom: "Tenpura teishoku desu ne. Onomimono wa ikaga desu ka.", l1: "The tempura set. Would you like something to drink?"}
+          - {who: B, l2: "つめたい おちゃ を おねがいします。", rom: "Tsumetai ocha o onegaishimasu.", l1: "Cold tea, please.", alt: ["つめたい おちゃ を ください。", "Tsumetai ocha o kudasai.", "つめたい おちゃ に します。", "Tsumetai ocha ni shimasu.", "Tsumetai ocha wo onegaishimasu.", "Tsumetai ocha wo kudasai."]}
+          - {who: A, l2: "かしこまりました。 ごはん は おおもり に できます が…。", rom: "Kashikomarimashita. Gohan wa oomori ni dekimasu ga….", l1: "Certainly. We can make the rice an oomori..."}
+          - {who: B, l2: "すみません、 おおもり って なん です か。", rom: "Sumimasen, oomori tte nan desu ka.", l1: "Sorry, what's an 'oomori'?", alt: ["おおもり って なん です か。", "Oomori tte nan desu ka.", "すみません、 おおもり は なん です か。", "Sumimasen, oomori wa nan desu ka.", "Sumimasen, ōmori tte nan desu ka.", "Ōmori tte nan desu ka.", "Sumimasen, oomori ha nan desu ka.", "Sumimasen, ōmori wa nan desu ka.", "Sumimasen, ōmori ha nan desu ka."]}
+          - {who: A, l2: "ごはん が おおい サイズ です。 むりょう です よ。", rom: "Gohan ga ooi saizu desu. Muryou desu yo.", l1: "A bigger portion of rice. It's free."}
+          - {who: B, l2: "じゃ、 おおもり で おねがいします。", rom: "Ja, oomori de onegaishimasu.", l1: "Then a large portion, please.", alt: ["じゃ、 おおもり に します。", "Ja, oomori ni shimasu.", "おおもり で おねがいします。", "Oomori de onegaishimasu.", "じゃあ、 おおもり で おねがいします。", "Jaa, oomori de onegaishimasu.", "Ja, ōmori de onegaishimasu.", "Ja, ōmori ni shimasu.", "Ōmori de onegaishimasu.", "Jā, ōmori de onegaishimasu."]}
+      - id: ja-talk-02-recommend
+        type: dialogue
+        title: "What do you recommend?"
+        scene: "You are in a small izakaya and can't read the handwritten menu on the wall. You call the owner over."
+        you: B
+        lines:
+          - {who: B, l2: "すみません。 おすすめ は なん です か。", rom: "Sumimasen. Osusume wa nan desu ka.", l1: "Excuse me. What do you recommend?", alt: ["すみません、 おすすめ は なん です か。", "Sumimasen, osusume wa nan desu ka.", "すみません、 おすすめ は？", "Sumimasen, osusume wa?", "Sumimasen. Osusume ha nan desu ka.", "Sumimasen, osusume ha nan desu ka.", "Sumimasen, osusume ha?"]}
+          - {who: A, l2: "きょう は さかな が いい です よ。 さしみ の もりあわせ が おすすめ です。", rom: "Kyou wa sakana ga ii desu yo. Sashimi no moriawase ga osusume desu.", l1: "The fish is good today. I recommend the assorted sashimi."}
+          - {who: B, l2: "さしみ は ちょっと…。 ほか に なに が あります か。", rom: "Sashimi wa chotto…. Hoka ni nani ga arimasu ka.", l1: "Sashimi's not really my thing... What else is there?", alt: ["さしみ は ちょっと…。 ほか に は？", "Sashimi wa chotto…. Hoka ni wa?", "Sashimi ha chotto…. Hoka ni nani ga arimasu ka.", "Sashimi wa chotto…. Hoka ni ha?", "Sashimi ha chotto…. Hoka ni wa?", "Sashimi ha chotto…. Hoka ni ha?"]}
+          - {who: A, l2: "じゃ、 やきとり は どう です か。 とり の にく を くし で やいた もの です。", rom: "Ja, yakitori wa dou desu ka. Tori no niku o kushi de yaita mono desu.", l1: "Then how about yakitori? It's chicken grilled on skewers."}
+          - {who: B, l2: "いい です ね。 それ を ください。", rom: "Ii desu ne. Sore o kudasai.", l1: "Sounds good. I'll have that.", alt: ["いい です ね。 それ に します。", "Ii desu ne. Sore ni shimasu.", "じゃ、 それ を おねがいします。", "Ja, sore o onegaishimasu.", "Ii desu ne. Sore wo kudasai.", "Ja, sore wo onegaishimasu."]}
+          - {who: A, l2: "なんぼん に します か。 いっぽん ひゃくごじゅう えん です。", rom: "Nanbon ni shimasu ka. Ippon hyakugojuu en desu.", l1: "How many skewers? They're 150 yen each."}
+          - {who: B, l2: "よんほん おねがいします。", rom: "Yonhon onegaishimasu.", l1: "Four, please.", alt: ["よんほん ください。", "Yonhon kudasai.", "4本お願いします", "四本お願いします"]}
+      - id: ja-talk-02-allergy
+        type: dialogue
+        title: "I can't eat eggs"
+        scene: "You are ordering curry in a café. You are allergic to eggs."
+        you: B
+        lines:
+          - {who: A, l2: "ごちゅうもん は？", rom: "Gochuumon wa?", l1: "What would you like?"}
+          - {who: B, l2: "この カレー は からい です か。", rom: "Kono karee wa karai desu ka.", l1: "Is this curry spicy?", alt: ["この カレー、 からい です か。", "Kono karee, karai desu ka.", "Kono karee ha karai desu ka.", "Kono karē wa karai desu ka.", "Kono karē ha karai desu ka.", "Kono karē, karai desu ka."]}
+          - {who: A, l2: "すこし からい です。 あまくち も ございます よ。", rom: "Sukoshi karai desu. Amakuchi mo gozaimasu yo.", l1: "A little. We also have a mild one."}
+          - {who: B, l2: "じゃ、 あまくち を ください。", rom: "Ja, amakuchi o kudasai.", l1: "Then the mild one, please.", alt: ["じゃ、 あまくち に します。", "Ja, amakuchi ni shimasu.", "じゃ、 あまくち を おねがいします。", "Ja, amakuchi o onegaishimasu.", "Ja, amakuchi wo kudasai.", "Ja, amakuchi wo onegaishimasu."]}
+          - {who: A, l2: "かしこまりました。 ほか に なに か ございます か。", rom: "Kashikomarimashita. Hoka ni nani ka gozaimasu ka.", l1: "Certainly. Is there anything else?"}
+          - {who: B, l2: "あの、 たまご の アレルギー が あります。", rom: "Ano, tamago no arerugii ga arimasu.", l1: "Um, I'm allergic to eggs.", alt: ["あの、 たまご アレルギー が あります。", "Ano, tamago arerugii ga arimasu.", "あの、 たまご が たべられません。", "Ano, tamago ga taberaremasen.", "Ano, tamago no arerugī ga arimasu.", "Ano, tamago arerugī ga arimasu."]}
+          - {who: A, l2: "そう です か。 この カレー に は たまご は はいって いません ので、 だいじょうぶ です よ。", rom: "Sou desu ka. Kono karee ni wa tamago wa haitte imasen node, daijoubu desu yo.", l1: "I see. There's no egg in this curry, so you'll be fine."}
+          - {who: B, l2: "よかった。 ありがとう ございます。", rom: "Yokatta. Arigatou gozaimasu.", l1: "Oh good. Thank you.", alt: ["よかった です。 ありがとう ございます。", "Yokatta desu. Arigatou gozaimasu.", "Yokatta. Arigatō gozaimasu.", "Yokatta desu. Arigatō gozaimasu."]}
+      - id: ja-talk-02-izakaya
+        type: dialogue
+        title: "Drinks at the izakaya"
+        scene: "You are out with two colleagues at an izakaya, and you order for the table."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 なまビール を みっつ ください。", rom: "Sumimasen, namabiiru o mittsu kudasai.", l1: "Excuse me, three draught beers, please.", alt: ["すみません、 なまビール みっつ おねがいします。", "Sumimasen, namabiiru mittsu onegaishimasu.", "なまビール を みっつ おねがいします。", "Namabiiru o mittsu onegaishimasu.", "Sumimasen, namabiiru wo mittsu kudasai.", "Sumimasen, namabīru o mittsu kudasai.", "Sumimasen, namabīru wo mittsu kudasai.", "Sumimasen, namabīru mittsu onegaishimasu.", "Namabiiru wo mittsu onegaishimasu.", "Namabīru o mittsu onegaishimasu.", "Namabīru wo mittsu onegaishimasu."]}
+          - {who: B, l2: "なま みっつ です ね。 おつまみ は いかが です か。", rom: "Nama mittsu desu ne. Otsumami wa ikaga desu ka.", l1: "Three draughts. Anything to nibble?"}
+          - {who: A, l2: "えだまめ と からあげ を ください。", rom: "Edamame to karaage o kudasai.", l1: "Edamame and fried chicken, please.", alt: ["えだまめ と からあげ を おねがいします。", "Edamame to karaage o onegaishimasu.", "Edamame to karaage wo kudasai.", "Edamame to karāge o kudasai.", "Edamame to karāge wo kudasai.", "Edamame to karaage wo onegaishimasu.", "Edamame to karāge o onegaishimasu.", "Edamame to karāge wo onegaishimasu."]}
+          - {who: B, l2: "はい。 ほか に は？", rom: "Hai. Hoka ni wa?", l1: "Right. Anything else?"}
+          - {who: A, l2: "とりあえず、 いじょう です。", rom: "Toriaezu, ijou desu.", l1: "That's all for now.", alt: ["とりあえず、 それ で おねがいします。", "Toriaezu, sore de onegaishimasu.", "いじょう です。", "Ijou desu.", "Toriaezu, ijō desu.", "Ijō desu."]}
+          - {who: B, l2: "かしこまりました。 しょうしょう おまち ください。", rom: "Kashikomarimashita. Shoushou omachi kudasai.", l1: "Certainly. Just a moment."}
+          - {who: A, l2: "すみません、 ビール を もう ひとつ おねがいします。", rom: "Sumimasen, biiru o mou hitotsu onegaishimasu.", l1: "Excuse me, one more beer, please.", alt: ["すみません、 ビール もう ひとつ ください。", "Sumimasen, biiru mou hitotsu kudasai.", "ビール を もう ひとつ ください。", "Biiru o mou hitotsu kudasai.", "Sumimasen, biiru wo mou hitotsu onegaishimasu.", "Sumimasen, bīru o mō hitotsu onegaishimasu.", "Sumimasen, bīru wo mō hitotsu onegaishimasu.", "Sumimasen, bīru mō hitotsu kudasai.", "Biiru wo mou hitotsu kudasai.", "Bīru o mō hitotsu kudasai.", "Bīru wo mō hitotsu kudasai."]}
+          - {who: B, l2: "はい、 よろこんで！", rom: "Hai, yorokonde!", l1: "Coming right up!"}
+      - id: ja-talk-02-paying
+        type: dialogue
+        title: "Paying the bill"
+        scene: "You have finished dinner in a family-run restaurant and go to the till by the door."
+        you: B
+        lines:
+          - {who: B, l2: "すみません、 おかいけい おねがいします。", rom: "Sumimasen, okaikei onegaishimasu.", l1: "Excuse me, I'd like to pay, please.", alt: ["おかいけい おねがいします。", "Okaikei onegaishimasu.", "すみません、 おかいけい を おねがいします。", "Sumimasen, okaikei o onegaishimasu.", "お会計お願いします", "Sumimasen, okaikei wo onegaishimasu."]}
+          - {who: A, l2: "はい、 ありがとう ございます。 ぜんぶ で さんぜん ろっぴゃく えん です。", rom: "Hai, arigatou gozaimasu. Zenbu de sanzen roppyaku en desu.", l1: "Certainly, thank you. That's 3,600 yen altogether."}
+          - {who: B, l2: "カード で はらえます か。", rom: "Kaado de haraemasu ka.", l1: "Can I pay by card?", alt: ["カード は つかえます か。", "Kaado wa tsukaemasu ka.", "カード で いい です か。", "Kaado de ii desu ka.", "Kādo de haraemasu ka.", "Kaado ha tsukaemasu ka.", "Kādo wa tsukaemasu ka.", "Kādo ha tsukaemasu ka.", "Kādo de ii desu ka."]}
+          - {who: A, l2: "もうしわけ ございません。 げんきん だけ なんです。", rom: "Moushiwake gozaimasen. Genkin dake nan desu.", l1: "I'm very sorry. We only take cash."}
+          - {who: B, l2: "わかりました。 じゃ、 げんきん で。", rom: "Wakarimashita. Ja, genkin de.", l1: "OK. Cash, then.", alt: ["わかりました。 じゃ、 げんきん で はらいます。", "Wakarimashita. Ja, genkin de haraimasu.", "そう です か。 じゃ、 げんきん で。", "Sou desu ka. Ja, genkin de.", "Sō desu ka. Ja, genkin de."]}
+          - {who: A, l2: "よんせん えん おあずかり します。 よんひゃく えん の おかえし です。", rom: "Yonsen en oazukari shimasu. Yonhyaku en no okaeshi desu.", l1: "Out of 4,000 yen. Here's your 400 yen change."}
+          - {who: B, l2: "ごちそうさま でした。 おいしかった です。", rom: "Gochisousama deshita. Oishikatta desu.", l1: "Thank you for the meal. It was delicious.", alt: ["ごちそうさま でした。", "Gochisousama deshita.", "ごちそうさま。 おいしかった です。", "Gochisousama. Oishikatta desu.", "Gochisōsama deshita. Oishikatta desu.", "Gochisōsama deshita.", "Gochisōsama. Oishikatta desu."]}
+          - {who: A, l2: "ありがとう ございました！ また おこし ください。", rom: "Arigatou gozaimashita! Mata okoshi kudasai.", l1: "Thank you very much! Please come again."}
+      - id: ja-talk-02-wrong-dish
+        type: dialogue
+        title: "That's not what I ordered"
+        scene: "You ordered oyakodon (chicken and egg on rice), but the waiter brings a different bowl."
+        you: B
+        lines:
+          - {who: A, l2: "おまたせ しました。 ぎゅうどん です。", rom: "Omatase shimashita. Gyuudon desu.", l1: "Sorry to keep you waiting. Here's your beef bowl."}
+          - {who: B, l2: "あの、 すみません。 これ は たのんで いません。", rom: "Ano, sumimasen. Kore wa tanonde imasen.", l1: "Um, excuse me. I didn't order this.", alt: ["あの、 すみません。 これ は ちがいます。", "Ano, sumimasen. Kore wa chigaimasu.", "すみません、 これ は たのんで いません。", "Sumimasen, kore wa tanonde imasen.", "Ano, sumimasen. Kore ha tanonde imasen.", "Ano, sumimasen. Kore ha chigaimasu.", "Sumimasen, kore ha tanonde imasen."]}
+          - {who: A, l2: "え、 そう です か。 しつれい しました。 ごちゅうもん は？", rom: "E, sou desu ka. Shitsurei shimashita. Gochuumon wa?", l1: "Oh, really? I'm sorry. What did you order?"}
+          - {who: B, l2: "おやこどん です。", rom: "Oyakodon desu.", l1: "Oyakodon.", alt: ["おやこどん を たのみました。", "Oyakodon o tanomimashita.", "おやこどん を ちゅうもん しました。", "Oyakodon o chuumon shimashita.", "Oyakodon wo tanomimashita.", "Oyakodon wo chuumon shimashita.", "Oyakodon o chūmon shimashita.", "Oyakodon wo chūmon shimashita."]}
+          - {who: A, l2: "たいへん もうしわけ ございません。 すぐ おもち します。", rom: "Taihen moushiwake gozaimasen. Sugu omochi shimasu.", l1: "I do apologise. I'll bring it right away."}
+          - {who: B, l2: "いいえ、 だいじょうぶ です よ。", rom: "Iie, daijoubu desu yo.", l1: "That's quite all right.", alt: ["だいじょうぶ です。", "Daijoubu desu.", "いいえ、 だいじょうぶ です。", "Iie, daijoubu desu.", "Iie, daijōbu desu yo.", "Daijōbu desu.", "Iie, daijōbu desu."]}
+
+  # ───────────────────────────────────────────────────────────────── 3
+  - id: ja-talk-03
+    title: "Shopping"
+    goal: "I can answer a cashier's questions, ask whether a shop has something, try things on, buy medicine, ask for gift wrapping and exchange a purchase."
+    notes: |
+      Shop staff ask the same few questions everywhere, and **はい、 おねがいします** or **いいえ、 だいじょうぶ です** answers almost all of them.
+
+      | you hear | it means |
+      |---|---|
+      | ふくろ は ごりよう です か | Do you need a bag? |
+      | あたためます か | Shall I heat it up? |
+      | ポイントカード は おもち です か | Do you have a points card? |
+      | レシート は おもち です か | Do you have the receipt? |
+
+      - **Finding**: 〜は ありません か (don't you have …? — softer than あります か) · 〜は どこ です か.
+      - **Choosing**: きて みて も いい です か · もう すこし おおきい の · これ に します.
+      - **Walking away politely**: **ちょっと かんがえます** (I'll think about it).
+      - **Gifts**: プレゼント です · べつべつ に つつんで ください (wrap them separately).
+      - **Paying**: カード で / げんきん で / スマホ で. Put cash on the small tray, not in the cashier's hand.
+      - **Exchanges**: [thing] を かいました が、 … — state the fact and let the が trail; the assistant will offer the solution.
+    items:
+      - id: ja-talk-03-konbini
+        type: dialogue
+        title: "At the convenience store"
+        scene: "You are paying for a bento at a convenience store. The cashier asks a string of questions."
+        you: B
+        lines:
+          - {who: A, l2: "いらっしゃいませ。 おべんとう、 あたためます か。", rom: "Irasshaimase. Obentou, atatamemasu ka.", l1: "Hello. Shall I heat up the bento?"}
+          - {who: B, l2: "はい、 おねがいします。", rom: "Hai, onegaishimasu.", l1: "Yes, please.", alt: ["はい、 あたためて ください。", "Hai, atatamete kudasai."]}
+          - {who: A, l2: "ふくろ は ごりよう です か。", rom: "Fukuro wa goriyou desu ka.", l1: "Do you need a bag?"}
+          - {who: B, l2: "いいえ、 だいじょうぶ です。", rom: "Iie, daijoubu desu.", l1: "No, I'm fine, thanks.", alt: ["いいえ、 けっこう です。", "Iie, kekkou desu.", "だいじょうぶ です。", "Daijoubu desu.", "Iie, daijōbu desu.", "Iie, kekkō desu.", "Daijōbu desu."]}
+          - {who: A, l2: "ポイントカード は おもち です か。", rom: "Pointokaado wa omochi desu ka.", l1: "Do you have a points card?"}
+          - {who: B, l2: "いいえ、 もって いません。", rom: "Iie, motte imasen.", l1: "No, I don't have one.", alt: ["いいえ、 ありません。", "Iie, arimasen.", "もって いません。", "Motte imasen."]}
+          - {who: A, l2: "ごひゃく よんじゅう えん です。", rom: "Gohyaku yonjuu en desu.", l1: "That's 540 yen."}
+          - {who: B, l2: "スマホ で はらえます か。", rom: "Sumaho de haraemasu ka.", l1: "Can I pay with my phone?", alt: ["スマホ で いい です か。", "Sumaho de ii desu ka.", "スマホ は つかえます か。", "Sumaho wa tsukaemasu ka.", "Sumaho ha tsukaemasu ka."]}
+          - {who: A, l2: "はい。 こちら に かざして ください。", rom: "Hai. Kochira ni kazashite kudasai.", l1: "Yes. Please hold it over here."}
+      - id: ja-talk-03-umbrella
+        type: dialogue
+        title: "Do you have umbrellas?"
+        scene: "It has started to rain. You hurry into a general store to buy an umbrella."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 かさ は ありません か。", rom: "Sumimasen, kasa wa arimasen ka.", l1: "Excuse me, do you have umbrellas?", alt: ["すみません、 かさ は あります か。", "Sumimasen, kasa wa arimasu ka.", "すみません、 かさ は どこ です か。", "Sumimasen, kasa wa doko desu ka.", "Sumimasen, kasa ha arimasen ka.", "Sumimasen, kasa ha arimasu ka.", "Sumimasen, kasa ha doko desu ka."]}
+          - {who: B, l2: "かさ です か。 こちら に ございます。", rom: "Kasa desu ka. Kochira ni gozaimasu.", l1: "Umbrellas? They're over here."}
+          - {who: A, l2: "この あおい の は いくら です か。", rom: "Kono aoi no wa ikura desu ka.", l1: "How much is this blue one?", alt: ["この あおい かさ は いくら です か。", "Kono aoi kasa wa ikura desu ka.", "これ は いくら です か。", "Kore wa ikura desu ka.", "Kono aoi no ha ikura desu ka.", "Kono aoi kasa ha ikura desu ka.", "Kore ha ikura desu ka."]}
+          - {who: B, l2: "にせん はっぴゃく えん です。 おりたたみがさ なら こちら に も ございます よ。", rom: "Nisen happyaku en desu. Oritatamigasa nara kochira ni mo gozaimasu yo.", l1: "2,800 yen. If you'd like an oritatami-gasa, we have those here too."}
+          - {who: A, l2: "すみません、 おりたたみがさ って なん です か。", rom: "Sumimasen, oritatamigasa tte nan desu ka.", l1: "Sorry, what's an 'oritatami-gasa'?", alt: ["おりたたみがさ って なん です か。", "Oritatamigasa tte nan desu ka."]}
+          - {who: B, l2: "ちいさく できる かさ です。 かばん に はいります よ。", rom: "Chiisaku dekiru kasa desu. Kaban ni hairimasu yo.", l1: "An umbrella that folds up small. It fits in your bag."}
+          - {who: A, l2: "いい です ね。 じゃ、 それ に します。", rom: "Ii desu ne. Ja, sore ni shimasu.", l1: "Great. I'll take one of those, then.", alt: ["いい です ね。 じゃ、 それ を ください。", "Ii desu ne. Ja, sore o kudasai.", "じゃ、 それ に します。", "Ja, sore ni shimasu.", "Ii desu ne. Ja, sore wo kudasai."]}
+      - id: ja-talk-03-trying-on
+        type: dialogue
+        title: "Trying on a jacket"
+        scene: "You find a jacket you like in a clothes shop and catch an assistant's eye."
+        you: B
+        lines:
+          - {who: B, l2: "すみません、 これ、 きて みて も いい です か。", rom: "Sumimasen, kore, kite mite mo ii desu ka.", l1: "Excuse me, may I try this on?", alt: ["すみません、 これ を きて みて も いい です か。", "Sumimasen, kore o kite mite mo ii desu ka.", "すみません、 しちゃく して も いい です か。", "Sumimasen, shichaku shite mo ii desu ka.", "Sumimasen, kore wo kite mite mo ii desu ka."]}
+          - {who: A, l2: "はい、 どうぞ。 しちゃくしつ は あちら です。", rom: "Hai, douzo. Shichakushitsu wa achira desu.", l1: "Of course. The fitting room is over there."}
+          - {who: B, l2: "ありがとう ございます。", rom: "Arigatou gozaimasu.", l1: "Thank you.", alt: ["どうも。", "Doumo.", "Arigatō gozaimasu.", "Dōmo."]}
+          - {who: A, l2: "いかが です か。", rom: "Ikaga desu ka.", l1: "How is it?"}
+          - {who: B, l2: "ちょっと おおきい です。 エム は あります か。", rom: "Chotto ookii desu. Emu wa arimasu ka.", l1: "It's a bit big. Do you have a medium?", alt: ["ちょっと おおきい です。 エムサイズ は あります か。", "Chotto ookii desu. Emusaizu wa arimasu ka.", "ちょっと おおきい です。 もう すこし ちいさい の は あります か。", "Chotto ookii desu. Mou sukoshi chiisai no wa arimasu ka.", "Chotto ookii desu. Emu ha arimasu ka.", "Chotto ōkii desu. Emu wa arimasu ka.", "Chotto ōkii desu. Emu ha arimasu ka.", "Chotto ookii desu. Emusaizu ha arimasu ka.", "Chotto ōkii desu. Emusaizu wa arimasu ka.", "Chotto ōkii desu. Emusaizu ha arimasu ka.", "Chotto ookii desu. Mou sukoshi chiisai no ha arimasu ka.", "Chotto ōkii desu. Mō sukoshi chiisai no wa arimasu ka.", "Chotto ōkii desu. Mō sukoshi chiisai no ha arimasu ka."]}
+          - {who: A, l2: "もうしわけ ございません。 エム は いま きらして おりまして…。", rom: "Moushiwake gozaimasen. Emu wa ima kirashite orimashite….", l1: "I'm terribly sorry. We're out of mediums at the moment..."}
+          - {who: B, l2: "そう です か。 じゃ、 ちょっと かんがえます。", rom: "Sou desu ka. Ja, chotto kangaemasu.", l1: "I see. Then I'll think about it.", alt: ["そう です か。 また きます。", "Sou desu ka. Mata kimasu.", "わかりました。 ちょっと かんがえます。", "Wakarimashita. Chotto kangaemasu.", "Sō desu ka. Ja, chotto kangaemasu.", "Sō desu ka. Mata kimasu."]}
+          - {who: A, l2: "はい。 また どうぞ。", rom: "Hai. Mata douzo.", l1: "Of course. Please come again."}
+      - id: ja-talk-03-pharmacy
+        type: dialogue
+        title: "At the pharmacy"
+        scene: "You feel a cold coming on and go into a drugstore. You ask the pharmacist for help."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 かぜ の くすり は どこ です か。", rom: "Sumimasen, kaze no kusuri wa doko desu ka.", l1: "Excuse me, where's the cold medicine?", alt: ["すみません、 かぜぐすり は どこ です か。", "Sumimasen, kazegusuri wa doko desu ka.", "すみません、 かぜ の くすり は ありません か。", "Sumimasen, kaze no kusuri wa arimasen ka.", "Sumimasen, kaze no kusuri ha doko desu ka.", "Sumimasen, kazegusuri ha doko desu ka.", "Sumimasen, kaze no kusuri ha arimasen ka."]}
+          - {who: B, l2: "こちら です。 どんな しょうじょう です か。", rom: "Kochira desu. Donna shoujou desu ka.", l1: "Over here. What are your symptoms?"}
+          - {who: A, l2: "ねつ が あって、 のど が いたい です。", rom: "Netsu ga atte, nodo ga itai desu.", l1: "I have a temperature and a sore throat.", alt: ["ねつ と のど が いたい です。", "Netsu to nodo ga itai desu.", "すこし ねつ が あって、 のど が いたい です。", "Sukoshi netsu ga atte, nodo ga itai desu."]}
+          - {who: B, l2: "それ なら、 この くすり が いい です よ。 いちにち さんかい、 しょくご に のんで ください。", rom: "Sore nara, kono kusuri ga ii desu yo. Ichinichi sankai, shokugo ni nonde kudasai.", l1: "Then this one is good. Take it three times a day, after meals."}
+          - {who: A, l2: "ねむく なります か。", rom: "Nemuku narimasu ka.", l1: "Will it make me sleepy?", alt: ["これ を のむ と、 ねむく なります か。", "Kore o nomu to, nemuku narimasu ka.", "Kore wo nomu to, nemuku narimasu ka."]}
+          - {who: B, l2: "すこし ねむく なる かもしれません。 くるま の うんてん は しないで ください。", rom: "Sukoshi nemuku naru kamoshiremasen. Kuruma no unten wa shinaide kudasai.", l1: "It may make you a little drowsy. Please don't drive."}
+          - {who: A, l2: "わかりました。 これ を ください。", rom: "Wakarimashita. Kore o kudasai.", l1: "I see. I'll take it.", alt: ["わかりました。 これ に します。", "Wakarimashita. Kore ni shimasu.", "わかりました。 じゃ、 これ を ください。", "Wakarimashita. Ja, kore o kudasai.", "Wakarimashita. Kore wo kudasai.", "Wakarimashita. Ja, kore wo kudasai."]}
+      - id: ja-talk-03-gift-wrap
+        type: dialogue
+        title: "Souvenirs to take home"
+        scene: "On your last day in Kyoto you buy boxes of sweets as souvenirs for your colleagues."
+        you: B
+        lines:
+          - {who: A, l2: "いらっしゃいませ。", rom: "Irasshaimase.", l1: "Welcome."}
+          - {who: B, l2: "すみません、 この おかし を みっつ ください。", rom: "Sumimasen, kono okashi o mittsu kudasai.", l1: "Excuse me, three boxes of these sweets, please.", alt: ["この おかし を みっつ ください。", "Kono okashi o mittsu kudasai.", "すみません、 これ を みっつ ください。", "Sumimasen, kore o mittsu kudasai.", "Sumimasen, kono okashi wo mittsu kudasai.", "Kono okashi wo mittsu kudasai.", "Sumimasen, kore wo mittsu kudasai."]}
+          - {who: A, l2: "ありがとう ございます。 ごじたく よう です か。", rom: "Arigatou gozaimasu. Gojitaku you desu ka.", l1: "Thank you. Are they for yourself?"}
+          - {who: B, l2: "いいえ、 おみやげ です。 べつべつ に つつんで ください。", rom: "Iie, omiyage desu. Betsubetsu ni tsutsunde kudasai.", l1: "No, they're presents. Please wrap them separately.", alt: ["いいえ、 プレゼント です。 べつべつ に つつんで ください。", "Iie, purezento desu. Betsubetsu ni tsutsunde kudasai."]}
+          - {who: A, l2: "かしこまりました。 ふくろ も みっつ おいれ しましょう か。", rom: "Kashikomarimashita. Fukuro mo mittsu oire shimashou ka.", l1: "Certainly. Shall I put in three bags as well?"}
+          - {who: B, l2: "はい、 おねがいします。", rom: "Hai, onegaishimasu.", l1: "Yes, please.", alt: ["ええ、 おねがいします。", "Ee, onegaishimasu.", "はい、 ありがとう ございます。", "Hai, arigatou gozaimasu.", "Ē, onegaishimasu.", "Hai, arigatō gozaimasu."]}
+          - {who: A, l2: "ぜんぶ で よんせん ごひゃく えん に なります。", rom: "Zenbu de yonsen gohyaku en ni narimasu.", l1: "That comes to 4,500 yen altogether."}
+          - {who: B, l2: "カード で おねがいします。", rom: "Kaado de onegaishimasu.", l1: "By card, please.", alt: ["カード で いい です か。", "Kaado de ii desu ka.", "カード で はらいます。", "Kaado de haraimasu.", "Kādo de onegaishimasu.", "Kādo de ii desu ka.", "Kādo de haraimasu."]}
+      - id: ja-talk-03-exchange
+        type: dialogue
+        title: "Exchanging shoes"
+        scene: "Yesterday you bought a pair of trainers, but they pinch. You take them back to the shop with the receipt."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 きのう この くつ を かいました が、 ちょっと ちいさい です。", rom: "Sumimasen, kinou kono kutsu o kaimashita ga, chotto chiisai desu.", l1: "Excuse me, I bought these shoes yesterday, but they're a bit small.", alt: ["すみません、 きのう この くつ を かいました。 でも、 ちょっと ちいさい です。", "Sumimasen, kinou kono kutsu o kaimashita. Demo, chotto chiisai desu.", "Sumimasen, kinou kono kutsu wo kaimashita ga, chotto chiisai desu.", "Sumimasen, kinō kono kutsu o kaimashita ga, chotto chiisai desu.", "Sumimasen, kinō kono kutsu wo kaimashita ga, chotto chiisai desu.", "Sumimasen, kinou kono kutsu wo kaimashita. Demo, chotto chiisai desu.", "Sumimasen, kinō kono kutsu o kaimashita. Demo, chotto chiisai desu.", "Sumimasen, kinō kono kutsu wo kaimashita. Demo, chotto chiisai desu."]}
+          - {who: B, l2: "そう です か。 レシート は おもち です か。", rom: "Sou desu ka. Reshiito wa omochi desu ka.", l1: "I see. Do you have the receipt?"}
+          - {who: A, l2: "はい、 これ です。", rom: "Hai, kore desu.", l1: "Yes, here it is.", alt: ["はい、 あります。", "Hai, arimasu.", "はい、 どうぞ。", "Hai, douzo.", "Hai, dōzo."]}
+          - {who: B, l2: "では、 おおきい サイズ と こうかん しましょう か。", rom: "Dewa, ookii saizu to koukan shimashou ka.", l1: "Then shall we exchange them for a bigger size?"}
+          - {who: A, l2: "はい。 にじゅうなな センチ は あります か。", rom: "Hai. Nijuunana senchi wa arimasu ka.", l1: "Yes. Do you have a 27?", alt: ["はい。 にじゅうなな センチ を おねがいします。", "Hai. Nijuunana senchi o onegaishimasu.", "はい、 おねがいします。 にじゅうなな センチ は あります か。", "Hai, onegaishimasu. Nijuunana senchi wa arimasu ka.", "Hai. Nijuunana senchi ha arimasu ka.", "Hai. Nijūnana senchi wa arimasu ka.", "Hai. Nijūnana senchi ha arimasu ka.", "Hai. Nijuunana senchi wo onegaishimasu.", "Hai. Nijūnana senchi o onegaishimasu.", "Hai. Nijūnana senchi wo onegaishimasu.", "Hai, onegaishimasu. Nijuunana senchi ha arimasu ka.", "Hai, onegaishimasu. Nijūnana senchi wa arimasu ka.", "Hai, onegaishimasu. Nijūnana senchi ha arimasu ka."]}
+          - {who: B, l2: "しょうしょう おまち ください。 … はい、 ございます。 どうぞ はいて みて ください。", rom: "Shoushou omachi kudasai. … Hai, gozaimasu. Douzo haite mite kudasai.", l1: "One moment, please. ... Yes, we have them. Please try them on."}
+          - {who: A, l2: "ちょうど いい です。 これ で おねがいします。", rom: "Choudo ii desu. Kore de onegaishimasu.", l1: "These are just right. I'll take these, please.", alt: ["ちょうど いい です。 これ に します。", "Choudo ii desu. Kore ni shimasu.", "Chōdo ii desu. Kore de onegaishimasu.", "Chōdo ii desu. Kore ni shimasu."]}
+
+  # ───────────────────────────────────────────────────────────────── 4
+  - id: ja-talk-04
+    title: "Asking the way"
+    goal: "I can stop someone politely, ask for a place, follow and check directions, find the right exit, platform or bus, and give simple directions myself."
+    notes: |
+      - **Stop someone**: すみません、 ちょっと いい です か. Then [place] は どこ です か, or [place] へ は どう いけば いい です か.
+      - **Understand the answer**: listen for まっすぐ, みぎ, ひだり, 〜を わたって, 〜めの かど, つきあたり and landmarks: コンビニ, しんごう (traffic lights), こうさてん.
+      - **Check you followed**: repeat the key part back with **〜です ね**: ふたつめ の しんごう を みぎ です ね. It is what Japanese speakers do too.
+      - **Get help**: もう すこし ゆっくり おねがいします · ちず を かいて くれません か · とおい です か · あるいて なんぷん です か.
+      - **Trains**: 〜いき は なんばんせん です か (which platform for …?) · のりかえ は あります か · この でんしゃ は 〜に とまります か.
+      - **Buses**: この バス は 〜へ いきます か · 〜ばん の バス.
+      - **Close**: ありがとう ございます。 **たすかりました** (that's a great help).
+    items:
+      - id: ja-talk-04-station
+        type: dialogue
+        title: "Where's the station?"
+        scene: "You are walking in an unfamiliar neighbourhood and need the station. You stop a man in the street."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 ちょっと いい です か。", rom: "Sumimasen, chotto ii desu ka.", l1: "Excuse me, have you got a moment?", alt: ["すみません。", "Sumimasen.", "あの、 すみません。", "Ano, sumimasen."]}
+          - {who: B, l2: "はい、 なん でしょう。", rom: "Hai, nan deshou.", l1: "Yes, what is it?"}
+          - {who: A, l2: "えき は どこ です か。", rom: "Eki wa doko desu ka.", l1: "Where is the station?", alt: ["えき へ は どう いけば いい です か。", "Eki e wa dou ikeba ii desu ka.", "えき は どちら です か。", "Eki wa dochira desu ka.", "えき に は どう いけば いい です か。", "Eki ni wa dou ikeba ii desu ka.", "Eki ha doko desu ka.", "Eki e ha dou ikeba ii desu ka.", "Eki he wa dou ikeba ii desu ka.", "Eki he ha dou ikeba ii desu ka.", "Eki e wa dō ikeba ii desu ka.", "Eki e ha dō ikeba ii desu ka.", "Eki he wa dō ikeba ii desu ka.", "Eki he ha dō ikeba ii desu ka.", "Eki ha dochira desu ka.", "Eki ni ha dou ikeba ii desu ka.", "Eki ni wa dō ikeba ii desu ka.", "Eki ni ha dō ikeba ii desu ka."]}
+          - {who: B, l2: "えき です か。 この みち を まっすぐ いって、 ふたつめ の しんごう を みぎ です。", rom: "Eki desu ka. Kono michi o massugu itte, futatsume no shingou o migi desu.", l1: "The station? Go straight along this road and turn right at the second set of lights."}
+          - {who: A, l2: "ふたつめ の しんごう を みぎ です ね。", rom: "Futatsume no shingou o migi desu ne.", l1: "Right at the second lights, yes?", alt: ["ふたつめ の しんごう を みぎ に まがる ん です ね。", "Futatsume no shingou o migi ni magaru n desu ne.", "ふたつめ の しんごう を みぎ に まがります ね。", "Futatsume no shingou o migi ni magarimasu ne.", "Futatsume no shingou wo migi desu ne.", "Futatsume no shingō o migi desu ne.", "Futatsume no shingō wo migi desu ne.", "Futatsume no shingou wo migi ni magaru n desu ne.", "Futatsume no shingō o migi ni magaru n desu ne.", "Futatsume no shingō wo migi ni magaru n desu ne.", "Futatsume no shingou wo migi ni magarimasu ne.", "Futatsume no shingō o migi ni magarimasu ne.", "Futatsume no shingō wo migi ni magarimasu ne."]}
+          - {who: B, l2: "はい。 まがる と、 ひだり に みえます よ。", rom: "Hai. Magaru to, hidari ni miemasu yo.", l1: "That's right. When you turn, you'll see it on the left."}
+          - {who: A, l2: "ありがとう ございます。 たすかりました。", rom: "Arigatou gozaimasu. Tasukarimashita.", l1: "Thank you. That's a great help.", alt: ["どうも ありがとう ございました。", "Doumo arigatou gozaimashita.", "ありがとう ございます。", "Arigatou gozaimasu.", "Arigatō gozaimasu. Tasukarimashita.", "Dōmo arigatō gozaimashita.", "Arigatō gozaimasu."]}
+      - id: ja-talk-04-exit
+        type: dialogue
+        title: "Which exit?"
+        scene: "You come out of the ticket gates at a huge station and need the exit for City Hall. You ask a station attendant."
+        you: B
+        lines:
+          - {who: B, l2: "すみません、 しやくしょ は どの でぐち です か。", rom: "Sumimasen, shiyakusho wa dono deguchi desu ka.", l1: "Excuse me, which exit is it for City Hall?", alt: ["すみません、 しやくしょ は なにぐち です か。", "Sumimasen, shiyakusho wa naniguchi desu ka.", "すみません、 しやくしょ へ は どの でぐち です か。", "Sumimasen, shiyakusho e wa dono deguchi desu ka.", "Sumimasen, shiyakusho ha dono deguchi desu ka.", "Sumimasen, shiyakusho ha naniguchi desu ka.", "Sumimasen, shiyakusho e ha dono deguchi desu ka.", "Sumimasen, shiyakusho he wa dono deguchi desu ka.", "Sumimasen, shiyakusho he ha dono deguchi desu ka."]}
+          - {who: A, l2: "しやくしょ なら、 ひがしぐち です よ。", rom: "Shiyakusho nara, higashiguchi desu yo.", l1: "For City Hall, it's the east exit."}
+          - {who: B, l2: "ひがしぐち は どちら です か。", rom: "Higashiguchi wa dochira desu ka.", l1: "Which way is the east exit?", alt: ["ひがしぐち は どこ です か。", "Higashiguchi wa doko desu ka.", "Higashiguchi ha dochira desu ka.", "Higashiguchi ha doko desu ka."]}
+          - {who: A, l2: "あそこ の かいだん を のぼって、 みぎ です。", rom: "Asoko no kaidan o nobotte, migi desu.", l1: "Up those stairs over there, then right."}
+          - {who: B, l2: "かいだん を のぼって、 みぎ です ね。", rom: "Kaidan o nobotte, migi desu ne.", l1: "Up the stairs and right, OK.", alt: ["あの かいだん を のぼって、 みぎ です ね。", "Ano kaidan o nobotte, migi desu ne.", "Kaidan wo nobotte, migi desu ne.", "Ano kaidan wo nobotte, migi desu ne."]}
+          - {who: A, l2: "ええ。 でる と、 すぐ まえ に あります よ。", rom: "Ee. Deru to, sugu mae ni arimasu yo.", l1: "Yes. As you come out, it's right in front of you."}
+          - {who: B, l2: "わかりました。 どうも ありがとう ございました。", rom: "Wakarimashita. Doumo arigatou gozaimashita.", l1: "Got it. Thank you very much.", alt: ["わかりました。 ありがとう ございます。", "Wakarimashita. Arigatou gozaimasu.", "Wakarimashita. Dōmo arigatō gozaimashita.", "Wakarimashita. Arigatō gozaimasu."]}
+      - id: ja-talk-04-lost
+        type: dialogue
+        title: "I'm lost"
+        scene: "You are looking for your hotel and have got lost. You show the address on your phone to a woman waiting at a crossing."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 みち が わかりません。", rom: "Sumimasen, michi ga wakarimasen.", l1: "Excuse me, I'm lost.", alt: ["すみません、 みち に まよいました。", "Sumimasen, michi ni mayoimashita."]}
+          - {who: B, l2: "どこ に いきたい ん です か。", rom: "Doko ni ikitai n desu ka.", l1: "Where do you want to go?"}
+          - {who: A, l2: "この ホテル です。", rom: "Kono hoteru desu.", l1: "This hotel.", alt: ["この ホテル に いきたい です。", "Kono hoteru ni ikitai desu.", "この ホテル へ いきたい です。", "Kono hoteru e ikitai desu.", "Kono hoteru he ikitai desu."]}
+          - {who: B, l2: "ああ、 さくら ホテル です ね。 ちょっと とおい です よ。 あるいて にじゅっぷん ぐらい です。", rom: "Aa, Sakura Hoteru desu ne. Chotto tooi desu yo. Aruite nijuppun gurai desu.", l1: "Oh, the Sakura Hotel. It's quite far. About twenty minutes on foot."}
+          - {who: A, l2: "すみません、 ちず を かいて くれません か。", rom: "Sumimasen, chizu o kaite kuremasen ka.", l1: "Sorry, could you draw me a map?", alt: ["すみません、 ちず を かいて ください。", "Sumimasen, chizu o kaite kudasai.", "すみません、 ちず を かいて いただけません か。", "Sumimasen, chizu o kaite itadakemasen ka.", "Sumimasen, chizu wo kaite kuremasen ka.", "Sumimasen, chizu wo kaite kudasai.", "Sumimasen, chizu wo kaite itadakemasen ka."]}
+          - {who: B, l2: "いい です よ。 ここ が いま いる ところ で、 ここ が ホテル です。", rom: "Ii desu yo. Koko ga ima iru tokoro de, koko ga hoteru desu.", l1: "Sure. This is where we are now, and this is the hotel."}
+          - {who: A, l2: "バス は あります か。", rom: "Basu wa arimasu ka.", l1: "Is there a bus?", alt: ["バス で も いけます か。", "Basu de mo ikemasu ka.", "Basu ha arimasu ka."]}
+          - {who: B, l2: "ええ、 あそこ の バスてい から じゅうごばん の バス に のって ください。", rom: "Ee, asoko no basutei kara juugoban no basu ni notte kudasai.", l1: "Yes, take the number 15 bus from that stop over there."}
+          - {who: A, l2: "じゅうごばん です ね。 ありがとう ございます。", rom: "Juugoban desu ne. Arigatou gozaimasu.", l1: "Number 15. Thank you.", alt: ["じゅうごばん の バス です ね。 ありがとう ございます。", "Juugoban no basu desu ne. Arigatou gozaimasu.", "Jūgoban desu ne. Arigatō gozaimasu.", "Jūgoban no basu desu ne. Arigatō gozaimasu."]}
+      - id: ja-talk-04-platform
+        type: dialogue
+        title: "Which platform?"
+        scene: "You want to take a local train to Kyoto. You ask at the information window."
+        you: B
+        lines:
+          - {who: B, l2: "すみません、 きょうと いき は なんばんせん です か。", rom: "Sumimasen, Kyouto iki wa nanbansen desu ka.", l1: "Excuse me, which platform for trains to Kyoto?", alt: ["すみません、 きょうと へ いく でんしゃ は なんばんせん です か。", "Sumimasen, Kyouto e iku densha wa nanbansen desu ka.", "きょうと いき は なんばんせん です か。", "Kyouto iki wa nanbansen desu ka.", "Sumimasen, Kyouto iki ha nanbansen desu ka.", "Sumimasen, Kyōto iki wa nanbansen desu ka.", "Sumimasen, Kyōto iki ha nanbansen desu ka.", "Sumimasen, Kyouto e iku densha ha nanbansen desu ka.", "Sumimasen, Kyouto he iku densha wa nanbansen desu ka.", "Sumimasen, Kyouto he iku densha ha nanbansen desu ka.", "Sumimasen, Kyōto e iku densha wa nanbansen desu ka.", "Sumimasen, Kyōto e iku densha ha nanbansen desu ka.", "Sumimasen, Kyōto he iku densha wa nanbansen desu ka.", "Sumimasen, Kyōto he iku densha ha nanbansen desu ka.", "Kyouto iki ha nanbansen desu ka.", "Kyōto iki wa nanbansen desu ka.", "Kyōto iki ha nanbansen desu ka."]}
+          - {who: A, l2: "きょうと いき は さんばんせん です。", rom: "Kyouto iki wa sanbansen desu.", l1: "Trains to Kyoto go from platform 3."}
+          - {who: B, l2: "つぎ の でんしゃ は なんじ です か。", rom: "Tsugi no densha wa nanji desu ka.", l1: "What time is the next train?", alt: ["つぎ は なんじ です か。", "Tsugi wa nanji desu ka.", "つぎ の でんしゃ は なんじ に でます か。", "Tsugi no densha wa nanji ni demasu ka.", "Tsugi no densha ha nanji desu ka.", "Tsugi ha nanji desu ka.", "Tsugi no densha ha nanji ni demasu ka."]}
+          - {who: A, l2: "じゅうじ じゅっぷん です。 あと ごふん です よ。", rom: "Juuji juppun desu. Ato gofun desu yo.", l1: "10:10. That's in five minutes."}
+          - {who: B, l2: "のりかえ は あります か。", rom: "Norikae wa arimasu ka.", l1: "Do I have to change?", alt: ["のりかえます か。", "Norikaemasu ka.", "どこ か で のりかえます か。", "Doko ka de norikaemasu ka.", "Norikae ha arimasu ka."]}
+          - {who: A, l2: "いいえ、 のりかえ なし で いけます。", rom: "Iie, norikae nashi de ikemasu.", l1: "No, it goes straight there."}
+          - {who: B, l2: "わかりました。 ありがとう ございます。", rom: "Wakarimashita. Arigatou gozaimasu.", l1: "Understood. Thank you.", alt: ["ありがとう ございます。", "Arigatou gozaimasu.", "わかりました。 どうも。", "Wakarimashita. Doumo.", "Wakarimashita. Arigatō gozaimasu.", "Arigatō gozaimasu.", "Wakarimashita. Dōmo."]}
+      - id: ja-talk-04-bus
+        type: dialogue
+        title: "The wrong bus"
+        scene: "A bus pulls in and you check with the driver before getting on."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 この バス は びじゅつかん へ いきます か。", rom: "Sumimasen, kono basu wa bijutsukan e ikimasu ka.", l1: "Excuse me, does this bus go to the art museum?", alt: ["すみません、 この バス は びじゅつかん に いきます か。", "Sumimasen, kono basu wa bijutsukan ni ikimasu ka.", "この バス は びじゅつかん へ いきます か。", "Kono basu wa bijutsukan e ikimasu ka.", "Sumimasen, kono basu wa bijutsukan he ikimasu ka.", "Sumimasen, kono basu ha bijutsukan e ikimasu ka.", "Sumimasen, kono basu ha bijutsukan he ikimasu ka.", "Sumimasen, kono basu ha bijutsukan ni ikimasu ka.", "Kono basu wa bijutsukan he ikimasu ka.", "Kono basu ha bijutsukan e ikimasu ka.", "Kono basu ha bijutsukan he ikimasu ka."]}
+          - {who: B, l2: "いいえ、 いきません。 にばん の バス に のって ください。", rom: "Iie, ikimasen. Niban no basu ni notte kudasai.", l1: "No, it doesn't. Take the number 2."}
+          - {who: A, l2: "にばん の バス は どこ から でます か。", rom: "Niban no basu wa doko kara demasu ka.", l1: "Where does the number 2 leave from?", alt: ["にばん の バスてい は どこ です か。", "Niban no basutei wa doko desu ka.", "にばん は どこ から でます か。", "Niban wa doko kara demasu ka.", "Niban no basu ha doko kara demasu ka.", "Niban no basutei ha doko desu ka.", "Niban ha doko kara demasu ka."]}
+          - {who: B, l2: "みち の むこうがわ です。 あの あおい かんばん の まえ です。", rom: "Michi no mukougawa desu. Ano aoi kanban no mae desu.", l1: "On the other side of the road. In front of that blue sign."}
+          - {who: A, l2: "すみません、 もう いちど おねがいします。", rom: "Sumimasen, mou ichido onegaishimasu.", l1: "Sorry, could you say that again?", alt: ["すみません、 もう いちど いって ください。", "Sumimasen, mou ichido itte kudasai.", "もう いちど おねがいします。", "Mou ichido onegaishimasu.", "Sumimasen, mō ichido onegaishimasu.", "Sumimasen, mō ichido itte kudasai.", "Mō ichido onegaishimasu."]}
+          - {who: B, l2: "みち を わたって、 あおい かんばん の まえ です。", rom: "Michi o watatte, aoi kanban no mae desu.", l1: "Cross the road. It's in front of the blue sign."}
+          - {who: A, l2: "あ、 わかりました。 どうも ありがとう ございます。", rom: "A, wakarimashita. Doumo arigatou gozaimasu.", l1: "Ah, I see. Thank you very much.", alt: ["わかりました。 ありがとう ございます。", "Wakarimashita. Arigatou gozaimasu.", "あ、 わかりました。 どうも。", "A, wakarimashita. Doumo.", "A, wakarimashita. Dōmo arigatō gozaimasu.", "Wakarimashita. Arigatō gozaimasu.", "A, wakarimashita. Dōmo."]}
+      - id: ja-talk-04-giving
+        type: dialogue
+        title: "Giving directions"
+        scene: "A visitor from another city stops you near your office and asks for a convenience store. You know one nearby."
+        you: B
+        lines:
+          - {who: A, l2: "すみません、 この ちかく に コンビニ は あります か。", rom: "Sumimasen, kono chikaku ni konbini wa arimasu ka.", l1: "Excuse me, is there a convenience store near here?"}
+          - {who: B, l2: "はい、 あります よ。 この みち を まっすぐ いって ください。", rom: "Hai, arimasu yo. Kono michi o massugu itte kudasai.", l1: "Yes, there is. Go straight along this road.", alt: ["ええ、 あります よ。 この みち を まっすぐ いって ください。", "Ee, arimasu yo. Kono michi o massugu itte kudasai.", "Hai, arimasu yo. Kono michi wo massugu itte kudasai.", "Ee, arimasu yo. Kono michi wo massugu itte kudasai.", "Ē, arimasu yo. Kono michi o massugu itte kudasai.", "Ē, arimasu yo. Kono michi wo massugu itte kudasai."]}
+          - {who: A, l2: "まっすぐ です ね。", rom: "Massugu desu ne.", l1: "Straight on, right."}
+          - {who: B, l2: "はい。 ひとつめ の かど を ひだり に まがる と、 みぎ に あります。", rom: "Hai. Hitotsume no kado o hidari ni magaru to, migi ni arimasu.", l1: "Yes. Turn left at the first corner and it's on the right.", alt: ["はい。 ひとつめ の かど を ひだり に まがって ください。 みぎ に あります。", "Hai. Hitotsume no kado o hidari ni magatte kudasai. Migi ni arimasu.", "Hai. Hitotsume no kado wo hidari ni magaru to, migi ni arimasu.", "Hai. Hitotsume no kado wo hidari ni magatte kudasai. Migi ni arimasu."]}
+          - {who: A, l2: "とおい です か。", rom: "Tooi desu ka.", l1: "Is it far?"}
+          - {who: B, l2: "いいえ、 あるいて ごふん ぐらい です。", rom: "Iie, aruite gofun gurai desu.", l1: "No, about five minutes on foot.", alt: ["いいえ、 ちかい です よ。 ごふん ぐらい です。", "Iie, chikai desu yo. Gofun gurai desu.", "いいえ、 ごふん ぐらい です。", "Iie, gofun gurai desu."]}
+          - {who: A, l2: "ありがとう ございます。 たすかりました。", rom: "Arigatou gozaimasu. Tasukarimashita.", l1: "Thank you. That's a great help."}
+          - {who: B, l2: "いいえ。 き を つけて。", rom: "Iie. Ki o tsukete.", l1: "Not at all. Take care.", alt: ["どう いたしまして。", "Dou itashimashite.", "いいえ、 どう いたしまして。", "Iie, dou itashimashite.", "Iie. Ki wo tsukete.", "Dō itashimashite.", "Iie, dō itashimashite."]}
+
+  # ───────────────────────────────────────────────────────────────── 5
+  - id: ja-talk-05
+    title: "At the doctor's"
+    goal: "I can register at a clinic, describe my symptoms and since when, understand instructions for medicine, ask what I may and may not do, and call in sick."
+    notes: |
+      Clinics in Japan start at the reception desk with your **ほけんしょう** (insurance card) and a **もんしんひょう** (health questionnaire). Ask for an English one if you need it: えいご の は あります か.
+
+      - **Symptoms**: [part] が いたい です · ねつ が あります · せき が でます · **はきけ が します** (I feel sick) · きもち が わるい です.
+      - **Since when**: きのう から, けさ から, **みっか まえ から** (for three days).
+      - **Medicine**: いちにち さんかい (three times a day) · しょくご (after meals) · ねる まえ に (before bed) · いつか ぶん (five days' worth).
+      - **Ask back**: いつ まで のみます か · 〜て も いい です か (may I …?): おふろ に はいって も いい です か · しごと に いって も いい です か.
+      - **Understand the answers**: 〜て ください, 〜ないで ください, 〜なければ なりません, 〜なくても いい です — all from A2.
+      - **Calling in sick**: ねつ が ある ので、 きょう は やすませて ください. Your boss will say おだいじに.
+      - **Unknown words**: 〜って なん です か works here too; doctors are used to explaining.
+    items:
+      - id: ja-talk-05-reception
+        type: dialogue
+        title: "At the clinic reception"
+        scene: "You walk into a local clinic for the first time. The receptionist looks up."
+        you: B
+        lines:
+          - {who: A, l2: "こんにちは。 はじめて です か。", rom: "Konnichiwa. Hajimete desu ka.", l1: "Hello. Is this your first visit?"}
+          - {who: B, l2: "はい、 はじめて です。", rom: "Hai, hajimete desu.", l1: "Yes, it's my first time.", alt: ["ええ、 はじめて です。", "Ee, hajimete desu.", "Ē, hajimete desu."]}
+          - {who: A, l2: "ほけんしょう を おねがいします。", rom: "Hokenshou o onegaishimasu.", l1: "Your insurance card, please."}
+          - {who: B, l2: "はい、 これ です。", rom: "Hai, kore desu.", l1: "Yes, here it is.", alt: ["はい、 どうぞ。", "Hai, douzo.", "はい、 おねがいします。", "Hai, onegaishimasu.", "Hai, dōzo."]}
+          - {who: A, l2: "では、 この もんしんひょう に かいて ください。 にほんご は だいじょうぶ です か。", rom: "Dewa, kono monshinhyou ni kaite kudasai. Nihongo wa daijoubu desu ka.", l1: "Then please fill in this questionnaire. Is Japanese all right for you?"}
+          - {who: B, l2: "すこし むずかしい です。 えいご の は あります か。", rom: "Sukoshi muzukashii desu. Eigo no wa arimasu ka.", l1: "It's a bit difficult. Do you have one in English?", alt: ["ちょっと むずかしい です。 えいご の は あります か。", "Chotto muzukashii desu. Eigo no wa arimasu ka.", "すこし むずかしい です。 えいご の は ありません か。", "Sukoshi muzukashii desu. Eigo no wa arimasen ka.", "Sukoshi muzukashii desu. Eigo no ha arimasu ka.", "Chotto muzukashii desu. Eigo no ha arimasu ka.", "Sukoshi muzukashii desu. Eigo no ha arimasen ka."]}
+          - {who: A, l2: "はい、 ございます。 こちら を どうぞ。", rom: "Hai, gozaimasu. Kochira o douzo.", l1: "Yes, we do. Here you are."}
+          - {who: B, l2: "ありがとう ございます。", rom: "Arigatou gozaimasu.", l1: "Thank you.", alt: ["たすかります。 ありがとう ございます。", "Tasukarimasu. Arigatou gozaimasu.", "Arigatō gozaimasu.", "Tasukarimasu. Arigatō gozaimasu."]}
+      - id: ja-talk-05-symptoms
+        type: dialogue
+        title: "Describing your symptoms"
+        scene: "You are in the consulting room. The doctor asks what is wrong."
+        you: B
+        lines:
+          - {who: A, l2: "きょう は どう しました か。", rom: "Kyou wa dou shimashita ka.", l1: "What brings you in today?"}
+          - {who: B, l2: "おなか が いたい です。", rom: "Onaka ga itai desu.", l1: "I have a stomach ache.", alt: ["おなか が いたい ん です。", "Onaka ga itai n desu.", "ちょっと おなか が いたい です。", "Chotto onaka ga itai desu."]}
+          - {who: A, l2: "いつ から です か。", rom: "Itsu kara desu ka.", l1: "Since when?"}
+          - {who: B, l2: "きのう の よる から です。", rom: "Kinou no yoru kara desu.", l1: "Since last night.", alt: ["ゆうべ から です。", "Yuube kara desu.", "きのう の よる から いたい です。", "Kinou no yoru kara itai desu.", "Kinō no yoru kara desu.", "Yūbe kara desu.", "Kinō no yoru kara itai desu."]}
+          - {who: A, l2: "はきけ は あります か。", rom: "Hakike wa arimasu ka.", l1: "Do you have any nausea?"}
+          - {who: B, l2: "すみません、 はきけ って なん です か。", rom: "Sumimasen, hakike tte nan desu ka.", l1: "Sorry, what does 'hakike' mean?", alt: ["はきけ って なん です か。", "Hakike tte nan desu ka."]}
+          - {who: A, l2: "きもち が わるくて、 はきたい かんじ の こと です。", rom: "Kimochi ga warukute, hakitai kanji no koto desu.", l1: "It means feeling ill, as if you're going to be sick."}
+          - {who: B, l2: "ああ、 すこし あります。", rom: "Aa, sukoshi arimasu.", l1: "Oh, a little, yes.", alt: ["ああ、 ちょっと あります。", "Aa, chotto arimasu.", "はい、 すこし あります。", "Hai, sukoshi arimasu.", "Ā, sukoshi arimasu.", "Ā, chotto arimasu."]}
+          - {who: A, l2: "そう です か。 じゃ、 ちょっと みせて ください ね。", rom: "Sou desu ka. Ja, chotto misete kudasai ne.", l1: "I see. Let me have a look, then."}
+      - id: ja-talk-05-medicine
+        type: dialogue
+        title: "Collecting your medicine"
+        scene: "At the pharmacy next to the clinic, the pharmacist hands over your prescription."
+        you: A
+        lines:
+          - {who: B, l2: "スミスさま、 おくすり です。 こちら は いちにち さんかい、 しょくご に のんで ください。", rom: "Sumisu-sama, okusuri desu. Kochira wa ichinichi sankai, shokugo ni nonde kudasai.", l1: "Mr. Smith, here's your medicine. Take this one three times a day, after meals."}
+          - {who: A, l2: "いちにち さんかい です ね。", rom: "Ichinichi sankai desu ne.", l1: "Three times a day, OK.", alt: ["いちにち さんかい、 しょくご です ね。", "Ichinichi sankai, shokugo desu ne."]}
+          - {who: B, l2: "はい。 こちら は ねる まえ に いっかい です。", rom: "Hai. Kochira wa neru mae ni ikkai desu.", l1: "Yes. And this one is once, before bed."}
+          - {who: A, l2: "いつ まで のみます か。", rom: "Itsu made nomimasu ka.", l1: "How long do I take them for?", alt: ["いつ まで のめば いい です か。", "Itsu made nomeba ii desu ka."]}
+          - {who: B, l2: "いつか ぶん です。 ぜんぶ のんで ください ね。", rom: "Itsuka bun desu. Zenbu nonde kudasai ne.", l1: "It's five days' worth. Please finish them all."}
+          - {who: A, l2: "おさけ を のんで も いい です か。", rom: "Osake o nonde mo ii desu ka.", l1: "Can I drink alcohol?", alt: ["おさけ は のんで も いい です か。", "Osake wa nonde mo ii desu ka.", "ビール を のんで も いい です か。", "Biiru o nonde mo ii desu ka.", "Osake wo nonde mo ii desu ka.", "Osake ha nonde mo ii desu ka.", "Biiru wo nonde mo ii desu ka.", "Bīru o nonde mo ii desu ka.", "Bīru wo nonde mo ii desu ka."]}
+          - {who: B, l2: "くすり を のんで いる あいだ は、 のまないで ください。", rom: "Kusuri o nonde iru aida wa, nomanaide kudasai.", l1: "Please don't while you're taking the medicine."}
+          - {who: A, l2: "わかりました。 ありがとう ございます。", rom: "Wakarimashita. Arigatou gozaimasu.", l1: "Understood. Thank you.", alt: ["はい、 わかりました。", "Hai, wakarimashita.", "Wakarimashita. Arigatō gozaimasu."]}
+          - {who: B, l2: "おだいじに。", rom: "Odaijini.", l1: "Take care of yourself."}
+      - id: ja-talk-05-dentist
+        type: dialogue
+        title: "At the dentist"
+        scene: "You have had toothache for two days and finally sit in the dentist's chair."
+        you: B
+        lines:
+          - {who: A, l2: "どう されました か。", rom: "Dou saremashita ka.", l1: "What seems to be the trouble?"}
+          - {who: B, l2: "おく の は が いたい です。", rom: "Oku no ha ga itai desu.", l1: "A back tooth hurts.", alt: ["は が いたい です。", "Ha ga itai desu.", "おく の は が いたい ん です。", "Oku no ha ga itai n desu."]}
+          - {who: A, l2: "つめたい もの を のむ と、 いたい です か。", rom: "Tsumetai mono o nomu to, itai desu ka.", l1: "Does it hurt when you drink something cold?"}
+          - {who: B, l2: "はい、 とても いたい です。", rom: "Hai, totemo itai desu.", l1: "Yes, it really hurts.", alt: ["はい、 すごく いたい です。", "Hai, sugoku itai desu.", "はい、 いたい です。", "Hai, itai desu."]}
+          - {who: A, l2: "むしば です ね。 きょう ちりょう しましょう。", rom: "Mushiba desu ne. Kyou chiryou shimashou.", l1: "It's a cavity. Let's treat it today."}
+          - {who: B, l2: "いたく ない です か。", rom: "Itaku nai desu ka.", l1: "Won't it hurt?", alt: ["いたい です か。", "Itai desu ka.", "いたく ありません か。", "Itaku arimasen ka."]}
+          - {who: A, l2: "ますい を します から、 だいじょうぶ です よ。", rom: "Masui o shimasu kara, daijoubu desu yo.", l1: "I'll give you an anaesthetic, so you'll be fine."}
+          - {who: B, l2: "よかった。 おねがいします。", rom: "Yokatta. Onegaishimasu.", l1: "Thank goodness. Go ahead, please.", alt: ["よかった です。 おねがいします。", "Yokatta desu. Onegaishimasu.", "わかりました。 おねがいします。", "Wakarimashita. Onegaishimasu."]}
+      - id: ja-talk-05-calling-in-sick
+        type: dialogue
+        title: "Calling in sick"
+        scene: "You wake up with a fever. You phone your manager, Ms. Kimura, before work."
+        you: A
+        lines:
+          - {who: A, l2: "もしもし、 スミス です。 おはよう ございます。", rom: "Moshimoshi, Sumisu desu. Ohayou gozaimasu.", l1: "Hello, it's Smith. Good morning.", alt: ["おはよう ございます。 スミス です。", "Ohayou gozaimasu. Sumisu desu.", "Moshimoshi, Sumisu desu. Ohayō gozaimasu.", "Ohayō gozaimasu. Sumisu desu."]}
+          - {who: B, l2: "あ、 スミスさん。 おはよう ございます。", rom: "A, Sumisu-san. Ohayou gozaimasu.", l1: "Oh, Mr. Smith. Good morning."}
+          - {who: A, l2: "すみません、 ねつ が ある ので、 きょう は やすませて ください。", rom: "Sumimasen, netsu ga aru node, kyou wa yasumasete kudasai.", l1: "I'm sorry, I've got a temperature, so may I take today off?", alt: ["すみません、 ねつ が ある ので、 きょう は やすみます。", "Sumimasen, netsu ga aru node, kyou wa yasumimasu.", "すみません、 ねつ が ある ので、 きょう は やすみたい ん です が。", "Sumimasen, netsu ga aru node, kyou wa yasumitai n desu ga.", "Sumimasen, netsu ga aru node, kyou ha yasumasete kudasai.", "Sumimasen, netsu ga aru node, kyō wa yasumasete kudasai.", "Sumimasen, netsu ga aru node, kyō ha yasumasete kudasai.", "Sumimasen, netsu ga aru node, kyou ha yasumimasu.", "Sumimasen, netsu ga aru node, kyō wa yasumimasu.", "Sumimasen, netsu ga aru node, kyō ha yasumimasu.", "Sumimasen, netsu ga aru node, kyou ha yasumitai n desu ga.", "Sumimasen, netsu ga aru node, kyō wa yasumitai n desu ga.", "Sumimasen, netsu ga aru node, kyō ha yasumitai n desu ga."]}
+          - {who: B, l2: "そう です か。 だいじょうぶ です か。 びょういん に は いきました か。", rom: "Sou desu ka. Daijoubu desu ka. Byouin ni wa ikimashita ka.", l1: "Oh dear. Are you all right? Have you been to the doctor?"}
+          - {who: A, l2: "これから いきます。", rom: "Korekara ikimasu.", l1: "I'm going now.", alt: ["いまから いきます。", "Imakara ikimasu.", "これから びょういん へ いきます。", "Korekara byouin e ikimasu.", "Korekara byouin he ikimasu.", "Korekara byōin e ikimasu.", "Korekara byōin he ikimasu."]}
+          - {who: B, l2: "わかりました。 しごと の こと は しんぱい しなくても いい です よ。 ゆっくり やすんで ください。", rom: "Wakarimashita. Shigoto no koto wa shinpai shinakutemo ii desu yo. Yukkuri yasunde kudasai.", l1: "All right. You don't need to worry about work. Get plenty of rest."}
+          - {who: A, l2: "ありがとう ございます。 ごめいわく を おかけ します。", rom: "Arigatou gozaimasu. Gomeiwaku o okake shimasu.", l1: "Thank you. I'm sorry for the trouble.", alt: ["ありがとう ございます。 すみません。", "Arigatou gozaimasu. Sumimasen.", "ありがとう ございます。 よろしく おねがいします。", "Arigatou gozaimasu. Yoroshiku onegaishimasu.", "Arigatou gozaimasu. Gomeiwaku wo okake shimasu.", "Arigatō gozaimasu. Gomeiwaku o okake shimasu.", "Arigatō gozaimasu. Gomeiwaku wo okake shimasu.", "Arigatō gozaimasu. Sumimasen.", "Arigatō gozaimasu. Yoroshiku onegaishimasu."]}
+          - {who: B, l2: "おだいじに。", rom: "Odaijini.", l1: "Get well soon."}
+      - id: ja-talk-05-friend-ill
+        type: dialogue
+        title: "You don't look well"
+        scene: "Between classes, your friend Mai notices you look pale. She speaks casually."
+        you: B
+        lines:
+          - {who: A, l2: "どうした の？ げんき ない ね。", rom: "Doushita no? Genki nai ne.", l1: "What's up? You look a bit down."}
+          - {who: B, l2: "うん、 ちょっと あたま が いたい ん だ。", rom: "Un, chotto atama ga itai n da.", l1: "Yeah, I've got a bit of a headache.", alt: ["うん、 ちょっと あたま が いたい。", "Un, chotto atama ga itai.", "ちょっと あたま が いたい ん だ。", "Chotto atama ga itai n da."]}
+          - {who: A, l2: "だいじょうぶ？ くすり ある よ。 のむ？", rom: "Daijoubu? Kusuri aru yo. Nomu?", l1: "Are you OK? I've got some medicine. Want some?"}
+          - {who: B, l2: "ありがとう。 ひとつ ちょうだい。", rom: "Arigatou. Hitotsu choudai.", l1: "Thanks. Can I have one?", alt: ["ありがとう。 もらって いい？", "Arigatou. Moratte ii?", "ありがとう。 ひとつ もらう ね。", "Arigatou. Hitotsu morau ne.", "Arigatō. Hitotsu chōdai.", "Arigatō. Moratte ii?", "Arigatō. Hitotsu morau ne."]}
+          - {who: A, l2: "はい、 みず も どうぞ。 きょう は はやく かえった ほう が いい よ。", rom: "Hai, mizu mo douzo. Kyou wa hayaku kaetta hou ga ii yo.", l1: "Here, and some water. You should go home early today."}
+          - {who: B, l2: "うん、 そう する。 ありがとう。", rom: "Un, sou suru. Arigatou.", l1: "Yeah, I will. Thanks.", alt: ["そう する ね。 ありがとう。", "Sou suru ne. Arigatou.", "うん、 そう する ね。", "Un, sou suru ne.", "Un, sō suru. Arigatō.", "Sō suru ne. Arigatō.", "Un, sō suru ne."]}
+          - {who: A, l2: "おだいじに ね。", rom: "Odaijini ne.", l1: "Take care of yourself."}
+
+  # ───────────────────────────────────────────────────────────────── 6
+  - id: ja-talk-06
+    title: "Making plans"
+    goal: "I can invite someone, accept or decline politely, settle a day, time and place, change a plan, warn that I'm running late, and make plans casually with friends."
+    notes: |
+      - **Invite softly**: 〜ません か (polite) or 〜ない？ (casual): こんど いっしょ に ごはん を たべません か.
+      - **Accept**: いい です ね！ **ぜひ** (I'd love to) · たのしみ に して います.
+      - **Decline**: never a flat いいえ. Thank them, then let a half-reason trail off: ありがとう ございます。 でも、 その ひ は ちょっと… · **また こんど さそって ください** (please ask me another time).
+      - **Settle the details**: いつ が いい です か · 〜は どう です か · なんじ に しましょう か · どこ で あいましょう か. Then sum up: じゃ、 どようび の ろくじ に えき で.
+      - **Change a plan**: すみません、 **きゅう に ようじ が できて** … (something has suddenly come up).
+      - **Running late**: じゅっぷん ぐらい おくれます · さき に はじめて ください (start without me).
+      - **With friends**: the same moves go casual: いく？ · いい ね！ · ごめん、 その ひ は ちょっと… · じゃ、 あと で.
+      - In Tokyo, the statue of the dog **ハチこう** outside Shibuya station is the classic meeting point.
+    items:
+      - id: ja-talk-06-invite
+        type: dialogue
+        title: "An invitation to dinner"
+        scene: "On Wednesday you ask your colleague Mr. Tanaka if he'd like to go out on Friday."
+        you: A
+        lines:
+          - {who: A, l2: "たなかさん、 こんど の きんようび、 ひま です か。", rom: "Tanaka-san, kondo no kin'youbi, hima desu ka.", l1: "Mr. Tanaka, are you free this Friday?", alt: ["たなかさん、 きんようび は ひま です か。", "Tanaka-san, kin'youbi wa hima desu ka.", "たなかさん、 こんど の きんようび は ひま です か。", "Tanaka-san, kondo no kin'youbi wa hima desu ka.", "Tanaka-san, kondo no kin'yōbi, hima desu ka.", "Tanaka-san, kin'youbi ha hima desu ka.", "Tanaka-san, kin'yōbi wa hima desu ka.", "Tanaka-san, kin'yōbi ha hima desu ka.", "Tanaka-san, kondo no kin'youbi ha hima desu ka.", "Tanaka-san, kondo no kin'yōbi wa hima desu ka.", "Tanaka-san, kondo no kin'yōbi ha hima desu ka."]}
+          - {who: B, l2: "きんようび です か。 ええ、 とくに よてい は ありません。", rom: "Kin'youbi desu ka. Ee, toku ni yotei wa arimasen.", l1: "Friday? Yes, I've got nothing special on."}
+          - {who: A, l2: "いっしょ に ごはん を たべ に いきません か。", rom: "Issho ni gohan o tabe ni ikimasen ka.", l1: "Would you like to go out for a meal together?", alt: ["いっしょ に ごはん を たべません か。", "Issho ni gohan o tabemasen ka.", "よかったら、 いっしょ に ごはん を たべ に いきません か。", "Yokattara, issho ni gohan o tabe ni ikimasen ka.", "Issho ni gohan wo tabe ni ikimasen ka.", "Issho ni gohan wo tabemasen ka.", "Yokattara, issho ni gohan wo tabe ni ikimasen ka."]}
+          - {who: B, l2: "いい です ね！ ぜひ。 なに を たべましょう か。", rom: "Ii desu ne! Zehi. Nani o tabemashou ka.", l1: "Great idea! I'd love to. What shall we eat?"}
+          - {who: A, l2: "おすし は どう です か。", rom: "Osushi wa dou desu ka.", l1: "How about sushi?", alt: ["すし は どう です か。", "Sushi wa dou desu ka.", "おすし は いかが です か。", "Osushi wa ikaga desu ka.", "Osushi ha dou desu ka.", "Osushi wa dō desu ka.", "Osushi ha dō desu ka.", "Sushi ha dou desu ka.", "Sushi wa dō desu ka.", "Sushi ha dō desu ka.", "Osushi ha ikaga desu ka."]}
+          - {who: B, l2: "いい です ね。 たのしみ に して います。", rom: "Ii desu ne. Tanoshimi ni shite imasu.", l1: "Sounds good. I'm looking forward to it."}
+      - id: ja-talk-06-decline
+        type: dialogue
+        title: "Declining politely"
+        scene: "Your neighbour Mrs. Ito invites you to a barbecue, but you already have plans."
+        you: B
+        lines:
+          - {who: A, l2: "スミスさん、 にちようび に うち で バーベキュー を します。 よかったら きません か。", rom: "Sumisu-san, nichiyoubi ni uchi de baabekyuu o shimasu. Yokattara kimasen ka.", l1: "Mr. Smith, we're having a barbecue at our place on Sunday. Would you like to come?"}
+          - {who: B, l2: "ありがとう ございます。 でも、 にちようび は ちょっと…。", rom: "Arigatou gozaimasu. Demo, nichiyoubi wa chotto….", l1: "Thank you. But Sunday is a bit...", alt: ["すみません、 にちようび は ちょっと…。", "Sumimasen, nichiyoubi wa chotto….", "ありがとう ございます。 でも、 にちようび は ちょっと。", "Arigatou gozaimasu. Demo, nichiyoubi wa chotto.", "Arigatou gozaimasu. Demo, nichiyoubi ha chotto….", "Arigatō gozaimasu. Demo, nichiyōbi wa chotto….", "Arigatō gozaimasu. Demo, nichiyōbi ha chotto….", "Sumimasen, nichiyoubi ha chotto….", "Sumimasen, nichiyōbi wa chotto….", "Sumimasen, nichiyōbi ha chotto….", "Arigatou gozaimasu. Demo, nichiyoubi ha chotto.", "Arigatō gozaimasu. Demo, nichiyōbi wa chotto.", "Arigatō gozaimasu. Demo, nichiyōbi ha chotto."]}
+          - {who: A, l2: "そう です か。 ごよてい が ある ん です か。", rom: "Sou desu ka. Goyotei ga aru n desu ka.", l1: "Oh, I see. Do you have plans?"}
+          - {who: B, l2: "ええ、 ともだち が くる ん です。", rom: "Ee, tomodachi ga kuru n desu.", l1: "Yes, a friend is coming to visit.", alt: ["ええ、 ともだち が きます。", "Ee, tomodachi ga kimasu.", "はい、 ともだち が くる ん です。", "Hai, tomodachi ga kuru n desu.", "Ē, tomodachi ga kuru n desu.", "Ē, tomodachi ga kimasu."]}
+          - {who: A, l2: "それ は ざんねん です ね。", rom: "Sore wa zannen desu ne.", l1: "That's a shame."}
+          - {who: B, l2: "すみません。 また こんど さそって ください。", rom: "Sumimasen. Mata kondo sasotte kudasai.", l1: "I'm sorry. Please ask me again another time.", alt: ["すみません。 また こんど おねがいします。", "Sumimasen. Mata kondo onegaishimasu.", "すみません。 また こんど ぜひ。", "Sumimasen. Mata kondo zehi."]}
+          - {who: A, l2: "もちろん です。 じゃ、 また こんど。", rom: "Mochiron desu. Ja, mata kondo.", l1: "Of course. Next time, then."}
+      - id: ja-talk-06-when-where
+        type: dialogue
+        title: "When and where?"
+        scene: "You and your friend Ms. Sato have agreed to see a film. Now you need to fix the details."
+        you: B
+        lines:
+          - {who: A, l2: "じゃ、 いつ に しましょう か。", rom: "Ja, itsu ni shimashou ka.", l1: "So, when shall we make it?"}
+          - {who: B, l2: "どようび は どう です か。", rom: "Doyoubi wa dou desu ka.", l1: "How about Saturday?", alt: ["どようび は いかが です か。", "Doyoubi wa ikaga desu ka.", "どようび に しましょう か。", "Doyoubi ni shimashou ka.", "Doyoubi ha dou desu ka.", "Doyōbi wa dō desu ka.", "Doyōbi ha dō desu ka.", "Doyoubi ha ikaga desu ka.", "Doyōbi wa ikaga desu ka.", "Doyōbi ha ikaga desu ka.", "Doyōbi ni shimashō ka."]}
+          - {who: A, l2: "どようび は だいじょうぶ です。 なんじ が いい です か。", rom: "Doyoubi wa daijoubu desu. Nanji ga ii desu ka.", l1: "Saturday's fine. What time suits you?"}
+          - {who: B, l2: "ろくじ は どう です か。", rom: "Rokuji wa dou desu ka.", l1: "How about six?", alt: ["ろくじ に しましょう。", "Rokuji ni shimashou.", "ろくじ は いかが です か。", "Rokuji wa ikaga desu ka.", "Rokuji ha dou desu ka.", "Rokuji wa dō desu ka.", "Rokuji ha dō desu ka.", "Rokuji ni shimashō.", "Rokuji ha ikaga desu ka."]}
+          - {who: A, l2: "いい です よ。 どこ で あいましょう か。", rom: "Ii desu yo. Doko de aimashou ka.", l1: "Fine. Where shall we meet?"}
+          - {who: B, l2: "ハチこう の まえ で あいましょう。", rom: "Hachikou no mae de aimashou.", l1: "Let's meet in front of the Hachiko statue.", alt: ["ハチこう の まえ は どう です か。", "Hachikou no mae wa dou desu ka.", "しぶや の ハチこう の まえ で あいましょう。", "Shibuya no Hachikou no mae de aimashou.", "Hachikō no mae de aimashō.", "Hachikou no mae ha dou desu ka.", "Hachikō no mae wa dō desu ka.", "Hachikō no mae ha dō desu ka.", "Shibuya no Hachikō no mae de aimashō."]}
+          - {who: A, l2: "わかりました。 じゃ、 どようび の ろくじ に ハチこう の まえ で。", rom: "Wakarimashita. Ja, doyoubi no rokuji ni Hachikou no mae de.", l1: "OK. Saturday at six in front of Hachiko, then."}
+          - {who: B, l2: "はい。 たのしみ に して います。", rom: "Hai. Tanoshimi ni shite imasu.", l1: "Great. I'm looking forward to it.", alt: ["はい、 たのしみ です。", "Hai, tanoshimi desu.", "たのしみ に して います。", "Tanoshimi ni shite imasu."]}
+      - id: ja-talk-06-change
+        type: dialogue
+        title: "Something's come up"
+        scene: "You have a dinner arranged with Ms. Yamada tomorrow, but your boss has just asked you to work late. You phone her."
+        you: A
+        lines:
+          - {who: A, l2: "もしもし、 やまださん。 スミス です。", rom: "Moshimoshi, Yamada-san. Sumisu desu.", l1: "Hello, Ms. Yamada. It's Smith.", alt: ["もしもし、 スミス です。", "Moshimoshi, Sumisu desu."]}
+          - {who: B, l2: "あ、 スミスさん。 どう しました か。", rom: "A, Sumisu-san. Dou shimashita ka.", l1: "Oh, Mr. Smith. What's up?"}
+          - {who: A, l2: "すみません、 あした、 きゅう に しごと が はいりました。", rom: "Sumimasen, ashita, kyuu ni shigoto ga hairimashita.", l1: "I'm sorry, some work has suddenly come up tomorrow.", alt: ["すみません、 きゅう に ようじ が できました。", "Sumimasen, kyuu ni youji ga dekimashita.", "すみません、 あした、 きゅう に ようじ が できました。", "Sumimasen, ashita, kyuu ni youji ga dekimashita.", "Sumimasen, ashita, kyū ni shigoto ga hairimashita.", "Sumimasen, kyū ni yōji ga dekimashita.", "Sumimasen, ashita, kyū ni yōji ga dekimashita."]}
+          - {who: B, l2: "そう です か。 だいじょうぶ です よ。", rom: "Sou desu ka. Daijoubu desu yo.", l1: "Oh, I see. That's fine."}
+          - {who: A, l2: "らいしゅう の どようび は どう です か。", rom: "Raishuu no doyoubi wa dou desu ka.", l1: "How about Saturday next week?", alt: ["らいしゅう の どようび は いかが です か。", "Raishuu no doyoubi wa ikaga desu ka.", "らいしゅう の どようび は ひま です か。", "Raishuu no doyoubi wa hima desu ka.", "Raishuu no doyoubi ha dou desu ka.", "Raishū no doyōbi wa dō desu ka.", "Raishū no doyōbi ha dō desu ka.", "Raishuu no doyoubi ha ikaga desu ka.", "Raishū no doyōbi wa ikaga desu ka.", "Raishū no doyōbi ha ikaga desu ka.", "Raishuu no doyoubi ha hima desu ka.", "Raishū no doyōbi wa hima desu ka.", "Raishū no doyōbi ha hima desu ka."]}
+          - {who: B, l2: "らいしゅう の どようび なら だいじょうぶ です。", rom: "Raishuu no doyoubi nara daijoubu desu.", l1: "Next Saturday is fine."}
+          - {who: A, l2: "ほんとう に すみません。 じゃ、 らいしゅう。", rom: "Hontou ni sumimasen. Ja, raishuu.", l1: "I'm really sorry. Next week, then.", alt: ["ほんとう に すみません。 じゃ、 らいしゅう の どようび に。", "Hontou ni sumimasen. Ja, raishuu no doyoubi ni.", "すみません。 じゃ、 らいしゅう。", "Sumimasen. Ja, raishuu.", "Hontō ni sumimasen. Ja, raishū.", "Hontō ni sumimasen. Ja, raishū no doyōbi ni.", "Sumimasen. Ja, raishū."]}
+      - id: ja-talk-06-running-late
+        type: dialogue
+        title: "Running late"
+        scene: "Your team is meeting at a restaurant for a farewell party. You are late, and a colleague calls you."
+        you: B
+        lines:
+          - {who: A, l2: "もしもし、 スミスさん？ いま どこ です か。", rom: "Moshimoshi, Sumisu-san? Ima doko desu ka.", l1: "Hello, Mr. Smith? Where are you now?"}
+          - {who: B, l2: "すみません、 いま えき に つきました。", rom: "Sumimasen, ima eki ni tsukimashita.", l1: "Sorry, I've just got to the station.", alt: ["すみません、 いま えき です。", "Sumimasen, ima eki desu.", "すみません、 いま えき に つきました よ。", "Sumimasen, ima eki ni tsukimashita yo."]}
+          - {who: A, l2: "そう です か。 みんな もう みせ に います よ。", rom: "Sou desu ka. Minna mou mise ni imasu yo.", l1: "I see. Everyone's already at the restaurant."}
+          - {who: B, l2: "じゅっぷん ぐらい おくれます。 さき に はじめて ください。", rom: "Juppun gurai okuremasu. Saki ni hajimete kudasai.", l1: "I'll be about ten minutes late. Please start without me.", alt: ["じゅっぷん ぐらい おくれます。 さき に はじめて いて ください。", "Juppun gurai okuremasu. Saki ni hajimete ite kudasai.", "じゅっぷん ぐらい おくれます。", "Juppun gurai okuremasu."]}
+          - {who: A, l2: "わかりました。 みせ の ばしょ、 わかります か。", rom: "Wakarimashita. Mise no basho, wakarimasu ka.", l1: "OK. Do you know where the restaurant is?"}
+          - {who: B, l2: "はい、 ちず が あります から、 だいじょうぶ です。", rom: "Hai, chizu ga arimasu kara, daijoubu desu.", l1: "Yes, I've got a map, so I'll be fine.", alt: ["はい、 だいじょうぶ です。", "Hai, daijoubu desu.", "はい、 ちず が ある ので、 だいじょうぶ です。", "Hai, chizu ga aru node, daijoubu desu.", "Hai, chizu ga arimasu kara, daijōbu desu.", "Hai, daijōbu desu.", "Hai, chizu ga aru node, daijōbu desu."]}
+          - {who: A, l2: "じゃ、 まって います ね。 き を つけて。", rom: "Ja, matte imasu ne. Ki o tsukete.", l1: "Right, we'll be waiting. Take care."}
+      - id: ja-talk-06-what-to-eat
+        type: dialogue
+        title: "What shall we eat?"
+        scene: "You and your flatmate Daiki are hungry and deciding where to go. You speak casually."
+        you: A
+        lines:
+          - {who: A, l2: "ねえ、 ばんごはん、 なに たべる？", rom: "Nee, bangohan, nani taberu?", l1: "Hey, what shall we have for dinner?", alt: ["ねえ、 ばんごはん は なに を たべる？", "Nee, bangohan wa nani o taberu?", "ばんごはん、 なに たべる？", "Bangohan, nani taberu?", "Nē, bangohan, nani taberu?", "Nee, bangohan wa nani wo taberu?", "Nee, bangohan ha nani o taberu?", "Nee, bangohan ha nani wo taberu?", "Nē, bangohan wa nani o taberu?", "Nē, bangohan wa nani wo taberu?", "Nē, bangohan ha nani o taberu?", "Nē, bangohan ha nani wo taberu?"]}
+          - {who: B, l2: "なん でも いい よ。 なに が いい？", rom: "Nan demo ii yo. Nani ga ii?", l1: "Anything's fine. What do you fancy?"}
+          - {who: A, l2: "ラーメン は どう？", rom: "Raamen wa dou?", l1: "How about ramen?", alt: ["ラーメン に しない？", "Raamen ni shinai?", "ラーメン は？", "Raamen wa?", "Raamen ha dou?", "Rāmen wa dō?", "Rāmen ha dō?", "Rāmen ni shinai?", "Raamen ha?", "Rāmen wa?", "Rāmen ha?"]}
+          - {who: B, l2: "きのう も ラーメン だった よ。", rom: "Kinou mo raamen datta yo.", l1: "We had ramen yesterday too."}
+          - {who: A, l2: "そっか。 じゃ、 カレー に しよう。", rom: "Sokka. Ja, karee ni shiyou.", l1: "Oh yeah. Let's have curry, then.", alt: ["そっか。 じゃ、 カレー は？", "Sokka. Ja, karee wa?", "そう だ ね。 じゃ、 カレー に しよう。", "Sou da ne. Ja, karee ni shiyou.", "Sokka. Ja, karē ni shiyō.", "Sokka. Ja, karee ha?", "Sokka. Ja, karē wa?", "Sokka. Ja, karē ha?", "Sō da ne. Ja, karē ni shiyō."]}
+          - {who: B, l2: "いい ね！ えき の まえ の みせ、 おいしい よ。", rom: "Ii ne! Eki no mae no mise, oishii yo.", l1: "Good idea! The place in front of the station is good."}
+          - {who: A, l2: "じゃ、 そこ に いこう。", rom: "Ja, soko ni ikou.", l1: "Let's go there, then.", alt: ["じゃ、 そこ へ いこう。", "Ja, soko e ikou.", "じゃあ、 そこ に いこう。", "Jaa, soko ni ikou.", "Ja, soko ni ikō.", "Ja, soko he ikou.", "Ja, soko e ikō.", "Ja, soko he ikō.", "Jā, soko ni ikō."]}
+      - id: ja-talk-06-karaoke
+        type: dialogue
+        title: "Karaoke tonight?"
+        scene: "Your friend Yui messages you, then calls. She talks casually."
+        you: B
+        lines:
+          - {who: A, l2: "こんばん、 カラオケ いかない？", rom: "Konban, karaoke ikanai?", l1: "Do you want to go to karaoke tonight?"}
+          - {who: B, l2: "いい ね！ なんじ から？", rom: "Ii ne! Nanji kara?", l1: "Sounds fun! What time?", alt: ["いい ね。 なんじ から？", "Ii ne. Nanji kara?", "いく！ なんじ から？", "Iku! Nanji kara?"]}
+          - {who: A, l2: "はちじ から。 みんな で いく よ。", rom: "Hachiji kara. Minna de iku yo.", l1: "From eight. A whole group of us are going."}
+          - {who: B, l2: "ごめん、 はちじ は ちょっと はやい な。 くじ でも いい？", rom: "Gomen, hachiji wa chotto hayai na. Kuji demo ii?", l1: "Sorry, eight's a bit early for me. Is nine OK?", alt: ["ごめん、 くじ から でも いい？", "Gomen, kuji kara demo ii?", "ごめん、 はちじ は ちょっと…。 くじ でも いい？", "Gomen, hachiji wa chotto…. Kuji demo ii?", "Gomen, hachiji ha chotto hayai na. Kuji demo ii?", "Gomen, hachiji ha chotto…. Kuji demo ii?"]}
+          - {who: A, l2: "うん、 いい よ。 じゃ、 くじ に えき で ね。", rom: "Un, ii yo. Ja, kuji ni eki de ne.", l1: "Yeah, fine. Nine at the station, then."}
+          - {who: B, l2: "わかった。 じゃ、 あと で。", rom: "Wakatta. Ja, ato de.", l1: "Got it. See you later.", alt: ["うん、 じゃ、 あと で。", "Un, ja, ato de.", "わかった。 じゃ、 あと で ね。", "Wakatta. Ja, ato de ne."]}
+
+  # ───────────────────────────────────────────────────────────────── 7
+  - id: ja-talk-07
+    title: "On the phone"
+    goal: "I can book a table by phone, ask for someone at a company, leave a message, deal with a wrong number or a bad line, and phone a friend."
+    notes: |
+      Phone Japanese is more formal than face-to-face Japanese, and it is full of fixed phrases.
+
+      - **Open**: **もしもし** (only on the phone). Give your name with **と もうします**, or [company] の [name] です.
+      - **Ask for someone**: 〜さん は **いらっしゃいます か**. You will hear: しょうしょう おまち ください · たなか は いま せき を はずして おります (is away from their desk) · でかけて おります (is out) · かいぎ ちゅう です (is in a meeting).
+      - Staff refer to their own colleagues with no さん: たなか は…. Don't copy that; always say たなかさん.
+      - **Messages**: でんごん を おねがいできます か · 〜から でんわ が あった と つたえて ください · また あと で おでんわ します.
+      - **Line trouble**: すみません、 よく きこえません · もう すこし おおきい こえ で おねがいします.
+      - **Numbers**: read digit by digit, with の for the hyphen, and repeat them back to check.
+      - **Close**: **しつれいします** (polite), じゃ、 また / じゃ ね (friends). Wait for the other person to hang up first.
+    items:
+      - id: ja-talk-07-booking
+        type: dialogue
+        title: "Booking a table"
+        scene: "You phone a restaurant to book a table for four on Saturday evening."
+        you: A
+        lines:
+          - {who: B, l2: "はい、 レストラン さくら で ございます。", rom: "Hai, resutoran Sakura de gozaimasu.", l1: "Hello, Restaurant Sakura."}
+          - {who: A, l2: "もしもし、 よやく を したい ん です が。", rom: "Moshimoshi, yoyaku o shitai n desu ga.", l1: "Hello, I'd like to make a reservation.", alt: ["もしもし、 よやく を おねがいします。", "Moshimoshi, yoyaku o onegaishimasu.", "もしもし、 よやく を したい です。", "Moshimoshi, yoyaku o shitai desu.", "Moshimoshi, yoyaku wo shitai n desu ga.", "Moshimoshi, yoyaku wo onegaishimasu.", "Moshimoshi, yoyaku wo shitai desu."]}
+          - {who: B, l2: "ありがとう ございます。 いつ が よろしい でしょう か。", rom: "Arigatou gozaimasu. Itsu ga yoroshii deshou ka.", l1: "Thank you. When would you like?"}
+          - {who: A, l2: "どようび の よる しちじ に、 よにん です。", rom: "Doyoubi no yoru shichiji ni, yonin desu.", l1: "Saturday at seven in the evening, for four.", alt: ["どようび の しちじ に、 よにん で おねがいします。", "Doyoubi no shichiji ni, yonin de onegaishimasu.", "どようび の よる しちじ、 よにん です。", "Doyoubi no yoru shichiji, yonin desu.", "Doyōbi no yoru shichiji ni, yonin desu.", "Doyōbi no shichiji ni, yonin de onegaishimasu.", "Doyōbi no yoru shichiji, yonin desu."]}
+          - {who: B, l2: "どようび の しちじ、 よんめいさま です ね。 おなまえ を おねがいします。", rom: "Doyoubi no shichiji, yonmeisama desu ne. Onamae o onegaishimasu.", l1: "Saturday at seven for four. May I have your name?"}
+          - {who: A, l2: "スミス です。", rom: "Sumisu desu.", l1: "It's Smith.", alt: ["スミス と もうします。", "Sumisu to moushimasu.", "Sumisu to mōshimasu."]}
+          - {who: B, l2: "スミスさま。 おでんわばんごう は、 いま の ばんごう で よろしい です か。", rom: "Sumisu-sama. Odenwabangou wa, ima no bangou de yoroshii desu ka.", l1: "Mr. Smith. Is the number you're calling from the best one to reach you?"}
+          - {who: A, l2: "はい、 だいじょうぶ です。", rom: "Hai, daijoubu desu.", l1: "Yes, that's fine.", alt: ["はい、 それ で おねがいします。", "Hai, sore de onegaishimasu.", "はい、 いい です。", "Hai, ii desu.", "Hai, daijōbu desu."]}
+          - {who: B, l2: "かしこまりました。 では、 どようび に おまち して おります。", rom: "Kashikomarimashita. Dewa, doyoubi ni omachi shite orimasu.", l1: "Certainly. We look forward to seeing you on Saturday."}
+          - {who: A, l2: "よろしく おねがいします。 しつれいします。", rom: "Yoroshiku onegaishimasu. Shitsurei shimasu.", l1: "Thank you. Goodbye.", alt: ["おねがいします。 しつれいします。", "Onegaishimasu. Shitsurei shimasu.", "ありがとう ございます。 しつれいします。", "Arigatou gozaimasu. Shitsurei shimasu.", "Arigatō gozaimasu. Shitsurei shimasu."]}
+      - id: ja-talk-07-company
+        type: dialogue
+        title: "Calling a company"
+        scene: "You work for the Bank of London in Tokyo. You phone a client company to speak to Mr. Tanaka."
+        you: A
+        lines:
+          - {who: B, l2: "はい、 さくら しょうじ で ございます。", rom: "Hai, Sakura Shouji de gozaimasu.", l1: "Hello, Sakura Trading."}
+          - {who: A, l2: "もしもし、 ロンドン ぎんこう の スミス と もうします。", rom: "Moshimoshi, Rondon Ginkou no Sumisu to moushimasu.", l1: "Hello, my name is Smith, from the Bank of London.", alt: ["もしもし、 ロンドン ぎんこう の スミス です。", "Moshimoshi, Rondon Ginkou no Sumisu desu.", "Moshimoshi, Rondon Ginkō no Sumisu to mōshimasu.", "Moshimoshi, Rondon Ginkō no Sumisu desu."]}
+          - {who: B, l2: "いつも おせわ に なって おります。", rom: "Itsumo osewa ni natte orimasu.", l1: "Thank you for your continued business."}
+          - {who: A, l2: "たなかさん は いらっしゃいます か。", rom: "Tanaka-san wa irasshaimasu ka.", l1: "Is Mr. Tanaka there, please?", alt: ["たなかさん を おねがいします。", "Tanaka-san o onegaishimasu.", "たなかさん は いらっしゃいます でしょう か。", "Tanaka-san wa irasshaimasu deshou ka.", "Tanaka-san ha irasshaimasu ka.", "Tanaka-san wo onegaishimasu.", "Tanaka-san ha irasshaimasu deshou ka.", "Tanaka-san wa irasshaimasu deshō ka.", "Tanaka-san ha irasshaimasu deshō ka."]}
+          - {who: B, l2: "もうしわけ ございません。 たなか は いま かいぎ ちゅう で ございます。", rom: "Moushiwake gozaimasen. Tanaka wa ima kaigi chuu de gozaimasu.", l1: "I'm very sorry. Tanaka is in a meeting at the moment."}
+          - {who: A, l2: "そう です か。 なんじ ごろ おわります か。", rom: "Sou desu ka. Nanji goro owarimasu ka.", l1: "I see. About what time will it finish?", alt: ["そう です か。 かいぎ は なんじ ごろ おわります か。", "Sou desu ka. Kaigi wa nanji goro owarimasu ka.", "Sō desu ka. Nanji goro owarimasu ka.", "Sou desu ka. Kaigi ha nanji goro owarimasu ka.", "Sō desu ka. Kaigi wa nanji goro owarimasu ka.", "Sō desu ka. Kaigi ha nanji goro owarimasu ka."]}
+          - {who: B, l2: "さんじ ごろ に は おわる と おもいます。", rom: "Sanji goro ni wa owaru to omoimasu.", l1: "I think it will be over by about three."}
+          - {who: A, l2: "じゃ、 さんじ すぎ に また おでんわ します。", rom: "Ja, sanji sugi ni mata odenwa shimasu.", l1: "Then I'll call again after three.", alt: ["では、 さんじ すぎ に また おでんわ します。", "Dewa, sanji sugi ni mata odenwa shimasu.", "じゃ、 また あと で おでんわ します。", "Ja, mata ato de odenwa shimasu.", "deha, sanji sugi ni mata odenwa shimasu."]}
+          - {who: B, l2: "かしこまりました。 おでんわ が あった こと を つたえて おきます。", rom: "Kashikomarimashita. Odenwa ga atta koto o tsutaete okimasu.", l1: "Certainly. I'll let him know you called."}
+          - {who: A, l2: "よろしく おねがいします。 しつれいします。", rom: "Yoroshiku onegaishimasu. Shitsurei shimasu.", l1: "Thank you. Goodbye.", alt: ["おねがいします。 しつれいします。", "Onegaishimasu. Shitsurei shimasu."]}
+      - id: ja-talk-07-message
+        type: dialogue
+        title: "Leaving a message"
+        scene: "You phone your friend Yuki at home. Her mother answers."
+        you: A
+        lines:
+          - {who: B, l2: "はい、 さとう です。", rom: "Hai, Satou desu.", l1: "Hello, Sato residence."}
+          - {who: A, l2: "もしもし、 スミス と もうします。 ゆきさん は いらっしゃいます か。", rom: "Moshimoshi, Sumisu to moushimasu. Yuki-san wa irasshaimasu ka.", l1: "Hello, my name is Smith. Is Yuki there, please?", alt: ["もしもし、 スミス です。 ゆきさん は いらっしゃいます か。", "Moshimoshi, Sumisu desu. Yuki-san wa irasshaimasu ka.", "もしもし、 スミス と もうします。 ゆきさん は います か。", "Moshimoshi, Sumisu to moushimasu. Yuki-san wa imasu ka.", "Moshimoshi, Sumisu to moushimasu. Yuki-san ha irasshaimasu ka.", "Moshimoshi, Sumisu to mōshimasu. Yuki-san wa irasshaimasu ka.", "Moshimoshi, Sumisu to mōshimasu. Yuki-san ha irasshaimasu ka.", "Moshimoshi, Sumisu desu. Yuki-san ha irasshaimasu ka.", "Moshimoshi, Sumisu to moushimasu. Yuki-san ha imasu ka.", "Moshimoshi, Sumisu to mōshimasu. Yuki-san wa imasu ka.", "Moshimoshi, Sumisu to mōshimasu. Yuki-san ha imasu ka."]}
+          - {who: B, l2: "ごめんなさい、 ゆき は いま でかけて いる ん です よ。", rom: "Gomennasai, Yuki wa ima dekakete iru n desu yo.", l1: "I'm sorry, Yuki's out at the moment."}
+          - {who: A, l2: "そう です か。 でんごん を おねがいできます か。", rom: "Sou desu ka. Dengon o onegai dekimasu ka.", l1: "I see. Could I leave a message?", alt: ["そう です か。 でんごん を おねがいします。", "Sou desu ka. Dengon o onegaishimasu.", "Sou desu ka. Dengon wo onegai dekimasu ka.", "Sō desu ka. Dengon o onegai dekimasu ka.", "Sō desu ka. Dengon wo onegai dekimasu ka.", "Sou desu ka. Dengon wo onegaishimasu.", "Sō desu ka. Dengon o onegaishimasu.", "Sō desu ka. Dengon wo onegaishimasu."]}
+          - {who: B, l2: "はい、 どうぞ。", rom: "Hai, douzo.", l1: "Yes, go ahead."}
+          - {who: A, l2: "スミス から でんわ が あった と つたえて ください。", rom: "Sumisu kara denwa ga atta to tsutaete kudasai.", l1: "Please tell her that Smith called.", alt: ["スミス から でんわ が あった と いって ください。", "Sumisu kara denwa ga atta to itte kudasai."]}
+          - {who: B, l2: "はい、 わかりました。 つたえて おきます ね。", rom: "Hai, wakarimashita. Tsutaete okimasu ne.", l1: "Of course. I'll let her know."}
+          - {who: A, l2: "よろしく おねがいします。 しつれいします。", rom: "Yoroshiku onegaishimasu. Shitsurei shimasu.", l1: "Thank you. Goodbye.", alt: ["ありがとう ございます。 しつれいします。", "Arigatou gozaimasu. Shitsurei shimasu.", "Arigatō gozaimasu. Shitsurei shimasu."]}
+      - id: ja-talk-07-wrong-number
+        type: dialogue
+        title: "Wrong number"
+        scene: "Your phone rings. A stranger asks for someone you don't know."
+        you: B
+        lines:
+          - {who: A, l2: "もしもし、 やまださん の おたく です か。", rom: "Moshimoshi, Yamada-san no otaku desu ka.", l1: "Hello, is that the Yamadas' home?"}
+          - {who: B, l2: "いいえ、 ちがいます。", rom: "Iie, chigaimasu.", l1: "No, it isn't.", alt: ["いいえ、 ちがいます よ。", "Iie, chigaimasu yo.", "すみません、 ちがいます。", "Sumimasen, chigaimasu."]}
+          - {who: A, l2: "え？ ゼロ さん の いち に さん よん の ご ろく なな はち じゃ ありません か。", rom: "E? Zero san no ichi ni san yon no go roku nana hachi ja arimasen ka.", l1: "What? Isn't this 03-1234-5678?"}
+          - {who: B, l2: "いいえ、 ばんごう が ちがいます よ。", rom: "Iie, bangou ga chigaimasu yo.", l1: "No, you've got the wrong number.", alt: ["いいえ、 ちがいます よ。 ばんごう を まちがえて います よ。", "Iie, chigaimasu yo. Bangou o machigaete imasu yo.", "ばんごう が ちがいます。", "Bangou ga chigaimasu.", "Iie, bangō ga chigaimasu yo.", "Iie, chigaimasu yo. Bangou wo machigaete imasu yo.", "Iie, chigaimasu yo. Bangō o machigaete imasu yo.", "Iie, chigaimasu yo. Bangō wo machigaete imasu yo.", "Bangō ga chigaimasu."]}
+          - {who: A, l2: "たいへん しつれい しました。", rom: "Taihen shitsurei shimashita.", l1: "I'm terribly sorry."}
+          - {who: B, l2: "いいえ、 だいじょうぶ です。", rom: "Iie, daijoubu desu.", l1: "That's all right.", alt: ["だいじょうぶ です よ。", "Daijoubu desu yo.", "いいえ。", "Iie.", "Iie, daijōbu desu.", "Daijōbu desu yo."]}
+      - id: ja-talk-07-bad-line
+        type: dialogue
+        title: "A bad line"
+        scene: "Your colleague Ms. Hayashi calls you from a train with news about tomorrow's meeting."
+        you: B
+        lines:
+          - {who: A, l2: "もしもし、 スミスさん？ きこえます か。", rom: "Moshimoshi, Sumisu-san? Kikoemasu ka.", l1: "Hello, Mr. Smith? Can you hear me?"}
+          - {who: B, l2: "すみません、 よく きこえません。", rom: "Sumimasen, yoku kikoemasen.", l1: "Sorry, I can't hear you very well.", alt: ["すみません、 きこえません。", "Sumimasen, kikoemasen.", "もしもし？ よく きこえません。", "Moshimoshi? Yoku kikoemasen."]}
+          - {who: A, l2: "いま でんしゃ の なか なんです。 これ で きこえます か。", rom: "Ima densha no naka nan desu. Kore de kikoemasu ka.", l1: "I'm on the train. Can you hear me now?"}
+          - {who: B, l2: "すこし きこえます。 もう すこし おおきい こえ で おねがいします。", rom: "Sukoshi kikoemasu. Mou sukoshi ookii koe de onegaishimasu.", l1: "A little. A bit louder, please.", alt: ["すこし きこえます。 もう すこし おおきい こえ で はなして ください。", "Sukoshi kikoemasu. Mou sukoshi ookii koe de hanashite kudasai.", "ちょっと きこえます。 もう すこし おおきい こえ で おねがいします。", "Chotto kikoemasu. Mou sukoshi ookii koe de onegaishimasu.", "Sukoshi kikoemasu. Mō sukoshi ōkii koe de onegaishimasu.", "Sukoshi kikoemasu. Mō sukoshi ōkii koe de hanashite kudasai.", "Chotto kikoemasu. Mō sukoshi ōkii koe de onegaishimasu."]}
+          - {who: A, l2: "あした の かいぎ、 にじ から に なりました！", rom: "Ashita no kaigi, niji kara ni narimashita!", l1: "Tomorrow's meeting has moved to two o'clock!"}
+          - {who: B, l2: "にじ から です ね。 わかりました。", rom: "Niji kara desu ne. Wakarimashita.", l1: "From two. Got it.", alt: ["にじ です ね。 わかりました。", "Niji desu ne. Wakarimashita.", "あした の にじ から です ね。 わかりました。", "Ashita no niji kara desu ne. Wakarimashita."]}
+          - {who: A, l2: "はい。 じゃ、 また あと で れんらく します。", rom: "Hai. Ja, mata ato de renraku shimasu.", l1: "Yes. I'll be in touch again later."}
+          - {who: B, l2: "はい、 しつれいします。", rom: "Hai, shitsurei shimasu.", l1: "OK, goodbye.", alt: ["はい、 じゃ、 また。", "Hai, ja, mata.", "わかりました。 しつれいします。", "Wakarimashita. Shitsurei shimasu."]}
+      - id: ja-talk-07-friend
+        type: dialogue
+        title: "Calling a friend"
+        scene: "You phone your friend Yuka about her party tomorrow. You speak casually."
+        you: A
+        lines:
+          - {who: B, l2: "もしもし？", rom: "Moshimoshi?", l1: "Hello?"}
+          - {who: A, l2: "もしもし、 ゆか？ アレックス だ けど、 いま だいじょうぶ？", rom: "Moshimoshi, Yuka? Arekkusu da kedo, ima daijoubu?", l1: "Hi, Yuka? It's Alex. Is now a good time?", alt: ["もしもし、 ゆか？ アレックス です。 いま だいじょうぶ？", "Moshimoshi, Yuka? Arekkusu desu. Ima daijoubu?", "ゆか？ アレックス だ けど、 いま いい？", "Yuka? Arekkusu da kedo, ima ii?", "Moshimoshi, Yuka? Arekkusu da kedo, ima daijōbu?", "Moshimoshi, Yuka? Arekkusu desu. Ima daijōbu?"]}
+          - {who: B, l2: "うん、 だいじょうぶ。 どうした の？", rom: "Un, daijoubu. Doushita no?", l1: "Yeah, it's fine. What's up?"}
+          - {who: A, l2: "あした の パーティー、 なんじ から だっけ？", rom: "Ashita no paatii, nanji kara dakke?", l1: "What time does tomorrow's party start again?", alt: ["あした の パーティー、 なんじ から？", "Ashita no paatii, nanji kara?", "あした の パーティー は なんじ から？", "Ashita no paatii wa nanji kara?", "Ashita no pātī, nanji kara dakke?", "Ashita no pātī, nanji kara?", "Ashita no paatii ha nanji kara?", "Ashita no pātī wa nanji kara?", "Ashita no pātī ha nanji kara?"]}
+          - {who: B, l2: "しちじ から だ よ。 なに か もって くる？", rom: "Shichiji kara da yo. Nani ka motte kuru?", l1: "From seven. Are you bringing anything?"}
+          - {who: A, l2: "うん、 ワイン を もって いく よ。", rom: "Un, wain o motte iku yo.", l1: "Yeah, I'll bring some wine.", alt: ["ワイン を もって いく よ。", "Wain o motte iku yo.", "うん、 ワイン もって いく ね。", "Un, wain motte iku ne.", "Un, wain wo motte iku yo.", "Wain wo motte iku yo."]}
+          - {who: B, l2: "ありがとう！ じゃ、 あした ね。", rom: "Arigatou! Ja, ashita ne.", l1: "Thanks! See you tomorrow, then."}
+          - {who: A, l2: "うん、 じゃ ね。", rom: "Un, ja ne.", l1: "Yeah, bye.", alt: ["じゃ ね。", "Ja ne.", "うん、 また あした。", "Un, mata ashita."]}
+
+  # ───────────────────────────────────────────────────────────────── 8
+  - id: ja-talk-08
+    title: "Hotel and station"
+    goal: "I can check in and out, ask about breakfast, Wi-Fi and luggage, report a problem in my room, buy a Shinkansen ticket and get help with lost property."
+    notes: |
+      Hotel and station staff speak polished keigo. You don't need to answer in kind: clear です/ます is perfect.
+
+      - **Checking in**: チェックイン を おねがいします · **よやく して いる** スミス です (I have a booking). You will be asked for your パスポート.
+      - **Questions**: ちょうしょく は なんじ から です か · ワイファイ の パスワード は なん です か · にもつ を あずけて も いい です か.
+      - **Problems**: start soft with すみません and state the fact: エアコン が つきません · おゆ が でません · となり が うるさい です.
+      - **Leaving**: チェックアウト を おねがいします · タクシー を よんで くれません か.
+      - **Tickets**: [place] まで の きっぷ を ください · おとな いちまい · **していせき** (reserved seat) or **じゆうせき** (unreserved) · **まどがわ** (window) or **つうろがわ** (aisle).
+      - **Lost property**: でんしゃ に [thing] を **わすれました** (I left … on the train). Japan's lost-and-found is famously good: describe the thing with colours and what is inside.
+    items:
+      - id: ja-talk-08-check-in
+        type: dialogue
+        title: "Checking in"
+        scene: "You arrive at your business hotel in the evening and go to the front desk."
+        you: B
+        lines:
+          - {who: A, l2: "いらっしゃいませ。", rom: "Irasshaimase.", l1: "Good evening."}
+          - {who: B, l2: "チェックイン を おねがいします。 よやく して いる スミス です。", rom: "Chekkuin o onegaishimasu. Yoyaku shite iru Sumisu desu.", l1: "I'd like to check in, please. I have a booking, my name's Smith.", alt: ["チェックイン を おねがいします。 スミス です。", "Chekkuin o onegaishimasu. Sumisu desu.", "よやく して いる スミス です。 チェックイン を おねがいします。", "Yoyaku shite iru Sumisu desu. Chekkuin o onegaishimasu.", "Chekkuin wo onegaishimasu. Yoyaku shite iru Sumisu desu.", "Chekkuin wo onegaishimasu. Sumisu desu.", "Yoyaku shite iru Sumisu desu. Chekkuin wo onegaishimasu."]}
+          - {who: A, l2: "スミスさま です ね。 おまち して おりました。 パスポート を おねがいします。", rom: "Sumisu-sama desu ne. Omachi shite orimashita. Pasupooto o onegaishimasu.", l1: "Mr. Smith. We've been expecting you. Your passport, please."}
+          - {who: B, l2: "はい、 どうぞ。", rom: "Hai, douzo.", l1: "Here you are.", alt: ["はい。", "Hai.", "はい、 これ です。", "Hai, kore desu.", "Hai, dōzo."]}
+          - {who: A, l2: "ありがとう ございます。 きょう から にはく、 シングル の おへや で ございます ね。", rom: "Arigatou gozaimasu. Kyou kara nihaku, shinguru no oheya de gozaimasu ne.", l1: "Thank you. A single room for two nights from tonight, is that right?"}
+          - {who: B, l2: "はい、 そう です。", rom: "Hai, sou desu.", l1: "Yes, that's right.", alt: ["ええ、 そう です。", "Ee, sou desu.", "はい。", "Hai.", "Hai, sō desu.", "Ē, sō desu."]}
+          - {who: A, l2: "こちら が かぎ です。 おへや は ななかい の ななまるいち ごうしつ です。", rom: "Kochira ga kagi desu. Oheya wa nanakai no nana maru ichi goushitsu desu.", l1: "Here is your key. Your room is 701, on the seventh floor."}
+          - {who: B, l2: "ちょうしょく は なんじ から です か。", rom: "Choushoku wa nanji kara desu ka.", l1: "What time is breakfast from?", alt: ["あさごはん は なんじ から です か。", "Asagohan wa nanji kara desu ka.", "ちょうしょく は なんじ から なんじ まで です か。", "Choushoku wa nanji kara nanji made desu ka.", "Choushoku ha nanji kara desu ka.", "Chōshoku wa nanji kara desu ka.", "Chōshoku ha nanji kara desu ka.", "Asagohan ha nanji kara desu ka.", "Choushoku ha nanji kara nanji made desu ka.", "Chōshoku wa nanji kara nanji made desu ka.", "Chōshoku ha nanji kara nanji made desu ka."]}
+          - {who: A, l2: "ろくじ はん から くじ まで、 いっかい の レストラン で ございます。", rom: "Rokuji han kara kuji made, ikkai no resutoran de gozaimasu.", l1: "From 6:30 to 9:00, in the restaurant on the ground floor."}
+          - {who: B, l2: "わかりました。 ありがとう ございます。", rom: "Wakarimashita. Arigatou gozaimasu.", l1: "I see. Thank you.", alt: ["ありがとう ございます。", "Arigatou gozaimasu.", "どうも ありがとう。", "Doumo arigatou.", "Wakarimashita. Arigatō gozaimasu.", "Arigatō gozaimasu.", "Dōmo arigatō."]}
+      - id: ja-talk-08-wifi-luggage
+        type: dialogue
+        title: "Wi-Fi and luggage"
+        scene: "The next morning you stop at the front desk before going out sightseeing."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 ワイファイ の パスワード を おしえて ください。", rom: "Sumimasen, waifai no pasuwaado o oshiete kudasai.", l1: "Excuse me, could you tell me the Wi-Fi password?", alt: ["すみません、 ワイファイ の パスワード は なん です か。", "Sumimasen, waifai no pasuwaado wa nan desu ka.", "ワイファイ の パスワード を おしえて ください。", "Waifai no pasuwaado o oshiete kudasai.", "Sumimasen, waifai no pasuwaado wo oshiete kudasai.", "Sumimasen, waifai no pasuwādo o oshiete kudasai.", "Sumimasen, waifai no pasuwādo wo oshiete kudasai.", "Sumimasen, waifai no pasuwaado ha nan desu ka.", "Sumimasen, waifai no pasuwādo wa nan desu ka.", "Sumimasen, waifai no pasuwādo ha nan desu ka.", "Waifai no pasuwaado wo oshiete kudasai.", "Waifai no pasuwādo o oshiete kudasai.", "Waifai no pasuwādo wo oshiete kudasai."]}
+          - {who: B, l2: "こちら の カード に かいて ございます。", rom: "Kochira no kaado ni kaite gozaimasu.", l1: "It's written on this card."}
+          - {who: A, l2: "ありがとう ございます。 それから、 ここ に にもつ を おいて も いい です か。", rom: "Arigatou gozaimasu. Sorekara, koko ni nimotsu o oite mo ii desu ka.", l1: "Thank you. Also, may I leave my luggage here?", alt: ["それから、 にもつ を あずけて も いい です か。", "Sorekara, nimotsu o azukete mo ii desu ka.", "ありがとう ございます。 それから、 にもつ を あずけて も いい です か。", "Arigatou gozaimasu. Sorekara, nimotsu o azukete mo ii desu ka.", "Arigatou gozaimasu. Sorekara, koko ni nimotsu wo oite mo ii desu ka.", "Arigatō gozaimasu. Sorekara, koko ni nimotsu o oite mo ii desu ka.", "Arigatō gozaimasu. Sorekara, koko ni nimotsu wo oite mo ii desu ka.", "Sorekara, nimotsu wo azukete mo ii desu ka.", "Arigatou gozaimasu. Sorekara, nimotsu wo azukete mo ii desu ka.", "Arigatō gozaimasu. Sorekara, nimotsu o azukete mo ii desu ka.", "Arigatō gozaimasu. Sorekara, nimotsu wo azukete mo ii desu ka."]}
+          - {who: B, l2: "はい、 おあずかり します。 なんじ ごろ おもどり です か。", rom: "Hai, oazukari shimasu. Nanji goro omodori desu ka.", l1: "Certainly, we'll look after it. About what time will you be back?"}
+          - {who: A, l2: "ごご ろくじ ごろ です。", rom: "Gogo rokuji goro desu.", l1: "Around 6 p.m.", alt: ["ろくじ ごろ です。", "Rokuji goro desu.", "ろくじ ごろ もどります。", "Rokuji goro modorimasu."]}
+          - {who: B, l2: "かしこまりました。 こちら が ひきかえけん です。", rom: "Kashikomarimashita. Kochira ga hikikaeken desu.", l1: "Very good. Here is your claim ticket."}
+          - {who: A, l2: "どうも ありがとう ございます。", rom: "Doumo arigatou gozaimasu.", l1: "Thank you very much.", alt: ["ありがとう ございます。", "Arigatou gozaimasu.", "どうも。", "Doumo.", "Dōmo arigatō gozaimasu.", "Arigatō gozaimasu.", "Dōmo."]}
+      - id: ja-talk-08-problem
+        type: dialogue
+        title: "A problem in the room"
+        scene: "It's a hot night and the air conditioning in your room won't come on. You call the front desk."
+        you: B
+        lines:
+          - {who: A, l2: "はい、 フロント で ございます。", rom: "Hai, furonto de gozaimasu.", l1: "Front desk, good evening."}
+          - {who: B, l2: "もしもし、 ななまるいち の スミス です。", rom: "Moshimoshi, nana maru ichi no Sumisu desu.", l1: "Hello, this is Smith in room 701.", alt: ["もしもし、 ななまるいち ごうしつ の スミス です。", "Moshimoshi, nana maru ichi goushitsu no Sumisu desu.", "Moshimoshi, nana maru ichi gōshitsu no Sumisu desu."]}
+          - {who: A, l2: "スミスさま、 どう なさいました か。", rom: "Sumisu-sama, dou nasaimashita ka.", l1: "Mr. Smith, how may I help you?"}
+          - {who: B, l2: "すみません、 エアコン が つきません。", rom: "Sumimasen, eakon ga tsukimasen.", l1: "Sorry, the air conditioning won't come on.", alt: ["すみません、 エアコン が うごきません。", "Sumimasen, eakon ga ugokimasen.", "すみません、 へや の エアコン が つきません。", "Sumimasen, heya no eakon ga tsukimasen."]}
+          - {who: A, l2: "もうしわけ ございません。 すぐ かかり の もの が まいります。", rom: "Moushiwake gozaimasen. Sugu kakari no mono ga mairimasu.", l1: "I'm very sorry. Someone will come up straight away."}
+          - {who: B, l2: "それから、 おゆ も でません。", rom: "Sorekara, oyu mo demasen.", l1: "And there's no hot water either.", alt: ["それから、 シャワー の おゆ も でません。", "Sorekara, shawaa no oyu mo demasen.", "あと、 おゆ も でません。", "Ato, oyu mo demasen.", "Sorekara, shawā no oyu mo demasen."]}
+          - {who: A, l2: "たいへん しつれい いたしました。 べつ の おへや を ごよういいたしましょう か。", rom: "Taihen shitsurei itashimashita. Betsu no oheya o goyouiitashimashou ka.", l1: "I do apologise. Shall we prepare a different room for you?"}
+          - {who: B, l2: "はい、 おねがいします。", rom: "Hai, onegaishimasu.", l1: "Yes, please.", alt: ["はい、 それ で おねがいします。", "Hai, sore de onegaishimasu.", "ええ、 おねがいします。", "Ee, onegaishimasu.", "Ē, onegaishimasu."]}
+      - id: ja-talk-08-check-out
+        type: dialogue
+        title: "Checking out"
+        scene: "On your last morning you bring your key down to the front desk. You need a taxi to the station."
+        you: A
+        lines:
+          - {who: A, l2: "チェックアウト を おねがいします。", rom: "Chekkuauto o onegaishimasu.", l1: "I'd like to check out, please.", alt: ["すみません、 チェックアウト を おねがいします。", "Sumimasen, chekkuauto o onegaishimasu.", "Chekkuauto wo onegaishimasu.", "Sumimasen, chekkuauto wo onegaishimasu."]}
+          - {who: B, l2: "はい。 おへや の かぎ を おねがいします。", rom: "Hai. Oheya no kagi o onegaishimasu.", l1: "Certainly. Your room key, please."}
+          - {who: A, l2: "はい、 どうぞ。 カード で はらえます か。", rom: "Hai, douzo. Kaado de haraemasu ka.", l1: "Here you are. Can I pay by card?", alt: ["はい。 カード で いい です か。", "Hai. Kaado de ii desu ka.", "はい、 どうぞ。 カード は つかえます か。", "Hai, douzo. Kaado wa tsukaemasu ka.", "Hai, dōzo. Kādo de haraemasu ka.", "Hai. Kādo de ii desu ka.", "Hai, douzo. Kaado ha tsukaemasu ka.", "Hai, dōzo. Kādo wa tsukaemasu ka.", "Hai, dōzo. Kādo ha tsukaemasu ka."]}
+          - {who: B, l2: "はい、 だいじょうぶ です。 こちら に サイン を おねがいします。", rom: "Hai, daijoubu desu. Kochira ni sain o onegaishimasu.", l1: "Yes, that's fine. Please sign here."}
+          - {who: A, l2: "それから、 タクシー を よんで くれません か。", rom: "Sorekara, takushii o yonde kuremasen ka.", l1: "Also, could you call me a taxi?", alt: ["それから、 タクシー を よんで ください。", "Sorekara, takushii o yonde kudasai.", "タクシー を よんで いただけません か。", "Takushii o yonde itadakemasen ka.", "Sorekara, takushii wo yonde kuremasen ka.", "Sorekara, takushī o yonde kuremasen ka.", "Sorekara, takushī wo yonde kuremasen ka.", "Sorekara, takushii wo yonde kudasai.", "Sorekara, takushī o yonde kudasai.", "Sorekara, takushī wo yonde kudasai.", "Takushii wo yonde itadakemasen ka.", "Takushī o yonde itadakemasen ka.", "Takushī wo yonde itadakemasen ka."]}
+          - {who: B, l2: "かしこまりました。 どちら まで です か。", rom: "Kashikomarimashita. Dochira made desu ka.", l1: "Certainly. Where to?"}
+          - {who: A, l2: "とうきょうえき まで です。", rom: "Toukyoueki made desu.", l1: "To Tokyo Station.", alt: ["とうきょうえき まで おねがいします。", "Toukyoueki made onegaishimasu.", "とうきょう えき です。", "Toukyou eki desu.", "Tōkyōeki made desu.", "Tōkyōeki made onegaishimasu.", "Tōkyō eki desu."]}
+          - {who: B, l2: "では、 ロビー で しょうしょう おまち ください。", rom: "Dewa, robii de shoushou omachi kudasai.", l1: "Then please wait a moment in the lobby."}
+      - id: ja-talk-08-shinkansen
+        type: dialogue
+        title: "A Shinkansen ticket"
+        scene: "You are at the ticket office at Tokyo Station, buying a ticket to Osaka."
+        you: B
+        lines:
+          - {who: A, l2: "つぎ の かた、 どうぞ。", rom: "Tsugi no kata, douzo.", l1: "Next, please."}
+          - {who: B, l2: "おおさか まで の しんかんせん の きっぷ を ください。", rom: "Oosaka made no shinkansen no kippu o kudasai.", l1: "A Shinkansen ticket to Osaka, please.", alt: ["しんおおさか まで の きっぷ を ください。", "Shin-Oosaka made no kippu o kudasai.", "おおさか まで の しんかんせん の きっぷ を おねがいします。", "Oosaka made no shinkansen no kippu o onegaishimasu.", "Oosaka made no shinkansen no kippu wo kudasai.", "Ōsaka made no shinkansen no kippu o kudasai.", "Ōsaka made no shinkansen no kippu wo kudasai.", "Shin-Oosaka made no kippu wo kudasai.", "Shin-ōsaka made no kippu o kudasai.", "Shin-ōsaka made no kippu wo kudasai.", "Oosaka made no shinkansen no kippu wo onegaishimasu.", "Ōsaka made no shinkansen no kippu o onegaishimasu.", "Ōsaka made no shinkansen no kippu wo onegaishimasu."]}
+          - {who: A, l2: "しんおおさか まで です ね。 なんまい です か。", rom: "Shin-Oosaka made desu ne. Nanmai desu ka.", l1: "To Shin-Osaka. How many tickets?"}
+          - {who: B, l2: "おとな いちまい です。", rom: "Otona ichimai desu.", l1: "One adult.", alt: ["いちまい です。", "Ichimai desu.", "おとな いちまい おねがいします。", "Otona ichimai onegaishimasu."]}
+          - {who: A, l2: "していせき と じゆうせき、 どちら に なさいます か。", rom: "Shiteiseki to jiyuuseki, dochira ni nasaimasu ka.", l1: "Would you like a reserved or an unreserved seat?"}
+          - {who: B, l2: "していせき で おねがいします。", rom: "Shiteiseki de onegaishimasu.", l1: "Reserved, please.", alt: ["していせき に します。", "Shiteiseki ni shimasu.", "していせき を おねがいします。", "Shiteiseki o onegaishimasu.", "Shiteiseki wo onegaishimasu."]}
+          - {who: A, l2: "まどがわ と つうろがわ が ございます が。", rom: "Madogawa to tsuurogawa ga gozaimasu ga.", l1: "We have window seats and aisle seats."}
+          - {who: B, l2: "まどがわ を おねがいします。", rom: "Madogawa o onegaishimasu.", l1: "A window seat, please.", alt: ["まどがわ で おねがいします。", "Madogawa de onegaishimasu.", "まどがわ が いい です。", "Madogawa ga ii desu.", "Madogawa wo onegaishimasu."]}
+          - {who: A, l2: "じゅうじ はん の のぞみ、 じゅうごばんせん から です。 いちまん よんせん ごひゃく えん です。", rom: "Juuji han no Nozomi, juugobansen kara desu. Ichiman yonsen gohyaku en desu.", l1: "The 10:30 Nozomi, from platform 15. That's 14,500 yen."}
+      - id: ja-talk-08-lost-property
+        type: dialogue
+        title: "I left my bag on the train"
+        scene: "You realise you have left your rucksack on the train. You hurry to the station's lost-property office."
+        you: A
+        lines:
+          - {who: A, l2: "すみません、 でんしゃ に かばん を わすれました。", rom: "Sumimasen, densha ni kaban o wasuremashita.", l1: "Excuse me, I left my bag on the train.", alt: ["すみません、 でんしゃ の なか に かばん を わすれました。", "Sumimasen, densha no naka ni kaban o wasuremashita.", "すみません、 でんしゃ に にもつ を わすれました。", "Sumimasen, densha ni nimotsu o wasuremashita.", "Sumimasen, densha ni kaban wo wasuremashita.", "Sumimasen, densha no naka ni kaban wo wasuremashita.", "Sumimasen, densha ni nimotsu wo wasuremashita."]}
+          - {who: B, l2: "どの でんしゃ です か。", rom: "Dono densha desu ka.", l1: "Which train?"}
+          - {who: A, l2: "じゅうじ ごろ の やまのてせん です。", rom: "Juuji goro no Yamanotesen desu.", l1: "The Yamanote Line, around ten o'clock.", alt: ["じゅうじ ごろ の やまのてせん に のりました。", "Juuji goro no Yamanotesen ni norimashita.", "やまのてせん です。 じゅうじ ごろ です。", "Yamanotesen desu. Juuji goro desu.", "Jūji goro no Yamanotesen desu.", "Jūji goro no Yamanotesen ni norimashita.", "Yamanotesen desu. Jūji goro desu."]}
+          - {who: B, l2: "どんな かばん です か。", rom: "Donna kaban desu ka.", l1: "What does the bag look like?"}
+          - {who: A, l2: "くろい リュック です。 なか に パソコン が あります。", rom: "Kuroi ryukku desu. Naka ni pasokon ga arimasu.", l1: "A black rucksack. My laptop is in it.", alt: ["くろい リュック です。 パソコン が はいって います。", "Kuroi ryukku desu. Pasokon ga haitte imasu.", "くろい リュック です。", "Kuroi ryukku desu."]}
+          - {who: B, l2: "しょうしょう おまち ください。 … こちら です か。", rom: "Shoushou omachi kudasai. … Kochira desu ka.", l1: "One moment, please. ... Is this it?"}
+          - {who: A, l2: "あ、 それ です！ よかった！", rom: "A, sore desu! Yokatta!", l1: "Oh, that's it! Thank goodness!", alt: ["それ です！ ありがとう ございます！", "Sore desu! Arigatou gozaimasu!", "あ、 それ です！ ありがとう ございます！", "A, sore desu! Arigatou gozaimasu!", "Sore desu! Arigatō gozaimasu!", "A, sore desu! Arigatō gozaimasu!"]}
+          - {who: B, l2: "では、 こちら に おなまえ と ごじゅうしょ を かいて ください。", rom: "Dewa, kochira ni onamae to gojuusho o kaite kudasai.", l1: "Then please write your name and address here."}
