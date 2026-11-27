@@ -3639,8 +3639,8 @@ def _master(c: dict) -> dict | None:
 def on_answer(st: dict, course: str, *, correct: bool, is_new: bool, practice: bool, typed: bool, now: float) -> dict:
     """A graded answer: qi for the Sect Master, insight for the sect's research."""
     c = _c(st, now)
-    if practice:
-        return {"qi": 0, "insight": 0, "events": []}
+    if practice or not enabled(st):
+        return {"qi": 0, "insight": 0, "events": []}       # study only: qi and insight do not accrue
     # A day's study is worth a few days of the Master's meditation: the faster road, never the only one.
     qi = 1 if correct else 0
     qi += 1 if typed and correct else 0
@@ -3657,7 +3657,8 @@ def _mark_study_day(st: dict, c: dict, now: float) -> list[dict]:
     events = []
     if c["seclusion"]:
         set_seclusion(st, False, now)
-        events.append({"kind": "info", "text": "You studied, so the gates are open again. Your streak was kept."})
+        events.append({"kind": "info", "text": "You studied, so the gates are open again. Your streak was kept." if enabled(st)
+                       else "You studied, so your holiday is over. Your streak was kept."})
     today = _today(st, now)
     if c["last_study_day"] and c["last_study_day"] >= today:
         return events
@@ -3696,7 +3697,8 @@ def on_session(st: dict, *, answers: int, correct: int, counted: bool, due_left:
     c = _c(st, now)
     events: list[dict] = []
     if counted:
-        events += _mark_study_day(st, c, now)
+        events += _mark_study_day(st, c, now)              # the streak is study's own, sect or not
+    if counted and enabled(st):
         good = answers >= 8 and correct / max(answers, 1) >= 0.8
         for p in c["pawns"]:
             _think(p, "lecture", "The Master lectured brilliantly" if good else "The Master lectured", 10 if good else 6, 24, c["hour"])
@@ -3712,7 +3714,9 @@ def on_session(st: dict, *, answers: int, correct: int, counted: bool, due_left:
 def on_trial(st: dict, course: str, *, passed: bool, pct: int, now: float) -> dict:
     c = _c(st, now)
     events: list[dict] = []
-    if passed:
+    if passed and not enabled(st):
+        events.append({"kind": "good", "text": f"Trial passed with {pct}%."})
+    elif passed:
         for p in c["pawns"]:
             _gain_qi(c, p, step_need(p["step"]) * 0.15)
             _think(p, "trial", "The Master passed a trial", 8, 48, c["hour"])
@@ -3722,7 +3726,30 @@ def on_trial(st: dict, course: str, *, passed: bool, pct: int, now: float) -> di
     return {"stones": 0, "events": events}
 
 
+def enabled(st: dict) -> bool:
+    """The sect is optional (settings.sect_enabled). Off = study only: the sim does not tick, study pays it nothing."""
+    return (st.get("settings") or {}).get("sect_enabled", True) is not False
+
+
+def set_enabled(st: dict, on: bool, now: float, name: str = "", master: str = "") -> dict:
+    """Turn the sect on or off. Off pauses it (nothing is deleted). On founds it first if founding was
+    skipped, and restarts its clock from now, so the paused weeks never come back as a catch-up."""
+    c = _c(st, now)
+    s = st["settings"]
+    if on:
+        if not c["name"]:
+            setup(st, name or s.get("sect_name", ""), master or s.get("sect_master", ""), now)
+        s["sect_enabled"] = True
+    else:
+        s["sect_enabled"] = False
+    c["last_real"] = now
+    return {"ok": True, "sect_enabled": s["sect_enabled"], "founded": bool(c["name"])}
+
+
 def ensure(st: dict, now: float, ctx: dict | None = None) -> list[dict]:
+    if not enabled(st):
+        _c(st, now)["last_real"] = now       # paused: the sect's clock stands still with it
+        return []
     hours = catch_up(st, now)
     return [{"kind": "info", "text": f"The sect carried on for {hours} hours while you were away."}] if hours >= 6 else []
 

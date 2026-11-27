@@ -8,6 +8,11 @@ short daily sessions; meanwhile your sect — a handful of disciples with needs,
 moods, skills and jobs — farms, builds, researches, fends off raids and
 cultivates on its own clock.
 
+The sect is **optional**. At founding, "Just study, no sect" skips it: the app
+opens on a plain study home, with no sect tab, qi or events, and every course,
+review, streak and statistic works the same. It can be turned on (or paused
+again, deleting nothing) at any time in Progress, Settings.
+
 It runs **completely offline**: no account, no internet, no AI service, no
 database. One Python process and one JSON file.
 
@@ -151,6 +156,11 @@ optional add-ons of a language, switched on in the library.
   disciple's mood for a day, and a passed trial gives everyone a surge of qi.
 - While the app is closed the sect carries on quietly (no events, nobody
   starves or dies) for at most two sim days per real day.
+- **Study only**: with the sect off (Progress, Settings, or "Just study, no
+  sect" at founding) it does not tick, takes no orders and earns nothing from
+  study (no qi or insight while it is off). Turning it on founds it if it never
+  was, and its clock restarts from that moment: the time it was off is never
+  caught up.
 
 **Reading**
 

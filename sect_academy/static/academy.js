@@ -112,7 +112,10 @@ function speak(text, lang) {
 /* ---------------- routing ---------------- */
 // The reader lives in its own module; it gets the shell's helpers rather than copies of them.
 const readCtx = { api, esc, num, toast, ICON, view, go: (p) => go(p), ov: () => OV, setKeys: (fn) => { keyHandler = fn; } };
-const ROUTES = { '/': renderSect, '/study': renderStudy, '/read': (params) => renderRead(params, readCtx), '/library': renderLibrary, '/trials': renderTrials, '/progress': renderProgress };
+// The sect is optional (settings.sect_enabled): with it off the app is study only, '/' is the study home and no Sect tab shows.
+const sectOn = () => !OV || OV.settings.sect_enabled !== false;
+const homeLabel = () => (sectOn() ? 'Return to the sect' : 'Return home');
+const ROUTES = { '/': () => (sectOn() ? renderSect() : renderHome()), '/study': renderStudy, '/read': (params) => renderRead(params, readCtx), '/library': renderLibrary, '/trials': renderTrials, '/progress': renderProgress };
 const NAV = [['/', 'sect', 'Sect'], ['/study', 'study', 'Study'], ['/read', 'read', 'Read'], ['/library', 'library', 'Library'], ['/trials', 'trials', 'Trials'], ['/progress', 'progress', 'Progress']];
 const GUIDE = 'Elder Bai';
 const guide = (mood = 'calm', size = 56) => portrait(GUIDE, { kind: 'elder', mood, size });
@@ -121,7 +124,8 @@ const face = (d, size = 48) => portrait(d.id + d.name, { root: d.root, size });
 function drawNav() {
   const path = ROUTES[location.pathname] ? location.pathname : '/';
   const due = OV ? OV.today.due : 0;
-  $('#nav').innerHTML = NAV.map(([href, glyph, label]) =>
+  const nav = sectOn() ? NAV : [['/', 'sect', 'Home'], ...NAV.filter(([href]) => href !== '/')];
+  $('#nav').innerHTML = nav.map(([href, glyph, label]) =>
     `<a href="${href}" data-link ${href === path ? 'aria-current="page"' : ''}>${ICON[glyph]}${label}${href === '/study' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</a>`).join('');
 }
 async function refresh() {
@@ -152,8 +156,8 @@ async function go(path, push = true) {
   const url = new URL(path, location.origin);
   await refresh();
   if (!OV) { view.innerHTML = `<div class="panel"><h2>The mountain gate is closed</h2><p class="dim">The server did not answer. Check that it is running, then try again.</p><button class="btn primary" id="retry">Try again</button></div>`; $('#retry').onclick = () => go(path, false); return; }
-  if (!OV.sect.founded) { renderFounding(); return; }
-  (ROUTES[url.pathname] || renderSect)(url.searchParams);
+  if (!OV.sect.founded && sectOn()) { renderFounding(); return; }
+  (ROUTES[url.pathname] || ROUTES['/'])(url.searchParams);
   view.focus({ preventScroll: true }); window.scrollTo(0, 0);
 }
 document.addEventListener('click', (e) => {
@@ -200,6 +204,7 @@ function renderFounding() {
   const certs = courses.filter((c) => c.kind !== 'language');
   const picked = new Set();        // track ids, add-on ids, certificate ids
   let step = 1; let openLang = null;
+  let studyOnly = false;           // "Just study, no sect": step 2 is the last step, nothing is founded
   const tells = OV.sect.storytellers;
   let tell = 'balanced';
 
@@ -214,6 +219,8 @@ function renderFounding() {
         <label class="field"><span>Name of the sect</span><span class="namebox"><input type="text" id="f-name" maxlength="40" placeholder="${esc(sectName())}" autocomplete="off"><button type="button" class="dice" id="f-dice" title="Roll a sect name" aria-label="Roll a random sect name">🎲</button></span></label>
         <label class="field"><span>Your name as Sect Master</span><input type="text" id="f-master" maxlength="30" placeholder="Master Jay" autocomplete="off"></label>
         <div class="rite-foot"><span></span><button class="btn primary big" data-next>Choose your arts</button></div>
+        <div class="rite-alt"><span>Rather not run a sect?</span><button type="button" class="btn quiet" id="f-study">Just study, no sect</button>
+          <span class="dim small">The courses are the same. You can found a sect later in Progress, Settings.</span></div>
       </section>
       <section class="rite-step" data-step="2" hidden>
         <h2>What will you cultivate?</h2>
@@ -224,6 +231,7 @@ function renderFounding() {
         ${certs.length ? `<h3 class="rite-sub">Or a technical art</h3>
         <div class="seals">${certs.map((c) => `<button type="button" class="seal" data-id="${esc(c.id)}" aria-pressed="false" title="${esc(`${c.blurb} ${c.total} items.`)}">${esc(certName(c))}</button>`).join('')}</div>` : ''}
         <p class="rite-chosen" id="f-picked" aria-live="polite"></p>
+        <p id="f-err2" class="rite-err" role="alert"></p>
         <div class="rite-foot"><button class="btn quiet" data-back>Back</button><button class="btn primary big" data-next>Next</button></div>
       </section>
       <section class="rite-step" data-step="3" hidden>
@@ -239,6 +247,11 @@ function renderFounding() {
   const root = view.querySelector('.rite');
   const show = (n) => {
     step = n;
+    if (n === 1) studyOnly = false;
+    const steps = root.querySelector('.rite-steps');
+    steps.querySelector('[data-s="1"]').textContent = studyOnly ? 'Study only' : 'Name';
+    steps.querySelector('[data-s="3"]').hidden = studyOnly;
+    root.querySelector('.rite-step[data-step="2"] [data-next]').textContent = studyOnly ? 'Begin studying' : 'Next';
     root.querySelectorAll('.rite-step').forEach((s) => { s.hidden = Number(s.dataset.step) !== n; });
     root.querySelectorAll('.rite-steps li').forEach((li) => { const s = Number(li.dataset.s); li.className = s === n ? 'now' : s < n ? 'done' : ''; li.setAttribute('aria-current', s === n ? 'step' : 'false'); });
     const f = root.querySelector(`.rite-step[data-step="${n}"] h1, .rite-step[data-step="${n}"] h2`); if (f) { f.tabIndex = -1; f.focus({ preventScroll: true }); }
@@ -279,9 +292,11 @@ function renderFounding() {
     const t = e.target.closest('button'); if (!t || !root.contains(t)) return;
     if (t.matches('[data-next]')) {
       if (step === 2 && !picked.size) { root.querySelector('#f-picked').textContent = 'Choose at least one art to cultivate.'; return; }
+      if (step === 2 && studyOnly) { found(true); return; }
       show(step + 1); return;
     }
     if (t.matches('[data-back]')) { show(step - 1); return; }
+    if (t.id === 'f-study') { studyOnly = true; show(2); return; }
     if (t.classList.contains('tongue')) {
       const tr = trackFor(t.dataset.lang); if (!tr) return;
       if (!picked.has(tr.id)) { picked.add(tr.id); openLang = t.dataset.lang; }      // tapping a language takes up all of it
@@ -309,14 +324,17 @@ function renderFounding() {
   root.querySelector('#f-master').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); show(2); } });
   show(1); sync();
   root.querySelector('#f-name').focus();
-  $('#f-go').onclick = async () => {
+  const found = async (only) => {
     const list = [...picked];
     if (!list.length) { show(2); root.querySelector('#f-picked').textContent = 'Choose at least one art to cultivate.'; return; }
-    const res = await api('/api/setup', { name: $('#f-name').value, master: $('#f-master').value, courses: list, storyteller: tell });
-    if (res.ok === false) { $('#f-err').textContent = res.error; return; }
+    // Study only: no name is asked; the one typed (or the one on offer) is kept for a sect founded later.
+    const nameBox = $('#f-name');
+    const res = await api('/api/setup', { name: nameBox.value || (only ? nameBox.placeholder : ''), master: $('#f-master').value, courses: list, storyteller: tell, study_only: !!only });
+    if (res.ok === false) { $(only ? '#f-err2' : '#f-err').textContent = res.error; return; }
     await refresh();
     offerPlacement(list);
   };
+  $('#f-go').onclick = () => found(false);
 }
 
 /* ================= sect home ================= */
@@ -351,15 +369,16 @@ function todayPanel() {
     head = 'Choose an art to study'; sub = 'You are not enrolled in any course yet. Pick one in the library to begin.';
     btn = `<a class="btn primary big" href="/library" data-link>Open the library</a>`; mood = 'think'; tone = 'rest';
   } else if (g.seclusion) {
-    head = 'The gates are sealed'; sub = 'You are in seclusion. Your study streak is frozen and the sect stands still until you return.';
-    btn = `<button class="btn primary big" data-act="unseclude">Reopen the gates</button>`; tone = 'rest';
+    head = sectOn() ? 'The gates are sealed' : 'You are on holiday';
+    sub = sectOn() ? 'You are in seclusion. Your study streak is frozen and the sect stands still until you return.' : 'Your study streak is frozen until you return. Studying ends the holiday.';
+    btn = `<button class="btn primary big" data-act="unseclude">${sectOn() ? 'Reopen the gates' : 'End the holiday'}</button>`; tone = 'rest';
   } else if (work > 0) {
     head = g.studied_today ? 'There is more, if you wish' : 'Your study for today';
     sub = `<span class="counts"><span class="count"><b class="num">${t.due}</b>to review</span><span class="count new"><b class="num">${t.new_left}</b>new</span></span>`;
     btn = `<a class="btn primary big" href="/study" data-link>${g.studied_today ? 'Keep studying' : 'Begin studying'}</a>`;
     mood = g.studied_today ? 'happy' : 'calm';
   } else {
-    head = 'Today is complete'; sub = 'Nothing more is due until tomorrow. Tend the sect, or sharpen your weakest items.';
+    head = 'Today is complete'; sub = `Nothing more is due until tomorrow. ${sectOn() ? 'Tend the sect, or sharpen' : 'Read something, or sharpen'} your weakest items.`;
     btn = `<a class="btn big" href="/study?practice=1" data-link>Practice weak items</a>`; mood = 'happy'; tone = 'rest';
   }
   const extras = [OV.mistakes ? `<a class="chip" href="/study?kind=mistakes" data-link>Put right ${num(OV.mistakes)} mistake${num(OV.mistakes) === 1 ? '' : 's'}</a>` : '',
@@ -370,7 +389,7 @@ function todayPanel() {
     `<a class="chip" href="/study?course=${encodeURIComponent(c.id)}" data-link>${esc(c.label)} <span class="dim num">${num(c.due + c.new_left)}</span></a>`).join('')}</div>` : '';
   const named = lines.length === 1 && work > 0 && !g.seclusion ? `<p class="dim small" style="margin:6px 0 0">${esc(lines[0].label)}</p>` : '';
   return `<section class="panel today ${tone}"><div class="says">${guide(mood)}<div class="bubble"><h2>${head}</h2>${named}<div style="margin-top:6px">${sub}</div>${risk}
-      <p class="dim small" style="margin:8px 0 0">Each correct answer gives you qi and the sect a point of insight for research. A finished session lifts every disciple's mood.</p></div></div>
+      ${sectOn() ? '<p class="dim small" style="margin:8px 0 0">Each correct answer gives you qi and the sect a point of insight for research. A finished session lifts every disciple\'s mood.</p>' : ''}</div></div>
     <div class="row">${btn}</div>${chips}${extras ? `<div class="chips">${extras}</div>` : ''}</section>`;
 }
 
@@ -414,6 +433,27 @@ function renderSect() {
   });
 }
 
+/* ================= study home (the sect is off) ================= */
+function renderHome() {
+  const lines = studyLines();
+  const g = OV.sect;
+  const streak = num(g.streak);
+  view.innerHTML = `<div class="studyhome"><h1>Today</h1>
+    ${todayPanel()}
+    ${lines.length ? `<section class="panel"><h2>Your arts</h2>${lines.map((c) => `<div class="home-art"><div class="row small"><span class="grow"><b>${esc(c.label)}</b>
+        <span class="dim num">${num(c.seen)}/${num(c.total)} learned, ${num(c.mastered)} mastered</span></span>
+        ${num(c.due) + num(c.new_left) ? `<a class="chip" href="/study?course=${encodeURIComponent(c.id)}" data-link>${num(c.due)} due · ${num(c.new_left)} new</a>` : '<span class="tag">Done today</span>'}</div>
+      <div class="bar jade" style="margin-top:6px"><i style="width:${Math.round(100 * num(c.seen) / Math.max(num(c.total), 1))}%"></i></div></div>`).join('')}</section>` : ''}
+    <div class="stats home-stats">
+      <div class="stat"><b class="num">${streak}</b><span>day streak${num(g.best_streak) > streak ? ` (best ${num(g.best_streak)})` : ''}</span></div>
+      <div class="stat"><b class="num">${num(OV.today.answers)}</b><span>answers today</span></div>
+      <div class="stat"><b class="num">${num(OV.today.sessions)}</b><span>session${num(OV.today.sessions) === 1 ? '' : 's'} today</span></div>
+    </div>
+    <div class="chips home-links"><a class="chip" href="/read" data-link>Read</a><a class="chip" href="/library" data-link>Library</a><a class="chip" href="/trials" data-link>Trials and drills</a><a class="chip" href="/progress" data-link>Progress and settings</a></div>
+  </div>`;
+  view.querySelectorAll('[data-act="unseclude"]').forEach((un) => { un.onclick = async () => { await api('/api/sect/seclusion', { on: false }); go('/', false); }; });
+}
+
 /* ================= placement ================= */
 function offerPlacement(ids) {
   // One test per language (it walks on through the levels) and one per other course.
@@ -439,7 +479,7 @@ function offerPlacement(ids) {
     <p class="dim">A short test checks a course a unit at a time and stops when it finds your level. Units you already know are skipped (they come back as reviews, so a lucky guess is caught). You can test again later from the library.</p>
     ${rows.map((r) => `<div class="pick place-row ${r.p ? 'done' : 'test'}" style="cursor:default"><span class="grow"><b>${esc(r.title)}</b><br>${line(r)}</span>
       ${r.p ? '<span class="tag">Done</span>' : `<button class="btn primary" data-place="${esc(r.id)}">Take the test</button>`}</div>`).join('')}
-    <div class="foot"><button class="btn ${todo.length ? '' : 'primary'} big" id="pl-skip">${todo.length ? 'Skip the tests and start from the beginning' : 'Continue to the sect'}</button></div></div>`;
+    <div class="foot"><button class="btn ${todo.length ? '' : 'primary'} big" id="pl-skip">${todo.length ? 'Skip the tests and start from the beginning' : sectOn() ? 'Continue to the sect' : 'Continue'}</button></div></div>`;
   view.querySelectorAll('[data-place]').forEach((b) => { b.onclick = () => runPlacement(b.dataset.place, () => offerPlacement(ids)); });
   $('#pl-skip').onclick = () => go('/', false);
 }
@@ -568,7 +608,7 @@ async function renderStudy(params) {
       <div class="row" style="justify-content:center;margin-top:16px">
         ${!practice && OV.courses.some((c) => c.seen > 0) ? '<a class="btn" href="/study?practice=1" data-link>Practice weak items</a>' : ''}
         ${!practice ? '<a class="btn" href="/library" data-link>Learn more today</a>' : ''}
-        <a class="btn primary" href="/" data-link>Return to the sect</a></div></div>`;
+        <a class="btn primary" href="/" data-link>${homeLabel()}</a></div></div>`;
     return;
   }
   runSession(s);
@@ -618,13 +658,13 @@ function runSession(s) {
     const events = [...st.events, ...((res && res.events) || [])];
     const petals = acc >= 70 ? `<div class="petals" aria-hidden="true">${Array.from({ length: 18 }, (_, i) => `<i style="left:${(i * 53) % 100}%;animation-delay:${(i % 6) * 0.18}s"></i>`).join('')}</div>` : '';
     view.innerHTML = `<div class="session summary">${petals}${guide(acc >= 70 ? 'happy' : 'calm', 96)}<h1>${s.practice ? 'Practice complete' : 'Session complete'}</h1>
-      <p class="dim">${acc >= 90 ? 'Clean recall. The sect grows stronger.' : acc >= 70 ? 'Solid work. The misses will come back until they stick.' : 'A hard session is where memory is built. The misses come back until they stick.'}</p>
-      <div class="gains"><div><b class="num">${acc}%</b><span>first try</span></div><div><b class="num">+${num(st.qi)}</b><span>qi</span></div><div><b class="num">+${num(st.insight)}</b><span>insight</span></div></div>
+      <p class="dim">${acc >= 90 ? (sectOn() ? 'Clean recall. The sect grows stronger.' : 'Clean recall.') : acc >= 70 ? 'Solid work. The misses will come back until they stick.' : 'A hard session is where memory is built. The misses come back until they stick.'}</p>
+      <div class="gains"><div><b class="num">${acc}%</b><span>first try</span></div>${sectOn() ? `<div><b class="num">+${num(st.qi)}</b><span>qi</span></div><div><b class="num">+${num(st.insight)}</b><span>insight</span></div>` : `<div><b class="num">${num(st.first)}</b><span>answered</span></div>`}</div>
       ${res && res.counted === false && !s.practice ? '<p class="dim small">Finish a whole session for it to count toward your streak.</p>' : ''}
       ${events.length ? `<ul class="list panel">${events.map((e) => `<li>${esc(e.text)}</li>`).join('')}</ul>` : ''}
       <div class="foot"><div class="row">
         ${res && res.due_left > 0 && !s.practice ? '<a class="btn grow" href="/study" data-link>Keep going</a>' : ''}
-        <a class="btn primary grow" href="/" data-link>Return to the sect</a></div></div></div>`;
+        <a class="btn primary grow" href="/" data-link>${homeLabel()}</a></div></div></div>`;
     refresh();
   }
 
@@ -1056,7 +1096,7 @@ async function renderTrials() {
   const mine = OV.courses.filter((c) => c.enrolled && (!isStage(c) || c.seen > 0 || c.current_stage));
   view.innerHTML = '<p class="loading">Reading the heavens…</p>';
   const infos = await Promise.all(mine.map((c) => api(`/api/trial?course=${encodeURIComponent(c.id)}`)));
-  view.innerHTML = `<h1>Trials</h1><p class="dim" style="max-width:68ch">A trial is a timed test with no hints and no feedback until the end. The pass mark here is set above the real exam's, and the questions are harder, so that passing here means something. Passing lifts the whole sect; anything you get wrong that you have studied goes back into your review queue.</p>
+  view.innerHTML = `<h1>Trials</h1><p class="dim" style="max-width:68ch">A trial is a timed test with no hints and no feedback until the end. The pass mark here is set above the real exam's, and the questions are harder, so that passing here means something. ${sectOn() ? 'Passing lifts the whole sect; anything' : 'Anything'} you get wrong that you have studied goes back into your review queue.</p>
     ${infos.map((t, i) => (t.ok === false ? '' : `<section class="panel"><div class="row"><div class="grow"><h2>${esc(t.name)}</h2>
         <p class="dim small" style="margin:2px 0 0">${num(t.questions)} questions, ${num(t.minutes)} minutes, ${num(t.pass_pct)}% to pass${t.best != null ? `. Your best: ${num(t.best)}%` : ''}</p></div>
         <button class="btn seal" data-trial="${esc(mine[i].id)}" ${t.ready ? '' : 'disabled'}>Quick trial</button>
@@ -1237,14 +1277,14 @@ async function startTrial(course, full) {
     const misses = res.review.filter((r) => !r.correct);
     view.innerHTML = `<div class="summary" style="max-width:720px;margin:0 auto">${guide(res.passed ? 'happy' : 'think', 96)}<h1>${res.passed ? 'You passed the trial' : 'The trial stands unbroken'}</h1>
       <p class="dim">${res.passed ? 'Your foundation holds.' : res.overtime ? 'The time ran out before you finished.' : `You need ${num(res.pass_pct)}% to pass. What you missed is listed below, and the ones you have studied are back in your review queue.`}</p>
-      <div class="gains"><div><b class="num">${num(res.pct)}%</b><span>score</span></div><div><b class="num">${num(res.right)}/${num(res.total)}</b><span>correct</span></div><div><b class="num">${res.passed ? '✓' : '—'}</b><span>${res.passed ? 'the sect surges' : 'try again'}</span></div></div>
+      <div class="gains"><div><b class="num">${num(res.pct)}%</b><span>score</span></div><div><b class="num">${num(res.right)}/${num(res.total)}</b><span>correct</span></div><div><b class="num">${res.passed ? '✓' : '—'}</b><span>${res.passed ? (sectOn() ? 'the sect surges' : 'passed') : 'try again'}</span></div></div>
       ${res.domains.length > 1 ? `<section class="panel" style="text-align:left"><h2>By domain</h2>${res.domains.map((d) => `<div style="margin-top:10px"><div class="row small"><span class="grow">${esc(d.title)}</span><b class="num">${num(d.pct)}%</b></div>
         <div class="bar ${num(d.pct) >= num(res.pass_pct) ? 'jade' : ''}"><i style="width:${num(d.pct)}%"></i></div></div>`).join('')}</section>` : ''}
       ${misses.length ? `<section class="panel" style="text-align:left"><h2>What you missed</h2><ul class="list">${misses.map((m) => `<li><b>${esc(m.prompt)}</b>
         <div class="small"><span style="color:#ff9a8a">${m.given ? esc(m.given) : 'No answer'}</span> <span class="dim">should be</span> <span style="color:var(--jade)">${esc(m.expected)}</span></div>
         ${m.explain.whys && m.explain.whys[m.given] ? `<div class="small">Your choice: ${esc(m.explain.whys[m.given])}</div>` : ''}
         ${m.explain.why ? `<div class="dim small">${esc(m.explain.why)}</div>` : ''}</li>`).join('')}</ul></section>` : ''}
-      <div class="row" style="justify-content:center;margin-top:16px"><a class="btn" href="/trials" data-link>Back to trials</a><a class="btn primary" href="/" data-link>Return to the sect</a></div></div>`;
+      <div class="row" style="justify-content:center;margin-top:16px"><a class="btn" href="/trials" data-link>Back to trials</a><a class="btn primary" href="/" data-link>${homeLabel()}</a></div></div>`;
     window.scrollTo(0, 0); refresh();
   };
   draw();
@@ -1287,11 +1327,20 @@ async function renderProgress() {
         <input type="checkbox" id="set-audio" style="width:24px;height:24px;accent-color:var(--jade)" ${set.audio ? 'checked' : ''}></div>
       <div class="setting"><div class="grow"><b>Handwriting</b><span>Known characters are sometimes asked written, stroke by stroke, on a writing pad. Turn it off if you only type.</span></div>
         <input type="checkbox" id="set-hand" style="width:24px;height:24px;accent-color:var(--jade)" ${set.handwriting !== false ? 'checked' : ''}></div>
-      <div class="setting"><div class="grow"><b>Seclusion</b><span>Holiday mode: freezes your study streak and the sect until you return.</span></div>
-        <button class="btn" id="set-sec">${g.seclusion ? 'Reopen the gates' : 'Enter seclusion'}</button></div>
-      <div class="setting"><div class="grow"><b>Storyteller</b><span>How often trouble finds the sect.</span></div>
-        <select class="in" id="set-tell" style="width:190px">${g.storytellers.map((t) => `<option value="${esc(t.id)}" ${t.id === g.storyteller ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></div>
-      <div class="setting"><div class="grow"><b>Backup</b><span>Download everything (progress and sect) as one file, or restore from one.</span></div>
+      <div class="setting" id="sect-row"><div class="grow"><b>The sect</b><span>${sectOn()
+          ? 'A cultivation sim that runs beside your study. Turn it off to just study: it is paused, and nothing is deleted.'
+          : g.founded ? 'Off: you just study. Your sect is paused where you left it; turn it on to reopen it.'
+            : 'Off: you just study. Turn it on to found a sect whose disciples grow with your study.'}</span>
+          <div class="sect-found" id="sect-found" hidden>
+            <label class="field"><span>Name of the sect</span><input type="text" id="sf-name" maxlength="40" autocomplete="off" value="${esc(set.sect_name || '')}" placeholder="${esc(sectName())}"></label>
+            <label class="field"><span>Your name as Sect Master</span><input type="text" id="sf-master" maxlength="30" autocomplete="off" value="${esc(set.sect_master || '')}" placeholder="Master Jay"></label>
+            <div class="row"><button class="btn quiet" id="sf-cancel">Not now</button><button class="btn primary" id="sf-go">Found the sect</button></div></div></div>
+        <input type="checkbox" id="set-sect" aria-label="The sect" style="width:24px;height:24px;accent-color:var(--jade)" ${sectOn() ? 'checked' : ''}></div>
+      <div class="setting"><div class="grow"><b>${sectOn() ? 'Seclusion' : 'Holiday mode'}</b><span>${sectOn() ? 'Holiday mode: freezes your study streak and the sect until you return.' : 'Freezes your study streak until you return.'}</span></div>
+        <button class="btn" id="set-sec">${g.seclusion ? (sectOn() ? 'Reopen the gates' : 'End the holiday') : (sectOn() ? 'Enter seclusion' : 'Start a holiday')}</button></div>
+      ${sectOn() ? `<div class="setting"><div class="grow"><b>Storyteller</b><span>How often trouble finds the sect.</span></div>
+        <select class="in" id="set-tell" style="width:190px">${g.storytellers.map((t) => `<option value="${esc(t.id)}" ${t.id === g.storyteller ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></div>` : ''}
+      <div class="setting"><div class="grow"><b>Backup</b><span>Download everything (progress${sectOn() || g.founded ? ' and sect' : ''}) as one file, or restore from one.</span></div>
         <button class="btn" id="set-exp">Download backup</button><label class="btn">Restore<input type="file" id="set-imp" accept="application/json" hidden></label></div>
     </section>
     <p class="dim small" style="margin-top:18px">Everything runs on this device: no account, no internet, nothing sent anywhere.</p>`;
@@ -1311,7 +1360,21 @@ async function renderProgress() {
   $('#set-audio').onchange = (e) => save({ audio: e.target.checked });
   $('#set-hand').onchange = (e) => save({ handwriting: e.target.checked });
   $('#set-sec').onclick = async () => { await api('/api/sect/seclusion', { on: !g.seclusion }); go('/progress', false); };
-  $('#set-tell').onchange = async (e) => { await api('/api/sect/storyteller', { storyteller: e.target.value }); toast('Saved.'); };
+  if ($('#set-tell')) $('#set-tell').onchange = async (e) => { await api('/api/sect/storyteller', { storyteller: e.target.value }); toast('Saved.'); };
+  // The sect on or off. On, when it was never founded, asks for its name first (prefilled with the one kept at setup).
+  const sectMode = async (body) => {
+    const r = await api('/api/sect-mode', body);
+    if (r.ok === false) { toast(r.error); $('#set-sect').checked = sectOn(); return; }
+    toast(body.on ? (g.founded ? 'The sect is open again. Its clock starts from now.' : 'Your sect is founded.') : 'The sect is paused. Nothing is lost.');
+    if (body.on && !g.founded) go('/'); else go('/progress', false);
+  };
+  $('#set-sect').onchange = (e) => {
+    if (!e.target.checked) { sectMode({ on: false }); return; }
+    if (g.founded) { sectMode({ on: true }); return; }
+    $('#sect-found').hidden = false; $('#sf-name').focus();
+  };
+  $('#sf-cancel').onclick = () => { $('#sect-found').hidden = true; $('#set-sect').checked = false; };
+  $('#sf-go').onclick = () => sectMode({ on: true, name: $('#sf-name').value || $('#sf-name').placeholder, master: $('#sf-master').value });
   $('#set-exp').onclick = async () => {
     const data = await api('/api/export'); if (data.ok === false) { toast(data.error); return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));

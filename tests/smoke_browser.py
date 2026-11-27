@@ -204,7 +204,21 @@ def main() -> int:
             where = ".lookup .lk-path" if lang in ("ko", "fr") else ".lookup"
             assert want in pg.inner_text(where), f"{name}: {tap} gave {pg.inner_text('.lookup')}"
 
-        # 6) phone width, dark mode
+        # 6) the sect is optional: off in Settings gives a study-only home with no Sect tab; on again brings it back
+        pg.goto(BASE + "/progress", wait_until="load", timeout=25000)
+        pg.wait_for_selector("#set-sect", timeout=10000)
+        pg.uncheck("#set-sect")
+        pg.wait_for_selector("#set-sec:has-text('holiday')", timeout=10000)      # re-drawn for study only
+        assert not pg.query_selector("#set-tell"), "the storyteller is offered with the sect off"
+        pg.goto(BASE + "/", wait_until="load", timeout=25000)
+        pg.wait_for_selector(".studyhome .today", timeout=10000)
+        assert "Sect" not in pg.inner_text("#nav") and not pg.query_selector("#sect-root"), "the sect showed while off"
+        pg.goto(BASE + "/progress", wait_until="load", timeout=25000)
+        pg.wait_for_selector("#set-sect", timeout=10000)
+        pg.check("#set-sect")
+        pg.wait_for_selector("#set-tell", timeout=10000)
+
+        # 7) phone width, dark mode
         m = b.new_context(viewport={"width": 390, "height": 800}, color_scheme="dark")
         m.route("**/*", gate)
         mp = m.new_page()
@@ -215,7 +229,7 @@ def main() -> int:
 
     assert not outside, f"the app tried to reach outside hosts: {outside[:5]}"
     assert not errors, f"JS errors: {errors[:5]}"
-    print("smoke OK (offline: no request left the app; sect, study, read (dictionary, PDF, EPUB, EUC-KR Korean, windows-1252 French, Shift_JIS Japanese, GB18030 Chinese), library, trials, progress, phone)")
+    print("smoke OK (offline: no request left the app; sect, study, read (dictionary, PDF, EPUB, EUC-KR Korean, windows-1252 French, Shift_JIS Japanese, GB18030 Chinese), library, trials, progress, sect off and on, phone)")
     return 0
 
 

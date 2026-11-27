@@ -83,7 +83,7 @@ sect_academy/
                 handwriting.js (writing pad, live stroke hints, demo, self-check),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js,
                 vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
-tests/          test_engine.py, test_tracks.py, test_drills_lang.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
+tests/          test_engine.py, test_tracks.py, test_sect_optional.py, test_drills_lang.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
                 test_handwriting.py,
                 test_lexicon_zh_ja.py, lexicon_quality.py (zh/ja hit rate and word boundaries on the courses),
                 balance.py + test_balance.py (scripted 150-day games),
@@ -101,6 +101,14 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   pass mark, `multi` (choose N) and `order` items, a full-length mock.
 - **The sect must not depend on study.** Everyone cultivates by meditating; study
   adds Master qi, research insight and mood. Don't make progress study-gated.
+- **The sect is optional** (`settings.sect_enabled`, default True; `colony.enabled`).
+  Off = study only: founding's "Just study, no sect" (`/api/setup` with
+  `study_only`, names kept in `settings.sect_name`/`sect_master`) or the Settings
+  toggle (`POST /api/sect-mode`). While off: `colony.ensure` pins `last_real` to
+  now (no catch-up), `/api/sect/*` answers 409 except `seclusion` (holiday mode),
+  study pays no qi/insight/mood (the streak still counts), and the UI shows a
+  study home at `/` (`renderHome`) with no Sect tab. Turning it on founds it if
+  needed and restarts its clock from now. Study routes never read sect state.
 - **Work choice** (`colony._pick_job`): meditation is not a chore; level with the
   work a disciple would do it takes half their hours (`MED_SHARE`), and any
   store under `LOW_STORE_DAYS` of use (not share of capacity) comes first. The

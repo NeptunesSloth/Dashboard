@@ -1746,7 +1746,7 @@ def overview(now: float | None = None) -> dict:
             "drills": {k: dict(v) for k, v in st.get("drills", {}).items()},
             "can_listen": any(c["kind"] == "language" and c["enrolled"] and c["seen"] > 0 for c in all_courses),
             "sect": game.view(st, now),
-            "onboarded": bool(st.get("colony", {}).get("name")),
+            "onboarded": bool(st.get("colony", {}).get("name")) or not game.enabled(st),
         }
         state.save()
         return out

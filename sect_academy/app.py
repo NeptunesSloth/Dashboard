@@ -174,6 +174,7 @@ class SetupIn(BaseModel):
     master: str = ""
     courses: list[str] = []
     storyteller: str = "balanced"
+    study_only: bool = False      # skip the sect: study only (it can be founded later in Settings)
 
 
 class EnrollIn(BaseModel):
@@ -298,11 +299,35 @@ def setup(body: SetupIn):
         engine.enroll(c, True)
     with state.LOCK:
         st = state.get()
-        colony.setup(st, body.name, body.master, time.time())
+        if body.study_only:
+            # Nothing is founded: the names are kept for the day the sect is turned on.
+            st["settings"]["sect_name"] = body.name.strip()[:40] or st["settings"].get("sect_name") or "Nameless Sect"
+            st["settings"]["sect_master"] = body.master.strip()[:30]
+            colony.set_enabled(st, False, time.time())
+        else:
+            colony.setup(st, body.name, body.master, time.time())
+            st["settings"]["sect_enabled"] = True
         if body.storyteller in colony.STORYTELLERS:
             colony.set_storyteller(st, body.storyteller, time.time())
         state.save()
     return engine.overview()
+
+
+class SectModeIn(BaseModel):
+    on: bool
+    name: str = ""
+    master: str = ""
+
+
+@app.post("/api/sect-mode", dependencies=API)
+def sect_mode(body: SectModeIn):
+    """The sect is optional. Off pauses it (nothing is deleted); on founds it if it never was, and its clock
+    restarts from now (no catch-up for the time it was off)."""
+    with state.LOCK:
+        st = state.get()
+        res = colony.set_enabled(st, body.on, time.time(), body.name.strip()[:40], body.master.strip()[:30])
+        state.save()
+    return res
 
 
 @app.post("/api/enroll", dependencies=API)
@@ -646,6 +671,9 @@ def sect(action: str, body: SectIn):
     now = time.time()
     with state.LOCK:
         st = state.get()
+        # Study only: the sect is paused and takes no orders. Seclusion (holiday mode) is the study streak's own.
+        if not colony.enabled(st) and action != "seclusion":
+            raise HTTPException(409, "The sect is paused. Turn it on in Progress, Settings.")
         if action == "tick":
             # The page asks for hours as real time passes; never run faster than 3 sim hours a second,
             # however many tabs are asking. Zero hours is a heartbeat: "I am here, and paused".

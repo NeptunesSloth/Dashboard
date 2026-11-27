@@ -903,3 +903,19 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 @media (prefers-color-scheme: dark) { .toggle[aria-checked="true"] { color: #5fe0b4; } .levels-line .now { color: var(--gold); } }
 @media (prefers-reduced-motion: reduce) { .toggle i, .toggle i::after { transition: none; } }
 @media (max-width: 600px) { .stages { grid-template-columns: repeat(auto-fit, minmax(62px, 1fr)); gap: 6px 14px; } .stage { padding: 6px 8px; } .stage .arrow { right: -12px; } }
+
+/* The sect is optional: the quiet "just study" way out of the rite, the study home, the Settings toggle */
+.rite-alt { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255, 210, 140, .14); color: #a8977a; font-size: .92rem; }
+.rite-alt .btn { min-height: 40px; }
+.rite-alt .small { flex-basis: 100%; color: #8f7f66; }
+.rite-steps li[hidden] { display: none; }
+.rite-steps li:has(+ li[hidden]) { border-right: 0; }
+.studyhome { max-width: 860px; margin: 0 auto; display: grid; gap: 14px; }
+.studyhome h1 { margin: 0; }
+.studyhome .panel { margin: 0; }
+.home-art { margin-top: 12px; } .home-art .row { align-items: center; gap: 10px; } .home-art .grow b { margin-right: 8px; }
+.home-stats { grid-template-columns: repeat(3, 1fr); } @media (min-width: 700px) { .home-stats { grid-template-columns: repeat(3, 1fr); } }
+.sect-found { margin-top: 10px; max-width: 420px; } .sect-found .field { margin: 8px 0; }
+.sect-found .field span { color: var(--dim); font-weight: 800; }
+.sect-found input[type=text] { width: 100%; }
+.sect-found[hidden] { display: none; }
