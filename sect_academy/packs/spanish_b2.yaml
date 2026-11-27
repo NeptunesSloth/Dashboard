@@ -577,7 +577,7 @@ units:
          ex: "No desperdicies el agua.", ex_l1: "Don't waste water. (informal)",
          note: "To waste time is perder el tiempo."}
       - {id: es-b2-05-extincion, type: vocab, l2: "en peligro de extinción", l1: "endangered (in danger of extinction)",
-         ex: "El lince ibérico está en peligro de extinción.", ex_l1: "The Iberian lynx is endangered.",
+         ex: "Muchas especies de aves están en peligro de extinción.", ex_l1: "Many species of bird are endangered.",
          note: "Goes with estar. la especie = the species (same form in the plural)."}
       - {id: es-b2-05-sostenible, type: vocab, l2: "sostenible", l1: "sustainable",
          ex: "Necesitamos un turismo más sostenible.", ex_l1: "We need more sustainable tourism.",
@@ -697,7 +697,7 @@ units:
       - {id: es-b2-06-aplicacion, type: vocab, l2: "la aplicación", l1: "the app / the application", alt: ["la app"],
          ex: "Me he descargado una aplicación para aprender idiomas.", ex_l1: "I've downloaded an app for learning languages.",
          note: "A job application is una solicitud."}
-      - {id: es-b2-06-datos, type: vocab, l2: "los datos", l1: "the data / the (mobile) data",
+      - {id: es-b2-06-datos, type: vocab, l2: "los datos", l1: "the data (also mobile data)",
          ex: "Me he quedado sin datos en el móvil.", ex_l1: "I've run out of data on my phone.",
          note: "Plural in Spanish: los datos son… el dato = one piece of information."}
       - {id: es-b2-06-usuario, type: vocab, l2: "el usuario", l1: "the user (male)",
@@ -953,7 +953,7 @@ units:
          ex: "Es una iglesia del siglo XII.", ex_l1: "It's a twelfth-century church.",
          note: "Centuries are written in Roman numerals and read as cardinals: el siglo XXI (veintiuno)."}
       - {id: es-b2-08-obra-maestra, type: vocab, l2: "la obra maestra", l1: "the masterpiece",
-         ex: "Las Meninas es la obra maestra de Velázquez.", ex_l1: "Las Meninas is Velázquez's masterpiece.",
+         ex: "Las Meninas es una obra maestra de Velázquez.", ex_l1: "Las Meninas is a masterpiece by Velázquez.",
          note: "Plural: las obras maestras."}
       - {id: es-b2-08-poeta, type: vocab, l2: "el poeta", l1: "the poet (male)",
          ex: "Lorca fue un poeta andaluz.", ex_l1: "Lorca was an Andalusian poet.",
@@ -1477,7 +1477,7 @@ units:
          ex: "Pasó diez años en la cárcel.", ex_l1: "He spent ten years in prison.",
          note: "Spanish uses the article: ir a la cárcel."}
       - {id: es-b2-12-condena, type: vocab, l2: "la condena", l1: "the (prison) sentence / the conviction",
-         ex: "Le han puesto una condena de cinco años.", ex_l1: "He has been given a five-year sentence.",
+         ex: "Está cumpliendo una condena de cinco años.", ex_l1: "He is serving a five-year sentence.",
          note: "condenar = to sentence; also to condemn."}
       - {id: es-b2-12-culpable, type: vocab, l2: "culpable", l1: "guilty",
          ex: "El jurado lo declaró culpable.", ex_l1: "The jury found him guilty.",
