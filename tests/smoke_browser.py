@@ -151,6 +151,14 @@ def main() -> int:
             pg.goto(BASE + path, wait_until="load", timeout=25000)
             pg.wait_for_selector(sel, timeout=10000)
             pg.wait_for_timeout(300)
+            if path == "/trials" and pg.query_selector("[data-ldrill]"):       # a language drill: choose, start, answer one
+                pg.click("[data-ldrill]")
+                pg.wait_for_selector("#d-go", timeout=10000)
+                pg.click("#d-go")
+                pg.wait_for_selector("#d-in", timeout=10000)
+                pg.fill("#d-in", "test")
+                pg.click("#d-check")
+                pg.wait_for_selector(".verdict", timeout=5000)
 
         # 5) Read: a dictionary lookup, then a PDF (through the vendored pdf.js and its worker) and an EPUB
         #    imported, opened and a word tapped — all of it with the outside world blocked.

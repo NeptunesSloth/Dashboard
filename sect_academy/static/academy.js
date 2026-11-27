@@ -855,32 +855,80 @@ async function renderTrials() {
       <div class="row"><button class="btn" data-drill="subnet">Subnetting</button>${best('subnet')}<button class="btn" data-drill="ports">Ports and protocols</button>${best('ports')}</div></section>`);
     view.querySelectorAll('[data-drill]').forEach((b) => { b.onclick = () => runDrill(b.dataset.drill); });
   }
+  const dlangs = [...new Set(mine.filter((c) => c.kind === 'language').map((c) => String(c.lang || '').slice(0, 2)))].filter((l) => DRILL_LANGS[l]);
+  if (dlangs.length) {
+    const best = (k) => (OV.drills && OV.drills[k] ? ` <span class="dim small">best ${num(OV.drills[k].best)}%</span>` : '');
+    view.insertAdjacentHTML('beforeend', `<section class="panel" id="lang-drills"><h2>Language drills</h2><p class="dim small">Fresh questions made on the spot: verb forms, and numbers, times, dates, prices and counters. Choose what you have studied; every answer shows the rule.</p>
+      ${dlangs.map((l) => `<div class="row drill-row"><b class="grow">${esc(DRILL_LANGS[l])}</b>${l !== 'zh' ? `<button class="btn" data-ldrill="conj-${l}">Verbs</button>${best(`conj-${l}`)}` : ''}<button class="btn" data-ldrill="num-${l}">Numbers</button>${best(`num-${l}`)}</div>`).join('')}</section>`);
+    view.querySelectorAll('[data-ldrill]').forEach((b) => { b.onclick = () => drillSetup(b.dataset.ldrill); });
+  }
   if (OV.mistakes) view.insertAdjacentHTML('beforeend', `<section class="panel"><h2>Missed questions</h2><p class="dim small">${num(OV.mistakes)} question${num(OV.mistakes) === 1 ? '' : 's'} you got wrong, in sessions or trials, and have not yet put right.</p>
     <a class="btn primary" href="/study?kind=mistakes" data-link>Work through them</a></section>`);
   view.querySelectorAll('[data-trial]').forEach((b) => { b.onclick = () => startTrial(b.dataset.trial, false); });
   view.querySelectorAll('[data-full]').forEach((b) => { b.onclick = () => startTrial(b.dataset.full, true); });
 }
 
-async function runDrill(kind) {
-  const d = await api('/api/drill', { kind });
+const DRILL_LANGS = { es: 'Spanish', fr: 'French', zh: 'Chinese', ja: 'Japanese', ko: 'Korean' };
+const drillPrefs = (kind, v) => {                 // the learner's last choices for this drill (this browser only)
+  try {
+    if (v === undefined) return JSON.parse(localStorage.getItem(`sect.drill.${kind}`) || 'null');
+    localStorage.setItem(`sect.drill.${kind}`, JSON.stringify(v));
+  } catch (_) { /* storage blocked: start from the defaults */ }
+  return null;
+};
+
+/* Language drills: choose tenses or question types, the verb set and the length, then run. */
+async function drillSetup(kind) {
+  const [what, lang] = kind.split('-');
+  const o = await api(`/api/drill/options?lang=${encodeURIComponent(lang)}`);
+  if (o.ok === false) { toast(o.error); return; }
+  const part = what === 'conj' ? o.conj : o.num;
+  if (!part) { toast('No such drill.'); return; }
+  const list = what === 'conj' ? part.tenses : part.kinds;
+  const prev = drillPrefs(kind) || {};
+  const on = new Set(Array.isArray(prev.pick) && prev.pick.length ? prev.pick : list.slice(0, what === 'conj' ? 2 : 3).map((t) => t.id));
+  const size = [10, 20, 30].includes(prev.size) ? prev.size : 10;
+  const sets = part.sets || [];
+  const vset = sets.some((x) => x.id === prev.set) ? prev.set : (sets[0] || {}).id;
+  const script = ['ja', 'ko', 'zh'].includes(o.lang);
+  view.innerHTML = `<h1>${esc(o.name)} ${what === 'conj' ? 'verbs' : 'numbers'}</h1>
+    <p class="dim" style="max-width:68ch">${what === 'conj' ? 'Each question names a verb, a tense or form, and a person; type the form. Choose only what you have studied.' : 'Numbers both ways, clock times, dates, prices and counters. Choose the kinds you want.'} ${script ? 'Answer in the script or in its romanisation.' : 'A missing accent is accepted and pointed out.'}</p>
+    <section class="panel"><h2>${what === 'conj' ? 'Tenses and forms' : 'Questions'}</h2><div class="optset" id="d-pick">${list.map((t) => `<label><input type="checkbox" value="${esc(t.id)}" ${on.has(t.id) ? 'checked' : ''}><span lang="${esc(o.lang)}">${esc(t.name)}</span>${t.en && t.en !== t.name ? `<span class="dim small">${esc(t.en)}</span>` : ''}</label>`).join('')}</div>
+    ${sets.length > 1 ? `<h3>Verbs</h3><div class="optset" id="d-set">${sets.map((x) => `<label><input type="radio" name="d-set" value="${esc(x.id)}" ${x.id === vset ? 'checked' : ''}><span>${esc(x.name)}</span></label>`).join('')}</div>` : ''}
+    <h3>Questions in a run</h3><div class="optset" id="d-size">${[10, 20, 30].map((n) => `<label><input type="radio" name="d-size" value="${n}" ${n === size ? 'checked' : ''}><span class="num">${n}</span></label>`).join('')}</div>
+    <div class="row" style="margin-top:16px"><a class="btn" href="/trials" data-link>Back</a><button class="btn primary grow" id="d-go">Start</button></div></section>`;
+  $('#d-go').onclick = () => {
+    const pick = [...view.querySelectorAll('#d-pick input:checked')].map((i) => i.value);
+    if (!pick.length) { toast('Choose at least one.'); return; }
+    const setIn = view.querySelector('#d-set input:checked');
+    const opts = { size: num((view.querySelector('#d-size input:checked') || {}).value) || 10, set: setIn ? setIn.value : vset };
+    opts[what === 'conj' ? 'tenses' : 'kinds'] = pick;
+    drillPrefs(kind, { pick, size: opts.size, set: opts.set });
+    runDrill(kind, opts);
+  };
+}
+
+async function runDrill(kind, opts) {
+  const d = await api('/api/drill', opts ? { kind, opts } : { kind });
   if (d.ok === false) { toast(d.error); return; }
   document.body.classList.add('in-session');
   leaveGuard = null;
   let cur = 0; let score = 0;
   const done = () => {
     document.body.classList.remove('in-session');
-    view.innerHTML = `<div class="session summary">${guide(score >= 8 ? 'happy' : 'calm', 96)}<h1>${esc(d.name)}: ${score}/${d.questions.length}</h1>
+    view.innerHTML = `<div class="session summary">${guide(score >= 0.8 * d.questions.length ? 'happy' : 'calm', 96)}<h1>${esc(d.name)}: ${score}/${d.questions.length}</h1>
       <p class="dim">${score === d.questions.length ? 'Clean. Do it again tomorrow, faster.' : 'Read the working on the ones you missed, then go again.'}</p>
-      <div class="foot"><div class="row"><button class="btn grow" id="d-again">Another ten</button><a class="btn primary grow" href="/trials" data-link>Done</a></div></div></div>`;
-    $('#d-again').onclick = () => runDrill(kind);
+      <div class="foot"><div class="row"><button class="btn grow" id="d-again">${d.questions.length === 10 ? 'Another ten' : `Another ${num(d.questions.length)}`}</button><a class="btn primary grow" href="/trials" data-link>Done</a></div></div></div>`;
+    $('#d-again').onclick = () => runDrill(kind, opts);
     refresh();
   };
   const draw = () => {
     const q = d.questions[cur];
     view.innerHTML = `<div class="session"><div class="top"><button aria-label="Stop the drill" id="d-exit">✕</button><div class="bar azure"><i style="width:${Math.round(100 * cur / d.questions.length)}%"></i></div><span class="dim small num">${cur + 1}/${d.questions.length}</span></div>
-      <div class="ex"><p class="ask">${esc(d.name)}</p><h2 class="prompt">${esc(q.q)}</h2>
+      <div class="ex"><p class="ask">${esc(d.name)}${q.hint ? ` · ${esc(q.hint)}` : ''}</p><h2 class="prompt" lang="${esc(q.lang || '')}">${esc(q.q)}</h2>
       ${q.choices ? `<div class="opts">${q.choices.map((c, i) => `<button class="opt" data-c="${i}"><span>${esc(c)}</span></button>`).join('')}</div>`
-        : '<div class="typed"><input type="text" id="d-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" aria-label="Your answer" enterkeyhint="done"></div>'}
+        : `<div class="typed"><input type="text" id="d-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" aria-label="Your answer" enterkeyhint="done" lang="${esc(q.lang || '')}">
+          ${(ACCENTS[q.lang] || []).length ? `<div class="accents">${ACCENTS[q.lang].map((a) => `<button type="button" data-acc="${esc(a)}" tabindex="-1">${esc(a)}</button>`).join('')}</div>` : ''}</div>`}
       <div class="foot" id="d-foot">${q.choices ? '' : '<button class="btn primary big" id="d-check">Check</button>'}</div></div></div>`;
     $('#d-exit').onclick = () => { document.body.classList.remove('in-session'); go('/trials', false); };
     let locked = false;
@@ -890,12 +938,16 @@ async function runDrill(kind) {
       if (res.ok === false) { toast(res.error); locked = false; return; }
       if (res.correct) score += 1;
       view.querySelectorAll('.opt').forEach((o) => { o.disabled = true; if (q.choices[+o.dataset.c] === res.expected) o.classList.add('right'); else if (q.choices[+o.dataset.c] === val) o.classList.add('wrong'); });
-      $('#d-foot').innerHTML = `<div class="verdict ${res.correct ? 'ok' : 'no'}" role="status">${guide(res.correct ? 'happy' : 'oops', 52)}<div class="grow"><h3>${res.correct ? 'Right' : 'Not quite'}</h3>
-        <div class="ans">${esc(res.expected)}</div><p class="small">${esc(res.why)}</p></div></div><button class="btn ${res.correct ? 'primary' : 'seal'} big" id="d-next">Continue</button>`;
+      const slip = res.flag === 'accent' ? 'Right — mind the accents' : res.flag === 'tone' ? 'Right — mind the tones' : 'Right';
+      $('#d-foot').innerHTML = `<div class="verdict ${res.correct ? 'ok' : 'no'}" role="status">${guide(res.correct ? 'happy' : 'oops', 52)}<div class="grow"><h3>${res.correct ? slip : 'Not quite'}</h3>
+        <div class="ans" lang="${esc(q.lang || '')}">${esc(res.expected)}</div><p class="small">${esc(res.why)}</p></div></div><button class="btn ${res.correct ? 'primary' : 'seal'} big" id="d-next">Continue</button>`;
       const b = $('#d-next'); b.focus(); b.onclick = () => { cur += 1; if (cur >= d.questions.length) done(); else draw(); };
     };
     if (q.choices) view.querySelectorAll('.opt').forEach((o) => { o.onclick = () => send(q.choices[+o.dataset.c]); });
-    else { const inp = $('#d-in'); inp.focus(); inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); send(inp.value); } }; $('#d-check').onclick = () => send(inp.value); }
+    else {
+      const inp = $('#d-in'); inp.focus();
+      view.querySelectorAll('[data-acc]').forEach((b) => { b.onclick = () => { const p = inp.selectionStart ?? inp.value.length; inp.value = inp.value.slice(0, p) + b.dataset.acc + inp.value.slice(inp.selectionEnd ?? p); inp.focus(); inp.setSelectionRange(p + 1, p + 1); }; });
+      inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); send(inp.value); } }; $('#d-check').onclick = () => send(inp.value); }
   };
   draw();
 }

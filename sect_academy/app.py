@@ -196,6 +196,7 @@ class DrillIn(BaseModel):
     drill: str = ""
     n: int = 0
     answer: str = ""
+    opts: dict = {}
 
 
 class AnswerIn(BaseModel):
@@ -417,12 +418,17 @@ def mistakes(course: str = ""):
 
 @app.post("/api/drill", dependencies=API)
 def drill_start(body: DrillIn):
-    return drills.start(body.kind)
+    return drills.start(body.kind, opts=body.opts)
+
+
+@app.get("/api/drill/options", dependencies=API)
+def drill_options(lang: str = ""):
+    return drills.options(lang)
 
 
 @app.post("/api/drill/answer", dependencies=API)
 def drill_answer(body: DrillIn):
-    res = drills.answer(body.drill, body.n, body.answer[:80])
+    res = drills.answer(body.drill, body.n, body.answer[:120])
     if res.get("finished"):
         with state.LOCK:
             d = state.get().setdefault("drills", {}).setdefault(res["kind"], {"best": 0, "runs": 0})

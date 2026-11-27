@@ -751,3 +751,12 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .piclist li { font-weight: 600; } .piclist .say { vertical-align: middle; }
 .step.soon { cursor: default; opacity: .8; }
 @media (max-width: 520px) { .pic .pin { width: 26px; height: 26px; font-size: .78rem; } .pic .lab { font-size: .72rem; padding: 1px 5px; transform: translate(-50%, 14px); } }
+
+/* language drills: choices as wrapping chips */
+.optset { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 4px; }
+.optset label { display: inline-flex; flex-direction: column; gap: 2px; padding: 9px 13px; border: 2px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: 0 3px 0 var(--line); cursor: pointer; min-height: 44px; justify-content: center; }
+.optset label:has(input:checked) { border-color: var(--jade); background: var(--jade-soft); box-shadow: 0 3px 0 var(--jade-d); }
+.optset input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.optset label:focus-within { outline: 2px solid var(--azure, var(--jade)); outline-offset: 2px; }
+.drill-row { margin-top: 8px; flex-wrap: wrap; }
+.optset + h3 { margin-top: 18px; }

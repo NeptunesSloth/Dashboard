@@ -39,7 +39,11 @@ sect_academy/
   packs/        the courses (see docs/ACADEMY_CONTENT.md)
   packs/pictures/  shared picture-lesson pictures: pin ids + positions, one file each
   fsrs.py       FSRS-6 scheduler, published default weights
-  drills.py     generated subnetting and port drills (graded here, never scheduled)
+  drills.py     generated drills (graded here, never scheduled): subnetting, ports, and the
+                language drills (kinds conj-<lang>, num-<lang>; the learner picks tenses/kinds)
+  drills_lang.py verb forms: es/fr read from the dict C lines (bad cells listed in _BAD),
+                ja/ko conjugated here (JMdict class; Hangul jamo, irregular class per verb)
+  drills_num.py numbers both ways, times, dates, prices, counters in all five languages
   engine.py     enrolment, sessions, server-side grading, placement, trials
   colony.py     the sect: pawns, needs, work, building, research, storyteller,
                 breakthroughs, rival sects, choice events (see _RESOLVERS)
@@ -69,7 +73,7 @@ sect_academy/
                 pictures.js (picture lessons: pins, drag/tap exercises),
                 art.js (places the painted art), art/*.webp, academy.css, sw.js,
                 vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
-tests/          test_engine.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
+tests/          test_engine.py, test_drills_lang.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
                 test_lexicon_zh_ja.py, lexicon_quality.py (zh/ja hit rate and word boundaries on the courses),
                 balance.py + test_balance.py (scripted 150-day games),
                 smoke_browser.py
