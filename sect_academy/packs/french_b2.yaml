@@ -1127,3 +1127,399 @@ units:
       - {id: fr-b2-14-c6, type: cloze, text: "Elle est toujours dans la ___ pendant les cours.", answer: "lune", l1: "She's always daydreaming in class.", note: "être dans la lune."}
       - {id: fr-b2-14-c7, type: cloze, text: "Je ne trouve pas la réponse, je donne ma langue au ___.", answer: "chat", l1: "I can't find the answer, I give up.", note: "donner sa langue au chat."}
       - {id: fr-b2-14-c8, type: cloze, text: "Bon, assez parlé des vacances : revenons à nos ___.", answer: "moutons", l1: "Right, enough about the holidays: let's get back to the subject.", note: "revenir à ses moutons."}
+
+  # ───────────────────────────────────────────────────────────────── 15
+  - id: fr4-15
+    title: "Conversations: debating and disagreeing"
+    goal: "I can take part in a debate on a current issue: give and justify my opinion, concede a point, disagree politely and look for a compromise."
+    notes: |
+      A good debate in French is lively but courteous. The moves are the same whatever the topic:
+
+      ## Give your view
+      *À mon avis…, Personnellement, je suis plutôt pour / contre…, Je trouve que…* (indicative).
+
+      ## Concede, then counter
+      ***Certes**, mais…, C'est vrai, **je te l'accorde**, mais…, Je comprends ton inquiétude. **Cependant**…* Conceding first makes your counter-argument more convincing.
+
+      ## Disagree politely
+      *Je ne suis pas tout à fait d'accord. Je n'en suis pas si sûr(e). Je vois les choses autrement. Je ne partage pas votre avis.* After a negative opinion, remember the **subjunctive**: *Je ne pense pas que ce **soit** la solution.*
+
+      ## Propose and set conditions
+      *On pourrait…, Il faudrait que… (+ subjunctive), à condition que… (+ subjunctive)*.
+
+      ## Find a way out
+      *Coupons la poire en deux. Au moins, on est d'accord sur un point. Ce n'est pas si simple.*
+
+      Watch the register in each scene: **tu** with friends and family, **vous** on the radio, with a neighbour or a teacher.
+    items:
+      - {id: fr-b2-15-partage-pas-votre-avis, type: phrase, l2: "Je ne partage pas votre avis.", l1: "I don't share your view. (formal)", alt: ["Je ne partage pas votre point de vue.", "Je ne suis pas de votre avis."], note: "partager un avis = to share an opinion."}
+      - {id: fr-b2-15-permettez-moi, type: phrase, l2: "Permettez-moi de vous interrompre.", l1: "Allow me to interrupt you. (formal)", alt: ["Permettez-moi de vous couper."], note: "Polite but firm, the way to cut in on a panel."}
+      - {id: fr-b2-15-je-vous-accorde, type: phrase, l2: "Je vous accorde que c'est cher.", l1: "I grant you that it's expensive. (formal)", note: "accorder = to grant (a point). Then counter with mais."}
+      - {id: fr-b2-15-marquez-un-point, type: phrase, l2: "Là, vous marquez un point.", l1: "There, you have a point. (formal)", alt: ["Vous marquez un point."], note: "marquer un point = to score a point."}
+      - {id: fr-b2-15-ou-voulez-vous-en-venir, type: phrase, l2: "Où voulez-vous en venir ?", l1: "What are you getting at? (formal)", alt: ["Où est-ce que vous voulez en venir ?"], note: "Informal: Tu veux en venir où ?"}
+      - {id: fr-b2-15-je-vois-les-choses-autrement, type: phrase, l2: "Je vois les choses autrement.", l1: "I see things differently.", alt: ["Je vois les choses différemment."]}
+      - id: fr-b2-15-four-day-week
+        type: dialogue
+        title: "A four-day week?"
+        scene: "At lunch, your colleague Julien brings up the idea of a four-day working week. You are all for it."
+        you: B
+        lines:
+          - {who: A, l2: "Tu as vu ? Certaines entreprises passent à la semaine de quatre jours.", l1: "Have you seen? Some companies are switching to a four-day week."}
+          - {who: B, l2: "Oui, et je trouve que c'est une excellente idée.", l1: "Yes, and I think it's an excellent idea.",
+             alt: ["Oui, je trouve que c'est une excellente idée.", "Oui, et je pense que c'est une excellente idée.", "Oui, et je trouve que c'est une très bonne idée.", "Oui, et je trouve ça excellent."]}
+          - {who: A, l2: "Vraiment ? Moi, j'ai peur qu'on travaille encore plus en moins de temps.", l1: "Really? I'm afraid we'd work even harder in less time."}
+          - {who: B, l2: "Certes, mais on serait plus reposés.", l1: "Admittedly, but we'd be better rested. (with on)",
+             alt: ["Certes, mais on serait moins fatigués.", "C'est vrai, mais on serait plus reposés.", "Certes, mais on serait mieux reposés.", "Certes, mais on serait plus reposé."]}
+          - {who: A, l2: "Peut-être. Mais les clients veulent qu'on soit disponibles cinq jours sur sept.", l1: "Maybe. But the clients want us to be available five days a week."}
+          - {who: B, l2: "On pourrait s'organiser pour que quelqu'un soit toujours là.", l1: "We could organise ourselves so that someone is always there. (with on)",
+             alt: ["On pourrait s'organiser pour qu'il y ait toujours quelqu'un.", "On pourrait s'organiser pour que quelqu'un soit toujours présent.", "On pourrait s'organiser pour qu'il y ait toujours quelqu'un de présent."]}
+          - {who: A, l2: "Hmm. Je ne suis pas sûr que le patron soit d'accord.", l1: "Hmm. I'm not sure the boss would agree."}
+          - {who: B, l2: "Ça ne coûte rien d'essayer.", l1: "There's no harm in trying. (it costs nothing…)",
+             alt: ["Ça coûte rien d'essayer.", "Ça ne coûte rien de lui demander.", "Ça ne coûte rien de lui en parler."]}
+          - {who: A, l2: "Tu as raison. On lui en parle à la prochaine réunion ?", l1: "You're right. Shall we bring it up with him at the next meeting?"}
+          - {who: B, l2: "D'accord, je vais préparer quelques arguments.", l1: "OK, I'll prepare a few arguments.",
+             alt: ["D'accord, je prépare quelques arguments.", "D'accord, je vais préparer des arguments.", "D'accord, je prépare des arguments.", "OK, je vais préparer quelques arguments."]}
+      - id: fr-b2-15-car-free
+        type: dialogue
+        title: "No cars in the city centre"
+        scene: "A local radio station is running a phone-in about closing the city centre to cars. You call in, and the presenter puts you on air."
+        you: B
+        lines:
+          - {who: A, l2: "Nous avons un auditeur en ligne. Bonjour ! Vous êtes pour ou contre la fermeture du centre-ville aux voitures ?", l1: "We have a listener on the line. Hello! Are you for or against closing the city centre to cars?"}
+          - {who: B, l2: "Bonjour. Je suis plutôt pour.", l1: "Hello. I'm rather in favour.",
+             alt: ["Bonjour. Moi, je suis plutôt pour.", "Bonjour. Je suis plutôt favorable.", "Bonjour. J'y suis plutôt favorable.", "Bonjour. Personnellement, je suis plutôt pour."]}
+          - {who: A, l2: "Pourquoi ?", l1: "Why?"}
+          - {who: B, l2: "L'air serait moins pollué et les rues plus calmes.", l1: "The air would be less polluted and the streets quieter.",
+             alt: ["L'air serait moins pollué et les rues seraient plus calmes.", "L'air serait moins pollué et les rues plus tranquilles.", "L'air serait moins pollué et les rues seraient plus tranquilles."]}
+          - {who: A, l2: "Mais les commerçants craignent de perdre des clients.", l1: "But shopkeepers are afraid of losing customers."}
+          - {who: B, l2: "Je comprends leur inquiétude. Cependant, les piétons dépensent aussi.", l1: "I understand their concern. However, pedestrians spend money too.",
+             alt: ["Je comprends leur inquiétude. Toutefois, les piétons dépensent aussi.", "Je comprends leur inquiétude. Néanmoins, les piétons dépensent aussi.", "Je comprends leur inquiétude. Pourtant, les piétons dépensent aussi.", "Je comprends leur inquiétude, mais les piétons dépensent aussi.", "Je comprends leur inquiétude. Cependant, les piétons dépensent aussi de l'argent."]}
+          - {who: A, l2: "Et les personnes âgées ou handicapées, comment feront-elles ?", l1: "And elderly or disabled people, how will they manage?"}
+          - {who: B, l2: "Il faudrait des navettes gratuites pour elles.", l1: "There would need to be free shuttle buses for them. (une navette)",
+             alt: ["Il faudrait des navettes gratuites pour eux.", "Il faudrait mettre en place des navettes gratuites pour elles.", "On pourrait prévoir des navettes gratuites pour elles.", "Il faudrait des navettes gratuites."]}
+          - {who: A, l2: "Merci pour votre témoignage !", l1: "Thank you for sharing your view!"}
+          - {who: B, l2: "Merci à vous. Bonne émission !", l1: "Thank you. Enjoy the rest of the show!",
+             alt: ["Merci à vous, et bonne émission !", "Merci à vous. Bonne fin d'émission !", "Merci. Bonne émission !"]}
+      - id: fr-b2-15-phones-teens
+        type: dialogue
+        title: "A phone at thirteen?"
+        scene: "Your friend Camille's daughter wants a smartphone for her thirteenth birthday. Camille asks what you think. You have doubts."
+        you: A
+        lines:
+          - {who: B, l2: "Ma fille veut un smartphone pour ses treize ans. Tu en penses quoi ?", l1: "My daughter wants a smartphone for her thirteenth birthday. What do you think?"}
+          - {who: A, l2: "À mon avis, c'est encore un peu tôt.", l1: "In my opinion, it's still a bit early.",
+             alt: ["À mon avis, c'est un peu tôt.", "Je pense que c'est encore un peu tôt.", "Selon moi, c'est encore un peu tôt.", "À mon avis, c'est encore trop tôt.", "Je trouve que c'est encore un peu tôt."]}
+          - {who: B, l2: "Mais tous ses copains en ont un ! Elle ne veut pas être mise à l'écart.", l1: "But all her friends have one! She doesn't want to be left out."}
+          - {who: A, l2: "Je comprends, mais les réseaux sociaux peuvent être dangereux.", l1: "I understand, but social media can be dangerous.",
+             alt: ["Je comprends, mais les réseaux sociaux peuvent être dangereux à cet âge.", "Je te comprends, mais les réseaux sociaux peuvent être dangereux.", "Je comprends, pourtant les réseaux sociaux peuvent être dangereux."]}
+          - {who: B, l2: "Je pourrais contrôler ce qu'elle fait, non ?", l1: "I could keep an eye on what she does, couldn't I?"}
+          - {who: A, l2: "Oui, à condition que tu fixes des règles claires.", l1: "Yes, provided you set clear rules. (informal)",
+             alt: ["Oui, à condition de fixer des règles claires.", "Oui, pourvu que tu fixes des règles claires.", "Oui, à condition que tu mettes des règles claires.", "Oui, si tu fixes des règles claires."]}
+          - {who: B, l2: "Par exemple ?", l1: "For example?"}
+          - {who: A, l2: "Pas de téléphone dans sa chambre le soir.", l1: "No phone in her bedroom at night.",
+             alt: ["Pas de téléphone dans la chambre le soir.", "Pas de portable dans sa chambre le soir.", "Pas de portable dans la chambre le soir.", "Pas de téléphone dans sa chambre la nuit.", "Pas de portable dans sa chambre la nuit."]}
+          - {who: B, l2: "C'est raisonnable. Je vais lui en parler ce soir.", l1: "That's reasonable. I'll talk to her about it tonight."}
+          - {who: A, l2: "Tiens-moi au courant !", l1: "Keep me posted! (informal)",
+             alt: ["Tu me tiens au courant !", "Tu me diras !", "Tu me raconteras !"]}
+      - id: fr-b2-15-nuclear
+        type: dialogue
+        title: "Nuclear power at Sunday lunch"
+        scene: "At a family lunch, your uncle Gérard starts defending nuclear power. You are not convinced, but you keep it friendly."
+        you: B
+        lines:
+          - {who: A, l2: "Moi, je suis pour le nucléaire. C'est la seule énergie qui soit vraiment fiable.", l1: "I'm for nuclear power. It's the only energy source that's really reliable."}
+          - {who: B, l2: "Je ne suis pas d'accord. Et les déchets radioactifs ?", l1: "I don't agree. And what about the radioactive waste?",
+             alt: ["Je ne suis pas d'accord. Et les déchets nucléaires ?", "Je suis pas d'accord. Et les déchets radioactifs ?", "Je ne suis pas d'accord avec toi. Et les déchets radioactifs ?", "Je ne suis pas d'accord. Que fait-on des déchets radioactifs ?"]}
+          - {who: A, l2: "On sait les stocker. Et le nucléaire n'émet presque pas de CO2.", l1: "We know how to store them. And nuclear power emits almost no CO2."}
+          - {who: B, l2: "C'est vrai, je te l'accorde.", l1: "That's true, I'll grant you that. (informal)",
+             alt: ["Je te l'accorde, c'est vrai.", "Certes, je te l'accorde.", "C'est vrai, ça, je te l'accorde."]}
+          - {who: A, l2: "Tu vois ! Alors pourquoi tant de gens sont contre ?", l1: "You see! So why are so many people against it?"}
+          - {who: B, l2: "Parce qu'ils ont peur qu'il y ait un accident.", l1: "Because they're afraid there might be an accident.",
+             alt: ["Parce qu'ils ont peur d'un accident.", "Parce qu'ils craignent un accident.", "Parce qu'ils craignent qu'il y ait un accident.", "Parce qu'ils ont peur qu'il n'y ait un accident.", "Parce qu'ils craignent qu'il n'y ait un accident."]}
+          - {who: A, l2: "Les centrales françaises sont très sûres, tu sais.", l1: "French power stations are very safe, you know."}
+          - {who: B, l2: "Peut-être, mais le risque zéro n'existe pas.", l1: "Maybe, but there's no such thing as zero risk.",
+             alt: ["Peut-être, mais le risque zéro, ça n'existe pas.", "Possible, mais le risque zéro n'existe pas.", "Peut-être, mais il n'y a pas de risque zéro."]}
+          - {who: A, l2: "Bon, on n'est pas près d'être d'accord, toi et moi !", l1: "Well, you and I aren't going to agree any time soon!"}
+          - {who: B, l2: "Ce n'est pas grave. Reprends un peu de gratin !", l1: "Never mind. Have some more gratin! (informal)",
+             alt: ["C'est pas grave. Reprends un peu de gratin !", "Pas grave. Reprends un peu de gratin !", "Ce n'est pas grave. Reprends du gratin !", "C'est pas grave. Reprends du gratin !"]}
+      - id: fr-b2-15-tourists
+        type: dialogue
+        title: "Too many tourists?"
+        scene: "Your neighbour, Madame Roche, complains about the crowds of tourists in your old-town street. You see both sides."
+        you: A
+        lines:
+          - {who: B, l2: "Vous avez vu la queue devant la cathédrale ? Il y a trop de touristes dans ce quartier !", l1: "Have you seen the queue outside the cathedral? There are too many tourists in this neighbourhood!"}
+          - {who: A, l2: "C'est vrai, mais le tourisme fait vivre le quartier.", l1: "That's true, but tourism keeps the neighbourhood alive.",
+             alt: ["Certes, mais le tourisme fait vivre le quartier.", "C'est vrai, mais c'est le tourisme qui fait vivre le quartier.", "C'est vrai, pourtant le tourisme fait vivre le quartier."]}
+          - {who: B, l2: "Peut-être, mais les loyers ont explosé à cause des locations touristiques.", l1: "Maybe, but rents have soared because of holiday lets."}
+          - {who: A, l2: "Là-dessus, je suis d'accord avec vous.", l1: "On that point, I agree with you.",
+             alt: ["Sur ce point, je suis d'accord avec vous.", "Là, je suis d'accord avec vous.", "Là-dessus, je vous donne raison.", "Sur ce point, je vous donne raison."]}
+          - {who: B, l2: "Il faudrait limiter le nombre de locations, comme à Barcelone.", l1: "They should limit the number of holiday lets, like in Barcelona."}
+          - {who: A, l2: "Oui, à condition que les petits propriétaires ne soient pas pénalisés.", l1: "Yes, provided small landlords aren't penalised.",
+             alt: ["Oui, pourvu que les petits propriétaires ne soient pas pénalisés.", "Oui, à condition de ne pas pénaliser les petits propriétaires.", "Oui, mais sans pénaliser les petits propriétaires."]}
+          - {who: B, l2: "Et vous, vous ne trouvez pas le bruit insupportable ?", l1: "And you, don't you find the noise unbearable?"}
+          - {who: A, l2: "Si, le soir, c'est parfois difficile.", l1: "Yes, in the evening it's sometimes hard. (answering a negative question)",
+             alt: ["Si, le soir, c'est parfois dur.", "Si, le soir, c'est quelquefois difficile.", "Si, parfois, le soir, c'est difficile."]}
+          - {who: B, l2: "Bon, au moins, on est d'accord sur quelque chose !", l1: "Well, at least we agree on something!"}
+      - id: fr-b2-15-ai-school
+        type: dialogue
+        title: "AI and homework"
+        scene: "At a parents' evening, your son's teacher, Monsieur Benoît, raises the subject of artificial intelligence."
+        you: B
+        lines:
+          - {who: A, l2: "Certains élèves utilisent l'intelligence artificielle pour faire leurs devoirs.", l1: "Some pupils use artificial intelligence to do their homework."}
+          - {who: B, l2: "Je trouve ça inquiétant. Ils n'apprennent plus rien.", l1: "I find that worrying. They're not learning anything any more.",
+             alt: ["Je trouve cela inquiétant. Ils n'apprennent plus rien.", "C'est inquiétant. Ils n'apprennent plus rien.", "Je trouve ça inquiétant. Ils n'apprennent rien.", "Je trouve ça inquiétant, ils n'apprennent plus rien."]}
+          - {who: A, l2: "Pas forcément. Bien utilisée, c'est un outil comme un autre.", l1: "Not necessarily. Used well, it's a tool like any other."}
+          - {who: B, l2: "Encore faut-il qu'on leur apprenne à s'en servir.", l1: "Still, someone has to teach them how to use it. (encore faut-il que…)",
+             alt: ["Encore faut-il leur apprendre à s'en servir.", "Encore faut-il qu'on leur apprenne à l'utiliser.", "Encore faudrait-il qu'on leur apprenne à s'en servir.", "Encore faut-il leur apprendre à l'utiliser."]}
+          - {who: A, l2: "Justement, nous allons proposer des ateliers dès janvier.", l1: "Exactly, we're going to run workshops from January."}
+          - {who: B, l2: "C'est une bonne initiative. Et pour les contrôles ?", l1: "That's a good initiative. And what about tests? (les contrôles)",
+             alt: ["Bonne initiative. Et pour les contrôles ?", "C'est une bonne initiative. Et les contrôles ?", "C'est une bonne idée. Et pour les contrôles ?"]}
+          - {who: A, l2: "Les contrôles se feront en classe, sur papier.", l1: "Tests will be done in class, on paper."}
+          - {who: B, l2: "Tant mieux. Ainsi, on saura ce qu'ils savent vraiment.", l1: "Good. That way, we'll know what they really know. (with ainsi)",
+             alt: ["Tant mieux. Ainsi, on saura ce qu'ils savent réellement.", "Tant mieux. Ainsi, nous saurons ce qu'ils savent vraiment.", "Tant mieux. Ainsi, on saura ce qu'ils connaissent vraiment."]}
+      - id: fr-b2-15-uniforms
+        type: dialogue
+        title: "School uniforms"
+        scene: "Your friend Karim thinks school uniforms are a great idea. You are against them, and you say so over a coffee."
+        you: A
+        lines:
+          - {who: B, l2: "Tu as entendu ? Ils testent l'uniforme dans certaines écoles.", l1: "Have you heard? They're trying out uniforms in some schools."}
+          - {who: A, l2: "Oui. Personnellement, je suis plutôt contre.", l1: "Yes. Personally, I'm rather against it.",
+             alt: ["Oui. Moi, je suis plutôt contre.", "Oui. Personnellement, j'y suis plutôt opposé.", "Oui. Personnellement, j'y suis plutôt opposée.", "Oui. Personnellement, je suis plutôt opposé.", "Oui. Personnellement, je suis plutôt opposée."]}
+          - {who: B, l2: "Ah bon ? Pourtant, ça réduirait les inégalités entre élèves.", l1: "Really? And yet it would reduce inequality between pupils."}
+          - {who: A, l2: "Je n'en suis pas si sûr. Les différences se voient ailleurs.", l1: "I'm not so sure. The differences show elsewhere. (a man speaking)",
+             alt: ["Je n'en suis pas sûr. Les différences se voient ailleurs.", "J'en suis pas si sûr. Les différences se voient ailleurs.", "Je n'en suis pas si sûr. Les différences se voient autrement."]}
+          - {who: B, l2: "Comme quoi ?", l1: "Like what?"}
+          - {who: A, l2: "Les téléphones, les chaussures, les vacances…", l1: "Phones, shoes, holidays…",
+             alt: ["Les portables, les chaussures, les vacances…", "Le téléphone, les chaussures, les vacances…", "Les téléphones, les baskets, les vacances…"]}
+          - {who: B, l2: "D'accord, mais au moins, en classe, tout le monde serait pareil.", l1: "OK, but at least, in class, everyone would look the same."}
+          - {who: A, l2: "Admettons. Mais qui va payer les uniformes ?", l1: "Let's grant that. (admettons) But who's going to pay for the uniforms?",
+             alt: ["Admettons. Mais qui paiera les uniformes ?", "Admettons. Mais qui payera les uniformes ?", "Admettons, mais qui va les payer, les uniformes ?"]}
+          - {who: B, l2: "La mairie, j'imagine. Ou les parents…", l1: "The town council, I imagine. Or the parents…"}
+          - {who: A, l2: "Tu vois, ce n'est pas si simple.", l1: "You see, it's not that simple. (informal)",
+             alt: ["Tu vois, c'est pas si simple.", "Tu vois, ce n'est pas aussi simple.", "Tu vois, ce n'est pas si facile."]}
+      - id: fr-b2-15-less-meat
+        type: dialogue
+        title: "Eating less meat"
+        scene: "Your friend Léa became a vegetarian six months ago and is trying to convince you to cut down on meat."
+        you: B
+        lines:
+          - {who: A, l2: "Depuis que je suis végétarienne, je me sens beaucoup mieux.", l1: "Since I became a vegetarian, I've been feeling much better."}
+          - {who: B, l2: "Tant mieux pour toi ! Mais je ne pourrais pas m'en passer.", l1: "Good for you! But I couldn't do without it. (se passer de)",
+             alt: ["Tant mieux pour toi ! Mais moi, je ne pourrais pas m'en passer.", "Tant mieux pour toi ! Mais je pourrais pas m'en passer.", "Tant mieux ! Mais je ne pourrais pas m'en passer."]}
+          - {who: A, l2: "Personne ne te demande d'arrêter complètement. Il suffit d'en manger moins.", l1: "Nobody's asking you to stop completely. You just need to eat less of it."}
+          - {who: B, l2: "C'est vrai que l'élevage pollue énormément.", l1: "It's true that livestock farming pollutes a lot. (l'élevage)",
+             alt: ["C'est vrai que l'élevage pollue beaucoup.", "C'est vrai, l'élevage pollue énormément.", "Il est vrai que l'élevage pollue énormément.", "C'est vrai que l'élevage pollue vraiment beaucoup."]}
+          - {who: A, l2: "Exactement. Et de toute façon, la bonne viande coûte cher.", l1: "Exactly. And anyway, good meat is expensive."}
+          - {who: B, l2: "Je pourrais n'en manger que le week-end.", l1: "I could eat it only at weekends. (ne … que)",
+             alt: ["Je pourrais en manger seulement le week-end.", "Je pourrais en manger uniquement le week-end.", "Je pourrais n'en manger que le weekend."]}
+          - {who: A, l2: "Voilà ! Et je te donnerai mes meilleures recettes.", l1: "There you go! And I'll give you my best recipes."}
+          - {who: B, l2: "Marché conclu, à condition qu'elles soient faciles !", l1: "It's a deal, provided they're easy!",
+             alt: ["Marché conclu, à condition qu'elles soient simples !", "D'accord, à condition qu'elles soient faciles !", "Ça marche, à condition qu'elles soient faciles !", "Marché conclu, pourvu qu'elles soient faciles !"]}
+      - id: fr-b2-15-free-museums
+        type: dialogue
+        title: "Should museums be free?"
+        scene: "At a dinner party, a guest, Monsieur Fabre, argues that all museums should be free. You don't entirely agree."
+        you: A
+        lines:
+          - {who: B, l2: "Je pense que les musées devraient être gratuits pour tout le monde.", l1: "I think museums should be free for everyone."}
+          - {who: A, l2: "Je ne suis pas tout à fait d'accord.", l1: "I don't entirely agree.",
+             alt: ["Je ne suis pas complètement d'accord.", "Je ne suis pas entièrement d'accord.", "Je ne suis pas tout à fait d'accord avec vous.", "Je suis pas tout à fait d'accord."]}
+          - {who: B, l2: "Ah bon ? Pourquoi ?", l1: "Really? Why?"}
+          - {who: A, l2: "Il faut bien que quelqu'un paie l'entretien des œuvres.", l1: "Someone has to pay for looking after the works. (l'entretien)",
+             alt: ["Il faut bien que quelqu'un paye l'entretien des œuvres.", "Il faut que quelqu'un paie l'entretien des œuvres.", "Il faut bien que quelqu'un finance l'entretien des œuvres.", "Quelqu'un doit bien payer l'entretien des œuvres."]}
+          - {who: B, l2: "L'État, avec nos impôts ! La culture ne devrait pas être réservée aux riches.", l1: "The state, with our taxes! Culture shouldn't be reserved for the rich."}
+          - {who: A, l2: "Certes, mais c'est déjà gratuit pour les jeunes.", l1: "Admittedly, but it's already free for young people.",
+             alt: ["D'accord, mais c'est déjà gratuit pour les jeunes.", "C'est vrai, mais c'est déjà gratuit pour les jeunes.", "Oui, mais c'est déjà gratuit pour les jeunes."]}
+          - {who: B, l2: "Pas partout. Et les familles modestes, alors ?", l1: "Not everywhere. And what about families on low incomes?"}
+          - {who: A, l2: "Il y a souvent un dimanche gratuit par mois.", l1: "There's often one free Sunday a month.",
+             alt: ["Il y a souvent un dimanche gratuit chaque mois.", "Souvent, il y a un dimanche gratuit par mois.", "Il y a souvent un dimanche par mois où c'est gratuit."]}
+          - {who: B, l2: "Un dimanche par mois, ce n'est pas suffisant !", l1: "One Sunday a month isn't enough!"}
+          - {who: A, l2: "Bon, coupons la poire en deux : gratuit le week-end ?", l1: "Well, let's meet halfway: free at weekends?",
+             alt: ["Coupons la poire en deux : gratuit le week-end ?", "Bon, on coupe la poire en deux : gratuit le week-end ?", "Bon, coupons la poire en deux : gratuit le weekend ?"]}
+
+  # ───────────────────────────────────────────────────────────────── 16
+  - id: fr4-16
+    title: "Conversations: the job interview"
+    goal: "I can handle a job interview in French: present my career, talk about strengths and weaknesses, tell a story from work, discuss salary and ask my own questions."
+    notes: |
+      French interviews are usually formal: **vous** throughout, even if the company feels relaxed, until the interviewer offers *tu*.
+
+      ## The usual questions
+      - *Présentez-vous en quelques mots.* — a two-minute summary: current job, experience, what you are looking for.
+      - *Pourquoi souhaitez-vous quitter votre poste ?* — stay positive: *J'aimerais évoluer.*
+      - *Quelles sont vos qualités / vos défauts ?* — give an example and say how you are improving.
+      - *Racontez-moi une situation difficile.* — tell it in the past: imparfait for the setting, passé composé for the events, plus-que-parfait for what had gone before.
+      - *Quelles sont vos prétentions salariales ?* — salaries are discussed **brut annuel** (gross per year).
+
+      ## Useful words
+      *le poste* (the position), *les missions* (duties), *évoluer* (to progress), *les déplacements* (business travel), *le préavis* (notice period), *la période d'essai* (probation), *le CDI / le CDD*.
+
+      ## Sound professional
+      *quelqu'un de* + masculine adjective works for anyone: *Je suis quelqu'un de **rigoureux***. Use the conditional for anything not yet agreed: *Le poste **commencerait** quand ? Il **y aurait** des déplacements ?*
+    items:
+      - {id: fr-b2-16-quelqu-un-de-rigoureux, type: phrase, l2: "Je suis quelqu'un de rigoureux.", l1: "I'm a meticulous person.", alt: ["Je suis une personne rigoureuse."], note: "quelqu'un de + masculine adjective, whoever is speaking."}
+      - {id: fr-b2-16-tres-motive, type: phrase, l2: "Je suis très motivé par ce poste.", l1: "I'm very motivated by this position. (a man speaking)", alt: ["Ce poste me motive beaucoup."], note: "A woman says motivée."}
+      - {id: fr-b2-16-travailler-en-equipe, type: phrase, l2: "J'ai l'habitude de travailler en équipe.", l1: "I'm used to working in a team.", alt: ["J'ai l'habitude du travail en équipe."], note: "avoir l'habitude de + infinitive = to be used to."}
+      - {id: fr-b2-16-a-votre-disposition, type: phrase, l2: "Je me tiens à votre disposition.", l1: "I remain at your disposal. (formal)", alt: ["Je reste à votre disposition."], note: "The standard last line of a cover letter or email."}
+      - {id: fr-b2-16-mes-missions, type: phrase, l2: "Quelles seraient mes missions ?", l1: "What would my duties be? (les missions)", alt: ["Quelles seraient mes principales missions ?", "Quelles sont les missions du poste ?"], note: "les missions = the duties of a job, a very common word in job ads."}
+      - {id: fr-b2-16-disponible-immediatement, type: phrase, l2: "Je suis disponible immédiatement.", l1: "I'm available to start immediately.", alt: ["Je suis disponible tout de suite.", "Je peux commencer immédiatement.", "Je peux commencer tout de suite."]}
+      - id: fr-b2-16-introduce-yourself
+        type: dialogue
+        title: "Tell me about yourself"
+        scene: "You are applying for a marketing manager job in Bordeaux. The interviewer, Madame Garnier, welcomes you into her office."
+        you: B
+        lines:
+          - {who: A, l2: "Bonjour, asseyez-vous. Alors, pouvez-vous vous présenter en quelques mots ?", l1: "Hello, have a seat. So, could you introduce yourself in a few words?"}
+          - {who: B, l2: "Bien sûr. J'ai cinq ans d'expérience dans le marketing.", l1: "Of course. I have five years' experience in marketing.",
+             alt: ["Bien sûr. J'ai cinq ans d'expérience en marketing.", "Bien sûr. J'ai 5 ans d'expérience dans le marketing.", "Volontiers. J'ai cinq ans d'expérience dans le marketing.", "Bien sûr. J'ai cinq années d'expérience dans le marketing."]}
+          - {who: A, l2: "Et que faites-vous actuellement ?", l1: "And what are you doing at the moment?"}
+          - {who: B, l2: "Je suis chef de projet dans une PME lyonnaise.", l1: "I'm a project manager at a small company in Lyon. (une PME)",
+             alt: ["Je suis cheffe de projet dans une PME lyonnaise.", "Je suis chef de projet dans une PME à Lyon.", "Je suis cheffe de projet dans une PME à Lyon.", "Actuellement, je suis chef de projet dans une PME lyonnaise.", "Je travaille comme chef de projet dans une PME lyonnaise."]}
+          - {who: A, l2: "Très bien. Et pourquoi souhaitez-vous quitter votre poste ?", l1: "Very good. And why do you want to leave your job?"}
+          - {who: B, l2: "J'aimerais évoluer et prendre plus de responsabilités.", l1: "I'd like to progress and take on more responsibility.",
+             alt: ["Je voudrais évoluer et prendre plus de responsabilités.", "Je souhaiterais évoluer et prendre plus de responsabilités.", "J'aimerais évoluer et prendre davantage de responsabilités.", "J'aimerais évoluer et avoir plus de responsabilités."]}
+          - {who: A, l2: "Je comprends. Qu'est-ce qui vous attire chez nous ?", l1: "I understand. What attracts you to our company?"}
+          - {who: B, l2: "Votre entreprise a une excellente réputation.", l1: "Your company has an excellent reputation.",
+             alt: ["Votre entreprise a une très bonne réputation.", "Votre société a une excellente réputation.", "Votre entreprise jouit d'une excellente réputation.", "Votre entreprise a une excellente réputation dans le secteur."]}
+          - {who: A, l2: "C'est gentil. Voyons maintenant si votre profil correspond au poste.", l1: "That's kind. Now let's see if your profile matches the position."}
+      - id: fr-b2-16-strengths
+        type: dialogue
+        title: "Strengths and weaknesses"
+        scene: "Halfway through the interview, Monsieur Roux asks the questions every candidate dreads."
+        you: B
+        lines:
+          - {who: A, l2: "Quelles sont, selon vous, vos principales qualités ?", l1: "What would you say are your main strengths?"}
+          - {who: B, l2: "Je suis quelqu'un d'organisé et j'aime les défis.", l1: "I'm an organised person and I like challenges. (quelqu'un de…)",
+             alt: ["Je suis quelqu'un d'organisé et j'aime relever des défis.", "Je suis quelqu'un de très organisé et j'aime les défis.", "Je suis quelqu'un d'organisé, et j'aime les défis."]}
+          - {who: A, l2: "Et vos défauts ?", l1: "And your weaknesses?"}
+          - {who: B, l2: "Je suis parfois un peu trop perfectionniste.", l1: "I'm sometimes a little too much of a perfectionist.",
+             alt: ["Je suis parfois trop perfectionniste.", "Parfois, je suis un peu trop perfectionniste.", "Je suis un peu trop perfectionniste, parfois."]}
+          - {who: A, l2: "Ah, la réponse classique ! Vous pouvez me donner un exemple concret ?", l1: "Ah, the classic answer! Can you give me a concrete example?"}
+          - {who: B, l2: "J'ai du mal à déléguer certaines tâches.", l1: "I find it hard to delegate some tasks. (avoir du mal à)",
+             alt: ["J'ai parfois du mal à déléguer certaines tâches.", "J'ai du mal à déléguer.", "J'ai du mal à confier certaines tâches."]}
+          - {who: A, l2: "Et comment travaillez-vous là-dessus ?", l1: "And how are you working on that?"}
+          - {who: B, l2: "J'apprends à faire confiance à mon équipe.", l1: "I'm learning to trust my team.",
+             alt: ["J'apprends à faire davantage confiance à mon équipe.", "J'apprends à faire plus confiance à mon équipe.", "J'essaie de faire confiance à mon équipe.", "J'apprends à mieux faire confiance à mon équipe."]}
+          - {who: A, l2: "C'est une bonne démarche.", l1: "That's a good approach."}
+      - id: fr-b2-16-difficult-situation
+        type: dialogue
+        title: "A difficult situation"
+        scene: "The interviewer asks you to describe a problem at work and how you solved it. Tell the story in the past."
+        you: B
+        lines:
+          - {who: A, l2: "Racontez-moi une situation difficile que vous avez su gérer.", l1: "Tell me about a difficult situation you managed to handle."}
+          - {who: B, l2: "Un jour, un client très important a menacé de partir.", l1: "One day, a very important client threatened to leave.",
+             alt: ["Une fois, un client très important a menacé de partir.", "Un jour, un gros client a menacé de partir.", "Un jour, un client très important a menacé de nous quitter.", "Un jour, un client important a menacé de partir."]}
+          - {who: A, l2: "Pourquoi ?", l1: "Why?"}
+          - {who: B, l2: "Nous avions livré son projet avec deux semaines de retard.", l1: "We had delivered his project two weeks late.",
+             alt: ["On avait livré son projet avec deux semaines de retard.", "Nous avions rendu son projet avec deux semaines de retard.", "Nous avions livré son projet avec 2 semaines de retard."]}
+          - {who: A, l2: "Et qu'avez-vous fait ?", l1: "And what did you do?"}
+          - {who: B, l2: "Je l'ai appelé moi-même pour m'excuser.", l1: "I phoned him myself to apologise.",
+             alt: ["Je l'ai appelé personnellement pour m'excuser.", "Je lui ai téléphoné moi-même pour m'excuser.", "Je l'ai appelé moi-même pour lui présenter mes excuses.", "Je l'ai contacté moi-même pour m'excuser."]}
+          - {who: A, l2: "Et ça a suffi ?", l1: "And was that enough?"}
+          - {who: B, l2: "Non, je lui ai aussi proposé une remise.", l1: "No, I also offered him a discount. (une remise)",
+             alt: ["Non, je lui ai également proposé une remise.", "Non, je lui ai aussi offert une remise.", "Non, je lui ai aussi accordé une remise.", "Non, je lui ai aussi proposé une réduction."]}
+          - {who: A, l2: "Et il est resté ?", l1: "And did he stay?"}
+          - {who: B, l2: "Oui, et c'est toujours notre client aujourd'hui.", l1: "Yes, and he's still our client today.",
+             alt: ["Oui, et il est toujours notre client aujourd'hui.", "Oui, et c'est encore notre client aujourd'hui.", "Oui, et aujourd'hui, c'est toujours notre client."]}
+      - id: fr-b2-16-salary
+        type: dialogue
+        title: "Talking money"
+        scene: "The interview is going well, and the HR manager, Monsieur Petit, turns to pay and conditions."
+        you: B
+        lines:
+          - {who: A, l2: "Parlons rémunération. Quelles sont vos prétentions salariales ?", l1: "Let's talk pay. What are your salary expectations?"}
+          - {who: B, l2: "Je souhaiterais un salaire d'environ quarante-cinq mille euros.", l1: "I'd like a salary of about forty-five thousand euros.",
+             alt: ["Je souhaiterais un salaire d'environ 45 000 euros.", "Je voudrais un salaire d'environ quarante-cinq mille euros.", "J'aimerais un salaire d'environ quarante-cinq mille euros.", "Je souhaiterais environ quarante-cinq mille euros.", "Je souhaiterais un salaire d'à peu près quarante-cinq mille euros."]}
+          - {who: A, l2: "Brut annuel ?", l1: "Gross per year?"}
+          - {who: B, l2: "Oui, brut annuel, hors primes.", l1: "Yes, gross per year, not including bonuses.",
+             alt: ["Oui, en brut annuel, hors primes.", "Oui, brut annuel, sans les primes.", "Oui, brut annuel, primes non comprises."]}
+          - {who: A, l2: "C'est un peu au-dessus de notre budget.", l1: "That's a little above our budget."}
+          - {who: B, l2: "Je comprends. Le salaire est-il négociable ?", l1: "I understand. Is the salary negotiable?",
+             alt: ["Je comprends. Est-ce que le salaire est négociable ?", "Je comprends. Le salaire est négociable ?", "Je comprends. Le salaire serait-il négociable ?"]}
+          - {who: A, l2: "Un peu. Nous pourrions aussi vous proposer deux jours de télétravail.", l1: "A little. We could also offer you two days of remote working."}
+          - {who: B, l2: "Ça m'intéresse, à condition que ce soit dans le contrat.", l1: "That interests me, provided it's in the contract.",
+             alt: ["Cela m'intéresse, à condition que ce soit dans le contrat.", "Ça m'intéresse beaucoup, à condition que ce soit dans le contrat.", "Ça m'intéresse, à condition que ce soit écrit dans le contrat.", "Ça m'intéresse, pourvu que ce soit dans le contrat."]}
+          - {who: A, l2: "Bien sûr, tout sera précisé par écrit.", l1: "Of course, everything will be set out in writing."}
+      - id: fr-b2-16-your-questions
+        type: dialogue
+        title: "Any questions?"
+        scene: "At the end of the interview, the director, Madame Lemaire, asks whether you have any questions. You do."
+        you: B
+        lines:
+          - {who: A, l2: "Avez-vous des questions sur le poste ?", l1: "Do you have any questions about the position?"}
+          - {who: B, l2: "Oui. Combien de personnes y a-t-il dans l'équipe ?", l1: "Yes. How many people are there in the team?",
+             alt: ["Oui. Il y a combien de personnes dans l'équipe ?", "Oui. Combien de personnes compte l'équipe ?", "Oui. L'équipe compte combien de personnes ?", "Oui. Combien y a-t-il de personnes dans l'équipe ?", "Oui. Combien de personnes est-ce qu'il y a dans l'équipe ?"]}
+          - {who: A, l2: "Huit, dont trois à Montréal.", l1: "Eight, three of whom are in Montreal."}
+          - {who: B, l2: "Est-ce qu'il y aurait des déplacements ?", l1: "Would there be any business travel? (les déplacements)",
+             alt: ["Y aurait-il des déplacements ?", "Il y aurait des déplacements ?", "Est-ce qu'il y a des déplacements ?", "Y a-t-il des déplacements ?"]}
+          - {who: A, l2: "Oui, environ une semaine par trimestre au Canada.", l1: "Yes, about one week per quarter in Canada."}
+          - {who: B, l2: "Très bien. Et quelles sont les prochaines étapes ?", l1: "Very good. And what are the next steps?",
+             alt: ["Très bien. Quelles sont les prochaines étapes ?", "Parfait. Et quelles sont les prochaines étapes ?", "D'accord. Et quelles sont les prochaines étapes ?", "Très bien. Et quelle est la prochaine étape ?", "Très bien. Et quelles sont les étapes suivantes ?"]}
+          - {who: A, l2: "Un deuxième entretien avec le directeur général, la semaine prochaine.", l1: "A second interview with the managing director, next week."}
+          - {who: B, l2: "Parfait. N'hésitez pas à me contacter.", l1: "Perfect. Don't hesitate to contact me.",
+             alt: ["Parfait. N'hésitez pas à me recontacter.", "Très bien. N'hésitez pas à me contacter.", "Parfait. N'hésitez pas à m'appeler.", "Parfait. N'hésitez pas à me joindre."]}
+      - id: fr-b2-16-recruiter-call
+        type: dialogue
+        title: "A call from a recruiter"
+        scene: "You applied online for an accountant's job. A recruiter phones you one afternoon to arrange an interview."
+        you: B
+        lines:
+          - {who: A, l2: "Bonjour, ici Sophie Marchand, chargée de recrutement. Vous avez postulé pour le poste de comptable ?", l1: "Hello, this is Sophie Marchand, recruiter. You applied for the accountant's position?"}
+          - {who: B, l2: "Oui, tout à fait. Bonjour, madame.", l1: "Yes, that's right. Hello. (to a woman)",
+             alt: ["Oui, c'est bien ça. Bonjour, madame.", "Oui, c'est exact. Bonjour, madame.", "Bonjour, madame. Oui, tout à fait.", "Oui, tout à fait. Bonjour."]}
+          - {who: A, l2: "Vous avez cinq minutes pour en parler ?", l1: "Do you have five minutes to talk about it?"}
+          - {who: B, l2: "Oui, bien sûr, je vous écoute.", l1: "Yes, of course, go ahead. (I'm listening)",
+             alt: ["Bien sûr, je vous écoute.", "Oui, je vous écoute.", "Oui, volontiers, je vous écoute."]}
+          - {who: A, l2: "Le poste est basé à Bordeaux. Un déménagement serait-il possible pour vous ?", l1: "The job is based in Bordeaux. Would moving be possible for you?"}
+          - {who: B, l2: "Oui, j'envisageais justement de quitter Paris.", l1: "Yes, in fact I was thinking of leaving Paris. (envisager de)",
+             alt: ["Oui, j'envisage justement de quitter Paris.", "Oui, justement, j'envisageais de quitter Paris.", "Oui, justement, j'envisage de quitter Paris."]}
+          - {who: A, l2: "Parfait. Seriez-vous disponible pour un entretien jeudi à dix heures ?", l1: "Perfect. Would you be available for an interview on Thursday at ten?"}
+          - {who: B, l2: "Jeudi, c'est difficile. Vendredi, ce serait possible ?", l1: "Thursday is difficult. Would Friday be possible?",
+             alt: ["Jeudi, c'est compliqué. Vendredi, ce serait possible ?", "Jeudi, c'est difficile. Vendredi, ça serait possible ?", "Jeudi, c'est difficile. Est-ce que vendredi serait possible ?", "Jeudi, c'est difficile pour moi. Vendredi, ce serait possible ?"]}
+          - {who: A, l2: "Vendredi à quatorze heures, ça vous va ?", l1: "Friday at two o'clock, does that suit you?"}
+          - {who: B, l2: "C'est parfait. Je vous remercie.", l1: "That's perfect. Thank you. (formal)",
+             alt: ["Parfait. Je vous remercie.", "C'est parfait. Merci beaucoup.", "Très bien. Je vous remercie."]}
+      - id: fr-b2-16-cv-gap
+        type: dialogue
+        title: "A gap in your CV"
+        scene: "The interviewer notices two years missing from your CV. You spent them travelling, and you are happy to explain."
+        you: B
+        lines:
+          - {who: A, l2: "Je vois un trou de deux ans dans votre CV. Que s'est-il passé ?", l1: "I see a two-year gap in your CV. What happened?"}
+          - {who: B, l2: "J'ai fait le tour du monde.", l1: "I travelled around the world. (faire le tour du monde)",
+             alt: ["J'ai fait un tour du monde.", "J'ai fait le tour du monde pendant deux ans."]}
+          - {who: A, l2: "Quelle chance ! Et qu'est-ce que cette expérience vous a apporté ?", l1: "How lucky! And what did that experience give you?"}
+          - {who: B, l2: "J'ai appris à m'adapter à toutes les situations.", l1: "I learned to adapt to any situation.",
+             alt: ["J'ai appris à m'adapter à n'importe quelle situation.", "J'ai appris à m'adapter à toutes sortes de situations.", "J'ai appris à m'adapter à chaque situation."]}
+          - {who: A, l2: "Et vous avez travaillé pendant ce voyage ?", l1: "And did you work during the trip?"}
+          - {who: B, l2: "Oui, j'ai donné des cours d'anglais en Asie.", l1: "Yes, I taught English in Asia. (donner des cours)",
+             alt: ["Oui, j'ai enseigné l'anglais en Asie.", "Oui, j'ai donné des cours d'anglais en Asie pendant six mois."]}
+          - {who: A, l2: "C'est intéressant. Et pourquoi revenir maintenant ?", l1: "That's interesting. And why come back now?"}
+          - {who: B, l2: "J'ai envie de me poser et de construire ma carrière.", l1: "I want to settle down and build my career. (se poser)",
+             alt: ["J'ai envie de me poser et de bâtir ma carrière.", "Je veux me poser et construire ma carrière.", "J'ai envie de me poser et de développer ma carrière."]}
+          - {who: A, l2: "Je comprends tout à fait.", l1: "I completely understand."}
+      - id: fr-b2-16-follow-up
+        type: dialogue
+        title: "Calling back after the interview"
+        scene: "A week after your interview, you phone the HR manager, Monsieur Blanc, to ask whether a decision has been made."
+        you: A
+        lines:
+          - {who: A, l2: "Bonjour, je vous appelle au sujet de l'entretien de lundi.", l1: "Hello, I'm calling about Monday's interview.",
+             alt: ["Bonjour, je vous appelle à propos de l'entretien de lundi.", "Bonjour, j'appelle au sujet de l'entretien de lundi.", "Bonjour, je vous appelle concernant l'entretien de lundi.", "Bonjour, je vous appelle au sujet de mon entretien de lundi."]}
+          - {who: B, l2: "Ah oui, bonjour ! Justement, j'allais vous rappeler.", l1: "Ah yes, hello! As it happens, I was about to call you back."}
+          - {who: A, l2: "Est-ce qu'une décision a été prise ?", l1: "Has a decision been made?",
+             alt: ["Une décision a-t-elle été prise ?", "Une décision a été prise ?", "Avez-vous pris une décision ?", "Est-ce que vous avez pris une décision ?"]}
+          - {who: B, l2: "Oui. Nous avons le plaisir de vous annoncer que votre candidature a été retenue.", l1: "Yes. We are pleased to tell you that your application has been successful."}
+          - {who: A, l2: "C'est une excellente nouvelle ! Merci beaucoup.", l1: "That's excellent news! Thank you very much.",
+             alt: ["Quelle excellente nouvelle ! Merci beaucoup.", "C'est une très bonne nouvelle ! Merci beaucoup.", "C'est une super nouvelle ! Merci beaucoup.", "C'est une excellente nouvelle ! Merci infiniment."]}
+          - {who: B, l2: "Vous pourriez commencer le premier mars ?", l1: "Could you start on the first of March?"}
+          - {who: A, l2: "Il faudrait d'abord que je donne mon préavis.", l1: "I would have to give my notice first. (le préavis)",
+             alt: ["Il faut d'abord que je donne mon préavis.", "Il faudrait que je donne mon préavis d'abord.", "Je dois d'abord donner mon préavis.", "Il faudrait d'abord que je fasse mon préavis."]}
+          - {who: B, l2: "Bien sûr. Il dure combien de temps ?", l1: "Of course. How long is it?"}
+          - {who: A, l2: "Un mois, donc je serais libre début avril.", l1: "One month, so I'd be free at the beginning of April.",
+             alt: ["Un mois, donc je serais disponible début avril.", "Un mois. Je serais donc libre début avril.", "Un mois, donc je pourrais commencer début avril.", "Un mois, alors je serais libre début avril."]}
+          - {who: B, l2: "Très bien, nous vous envoyons le contrat cette semaine.", l1: "Very good, we'll send you the contract this week."}

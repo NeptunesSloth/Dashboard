@@ -122,7 +122,7 @@ units:
          l1: "They demanded that they sign the contract that same day.", note: "exigir que + subjunctive; past → firmaran"}
       - {id: es-b2-01-c9, type: cloze, text: "Te dije que no ___ con ese tono al cliente.", answer: "hablaras", alt: ["hablases"],
          l1: "I told you not to speak to the client in that tone.", note: "a reported order in the past → imperfect subjunctive"}
-      - {id: es-b2-01-c10, type: cloze, text: "Buscaban a alguien que ___ inglés y alemán.", answer: "supiera", alt: ["supiese", "hablara", "hablase"],
+      - {id: es-b2-01-c10, type: cloze, text: "Buscaban a alguien que ___ inglés y alemán.", answer: "supiera", alt: ["supiese"],
          l1: "They were looking for someone who knew English and German.", note: "a person who may not exist, in the past → imperfect subjunctive: supieron → supiera"}
       - {id: es-b2-01-c11, type: cloze, text: "Preferiría que me ___ por correo electrónico.", answer: "escribieras", alt: ["escribieses"],
          l1: "I'd prefer you to write to me by e-mail. (informal)", note: "conditional main verb → imperfect subjunctive"}
