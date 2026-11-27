@@ -6,6 +6,7 @@ import { ICON, backdrop, portrait } from '/art.js';
 import { mountSect } from '/sect.js';
 import { renderRead } from '/reader.js';
 import { figure, label as pinLabel, introHtml as pictureIntro, labelAll, dragExercise, tapExercise } from '/pictures.js';
+import { writeExercise } from '/handwriting.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -678,8 +679,24 @@ function runSession(s) {
       } });
   }
 
+  // Handwriting (handwriting.js draws and hints; the server replays the strokes and grades them).
+  function writing(ex) {
+    return writeExercise(ex, { view, shell, guide, sayBtn, bindSay, speak,
+      submit: async (body) => {
+        const res = await api(body.self ? '/api/answer' : '/api/answer/write', body.self
+          ? { session: s.session, item: ex.item, mode: 'glyph_self', answer: body.verdict === 'right' ? 'right' : 'wrong', retry: !!ex.retry }
+          : { session: s.session, item: ex.item, chars: body.chars, assisted: !!body.assisted, retry: !!ex.retry });
+        if (res.ok === false) { toast(res.error); return res; }
+        if (!ex.retry) tally(res, 1, res.correct ? 1 : 0);
+        if (res.correct) st.done += 1; else queue.splice(Math.min(3, queue.length), 0, { ...ex, retry: true });
+        feedback(ex, res, '');
+        return res;
+      } });
+  }
+
   function exercise(ex) {
     if (ex.mode === 'pic_drag' || ex.mode === 'pic_tap') { keyHandler = null; return picture(ex); }
+    if (ex.mode === 'glyph_write') { keyHandler = null; return writing(ex); }
     if (ex.mode === 'multi' || ex.mode === 'order') return listExercise(ex);
     if (ex.mode === 'dialogue_build' || ex.mode === 'dialogue_type') return dialogue(ex);
     const lang = ex.lang; const typed = TYPED.has(ex.mode);
@@ -1065,6 +1082,8 @@ async function renderProgress() {
         <select class="in" id="set-ret" style="width:110px">${[0.85, 0.9, 0.93].map((r) => `<option value="${r}" ${Math.abs(set.retention - r) < 0.005 ? 'selected' : ''}>${Math.round(r * 100)}%</option>`).join('')}</select></div>
       <div class="setting"><div class="grow"><b>Spoken audio</b><span>${synth ? 'Uses the voices installed on this device.' : 'This browser has no speech voices, so listening exercises become typing ones.'}</span></div>
         <input type="checkbox" id="set-audio" style="width:24px;height:24px;accent-color:var(--jade)" ${set.audio ? 'checked' : ''}></div>
+      <div class="setting"><div class="grow"><b>Handwriting</b><span>Known characters are sometimes asked written, stroke by stroke, on a writing pad. Turn it off if you only type.</span></div>
+        <input type="checkbox" id="set-hand" style="width:24px;height:24px;accent-color:var(--jade)" ${set.handwriting !== false ? 'checked' : ''}></div>
       <div class="setting"><div class="grow"><b>Seclusion</b><span>Holiday mode: freezes your study streak and the sect until you return.</span></div>
         <button class="btn" id="set-sec">${g.seclusion ? 'Reopen the gates' : 'Enter seclusion'}</button></div>
       <div class="setting"><div class="grow"><b>Storyteller</b><span>How often trouble finds the sect.</span></div>
@@ -1087,6 +1106,7 @@ async function renderProgress() {
   $('#set-size').onchange = (e) => save({ session_size: +e.target.value });
   $('#set-ret').onchange = (e) => save({ retention: +e.target.value });
   $('#set-audio').onchange = (e) => save({ audio: e.target.checked });
+  $('#set-hand').onchange = (e) => save({ handwriting: e.target.checked });
   $('#set-sec').onclick = async () => { await api('/api/sect/seclusion', { on: !g.seclusion }); go('/progress', false); };
   $('#set-tell').onchange = async (e) => { await api('/api/sect/storyteller', { storyteller: e.target.value }); toast('Saved.'); };
   $('#set-exp').onclick = async () => {

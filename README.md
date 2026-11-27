@@ -189,6 +189,11 @@ python -m sect_academy
   Development Group (EDRDG), under CC BY-SA 4.0 in accordance with the Group's
   licence, https://www.edrdg.org/edrdg/licence.html. pdf.js is Apache-2.0
   (`sect_academy/static/vendor/pdfjs/LICENSE`).
+- Handwriting stroke order: Japanese kana and kanji from KanjiVG (Ulrich Apel,
+  CC BY-SA 3.0); Chinese hanzi from Make Me a Hanzi, derived from Arphic fonts,
+  under the Arphic Public License (`sect_academy/strokes/<lang>/README.md`, the
+  licence text in `strokes/zh/ARPHICPL.TXT`). Korean strokes are the app's own
+  (`sect_academy/hangul.py`).
 
 ## Running it
 

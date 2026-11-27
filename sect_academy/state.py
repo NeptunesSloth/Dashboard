@@ -52,6 +52,7 @@ def blank_settings() -> dict:
         "retention": 0.9,         # FSRS desired retention
         "tz_offset_min": 0,       # learner's UTC offset (minutes east), set by the UI
         "audio": True,
+        "handwriting": True,      # glyph items also asked written (hand.py); off for people who only type
     }
 
 
@@ -109,6 +110,7 @@ def clean_settings(raw) -> dict:
     s["retention"] = float(_num(raw.get("retention"), 0.9, 0.8, 0.95))
     s["tz_offset_min"] = _int(raw.get("tz_offset_min"), 0, -840, 840)
     s["audio"] = raw.get("audio") if isinstance(raw.get("audio"), bool) else True
+    s["handwriting"] = raw.get("handwriting") if isinstance(raw.get("handwriting"), bool) else True
     return s
 
 
