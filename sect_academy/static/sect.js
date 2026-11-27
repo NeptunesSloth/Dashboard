@@ -279,7 +279,7 @@ export function mountSect(h) {
       if (d.open) openFolds.add(d.dataset.fold); else openFolds.delete(d.dataset.fold);
       sessionStorage.setItem('sect.folds', JSON.stringify([...openFolds])); tabSig = '';
     }; });
-    z.querySelectorAll('[data-pin]').forEach((b) => { b.onclick = () => { const [n, t] = b.dataset.pin.split('|'); const el = $('#pin-note'); if (el) el.textContent = `${n}: ${t}`; }; });
+    bindMap(z);
     z.querySelectorAll('[data-colour]').forEach((b) => { b.onclick = () => order('style', { colour: b.dataset.colour, motto: S.style.motto }, true); });
     const mt = $('[data-motto]', z); if (mt) mt.onclick = () => order('style', { colour: S.style.colour, motto: $('#motto').value }, true);
     z.querySelectorAll('[data-precept]').forEach((b) => { b.onclick = () => order('precept', { precept: b.dataset.precept, on: b.dataset.on === '1' }); });
@@ -402,6 +402,137 @@ export function mountSect(h) {
     };
   }
 
+  // ---- the World map ----------------------------------------------------------------------------------------------
+  // Two layouts while the owner chooses: A (markers on the painted landmarks, a route from home, a docked panel) and
+  // B (a list of places beside the map, hanging banners, the chosen place's card on the map). ?map=B shows B.
+  const MAP_VARIANT = new URLSearchParams(location.search).get('map') === 'B' ? 'B' : 'A';
+  let mapSel = sessionStorage.getItem('sect.mapsel') || '';
+  const MAP_KIND = { home: 'Your sect', sect: 'Sect', ally: 'Sworn ally', foe: 'Rival sect', village: 'Village', wilds: 'Wilds',
+    ruin: 'Ruins', realm: 'Secret realm', kingdom: 'Mortal kingdom', branch: 'Branch sect' };
+  const mapSect = (m) => (m.type === 'sect' ? S.sects.find((x) => x.id === m.id) : null);
+  // what a marker is, in words as well as shape and colour: the second line never relies on colour alone
+  function mapMark(m) {
+    const s = mapSect(m);
+    if (s) {
+      const cls = s.ally ? 'ally' : s.rel <= -15 ? 'foe' : 'sect';
+      return { cls, known: true, sub: s.ally ? 'Sworn ally' : `${s.stance} ${s.rel > 0 ? '+' : ''}${s.rel}`, kind: `${MAP_KIND[cls]}, ${s.kind}` };
+    }
+    if (m.type === 'kingdom' && worldGates().kingdom) return { cls: 'kingdom', known: false, sub: 'Not yet known', kind: MAP_KIND.kingdom };
+    if (m.type === 'home') return { cls: 'home', known: true, sub: 'Home', kind: MAP_KIND.home };
+    const b = m.type === 'branch' ? S.branches[Number(m.id.slice(6))] : null;
+    if (b) return { cls: 'branch', known: true, sub: `Led by ${b.leader}`, kind: MAP_KIND.branch };
+    return { cls: MAP_KIND[m.type] ? m.type : 'wilds', known: true, sub: m.far || '', kind: MAP_KIND[m.type] || 'Place' };
+  }
+  const mapHome = () => S.map.find((m) => m.type === 'home') || S.map[0];
+  const mapAt = (m) => `left:${Number(m.x)}%;top:${Number(m.y)}%`;
+  // where a label sits so it stays on the painting: beside the marker at the edges, below it elsewhere
+  const mapSide = (m) => (m.y > 88 || m.x < 7 ? 'lab-r' : m.x > 86 ? 'lab-ul' : m.x > 93 ? 'lab-l' : '');
+
+  // the body of a place's card: what it is, how things stand, what can be done there (the same orders as below the map)
+  function mapBody(m) {
+    const k = mapMark(m);
+    const stones = (S.res.find((r) => r.id === 'stones') || {}).n || 0;
+    const s = mapSect(m);
+    const more = (key, label) => `<button class="btn quiet" data-mopen="${esc(key)}">${esc(label)}</button>`;
+    let stand = ''; let acts = '';
+    if (m.type === 'home') {
+      stand = `Fame <b class="num">${S.fame}</b>. ${S.pawns.length} disciple${S.pawns.length === 1 ? '' : 's'}${S.trip ? '; a party is on the road' : ''}.`;
+      acts = more('Banner and motto', 'Banner and motto');
+    } else if (s) {
+      const ch = S.champs[s.id] || {};
+      stand = `<b>${esc(s.stance)}</b> <span class="num">${s.rel > 0 ? '+' : ''}${s.rel}</span>. ${s.rel <= -15 ? 'Their raiders know the way to your gate.' : s.rel >= 15 ? 'They will not raid you.' : 'They are watching.'}
+        ${(ch.list || []).slice(0, 2).map((c) => `<br><span class="small">${esc(c.name)} <span class="dim">(${esc(c.role)}, ${esc(c.realm)}, strength ${c.power})</span></span>`).join('')}`;
+      acts = `${s.ally ? '<span class="tag gold">Sworn ally</span>' : s.rel >= 50 ? `<button class="btn primary" data-ally="${esc(s.id)}" ${stones >= 20 ? '' : 'disabled'}>Swear alliance (20 spirit stones)</button>` : ''}
+        <button class="btn" data-gift="${esc(s.id)}" ${stones >= 10 ? '' : 'disabled'}>Send gifts (10 spirit stones)</button>`;
+    } else if (m.trip) {
+      const pl = S.places.find((x) => x.id === m.trip);
+      if (pl) {
+        stand = `${esc(pl.text)} <b class="num">${pl.hours}</b> hours there and back.${S.trip_plan && S.trip_plan.place === pl.name ? ' A standing order sends the same party again.' : ''}`;
+        acts = `<button class="btn primary" data-trip="${esc(pl.id)}" ${S.trip ? 'disabled' : ''}>${S.trip ? 'A party is out' : 'Choose a party'}</button>`;
+      }
+    } else if (m.type === 'kingdom') {
+      stand = k.known ? `The lord is <b>${esc(S.kingdom.stance.toLowerCase())}</b> <span class="num">${S.kingdom.favour > 0 ? '+' : ''}${S.kingdom.favour}</span>. A grateful lord sends rice each autumn; a resentful one sends tax collectors.`
+        : esc(worldGates().kingdom);
+      if (k.known) acts = more('The mortal kingdom', 'The mortal kingdom');
+    } else if (m.type === 'realm') {
+      stand = 'Once in sixty years a tear opens in the sky above the marsh. When it does, word comes and you choose who goes in.';
+    } else if (m.type === 'village') {
+      stand = 'When they need help they send word, and the choice comes to you.';
+    } else if (m.type === 'branch') {
+      const b = S.branches[Number(m.id.slice(6))];
+      if (b) stand = b.sulking ? 'Sends nothing for now: you left them to stand alone.' : 'Sends 15 rice and 5 spirit stones every twelve days.';
+    }
+    return `<p class="wm-kind"><i class="wsig t-${k.cls}${k.known ? '' : ' unknown'}" aria-hidden="true"></i>${esc(k.kind)}${m.far ? ` · ${esc(m.far)}` : ''}</p>
+      <h4>${esc(m.name)}</h4>
+      ${m.type === 'home' || m.trip || s ? '' : `<p class="wm-text">${esc(m.text)}</p>`}
+      ${stand ? `<p class="wm-stand">${stand}</p>` : ''}
+      ${acts ? `<div class="wm-acts">${acts}</div>` : ''}`;
+  }
+
+  function mapMarker(m, sel, banner) {
+    const k = mapMark(m);
+    return `<button class="wm-mk t-${k.cls} ${mapSide(m)}${sel ? ' sel' : ''}${k.known ? '' : ' unknown'}${banner ? ' banner' : ''}" style="${mapAt(m)}" data-mk="${esc(m.id)}"
+      aria-pressed="${sel}" aria-label="${esc(m.name)}: ${esc(k.kind)}${k.sub ? `, ${esc(k.sub)}` : ''}"><i class="wsig" aria-hidden="true"></i>
+      <span class="wm-lab" aria-hidden="true"><b>${esc(m.name)}</b>${k.sub && (!banner || k.cls === 'foe' || !k.known) ? `<small>${esc(k.sub)}</small>` : ''}</span></button>`;
+  }
+
+  // a dotted road from home, bowed upward like a mountain path, with how far it is written at its middle
+  function mapRoute(m) {
+    const h = mapHome(); if (!h || m.id === h.id) return '';
+    const [x1, y1, x2, y2] = [h.x * 11.52, h.y * 7.68, m.x * 11.52, m.y * 7.68];
+    const [dx, dy] = [x2 - x1, y2 - y1];
+    let [cx, cy] = [(x1 + x2) / 2 - dy * 0.22, (y1 + y2) / 2 + dx * 0.22];
+    if (cy > (y1 + y2) / 2) [cx, cy] = [(x1 + x2) / 2 + dy * 0.22, (y1 + y2) / 2 - dx * 0.22];
+    const d = `M${x1.toFixed(0)} ${y1.toFixed(0)} Q${cx.toFixed(0)} ${cy.toFixed(0)} ${x2.toFixed(0)} ${y2.toFixed(0)}`;
+    return `<svg class="wm-road${mapMark(m).cls === 'foe' ? ' foe' : ''}" viewBox="0 0 1152 768" aria-hidden="true"><path class="under" d="${d}"/><path d="${d}"/></svg>`;
+  }
+
+  // what each seal means, for the kinds on this map
+  function mapLegend() {
+    const seen = [...new Set(S.map.map((m) => mapMark(m).cls))];
+    const unknown = S.map.some((m) => !mapMark(m).known);
+    return `<ul class="wm-legend">${seen.map((c) => `<li><i class="wsig t-${c}" aria-hidden="true"></i>${esc(MAP_KIND[c])}</li>`).join('')}
+      ${unknown ? '<li><i class="wsig t-sect unknown" aria-hidden="true"></i>Not yet known</li>' : ''}</ul>`;
+  }
+
+  const mapBg = `background-image:radial-gradient(ellipse at 55% 40%,#f0a85022,transparent 60%),linear-gradient(#0c122855,#120d0a77),url(${backdrop('map')})`;
+
+  function worldMap() {
+    if (MAP_VARIANT === 'B') return worldMapB();
+    const sel = S.map.find((m) => m.id === mapSel) || mapHome();
+    return `<div class="wm wm-a">
+      <div class="worldmap wm-paint" style="${mapBg}">${mapRoute(sel)}${S.map.map((m) => mapMarker(m, m.id === sel.id, false)).join('')}</div>
+      <aside class="wm-panel"><div aria-live="polite">${mapBody(sel)}</div>${mapLegend()}</aside></div>`;
+  }
+
+  function worldMapB() {
+    const sel = S.map.find((m) => m.id === mapSel);
+    const groups = [['Your sect', (m) => m.type === 'home' || m.type === 'branch'], ['Sects of the region', (m) => m.type === 'sect'], ['The country', (m) => !['home', 'branch', 'sect'].includes(m.type)]];
+    const row = (m) => { const k = mapMark(m); return `<li><button class="wm-row${sel && sel.id === m.id ? ' sel' : ''}" data-mk="${esc(m.id)}" aria-pressed="${!!sel && sel.id === m.id}">
+      <i class="wsig t-${k.cls}${k.known ? '' : ' unknown'}" aria-hidden="true"></i><span><b>${esc(m.name)}</b><small>${esc(k.sub || k.kind)}</small></span></button></li>`; };
+    const card = sel ? `<div class="wm-card" style="${sel.x > 52 ? `right:calc(${100 - sel.x}% + 74px)` : `left:calc(${Number(sel.x)}% + 74px)`};top:clamp(8px,calc(${Number(sel.y)}% - 90px),calc(100% - 300px))" aria-live="polite">
+      <button class="wm-x" data-mk="" aria-label="Close">×</button>${mapBody(sel)}</div>` : '';
+    return `<div class="wm wm-b">
+      <nav class="wm-list" aria-label="Places on the map">${groups.map(([t, f]) => { const ms = S.map.filter(f); return ms.length ? `<p class="wm-group">${esc(t)}</p><ul>${ms.map(row).join('')}</ul>` : ''; }).join('')}</nav>
+      <div class="worldmap wm-paint" style="${mapBg}">${S.map.map((m) => mapMarker(m, !!sel && m.id === sel.id, true)).join('')}${card}</div></div>`;
+  }
+
+  function bindMap(z) {
+    const pick = (id) => {
+      mapSel = id; sessionStorage.setItem('sect.mapsel', id); tabSig = ''; paintTabs();
+      const el = id && $(`.worldmap [data-mk="${CSS.escape(id)}"]`, z); if (el) el.focus({ preventScroll: true });
+    };
+    z.querySelectorAll('[data-mk]').forEach((b) => {
+      b.onclick = () => pick(b.dataset.mk === mapSel && MAP_VARIANT === 'B' ? '' : b.dataset.mk);
+      const lit = (on) => { if (b.dataset.mk) z.querySelectorAll(`[data-mk="${CSS.escape(b.dataset.mk)}"]`).forEach((x) => x.classList.toggle('hl', on)); };
+      b.onmouseenter = b.onfocus = () => lit(true); b.onmouseleave = b.onblur = () => lit(false);
+    });
+    z.querySelectorAll('[data-mopen]').forEach((b) => { b.onclick = () => {
+      const key = b.dataset.mopen; openFolds.add(key); sessionStorage.setItem('sect.folds', JSON.stringify([...openFolds])); tabSig = ''; paintTabs();
+      const d = $(`details[data-fold="${CSS.escape(key)}"]`, z); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }; });
+  }
+
   function worldRaw() {
     const stones = (S.res.find((r) => r.id === 'stones') || {}).n || 0;
     const relCls = (r) => (r >= 15 ? 'jade' : r > -15 ? '' : 'red');
@@ -409,8 +540,7 @@ export function mountSect(h) {
     const later = Object.values(gate).filter(Boolean);
     return `<div class="banner" style="background-image:linear-gradient(#0c1228b0,#120d0ae0),url(${backdrop('map')})"><h2>${esc(S.name)}</h2>
         <p>Fame <b class="num">${S.fame}</b>. Fame is won at the gate, in the arena and under the lightning; talented youths seek out famous sects.</p></div>
-      <div class="worldmap night" style="background-image:radial-gradient(ellipse at 50% 45%,#f0a8501a,transparent 65%),linear-gradient(#0c1228a6,#120d0abf),url(${backdrop('map')});background-blend-mode:normal,multiply,normal">${S.map.map((m) => `<button class="pin ${esc(m.kind)}" style="left:${m.x}%;top:${m.y}%" title="${esc(m.text)}" data-pin="${esc(m.name)}|${esc(m.text)}"><i></i><span>${esc(m.name)}</span></button>`).join('')}</div>
-      <p class="dim small" id="pin-note">Tap a place on the map.</p>
+      ${worldMap()}
       <h3>Banner and motto</h3>
       <div class="row">${S.colours.map((k) => `<button class="swatch ${S.style.colour === k ? 'on' : ''}" data-colour="${esc(k)}" aria-label="${esc(k)}" style="background:var(--c-${esc(k)})"></button>`).join('')}
         <input class="in grow" id="motto" maxlength="60" placeholder="A motto for the sect" value="${esc(S.style.motto)}"><button class="btn" data-motto>Set</button></div>

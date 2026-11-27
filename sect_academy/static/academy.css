@@ -951,3 +951,99 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .slot details.fold { margin-top: 4px; } .slot details.fold summary { font-size: .86rem; }
 .slot.empty { border-style: dashed; display: grid; place-content: center; text-align: center; min-height: 84px; color: var(--dim); }
 .slot.empty b { color: #f8e6bf; font-family: var(--serif); }
+
+/* ---- World map (sect.js worldMap): markers sit on the painted landmarks. A: docked panel; B (?map=B): list + card on the map ---- */
+.wm { display: grid; gap: 14px; margin-bottom: 10px; }
+.wm-a { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
+.wm-b { grid-template-columns: 236px minmax(0, 1fr); align-items: start; }
+.wm .worldmap.wm-paint { aspect-ratio: 3 / 2; background-size: 100% 100%; margin: 0; border-color: #6b5230; box-shadow: 0 14px 34px #0008; }
+.wm .worldmap.wm-paint::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: 0 0 80px 20px #0b0806aa inset; border-radius: inherit; }
+/* the seal: one shape per kind of place, outlined in lacquer black (::before) and filled (::after) */
+.wsig { --sz: 22px; --clip: inset(0 round 3px); --fill: #d8c49a; position: relative; display: inline-block; width: var(--sz); height: var(--sz); flex: none; }
+.wsig::before, .wsig::after { content: ''; position: absolute; clip-path: var(--clip); }
+.wsig::before { inset: -3px; background: #120d0a; }
+.wsig::after { inset: 0; background: var(--fill); }
+.t-home .wsig, .wsig.t-home { --sz: 30px; --clip: circle(50%); --fill: radial-gradient(circle, var(--sect-colour, var(--gold)) 38%, #120d0a 40% 47%, var(--sect-colour, var(--gold)) 49%); }
+.t-sect .wsig, .wsig.t-sect { --clip: inset(0 round 3px); --fill: #d8c49a; }
+.t-ally .wsig, .wsig.t-ally { --clip: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); --fill: var(--jade); }
+.t-foe .wsig, .wsig.t-foe { --sz: 26px; --clip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); --fill: radial-gradient(circle, #120d0a 0 14%, var(--verm) 16%); }
+.t-village .wsig, .wsig.t-village { --clip: polygon(50% 0, 100% 42%, 100% 100%, 0 100%, 0 42%); --fill: #f0a850; }
+.t-wilds .wsig, .wsig.t-wilds { --sz: 24px; --clip: polygon(50% 0, 100% 100%, 0 100%); --fill: #8fbf6a; }
+.t-ruin .wsig, .wsig.t-ruin { --clip: polygon(0 22%, 34% 0, 100% 0, 100% 64%, 74% 100%, 0 100%); --fill: #a99c88; }
+.t-realm .wsig, .wsig.t-realm { --sz: 24px; --clip: circle(50%); --fill: radial-gradient(circle, transparent 0 30%, #a58af0 33%); }
+.t-realm .wsig::before, .wsig.t-realm::before { background: radial-gradient(circle, transparent 0 22%, #120d0a 25%); }
+.t-kingdom .wsig, .wsig.t-kingdom { --clip: polygon(0 0, 100% 0, 100% 66%, 50% 100%, 0 66%); --fill: #c9b27c; }
+.t-branch .wsig, .wsig.t-branch { --sz: 16px; --clip: inset(0 round 2px); --fill: var(--sect-colour, var(--gold)); }
+.unknown .wsig, .wsig.unknown { --fill: repeating-linear-gradient(45deg, #6f6658 0 3px, #3a332b 3px 6px); }
+/* a marker on the map: the seal on its spot, its name on a lacquer plaque under it */
+.wm-mk { all: unset; position: absolute; z-index: 2; width: 34px; height: 34px; transform: translate(-50%, -50%); cursor: pointer; }
+.wm-mk .wsig { position: absolute; left: calc(50% - var(--sz) / 2); top: calc(50% - var(--sz) / 2); filter: drop-shadow(0 0 6px #f0a85066) drop-shadow(0 3px 3px #000c); transition: transform .15s; }
+.wm-mk.sel .wsig, .wm-mk.hl .wsig, .wm-mk:hover .wsig { transform: scale(1.2); }
+.wm-mk.sel::before { content: ''; position: absolute; left: calc(50% - 24px); top: calc(50% - 24px); width: 48px; height: 48px; border-radius: 50%; border: 2px solid #f6d58e; box-shadow: 0 0 18px #f0a850aa; animation: wm-glow 2.4s ease-in-out infinite; }
+@keyframes wm-glow { 50% { opacity: .45; transform: scale(1.12); } }
+.wm-lab { position: absolute; left: 50%; top: calc(50% + 16px); transform: translateX(-50%); display: grid; justify-items: center; gap: 0; padding: 3px 10px 4px; white-space: nowrap;
+  background: linear-gradient(#1d1410f2, #120d0af2); border: 1px solid #6b5230; border-top: 2px solid var(--lab, #c9a86a); border-radius: 4px; box-shadow: 0 4px 10px #000a; }
+.wm-lab b { font: 700 .86rem/1.25 var(--serif); color: #f8e6bf; }
+.wm-lab small { font-size: .72rem; line-height: 1.2; color: #d9c7a0; }
+.t-home .wm-lab { top: calc(50% + 21px); --lab: var(--sect-colour, var(--gold)); } .t-home .wm-lab b { font-size: .95rem; }
+.t-foe .wm-lab { --lab: var(--verm); } .t-foe .wm-lab small { color: #ff9a86; font-weight: 700; }
+.t-ally .wm-lab { --lab: var(--jade); } .t-wilds .wm-lab { --lab: #8fbf6a; } .t-village .wm-lab { --lab: #f0a850; } .t-realm .wm-lab { --lab: #a58af0; }
+.t-branch .wm-lab { top: calc(50% + 12px); padding: 1px 8px 2px; } .t-branch .wm-lab b { font-size: .76rem; }
+.unknown .wm-lab b { color: #bfb3a0; font-style: italic; }
+.wm-mk.lab-r .wm-lab { left: calc(50% + 18px); top: 50%; transform: translateY(-50%); justify-items: start; }
+.wm-mk.lab-l .wm-lab { left: auto; right: calc(50% + 18px); top: 50%; transform: translateY(-50%); justify-items: end; }
+.wm-mk.lab-ul .wm-lab { left: auto; right: calc(50% - 22px); top: auto; bottom: calc(50% + 16px); transform: none; justify-items: end; }
+.wm-mk.sel, .wm-mk:hover, .wm-mk.hl, .wm-mk:focus-visible { z-index: 4; }
+.wm-mk.sel .wm-lab, .wm-mk.hl .wm-lab, .wm-mk:hover .wm-lab { background: #f8e6bf; border-color: #f8e6bf; } .wm-mk.sel .wm-lab b, .wm-mk.hl .wm-lab b, .wm-mk:hover .wm-lab b { color: #120d0a; }
+.wm-mk.sel .wm-lab small, .wm-mk.hl .wm-lab small, .wm-mk:hover .wm-lab small { color: #4a3a26; }
+.wm-mk:focus-visible .wm-lab { outline: 3px solid var(--azure); outline-offset: 2px; }
+/* the road from home */
+.wm-road { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.wm-road path { fill: none; stroke: #f6d58e; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 1 12; }
+.wm-road path.under { stroke: #120d0acc; stroke-width: 9; stroke-dasharray: none; opacity: .55; }
+.wm-road.foe path:not(.under) { stroke: #ff9a86; }
+/* A: the docked panel */
+.wm-panel { position: sticky; top: 12px; padding: 16px 18px; border-radius: 14px; border: 1px solid #5a4426; background: linear-gradient(#241a14, #1a130e); box-shadow: 0 10px 30px #0006; min-height: 200px; }
+.wm-panel h4, .wm-card h4 { margin: 2px 0 8px; font: 700 1.3rem/1.2 var(--serif); color: #f8e6bf; }
+.wm-kind { display: flex; align-items: center; gap: 10px; margin: 0; font-size: .84rem; color: #d9c7a0; }
+.wm-kind .wsig { --sz: 18px; } .wm-kind .wsig.t-home { --sz: 22px; }
+.wm-text, .wm-stand { margin: 0 0 10px; font-size: .92rem; line-height: 1.5; color: #e9dcc0; }
+.wm-stand .small { font-size: .82rem; }
+.wm-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.wm-acts .btn { min-height: 40px; padding: 6px 14px; font-size: .9rem; }
+.wm-acts .btn.quiet { color: #f6d58e; border: 1px solid #6b5230; }
+.wm-legend { list-style: none; margin: 16px 0 0; padding: 12px 0 0; border-top: 1px solid #3a2a18; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: .78rem; color: #bfae8e; }
+.wm-legend li { display: flex; align-items: center; gap: 8px; } .wm-legend .wsig { --sz: 14px; margin: 0 2px; } .wm-legend .wsig.t-home { --sz: 16px; margin: 0 1px; }
+/* B: the list of places, and banners that hang under the seals */
+.wm-list { max-height: 680px; overflow: auto; padding: 6px; border-radius: 14px; border: 1px solid #5a4426; background: #1a130e; }
+.wm-group { margin: 8px 8px 4px; font: 700 .86rem var(--serif); color: #c9a86a; }
+.wm-list ul { list-style: none; margin: 0; padding: 0; }
+.wm-row { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+.wm-row span { display: grid; min-width: 0; } .wm-row b { font: 700 .9rem var(--serif); color: #f8e6bf; } .wm-row small { font-size: .74rem; color: #bfae8e; }
+.wm-row .wsig { --sz: 18px; margin: 0 3px; } .wm-row .wsig.t-home { --sz: 22px; margin: 0 1px; } .wm-row .wsig.t-branch { --sz: 14px; margin: 0 5px; }
+.wm-row:hover, .wm-row.hl { background: #2c2017; } .wm-row.sel { background: #3a2a18; box-shadow: inset 3px 0 0 #f6d58e; }
+.wm-row:focus-visible { outline: 3px solid var(--azure); outline-offset: -3px; }
+.wm-mk.banner .wm-lab { top: calc(50% + 18px); padding: 4px 10px 12px; border: 0; border-radius: 2px 2px 0 0; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 8px), 0 100%);
+  background: linear-gradient(#5a1f16f0, #3a140ef0); box-shadow: none; border-top: 3px solid #d9a441; }
+.wm-mk.banner .wm-lab b { font-size: .8rem; } .wm-mk.banner .wm-lab small { color: #ffd2c4; }
+.wm-mk.banner.t-home .wm-lab { background: linear-gradient(#6a4a14f0, #2a1d10f0); }
+.wm-mk.banner.t-wilds .wm-lab, .wm-mk.banner.t-village .wm-lab, .wm-mk.banner.t-realm .wm-lab, .wm-mk.banner.t-kingdom .wm-lab, .wm-mk.banner.t-ruin .wm-lab { background: linear-gradient(#2b3a2af0, #1a2418f0); }
+.wm-mk.banner.t-sect .wm-lab, .wm-mk.banner.t-ally .wm-lab { background: linear-gradient(#22324af0, #151f30f0); }
+.wm-mk.banner.lab-r .wm-lab, .wm-mk.banner.lab-l .wm-lab { top: 50%; } .wm-mk.banner.lab-ul .wm-lab { top: auto; }
+.wm-mk.banner.sel .wm-lab, .wm-mk.banner.hl .wm-lab, .wm-mk.banner:hover .wm-lab { background: #f8e6bf; }
+.wm-mk.banner.sel .wm-lab small, .wm-mk.banner.hl .wm-lab small, .wm-mk.banner:hover .wm-lab small { color: #8a2a1a; }
+/* B: the chosen place's card, on the map beside its marker */
+.wm-card { position: absolute; z-index: 6; width: 290px; max-height: calc(100% - 16px); overflow: auto; padding: 14px 16px; border-radius: 12px;
+  border: 1px solid #8a6a3a; background: linear-gradient(#241a14f7, #1a130ef7); box-shadow: 0 16px 40px #000c; }
+.wm-x { all: unset; position: absolute; right: 8px; top: 6px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; color: #d9c7a0; font-size: 1.3rem; }
+.wm-x:hover, .wm-x:focus-visible { background: #3a2a18; color: #f8e6bf; }
+@media (max-width: 1100px) {
+  .wm-a, .wm-b { grid-template-columns: 1fr; }
+  .wm-panel { position: static; }
+  .wm-list { max-height: none; order: 2; } .wm-list ul { display: flex; flex-wrap: wrap; gap: 4px; } .wm-row { width: auto; }
+}
+@media (max-width: 640px) {
+  .wm-lab { padding: 1px 6px 2px; } .wm-lab b { font-size: .7rem; } .wm-lab small { display: none; }
+  .wm-card { left: 8px !important; right: 8px !important; top: auto !important; bottom: 8px; width: auto; max-height: 70%; }
+}
+@media (prefers-reduced-motion: reduce) { .wm-mk.sel::before { animation: none; } .wm-mk .wsig { transition: none; } }

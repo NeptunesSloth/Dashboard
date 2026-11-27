@@ -71,10 +71,17 @@ KARMA = {("village", "send"): 3, ("village", "decline"): -3, ("quest_offer", "ac
          ("demonic_offer", "accept"): -5, ("demonic_offer", "fight"): 2, ("embrace", "embrace"): -12, ("embrace", "burn"): 4,
          ("qingming", "visit"): 2, ("qingming", "skip"): -2, ("quest_reward", ""): 3, ("ally_call", "send"): 2, ("ally_call", "refuse"): -3,
          ("branch_call", "send"): 2, ("branch_call", "refuse"): -3, ("festival", "hold"): 1, ("discipline", "forgive"): 1}
-# the country around the mountain: (name, what it is, x%, y% on the painted map)
-PLACES_ON_MAP = [("Herb Valley", "A day's walk east. Herbs, and the rare hundred-year kind.", 78, 70), ("Beast Forest", "A day and a half north. Spirit stones in the dens.", 30, 22),
-                 ("Ruined Sect", "Two days west. Manuals and artifacts under the rubble.", 12, 58), ("Misty Marsh", "Where the secret realm opens.", 62, 28),
-                 ("Willow Village", "Mortals at the mountain's foot. They ask for help, and remember it.", 44, 84), ("The lord's seat", "The lowland kingdom.", 86, 88)]
+# the country around the mountain: (id, name, what it is, x%, y% on the painting (1152x768, uncropped), kind of place,
+# how far it lies, the expedition that goes there). Each sits on a painted landmark (scripts: render the painting and look).
+PLACES_ON_MAP = [("valley", "Herb Valley", "A day's walk east. Herbs, and the rare hundred-year kind.", 88, 82, "wilds", "A day east", "valley"),
+                 ("forest", "Beast Forest", "A day and a half north. Spirit stones in the dens.", 31, 31, "wilds", "A day and a half north", "forest"),
+                 ("ruins", "Ruined Sect", "Two days west. Manuals and artifacts under the rubble.", 12, 36, "ruin", "Two days west", "ruins"),
+                 ("marsh", "Misty Marsh", "Where the secret realm opens.", 15, 84, "realm", "In the mists below", ""),
+                 ("village", "Willow Village", "Mortals at the mountain's foot. They ask for help, and remember it.", 45, 77, "village", "At the mountain's foot", ""),
+                 ("lord", "The lord's seat", "The lowland kingdom.", 41, 93, "kingdom", "Down in the lowlands", "")]
+MAP_HOME = (55, 41)
+MAP_SECTS = ((37, 7), (81, 18), (90, 55))          # the three painted pagodas
+MAP_BRANCHES = ((48, 55), (77, 48), (20, 60))      # the smaller halls
 POEMS = [
     "Lanterns on ten thousand steps; one more is lit tonight for {name}.",
     "The mountain did not bow to the storm. Neither did {name}.",
@@ -1152,11 +1159,13 @@ def view(c: dict) -> dict:
         "branches": [{"name": str(b["name"]), "leader": str(b["leader"]), "sulking": b.get("sulking", 0) > C._day(c)} for b in c["branches"]],
         "style": {"colour": str(c["style"]["colour"]), "hex": COLOURS.get(c["style"]["colour"], COLOURS["gold"]), "motto": str(c["style"]["motto"])},
         "colours": list(COLOURS),
-        "map": [{"name": str(c["name"]), "text": "Home.", "x": 50, "y": 52, "kind": "home"}]
-               + [{"name": n, "text": t, "x": x, "y": y, "kind": "place"} for n, t, x, y in PLACES_ON_MAP]
-               + [{"name": str(s["name"]), "text": f"{s['kind'].capitalize()} sect. {C.stance(float(s['rel']))}.", "kind": "ally" if s.get("ally") else "foe" if s["rel"] <= -15 else "sect",
-                   "x": (18, 84, 60)[i % 3], "y": (36, 44, 10)[i % 3]} for i, s in enumerate(c["sects"])]
-               + [{"name": str(b["name"]), "text": f"Led by {b['leader']}.", "kind": "branch", "x": (70, 36, 22)[i % 3], "y": (50, 66, 80)[i % 3]} for i, b in enumerate(c["branches"])],
+        "map": [{"id": "home", "name": str(c["name"]), "text": "Home.", "x": MAP_HOME[0], "y": MAP_HOME[1], "kind": "home", "type": "home", "far": "", "trip": ""}]
+               + [{"id": i, "name": n, "text": t, "x": x, "y": y, "kind": "place", "type": k, "far": f, "trip": tr} for i, n, t, x, y, k, f, tr in PLACES_ON_MAP]
+               + [{"id": str(s["id"]), "name": str(s["name"]), "text": f"{s['kind'].capitalize()} sect. {C.stance(float(s['rel']))}.",
+                   "kind": "ally" if s.get("ally") else "foe" if s["rel"] <= -15 else "sect", "type": "sect", "far": "", "trip": "",
+                   "x": MAP_SECTS[i % 3][0], "y": MAP_SECTS[i % 3][1]} for i, s in enumerate(c["sects"])]
+               + [{"id": f"branch{i}", "name": str(b["name"]), "text": f"Led by {b['leader']}.", "kind": "branch", "type": "branch", "far": "", "trip": "",
+                   "x": MAP_BRANCHES[i % 3][0], "y": MAP_BRANCHES[i % 3][1]} for i, b in enumerate(c["branches"])],
     }
 
 
