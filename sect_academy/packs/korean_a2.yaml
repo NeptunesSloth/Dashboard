@@ -84,7 +84,7 @@ units:
       - {id: ko2-01-saengil, type: phrase, l2: "생일 축하해요!", rom: "saengil chukahaeyo", l1: "Happy birthday! (polite)", alt: ["생일 축하합니다!", "saengil chukahamnida", "생일 축하드려요!", "saengil chukadeuryeoyo"]}
       - {id: ko2-01-manideuseyo, type: phrase, l2: "많이 드세요.", rom: "mani deuseyo", l1: "Eat plenty! / Help yourself. (to a guest)", note: "드세요 is the respectful 'please eat' (unit 15)."}
       - {id: ko2-01-dwaesseoyo, type: phrase, l2: "됐어요.", rom: "dwaesseoyo", l1: "That's enough, thanks. / No, I'm fine.", note: "Literally 'it has become (enough)'. Said with a smile to refuse more food; in a sharp voice it means 'forget it'."}
-      - {id: ko2-01-c1, type: cloze, text: "피곤해요. 의자에 ___.", answer: "앉아요", alt: ["anjayo"], l1: "I'm tired. I'll sit on the chair.", note: "앉다 → 앉아요: the second final moves over."}
+      - {id: ko2-01-c1, type: cloze, text: "피곤해요. 의자에 ___.", answer: "앉아요", alt: ["anjayo", "앉을게요", "anjeulgeyo"], l1: "I'm tired. I'll sit on the chair.", note: "앉다 → 앉아요: the second final moves over."}
       - {id: ko2-01-c2, type: cloze, text: "오늘 시장에 사람이 ___.", answer: "많아요", alt: ["manayo"], l1: "There are a lot of people at the market today.", note: "많다 → 많아요: the ㅎ goes silent."}
       - {id: ko2-01-c3, type: cloze, text: "이 바지는 너무 ___.", answer: "짧아요", alt: ["jjalbayo"], l1: "These trousers are too short.", note: "짧다 → 짧아요: ㄼ splits, ㅂ moves over."}
       - {id: ko2-01-c4, type: cloze, text: "바다가 정말 ___.", answer: "맑아요", alt: ["malgayo"], l1: "The sea is really clear.", note: "맑다 → 맑아요: ㄺ splits, ㄱ moves over."}
@@ -397,7 +397,7 @@ units:
       - {id: ko2-05-c2, type: cloze, text: "어머니는 부엌에서 요리하___ 있어요.", answer: "고", alt: ["go"], l1: "My mother is cooking in the kitchen.", note: "Stem + 고 있어요, nothing else changes."}
       - {id: ko2-05-c3, type: cloze, text: "저는 지금 음악을 듣고 ___.", answer: "있어요", alt: ["isseoyo"], l1: "I'm listening to music right now.", note: "듣다 stays 듣 before 고."}
       - {id: ko2-05-c4, type: cloze, text: "어제 여덟 시에는 텔레비전을 보고 ___.", answer: "있었어요", alt: ["isseosseoyo"], l1: "At eight o'clock yesterday I was watching TV.", note: "Past progressive: -고 있었어요."}
-      - {id: ko2-05-c5, type: cloze, text: "언니는 친구하고 ___ 있어요.", answer: "통화하고", alt: ["tonghwahago"], l1: "My older sister is on the phone with a friend.", note: "통화하다 → 통화하고 있어요."}
+      - {id: ko2-05-c5, type: cloze, text: "언니는 친구하고 ___ 있어요.", answer: "통화하고", alt: ["tonghwahago", "전화하고", "jeonhwahago"], l1: "My older sister is on the phone with a friend.", note: "통화하다 → 통화하고 있어요."}
       - {id: ko2-05-c6, type: cloze, text: "저는 지금 버스를 ___ 있어요.", answer: "기다리고", alt: ["gidarigo"], l1: "I'm waiting for the bus right now.", note: "기다리다 → 기다리고 있어요."}
       - {id: ko2-05-c7, type: cloze, text: "제 친구는 지금 ___ 있어요.", answer: "샤워하고", alt: ["syawohago"], l1: "My friend is in the shower right now.", note: "샤워하다 → 샤워하고 있어요."}
       - id: ko2-05-d1
@@ -467,8 +467,8 @@ units:
       - {id: ko2-06-c2, type: cloze, text: "저녁을 먹___ 식당에 갔어요.", answer: "으러", alt: ["eureo"], l1: "I went to a restaurant to have dinner.", note: "Consonant stem (먹): 으러."}
       - {id: ko2-06-c3, type: cloze, text: "주말에 같이 영화를 ___?", answer: "볼까요", alt: ["bolkkayo"], l1: "Shall we see a film together at the weekend?", note: "보다 → 볼까요?"}
       - {id: ko2-06-c4, type: cloze, text: "제가 여기에서 ___?", answer: "기다릴까요", alt: ["gidarilkkayo"], l1: "Shall I wait here?", note: "-(으)ㄹ까요? also offers: 'shall I?'."}
-      - {id: ko2-06-c5, type: cloze, text: "자, 이제 다 같이 ___!", answer: "갑시다", alt: ["gapsida"], l1: "Right, let's all go now!", note: "Vowel stem: ㅂ시다. 자 = 'right, now then'."}
-      - {id: ko2-06-c6, type: cloze, text: "배고파요. 우리 밥 먹___!", answer: "읍시다", alt: ["eupsida"], l1: "I'm hungry. Let's eat!", note: "Consonant stem: 읍시다."}
+      - {id: ko2-06-c5, type: cloze, text: "자, 이제 다 같이 ___!", answer: "갑시다", alt: ["gapsida", "가요", "gayo"], l1: "Right, let's all go now!", note: "Vowel stem: ㅂ시다. 자 = 'right, now then'."}
+      - {id: ko2-06-c6, type: cloze, text: "배고파요. 우리 밥 먹___!", answer: "읍시다", alt: ["eupsida", "어요", "eoyo"], l1: "I'm hungry. Let's eat!", note: "Consonant stem: 읍시다."}
       - {id: ko2-06-c7, type: cloze, text: "소포를 보내러 ___에 가요.", answer: "우체국", alt: ["ucheguk"], l1: "I'm going to the post office to send a parcel."}
       - {id: ko2-06-c8, type: cloze, text: "머리를 ___ 미용실에 가요.", answer: "자르러", alt: ["jareureo"], l1: "I'm going to the hair salon to get my hair cut.", note: "자르 + 러: the stem ends in a vowel."}
       - id: ko2-06-d1
@@ -516,14 +516,14 @@ units:
       ## Irregular 르
       다르다 (to be different) doubles its ㄹ before a vowel: 달라요. 예쁘다 drops ㅡ: 예뻐요.
     items:
-      - {id: ko2-07-huin, type: glyph, l2: "흰", rom: "huin", l1: "white, as in 흰색: ㅎ + ㅢ + ㄴ (often said 'hin')"}
+      - {id: ko2-07-huin, type: glyph, l2: "흰", rom: "huin", l1: "white, as in 흰색: ㅎ + ㅢ + ㄴ, said 'hin' (ㅢ after a consonant is said ㅣ)"}
       - {id: ko2-07-geom, type: glyph, l2: "검", rom: "geom", l1: "as in 검은색 (black): ㄱ + ㅓ + ㅁ"}
       - {id: ko2-07-rat, type: glyph, l2: "랗", rom: "rat", l1: "as in 노랗다, 파랗다: alone the ㅎ is said t; 노란색 drops it"}
       - {id: ko2-07-saek, type: vocab, l2: "색", rom: "saek", l1: "colour", alt: ["색깔", "saekkkal"], ex: "무슨 색을 좋아해요?", ex_rom: "museun saegeul joahaeyo?", ex_l1: "What colour do you like?"}
       - {id: ko2-07-ppalgansaek, type: vocab, l2: "빨간색", rom: "ppalgansaek", l1: "red", ex: "빨간색 치마를 샀어요.", ex_rom: "ppalgansaek chimareul sasseoyo.", ex_l1: "I bought a red skirt."}
       - {id: ko2-07-paransaek, type: vocab, l2: "파란색", rom: "paransaek", l1: "blue", ex: "파란색 바지가 있어요?", ex_rom: "paransaek bajiga isseoyo?", ex_l1: "Do you have blue trousers?"}
       - {id: ko2-07-noransaek, type: vocab, l2: "노란색", rom: "noransaek", l1: "yellow", ex: "노란색 꽃이 예뻐요.", ex_rom: "noransaek kkochi yeppeoyo.", ex_l1: "The yellow flowers are pretty."}
-      - {id: ko2-07-geomeunsaek, type: vocab, l2: "검은색", rom: "geomeunsaek", l1: "black", alt: ["까만색", "kkamansaek", "검정색", "geomjeongsaek"], ex: "검은색 구두를 신었어요.", ex_rom: "geomeunsaek gudureul sineosseoyo.", ex_l1: "I've put on black shoes."}
+      - {id: ko2-07-geomeunsaek, type: vocab, l2: "검은색", rom: "geomeunsaek", l1: "black", alt: ["까만색", "kkamansaek", "검정색", "geomjeongsaek"], ex: "검은색 구두를 신었어요.", ex_rom: "geomeunsaek gudureul sineosseoyo.", ex_l1: "I've put on black shoes.", note: "검정색 is heard everywhere, but the dictionary words are 검은색, 까만색 and the noun 검정."}
       - {id: ko2-07-huinsaek, type: vocab, l2: "흰색", rom: "huinsaek", l1: "white", alt: ["하얀색", "hayansaek"], ex: "흰색 티셔츠가 있어요?", ex_rom: "huinsaek tisyeocheuga isseoyo?", ex_l1: "Do you have a white T-shirt?"}
       - {id: ko2-07-tisyeocheu, type: vocab, l2: "티셔츠", rom: "tisyeocheu", l1: "T-shirt", ex: "티셔츠를 두 장 샀어요.", ex_rom: "tisyeocheureul du jang sasseoyo.", ex_l1: "I bought two T-shirts.", note: "Shirts and T-shirts are counted with 장 (or 벌 for clothes in general)."}
       - {id: ko2-07-wonpiseu, type: vocab, l2: "원피스", rom: "wonpiseu", l1: "dress (one-piece)", ex: "원피스가 정말 예뻐요.", ex_rom: "wonpiseuga jeongmal yeppeoyo.", ex_l1: "The dress is really pretty."}
@@ -634,7 +634,7 @@ units:
       - {id: ko2-08-c5, type: cloze, text: "이 찌개는 너무 ___. 물 좀 주세요.", answer: "짜요", alt: ["jjayo"], l1: "This stew is too salty. Some water, please.", note: "짜다 → 짜요."}
       - {id: ko2-08-c6, type: cloze, text: "삼겹살 삼 ___ 주세요.", answer: "인분", alt: ["inbun"], l1: "Three portions of pork belly, please.", note: "Sino-Korean number + 인분."}
       - {id: ko2-08-c7, type: cloze, text: "남은 김밥은 ___ 주세요.", answer: "포장해", alt: ["pojanghae"], l1: "Please pack the leftover gimbap to take away.", note: "포장하다 → 포장해 주세요."}
-      - {id: ko2-08-c8, type: cloze, text: "제가 메뉴를 읽어 ___?", answer: "줄까요", alt: ["julkkayo"], l1: "Shall I read the menu for you?", note: "An offer: -아/어 줄까요?"}
+      - {id: ko2-08-c8, type: cloze, text: "제가 메뉴를 읽어 ___?", answer: "줄까요", alt: ["julkkayo", "드릴까요", "deurilkkayo"], l1: "Shall I read the menu for you?", note: "An offer: -아/어 줄까요?"}
       - id: ko2-08-d1
         type: dialogue
         title: "What's good here?"
@@ -668,7 +668,7 @@ units:
       In directions it means "when you get there": 쭉 가**면** 오른쪽에 은행이 있어요, "go straight on and the bank is on your right".
 
       ## -아/어서: and then (in that place)
-      Use **-아/어서** when the second action builds on the first, usually in the same place: 버스에서 내**려서** 걸어가세요 (get off and walk), 길을 건**너서** 왼쪽으로 가세요. Use **-고** for actions that are simply listed, and always with 타다: 지하철을 **타고** 가요 (I go by subway).
+      Use **-아/어서** when the second action builds on the first, usually in the same place: 버스에서 내**려서** 걸어가세요 (get off and walk), 길을 건**너서** 왼쪽으로 가세요. Use **-고** for actions that are simply listed, and with 타다 when you go somewhere by that vehicle: 지하철을 **타고** 가요 (I go by subway).
 
       ## Getting on and off
       Vehicles take 을/를 with 타다: 버스**를** 타요. Getting off takes 에서: 다음 역**에서** 내려요. To change lines: 삼 호선으로 갈아타세요.
@@ -758,7 +758,7 @@ units:
       Doctors and pharmacists speak in very polite forms: 어디가 아프세요? 하루에 세 번 드세요.
     items:
       - {id: ko2-10-kot, type: glyph, l2: "콧", rom: "kot", l1: "as in 콧물 (runny nose): ㅅ said t, then n before ㅁ, kon-mul"}
-      - {id: ko2-10-tong, type: glyph, l2: "통", rom: "tong", l1: "pain, as in 두통 (headache); also in 통화 (phone call)"}
+      - {id: ko2-10-tong, type: glyph, l2: "통", rom: "tong", l1: "as in 두통 (headache, 통 = pain) and, with another meaning, 통화 (phone call)"}
       - {id: ko2-10-jeung, type: glyph, l2: "증", rom: "jeung", l1: "as in 증상 (symptom) and 영수증 (receipt)"}
       - {id: ko2-10-apeuda, type: vocab, l2: "아프다", rom: "apeuda", l1: "to hurt / to be ill", ex: "배가 아파요.", ex_rom: "baega apayo.", ex_l1: "My stomach hurts.", note: "ㅡ drops before 아: 아파요, 아팠어요."}
       - {id: ko2-10-gamgi, type: vocab, l2: "감기", rom: "gamgi", l1: "a cold", ex: "감기 조심하세요.", ex_rom: "gamgi josimhaseyo.", ex_l1: "Take care not to catch a cold."}
@@ -867,7 +867,7 @@ units:
       - {id: ko2-11-yageunhaeyo, type: phrase, l2: "오늘 야근해야 해요.", rom: "oneul yageunhaeya haeyo", l1: "I have to work late today.", alt: ["오늘 야근해야 돼요.", "oneul yageunhaeya dwaeyo", "오늘은 야근해야 해요.", "oneureun yageunhaeya haeyo"]}
       - {id: ko2-11-c1, type: cloze, text: "늦___ 죄송해요.", answer: "어서", alt: ["eoseo"], l1: "I'm sorry I'm late.", note: "늦다 → 늦어서: the reason for the apology."}
       - {id: ko2-11-c2, type: cloze, text: "어제는 ___ 회의에 못 갔어요.", answer: "바빠서", alt: ["bappaseo"], l1: "I was busy yesterday, so I couldn't go to the meeting.", note: "No past before 아서: 바빠서, then 갔어요 at the end."}
-      - {id: ko2-11-c3, type: cloze, text: "시험이 ___ 열심히 공부해요.", answer: "어려워서", alt: ["eoryeowoseo"], l1: "The exam is difficult, so I study hard.", note: "어렵다 → 어려워서."}
+      - {id: ko2-11-c3, type: cloze, text: "시험이 ___ 열심히 공부해요.", answer: "어려워서", alt: ["eoryeowoseo", "어려우니까", "eoryeounikka"], l1: "The exam is difficult, so I study hard.", note: "어렵다 → 어려워서."}
       - {id: ko2-11-c4, type: cloze, text: "내일 발표가 있___ 아직 준비를 못 했어요.", answer: "는데", alt: ["neunde"], l1: "I have a presentation tomorrow, but I haven't been able to prepare yet.", note: "있다 + 는데: background, then the contrast."}
       - {id: ko2-11-c5, type: cloze, text: "저는 회사원___ 요즘 너무 바빠요.", answer: "인데", alt: ["inde"], l1: "I'm an office worker, and I'm really busy these days.", note: "Noun + 인데."}
       - {id: ko2-11-c6, type: cloze, text: "저는 아침 아홉 시에 ___.", answer: "출근해요", alt: ["chulgeunhaeyo"], l1: "I start work at nine in the morning."}
@@ -963,7 +963,7 @@ units:
           - {who: A, l2: "취미가 뭐예요?", rom: "chwimiga mwoyeyo?", l1: "What are your hobbies?"}
           - {who: B, l2: "등산이에요. 주말에 산에 자주 가요.", rom: "deungsanieyo. jumare sane jaju gayo.", l1: "Hiking. I often go to the mountains at weekends.", alt: ["제 취미는 등산이에요. 주말에 산에 자주 가요.", "등산이에요."]}
           - {who: A, l2: "와, 저도 등산을 좋아해요. 다른 운동도 해요?", rom: "wa, jeodo deungsaneul joahaeyo. dareun undongdo haeyo?", l1: "Wow, I like hiking too. Do you do any other sport?"}
-          - {who: B, l2: "수영도 해요. 그런데 자전거는 탈 수 없어요.", rom: "suyeongdo haeyo. geureonde jajeongeoneun tal su eopseoyo.", l1: "I swim too. But I can't ride a bike.", alt: ["수영도 해요. 그런데 자전거는 못 타요.", "수영도 좋아해요. 그런데 자전거는 탈 수 없어요."]}
+          - {who: B, l2: "수영도 해요. 그런데 자전거는 탈 수 없어요.", rom: "suyeongdo haeyo. geureonde jajeongeoneun tal su eopseoyo.", l1: "I swim too. But I can't ride a bike.", alt: ["수영도 해요. 그런데 자전거는 못 타요.", "수영도 해요. 그런데 자전거는 탈 줄 몰라요.", "수영도 좋아해요. 그런데 자전거는 탈 수 없어요."]}
           - {who: A, l2: "그래요? 제가 가르쳐 줄까요? 저는 자전거를 잘 타요.", rom: "geuraeyo? jega gareuchyeo julkkayo? jeoneun jajeongeoreul jal tayo.", l1: "Really? Shall I teach you? I'm good on a bike."}
           - {who: B, l2: "와, 고마워요! 언제 시간이 있어요?", rom: "wa, gomawoyo! eonje sigani isseoyo?", l1: "Wow, thanks! When are you free?", alt: ["고마워요! 언제 시간이 있어요?", "네, 좋아요! 언제 시간이 있어요?"]}
           - {who: A, l2: "토요일 오후에 시간이 있어요.", rom: "toyoil ohue sigani isseoyo.", l1: "I'm free on Saturday afternoon."}
@@ -989,7 +989,7 @@ units:
       | 항상 always | 자주 often | 보통 usually | 가끔 sometimes | 거의 안 hardly ever | 전혀 안 never |
       |---|---|---|---|---|---|
 
-      전혀 and 거의 need a negative: 전혀 안 먹어요 (I never eat it).
+      전혀 needs a negative: 전혀 안 먹어요 (I never eat it). 거의 alone is "almost" (거의 다 했어요); with a negative it is "hardly": 거의 안 먹어요.
 
       ## Washing
       세수하다 (wash your face), 이를 닦다 (brush your teeth), 머리를 감다 (wash your hair), 씻다 (wash in general, hands, yourself).
@@ -1098,8 +1098,8 @@ units:
       - {id: ko2-14-sajinjom, type: phrase, l2: "사진 좀 찍어 주시겠어요?", rom: "sajin jom jjigeo jusigesseoyo", l1: "Would you mind taking a photo of us?", alt: ["사진 좀 찍어 주세요.", "sajin jom jjigeo juseyo", "사진 찍어 주시겠어요?", "sajin jjigeo jusigesseoyo"]}
       - {id: ko2-14-eodiega, type: phrase, l2: "어디에 가 보고 싶어요?", rom: "eodie ga bogo sipeoyo", l1: "Where would you like to visit?", alt: ["어디 가 보고 싶어요?", "eodi ga bogo sipeoyo"]}
       - {id: ko2-14-cheoeumwa, type: phrase, l2: "여기는 처음 와 봤어요.", rom: "yeogineun cheoeum wa bwasseoyo", l1: "This is my first time here.", alt: ["여기 처음 와 봤어요.", "yeogi cheoeum wa bwasseoyo", "여기는 처음이에요.", "yeogineun cheoeumieyo"]}
-      - {id: ko2-14-c1, type: cloze, text: "제주도에 가 ___?", answer: "봤어요", alt: ["bwasseoyo"], l1: "Have you ever been to Jeju Island?", note: "Experience: -아/어 봤어요."}
-      - {id: ko2-14-c2, type: cloze, text: "이 옷 한번 입어 ___.", answer: "보세요", alt: ["boseyo"], l1: "Try these clothes on.", note: "Suggestion: -아/어 보세요."}
+      - {id: ko2-14-c1, type: cloze, text: "제주도에 가 ___?", answer: "봤어요", alt: ["bwasseoyo", "보셨어요", "bosyeosseoyo"], l1: "Have you ever been to Jeju Island?", note: "Experience: -아/어 봤어요."}
+      - {id: ko2-14-c2, type: cloze, text: "이 옷 한번 입어 ___.", answer: "보세요", alt: ["boseyo", "봐요", "bwayo"], l1: "Try these clothes on.", note: "Suggestion: -아/어 보세요."}
       - {id: ko2-14-c3, type: cloze, text: "한국 음식을 만들어 ___ 싶어요.", answer: "보고", alt: ["bogo"], l1: "I'd like to try making Korean food.", note: "-아/어 보고 싶어요 = want to try."}
       - {id: ko2-14-c4, type: cloze, text: "여기에서 사진을 ___ 주세요.", answer: "찍어", alt: ["jjigeo"], l1: "Please take a photo of us here.", note: "찍다 → 찍어 주세요."}
       - {id: ko2-14-c5, type: cloze, text: "어제 인터넷으로 호텔을 ___.", answer: "예약했어요", alt: ["yeyakaesseoyo"], l1: "I booked a hotel online yesterday.", note: "예약하다 → 예약했어요."}
@@ -1182,7 +1182,7 @@ units:
       - {id: ko2-15-jumuseyo, type: phrase, l2: "안녕히 주무세요.", rom: "annyeonghi jumuseyo", l1: "Good night. (to an older person or someone you respect)", note: "Literally 'sleep in peace'."}
       - {id: ko2-15-c1, type: cloze, text: "할머니___ 주무세요.", answer: "께서", alt: ["kkeseo"], l1: "Grandmother is sleeping. (honorific subject particle)", note: "께서 replaces 이/가 for a respected subject."}
       - {id: ko2-15-c2, type: cloze, text: "아버지는 지금 집에 ___.", answer: "계세요", alt: ["gyeseyo"], l1: "My father is at home now. (honorific)", note: "있다 for a respected person: 계시다 → 계세요."}
-      - {id: ko2-15-c3, type: cloze, text: "어머니께서 점심을 ___.", answer: "드셨어요", alt: ["deusyeosseoyo"], l1: "My mother has had lunch. (honorific)", note: "먹다 → 드시다 → 드셨어요."}
+      - {id: ko2-15-c3, type: cloze, text: "어머니께서 점심을 ___.", answer: "드셨어요", alt: ["deusyeosseoyo", "잡수셨어요", "japsusyeosseoyo"], l1: "My mother has had lunch. (honorific)", note: "먹다 → 드시다 → 드셨어요."}
       - {id: ko2-15-c4, type: cloze, text: "선생님께 선물을 ___.", answer: "드렸어요", alt: ["deuryeosseoyo"], l1: "I gave the teacher a present. (humble)", note: "주다 to a respected person: 드리다."}
       - {id: ko2-15-c5, type: cloze, text: "사장님은 어제 미국에 ___.", answer: "가셨어요", alt: ["gasyeosseoyo"], l1: "The company president went to America yesterday. (honorific)", note: "가 + 시 + 었어요 → 가셨어요."}
       - {id: ko2-15-c6, type: cloze, text: "할머니, 이 책 ___?", answer: "읽으셨어요", alt: ["ilgeusyeosseoyo"], l1: "Grandma, have you read this book? (honorific)", note: "Consonant stem: 읽 + 으셨어요."}
@@ -1236,7 +1236,7 @@ units:
       - {id: ko2-16-gilda, type: vocab, l2: "길다", rom: "gilda", l1: "to be long", ex: "동생은 머리가 길어요.", ex_rom: "dongsaengeun meoriga gireoyo.", ex_l1: "My younger sister has long hair.", note: "Before a noun the ㄹ drops: 긴 머리."}
       - {id: ko2-16-gwiyeopda, type: vocab, l2: "귀엽다", rom: "gwiyeopda", l1: "to be cute", ex: "아기가 정말 귀여워요.", ex_rom: "agiga jeongmal gwiyeowoyo.", ex_l1: "The baby is really cute.", note: "ㅂ-irregular: 귀여워요, 귀여운."}
       - {id: ko2-16-meositda, type: vocab, l2: "멋있다", rom: "meositda", l1: "to be cool / stylish / impressive", ex: "그 옷 멋있어요!", ex_rom: "geu ot meosisseoyo!", ex_l1: "Those clothes look great!"}
-      - {id: ko2-16-jalsaenggida, type: vocab, l2: "잘생기다", rom: "jalsaenggida", l1: "to be good-looking / handsome", ex: "그 배우는 잘생겼어요.", ex_rom: "geu baeuneun jalsaenggyeosseoyo.", ex_l1: "That actor is good-looking.", note: "Always in the past: 잘생겼어요 (he has turned out well-formed)."}
+      - {id: ko2-16-jalsaenggida, type: vocab, l2: "잘생기다", rom: "jalsaenggida", l1: "to be good-looking / handsome", ex: "그 배우는 잘생겼어요.", ex_rom: "geu baeuneun jalsaenggyeosseoyo.", ex_l1: "That actor is good-looking.", note: "To say someone is good-looking, use the past: 잘생겼어요, never 잘생겨요 (the dictionary counts it as a verb: he has turned out well-formed). Before a noun: 잘생긴 사람. Before -고 it is plain: 잘생기고 친절해요."}
       - {id: ko2-16-chinjeolhada, type: vocab, l2: "친절하다", rom: "chinjeolhada", l1: "to be kind / friendly (helpful)", ex: "가게 사장님이 친절해요.", ex_rom: "gage sajangnimi chinjeolhaeyo.", ex_l1: "The shop owner is friendly."}
       - {id: ko2-16-chakada, type: vocab, l2: "착하다", rom: "chakada", l1: "to be good-natured / nice (a good person)", ex: "제 동생은 정말 착해요.", ex_rom: "je dongsaengeun jeongmal chakaeyo.", ex_l1: "My younger brother is really sweet-natured."}
       - {id: ko2-16-joyonghada, type: vocab, l2: "조용하다", rom: "joyonghada", l1: "to be quiet", ex: "도서관은 조용해요.", ex_rom: "doseogwaneun joyonghaeyo.", ex_l1: "The library is quiet."}
@@ -1255,11 +1255,11 @@ units:
       - {id: ko2-16-kigakeugo, type: phrase, l2: "키가 크고 친절해요.", rom: "kiga keugo chinjeolhaeyo", l1: "He's tall and kind."}
       - {id: ko2-16-joahaneun, type: phrase, l2: "제가 좋아하는 음식은 비빔밥이에요.", rom: "jega joahaneun eumsigeun bibimbabieyo", l1: "My favourite food is bibimbap. (the food I like)", alt: ["제가 제일 좋아하는 음식은 비빔밥이에요.", "jega jeil joahaneun eumsigeun bibimbabieyo"]}
       - {id: ko2-16-eotteonsarameul, type: phrase, l2: "어떤 사람을 좋아해요?", rom: "eotteon sarameul joahaeyo", l1: "What kind of person do you like?"}
-      - {id: ko2-16-c1, type: cloze, text: "저기 안경을 ___ 사람이 제 형이에요.", answer: "쓴", alt: ["sseun"], l1: "The person over there with glasses on is my older brother.", note: "Something worn: the finished form, 쓴."}
+      - {id: ko2-16-c1, type: cloze, text: "저기 안경을 ___ 사람이 제 형이에요.", answer: "쓴", alt: ["sseun", "쓰고 있는", "sseugo inneun"], l1: "The person over there with glasses on is my older brother.", note: "Something worn: the finished form, 쓴."}
       - {id: ko2-16-c2, type: cloze, text: "어제 ___ 영화가 재미있었어요.", answer: "본", alt: ["bon"], l1: "The film I saw yesterday was fun.", note: "Finished action: 보다 → 본."}
       - {id: ko2-16-c3, type: cloze, text: "지금 커피를 마시___ 사람이 누구예요?", answer: "는", alt: ["neun"], l1: "Who is the person drinking coffee right now?", note: "Happening now: -는."}
       - {id: ko2-16-c4, type: cloze, text: "주말에 ___ 책이 있어요?", answer: "읽을", alt: ["ilgeul"], l1: "Do you have a book to read at the weekend?", note: "Not yet done: -(으)ㄹ. 읽다 → 읽을."}
-      - {id: ko2-16-c5, type: cloze, text: "제 친구는 아주 ___ 사람이에요.", answer: "친절한", alt: ["chinjeolhan"], l1: "My friend is a very kind person.", note: "Adjective + ㄴ before a noun."}
+      - {id: ko2-16-c5, type: cloze, text: "제 친구는 아주 ___ 사람이에요.", answer: "친절한", alt: ["chinjeolhan", "착한", "chakan"], l1: "My friend is a very kind person.", note: "Adjective + ㄴ before a noun."}
       - {id: ko2-16-c6, type: cloze, text: "저는 ___ 강아지를 좋아해요.", answer: "귀여운", alt: ["gwiyeoun"], l1: "I like cute puppies.", note: "귀엽다: ㅂ → 우, then ㄴ: 귀여운."}
       - {id: ko2-16-c7, type: cloze, text: "이 식당에는 정말 ___ 음식이 많아요.", answer: "맛있는", alt: ["masinneun"], l1: "This restaurant has lots of really tasty dishes.", note: "있다 / 없다 words take -는: 맛있는."}
       - {id: ko2-16-c8, type: cloze, text: "머리가 ___ 여자가 제 동생이에요.", answer: "긴", alt: ["gin"], l1: "The girl with long hair is my younger sister.", note: "길다: the ㄹ drops before ㄴ, 긴."}
@@ -1275,7 +1275,7 @@ units:
           - {who: B, l2: "무슨 옷을 입었어요?", rom: "museun oseul ibeosseoyo?", l1: "What is she wearing?", alt: ["무슨 옷을 입고 있어요?", "어떤 옷을 입었어요?"]}
           - {who: A, l2: "파란색 코트를 입고 있어요.", rom: "paransaek koteureul ipgo isseoyo.", l1: "She's wearing a blue coat."}
           - {who: B, l2: "아, 저기 모자를 쓴 사람이에요?", rom: "a, jeogi mojareul sseun saramieyo?", l1: "Oh, is it the person over there in a hat?", alt: ["저기 모자를 쓴 사람이에요?", "아, 모자를 쓴 사람이에요?"]}
-          - {who: A, l2: "아니요, 모자는 안 썼어요. 그 옆에 있는 사람이에요.", rom: "aniyo, mojaneun an sseosseoyo. geu yeope inneun saramieyo.", l1: "No, she isn't wearing a hat. It's the person next to them."}
+          - {who: A, l2: "아니요, 모자는 안 썼어요. 아마 그 옆에 있는 사람일 거예요.", rom: "aniyo, mojaneun an sseosseoyo. ama geu yeope inneun saramil geoyeyo.", l1: "No, she isn't wearing a hat. It's probably the person next to them."}
           - {who: B, l2: "아, 찾았어요! 고마워요.", rom: "a, chajasseoyo! gomawoyo.", l1: "Ah, I've found her! Thanks.", alt: ["찾았어요! 고마워요.", "아, 찾았어요! 감사합니다."]}
 
   # ───────────────────────────────────────────────────────────────── 17
@@ -1283,7 +1283,7 @@ units:
     title: "Feelings and the irregular verbs"
     goal: "I can say how I and others feel, react to news, and conjugate the six kinds of irregular verb correctly."
     notes: |
-      Most verbs are regular, but six groups change their stem **before a vowel** (-아요/어요, -았어요, -(으)니까, -(으)ㄴ …). Before a consonant (-고, -지만, -기 전에) they never change.
+      Most verbs are regular, but six groups change their stem **before a vowel**: ㅂ, ㄷ, ㅅ and ㅎ before -아요/어요, -았어요, -(으)니까, -(으)ㄴ …; ㅡ and 르 only before 아/어 (바쁘니까, 모르니까 stay as they are). Before a consonant (-고, -지만, -기 전에) they never change.
 
       | type | change | examples |
       |---|---|---|
@@ -1332,7 +1332,7 @@ units:
       - {id: ko2-17-museunil, type: phrase, l2: "무슨 일 있어요?", rom: "museun il isseoyo", l1: "Is something wrong? / What's up?", alt: ["무슨 일이 있어요?", "museun iri isseoyo"]}
       - {id: ko2-17-kkamjjak, type: phrase, l2: "깜짝 놀랐어요!", rom: "kkamjjak nollasseoyo", l1: "You startled me! / What a surprise!"}
       - {id: ko2-17-c1, type: cloze, text: "친구가 숙제를 ___.", answer: "도와줬어요", alt: ["dowajwosseoyo"], l1: "A friend helped me with my homework.", note: "돕다 → 도와 (ㅂ → 오) + 줬어요."}
-      - {id: ko2-17-c2, type: cloze, text: "매일 공원에서 한 시간 ___.", answer: "걸어요", alt: ["georeoyo"], l1: "I walk in the park for an hour every day.", note: "걷다: ㄷ → ㄹ before a vowel."}
+      - {id: ko2-17-c2, type: cloze, text: "매일 공원에서 한 시간 ___.", answer: "걸어요", alt: ["georeoyo", "산책해요", "sanchaekaeyo"], l1: "I walk in the park for an hour every day.", note: "걷다: ㄷ → ㄹ before a vowel."}
       - {id: ko2-17-c3, type: cloze, text: "길을 몰라서 사람들한테 ___.", answer: "물어봤어요", alt: ["mureobwasseoyo", "물었어요", "mureosseoyo"], l1: "I didn't know the way, so I asked people.", note: "묻다 → 물어 (ㄷ → ㄹ) + 봤어요."}
       - {id: ko2-17-c4, type: cloze, text: "그 사람 이름을 ___.", answer: "몰라요", alt: ["mollayo"], l1: "I don't know that person's name.", note: "모르다: 르 → ㄹㄹ, 몰라요."}
       - {id: ko2-17-c5, type: cloze, text: "오늘 기분이 ___? — 좋아요!", answer: "어때요", alt: ["eottaeyo"], l1: "How are you feeling today? — Good!", note: "어떻다: the ㅎ drops, 어때요."}

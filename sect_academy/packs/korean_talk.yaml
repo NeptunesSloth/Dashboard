@@ -17,7 +17,7 @@ units:
       A first conversation runs on a few moves. Say them aloud as whole chunks.
 
       - **Open**: 안녕하세요? 저는 ○○예요/이에요. With someone older, or at work, the formal style is safer: 처음 뵙겠습니다. 저는 ○○입니다.
-      - **Ask back**: add **-은요? / -는요?** to a name to return the question: 지민 씨는요? ("and you, Jimin?"). There is no word for "you": use the name + 씨, or a title.
+      - **Ask back**: add **-은요? / -는요?** to a name to return the question: 지민 씨는요? ("and you, Jimin?"). There is no polite everyday word for "you": use the name + 씨, or a title.
       - **Work**: business cards (명함) are given and taken with both hands, and the meeting ends with **잘 부탁드립니다** ("I look forward to working with you").
       - **Buy time**: 다시 한번 말해 주세요. · 천천히 말해 주세요. · ○○이/가 무슨 뜻이에요?
       - **Close**: 오늘 즐거웠어요. · 연락 주세요. · 조심히 가세요. · 또 만나요!
@@ -109,7 +109,7 @@ units:
         you: B
         lines:
           - {who: A, l2: "무슨 일 하세요?", rom: "museun il haseyo?", l1: "What do you do?"}
-          - {who: B, l2: "저는 영어 선생님이에요. 초등학교에서 가르쳐요.", rom: "jeoneun yeongeo seonsaengnimieyo. chodeunghakgyoeseo gareuchyeoyo.", l1: "I'm an English teacher. I teach at a primary school.", alt: ["영어 선생님이에요. 초등학교에서 가르쳐요.", "저는 초등학교에서 영어를 가르쳐요."]}
+          - {who: B, l2: "저는 영어 선생님이에요. 초등학교에서 가르쳐요.", rom: "jeoneun yeongeo seonsaengnimieyo. chodeunghakgyoeseo gareuchyeoyo.", l1: "I'm an English teacher. I teach at a primary school.", alt: ["영어 선생님이에요. 초등학교에서 가르쳐요.", "저는 초등학교에서 영어를 가르쳐요.", "저는 영어 교사예요. 초등학교에서 가르쳐요."]}
           - {who: A, l2: "아, 그래요? 일이 재미있어요?", rom: "a, geuraeyo? iri jaemiisseoyo?", l1: "Oh, really? Do you enjoy the work?"}
           - {who: B, l2: "네, 재미있지만 좀 피곤해요.", rom: "ne, jaemiitjiman jom pigonhaeyo.", l1: "Yes, it's fun but a bit tiring.", alt: ["재미있지만 좀 피곤해요.", "네, 재미있지만 조금 피곤해요."]}
           - {who: A, l2: "저는 회사에 다녀요. 은행에서 일해요.", rom: "jeoneun hoesae danyeoyo. eunhaengeseo ilhaeyo.", l1: "I work for a company. At a bank."}
@@ -277,7 +277,7 @@ units:
       Start with the background and -는데요, which sounds polite and leaves the request open: 어제 이 신발을 샀는데요… Then: 환불돼요? / 다른 사이즈로 바꿀 수 있어요? Keep the receipt (영수증).
 
       ## Convenience stores
-      You will be asked 봉투 필요하세요? (do you need a bag?): bags cost extra. Transport cards are topped up at the till: 교통카드 충전해 주세요.
+      You will be asked 봉투 필요하세요? (do you need a bag?): bags cost extra. Transport cards are topped up at the till, usually with cash only: 교통카드 충전해 주세요.
 
       Bargaining (깎아 주세요) is fine at traditional markets and street stalls, not in shops with price tags.
     items:
@@ -290,7 +290,7 @@ units:
           - {who: A, l2: "찾으시는 거 있으세요?", rom: "chajeusineun geo isseuseyo?", l1: "Are you looking for anything in particular?"}
           - {who: B, l2: "이 바지 입어 봐도 돼요?", rom: "i baji ibeo bwado dwaeyo?", l1: "May I try these trousers on?", alt: ["이거 입어 봐도 돼요?", "이 바지 입어 볼 수 있어요?"]}
           - {who: A, l2: "네, 탈의실은 저쪽이에요. 사이즈가 어떻게 되세요?", rom: "ne, taruisireun jeojjogieyo. saijeuga eotteoke doeseyo?", l1: "Of course, the fitting room is over there. What size are you?"}
-          - {who: B, l2: "보통 미디엄 입어요.", rom: "botong midieom ibeoyo.", l1: "I usually wear a medium.", alt: ["미디엄이요.", "보통 M 사이즈 입어요."]}
+          - {who: B, l2: "보통 미디엄 입어요.", rom: "botong midieom ibeoyo.", l1: "I usually wear a medium.", alt: ["미디엄이요.", "보통 M 사이즈 입어요.", "보통 엠 사이즈 입어요."]}
           - {who: A, l2: "어떠세요? 잘 맞으세요?", rom: "eotteoseyo? jal majeuseyo?", l1: "How are they? Do they fit?"}
           - {who: B, l2: "좀 길어요. 더 짧은 거 있어요?", rom: "jom gireoyo. deo jjalbeun geo isseoyo?", l1: "They're a bit long. Do you have shorter ones?", alt: ["좀 길어요. 짧은 거 있어요?", "조금 길어요. 더 짧은 거 있어요?"]}
           - {who: A, l2: "네, 이거 한번 입어 보세요.", rom: "ne, igeo hanbeon ibeo boseyo.", l1: "Yes, try these."}
@@ -663,7 +663,7 @@ units:
         lines:
           - {who: A, l2: "민수 씨, 미안한데요. 약속 시간을 좀 바꿀 수 있어요?", rom: "minsu ssi, mianhandeyo. yaksok siganeul jom bakkul su isseoyo?", l1: "Minsu, I'm sorry, but could we change the time?", alt: ["미안한데요. 약속 시간을 좀 바꿀 수 있어요?", "민수 씨, 죄송한데요. 약속 시간 좀 바꿀 수 있어요?"]}
           - {who: B, l2: "네, 괜찮아요. 무슨 일 있어요?", rom: "ne, gwaenchanayo. museun il isseoyo?", l1: "Sure, no problem. Has something come up?"}
-          - {who: A, l2: "갑자기 회의가 생겼어요.", rom: "gapjagi hoeuiga saenggyeosseoyo.", l1: "A meeting has suddenly come up.", alt: ["회의가 생겼어요.", "갑자기 회의가 있어요."]}
+          - {who: A, l2: "갑자기 회의가 생겼어요.", rom: "gapjagi hoeuiga saenggyeosseoyo.", l1: "A meeting has suddenly come up.", alt: ["회의가 생겼어요.", "갑자기 회의가 잡혔어요."]}
           - {who: B, l2: "그럼 몇 시에 만날까요?", rom: "geureom myeot sie mannalkkayo?", l1: "So what time shall we meet?"}
           - {who: A, l2: "일곱 시 반은 어때요?", rom: "ilgop si baneun eottaeyo?", l1: "How about half past seven?", alt: ["일곱 시 반 어때요?", "7시 반은 어때요?"]}
           - {who: B, l2: "좋아요. 그럼 일곱 시 반에 거기서 봐요.", rom: "joayo. geureom ilgop si bane geogiseo bwayo.", l1: "Fine. See you there at half past seven, then."}
@@ -691,7 +691,7 @@ units:
           - {who: A, l2: "이번 토요일에 팀 사람들하고 등산 가요. 같이 갈래요?", rom: "ibeon toyoire tim saramdeulhago deungsan gayo. gachi gallaeyo?", l1: "The team is going hiking this Saturday. Do you want to come?"}
           - {who: B, l2: "저도 가고 싶어요. 몇 시에 출발해요?", rom: "jeodo gago sipeoyo. myeot sie chulbalhaeyo?", l1: "I'd love to come. What time do you set off?", alt: ["좋아요. 몇 시에 출발해요?", "네, 갈게요. 몇 시에 출발해요?"]}
           - {who: A, l2: "아침 일곱 시에 회사 앞에서 출발해요.", rom: "achim ilgop sie hoesa apeseo chulbalhaeyo.", l1: "We leave from outside the office at seven in the morning."}
-          - {who: B, l2: "일찍 가네요! 뭐 가져가야 돼요?", rom: "iljjik ganeyo! mwo gajyeogaya dwaeyo?", l1: "That's early! What should I bring?", alt: ["뭐 가져가야 돼요?", "뭐 가져가야 해요?"]}
+          - {who: B, l2: "일찍 가네요! 뭐 가져가야 돼요?", rom: "iljjik ganeyo! mwo gajyeogaya dwaeyo?", l1: "That's early! What should I bring?", alt: ["뭐 가져가야 돼요?", "뭐 가져가야 해요?", "일찍 출발하네요! 뭐 가져가야 돼요?"]}
           - {who: A, l2: "물하고 간식만 가져오세요. 점심은 같이 먹어요.", rom: "mulhago gansingman gajyeooseyo. jeomsimeun gachi meogeoyo.", l1: "Just bring water and snacks. We'll have lunch together."}
           - {who: B, l2: "등산화가 없는데 운동화도 괜찮아요?", rom: "deungsanhwaga eomneunde undonghwado gwaenchanayo?", l1: "I don't have hiking boots. Are trainers okay?", alt: ["운동화 신어도 돼요?", "운동화도 괜찮아요?"]}
           - {who: A, l2: "네, 괜찮아요. 쉬운 산이에요.", rom: "ne, gwaenchanayo. swiun sanieyo.", l1: "Yes, that's fine. It's an easy mountain."}
@@ -750,7 +750,7 @@ units:
           - {who: A, l2: "지금 자리에 안 계세요. 메시지 남겨 드릴까요?", rom: "jigeum jarie an gyeseyo. mesiji namgyeo deurilkkayo?", l1: "He's not at his desk at the moment. Shall I take a message?"}
           - {who: B, l2: "네, 저는 사라예요. 전화 부탁드려요.", rom: "ne, jeoneun sarayeyo. jeonhwa butakdeuryeoyo.", l1: "Yes, this is Sara. Please ask him to call me.", alt: ["네, 사라예요. 전화 부탁드려요.", "제 이름은 사라예요. 전화 부탁드립니다."]}
           - {who: A, l2: "네, 전화번호가 어떻게 되세요?", rom: "ne, jeonhwabeonhoga eotteoke doeseyo?", l1: "Certainly. What's your number?"}
-          - {who: B, l2: "공일공, 일이삼사, 오육칠팔이에요.", rom: "gongilgong, irisamsa, oyukchilparieyo.", l1: "It's 010-1234-5678.", alt: ["공일공 일이삼사 오육칠팔이에요.", "010-1234-5678이에요."]}
+          - {who: B, l2: "공일공, 일이삼사, 오육칠팔이에요.", rom: "gongilgong, irisamsa, oyukchilparieyo.", l1: "It's 010-1234-5678.", alt: ["공일공 일이삼사 오육칠팔이에요.", "010-1234-5678이에요.", "공일공에 일이삼사에 오육칠팔이에요.", "gongilgong ilisamsa oyukchilparieyo"]}
           - {who: A, l2: "네, 전해 드릴게요.", rom: "ne, jeonhae deurilgeyo.", l1: "Thank you. I'll pass it on."}
           - {who: B, l2: "감사합니다. 안녕히 계세요.", rom: "gamsahamnida. annyeonghi gyeseyo.", l1: "Thank you. Goodbye.", alt: ["감사합니다.", "네, 감사합니다."]}
 
