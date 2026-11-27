@@ -121,17 +121,21 @@ def _careful_orders(st: dict, c: dict, seen_alerts: set) -> None:
     if colony._season(c) != 3 and c["res"]["rice"] < eat * 8 and farmers >= 2 * colony._lvl(c, "fields") \
             and not any(b["room"] == "fields" for b in c["builds"]):
         colony.queue_build(st, "fields", T0)            # the terraces are full and the granary is thin: more terraces
-    if len(c["builds"]) < 2 and not winter_soon:
+    slots = colony.builders(c) if hasattr(colony, "builders") else 2
+    while len(c["builds"]) < slots and not winter_soon:      # every free builder takes the next thing in the plan
         built: dict = {}
+        queued = False
         for room in BUILD_ORDER:
             built[room] = built.get(room, 0) + 1
             have = colony._lvl(c, room) + sum(1 for b in c["builds"] if b["room"] == room)
             if have >= built[room]:
                 continue
-            if colony.queue_build(st, room, T0)["ok"]:
-                break
-            short = {k for k, v in colony.room_cost(c, room, have).items() if c["res"][k] < v}
+            queued = colony.queue_build(st, room, T0)["ok"]
+            if not queued:
+                short = {k for k, v in colony.room_cost(c, room, have).items() if c["res"][k] < v}
             break                   # wait for the materials for the next thing in the plan
+        if not queued:
+            break
     # farmers put the harvest ahead of the cushion until the snow, then sit again
     for p in c["pawns"]:
         if winter_soon and p["prio"].get("farm") == 2 and p["prio"].get("meditate") == 2 and not p.get("master"):
@@ -196,6 +200,7 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
         return res
     colony.attempt = attempt
     stolen_was = 0.0
+    slot_hours = [0, 0]                    # builder-slot hours to day 60, and of those the hours a slot stood empty
     event_days: set = set()              # days with something to decide (a letter alone does not count)
     work_jobs = {v[0].lower() for v in colony.JOBS.values()}
     hours: dict = {}                       # pawn id -> [working hours, of which meditating, name]
@@ -221,6 +226,9 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
                     colony.resolve(st, ev["options"][-1]["id"], T0)
             if profile == "careful":
                 _careful_orders(st, c, seen_alerts)
+            if hasattr(colony, "builders") and colony._day(c) < 60:
+                slot_hours[0] += colony.builders(c)
+                slot_hours[1] += max(0, colony.builders(c) - len(c["builds"]))
             if c["tally"]["stolen"] > stolen_was + 0.5:          # a raid or a thief carried something off
                 out["thefts"] += 1
             stolen_was = c["tally"]["stolen"]
@@ -267,6 +275,7 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
         colony._battle = real_battle
         colony.attempt = real_attempt
     out["bts"] = bts
+    out["idle_builder"] = round(slot_hours[1] / slot_hours[0], 2) if slot_hours[0] else None
     out.setdefault("risk80", out["infil"] + out["thefts"])
     out.setdefault("techs70", len(c["research"]["done"]))
     gaps, last = [], 4                        # counted from the first threat (day 5) on
@@ -307,6 +316,6 @@ if __name__ == "__main__":
                       f"plague_dead={r['plague_dead']} techs70={r['techs70']} rivals={r['rivals_max']} infil={r['infil']} thefts={r['thefts']} "
                       f"risk80={r['risk80']} bt_fail={sum(1 for b in r['bts'] if not b[2])}/{len(r['bts'])} "
                       f"bt_fail_fe+={sum(1 for b in r['bts'] if not b[2] and b[0] >= 2)}/{sum(1 for b in r['bts'] if b[0] >= 2)} "
-                      f"loss={r['loss']} ({time.time() - t:.1f}s)", flush=True)
+                      f"idle_builder={r['idle_builder']} loss={r['loss']} ({time.time() - t:.1f}s)", flush=True)
                 if "-v" in sys.argv:
                     print("   ", r["fights"])

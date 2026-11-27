@@ -812,10 +812,9 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
         _add(c, "herbs", out * GATHER["herbs"] * (0.3 if _season(c) == 3 else 1.0) * STORYTELLERS[c["storyteller"]]["yield"])
     elif job == "build":
         # a helper: up to HELPERS_PER_SITE at each running job, in order; the builder's hour is added in _tick_builds
-        sites = _running(c)
-        site = (taken.get("build", 1) - 1) // HELPERS_PER_SITE
+        sites = [x for x in _running(c) if len(x.get("crew_now", [])) < HELPERS_PER_SITE]
         if sites:
-            b = sites[min(site, len(sites) - 1)]
+            b = sites[0]
             x = HELPER_X * out
             b["boost"] = b.get("boost", 0.0) + x
             b.setdefault("crew_now", []).append([p["name"], int(p["skills"]["build"]["lv"]), round(x, 2)])
