@@ -1,0 +1,552 @@
+# CompTIA Security+ SY0-801 - Domain 3 "Security Architecture" (19%), advanced part.
+# Original content written against the public exam objectives. No real exam items.
+# sp-3c completes the coverage of objectives 3.1-3.4; sp-3d and sp-3e are
+# exam-hard scenario practice (3d: objectives 3.1-3.2, 3e: objectives 3.3-3.4).
+part_of: security-plus
+units:
+  # ───────────────────────── Coverage ─────────────────────────
+  - id: sp-3c
+    title: "Security architecture: completing the map"
+    domain: "3"
+    goal: "I can explain every remaining Domain 3 term: cloud deployment models, segmentation, data classes, data roles and handling, and the redundancy and testing options behind a recovery design."
+    notes: |
+      This unit fills in everything Domain 3 lists that the first two units left out.
+
+      ## Models and infrastructure
+      Cloud comes as **public**, **private**, **community** and **multicloud**. Each is weighed on *technical* considerations (availability, resilience, usability, responsibility, compute, power, ease of recovery) and *business* ones (sovereignty, classification, cost, ownership, scalability, risk). Networks are split **physically** (separate hardware) or **logically** (VLANs, subnets) into **security zones**.
+
+      ## Data
+      Data is **structured** or **unstructured**, and classified. Names vary, but two ladders are common:
+
+      | Scheme | Lowest to highest |
+      |---|---|
+      | Commercial | public, sensitive, confidential, restricted |
+      | Government | confidential, secret, top secret |
+
+      *Critical* rates how badly the business needs the data, not how secret it is. Handling follows the label: **labeling**, **geofencing**, storage location, and a **life cycle** that ends in disposal.
+
+      ## Resilience
+      - **Redundancy**: load balancing, clustering, autoscaling, dual power supplies, generators.
+      - **Testing**, mildest first: simulation, parallel processing, failover.
+      - **Disaster recovery** restores IT; **business continuity** keeps the whole organization working.
+    items:
+      # --- 3.1 architecture models ---
+      - {id: sp-3c-public-cloud, type: concept, term: "Public cloud",
+         def: "Computing services run by a provider on shared infrastructure and sold to any paying customer over the internet, with tenants separated only logically."}
+      - {id: sp-3c-private-cloud, type: concept, term: "Private cloud",
+         def: "Self-service, virtualized computing resources dedicated to a single organization, whether hosted in its own data centre or by a third party."}
+      - {id: sp-3c-community-cloud, type: concept, term: "Community cloud",
+         def: "Provider-style infrastructure shared by several organizations that have the same mission or compliance needs, and closed to everyone else."}
+      - {id: sp-3c-multicloud, type: concept, term: "Multicloud",
+         def: "Using services from two or more different commercial providers at the same time, to avoid dependence on any single one."}
+      - {id: sp-3c-physical-segmentation, type: concept, term: "Physical segmentation",
+         def: "Separating networks by giving each its own switches, cabling and hardware, so that no shared device can bridge them through a configuration error."}
+      - {id: sp-3c-logical-segmentation, type: concept, term: "Logical segmentation",
+         def: "Dividing one set of shared network hardware into isolated parts through configuration, such as VLANs, subnets and access control lists."}
+      # --- 3.2 infrastructure ---
+      - {id: sp-3c-security-zone, type: concept, term: "Security zone",
+         def: "A group of network segments and systems that share the same trust level and protection requirements, with traffic to other such groups forced through a policy checkpoint."}
+      - {id: sp-3c-vendor-diversity, type: concept, term: "Vendor diversity",
+         def: "Deliberately layering protective products from different suppliers, so that one manufacturer's flaw or blind spot does not defeat every layer at once."}
+      - {id: sp-3c-fail-open, type: concept, term: "Fail-open",
+         def: "A design in which a protective device that malfunctions lets traffic or access continue unchecked, favouring uptime over protection."}
+      - {id: sp-3c-tunneling, type: concept, term: "Tunneling",
+         def: "Wrapping one protocol's packets inside another protocol's packets so they can cross a network that would not otherwise carry or protect them."}
+      - {id: sp-3c-device-health, type: concept, term: "Device health check",
+         def: "In a Zero Trust design, the signal the policy engine weighs on every request for an application: whether the endpoint is a known, inventoried machine that still has current patches and its required protections."}
+      - {id: sp-3c-sftp, type: concept, term: "SFTP (SSH File Transfer Protocol)",
+         def: "A protocol that moves files, and the login that precedes them, inside a single encrypted Secure Shell session on TCP port 22."}
+      # --- 3.3 data ---
+      - {id: sp-3c-structured, type: concept, term: "Structured data",
+         def: "Information organized into predefined fields, such as the rows and columns of a relational database, which makes it easy to search and to protect field by field."}
+      - {id: sp-3c-unstructured, type: concept, term: "Unstructured data",
+         def: "Information with no predefined field layout, such as email text, documents, images and recordings, which is hard to discover and classify automatically."}
+      - {id: sp-3c-restricted, type: concept, term: "Restricted data",
+         def: "A commercial classification, usually the highest, for information limited to specifically named people because its release would cause severe harm."}
+      - {id: sp-3c-critical, type: concept, term: "Critical data",
+         def: "A classification for information the organization cannot operate without, rated by the impact of losing it rather than by how secret it is."}
+      - {id: sp-3c-labeling, type: concept, term: "Data labeling",
+         def: "Attaching a visible marking or metadata tag that states an item's classification, so that people and automated tools know how it must be handled."}
+      - {id: sp-3c-deidentification, type: concept, term: "Deidentification",
+         def: "Removing or generalizing the details in a data set that point to specific individuals, so that the records can be used without revealing whose they are."}
+      - {id: sp-3c-steward, type: concept, term: "Data steward",
+         def: "The role that looks after the quality, consistency, meaning and correct classification marking of a data set day to day, on behalf of the accountable person."}
+      - {id: sp-3c-operator, type: concept, term: "Data operator",
+         def: "A person who works with information as a routine part of the job, entering, updating or using records, and who must follow the handling rules others have set."}
+      - {id: sp-3c-subprocessor, type: concept, term: "Subprocessor",
+         def: "A third party engaged by a company that is itself handling personal information on another organization's behalf, to carry out part of that handling."}
+      - {id: sp-3c-geofencing, type: concept, term: "Geofencing",
+         def: "Using a device's position to enforce a virtual boundary, so that information or functions are available only while the device is inside an approved area."}
+      - {id: sp-3c-data-lifecycle, type: concept, term: "Data life cycle",
+         def: "The stages information passes through from start to end: creation, management, distribution, retention and disposal."}
+      - {id: sp-3c-regulated-data, type: concept, term: "Regulated (compliance) data",
+         def: "Information whose protection is mandated by a law or an industry rule, such as health records, payment card numbers and personal identifiers."}
+      # --- 3.4 resilience ---
+      - {id: sp-3c-warm-site, type: concept, term: "Warm site",
+         def: "An alternate facility with hardware and connectivity installed but without current data or full configuration, typically needing hours to days before it can take over."}
+      - {id: sp-3c-platform-diversity, type: concept, term: "Platform diversity",
+         def: "Running a service on a mix of operating systems, hardware types or hosting environments, so that a single fault or bad update cannot take down every instance."}
+      - {id: sp-3c-clustering, type: concept, term: "Clustering",
+         def: "Joining several servers so that they act as one system and monitor each other, with a surviving member taking over the workload when another fails."}
+      - {id: sp-3c-autoscaling, type: concept, term: "Autoscaling",
+         def: "Automatically adding or removing computing instances as measured demand rises and falls."}
+      - {id: sp-3c-high-availability, type: concept, term: "High availability (HA)",
+         def: "A design goal of keeping a service running almost without interruption by removing single points of failure, often stated as a percentage of uptime."}
+      - {id: sp-3c-rps, type: concept, term: "Redundant power supply (RPS)",
+         def: "A second internal unit converting mains electricity for a device, so that the device keeps running if the first unit or its feed fails."}
+      - {id: sp-3c-failover-test, type: concept, term: "Failover test",
+         def: "A recovery exercise in which production is really switched over to the alternate site or system, proving the cutover works at the cost of real risk to operations."}
+      - {id: sp-3c-parallel-test, type: concept, term: "Parallel processing test",
+         def: "A recovery exercise in which the alternate systems are brought up and handle real work alongside production, which carries on running untouched."}
+      - {id: sp-3c-simulation-test, type: concept, term: "Simulation test",
+         def: "A recovery exercise in which the team performs its response to a staged disaster scenario under realistic conditions, without moving production workloads."}
+      - {id: sp-3c-capacity-planning, type: concept, term: "Capacity planning",
+         def: "Forecasting the people, technology and infrastructure that will be needed to meet future demand, including the extra load carried when a component is lost."}
+      # --- coverage questions ---
+      - {id: sp-3c-q01, type: mcq,
+         q: "A web application runs on one server that regularly reaches 100% CPU. The team adds three identical servers and needs requests spread across all four, with any server that stops answering health checks removed from rotation. Which component provides this?",
+         choices: ["A load balancer", "An active/passive cluster", "A redundant power supply", "A warm site"],
+         answer: 0,
+         why: "A load balancer distributes requests across a pool and stops sending traffic to members that fail health checks. An active/passive cluster keeps only one node serving at a time, so it would not spread the load."}
+      - {id: sp-3c-q02, type: mcq,
+         q: "A storm cuts utility power to a data centre for 12 hours. The UPS units carried the load for the 15 minutes they were designed for, then every server shut down. Which addition would have kept the site running?",
+         choices: ["A surge protector on each rack", "A generator with sufficient fuel", "A redundant power supply in each server", "A second UPS of the same runtime in parallel"],
+         answer: 1,
+         why: "A UPS only bridges short gaps; sustained outages need a generator. Redundant power supplies protect against a failed supply unit, not against the loss of all incoming power."}
+      - {id: sp-3c-q03, type: mcq,
+         q: "A company buys a DLP tool, but the tool cannot tell which documents are confidential and which are public. What must be done to the documents so that the tool can apply the right rule?",
+         choices: ["Masking", "Tokenization", "Labeling", "Geofencing"],
+         answer: 2,
+         why: "Labeling attaches the classification to each item as a marking or metadata tag that tools can read. Masking and tokenization change the data's value; they do not tell a tool what class the data is."}
+      - {id: sp-3c-q04, type: mcq,
+         q: "An API returns each customer's full record, including the national ID number, to a partner application that needs only the name and order status. The developers change the API so the unneeded fields are removed from every response. Which data protection method is this?",
+         choices: ["Masking", "Hashing", "Tokenization", "Filtering"],
+         answer: 3,
+         why: "Filtering removes data that the recipient has no need for before it leaves. Masking would still send the field with part of its value hidden, and tokenization would send a substitute for it."}
+      - {id: sp-3c-q05, type: mcq,
+         q: "Under the United States government scheme, unauthorized disclosure of a certain document could be expected to cause 'exceptionally grave damage' to national security. Which classification applies?",
+         choices: ["Secret", "Top secret", "Confidential", "Restricted"],
+         answer: 1,
+         why: "Top secret is defined by exceptionally grave damage. Secret is the level below it, defined by serious damage, and confidential by damage."}
+      - {id: sp-3c-q06, type: mcq,
+         q: "The communications team has approved a product announcement for release to the press and for the company website. Which classification fits the announcement once approved?",
+         choices: ["Public", "Sensitive", "Confidential", "Critical"],
+         answer: 0,
+         why: "Information approved for anyone to see is public, and its disclosure causes no harm. Sensitive is the next step up in a typical commercial scheme and still means the item is not for general release."}
+      - {id: sp-3c-q07, type: mcq,
+         q: "A retailer's own data centre is sized for the December peak and sits about 80% idle for the rest of the year. Of the following business considerations, which one most favours moving this workload to a public cloud?",
+         choices: ["Data sovereignty", "Ownership", "Classification", "Scalability"],
+         answer: 3,
+         why: "A public cloud can grow for the peak and shrink afterwards, so the retailer stops paying for idle capacity. Ownership and sovereignty tend to argue for keeping systems on-premises, not for moving."}
+      - {id: sp-3c-q08, type: mcq,
+         q: "A company rents virtual machines from an infrastructure-as-a-service provider. Which task is the company's responsibility?",
+         choices: ["Securing the hypervisor", "Controlling physical access to the data centre", "Patching the guest operating systems", "Replacing failed disks in the host servers"],
+         answer: 2,
+         why: "In IaaS the customer manages everything from the guest operating system upward. The hypervisor, the hardware and the building belong to the provider."}
+      - {id: sp-3c-q09, type: mcq,
+         q: "One server was built by hand and changed informally for years; nobody can say exactly how it is configured. Its replacement is deployed from a stored image and a version-controlled template. Which technical consideration is improved most by the new approach?",
+         choices: ["Ease of recovery", "Usability", "Compute", "Power"],
+         answer: 0,
+         why: "A system defined by an image and a template can be rebuilt quickly and identically after a failure. Usability concerns how easily people can work with a system, which the build method does not change."}
+      - {id: sp-3c-q10, type: mcq,
+         q: "After a server loss, the database restores correctly from backup, but the application will not start: its configuration files and encryption keys lived on a different server that was never backed up. Which backup attribute was defined wrongly?",
+         choices: ["Retention", "Scope", "Immutability", "Frequency"],
+         answer: 1,
+         why: "Scope is what the backup includes; it left out components the service depends on. Retention is how long copies are kept, which was not the problem here."}
+      - {id: sp-3c-q11, type: mcq,
+         q: "A script silently corrupted records 45 days ago, and the damage is noticed only today. Every available backup already contains the corrupted records because copies older than 30 days are deleted. Which backup attribute needs to change?",
+         choices: ["Scope", "Immutability", "Retention", "Restoration testing"],
+         answer: 2,
+         why: "Retention sets how far back a restore can reach; 30 days is too short for a problem found after 45. Immutability stops copies being altered before they expire, but they still expired on schedule."}
+      - {id: sp-3c-q12, type: mcq,
+         q: "A new design forces staff to re-enter a 20-character password every ten minutes. Within a month, staff are sharing files through personal email accounts to avoid the system. Which technical consideration did the architects neglect?",
+         choices: ["Availability", "Resilience", "Compute", "Usability"],
+         answer: 3,
+         why: "Controls that are too burdensome get bypassed, which leaves the organization less secure than before. The system was available and resilient; people simply would not use it."}
+      - {id: sp-3c-q13, type: mcq,
+         q: "A battery-powered field sensor built on an 8-bit microcontroller cannot run an endpoint agent or perform modern public-key cryptography. Which consideration explains the limitation?",
+         choices: ["Limited compute and power", "Data sovereignty", "Vendor lock-in", "Lack of scalability"],
+         answer: 0,
+         why: "Small embedded and OT devices have little processing capacity and energy, so heavyweight controls will not fit, and protection has to come from the surrounding network. The other choices are business concerns unrelated to the device's hardware."}
+      - {id: sp-3c-q14, type: mcq,
+         q: "A contractor must administer one Linux server for two weeks. Which remote access design best applies least privilege?",
+         choices: ["A VPN account that places the contractor's laptop on the server VLAN", "Brokered access to that one server through a gateway, using an account that expires after two weeks", "The server's SSH port published to the internet with a strong password", "A shared administrator login already used by the internal team"],
+         answer: 1,
+         why: "Access limited to one host, for a limited time, through a controlled gateway grants only what the task needs. A VPN onto the server VLAN exposes every other server in that segment to the contractor's laptop."}
+      - {id: sp-3c-q15, type: mcq,
+         q: "A defence supplier insists on holding title to every server, keeping physical custody of its data, and controlling every layer of the stack, and it accepts the capital cost and the full security burden. Which architecture model fits?",
+         choices: ["Public cloud", "Community cloud", "On-premises", "Multicloud"],
+         answer: 2,
+         why: "On-premises gives full ownership and control, along with full responsibility for securing everything. A community cloud is shared with other organizations and run on infrastructure the supplier would not own outright."}
+
+  # ───────────────────────── Exam-hard practice 1 ─────────────────────────
+  - id: sp-3d
+    title: "Exam-hard practice: architecture models and infrastructure"
+    domain: "3"
+    goal: "I can solve scenario questions on cloud responsibility, segmentation, Zero Trust, secure access and failure modes at a level above the real exam."
+    notes: |
+      These questions cover objectives **3.1** (architecture models) and **3.2** (protecting the infrastructure) and are written to be harder than the exam. Expect config snippets, rule lists and log lines in the stem.
+
+      How to work them:
+
+      - **Find the layer first.** In cloud questions, ask who operates the thing that failed. Code and settings are almost always the customer's; hosts and buildings are the provider's.
+      - **Read the requirement, not the technology.** "Must keep flowing" means *fail-open*; "must never pass uninspected" means *fail-closed*. "Cannot be bridged by misconfiguration" means *physical*, not logical, separation.
+      - **Zero Trust never trusts location.** Any answer that grants access because a request comes from "inside" is wrong.
+      - **Prefer the structural fix.** A dedicated management network beats a longer password; a pipeline check beats a quarterly review.
+
+      | Near-neighbours | Tell them apart by |
+      |---|---|
+      | Hybrid vs multicloud | own infrastructure plus a provider vs several providers |
+      | ESP vs AH | ESP encrypts; AH only authenticates |
+      | Tunnel vs transport mode | whole packet wrapped vs original header kept |
+      | SFTP vs FTPS | one SSH port vs separate TLS control and data channels |
+    items:
+      - {id: sp-3d-q01, type: mcq,
+         q: "A team deploys its code to a managed platform-as-a-service offering. An investigation finds two weaknesses: a SQL injection flaw in the team's code, and a missing kernel patch on the hosts that run the platform's runtime. Under the shared responsibility model, who must fix each?",
+         choices: ["The provider fixes both, because it operates the platform", "The customer fixes the injection flaw; the provider patches the hosts", "The customer fixes both, because it owns the application", "The provider fixes the injection flaw; the customer patches the hosts"],
+         answer: 1,
+         why: "In PaaS the provider maintains the operating system and runtime while the customer remains responsible for its own code and data. The customer has no access to the platform hosts, so it cannot patch them."}
+      - {id: sp-3d-q02, type: mcq,
+         q: "A storage bucket holding invoices is found with this policy: Principal '*', Action 'GetObject', Effect 'Allow'. The company has 40 cloud accounts and wants the BEST way to stop this misconfiguration from ever being deployed again. What should it implement?",
+         choices: ["Provider-managed encryption at rest on every bucket", "A quarterly manual review of bucket policies in each account", "Infrastructure templates deployed through a pipeline that rejects public-access policies", "A longer retention period for bucket access logs"],
+         answer: 2,
+         why: "An automated policy check in the deployment pipeline prevents the bad setting before it exists, in every account. Provider-managed encryption at rest does not help, because the service decrypts objects for anyone the policy allows to read them."}
+      - {id: sp-3d-q03, type: mcq,
+         q: "To survive a provider-wide outage, a company runs its customer portal actively in two different public cloud providers. Which security risk does this decision MOST increase?",
+         choices: ["Inconsistent security settings across two different control planes", "Vendor lock-in to a single provider", "A single point of failure at the provider level", "Loss of physical custody of previously on-premises hardware"],
+         answer: 0,
+         why: "Each provider has its own identity system, network controls and logging, so keeping policy equivalent on both is hard and gaps appear. Multicloud reduces lock-in and provider-level single points of failure; it does not increase them."}
+      - {id: sp-3d-q04, type: mcq,
+         q: "Five regional hospitals jointly fund infrastructure that is built to meet the same health-data regulation and operated for them by a third party. No other organization may use it. Which cloud deployment model is this?",
+         choices: ["Public cloud", "Private cloud", "Hybrid cloud", "Community cloud"],
+         answer: 3,
+         why: "Infrastructure shared by several organizations with common compliance needs, and closed to outsiders, is a community cloud. A private cloud serves one organization only."}
+      - {id: sp-3d-q05, type: mcq,
+         q: "A company rewrites its order-processing service as serverless functions triggered by messages on a queue. Which security task remains MOST important for the company's own team?",
+         choices: ["Patching the operating system of the function hosts", "Giving each function a narrowly scoped role and validating the event data it receives", "Hardening the hypervisor that separates tenants", "Installing endpoint agents on the function hosts"],
+         answer: 1,
+         why: "With serverless the provider runs the hosts, so what is left to the customer is the code, its input handling and the permissions each function holds. Host patching, hypervisors and host agents are outside the customer's reach."}
+      - {id: sp-3d-q06, type: mcq,
+         q: "An application consists of 40 microservices that call each other in plaintext over the internal network with no authentication. After one service is compromised, the attacker calls every other service freely. Which change BEST addresses the weakness?",
+         choices: ["A web application firewall at the internet edge", "One API key shared by all 40 services", "Mutual TLS between services, with a separate identity for each service", "Moving all 40 services into a single VLAN"],
+         answer: 2,
+         why: "Mutual TLS authenticates both ends of every call and encrypts it, and per-service identities let each service accept only its expected callers. An edge firewall never sees service-to-service traffic, and a shared key is known to the compromised service too."}
+      - {id: sp-3d-q07, type: mcq,
+         q: "A template in the repository allows SSH to the application servers only from 10.0.5.0/24. During an outage an engineer uses the cloud console to add a rule allowing SSH from 0.0.0.0/0, and the rule is still there a month later. What is this condition, and what is the BEST response?",
+         choices: ["Configuration drift; re-apply the template and require changes to go through the repository", "Configuration drift; edit the template to match what is now in the console", "Privilege creep; remove the engineer's console access", "Shadow IT; block the cloud provider's console at the proxy"],
+         answer: 0,
+         why: "A live environment that no longer matches its declared definition has drifted, and the fix is to restore the reviewed state and make the repository the only path for change. Updating the template to match would make the insecure rule permanent and approved."}
+      - {id: sp-3d-q08, type: mcq,
+         q: "Plant controllers run firmware that cannot be patched without a three-week shutdown. Engineers on the corporate network need read-only production figures from the plant historian, and nothing on the corporate network may be able to send traffic into the plant. Which design BEST meets both needs?",
+         choices: ["A VPN from the corporate network to each controller", "A VLAN for the controllers on the corporate switches with an access control list", "Endpoint detection agents installed on the controllers", "A one-way gateway that passes data from the plant network out to the corporate network only"],
+         answer: 3,
+         why: "A unidirectional gateway lets data leave the plant while making inbound traffic physically impossible, so the unpatchable controllers stay unreachable. A VLAN with an access list is logical separation that one rule change can undo."}
+      - {id: sp-3d-q09, type: mcq,
+         q: "A research network is air-gapped: it has no connection of any kind to another network. Which attack vector is MOST likely to remain a realistic way in?",
+         choices: ["A phishing link clicked by a researcher on a lab workstation", "DNS tunneling from a lab server", "Removable media carried in by maintenance staff", "A drive-by download from a compromised website"],
+         answer: 2,
+         why: "With no network path, malware has to be carried across physically, and USB drives and service laptops are the classic route. Phishing links, DNS tunneling and drive-by downloads all require connectivity that an air gap removes."}
+      - {id: sp-3d-q10, type: mcq,
+         q: "A store keeps its payment terminals on VLAN 40 and guest Wi-Fi on VLAN 90, both on the same switches. A mistyped trunk setting briefly joined the two. Management now requires that no single switch configuration error can ever connect them. Which change meets the requirement?",
+         choices: ["Dedicated switches and cabling for the payment terminals", "Private VLANs on the existing switches", "An access control list between VLAN 40 and VLAN 90", "A separate IP subnet and routing table for VLAN 40 on the same switches"],
+         answer: 0,
+         why: "Only physical segmentation removes the shared device whose configuration could bridge the networks. Private VLANs, access lists and separate routing tables are all logical controls on the same switches, so one error can still defeat them."}
+      - {id: sp-3d-q11, type: mcq,
+         q: "An intrusion detection sensor is connected outside the perimeter firewall and raises thousands of alerts a day for scans that the firewall drops anyway. Analysts want alerts only for traffic that actually reaches the user LAN. Where should the sensor be placed?",
+         choices: ["Inline between the internet router and the firewall", "On a tap on the internal side of the firewall", "On the out-of-band management switch", "On a second mirror port at the ISP handoff"],
+         answer: 1,
+         why: "Placed behind the firewall, the sensor sees only what the firewall allowed through, which is the traffic that matters to the user LAN. Any position on the internet side still sees all the blocked noise."}
+      - {id: sp-3d-q12, type: mcq,
+         q: "A designer must choose failure behaviour for two systems: the electronic locks on the emergency exits of an occupied office, and the firewall between the cardholder data network and the internet. Which pairing is correct?",
+         choices: ["Exit locks fail closed; firewall fails open", "Exit locks fail closed; firewall fails closed", "Exit locks fail open; firewall fails open", "Exit locks fail open; firewall fails closed"],
+         answer: 3,
+         why: "Human safety comes first, so exit doors must release when power or control is lost, while a firewall guarding card data should block traffic rather than pass it unfiltered. Locks that fail closed could trap people in a fire."}
+      - {id: sp-3d-q13, type: mcq,
+         q: "An inline intrusion prevention sensor in front of a payment system is configured with 'bypass-on-failure: enabled'. An auditor flags the setting. Which risk is the auditor MOST likely concerned about?",
+         choices: ["An attacker can overload the sensor so that traffic then passes uninspected", "A sensor fault will halt all payment traffic", "The sensor will be unable to inspect encrypted sessions", "The sensor will generate more false positives"],
+         answer: 0,
+         why: "Bypass on failure is fail-open: when the sensor stops working, traffic flows without inspection, so deliberately crashing or flooding it becomes a way around it. Halting all payments is the consequence of the opposite setting, fail-closed."}
+      - {id: sp-3d-q14, type: mcq,
+         q: "A Zero Trust access broker logs: user=jlee mfa=pass device_id=unknown managed=false app=payroll decision=deny. The same user reaches payroll from her work laptop a minute later. What is the MOST likely reason for the denial?",
+         choices: ["The user failed authentication", "The payroll application is not published through the broker", "The device is not in the inventory of managed devices", "The user's account has accumulated excess privileges"],
+         answer: 2,
+         why: "MFA passed, but the device is unknown and unmanaged, so the policy has no evidence of its health and refuses it. The application is clearly published, since the same user reaches it from a managed laptop."}
+      - {id: sp-3d-q15, type: mcq,
+         q: "Remote laptops connect with this VPN profile: split-tunnel enabled; tunneled routes 10.0.0.0/8. Policy now requires that all web traffic from remote laptops passes through the corporate proxy for inspection. Which change achieves this?",
+         choices: ["Add 172.16.0.0/12 to the tunneled routes", "Disable split tunneling so that all traffic is sent through the VPN", "Change the VPN from IPsec to TLS", "Move the VPN concentrator into the screened subnet"],
+         answer: 1,
+         why: "With split tunneling, only traffic for 10.0.0.0/8 enters the tunnel and internet traffic leaves directly from the laptop; a full tunnel sends everything to headquarters, where the proxy can inspect it. Adding another private range still leaves internet traffic outside the tunnel."}
+      - {id: sp-3d-q16, type: mcq,
+         q: "Two office gateways will be joined by IPsec across the internet. The design must encrypt the payload and also hide the internal source and destination addresses of each packet. Which combination is required?",
+         choices: ["AH in transport mode", "ESP in transport mode", "AH in tunnel mode", "ESP in tunnel mode"],
+         answer: 3,
+         why: "ESP provides encryption, and tunnel mode wraps the whole original packet, including its internal addresses, inside a new packet between the gateways. Transport mode leaves the original IP header exposed, and AH authenticates without encrypting anything."}
+      - {id: sp-3d-q17, type: mcq,
+         q: "A partner sends a nightly batch file by FTP on port 21. The replacement must encrypt both the credentials and the data, authenticate the unattended job with a key pair, and need only one TCP port opened on the firewall. Which protocol BEST fits?",
+         choices: ["SFTP", "FTPS", "TFTP", "FTP in passive mode"],
+         answer: 0,
+         why: "SFTP runs entirely inside one SSH session on TCP 22 and supports key-based authentication for automated jobs. FTPS also encrypts, but it keeps FTP's separate control and data channels, so more ports must be opened."}
+      - {id: sp-3d-q18, type: mcq,
+         q: "Switch management interfaces answer SSH from the user VLAN. After a phished workstation is used to guess a switch password, which change BEST protects the switches?",
+         choices: ["Moving SSH on the switches to a non-standard port", "Requiring longer passwords on the switch accounts", "Moving management interfaces to a dedicated network reachable only through a hardened jump server", "Replacing SSH with web-based management on the user VLAN"],
+         answer: 2,
+         why: "Taking the management plane off the production network means a compromised workstation has no path to it at all. Longer passwords and a different port leave the interface exposed to the same attacker."}
+      - {id: sp-3d-q19, type: mcq,
+         q: "An administrator uses one account for email, web browsing and domain administration. She opens a malicious attachment, and the attacker immediately holds domain administrator rights. Which change would MOST directly have limited the damage?",
+         choices: ["Converting her account to a group managed service account", "Giving her a standard account for daily work and a separate administrative account used only for administration", "Sharing one emergency administrator account among the whole team", "Adding her account to additional administrative groups with narrower names"],
+         answer: 1,
+         why: "With separate accounts, malware that runs in the daily session inherits only standard user rights. A group managed service account is for services, not for people to log in with."}
+      - {id: sp-3d-q20, type: mcq,
+         q: "An access review shows: user=mrossi; 2022 transferred from accounts payable to procurement; current roles: AP-ApprovePayments, PROC-CreateVendor. He can now create a vendor and approve payments to it. Which control would MOST directly have prevented this?",
+         choices: ["Multifactor authentication on the finance system", "Annual password rotation", "Just-in-time elevation for administrative tasks", "Role-based provisioning that removes the old role's entitlements at transfer"],
+         answer: 3,
+         why: "The problem is privilege creep, and tying entitlements to the current role removes the old ones at the moment of transfer. MFA and password rotation verify who he is; they do nothing about what he is allowed to do."}
+      - {id: sp-3d-q21, type: mcq,
+         q: "A fully remote workforce uses only SaaS applications, yet all traffic is hauled through a VPN concentrator at headquarters, causing delays. The company wants web filtering, control over data sent to SaaS, and per-application access to its two remaining private applications, applied wherever users connect. Which solution BEST fits?",
+         choices: ["Security service edge", "A site-to-site VPN from each user's home", "A forward proxy in the headquarters screened subnet", "Network access control with 802.1X"],
+         answer: 0,
+         why: "SSE delivers web filtering, SaaS control and zero-trust private access from the cloud, close to the user, without backhauling. A proxy at headquarters keeps the very detour that causes the delay."}
+      - {id: sp-3d-q22, type: mcq,
+         q: "A trading firm must archive its traders' chat messages. Staff use an end-to-end encrypted messaging app, and a formal request to the app's provider returns no message content. What explains this, and what does it mean for the archiving design?",
+         choices: ["The provider deletes messages after delivery; archiving must use the provider's backup tapes", "The provider never holds the decryption keys; messages must be captured on the endpoints", "The messages are hashed, not encrypted; archiving must store the hashes", "TLS protects the messages in transit; archiving must be done at the provider's servers"],
+         answer: 1,
+         why: "With end-to-end encryption only the participants' devices can decrypt, so the provider has nothing readable to hand over and any capture has to happen at an endpoint. If only TLS were in use, the provider could read and supply the content."}
+      - {id: sp-3d-q23, type: mcq,
+         q: "A firewall separates the internet, a screened subnet (DMZ) and the internal zone (INT). Rules are evaluated top down: Rule 1 permit tcp any to DMZ-web port 443; Rule 2 permit tcp DMZ-web to INT-db port 1433; Rule 3 permit ip DMZ-any to INT-any; Rule 4 deny ip any to any. Which rule defeats the purpose of the zones?",
+         choices: ["Rule 1", "Rule 2", "Rule 3", "Rule 4"],
+         answer: 2,
+         why: "Rule 3 lets any host in the screened subnet reach anything inside, so a compromised public server has free access to the internal zone. Rule 2 is the narrow exception that the design intends: one server to one database port."}
+      - {id: sp-3d-q24, type: mcq,
+         q: "A company runs the same firewall product at its perimeter and between its internal zones. A single published flaw lets an attacker pass through both layers. Which design principle would BEST have limited this?",
+         choices: ["Redundancy", "Least privilege", "Fail-closed design", "Vendor diversity"],
+         answer: 3,
+         why: "Using different suppliers for successive layers means one product's flaw does not open every layer. Redundancy with a second identical firewall adds availability but shares the same flaw."}
+      - {id: sp-3d-m01, type: multi,
+         q: "A company runs virtual machines with an infrastructure-as-a-service provider. Which TWO tasks belong to the company? (Choose TWO.)",
+         choices: ["Patching the guest operating systems", "Configuring the firewall rules that apply to its instances", "Controlling physical access to the data centre", "Patching the hypervisor", "Replacing failed host hardware", "Maintaining the facility's cooling"],
+         answers: [0, 1],
+         why: "The customer manages what it deploys: the guest operating system and the network rules around its instances. The building, hardware and hypervisor are the provider's side of the model."}
+      - {id: sp-3d-m02, type: multi,
+         q: "A scan of an internet-facing Linux web server shows TCP 22, 23, 80, 443 and 3389 open. The server only needs to serve HTTPS and to be administered from the management network. Which TWO actions reduce its attack surface? (Choose TWO.)",
+         choices: ["Disable the Telnet and remote desktop services", "Restrict SSH so that it is reachable only from the management network", "Increase the retention period of the web logs", "Install a wildcard certificate", "Add a second network interface on the same subnet"],
+         answers: [0, 1],
+         why: "Removing unneeded services and limiting who can reach the remaining ones both cut the number of points an attacker can try. Log retention and certificates do not remove any exposure, and a second interface adds some."}
+      - {id: sp-3d-m03, type: multi,
+         q: "Which THREE of these are checks that a Zero Trust architecture makes before granting access to an application? (Choose THREE.)",
+         choices: ["The user's identity is verified with strong authentication", "The device's patch level and protections meet policy", "The device appears in the inventory of managed devices", "The request comes from the corporate LAN, so no further checks are needed", "The user connected to the VPN successfully earlier in the day, so the session is trusted"],
+         answers: [0, 1, 2],
+         why: "Zero Trust evaluates user authentication, device health and device inventory for each request. Trusting a request because of its network location or an earlier login is the implicit trust the model exists to remove."}
+      - {id: sp-3d-m04, type: multi,
+         q: "Which TWO are benefits of out-of-band management? (Choose TWO.)",
+         choices: ["Devices stay reachable for repair when the production network is down", "Administrative interfaces are kept off the networks that users and production traffic share", "Production data is encrypted between sites", "Administrators no longer need to authenticate to devices", "Production network throughput is increased"],
+         answers: [0, 1],
+         why: "A separate management channel survives production outages and hides administrative interfaces from anyone on the production network. It does not encrypt production data, speed it up, or replace authentication."}
+      - {id: sp-3d-m05, type: multi,
+         q: "A company must retire plain FTP. Which TWO protocols encrypt both the login and the file contents? (Choose TWO.)",
+         choices: ["SFTP", "FTPS", "TFTP", "Telnet", "HTTP", "SNMPv1"],
+         answers: [0, 1],
+         why: "SFTP protects the transfer inside SSH and FTPS protects FTP with TLS. TFTP, Telnet, HTTP and SNMPv1 all send their contents in clear text."}
+      - {id: sp-3d-m06, type: multi,
+         q: "Compared with a single monolithic application, which TWO security implications does a microservices design introduce? (Choose TWO.)",
+         choices: ["Many more network-reachable APIs that must each authenticate and authorize callers", "Many more service identities and secrets to issue, store and rotate", "The cloud provider becomes responsible for flaws in the application code", "Traffic between components no longer needs encryption", "All components must be redeployed together for every patch"],
+         answers: [0, 1],
+         why: "Splitting an application turns internal function calls into network calls, multiplying the APIs and the credentials to protect. Responsibility for the code stays with its owner, and independent deployment is the point of the design."}
+      - {id: sp-3d-o01, type: order,
+         q: "A remote user opens a private application through a Zero Trust access service. Put the steps in order.",
+         steps: ["The user's device requests the application", "The enforcement point intercepts the request and passes it to the policy engine", "The policy engine evaluates the user's identity and the device's health", "An encrypted session is permitted to that one application only", "The session is re-evaluated continuously and ended if the device falls out of compliance"],
+         why: "Nothing reaches the application until the policy engine has decided, and the decision covers only the application requested. Verification does not stop once the session is open."}
+      - {id: sp-3d-o02, type: order,
+         q: "A host in one office sends a packet to a host in another office over an IPsec site-to-site VPN in tunnel mode. Put the events in order.",
+         steps: ["The sending host sends an ordinary unencrypted packet to its local gateway", "The local gateway encrypts the whole packet and adds a new outer IP header addressed to the remote gateway", "The encapsulated packet crosses the internet", "The remote gateway verifies and decrypts the packet and removes the outer header", "The original packet is delivered to the destination host on the remote LAN"],
+         why: "In tunnel mode the gateways do the work: the hosts see only normal packets, and the original packet travels hidden inside a new one between the two gateways."}
+      - {id: sp-3d-o03, type: order,
+         q: "A team manages its cloud network as infrastructure as code. Put the steps of making a secure change in order.",
+         steps: ["An engineer commits the template change to a branch in the repository", "Automated policy checks and a peer review examine the change", "The approved change is merged into the main branch", "The pipeline applies the change to a test environment and verifies it", "The pipeline applies the same change to production"],
+         why: "Review and automated checks come before the merge so that a bad template is caught before it can be applied anywhere, and testing comes before production so the same definition is proven first."}
+
+  # ───────────────────────── Exam-hard practice 2 ─────────────────────────
+  - id: sp-3e
+    title: "Exam-hard practice: data protection and resilience"
+    domain: "3"
+    goal: "I can solve scenario questions on data states, protection methods, data roles, redundancy, backups and recovery testing at a level above the real exam."
+    notes: |
+      These questions cover objectives **3.3** (protecting data) and **3.4** (resilience and recovery), at a difficulty above the exam.
+
+      How to work them:
+
+      - **Name the state first**: at rest, in transit or in use. A control for one state does nothing for the others.
+      - **Ask "can it be reversed, and by whom?"** Encryption: anyone with the key. Tokenization: only through the vault. Hashing: nobody. Masking: the full value is still stored. Obfuscation: anybody with a little effort.
+      - **Roles**: the *owner* decides, the *steward* keeps the data correct and labeled, the *custodian* runs the technology, the *controller* sets the purpose, the *processor* and *subprocessor* act on instructions.
+      - **Do the arithmetic**: compare actual data loss with the RPO and actual downtime with the RTO. Availability is MTBF divided by (MTBF + MTTR).
+
+      | Test | Production affected? |
+      |---|---|
+      | Tabletop | no; discussion only |
+      | Simulation | no; the response is rehearsed |
+      | Parallel processing | no; the alternate site also runs real work |
+      | Failover | yes; production really moves |
+
+      Redundancy fails when the copies share a weakness: one power feed, one software build.
+    items:
+      - {id: sp-3e-q01, type: mcq,
+         q: "A billing application displays card numbers as ****1234, and the team reports that card data is 'masked'. An attacker dumps the database table and obtains every full card number. Which technique would BEST have protected the stored values while still letting the payment provider charge the cards?",
+         choices: ["Extending the display masking to more user roles", "Salted hashing of the card numbers", "Tokenization", "Data labeling"],
+         answer: 2,
+         why: "Masking changed only what was shown on screen; the real numbers were still stored. Tokenization keeps only stand-in values locally, and the provider can map them back to charge the card, which a one-way hash could never allow."}
+      - {id: sp-3e-q02, type: mcq,
+         q: "A hospital gives researchers a data set with names and record numbers removed, but each row still holds the full date of birth, postal code and gender. The researchers study trends by age group and region. Which change BEST lowers the risk of patients being re-identified while keeping the data useful?",
+         choices: ["Replace date of birth with year of birth and postal code with a broad region", "Encrypt the date of birth and postal code columns and withhold the key", "Hash each date of birth with SHA-256", "Label the data set as restricted"],
+         answer: 0,
+         why: "Dates of birth and postal codes are indirect identifiers that can be linked with other sources; generalizing them completes the deidentification yet still supports age and region analysis. Encrypting or hashing the columns would make them useless to the researchers."}
+      - {id: sp-3e-q03, type: mcq,
+         q: "A developer Base64-encodes API responses that contain personal data and describes them as 'protected'. How should a reviewer classify the technique, and what is the BEST correction?",
+         choices: ["Encryption; rotate the key more often", "Hashing; add a salt", "Tokenization; secure the vault", "Obfuscation; encrypt the responses with a managed key"],
+         answer: 3,
+         why: "Base64 is an encoding with no secret, so anyone can reverse it; it merely disguises the data. Real confidentiality requires encryption with a protected key."}
+      - {id: sp-3e-q04, type: mcq,
+         q: "A database uses transparent database encryption for its files, and clients connect over TLS. An attacker exploits SQL injection in the web application and reads customer rows in clear text. Which threat does the transparent database encryption actually address?",
+         choices: ["A database administrator querying the tables", "Theft of the database files or backup media", "SQL injection through the application", "Interception of client sessions on the network"],
+         answer: 1,
+         why: "File-level database encryption protects data at rest: stolen disks and backups are unreadable. The database decrypts rows for any query it accepts, so it does nothing against injection or an authorized administrator."}
+      - {id: sp-3e-q05, type: mcq,
+         q: "A packet capture on a 'trusted' server VLAN shows the text: SELECT name, ssn FROM staff, followed by the returned rows. The database files are encrypted on disk. Which data state is exposed, and which control fixes it?",
+         choices: ["In transit; enable TLS on the database connection", "At rest; add full-disk encryption to the application server", "In use; move the query into a stored procedure", "In transit; enable transparent encryption of the database files"],
+         answer: 0,
+         why: "Readable queries and results on the wire are data in transit, which is protected by encrypting the connection. Encrypting the database files is another at-rest control and leaves the network traffic readable."}
+      - {id: sp-3e-q06, type: mcq,
+         q: "A retailer decides why and how its customers' email addresses are used. It hires a marketing firm to send campaigns, and the marketing firm stores the lists with a hosting company. Under privacy rules, what is the hosting company?",
+         choices: ["Controller", "Processor", "Subprocessor", "Data owner"],
+         answer: 2,
+         why: "The retailer is the controller, the marketing firm it instructs is the processor, and a party the processor engages for part of the work is a subprocessor. The hosting company has no direct instruction from the retailer and decides nothing about purpose."}
+      - {id: sp-3e-q07, type: mcq,
+         q: "A finance analyst is assigned to make sure customer master records are accurate, defined the same way in every system, and correctly labeled according to rules set by the finance director. She does not run the servers or decide who gets access. Which data role is she filling?",
+         choices: ["Data owner", "Data custodian", "Data controller", "Data steward"],
+         answer: 3,
+         why: "The steward looks after quality, consistency and labeling on the owner's behalf. The custodian handles the technical care such as storage and backup, and the owner, here the finance director, sets the rules."}
+      - {id: sp-3e-q08, type: mcq,
+         q: "Tablets holding patient charts must work only inside the hospital campus; the charting application must lock itself as soon as a tablet leaves the grounds. Which control implements this?",
+         choices: ["Impossible travel detection", "Geofencing", "Storing the charts in an in-country cloud region", "Tagging each chart with the location where it was created"],
+         answer: 1,
+         why: "Geofencing enforces a virtual boundary based on the device's position. Impossible travel detection flags suspicious logins after the fact, and region choice controls where data is stored, not where a device may use it."}
+      - {id: sp-3e-q09, type: mcq,
+         q: "National law requires residents' personal data to remain inside the country. A company discovers that its cloud backups replicate automatically to the provider's paired region in a neighbouring country. Which action BEST resolves the compliance problem?",
+         choices: ["Encrypt the replicas with customer-managed keys", "Geofence the administrators' laptops", "Limit replication to regions inside the country", "Shorten the retention period of the replicas"],
+         answer: 2,
+         why: "The requirement is about where the data is located, so only keeping every copy in-country satisfies it. Encrypted replicas are still personal data stored abroad."}
+      - {id: sp-3e-q10, type: mcq,
+         q: "A government report contains some paragraphs marked Confidential and others marked Secret. Which overall classification must the document carry?",
+         choices: ["Secret", "Confidential", "Top secret", "Restricted"],
+         answer: 0,
+         why: "A document takes the highest classification of anything it contains, and Secret ranks above Confidential in the government scheme. Marking it Top secret would over-classify it, since nothing in it is at that level."}
+      - {id: sp-3e-q11, type: mcq,
+         q: "Card numbers exist in a billing database column and also in support-chat transcripts and scanned PDF forms. A discovery tool that matches the database column finds the first set but none of the second. Why, and what is needed?",
+         choices: ["The second set is encrypted; the tool needs the decryption keys", "The second set is tokenized; the tool needs access to the vault", "The second set is structured; the tool needs the table schema", "The second set is unstructured; the tool needs content inspection with pattern matching and text recognition"],
+         answer: 3,
+         why: "Free text and scanned images have no fields to point a tool at, so finding card numbers in them takes pattern matching on content, and text recognition for images. Nothing in the scenario says the transcripts are encrypted or tokenized."}
+      - {id: sp-3e-q12, type: mcq,
+         q: "Customer records held on encrypted volumes in a public cloud have reached the end of their retention period. The company cannot touch the provider's shared physical disks. Which disposal method gives the BEST assurance that the data is unrecoverable?",
+         choices: ["Asking the provider to degauss the disks", "Destroying the encryption keys for the volumes", "Moving the records to an archive storage tier", "Renaming the volumes and removing their labels"],
+         answer: 1,
+         why: "If every copy of the key is destroyed, the encrypted data cannot be read wherever its blocks remain; this is cryptographic erasure. Degaussing shared disks is not something a tenant can obtain, and it would destroy other customers' data."}
+      - {id: sp-3e-q13, type: mcq,
+         q: "A clinic stores (a) each patient's name with diagnosis codes, and (b) the payment card numbers used for fees. Which pairing of data type and governing rule set is correct?",
+         choices: ["(a) protected health information under HIPAA; (b) cardholder data under PCI DSS", "(a) cardholder data under PCI DSS; (b) protected health information under HIPAA", "(a) protected health information under PCI DSS; (b) cardholder data under HIPAA", "(a) intellectual property under HIPAA; (b) cardholder data under PCI DSS"],
+         answer: 0,
+         why: "Health details linked to an identifiable patient are protected health information, governed in the United States by HIPAA; card numbers are cardholder data under the card industry's PCI DSS. Each compliance data type brings its own handling rules."}
+      - {id: sp-3e-q14, type: mcq,
+         q: "A service has an RPO of 15 minutes and an RTO of 4 hours. Which design is the LEAST expensive one that meets both objectives?",
+         choices: ["Nightly full backups to tape, restored at a cold site", "Replication every 5 minutes to a warm site that can be brought online in 2 hours", "Synchronous replication to a hot site running active/active", "Hourly snapshots copied to a hot site"],
+         answer: 1,
+         why: "Five-minute replication keeps data loss within 15 minutes, and a 2-hour activation is inside the 4-hour RTO, at less cost than a live duplicate site. Hourly snapshots miss the RPO however fast the hot site is, and the synchronous active/active design meets both objectives but costs the most."}
+      - {id: sp-3e-q15, type: mcq,
+         q: "A storage controller has a mean time between failures of 990 hours and a mean time to repair of 10 hours. What availability should be expected from it?",
+         choices: ["90%", "98.99%", "99%", "99.9%"],
+         answer: 2,
+         why: "Availability is MTBF divided by MTBF plus MTTR: 990 / (990 + 10) = 0.99, or 99%. Reaching 99.9% with the same MTBF would need a repair time of about one hour."}
+      - {id: sp-3e-q16, type: mcq,
+         q: "A two-node active/active cluster runs each node at a steady 70% of its capacity. One node fails. What is the MOST likely result, and what should the design have ensured?",
+         choices: ["Service continues normally; no change is needed", "The survivor shuts down to protect data; a third node should act as a witness", "Data from the failed node is lost; backups should run more often", "The surviving node is overloaded; each node should have been sized to carry the full load alone"],
+         answer: 3,
+         why: "The survivor would need 140% of its capacity, so performance collapses just when redundancy is needed. Capacity planning for an N+1 pair means normal load must stay at or below 50% per node."}
+      - {id: sp-3e-q17, type: mcq,
+         q: "A single-writer database must survive the loss of its server. A standby server must take over the same virtual IP address and the shared storage automatically within seconds. Which technique meets the requirement?",
+         choices: ["Active/passive clustering", "Round-robin load balancing", "Autoscaling", "Redundant power supplies"],
+         answer: 0,
+         why: "An active/passive cluster keeps a standby node watching a heartbeat and takes over the address and storage on failure. Round-robin load balancing sends work to several nodes at once, which a single-writer database cannot accept."}
+      - {id: sp-3e-q18, type: mcq,
+         q: "A web tier autoscales on CPU load with no upper limit. An automated flood of junk requests drives it to 400 instances and a very large bill. Which change BEST limits the financial impact while keeping the tier elastic?",
+         choices: ["Disable autoscaling and run a fixed number of instances", "Raise the minimum instance count", "Set a maximum instance count and alert when it is reached", "Replace the tier with an active/passive cluster"],
+         answer: 2,
+         why: "An upper bound keeps elasticity within a cost the business has accepted, and the alert tells staff the limit is being hit. Disabling autoscaling removes the cost risk but also the ability to absorb genuine peaks."}
+      - {id: sp-3e-q19, type: mcq,
+         q: "A server with two power supplies goes down when a UPS fails. Investigation shows both supplies were plugged into the same power distribution unit, fed by that one UPS. Which change removes the weakness?",
+         choices: ["Add a third power supply on the same distribution unit", "Replace the UPS with a surge protector", "Add a generator that feeds the same UPS", "Connect each power supply to a separate distribution unit and UPS feed"],
+         answer: 3,
+         why: "Redundant supplies only help if their feeds are independent; separate circuits remove the shared single point of failure. A generator behind the same UPS still leaves that one UPS in the path of both supplies."}
+      - {id: sp-3e-q20, type: mcq,
+         q: "A server is backed up with a full backup every Sunday at 23:00 and a differential backup at 23:00 on each of the other six nights. The server fails on Thursday at 10:00. Which backups are needed for the most recent possible restore?",
+         choices: ["Sunday's full backup only", "Sunday's full backup and Wednesday's differential", "Sunday's full backup and the Monday, Tuesday and Wednesday differentials", "Wednesday's differential only"],
+         answer: 1,
+         why: "Each differential holds everything changed since the last full backup, so only the full and the latest differential are required. Needing every nightly set in sequence is how incremental backups work."}
+      - {id: sp-3e-q21, type: mcq,
+         q: "Management wants proof that the recovery site can process real transactions correctly, but will not accept any risk to live production during the exercise. Which test fits?",
+         choices: ["Tabletop exercise", "Failover test", "Parallel processing test", "Simulation test"],
+         answer: 2,
+         why: "In a parallel test the recovery site handles real work while production carries on untouched, so results can be compared without risk. A failover test moves production itself, and a simulation rehearses the response without processing real transactions at the site."}
+      - {id: sp-3e-q22, type: mcq,
+         q: "A recovery site passed its parallel processing test. During a real outage, recovery then failed because the DNS changes and network rerouting needed to send users to the site had never been exercised. Which test would have revealed this?",
+         choices: ["Failover test", "Simulation test", "Tabletop exercise", "Restoration test of the backups"],
+         answer: 0,
+         why: "Only a failover test actually redirects production to the alternate site, so only it exercises the cutover itself. Parallel and simulation tests leave users pointed at the primary site."}
+      - {id: sp-3e-q23, type: mcq,
+         q: "After a flood, IT brings every system up at the alternate site within its RTO. Even so, the company cannot take orders for three days: staff have no workplace or telephones, and there is no manual order procedure. Which plan was deficient?",
+         choices: ["Disaster recovery plan", "Business continuity plan", "Incident response plan", "Capacity plan"],
+         answer: 1,
+         why: "Business continuity covers people, premises and alternative ways of working, which is exactly what was missing. The disaster recovery plan did its job: the IT systems came back on time."}
+      - {id: sp-3e-q24, type: mcq,
+         q: "Every server at the primary site and at the hot site runs the same operating system build with the same security agent. A faulty agent update crashes all of them within minutes. Which strategy would MOST have limited the outage?",
+         choices: ["Clustering", "Load balancing", "A second hot site built from the same image", "Platform diversity"],
+         answer: 3,
+         why: "Running part of the estate on a different operating system or software stack means one bad update cannot take out everything at once. Clusters, load balancers and further identical sites all share the same faulty build."}
+      - {id: sp-3e-m01, type: multi,
+         q: "Which TWO controls protect data while it is in transit? (Choose TWO.)",
+         choices: ["TLS on the connection", "An IPsec VPN between the two sites", "Full-disk encryption", "Transparent encryption of database files", "Immutable backups"],
+         answers: [0, 1],
+         why: "TLS and IPsec encrypt data as it crosses the network. Disk encryption, database file encryption and immutable backups all protect stored data."}
+      - {id: sp-3e-m02, type: multi,
+         q: "Which TWO responsibilities belong to the data owner? (Choose TWO.)",
+         choices: ["Deciding the data's classification", "Approving who may have access to the data", "Running the nightly backups", "Configuring encryption on the storage array", "Processing the data on behalf of a controller under contract"],
+         answers: [0, 1],
+         why: "The owner is accountable and makes the classification and access decisions. Backups and encryption settings are the custodian's technical work, and processing under contract describes a processor."}
+      - {id: sp-3e-m03, type: multi,
+         q: "Which THREE of these are unstructured data? (Choose THREE.)",
+         choices: ["The body text of email messages", "A scanned image of a signed contract", "Recordings of call-centre conversations", "The orders table of a relational database", "The card-number column of a billing database"],
+         answers: [0, 1, 2],
+         why: "Free text, images and audio have no predefined fields. Database tables and columns are the standard example of structured data."}
+      - {id: sp-3e-m04, type: multi,
+         q: "A web tier runs on a single server. Which TWO measures remove that server as a single point of failure? (Choose TWO.)",
+         choices: ["Load balancing across several servers", "Clustering the server with a second node", "Making the server's backups immutable", "Masking the data the server displays", "Extending the server's backup retention", "Holding a tabletop exercise"],
+         answers: [0, 1],
+         why: "Load balancing and clustering both provide another machine that keeps serving when one fails. Backups help to rebuild afterwards but do not keep the service running, and the other choices do not affect availability."}
+      - {id: sp-3e-m05, type: multi,
+         q: "Which THREE recovery exercises leave live production processing running at the primary site throughout? (Choose THREE.)",
+         choices: ["Tabletop exercise", "Simulation test", "Parallel processing test", "Failover test", "An unannounced shutdown of the primary data centre"],
+         answers: [0, 1, 2],
+         why: "A tabletop is a discussion, a simulation rehearses the response, and a parallel test runs the alternate site beside production. A failover test and a shutdown of the primary both move or stop production."}
+      - {id: sp-3e-m06, type: multi,
+         q: "An attacker holding domain administrator credentials intends to destroy backups before releasing ransomware. Which TWO backup measures still leave a usable copy? (Choose TWO.)",
+         choices: ["Immutable backup storage with a retention lock", "A copy kept offline, disconnected from the network", "Deduplication of the backup data", "Compression of the backup data", "A second copy on a domain-joined file server"],
+         answers: [0, 1],
+         why: "A locked immutable copy cannot be deleted even by an administrator, and an offline copy cannot be reached at all. Deduplication and compression save space, and a domain-joined server falls to the same stolen credentials."}
+      - {id: sp-3e-o01, type: order,
+         q: "Put the stages of the data life cycle in order.",
+         steps: ["Creation: the data is collected or generated and classified", "Management: it is stored and maintained under the controls its label requires", "Distribution: it is shared with the parties authorized to receive it", "Retention: it is kept for as long as law and policy require", "Disposal: it is securely destroyed"],
+         why: "This is the life cycle as the exam objectives list it. Classification belongs at creation because every later stage depends on the label, and disposal can only follow the end of the retention period."}
+      - {id: sp-3e-o02, type: order,
+         q: "A data centre protected by a UPS and a standby generator loses utility power. Put the events in order.",
+         steps: ["Utility power fails", "The UPS batteries carry the load instantly", "The generator starts and reaches stable output", "The transfer switch moves the load onto the generator", "Utility power returns, the load is transferred back and the UPS recharges"],
+         why: "The UPS exists to bridge the seconds a generator needs to start; the load moves to the generator only once its output is stable, and back to the utility when that is restored."}
+      - {id: sp-3e-o03, type: order,
+         q: "Order these recovery exercises from the LEAST to the MOST risk to live production.",
+         steps: ["Tabletop exercise", "Simulation test", "Parallel processing test", "Failover test"],
+         why: "A tabletop is only a discussion; a simulation rehearses actions without touching workloads; a parallel test starts real systems beside production; a failover test moves production itself and so carries the most risk."}

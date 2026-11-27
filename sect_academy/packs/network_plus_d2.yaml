@@ -1,0 +1,1033 @@
+part_of: network-plus
+
+units:
+  # ───────────────────── 2c · Domain 2 coverage ─────────────────────
+  - id: np-2c
+    title: "Network implementation: filling in the blueprint"
+    domain: "2"
+    goal: "I can explain every routing, switching, wireless and physical-installation term in the Network Implementation domain."
+    notes: |
+      This unit completes Domain 2. It follows the four objectives in order.
+
+      **Routing.** A router chooses a route in a fixed order: the *longest matching prefix* first; if two sources offered that same prefix, the lower **administrative distance** was installed; inside one protocol, the lower **metric** won.
+
+      | Source | Default AD (Cisco) |
+      | Connected | 0 |
+      | Static | 1 |
+      | eBGP | 20 |
+      | EIGRP | 90 |
+      | OSPF | 110 |
+      | RIP | 120 |
+
+      **Switching.** A VLAN must exist in the switch's VLAN database. An access port carries one VLAN (plus, optionally, a voice VLAN); a trunk tags every VLAN except the **native VLAN**. Speed, duplex and MTU must agree at both ends of a link.
+
+      **Wireless.** Wider channels are faster but leave fewer clean channels. One network name (ESSID) is served by many radios, each with its own BSSID. Access points are either autonomous or controller-managed.
+
+      **Physical.** Circuits arrive at the **MDF**; floor closets are **IDFs**. Plan rack space (in U), airflow direction, power load, voltage, temperature, humidity and fire suppression *before* mounting anything.
+    items:
+      # ── routing ──
+      - id: np-2c-eigrp
+        type: concept
+        term: "EIGRP"
+        def: "An advanced distance-vector interior routing protocol, originally Cisco's, whose default metric combines bandwidth and delay and which keeps a pre-computed loop-free backup path for fast failover."
+      - id: np-2c-longest-prefix
+        type: concept
+        term: "Longest prefix match"
+        def: "The forwarding rule that, when several routing-table entries cover a destination, the entry with the most network bits is used, whatever protocol supplied it."
+      - id: np-2c-metric
+        type: concept
+        term: "Routing metric"
+        def: "The value one routing protocol uses to compare its own candidate paths to the same destination, such as hop count or cost; the path with the lowest value is preferred."
+      - id: np-2c-static-nat
+        type: concept
+        term: "Static NAT"
+        def: "A fixed one-to-one translation between one inside address and one outside address, typically so that an internal server is always reachable at the same public address."
+      - id: np-2c-vip
+        type: concept
+        term: "Virtual IP address (VIP)"
+        def: "An address that belongs to no single physical device: a group of routers or a load balancer answers for it, so clients keep using it when the device behind it changes."
+      - id: np-2c-subinterface
+        type: concept
+        term: "Subinterface"
+        def: "A logical division of one physical router port, given its own 802.1Q tag and IP address, so that a single cable can act as the gateway for several VLANs."
+
+      # ── switching ──
+      - id: np-2c-vlan-db
+        type: concept
+        term: "VLAN database"
+        def: "The table on a switch that lists the number and name of every VLAN it knows; a VLAN must be present in it before ports assigned to that VLAN will forward traffic."
+      - id: np-2c-svi
+        type: concept
+        term: "Switch virtual interface (SVI)"
+        def: "A logical Layer 3 port created in software on a multilayer device, tied to a whole VLAN rather than to a physical port, that holds an IP address and serves as that VLAN's gateway or as the switch's management address."
+      - id: np-2c-native-vlan
+        type: concept
+        term: "Native VLAN"
+        def: "The one VLAN whose frames cross an 802.1Q link without a tag; it has to be set to the same number at both ends of that link."
+      - id: np-2c-voice-vlan
+        type: concept
+        term: "Voice VLAN"
+        def: "An access-port feature that places an IP phone's traffic in a separate VLAN from the PC plugged in behind the phone, so calls can be prioritised and kept apart from data."
+      - id: np-2c-lacp
+        type: concept
+        term: "Link aggregation (LACP)"
+        def: "Bundling several parallel Ethernet links between two devices into one logical link for more capacity and redundancy, negotiated by a standard IEEE control protocol."
+      - id: np-2c-mtu
+        type: concept
+        term: "MTU"
+        def: "The largest packet, in bytes, that an interface will send in one piece without fragmenting it; 1500 by default on Ethernet."
+      - id: np-2c-jumbo
+        type: concept
+        term: "Jumbo frame"
+        def: "An Ethernet frame whose payload is larger than 1500 bytes, commonly up to about 9000, used on storage and data-centre links where every device in the path is set to accept it."
+      - id: np-2c-port-security
+        type: concept
+        term: "Port security"
+        def: "A switch feature that limits which, or how many, source MAC addresses may use an access port, and shuts down or restricts the port when the limit is broken."
+
+      # ── wireless ──
+      - id: np-2c-channel-width
+        type: concept
+        term: "Channel width"
+        def: "How much spectrum one Wi-Fi transmission occupies: 20, 40, 80 or 160 MHz. A larger value gives more throughput but leaves fewer non-overlapping choices."
+      - id: np-2c-80211h
+        type: concept
+        term: "802.11h"
+        def: "The amendment that adds dynamic frequency selection and transmit power control, so that 5 GHz Wi-Fi leaves a frequency when it detects radar, as regulators require."
+      - id: np-2c-band-steering
+        type: concept
+        term: "Band steering"
+        def: "An access point feature that nudges dual-band clients away from the crowded 2.4 GHz radio and onto 5 GHz or 6 GHz under the same network name."
+      - id: np-2c-bssid
+        type: concept
+        term: "BSSID"
+        def: "The MAC address of one access point radio for one wireless network name; it identifies the individual cell a client is associated with."
+      - id: np-2c-essid
+        type: concept
+        term: "ESSID"
+        def: "A single wireless network name served by several access points on the same LAN, so that clients can roam between them as if they were one network."
+      - id: np-2c-mesh
+        type: concept
+        term: "Wireless mesh network"
+        def: "Access points that relay traffic to one another over a radio backhaul, so that only some of them need a wired uplink."
+      - id: np-2c-adhoc
+        type: concept
+        term: "Ad hoc network (IBSS)"
+        def: "Wireless clients that talk directly to each other with no access point between them."
+      - id: np-2c-infrastructure
+        type: concept
+        term: "Infrastructure mode"
+        def: "The usual Wi-Fi arrangement, in which every client associates with an access point that bridges it to the wired network."
+      - id: np-2c-wpa2
+        type: concept
+        term: "WPA2"
+        def: "The Wi-Fi security standard that made AES-CCMP encryption mandatory; in its personal mode a captured four-way handshake can be attacked offline if the passphrase is weak."
+      - id: np-2c-captive-portal
+        type: concept
+        term: "Captive portal"
+        def: "A web page that a guest network forces a newly connected device to visit, to accept terms or enter a voucher or login, before any other traffic is allowed."
+      - id: np-2c-psk
+        type: concept
+        term: "Pre-shared key (PSK)"
+        def: "Wi-Fi 'personal' authentication: one passphrase set on the access point and given to every user, with no per-user accounts and no authentication server."
+      - id: np-2c-omni
+        type: concept
+        term: "Omnidirectional antenna"
+        def: "An antenna that radiates roughly equally in every horizontal direction, suited to a ceiling-mounted access point covering the room around it."
+      - id: np-2c-directional
+        type: concept
+        term: "Directional antenna"
+        def: "An antenna, such as a Yagi, patch or parabolic dish, that concentrates its signal into a beam so it reaches further one way and hardly at all the others."
+      - id: np-2c-autonomous-ap
+        type: concept
+        term: "Autonomous access point"
+        def: "An access point that stores its own complete configuration and makes all of its own decisions, so each one is set up and managed individually."
+      - id: np-2c-lightweight-ap
+        type: concept
+        term: "Lightweight access point"
+        def: "An access point that does the real-time radio work itself but receives its configuration, firmware and policy from a central wireless LAN controller."
+
+      # ── physical installation ──
+      - id: np-2c-mdf
+        type: concept
+        term: "Main distribution frame (MDF)"
+        def: "A building's central wiring point, usually where the service provider's circuits arrive and the core equipment sits, from which backbone cabling runs out to the floor closets."
+      - id: np-2c-idf
+        type: concept
+        term: "Intermediate distribution frame (IDF)"
+        def: "A wiring closet serving one floor or area: the horizontal cable runs from wall outlets end here, and an uplink ties it back to the building's central wiring point."
+      - id: np-2c-rack-unit
+        type: concept
+        term: "Rack unit (U)"
+        def: "The standard measure of equipment height in a 19-inch equipment frame: 1.75 inches (44.45 mm)."
+      - id: np-2c-port-side-exhaust
+        type: concept
+        term: "Port-side exhaust"
+        def: "A switch airflow option in which cool air enters at the power-supply end and hot air leaves at the end that carries the network connectors."
+      - id: np-2c-patch-panel
+        type: concept
+        term: "Patch panel"
+        def: "A rack-mounted row of jacks on which the permanent horizontal copper runs are punched down at the rear, so short cords at the front can connect them to switch ports."
+      - id: np-2c-fdp
+        type: concept
+        term: "Fiber distribution panel"
+        def: "A rack enclosure in which incoming optical strands are spliced or terminated on connectors and protected, giving a tidy point from which to connect them to equipment."
+      - id: np-2c-ups
+        type: concept
+        term: "Uninterruptible power supply (UPS)"
+        def: "A battery-backed unit that carries equipment through the first minutes of a utility outage and smooths sags and surges, until a generator starts or systems are shut down cleanly."
+      - id: np-2c-power-pdu
+        type: concept
+        term: "Power distribution unit"
+        def: "A rack-mounted device that splits one electrical feed into many outlets for the equipment; managed versions can meter and switch each outlet remotely."
+
+      # ── checks ──
+      - id: np-2c-q01
+        type: mcq
+        q: "A company has 60 routers joined by redundant links, and links fail and are repaired several times a month. Which approach keeps every routing table correct with the LEAST ongoing manual work?"
+        choices:
+          - "Static routes for every subnet on every router"
+          - "A dynamic routing protocol such as OSPF on every router"
+          - "A single static default route on every router"
+          - "Static routes with a backup static route for every subnet"
+        answer: 1
+        why: "A dynamic protocol detects a failed link and recalculates paths on its own. Static routes, even with hand-built backups, must be designed and maintained by a person on all 60 routers every time the topology changes."
+      - id: np-2c-q02
+        type: mcq
+        q: "An enterprise buys internet service from two providers, each in a different autonomous system, and must exchange routes with both. Which routing protocol is used on those links?"
+        choices: ["OSPF", "EIGRP", "BGP", "RIP"]
+        answer: 2
+        why: "BGP is the exterior gateway protocol used between autonomous systems. OSPF is the tempting answer because it is widely used, but it is an interior protocol run inside one organisation."
+      - id: np-2c-q03
+        type: mcq
+        q: "A router's OSPF process learns two paths to 172.16.8.0/24, one with a cost of 20 and one with a cost of 65. Which path is installed in the routing table?"
+        choices:
+          - "The cost-20 path, because within one protocol the lowest metric wins"
+          - "The cost-65 path, because a higher cost means more bandwidth"
+          - "The cost-20 path, because it has the lower administrative distance"
+          - "The cost-65 path, because it has the longer prefix"
+        answer: 0
+        why: "Both paths come from OSPF and have the same prefix, so the metric (cost) decides, and lower is better. Administrative distance is the same for both because they come from the same protocol."
+      - id: np-2c-q04
+        type: mcq
+        q: "A switch port is hard-set to 100 Mbps full duplex. The PC attached to it is left on auto-negotiation. Which setting is the PC's network card MOST likely to end up using?"
+        choices:
+          - "1000 Mbps full duplex"
+          - "100 Mbps full duplex"
+          - "10 Mbps half duplex"
+          - "100 Mbps half duplex"
+        answer: 3
+        why: "A hard-set port sends no negotiation signals, so the PC can sense the speed (100 Mbps) but cannot learn the duplex and falls back to half. The result is a duplex mismatch; set both ends the same way."
+      - id: np-2c-q05
+        type: mcq
+        q: "Three switches all have the default bridge priority of 32768. Their MAC addresses are: Switch A 0011.aaaa.0001, Switch B 0011.aaaa.0002, Switch C 0010.ffff.0009. Which becomes the spanning tree root bridge?"
+        choices:
+          - "Switch A"
+          - "Switch B"
+          - "Switch C"
+          - "Whichever switch was powered on first"
+        answer: 2
+        why: "The root is the switch with the lowest bridge ID: priority first, then MAC address. Priorities tie, and 0010.ffff.0009 is the lowest MAC because 0010 is less than 0011. Switch A only looks lowest if you read the last digits."
+      - id: np-2c-q06
+        type: mcq
+        q: "An office wants its new laptops to use the 6 GHz band. What do the access points and the laptops need?"
+        choices:
+          - "Wi-Fi 6E (or newer) radios, with WPA3 security"
+          - "Wi-Fi 6 radios, with WPA2 security"
+          - "Wi-Fi 5 radios, with 160 MHz channels"
+          - "Wi-Fi 4 radios, with band steering enabled"
+        answer: 0
+        why: "6 GHz was opened to Wi-Fi with Wi-Fi 6E, and WPA3 is mandatory in that band. Plain Wi-Fi 6 (802.11ax without the E) works only in 2.4 GHz and 5 GHz."
+      - id: np-2c-q07
+        type: mcq
+        q: "Two buildings stand 400 m apart with a clear line of sight between their roofs. No cable can be laid between them. Which wireless design is the BEST way to join the two LANs?"
+        choices:
+          - "An ad hoc network between one laptop in each building"
+          - "A point-to-point bridge with a directional antenna on each roof"
+          - "A wireless mesh of omnidirectional access points inside each building"
+          - "One high-power omnidirectional access point in the first building"
+        answer: 1
+        why: "A point-to-point link uses two directional antennas aimed at each other to carry a signal a long way between two fixed sites. An omnidirectional antenna spreads its power in every direction and wastes most of it."
+      - id: np-2c-q08
+        type: mcq
+        q: "Visitors need internet access over Wi-Fi but must not be able to reach internal servers. Which design is BEST?"
+        choices:
+          - "Give visitors the staff passphrase and change it every month"
+          - "Hide the staff SSID and tell visitors its name"
+          - "Add visitors' MAC addresses to a filter on the staff SSID"
+          - "A separate guest SSID on its own VLAN that is firewalled to the internet only"
+        answer: 3
+        why: "A guest network is a separate SSID mapped to its own VLAN, with a firewall rule that allows only internet access. The other three options all put visitors on the staff network, where the internal servers are reachable."
+      - id: np-2c-q09
+        type: mcq
+        q: "A rack's power strip is fed by one 120 V, 20 A circuit. The electrical code limits continuous load to 80% of the breaker rating. What is the largest continuous power load the equipment on this circuit may draw?"
+        choices: ["1,920 W", "2,400 W", "1,440 W", "960 W"]
+        answer: 0
+        why: "120 V x 20 A = 2,400 W, and 80% of that is 1,920 W. 2,400 W is the breaker's full rating, which continuous load must stay below."
+      - id: np-2c-q10
+        type: mcq
+        q: "A new chassis switch has power supplies labelled '200-240 V AC only'. The wiring closet has only standard 120 V outlets. What must be done before the switch can be installed?"
+        choices:
+          - "Plug each power supply into a different 120 V outlet"
+          - "Connect the switch to a larger 120 V UPS"
+          - "Have a circuit of the correct voltage, with a matching outlet, installed"
+          - "Remove line cards until the power load is low enough"
+        answer: 2
+        why: "Equipment must be fed the voltage on its label; a 200-240 V supply will not run from 120 V however many outlets or however large a 120 V UPS is used. Reducing the load changes the current drawn, not the voltage required."
+      - id: np-2c-q11
+        type: mcq
+        q: "A sensor in a server room reports a relative humidity of 15%. Which risk does this increase?"
+        choices:
+          - "Condensation forming on circuit boards"
+          - "Electrostatic discharge damaging components"
+          - "Corrosion of connector pins"
+          - "Voltage sag on the rack's circuits"
+        answer: 1
+        why: "Very dry air lets static charge build up, so electrostatic discharge becomes more likely. Condensation and corrosion are the dangers at the other extreme, when humidity is too high."
+      - id: np-2c-q12
+        type: mcq
+        q: "Which fire suppression system is MOST appropriate for a room full of running network equipment?"
+        choices:
+          - "A clean-agent gas system"
+          - "A wet-pipe water sprinkler system"
+          - "A foam system"
+          - "A dry chemical powder system"
+        answer: 0
+        why: "A clean agent (an inert or halocarbon gas) puts the fire out without conducting electricity or leaving residue. Dry chemical powder also avoids water, but it coats and ruins electronics."
+      - id: np-2c-q13
+        type: mcq
+        q: "In a hot-aisle/cold-aisle data centre, top-of-rack switches are mounted with their network ports facing the rear of the rack (the hot aisle), next to the servers' network cards. Which airflow option should the switches be ordered with?"
+        choices:
+          - "Port-side intake"
+          - "Side-to-side airflow"
+          - "Fanless (passive) cooling"
+          - "Port-side exhaust"
+        answer: 3
+        why: "With the ports in the hot aisle, hot air must leave at the port end and cool air enter at the other end, which faces the cold aisle: port-side exhaust. Port-side intake would make the switch breathe the servers' hot exhaust."
+      - id: np-2c-q14
+        type: mcq
+        q: "An IDF has to go in an open hallway alcove of a building shared with other tenants; no separate room is available. Which installation choice BEST protects the equipment from tampering?"
+        choices:
+          - "An open two-post rack bolted to the floor"
+          - "A lockable enclosed cabinet"
+          - "An open four-post rack with blanking panels fitted"
+          - "A wall-mounted bracket for the patch panel and switch"
+        answer: 1
+        why: "Where the room itself cannot be secured, the rack must be: a lockable cabinet stops passers-by from unplugging or connecting to the equipment. Bolting an open rack down prevents theft of the rack, not access to the ports."
+      - id: np-2c-q15
+        type: mcq
+        q: "A 42U rack already has 28U in use. The plan adds two 2U servers, one 4U UPS, three 1U switches and one 1U patch panel. How much space is left afterwards?"
+        choices: ["0U", "1U", "2U", "4U"]
+        answer: 2
+        why: "Free space is 42 - 28 = 14U. The new equipment needs (2 x 2) + 4 + (3 x 1) + 1 = 12U, leaving 2U."
+
+  # ───────────────── 2d · exam-hard: routing and switching ─────────────────
+  - id: np-2d
+    title: "Exam-hard practice: routing and switching"
+    domain: "2"
+    goal: "I can read a routing table, a translation table or a switch configuration and pick the best explanation or fix under exam conditions."
+    notes: |
+      These questions are harder than the real exam on purpose. Each one hides a familiar idea inside a short scenario with a table, a log line or a configuration fragment.
+
+      **How to work a routing question**
+
+      - Throw out every route whose prefix does not actually contain the destination. Do the subnet maths; do not trust appearances.
+      - Of what is left, take the **longest prefix**.
+      - Only if the *same* prefix came from two sources does **administrative distance** matter; only inside one protocol does **metric** matter.
+
+      **How to work a switching question**
+
+      - Ask which VLAN the frame is in at each hop, and whether it is tagged.
+      - Check that the VLAN exists, is allowed on the trunk, and that the native VLAN matches at both ends.
+      - Both ends of a link must agree on speed, duplex, MTU and aggregation settings.
+
+      Watch the qualifiers: **BEST**, **MOST likely**, **FIRST**. Two choices are often true statements; only one answers the question asked.
+    items:
+      - id: np-2d-q01
+        type: mcq
+        q: "A router's table contains: O 10.20.0.0/16 [110/20] via 10.0.0.1; S 10.20.30.0/24 [1/0] via 10.0.0.2; D 10.20.30.128/25 [90/3072] via 10.0.0.3; S* 0.0.0.0/0 [1/0] via 10.0.0.4. To which next hop is a packet for 10.20.30.77 forwarded?"
+        choices: ["10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4"]
+        answer: 1
+        why: "The /25 covers only 10.20.30.128-255, so it does not match .77. Of the routes that do match (/16, /24 and the default), the /24 is the longest, so the packet goes to 10.0.0.2. The /25 is the trap: longest prefix only counts if the prefix contains the destination."
+      - id: np-2d-q02
+        type: mcq
+        q: "A branch router learns the route to headquarters through OSPF over its main circuit. The administrator wants a static route through an LTE modem that is used ONLY when the OSPF route disappears. How should the static route be configured?"
+        choices:
+          - "With the default administrative distance of 1"
+          - "With a longer prefix than the OSPF route"
+          - "With a metric lower than the OSPF cost"
+          - "With an administrative distance higher than 110"
+        answer: 3
+        why: "A 'floating' static route is given an administrative distance above the dynamic protocol's (OSPF is 110), so it stays out of the table until the OSPF route is withdrawn. Left at the default of 1 it would beat OSPF and be used all the time."
+      - id: np-2d-q03
+        type: mcq
+        q: "A Cisco router with default settings learns 192.168.50.0/24 from three protocols: OSPF with metric 10, EIGRP with metric 28160, and RIP with metric 2. Which route is installed?"
+        choices:
+          - "The EIGRP route, because EIGRP has the lowest administrative distance of the three"
+          - "The RIP route, because 2 is the lowest metric"
+          - "The OSPF route, because 10 is a lower metric than 28160"
+          - "The OSPF route, because link-state protocols are preferred over distance-vector protocols"
+        answer: 0
+        why: "The same prefix from different protocols is decided by administrative distance: EIGRP 90, OSPF 110, RIP 120. Metrics from different protocols measure different things and are never compared with one another."
+      - id: np-2d-q04
+        type: mcq
+        q: "An internal mail server at 10.1.1.25 must always be reachable from the internet at 203.0.113.25, and its own outbound connections must appear to come from that same public address. Which translation meets both needs?"
+        choices:
+          - "PAT on the router's outside interface address"
+          - "Dynamic NAT using a pool of public addresses"
+          - "Static NAT between 10.1.1.25 and 203.0.113.25"
+          - "NAT64 between the server and the internet"
+        answer: 2
+        why: "Static NAT is a permanent one-to-one mapping that works in both directions. Dynamic NAT is also one-to-one, but the public address is handed out from a pool when the server speaks first, so it is neither fixed nor usable for unsolicited inbound connections."
+      - id: np-2d-q05
+        type: mcq
+        q: "A router's translation table shows two entries: 192.168.1.10:51000 translated to 198.51.100.2:51000, and 192.168.1.11:51000 translated to 198.51.100.2:1024. Why was the second host's source port changed?"
+        choices:
+          - "The second host is in a different VLAN from the first"
+          - "A static NAT entry had reserved port 51000 for the first host"
+          - "Port 51000 on the public address was already in use, and PAT must keep every mapping unique"
+          - "The dynamic NAT pool had run out of public addresses"
+        answer: 2
+        why: "With PAT, the public address and port together identify one inside conversation, so two inside hosts cannot both keep port 51000 on 198.51.100.2; the router rewrites the second one. Nothing here is static: both entries were created dynamically."
+      - id: np-2d-q06
+        type: mcq
+        q: "Two routers run VRRP and share the gateway address 10.0.0.1 for a user subnet. The master router loses power. What has to happen on the user PCs for them to keep reaching other networks?"
+        choices:
+          - "Nothing: the backup router now answers for the same virtual IP and virtual MAC address"
+          - "Each PC must clear its ARP cache to learn the backup router's own MAC address"
+          - "Each PC must renew its DHCP lease to receive the backup router's address"
+          - "Each PC switches to the second default gateway in its own configuration"
+        answer: 0
+        why: "An FHRP presents one virtual IP and one virtual MAC, and the backup takes over both, so hosts notice nothing. The ARP answer is tempting, but the MAC the hosts cached is the virtual one, which does not change."
+      - id: np-2d-q07
+        type: mcq
+        q: "A router has G0/0.10 (802.1Q tag 10, 10.0.10.1/24) and G0/0.20 (tag 20, 10.0.20.1/24). G0/0 connects to a Layer 2-only switch port configured as 'switchport mode access, access vlan 10'. No host in either VLAN can reach its gateway. What is the MOST likely fix?"
+        choices:
+          - "Assign an IP address to the physical interface G0/0"
+          - "Create SVIs for VLANs 10 and 20 on the switch"
+          - "Enable PortFast on the switch port"
+          - "Make the switch port an 802.1Q trunk that carries VLANs 10 and 20"
+        answer: 3
+        why: "Subinterfaces expect tagged frames, but an access port sends and accepts only untagged frames, so neither subinterface ever sees its VLAN. The switch port must be a trunk. SVIs need a Layer 3 switch, which this is not."
+      - id: np-2d-q08
+        type: mcq
+        q: "Two directly connected routers never become OSPF neighbours. R1 G0/0: 10.1.1.1/30, area 0, hello 10, dead 40. R2 G0/0: 10.1.1.2/30, area 1, hello 10, dead 40. They can ping each other. What is the MOST likely cause?"
+        choices:
+          - "The hello and dead timers do not match"
+          - "The two interfaces are in different OSPF areas"
+          - "The two interfaces are in different IP subnets"
+          - "The link's cost is too high for an adjacency"
+        answer: 1
+        why: "Both ends of a link must be in the same area to form an adjacency; here one is in area 0 and the other in area 1. The timers and the /30 subnet both match, and cost only affects path choice, never whether neighbours form."
+      - id: np-2d-q09
+        type: mcq
+        q: "A company is multihomed. It receives 203.0.113.0/24 by BGP from ISP-A with AS path '64500 64510 64511' and from ISP-B with AS path '64501 64511'. All other attributes are equal. Which path is preferred?"
+        choices:
+          - "ISP-B, because its AS path is shorter"
+          - "ISP-A, because its first AS number is lower"
+          - "ISP-A, because a longer AS path is more specific"
+          - "ISP-B, because its link has the lower OSPF cost"
+        answer: 0
+        why: "With other attributes equal, BGP prefers the route that crosses the fewest autonomous systems: two for ISP-B against three for ISP-A. The value of an AS number has no bearing, and 'more specific' applies to prefix length, not path length."
+      - id: np-2d-q10
+        type: mcq
+        q: "An EIGRP router loses its best path to 10.9.0.0/16 and begins using a backup path immediately, without first querying its neighbours. What made this possible?"
+        choices:
+          - "A floating static route with an administrative distance of 200"
+          - "A feasible successor already held in its topology table"
+          - "A fresh shortest-path-first calculation over its link-state database"
+          - "A second route with a shorter AS path"
+        answer: 1
+        why: "EIGRP keeps a pre-verified, loop-free backup next hop (a feasible successor) and promotes it instantly. Recalculating with SPF over a link-state database is how OSPF recovers, not EIGRP."
+      - id: np-2d-q11
+        type: mcq
+        q: "A branch router has one LAN, 10.5.0.0/24, and one WAN link to headquarters at 172.16.0.1. Every other destination, including the internet, is reached through headquarters. Which configuration is the simplest that works?"
+        choices:
+          - "A BGP session with the headquarters router"
+          - "A static route to 10.0.0.0/8 via 172.16.0.1"
+          - "One static route for each headquarters subnet via 172.16.0.1"
+          - "A static default route, 0.0.0.0/0 via 172.16.0.1"
+        answer: 3
+        why: "A site with a single exit needs only a default route. The 10.0.0.0/8 route is tempting but covers only private 10.x addresses, so internet destinations would have no match."
+      - id: np-2d-q12
+        type: mcq
+        q: "Three web servers at 10.0.5.11, .12 and .13 sit behind a load balancer whose management address is 10.0.5.2. The subnet's VRRP gateway is 10.0.5.1, and the load balancer answers client connections on 10.0.5.100. To which address should the DNS record for the website point?"
+        choices: ["10.0.5.1", "10.0.5.2", "10.0.5.100", "10.0.5.11"]
+        answer: 2
+        why: "Clients connect to the load balancer's virtual IP (10.0.5.100), which shares connections among the real servers. 10.0.5.1 is also a virtual IP, but it belongs to the gateway routers, not to the web service."
+      - id: np-2d-q13
+        type: mcq
+        q: "SW1 logs: 'Native VLAN mismatch discovered on Gi0/1 (1), with SW2 Gi0/1 (99)'. Users report that some traffic turns up in the wrong VLAN. What should the technician do?"
+        choices:
+          - "Change both ports to access ports in VLAN 99"
+          - "Add VLAN 99 to the trunk's allowed list on SW1"
+          - "Set the voice VLAN on SW2's port to VLAN 1"
+          - "Configure the same native VLAN on both ends of the trunk"
+        answer: 3
+        why: "Untagged frames sent from VLAN 1 on SW1 are placed in VLAN 99 on SW2, so traffic leaks between VLANs until both ends agree on the native VLAN. Allowing VLAN 99 on the trunk affects tagged VLAN 99 frames, not the untagged ones."
+      - id: np-2d-q14
+        type: mcq
+        q: "After a clean-up, 'show vlan' on a switch lists only VLANs 1, 10 and 20. Ports that were assigned to VLAN 30 still show link up, but their PCs can reach nothing. The trunk allows all VLANs. What is the MOST likely fix?"
+        choices:
+          - "Change the trunk's native VLAN to 30"
+          - "Create an SVI for VLAN 30"
+          - "Re-create VLAN 30 in the switch's VLAN database"
+          - "Enable PortFast on the affected ports"
+        answer: 2
+        why: "A port assigned to a VLAN that no longer exists on the switch has nowhere to forward frames. The VLAN must be defined in the VLAN database. An SVI gives a VLAN a routed address; it does not create the VLAN."
+      - id: np-2d-q15
+        type: mcq
+        q: "VLAN 40 is created on SW1 and SW2. VLAN 40 hosts on SW1 can ping each other but not VLAN 40 hosts on SW2. VLANs 10 and 20 work across the link. Both trunk ports show 'switchport trunk allowed vlan 10,20'. What is the BEST fix?"
+        choices:
+          - "Change the native VLAN to 40 on both switches"
+          - "Add VLAN 40 to the allowed list on both trunk ports"
+          - "Create an SVI for VLAN 40 on SW1"
+          - "Bundle a second link between the switches with LACP"
+        answer: 1
+        why: "The VLAN exists on both switches but is pruned from the trunk, so its frames are dropped at the link. Adding it to the allowed list fixes that directly; an SVI would only add a routed interface on one switch."
+      - id: np-2d-q16
+        type: mcq
+        q: "A desk has an IP phone with a PC plugged into the back of the phone, and a single switch port. Phones belong in VLAN 50 and PCs in VLAN 10. Which port configuration is correct?"
+        choices:
+          - "An access port in VLAN 10 with voice VLAN 50"
+          - "An access port in VLAN 50 with port security set to one MAC address"
+          - "A trunk port with native VLAN 50 that allows only VLAN 10"
+          - "A link aggregation group with one member in each VLAN"
+        answer: 0
+        why: "The PC's untagged frames go into the access (data) VLAN, 10, and the phone is told to tag its own frames for the voice VLAN, 50. The trunk option has it backwards: the PC's untagged frames would land in VLAN 50."
+      - id: np-2d-q17
+        type: mcq
+        q: "Two links between SW1 and SW2 are meant to form one aggregated link. On both switches the member ports are set to LACP passive mode. The bundle never forms. Why?"
+        choices:
+          - "LACP cannot bundle fewer than four links"
+          - "Both ends only wait for LACP messages, so neither one starts the negotiation"
+          - "Spanning tree blocked one link before LACP could negotiate"
+          - "The member ports must be access ports for LACP to work"
+        answer: 1
+        why: "A passive port answers LACP messages but never sends the first one, so at least one side must be active. Spanning tree treats a working bundle as one link, but it is not what stops this bundle from forming."
+      - id: np-2d-q18
+        type: mcq
+        q: "An old access switch whose bridge priority had been set to 4096 is added to a network where every other switch uses the default priority. Traffic between the two core switches now takes a slow path through the old switch. What is the BEST fix?"
+        choices:
+          - "Set the bridge priority on the intended core switch to a value lower than 4096"
+          - "Set the bridge priority on the intended core switch to 61440"
+          - "Enable PortFast on the uplinks to the old switch"
+          - "Raise the spanning tree port cost on the core switches' uplinks"
+        answer: 0
+        why: "The lowest priority wins the root election, so the old switch (4096 against 32768) became root and the tree was rebuilt around it. Giving the core a lower priority restores the root; 61440 would make the core the least likely root."
+      - id: np-2d-q19
+        type: mcq
+        q: "On switches running classic 802.1D spanning tree, PCs take about 30 seconds after link-up before they can send traffic, and some time out waiting for DHCP and take a 169.254.x.x address. What is the BEST fix?"
+        choices:
+          - "Disable spanning tree on the user VLAN"
+          - "Lower the bridge priority on the access switches"
+          - "Enable PortFast (edge port) on the ports that connect to PCs"
+          - "Enable BPDU guard on the uplink ports"
+        answer: 2
+        why: "A new port spends 15 seconds listening and 15 learning before it forwards; PortFast lets a host port skip straight to forwarding. Disabling spanning tree would also remove the delay, but it removes loop protection for the whole VLAN."
+      - id: np-2d-q20
+        type: mcq
+        q: "A user plugs a small managed switch from home into a wall jack. The access port immediately goes err-disabled and the log reads 'BPDU received on port with PortFast enabled'. Which feature shut the port down?"
+        choices:
+          - "Port security"
+          - "Root guard"
+          - "Loop guard"
+          - "BPDU guard"
+        answer: 3
+        why: "BPDU guard disables an edge port the moment it hears any spanning tree BPDU, which means a switch has been attached. Port security also err-disables ports, but it reacts to unexpected source MAC addresses, not to BPDUs."
+      - id: np-2d-q21
+        type: mcq
+        q: "Servers and a storage array on an iSCSI VLAN are set to an MTU of 9000. Small pings succeed, but large file copies stall, and a ping of 8972 bytes with the don't-fragment bit set fails. The switches between them have default settings. What is the BEST fix?"
+        choices:
+          - "Enable link aggregation between the servers and the switches"
+          - "Make the storage VLAN the native VLAN on the trunks"
+          - "Enable jumbo frames on every switch port in the path"
+          - "Hard-set the server ports to 1000 Mbps full duplex"
+        answer: 2
+        why: "An 8972-byte ping plus 28 bytes of headers is a 9000-byte packet, which default 1500-byte switch ports drop. Jumbo frames only work when every device in the path accepts them."
+      - id: np-2d-q22
+        type: mcq
+        q: "Users at a branch reach headquarters through a GRE tunnel. Small web pages load but large downloads hang. A ping of 1472 bytes with don't-fragment set fails; 1400 bytes succeeds. Interfaces show no errors. What is the BEST fix?"
+        choices:
+          - "Enable jumbo frames on the branch user VLAN"
+          - "Hard-set the WAN interface to full duplex"
+          - "Replace the tunnel's static route with a dynamic protocol"
+          - "Lower the MTU (and TCP maximum segment size) on the tunnel interface"
+        answer: 3
+        why: "The tunnel header uses part of the 1500 bytes, so full-size packets no longer fit and are dropped when they may not be fragmented. Lowering the tunnel MTU and segment size makes hosts send packets that fit. Jumbo frames on the LAN would make packets bigger, not smaller."
+      - id: np-2d-q23
+        type: mcq
+        q: "An access port is configured with port security: maximum 1 address, sticky learning, violation mode shutdown. A user's desktop is replaced with a laptop and the port goes err-disabled. What should the technician do to restore service?"
+        choices:
+          - "Clear the learned address for the port, then shut and re-enable the port"
+          - "Change the violation mode to protect and wait for the port to recover"
+          - "Enable PortFast on the port"
+          - "Move the port into the voice VLAN"
+        answer: 0
+        why: "The sticky entry still names the old desktop's MAC, so the laptop is a violation. The old address has to be removed and the err-disabled port brought back up by hand. Changing the violation mode does not re-enable a port that is already shut down."
+      - id: np-2d-q24
+        type: mcq
+        q: "On a Layer 3 switch, 'interface vlan 10' (10.0.10.1/24) is up/up but 'interface vlan 20' (10.0.20.1/24) is down/down. VLAN 20 exists in the VLAN database, but no access port is assigned to it and no trunk carries it. Why is the VLAN 20 interface down?"
+        choices:
+          - "IP routing has not been enabled on the switch"
+          - "No port in VLAN 20 is up, so its SVI has nothing to attach to"
+          - "The native VLAN does not match on the trunk"
+          - "The SVI needs an 802.1Q tag like a router subinterface"
+        answer: 1
+        why: "An SVI comes up only when its VLAN exists and at least one port in that VLAN is forwarding. If routing were disabled, the VLAN 10 interface would still be up/up, so that cannot explain a down interface."
+
+      - id: np-2d-m01
+        type: multi
+        q: "Two ports on a switch are to be bundled with LACP. Choose the THREE settings that must be identical on both member ports."
+        choices:
+          - "Speed"
+          - "Duplex"
+          - "Switchport mode and allowed VLANs"
+          - "Port description"
+          - "Cable length"
+          - "Burned-in MAC address"
+        answers: [0, 1, 2]
+        why: "Members of a bundle must behave as one link, so speed, duplex and VLAN/trunk settings must match. Descriptions and cable lengths have no effect on aggregation, and every port always has its own distinct MAC address."
+      - id: np-2d-m02
+        type: multi
+        q: "Choose the TWO statements that are true of OSPF but NOT of BGP."
+        choices:
+          - "Its metric is a cost derived from interface bandwidth"
+          - "It is an interior protocol, normally run inside one organisation"
+          - "It runs over TCP port 179"
+          - "It is classified as a path-vector protocol"
+          - "It is the protocol used to exchange routes with internet providers"
+        answers: [0, 1]
+        why: "OSPF is a link-state interior protocol with a bandwidth-based cost. TCP 179, path-vector operation and exchanging routes between autonomous systems all describe BGP."
+      - id: np-2d-m03
+        type: multi
+        q: "Hosts on a subnet must keep a working default gateway if one of two routers fails. Choose the TWO protocols that provide this."
+        choices:
+          - "VRRP"
+          - "LACP"
+          - "HSRP"
+          - "STP"
+          - "PAT"
+        answers: [0, 2]
+        why: "VRRP and HSRP are first hop redundancy protocols: two routers share a virtual gateway address. LACP bundles links, STP prevents switching loops and PAT translates addresses."
+      - id: np-2d-m04
+        type: multi
+        q: "Choose the TWO correct statements about how a router selects a route."
+        choices:
+          - "The longest matching prefix is used even if a shorter matching prefix has a lower administrative distance"
+          - "Administrative distance decides between routes to the same prefix learned from different sources"
+          - "Metrics are compared between routes learned from different protocols"
+          - "A static default route is preferred over a dynamically learned /8 that also matches"
+          - "When two sources offer the same prefix, the higher administrative distance wins"
+        answers: [0, 1]
+        why: "Prefix length is decided first; administrative distance only breaks ties between sources of the same prefix, and the lower value wins. Metrics are meaningful only inside one protocol, and a default route is the least specific match."
+      - id: np-2d-m05
+        type: multi
+        q: "A redundant link was added between two switches and the network slowed to a crawl. Choose the TWO symptoms that MOST directly indicate a Layer 2 loop."
+        choices:
+          - "Log messages that the same MAC address keeps moving between two ports"
+          - "Broadcast traffic saturating every port in the VLAN"
+          - "Traceroute output ending in 'TTL expired in transit'"
+          - "Late collisions counted on one access port"
+          - "A native VLAN mismatch message on one trunk"
+        answers: [0, 1]
+        why: "Looping frames arrive on alternating ports, so the MAC table flaps, and broadcasts multiply because Ethernet frames have no time-to-live. Expiring TTLs indicate a routing loop at Layer 3; late collisions indicate a duplex mismatch."
+      - id: np-2d-m06
+        type: multi
+        q: "Jumbo frames are being enabled for a storage VLAN. Choose the TWO true statements."
+        choices:
+          - "Every network card and switch port in the path must be set to accept the larger size"
+          - "They reduce per-packet overhead for large transfers"
+          - "They increase the maximum length of a twisted-pair cable run"
+          - "A switch port left at the default size will split oversized frames into smaller frames"
+          - "They only work on the native VLAN of a trunk"
+        answers: [0, 1]
+        why: "Fewer, larger frames carry the same data with fewer headers, but only if the whole path supports them. Ethernet has no Layer 2 fragmentation: a default-size port simply drops an oversized frame."
+
+      - id: np-2d-o01
+        type: order
+        q: "A router receives an Ethernet frame carrying an IP packet for a remote network. Put the forwarding steps in order."
+        steps:
+          - "Accept the frame because it is addressed to the router's own MAC address"
+          - "Strip the Ethernet header to expose the IP packet"
+          - "Find the longest-prefix match for the destination IP in the routing table"
+          - "Find the next hop's MAC address, using ARP if it is not cached"
+          - "Build a new frame and send it out of the exit interface"
+        why: "The router must decapsulate before it can read the IP destination, must choose a route before it knows which next hop to resolve, and must know the next hop's MAC before it can build the new frame."
+      - id: np-2d-o02
+        type: order
+        q: "Put the steps by which spanning tree builds a loop-free topology in order."
+        steps:
+          - "Elect the root bridge: the switch with the lowest bridge ID"
+          - "Each non-root switch picks its root port: the port with the lowest path cost to the root"
+          - "Each network segment picks one designated port"
+          - "All remaining ports are put into the blocking state"
+        why: "Everything is measured from the root, so it must be elected first. Root ports and then designated ports are chosen relative to it, and only the ports left over are blocked."
+      - id: np-2d-o03
+        type: order
+        q: "A PC behind a PAT router opens a web page. Put the events in order."
+        steps:
+          - "The PC sends a packet with its private source address and a source port to its default gateway"
+          - "The router replaces the source with its public address and a unique port, and records the mapping"
+          - "The web server replies to the public address and that port"
+          - "The router finds the mapping and rewrites the destination to the PC's private address and port"
+          - "The reply is delivered to the PC on the LAN"
+        why: "The mapping is created on the way out and looked up on the way back; a reply cannot be translated back before the outbound packet has created the entry."
+
+  # ───────────────── 2e · exam-hard: wireless and physical installation ─────────────────
+  - id: np-2e
+    title: "Exam-hard practice: wireless and physical installation"
+    domain: "2"
+    goal: "I can choose and justify wireless settings, access point designs and rack, power and environmental decisions in exam-style scenarios."
+    notes: |
+      These questions sit above exam difficulty. Most offer four options from the same family, so you must know *why* one fits.
+
+      **Wireless checklist**
+
+      - **Band and standard.** 802.11ac is 5 GHz only. 6 GHz needs Wi-Fi 6E and WPA3.
+      - **Channels.** 2.4 GHz has three clean 20 MHz channels: 1, 6, 11. Wider channels mean fewer of them. Much of 5 GHz is subject to radar rules (DFS, 802.11h).
+      - **Identity.** One ESSID, many BSSIDs. Personal = shared key; Enterprise = 802.1X and RADIUS.
+      - **Antennas.** Omnidirectional for a room; directional for an aisle or a link.
+      - **Management.** Autonomous access points are configured one by one; lightweight ones obey a controller.
+
+      **Physical checklist**
+
+      - Twisted pair stops at 100 m, so distant areas need their own IDF.
+      - Cool air in from the cold aisle, hot air out to the hot aisle; close gaps with blanking panels.
+      - Size power in watts, keep headroom, and feed dual power supplies from separate sources.
+      - A UPS covers minutes; a generator covers hours.
+    items:
+      - id: np-2e-q01
+        type: mcq
+        q: "An auditorium has twelve 5 GHz access points, all using 80 MHz channels. A survey shows strong signal everywhere but heavy co-channel interference and poor throughput. What is the BEST change?"
+        choices:
+          - "Reduce the channel width to 20 MHz so more non-overlapping channels are available"
+          - "Increase the channel width to 160 MHz"
+          - "Raise the transmit power on every access point"
+          - "Move all twelve access points to the 2.4 GHz band"
+        answer: 0
+        why: "Narrower channels give many more distinct channels, so neighbouring access points stop sharing airtime. 2.4 GHz has only three clean channels, and more power or wider channels would increase the overlap."
+      - id: np-2e-q02
+        type: mcq
+        q: "An access point near an airport uses 5 GHz channel 100. At random times all its clients are dropped and it reappears on a different channel. Its log reads 'Radar detected'. What is the BEST fix?"
+        choices:
+          - "Widen the channel to 160 MHz"
+          - "Disable band steering on the SSID"
+          - "Assign a channel that is not subject to DFS, such as 36 to 48"
+          - "Replace the omnidirectional antenna with a higher-gain one"
+        answer: 2
+        why: "Channel 100 is a DFS channel: under 802.11h the access point must vacate it whenever radar is detected. Channels 36-48 carry no radar rule. A 160 MHz channel would span even more DFS spectrum."
+      - id: np-2e-q03
+        type: mcq
+        q: "Dual-band laptops keep joining the 2.4 GHz radio of an SSID even though the same access point's 5 GHz radio is strong and nearly idle. Which access point feature addresses this?"
+        choices:
+          - "Beamforming"
+          - "Band steering"
+          - "MU-MIMO"
+          - "Channel bonding"
+        answer: 1
+        why: "Band steering encourages capable clients to associate on 5 GHz (or 6 GHz) instead of 2.4 GHz. Channel bonding widens a channel for more speed; it does not influence which band a client chooses."
+      - id: np-2e-q04
+        type: mcq
+        q: "A laptop's wireless log reads: 'Roamed from 3a:11:22:33:44:01 to 3a:11:22:33:44:02, network CorpNet, security unchanged'. Which identifier changed during the roam?"
+        choices:
+          - "The ESSID"
+          - "The pre-shared key"
+          - "The captive portal session"
+          - "The BSSID"
+        answer: 3
+        why: "The two MAC-style values identify individual access point radios: BSSIDs. The network name shared by both access points (the ESSID, 'CorpNet') stayed the same, which is what makes roaming seamless."
+      - id: np-2e-q05
+        type: mcq
+        q: "A warehouse has barcode scanners that support nothing newer than WPA2, and new laptops that support WPA3. Both must use one SSID for now, and each device should get the strongest protection it supports. Which setting fits?"
+        choices:
+          - "WPA3-Personal only"
+          - "WPA2-Personal with TKIP"
+          - "An open SSID with a captive portal"
+          - "WPA2/WPA3 transition (mixed) mode"
+        answer: 3
+        why: "Transition mode lets WPA3 clients use SAE while older clients join the same SSID with WPA2. WPA3-only would lock the scanners out, and TKIP is an obsolete cipher weaker than what either device supports."
+      - id: np-2e-q06
+        type: mcq
+        q: "An eight-person office has no servers and no IT staff. It wants the strongest Wi-Fi protection it can run without any extra infrastructure. Which should it choose?"
+        choices:
+          - "WPA3-Enterprise with 802.1X"
+          - "WPA3-Personal"
+          - "WPA2-Personal with a long passphrase"
+          - "An open SSID with a captive portal"
+        answer: 1
+        why: "WPA3-Personal needs only a passphrase, and its SAE exchange resists offline guessing in a way the WPA2 handshake does not. WPA3-Enterprise is stronger still but needs a RADIUS server, which this office does not have."
+      - id: np-2e-q07
+        type: mcq
+        q: "Hotel guests join an open SSID and accept terms on a captive portal. Guests then complain that they can browse shared folders on other guests' laptops. Which setting should be enabled on the guest SSID?"
+        choices:
+          - "Client isolation"
+          - "Band steering"
+          - "SSID broadcast suppression"
+          - "MAC address filtering"
+        answer: 0
+        why: "Client isolation stops wireless clients on the same SSID from talking to each other; they can only reach the gateway. Hiding the SSID or filtering MAC addresses changes who can join, not what joined devices can reach."
+      - id: np-2e-q08
+        type: mcq
+        q: "A warehouse has long, narrow aisles between tall metal racking, which blocks signal from ceiling access points. Access points can be mounted at the end of each aisle. Which antenna choice is BEST?"
+        choices:
+          - "Omnidirectional antennas on the ceiling above the racking"
+          - "Higher-gain omnidirectional antennas at the centre of the building"
+          - "Directional patch antennas aimed down each aisle"
+          - "One parabolic dish at one end of the building"
+        answer: 2
+        why: "A patch antenna puts its energy into a moderately wide beam that can be pointed along an aisle. A parabolic dish is directional too, but its very narrow beam suits a link between two fixed points, not coverage of an area."
+      - id: np-2e-q09
+        type: mcq
+        q: "A ceiling access point in a hall with a 12 m ceiling has its omnidirectional antenna swapped for a higher-gain omnidirectional antenna. Coverage at the far walls improves, but users directly beneath it now have a weaker signal. Why?"
+        choices:
+          - "Higher gain increases the total power, which overloads nearby clients"
+          - "Higher gain flattens the pattern, sending more energy sideways and less up and down"
+          - "Higher gain moves the antenna to the 5 GHz band, which has a shorter range"
+          - "Higher gain narrows the channel width"
+        answer: 1
+        why: "An antenna does not create power; gain comes from reshaping the pattern. A higher-gain omnidirectional antenna squashes the doughnut flatter, reaching further horizontally at the expense of the area above and below."
+      - id: np-2e-q10
+        type: mcq
+        q: "A site has 40 autonomous access points. Every SSID change means logging in to each one, and settings have drifted apart. What is the BEST long-term fix?"
+        choices:
+          - "Deploy a wireless LAN controller and run the access points as lightweight"
+          - "Convert the access points to a wireless mesh"
+          - "Give all 40 access points the same channel and SSID"
+          - "Replace them with fewer, higher-power autonomous access points"
+        answer: 0
+        why: "A controller pushes one configuration to every lightweight access point and coordinates channels and roaming. A mesh changes how access points get their uplink, not how they are managed."
+      - id: np-2e-q11
+        type: mcq
+        q: "A new lightweight access point is placed in a new VLAN on a different subnet from the wireless LAN controller. It powers up over PoE and gets a DHCP address, but never broadcasts an SSID. Other access points work. What is the MOST likely fix?"
+        choices:
+          - "Configure the SSIDs locally on the access point"
+          - "Set the access point's channel and power by hand"
+          - "Supply the controller's address through a DHCP option or a DNS record"
+          - "Change the access point's switch port to a higher PoE class"
+        answer: 2
+        why: "A lightweight access point is useless until it finds and joins its controller; across a subnet boundary its broadcast discovery fails, so DHCP or DNS must tell it where the controller is. It already has power and an address, so PoE is not the problem."
+      - id: np-2e-q12
+        type: mcq
+        q: "A car park needs Wi-Fi coverage from access points on six light poles. Every pole has mains power, but only one has an Ethernet cable. Which design is BEST?"
+        choices:
+          - "An ad hoc network between the six access points"
+          - "Six autonomous access points, each with its own wired uplink"
+          - "Five point-to-point bridges, each with a pair of parabolic dishes"
+          - "A wireless mesh in which the wired access point provides the uplink for the others"
+        answer: 3
+        why: "Mesh access points backhaul traffic over radio to a wired root, which is exactly what is needed where cabling exists at only one point. Wiring every pole is ruled out, and ad hoc mode links client devices, not infrastructure."
+      - id: np-2e-q13
+        type: mcq
+        q: "An office has dual-band laptops whose newest supported standard is 802.11ac, and a dual-band Wi-Fi 6 access point. An administrator switches off the access point's 5 GHz radio. How will the laptops connect?"
+        choices:
+          - "On 2.4 GHz using 802.11ac"
+          - "On 2.4 GHz using 802.11ax"
+          - "On 2.4 GHz using 802.11n"
+          - "On 2.4 GHz using 802.11a"
+        answer: 2
+        why: "802.11ac operates only in 5 GHz, so on 2.4 GHz the best standard these laptops share with the access point is 802.11n. They cannot use 802.11ax because the laptops do not support it, and 802.11a is a 5 GHz standard."
+      - id: np-2e-q14
+        type: mcq
+        q: "A Wi-Fi 6E access point is set to offer one SSID on 2.4, 5 and 6 GHz using WPA2-Personal. The SSID appears on 2.4 and 5 GHz but never on 6 GHz. Why?"
+        choices:
+          - "The 6 GHz band allows only 20 MHz channels"
+          - "The 6 GHz band can be used only for mesh backhaul"
+          - "The 6 GHz band cannot share an SSID name with other bands"
+          - "The 6 GHz band requires WPA3; WPA2-only networks are not permitted there"
+        answer: 3
+        why: "Wi-Fi in 6 GHz must use WPA3 (or its open-network equivalent), so a WPA2-only SSID is not offered on that radio. 6 GHz supports wide channels and ordinary client access under the same SSID as the other bands."
+      - id: np-2e-q15
+        type: mcq
+        q: "You are installing a single 2.4 GHz access point with a 20 MHz channel. A scan shows a neighbour's strong network on channel 6 and nothing else. Which of these channels is the BEST choice?"
+        choices: ["1", "4", "7", "8"]
+        answer: 0
+        why: "A channel must be five numbers away to avoid overlapping: channel 1 is clear of channel 6. Channels 4, 7 and 8 all partly overlap channel 6, which is worse than either sharing it or avoiding it."
+      - id: np-2e-q16
+        type: mcq
+        q: "An access point bought in Europe is installed in a US office on 2.4 GHz channel 13. European visitors' phones see it; the office's US-market laptops, which scan channels 1 to 11, do not. What is the cause?"
+        choices:
+          - "Channel 13 is a DFS channel and is waiting for a radar check"
+          - "The access point is using a channel outside the laptops' regulatory domain"
+          - "Channel 13 belongs to the 5 GHz band"
+          - "Channel 13 requires WPA3"
+        answer: 1
+        why: "Which channels may be used depends on the country, and clients built for a region scan only that region's channels. The access point should be set to the local regulatory domain. DFS applies to parts of 5 GHz, not to 2.4 GHz."
+      - id: np-2e-q17
+        type: mcq
+        q: "A provider's fiber enters a building in the basement, where the core switches are. Each floor has a closet with access switches. Where does the copper cable from a wall outlet on floor 3 terminate?"
+        choices:
+          - "On a patch panel in the floor 3 IDF"
+          - "On a patch panel in the basement MDF"
+          - "On the fiber distribution panel in the basement MDF"
+          - "On the provider's demarcation point"
+        answer: 0
+        why: "Horizontal runs from outlets end on a patch panel in that floor's IDF, keeping each run within 100 m. The MDF receives the backbone links from the IDFs, not individual desk cables."
+      - id: np-2e-q18
+        type: mcq
+        q: "A new wing's furthest desks would need 140 m of cable to reach the existing wiring closet. The desks need 1 Gbps. What is the BEST design?"
+        choices:
+          - "Run shielded Cat 6A to the existing closet"
+          - "Add an IDF in the new wing with a fiber uplink to the existing closet"
+          - "Run Cat 8 to the existing closet"
+          - "Run plenum-rated Cat 6 to the existing closet"
+        answer: 1
+        why: "Every twisted-pair category is limited to a 100 m channel, so the desks need a closer closet, linked back by fiber. Cat 8 sounds like an upgrade but is limited to about 30 m; shielding and plenum jackets do not extend distance."
+      - id: np-2e-q19
+        type: mcq
+        q: "A top-of-rack switch is mounted with its ports facing the hot aisle so that server cables are short. It raises over-temperature alarms, although the cold aisle is at 20 °C. Its fan modules are labelled 'port-side intake'. What is the BEST fix?"
+        choices:
+          - "Lower the room's cooling set point by 5 °C"
+          - "Move the switch to the bottom of the rack"
+          - "Fit blanking panels above and below the switch"
+          - "Replace the fan modules with port-side exhaust modules"
+        answer: 3
+        why: "With port-side intake and the ports in the hot aisle, the switch is drawing in the servers' exhaust. Reversing the airflow fixes the cause; cooling the room harder or moving the switch leaves it breathing hot air."
+      - id: np-2e-q20
+        type: mcq
+        q: "A rack is half full, with empty spaces left open between servers. The upper servers report high inlet temperatures although the cold aisle measures 20 °C and all the servers blow front to back. What is the BEST fix?"
+        choices:
+          - "Remove the rack's front and rear doors"
+          - "Lower the room's cooling set point by 5 °C"
+          - "Fit blanking panels in the empty rack spaces"
+          - "Raise the room's relative humidity"
+        answer: 2
+        why: "Open gaps let hot exhaust flow back to the front of the rack and be drawn in again. Blanking panels close the gaps and keep hot and cold air apart. Cooling the room harder treats the symptom and wastes energy while the exhaust still recirculates."
+      - id: np-2e-q21
+        type: mcq
+        q: "A closet's equipment draws 350 W, 350 W, 150 W and 500 W. Policy says a UPS may be loaded to no more than 80% of its watt rating. Which is the SMALLEST unit that meets the policy?"
+        choices:
+          - "1000 VA (900 W)"
+          - "1500 VA (1350 W)"
+          - "3000 VA (2700 W)"
+          - "2200 VA (1980 W)"
+        answer: 3
+        why: "The load is 1,350 W, and 1,350 / 0.8 = 1,688 W of capacity is needed. The 1500 VA unit's 1,350 W rating would be 100% loaded; the 2200 VA unit (1,980 W) is the smallest with enough headroom."
+      - id: np-2e-q22
+        type: mcq
+        q: "A site suffers utility outages lasting about four hours. Its servers must keep running throughout, without even a momentary interruption when the power fails. Which design is BEST?"
+        choices:
+          - "A UPS to carry the load instantly, plus a standby generator for the duration"
+          - "A standby generator alone"
+          - "Two rack power distribution units on the same utility circuit"
+          - "A surge suppressor on each rack"
+        answer: 0
+        why: "A generator can run for hours but takes time to start; the UPS covers that gap so the servers never lose power. A generator alone leaves a break of several seconds or more, which is enough to crash the servers."
+      - id: np-2e-q23
+        type: mcq
+        q: "A 2U server, 75 cm deep and weighing 28 kg, must be installed in a closet that has only a two-post rack holding patch panels. The server's sliding rails attach at both front and rear. What is the BEST approach?"
+        choices:
+          - "Bolt the server's front ears to the two-post rack"
+          - "Install a four-post rack or cabinet and mount the server on its rails"
+          - "Rest the server on top of the highest patch panel"
+          - "Mount the server vertically on the wall with a patch panel bracket"
+        answer: 1
+        why: "Deep, heavy equipment needs support at the front and rear, which only a four-post rack provides. A two-post rack suits light, shallow gear such as patch panels; hanging a 28 kg server by its front ears will bend them."
+      - id: np-2e-q24
+        type: mcq
+        q: "An insurer requires water sprinklers in a data hall. The operator wants the LOWEST possible risk of water reaching equipment through a damaged sprinkler head or a false trigger. Which system is BEST?"
+        choices:
+          - "A wet-pipe system"
+          - "A deluge system"
+          - "A pre-action system"
+          - "A dry-pipe system"
+        answer: 2
+        why: "Pre-action pipes stay dry until a separate detector operates, and water is released only where a head has also opened, so a single fault does not wet anything. A dry-pipe system also holds no water in the pipes, but one broken head is enough to flood it."
+
+      - id: np-2e-m01
+        type: multi
+        q: "Choose the TWO statements that correctly compare the 2.4 GHz and 5 GHz bands."
+        choices:
+          - "2.4 GHz signals pass through walls better and reach further"
+          - "5 GHz offers many more non-overlapping channels"
+          - "802.11ac can operate in either band"
+          - "5 GHz suffers more interference from microwave ovens and Bluetooth"
+          - "2.4 GHz supports 160 MHz channels"
+        answers: [0, 1]
+        why: "Lower frequencies travel further and penetrate better, while 5 GHz has far more spectrum. 802.11ac is 5 GHz only, microwave ovens and Bluetooth sit in 2.4 GHz, and the whole 2.4 GHz band is less than 160 MHz wide."
+      - id: np-2e-m02
+        type: multi
+        q: "A guest wireless network is being designed. Choose the TWO measures that belong in the design."
+        choices:
+          - "Its own VLAN, firewalled from the internal subnets"
+          - "Client isolation between guest devices"
+          - "The same passphrase as the staff SSID, for convenience"
+          - "A trunk that delivers the server VLAN to guest devices"
+          - "Placement in the switch management VLAN so guest devices can be monitored"
+        answers: [0, 1]
+        why: "Guests should be separated from internal networks and from each other. Sharing the staff passphrase, exposing the server VLAN or putting guests on the management VLAN each give visitors a path to internal systems."
+      - id: np-2e-m03
+        type: multi
+        q: "Choose the TWO statements that describe a lightweight access point deployment rather than an autonomous one."
+        choices:
+          - "Configuration and firmware are pushed to the access points from a central controller"
+          - "Each access point builds a control tunnel to the controller"
+          - "Each access point is configured through its own web interface"
+          - "Each access point keeps working with its full configuration if every other device is removed"
+          - "The access points operate in ad hoc mode"
+        answers: [0, 1]
+        why: "Lightweight access points join a controller over a tunnel (CAPWAP) and take their settings from it. Individual configuration and complete self-sufficiency are the marks of an autonomous access point; neither kind uses ad hoc mode."
+      - id: np-2e-m04
+        type: multi
+        q: "An equipment room's relative humidity has been at 85% for weeks. Choose the TWO problems this is likely to cause."
+        choices:
+          - "Condensation forming on components"
+          - "Corrosion of connectors and contacts"
+          - "More frequent electrostatic discharge"
+          - "Voltage sag on the room's circuits"
+          - "A shorter maximum length for copper cable runs"
+        answers: [0, 1]
+        why: "Damp air condenses on cooler surfaces and corrodes metal contacts. Static discharge is the problem of air that is too dry, and humidity changes neither the supply voltage nor the 100 m cabling limit."
+      - id: np-2e-m05
+        type: multi
+        q: "A server has two power supplies. Choose the TWO measures that together remove any single point of failure in its power feed."
+        choices:
+          - "Connect each power supply to a different rack power distribution unit"
+          - "Feed the two power distribution units from separate circuits, each with its own UPS"
+          - "Connect both power supplies to one power distribution unit with a larger breaker"
+          - "Raise the single feed's voltage from 120 V to 208 V"
+          - "Fit a longer-runtime battery to the single UPS"
+        answers: [0, 1]
+        why: "Redundancy needs two independent paths all the way back: separate power distribution units on separate circuits and UPSs. A bigger breaker, a higher voltage or a bigger battery still leaves one path whose failure takes the server down."
+      - id: np-2e-m06
+        type: multi
+        q: "Two offices 2 km apart are to be joined by an outdoor point-to-point wireless bridge. Choose the TWO requirements for a reliable link."
+        choices:
+          - "A clear line of sight between the two antennas"
+          - "Directional antennas at both ends, aligned with each other"
+          - "An omnidirectional antenna at one end to simplify alignment"
+          - "Both radios set to ad hoc mode"
+          - "A captive portal on the bridge link"
+        answers: [0, 1]
+        why: "A long link needs focused antennas pointed at each other with nothing in the way. An omnidirectional antenna wastes most of its power in other directions, and ad hoc mode and captive portals are for client devices, not bridges."
+
+      - id: np-2e-o01
+        type: order
+        q: "A laptop joins a WPA2-Enterprise network for the first time today. Put the steps in order."
+        steps:
+          - "The laptop discovers the SSID from the access point's beacons"
+          - "The laptop associates with the access point"
+          - "The user's credentials are checked by the RADIUS server through an 802.1X exchange"
+          - "The four-way handshake produces the encryption keys for the session"
+          - "The laptop obtains an IP address by DHCP"
+        why: "Association must exist before 802.1X can run over it, the handshake uses key material that authentication produced, and no ordinary data such as DHCP passes until the keys are in place."
+      - id: np-2e-o02
+        type: order
+        q: "A visitor's phone uses a guest network that has a captive portal. Put the events in order."
+        steps:
+          - "The phone associates with the open guest SSID"
+          - "The phone receives an IP address by DHCP"
+          - "The phone's first web request is intercepted and redirected to the portal page"
+          - "The visitor accepts the terms or enters a voucher code"
+          - "The gateway allows the phone's traffic out to the internet"
+        why: "The phone needs a link and an address before it can make a web request, the portal can only capture a request that has been made, and access is opened only after the visitor completes the portal page."
+      - id: np-2e-o03
+        type: order
+        q: "A data centre has a UPS and a standby generator with an automatic transfer switch. Utility power fails and later returns. Put the events in order."
+        steps:
+          - "Utility power fails"
+          - "The UPS battery carries the load without a break"
+          - "The generator starts and reaches a stable output"
+          - "The transfer switch moves the load to the generator"
+          - "Utility power returns, the load is transferred back and the UPS recharges"
+        why: "The UPS takes over instantly because the generator needs time to start; the transfer switch moves the load only once generator output is stable, and the load returns to the utility when it is restored."

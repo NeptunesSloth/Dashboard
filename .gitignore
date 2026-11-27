@@ -1,71 +1,23 @@
-# Python bytecode and caches
 __pycache__/
 *.py[cod]
-*$py.class
-
-# Virtual environments
 .venv/
 venv/
-env/
-ENV/
-
-# Test and tool caches
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .coverage
-.coverage.*
 htmlcov/
-
-# Logs
 *.log
-logs/
-
-# SQLite databases
-*.sqlite
-*.sqlite3
-*.db
-
-# Archives
-*.zip
-*.tar
-*.tar.gz
-*.tgz
-*.gz
-
-# Generated image artifacts
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.webp
-*.bmp
-
-# Node / frontend build tooling (opt-in Vite pipeline)
-node_modules/
-frontend-dist/
-npm-debug.log*
-
-# OS/editor
 .DS_Store
 .idea/
 .vscode/
 
-# never commit secrets
+# never commit secrets or personal progress
 .env
 .env.*
-# ...but the documented template (no real secrets) IS tracked
-!.env.example
+academy_state.json*
 
-# ...but the Sect Map / sect HQ art assets ARE part of the app and must be tracked
-!maybot_control_center/static/assets/map/*.png
-!maybot_control_center/static/assets/map/**/*.png
-!maybot_control_center/static/assets/sect/*.png
-!maybot_control_center/static/assets/sect/**/*.png
-
-# ...and the documentation screenshots are tracked
-!docs/img/*.png
-sect_state.json
-
-# Claude Code local state + ephemeral agent worktrees
+# working folders
+research_notes/
+reports/
 .claude/

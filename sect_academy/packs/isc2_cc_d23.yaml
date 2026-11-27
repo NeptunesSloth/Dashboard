@@ -1,0 +1,786 @@
+part_of: isc2-cc
+
+units:
+  # ───────────────────── Domain 2 — coverage ─────────────────────
+  - id: cc-2b
+    title: "Security Governance — the full syllabus"
+    domain: "2"
+    goal: "I can name the frameworks, tools, recovery options, awareness topics and metrics that make up a governed security programme."
+    notes: |
+      ## Filling in Domain 2
+
+      The first governance unit gave you the skeleton. This one adds the detail the exam expects under each sub-objective.
+
+      **GRC frameworks and tools.** The **NIST CSF** organizes a programme into six functions (Govern, Identify, Protect, Detect, Respond, Recover). **ISO/IEC 27001** is the one you can be *certified* against. The **CIS Controls** are a short, prioritized to-do list. A *GRC platform* keeps policies, risks and evidence together; an *audit* checks independently that it is all true.
+
+      **Redundancy.** Know the outer limit (**MTD**) and the three alternate sites:
+
+      | Site | Ready in | Cost |
+      | Hot | minutes to hours | highest |
+      | Warm | hours to days | medium |
+      | Cold | days to weeks | lowest |
+
+      Backups: an *incremental* is small but slow to restore; a *differential* is larger but needs only two sets.
+
+      **Awareness.** Phishing has relatives named by channel or target: *spear phishing*, *whaling*, *vishing*, *smishing* and *business email compromise*. Culture is set by what leaders do.
+
+      **Measurement.** *Dashboards* are live; *scorecards* grade against targets; **MTTD** shows how long attackers go unnoticed.
+    items:
+      - id: cc-2b-grc
+        type: concept
+        term: "Governance, risk and compliance (GRC)"
+        def: "The joined-up discipline of setting direction, deciding which dangers to treat and proving that obligations are met, run as one coordinated programme instead of three separate efforts."
+      - id: cc-2b-isms
+        type: concept
+        term: "Information security management system (ISMS)"
+        def: "The organization-wide set of policies, processes, roles and continual-improvement cycles through which information risks are managed; it is what a certification auditor examines."
+      - id: cc-2b-policy-exception
+        type: concept
+        term: "Policy exception"
+        def: "A documented, approved and time-limited permission to deviate from a mandatory rule, recorded with its owner, its justification and the compensating safeguards."
+      - id: cc-2b-grc-platform
+        type: concept
+        term: "GRC platform"
+        def: "Software that holds policies, identified risks, control tests and audit evidence in one place and maps each control to every obligation it satisfies."
+      - id: cc-2b-audit
+        type: concept
+        term: "Audit"
+        def: "A systematic, independent examination of evidence to determine whether controls and practices really conform to stated requirements."
+      - id: cc-2b-mtd
+        type: concept
+        term: "Maximum tolerable downtime (MTD)"
+        def: "The outer limit of an outage beyond which the organization suffers unacceptable, possibly irrecoverable, harm; every recovery target for the function must be set shorter than this."
+      - id: cc-2b-hot-site
+        type: concept
+        term: "Hot site"
+        def: "A fully equipped alternate facility with systems running and data kept current, able to take over operations within minutes to hours."
+      - id: cc-2b-warm-site
+        type: concept
+        term: "Warm site"
+        def: "An alternate facility with hardware and connectivity already installed but without current data, so recovery takes hours to days while backups are restored."
+      - id: cc-2b-cold-site
+        type: concept
+        term: "Cold site"
+        def: "An alternate facility offering only space, power and environmental controls; equipment must be brought in and data restored, so recovery takes days to weeks."
+      - id: cc-2b-failover
+        type: concept
+        term: "Failover"
+        def: "The automatic switching of a workload to a standby component or location when the active one stops working."
+      - id: cc-2b-spof
+        type: concept
+        term: "Single point of failure"
+        def: "Any one component whose loss alone would stop an entire service, because nothing else can take over its job."
+      - id: cc-2b-incremental
+        type: concept
+        term: "Incremental backup"
+        def: "A copy of only the data changed since the most recent backup of any kind; quick to take, but a restore needs the last full copy plus every one of these made since."
+      - id: cc-2b-differential
+        type: concept
+        term: "Differential backup"
+        def: "A copy of all data changed since the last full backup; it grows each day, but a restore needs only the full copy plus the latest one of these."
+      - id: cc-2b-security-culture
+        type: concept
+        term: "Security culture"
+        def: "The shared attitudes, habits and unwritten norms that determine how people in an organization actually treat the protection of information when nobody is checking."
+      - id: cc-2b-role-based-training
+        type: concept
+        term: "Role-based security training"
+        def: "Instruction tailored to the particular risks of a job function, such as secure coding for developers or payment-fraud checks for accounts staff."
+      - id: cc-2b-spear-phishing
+        type: concept
+        term: "Spear phishing"
+        def: "A fraudulent message crafted for one specific person or small group, using researched personal details to appear credible."
+      - id: cc-2b-vishing
+        type: concept
+        term: "Vishing"
+        def: "A deception attack carried out by telephone call or voice message, in which the speaker poses as a trusted party to extract information or actions."
+      - id: cc-2b-smishing
+        type: concept
+        term: "Smishing"
+        def: "A deception attack delivered by SMS or other mobile text message, typically carrying a malicious link or a number to ring."
+      - id: cc-2b-bec
+        type: concept
+        term: "Business email compromise (BEC)"
+        def: "A fraud in which an attacker spoofs or takes over the mailbox of a trusted executive or supplier to request payments or new bank details, often with no link or attachment at all."
+      - id: cc-2b-scorecard
+        type: concept
+        term: "Scorecard"
+        def: "A periodic summary that grades each security area against preset targets, so leaders can see where the programme is on or off track."
+      - id: cc-2b-dashboard
+        type: concept
+        term: "Security dashboard"
+        def: "A continuously refreshed visual display of key measurements, designed to be read at a glance."
+      - id: cc-2b-mttd
+        type: concept
+        term: "Mean time to detect (MTTD)"
+        def: "The average interval between the start of a security incident and the moment the organization becomes aware of it."
+
+      - id: cc-2b-q01
+        type: mcq
+        q: "A company structuring its programme on the NIST Cybersecurity Framework 2.0 is writing its risk management strategy, assigning cybersecurity roles and setting up policy oversight. Under which CSF function do these activities fall?"
+        choices: ["Govern", "Identify", "Protect", "Respond"]
+        answer: 0
+        why: "Govern, added in CSF 2.0, covers strategy, roles, policy and oversight. Identify is tempting, but it is about understanding the organization's assets and the risks to them, not about setting direction."
+      - id: cc-2b-q02
+        type: mcq
+        q: "A prospective customer demands a certificate, issued by an accredited independent body, showing that a supplier's information security management system meets an international standard. Which should the supplier pursue?"
+        choices: ["Alignment with the NIST Cybersecurity Framework", "ISO/IEC 27001 certification", "Adoption of the CIS Critical Security Controls", "A self-assessment against its own security policy"]
+        answer: 1
+        why: "ISO/IEC 27001 specifies requirements for an information security management system and is the standard organizations are certified against. The NIST CSF is a voluntary framework to align with; it has no certification of that kind."
+      - id: cc-2b-q03
+        type: mcq
+        q: "A recovery facility has servers racked, network links live and software installed, but no current data: the latest backups must be restored before work can resume, which takes about a day. What type of site is it?"
+        choices: ["Hot site", "Cold site", "Warm site", "Mirrored site"]
+        answer: 2
+        why: "Equipment in place but data not current is a warm site. A hot site would already hold up-to-date data, and a cold site would have no equipment installed at all."
+      - id: cc-2b-q04
+        type: mcq
+        q: "During a business impact analysis, the head of claims says the firm would face sanctions it could not survive if claims processing were unavailable for more than 72 hours. Which value has she stated?"
+        choices: ["Recovery time objective (RTO)", "Recovery point objective (RPO)", "Mean time to detect (MTTD)", "Maximum tolerable downtime (MTD)"]
+        answer: 3
+        why: "The point beyond which the damage becomes unacceptable is the maximum tolerable downtime. The RTO is the recovery target the organization then chooses, and it must be shorter than the MTD."
+      - id: cc-2b-q05
+        type: mcq
+        q: "A file server has a full backup every Sunday night and a differential backup every other night. It fails on Thursday morning. Which backups are needed to restore it as completely as possible?"
+        choices: ["Sunday's full and Wednesday's differential only", "Sunday's full and the Monday, Tuesday and Wednesday differentials", "Wednesday's differential only", "Sunday's full only"]
+        answer: 0
+        why: "Each differential holds everything changed since the last full backup, so only the full and the most recent differential are needed. Needing every nightly set since the full is how incremental backups work."
+      - id: cc-2b-q06
+        type: mcq
+        q: "An employee receives a text message saying a parcel is being held for an unpaid fee, with a shortened link to a page that asks for card details. Which type of attack is this?"
+        choices: ["Vishing", "Smishing", "Whaling", "Business email compromise"]
+        answer: 1
+        why: "Phishing delivered by text message is smishing. Vishing uses a voice call, which is the usual confusion between the two."
+      - id: cc-2b-q07
+        type: mcq
+        q: "Attackers study a chief financial officer's public profile and send her a personalised email about a supposed lawsuit, hoping to capture her credentials. Which term MOST precisely describes this attack?"
+        choices: ["Smishing", "Spear phishing", "Whaling", "Vishing"]
+        answer: 2
+        why: "Whaling is targeted phishing aimed specifically at a senior executive. Spear phishing is the broader category for any targeted individual, so it is correct but less precise."
+      - id: cc-2b-q08
+        type: mcq
+        q: "Each quarter the security steering committee receives a one-page summary that marks every programme area, such as patching, access reviews and training, as on or off target against goals agreed at the start of the year. What is this reporting tool?"
+        choices: ["A dashboard", "An audit report", "A risk register", "A scorecard"]
+        answer: 3
+        why: "A periodic grading of performance against preset targets is a scorecard. A dashboard is the tempting neighbour, but it is a continuously updated display of current measurements, not a periodic grade."
+      - id: cc-2b-q09
+        type: mcq
+        q: "An investigation shows that an intruder first gained access on 1 March, but the security team did not notice until 10 April. Which metric does this interval feed?"
+        choices: ["Mean time to detect (MTTD)", "Mean time to respond (MTTR)", "Recovery time objective (RTO)", "Maximum tolerable downtime (MTD)"]
+        answer: 0
+        why: "The gap between an incident starting and the organization becoming aware of it is time to detect. Time to respond is measured from detection onward."
+      - id: cc-2b-q10
+        type: mcq
+        q: "After an unrelated shopping site is breached, a company's customer portal sees thousands of logins that each succeed at the first attempt with a valid username and password. Which password-protection practice would MOST directly have defeated this attack?"
+        choices: ["Locking accounts after five failed attempts", "Using a different password for every site", "Requiring at least one symbol in every password", "Hiding the password as it is typed"]
+        answer: 1
+        why: "The attacker is replaying pairs leaked from the other site (credential stuffing); unique passwords make those pairs useless here. Lockout is tempting, but it never triggers because each login succeeds first time."
+
+  # ───────────────────── Domain 2 — exam-hard practice ─────────────────────
+  - id: cc-2c
+    title: "Security Governance — exam-hard practice"
+    domain: "2"
+    goal: "I can apply governance, continuity, awareness and measurement concepts to scenarios where two answers look right."
+    notes: |
+      ## How to beat the hard governance questions
+
+      The adaptive exam keeps raising the difficulty while you answer well, so expect scenarios where every choice sounds sensible. A few habits decide most of them.
+
+      **Find the qualifier.** *FIRST* asks for sequence, *BEST* for the most complete fix, *LEAST expensive that still meets* for a cost-benefit trade.
+
+      **Think like a manager, not a technician.**
+
+      - Human safety comes before any system.
+      - Accountability stays with the organization and its senior leaders; it cannot be outsourced or delegated away.
+      - Risk is accepted by the business owner, never by the person who found it.
+      - Rules that cannot be met get a *documented, time-limited exception*, not silence.
+
+      **Do the arithmetic.** For recovery questions, compare *downtime* with the **RTO** and *data lost* with the **RPO**, separately.
+
+      **Name the attack by channel and target.** Text is smishing, voice is vishing, an executive target is whaling, a payment request with no link is business email compromise.
+
+      **Judge a metric by its audience.** Boards need trends against targets, not raw counts.
+    items:
+      - id: cc-2c-q01
+        type: mcq
+        q: "A risk assessment finds that a legacy billing system carries a risk above the organization's stated risk appetite. Fixing it would cost more than the business unit's annual budget, and the unit wants to keep running the system as it is. Who should formally decide whether to accept this risk?"
+        choices: ["The security manager who performed the assessment", "The system administrator who maintains the system", "The senior executive accountable for the business unit", "The internal auditor who reviews the unit"]
+        answer: 2
+        why: "Accepting risk is a management decision made by the accountable business owner with the authority to bear the loss. The security manager is tempting, but security's role is to assess and advise, not to accept risk on the business's behalf."
+      - id: cc-2c-q02
+        type: mcq
+        q: "A laboratory instrument's controller cannot support the 14-character passwords that the company password standard requires, and the vendor has no fix. The instrument is essential to production. What is the BEST governance response?"
+        choices: ["Rewrite the standard to the shorter length the controller supports", "Let the laboratory carry on unrecorded, since the device is essential", "Remove the instrument from the scope of the next audit", "Grant a documented, time-limited exception approved by the risk owner, with compensating controls"]
+        answer: 3
+        why: "A formal exception keeps the deviation visible, owned, mitigated and due for review. Weakening the standard for everyone is the tempting shortcut, but it lowers protection across the whole organization to suit one device."
+      - id: cc-2c-q03
+        type: mcq
+        q: "A cloud provider wants to give enterprise customers the STRONGEST assurance that its security controls operated effectively throughout the past year. Which form of evidence serves this best?"
+        choices: ["An attestation report from an independent external auditor covering the period", "A self-assessment questionnaire completed by the provider's security team", "An internal audit report issued to the provider's own management", "A copy of the provider's security policy signed by its chief executive"]
+        answer: 0
+        why: "Independence is what gives audit evidence its weight, and a report covering a period shows that controls actually operated. An internal audit is useful but is still the organization examining itself."
+      - id: cc-2c-q04
+        type: mcq
+        q: "A 40-person firm with one IT generalist asks for a short, prioritized list of concrete safeguards to implement first, such as inventorying devices and software and applying secure configurations. Which resource fits BEST?"
+        choices: ["ISO/IEC 27001, because it specifies a management system", "The CIS Critical Security Controls, because they are a prioritized set of specific actions", "The NIST Cybersecurity Framework, because it describes outcomes by function", "A risk register, because it lists the firm's identified risks"]
+        answer: 1
+        why: "The CIS Controls are a prioritized list of specific safeguards, beginning with asset and software inventory. The NIST CSF describes outcomes to achieve but deliberately does not prescribe which actions to take first."
+      - id: cc-2c-q05
+        type: mcq
+        q: "A retailer outsources payroll to a service provider under a contract with strong security clauses. The provider is breached and employee records leak. Which statement about the retailer's position is correct?"
+        choices: ["The contract transferred accountability for the data to the provider", "The retailer is accountable only if its own systems were the entry point", "The retailer remains accountable for the data; only the operation of controls was delegated", "Accountability passes to whichever party holds cyber insurance"]
+        answer: 2
+        why: "Responsibility for doing the work can be delegated to a third party, but accountability for protecting the data stays with the organization that collected it. A contract or insurance can shift cost, not accountability."
+      - id: cc-2c-q06
+        type: mcq
+        q: "A company must show compliance with three overlapping frameworks. Evidence sits in dozens of spreadsheets, the same control is tested three times, and nobody can say which risks are overdue for treatment. Which tool addresses this BEST?"
+        choices: ["A SIEM that correlates logs from all systems", "A vulnerability scanner with compliance templates", "A configuration management database of all assets", "A GRC platform that maps each control once to every requirement it meets"]
+        answer: 3
+        why: "A GRC platform centralizes policies, risks, control tests and evidence, and maps one control to many requirements so it is tested once. A SIEM centralizes security events, not compliance obligations."
+      - id: cc-2c-q07
+        type: mcq
+        q: "A database has an RPO of 4 hours and an RTO of 6 hours. Backups run once a day at 02:00. The database fails at 17:00 and is back in service at 21:00, restored from the 02:00 backup. Which objectives were met?"
+        choices: ["The RTO was met but the RPO was missed", "The RPO was met but the RTO was missed", "Both objectives were met", "Neither objective was met"]
+        answer: 0
+        why: "Downtime was 4 hours, inside the 6-hour RTO. Data from 02:00 to 17:00, 15 hours of work, was lost, far beyond the 4-hour RPO, because backups ran only daily."
+      - id: cc-2c-q08
+        type: mcq
+        q: "Smoke is reported in the data hall during working hours, and the fire suppression system has not yet discharged. Staff are at their desks in the next room. Under sound continuity planning, what is the FIRST priority?"
+        choices: ["Fail critical systems over to the recovery site", "Evacuate staff and confirm that everyone is safe", "Shut the servers down gracefully to protect data", "Notify customers of a possible outage"]
+        answer: 1
+        why: "The safety of people always comes before systems, data or reputation. Failing over is the right next step for the business, but only once people are out of danger."
+      - id: cc-2c-q09
+        type: mcq
+        q: "A business impact analysis gives order fulfilment a maximum tolerable downtime of five days. Replacement servers take three weeks to be delivered, and the budget is tight. Which option is the LEAST expensive that still meets the requirement?"
+        choices: ["A hot site with real-time data replication", "A cold site with power and cooling only", "A warm site with hardware installed and data restored from backup", "Rebuilding at the primary site once new servers arrive"]
+        answer: 2
+        why: "A warm site already has hardware, so restoring data takes hours to days, inside five days. A cold site is cheaper but would wait three weeks for servers, and a hot site meets the need at a cost the requirement does not justify."
+      - id: cc-2c-q10
+        type: mcq
+        q: "A web service runs on two web servers and a two-node database cluster. Every device has dual power supplies, and the site has links from two internet providers. All traffic passes through one load balancer in front of the web servers. Which component is the single point of failure?"
+        choices: ["The web servers", "The database cluster", "The internet links", "The load balancer"]
+        answer: 3
+        why: "Everything else is duplicated, but there is only one load balancer and all traffic depends on it. Duplicating servers behind an unduplicated device does not make the service redundant."
+      - id: cc-2c-q11
+        type: mcq
+        q: "Management wants proof that the recovery site can actually process a day's transactions, but will not permit any interruption to production. Which type of disaster recovery test fits BEST?"
+        choices: ["Parallel test", "Full-interruption test", "Tabletop walk-through", "Checklist review"]
+        answer: 0
+        why: "A parallel test brings the recovery site up and runs real processing there while production carries on. A full-interruption test gives the same proof but shuts production down, which management has ruled out."
+      - id: cc-2c-q12
+        type: mcq
+        q: "A file server's nightly backup window is too short for a full backup every night, so full backups run on Saturdays. The recovery team insists that any restore must need no more than two backup sets. Which scheme meets both constraints?"
+        choices: ["Weekly full plus nightly incremental backups", "Weekly full plus nightly differential backups", "Nightly incremental backups with no full backup", "A full backup every night"]
+        answer: 1
+        why: "A differential holds everything since the last full, so a restore needs only the full and the latest differential. Incrementals are faster to take but a Friday restore would need the full plus up to six sets."
+      - id: cc-2c-q13
+        type: mcq
+        q: "The infrastructure team proposes setting every system's RTO at 24 hours because that is what the current restore tooling can achieve. What is the BEST objection?"
+        choices: ["RTOs should be taken from the backup vendor's service levels", "RTOs should all equal the shortest RPO in the organization", "RTOs should come from the business impact analysis with process owners; technology is then chosen to meet them", "RTOs should be set after the first real disaster shows what is realistic"]
+        answer: 2
+        why: "Recovery targets express what the business can tolerate, which the BIA establishes with the process owners. Starting from what the tooling can do reverses the logic and may leave critical functions down far too long."
+      - id: cc-2c-q14
+        type: mcq
+        q: "A file server stores its data on a mirrored disk array. Ransomware encrypts every file, and both disks now hold identical encrypted data. Which control would have allowed recovery?"
+        choices: ["A second mirrored array replicating in real time", "A failover cluster node sharing the same storage", "An uninterruptible power supply for the server", "An offline backup copy taken before the attack"]
+        answer: 3
+        why: "Redundancy protects availability against component failure, but it faithfully copies corruption too; only a separate, offline backup preserves a clean earlier version. More real-time replication would simply replicate the encrypted files."
+      - id: cc-2c-q15
+        type: mcq
+        q: "An accounts clerk receives an email that appears to be from the chief executive: 'In a meeting, cannot talk. Wire 48,000 to our supplier's new account below today and keep this confidential.' The sending domain differs from the company's by one letter. There is no link or attachment, and the mail filter did not flag it. Which control would MOST reliably prevent the loss?"
+        choices: ["Confirming the request by calling the chief executive on a number already on file", "Replying to the email to ask the chief executive to confirm", "Scanning the message with updated anti-malware software", "Checking that the message has the usual signature block"]
+        answer: 0
+        why: "This is business email compromise, and verification through a separate, already trusted channel defeats it. Replying is tempting but the reply goes to the attacker's look-alike domain, and there is no malware for a scanner to find."
+      - id: cc-2c-q16
+        type: mcq
+        q: "A help desk agent takes a call from someone whose voice sounds exactly like the finance director, asking for an urgent reset of her MFA device. It later emerges that the voice was generated by AI from public recordings. Classified by delivery channel, which attack is this?"
+        choices: ["Smishing", "Vishing", "Whaling", "Baiting"]
+        answer: 1
+        why: "Social engineering carried out by voice call is vishing, however the voice was produced. Whaling is tempting because an executive is involved, but she is being impersonated; the target is the help desk agent."
+      - id: cc-2c-q17
+        type: mcq
+        q: "Several USB drives labelled 'Salary review - confidential' are found in the staff car park. An employee plugs one into a work laptop, which silently installs malware. Which social engineering technique was used?"
+        choices: ["Pretexting", "Quid pro quo", "Baiting", "Tailgating"]
+        answer: 2
+        why: "Baiting leaves a tempting item for the victim to pick up and use out of curiosity. Quid pro quo is the near neighbour, but there the attacker actively offers a service or favour in exchange for something."
+      - id: cc-2c-q18
+        type: mcq
+        q: "Two subsidiaries use the same awareness course and the same policies. At one, staff routinely report suspicious emails. At the other, staff ignore the rules, and its managers are known to share passwords and wave visitors through secure doors. What MOST likely explains the difference?"
+        choices: ["The second subsidiary delivers the course too infrequently", "The second subsidiary's policies lack technical detail", "The second subsidiary's staff have not signed the acceptable use policy", "The second subsidiary's leaders do not model the behaviour they expect"]
+        answer: 3
+        why: "Culture follows what leaders visibly do, not what the course says; staff copy managers who bypass controls. Course frequency is identical in both subsidiaries, so it cannot explain the gap."
+      - id: cc-2c-q19
+        type: mcq
+        q: "An audit finds that under a rule forcing complex 8-character passwords to change every 30 days, most staff choose patterns such as 'Autumn2026!' and simply increment them. Which policy change would MOST improve password protection?"
+        choices: ["Allow long passphrases, screen them against breach lists, and change only on suspected compromise", "Shorten the forced-change interval from 30 days to 14 days", "Require two more symbols and one more digit in every password", "Replace the help desk reset process with personal security questions"]
+        answer: 0
+        why: "Length and screening against known-compromised passwords add real strength, while frequent forced changes push people into predictable patterns. Shortening the interval intensifies the very behaviour the audit found."
+      - id: cc-2c-q20
+        type: mcq
+        q: "A risk committee asks for a key risk indicator, not a key performance indicator. Which measure fits BEST?"
+        choices: ["Percentage of staff who completed awareness training by the deadline", "Number of internet-facing systems running an unsupported operating system, tracked against a threshold", "Average time for the help desk to close a password-reset ticket", "Number of planned internal audits completed this year"]
+        answer: 1
+        why: "A count of exposed, unsupported systems against a threshold warns that exposure to loss is rising, which is what a KRI does. Training completion is the tempting choice, but it measures whether a process hit its target, making it a KPI."
+      - id: cc-2c-q21
+        type: mcq
+        q: "Post-incident reviews show that attackers were typically inside the network for 40 days before anyone noticed, but once an alert was raised, containment took under two hours. Which metric MOST needs improvement?"
+        choices: ["Mean time to respond", "Recovery time objective", "Mean time to detect", "Recovery point objective"]
+        answer: 2
+        why: "The long gap is between compromise and awareness, which is time to detect. Response is already fast once an alert exists, so investing there would not shorten the 40 days."
+      - id: cc-2c-q22
+        type: mcq
+        q: "A CISO may put one figure in front of the board this quarter. Which is MOST useful for a governance decision?"
+        choices: ["4.2 million malicious emails blocked by the gateway this quarter", "312 vulnerabilities of all severities found by this month's scan", "99.97% uptime of the perimeter firewalls this quarter", "Share of critical risks overdue for treatment, trended against the board's tolerance"]
+        answer: 3
+        why: "A board needs a measure tied to risk and to a target it set, shown as a trend, so it can decide whether to act. Large raw counts such as blocked emails look impressive but say nothing about whether risk is within tolerance."
+      - id: cc-2c-q23
+        type: mcq
+        q: "A key risk indicator for 'privileged accounts without MFA' has an agreed threshold of 5. This month it reads 19. What should happen FIRST?"
+        choices: ["Escalate to the risk owner as the threshold procedure defines", "Raise the threshold to 20 so the indicator returns to green", "Hold the figure until the next quarterly scorecard", "Retire the indicator because it is generating noise"]
+        answer: 0
+        why: "A threshold exists to trigger escalation to the person accountable for the risk, who decides on treatment. Waiting for the quarterly scorecard defeats the purpose of an early-warning indicator."
+      - id: cc-2c-q24
+        type: mcq
+        q: "After a year of awareness work, the training team reports 100% course completion. The board asks whether behaviour has actually changed. Which evidence answers that BEST?"
+        choices: ["The average score staff achieved in the end-of-course quiz", "The trend in staff reporting simulated phishing emails versus clicking them", "The number of awareness posters and newsletters issued in the year", "The count of staff who signed the acceptable use policy this year"]
+        answer: 1
+        why: "Reporting and click rates in simulations measure what people do when faced with a lure. Quiz scores are tempting but show knowledge recalled in a classroom, not behaviour at the inbox."
+
+      - id: cc-2c-m01
+        type: multi
+        q: "A trading system has an RTO of 1 hour and an RPO of 5 minutes. Which TWO arrangements are needed to meet both objectives? (Choose TWO.)"
+        choices: ["Nightly backups shipped to offsite storage", "A hot site with systems already running", "A cold site with power and cooling ready", "Near-continuous replication of data to the recovery site", "A weekly full backup with daily differentials", "A warm site where backups are restored on activation"]
+        answers: [1, 3]
+        why: "Only a hot site can take over within an hour, and only near-continuous replication keeps data loss to minutes. Nightly or weekly backups lose up to a day of data, and warm or cold sites take far longer than an hour."
+      - id: cc-2c-m02
+        type: multi
+        q: "An email arrives claiming to be from the payroll provider. Which THREE features are warning signs of phishing? (Choose THREE.)"
+        choices: ["The sender's domain is one character different from the provider's real domain", "It arrives on a weekday during office hours", "It threatens that pay will be withheld unless the reader acts within one hour", "It is addressed to the recipient's work email address", "The link text names the provider, but hovering over it shows an unrelated address", "It ends with a standard confidentiality footer"]
+        answers: [0, 2, 4]
+        why: "A look-alike domain, manufactured urgency and a link whose destination does not match its text are classic phishing indicators. Timing, the address it was sent to and a footer are equally true of genuine mail."
+      - id: cc-2c-m03
+        type: multi
+        q: "Which TWO are outputs of a business impact analysis? (Choose TWO.)"
+        choices: ["Step-by-step instructions for restoring the database server", "The contact tree used to notify staff during a disruption", "A ranked list of the organization's critical business functions", "A signed contract for an alternate processing site", "The maximum tolerable downtime and recovery objectives for each critical function", "The firewall rule set for the recovery network"]
+        answers: [2, 4]
+        why: "The BIA identifies and ranks critical functions and establishes how long each can be down and how much data it can lose. Procedures, contact trees, contracts and configurations are produced later, when strategies are chosen and the plan is written."
+      - id: cc-2c-m04
+        type: multi
+        q: "Which TWO measures are MOST suitable for a board-level security scorecard? (Choose TWO.)"
+        choices: ["Raw count of packets dropped by the perimeter firewall", "Trend in mean time to detect and respond to incidents, against target", "List of CVE identifiers from the latest scan", "Events per second ingested by the SIEM", "Percentage of critical systems patched within the agreed deadline, against target", "Hash values of malware samples seen this week"]
+        answers: [1, 4]
+        why: "A scorecard grades outcomes against targets in terms leaders can act on, such as detection and response times and patching within deadline. Packet counts, CVE lists, event rates and hashes are operational detail with no target or business meaning."
+      - id: cc-2c-m05
+        type: multi
+        q: "Finance has twice nearly paid fraudulent 'change of bank details' requests sent by email in a supplier's name. Which TWO controls BEST reduce this risk? (Choose TWO.)"
+        choices: ["Encrypt the hard disks of finance laptops", "Take more frequent backups of the payments database", "Verify any change of payee details by calling the supplier on a previously known number", "Add redundant power to the mail server", "Require a second person to approve changes to supplier bank details", "Lengthen the screen-lock timeout on finance workstations"]
+        answers: [2, 4]
+        why: "Out-of-band verification and a second approver both interrupt a fraud that relies on one person trusting one email. Disk encryption, backups and power protect confidentiality and availability of systems, not the payment decision."
+
+      - id: cc-2c-o01
+        type: order
+        q: "Put the stages of building a business continuity capability in order."
+        steps: ["Obtain management commitment and define the scope", "Conduct the business impact analysis", "Select recovery strategies that meet the recovery objectives", "Write the plan and its procedures", "Test the plan and train staff", "Review and update the plan as the business changes"]
+        why: "Sponsorship and scope come first; the BIA then sets the objectives that strategies must meet; only then can the plan be written, exercised and kept current. Choosing strategies before the BIA means buying recovery without knowing what matters."
+      - id: cc-2c-o02
+        type: order
+        q: "Order these disaster recovery tests from the LEAST to the MOST thorough, which is also the order of rising risk to production."
+        steps: ["Checklist (read-through) review", "Tabletop walk-through", "Simulation test", "Parallel test", "Full-interruption test"]
+        why: "A read-through and a tabletop are paper exercises, a simulation rehearses actions without real processing, a parallel test runs the recovery site alongside production, and a full interruption actually shuts production down."
+
+  # ───────────────────── Domain 3 — coverage ─────────────────────
+  - id: cc-3b
+    title: "IAM Concepts — the full syllabus"
+    domain: "3"
+    goal: "I can name the frameworks, tools and rules that carry an identity through its life cycle and enforce logical access."
+    notes: |
+      ## Filling in Domain 3
+
+      The first IAM unit covered the four life-cycle stages and the four main models. This unit adds the vocabulary around them.
+
+      **Life cycle.** *Role definition* comes before any account. HR events drive the rest: the **joiner-mover-leaver** process. A joiner is *identity proofed* first; a mover loses old access as new access arrives; a leaver must not become an *orphaned account*.
+
+      **Frameworks and tools.** A *directory service* stores identities; an *identity provider* authenticates them; *federation* extends that trust to other organizations. Three standards are easy to confuse:
+
+      | Standard | Purpose |
+      | SAML | signed XML assertions for web sign-on |
+      | OAuth 2.0 | delegated *authorization* |
+      | OpenID Connect | *authentication* on top of OAuth |
+
+      *IGA* tooling automates requests and reviews.
+
+      **Logical access.** A *subject* acts on an *object*; an *access control list* records what is allowed, and anything unlisted meets **implicit deny**. *Need to know* narrows access beyond clearance. *Rule-based* control applies the same rules to everyone.
+
+      **Privilege.** Privileged accounts get *just-in-time* elevation, *dual control* for the most sensitive acts, and a monitored *break-glass* account for emergencies.
+    items:
+      - id: cc-3b-role-definition
+        type: concept
+        term: "Role definition"
+        def: "The first stage of the identity life cycle: deciding, before any account exists, which access each job function requires."
+      - id: cc-3b-jml
+        type: concept
+        term: "Joiner-mover-leaver (JML) process"
+        def: "The HR-driven workflow that triggers account creation at hiring, access adjustment at transfer and access removal at departure."
+      - id: cc-3b-identity-proofing
+        type: concept
+        term: "Identity proofing"
+        def: "Checking evidence such as government-issued documents, before an account is ever issued, to confirm that a real person is who they say they are."
+      - id: cc-3b-idp
+        type: concept
+        term: "Identity provider (IdP)"
+        def: "The trusted system that verifies users' credentials and vouches for them to other applications, which then never handle those credentials themselves."
+      - id: cc-3b-federation
+        type: concept
+        term: "Federation"
+        def: "A trust arrangement between organizations that lets users verified by their home organization use another organization's systems without holding a separate account there."
+      - id: cc-3b-saml
+        type: concept
+        term: "SAML"
+        def: "An XML-based open standard for passing signed statements about a verified user from the system that checked them to a web application, widely used for enterprise browser sign-on."
+      - id: cc-3b-oauth
+        type: concept
+        term: "OAuth 2.0"
+        def: "An open framework that lets an application obtain limited, delegated access to a user's resources on another service through tokens, without ever receiving the user's password."
+      - id: cc-3b-oidc
+        type: concept
+        term: "OpenID Connect (OIDC)"
+        def: "An identity layer built on top of a delegated-access token framework, adding a signed ID token that tells the application who the user is."
+      - id: cc-3b-directory
+        type: concept
+        term: "Directory service"
+        def: "A central, hierarchical store of users, groups and devices that applications query to look up accounts and group memberships."
+      - id: cc-3b-iga
+        type: concept
+        term: "Identity governance and administration (IGA)"
+        def: "Tooling that automates access requests, approvals, account creation and certification campaigns, and reports who has access to what."
+      - id: cc-3b-orphaned
+        type: concept
+        term: "Orphaned account"
+        def: "An account that remains active although the person or purpose it belonged to has gone, leaving nobody answerable for it."
+      - id: cc-3b-jit
+        type: concept
+        term: "Just-in-time (JIT) access"
+        def: "Granting elevated rights only at the moment they are needed and for a short, fixed period, after which they are withdrawn automatically."
+      - id: cc-3b-entitlement
+        type: concept
+        term: "Entitlement"
+        def: "One specific right that an identity holds on one specific resource, such as being able to approve invoices in the finance system."
+      - id: cc-3b-subject
+        type: concept
+        term: "Subject"
+        def: "The active entity, such as a user, process or device, that asks to use a resource."
+      - id: cc-3b-object
+        type: concept
+        term: "Object"
+        def: "The passive entity, such as a file, database record or printer, that an active entity asks to use."
+      - id: cc-3b-acl
+        type: concept
+        term: "Access control list (ACL)"
+        def: "A table attached to a resource naming which users or groups may perform which operations on it."
+      - id: cc-3b-need-to-know
+        type: concept
+        term: "Need to know"
+        def: "The principle that sufficient clearance or rank is not enough: specific information is released only when the person's current duties require it."
+      - id: cc-3b-rule-based
+        type: concept
+        term: "Rule-based access control"
+        def: "A model that applies one set of administrator-defined conditions, such as permitted hours or source addresses, to every user alike, whoever they are."
+      - id: cc-3b-job-rotation
+        type: concept
+        term: "Job rotation"
+        def: "Periodically moving people between positions, so that nobody stays in a sensitive post long enough to conceal wrongdoing and a newcomer sees the work with fresh eyes."
+      - id: cc-3b-dual-control
+        type: concept
+        term: "Dual control (two-person integrity)"
+        def: "Requiring two authorized people to act together at the same time to perform a single highly sensitive operation, such as each entering half of a key."
+      - id: cc-3b-break-glass
+        type: concept
+        term: "Break-glass account"
+        def: "A tightly guarded emergency credential, used only when normal sign-in routes fail, whose every use raises an alert and is examined afterwards."
+      - id: cc-3b-totp
+        type: concept
+        term: "Time-based one-time password (TOTP)"
+        def: "A short numeric code, calculated from a shared secret and the current clock time, that stays valid for only about half a minute."
+      - id: cc-3b-privileged-account
+        type: concept
+        term: "Privileged account"
+        def: "An account holding rights beyond those of a standard user, such as changing configurations, managing other accounts or bypassing normal safeguards."
+
+      - id: cc-3b-q01
+        type: mcq
+        q: "A photo-printing website wants to read a user's albums held by a cloud storage service. The user approves the request on the storage service's own page, and the website never sees the user's password. Which standard is designed for this delegated access?"
+        choices: ["SAML", "OpenID Connect", "OAuth 2.0", "LDAP"]
+        answer: 2
+        why: "OAuth 2.0 is an authorization framework for granting an application limited access to resources through tokens. OpenID Connect is built on it but exists to authenticate the user, which is not what the website is asking for."
+      - id: cc-3b-q02
+        type: mcq
+        q: "Staff of a university log in to a research publisher's site with their university credentials. The publisher holds no passwords for them and relies on the university's sign-in. What is this arrangement called?"
+        choices: ["Provisioning", "Identity proofing", "Role definition", "Federation"]
+        answer: 3
+        why: "Federation is a trust relationship in which one organization accepts identities authenticated by another. Provisioning would mean the publisher creating its own account for each person, which the stem rules out."
+      - id: cc-3b-q03
+        type: mcq
+        q: "An access review finds an active account for a contractor whose engagement ended eight months ago. Nobody now claims responsibility for it. What is this account called?"
+        choices: ["An orphaned account", "A service account", "A break-glass account", "A privileged account"]
+        answer: 0
+        why: "An account left active with no current owner is orphaned, the product of failed deprovisioning. A service account also has no human at the keyboard, but it has a defined purpose and an accountable owner."
+      - id: cc-3b-q04
+        type: mcq
+        q: "An analyst holds a Secret clearance and asks to open a Secret file about a project to which she is not assigned. Access is refused. Which principle justifies the refusal?"
+        choices: ["Separation of duties", "Need to know", "Dual control", "Job rotation"]
+        answer: 1
+        why: "Clearance sets the ceiling, but need to know limits access to what current duties require. Separation of duties is about splitting a task between people, which is not at issue here."
+      - id: cc-3b-q05
+        type: mcq
+        q: "A file transfer gateway refuses every connection between 22:00 and 06:00 and every connection from outside the corporate address range, whoever the user is. Which access control model does this illustrate?"
+        choices: ["Role-based access control", "Discretionary access control", "Rule-based access control", "Mandatory access control"]
+        answer: 2
+        why: "Global conditions applied identically to all users define rule-based access control. Role-based is the classic confusion: it would vary access according to each user's job role."
+      - id: cc-3b-q06
+        type: mcq
+        q: "A folder's access control list has two entries: 'Finance group: read' and 'Payroll group: modify'. A user who belongs only to the Sales group tries to open the folder and is refused. Why?"
+        choices: ["An explicit deny entry matched the Sales group", "Separation of duties bars Sales from finance data", "A classification label on the folder outranks the user's clearance", "No entry grants the user access, so implicit deny applies"]
+        answer: 3
+        why: "When nothing in the list permits a request, the default is to refuse it: implicit deny. There is no explicit deny entry in the list as described."
+      - id: cc-3b-q07
+        type: mcq
+        q: "To restore a bank's master encryption key, two custodians must be present together, each entering their own half of the key. Neither can do it alone or at a different time. Which control does this MOST precisely describe?"
+        choices: ["Dual control (two-person integrity)", "Separation of duties", "Least privilege", "Need to know"]
+        answer: 0
+        why: "Two people acting together on one single operation is dual control. Separation of duties is the near neighbour, but it divides the different steps of a process among people who each act alone."
+      - id: cc-3b-q08
+        type: mcq
+        q: "An engineer raises an approved ticket, receives database administrator rights for two hours, and the rights are withdrawn automatically when the time expires. Which practice is this?"
+        choices: ["Break-glass access", "Just-in-time access", "Privilege creep", "Discretionary access control"]
+        answer: 1
+        why: "Time-boxed elevation granted on request and removed automatically is just-in-time access. Break-glass access is for emergencies when the normal request route is unavailable."
+      - id: cc-3b-q09
+        type: mcq
+        q: "Before a new employee's account is created, HR inspects her passport and checks it against her application. Which activity is this?"
+        choices: ["Authentication", "Authorization", "Identity proofing", "Access review"]
+        answer: 2
+        why: "Establishing that a real person is who they claim to be, before issuing any credential, is identity proofing. Authentication happens later, each time she proves she is the holder of the account that was issued."
+      - id: cc-3b-q10
+        type: mcq
+        q: "The identity provider is down and nobody can sign in to repair it. An administrator retrieves a sealed credential from the safe, and using it sends an alert to the security team. What kind of account is this?"
+        choices: ["A service account", "A shared guest account", "An orphaned account", "A break-glass account"]
+        answer: 3
+        why: "An emergency account kept outside the normal sign-in path, with its use alerted and reviewed, is a break-glass account. A service account is used routinely by software, not by a person in an emergency."
+
+  # ───────────────────── Domain 3 — exam-hard practice ─────────────────────
+  - id: cc-3c
+    title: "IAM Concepts — exam-hard practice"
+    domain: "3"
+    goal: "I can resolve IAM scenarios that turn on near-identical principles, models and life-cycle failures."
+    notes: |
+      ## How to beat the hard IAM questions
+
+      Most hard IAM items give you a story and four terms from the same family. Decide *which stage* or *which principle* the story is really about before you read the choices.
+
+      **Life-cycle stories.** Ask what event occurred: a joiner (provision from the *role*, never by copying a colleague), a mover (remove old access as you add new), or a leaver (disable at once; for a hostile exit, as the person is told).
+
+      **Near neighbours to separate:**
+
+      | Pair | The difference |
+      | Least privilege / need to know | amount of *access* vs specific *information* |
+      | Separation of duties / dual control | different steps, each alone vs one act, two people together |
+      | Role-based / rule-based | varies by job vs same for everyone |
+      | OAuth / OpenID Connect | authorization vs authentication |
+
+      **Accountability.** Shared logins destroy it; unique identities and logging restore it.
+
+      **Privilege.** Prefer separate administrator accounts, just-in-time elevation and vaulted credentials over stronger passwords.
+
+      When two fixes both help, choose the one that removes the cause, not the one that hardens the symptom.
+    items:
+      - id: cc-3c-q01
+        type: mcq
+        q: "An employee transfers from payroll to procurement on Monday. Her new manager asks IT to 'add procurement access', and her old manager suggests leaving her payroll access in place for a month in case of questions. What is the BEST action?"
+        choices: ["Grant the procurement role and remove payroll access at the transfer; meet any handover need with a time-limited approved request", "Add procurement access now and let the next annual access review remove payroll access", "Keep both sets of access for one month, as the old manager suggests", "Create a second account for procurement work and leave the first unchanged"]
+        answer: 0
+        why: "A mover's old access should go when the new access arrives, or privilege creep begins; holding payroll and procurement rights together also weakens separation of duties. Relying on the annual review leaves the excess in place for up to a year."
+      - id: cc-3c-q02
+        type: mcq
+        q: "A help desk ticket reads: 'New starter in claims. Copy permissions from J. Okafor, who has been here 12 years.' What is the MAIN risk in fulfilling it as written?"
+        choices: ["The new account will share J. Okafor's password", "The new starter inherits access that J. Okafor accumulated beyond what the role requires", "The new starter cannot sign in until J. Okafor approves", "J. Okafor's account will be locked while it is copied"]
+        answer: 1
+        why: "A long-serving employee's account usually carries years of extra permissions, and cloning it hands them all to the newcomer. Provisioning should start from the defined role; copying permissions does not copy a password."
+      - id: cc-3c-q03
+        type: mcq
+        q: "A database administrator with privileged access is to be dismissed for misconduct at a 10:00 meeting. When should his access be disabled?"
+        choices: ["At the end of his notice period", "At the end of that working day, after handover", "As he is being told, coordinated with HR", "At the next scheduled access review"]
+        answer: 2
+        why: "For an involuntary departure, and above all for a privileged user, access is removed at the moment of notification so there is no window for retaliation. Waiting until the end of the day leaves an aggrieved administrator with full rights for hours."
+      - id: cc-3c-q04
+        type: mcq
+        q: "In a quarterly access review of the finance application, who is BEST placed to confirm that each user's access is still appropriate?"
+        choices: ["Each user, by attesting to their own access", "The help desk technician who created the accounts", "The application vendor's support team", "The application's business owner together with the users' managers"]
+        answer: 3
+        why: "Owners and managers know what each person's current duties require and are accountable for the data. Self-attestation is a conflict of interest, and the technician knows what was granted but not whether it is still needed."
+      - id: cc-3c-q05
+        type: mcq
+        q: "A log shows: '03:12 svc_backup interactive logon from WKSTN-114' then '03:15 svc_backup opened the payroll share on FIN01'. The account exists only to run a nightly job on one backup server. Which control would BEST have prevented this misuse?"
+        choices: ["Limiting the account to non-interactive use on the backup server, with only the rights it needs", "Requiring the account's password to be changed every 30 days by the backup team", "Enrolling the account for push-notification MFA on an administrator's phone", "Renaming the account so that its purpose is less obvious to an intruder"]
+        answer: 0
+        why: "A service account should be unable to log on interactively or from other hosts, and should hold only its job's permissions. Password rotation helps hygiene, but a stolen current password would still work from any workstation."
+      - id: cc-3c-q06
+        type: mcq
+        q: "At 02:00 a user receives 30 push-approval prompts on his phone within ten minutes and finally taps 'Approve' to make them stop. An attacker who already had his password is now signed in. Which change BEST counters this technique?"
+        choices: ["Increasing the minimum password length", "Requiring the user to enter into the authenticator app a number shown on the sign-in screen", "Sending the approval prompt by SMS instead of through the app", "Adding a security question after the password"]
+        answer: 1
+        why: "Number matching ties the approval to the session the user can actually see, so a prompt from an attacker's session cannot be approved blindly. A longer password does nothing here, because the attacker already has the password."
+      - id: cc-3c-q07
+        type: mcq
+        q: "Company A lets Company B's engineers reach a shared design portal through federation; A's portal stores no passwords for them. An engineer leaves Company B. What ends her access to the portal?"
+        choices: ["Company A deleting her password from the portal", "Her entry aging out of the portal's access control list", "Company B's identity provider ceasing to authenticate her once B deprovisions her", "Company A's next quarterly access review"]
+        answer: 2
+        why: "In federation the relying organization trusts the home organization's identity provider, so deprovisioning at home cuts access everywhere that trust is used. Company A holds no password to delete."
+      - id: cc-3c-q08
+        type: mcq
+        q: "After a user signs in at the corporate identity provider, the browser carries a digitally signed XML document stating the user's identity and attributes to a SaaS application, which then opens a session. What is this document?"
+        choices: ["An OAuth access token", "An OpenID Connect ID token", "A time-based one-time password", "A SAML assertion"]
+        answer: 3
+        why: "A signed XML statement about an authenticated user is a SAML assertion. An OpenID Connect ID token does a similar job but is a JSON-based token, not XML."
+      - id: cc-3c-q09
+        type: mcq
+        q: "A developer treats OAuth 2.0 access tokens as proof of who the user is, and finds that the application cannot reliably tell which person signed in. What should be added to provide authentication?"
+        choices: ["OpenID Connect, which adds an ID token about the user", "A longer-lived OAuth refresh token", "A broader OAuth scope on the access token", "A second OAuth authorization server"]
+        answer: 0
+        why: "OAuth 2.0 conveys what an application may do, not who the user is; OpenID Connect adds an identity layer and an ID token for that purpose. Widening the scope grants more access but still says nothing verified about identity."
+      - id: cc-3c-q10
+        type: mcq
+        q: "A defence contractor finds that engineers have been sharing 'Restricted' design files with unapproved colleagues simply by editing the files' permissions. Management wants sharing decisions taken out of users' hands and enforced by the system from labels. Which model should replace the current one?"
+        choices: ["Discretionary access control", "Mandatory access control", "Role-based access control", "Rule-based access control"]
+        answer: 1
+        why: "The present model is discretionary, since owners edit permissions; mandatory access control enforces access from labels and clearances that users cannot change. Role-based control centralizes administration but does not use classification labels."
+      - id: cc-3c-q11
+        type: mcq
+        q: "A hospital's role catalogue has grown to 900 roles such as 'Nurse-Ward3-Night-Onsite', because access depends on ward, shift and device as well as on job. Which model would BEST express these conditions without multiplying roles?"
+        choices: ["Discretionary access control", "Mandatory access control", "Attribute-based access control", "Role-based access control"]
+        answer: 2
+        why: "Attribute-based access control evaluates characteristics of the user, resource and context in one policy, so ward, shift and device become attributes. Staying with role-based control is what caused the explosion of roles."
+      - id: cc-3c-q12
+        type: mcq
+        q: "For three years a clerk who creates payments and the supervisor who approves them colluded to pay a fake supplier. Separation of duties was in place throughout. Which additional control would MOST likely have exposed the scheme?"
+        choices: ["Least privilege", "Need to know", "Dual control", "Job rotation"]
+        answer: 3
+        why: "Rotating people through positions puts a fresh pair of eyes on the work and breaks up long-standing collusion. Dual control is tempting, but it also depends on two people being honest, and these two were colluding."
+      - id: cc-3c-q13
+        type: mcq
+        q: "With a two-person IT team, the same administrator must both make and approve firewall changes, so separation of duties is not feasible. Which compensating control is BEST?"
+        choices: ["Independent review of the change logs by a manager outside the team", "Requiring MFA on the administrator's account", "Having both administrators use one shared account", "Lengthening the administrator's password"]
+        answer: 0
+        why: "When duties cannot be split, independent after-the-fact review restores the second pair of eyes. MFA is tempting, but it only proves that the administrator is who he says; it does not check what he changed."
+      - id: cc-3c-q14
+        type: mcq
+        q: "A web application connects to its database using the database owner account, although it only ever reads and inserts rows in two tables. An injection flaw lets an attacker drop tables and read every schema. Which principle, properly applied, would have MOST limited the damage?"
+        choices: ["Separation of duties", "Least privilege", "Dual control", "Job rotation"]
+        answer: 1
+        why: "Least privilege applies to processes as well as people: an account limited to reading and inserting in two tables could not drop tables or read other schemas. Separation of duties concerns dividing a task among people."
+      - id: cc-3c-q15
+        type: mcq
+        q: "A domain administrator uses a single account, holding full domain rights, for email, web browsing and administration alike. Which change BEST reduces the risk?"
+        choices: ["Enable single sign-on so that she authenticates only once each day", "Change the account's password every month and lengthen it to 20 characters", "Give her a standard account for daily work and a separate privileged account for administration", "Block the account from connecting through the VPN outside office hours"]
+        answer: 2
+        why: "Separating daily use from privileged use means a malicious email or web page runs with ordinary rights, not domain rights. Changing the password more often leaves the privileged session exposed to the same everyday threats."
+      - id: cc-3c-q16
+        type: mcq
+        q: "An audit finds 40 accounts with permanent domain administrator rights, each used for administration about twice a month. Which measure MOST reduces the time these privileges are exposed to attack?"
+        choices: ["Requiring MFA at every sign-in on all 40 accounts", "Having managers review the 40 accounts every quarter", "Rotating the passwords of the 40 accounts every month", "Just-in-time elevation that grants the rights on approval and removes them afterwards"]
+        answer: 3
+        why: "Just-in-time access removes standing privilege, so the rights exist for hours a month, not all the time. MFA is worthwhile but leaves the privileges permanently attached to the accounts."
+      - id: cc-3c-q17
+        type: mcq
+        q: "An access review finds account 'tmp_fin07': last logon 14 months ago, owner unknown, member of the invoice-approvers group. What should be done FIRST?"
+        choices: ["Disable the account and investigate who owns it", "Delete the account and its history at once", "Reset its password and leave it enabled", "Record it for discussion at the next review"]
+        answer: 0
+        why: "Disabling removes the exposure immediately while keeping the account and its records for investigation, and is easily reversed if a legitimate use appears. Deleting at once destroys evidence and cannot be undone."
+      - id: cc-3c-q18
+        type: mcq
+        q: "A file share evaluates its access control list from top to bottom and stops at the first match. The list is: 1) Deny user t.lee: read; 2) Allow group Finance: read; then nothing further. t.lee is a member of Finance; m.wong belongs only to HR. What happens when each tries to read the share?"
+        choices: ["t.lee is allowed and m.wong is denied", "Both are denied", "t.lee is denied and m.wong is allowed", "Both are allowed"]
+        answer: 1
+        why: "t.lee matches the deny entry first, so the later group allow is never reached; m.wong matches no entry and is refused by implicit deny. Group membership does not override an earlier explicit deny under first-match evaluation."
+      - id: cc-3c-q19
+        type: mcq
+        q: "A caller asks the help desk to reset a manager's password and correctly gives the manager's employee number and date of birth, both of which appear in a recently leaked staff list. What is the BEST way for the help desk to verify the caller?"
+        choices: ["Ask for the manager's job title and office location as well", "Check that the incoming number shows the company's area code", "Call back on the number held on file, or require a pre-registered authentication factor", "Send the new password to an email address the caller supplies"]
+        answer: 2
+        why: "Verification must rely on something an impostor cannot look up or control, such as a callback to a recorded number or an enrolled factor. More knowledge questions fail for the same reason as the first two: the answers can be researched."
+      - id: cc-3c-q20
+        type: mcq
+        q: "Six nurses on a ward share one login to the medication system because individual sign-in is 'too slow'. A dose record is altered and nobody can say by whom. Which change BEST fixes the underlying problem?"
+        choices: ["Change the shared password at every shift handover", "Make the shared password longer and more complex, and rotate it monthly", "Restrict the shared login to the ward's own workstations during staffed hours", "Issue unique accounts with a fast badge-tap sign-in, so each action traces to one person"]
+        answer: 3
+        why: "Accountability requires that each action maps to one identified individual, and a quick sign-in removes the reason for sharing. Any change that keeps the login shared still leaves six possible authors for each action."
+      - id: cc-3c-q21
+        type: mcq
+        q: "A data centre is tuning the sensitivity of its fingerprint readers. Admitting an impostor would be far more damaging than occasionally making a genuine employee scan again. Which error should the setting minimise?"
+        choices: ["False acceptance", "False rejection", "Failure to enrol", "Crossover error"]
+        answer: 0
+        why: "A false acceptance lets an unauthorized person in, which is the security failure; a false rejection only inconveniences a legitimate user. High-security sites therefore tune for few false acceptances and tolerate more false rejections."
+      - id: cc-3c-q22
+        type: mcq
+        q: "A leaver's directory account is disabled within an hour, which ends her single sign-on access. Two weeks later she is still using a SaaS survey tool, where she had set a local password outside single sign-on. What BEST prevents a repeat?"
+        choices: ["Shortening the single sign-on session timeout for all staff", "Bringing the tool under the central identity provider, with a leaver-checklist entry until then", "Requiring a stronger password on every directory account", "Running the review of directory accounts monthly, not quarterly"]
+        answer: 1
+        why: "Deprovisioning only reaches accounts the central identity system controls; applications with local credentials must be integrated or removed by hand. Reviewing directory accounts more often would not reveal an account that lives outside the directory."
+      - id: cc-3c-q23
+        type: mcq
+        q: "Contractors are engaged for fixed 90-day terms, and their accounts are often still active months later because managers forget to tell IT. Which control BEST ensures timely deprovisioning?"
+        choices: ["An annual access review of all contractor accounts", "A 30-day password expiry on contractor accounts", "An account expiry date set at provisioning to match the contract end", "MFA at every sign-in on all contractor accounts"]
+        answer: 2
+        why: "An expiry date built in at provisioning disables the account automatically, without depending on anyone's memory. Password expiry is tempting, but an active user simply sets a new password and carries on."
+      - id: cc-3c-q24
+        type: mcq
+        q: "During an identity provider outage, an engineer used the break-glass account to restore service. The outage is now over. What should happen NEXT?"
+        choices: ["Leave the account untouched so that it is ready for the next emergency", "Delete the account, because it has now been exposed", "Give the engineer permanent administrator rights to avoid future delays", "Review what the account did, then change its credential and reseal it"]
+        answer: 3
+        why: "Every use of an emergency account is reviewed for accountability, and the credential is replaced because it is now known to someone. Leaving it untouched means a known, highly privileged credential stays valid indefinitely."
+
+      - id: cc-3c-m01
+        type: multi
+        q: "Which TWO sign-in methods are genuine multifactor authentication? (Choose TWO.)"
+        choices: ["A password and the answer to a security question", "A smart card and a PIN", "A fingerprint scan and an iris scan", "A PIN and a passphrase", "A fingerprint scan and a code from an authenticator app", "A hardware token code and a smart card"]
+        answers: [1, 4]
+        why: "A smart card with a PIN combines something you have with something you know, and a fingerprint with an app code combines something you are with something you have. Each other pair uses two proofs of the same factor type."
+      - id: cc-3c-m02
+        type: multi
+        q: "Which TWO situations violate separation of duties? (Choose TWO.)"
+        choices: ["A developer writes a code change and deploys it to production with no one else's review or approval", "An auditor has read-only access to the system logs", "An administrator uses a standard account for email and a separate account for administration", "The same clerk both sets up new suppliers and approves payments to them", "A manager approves access requests made by her direct reports"]
+        answers: [0, 3]
+        why: "In both cases one person controls a sensitive process from start to finish, so error or fraud needs no accomplice. Read-only audit access, separate administrator accounts and managerial approval of others' requests all support good control."
+      - id: cc-3c-m03
+        type: multi
+        q: "A network administrator is dismissed without notice. Which THREE actions belong in immediate deprovisioning? (Choose THREE.)"
+        choices: ["Disable all of his accounts as he is informed", "Leave his accounts active for 30 days to ease the handover", "Change the shared and service credentials that he knew", "Assign his user account to his replacement so that access is preserved", "Collect his badge, tokens and company devices", "Delete the audit logs of his past activity to save storage"]
+        answers: [0, 2, 4]
+        why: "Access must end at once across his own accounts, any shared secrets he knew, and physical credentials. Keeping accounts active or reassigning them breaks accountability, and audit logs must be retained, not deleted."
+      - id: cc-3c-m04
+        type: multi
+        q: "Which TWO statements describe mandatory access control? (Choose TWO.)"
+        choices: ["The owner of a file grants access to others as she sees fit", "Access is decided by comparing labels on objects with the clearances of subjects", "Access is determined by membership of a job-function group", "Users cannot change the access rules, even on files they created", "Access depends chiefly on the time of day and source address of the request", "Users may pass their own permissions on to colleagues"]
+        answers: [1, 3]
+        why: "Mandatory access control is enforced centrally from labels and clearances, and users cannot override it. Owner discretion and passing on permissions describe discretionary control; group membership is role-based; time and address conditions are rule-based."
+      - id: cc-3c-m05
+        type: multi
+        q: "Which TWO capabilities are core functions of a privileged access management solution? (Choose TWO.)"
+        choices: ["Single sign-on to SaaS applications for all staff", "Vaulting administrator credentials and rotating them automatically", "Self-service password reset for standard users", "Recording and monitoring administrator sessions", "Applying classification labels to documents", "Identity proofing of new hires"]
+        answers: [1, 3]
+        why: "Privileged access management vaults and rotates powerful credentials and records what is done with them. Single sign-on, self-service resets and identity proofing serve the general user population, and labelling is data handling."
+
+      - id: cc-3c-o01
+        type: order
+        q: "Put these identity life cycle activities in the order they occur for one employee."
+        steps: ["Define the role and the access it requires", "Verify the new hire's identity", "Provision the account with the role's access", "Review the access periodically", "Deprovision the access when the person leaves"]
+        why: "The role is defined before anyone is given it, the person is proofed before an account is issued, and access is then reviewed for as long as it exists and removed at departure."
+      - id: cc-3c-o02
+        type: order
+        q: "A user opens a payroll report. Put the access control steps in the order they occur."
+        steps: ["The user claims an identity by entering a username", "The system verifies the claim with a password and one-time code", "The system checks whether the verified user may open the report", "The access is recorded in the audit log"]
+        why: "Identification, authentication, authorization, then accounting: a claim cannot be verified before it is made, permissions cannot be checked for an unverified user, and the log records the outcome."
+      - id: cc-3c-o03
+        type: order
+        q: "Put the steps of a federated single sign-on, started at the application, in order."
+        steps: ["The user requests a page at the service provider", "The service provider redirects the browser to the identity provider", "The user authenticates at the identity provider", "The identity provider issues a signed assertion", "The service provider validates the assertion and grants access"]
+        why: "The service provider holds no credentials, so it hands the user to the identity provider, which authenticates and returns a signed assertion; access is granted only after the service provider has validated that assertion."

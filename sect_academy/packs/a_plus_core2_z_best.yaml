@@ -1,0 +1,1520 @@
+# Best-answer practice bank for CompTIA A+ Core 2 (220-1202).
+# Every item is an mcq with best: true - all four choices are reasonable; whys explains each.
+part_of: a-plus-core2
+units:
+  - id: ap2-1z
+    title: "Best-answer practice: Operating Systems"
+    domain: "1"
+    goal: "I can pick the best installation, tool or configuration choice for Windows, macOS, Linux and cloud productivity tools when every option on offer is reasonable."
+    notes: |
+      **Every choice here is something a working technician might do.** One detail in the stem decides between them.
+
+      **What to look for in Domain 1**
+
+      - **The user's stated need.** Must keep apps and settings? Upgrade in place. Must still see every file? Pick the option that keeps it visible.
+      - **The right tool for the OS in front of you.** Windows, macOS and Linux each have a native way; prefer it to a third-party workaround.
+      - **The least effort that fully meets the need.** A built-in feature beats extra software; one central setting beats visiting every PC.
+      - **Data first.** Before an upgrade, a repair or a registry edit, make sure there is a way back.
+      - **Test before you trust.** Check a configuration change (fstab, a rollout) before it can break a boot or a whole site.
+
+      **Usual traps:** a tool that shows the symptom but not the detail asked for; a fix that works but relies on people remembering; the heavy option (reimage, new hardware) when a light one meets the need.
+    items:
+      - id: ap2-1z-b01
+        type: mcq
+        best: true
+        q: "A Windows 10 Pro desktop passes every Windows 11 hardware check. The user relies on fifteen installed applications and their settings, and there is no time to reinstall and reconfigure them. Which installation type BEST meets the need?"
+        choices:
+          - "A clean install of Windows 11 after backing up the user's data"
+          - "Deploying the company's standard Windows 11 image"
+          - "An in-place upgrade to Windows 11"
+          - "A repair installation of Windows 10 before upgrading"
+        answer: 2
+        why: "An in-place upgrade keeps installed applications, settings and files, and the stem rules out rebuilding them."
+        whys:
+          - "Gives a tidy system, but every application would have to be reinstalled and reconfigured, which the stem rules out."
+          - "Fast for new PCs, but an image replaces the user's applications and settings with the standard set."
+          - "Best: the upgrade keeps applications, settings and files, and the hardware is already supported."
+          - "Useful when the current install is damaged, but nothing says it is, so it only adds time."
+      - id: ap2-1z-b02
+        type: mcq
+        best: true
+        q: "A technician will upgrade a manager's laptop to Windows 11 in place. The compatibility checker passes and the manager's applications are confirmed to support Windows 11. What should the technician do FIRST?"
+        choices:
+          - "Back up the manager's files and user preferences"
+          - "Install the latest UEFI firmware from the laptop maker"
+          - "Disconnect the docking station and external peripherals"
+          - "Download the Windows 11 drivers for this laptop model"
+        answer: 0
+        why: "Compatibility is already confirmed, so the next priority is a way back: an upgrade can fail or roll back, and only a backup protects the data."
+        whys:
+          - "Best: an upgrade can fail, and only a backup protects the data and preferences if it does."
+          - "Often sensible, but a firmware update is itself a risk to the machine and should come after the data is safe."
+          - "Reduces driver problems during setup, but protects nothing if the upgrade fails."
+          - "Useful preparation, but it does not protect the data, which comes first."
+      - id: ap2-1z-b03
+        type: mcq
+        best: true
+        q: "A Windows 11 Pro for Workstations PC will hold a large mirrored Storage Spaces volume for research data. The volume will not boot Windows and needs neither EFS nor disk quotas. The priority is detecting and repairing silent data corruption automatically. Which filesystem is BEST for the volume?"
+        choices:
+          - "NTFS, with a weekly scheduled chkdsk scan"
+          - "NTFS, with File History copying it to another disk"
+          - "exFAT, so the disks can also be read on other systems"
+          - "ReFS"
+        answer: 3
+        why: "ReFS was designed for resilience: it checksums data and, on a mirrored Storage Spaces volume, can repair a corrupt copy from the good one."
+        whys:
+          - "NTFS is the safe default, but chkdsk repairs filesystem structures, not silently corrupted file contents."
+          - "Gives older versions to restore from, but does not detect or repair corruption by itself."
+          - "Portable, but exFAT has no journaling or integrity checking at all."
+          - "Best: ReFS checksums its metadata and, through integrity streams (on by default on a mirrored space), file data too, repairing corruption from the mirror's good copy."
+      - id: ap2-1z-b04
+        type: mcq
+        best: true
+        q: "A developer needs both Windows and Linux on one laptop. Her Linux work drives the GPU directly and needs full hardware performance, and she switches between them only a few times a week. Which setup is BEST?"
+        choices:
+          - "Run Linux in a virtual machine on Windows"
+          - "Install both on separate partitions and choose at boot"
+          - "Use the Windows Subsystem for Linux"
+          - "Buy a second laptop just for the Linux work"
+        answer: 1
+        why: "Multiboot gives each OS native access to the hardware; switching a few times a week makes the reboot acceptable."
+        whys:
+          - "Convenient for switching, but a VM reaches the hardware through a hypervisor and loses GPU performance."
+          - "Best: each OS runs natively on the hardware, and a reboot a few times a week is a small price."
+          - "Handy for command-line work, but Linux runs in a lightweight VM managed by Windows, not with native control of the hardware."
+          - "Also gives native performance, but spends a whole laptop to avoid a reboot a few times a week."
+      - id: ap2-1z-b05
+        type: mcq
+        best: true
+        q: "A PC's disk is constantly busy. Task Manager shows the busy process is a backup agent, and the technician now wants to see which files that process is reading and writing right now. Which tool BEST shows this?"
+        choices:
+          - "Task Manager's Processes tab, with the Disk column sorted"
+          - "Resource Monitor's Disk tab"
+          - "Performance Monitor with the PhysicalDisk counters added"
+          - "Event Viewer's Application log, filtered for the backup agent"
+        answer: 1
+        why: "Resource Monitor's Disk tab lists the individual files each process is reading and writing, with the rate for each."
+        whys:
+          - "Already used: it shows how busy each process is, but not which files it is touching."
+          - "Best: it lists the files each process is reading and writing, live."
+          - "Records disk load over time, but per disk, not per file."
+          - "May show errors from the agent, but not live file activity."
+      - id: ap2-1z-b06
+        type: mcq
+        best: true
+        q: "A PC restarted on its own overnight and the user lost unsaved work. The user asks whether Windows Update or something else caused it. Which source BEST answers the question?"
+        choices:
+          - "The Windows Update history page in Settings"
+          - "Task Scheduler's history of tasks that ran overnight"
+          - "System Information (msinfo32)"
+          - "The System log in Event Viewer"
+        answer: 3
+        why: "The System log records who or what started a shutdown or restart, or an unexpected-shutdown entry after a crash or power loss, so it can tell the causes apart."
+        whys:
+          - "Shows which updates installed, but not what started the restart, so it cannot rule other causes in or out."
+          - "Shows tasks that ran, but not crashes or power loss, so it only covers one possible cause."
+          - "Describes hardware and software configuration, not events."
+          - "Best: it records the restart, the process that started it, or an unexpected-shutdown entry if it was a crash or power cut."
+      - id: ap2-1z-b07
+        type: mcq
+        best: true
+        q: "A PC takes four minutes to boot. The technician wants to test whether a third-party service is to blame by starting Windows with every non-Microsoft service off, then turning them back on in groups. Which tool does this MOST efficiently?"
+        choices:
+          - "System Configuration (msconfig), hiding Microsoft services and disabling the rest"
+          - "The Services console, setting each third-party service to Manual"
+          - "Task Manager's Startup tab, disabling every startup item"
+          - "Safe Mode, then comparing its boot time with a normal boot"
+        answer: 0
+        why: "msconfig's Services tab can hide Microsoft services and disable all the rest in one click, then re-enable them in groups."
+        whys:
+          - "Best: disables every non-Microsoft service in one step and re-enables them in groups just as easily."
+          - "Achieves the same result, but one service at a time, and each original start type must be noted to undo it."
+          - "Useful for slow sign-in, but it controls startup applications, not services."
+          - "Shows whether a non-core component is involved, but also disables drivers and cannot be narrowed down in groups."
+      - id: ap2-1z-b08
+        type: mcq
+        best: true
+        q: "A technician must copy 300 GB of departmental folders to a new file server over a link that sometimes drops. The NTFS permissions must come across, and an interrupted copy must resume rather than restart. Which method is BEST?"
+        choices:
+          - "Drag the folders onto the new share in File Explorer"
+          - "Back up the folders and restore the backup on the new server"
+          - "robocopy with /E, /COPY:DATS and /Z"
+          - "xcopy with /E and /O"
+        answer: 2
+        why: "robocopy copies subfolders with data, attributes, timestamps and security, and /Z restartable mode resumes a file after the link drops."
+        whys:
+          - "Simple, but a dropped link means starting again, and copies take the destination's permissions instead of the source's."
+          - "Keeps permissions, but needs the space and time for a full backup and restore, and an interruption still restarts the job."
+          - "Best: keeps the NTFS security and resumes interrupted files where they stopped."
+          - "xcopy /O keeps ownership and ACLs, but it cannot resume a file part-way after the link drops."
+      - id: ap2-1z-b09
+        type: mcq
+        best: true
+        q: "A domain policy should map drive S: for the Sales team. It works for everyone except one user. The technician wants to see which Group Policy Objects were actually applied to that user on that PC. Which command BEST shows this?"
+        choices:
+          - "gpupdate /force"
+          - "net use"
+          - "whoami /groups"
+          - "gpresult /r"
+        answer: 3
+        why: "gpresult /r lists the GPOs applied to the user and computer and those filtered out, which is exactly the question."
+        whys:
+          - "Reapplies policy, which may help, but does not show what was applied or why the mapping is missing."
+          - "Confirms the drive is not mapped, but not which policies ran."
+          - "Shows group membership, which might explain filtering, but not the policies themselves."
+          - "Best: shows the applied and filtered-out GPOs for this user on this PC."
+      - id: ap2-1z-b10
+        type: mcq
+        best: true
+        q: "A cleanup script must run on a shared Windows PC at 2 a.m. every night, whether or not anyone is signed in. Which method is BEST?"
+        choices:
+          - "A Task Scheduler task set to run whether the user is signed in or not"
+          - "A shortcut to the script in the All Users Startup folder"
+          - "A Group Policy logon script that runs it"
+          - "A PowerShell loop left running that sleeps until 2 a.m. each night"
+        answer: 0
+        why: "Task Scheduler runs a job at a set time under a chosen account, with nobody signed in."
+        whys:
+          - "Best: runs on schedule under a chosen account with no one signed in."
+          - "Runs only when someone signs in, not at 2 a.m."
+          - "Also runs at sign-in, not on a schedule."
+          - "Could work, but needs a session left running and dies at the next restart or sign-out."
+      - id: ap2-1z-b11
+        type: mcq
+        best: true
+        q: "A vendor's support article says to change one registry value to fix a printing fault. System Protection is turned off on the PC by company policy. What should the technician do FIRST?"
+        choices:
+          - "Make the change, then restart the print spooler service"
+          - "Create a restore point before editing anything"
+          - "Export the registry key that holds the value"
+          - "Take a full image backup of the PC"
+        answer: 2
+        why: "An export of the key gives a quick, exact way back, and needs no feature that policy has turned off."
+        whys:
+          - "Leaves no way back if the change makes things worse."
+          - "The usual safety net, but System Protection is off, so no restore point can be made."
+          - "Best: the exported key can be put back in seconds if the change goes wrong."
+          - "Also protects the change, but takes far longer than one value needs."
+      - id: ap2-1z-b12
+        type: mcq
+        best: true
+        q: "A PC dual-boots Windows 11 and Linux. Linux often refuses to write to the Windows NTFS partition, saying Windows is hibernated, even though the user chose Shut down. Which change BEST stops this?"
+        choices:
+          - "Always use Restart, not Shut down, before booting into Linux"
+          - "Turn off fast startup in Windows Power Options"
+          - "Run chkdsk on the partition from Windows each time"
+          - "Mount the NTFS partition read-only in Linux"
+        answer: 1
+        why: "Fast startup turns Shut down into a partial hibernation that leaves the partition in use; turning it off removes the cause."
+        whys:
+          - "Works, because Restart does a full shutdown, but relies on the user remembering every time."
+          - "Best: removes the partial hibernation that locks the partition at every Shut down."
+          - "Checks the filesystem, but the hibernated state comes back at the next Shut down."
+          - "Avoids damage, but gives up the writing the user needs."
+      - id: ap2-1z-b13
+        type: mcq
+        best: true
+        q: "A 150-user domain needs a department share mapped as H: on whichever PC each user signs in to, and new PCs arrive every month. Which method is BEST?"
+        choices:
+          - "Run net use on each PC as it is set up for its user"
+          - "A Group Policy drive map for the department's group"
+          - "A how-to article so users can map the drive themselves"
+          - "Folder redirection of the users' Documents folders to the share"
+        answer: 1
+        why: "A Group Policy drive mapping applies at every sign-in on every domain PC, new ones included, with no per-PC work."
+        whys:
+          - "Works per PC, but must be repeated for every PC and user, and is easily missed on new machines."
+          - "Best: one central setting maps the drive everywhere the user signs in."
+          - "Costs nothing to set up, but results will be inconsistent and it adds help-desk calls."
+          - "Moves Documents to a server, but does not give the user an H: drive for the shared folder."
+      - id: ap2-1z-b14
+        type: mcq
+        best: true
+        q: "A Mac laptop is going in for a logic-board repair and the shop may replace its internal storage. The user wants every file, app and setting back afterwards, and has a spare external drive. What should the technician do FIRST?"
+        choices:
+          - "Make sure iCloud Drive has finished syncing Desktop and Documents"
+          - "Copy the user's home folder to the external drive in Finder"
+          - "Run a full Time Machine backup to the external drive"
+          - "List the installed apps so they can be reinstalled from the App Store"
+        answer: 2
+        why: "A Time Machine backup can be restored with Migration Assistant, bringing back files, apps and settings together."
+        whys:
+          - "Protects some files, but not apps, settings or anything outside those folders."
+          - "Saves the user's files, but not the apps and system settings."
+          - "Best: one backup restores files, apps and settings together afterwards."
+          - "Helpful, but rebuilds by hand what a full backup restores at once."
+      - id: ap2-1z-b15
+        type: mcq
+        best: true
+        q: "A consultant's MacBook holds client contracts and travels everywhere with her. The firm's worry is someone reading the data after the laptop is stolen. Which setting BEST addresses that risk?"
+        choices:
+          - "Turn on FileVault"
+          - "Require the password immediately after sleep or the screen saver"
+          - "Turn on Find My Mac"
+          - "Set a long, unique login password"
+        answer: 0
+        why: "FileVault encrypts the startup disk with a key protected by the user's password or recovery key, so a thief cannot read the data."
+        whys:
+          - "Best: the disk's data stays encrypted until the right password or recovery key is entered."
+          - "Protects a laptop left open, but without FileVault the data on the disk is not tied to that password."
+          - "Helps locate or erase the Mac, but only once it comes online, and does not stop the data being read first."
+          - "Stops casual log-ins, but without FileVault the stored data is not protected by the password."
+      - id: ap2-1z-b16
+        type: mcq
+        best: true
+        q: "A Mac application was installed from a .pkg file and added a background helper and a system extension. The user wants it removed completely. Which method is BEST?"
+        choices:
+          - "Drag the application from /Applications to the Trash"
+          - "Remove its helper from Login Items in System Settings"
+          - "Delete it from Launchpad"
+          - "Run the uninstaller supplied by the developer"
+        answer: 3
+        why: "Only the developer's uninstaller knows every component the package installed outside the app bundle."
+        whys:
+          - "The usual way for a simple app, but leaves the helper and extension the .pkg placed elsewhere."
+          - "Stops the helper starting, but leaves the app and its components installed."
+          - "Launchpad deletion only works for App Store apps; this one came from a .pkg."
+          - "Best: removes the app and everything the package put in place."
+      - id: ap2-1z-b17
+        type: mcq
+        best: true
+        q: "A Linux administrator adds a line to /etc/fstab so a new data disk mounts at boot. A mistake in that file can stop the system booting normally. What is the BEST way to check the entry before restarting?"
+        choices:
+          - "Reboot during a quiet period and watch the console"
+          - "Run fsck on the new disk"
+          - "Run 'sudo mount -a' and check the result with df"
+          - "Mount the disk by hand with its device name and mount point"
+        answer: 2
+        why: "mount -a mounts every fstab entry not yet mounted, so a bad line shows an error now instead of at boot."
+        whys:
+          - "Will reveal a mistake, but by failing the boot, which is the outcome to avoid."
+          - "Checks the filesystem on the disk, not the fstab line."
+          - "Best: tests the fstab entry itself while the system is still running."
+          - "Proves the disk can be mounted, but does not test the fstab line."
+      - id: ap2-1z-b18
+        type: mcq
+        best: true
+        q: "A junior Linux administrator must be able to install updates with apt on a shared server, and the organisation enforces least privilege. Which approach is BEST?"
+        choices:
+          - "A sudoers rule letting the user run only apt as root"
+          - "Give the user the root password so they can use su"
+          - "Add the user to the sudo group"
+          - "Let the user sign in over SSH as root with a key"
+        answer: 0
+        why: "A narrow sudoers rule grants exactly the one command the job needs and logs each use under the user's own name."
+        whys:
+          - "Best: only the needed command is allowed, and each use is logged to the person."
+          - "Works, but gives full root and the actions are not tied to the user."
+          - "Convenient and logged, but allows every command as root, more than the task needs."
+          - "Keys are strong, but this is still unrestricted root that cannot be traced to a person."
+      - id: ap2-1z-b19
+        type: mcq
+        best: true
+        q: "A server was renamed from 'files01' to 'files02'. On a Linux workstation, the technician must find every configuration file under /etc that still contains the old name. Which command is BEST?"
+        choices:
+          - "find /etc -name '*files01*'"
+          - "grep -rl files01 /etc"
+          - "ls -lR /etc | grep files01"
+          - "cat /etc/hosts /etc/fstab | grep files01"
+        answer: 1
+        why: "grep -r searches the contents of every file under /etc, and -l lists the files that match."
+        whys:
+          - "Finds files whose names contain the text, not files whose contents do."
+          - "Best: searches inside every file under /etc and lists those that mention the old name."
+          - "Also matches only file names, from the directory listing."
+          - "Checks the two likeliest files, but misses any other file that mentions the name."
+      - id: ap2-1z-b20
+        type: mcq
+        best: true
+        q: "On one Ubuntu desktop, a single internal web server's name resolves to the wrong address. Other names and other PCs are fine. What should the technician do FIRST?"
+        choices:
+          - "Add the correct address for the server to /etc/hosts"
+          - "Point the desktop at a different DNS server"
+          - "Restart the desktop to clear any cached results"
+          - "Query the name with dig"
+        answer: 3
+        why: "Diagnose before changing anything: dig shows what DNS actually returns and from which server; if that is right, the fault is local, such as the hosts file."
+        whys:
+          - "Would hide the symptom, but it is a change made before the cause is known, and may cause trouble later."
+          - "A change before diagnosis, and the DNS server may not be the problem at all."
+          - "May clear a stale cache, but destroys the evidence of what was wrong."
+          - "Best: verifies where the wrong answer comes from before anything is changed."
+      - id: ap2-1z-b21
+        type: mcq
+        best: true
+        q: "A technician must install a diagramming tool on Ubuntu workstations. The same version is in the distribution's official repository and is also offered as a .deb file on a blog. Which method is BEST?"
+        choices:
+          - "Install it with apt from the official repository"
+          - "Download the .deb from the blog and install it with dpkg"
+          - "Download the source code and compile it on each workstation"
+          - "Copy the program's files over from another workstation"
+        answer: 0
+        why: "Repository packages are signed by a trusted source, their dependencies are resolved, and they receive updates with the rest of the system."
+        whys:
+          - "Best: a trusted, signed source, with dependencies handled and updates arriving automatically."
+          - "Works, but the file's origin is unverified and it will not update with the system."
+          - "Possible, but slow, and leaves the program outside package management."
+          - "May miss dependencies, and the package system does not know it is there."
+      - id: ap2-1z-b22
+        type: mcq
+        best: true
+        q: "IT plans to roll out a new videoconferencing client to 300 staff at a site with a modest internet link. Which step BEST reduces the risk to the business?"
+        choices:
+          - "Confirm that every PC meets the published system requirements"
+          - "Hold training sessions before the launch date"
+          - "Pilot it with a small group and measure the network impact"
+          - "Push it to everyone overnight so it is ready by morning"
+        answer: 2
+        why: "The stated risk is the modest link; a pilot measures the real network and device impact before 300 people depend on it."
+        whys:
+          - "Needed, but meeting the PC requirements says nothing about whether the link can carry 300 users' video."
+          - "Helps adoption, but does not reduce the technical risk."
+          - "Best: shows the real load on the link while only a few people are affected."
+          - "Fast, but any problem hits the whole site at once."
+      - id: ap2-1z-b23
+        type: mcq
+        best: true
+        q: "A company issues Macs to staff, who buy work apps with their personal Apple IDs. When people leave, the paid apps leave with them. Which approach BEST fixes this?"
+        choices:
+          - "Have every employee create an Apple ID using their work email"
+          - "Share one company Apple ID across all the Macs"
+          - "Reimburse staff only for apps under a set price"
+          - "Buy apps in volume through Apple's business programme and assign them with MDM"
+        answer: 3
+        why: "Volume-purchased licences belong to the company, and MDM can reclaim and reassign them when someone leaves."
+        whys:
+          - "Separates work from personal use, but the purchases still belong to individual accounts."
+          - "Keeps purchases together, but one shared login has no accountability and does not scale."
+          - "Controls cost, not who owns the licences."
+          - "Best: the company owns the licences and can move them between users."
+      - id: ap2-1z-b24
+        type: mcq
+        best: true
+        q: "A team emails a budget spreadsheet back and forth, and edits keep getting lost between versions. All staff have the company's cloud productivity suite. Which change BEST solves this?"
+        choices:
+          - "Agree a file-naming rule with the date and editor's initials"
+          - "Keep one copy in shared cloud storage and edit it together"
+          - "Keep it on a network share so only one person can open it at a time"
+          - "Make one person responsible for merging everyone's changes"
+        answer: 1
+        why: "Co-authoring one cloud file means everyone edits the same copy at once, with version history, so nothing is lost."
+        whys:
+          - "Makes versions easier to tell apart, but changes still have to be merged by hand."
+          - "Best: a single shared file with simultaneous editing and version history."
+          - "Prevents conflicting copies, but makes people wait their turn."
+          - "Works, but adds a bottleneck and still loses edits if the owner misses one."
+      - id: ap2-1z-b25
+        type: mcq
+        best: true
+        q: "A user reads company mail on a laptop, a tablet and a phone. The laptop uses POP3, and messages read there vanish from the other devices. The mail server supports every common protocol. Which change is BEST?"
+        choices:
+          - "Switch the laptop to IMAP or the server's own sync protocol"
+          - "Set the POP3 client to leave a copy of messages on the server"
+          - "Forward all mail to a second mailbox for the mobile devices"
+          - "Read mail only in the webmail portal on every device"
+        answer: 0
+        why: "With IMAP or a sync protocol, mail stays on the server and read state, folders and deletions sync across all devices."
+        whys:
+          - "Best: one server-side mailbox that every device sees the same way."
+          - "Stops messages disappearing, but read status and folders still do not sync."
+          - "Duplicates every message and splits the user's mail across two boxes."
+          - "Consistent, but gives up the mail apps the user prefers."
+
+  - id: ap2-2z
+    title: "Best-answer practice: Security"
+    domain: "2"
+    goal: "I can pick the best security control, malware-removal step or hardening measure for a stated threat and constraint when every option is reasonable."
+    notes: |
+      Every choice here is a real security measure. The stem tells you **which threat, which constraint or which step** you are at.
+
+      **What to look for in Domain 2**
+
+      - **Match the control to the threat.** Vehicles need bollards, not guards; fileless attacks need behaviour monitoring, not file scans; a stolen VPN login needs Zero Trust, not more encryption.
+      - **The malware-removal sequence.** Investigate, quarantine, disable System Restore (Home), remediate (update, scan, reimage), schedule scans and updates, re-enable System Restore, educate.
+      - **Preventive beats detective** when the stem asks you to stop something.
+      - **Least privilege and per-person accountability.** Shared passwords and standing admin rights lose to named, limited, removable access.
+      - **Compensating controls** when the ideal fix is impossible: isolate what cannot be patched; apply the vendor's mitigation until a patch exists.
+      - **Regulated data stays in your control**, even at the cost of a warranty swap.
+
+      **Usual traps:** relying on users to remember; fixing one host when the whole class needs fixing; the strongest-sounding control that does not touch the stated threat.
+    items:
+      - id: ap2-2z-b01
+        type: mcq
+        best: true
+        q: "An infected PC has been quarantined from the network. Its anti-malware definitions are three weeks old, and policy forbids reconnecting it until it is clean. What is the BEST way to update the definitions?"
+        choices:
+          - "Reconnect it to the LAN for the few minutes the download needs"
+          - "Scan with the current definitions and update them afterwards"
+          - "Fetch the offline update on a clean PC and carry it over"
+          - "Connect it to a phone hotspot so it stays off the company network"
+        answer: 2
+        why: "Downloading the offline definition package on a clean PC and moving it on clean media updates the scanner while the infected PC stays off every network."
+        whys:
+          - "Quick, but breaks the quarantine policy and exposes the network."
+          - "Saves time, but old definitions can miss the very malware that needs removing."
+          - "Best: the definitions are current and the PC never goes back online."
+          - "Keeps it off the LAN, but it is still reconnecting, which policy forbids, and lets the malware call home."
+      - id: ap2-2z-b02
+        type: mcq
+        best: true
+        q: "A company's ground-floor reception has full-height glass walls facing a car park. A risk review names a vehicle being driven into the building as the main physical threat. Which control BEST addresses it?"
+        choices:
+          - "A security guard posted at reception"
+          - "Video surveillance covering the car park"
+          - "Bollards along the front of the building"
+          - "An access control vestibule at the entrance"
+        answer: 2
+        why: "Bollards physically stop vehicles reaching the frontage; the other controls deal with people or only record the event."
+        whys:
+          - "Deters and responds to people, but cannot stop a vehicle."
+          - "Detective: records the attack without preventing it."
+          - "Best: stops a vehicle before it reaches the glass."
+          - "Controls people passing through the door, not a vehicle through the wall."
+      - id: ap2-2z-b03
+        type: mcq
+        best: true
+        q: "A small server room is used by four administrators. The auditor requires each entry to be logged against a person, and the means of entry must not work if lent to a colleague. Which control BEST meets this?"
+        choices:
+          - "A fingerprint scanner on the door"
+          - "A badge reader on the door"
+          - "A keypad with an individual code for each administrator"
+          - "A keyed lock and a sign-in sheet"
+        answer: 0
+        why: "A fingerprint cannot be lent, so every logged entry belongs to the person enrolled."
+        whys:
+          - "Best: cannot be lent, and logs each entry to a person."
+          - "Logs each badge, but a badge can be lent, so the log shows the badge, not the person."
+          - "Logs per code, but a code can be told to a colleague."
+          - "Keys can be lent and a sheet relies on honesty, so neither requirement is met."
+      - id: ap2-2z-b04
+        type: mcq
+        best: true
+        q: "An audit found that staff sometimes email spreadsheets containing customer card numbers to personal addresses. Management wants such messages stopped before they leave. Which control is BEST?"
+        choices:
+          - "Encrypt all outgoing email"
+          - "Add the rule to the acceptable use policy and train staff"
+          - "A DLP rule blocking card numbers in outbound mail"
+          - "An email security gateway that scans attachments for malware"
+        answer: 2
+        why: "Data loss prevention recognises card-number patterns and blocks the message before it leaves."
+        whys:
+          - "Protects messages in transit, but still delivers the card numbers to the personal address."
+          - "Needed, but administrative; it does not stop a message being sent."
+          - "Best: detects the sensitive data and stops the message."
+          - "Valuable, but looks for malicious content coming in, not sensitive data going out."
+      - id: ap2-2z-b05
+        type: mcq
+        best: true
+        q: "Consultants carry reports on USB flash drives to client sites, where they open them on the clients' Windows PCs. A lost drive must not expose the reports. Which protection is BEST?"
+        choices:
+          - "Encrypting File System (EFS) on the report files"
+          - "Password-protected ZIP archives of the reports"
+          - "BitLocker on the consultants' laptops"
+          - "BitLocker To Go on each drive"
+        answer: 3
+        why: "BitLocker To Go encrypts the whole removable drive and unlocks it with a password on any recent Windows PC."
+        whys:
+          - "Tied to the consultant's own certificate, and files lose EFS when copied to a FAT or exFAT stick."
+          - "Portable, but strength depends on the tool's settings, and it protects only the files people remember to zip."
+          - "Protects the laptops, not the removable drives."
+          - "Best: the whole drive is encrypted and opens with a password on the clients' PCs."
+      - id: ap2-2z-b06
+        type: mcq
+        best: true
+        q: "Accounts payable receives an email from a long-standing supplier's genuine address asking that future payments go to a new bank account. Which action BEST protects the company?"
+        choices:
+          - "Reply to the email asking the supplier to confirm"
+          - "Check the email headers for signs of spoofing"
+          - "Phone the supplier on the number already on file"
+          - "Forward the email to IT and wait for their review"
+        answer: 2
+        why: "Business email compromise often uses a real but hijacked mailbox; only an independent channel confirms the request with the real supplier."
+        whys:
+          - "If the supplier's mailbox is compromised, the attacker answers the reply."
+          - "Useful, but the address is genuine, so headers may look clean when the real account has been taken over."
+          - "Best: an independent channel defeats a compromised or spoofed mailbox."
+          - "Sensible to report, but IT cannot confirm whether the supplier really changed banks."
+      - id: ap2-2z-b07
+        type: mcq
+        best: true
+        q: "A lab PC runs an end-of-life version of Windows because the instrument software works on nothing newer. It cannot be replaced for a year. Which measure BEST reduces the risk meanwhile?"
+        choices:
+          - "Install the most recent antivirus that still supports that version"
+          - "Restrict the PC's user account to standard rights"
+          - "Take a full image backup of the PC every week"
+          - "Move it to an isolated segment with no internet access"
+        answer: 3
+        why: "The OS will never be patched, so the compensating control is to keep attackers from reaching it."
+        whys:
+          - "Helps, but cannot fix unpatched OS flaws."
+          - "Limits damage from user actions, but the unpatched OS is still exposed to network attacks."
+          - "Helps recovery, but does nothing to stop an attack."
+          - "Best: keeps attackers away from flaws that will never be fixed."
+      - id: ap2-2z-b08
+        type: mcq
+        best: true
+        q: "An attacker used a stolen laptop's saved VPN connection to reach every server on the internal network. The company wants a design in which being on the network grants nothing by itself. Which approach BEST fits?"
+        choices:
+          - "Require MFA whenever the VPN connects"
+          - "Zero Trust, verifying user and device for every request"
+          - "Add an intrusion detection system to the internal network"
+          - "Encrypt every laptop's drive with BitLocker"
+        answer: 1
+        why: "Zero Trust grants nothing for network location; each request is checked and given only the access it needs."
+        whys:
+          - "Would have stopped this laptop, but once connected a user still reaches everything."
+          - "Best: no request is trusted because of where it comes from, and access is least-privilege per app."
+          - "Detective: may spot the attacker, but does not limit what a connection can reach."
+          - "Protects data on a stolen laptop, but not access once someone is signed in."
+      - id: ap2-2z-b09
+        type: mcq
+        best: true
+        q: "A folder named HR-Confidential sits inside a share that all staff can read. It must stay at the same path, because an HR workflow uses it, but only the HR group may open it. Which change is BEST?"
+        choices:
+          - "Disable inheritance on it, remove staff access and grant HR"
+          - "Add a Deny permission for the Everyone group on that folder"
+          - "Set the Hidden attribute on the folder"
+          - "Move the files into a new share that only HR can reach"
+        answer: 0
+        why: "Breaking inheritance stops the folder taking the parent's open permissions, so only HR is granted access, at the same path."
+        whys:
+          - "Best: only HR can open it, and the path does not change."
+          - "Blocks staff, but Deny overrides Allow and HR members are also in Everyone, so HR is locked out too."
+          - "Hides it from casual browsing, but anyone who types the path can still open it."
+          - "Secure, but changes the path the workflow depends on."
+      - id: ap2-2z-b10
+        type: mcq
+        best: true
+        q: "A user's daily account is a local administrator, and she clicks Yes on every UAC prompt without reading it. She occasionally needs admin rights for approved tasks. Which change BEST reduces the risk?"
+        choices:
+          - "Set UAC to 'Always notify'"
+          - "Train her to read UAC prompts before clicking"
+          - "Install a second anti-malware product alongside Defender"
+          - "Make her a standard user, with a separate admin account"
+        answer: 3
+        why: "As a standard user, elevation needs a separate admin password, so a reflexive click can no longer grant admin rights."
+        whys:
+          - "More prompts, but she clicks Yes on all of them anyway."
+          - "Worth doing, but relies on a habit she has shown she skips."
+          - "More detection, but malware she approves still runs with admin rights."
+          - "Best: an approval now needs credentials she must deliberately enter."
+      - id: ap2-2z-b11
+        type: mcq
+        best: true
+        q: "Printed customer lists were found in the open recycling skip behind the office. Which control BEST prevents this kind of exposure?"
+        choices:
+          - "Lock the recycling skip"
+          - "Locked shred bins at each printer, emptied by a shredding service"
+          - "Remind staff in the newsletter not to bin customer data"
+          - "Ban printing of customer lists altogether"
+        answer: 1
+        why: "Paper goes straight into a locked bin and is destroyed, so there is nothing for a dumpster diver to find."
+        whys:
+          - "Makes the skip harder to search, but the paper is still intact inside it."
+          - "Best: sensitive paper is destroyed, not just hidden."
+          - "Useful awareness, but relies on every person remembering."
+          - "Strongest on paper, but hard to enforce, and staff may genuinely need printouts."
+      - id: ap2-2z-b12
+        type: mcq
+        best: true
+        q: "Staff travel to conferences and hotels and connect to whatever Wi-Fi is offered. At one event an evil twin access point captured traffic from several laptops. Which control BEST protects travelling staff?"
+        choices:
+          - "An always-on VPN on the laptops"
+          - "Telling staff to check for the padlock in the browser"
+          - "Forbidding the use of any public Wi-Fi"
+          - "Turning off automatic connection to known networks"
+        answer: 0
+        why: "An always-on VPN encrypts all traffic to the company before it crosses the untrusted network, whoever runs the access point."
+        whys:
+          - "Best: protects every app's traffic on any network, with nothing for the user to remember."
+          - "Helps on websites, but not for other apps, and depends on users noticing."
+          - "Effective if obeyed, but impractical for staff who must work while travelling."
+          - "Stops silent joins to a look-alike name, but staff still choose untrusted networks by hand."
+      - id: ap2-2z-b13
+        type: mcq
+        best: true
+        q: "A zero-day flaw in the company's PDF reader is being exploited through attachments. No patch exists yet, and the vendor's advisory says turning off the reader's JavaScript support blocks the attack. Which action is BEST for now?"
+        choices:
+          - "Wait for the vendor's patch and install it as soon as it is released"
+          - "Remind staff not to open unexpected attachments"
+          - "Run a full anti-malware scan on every PC"
+          - "Turn off the reader's JavaScript on all PCs by policy"
+        answer: 3
+        why: "The vendor's mitigation closes the attack path now, until a patch exists."
+        whys:
+          - "Necessary later, but leaves every PC exposed until then."
+          - "Useful, but attackers make these attachments look expected."
+          - "Signature scans rarely catch a new exploit, and a scan does not close the hole."
+          - "Best: a compensating control that blocks the exploit today."
+      - id: ap2-2z-b14
+        type: mcq
+        best: true
+        q: "A third of the company's laptops miss monthly patches because they connect to the office network only a few times a year. Which change BEST fixes this?"
+        choices:
+          - "Email those users monthly reminders to run Windows Update"
+          - "Manage updates through a cloud service that reaches them anywhere"
+          - "Patch each laptop whenever it next visits the office"
+          - "Force all their traffic through the VPN so the internal update server reaches them"
+        answer: 1
+        why: "Internet-based update management patches and reports on laptops wherever they are."
+        whys:
+          - "Relies on each user acting, and gives IT no proof it happened."
+          - "Best: laptops receive and report updates with no need to visit the office."
+          - "Leaves them unpatched for months between visits."
+          - "Could work, but sends all their traffic through the office for one problem, and fails whenever the VPN is off."
+      - id: ap2-2z-b15
+        type: mcq
+        best: true
+        q: "An alert shows Word starting PowerShell, which runs an encoded command entirely in memory. Full antivirus scans find no malicious file on disk. Which tool is BEST suited to detecting and stopping this kind of attack?"
+        choices:
+          - "Endpoint detection and response (EDR)"
+          - "A second signature-based antivirus product"
+          - "An email security gateway"
+          - "The Windows Defender Firewall"
+        answer: 0
+        why: "EDR watches process behaviour, such as Word launching PowerShell, so it catches fileless attacks that leave nothing to scan."
+        whys:
+          - "Best: detects and stops suspicious behaviour, not just known files."
+          - "Also looks mainly for files on disk, which this attack does not leave."
+          - "May block the original email, but cannot see or stop what runs on the PC."
+          - "Controls network connections, not what processes do on the PC."
+      - id: ap2-2z-b16
+        type: mcq
+        best: true
+        q: "A home PC's malware has been removed twice, once by a Safe Mode scan and once by a scan from a preinstallation environment, and each time it returned within two days. The user's documents are backed up and the backup has been scanned clean. Which step is BEST now?"
+        choices:
+          - "Scan again from boot media using a different anti-malware product"
+          - "Return Windows to a restore point from before the infection"
+          - "Reset this PC, keeping the user's personal files in place"
+          - "Reimage the PC, then restore the documents from the clean backup"
+        answer: 3
+        why: "When scanning has failed to remove the malware, the removal procedure moves to reimaging, which replaces everything on the drive; the documents come back from a backup already known to be clean."
+        whys:
+          - "Another product might catch it, but two full removal attempts have already failed, and a third may leave it behind again."
+          - "System Restore stays off during removal, and an old restore point may itself hold the infection."
+          - "Reinstalls Windows, but leaves the user's folders on the infected drive, where the malware may be hiding."
+          - "Best: nothing from the infected drive survives, and only data known to be clean is restored."
+      - id: ap2-2z-b17
+        type: mcq
+        best: true
+        q: "Every PC was imaged with the same local administrator password, which has never changed. Technicians still need local admin access when a PC loses its domain connection. Which change is BEST?"
+        choices:
+          - "Change the shared password once a year"
+          - "A unique, random password per PC, stored and rotated centrally"
+          - "Disable the local administrator account on every PC"
+          - "Rename the local administrator account on every PC"
+        answer: 1
+        why: "Unique, centrally managed passwords mean one stolen password opens one PC, while technicians can still look it up."
+        whys:
+          - "Shortens the window, but one stolen password still opens every PC."
+          - "Best: no shared secret, and access remains when the domain is unreachable."
+          - "Removes the risk, but also the access technicians need when the domain is unreachable."
+          - "Slows guessing slightly, but the shared password still opens every PC."
+      - id: ap2-2z-b18
+        type: mcq
+        best: true
+        q: "Company-owned phones keep running outdated OS versions because staff postpone updates. The phones read company email and are enrolled in MDM. Which measure BEST ensures they are patched?"
+        choices:
+          - "Send staff a monthly reminder to update"
+          - "Patch phones by hand when staff bring them to IT"
+          - "An MDM rule blocking email below a minimum OS version"
+          - "Replace phones once they are more than two years old"
+        answer: 2
+        why: "A compliance rule makes updating the price of keeping email, and MDM shows who has not complied."
+        whys:
+          - "Easy to ignore, which is the problem today."
+          - "Reliable for each phone, but slow and does not scale."
+          - "Best: enforced automatically, with a report of who is behind."
+          - "Expensive, and new phones still need updates installing."
+      - id: ap2-2z-b19
+        type: mcq
+        best: true
+        q: "Field engineers' phones hold customer site plans. A phone was found by a stranger who tried many PINs before handing it in. Which setting BEST protects the data if this happens again?"
+        choices:
+          - "Erase the device after ten failed unlock attempts"
+          - "Lengthen the PIN from four to six digits"
+          - "Add fingerprint unlock"
+          - "Install a locator app"
+        answer: 0
+        why: "A failed-attempt limit ends guessing and erases the data before it can be reached."
+        whys:
+          - "Best: guessing stops after ten tries."
+          - "Increases the guesses needed, but guessing can continue indefinitely."
+          - "Convenient, but the PIN fallback remains open to guessing."
+          - "Helps get the phone back, but does nothing against guessing."
+      - id: ap2-2z-b20
+        type: mcq
+        best: true
+        q: "A solid-state drive that held patient records has failed in a clinic's PC and cannot be wiped. It is under warranty, and the manufacturer's standard process is to swap it for a free replacement once the faulty drive is returned. Which action BEST meets the clinic's data-protection duty?"
+        choices:
+          - "Return it, trusting the manufacturer to handle returned drives securely"
+          - "Degauss it, then return it for the warranty swap"
+          - "Ask a data-recovery firm to wipe it before returning it"
+          - "Keep and destroy it, buying the replacement if needed"
+        answer: 3
+        why: "Regulated data must stay under the clinic's control until it is destroyed; that outweighs the cost of a replacement drive."
+        whys:
+          - "Saves money, but hands patient data to a third party with no guarantee of destruction."
+          - "Degaussing does not erase flash memory, so the patient data would leave the clinic still readable."
+          - "Adds a second outside party handling the patient data."
+          - "Best: the data never leaves the clinic's control, at the cost of the warranty swap."
+      - id: ap2-2z-b21
+        type: mcq
+        best: true
+        q: "A malware-infected office PC used UPnP to open inbound ports on the small office router. The office needs only one inbound port, for its camera recorder. Which change BEST prevents a repeat?"
+        choices:
+          - "Keep UPnP enabled but update the router firmware"
+          - "Disable UPnP and forward one port by hand"
+          - "Put the recorder in the router's DMZ"
+          - "Install anti-malware on every PC in the office"
+        answer: 1
+        why: "With UPnP off, no program can open ports by itself, and the one port the business needs is opened deliberately."
+        whys:
+          - "Fixes router bugs, but UPnP will still open ports for any program that asks."
+          - "Best: only the port the office chose is open."
+          - "Exposes every port on the recorder to the internet, far more than one."
+          - "Needed, but does not stop the next program that asks UPnP for a port."
+      - id: ap2-2z-b22
+        type: mcq
+        best: true
+        q: "A small business hosts its own public web server in the office. It sits on the same LAN as the staff PCs, with port 443 forwarded to it. Which change BEST limits the harm if the web server is compromised?"
+        choices:
+          - "Turn on the host firewall on the web server"
+          - "Patch the web server every week"
+          - "Move the web server into a screened subnet"
+          - "Move the staff PCs onto the guest Wi-Fi network"
+        answer: 2
+        why: "A server in a screened subnet is separated from the internal LAN, so a compromise does not open a path to the staff PCs."
+        whys:
+          - "Good practice, but an attacker who controls the server can change its own firewall."
+          - "Reduces the chance of compromise, not the harm once it happens."
+          - "Best: contains a compromised server away from the LAN."
+          - "Separates them in a roundabout way, but cuts staff off from internal resources."
+      - id: ap2-2z-b23
+        type: mcq
+        best: true
+        q: "Staff in hotels find that some websites are redirected, and testing shows the hotel networks are tampering with DNS answers. Which browser setting BEST addresses this?"
+        choices:
+          - "Turn on secure DNS (DNS over HTTPS)"
+          - "Use private browsing mode"
+          - "Clear the browser's cache"
+          - "Install an ad blocker extension"
+        answer: 0
+        why: "Secure DNS encrypts lookups to a trusted resolver, so the hotel network cannot alter the answers."
+        whys:
+          - "Best: the lookups can no longer be read or changed by the local network."
+          - "Stops history being kept, but lookups still go to the hotel's DNS."
+          - "Removes cached pages, not the tampered answers that come back next time."
+          - "Blocks ads, not redirection by altered DNS."
+      - id: ap2-2z-b24
+        type: mcq
+        best: true
+        q: "New hires get their access by copying the account of a long-serving colleague in the same job, and audits keep finding rights the new hire does not need. Which change BEST fixes this?"
+        choices:
+          - "Copy the colleague's account, then remove extras the manager points out"
+          - "Review every account's rights each quarter"
+          - "Start new hires with no access and add rights as they ask"
+          - "Role-based groups holding each job's rights, assigned at hire"
+        answer: 3
+        why: "Defining each role's rights once gives every new hire exactly what the job needs, with nothing inherited from a colleague's history."
+        whys:
+          - "Depends on someone spotting every extra right the colleague gathered over the years."
+          - "Detective: finds excess rights after they have been granted."
+          - "Least privilege, but slow to get people working and leads to ad-hoc grants."
+          - "Best: least privilege by design, the same for everyone in the role."
+      - id: ap2-2z-b25
+        type: mcq
+        best: true
+        q: "A new VPN appliance can keep its own user list or check sign-ins against a RADIUS server linked to the directory. The company wants leavers to lose VPN access the moment their directory account is disabled. Which configuration is BEST?"
+        choices:
+          - "Create local VPN accounts and delete them at off-boarding"
+          - "Use RADIUS to check sign-ins against the directory"
+          - "Give all staff one VPN password that changes when someone leaves"
+          - "Issue each laptop a VPN certificate and revoke it at off-boarding"
+        answer: 1
+        why: "With RADIUS, the VPN asks the directory at every sign-in, so disabling the account blocks VPN access immediately."
+        whys:
+          - "Works, but adds a second account someone must remember to remove."
+          - "Best: one action, disabling the directory account, ends VPN access too."
+          - "No accountability, and everyone must be told the new password whenever someone leaves."
+          - "Strong for the device, but still a separate step that can be missed, and not tied to the person."
+
+  - id: ap2-3z
+    title: "Best-answer practice: Software Troubleshooting"
+    domain: "3"
+    goal: "I can choose the fix that removes the cause of a Windows, mobile or PC security problem with the least disruption when several fixes would work."
+    notes: |
+      Four fixes that would all work to some degree: pick the one that **removes the cause with the least disruption**.
+
+      **What to look for in Domain 3**
+
+      - **Scope.** If one printer, one app, one mapping or one pairing is involved, fix that thing - not the profile, the phone or Windows.
+      - **What changed just before.** A firmware tweak, a new keyboard app, a fixed IP from a home guide: undo or test the change first.
+      - **What the evidence names.** A log naming a blocked file, a timeout waiting for the network, safe mode that stops the reboots: follow it.
+      - **Least disruptive first.** Remove one pairing before resetting network settings; repair one program before resetting the PC; reset before reimage.
+      - **Data first when hardware is failing.** A SMART warning means copy the data before any repair.
+      - **Security tools cause faults too.** A false positive or two competing firewalls is fixed narrowly, never by switching protection off.
+      - **Contain before you clean** when data may be leaving.
+
+      **Usual traps:** the reset that would technically fix it; a change that only hides the symptom.
+    items:
+      - id: ap2-3z-b01
+        type: mcq
+        best: true
+        q: "An older line-of-business installer stops with a message that it needs .NET Framework 3.5. The PC runs Windows 11, and the vendor confirms the application is supported there. Which action is BEST?"
+        choices:
+          - "Run the installer in compatibility mode for Windows 7"
+          - "Install a .NET 3.5 package downloaded from a third-party site"
+          - "Turn on .NET Framework 3.5 in Windows Features"
+          - "Install the application in a Windows 10 virtual machine instead"
+        answer: 2
+        why: ".NET Framework 3.5 ships with Windows 11 as an optional feature, so turning it on supplies the missing component from a trusted source."
+        whys:
+          - "Changes how the installer sees Windows, but does not supply the missing component."
+          - "Supplies it, but from an untrusted source, when Windows already includes it."
+          - "Best: the built-in optional feature provides exactly what the installer needs."
+          - "Works, but builds a whole VM to supply one built-in component."
+      - id: ap2-3z-b02
+        type: mcq
+        best: true
+        q: "An accounting program crashes every time a user prints to one particular printer. Printing to any other printer from the same program works, and the program is fully up to date. Which action is BEST?"
+        choices:
+          - "Update or reinstall that printer's driver"
+          - "Reinstall the accounting program"
+          - "Run sfc /scannow"
+          - "Create a new Windows profile for the user"
+        answer: 0
+        why: "The crash follows one printer, so that printer's driver is the likely cause."
+        whys:
+          - "Best: targets the one component the evidence points to."
+          - "The program prints to every other printer, so it is unlikely to be damaged."
+          - "Checks Windows system files, but the evidence points to one third-party driver."
+          - "The fault follows the printer, not the user."
+      - id: ap2-3z-b03
+        type: mcq
+        best: true
+        q: "A monitoring service set to Automatic fails at every boot with a timeout, but starts normally if a technician starts it by hand a few minutes later. Event Viewer shows it gave up waiting for a network resource. Which change is BEST?"
+        choices:
+          - "Reinstall the monitoring software"
+          - "Add a scheduled task that restarts the service every hour"
+          - "Run the service under a domain administrator account"
+          - "Set its startup type to Automatic (Delayed Start)"
+        answer: 3
+        why: "Delayed start lets the service begin after boot has settled, when the network resource it waits for is available."
+        whys:
+          - "It works once started, so the software is not damaged."
+          - "Gets it running eventually, but leaves it down after every boot and restarts it needlessly."
+          - "Gives far wider rights and does nothing about the timing."
+          - "Best: fixes the timing problem the log describes."
+      - id: ap2-3z-b04
+        type: mcq
+        best: true
+        q: "A PC with 4 GB of RAM is very slow. Task Manager shows memory 97% in use and the disk busy paging. No single process is abnormal, and the user needs all of these applications open together. Which action BEST fixes the slowness?"
+        choices:
+          - "Turn off Windows visual effects"
+          - "Add more RAM"
+          - "Increase the size of the page file"
+          - "Reinstall Windows"
+        answer: 1
+        why: "The normal workload needs more memory than the PC has, so it pages constantly; only more RAM removes that."
+        whys:
+          - "Saves a little memory, not enough to stop the constant paging."
+          - "Best: gives the workload the memory it needs."
+          - "Prevents out-of-memory errors, but the PC still pages heavily, which is the slowness."
+          - "The workload, not the installation, is the cause."
+      - id: ap2-3z-b05
+        type: mcq
+        best: true
+        q: "Typing on a user's phone lags by a second or more, but scrolling and other apps are smooth. The user installed a third-party keyboard app last month. What should the technician try FIRST?"
+        choices:
+          - "Switch to the built-in keyboard and test again"
+          - "Clear the cache of every app on the phone"
+          - "Back up and factory reset the phone, then restore apps"
+          - "Install the latest OS update"
+        answer: 0
+        why: "The lag affects only typing, so the keyboard app is the obvious suspect, and switching away from it is a quick, reversible test."
+        whys:
+          - "Best: tests the likely cause in seconds with nothing lost."
+          - "Broad and slow, and does not target the keyboard."
+          - "Far too drastic before the obvious suspect is tested."
+          - "Worth doing at some point, but does not test the likely cause."
+      - id: ap2-3z-b06
+        type: mcq
+        best: true
+        q: "Since a 'registry cleaner' was run, one CAD program refuses to start, with an error naming a missing DLL that belongs to the program. Other programs work. Which action is BEST?"
+        choices:
+          - "Download the missing DLL from a DLL download website"
+          - "Run sfc /scannow"
+          - "Run the program's repair option, or reinstall it"
+          - "Reset this PC, keeping personal files"
+        answer: 2
+        why: "The program's own installer puts back its files and registry entries from a trusted source."
+        whys:
+          - "May work, but the file's origin and version are unverified."
+          - "Restores Windows system files, not a program's own DLL."
+          - "Best: restores exactly what the program needs, from its own installer."
+          - "Far too drastic for one program."
+      - id: ap2-3z-b07
+        type: mcq
+        best: true
+        q: "A laptop is stuck in an Automatic Repair loop after a power cut, and the firmware now reports a SMART warning for its SSD. The user's documents are not backed up anywhere. What should the technician do FIRST?"
+        choices:
+          - "Run Startup Repair from the recovery environment again"
+          - "Run chkdsk /f on the system drive"
+          - "Use Reset this PC and keep the user's files"
+          - "Boot from external media and copy the files off"
+        answer: 3
+        why: "A drive reporting SMART errors may fail at any moment, so the only copy of the data comes before any repair."
+        whys:
+          - "Non-destructive, but it puts more load on a failing drive before the data is safe."
+          - "Writes to a drive that may be failing and can make recovery harder."
+          - "Rewrites Windows on a failing drive and risks the very files it promises to keep."
+          - "Best: protects the irreplaceable data first."
+      - id: ap2-3z-b08
+        type: mcq
+        best: true
+        q: "A PC has been unstable since a utility bundle installed several drivers yesterday. Uninstalling the utility did not help. A restore point from just before the install exists. Which action is BEST?"
+        choices:
+          - "Reset this PC and keep personal files"
+          - "Restore the PC to that restore point"
+          - "Reimage the PC with the standard build"
+          - "Run sfc /scannow and reboot"
+        answer: 1
+        why: "System Restore rolls drivers and system settings back to before the change without touching personal files."
+        whys:
+          - "Would remove the drivers, but also every installed application."
+          - "Best: undoes exactly the recent change, with little else lost."
+          - "Effective, but loses all local applications and settings for a problem a restore point can undo."
+          - "Repairs Windows system files, but third-party drivers are not system files."
+      - id: ap2-3z-b09
+        type: mcq
+        best: true
+        q: "After a phone OS update, the phone no longer connects to the user's car over Bluetooth. Other phones still connect to the car, and the phone's earbuds work. Which action is BEST to try first?"
+        choices:
+          - "Remove the pairing on both phone and car, then pair again"
+          - "Reset all network settings on the phone, then pair the car again"
+          - "Factory reset the car's infotainment system"
+          - "Factory reset the phone"
+        answer: 0
+        why: "Only this one pairing is broken, so refreshing it is the least disruptive fix."
+        whys:
+          - "Best: fixes the one broken pairing and nothing else."
+          - "Would also clear it, but deletes every Wi-Fi network and Bluetooth pairing."
+          - "Other phones connect, so the car works, and a reset wipes their pairings too."
+          - "Far too drastic for one pairing."
+      - id: ap2-3z-b10
+        type: mcq
+        best: true
+        q: "Network monitoring shows a desktop uploading several gigabytes each night to an unfamiliar cloud storage service, and an upload is running now. The user has never used that service, and no approved backup or sync software on the PC uses it. What should the technician do FIRST?"
+        choices:
+          - "Block that cloud service's domain at the firewall"
+          - "Ask the user's manager whether anyone else uses the PC"
+          - "Run an anti-malware scan while the PC stays connected"
+          - "Disconnect the PC from the network"
+        answer: 3
+        why: "The symptom is already verified: bulk uploads that no user or approved software explains suggest data theft by malware, so quarantining the PC is the next step, and it stops the loss while the cause is investigated."
+        whys:
+          - "Stops this one destination, but the malware can switch to another."
+          - "Useful context, but data keeps leaving while the question is asked."
+          - "Part of the process, but scanning while connected lets the upload continue."
+          - "Best: containment comes before remediation."
+      - id: ap2-3z-b11
+        type: mcq
+        best: true
+        q: "An Android phone has rebooted randomly several times a day since the user installed a batch of new apps. In safe mode it runs for a whole day without rebooting. What is the BEST next step?"
+        choices:
+          - "Factory reset the phone"
+          - "Replace the battery"
+          - "Remove the new apps one at a time until the reboots stop"
+          - "Install the latest OS update and see if the reboots stop"
+        answer: 2
+        why: "Safe mode disables third-party apps, so one of the new apps is the cause; removing them one by one finds it without data loss."
+        whys:
+          - "Would work, but erases all data when safe mode has already narrowed it to an app."
+          - "A hardware fault would also reboot in safe mode, so the evidence points away from it."
+          - "Best: follows the evidence to the culprit."
+          - "Worth doing at some point, but does not address the app the evidence points to."
+      - id: ap2-3z-b12
+        type: mcq
+        best: true
+        q: "Since a file server was decommissioned, one user's sign-in hangs for about 30 seconds, and File Explorer shows a red X on drive M:, which still points to that server. Which action is BEST?"
+        choices:
+          - "Rebuild the user's Windows profile"
+          - "Remove the stale M: drive mapping"
+          - "Turn off fast startup"
+          - "Point the old server name at a live server in the hosts file"
+        answer: 1
+        why: "The PC waits at sign-in for a server that no longer exists; removing the mapping removes the wait."
+        whys:
+          - "Would also drop the mapping, but rebuilds everything for one setting."
+          - "Best: removes the cause with nothing else changed."
+          - "Affects how Windows shuts down and starts, not the wait for a missing drive at sign-in."
+          - "Hides the error by sending the user to the wrong data, and confuses the next technician."
+      - id: ap2-3z-b13
+        type: mcq
+        best: true
+        q: "After the company switched antivirus vendors, one PC has no network access. Its adapter shows connected, and both the old and the new security suites are still installed, each with its own firewall. Which action is BEST?"
+        choices:
+          - "Remove the old suite with its vendor's removal tool"
+          - "Reset the TCP/IP stack and Winsock with netsh, then restart"
+          - "Turn off the new suite's firewall"
+          - "Replace the network adapter"
+        answer: 0
+        why: "Two security suites conflict; removing the leftover one cleanly fixes the cause and keeps the new protection."
+        whys:
+          - "Best: ends the conflict without losing protection."
+          - "Resets networking settings, but the conflicting suite stays."
+          - "Restores access by removing protection, and leaves the conflict in place."
+          - "The adapter shows connected, so the hardware is not the problem."
+      - id: ap2-3z-b14
+        type: mcq
+        best: true
+        q: "MDM reports that a company-owned phone has been jailbroken. Policy says a non-compliant device loses access to company data until it is restored to a compliant state. What should happen FIRST?"
+        choices:
+          - "Wipe the phone remotely"
+          - "Phone the user first to ask why and by whom it was jailbroken"
+          - "Send the user a reminder of the mobile device policy"
+          - "Let the MDM compliance rule block its access to company data"
+        answer: 3
+        why: "Blocking access is what the policy requires, and it protects company data immediately."
+        whys:
+          - "May follow later, but policy calls for blocking access, and a wipe now also destroys evidence of what was installed."
+          - "Should happen, but the device keeps reaching company data while the call is arranged."
+          - "Educates, but does nothing about the access the device has right now."
+          - "Best: follows the policy and protects the data at once."
+      - id: ap2-3z-b15
+        type: mcq
+        best: true
+        q: "A user enabled the memory overclocking profile (XMP) in the firmware last night. Since then, applications crash at random and Windows occasionally freezes. What should the technician do FIRST?"
+        choices:
+          - "Reinstall the graphics driver"
+          - "Run sfc /scannow"
+          - "Turn the memory profile off and test again"
+          - "Replace the memory modules"
+        answer: 2
+        why: "The instability began with one firmware change; reversing it is quick, free and confirms the cause."
+        whys:
+          - "No driver changed; the timing points to the firmware change."
+          - "Checks system files, but the cause is unstable memory settings, which would keep corrupting things."
+          - "Best: undoes the one change that was made."
+          - "May be needed if it stays unstable at default settings, but costly as a first step."
+      - id: ap2-3z-b16
+        type: mcq
+        best: true
+        q: "A laptop connects to the office Wi-Fi but cannot reach anything, while every other device works. Last weekend the user followed a guide to give the laptop a fixed IP address so a home printer would work. What is the MOST likely cause?"
+        choices:
+          - "The office DHCP server has run out of addresses"
+          - "The fixed home address settings are still on the adapter"
+          - "The Wi-Fi adapter's driver has failed"
+          - "Malware is blocking network access"
+        answer: 1
+        why: "A home subnet address and gateway do not work on the office network, and the change was made just before the fault."
+        whys:
+          - "Other devices still work, and a laptop with a fixed address does not ask DHCP at all."
+          - "Best: explains the fault and its timing."
+          - "It associates with the access point, so the adapter is working."
+          - "Possible in general, but the recent manual change explains the fault directly."
+      - id: ap2-3z-b17
+        type: mcq
+        best: true
+        q: "After a new endpoint protection agent was rolled out, an in-house reporting tool fails to start on every PC with the agent. The agent's log shows it blocking one of the tool's files. The tool is signed and built by the company's own developers. What is the BEST action?"
+        choices:
+          - "Confirm it is a false positive, then add a narrow exclusion"
+          - "Uninstall the endpoint agent from the affected PCs"
+          - "Turn off the agent's real-time protection on those PCs"
+          - "Submit the file to the security vendor and wait for a verdict"
+        answer: 0
+        why: "Verifying the detection and then allowing only that one file restores the tool while keeping protection everywhere else."
+        whys:
+          - "Best: the smallest change that fixes the tool and keeps the PCs protected."
+          - "Gets the tool working, but removes protection from every affected PC."
+          - "Same problem: protection goes for everything to fix one file."
+          - "Worth doing, but the tool stays broken meanwhile, when the company can verify its own file."
+      - id: ap2-3z-b18
+        type: mcq
+        best: true
+        q: "A newly domain-joined PC takes several minutes to reach the sign-in screen, Group Policy often fails to apply, and file shares open slowly. Its network adapter uses a public DNS server set by hand. Which change is BEST?"
+        choices:
+          - "Add the domain controller to the PC's hosts file"
+          - "Remove the PC from the domain and join it again"
+          - "Turn off fast startup"
+          - "Point the PC at the domain's DNS servers"
+        answer: 3
+        why: "Domain members find domain controllers and services through the domain's DNS; a public DNS server cannot answer those lookups."
+        whys:
+          - "Patches one name, but Active Directory also relies on DNS service records a hosts file cannot provide."
+          - "Does not change where the PC looks up domain names, so the problems return."
+          - "Unrelated to finding domain controllers."
+          - "Best: fixes the lookups every domain function depends on."
+      - id: ap2-3z-b19
+        type: mcq
+        best: true
+        q: "Every weekday around 10 a.m., a PC slows down for half an hour. Task Manager then shows 'Antimalware Service Executable' using most of the CPU and disk, and Defender's scheduled scan is set for 10:00. What is the BEST action?"
+        choices:
+          - "Turn off Microsoft Defender real-time protection"
+          - "Reschedule the scan to an idle time, such as lunchtime"
+          - "Add more RAM to the PC"
+          - "Replace the hard drive with an SSD"
+        answer: 1
+        why: "The slowdown is the scheduled scan; moving it keeps the protection and the slowdown happens when no one is working."
+        whys:
+          - "Removes protection to fix a scheduling problem."
+          - "Best: same protection, without the clash with working hours."
+          - "May speed the scan a little, but it still clashes with the working day."
+          - "Would shorten the scan, but costs money for a fault a schedule change fixes."
+      - id: ap2-3z-b20
+        type: mcq
+        best: true
+        q: "On a shared Windows PC, the Start menu and search do not work for one user. Other users are fine, and sfc and DISM find nothing wrong. Which fix is BEST?"
+        choices:
+          - "Reinstall Windows, keeping personal files"
+          - "Restore the PC to last week's restore point"
+          - "Create a new profile and move the user's data"
+          - "Reset this PC"
+        answer: 2
+        why: "The fault follows one user's profile, so a fresh profile fixes it without touching anyone else."
+        whys:
+          - "Treats the whole system when only one profile is affected."
+          - "Rolls back system changes, but the system is healthy; the fault is in one profile."
+          - "Best: fixes the damaged profile only."
+          - "Removes applications for every user to fix one profile."
+      - id: ap2-3z-b21
+        type: mcq
+        best: true
+        q: "One user's browser has become slow and freezes for seconds at a time. Another browser on the same PC is fast, and the slow one has fourteen extensions. Which action is BEST to try first?"
+        choices:
+          - "Disable all extensions, then re-enable them one at a time"
+          - "Uninstall the browser, reinstall it and sign back in to sync"
+          - "Clear the browser's cache"
+          - "Add more memory to the PC"
+        answer: 0
+        why: "The fault is specific to this browser, and extensions are the usual cause; this finds the culprit without losing anything."
+        whys:
+          - "Best: isolates the cause and loses nothing."
+          - "May not remove synced extensions and loses settings, without finding the cause."
+          - "Cheap to try, but a large cache rarely causes freezes like these."
+          - "Another browser runs well on the same hardware, so memory is not the limit."
+
+  - id: ap2-4z
+    title: "Best-answer practice: Operational Procedures"
+    domain: "4"
+    goal: "I can choose the right next step in change, documentation, safety, compliance and customer-service situations when every option on offer is reasonable."
+    notes: |
+      Operational questions test **process and judgement**. The stem says which step you are at, or which duty applies.
+
+      **What to look for in Domain 4**
+
+      - **Where you are in the change process.** Test and plan the rollback before approval; roll back when a change fails inside its window.
+      - **Backups must survive the attack.** Keep a copy offline or off-site, out of reach of user PCs.
+      - **Safety first.** Unplug, then ground yourself; use a toner vacuum, not an ordinary one; the SDS is the authority for a chemical.
+      - **Compliance is enforced centrally.** A notice every user must see belongs in a logon banner; retention rules beat a user's request.
+      - **Incidents.** Preserve evidence and report; it is not the technician's investigation.
+      - **People.** Open questions first; offer options and let the customer decide; follow up on intermittent faults; cut access at the moment of dismissal.
+      - **AI output** must be checked for accuracy and bias before anyone relies on it.
+
+      **Usual traps:** the quick fix that skips a step; relying on people to remember; the right outcome through the wrong channel.
+    items:
+      - id: ap2-4z-b01
+        type: mcq
+        best: true
+        q: "After two hours, a technician solves an unusual email-profile fault that other users are likely to hit. What is the BEST way to make the fix reusable?"
+        choices:
+          - "Email the steps to the rest of the help-desk team"
+          - "Write detailed notes in the ticket before closing it"
+          - "Add the steps to the new-user setup checklist"
+          - "Publish a knowledge-base article"
+        answer: 3
+        why: "A searchable knowledge-base article with the symptoms, cause and fix lets any technician find and repeat it."
+        whys:
+          - "Reaches today's team, but is hard to find later and misses new staff."
+          - "Useful history, but closed tickets are hard to find when the next user calls."
+          - "The checklist is for setting up new accounts, not for fixing a fault."
+          - "Best: anyone can find the fix the next time the symptom appears."
+      - id: ap2-4z-b02
+        type: mcq
+        best: true
+        q: "An employee is being dismissed at a meeting at 3 p.m. today. Which off-boarding step should be done FIRST, at the time of the meeting?"
+        choices:
+          - "Archive the employee's mailbox"
+          - "Disable the employee's accounts"
+          - "Forward the employee's email to their manager"
+          - "Update the asset register to unassign their laptop"
+        answer: 1
+        why: "Cutting access at the moment of dismissal prevents misuse; the other tasks can safely follow."
+        whys:
+          - "Required, but can wait until access is cut."
+          - "Best: removes the chance of misuse right away."
+          - "Keeps business mail flowing, but can be set up after the account is disabled."
+          - "Needed for the records, and the least urgent."
+      - id: ap2-4z-b03
+        type: mcq
+        best: true
+        q: "During an approved change in the maintenance window, an update to the ordering application fails partway and the application will not start. The window ends in 30 minutes. What should the team do?"
+        choices:
+          - "Carry out the documented rollback plan"
+          - "Keep troubleshooting until the update works"
+          - "Call the vendor's support line and wait for advice"
+          - "Leave it for the morning shift to finish"
+        answer: 0
+        why: "The rollback plan exists for exactly this, and returns a working system before the window closes."
+        whys:
+          - "Best: restores service within the window as planned."
+          - "May succeed, but risks the system still being down when the window ends."
+          - "Worth logging, but waiting may run past the window with the system down."
+          - "Leaves the business without the application in working hours."
+      - id: ap2-4z-b04
+        type: mcq
+        best: true
+        q: "A technician is preparing a request to upgrade the accounting software on twenty PCs. Which of these should be done FIRST?"
+        choices:
+          - "Get the change board's approval"
+          - "Book the change into the next maintenance window"
+          - "Test it in a sandbox and write the rollback plan"
+          - "Tell the accounting staff when the upgrade will happen"
+        answer: 2
+        why: "The change board judges risk on evidence, so testing and a rollback plan come before approval, scheduling and announcements."
+        whys:
+          - "Needed, but the board needs test results and a rollback plan to judge the risk."
+          - "Scheduling follows approval."
+          - "Best: produces the evidence every later step depends on."
+          - "Users are told once the date is approved."
+      - id: ap2-4z-b05
+        type: mcq
+        best: true
+        q: "Laptop records are kept in three technicians' separate spreadsheets, and an audit could not match devices to staff or warranty dates. Which change BEST fixes this?"
+        choices:
+          - "Merge the three spreadsheets into one shared file"
+          - "Run a physical audit of every laptop once a year"
+          - "Ask staff to report their laptop's serial number each quarter"
+          - "An asset system, with an asset tag on each laptop"
+        answer: 3
+        why: "One asset management system links each tagged device to its user, warranty and licences, and is updated as part of the normal process."
+        whys:
+          - "Better than three, but a shared file has no ownership or checks and drifts again."
+          - "Catches errors once a year, but records are wrong in between."
+          - "Relies on staff, and still lands in an unmanaged record."
+          - "Best: a single authoritative record tied to physical tags."
+      - id: ap2-4z-b06
+        type: mcq
+        best: true
+        q: "A laser printer's toner cartridge split and spilled powder over the paper path inside the printer. Which cleanup method is BEST?"
+        choices:
+          - "A toner vacuum, wearing a suitable mask"
+          - "An ordinary office vacuum cleaner"
+          - "Compressed air to blow the toner out"
+          - "Toner cloths wiped carefully along the paper path"
+        answer: 0
+        why: "A toner vacuum has a filter fine enough to trap toner and is built to collect it safely; a mask protects the lungs."
+        whys:
+          - "Best: traps the powder instead of spreading it, safely."
+          - "Fine toner passes through ordinary filters into the air, and the dust can be ignited by the motor."
+          - "Spreads fine powder through the printer and into the room."
+          - "Right for the last film of residue, but wiping a heavy spill pushes loose powder deeper into the rollers and paper path."
+      - id: ap2-4z-b07
+        type: mcq
+        best: true
+        q: "A regulator requires every user to see a notice about monitoring and authorised use before signing in to any workstation. The company has 300 domain PCs. Which method is BEST?"
+        choices:
+          - "A printed notice fixed beside each workstation"
+          - "A logon banner set through Group Policy"
+          - "Email the notice to all staff once a year"
+          - "Add the notice to the acceptable use policy"
+        answer: 1
+        why: "A Group Policy logon banner shows the notice on every PC before sign-in, centrally and consistently."
+        whys:
+          - "Visible, but easily removed and not shown as part of signing in."
+          - "Best: meets the requirement on every PC from one setting."
+          - "Informs staff, but not at sign-in, as required."
+          - "The policy should include it, but it is not shown at each sign-in."
+      - id: ap2-4z-b08
+        type: mcq
+        best: true
+        q: "A customer's four-year-old laptop needs a new motherboard, which will cost about 70% of the price of a comparable new laptop. What should the technician do?"
+        choices:
+          - "Order the motherboard, since the customer asked for a repair"
+          - "Recommend a new laptop and close the repair ticket"
+          - "Explain both options and costs, and let the customer decide"
+          - "Ask a manager which option the company would rather sell"
+        answer: 2
+        why: "Offering repair and replacement options with clear costs lets the customer make an informed choice; the decision is theirs."
+        whys:
+          - "Honours the request, but the customer may not know a repair costs nearly as much as a replacement."
+          - "May be the better deal, but the decision belongs to the customer."
+          - "Best: sets clear expectations and leaves the choice with the customer."
+          - "Puts the company's sales preference ahead of the customer's interest."
+      - id: ap2-4z-b09
+        type: mcq
+        best: true
+        q: "A technician has fixed a fault that used to appear only once or twice a week. Which way of finishing the job BEST serves the customer?"
+        choices:
+          - "Close the ticket once the fault cannot be reproduced"
+          - "Ask the customer to call back if the fault returns"
+          - "Email the customer the full technical log of the repair"
+          - "Explain the fix simply and check back in a week"
+        answer: 3
+        why: "An intermittent fault cannot be proven fixed on the day; a plain explanation and a follow-up confirm the customer is satisfied."
+        whys:
+          - "A weekly fault will rarely reproduce on the day, so this proves little."
+          - "Leaves the customer to chase a fault that may not be fixed."
+          - "Documents the work, but in a form the customer may not understand, with no check that it worked."
+          - "Best: the customer understands the fix, and the follow-up confirms it held."
+      - id: ap2-4z-b10
+        type: mcq
+        best: true
+        q: "A small office keeps its file server in a closed wooden cupboard. In summer it overheats and shuts itself down, although the office itself stays at a comfortable temperature. It cannot be moved this year. Which action BEST addresses the cause?"
+        choices:
+          - "Ventilate the cupboard so hot air can escape"
+          - "Clean the server's fans with compressed air every month"
+          - "Set the server to shut down at a lower temperature"
+          - "Prop the cupboard door open during hot weather"
+        answer: 0
+        why: "The room is comfortable, so the cause is heat trapped in the cupboard; ventilating it fixes that permanently while the server stays where it is."
+        whys:
+          - "Best: removes the trapped heat for good."
+          - "Good maintenance, but clean fans still recirculate hot air in a closed box."
+          - "Protects the hardware, but makes outages more frequent."
+          - "Helps, but only when someone remembers, and leaves the server exposed."
+      - id: ap2-4z-b11
+        type: mcq
+        best: true
+        q: "A technician is fitting a new expansion card in a desktop at a user's desk. There is no ESD mat, but the technician has a wrist strap. Which approach is BEST?"
+        choices:
+          - "Leave the PC plugged in but switched off, so the case stays grounded"
+          - "Unplug the PC and clip the strap to bare chassis metal"
+          - "Touch the metal case every few minutes while working"
+          - "Rest the card on its antistatic bag until it is fitted"
+        answer: 1
+        why: "Power is removed for safety, and the strap keeps technician and chassis at the same potential throughout."
+        whys:
+          - "An older habit, but leaves mains power in the PC; safety guidance is to disconnect power first."
+          - "Best: safe from mains and protected from static the whole time."
+          - "Discharges static now and then, but charge builds up between touches."
+          - "Sensible handling, but does nothing about the technician's own charge."
+      - id: ap2-4z-b12
+        type: mcq
+        best: true
+        q: "Workstations in a small office reboot several times a week when the lights dim briefly. Which device BEST stops this?"
+        choices:
+          - "A surge suppressor for each workstation"
+          - "A higher-wattage power supply in each PC"
+          - "A UPS for each workstation"
+          - "A dedicated electrical circuit for the office"
+        answer: 2
+        why: "A UPS carries the PC through brownouts and short outages from its battery."
+        whys:
+          - "Clips spikes, but cannot supply power through a dip."
+          - "Gives headroom for components, but cannot ride out low mains voltage."
+          - "Best: supplies power while the mains dips."
+          - "May help if other equipment on the circuit causes the dips, but not if the supply itself dips."
+      - id: ap2-4z-b13
+        type: mcq
+        best: true
+        q: "The facilities team buys a new cleaning solvent for printer rollers. A technician needs to know how to store it, what protection to wear and how to dispose of it. Which source is BEST?"
+        choices:
+          - "The product's safety data sheet (SDS/MSDS)"
+          - "The printer manufacturer's service manual"
+          - "The supplier's product page"
+          - "The local council's waste-disposal guidance"
+        answer: 0
+        why: "The SDS is written for this product and covers storage, protective equipment and disposal."
+        whys:
+          - "Best: the authoritative safety document for this exact product."
+          - "Explains the printer, not the hazards of this solvent."
+          - "Describes the product, but is a sales page, not the safety document."
+          - "Gives general rules, but not this product's specific hazards and handling."
+      - id: ap2-4z-b14
+        type: mcq
+        best: true
+        q: "While reimaging a PC, a technician notices that the user's files include other employees' salary and medical records, which the user's role should never see. What should the technician do?"
+        choices:
+          - "Delete the folder, since the user should not have it"
+          - "Ask the user why the files are on the PC"
+          - "Copy the folder to a USB drive as evidence"
+          - "Stop, leave the files untouched and report it to a manager"
+        answer: 3
+        why: "Possible misuse of regulated data is an incident: preserve the evidence and pass it to those responsible under the incident policy."
+        whys:
+          - "Destroys evidence of a possible breach."
+          - "Alerts the user, and the investigation is not the technician's to run."
+          - "Creates another uncontrolled copy of sensitive data and breaks evidence handling."
+          - "Best: preserves the evidence and informs management."
+      - id: ap2-4z-b15
+        type: mcq
+        best: true
+        q: "A user asks IT to delete a seven-year-old folder of invoices to free up space. Company policy, based on tax law, requires invoices to be kept for ten years. What should the technician do?"
+        choices:
+          - "Compress the folder to save space"
+          - "Delete them after taking a backup first"
+          - "Keep them, moving them to archive storage"
+          - "Ask the user's manager to approve the deletion"
+        answer: 2
+        why: "The retention requirement decides; archiving frees the space without breaking it."
+        whys:
+          - "Saves a little space, but archiving solves the space problem properly."
+          - "A backup that may itself expire is not the managed retention the law requires."
+          - "Best: meets the retention duty and the user's need for space."
+          - "A manager cannot override a legal retention requirement."
+      - id: ap2-4z-b16
+        type: mcq
+        best: true
+        q: "Ransomware on one PC encrypted the office's files and also the backup NAS, which every PC reached through a mapped drive. Which change BEST protects future backups from the same attack?"
+        choices:
+          - "Hide the NAS share by adding $ to its name"
+          - "Keep a backup copy offline, out of reach of user PCs"
+          - "Back up more often so less work is lost"
+          - "Install anti-malware software on the NAS"
+        answer: 1
+        why: "Malware on a user's PC cannot reach or alter a copy that is offline or locked against change."
+        whys:
+          - "A hidden share is still reachable by malware that has the path and the user's access."
+          - "Best: the attack can no longer touch every copy."
+          - "Reduces loss, but the backups are still encrypted along with everything else."
+          - "May catch some threats, but the encryption came from a PC with legitimate write access."
+      - id: ap2-4z-b17
+        type: mcq
+        best: true
+        q: "A technician has written a script to remove an old application and restart PCs, to be run on 400 workstations. Which step BEST limits the damage if the script has a bug?"
+        choices:
+          - "Run it after hours so users are not interrupted"
+          - "Add logging so any failures are recorded"
+          - "Have a colleague read through the code"
+          - "Run it on a small pilot group first"
+        answer: 3
+        why: "A bug then affects only a few PCs, where it is found before the full rollout."
+        whys:
+          - "Reduces disruption, but a bug still hits all 400 PCs at once."
+          - "Helps diagnose failures, but only after they have happened everywhere."
+          - "Peer review catches many mistakes, but not how the script behaves on real PCs."
+          - "Best: limits any bug to a handful of machines."
+      - id: ap2-4z-b18
+        type: mcq
+        best: true
+        q: "A technician supports home users who are not technical. Their PCs sit behind home routers the technician does not control, and each user must agree to every session. Which remote access method is BEST?"
+        choices:
+          - "A screen-sharing tool the user starts with a session code"
+          - "RDP through a port forward on each user's router"
+          - "A VNC server installed on each PC"
+          - "A VPN from each home to the office, then RDP"
+        answer: 0
+        why: "A user-started screen-sharing session connects outward through the home router with no setup there, and the user controls each session."
+        whys:
+          - "Best: needs no router changes and only runs when the user starts it."
+          - "Needs router changes the technician cannot make and exposes RDP to the internet."
+          - "Needs inbound access to each PC, which the home router blocks."
+          - "Heavy to set up for occasional help, and does not need the user to start each session."
+      - id: ap2-4z-b19
+        type: mcq
+        best: true
+        q: "HR trialled an AI tool that shortlists job applicants, and noticed it rarely selects applicants from one university even when their qualifications are similar. What should happen BEFORE the tool is used further?"
+        choices:
+          - "Keep using it, since it saves a great deal of time"
+          - "Add a note to job adverts saying AI is used"
+          - "Pause it and check its picks for bias against human review"
+          - "Remove university names from applications before the tool sees them"
+        answer: 2
+        why: "Bias is a known AI limitation; checking its results against human judgement shows whether it is real before it affects decisions."
+        whys:
+          - "Saves time, but risks unfair decisions the company is accountable for."
+          - "Transparency helps, but does not fix a biased tool."
+          - "Best: tests the suspected bias before the tool makes more decisions."
+          - "Hides one signal, but a biased model can find others, and the cause is unexamined."

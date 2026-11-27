@@ -1,0 +1,377 @@
+part_of: isc2-cc
+units:
+  - id: cc-1b
+    title: "Security Principles — Full Coverage"
+    domain: "1"
+    goal: "I can run a risk through its whole lifecycle, name the laws, frameworks and standards that govern security, and apply due care and all four ISC2 canons."
+    notes: |
+      ## Filling in Domain 1
+
+      The first unit gave you the goals, the control categories and the document hierarchy. This one completes the domain.
+
+      **Risk lifecycle.** A risk is an **asset** exposed to a threat through a vulnerability, sized by **likelihood** and **impact**. The process is a loop:
+
+      - **Identify** — list what could go wrong
+      - **Assess** — rate it, *qualitatively* (high / medium / low) or *quantitatively* (money)
+      - **Treat** — avoid, mitigate, transfer or accept
+      - **Monitor** — keep checking, because threats and the business change
+
+      Risk before controls is **inherent**; what remains afterwards is **residual**, and management must accept it.
+
+      **Governance.** *Laws and regulations* (GDPR, HIPAA) are mandatory. *Frameworks and standards* (ISO/IEC 27001, NIST CSF, CIS Controls and Benchmarks) are adopted by choice or by contract.
+
+      **Conduct.** *Due care* is acting as a prudent person would; *due diligence* is the checking that supports it. The four ISC2 canons apply **in order**:
+
+      | Canon | Duty to |
+      | 1 | society and the infrastructure |
+      | 2 | honor, honesty, the law |
+      | 3 | principals (employer, client) |
+      | 4 | the profession |
+    items:
+      - {id: cc-1b-asset, type: concept, term: "Asset",
+         def: "Anything of value to an organization that needs protecting, such as data, systems, people, facilities or reputation."}
+      - {id: cc-1b-risk, type: concept, term: "Risk",
+         def: "The possibility of loss when something harmful exploits a weakness, usually sized by combining how probable the event is with how bad it would be."}
+      - {id: cc-1b-likelihood, type: concept, term: "Likelihood",
+         def: "The probability that a given harmful event will actually occur within a stated period."}
+      - {id: cc-1b-impact, type: concept, term: "Impact",
+         def: "The magnitude of harm an organization would suffer if a given harmful event did occur."}
+      - {id: cc-1b-risk-identification, type: concept, term: "Risk identification",
+         def: "The first stage of the risk process: finding and listing what could go wrong, before anything is rated or prioritized."}
+      - {id: cc-1b-risk-assessment, type: concept, term: "Risk assessment",
+         def: "The stage of the risk process in which each listed item is analyzed and rated so that the items can be ranked against each other."}
+      - {id: cc-1b-qualitative, type: concept, term: "Qualitative risk analysis",
+         def: "Rating potential losses with descriptive scales such as high, medium and low, based on judgment rather than financial figures."}
+      - {id: cc-1b-quantitative, type: concept, term: "Quantitative risk analysis",
+         def: "Rating potential losses with numbers, typically money per year, calculated from asset values and expected frequency of occurrence."}
+      - {id: cc-1b-mitigation, type: concept, term: "Risk mitigation",
+         def: "Continuing an activity while adding safeguards that lower the chance of a loss or the harm it would cause."}
+      - {id: cc-1b-avoidance, type: concept, term: "Risk avoidance",
+         def: "Eliminating exposure altogether by not starting, or by stopping, the activity that creates it."}
+      - {id: cc-1b-acceptance, type: concept, term: "Risk acceptance",
+         def: "A documented management decision to take no further action on an exposure and to bear any loss that results."}
+      - {id: cc-1b-inherent-risk, type: concept, term: "Inherent risk",
+         def: "The level of exposure that exists before any safeguards are applied."}
+      - {id: cc-1b-residual-risk, type: concept, term: "Residual risk",
+         def: "The level of exposure that still remains after safeguards have been applied."}
+      - {id: cc-1b-risk-monitoring, type: concept, term: "Risk monitoring",
+         def: "The continuing stage of the risk process: re-checking known exposures and their safeguards over time and updating the record as conditions change."}
+      - {id: cc-1b-physical-control, type: concept, term: "Physical control",
+         def: "A tangible safeguard such as a fence, door lock, guard or bollard that protects people, buildings and equipment."}
+      - {id: cc-1b-regulation, type: concept, term: "Law or regulation",
+         def: "A rule issued by a government or its authorized body, carrying legal penalties for those who do not obey it."}
+      - {id: cc-1b-framework, type: concept, term: "Framework",
+         def: "A structured, usually voluntary, collection of practices and outcomes that an organization adapts to build and organize its own security program."}
+      - {id: cc-1b-iso27001, type: concept, term: "ISO/IEC 27001",
+         def: "The international document that sets requirements for an information security management system and against which an organization can be independently certified."}
+      - {id: cc-1b-cis-controls, type: concept, term: "CIS Critical Security Controls",
+         def: "A prioritized list of defensive safeguards from a non-profit body, arranged in implementation groups so that small organizations begin with essential cyber hygiene."}
+      - {id: cc-1b-cis-benchmarks, type: concept, term: "CIS Benchmarks",
+         def: "Consensus-built secure configuration recommendations, each written for one specific product such as an operating system, database or cloud platform."}
+      - {id: cc-1b-nist-csf, type: concept, term: "NIST Cybersecurity Framework (CSF)",
+         def: "A voluntary United States publication that organizes security outcomes under six functions: Govern, Identify, Protect, Detect, Respond and Recover."}
+      - {id: cc-1b-gdpr, type: concept, term: "GDPR",
+         def: "The European Union law that governs how the personal data of people in the EU is processed, wherever the processing organization is based."}
+      - {id: cc-1b-pii, type: concept, term: "Personally identifiable information (PII)",
+         def: "Any data that can be used, alone or combined with other data, to single out one specific living person."}
+      - {id: cc-1b-due-care, type: concept, term: "Due care",
+         def: "Taking the reasonable protective actions that a prudent person would take in the same circumstances; doing the right thing once you know what it is."}
+      - {id: cc-1b-code-of-conduct, type: concept, term: "Professional code of conduct",
+         def: "A published set of behavioral expectations that members of an occupation or organization agree to follow, with sanctions for breaking them."}
+      - {id: cc-1b-canon-1, type: concept, term: "ISC2 Code of Ethics — first canon",
+         def: "The highest-ranked ethical duty of an ISC2 member: protect society, the common good, necessary public trust and confidence, and the infrastructure."}
+      - {id: cc-1b-canon-2, type: concept, term: "ISC2 Code of Ethics — second canon",
+         def: "The ISC2 ethical duty ranked immediately below protecting society: act honorably, honestly, justly, responsibly, and legally."}
+      - {id: cc-1b-canon-3, type: concept, term: "ISC2 Code of Ethics — third canon",
+         def: "The ISC2 ethical duty owed to employers and clients: provide diligent and competent service to principals."}
+      - {id: cc-1b-canon-4, type: concept, term: "ISC2 Code of Ethics — fourth canon",
+         def: "The lowest-ranked ISC2 ethical duty: advance and protect the profession."}
+      - {id: cc-1b-q01, type: mcq,
+         q: "A risk register entry reads: 'Ransomware on file servers — rated High with no controls; rated Medium after offline backups and endpoint protection.' What does the Medium rating represent?",
+         choices: ["Residual risk", "Inherent risk", "Risk appetite", "Likelihood"],
+         answer: 0,
+         why: "Residual risk is what remains after controls are applied. The High rating with no controls is the inherent risk; appetite is how much risk leadership is willing to take, not a rating of one risk."}
+      - {id: cc-1b-q02, type: mcq,
+         q: "In a workshop, department heads place 30 risks on a 5-by-5 grid labelled Rare to Almost Certain and Negligible to Severe, using their professional judgment. No monetary values are calculated. Which activity is this?",
+         choices: ["Quantitative risk analysis", "Qualitative risk analysis", "Risk treatment", "Risk monitoring"],
+         answer: 1,
+         why: "Descriptive scales and judgment make this qualitative analysis. Quantitative analysis would express each risk as a number, typically an expected monetary loss per year."}
+      - {id: cc-1b-q03, type: mcq,
+         q: "A warehouse sits on a flood plain. The company keeps operating there but moves stock onto raised racking and installs sump pumps. Which risk treatment has it chosen?",
+         choices: ["Risk avoidance", "Risk transference", "Risk mitigation", "Risk acceptance"],
+         answer: 2,
+         why: "The activity continues with safeguards that reduce the harm, which is mitigation. Avoidance would mean leaving the flood plain; acceptance would mean doing nothing beyond documenting the decision."}
+      - {id: cc-1b-q04, type: mcq,
+         q: "A data centre lies in a region that records a major earthquake roughly once every 200 years. Such an earthquake would destroy the building. How should this risk be characterized?",
+         choices: ["High likelihood, high impact", "High likelihood, low impact", "Low likelihood, low impact", "Low likelihood, high impact"],
+         answer: 3,
+         why: "The event is rare (low likelihood) but would be devastating (high impact). The two factors are rated separately, and a severe outcome does not make the event more probable."}
+      - {id: cc-1b-q05, type: mcq,
+         q: "Which of the following is a law that carries legal penalties, rather than a framework or standard an organization chooses to adopt?",
+         choices: ["GDPR", "ISO/IEC 27001", "CIS Critical Security Controls", "NIST Cybersecurity Framework"],
+         answer: 0,
+         why: "GDPR is European Union legislation enforced by regulators with fines. ISO/IEC 27001 is tempting because organizations are audited against it, but certification is voluntary (or contractual), not required by that document itself."}
+      - {id: cc-1b-q06, type: mcq,
+         q: "A customer will only sign a contract if the supplier can show an independent third-party certificate proving that its information security management system meets an international standard. Which document is the supplier certified against?",
+         choices: ["NIST Cybersecurity Framework", "ISO/IEC 27001", "CIS Benchmarks", "GDPR"],
+         answer: 1,
+         why: "ISO/IEC 27001 sets certifiable requirements for an information security management system. The NIST CSF is a voluntary framework of outcomes with no formal certification scheme of its own."}
+      - {id: cc-1b-q07, type: mcq,
+         q: "A 20-person firm with one IT generalist wants a short, prioritized list of concrete defensive actions, with a clearly marked starting subset for organizations with limited resources. Which source BEST fits?",
+         choices: ["ISO/IEC 27001", "GDPR", "CIS Critical Security Controls", "A corporate acceptable use policy"],
+         answer: 2,
+         why: "The CIS Controls are a prioritized list of safeguards, and Implementation Group 1 is the essential-hygiene starting subset. ISO/IEC 27001 specifies a management system and does not give a prioritized action list for small teams."}
+      - {id: cc-1b-q08, type: mcq,
+         q: "Which of the following data sets is MOST clearly personally identifiable information?",
+         choices: ["The number of logins per sales region last month", "The public IP address of the company's web server", "The SHA-256 hash of a software installer", "An employee's full name stored with her passport number"],
+         answer: 3,
+         why: "A name with a passport number singles out one living person. The regional login count is aggregated and the other two describe company systems and files, not individuals."}
+      - {id: cc-1b-q09, type: mcq,
+         q: "A vendor announces a patch for a flaw that is being actively exploited. The IT manager tests it that day and deploys it promptly, as any prudent manager in her position would. Which concept is she demonstrating?",
+         choices: ["Due care", "Risk transference", "Non-repudiation", "Risk acceptance"],
+         answer: 0,
+         why: "Due care is taking the reasonable protective action a prudent person would take once the need is known. Acceptance would be the opposite: knowingly leaving the flaw unpatched with management sign-off."}
+      - {id: cc-1b-q10, type: mcq,
+         q: "Which of the following is a technical (logical) control?",
+         choices: ["A policy that visitors must be escorted at all times", "Automatic account lockout after five failed logins", "Steel bollards in front of the lobby", "Pre-employment background checks"],
+         answer: 1,
+         why: "Account lockout is enforced by software, so it is technical. The escort policy and background checks direct people (administrative), and bollards are physical."}
+      - {id: cc-1b-q11, type: mcq,
+         q: "To win a contract, an ISC2 member lists a forensics qualification on his CV that he never earned. Which canon of the ISC2 Code of Ethics does this MOST directly violate?",
+         choices: ["Protect society, the common good, necessary public trust and confidence, and the infrastructure", "Provide diligent and competent service to principals", "Act honorably, honestly, justly, responsibly, and legally", "Advance and protect the profession"],
+         answer: 2,
+         why: "Lying about credentials is a failure of honesty, the second canon. It also harms the profession's reputation, but the dishonest act itself is what the second canon names directly."}
+      - {id: cc-1b-q12, type: mcq,
+         q: "An ISC2 member volunteers to mentor new entrants to the field and gives free talks that raise the standard of practice among her peers. Which canon is she MOST directly fulfilling?",
+         choices: ["Protect society, the common good, necessary public trust and confidence, and the infrastructure", "Act honorably, honestly, justly, responsibly, and legally", "Provide diligent and competent service to principals", "Advance and protect the profession"],
+         answer: 3,
+         why: "Mentoring and raising the standard of practice advances the profession, the fourth canon. Service to principals concerns the work she does for her own employer or clients."}
+      - {id: cc-1b-q13, type: mcq,
+         q: "Six months after controls were deployed, a risk owner re-checks that each control still works, confirms the risk is still within the accepted level, and updates the risk register. Which stage of the risk management lifecycle is this?",
+         choices: ["Risk monitoring", "Risk identification", "Risk assessment", "Risk treatment"],
+         answer: 0,
+         why: "Re-checking existing risks and controls over time is monitoring. Treatment was the earlier stage in which the controls were chosen and deployed."}
+      - {id: cc-1b-q14, type: mcq,
+         q: "A criminal group could exploit an unpatched VPN gateway to steal a company's customer database, leading to regulatory fines. In this statement, which element is the asset?",
+         choices: ["The criminal group", "The customer database", "The unpatched VPN gateway", "The regulatory fines"],
+         answer: 1,
+         why: "The asset is the thing of value being protected: the customer database. The unpatched gateway is the vulnerability, the criminal group is the threat, and the fines are part of the impact."}
+
+  - id: cc-1c
+    title: "Security Principles — Exam-Hard Practice"
+    domain: "1"
+    goal: "I can answer adaptive-exam-level scenario questions on security goals, risk, governance, controls and ethics."
+    notes: |
+      ## How to use this unit
+
+      The real CC exam is **adaptive**: answer well and the questions get harder. This unit sits at that hard end. Nothing here is new material; every question applies something from the two earlier Domain 1 units.
+
+      Habits that win marks:
+
+      - **Read the qualifier.** BEST, MOST, FIRST and PRIMARY mean several choices are partly right. Find the one the scenario points at.
+      - **Classify before you answer.** Decide which goal, which risk element or which control category is in play, *then* read the choices.
+      - **Separate near-neighbours.** Privacy is not confidentiality. Due care is not due diligence. A threat is not a vulnerability. A standard is not a guideline.
+      - **Category follows the mechanism.** A lock is *physical*, a rule enforced by software is *technical*, a rule enforced through people is *administrative*.
+      - **Canons go in order.** Society, then honor and law, then principals, then the profession.
+
+      For money questions: single loss = asset value x exposure factor; annual loss = single loss x yearly rate of occurrence.
+
+      "Choose TWO" and "Choose THREE" items are all-or-nothing, as on the exam.
+    items:
+      - {id: cc-1c-q01, type: mcq,
+         q: "A faulty maintenance script silently changed dosage values in a pharmacy database. The system stayed online and nobody without permission viewed any record. Which control would BEST address the security goal that was violated?",
+         choices: ["Checksum validation of records with alerts on unexpected change", "Encryption of the database at rest", "A second database server in a standby site", "Multifactor authentication for pharmacists"],
+         answer: 0,
+         why: "Data was altered wrongly, so integrity failed, and checksums detect unexpected modification. Encryption at rest protects confidentiality and would not have noticed an authorized script writing wrong values."}
+      - {id: cc-1c-q02, type: mcq,
+         q: "A log shows: '09:14 user=jlee login=success mfa=ok' then '09:15 user=jlee action=read path=/finance/payroll result=DENIED reason=role:helpdesk'. Which function produced the DENIED result?",
+         choices: ["Authentication", "Authorization", "Accounting", "Identification"],
+         answer: 1,
+         why: "jlee had already proven her identity at 09:14; the denial is a decision about what that verified user may reach, which is authorization. Accounting recorded both lines but did not make the decision."}
+      - {id: cc-1c-q03, type: mcq,
+         q: "Five engineers share one 'netadmin' account. A core switch configuration is erased and the log reads 'user=netadmin cmd=erase startup-config'. No one admits to it. Which change would BEST prevent this problem in future?",
+         choices: ["Forward switch logs to a write-once log server", "Require multifactor authentication on the netadmin account", "Issue each engineer a uniquely named administrative account", "Restrict the netadmin account to the console port"],
+         answer: 2,
+         why: "Only individual accounts tie each action to one person, restoring accountability. A write-once log server protects the log, but the log would still say only 'netadmin'."}
+      - {id: cc-1c-q04, type: mcq,
+         q: "Two firms protect purchase orders with a keyed hash computed from a secret key that both firms hold. One firm denies having sent an order and says the other could have forged it. What must change so that such a dispute can be settled?",
+         choices: ["Use a longer shared secret key", "Encrypt each order with the shared key", "Switch to a stronger hash algorithm", "Have the sender sign each order with its own private key"],
+         answer: 3,
+         why: "Non-repudiation requires something only the sender could have produced; a private-key signature does that. With any shared secret, however long, either party could have created the value, so denial stays credible."}
+      - {id: cc-1c-q05, type: mcq,
+         q: "A retailer stores customer purchase histories encrypted, and has never been breached. It analyzes the histories to infer customers' health conditions and sells those inferences to advertisers without the customers' knowledge. Which concept is MOST directly violated?",
+         choices: ["Privacy", "Confidentiality", "Integrity", "Non-repudiation"],
+         answer: 0,
+         why: "Privacy is the individual's control over how their information is used and shared; the retailer used it in a way customers never agreed to. Confidentiality is tempting, but no unauthorized party broke in, the organization itself chose to misuse the data."}
+      - {id: cc-1c-q06, type: mcq,
+         q: "A server room is valued at $200,000. A flood would destroy 25% of its value, and a flood is expected once every four years. What is the annualized loss expectancy?",
+         choices: ["$3,125", "$12,500", "$50,000", "$200,000"],
+         answer: 1,
+         why: "Single loss = $200,000 x 0.25 = $50,000; annual rate = 1/4 = 0.25; annual loss = $50,000 x 0.25 = $12,500. $50,000 is the single loss expectancy, the loss from one flood, not the yearly figure."}
+      - {id: cc-1c-q07, type: mcq,
+         q: "A risk on a profitable product line has an annualized loss expectancy of $12,500. A new control costing $30,000 a year would cut that to $2,000. An insurance policy covering the loss in full costs $4,000 a year. On cost alone, which treatment is BEST justified?",
+         choices: ["Mitigate with the new control", "Accept the risk as it stands", "Transfer the risk with the insurance policy", "Avoid the risk by closing the product line"],
+         answer: 2,
+         why: "Insurance costs $4,000 against an expected $12,500 loss, the cheapest outcome. The control spends $30,000 to save $10,500 a year, so it costs more than the risk it removes, and closing a profitable line sacrifices far more than $12,500."}
+      - {id: cc-1c-q08, type: mcq,
+         q: "After controls are applied to a payment system, the residual risk is still above the level that leadership has declared it is willing to bear. What should happen NEXT?",
+         choices: ["The security analyst signs a risk acceptance and closes the entry", "The inherent risk rating is lowered to match the appetite", "The risk is removed from the register because controls exist", "Further treatment is applied until the risk falls within the stated level"],
+         answer: 3,
+         why: "Residual risk above appetite needs more treatment: additional mitigation, transfer or avoidance. An analyst cannot accept a risk on the organization's behalf, least of all one that exceeds what leadership said it would bear."}
+      - {id: cc-1c-q09, type: mcq,
+         q: "An analyst finds that a legacy billing system can no longer be patched. The business wants to keep it running for two more years. Who should formally accept the remaining risk?",
+         choices: ["The senior manager who owns the billing function", "The security analyst who found the issue", "The administrator who maintains the server", "The external auditor at the next audit"],
+         answer: 0,
+         why: "Risk acceptance belongs to management with authority over, and accountability for, the business function. Security staff identify and advise on risk; they do not own the business decision to live with it."}
+      - {id: cc-1c-q10, type: mcq,
+         q: "A retailer outsources card processing to a certified provider, and the contract makes the provider liable for losses from a breach of its systems. Which statement is MOST accurate?",
+         choices: ["The risk is avoided, because the retailer no longer handles card data", "The risk is partly transferred, but the retailer remains accountable to its customers", "The risk is mitigated, because the provider is certified", "The risk is accepted, because a contract has been signed"],
+         answer: 1,
+         why: "Contractual liability shifts the financial burden, which is transference, but accountability for customers' data cannot be outsourced. It is not avoidance: the retailer still takes card payments, just through another party."}
+      - {id: cc-1c-q11, type: mcq,
+         q: "A scan reports 'Host 10.0.4.7: SMBv1 enabled, severity high'. A threat feed reports 'A ransomware crew is scanning the internet for SMBv1 hosts'. Which statement classifies these correctly?",
+         choices: ["SMBv1 being enabled is the threat; the ransomware crew is the vulnerability", "SMBv1 being enabled is the impact; the ransomware crew is the likelihood", "SMBv1 being enabled is the vulnerability; the ransomware crew is the threat", "SMBv1 being enabled is the risk; the ransomware crew is the asset"],
+         answer: 2,
+         why: "A weakness in your own system is a vulnerability; an actor who could exploit it is a threat. Risk only exists when the two are considered together against an asset."}
+      - {id: cc-1c-q12, type: mcq,
+         q: "A data centre installs a gas fire-suppression system. Wiring, equipment and staff behaviour are unchanged. Which component of the fire risk does this PRIMARILY reduce?",
+         choices: ["The likelihood that a fire starts", "The value of the assets in the room", "The inherent risk rating", "The impact if a fire occurs"],
+         answer: 3,
+         why: "Suppression acts after ignition and limits the damage, so it lowers impact. It does nothing to stop a fire starting, and inherent risk is by definition the level before controls, so a control cannot change it."}
+      - {id: cc-1c-q13, type: mcq,
+         q: "A server room is protected by: (1) a keypad door lock, (2) a written rule that visitors sign in and are escorted, (3) CCTV cameras, (4) disk encryption on the servers. Which classification is correct?",
+         choices: ["2 is administrative and 4 is technical", "1 is technical and 3 is administrative", "2 is physical and 4 is technical", "3 is technical and 1 is administrative"],
+         answer: 0,
+         why: "A written rule directs people (administrative) and encryption is implemented in software (technical). The door lock and the cameras protect a physical space, so both are physical controls even though they contain electronics."}
+      - {id: cc-1c-q14, type: mcq,
+         q: "Company laptops require a fingerprint scan to unlock the operating system session. Using ISC2's control categories, how is this control classified?",
+         choices: ["Physical", "Technical (logical)", "Administrative", "Operational"],
+         answer: 1,
+         why: "The scan gates access to a system and its data and is enforced by software, so it is technical. Physical is tempting because a finger touches a sensor, but physical controls protect spaces and equipment; 'operational' is not one of ISC2's three categories."}
+      - {id: cc-1c-q15, type: mcq,
+         q: "Staff keep propping open a badge-controlled door for deliveries. Interviews show they do not know why it matters or that it breaks any rule. Which ADMINISTRATIVE control BEST addresses the cause?",
+         choices: ["A door-held-open alarm", "A full-height turnstile", "Awareness training backed by a documented access rule and sanctions", "An additional CCTV camera covering the door"],
+         answer: 2,
+         why: "The cause is that people do not know the rule, which training and a documented, enforced rule correct, and those work through people, so they are administrative. The alarm, turnstile and camera may help but are physical controls, not what the question asks for."}
+      - {id: cc-1c-q16, type: mcq,
+         q: "A document states: 'All laptops MUST use AES-256 full-disk encryption. All passwords MUST be at least 14 characters.' It gives no instructions for how to configure either. What type of document is it?",
+         choices: ["Policy", "Procedure", "Guideline", "Standard"],
+         answer: 3,
+         why: "Mandatory, specific, measurable requirements make a standard. A policy would state the intent ('company data must be protected') without the specifics, and a procedure would give the configuration steps."}
+      - {id: cc-1c-q17, type: mcq,
+         q: "A document says: 'Where practical, teams should consider using the approved password manager.' An engineer does not use it. The auditor wants to record a non-compliance finding. What is the BEST conclusion?",
+         choices: ["There is no violation, because the document is a guideline and guidelines are discretionary", "The engineer violated a standard, because the tool is approved", "The engineer violated a policy, because all security documents are mandatory", "The engineer violated a procedure, because a specific tool is named"],
+         answer: 0,
+         why: "'Should consider' and 'where practical' mark a recommendation, which is a guideline. Standards, policies and procedures are mandatory and would say 'must'."}
+      - {id: cc-1c-q18, type: mcq,
+         q: "Company policy says customer records are deleted after three years. A newly enacted regulation in the company's jurisdiction requires them to be kept for seven. What should the company do?",
+         choices: ["Follow the policy until its scheduled review next year", "Comply with the regulation and update the policy to match", "Grant a policy exception so that deletion at three years can continue", "Let each department choose whichever period suits it"],
+         answer: 1,
+         why: "Laws and regulations sit above internal policy, so the policy must change to conform. An internal exception can excuse someone from an internal rule; it cannot excuse the organization from the law."}
+      - {id: cc-1c-q19, type: mcq,
+         q: "A software firm based in the United States has no European office. It sells subscriptions online to residents of France and Germany and stores their names and email addresses on US servers. Which statement is MOST accurate?",
+         choices: ["GDPR does not apply, because the firm is established outside the EU", "GDPR does not apply, because the data is stored outside the EU", "GDPR applies, because the firm offers services to people in the EU", "GDPR applies only if the firm also stores health data"],
+         answer: 2,
+         why: "GDPR follows the people whose data is processed: offering goods or services to individuals in the EU brings an outside organization into scope. Neither the firm's location nor the server location removes the obligation."}
+      - {id: cc-1c-q20, type: mcq,
+         q: "An administrator needs vendor-neutral, setting-by-setting recommendations for securely configuring one particular Linux distribution. Which resource is designed for this?",
+         choices: ["CIS Critical Security Controls", "ISO/IEC 27001", "NIST Cybersecurity Framework", "CIS Benchmarks"],
+         answer: 3,
+         why: "CIS Benchmarks are product-specific secure configuration guides. The CIS Controls come from the same body but are a prioritized list of program-level safeguards, not per-product settings."}
+      - {id: cc-1c-q21, type: mcq,
+         q: "A company maps its activities to the NIST Cybersecurity Framework. After a ransomware attack has been contained, the team rebuilds servers and restores data from backups to resume normal service. Under which function does this restoration work fall?",
+         choices: ["Recover", "Respond", "Protect", "Detect"],
+         answer: 0,
+         why: "Restoring assets and operations after an incident is the Recover function. Respond covers the actions taken on the incident itself, such as containing it, which the stem says is already complete."}
+      - {id: cc-1c-q22, type: mcq,
+         q: "Before signing, a firm thoroughly reviewed a backup vendor's audit reports. The reports recommended that customers enable encryption of backup media. The firm never enabled it, and unencrypted tapes were later lost in transit. What did the firm fail to exercise?",
+         choices: ["Due diligence", "Due care", "Risk transference", "Non-repudiation"],
+         answer: 1,
+         why: "The firm did its investigation (due diligence) but then failed to act on what it learned as a prudent organization would, which is a failure of due care. Diligence is knowing; care is doing."}
+      - {id: cc-1c-q23, type: mcq,
+         q: "A client hires an ISC2 member to assess a system. She finds that an earlier report by a fellow ISC2 member was negligent. Reporting this fully serves her client but will embarrass a colleague and, she fears, the profession. How does the Code of Ethics resolve this?",
+         choices: ["Soften the finding, because protecting the profession outranks service to principals", "Use her own judgment, because the four canons carry equal weight", "Report the finding in full, because service to principals outranks protecting the profession", "Omit the finding from the client report and raise it only with the colleague"],
+         answer: 2,
+         why: "The conflict is between serving her client (third canon) and shielding the profession's image (fourth canon), and the earlier canon prevails, so she reports in full; honesty, the second canon, points the same way. The canons are ranked, not equal."}
+      - {id: cc-1c-q24, type: mcq,
+         q: "A client asks an ISC2 member, a network specialist, to lead a cloud forensics investigation. He has never done forensic work. What is his BEST course of action?",
+         choices: ["Accept, and learn the techniques as the investigation proceeds", "Accept, and quietly subcontract the work to a specialist", "Accept at a reduced fee to reflect his inexperience", "Tell the client it is outside his competence and take it on only with qualified help, or decline"],
+         answer: 3,
+         why: "The third canon requires diligent and competent service, and the second requires honesty, so he must disclose the limit of his competence. Secretly subcontracting may get the work done but deceives the client about who is doing it."}
+      - {id: cc-1c-q25, type: mcq,
+         q: "In a study group, someone posts a list of questions they say they memorized from their recent ISC2 exam. An ISC2 member is in the group. What is the member's BEST action?",
+         choices: ["Refuse to use the list and report the disclosure to ISC2", "Read the list privately but not pass it on", "Correct the wrong answers so that others are not misled", "Ignore it, because it does not involve the member's employer"],
+         answer: 0,
+         why: "Sharing exam content undermines the value of the certification, and members have a duty to advance and protect the profession and to act honorably. Using the list privately still benefits from the misconduct."}
+      - {id: cc-1c-q26, type: mcq,
+         q: "A system administrator has root access to the mail server for maintenance. Out of curiosity she reads the chief executive's mailbox. No technical control stopped her. Which statement is MOST accurate?",
+         choices: ["No rule was broken, because the system granted her the access", "Technical ability is not authorization; she breached professional conduct and acceptable use", "Only the mail server's owner is at fault, for not restricting root", "It is acceptable provided she does not disclose what she read"],
+         answer: 1,
+         why: "Access granted for a purpose is authorized only for that purpose; reading mail out of curiosity is misuse and a breach of the honorable conduct expected of a professional. The absence of a technical block does not create permission."}
+      - {id: cc-1c-q27, type: mcq,
+         q: "To protect patient records, a hospital locks any emergency-room workstation account for 30 minutes after a single mistyped password. Clinicians are now regularly unable to open charts during emergencies. Which security goal has the control undermined?",
+         choices: ["Integrity", "Confidentiality", "Availability", "Non-repudiation"],
+         answer: 2,
+         why: "Authorized users cannot reach data when they need it, which is a loss of availability. The lockout was meant to serve confidentiality, showing that controls for one goal must be balanced against the others."}
+      - {id: cc-1c-q28, type: mcq,
+         q: "An employee pastes unreleased source code and a customer list into a public AI chatbot whose terms allow prompts to be retained and used for training. Which pairing BEST states the primary concern and an appropriate first control?",
+         choices: ["Integrity; store a hash of the source code", "Availability; back up the customer list", "Non-repudiation; digitally sign each prompt", "Confidentiality; an acceptable-use rule limiting what data may be entered into AI tools"],
+         answer: 3,
+         why: "The data has been disclosed to an outside party that may retain it, a confidentiality loss, and an acceptable-use rule (with training) is the administrative control that governs the behaviour. Nothing in the scenario altered the data or made it unreachable."}
+      - {id: cc-1c-q29, type: mcq,
+         q: "A risk register lists an internal server flaw as 'unlikely to be exploited'. Working exploit code for the flaw is then published openly. Nothing about the server or the data it holds has changed. Which value should be revised?",
+         choices: ["Likelihood", "Impact", "Asset value", "Risk appetite"],
+         answer: 0,
+         why: "Freely available exploit code makes an attack more probable, so likelihood rises. Impact depends on what would be lost, and the stem says the server and its data are unchanged."}
+      - {id: cc-1c-q30, type: mcq,
+         q: "A board wants 40 newly listed risks ranked by the end of the week. The company has no reliable loss history or asset valuations. Which approach is MOST appropriate?",
+         choices: ["Quantitative analysis calculating an annualized loss for each risk", "Qualitative analysis using a likelihood and impact matrix", "A penetration test of every system named in the list", "Risk acceptance of all 40 pending better data"],
+         answer: 1,
+         why: "Qualitative analysis ranks risks quickly from informed judgment and needs no financial data. Quantitative analysis depends on exactly the loss figures and valuations the company lacks."}
+      - {id: cc-1c-m01, type: multi,
+         q: "Which TWO of the following are administrative controls? (Choose TWO.)",
+         choices: ["Pre-employment background checks", "A biometric lock on the data-centre door", "A written separation-of-duties requirement for payments", "A network intrusion detection system", "A perimeter fence", "Data loss prevention software"],
+         answers: [0, 2],
+         why: "Background checks and a written duty-separation requirement work by directing people through rules and oversight. The door lock and fence are physical; the intrusion detection system and data loss prevention software are technical."}
+      - {id: cc-1c-m02, type: multi,
+         q: "Which TWO of these activities are examples of accounting, the third A in AAA? (Choose TWO.)",
+         choices: ["Recording each administrator command with the user ID and a timestamp", "Matching a fingerprint against a stored template", "Assigning a new user to the 'finance-read' role", "Recording the start time, end time and duration of each user's VPN session", "Encrypting the VPN session"],
+         answers: [0, 3],
+         why: "Accounting is recording who did what and when. Matching a fingerprint is authentication, assigning a role is authorization, and encryption protects confidentiality."}
+      - {id: cc-1c-m03, type: multi,
+         q: "Which TWO of the following actions are risk mitigation? (Choose TWO.)",
+         choices: ["Installing a fire-suppression system in the server room", "Buying a cyber insurance policy", "Discontinuing the product that creates the exposure", "Running phishing-awareness training for all staff", "Signing a memo stating that no action will be taken"],
+         answers: [0, 3],
+         why: "Suppression and training are safeguards that reduce impact or likelihood while the activity continues. Insurance is transference, discontinuing the product is avoidance, and the memo is acceptance."}
+      - {id: cc-1c-m04, type: multi,
+         q: "Which TWO of the following are laws or regulations rather than voluntary frameworks or standards? (Choose TWO.)",
+         choices: ["GDPR", "HIPAA", "ISO/IEC 27001", "CIS Critical Security Controls", "NIST Cybersecurity Framework"],
+         answers: [0, 1],
+         why: "GDPR (EU personal data) and HIPAA (US health information) are legislation with legal penalties. ISO/IEC 27001, the CIS Controls and the NIST CSF are adopted by choice or by contract."}
+      - {id: cc-1c-m05, type: multi,
+         q: "Which TWO statements about the ISC2 Code of Ethics canons are true? (Choose TWO.)",
+         choices: ["When two canons conflict, the one listed earlier takes precedence", "Advancing and protecting the profession is the first canon", "Service to principals ranks above acting honorably, honestly, justly, responsibly, and legally", "The first canon concerns society, the common good, public trust and confidence, and the infrastructure", "There are five canons"],
+         answers: [0, 3],
+         why: "The four canons are applied in order, and the first is the duty to society and the infrastructure. The profession comes fourth, and service to principals (third) ranks below honorable and legal conduct (second)."}
+      - {id: cc-1c-m06, type: multi,
+         q: "Which THREE of the following are physical controls? (Choose THREE.)",
+         choices: ["Vehicle bollards at the building entrance", "A cable lock securing a laptop to a desk", "A security guard at reception", "A clean-desk policy", "An automatic screen-lock timeout", "File permissions on a shared drive"],
+         answers: [0, 1, 2],
+         why: "Bollards, cable locks and guards are tangible protections for premises and equipment. The clean-desk policy is administrative; the screen-lock timeout and file permissions are enforced by software, so they are technical."}
+      - {id: cc-1c-m07, type: multi,
+         q: "Which TWO of the following are vulnerabilities rather than threats? (Choose TWO.)",
+         choices: ["A router still using its factory-default administrator password", "An organized crime group", "A server-room door that does not latch", "An earthquake", "A disgruntled former employee"],
+         answers: [0, 2],
+         why: "A default password and a door that does not latch are weaknesses in the organization's own defences. The crime group, the earthquake and the former employee are sources of potential harm, which makes them threats."}
+      - {id: cc-1c-o01, type: order,
+         q: "Put the four canons of the ISC2 Code of Ethics in their official order, highest priority first.",
+         steps: ["Protect society, the common good, necessary public trust and confidence, and the infrastructure", "Act honorably, honestly, justly, responsibly, and legally", "Provide diligent and competent service to principals", "Advance and protect the profession"],
+         why: "The canons are listed in priority order: society first, then personal honor and legality, then principals, then the profession. When two conflict, the earlier one prevails."}
+      - {id: cc-1c-o02, type: order,
+         q: "Put the stages of the risk management lifecycle in order.",
+         steps: ["Identify the assets and what could harm them", "Assess the likelihood and impact of each risk", "Choose a treatment: avoid, mitigate, transfer or accept", "Implement the chosen treatment", "Monitor the risks and controls and repeat the cycle"],
+         why: "A risk must be found before it can be rated, rated before a proportionate treatment can be chosen, and treated before there is anything to monitor. Monitoring feeds new information back into identification."}
+      - {id: cc-1c-o03, type: order,
+         q: "A user opens a restricted file on a company system. Put the access steps in the order they occur.",
+         steps: ["Identification: the user claims an identity by entering a username", "Authentication: the user proves the claim with a password and a one-time code", "Authorization: the system checks whether that user may open the file", "Accounting: the system records that the user opened the file"],
+         why: "A claim must exist before it can be proven, permissions can only be checked for a proven identity, and the record is written about an action that was actually decided."}

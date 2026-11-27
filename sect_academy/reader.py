@@ -1,0 +1,744 @@
+"""The reader: dictionary lookup, your own words, and a book shelf.
+
+* **Dictionaries** are per language: ``lexicon/`` holds a registry of lookup
+  modules (es, fr, ko from English Wiktionary via kaikki.org; zh CC-CEDICT;
+  ja JMdict — all CC BY-SA 4.0, see each ``dict/<lang>/README.md``). This module routes to them and adds
+  what the learner owns.
+* **Your words** live in the state file, per language, sanitised and capped in
+  ``state.py`` like everything else: ``dict_user`` ({lang: {word: meaning}},
+  entries you add) and ``words`` ({lang: {word: {l1, form, ctx, ts}}}, words
+  saved to learn). Each language's saved words form a personal course,
+  "My words (Spanish)" (``my-es``), which ``packs`` serves next to the YAML
+  courses — so FSRS schedules it, the engine grades it server-side, and it pays
+  qi and insight like any other study. An item's id comes from the word itself
+  (``my_item_id``), so its progress survives deleting and saving it again.
+* **Books** can be megabytes, so their text never goes into the JSON state file:
+  each book is two files in ``<state file>.books/`` (``<id>.txt`` and a small
+  ``<id>.json``), written atomically; in ``:memory:`` mode (tests) they live in a
+  dict. Only the reading position goes into the state (``book_pos``), so a phone
+  and a PC open the book at the same place.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+import threading
+import time
+import unicodedata
+import uuid
+from pathlib import Path
+
+import yaml
+
+from . import engine, lexicon, packs, state
+
+MAX_MEANING = 200
+MAX_USER_ENTRIES = 3000       # per language
+MAX_SAVED_WORDS = 3000        # per language
+MAX_SEGMENT = 20000           # characters segmented in one request (a page is ~1500)
+
+BOOK_MAX_CHARS = 4_000_000    # one book (a long novel is ~1-2 million characters)
+BOOKS_MAX_BYTES = 64 * 1024 * 1024
+BOOKS_MAX_COUNT = 200
+BOOK_POST_MAX_BYTES = 20 * 1024 * 1024
+LANGS = lexicon.LANGS
+_BOOK_ID = re.compile(r"^[0-9a-f]{12}$")
+# The starter shelf (sect_academy/shelf/): read-only public-domain texts and poems shipped with the app.
+SHELF_DIR = Path(__file__).resolve().parent / "shelf"
+SHELF_LANGS = ("es", "fr", "zh", "ja", "ko")
+SHELF_MAX = 200                   # entries on the starter shelf (texts + poems); keeps book_pos bounded
+_SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+_SHELF_ID = re.compile(r"^shelf:(es|fr|zh|ja|ko):(?=[a-z0-9-]{1,60}$)([a-z0-9]+(?:-[a-z0-9]+)*)$")
+POS_MAX = BOOKS_MAX_COUNT * 2 + SHELF_MAX
+
+
+def pack_id(lang: str) -> str:
+    return f"my-{lang}"
+
+
+# ---------------------------------------------------------------------------
+# text helpers
+# ---------------------------------------------------------------------------
+def clean_text(s, limit: int) -> str:
+    """Untrusted text made safe to keep: no control characters (newlines and tabs stay), capped."""
+    if not isinstance(s, str):
+        return ""
+    s = s.replace("\r\n", "\n").replace("\r", "\n")
+    s = "".join(ch for ch in s[: limit * 2] if ch in "\n\t" or unicodedata.category(ch)[0] != "C")
+    return s[:limit]
+
+
+def clean_line(s, limit: int) -> str:
+    """One line of untrusted text (a title, a meaning): control characters out, spaces collapsed, capped."""
+    return re.sub(r"\s+", " ", clean_text(s, limit * 2)).strip()[:limit]
+
+
+# ---------------------------------------------------------------------------
+# lookup (routed to the language's module)
+# ---------------------------------------------------------------------------
+def languages() -> dict:
+    return {"ok": True, "langs": LANGS, "lookup": lexicon.available()}
+
+
+def _mine(st: dict, lang: str) -> dict:
+    return (st.get("dict_user") or {}).get(lang) or {}
+
+
+def lookup(lang, raw, st: dict | None = None, around: tuple[str, str] = ("", "")) -> dict:
+    mod = lexicon.get(lang)
+    if mod is None:
+        return {"ok": True, "available": False, "found": False, "word": lexicon.generic_norm(raw), "senses": [], "also": [],
+                "lang": lang if lexicon.valid_lang(lang) else "", "credit": ""}
+    st = st if st is not None else state.get()
+    pre, post = (clean_line(x, 12) for x in around)
+    if getattr(mod, "USES_CONTEXT", False) and (pre or post):
+        out = mod.lookup(raw, _mine(st, lang), around=(pre, post))
+    else:
+        out = mod.lookup(raw, _mine(st, lang))
+    saved = (st.get("words") or {}).get(lang) or {}
+    out.update(available=True, lang=lang,
+               saved=bool(out.get("word")) and (out.get("lemma") in saved or out["word"] in saved))
+    return out
+
+
+def search(lang, q, direction: str = "from", limit: int = 40, st: dict | None = None) -> dict:
+    mod = lexicon.get(lang)
+    if mod is None:
+        return {"ok": True, "available": False, "results": [], "credit": ""}
+    st = st if st is not None else state.get()
+    rows = mod.search(clean_line(q, 60), "en" if direction == "en" else "from", _mine(st, lang), limit)
+    return {"ok": True, "available": True, "results": rows, "credit": mod.CREDIT}
+
+
+def segment(lang, text) -> dict:
+    """A page cut into tokens ({t, k}); a language without a module is split on spaces (read and hear, no lookup)."""
+    text = clean_text(text, MAX_SEGMENT)
+    mod = lexicon.get(lang)
+    toks = mod.segment(text) if mod else lexicon.simple_segment(text)
+    return {"ok": True, "available": mod is not None, "tokens": toks}
+
+
+# ---------------------------------------------------------------------------
+# your own entries and saved words (in the state file, per language)
+# ---------------------------------------------------------------------------
+def _per_lang(raw, clean_one) -> dict:
+    out: dict[str, dict] = {}
+    for lang, inner in (raw.items() if isinstance(raw, dict) else []):
+        if lexicon.valid_lang(lang) and isinstance(inner, dict):
+            got = clean_one(lang, inner)
+            if got:
+                out[lang] = got
+    return out
+
+
+def clean_user_entries(raw) -> dict:
+    def one(lang, inner):
+        out: dict[str, str] = {}
+        for k, v in inner.items():
+            w, m = lexicon.norm_word(lang, k), clean_line(v, MAX_MEANING)
+            if w and m:
+                out[w] = m
+            if len(out) >= MAX_USER_ENTRIES:
+                break
+        return out
+    return _per_lang(raw, one)
+
+
+def clean_words(raw) -> dict:
+    def one(lang, inner):
+        out: dict[str, dict] = {}
+        for k, v in inner.items():
+            w = lexicon.norm_word(lang, k)
+            if not w or not isinstance(v, dict):
+                continue
+            l1 = clean_line(v.get("l1"), MAX_MEANING)
+            if not l1:
+                continue
+            ts = v.get("ts")
+            out[w] = {"l1": l1, "form": lexicon.norm_word(lang, v.get("form")) or w, "ctx": clean_line(v.get("ctx"), 240),
+                      "ts": float(ts) if isinstance(ts, (int, float)) and not isinstance(ts, bool) and 0 <= ts < 1e11 else 0.0}
+            if len(out) >= MAX_SAVED_WORDS:
+                break
+        return out
+    return _per_lang(raw, one)
+
+
+def _pos_key(k) -> bool:
+    """A key book_pos may hold: a shelf book's 12-hex id, or a starter-shelf id (``shelf:<lang>:<slug>``)."""
+    return isinstance(k, str) and bool(_BOOK_ID.match(k) or _SHELF_ID.match(k))
+
+
+def clean_positions(raw) -> dict:
+    out: dict[str, int] = {}
+    for k, v in (raw.items() if isinstance(raw, dict) else []):
+        if _pos_key(k) and isinstance(v, int) and not isinstance(v, bool):
+            out[k] = max(0, min(v, BOOK_MAX_CHARS))
+        if len(out) >= POS_MAX:
+            break
+    return out
+
+
+_rev = [0]          # bumped on every change to saved words, so the personal courses are rebuilt
+
+
+def _no_lookup(lang) -> dict | None:
+    if lexicon.get(lang) is None:
+        return {"ok": False, "error": "That language has no dictionary yet."}
+    return None
+
+
+def add_entry(lang, word, meaning) -> dict:
+    bad = _no_lookup(lang)
+    if bad:
+        return bad
+    w, m = lexicon.norm_word(lang, word), clean_line(meaning, MAX_MEANING)
+    if not w or not m:
+        return {"ok": False, "error": "A word and its meaning are both needed."}
+    with state.LOCK:
+        st = state.get()
+        mine = st.setdefault("dict_user", {}).setdefault(lang, {})
+        if w not in mine and len(mine) >= MAX_USER_ENTRIES:
+            return {"ok": False, "error": f"You have {MAX_USER_ENTRIES} entries of your own; delete some first."}
+        mine[w] = m
+        state.save()
+    return {"ok": True, "word": w, "meaning": m}
+
+
+def delete_entry(lang, word) -> dict:
+    with state.LOCK:
+        st = state.get()
+        mine = (st.get("dict_user") or {}).get(lang) or {}
+        gone = mine.pop(lexicon.norm_word(lang, word), None) is not None
+        state.save()
+    return {"ok": True, "deleted": gone}
+
+
+def my_item_id(lang: str, word: str) -> str:
+    """A saved word's item id, stable for ever: ``my-<lang>-<word>`` when the word is plain a-z, otherwise
+    an ASCII spelling (if any) plus a hash of the exact word, so "año" and "ano" never share progress."""
+    if re.fullmatch(r"[a-z]{1,50}", word):
+        return f"my-{lang}-{word}"
+    folded = "".join(ch for ch in unicodedata.normalize("NFD", word) if unicodedata.category(ch) != "Mn")
+    slug = re.sub(r"[^a-z0-9]+", "-", folded.lower()).strip("-")[:40]
+    h = hashlib.sha1(word.encode("utf-8")).hexdigest()[:8]
+    return f"my-{lang}-{slug}-{h}" if slug else f"my-{lang}-{h}"
+
+
+def save_word(lang, word, meaning, form="", ctx="", now: float | None = None) -> dict:
+    bad = _no_lookup(lang)
+    if bad:
+        return bad
+    w, m = lexicon.norm_word(lang, word), clean_line(meaning, MAX_MEANING)
+    if not w or not m:
+        return {"ok": False, "error": "A word and its meaning are both needed."}
+    with state.LOCK:
+        st = state.get()
+        words = st.setdefault("words", {}).setdefault(lang, {})
+        if w not in words and len(words) >= MAX_SAVED_WORDS:
+            return {"ok": False, "error": f"You have saved {MAX_SAVED_WORDS} words; delete some first."}
+        old = words.get(w) or {}
+        words[w] = {"l1": m, "form": lexicon.norm_word(lang, form) or old.get("form") or w,
+                    "ctx": clean_line(ctx, 240) or old.get("ctx", ""), "ts": old.get("ts") or (now or time.time())}
+        _rev[0] += 1
+        state.save()
+    return {"ok": True, "word": w, "item": my_item_id(lang, w), "course": pack_id(lang), "count": len(words)}
+
+
+def delete_word(lang, word) -> dict:
+    with state.LOCK:
+        st = state.get()
+        words = (st.get("words") or {}).get(lang) or {}
+        gone = words.pop(lexicon.norm_word(lang, word), None) is not None
+        _rev[0] += 1
+        state.save()
+    return {"ok": True, "deleted": gone}
+
+
+def list_words(lang, now: float | None = None) -> dict:
+    now = now or time.time()
+    with state.LOCK:
+        st = state.get()
+        rows = []
+        rom = getattr(lexicon.get(lang), "romanise", None)
+        mine = (st.get("words") or {}).get(lang) or {}
+        for w, v in sorted(mine.items(), key=lambda kv: -kv[1]["ts"]):
+            iid = my_item_id(lang, w)
+            view = engine._card_view(st["cards"].get(iid), now)
+            rows.append({"word": w, "l1": v["l1"], "form": v["form"], "ctx": v["ctx"], "ts": v["ts"], "item": iid,
+                         "state": view["state"], "strength": view["strength"], "rom": rom(w) if rom else ""})
+        counts = {k: len(v) for k, v in (st.get("words") or {}).items() if v}
+        return {"ok": True, "lang": lang, "words": rows, "course": pack_id(lang), "counts": counts,
+                "enrolled": pack_id(lang) in st["settings"].get("courses", []), "max": MAX_SAVED_WORDS}
+
+
+def _form_rom(form: str, romanise) -> str:
+    """The romanisation of a word as it stands in a sentence. Japanese ``romanise`` gives a conjugated
+    form its dictionary word's reading (食べました -> taberu), so there the reading of the conjugation is
+    rebuilt: the dictionary word's reading with its kana tail swapped for the form's (たべ + ました)."""
+    if not romanise:
+        return ""
+    mod = getattr(romanise, "__module__", "")
+    if not mod.endswith(".ja"):
+        return romanise(form)
+    try:
+        return _ja_form_rom(form, romanise)
+    except (AttributeError, ImportError, IndexError, TypeError, ValueError):      # the lexicon changed shape
+        return ""
+
+
+def _ja_form_rom(form: str, romanise) -> str:
+    ja = lexicon.get("ja")
+    from .lexicon.ja_rules import romaji
+    hits = ja.find(form)
+    if not hits:
+        return ""
+    _, i, term, _ = hits[0]
+    if term == form:
+        return romanise(form)
+    reading = ja.reading_for(i, term) if not ja._is_kana(term) else term
+    p = 0
+    while p < min(len(term), len(form)) and term[p] == form[p]:
+        p += 1
+    tail = term[p:]
+    if not ja._is_kana(form[p:] or "あ") or (tail and not (ja._is_kana(tail) and reading.endswith(tail))):
+        return ""
+    return romaji(reading[: len(reading) - len(tail)] + form[p:], macrons=False)
+
+
+def _cloze(ctx: str, forms: list[str], romanise=None) -> dict:
+    """The saved sentence with the word blanked, as the learner met it: {cloze, cloze_ans[, cloze_rom]},
+    or {} when the word cannot be found in it. A spaced language matches whole words only; Chinese,
+    Japanese and Korean match inside the text and need a romanisation of the blank, so it can be typed."""
+    for f in dict.fromkeys(x for x in forms if x):
+        if engine.is_script(f):
+            i = ctx.find(f)
+            m = (i, i + len(f)) if i >= 0 else None
+        else:
+            hit = re.search(rf"(?<![\w'’-]){re.escape(f)}(?![\w'’-])", ctx, re.IGNORECASE)
+            m = hit.span() if hit else None
+        if not m:
+            continue
+        ans = ctx[m[0]:m[1]]
+        out = {"cloze": ctx[:m[0]] + "___" + ctx[m[1]:], "cloze_ans": ans}
+        if engine.is_script(ans):
+            r = _form_rom(ans, romanise)
+            if not r:
+                continue                                  # not typable in romanisation: no cloze for this form
+            out["cloze_rom"] = r
+        return out
+    return {}
+
+
+def build_pack(lang: str, words: dict) -> dict:
+    """A personal course, in the shape ``packs`` gives every course (already normalised)."""
+    pid, uid = pack_id(lang), f"{pack_id(lang)}-words"
+    name = LANGS.get(lang, lang)
+    mod = lexicon.get(lang)
+    romanise = getattr(mod, "romanise", None)      # Chinese, Japanese, Korean: shown and accepted as an answer
+    items = []
+    for w, v in sorted(words.items(), key=lambda kv: (kv[1].get("ts", 0.0), kv[0])):
+        it = {"id": my_item_id(lang, w), "type": "vocab", "l2": w, "l1": v["l1"], "alt": [], "unit": uid, "pack": pid}
+        r = romanise(w) if romanise else ""
+        if r:                                             # typed in the script or its romanisation
+            it["rom"] = r
+            it["alt"] = [a for a in getattr(mod, "romanise_alt", lambda _w: [])(w) if a != r]   # gakkō beside gakkou
+        if v.get("ctx"):
+            it["ex"] = v["ctx"]
+            ex_rom = romanise(v["ctx"]) if romanise else ""
+            if ex_rom:                                    # (Chinese/Japanese romanise words, not whole sentences)
+                it["ex_rom"] = ex_rom
+        if v.get("form") and v["form"] != w:
+            it["note"] = f"You met it as “{v['form']}”."
+        it.update(_cloze(v.get("ctx", ""), [v.get("form") or w, w], romanise))
+        items.append(it)
+    return {"id": pid, "title": f"My words ({name})", "kind": "language", "language": name, "lang": lexicon.SPEECH.get(lang, ""),
+            "hall": {"es": "tongues_south", "fr": "tongues_west", "zh": "tongues_west", "ja": "tongues_west",
+                     "ko": "tongues_west"}.get(lang, ""), "personal": True,
+            "blurb": "Words you saved while reading, scheduled like any other course.",
+            "units": [{"id": uid, "title": "Saved from your reading", "goal": "The words you chose to keep.",
+                       "notes": "Every word here was saved from a book or the dictionary. Delete one in Read, My words.",
+                       "index": 0, "domain": "", "items": items}]}
+
+
+_busy = threading.local()
+
+
+def _personal(prev):
+    """packs' hook: (token, packs) when the saved words changed since ``prev``, else (prev, None)."""
+    if getattr(_busy, "on", False):
+        return prev, None
+    _busy.on = True
+    try:
+        words = state.get().get("words")
+        words = words if isinstance(words, dict) else {}
+        if prev is not None and prev[0] is words and prev[1] == _rev[0]:
+            return prev, None
+        # The token holds the dict itself, so its identity cannot be reused while we compare against it.
+        return (words, _rev[0]), {pack_id(lang): build_pack(lang, ws) for lang, ws in words.items() if ws}
+    finally:
+        _busy.on = False
+
+
+packs.set_personal(_personal)
+
+
+# ---------------------------------------------------------------------------
+# books
+# ---------------------------------------------------------------------------
+_books_lock = threading.Lock()
+_mem_books: dict[str, dict] = {}         # :memory: mode: id -> {"meta":..., "text":...}
+
+
+def _dir() -> Path | None:
+    p = state.path()
+    return None if p == ":memory:" else Path(p + ".books")
+
+
+def _clean_meta(m, bid: str) -> dict | None:
+    if not isinstance(m, dict):
+        return None
+    lang = m.get("lang") if m.get("lang") in LANGS else "other"
+    chars, size, added = m.get("chars"), m.get("bytes"), m.get("added")
+    ok_num = lambda v: isinstance(v, (int, float)) and not isinstance(v, bool) and v >= 0   # noqa: E731
+    return {"id": bid, "title": clean_line(m.get("title"), 120) or "Untitled", "lang": lang,
+            "chars": int(min(chars, BOOK_MAX_CHARS)) if ok_num(chars) else 0,
+            "bytes": int(size) if ok_num(size) else 0, "added": float(added) if ok_num(added) else 0.0}
+
+
+def _metas() -> list[dict]:
+    d = _dir()
+    if d is None:
+        return [dict(b["meta"]) for b in _mem_books.values()]
+    out = []
+    if not d.is_dir():
+        return out
+    for f in d.glob("*.json"):
+        bid = f.stem
+        if not _BOOK_ID.match(bid) or not (d / f"{bid}.txt").is_file():
+            continue
+        try:
+            meta = _clean_meta(json.loads(f.read_text(encoding="utf-8")), bid)
+        except Exception:  # noqa: BLE001 — a damaged meta file hides that one book, nothing more
+            continue
+        if meta:
+            out.append(meta)
+    return out
+
+
+def list_books() -> dict:
+    with _books_lock:
+        metas = sorted(_metas(), key=lambda m: -m["added"])
+    with state.LOCK:
+        pos = state.get().get("book_pos") or {}
+        for m in metas:
+            m["pos"] = int(pos.get(m["id"], 0))
+            m["language"] = LANGS[m["lang"]]
+    return {"ok": True, "books": metas, "used": sum(m["bytes"] for m in metas), "max_bytes": BOOKS_MAX_BYTES,
+            "max_count": BOOKS_MAX_COUNT, "langs": LANGS, "lookup": lexicon.available(), "shelf": list_shelf()}
+
+
+def _write(target: Path, text: str) -> None:
+    tmp = target.with_name(target.name + ".tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(text)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, target)
+
+
+def add_book(title, text, lang="es", now: float | None = None) -> dict:
+    text = clean_text(text, BOOK_MAX_CHARS + 1)
+    if len(text) > BOOK_MAX_CHARS:
+        return {"ok": False, "error": f"That book is longer than {BOOK_MAX_CHARS:,} characters, the most one book can be."}
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    if len(re.sub(r"\s", "", text)) < 20:
+        return {"ok": False, "error": "No readable text was found in that file."}
+    size = len(text.encode("utf-8"))
+    meta = _clean_meta({"title": title, "lang": lang if lang in LANGS else "es", "chars": len(text), "bytes": size,
+                        "added": now or time.time()}, uuid.uuid4().hex[:12])
+    with _books_lock:
+        metas = _metas()
+        if len(metas) >= BOOKS_MAX_COUNT:
+            return {"ok": False, "error": f"The shelf holds {BOOKS_MAX_COUNT} books; delete one first."}
+        if sum(m["bytes"] for m in metas) + size > BOOKS_MAX_BYTES:
+            return {"ok": False, "error": f"The shelf is full ({BOOKS_MAX_BYTES // (1024 * 1024)} MB of text); delete a book first."}
+        d = _dir()
+        if d is None:
+            _mem_books[meta["id"]] = {"meta": meta, "text": text}
+        else:
+            try:
+                d.mkdir(parents=True, exist_ok=True)
+                _write(d / f"{meta['id']}.txt", text)               # the text first: a meta file never points at nothing
+                _write(d / f"{meta['id']}.json", json.dumps({k: meta[k] for k in ("title", "lang", "chars", "bytes", "added")},
+                                                            ensure_ascii=False))
+            except OSError as e:
+                return {"ok": False, "error": f"The book could not be saved ({e.strerror or e})."}
+    return {"ok": True, "book": meta}
+
+
+def get_book(bid: str) -> dict | None:
+    if isinstance(bid, str) and _SHELF_ID.match(bid):
+        return get_shelf_book(bid)
+    if not isinstance(bid, str) or not _BOOK_ID.match(bid):
+        return None
+    with _books_lock:
+        d = _dir()
+        if d is None:
+            b = _mem_books.get(bid)
+            meta, text = (dict(b["meta"]), b["text"]) if b else (None, None)
+        else:
+            try:
+                meta = _clean_meta(json.loads((d / f"{bid}.json").read_text(encoding="utf-8")), bid)
+                text = clean_text((d / f"{bid}.txt").read_text(encoding="utf-8"), BOOK_MAX_CHARS)
+            except Exception:  # noqa: BLE001
+                return None
+    if not meta:
+        return None
+    with state.LOCK:
+        meta["pos"] = int((state.get().get("book_pos") or {}).get(bid, 0))
+    meta["language"] = LANGS[meta["lang"]]
+    meta["lookup"] = lexicon.get(meta["lang"]) is not None
+    return {"ok": True, "book": meta, "text": text}
+
+
+def set_position(bid: str, pos) -> dict:
+    if not _pos_key(bid) or not isinstance(pos, int) or isinstance(pos, bool):
+        return {"ok": False, "error": "unknown book"}
+    if _SHELF_ID.match(bid):
+        known = set(_shelf()["by_id"])
+    else:
+        with _books_lock:
+            known = {m["id"] for m in _metas()}
+    if bid not in known:
+        return {"ok": False, "error": "unknown book"}
+    with state.LOCK:
+        st = state.get()
+        bp = st.setdefault("book_pos", {})
+        bp[bid] = max(0, min(pos, BOOK_MAX_CHARS))
+        if len(bp) > POS_MAX:
+            for old in list(bp)[: len(bp) - POS_MAX]:
+                bp.pop(old, None)
+        state.save()
+    return {"ok": True, "pos": bp[bid]}
+
+
+def rename_book(bid: str, title) -> dict:
+    """A new title for a book on the shelf (its text and position are untouched)."""
+    if not isinstance(bid, str) or not _BOOK_ID.match(bid):
+        return {"ok": False, "error": "unknown book"}
+    t = clean_line(title, 120)
+    if not t:
+        return {"ok": False, "error": "A book needs a title."}
+    with _books_lock:
+        d = _dir()
+        if d is None:
+            b = _mem_books.get(bid)
+            if not b:
+                return {"ok": False, "error": "unknown book"}
+            b["meta"]["title"] = t
+        else:
+            f = d / f"{bid}.json"
+            try:
+                meta = _clean_meta(json.loads(f.read_text(encoding="utf-8")), bid)
+                if not meta or not (d / f"{bid}.txt").is_file():
+                    return {"ok": False, "error": "unknown book"}
+                meta["title"] = t
+                _write(f, json.dumps({k: meta[k] for k in ("title", "lang", "chars", "bytes", "added")}, ensure_ascii=False))
+            except FileNotFoundError:
+                return {"ok": False, "error": "unknown book"}
+            except (OSError, ValueError) as e:
+                return {"ok": False, "error": f"The title could not be saved ({getattr(e, 'strerror', None) or e})."}
+    return {"ok": True, "title": t}
+
+
+def delete_book(bid: str) -> dict:
+    if not isinstance(bid, str) or not _BOOK_ID.match(bid):
+        return {"ok": False, "error": "unknown book"}
+    with _books_lock:
+        d = _dir()
+        if d is None:
+            found = _mem_books.pop(bid, None) is not None
+        else:
+            found = False
+            for ext in ("json", "txt"):                        # the meta first: a half-deleted book is simply hidden
+                try:
+                    (d / f"{bid}.{ext}").unlink()
+                    found = True
+                except FileNotFoundError:
+                    pass
+    with state.LOCK:
+        (state.get().get("book_pos") or {}).pop(bid, None)
+        state.save()
+    return {"ok": True, "deleted": found}
+
+
+# ---------------------------------------------------------------------------
+# the starter shelf: public-domain texts and poems shipped in sect_academy/shelf/
+# ---------------------------------------------------------------------------
+# Read-only and outside the user's caps: nothing is copied into ``<state file>.books/``; only the
+# reading position is kept, in ``book_pos`` under the entry's id ``shelf:<lang>:<slug>``.
+# ``shelf/manifest.yaml`` lists the texts (one UTF-8 file each, ``<lang>/<slug>.txt``) and each
+# language's poem file (``<lang>/poems.yaml``: per poem its lines as [original, (reading,) English]).
+_shelf_cache: dict | None = None
+_shelf_lock = threading.Lock()
+SHELF_FIELDS = ("title", "author", "died", "published", "source", "public_domain")
+SHELF_TEXT_MAX = 400_000          # characters in one starter-shelf text
+
+
+def _year(v) -> int | None:
+    return v if isinstance(v, int) and not isinstance(v, bool) and -1000 <= v <= 2100 else None
+
+
+def _shelf_meta(raw: dict, lang: str, kind: str, errs: list, where: str) -> dict | None:
+    slug = raw.get("slug")
+    if not isinstance(slug, str) or not _SLUG.match(slug) or len(slug) > 60:
+        errs.append(f"{where}: bad slug {slug!r}")
+        return None
+    for f in SHELF_FIELDS:
+        if raw.get(f) in (None, ""):
+            errs.append(f"{where} {slug}: missing {f}")
+            return None
+    died, pub = _year(raw.get("died")), _year(raw.get("published"))
+    if died is None or pub is None:
+        errs.append(f"{where} {slug}: died and published must be years")
+        return None
+    # The rule the shelf keeps: the author died before 1955 and the work appeared before 1931 — or, where a
+    # later first publication is argued public domain everywhere, the entry says why (``pd_exception``).
+    if died >= 1955 or (pub >= 1931 and not raw.get("pd_exception")):
+        errs.append(f"{where} {slug}: outside the public-domain rule (died {died}, published {pub})")
+        return None
+    src = raw.get("source")
+    if not isinstance(src, str) or not re.match(r"^https://[a-z0-9.-]+\.(?:org|jp)/", src):
+        errs.append(f"{where} {slug}: source must be an https URL on a known archive")
+        return None
+    return {"id": f"shelf:{lang}:{slug}", "slug": slug, "kind": kind, "lang": lang, "language": LANGS[lang],
+            "title": clean_line(raw.get("title"), 120), "author": clean_line(raw.get("author"), 120),
+            "died": died, "published": pub, "source": src, "level": clean_line(raw.get("level"), 20),
+            "public_domain": clean_line(raw.get("public_domain"), 600),
+            "pd_exception": clean_line(raw.get("pd_exception"), 600), "note": clean_line(raw.get("note"), 400),
+            "first_published_in": clean_line(raw.get("first_published_in"), 200)}
+
+
+def _poem_lines(raw, lang: str) -> list[dict] | None:
+    """[[original, (reading,) english], [], ...] -> [{t, r, en}], ``{t: ""}`` for a stanza break."""
+    width = 3 if lang in ("zh", "ja", "ko") else 2
+    if not isinstance(raw, list) or not raw or len(raw) > 400:
+        return None
+    out = []
+    for ln in raw:
+        if ln in (None, [], ""):
+            out.append({"t": "", "r": "", "en": ""})
+            continue
+        if not isinstance(ln, list) or len(ln) != width or not all(isinstance(x, str) and x.strip() for x in ln):
+            return None
+        t, en = clean_line(ln[0], 300), clean_line(ln[-1], 400)
+        out.append({"t": t, "r": clean_line(ln[1], 400) if width == 3 else "", "en": en})
+    while out and not out[-1]["t"]:
+        out.pop()
+    return out if any(x["t"] for x in out) else None
+
+
+def load_shelf() -> dict:
+    """The starter shelf, validated: {"entries": [...], "by_id": {id: entry with text}, "errors": [...]}.
+
+    A bad entry is left off (and named in ``errors``, which the tests require to be empty); the app never
+    fails to start over the shelf."""
+    errs: list[str] = []
+    entries: list[dict] = []
+    by_id: dict[str, dict] = {}
+
+    def add(meta: dict, text: str, lines: list | None = None):
+        if meta["id"] in by_id:
+            errs.append(f"duplicate id {meta['id']}")
+            return
+        if len(by_id) >= SHELF_MAX:
+            errs.append("the starter shelf is over its size cap")
+            return
+        entry = dict(meta, chars=len(text))
+        entries.append(entry)
+        by_id[meta["id"]] = dict(entry, text=text, lines=lines)
+
+    try:
+        man = yaml.safe_load((SHELF_DIR / "manifest.yaml").read_text(encoding="utf-8"))
+    except (OSError, ValueError, yaml.YAMLError) as e:
+        return {"entries": [], "by_id": {}, "errors": [f"manifest: {e}"]}
+    if not isinstance(man, dict):
+        return {"entries": [], "by_id": {}, "errors": ["manifest: not a mapping"]}
+    for i, raw in enumerate(man.get("texts") or []):
+        lang = raw.get("lang") if isinstance(raw, dict) else None
+        if lang not in SHELF_LANGS:
+            errs.append(f"texts[{i}]: bad lang {lang!r}")
+            continue
+        meta = _shelf_meta(raw, lang, "text", errs, f"texts[{i}]")
+        if not meta:
+            continue
+        try:
+            text = (SHELF_DIR / lang / f"{meta['slug']}.txt").read_bytes().decode("utf-8")
+        except (OSError, UnicodeDecodeError) as e:
+            errs.append(f"{meta['id']}: {e}")
+            continue
+        text = re.sub(r"\n{3,}", "\n\n", clean_text(text, SHELF_TEXT_MAX)).strip()
+        if len(text) < 200:
+            errs.append(f"{meta['id']}: text missing or too short")
+            continue
+        add(meta, text)
+    for lang, rel in (man.get("poems") or {}).items():
+        if lang not in SHELF_LANGS or rel != f"{lang}/poems.yaml":
+            errs.append(f"poems: bad entry {lang!r}: {rel!r}")
+            continue
+        try:
+            doc = yaml.safe_load((SHELF_DIR / rel).read_text(encoding="utf-8"))
+        except (OSError, ValueError, yaml.YAMLError) as e:
+            errs.append(f"{rel}: {e}")
+            continue
+        for j, raw in enumerate((doc or {}).get("poems") or []):
+            meta = _shelf_meta(raw if isinstance(raw, dict) else {}, lang, "poem", errs, f"{rel}[{j}]")
+            if not meta:
+                continue
+            lines = _poem_lines(raw.get("lines"), lang)
+            if not lines:
+                errs.append(f"{meta['id']}: bad lines (each is [original, {'reading, ' if lang in ('zh', 'ja', 'ko') else ''}English])")
+                continue
+            add(meta, "\n".join(x["t"] for x in lines), lines)
+    return {"entries": entries, "by_id": by_id, "errors": errs}
+
+
+def _shelf() -> dict:
+    global _shelf_cache
+    with _shelf_lock:
+        if _shelf_cache is None:
+            _shelf_cache = load_shelf()
+        return _shelf_cache
+
+
+def list_shelf() -> list[dict]:
+    with state.LOCK:
+        pos = dict(state.get().get("book_pos") or {})
+    out = []
+    for e in _shelf()["entries"]:
+        out.append({k: e[k] for k in ("id", "kind", "lang", "language", "title", "author", "level", "chars")}
+                   | {"pos": int(pos.get(e["id"], 0))})
+    return out
+
+
+def get_shelf_book(bid: str) -> dict | None:
+    e = _shelf()["by_id"].get(bid) if isinstance(bid, str) and _SHELF_ID.match(bid) else None
+    if not e:
+        return None
+    book = {k: v for k, v in e.items() if k not in ("text", "lines")}
+    with state.LOCK:
+        book["pos"] = int((state.get().get("book_pos") or {}).get(bid, 0))
+    book["lookup"] = lexicon.get(e["lang"]) is not None
+    book["readonly"] = True
+    out = {"ok": True, "book": book, "text": e["text"]}
+    if e["lines"]:
+        out["lines"] = [dict(x) for x in e["lines"]]
+    return out
+
+
+def reset_for_tests() -> None:
+    with _books_lock:
+        _mem_books.clear()
+    _rev[0] += 1

@@ -1,0 +1,15 @@
+# A shared picture (conventions: see body.yaml).
+id: kitchen
+title: "The kitchen"
+brief: "A kitchen seen from the front: fridge, stove and sink along the back wall; in front, a table laid for one (fork left of the plate, knife right, spoon across the top of the plate, a cup to the right) with a chair at its left end."
+pins:
+  - {id: fridge, x: 14.5, y: 42, en: fridge}
+  - {id: stove, x: 33, y: 48, en: stove}
+  - {id: sink, x: 67, y: 49, en: sink}
+  - {id: chair, x: 27, y: 82, en: chair}
+  - {id: table, x: 46, y: 81.5, en: table}
+  - {id: fork, x: 40.5, y: 72.5, en: fork}
+  - {id: plate, x: 49.3, y: 72.3, en: plate}
+  - {id: knife, x: 57.4, y: 74, en: knife}
+  - {id: spoon, x: 45, y: 67.1, en: spoon}
+  - {id: cup, x: 60.2, y: 67, en: cup}

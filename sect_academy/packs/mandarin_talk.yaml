@@ -1,0 +1,957 @@
+id: mandarin-talk
+title: "Mandarin Chinese — Conversations"
+kind: language
+language: Mandarin
+lang: zh-CN
+hall: tongues_west
+blurb: "Spoken-conversation practice to take alongside A1 and A2: 50 everyday Mandarin exchanges you rehearse line by line, from a first hello to the doctor, the phone and the train."
+
+# Dialogues only. Pinyin follows mandarin_a1.yaml: tone marks, words grouped as
+# in standard pinyin, the changed tones of 一 and 不 written (yí ge, bú shì).
+# Phone numbers read 1 as yāo.
+units:
+  # ───────────────────────────────────────────────────────────────── 1
+  - id: zh-talk-01
+    title: "Meeting people"
+    goal: "I can introduce myself and a friend, say where I am from and what I do, and keep a first conversation going."
+    notes: |
+      A first conversation in Chinese follows a predictable script. Learn the moves and you can survive almost any first meeting.
+
+      ## The moves
+      - **Open**: 你好！ to anyone; 您好！ to someone older or senior. With a group: 大家好！ (hello, everyone).
+      - **Name**: 我叫…, or with your surname first: 我姓李，叫李文.
+      - **Ask back**: 你呢？ keeps it going after every answer.
+      - **Where from**: 你是哪国人？ or 你是从哪儿来的？ → 我是从英国来的.
+      - **Work**: 你是做什么工作的？ → 我是老师 / 我在一家公司工作.
+
+      ## Taking a compliment
+      Praise for your Chinese (你的汉语说得真好！) is answered modestly: **哪里哪里** (nǎlǐ nǎlǐ, "not at all") or 我还在学习 ("I'm still learning"). A plain 谢谢 is also fine today.
+
+      ## Two useful formulas
+      - **以后请多关照** (qǐng duō guānzhào): said on a first day at work or school, "I look forward to working with you".
+      - **加个微信吧**: let's add each other on WeChat, the usual way to swap contacts. 我扫你 = I'll scan your code.
+
+      Older neighbours are often called 阿姨 (āyí, "auntie") or 叔叔 (shūshu, "uncle") after their surname: 李阿姨.
+    items:
+      - id: zh-talk-01-neighbour
+        type: dialogue
+        title: "The new neighbour"
+        scene: "You have just moved into a flat in Beijing. An older woman greets you in the stairwell."
+        you: B
+        lines:
+          - {who: A, l2: "你好！你是新来的吧？", rom: "Nǐ hǎo! Nǐ shì xīn lái de ba?", l1: "Hello! You must be new here?"}
+          - {who: B, l2: "对，我刚搬来。", rom: "Duì, wǒ gāng bān lái.", l1: "Yes, I've just moved in.", alt: ["是的，我刚搬来。", "对，我刚搬过来。", "对，我刚搬家。"]}
+          - {who: A, l2: "欢迎欢迎！我姓李，住在你楼上。", rom: "Huānyíng huānyíng! Wǒ xìng Lǐ, zhù zài nǐ lóushàng.", l1: "Welcome! My name is Li; I live upstairs from you."}
+          - {who: B, l2: "李阿姨好！我叫安娜。", rom: "Lǐ āyí hǎo! Wǒ jiào Ānnà.", l1: "Hello, Mrs Li! My name is Anna. (to an older woman)", alt: ["您好！我叫安娜。", "李阿姨，您好！我叫安娜。"]}
+          - {who: A, l2: "安娜，你是哪国人？", rom: "Ānnà, nǐ shì nǎ guó rén?", l1: "Anna, where are you from?"}
+          - {who: B, l2: "我是英国人。", rom: "Wǒ shì Yīngguó rén.", l1: "I'm British.", alt: ["英国人。", "我是从英国来的。"]}
+          - {who: A, l2: "你的汉语说得真好！", rom: "Nǐ de Hànyǔ shuō de zhēn hǎo!", l1: "Your Chinese is really good!"}
+          - {who: B, l2: "哪里哪里，我还在学习。", rom: "Nǎlǐ nǎlǐ, wǒ hái zài xuéxí.", l1: "Not at all, I'm still learning.", alt: ["哪里哪里。", "谢谢，我还在学习。", "哪里，我还在学习。"]}
+          - {who: A, l2: "有什么事就来找我！", rom: "Yǒu shénme shì jiù lái zhǎo wǒ!", l1: "If you need anything, just come and find me!"}
+          - {who: B, l2: "谢谢您！", rom: "Xièxie nín!", l1: "Thank you! (polite)", alt: ["谢谢！", "好的，谢谢您！", "太谢谢您了！"]}
+
+      - id: zh-talk-01-party
+        type: dialogue
+        title: "At a friend's party"
+        scene: "You are at Xiao Wang's birthday party. You go up to a man you have not met."
+        you: A
+        lines:
+          - {who: A, l2: "你好！我叫马克。你也是小王的朋友吗？", rom: "Nǐ hǎo! Wǒ jiào Mǎkè. Nǐ yě shì Xiǎo Wáng de péngyou ma?", l1: "Hi! I'm Mark. Are you a friend of Xiao Wang's too?", alt: ["你好！我是马克。你也是小王的朋友吗？"]}
+          - {who: B, l2: "对，我们是同事。你呢？", rom: "Duì, wǒmen shì tóngshì. Nǐ ne?", l1: "Yes, we're colleagues. And you?"}
+          - {who: A, l2: "我们是大学同学。", rom: "Wǒmen shì dàxué tóngxué.", l1: "We were at university together.", alt: ["我是他的大学同学。", "我们是同学。"]}
+          - {who: B, l2: "你是做什么工作的？", rom: "Nǐ shì zuò shénme gōngzuò de?", l1: "What do you do?"}
+          - {who: A, l2: "我是老师，教英语。", rom: "Wǒ shì lǎoshī, jiāo Yīngyǔ.", l1: "I'm a teacher; I teach English.", alt: ["我是英语老师。", "我是老师。我教英语。"]}
+          - {who: B, l2: "真的吗？我很想学英语！", rom: "Zhēn de ma? Wǒ hěn xiǎng xué Yīngyǔ!", l1: "Really? I'd love to learn English!"}
+          - {who: A, l2: "好啊，我教你英语，你教我汉语！", rom: "Hǎo a, wǒ jiāo nǐ Yīngyǔ, nǐ jiāo wǒ Hànyǔ!", l1: "Great, I'll teach you English and you teach me Chinese!", alt: ["好！我教你英语，你教我汉语吧！"]}
+          - {who: B, l2: "太好了！我们加个微信吧。", rom: "Tài hǎo le! Wǒmen jiā ge Wēixìn ba.", l1: "Great! Let's add each other on WeChat."}
+          - {who: A, l2: "好，我扫你。", rom: "Hǎo, wǒ sǎo nǐ.", l1: "OK, I'll scan your code.", alt: ["好，我扫你吧。", "好的，我扫你。"]}
+
+      - id: zh-talk-01-exchange
+        type: dialogue
+        title: "Too fast for me"
+        scene: "At a language-exchange evening, a friendly Chinese student comes over and speaks very quickly."
+        you: B
+        lines:
+          - {who: A, l2: "你好！你是来练习汉语的吧？我叫张丽，很高兴认识你！", rom: "Nǐ hǎo! Nǐ shì lái liànxí Hànyǔ de ba? Wǒ jiào Zhāng Lì, hěn gāoxìng rènshi nǐ!", l1: "Hi! You're here to practise Chinese, right? I'm Zhang Li, very nice to meet you!"}
+          - {who: B, l2: "对不起，请说慢一点儿。", rom: "Duìbuqǐ, qǐng shuō màn yìdiǎnr.", l1: "Sorry, please speak more slowly.", alt: ["对不起，请慢一点儿说。", "请说慢一点儿。", "不好意思，请说慢一点儿。", "对不起，请说慢一点。"]}
+          - {who: A, l2: "好的。我叫张丽。你呢？", rom: "Hǎo de. Wǒ jiào Zhāng Lì. Nǐ ne?", l1: "Sure. My name is Zhang Li. And you?"}
+          - {who: B, l2: "我叫汤姆。认识你很高兴。", rom: "Wǒ jiào Tāngmǔ. Rènshi nǐ hěn gāoxìng.", l1: "I'm Tom. Pleased to meet you.", alt: ["我叫汤姆。很高兴认识你。", "我是汤姆。认识你很高兴。"]}
+          - {who: A, l2: "你学汉语多长时间了？", rom: "Nǐ xué Hànyǔ duō cháng shíjiān le?", l1: "How long have you been learning Chinese?"}
+          - {who: B, l2: "学了半年了。", rom: "Xué le bàn nián le.", l1: "For six months.", alt: ["半年了。", "我学了半年了。", "我学汉语学了半年了。"]}
+          - {who: A, l2: "你说得很不错！有问题可以问我。", rom: "Nǐ shuō de hěn búcuò! Yǒu wèntí kěyǐ wèn wǒ.", l1: "You speak really well! If you have questions, ask me."}
+          - {who: B, l2: "这个词是什么意思？", rom: "Zhège cí shì shénme yìsi?", l1: "What does this word mean?", alt: ["这个是什么意思？", "这个词什么意思？"]}
+          - {who: A, l2: "这是“语伴”，就是一起练习语言的朋友。", rom: "Zhè shì “yǔbàn”, jiù shì yìqǐ liànxí yǔyán de péngyou.", l1: "That's yǔbàn: a friend you practise a language with."}
+          - {who: B, l2: "我明白了，谢谢！", rom: "Wǒ míngbai le, xièxie!", l1: "I see, thanks!", alt: ["明白了，谢谢！", "我懂了，谢谢！"]}
+
+      - id: zh-talk-01-firstday
+        type: dialogue
+        title: "First day at work"
+        scene: "It is your first morning at a Chinese company. You introduce yourself to the team, and the manager answers."
+        you: A
+        lines:
+          - {who: A, l2: "大家好，我是新来的，我叫大卫。", rom: "Dàjiā hǎo, wǒ shì xīn lái de, wǒ jiào Dàwèi.", l1: "Hello, everyone. I'm new here; my name is David.", alt: ["大家好！我是新来的同事，我叫大卫。", "大家好，我叫大卫，我是新来的。"]}
+          - {who: B, l2: "欢迎你，大卫！我是王经理。你以前在哪儿工作？", rom: "Huānyíng nǐ, Dàwèi! Wǒ shì Wáng jīnglǐ. Nǐ yǐqián zài nǎr gōngzuò?", l1: "Welcome, David! I'm Manager Wang. Where did you work before?"}
+          - {who: A, l2: "我以前在一家美国公司工作。", rom: "Wǒ yǐqián zài yì jiā Měiguó gōngsī gōngzuò.", l1: "I used to work for an American company.", alt: ["以前在一家美国公司工作。", "我以前在美国的一家公司工作。"]}
+          - {who: B, l2: "你来中国多长时间了？", rom: "Nǐ lái Zhōngguó duō cháng shíjiān le?", l1: "How long have you been in China?"}
+          - {who: A, l2: "我来中国三个月了。", rom: "Wǒ lái Zhōngguó sān ge yuè le.", l1: "I've been in China for three months.", alt: ["三个月了。", "来了三个月了。", "我来了三个月了。"]}
+          - {who: B, l2: "有什么问题，可以问我。", rom: "Yǒu shénme wèntí, kěyǐ wèn wǒ.", l1: "If you have any questions, you can ask me."}
+          - {who: A, l2: "谢谢王经理！以后请多关照。", rom: "Xièxie Wáng jīnglǐ! Yǐhòu qǐng duō guānzhào.", l1: "Thank you, Manager Wang! I look forward to working with you.", alt: ["谢谢！以后请多关照。", "谢谢王经理！请多关照。", "谢谢您！以后请多关照。"]}
+          - {who: B, l2: "不客气。中午我们一起吃饭吧！", rom: "Bú kèqi. Zhōngwǔ wǒmen yìqǐ chī fàn ba!", l1: "Not at all. Let's have lunch together!"}
+          - {who: A, l2: "好啊，谢谢！", rom: "Hǎo a, xièxie!", l1: "Great, thanks!", alt: ["好的，谢谢！", "好啊！", "太好了，谢谢！"]}
+
+      - id: zh-talk-01-friend
+        type: dialogue
+        title: "Introducing a friend"
+        scene: "You are showing your friend Mary round the city when you meet your teacher. Mary speaks no Chinese, so you answer for her."
+        you: B
+        lines:
+          - {who: A, l2: "小林，你好！这位是……？", rom: "Xiǎo Lín, nǐ hǎo! Zhè wèi shì……?", l1: "Hello, Xiao Lin! And this is…?"}
+          - {who: B, l2: "王老师好！这是我的朋友马丽。", rom: "Wáng lǎoshī hǎo! Zhè shì wǒ de péngyou Mǎlì.", l1: "Hello, Teacher Wang! This is my friend Mary.", alt: ["王老师好！这是我朋友马丽。", "王老师，您好！这是我的朋友马丽。"]}
+          - {who: A, l2: "马丽，你好！你也学汉语吗？", rom: "Mǎlì, nǐ hǎo! Nǐ yě xué Hànyǔ ma?", l1: "Hello, Mary! Are you learning Chinese too?"}
+          - {who: B, l2: "她不学汉语，她在这儿旅游。", rom: "Tā bù xué Hànyǔ, tā zài zhèr lǚyóu.", l1: "She isn't learning Chinese; she's here on holiday.", alt: ["她不学，她在这儿旅游。", "不，她在这儿旅游。", "她不学汉语，她来这儿旅游。"]}
+          - {who: A, l2: "欢迎你来中国！你们去了哪些地方？", rom: "Huānyíng nǐ lái Zhōngguó! Nǐmen qù le nǎxiē dìfang?", l1: "Welcome to China! Where have you been so far?"}
+          - {who: B, l2: "我们去了长城，明天去上海。", rom: "Wǒmen qù le Chángchéng, míngtiān qù Shànghǎi.", l1: "We went to the Great Wall; tomorrow we're going to Shanghai.", alt: ["我们去了长城，明天要去上海。", "去了长城，明天去上海。", "我们去过长城了，明天去上海。"]}
+          - {who: A, l2: "太好了。祝你们玩得开心！", rom: "Tài hǎo le. Zhù nǐmen wán de kāixīn!", l1: "Wonderful. Have a great time!"}
+          - {who: B, l2: "谢谢老师！老师再见！", rom: "Xièxie lǎoshī! Lǎoshī zàijiàn!", l1: "Thank you, Teacher! Goodbye!", alt: ["谢谢王老师！再见！", "谢谢老师，再见！", "谢谢您！再见！"]}
+
+      - id: zh-talk-01-train
+        type: dialogue
+        title: "Small talk on the train"
+        scene: "On a long train journey, the passenger next to you starts chatting."
+        you: B
+        lines:
+          - {who: A, l2: "你是从哪儿来的？", rom: "Nǐ shì cóng nǎr lái de?", l1: "Where are you from?"}
+          - {who: B, l2: "我是从加拿大来的。", rom: "Wǒ shì cóng Jiānádà lái de.", l1: "I'm from Canada.", alt: ["我从加拿大来。", "加拿大。", "我是加拿大人。"]}
+          - {who: A, l2: "加拿大的冬天很冷吧？", rom: "Jiānádà de dōngtiān hěn lěng ba?", l1: "Winters in Canada must be very cold?"}
+          - {who: B, l2: "对，比北京冷得多。", rom: "Duì, bǐ Běijīng lěng de duō.", l1: "Yes, much colder than Beijing.", alt: ["对，比北京冷多了。", "是的，比北京冷得多。", "对，比北京还冷。"]}
+          - {who: A, l2: "你来中国做什么？", rom: "Nǐ lái Zhōngguó zuò shénme?", l1: "What brings you to China?"}
+          - {who: B, l2: "我来学习汉语。", rom: "Wǒ lái xuéxí Hànyǔ.", l1: "I've come to study Chinese.", alt: ["我来学汉语。", "学习汉语。", "我是来学习汉语的。"]}
+          - {who: A, l2: "你喜欢中国吗？", rom: "Nǐ xǐhuan Zhōngguó ma?", l1: "Do you like China?"}
+          - {who: B, l2: "很喜欢，中国人很热情。", rom: "Hěn xǐhuan, Zhōngguó rén hěn rèqíng.", l1: "Very much; people here are very welcoming.", alt: ["我很喜欢，中国人很热情。", "很喜欢。中国人非常热情。"]}
+
+  # ───────────────────────────────────────────────────────────────── 2
+  - id: zh-talk-02
+    title: "Ordering food"
+    goal: "I can order at a counter or a table, ask what is good, say what I don't eat, sort out a mistake and pay."
+    notes: |
+      Eating out in China is quick and unfussy. Staff expect you to call them over and say what you want.
+
+      ## The moves
+      - **Get attention**: 服务员！ is normal and polite. Staff greet you with 欢迎光临 (welcome) and 几位？
+      - **Order**: 我要… or, very common, **来**一个 / 来一碗 …: 来一碗牛肉面.
+      - **Ask advice**: 你们这儿什么菜最好吃？
+      - **Choices**: staff ask "A **还是** B?": 大碗还是小碗？ 在这儿吃还是带走？ (eat in or take away?). Answer with the one you want.
+      - **Special requests**: 我吃素, 不要太辣, 少放糖 (less sugar).
+      - **Problems**: 这不是我们的菜, 我们等了半个小时了.
+      - **Pay**: 买单！ Then 可以扫码吗？ and, if there is food left, 打包.
+
+      ## 还是 and 或者
+      Both mean "or". **还是** is for questions (茶还是咖啡？); 或者 is for statements (茶或者咖啡都可以).
+
+      ## At someone's home
+      Your host will urge 多吃点儿！别客气！ Praise the food (太好吃了！). When you have had enough, say 不用了，我吃饱了: refusing once or twice is expected.
+    items:
+      - id: zh-talk-02-noodles
+        type: dialogue
+        title: "A bowl of noodles"
+        scene: "You walk up to the counter of a busy noodle shop at lunchtime."
+        you: B
+        lines:
+          - {who: A, l2: "你好，吃点儿什么？", rom: "Nǐ hǎo, chī diǎnr shénme?", l1: "Hello, what would you like?"}
+          - {who: B, l2: "我要一碗牛肉面。", rom: "Wǒ yào yì wǎn niúròu miàn.", l1: "I'd like a bowl of beef noodles.", alt: ["一碗牛肉面。", "来一碗牛肉面。", "我要一碗牛肉面，谢谢。"]}
+          - {who: A, l2: "大碗还是小碗？", rom: "Dà wǎn háishi xiǎo wǎn?", l1: "Large bowl or small?"}
+          - {who: B, l2: "小碗。多少钱？", rom: "Xiǎo wǎn. Duōshao qián?", l1: "Small. How much is it?", alt: ["小碗的。多少钱？", "要小碗。多少钱？"]}
+          - {who: A, l2: "十八块。在这儿吃还是带走？", rom: "Shíbā kuài. Zài zhèr chī háishi dài zǒu?", l1: "Eighteen yuan. Eat in or take away?"}
+          - {who: B, l2: "在这儿吃。", rom: "Zài zhèr chī.", l1: "Eat in.", alt: ["在这儿吃，谢谢。", "这儿吃。", "在这里吃。"]}
+          - {who: A, l2: "好，请扫这个码。", rom: "Hǎo, qǐng sǎo zhège mǎ.", l1: "OK, please scan this code."}
+          - {who: B, l2: "好，扫好了。", rom: "Hǎo, sǎo hǎo le.", l1: "OK, done (I've scanned it).", alt: ["好的，扫好了。", "扫好了。"]}
+
+      - id: zh-talk-02-table
+        type: dialogue
+        title: "A table for four"
+        scene: "You arrive at a restaurant with three friends and do the ordering."
+        you: B
+        lines:
+          - {who: A, l2: "欢迎光临！几位？", rom: "Huānyíng guānglín! Jǐ wèi?", l1: "Welcome! How many of you?"}
+          - {who: B, l2: "四位，我们想坐窗户旁边。", rom: "Sì wèi, wǒmen xiǎng zuò chuānghu pángbiān.", l1: "Four. We'd like to sit by the window.", alt: ["四个人，我们想坐窗户旁边。", "四位。我们想坐在窗户旁边。"]}
+          - {who: A, l2: "好的，这边请。这是菜单。", rom: "Hǎo de, zhè biān qǐng. Zhè shì càidān.", l1: "Certainly, this way please. Here's the menu."}
+          - {who: B, l2: "你们这儿什么菜最好吃？", rom: "Nǐmen zhèr shénme cài zuì hǎochī?", l1: "What's the best dish here?", alt: ["你们这儿什么菜好吃？", "这儿什么菜最好吃？"]}
+          - {who: A, l2: "我们的宫保鸡丁很有名，不太辣。", rom: "Wǒmen de gōngbǎo jīdīng hěn yǒumíng, bú tài là.", l1: "Our kung pao chicken is famous, and it isn't too spicy."}
+          - {who: B, l2: "好，来一个宫保鸡丁。", rom: "Hǎo, lái yí ge gōngbǎo jīdīng.", l1: "OK, we'll have one kung pao chicken.", alt: ["好，要一个宫保鸡丁。", "那就来一个宫保鸡丁。", "好，我们要一个宫保鸡丁。"]}
+          - {who: A, l2: "还要别的吗？", rom: "Hái yào biéde ma?", l1: "Anything else?"}
+          - {who: B, l2: "再来一个素菜和四碗米饭。", rom: "Zài lái yí ge sùcài hé sì wǎn mǐfàn.", l1: "And a vegetable dish and four bowls of rice.", alt: ["再要一个素菜和四碗米饭。", "再来一个素菜，四碗米饭。"]}
+          - {who: A, l2: "好的，马上就来。", rom: "Hǎo de, mǎshàng jiù lái.", l1: "Certainly, coming right up."}
+
+      - id: zh-talk-02-vegetarian
+        type: dialogue
+        title: "No meat, please"
+        scene: "You are vegetarian. The waiter is ready to take your order."
+        you: B
+        lines:
+          - {who: A, l2: "您想点什么？", rom: "Nín xiǎng diǎn shénme?", l1: "What would you like to order?"}
+          - {who: B, l2: "我吃素。这个菜里有肉吗？", rom: "Wǒ chī sù. Zhège cài li yǒu ròu ma?", l1: "I'm vegetarian. Is there meat in this dish?", alt: ["我吃素，这个菜有肉吗？", "我不吃肉。这个菜里有肉吗？"]}
+          - {who: A, l2: "这个有一点儿猪肉。", rom: "Zhège yǒu yìdiǎnr zhūròu.", l1: "That one has a little pork in it."}
+          - {who: B, l2: "那我不要这个。有没有素菜？", rom: "Nà wǒ bú yào zhège. Yǒu méiyǒu sùcài?", l1: "Then I won't have that. Do you have any vegetarian dishes?", alt: ["那我不要了。有素菜吗？", "那我不要这个。有素菜吗？", "那不要了。有没有素菜？"]}
+          - {who: A, l2: "有，西红柿炒鸡蛋很不错。", rom: "Yǒu, xīhóngshì chǎo jīdàn hěn búcuò.", l1: "Yes, the tomato and scrambled egg is very good."}
+          - {who: B, l2: "我要一个西红柿炒鸡蛋。", rom: "Wǒ yào yí ge xīhóngshì chǎo jīdàn.", l1: "I'll have the tomato and egg, then.", alt: ["来一个西红柿炒鸡蛋。", "要一个西红柿炒鸡蛋。", "那我要一个西红柿炒鸡蛋。"]}
+          - {who: A, l2: "好的。米饭要吗？", rom: "Hǎo de. Mǐfàn yào ma?", l1: "Certainly. Would you like rice?"}
+          - {who: B, l2: "要一碗，谢谢。", rom: "Yào yì wǎn, xièxie.", l1: "Yes, one bowl, thanks.", alt: ["要一碗米饭，谢谢。", "一碗，谢谢。", "要，一碗。"]}
+
+      - id: zh-talk-02-wrongdish
+        type: dialogue
+        title: "That's not ours"
+        scene: "You have been waiting a long time. A waiter arrives with a dish you did not order."
+        you: B
+        lines:
+          - {who: A, l2: "这是您的鱼。", rom: "Zhè shì nín de yú.", l1: "Here's your fish."}
+          - {who: B, l2: "对不起，这不是我们的菜。", rom: "Duìbuqǐ, zhè bú shì wǒmen de cài.", l1: "Sorry, this isn't our dish.", alt: ["不好意思，这不是我们的菜。", "对不起，我们没点这个。", "对不起，我们没点鱼。"]}
+          - {who: A, l2: "啊，对不起！您点的是什么？", rom: "À, duìbuqǐ! Nín diǎn de shì shénme?", l1: "Oh, sorry! What did you order?"}
+          - {who: B, l2: "我们点了一个牛肉和一个汤。", rom: "Wǒmen diǎn le yí ge niúròu hé yí ge tāng.", l1: "We ordered a beef dish and a soup.", alt: ["我们点了牛肉和汤。", "一个牛肉，一个汤。"]}
+          - {who: A, l2: "好的，我去看看。", rom: "Hǎo de, wǒ qù kànkan.", l1: "OK, I'll go and check."}
+          - {who: B, l2: "我们等了半个小时了。", rom: "Wǒmen děng le bàn ge xiǎoshí le.", l1: "We've been waiting for half an hour.", alt: ["我们已经等了半个小时了。", "等了半个小时了。"]}
+          - {who: A, l2: "真对不起，马上就来！", rom: "Zhēn duìbuqǐ, mǎshàng jiù lái!", l1: "I'm so sorry, it's coming right away!"}
+          - {who: B, l2: "好，请快一点儿。", rom: "Hǎo, qǐng kuài yìdiǎnr.", l1: "OK, please be quick.", alt: ["好的，请快一点儿。", "请快一点儿，谢谢。", "好，快一点儿吧。"]}
+
+      - id: zh-talk-02-bill
+        type: dialogue
+        title: "Paying the bill"
+        scene: "You have finished dinner with friends and there is food left over. You call the waiter."
+        you: A
+        lines:
+          - {who: A, l2: "服务员，买单！", rom: "Fúwùyuán, mǎidān!", l1: "Waiter, the bill, please!", alt: ["服务员，结账！", "服务员，我们买单。", "买单！"]}
+          - {who: B, l2: "好的，一共两百三十块。", rom: "Hǎo de, yígòng liǎngbǎi sānshí kuài.", l1: "Certainly. That's two hundred and thirty yuan altogether."}
+          - {who: A, l2: "可以用手机付吗？", rom: "Kěyǐ yòng shǒujī fù ma?", l1: "Can I pay by phone?", alt: ["可以扫码吗？", "能用手机付吗？", "可以用手机付钱吗？"]}
+          - {who: B, l2: "可以，请扫这儿。", rom: "Kěyǐ, qǐng sǎo zhèr.", l1: "Yes, please scan here."}
+          - {who: A, l2: "这些菜可以帮我们打包吗？", rom: "Zhèxiē cài kěyǐ bāng wǒmen dǎbāo ma?", l1: "Could you box up these dishes for us?", alt: ["这些菜可以打包吗？", "可以帮我们打包吗？", "请帮我们打包，好吗？"]}
+          - {who: B, l2: "没问题，请稍等。", rom: "Méi wèntí, qǐng shāo děng.", l1: "No problem, just a moment."}
+          - {who: A, l2: "谢谢！你们的菜很好吃。", rom: "Xièxie! Nǐmen de cài hěn hǎochī.", l1: "Thanks! Your food is delicious.", alt: ["谢谢！菜很好吃。", "谢谢，菜非常好吃。"]}
+          - {who: B, l2: "谢谢，欢迎下次再来！", rom: "Xièxie, huānyíng xià cì zài lái!", l1: "Thank you, please come again!"}
+
+      - id: zh-talk-02-milktea
+        type: dialogue
+        title: "Milk tea to go"
+        scene: "You stop at a milk-tea shop on the way to class."
+        you: B
+        lines:
+          - {who: A, l2: "您好，要喝点儿什么？", rom: "Nín hǎo, yào hē diǎnr shénme?", l1: "Hello, what would you like to drink?"}
+          - {who: B, l2: "一杯奶茶，少放糖。", rom: "Yì bēi nǎichá, shǎo fàng táng.", l1: "A milk tea, with less sugar.", alt: ["我要一杯奶茶，少放糖。", "一杯奶茶，少糖。", "要一杯奶茶，少放点儿糖。"]}
+          - {who: A, l2: "要冰的还是热的？", rom: "Yào bīng de háishi rè de?", l1: "Iced or hot?"}
+          - {who: B, l2: "热的，谢谢。", rom: "Rè de, xièxie.", l1: "Hot, thanks.", alt: ["热的。", "要热的。", "我要热的。"]}
+          - {who: A, l2: "大杯还是中杯？", rom: "Dà bēi háishi zhōng bēi?", l1: "Large or medium?"}
+          - {who: B, l2: "中杯。多少钱？", rom: "Zhōng bēi. Duōshao qián?", l1: "Medium. How much is it?", alt: ["要中杯。多少钱？", "中杯就可以。多少钱？"]}
+          - {who: A, l2: "十五块。在这儿喝还是带走？", rom: "Shíwǔ kuài. Zài zhèr hē háishi dài zǒu?", l1: "Fifteen yuan. Drink here or take away?"}
+          - {who: B, l2: "带走。", rom: "Dài zǒu.", l1: "To take away.", alt: ["带走，谢谢。", "我带走。", "打包。"]}
+
+      - id: zh-talk-02-home
+        type: dialogue
+        title: "Dinner at a friend's home"
+        scene: "Your friend's mother has cooked a big dinner and keeps filling your bowl."
+        you: B
+        lines:
+          - {who: A, l2: "来，多吃点儿！别客气。", rom: "Lái, duō chī diǎnr! Bié kèqi.", l1: "Come on, eat more! Don't be shy."}
+          - {who: B, l2: "谢谢，菜太好吃了！", rom: "Xièxie, cài tài hǎochī le!", l1: "Thank you, the food is delicious!", alt: ["谢谢！太好吃了！", "谢谢，这些菜太好吃了！", "谢谢，菜非常好吃！"]}
+          - {who: A, l2: "再吃一点儿饺子吧。", rom: "Zài chī yìdiǎnr jiǎozi ba.", l1: "Have some more dumplings."}
+          - {who: B, l2: "不用了，我已经吃饱了。", rom: "Bú yòng le, wǒ yǐjīng chī bǎo le.", l1: "No, thank you, I'm already full.", alt: ["不用了，我吃饱了。", "谢谢，我已经吃饱了。", "不了，我吃饱了。"]}
+          - {who: A, l2: "那喝点儿茶吧。", rom: "Nà hē diǎnr chá ba.", l1: "Then have some tea."}
+          - {who: B, l2: "好，谢谢。这些菜都是您做的吗？", rom: "Hǎo, xièxie. Zhèxiē cài dōu shì nín zuò de ma?", l1: "Yes, thank you. Did you make all these dishes?", alt: ["好的，谢谢。这些菜都是您做的吗？", "好。这些菜是您做的吗？"]}
+          - {who: A, l2: "是啊，我很喜欢做饭。", rom: "Shì a, wǒ hěn xǐhuan zuò fàn.", l1: "Yes, I love cooking."}
+          - {who: B, l2: "您做得真好！", rom: "Nín zuò de zhēn hǎo!", l1: "You're a wonderful cook!", alt: ["您做得太好了！", "您做得非常好！", "您做饭做得真好！"]}
+
+  # ───────────────────────────────────────────────────────────────── 3
+  - id: zh-talk-03
+    title: "Shopping and bargaining"
+    goal: "I can ask for a size, try something on, bargain at a market, find things in a shop and return a purchase."
+    notes: |
+      ## In a shop
+      Assistants greet you with 欢迎光临 and leave you with 随便看看 ("have a look around"). Sizes are 小号, 中号, 大号; ask 有大一点儿的吗？ and 试衣间在哪儿？ (where's the fitting room?). When it fits: 很合适，我要这件.
+
+      ## At a market: bargaining
+      Fixed-price shops do not bargain; markets and tourist stalls expect it.
+      1. Ask: 这个多少钱？ or 这个怎么卖？
+      2. React: 太贵了！
+      3. Offer about half: 一百五卖不卖？ (will you sell for 150?)
+      4. Hold firm or walk: 两百，不行我就走了.
+      5. Close: 好，我买了.
+
+      Prices are said short: 三百八 = 380, 一百五 = 150.
+
+      ## Returns
+      Keep the receipt, 小票 (xiǎopiào). 换 is to exchange, 退 (tuì) to return for a refund: 可以换吗？ 可以退吗？
+
+      ## Phone and SIM
+      A SIM card is 手机卡; you will need your passport. Compare plans with 有便宜一点儿的吗？
+
+      ## Comparing for a friend
+      Use 比 to give an opinion fast: 红的比蓝的好看.
+    items:
+      - id: zh-talk-03-tryon
+        type: dialogue
+        title: "Trying it on"
+        scene: "You are in a clothes shop holding a sweater that looks a little small."
+        you: A
+        lines:
+          - {who: B, l2: "欢迎光临！随便看看。", rom: "Huānyíng guānglín! Suíbiàn kànkan.", l1: "Welcome! Have a look around."}
+          - {who: A, l2: "这件毛衣有大一点儿的吗？", rom: "Zhè jiàn máoyī yǒu dà yìdiǎnr de ma?", l1: "Do you have this sweater a bit bigger?", alt: ["这件毛衣有大一点的吗？", "有大一点儿的吗？", "这件有大号的吗？"]}
+          - {who: B, l2: "有。您穿多大号的？", rom: "Yǒu. Nín chuān duō dà hào de?", l1: "Yes. What size do you wear?"}
+          - {who: A, l2: "我穿大号。", rom: "Wǒ chuān dà hào.", l1: "I wear a large.", alt: ["大号。", "大号的。", "我穿大号的。"]}
+          - {who: B, l2: "这件是大号的，您可以试试。", rom: "Zhè jiàn shì dà hào de, nín kěyǐ shìshi.", l1: "This one's a large; you can try it on."}
+          - {who: A, l2: "试衣间在哪儿？", rom: "Shìyījiān zài nǎr?", l1: "Where's the fitting room?", alt: ["请问，试衣间在哪儿？", "试衣间在哪里？", "在哪儿试？"]}
+          - {who: B, l2: "在那边。怎么样？合适吗？", rom: "Zài nàbiān. Zěnmeyàng? Héshì ma?", l1: "Over there. How is it? Does it fit?"}
+          - {who: A, l2: "很合适。我要这件。", rom: "Hěn héshì. Wǒ yào zhè jiàn.", l1: "It fits well. I'll take this one.", alt: ["很合适，我要了。", "很合适，我买这件。", "挺合适的。我要这件。"]}
+
+      - id: zh-talk-03-bargain
+        type: dialogue
+        title: "Bargaining for a bag"
+        scene: "At a market stall you like a leather bag, but the first price is high."
+        you: A
+        lines:
+          - {who: A, l2: "老板，这个包多少钱？", rom: "Lǎobǎn, zhège bāo duōshao qián?", l1: "How much is this bag? (to the stallholder)", alt: ["这个包多少钱？", "老板，这个包怎么卖？", "请问，这个包多少钱？"]}
+          - {who: B, l2: "这个包是真皮的，三百八。", rom: "Zhège bāo shì zhēnpí de, sānbǎi bā.", l1: "It's real leather: three hundred and eighty."}
+          - {who: A, l2: "太贵了，一百五卖不卖？", rom: "Tài guì le, yìbǎi wǔ mài bu mài?", l1: "Too expensive. Will you take a hundred and fifty?", alt: ["太贵了！一百五，卖吗？", "太贵了，一百五可以吗？", "太贵了，一百五行不行？"]}
+          - {who: B, l2: "一百五太少了，三百吧。", rom: "Yìbǎi wǔ tài shǎo le, sānbǎi ba.", l1: "A hundred and fifty is too little. Three hundred."}
+          - {who: A, l2: "两百，不行我就走了。", rom: "Liǎngbǎi, bù xíng wǒ jiù zǒu le.", l1: "Two hundred, or I'm off.", alt: ["两百块，不行我就走了。", "两百，不行就算了。", "两百，不行我就不要了。"]}
+          - {who: B, l2: "好好好，两百就两百。", rom: "Hǎo hǎo hǎo, liǎngbǎi jiù liǎngbǎi.", l1: "All right, all right, two hundred it is."}
+          - {who: A, l2: "好，我买了。可以扫码吗？", rom: "Hǎo, wǒ mǎi le. Kěyǐ sǎo mǎ ma?", l1: "Good, I'll take it. Can I scan to pay?", alt: ["好，我要了。可以扫码吗？", "好的，我买。可以扫码吗？"]}
+          - {who: B, l2: "可以，扫这儿。", rom: "Kěyǐ, sǎo zhèr.", l1: "Yes, scan here."}
+
+      - id: zh-talk-03-supermarket
+        type: dialogue
+        title: "In the supermarket"
+        scene: "In a small supermarket you can't find what you need. The assistant also runs the till."
+        you: A
+        lines:
+          - {who: A, l2: "请问，牛奶在哪儿？", rom: "Qǐngwèn, niúnǎi zài nǎr?", l1: "Excuse me, where's the milk?", alt: ["牛奶在哪儿？", "请问，牛奶在哪里？"]}
+          - {who: B, l2: "在那边的冰箱里。", rom: "Zài nàbiān de bīngxiāng li.", l1: "In the fridge over there."}
+          - {who: A, l2: "鸡蛋也在那儿吗？", rom: "Jīdàn yě zài nàr ma?", l1: "Are the eggs there too?", alt: ["鸡蛋也在那边吗？", "鸡蛋呢？"]}
+          - {who: B, l2: "不在，鸡蛋在水果旁边。", rom: "Bú zài, jīdàn zài shuǐguǒ pángbiān.", l1: "No, the eggs are next to the fruit."}
+          - {who: A, l2: "谢谢。我买这些。", rom: "Xièxie. Wǒ mǎi zhèxiē.", l1: "Thanks. I'll take these.", alt: ["谢谢，我要买这些。", "好，谢谢。我买这些。"]}
+          - {who: B, l2: "好的。要袋子吗？", rom: "Hǎo de. Yào dàizi ma?", l1: "OK. Do you need a bag?"}
+          - {who: A, l2: "要一个。可以刷卡吗？", rom: "Yào yí ge. Kěyǐ shuā kǎ ma?", l1: "One, please. Can I pay by card?", alt: ["要。可以刷卡吗？", "要一个。能刷卡吗？"]}
+          - {who: B, l2: "可以。一共五十六块三。", rom: "Kěyǐ. Yígòng wǔshíliù kuài sān.", l1: "Yes. That's fifty-six thirty altogether."}
+
+      - id: zh-talk-03-return
+        type: dialogue
+        title: "Taking shoes back"
+        scene: "The shoes you bought yesterday are too small. You take them back to the shop."
+        you: A
+        lines:
+          - {who: A, l2: "你好，我昨天在这儿买了这双鞋。", rom: "Nǐ hǎo, wǒ zuótiān zài zhèr mǎi le zhè shuāng xié.", l1: "Hello, I bought these shoes here yesterday.", alt: ["你好，这双鞋是我昨天在这儿买的。", "您好，我昨天在这儿买了这双鞋。"]}
+          - {who: B, l2: "有什么问题吗？", rom: "Yǒu shénme wèntí ma?", l1: "Is there a problem?"}
+          - {who: A, l2: "有点儿小，可以换大一号的吗？", rom: "Yǒudiǎnr xiǎo, kěyǐ huàn dà yí hào de ma?", l1: "They're a bit small; can I change them for a size bigger?", alt: ["有点儿小，能换大一号的吗？", "有点小，可以换大一号的吗？", "太小了，可以换大一号的吗？"]}
+          - {who: B, l2: "可以。您带小票了吗？", rom: "Kěyǐ. Nín dài xiǎopiào le ma?", l1: "Yes. Did you bring the receipt?"}
+          - {who: A, l2: "带了，在这儿。", rom: "Dài le, zài zhèr.", l1: "Yes, here it is.", alt: ["带了，给您。", "带了，给你。", "在这儿。"]}
+          - {who: B, l2: "对不起，大一号的没有了。您要退钱吗？", rom: "Duìbuqǐ, dà yí hào de méiyǒu le. Nín yào tuì qián ma?", l1: "Sorry, we're out of the next size up. Would you like a refund?"}
+          - {who: A, l2: "那请给我退钱吧。", rom: "Nà qǐng gěi wǒ tuì qián ba.", l1: "Then please give me a refund.", alt: ["好吧，那退钱吧。", "那就退钱吧。", "好吧，请给我退钱。"]}
+          - {who: B, l2: "好的，钱会退到您的手机上。", rom: "Hǎo de, qián huì tuì dào nín de shǒujī shang.", l1: "Certainly; the money will go back to your phone account."}
+
+      - id: zh-talk-03-simcard
+        type: dialogue
+        title: "A SIM card"
+        scene: "You have just arrived in China and go into a phone shop."
+        you: A
+        lines:
+          - {who: A, l2: "你好，我想买一张手机卡。", rom: "Nǐ hǎo, wǒ xiǎng mǎi yì zhāng shǒujī kǎ.", l1: "Hello, I'd like to buy a SIM card.", alt: ["您好，我想买一张手机卡。", "你好，我要买一张手机卡。"]}
+          - {who: B, l2: "好的，请给我看一下您的护照。", rom: "Hǎo de, qǐng gěi wǒ kàn yíxià nín de hùzhào.", l1: "Certainly, may I see your passport?"}
+          - {who: A, l2: "给您。一个月多少钱？", rom: "Gěi nín. Yí ge yuè duōshao qián?", l1: "Here you are. How much is it a month?", alt: ["给你。一个月多少钱？", "在这儿。一个月多少钱？"]}
+          - {who: B, l2: "这种一个月五十八块，可以上网，也可以打电话。", rom: "Zhè zhǒng yí ge yuè wǔshíbā kuài, kěyǐ shàngwǎng, yě kěyǐ dǎ diànhuà.", l1: "This one is fifty-eight a month, with data and calls."}
+          - {who: A, l2: "有便宜一点儿的吗？", rom: "Yǒu piányi yìdiǎnr de ma?", l1: "Is there a cheaper one?", alt: ["有没有便宜一点儿的？", "有便宜点儿的吗？", "有便宜一点的吗？"]}
+          - {who: B, l2: "有，这种三十八块，可是上网少一点儿。", rom: "Yǒu, zhè zhǒng sānshíbā kuài, kěshì shàngwǎng shǎo yìdiǎnr.", l1: "Yes, this one is thirty-eight, but with less data."}
+          - {who: A, l2: "那我要五十八的。", rom: "Nà wǒ yào wǔshíbā de.", l1: "Then I'll take the fifty-eight one.", alt: ["我要五十八块的。", "那就要五十八块的吧。", "那我要五十八块的。"]}
+          - {who: B, l2: "好的，请等一下。", rom: "Hǎo de, qǐng děng yíxià.", l1: "Fine, just a moment."}
+
+      - id: zh-talk-03-gift
+        type: dialogue
+        title: "Choosing a present"
+        scene: "Your friend is buying a scarf for her mother and asks your opinion."
+        you: B
+        lines:
+          - {who: A, l2: "你看，这两条围巾，哪条好看？", rom: "Nǐ kàn, zhè liǎng tiáo wéijīn, nǎ tiáo hǎokàn?", l1: "Look, these two scarves: which one looks nicer?"}
+          - {who: B, l2: "红的比蓝的好看。", rom: "Hóng de bǐ lán de hǎokàn.", l1: "The red one looks nicer than the blue one.", alt: ["红色的比蓝色的好看。", "我觉得红的好看。", "红的更好看。"]}
+          - {who: A, l2: "可是红的比蓝的贵一百块。", rom: "Kěshì hóng de bǐ lán de guì yìbǎi kuài.", l1: "But the red one is a hundred yuan more than the blue."}
+          - {who: B, l2: "贵一点儿没关系，你妈妈一定喜欢。", rom: "Guì yìdiǎnr méi guānxi, nǐ māma yídìng xǐhuan.", l1: "A bit more expensive doesn't matter; your mum will definitely like it.", alt: ["贵一点没关系，你妈妈一定会喜欢。", "没关系，你妈妈一定喜欢。", "贵一点儿没关系，你妈妈一定会喜欢。"]}
+          - {who: A, l2: "好，就买红的。你帮我问问能不能便宜一点儿。", rom: "Hǎo, jiù mǎi hóng de. Nǐ bāng wǒ wènwen néng bu néng piányi yìdiǎnr.", l1: "OK, I'll get the red one. Could you ask if they'll make it a bit cheaper?"}
+          - {who: B, l2: "老板，这条围巾能便宜一点儿吗？", rom: "Lǎobǎn, zhè tiáo wéijīn néng piányi yìdiǎnr ma?", l1: "Excuse me, could this scarf be a bit cheaper? (to the shop owner)", alt: ["老板，能便宜一点儿吗？", "老板，可以便宜一点儿吗？", "老板，便宜一点儿吧。"]}
+          - {who: A, l2: "她说可以便宜二十块！太好了，谢谢你！", rom: "Tā shuō kěyǐ piányi èrshí kuài! Tài hǎo le, xièxie nǐ!", l1: "She says she'll knock off twenty! Great, thank you!"}
+
+  # ───────────────────────────────────────────────────────────────── 4
+  - id: zh-talk-04
+    title: "Asking the way"
+    goal: "I can ask how to get somewhere by subway, bus, taxi or on foot, check the directions back and find my way in a building."
+    notes: |
+      ## The moves
+      - **Open**: 请问 … before any question to a stranger.
+      - **Ask**: …在哪儿？ / 去…怎么走？ / 附近有…吗？
+      - **Check back**: repeat the key part and add 对吗？: 到红绿灯往右拐，对吗？ It is normal and polite.
+      - **How far, how long**: 远吗？ 要走多长时间？ 坐几站？
+      - **Thank**: 太谢谢您了！
+
+      ## Public transport
+      - Subway lines are 号线: 一号线 (Line 1). To change: 换车 or 换乘 (huànchéng).
+      - Bus routes are 路: 坐二十路 (take the number 20).
+      - Station names end in 站: 天安门东站.
+
+      ## Taxis
+      Address a driver as **师傅** (shīfu, "master"), the polite word for any skilled worker. Give the place plus a gate or landmark: 去北京大学东门. Most people pay by scanning.
+
+      ## You will hear
+      - 大概 (dàgài, about) and …左右 (zuǒyòu, roughly): 二十分钟左右.
+      - 不堵车的话 = if there's no traffic.
+      - 我迷路了 (mílù) = I'm lost.
+
+      ## Buildings
+      洗手间在几楼？ 电梯在哪儿？ In a mall every floor usually has toilets: 每层都有.
+    items:
+      - id: zh-talk-04-subway
+        type: dialogue
+        title: "Which line?"
+        scene: "You are at a subway station in Beijing and want to get to Tiananmen. You ask a station worker."
+        you: A
+        lines:
+          - {who: A, l2: "请问，去天安门坐几号线？", rom: "Qǐngwèn, qù Tiān'ānmén zuò jǐ hào xiàn?", l1: "Excuse me, which line goes to Tiananmen?", alt: ["去天安门坐几号线？", "请问，去天安门坐哪条线？"]}
+          - {who: B, l2: "坐一号线。", rom: "Zuò yī hào xiàn.", l1: "Take Line 1."}
+          - {who: A, l2: "要换车吗？", rom: "Yào huàn chē ma?", l1: "Do I need to change?", alt: ["需要换车吗？", "要不要换车？"]}
+          - {who: B, l2: "不用换，在天安门东站下车。", rom: "Bú yòng huàn, zài Tiān'ānmén Dōng zhàn xià chē.", l1: "No need to change; get off at Tiananmen East."}
+          - {who: A, l2: "从这儿坐几站？", rom: "Cóng zhèr zuò jǐ zhàn?", l1: "How many stops is it from here?", alt: ["要坐几站？", "坐几站？"]}
+          - {who: B, l2: "五站，大概十五分钟。", rom: "Wǔ zhàn, dàgài shíwǔ fēnzhōng.", l1: "Five stops, about fifteen minutes."}
+          - {who: A, l2: "好，谢谢您！", rom: "Hǎo, xièxie nín!", l1: "Great, thank you! (polite)", alt: ["谢谢！", "好的，谢谢您！", "谢谢您！"]}
+
+      - id: zh-talk-04-lost
+        type: dialogue
+        title: "I'm lost"
+        scene: "You were walking to your hotel and now you have no idea where you are. You stop a man."
+        you: A
+        lines:
+          - {who: A, l2: "对不起，我迷路了。这是什么路？", rom: "Duìbuqǐ, wǒ mílù le. Zhè shì shénme lù?", l1: "Excuse me, I'm lost. What road is this?", alt: ["不好意思，我迷路了。这是什么路？", "对不起，我迷路了。这儿是哪儿？"]}
+          - {who: B, l2: "这是人民路。你要去哪儿？", rom: "Zhè shì Rénmín Lù. Nǐ yào qù nǎr?", l1: "This is Renmin Road. Where do you want to go?"}
+          - {who: A, l2: "我要去北京饭店。", rom: "Wǒ yào qù Běijīng Fàndiàn.", l1: "I want to go to the Beijing Hotel.", alt: ["我想去北京饭店。", "去北京饭店。"]}
+          - {who: B, l2: "北京饭店离这儿不远。你往前走，到红绿灯往右拐。", rom: "Běijīng Fàndiàn lí zhèr bù yuǎn. Nǐ wǎng qián zǒu, dào hónglǜdēng wǎng yòu guǎi.", l1: "The Beijing Hotel isn't far from here. Go straight on and turn right at the traffic lights."}
+          - {who: A, l2: "到红绿灯往右拐，对吗？", rom: "Dào hónglǜdēng wǎng yòu guǎi, duì ma?", l1: "Turn right at the traffic lights, is that right?", alt: ["红绿灯往右拐，对吗？", "到红绿灯往右拐，是吗？"]}
+          - {who: B, l2: "对，然后再走五分钟就到了。", rom: "Duì, ránhòu zài zǒu wǔ fēnzhōng jiù dào le.", l1: "Yes, then another five minutes' walk and you're there."}
+          - {who: A, l2: "明白了，太谢谢您了！", rom: "Míngbai le, tài xièxie nín le!", l1: "Got it. Thank you so much!", alt: ["明白了，谢谢您！", "我明白了，太谢谢了！", "明白了，谢谢！"]}
+
+      - id: zh-talk-04-bus
+        type: dialogue
+        title: "Which bus?"
+        scene: "You need to get to the railway station by bus. You ask a woman at a newspaper stand."
+        you: A
+        lines:
+          - {who: A, l2: "请问，去火车站坐几路车？", rom: "Qǐngwèn, qù huǒchēzhàn zuò jǐ lù chē?", l1: "Excuse me, which bus goes to the railway station?", alt: ["去火车站坐几路车？", "请问，去火车站坐几路公交车？"]}
+          - {who: B, l2: "坐二十路，在马路对面坐。", rom: "Zuò èrshí lù, zài mǎlù duìmiàn zuò.", l1: "Take the number 20, from the other side of the road."}
+          - {who: A, l2: "车站在哪儿？", rom: "Chēzhàn zài nǎr?", l1: "Where's the bus stop?", alt: ["车站在哪里？", "公交车站在哪儿？", "在哪儿坐？"]}
+          - {who: B, l2: "就在银行前面。", rom: "Jiù zài yínháng qiánmiàn.", l1: "Right in front of the bank."}
+          - {who: A, l2: "多长时间来一辆？", rom: "Duō cháng shíjiān lái yí liàng?", l1: "How often does one come?", alt: ["多久来一辆？", "多长时间有一辆？"]}
+          - {who: B, l2: "十分钟一辆。", rom: "Shí fēnzhōng yí liàng.", l1: "Every ten minutes."}
+          - {who: A, l2: "到火车站要多长时间？", rom: "Dào huǒchēzhàn yào duō cháng shíjiān?", l1: "How long does it take to get to the station?", alt: ["坐到火车站要多长时间？", "到火车站要多久？"]}
+          - {who: B, l2: "不堵车的话，二十分钟左右。", rom: "Bù dǔchē dehuà, èrshí fēnzhōng zuǒyòu.", l1: "About twenty minutes, if there's no traffic."}
+
+      - id: zh-talk-04-taxi
+        type: dialogue
+        title: "In a taxi"
+        scene: "You get into a taxi in the morning. You have a meeting at nine."
+        you: B
+        lines:
+          - {who: A, l2: "您去哪儿？", rom: "Nín qù nǎr?", l1: "Where to?"}
+          - {who: B, l2: "师傅，去北京大学东门。", rom: "Shīfu, qù Běijīng Dàxué dōngmén.", l1: "Peking University, east gate, please. (to the driver)", alt: ["去北京大学东门。", "我去北京大学东门。", "北京大学东门。"]}
+          - {who: A, l2: "好的。您着急吗？", rom: "Hǎo de. Nín zháojí ma?", l1: "OK. Are you in a hurry?"}
+          - {who: B, l2: "有点儿急，我九点要开会。", rom: "Yǒudiǎnr jí, wǒ jiǔ diǎn yào kāihuì.", l1: "A bit; I have a meeting at nine.", alt: ["有点儿急，我九点开会。", "对，我九点要开会。", "有点急，我九点要开会。"]}
+          - {who: A, l2: "现在有点儿堵车，可能要四十分钟。", rom: "Xiànzài yǒudiǎnr dǔchē, kěnéng yào sìshí fēnzhōng.", l1: "The traffic's a bit heavy now; it may take forty minutes."}
+          - {who: B, l2: "没关系，请快一点儿。", rom: "Méi guānxi, qǐng kuài yìdiǎnr.", l1: "That's OK; please go as quickly as you can.", alt: ["好的，请快一点儿。", "那请快一点儿吧。", "没关系，请快一点。"]}
+          - {who: A, l2: "到了，就在前面。七十二块。", rom: "Dào le, jiù zài qiánmiàn. Qīshí'èr kuài.", l1: "Here we are, just ahead. Seventy-two yuan."}
+          - {who: B, l2: "好，我扫码。谢谢师傅！", rom: "Hǎo, wǒ sǎo mǎ. Xièxie shīfu!", l1: "OK, I'll scan the code. Thank you! (to the driver)", alt: ["好的，我扫码。谢谢！", "我扫码吧。谢谢师傅！", "好，我扫码。谢谢您！"]}
+
+      - id: zh-talk-04-hospital
+        type: dialogue
+        title: "Is there a hospital near here?"
+        scene: "Your friend has suddenly fallen ill at your hotel. You ask the doorman."
+        you: A
+        lines:
+          - {who: A, l2: "请问，附近有医院吗？我朋友病了。", rom: "Qǐngwèn, fùjìn yǒu yīyuàn ma? Wǒ péngyou bìng le.", l1: "Excuse me, is there a hospital nearby? My friend is ill.", alt: ["请问，这儿附近有医院吗？我朋友病了。", "附近有医院吗？我朋友生病了。"]}
+          - {who: B, l2: "有，人民医院。你从这个门出去，往左走。", rom: "Yǒu, Rénmín Yīyuàn. Nǐ cóng zhège mén chūqu, wǎng zuǒ zǒu.", l1: "Yes, the People's Hospital. Go out of this door and turn left."}
+          - {who: A, l2: "远吗？要走多长时间？", rom: "Yuǎn ma? Yào zǒu duō cháng shíjiān?", l1: "Is it far? How long a walk is it?", alt: ["远不远？要走多长时间？", "远吗？要走多久？"]}
+          - {who: B, l2: "不远，走路十分钟。你也可以打车。", rom: "Bù yuǎn, zǒulù shí fēnzhōng. Nǐ yě kěyǐ dǎ chē.", l1: "Not far: ten minutes on foot. Or you could take a taxi."}
+          - {who: A, l2: "我在哪儿可以打车？", rom: "Wǒ zài nǎr kěyǐ dǎ chē?", l1: "Where can I get a taxi?", alt: ["在哪儿打车？", "在哪儿可以打车？"]}
+          - {who: B, l2: "门口就可以。希望你朋友没事！", rom: "Ménkǒu jiù kěyǐ. Xīwàng nǐ péngyou méi shì!", l1: "Right outside the door. I hope your friend is OK!"}
+          - {who: A, l2: "谢谢您！", rom: "Xièxie nín!", l1: "Thank you! (polite)", alt: ["谢谢！", "太谢谢您了！", "谢谢你！"]}
+
+      - id: zh-talk-04-mall
+        type: dialogue
+        title: "In the shopping centre"
+        scene: "You are in a big shopping centre and ask an information-desk assistant for help."
+        you: A
+        lines:
+          - {who: A, l2: "请问，洗手间在几楼？", rom: "Qǐngwèn, xǐshǒujiān zài jǐ lóu?", l1: "Excuse me, which floor are the toilets on?", alt: ["洗手间在几楼？", "请问，洗手间在哪儿？", "请问，卫生间在几楼？"]}
+          - {who: B, l2: "每层都有，这层的在电梯后面。", rom: "Měi céng dōu yǒu, zhè céng de zài diàntī hòumiàn.", l1: "There are some on every floor; on this floor they're behind the lift."}
+          - {who: A, l2: "电梯在哪儿？", rom: "Diàntī zài nǎr?", l1: "Where's the lift?", alt: ["电梯在哪里？", "请问，电梯在哪儿？"]}
+          - {who: B, l2: "往前走，在咖啡店对面。", rom: "Wǎng qián zǒu, zài kāfēidiàn duìmiàn.", l1: "Straight ahead, opposite the café."}
+          - {who: A, l2: "那书店在几楼？", rom: "Nà shūdiàn zài jǐ lóu?", l1: "And which floor is the bookshop on?", alt: ["书店在几楼？", "书店在哪一层？", "书店在几层？"]}
+          - {who: B, l2: "书店在五楼。你可以坐电梯上去。", rom: "Shūdiàn zài wǔ lóu. Nǐ kěyǐ zuò diàntī shàngqu.", l1: "The bookshop is on the fifth floor. You can take the lift up."}
+          - {who: A, l2: "好的，谢谢！", rom: "Hǎo de, xièxie!", l1: "OK, thanks!", alt: ["好，谢谢！", "谢谢！", "谢谢你！"]}
+
+  # ───────────────────────────────────────────────────────────────── 5
+  - id: zh-talk-05
+    title: "At the doctor's"
+    goal: "I can register at a hospital, describe my symptoms, understand instructions for medicine, and call in sick."
+    notes: |
+      In China you usually go straight to a hospital rather than a family doctor. First you **register**, 挂号 (guàhào), at a desk or on your phone, and say which department you need: 内科 (nèikē, general medicine) covers colds, fevers and stomach trouble. Bring your passport.
+
+      ## Describing what's wrong
+      - Where: 我头疼 / 嗓子疼 / 肚子疼.
+      - What: 我发烧了, 我咳嗽, 我感冒了.
+      - How long: 两天了 (for two days now).
+      - How bad: 疼得很厉害 (lìhai, it hurts badly). 严重吗？ (yánzhòng) = is it serious?
+
+      ## Medicine
+      You will hear 一天三次，一次两片 (three times a day, two tablets each time) and 饭后吃 (after meals). Repeat it back: 一次两片，对吗？
+
+      ## Calling in sick
+      **请假** splits around the length of time: 请**两天**假 (ask for two days off). Your boss will say 好好休息 (get some proper rest).
+
+      ## Visiting someone ill
+      听说你病了 (I heard you were ill). Bring fruit. Leave with 早点儿好起来！ (get well soon).
+
+      **急** (jí) is "urgent, pressed": 有点儿急 = I'm a bit pressed for time. 着急 (zháojí) is worried, in a hurry.
+    items:
+      - id: zh-talk-05-register
+        type: dialogue
+        title: "Registering at the hospital"
+        scene: "You have a fever and go to the registration desk of a big hospital."
+        you: B
+        lines:
+          - {who: A, l2: "您好，挂号吗？", rom: "Nín hǎo, guàhào ma?", l1: "Hello, are you registering?"}
+          - {who: B, l2: "对，我发烧了，想看医生。", rom: "Duì, wǒ fāshāo le, xiǎng kàn yīshēng.", l1: "Yes, I have a fever and want to see a doctor.", alt: ["是的，我发烧了，想看医生。", "对，我发烧了。", "对，我发烧了，想看病。"]}
+          - {who: A, l2: "那您挂内科。有身份证吗？", rom: "Nà nín guà nèikē. Yǒu shēnfènzhèng ma?", l1: "Then register for general medicine. Do you have an ID card?"}
+          - {who: B, l2: "我是外国人，这是我的护照。", rom: "Wǒ shì wàiguó rén, zhè shì wǒ de hùzhào.", l1: "I'm a foreigner; here's my passport.", alt: ["这是我的护照。", "我有护照，给您。", "我是外国人，有护照。"]}
+          - {who: A, l2: "好的。挂号费五十块。", rom: "Hǎo de. Guàhào fèi wǔshí kuài.", l1: "Fine. The registration fee is fifty yuan."}
+          - {who: B, l2: "内科在几楼？", rom: "Nèikē zài jǐ lóu?", l1: "Which floor is general medicine on?", alt: ["内科在哪儿？", "请问，内科在几楼？"]}
+          - {who: A, l2: "在三楼，出电梯往右走。", rom: "Zài sān lóu, chū diàntī wǎng yòu zǒu.", l1: "Third floor; turn right out of the lift."}
+          - {who: B, l2: "好，谢谢！", rom: "Hǎo, xièxie!", l1: "OK, thanks!", alt: ["谢谢！", "好的，谢谢您！"]}
+
+      - id: zh-talk-05-cold
+        type: dialogue
+        title: "A sore throat"
+        scene: "You are in the doctor's room. She looks up from her computer."
+        you: B
+        lines:
+          - {who: A, l2: "你怎么了？", rom: "Nǐ zěnme le?", l1: "What's the matter?"}
+          - {who: B, l2: "我嗓子疼，还有点儿发烧。", rom: "Wǒ sǎngzi téng, hái yǒudiǎnr fāshāo.", l1: "I have a sore throat and a bit of a fever.", alt: ["我嗓子疼，有点儿发烧。", "嗓子疼，还有点儿发烧。", "我嗓子疼，还有点发烧。"]}
+          - {who: A, l2: "多长时间了？", rom: "Duō cháng shíjiān le?", l1: "How long have you had it?"}
+          - {who: B, l2: "两天了。", rom: "Liǎng tiān le.", l1: "Two days now.", alt: ["已经两天了。", "有两天了。"]}
+          - {who: A, l2: "咳嗽吗？", rom: "Késou ma?", l1: "Are you coughing?"}
+          - {who: B, l2: "不咳嗽，但是头很疼。", rom: "Bù késou, dànshì tóu hěn téng.", l1: "No cough, but I have a bad headache.", alt: ["不咳嗽，可是头很疼。", "不咳嗽，头很疼。", "不咳嗽，不过头很疼。"]}
+          - {who: A, l2: "你感冒了。我给你开点儿药，一天三次，饭后吃。", rom: "Nǐ gǎnmào le. Wǒ gěi nǐ kāi diǎnr yào, yì tiān sān cì, fàn hòu chī.", l1: "You've got a cold. I'll give you some medicine: three times a day, after meals."}
+          - {who: B, l2: "我明天可以上班吗？", rom: "Wǒ míngtiān kěyǐ shàngbān ma?", l1: "Can I go to work tomorrow?", alt: ["明天我能上班吗？", "我明天能去上班吗？", "明天可以上班吗？"]}
+          - {who: A, l2: "最好休息两天，多喝水。", rom: "Zuìhǎo xiūxi liǎng tiān, duō hē shuǐ.", l1: "It's best to rest for two days and drink plenty of water."}
+
+      - id: zh-talk-05-pharmacy
+        type: dialogue
+        title: "At the pharmacy"
+        scene: "You have a cough and go into a pharmacy."
+        you: A
+        lines:
+          - {who: A, l2: "你好，我想买感冒药。", rom: "Nǐ hǎo, wǒ xiǎng mǎi gǎnmào yào.", l1: "Hello, I'd like some cold medicine.", alt: ["你好，我要买感冒药。", "您好，我想买感冒药。", "你好，有感冒药吗？"]}
+          - {who: B, l2: "你哪儿不舒服？发烧吗？", rom: "Nǐ nǎr bù shūfu? Fāshāo ma?", l1: "What's wrong? Do you have a fever?"}
+          - {who: A, l2: "不发烧，就是咳嗽。", rom: "Bù fāshāo, jiù shì késou.", l1: "No fever, just a cough.", alt: ["不发烧，只是咳嗽。", "没有发烧，就是咳嗽。", "不发烧，我咳嗽。"]}
+          - {who: B, l2: "那你试试这种药，一天三次，一次两片。", rom: "Nà nǐ shìshi zhè zhǒng yào, yì tiān sān cì, yí cì liǎng piàn.", l1: "Then try this one: three times a day, two tablets each time."}
+          - {who: A, l2: "一次两片，对吗？", rom: "Yí cì liǎng piàn, duì ma?", l1: "Two tablets each time, right?", alt: ["一次两片，是吗？", "一次吃两片吗？"]}
+          - {who: B, l2: "对。饭后吃，别喝酒。", rom: "Duì. Fàn hòu chī, bié hē jiǔ.", l1: "Yes. Take them after meals, and no alcohol."}
+          - {who: A, l2: "好，多少钱？", rom: "Hǎo, duōshao qián?", l1: "OK, how much is it?", alt: ["好的，多少钱？", "一共多少钱？"]}
+          - {who: B, l2: "二十八块。", rom: "Èrshíbā kuài.", l1: "Twenty-eight yuan."}
+
+      - id: zh-talk-05-stomach
+        type: dialogue
+        title: "Something I ate"
+        scene: "You woke up with a bad stomach ache after a night out and go to the clinic."
+        you: B
+        lines:
+          - {who: A, l2: "哪儿不舒服？", rom: "Nǎr bù shūfu?", l1: "What's wrong?"}
+          - {who: B, l2: "我肚子疼得很厉害。", rom: "Wǒ dùzi téng de hěn lìhai.", l1: "My stomach hurts badly.", alt: ["我肚子很疼。", "我肚子疼得厉害。", "肚子疼得很厉害。"]}
+          - {who: A, l2: "你昨天吃什么了？", rom: "Nǐ zuótiān chī shénme le?", l1: "What did you eat yesterday?"}
+          - {who: B, l2: "我在路边吃了一些烤肉。", rom: "Wǒ zài lùbiān chī le yìxiē kǎoròu.", l1: "I had some barbecued meat at a street stall.", alt: ["我吃了一些烤肉。", "我在路边吃了烤肉。"]}
+          - {who: A, l2: "可能是吃坏肚子了。我给你检查一下。", rom: "Kěnéng shì chī huài dùzi le. Wǒ gěi nǐ jiǎnchá yíxià.", l1: "Maybe something you ate upset your stomach. Let me examine you."}
+          - {who: B, l2: "严重吗？", rom: "Yánzhòng ma?", l1: "Is it serious?", alt: ["严重不严重？", "很严重吗？"]}
+          - {who: A, l2: "不严重。这两天别吃辣的，喝点儿粥。", rom: "Bù yánzhòng. Zhè liǎng tiān bié chī là de, hē diǎnr zhōu.", l1: "No. For the next couple of days, nothing spicy; have some rice porridge."}
+          - {who: B, l2: "好的，我记住了。", rom: "Hǎo de, wǒ jìzhù le.", l1: "OK, I'll remember that.", alt: ["好，我记住了。", "好的，我知道了。", "好，我明白了。"]}
+
+      - id: zh-talk-05-callsick
+        type: dialogue
+        title: "Calling in sick"
+        scene: "It's nine o'clock and you're in bed with a fever. Your manager phones."
+        you: B
+        lines:
+          - {who: A, l2: "喂，小林，你怎么还没来上班？", rom: "Wéi, Xiǎo Lín, nǐ zěnme hái méi lái shàngbān?", l1: "Hello, Xiao Lin? Why aren't you at work yet?"}
+          - {who: B, l2: "王经理，对不起，我今天生病了。", rom: "Wáng jīnglǐ, duìbuqǐ, wǒ jīntiān shēngbìng le.", l1: "Manager Wang, I'm sorry, I'm ill today.", alt: ["经理，对不起，我今天病了。", "王经理，不好意思，我今天生病了。", "对不起，王经理，我生病了。"]}
+          - {who: A, l2: "怎么了？严重吗？", rom: "Zěnme le? Yánzhòng ma?", l1: "What's wrong? Is it serious?"}
+          - {who: B, l2: "我发烧了，三十九度。", rom: "Wǒ fāshāo le, sānshíjiǔ dù.", l1: "I have a fever: thirty-nine degrees.", alt: ["发烧了，三十九度。", "我发烧三十九度。"]}
+          - {who: A, l2: "那你快去看医生吧。", rom: "Nà nǐ kuài qù kàn yīshēng ba.", l1: "Then go and see a doctor right away."}
+          - {who: B, l2: "我想请两天假，可以吗？", rom: "Wǒ xiǎng qǐng liǎng tiān jià, kěyǐ ma?", l1: "I'd like to take two days off; is that all right?", alt: ["我想请两天假。", "我能请两天假吗？", "我可以请两天假吗？"]}
+          - {who: A, l2: "可以，好好休息。工作的事别担心。", rom: "Kěyǐ, hǎohǎo xiūxi. Gōngzuò de shì bié dānxīn.", l1: "Of course; get some proper rest. Don't worry about work."}
+          - {who: B, l2: "谢谢经理！", rom: "Xièxie jīnglǐ!", l1: "Thank you! (to the manager)", alt: ["谢谢王经理！", "谢谢您！", "太谢谢您了！"]}
+
+      - id: zh-talk-05-visit
+        type: dialogue
+        title: "Visiting a sick friend"
+        scene: "Your friend has been ill at home for a week. You drop by with some fruit."
+        you: A
+        lines:
+          - {who: A, l2: "听说你病了，好点儿了吗？", rom: "Tīngshuō nǐ bìng le, hǎo diǎnr le ma?", l1: "I heard you were ill. Are you feeling better?", alt: ["听说你生病了，好点儿了吗？", "听说你病了，好一点儿了吗？", "你好点儿了吗？"]}
+          - {who: B, l2: "好多了，谢谢你来看我。", rom: "Hǎo duō le, xièxie nǐ lái kàn wǒ.", l1: "Much better; thanks for coming to see me."}
+          - {who: A, l2: "我给你买了一些水果。", rom: "Wǒ gěi nǐ mǎi le yìxiē shuǐguǒ.", l1: "I've bought you some fruit.", alt: ["我给你带了一些水果。", "这是给你买的水果。"]}
+          - {who: B, l2: "太谢谢了！医生说我还要休息三天。", rom: "Tài xièxie le! Yīshēng shuō wǒ hái yào xiūxi sān tiān.", l1: "Thank you so much! The doctor says I need three more days' rest."}
+          - {who: A, l2: "那你好好休息，别着急上班。", rom: "Nà nǐ hǎohǎo xiūxi, bié zháojí shàngbān.", l1: "Then rest properly, and don't rush back to work.", alt: ["你好好休息吧，别着急上班。", "那你好好休息，别着急。"]}
+          - {who: B, l2: "好的。有空再来玩儿！", rom: "Hǎo de. Yǒu kòng zài lái wánr!", l1: "I will. Come round again when you're free!"}
+          - {who: A, l2: "好，多喝水，早点儿好起来！", rom: "Hǎo, duō hē shuǐ, zǎo diǎnr hǎo qǐlai!", l1: "OK. Drink plenty of water and get well soon!", alt: ["多喝水，早点儿好起来！", "好，多喝点儿水，早点儿好起来！"]}
+
+  # ───────────────────────────────────────────────────────────────── 6
+  - id: zh-talk-06
+    title: "Making plans"
+    goal: "I can suggest and accept plans, fix a time and place, decline politely, change an arrangement and plan a trip."
+    notes: |
+      ## The moves
+      - **Check**: 你周末有空吗？ / 明天晚上有时间吗？
+      - **Suggest**: … 吧！ (let's): 我们一起去看电影吧！ Or ask: …怎么样？
+      - **Accept**: 好啊！ 当然可以！ (dāngrán, of course) 没问题！
+      - **Fix it**: 几点？在哪儿见面？ → 七点，在地铁站见面.
+      - **Plan B**: 如果下雨，我们就….
+      - **Close**: 不见不散！ or 就这么定了！ (that's settled).
+
+      ## Saying no
+      A flat 不去 sounds rude. Apologise, give a reason, and offer another time:
+
+      对不起，星期五我有事。我得去机场接我妈妈。下次我请你们吃饭！
+
+      **我请你** means "it's on me"; **请客** is to treat everyone.
+
+      ## Changing plans
+      我不能跟你见面了 (I can't meet you after all) → 改到哪天？ (gǎi, move it to which day?) → 星期天怎么样？
+
+      ## Booking
+      **订** (dìng) is to book: 订票 (book tickets), 订酒店, 订位子 (book a table). National holidays such as 国庆节 (Guóqìng Jié, 1 October) are busy, so 早点儿订.
+    items:
+      - id: zh-talk-06-weekend
+        type: dialogue
+        title: "This weekend"
+        scene: "A friend asks about your weekend on Thursday evening."
+        you: B
+        lines:
+          - {who: A, l2: "这个周末你打算做什么？", rom: "Zhège zhōumò nǐ dǎsuan zuò shénme?", l1: "What are you planning to do this weekend?"}
+          - {who: B, l2: "我打算去爬山。你呢？", rom: "Wǒ dǎsuan qù páshān. Nǐ ne?", l1: "I'm planning to go hiking. And you?", alt: ["我想去爬山。你呢？"]}
+          - {who: A, l2: "我还没想好。我可以跟你一起去吗？", rom: "Wǒ hái méi xiǎng hǎo. Wǒ kěyǐ gēn nǐ yìqǐ qù ma?", l1: "I haven't decided. Can I come with you?"}
+          - {who: B, l2: "当然可以！我们星期六早上出发。", rom: "Dāngrán kěyǐ! Wǒmen xīngqīliù zǎoshang chūfā.", l1: "Of course! We're setting off on Saturday morning.", alt: ["当然可以！星期六早上出发。", "可以啊！我们星期六早上出发。"]}
+          - {who: A, l2: "几点？在哪儿见面？", rom: "Jǐ diǎn? Zài nǎr jiànmiàn?", l1: "What time? Where shall we meet?"}
+          - {who: B, l2: "七点，在地铁站见面。", rom: "Qī diǎn, zài dìtiězhàn jiànmiàn.", l1: "Seven o'clock, at the subway station.", alt: ["七点在地铁站见。", "早上七点，在地铁站见面。", "七点，地铁站见。"]}
+          - {who: A, l2: "这么早！好吧。如果下雨呢？", rom: "Zhème zǎo! Hǎo ba. Rúguǒ xià yǔ ne?", l1: "That early! All right. What if it rains?"}
+          - {who: B, l2: "如果下雨，我们就去看电影。", rom: "Rúguǒ xià yǔ, wǒmen jiù qù kàn diànyǐng.", l1: "If it rains, we'll go to the cinema instead.", alt: ["下雨的话，我们就去看电影。", "如果下雨的话，就去看电影。", "如果下雨，就去看电影。"]}
+
+      - id: zh-talk-06-film
+        type: dialogue
+        title: "Two cinema tickets"
+        scene: "You have two cinema tickets and invite a colleague."
+        you: A
+        lines:
+          - {who: A, l2: "你明天晚上有空吗？", rom: "Nǐ míngtiān wǎnshang yǒu kòng ma?", l1: "Are you free tomorrow evening?", alt: ["明天晚上你有空吗？", "你明天晚上有时间吗？"]}
+          - {who: B, l2: "有啊，什么事？", rom: "Yǒu a, shénme shì?", l1: "Yes, why?"}
+          - {who: A, l2: "我有两张电影票，我们一起去看吧！", rom: "Wǒ yǒu liǎng zhāng diànyǐng piào, wǒmen yìqǐ qù kàn ba!", l1: "I have two cinema tickets; let's go together!", alt: ["我有两张电影票，一起去看吧！", "我有两张电影票，你想去看吗？"]}
+          - {who: B, l2: "好啊！什么电影？", rom: "Hǎo a! Shénme diànyǐng?", l1: "Great! What film?"}
+          - {who: A, l2: "一个中国电影，听说很有意思。", rom: "Yí ge Zhōngguó diànyǐng, tīngshuō hěn yǒu yìsi.", l1: "A Chinese film. I hear it's very good.", alt: ["是一个中国电影，听说很有意思。", "中国电影，听说很好看。"]}
+          - {who: B, l2: "几点开始？", rom: "Jǐ diǎn kāishǐ?", l1: "What time does it start?"}
+          - {who: A, l2: "七点半。我们七点在电影院门口见吧。", rom: "Qī diǎn bàn. Wǒmen qī diǎn zài diànyǐngyuàn ménkǒu jiàn ba.", l1: "Half past seven. Let's meet at the cinema entrance at seven.", alt: ["七点半，我们七点在电影院门口见。", "七点半，七点在门口见吧。"]}
+          - {who: B, l2: "好，不见不散！", rom: "Hǎo, bú jiàn bú sàn!", l1: "OK, see you there!"}
+
+      - id: zh-talk-06-decline
+        type: dialogue
+        title: "Sorry, I can't"
+        scene: "Your classmates invite you to karaoke, but you already have plans."
+        you: B
+        lines:
+          - {who: A, l2: "星期五晚上我们去唱歌，你来吗？", rom: "Xīngqīwǔ wǎnshang wǒmen qù chànggē, nǐ lái ma?", l1: "We're going to karaoke on Friday night; are you coming?"}
+          - {who: B, l2: "对不起，星期五我有事。", rom: "Duìbuqǐ, xīngqīwǔ wǒ yǒu shì.", l1: "Sorry, I'm busy on Friday.", alt: ["不好意思，星期五我有事。", "对不起，我星期五有事。", "星期五我有事，不能去。"]}
+          - {who: A, l2: "太可惜了！什么事啊？", rom: "Tài kěxī le! Shénme shì a?", l1: "What a pity! What's on?"}
+          - {who: B, l2: "我妈妈来北京，我得去机场接她。", rom: "Wǒ māma lái Běijīng, wǒ děi qù jīchǎng jiē tā.", l1: "My mum is coming to Beijing; I have to pick her up at the airport.", alt: ["我妈妈来北京，我要去机场接她。", "我得去机场接我妈妈。"]}
+          - {who: A, l2: "那下次吧。", rom: "Nà xià cì ba.", l1: "Next time, then."}
+          - {who: B, l2: "好，下次我请你们吃饭！", rom: "Hǎo, xià cì wǒ qǐng nǐmen chī fàn!", l1: "Yes, and next time dinner's on me!", alt: ["好，下次我请客！", "下次我请你们吃饭吧！", "好的，下次我请你们吃饭！"]}
+          - {who: A, l2: "一言为定！", rom: "Yì yán wéi dìng!", l1: "It's a deal!"}
+
+      - id: zh-talk-06-reschedule
+        type: dialogue
+        title: "Can we move it?"
+        scene: "You were going to meet Xiao Wang tomorrow, but now you have to work. You phone him."
+        you: A
+        lines:
+          - {who: A, l2: "小王，真对不起，明天我不能跟你见面了。", rom: "Xiǎo Wáng, zhēn duìbuqǐ, míngtiān wǒ bù néng gēn nǐ jiànmiàn le.", l1: "Xiao Wang, I'm really sorry, I can't meet you tomorrow after all.", alt: ["小王，对不起，明天我不能跟你见面了。", "对不起，明天我不能跟你见面了。"]}
+          - {who: B, l2: "没关系。怎么了？", rom: "Méi guānxi. Zěnme le?", l1: "That's all right. What happened?"}
+          - {who: A, l2: "公司让我明天加班。", rom: "Gōngsī ràng wǒ míngtiān jiābān.", l1: "My company wants me to work tomorrow.", alt: ["我明天得加班。", "公司要我明天加班。", "我明天要加班。"]}
+          - {who: B, l2: "那我们改到哪天？", rom: "Nà wǒmen gǎi dào nǎ tiān?", l1: "So which day shall we move it to?"}
+          - {who: A, l2: "星期天怎么样？", rom: "Xīngqītiān zěnmeyàng?", l1: "How about Sunday?", alt: ["星期天行吗？", "星期天可以吗？", "星期天，好吗？"]}
+          - {who: B, l2: "星期天上午我有课，下午可以。", rom: "Xīngqītiān shàngwǔ wǒ yǒu kè, xiàwǔ kěyǐ.", l1: "I have class on Sunday morning, but the afternoon is fine."}
+          - {who: A, l2: "那就星期天下午三点吧。", rom: "Nà jiù xīngqītiān xiàwǔ sān diǎn ba.", l1: "Then let's say three o'clock on Sunday afternoon.", alt: ["那星期天下午三点吧。", "星期天下午三点，怎么样？", "那就星期天下午三点。"]}
+          - {who: B, l2: "好，就这么定了！", rom: "Hǎo, jiù zhème dìng le!", l1: "Great, that's settled!"}
+
+      - id: zh-talk-06-birthday
+        type: dialogue
+        title: "Planning a birthday"
+        scene: "You and a friend are planning a surprise for Xiao Li's birthday."
+        you: B
+        lines:
+          - {who: A, l2: "下个星期是小李的生日，我们送他什么礼物？", rom: "Xià ge xīngqī shì Xiǎo Lǐ de shēngrì, wǒmen sòng tā shénme lǐwù?", l1: "It's Xiao Li's birthday next week. What present shall we give him?"}
+          - {who: B, l2: "他喜欢踢足球，我们送他一个足球吧。", rom: "Tā xǐhuan tī zúqiú, wǒmen sòng tā yí ge zúqiú ba.", l1: "He likes playing football; let's give him a football.", alt: ["他喜欢足球，我们送他一个足球吧。", "送他一个足球吧，他喜欢踢足球。"]}
+          - {who: A, l2: "好主意！在哪儿给他过生日？", rom: "Hǎo zhǔyi! Zài nǎr gěi tā guò shēngrì?", l1: "Good idea! Where shall we celebrate?"}
+          - {who: B, l2: "我们去那家四川餐厅吧，他爱吃辣的。", rom: "Wǒmen qù nà jiā Sìchuān cāntīng ba, tā ài chī là de.", l1: "Let's go to that Sichuan restaurant; he loves spicy food.", alt: ["去那家四川餐厅吧，他爱吃辣的。", "我们去四川餐厅吧，他喜欢吃辣的。"]}
+          - {who: A, l2: "要不要先打电话订位子？", rom: "Yào bu yào xiān dǎ diànhuà dìng wèizi?", l1: "Should we phone ahead and book a table?"}
+          - {who: B, l2: "要，订六个人的。", rom: "Yào, dìng liù ge rén de.", l1: "Yes, book for six.", alt: ["要，订六个人的位子。", "好，订六个人的。", "要，订六位。"]}
+          - {who: A, l2: "蛋糕呢？", rom: "Dàngāo ne?", l1: "And the cake?"}
+          - {who: B, l2: "我来买蛋糕。", rom: "Wǒ lái mǎi dàngāo.", l1: "I'll get the cake.", alt: ["蛋糕我来买。", "我去买蛋糕。", "我买蛋糕吧。"]}
+
+      - id: zh-talk-06-trip
+        type: dialogue
+        title: "A holiday trip"
+        scene: "The October holiday is coming up. A friend suggests a trip to Xi'an."
+        you: B
+        lines:
+          - {who: A, l2: "国庆节我们去西安玩吧！", rom: "Guóqìng Jié wǒmen qù Xī'ān wán ba!", l1: "Let's go to Xi'an for the National Day holiday!"}
+          - {who: B, l2: "好啊！我们坐飞机还是坐高铁？", rom: "Hǎo a! Wǒmen zuò fēijī háishi zuò gāotiě?", l1: "Great! Shall we fly or take the high-speed train?", alt: ["好啊！坐飞机还是坐高铁？", "好！我们坐飞机去还是坐高铁去？"]}
+          - {who: A, l2: "坐高铁吧，比飞机便宜，也很快。", rom: "Zuò gāotiě ba, bǐ fēijī piányi, yě hěn kuài.", l1: "Let's take the train: it's cheaper than flying, and fast too."}
+          - {who: B, l2: "要坐多长时间？", rom: "Yào zuò duō cháng shíjiān?", l1: "How long does it take?", alt: ["要多长时间？", "坐高铁要多长时间？", "要坐多久？"]}
+          - {who: A, l2: "五个小时左右。", rom: "Wǔ ge xiǎoshí zuǒyòu.", l1: "About five hours."}
+          - {who: B, l2: "好，那我们先买票，再订酒店。", rom: "Hǎo, nà wǒmen xiān mǎi piào, zài dìng jiǔdiàn.", l1: "OK, then let's buy the tickets first and book the hotel after.", alt: ["好，我们先买票，然后订酒店。", "那我们先买票，再订酒店吧。"]}
+          - {who: A, l2: "国庆节人很多，我们得早点儿买。", rom: "Guóqìng Jié rén hěn duō, wǒmen děi zǎo diǎnr mǎi.", l1: "It's very busy at National Day, so we'll need to buy them early."}
+          - {who: B, l2: "对，我今天晚上就买。", rom: "Duì, wǒ jīntiān wǎnshang jiù mǎi.", l1: "Right, I'll buy them tonight.", alt: ["对，今天晚上就买吧。", "好，我今天晚上就买。"]}
+
+  # ───────────────────────────────────────────────────────────────── 7
+  - id: zh-talk-07
+    title: "On the phone"
+    goal: "I can make and answer calls, leave a message, give a phone number, book by phone and deal with a bad line."
+    notes: |
+      ## The moves
+      - **Answer and open**: 喂 (wéi), hello on the phone only. Then name yourself: 我是安娜.
+      - **Ask for someone**: 请问王经理在吗？ You may hear 请问您是哪位？ (who's calling?).
+      - **Bad moment**: 我正在开会 → 那我一会儿再打给你.
+      - **Message**: 请他给我回个电话 (ask him to call me back).
+      - **Wrong number**: 您打错了.
+      - **Bad line**: 听不清楚 (I can't hear clearly), 你那边太吵了 (chǎo, it's too noisy there).
+      - **Close**: 拜拜 (báibái) or 再见.
+
+      ## Numbers on the phone
+      Phone, room and bus numbers are read **digit by digit**, and **1 is read yāo**, not yī, so it cannot be confused with 七 (qī): 一三九 = yāo sān jiǔ. Zero is 零 (líng).
+
+      ## Booking by phone
+      我想订一个位子 → the day, the time, how many: 星期六晚上，六点半，四个人. You'll be asked 您贵姓？ The modest answer is 免贵姓白 (miǎn guì xìng Bái, "no 'honourable' needed, my name is Bai"), or just 我姓白.
+
+      ## Deliveries
+      外卖 (wàimài) is food delivery. Drivers phone from downstairs; 送上来 means bring it up.
+    items:
+      - id: zh-talk-07-badtime
+        type: dialogue
+        title: "A bad time to call"
+        scene: "You phone your friend Xiao Zhang, but she sounds busy."
+        you: A
+        lines:
+          - {who: A, l2: "喂，小张吗？我是安娜。", rom: "Wéi, Xiǎo Zhāng ma? Wǒ shì Ānnà.", l1: "Hello, is that Xiao Zhang? It's Anna.", alt: ["喂，是小张吗？我是安娜。", "喂，小张，我是安娜。"]}
+          - {who: B, l2: "安娜，你好！不好意思，我正在开会。", rom: "Ānnà, nǐ hǎo! Bù hǎoyìsi, wǒ zhèngzài kāihuì.", l1: "Hi, Anna! Sorry, I'm in a meeting."}
+          - {who: A, l2: "那我一会儿再打给你。", rom: "Nà wǒ yíhuìr zài dǎ gěi nǐ.", l1: "Then I'll call you back in a bit.", alt: ["那我晚一点儿再打给你。", "那我一会儿再给你打电话。", "好，我一会儿再打。"]}
+          - {who: B, l2: "好，我四点以后有空。", rom: "Hǎo, wǒ sì diǎn yǐhòu yǒu kòng.", l1: "OK, I'm free after four."}
+          - {who: A, l2: "好的，四点以后给你打电话。", rom: "Hǎo de, sì diǎn yǐhòu gěi nǐ dǎ diànhuà.", l1: "Fine, I'll phone you after four.", alt: ["好，四点以后再打给你。", "好的，四点以后打给你。"]}
+          - {who: B, l2: "好，拜拜！", rom: "Hǎo, báibái!", l1: "OK, bye!"}
+          - {who: A, l2: "拜拜！", rom: "Báibái!", l1: "Bye!", alt: ["再见！", "好，拜拜！", "bāibāi!", "bàibài!"]}
+
+      - id: zh-talk-07-message
+        type: dialogue
+        title: "Leaving a message"
+        scene: "You call a client's office to speak to Manager Wang. His assistant answers."
+        you: A
+        lines:
+          - {who: A, l2: "喂，你好，请问王经理在吗？", rom: "Wéi, nǐ hǎo, qǐngwèn Wáng jīnglǐ zài ma?", l1: "Hello, is Manager Wang there, please?", alt: ["喂，请问王经理在吗？", "你好，请问王经理在吗？", "喂，您好，请问王经理在吗？"]}
+          - {who: B, l2: "他不在，出去了。请问您是哪位？", rom: "Tā bú zài, chūqu le. Qǐngwèn nín shì nǎ wèi?", l1: "He's not here; he's gone out. Who's calling, please?"}
+          - {who: A, l2: "我是长城公司的大卫。", rom: "Wǒ shì Chángchéng Gōngsī de Dàwèi.", l1: "This is David from Great Wall Company.", alt: ["我叫大卫，是长城公司的。"]}
+          - {who: B, l2: "您有什么事吗？我可以告诉他。", rom: "Nín yǒu shénme shì ma? Wǒ kěyǐ gàosu tā.", l1: "Can I take a message? I can tell him."}
+          - {who: A, l2: "请他给我回个电话。", rom: "Qǐng tā gěi wǒ huí ge diànhuà.", l1: "Please ask him to call me back.", alt: ["请他给我回电话。", "请让他给我回个电话。"]}
+          - {who: B, l2: "好的。您的电话号码是多少？", rom: "Hǎo de. Nín de diànhuà hàomǎ shì duōshao?", l1: "Certainly. What's your phone number?"}
+          - {who: A, l2: "一三九，一二三四，五六七八。", rom: "Yāo sān jiǔ, yāo èr sān sì, wǔ liù qī bā.", l1: "139 1234 5678.", alt: ["13912345678", "139 1234 5678"]}
+          - {who: B, l2: "好，我一定告诉他。", rom: "Hǎo, wǒ yídìng gàosu tā.", l1: "Fine, I'll be sure to tell him."}
+
+      - id: zh-talk-07-wrongnumber
+        type: dialogue
+        title: "Wrong number"
+        scene: "Your phone rings. It's a woman you don't know."
+        you: B
+        lines:
+          - {who: A, l2: "喂，是李太太吗？", rom: "Wéi, shì Lǐ tàitai ma?", l1: "Hello, is that Mrs Li?"}
+          - {who: B, l2: "不是，您打错了。", rom: "Bú shì, nín dǎ cuò le.", l1: "No, you've got the wrong number.", alt: ["不是，你打错了。", "对不起，您打错了。", "不是，打错了。"]}
+          - {who: A, l2: "这不是八六五四三二一零吗？", rom: "Zhè bú shì bā liù wǔ sì sān èr yāo líng ma?", l1: "Isn't this 8654 3210?"}
+          - {who: B, l2: "不是，这是八六五四三二一一。", rom: "Bú shì, zhè shì bā liù wǔ sì sān èr yāo yāo.", l1: "No, this is 8654 3211.", alt: ["不是，我的号码是八六五四三二一一。", "不是，这儿是八六五四三二一一。"]}
+          - {who: A, l2: "啊，对不起，对不起！", rom: "À, duìbuqǐ, duìbuqǐ!", l1: "Oh, I'm so sorry!"}
+          - {who: B, l2: "没关系。", rom: "Méi guānxi.", l1: "That's all right.", alt: ["没事。", "没事儿。", "没关系，再见。"]}
+
+      - id: zh-talk-07-booking
+        type: dialogue
+        title: "Booking a table"
+        scene: "You phone a restaurant to book dinner for Saturday."
+        you: A
+        lines:
+          - {who: A, l2: "喂，你好，我想订一个位子。", rom: "Wéi, nǐ hǎo, wǒ xiǎng dìng yí ge wèizi.", l1: "Hello, I'd like to book a table.", alt: ["你好，我想订个位子。", "喂，你好，我想订位。", "你好，我想订一个位子。"]}
+          - {who: B, l2: "好的，哪天？几位？", rom: "Hǎo de, nǎ tiān? Jǐ wèi?", l1: "Certainly. Which day? For how many?"}
+          - {who: A, l2: "星期六晚上，四个人。", rom: "Xīngqīliù wǎnshang, sì ge rén.", l1: "Saturday evening, four people.", alt: ["星期六晚上，四位。", "这个星期六晚上，四个人。"]}
+          - {who: B, l2: "几点？", rom: "Jǐ diǎn?", l1: "What time?"}
+          - {who: A, l2: "六点半，可以吗？", rom: "Liù diǎn bàn, kěyǐ ma?", l1: "Half past six, if that's all right?", alt: ["六点半。", "六点半行吗？", "六点半有位子吗？"]}
+          - {who: B, l2: "可以。请问您贵姓？", rom: "Kěyǐ. Qǐngwèn nín guì xìng?", l1: "Yes. May I have your surname?"}
+          - {who: A, l2: "我姓白。", rom: "Wǒ xìng Bái.", l1: "My surname is Bai.", alt: ["免贵姓白。", "姓白。"]}
+          - {who: B, l2: "好的，白先生，星期六晚上六点半，四位，给您订好了。", rom: "Hǎo de, Bái xiānsheng, xīngqīliù wǎnshang liù diǎn bàn, sì wèi, gěi nín dìng hǎo le.", l1: "Very good, Mr Bai: Saturday evening, half past six, four people. You're booked."}
+          - {who: A, l2: "谢谢！星期六见。", rom: "Xièxie! Xīngqīliù jiàn.", l1: "Thank you! See you on Saturday.", alt: ["好，谢谢！"]}
+
+      - id: zh-talk-07-badline
+        type: dialogue
+        title: "I can't hear you"
+        scene: "A colleague calls you from somewhere very noisy."
+        you: B
+        lines:
+          - {who: A, l2: "喂？喂？你听得见吗？", rom: "Wéi? Wéi? Nǐ tīng de jiàn ma?", l1: "Hello? Hello? Can you hear me?"}
+          - {who: B, l2: "听不清楚，你那边太吵了。", rom: "Tīng bu qīngchu, nǐ nàbiān tài chǎo le.", l1: "I can't hear you clearly; it's too noisy where you are.", alt: ["听不清楚，你那儿太吵了。", "我听不清楚。", "听不太清楚，你那边太吵了。"]}
+          - {who: A, l2: "我在地铁上。现在呢？", rom: "Wǒ zài dìtiě shang. Xiànzài ne?", l1: "I'm on the subway. How about now?"}
+          - {who: B, l2: "好一点儿了。你说吧。", rom: "Hǎo yìdiǎnr le. Nǐ shuō ba.", l1: "That's a bit better. Go ahead.", alt: ["好点儿了，你说吧。", "现在好一点儿了。", "好一点儿了，你说。"]}
+          - {who: A, l2: "明天的会几点开始？", rom: "Míngtiān de huì jǐ diǎn kāishǐ?", l1: "What time does tomorrow's meeting start?"}
+          - {who: B, l2: "九点开始，在三楼。", rom: "Jiǔ diǎn kāishǐ, zài sān lóu.", l1: "It starts at nine, on the third floor.", alt: ["九点，在三楼。", "明天九点开始，在三楼。"]}
+          - {who: A, l2: "好，我听见了。我一会儿再给你打吧！", rom: "Hǎo, wǒ tīngjiàn le. Wǒ yíhuìr zài gěi nǐ dǎ ba!", l1: "OK, I heard that. I'll call you again later!"}
+          - {who: B, l2: "好，你下了地铁再打吧。", rom: "Hǎo, nǐ xià le dìtiě zài dǎ ba.", l1: "OK, call me when you're off the subway.", alt: ["好，等你下了地铁再打吧。", "好，一会儿再说。"]}
+
+      - id: zh-talk-07-delivery
+        type: dialogue
+        title: "Your food has arrived"
+        scene: "You ordered dinner on your phone. The delivery rider calls."
+        you: B
+        lines:
+          - {who: A, l2: "喂，您好，您的外卖到了。我在楼下。", rom: "Wéi, nín hǎo, nín de wàimài dào le. Wǒ zài lóuxià.", l1: "Hello, your food delivery is here. I'm downstairs."}
+          - {who: B, l2: "好的，你能送上来吗？我住十二楼。", rom: "Hǎo de, nǐ néng sòng shànglai ma? Wǒ zhù shí'èr lóu.", l1: "OK, could you bring it up? I'm on the twelfth floor.", alt: ["你能送上来吗？我在十二楼。", "能送上来吗？我住十二楼。", "好，你可以送上来吗？我住十二楼。"]}
+          - {who: A, l2: "门口的保安不让我进去。", rom: "Ménkǒu de bǎo'ān bú ràng wǒ jìnqu.", l1: "The security guard at the gate won't let me in."}
+          - {who: B, l2: "那我下去拿，请等一下。", rom: "Nà wǒ xiàqu ná, qǐng děng yíxià.", l1: "Then I'll come down for it; please wait a moment.", alt: ["那我下去拿吧，等一下。", "那我下去拿，请等我一下。", "好，我马上下去拿。"]}
+          - {who: A, l2: "好的，我在大门口等您。", rom: "Hǎo de, wǒ zài dà ménkǒu děng nín.", l1: "OK, I'll wait for you at the main gate."}
+          - {who: B, l2: "我马上到，我穿着红大衣。", rom: "Wǒ mǎshàng dào, wǒ chuān zhe hóng dàyī.", l1: "I'll be right there; I'm wearing a red coat.", alt: ["我马上到，我穿着红色的大衣。", "马上到，我穿着红大衣。"]}
+          - {who: A, l2: "好，我看见您了！", rom: "Hǎo, wǒ kànjiàn nín le!", l1: "Right, I can see you!"}
+
+  # ───────────────────────────────────────────────────────────────── 8
+  - id: zh-talk-08
+    title: "At the hotel and the station"
+    goal: "I can check in and out, report a problem in my room, buy a train ticket, cope with a delay and find my seat."
+    notes: |
+      ## At the hotel
+      - **Check in**: 我在网上订了一个房间, then show your passport: 给您.
+      - **Ask**: 房间里能上网吗？ 早饭在几楼？ 电梯在哪儿？
+      - **Problems**: something 坏了 (is broken): 空调坏了. 没有热水 (no hot water). Ask for 换一个房间.
+      - **Check out**: 退房 (tuìfáng). Hand back the 房卡 (room card). You can leave bags: 可以把行李放在这儿吗？
+      - Room numbers go digit by digit: 806 = 八零六.
+
+      ## At the station
+      - Tickets: 我要一张明天去上海的高铁票. Order: when, where to, which train. Seats on high-speed trains are 二等座 (second class) and 一等座 (first class). You need your passport to buy and to board.
+      - Big cities have several stations: 北京南站 (Beijing South). Ask 从哪个站出发？
+      - Boarding is at a 检票口 (jiǎnpiàokǒu, ticket gate).
+      - **晚点** (wǎndiǎn) = delayed: 晚点多长时间？
+      - Coaches are 车 (车厢): 五车 = coach 5.
+
+      ## Sitting in the wrong seat
+      It happens to everyone: 对不起，我坐错了！ (the result complement 错 again).
+
+      Hotel staff greet you with 欢迎光临; you can ask them anything: 附近有什么好玩的地方？
+    items:
+      - id: zh-talk-08-checkin
+        type: dialogue
+        title: "Checking in"
+        scene: "You arrive at your hotel in the evening and go to the front desk."
+        you: B
+        lines:
+          - {who: A, l2: "您好，欢迎光临！您有预订吗？", rom: "Nín hǎo, huānyíng guānglín! Nín yǒu yùdìng ma?", l1: "Good evening, welcome! Do you have a reservation?"}
+          - {who: B, l2: "有，我在网上订了一个房间。", rom: "Yǒu, wǒ zài wǎngshang dìng le yí ge fángjiān.", l1: "Yes, I booked a room online.", alt: ["有，我在网上订的。", "有，我订了一个房间。", "有，我在网上订了房间。"]}
+          - {who: A, l2: "请给我看一下您的护照。", rom: "Qǐng gěi wǒ kàn yíxià nín de hùzhào.", l1: "May I see your passport, please?"}
+          - {who: B, l2: "给您。我住三个晚上。", rom: "Gěi nín. Wǒ zhù sān ge wǎnshang.", l1: "Here you are. I'm staying three nights.", alt: ["给你。我住三个晚上。", "在这儿。我住三个晚上。", "给您，我住三晚。"]}
+          - {who: A, l2: "好的。您的房间是八零六。早饭在二楼，六点半到九点半。", rom: "Hǎo de. Nín de fángjiān shì bā líng liù. Zǎofàn zài èr lóu, liù diǎn bàn dào jiǔ diǎn bàn.", l1: "Thank you. Your room is 806. Breakfast is on the second floor, from half past six to half past nine."}
+          - {who: B, l2: "房间里能上网吗？", rom: "Fángjiān li néng shàngwǎng ma?", l1: "Is there internet in the room?", alt: ["房间里可以上网吗？", "房间能上网吗？"]}
+          - {who: A, l2: "能，密码在房卡上。", rom: "Néng, mìmǎ zài fángkǎ shang.", l1: "Yes, the password is on your room card."}
+          - {who: B, l2: "好的，谢谢！电梯在哪儿？", rom: "Hǎo de, xièxie! Diàntī zài nǎr?", l1: "Great, thanks! Where's the lift?", alt: ["谢谢！电梯在哪儿？", "好，谢谢。电梯在哪里？"]}
+          - {who: A, l2: "在您右边。", rom: "Zài nín yòubian.", l1: "On your right."}
+
+      - id: zh-talk-08-problem
+        type: dialogue
+        title: "The air conditioning is broken"
+        scene: "It's a hot night and your room is stifling. You phone the front desk."
+        you: A
+        lines:
+          - {who: A, l2: "喂，你好，我是八零六房间的。", rom: "Wéi, nǐ hǎo, wǒ shì bā líng liù fángjiān de.", l1: "Hello, this is room 806.", alt: ["你好，我是八零六房间的。", "喂，您好，我住八零六。", "喂，您好，我是八零六房间的。"]}
+          - {who: B, l2: "您好，有什么可以帮您？", rom: "Nín hǎo, yǒu shénme kěyǐ bāng nín?", l1: "Hello, how can I help you?"}
+          - {who: A, l2: "我房间的空调坏了，太热了。", rom: "Wǒ fángjiān de kōngtiáo huài le, tài rè le.", l1: "The air conditioning in my room is broken; it's far too hot.", alt: ["空调坏了，太热了。", "我房间空调坏了，很热。", "房间的空调坏了，太热了。"]}
+          - {who: B, l2: "对不起，我马上叫人去看看。", rom: "Duìbuqǐ, wǒ mǎshàng jiào rén qù kànkan.", l1: "I'm sorry; I'll send someone to look at it right away."}
+          - {who: A, l2: "还有，也没有热水。", rom: "Háiyǒu, yě méiyǒu rè shuǐ.", l1: "And there's no hot water either.", alt: ["还有，没有热水。", "而且没有热水。", "还有，热水也没有。"]}
+          - {who: B, l2: "真对不起！如果修不好，我们就给您换一个房间。", rom: "Zhēn duìbuqǐ! Rúguǒ xiū bu hǎo, wǒmen jiù gěi nín huàn yí ge fángjiān.", l1: "I'm very sorry! If it can't be fixed, we'll move you to another room."}
+          - {who: A, l2: "好，谢谢。请快一点儿。", rom: "Hǎo, xièxie. Qǐng kuài yìdiǎnr.", l1: "OK, thank you. Please be quick.", alt: ["好的，谢谢，请快一点儿。", "谢谢，请快点儿。", "好，谢谢。请快一点。"]}
+
+      - id: zh-talk-08-checkout
+        type: dialogue
+        title: "Checking out"
+        scene: "It's your last morning. Your train is in the afternoon."
+        you: B
+        lines:
+          - {who: A, l2: "您好，退房吗？", rom: "Nín hǎo, tuìfáng ma?", l1: "Good morning, are you checking out?"}
+          - {who: B, l2: "对，这是房卡。", rom: "Duì, zhè shì fángkǎ.", l1: "Yes, here's the room card.", alt: ["是的，这是房卡。", "对，给您房卡。", "退房，这是房卡。"]}
+          - {who: A, l2: "好的，请稍等。您喝了冰箱里的饮料吗？", rom: "Hǎo de, qǐng shāo děng. Nín hē le bīngxiāng li de yǐnliào ma?", l1: "Thank you, one moment. Did you have any drinks from the minibar?"}
+          - {who: B, l2: "喝了一瓶水。", rom: "Hē le yì píng shuǐ.", l1: "I had a bottle of water.", alt: ["我喝了一瓶水。", "只喝了一瓶水。"]}
+          - {who: A, l2: "好的，一共是一千零五十块。", rom: "Hǎo de, yígòng shì yìqiān líng wǔshí kuài.", l1: "Thank you. That's one thousand and fifty yuan in total."}
+          - {who: B, l2: "可以把行李放在这儿吗？我坐下午的火车。", rom: "Kěyǐ bǎ xíngli fàng zài zhèr ma? Wǒ zuò xiàwǔ de huǒchē.", l1: "Can I leave my luggage here? My train's in the afternoon.", alt: ["我可以把行李放在这儿吗？我坐下午的火车。", "行李可以放在这儿吗？我坐下午的火车。", "可以把行李放在这儿吗？我是下午的火车。"]}
+          - {who: A, l2: "可以，您几点来拿？", rom: "Kěyǐ, nín jǐ diǎn lái ná?", l1: "Certainly. What time will you collect it?"}
+          - {who: B, l2: "两点左右来拿。", rom: "Liǎng diǎn zuǒyòu lái ná.", l1: "Around two.", alt: ["两点左右。", "我两点左右来拿。", "下午两点左右。"]}
+          - {who: A, l2: "好的，这是您的行李牌。", rom: "Hǎo de, zhè shì nín de xíngli pái.", l1: "Fine, here's your luggage tag."}
+
+      - id: zh-talk-08-ticket
+        type: dialogue
+        title: "Buying a train ticket"
+        scene: "You are at the ticket office of a Beijing station, passport in hand."
+        you: A
+        lines:
+          - {who: A, l2: "你好，我要一张明天去上海的高铁票。", rom: "Nǐ hǎo, wǒ yào yì zhāng míngtiān qù Shànghǎi de gāotiě piào.", l1: "Hello, I'd like a high-speed ticket to Shanghai for tomorrow.", alt: ["你好，我想买一张明天去上海的高铁票。", "我要一张明天去上海的票。", "你好，买一张明天去上海的高铁票。"]}
+          - {who: B, l2: "几点的？上午的票不多了。", rom: "Jǐ diǎn de? Shàngwǔ de piào bù duō le.", l1: "What time? There aren't many morning tickets left."}
+          - {who: A, l2: "有下午的吗？", rom: "Yǒu xiàwǔ de ma?", l1: "Is there anything in the afternoon?", alt: ["有没有下午的？", "下午的有吗？"]}
+          - {who: B, l2: "有，下午两点十分，还有二等座。", rom: "Yǒu, xiàwǔ liǎng diǎn shí fēn, hái yǒu èrděngzuò.", l1: "Yes, ten past two in the afternoon, with second-class seats still available."}
+          - {who: A, l2: "多少钱？", rom: "Duōshao qián?", l1: "How much is it?", alt: ["二等座多少钱？", "一张多少钱？"]}
+          - {who: B, l2: "五百多块。请给我您的护照。", rom: "Wǔbǎi duō kuài. Qǐng gěi wǒ nín de hùzhào.", l1: "A little over five hundred yuan. Your passport, please."}
+          - {who: A, l2: "给您。从哪个站出发？", rom: "Gěi nín. Cóng nǎge zhàn chūfā?", l1: "Here you are. Which station does it leave from?", alt: ["给你。从哪个站出发？", "给您。在哪个站上车？"]}
+          - {who: B, l2: "北京南站。", rom: "Běijīng Nán zhàn.", l1: "Beijing South."}
+
+      - id: zh-talk-08-delay
+        type: dialogue
+        title: "The train is late"
+        scene: "You are in the waiting hall at the station. You ask a member of staff about your train."
+        you: A
+        lines:
+          - {who: A, l2: "请问，去上海的高铁在哪儿检票？", rom: "Qǐngwèn, qù Shànghǎi de gāotiě zài nǎr jiǎnpiào?", l1: "Excuse me, where do I board the high-speed train to Shanghai?", alt: ["去上海的高铁在哪儿检票？", "请问，去上海的车在哪儿检票？", "请问，去上海的高铁在哪里检票？"]}
+          - {who: B, l2: "在十二号检票口。可是那趟车晚点了。", rom: "Zài shí'èr hào jiǎnpiàokǒu. Kěshì nà tàng chē wǎndiǎn le.", l1: "At gate 12. But that train is delayed."}
+          - {who: A, l2: "晚点多长时间？", rom: "Wǎndiǎn duō cháng shíjiān?", l1: "How long is the delay?", alt: ["晚点多久？", "要晚多长时间？"]}
+          - {who: B, l2: "大概四十分钟。", rom: "Dàgài sìshí fēnzhōng.", l1: "About forty minutes."}
+          - {who: A, l2: "为什么晚点了？", rom: "Wèi shénme wǎndiǎn le?", l1: "Why is it delayed?", alt: ["为什么晚点？", "怎么晚点了？"]}
+          - {who: B, l2: "因为前面下大雨。您可以在这儿等。", rom: "Yīnwèi qiánmiàn xià dà yǔ. Nín kěyǐ zài zhèr děng.", l1: "Because of heavy rain further down the line. You can wait here."}
+          - {who: A, l2: "附近有吃饭的地方吗？", rom: "Fùjìn yǒu chī fàn de dìfang ma?", l1: "Is there anywhere to eat nearby?", alt: ["附近有餐厅吗？", "这儿有吃饭的地方吗？", "附近有吃东西的地方吗？"]}
+          - {who: B, l2: "二楼有很多餐厅。", rom: "Èr lóu yǒu hěn duō cāntīng.", l1: "There are lots of restaurants on the second floor."}
+
+      - id: zh-talk-08-seat
+        type: dialogue
+        title: "That's my seat"
+        scene: "You have just sat down on the train when a woman with a suitcase stops beside you."
+        you: B
+        lines:
+          - {who: A, l2: "对不起，这是我的座位。", rom: "Duìbuqǐ, zhè shì wǒ de zuòwèi.", l1: "Excuse me, this is my seat."}
+          - {who: B, l2: "是吗？您看看我的票。", rom: "Shì ma? Nín kànkan wǒ de piào.", l1: "Is it? Have a look at my ticket.", alt: ["是吗？请看一下我的票。", "真的吗？您看看我的票。"]}
+          - {who: A, l2: "你的是六车，这是五车。", rom: "Nǐ de shì liù chē, zhè shì wǔ chē.", l1: "Yours is coach 6; this is coach 5."}
+          - {who: B, l2: "啊，对不起，我坐错了！", rom: "À, duìbuqǐ, wǒ zuò cuò le!", l1: "Oh, sorry, I'm in the wrong seat!", alt: ["对不起，我坐错了！", "不好意思，我坐错了！", "啊，不好意思，我坐错了！"]}
+          - {who: A, l2: "没关系。", rom: "Méi guānxi.", l1: "No problem."}
+          - {who: B, l2: "请问，六车在前面还是后面？", rom: "Qǐngwèn, liù chē zài qiánmiàn háishi hòumiàn?", l1: "Excuse me, is coach 6 in front or behind?", alt: ["六车在前面还是后面？", "请问，六车往哪边走？"]}
+          - {who: A, l2: "在后面。你的箱子很重，我帮你拿下来吧。", rom: "Zài hòumiàn. Nǐ de xiāngzi hěn zhòng, wǒ bāng nǐ ná xiàlai ba.", l1: "Behind. Your case is heavy; let me help you get it down."}
+          - {who: B, l2: "太谢谢你了！", rom: "Tài xièxie nǐ le!", l1: "Thank you so much!", alt: ["谢谢你！", "太谢谢了！", "谢谢，你真好！"]}
+
+      - id: zh-talk-08-sights
+        type: dialogue
+        title: "What's worth seeing?"
+        scene: "You have a free afternoon and ask the hotel receptionist for ideas."
+        you: A
+        lines:
+          - {who: A, l2: "你好，附近有什么好玩的地方？", rom: "Nǐ hǎo, fùjìn yǒu shénme hǎowán de dìfang?", l1: "Hello, is there anything fun to see around here?", alt: ["请问，附近有什么好玩的地方？", "附近有什么好玩儿的地方？"]}
+          - {who: B, l2: "很多啊！您喜欢逛街还是看风景？", rom: "Hěn duō a! Nín xǐhuan guàngjiē háishi kàn fēngjǐng?", l1: "Lots! Do you prefer shopping or sightseeing?"}
+          - {who: A, l2: "我想看看老北京。", rom: "Wǒ xiǎng kànkan lǎo Běijīng.", l1: "I'd like to see old Beijing.", alt: ["我想看老北京。", "我想去看看老北京。"]}
+          - {who: B, l2: "那您可以去胡同走走，离这儿不远。", rom: "Nà nín kěyǐ qù hútòng zǒuzou, lí zhèr bù yuǎn.", l1: "Then you could take a walk round the hutongs; they're not far from here."}
+          - {who: A, l2: "怎么去？要打车吗？", rom: "Zěnme qù? Yào dǎ chē ma?", l1: "How do I get there? Do I need a taxi?", alt: ["怎么走？要打车吗？", "怎么去？需要打车吗？"]}
+          - {who: B, l2: "不用，坐地铁两站就到了。", rom: "Bú yòng, zuò dìtiě liǎng zhàn jiù dào le.", l1: "No, it's just two stops on the subway."}
+          - {who: A, l2: "太好了！你能帮我写一下地址吗？", rom: "Tài hǎo le! Nǐ néng bāng wǒ xiě yíxià dìzhǐ ma?", l1: "Great! Could you write the address down for me?", alt: ["你能帮我写一下地址吗？", "可以帮我写一下地址吗？", "太好了！可以帮我写一下地址吗？"]}
+          - {who: B, l2: "当然可以。", rom: "Dāngrán kěyǐ.", l1: "Of course."}

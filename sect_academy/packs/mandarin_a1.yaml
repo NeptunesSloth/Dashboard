@@ -1,0 +1,1084 @@
+id: mandarin-a1
+title: "Mandarin Chinese — A1 Beginner"
+kind: language
+language: Mandarin
+lang: zh-CN
+hall: tongues_west
+blurb: "Start Mandarin from zero: pinyin and the four tones, your first 120 characters, measure words, questions, ordering, shopping, time and getting unstuck."
+
+units:
+  # ───────────────────────────────────────────────────────────────── 1
+  - id: zh1-01
+    title: "Pinyin and the four tones"
+    goal: "I can read pinyin, hear and say the four tones, and use my first Chinese words."
+    notes: |
+      Chinese is written in **characters**: each one is a single syllable. **Pinyin** spells that syllable in Latin letters. In this course you can type every answer in pinyin or in characters.
+
+      A syllable has a **tone**, and the tone is part of the word: *mā* is "mum", *mǎ* is "horse".
+
+      | tone | mark | how it sounds | example |
+      |---|---|---|---|
+      | 1st | ā | high and level, like a held note | 妈 mā |
+      | 2nd | á | rising, like asking "what?" | 茶 chá |
+      | 3rd | ǎ | low, with a dip | 好 hǎo |
+      | 4th | à | a sharp fall, like a firm "no!" | 爸 bà |
+
+      Some syllables are **neutral**: short and light, with no mark. The second syllable of *māma*, *bàba* and *xièxie* is neutral.
+
+      ## Letters that surprise English speakers
+      - **x** is a soft "sh" and **q** a soft "ch", said with a smile: *xièxie*.
+      - **zh, ch, sh** are said with the tongue curled back: *Zhōngguó*, *chá*, *shū*.
+      - **z** is "ds" as in "kids"; **c** is "ts" as in "cats".
+      - **-ui** sounds like "way" (*shuǐ*); **-ian** like "yen" (*jiàn*); the **e** of *hěn* like "uh".
+
+      You can type tones as marks or as numbers: *ni3 hao3*. When two third tones meet, the first one is *said* rising (*nǐ hǎo* sounds like "ní hǎo"), but the spelling does not change.
+    items:
+      - {id: zh1-01-g-ni, type: glyph, l2: "你", rom: "nǐ", l1: "you (one person)", note: "Third tone: low, with a dip."}
+      - {id: zh1-01-g-hao, type: glyph, l2: "好", rom: "hǎo", l1: "good", note: "Third tone. A woman (女) beside a child (子)."}
+      - {id: zh1-01-g-wo, type: glyph, l2: "我", rom: "wǒ", l1: "I / me", note: "Third tone. Chinese has one word for both I and me."}
+      - {id: zh1-01-g-hen, type: glyph, l2: "很", rom: "hěn", l1: "very", note: "Third tone. The e sounds like 'uh'."}
+      - {id: zh1-01-g-bu, type: glyph, l2: "不", rom: "bù", l1: "not / no", note: "Fourth tone. Before another fourth tone it is said and written bú, as in bú shì."}
+      - {id: zh1-01-g-ren, type: glyph, l2: "人", rom: "rén", l1: "person", note: "Second tone: rising. A picture of someone walking."}
+      - {id: zh1-01-g-zhong, type: glyph, l2: "中", rom: "zhōng", l1: "middle", note: "First tone: high and level. A line through the middle of a box."}
+      - {id: zh1-01-g-guo, type: glyph, l2: "国", rom: "guó", l1: "country", note: "Second tone. Jade (玉) inside a border."}
+      - {id: zh1-01-g-ma, type: glyph, l2: "妈", rom: "mā", l1: "mother (the character in māma)", note: "First tone. Woman (女) for the meaning, horse (马 mǎ) for the sound."}
+      - {id: zh1-01-g-ba, type: glyph, l2: "爸", rom: "bà", l1: "father (the character in bàba)", note: "Fourth tone: a sharp fall."}
+      - {id: zh1-01-nihao, type: vocab, l2: "你好", rom: "nǐ hǎo", l1: "hello", note: "Literally 'you good'. Two third tones together: say the first one rising."}
+      - {id: zh1-01-mama, type: vocab, l2: "妈妈", rom: "māma", l1: "mum / mother", note: "First tone, then a light neutral syllable."}
+      - {id: zh1-01-baba, type: vocab, l2: "爸爸", rom: "bàba", l1: "dad / father", note: "Fourth tone, then neutral."}
+      - {id: zh1-01-xiexie, type: vocab, l2: "谢谢", rom: "xièxie", l1: "thank you", note: "x is a soft 'sh'. Fourth tone, then neutral."}
+      - {id: zh1-01-zaijian, type: vocab, l2: "再见", rom: "zàijiàn", l1: "goodbye", note: "Two fourth tones: both fall. Literally 'again see'."}
+      - {id: zh1-01-cha, type: vocab, l2: "茶", rom: "chá", l1: "tea", ex: "中国茶很好。", ex_rom: "Zhōngguó chá hěn hǎo.", ex_l1: "Chinese tea is very good.", note: "Second tone: rising."}
+      - {id: zh1-01-shui, type: vocab, l2: "水", rom: "shuǐ", l1: "water", note: "Third tone. -ui sounds like 'way': 'shway'."}
+      - {id: zh1-01-shu, type: vocab, l2: "书", rom: "shū", l1: "book", note: "First tone: high and level."}
+      - {id: zh1-01-zhongguo, type: vocab, l2: "中国", rom: "Zhōngguó", l1: "China", note: "Literally 'the middle country'. First tone, then second."}
+      - {id: zh1-01-zhongguoren, type: vocab, l2: "中国人", rom: "Zhōngguó rén", l1: "a Chinese person", note: "Country + 人 gives the nationality."}
+      - {id: zh1-01-buhao, type: vocab, l2: "不好", rom: "bù hǎo", l1: "not good / bad", note: "不 goes in front of the word it negates."}
+      - {id: zh1-01-wohenhao, type: phrase, l2: "我很好。", rom: "Wǒ hěn hǎo.", l1: "I am fine.", note: "No word for 'am': with a describing word Chinese says 'I very good'."}
+
+  # ───────────────────────────────────────────────────────────────── 2
+  - id: zh1-02
+    title: "First characters: who is who"
+    goal: "I can read my first twenty characters and say who someone is."
+    notes: |
+      Characters are built from a small set of repeating parts. One part often hints at the meaning:
+
+      - **亻** (a standing person) in 你, 他, 们
+      - **女** (woman) in 她, 好, 妈
+      - **口** (mouth) in 吗: a word you say, not a thing
+
+      Spotting these parts is how characters become easy to tell apart. Compare 他 (he) and 她 (she): the same sound *tā*, a different left side.
+
+      ## Saying who someone is
+      The pattern is **A 是 B**. The verb never changes: no "am / is / are".
+
+      | | | |
+      |---|---|---|
+      | 我是学生。 | Wǒ shì xuésheng. | I am a student. |
+      | 她不是老师。 | Tā bú shì lǎoshī. | She is not a teacher. |
+      | 你是学生吗？ | Nǐ shì xuésheng ma? | Are you a student? |
+
+      - **不** makes it negative. Before the fourth tone of *shì* it is said and written **bú**.
+      - **吗** at the end turns a statement into a yes/no question. The word order stays the same.
+      - **的** works like 's: 老师的书 = the teacher's book; 我的 = my. With family and close friends it is usually dropped: 我妈妈.
+      - **们** makes people plural: 我们, 你们, 他们 (all women: 她们).
+      - **也** (also) always goes before the verb: 我也是学生.
+    items:
+      - {id: zh1-02-g-ta, type: glyph, l2: "他", rom: "tā", l1: "he / him", note: "The person part 亻 on the left."}
+      - {id: zh1-02-g-ta2, type: glyph, l2: "她", rom: "tā", l1: "she / her", note: "Same sound as 他; the woman part 女 on the left."}
+      - {id: zh1-02-g-men, type: glyph, l2: "们", rom: "men", l1: "plural marker for people (as in wǒmen)", note: "Neutral tone. Only for people and pronouns."}
+      - {id: zh1-02-g-shi, type: glyph, l2: "是", rom: "shì", l1: "to be (am / is / are)"}
+      - {id: zh1-02-g-de, type: glyph, l2: "的", rom: "de", l1: "possessive particle (like 's)", note: "Neutral tone. The most frequent character in Chinese."}
+      - {id: zh1-02-g-ma, type: glyph, l2: "吗", rom: "ma", l1: "yes/no question particle", note: "Neutral tone. Mouth (口) for 'a spoken word', horse (马) for the sound."}
+      - {id: zh1-02-g-zhe, type: glyph, l2: "这", rom: "zhè", l1: "this"}
+      - {id: zh1-02-g-na, type: glyph, l2: "那", rom: "nà", l1: "that"}
+      - {id: zh1-02-g-ye, type: glyph, l2: "也", rom: "yě", l1: "also / too", note: "Always before the verb."}
+      - {id: zh1-02-g-shei, type: glyph, l2: "谁", rom: "shéi", alt: ["shuí"], l1: "who", note: "Also read shuí; shéi is the everyday reading."}
+      - {id: zh1-02-g-xue, type: glyph, l2: "学", rom: "xué", l1: "to study / to learn", note: "A child (子) under a roof."}
+      - {id: zh1-02-g-sheng, type: glyph, l2: "生", rom: "shēng", l1: "to be born; life", note: "In xuésheng (student) it is said lightly, as a neutral tone."}
+      - {id: zh1-02-women, type: vocab, l2: "我们", rom: "wǒmen", l1: "we / us", ex: "我们是学生。", ex_rom: "Wǒmen shì xuésheng.", ex_l1: "We are students."}
+      - {id: zh1-02-nimen, type: vocab, l2: "你们", rom: "nǐmen", l1: "you (several people)", ex: "你们好！", ex_rom: "Nǐmen hǎo!", ex_l1: "Hello, everyone!"}
+      - {id: zh1-02-tamen, type: vocab, l2: "他们", rom: "tāmen", l1: "they / them (men or a mixed group)", ex: "他们是中国人。", ex_rom: "Tāmen shì Zhōngguó rén.", ex_l1: "They are Chinese.", note: "A group of women only is written 她们; it sounds the same."}
+      - {id: zh1-02-xuesheng, type: vocab, l2: "学生", rom: "xuésheng", l1: "student", ex: "他是学生。", ex_rom: "Tā shì xuésheng.", ex_l1: "He is a student.", note: "No word for 'a': Chinese has no articles."}
+      - {id: zh1-02-laoshi, type: vocab, l2: "老师", rom: "lǎoshī", l1: "teacher", ex: "她是我们的老师。", ex_rom: "Tā shì wǒmen de lǎoshī.", ex_l1: "She is our teacher.", note: "Also a title, placed after the surname: 王老师 = Teacher Wang."}
+      - {id: zh1-02-zheshi, type: phrase, l2: "这是我妈妈。", rom: "Zhè shì wǒ māma.", l1: "This is my mum.", alt: ["这是我的妈妈。"], note: "的 is usually dropped before family members."}
+      - {id: zh1-02-tashishei, type: phrase, l2: "他是谁？", rom: "Tā shì shéi?", l1: "Who is he?", note: "The question word sits where the answer will go: 他是谁？ 他是老师。"}
+      - {id: zh1-02-woyeshi, type: phrase, l2: "我也是学生。", rom: "Wǒ yě shì xuésheng.", l1: "I am a student too."}
+      - {id: zh1-02-c1, type: cloze, text: "她___是老师，她是学生。", answer: "不", alt: ["bú", "bù"], l1: "She is not a teacher; she is a student.", note: "不 before the verb. Here it is said bú, because shì is fourth tone."}
+      - {id: zh1-02-c2, type: cloze, text: "你是中国人___？", answer: "吗", alt: ["ma"], l1: "Are you Chinese?", note: "Statement + 吗 = yes/no question."}
+      - {id: zh1-02-c3, type: cloze, text: "那是老师___书。", answer: "的", alt: ["de"], l1: "That is the teacher's book.", note: "Owner + 的 + thing."}
+
+  # ───────────────────────────────────────────────────────────────── 3
+  - id: zh1-03
+    title: "Numbers, 有 and the measure word 个"
+    goal: "I can count to 100 and say how many of something I have."
+    notes: |
+      Chinese numbers are perfectly regular. Learn one to ten and you can build the rest.
+
+      | | | | | |
+      |---|---|---|---|---|
+      | 一 yī 1 | 二 èr 2 | 三 sān 3 | 四 sì 4 | 五 wǔ 5 |
+      | 六 liù 6 | 七 qī 7 | 八 bā 8 | 九 jiǔ 9 | 十 shí 10 |
+
+      - 11 is "ten one": 十一. 20 is "two ten": 二十. 35 is 三十五. 100 is 一百 (yìbǎi). Zero is 零 (líng).
+
+      ## Measure words
+      You cannot put a number straight onto a noun. A **measure word** goes between them, like "two *cups of* tea" in English, but for everything: 三**个**人 = three people. **个** is the general one; it is said lightly, *ge*.
+
+      - "Two of something" is **两**, not 二: 两个朋友. Keep 二 for counting and inside bigger numbers (十二, 二十).
+
+      ## The tone of 一
+      Alone or at the end of a number, 一 is *yī*. Before a fourth tone it becomes **yí** (yí ge); before any other tone it becomes **yì** (yìbǎi). Pinyin for learners writes the change, and so does this course.
+
+      ## Having
+      **有** means "to have" and also "there is". Its negative is always **没有**, never 不有: 我没有书.
+    items:
+      - {id: zh1-03-g-yi, type: glyph, l2: "一", rom: "yī", l1: "one"}
+      - {id: zh1-03-g-er, type: glyph, l2: "二", rom: "èr", l1: "two (when counting)"}
+      - {id: zh1-03-g-san, type: glyph, l2: "三", rom: "sān", l1: "three"}
+      - {id: zh1-03-g-si, type: glyph, l2: "四", rom: "sì", l1: "four"}
+      - {id: zh1-03-g-wu, type: glyph, l2: "五", rom: "wǔ", l1: "five"}
+      - {id: zh1-03-g-liu, type: glyph, l2: "六", rom: "liù", l1: "six", note: "-iu sounds like 'yo': 'lyoh'."}
+      - {id: zh1-03-g-qi, type: glyph, l2: "七", rom: "qī", l1: "seven", note: "q is a soft 'ch': 'chee'."}
+      - {id: zh1-03-g-ba, type: glyph, l2: "八", rom: "bā", l1: "eight"}
+      - {id: zh1-03-g-jiu, type: glyph, l2: "九", rom: "jiǔ", l1: "nine"}
+      - {id: zh1-03-g-shi, type: glyph, l2: "十", rom: "shí", l1: "ten", note: "Second tone. 是 (to be) is shì, fourth tone."}
+      - {id: zh1-03-g-ge, type: glyph, l2: "个", rom: "gè", l1: "general measure word", note: "Its own tone is the fourth, but after a number it is said lightly: sān ge."}
+      - {id: zh1-03-g-liang, type: glyph, l2: "两", rom: "liǎng", l1: "two (before a measure word)"}
+      - {id: zh1-03-g-you, type: glyph, l2: "有", rom: "yǒu", l1: "to have; there is"}
+      - {id: zh1-03-g-mei, type: glyph, l2: "没", rom: "méi", l1: "not (the negative used with yǒu)"}
+      - {id: zh1-03-shier, type: vocab, l2: "十二", rom: "shí'èr", l1: "twelve", note: "Ten + two. Eleven is 十一, and so on to 十九."}
+      - {id: zh1-03-sishiwu, type: vocab, l2: "四十五", rom: "sìshíwǔ", l1: "forty-five", note: "Four tens + five."}
+      - {id: zh1-03-liushiqi, type: vocab, l2: "六十七", rom: "liùshíqī", l1: "sixty-seven"}
+      - {id: zh1-03-bashijiu, type: vocab, l2: "八十九", rom: "bāshíjiǔ", l1: "eighty-nine"}
+      - {id: zh1-03-yibai, type: vocab, l2: "一百", rom: "yìbǎi", l1: "one hundred", note: "一 changes to yì before a third tone."}
+      - {id: zh1-03-meiyou, type: vocab, l2: "没有", rom: "méiyǒu", l1: "to not have; there isn't", ex: "我没有书。", ex_rom: "Wǒ méiyǒu shū.", ex_l1: "I don't have a book.", note: "Never 不有."}
+      - {id: zh1-03-pengyou, type: vocab, l2: "朋友", rom: "péngyou", l1: "friend", ex: "他是我的朋友。", ex_rom: "Tā shì wǒ de péngyou.", ex_l1: "He is my friend."}
+      - {id: zh1-03-woyou, type: phrase, l2: "我有一个中国朋友。", rom: "Wǒ yǒu yí ge Zhōngguó péngyou.", l1: "I have a Chinese friend.", note: "一个 = 'one' or 'a'. 一 is said yí here because 个 is a fourth tone underneath."}
+      - {id: zh1-03-niyou, type: phrase, l2: "你有书吗？", rom: "Nǐ yǒu shū ma?", l1: "Do you have a book?"}
+      - {id: zh1-03-c1, type: cloze, text: "我有三___朋友。", answer: "个", alt: ["ge", "gè"], l1: "I have three friends.", note: "Number + measure word + noun."}
+      - {id: zh1-03-c2, type: cloze, text: "他___有书。", answer: "没", alt: ["méi"], l1: "He doesn't have a book.", note: "有 is negated with 没, never with 不."}
+      - {id: zh1-03-c3, type: cloze, text: "我们有___个老师。", answer: "两", alt: ["liǎng"], l1: "We have two teachers.", note: "Before a measure word 'two' is 两, not 二."}
+
+  # ───────────────────────────────────────────────────────────────── 4
+  - id: zh1-04
+    title: "Greetings and politeness"
+    goal: "I can greet people at any time of day, thank them, apologise and ask how they are."
+    notes: |
+      **你好** works for anyone. To someone older, a teacher or a customer, raise it to **您好**: 您 is the polite "you". There is no polite form for a group; say 你们好.
+
+      | time | greeting | |
+      |---|---|---|
+      | morning | 早上好 | zǎoshang hǎo |
+      | evening | 晚上好 | wǎnshang hǎo |
+      | going to bed | 晚安 | wǎn'ān |
+
+      ## The little exchanges
+      - 谢谢 → **不客气** (bú kèqi, "don't be so polite").
+      - 对不起 → **没关系** (méi guānxi, "it doesn't matter").
+
+      ## 请
+      **请** means "please" and always comes *first*: 请坐 (please sit), 请问 (please, may I ask…). Use 请问 before any question to a stranger.
+
+      ## Asking back with 呢
+      **呢** after a noun or pronoun bounces a question back: 我很好，你呢？ = "I'm fine, and you?" It saves you repeating the whole question.
+
+      ## People's names and titles
+      The surname comes first and the title after it: 王老师 (Teacher Wang), 李先生 (Mr Li). Greet a teacher with the title, not the bare name: 王老师好！
+    items:
+      - {id: zh1-04-g-xie, type: glyph, l2: "谢", rom: "xiè", l1: "to thank", note: "The speech part 讠 on the left: thanking is something you say."}
+      - {id: zh1-04-g-zai, type: glyph, l2: "再", rom: "zài", l1: "again"}
+      - {id: zh1-04-g-jian, type: glyph, l2: "见", rom: "jiàn", l1: "to see / to meet"}
+      - {id: zh1-04-g-qing, type: glyph, l2: "请", rom: "qǐng", l1: "please; to invite", note: "The speech part 讠 again."}
+      - {id: zh1-04-g-wen, type: glyph, l2: "问", rom: "wèn", l1: "to ask", note: "A mouth (口) in a doorway (门)."}
+      - {id: zh1-04-g-nin, type: glyph, l2: "您", rom: "nín", l1: "you (polite, to one person)", note: "你 with a heart (心) underneath."}
+      - {id: zh1-04-ninhao, type: vocab, l2: "您好", rom: "nín hǎo", l1: "hello (polite: to an elder, a teacher, a customer)"}
+      - {id: zh1-04-zaoshanghao, type: vocab, l2: "早上好", rom: "zǎoshang hǎo", l1: "good morning", alt: ["早", "zǎo", "早安", "zǎo'ān"], note: "早上 = early morning. Friends often just say 早！"}
+      - {id: zh1-04-wanan, type: vocab, l2: "晚安", rom: "wǎn'ān", l1: "good night (going to bed)", note: "The apostrophe only shows where the syllables divide: wǎn + ān."}
+      - {id: zh1-04-duibuqi, type: vocab, l2: "对不起", rom: "duìbuqǐ", l1: "sorry", note: "不 is neutral in the middle of this word."}
+      - {id: zh1-04-meiguanxi, type: vocab, l2: "没关系", rom: "méi guānxi", l1: "it's all right / never mind (reply to an apology)", alt: ["没事", "méi shì", "没事儿", "méi shìr"]}
+      - {id: zh1-04-bukeqi, type: vocab, l2: "不客气", rom: "bú kèqi", l1: "you're welcome (reply to thanks)", alt: ["不谢", "bú xiè", "不用谢", "bú yòng xiè"], note: "不 is written bú before the fourth tone of kè."}
+      - {id: zh1-04-qingwen, type: vocab, l2: "请问", rom: "qǐngwèn", l1: "excuse me, may I ask…", ex: "请问，您是王老师吗？", ex_rom: "Qǐngwèn, nín shì Wáng lǎoshī ma?", ex_l1: "Excuse me, are you Teacher Wang?"}
+      - {id: zh1-04-nihaoma, type: phrase, l2: "你好吗？", rom: "Nǐ hǎo ma?", l1: "How are you?", note: "A real question to someone you know, not a passing greeting."}
+      - {id: zh1-04-qingzuo, type: phrase, l2: "请坐。", rom: "Qǐng zuò.", l1: "Please sit down."}
+      - {id: zh1-04-c1, type: cloze, text: "我很好，你___？", answer: "呢", alt: ["ne"], l1: "I'm fine, and you?", note: "呢 bounces the question back."}
+      - {id: zh1-04-c2, type: cloze, text: "王老师，___见！", answer: "再", alt: ["zài"], l1: "Goodbye, Teacher Wang!", note: "再见 = 'see (you) again'."}
+      - id: zh1-04-d1
+        type: dialogue
+        title: "Meeting your teacher in the morning"
+        scene: "You are a student. You meet Teacher Wang at the school gate."
+        you: B
+        lines:
+          - {who: A, l2: "早上好！", rom: "Zǎoshang hǎo!", l1: "Good morning!"}
+          - {who: B, l2: "王老师，早上好！", rom: "Wáng lǎoshī, zǎoshang hǎo!", l1: "Good morning, Teacher Wang!", alt: ["早上好，王老师！", "王老师早！", "王老师好！"]}
+          - {who: A, l2: "你好吗？", rom: "Nǐ hǎo ma?", l1: "How are you?"}
+          - {who: B, l2: "我很好，谢谢。您呢？", rom: "Wǒ hěn hǎo, xièxie. Nín ne?", l1: "I'm fine, thank you. And you? (polite)", alt: ["很好，谢谢。您呢？", "我很好，谢谢您。您呢？"]}
+          - {who: A, l2: "我也很好。", rom: "Wǒ yě hěn hǎo.", l1: "I'm fine too."}
+          - {who: B, l2: "老师，再见！", rom: "Lǎoshī, zàijiàn!", l1: "Goodbye, teacher!", alt: ["再见，老师！", "老师再见！", "王老师，再见！"]}
+          - {who: A, l2: "明天见！", rom: "Míngtiān jiàn!", l1: "See you tomorrow!"}
+
+  # ───────────────────────────────────────────────────────────────── 5
+  - id: zh1-05
+    title: "Introducing yourself"
+    goal: "I can give my name and nationality and ask someone for theirs."
+    notes: |
+      Two verbs give a name:
+
+      - **姓** + surname: 我姓王。 (My surname is Wang.)
+      - **叫** + full name or given name: 我叫王明。 (I'm called Wang Ming.)
+
+      The polite way to ask a stranger's surname is 您贵姓？ (Nín guì xìng?).
+
+      ## Question words stay in place
+      English moves the question word to the front. Chinese leaves it exactly where the answer will be, and adds no 吗.
+
+      | question | answer |
+      |---|---|
+      | 你叫**什么**名字？ | 我叫**安娜**。 |
+      | 你是**哪**国人？ | 我是**美**国人。 |
+      | 他是**谁**？ | 他是**我朋友**。 |
+
+      So "You are called what name?", "You are which-country person?".
+
+      ## Countries and nationalities
+      Most country names end in 国 (country): 中国, 美国 (USA), 英国 (UK), 法国 (France), 德国 (Germany). Add 人 for the nationality: 美国人. Others are sound loans: 加拿大 (Jiānádà, Canada), 澳大利亚 (Àodàlìyà, Australia).
+
+      ## Pleased to meet you
+      认识你很高兴 is literally "knowing you, (I am) very glad". 很高兴认识你 means the same.
+
+      什么 is said *shénme*: the second syllable is neutral.
+    items:
+      - {id: zh1-05-g-jiao, type: glyph, l2: "叫", rom: "jiào", l1: "to be called; to call", note: "The mouth part 口 on the left."}
+      - {id: zh1-05-g-ming, type: glyph, l2: "名", rom: "míng", l1: "name (first half of míngzi)"}
+      - {id: zh1-05-g-zi, type: glyph, l2: "字", rom: "zì", l1: "character, written word", note: "A child (子) under a roof. Neutral in míngzi."}
+      - {id: zh1-05-g-shen, type: glyph, l2: "什", rom: "shén", l1: "first half of shénme (what)"}
+      - {id: zh1-05-g-me, type: glyph, l2: "么", rom: "me", l1: "second half of shénme (what)", note: "Neutral tone."}
+      - {id: zh1-05-g-na, type: glyph, l2: "哪", rom: "nǎ", l1: "which", note: "那 (nà, that) with a mouth 口 added: the question version."}
+      - {id: zh1-05-mingzi, type: vocab, l2: "名字", rom: "míngzi", l1: "name", ex: "我的名字叫安娜。", ex_rom: "Wǒ de míngzi jiào Ānnà.", ex_l1: "My name is Anna."}
+      - {id: zh1-05-shenme, type: vocab, l2: "什么", rom: "shénme", l1: "what", ex: "这是什么？", ex_rom: "Zhè shì shénme?", ex_l1: "What is this?"}
+      - {id: zh1-05-xing, type: vocab, l2: "姓", rom: "xìng", l1: "to have the surname…; surname", ex: "我姓王。", ex_rom: "Wǒ xìng Wáng.", ex_l1: "My surname is Wang."}
+      - {id: zh1-05-meiguo, type: vocab, l2: "美国", rom: "Měiguó", l1: "the USA", ex: "他是美国人。", ex_rom: "Tā shì Měiguó rén.", ex_l1: "He is American."}
+      - {id: zh1-05-yingguo, type: vocab, l2: "英国", rom: "Yīngguó", l1: "the UK / Britain", ex: "我朋友是英国人。", ex_rom: "Wǒ péngyou shì Yīngguó rén.", ex_l1: "My friend is British."}
+      - {id: zh1-05-renshi, type: vocab, l2: "认识", rom: "rènshi", l1: "to know (a person); to get to know", ex: "我不认识他。", ex_rom: "Wǒ bú rènshi tā.", ex_l1: "I don't know him."}
+      - {id: zh1-05-gaoxing, type: vocab, l2: "高兴", rom: "gāoxìng", l1: "glad / happy", ex: "我很高兴。", ex_rom: "Wǒ hěn gāoxìng.", ex_l1: "I am happy."}
+      - {id: zh1-05-nijiao, type: phrase, l2: "你叫什么名字？", rom: "Nǐ jiào shénme míngzi?", l1: "What is your name?", alt: ["你叫什么？", "您叫什么名字？"]}
+      - {id: zh1-05-naguoren, type: phrase, l2: "你是哪国人？", rom: "Nǐ shì nǎ guó rén?", l1: "Which country are you from?", alt: ["您是哪国人？"]}
+      - {id: zh1-05-renshini, type: phrase, l2: "认识你很高兴。", rom: "Rènshi nǐ hěn gāoxìng.", l1: "Pleased to meet you.", alt: ["很高兴认识你。", "认识您很高兴。", "很高兴认识您。"]}
+      - {id: zh1-05-c1, type: cloze, text: "她是___国人？", answer: "哪", alt: ["nǎ"], l1: "What nationality is she?", note: "哪 (which) sits where the country's name will be."}
+      - {id: zh1-05-c2, type: cloze, text: "你的老师叫___名字？", answer: "什么", alt: ["shénme"], l1: "What is your teacher's name?", note: "No 吗: a question word already makes it a question."}
+      - id: zh1-05-d1
+        type: dialogue
+        title: "A new classmate"
+        scene: "First day of a Chinese class. The student next to you says hello."
+        you: B
+        lines:
+          - {who: A, l2: "你好！你叫什么名字？", rom: "Nǐ hǎo! Nǐ jiào shénme míngzi?", l1: "Hello! What's your name?"}
+          - {who: B, l2: "我叫安娜。你呢？", rom: "Wǒ jiào Ānnà. Nǐ ne?", l1: "My name is Anna. And you?", alt: ["我的名字叫安娜。你呢？", "我是安娜。你呢？"]}
+          - {who: A, l2: "我姓王，叫王明。你是哪国人？", rom: "Wǒ xìng Wáng, jiào Wáng Míng. Nǐ shì nǎ guó rén?", l1: "My surname is Wang; I'm Wang Ming. Where are you from?"}
+          - {who: B, l2: "我是美国人。", rom: "Wǒ shì Měiguó rén.", l1: "I am American."}
+          - {who: A, l2: "认识你很高兴！", rom: "Rènshi nǐ hěn gāoxìng!", l1: "Pleased to meet you!"}
+          - {who: B, l2: "我也很高兴。", rom: "Wǒ yě hěn gāoxìng.", l1: "I'm pleased too.", alt: ["认识你我也很高兴。", "我也很高兴认识你。"]}
+
+  # ───────────────────────────────────────────────────────────────── 6
+  - id: zh1-06
+    title: "Family"
+    goal: "I can say who is in my family and ask about someone else's."
+    notes: |
+      Chinese has no single word for "brother" or "sister": you must say whether they are **older or younger** than you.
+
+      | | older | younger |
+      |---|---|---|
+      | brother | 哥哥 gēge | 弟弟 dìdi |
+      | sister | 姐姐 jiějie | 妹妹 mèimei |
+
+      Family words are doubled syllables, and the second one is neutral. Notice the **女** (woman) part in 姐, 妹 and 妈.
+
+      ## How many?
+      **几** asks "how many" when you expect a small number, and it needs a measure word just as a number does: 几个孩子？ → 两个孩子。
+
+      Family members living together are counted with **口** (kǒu, "mouth"): 我家有四口人.
+
+      ## 有 again
+      我有一个哥哥。 / 我没有妹妹。 Remember: **两**个姐姐, not 二个.
+
+      ## And
+      **和** joins nouns and pronouns only: 爸爸和妈妈, 我和你. It never joins two sentences, so do not use it for every English "and".
+
+      ## My family
+      的 is normally left out with close relations: 我妈妈, 你哥哥, 他女儿. 我家 is "my home" or "my family".
+    items:
+      - {id: zh1-06-g-jia, type: glyph, l2: "家", rom: "jiā", l1: "home; family", note: "A pig (豕) under a roof (宀): a household."}
+      - {id: zh1-06-g-ge, type: glyph, l2: "哥", rom: "gē", l1: "the character in gēge (older brother)"}
+      - {id: zh1-06-g-jie, type: glyph, l2: "姐", rom: "jiě", l1: "the character in jiějie (older sister)"}
+      - {id: zh1-06-g-di, type: glyph, l2: "弟", rom: "dì", l1: "the character in dìdi (younger brother)"}
+      - {id: zh1-06-g-mei, type: glyph, l2: "妹", rom: "mèi", l1: "the character in mèimei (younger sister)"}
+      - {id: zh1-06-g-ji, type: glyph, l2: "几", rom: "jǐ", l1: "how many (a small number)"}
+      - {id: zh1-06-gege, type: vocab, l2: "哥哥", rom: "gēge", l1: "older brother", ex: "我哥哥是老师。", ex_rom: "Wǒ gēge shì lǎoshī.", ex_l1: "My older brother is a teacher."}
+      - {id: zh1-06-jiejie, type: vocab, l2: "姐姐", rom: "jiějie", l1: "older sister", ex: "她是我姐姐。", ex_rom: "Tā shì wǒ jiějie.", ex_l1: "She is my older sister."}
+      - {id: zh1-06-didi, type: vocab, l2: "弟弟", rom: "dìdi", l1: "younger brother", ex: "我弟弟是学生。", ex_rom: "Wǒ dìdi shì xuésheng.", ex_l1: "My younger brother is a student."}
+      - {id: zh1-06-meimei, type: vocab, l2: "妹妹", rom: "mèimei", l1: "younger sister", ex: "我没有妹妹。", ex_rom: "Wǒ méiyǒu mèimei.", ex_l1: "I don't have a younger sister."}
+      - {id: zh1-06-erzi, type: vocab, l2: "儿子", rom: "érzi", l1: "son", ex: "他有两个儿子。", ex_rom: "Tā yǒu liǎng ge érzi.", ex_l1: "He has two sons."}
+      - {id: zh1-06-nuer, type: vocab, l2: "女儿", rom: "nǚ'ér", l1: "daughter", ex: "这是我女儿。", ex_rom: "Zhè shì wǒ nǚ'ér.", ex_l1: "This is my daughter.", note: "ü is said with rounded lips, like French u. Type it as v with tone numbers: nv3 er2."}
+      - {id: zh1-06-haizi, type: vocab, l2: "孩子", rom: "háizi", l1: "child", ex: "他们没有孩子。", ex_rom: "Tāmen méiyǒu háizi.", ex_l1: "They have no children."}
+      - {id: zh1-06-he, type: vocab, l2: "和", rom: "hé", l1: "and (joining two nouns)", ex: "爸爸和妈妈", ex_rom: "bàba hé māma", ex_l1: "dad and mum"}
+      - {id: zh1-06-jikouren, type: phrase, l2: "你家有几口人？", rom: "Nǐ jiā yǒu jǐ kǒu rén?", l1: "How many people are there in your family?", alt: ["你家有几个人？"], note: "口 (mouth) is the measure word for people in a household."}
+      - {id: zh1-06-gegehe, type: phrase, l2: "我有一个哥哥和两个妹妹。", rom: "Wǒ yǒu yí ge gēge hé liǎng ge mèimei.", l1: "I have one older brother and two younger sisters."}
+      - {id: zh1-06-c1, type: cloze, text: "我没有弟弟，___没有妹妹。", answer: "也", alt: ["yě"], l1: "I have no younger brother, and no younger sister either.", note: "也 covers both 'too' and 'either'. 和 cannot join two clauses."}
+      - {id: zh1-06-c2, type: cloze, text: "你有___个孩子？", answer: "几", alt: ["jǐ"], l1: "How many children do you have?", note: "几 + measure word, where the number will go."}
+      - id: zh1-06-d1
+        type: dialogue
+        title: "Tell me about your family"
+        scene: "A classmate is looking at a photo on your phone."
+        you: B
+        lines:
+          - {who: A, l2: "你家有几口人？", rom: "Nǐ jiā yǒu jǐ kǒu rén?", l1: "How many people are there in your family?"}
+          - {who: B, l2: "我家有四口人。", rom: "Wǒ jiā yǒu sì kǒu rén.", l1: "There are four people in my family.", alt: ["四口人。", "我家有四个人。", "有四口人。"]}
+          - {who: A, l2: "你有哥哥吗？", rom: "Nǐ yǒu gēge ma?", l1: "Do you have an older brother?"}
+          - {who: B, l2: "没有，我有一个姐姐。", rom: "Méiyǒu, wǒ yǒu yí ge jiějie.", l1: "No, I have one older sister.", alt: ["我没有哥哥，我有一个姐姐。", "没有，我有个姐姐。"]}
+          - {who: A, l2: "你姐姐是学生吗？", rom: "Nǐ jiějie shì xuésheng ma?", l1: "Is your sister a student?"}
+          - {who: B, l2: "不是，她是老师。", rom: "Bú shì, tā shì lǎoshī.", l1: "No, she is a teacher.", alt: ["她不是学生，她是老师。", "不，她是老师。"]}
+
+  # ───────────────────────────────────────────────────────────────── 7
+  - id: zh1-07
+    title: "Dates, days and age"
+    goal: "I can say the date, the day of the week and my age."
+    notes: |
+      Months and weekdays are just **numbers**.
+
+      - Months: number + **月**. 一月 (yī yuè) January, 二月 February … 十二月 December.
+      - Days of the month: number + **号** in speech (**日** in writing): 八号 = the 8th.
+      - Weekdays: **星期** + number, Monday = 1: 星期一 … 星期六. Sunday is 星期天 (or 星期日).
+      - Years are read digit by digit + **年**: 二零二六年.
+
+      ## Big before small
+      Chinese dates always run from the largest unit to the smallest: **年 → 月 → 号 → 星期**. 五月八号 = 8 May.
+
+      | | | |
+      |---|---|---|
+      | 昨天 zuótiān | 今天 jīntiān | 明天 míngtiān |
+      | yesterday | today | tomorrow |
+
+      ## No 是 needed
+      With dates, days and ages the verb 是 is normally left out: 今天星期三。 我二十岁。 It comes back in the negative: 今天**不是**星期三.
+
+      ## Asking
+      **几** stands in for the number: 几月几号？ 星期几？
+
+      Age: 你多大？ ("how big?") to an adult; 你几岁？ only to a small child. The answer is number + **岁**.
+
+      In dates 一 keeps its first tone: yī yuè yī hào. 生日快乐 (shēngrì kuàilè) is "happy birthday".
+    items:
+      - {id: zh1-07-g-nian, type: glyph, l2: "年", rom: "nián", l1: "year"}
+      - {id: zh1-07-g-yue, type: glyph, l2: "月", rom: "yuè", l1: "month; moon", note: "A picture of a crescent moon."}
+      - {id: zh1-07-g-ri, type: glyph, l2: "日", rom: "rì", l1: "sun; day (written style)", note: "A picture of the sun. r is said with the tongue curled back."}
+      - {id: zh1-07-g-hao, type: glyph, l2: "号", rom: "hào", l1: "day of the month; number"}
+      - {id: zh1-07-g-tian, type: glyph, l2: "天", rom: "tiān", l1: "day; sky"}
+      - {id: zh1-07-g-jin, type: glyph, l2: "今", rom: "jīn", l1: "the present (first half of jīntiān)"}
+      - {id: zh1-07-g-ming, type: glyph, l2: "明", rom: "míng", l1: "bright; next (first half of míngtiān)", note: "Sun (日) and moon (月) together."}
+      - {id: zh1-07-jintian, type: vocab, l2: "今天", rom: "jīntiān", l1: "today", ex: "今天是我妈妈的生日。", ex_rom: "Jīntiān shì wǒ māma de shēngrì.", ex_l1: "Today is my mum's birthday."}
+      - {id: zh1-07-mingtian, type: vocab, l2: "明天", rom: "míngtiān", l1: "tomorrow", ex: "明天见！", ex_rom: "Míngtiān jiàn!", ex_l1: "See you tomorrow!"}
+      - {id: zh1-07-xingqi, type: vocab, l2: "星期", rom: "xīngqī", l1: "week", ex: "一个星期有七天。", ex_rom: "Yí ge xīngqī yǒu qī tiān.", ex_l1: "A week has seven days."}
+      - {id: zh1-07-xingqiyi, type: vocab, l2: "星期一", rom: "xīngqīyī", l1: "Monday", alt: ["周一", "zhōu yī"], note: "Week + one. Tuesday is 星期二, and so on to 星期六."}
+      - {id: zh1-07-xingqitian, type: vocab, l2: "星期天", rom: "xīngqītiān", l1: "Sunday", alt: ["星期日", "xīngqīrì", "周日", "zhōu rì"], note: "The one weekday that is not a number."}
+      - {id: zh1-07-shengri, type: vocab, l2: "生日", rom: "shēngrì", l1: "birthday", ex: "我的生日是三月五号。", ex_rom: "Wǒ de shēngrì shì sān yuè wǔ hào.", ex_l1: "My birthday is the 5th of March."}
+      - {id: zh1-07-jiyuejihao, type: phrase, l2: "今天几月几号？", rom: "Jīntiān jǐ yuè jǐ hào?", l1: "What is the date today?", alt: ["今天是几月几号？", "今天几号？"]}
+      - {id: zh1-07-xingqiji, type: phrase, l2: "今天星期几？", rom: "Jīntiān xīngqī jǐ?", l1: "What day of the week is it today?", alt: ["今天是星期几？"]}
+      - {id: zh1-07-c1, type: cloze, text: "明天是十月一___。", answer: "号", alt: ["hào", "日", "rì"], l1: "Tomorrow is the first of October.", note: "Month first, then the day + 号 (日 in writing)."}
+      - {id: zh1-07-c2, type: cloze, text: "我哥哥今年二十___。", answer: "岁", alt: ["suì"], l1: "My older brother is twenty this year.", note: "Number + 岁 (years of age). No 是."}
+      - id: zh1-07-d1
+        type: dialogue
+        title: "A birthday tomorrow"
+        scene: "You are chatting with a friend after class."
+        you: B
+        lines:
+          - {who: A, l2: "今天几月几号？", rom: "Jīntiān jǐ yuè jǐ hào?", l1: "What's the date today?"}
+          - {who: B, l2: "今天五月八号。", rom: "Jīntiān wǔ yuè bā hào.", l1: "Today is the 8th of May.", alt: ["今天是五月八号。", "五月八号。", "今天五月八日。"]}
+          - {who: A, l2: "明天是我的生日。", rom: "Míngtiān shì wǒ de shēngrì.", l1: "Tomorrow is my birthday."}
+          - {who: B, l2: "你今年多大？", rom: "Nǐ jīnnián duō dà?", l1: "How old are you this year?", alt: ["你今年多大了？", "你多大？"]}
+          - {who: A, l2: "我今年二十岁。", rom: "Wǒ jīnnián èrshí suì.", l1: "I am twenty this year."}
+          - {who: B, l2: "生日快乐！", rom: "Shēngrì kuàilè!", l1: "Happy birthday!", alt: ["祝你生日快乐！"]}
+
+  # ───────────────────────────────────────────────────────────────── 8
+  - id: zh1-08
+    title: "Telling the time"
+    goal: "I can ask and tell the time and say when something happens."
+    notes: |
+      The clock uses three words: **点** (o'clock), **分** (minutes) and **半** (half).
+
+      | | | |
+      |---|---|---|
+      | 3:00 | 三点 | sān diǎn |
+      | 3:10 | 三点十分 | sān diǎn shí fēn |
+      | 3:30 | 三点半 | sān diǎn bàn |
+      | 2:00 | **两**点 | liǎng diǎn |
+
+      Two o'clock is 两点, never 二点. Twelve is still 十二点.
+
+      ## Parts of the day
+      早上 (early morning) · 上午 (morning, before noon) · 中午 (noon) · 下午 (afternoon) · 晚上 (evening, night).
+
+      **上** is "up / first part" and **下** is "down / second part", so 上午 and 下午 are the two halves of the day around 午, noon. The same pair gives 上个星期 (last week) and 下个星期 (next week).
+
+      ## Big before small, again
+      The part of the day comes **before** the clock time: 下午四点 = 4 p.m., 明天上午十点 = 10 a.m. tomorrow.
+
+      ## Where the time goes
+      A time word stands **before the verb**, straight after the subject or at the very start, never at the end:
+
+      - 我们**四点**见。 We'll meet at four.
+      - **明天**我没有时间。 Tomorrow I have no time.
+
+      Ask with 几点 (what time) or 什么时候 (when).
+    items:
+      - {id: zh1-08-g-dian, type: glyph, l2: "点", rom: "diǎn", l1: "o'clock; dot"}
+      - {id: zh1-08-g-fen, type: glyph, l2: "分", rom: "fēn", l1: "minute", note: "A knife (刀) dividing something: a division of the hour."}
+      - {id: zh1-08-g-ban, type: glyph, l2: "半", rom: "bàn", l1: "half"}
+      - {id: zh1-08-g-shang, type: glyph, l2: "上", rom: "shàng", l1: "up; on; the earlier part", note: "A mark above the line."}
+      - {id: zh1-08-g-xia, type: glyph, l2: "下", rom: "xià", l1: "down; under; the later part", note: "A mark below the line."}
+      - {id: zh1-08-g-wu, type: glyph, l2: "午", rom: "wǔ", l1: "noon (the character in shàngwǔ and xiàwǔ)"}
+      - {id: zh1-08-xianzai, type: vocab, l2: "现在", rom: "xiànzài", l1: "now", ex: "现在我没有时间。", ex_rom: "Xiànzài wǒ méiyǒu shíjiān.", ex_l1: "I have no time right now."}
+      - {id: zh1-08-shangwu, type: vocab, l2: "上午", rom: "shàngwǔ", l1: "morning (the hours before noon, a.m.)", ex: "上午十点", ex_rom: "shàngwǔ shí diǎn", ex_l1: "10 a.m."}
+      - {id: zh1-08-zhongwu, type: vocab, l2: "中午", rom: "zhōngwǔ", l1: "noon / midday", ex: "中午十二点", ex_rom: "zhōngwǔ shí'èr diǎn", ex_l1: "twelve noon"}
+      - {id: zh1-08-xiawu, type: vocab, l2: "下午", rom: "xiàwǔ", l1: "afternoon", ex: "下午三点半", ex_rom: "xiàwǔ sān diǎn bàn", ex_l1: "half past three in the afternoon"}
+      - {id: zh1-08-wanshang, type: vocab, l2: "晚上", rom: "wǎnshang", l1: "evening / night", ex: "今天晚上", ex_rom: "jīntiān wǎnshang", ex_l1: "this evening, tonight"}
+      - {id: zh1-08-shenmeshihou, type: vocab, l2: "什么时候", rom: "shénme shíhou", l1: "when", ex: "你什么时候有时间？", ex_rom: "Nǐ shénme shíhou yǒu shíjiān?", ex_l1: "When do you have time?"}
+      - {id: zh1-08-liangdianban, type: vocab, l2: "两点半", rom: "liǎng diǎn bàn", l1: "half past two", note: "两, not 二, for two o'clock."}
+      - {id: zh1-08-jidian, type: phrase, l2: "现在几点？", rom: "Xiànzài jǐ diǎn?", l1: "What time is it now?", alt: ["现在几点了？", "几点了？"]}
+      - {id: zh1-08-badian, type: phrase, l2: "现在八点十分。", rom: "Xiànzài bā diǎn shí fēn.", l1: "It is ten past eight now.", alt: ["现在是八点十分。"]}
+      - {id: zh1-08-c1, type: cloze, text: "现在三点___。", answer: "半", alt: ["bàn"], l1: "It is half past three now.", note: "Hour + 点 + 半."}
+      - {id: zh1-08-c2, type: cloze, text: "我们下___四点见。", answer: "午", alt: ["wǔ"], l1: "We'll meet at four in the afternoon.", note: "下午 comes before the clock time, and the whole time comes before the verb."}
+      - id: zh1-08-d1
+        type: dialogue
+        title: "When do we meet?"
+        scene: "You and a classmate have an appointment with Teacher Wang today."
+        you: B
+        lines:
+          - {who: A, l2: "现在几点？", rom: "Xiànzài jǐ diǎn?", l1: "What time is it now?"}
+          - {who: B, l2: "现在两点半。", rom: "Xiànzài liǎng diǎn bàn.", l1: "It's half past two now.", alt: ["两点半。", "现在两点三十分。", "现在是两点半。"]}
+          - {who: A, l2: "我们什么时候见王老师？", rom: "Wǒmen shénme shíhou jiàn Wáng lǎoshī?", l1: "When are we seeing Teacher Wang?"}
+          - {who: B, l2: "今天下午四点。", rom: "Jīntiān xiàwǔ sì diǎn.", l1: "At four this afternoon.", alt: ["下午四点。", "今天下午四点见。"]}
+          - {who: A, l2: "好，四点见！", rom: "Hǎo, sì diǎn jiàn!", l1: "Good, see you at four!"}
+          - {who: B, l2: "四点见！", rom: "Sì diǎn jiàn!", l1: "See you at four!", alt: ["好，四点见！"]}
+
+  # ───────────────────────────────────────────────────────────────── 9
+  - id: zh1-09
+    title: "Places and 在"
+    goal: "I can say where I am, where I live and where I am going."
+    notes: |
+      **在** says where someone or something *is*. English uses "to be", but Chinese cannot use 是 for location.
+
+      | | | |
+      |---|---|---|
+      | 我在家。 | Wǒ zài jiā. | I am at home. |
+      | 他不在。 | Tā bú zài. | He is not here. |
+      | 洗手间在哪儿？ | Xǐshǒujiān zài nǎr? | Where is the toilet? |
+
+      So three verbs share the work of English "to be / to have":
+
+      - **是** links two nouns: 她是老师。
+      - **在** gives a location: 她在学校。
+      - **有** says what exists or is owned: 学校有很多老师。
+
+      ## Doing something somewhere
+      Put **在 + place before the verb**: 我**在北京**工作 (I work in Beijing). With 住 (to live) the place may follow: 我住在北京.
+
+      ## Going and coming
+      **去** + place, **来** + place, with no word for "to": 我去学校。 他来我家。
+
+      ## Here, there, where
+      这儿 (here), 那儿 (there), 哪儿 (where). The final **r** is a Beijing habit; in the south people say 这里, 那里, 哪里. Both are standard.
+
+      Like every question word, 哪儿 stays where the answer will go: 你去**哪儿**？ 我去**商店**。
+    items:
+      - {id: zh1-09-g-zai, type: glyph, l2: "在", rom: "zài", l1: "to be at; at / in", note: "Same sound as 再 (again), a different character."}
+      - {id: zh1-09-g-qu, type: glyph, l2: "去", rom: "qù", l1: "to go", note: "After q the letter u is really ü: lips rounded."}
+      - {id: zh1-09-g-lai, type: glyph, l2: "来", rom: "lái", l1: "to come"}
+      - {id: zh1-09-g-zhu, type: glyph, l2: "住", rom: "zhù", l1: "to live (somewhere), to stay"}
+      - {id: zh1-09-g-bei, type: glyph, l2: "北", rom: "běi", l1: "north"}
+      - {id: zh1-09-g-jing, type: glyph, l2: "京", rom: "jīng", l1: "capital city"}
+      - {id: zh1-09-nar, type: vocab, l2: "哪儿", rom: "nǎr", l1: "where", alt: ["哪里", "nǎlǐ", "nǎli"], ex: "你在哪儿？", ex_rom: "Nǐ zài nǎr?", ex_l1: "Where are you?"}
+      - {id: zh1-09-zher, type: vocab, l2: "这儿", rom: "zhèr", l1: "here", alt: ["这里", "zhèlǐ", "zhèli"], ex: "我的书在这儿。", ex_rom: "Wǒ de shū zài zhèr.", ex_l1: "My book is here."}
+      - {id: zh1-09-beijing, type: vocab, l2: "北京", rom: "Běijīng", l1: "Beijing", note: "'The northern capital'."}
+      - {id: zh1-09-xuexiao, type: vocab, l2: "学校", rom: "xuéxiào", l1: "school", ex: "我去学校。", ex_rom: "Wǒ qù xuéxiào.", ex_l1: "I am going to school."}
+      - {id: zh1-09-yiyuan, type: vocab, l2: "医院", rom: "yīyuàn", l1: "hospital", ex: "我妈妈在医院。", ex_rom: "Wǒ māma zài yīyuàn.", ex_l1: "My mum is at the hospital."}
+      - {id: zh1-09-shangdian, type: vocab, l2: "商店", rom: "shāngdiàn", l1: "shop / store", ex: "他去商店。", ex_rom: "Tā qù shāngdiàn.", ex_l1: "He is going to the shop."}
+      - {id: zh1-09-xishoujian, type: vocab, l2: "洗手间", rom: "xǐshǒujiān", l1: "toilet / restroom", alt: ["厕所", "cèsuǒ", "卫生间", "wèishēngjiān"], note: "'Wash-hands room', the polite word. 厕所 is plainer."}
+      - {id: zh1-09-xishoujianzainar, type: phrase, l2: "洗手间在哪儿？", rom: "Xǐshǒujiān zài nǎr?", l1: "Where is the toilet?", alt: ["洗手间在哪里？", "请问，洗手间在哪儿？", "厕所在哪儿？"]}
+      - {id: zh1-09-wozhuzai, type: phrase, l2: "我住在北京。", rom: "Wǒ zhù zài Běijīng.", l1: "I live in Beijing.", alt: ["我在北京住。"]}
+      - {id: zh1-09-c1, type: cloze, text: "明天我___学校。", answer: "去", alt: ["qù"], l1: "Tomorrow I am going to school.", note: "去 + place, with no word for 'to'."}
+      - {id: zh1-09-c2, type: cloze, text: "妈妈今天不___家。", answer: "在", alt: ["zài"], l1: "Mum is not at home today.", note: "Location needs 在, never 是."}
+      - id: zh1-09-d1
+        type: dialogue
+        title: "Where are you?"
+        scene: "A friend phones you on Saturday morning."
+        you: B
+        lines:
+          - {who: A, l2: "喂，你在哪儿？", rom: "Wéi, nǐ zài nǎr?", l1: "Hello? Where are you?"}
+          - {who: B, l2: "我在学校。你呢？", rom: "Wǒ zài xuéxiào. Nǐ ne?", l1: "I'm at school. And you?", alt: ["在学校。你呢？"]}
+          - {who: A, l2: "我在家。你今天来我家吗？", rom: "Wǒ zài jiā. Nǐ jīntiān lái wǒ jiā ma?", l1: "I'm at home. Are you coming to my place today?"}
+          - {who: B, l2: "来。你家在哪儿？", rom: "Lái. Nǐ jiā zài nǎr?", l1: "Yes, I am. Where is your home?", alt: ["我来。你家在哪儿？", "来。你家在哪里？", "来。你住在哪儿？"]}
+          - {who: A, l2: "我住在北京路八号。", rom: "Wǒ zhù zài Běijīng Lù bā hào.", l1: "I live at 8 Beijing Road."}
+          - {who: B, l2: "好，我下午三点去。", rom: "Hǎo, wǒ xiàwǔ sān diǎn qù.", l1: "OK, I'll go over at three this afternoon.", alt: ["好，我下午三点来。", "好，我下午三点去你家。"]}
+
+  # ───────────────────────────────────────────────────────────────── 10
+  - id: zh1-10
+    title: "Directions and transport"
+    goal: "I can ask the way, follow simple directions and say how I travel."
+    notes: |
+      Position words are a direction + **面** or **边** ("side"):
+
+      | | | |
+      |---|---|---|
+      | 前面 | qiánmiàn | in front, ahead |
+      | 后面 | hòumiàn | behind |
+      | 左边 | zuǒbian | on the left |
+      | 右边 | yòubian | on the right |
+      | 旁边 | pángbiān | beside |
+
+      ## The landmark comes first
+      English says "in front of the school". Chinese says "the school's front": **学校(的)前面**. A full sentence is *thing + 在 + landmark + position*:
+
+      - 医院在学校的旁边。 The hospital is next to the school.
+
+      ## Asking the way
+      - …在哪儿？ Where is …?
+      - …怎么走？ How do I get to …? (literally "how walk")
+      - 远吗？ Is it far? → 不远，很近。 Not far, it's close.
+
+      Directions you will hear: 一直走 (straight on), 往前走 (go ahead), 往左走 / 往右走 (go left / right). 往 (wǎng) means "towards".
+
+      ## How you travel
+      **坐** is "to sit", and so "to go by" anything you sit in: 坐出租车, 坐地铁, 坐火车. The transport comes **before** the main verb: 我**坐地铁**去学校 (I go to school by subway). On foot is 走路 (zǒulù).
+
+      车 on its own is any wheeled vehicle, usually a car.
+    items:
+      - {id: zh1-10-g-qian, type: glyph, l2: "前", rom: "qián", l1: "front; before"}
+      - {id: zh1-10-g-hou, type: glyph, l2: "后", rom: "hòu", l1: "back; after"}
+      - {id: zh1-10-g-zuo, type: glyph, l2: "左", rom: "zuǒ", l1: "left", note: "左 has 工 underneath; 右 (right) has a mouth 口."}
+      - {id: zh1-10-g-you, type: glyph, l2: "右", rom: "yòu", l1: "right (not left)"}
+      - {id: zh1-10-g-che, type: glyph, l2: "车", rom: "chē", l1: "vehicle, car"}
+      - {id: zh1-10-g-zou, type: glyph, l2: "走", rom: "zǒu", l1: "to walk; to leave"}
+      - {id: zh1-10-qianmian, type: vocab, l2: "前面", rom: "qiánmiàn", l1: "in front; ahead", alt: ["qiánmian", "前边", "qiánbian", "qiánbiān"], ex: "商店在前面。", ex_rom: "Shāngdiàn zài qiánmiàn.", ex_l1: "The shop is up ahead."}
+      - {id: zh1-10-houmian, type: vocab, l2: "后面", rom: "hòumiàn", l1: "behind; at the back", alt: ["hòumian", "后边", "hòubian", "hòubiān"], ex: "洗手间在后面。", ex_rom: "Xǐshǒujiān zài hòumiàn.", ex_l1: "The toilet is at the back."}
+      - {id: zh1-10-zuobian, type: vocab, l2: "左边", rom: "zuǒbian", l1: "the left side; on the left", alt: ["zuǒbiān", "左面", "zuǒmiàn"], ex: "学校在左边。", ex_rom: "Xuéxiào zài zuǒbian.", ex_l1: "The school is on the left."}
+      - {id: zh1-10-youbian, type: vocab, l2: "右边", rom: "yòubian", l1: "the right side; on the right", alt: ["yòubiān", "右面", "yòumiàn"], ex: "医院在右边。", ex_rom: "Yīyuàn zài yòubian.", ex_l1: "The hospital is on the right."}
+      - {id: zh1-10-pangbian, type: vocab, l2: "旁边", rom: "pángbiān", l1: "beside, next to", ex: "我家在学校旁边。", ex_rom: "Wǒ jiā zài xuéxiào pángbiān.", ex_l1: "My home is next to the school."}
+      - {id: zh1-10-chuzuche, type: vocab, l2: "出租车", rom: "chūzūchē", l1: "taxi", ex: "这儿没有出租车。", ex_rom: "Zhèr méiyǒu chūzūchē.", ex_l1: "There are no taxis here.", note: "'Rent-out vehicle'."}
+      - {id: zh1-10-ditie, type: vocab, l2: "地铁", rom: "dìtiě", l1: "subway / underground", ex: "北京有地铁。", ex_rom: "Běijīng yǒu dìtiě.", ex_l1: "Beijing has a subway.", note: "'Ground iron'. A subway station is 地铁站."}
+      - {id: zh1-10-huochezhan, type: vocab, l2: "火车站", rom: "huǒchēzhàn", l1: "railway station", ex: "火车站在哪儿？", ex_rom: "Huǒchēzhàn zài nǎr?", ex_l1: "Where is the railway station?", note: "火车 = 'fire vehicle', a train; 站 = station."}
+      - {id: zh1-10-zuo, type: vocab, l2: "坐", rom: "zuò", l1: "to sit; to go by (taxi, train, subway)", ex: "我坐地铁去学校。", ex_rom: "Wǒ zuò dìtiě qù xuéxiào.", ex_l1: "I go to school by subway."}
+      - {id: zh1-10-zenmezou, type: phrase, l2: "请问，地铁站怎么走？", rom: "Qǐngwèn, dìtiězhàn zěnme zǒu?", l1: "Excuse me, how do I get to the subway station?", alt: ["地铁站怎么走？", "请问，去地铁站怎么走？"]}
+      - {id: zh1-10-yizhi, type: phrase, l2: "一直往前走。", rom: "Yìzhí wǎng qián zǒu.", l1: "Go straight ahead.", alt: ["一直走。", "往前走。"]}
+      - {id: zh1-10-c1, type: cloze, text: "我们___出租车去火车站。", answer: "坐", alt: ["zuò"], l1: "We are taking a taxi to the railway station.", note: "坐 + transport comes before 去."}
+      - {id: zh1-10-c2, type: cloze, text: "医院在学校的___边。", answer: "左", alt: ["zuǒ"], l1: "The hospital is to the left of the school.", note: "Landmark + 的 + position."}
+      - id: zh1-10-d1
+        type: dialogue
+        title: "Asking the way"
+        scene: "You are in a Chinese city and need the railway station. You stop a passer-by."
+        you: A
+        lines:
+          - {who: A, l2: "请问，火车站在哪儿？", rom: "Qǐngwèn, huǒchēzhàn zài nǎr?", l1: "Excuse me, where is the railway station?", alt: ["请问，火车站在哪里？", "请问，火车站怎么走？", "火车站在哪儿？"]}
+          - {who: B, l2: "在前面，医院的旁边。", rom: "Zài qiánmiàn, yīyuàn de pángbiān.", l1: "It's up ahead, next to the hospital."}
+          - {who: A, l2: "远吗？", rom: "Yuǎn ma?", l1: "Is it far?", alt: ["远不远？", "火车站远吗？", "很远吗？"]}
+          - {who: B, l2: "不远。一直往前走，在右边。", rom: "Bù yuǎn. Yìzhí wǎng qián zǒu, zài yòubian.", l1: "Not far. Go straight ahead; it's on the right."}
+          - {who: A, l2: "谢谢您！", rom: "Xièxie nín!", l1: "Thank you! (polite)", alt: ["谢谢！", "谢谢你！", "好，谢谢您！"]}
+          - {who: B, l2: "不客气。", rom: "Bú kèqi.", l1: "You're welcome."}
+
+  # ───────────────────────────────────────────────────────────────── 11
+  - id: zh1-11
+    title: "Food and drink"
+    goal: "I can name everyday food and drink and say what I eat and don't eat."
+    notes: |
+      Two verbs do most of the work: **吃** (to eat) and **喝** (to drink). Both have the mouth part **口** on the left. Soup is *drunk* in Chinese: 喝汤 (hē tāng).
+
+      The basic sentence is **Subject + (time) + verb + object**, the same order as English:
+
+      - 我吃米饭。 I eat rice.
+      - 我早上喝咖啡。 I drink coffee in the morning.
+
+      ## Saying no: 不
+      **不** before the verb covers habits, refusals and the future: 我不吃肉 (I don't eat meat), 我不喝 (I won't have any). It keeps its fourth tone before chī and hē: *bù chī, bù hē*.
+
+      ## Yes and no
+      Chinese has no single word for "yes" or "no". Answer by repeating the verb:
+
+      | question | yes | no |
+      |---|---|---|
+      | 你喝茶吗？ | 喝。 | 不喝。 |
+      | 你吃肉吗？ | 吃。 | 不吃。 |
+
+      ## Describing food
+      **好** + verb means "good to …": 好吃 (tasty, of food), 好喝 (tasty, of drinks). As with 我很好, a describing word takes 很 and no 是: 这个菜**很**好吃.
+
+      饭 is cooked rice and also "a meal": 吃饭 simply means "to eat, to have a meal". 菜 is a vegetable and also any cooked dish: 中国菜 = Chinese food.
+    items:
+      - {id: zh1-11-g-chi, type: glyph, l2: "吃", rom: "chī", l1: "to eat", note: "The mouth part 口."}
+      - {id: zh1-11-g-he, type: glyph, l2: "喝", rom: "hē", l1: "to drink", note: "The mouth part 口 again. The e sounds like 'uh'."}
+      - {id: zh1-11-g-fan, type: glyph, l2: "饭", rom: "fàn", l1: "meal; cooked rice", note: "The food part 饣 on the left."}
+      - {id: zh1-11-g-cai, type: glyph, l2: "菜", rom: "cài", l1: "dish; vegetable", note: "c is 'ts'. The grass part 艹 on top marks plants."}
+      - {id: zh1-11-g-rou, type: glyph, l2: "肉", rom: "ròu", l1: "meat", note: "On a menu, plain 肉 usually means pork."}
+      - {id: zh1-11-g-mi, type: glyph, l2: "米", rom: "mǐ", l1: "rice (the uncooked grain)"}
+      - {id: zh1-11-mifan, type: vocab, l2: "米饭", rom: "mǐfàn", l1: "rice (cooked, as served)", ex: "我吃米饭。", ex_rom: "Wǒ chī mǐfàn.", ex_l1: "I eat rice."}
+      - {id: zh1-11-miantiao, type: vocab, l2: "面条", rom: "miàntiáo", l1: "noodles", alt: ["面条儿", "miàntiáor", "面", "miàn"], ex: "我中午吃面条。", ex_rom: "Wǒ zhōngwǔ chī miàntiáo.", ex_l1: "I eat noodles at noon."}
+      - {id: zh1-11-jiaozi, type: vocab, l2: "饺子", rom: "jiǎozi", l1: "dumplings", ex: "中国人吃饺子。", ex_rom: "Zhōngguó rén chī jiǎozi.", ex_l1: "Chinese people eat dumplings."}
+      - {id: zh1-11-shuiguo, type: vocab, l2: "水果", rom: "shuǐguǒ", l1: "fruit", ex: "我早上吃水果。", ex_rom: "Wǒ zǎoshang chī shuǐguǒ.", ex_l1: "I eat fruit in the morning.", note: "'Water fruit'. An apple is 苹果 (píngguǒ)."}
+      - {id: zh1-11-niunai, type: vocab, l2: "牛奶", rom: "niúnǎi", l1: "milk", ex: "孩子喝牛奶。", ex_rom: "Háizi hē niúnǎi.", ex_l1: "The child drinks milk.", note: "'Cow milk'."}
+      - {id: zh1-11-kafei, type: vocab, l2: "咖啡", rom: "kāfēi", l1: "coffee", ex: "我不喝咖啡。", ex_rom: "Wǒ bù hē kāfēi.", ex_l1: "I don't drink coffee.", note: "Borrowed for its sound."}
+      - {id: zh1-11-jidan, type: vocab, l2: "鸡蛋", rom: "jīdàn", l1: "egg", ex: "我早上吃两个鸡蛋。", ex_rom: "Wǒ zǎoshang chī liǎng ge jīdàn.", ex_l1: "I eat two eggs in the morning.", note: "'Chicken egg'."}
+      - {id: zh1-11-haochi, type: vocab, l2: "好吃", rom: "hǎochī", l1: "tasty, delicious (of food)", ex: "饺子很好吃。", ex_rom: "Jiǎozi hěn hǎochī.", ex_l1: "Dumplings are delicious.", note: "For drinks say 好喝 (hǎohē)."}
+      - {id: zh1-11-wobuchirou, type: phrase, l2: "我不吃肉。", rom: "Wǒ bù chī ròu.", l1: "I don't eat meat."}
+      - {id: zh1-11-zhongguocai, type: phrase, l2: "中国菜很好吃。", rom: "Zhōngguó cài hěn hǎochī.", l1: "Chinese food is delicious."}
+      - {id: zh1-11-c1, type: cloze, text: "妹妹晚上___牛奶。", answer: "喝", alt: ["hē"], l1: "My younger sister drinks milk in the evening.", note: "喝 for anything liquid."}
+      - {id: zh1-11-c2, type: cloze, text: "他们晚上___饺子。", answer: "吃", alt: ["chī"], l1: "They eat dumplings in the evening.", note: "The time word comes before the verb."}
+      - id: zh1-11-d1
+        type: dialogue
+        title: "What do you eat?"
+        scene: "A Chinese colleague is curious about your eating habits."
+        you: B
+        lines:
+          - {who: A, l2: "你中午吃什么？", rom: "Nǐ zhōngwǔ chī shénme?", l1: "What do you eat at noon?"}
+          - {who: B, l2: "我吃米饭和菜。你呢？", rom: "Wǒ chī mǐfàn hé cài. Nǐ ne?", l1: "I eat rice and vegetables. And you?", alt: ["米饭和菜。你呢？", "我中午吃米饭和菜。你呢？"]}
+          - {who: A, l2: "我吃饺子。你喝茶吗？", rom: "Wǒ chī jiǎozi. Nǐ hē chá ma?", l1: "I eat dumplings. Do you drink tea?"}
+          - {who: B, l2: "喝，中国茶很好喝。", rom: "Hē, Zhōngguó chá hěn hǎohē.", l1: "Yes, Chinese tea tastes very good.", alt: ["我喝，中国茶很好喝。", "喝，中国的茶很好喝。"]}
+          - {who: A, l2: "你不喝咖啡吗？", rom: "Nǐ bù hē kāfēi ma?", l1: "Don't you drink coffee?"}
+          - {who: B, l2: "我早上喝咖啡。", rom: "Wǒ zǎoshang hē kāfēi.", l1: "I drink coffee in the morning.", alt: ["我早上喝。", "早上喝。", "我早上喝咖啡，下午喝茶。"]}
+
+  # ───────────────────────────────────────────────────────────────── 12
+  - id: zh1-12
+    title: "Ordering: 想, 要 and measure words"
+    goal: "I can order food and drink politely and ask for what I need."
+    notes: |
+      ## 想 and 要
+      Both go before a verb.
+
+      - **想** + verb is a wish: "would like to". 我想喝茶。
+      - **要** + verb is firmer: "want to, going to". **要** + noun is "I'll have": 我要一杯咖啡。 This is how you order; it is not rude.
+
+      Negatives: **不想** (don't feel like) and **不要** (don't want it). 不要了 means "nothing more, thanks".
+
+      ## Measure words for food and drink
+      Every noun has its measure word, and containers work just as in English.
+
+      | measure | for | example |
+      |---|---|---|
+      | 杯 bēi | cups, glasses | 一杯茶 |
+      | 碗 wǎn | bowls | 一碗米饭 |
+      | 瓶 píng | bottles | 一瓶水 |
+      | 个 ge | most other things | 一个菜, 一个鸡蛋 |
+
+      一 changes tone before them: *yì bēi, yì wǎn, yì píng*, but *yí ge*. "Two" is 两: 两杯咖啡.
+
+      ## Giving
+      **给** + person + thing: 请给我菜单 (please give me the menu).
+
+      ## More
+      **还** means "in addition, still": 还要别的吗？ (anything else?), 我还要一瓶水 (I'd also like a bottle of water).
+
+      Call staff with 服务员！ It is the normal, polite way to get attention. When you are done: 买单！
+    items:
+      - {id: zh1-12-g-xiang, type: glyph, l2: "想", rom: "xiǎng", l1: "would like to; to think", note: "The heart part 心 underneath: wanting and thinking happen there."}
+      - {id: zh1-12-g-yao, type: glyph, l2: "要", rom: "yào", l1: "to want; to be going to"}
+      - {id: zh1-12-g-bei, type: glyph, l2: "杯", rom: "bēi", l1: "cup, glass (measure word)", note: "The wood part 木: cups were once wooden."}
+      - {id: zh1-12-g-gei, type: glyph, l2: "给", rom: "gěi", l1: "to give; for"}
+      - {id: zh1-12-g-hai, type: glyph, l2: "还", rom: "hái", l1: "still; in addition"}
+      - {id: zh1-12-fuwuyuan, type: vocab, l2: "服务员", rom: "fúwùyuán", l1: "waiter / waitress", note: "Call it out to get attention: 服务员！"}
+      - {id: zh1-12-caidan, type: vocab, l2: "菜单", rom: "càidān", l1: "menu", ex: "这是菜单。", ex_rom: "Zhè shì càidān.", ex_l1: "This is the menu.", note: "'Dish list'."}
+      - {id: zh1-12-yibeicha, type: vocab, l2: "一杯茶", rom: "yì bēi chá", l1: "a cup of tea", ex: "我想喝一杯茶。", ex_rom: "Wǒ xiǎng hē yì bēi chá.", ex_l1: "I'd like to drink a cup of tea."}
+      - {id: zh1-12-yiwanmifan, type: vocab, l2: "一碗米饭", rom: "yì wǎn mǐfàn", l1: "a bowl of rice", ex: "我要一碗米饭。", ex_rom: "Wǒ yào yì wǎn mǐfàn.", ex_l1: "I'll have a bowl of rice."}
+      - {id: zh1-12-yipingshui, type: vocab, l2: "一瓶水", rom: "yì píng shuǐ", l1: "a bottle of water", ex: "请给我一瓶水。", ex_rom: "Qǐng gěi wǒ yì píng shuǐ.", ex_l1: "Please give me a bottle of water."}
+      - {id: zh1-12-maidan, type: vocab, l2: "买单", rom: "mǎidān", l1: "to pay the bill; the bill, please", alt: ["结账", "jiézhàng"], ex: "服务员，买单！", ex_rom: "Fúwùyuán, mǎidān!", ex_l1: "Waiter, the bill, please!"}
+      - {id: zh1-12-nixiangchi, type: phrase, l2: "你想吃什么？", rom: "Nǐ xiǎng chī shénme?", l1: "What would you like to eat?", alt: ["您想吃什么？", "你想吃点儿什么？"]}
+      - {id: zh1-12-qinggeiwo, type: phrase, l2: "请给我菜单。", rom: "Qǐng gěi wǒ càidān.", l1: "Please give me the menu.", alt: ["请给我看一下菜单。", "请给我菜单，谢谢。"]}
+      - {id: zh1-12-haiyao, type: phrase, l2: "还要别的吗？", rom: "Hái yào biéde ma?", l1: "Would you like anything else?", alt: ["还要什么吗？"]}
+      - {id: zh1-12-c1, type: cloze, text: "我要两___咖啡。", answer: "杯", alt: ["bēi"], l1: "I'll have two cups of coffee.", note: "Number + measure word + noun."}
+      - {id: zh1-12-c2, type: cloze, text: "服务员，请___我一碗米饭。", answer: "给", alt: ["gěi"], l1: "Waiter, please give me a bowl of rice.", note: "给 + person + thing."}
+      - id: zh1-12-d1
+        type: dialogue
+        title: "Ordering in a restaurant"
+        scene: "You are a customer in a small noodle restaurant. The waiter comes to your table."
+        you: B
+        lines:
+          - {who: A, l2: "您好！您想吃什么？", rom: "Nín hǎo! Nín xiǎng chī shénme?", l1: "Hello! What would you like to eat?"}
+          - {who: B, l2: "我要一碗面条。", rom: "Wǒ yào yì wǎn miàntiáo.", l1: "I'll have a bowl of noodles.", alt: ["我想要一碗面条。", "我想吃一碗面条。", "请给我一碗面条。", "一碗面条。", "我要一碗面。"]}
+          - {who: A, l2: "好的。您想喝什么？", rom: "Hǎo de. Nín xiǎng hē shénme?", l1: "Certainly. What would you like to drink?"}
+          - {who: B, l2: "一杯茶，谢谢。", rom: "Yì bēi chá, xièxie.", l1: "A cup of tea, thank you.", alt: ["我要一杯茶，谢谢。", "我想喝一杯茶，谢谢。", "请给我一杯茶，谢谢。"]}
+          - {who: A, l2: "还要别的吗？", rom: "Hái yào biéde ma?", l1: "Anything else?"}
+          - {who: B, l2: "不要了，谢谢。", rom: "Bú yào le, xièxie.", l1: "Nothing else, thank you.", alt: ["不要，谢谢。", "不用了，谢谢。", "不要了，谢谢你。"]}
+
+  # ───────────────────────────────────────────────────────────────── 13
+  - id: zh1-13
+    title: "Shopping and money"
+    goal: "I can ask a price, understand the answer, say it is too expensive and buy something."
+    notes: |
+      China's money is the 人民币 (rénmínbì). The unit is written **元** (yuán) on price tags, but everyone *says* **块** (kuài). A tenth of it is 毛 (máo).
+
+      | | | |
+      |---|---|---|
+      | 5 | 五块 | wǔ kuài |
+      | 20 | 二十块 | èrshí kuài |
+      | 200 | 两百块 | liǎngbǎi kuài |
+      | 250 | 两百五十块 | liǎngbǎi wǔshí kuài |
+
+      钱 (money) may follow: 二十块钱. 200 can also be said 二百.
+
+      ## How much?
+      **多少** asks about any amount and needs no measure word: 多少钱？ Use 几 only for small numbers.
+
+      ## This one, that one
+      这 and 那 take a measure word, like a number: **这个** (this one), **那本**书 (that book), **这件**衣服 (this piece of clothing). 这个 is also said *zhèige*.
+
+      | measure | for |
+      |---|---|
+      | 本 běn | books, notebooks |
+      | 件 jiàn | clothes (tops), matters |
+
+      ## Too …
+      **太 … 了** = "too …!": 太贵了！ 太好了！ (great!). The negative drops 了 and softens it: 不太贵 (not very expensive).
+
+      ## A little
+      Adjective + **一点儿** = "a bit more …": 便宜一点儿 (a bit cheaper). Add 可以吗？ ("is that OK?") to turn anything into a request.
+    items:
+      - {id: zh1-13-g-mai, type: glyph, l2: "买", rom: "mǎi", l1: "to buy", note: "Third tone. With the fourth tone, mài (卖), it means 'to sell'."}
+      - {id: zh1-13-g-qian, type: glyph, l2: "钱", rom: "qián", l1: "money", note: "The metal part 钅 on the left: coins."}
+      - {id: zh1-13-g-kuai, type: glyph, l2: "块", rom: "kuài", l1: "yuan (as people say it); piece"}
+      - {id: zh1-13-g-duo, type: glyph, l2: "多", rom: "duō", l1: "many, much"}
+      - {id: zh1-13-g-shao, type: glyph, l2: "少", rom: "shǎo", l1: "few, little"}
+      - {id: zh1-13-g-ben, type: glyph, l2: "本", rom: "běn", l1: "measure word for books"}
+      - {id: zh1-13-duoshao, type: vocab, l2: "多少", rom: "duōshao", l1: "how much / how many", ex: "你们学校有多少学生？", ex_rom: "Nǐmen xuéxiào yǒu duōshao xuésheng?", ex_l1: "How many students does your school have?", note: "'Many-few'. No measure word needed."}
+      - {id: zh1-13-gui, type: vocab, l2: "贵", rom: "guì", l1: "expensive", ex: "咖啡很贵。", ex_rom: "Kāfēi hěn guì.", ex_l1: "Coffee is expensive."}
+      - {id: zh1-13-pianyi, type: vocab, l2: "便宜", rom: "piányi", l1: "cheap", ex: "这儿的水果很便宜。", ex_rom: "Zhèr de shuǐguǒ hěn piányi.", ex_l1: "The fruit here is cheap."}
+      - {id: zh1-13-dongxi, type: vocab, l2: "东西", rom: "dōngxi", l1: "thing, stuff", ex: "我去商店买东西。", ex_rom: "Wǒ qù shāngdiàn mǎi dōngxi.", ex_l1: "I am going to the shop to buy things.", note: "'East-west'. 买东西 = to go shopping."}
+      - {id: zh1-13-yifu, type: vocab, l2: "衣服", rom: "yīfu", l1: "clothes", ex: "我想买衣服。", ex_rom: "Wǒ xiǎng mǎi yīfu.", ex_l1: "I'd like to buy clothes."}
+      - {id: zh1-13-yijianyifu, type: vocab, l2: "一件衣服", rom: "yí jiàn yīfu", l1: "one piece of clothing", note: "件 is the measure word for clothes. 一 is yí before the fourth tone of jiàn."}
+      - {id: zh1-13-zhege, type: vocab, l2: "这个", rom: "zhège", l1: "this one; this", alt: ["zhèige"], ex: "我要这个。", ex_rom: "Wǒ yào zhège.", ex_l1: "I want this one.", note: "'That one' is 那个 (nàge)."}
+      - {id: zh1-13-duoshaoqian, type: phrase, l2: "这个多少钱？", rom: "Zhège duōshao qián?", l1: "How much is this?", alt: ["这个多少钱一个？", "这多少钱？"]}
+      - {id: zh1-13-taiguile, type: phrase, l2: "太贵了！", rom: "Tài guì le!", l1: "That's too expensive!"}
+      - {id: zh1-13-pianyiyidianr, type: phrase, l2: "便宜一点儿，可以吗？", rom: "Piányi yìdiǎnr, kěyǐ ma?", l1: "A bit cheaper, OK?", alt: ["可以便宜一点儿吗？", "便宜一点儿，好吗？", "便宜一点，可以吗？", "便宜一点儿吧。"], note: "可以 (kěyǐ) = may, all right; you will meet it properly in the next unit."}
+      - {id: zh1-13-c1, type: cloze, text: "这本书二十___钱。", answer: "块", alt: ["kuài", "元", "yuán"], l1: "This book costs twenty yuan.", note: "块 in speech, 元 on the price tag."}
+      - {id: zh1-13-c2, type: cloze, text: "我想___两本书。", answer: "买", alt: ["mǎi"], l1: "I'd like to buy two books.", note: "想 + verb. Books are counted with 本."}
+      - id: zh1-13-d1
+        type: dialogue
+        title: "Bargaining at the market"
+        scene: "You are at a clothes stall in a market, where prices are open to discussion."
+        you: A
+        lines:
+          - {who: A, l2: "请问，这件衣服多少钱？", rom: "Qǐngwèn, zhè jiàn yīfu duōshao qián?", l1: "Excuse me, how much is this piece of clothing?", alt: ["这件衣服多少钱？", "请问，这件多少钱？", "你好，这件衣服多少钱？"]}
+          - {who: B, l2: "三百块。", rom: "Sānbǎi kuài.", l1: "Three hundred yuan."}
+          - {who: A, l2: "太贵了！便宜一点儿，可以吗？", rom: "Tài guì le! Piányi yìdiǎnr, kěyǐ ma?", l1: "Too expensive! A bit cheaper, OK?", alt: ["太贵了！可以便宜一点儿吗？", "太贵了！便宜一点儿吧。", "太贵了！便宜一点儿，好吗？"]}
+          - {who: B, l2: "两百五十块，可以吗？", rom: "Liǎngbǎi wǔshí kuài, kěyǐ ma?", l1: "Two hundred and fifty, OK?"}
+          - {who: A, l2: "两百块，我买两件。", rom: "Liǎngbǎi kuài, wǒ mǎi liǎng jiàn.", l1: "Two hundred, and I'll buy two.", alt: ["二百块，我买两件。", "两百块，我要两件。"]}
+          - {who: B, l2: "好吧，两件四百块。", rom: "Hǎo ba, liǎng jiàn sìbǎi kuài.", l1: "All right, two for four hundred."}
+
+  # ───────────────────────────────────────────────────────────────── 14
+  - id: zh1-14
+    title: "Likes and abilities: 喜欢, 会, 能, 可以"
+    goal: "I can say what I like doing, what I can do, and ask permission."
+    notes: |
+      **喜欢** (to like) takes a noun or a whole verb phrase: 我喜欢茶。 我喜欢**喝**茶。 Make it stronger with 很: 我很喜欢.
+
+      ## Three kinds of "can"
+      English "can" splits into three verbs. All go before the main verb.
+
+      | verb | meaning | example |
+      |---|---|---|
+      | 会 huì | know how to (a learned skill) | 我会说汉语。 |
+      | 能 néng | be able to (circumstances allow) | 我明天不能来。 |
+      | 可以 kěyǐ | may, be allowed to | 我可以坐这儿吗？ |
+
+      Languages, writing, swimming and driving are skills: use **会**. Being free, well or near enough: **能**. Asking for a yes: **可以**.
+
+      Negatives use 不: **bú huì** (fourth tone follows), **bù néng**, **bù kěyǐ**.
+
+      ## Answering
+      Repeat the verb: 你会说英语吗？ → 会。 / 不会。
+
+      ## A little
+      **一点儿** goes before the noun: 我会说**一点儿**汉语. In the south it is said without the r: 一点.
+
+      ## Verbs with built-in objects
+      Chinese likes a verb to have an object, so "to read" is 看书 ("look at books") and "to speak" is 说话. 看 covers looking, watching and reading: 看书, 看电影.
+
+      The language has two names: **汉语** (the language of the Han people) and **中文**. Both are fine. 汉字 are Chinese characters.
+    items:
+      - {id: zh1-14-g-hui, type: glyph, l2: "会", rom: "huì", l1: "can (to know how to)"}
+      - {id: zh1-14-g-neng, type: glyph, l2: "能", rom: "néng", l1: "can (to be able to)"}
+      - {id: zh1-14-g-shuo, type: glyph, l2: "说", rom: "shuō", l1: "to speak, to say", note: "The speech part 讠."}
+      - {id: zh1-14-g-kan, type: glyph, l2: "看", rom: "kàn", l1: "to look, to watch, to read", note: "A hand (手) shading an eye (目)."}
+      - {id: zh1-14-g-ting, type: glyph, l2: "听", rom: "tīng", l1: "to listen"}
+      - {id: zh1-14-g-xie, type: glyph, l2: "写", rom: "xiě", l1: "to write", note: "Third tone. 谢 (to thank) is xiè, fourth tone."}
+      - {id: zh1-14-xihuan, type: vocab, l2: "喜欢", rom: "xǐhuan", l1: "to like", ex: "我喜欢喝茶。", ex_rom: "Wǒ xǐhuan hē chá.", ex_l1: "I like drinking tea."}
+      - {id: zh1-14-hanyu, type: vocab, l2: "汉语", rom: "Hànyǔ", l1: "Chinese (the language)", alt: ["中文", "Zhōngwén"], ex: "我学汉语。", ex_rom: "Wǒ xué Hànyǔ.", ex_l1: "I am learning Chinese."}
+      - {id: zh1-14-yingyu, type: vocab, l2: "英语", rom: "Yīngyǔ", l1: "English (the language)", alt: ["英文", "Yīngwén"], ex: "他是英语老师。", ex_rom: "Tā shì Yīngyǔ lǎoshī.", ex_l1: "He is an English teacher."}
+      - {id: zh1-14-hanzi, type: vocab, l2: "汉字", rom: "Hànzì", l1: "Chinese character(s)", ex: "我会写十个汉字。", ex_rom: "Wǒ huì xiě shí ge Hànzì.", ex_l1: "I can write ten Chinese characters."}
+      - {id: zh1-14-dianying, type: vocab, l2: "电影", rom: "diànyǐng", l1: "film / movie", ex: "我们明天晚上看电影。", ex_rom: "Wǒmen míngtiān wǎnshang kàn diànyǐng.", ex_l1: "We are watching a film tomorrow evening.", note: "'Electric shadows'."}
+      - {id: zh1-14-yinyue, type: vocab, l2: "音乐", rom: "yīnyuè", l1: "music", ex: "我喜欢听音乐。", ex_rom: "Wǒ xǐhuan tīng yīnyuè.", ex_l1: "I like listening to music."}
+      - {id: zh1-14-yidianr, type: vocab, l2: "一点儿", rom: "yìdiǎnr", l1: "a little, a bit", alt: ["一点", "yìdiǎn"], ex: "我想喝一点儿水。", ex_rom: "Wǒ xiǎng hē yìdiǎnr shuǐ.", ex_l1: "I'd like to drink a little water."}
+      - {id: zh1-14-keyi, type: vocab, l2: "可以", rom: "kěyǐ", l1: "may, to be allowed to", ex: "这儿不可以喝咖啡。", ex_rom: "Zhèr bù kěyǐ hē kāfēi.", ex_l1: "You may not drink coffee here."}
+      - {id: zh1-14-wohuishuo, type: phrase, l2: "我会说一点儿汉语。", rom: "Wǒ huì shuō yìdiǎnr Hànyǔ.", l1: "I can speak a little Chinese.", alt: ["我会说一点儿中文。", "我会说一点汉语。", "我会说一点中文。"]}
+      - {id: zh1-14-nihuishuo, type: phrase, l2: "你会说英语吗？", rom: "Nǐ huì shuō Yīngyǔ ma?", l1: "Can you speak English?", alt: ["您会说英语吗？", "你会说英文吗？", "你会不会说英语？"]}
+      - {id: zh1-14-kezuo, type: phrase, l2: "我可以坐这儿吗？", rom: "Wǒ kěyǐ zuò zhèr ma?", l1: "May I sit here?", alt: ["我可以坐这里吗？", "我能坐这儿吗？", "我可以坐在这儿吗？"]}
+      - {id: zh1-14-c1, type: cloze, text: "我不___写汉字。", answer: "会", alt: ["huì"], l1: "I can't write Chinese characters (I have not learned how).", note: "A learned skill takes 会."}
+      - {id: zh1-14-c2, type: cloze, text: "明天我在医院，不___来学校。", answer: "能", alt: ["néng"], l1: "Tomorrow I'll be at the hospital, so I can't come to school.", note: "Circumstances prevent it: 能."}
+      - id: zh1-14-d1
+        type: dialogue
+        title: "What do you like doing?"
+        scene: "Someone at a party is surprised to hear you speak Chinese."
+        you: B
+        lines:
+          - {who: A, l2: "你会说汉语吗？", rom: "Nǐ huì shuō Hànyǔ ma?", l1: "Can you speak Chinese?"}
+          - {who: B, l2: "会一点儿。", rom: "Huì yìdiǎnr.", l1: "A little.", alt: ["我会说一点儿。", "我会一点儿。", "会说一点儿。", "会一点。", "我会说一点儿汉语。"]}
+          - {who: A, l2: "你说得很好！你喜欢中国电影吗？", rom: "Nǐ shuō de hěn hǎo! Nǐ xǐhuan Zhōngguó diànyǐng ma?", l1: "You speak very well! Do you like Chinese films?"}
+          - {who: B, l2: "很喜欢。你呢？", rom: "Hěn xǐhuan. Nǐ ne?", l1: "I like them a lot. And you?", alt: ["我很喜欢。你呢？", "喜欢，很喜欢。你呢？"]}
+          - {who: A, l2: "我喜欢听音乐，也喜欢看书。", rom: "Wǒ xǐhuan tīng yīnyuè, yě xǐhuan kàn shū.", l1: "I like listening to music, and I like reading too."}
+          - {who: B, l2: "我也喜欢看书。", rom: "Wǒ yě xǐhuan kàn shū.", l1: "I like reading too.", alt: ["我也很喜欢看书。", "我也喜欢。"]}
+
+  # ───────────────────────────────────────────────────────────────── 15
+  - id: zh1-15
+    title: "Daily routine"
+    goal: "I can describe my day: when I get up, work, go home and sleep."
+    notes: |
+      Chinese verbs never change, so a routine is just the verb with a time in front. The fixed order is:
+
+      **Subject + time + (place) + verb**
+
+      | subject | time | place | verb |
+      |---|---|---|---|
+      | 我 | 每天七点 | | 起床。 |
+      | 他 | 上午 | 在学校 | 工作。 |
+      | 我们 | 晚上六点 | | 回家。 |
+
+      The time may also open the sentence (每天我七点起床), but it can **never** come after the verb as in English "I get up *at seven*".
+
+      ## Useful pairs
+      - **上**班 / **下**班: start work / finish work. The same 上 and 下 as in 上午 and 下午. A class works the same way: 上课 (class begins) and 下课.
+      - 起床 ("rise from bed") / 睡觉 ("sleep a sleep").
+      - 回家: 回 is "to return", so no 去 is needed.
+
+      ## Every
+      **每** + measure word or time: 每天 (every day), 每个人 (everyone), 每个星期 (every week).
+
+      ## Asking
+      你几点起床？ (What time do you get up?) The question word 几点 sits in the time slot.
+
+      忙 (busy) and 累 (lèi, tired) are describing words: 我很忙, with 很 and without 是. To ask: 你忙吗？ or 你忙不忙？
+    items:
+      - {id: zh1-15-g-qi, type: glyph, l2: "起", rom: "qǐ", l1: "to rise, to get up", note: "You met it inside duìbuqǐ."}
+      - {id: zh1-15-g-chuang, type: glyph, l2: "床", rom: "chuáng", l1: "bed", note: "Wood (木) under a shelter (广)."}
+      - {id: zh1-15-g-shui, type: glyph, l2: "睡", rom: "shuì", l1: "to sleep", note: "The eye part 目 on the left. 水 (water) is shuǐ, third tone."}
+      - {id: zh1-15-g-hui, type: glyph, l2: "回", rom: "huí", l1: "to return, to go back", note: "Second tone. 会 (can) is huì, fourth tone."}
+      - {id: zh1-15-g-mei, type: glyph, l2: "每", rom: "měi", l1: "every"}
+      - {id: zh1-15-qichuang, type: vocab, l2: "起床", rom: "qǐchuáng", l1: "to get up (out of bed)", ex: "我早上六点起床。", ex_rom: "Wǒ zǎoshang liù diǎn qǐchuáng.", ex_l1: "I get up at six in the morning."}
+      - {id: zh1-15-shuijiao, type: vocab, l2: "睡觉", rom: "shuìjiào", l1: "to sleep; to go to bed", ex: "孩子九点睡觉。", ex_rom: "Háizi jiǔ diǎn shuìjiào.", ex_l1: "The child goes to bed at nine."}
+      - {id: zh1-15-gongzuo, type: vocab, l2: "工作", rom: "gōngzuò", l1: "to work; a job", ex: "我在医院工作。", ex_rom: "Wǒ zài yīyuàn gōngzuò.", ex_l1: "I work in a hospital."}
+      - {id: zh1-15-shangban, type: vocab, l2: "上班", rom: "shàngbān", l1: "to go to work; to start work", ex: "我爸爸八点上班。", ex_rom: "Wǒ bàba bā diǎn shàngbān.", ex_l1: "My dad starts work at eight."}
+      - {id: zh1-15-xiaban, type: vocab, l2: "下班", rom: "xiàbān", l1: "to finish work", ex: "你几点下班？", ex_rom: "Nǐ jǐ diǎn xiàbān?", ex_l1: "What time do you finish work?"}
+      - {id: zh1-15-huijia, type: vocab, l2: "回家", rom: "huí jiā", l1: "to go home", ex: "我想回家。", ex_rom: "Wǒ xiǎng huí jiā.", ex_l1: "I want to go home."}
+      - {id: zh1-15-meitian, type: vocab, l2: "每天", rom: "měi tiān", l1: "every day", ex: "我每天喝咖啡。", ex_rom: "Wǒ měi tiān hē kāfēi.", ex_l1: "I drink coffee every day."}
+      - {id: zh1-15-wanfan, type: vocab, l2: "晚饭", rom: "wǎnfàn", l1: "dinner / evening meal", ex: "我们七点吃晚饭。", ex_rom: "Wǒmen qī diǎn chī wǎnfàn.", ex_l1: "We have dinner at seven.", note: "Breakfast is 早饭 (zǎofàn), lunch 午饭 (wǔfàn)."}
+      - {id: zh1-15-mang, type: vocab, l2: "忙", rom: "máng", l1: "busy", ex: "我今天很忙。", ex_rom: "Wǒ jīntiān hěn máng.", ex_l1: "I am busy today."}
+      - {id: zh1-15-jidianqichuang, type: phrase, l2: "你每天几点起床？", rom: "Nǐ měi tiān jǐ diǎn qǐchuáng?", l1: "What time do you get up every day?"}
+      - {id: zh1-15-shiyidianshuijiao, type: phrase, l2: "我晚上十一点睡觉。", rom: "Wǒ wǎnshang shíyī diǎn shuìjiào.", l1: "I go to bed at eleven at night."}
+      - {id: zh1-15-c1, type: cloze, text: "我每天六点___床。", answer: "起", alt: ["qǐ"], l1: "I get up at six every day.", note: "起床 = to rise from bed. The time comes before the verb."}
+      - {id: zh1-15-c2, type: cloze, text: "他五点下班，六点___家。", answer: "回", alt: ["huí"], l1: "He finishes work at five and goes home at six.", note: "回家: 'return home', with no 去."}
+      - id: zh1-15-d1
+        type: dialogue
+        title: "A working day"
+        scene: "A new friend asks about your routine."
+        you: B
+        lines:
+          - {who: A, l2: "你每天几点起床？", rom: "Nǐ měi tiān jǐ diǎn qǐchuáng?", l1: "What time do you get up every day?"}
+          - {who: B, l2: "我每天七点起床。", rom: "Wǒ měi tiān qī diǎn qǐchuáng.", l1: "I get up at seven every day.", alt: ["我七点起床。", "七点。", "七点起床。", "每天七点。"]}
+          - {who: A, l2: "你几点上班？", rom: "Nǐ jǐ diǎn shàngbān?", l1: "What time do you start work?"}
+          - {who: B, l2: "八点半。我在医院工作。", rom: "Bā diǎn bàn. Wǒ zài yīyuàn gōngzuò.", l1: "At half past eight. I work in a hospital.", alt: ["我八点半上班。我在医院工作。", "八点半上班。我在医院工作。"]}
+          - {who: A, l2: "你工作忙吗？", rom: "Nǐ gōngzuò máng ma?", l1: "Is your work busy?"}
+          - {who: B, l2: "很忙，我晚上八点回家。", rom: "Hěn máng, wǒ wǎnshang bā diǎn huí jiā.", l1: "Very busy; I go home at eight in the evening.", alt: ["很忙。我晚上八点回家。", "我很忙，晚上八点回家。", "很忙，我每天晚上八点回家。"]}
+
+  # ───────────────────────────────────────────────────────────────── 16
+  - id: zh1-16
+    title: "What happened: 了 and 没"
+    goal: "I can say what I did and did not do, and ask whether something has happened yet."
+    notes: |
+      Chinese has no past tense. Time words (昨天, 去年) place the event, and the particle **了** marks an action as **completed**.
+
+      | | | |
+      |---|---|---|
+      | 我去商店了。 | Wǒ qù shāngdiàn le. | I went to the shop. |
+      | 我买了两本书。 | Wǒ mǎi le liǎng běn shū. | I bought two books. |
+      | 你吃饭了吗？ | Nǐ chī fàn le ma? | Have you eaten? |
+
+      - With a plain object, 了 usually closes the sentence: 我吃饭了.
+      - When the object has a number, 了 follows the verb: 我吃**了**两碗饭.
+
+      ## The negative: 没, and no 了
+      "Did not" is **没** (or 没有) + verb, and 了 disappears:
+
+      - 他没来。 He didn't come. (not 他不来了, which means "he's not coming any more")
+      - **还没** = not yet: 我还没吃。
+
+      Compare 不 for habits and intentions: 我不吃肉 (I don't eat meat) but 我没吃肉 (I didn't eat the meat).
+
+      ## 了 is not "past"
+      It also marks a **new situation**: 下雨了 (it has started raining), 我饿了 (è, hungry: I've become hungry), 太贵了.
+
+      And states take no 了 at all: "yesterday I was busy" is simply 我昨天很忙.
+
+      已经 (already) pairs naturally with 了: 他已经到了.
+    items:
+      - {id: zh1-16-g-le, type: glyph, l2: "了", rom: "le", l1: "particle: completed action or new situation", note: "Neutral tone."}
+      - {id: zh1-16-g-zuo, type: glyph, l2: "昨", rom: "zuó", l1: "the character in zuótiān (yesterday)", note: "The sun part 日: a day."}
+      - {id: zh1-16-g-dao, type: glyph, l2: "到", rom: "dào", l1: "to arrive; to reach"}
+      - {id: zh1-16-g-yi, type: glyph, l2: "已", rom: "yǐ", l1: "first half of yǐjīng (already)"}
+      - {id: zh1-16-g-jing, type: glyph, l2: "经", rom: "jīng", l1: "second half of yǐjīng (already)", note: "Same sound as 京 in Běijīng."}
+      - {id: zh1-16-zuotian, type: vocab, l2: "昨天", rom: "zuótiān", l1: "yesterday", ex: "昨天我很忙。", ex_rom: "Zuótiān wǒ hěn máng.", ex_l1: "I was busy yesterday.", note: "A state such as 很忙 takes no 了."}
+      - {id: zh1-16-yijing, type: vocab, l2: "已经", rom: "yǐjīng", l1: "already", ex: "他已经回家了。", ex_rom: "Tā yǐjīng huí jiā le.", ex_l1: "He has already gone home."}
+      - {id: zh1-16-qunian, type: vocab, l2: "去年", rom: "qùnián", l1: "last year", ex: "我去年去了中国。", ex_rom: "Wǒ qùnián qù le Zhōngguó.", ex_l1: "I went to China last year."}
+      - {id: zh1-16-shanggexingqi, type: vocab, l2: "上个星期", rom: "shàng ge xīngqī", l1: "last week", alt: ["上星期", "shàng xīngqī", "上周", "shàng zhōu"], ex: "上个星期我没上班。", ex_rom: "Shàng ge xīngqī wǒ méi shàngbān.", ex_l1: "I didn't go to work last week.", note: "上 = the previous one; next week is 下个星期."}
+      - {id: zh1-16-haimei, type: vocab, l2: "还没", rom: "hái méi", l1: "not yet", alt: ["还没有", "hái méiyǒu"], ex: "她还没来。", ex_rom: "Tā hái méi lái.", ex_l1: "She hasn't come yet."}
+      - {id: zh1-16-dadianhua, type: vocab, l2: "打电话", rom: "dǎ diànhuà", l1: "to make a phone call", ex: "我给妈妈打电话了。", ex_rom: "Wǒ gěi māma dǎ diànhuà le.", ex_l1: "I phoned my mum.", note: "'Hit electric-speech'. The person you call comes after 给."}
+      - {id: zh1-16-piao, type: vocab, l2: "票", rom: "piào", l1: "ticket", ex: "我买了两张票。", ex_rom: "Wǒ mǎi le liǎng zhāng piào.", ex_l1: "I bought two tickets.", note: "Flat things such as tickets are counted with 张 (zhāng)."}
+      - {id: zh1-16-nichifanlema, type: phrase, l2: "你吃饭了吗？", rom: "Nǐ chī fàn le ma?", l1: "Have you eaten?", alt: ["你吃了吗？", "吃饭了吗？", "你吃饭了没有？"], note: "Also a friendly greeting around mealtimes."}
+      - {id: zh1-16-meiqushangban, type: phrase, l2: "我昨天没去上班。", rom: "Wǒ zuótiān méi qù shàngbān.", l1: "I didn't go to work yesterday.", alt: ["昨天我没去上班。", "我昨天没有去上班。", "我昨天没上班。"]}
+      - {id: zh1-16-yijingdao, type: phrase, l2: "他已经到北京了。", rom: "Tā yǐjīng dào Běijīng le.", l1: "He has already arrived in Beijing."}
+      - {id: zh1-16-c1, type: cloze, text: "昨天晚上我看___一个电影。", answer: "了", alt: ["le"], l1: "Last night I watched a film.", note: "The object has a number, so 了 follows the verb."}
+      - {id: zh1-16-c2, type: cloze, text: "他昨天___来学校。", answer: "没", alt: ["méi", "没有", "méiyǒu"], l1: "He didn't come to school yesterday.", note: "A past action that did not happen: 没, and no 了."}
+      - {id: zh1-16-c3, type: cloze, text: "我___没买票。", answer: "还", alt: ["hái"], l1: "I haven't bought a ticket yet.", note: "还没 + verb = not yet."}
+      - id: zh1-16-d1
+        type: dialogue
+        title: "What did you do yesterday?"
+        scene: "Monday evening. A flatmate asks about your weekend."
+        you: B
+        lines:
+          - {who: A, l2: "你昨天去哪儿了？", rom: "Nǐ zuótiān qù nǎr le?", l1: "Where did you go yesterday?"}
+          - {who: B, l2: "我去商店了。", rom: "Wǒ qù shāngdiàn le.", l1: "I went to the shop.", alt: ["我去了商店。", "我昨天去商店了。", "去商店了。"]}
+          - {who: A, l2: "你买什么了？", rom: "Nǐ mǎi shénme le?", l1: "What did you buy?"}
+          - {who: B, l2: "我买了一件衣服。", rom: "Wǒ mǎi le yí jiàn yīfu.", l1: "I bought a piece of clothing.", alt: ["买了一件衣服。", "我买了件衣服。"]}
+          - {who: A, l2: "你吃晚饭了吗？", rom: "Nǐ chī wǎnfàn le ma?", l1: "Have you had dinner?"}
+          - {who: B, l2: "还没吃。你呢？", rom: "Hái méi chī. Nǐ ne?", l1: "Not yet. And you?", alt: ["还没。你呢？", "我还没吃。你呢？", "还没有。你呢？", "还没吃呢。你呢？"]}
+          - {who: A, l2: "我也没吃。我们去吃饺子吧！", rom: "Wǒ yě méi chī. Wǒmen qù chī jiǎozi ba!", l1: "Me neither. Let's go and eat dumplings!"}
+
+  # ───────────────────────────────────────────────────────────────── 17
+  - id: zh1-17
+    title: "Weather and describing things"
+    goal: "I can talk about the weather and describe people and things."
+    notes: |
+      Describing words (adjectives) in Chinese behave like verbs: they need **no 是**.
+
+      | | | |
+      |---|---|---|
+      | 今天很冷。 | Jīntiān hěn lěng. | It is cold today. |
+      | 她很高。 | Tā hěn gāo. | She is tall. |
+      | 这件衣服很漂亮。 | Zhè jiàn yīfu hěn piàoliang. | This piece of clothing is pretty. |
+
+      ## The job of 很
+      In a plain positive statement the adjective needs a word in front, and the neutral one is **很**. Unstressed, it hardly means "very": it just completes the sentence. A bare 今天冷 sounds like a contrast ("today is cold, but…").
+
+      ## Turning it up and down
+      | | | |
+      |---|---|---|
+      | 不冷 | bù lěng | not cold |
+      | 不太冷 | bú tài lěng | not very cold |
+      | 很冷 | hěn lěng | cold |
+      | 非常冷 | fēicháng lěng | extremely cold |
+      | 太冷了 | tài lěng le | too cold! |
+
+      ## Asking
+      - 热吗？ Is it hot?
+      - …**怎么样**？ How is …? What is … like? It also makes a suggestion: 我们去喝茶，怎么样？
+
+      ## Weather
+      There is no "it": 下雨 is "fall rain". **下雨了** means the rain has started; that 了 is the "new situation" one from the last unit. 天气 is weather: 天 (sky) + 气 (air).
+
+      **觉得** gives an opinion: 我觉得很好看 (I think it looks good).
+    items:
+      - {id: zh1-17-g-leng, type: glyph, l2: "冷", rom: "lěng", l1: "cold", note: "The ice part 冫 on the left."}
+      - {id: zh1-17-g-re, type: glyph, l2: "热", rom: "rè", l1: "hot", note: "The fire part 灬 underneath."}
+      - {id: zh1-17-g-qi, type: glyph, l2: "气", rom: "qì", l1: "air; gas", note: "Neutral in kèqi; full fourth tone in tiānqì."}
+      - {id: zh1-17-g-yu, type: glyph, l2: "雨", rom: "yǔ", l1: "rain", note: "Drops falling from a cloud."}
+      - {id: zh1-17-g-gao, type: glyph, l2: "高", rom: "gāo", l1: "tall; high", note: "A picture of a tall tower. You met it in gāoxìng."}
+      - {id: zh1-17-tianqi, type: vocab, l2: "天气", rom: "tiānqì", l1: "weather", ex: "今天天气很好。", ex_rom: "Jīntiān tiānqì hěn hǎo.", ex_l1: "The weather is good today."}
+      - {id: zh1-17-xiayu, type: vocab, l2: "下雨", rom: "xià yǔ", l1: "to rain", ex: "明天下雨吗？", ex_rom: "Míngtiān xià yǔ ma?", ex_l1: "Will it rain tomorrow?"}
+      - {id: zh1-17-zenmeyang, type: vocab, l2: "怎么样", rom: "zěnmeyàng", l1: "how is it? / what is it like?", ex: "这个菜怎么样？", ex_rom: "Zhège cài zěnmeyàng?", ex_l1: "How is this dish?"}
+      - {id: zh1-17-piaoliang, type: vocab, l2: "漂亮", rom: "piàoliang", l1: "pretty, beautiful", ex: "你女儿很漂亮。", ex_rom: "Nǐ nǚ'ér hěn piàoliang.", ex_l1: "Your daughter is pretty."}
+      - {id: zh1-17-feichang, type: vocab, l2: "非常", rom: "fēicháng", l1: "extremely, very (stronger than hěn)", ex: "北京非常大。", ex_rom: "Běijīng fēicháng dà.", ex_l1: "Beijing is extremely big."}
+      - {id: zh1-17-juede, type: vocab, l2: "觉得", rom: "juéde", l1: "to think, to feel (to have an opinion)", ex: "我觉得汉语不太难。", ex_rom: "Wǒ juéde Hànyǔ bú tài nán.", ex_l1: "I think Chinese is not too hard."}
+      - {id: zh1-17-tianqizenmeyang, type: phrase, l2: "今天天气怎么样？", rom: "Jīntiān tiānqì zěnmeyàng?", l1: "What is the weather like today?", alt: ["今天的天气怎么样？"]}
+      - {id: zh1-17-butaileng, type: phrase, l2: "今天不太冷。", rom: "Jīntiān bú tài lěng.", l1: "It is not very cold today.", alt: ["今天天气不太冷。"]}
+      - {id: zh1-17-xiayule, type: phrase, l2: "下雨了。", rom: "Xià yǔ le.", l1: "It's raining (the rain has started)."}
+      - {id: zh1-17-c1, type: cloze, text: "北京的天气___冷。", answer: "很", alt: ["hěn"], l1: "The weather in Beijing is cold.", note: "An adjective takes 很, never 是."}
+      - {id: zh1-17-c2, type: cloze, text: "他哥哥非常___。", answer: "高", alt: ["gāo"], l1: "His older brother is extremely tall."}
+      - id: zh1-17-d1
+        type: dialogue
+        title: "Hot today, rain tomorrow"
+        scene: "A friend is deciding what to wear and asks you about the weather."
+        you: B
+        lines:
+          - {who: A, l2: "今天天气怎么样？", rom: "Jīntiān tiānqì zěnmeyàng?", l1: "What's the weather like today?"}
+          - {who: B, l2: "今天很热。", rom: "Jīntiān hěn rè.", l1: "It's hot today.", alt: ["很热。", "今天天气很热。"]}
+          - {who: A, l2: "明天呢？", rom: "Míngtiān ne?", l1: "And tomorrow?"}
+          - {who: B, l2: "明天下雨，不太热。", rom: "Míngtiān xià yǔ, bú tài rè.", l1: "Tomorrow it will rain; not too hot.", alt: ["明天有雨，不太热。", "明天会下雨，不太热。"]}
+          - {who: A, l2: "太好了！我不喜欢热的天气。", rom: "Tài hǎo le! Wǒ bù xǐhuan rè de tiānqì.", l1: "Great! I don't like hot weather."}
+          - {who: B, l2: "我也不喜欢。", rom: "Wǒ yě bù xǐhuan.", l1: "I don't like it either.", alt: ["我也不喜欢热的天气。"]}
+
+  # ───────────────────────────────────────────────────────────────── 18
+  - id: zh1-18
+    title: "Asking questions and getting unstuck"
+    goal: "I can say I don't understand, ask for repetition and help, and ask why and how."
+    notes: |
+      These are the phrases that keep a conversation alive when your Chinese runs out. Learn them until they are automatic.
+
+      | | | |
+      |---|---|---|
+      | 我听不懂。 | Wǒ tīng bu dǒng. | I don't understand (what I hear). |
+      | 请再说一遍。 | Qǐng zài shuō yí biàn. | Please say it again. |
+      | 请说慢一点儿。 | Qǐng shuō màn yìdiǎnr. | Please speak more slowly. |
+      | …是什么意思？ | … shì shénme yìsi? | What does … mean? |
+      | …怎么说？ | … zěnme shuō? | How do you say …? |
+
+      ## 听不懂
+      Literally "listen, not understand": you hear the words but cannot follow them. The 不 in the middle is neutral. For writing it is 看不懂. When it finally clicks: 我明白了 or 我懂了 ("now I understand", with the new-situation 了).
+
+      ## Two kinds of knowing
+      **知道** is knowing a fact (我不知道). **认识** is knowing a person or recognising a character (我不认识这个字).
+
+      ## How and why
+      - **怎么** + verb asks *how*: 怎么说？ 怎么走？ 怎么写？
+      - **为什么** asks *why*, and the answer starts with **因为** (because).
+
+      ## Asking for help
+      你能帮我吗？ (Can you help me?) **帮** takes the person directly. 没问题 ("no problem") is the cheerful reply.
+
+      一遍 is "one time through": 一 is *yí* before the fourth tone of biàn.
+    items:
+      - {id: zh1-18-g-dong, type: glyph, l2: "懂", rom: "dǒng", l1: "to understand", note: "The heart part 忄 on the left: understanding happens there."}
+      - {id: zh1-18-g-man, type: glyph, l2: "慢", rom: "màn", l1: "slow", note: "The heart part 忄 again."}
+      - {id: zh1-18-g-zhi, type: glyph, l2: "知", rom: "zhī", l1: "first half of zhīdào (to know)"}
+      - {id: zh1-18-g-dao, type: glyph, l2: "道", rom: "dào", l1: "way, road (second half of zhīdào)", note: "Same sound as 到 (to arrive)."}
+      - {id: zh1-18-g-bang, type: glyph, l2: "帮", rom: "bāng", l1: "to help"}
+      - {id: zh1-18-zhidao, type: vocab, l2: "知道", rom: "zhīdào", l1: "to know (a fact)", alt: ["zhīdao"], ex: "我知道他是谁。", ex_rom: "Wǒ zhīdào tā shì shéi.", ex_l1: "I know who he is."}
+      - {id: zh1-18-mingbai, type: vocab, l2: "明白", rom: "míngbai", l1: "to understand, to be clear about", ex: "我明白了。", ex_rom: "Wǒ míngbai le.", ex_l1: "Now I understand."}
+      - {id: zh1-18-yisi, type: vocab, l2: "意思", rom: "yìsi", l1: "meaning", ex: "我不知道这个字的意思。", ex_rom: "Wǒ bù zhīdào zhège zì de yìsi.", ex_l1: "I don't know the meaning of this character."}
+      - {id: zh1-18-weishenme, type: vocab, l2: "为什么", rom: "wèi shénme", l1: "why", ex: "你为什么学汉语？", ex_rom: "Nǐ wèi shénme xué Hànyǔ?", ex_l1: "Why are you learning Chinese?"}
+      - {id: zh1-18-yinwei, type: vocab, l2: "因为", rom: "yīnwèi", l1: "because", ex: "因为我喜欢中国。", ex_rom: "Yīnwèi wǒ xǐhuan Zhōngguó.", ex_l1: "Because I like China."}
+      - {id: zh1-18-zenme, type: vocab, l2: "怎么", rom: "zěnme", l1: "how (in what way)", ex: "这个字怎么写？", ex_rom: "Zhège zì zěnme xiě?", ex_l1: "How do you write this character?"}
+      - {id: zh1-18-wenti, type: vocab, l2: "问题", rom: "wèntí", l1: "question; problem", ex: "我有一个问题。", ex_rom: "Wǒ yǒu yí ge wèntí.", ex_l1: "I have a question.", note: "没问题 (méi wèntí) = no problem."}
+      - {id: zh1-18-tingbudong, type: phrase, l2: "我听不懂。", rom: "Wǒ tīng bu dǒng.", l1: "I don't understand (what you are saying).", alt: ["我没听懂。", "我不懂。", "听不懂。"]}
+      - {id: zh1-18-zaishuoyibian, type: phrase, l2: "请再说一遍。", rom: "Qǐng zài shuō yí biàn.", l1: "Please say it again.", alt: ["请您再说一遍。", "请你再说一遍。", "请再说一次。"]}
+      - {id: zh1-18-manyidianr, type: phrase, l2: "请说慢一点儿。", rom: "Qǐng shuō màn yìdiǎnr.", l1: "Please speak a little more slowly.", alt: ["请慢一点儿说。", "请说慢一点。", "请慢一点儿。", "请您说慢一点儿。"]}
+      - {id: zh1-18-zenmeshuo, type: phrase, l2: "这个用汉语怎么说？", rom: "Zhège yòng Hànyǔ zěnme shuō?", l1: "How do you say this in Chinese?", alt: ["这个汉语怎么说？", "这个用中文怎么说？", "这个中文怎么说？"]}
+      - {id: zh1-18-shenmeyisi, type: phrase, l2: "这是什么意思？", rom: "Zhè shì shénme yìsi?", l1: "What does this mean?", alt: ["这个是什么意思？", "这个字是什么意思？", "什么意思？"]}
+      - {id: zh1-18-bangwo, type: phrase, l2: "你能帮我吗？", rom: "Nǐ néng bāng wǒ ma?", l1: "Can you help me?", alt: ["您能帮我吗？", "你可以帮我吗？", "你能帮我一下吗？", "你能帮帮我吗？"]}
+      - {id: zh1-18-c1, type: cloze, text: "你___不吃肉？", answer: "为什么", alt: ["wèi shénme", "wèishénme", "怎么", "zěnme"], l1: "Why don't you eat meat?", note: "为什么 goes before the verb, after the subject. 怎么 here means 'how come' and also fits."}
+      - {id: zh1-18-c2, type: cloze, text: "对不起，我不___洗手间在哪儿。", answer: "知道", alt: ["zhīdào", "zhīdao"], l1: "Sorry, I don't know where the toilet is.", note: "Knowing a fact is 知道; 认识 is for people and characters."}
+      - id: zh1-18-d1
+        type: dialogue
+        title: "Lost for words in a shop"
+        scene: "A shop assistant speaks to you quickly and you miss it."
+        you: B
+        lines:
+          - {who: A, l2: "您好！您要买点儿什么？", rom: "Nín hǎo! Nín yào mǎi diǎnr shénme?", l1: "Hello! What would you like to buy?"}
+          - {who: B, l2: "对不起，我听不懂。", rom: "Duìbuqǐ, wǒ tīng bu dǒng.", l1: "Sorry, I don't understand.", alt: ["对不起，我没听懂。", "不好意思，我听不懂。", "对不起，我不懂。"]}
+          - {who: A, l2: "您会说汉语吗？", rom: "Nín huì shuō Hànyǔ ma?", l1: "Do you speak Chinese?"}
+          - {who: B, l2: "会一点儿。请说慢一点儿。", rom: "Huì yìdiǎnr. Qǐng shuō màn yìdiǎnr.", l1: "A little. Please speak more slowly.", alt: ["我会一点儿。请说慢一点儿。", "会一点儿。请慢一点儿说。", "会一点儿。请您说慢一点儿。", "会说一点儿。请说慢一点儿。"]}
+          - {who: A, l2: "好。您想买什么？", rom: "Hǎo. Nín xiǎng mǎi shénme?", l1: "All right. What would you like to buy?"}
+          - {who: B, l2: "我明白了，谢谢！我想买水。", rom: "Wǒ míngbai le, xièxie! Wǒ xiǎng mǎi shuǐ.", l1: "Now I understand, thank you! I'd like to buy water.", alt: ["我懂了，谢谢！我想买水。", "我明白了，谢谢！我要买水。", "我明白了，谢谢你！我想买水。"]}
+          - {who: A, l2: "水在那儿，三块钱一瓶。", rom: "Shuǐ zài nàr, sān kuài qián yì píng.", l1: "The water is over there, three yuan a bottle."}

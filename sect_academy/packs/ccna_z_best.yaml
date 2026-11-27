@@ -1,0 +1,2657 @@
+# CCNA 200-301 (v2.0) - best-answer practice bank (BEST / MOST / FIRST / LEAST).
+# Every choice is something a working network engineer might do; the stem
+# supplies the deciding constraint. Original content, first written against the
+# public v1.1 exam topics and re-sorted into the v2.0 domains. The three
+# background units at the end (domain "x", weight 0) hold v1.1 topics that v2.0
+# dropped; mock exams do not draw from them.
+part_of: ccna
+
+units:
+  # ─────────────── 1b2 · Network Infrastructure and Connectivity ───────────────
+  - id: cn-1b2
+    title: "Best-answer practice: Network Infrastructure and Connectivity"
+    domain: "1"
+    goal: "I can pick the best cable, address plan, DHCP setup or wireless design when every option on offer would work."
+    notes: |
+      Infrastructure and connectivity best-answer questions give four options that all function somewhere. The stem holds the one requirement that only one of them meets in full, so find it before reading the choices.
+
+      **Constraints to look for**
+
+      | Clue in the stem | What it decides |
+      | a distance, a speed | Fibre type and optic; copper stops at 100 m |
+      | "must not overlap", "future growth" | Do the subnet arithmetic both ways: hosts and subnets |
+      | "no extra hardware", "no budget" | The smallest addition that works |
+      | "coverage must not shrink" | Rules out simply turning power down |
+      | which counter is rising | CRC means physical layer; late collisions mean duplex |
+
+      **Usual traps**
+
+      - Picking the most powerful design (three-tier, 80 MHz channels) where the stem describes a small or dense site.
+      - A mask that meets the host count today and fails the growth or subnet count.
+      - Changing something before measuring: survey before moving APs, read the routing table before blaming DNS.
+    items:
+      - id: cn-1b2-b01
+        type: mcq
+        best: true
+        q: "Two buildings on one campus are 1.2 km apart, and the company owns an empty duct between them. It needs a 10 Gbps link that is immune to electrical interference and carries no monthly fee. Which is the BEST choice?"
+        choices:
+          - "Multimode OM4 fibre with 10GBASE-SR optics"
+          - "A point-to-point wireless bridge between the roofs"
+          - "Single-mode fibre with 10GBASE-LR optics"
+          - "A 10 Gbps Metro Ethernet circuit from a provider"
+        answer: 2
+        why: "Only single-mode fibre with long-reach optics covers 1.2 km at 10 Gbps over infrastructure the company already owns."
+        whys:
+          - "Immune to interference, but 10GBASE-SR reaches only about 400 m on OM4, far short of 1.2 km."
+          - "No fee, but radio is exposed to weather and interference and rarely holds a steady 10 Gbps."
+          - "Best: 10GBASE-LR reaches 10 km on single-mode fibre, ignores electrical noise and uses the company's own duct."
+          - "Meets distance and speed, but adds the monthly fee the stem rules out."
+
+      - id: cn-1b2-b02
+        type: mcq
+        best: true
+        q: "'show interfaces Gi0/14' on an access switch shows 'Full-duplex, 1000Mb/s', thousands of input errors that are almost all CRC errors, and no collisions, runts or giants. The PC at the other end also reports 1000 Mbps full duplex. What is the MOST likely cause?"
+        choices:
+          - "A damaged cable or electrical noise along the run"
+          - "A duplex mismatch between the switch port and the PC"
+          - "A failing switch port that corrupts frames as it receives them"
+          - "An MTU mismatch that makes the PC send oversized frames"
+        answer: 0
+        why: "CRC errors with matching speed and duplex and no collisions point to the physical layer, and the cable is by far the commonest culprit."
+        whys:
+          - "Best: frames are arriving corrupted while speed and duplex agree, which is the signature of a bad cable or interference."
+          - "A duplex mismatch shows late collisions on the half-duplex side, and both ends here report full duplex."
+          - "Possible, but much rarer than a bad cable; swap the cable before blaming the hardware."
+          - "Oversized frames are counted as giants, and the counter shows none."
+
+      - id: cn-1b2-b04
+        type: mcq
+        best: true
+        q: "An engineer subnets 10.20.0.0/16 for a growing campus. Each subnet must hold 500 hosts today and 900 within two years, and at least 40 subnets are needed. Which mask is BEST?"
+        choices:
+          - "/21 (255.255.248.0)"
+          - "/23 (255.255.254.0)"
+          - "/20 (255.255.240.0)"
+          - "/22 (255.255.252.0)"
+        answer: 3
+        why: "A /22 borrows 6 bits from the /16, giving 64 subnets of 1,022 hosts: the only mask that meets both counts."
+        whys:
+          - "2,046 hosts each, but only 2^5 = 32 subnets, short of 40."
+          - "128 subnets, but 510 hosts each: enough today, too few for 900."
+          - "4,094 hosts each, but only 16 subnets, with most addresses wasted."
+          - "Best: 2^6 = 64 subnets of 2^10 - 2 = 1,022 hosts, meeting both requirements with the least waste."
+
+      - id: cn-1b2-b05
+        type: mcq
+        best: true
+        q: "Company A uses 10.0.0.0/8 throughout; Company B, which it has just bought, uses 192.168.0.0/16 throughout. A new site needs about 4,000 host addresses, must not overlap either company, and will be routed across the merged WAN. Which block is BEST?"
+        choices:
+          - "172.16.0.0/20, from the RFC 1918 private range"
+          - "An unused-looking /20 taken from 10.0.0.0/8"
+          - "100.64.0.0/20, from the RFC 6598 shared address space"
+          - "The company's own registered public /24"
+        answer: 0
+        why: "172.16.0.0/20 is private, sits outside both companies' ranges, and holds 4,094 hosts."
+        whys:
+          - "Best: private, clear of both existing ranges, and 2^12 - 2 = 4,094 hosts is enough."
+          - "Big enough, but the stem says Company A uses all of 10.0.0.0/8, so any part of it risks overlap."
+          - "Large enough, but 100.64.0.0/10 is reserved for carrier-grade NAT between providers and customers, not enterprise LANs."
+          - "Cannot overlap, but a /24 holds only 254 hosts."
+
+      - id: cn-1b2-b06
+        type: mcq
+        best: true
+        q: "IPv6 hosts on a VLAN must configure their own addresses automatically and also learn the DNS server. The team does not want to track which host holds which address, and some hosts cannot read DNS options in router advertisements. Which design is BEST?"
+        choices:
+          - "Stateful DHCPv6, with the M flag set in router advertisements"
+          - "SLAAC alone, with the DNS server carried in the RA"
+          - "SLAAC plus stateless DHCPv6 ('ipv6 nd other-config-flag')"
+          - "Static IPv6 addresses and DNS settings typed on each host"
+        answer: 2
+        why: "Hosts build their own addresses with SLAAC, and the O flag sends them to a stateless DHCPv6 server for DNS only, with no per-host bindings."
+        whys:
+          - "Provides addresses and DNS, but the server assigns and tracks every address, which the team does not want."
+          - "Stateless and simple, but the hosts that cannot read RA DNS options would get no DNS server."
+          - "Best: no address tracking, and every host gets DNS whether or not it reads RA options."
+          - "Works, but is neither automatic nor easy to maintain."
+
+      - id: cn-1b2-b07
+        type: mcq
+        best: true
+        q: "Three DNS resolvers sit in three data centres. Clients must reach the nearest one through a single IPv6 address, chosen by routing with no extra hardware, and must fail over automatically if a site is lost. Which is BEST?"
+        choices:
+          - "Give each resolver its own global unicast address and list all three on clients"
+          - "One anycast address on all three resolvers, advertised from each site"
+          - "Have clients send queries to a multicast group that all three resolvers join"
+          - "Put a load balancer in one data centre in front of all three resolvers"
+        answer: 1
+        why: "Routing delivers anycast traffic to the nearest advertiser and stops sending to a site whose route is withdrawn."
+        whys:
+          - "Works, but clients try the list in order rather than by nearness, and the stem asks for one address."
+          - "Best: one address, the nearest site wins by routing metric, and a lost site's route disappears."
+          - "Every resolver in the group would receive and answer every query, tripling the load."
+          - "Adds hardware and makes one site a point that every query must cross."
+
+      - id: cn-1b2-b08
+        type: mcq
+        best: true
+        q: "A management network spans 12 sites over a private WAN. Its IPv6 addresses must be routable between sites, must never be valid on the internet, and must not change if the company changes ISP. Which addressing is BEST?"
+        choices:
+          - "Link-local addresses (fe80::/10) on every management interface"
+          - "Global unicast addresses from the ISP's block, filtered at the edge"
+          - "Site-local addresses from fec0::/10"
+          - "Unique local addresses from a random /48 in fd00::/8"
+        answer: 3
+        why: "Unique local addresses route inside the organisation, are not routed on the internet, and belong to no ISP."
+        whys:
+          - "Never leave their own link, so they cannot be routed between sites."
+          - "Routable, but internet-valid, protected only by filters, and lost if the ISP changes."
+          - "Matched this intent once, but fec0::/10 is deprecated and must not be used in new designs."
+          - "Best: private, routable across the WAN, and independent of any provider."
+
+      - id: cn-1b2-b09
+        type: mcq
+        best: true
+        q: "A Linux server can reach hosts on its own subnet but nothing beyond it. 'ip addr' shows 10.1.5.20/24, which matches the subnet plan. Which command should be run FIRST to check the most likely cause?"
+        choices:
+          - "'ip route', to check for a default route"
+          - "'traceroute' to a remote host, to see where packets stop"
+          - "'cat /etc/resolv.conf', to see which DNS servers are set"
+          - "'ping' to the subnet's documented gateway address"
+        answer: 0
+        why: "With the address and mask correct, a missing or wrong default route is the likeliest cause, and 'ip route' shows it directly."
+        whys:
+          - "Best: one command shows whether there is a 'default via' line and which gateway it names."
+          - "Confirms that packets go nowhere, but not why; it fails at the first hop with no detail."
+          - "Name resolution is not the problem; the server cannot reach remote addresses at all."
+          - "Proves the gateway is alive, but not whether the server is actually using it."
+
+      - id: cn-1b2-b10
+        type: mcq
+        best: true
+        q: "A lecture hall has six APs on 2.4 GHz channels 1, 6 and 11, and clients still suffer co-channel interference. Every AP and client also supports 5 GHz. Coverage must not shrink. Which change is BEST?"
+        choices:
+          - "Lower every AP's 2.4 GHz transmit power"
+          - "Bond 2.4 GHz channels to 40 MHz for more throughput"
+          - "Enable 5 GHz on the APs and steer clients to it"
+          - "Add three more APs on 2.4 GHz channels 1, 6 and 11"
+        answer: 2
+        why: "5 GHz has many non-overlapping channels, so six APs can each have their own."
+        whys:
+          - "Reduces overlap, but also shrinks coverage, which the stem rules out."
+          - "A 40 MHz channel leaves room for only one non-overlapping channel in 2.4 GHz, so interference gets worse."
+          - "Best: moving clients to a band with many clean channels removes the co-channel problem at its source."
+          - "More radios on the same three channels add contention rather than removing it."
+
+      - id: cn-1b2-b11
+        type: mcq
+        best: true
+        q: "A dense open-plan office has 30 APs on 5 GHz. Most traffic is web and voice, and the main complaint is co-channel interference between neighbouring APs. Which channel width is BEST?"
+        choices:
+          - "80 MHz, for the highest throughput per client"
+          - "20 MHz, to give the most non-overlapping channels"
+          - "40 MHz, as a balance between speed and channel count"
+          - "160 MHz on the few APs that serve the busiest area"
+        answer: 1
+        why: "In high density, narrow channels give the most separate channels, and web and voice need little width."
+        whys:
+          - "Fast for each client, but uses so much spectrum that neighbouring APs must share channels."
+          - "Best: the most channels to spread 30 APs across, and enough capacity for the traffic described."
+          - "Better than 80 MHz, but still halves the number of channels compared with 20 MHz."
+          - "Only a couple of 160 MHz channels fit in the 5 GHz band, so those APs overlap nearly every neighbour."
+
+      - id: cn-1b2-b12
+        type: mcq
+        best: true
+        q: "Users in a newly fitted-out wing report weak Wi-Fi near a new concrete stairwell and a room full of metal racks. Which should be done FIRST?"
+        choices:
+          - "Raise the transmit power of the nearest APs"
+          - "Install an extra AP in the corridor by the stairwell"
+          - "Move the nearest APs to less busy channels"
+          - "Survey the wing to measure signal and interference"
+        answer: 3
+        why: "Measure before changing: a survey shows where and why signal is lost, so any fix is aimed correctly."
+        whys:
+          - "May help, but changes the RF without knowing whether absorption, reflection or interference is to blame."
+          - "Often the eventual fix, but where it goes and whether it is needed should come from measurement."
+          - "Treats interference, while the stem points to absorption and reflection, which a channel change cannot fix."
+          - "Best: the survey turns a guess into a measured cause and location."
+
+      - id: cn-1b2-b13
+        type: mcq
+        best: true
+        q: "Twelve old physical servers, a mix of Windows Server and Linux, are to be consolidated onto two new hosts. Performance and isolation between workloads matter most. Which is BEST?"
+        choices:
+          - "A type 2 hypervisor on a Windows Server install on each host"
+          - "Containers on a Linux host for all twelve workloads"
+          - "A type 1 (bare-metal) hypervisor, one VM per workload"
+          - "Keep the servers physical and replace them one by one"
+        answer: 2
+        why: "A bare-metal hypervisor runs directly on the hardware, gives each workload its own OS and isolates them."
+        whys:
+          - "Runs both OSes, but the host OS sits under every VM, costing performance and adding a layer to patch."
+          - "Light and fast, but containers share the host kernel, so the Windows workloads cannot run on a Linux host."
+          - "Best: full isolation, mixed operating systems and near-native performance on two hosts."
+          - "Isolated, but no consolidation at all."
+
+      - id: cn-4b2-b04
+        type: mcq
+        best: true
+        q: "A Layer 3 switch routes 15 user VLANs. All clients must get their addresses from one central DHCP server, 10.99.0.5, in the data centre. Which is BEST?"
+        choices:
+          - "A DHCP server in each of the 15 VLANs"
+          - "'ip helper-address 10.99.0.5' on each of the 15 SVIs"
+          - "An IOS DHCP pool for each VLAN on the Layer 3 switch itself"
+          - "A trunk to the DHCP server carrying all 15 VLANs"
+        answer: 1
+        why: "Each SVI relays its VLAN's DHCP broadcasts to the server and adds its own address so the right scope is chosen."
+        whys:
+          - "Works, but 15 servers to run instead of one."
+          - "Best: one server, one line per VLAN."
+          - "Works, but the leases then live on the switch, not on the central server the stem requires."
+          - "Works for a few VLANs, but stretches all of them into the data centre."
+
+      - id: cn-5b2-b11
+        type: mcq
+        best: true
+        q: "A warehouse has 40 handheld scanners that support only WPA2-Personal, and new laptops that support WPA3. Everything must stay on one SSID, and new devices should use WPA3 now. Which is BEST?"
+        choices:
+          - "WPA2/WPA3 transition mode on the SSID"
+          - "WPA2-Personal only, until the scanners are replaced"
+          - "WPA3-Personal only"
+          - "A second SSID using WPA3 for the laptops"
+        answer: 0
+        why: "WPA3-capable devices connect with SAE while the scanners keep using WPA2 on the same SSID."
+        whys:
+          - "Best: one SSID, and WPA3 wherever a device supports it."
+          - "Keeps the scanners, but delays WPA3 for everything."
+          - "Strongest, but the scanners cannot join."
+          - "Gives the laptops WPA3, but breaks the one-SSID requirement."
+
+      - id: cn-5b2-b12
+        type: mcq
+        best: true
+        q: "The WPA2 pre-shared key of a staff WLAN was known to an employee who was dismissed this morning. Security must be restored today; a move to 802.1X is planned for next quarter. Which should be done FIRST?"
+        choices:
+          - "Bring the 802.1X project forward and deploy it this week"
+          - "Hide the SSID"
+          - "Change the pre-shared key and give it to current staff"
+          - "Add MAC filtering for known staff devices"
+        answer: 2
+        why: "A new key locks the former employee out today."
+        whys:
+          - "The right long-term fix, but it cannot restore security today."
+          - "The SSID still shows in probe traffic, and the old key still works."
+          - "Best: the only choice that removes the leaked key today."
+          - "MAC addresses are easy to spoof, and the old key would still decrypt traffic."
+
+  # ─────────────── 2b2 · Switching and Network Access ───────────────
+  - id: cn-2b2
+    title: "Best-answer practice: Switching and Network Access"
+    domain: "2"
+    goal: "I can choose the best VLAN, trunk, EtherChannel, spanning-tree or PoE option when every choice would work."
+    notes: |
+      Switching and network access best-answer questions usually ask **where** a feature goes or **which variant** of it fits. All four choices are real IOS or WLC features; only one matches the stated constraint.
+
+      **Constraints to look for**
+
+      | Clue in the stem | What it decides |
+      | "must keep their connectivity" | Root guard, not BPDU guard |
+      | "another vendor" | LACP and LLDP, not PAgP and CDP |
+      | "if D1 fails" | Configure a secondary, not just a primary |
+      | "only on this interface" | Per-interface command, not global |
+      | "no controller to run" | Cloud-managed, not FlexConnect |
+
+      **Usual traps**
+
+      - A global command (`no cdp run`, a forward-delay change) where the stem limits the change to one port.
+      - Fixing a symptom (lower timers) instead of the cause (edge ports without PortFast).
+      - Forgetting fallback behaviour: who becomes root, or which login method works, when the preferred one fails.
+      - Assuming LACP everywhere: an AireOS WLC bundles only statically (`mode on`).
+    items:
+      - id: cn-2b2-b01
+        type: mcq
+        best: true
+        q: "A campus has distribution switches D1 and D2 and 20 access switches. The root bridge for VLANs 1-100 is currently an old access switch with the lowest MAC address. D1 must be root, and D2 must take over if D1 fails. Which is the BEST change?"
+        choices:
+          - "On D1 'spanning-tree vlan 1-100 root primary'; on D2 'spanning-tree vlan 1-100 root secondary'"
+          - "On D1 'spanning-tree vlan 1-100 priority 0', and nothing else"
+          - "On D1 'spanning-tree vlan 1-100 root primary', and nothing else"
+          - "'spanning-tree vlan 1-100 priority 61440' on all 20 access switches"
+        answer: 0
+        why: "Two commands make D1 root and D2 the backup, so losing D1 never hands the root to an access switch."
+        whys:
+          - "Best: a defined primary and secondary make the election predictable even after a failure."
+          - "Makes D1 root, but if D1 fails the election falls back to the lowest MAC, the old access switch."
+          - "Same gap: with no secondary set, the old access switch becomes root when D1 fails."
+          - "The access switches lose, but D1 and D2 then tie on priority and the lower MAC wins: twenty changes for an unpredictable result."
+
+      - id: cn-2b2-b02
+        type: mcq
+        best: true
+        q: "D1 is root for all VLANs. A switch run by another team, connected on D1's Gi1/0/24, is sometimes set to priority 0 and takes over as root, re-routing the whole campus. That team's users must keep their connectivity. Which is BEST?"
+        choices:
+          - "'spanning-tree bpduguard enable' on D1 Gi1/0/24"
+          - "'spanning-tree bpdufilter enable' on D1 Gi1/0/24"
+          - "'spanning-tree guard root' on D1 Gi1/0/24"
+          - "Set D1's priority to 0 for every VLAN"
+        answer: 2
+        why: "Root guard lets the port work normally and blocks it only while it receives superior BPDUs, so the root never moves."
+        whys:
+          - "Stops the takeover, but err-disables the port on the first BPDU and cuts off that team's users."
+          - "Stops BPDUs on that link, which removes loop protection and can create a loop."
+          - "Best: the port goes root-inconsistent only while superior BPDUs arrive and recovers by itself when they stop."
+          - "Their switch can also be set to 0 and win on a lower MAC; it is not enforcement."
+
+      - id: cn-2b2-b03
+        type: mcq
+        best: true
+        q: "PCs on a Rapid PVST+ access switch wait about 30 seconds after link-up before they can get a DHCP address. The ports connect only to single end hosts. Which change BEST fixes this without weakening loop protection?"
+        choices:
+          - "Lower the forward-delay timer for every VLAN"
+          - "'spanning-tree portfast' plus 'spanning-tree bpduguard enable' on the access ports"
+          - "Disable spanning tree on the user VLANs"
+          - "'spanning-tree portfast' on the uplink trunks"
+        answer: 1
+        why: "Edge ports skip the discarding and learning wait, and BPDU guard shuts any of them that unexpectedly hears a switch."
+        whys:
+          - "Shortens the wait everywhere, including between switches, making the whole topology less safe."
+          - "Best: instant forwarding for hosts, with a guard against someone plugging in a switch."
+          - "Ends the delay by removing loop protection altogether."
+          - "The delay is on the host ports, so the uplinks are the wrong place, and fast-forwarding links to switches invites loops."
+
+      - id: cn-2b2-b04
+        type: mcq
+        best: true
+        q: "A fibre uplink between two switches sometimes fails in one direction only. The non-designated end then stops receiving BPDUs, moves its blocked port to forwarding, and a loop forms. Which feature on that port BEST prevents this?"
+        choices:
+          - "Root guard"
+          - "BPDU guard"
+          - "BPDU filter"
+          - "Loop guard"
+        answer: 3
+        why: "Loop guard puts a non-designated port into loop-inconsistent (blocking) when its BPDUs stop, instead of letting it forward."
+        whys:
+          - "Acts on superior BPDUs arriving, the opposite problem; it does nothing when BPDUs stop."
+          - "Shuts a port that receives BPDUs, which an uplink must do in normal operation."
+          - "Stops BPDUs altogether, which is how loops like this one start."
+          - "Best: it treats the silence as a fault and keeps the port blocking."
+
+      - id: cn-2b2-b05
+        type: mcq
+        best: true
+        q: "Two links join a Cisco access switch to another vendor's distribution switch, and spanning tree blocks one of them. Both links must carry traffic, and a mis-cabled member must be detected rather than cause a loop. Which configuration on the Cisco member ports is BEST?"
+        choices:
+          - "'channel-group 1 mode active'"
+          - "'channel-group 1 mode desirable'"
+          - "'channel-group 1 mode on'"
+          - "Separate links with per-VLAN port costs to split the VLANs"
+        answer: 0
+        why: "LACP is the IEEE standard both vendors speak, and its negotiation catches mis-cabled or misconfigured members."
+        whys:
+          - "Best: standard, negotiated and both links in use."
+          - "PAgP is Cisco-only, so the other vendor's switch will not negotiate."
+          - "Bundles with any vendor, but with no negotiation a misconfigured member can cause a loop."
+          - "Spreads VLANs over the links, but each VLAN still uses one link and spanning tree still blocks."
+
+      - id: cn-2b2-b06
+        type: mcq
+        best: true
+        q: "On a Catalyst 9300 (IOS XE), 'show etherchannel summary' shows 'Po1(SU) LACP Gi1/0/1(P) Gi1/0/2(s)', where (s) means suspended: the switch will not bundle Gi1/0/2 with Gi1/0/1. The cable on Gi1/0/2 tests good, and LACP is configured on both ends. Which should be done FIRST?"
+        choices:
+          - "Remove Gi1/0/2 from the bundle and add it back"
+          - "Replace the cable on Gi1/0/2"
+          - "Compare the configurations of Gi1/0/1 and Gi1/0/2"
+          - "Reload the switch in the next maintenance window"
+        answer: 2
+        why: "A suspended member usually differs from the others in speed, duplex, mode, native VLAN or allowed VLANs; comparing the configurations finds it."
+        whys:
+          - "May clear a transient state, but if the settings differ the port is suspended again."
+          - "The cable has tested good, and suspension points to configuration rather than the cable."
+          - "Best: a quick, safe look that usually shows the mismatched setting."
+          - "Disruptive, and fixes nothing if the configurations differ."
+
+      - id: cn-2b2-b07
+        type: mcq
+        best: true
+        q: "Two Layer 3 core switches must route between each other over two 10 Gbps links. The design calls for one routing adjacency, one IP subnet, both links in use, and no spanning tree on the path. Which is BEST?"
+        choices:
+          - "Two routed links in different subnets, with equal-cost OSPF paths"
+          - "A Layer 3 EtherChannel, addressed on 'interface port-channel 1'"
+          - "A Layer 2 EtherChannel trunk with an SVI on each switch"
+          - "One routed link, with the second kept as a cold spare"
+        answer: 1
+        why: "A routed bundle ('no switchport' on the port-channel and its members) has one address and one adjacency, uses both links and is outside spanning tree."
+        whys:
+          - "Uses both links without spanning tree, but needs two subnets and two adjacencies."
+          - "Best: meets all four stated requirements at once."
+          - "One subnet, but the path is Layer 2, so spanning tree runs on it."
+          - "Simple, but wastes half the capacity."
+
+      - id: cn-2b2-b08
+        type: mcq
+        best: true
+        q: "A penetration test shows that a host in VLAN 1 can send frames into VLAN 20 by double tagging. Trunks use the default native VLAN, and every access port already has 'switchport mode access'. Which change BEST stops this attack?"
+        choices:
+          - "'switchport nonegotiate' on every trunk"
+          - "Port security on the attacker's access port"
+          - "An ACL on the VLAN 20 gateway blocking VLAN 1's subnet"
+          - "Make every trunk's native VLAN an unused VLAN that no access port belongs to"
+        answer: 3
+        why: "Double tagging works only when the attacker's access VLAN is the trunk's native VLAN; an unused native VLAN removes that condition."
+        whys:
+          - "Stops DTP negotiation (switch spoofing), a different attack."
+          - "Limits MAC addresses, but double-tagged frames come from a legitimate MAC."
+          - "The frame is delivered at Layer 2 inside VLAN 20 and never passes the gateway."
+          - "Best: no host sits in the native VLAN, so no attacker frame has its outer tag stripped on the trunk."
+
+      - id: cn-2b2-b09
+        type: mcq
+        best: true
+        q: "Each desk has one cable, to an IP phone with the PC plugged into the phone. Phones must be in VLAN 150 and PCs in VLAN 10. Which switch-port configuration is BEST?"
+        choices:
+          - "'switchport mode access', 'switchport access vlan 10' and 'switchport voice vlan 150'"
+          - "'switchport mode trunk', allowed VLANs 10 and 150, native VLAN 10"
+          - "Access port in VLAN 10 for both devices, with QoS to prioritise voice"
+          - "A second cable to each desk, with the phone and PC on separate access ports"
+        answer: 0
+        why: "The phone learns VLAN 150 by CDP and tags its own traffic, the PC stays untagged in VLAN 10, and the port remains an access port."
+        whys:
+          - "Best: two VLANs on one cable, without turning desk ports into trunks."
+          - "Works, but makes every desk port a trunk, more exposure than needed."
+          - "One VLAN for both mixes voice and data in one broadcast domain and loses separate policy for phones."
+          - "Works, but doubles the cabling where one cable suffices."
+
+      - id: cn-2b2-b10
+        type: mcq
+        best: true
+        q: "A site has 12 VLANs and heavy traffic between them. The distribution switch is a Layer 3 switch; the router has one 1 Gbps LAN port. Which inter-VLAN routing design is BEST?"
+        choices:
+          - "Router-on-a-stick, with 12 subinterfaces on the router"
+          - "One router interface per VLAN, adding ports to the router"
+          - "SVIs on the Layer 3 switch, with 'ip routing' enabled"
+          - "A firewall with an interface in each VLAN"
+        answer: 2
+        why: "The Layer 3 switch routes between VLANs in hardware at wire speed, with no extra equipment."
+        whys:
+          - "Works, but all inter-VLAN traffic hairpins over one 1 Gbps link."
+          - "Needs 12 router ports and 12 cables."
+          - "Best: the fastest path for heavy inter-VLAN traffic using hardware already there."
+          - "Right when inter-VLAN traffic must be inspected, which the stem does not require, and costly at this volume."
+
+      - id: cn-2b2-b11
+        type: mcq
+        best: true
+        q: "An audit finds every switch's management SVI in VLAN 1, which is also the VLAN of all unused access ports and the trunks' native VLAN. The finding is that management shares a broadcast domain with ports anyone can plug into. Which change BEST addresses that finding?"
+        choices:
+          - "Shut down every unused access port"
+          - "Move management to a dedicated VLAN carried only on trunks"
+          - "Add an 'access-class' ACL to the vty lines"
+          - "Assign the unused ports to an unused VLAN"
+        answer: 1
+        why: "A management VLAN that no access port belongs to removes the shared broadcast domain the auditor reported."
+        whys:
+          - "Good practice, but VLAN 1 is still the native VLAN, and any port enabled later rejoins it."
+          - "Best: management traffic no longer shares a VLAN with any user port."
+          - "Restricts who can log in, but management still shares VLAN 1 with user ports."
+          - "Takes unused ports out of VLAN 1, but management still shares it with the native VLAN."
+
+      - id: cn-2b2-b12
+        type: mcq
+        best: true
+        q: "A new third-party switch is cabled to a Cisco core switch. From the Cisco CLI, the team must see the neighbour's name, port and management address. Which is BEST?"
+        choices:
+          - "Make sure CDP is enabled on the Cisco port"
+          - "Find the neighbour's MAC in 'show mac address-table'"
+          - "Poll the new switch with SNMP from the NMS"
+          - "'lldp run', then 'show lldp neighbors detail'"
+        answer: 3
+        why: "LLDP is the IEEE standard both ends understand, and it is off by default on many Cisco switches."
+        whys:
+          - "CDP is Cisco-proprietary, so most third-party switches do not speak it."
+          - "Gives a MAC address, not the neighbour's name, port or address."
+          - "Gives details if SNMP is set up there, but not from the Cisco CLI and not which port is cabled."
+          - "Best: standard discovery that shows all three from the Cisco side."
+
+      - id: cn-2b2-b13
+        type: mcq
+        best: true
+        q: "On Layer 3 switch SW1, Gi1/0/48 faces the ISP, and CDP is advertising SW1's model, IOS version and addresses to the provider. IP phones on SW1's access ports rely on CDP. Which change is BEST?"
+        choices:
+          - "'no cdp enable' on Gi1/0/48"
+          - "'no cdp run' in global configuration"
+          - "'cdp timer 300', to advertise less often"
+          - "An outbound IP ACL on Gi1/0/48"
+        answer: 0
+        why: "Disabling CDP on the one interface facing the provider stops the leak and leaves the phones working."
+        whys:
+          - "Best: scoped to the interface that leaks, nothing else changes."
+          - "Stops the leak, but turns CDP off everywhere and breaks the phones."
+          - "Sends the same information, just less often."
+          - "CDP is a Layer 2 protocol, not IP, so an IP ACL does not filter it."
+
+      - id: cn-1b2-b14
+        type: mcq
+        best: true
+        q: "A syslog collector on Gi0/10 only receives traffic and never transmits. Every five minutes its MAC address ages out of the switch's table, and the switch floods its traffic to every port in VLAN 10 until the collector next sends a frame. Which change BEST stops the flooding for this server alone?"
+        choices:
+          - "'mac address-table static 0050.56aa.0001 vlan 10 interface Gi0/10'"
+          - "'mac address-table aging-time 3600', to keep all entries far longer"
+          - "Storm control on the other access ports in VLAN 10"
+          - "Move the collector into a VLAN of its own"
+        answer: 0
+        why: "A static entry never ages, so the switch always knows where the collector is, and nothing else changes."
+        whys:
+          - "Best: the entry is permanent and affects only this one MAC address."
+          - "Floods less often, but still once an hour, and the change applies to every MAC address on the switch."
+          - "Limits how much traffic ports accept, but does not stop unknown-unicast flooding and may drop legitimate frames."
+          - "Shrinks the flood to a smaller VLAN, but needs readdressing and still floods."
+
+      - id: cn-1b2-b19
+        type: mcq
+        best: true
+        q: "One new access point needs 802.3at (PoE+, up to 30 W). Its switch port supplies only 802.3af (up to 15.4 W). There is no power outlet in the ceiling and no budget for a new switch. Which is BEST?"
+        choices:
+          - "Replace the access switch with a PoE+ model"
+          - "Run the AP with radios disabled so it fits on 802.3af power"
+          - "Have an electrician fit a ceiling outlet for the AP's adapter"
+          - "Add a PoE+ midspan injector between the port and the AP"
+        answer: 3
+        why: "A midspan injector adds PoE+ power on that one cable cheaply, with no new switch or outlet."
+        whys:
+          - "Solves it, but the stem says there is no budget for a new switch."
+          - "Many APs allow it, but the AP then does not deliver what it was bought for."
+          - "Works, but costs more and takes longer than an injector."
+          - "Best: the smallest addition that delivers full power to the one AP that needs it."
+
+  # ─────────────── 3b2 · IP Routing ───────────────
+  - id: cn-3b2
+    title: "Best-answer practice: IP Routing"
+    domain: "3"
+    goal: "I can choose the best static route, OSPF setting, first-hop redundancy design or first verification step when every option would route packets."
+    notes: |
+      IP routing best-answer questions offer routes or settings that all work today. The stem adds what must happen **later** (a link fails, a router returns, a subnet is added) or what must **not** change.
+
+      **Constraints to look for**
+
+      | Clue in the stem | What it decides |
+      | "only when the primary fails" | A higher AD: a floating static |
+      | "nothing else may change" | The longest prefix that covers only the target |
+      | "fewest lines", "new interfaces later" | `passive-interface default`; a summary |
+      | "must leave the table when the link goes down" | Exit interface **and** next hop |
+      | "both routers must forward" | One HSRP group active on each router |
+      | a symptom, "FIRST" | A `show` command before any change |
+
+      **Usual traps**
+
+      - Forgetting that OSPF DR election and HSRP without preempt are **not** pre-emptive.
+      - A summary that also swallows another site's subnet: derive its range.
+      - Timers or network types set on one end only.
+      - `debug` or `clear` before a safe `show`.
+    items:
+      - id: cn-3b2-b01
+        type: mcq
+        best: true
+        q: "R1's only default route is 'ip route 0.0.0.0 0.0.0.0 198.51.100.1' through ISP A on Gi0/1, a direct fibre that goes down whenever ISP A fails. A link to ISP B (next hop 203.0.113.1, on Gi0/2) must carry traffic only while ISP A is down. Which command is BEST?"
+        choices:
+          - "'ip route 0.0.0.0 0.0.0.0 203.0.113.1 10'"
+          - "'ip route 0.0.0.0 0.0.0.0 203.0.113.1'"
+          - "'ip default-gateway 203.0.113.1'"
+          - "'ip route 0.0.0.0 0.0.0.0 GigabitEthernet0/2 10'"
+        answer: 0
+        why: "An AD of 10 keeps the backup out of the routing table until the AD 1 primary disappears."
+        whys:
+          - "Best: a floating static towards a known next hop."
+          - "Same AD as the primary, so the router load-shares across both ISPs all the time."
+          - "Used only when IP routing is disabled; a routing router ignores it."
+          - "Floats correctly, but with only an exit interface on Ethernet the router ARPs for every destination and relies on ISP B's proxy ARP."
+
+      - id: cn-3b2-b02
+        type: mcq
+        best: true
+        q: "All of 10.50.0.0/24 is reached through R2. Traffic to one server, 10.50.0.25, must instead go through a firewall at 10.0.0.9, and nothing else may change. Which is BEST?"
+        choices:
+          - "Point the existing /24 route at 10.0.0.9"
+          - "'ip route 10.50.0.25 255.255.255.255 10.0.0.9'"
+          - "'ip route 10.50.0.0 255.255.255.128 10.0.0.9'"
+          - "Policy-based routing matching packets to 10.50.0.25"
+        answer: 1
+        why: "The /32 host route is the longest match for that server only, so every other address still uses R2."
+        whys:
+          - "Sends the whole subnet through the firewall."
+          - "Best: one line, scoped to exactly one address."
+          - "Moves 10.50.0.0 to 10.50.0.127, half the subnet, not one server."
+          - "Works, but is more configuration and harder to verify than one host route."
+
+      - id: cn-3b2-b03
+        type: mcq
+        best: true
+        q: "A branch router has one LAN and a single WAN link to headquarters, with no backup path. It must send everything non-local to headquarters with the least configuration and CPU. Which is BEST?"
+        choices:
+          - "Run OSPF with headquarters and learn every route"
+          - "A static route for each headquarters subnet"
+          - "Run OSPF and have headquarters advertise only a default"
+          - "One static default route towards headquarters"
+        answer: 3
+        why: "With one exit and no alternative, a single default route says everything the branch needs."
+        whys:
+          - "Works, but runs a protocol and holds a full table at a site with one way out."
+          - "Works, but needs editing whenever headquarters adds a subnet."
+          - "Smaller table, but still a protocol to run for a path that can never change."
+          - "Best: one line, no protocol, never needs updating."
+
+      - id: cn-3b2-b04
+        type: mcq
+        best: true
+        q: "R1 has four static routes, for 10.1.0.0/24, 10.1.1.0/24, 10.1.2.0/24 and 10.1.3.0/24, all via 172.16.0.2. 10.1.4.0/24 is at a different site behind another router. Which single route BEST replaces the four?"
+        choices:
+          - "'ip route 10.1.0.0 255.255.0.0 172.16.0.2'"
+          - "'ip route 10.1.0.0 255.255.248.0 172.16.0.2'"
+          - "'ip route 10.1.0.0 255.255.252.0 172.16.0.2'"
+          - "'ip route 0.0.0.0 0.0.0.0 172.16.0.2'"
+        answer: 2
+        why: "255.255.252.0 is a /22: 10.1.0.0 to 10.1.3.255, exactly the four subnets and nothing else."
+        whys:
+          - "A /16 covers 10.1.0.0 to 10.1.255.255, including the other site's subnet, which would follow this route if its own route were ever lost."
+          - "A /21 covers 10.1.0.0 to 10.1.7.255, which includes 10.1.4.0/24 at the other site."
+          - "Best: the tightest summary that covers all four."
+          - "Replaces the four, but also sends every unknown destination to 172.16.0.2."
+
+      - id: cn-3b2-b05
+        type: mcq
+        best: true
+        q: "A distribution router runs OSPF on 14 interfaces: 12 user-VLAN SVIs and 2 uplinks to the core. Hellos must go out only on the uplinks, and all 14 subnets must still be advertised. Which is BEST?"
+        choices:
+          - "'passive-interface default', then 'no passive-interface' for the two uplinks"
+          - "'passive-interface' for each of the 12 SVIs"
+          - "Remove the OSPF network statements that cover the 12 SVIs"
+          - "An ACL on each SVI blocking packets to 224.0.0.5"
+        answer: 0
+        why: "Two exceptions instead of twelve entries, and any SVI added later is passive automatically."
+        whys:
+          - "Best: the shortest configuration, and it stays right as SVIs are added."
+          - "Works today, but needs 12 lines, and each new SVI sends hellos until someone remembers."
+          - "Stops the hellos, but also stops advertising the user subnets."
+          - "Interface ACLs do not filter packets the router itself sends, so the hellos still go out."
+
+      - id: cn-3b2-b06
+        type: mcq
+        best: true
+        q: "R1 and R2 are directly connected. 'show ip ospf neighbor' on R1 shows R2 stuck in EXSTART, and it never moves on. Hellos are arriving in both directions. What is the MOST likely cause?"
+        choices:
+          - "Mismatched hello and dead timers"
+          - "Mismatched area IDs"
+          - "Mismatched interface MTUs"
+          - "A missing OSPF network statement on R2"
+        answer: 2
+        why: "OSPF checks the interface MTU in the database description packets, so a mismatch leaves the pair stuck in EXSTART or EXCHANGE."
+        whys:
+          - "Would stop the routers accepting each other's hellos, so they would never reach EXSTART."
+          - "Also rejected at the hello stage, before EXSTART."
+          - "Best: the one common mismatch that lets hellos succeed and then stalls the database exchange."
+          - "Then R2 would send no hellos on the link, and there would be no neighbour at all."
+
+      - id: cn-3b2-b07
+        type: mcq
+        best: true
+        q: "Two routers were built from one template that contains 'router-id 1.1.1.1' under 'router ospf 1', and the logs show duplicate router ID messages. R2's ID must become 2.2.2.2 with the least disruption. Which is BEST?"
+        choices:
+          - "Save the configuration and reload R2"
+          - "On R2, 'router-id 2.2.2.2' under 'router ospf 1', then 'clear ip ospf process'"
+          - "Change R2's Loopback0 address to 2.2.2.2"
+          - "Remove 'router ospf 1' on R2 and type it all in again"
+        answer: 1
+        why: "The configured router ID takes effect once the OSPF process restarts, which resets only R2's adjacencies."
+        whys:
+          - "Takes the whole router down, and the template's 'router-id 1.1.1.1' is still in the configuration."
+          - "Best: fixes the ID and restarts only OSPF on R2."
+          - "The 'router-id' command overrides any loopback, so the ID stays 1.1.1.1."
+          - "Works, but keeps OSPF down longer and invites typing errors."
+
+      - id: cn-3b2-b08
+        type: mcq
+        best: true
+        q: "Four routers share one Ethernet segment in OSPF area 0. R1 is the most powerful and must be DR; R4 is a small router that must never be DR or BDR. R3 is DR now. Which is BEST?"
+        choices:
+          - "Set 'ip ospf priority 255' on R1's segment interface"
+          - "Give R1 the highest router ID on the segment"
+          - "Set 'ip ospf network point-to-point' on all four routers"
+          - "Priority 255 on R1 and 0 on R4, then reset OSPF so a new election runs"
+        answer: 3
+        why: "Priority sets the result and priority 0 excludes R4, but the election is not pre-emptive, so it must be rerun."
+        whys:
+          - "Right intent, but R3 stays DR until the next election, and R4 can still be chosen."
+          - "Router ID breaks ties only after priority, and the election is still not pre-emptive."
+          - "Point-to-point suits two routers; four routers on one segment need the broadcast type and a DR."
+          - "Best: meets both requirements and forces the election that applies them."
+
+      - id: cn-3b2-b09
+        type: mcq
+        best: true
+        q: "Two routers are joined by one Ethernet cable with nothing else on the link. The team wants their adjacency to form faster and wants no DR or BDR election and no network LSA for the link. Which is BEST?"
+        choices:
+          - "'ip ospf network point-to-point' on both interfaces"
+          - "'ip ospf priority 0' on one of the two interfaces"
+          - "Lower the hello and dead timers on both interfaces"
+          - "'ip ospf network point-to-point' on R1's interface only"
+        answer: 0
+        why: "The point-to-point type skips the DR election and its wait, and generates no network LSA."
+        whys:
+          - "Best: meets every stated goal with one command per end."
+          - "Stops one router being DR, but the other still is, with the wait and the network LSA."
+          - "Detects failure faster, but the DR election still happens."
+          - "Network types must match: with one end point-to-point and one broadcast the routers can reach FULL yet routes go missing."
+
+      - id: cn-3b2-b10
+        type: mcq
+        best: true
+        q: "Between R1 and R5, OSPF prefers a slow backup link because its total cost is lower than the main path's. Only this path choice may change; no other link's cost may move. Which is BEST?"
+        choices:
+          - "'auto-cost reference-bandwidth 100000' on every router"
+          - "'bandwidth' on the backup interfaces, set to the link's real speed"
+          - "'ip ospf cost 1000' on the backup link's interfaces at both ends"
+          - "Static routes to R5's networks over the main path"
+        answer: 2
+        why: "'ip ospf cost' sets the OSPF cost of just that link directly, with no other side effects."
+        whys:
+          - "Recalculates the cost of every link in the network."
+          - "Also changes OSPF cost, but the bandwidth value feeds QoS and other features too."
+          - "Best: the narrowest change that fixes the path choice."
+          - "Override OSPF with AD 1, but cannot react to a failure beyond the next hop, so traffic may be black-holed."
+
+      - id: cn-3b2-b11
+        type: mcq
+        best: true
+        q: "Edge router R1 has 'ip route 0.0.0.0 0.0.0.0 203.0.113.1' to the ISP. Twenty internal OSPF routers need a default route towards R1, and should lose it if R1 loses its own. Which is BEST?"
+        choices:
+          - "A static default on each of the 20 routers, pointing towards R1"
+          - "'default-information originate' under 'router ospf 1' on R1"
+          - "'network 0.0.0.0 255.255.255.255 area 0' on R1"
+          - "'default-information originate always' under 'router ospf 1' on R1"
+        answer: 1
+        why: "Without 'always', R1 advertises a default into OSPF only while it has one in its own table."
+        whys:
+          - "Works, but 20 routes to maintain, and they keep pointing at R1 after R1 has lost its exit."
+          - "Best: automatic, and withdrawn when R1's own default goes."
+          - "Enables OSPF on every interface of R1; it advertises no default route."
+          - "Advertises the default even when R1 has lost its own, attracting traffic it cannot forward."
+
+      - id: cn-3b2-b12
+        type: mcq
+        best: true
+        q: "A new OSPF neighbour on Gi0/0 never appears in 'show ip ospf neighbor'. The link is up/up and pings across it succeed. The router is a busy production device. Which should be run FIRST?"
+        choices:
+          - "'debug ip ospf adj'"
+          - "'clear ip ospf process'"
+          - "'show ip route ospf'"
+          - "'show ip ospf interface Gi0/0' on both routers"
+        answer: 3
+        why: "It shows area, address and mask, timers, network type and whether the interface is passive: the usual causes, at no risk."
+        whys:
+          - "Would reveal the reason, but debugging loads a busy router; safe show commands come first."
+          - "Restarts every adjacency on the router without finding the cause."
+          - "Shows what has been learned, not why this neighbour is missing."
+          - "Best: compares the settings that must match, without touching the router."
+
+      - id: cn-3b2-b13
+        type: mcq
+        best: true
+        q: "The ISP routes the company's public block 203.0.113.0/24 to edge router R1, and R1's default route points back at the ISP. Packets for unused addresses in the block bounce between R1 and the ISP until their TTL expires. Which is BEST on R1?"
+        choices:
+          - "'ip route 203.0.113.0 255.255.255.0 Null0'"
+          - "An inbound ACL on the WAN interface denying each unused address"
+          - "Ask the ISP to route only the addresses in use to R1"
+          - "Configure each unused address on a loopback interface on R1"
+        answer: 0
+        why: "The discard route catches any address in the block that has no more specific route, so the packet is dropped once, at R1."
+        whys:
+          - "Best: one line that stays correct as addresses come into and out of use."
+          - "Stops the loop for listed addresses, but must be edited whenever an address changes state."
+          - "Fixes it at the ISP, but every allocation change then needs the ISP's help."
+          - "Stops the bounce, but the router now answers for those addresses, and the list must be kept in step."
+
+      - id: cn-3b2-b14
+        type: mcq
+        best: true
+        q: "R1's static IPv6 default route (AD 1) goes to ISP A. ISP B, on Gi0/2, gives only its link-local next hop, FE80::B. ISP B must be used only if the route to ISP A disappears. Which is BEST?"
+        choices:
+          - "'ipv6 route ::/0 GigabitEthernet0/2 FE80::B'"
+          - "'ipv6 route 2000::/3 GigabitEthernet0/2 FE80::B'"
+          - "'ipv6 route ::/0 GigabitEthernet0/2 FE80::B 200'"
+          - "'ipv6 route ::/0 GigabitEthernet0/2'"
+        answer: 2
+        why: "A link-local next hop must be paired with the exit interface, and AD 200 keeps the route out of the table while ISP A's route is present."
+        whys:
+          - "Has AD 1 like the primary, so both ISPs are used all the time."
+          - "A /3 is longer than ::/0, so all global traffic would prefer ISP B all the time."
+          - "Best: a floating IPv6 default with a valid link-local next hop."
+          - "Has AD 1 too, and with no next hop on Ethernet the router treats every destination as on-link."
+
+      - id: cn-3b2-b15
+        type: mcq
+        best: true
+        q: "Two routers from different vendors must share a virtual default gateway for a user VLAN, so that hosts keep working if either router fails. Which is BEST?"
+        choices:
+          - "HSRP"
+          - "GLBP"
+          - "Two DHCP scopes, each giving out a different router as gateway"
+          - "VRRP"
+        answer: 3
+        why: "VRRP is an open standard that both vendors support."
+        whys:
+          - "Does the job, but is Cisco-proprietary, so the other vendor's router cannot take part."
+          - "Adds load balancing, but is also Cisco-proprietary."
+          - "Spreads hosts across two gateways, but a host whose gateway fails stays cut off."
+          - "Best: a standard first-hop redundancy protocol that works across vendors."
+
+      - id: cn-3b2-b16
+        type: mcq
+        best: true
+        q: "R1 (HSRP priority 110) and R2 (priority 100) share group 10, and R1 is active. When R1's WAN uplink fails, R1 stays active, so user traffic goes to R1 and then across to R2 to leave the site. Which change is BEST?"
+        choices:
+          - "Track R1's uplink with a decrement that takes R1 below 100, and enable preempt on both"
+          - "Raise R2's priority to 120"
+          - "Enable 'standby 10 preempt' on R2 only"
+          - "Lower R1's priority to 90 and leave it"
+        answer: 0
+        why: "R1 gives up the active role only while its uplink is down, preempt lets R2 take over then, and R1 takes back over when the uplink returns."
+        whys:
+          - "Best: the active router follows the state of the uplink."
+          - "Changes which router is normally active, but still ignores the state of either uplink."
+          - "Preempt alone does nothing, because R1's priority never falls below R2's."
+          - "Hands the active role to R2 for good (once R2 pre-empts), whatever the uplinks do."
+
+      - id: cn-3b2-b17
+        type: mcq
+        best: true
+        q: "R1 and R2 run HSRP for ten VLANs, with R1 active for all ten and R2 idle. The team wants both routers forwarding while keeping HSRP and per-VLAN failover. Which is BEST?"
+        choices:
+          - "Replace HSRP with GLBP"
+          - "R1 active for five VLANs, R2 for the other five, via group priorities"
+          - "Give hosts R2's real address as gateway in half the VLANs"
+          - "Two HSRP groups in every VLAN, with half the hosts using each virtual address"
+        answer: 1
+        why: "Each VLAN keeps its own failover, and the routers share the work with only priority changes."
+        whys:
+          - "Balances load inside each VLAN, but replaces HSRP, which the team wants to keep."
+          - "Best: a priority change per group shares the load with no host changes."
+          - "Loses failover for those hosts, since R2's real address never moves."
+          - "Also shares load, but every VLAN needs half its hosts given a different gateway: more work for the same result."
+
+      - id: cn-3b2-b18
+        type: mcq
+        best: true
+        q: "During a maintenance window, after an HSRP change on R1 and R2, test hosts in VLAN 20 cannot reach their gateway 10.1.20.1. Which should be done FIRST?"
+        choices:
+          - "Reload both routers"
+          - "Ping 10.1.20.1 from each router and from a host"
+          - "'show standby brief' on both routers"
+          - "'debug standby' on both routers"
+        answer: 2
+        why: "It shows each group's state, priority, active and standby routers and virtual address, which usually exposes the mistake at once."
+        whys:
+          - "Disruptive, and gives no clue about the cause."
+          - "Tells you whether the address answers, but not which router owns it or why."
+          - "Best: one safe command that shows the whole HSRP picture."
+          - "Shows hellos live, but costs CPU and is harder to read than a show command."
+
+      - id: cn-3b2-b19
+        type: mcq
+        best: true
+        q: "R1 has 'ip route 192.168.0.0 255.255.0.0 10.0.0.2' out of Gi0/0. It now needs a route for 10.5.0.0/16 via 192.168.1.2 on Gi0/1. The new route must leave the table as soon as Gi0/1 goes down, and must not rely on proxy ARP. Which is BEST?"
+        choices:
+          - "'ip route 10.5.0.0 255.255.0.0 192.168.1.2'"
+          - "'ip route 10.5.0.0 255.255.0.0 GigabitEthernet0/1'"
+          - "'ip route 10.5.0.0 255.255.0.0 192.168.1.2 10'"
+          - "'ip route 10.5.0.0 255.255.0.0 GigabitEthernet0/1 192.168.1.2'"
+        answer: 3
+        why: "A fully specified route is tied to Gi0/1, so it goes when the interface does, and the router ARPs only for the next hop."
+        whys:
+          - "Recursive: with Gi0/1 down, 192.168.1.2 still resolves through the 192.168.0.0/16 route, so the route stays."
+          - "Leaves with the interface, but on Ethernet the router ARPs for every destination and depends on proxy ARP."
+          - "The same recursion problem; the AD changes nothing about it."
+          - "Best: meets both requirements."
+
+      - id: cn-3b2-b20
+        type: mcq
+        best: true
+        q: "A Layer 2 access switch with IP routing disabled has its management address 10.1.99.10/24 on 'interface vlan 99'. It must reach a monitoring server in another subnet. Which is BEST?"
+        choices:
+          - "'ip route 0.0.0.0 0.0.0.0 10.1.99.1'"
+          - "'ip default-gateway 10.1.99.1'"
+          - "'ip routing', then a static default route"
+          - "Move the monitoring server into VLAN 99"
+        answer: 1
+        why: "The default gateway is what a switch that is not routing uses to reach other subnets."
+        whys:
+          - "Static routes are used only when IP routing is enabled, which it is not here."
+          - "Best: one command, meant for exactly this case."
+          - "Works on a switch that can route, but turns an access switch into a router just for management."
+          - "Works, but redesigns the server's network to avoid one switch setting."
+
+      - id: cn-3b2-b21
+        type: mcq
+        best: true
+        q: "Two routers connect through media converters, so their interfaces stay up when the fibre between them breaks. OSPF takes 40 seconds to notice; the target is under 5 seconds. Which is BEST?"
+        choices:
+          - "'ip ospf hello-interval 1' and 'ip ospf dead-interval 4' on both routers' interfaces"
+          - "The same two timers on R1's interface only"
+          - "'ip ospf network point-to-point' on both interfaces"
+          - "'carrier-delay msec 0' on both interfaces"
+        answer: 0
+        why: "With no link-down event, only the dead interval detects the failure, and the timers must match at both ends."
+        whys:
+          - "Best: detection in about 4 seconds, with matching timers."
+          - "Mismatched timers stop the adjacency forming."
+          - "Removes the DR election, but point-to-point on Ethernet keeps the 10-second hello and 40-second dead timers."
+          - "Speeds the reaction to an interface going down, but these interfaces never go down."
+
+      - id: cn-3b2-b22
+        type: mcq
+        best: true
+        q: "A traceroute to 10.8.8.8 shows replies alternating between R1 (10.0.12.1) and R2 (10.0.12.2) until it gives up. Which should be done FIRST?"
+        choices:
+          - "Clear the routing tables on both routers"
+          - "Add a static route on R2 for 10.8.8.0/24"
+          - "'show ip route 10.8.8.8' on R1 and on R2"
+          - "Shut the link between R1 and R2 to break the loop"
+        answer: 2
+        why: "It shows which route each router uses for that address; in a loop each points at the other, and the output shows why."
+        whys:
+          - "Rebuilds the same table from the same configuration, and disrupts traffic."
+          - "A change before a diagnosis; it may be the wrong router or the wrong next hop."
+          - "Best: identifies the two routes that form the loop before anything is changed."
+          - "Ends the loop but cuts every other flow that uses the link."
+
+      - id: cn-3b2-b23
+        type: mcq
+        best: true
+        q: "R1 (10.1.30.2) and R2 (10.1.30.3) now run HSRP for VLAN 30 with virtual address 10.1.30.1. Hosts must keep their gateway if either router fails. Which default gateway should the DHCP scope BEST hand out?"
+        choices:
+          - "10.1.30.2, the address of the router that is active now"
+          - "10.1.30.2 to half the hosts and 10.1.30.3 to the rest"
+          - "Both 10.1.30.2 and 10.1.30.3, in that order"
+          - "10.1.30.1, the virtual address"
+        answer: 3
+        why: "The virtual address moves to whichever router is active, so hosts never need to change gateway."
+        whys:
+          - "Works only while R1 is up; a real address does not move on failover."
+          - "Spreads load, but each half loses its gateway when its router fails."
+          - "Most hosts use only the first gateway offered and do not fail over reliably."
+          - "Best: the address HSRP exists to keep alive."
+
+      - id: cn-3b2-b24
+        type: mcq
+        best: true
+        q: "R1 learns 10.1.0.0/16 by OSPF through R2. Traffic to 10.1.1.0/24 must now go through R3 (10.0.13.3), and everything else in 10.1.0.0/16 must stay on R2. Which is BEST?"
+        choices:
+          - "'ip route 10.1.0.0 255.255.0.0 10.0.13.3'"
+          - "'ip route 10.1.1.0 255.255.255.0 10.0.13.3'"
+          - "Raise the OSPF cost of R1's link to R2"
+          - "Policy-based routing on R1 matching 10.1.1.0/24"
+        answer: 1
+        why: "The /24 is a longer match than the /16, so only that subnet goes via R3."
+        whys:
+          - "AD 1 beats OSPF's 110 for the same prefix, so the whole /16 moves to R3."
+          - "Best: longest prefix match moves exactly one subnet."
+          - "Moves every destination reached through R2, not just one subnet."
+          - "Works, but is more configuration and harder to troubleshoot than one longer static route."
+
+      - id: cn-3b2-b25
+        type: mcq
+        best: true
+        q: "A hub connects to 25 branch routers over a private WAN, and branches add or move LAN subnets most weeks. Some branches have two WAN links. Routes must update by themselves and move to the second link when the first fails. Which is BEST?"
+        choices:
+          - "Single-area OSPF on the hub and all branches"
+          - "Static routes on the hub for every branch subnet, with floating backups"
+          - "A static default on each branch and static routes on the hub"
+          - "One static summary on the hub covering all branches"
+        answer: 0
+        why: "OSPF learns new subnets and reroutes over the second link on its own."
+        whys:
+          - "Best: the only choice that meets both 'update by themselves' and automatic failover."
+          - "Has backups, but every weekly subnet change means editing the hub by hand."
+          - "Simple at the branches, but the hub still needs manual edits and has no automatic failover."
+          - "One line, but it cannot tell which branch holds a subnet or move traffic to a working link."
+
+  # ─────────────── 4b2 · NAT, DNS and file transfer ───────────────
+  - id: cn-4b2
+    title: "Best-answer practice: NAT, DNS and file transfer"
+    domain: "4"
+    goal: "I can choose the best NAT, DNS or file-transfer option for a stated requirement."
+    notes: |
+      Network services best-answer questions pair a service with a requirement such as "survives a reload", "confirmed delivery", "address changes" or "encrypted". The requirement usually names the deciding feature outright.
+
+      **Constraints to look for**
+
+      | Clue in the stem | What it decides |
+      | "address from DHCP", "changes" | PAT to the interface, not a pool |
+      | "every port", "fixed address" | One-to-one static NAT |
+      | "confirm receipt" | SNMP inform, not trap |
+      | "survive a reload" | A syslog server, not the buffer |
+      | "at least N percent, may use more" | CBWFQ `bandwidth`, not policing |
+      | "credentials and encryption" | SCP or SFTP |
+
+      **Usual traps**
+
+      - Choosing a severity one step too strict: `errors` drops warnings.
+      - `ntp master` on a router whose own clock is not synchronised.
+      - Fixing a DNS symptom (flush, hosts file) before checking what the resolver returns.
+      - Putting data in the priority queue meant for voice.
+    items:
+      - id: cn-4b2-b01
+        type: mcq
+        best: true
+        q: "An office of 60 users gets one public address by DHCP from its ISP on Gi0/1, and that address changes from time to time. Every user needs internet access. Which NAT configuration is BEST?"
+        choices:
+          - "A one-address NAT pool holding today's public address, with 'overload'"
+          - "Static NAT for each of the 60 users"
+          - "'ip nat inside source list 1 interface GigabitEthernet0/1 overload'"
+          - "Dynamic NAT to a pool, without 'overload'"
+        answer: 2
+        why: "PAT to the interface always uses whatever address DHCP has given Gi0/1."
+        whys:
+          - "Works until the ISP changes the address; then the pool is wrong."
+          - "Needs 60 public addresses, and there is one."
+          - "Best: all users share the address, and a new address is picked up automatically."
+          - "With one address, only one user at a time could get out."
+
+      - id: cn-4b2-b02
+        type: mcq
+        best: true
+        q: "A mail server, 10.1.1.10, must be reachable from the internet on TCP 25, 587 and 993, and on any port added later, at its own public address 203.0.113.10. The company has a /29 of public addresses. Which is BEST?"
+        choices:
+          - "'ip nat inside source static 10.1.1.10 203.0.113.10'"
+          - "Three static PAT entries, one for each port"
+          - "Add 10.1.1.10 to the users' dynamic PAT"
+          - "A dynamic pool of the /29's addresses for the servers"
+        answer: 0
+        why: "One-to-one static NAT passes every port to the server at a fixed public address."
+        whys:
+          - "Best: one line, all ports, and the address never changes."
+          - "Works for today's three ports, but each new port needs another line."
+          - "PAT serves sessions the server starts; inbound connections find no translation."
+          - "Dynamic entries exist only after the server starts a session, and its address may change."
+
+      - id: cn-4b2-b09
+        type: mcq
+        best: true
+        q: "Nightly configuration backups must be copied from 200 routers to a server across a shared network. Each transfer must require credentials and be encrypted. Which protocol is BEST?"
+        choices:
+          - "SCP"
+          - "FTP"
+          - "TFTP"
+          - "HTTP with basic authentication"
+        answer: 0
+        why: "SCP runs over SSH, so both the login and the file are authenticated and encrypted."
+        whys:
+          - "Best: meets both requirements."
+          - "Needs credentials and is reliable, but sends the password and the file in clear text."
+          - "Simple, but has no authentication and no encryption."
+          - "Asks for credentials, but plain HTTP encrypts neither them nor the file."
+
+      - id: cn-4b2-b10
+        type: mcq
+        best: true
+        q: "A web server moved to a new IP address yesterday and its DNS A record was updated. Some PCs still reach the old server. Which should be done FIRST on an affected PC?"
+        choices:
+          - "'ipconfig /flushdns'"
+          - "Add the new address to the PC's hosts file"
+          - "'nslookup' for the server's name, to see what the DNS server returns"
+          - "Reboot the PC"
+        answer: 2
+        why: "It shows whether the DNS server is still handing out the old address or the stale answer is only in the PC's own cache."
+        whys:
+          - "Often the fix, but done first it destroys the evidence of where the old answer came from."
+          - "A hard-coded workaround that breaks the next time the address changes."
+          - "Best: one query separates a server-side problem from a local cache."
+          - "Clears the local cache like a flush, but changes things before the cause is known."
+
+  # ─────────────── 5b2 · security and device access ───────────────
+  - id: cn-5b2
+    title: "Best-answer practice: security and device access"
+    domain: "4"
+    goal: "I can choose the best ACL, Layer 2 protection, AAA, management-access or VPN control when every option improves security."
+    notes: |
+      Security best-answer questions offer four controls that all help. The stem names the **specific threat**, and the best control is the one that stops that threat, at the right place, with the least side effect.
+
+      **Constraints to look for**
+
+      | Clue in the stem | What it decides |
+      | rogue DHCP server | DHCP snooping, trusted uplink |
+      | forged ARP for the gateway | Dynamic ARP inspection |
+      | "stolen password" | MFA, not a stronger password |
+      | "record of every command" | Accounting, not authorization |
+      | "today", "until the patch" | The interim control that removes the exposure |
+      | "no software on PCs" | Site-to-site, not remote access |
+
+      **Usual traps**
+
+      - A detective control (cameras, logs) where the stem asks to prevent.
+      - An interface ACL on every port where one `access-class` on the vty lines does the job.
+      - The ideal long-term fix (802.1X) when the stem says "today".
+      - Locking yourself out: schedule `reload in` before changing an ACL remotely.
+    items:
+      - id: cn-5b2-b01
+        type: mcq
+        best: true
+        q: "Only the management subnet 10.99.0.0/24 may open SSH sessions to a router that has 12 interfaces. Which is BEST?"
+        choices:
+          - "An extended ACL inbound on all 12 interfaces permitting SSH only from 10.99.0.0/24"
+          - "'access-class' on the vty lines with a standard ACL for 10.99.0.0/24"
+          - "'login local' with strong passwords on the vty lines"
+          - "Move SSH to a non-standard port with 'ip ssh port'"
+        answer: 1
+        why: "One ACL on the vty lines covers SSH to every address on the router at once."
+        whys:
+          - "Works, but 12 ACLs to maintain, each of which must also permit all other traffic."
+          - "Best: one small ACL where the sessions actually terminate."
+          - "Strengthens the login, but anyone can still reach the prompt."
+          - "Obscurity only; a port scan finds it."
+
+      - id: cn-5b2-b02
+        type: mcq
+        best: true
+        q: "A small router with no firewall feature set connects to the internet. Inside users may open any TCP session outwards; from outside, only replies to those sessions may enter. Which inbound entry on the WAN interface BEST meets this?"
+        choices:
+          - "'deny ip any any'"
+          - "'permit tcp any any range 1024 65535'"
+          - "'permit tcp any eq 443 any'"
+          - "'permit tcp any any established'"
+        answer: 3
+        why: "'established' matches only segments with ACK or RST set, which replies carry and an opening SYN does not."
+        whys:
+          - "Blocks every attack and every reply too."
+          - "Lets replies in, but also any new connection to a high port."
+          - "Lets in replies from HTTPS servers only, breaking all other TCP, and anyone can send from source port 443."
+          - "Best: not a stateful firewall, but the closest an ACL alone can get."
+
+      - id: cn-5b2-b03
+        type: mcq
+        best: true
+        q: "Twice this month a user plugged a home router into a wall port, and it handed out wrong addresses to the whole floor. The access switches support all the usual Layer 2 security features. Which control BEST prevents a repeat?"
+        choices:
+          - "DHCP snooping, with only the uplink towards the real server trusted"
+          - "Port security with a maximum of one MAC address"
+          - "Dynamic ARP inspection"
+          - "BPDU guard on all access ports"
+        answer: 0
+        why: "DHCP server messages that arrive on an untrusted port are dropped, so a rogue server cannot hand out addresses."
+        whys:
+          - "Best: blocks exactly the messages a rogue server sends."
+          - "A home router may present one MAC, so its DHCP offers still get through."
+          - "Stops ARP spoofing, not rogue DHCP offers, and itself relies on snooping."
+          - "A home router does not normally send BPDUs, so the guard would not trigger."
+
+      - id: cn-5b2-b04
+        type: mcq
+        best: true
+        q: "A laptop in VLAN 10 answers ARP requests for the default gateway's address and intercepts traffic. All hosts get addresses by DHCP, and DHCP snooping is already running. Which is BEST?"
+        choices:
+          - "Static ARP entries for the default gateway on every PC"
+          - "Port security on every access port"
+          - "'ip arp inspection vlan 10', with the uplink trusted"
+          - "An ACL on the gateway denying the laptop's address"
+        answer: 2
+        why: "DAI checks each ARP message against the snooping bindings and drops forged ones on untrusted ports."
+        whys:
+          - "Protects those PCs, but on hundreds of hosts, and must be redone if the gateway changes."
+          - "Limits MAC addresses per port; the attacker uses its own legitimate MAC."
+          - "Best: stops the forged ARP at the switch for the whole VLAN."
+          - "The interception happens at Layer 2 inside the VLAN; the gateway's ACL never sees it."
+
+      - id: cn-5b2-b05
+        type: mcq
+        best: true
+        q: "The routers' console lines have 'exec-timeout 0 0'. An auditor found a console session left logged in at privileged EXEC in a wiring closet. Which configuration change BEST reduces this risk?"
+        choices:
+          - "'logging synchronous' on the console and vty lines"
+          - "'exec-timeout 5 0' on the console and vty lines"
+          - "A login banner warning against unauthorised use"
+          - "'login local' on the console line"
+        answer: 1
+        why: "Idle sessions are logged out after five minutes, so an abandoned session closes itself."
+        whys:
+          - "Stops messages breaking up typed commands; it does not end idle sessions."
+          - "Best: removes the condition the auditor found."
+          - "A legal notice; it does not end a session that is already open."
+          - "Requires a login to start a session, but the problem is a session already logged in."
+
+      - id: cn-5b2-b06
+        type: mcq
+        best: true
+        q: "An auditor requires a central record, out of administrators' reach, of every configuration command each of them enters on 200 routers. They already log in with their own TACACS+ accounts. Which AAA function BEST meets this?"
+        choices:
+          - "Authentication with individual accounts"
+          - "Per-command authorization"
+          - "Local 'archive' logging of configuration changes"
+          - "TACACS+ command accounting"
+        answer: 3
+        why: "Command accounting sends each command, with the user's name and the time, to the central server."
+        whys:
+          - "Already in place; it proves who logged in, not what they typed."
+          - "Decides which commands are allowed, but keeps no record by itself."
+          - "Records commands, but on each router, where an administrator can clear them."
+          - "Best: central, per user and per command."
+
+      - id: cn-5b2-b09
+        type: mcq
+        best: true
+        q: "Twelve branches must reach headquarters over the internet. Every user at every branch needs access at all times, and no software may be installed on branch PCs. Which VPN is BEST?"
+        choices:
+          - "A remote-access VPN client on each branch PC"
+          - "Site-to-site IPsec between each branch router and headquarters"
+          - "A clientless TLS VPN portal at headquarters"
+          - "Leased lines from each branch to headquarters"
+        answer: 1
+        why: "The routers build the tunnels, so every branch user is covered with nothing on the PCs."
+        whys:
+          - "Secure, but needs software on every PC, which is ruled out."
+          - "Best: always on, for everyone, and invisible to the PCs."
+          - "Browser-only and per user, and reaches only the applications the portal publishes."
+          - "Private and reliable, but not over the internet, and costly for twelve sites."
+
+      - id: cn-5b2-b10
+        type: mcq
+        best: true
+        q: "Staff working from home on company-managed laptops need full access to every internal application, including non-web ones, as if they were in the office. Which is BEST?"
+        choices:
+          - "A clientless TLS VPN portal"
+          - "Site-to-site VPN to each employee's home router"
+          - "Publish each internal application on the internet behind a login"
+          - "A remote-access VPN client installed on each laptop"
+        answer: 3
+        why: "Managed laptops can run the client, which gives them full network access through the tunnel."
+        whys:
+          - "Needs no install, but reaches only applications published through the portal."
+          - "Puts every device in each home on the corporate network, and needs a managed router in every home."
+          - "Exposes every application to the whole internet."
+          - "Best: full access for the laptop only, using software the company can install."
+
+      - id: cn-5b2-b14
+        type: mcq
+        best: true
+        q: "A vulnerability is announced in the IOS HTTP server. The patch cannot be installed for three weeks. The routers are managed only over SSH and nobody uses their web interface. Which is the BEST interim step?"
+        choices:
+          - "Watch the routers' logs for exploit attempts"
+          - "Apply an ACL limiting web access to the management subnet"
+          - "Deploy an IPS signature for the exploit"
+          - "Disable the feature with 'no ip http server' and 'no ip http secure-server'"
+        answer: 3
+        why: "The unused feature is removed, so nothing is left to exploit until the patch arrives."
+        whys:
+          - "Detective only: it reports an attack after the fact."
+          - "Narrows exposure, but the vulnerable service still runs for anyone in that subnet."
+          - "Blocks known exploit traffic where the IPS sees it, but not variants or paths it does not inspect."
+          - "Best: removing an unused service eliminates the exposure instead of guarding it."
+
+      - id: cn-5b2-b15
+        type: mcq
+        best: true
+        q: "An engineer is about to apply a new inbound ACL to the only interface through which she reaches a remote router over SSH. Which should she do FIRST?"
+        choices:
+          - "Confirm the startup configuration is the working one, then enter 'reload in 10'"
+          - "Apply the ACL and test it at once"
+          - "Add 'permit ip any any' to the end of the ACL"
+          - "Ask a colleague to be ready to drive to the site"
+        answer: 0
+        why: "If the ACL locks her out, the router reloads the known-good configuration in ten minutes; if it works she enters 'reload cancel'."
+        whys:
+          - "Best: an automatic way back that costs minutes, not hours."
+          - "If the ACL blocks her session she has no way back in."
+          - "Keeps her in, but also permits everything the ACL was meant to block."
+          - "A recovery plan, but one measured in hours instead of minutes."
+
+      - id: cn-2b2-b17
+        type: mcq
+        best: true
+        q: "The team must be able to reach a remote branch router's CLI even when its WAN link is down or a bad change has broken its routing. Which access method BEST meets this?"
+        choices:
+          - "A console server with a cellular modem on the console port"
+          - "SSH to the router's loopback over the WAN"
+          - "HTTPS to the router's web interface"
+          - "SSH through a backup internet link added to the same router"
+        answer: 0
+        why: "Out-of-band console access needs neither the WAN nor working routing on the router."
+        whys:
+          - "Best: the only path that survives both failures named in the stem."
+          - "Secure, but in-band: it fails with the WAN or with the routing."
+          - "Also in-band, and lost in the same failures."
+          - "Survives a WAN failure, but not a routing change that breaks the router itself."
+
+      - id: cn-2b2-b18
+        type: mcq
+        best: true
+        q: "Routers authenticate administrators against two TACACS+ servers. If neither server answers, admins must still log in with a named local break-glass account, but that account must not work while a server is reachable. Which command is BEST?"
+        choices:
+          - "'aaa authentication login default local group tacacs+'"
+          - "'aaa authentication login default group tacacs+'"
+          - "'aaa authentication login default group tacacs+ local'"
+          - "'aaa authentication login default group tacacs+ enable'"
+        answer: 2
+        why: "The local database is tried only when TACACS+ returns an error (no server answered), not when a server rejects the login."
+        whys:
+          - "Tries the local database first, so the break-glass account works all the time."
+          - "Central only: if both servers are down, nobody can log in."
+          - "Best: TACACS+ first, and the named local account only when no server responds."
+          - "Falls back when the servers are down, but to the shared enable password, not the named account."
+
+  # ─────────────── 6b2 · operations, management and AI ───────────────
+  - id: cn-6b2
+    title: "Best-answer practice: network operations, management and AI"
+    domain: "5"
+    goal: "I can choose the best management approach, configuration tool, monitoring integration or AI practice for a stated operational need."
+    notes: |
+      Operations and management best-answer questions describe an operational goal and offer four ways to reach it, from hand work to full automation. The stem's wording picks the tool.
+
+      **Constraints to look for**
+
+      | Clue in the stem | What it decides |
+      | "without changing anything" | A check or dry run |
+      | "the controller already knows" | Its northbound API |
+      | "state", "plan", "destroy" | Terraform |
+      | "comments", "edited by hand" | YAML |
+      | "no labels", "unusual" | Unsupervised learning |
+      | AI output "looks plausible" | Verify and test before production |
+
+      **Usual traps**
+
+      - Polling or scraping every device when a controller already holds the data.
+      - Running a new playbook on every device before a small test group.
+      - Treating agreement between two AI answers as verification.
+      - Troubleshooting the overlay before proving the underlay.
+    items:
+      - id: cn-6b2-b01
+        type: mcq
+        best: true
+        q: "Engineers sometimes change switches by hand. Each night the team wants to know which of its 400 switches no longer match the approved configuration, without changing anything. Which is BEST?"
+        choices:
+          - "An engineer reviews ten random switches each week"
+          - "Push the approved configuration to all switches every night"
+          - "Run the playbook in Ansible check mode and report the differences"
+          - "Send all switch logs to syslog and search for configuration messages"
+        answer: 2
+        why: "Check mode compares every switch with the desired state and reports differences without applying them."
+        whys:
+          - "Samples a few switches and misses most of the drift."
+          - "Removes drift, but changes devices, which the stem rules out, and hides who changed what."
+          - "Best: every switch checked, nothing changed."
+          - "Shows that someone configured a switch, not whether the result differs from the approved state."
+
+      - id: cn-6b2-b02
+        type: mcq
+        best: true
+        q: "A campus of 150 switches is managed by Catalyst Center. A new QoS policy must be applied the same way to every access port, and any switch added later must get it automatically. Which is BEST?"
+        choices:
+          - "Define the policy once in Catalyst Center"
+          - "Paste the commands from a text file into each switch"
+          - "Ask each site's technician to configure it locally"
+          - "Run an Ansible playbook by hand whenever a switch is added"
+        answer: 0
+        why: "The controller turns one intent into device configuration everywhere, including on devices it provisions later."
+        whys:
+          - "Best: one definition, applied consistently now and to future devices."
+          - "Same commands at first, but slow, error-prone, and new switches are missed."
+          - "Inconsistent results and no central record."
+          - "Consistent, but new switches depend on someone remembering to run it."
+
+      - id: cn-6b2-b03
+        type: mcq
+        best: true
+        q: "The service desk wants a ticket opened automatically whenever the campus controller marks a device unreachable. The controller already monitors all 600 devices. Which integration is BEST?"
+        choices:
+          - "Have the ticket system poll all 600 devices with SNMP"
+          - "A script that logs in to each device by SSH and parses the output"
+          - "Send every device's syslog to the ticket system and parse it"
+          - "The controller's northbound REST API or event notifications"
+        answer: 3
+        why: "The northbound interface exposes what the controller already knows, so one integration covers every device."
+        whys:
+          - "Duplicates monitoring the controller already does, and loads every device."
+          - "Screen-scraping 600 devices is slow and breaks when output changes."
+          - "Possible, but every device's messages need parsing, and the controller's view is ignored."
+          - "Best: reuses the controller's knowledge through the interface built for other applications."
+
+      - id: cn-6b2-b05
+        type: mcq
+        best: true
+        q: "Engineers will hand-edit a file of per-site variables for an Ansible playbook. It must be easy to read and must allow comments explaining unusual values. Which format is BEST?"
+        choices:
+          - "JSON"
+          - "XML"
+          - "YAML"
+          - "CSV"
+        answer: 2
+        why: "YAML is readable, supports '#' comments, and is Ansible's native format for variables."
+        whys:
+          - "Easy for programs, but JSON allows no comments."
+          - "Allows comments, but verbose and awkward to edit by hand."
+          - "Best: meets both requirements and fits the tool."
+          - "Fine for flat tables, but cannot express nested data and has no comments."
+
+      - id: cn-6b2-b07
+        type: mcq
+        best: true
+        q: "A new Ansible playbook will change the SNMP configuration on 300 switches. Which should be done FIRST?"
+        choices:
+          - "Run it against all 300 switches during a maintenance window"
+          - "Run it against all 300 with a rollback playbook ready"
+          - "Run it against the switches in batches of 50"
+          - "Run it in check mode on a small test group, then for real on that group"
+        answer: 3
+        why: "It shows what the playbook will change and then proves it works on a few devices before the rest are touched."
+        whys:
+          - "A window limits user impact, but any mistake hits every switch at once."
+          - "Recovery is ready, but every switch is still hit by any error."
+          - "Limits each step, but the first batch of 50 is still the first real test."
+          - "Best: the smallest possible blast radius for the first run."
+
+      - id: cn-6b2-b08
+        type: mcq
+        best: true
+        q: "A generative AI assistant suggests a configuration change to fix an OSPF problem, and the change looks plausible. What is the BEST next step?"
+        choices:
+          - "Apply it to one production router and watch the result"
+          - "Check it against documentation and test it in a lab or a change window first"
+          - "Ask the assistant whether it is sure"
+          - "Ask a second AI assistant and apply it if both agree"
+        answer: 1
+        why: "Generative output can be fluent and wrong, so it is verified and tested before it reaches production."
+        whys:
+          - "A smaller blast radius, but still trusts unverified output on a live router."
+          - "Best: treats the suggestion as a draft to verify, not an answer."
+          - "The assistant may simply restate a wrong answer with confidence."
+          - "Two models can share the same error; agreement is not verification."
+
+      - id: cn-6b2-b09
+        type: mcq
+        best: true
+        q: "The team wants to flag unusual traffic patterns on its WAN links. It has months of flow data but no record of which periods were abnormal. Which approach is BEST?"
+        choices:
+          - "Unsupervised anomaly detection against a learned baseline"
+          - "A supervised classifier trained on labelled incidents"
+          - "Fixed utilisation thresholds on each link"
+          - "A generative model that writes daily summaries of the traffic"
+        answer: 0
+        why: "Unsupervised learning needs no labels; it learns normal behaviour from the data itself."
+        whys:
+          - "Best: works with the unlabelled data the team actually has."
+          - "Strong when labels exist, but there are none to train it on."
+          - "Simple, but misses unusual patterns below the threshold and flags normal peaks."
+          - "Summaries describe traffic but do not reliably detect anomalies."
+
+      - id: cn-2b2-b14
+        type: mcq
+        best: true
+        q: "A company has 40 small branches with two APs each and no IT staff. It wants central management and will not buy or run any WLAN controller, at the branches or at headquarters. Which is BEST?"
+        choices:
+          - "Autonomous APs configured one by one"
+          - "Lightweight APs in FlexConnect mode joined to a controller at headquarters"
+          - "Cloud-managed APs run from the vendor's dashboard"
+          - "An embedded controller on one AP in each branch"
+        answer: 2
+        why: "With cloud management the vendor runs the controller function, so there is nothing to buy or maintain and one dashboard covers all sites."
+        whys:
+          - "No controller, but 80 APs managed one at a time is not central management."
+          - "Built for branches, but needs the headquarters controller the company will not run."
+          - "Best: central management with no controller hardware anywhere."
+          - "No central box, but 40 separate controllers are not one point of management."
+
+      - id: cn-4b2-b05
+        type: mcq
+        best: true
+        q: "A router must tell the NMS at once when an interface goes down, and must send the alert again if the NMS does not confirm receipt. Which is BEST?"
+        choices:
+          - "SNMP informs"
+          - "SNMP traps"
+          - "SNMP polling of interface status every minute"
+          - "Syslog messages sent to the NMS"
+        answer: 0
+        why: "An inform is acknowledged by the receiver and resent until it is."
+        whys:
+          - "Best: immediate and confirmed."
+          - "Immediate, but unacknowledged: a lost trap is simply lost."
+          - "Notices the failure up to a minute late, and the router sends nothing itself."
+          - "Immediate, but normally sent over UDP with no acknowledgment."
+
+      - id: cn-4b2-b06
+        type: mcq
+        best: true
+        q: "After a router crashed and reloaded, the messages leading up to the crash were gone. Logs must survive future reloads and be kept centrally. Which is BEST?"
+        choices:
+          - "'logging buffered 64000', to keep many more messages in memory"
+          - "'logging console debugging'"
+          - "'logging host 10.1.1.50' with a suitable 'logging trap' level"
+          - "'service timestamps log datetime msec'"
+        answer: 2
+        why: "Messages leave the router as they happen and are kept on the server whatever happens to the router."
+        whys:
+          - "Holds more, but the buffer is in RAM and the reload clears it."
+          - "Shows messages only to whoever is at the console, and costs CPU."
+          - "Best: central and unaffected by a reload."
+          - "Makes messages easier to correlate, but keeps none of them."
+
+      - id: cn-4b2-b07
+        type: mcq
+        best: true
+        q: "A syslog server is overwhelmed because routers send it debugging-level messages. It must still receive warnings and everything more severe. Which is BEST on the routers?"
+        choices:
+          - "'logging trap errors'"
+          - "'logging trap warnings'"
+          - "'no logging console'"
+          - "'logging buffered warnings'"
+        answer: 1
+        why: "'logging trap warnings' sends levels 0 to 4 to the server and nothing less severe."
+        whys:
+          - "Cuts the volume, but drops warnings (level 4), which must be kept."
+          - "Best: exactly the levels required."
+          - "Affects only the console, not what goes to the server."
+          - "Affects only the local buffer."
+
+  # ─────────────── background 1 · not on the v2.0 exam ───────────────
+  - id: cn-bg-1
+    title: "Background: device roles, network designs, TCP and UDP, VRFs and wireless architectures"
+    domain: "x"
+    goal: "I can name what each network device and design is for, compare TCP with UDP, say what a VRF does, and describe Cisco AP modes and controller options."
+    notes: |
+      These topics were on CCNA v1.1 but are not on the v2.0 exam topics (from 3 February 2027): the roles of network components, campus, data-centre, WAN and cloud designs, TCP versus UDP, VRFs, and Cisco wireless architectures, AP modes and the WLC GUI. They stay in the course because they remain useful on the job and help you read the scenarios in other units, and because v1.1 is the live exam until 2 February 2027. Mock exams for v2.0 do not draw from this unit.
+    items:
+      - id: cn-1a-ngfw
+        type: concept
+        term: "Next-generation firewall (NGFW)"
+        def: "A security appliance that adds application awareness, user identity and built-in intrusion prevention to stateful packet filtering."
+      - id: cn-1a-wlc
+        type: concept
+        term: "Wireless LAN controller (WLC)"
+        def: "A central device that manages many lightweight access points: it pushes their settings, handles client authentication and roaming, and coordinates channels and transmit power."
+      - id: cn-1a-spine-leaf
+        type: concept
+        term: "Spine-leaf architecture"
+        def: "A two-layer data-centre design in which every switch of the lower layer connects to every switch of the upper layer, so any two servers are the same number of hops apart."
+      - id: cn-1b-udp
+        type: concept
+        term: "UDP"
+        def: "The connectionless Layer 4 protocol with an 8-byte header and no acknowledgements, sequencing or retransmission; used by DNS queries, DHCP, SNMP, TFTP and voice."
+      - id: cn-1d-vrf
+        type: concept
+        term: "VRF"
+        def: "A feature that gives one router several separate routing tables, so interfaces in different instances can even use overlapping IP addresses."
+      - id: cn-2c-lag
+        type: concept
+        term: "LAG (on a WLC)"
+        def: "Bundles a controller's distribution ports into one logical link to the switch; on a classic AireOS controller the switch side must be an EtherChannel in mode on, because nothing is negotiated."
+      - id: cn-1x-endpoint
+        type: concept
+        term: "Endpoint"
+        def: "A device at the edge of the network that originates or consumes user traffic, such as a laptop, phone, printer or IP camera."
+      - id: cn-1x-ips
+        type: concept
+        term: "Intrusion prevention system (IPS)"
+        def: "A device or engine placed in the traffic path that compares packets against signatures and behaviour rules and drops matching ones before they reach the target."
+      - id: cn-1x-distribution
+        type: concept
+        term: "Distribution layer"
+        def: "The middle layer of a hierarchical campus that aggregates access switches, routes between their VLANs, applies policy and connects upward to the core."
+      - id: cn-1x-core
+        type: concept
+        term: "Core layer"
+        def: "The top layer of a large hierarchical campus, built only to move traffic between distribution blocks as fast and reliably as possible, with little or no policy applied."
+      - id: cn-1x-soho
+        type: concept
+        term: "SOHO network"
+        def: "A small site served by one integrated box that combines a router, switch, wireless access point and firewall, with a broadband link to the internet."
+      - id: cn-1x-mpls
+        type: concept
+        term: "MPLS VPN"
+        def: "A provider WAN service that forwards customer packets across its network by labels, letting every customer site reach every other through the provider's edge routers."
+      - id: cn-1x-metro
+        type: concept
+        term: "Metro Ethernet"
+        def: "A provider WAN service that hands each customer site an Ethernet port and carries frames between sites as point-to-point, multipoint or rooted-multipoint services."
+      - id: cn-1x-sdwan
+        type: concept
+        term: "SD-WAN"
+        def: "A centrally managed overlay that builds encrypted tunnels across any mix of transports, such as broadband, LTE and MPLS, and steers each application onto the path that currently meets its policy."
+      - id: cn-1x-iaas
+        type: concept
+        term: "IaaS"
+        def: "A cloud model in which the provider supplies virtual servers, storage and networks, while the customer installs and manages the operating systems and applications."
+      - id: cn-2x-bridge-mode
+        type: concept
+        term: "Bridge mode (AP)"
+        def: "An access point mode that links networks over the air, point to point or point to multipoint, and forms mesh links where cabling is impossible."
+      - id: cn-2x-se-connect
+        type: concept
+        term: "SE-Connect mode"
+        def: "An access point mode that makes the radio a dedicated spectrum analyser, to which a remote analysis program connects to find non-Wi-Fi interference."
+      - id: cn-2x-embedded-wlc
+        type: concept
+        term: "Embedded wireless controller"
+        def: "Controller software that runs inside a Catalyst switch or an access point to manage a small site's APs, with no separate controller appliance."
+      - id: cn-2x-virtual-int
+        type: concept
+        term: "Virtual interface (WLC)"
+        def: "A controller interface with a non-routed address that serves web-authentication redirects, DHCP relay to clients and mobility, and is never used for management."
+
+      - id: cn-1a-q04
+        type: mcq
+        q: "A data-centre fabric has 4 spine switches and 10 leaf switches. An eleventh leaf is added. Following the spine-leaf rules, how many fabric uplinks does the new leaf need?"
+        choices: ["1", "4", "10", "14"]
+        answer: 1
+        why: "Each leaf connects to every spine and to nothing else in the fabric, so the new leaf needs 4 uplinks. Leaves do not connect to other leaves, so the 10 existing leaves do not add to the count."
+      - id: cn-1b-q07
+        type: mcq
+        q: "Which field is present in a TCP header but not in a UDP header?"
+        choices: ["Sequence number", "Source port", "Destination port", "Checksum"]
+        answer: 0
+        why: "TCP numbers its bytes so it can order them, acknowledge them and resend what is lost. UDP has only four fields: source port, destination port, length and checksum."
+
+      - id: cn-1d-q05
+        type: mcq
+        q: "A service provider router connects two customers who both use 10.1.1.0/24 on their LANs. The customers' routes must stay completely separate. Which feature allows this on one router?"
+        choices: ["VLANs", "VRFs", "Subinterfaces", "Containers"]
+        answer: 1
+        why: "Each VRF is a separate routing table, so the same prefix can exist once in each without conflict. VLANs and subinterfaces separate traffic at Layer 2, but all their subnets would still share one routing table."
+      - id: cn-2c-q02
+        type: mcq
+        q: "In a WLC GUI an engineer creates a WLAN for guests and wants its clients placed in VLAN 30. Which setting on the WLAN achieves that?"
+        choices:
+          - "Mapping the WLAN to a dynamic interface configured for VLAN 30"
+          - "Setting the QoS profile to Bronze"
+          - "Setting the SSID name to VLAN30"
+          - "Mapping the WLAN to the service port"
+        answer: 0
+        why: "On a controller, a WLAN is bound to an interface, and that interface carries the VLAN and addressing for its clients. The service port is for out-of-band management of the controller itself, and QoS profiles and names do not select a VLAN."
+      - id: cn-2c-q04
+        type: mcq
+        q: "One access point in a warehouse is to be dedicated to scanning for rogue devices and interference. It must never serve clients. Which AP mode should be chosen?"
+        choices: ["Local", "Monitor", "FlexConnect", "Sniffer"]
+        answer: 1
+        why: "Monitor mode turns the radio into a full-time scanner for rogues and intrusion detection. Sniffer mode also serves no clients, but it captures the frames on one channel and sends them to a packet analyser rather than scanning for threats."
+      - id: cn-2c-q05
+        type: mcq
+        q: "A WLAN is being created for wireless IP phones. Which QoS profile in the WLC GUI gives its traffic the highest priority?"
+        choices: ["Bronze", "Silver", "Gold", "Platinum"]
+        answer: 3
+        why: "Platinum is the voice profile. Gold is intended for video, Silver is best effort and is the default, and Bronze is for background traffic such as guest access."
+      - id: cn-1x-q19
+        type: mcq
+        q: "A security team wants a device that stops an exploit before its packets reach the server. Where must an IPS be placed, and why?"
+        choices:
+          - "On a SPAN port, so it receives a copy of every packet on the VLANs it protects"
+          - "Behind the server, so it inspects only the replies"
+          - "Inline in the traffic path, so it can drop packets as they pass"
+          - "On the management VLAN, so attackers cannot reach it"
+        answer: 2
+        why: "An IPS can only block what flows through it, so it must sit inline. A sensor on a SPAN port sees copies and can only alert, which is how an IDS works."
+      - id: cn-1x-q20
+        type: mcq
+        q: "In a three-tier campus, at which layer are routing between a building's VLANs and policies such as ACLs normally applied?"
+        choices: ["Access", "Core", "Spine", "Distribution"]
+        answer: 3
+        why: "The distribution layer aggregates the access switches, routes between their VLANs and applies policy. The core is kept free of policy so it can move traffic fast, and spine is a data-centre term."
+      - id: cn-1x-q21
+        type: mcq
+        q: "A retailer's 200 stores each have a broadband line and an LTE backup. It wants one central policy that sends voice over whichever path currently has the least loss, inside encrypted tunnels between sites. Which WAN approach fits?"
+        choices:
+          - "SD-WAN"
+          - "Leased lines between every pair of stores"
+          - "A Metro Ethernet E-Line to each store"
+          - "An MPLS VPN on a single provider circuit"
+        answer: 0
+        why: "SD-WAN builds encrypted tunnels across any transport and steers each application by measured path quality under central policy. Leased lines, E-Lines and a single MPLS circuit all need provider circuits the stores do not have and offer no per-application path choice."
+      - id: cn-1x-q22
+        type: mcq
+        q: "A team wants to deploy its own web application code without patching or managing any operating system or runtime. Which cloud model fits?"
+        choices: ["IaaS", "PaaS", "SaaS", "On-premises virtual machines"]
+        answer: 1
+        why: "PaaS supplies a managed platform on which the customer deploys its own code. IaaS leaves the OS to the customer, and SaaS is a finished application, with no code of the customer's own."
+      - id: cn-1y-q16
+        type: mcq
+        q: "R1 has 'interface Gi0/2' / 'vrf forwarding CUST-A' / 'ip address 10.1.1.1 255.255.255.0'. 'ping 10.1.1.10' from R1 fails, though the host at 10.1.1.10 is up. Which command tests it correctly?"
+        choices:
+          - "ping 10.1.1.10 source Gi0/2"
+          - "ping ip 10.1.1.10"
+          - "traceroute 10.1.1.10"
+          - "ping vrf CUST-A 10.1.1.10"
+        answer: 3
+        why: "Gi0/2 is in VRF CUST-A, whose routes are in a separate table. A plain ping looks in the global table, which has no route to 10.1.1.0/24. Naming the VRF makes the router use the right table."
+      - id: cn-1y-q18
+        type: mcq
+        q: "A company wants every one of its 6 sites joined directly to every other site by its own WAN circuit. How many circuits are needed?"
+        choices: ["6", "15", "30", "36"]
+        answer: 1
+        why: "A full mesh of n sites needs n(n-1)/2 links: 6 × 5 / 2 = 15. 30 counts each link twice, once from each end; 36 is 6 squared."
+      - id: cn-1y-q22
+        type: mcq
+        q: "A company needs private any-to-any connectivity between 30 sites, with a provider contract that guarantees priority for voice across the WAN. Which service fits BEST?"
+        choices:
+          - "Site-to-site IPsec VPNs over the internet"
+          - "A single Metro Ethernet E-Line"
+          - "Broadband with no tunnels"
+          - "An MPLS VPN"
+        answer: 3
+        why: "An MPLS VPN gives any-to-any reach across the provider's network with contractual QoS classes. Internet VPNs are private but the internet offers no QoS guarantee, and an E-Line joins only two sites."
+      - id: cn-1y-q23
+        type: mcq
+        q: "An IDS attached to a SPAN port alerts on an exploit but cannot stop it. The team wants such traffic dropped. What change achieves this?"
+        choices:
+          - "Deploy the sensor inline as an IPS"
+          - "Mirror more VLANs to the SPAN port"
+          - "Increase the SPAN session's buffer"
+          - "Move the SPAN destination to a trunk port"
+        answer: 0
+        why: "A sensor fed by a SPAN port sees only copies, so it can alert but not block. Dropping traffic needs the device in the path, as an IPS. More or differently mirrored traffic is still only a copy."
+      - id: cn-2x-q15
+        type: mcq
+        q: "Two buildings 300 m apart have no cable between them. The company wants to join their networks over the air with a pair of access points. Which AP mode is used?"
+        choices: ["Local", "Bridge", "FlexConnect", "Monitor"]
+        answer: 1
+        why: "Bridge mode builds point-to-point or point-to-multipoint wireless links and mesh. Local and FlexConnect serve clients, and monitor only scans."
+      - id: cn-2x-q16
+        type: mcq
+        q: "An engineer must find a microwave oven and a wireless camera that interfere with Wi-Fi, by connecting a remote spectrum-analysis program to one dedicated AP. Which AP mode is chosen?"
+        choices: ["Sniffer", "Monitor", "SE-Connect", "Rogue detector"]
+        answer: 2
+        why: "SE-Connect dedicates the radio to spectrum analysis and lets a remote analysis program read it. Sniffer captures 802.11 frames for a packet analyser, which cannot see non-Wi-Fi sources like a microwave."
+      - id: cn-2x-q17
+        type: mcq
+        q: "On a WLC, guest clients on a web-authentication WLAN are redirected to the login page. Which controller interface supplies the address of that page?"
+        choices: ["Virtual interface", "Management interface", "Service port", "Dynamic interface"]
+        answer: 0
+        why: "The virtual interface carries a non-routed address used for web-authentication redirects and DHCP relay. The management interface handles management and AP tunnels, the service port is out-of-band, and a dynamic interface places clients in a VLAN."
+      - id: cn-2y-q24
+        type: mcq
+        q: "An AireOS WLC with LAG enabled connects to a switch over four ports. The switch has 'channel-group 1 mode active' on those ports, and they never bundle. What should the switch use instead?"
+        choices:
+          - "channel-group 1 mode passive"
+          - "channel-group 1 mode desirable"
+          - "channel-group 1 mode auto"
+          - "channel-group 1 mode on"
+        answer: 3
+        why: "The controller's LAG sends neither LACP nor PAgP, so the switch must bundle unconditionally with mode on. Every negotiating mode waits for protocol messages that never arrive."
+      - id: cn-5x-q24
+        type: mcq
+        q: "On a WLC a new WLAN with WPA2-PSK is enabled. Clients join and authenticate, but receive addresses from the management subnet instead of the user VLAN 20. What was missed in the GUI?"
+        choices:
+          - "The pre-shared key was typed in hexadecimal rather than ASCII"
+          - "The WLAN's QoS profile was left at the default, Silver"
+          - "The WPA2 policy uses AES encryption instead of TKIP"
+          - "The WLAN is still mapped to the management interface"
+        answer: 3
+        why: "A WLAN places its clients in the VLAN of the controller interface it is mapped to. A dynamic interface for VLAN 20 must be created and selected on the WLAN's General tab. The key format, cipher and QoS profile do not decide the client's subnet."
+
+      - id: cn-1b2-b03
+        type: mcq
+        best: true
+        q: "A monitoring application sends one small query to each of 2,000 devices every 10 seconds and waits for one small reply. Each query goes to a different device, and the application already retries any query that gets no answer. Which transport is BEST?"
+        choices:
+          - "TCP, so that lost queries are retransmitted by the transport"
+          - "UDP, so that each exchange needs no connection set-up"
+          - "TCP with a persistent connection held open to every device"
+          - "TCP with a larger window, to send more queries at once"
+        answer: 1
+        why: "For single request-and-reply exchanges with application-level retry, UDP avoids per-exchange connection overhead, as DNS and SNMP do."
+        whys:
+          - "Works, but adds a handshake and teardown to every tiny exchange and duplicates the retries the application already does."
+          - "Best: one datagram out and one back, with the application's own retry covering any loss."
+          - "Avoids repeated handshakes, but means 2,000 connections of state kept alive for one packet every ten seconds."
+          - "The window governs bulk transfer inside one connection; it does nothing for many single-packet exchanges."
+
+      - id: cn-1b2-b15
+        type: mcq
+        best: true
+        q: "Policy forbids one file-sharing application that runs over TCP 443, while all other HTTPS must keep working. Which device or feature BEST enforces this?"
+        choices:
+          - "An extended ACL denying TCP 443 to the internet"
+          - "An IPS loaded with exploit signatures"
+          - "VLAN ACLs on the Layer 3 distribution switch"
+          - "A next-generation firewall with application identification"
+        answer: 3
+        why: "Application identification recognises the application inside port 443 and blocks only it."
+        whys:
+          - "Blocks the application, but blocks every other HTTPS site with it."
+          - "Stops traffic that matches attack signatures; allowing or denying named applications is not its job."
+          - "Filter on addresses and ports like any ACL, so they cannot tell this application from other HTTPS."
+          - "Best: it enforces the policy by application, not by port."
+
+      - id: cn-1b2-b16
+        type: mcq
+        best: true
+        q: "A single-building campus has 8 access switches and expects at most 12. Budget is tight and the team is small. Which architecture is BEST?"
+        choices:
+          - "Three-tier: access, distribution and a separate core layer"
+          - "Two-tier: access switches uplinked to a collapsed core"
+          - "Spine-leaf, with every access switch linked to every spine"
+          - "Daisy-chained access switches with one router at the end"
+        answer: 1
+        why: "One redundant layer that is both distribution and core suits a single building of this size."
+        whys:
+          - "Scales to many buildings, but a separate core adds cost with nothing to aggregate in one building."
+          - "Best: redundancy and room for 12 switches without paying for a third layer."
+          - "Built for east-west data-centre traffic; full meshing to spines is overkill for a small campus."
+          - "Cheapest, but each switch depends on all those before it, with no redundancy."
+
+      - id: cn-1b2-b17
+        type: mcq
+        best: true
+        q: "A data centre's traffic is mostly server to server (east-west). Every pair of servers on different switches must be the same number of hops apart, and capacity must grow by adding switches without redesign. Which architecture is BEST?"
+        choices:
+          - "Spine-leaf"
+          - "Three-tier: core, distribution and access"
+          - "Two-tier collapsed core"
+          - "A ring of switches running spanning tree"
+        answer: 0
+        why: "Every leaf connects to every spine, so any two servers are leaf-spine-leaf apart, and adding a leaf or spine scales out."
+        whys:
+          - "Best: uniform paths for east-west traffic and growth by addition."
+          - "Designed for north-south campus traffic; paths between servers vary in length."
+          - "Fine when small, but hop counts depend on placement and growth means replacing the core pair."
+          - "Spanning tree blocks links, and paths around a ring differ in length."
+
+      - id: cn-1b2-b18
+        type: mcq
+        best: true
+        q: "A retailer is adding 30 branches. Each has two broadband internet links and no IT staff. The company wants central management, automatic choice of the better link for each application, and no carrier contract. Which WAN design is BEST?"
+        choices:
+          - "An MPLS Layer 3 VPN from one provider"
+          - "Hand-built IPsec tunnels from each branch to headquarters"
+          - "SD-WAN over the existing broadband links"
+          - "Metro Ethernet circuits to every branch"
+        answer: 2
+        why: "SD-WAN manages every branch centrally and steers each application over the better of the two internet links."
+        whys:
+          - "Reliable, but needs the carrier contract the stem rules out and ignores the broadband links."
+          - "Uses the broadband, but thirty hand-built tunnel pairs give no central management or per-application path choice."
+          - "Best: central policy, both links in use, and no carrier circuit."
+          - "A carrier service, and normally available only within one metro area."
+
+      - id: cn-1b2-b20
+        type: mcq
+        best: true
+        q: "An online ticket seller's load rises tenfold for two weeks each year and is light the rest of the time. The company wants to stop paying for idle capacity. Which hosting is BEST?"
+        choices:
+          - "Buy enough on-premises servers for the yearly peak"
+          - "Public cloud, scaling out for the peak and back in after"
+          - "Colocate the existing servers in a provider's data centre"
+          - "Rent extra on-premises servers for each year's peak"
+        answer: 1
+        why: "Elastic cloud capacity is paid for only while it runs."
+        whys:
+          - "Handles the peak but leaves most of the capacity idle for fifty weeks a year."
+          - "Best: capacity follows demand in both directions, so nothing idle is paid for."
+          - "Moves the hardware but not the problem: capacity is still fixed and mostly idle."
+          - "Closer, but needs delivery, installation and setup every year, unlike on-demand scaling."
+
+      - id: cn-2b2-b15
+        type: mcq
+        best: true
+        q: "Branch APs are joined to a WLC at headquarters over the WAN. When the WAN fails, branch users lose Wi-Fi, and even traffic to the branch's own file server goes to headquarters and back. No controllers may be added at the branches. Which AP mode BEST fixes both problems?"
+        choices:
+          - "Local mode, with a second WLC added at headquarters for redundancy"
+          - "FlexConnect, with local switching of the branch VLANs"
+          - "Bridge mode"
+          - "Local mode, with a WLC in every branch"
+        answer: 1
+        why: "FlexConnect APs switch client traffic onto the local VLAN and keep serving clients when the WAN to the controller is down."
+        whys:
+          - "Adds controller redundancy, but local traffic still tunnels to headquarters and a WAN failure still drops clients."
+          - "Best: local traffic stays local and the branch survives a WAN outage, with no new controllers."
+          - "Links sites or builds a mesh; it does not change how client traffic is switched."
+          - "Fixes both, but adds a controller to every branch, which the stem rules out."
+
+      - id: cn-2b2-b16
+        type: mcq
+        best: true
+        q: "An AireOS WLC (such as a 5520) connects to a switch stack with two ports that carry every WLAN's VLAN. Both ports must carry traffic, and the loss of one must not drop clients. Which is BEST?"
+        choices:
+          - "Two separate trunks, each carrying half of the VLANs"
+          - "LAG on the WLC, and 'channel-group 1 mode active' on the switch"
+          - "One trunk, with the second WLC port set as a backup port"
+          - "LAG on the WLC, and 'channel-group 1 mode on' on the switch"
+        answer: 3
+        why: "AireOS LAG is a static bundle, so the switch side must be a static EtherChannel; it then uses both ports and survives one failing."
+        whys:
+          - "Uses both ports, but losing one drops every VLAN it carried."
+          - "AireOS LAG does not negotiate LACP, so the switch's LACP ports find no partner and the bundle does not form."
+          - "Survives a failure, but only one port carries traffic at a time."
+          - "Best: a static bundle on both sides, using both ports with failover."
+
+      - id: cn-2b2-b19
+        type: mcq
+        best: true
+        q: "On a WLC, a guest WLAN is being created beside the corporate one. Guest traffic must always yield to corporate traffic, over the air and on the campus uplinks. Which QoS setting for the guest WLAN is BEST?"
+        choices:
+          - "Silver (best effort), the default profile"
+          - "Bronze (background)"
+          - "Silver, with a per-client bandwidth limit for guests"
+          - "Silver, with guest traffic marked down at the WAN router"
+        answer: 1
+        why: "Background is the lowest class, so guests get only what corporate traffic leaves."
+        whys:
+          - "The default, but it puts guests on equal terms with corporate data."
+          - "Best: guests are lowest priority everywhere the marking is honoured."
+          - "Caps each guest, but many capped guests still compete equally with corporate data."
+          - "Acts only at the WAN edge; over the air and on the campus uplinks guests still compete equally."
+
+      - id: cn-2b2-b20
+        type: mcq
+        best: true
+        q: "Visitors on the guest WLAN must reach the internet but must not be able to reach each other's laptops. Which WLC setting BEST meets this?"
+        choices:
+          - "Put the guest WLAN in its own VLAN"
+          - "WPA2-PSK, so only people with the key can join"
+          - "An ACL on the guest VLAN's gateway blocking the guest subnet"
+          - "P2P Blocking Action set to Drop on the WLAN's Advanced tab"
+        answer: 3
+        why: "Peer-to-peer blocking makes the controller drop client-to-client traffic on that WLAN."
+        whys:
+          - "Separates guests from staff, but guests in the same VLAN can still reach one another."
+          - "Controls who joins, not what joined clients can reach."
+          - "Clients in one subnet talk directly without the gateway, so its ACL never sees the traffic."
+          - "Best: stops guest-to-guest traffic at the controller while internet access continues."
+
+  # ─────────────── background 2 · not on the v2.0 exam ───────────────
+  - id: cn-bg-2
+    title: "Background: QoS, NTP, FTP and TFTP, security programs, BPDU filter and GLBP"
+    domain: "x"
+    goal: "I can explain QoS marking and queuing, NTP strata, FTP and TFTP, common attack types and the parts of a security program, BPDU filter and GLBP."
+    notes: |
+      These topics were on CCNA v1.1 but are not on the v2.0 exam topics (from 3 February 2027): QoS, NTP, TFTP and FTP (v2.0 asks for SFTP and SCP instead), named attack types and the security-program and password-policy topics, BPDU filter, and GLBP (v2.0 names only HSRP and VRRP). They stay in the course because they remain useful on the job, and because v1.1 is the live exam until 2 February 2027. Mock exams for v2.0 do not draw from this unit.
+    items:
+      - id: cn-3d-glbp
+        type: concept
+        term: "GLBP"
+        def: "A Cisco first hop redundancy protocol that load-balances by answering ARP requests for one virtual IP with different virtual MAC addresses."
+      - id: cn-4b-ntp-master
+        type: concept
+        term: "ntp master"
+        def: "Makes an IOS device act as an authoritative time source using its own clock, at stratum 8 unless another value is given."
+      - id: cn-4b-stratum
+        type: concept
+        term: "Stratum"
+        def: "A number giving a time source's distance from a reference clock; each hop adds one, and 16 means unsynchronised."
+      - id: cn-4b-dscp
+        type: concept
+        term: "DSCP"
+        def: "A 6-bit marking in the IP header used to classify packets for per-hop treatment; EF (46) is the usual value for voice."
+      - id: cn-5a-vulnerability
+        type: concept
+        term: "Vulnerability"
+        def: "A weakness in a system, its software or its configuration that could be used to compromise it."
+      - id: cn-5a-exploit
+        type: concept
+        term: "Exploit"
+        def: "The code or technique that actually takes advantage of a weakness to compromise a system."
+      - id: cn-2x-bpdufilter
+        type: concept
+        term: "BPDU filter"
+        def: "Stops a port sending spanning-tree messages; enabled directly on an interface it also ignores incoming ones, which can let a loop form."
+      - id: cn-4x-ntp-source
+        type: concept
+        term: "ntp source Loopback0"
+        def: "Makes a device send all its time-protocol packets from one always-up interface address, so that servers and filters see the same source whichever link the packets leave by."
+      - id: cn-4x-cos
+        type: concept
+        term: "CoS (class of service)"
+        def: "A 3-bit priority marking carried in the 802.1Q tag of an Ethernet frame, so it exists only on tagged links; voice is normally given the value 5."
+      - id: cn-4x-llq
+        type: concept
+        term: "LLQ (low latency queuing)"
+        def: "Class-based weighted fair queuing with a strict-priority queue added, so that voice is always sent first, up to a policed limit."
+      - id: cn-4x-wred
+        type: concept
+        term: "WRED"
+        def: "A congestion-avoidance tool that discards a growing share of packets before the queue is full, choosing lower-priority markings first."
+      - id: cn-4x-nbar
+        type: concept
+        term: "NBAR"
+        def: "A Cisco classification engine that recognises applications by inspecting packets up to Layer 7 instead of relying on addresses and port numbers alone."
+      - id: cn-5x-amplification
+        type: concept
+        term: "Reflection and amplification attack"
+        def: "A denial-of-service method that sends small requests with the victim's address forged as the source, so that many third-party servers answer the victim with far larger replies."
+      - id: cn-5x-recon
+        type: concept
+        term: "Reconnaissance attack"
+        def: "Information gathering, such as ping sweeps and port scans, carried out to map a target before the real attack begins."
+      - id: cn-5x-awareness
+        type: concept
+        term: "User awareness"
+        def: "The security-program element that keeps every employee conscious of threats and policies through reminders, campaigns and simulated phishing, without formal instruction."
+      - id: cn-5x-physical
+        type: concept
+        term: "Physical access control"
+        def: "The security-program element that keeps unauthorised people away from equipment with locked rooms and racks, badge readers and similar barriers."
+      - id: cn-5x-cert
+        type: concept
+        term: "Digital certificate"
+        def: "A file, signed by a trusted authority, that binds an identity to a public key and can prove that identity without a password."
+
+      - id: cn-4b-q03
+        type: mcq
+        q: "R1 is configured with 'ntp server 192.0.2.10'. 'show ntp associations' shows '*~192.0.2.10' with 2 in the 'st' column. What is R1's own stratum once synchronised?"
+        choices: ["3", "1", "2", "16"]
+        answer: 0
+        why: "The 'st' column is the server's stratum. A client is always one level further from the reference clock than its source, so R1 is stratum 3. Stratum 16 would mean R1 is not synchronised."
+      - id: cn-4b-q04
+        type: mcq
+        q: "A provider polices a customer's WAN link at 50 Mbps and drops anything above that. The customer's router sends bursts of 80 Mbps, and TCP sessions suffer. Which QoS tool on the customer's router BEST avoids the drops?"
+        choices:
+          - "Policing outbound at 80 Mbps"
+          - "Marking all traffic as EF"
+          - "Classification with an ACL"
+          - "Shaping outbound to 50 Mbps"
+        answer: 3
+        why: "Shaping buffers the excess and releases it at the contracted rate, so the provider's policer has nothing to drop. Policing on the customer side would drop too, and marking or classifying alone does not change the sending rate."
+      - id: cn-4b-q05
+        type: mcq
+        q: "Where in the network should packets be classified and marked for QoS?"
+        choices:
+          - "At the core, where the links are fastest"
+          - "As close to the traffic source as possible, at the trust boundary"
+          - "Only at the WAN edge, where congestion occurs"
+          - "At the destination server"
+        answer: 1
+        why: "Marking once at the edge lets every later hop apply the right per-hop behaviour by reading the DSCP value, instead of re-inspecting packets. The WAN edge is where queuing matters most, but marking should already have happened."
+      - id: cn-4b-q06
+        type: mcq
+        q: "An engineer must copy a new IOS image to a router. The transfer must require a username and password and use a reliable transport. Which protocol fits?"
+        choices: ["TFTP", "SNMP", "FTP", "NTP"]
+        answer: 2
+        why: "FTP runs over TCP and requires a login. TFTP uses UDP port 69 with no authentication at all, which is simple but neither secured nor well suited to very large files."
+
+      - id: cn-5a-q05
+        type: mcq
+        q: "Which login method is true multifactor authentication?"
+        choices:
+          - "A password followed by a PIN"
+          - "A fingerprint followed by a face scan"
+          - "A password followed by a one-time code from a hardware token"
+          - "Two different passwords"
+        answer: 2
+        why: "Multifactor means proofs from different categories: something you know (password) plus something you have (token). A password with a PIN is two things you know, and two biometrics are both something you are."
+      - id: cn-2y-q17
+        type: mcq
+        q: "SW1 has 'spanning-tree portfast default' and 'spanning-tree portfast bpdufilter default' and no other edge features. A switch is plugged into access port Gi0/12 and starts sending BPDUs. What does Gi0/12 do?"
+        choices:
+          - "It err-disables at once"
+          - "It ignores the BPDUs and keeps forwarding as an edge port, because filtering is on"
+          - "It goes root-inconsistent"
+          - "It loses PortFast and BPDU filtering and runs normal spanning tree"
+        answer: 3
+        why: "Global BPDU filter applies only to operational PortFast ports, and as soon as such a port receives a BPDU it drops both PortFast and filtering and takes part in spanning tree normally. Ignoring BPDUs is the interface-level behaviour; err-disabling is BPDU guard."
+      - id: cn-4x-q07
+        type: mcq
+        q: "R2 has 'ntp authentication-key 1 md5 T1meKey', 'ntp trusted-key 1' and 'ntp server 192.0.2.10 key 1'. A test shows that R2 still accepts time from a server that sends no authentication at all. Which command is missing?"
+        choices:
+          - "ntp master 1"
+          - "ntp source Loopback0"
+          - "ntp authenticate"
+          - "ntp update-calendar"
+        answer: 2
+        why: "Defining and trusting a key does nothing until 'ntp authenticate' turns the feature on; only then does the device refuse to synchronise to unauthenticated sources. 'ntp source' fixes the source address and has nothing to do with keys."
+      - id: cn-4x-q08
+        type: mcq
+        q: "R1 has only 'ntp server 192.0.2.10' and is synchronised at stratum 4. R2 is then configured with 'ntp server 10.0.0.1', which is R1's address. Nothing else is added to R1. What happens on R2?"
+        choices:
+          - "It stays unsynchronised, because R1 lacks 'ntp master'"
+          - "It synchronises to R1 and reports stratum 4"
+          - "It stays unsynchronised until 'ntp peer' is set on both routers"
+          - "It synchronises to R1 and reports stratum 5"
+        answer: 3
+        why: "An IOS device that is itself synchronised answers NTP clients automatically, so R1 acts as client and server at once. R2 is one hop further from the reference clock: stratum 5. 'ntp master' is needed only when a device must serve time from its own clock."
+      - id: cn-4x-q09
+        type: mcq
+        q: "Two routers are both synchronised to the same NTP server, yet their log timestamps for a single event differ by exactly one hour. What is the MOST likely cause?"
+        choices:
+          - "Their 'clock timezone' settings differ"
+          - "They sit at different strata, and each stratum adds delay"
+          - "Only one of them has 'ntp authenticate' configured"
+          - "One of them uses a loopback interface as its NTP source"
+        answer: 0
+        why: "NTP distributes UTC; each device applies its own 'clock timezone' and 'clock summer-time' offset when it displays the time. A whole-hour difference points at those settings. Stratum is a hop count, not a time offset."
+      - id: cn-4x-q19
+        type: mcq
+        q: "An IP phone marks its voice packets with CoS 5 and DSCP EF. The packets leave the access switch on a trunk, are routed by a distribution switch, and then cross a routed point-to-point link that carries no 802.1Q tag. Which marking is still present on that link?"
+        choices:
+          - "CoS 5 only"
+          - "Both CoS 5 and DSCP EF"
+          - "DSCP EF only"
+          - "Neither marking"
+        answer: 2
+        why: "CoS lives in the 802.1Q tag, so it disappears wherever the frame is untagged. DSCP sits in the IP header and travels end to end unless a device rewrites it, which is why it is the marking designs rely on across routed hops."
+      - id: cn-4x-q20
+        type: mcq
+        q: "Voice has a CBWFQ class with a guaranteed 20 percent of a WAN link. During congestion calls still suffer jitter, because voice packets wait while the scheduler serves the other classes in turn. Which change BEST fixes this?"
+        choices:
+          - "Enable WRED in the voice class so that it drops early"
+          - "Shape the voice class to its 20 percent share"
+          - "Merge all classes into a single FIFO queue"
+          - "Make voice a strict-priority queue (LLQ)"
+        answer: 3
+        why: "CBWFQ guarantees bandwidth but not delay. LLQ adds a priority queue that is always served first, which removes the waiting that causes jitter. WRED and shaping would drop or delay voice, the opposite of what it needs."
+      - id: cn-4x-q21
+        type: mcq
+        q: "On a congested WAN interface the queue fills, tail drop discards packets from many TCP sessions at once, and all of them slow down and then speed up together, so throughput swings up and down. Which tool is designed to prevent this?"
+        choices: ["WRED", "LLQ", "NBAR", "Policing"]
+        answer: 0
+        why: "WRED discards a few packets early and at random as the queue grows, so sessions back off at different times instead of all together (global synchronisation). LLQ decides who is served first; it does not prevent the queue from filling."
+      - id: cn-4x-q22
+        type: mcq
+        q: "A PC is plugged into the back of an IP phone, and a game on the PC marks its own frames with CoS 5. The design places the trust boundary at the phone. What should happen?"
+        choices:
+          - "The switch trusts every marking that arrives on the port, including the PC's"
+          - "The phone's markings are trusted; the PC's frames are re-marked to CoS 0"
+          - "The switch re-marks both the phone's and the PC's traffic to CoS 0"
+          - "The phone discards every frame from the PC that carries a marking"
+        answer: 1
+        why: "A trust boundary is the point up to which markings are believed. The phone is a managed device, so its voice markings are kept, while traffic from the PC behind it is rewritten to best effort so that a user cannot claim priority."
+      - id: cn-4x-q24
+        type: mcq
+        q: "A client behind a firewall logs in to an FTP server successfully, but every directory listing or download hangs. The firewall allows outbound connections and blocks all inbound ones. Which change is MOST likely to fix it?"
+        choices:
+          - "Use active mode, so the server opens the data connection from port 20"
+          - "Open TCP port 21 outbound on the firewall"
+          - "Move the control connection to TCP port 20"
+          - "Use passive mode, so the client opens the data connection too"
+        answer: 3
+        why: "The login works, so the control connection on TCP 21 is fine. In active mode the server connects back to the client for data, which the firewall blocks. In passive mode the client opens both connections outbound."
+      - id: cn-4x-m02
+        type: multi
+        q: "Which TWO statements describe policing, as opposed to shaping?"
+        choices:
+          - "Excess traffic is dropped or re-marked at once"
+          - "Excess traffic is held in a queue and sent later"
+          - "It can be applied to traffic arriving on an interface"
+          - "It smooths bursts at the cost of added delay"
+          - "It needs a buffer for the packets it holds back"
+        answers: [0, 2]
+        why: "A policer measures the rate and immediately drops or re-marks what exceeds it, in either direction. A shaper buffers the excess, which smooths bursts but adds delay, and so works only on traffic leaving an interface."
+      - id: cn-4x-m03
+        type: multi
+        q: "Which TWO statements are true of TFTP?"
+        choices:
+          - "It runs over UDP port 69"
+          - "It asks for a username and password"
+          - "It can list the files in a directory"
+          - "It has no authentication of any kind"
+          - "It opens a separate data connection from TCP port 20"
+        answers: [0, 3]
+        why: "TFTP is a minimal protocol on UDP 69 that can only read or write a named file, with no login. Usernames, directory listings and a data connection from TCP port 20 are all features of FTP."
+
+      - id: cn-4x-o02
+        type: order
+        q: "A packet from an untrusted host enters a router that applies QoS and leaves on a congested WAN interface. Put the per-hop treatment in order."
+        steps:
+          - "Classify the packet by matching its headers or its application"
+          - "Mark it with the DSCP value for its class"
+          - "Place it in the egress queue that serves that class"
+          - "The scheduler transmits it, serving the priority queue first"
+        why: "A packet must be identified before it can be marked, and it is queued on the way out according to that marking. The scheduler then decides which queue is sent next."
+      - id: cn-4x-o03
+        type: order
+        q: "Put the steps of upgrading a router's IOS image from a file server in a safe order."
+        steps:
+          - "Check the free space with 'show flash:'"
+          - "Copy the image with 'copy ftp: flash:'"
+          - "Check the file with 'verify /md5' against the published hash"
+          - "Point 'boot system' at the new image and save the configuration"
+          - "Reload and confirm the version with 'show version'"
+        why: "Space is checked before copying, and the copy is verified before the router is told to boot from it, so that a truncated or corrupt image is never the one loaded at the next reload."
+
+      - id: cn-5x-q01
+        type: mcq
+        q: "A web server is flooded with large DNS responses from thousands of open resolvers around the world, although it never sent a DNS query. What kind of attack is this?"
+        choices:
+          - "Reflection and amplification"
+          - "TCP SYN flood from a single host"
+          - "ARP poisoning man-in-the-middle"
+          - "Reconnaissance by port scanning"
+        answer: 0
+        why: "The attacker sent queries with the victim's address forged as the source, so the resolvers reflect their much larger answers at the victim. A SYN flood would show half-open TCP connections, not unsolicited DNS responses."
+      - id: cn-5x-q03
+        type: mcq
+        q: "Malware enters one PC and within minutes has infected hundreds of others by exploiting an unpatched file-sharing service, with no user opening or running anything. Which class of malware behaves this way?"
+        choices: ["Virus", "Trojan horse", "Worm", "Spyware"]
+        answer: 2
+        why: "A worm propagates by itself across the network by exploiting a vulnerability. A virus needs a host file and a user action to spread, and a Trojan relies on a user being tricked into running it."
+      - id: cn-5x-q04
+        type: mcq
+        q: "An employee receives a phone call from someone claiming to be the help desk, who asks her to read out the code from her authenticator app. Which technique is this?"
+        choices: ["Phishing", "Smishing", "Pharming", "Vishing"]
+        answer: 3
+        why: "Vishing is social engineering by voice call. Phishing uses e-mail, smishing uses text messages, and pharming redirects a victim to a fake site by corrupting name resolution."
+      - id: cn-5x-q05
+        type: mcq
+        q: "Which activity is an example of the TRAINING element of a security program, rather than user awareness?"
+        choices:
+          - "A mandatory yearly course with a test, tailored to each job role"
+          - "Posters in the corridors about locking the screen"
+          - "A monthly e-mail reminding all staff to report any suspicious messages"
+          - "A login banner warning that use of the system is monitored"
+        answer: 0
+        why: "Training is formal, scheduled instruction, often mandatory and specific to a role, with its completion checked. Posters, reminders and banners keep security in mind, which is awareness, but they do not teach or test anything."
+      - id: cn-5x-m01
+        type: multi
+        q: "Which TWO of these are social engineering attacks?"
+        choices: ["Phishing", "TCP SYN flood", "Tailgating", "Port scan", "Buffer overflow"]
+        answers: [0, 2]
+        why: "Phishing and tailgating both work by deceiving or exploiting a person. A SYN flood is a denial-of-service attack, a port scan is reconnaissance, and a buffer overflow exploits a software flaw."
+      - id: cn-4b2-b03
+        type: mcq
+        best: true
+        q: "An enterprise has 300 routers and switches. Their clocks must agree, the 300 must not all query internet NTP servers, and time must keep flowing if one internal source fails. Which design is BEST?"
+        choices:
+          - "Point all 300 devices at public internet NTP servers"
+          - "'ntp master' on one core router, and every device pointed at it"
+          - "Set each clock by hand during maintenance windows"
+          - "Two core routers sync externally; the rest use both of them"
+        answer: 3
+        why: "Two internal servers give redundancy, only they reach the internet, and everything else syncs inside the network."
+        whys:
+          - "Good time, but 300 devices querying the internet is what the design must avoid."
+          - "One source, taken from the router's own unsynchronised clock, and nothing if that router fails."
+          - "Clocks drift apart within days."
+          - "Best: a small hierarchy with a spare."
+
+      - id: cn-4b2-b08
+        type: mcq
+        best: true
+        q: "On a congested WAN link, an ERP application slows down whenever backups run. ERP must get at least 20 percent of the link during congestion and may use more when it is free. Voice already uses the priority queue. Which is BEST?"
+        choices:
+          - "Put ERP into the LLQ priority queue alongside voice"
+          - "Police backup traffic to 20 percent of the link"
+          - "Mark ERP traffic with DSCP EF"
+          - "A CBWFQ class for ERP with 'bandwidth percent 20'"
+        answer: 3
+        why: "CBWFQ guarantees ERP its share during congestion and lets it use spare bandwidth when there is any."
+        whys:
+          - "Gives ERP strict priority, but the priority queue is for small delay-sensitive flows, and bursty ERP data there adds delay to voice."
+          - "Shields ERP from backups only, and drops backup traffic above the rate even when the link is idle."
+          - "EF is meant for voice, and a marking changes nothing unless a queue acts on it."
+          - "Best: a minimum guarantee that is not a ceiling."
+
+      - id: cn-5b2-b07
+        type: mcq
+        best: true
+        q: "Several VPN users typed their passwords into a phishing site, and attackers then logged in to the VPN with them. Which control BEST stops a stolen password being enough to log in?"
+        choices:
+          - "Multifactor authentication on the VPN"
+          - "Longer, more complex passwords"
+          - "Shorter password expiry"
+          - "Account lockout after five failed logins"
+        answer: 0
+        why: "A stolen password is useless without the second factor."
+        whys:
+          - "Best: breaks the link between a phished password and a login."
+          - "A phished password works however long it is."
+          - "Narrows the window, but a stolen password works until it expires."
+          - "The attackers had the right password and never failed."
+
+      - id: cn-5b2-b08
+        type: mcq
+        best: true
+        q: "Password-reset calls are high, and users write passwords down because of 60-day expiry and complex composition rules. Which policy change is BEST, following current NIST guidance?"
+        choices:
+          - "Keep the rules and add a self-service reset portal"
+          - "Shorten expiry to 30 days"
+          - "Long passphrases screened against breached-password lists, changed only on evidence of compromise"
+          - "More composition rules, with expiry extended to 120 days"
+        answer: 2
+        why: "Length and screening resist guessing better than composition rules, and dropping forced expiry removes the reason to write passwords down."
+        whys:
+          - "Cuts help-desk calls, but users still write passwords down."
+          - "More resets and more written-down passwords."
+          - "Best: stronger passwords that people can remember."
+          - "Fewer changes, but harder rules still push users to write passwords down."
+
+      - id: cn-5b2-b13
+        type: mcq
+        best: true
+        q: "A camera shows people following badge holders through the data-room door without badging. Which control BEST prevents this tailgating?"
+        choices:
+          - "More CCTV cameras at the door"
+          - "An access control vestibule (mantrap)"
+          - "A badge reader on the inside of the door as well"
+          - "A visitor sign-in sheet at reception"
+        answer: 1
+        why: "Only one person can pass through a vestibule at a time, so nobody can follow a badge holder in."
+        whys:
+          - "Records tailgating after it happens; it does not stop it."
+          - "Best: a preventive control aimed at exactly this behaviour."
+          - "Logs exits, but anyone can still follow someone in."
+          - "Covers visitors at reception, not people following staff through the data-room door."
+
+  # ─────────────── background 3 · not on the v2.0 exam ───────────────
+  - id: cn-bg-3
+    title: "Background: REST APIs, JSON, SDN fabrics and Terraform"
+    domain: "x"
+    goal: "I can read a REST exchange and a JSON document, describe SD-Access and SD-WAN roles and the overlay and underlay, and say what Terraform does."
+    notes: |
+      These topics were on CCNA v1.1 but are not on the v2.0 exam topics (from 3 February 2027): REST APIs and their authentication, JSON, SDN overlay and underlay with the SD-Access and SD-WAN component roles, and Terraform by name (v2.0 keeps infrastructure as code as a management approach and Ansible as a tool). They stay in the course because they remain useful for anyone who automates a network, and because v1.1 is the live exam until 2 February 2027. Mock exams for v2.0 do not draw from this unit.
+    items:
+      - id: cn-6a-underlay
+        type: concept
+        term: "Underlay"
+        def: "The physical devices and links, and the routing between them, that give IP reachability to tunnels built on top."
+      - id: cn-6a-overlay
+        type: concept
+        term: "Overlay"
+        def: "A virtual network of tunnels built across the physical one to carry user traffic between the edges of a fabric."
+      - id: cn-6b-crud
+        type: concept
+        term: "CRUD"
+        def: "The four basic data operations (create, read, update, delete), which REST maps to POST, GET, PUT or PATCH, and DELETE."
+      - id: cn-6b-stateless
+        type: concept
+        term: "Stateless (REST)"
+        def: "The property that each request carries everything the server needs to answer it; the server keeps no client session between requests."
+      - id: cn-6b-object
+        type: concept
+        term: "JSON object"
+        def: "An unordered set of key and value pairs enclosed in curly braces, with each key written as a double-quoted string."
+      - id: cn-6b-array
+        type: concept
+        term: "JSON array"
+        def: "An ordered list of values enclosed in square brackets and separated by commas."
+      - id: cn-6b-terraform
+        type: concept
+        term: "Terraform"
+        def: "A declarative infrastructure-as-code tool that compares the desired state written in HCL with a recorded state file and applies the difference through provider APIs."
+      - id: cn-6x-fabric
+        type: concept
+        term: "Fabric"
+        def: "The physical network and the virtual tunnels built across it, managed together by a controller as one system."
+      - id: cn-6x-edge-node
+        type: concept
+        term: "Fabric edge node"
+        def: "The SD-Access switch that endpoints plug into; it registers them and tunnels their traffic into the virtual network."
+      - id: cn-6x-border-node
+        type: concept
+        term: "Fabric border node"
+        def: "The SD-Access device through which traffic passes between the fabric and outside networks such as the WAN or the internet."
+      - id: cn-6x-basic-auth
+        type: concept
+        term: "HTTP basic authentication"
+        def: "Sends the username and password, Base64-encoded but not encrypted, in the Authorization header of every request."
+      - id: cn-6x-api-key
+        type: concept
+        term: "API key"
+        def: "A long static string issued to a client program and sent with each request, usually in a header, to identify and admit that program."
+      - id: cn-6x-oauth
+        type: concept
+        term: "OAuth 2.0"
+        def: "A framework in which an authorization server issues a limited access token, so that an application can act for a user without ever holding the user's password."
+      - id: cn-6x-provider
+        type: concept
+        term: "Provider (Terraform)"
+        def: "A plug-in that teaches a declarative provisioning tool how to talk to one platform's API, such as a cloud or a network controller."
+
+      - id: cn-6a-q03
+        type: mcq
+        q: "In a Cisco SD-Access fabric, which encapsulation carries user traffic through the overlay tunnels between fabric edge switches?"
+        choices: ["VXLAN", "802.1Q", "CAPWAP", "PPP"]
+        answer: 0
+        why: "SD-Access builds its overlay data plane with VXLAN tunnels across a routed underlay. 802.1Q tags VLANs on a single link, and CAPWAP is the tunnel between an access point and its wireless controller."
+      - id: cn-6b-q01
+        type: mcq
+        q: "A script must replace the whole definition of an existing VLAN resource on a controller through its REST API. Which HTTP verb is appropriate?"
+        choices: ["GET", "POST", "PUT", "DELETE"]
+        answer: 2
+        why: "PUT replaces an existing resource at a known URI, the Update of CRUD. POST creates a new resource, and GET only reads."
+      - id: cn-6b-q02
+        type: mcq
+        q: "A script calls a controller's REST API and receives the status code 401. What is the most likely cause?"
+        choices:
+          - "The request carried no valid credentials or token"
+          - "The resource does not exist at that URI"
+          - "The controller crashed while processing the request"
+          - "The resource was created successfully"
+        answer: 0
+        why: "401 Unauthorized means the request was not authenticated: the token is missing, wrong or expired. A missing resource is 404, a server fault is in the 500s, and a successful creation is 201."
+      - id: cn-6b-q03
+        type: mcq
+        q: "In this JSON, what is the value of the key 'vlans'? '{\"hostname\": \"SW1\", \"vlans\": [10, 20, 30], \"enabled\": true}'"
+        choices:
+          - "An object with three keys"
+          - "A string"
+          - "A boolean"
+          - "An array of three numbers"
+        answer: 3
+        why: "Square brackets enclose an array, here holding the numbers 10, 20 and 30. An object would be in curly braces with keys, and a string would be in double quotes."
+      - id: cn-6b-q04
+        type: mcq
+        q: "A REST call is rejected because its body is not valid JSON. The body is: '{\"name\": \"R1\" \"mgmt\": \"10.1.1.1\"}'. What is wrong?"
+        choices:
+          - "The keys must not be in quotes"
+          - "The comma between the two key and value pairs is missing"
+          - "An IP address must be written as a number, without quotes"
+          - "The outer braces should be square brackets"
+        answer: 1
+        why: "Pairs inside an object are separated by commas. Keys must be double-quoted strings, an IP address is text and so is quoted, and curly braces are correct for an object."
+      - id: cn-6b-q05
+        type: mcq
+        q: "A client wants a REST API to return its answer as JSON rather than XML. Which request header expresses that?"
+        choices:
+          - "Content-Type: application/json"
+          - "Authorization: Bearer <token>"
+          - "Accept: application/json"
+          - "Host: application/json"
+        answer: 2
+        why: "Accept states which formats the client will take in the response. Content-Type describes the body the client is sending, which matters for POST and PUT but does not choose the reply format."
+      - id: cn-6b-o01
+        type: order
+        q: "Put the stages of a normal Terraform workflow in order."
+        steps:
+          - "terraform init (download the providers)"
+          - "terraform plan (preview the changes)"
+          - "terraform apply (make the changes)"
+          - "terraform destroy (remove what was built, when it is no longer needed)"
+        why: "The working directory must be initialised before anything else, the plan is reviewed before it is applied, and resources can only be destroyed after they exist."
+      - id: cn-6x-q03
+        type: mcq
+        q: "In an SD-Access fabric, which role keeps the database that maps each endpoint to the edge node it is attached to?"
+        choices:
+          - "Fabric edge node"
+          - "Fabric border node"
+          - "Control plane node"
+          - "Intermediate (underlay) node"
+        answer: 2
+        why: "The control plane node runs the LISP mapping system that records where every endpoint is. Edge nodes register their endpoints with it and query it; they do not hold the whole database themselves."
+      - id: cn-6x-q04
+        type: mcq
+        q: "A new WAN edge router boots at a branch in a Cisco SD-WAN deployment. Which component authenticates it first and tells it how to reach the other controllers?"
+        choices:
+          - "vManage (SD-WAN Manager)"
+          - "vSmart (SD-WAN Controller)"
+          - "Another WAN edge router"
+          - "vBond (SD-WAN Validator)"
+        answer: 3
+        why: "vBond is the orchestrator: the first point of contact that authenticates a joining router and passes it the addresses of vManage and vSmart. vSmart then distributes routing and policy, and vManage is the management interface."
+      - id: cn-6x-q09
+        type: mcq
+        q: "A script authenticates to a controller with a read-only account and receives a valid token. It then sends DELETE for a device and gets an error. Which status code fits BEST?"
+        choices:
+          - "403 Forbidden"
+          - "401 Unauthorized"
+          - "404 Not Found"
+          - "500 Internal Server Error"
+        answer: 0
+        why: "The server knows who the caller is but that account is not allowed to perform the action: 403. A 401 would mean the request was not authenticated at all, which is not the case with a valid token."
+      - id: cn-6x-q10
+        type: mcq
+        q: "A script with a valid token sends GET to 'https://cc.example.com/api/v1/device', but the documented resource is '/api/v1/devices'. Which response should it expect?"
+        choices:
+          - "401 Unauthorized"
+          - "404 Not Found"
+          - "201 Created"
+          - "503 Service Unavailable"
+        answer: 1
+        why: "The URI does not identify any resource on the server, which is 404. The token is valid, so it is not 401, and a 5xx code would mean the fault lay with the server rather than with the request."
+      - id: cn-6x-q11
+        type: mcq
+        q: "Only the 'description' field of an existing interface resource must change; every other field must be left as it is. Which HTTP verb is designed for this?"
+        choices: ["POST", "PUT", "PATCH", "GET"]
+        answer: 2
+        why: "PATCH applies a partial modification, changing only the fields that are sent. PUT replaces the whole resource with the body supplied, so fields left out of the body may be reset or removed."
+      - id: cn-6x-q12
+        type: mcq
+        q: "A script's request times out, so it sends exactly the same request again. With which verb could the retry leave two copies of a resource on the server?"
+        choices: ["GET", "PUT", "DELETE", "POST"]
+        answer: 3
+        why: "POST creates a new resource each time it is processed, so it is not idempotent. Repeating a GET, a PUT of the same body or a DELETE leaves the server in the same state as doing it once."
+      - id: cn-6x-q13
+        type: mcq
+        q: "A capture of an API call made over plain HTTP shows 'Authorization: Basic YWRtaW46Y2lzY28='. What does this reveal?"
+        choices:
+          - "The username and password, which are only Base64-encoded"
+          - "A one-time token that has already expired"
+          - "An API key that identifies the script but no user"
+          - "A password hash that cannot be reversed"
+        answer: 0
+        why: "Basic authentication sends 'username:password' in Base64, an encoding anyone can reverse; this string decodes to admin:cisco. It is safe only inside HTTPS. A token would normally follow the word Bearer, not Basic."
+      - id: cn-6x-q14
+        type: mcq
+        q: "A script obtains a token from a controller by sending its username and password once, then sends the token in a header with every call. After working for an hour, every call starts returning 401. What is the MOST likely cause and fix?"
+        choices:
+          - "The account is not permitted to read; grant it a role"
+          - "The token expired; request a new one"
+          - "The URI changed; correct the path"
+          - "The server is overloaded; retry later"
+        answer: 1
+        why: "Tokens have a limited lifetime, and an expired one no longer authenticates the request: 401. The script should request a fresh token and retry. A permission problem would be 403, a wrong path 404 and an overloaded server a 5xx code."
+      - id: cn-6x-q15
+        type: mcq
+        q: "In 'https://cc.example.com:8443/api/v1/devices?role=ACCESS&limit=5', what is the job of 'role=ACCESS&limit=5'?"
+        choices:
+          - "It names the resource that is being requested"
+          - "It carries the credentials for the request"
+          - "It filters and limits the result"
+          - "It selects the TCP port on the server"
+        answer: 2
+        why: "Everything after the question mark is the query string: parameters, joined by ampersands, that filter, sort or page the result. The resource is named by the path, /api/v1/devices, and the port is the 8443 that follows the host."
+      - id: cn-6x-q16
+        type: mcq
+        q: "In this JSON, what is the value of 'ip' in the second element of 'interfaces'? '{\"device\": {\"hostname\": \"R1\", \"interfaces\": [{\"name\": \"Gi0/0\", \"ip\": \"10.1.1.1\", \"up\": true}, {\"name\": \"Gi0/1\", \"ip\": null, \"up\": false}]}}'"
+        choices:
+          - "The string 10.1.1.1"
+          - "The boolean false"
+          - "The string Gi0/1"
+          - "The value null"
+        answer: 3
+        why: "'interfaces' is an array of two objects. The second object is the one whose name is Gi0/1, and its 'ip' key holds null, meaning no value. 10.1.1.1 belongs to the first element."
+      - id: cn-6x-q17
+        type: mcq
+        q: "How many key and value pairs does the object stored under 'device' hold directly? '{\"device\": {\"hostname\": \"R1\", \"interfaces\": [{\"name\": \"Gi0/0\", \"ip\": \"10.1.1.1\", \"up\": true}, {\"name\": \"Gi0/1\", \"ip\": null, \"up\": false}]}}'"
+        choices: ["2", "3", "6", "8"]
+        answer: 0
+        why: "The object under 'device' has two keys: 'hostname' and 'interfaces'. The name, ip and up pairs belong to the two objects nested inside the 'interfaces' array, one level further down."
+      - id: cn-6x-q18
+        type: mcq
+        q: "Which of these is valid JSON?"
+        choices:
+          - "{'vlan': 10, 'name': 'USERS'}"
+          - "{\"vlan\": 10, \"name\": \"USERS\"}"
+          - "{\"vlan\": 10, \"name\": \"USERS\",}"
+          - "{vlan: 10, name: \"USERS\"}"
+        answer: 1
+        why: "JSON requires double quotes around every key and every text value, and allows no comma after the last pair. Single quotes, a trailing comma and unquoted keys are each enough to make a parser reject the document."
+      - id: cn-6x-q23
+        type: mcq
+        q: "'terraform plan' ends with 'Plan: 2 to add, 1 to change, 0 to destroy.' What has changed on the real infrastructure at this point?"
+        choices:
+          - "Two resources have been created and one has been modified"
+          - "Two resources have been created; the modification is pending"
+          - "Nothing; this is a preview of what 'terraform apply' would do"
+          - "Nothing, and the state file has been reset to empty"
+        answer: 2
+        why: "A plan only compares the desired configuration with the recorded state and the real resources, and reports the difference. Nothing is created, changed or destroyed until 'terraform apply' is run and approved."
+      - id: cn-6x-q24
+        type: mcq
+        q: "Terraform created three VLANs through a controller's API. Someone later deletes one of them by hand in the controller's GUI. The Terraform files are unchanged. What does the next 'terraform plan' propose?"
+        choices:
+          - "To destroy the two remaining VLANs"
+          - "No changes, because the files are unchanged"
+          - "To remove the VLAN from the configuration files"
+          - "To create the missing VLAN again"
+        answer: 3
+        why: "Terraform is declarative: the files still describe three VLANs, and a plan refreshes its view of what really exists. It finds one missing and proposes adding it back. Terraform never edits the configuration files to suit reality."
+      - id: cn-6x-m01
+        type: multi
+        q: "Which TWO HTTP status codes report that a request succeeded?"
+        choices:
+          - "201 Created"
+          - "401 Unauthorized"
+          - "204 No Content"
+          - "404 Not Found"
+          - "503 Service Unavailable"
+        answers: [0, 2]
+        why: "Every 2xx code is a success: 201 after a resource is created, 204 when the request worked and there is no body to return. The 4xx codes report a problem with the request and the 5xx codes a problem on the server."
+      - id: cn-6x-m03
+        type: multi
+        q: "Which TWO of these are valid JSON values exactly as written?"
+        choices: ["true", "yes", "[1, 2]", "'up'", "undefined"]
+        answers: [0, 2]
+        why: "JSON's literals are lower-case true, false and null, and an array is written in square brackets. A bare word such as yes, a single-quoted string and 'undefined' are not part of JSON."
+
+      - id: cn-6x-o01
+        type: order
+        q: "A script reads the device list from a controller that uses token authentication. Put the steps in order."
+        steps:
+          - "POST the username and password to the token URI"
+          - "Receive the token in the response body"
+          - "Send GET for the device list with the token in a request header"
+          - "Receive 200 OK with a JSON body"
+          - "Parse the JSON and read each hostname"
+        why: "The credentials are exchanged once for a token, and the token then authenticates the real request. The data can be parsed only after the response has arrived."
+      - id: cn-6b2-b04
+        type: mcq
+        best: true
+        q: "A script runs unattended on a server and calls a controller's REST API every five minutes to read device status. The team wants the least exposure if the script's credentials leak. Which approach is BEST?"
+        choices:
+          - "HTTP basic authentication with an admin account on every call"
+          - "A read-only account that obtains a short-lived token"
+          - "An admin account whose password is written in the script"
+          - "Allow the server's IP address with no authentication"
+        answer: 1
+        why: "Least privilege plus a token that expires limits what any leak would expose."
+        whys:
+          - "Sends a full-power password, encoded but not encrypted, with every call."
+          - "Best: read-only rights and short-lived tokens."
+          - "Readable by anyone who sees the script, and the account can do anything."
+          - "Anyone who can use or spoof that address gets in."
+
+      - id: cn-6b2-b06
+        type: mcq
+        best: true
+        q: "A team must create and later remove cloud networks and firewall rules declaratively, preview each change before applying it, and keep a record of what it built so that later runs change only the difference. Which tool is BEST?"
+        choices:
+          - "Terraform"
+          - "Ansible"
+          - "A Python script calling the cloud API"
+          - "Manual changes in the cloud console"
+        answer: 0
+        why: "Terraform files are declarative, 'terraform plan' previews changes, and its state file records what exists."
+        whys:
+          - "Best: every stated requirement is a built-in feature."
+          - "Can create the resources, but keeps no state file of what it built, so it cannot plan the difference the same way."
+          - "Possible, but the team would have to write the planning and state tracking itself."
+          - "No preview, no record and no repeatability."
+
+      - id: cn-6b2-b10
+        type: mcq
+        best: true
+        q: "In an SD-Access fabric, VXLAN tunnels between two edge nodes will not come up, although both nodes appear in the controller. Which should be checked FIRST?"
+        choices:
+          - "The overlay's virtual networks and group policies"
+          - "The host-tracking database on the control plane node"
+          - "IP reachability between the two nodes' loopbacks across the underlay"
+          - "Client health in the controller's assurance dashboard"
+        answer: 2
+        why: "The overlay rides on the underlay, so tunnel endpoints must be able to reach each other by IP before anything else matters."
+        whys:
+          - "Policy decides what may talk, but tunnels cannot form at all without underlay reachability."
+          - "Maps endpoints to edge nodes; it does not build the tunnels."
+          - "Best: the lowest layer first, and the commonest cause."
+          - "Reports user experience, not why the tunnels are down."

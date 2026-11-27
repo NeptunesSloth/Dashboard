@@ -1,0 +1,1584 @@
+part_of: isc2-cc
+
+units:
+  # ───────────────────── Domain 1 — best-answer practice ─────────────────────
+  - id: cc-1z
+    title: "Best-answer practice: Security Principles"
+    domain: "1"
+    goal: "I can pick the BEST, FIRST or MOST effective answer on principles, risk, controls and ethics when every option sounds reasonable."
+    notes: |
+      ## All four are right. Which is BEST?
+
+      In ISC2's hardest items every choice is something a professional might do. Hunt for the **constraint in the stem** that ranks them.
+
+      Think like a manager, not a technician:
+
+      - **Life safety first.** People before data, equipment or uptime, every time.
+      - **Follow the hierarchy.** Law outranks policy; policy outranks convenience. Decisions about risk belong to the accountable **risk owner**, not to the analyst.
+      - **Process before product.** Identify and assess before you buy or deploy.
+      - **Read the category asked for.** If the stem wants an *administrative* control, a good *technical* one is still the wrong answer.
+      - **Stop at the requirement.** A control that costs more than the loss, or pushes risk far below appetite, is gold-plating.
+
+      For ethics, apply the four canons **in order**: society, then honourable and legal conduct, then service to principals, then the profession.
+
+      Usual traps: the detective control offered where prevention was asked for, and the heroic technical fix offered where a decision should be escalated.
+    items:
+      - id: cc-1z-b01
+        type: mcq
+        best: true
+        q: "A research laboratory staffed around the clock holds valuable samples behind badge-controlled exit doors. The designers must choose what a door does when its lock loses all power. Which behaviour is BEST?"
+        choices:
+          - "Stay locked; guards are sent to release each door by hand"
+          - "Stay locked; staff use a key kept in a break-glass box beside the door"
+          - "Unlock for exit, while a local alarm sounds and the event is logged"
+          - "Stay locked; staff walk to the single manually operated fire exit at the far end"
+        answer: 2
+        why: "Life safety outranks asset protection, so doors that people may need to escape through must fail safe. The alarm and log keep some protection for the samples."
+        whys:
+          - "Protects the samples, but people stay trapped until a guard reaches each door."
+          - "Better than waiting for a guard, but escape depends on finding and using a key in an emergency."
+          - "Best: nobody is trapped, and the alarm and log still compensate for the open door."
+          - "Keeps the samples secure, but one distant exit for a whole staffed lab puts people at risk."
+      - id: cc-1z-b02
+        type: mcq
+        best: true
+        q: "An analyst walks into the server cage and finds a contractor collapsed on the floor. A critical database migration running on the console beside him is in its final minutes. What should the analyst do FIRST?"
+        choices:
+          - "Call emergency services and give what aid she safely can"
+          - "Tell the migration lead, so the migration can be paused cleanly"
+          - "Close off the cage so that nobody else walks into a possible hazard"
+          - "Note the time and what she saw for the incident record"
+        answer: 0
+        why: "Human life and safety come before any system, record or project deadline."
+        whys:
+          - "Best: life safety is always the first priority."
+          - "A sensible step, but the migration matters less than the person and can wait."
+          - "Reasonable once help is on its way; done first, it delays care for the casualty."
+          - "Needed for the record later, but documentation never comes before a life."
+      - id: cc-1z-b03
+        type: mcq
+        best: true
+        q: "An ISC2 member finds that a fellow member on her team has billed a client for security tests that were never run. He asks her to keep quiet 'to protect the profession's reputation'. Which response is BEST?"
+        choices:
+          - "Say nothing, but refuse to sign any report that he has written"
+          - "Quietly run the missing tests herself so that the client is protected and the report becomes true"
+          - "Urge him in private to correct the invoices, and leave it there"
+          - "Report it through her employer's proper channel so that the client is told the truth"
+        answer: 3
+        why: "Acting honestly and legally (canon 2) and serving the principal (canon 3) both rank above protecting the profession (canon 4), and hiding fraud does not protect the profession anyway."
+        whys:
+          - "Keeps her own hands clean, but the client is still deceived and overcharged."
+          - "Closes the technical gap, but conceals the dishonest billing from the client."
+          - "A fair first word, but it leaves the outcome to the person who committed the fraud."
+          - "Best: honest, legal, serves the client, and uses the proper channel rather than acting alone."
+      - id: cc-1z-b04
+        type: mcq
+        best: true
+        q: "An online ticket shop earns most of a firm's revenue. Its card-fraud risk is above the board's risk appetite. Existing controls are mature, and more controls would cost more than the remaining expected loss. Insurance for this loss is offered at well below the expected yearly loss. Which treatment is BEST?"
+        choices:
+          - "Accept the remaining risk with formal sign-off"
+          - "Transfer the risk by buying the insurance"
+          - "Avoid the risk by closing the online shop"
+          - "Mitigate further with extra fraud-detection tooling"
+        answer: 1
+        why: "Acceptance is ruled out because the risk is above appetite, more mitigation is not cost-effective, and avoidance would end the main business. Transfer is the one treatment that fits every constraint."
+        whys:
+          - "Valid when a risk is within appetite; this one is stated to be above it."
+          - "Best: brings the financial exposure within appetite for less than the expected loss."
+          - "Removes the risk completely, but also removes most of the firm's revenue."
+          - "Would reduce the risk, but the stem says it costs more than the loss it prevents."
+      - id: cc-1z-b05
+        type: mcq
+        best: true
+        q: "An analyst rates a flaw in a business unit's application as high risk. The unit head says that fixing it now would delay a product launch and tells the analyst to 'just leave it'. What is the BEST action for the analyst?"
+        choices:
+          - "Apply the fix in the next maintenance window anyway, because the risk is high"
+          - "Document the risk and options for the accountable risk owner to decide"
+          - "Take the verbal instruction as acceptance and close the finding"
+          - "Add monitoring to the application and scan it again next quarter"
+        answer: 1
+        why: "Security advises; the accountable owner decides. A high risk must be accepted or treated by a documented decision at the right level, not by a remark in a corridor."
+        whys:
+          - "Well meant, but the analyst has no authority to overrule the business or change its system."
+          - "Best: an informed, recorded decision made by the person accountable for the risk."
+          - "The unit head may be the right decider, but an undocumented acceptance of a high risk is not due care."
+          - "A useful compensating step, but it leaves a high risk with no decision recorded."
+      - id: cc-1z-b06
+        type: mcq
+        best: true
+        q: "Clinic staff keep walking away from screens that show patient charts. The screens already lock after 15 minutes, and clinical work means that cannot be shortened. Management asks for an ADMINISTRATIVE control. Which is BEST?"
+        choices:
+          - "Privacy filters fitted to every monitor"
+          - "Proximity badges that lock the screen when the user walks away"
+          - "Moving the screens to face away from the waiting area"
+          - "A clear-screen policy, backed by training and spot checks"
+        answer: 3
+        why: "Only the policy with training and checks is an administrative control, which is what was asked for."
+        whys:
+          - "Effective, but a filter is a physical control."
+          - "Probably the strongest fix, but it is a technical control, not the category requested."
+          - "Helpful, but repositioning equipment is a physical control."
+          - "Best: the only administrative control, and it addresses the staff behaviour directly."
+      - id: cc-1z-b07
+        type: mcq
+        best: true
+        q: "A research institute publishes climate datasets that the public downloads from many third-party mirrors it does not control. Its main concern is that a user can tell whether a copy has been altered. Which control BEST meets that concern?"
+        choices:
+          - "Publish a digital signature with each dataset"
+          - "Serve the datasets from the institute's own site over TLS"
+          - "Keep the master copies at three separate sites"
+          - "Limit write access on the publication server to two administrators"
+        answer: 0
+        why: "A signature travels with the data and lets anyone verify integrity and origin, wherever the copy was downloaded."
+        whys:
+          - "Best: any user can check any copy, from any mirror, against the institute's public key."
+          - "Protects a download in transit from the institute's site, but says nothing about mirror copies."
+          - "Improves availability of the masters, not users' ability to detect a change."
+          - "Reduces the chance of tampering at the source, but mirrors remain outside the institute's control."
+      - id: cc-1z-b08
+        type: mcq
+        best: true
+        q: "A loyalty app's draft design collects date of birth, home address and phone contacts, although only an email address is needed to run the scheme. Which measure is MOST effective at protecting members' privacy?"
+        choices:
+          - "Encrypt the collected data at rest"
+          - "Show a clear privacy notice and ask for consent"
+          - "Collect only the email address"
+          - "Restrict access to the data to the marketing team"
+        answer: 2
+        why: "Data that is never collected cannot be misused, leaked or breached. Minimization removes the risk; the others only manage it."
+        whys:
+          - "Protects stored data from theft, but the unnecessary data still exists and can be misused."
+          - "Makes collection transparent, but does not reduce what is held."
+          - "Best: minimization removes the exposure at its source."
+          - "Narrows who can see the data, but the surplus personal data is still held."
+      - id: cc-1z-b09
+        type: mcq
+        best: true
+        q: "A company acquires a small subsidiary and gives the security manager a fixed budget for improvements there. Nothing is yet known about its systems. What should the security manager do FIRST?"
+        choices:
+          - "Deploy the parent company's standard endpoint protection"
+          - "Enrol the subsidiary's staff in awareness training"
+          - "Extend the parent company's cyber insurance policy to cover the subsidiary"
+          - "Identify the subsidiary's assets and assess the risks to them"
+        answer: 3
+        why: "Risk management starts with identification and assessment. Until the assets and risks are known, a fixed budget cannot be aimed at what matters most."
+        whys:
+          - "Likely to be needed, but chosen before anyone knows what the main risks are."
+          - "Worthwhile, but it is a treatment selected without an assessment."
+          - "Transfer is a treatment option; it comes after the risk is understood."
+          - "Best: the first stage of the risk lifecycle, and the basis for spending the budget well."
+      - id: cc-1z-b10
+        type: mcq
+        best: true
+        q: "A regulator requires that a manager who approves a transfer above $1 million cannot later deny having approved that exact transaction. Which control BEST meets the requirement?"
+        choices:
+          - "Individual user IDs with strong passwords and system logging"
+          - "Multifactor authentication at login"
+          - "A digital signature on each approval, made with the approver's private key"
+          - "A recorded call-back to the approver before release"
+        answer: 2
+        why: "A digital signature binds one person's private key to the exact content approved, which is what non-repudiation means."
+        whys:
+          - "Gives accountability, but log entries can be disputed and do not cryptographically bind the approver to the transaction."
+          - "Proves strongly who logged in, not what they later approved."
+          - "Best: provides non-repudiation for the specific transaction."
+          - "Useful evidence and a good fraud check, but a recording is weaker proof and easier to contest."
+      - id: cc-1z-b11
+        type: mcq
+        best: true
+        q: "Policy says that a lost laptop must be reported 'promptly'. An audit finds that some branches report within hours and others within weeks. Management wants every branch to handle a loss the same way. Which action is BEST?"
+        choices:
+          - "Issue a mandatory standard and procedure setting the deadline and the steps"
+          - "Publish a guideline describing good practice for reporting"
+          - "Email all staff a reminder of the existing policy"
+          - "Install tracking software on every laptop"
+        answer: 0
+        why: "The policy states intent; a mandatory standard and procedure turn it into one measurable, repeatable way of working."
+        whys:
+          - "Best: mandatory, specific and identical for every branch."
+          - "Helpful advice, but guidelines are optional, so the differences would continue."
+          - "Repeats the word 'promptly', which is the vagueness that caused the problem."
+          - "Helps to recover a laptop, but does nothing to make reporting consistent."
+      - id: cc-1z-b12
+        type: mcq
+        best: true
+        q: "A warehouse suffers night-time break-ins through a rear door. The budget allows one control, and management's stated priority is to stop entry rather than to record or respond to it. Which control is BEST?"
+        choices:
+          - "A recording camera covering the door"
+          - "A reinforced door with a high-security lock"
+          - "Warning signs about prosecution"
+          - "An alarm that alerts a 24-hour monitoring company"
+        answer: 1
+        why: "The stated priority is prevention, and only the reinforced door and lock physically stop entry."
+        whys:
+          - "Detective: it records the break-in and may deter, but does not stop it."
+          - "Best: the only preventive control offered, matching the stated priority."
+          - "Deterrent only; it relies on the intruder choosing to stay away."
+          - "Detective, with a response that arrives after entry has been made."
+      - id: cc-1z-b13
+        type: mcq
+        best: true
+        q: "An ISC2 member is scoring three vendors for his employer. One vendor offers him a paid speaking slot at its conference. The employer's policy requires conflicts of interest to be declared. Which response is BEST?"
+        choices:
+          - "Declare the offer to his employer and follow its direction"
+          - "Accept the slot, and take care to score the vendors objectively"
+          - "Decline the offer and carry on without mentioning it"
+          - "Ask the vendor to postpone the offer until the contract is awarded"
+        answer: 0
+        why: "Honesty and the employer's own policy both require disclosure, and disclosing lets the employer manage the conflict."
+        whys:
+          - "Best: honest, follows policy, and leaves the decision with the principal."
+          - "He may well stay objective, but an undeclared benefit breaks policy and damages trust."
+          - "Removes the benefit, but the policy requires the offer itself to be declared."
+          - "Delays the benefit, but the conflict still exists and is still undeclared."
+      - id: cc-1z-b14
+        type: mcq
+        best: true
+        q: "A start-up can close only one of these gaps this quarter. Which should it close FIRST?"
+        choices:
+          - "It is below its target maturity level in a voluntary framework"
+          - "A customer would like it to gain a certification next year"
+          - "Teams are not following an internal guideline on password managers"
+          - "It lacks the breach notification process that current law requires"
+        answer: 3
+        why: "Legal and regulatory obligations are mandatory and sit above frameworks, customer wishes and internal guidance."
+        whys:
+          - "Worth improving, but a voluntary framework carries no legal duty."
+          - "Commercially valuable, but it is a future preference, not a current obligation."
+          - "A guideline is a recommendation, the weakest of the four."
+          - "Best: a legal requirement in force now outranks every voluntary commitment."
+      - id: cc-1z-b15
+        type: mcq
+        best: true
+        q: "A team has capacity to fix one finding this week. Which should it fix FIRST?"
+        choices:
+          - "A critical flaw on an isolated test server that holds no data and has no route to other networks"
+          - "An actively exploited high-severity flaw on the internet-facing customer database server"
+          - "A medium flaw on an internal print server"
+          - "A critical flaw in software on one internal PC that is due for removal next month"
+        answer: 1
+        why: "Risk is likelihood and impact together, not the severity score alone. Active exploitation, internet exposure and customer data make this the greatest risk."
+        whys:
+          - "Highest severity score, but low likelihood and almost no impact."
+          - "Best: highest likelihood and highest impact of the four."
+          - "Should be fixed, but both likelihood and impact are modest."
+          - "Severe on paper, but exposure is limited and already has an end date."
+      - id: cc-1z-b16
+        type: mcq
+        best: true
+        q: "Malware has arrived twice on personal USB drives, so the security manager plans to block USB storage. Sales staff say that they must load demonstrations onto customers' equipment from USB. Policy says that controls must support business operations and that exceptions need documented approval. Which approach is BEST?"
+        choices:
+          - "Block USB storage for everyone, with no exceptions"
+          - "Leave USB open and give the sales team extra awareness training"
+          - "Block by default, and issue company-encrypted drives to sales under a documented exception"
+          - "Postpone the block until sales finds another way to load demonstrations"
+        answer: 2
+        why: "Security exists to support the business. A default block with an approved, controlled exception reduces the risk and still lets sales work, as the policy requires."
+        whys:
+          - "Strongest technically, but it stops a legitimate business activity and ignores the policy."
+          - "Keeps sales working, but leaves the cause of two infections untouched."
+          - "Best: treats the risk for everyone and meets the business need through the approved route."
+          - "Avoids conflict, but the known risk continues with no end date."
+      - id: cc-1z-b17
+        type: mcq
+        best: true
+        q: "After treatment, a system's residual risk is inside the organization's risk appetite. An engineer proposes a further, expensive control that would cut the risk to almost nothing. What is the manager's BEST response?"
+        choices:
+          - "Approve it, because lower risk is always better"
+          - "Decline, with the risk owner accepting the residual risk and monitoring it"
+          - "Buy insurance to cover the residual risk"
+          - "Fund a small pilot of the control on one system to see how well it works in practice"
+        answer: 1
+        why: "Once risk is within appetite, the goal has been met. Further spending is gold-plating, and the correct step is documented acceptance with monitoring."
+        whys:
+          - "Zero risk is not the goal; this spends money that other, larger risks need."
+          - "Best: matches treatment to appetite and keeps watch in case the risk changes."
+          - "Transfer is also extra cost for a risk that is already acceptable."
+          - "Cheaper than a full rollout, but still effort spent on a risk that needs no more treatment."
+      - id: cc-1z-b18
+        type: mcq
+        best: true
+        q: "During an authorized assessment, an ISC2 member notices what looks like a serious flaw in a system that belongs to the client's business partner and is outside the agreed scope. Which action is BEST?"
+        choices:
+          - "Stop, leave that system alone, and report what she saw to her client contact"
+          - "Test it lightly to confirm the flaw before she reports it"
+          - "Leave it out entirely, because it is out of scope"
+          - "Notify the partner's security team directly"
+        answer: 0
+        why: "She has no authorization to test the partner's system, so probing it would not be legal conduct, but staying silent would fail her duty to the client. Reporting to the client contact satisfies both."
+        whys:
+          - "Best: stays within authorization and still gets the information to someone who can act."
+          - "Confirmation sounds diligent, but testing without authorization is unlawful."
+          - "Respects scope, but withholds something the client needs to know."
+          - "Well meant, but it bypasses the client and may breach her confidentiality duties to them."
+      - id: cc-1z-b19
+        type: mcq
+        best: true
+        q: "A new security lead finds that the security policies were written by the IT team, were never approved by leadership, and are widely ignored. Which action is MOST effective in getting them followed?"
+        choices:
+          - "Rewrite the policies in plainer language"
+          - "Make policy training mandatory for all staff"
+          - "Obtain senior management's formal approval and visible endorsement"
+          - "Enforce as many of the rules as possible through technical settings"
+        answer: 2
+        why: "A policy is a statement of management intent. Without management's authority behind it there is nothing to enforce, and every other measure depends on that authority."
+        whys:
+          - "Makes the policies easier to read, but they still carry no authority."
+          - "Staff would learn the rules, and still see that leadership does not stand behind them."
+          - "Best: gives the policies authority and makes enforcement and training legitimate."
+          - "Works for the rules that can be automated, but many cannot, and unapproved rules will be challenged."
+      - id: cc-1z-b20
+        type: mcq
+        best: true
+        q: "Policy forbids sending customer account numbers by email, and staff have been trained, yet it still happens by mistake. Management asks for a TECHNICAL control that PREVENTS it. Which is BEST?"
+        choices:
+          - "A quarterly refresher course"
+          - "A stated disciplinary process for repeat cases"
+          - "A weekly automated search of sent mail for account numbers, reported to managers"
+          - "A data loss prevention rule that blocks messages containing account numbers"
+        answer: 3
+        why: "Both conditions matter: the control must be technical and it must be preventive. Only the blocking rule is both."
+        whys:
+          - "Administrative, and the mistakes are happening despite training."
+          - "Administrative, and it acts only after the data has gone."
+          - "Technical, but detective: it finds the message after it has left."
+          - "Best: technical and preventive, stopping the message before it leaves."
+      - id: cc-1z-b21
+        type: mcq
+        best: true
+        q: "Every clinician at a hospital already signs in with multifactor authentication. The hospital now requires that each clinician can open only the records of patients in their care. Which improvement BEST meets the requirement?"
+        choices:
+          - "Authorization rules that tie record access to the care relationship"
+          - "Adding a fingerprint check at sign-in"
+          - "Detailed access logging with a monthly review"
+          - "A confidentiality agreement signed by every clinician"
+        answer: 0
+        why: "The gap is in authorization, meaning what an identified user is allowed to do. Stronger authentication or more accounting does not restrict access."
+        whys:
+          - "Best: enforces the requirement directly at the authorization step."
+          - "Strengthens authentication, which is already sound and is not the gap."
+          - "Accounting detects improper access afterwards; it does not prevent it."
+          - "An administrative deterrent that relies on each person choosing to comply."
+      - id: cc-1z-b22
+        type: mcq
+        best: true
+        q: "Twelve named people must work on an unannounced merger. Which control is MOST effective in keeping the plan confidential inside the company?"
+        choices:
+          - "A specific confidentiality agreement signed by all employees of the company"
+          - "Restricting the merger documents to the twelve named people"
+          - "Marking every merger document 'Confidential'"
+          - "Monitoring email for the project's code name"
+        answer: 1
+        why: "Need to know is preventive: people who cannot open the documents cannot leak them."
+        whys:
+          - "A deterrent with legal weight, but it does not stop anyone from reading the documents."
+          - "Best: prevents access by everyone who has no need to know."
+          - "Labelling tells people how to handle a document, but does not restrict who can open it."
+          - "Detective: it may reveal a leak, after the information has spread."
+
+  # ───────────────────── Domain 2 — best-answer practice ─────────────────────
+  - id: cc-2z
+    title: "Best-answer practice: Security Governance"
+    domain: "2"
+    goal: "I can choose the BEST governance, continuity, awareness or measurement answer by finding the requirement the stem sets."
+    notes: |
+      ## Governance questions reward the cheapest answer that meets the requirement
+
+      The stem usually hands you a number or a rule. Find it before you read the choices.
+
+      - **Continuity.** An **RTO**, **RPO** or **MTD** in the stem is a pass mark. Throw out options that miss it, then take the *least costly* of those that remain.
+      - **Order.** Understand before acting: a gap analysis or an updated BIA comes before buying, training or testing. Dependencies are restored before the systems that need them.
+      - **Policy.** When someone wants to skip a rule, the answer is the approved exception route, not a quiet workaround and not a flat refusal.
+      - **Assurance.** Independent verification beats self-attestation; ongoing oversight beats a one-off check.
+      - **Awareness.** Prefer what changes behaviour over what records attendance. If training has already failed, look for a control that does not rely on people.
+      - **Metrics.** Choose outcomes measured against a target, not counts of activity.
+
+      Usual trap: the most thorough, most expensive option when the stem mentions cost.
+    items:
+      - id: cc-2z-b01
+        type: mcq
+        best: true
+        q: "A business impact analysis gives an insurer's claims system a recovery time objective of 24 hours and a recovery point objective of 24 hours. The board wants the LEAST costly arrangement that still meets both. Which is BEST?"
+        choices:
+          - "A hot site with continuously replicated data"
+          - "A warm site that receives the nightly backups"
+          - "A cold site with space, power and cooling only"
+          - "A second data centre that shares the live workload"
+        answer: 1
+        why: "A warm site can be brought up within a day and nightly backups give a 24-hour recovery point, so it meets both objectives for less than a hot or active-active site."
+        whys:
+          - "Meets both objectives easily, but costs far more than the requirement demands."
+          - "Best: the cheapest option that still meets a 24-hour RTO and RPO."
+          - "Cheapest of all, but equipping it takes days or weeks, missing the RTO."
+          - "The most resilient and the most expensive; far beyond a 24-hour requirement."
+      - id: cc-2z-b02
+        type: mcq
+        best: true
+        q: "After a flood, a company has run for a month from its recovery site. The primary site has been rebuilt but has not yet carried any production load. Which functions should be moved back FIRST?"
+        choices:
+          - "The most critical system, to end its time at the recovery site"
+          - "The customer-facing website, because customers notice it most"
+          - "Everything together, in one planned cut-over weekend"
+          - "The least critical functions"
+        answer: 3
+        why: "An unproven site should be tested with work the business can afford to lose. If the rebuilt site fails, only low-impact functions are affected."
+        whys:
+          - "Tempting, but it stakes the most important system on a site that is still unproven."
+          - "Visibility is not the measure; a failure here would be public and costly."
+          - "Fast, but every function is exposed at once if the new site has a fault."
+          - "Best: proves the rebuilt site with the lowest possible business impact."
+      - id: cc-2z-b03
+        type: mcq
+        best: true
+        q: "Staff complete an annual hour-long awareness course, yet the rate of clicking on phishing links has not fallen. The budget is fixed. Which change is MOST effective?"
+        choices:
+          - "Short, frequent phishing simulations with immediate feedback"
+          - "Extending the annual course to two hours"
+          - "Posters about phishing in every corridor"
+          - "Asking all staff to read and sign the acceptable use policy again"
+        answer: 0
+        why: "Behaviour changes through frequent practice with immediate feedback, not through more of a yearly event that has already failed to change it."
+        whys:
+          - "Best: repeated practice and feedback at the teachable moment."
+          - "More of the same method that has not worked."
+          - "A cheap reminder that staff soon stop noticing."
+          - "Records that staff agreed to the rules; it does not build the skill of spotting a phish."
+      - id: cc-2z-b04
+        type: mcq
+        best: true
+        q: "Internal audit reports a control gap in a process that the IT manager owns. The IT manager now says it is fixed. There is no budget for outside help. Who is BEST placed to confirm the fix?"
+        choices:
+          - "The IT manager, with a signed statement"
+          - "The security team that designed the fix"
+          - "Internal audit, by re-testing the control"
+          - "An external consultant engaged for this one check"
+        answer: 2
+        why: "Assurance needs independence from the people who own and built the control. Internal audit is independent and already funded."
+        whys:
+          - "The owner knows the process best, but self-attestation is not independent."
+          - "Technically able, but they would be marking their own work."
+          - "Best: independent of both owner and designer, at no extra cost."
+          - "Independent, but the stem rules out the budget, and internal audit can do it."
+      - id: cc-2z-b05
+        type: mcq
+        best: true
+        q: "A small firm backs up nightly to a network storage device. It worries about ransomware that also encrypts any backups it can reach over the network. Which measure is MOST effective in making sure it can recover?"
+        choices:
+          - "Backing up to the same device every four hours"
+          - "Replicating the backups to a second network device at another office"
+          - "Keeping an offline or immutable copy and testing restores from it"
+          - "Adding more disks to the storage device as a mirrored array"
+        answer: 2
+        why: "The threat is ransomware reaching the backups. Only a copy that cannot be reached or changed, and that has been proved to restore, defeats it."
+        whys:
+          - "Improves the recovery point, but the backups are still reachable and can be encrypted."
+          - "Protects against losing one office, but replication copies the encrypted files too."
+          - "Best: out of the ransomware's reach, and proved to work by restore tests."
+          - "Protects against a failed disk; encrypted files are mirrored faithfully."
+      - id: cc-2z-b06
+        type: mcq
+        best: true
+        q: "A payroll vendor that suffered a breach last year is up for a three-year renewal. Which contract measure gives the MOST effective ongoing oversight of the vendor's security?"
+        choices:
+          - "A right-to-audit clause and a yearly review of the vendor's independent audit report"
+          - "A detailed security questionnaire completed at renewal"
+          - "A written assurance from the vendor's chief executive that the cause of the breach has been fixed"
+          - "A financial penalty clause for any future breach"
+        answer: 0
+        why: "The requirement is ongoing oversight. Audit rights and periodic independent evidence give continuing, verifiable visibility for the whole term."
+        whys:
+          - "Best: independent evidence, repeated every year, with the right to look for yourself."
+          - "Useful, but it is self-reported and is a snapshot at one moment."
+          - "Shows commitment, but it is unverified and given once."
+          - "Shifts some financial loss to the vendor, but gives no view of its controls."
+      - id: cc-2z-b07
+        type: mcq
+        best: true
+        q: "An order database is backed up once a night. The business now states that it cannot lose more than 15 minutes of orders, and wants the LEAST costly change that meets this. Which is BEST?"
+        choices:
+          - "A fully duplicated hot site with synchronous replication"
+          - "Hourly incremental backups"
+          - "Full backups to cloud storage twice a day"
+          - "Shipping transaction logs to another location every 10 minutes"
+        answer: 3
+        why: "A 15-minute recovery point needs copies at least that often. Ten-minute log shipping meets it for far less than a duplicated site."
+        whys:
+          - "Meets the requirement with near-zero loss, but is much the most expensive way to do so."
+          - "A big improvement on nightly, but up to an hour of orders could still be lost."
+          - "Halves the exposure, but up to twelve hours of orders could still be lost."
+          - "Best: meets the 15-minute limit at modest cost."
+      - id: cc-2z-b08
+        type: mcq
+        best: true
+        q: "A man in a utility company uniform tells the receptionist that he must inspect the fire panel urgently. No visit is booked. What is the BEST response?"
+        choices:
+          - "Let him in and stay with him while he works"
+          - "Ask him to wait while she confirms with facilities on a known number"
+          - "Refuse entry and tell him to book an appointment"
+          - "Check his identity badge and work order, and admit him if they look genuine"
+        answer: 1
+        why: "Urgency and a uniform are classic pretexts. Verifying through a trusted, independent channel separates a real engineer from an impostor without turning a real one away."
+        whys:
+          - "An escort limits the harm, but an unverified stranger is still inside the building."
+          - "Best: verifies independently, and a genuine visit is delayed by only a few minutes."
+          - "Safe, but it turns away what may be a genuine safety visit without checking."
+          - "A badge, a work order and a uniform are easy to fake, and all are supplied by the visitor himself."
+      - id: cc-2z-b09
+        type: mcq
+        best: true
+        q: "A company passes its annual compliance audit. The chief executive proposes cutting the security budget because 'we are compliant, so we are secure'. Which is the security manager's BEST response?"
+        choices:
+          - "Agree, because a passed audit is independent evidence that the controls are adequate"
+          - "Commission a penetration test to prove that weaknesses remain"
+          - "List the fines that regulators have recently imposed on similar companies"
+          - "Explain that compliance is a baseline, and show the risk register against appetite"
+        answer: 3
+        why: "Compliance shows that minimum requirements were met at a point in time. Budget decisions should rest on risk against appetite, and the manager already holds that evidence."
+        whys:
+          - "An audit is real evidence, but only of meeting a baseline, not of risk being acceptable."
+          - "Could make the point vividly, but it costs time and money to show what the risk register already shows."
+          - "True and attention-getting, but fear of fines argues for compliance, which the company already has."
+          - "Best: frames the decision as risk management, using information available today."
+      - id: cc-2z-b10
+        type: mcq
+        best: true
+        q: "A business continuity plan was written three years ago. Since then the company has moved its systems to the cloud and reorganized its departments. What should be done FIRST?"
+        choices:
+          - "Run a full test of the existing plan"
+          - "Update the business impact analysis and the plan"
+          - "Send copies of the plan to all the new managers"
+          - "Train staff, including the new managers, in their roles under the plan"
+        answer: 1
+        why: "The plan describes an organization that no longer exists. Testing, distributing or training on it before it is corrected spends effort on the wrong content."
+        whys:
+          - "Testing is essential, but testing a plan already known to be out of date mostly confirms what is known."
+          - "Best: makes the plan reflect today's systems and structure, so that later steps have value."
+          - "Distribution matters, but would spread out-of-date instructions."
+          - "Training matters, but would teach roles and systems that have changed."
+      - id: cc-2z-b11
+        type: mcq
+        best: true
+        q: "A clinic's patients book through a cloud appointment system. The clinic's single internet link fails several times a year. Management requires that staff can keep using the appointment system during a link failure. Which measure is BEST?"
+        choices:
+          - "A second link from a different provider, with automatic failover"
+          - "A stronger service level agreement with larger credits for downtime"
+          - "A paper appointment book for staff to fall back on"
+          - "A faster business-grade link from the same provider"
+        answer: 0
+        why: "The link is a single point of failure. Only a redundant link by a different route keeps the clinic connected when one fails."
+        whys:
+          - "Best: removes the single point of failure, so the system stays reachable."
+          - "Compensates the clinic after an outage, but the clinic is still offline during it."
+          - "A sound manual workaround, but it does not meet the requirement to keep using the system."
+          - "May be more reliable, but it is still one link from one provider."
+      - id: cc-2z-b12
+        type: mcq
+        best: true
+        q: "A new regulation will apply to a company in six months. What should the compliance lead do FIRST?"
+        choices:
+          - "Buy a governance, risk and compliance platform"
+          - "Train all staff on the regulation"
+          - "Carry out a gap analysis of current controls against the regulation's requirements"
+          - "Book an external auditor to certify compliance"
+        answer: 2
+        why: "Nobody can plan, train, buy or audit sensibly until they know where the company already complies and where it falls short."
+        whys:
+          - "A tool may help to track the work, but it cannot say what the work is."
+          - "Needed, but the content of the training depends on what must change."
+          - "Best: establishes what is missing, which drives every later step."
+          - "An audit checks the finished result; it comes last, not first."
+      - id: cc-2z-b13
+        type: mcq
+        best: true
+        q: "Staff hold a badge-controlled door open for strangers out of politeness. Two rounds of awareness training have not changed this. Which control is MOST effective now?"
+        choices:
+          - "A turnstile that admits one person for each badge"
+          - "A third round of awareness training"
+          - "Signs on the door saying 'No tailgating'"
+          - "A camera on the door, with footage reviewed weekly"
+        answer: 0
+        why: "Awareness has been tried twice and has failed. A control that enforces one person per badge no longer depends on staff behaviour."
+        whys:
+          - "Best: preventive, and it works whatever staff choose to do."
+          - "The same approach that has already failed twice."
+          - "A reminder of a rule that staff already know and do not follow."
+          - "Detective: it shows tailgating a week after it happened."
+      - id: cc-2z-b14
+        type: mcq
+        best: true
+        q: "After a data centre outage, one recovery team must restore four systems. The order system has a maximum tolerable downtime of 4 hours and cannot run without the directory service. Email has 24 hours and payroll has 5 days. Which should be restored FIRST?"
+        choices:
+          - "The order system"
+          - "Email"
+          - "The directory service"
+          - "Payroll"
+        answer: 2
+        why: "The order system has the shortest tolerance but depends on the directory service, so the dependency must come back first."
+        whys:
+          - "The most urgent business function, but it cannot start until the directory service is running."
+          - "Important for coordination, but it can tolerate 24 hours."
+          - "Best: it is the dependency of the system with the shortest maximum tolerable downtime."
+          - "Has the longest tolerance of the four, so it comes last."
+      - id: cc-2z-b15
+        type: mcq
+        best: true
+        q: "The board asks whether vulnerability management is getting better. Which measure is MOST useful in answering?"
+        choices:
+          - "The number of scans run each month"
+          - "The average number of days taken to fix critical vulnerabilities, against the target"
+          - "The number of vulnerabilities found each month"
+          - "The total number of patches installed"
+        answer: 1
+        why: "The board needs an outcome set against a target. Time to remediate shows how long the organization stays exposed and whether that is improving."
+        whys:
+          - "Counts activity; many scans can run while nothing is fixed."
+          - "Best: an outcome measure with a target, so the trend has meaning."
+          - "Rises and falls with scan coverage and new disclosures, not with performance."
+          - "Counts effort, without showing whether the important flaws were fixed in time."
+      - id: cc-2z-b16
+        type: mcq
+        best: true
+        q: "A sales director asks the security officer to skip the mandatory vendor risk review so that a contract can be signed today. Policy allows an exception only with the risk owner's written approval. What is the security officer's BEST response?"
+        choices:
+          - "Let the contract be signed and carry out the review afterwards"
+          - "Refuse, and report the director to human resources"
+          - "Do a quick informal check and approve if nothing obvious appears"
+          - "Offer a fast-tracked review or the written-exception route"
+        answer: 3
+        why: "The policy already provides a legitimate way to move fast. Pointing to it follows policy, supports the business and puts the decision with the risk owner."
+        whys:
+          - "Helps the deal, but breaks policy and removes any leverage once the contract is signed."
+          - "Upholds the rule, but offers no way forward and escalates a request as if it were misconduct."
+          - "Looks like a compromise, but it is neither the required review nor an approved exception."
+          - "Best: follows policy and still gives the business a route to its deadline."
+
+  # ───────────────────── Domain 3 — best-answer practice ─────────────────────
+  - id: cc-3z
+    title: "Best-answer practice: Identity and Access Management"
+    domain: "3"
+    goal: "I can choose the BEST identity or access answer by weighing least privilege, accountability and the fix that removes the cause."
+    notes: |
+      ## IAM questions: least privilege, with a time limit, for a named person
+
+      Apply four tests to every choice.
+
+      - **How much?** Prefer the narrowest right that still does the job: read rather than write, one folder rather than the share, standard user rather than administrator.
+      - **How long?** Access that ends by itself beats access someone must remember to remove.
+      - **Who?** Each person needs their own identity. Shared and generic accounts destroy accountability, however convenient.
+      - **Why is it happening?** When people share passwords or hoard rights, the cause is usually a slow or missing process. Fix the process (automated provisioning, self-service, an approved path) rather than punish the symptom.
+
+      Also read the stem for limits on the *factor*: no phone signal, a real-time phishing threat, an emergency in which a delay could harm a patient.
+
+      On FIRST questions, an account that is being abused right now is contained before it is investigated.
+
+      Usual trap: logging and monitoring. They are valuable, but detective, and rarely BEST when a preventive option is offered.
+    items:
+      - id: cc-3z-b01
+        type: mcq
+        best: true
+        q: "Engineers sign in to laptops deep inside a mine, where there is no mobile or network signal and phones are banned for safety reasons. Multifactor authentication is required. Which second factor is BEST?"
+        choices:
+          - "A hardware token that generates one-time codes"
+          - "A code sent by text message"
+          - "A push notification approved in a phone app"
+          - "A code sent to the engineer's email"
+        answer: 0
+        why: "The constraints remove anything that needs a phone or a signal. A hardware token works offline and without a phone."
+        whys:
+          - "Best: needs no phone and no signal."
+          - "Common and simple, but it needs a phone and mobile coverage."
+          - "Convenient where it works, but it needs a phone and a data connection."
+          - "Needs network access to read the email, which the mine does not have."
+      - id: cc-3z-b02
+        type: mcq
+        best: true
+        q: "Executives are being targeted by fake sign-in pages that relay their password and one-time code to the real site within seconds. Which measure is MOST effective against this attack?"
+        choices:
+          - "Longer passwords, changed more often"
+          - "An authenticator app that generates time-based codes"
+          - "Security keys bound to the genuine site's address"
+          - "Push approval with number matching"
+        answer: 2
+        why: "A relay attack defeats any secret that the user can be tricked into typing or approving. A key bound to the real site's address will not answer a fake site."
+        whys:
+          - "Stronger passwords are relayed just as easily as weak ones."
+          - "Better than a password alone, but the code can be relayed while it is still valid."
+          - "Best: phishing-resistant, because the key will not respond to the wrong site."
+          - "Stops prompt-bombing well, but a user on a convincing fake page can still be led to approve."
+      - id: cc-3z-b03
+        type: mcq
+        best: true
+        q: "A developer must read production logs for one week to trace a fault. Which arrangement BEST applies least privilege?"
+        choices:
+          - "Membership of the production administrators group for the week"
+          - "Read-only access to the log store that expires after seven days"
+          - "Permanent read-only access to the log store, in case it is needed again"
+          - "An operations engineer emails the developer the logs each day"
+        answer: 1
+        why: "Least privilege limits both what can be done and for how long. Read-only access to the logs alone, ending automatically, matches the task exactly."
+        whys:
+          - "Solves the problem, but grants far more than reading logs."
+          - "Best: the minimum right, on the minimum resource, for the minimum time."
+          - "The right level of access, but it outlives the need and becomes privilege creep."
+          - "Grants no access at all, but it is slow and scatters production logs through mailboxes."
+      - id: cc-3z-b04
+        type: mcq
+        best: true
+        q: "A company adopts single sign-on. The security team's concern is that one stolen password would now open every application. Which measure is MOST effective against that concern?"
+        choices:
+          - "Shorter session time-outs"
+          - "A stricter password complexity rule"
+          - "Alerts on unusual sign-in activity, reviewed daily by the security team"
+          - "Multifactor authentication at the identity provider"
+        answer: 3
+        why: "The concern is a single stolen password. With multifactor authentication at the one sign-in point, a password alone opens nothing."
+        whys:
+          - "Limits how long a hijacked session lasts, but a stolen password still signs in."
+          - "Makes guessing harder, but does nothing about a password that has been phished or leaked."
+          - "Detective: it may reveal misuse after the attacker is already in."
+          - "Best: a stolen password is no longer enough, and one control protects every application."
+      - id: cc-3z-b05
+        type: mcq
+        best: true
+        q: "New starters wait about a week for their accounts, so managers lend them their own passwords. Which action is MOST effective in stopping the password sharing?"
+        choices:
+          - "Disciplining managers who share passwords"
+          - "Automatic provisioning from the HR record, ready on day one"
+          - "Awareness training on why passwords must not be shared"
+          - "A pool of generic temporary accounts that managers hand to new starters"
+        answer: 1
+        why: "The sharing is a symptom of slow provisioning. Remove the delay and the reason to share disappears."
+        whys:
+          - "Enforces the rule, but leaves managers with new staff who cannot work."
+          - "Best: removes the root cause, and every starter has their own identity from day one."
+          - "Managers already know the rule; they break it because the process fails them."
+          - "Ends the lending, but generic accounts cannot be traced to a person."
+      - id: cc-3z-b06
+        type: mcq
+        best: true
+        q: "The help desk is overwhelmed by password reset calls, and an attacker recently talked an agent into resetting another person's password. Which change BEST addresses both problems?"
+        choices:
+          - "Self-service reset that requires the user's already enrolled second factor"
+          - "More help desk agents"
+          - "Security questions that the agent must ask every caller before resetting a password"
+          - "Longer intervals between forced password changes"
+        answer: 0
+        why: "Self-service removes most calls, and requiring an enrolled factor verifies identity without an agent who can be persuaded."
+        whys:
+          - "Best: cuts the workload and removes the person an attacker could manipulate."
+          - "Shortens the queue, but the agents can still be deceived."
+          - "Adds a check, but the answers can often be researched, and the workload is unchanged."
+          - "Reduces resets a little, but does nothing about impersonation."
+      - id: cc-3z-b07
+        type: mcq
+        best: true
+        q: "An application's service account password is written in a script, is known to six developers, and has not changed in three years. Which action is BEST?"
+        choices:
+          - "Change the password today, update the script, and tell only two of the developers"
+          - "Introduce a rule that the password is changed every year"
+          - "Turn on detailed logging for the account"
+          - "Hold the credential in a vault that the application reads and that rotates it"
+        answer: 3
+        why: "The causes are a credential stored in a script and known to people. A vault removes both, and rotation limits the life of any copy that leaks."
+        whys:
+          - "An improvement today, but the password is still in a script and still known to people."
+          - "Limits the age of the password, but leaves it in the script and widely known."
+          - "Helps to detect misuse, but cannot tell which of six people used a shared secret."
+          - "Best: no person needs to know the password, and it changes without manual effort."
+      - id: cc-3z-b08
+        type: mcq
+        best: true
+        q: "Emergency doctors normally see only their own patients' records. Occasionally a doctor must open another patient's record at once to save a life, and the hospital must still be able to hold users accountable. Which design is BEST?"
+        choices:
+          - "Give every emergency doctor permanent access to all records"
+          - "Require the duty supervisor to approve each request before access is given"
+          - "Immediate access on stating a reason, logged and reviewed afterwards"
+          - "Keep a shared emergency account at the nurses' station"
+        answer: 2
+        why: "Life safety rules out any delay, and accountability rules out blanket or shared access. Immediate, logged and reviewed emergency access satisfies both."
+        whys:
+          - "No delay in an emergency, but it abandons least privilege on every ordinary day."
+          - "Keeps tight control, but waiting for approval could cost a life."
+          - "Best: immediate access when it is needed, tied to a named person and reviewed."
+          - "Immediate, but nobody can tell which person used a shared account."
+      - id: cc-3z-b09
+        type: mcq
+        best: true
+        q: "A new file share will hold a mix of general documents and human resources records. Which starting point for permissions is BEST?"
+        choices:
+          - "No access by default, with groups added as each folder's owner approves them"
+          - "Read access for all staff, with sensitive folders restricted as they are identified"
+          - "The permissions copied from the old share"
+          - "Read access for all staff, with every file access logged"
+        answer: 0
+        why: "With sensitive records in the mix, the safe starting point is deny by default: a mistake then means too little access, which is soon noticed, not exposure."
+        whys:
+          - "Best: default deny, with access granted deliberately by the people who own the data."
+          - "Convenient, but any sensitive folder not yet identified is open to everyone."
+          - "Quick, but it carries over every excess and error that has built up on the old share."
+          - "Logging records who read the HR files; it does not stop them."
+      - id: cc-3z-b10
+        type: mcq
+        best: true
+        q: "Two hundred staff of a partner firm need access to a company's project system for two years. The partner runs its own identity system and handles its own starters and leavers. The company's concern is partner staff who leave but keep their access. Which approach is BEST?"
+        choices:
+          - "Create local accounts and ask the partner to email the names of leavers"
+          - "Federate with the partner's identity provider, so that disabling a user there ends their access"
+          - "Create one shared account for each partner team"
+          - "Create local accounts that expire every 90 days unless renewed"
+        answer: 1
+        why: "With federation, the organization that knows when someone leaves is the one whose action removes the access, so there is no gap to manage."
+        whys:
+          - "Workable, but it depends on a manual notice that will sometimes be late or forgotten."
+          - "Best: the partner's own leaver process removes the access automatically."
+          - "Fewer accounts to manage, but leavers still know the password and nobody is accountable."
+          - "Limits the exposure to 90 days, but a leaver keeps access until the next expiry."
+      - id: cc-3z-b11
+        type: mcq
+        best: true
+        q: "Each manager is asked to confirm about 400 access rights every quarter. Interviews show that they approve everything unread because of the volume. Which change is MOST effective?"
+        choices:
+          - "Run the review monthly instead of quarterly"
+          - "Have the IT security team complete the reviews instead of managers"
+          - "Focus each review on privileged, changed and unused access, with unused access flagged for removal"
+          - "Require managers to sign a statement that they reviewed every line"
+        answer: 2
+        why: "The stated cause is volume. A risk-based review puts the reviewer's limited attention on the access most likely to be wrong or dangerous."
+        whys:
+          - "Triples the workload that is already causing the problem."
+          - "Removes the burden, but IT security does not know what each person's job requires."
+          - "Best: cuts the volume and directs attention to where the risk is."
+          - "Adds accountability on paper, but the volume, and so the behaviour, is unchanged."
+      - id: cc-3z-b12
+        type: mcq
+        best: true
+        q: "A new 'claims assessor' role is being defined in the claims system. On what should its permissions BEST be based?"
+        choices:
+          - "The access held by the longest-serving assessor"
+          - "The permissions that the assessors themselves request"
+          - "Every function in the claims system, to avoid later access requests"
+          - "The job description's tasks, agreed with the business owner"
+        answer: 3
+        why: "A role should hold the minimum that the job's defined tasks need, as confirmed by the owner who is accountable for the system."
+        whys:
+          - "A real example to start from, but long service usually means accumulated extra rights."
+          - "Assessors know their work, but people tend to ask for more than they need."
+          - "Fewer tickets, at the cost of abandoning least privilege."
+          - "Best: derived from the job's tasks and approved by the accountable owner."
+      - id: cc-3z-b13
+        type: mcq
+        best: true
+        q: "Help desk agents can reset any account's password, including those of domain administrators. Which change BEST reduces the risk?"
+        choices:
+          - "Log every reset and review the log weekly"
+          - "Limit agents to resetting standard user accounts only"
+          - "Train agents to be suspicious of requests about administrator accounts"
+          - "Require two agents to approve every password reset"
+        answer: 1
+        why: "The risk is that a routine role can take over the most powerful accounts. Removing that ability applies least privilege to the help desk itself."
+        whys:
+          - "Detective: it would show a takeover of an administrator account after it had happened."
+          - "Best: removes the dangerous right while leaving everyday resets unchanged."
+          - "Helps, but it relies on judgement under pressure, which social engineering targets."
+          - "Would reduce the risk, but it slows thousands of ordinary resets to protect a handful of accounts."
+      - id: cc-3z-b14
+        type: mcq
+        best: true
+        q: "An account manager gives four weeks' notice and says she is joining a competitor. She has access to the customer pricing database and must hand over her accounts before she goes. Which action is BEST?"
+        choices:
+          - "Reduce her access now to what the handover needs, and disable it when she leaves"
+          - "Disable all of her access today"
+          - "Leave her access unchanged until her last day"
+          - "Leave her access unchanged, but monitor her activity closely and alert on large downloads"
+        answer: 0
+        why: "The risk has risen and the business still needs the handover. Reducing access to what the handover needs balances both, with full deprovisioning on departure."
+        whys:
+          - "Best: lowers the exposure now while the handover can still be done."
+          - "Safest for the data, but she cannot hand anything over."
+          - "Keeps work simple, but ignores a clear rise in risk for four weeks."
+          - "Detective only: copying of the pricing data would be noticed after the event."
+      - id: cc-3z-b15
+        type: mcq
+        best: true
+        q: "All staff have local administrator rights on their laptops so that they can add printers. As a result, malware that a user runs installs itself with full rights. Which action is BEST?"
+        choices:
+          - "Deploy endpoint detection and response software to every laptop"
+          - "Train staff not to open unexpected attachments"
+          - "Remove local administrator rights, and provide a self-service way to add approved printers and software"
+          - "Block a list of known malicious programs"
+        answer: 2
+        why: "The malware gets full rights because the user has them. Removing the unneeded privilege, while still meeting the original need, deals with the cause."
+        whys:
+          - "Valuable, but it detects and responds to malware that still runs with full rights."
+          - "Reduces how often malware is run, but one mistake still gives it full control."
+          - "Best: applies least privilege and still lets staff add printers."
+          - "Stops only what is already known to be malicious; new malware runs as an administrator."
+      - id: cc-3z-b16
+        type: mcq
+        best: true
+        q: "A 15-person charity has no IT administrator. The director wants each person who creates a document to decide who else may open it. Which access control model fits BEST?"
+        choices:
+          - "Mandatory access control"
+          - "Discretionary access control"
+          - "Role-based access control"
+          - "Attribute-based access control"
+        answer: 1
+        why: "Under discretionary access control the owner of each object decides who may use it, which is exactly the stated requirement, and it needs no central administrator."
+        whys:
+          - "Strong and centrally enforced, but owners cannot grant access, and labels need administration."
+          - "Best: the owner of each document decides, with no central administration."
+          - "Good for well-defined job functions, but an administrator, not the owner, assigns the roles."
+          - "Flexible, but it needs centrally written rules and attributes that a tiny team cannot maintain."
+      - id: cc-3z-b17
+        type: mcq
+        best: true
+        q: "The budget this quarter covers multifactor authentication for only one group of accounts. Which group should be protected FIRST?"
+        choices:
+          - "Privileged administrator accounts"
+          - "Office staff who work only on site"
+          - "Interns with read-only access"
+          - "The sales team's customer relationship accounts"
+        answer: 0
+        why: "With limited funds, protect the accounts whose compromise would do the most damage. One administrator account can expose every system and every other account."
+        whys:
+          - "Best: the highest impact if compromised, so the greatest reduction in risk for the money."
+          - "A large group, but each account has limited rights and is used from inside the building."
+          - "The lowest impact of the four."
+          - "Holds valuable customer data, but a compromise is limited to one application."
+      - id: cc-3z-b18
+        type: mcq
+        best: true
+        q: "A user is on leave. Her account signs in from another country and begins downloading the finance share. What should the analyst do FIRST?"
+        choices:
+          - "Email the user to ask whether the sign-in is hers"
+          - "Block that country at the firewall"
+          - "Open an investigation and collect the sign-in logs"
+          - "Revoke the account's sessions and disable it"
+        answer: 3
+        why: "Data is leaving now, so containment comes first. Disabling an account is quickly reversed if the sign-in proves to be legitimate; a completed download is not."
+        whys:
+          - "Verification is good practice, but a reply may take hours while the download continues."
+          - "Stops that route, but the attacker still holds valid credentials and can come in another way."
+          - "Necessary, but investigating before containing lets the loss continue."
+          - "Best: stops the loss immediately and can be undone if it was a false alarm."
+
+  # ───────────────────── Domain 4 — best-answer practice ─────────────────────
+  - id: cc-4z
+    title: "Best-answer practice: Networking and Cloud Security"
+    domain: "4"
+    goal: "I can choose the BEST network or cloud answer by matching the control to the stated threat, layer and responsibility."
+    notes: |
+      ## Network and cloud: put the control where the problem is
+
+      Every option is a real technology. Ask where the threat is and who can act on it.
+
+      - **Reduce exposure before hardening it.** Taking a management interface or a storage bucket off the internet beats strengthening its login.
+      - **Narrowest rule wins.** One source, one destination, one port. The same idea drives segmentation and zero trust: limit what a compromised device can reach.
+      - **Fix the class, not the instance.** An organization-wide guardrail beats correcting one resource.
+      - **Fragile systems.** For industrial and embedded devices, availability and safety outrank thoroughness; prefer passive or scheduled methods.
+      - **Cloud.** Decide who holds the responsibility under the shared security model and who holds the keys. A contract or service level agreement compensates you; it does not protect or restore anything.
+      - **Capacity.** A control inside your network cannot stop a flood that fills the link before it arrives.
+
+      Usual traps: monitoring offered where blocking was asked for (and the reverse), and multi-site, multi-provider designs where the stem asked for minimal cost.
+    items:
+      - id: cc-4z-b01
+        type: mcq
+        best: true
+        q: "Visitors to an office need internet access for their own laptops. Which arrangement is BEST?"
+        choices:
+          - "Give visitors the staff Wi-Fi passphrase and change it every week"
+          - "Register each visitor's device address on the staff network"
+          - "Lend visitors company laptops that are already on the network"
+          - "A separate guest Wi-Fi network that can reach only the internet"
+        answer: 3
+        why: "Visitors need the internet, not the company network. An isolated guest network meets the need and keeps unmanaged devices away from internal systems."
+        whys:
+          - "Works, but unmanaged devices sit on the internal network and the passphrase spreads."
+          - "Adds a check, but the visitor's device is still inside the staff network."
+          - "Keeps unknown devices off the network, but gives outsiders an internally connected machine and costs equipment."
+          - "Best: meets the need with no path to internal systems."
+      - id: cc-4z-b02
+        type: mcq
+        best: true
+        q: "An online retailer expects a flood of junk traffic during a sale that will be larger than the capacity of its own internet link. Which defence is MOST effective?"
+        choices:
+          - "Strict rate limiting on the firewall at the edge of its own network"
+          - "A cloud-based traffic scrubbing service in front of the site"
+          - "A second web server behind the existing link"
+          - "Intrusion prevention signatures for known attack tools"
+        answer: 1
+        why: "When the flood exceeds the link, it must be absorbed upstream. Anything inside the retailer's network acts only after the link is already full."
+        whys:
+          - "Useful against smaller floods, but the link is saturated before traffic reaches the firewall."
+          - "Best: absorbs and filters the flood before it reaches the retailer's link."
+          - "Adds server capacity, but the bottleneck is the link, not the server."
+          - "Blocks recognized attack traffic, but only after it has already used up the link."
+      - id: cc-4z-b03
+        type: mcq
+        best: true
+        q: "Twice this year, developers have accidentally made cloud storage buckets public. The company has 40 cloud accounts. Which action is MOST effective in preventing a repeat?"
+        choices:
+          - "An organization-wide policy that blocks public access to storage in every account"
+          - "Correcting the two buckets and checking them each month"
+          - "Training developers on storage permissions"
+          - "A weekly scan that reports any public bucket"
+        answer: 0
+        why: "A guardrail applied to every account prevents the whole class of mistake, instead of correcting or detecting single cases."
+        whys:
+          - "Best: preventive, and it covers every account and every future bucket."
+          - "Fixes the known cases only; the next mistake will be in a different bucket."
+          - "Reduces errors, but one slip by one developer still exposes data."
+          - "Detective: data could be public for up to a week before anyone knows."
+      - id: cc-4z-b04
+        type: mcq
+        best: true
+        q: "A small firm with no operations staff needs a customer database. It wants the LEAST security work for itself while still deciding who may access the data. Which option is BEST?"
+        choices:
+          - "Virtual machines in a public cloud, with the database installed on them"
+          - "A server in its own office"
+          - "A managed database service from a cloud provider"
+          - "Its own server housed in a colocation facility"
+        answer: 2
+        why: "With a managed database the provider secures and patches the hardware, operating system and database engine, leaving the firm responsible mainly for its data and access to it."
+        whys:
+          - "The provider secures the hardware, but the firm must patch the operating system and the database."
+          - "Full control, but the firm carries every responsibility, including physical security."
+          - "Best: shifts the most work to the provider while the firm still controls access."
+          - "The facility provides power and physical security, but the firm still runs the whole server."
+      - id: cc-4z-b05
+        type: mcq
+        best: true
+        q: "One partner company must reach a new application server over HTTPS from a single fixed address. Which firewall rule is BEST?"
+        choices:
+          - "Permit that partner address to that server on TCP 443 only"
+          - "Permit any address to that server on TCP 443, and rely on the application's login"
+          - "Permit that partner address to the server's whole subnet on any port"
+          - "Permit the partner's entire internet provider range to that server on TCP 443"
+        answer: 0
+        why: "Least privilege on a firewall means the narrowest source, destination and port that still let the business work."
+        whys:
+          - "Best: one source, one destination and one port, exactly as required."
+          - "The partner can connect, but so can the whole internet; the login becomes the only defence."
+          - "The right source, but it exposes every server and service in the subnet."
+          - "The right server and port, but thousands of unrelated addresses are allowed in."
+      - id: cc-4z-b06
+        type: mcq
+        best: true
+        q: "A company has a flat network of 500 devices, and money for one segmentation project this year. Its card-processing systems must meet a contractual payment card security standard. Which project should come FIRST?"
+        choices:
+          - "Moving printers to their own network segment"
+          - "Moving meeting-room displays to their own segment"
+          - "Moving voice traffic to its own segment to improve call quality"
+          - "Isolating the card-processing systems in their own segment"
+        answer: 3
+        why: "Those systems hold the most sensitive data and carry a compliance obligation, so isolating them reduces the most risk and the scope of the standard."
+        whys:
+          - "Good hygiene, since printers are often weak, but they hold little of value."
+          - "Low-value devices and low impact; worth doing later."
+          - "Improves performance more than security."
+          - "Best: protects the highest-value data and meets a binding obligation."
+      - id: cc-4z-b07
+        type: mcq
+        best: true
+        q: "Two data centres exchange data over a line leased from a carrier. The requirement is that the data stays confidential even from the carrier's own staff. Which measure is BEST?"
+        choices:
+          - "A confidentiality clause in the carrier's contract"
+          - "Carrying the traffic in a dedicated VLAN"
+          - "Encrypting the traffic between the two sites"
+          - "Monitoring the line for signs of tapping"
+        answer: 2
+        why: "Only encryption keeps the content unreadable to someone who operates the line. The other options rely on trust, separation or detection."
+        whys:
+          - "Creates a legal duty, but the carrier's staff could still read the data."
+          - "Separates the traffic from other customers, but does not hide it from the carrier."
+          - "Best: the carrier carries only ciphertext."
+          - "Detective at best, and the carrier does not need to tap its own equipment."
+      - id: cc-4z-b08
+        type: mcq
+        best: true
+        q: "Contractors plug their own laptops into meeting-room wall sockets and receive full internal network access. Staff use the same sockets every day. Which control is MOST effective?"
+        choices:
+          - "A policy and signs forbidding personal devices on the wall sockets"
+          - "Network access control that authenticates each device"
+          - "Disabling every meeting-room socket"
+          - "A weekly scan for unknown devices"
+        answer: 1
+        why: "Network access control lets staff devices on and keeps unknown devices away from the internal network, automatically and at the moment they connect."
+        whys:
+          - "Sets the rule, but relies on contractors reading and obeying it."
+          - "Best: preventive, and staff can keep using the sockets."
+          - "Stops the contractors, but also stops the staff who need the sockets."
+          - "Detective: an unknown laptop could have had access for days."
+      - id: cc-4z-b09
+        type: mcq
+        best: true
+        q: "A company plans to move customer records to a software-as-a-service provider. A regulation requires that the records stay inside the country. What should it do FIRST?"
+        choices:
+          - "Review the provider's uptime record and its published incident history"
+          - "Confirm where the provider will store and process the data"
+          - "Negotiate the price"
+          - "Run a pilot with test data"
+        answer: 1
+        why: "A legal requirement is a gate. If the provider cannot keep the data in the country, nothing else about the provider matters."
+        whys:
+          - "Matters for availability, but a reliable provider in the wrong place is still unlawful."
+          - "Best: checks the mandatory legal condition before effort is spent on anything else."
+          - "Belongs later; a good price cannot fix a breach of regulation."
+          - "Useful to test fit, but wasted if the provider fails the residency rule."
+      - id: cc-4z-b10
+        type: mcq
+        best: true
+        q: "A company stores sensitive files with a cloud provider and requires that the provider's own staff cannot read them. Which measure BEST meets this requirement?"
+        choices:
+          - "Encrypt the files before upload, with keys that the company keeps outside the provider"
+          - "Turn on the provider's storage encryption, with keys that the provider creates and manages"
+          - "Add a confidentiality clause to the contract"
+          - "Review the provider's logs of staff access"
+        answer: 0
+        why: "Whoever holds the keys can read the data. If only the company holds them, the provider stores ciphertext it cannot open."
+        whys:
+          - "Best: the provider never holds the keys, so its staff cannot read the files."
+          - "Protects against stolen disks, but the provider holds the keys and can decrypt."
+          - "A legal deterrent, not a technical barrier."
+          - "Detective: it shows that someone looked, after they have looked."
+      - id: cc-4z-b11
+        type: mcq
+        best: true
+        q: "An application runs on one virtual machine in one cloud data centre. The business needs it to keep running if that data centre fails, at the LEAST extra cost. Which design is BEST?"
+        choices:
+          - "A larger virtual machine in the same data centre"
+          - "A nightly snapshot copied to another region"
+          - "A second deployment with a different cloud provider"
+          - "Instances in two availability zones behind a load balancer"
+        answer: 3
+        why: "Two zones with a load balancer survive the loss of one data centre automatically, without the cost and complexity of a second provider."
+        whys:
+          - "More capacity, but it is still one machine in the data centre that may fail."
+          - "Protects the data, but the application stays down until someone rebuilds it."
+          - "Would survive the failure, but two providers cost far more to build and run than the requirement needs."
+          - "Best: continues through a data centre failure at modest extra cost."
+      - id: cc-4z-b12
+        type: mcq
+        best: true
+        q: "A scan shows that a firewall's web management page can be reached from the internet. Administrators do need to manage the firewall remotely. Which action is BEST?"
+        choices:
+          - "Set a long password and enable multifactor authentication on the page"
+          - "Move the page to an unusual port number"
+          - "Limit the page to the management network, reached through the VPN"
+          - "Turn on logging and alert on failed logins"
+        answer: 2
+        why: "The underlying problem is exposure. Removing the page from the internet protects it from password attacks and from flaws in the page itself, and administrators can still reach it."
+        whys:
+          - "Strengthens the login, but the page is still exposed to any flaw in its software."
+          - "Hides it from casual scans only; a full scan finds it in minutes."
+          - "Best: removes the exposure while keeping remote management possible."
+          - "Detective: it reports the attacks without stopping them."
+      - id: cc-4z-b13
+        type: mcq
+        best: true
+        q: "Two hundred virtual servers share one network segment and cannot be readdressed. The requirement is that if one is compromised, it can reach only the two services it actually needs. Which measure is BEST?"
+        choices:
+          - "Split the segment into several VLANs"
+          - "Upgrade the firewall at the network perimeter"
+          - "Apply micro-segmentation rules to each workload"
+          - "Install host intrusion detection on every server"
+        answer: 2
+        why: "The requirement is per-server control of traffic inside one segment, without readdressing. Micro-segmentation applies a policy to each workload wherever it sits."
+        whys:
+          - "Reduces what each server can reach, but needs readdressing and still leaves servers in a VLAN open to each other."
+          - "Controls traffic entering and leaving the network, not traffic between servers inside it."
+          - "Best: each server is limited to exactly the services it needs, with no readdressing."
+          - "Detects an attack on a server; it does not limit what that server can reach."
+      - id: cc-4z-b14
+        type: mcq
+        best: true
+        q: "Staff are using unapproved file-sharing websites because the official tool is slow and awkward. Which action is MOST effective in ending the practice?"
+        choices:
+          - "Provide an approved service that works well, then block the unapproved ones"
+          - "Block all unapproved file-sharing sites today"
+          - "Send a memo restating the policy"
+          - "Deploy a tool that discovers and reports use of cloud services"
+        answer: 0
+        why: "People work around tools that do not let them do their job. Meeting the need removes the motive, and blocking then has nothing left to push against."
+        whys:
+          - "Best: removes the cause first, then enforces."
+          - "Stops today's sites, but staff with the same need will find another route."
+          - "Staff already know the policy; the tool is the problem."
+          - "Gives visibility, which is useful, but reports the behaviour without changing it."
+      - id: cc-4z-b15
+        type: mcq
+        best: true
+        q: "A new branch router must go online today. There is time for only one of these steps before it is connected to the internet. Which is MOST important?"
+        choices:
+          - "Sending its logs to the company's central log server"
+          - "Changing the default administrator password"
+          - "Recording it in the asset register"
+          - "Backing up its configuration"
+        answer: 1
+        why: "Default credentials are published and are tried automatically within minutes of a device appearing online. The other steps matter, but none of them stops an immediate takeover."
+        whys:
+          - "Valuable for detection, but it would only record the takeover."
+          - "Best: closes the one weakness that attackers will try straight away."
+          - "Good asset management, but it gives no protection today."
+          - "Helps recovery after a failure, not prevention of a compromise."
+      - id: cc-4z-b16
+        type: mcq
+        best: true
+        q: "A plant's ageing controllers have been known to crash when they are probed by a network scanner, and a crash halts production. The team must still find out which controllers have known vulnerabilities. Which approach is BEST?"
+        choices:
+          - "Run the standard active scan at night, when fewer staff are on site"
+          - "Scan one controller at a time during production and watch for problems"
+          - "Scan only the office network that connects to the plant"
+          - "Compare the inventory of models and firmware with vendor advisories"
+        answer: 3
+        why: "In industrial systems availability and safety come first. Passive methods identify vulnerable devices without sending them anything that might crash them."
+        whys:
+          - "Fewer people on site, but the controllers are just as likely to crash and stop production."
+          - "Limits the damage to one controller at a time, but still risks a halt."
+          - "Safe, but it says nothing about the controllers themselves."
+          - "Best: answers the question with no risk to the running plant."
+      - id: cc-4z-b17
+        type: mcq
+        best: true
+        q: "A developer realises that a cloud access key was published in a public code repository an hour ago. What should be done FIRST?"
+        choices:
+          - "Revoke the exposed key"
+          - "Delete the file from the repository"
+          - "Review the cloud logs for use of the key"
+          - "Brief the development team on handling secrets"
+        answer: 0
+        why: "Contain first. The key must be assumed copied, and only revoking it makes every copy useless."
+        whys:
+          - "Best: makes the key worthless wherever it has been copied."
+          - "Removes it from view, but it remains in the history and in any copy already taken."
+          - "Essential to learn what happened, but the key stays usable while the logs are read."
+          - "Prevents the next mistake; it does nothing about this one."
+      - id: cc-4z-b18
+        type: mcq
+        best: true
+        q: "A plant has no visibility of attacks inside its control network. Operations will not accept any device that could block or delay legitimate control traffic. Which control is BEST?"
+        choices:
+          - "An intrusion prevention system placed inline in blocking mode"
+          - "A second firewall between the controllers"
+          - "An intrusion detection sensor on a mirror port that alerts the security team"
+          - "An annual penetration test"
+        answer: 2
+        why: "The need is visibility and the constraint is no interference with traffic. A passive sensor on a copy of the traffic gives one without risking the other."
+        whys:
+          - "Would stop attacks, but a false positive would block control traffic, which operations has ruled out."
+          - "Adds separation, but sits in the traffic path and still gives no view of attacks."
+          - "Best: continuous visibility with no effect on the traffic."
+          - "Finds weaknesses once a year; it does not show attacks as they happen."
+      - id: cc-4z-b19
+        type: mcq
+        best: true
+        q: "The only copy of a company's project data is held in one software-as-a-service application. The concern is losing the data if the provider fails or the account is locked. Which measure is BEST?"
+        choices:
+          - "A service level agreement with a high uptime guarantee"
+          - "Insurance against the provider's failure"
+          - "The application's own recycle bin and version history"
+          - "Regular exports to an independent location, with test restores"
+        answer: 3
+        why: "The data is the customer's responsibility. Only a copy outside the provider survives the loss of the provider or the account."
+        whys:
+          - "Compensates for downtime, but it does not return lost data."
+          - "Pays out after the loss, but money does not recreate the project data."
+          - "Recovers from a user's mistake, but it lives inside the same provider and account."
+          - "Best: an independent copy that has been proved to restore."
+      - id: cc-4z-b20
+        type: mcq
+        best: true
+        q: "A company's network closet opens onto a corridor shared with other tenants and is left unlocked. Which control is BEST?"
+        choices:
+          - "A camera covering the closet door"
+          - "Locking the closet and limiting keys to network staff"
+          - "Disabling unused switch ports"
+          - "Tamper-evident seals on the equipment"
+        answer: 1
+        why: "Anyone with physical access to network equipment can bypass most logical controls. A lock is the cheapest control that prevents that access."
+        whys:
+          - "Records who went in; it does not keep anyone out."
+          - "Best: preventive, inexpensive, and aimed at the actual weakness."
+          - "Sensible hardening, but an intruder can unplug or use a port that is live."
+          - "Shows afterwards that equipment was touched."
+
+  # ───────────────────── Domain 5 — best-answer practice ─────────────────────
+  - id: cc-5z
+    title: "Best-answer practice: Security Operations and Incident Response"
+    domain: "5"
+    goal: "I can choose the BEST or FIRST operational answer by following the order of incident response and the organization's own plans."
+    notes: |
+      ## Operations questions are mostly about order
+
+      When the stem says FIRST, place the scenario on the incident timeline and take the next step.
+
+      - **Is it real?** A single unconfirmed alert is **triaged** before anything is shut down or anyone outside is told.
+      - **Is harm continuing?** If so, **contain** before you investigate, eradicate or teach.
+      - **Might it go to court?** **Preserve** evidence before anyone touches it.
+      - **Then** eradicate, recover, and review what went wrong.
+
+      Other rules that rank the choices:
+
+      - Follow the plan: the named spokesperson speaks, the rules of engagement say when a tester stops, and a legal deadline is met even with incomplete facts.
+      - Changes go through change management unless the risk truly justifies an emergency change.
+      - Classify data before choosing tools to protect it. Encryption protects data once custody is lost; locks and couriers do not.
+      - Act on intelligence that concerns what you actually run.
+
+      Usual trap: the drastic action (pull the plug, patch now, call everyone) taken before the facts or the process support it.
+    items:
+      - id: cc-5z-b01
+        type: mcq
+        best: true
+        q: "An employee reports that ten minutes ago she typed her password into a fake sign-in page. What should the analyst do FIRST?"
+        choices:
+          - "Run a malware scan on her computer"
+          - "Send all staff a reminder about phishing"
+          - "Reset her password and revoke her active sessions"
+          - "Search the mail system for other people who received the message"
+        answer: 2
+        why: "The one certain fact is that her credentials are in an attacker's hands. Containing that comes before widening the investigation or educating others."
+        whys:
+          - "Sensible, but she reported giving away a password, not running a file."
+          - "Useful, but it does nothing about the credentials already stolen."
+          - "Best: makes the stolen password useless and ends any session the attacker has opened."
+          - "An important next step, but her account is exposed for as long as it is delayed."
+      - id: cc-5z-b02
+        type: mcq
+        best: true
+        q: "An employee suspected of fraud has been suspended and his account disabled. Legal action is likely, and his office computer may hold evidence. What should the security team do FIRST?"
+        choices:
+          - "Secure the computer and start a chain of custody record"
+          - "Sign in to the computer as an administrator and look for the files"
+          - "Ask a technician to copy his user folder to a network share"
+          - "Interview his colleagues about what they saw"
+        answer: 0
+        why: "Evidence for legal action must be preserved unaltered and its handling documented. Analysis is done on an image, never on the original."
+        whys:
+          - "Best: preserves the evidence and its legal value before anyone alters it."
+          - "The quickest way to an answer, but signing in changes the evidence and weakens it in court."
+          - "Captures some files, but alters timestamps, misses deleted data and breaks the chain of custody."
+          - "May be useful later, but the computer's evidence is fragile and comes first."
+      - id: cc-5z-b03
+        type: mcq
+        best: true
+        q: "A vendor issues a critical patch for an internal finance system. The flaw cannot be reached from the internet and no exploit is known. Month-end closing, which must not be interrupted, finishes in two days. Which course is BEST?"
+        choices:
+          - "Install the patch in production today as an emergency change, with a rollback plan ready"
+          - "Leave it for the next quarterly patch cycle"
+          - "Formally accept the risk and leave the system unpatched"
+          - "Test it now and schedule it through change management for right after month-end"
+        answer: 3
+        why: "With low likelihood for now and a critical business process running, a tested change scheduled a few days ahead protects availability without leaving a critical flaw open for months."
+        whys:
+          - "Closes the flaw fastest, but risks breaking month-end for a threat that is not imminent."
+          - "Avoids disruption, but leaves a critical flaw open for months without need."
+          - "Acceptance fits when a fix is impractical; here a fix is available and cheap."
+          - "Best: balances the risk of the flaw against the risk of the change."
+      - id: cc-5z-b04
+        type: mcq
+        best: true
+        q: "A company with no data classification scheme wants to stop sensitive data leaking. What should it do FIRST?"
+        choices:
+          - "Buy a data loss prevention product"
+          - "Work with data owners to identify and classify its data"
+          - "Encrypt every file server"
+          - "Train staff in handling sensitive data"
+        answer: 1
+        why: "Tools, encryption priorities and training all depend on knowing which data is sensitive. Classification comes first."
+        whys:
+          - "The product needs rules about what is sensitive, and nobody has decided that yet."
+          - "Best: every later control is built on knowing what the data is and how sensitive it is."
+          - "Protects stored data without knowing which data matters, and does not stop an authorized user sending it out."
+          - "Staff cannot follow handling rules for categories that do not exist yet."
+      - id: cc-5z-b05
+        type: mcq
+        best: true
+        q: "Sales laptops holding customer data are lost several times a year, often while switched off and never seen online again. Which control BEST protects the confidentiality of the data?"
+        choices:
+          - "Remote wipe software"
+          - "A firmware start-up password"
+          - "Location tracking software"
+          - "Full-disk encryption"
+        answer: 3
+        why: "Encryption protects the data from the moment the laptop is lost and does not depend on the laptop ever connecting again."
+        whys:
+          - "Works only if the laptop comes online, which the stem says it does not."
+          - "Stops the laptop starting, but the drive can be removed and read in another machine."
+          - "Might help to recover the device; it does not protect the data on it."
+          - "Best: the data is unreadable whoever holds the laptop, online or not."
+      - id: cc-5z-b06
+        type: mcq
+        best: true
+        q: "A monitoring system raises 5,000 alerts a day, almost all of them false, and two real intrusions were missed in the noise. There is no budget for more staff. Which action is MOST effective?"
+        choices:
+          - "Ask analysts to work through alerts faster"
+          - "Tune the detection rules, and rank alerts by how critical the affected asset is"
+          - "Stop collecting logs from the noisiest systems"
+          - "Review only the alerts marked high severity"
+        answer: 1
+        why: "The cause is poor-quality alerts. Tuning removes the noise at source, and ranking by asset puts what remains in a useful order."
+        whys:
+          - "More speed means less attention to each alert, which is how the intrusions were missed."
+          - "Best: fewer false alerts, and the important ones rise to the top."
+          - "Cuts the noise, but blinds the team to those systems altogether."
+          - "A quick filter, but severity labels on an untuned system are part of the problem."
+      - id: cc-5z-b07
+        type: mcq
+        best: true
+        q: "An incident caused by an administrator's mistake has been closed. Which action is MOST effective in reducing the chance that it happens again?"
+        choices:
+          - "A blameless review that finds the root causes and assigns tracked corrective actions"
+          - "Disciplining the administrator"
+          - "Buying a monitoring tool that would have detected the mistake within minutes of its being made"
+          - "Emailing a summary of the incident to all IT staff"
+        answer: 0
+        why: "Lessons learned is the phase that turns an incident into improvement. Looking for the causes in process and tooling, and tracking the fixes, prevents the next person from making the same mistake."
+        whys:
+          - "Best: finds why the mistake was possible and makes sure the fixes are completed."
+          - "Deals with one person, and teaches everyone else to hide their mistakes."
+          - "May help, but it is chosen before the cause is understood, and it detects, not prevents."
+          - "Spreads awareness, but changes nothing in the process that allowed the error."
+      - id: cc-5z-b08
+        type: mcq
+        best: true
+        q: "A two-person security team receives dozens of threat reports each week. Which report should it act on FIRST?"
+        choices:
+          - "A study of a state-backed group that targets a different industry"
+          - "A vendor's annual review of attack trends"
+          - "An advisory that a product on its internet-facing systems is being exploited"
+          - "A detailed analysis of new malware for an operating system the company does not use"
+        answer: 2
+        why: "Intelligence is useful when it is relevant and actionable. This report describes a current threat to something the company actually exposes."
+        whys:
+          - "Interesting, but the group is not targeting this industry."
+          - "Good background for planning, with nothing in it to act on today."
+          - "Best: current, relevant to the company's own systems, and it calls for immediate action."
+          - "Technically detailed, but it does not apply to the company's environment."
+      - id: cc-5z-b09
+        type: mcq
+        best: true
+        q: "A firm with 200 computers has never had a security assessment. With a small budget, it wants a broad view of the known weaknesses across all of them. Which activity is BEST to do first?"
+        choices:
+          - "A red team exercise"
+          - "An authenticated vulnerability scan of every computer"
+          - "A penetration test of the public website"
+          - "A bug bounty programme"
+        answer: 1
+        why: "The goal is broad coverage of known weaknesses at low cost, which is what a vulnerability scan provides. Deeper tests are worth more once the basics are fixed."
+        whys:
+          - "Tests detection and response against a realistic attacker; expensive, narrow, and premature here."
+          - "Best: cheap, broad, and aimed at known weaknesses on every computer."
+          - "Goes deep on one system, but says nothing about the other 199."
+          - "Suits a mature organization; it covers only what outsiders can reach, with unpredictable results."
+      - id: cc-5z-b10
+        type: mcq
+        best: true
+        q: "Backup tapes holding customer data travel by courier to an off-site store each week. Which control BEST protects the data's confidentiality if a tape goes missing?"
+        choices:
+          - "Locked transport cases"
+          - "A vetted courier who signs for each case"
+          - "Tamper-evident seals"
+          - "Encrypting the backups before they leave the building"
+        answer: 3
+        why: "Once a tape is out of the company's hands, only encryption keeps its contents unreadable."
+        whys:
+          - "Slows a thief, but a missing case can be forced open at leisure."
+          - "Lowers the chance of loss and shows who was responsible, but does not protect a lost tape."
+          - "Shows that a case was opened; it does not prevent the data being read."
+          - "Best: the data stays confidential even when the tape itself is lost."
+      - id: cc-5z-b11
+        type: mcq
+        best: true
+        q: "A breach of customer data has been confirmed. A journalist phones a help desk analyst and asks what happened. The incident response plan names a spokesperson. What is the analyst's BEST response?"
+        choices:
+          - "Tell the journalist honestly what he knows so far"
+          - "Say 'no comment' and end the call"
+          - "Refer the journalist to the named spokesperson"
+          - "Take a message and ask the security manager to return the call"
+        answer: 2
+        why: "The plan exists so that one informed, authorized voice speaks for the organization. Following it avoids both inaccurate statements and silence."
+        whys:
+          - "Well meant, but partial facts from an unauthorized person can mislead and create legal exposure."
+          - "Avoids a mistake, but looks evasive and leaves the journalist without the right contact."
+          - "Best: follows the plan and sends the question to the person authorized to answer."
+          - "Polite, but it routes the press to someone the plan did not name."
+      - id: cc-5z-b12
+        type: mcq
+        best: true
+        q: "A breach of personal data is confirmed. The law requires the regulator to be notified within 72 hours of discovery, but establishing the full extent will take two weeks. Which course is BEST?"
+        choices:
+          - "Notify within the deadline with what is known, and send updates as the investigation continues"
+          - "Notify once the investigation is complete, so that the report is accurate"
+          - "Post a public statement on social media at once, and notify the regulator later"
+          - "Notify the regulator only if the investigation shows that customers were harmed"
+        answer: 0
+        why: "A legal deadline is not optional. The duty is met by reporting what is known in time and adding to it later."
+        whys:
+          - "Best: meets the legal duty and keeps the regulator informed as facts emerge."
+          - "More accurate, but it misses a mandatory deadline by more than a week."
+          - "Open with customers, but unplanned and no substitute for the notification the law requires."
+          - "The law in the stem requires notification of the breach, not only of proven harm."
+      - id: cc-5z-b13
+        type: mcq
+        best: true
+        q: "Developers need realistic customer data in a test environment that is less protected than production. Which approach is BEST?"
+        choices:
+          - "Give them masked or synthetic data that keeps the format of the real records"
+          - "Copy production data and apply production's access controls to the test environment"
+          - "Copy production data and have developers sign a confidentiality agreement"
+          - "Copy production data and encrypt the test database"
+        answer: 0
+        why: "If no real customer data is in the test environment, there is nothing to breach there. The other options keep real data and try to guard it."
+        whys:
+          - "Best: realistic enough to test with, and no real personal data is exposed."
+          - "Could work, but it is costly, hard to sustain in a test system, and real data is still copied."
+          - "A legal deterrent only; the real data sits in a weaker environment."
+          - "Protects the stored files, but developers and test tools still see the real records."
+      - id: cc-5z-b14
+        type: mcq
+        best: true
+        q: "During an authorized penetration test, the tester finds signs that a real attacker is already inside the client's system. The rules of engagement name a client contact for urgent matters. What is the tester's BEST action?"
+        choices:
+          - "Carry on, and describe the finding in the final report"
+          - "Try to remove the attacker's access"
+          - "Pause the test and tell the client contact immediately"
+          - "Quietly collect evidence for several days to understand the attacker"
+        answer: 2
+        why: "A live compromise is urgent and belongs to the client's incident response. The tester's duty is to report at once through the agreed contact."
+        whys:
+          - "Completes the contract, but the client stays compromised for weeks without knowing."
+          - "Well meant, but outside the tester's authority, and it may destroy evidence or alert the attacker."
+          - "Best: the client learns immediately and its own response process takes over."
+          - "Might produce useful detail, but it delays the response and is not the tester's decision."
+      - id: cc-5z-b15
+        type: mcq
+        best: true
+        q: "An investigation stalls because the timestamps on different servers' logs disagree by several minutes, so events cannot be put in order. Which action BEST prevents this in future?"
+        choices:
+          - "Have analysts adjust the times by hand during each investigation"
+          - "Collect all the logs into one central system"
+          - "Correct each server's clock by hand once a month"
+          - "Synchronize every system to the same time source"
+        answer: 3
+        why: "The cause is clocks that drift apart. A common time source keeps every timestamp comparable, automatically and continuously."
+        whys:
+          - "Possible, but slow, error-prone, and easy to challenge as evidence."
+          - "Good practice, but it gathers the wrong timestamps into one place."
+          - "Helps for a while, but clocks drift again between corrections."
+          - "Best: fixes the cause for every system, with no manual effort."
+      - id: cc-5z-b16
+        type: mcq
+        best: true
+        q: "At 02:00 one alert suggests that data may be leaving a human resources server. Nothing else supports it yet. What should the on-call analyst do FIRST?"
+        choices:
+          - "Shut the server down"
+          - "Check the alert against the server and network logs"
+          - "Notify the data protection regulator"
+          - "Call out the full incident response team and the executives"
+        answer: 1
+        why: "One unconfirmed alert is an event, not yet an incident. Triage establishes whether it is real and how serious, which decides everything that follows."
+        whys:
+          - "Would stop a real leak, but for a possible false alarm it takes a key system down and loses volatile evidence."
+          - "Best: quick validation tells the analyst which response is warranted."
+          - "Notification duties begin when a breach is confirmed, not at a single unverified alert."
+          - "Right for a confirmed incident; premature for an unverified alert."

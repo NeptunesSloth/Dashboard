@@ -1,0 +1,1017 @@
+id: spanish-b1
+title: "Spanish — B1 Intermediate"
+kind: language
+language: Spanish
+lang: es-ES
+hall: tongues_south
+blurb: "Hold a real conversation: the subjunctive, the conditional, if-sentences, reported speech, connectors and the fillers Spaniards actually use, in 300 whole-sentence items."
+
+units:
+  # ---------------------------------------------------------------- 1
+  - id: es3-01
+    title: "What I want you to do: the present subjunctive"
+    goal: "I can say what I want, need or prefer other people to do, and ask someone for a favour."
+    notes: |
+      The **presente de subjuntivo** is the mood Spanish uses when one person wants, hopes or feels something about what *another* person does. Form it from the **yo** form of the present: drop the **-o** and add the "opposite" vowel.
+
+      | Pronoun | hablar | comer / vivir |
+      | yo | hable | coma |
+      | tú | hables | comas |
+      | él / ella / usted | hable | coma |
+      | nosotros | hablemos | comamos |
+      | vosotros | habléis | comáis |
+      | ellos / ustedes | hablen | coman |
+
+      - Because it starts from *yo*, irregular *yo* forms carry over: *tengo → tenga*, *hago → haga*, *veo → vea*.
+      - Spelling keeps the sound: *llegar → llegue*, *pagar → pague*, *buscar → busque*.
+      - **querer que / necesitar que / preferir que** + subjunctive when the two subjects differ: *Quiero que vengas*.
+      - Same subject: use the infinitive, with no *que*: *Quiero venir*.
+      - English says "I want you to help"; Spanish never says *te quiero ayudar* for that.
+    items:
+      - {id: es3-01-dejar, type: vocab, l2: "dejar", l1: "to leave (something somewhere) / to let, to allow",
+         ex: "¿Dónde he dejado las llaves?", ex_l1: "Where have I left my keys?",
+         note: "dejar que + subjunctive = to let: Déjame que te ayude. To leave a place is salir or irse."}
+      - {id: es3-01-avisar, type: vocab, l2: "avisar", l1: "to let (someone) know / to warn",
+         ex: "Quiero que me avises mañana.", ex_l1: "I want you to let me know tomorrow.",
+         note: "False friend: it is not 'to advise' (that is aconsejar)."}
+      - {id: es3-01-acompanar, type: vocab, l2: "acompañar", l1: "to go with (someone) / to accompany",
+         ex: "¿Me acompañas al médico?", ex_l1: "Will you come to the doctor's with me?"}
+      - {id: es3-01-compartir, type: vocab, l2: "compartir", l1: "to share",
+         ex: "Comparto piso con dos amigos.", ex_l1: "I share a flat with two friends.",
+         note: "compartir piso = to share a flat, with no article."}
+      - {id: es3-01-recoger, type: vocab, l2: "recoger", l1: "to tidy up / to pick up, to collect",
+         ex: "Mi madre quiere que recoja mi habitación.", ex_l1: "My mother wants me to tidy my room.",
+         note: "Spelling: yo recojo, subjunctive recoja (g → j before o and a)."}
+      - {id: es3-01-quedar, type: vocab, l2: "quedar", l1: "to arrange to meet / to meet up (not reflexive)",
+         ex: "¿Quedamos a las ocho en la plaza?", ex_l1: "Shall we meet at eight in the square?",
+         note: "quedar = to meet up; quedarse = to stay. Very common in Spain; Latin America often says verse or encontrarse."}
+      - {id: es3-01-favor, type: vocab, l2: "el favor", l1: "the favour",
+         ex: "Necesito pedirte un favor.", ex_l1: "I need to ask you a favour.",
+         note: "You 'ask' a favour with pedir and 'do' one with hacer."}
+      - {id: es3-01-companero-piso, type: vocab, l2: "el compañero de piso", l1: "the flatmate / the housemate (male)",
+         alt: ["el compañero de departamento", "el compañero de cuarto"],
+         ex: "Mi compañero de piso es de Perú.", ex_l1: "My flatmate is from Peru.",
+         note: "Feminine: la compañera de piso. Latin America: compañero de departamento / de cuarto."}
+      - {id: es3-01-tareas-casa, type: vocab, l2: "las tareas de la casa", l1: "the housework / the household chores",
+         alt: ["las tareas de casa", "las tareas del hogar", "las tareas domésticas"],
+         ex: "En mi piso compartimos las tareas de la casa.", ex_l1: "In my flat we share the housework.",
+         note: "Plural in Spanish. la tarea alone is a task (or homework in Latin America)."}
+      - {id: es3-01-enseguida, type: vocab, l2: "enseguida", l1: "right away / straight away", alt: ["en seguida", "ahora mismo", "inmediatamente"],
+         ex: "Vuelvo enseguida.", ex_l1: "I'll be right back.",
+         note: "Usually written as one word. What a waiter says when you order: ¡Enseguida!"}
+      - {id: es3-01-quiero-ayudes, type: phrase, l2: "Quiero que me ayudes.", l1: "I want you to help me. (informal)",
+         note: "Two subjects (I want, you help) → que + subjunctive. Never 'Te quiero ayudar' for this meaning."}
+      - {id: es3-01-quieres-acompane, type: phrase, l2: "¿Quieres que te acompañe?",
+         l1: "Do you want me to come with you? (informal)", alt: ["¿Quieres que vaya contigo?"]}
+      - {id: es3-01-no-quiero-llegues, type: phrase, l2: "No quiero que llegues tarde.",
+         l1: "I don't want you to be late. (informal; to arrive late)",
+         note: "llegar → llegue: the u keeps the hard g sound."}
+      - {id: es3-01-prefiero-hablemos, type: phrase, l2: "Prefiero que hablemos mañana.",
+         l1: "I'd rather we talked tomorrow.", alt: ["Prefiero que lo hablemos mañana"]}
+      - {id: es3-01-me-haces-favor, type: phrase, l2: "¿Me haces un favor?", l1: "Can you do me a favour? (informal)",
+         alt: ["¿Me puedes hacer un favor?", "¿Puedes hacerme un favor?"],
+         note: "Spanish often asks with a plain present tense where English uses 'can you'."}
+      - {id: es3-01-necesito-escuches, type: phrase, l2: "Necesito que me escuches.", l1: "I need you to listen to me. (informal)"}
+      - {id: es3-01-que-quieres-haga, type: phrase, l2: "¿Qué quieres que haga?", l1: "What do you want me to do? (informal)",
+         note: "hago → haga. The yo and él forms of the subjunctive are identical; context tells you who."}
+      - {id: es3-01-c1, type: cloze, text: "Quiero que tú ___ con el jefe.", answer: "hables",
+         l1: "I want you to speak to the boss.", note: "hablar → (tú) hables: -ar verbs take e"}
+      - {id: es3-01-c2, type: cloze, text: "Mi madre quiere que yo ___ más fruta.", answer: "coma",
+         l1: "My mother wants me to eat more fruit.", note: "comer → (yo) coma: -er verbs take a"}
+      - {id: es3-01-c3, type: cloze, text: "¿Quieres que nosotros ___ en el centro?", answer: "vivamos",
+         l1: "Do you want us to live in the centre?", note: "vivir → (nosotros) vivamos"}
+      - {id: es3-01-c4, type: cloze, text: "El profesor quiere que vosotros ___ un correo en español.", answer: "escribáis",
+         l1: "The teacher wants you (plural, informal) to write an e-mail in Spanish.",
+         note: "escribir → (vosotros) escribáis. Latin America: que ustedes escriban"}
+      - {id: es3-01-c5, type: cloze, text: "No quiero que mis hijos ___ tanta televisión.", answer: "vean",
+         l1: "I don't want my children to watch so much television.", note: "veo → vea → (ellos) vean", alt: ["miren"]}
+      - {id: es3-01-c6, type: cloze, text: "Hoy pago yo, pero prefiero que mañana ___ tú.", answer: "pagues",
+         l1: "I'm paying today, but I'd rather you paid tomorrow.", note: "pagar → pagues: gu keeps the hard g sound"}
+      - {id: es3-01-c7, type: cloze, text: "Mi jefe quiere que yo ___ a la oficina a las ocho.", answer: "llegue",
+         l1: "My boss wants me to arrive at the office at eight.", note: "llegar → (yo) llegue"}
+      - {id: es3-01-c8, type: cloze, text: "Estoy cansada: quiero ___ a casa.", answer: "volver", alt: ["regresar"],
+         l1: "I'm tired: I want to go back home.", note: "same subject (I want, I go back) → infinitive, no que"}
+
+  # ---------------------------------------------------------------- 2
+  - id: es3-02
+    title: "Hopes and needs: irregular subjunctives, esperar que, ojalá"
+    goal: "I can express hopes and good wishes and say what it is important or necessary for someone to do."
+    notes: |
+      Six verbs have a subjunctive you cannot build from the *yo* form. Learn them by heart:
+
+      | Infinitive | yo / él | tú | nosotros |
+      | ser | sea | seas | seamos |
+      | estar | esté | estés | estemos |
+      | ir | vaya | vayas | vayamos |
+      | haber | haya | hayas | hayamos |
+      | saber | sepa | sepas | sepamos |
+      | dar | dé | des | demos |
+
+      - *hay* becomes **haya**: *Espero que haya sitio*.
+      - Stem-changing verbs change as in the present, except in *nosotros / vosotros*: *pueda, puedas… podamos*.
+      - **esperar que** + subjunctive = to hope that. (*esperar* also means to wait.)
+      - **ojalá (que)** + subjunctive = "I really hope…", "if only…". It never changes form.
+      - **es importante / necesario / mejor que** + subjunctive when you mean a particular person: *Es importante que vengas*. For a general truth use the infinitive: *Es importante dormir*.
+      - Wishes often start with a bare **que**: *¡Que aproveche!* (enjoy your meal), *¡Que te mejores!*
+    items:
+      - {id: es3-02-ojala, type: vocab, l2: "ojalá", l1: "I hope so / hopefully / if only (one word, + subjunctive)",
+         ex: "—¿Vas a aprobar? —¡Ojalá!", ex_l1: "“Are you going to pass?” “I hope so!”",
+         note: "From Arabic; it never changes. Ojalá and ojalá que mean the same."}
+      - {id: es3-02-proyecto, type: vocab, l2: "el proyecto", l1: "the project",
+         ex: "Estamos trabajando en un proyecto nuevo.", ex_l1: "We are working on a new project."}
+      - {id: es3-02-plazo, type: vocab, l2: "el plazo", l1: "the deadline / the time limit",
+         ex: "El plazo termina el viernes.", ex_l1: "The deadline is on Friday.",
+         note: "a corto / largo plazo = in the short / long term."}
+      - {id: es3-02-conseguir, type: vocab, l2: "conseguir", l1: "to get, to obtain / to manage to",
+         ex: "Espero que consigas el trabajo.", ex_l1: "I hope you get the job.",
+         note: "Conjugated like seguir: consigo, consigues; subjunctive consiga."}
+      - {id: es3-02-oportunidad, type: vocab, l2: "la oportunidad", l1: "the opportunity / the chance",
+         ex: "Es una buena oportunidad para aprender.", ex_l1: "It is a good opportunity to learn.",
+         note: "Nouns ending in -dad are feminine."}
+      - {id: es3-02-exito, type: vocab, l2: "el éxito", l1: "the success",
+         ex: "El proyecto fue un éxito.", ex_l1: "The project was a success.",
+         note: "False friend: an exit is la salida. tener éxito = to be successful."}
+      - {id: es3-02-mejorar, type: vocab, l2: "mejorar", l1: "to improve / to get better",
+         ex: "Quiero mejorar mi español.", ex_l1: "I want to improve my Spanish.",
+         note: "mejorarse = to get better after an illness."}
+      - {id: es3-02-tener-ganas, type: vocab, l2: "tener ganas de", l1: "to feel like / to look forward to (doing something)",
+         ex: "Tengo ganas de verte.", ex_l1: "I'm looking forward to seeing you.",
+         note: "Followed by an infinitive or a noun: tengo ganas de vacaciones."}
+      - {id: es3-02-salir-bien, type: vocab, l2: "salir bien", l1: "to turn out well / to go well (of a plan, an exam)",
+         ex: "Espero que todo salga bien.", ex_l1: "I hope everything turns out well.",
+         note: "The opposite is salir mal. salgo → salga."}
+      - {id: es3-02-a-tiempo, type: vocab, l2: "a tiempo", l1: "on time / in time",
+         ex: "Es importante que llegues a tiempo.", ex_l1: "It's important that you arrive on time.",
+         note: "Not 'en tiempo'."}
+      - {id: es3-02-espero-estes-bien, type: phrase, l2: "Espero que estés bien.", l1: "I hope you are well. (informal)",
+         note: "The usual first line of a message or e-mail to a friend."}
+      - {id: es3-02-ojala-tengas-suerte, type: phrase, l2: "Ojalá tengas suerte.",
+         l1: "I really hope you're lucky. (informal, with ojalá)", alt: ["Ojalá que tengas suerte"]}
+      - {id: es3-02-que-te-vaya-bien, type: phrase, l2: "¡Que te vaya bien!",
+         l1: "I hope it goes well for you! / All the best! (informal, starts with Que)", alt: ["Que te vaya muy bien"],
+         note: "Literally 'may it go well for you'. Said when someone is leaving for an exam, a trip, a new job."}
+      - {id: es3-02-que-te-mejores, type: phrase, l2: "¡Que te mejores!", l1: "Get well soon! (informal)",
+         alt: ["Que te mejores pronto"]}
+      - {id: es3-02-importante-sepas, type: phrase, l2: "Es importante que lo sepas.",
+         l1: "It's important that you know (it). (informal)", note: "saber → sepa, sepas: fully irregular."}
+      - {id: es3-02-espero-no-sea-tarde, type: phrase, l2: "Espero que no sea demasiado tarde.", l1: "I hope it isn't too late."}
+      - {id: es3-02-mejor-hagamos-hoy, type: phrase, l2: "Es mejor que lo hagamos hoy.", l1: "It's better that we do it today.",
+         alt: ["Es mejor que lo hagamos hoy mismo"]}
+      - {id: es3-02-c1, type: cloze, text: "Espero que el examen no ___ muy difícil.", answer: "sea",
+         l1: "I hope the exam isn't very difficult.", note: "ser → sea (irregular)"}
+      - {id: es3-02-c2, type: cloze, text: "Espero que Luis ___ la cena esta noche.", answer: "haga", alt: ["prepare"],
+         l1: "I hope Luis makes dinner tonight.", note: "hacer: hago → haga"}
+      - {id: es3-02-c3, type: cloze, text: "Es necesario que tú ___ al médico.", answer: "vayas",
+         l1: "It's necessary for you to go to the doctor.", note: "ir → vaya, (tú) vayas (irregular)"}
+      - {id: es3-02-c4, type: cloze, text: "Espero que ___ un supermercado cerca del hotel.", answer: "haya",
+         l1: "I hope there is a supermarket near the hotel.", note: "hay → haya. Spelled with y, not ll"}
+      - {id: es3-02-c5, type: cloze, text: "Es importante que todos ___ la verdad.", answer: "sepan",
+         l1: "It's important that everyone knows the truth.", note: "saber → sepa, (ellos) sepan", alt: ["conozcan"]}
+      - {id: es3-02-c6, type: cloze, text: "Espero que ustedes ___ venir a la fiesta.", answer: "puedan",
+         l1: "I hope you (plural) can come to the party.", note: "poder → pueda, (ustedes) puedan: o → ue as in the present"}
+      - {id: es3-02-c7, type: cloze, text: "Ojalá mis amigos ___ tiempo el sábado.", answer: "tengan",
+         l1: "I hope my friends have time on Saturday.", note: "tengo → tenga, (ellos) tengan"}
+      - {id: es3-02-c8, type: cloze, text: "Quiero que me ___ tu número de teléfono, Ana.", answer: "des",
+         l1: "I want you to give me your phone number, Ana.", note: "dar → dé, (tú) des. Only dé has an accent"}
+
+  # ---------------------------------------------------------------- 3
+  - id: es3-03
+    title: "Feelings, doubt and opinion: me alegra que, no creo que"
+    goal: "I can give my opinion, agree and disagree, and react to news with pleasure, annoyance, surprise or doubt."
+    notes: |
+      Whether the verb after **que** is indicative or subjunctive depends on what the first half of the sentence does.
+
+      | First half | Mood | Example |
+      | states a belief | indicative | Creo que **tiene** razón. |
+      | denies or doubts | subjunctive | No creo que **tenga** razón. |
+      | reacts with a feeling | subjunctive | Me alegra que **tenga** razón. |
+
+      - **Indicative** after *creo que, pienso que, me parece que, es verdad que, estoy seguro de que*.
+      - **Subjunctive** after *no creo que, no pienso que, dudo que, no es verdad que, es posible que*.
+      - **Subjunctive** after feelings: *me alegro de que, me molesta que, me sorprende que, siento que, tengo miedo de que, ¡qué pena que…!*
+      - With one subject, use the infinitive: *Me alegro de verte*.
+      - Verbs like **molestar**, **sorprender** and **parecer** work like *gustar*: *me molesta*, *te sorprende*, *nos parece*.
+      - To agree: *estoy de acuerdo*, *tienes razón*. To disagree politely: *no estoy de acuerdo*, *yo no lo veo así*.
+    items:
+      - {id: es3-03-opinion, type: vocab, l2: "la opinión", l1: "the opinion",
+         ex: "En mi opinión, es demasiado caro.", ex_l1: "In my opinion, it's too expensive.",
+         note: "Nouns ending in -ión are feminine. Plural without the accent: las opiniones."}
+      - {id: es3-03-alegrarse, type: vocab, l2: "alegrarse", l1: "to be glad / to be pleased",
+         ex: "Me alegro mucho de verte.", ex_l1: "I'm very glad to see you.",
+         note: "alegrarse de + infinitive, or de que + subjunctive. ¡Me alegro! = I'm glad (to hear it)!"}
+      - {id: es3-03-molestar, type: vocab, l2: "molestar", l1: "to bother / to annoy",
+         ex: "¿Te molesta el ruido?", ex_l1: "Does the noise bother you?",
+         note: "False friend: nothing to do with 'molest'. Works like gustar: me molesta."}
+      - {id: es3-03-sorprender, type: vocab, l2: "sorprender", l1: "to surprise",
+         ex: "Me sorprende el precio.", ex_l1: "The price surprises me.",
+         note: "Works like gustar: me sorprende que + subjunctive."}
+      - {id: es3-03-dudar, type: vocab, l2: "dudar", l1: "to doubt",
+         ex: "Lo dudo mucho.", ex_l1: "I very much doubt it.",
+         note: "dudar que + subjunctive. But no dudo que (I don't doubt) usually takes the indicative."}
+      - {id: es3-03-miedo, type: vocab, l2: "el miedo", l1: "the fear",
+         ex: "Mi hijo tiene miedo de los perros.", ex_l1: "My son is afraid of dogs.",
+         note: "English 'is afraid' = tener miedo, like tener hambre. Also dar miedo: me da miedo volar."}
+      - {id: es3-03-seguro, type: vocab, l2: "seguro", l1: "sure, certain / safe (adjective, masculine)",
+         ex: "—¿Estás seguro? —Sí, segurísimo.", ex_l1: "“Are you sure?” “Yes, absolutely sure.”",
+         note: "estar seguro de que + indicative. Feminine: segura."}
+      - {id: es3-03-tener-razon, type: vocab, l2: "tener razón", l1: "to be right (about something)",
+         ex: "Mi padre siempre quiere tener razón.", ex_l1: "My father always wants to be right.",
+         note: "You 'have' reason in Spanish; never 'ser correcto' for a person."}
+      - {id: es3-03-de-acuerdo, type: vocab, l2: "estar de acuerdo", l1: "to agree (to be in agreement)",
+         ex: "No estoy de acuerdo con mi jefe.", ex_l1: "I don't agree with my boss.",
+         note: "Not 'yo acuerdo'. On its own, ¡De acuerdo! means 'OK, agreed!'"}
+      - {id: es3-03-parecer, type: vocab, l2: "parecer", l1: "to seem",
+         ex: "Me parece una buena idea.", ex_l1: "It seems like a good idea to me.",
+         note: "me parece que + indicative = I think that; no me parece que + subjunctive."}
+      - {id: es3-03-me-alegro-estes, type: phrase, l2: "Me alegro de que estés aquí.", l1: "I'm glad you're here. (informal)",
+         alt: ["Me alegra que estés aquí", "Me alegro de que estés acá"]}
+      - {id: es3-03-no-creo-verdad, type: phrase, l2: "No creo que sea verdad.", l1: "I don't think it's true.",
+         alt: ["No pienso que sea verdad", "No creo que sea cierto"], note: "no creo que → subjunctive. Compare: Creo que es verdad."}
+      - {id: es3-03-creo-tienes-razon, type: phrase, l2: "Creo que tienes razón.", l1: "I think you're right. (informal)",
+         alt: ["Pienso que tienes razón", "Me parece que tienes razón"]}
+      - {id: es3-03-que-pena, type: phrase, l2: "¡Qué pena que no puedas venir!", l1: "What a shame you can't come! (informal)",
+         alt: ["Qué lástima que no puedas venir"], note: "A reaction with a feeling → subjunctive (puedas)."}
+      - {id: es3-03-totalmente-de-acuerdo, type: phrase, l2: "Estoy totalmente de acuerdo contigo.",
+         l1: "I totally agree with you. (informal)", alt: ["Estoy completamente de acuerdo contigo"]}
+      - {id: es3-03-que-te-parece, type: phrase, l2: "¿Qué te parece?", l1: "What do you think (of it)? (informal, with parecer)",
+         note: "The everyday way to ask for an opinion; literally 'how does it seem to you?'"}
+      - {id: es3-03-me-da-igual, type: phrase, l2: "Me da igual.", l1: "I don't mind. / It's all the same to me.",
+         alt: ["Me da lo mismo", "Me es igual"], note: "Neutral when choosing between options; can sound cold as a reaction to bad news."}
+      - {id: es3-03-c1, type: cloze, text: "Creo que Luis ___ razón.", answer: "tiene",
+         l1: "I think Luis is right.", note: "creo que states a belief → indicative"}
+      - {id: es3-03-c2, type: cloze, text: "No creo que Marta ___ razón.", answer: "tenga",
+         l1: "I don't think Marta is right.", note: "no creo que expresses doubt → subjunctive"}
+      - {id: es3-03-c3, type: cloze, text: "Me molesta que la gente ___ en el cine.", answer: "hable",
+         l1: "It bothers me that people talk in the cinema.", note: "feeling + que → subjunctive; la gente is singular"}
+      - {id: es3-03-c4, type: cloze, text: "Dudo que nosotros ___ a tiempo.", answer: "lleguemos",
+         l1: "I doubt we'll arrive on time.", note: "dudar que → subjunctive; llegar → lleguemos. No future tense here"}
+      - {id: es3-03-c5, type: cloze, text: "Es posible que mañana ___.", answer: "llueva",
+         l1: "It's possible that it will rain tomorrow.", note: "es posible que → subjunctive; llover → llueva"}
+      - {id: es3-03-c6, type: cloze, text: "Me sorprende que no lo ___, Marta.", answer: "sepas",
+         l1: "I'm surprised you don't know, Marta.", note: "feeling + que → subjunctive; saber → sepas"}
+      - {id: es3-03-c7, type: cloze, text: "Es verdad que Pedro ___ mucho: está siempre en la oficina.", answer: "trabaja",
+         l1: "It's true that Pedro works a lot: he's always in the office.", note: "es verdad que states a fact → indicative"}
+      - {id: es3-03-c8, type: cloze, text: "Tengo miedo de que mis padres se ___ conmigo.", answer: "enfaden", alt: ["enojen"],
+         l1: "I'm afraid my parents will get angry with me.",
+         note: "tener miedo de que → subjunctive. Latin America: se enojen"}
+
+  # ---------------------------------------------------------------- 4
+  - id: es3-04
+    title: "When it happens: cuando + subjunctive, para que, hasta que"
+    goal: "I can talk about work and projects and say what will happen when, as soon as or before something else does."
+    notes: |
+      After **cuando**, Spanish separates what is already real from what has not happened yet.
+
+      | Time | Mood | Example |
+      | habit | indicative | Cuando **llego** a casa, ceno. |
+      | past | indicative | Cuando **llegué**, cené. |
+      | future | subjunctive | Cuando **llegue**, cenaré. |
+
+      - English says "when I arrive, I'll call"; Spanish needs the subjunctive: *Cuando llegue, te llamo*. Never the future tense after *cuando*.
+      - The same rule applies to **en cuanto** (as soon as), **hasta que** (until) and **después de que** (after).
+      - **antes de que** (before) and **para que** (so that) *always* take the subjunctive.
+      - With one subject, use the infinitive: *antes de salir*, *para aprender*, *después de comer*.
+      - In a question, *cuándo* (with an accent) takes the normal future: *¿Cuándo vendrás?*
+      - The main clause can be a present, a future or an imperative: *Cuando puedas, llámame*.
+    items:
+      - {id: es3-04-en-cuanto, type: vocab, l2: "en cuanto", l1: "as soon as", alt: ["tan pronto como", "apenas"],
+         ex: "En cuanto llegue, te aviso.", ex_l1: "As soon as I arrive, I'll let you know.",
+         note: "+ subjunctive for the future. Latin America also says apenas."}
+      - {id: es3-04-hasta-que, type: vocab, l2: "hasta que", l1: "until (+ a verb)",
+         ex: "Me quedo aquí hasta que vuelvas.", ex_l1: "I'm staying here until you come back.",
+         note: "hasta + noun (hasta el lunes); hasta que + verb."}
+      - {id: es3-04-para-que, type: vocab, l2: "para que", l1: "so that / in order that",
+         ex: "Te lo digo para que lo sepas.", ex_l1: "I'm telling you so that you know.",
+         note: "Always + subjunctive. Same subject: para + infinitive."}
+      - {id: es3-04-antes-de-que, type: vocab, l2: "antes de que", l1: "before (+ a verb with a different subject)", alt: ["antes que"],
+         ex: "Quiero hablar contigo antes de que te vayas.", ex_l1: "I want to talk to you before you leave.",
+         note: "Always + subjunctive. Same subject: antes de + infinitive."}
+      - {id: es3-04-jubilarse, type: vocab, l2: "jubilarse", l1: "to retire (from work)",
+         ex: "Mi padre se jubiló el año pasado.", ex_l1: "My father retired last year.",
+         note: "Reflexive. Latin America also says retirarse."}
+      - {id: es3-04-contrato, type: vocab, l2: "el contrato", l1: "the contract",
+         ex: "Tengo un contrato de un año.", ex_l1: "I have a one-year contract."}
+      - {id: es3-04-firmar, type: vocab, l2: "firmar", l1: "to sign",
+         ex: "Mañana firmamos el contrato.", ex_l1: "Tomorrow we sign the contract.",
+         note: "The signature is la firma. False friend: a firm (company) is una empresa."}
+      - {id: es3-04-encargarse, type: vocab, l2: "encargarse de", l1: "to take care of / to be in charge of (a task)",
+         ex: "Ana se encarga de los clientes.", ex_l1: "Ana takes care of the customers.",
+         note: "Reflexive + de. Subjunctive: me encargue."}
+      - {id: es3-04-puesto, type: vocab, l2: "el puesto", l1: "the position / the post (a job)",
+         ex: "Busco un puesto con un sueldo mejor.", ex_l1: "I'm looking for a position with a better salary.",
+         note: "Also a market stall. puesto is also the participle of poner."}
+      - {id: es3-04-entregar, type: vocab, l2: "entregar", l1: "to hand in / to deliver",
+         ex: "Tengo que entregar el proyecto el lunes.", ex_l1: "I have to hand in the project on Monday.",
+         note: "Spelling: entregué, subjunctive entregue."}
+      - {id: es3-04-equipo, type: vocab, l2: "el equipo", l1: "the team",
+         ex: "Trabajo en un equipo de seis personas.", ex_l1: "I work in a team of six people.",
+         note: "Also 'equipment'. trabajar en equipo = to work as a team."}
+      - {id: es3-04-cuando-llegue, type: phrase, l2: "Cuando llegue a casa, te llamo.",
+         l1: "When I get home, I'll call you. (informal)",
+         alt: ["Cuando llegue a casa, te llamaré", "Te llamo cuando llegue a casa", "Te llamaré cuando llegue a casa"],
+         note: "Future meaning → subjunctive after cuando. Not 'cuando llegaré'."}
+      - {id: es3-04-avisame-en-cuanto, type: phrase, l2: "Avísame en cuanto sepas algo.",
+         l1: "Let me know as soon as you know anything. (informal)",
+         alt: ["Avísame tan pronto como sepas algo", "Avísame apenas sepas algo"]}
+      - {id: es3-04-cuando-tenga-dinero, type: phrase, l2: "Cuando tenga dinero, me compraré un coche.",
+         l1: "When I have money, I'll buy myself a car.",
+         alt: ["Cuando tenga dinero, me voy a comprar un coche", "Cuando tenga dinero, me compraré un carro", "Cuando tenga dinero, me compro un coche"],
+         note: "Latin America: un carro or un auto."}
+      - {id: es3-04-para-que-entiendas, type: phrase, l2: "Te lo explico para que lo entiendas.",
+         l1: "I'm explaining it to you so that you understand it. (informal)", alt: ["Te lo explico para que lo comprendas"]}
+      - {id: es3-04-hasta-que-termine, type: phrase, l2: "Voy a esperar hasta que termine la reunión.",
+         l1: "I'm going to wait until the meeting ends.",
+         alt: ["Voy a esperar hasta que acabe la reunión", "Esperaré hasta que termine la reunión", "Voy a esperar hasta que la reunión termine"]}
+      - {id: es3-04-cuando-te-jubiles, type: phrase, l2: "¿Qué vas a hacer cuando te jubiles?",
+         l1: "What are you going to do when you retire? (informal)", alt: ["¿Qué harás cuando te jubiles?", "¿Qué vas a hacer cuando te retires?"]}
+      - {id: es3-04-yo-me-encargo, type: phrase, l2: "Yo me encargo.", l1: "I'll take care of it. / Leave it to me.",
+         alt: ["Me encargo yo", "Yo me encargo de eso", "Ya me encargo yo"],
+         note: "A present tense for an offer made on the spot, where English uses 'I'll'."}
+      - {id: es3-04-c1, type: cloze, text: "Cuando nosotros ___ el proyecto, iremos de vacaciones.", answer: "terminemos", alt: ["acabemos"],
+         l1: "When we finish the project, we'll go on holiday.", note: "future meaning → cuando + subjunctive"}
+      - {id: es3-04-c2, type: cloze, text: "Cuando yo ___ mayor, quiero vivir en el campo.", answer: "sea",
+         l1: "When I'm older, I want to live in the countryside.", note: "future meaning → cuando + subjunctive of ser"}
+      - {id: es3-04-c3, type: cloze, text: "Llámame antes de que ___ el tren.", answer: "salga",
+         l1: "Call me before the train leaves.", note: "antes de que always takes the subjunctive; salgo → salga"}
+      - {id: es3-04-c4, type: cloze, text: "Cuando ___ a Madrid, siempre visito a mis abuelos.", answer: "voy",
+         l1: "When I go to Madrid, I always visit my grandparents.", note: "a habit (siempre) → cuando + indicative"}
+      - {id: es3-04-c5, type: cloze, text: "Lo repito para que ustedes me ___.", answer: "entiendan", alt: ["comprendan"],
+         l1: "I'm repeating it so that you (plural) understand me.", note: "para que always takes the subjunctive"}
+      - {id: es3-04-c6, type: cloze, text: "No voy a firmar el contrato hasta que lo ___ mi abogado.", answer: "lea",
+         l1: "I'm not going to sign the contract until my lawyer reads it.", note: "hasta que + subjunctive for something still to come"}
+      - {id: es3-04-c7, type: cloze, text: "En cuanto ___ el sueldo, pagaré el alquiler.", answer: "reciba", alt: ["cobre"],
+         l1: "As soon as I receive my salary, I'll pay the rent.", note: "en cuanto + subjunctive for the future; recibir → reciba"}
+      - {id: es3-04-c8, type: cloze, text: "Cuando ___ a Ana ayer, estaba muy contenta.", answer: "vi",
+         l1: "When I saw Ana yesterday, she was very happy.", note: "a past event → cuando + indicative (indefinido)"}
+
+  # ---------------------------------------------------------------- 5
+  - id: es3-05
+    title: "Do and don't: the negative imperative and pronouns — health"
+    goal: "I can tell people what to do and what not to do, and give simple advice about health and lifestyle."
+    notes: |
+      The **negative imperative** borrows the present subjunctive: **no** + subjunctive.
+
+      | Person | Do it | Don't do it |
+      | tú | habla / come | no hables / no comas |
+      | usted | hable / coma | no hable / no coma |
+      | vosotros | hablad / comed | no habléis / no comáis |
+      | ustedes | hablen / coman | no hablen / no coman |
+
+      - Only the affirmative *tú* and *vosotros* forms are special; everything else is the subjunctive.
+      - Irregular *tú* commands become regular again in the negative: *di → no digas*, *haz → no hagas*, *ven → no vengas*, *pon → no pongas*.
+      - **Pronouns are glued to the end of an affirmative command**: *dímelo*, *siéntate*, *cómpralo*. Add an accent to keep the stress where it was.
+      - **Pronouns go before a negative command**: *no me lo digas*, *no te sientes*.
+      - Reflexive *vosotros* drops the **d**: *sentaos*. Latin America uses *ustedes* for any group: *siéntense*.
+    items:
+      - {id: es3-05-sentarse, type: vocab, l2: "sentarse", l1: "to sit down",
+         ex: "¿Puedo sentarme aquí?", ex_l1: "May I sit here?",
+         note: "Stem change e → ie: me siento. Me siento is also 'I feel' (from sentirse)."}
+      - {id: es3-05-cuidarse, type: vocab, l2: "cuidarse", l1: "to look after oneself / to take care of oneself",
+         ex: "Mi abuela se cuida mucho.", ex_l1: "My grandmother looks after herself very well.",
+         note: "cuidar (not reflexive) = to look after someone or something else."}
+      - {id: es3-05-relajarse, type: vocab, l2: "relajarse", l1: "to relax",
+         ex: "Los domingos me relajo en casa.", ex_l1: "On Sundays I relax at home.",
+         note: "Reflexive in Spanish: not just 'relajo'."}
+      - {id: es3-05-estres, type: vocab, l2: "el estrés", l1: "the stress",
+         ex: "Tengo mucho estrés en el trabajo.", ex_l1: "I have a lot of stress at work.",
+         note: "Spanish adds e- before s + consonant: estrés, estudiante, España. Adjective: estresado."}
+      - {id: es3-05-sano, type: vocab, l2: "sano", l1: "healthy (adjective, masculine)", alt: ["saludable"],
+         ex: "Es importante comer sano.", ex_l1: "It's important to eat healthily.",
+         note: "False friend: 'sane' is cuerdo. Feminine: sana."}
+      - {id: es3-05-dejar-de, type: vocab, l2: "dejar de", l1: "to stop / to give up (doing something)",
+         ex: "He dejado de fumar.", ex_l1: "I have stopped smoking.",
+         note: "dejar de + infinitive, never a gerund: not 'dejar fumando'."}
+      - {id: es3-05-hacer-ejercicio, type: vocab, l2: "hacer ejercicio", l1: "to exercise / to do exercise",
+         ex: "Hago ejercicio tres veces a la semana.", ex_l1: "I exercise three times a week.",
+         note: "No article. Not 'ejercitar'."}
+      - {id: es3-05-evitar, type: vocab, l2: "evitar", l1: "to avoid",
+         ex: "Hay que evitar el estrés.", ex_l1: "You have to avoid stress."}
+      - {id: es3-05-olvidar, type: vocab, l2: "olvidar", l1: "to forget", alt: ["olvidarse"],
+         ex: "No olvides tomar la pastilla.", ex_l1: "Don't forget to take the pill.",
+         note: "Also olvidarse de: no te olvides de tomar la pastilla."}
+      - {id: es3-05-consejo, type: vocab, l2: "el consejo", l1: "the piece of advice",
+         ex: "¿Me das un consejo?", ex_l1: "Can you give me some advice?",
+         note: "Countable in Spanish: un consejo, dos consejos."}
+      - {id: es3-05-no-me-digas, type: phrase, l2: "¡No me digas!", l1: "You don't say! / No way! (informal, surprise at news)",
+         note: "Literally 'don't tell me'. A very common reaction to gossip or surprising news."}
+      - {id: es3-05-dimelo, type: phrase, l2: "Dímelo, por favor.", l1: "Tell me (it), please. (informal)",
+         note: "di + me + lo, glued together, with an accent to keep the stress on di."}
+      - {id: es3-05-no-te-lo-pierdas, type: phrase, l2: "No te lo pierdas.", l1: "Don't miss it! (informal)",
+         note: "Negative command → pronouns go before the verb. perderse algo = to miss out on something."}
+      - {id: es3-05-sientate-aqui, type: phrase, l2: "Siéntate aquí.", l1: "Sit here. (informal)", alt: ["Siéntate acá"],
+         note: "Negative: no te sientes. Formal: siéntese."}
+      - {id: es3-05-no-tengas-miedo, type: phrase, l2: "No tengas miedo.", l1: "Don't be afraid. (informal)"}
+      - {id: es3-05-date-prisa, type: phrase, l2: "¡Date prisa!", l1: "Hurry up! (informal)", alt: ["Apúrate", "Apresúrate"],
+         note: "From darse prisa. Latin America says ¡Apúrate!"}
+      - {id: es3-05-cuidate-mucho, type: phrase, l2: "Cuídate mucho.", l1: "Take good care of yourself. (informal)",
+         note: "A warm way to end a call or a message."}
+      - {id: es3-05-no-se-preocupe, type: phrase, l2: "No se preocupe.", l1: "Don't worry. (formal)",
+         note: "You know the informal no te preocupes; this is the usted form."}
+      - {id: es3-05-c1, type: cloze, text: "No ___ tanto café, Luis.", answer: "bebas", alt: ["tomes"],
+         l1: "Don't drink so much coffee, Luis.", note: "negative tú command = no + subjunctive: beber → no bebas"}
+      - {id: es3-05-c2, type: cloze, text: "Señor, no ___ aquí, por favor.", answer: "fume",
+         l1: "Sir, don't smoke here, please.", note: "negative usted command: fumar → no fume"}
+      - {id: es3-05-c3, type: cloze, text: "Niños, no ___ en la calle.", answer: "juguéis",
+         l1: "Children, don't play in the street. (vosotros)", note: "jugar → no juguéis. Latin America: no jueguen"}
+      - {id: es3-05-c4, type: cloze, text: "No ___ nada a mi madre, por favor, Ana.", answer: "digas",
+         l1: "Don't say anything to my mother, please, Ana.", note: "di → no digas (digo → diga)"}
+      - {id: es3-05-c5, type: cloze, text: "Marta, no te ___ tarde esta noche.", answer: "acuestes",
+         l1: "Marta, don't go to bed late tonight.", note: "acostarse → no te acuestes: the pronoun goes before a negative command"}
+      - {id: es3-05-c6, type: cloze, text: "¿El libro? ___ en la mesa, por favor, Juan.", answer: "Ponlo", alt: ["Déjalo"],
+         l1: "The book? Put it on the table, please, Juan.", note: "affirmative command + pronoun in one word: pon + lo"}
+      - {id: es3-05-c7, type: cloze, text: "¿Estas pastillas? No ___ tomes con alcohol.", answer: "las",
+         l1: "These pills? Don't take them with alcohol.", note: "the object pronoun goes before a negative command"}
+      - {id: es3-05-c8, type: cloze, text: "___ usted, por favor, señora.", answer: "Siéntese",
+         l1: "Sit down, please, madam.", note: "sentarse, usted command: siente + se, with an accent"}
+
+  # ---------------------------------------------------------------- 6
+  - id: es3-06
+    title: "Would and could: the conditional — travel problems"
+    goal: "I can make polite requests, give advice, say what I would like, and deal with delays, cancellations and complaints."
+    notes: |
+      The **condicional** means "would". Add one set of endings to the whole infinitive, for -ar, -er and -ir verbs alike.
+
+      | Pronoun | hablar | Irregular stems |
+      | yo | hablaría | tener → tendría |
+      | tú | hablarías | poder → podría |
+      | él / ella / usted | hablaría | hacer → haría |
+      | nosotros | hablaríamos | decir → diría |
+      | vosotros | hablaríais | salir → saldría |
+      | ellos / ustedes | hablarían | venir → vendría |
+
+      - The irregular stems are the ones you know from the future: also *querría*, *sabría*, *pondría*, *habría*.
+      - **Politeness**: *¿Podría…?*, *¿Te importaría…?*, *Me gustaría…*
+      - **Advice**: *Yo que tú, hablaría con él*; *Deberías descansar*; *Podrías llamar*.
+      - **Wishes**: *Me encantaría ir*.
+      - English "would" for a past habit ("we would go every summer") is the imperfecto, not the condicional: *íbamos*.
+      - Every form has an accent on the **í**.
+    items:
+      - {id: es3-06-retraso, type: vocab, l2: "el retraso", l1: "the delay", alt: ["la demora"],
+         ex: "El vuelo tiene dos horas de retraso.", ex_l1: "The flight is two hours late.",
+         note: "con retraso = late. Latin America also says la demora."}
+      - {id: es3-06-cancelar, type: vocab, l2: "cancelar", l1: "to cancel",
+         ex: "Tengo que cancelar la reserva.", ex_l1: "I have to cancel the booking."}
+      - {id: es3-06-averia, type: vocab, l2: "la avería", l1: "the breakdown (of a car or machine)",
+         ex: "Tuvimos una avería cerca de Burgos.", ex_l1: "We had a breakdown near Burgos.",
+         note: "estar averiado = to be out of order. Latin America often says descompuesto."}
+      - {id: es3-06-huelga, type: vocab, l2: "la huelga", l1: "the strike (workers stop working)",
+         ex: "Mañana hay huelga de trenes.", ex_l1: "There is a train strike tomorrow.",
+         note: "estar en huelga = to be on strike. The h is silent."}
+      - {id: es3-06-quejarse, type: vocab, l2: "quejarse", l1: "to complain",
+         ex: "Mi vecino se queja del ruido.", ex_l1: "My neighbour complains about the noise.",
+         note: "Always reflexive; quejarse de = to complain about."}
+      - {id: es3-06-reclamacion, type: vocab, l2: "la reclamación", l1: "the (formal) complaint / the claim", alt: ["el reclamo", "la queja"],
+         ex: "Escribí una reclamación al hotel.", ex_l1: "I wrote a complaint to the hotel.",
+         note: "In Spain every business must have an hoja de reclamaciones. Latin America: el reclamo."}
+      - {id: es3-06-mostrador, type: vocab, l2: "el mostrador", l1: "the counter / the desk (in an airport or shop)",
+         ex: "Pregunte en el mostrador, por favor.", ex_l1: "Ask at the desk, please."}
+      - {id: es3-06-facturar, type: vocab, l2: "facturar", l1: "to check in (luggage at the airport)", alt: ["documentar", "despachar"],
+         ex: "Quiero facturar dos maletas.", ex_l1: "I want to check in two suitcases.",
+         note: "Spain. Mexico says documentar; other countries despachar or registrar."}
+      - {id: es3-06-seguro, type: vocab, l2: "el seguro", l1: "the insurance",
+         ex: "¿Tienes seguro de viaje?", ex_l1: "Do you have travel insurance?",
+         note: "The noun; as an adjective seguro means sure or safe."}
+      - {id: es3-06-hacer-cola, type: vocab, l2: "hacer cola", l1: "to queue / to stand in line", alt: ["hacer fila"],
+         ex: "Hicimos cola durante una hora.", ex_l1: "We queued for an hour.",
+         note: "Latin America often says hacer fila."}
+      - {id: es3-06-me-gustaria-cambiar, type: phrase, l2: "Me gustaría cambiar el billete.",
+         l1: "I would like to change my ticket. (a travel ticket)",
+         alt: ["Me gustaría cambiar el boleto", "Me gustaría cambiar el pasaje", "Quisiera cambiar el billete", "Me gustaría cambiar mi billete"],
+         note: "Latin America: el boleto or el pasaje."}
+      - {id: es3-06-podria-ayudarme, type: phrase, l2: "¿Podría ayudarme, por favor?", l1: "Could you help me, please? (formal)",
+         alt: ["¿Me podría ayudar, por favor?"], note: "Softer than ¿Puede ayudarme?"}
+      - {id: es3-06-yo-que-tu, type: phrase, l2: "Yo que tú, hablaría con el jefe.", l1: "If I were you, I'd talk to the boss. (informal)",
+         alt: ["Yo en tu lugar, hablaría con el jefe", "Si yo fuera tú, hablaría con el jefe", "Si fuera tú, hablaría con el jefe", "Yo que tú hablaría con el jefe"],
+         note: "Yo que tú + condicional is the everyday way to give advice."}
+      - {id: es3-06-te-importaria, type: phrase, l2: "¿Te importaría cerrar la ventana?",
+         l1: "Would you mind closing the window? (informal)", alt: ["¿Te importa cerrar la ventana?"]}
+      - {id: es3-06-han-cancelado, type: phrase, l2: "Han cancelado mi vuelo.", l1: "My flight has been cancelled. (they have cancelled it)",
+         alt: ["Me han cancelado el vuelo", "Cancelaron mi vuelo", "Me cancelaron el vuelo"],
+         note: "Spanish prefers 'they have cancelled' to an English-style passive."}
+      - {id: es3-06-poner-reclamacion, type: phrase, l2: "Quiero poner una reclamación.", l1: "I want to make a formal complaint.",
+         alt: ["Quiero hacer una reclamación", "Quiero presentar una reclamación", "Quiero poner un reclamo", "Quiero presentar un reclamo"]}
+      - {id: es3-06-me-encantaria, type: phrase, l2: "Me encantaría, pero no puedo.", l1: "I'd love to, but I can't."}
+      - {id: es3-06-lleva-retraso, type: phrase, l2: "El tren lleva una hora de retraso.", l1: "The train is running an hour late.",
+         alt: ["El tren tiene una hora de retraso", "El tren viene con una hora de retraso"]}
+      - {id: es3-06-c1, type: cloze, text: "Yo ___ en el campo, pero mi trabajo está en la ciudad.", answer: "viviría",
+         l1: "I would live in the countryside, but my job is in the city.", note: "vivir + -ía → (yo) viviría"}
+      - {id: es3-06-c2, type: cloze, text: "¿Qué ___ tú en mi lugar?", answer: "harías",
+         l1: "What would you do in my place?", note: "hacer → har- (irregular stem) → (tú) harías"}
+      - {id: es3-06-c3, type: cloze, text: "Nosotros ___ más, pero no tenemos dinero.", answer: "viajaríamos",
+         l1: "We would travel more, but we have no money.", note: "viajar + -íamos"}
+      - {id: es3-06-c4, type: cloze, text: "Perdone, ¿___ usted un momento, por favor?", answer: "tendría",
+         l1: "Excuse me, would you have a moment, please?", note: "tener → tendr- → (usted) tendría: the polite conditional"}
+      - {id: es3-06-c5, type: cloze, text: "Mis padres ___ que no.", answer: "dirían",
+         l1: "My parents would say no.", note: "decir → dir- → (ellos) dirían"}
+      - {id: es3-06-c6, type: cloze, text: "Con más tiempo, ella ___ venir.", answer: "podría",
+         l1: "With more time, she could (would be able to) come.", note: "poder → podr- → (ella) podría"}
+      - {id: es3-06-c7, type: cloze, text: "Me ___ vivir en el extranjero.", answer: "gustaría", alt: ["encantaría"],
+         l1: "I would like to live abroad.", note: "me gustaría + infinitive = I would like to"}
+      - {id: es3-06-c8, type: cloze, text: "¿Vosotros ___ de casa sin paraguas con esta lluvia?", answer: "saldríais",
+         l1: "Would you (plural, informal) leave the house without an umbrella in this rain?",
+         note: "salir → saldr- → (vosotros) saldríais. Latin America: ustedes saldrían"}
+
+  # ---------------------------------------------------------------- 7
+  - id: es3-07
+    title: "What had happened: the pluscuamperfecto — telling anecdotes"
+    goal: "I can tell an anecdote and make clear what had already happened before something else in the past."
+    notes: |
+      The **pluscuamperfecto** is the "past of the past": English "had done". Use the imperfecto of **haber** plus a past participle.
+
+      | Pronoun | haber | + participle |
+      | yo | había | llegado |
+      | tú | habías | comido |
+      | él / ella / usted | había | salido |
+      | nosotros | habíamos | llegado |
+      | vosotros | habíais | comido |
+      | ellos / ustedes | habían | salido |
+
+      - It marks the earlier of two past actions: *Cuando llegué, el tren ya había salido*.
+      - Typical partners: *ya*, *todavía no*, *nunca*, *antes*.
+      - Nothing goes between *haber* and the participle: *ya lo había visto*, *se habían ido*.
+      - More irregular participles: *abierto* (abrir), *roto* (romper), *muerto* (morir), *vuelto* (volver), *puesto* (poner), *dicho* (decir).
+      - *yo* and *él* share the form **había**; add the pronoun if it is not clear who you mean.
+      - In a story: the indefinido moves the action on, the imperfecto paints the scene, the pluscuamperfecto looks back.
+    items:
+      - {id: es3-07-darse-cuenta, type: vocab, l2: "darse cuenta", l1: "to realise / to notice",
+         ex: "No me di cuenta de la hora.", ex_l1: "I didn't notice the time.",
+         note: "darse cuenta de (que). False friend: realizar means to carry out, not to realise."}
+      - {id: es3-07-acordarse, type: vocab, l2: "acordarse", l1: "to remember (reflexive, takes de)",
+         ex: "No me acuerdo de su nombre.", ex_l1: "I don't remember his name.",
+         note: "acordarse de algo = recordar algo. Stem change o → ue: me acuerdo."}
+      - {id: es3-07-tardar, type: vocab, l2: "tardar", l1: "to take (a length of time) / to be long",
+         ex: "Tardamos tres horas en llegar.", ex_l1: "It took us three hours to arrive.",
+         note: "tardar + time + en + infinitive. ¡No tardes! = Don't be long!"}
+      - {id: es3-07-equivocarse, type: vocab, l2: "equivocarse", l1: "to make a mistake / to be wrong",
+         ex: "Me equivoqué de autobús.", ex_l1: "I got on the wrong bus.",
+         note: "equivocarse de + noun = to get the wrong one. Spelling: me equivoqué."}
+      - {id: es3-07-al-principio, type: vocab, l2: "al principio", l1: "at first / at the beginning",
+         ex: "Al principio no entendía nada.", ex_l1: "At first I didn't understand anything.",
+         note: "The opposite of al final."}
+      - {id: es3-07-por-fin, type: vocab, l2: "por fin", l1: "at last / finally (after a wait)",
+         ex: "¡Por fin has llegado!", ex_l1: "You've arrived at last!",
+         note: "por fin expresses relief; al final just says how things ended."}
+      - {id: es3-07-resulta-que, type: vocab, l2: "resulta que", l1: "it turns out that",
+         ex: "Resulta que el hotel estaba cerrado.", ex_l1: "It turns out that the hotel was closed.",
+         note: "A very common way to introduce the surprising part of a story."}
+      - {id: es3-07-sin-querer, type: vocab, l2: "sin querer", l1: "by accident / without meaning to",
+         ex: "Lo rompí sin querer.", ex_l1: "I broke it by accident.",
+         note: "Literally 'without wanting'. The opposite: a propósito (on purpose)."}
+      - {id: es3-07-menos-mal, type: vocab, l2: "menos mal", l1: "thank goodness / just as well",
+         ex: "—He encontrado las llaves. —¡Menos mal!", ex_l1: "“I've found the keys.” “Thank goodness!”",
+         note: "menos mal que + indicative, never the subjunctive."}
+      - {id: es3-07-roto, type: vocab, l2: "roto", l1: "broken (irregular past participle of romper)",
+         ex: "El ascensor está roto.", ex_l1: "The lift is broken.",
+         note: "Not 'rompido'. As an adjective it agrees: la ventana está rota."}
+      - {id: es3-07-ya-se-habian-ido, type: phrase, l2: "Cuando llegué, ya se habían ido.",
+         l1: "When I arrived, they had already left.", alt: ["Cuando llegué, ya se habían marchado", "Cuando llegué, ya habían salido"]}
+      - {id: es3-07-nunca-habia-visto, type: phrase, l2: "Nunca había visto nada igual.", l1: "I had never seen anything like it.",
+         alt: ["Nunca había visto nada parecido", "No había visto nunca nada igual", "Nunca había visto algo igual"]}
+      - {id: es3-07-me-di-cuenta, type: phrase, l2: "Me di cuenta de que había olvidado las llaves.",
+         l1: "I realised that I had forgotten my keys.",
+         alt: ["Me di cuenta de que me había olvidado las llaves", "Me di cuenta de que me había dejado las llaves", "Me di cuenta de que me había olvidado de las llaves"]}
+      - {id: es3-07-a-que-no-sabes, type: phrase, l2: "¿A que no sabes qué me pasó?",
+         l1: "You'll never guess what happened to me! (informal, starts ¿A que no sabes…)",
+         alt: ["¿A que no sabes lo que me pasó?", "¿A que no sabes qué me ha pasado?"],
+         note: "¿A que…? is a spoken challenge: 'I bet you don't know…'"}
+      - {id: es3-07-menos-mal-que, type: phrase, l2: "Menos mal que no pasó nada.", l1: "Thank goodness nothing happened.",
+         alt: ["Menos mal que no ha pasado nada"]}
+      - {id: es3-07-ya-te-lo-habia-dicho, type: phrase, l2: "Ya te lo había dicho.", l1: "I had already told you. (informal)",
+         alt: ["Ya te lo había dicho yo", "Te lo había dicho ya"]}
+      - {id: es3-07-me-he-equivocado, type: phrase, l2: "Perdona, me he equivocado.", l1: "Sorry, I've made a mistake. (informal)",
+         alt: ["Perdón, me he equivocado", "Perdona, me equivoqué", "Perdón, me equivoqué", "Lo siento, me he equivocado"],
+         note: "Also what you say when you dial a wrong number."}
+      - {id: es3-07-c1, type: cloze, text: "Cuando llegamos al cine, la película ya ___ empezado.", answer: "había",
+         l1: "When we got to the cinema, the film had already started.", note: "haber, imperfecto → (ella) había + participle"}
+      - {id: es3-07-c2, type: cloze, text: "¿Tú ya ___ estado en México antes de ese viaje?", answer: "habías",
+         l1: "Had you already been to Mexico before that trip?", note: "haber → (tú) habías"}
+      - {id: es3-07-c3, type: cloze, text: "No teníamos hambre porque ya ___ comido.", answer: "habíamos",
+         l1: "We weren't hungry because we had already eaten.", note: "haber → (nosotros) habíamos"}
+      - {id: es3-07-c4, type: cloze, text: "Mis amigos nunca ___ probado el gazpacho.", answer: "habían",
+         l1: "My friends had never tried gazpacho.", note: "haber → (ellos) habían"}
+      - {id: es3-07-c5, type: cloze, text: "¿Vosotros ya ___ cenado cuando os llamé?", answer: "habíais",
+         l1: "Had you (plural, informal) already had dinner when I called you?",
+         note: "haber → (vosotros) habíais. Latin America: ¿ustedes ya habían cenado?"}
+      - {id: es3-07-c6, type: cloze, text: "Cuando llegué a la tienda, todavía no habían ___.", answer: "abierto",
+         l1: "When I got to the shop, they hadn't opened yet.", note: "abrir → abierto (irregular participle)"}
+      - {id: es3-07-c7, type: cloze, text: "No pude leer porque se me habían ___ las gafas.", answer: "roto",
+         l1: "I couldn't read because my glasses had broken.", note: "romper → roto (irregular participle); it does not agree after haber"}
+      - {id: es3-07-c8, type: cloze, text: "Estaba cansado porque había ___ muy tarde del trabajo.", answer: "vuelto", alt: ["regresado", "llegado"],
+         l1: "I was tired because I had come back from work very late.", note: "volver → vuelto (irregular participle)"}
+
+  # ---------------------------------------------------------------- 8
+  - id: es3-08
+    title: "If…: real and imagined conditions — society and environment"
+    goal: "I can say what happens if something is the case and what I would do if things were different."
+    notes: |
+      Spanish has two everyday kinds of **si** sentence.
+
+      | Kind | si + … | Result | Example |
+      | real, possible | presente | presente / futuro / imperativo | Si **llueve**, me quedo. |
+      | imagined, unlikely | imperfecto de subjuntivo | condicional | Si **tuviera** dinero, viajaría. |
+
+      - Never put the future, the conditional or the present subjunctive straight after *si*: not *si tendré*, not *si tenga*.
+      - Build the **imperfecto de subjuntivo** from the *ellos* form of the indefinido: drop **-ron**, add **-ra**: *tuvieron → tuviera*, *hablaron → hablara*, *fueron → fuera*.
+      - The ones you will hear most: **tuviera**, **fuera** (ser and ir), **pudiera**, **estuviera**, **supiera**, **hubiera**.
+      - Endings: *-ra, -ras, -ra, -ramos, -rais, -ran*; the *nosotros* form takes an accent: *tuviéramos*.
+      - A second set in **-se** (*tuviese*, *fuese*) means exactly the same.
+      - The two halves can swap places: *Viajaría más si tuviera tiempo*.
+    items:
+      - {id: es3-08-medio-ambiente, type: vocab, l2: "el medio ambiente", l1: "the environment (nature)",
+         ex: "Hay que cuidar el medio ambiente.", ex_l1: "We must look after the environment.",
+         note: "Two words. Your surroundings in general are el entorno."}
+      - {id: es3-08-reciclar, type: vocab, l2: "reciclar", l1: "to recycle",
+         ex: "En casa reciclamos todo el plástico.", ex_l1: "At home we recycle all the plastic."}
+      - {id: es3-08-basura, type: vocab, l2: "la basura", l1: "the rubbish / the garbage",
+         ex: "¿Puedes sacar la basura?", ex_l1: "Can you take the rubbish out?",
+         note: "sacar la basura = to take the rubbish out. Not used in the plural."}
+      - {id: es3-08-cambio-climatico, type: vocab, l2: "el cambio climático", l1: "climate change",
+         ex: "El cambio climático es un problema muy serio.", ex_l1: "Climate change is a very serious problem.",
+         note: "Spanish needs the article when you talk about something in general."}
+      - {id: es3-08-ahorrar, type: vocab, l2: "ahorrar", l1: "to save (money, energy, time)",
+         ex: "Estoy ahorrando para comprar un piso.", ex_l1: "I'm saving up to buy a flat.",
+         note: "To save a person is salvar; to save a file is guardar."}
+      - {id: es3-08-gastar, type: vocab, l2: "gastar", l1: "to spend (money) / to use up",
+         ex: "Gasto demasiado en ropa.", ex_l1: "I spend too much on clothes.",
+         note: "You gastar money but pasar time."}
+      - {id: es3-08-gobierno, type: vocab, l2: "el gobierno", l1: "the government",
+         ex: "El gobierno quiere subir los precios.", ex_l1: "The government wants to raise prices."}
+      - {id: es3-08-paro, type: vocab, l2: "el paro", l1: "unemployment (with its article)", alt: ["el desempleo"],
+         ex: "Mi hermano está en paro.", ex_l1: "My brother is unemployed.",
+         note: "estar en paro = to be out of work. Latin America, and formal Spanish everywhere, says el desempleo."}
+      - {id: es3-08-vivienda, type: vocab, l2: "la vivienda", l1: "housing / the home (as a social issue)",
+         ex: "El precio de la vivienda sube todos los años.", ex_l1: "The price of housing goes up every year."}
+      - {id: es3-08-proteger, type: vocab, l2: "proteger", l1: "to protect",
+         ex: "Esta ley protege a los animales.", ex_l1: "This law protects animals.",
+         note: "Spelling: yo protejo, subjunctive proteja."}
+      - {id: es3-08-si-puedo, type: phrase, l2: "Si puedo, te ayudo.", l1: "If I can, I'll help you. (informal)",
+         alt: ["Si puedo, te ayudaré", "Te ayudo si puedo"], note: "A real condition: si + present. Never 'si podré'."}
+      - {id: es3-08-si-tuviera-tiempo, type: phrase, l2: "Si tuviera más tiempo, viajaría más.",
+         l1: "If I had more time, I would travel more.", alt: ["Si tuviese más tiempo, viajaría más", "Viajaría más si tuviera más tiempo"]}
+      - {id: es3-08-si-yo-fuera-tu, type: phrase, l2: "Si yo fuera tú, no lo haría.", l1: "If I were you, I wouldn't do it. (informal, with si)",
+         alt: ["Si fuera tú, no lo haría", "Si yo fuese tú, no lo haría", "Si fuese tú, no lo haría"]}
+      - {id: es3-08-loteria, type: phrase, l2: "¿Qué harías si te tocara la lotería?",
+         l1: "What would you do if you won the lottery? (informal)",
+         alt: ["¿Qué harías si ganaras la lotería?", "¿Qué harías si te tocase la lotería?", "¿Qué harías si te ganaras la lotería?"],
+         note: "tocarle a alguien la lotería: the prize 'falls to' you. Latin America also says ganarse la lotería."}
+      - {id: es3-08-si-llueve, type: phrase, l2: "Si llueve, nos quedamos en casa.", l1: "If it rains, we'll stay at home.",
+         alt: ["Si llueve, nos quedaremos en casa", "Nos quedamos en casa si llueve"]}
+      - {id: es3-08-si-pudiera, type: phrase, l2: "Si pudiera, viviría cerca del mar.", l1: "If I could, I would live near the sea.",
+         alt: ["Si pudiese, viviría cerca del mar"]}
+      - {id: es3-08-cuidar-planeta, type: phrase, l2: "Tenemos que cuidar el planeta.", l1: "We have to look after the planet.",
+         alt: ["Debemos cuidar el planeta", "Tenemos que cuidar del planeta"], note: "el planeta is masculine although it ends in -a."}
+      - {id: es3-08-c1, type: cloze, text: "Si ___ tiempo mañana, te llamo.", answer: "tengo",
+         l1: "If I have time tomorrow, I'll call you.", note: "real condition: si + present indicative"}
+      - {id: es3-08-c2, type: cloze, text: "Si ___ dinero, compraría una casa.", answer: "tuviera", alt: ["tuviese"],
+         l1: "If I had money, I would buy a house.", note: "imagined condition: si + imperfecto de subjuntivo (tuvieron → tuviera)"}
+      - {id: es3-08-c3, type: cloze, text: "Si yo ___ más joven, aprendería a bailar.", answer: "fuera", alt: ["fuese"],
+         l1: "If I were younger, I would learn to dance.", note: "ser: fueron → fuera"}
+      - {id: es3-08-c4, type: cloze, text: "Si no reciclamos, ___ más basura.", answer: "habrá",
+         l1: "If we don't recycle, there will be more rubbish.", note: "real condition → the result can be in the future: hay → habrá"}
+      - {id: es3-08-c5, type: cloze, text: "Si ___ a Madrid, ven a verme.", answer: "vienes",
+         l1: "If you come to Madrid, come and see me.", note: "real condition: si + present, result in the imperative"}
+      - {id: es3-08-c6, type: cloze, text: "Si ___ hablar bien español, trabajaría en Chile.", answer: "supiera", alt: ["supiese"],
+         l1: "If I knew how to speak Spanish well, I would work in Chile.", note: "saber: supieron → supiera"}
+      - {id: es3-08-c7, type: cloze, text: "Si todos usáramos menos el coche, ___ menos contaminación.", answer: "habría",
+         l1: "If we all used the car less, there would be less pollution.", note: "imagined condition → result in the conditional: hay → habría"}
+      - {id: es3-08-c8, type: cloze, text: "Si ___ en la playa ahora, estaría más contento.", answer: "estuviera", alt: ["estuviese"],
+         l1: "If I were at the beach now, I would be happier.", note: "estar: estuvieron → estuviera"}
+
+  # ---------------------------------------------------------------- 9
+  - id: es3-09
+    title: "The one that…: relative clauses — books, films and art"
+    goal: "I can describe people, places and things with que, quien, donde and lo que, and talk about a book, film or exhibition."
+    notes: |
+      A relative clause adds information about a noun. English often drops "that"; Spanish **never** drops **que**: *el libro que leo* = "the book I'm reading".
+
+      | Word | Use | Example |
+      | que | people and things | la chica **que** vive aquí |
+      | quien / quienes | people, after a preposition | el amigo con **quien** vivo |
+      | donde | places | el bar **donde** quedamos |
+      | lo que | "what", "the thing that" | No sé **lo que** quiere. |
+      | el que / la que | "the one that" | Me gusta **la que** es azul. |
+
+      - A preposition can never be left at the end as in English. It goes in front: *la película de la que te hablé* = "the film I told you about".
+      - After a preposition, things take **el que / la que / los que / las que**; people can take those or **quien**.
+      - **lo que** refers to an idea, not to a noun: *Lo que necesito es dormir*.
+      - If the person or thing is not yet known to exist, use the subjunctive: *Busco un piso que tenga terraza*.
+    items:
+      - {id: es3-09-entrada, type: vocab, l2: "la entrada", l1: "the ticket (for a concert, film or museum) / the entrance",
+         alt: ["el boleto", "el ticket"],
+         ex: "He comprado dos entradas para el concierto.", ex_l1: "I have bought two tickets for the concert.",
+         note: "Spain: entrada for events, billete for transport. Latin America uses el boleto for both."}
+      - {id: es3-09-obra, type: vocab, l2: "la obra", l1: "the play (theatre) / the work (of art)", alt: ["la obra de teatro"],
+         ex: "Vimos una obra muy divertida.", ex_l1: "We saw a very funny play.",
+         note: "In full, la obra de teatro. en obras = under construction."}
+      - {id: es3-09-novela, type: vocab, l2: "la novela", l1: "the novel",
+         ex: "Estoy leyendo una novela que me encanta.", ex_l1: "I'm reading a novel that I love.",
+         note: "In Latin America la novela is also a TV soap (la telenovela)."}
+      - {id: es3-09-escritor, type: vocab, l2: "el escritor", l1: "the writer (male)",
+         ex: "Es un escritor que vivió en París.", ex_l1: "He is a writer who lived in Paris.",
+         note: "Feminine: la escritora."}
+      - {id: es3-09-cuadro, type: vocab, l2: "el cuadro", l1: "the painting / the picture (on a wall)",
+         ex: "Ese cuadro es de Picasso.", ex_l1: "That painting is by Picasso.",
+         note: "'By' an artist or author is de, not por."}
+      - {id: es3-09-exposicion, type: vocab, l2: "la exposición", l1: "the exhibition",
+         ex: "Fuimos a una exposición de fotos.", ex_l1: "We went to a photo exhibition.",
+         note: "False friend: exhibición exists but usually means a display or show."}
+      - {id: es3-09-personaje, type: vocab, l2: "el personaje", l1: "the character (in a story or film)",
+         ex: "Mi personaje favorito es la abuela.", ex_l1: "My favourite character is the grandmother.",
+         note: "Masculine even for a woman (-aje). carácter means personality."}
+      - {id: es3-09-cancion, type: vocab, l2: "la canción", l1: "the song",
+         ex: "¿Cómo se llama esta canción?", ex_l1: "What is this song called?",
+         note: "Plural without the accent: las canciones."}
+      - {id: es3-09-argumento, type: vocab, l2: "el argumento", l1: "the plot (of a book or film)", alt: ["la trama"],
+         ex: "El argumento es muy sencillo.", ex_l1: "The plot is very simple.",
+         note: "Also a reason in a debate, but never a quarrel: that is una discusión."}
+      - {id: es3-09-tratar-de, type: vocab, l2: "tratar de", l1: "to be about (a book, a film) / to try to",
+         ex: "La película trata de una familia.", ex_l1: "The film is about a family.",
+         note: "tratar de + noun = to be about; tratar de + infinitive = to try to."}
+      - {id: es3-09-no-entiendo-lo-que, type: phrase, l2: "No entiendo lo que dices.",
+         l1: "I don't understand what you're saying. (informal)", alt: ["No entiendo lo que estás diciendo", "No comprendo lo que dices"],
+         note: "'what' = lo que when it is not a question. Not 'qué dices' here."}
+      - {id: es3-09-pelicula-de-la-que, type: phrase, l2: "Es la película de la que te hablé.",
+         l1: "It's the film I told you about. (informal)", alt: ["Esa es la película de la que te hablé", "Es la peli de la que te hablé"],
+         note: "The preposition moves to the front: hablar de → de la que."}
+      - {id: es3-09-lo-que-mas, type: phrase, l2: "Lo que más me gusta es el final.", l1: "What I like most is the ending.",
+         alt: ["Lo que me gusta más es el final"]}
+      - {id: es3-09-donde-se-come, type: phrase, l2: "Es un sitio donde se come muy bien.",
+         l1: "It's a place where the food is very good. (where one eats very well)", alt: ["Es un lugar donde se come muy bien"]}
+      - {id: es3-09-de-que-trata, type: phrase, l2: "¿De qué trata la novela?", l1: "What is the novel about?",
+         alt: ["¿De qué va la novela?", "¿De qué se trata la novela?"], note: "Colloquial Spain: ¿De qué va?"}
+      - {id: es3-09-busco-alguien-que, type: phrase, l2: "Busco a alguien que hable inglés.",
+         l1: "I'm looking for someone who speaks English.",
+         note: "You don't know whether such a person exists → subjunctive. Personal a before alguien."}
+      - {id: es3-09-haz-lo-que-quieras, type: phrase, l2: "Haz lo que quieras.", l1: "Do whatever you want. (informal)",
+         note: "Subjunctive because 'whatever' is still open. Tone decides whether it is generous or annoyed."}
+      - {id: es3-09-c1, type: cloze, text: "El libro ___ estoy leyendo es muy interesante.", answer: "que",
+         l1: "The book I'm reading is very interesting.", note: "que can never be left out in Spanish"}
+      - {id: es3-09-c2, type: cloze, text: "Esta es la ciudad ___ nací.", answer: "donde",
+         l1: "This is the city where I was born.", note: "donde for places; no accent because it is not a question"}
+      - {id: es3-09-c3, type: cloze, text: "La chica con ___ vivo es de Chile.", answer: "quien",
+         l1: "The girl I live with is from Chile.", note: "preposition + quien for one person; the preposition goes first"}
+      - {id: es3-09-c4, type: cloze, text: "___ que necesito es un café.", answer: "Lo",
+         l1: "What I need is a coffee.", note: "lo que = what / the thing that"}
+      - {id: es3-09-c5, type: cloze, text: "Los amigos con ___ viajé son muy simpáticos.", answer: "quienes",
+         l1: "The friends I travelled with are very nice.", note: "quien has a plural: quienes"}
+      - {id: es3-09-c6, type: cloze, text: "De estas dos camisas, prefiero ___ que es azul.", answer: "la",
+         l1: "Of these two shirts, I prefer the one that is blue.", note: "la que = the one that (feminine singular: camisa)"}
+      - {id: es3-09-c7, type: cloze, text: "Este cuadro es ___ que más me gusta de la exposición.", answer: "el",
+         l1: "This painting is the one I like most in the exhibition.", note: "el que = the one that (masculine singular: cuadro)"}
+      - {id: es3-09-c8, type: cloze, text: "Necesito un piso que ___ dos habitaciones.", answer: "tenga",
+         l1: "I need a flat that has two bedrooms.", note: "a flat I haven't found yet → subjunctive"}
+
+  # ---------------------------------------------------------------- 10
+  - id: es3-10
+    title: "She said that…: reported speech — news and technology"
+    goal: "I can pass on what someone said, asked or told me to do, and talk about news, messages and social media."
+    notes: |
+      To report words, use **decir que** (statements), **preguntar si / qué / dónde…** (questions) and **decir que + subjunctive** (orders).
+
+      When the reporting verb is in the past (*dijo*, *me preguntó*), the tense moves one step back:
+
+      | Direct speech | Reported |
+      | «**Estoy** cansado.» | Dijo que **estaba** cansado. |
+      | «**He** terminado.» | Dijo que **había** terminado. |
+      | «**Llegué** tarde.» | Dijo que **había llegado** tarde. |
+      | «**Iré** mañana.» | Dijo que **iría** al día siguiente. |
+
+      - With a present reporting verb nothing shifts: *Dice que está cansado*.
+      - *que* is never dropped: "she says she's coming" = *dice **que** viene*.
+      - Questions keep their accent: *Me preguntó **dónde** vivía*. A yes/no question takes **si**.
+      - An order becomes a subjunctive: *«Llámame.» → Dice que la llames*.
+      - Pronouns and time words shift with the speaker: *mañana → al día siguiente*, *aquí → allí*.
+      - **decir** tells information; **contar** tells a story; **hablar** never takes *que*.
+    items:
+      - {id: es3-10-noticia, type: vocab, l2: "la noticia", l1: "the piece of news / the news item",
+         ex: "Tengo una buena noticia.", ex_l1: "I have some good news.",
+         note: "Countable: una noticia. The news programme is las noticias."}
+      - {id: es3-10-periodista, type: vocab, l2: "el periodista", l1: "the journalist (male)",
+         ex: "Mi hermano es periodista.", ex_l1: "My brother is a journalist.",
+         note: "The -ista ending never changes; only the article does: la periodista."}
+      - {id: es3-10-redes-sociales, type: vocab, l2: "las redes sociales", l1: "social media / social networks",
+         ex: "No uso mucho las redes sociales.", ex_l1: "I don't use social media much.",
+         note: "la red = the net; la Red = the internet."}
+      - {id: es3-10-pantalla, type: vocab, l2: "la pantalla", l1: "the screen",
+         ex: "Paso demasiadas horas delante de una pantalla.", ex_l1: "I spend too many hours in front of a screen."}
+      - {id: es3-10-mensaje, type: vocab, l2: "el mensaje", l1: "the message",
+         ex: "¿Has leído mi mensaje?", ex_l1: "Have you read my message?",
+         note: "Masculine, like other nouns ending in -aje."}
+      - {id: es3-10-descargar, type: vocab, l2: "descargar", l1: "to download", alt: ["bajar"],
+         ex: "Voy a descargar la aplicación.", ex_l1: "I'm going to download the app.",
+         note: "Colloquially also bajar. To upload is subir."}
+      - {id: es3-10-contrasena, type: vocab, l2: "la contraseña", l1: "the password", alt: ["la clave"],
+         ex: "Necesito cambiar la contraseña.", ex_l1: "I need to change the password.",
+         note: "Also la clave, especially in Latin America."}
+      - {id: es3-10-contar, type: vocab, l2: "contar", l1: "to tell (a story, what happened) / to count",
+         ex: "Cuéntame qué pasó.", ex_l1: "Tell me what happened.",
+         note: "Stem change o → ue: cuento, cuentas. decir = to say; contar = to tell at some length."}
+      - {id: es3-10-enterarse, type: vocab, l2: "enterarse", l1: "to find out / to hear about (something)",
+         ex: "Me enteré ayer por las redes sociales.", ex_l1: "I found out yesterday on social media.",
+         note: "enterarse de algo. Colloquial Spain: no me entero = I don't get it."}
+      - {id: es3-10-segun, type: vocab, l2: "según", l1: "according to",
+         ex: "Según Ana, la reunión es mañana.", ex_l1: "According to Ana, the meeting is tomorrow.",
+         note: "Followed by subject pronouns: según yo, según tú (not mí, ti)."}
+      - {id: es3-10-me-dijo-cansado, type: phrase, l2: "Me dijo que estaba cansado.", l1: "He told me that he was tired.",
+         note: "«Estoy cansado.» → present becomes imperfecto after dijo."}
+      - {id: es3-10-dice-no-puede, type: phrase, l2: "Dice que no puede venir.", l1: "She says she can't come.",
+         note: "Reporting verb in the present → no tense change. que cannot be dropped."}
+      - {id: es3-10-me-pregunto-si, type: phrase, l2: "Me preguntó si quería ir al cine.",
+         l1: "He asked me if I wanted to go to the cinema.", note: "A yes/no question is reported with si."}
+      - {id: es3-10-dijeron-llamarian, type: phrase, l2: "Dijeron que llamarían hoy.", l1: "They said they would call today.",
+         alt: ["Dijeron que iban a llamar hoy"], note: "«Llamaremos.» → the future becomes the conditional."}
+      - {id: es3-10-te-has-enterado, type: phrase, l2: "¿Te has enterado de la noticia?",
+         l1: "Have you heard the news? (informal, with enterarse)", alt: ["¿Te enteraste de la noticia?"]}
+      - {id: es3-10-dice-que-la-llames, type: phrase, l2: "Mi madre dice que la llames.",
+         l1: "My mother says you should call her. (informal)", note: "A reported order → decir que + subjunctive."}
+      - {id: es3-10-olvidado-contrasena, type: phrase, l2: "Se me ha olvidado la contraseña.", l1: "I've forgotten my password.",
+         alt: ["He olvidado la contraseña", "Se me olvidó la contraseña", "Olvidé la contraseña", "Me he olvidado de la contraseña", "He olvidado mi contraseña"],
+         note: "se me ha olvidado: literally 'it has forgotten itself on me' — the natural, blame-free way to say it."}
+      - {id: es3-10-te-mando-mensaje, type: phrase, l2: "Te mando un mensaje luego.", l1: "I'll send you a message later. (informal)",
+         alt: ["Te envío un mensaje luego", "Te mandaré un mensaje luego", "Luego te mando un mensaje", "Te mando un mensaje más tarde", "Te mando un mensaje después"]}
+      - {id: es3-10-c1, type: cloze, text: "Ana dice ___ no tiene tiempo.", answer: "que",
+         l1: "Ana says she doesn't have time.", note: "decir que: the que is obligatory"}
+      - {id: es3-10-c2, type: cloze, text: "«Estoy enfermo.» → Luis dijo que ___ enfermo.", answer: "estaba",
+         l1: "“I am ill.” → Luis said that he was ill.", note: "present → imperfecto after a past reporting verb"}
+      - {id: es3-10-c3, type: cloze, text: "«He terminado.» → Marta dijo que ___ terminado.", answer: "había",
+         l1: "“I have finished.” → Marta said that she had finished.", note: "perfecto → pluscuamperfecto"}
+      - {id: es3-10-c4, type: cloze, text: "«Iré mañana.» → Pedro dijo que ___ al día siguiente.", answer: "iría",
+         l1: "“I will go tomorrow.” → Pedro said that he would go the next day.", note: "future → conditional; mañana → al día siguiente"}
+      - {id: es3-10-c5, type: cloze, text: "Me preguntó ___ hablaba español.", answer: "si",
+         l1: "He asked me whether I spoke Spanish.", note: "yes/no question → si (no accent)"}
+      - {id: es3-10-c6, type: cloze, text: "Me preguntaron ___ vivía.", answer: "dónde",
+         l1: "They asked me where I lived.", note: "a reported question word keeps its accent"}
+      - {id: es3-10-c7, type: cloze, text: "El médico me dice que ___ más agua.", answer: "beba", alt: ["tome"],
+         l1: "The doctor tells me to drink more water.", note: "reported order → decir que + subjunctive"}
+      - {id: es3-10-c8, type: cloze, text: "«Tengo frío.» → Mi hija dijo que ___ frío.", answer: "tenía",
+         l1: "“I am cold.” → My daughter said that she was cold.", note: "present → imperfecto: tengo → tenía"}
+
+  # ---------------------------------------------------------------- 11
+  - id: es3-11
+    title: "How things are done: impersonal se and the passive with se"
+    goal: "I can say what people in general do, what is allowed or forbidden, and understand signs and notices."
+    notes: |
+      Spanish avoids the English passive ("is spoken", "are sold"). The everyday tool is **se** + a verb in the third person.
+
+      | Type | Pattern | Example |
+      | impersonal | se + singular verb | Aquí **se vive** bien. |
+      | passive, one thing | se + singular verb | **Se vende** piso. |
+      | passive, several things | se + plural verb | **Se venden** pisos. |
+
+      - The verb agrees with the thing: *se habla español*, *se hablan dos lenguas*.
+      - With an infinitive or a clause, keep the singular: *se puede pagar*, *se dice que…*
+      - It translates English "you", "one", "they" and "people": *¿Cómo se dice?* = "How do you say it?"
+      - Signs: *Se alquila*, *Se busca camarero*, *Se prohíbe fumar*.
+      - A plain "they" form does the same job: *Dicen que va a llover*; *Me han robado el móvil*.
+      - The passive with **ser** + participle (*fue construido en 1900*) is correct but belongs mostly to newspapers and history books.
+    items:
+      - {id: es3-11-prohibir, type: vocab, l2: "prohibir", l1: "to forbid / to ban",
+         ex: "Está prohibido fumar aquí.", ex_l1: "Smoking is forbidden here.",
+         note: "Present with an accent: prohíbo, prohíbe. prohibido + infinitive on signs."}
+      - {id: es3-11-permitir, type: vocab, l2: "permitir", l1: "to allow / to permit",
+         ex: "No se permite entrar con perros.", ex_l1: "Dogs are not allowed in.",
+         note: "permitir que + subjunctive: no permiten que entremos."}
+      - {id: es3-11-ley, type: vocab, l2: "la ley", l1: "the law",
+         ex: "Es una ley nueva.", ex_l1: "It is a new law.",
+         note: "Plural: las leyes. Law as a subject of study is el derecho."}
+      - {id: es3-11-costumbre, type: vocab, l2: "la costumbre", l1: "the custom / the habit",
+         ex: "En España es costumbre cenar tarde.", ex_l1: "In Spain it is the custom to have dinner late.",
+         note: "Feminine, like most nouns in -umbre. False friend: a fancy-dress costume is un disfraz."}
+      - {id: es3-11-cartel, type: vocab, l2: "el cartel", l1: "the sign / the poster", alt: ["el letrero"],
+         ex: "En el cartel pone «Se alquila».", ex_l1: "The sign says “For rent”.",
+         note: "A text or sign 'says' with poner in Spain: ¿qué pone aquí? Latin America: ¿qué dice?"}
+      - {id: es3-11-construir, type: vocab, l2: "construir", l1: "to build",
+         ex: "Quieren construir un hotel aquí.", ex_l1: "They want to build a hotel here.",
+         note: "Adds y: construyo, construyes; indefinido construyó, construyeron."}
+      - {id: es3-11-vender, type: vocab, l2: "vender", l1: "to sell",
+         ex: "Voy a vender mi coche.", ex_l1: "I'm going to sell my car.",
+         note: "Se vende = For sale."}
+      - {id: es3-11-multa, type: vocab, l2: "la multa", l1: "the fine (money you pay as a penalty)",
+         ex: "Me pusieron una multa de cien euros.", ex_l1: "I got a hundred-euro fine.",
+         note: "poner una multa = to give a fine. 'They fined me' = me pusieron una multa."}
+      - {id: es3-11-votar, type: vocab, l2: "votar", l1: "to vote",
+         ex: "En España se vota los domingos.", ex_l1: "In Spain people vote on Sundays.",
+         note: "Don't confuse with botar (to bounce; in Latin America, to throw away)."}
+      - {id: es3-11-ciudadano, type: vocab, l2: "el ciudadano", l1: "the citizen (male)",
+         ex: "Todos los ciudadanos pueden votar.", ex_l1: "All citizens can vote.",
+         note: "From ciudad. Feminine: la ciudadana."}
+      - {id: es3-11-se-dice-mejor-bar, type: phrase, l2: "Se dice que es el mejor bar de la ciudad.",
+         l1: "They say it's the best bar in town. (with se)",
+         note: "se dice que / dicen que + indicative. 'In' after a superlative is de."}
+      - {id: es3-11-se-habla-espanol, type: phrase, l2: "Aquí se habla español.", l1: "Spanish is spoken here.",
+         alt: ["Se habla español aquí"]}
+      - {id: es3-11-se-puede-pagar, type: phrase, l2: "¿Se puede pagar con tarjeta?", l1: "Can you pay by card? (impersonal: can one…)",
+         note: "se puede + infinitive = it is possible / allowed."}
+      - {id: es3-11-no-se-puede-aparcar, type: phrase, l2: "Aquí no se puede aparcar.", l1: "You can't park here. (impersonal)",
+         alt: ["No se puede aparcar aquí", "Aquí no se puede estacionar", "No se puede estacionar aquí", "Aquí no se puede parquear"],
+         note: "Spain: aparcar. Latin America: estacionar or parquear."}
+      - {id: es3-11-como-se-escribe, type: phrase, l2: "¿Cómo se escribe tu apellido?", l1: "How do you spell your surname? (informal)",
+         alt: ["¿Cómo se deletrea tu apellido?"], note: "Literally 'how is it written?' — the normal way to ask for a spelling."}
+      - {id: es3-11-se-cena-tarde, type: phrase, l2: "En España se cena muy tarde.", l1: "In Spain people have dinner very late."}
+      - {id: es3-11-se-alquila-piso, type: phrase, l2: "Se alquila piso en el centro.", l1: "Flat for rent in the centre. (a sign)",
+         alt: ["Se alquila un piso en el centro", "Se alquila departamento en el centro", "Se renta departamento en el centro"],
+         note: "Signs drop the article. Latin America: departamento; Mexico: se renta."}
+      - {id: es3-11-c1, type: cloze, text: "En esta tienda ___ venden libros viejos.", answer: "se",
+         l1: "Old books are sold in this shop.", note: "se + verb = the everyday passive"}
+      - {id: es3-11-c2, type: cloze, text: "En Argentina se ___ mucha carne.", answer: "come",
+         l1: "A lot of meat is eaten in Argentina.", note: "singular thing (carne) → singular verb"}
+      - {id: es3-11-c3, type: cloze, text: "En mi empresa se ___ dos idiomas: inglés y español.", answer: "hablan",
+         l1: "Two languages are spoken in my company: English and Spanish.", note: "plural thing (dos idiomas) → plural verb"}
+      - {id: es3-11-c4, type: cloze, text: "Se ___ camareros para el verano.", answer: "buscan", alt: ["necesitan"],
+         l1: "Waiters wanted for the summer.", note: "plural noun (camareros) → plural verb"}
+      - {id: es3-11-c5, type: cloze, text: "¿Cómo se ___ «thank you» en español?", answer: "dice",
+         l1: "How do you say “thank you” in Spanish?", note: "impersonal se: 'how does one say'"}
+      - {id: es3-11-c6, type: cloze, text: "Esta casa se ___ en 1900.", answer: "construyó",
+         l1: "This house was built in 1900.", note: "passive with se in the indefinido: construir → construyó"}
+      - {id: es3-11-c7, type: cloze, text: "No se ___ cuándo empezará la huelga.", answer: "sabe",
+         l1: "It is not known when the strike will start.", note: "se + singular verb before a clause"}
+      - {id: es3-11-c8, type: cloze, text: "Las entradas se ___ por internet.", answer: "venden",
+         l1: "The tickets are sold online.", note: "plural subject (las entradas) → plural verb"}
+
+  # ---------------------------------------------------------------- 12
+  - id: es3-12
+    title: "Keeping the conversation going: connectors, fillers and idioms"
+    goal: "I can link my ideas when I argue or tell a story, and sound natural with the little words Spaniards use all the time."
+    notes: |
+      **Connectors** turn separate sentences into an argument.
+
+      | Job | Connector | English |
+      | contrast | sin embargo / en cambio | however / on the other hand |
+      | concession | aunque / a pesar de | although / in spite of |
+      | result | por lo tanto / así que | therefore / so |
+      | addition | además | besides, what's more |
+      | rephrasing | o sea / es decir | I mean / that is |
+      | excuse | es que… | the thing is… |
+
+      - **aunque** + indicative for a fact (*aunque llueve* = although it is raining); + subjunctive for "even if" (*aunque llueva*).
+      - **a pesar de** + noun or infinitive; *a pesar de que* + verb.
+      - **es que** softens an excuse or a "no": *Es que no puedo*.
+
+      **Fillers** buy you time and make you sound natural: **pues** (well…), **bueno** (well / OK), **a ver** (let's see), **vale** (OK, Spain), **la verdad** (to be honest). Short reactions: **¡Qué va!** (no way), **depende** (it depends), **¿en serio?** (really?).
+
+      Latin America rarely says *vale*: you will hear *dale*, *bueno*, *listo* or *está bien*.
+    items:
+      - {id: es3-12-sin-embargo, type: vocab, l2: "sin embargo", l1: "however / nevertheless", alt: ["no obstante"],
+         ex: "Es caro; sin embargo, me gusta.", ex_l1: "It's expensive; however, I like it.",
+         note: "Slightly formal; in speech pero does most of the work. Set off by commas."}
+      - {id: es3-12-aunque, type: vocab, l2: "aunque", l1: "although / even though",
+         ex: "Aunque estoy cansado, voy a salir.", ex_l1: "Although I'm tired, I'm going to go out.",
+         note: "+ indicative for a fact; + subjunctive for 'even if': aunque esté cansado."}
+      - {id: es3-12-por-lo-tanto, type: vocab, l2: "por lo tanto", l1: "therefore / so (formal connector)", alt: ["por tanto", "por eso", "por consiguiente"],
+         ex: "No ha estudiado; por lo tanto, no va a aprobar.", ex_l1: "He hasn't studied; therefore, he isn't going to pass.",
+         note: "In speech, así que is more common: no ha estudiado, así que…"}
+      - {id: es3-12-en-cambio, type: vocab, l2: "en cambio", l1: "on the other hand / whereas (contrasting two things)",
+         ex: "A mí me gusta el mar; a mi mujer, en cambio, la montaña.", ex_l1: "I like the sea; my wife, on the other hand, likes the mountains.",
+         note: "Contrasts two different subjects. Not 'in exchange' (that is a cambio)."}
+      - {id: es3-12-ademas, type: vocab, l2: "además", l1: "besides / what's more / in addition",
+         ex: "Es tarde y, además, estoy cansado.", ex_l1: "It's late and, besides, I'm tired.",
+         note: "además de + noun or infinitive = as well as."}
+      - {id: es3-12-a-pesar-de, type: vocab, l2: "a pesar de", l1: "in spite of / despite", alt: ["pese a"],
+         ex: "Salimos a pesar de la lluvia.", ex_l1: "We went out in spite of the rain.",
+         note: "+ noun or infinitive; a pesar de que + a verb."}
+      - {id: es3-12-o-sea, type: vocab, l2: "o sea", l1: "I mean / in other words (spoken)", alt: ["es decir"],
+         ex: "Es mi cuñado, o sea, el marido de mi hermana.", ex_l1: "He's my brother-in-law, I mean, my sister's husband.",
+         note: "Two words, never 'osea'. The more formal version is es decir."}
+      - {id: es3-12-pues, type: vocab, l2: "pues", l1: "well… (filler at the start of an answer)",
+         ex: "—¿Qué quieres hacer? —Pues no sé.", ex_l1: "“What do you want to do?” “Well, I don't know.”",
+         note: "The commonest Spanish filler; it commits you to nothing. Pues sí / pues no = well, yes / well, no."}
+      - {id: es3-12-vale, type: vocab, l2: "vale", l1: "OK / all right (Spain)", alt: ["de acuerdo", "está bien", "dale", "okey"],
+         ex: "—¿Quedamos a las ocho? —Vale.", ex_l1: "“Shall we meet at eight?” “OK.”",
+         note: "Heard constantly in Spain. Latin America: dale, bueno, listo, está bien."}
+      - {id: es3-12-a-ver, type: vocab, l2: "a ver", l1: "let's see (filler while you think or look)",
+         ex: "A ver, ¿qué tenemos que comprar?", ex_l1: "Let's see, what do we have to buy?",
+         note: "Two words. Don't confuse with haber (the verb), which sounds the same."}
+      - {id: es3-12-es-que, type: phrase, l2: "Es que no tengo tiempo.", l1: "The thing is, I don't have time. (an excuse)",
+         note: "es que introduces an explanation or excuse; it softens a 'no'."}
+      - {id: es3-12-la-verdad, type: phrase, l2: "La verdad es que no me gusta.", l1: "To be honest, I don't like it.",
+         alt: ["La verdad, no me gusta", "Sinceramente, no me gusta", "La verdad es que no me gusta nada"]}
+      - {id: es3-12-que-va, type: phrase, l2: "¡Qué va!", l1: "No way! / Not at all! (spoken denial)", alt: ["Para nada"],
+         note: "—¿Estás enfadado? —¡Qué va! A friendly, emphatic 'no'."}
+      - {id: es3-12-depende, type: phrase, l2: "Depende.", l1: "It depends.", alt: ["Eso depende"],
+         note: "With a noun it takes de, never 'en': depende del precio."}
+      - {id: es3-12-bueno-me-tengo-que-ir, type: phrase, l2: "Bueno, me tengo que ir.", l1: "Well, I have to go.",
+         alt: ["Bueno, tengo que irme", "Bueno, me tengo que marchar", "Bueno, tengo que marcharme"],
+         note: "bueno as a filler signals a change of topic or the end of a chat."}
+      - {id: es3-12-en-serio, type: phrase, l2: "¿En serio?", l1: "Seriously? / Really?", alt: ["¿De verdad?", "¿De veras?"],
+         note: "The standard reaction to surprising news."}
+      - {id: es3-12-no-pasa-nada, type: phrase, l2: "No pasa nada.", l1: "It doesn't matter. / No harm done. (reply to an apology)",
+         alt: ["No importa", "No es nada", "No hay problema"],
+         note: "Literally 'nothing happens'. The usual answer to perdón or lo siento."}
+      - {id: es3-12-vale-la-pena, type: phrase, l2: "Vale la pena.", l1: "It's worth it.", alt: ["Merece la pena"],
+         note: "Here vale is the verb valer (to be worth). valer la pena + infinitive: vale la pena ir."}
+      - {id: es3-12-c1, type: cloze, text: "Estudia mucho; sin ___, no aprueba.", answer: "embargo",
+         l1: "He studies a lot; however, he doesn't pass.", note: "sin embargo = however"}
+      - {id: es3-12-c2, type: cloze, text: "___ llueve, vamos a dar un paseo.", answer: "Aunque",
+         l1: "Although it's raining, we're going to go for a walk.", note: "aunque + indicative: it really is raining"}
+      - {id: es3-12-c3, type: cloze, text: "A ___ del frío, fuimos a la playa.", answer: "pesar",
+         l1: "In spite of the cold, we went to the beach.", note: "a pesar de + noun = in spite of"}
+      - {id: es3-12-c4, type: cloze, text: "No tengo dinero; por lo ___, no puedo ir.", answer: "tanto",
+         l1: "I have no money; therefore, I can't go.", note: "por lo tanto = therefore"}
+      - {id: es3-12-c5, type: cloze, text: "Mi hermano es muy alto; yo, en ___, soy bajo.", answer: "cambio",
+         l1: "My brother is very tall; I, on the other hand, am short.", note: "en cambio contrasts two subjects"}
+      - {id: es3-12-c6, type: cloze, text: "El piso es caro y, ___, está lejos del centro.", answer: "además", alt: ["encima"],
+         l1: "The flat is expensive and, what's more, it's far from the centre.", note: "además adds a second argument"}
+      - {id: es3-12-c7, type: cloze, text: "Por ___, ¿has hablado con Ana?", answer: "cierto",
+         l1: "By the way, have you spoken to Ana?", note: "por cierto = by the way (it changes the subject; it does not mean 'certainly')"}
+      - {id: es3-12-c8, type: cloze, text: "Llego a las diez, o ___, dentro de una hora.", answer: "sea",
+         l1: "I'm arriving at ten, I mean, in an hour.", note: "o sea = I mean / that is"}

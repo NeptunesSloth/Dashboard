@@ -1,0 +1,1907 @@
+id: ccna
+title: "CCNA (200-301 v2.0) — Foundations"
+kind: cert
+blurb: "Subnetting, VLANs and trunks, spanning tree, static routes and OSPF, NAT, ACLs, wireless, operations and AI — with the IOS commands to configure and verify each one. Organised by the CCNA v2.0 domains: the exam changes to v2.0 on 3 February 2027, and until then the live exam is v1.1."
+hall: ward_hall
+exam:
+  name: "Cisco CCNA"
+  code: "200-301"
+  questions: 25
+  minutes: 30
+  pass_pct: 85
+  full: {questions: 100, minutes: 120}
+  domains:
+    - {id: "1", title: "Network Infrastructure and Connectivity", weight: 25}
+    - {id: "2", title: "Switching and Network Access", weight: 25}
+    - {id: "3", title: "IP Routing", weight: 20}
+    - {id: "4", title: "Network Services and Security", weight: 20}
+    - {id: "5", title: "AI, and Network Operations and Management", weight: 10}
+    - {id: "x", title: "Background beyond the v2.0 blueprint", weight: 0}
+
+units:
+  # ─────────────── 1a · interface faults ───────────────
+  - id: cn-1a
+    title: "Reading an interface: status, duplex and speed faults"
+    domain: "1"
+    goal: "I can read an interface's status and counters to find a shutdown port, a duplex mismatch or a speed fault."
+    notes: |
+      CCNA expects you to know what each box is for and then to prove a link is healthy from the command line.
+
+      **Designs.** A **three-tier** campus has access, distribution and core layers. A **two-tier** (collapsed core) campus merges distribution and core. A data-centre **spine-leaf** fabric has two layers: every leaf connects to every spine, leaves never connect to leaves, and spines never connect to spines.
+
+      **How a switch forwards.** It learns the *source* MAC of every frame against the incoming port, then looks up the *destination*. Known unicast goes out of one port; broadcasts and unknown unicasts are flooded within the VLAN. Idle entries age out after 300 seconds.
+
+      **Reading an interface.** `show interfaces` gives two status words, then duplex, speed and counters.
+
+      | Status line | Meaning |
+      | administratively down, line protocol is down | The port has `shutdown` configured |
+      | down, line protocol is down | No signal: cable, far end off, or speed mismatch |
+      | up, line protocol is down | Layer 2 problem (rare on Ethernet) |
+      | up, line protocol is up | Working |
+      | down (err-disabled) | A protection feature shut the port |
+
+      A **duplex mismatch** leaves the link up but slow. The half-duplex side counts collisions and **late collisions**; the full-duplex side counts CRC errors and runts. It usually happens when one end is hard-set and the other is left on auto: the auto end senses the speed but cannot negotiate duplex, so at 10 or 100 Mbps it falls back to half.
+    items:
+      - id: cn-1a-show-int
+        type: concept
+        term: "show interfaces"
+        def: "The IOS command that reports, for each port, the line and protocol status, duplex and speed, and counters such as CRC errors, runts, collisions and late collisions."
+      - id: cn-1a-late-collision
+        type: concept
+        term: "Late collision"
+        def: "A collision detected after the first 64 bytes of a frame have been sent; on a modern link it almost always points to a duplex mismatch."
+
+      - id: cn-1a-q01
+        type: mcq
+        q: "Users on a server complain that transfers crawl. The server NIC is hard-set to 100 Mbps full duplex. On the switch, 'show interfaces Gi0/1' includes: 'GigabitEthernet0/1 is up, line protocol is up' / 'Half-duplex, 100Mb/s' / '312 collisions, 148 late collisions'. What is the cause?"
+        choices:
+          - "A speed mismatch between the switch port and the server"
+          - "A duplex mismatch: the switch port could not negotiate and fell back to half duplex"
+          - "The switch port has been err-disabled by port security"
+          - "The cable is longer than 100 metres, so the link cannot come up"
+        answer: 1
+        why: "The switch port is on auto, sensed 100 Mbps, but got no negotiation from the hard-set server and so defaulted to half duplex. Late collisions on an up/up link are the signature of a duplex mismatch. A speed mismatch would leave the link down, not slow."
+      - id: cn-1a-q02
+        type: mcq
+        q: "A new router interface will not pass traffic. 'show interfaces Gi0/2' begins: 'GigabitEthernet0/2 is administratively down, line protocol is down'. What should the engineer do?"
+        choices:
+          - "Replace the cable, because no signal is being received"
+          - "Set the duplex manually on both ends"
+          - "Enter 'no shutdown' under the interface"
+          - "Change the encapsulation to match the neighbour"
+        answer: 2
+        why: "'Administratively down' means the interface has the 'shutdown' command configured, which is the default on router interfaces. A cable fault shows as 'down, line protocol is down' without the word 'administratively'."
+      - id: cn-1a-q03
+        type: mcq
+        q: "A switch port is configured with 'speed 1000' and 'duplex full'. The device at the other end has autonegotiation disabled and is fixed at 100 Mbps full duplex. What will 'show interfaces status' most likely show for the switch port?"
+        choices:
+          - "notconnect"
+          - "connected, a-half, a-100"
+          - "connected, full, 1000"
+          - "err-disabled"
+        answer: 0
+        why: "Two ends fixed at different speeds cannot bring the link up, so the port stays down/down, shown as notconnect. A link that is up but slow is the duplex-mismatch symptom, and nothing here would err-disable the port."
+
+  # ─────────────── 1b · IPv4 addressing and subnetting ───────────────
+  - id: cn-1b
+    title: "IPv4 addressing and subnetting"
+    domain: "1"
+    goal: "I can find the network, broadcast and host range of any IPv4 address, pick a mask for a host count, and configure and check an address on a Cisco interface."
+    notes: |
+      Subnetting is the skill CCNA tests most often, and it must be fast. Use the **block size**: 256 minus the mask's interesting octet. Subnets start at multiples of the block size; the broadcast is one below the next subnet.
+
+      | Prefix | Mask | Block size | Usable hosts |
+      | /24 | 255.255.255.0 | 256 | 254 |
+      | /25 | 255.255.255.128 | 128 | 126 |
+      | /26 | 255.255.255.192 | 64 | 62 |
+      | /27 | 255.255.255.224 | 32 | 30 |
+      | /28 | 255.255.255.240 | 16 | 14 |
+      | /29 | 255.255.255.248 | 8 | 6 |
+      | /30 | 255.255.255.252 | 4 | 2 |
+
+      Worked example: 192.168.5.77/27. Block size 32, so subnets start at 0, 32, 64, 96. The address sits in **192.168.5.64**, hosts .65 to .94, broadcast .95. For masks in the third octet the same method applies there: /20 is 255.255.240.0, block size 16.
+
+      **Private ranges** (RFC 1918): 10.0.0.0/8, 172.16.0.0/12 (172.16 to 172.31) and 192.168.0.0/16.
+
+      **On the router:**
+
+      - `interface GigabitEthernet0/0`
+      - `ip address 192.168.5.65 255.255.255.224`
+      - `no shutdown`
+
+      Verify with `show ip interface brief`. IOS refuses a network or broadcast address with a *Bad mask* message.
+
+      **TCP versus UDP.** TCP sets up a connection, numbers and acknowledges data, retransmits losses and uses a window for flow control. UDP adds only ports and a checksum: no setup, no recovery, less delay.
+    items:
+      - id: cn-1b-ip-address-cmd
+        type: concept
+        term: "ip address <address> <mask>"
+        def: "The interface-mode command that assigns an IPv4 address and subnet mask to a router interface or SVI."
+      - id: cn-1b-show-ip-int-brief
+        type: concept
+        term: "show ip interface brief"
+        def: "The command that gives a one-line summary of each interface: its IPv4 address, how the address was set, and the Status and Protocol columns."
+      - id: cn-1b-rfc1918
+        type: concept
+        term: "RFC 1918 private ranges"
+        def: "10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16: blocks anyone may use internally but which are not routed on the public internet."
+      - id: cn-1b-block-size
+        type: concept
+        term: "Block size (magic number)"
+        def: "256 minus the interesting octet of the mask; subnets begin at multiples of this value, which makes finding a network address quick."
+
+      - id: cn-1b-q01
+        type: mcq
+        q: "A host is configured as 172.16.37.200/20. Which network does it belong to?"
+        choices: ["172.16.0.0", "172.16.36.0", "172.16.37.0", "172.16.32.0"]
+        answer: 3
+        why: "/20 is 255.255.240.0, a block size of 16 in the third octet: 0, 16, 32, 48. 37 falls in the block that starts at 32, so the network is 172.16.32.0 and its broadcast is 172.16.47.255. 172.16.37.0 would be right only for a /24."
+      - id: cn-1b-q02
+        type: mcq
+        q: "What is the broadcast address of the subnet that contains 192.168.5.77/27?"
+        choices: ["192.168.5.79", "192.168.5.95", "192.168.5.127", "192.168.5.255"]
+        answer: 1
+        why: "/27 has a block size of 32, so the subnets are .0, .32, .64, .96. 77 is in the .64 subnet, whose broadcast is one below .96: 192.168.5.95. 192.168.5.79 would be the broadcast for a /28."
+      - id: cn-1b-q03
+        type: mcq
+        q: "From 10.1.1.0/24 an engineer must carve subnets that each hold 50 hosts, wasting as few addresses as possible. Which mask should be used?"
+        choices: ["255.255.255.128", "255.255.255.224", "255.255.255.192", "255.255.255.240"]
+        answer: 2
+        why: "A /26 (255.255.255.192) gives 64 addresses, 62 usable, the smallest block that holds 50. A /27 has only 30 usable; a /25 works but wastes 126 addresses on 50 hosts."
+      - id: cn-1b-q04
+        type: mcq
+        q: "An engineer enters 'ip address 10.10.10.63 255.255.255.224' on a router interface and IOS answers 'Bad mask /27 for address 10.10.10.63'. Why?"
+        choices:
+          - "10.10.10.63 is the broadcast address of the 10.10.10.32/27 subnet"
+          - "10.10.10.63 is the network address of the 10.10.10.63/27 subnet"
+          - "A /27 mask cannot be used with a 10.x.x.x address"
+          - "The mask must be typed in prefix notation on an interface"
+        answer: 0
+        why: "With a block size of 32 the subnet is 10.10.10.32 to 10.10.10.63, and the last address is the broadcast, which cannot be given to an interface. Any mask may be used with a 10.x address, and IOS interfaces take dotted masks."
+      - id: cn-1b-q05
+        type: mcq
+        q: "Two routers are joined by one cable. R1 has 'ip address 10.0.0.1 255.255.255.252' and R2 has 'ip address 10.0.0.5 255.255.255.252'. Both interfaces are up/up but the routers cannot ping each other. What is wrong?"
+        choices:
+          - "A /30 has no usable host addresses"
+          - "10.0.0.5 is a broadcast address"
+          - "The two addresses are in different subnets"
+          - "Both ends of a link must use the same host address"
+        answer: 2
+        why: "A /30 has a block size of 4. 10.0.0.1 is in 10.0.0.0/30 (hosts .1 and .2) while 10.0.0.5 is in 10.0.0.4/30 (hosts .5 and .6). R2 should be 10.0.0.2. A /30 does have two usable addresses, and .5 is a host address, not a broadcast."
+      - id: cn-1b-q06
+        type: mcq
+        q: "A /24 network is divided into /28 subnets. How many subnets are created, and how many usable host addresses does each have?"
+        choices:
+          - "14 subnets with 16 hosts each"
+          - "8 subnets with 30 hosts each"
+          - "16 subnets with 16 hosts each"
+          - "16 subnets with 14 hosts each"
+        answer: 3
+        why: "Borrowing 4 bits gives 2^4 = 16 subnets. The 4 host bits that remain give 16 addresses per subnet, minus the network and broadcast addresses, so 14 usable."
+
+  # ─────────────── 1c · IPv6 ───────────────
+  - id: cn-1c
+    title: "IPv6 addressing"
+    domain: "1"
+    goal: "I can shorten and recognise IPv6 addresses, name each address type from its prefix, build a modified EUI-64 address, and configure IPv6 on a Cisco interface."
+    notes: |
+      An IPv6 address is 128 bits, written as eight groups of four hex digits. Two shortening rules: drop leading zeros in a group, and replace **one** run of all-zero groups with `::`. Almost every LAN prefix is a /64: 64 bits of network, 64 bits of interface ID.
+
+      | Type | Prefix | Use |
+      | Global unicast | 2000::/3 | Routable on the internet |
+      | Unique local | fc00::/7 (seen as fd...) | Private, inside an organisation |
+      | Link-local | fe80::/10 | One link only; made automatically on every IPv6 interface |
+      | Multicast | ff00::/8 | One to many; ff02::1 all nodes, ff02::2 all routers |
+      | Anycast | any unicast address | Same address on several devices; the nearest answers |
+
+      There is no broadcast in IPv6.
+
+      **Modified EUI-64** builds the interface ID from the MAC: split the MAC in half, insert **fffe**, then flip the seventh bit of the first byte. MAC 0c1a.2b3c.4d5e becomes 0e1a:2bff:fe3c:4d5e (0c is 00001100; flipping the seventh bit gives 00001110, which is 0e).
+
+      **On the router:**
+
+      - `ipv6 unicast-routing` (global: without it the router will not forward IPv6)
+      - `interface GigabitEthernet0/0`
+      - `ipv6 address 2001:db8:1:1::1/64`
+
+      Add `eui-64` after a /64 prefix to let the router derive the interface ID. Verify with `show ipv6 interface brief`, which lists the link-local address first and the other addresses beneath it.
+    items:
+      - id: cn-1c-gua
+        type: concept
+        term: "Global unicast address"
+        def: "A publicly routable IPv6 address, currently allocated from 2000::/3."
+      - id: cn-1c-ula
+        type: concept
+        term: "Unique local address"
+        def: "An IPv6 address from fc00::/7 for private use inside an organisation; it is not routed on the internet."
+      - id: cn-1c-lla
+        type: concept
+        term: "Link-local address"
+        def: "An IPv6 address from fe80::/10 that every enabled interface creates automatically; it is valid only on its own segment and is what routing protocols use as the next hop."
+      - id: cn-1c-eui64
+        type: concept
+        term: "Modified EUI-64"
+        def: "A way to build a 64-bit interface ID from a 48-bit MAC address: insert fffe in the middle and invert the seventh bit."
+      - id: cn-1c-unicast-routing
+        type: concept
+        term: "ipv6 unicast-routing"
+        def: "The global command that makes a Cisco router forward IPv6 packets and send router advertisements; without it the device behaves only as an IPv6 host."
+      - id: cn-1c-anycast
+        type: concept
+        term: "Anycast address"
+        def: "One unicast IPv6 address configured on several devices; routing delivers a packet to whichever of them is nearest."
+
+      - id: cn-1c-q01
+        type: mcq
+        q: "Which is a valid shortened form of 2001:0db8:0000:0000:00a0:0000:0000:0001?"
+        choices:
+          - "2001:db8::a0::1"
+          - "2001:db8::a:0:0:1"
+          - "2001:db8::a0:0:0:1"
+          - "2001:db8:0:0:a::1"
+        answer: 2
+        why: "Leading zeros are dropped (0db8 becomes db8, 00a0 becomes a0) and one run of zero groups becomes '::'. '::' may appear only once, which rules out the first choice, and a0 cannot be cut to a because trailing zeros are significant."
+      - id: cn-1c-q02
+        type: mcq
+        q: "An interface with MAC address 0c1a.2b3c.4d5e is configured with 'ipv6 address 2001:db8:1:1::/64 eui-64'. Which address does it get?"
+        choices:
+          - "2001:db8:1:1:c1a:2bff:fe3c:4d5e"
+          - "2001:db8:1:1:e1a:2bff:fe3c:4d5e"
+          - "2001:db8:1:1:e1a:2b3c:4dff:fe5e"
+          - "2001:db8:1:1:c1a:2bfe:ff3c:4d5e"
+        answer: 1
+        why: "Insert fffe between 0c1a2b and 3c4d5e, then flip the seventh bit of the first byte: 0c (00001100) becomes 0e (00001110). The first choice forgets the bit flip; the others put fffe in the wrong place or write it backwards."
+      - id: cn-1c-q03
+        type: mcq
+        q: "A router has 'ipv6 address 2001:db8:acad:1::1/64' and 'no shutdown' on Gi0/0 and on Gi0/1 (a different /64). Hosts can ping their own gateway address over IPv6, but the router will not pass IPv6 traffic between the two LANs. IPv4 works. What is missing?"
+        choices:
+          - "The 'ipv6 enable' command on each interface"
+          - "A link-local address on each interface"
+          - "An 'ip address' on each interface"
+          - "The global 'ipv6 unicast-routing' command"
+        answer: 3
+        why: "IPv6 forwarding is off by default on IOS routers; 'ipv6 unicast-routing' turns it on. Link-local addresses are created automatically as soon as a global address is configured, so 'ipv6 enable' adds nothing here."
+      - id: cn-1c-q04
+        type: mcq
+        q: "In 'show ipv6 route' an OSPF-learned entry reads 'via FE80::2, GigabitEthernet0/1'. Why is the interface shown with the next hop?"
+        choices:
+          - "A link-local address is only meaningful on one link, so the router must know which link"
+          - "FE80::2 is a multicast address that is sent out of every interface"
+          - "The entry is a default route"
+          - "The neighbour has no global unicast address"
+        answer: 0
+        why: "The same link-local address can exist on every link, so it identifies a neighbour only together with the outgoing interface. Routing protocols use link-local next hops whether or not the neighbour has global addresses."
+      - id: cn-1c-q05
+        type: mcq
+        q: "A site is assigned 2001:db8:abcd::/48 and uses /64 for every LAN. How many /64 subnets are available?"
+        choices: ["256", "4,096", "65,536", "16,777,216"]
+        answer: 2
+        why: "From /48 to /64 there are 16 subnet bits, and 2^16 = 65,536. That is the whole fourth group, 0000 to ffff."
+      - id: cn-1c-q06
+        type: mcq
+        q: "Which command gives an interface only an automatically generated link-local address, with no global address?"
+        choices:
+          - "ipv6 address 2001:db8:1:1::/64 eui-64"
+          - "ipv6 enable"
+          - "ipv6 unicast-routing"
+          - "ipv6 address 2001:db8:1:1::1/64"
+        answer: 1
+        why: "'ipv6 enable' turns IPv6 on for the interface and creates just the fe80:: address. Both 'ipv6 address' forms add a global address as well (and a link-local one with it), and 'ipv6 unicast-routing' is a global forwarding switch, not an address."
+
+  # ─────────────── 1d · wireless principles and security, virtualization, client checks ───────────────
+  - id: cn-1d
+    title: "Wireless principles, Wi-Fi security, virtualization and checking a client"
+    domain: "1"
+    goal: "I can plan non-overlapping Wi-Fi channels, match each Wi-Fi security generation to its encryption, tell virtual machines and containers apart, and check a client's IP settings on Windows and Linux."
+    notes: |
+      **Wireless.** An access point advertises a network name, the **SSID**. In the 2.4 GHz band each channel is about 22 MHz wide but the channels are only 5 MHz apart, so just three do not overlap: **1, 6 and 11**. Neighbouring APs should use different ones. The 5 GHz band has many more non-overlapping channels and less interference, but its signal is absorbed more by walls, so each cell is smaller.
+
+      **Virtualization.**
+
+      | Technology | What is shared | What each instance has |
+      | Virtual machine | The hardware, through a hypervisor | Its own full guest operating system |
+      | Container | The host's OS kernel | Only the application and its libraries |
+      | VRF | One physical router | Its own routing table and interfaces |
+
+      A **Type 1** hypervisor runs directly on the hardware; a **Type 2** hypervisor runs as a program on a normal operating system. VMs reach the network through a **virtual switch** inside the hypervisor. Because each VRF has its own routing table, two VRFs on one router can use the same IP subnet without conflict.
+
+      **Checking a client.**
+
+      | System | Address and mask | Default gateway |
+      | Windows | `ipconfig /all` | `ipconfig` or `route print` |
+      | Linux | `ip addr` | `ip route` |
+      | macOS | `ifconfig` | `netstat -rn` |
+
+      An address in 169.254.0.0/16 means the client asked for DHCP and got no answer.
+    items:
+      - id: cn-1d-channels
+        type: concept
+        term: "Channels 1, 6 and 11"
+        def: "The three 2.4 GHz Wi-Fi channels that do not overlap one another, used in rotation on neighbouring access points."
+      - id: cn-1d-type1
+        type: concept
+        term: "Type 1 hypervisor"
+        def: "Virtualization software that runs directly on the server hardware, with no host operating system beneath it, and shares CPU, memory and NICs among virtual machines."
+      - id: cn-1d-container
+        type: concept
+        term: "Container"
+        def: "A lightweight, isolated package of an application and its libraries that shares the host's operating-system kernel instead of carrying its own guest OS."
+      - id: cn-1d-vswitch
+        type: concept
+        term: "Virtual switch"
+        def: "A software Layer 2 forwarder inside a hypervisor that connects virtual NICs to one another and to the host's physical NICs."
+      - id: cn-1d-ipconfig
+        type: concept
+        term: "ipconfig /all"
+        def: "The Windows command that shows each adapter's IP address, mask, default gateway, MAC address, DHCP server and DNS servers."
+      - id: cn-5c-wpa2
+        type: concept
+        term: "WPA2"
+        def: "The Wi-Fi security generation that made AES-CCMP encryption mandatory; its personal mode uses a pre-shared key and a four-way handshake."
+
+      - id: cn-1d-q01
+        type: mcq
+        q: "Three access points hang in a row along one corridor, all using 2.4 GHz and serving a mix of older 802.11b and newer 802.11g/n clients. Which channel plan avoids overlap between neighbours?"
+        choices: ["1, 2, 3", "1, 5, 9", "6, 6, 6", "1, 6, 11"]
+        answer: 3
+        why: "Only channels 1, 6 and 11 are far enough apart (25 MHz) not to overlap in the 2.4 GHz band. Channels 1, 5 and 9 are only 20 MHz apart, less than the 22 MHz width of an 802.11b channel, so their edges overlap, and reusing 6 everywhere makes the cells contend with each other."
+      - id: cn-1d-q02
+        type: mcq
+        q: "Compared with 2.4 GHz, what is true of the 5 GHz Wi-Fi band?"
+        choices:
+          - "It has fewer non-overlapping channels and longer range"
+          - "It has more non-overlapping channels but is weakened more by walls"
+          - "It has the same channels but allows higher transmit power"
+          - "It passes through walls better and suffers more interference"
+        answer: 1
+        why: "5 GHz offers many more non-overlapping channels and is less crowded, but higher frequencies are absorbed more by obstacles, so coverage per AP is smaller. Long range through walls is the strength of 2.4 GHz."
+      - id: cn-1d-q03
+        type: mcq
+        q: "On a Linux server, which command shows the default gateway as a line beginning 'default via'?"
+        choices: ["ip route", "ip addr", "ip link", "nslookup"]
+        answer: 0
+        why: "'ip route' prints the routing table, including 'default via <gateway> dev <interface>'. 'ip addr' shows addresses and prefix lengths but no gateway, and 'ip link' shows only Layer 2 state."
+      - id: cn-1d-q04
+        type: mcq
+        q: "A Windows PC cannot reach anything. 'ipconfig' shows IPv4 address 169.254.18.77, mask 255.255.0.0 and no default gateway. What does this tell you?"
+        choices:
+          - "The PC has a static address in a private range"
+          - "The DNS server is unreachable"
+          - "The PC asked for an address by DHCP and received no reply"
+          - "The PC has a duplicate IP address"
+        answer: 2
+        why: "169.254.0.0/16 is the link-local range a client assigns itself when DHCP fails. Check the path to the DHCP server: the switch port's VLAN, the relay and the scope. A DNS failure would not change the address."
+      - id: cn-1d-q06
+        type: mcq
+        q: "A team needs to run 200 copies of a small web service on one Linux server. Each copy must start in a second or two, and none needs its own operating system. Which technology fits?"
+        choices:
+          - "Virtual machines on a Type 1 hypervisor"
+          - "Virtual machines on a Type 2 hypervisor"
+          - "VRF instances"
+          - "Containers"
+        answer: 3
+        why: "Containers share the host kernel, so they are small and start almost instantly. Every virtual machine, on either type of hypervisor, boots a full guest OS, which costs memory and time. VRFs separate routing tables, not applications."
+
+      - id: cn-5c-q04
+        type: mcq
+        q: "In a WLC GUI an engineer creates a WLAN with WPA2 and PSK, and types the key 'cisco1'. The controller refuses to save it. Why?"
+        choices:
+          - "A pre-shared key must not contain digits"
+          - "PSK cannot be used with WPA2"
+          - "An ASCII pre-shared key must be 8 to 63 characters long"
+          - "The key must be entered in hexadecimal only"
+        answer: 2
+        why: "WPA and WPA2 personal keys are 8 to 63 ASCII characters (or exactly 64 hexadecimal digits). 'cisco1' has six characters. PSK is the normal personal-mode method for WPA2."
+      - id: cn-5c-q05
+        type: mcq
+        q: "Which pairing of a Wi-Fi security generation and its encryption method is correct?"
+        choices:
+          - "WPA with TKIP"
+          - "WPA2 with WEP"
+          - "WPA3 with TKIP"
+          - "WPA with AES-GCMP"
+        answer: 0
+        why: "WPA was a stop-gap that kept old hardware working by using TKIP. WPA2 moved to AES-CCMP and WPA3 keeps AES (adding GCMP-256 for its Enterprise 192-bit mode); WEP is the broken scheme that WPA replaced."
+
+  # ─────────────── 1e · DHCPv4 on IOS ───────────────
+  - id: cn-1e
+    title: "DHCPv4 on IOS: client, relay and server"
+    domain: "1"
+    goal: "I can set a Cisco router up as a DHCPv4 client, relay or server, and find why clients get no address or the wrong settings."
+    notes: |
+      **DHCPv4** hands a client its address, mask, default gateway and DNS server in four messages: Discover, Offer, Request, Acknowledge. The Discover is a broadcast, and a router does not forward broadcasts, so a server on another subnet needs a relay.
+
+      | Role | IOS configuration |
+      | Client | `ip address dhcp` on the interface |
+      | Relay | `ip helper-address <server>` on the interface **facing the clients** |
+      | Server | `ip dhcp excluded-address <first> <last>`, then `ip dhcp pool NAME` with `network`, `default-router`, `dns-server` and `lease` |
+
+      Verify a server with `show ip dhcp binding` (who holds which lease) and `show ip dhcp pool`. A Windows client that gets no answer falls back to a 169.254.x.x address; one that gets an address but cannot leave its subnet was probably given no `default-router`.
+    items:
+      - id: cn-4a-helper
+        type: concept
+        term: "ip helper-address"
+        def: "Interface command, placed on the router interface facing the clients, that forwards their DHCP broadcasts as unicasts to a server on another subnet."
+      - id: cn-4a-dhcp-client
+        type: concept
+        term: "ip address dhcp"
+        def: "Interface command that makes a router interface obtain its own address as a client instead of having one typed in."
+      - id: cn-4x-excluded
+        type: concept
+        term: "ip dhcp excluded-address"
+        def: "Global command that keeps an IOS address server from leasing a given address or range, such as the addresses typed by hand on routers and printers."
+
+      - id: cn-4a-q04
+        type: mcq
+        q: "Clients are in 10.1.10.0/24 on router interface Gi0/0. The DHCP server is 10.1.99.5, reached through Gi0/1. The clients get no addresses. The engineer finds 'ip helper-address 10.1.99.5' under Gi0/1. What is the fix?"
+        choices:
+          - "Change the helper address to 255.255.255.255"
+          - "Move the command to Gi0/0, the interface that receives the clients' broadcasts"
+          - "Add 'ip address dhcp' to Gi0/0"
+          - "Configure the helper address on the DHCP server instead"
+        answer: 1
+        why: "The relay must sit where the Discover broadcast arrives, which is the client-facing interface. It then forwards the request as a unicast to 10.1.99.5. 'ip address dhcp' would turn the router's own interface into a client."
+      - id: cn-4a-o01
+        type: order
+        q: "A client and its DHCP server are on different subnets, and the router between them is a relay. Put the first part of the exchange in order."
+        steps:
+          - "The client broadcasts a Discover on its own subnet"
+          - "The router forwards the Discover as a unicast to the server"
+          - "The server sends an Offer back to the router's client-side address"
+          - "The router delivers the Offer onto the client's subnet"
+        why: "The client has no address, so it can only broadcast; the relay turns that into a unicast and stamps it with its client-side interface address, which tells the server which scope to use and where to send the Offer."
+
+      - id: cn-4x-q06
+        type: mcq
+        q: "R1's WAN interface is configured with 'ip address dhcp' and the configuration contains no 'ip route' command. 'show ip route' nevertheless shows 'S* 0.0.0.0/0 [254/0] via 203.0.113.1'. Where did this route come from?"
+        choices:
+          - "A routing protocol on the WAN link advertised it to R1 as an external route"
+          - "The DHCP client installed it from the gateway in its lease"
+          - "NAT created it when 'ip nat outside' was applied to the interface"
+          - "It is the 'ip default-gateway' setting, displayed as a route"
+        answer: 1
+        why: "An IOS DHCP client installs a default static route to the default router named in its lease, with an administrative distance of 254 so that any other default route is preferred. A route from a routing protocol would carry that protocol's code, not S."
+      - id: cn-4x-q10
+        type: mcq
+        q: "An IOS DHCP server has: 'ip dhcp pool LAN10' / 'network 10.1.10.0 255.255.255.0' / 'dns-server 10.1.99.53' / 'lease 7'. Clients receive addresses and can ping each other, but reach nothing outside their subnet, and 'ipconfig' shows an empty default gateway. Which pool command is missing?"
+        choices:
+          - "ip helper-address 10.1.10.1"
+          - "default-router 10.1.10.1"
+          - "ip default-gateway 10.1.10.1"
+          - "domain-name example.com"
+        answer: 1
+        why: "Inside a DHCP pool the gateway handed to clients is set with 'default-router'. 'ip default-gateway' is a global command that gives a Layer 2 switch its own gateway, and 'ip helper-address' is an interface command for relaying."
+      - id: cn-4x-q11
+        type: mcq
+        q: "A router is the DHCP server for a LAN. Which command lists each leased address together with the client that holds it and the time the lease expires?"
+        choices:
+          - "show ip dhcp pool"
+          - "show ip dhcp conflict"
+          - "show ip dhcp binding"
+          - "show dhcp lease"
+        answer: 2
+        why: "'show ip dhcp binding' is the server's table of address, client identifier or hardware address, and lease expiry. 'show ip dhcp pool' gives totals for each pool, and 'show dhcp lease' shows the lease the router itself obtained as a client."
+
+  # ─────────────── 2a · VLANs and trunks ───────────────
+  - id: cn-2a
+    title: "VLANs, trunks and routing between VLANs"
+    domain: "2"
+    goal: "I can put ports into VLANs, build an 802.1Q trunk, route between VLANs, and find the fault from show vlan brief and show interfaces trunk."
+    notes: |
+      **Access ports** carry one data VLAN (and optionally a voice VLAN for a phone):
+
+      - `switchport mode access`
+      - `switchport access vlan 10`
+      - `switchport voice vlan 20`
+
+      All ports start in VLAN 1, the default VLAN, which cannot be deleted. `show vlan brief` lists VLANs and their **access** ports; a port that is trunking does not appear there.
+
+      **Trunks** carry many VLANs, each frame tagged with a 4-byte 802.1Q tag. Frames of the **native VLAN** (VLAN 1 by default) are sent untagged, so the native VLAN must match at both ends.
+
+      - `switchport mode trunk`
+      - `switchport trunk native vlan 99`
+      - `switchport trunk allowed vlan 10,20` (replaces the list; use `add` to extend it)
+
+      Verify with `show interfaces trunk`.
+
+      | Local mode | Far end: dynamic auto | Far end: dynamic desirable | Far end: trunk |
+      | dynamic auto | access | trunk | trunk |
+      | dynamic desirable | trunk | trunk | trunk |
+
+      **Routing between VLANs.** Either *router-on-a-stick* (one trunk to a router, one subinterface per VLAN with `encapsulation dot1q <vlan>`), or a Layer 3 switch with `ip routing` and one **SVI** (`interface vlan 10`) per VLAN. An SVI is up/up only if its VLAN exists and at least one port in that VLAN is up and forwarding.
+    items:
+      - id: cn-2a-access-vlan
+        type: concept
+        term: "switchport access vlan 10"
+        def: "Interface command that places an access port in the given VLAN, creating that VLAN if it does not yet exist."
+      - id: cn-2a-voice-vlan
+        type: concept
+        term: "switchport voice vlan 20"
+        def: "Interface command that makes an access port carry an IP phone's tagged traffic in a second VLAN, while the PC behind the phone stays untagged in the data VLAN."
+      - id: cn-2a-native
+        type: concept
+        term: "Native VLAN"
+        def: "The one VLAN whose frames cross an 802.1Q link without a tag; VLAN 1 by default, and it must be the same at both ends."
+      - id: cn-2a-show-trunk
+        type: concept
+        term: "show interfaces trunk"
+        def: "Lists the ports that are currently carrying several VLANs, with their encapsulation, untagged VLAN, and the VLANs allowed, active and forwarding on each."
+      - id: cn-2a-show-vlan
+        type: concept
+        term: "show vlan brief"
+        def: "Lists each VLAN with its name, status and the access ports assigned to it."
+      - id: cn-2a-roas
+        type: concept
+        term: "Router-on-a-stick"
+        def: "Inter-VLAN routing over one physical router link that is divided into subinterfaces, each tagged for one VLAN and holding that VLAN's gateway address."
+      - id: cn-1a-l3switch
+        type: concept
+        term: "Layer 3 switch"
+        def: "A device that forwards frames by MAC address and can also route packets between VLANs in hardware, using switched virtual interfaces or routed ports."
+      - id: cn-1a-mac-aging
+        type: concept
+        term: "MAC address aging"
+        def: "The removal of a dynamically learned switching-table entry when no frame from that source has been seen for a set time, 300 seconds by default on Catalyst switches."
+
+      - id: cn-2a-q01
+        type: mcq
+        q: "Gi0/5 is up and passing traffic, yet it is not listed against any VLAN in 'show vlan brief'. What is the most likely reason?"
+        choices:
+          - "The port is in VLAN 1"
+          - "The port is shut down"
+          - "The port is operating as a trunk"
+          - "The port has port security enabled"
+        answer: 2
+        why: "'show vlan brief' lists access ports only; a trunking port belongs to no single VLAN and is left out. A VLAN 1 port is listed under VLAN 1, and a shut-down or secured access port is still listed in its VLAN."
+      - id: cn-2a-q02
+        type: mcq
+        q: "Two switches are cabled together. Both ports are left at 'switchport mode dynamic auto'. What is the result?"
+        choices:
+          - "The link becomes an 802.1Q trunk"
+          - "The link stays an access link, because neither side starts the negotiation"
+          - "The ports are err-disabled by DTP"
+          - "The link becomes a trunk only for VLAN 1"
+        answer: 1
+        why: "Dynamic auto only answers DTP; it never initiates. With auto on both ends nobody asks, so both remain access ports. At least one end must be 'dynamic desirable' or 'trunk' for a trunk to form."
+      - id: cn-2a-q03
+        type: mcq
+        q: "SW1 and SW2 are joined by an 802.1Q trunk on Gi0/1. SW1 logs '%CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch discovered on GigabitEthernet0/1 (99), with SW2 GigabitEthernet0/1 (1)'. Which configuration explains it?"
+        choices:
+          - "SW1 has 'switchport trunk native vlan 99' and SW2 is still at the default"
+          - "SW1 allows only VLAN 99 on the trunk"
+          - "SW2 has VLAN 99 shut down"
+          - "SW1 is an access port in VLAN 99 and SW2 is an access port in VLAN 1"
+        answer: 0
+        why: "The numbers in brackets are each side's native VLAN: 99 on SW1 and the default, 1, on SW2. Untagged frames from VLAN 99 on SW1 land in VLAN 1 on SW2. Set the same native VLAN on both ends."
+      - id: cn-2a-q04
+        type: mcq
+        q: "On a router-on-a-stick, hosts in VLAN 20 (192.168.20.0/24) cannot reach their gateway. The router has: 'interface Gi0/0.20' / 'encapsulation dot1Q 30' / 'ip address 192.168.20.1 255.255.255.0'. What is wrong?"
+        choices:
+          - "The subinterface number must be 30 to match the tag"
+          - "Subinterfaces cannot have IP addresses"
+          - "The physical interface needs the IP address instead"
+          - "The subinterface is tagged for VLAN 30, not VLAN 20"
+        answer: 3
+        why: "The VLAN is set by 'encapsulation dot1Q', not by the subinterface number, which is only a local label. This subinterface receives VLAN 30 frames, so VLAN 20 hosts never reach 192.168.20.1. Change the line to 'encapsulation dot1Q 20'."
+      - id: cn-2a-q05
+        type: mcq
+        q: "'show interfaces trunk' on SW1 shows 'Vlans allowed on trunk: 10,20'. VLAN 30 must now cross the link as well, without interrupting VLANs 10 and 20. Which command should be entered on the trunk port?"
+        choices:
+          - "switchport trunk allowed vlan 30"
+          - "switchport trunk allowed vlan add 30"
+          - "switchport access vlan 30"
+          - "switchport trunk native vlan 30"
+        answer: 1
+        why: "The 'add' keyword appends to the existing list. Without it the command replaces the list, leaving only VLAN 30 and cutting off 10 and 20."
+      - id: cn-2a-m01
+        type: multi
+        q: "On a Layer 3 switch, 'interface vlan 10' has an IP address and 'no shutdown' but shows down/down. Which TWO conditions must be met before it comes up/up?"
+        choices:
+          - "VLAN 10 exists and is active in the VLAN database"
+          - "At least one access or trunk port carrying VLAN 10 is up and in the forwarding state"
+          - "The 'ip routing' command is configured"
+          - "VLAN 10 is the native VLAN on every trunk"
+          - "A default gateway is configured on the switch"
+        answers: [0, 1]
+        why: "An SVI follows its VLAN: the VLAN must exist and have at least one live, forwarding port. 'ip routing' is needed to route between SVIs, not for an SVI to come up, and the native VLAN and default gateway have nothing to do with it."
+
+      - id: cn-1a-m01
+        type: multi
+        q: "Which TWO frames will a switch flood out of every port in the VLAN except the one on which the frame arrived?"
+        choices:
+          - "A frame addressed to ffff.ffff.ffff"
+          - "A unicast frame whose destination MAC is not in the MAC address table"
+          - "A unicast frame whose destination MAC was learned on a different port"
+          - "A unicast frame whose destination MAC was learned on the same port it arrived on"
+          - "A unicast frame whose source MAC is new but whose destination MAC is in the table"
+        answers: [0, 1]
+        why: "Broadcasts and unknown unicasts are flooded. A known destination is forwarded out of its one port, a destination on the arrival port is filtered (dropped), and a new source address only causes learning: it does not change how the destination is handled."
+
+  # ─────────────── 2b · STP, EtherChannel, discovery ───────────────
+  - id: cn-2b
+    title: "Spanning tree, EtherChannel and neighbour discovery"
+    domain: "2"
+    goal: "I can predict the root bridge and port roles of Rapid PVST+, protect edge ports, bundle links with LACP, and map neighbours with CDP and LLDP."
+    notes: |
+      **Rapid PVST+** runs one rapid spanning tree per VLAN. The switch with the lowest **bridge ID** (priority, then MAC address) becomes the **root bridge**. The default priority is 32768 plus the VLAN number; `spanning-tree vlan 10 root primary` lowers it.
+
+      | Port role | Meaning |
+      | Root | The one port on a non-root switch with the best path to the root |
+      | Designated | The forwarding port for a segment; all ports on the root |
+      | Alternate | A blocked backup path to the root; takes over at once if the root port fails |
+
+      States are discarding, learning and forwarding. Read it all with `show spanning-tree vlan 10`.
+
+      **Edge protection.** **PortFast** lets a host port forward immediately. **BPDU guard** err-disables a port that receives a BPDU. **Root guard** refuses a better root on a port. **Loop guard** stops a blocked port from forwarding when BPDUs silently stop.
+
+      **EtherChannel** bundles parallel links into one logical port-channel. Member ports must match in speed, duplex and VLAN settings.
+
+      | Protocol | Modes that form a bundle |
+      | LACP (IEEE) | active with active, or active with passive |
+      | PAgP (Cisco) | desirable with desirable, or desirable with auto |
+      | None | on with on |
+
+      Configure with `channel-group 1 mode active`; verify with `show etherchannel summary` (SU means Layer 2 and in use, P means bundled).
+
+      **Discovery.** CDP is Cisco's and on by default; LLDP is the open standard, enabled with `lldp run`. `show cdp neighbors` and `show lldp neighbors` list what is attached to each port.
+    items:
+      - id: cn-2b-root-bridge
+        type: concept
+        term: "Root bridge"
+        def: "The switch with the lowest priority-plus-MAC identifier in a VLAN's spanning tree; every one of its ports is designated and forwarding."
+      - id: cn-2b-portfast
+        type: concept
+        term: "PortFast"
+        def: "A feature for ports facing end hosts that skips the usual spanning-tree wait and moves straight to forwarding when the link comes up."
+      - id: cn-2b-bpduguard
+        type: concept
+        term: "BPDU guard"
+        def: "Puts a port into the err-disabled state the moment a spanning-tree message arrives on it; normally paired with host-facing edge ports."
+      - id: cn-2b-rootguard
+        type: concept
+        term: "Root guard"
+        def: "Stops a port from ever becoming a root port: if a superior BPDU arrives, the port is held root-inconsistent until those BPDUs stop."
+      - id: cn-2b-lacp
+        type: concept
+        term: "LACP"
+        def: "The IEEE negotiation protocol for bundling parallel links into one logical link; its two modes are active and passive."
+      - id: cn-2b-lldp
+        type: concept
+        term: "LLDP"
+        def: "The vendor-neutral IEEE 802.1AB neighbour discovery protocol; on IOS it is turned on globally with the 'run' keyword."
+      - id: cn-2b-cdp-detail
+        type: concept
+        term: "show cdp neighbors detail"
+        def: "Shows, for each directly connected Cisco device, its hostname, platform, software version, local and remote ports and its management IP address."
+
+      - id: cn-2b-q01
+        type: mcq
+        q: "Three switches run Rapid PVST+ for VLAN 10. SW1: priority 32778, MAC 0019.aaaa.0001. SW2: priority 32778, MAC 0019.aaaa.0002. SW3: priority 28682, MAC 0019.ffff.ffff. Which switch is the root bridge?"
+        choices:
+          - "SW1, because it has the lowest MAC address"
+          - "SW2, because it has the highest MAC among the default-priority switches"
+          - "SW3, because it has the lowest priority"
+          - "SW3, because it has the highest MAC address"
+        answer: 2
+        why: "Priority is compared first and the lowest wins: 28682 beats 32778. The MAC address is only a tie-breaker between equal priorities, in which case SW1 would have won."
+      - id: cn-2b-q02
+        type: mcq
+        q: "Two switches are joined by two links. Both switches have 'channel-group 1 mode passive' on the member ports, and 'show etherchannel summary' shows Po1 down. Which change brings the bundle up?"
+        choices:
+          - "Change one switch to 'channel-group 1 mode active'"
+          - "Change one switch to 'channel-group 1 mode desirable'"
+          - "Change one switch to 'channel-group 1 mode on'"
+          - "Change one switch to 'channel-group 1 mode auto'"
+        answer: 0
+        why: "LACP passive only answers; at least one side must be active to start negotiating. 'desirable' and 'auto' are PAgP modes and 'on' uses no protocol at all, so none of them can form a bundle with an LACP passive partner."
+      - id: cn-2b-q03
+        type: mcq
+        q: "'show etherchannel summary' includes the line: '1  Po1(SU)  LACP  Gi0/1(P)  Gi0/2(P)'. What does it tell you?"
+        choices:
+          - "A Layer 3 port-channel that is down, with both ports suspended"
+          - "A Layer 2 port-channel with both ports running stand-alone"
+          - "A Layer 3 port-channel that is in use, with one port bundled"
+          - "A Layer 2 port-channel that is in use, with both ports bundled"
+        answer: 3
+        why: "S means Layer 2 (switched) and U means in use; P means the port is bundled in the port-channel. A Layer 3 channel would show R, a down channel D, and stand-alone ports I."
+      - id: cn-2b-q04
+        type: mcq
+        q: "A user plugs a small desktop switch into a wall port. The port goes down and the access switch logs '%SPANTREE-2-BLOCK_BPDUGUARD: Received BPDU on port Gi0/7 with BPDU Guard enabled. Disabling port.' The desktop switch has been removed. With default settings, how is the port restored?"
+        choices:
+          - "It recovers by itself after 30 seconds"
+          - "Enter 'shutdown' and then 'no shutdown' on Gi0/7"
+          - "Enter 'spanning-tree portfast' on Gi0/7"
+          - "Enter 'clear spanning-tree detected-protocols'"
+        answer: 1
+        why: "BPDU guard puts the port into err-disabled, and by default automatic err-disable recovery is off, so an administrator must bounce the port. PortFast is already there and does not clear the error state."
+      - id: cn-2b-q05
+        type: mcq
+        q: "On a non-root switch, 'show spanning-tree vlan 10' lists: 'Gi0/1  Root  FWD  4' and 'Gi0/2  Altn  BLK  4'. What happens if the link on Gi0/1 fails?"
+        choices:
+          - "Gi0/2 waits 30 seconds in listening and learning before forwarding"
+          - "The switch becomes the root bridge"
+          - "Gi0/2 becomes the root port and moves to forwarding almost immediately"
+          - "Gi0/2 stays blocked until an administrator intervenes"
+        answer: 2
+        why: "In rapid spanning tree an alternate port is a pre-computed second path to the root, so it takes over as root port without timers. The 30-second listening and learning delay belongs to the original 802.1D protocol."
+
+  # ─────────────── 2c · access points on the switch ───────────────
+  - id: cn-2c
+    title: "Access points on the switch: autonomous and controller-based"
+    domain: "2"
+    goal: "I can describe how autonomous and lightweight access points connect to the switched network and configure the switch port each one needs."
+    notes: |
+      **Two architectures.** An **autonomous AP** works alone: it is configured one by one and bridges each SSID to a VLAN on its own wired trunk. A **lightweight AP** needs a **wireless LAN controller**: the AP handles the radio, and tunnels everything else to the WLC in **CAPWAP** (UDP 5246 control, UDP 5247 data).
+
+      | Device and mode | Switch port it needs |
+      | Lightweight AP, local mode | Access port: client VLANs travel inside the tunnel |
+      | Autonomous AP, or FlexConnect with local switching | Trunk: client VLANs are dropped off at the AP |
+      | WLC | Trunk, often a LAG of several ports |
+
+      A LAG on a classic (AireOS) controller does not negotiate, so the switch side is an EtherChannel in mode **on**. (The newer Catalyst 9800 controllers can also negotiate with LACP.)
+
+      **AP modes.** *Local* is the default and serves clients. *FlexConnect* suits branches: it can switch traffic locally and survive loss of the WLC. *Monitor* only scans. *Sniffer* captures frames for an analyser.
+
+      **In the WLC GUI** a WLAN ties together a profile name, an SSID, the controller **interface** (and so the VLAN) clients are placed in, a security policy and a QoS profile: Platinum for voice, Gold for video, Silver for best effort (the default) and Bronze for background.
+
+      **Managing devices.** The console port works with no network at all. Remote CLI should be SSH (TCP 22), never Telnet (TCP 23, clear text); web management should be HTTPS, not HTTP. Logins can be checked against a TACACS+ or RADIUS server, and cloud-managed devices are configured from a vendor-hosted dashboard.
+    items:
+      - id: cn-2c-capwap
+        type: concept
+        term: "CAPWAP"
+        def: "The tunnelling protocol between a lightweight access point and its controller, with control messages on UDP 5246 and client data on UDP 5247."
+      - id: cn-2c-autonomous
+        type: concept
+        term: "Autonomous AP"
+        def: "A self-contained access point that is configured and managed individually and bridges each SSID to a VLAN on its own wired trunk."
+      - id: cn-2c-flexconnect
+        type: concept
+        term: "FlexConnect"
+        def: "An access point mode for branch sites that can switch client traffic locally and keep serving clients if the WAN link to the controller fails."
+      - id: cn-2c-local-mode
+        type: concept
+        term: "Local mode"
+        def: "The default lightweight access point mode: it serves clients and tunnels all of their traffic to the controller."
+
+      - id: cn-2c-q01
+        type: mcq
+        q: "A lightweight AP in local mode serves three SSIDs that map to VLANs 10, 20 and 30 on the controller. The AP's own management address is in VLAN 50. How should the switch port facing the AP be configured?"
+        choices:
+          - "As a trunk allowing VLANs 10, 20, 30 and 50"
+          - "As a trunk with native VLAN 10"
+          - "As a routed port"
+          - "As an access port in VLAN 50"
+        answer: 3
+        why: "In local mode all client traffic is carried to the controller inside the CAPWAP tunnel, so the switch only sees the AP's own VLAN. A trunk is needed for an autonomous AP or for FlexConnect local switching, where client VLANs leave at the AP."
+
+  # ─────────────── 3a · the routing table ───────────────
+  - id: cn-3a
+    title: "Reading the routing table"
+    domain: "3"
+    goal: "I can read every part of a show ip route entry and predict which route a router will use for a given destination."
+    notes: |
+      `show ip route` is the most important output on the exam. One line holds everything:
+
+      `O 10.1.2.128/25 [110/30] via 192.168.4.4, 00:12:01, GigabitEthernet0/1`
+
+      | Part | Meaning |
+      | O | Source of the route (here OSPF) |
+      | 10.1.2.128/25 | Prefix and mask length |
+      | [110/30] | Administrative distance, then metric |
+      | via 192.168.4.4 | Next hop |
+      | 00:12:01 | Age of the route |
+      | GigabitEthernet0/1 | Exit interface |
+
+      Common codes: **C** connected, **L** local (the router's own address, a /32), **S** static, **O** OSPF, **D** EIGRP, **R** RIP. An asterisk marks a candidate default route, and the first lines of the output state the **gateway of last resort**.
+
+      **Two separate decisions.**
+
+      - *Which routes get into the table?* For the **same prefix and length**, the source with the lowest **administrative distance** wins; within one protocol the lowest **metric** wins. Equal-metric routes are all installed and share the load.
+      - *Which table entry forwards this packet?* The **longest prefix match**: the matching entry with the most network bits. AD and metric play no part here.
+
+      | Source | Default AD |
+      | Connected | 0 |
+      | Static | 1 |
+      | eBGP | 20 |
+      | EIGRP | 90 |
+      | OSPF | 110 |
+      | RIP | 120 |
+
+      If nothing matches and there is no default route, the packet is dropped and the sender is told with an ICMP destination unreachable message.
+    items:
+      - id: cn-3a-show-ip-route
+        type: concept
+        term: "show ip route"
+        def: "Displays the IPv4 forwarding table: for each entry its source code, prefix, bracketed distance and metric, next hop, age and exit interface."
+      - id: cn-3a-golr
+        type: concept
+        term: "Gateway of last resort"
+        def: "The next hop of the default route, stated near the top of the routing table; it is used when no more specific entry matches."
+      - id: cn-3a-lpm
+        type: concept
+        term: "Longest prefix match"
+        def: "The rule that, of all the table entries that contain a packet's destination address, the one with the most network bits is used."
+      - id: cn-3a-local
+        type: concept
+        term: "Local route (code L)"
+        def: "A /32 entry that the router creates automatically for each of its own interface addresses."
+      - id: cn-3a-connected
+        type: concept
+        term: "Connected route (code C)"
+        def: "An entry for the subnet of an interface that is up/up and has an address; its administrative distance is 0."
+      - id: cn-3a-brackets
+        type: concept
+        term: "[110/20] in a route entry"
+        def: "A bracketed pair in a routing-table line: the first number is the administrative distance and the second is the metric."
+
+      - id: cn-3a-q01
+        type: mcq
+        q: "A router's table holds: 'O 10.1.0.0/16 [110/20] via 192.168.1.1' / 'S 10.1.2.0/24 [1/0] via 192.168.2.2' / 'O 10.1.2.128/25 [110/30] via 192.168.4.4' / 'S* 0.0.0.0/0 [1/0] via 192.168.3.3'. To which next hop is a packet for 10.1.2.200 sent?"
+        choices: ["192.168.1.1", "192.168.2.2", "192.168.3.3", "192.168.4.4"]
+        answer: 3
+        why: "10.1.2.200 lies inside all four entries, and the /25 (10.1.2.128 to 10.1.2.255) is the longest match. The static /24 has a better administrative distance, but AD only compares routes to the same prefix; it does not override a more specific route."
+      - id: cn-3a-q02
+        type: mcq
+        q: "'show ip route' on R1 reports 'Gateway of last resort is not set' and lists only 'C 192.168.1.0/24', 'L 192.168.1.1/32' and 'O 10.0.0.0/8 [110/2] via 192.168.1.2'. A host on the LAN sends a packet to 8.8.8.8. What does R1 do?"
+        choices:
+          - "Drops the packet and returns an ICMP destination unreachable message"
+          - "Forwards it to 192.168.1.2, the only learned next hop"
+          - "Floods it out of every interface"
+          - "Holds the packet until a route is learned"
+        answer: 0
+        why: "8.8.8.8 matches no entry and there is no default route, so the router discards the packet and notifies the sender. Routers never flood unknown destinations the way switches do."
+      - id: cn-3a-q03
+        type: mcq
+        q: "A router learns 10.5.0.0/24 from OSPF with a metric of 20 and from RIP with a metric of 2. Which route goes into the routing table, and why?"
+        choices:
+          - "The RIP route, because its metric is lower"
+          - "Both, because the prefixes are identical"
+          - "The OSPF route, because its administrative distance is lower"
+          - "The OSPF route, because its metric is higher"
+        answer: 2
+        why: "Between different sources the administrative distance decides: OSPF is 110 and RIP is 120. Metrics from different protocols measure different things (cost against hop count) and are never compared with each other."
+      - id: cn-3a-q04
+        type: mcq
+        q: "What does this entry say? 'D 10.4.4.0/24 [90/3072] via 10.1.1.2, 00:12:01, GigabitEthernet0/1'"
+        choices:
+          - "A directly connected network with a cost of 3072"
+          - "An EIGRP route with administrative distance 90 and metric 3072"
+          - "An OSPF route with administrative distance 90 and cost 3072"
+          - "A default route with metric 90 that was learned 3072 seconds ago"
+        answer: 1
+        why: "D is the code for EIGRP (from its DUAL algorithm), and the brackets are [administrative distance/metric]. Connected routes use the code C, OSPF routes use O with a distance of 110, and the age is the 00:12:01 field."
+      - id: cn-3a-q05
+        type: mcq
+        q: "OSPF offers a router two paths to 172.16.9.0/24, through different neighbours, each with a total cost of 30. What appears in the routing table?"
+        choices:
+          - "Only the path through the neighbour with the higher router ID"
+          - "Only the path that was learned first"
+          - "Neither, until one cost changes"
+          - "Both paths, and traffic is shared between them"
+        answer: 3
+        why: "Routes to the same prefix from the same protocol with an equal metric are all installed (up to four by default) and the router load-balances across them. This is equal-cost multipath."
+      - id: cn-3a-m01
+        type: multi
+        q: "Which TWO route sources have a default administrative distance lower than OSPF's 110?"
+        choices: ["RIP", "Static route", "Internal EIGRP", "External EIGRP", "Internal BGP"]
+        answers: [1, 2]
+        why: "Static routes are 1 and internal EIGRP is 90. RIP is 120, external EIGRP is 170 and internal BGP is 200, all less trusted than OSPF."
+
+  # ─────────────── 3b · static routing ───────────────
+  - id: cn-3b
+    title: "Static routes for IPv4 and IPv6"
+    domain: "3"
+    goal: "I can configure and verify default, network, host and floating static routes for IPv4 and IPv6, and explain why a static route is missing from the table."
+    notes: |
+      A static route names a destination and how to reach it.
+
+      | Kind | IPv4 example | IPv6 example |
+      | Network | `ip route 10.2.0.0 255.255.0.0 192.168.1.2` | `ipv6 route 2001:db8:2::/64 2001:db8:12::2` |
+      | Default | `ip route 0.0.0.0 0.0.0.0 203.0.113.1` | `ipv6 route ::/0 2001:db8:ffff::1` |
+      | Host | `ip route 10.9.9.9 255.255.255.255 192.168.1.2` | `ipv6 route 2001:db8:9::9/128 2001:db8:12::2` |
+      | Floating | `ip route 10.2.0.0 255.255.0.0 192.168.5.2 130` | same idea: a distance at the end |
+
+      Things the exam checks:
+
+      - A static route is installed only while its next hop is reachable (or its exit interface is up). If the link goes down the route leaves the table.
+      - A route with only a next hop needs a **recursive lookup** to find the exit interface.
+      - A **floating static** is a backup: give it an administrative distance *higher* than the route it backs up (above 110 for OSPF) and it stays hidden until the primary disappears.
+      - An IPv6 route whose next hop is a **link-local** address must also name the exit interface: `ipv6 route 2001:db8:2::/64 GigabitEthernet0/0 fe80::2`.
+      - Routing is needed **in both directions**. A ping that fails is as often a missing return route as a missing forward one.
+
+      Verify with `show ip route static`, `show ipv6 route static`, `ping` and `traceroute`.
+    items:
+      - id: cn-3b-ip-route
+        type: concept
+        term: "ip route <network> <mask> <next-hop>"
+        def: "The global-configuration command that adds a manually defined IPv4 path, giving the destination prefix, its mask and the neighbouring router's address."
+      - id: cn-3b-default
+        type: concept
+        term: "ip route 0.0.0.0 0.0.0.0 <next-hop>"
+        def: "The manually configured entry that matches every IPv4 destination and so sets the gateway of last resort."
+      - id: cn-3b-host-route
+        type: concept
+        term: "Host route"
+        def: "A route with a /32 mask (or /128 in IPv6) that matches exactly one address."
+      - id: cn-3b-floating
+        type: concept
+        term: "Floating static route"
+        def: "A manually configured backup path given a higher administrative distance than the primary, so it enters the table only when the primary route disappears."
+      - id: cn-3b-ipv6-route
+        type: concept
+        term: "ipv6 route <prefix/length> <next-hop>"
+        def: "The global command that adds a manually defined IPv6 path; the destination is written with a slash and a length rather than a dotted mask."
+      - id: cn-3b-fully-specified
+        type: concept
+        term: "Fully specified static route"
+        def: "A manually configured route that names both the exit interface and the next-hop address; required when the next hop is an IPv6 link-local address."
+      - id: cn-3b-recursive
+        type: concept
+        term: "Recursive lookup"
+        def: "The second search of the routing table that a router performs to find the exit interface for a route that lists only a next-hop address."
+
+      - id: cn-3b-q01
+        type: mcq
+        q: "R1 has 'ip route 10.20.30.0 255.255.255.0 172.16.1.2' in its running configuration, but 'show ip route' has no entry for 10.20.30.0. 'show ip interface brief' shows the interface in 172.16.1.0/30 as 'down down'. Why is the route missing?"
+        choices:
+          - "Static routes appear only after a reload"
+          - "The next hop cannot be resolved, so the route is not installed"
+          - "The mask in the command should be a wildcard mask"
+          - "A dynamic routing protocol must be enabled first"
+        answer: 1
+        why: "A static route is placed in the table only while its next-hop address can be reached through another route. With the connected network 172.16.1.0/30 gone, 172.16.1.2 is unresolvable. The route returns by itself when the interface comes up."
+      - id: cn-3b-q02
+        type: mcq
+        q: "A router learns 10.50.0.0/16 from OSPF over its primary link. Which command adds a backup through 203.0.113.1 that is used only if the OSPF route disappears?"
+        choices:
+          - "ip route 10.50.0.0 255.255.0.0 203.0.113.1"
+          - "ip route 10.50.0.0 255.255.0.0 203.0.113.1 100"
+          - "ip route 10.50.0.0 255.255.0.0 203.0.113.1 120"
+          - "ip route 10.50.0.0 255.255.0.0 203.0.113.1 255"
+        answer: 2
+        why: "The backup must have a distance above OSPF's 110, so 120 works. With no value (distance 1) or with 100 the static route would replace the OSPF route at once, and a distance of 255 means 'unusable': the route is never installed."
+      - id: cn-3b-q03
+        type: mcq
+        q: "PC1 (192.168.1.10) is on R1's LAN and PC2 (192.168.2.10) is on R2's LAN. R1 and R2 share 10.0.0.0/30. R1 has 'ip route 192.168.2.0 255.255.255.0 10.0.0.2'. R2 has only its connected routes. PC1 pings PC2 and gets no reply. Why?"
+        choices:
+          - "The echo request is dropped by R1"
+          - "R1 needs a default route as well"
+          - "PC2 has no ARP entry for PC1"
+          - "The echo reply is dropped by R2, which has no route to 192.168.1.0/24"
+        answer: 3
+        why: "R1 can deliver the request, and PC2 answers through its gateway R2. R2 knows only 10.0.0.0/30 and 192.168.2.0/24, so it discards the reply. Add 'ip route 192.168.1.0 255.255.255.0 10.0.0.1' on R2."
+      - id: cn-3b-q04
+        type: mcq
+        q: "Which command configures an IPv6 default route towards 2001:db8:ffff::1?"
+        choices:
+          - "ipv6 route ::/0 2001:db8:ffff::1"
+          - "ipv6 route ::/128 2001:db8:ffff::1"
+          - "ipv6 route 0.0.0.0/0 2001:db8:ffff::1"
+          - "ipv6 route ::1/0 2001:db8:ffff::1"
+        answer: 0
+        why: "::/0 is the all-zeros prefix with a length of zero, the IPv6 equivalent of 0.0.0.0 0.0.0.0. ::/128 is the single unspecified address, and ::1 is the loopback address."
+      - id: cn-3b-q05
+        type: mcq
+        q: "An engineer enters 'ipv6 route 2001:db8:2::/64 fe80::2' and IOS rejects it, asking for an interface. Which command is accepted?"
+        choices:
+          - "ipv6 route 2001:db8:2::/64 fe80::2 link-local"
+          - "ipv6 route 2001:db8:2::/64 GigabitEthernet0/0 fe80::2"
+          - "ipv6 route 2001:db8:2::/64 fe80::2/10"
+          - "ipv6 route 2001:db8:2:: 64 fe80::2"
+        answer: 1
+        why: "A link-local address exists on every link, so the router cannot tell which link fe80::2 is on. Naming the exit interface before the next hop makes the route fully specified."
+      - id: cn-3b-o01
+        type: order
+        q: "A router receives a frame carrying an IP packet for a remote network reached through an Ethernet next hop. Put what the router does in order."
+        steps:
+          - "Remove the incoming frame's header and trailer to get the IP packet"
+          - "Find the longest matching route for the destination IP address"
+          - "Find the next hop's MAC address, using ARP if it is not cached"
+          - "Build a new frame around the packet and send it out of the exit interface"
+        why: "The router must see the packet before it can look up a route, must know the route before it knows whose MAC address to resolve, and needs that MAC address to build the outgoing frame."
+
+  # ─────────────── 3c · OSPF configuration and neighbours ───────────────
+  - id: cn-3c
+    title: "Single-area OSPFv2: configuration and neighbours"
+    domain: "3"
+    goal: "I can enable single-area OSPFv2, predict the router ID and interface cost, and explain from show output why two routers will not become neighbours."
+    notes: |
+      OSPF is a link-state protocol: routers form neighbour relationships, exchange link-state advertisements until their databases match, then each runs the SPF algorithm.
+
+      **Enabling it** (two ways):
+
+      - `router ospf 1` then `network 10.1.1.0 0.0.0.255 area 0`
+      - or, on the interface: `ip ospf 1 area 0`
+
+      The process ID (1) is local only. The `network` command uses a **wildcard mask**; it selects interfaces, it does not advertise that exact prefix.
+
+      **Router ID**, chosen once when the process starts: `router-id` command, else highest loopback address, else highest address on an active interface.
+
+      **Cost** is reference bandwidth divided by interface bandwidth, with a floor of 1. The default reference is 100 Mbps, so FastEthernet, GigabitEthernet and faster all cost 1. Fix it on every router with `auto-cost reference-bandwidth 10000`.
+
+      **To become neighbours on a link, these must match:**
+
+      | Must match | Must differ or need not match |
+      | Area ID | Router ID (must be unique) |
+      | Hello and dead timers (10 and 40 s on Ethernet) | Process ID |
+      | Subnet and mask | Cost |
+      | Authentication, if used | |
+
+      An MTU mismatch lets routers see each other but stalls them in EXSTART.
+
+      States in order: Down, Init, 2-Way, ExStart, Exchange, Loading, Full.
+
+      **Verify** with `show ip ospf neighbor`, `show ip ospf interface brief`, `show ip protocols` and `show ip route ospf`. `passive-interface` stops hellos on LAN ports that face only hosts.
+    items:
+      - id: cn-3c-router-ospf
+        type: concept
+        term: "router ospf 1"
+        def: "Starts an OSPFv2 process; the number is a locally significant process ID that does not have to match on neighbouring routers."
+      - id: cn-3c-network
+        type: concept
+        term: "network 10.1.1.0 0.0.0.255 area 0"
+        def: "In OSPF configuration mode, enables the protocol on every interface whose address falls inside the range given by an address and a wildcard mask, and places those interfaces in the stated area."
+      - id: cn-3c-int-cmd
+        type: concept
+        term: "ip ospf 1 area 0"
+        def: "The interface-mode alternative for enabling OSPF directly on one interface, with no wildcard mask involved."
+      - id: cn-3c-rid
+        type: concept
+        term: "OSPF router ID"
+        def: "A 32-bit identifier chosen in this order: the manually configured value, else the highest loopback address, else the highest address on an active physical interface."
+      - id: cn-3c-timers
+        type: concept
+        term: "Hello and dead intervals"
+        def: "The two OSPF timers that must be equal on both neighbours: 10 and 40 seconds by default on Ethernet."
+      - id: cn-3c-cost
+        type: concept
+        term: "OSPF cost"
+        def: "Reference bandwidth divided by interface bandwidth (default reference 100 Mbps), never less than 1; summed over the outgoing interfaces on the way to a destination."
+      - id: cn-3c-passive
+        type: concept
+        term: "passive-interface"
+        def: "Stops OSPF sending hellos out of an interface, so no neighbours form there, while that interface's subnet is still advertised."
+      - id: cn-3c-show-neighbor
+        type: concept
+        term: "show ip ospf neighbor"
+        def: "Lists each adjacent router's ID, priority, state (such as FULL/DR), dead time, address and the local interface it is reached through."
+
+      - id: cn-3c-q01
+        type: mcq
+        q: "R1's Gi0/1 is 172.16.5.1/30. Which command under 'router ospf 1' enables OSPF on that interface by matching exactly its subnet?"
+        choices:
+          - "network 172.16.5.0 255.255.255.252 area 0"
+          - "network 172.16.5.0 0.0.0.252 area 0"
+          - "network 172.16.5.0 0.0.0.4 area 0"
+          - "network 172.16.5.0 0.0.0.3 area 0"
+        answer: 3
+        why: "The wildcard is 255.255.255.255 minus the mask: 255.255.255.252 becomes 0.0.0.3, which matches 172.16.5.0 to 172.16.5.3. The network command takes a wildcard mask, not a subnet mask."
+      - id: cn-3c-q02
+        type: mcq
+        q: "R1 and R2 share an Ethernet link in area 0 and both are up/up, but neither lists the other in 'show ip ospf neighbor'. 'show ip ospf interface' on R1 shows 'Hello 10, Dead 40'; on R2 it shows 'Hello 5, Dead 20'. R1 uses 'router ospf 1' and R2 'router ospf 20'. What prevents the adjacency?"
+        choices:
+          - "The process IDs are different"
+          - "The router IDs are different"
+          - "The hello and dead timers are different"
+          - "OSPF needs a third router to elect a DR"
+        answer: 2
+        why: "Hello and dead intervals must match or hellos from the other router are ignored. Process IDs are local and need not match, and router IDs must in fact be different."
+      - id: cn-3c-q03
+        type: mcq
+        q: "A router has Loopback0 1.1.1.1, Loopback1 10.10.10.10 and GigabitEthernet0/0 192.168.1.1, all up, and no 'router-id' command. OSPF is started. What router ID does it choose?"
+        choices: ["10.10.10.10", "1.1.1.1", "192.168.1.1", "0.0.0.0"]
+        answer: 0
+        why: "With no manual setting, the highest loopback address wins: 10.10.10.10. Physical interface addresses are considered only when there is no loopback at all, even if they are numerically higher."
+      - id: cn-3c-q04
+        type: mcq
+        q: "A network has FastEthernet and GigabitEthernet links, and OSPF treats them as equally good. Which change, made on every router, lets OSPF prefer the faster links?"
+        choices:
+          - "'ip ospf priority 255' on the GigabitEthernet interfaces"
+          - "'auto-cost reference-bandwidth 10000' under the OSPF process"
+          - "'ip ospf hello-interval 5' on the GigabitEthernet interfaces"
+          - "'passive-interface' on the FastEthernet interfaces"
+        answer: 1
+        why: "With the default 100 Mbps reference both link types cost 1. Raising the reference to 10000 Mbps gives GigabitEthernet a cost of 10 and FastEthernet 100. Priority affects only the DR election, and a passive interface forms no neighbours at all."
+      - id: cn-3c-m01
+        type: multi
+        q: "Which THREE settings must match before two OSPF routers on the same Ethernet link can become neighbours?"
+        choices:
+          - "Area ID"
+          - "Hello and dead intervals"
+          - "Subnet and mask"
+          - "OSPF process ID"
+          - "Router ID"
+          - "Interface cost"
+        answers: [0, 1, 2]
+        why: "Hellos are accepted only if area, timers and the subnet and mask agree. The process ID is local, the cost may differ at each end, and router IDs must be different, not equal."
+      - id: cn-3c-o01
+        type: order
+        q: "Put these OSPF neighbour states in the order a router passes through them on the way to a full adjacency."
+        steps: ["Init", "2-Way", "ExStart", "Exchange", "Loading", "Full"]
+        why: "A hello is seen (Init), then seen to list this router (2-Way). The pair choose who leads the database exchange (ExStart), swap database summaries (Exchange), request the missing LSAs (Loading) and finish with identical databases (Full)."
+
+  # ─────────────── 3d · DR/BDR, network types, FHRP ───────────────
+  - id: cn-3d
+    title: "OSPF on shared segments, and first hop redundancy"
+    domain: "3"
+    goal: "I can predict the DR and BDR on an Ethernet segment, read neighbour states correctly, and explain how HSRP and VRRP keep a default gateway alive."
+    notes: |
+      **OSPF network types.** On Ethernet the default type is **broadcast**: the routers elect a **designated router (DR)** and a backup (**BDR**) so that everyone synchronises with those two instead of with each other. On a **point-to-point** link there are only two routers, so there is no election; `ip ospf network point-to-point` makes an Ethernet link between two routers behave that way and come up faster.
+
+      **The election.** Highest interface **priority** wins (default 1, range 0 to 255; 0 means never). Ties go to the highest **router ID**. There is **no preemption**: a better router that arrives later waits until the DR fails.
+
+      | Output in show ip ospf neighbor | Meaning |
+      | FULL/DR | That neighbour is the DR |
+      | FULL/BDR | That neighbour is the BDR |
+      | 2WAY/DROTHER | Normal between two routers that are neither DR nor BDR |
+      | FULL/  - | Point-to-point link: no DR concept |
+
+      **First hop redundancy.** Hosts have one default gateway address. An FHRP lets two or more routers share a **virtual IP** and virtual MAC, so the gateway survives a router failure with no change on the hosts.
+
+      | Protocol | Origin | Roles | Preemption by default |
+      | HSRP | Cisco | Active, standby | Off |
+      | VRRP | Open standard | Master, backup | On |
+      | GLBP | Cisco | AVG and forwarders; load-balances | Off for the AVG (on for the forwarders) |
+
+      In HSRP the highest priority (default 100) becomes active. Typical lines: `standby 1 ip 10.1.1.1`, `standby 1 priority 110`, `standby 1 preempt`. Check with `show standby brief`.
+    items:
+      - id: cn-3d-dr
+        type: concept
+        term: "Designated router (DR)"
+        def: "On a multi-access OSPF segment, the winner of the election: the router that receives the link-state updates sent by the others and refloods them to the whole segment on their behalf."
+      - id: cn-3d-drother
+        type: concept
+        term: "DROTHER"
+        def: "An OSPF router on a broadcast segment that holds neither elected role; it reaches the full state with only the two elected routers and stays at 2-Way with its peers."
+      - id: cn-3d-priority
+        type: concept
+        term: "ip ospf priority"
+        def: "Interface command that sets a router's eligibility in the election on a broadcast segment, from 0 to 255; the highest wins and 0 means never."
+      - id: cn-3d-p2p
+        type: concept
+        term: "ip ospf network point-to-point"
+        def: "Interface command that makes OSPF treat an Ethernet link as having only two routers, so no election takes place on it."
+      - id: cn-3d-hsrp
+        type: concept
+        term: "HSRP"
+        def: "Cisco's first hop redundancy protocol: one active and one standby router share a virtual IP and virtual MAC; default priority 100, preemption off."
+      - id: cn-3d-vrrp
+        type: concept
+        term: "VRRP"
+        def: "The open-standard first hop redundancy protocol, with one master and one or more backups; preemption is on by default."
+      - id: cn-3d-vip
+        type: concept
+        term: "Virtual IP address (FHRP)"
+        def: "The shared gateway address that hosts are configured with; whichever router currently holds the forwarding role answers ARP for it."
+
+      - id: cn-3d-q01
+        type: mcq
+        q: "Three routers with router IDs 1.1.1.1, 2.2.2.2 and 3.3.3.3 are powered on together on one Ethernet segment. All have the default OSPF priority. Which become DR and BDR?"
+        choices:
+          - "DR 1.1.1.1, BDR 2.2.2.2"
+          - "DR 3.3.3.3, BDR 1.1.1.1"
+          - "DR 3.3.3.3, BDR 2.2.2.2"
+          - "DR 2.2.2.2, BDR 3.3.3.3"
+        answer: 2
+        why: "With equal priorities the highest router ID becomes DR and the next highest BDR. Lowest-wins is the rule for the spanning-tree root bridge, not for OSPF."
+      - id: cn-3d-q02
+        type: mcq
+        q: "An Ethernet segment already has a DR and a BDR. A new router with 'ip ospf priority 255' is connected and forms adjacencies. What is its role?"
+        choices:
+          - "It becomes DR immediately"
+          - "It becomes BDR immediately and the old BDR steps down"
+          - "It forces a new election among all routers"
+          - "It stays a DROTHER until the DR or BDR fails"
+        answer: 3
+        why: "The DR election is not preemptive: existing DR and BDR keep their roles whatever arrives later. The high priority counts only when a role falls vacant: if the DR fails, the BDR is promoted and the new router wins the BDR election; if the BDR fails, the new router takes that role."
+      - id: cn-3d-q03
+        type: mcq
+        q: "On R1, 'show ip ospf neighbor' shows: '2.2.2.2  1  2WAY/DROTHER', '3.3.3.3  1  FULL/BDR', '4.4.4.4  1  FULL/DR', all on Gi0/0. What is true?"
+        choices:
+          - "R1 is the DR and has a problem with 2.2.2.2"
+          - "R1 is a DROTHER and everything is normal"
+          - "R1 is the BDR and 2.2.2.2 has mismatched timers"
+          - "R1 has an MTU mismatch with 2.2.2.2"
+        answer: 1
+        why: "The role after the slash describes the neighbour. Since both DR and BDR are other routers, R1 is a DROTHER, and two DROTHERs stay at 2-Way with each other by design. Mismatched timers would mean no neighbour entry at all."
+      - id: cn-3d-q04
+        type: mcq
+        q: "Two routers are joined by a single Ethernet link configured with 'ip ospf network point-to-point' on both ends. What will 'show ip ospf neighbor' show in the State column?"
+        choices: ["FULL/  -", "FULL/DR", "2WAY/DROTHER", "FULL/BDR"]
+        answer: 0
+        why: "A point-to-point network type has no DR or BDR, so the role part of the state is a dash. FULL/DR or FULL/BDR would appear if the link had been left as the default broadcast type."
+      - id: cn-3d-q05
+        type: mcq
+        q: "R1 (HSRP priority 110) and R2 (priority 100) share group 1. R1 fails, R2 becomes active, and R1 later returns, yet R2 remains active. Which command on R1 makes it take the active role back?"
+        choices:
+          - "standby 1 priority 255"
+          - "standby 1 ip 10.1.1.1"
+          - "standby 1 preempt"
+          - "standby 1 track 1"
+        answer: 2
+        why: "HSRP does not preempt by default: a router with a higher priority only takes over from a working active router if 'preempt' is configured. Raising the priority further changes nothing without it."
+
+  # ─────────────── 4a · NAT and DNS ───────────────
+  - id: cn-4a
+    title: "NAT and DNS"
+    domain: "4"
+    goal: "I can configure and verify static NAT, pool NAT and PAT, and say what DNS contributes."
+    notes: |
+      **NAT terms.** *Inside local* is a host's private address; *inside global* is the public address it is seen as.
+
+      **Three kinds of inside source NAT:**
+
+      | Kind | Command |
+      | Static, one to one | `ip nat inside source static 10.1.1.10 203.0.113.10` |
+      | Dynamic pool | `ip nat inside source list 1 pool POOL` |
+      | PAT (overload) | `ip nat inside source list 1 interface GigabitEthernet0/1 overload` |
+
+      The pool is defined with `ip nat pool POOL 203.0.113.1 203.0.113.6 netmask 255.255.255.248`, and the ACL (`access-list 1 permit 10.0.0.0 0.0.0.255`) says which inside addresses may be translated. Every kind also needs `ip nat inside` on the LAN interface and `ip nat outside` on the WAN interface. Without `overload` a pool gives each host a whole address, so it can run out. Verify with `show ip nat translations` and `show ip nat statistics`.
+
+      **DHCP** hands out address, mask, gateway and DNS server in four messages: Discover, Offer, Request, Acknowledge. Discover is a broadcast, which a router will not forward. When the server is on another subnet, put `ip helper-address <server>` on the router interface **facing the clients**; the router relays the request as a unicast. A router interface can itself be a client with `ip address dhcp`.
+
+      **DNS** turns names into addresses. If a host can ping 8.8.8.8 but not a name, the fault is DNS, not routing. On IOS, `ip name-server` sets the resolver and `ip domain lookup` enables lookups.
+    items:
+      - id: cn-4a-inside-local
+        type: concept
+        term: "Inside local address"
+        def: "The private address of an internal host as it appears inside the network, before translation."
+      - id: cn-4a-inside-global
+        type: concept
+        term: "Inside global address"
+        def: "The public address that represents an internal host to the outside world after translation."
+      - id: cn-4a-static-nat
+        type: concept
+        term: "ip nat inside source static 10.1.1.10 203.0.113.10"
+        def: "Creates a permanent one-to-one translation between one private address and one public address."
+      - id: cn-4a-show-nat
+        type: concept
+        term: "show ip nat translations"
+        def: "Displays the current translation table, with columns for the inside and outside addresses in their local and global forms."
+      - id: cn-4a-name-server
+        type: concept
+        term: "ip name-server <address>"
+        def: "Global command that tells an IOS device which DNS resolver to query when it needs to turn a hostname into an address."
+
+      - id: cn-4a-q01
+        type: mcq
+        q: "A router has: 'ip nat pool POOL 203.0.113.1 203.0.113.6 netmask 255.255.255.248' / 'access-list 1 permit 10.0.0.0 0.0.0.255' / 'ip nat inside source list 1 pool POOL' / 'interface Gi0/0 (LAN): ip nat inside' / 'interface Gi0/1 (WAN): no NAT command'. Inside hosts reach nothing on the internet and the translation table is empty. What is missing?"
+        choices:
+          - "'ip nat outside' on Gi0/1"
+          - "The 'overload' keyword on the source list"
+          - "A static translation for the router itself"
+          - "'ip nat inside' on Gi0/1"
+        answer: 0
+        why: "Translation happens only for packets that travel from an interface marked inside to one marked outside. The WAN interface has no marking, so nothing is translated. 'overload' matters when a pool runs out, not when the table is empty."
+      - id: cn-4a-q02
+        type: mcq
+        q: "Dynamic NAT uses a pool of six public addresses, with no 'overload' keyword. Six inside hosts have active translations. A seventh host now tries to reach the internet. What happens?"
+        choices:
+          - "It shares the first host's public address using a different port"
+          - "It is sent out with its private address untranslated"
+          - "The oldest translation is removed to make room"
+          - "Its packets are dropped until a pool address is freed"
+        answer: 3
+        why: "Without overload each inside host holds a whole pool address. When the pool is exhausted, further hosts cannot be translated and their packets are discarded until an entry times out. Sharing one address by port is PAT, which needs 'overload'."
+      - id: cn-4a-q03
+        type: mcq
+        q: "'show ip nat translations' lists two lines: 'tcp 203.0.113.5:1025  10.0.0.10:51000  198.51.100.7:443  198.51.100.7:443' and 'tcp 203.0.113.5:1026  10.0.0.11:51000  198.51.100.7:443  198.51.100.7:443'. The columns are inside global, inside local, outside local, outside global. Which kind of NAT is in use?"
+        choices:
+          - "Static NAT"
+          - "Dynamic NAT from a pool, without overload"
+          - "PAT (NAT overload)"
+          - "No translation is taking place"
+        answer: 2
+        why: "Two different inside hosts appear behind the same inside global address, distinguished only by port (1025 and 1026). That is port address translation. Static or plain pool NAT would give each host its own public address."
+
+  # ─────────────── 5a · device access, AAA, VPN ───────────────
+  - id: cn-5a
+    title: "Device access, AAA and VPNs"
+    domain: "4"
+    goal: "I can protect console, vty and privileged access with local passwords and SSH, tell the three parts of AAA apart, and describe the two kinds of VPN."
+    notes: |
+      **Vocabulary.** A **vulnerability** is a weakness. An **exploit** is the tool or technique that uses it. A **threat** is the possibility that someone will. A **mitigation** reduces the chance or the damage.
+
+      **Local passwords on IOS.**
+
+      | Command | Effect |
+      | `enable secret <pw>` | Hashed password for privileged mode; overrides `enable password` |
+      | `username admin secret <pw>` | Local user with a hashed password |
+      | `line console 0` or `line vty 0 4`, then `password <pw>` and `login` | Ask for the line's own password |
+      | `login local` on a line | Ask for a local username and password |
+      | `service password-encryption` | Hides clear-text passwords with weak, reversible type 7 encoding |
+
+      A vty line with `login` but no password refuses every connection.
+
+      **Password policy** covers length, complexity, management (expiry, reuse, storage) and alternatives: **multifactor** authentication combines different kinds of proof (something you know, have or are), and certificates or biometrics can replace passwords altogether.
+
+      **AAA.** *Authentication*: who are you? *Authorization*: what may you do? *Accounting*: what did you do? A central server speaks **TACACS+** (TCP 49, encrypts the whole payload, authorises command by command; used for device administration) or **RADIUS** (UDP 1812 and 1813, encrypts only the password; used for network access such as 802.1X).
+
+      **VPNs.** A **site-to-site** IPsec VPN joins two networks through their gateways, always on, invisible to hosts. A **remote-access** VPN connects one user's device through client software. In IPsec, **ESP** encrypts and authenticates; **AH** authenticates only.
+    items:
+      - id: cn-5a-enable-secret
+        type: concept
+        term: "enable secret"
+        def: "Sets the password for privileged EXEC mode and stores it as a hash; it takes precedence over the older clear-text equivalent if both exist."
+      - id: cn-5a-password-encryption
+        type: concept
+        term: "service password-encryption"
+        def: "Applies weak, reversible type 7 encoding to the clear-text passwords in the configuration so that they cannot simply be read over a shoulder."
+      - id: cn-5a-login-local
+        type: concept
+        term: "login local"
+        def: "Line command that makes the console or vty lines check the device's own username database."
+      - id: cn-5a-site-to-site
+        type: concept
+        term: "Site-to-site VPN"
+        def: "A permanent IPsec tunnel between two gateways that protects traffic for whole networks; the end hosts need no special software."
+      - id: cn-4b-crypto-key
+        type: concept
+        term: "crypto key generate rsa"
+        def: "Creates the public and private key pair an IOS device needs before it can accept SSH; a hostname and a domain name must be set first."
+
+      - id: cn-5a-q01
+        type: mcq
+        q: "A router's configuration contains both 'enable password cisco' and 'enable secret class'. Which password moves a user from user EXEC to privileged EXEC mode?"
+        choices:
+          - "cisco"
+          - "Either one"
+          - "class"
+          - "Both, entered one after the other"
+        answer: 2
+        why: "When both exist, the hashed enable secret is used and the enable password is ignored. That is why the secret should always be set: the plain enable password is stored in clear text or weak type 7."
+      - id: cn-5a-q02
+        type: mcq
+        q: "A switch has 'line vty 0 4' / 'login' / 'transport input telnet', and no password on the lines. What happens when an administrator opens a Telnet session to it?"
+        choices:
+          - "The session opens with no password prompt"
+          - "The session is refused with 'Password required, but none set'"
+          - "The switch asks for a local username and password"
+          - "The switch asks for the enable secret"
+        answer: 1
+        why: "'login' tells the line to check its own password, and with none configured IOS refuses the connection. A prompt for a username would need 'login local', and access with no prompt at all would need 'no login'."
+      - id: cn-5a-q03
+        type: mcq
+        q: "A help-desk technician logs in to a router through a AAA server. The server then allows her to run 'show' commands but rejects 'configure terminal'. Which AAA function made that decision?"
+        choices: ["Authentication", "Accounting", "Auditing", "Authorization"]
+        answer: 3
+        why: "Authorization decides what an already identified user may do. Authentication only proved who she is, and accounting merely records what she did."
+      - id: cn-5a-q04
+        type: mcq
+        q: "A company wants central control of administrator logins to its routers, with every command checked against the server and the whole exchange encrypted. Which protocol should the AAA server use?"
+        choices: ["TACACS+", "RADIUS", "SNMPv3", "LDAP"]
+        answer: 0
+        why: "TACACS+ separates authorization from authentication, so each command can be checked, and it encrypts the entire packet body. RADIUS encrypts only the password and combines authentication with authorization, which suits network access more than device administration."
+      - id: cn-5a-q06
+        type: mcq
+        q: "In an IPsec VPN, which protocol encrypts the payload so that it stays confidential in transit?"
+        choices: ["AH", "ESP", "IKE", "GRE"]
+        answer: 1
+        why: "Encapsulating Security Payload provides encryption as well as integrity and authentication. AH authenticates the packet but encrypts nothing, IKE negotiates keys and parameters, and GRE is a plain tunnel with no protection."
+
+      - id: cn-2c-q03
+        type: mcq
+        q: "An auditor finds this on a router: 'line vty 0 4' / 'transport input telnet ssh' / 'login local'. Policy demands that remote CLI sessions are always encrypted. Which change meets the policy?"
+        choices:
+          - "transport input all"
+          - "transport output ssh"
+          - "transport input ssh"
+          - "transport input none"
+        answer: 2
+        why: "'transport input ssh' makes the vty lines accept SSH only, which removes clear-text Telnet. 'transport output' controls sessions started from the router, not into it, and 'none' would lock out all remote CLI access."
+      - id: cn-2c-m01
+        type: multi
+        q: "Which TWO methods give encrypted management access to a network device?"
+        choices: ["Telnet", "SSH", "HTTP", "HTTPS", "TFTP"]
+        answers: [1, 3]
+        why: "SSH encrypts the CLI session and HTTPS encrypts the web interface. Telnet and HTTP send everything, passwords included, in clear text, and TFTP is an unauthenticated file-transfer protocol, not a management session."
+
+      - id: cn-4b-q02
+        type: mcq
+        q: "An engineer preparing SSH types 'hostname R1' and then 'crypto key generate rsa'. IOS replies '% Please define a domain-name first.' Which command is needed before the keys can be generated?"
+        choices:
+          - "ip ssh version 2"
+          - "username admin secret Str0ngPass"
+          - "ip domain name example.com"
+          - "transport input ssh"
+        answer: 2
+        why: "The RSA key pair is named after the device's fully qualified name, so both a hostname and an IP domain name must exist. The username and the vty settings are also required for SSH logins, but they do not block key generation."
+
+  # ─────────────── 5b · ACLs ───────────────
+  - id: cn-5b
+    title: "Access control lists"
+    domain: "4"
+    goal: "I can write standard and extended IPv4 ACLs with correct wildcard masks, apply them in the right place and direction, and predict what a given list permits."
+    notes: |
+      An ACL is an ordered list of permit and deny lines. The router reads **top down**, acts on the **first match**, and drops anything that matches nothing: the **implicit deny**.
+
+      | Type | Numbers | Matches on | Place it |
+      | Standard | 1-99, 1300-1999 | Source address only | Near the destination |
+      | Extended | 100-199, 2000-2699 | Protocol, source, destination, ports | Near the source |
+
+      Both types can be **named** instead (`ip access-list extended WEB`), which allows lines to be inserted or removed by sequence number.
+
+      **Wildcard masks** are inverted masks: 0 means *must match*, 1 means *ignore*. Subtract the subnet mask from 255.255.255.255: a /24 gives 0.0.0.255, a /20 gives 0.0.15.255. `host 10.0.0.5` is the same as `10.0.0.5 0.0.0.0`, and `any` matches everything.
+
+      **An extended line reads:** action, protocol, source, destination, destination port.
+
+      `access-list 110 permit tcp 192.168.10.0 0.0.0.255 host 10.0.0.5 eq 443`
+
+      **Applying.** On an interface: `ip access-group 110 in` (or `out`). One ACL per interface, per direction, per protocol. On the vty lines, to limit who may manage the device: `access-class 10 in`.
+
+      **Verifying.** `show access-lists` shows every line with its match counter; `show ip interface` shows which lists are applied and in which direction.
+
+      An ACL that only denies still ends in the implicit deny, so it blocks everything unless it finishes with a permit.
+    items:
+      - id: cn-5b-standard
+        type: concept
+        term: "Standard ACL"
+        def: "A packet filter, numbered 1-99 or 1300-1999 or named, that matches on the source IPv4 address only; it is placed close to the destination."
+      - id: cn-5b-extended
+        type: concept
+        term: "Extended ACL"
+        def: "A packet filter, numbered 100-199 or 2000-2699 or named, that can match protocol, source, destination and port numbers; it is placed close to the source."
+      - id: cn-5b-implicit-deny
+        type: concept
+        term: "Implicit deny"
+        def: "The invisible final entry of every access list, which drops anything not matched by an earlier line."
+      - id: cn-5b-wildcard
+        type: concept
+        term: "Wildcard mask"
+        def: "An inverted mask in which 0 bits must match and 1 bits are ignored; found by subtracting the subnet mask from 255.255.255.255."
+      - id: cn-5b-access-group
+        type: concept
+        term: "ip access-group"
+        def: "Interface command that applies a packet filter to traffic entering or leaving that interface."
+      - id: cn-5b-access-class
+        type: concept
+        term: "access-class"
+        def: "Line-mode command that applies a standard list to the vty lines, limiting which source addresses may open Telnet or SSH sessions to the device."
+
+      - id: cn-5b-q01
+        type: mcq
+        q: "To block one department, an engineer configures only 'access-list 10 deny 192.168.1.0 0.0.0.255' and applies it outbound on the server-facing interface. Now no subnet at all can reach the servers. Why?"
+        choices:
+          - "Standard ACLs cannot be applied outbound"
+          - "The wildcard mask matches every address"
+          - "The list has no permit line, so the implicit deny drops everything else"
+          - "ACL 10 is reserved for vty lines"
+        answer: 2
+        why: "Every ACL ends with an unseen 'deny any'. With no permit statement nothing can pass. Adding 'access-list 10 permit any' after the deny line restores the other subnets."
+      - id: cn-5b-q02
+        type: mcq
+        q: "An ACL reads, in this order: 'access-list 100 permit ip any any' then 'access-list 100 deny tcp any host 10.1.1.5 eq 23'. It is applied inbound on the user-facing interface. Can users open a Telnet session to 10.1.1.5?"
+        choices:
+          - "No, because deny lines are always evaluated before permit lines"
+          - "No, because the more specific line takes precedence"
+          - "Yes, but only from the router itself"
+          - "Yes, because the first line matches and processing stops"
+        answer: 3
+        why: "ACLs are processed top down and the first match is final, so 'permit ip any any' lets the Telnet through and the deny line is never reached. Specific lines must be placed above general ones; there is no longest-match rule in an ACL."
+      - id: cn-5b-q03
+        type: mcq
+        q: "Which wildcard mask matches exactly the subnet 10.1.16.0/20?"
+        choices: ["0.0.15.255", "0.0.240.255", "0.0.31.255", "0.0.16.255"]
+        answer: 0
+        why: "/20 is 255.255.240.0, and 255.255.255.255 minus that is 0.0.15.255, covering 10.1.16.0 to 10.1.31.255. 0.0.31.255 would match a /19 and take in twice as many addresses."
+      - id: cn-5b-q04
+        type: mcq
+        q: "Which entry permits only HTTPS from the 192.168.10.0/24 subnet to the server 10.0.0.5?"
+        choices:
+          - "access-list 110 permit tcp 192.168.10.0 255.255.255.0 host 10.0.0.5 eq 443"
+          - "access-list 110 permit tcp 192.168.10.0 0.0.0.255 host 10.0.0.5 eq 443"
+          - "access-list 110 permit tcp 192.168.10.0 0.0.0.255 eq 443 host 10.0.0.5"
+          - "access-list 110 permit udp 192.168.10.0 0.0.0.255 host 10.0.0.5 eq 443"
+        answer: 1
+        why: "HTTPS is TCP, the source takes a wildcard mask (0.0.0.255), and the port follows the destination because 443 is the server's port. Placing 'eq 443' after the source would match the client's source port, which is a random high number."
+      - id: cn-5b-q05
+        type: mcq
+        q: "An ACL contains the single line 'access-list 20 permit 172.16.8.0 0.0.3.255'. Which source address does it permit?"
+        choices: ["172.16.7.255", "172.16.12.1", "172.16.11.200", "172.16.16.1"]
+        answer: 2
+        why: "A wildcard of 0.0.3.255 lets the last two bits of the third octet vary, so the line matches 172.16.8.0 to 172.16.11.255. 172.16.11.200 is inside; 172.16.7.255 is just below the range and 172.16.12.1 just above."
+      - id: cn-5b-q06
+        type: mcq
+        q: "The Sales LAN is attached to R1's Gi0/0. An extended ACL must stop Sales from reaching a server that sits three routers away, while using as little bandwidth as possible on blocked traffic. Where should it be applied?"
+        choices:
+          - "Outbound on the interface of the last router, facing the server"
+          - "Inbound on the server's own switch port"
+          - "Outbound on R1's Gi0/0"
+          - "Inbound on R1's Gi0/0"
+        answer: 3
+        why: "An extended ACL can name the exact destination, so it belongs as close to the source as possible: inbound where Sales traffic enters R1. That drops the packets before they cross any link. Outbound on Gi0/0 would filter traffic going to Sales, not coming from it."
+
+  # ─────────────── 5c · Layer 2 security ───────────────
+  - id: cn-5c
+    title: "Layer 2 security"
+    domain: "4"
+    goal: "I can configure and verify port security, DHCP snooping and dynamic ARP inspection."
+    notes: |
+      **Port security** limits the MAC addresses on an access port.
+
+      - `switchport mode access`
+      - `switchport port-security` (turns it on: maximum 1 address, violation mode shutdown)
+      - `switchport port-security maximum 2`
+      - `switchport port-security mac-address sticky`
+
+      | Violation mode | Drops offending frames | Logs and counts | Disables the port |
+      | protect | Yes | No | No |
+      | restrict | Yes | Yes | No |
+      | shutdown (default) | Yes | Yes | Yes: err-disabled |
+
+      Check with `show port-security interface Gi0/1`. Recover an err-disabled port with `shutdown` then `no shutdown`.
+
+      **DHCP snooping** (`ip dhcp snooping` plus `ip dhcp snooping vlan 10`) makes every port untrusted unless you add `ip dhcp snooping trust`. Server messages arriving on an untrusted port are dropped, which stops rogue DHCP servers, and the switch records each lease in a **binding table**.
+
+      **Dynamic ARP inspection** (`ip arp inspection vlan 10`) compares ARP messages on untrusted ports with that binding table and drops forgeries, which stops ARP poisoning. Uplinks towards the real DHCP server and other switches are set as trusted for both features.
+
+      **Wireless security.**
+
+      | Generation | Encryption | Personal mode |
+      | WPA | TKIP | Pre-shared key |
+      | WPA2 | AES-CCMP | Pre-shared key, 4-way handshake |
+      | WPA3 | AES: CCMP, or GCMP-256 in the Enterprise 192-bit mode | SAE, resists offline guessing |
+
+      In the WLC GUI a WPA2-PSK WLAN is set under the WLAN's Security, Layer 2 tab: WPA2 policy with AES, key management PSK, and a key of 8 to 63 ASCII characters.
+    items:
+      - id: cn-5c-port-security
+        type: concept
+        term: "Port security"
+        def: "A switch feature that limits which, and how many, source MAC addresses may use an access port."
+      - id: cn-5c-sticky
+        type: concept
+        term: "switchport port-security mac-address sticky"
+        def: "Makes a port learn the source addresses it sees and write them into the running configuration as its permitted addresses."
+      - id: cn-5c-snooping
+        type: concept
+        term: "DHCP snooping"
+        def: "Divides ports into trusted and untrusted, drops server messages such as offers that arrive on untrusted ports, and builds a binding table of client MAC, IP, VLAN and port."
+      - id: cn-5c-dai
+        type: concept
+        term: "Dynamic ARP inspection (DAI)"
+        def: "Checks address-resolution messages on untrusted ports against the snooping binding table and drops those whose IP-to-MAC pairing does not match."
+      - id: cn-5c-restrict
+        type: concept
+        term: "Restrict (violation mode)"
+        def: "Drops frames from unknown MAC addresses, increments the violation counter and logs the event, but leaves the port up."
+
+      - id: cn-5c-q01
+        type: mcq
+        q: "'show port-security interface Gi0/3' shows: 'Port Status: Secure-shutdown' / 'Violation Mode: Shutdown' / 'Maximum MAC Addresses: 1' / 'Security Violation Count: 1'. What has happened, and what restores the port once the cause is removed?"
+        choices:
+          - "A second MAC address appeared; the port is err-disabled until it is shut and re-enabled"
+          - "The cable was unplugged; the port recovers when it is reconnected"
+          - "A BPDU was received; PortFast must be removed"
+          - "The secure address aged out; the port recovers after 5 minutes"
+        answer: 0
+        why: "Secure-shutdown means a violation put the port into err-disabled: with a maximum of one address, a second source MAC is a violation. By default it stays down until an administrator enters 'shutdown' and 'no shutdown'."
+      - id: cn-5c-q02
+        type: mcq
+        q: "After 'ip dhcp snooping' and 'ip dhcp snooping vlan 10' are entered on an access switch, clients in VLAN 10 stop receiving addresses. The legitimate DHCP server is reached through uplink Gi0/24. What is the fix?"
+        choices:
+          - "'ip dhcp snooping trust' on every client port"
+          - "'ip helper-address' on Gi0/24"
+          - "'ip arp inspection trust' on Gi0/24"
+          - "'ip dhcp snooping trust' on Gi0/24"
+        answer: 3
+        why: "All ports are untrusted by default, so the server's offers arriving on the uplink are being dropped. Trust the uplink only. Trusting the client ports would defeat the feature by allowing a rogue server on any of them."
+      - id: cn-5c-q03
+        type: mcq
+        q: "A port must silently discard frames from unauthorised MAC addresses while staying up, without sending a log message or increasing the violation counter. Which violation mode does this?"
+        choices: ["shutdown", "protect", "restrict", "sticky"]
+        answer: 1
+        why: "Protect drops the offending frames and does nothing else. Restrict also drops them but logs and counts each violation, and shutdown err-disables the port. Sticky is a way of learning addresses, not a violation mode."
+      - id: cn-5c-m01
+        type: multi
+        q: "An access port has only 'switchport mode access' and 'switchport port-security' configured. Which TWO statements describe the defaults now in force?"
+        choices:
+          - "At most one MAC address is allowed"
+          - "A violation puts the port into err-disabled"
+          - "Learned addresses are saved to the running configuration"
+          - "A violation is logged but the port stays up"
+          - "Secure addresses age out after 5 minutes"
+        answers: [0, 1]
+        why: "The defaults are a maximum of one address and violation mode shutdown. Sticky learning must be configured explicitly, logging without shutting down is restrict mode, and secure addresses do not age out by default."
+
+  # ─────────────── 4b · SNMP and syslog ───────────────
+  - id: cn-4b
+    title: "SNMP and syslog"
+    domain: "5"
+    goal: "I can read a syslog message and its severity, send logs to the right place, and choose the SNMP version and message type for a monitoring need."
+    notes: |
+      **NTP** keeps clocks aligned, so log timestamps agree. `ntp server 192.0.2.10` makes a device a client; `ntp master` makes it a source. **Stratum** counts hops from a reference clock: a client of a stratum 2 server is stratum 3. Check with `show ntp associations` and `show ntp status`.
+
+      **Syslog** messages look like `%LINK-3-UPDOWN`: facility, severity, mnemonic.
+
+      | Level | Name | Level | Name |
+      | 0 | Emergency | 4 | Warning |
+      | 1 | Alert | 5 | Notification |
+      | 2 | Critical | 6 | Informational |
+      | 3 | Error | 7 | Debugging |
+
+      `logging trap 4` sends levels 0 to 4 to the server named by `logging host`. A memory aid: *Every Awesome Cisco Engineer Will Need Ice-cream Daily*.
+
+      **SNMP**: a manager polls agents with Get (UDP 161) and agents send unsolicited **traps** (UDP 162). Version 3 adds authentication and encryption.
+
+      **SSH** needs, in order: a hostname, `ip domain name`, `crypto key generate rsa`, a local user, then `transport input ssh` and `login local` on the vty lines.
+
+      **QoS** tools act hop by hop. *Classify* and *mark* (DSCP in the IP header; EF, 46, for voice) as close to the source as possible. *Queue* during congestion, with a priority queue for voice. *Police* by dropping or re-marking excess traffic; *shape* by buffering it.
+
+      **File transfer.** TFTP: UDP 69, no login, simple. FTP: TCP 21 and 20, username and password, better for large images.
+    items:
+      - id: cn-4b-trap
+        type: concept
+        term: "SNMP trap"
+        def: "An unsolicited, unacknowledged message that a managed device sends to the management station on UDP 162 when an event occurs."
+      - id: cn-4b-severity
+        type: concept
+        term: "Syslog severity levels"
+        def: "Eight values from 0 to 7 (emergency, alert, critical, error, warning, notification, informational, debugging), where a lower number is more urgent."
+      - id: cn-4x-mib
+        type: concept
+        term: "MIB"
+        def: "The hierarchical collection of variables that an SNMP agent can report or change, each one identified by a dotted string of numbers called an OID."
+      - id: cn-4x-inform
+        type: concept
+        term: "SNMP inform"
+        def: "A notification from an agent that the management station must acknowledge; the agent sends it again if no acknowledgement arrives."
+      - id: cn-4x-community
+        type: concept
+        term: "Community string"
+        def: "The clear-text shared word that SNMP versions 1 and 2c use in place of real authentication, configured as read-only or read-write."
+      - id: cn-4x-facility
+        type: concept
+        term: "Syslog facility"
+        def: "The field of a log message that names the component or protocol that produced it, such as LINK, SYS or OSPF in the IOS format."
+
+      - id: cn-4b-q01
+        type: mcq
+        q: "A switch is configured with 'logging host 10.1.1.50' and 'logging trap 4'. Which of these messages is sent to the syslog server?"
+        choices:
+          - "%LINEPROTO-5-UPDOWN"
+          - "%LINK-3-UPDOWN"
+          - "%SYS-5-CONFIG_I"
+          - "%SYS-6-LOGGINGHOST_STARTSTOP"
+        answer: 1
+        why: "'logging trap 4' sends severity 4 (warning) and everything more urgent, that is 0 to 4. The number in the middle of the message is its severity: 3 qualifies, while 5 and 6 are less urgent and are not sent."
+      - id: cn-4x-q14
+        type: mcq
+        q: "A policy says that all polling of switches by the management station must be authenticated per user and encrypted. Which choice meets it?"
+        choices:
+          - "SNMPv2c with a read-write community string"
+          - "SNMPv3 at the authPriv level"
+          - "SNMPv3 at the authNoPriv level"
+          - "SNMPv3 at the noAuthNoPriv level"
+        answer: 1
+        why: "Only SNMPv3 has user-based security, and only its authPriv level adds encryption (privacy) to authentication. authNoPriv authenticates but sends the data in clear text, and a v2c community string is itself sent in clear text."
+      - id: cn-4x-q15
+        type: mcq
+        q: "A switch has 'snmp-server community NetMon ro'. The management station reads interface counters without trouble, but its attempt to change an interface description by SNMP is rejected. Why?"
+        choices:
+          - "SNMP Set messages use UDP port 162, which the switch has closed"
+          - "SNMP version 2c can read objects but can never modify a device"
+          - "The community is read-only, so Set is refused"
+          - "Interface descriptions are not objects in any MIB"
+        answer: 2
+        why: "'ro' allows Get requests only; a Set needs a community configured with 'rw'. Get and Set both go to the agent on UDP 161. Port 162 is where the management station listens for traps and informs."
+      - id: cn-4x-q16
+        type: mcq
+        q: "An administrator connected by SSH enables 'debug ip ospf adj' while a neighbour is flapping, but sees no output. A colleague at the console sees the debug messages scroll past. What should the SSH user enter?"
+        choices:
+          - "logging synchronous"
+          - "logging trap debugging"
+          - "service timestamps debug datetime msec"
+          - "terminal monitor"
+        answer: 3
+        why: "Log and debug messages go to the console by default but reach a vty session only after that session enters 'terminal monitor'. 'logging trap' sets the level sent to a syslog server, and 'logging synchronous' only stops messages from breaking up typed input."
+      - id: cn-4x-q17
+        type: mcq
+        q: "A log shows '*Nov 25 10:14:02.123: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to down'. How is '%LINEPROTO-5-UPDOWN' read?"
+        choices:
+          - "Facility LINEPROTO, severity 5 (notification), mnemonic UPDOWN"
+          - "Mnemonic LINEPROTO, severity 5 (notification), facility UPDOWN"
+          - "Facility LINEPROTO, sequence number 5, mnemonic UPDOWN"
+          - "Facility LINEPROTO, severity 5 (warning), mnemonic UPDOWN"
+        answer: 0
+        why: "The IOS format is %FACILITY-SEVERITY-MNEMONIC followed by the description. Severity 5 is notification; warning is 4. A sequence number, when 'service sequence-numbers' is on, appears at the very start of the line instead."
+      - id: cn-4x-q18
+        type: mcq
+        q: "A router has 'logging console 2', 'logging buffered 6' and 'logging trap 4', and a reachable 'logging host'. Nobody is connected to the vty lines. Where does the message '%SYS-5-CONFIG_I' end up?"
+        choices:
+          - "On the console only"
+          - "In the buffer only"
+          - "In the buffer and on the syslog server"
+          - "On the console, in the buffer and on the server"
+        answer: 1
+        why: "Each destination has its own threshold and takes messages at that level or more urgent. A severity 5 message passes the buffer's level 6, but is less urgent than the console's level 2 and the server's level 4, so it appears only in 'show logging'."
+      - id: cn-4x-m01
+        type: multi
+        q: "A switch has 'logging trap errors'. Which THREE of these severities are sent to the syslog server?"
+        choices: ["Emergency", "Warning", "Critical", "Notification", "Error", "Debugging"]
+        answers: [0, 2, 4]
+        why: "'errors' is level 3, so levels 0 to 3 are sent: emergency (0), alert (1), critical (2) and error (3). Warning (4), notification (5) and debugging (7) are less urgent than the threshold."
+
+  # ─────────────── 6a · controller-based networking and AI ───────────────
+  - id: cn-6a
+    title: "Controller-based networking and AI"
+    domain: "5"
+    goal: "I can compare traditional, controller-based and cloud-managed networks, name the planes and APIs of a controller-based design, and say what generative and predictive AI contribute to operations."
+    notes: |
+      **Three planes.**
+
+      | Plane | Job | Examples |
+      | Control | Decides where traffic should go | OSPF, STP, ARP, building tables |
+      | Data | Moves each packet | Lookup, rewrite, forward, ACL check |
+      | Management | Lets people and tools run the device | SSH, SNMP, syslog |
+
+      In a **traditional** network every device runs its own control plane and is configured one at a time. In a **controller-based** network a central controller holds the view of the whole network and programs the devices; they keep the data plane.
+
+      **APIs.** *Southbound*: controller to devices (NETCONF, RESTCONF, OpenFlow, even SSH and SNMP). *Northbound*: controller to applications and scripts, usually REST.
+
+      **Software-defined architecture.** The **underlay** is the physical network and the routing that gives every device IP reachability. The **overlay** is a virtual network of tunnels (VXLAN in Cisco SD-Access) built across it. Together, managed as one, they are a **fabric**.
+
+      **Why automate?** One change pushed identically to hundreds of devices: faster, fewer typing errors, less configuration drift, and intent that can be checked. Automation also repeats a mistake everywhere at once, so templates are tested first.
+
+      **AI in operations.** *Predictive* AI and machine learning learn a baseline from telemetry, then flag anomalies and forecast trouble. *Generative* AI produces new content from a prompt: a draft configuration, a summary of logs. Its output can be confidently wrong, so a person must verify it before it reaches a device.
+    items:
+      - id: cn-6a-control-plane
+        type: concept
+        term: "Control plane"
+        def: "The functions that decide how traffic should be forwarded: routing protocols, spanning tree and the building of forwarding tables."
+      - id: cn-6a-data-plane
+        type: concept
+        term: "Data plane"
+        def: "The functions that actually move each frame or packet through a device: table lookup, header rewrite and forwarding."
+      - id: cn-6a-northbound
+        type: concept
+        term: "Northbound API"
+        def: "The interface between a controller and the applications or scripts above it; usually REST."
+      - id: cn-6a-genai
+        type: concept
+        term: "Generative AI"
+        def: "Models that produce new content, such as a draft configuration or a plain-language explanation of a log, from a natural-language prompt."
+      - id: cn-2c-cloud
+        type: concept
+        term: "Cloud-managed networking"
+        def: "A model in which on-site devices call out to a vendor-hosted dashboard that holds their configuration and monitoring, so no on-premises controller is needed."
+
+      - id: cn-6a-q01
+        type: mcq
+        q: "A campus moves from a traditional design to a controller-based one. What changes for the switches?"
+        choices:
+          - "They stop forwarding frames and send all traffic through the controller"
+          - "They lose their data plane but keep an independent control plane"
+          - "They no longer need IP addresses"
+          - "Control decisions are centralised on the controller, while the switches still forward traffic themselves"
+        answer: 3
+        why: "The controller takes over some or all of the control plane and programs the devices; packet forwarding, the data plane, stays in the switch hardware. User traffic does not pass through the controller."
+      - id: cn-6a-q02
+        type: mcq
+        q: "A Python script sends an HTTPS request to a network controller and receives the list of all managed devices as JSON. Which interface is the script using?"
+        choices:
+          - "The southbound API"
+          - "The northbound API"
+          - "The data plane"
+          - "The underlay"
+        answer: 1
+        why: "Applications and scripts talk to the controller through its northbound API, normally REST over HTTPS. The southbound API is what the controller itself uses to reach the devices."
+      - id: cn-6a-q04
+        type: mcq
+        q: "The NTP server address must be changed on 200 switches. What is the main operational benefit of pushing the change with an automation tool instead of typing it on each switch?"
+        choices:
+          - "The change no longer needs to be tested"
+          - "The switches no longer need a control plane"
+          - "The same change is applied identically everywhere, quickly and without typing errors"
+          - "The change cannot fail on any device"
+        answer: 2
+        why: "Automation gives speed and consistency and removes per-device manual errors and drift. It does not remove the need for testing: an untested template spreads a mistake to all 200 switches just as consistently."
+      - id: cn-6a-q05
+        type: mcq
+        q: "Which task is an example of predictive AI in network operations, rather than generative AI?"
+        choices:
+          - "Drafting an ACL from a sentence typed by an engineer"
+          - "Summarising a long syslog file in plain language"
+          - "Writing a Python script that backs up configurations"
+          - "Forecasting from months of telemetry which access points will run out of capacity"
+        answer: 3
+        why: "Predictive AI learns patterns from historical data and forecasts or flags what is likely to happen. The other three create new text or code from a prompt, which is generative AI."
+      - id: cn-6a-m01
+        type: multi
+        q: "Which TWO are southbound protocols that a controller can use to program or configure network devices?"
+        choices:
+          - "NETCONF"
+          - "OpenFlow"
+          - "JSON"
+          - "VXLAN"
+          - "YAML"
+        answers: [0, 1]
+        why: "NETCONF and OpenFlow carry instructions from a controller down to devices. JSON and YAML are data formats, not protocols, and VXLAN is a data-plane encapsulation for overlay traffic."
+
+  # ─────────────── 6b · configuration management ───────────────
+  - id: cn-6b
+    title: "Configuration management with Ansible"
+    domain: "5"
+    goal: "I can say what Ansible does and how it differs from agent-based tools, read a playbook, and use it to push and check configuration safely."
+    notes: |
+      **REST APIs** expose resources at URIs over HTTP(S). They are client-server and **stateless**: every request carries all the server needs, including credentials.
+
+      | CRUD action | HTTP verb | Typical success code |
+      | Create | POST | 201 Created |
+      | Read | GET | 200 OK |
+      | Update | PUT (replace) or PATCH (modify) | 200 or 204 |
+      | Delete | DELETE | 204 No Content |
+
+      Codes in the 400s are the client's fault (401 not authenticated, 403 not permitted, 404 not found); the 500s are the server's. Authentication is by basic username and password, an API key, or a **token** fetched once and sent in a header. The `Content-Type` header says what format the body is in; `Accept` says what format the client wants back.
+
+      **JSON** is the usual encoding.
+
+      - An **object** is in curly braces and holds `"key": value` pairs separated by commas.
+      - An **array** is in square brackets and holds an ordered list of values.
+      - Keys and text values use double quotes. Numbers, `true`, `false` and `null` are not quoted.
+      - No comma after the last item.
+
+      Example: `{"hostname": "SW1", "vlans": [10, 20], "enabled": true}`
+
+      **Configuration management.**
+
+      | Tool | Style | Notes |
+      | Ansible | Push, agentless | Connects with SSH or NETCONF; tasks in YAML playbooks; hosts listed in an inventory |
+      | Terraform | Declarative provisioning | Desired state in HCL; plan shows the difference; apply makes it so; tracks a state file |
+
+      Both treat configuration as code: stored in version control, reviewed, and repeatable.
+    items:
+      - id: cn-6b-ansible
+        type: concept
+        term: "Ansible"
+        def: "An agentless, push-model automation tool that connects to devices over SSH or NETCONF and runs tasks written in YAML playbooks."
+      - id: cn-6x-inventory
+        type: concept
+        term: "Inventory (Ansible)"
+        def: "The file that lists the managed hosts and arranges them into groups for an agentless push tool to target."
+      - id: cn-6x-drift
+        type: concept
+        term: "Configuration drift"
+        def: "The gradual divergence of devices from their intended standard as one-off manual changes accumulate."
+
+      - id: cn-6x-q19
+        type: mcq
+        q: "A file begins with '---', followed by '- name: Set NTP', then '  hosts: access_switches' and an indented 'tasks:' list. What is this file?"
+        choices:
+          - "A Terraform configuration in HCL"
+          - "A Puppet manifest"
+          - "An Ansible playbook in YAML"
+          - "A JSON inventory"
+        answer: 2
+        why: "Three dashes, list items that start with a dash, and structure shown by indentation are YAML, and plays with 'hosts' and 'tasks' are how an Ansible playbook is laid out. HCL and JSON both mark structure with braces."
+      - id: cn-6x-q20
+        type: mcq
+        q: "An Ansible playbook that sets the NTP server is run twice against the same switches. The second run reports 'changed=0' for every host. What does that show?"
+        choices:
+          - "The second run could not open an SSH session to any host"
+          - "The playbook was skipped because of a YAML syntax error"
+          - "The inventory file listed no hosts in the target group"
+          - "The devices already matched the desired state"
+        answer: 3
+        why: "Ansible modules are idempotent: they compare the device with the desired state and act only on a difference. After the first run nothing differs, so nothing is changed. A connection failure would be reported as unreachable, not as zero changes."
+      - id: cn-6x-q21
+        type: mcq
+        q: "Switches cannot run any extra software. Changes must be sent to them over SSH from a central server, as ordered tasks written in YAML. Which tool matches?"
+        choices: ["Ansible", "Puppet", "Chef", "Terraform"]
+        answer: 0
+        why: "Ansible is agentless, pushes over SSH from a control node, and runs the tasks of a YAML playbook in order. Puppet and Chef normally rely on an agent on the managed device, and Terraform describes resources in HCL."
+      - id: cn-6x-q22
+        type: mcq
+        q: "In which tool does an agent on each managed device check in with a central server at intervals and pull the manifest that describes its intended state?"
+        choices: ["Ansible", "Puppet", "Terraform", "RESTCONF"]
+        answer: 1
+        why: "Puppet is the classic pull model: the agent contacts the Puppet server periodically and applies its manifest. Ansible pushes from a control node with no agent, and RESTCONF is a protocol rather than a configuration management tool."
+      - id: cn-6x-q25
+        type: mcq
+        q: "One playbook must give each of 50 switches its own hostname and management address, while the rest of the configuration stays identical. Which approach is BEST?"
+        choices:
+          - "A Jinja2 template filled from per-host variables"
+          - "Fifty separate playbooks, one for each switch"
+          - "A Terraform state file that holds the 50 hostnames"
+          - "One static configuration file copied to every switch"
+        answer: 0
+        why: "A template holds the common configuration once, with placeholders that Ansible fills from each host's variables. Fifty playbooks would bring back the drift and typing errors that automation is meant to remove, and one static file cannot differ per device."

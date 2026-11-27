@@ -1,0 +1,1147 @@
+# Network+ N10-009 — Domain 5 (Network Troubleshooting) extension.
+# Original content written against the public exam objectives.
+part_of: network-plus
+
+units:
+  # ──────────────── 5c · Domain 5 coverage: the rest of the objective list ────────────────
+  - id: np-5c
+    title: "Troubleshooting: port states, STP, routes, wireless and the tool bench"
+    domain: "5"
+    goal: "I can name every fault and tool on the Domain 5 objective list and say what symptom or output identifies it."
+    notes: |
+      This unit fills in the Domain 5 topics the first two units left out. Group them by where you look.
+
+      **The interface line.** A port's status tells you who turned it off:
+
+      | Status | Meaning |
+      | administratively down | Someone typed `shutdown` |
+      | err-disabled | The switch shut it to protect itself |
+      | suspended | A bundle member that does not match its partners |
+
+      **Spanning tree.** The lowest bridge ID becomes the **root bridge**. Every other switch keeps one **root port**; every segment gets one **designated port**; whatever is left blocks. If STP fails, a **switching loop** floods the network within seconds.
+
+      **Routing.** The **longest prefix match** wins before anything else is compared. With no matching entry and no **default route**, the packet is dropped.
+
+      **Wireless.** Separate *interference* (other transmitters) from *coverage* (not enough signal), and both from *roaming* and *disassociation* faults.
+
+      **Tools.** Software tools read the network (`tcpdump`, Nmap, LLDP/CDP, the `show` commands). Hardware tools read the medium (cable tester, tap, visual fault locator).
+    items:
+      # ── 5.1 methodology approaches ──
+      - id: np-5c-divide
+        type: concept
+        term: "Divide and conquer"
+        def: "A troubleshooting approach that begins testing at a middle layer of the OSI model, then moves up or down depending on whether that test passes."
+      - id: np-5c-bottom-up
+        type: concept
+        term: "Bottom-to-top approach"
+        def: "A troubleshooting approach that begins with cabling and link lights and works upward through the OSI layers until the fault is found."
+      - id: np-5c-top-down
+        type: concept
+        term: "Top-to-bottom approach"
+        def: "A troubleshooting approach that begins with the user's application and works downward through the OSI layers until the fault is found."
+
+      # ── 5.2 cabling and physical interfaces ──
+      - id: np-5c-txrx
+        type: concept
+        term: "TX/RX reversed"
+        def: "A wiring fault in which the sending conductors or strand at one end arrive at the sending side of the other end, so neither device ever hears the other and no link forms."
+      - id: np-5c-termination
+        type: concept
+        term: "Improper termination"
+        def: "A cabling fault made at the connector or punch-down block: conductors in the wrong positions, poorly seated, or stripped back too far."
+      - id: np-5c-speed-mismatch
+        type: concept
+        term: "Speed mismatch"
+        def: "A condition in which the two ends of a copper link are fixed at different data rates, such as 100 Mb/s and 1 Gb/s; unlike a duplex disagreement, the link does not come up at all."
+      - id: np-5c-transceiver-mismatch
+        type: concept
+        term: "Transceiver mismatch"
+        def: "A fault in which the pluggable optics at the two ends of a link differ in wavelength, data rate or supported fiber type, so the link stays down."
+      - id: np-5c-errdisabled
+        type: concept
+        term: "Error disabled (err-disabled)"
+        def: "A port status showing that the switch itself shut the port after detecting a fault or violation, such as a port-security breach or an unexpected BPDU."
+      - id: np-5c-admin-down
+        type: concept
+        term: "Administratively down"
+        def: "A port status showing that the interface was turned off on purpose with a configuration command and will stay off until that command is removed."
+      - id: np-5c-poe-budget
+        type: concept
+        term: "PoE power budget exceeded"
+        def: "A condition in which the combined wattage requested by attached devices is more than the switch's power supply can deliver, so the newest devices get none."
+
+      # ── 5.3 network services ──
+      - id: np-5c-loop
+        type: concept
+        term: "Switching loop"
+        def: "A Layer 2 fault in which redundant paths with nothing blocking let broadcast frames circle endlessly, causing a broadcast storm and an unstable MAC address table."
+      - id: np-5c-root-bridge
+        type: concept
+        term: "Root bridge"
+        def: "The single switch with the lowest bridge ID (priority, then MAC address), which becomes the reference point from which all spanning-tree path costs are measured."
+      - id: np-5c-root-port
+        type: concept
+        term: "Root port"
+        def: "On each switch other than the elected reference switch, the one forwarding port that has the lowest-cost path back toward that reference switch."
+      - id: np-5c-designated-port
+        type: concept
+        term: "Designated port"
+        def: "The one forwarding port on each network segment that offers that segment its lowest-cost path toward the spanning-tree reference switch."
+      - id: np-5c-blocking
+        type: concept
+        term: "Blocking state"
+        def: "The spanning-tree port condition in which user frames are neither forwarded nor used to learn addresses, although BPDUs are still received."
+      - id: np-5c-native-mismatch
+        type: concept
+        term: "Native VLAN mismatch"
+        def: "A trunk fault in which the two ends disagree about which VLAN carries untagged frames, so that traffic leaks from one VLAN into another."
+      - id: np-5c-default-route
+        type: concept
+        term: "Default route"
+        def: "The 0.0.0.0/0 entry in a routing table, used only when no more specific entry matches the destination; also called the gateway of last resort."
+      - id: np-5c-dup-ip
+        type: concept
+        term: "Duplicate IP address"
+        def: "A fault in which two hosts on one network are configured with the same Layer 3 address, giving both of them intermittent connectivity and a conflict warning."
+      - id: np-5c-dup-mac
+        type: concept
+        term: "Duplicate MAC address"
+        def: "A fault, common with cloned virtual machines, in which two interfaces share one hardware address and the switch keeps relearning that address on different ports."
+
+      # ── 5.4 performance ──
+      - id: np-5c-congestion
+        type: concept
+        term: "Congestion"
+        def: "The condition in which more traffic is offered to a link or device than it can carry, so queues fill and packets are delayed or dropped."
+      - id: np-5c-bottleneck
+        type: concept
+        term: "Bottleneck"
+        def: "The single slowest link or device along a path, which caps end-to-end throughput however fast everything else is."
+      - id: np-5c-packet-loss
+        type: concept
+        term: "Packet loss"
+        def: "The percentage of transmitted packets that never arrive at the destination, seen as missing ping replies or TCP retransmissions."
+      - id: np-5c-adjacent
+        type: concept
+        term: "Adjacent-channel interference"
+        def: "Wireless degradation caused by nearby access points using partly overlapping frequencies, such as 2.4 GHz channels 1 and 3, whose signals corrupt one another."
+      - id: np-5c-disassociation
+        type: concept
+        term: "Client disassociation"
+        def: "The event in which an access point or a station ends their wireless connection, forcing the station to rejoin before it can send data again."
+      - id: np-5c-roaming
+        type: concept
+        term: "Roaming misconfiguration"
+        def: "A wireless design fault in which settings differ between access points, or power levels are badly set, so that moving clients drop or cling to a distant access point."
+
+      # ── 5.5 tools and protocols ──
+      - id: np-5c-tcpdump
+        type: concept
+        term: "tcpdump"
+        def: "A command-line packet capture utility for Unix-like systems that prints or saves the frames seen on an interface, optionally limited by a filter expression."
+      - id: np-5c-nmap
+        type: concept
+        term: "Nmap"
+        def: "A scanner that probes remote hosts to discover which are up, which ports are open, closed or filtered, and which services and operating systems they run."
+      - id: np-5c-lldp
+        type: concept
+        term: "LLDP / CDP"
+        def: "Layer 2 discovery protocols with which directly connected devices advertise their name, port and capabilities to each other; one is an IEEE standard, the other Cisco-proprietary."
+      - id: np-5c-cable-tester
+        type: concept
+        term: "Cable tester"
+        def: "A hardware tool that checks each conductor of a copper cable for continuity and correct pin-to-pin mapping, revealing opens, shorts and miswires."
+      - id: np-5c-tap
+        type: concept
+        term: "Network tap"
+        def: "An inline hardware device that copies everything passing on a link, including errored frames, to a monitoring port without any switch configuration."
+      - id: np-5c-vfl
+        type: concept
+        term: "Visual fault locator"
+        def: "A handheld tool that shines visible red laser light into a fiber so that breaks, tight bends and bad connectors glow where the light escapes."
+      - id: np-5c-show-mac
+        type: concept
+        term: "show mac-address-table"
+        def: "A switch command that lists the hardware addresses the switch has learned, with the VLAN and port on which each one was seen."
+      - id: np-5c-show-interface
+        type: concept
+        term: "show interface"
+        def: "A network device command that displays a port's status, speed, duplex and error counters such as CRC errors, runts, giants and drops."
+      - id: np-5c-show-vlan
+        type: concept
+        term: "show vlan"
+        def: "A switch command that lists each configured Layer 2 broadcast domain by number and name, together with the access ports assigned to it."
+
+      # ── coverage questions ──
+      - id: np-5c-q01
+        type: mcq
+        q: "A fire inspector fails a new installation because standard PVC-jacketed Cat 6 was run through the air-handling space above a suspended ceiling. Which cable should have been used?"
+        choices:
+          - "Plenum-rated cable"
+          - "Riser-rated cable"
+          - "Shielded twisted pair"
+          - "Direct-burial cable"
+        answer: 0
+        why: "Spaces that circulate building air require plenum-rated cable, whose jacket is fire-retardant and gives off little smoke. Riser-rated cable is designed for vertical shafts between floors and does not meet the stricter plenum requirement."
+      - id: np-5c-q02
+        type: mcq
+        q: "A port shows 'GigabitEthernet0/5 is administratively down, line protocol is down'. The cable and the attached PC are known to be good. What will bring the port up?"
+        choices:
+          - "Replacing the patch cable with a crossover cable"
+          - "Removing the shutdown command from the interface"
+          - "Correcting the cause of a port-security violation"
+          - "Setting speed and duplex to match the PC"
+        answer: 1
+        why: "'Administratively down' means the interface was disabled in configuration, so removing the shutdown command enables it. A port-security violation would show the port as err-disabled instead, a state the switch sets by itself."
+      - id: np-5c-q03
+        type: mcq
+        q: "Four ports form one LACP bundle between two switches. Three members are active, but the fourth is listed as 'suspended'. Its cable tests good. What is the MOST likely cause?"
+        choices:
+          - "Spanning tree has put the fourth port into the blocking state"
+          - "The fourth port has been shut down by an administrator"
+          - "The fourth port's speed, duplex or VLAN settings differ from the other members"
+          - "The switch has run out of PoE power for the fourth port"
+        answer: 2
+        why: "A member is suspended when its configuration is not compatible with the rest of the bundle or with the far end. Spanning tree treats the whole bundle as one logical link, so it does not block a single member."
+      - id: np-5c-q04
+        type: mcq
+        q: "Several new access points stay dark when connected to a 48-port PoE switch that already feeds many phones and cameras. Which command BEST shows the switch's total, used and remaining wattage?"
+        choices:
+          - "show interface"
+          - "show vlan"
+          - "show mac-address-table"
+          - "show power"
+        answer: 3
+        why: "The show power command (show power inline on many switches) reports the PoE budget and the draw on each port. show interface gives link status and error counters, but says nothing about the wattage delivered."
+      - id: np-5c-q05
+        type: mcq
+        q: "A branch manager says the 500 Mb/s Internet circuit 'feels slow'. Which tool BEST measures the upload and download rate the site is actually getting?"
+        choices:
+          - "Speed tester"
+          - "Port scanner"
+          - "Cable tester"
+          - "Wi-Fi analyzer"
+        answer: 0
+        why: "A speed tester transfers data to and from a test server and reports the achieved throughput, which can be compared with the contracted rate. A cable tester checks only the continuity and pinout of a copper cable, not the rate of a WAN circuit."
+      - id: np-5c-q06
+        type: mcq
+        q: "Two virtual machines were cloned from one image and have different IP addresses. Both have intermittent connectivity, and the switch logs one hardware address moving back and forth between ports Gi1/0/3 and Gi1/0/17. Broadcast levels and switch CPU are normal. What is the MOST likely cause?"
+        choices:
+          - "A duplicate IP address"
+          - "A duplicate MAC address"
+          - "A switching loop"
+          - "Address pool exhaustion"
+        answer: 1
+        why: "Cloning copied the virtual NIC's hardware address, so the switch keeps relearning the same MAC on two ports and delivers frames to whichever it saw last. A switching loop also makes MAC addresses flap, but it would come with a broadcast storm and high CPU, which the stem rules out."
+      - id: np-5c-q07
+        type: mcq
+        q: "A server link negotiates 1 Gb/s, but a file-transfer test between the two hosts moves data at only 620 Mb/s. What is the 620 Mb/s figure called?"
+        choices:
+          - "Bandwidth"
+          - "Latency"
+          - "Throughput"
+          - "Jitter"
+        answer: 2
+        why: "Throughput is the rate at which data is actually delivered; bandwidth is the theoretical capacity of the link, here 1 Gb/s. The gap between the two is what performance troubleshooting tries to explain."
+      - id: np-5c-q08
+        type: mcq
+        q: "In a far conference room, a Wi-Fi analyzer shows the corporate SSID at -84 dBm and no other networks. Clients there connect at low data rates and drop often. What is the MOST likely problem?"
+        choices:
+          - "Co-channel interference"
+          - "Adjacent-channel interference"
+          - "An incorrect passphrase"
+          - "Insufficient wireless coverage"
+        answer: 3
+        why: "A signal of -84 dBm is too weak for a reliable connection, so the room lacks coverage and needs a closer access point. Both kinds of channel interference need another transmitter on a nearby frequency, and the analyzer shows none."
+      - id: np-5c-q09
+        type: mcq
+        q: "A technician knows a rogue device's MAC address from the DHCP lease list and must find the access-switch port it is plugged into. Which command should be run on the switch?"
+        choices:
+          - "show mac-address-table"
+          - "show route"
+          - "show vlan"
+          - "show config"
+        answer: 0
+        why: "The MAC address table maps each learned hardware address to the port it was seen on. show vlan lists which ports belong to each VLAN but does not show the addresses of the devices attached to them."
+      - id: np-5c-q10
+        type: mcq
+        q: "A VLAN change on a switch worked for two weeks and then vanished after a power failure restarted the switch. What is the MOST likely explanation?"
+        choices:
+          - "The switch lost the spanning-tree root election"
+          - "The running configuration was never saved to the startup configuration"
+          - "The trunk's native VLAN no longer matches"
+          - "The switch port became err-disabled"
+        answer: 1
+        why: "Changes are made to the running configuration in memory and survive a restart only if they are saved to the startup configuration. Comparing the two with the show config commands reveals unsaved changes; an err-disabled port would not erase configuration."
+      - id: np-5c-q11
+        type: mcq
+        q: "In an undocumented closet with switches from three vendors, a technician wants each switch to report the name and port of whatever is connected to its uplinks. Which protocol should be enabled?"
+        choices:
+          - "CDP"
+          - "STP"
+          - "LLDP"
+          - "LACP"
+        answer: 2
+        why: "LLDP is the vendor-neutral IEEE 802.1AB discovery protocol, so every vendor's switch can exchange neighbor details with it. CDP provides the same kind of information but is Cisco-proprietary and would not work across all three vendors."
+      - id: np-5c-q12
+        type: mcq
+        q: "From a laptop on another subnet, an engineer wants to learn which TCP ports on a server are reachable through the firewall between them. Which tool is the BEST choice?"
+        choices:
+          - "netstat"
+          - "arp"
+          - "tcpdump"
+          - "nmap"
+        answer: 3
+        why: "Nmap probes the server's ports across the network and reports each as open, closed or filtered. netstat lists listening ports only on the machine where it is run, so it cannot show what the firewall lets through."
+      - id: np-5c-q13
+        type: mcq
+        q: "A short fiber patch cord in a crowded panel is suspected of being cracked. Which tool lets a technician see the damaged spot directly?"
+        choices:
+          - "Visual fault locator"
+          - "TDR"
+          - "Toner probe"
+          - "Cable tester"
+        answer: 0
+        why: "A visual fault locator sends bright red light down the fiber, and the light leaks out visibly at a break or sharp bend. A TDR works by electrical reflection and can be used only on copper cable."
+      - id: np-5c-q14
+        type: mcq
+        q: "An analyst must capture every frame on a server uplink, including frames with physical-layer errors, and is not allowed to change the switch configuration. Which should be used?"
+        choices:
+          - "Port mirroring"
+          - "A network tap"
+          - "A toner probe"
+          - "A speed tester"
+        answer: 1
+        why: "A tap sits inline and copies the signal itself, so it passes errored frames and needs no switch configuration. Port mirroring must be configured on the switch, and the switch normally discards corrupt frames before copying."
+      - id: np-5c-q15
+        type: mcq
+        q: "A new duplex LC fiber link shows no link light at either end. The transceivers are identical and a visual fault locator confirms both strands are intact. What should the technician try FIRST?"
+        choices:
+          - "Replace both transceivers with a longer-reach model"
+          - "Set both ports to half duplex"
+          - "Swap the two strands at one end of the link"
+          - "Replace the run with shielded cable"
+        answer: 2
+        why: "With matching optics and intact glass, the likely fault is transmit connected to transmit; swapping the strands at one end restores TX-to-RX. Shielding protects copper against electromagnetic interference and has no bearing on a fiber link."
+
+  # ──────────── 5d · Exam-hard practice: method, physical layer, switching ────────────
+  - id: np-5d
+    title: "Exam-hard practice: method, cabling, interfaces and switching"
+    domain: "5"
+    goal: "I can read interface output and switch symptoms, identify the fault and choose the next step the methodology calls for."
+    notes: |
+      These scenarios are **harder than the exam**. Solve each in two moves: *what is happening*, then *what does the question ask for*.
+
+      **Read the qualifier.** FIRST and NEXT questions are about the methodology, not about the cleverest fix. BEST questions have several answers that would work; choose the one that removes the cause.
+
+      **Read the output.** Train yourself to pull these out of an interface listing:
+
+      - Status line: up, down, administratively down, err-disabled.
+      - Speed and duplex, and whether they were negotiated.
+      - Which counter is rising: CRC errors, late collisions, runts, giants or drops.
+
+      **Know the near-neighbours.**
+
+      | Looks alike | Difference |
+      | Duplex mismatch / speed mismatch | Link up but slow / no link at all |
+      | Crosstalk / EMI | Source inside the cable / outside it |
+      | BPDU guard / root guard | Err-disables the port / blocks only superior BPDUs |
+      | Per-port PoE limit / PoE budget | One device too hungry / the whole switch is spent |
+
+      The **order** items stand in for performance-based questions: drag the steps into the sequence in which they really happen.
+    items:
+      # ── methodology ──
+      - id: np-5d-q01
+        type: mcq
+        q: "A technician theorised that a damaged patch cable was causing a user's drops. A known-good cable was swapped in, and the drops continue exactly as before. What should the technician do NEXT?"
+        choices:
+          - "Establish a new theory of probable cause, or escalate"
+          - "Establish a plan of action and identify potential effects"
+          - "Verify full system functionality with the user"
+          - "Document the findings and close the ticket"
+        answer: 0
+        why: "The test in step 3 disproved the theory, so the method loops back to form a new theory or escalates. A plan of action is written only after a theory has been confirmed, which has not happened here."
+      - id: np-5d-q02
+        type: mcq
+        q: "One ticket from a single user reports three things: the badge printer is offline, the VPN is slow from home, and a shared drive is missing. The printer was moved yesterday. How should the technician BEST proceed while identifying the problem?"
+        choices:
+          - "Assume the printer move caused all three and reverse it"
+          - "Approach the three problems individually"
+          - "Escalate the whole ticket to the network team"
+          - "Start with the VPN because it affects the most layers"
+        answer: 1
+        why: "Step 1 of the methodology includes approaching multiple problems individually; these three symptoms involve different systems and probably different causes. Assuming a single cause skips the theory and testing steps and may reverse a change that was correct."
+      - id: np-5d-q03
+        type: mcq
+        q: "A closet switch that failed from overheating has been replaced, and users confirm that everything works. Which action completes step 6 of the methodology before the technician moves on to documentation?"
+        choices:
+          - "Recording the new serial number in the asset inventory"
+          - "Asking users what changed before the failure"
+          - "Adding temperature monitoring and alerting to the closet"
+          - "Listing the potential effects of the replacement"
+        answer: 2
+        why: "Step 6 is to verify full functionality and, if applicable, implement preventive measures; temperature alerting stops the same failure from recurring. Recording the serial number is worthwhile but belongs to step 7, documentation."
+      - id: np-5d-q04
+        type: mcq
+        q: "At 10:00 on a weekday, testing confirms that a firmware bug on a hospital's core switch stack causes brief outages roughly once a day. The vendor's fixed release requires a 15-minute reload. What should the engineer do NEXT?"
+        choices:
+          - "Reload the stack now, because the cause is confirmed"
+          - "Document the bug and close the ticket until the next outage"
+          - "Verify full functionality with the clinical staff"
+          - "Plan the upgrade for an approved maintenance window with a rollback path"
+        answer: 3
+        why: "After the cause is confirmed, step 4 is to establish a plan of action and identify its potential effects, here a full outage during the reload. Reloading immediately is step 5 carried out without the planning that step 4 requires."
+      - id: np-5d-q05
+        type: mcq
+        q: "A user cannot open a web application. The technician's first test is to ping the application server's IP address from the user's PC. It replies, so the technician concentrates on the transport layer and above. Which approach is being used?"
+        choices:
+          - "Divide and conquer"
+          - "Top-to-bottom"
+          - "Bottom-to-top"
+          - "Duplicating the problem"
+        answer: 0
+        why: "Starting in the middle of the OSI model (a Layer 3 ping) and then moving up or down according to the result is divide and conquer. Bottom-to-top would have started with the cable and link light before any ping."
+
+      # ── cabling and physical interfaces ──
+      - id: np-5d-q06
+        type: mcq
+        q: "A server's NIC was hard-set to 100 Mb/s full duplex. Its switch port, left on auto, shows: 'up/up, Half-duplex, 100Mb/s, 1843 collisions, 912 late collisions'. Backups to the server crawl. Which change is the BEST fix?"
+        choices:
+          - "Replace the patch cable with Cat 6A"
+          - "Return the server NIC to autonegotiation"
+          - "Hard-set the switch port to 100 Mb/s half duplex"
+          - "Enable jumbo frames on the switch port"
+        answer: 1
+        why: "When one side is fixed, the automatic side can sense the speed but not the duplex, so it falls back to half duplex and a mismatch results; letting both ends negotiate gives 1 Gb/s or 100 Mb/s full duplex. Forcing the switch to half would leave the mismatch in place, since the server is fixed at full."
+      - id: np-5d-q07
+        type: mcq
+        q: "On a new storage VLAN the server NICs are set to an MTU of 9000. Pings between hosts succeed, but large iSCSI transfers fail. The switch ports are at the default MTU of 1500 and show 'giants 48211, input errors 48211, CRC 0'. What is the BEST fix?"
+        choices:
+          - "Replace the cables, because the frames are being corrupted"
+          - "Set the switch ports to half duplex"
+          - "Enable jumbo frames on every switch port in the path"
+          - "Move the servers to the default VLAN"
+        answer: 2
+        why: "Giants with no CRC errors are intact frames that are simply larger than the port accepts, so the MTU must be raised to match end to end. Corruption from a bad cable would raise the CRC counter, which is at zero."
+      - id: np-5d-q08
+        type: mcq
+        q: "A certifier reports on a freshly terminated Cat 6 run: 'Length 62 m PASS, Wire map PASS, Insertion loss PASS, NEXT FAIL at the patch-panel end'. What is the MOST likely cause?"
+        choices:
+          - "The run is longer than the standard allows"
+          - "One conductor is open at the wall jack"
+          - "The transmit and receive pairs are reversed"
+          - "The pairs were untwisted too far at the patch panel"
+        answer: 3
+        why: "NEXT is near-end crosstalk, and failing it at one end with a good wire map points to pairs left untwisted too far at that termination. Excess length would have shown up as a length or insertion-loss failure, and both passed."
+      - id: np-5d-q09
+        type: mcq
+        q: "Two legacy switches without auto-MDI-X will not link. A cable tester on the patch cable between them shows pin 1 to 1, 2 to 2, 3 to 3, 6 to 6, with all eight conductors continuous. What does the technician need?"
+        choices:
+          - "A crossover cable, so that each transmit pair meets a receive pair"
+          - "A rollover cable, so that all eight pins are reversed"
+          - "A shielded straight-through cable, to remove interference"
+          - "A shorter straight-through cable, to reduce attenuation"
+        answer: 0
+        why: "Two like devices transmit on the same pins, so without auto-MDI-X a straight-through cable joins TX to TX; a crossover swaps pins 1 and 2 with 3 and 6. A rollover cable reverses all eight pins and is used only for serial console connections."
+      - id: np-5d-q10
+        type: mcq
+        q: "A new 25 W access point stays dark on port 23 of a PoE+ switch. Three identical access points on the same switch work, and the new one works on port 23's cable when fed by a power injector. The switch reports 'Available 370.0 W, Used 361.2 W, Remaining 8.8 W'. What is the MOST likely cause?"
+        choices:
+          - "The switch supports only 802.3af on each port"
+          - "The switch's total PoE budget is exhausted"
+          - "The cable run exceeds 100 m"
+          - "Port 23 is assigned to the wrong VLAN"
+        answer: 1
+        why: "Only 8.8 W of the supply remains, so the switch cannot grant another 25 W even though each port is capable of it. A per-port 802.3af limit is ruled out by the three identical access points already running on the same switch."
+      - id: np-5d-q11
+        type: mcq
+        q: "An outdoor camera with a built-in heater draws 45 W. It must be powered over its Ethernet cable from a new switch. Which is the MINIMUM standard the switch must support?"
+        choices:
+          - "802.3af"
+          - "802.3at"
+          - "802.3bt"
+          - "802.3az"
+        answer: 2
+        why: "802.3bt (PoE++) supplies 60 W per port as Type 3 and up to 90 W as Type 4. 802.3at (PoE+) stops at 30 W, which is the tempting choice but is not enough for a 45 W device."
+      - id: np-5d-q12
+        type: mcq
+        q: "Two switches 80 m apart each have a 10GBASE-SR transceiver. They are joined by a yellow-jacketed 9/125 µm patch run, polarity has been verified, and the link will not stay up. What is the MOST likely cause?"
+        choices:
+          - "The transceivers use different wavelengths"
+          - "The run is too long for 10 Gb/s over fiber"
+          - "The transmit and receive strands are reversed"
+          - "The fiber type is wrong for the transceivers"
+        answer: 3
+        why: "SR optics are 850 nm multimode transceivers, while 9/125 µm fiber is single-mode, so the cable does not match the optics. A wavelength mismatch is ruled out because both ends use the same SR model."
+      - id: np-5d-q13
+        type: mcq
+        q: "A fiber uplink began flapping after a technician re-dressed cables in the tray. The switch shows 'Tx power -2.1 dBm, Rx power -31.4 dBm, Rx low alarm -18.0 dBm'; the far end transmits at -2.3 dBm. What should be done FIRST?"
+        choices:
+          - "Inspect and clean the connectors and look for tight bends"
+          - "Replace both transceivers with long-reach optics"
+          - "Hard-set speed and duplex on both ports"
+          - "Swap the transmit and receive strands at one end"
+        answer: 0
+        why: "Both transmitters are healthy, yet about 29 dB is being lost on the way, far beyond the loss budget, and the fault began when the cables were handled: dirt or a macrobend is the likely cause. Reversed strands would stop the link from ever coming up, not produce a weak, flapping signal."
+      - id: np-5d-q14
+        type: mcq
+        q: "A desk port shows 'down, line protocol is down (err-disabled)'. The log records a port-security violation by an unknown MAC address; the user had plugged in a personal mini-switch. What is the BEST way to restore service?"
+        choices:
+          - "Raise the port's maximum MAC address count to 50 and re-enable it"
+          - "Remove the mini-switch, then shut and re-enable the port"
+          - "Replace the patch cable and wait for the link to return"
+          - "Lower the switch's spanning-tree priority"
+        answer: 1
+        why: "An err-disabled port stays down until the cause is removed and the port is reset, typically with shutdown followed by no shutdown. Raising the MAC limit would bring the port back, but only by weakening the control that correctly caught the violation."
+      - id: np-5d-q15
+        type: mcq
+        q: "An access port configured as an edge port goes err-disabled the moment a user connects a small managed switch. The log reads: 'Received BPDU on port Gi1/0/9. Disabling port.' Which feature acted?"
+        choices:
+          - "Root guard"
+          - "Port security"
+          - "BPDU guard"
+          - "Storm control"
+        answer: 2
+        why: "BPDU guard err-disables an edge port as soon as any BPDU arrives, because a BPDU means a switch has been attached. Root guard reacts only to a superior BPDU and puts the port into a root-inconsistent blocking state; it does not err-disable it."
+      - id: np-5d-q16
+        type: mcq
+        q: "Minutes after a user patched two wall jacks into one desk switch, every switch LED in the building flashes in unison, switch CPUs sit at 99% and logs fill with MAC address flapping messages. What should be done FIRST to restore service?"
+        choices:
+          - "Reboot the core switch"
+          - "Clear the MAC address tables"
+          - "Raise the storm-control threshold"
+          - "Disconnect one of the two redundant links"
+        answer: 3
+        why: "The symptoms are a broadcast storm from a switching loop, and breaking the loop is the only thing that stops it. A rebooted core would be flooded again the moment its ports came back up, because the loop would still exist."
+      - id: np-5d-q17
+        type: mcq
+        q: "Three switches run spanning tree with no manual root configuration. SW1: priority 32768, MAC 0011.2233.4455. SW2: priority 32768, MAC 000a.1111.2222. SW3: priority 28672, MAC 00ff.ffff.ffff. Which becomes the root bridge, and why?"
+        choices:
+          - "SW3, because it has the lowest priority"
+          - "SW2, because it has the lowest MAC address"
+          - "SW1, because it has the highest priority and a mid-range MAC"
+          - "SW3, because it has the highest MAC address"
+        answer: 0
+        why: "The bridge ID is compared priority first, and the lowest value wins, so SW3's 28672 beats 32768. The MAC address is only the tie-breaker when priorities are equal, which is why SW2 does not win here."
+      - id: np-5d-q18
+        type: mcq
+        q: "After an old access switch was added, traffic between two core switches detours through the access layer. On the core: 'Root ID Priority 32769 Address 0002.4a11.0c01; Bridge ID Priority 32769 Address 0c11.67aa.9b00'. What is the BEST fix?"
+        choices:
+          - "Enable PortFast on the core uplinks"
+          - "Set a lower bridge priority on the core switch"
+          - "Disable spanning tree on the access switch"
+          - "Raise the port cost on the core's uplinks"
+        answer: 1
+        why: "With equal priorities, the old switch's lower MAC address made it root; giving the core a lower priority makes the core root and restores the intended paths. Disabling spanning tree on the access switch would remove loop protection altogether."
+      - id: np-5d-q19
+        type: mcq
+        q: "A non-root switch has two uplinks straight to the root bridge: Gi0/1 at 1 Gb/s (cost 4) and Gi0/2 at 100 Mb/s (cost 19). Once spanning tree converges, what are the role and state of Gi0/2?"
+        choices:
+          - "Root port, forwarding"
+          - "Designated port, forwarding"
+          - "Alternate port, blocking"
+          - "Designated port, blocking"
+        answer: 2
+        why: "The switch keeps one root port, the lowest-cost path (Gi0/1). On the Gi0/2 segment the root bridge's own port is the designated port, so Gi0/2 is left as a blocking alternate. A switch can have only one root port, however many uplinks reach the root."
+      - id: np-5d-q20
+        type: mcq
+        q: "PCs on one switch often show 169.254.x.x addresses right after booting, yet 'ipconfig /renew' a minute later succeeds. Each port takes about 30 seconds after link-up before it passes traffic. Which change is the BEST fix?"
+        choices:
+          - "Enable BPDU guard on the access ports"
+          - "Extend the DHCP lease time"
+          - "Convert the access ports to trunks"
+          - "Enable PortFast (edge port) on the access ports"
+        answer: 3
+        why: "The ports spend 15 seconds listening and 15 seconds learning before forwarding, so the first DHCP attempts time out; PortFast moves an edge port straight to forwarding. BPDU guard is a sensible companion, but by itself it does nothing to shorten the delay."
+      - id: np-5d-q21
+        type: mcq
+        q: "A new engineer on port Gi0/24 receives no DHCP address. 'show vlan' lists: 'VLAN 1 default: Gi0/24; VLAN 10 SALES: Gi0/1-12; VLAN 20 ENG: Gi0/13-23'. Other engineers on the same switch work normally, and no DHCP scope exists for VLAN 1. What is the BEST fix?"
+        choices:
+          - "Assign Gi0/24 to VLAN 20"
+          - "Add VLAN 20 to the uplink trunk"
+          - "Enlarge the engineering DHCP scope"
+          - "Replace the engineer's patch cable"
+        answer: 0
+        why: "The port was left in the default VLAN, which has no DHCP service, so it must be made an access port in VLAN 20. The trunk already carries VLAN 20, because the engineers on ports 13 to 23 of the same switch are working."
+      - id: np-5d-q22
+        type: mcq
+        q: "VLAN 30 has just been created on SW1 and SW2. Hosts in VLAN 30 reach others on their own switch but not across the uplink, while VLANs 10 and 20 cross it normally. On both switches: 'Gi0/24 trunking, native vlan 1, allowed vlans 10,20'. What is the BEST fix?"
+        choices:
+          - "Change the native VLAN to 30 on both ends"
+          - "Add VLAN 30 to the trunk's allowed list on both ends"
+          - "Change Gi0/24 to an access port in VLAN 30"
+          - "Enable PortFast on Gi0/24"
+        answer: 1
+        why: "The trunk forwards only the VLANs on its allowed list, so VLAN 30 frames are dropped at the uplink until it is added. Making the port an access port in VLAN 30 would carry VLAN 30 but cut off VLANs 10 and 20."
+      - id: np-5d-q23
+        type: mcq
+        q: "Both switches on a trunk log: 'Native VLAN mismatch discovered on Gi0/1 (1), with SW2 Gi0/1 (99)'. Hosts in VLAN 1 on SW1 unexpectedly receive broadcasts from VLAN 99 on SW2. What is the BEST fix?"
+        choices:
+          - "Add VLAN 99 to the trunk's allowed list"
+          - "Change both ports to access mode"
+          - "Configure the same native VLAN on both ends of the trunk"
+          - "Disable the discovery protocol on Gi0/1"
+        answer: 2
+        why: "Untagged frames are placed in whichever VLAN each end calls native, so with 1 at one end and 99 at the other the two VLANs leak into each other; matching the native VLAN ends it. Disabling the discovery protocol would only silence the warning."
+      - id: np-5d-q24
+        type: mcq
+        q: "Two gigabit devices link at only 100 Mb/s full duplex, both set to autonegotiate. A cable tester on the run reports: 'Pair 1-2 OK, Pair 3-6 OK, Pair 4-5 OK, Pair 7-8 OPEN'. What BEST explains the link speed?"
+        choices:
+          - "A duplex mismatch is forcing the lower speed"
+          - "The run is longer than 100 m"
+          - "PoE is occupying the spare pairs"
+          - "1000BASE-T needs all four pairs, so the link fell back to 100BASE-TX"
+        answer: 3
+        why: "Gigabit over copper uses all four pairs, whereas 100BASE-TX needs only pairs 1-2 and 3-6, so with one pair open the devices settle on 100 Mb/s. It is not a duplex mismatch: both ends negotiated and agreed on full duplex."
+      - id: np-5d-q25
+        type: mcq
+        q: "On a copper link between two switches, SW1's port is hard-set to 1000 Mb/s full duplex and SW2's port is hard-set to 100 Mb/s full duplex. What will the technician observe?"
+        choices:
+          - "The link does not come up"
+          - "The link comes up at 100 Mb/s with late collisions"
+          - "The link comes up at 1000 Mb/s with CRC errors"
+          - "The link comes up at 100 Mb/s and works normally"
+        answer: 0
+        why: "The two rates use different signalling, so a speed mismatch leaves the link down. Late collisions on a link that is up are the mark of a duplex mismatch, which is a different fault."
+      - id: np-5d-q26
+        type: mcq
+        q: "A 12 km single-mode span between two buildings has gone dark, and a power meter at the far end reads no light. Which tool BEST tells the repair crew how far along the span the break is?"
+        choices:
+          - "Visual fault locator"
+          - "OTDR"
+          - "TDR"
+          - "Toner probe"
+        answer: 1
+        why: "An optical time-domain reflectometer times reflected light to give the distance to a break on fiber. A visual fault locator is useful only over short lengths where the escaping red light can actually be seen, not along kilometres of buried cable."
+
+      # ── multiple response ──
+      - id: np-5d-m01
+        type: multi
+        q: "A link is up but very slow, and a technician suspects a duplex mismatch. Which TWO findings support that theory? (Choose TWO.)"
+        choices:
+          - "Late collisions on the half-duplex end"
+          - "CRC errors on the full-duplex end"
+          - "Giants on both ends"
+          - "A root-inconsistent state on one end"
+          - "An administratively down status on one end"
+        answers: [0, 1]
+        why: "The half-duplex end sees the other side transmit while it is sending and records late collisions; the full-duplex end receives the resulting truncated frames as CRC errors. Giants indicate an MTU difference, and the last two are port states in which the link would not be passing traffic at all."
+      - id: np-5d-m02
+        type: multi
+        q: "Which TWO events place a switch port in the err-disabled state? (Choose TWO.)"
+        choices:
+          - "An administrator enters the shutdown command"
+          - "A port-security violation in shutdown mode"
+          - "The attached PC is powered off"
+          - "A BPDU arrives on a port with BPDU guard enabled"
+          - "Spanning tree selects the port as an alternate port"
+        answers: [1, 3]
+        why: "Err-disabled is a protective shutdown made by the switch itself, as port security and BPDU guard both do. The shutdown command gives 'administratively down', a powered-off PC gives a plain down or not-connected port, and an alternate port is up but blocking."
+      - id: np-5d-m03
+        type: multi
+        q: "Which THREE actions belong to step 1 of the troubleshooting methodology, identify the problem? (Choose THREE.)"
+        choices:
+          - "Question users"
+          - "Identify the potential effects of the fix"
+          - "Determine whether anything has changed"
+          - "Implement preventive measures"
+          - "Duplicate the problem, if possible"
+          - "Question the obvious"
+        answers: [0, 2, 4]
+        why: "Step 1 is information gathering: question users, identify symptoms, find out what changed and try to reproduce the fault. 'Question the obvious' belongs to step 2, potential effects to step 4 and preventive measures to step 6."
+      - id: np-5d-m04
+        type: multi
+        q: "Which TWO values make up the bridge ID that spanning tree compares to elect the root bridge? (Choose TWO.)"
+        choices:
+          - "Bridge priority"
+          - "Port cost"
+          - "The switch's MAC address"
+          - "The highest configured IP address"
+          - "System uptime"
+        answers: [0, 2]
+        why: "The bridge ID is the configurable priority followed by the switch's MAC address, and the lowest combined value wins. Port cost is used afterwards to choose root ports; IP addresses and uptime play no part in spanning tree."
+      - id: np-5d-m05
+        type: multi
+        q: "A newly installed duplex fiber link shows no link light at either end. Which TWO faults could be responsible? (Choose TWO.)"
+        choices:
+          - "A duplex mismatch"
+          - "Transmit and receive strands reversed"
+          - "Crosstalk between the strands"
+          - "EMI from a nearby motor"
+          - "Transceivers of different wavelengths"
+        answers: [1, 4]
+        why: "A fiber link stays down if transmit meets transmit or if the optics use different wavelengths. Crosstalk and EMI are electrical effects that do not occur on glass, and a duplex mismatch leaves a link up but slow."
+      - id: np-5d-m06
+        type: multi
+        q: "A switch has no PoE budget left, and four more IP cameras must be powered. Each camera's draw is within the per-port limit. Which TWO actions would solve the problem? (Choose TWO.)"
+        choices:
+          - "Install a higher-wattage power supply in the switch"
+          - "Move the camera ports into a dedicated VLAN"
+          - "Enable PortFast on the camera ports"
+          - "Power the new cameras from midspan PoE injectors"
+          - "Replace the patch cables with shorter ones"
+        answers: [0, 3]
+        why: "The shortfall is in total watts, so the fix is either more supply in the switch or power fed from somewhere else, such as injectors. VLAN membership, PortFast and patch-cable length have no effect on the switch's power budget."
+
+      # ── ordering (performance-based stand-ins) ──
+      - id: np-5d-o01
+        type: order
+        q: "Several users report that a file server is unreachable. Put the technician's actions in the order the CompTIA methodology requires."
+        steps:
+          - "Question the users and find out that a switch was re-cabled last night"
+          - "Suspect that the server's uplink was moved to a port in the wrong VLAN"
+          - "Check the port's VLAN assignment and confirm that it is wrong"
+          - "Decide how to correct the port and consider who will be affected"
+          - "Reassign the port to the server VLAN"
+          - "Confirm with the users that the server is reachable again"
+        why: "The steps are: identify the problem, establish a theory, test the theory, establish a plan of action, implement the solution and verify full functionality; documentation follows. Planning always precedes the change, and testing the theory always precedes planning."
+      - id: np-5d-o02
+        type: order
+        q: "A port running classic spanning tree (802.1D) without PortFast has just been connected. Put the states it passes through in order."
+        steps:
+          - "Blocking"
+          - "Listening"
+          - "Learning"
+          - "Forwarding"
+        why: "The port starts in blocking, listens for BPDUs to settle its role, then learns MAC addresses without forwarding, and only then forwards. The listening and learning states each last one forward-delay timer, 15 seconds by default."
+      - id: np-5d-o03
+        type: order
+        q: "A host runs traceroute to a server two routers away. Put the events in order."
+        steps:
+          - "The host sends a probe with a TTL of 1"
+          - "The first router reduces the TTL to 0, discards the probe and returns an ICMP Time Exceeded message"
+          - "The host sends a probe with a TTL of 2"
+          - "The second router returns an ICMP Time Exceeded message"
+          - "The host sends a probe with a TTL of 3, which reaches the server"
+          - "The server's own reply tells the host that the trace is complete"
+        why: "Each probe's TTL is one higher than the last, so each successive router is the one that expires it and reveals its address. Only a probe with enough TTL to cross both routers reaches the server, whose reply ends the trace."
+      - id: np-5d-o04
+        type: order
+        q: "A PC with an empty ARP cache sends its first packet to a server on a different subnet. Put the events in order."
+        steps:
+          - "The PC compares the destination with its own address and mask and finds that it is remote"
+          - "The PC broadcasts an ARP request for its default gateway's IP address"
+          - "The gateway replies with its MAC address"
+          - "The PC sends the frame to the gateway's MAC address, with the server's IP address as the destination"
+          - "The router looks up the destination network in its routing table and forwards the packet"
+        why: "The mask decides local or remote first; for a remote destination the PC resolves the gateway's MAC address, never the server's. The frame is addressed to the gateway at Layer 2 while the packet keeps the server's address at Layer 3."
+
+  # ──────────── 5e · Exam-hard practice: services, performance, wireless, tools ────────────
+  - id: np-5e
+    title: "Exam-hard practice: IP services, routing, performance, wireless and tools"
+    domain: "5"
+    goal: "I can interpret command output to separate addressing, routing, DNS, ACL, performance and wireless faults, and pick the right tool for each."
+    notes: |
+      The second practice set moves up the stack. As before, it is deliberately **harder than the exam**.
+
+      **Localise before you fix.** Ask how far the traffic gets:
+
+      - Own subnet fails: address, mask, VLAN or duplicate address.
+      - Own subnet works, nothing remote: default gateway or default route.
+      - IP works, names fail: DNS settings or the DNS server.
+      - One service fails, the rest work: an ACL, a firewall or the service itself.
+
+      **Routing.** Find the *longest matching prefix* first. Administrative distance and metric matter only between routes to the same prefix.
+
+      **ACLs.** They are read top-down, the first match wins and an unseen *deny everything* sits at the end.
+
+      **Performance.** Clean error counters plus rising output drops means congestion, not cabling. Steady delay is latency; uneven delay is jitter.
+
+      **Wireless.**
+
+      | Evidence | Fault |
+      | Strong signal, busy channel | Co-channel interference |
+      | 2.4 GHz channels other than 1, 6, 11 | Adjacent-channel interference |
+      | Weak signal, quiet band | Coverage or obstruction |
+      | Drops while walking | Roaming |
+
+      **Tools.** `netstat` sees only its own host; Nmap sees a host from outside; a capture shows what actually crossed the wire.
+    items:
+      # ── addressing and services ──
+      - id: np-5e-q01
+        type: mcq
+        q: "A PC shows 'IPv4 Address 192.168.10.50, Subnet Mask 255.255.0.0, Default Gateway 192.168.10.1'. The site uses /24 subnets. The PC reaches its neighbours and the Internet, but not a server at 192.168.20.10 in another VLAN. What is the MOST likely cause?"
+        choices:
+          - "An incorrect subnet mask"
+          - "An incorrect default gateway"
+          - "A duplicate IP address"
+          - "An incorrect DNS server"
+        answer: 0
+        why: "With a /16 mask the PC believes 192.168.20.10 is on its own segment, so it sends an ARP request for it directly and never uses the gateway. The gateway setting is correct, which is why Internet destinations outside 192.168.0.0/16 still work."
+      - id: np-5e-q02
+        type: mcq
+        q: "A Linux server shows 'inet 172.16.5.20/24' on eth0 and 'default via 172.16.5.254 dev eth0'. The subnet's only router is 172.16.5.1, which answers pings. Pinging 8.8.8.8 returns 'From 172.16.5.20 Destination Host Unreachable'. What is the MOST likely cause?"
+        choices:
+          - "An incorrect subnet mask"
+          - "An incorrect default gateway"
+          - "An ACL on the router is blocking ICMP"
+          - "An incorrect DNS server"
+        answer: 1
+        why: "The default route points at 172.16.5.254, where nothing exists, so ARP for the gateway fails and the server itself reports the host unreachable. An ACL on the router would produce a reply from the router or silence, not an error sourced from the server's own address."
+      - id: np-5e-q03
+        type: mcq
+        q: "A file server at 10.1.1.25 drops connections at random. On a workstation, 'arp -a' maps 10.1.1.25 to the server's MAC address; minutes later it maps to a MAC whose vendor prefix belongs to a printer maker. A printer was given a static address yesterday, and the DHCP scope 10.1.1.20-200 has no exclusions. What is the MOST likely cause?"
+        choices:
+          - "A duplicate MAC address"
+          - "A switching loop"
+          - "A duplicate IP address"
+          - "Address pool exhaustion"
+        answer: 2
+        why: "Two different MAC addresses are answering for one IP address, and the second belongs to the newly configured printer: the same address is in use twice. A duplicate MAC address would be the reverse situation, one hardware address appearing on two devices."
+      - id: np-5e-q04
+        type: mcq
+        q: "A guest Wi-Fi scope reports '10.0.8.0/24: 254 total, 254 in use, 0 available; lease duration 8 days'. About 600 different visitors connect each day, each staying about an hour, and new arrivals get no address. Which change is the BEST fix?"
+        choices:
+          - "Add a DHCP relay agent to the guest VLAN"
+          - "Create a reservation for each visitor"
+          - "Lower the TTL on the DNS records"
+          - "Shorten the lease duration to about an hour"
+        answer: 3
+        why: "Addresses stay leased for eight days after a visitor leaves, so the pool fills with stale leases; a short lease returns them promptly. A relay agent helps only when clients cannot reach the server, and here the server is reachable but empty."
+      - id: np-5e-q05
+        type: mcq
+        q: "One laptop cannot open intranet.corp.example, though colleagues can. On the laptop, 'ping 10.5.5.10' (the intranet server) succeeds, and nslookup shows 'Server: 8.8.8.8 ... Non-existent domain'. What is the MOST likely cause?"
+        choices:
+          - "The laptop is configured with the wrong DNS server"
+          - "The intranet's A record has been deleted"
+          - "The laptop's default gateway is wrong"
+          - "The intranet web service has stopped"
+        answer: 0
+        why: "The laptop is asking a public resolver, which knows nothing of the internal zone, so it must be pointed at the internal DNS server. A deleted record would stop the colleagues from resolving the name as well."
+      - id: np-5e-q06
+        type: mcq
+        q: "'dig www.example.org @10.0.0.53' returns 'connection timed out; no servers could be reached', while the same query sent to @1.1.1.1 returns an answer. A ping to 10.0.0.53 succeeds. What is the MOST likely cause?"
+        choices:
+          - "The record does not exist in the zone"
+          - "The DNS service on 10.0.0.53 is not answering on port 53"
+          - "The client's default gateway is wrong"
+          - "The record's TTL has expired"
+        answer: 1
+        why: "The host is up but nothing answers DNS queries, so the service is stopped or port 53 is filtered. A missing record would return a prompt NXDOMAIN answer from the server, not a timeout."
+
+      # ── routing and ACLs ──
+      - id: np-5e-q07
+        type: mcq
+        q: "A router holds: '10.0.0.0/8 via 192.168.1.1; 10.20.0.0/16 via 192.168.2.1; 10.20.30.0/24 via 192.168.3.1; 0.0.0.0/0 via 192.168.4.1'. Which next hop is used for a packet addressed to 10.20.31.7?"
+        choices:
+          - "192.168.1.1"
+          - "192.168.3.1"
+          - "192.168.2.1"
+          - "192.168.4.1"
+        answer: 2
+        why: "10.20.31.7 lies outside 10.20.30.0/24 (which ends at 10.20.30.255), so the longest prefix that matches is 10.20.0.0/16. The /8 and the default route also match, but they are less specific."
+      - id: np-5e-q08
+        type: mcq
+        q: "A routing table shows: 'O 172.16.0.0/16 [110/20] via 10.1.1.2; S 172.16.8.0/22 [1/0] via 10.1.1.6; R 172.16.10.0/24 [120/3] via 10.1.1.10'. Which next hop is used for a packet addressed to 172.16.10.200?"
+        choices:
+          - "10.1.1.2, because OSPF has the best metric"
+          - "10.1.1.6, because the static route has the lowest administrative distance"
+          - "The packet is load-balanced across all three"
+          - "10.1.1.10, because the /24 is the longest match"
+        answer: 3
+        why: "All three entries cover the address, and the most specific prefix wins whatever its source, so the RIP /24 is used. Administrative distance decides only between routes to the same prefix, which is why the static /22 does not win."
+      - id: np-5e-q09
+        type: mcq
+        q: "Users at a branch reach every internal subnet but nothing on the Internet. The branch router shows: 'Gateway of last resort is not set; C 10.1.1.0/24; C 10.1.2.0/24; S 10.9.0.0/16 via 10.1.2.2'. What is the BEST fix?"
+        choices:
+          - "Add a 0.0.0.0/0 route pointing to the upstream router"
+          - "Add a second static route for 10.9.0.0/16"
+          - "Change the users' DNS server"
+          - "Lower the administrative distance of the connected routes"
+        answer: 0
+        why: "With no default route, any destination not listed in the table is dropped as unreachable, and that is every Internet address. DNS is not the cause: a router with no route cannot forward the packets even when the names resolve."
+      - id: np-5e-q10
+        type: mcq
+        q: "A new branch uses 10.50.0.0/24, and its router has a default route to head office. Pings from 10.50.0.20 reach a head-office server, but no replies return. The head-office router has routes for its own subnets and a default route to the ISP; a capture shows the server's replies leaving on the ISP interface. What is the BEST fix?"
+        choices:
+          - "Add a default route on the branch router"
+          - "Add a route for 10.50.0.0/24 on the head-office router"
+          - "Enable NAT on the head-office server"
+          - "Raise the TTL on the branch hosts"
+        answer: 1
+        why: "The requests arrive, so the forward path is good; the return path fails because head office knows no route to the new subnet and falls back to its default route. The branch already has a default route, which is how the requests got there."
+      - id: np-5e-q11
+        type: mcq
+        q: "An inbound ACL reads: '10 permit tcp any host 203.0.113.10 eq 80; 20 deny ip 198.51.100.0 0.0.0.255 any; 30 permit tcp any host 203.0.113.10 eq 443'. Hosts in 198.51.100.0/24 are still reaching the web server over HTTP. What is the BEST fix?"
+        choices:
+          - "Add 'deny ip any any' as the last entry"
+          - "Apply the same ACL in the outbound direction"
+          - "Move the deny entry above entry 10"
+          - "Change entry 20 to deny TCP only"
+        answer: 2
+        why: "ACLs are evaluated top-down and stop at the first match, so entry 10 permits the HTTP traffic before the deny is ever reached. An explicit deny at the end changes nothing, because an implicit deny is already there."
+      - id: np-5e-q12
+        type: mcq
+        q: "A new ACL on the user VLAN's gateway interface contains only: 'permit tcp 10.10.0.0 0.0.255.255 any eq 80' and 'permit tcp 10.10.0.0 0.0.255.255 any eq 443'. Users can now browse to a site by its IP address but not by its name; the DNS servers are on another subnet. Which entry must be added?"
+        choices:
+          - "A permit for UDP port 67"
+          - "A permit for TCP port 22"
+          - "A permit for UDP port 123"
+          - "A permit for UDP port 53"
+        answer: 3
+        why: "The implicit deny at the end of the ACL is dropping DNS queries, which use UDP port 53, so names cannot be resolved while web traffic by address still passes. UDP 67 is DHCP, which is not the problem, because the clients already hold working addresses."
+
+      # ── performance ──
+      - id: np-5e-q13
+        type: mcq
+        q: "At peak hours users behind one uplink complain of slowness. The uplink shows: '1000Mb/s, Full-duplex; 5 minute output rate 962000000 bits/sec; 0 input errors, 0 CRC, 0 collisions; output drops 1204331' and the drop counter is still rising. What is the MOST likely cause?"
+        choices:
+          - "Congestion on the uplink"
+          - "A duplex mismatch"
+          - "EMI on the cable"
+          - "A transceiver mismatch"
+        answer: 0
+        why: "The link is carrying about 96% of its capacity and discarding frames on output with no errors at all, which is a saturated link. A duplex mismatch would show collisions or CRC errors, and both counters are zero."
+      - id: np-5e-q14
+        type: mcq
+        q: "A site pays for a 1 Gb/s Internet circuit. A laptop plugged directly into the ISP handoff measures 940 Mb/s; a wired PC behind the firewall measures 180 Mb/s. During the test the firewall, with intrusion prevention enabled, runs at 100% CPU. Where is the bottleneck?"
+        choices:
+          - "The ISP circuit"
+          - "The firewall's inspection throughput"
+          - "The PC's network adapter"
+          - "The DNS resolver"
+        answer: 1
+        why: "The circuit delivers nearly full rate when the firewall is bypassed, and the firewall is saturated while inspecting, so it caps the path. The ISP is ruled out by the 940 Mb/s result at the handoff."
+      - id: np-5e-q15
+        type: mcq
+        q: "Voice calls to a branch are choppy. A ping to the branch router returns: 'time=21ms, time=24ms, time=96ms, time=22ms, time=88ms, time=23ms; 0% packet loss'. Which condition does this output show?"
+        choices:
+          - "Packet loss"
+          - "Consistently high latency"
+          - "Jitter"
+          - "Address pool exhaustion"
+        answer: 2
+        why: "Every reply arrived, but the delay swings between about 20 ms and 90 ms from one packet to the next; that variation is jitter. Consistently high latency would show every reply slow by a similar amount."
+      - id: np-5e-q16
+        type: mcq
+        q: "A traceroute to a web server shows hops 1 and 2 at 2 ms, hop 3 as '* * *', and hops 4 to 8 at 11 to 14 ms, with the server answering at hop 8. Users report no problem. What is the BEST interpretation?"
+        choices:
+          - "The router at hop 3 is dropping all transit traffic"
+          - "There is a routing loop at hop 3"
+          - "The link after hop 3 is congested"
+          - "The router at hop 3 does not send ICMP replies for expired probes"
+        answer: 3
+        why: "Later hops and the destination all respond normally, so traffic is passing through hop 3; the router simply declines to answer the probes, or rate-limits them. If it were dropping transit traffic, nothing beyond hop 3 would respond either."
+      - id: np-5e-q17
+        type: mcq
+        q: "A ping to 10.77.0.9 returns 'TTL expired in transit'. A traceroute shows hop 3 as 10.0.0.1, hop 4 as 10.0.0.2, hop 5 as 10.0.0.1, hop 6 as 10.0.0.2, repeating until hop 30. What is the MOST likely cause?"
+        choices:
+          - "A routing loop between two routers"
+          - "A switching loop in the destination VLAN"
+          - "A missing default gateway on the source host"
+          - "An ACL blocking ICMP at the destination"
+        answer: 0
+        why: "Two routers each believe the other is the way to 10.77.0.9, so the packet bounces between them until its TTL runs out. A switching loop happens at Layer 2, where frames have no TTL and no router hops would appear in a traceroute."
+
+      # ── wireless ──
+      - id: np-5e-q18
+        type: mcq
+        q: "An office's 2.4 GHz network is slow, with a high retry rate. A Wi-Fi analyzer shows the office's four access points: 'AP1 ch 1 -52 dBm; AP2 ch 3 -55 dBm; AP3 ch 6 -60 dBm; AP4 ch 8 -58 dBm'. What is the BEST fix?"
+        choices:
+          - "Set all four access points to channel 6"
+          - "Reassign the access points to channels 1, 6 and 11 only"
+          - "Raise the transmit power on all four access points"
+          - "Widen all four access points to 40 MHz channels"
+        answer: 1
+        why: "Channels 3 and 8 partly overlap 1 and 6, so the transmissions corrupt each other; only 1, 6 and 11 are clear of one another in 2.4 GHz. Putting everything on channel 6 swaps adjacent-channel interference for heavy co-channel contention."
+      - id: np-5e-q19
+        type: mcq
+        q: "Eight access points in one open-plan floor are all on 5 GHz channel 36, 80 MHz wide, at maximum power. Clients report -45 dBm signal but poor speed, and channel utilisation is 85%. What is the BEST fix?"
+        choices:
+          - "Raise the minimum data rate and add two more access points on channel 36"
+          - "Move all clients to the 2.4 GHz band"
+          - "Spread the access points across different channels with narrower widths and lower power"
+          - "Replace the omnidirectional antennas with higher-gain ones"
+        answer: 2
+        why: "Signal is strong, so coverage is fine; the access points are all contending for the same airtime, which is co-channel interference. Giving each cell its own channel, with narrower widths so that more channels exist, removes the contention; more access points on channel 36 would add to it."
+      - id: np-5e-q20
+        type: mcq
+        q: "A user on a voice call walks from AP-A toward AP-B. The handset stays on AP-A at -82 dBm although AP-B is available at -50 dBm on the same SSID, and the call breaks up. What is the BEST fix?"
+        choices:
+          - "Give AP-B a different SSID"
+          - "Put both access points on the same channel"
+          - "Extend the DHCP lease time"
+          - "Lower AP transmit power or set a minimum signal threshold so that clients roam sooner"
+        answer: 3
+        why: "The client is clinging to a distant access point; shrinking the cells or having the access point drop weak clients pushes it to roam to the stronger one. A different SSID would stop the handset from roaming to AP-B automatically at all."
+      - id: np-5e-q21
+        type: mcq
+        q: "After walking to another building, a laptop stays joined to SSID 'CorpWiFi' and keeps 10.1.20.57/24, but loses all connectivity until Wi-Fi is switched off and on. The access points there bridge 'CorpWiFi' to VLAN 30 (10.1.30.0/24). What is the MOST likely cause?"
+        choices:
+          - "The SSID maps to different VLANs on different access points"
+          - "The VLAN 30 DHCP scope is exhausted"
+          - "Adjacent-channel interference in the second building"
+          - "The pre-shared key differs between the buildings"
+        answer: 0
+        why: "The roam succeeded at Layer 2, but the client kept an address from a subnet that does not exist behind the new access point: a roaming design fault. The scope is not exhausted, because the laptop gets a working address as soon as Wi-Fi is restarted."
+      - id: np-5e-q22
+        type: mcq
+        q: "During a keynote, clients in an auditorium are repeatedly dropped. The single access point logs: 'Disassociated station: AP unable to handle all currently associated stations' with 60 of 60 client slots in use. Signal in the room is -48 dBm. What is the BEST fix?"
+        choices:
+          - "Increase the access point's transmit power"
+          - "Add access points to the room and balance clients across them"
+          - "Change the SSID's passphrase"
+          - "Shorten the DHCP lease duration"
+        answer: 1
+        why: "The access point says it is at its client limit and is disassociating stations, so the room needs more capacity. More transmit power would not help: signal is already strong, and a larger cell would attract even more clients."
+      - id: np-5e-q23
+        type: mcq
+        q: "After a warehouse installed tall metal racking stocked with liquids, a scanner at a fixed spot fell from -58 dBm to -79 dBm with a signal-to-noise ratio of 12 dB. A Wi-Fi analyzer shows no new networks and an unchanged noise floor. What is the MOST likely cause?"
+        choices:
+          - "Co-channel interference"
+          - "Adjacent-channel interference"
+          - "Signal loss caused by the new obstructions"
+          - "A roaming misconfiguration"
+        answer: 2
+        why: "The received signal dropped by 21 dB while the noise floor and the neighbouring networks stayed the same, so the signal is being absorbed and reflected by the racking and liquids. Interference would add competing transmissions or noise, and the analyzer shows neither."
+
+      # ── tools ──
+      - id: np-5e-q24
+        type: mcq
+        q: "On a Windows server, netstat shows 'TCP 0.0.0.0:3389 LISTENING'. From a remote subnet, an Nmap scan of the server reports '3389/tcp filtered'. What is the BEST interpretation?"
+        choices:
+          - "The remote desktop service is not running"
+          - "Another program has taken port 3389"
+          - "The server has no route back to the scanner"
+          - "A firewall is dropping the probes before the service can answer"
+        answer: 3
+        why: "The service is listening locally, and 'filtered' means the probe got no answer, which is what a firewall that silently drops packets causes. A stopped service would not appear as LISTENING, and Nmap would report the port as closed."
+      - id: np-5e-q25
+        type: mcq
+        q: "A capture taken with tcpdump on a web server's own interface shows: '10.0.0.5.51514 > 10.0.0.80.443: Flags [S]' three times, at 0 s, 1 s and 3 s, and nothing sent in return. What is the MOST likely cause?"
+        choices:
+          - "The server's host firewall is silently dropping the connection attempts"
+          - "No service is listening on port 443"
+          - "A router between client and server is dropping the packets"
+          - "The server's TLS certificate has expired"
+        answer: 0
+        why: "The SYNs reach the server, so the path is good, yet the server sends nothing back, which is how a host firewall that drops packets behaves. With no listener and no firewall, the server would answer each SYN with a reset."
+      - id: np-5e-q26
+        type: mcq
+        q: "A device at 10.1.1.77 is flooding a VLAN. The technician knows only its IP address and must find the physical switch port. Which pair of commands, in this order, gets there MOST directly?"
+        choices:
+          - "show mac-address-table on the switch, then show arp on the router"
+          - "show arp on the router, then show mac-address-table on the switch"
+          - "show vlan on the switch, then show interface on the switch"
+          - "show route on the router, then show arp on the router"
+        answer: 1
+        why: "The ARP table turns the IP address into a MAC address, and the MAC address table then turns that MAC address into a switch port. Starting with the MAC address table is no use until you know which MAC address to look for."
+      - id: np-5e-q27
+        type: mcq
+        q: "Over a site-to-site VPN, small pings succeed but large file copies stall. On Windows, 'ping -f -l 1472' to the far site returns 'Packet needs to be fragmented but DF set', while 'ping -f -l 1372' succeeds. What is the MOST likely cause?"
+        choices:
+          - "Packet loss caused by EMI"
+          - "Jitter on the WAN circuit"
+          - "A smaller MTU on the tunnel path than on the LAN"
+          - "A duplicate IP address at the far site"
+        answer: 2
+        why: "A 1472-byte payload plus 28 bytes of ICMP and IP headers makes a 1500-byte packet, which no longer fits once the tunnel adds its own headers; the smaller packet does. Random loss from interference would not depend so exactly on packet size."
+
+      # ── multiple response ──
+      - id: np-5e-m01
+        type: multi
+        q: "A user cannot reach a file server by name. Which TWO findings show that the fault is name resolution and not routing? (Choose TWO.)"
+        choices:
+          - "A ping to the server's IP address succeeds"
+          - "A traceroute to the server's IP address stops at the second hop"
+          - "The PC has a 169.254.x.x address"
+          - "nslookup for the server's name times out"
+          - "The ARP entry for the default gateway is incomplete"
+        answers: [0, 3]
+        why: "Reaching the server by address proves that the routed path works, and a failed lookup shows where the fault is. A trace that stops, an APIPA address and an unresolved gateway are all faults below DNS that would break access by address as well."
+      - id: np-5e-m02
+        type: multi
+        q: "A spectrum view shows bursts of non-Wi-Fi energy across the 2.4 GHz band in an office. Which TWO devices are likely sources? (Choose TWO.)"
+        choices:
+          - "A microwave oven"
+          - "An FM radio transmitter"
+          - "Bluetooth headsets"
+          - "An infrared remote control"
+          - "A weather radar"
+        answers: [0, 2]
+        why: "Microwave ovens and Bluetooth both radiate in the 2.4 GHz band. FM radio sits near 100 MHz, infrared is light and not radio, and weather radar shares spectrum with 5 GHz Wi-Fi, which is why some 5 GHz channels require DFS."
+      - id: np-5e-m03
+        type: multi
+        q: "Which TWO commands display the local routing table on a Windows host? (Choose TWO.)"
+        choices:
+          - "arp -a"
+          - "route print"
+          - "ipconfig /all"
+          - "netstat -r"
+          - "nslookup"
+        answers: [1, 3]
+        why: "route print and netstat -r both print the host's routing table. ipconfig /all shows the configured default gateway but not the full table, and arp -a shows only IP-to-MAC mappings."
+      - id: np-5e-m04
+        type: multi
+        q: "A WAN link is saturated during business hours and voice calls across it break up. Which TWO actions address the cause? (Choose TWO.)"
+        choices:
+          - "Apply QoS so that voice is queued ahead of other traffic"
+          - "Enable jumbo frames on the WAN interface"
+          - "Lengthen the DHCP lease time"
+          - "Increase the bandwidth of the link"
+          - "Set the WAN interface to half duplex"
+        answers: [0, 3]
+        why: "Congestion is eased by prioritising delay-sensitive traffic or by adding capacity. Larger frames, longer leases and half duplex do nothing to reduce contention for the link, and half duplex would make it worse."
+      - id: np-5e-m05
+        type: multi
+        q: "Which THREE facts about a directly connected switch can LLDP or CDP report? (Choose THREE.)"
+        choices:
+          - "Its hostname"
+          - "Its routing table"
+          - "The identifier of its port at the far end of the cable"
+          - "Its platform and capabilities"
+          - "Its MAC address table"
+          - "Its access control lists"
+        answers: [0, 2, 3]
+        why: "Discovery protocols advertise identity: device name, the sending port, and the platform with its capabilities. They do not share forwarding or security state such as routing tables, MAC address tables or ACLs."
+      - id: np-5e-m06
+        type: multi
+        q: "Which TWO of these routing-table entries match a packet addressed to 192.168.5.130? (Choose TWO.)"
+        choices:
+          - "192.168.5.0/25"
+          - "192.168.5.128/25"
+          - "192.168.5.192/26"
+          - "192.168.4.0/23"
+          - "192.168.6.0/24"
+        answers: [1, 3]
+        why: "192.168.5.128/25 covers .128 to .255, and 192.168.4.0/23 covers 192.168.4.0 to 192.168.5.255, so both contain .130 (the /25 would be chosen as the longer match). 192.168.5.0/25 ends at .127 and 192.168.5.192/26 starts at .192."
+
+      # ── ordering (performance-based stand-ins) ──
+      - id: np-5e-o01
+        type: order
+        q: "A technician uses the bottom-to-top approach on a PC with no network access. Put the checks in order."
+        steps:
+          - "Check the patch cable and the link light"
+          - "Check that the switch port is in the correct VLAN and has learned the PC's MAC address"
+          - "Check the PC's IP address and mask, and ping the default gateway"
+          - "Check that the required TCP port on the server is reachable"
+          - "Check the application's own settings and logs"
+        why: "Bottom-to-top follows the OSI model upward: physical, data link, network, transport, then application. Each layer depends on the ones beneath it, so a fault found low down explains every failure above it."
+      - id: np-5e-o02
+        type: order
+        q: "Three switches joined in a triangle are powered on together. Put the steps of spanning-tree convergence in order."
+        steps:
+          - "The switches exchange BPDUs and elect the one with the lowest bridge ID as root bridge"
+          - "Each non-root switch selects its lowest-cost port toward the root as its root port"
+          - "A designated port is selected on each segment"
+          - "The remaining port is placed in the blocking state"
+        why: "Everything is measured from the root, so the root must be elected first; root ports and then designated ports follow, and whatever port has neither role is blocked to break the loop."
+      - id: np-5e-o03
+        type: order
+        q: "A laptop joins a WPA2-Personal network for the first time. Put the events in order."
+        steps:
+          - "The laptop discovers the SSID from a beacon or probe response"
+          - "The laptop and the access point exchange 802.11 authentication frames"
+          - "The laptop sends an association request and the access point accepts it"
+          - "The four-way handshake derives the encryption keys"
+          - "The laptop requests an IP address by DHCP"
+        why: "A station must find the network, then authenticate and associate at the 802.11 level before the four-way handshake can produce keys, and DHCP can run only once the encrypted link exists. A client that associates but gets no address has therefore failed at the last step, not the first."
+      - id: np-5e-o04
+        type: order
+        q: "A router has learned several candidate routes that could carry a packet. Put the rules it applies to choose between them in order."
+        steps:
+          - "Prefer the route with the longest matching prefix"
+          - "Between routes to the same prefix, prefer the lowest administrative distance"
+          - "Between routes from the same source, prefer the lowest metric"
+          - "If the routes are still tied, share traffic across the equal-cost paths"
+        why: "Specificity is decided first; administrative distance compares different routing sources for the same prefix; metric compares paths within one source. Only routes that tie on all three are used together."

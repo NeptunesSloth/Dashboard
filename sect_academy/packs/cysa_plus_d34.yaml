@@ -1,0 +1,699 @@
+# CompTIA CySA+ CS0-004 - part file for domains 3 and 4.
+# Coverage of the topics the base course leaves untested, plus exam-hard practice.
+# Original content written against the public objectives. No real exam items.
+# Syllabus: docs/research/notes/blueprint_cysa_plus.md
+part_of: cysa-plus
+units:
+  # ───────────────────────── Domain 3: coverage ─────────────────────────
+  - id: cy-3x
+    title: "Incident response in depth: frameworks, roles, logs and evidence"
+    domain: "3"
+    goal: "I can map an observed action to the right framework element, name who does what in a response, and collect evidence in the right order."
+    notes: |
+      The base units taught the three frameworks and the seven phases. This unit fills in the detail the exam expects.
+
+      **Kill Chain.** Know all seven stages by their evidence: research (reconnaissance), building (weaponization), sending (delivery), triggering (exploitation), foothold (installation), remote control (command and control), the goal (actions on objectives).
+
+      **Diamond Model.** Besides the four core features, each event carries **meta-features**: timestamp, phase, result, direction, methodology and resources. The line joining adversary and victim is the **social-political axis** (why this target); the line joining capability and infrastructure is the **technology axis**. **Pivoting** means using one known feature to find another.
+
+      **ATT&CK** has three levels: **tactic** (why), **technique** (how) and **procedure** (exactly how one group did it). The fourteen Enterprise tactics run from Reconnaissance and Resource Development to Exfiltration and Impact.
+
+      **Roles.** An **incident commander** decides and assigns; a **scribe** records; others do the technical work and the communicating.
+
+      **Logs in an incident.** Collect them centrally, where an intruder cannot edit them; **correlate** across sources; **enrich** with context; make sure **alerts** reach a person who will act.
+
+      **Evidence.** Follow the **order of volatility**:
+
+      | Collect | Example |
+      |---|---|
+      | First | CPU registers and cache |
+      | Then | memory, process table, ARP cache |
+      | Then | temporary files and swap |
+      | Then | the disk |
+      | Last | remote logs, archived backups |
+    items:
+      - {id: cy-3x-reconnaissance, type: concept, term: "Reconnaissance (Kill Chain)",
+         def: "The opening stage of the seven-stage intrusion model, in which the attacker researches and selects the target, for example by harvesting staff names or probing exposed services."}
+      - {id: cy-3x-c2-stage, type: concept, term: "Command and control (Kill Chain)",
+         def: "The sixth stage of the seven-stage intrusion model, in which the compromised host opens a channel to the attacker's server so that it can be operated remotely."}
+      - {id: cy-3x-technique, type: concept, term: "Technique (ATT&CK)",
+         def: "The specific method an adversary uses to reach a goal, identified in the matrix by a T-number; the 'how' of an action."}
+      - {id: cy-3x-procedure, type: concept, term: "Procedure (ATT&CK)",
+         def: "The exact way one particular group or malware family has carried out a catalogued method in a real intrusion, down to the tools and commands used."}
+      - {id: cy-3x-meta-features, type: concept, term: "Meta-features (Diamond Model)",
+         def: "The supplementary attributes recorded for an intrusion event alongside its four core features: timestamp, phase, result, direction, methodology and resources."}
+      - {id: cy-3x-pivoting, type: concept, term: "Analytic pivoting",
+         def: "Taking one known element of an intrusion event and using other data sources to discover the elements linked to it, such as going from a malware sample to the servers it contacts."}
+      - {id: cy-3x-social-political, type: concept, term: "Social-political axis (Diamond Model)",
+         def: "The relationship between attacker and target in the four-feature intrusion model: the intent and motivation that explain why this target was chosen."}
+      - {id: cy-3x-incident-commander, type: concept, term: "Incident commander",
+         def: "The person with overall authority over a response, who sets priorities, assigns tasks and makes the decisions rather than doing the hands-on technical work."}
+      - {id: cy-3x-scribe, type: concept, term: "Incident scribe",
+         def: "The response-team role that keeps the running record of what was found, decided and done, by whom and at what time."}
+      - {id: cy-3x-log-correlation, type: concept, term: "Log correlation",
+         def: "Linking records from different sources by shared values such as time, address, account or host name, so that separate events are seen as one activity."}
+      - {id: cy-3x-log-enrichment, type: concept, term: "Log enrichment",
+         def: "Adding context to a record that it did not originally carry, such as the owner of an asset, the reputation of an address or the country of a login."}
+      - {id: cy-3x-order-of-volatility, type: concept, term: "Order of volatility",
+         def: "The principle of collecting evidence starting with the data that disappears soonest, such as processor cache and memory, and ending with the most durable, such as archived media."}
+      - {id: cy-3x-timeline, type: concept, term: "Incident timeline",
+         def: "A single chronological reconstruction of the intruder's actions and the responders' actions, assembled from many sources on one common clock."}
+      - {id: cy-3x-preservation, type: concept, term: "Evidence preservation",
+         def: "Protecting collected or potential evidence from change or loss, for example by imaging a disk through a write blocker and working only on the copy."}
+      - {id: cy-3x-escalation, type: concept, term: "Incident escalation",
+         def: "Passing a case to a higher tier of expertise or authority because it exceeds what the current handler is able or permitted to deal with."}
+      - {id: cy-3x-release-isolation, type: concept, term: "Release from isolation",
+         def: "Reconnecting a quarantined system to the production network once its fix has been confirmed to work."}
+      - {id: cy-3x-q01, type: mcq,
+         q: "Before any contact with the target, an attacker downloads the company's public staff directory, lists its mail servers from DNS and notes which remote-access product its job adverts mention. Which Kill Chain stage is this?",
+         choices: ["Weaponization", "Delivery", "Reconnaissance", "Exploitation"],
+         answer: 2,
+         why: "Researching and selecting the target is reconnaissance. Weaponization comes next, when the attacker uses what was learned to build something to send; nothing has been built or sent yet."}
+      - {id: cy-3x-q02, type: mcq,
+         q: "A user opens an emailed PDF. A flaw in the reader lets code hidden in the file run in memory. Nothing has yet been written to disk or set to start at boot. Which Kill Chain stage has just occurred?",
+         choices: ["Exploitation", "Delivery", "Installation", "Command and control"],
+         answer: 0,
+         why: "Exploitation is the moment the delivered code is triggered. Delivery was the email arriving; installation would be the next step, when a persistent foothold is placed on the host."}
+      - {id: cy-3x-q03, type: mcq,
+         q: "Proxy logs show an infected workstation making an HTTPS request to the same external domain every 300 seconds. Each reply is a few hundred bytes of encoded text, and shortly after some replies the workstation runs new commands. Which Kill Chain stage is this?",
+         choices: ["Installation", "Command and control", "Actions on objectives", "Delivery"],
+         answer: 1,
+         why: "A regular outbound channel through which the host receives orders is command and control. Installation put the implant there; actions on objectives would be the theft or damage the commands eventually cause."}
+      - {id: cy-3x-q04, type: mcq,
+         q: "After two weeks inside a network, an intruder compresses the finance share into an archive and uploads it to a cloud storage account. Which Kill Chain stage is this?",
+         choices: ["Command and control", "Exploitation", "Installation", "Actions on objectives"],
+         answer: 3,
+         why: "Stealing the data is what the intruder came for, so it is actions on objectives, the last stage. Command and control is the channel used to direct the host, not the goal itself."}
+      - {id: cy-3x-q05, type: mcq,
+         q: "An analyst reverse-engineers a dropper and finds a hard-coded domain. Passive DNS gives the address it resolved to, and proxy logs then show three more internal hosts contacting that address. Through which Diamond Model features did the analyst pivot?",
+         choices: ["Capability, then infrastructure, then victim", "Victim, then adversary, then capability", "Infrastructure, then capability, then adversary", "Adversary, then infrastructure, then victim"],
+         answer: 0,
+         why: "The dropper is a capability, the domain and address are infrastructure, and the three hosts are further victims. The adversary was never identified, so no pivot went through that feature."}
+      - {id: cy-3x-q06, type: mcq,
+         q: "In the Diamond Model, which two features does the social-political axis connect?",
+         choices: ["Capability and infrastructure", "Infrastructure and victim", "Adversary and victim", "Adversary and capability"],
+         answer: 2,
+         why: "The social-political axis is the relationship between adversary and victim: why this target matters to this attacker. Capability and infrastructure are joined by the technology axis."}
+      - {id: cy-3x-q07, type: mcq,
+         q: "A threat report states: 'The group ran rundll32.exe with comsvcs.dll MiniDump against the process ID of LSASS and wrote the dump to a temporary folder.' In ATT&CK terms, what level of description is this?",
+         choices: ["A tactic", "A technique", "A mitigation", "A procedure"],
+         answer: 3,
+         why: "A procedure is the exact implementation a particular group used. The tactic here is Credential Access and the technique is OS Credential Dumping; the specific command line is one procedure for that technique."}
+      - {id: cy-3x-q08, type: mcq,
+         q: "Using an administrator password hash taken from one workstation, an intruder connects to a file server's admin share and then opens a Remote Desktop session to a second server. Which ATT&CK tactic do these connections serve?",
+         choices: ["Privilege Escalation", "Lateral Movement", "Discovery", "Persistence"],
+         answer: 1,
+         why: "Moving from one system to another inside the network is Lateral Movement. Privilege Escalation is gaining higher rights; here the intruder already holds administrator rights and is using them to reach new hosts."}
+      - {id: cy-3x-q09, type: mcq,
+         q: "Minutes after a phishing compromise, EDR records these commands on the victim's workstation: whoami /groups, net group 'Domain Admins' /domain, nltest /dclist:corp. Which ATT&CK tactic do they serve?",
+         choices: ["Reconnaissance", "Collection", "Discovery", "Credential Access"],
+         answer: 2,
+         why: "Learning about accounts, groups and domain controllers from inside the environment is Discovery. In ATT&CK, Reconnaissance is information gathering before the attacker has access, and no secrets are being stolen, so it is not Credential Access."}
+      - {id: cy-3x-q10, type: mcq,
+         q: "Just before logging off a compromised server, an intruder runs: wevtutil cl Security. Which ATT&CK tactic does this serve?",
+         choices: ["Defense Evasion", "Impact", "Persistence", "Exfiltration"],
+         answer: 0,
+         why: "Clearing the Security event log removes traces of the intrusion, which ATT&CK lists as Indicator Removal under Defense Evasion. Impact is about harming the victim's data or availability, not hiding."}
+      - {id: cy-3x-q11, type: mcq,
+         q: "Weeks before a campaign, an adversary registers several look-alike domains, rents virtual servers and buys a code-signing certificate. Which ATT&CK tactic covers this activity?",
+         choices: ["Reconnaissance", "Initial Access", "Command and Control", "Resource Development"],
+         answer: 3,
+         why: "Acquiring infrastructure and capabilities to support an operation is Resource Development. Reconnaissance is gathering information about the target, and the servers have not yet been used for control."}
+      - {id: cy-3x-q12, type: mcq,
+         q: "During a major incident three engineers each propose a different containment action and begin to argue. Under the role definitions in the response plan, who makes the decision and assigns the tasks?",
+         choices: ["The technical lead", "The incident commander", "The scribe", "The communications lead"],
+         answer: 1,
+         why: "The incident commander holds overall authority and decides between options. The technical lead advises on what is feasible, but one person must own the decision so that the team acts together."}
+      - {id: cy-3x-q13, type: mcq,
+         q: "A week after an incident, nobody can say at what time the firewall rule was changed, who approved taking the mail server offline, or which commands were run on it. Which response role was left unfilled?",
+         choices: ["Scribe", "Incident commander", "Communications lead", "System owner"],
+         answer: 0,
+         why: "The scribe keeps the contemporaneous record of findings, decisions and actions with their times. Without it the timeline and the after-action report have to be rebuilt from memory."}
+      - {id: cy-3x-q14, type: mcq,
+         q: "An intruder had root on a Linux web server for six days. The server keeps its logs locally and also forwards them in real time to a central collector that the intruder never reached. Which copy should the investigation rely on, and why?",
+         choices: ["The local copy, because it is the original", "The local copy, because it is more recent", "The central copy, because the intruder could not alter it", "The central copy, because it records more event types"],
+         answer: 2,
+         why: "Root can edit or delete anything on the server, so the local logs cannot be trusted. Central collection matters in an incident because it puts a copy out of the intruder's reach, not because it records more."}
+      - {id: cy-3x-q15, type: mcq,
+         q: "A SIEM rule fires only when a VPN login from a country the user has never used before is followed within ten minutes by the same account opening the finance share. The two events come from different log sources. What is the rule doing?",
+         choices: ["Log enrichment", "Log retention", "Log ingestion", "Log correlation"],
+         answer: 3,
+         why: "The rule links events from separate sources by account and time: correlation. Enrichment would add context to a single event, such as the country name looked up from the address."}
+      - {id: cy-3x-q16, type: mcq,
+         q: "A critical alert for a domain controller fired at 01:00 on Saturday and sat unread on a dashboard until Monday morning. Which change BEST addresses the failure?",
+         choices: ["Add more log sources to the SIEM", "Page the on-call analyst for critical alerts and require acknowledgement", "Extend log retention to one year", "Raise the rule's severity threshold"],
+         answer: 1,
+         why: "Detection worked; the notification never reached a person. Routing critical alerts to an on-call contact with an acknowledgement timer closes that gap, while more sources or longer retention change nothing about who is told."}
+      - {id: cy-3x-q17, type: mcq,
+         q: "With no incident in progress, a team signs a retainer with a forensics firm, rolls out EDR to the last unmanaged servers and writes a ransomware playbook. Which phase of the response process is this work?",
+         choices: ["Preparation", "Post-incident", "Detection", "Recovery"],
+         answer: 0,
+         why: "Putting people, tools and procedures in place before anything happens is preparation. Post-incident work also improves readiness, but it follows a specific incident and is driven by its findings."}
+      - {id: cy-3x-q18, type: mcq,
+         q: "A user phones the help desk because her files have a strange new extension, and at the same moment EDR raises an alert on her laptop. Nobody has yet confirmed what is happening. Which phase is the organization in?",
+         choices: ["Analysis", "Containment", "Detection", "Preparation"],
+         answer: 2,
+         why: "Detection is the point at which a tool or a person first signals that something may be wrong. Analysis starts when someone examines the signal to confirm it and work out its scope."}
+      - {id: cy-3x-q19, type: mcq,
+         q: "A responder reaches a running, compromised workstation and can collect each of the following. Which should be captured FIRST?",
+         choices: ["A full image of the internal disk", "The host's logs held in the SIEM", "Last month's backup of the user profile", "Running processes and network connections"],
+         answer: 3,
+         why: "Process and connection state lives in memory and changes from second to second, so it is the most volatile. The disk, the SIEM copy and the backup will all still be there an hour later."}
+      - {id: cy-3x-q20, type: mcq,
+         q: "A compromised application server has been patched and the intruder's account removed. It is still in the quarantine VLAN and its owner asks for it to be reconnected. What must happen before it is released from isolation?",
+         choices: ["The lessons-learned meeting is held", "A rescan and indicator sweep confirm the fix worked", "The after-action report is signed off", "Customers are told about the outage"],
+         answer: 1,
+         why: "Remediation has to be verified before the system is trusted on the network again; an unverified fix risks reconnecting a host that is still compromised. Reports and reviews come after recovery."}
+      - {id: cy-3x-q21, type: mcq,
+         q: "A root cause analysis finds that an intruder logged in to the VPN with a stolen password. Which of these is a properly developed corrective action?",
+         choices: ["Enforce MFA on the VPN; owner: IAM lead; due 30 June", "Staff should take more care with their passwords", "The intruder used a password stolen by phishing", "Security will be strengthened going forward"],
+         answer: 0,
+         why: "A corrective action is a specific change that removes the cause, with an owner and a date. 'Take more care' cannot be checked or completed, and the stolen password is a finding, not an action."}
+      - {id: cy-3x-q22, type: mcq,
+         q: "A red team launches a staged attack in a test network. The SOC must detect it, isolate hosts and collect evidence with its real tools while observers time each step. What kind of training is this?",
+         choices: ["A tabletop exercise", "A playbook review", "A lessons-learned review", "A simulation"],
+         answer: 3,
+         why: "Responding hands-on to a staged attack is a simulation. A tabletop exercise only talks through what people would do and never touches the tools."}
+      - {id: cy-3x-m01, type: multi,
+         q: "Which THREE of these are ATT&CK tactics, rather than Kill Chain stages or Diamond Model features? (Choose THREE.)",
+         choices: ["Lateral Movement", "Weaponization", "Defense Evasion", "Infrastructure", "Collection", "Delivery"],
+         answers: [0, 2, 4],
+         why: "Lateral Movement, Defense Evasion and Collection are columns of the ATT&CK matrix. Weaponization and Delivery are Kill Chain stages, and infrastructure is one of the four Diamond features."}
+      - {id: cy-3x-m02, type: multi,
+         q: "Which TWO of these are meta-features of a Diamond Model event? (Choose TWO.)",
+         choices: ["Timestamp", "Capability", "Result", "Victim", "Infrastructure"],
+         answers: [0, 2],
+         why: "Timestamp and result are meta-features, along with phase, direction, methodology and resources. Capability, victim and infrastructure are three of the four core features."}
+      - {id: cy-3x-m03, type: multi,
+         q: "Which TWO of these are examples of enriching a log record? (Choose TWO.)",
+         choices: ["Adding the country looked up from the source address", "Deleting records older than 90 days", "Adding the asset's owner and criticality from the inventory", "Forwarding syslog over TLS", "Synchronizing the source's clock with NTP"],
+         answers: [0, 2],
+         why: "Enrichment adds context the original record lacked, such as location or asset ownership. Deleting old records is retention, TLS protects logs in transit and NTP keeps timestamps accurate."}
+      - {id: cy-3x-o01, type: order,
+         q: "Put these evidence sources in the order they should be collected, most volatile first.",
+         steps: ["CPU registers and cache", "Contents of RAM, including the process table", "Temporary files and swap space", "Data on the hard disk", "Archived backup media"],
+         why: "Evidence is collected in order of volatility: processor state lasts nanoseconds, memory lasts until power-off, temporary and swap data are overwritten in normal use, disk contents persist, and archives last for years."}
+      - {id: cy-3x-o02, type: order,
+         q: "A suspect's disk has been removed from a powered-off computer. Put the acquisition steps in order.",
+         steps: ["Record the disk's make, model and serial number on the custody form", "Attach the disk to the forensic workstation through a write blocker", "Create a bit-for-bit image of the disk", "Hash the image and confirm it matches the hash of the original", "Seal the original in evidence storage and analyse only the copy"],
+         why: "The item is documented before anything is done to it, the write blocker must be in place before the disk is read, the image can only be verified after it exists, and analysis starts only on a verified copy."}
+
+  # ───────────────────────── Domain 3: exam-hard ─────────────────────────
+  - id: cy-3y
+    title: "Incident response: exam-hard practice"
+    domain: "3"
+    goal: "I can choose the right next action in an incident from the phase the team is in, the evidence at stake and the framework stage of what I see."
+    notes: |
+      These are scenario questions above exam difficulty. Three habits answer most of them.
+
+      **1. Name the phase before you choose the action.** Ask what has been confirmed and what has not.
+
+      - New hosts found after containment began? Go back to **analysis**: scope first, then contain all of it.
+      - Malware removed but the way in still open? **Eradication** is not finished.
+      - Fix applied but not checked? Do not **release from isolation**.
+      - Restoring a backup? Compare its date with the *earliest* compromise on the timeline, not with the detection date.
+
+      **2. Protect the evidence in the order it disappears.** Memory before disk, disk before remote logs, remote logs before archives. A hash proves the copy has not changed *since it was hashed*; a custody record proves *who held it*. They are different guarantees, and a question often breaks only one of them.
+
+      **3. Map what you see, not what you fear.**
+
+      | Clue | Framework answer |
+      |---|---|
+      | The email or download arrives | Kill Chain: delivery |
+      | The code is triggered | Kill Chain: exploitation |
+      | A Run key, service or task appears | Kill Chain: installation |
+      | Regular call-outs for orders | Kill Chain: command and control |
+      | Malware, exploit, tool | Diamond: capability |
+      | Domain, address, server, sender account | Diamond: infrastructure |
+
+      For ATT&CK, ask what the action is *for*: hiding is Defense Evasion, gathering before sending is Collection, sending out is Exfiltration.
+    items:
+      - {id: cy-3y-q01, type: mcq,
+         q: "EDR has isolated one workstation that was beaconing to a control domain. While reviewing DNS logs, an analyst finds six more hosts that resolved the same domain this week. The team lead wants to begin reimaging the isolated workstation now. What should the team do NEXT?",
+         choices: ["Reimage the workstation, then look at the six hosts", "Restore the workstation's data from backup", "Scope the six hosts and contain them before eradicating anything", "Close the alert and schedule the lessons-learned meeting"],
+         answer: 2,
+         why: "New evidence has reopened analysis: the incident is larger than the one contained host. Eradicating one machine while six others remain connected leaves the intruder in place and warns them that they have been seen."}
+      - {id: cy-3y-q02, type: mcq, best: true,
+         q: "A team has found three backdoors planted by a group that is known to install fresh ones on other hosts as soon as it sees one removed. The group is collecting data slowly and has done nothing destructive. How many more backdoors exist is unknown. Which approach is BEST?",
+         choices: ["Block each backdoor's control address at the firewall as it is found", "Finish scoping quietly, then contain and eradicate everything in one coordinated action", "Reimage the three known hosts tonight and continue hunting", "Disconnect the company from the internet until the hunt is complete"],
+         answer: 1,
+         why: "Against an adversary that reacts to partial clean-up, eradication only works if every foothold is removed together, and the slow, non-destructive activity gives the team time to finish scoping.",
+         whys: ["Stops those three channels but shows the group it has been found while unknown backdoors remain.", "Best: nothing alerts the group until every known foothold can be removed at the same time.", "Removes three of an unknown number and triggers exactly the re-infection the group is known for.", "Would contain everything, but the business cost is out of proportion to slow, non-destructive activity."]}
+      - {id: cy-3y-q03, type: mcq, best: true,
+         q: "A virtual file server began encrypting its own data volumes four minutes ago. This ransomware family is known to hold its encryption key in memory while it runs. Which action is BEST?",
+         choices: ["Suspend the virtual machine and take a snapshot that includes memory", "Power the virtual machine off from the hypervisor", "Shut the guest operating system down cleanly", "Disconnect the virtual network adapter and leave it running"],
+         answer: 0,
+         why: "Suspending freezes the encryption at once and the memory snapshot keeps the key, the most volatile and most valuable evidence here.",
+         whys: ["Best: stops the damage immediately and preserves memory, where the key is.", "Stops the damage but discards the memory that holds the key.", "Loses memory, takes longer, and the shutdown itself writes to the disks.", "Stops any spread, but the local volumes keep being encrypted."]}
+      - {id: cy-3y-q04, type: mcq,
+         q: "An analyst lines up four records from one workstation. Which one is evidence of the Kill Chain's exploitation stage?",
+         choices: ["10:02 proxy: invoice.docm downloaded from a link in an email", "10:04 EDR: new value written under the user's registry Run key", "10:05 proxy: POST to the same external site every 60 seconds", "10:03 EDR: winword.exe starts powershell.exe with an encoded command"],
+         answer: 3,
+         why: "Word launching PowerShell is the macro's code being triggered on the victim: exploitation. The download is delivery, the Run key is installation and the regular POSTs are command and control."}
+      - {id: cy-3y-q05, type: mcq,
+         q: "A group's known playbook is: an emailed macro document, the macro launches a downloader, the downloader installs a backdoor, the backdoor beacons over HTTPS, and data leaves as web uploads. Which control breaks this chain at the EARLIEST stage?",
+         choices: ["Egress filtering through an authenticated proxy", "Detonating attachments in a sandbox at the mail gateway", "Application allowlisting on workstations", "Data loss prevention on outbound uploads"],
+         answer: 1,
+         why: "The mail gateway acts at delivery, the first stage the defender can touch here. Allowlisting acts at exploitation or installation, egress filtering at command and control, and DLP only at actions on objectives."}
+      - {id: cy-3y-q06, type: mcq,
+         q: "Two intrusions, one at a hospital and one at a retailer, used unrelated malware families. In both, the control servers sat in the same small netblock and were registered with the same email address. Which Diamond Model feature do the two events demonstrably share, giving the analyst a pivot that links them?",
+         choices: ["Infrastructure", "Capability", "Victim", "Adversary"],
+         answer: 0,
+         why: "The servers, netblock and registration email are all infrastructure. The malware differs, so capability is not shared; the victims are different organizations in different sectors; and the adversary is only inferred from the shared infrastructure, not observed."}
+      - {id: cy-3y-q07, type: mcq,
+         q: "An analyst has one infected host and the malicious DLL recovered from it. The goal is to find other victims inside the company. Which step is the BEST next pivot?",
+         choices: ["Block the DLL's hash on every endpoint", "Compare the code style with known groups to name the adversary", "Extract the control-server addresses from the DLL and search network logs for them", "Search endpoint telemetry for the first victim's host name"],
+         answer: 2,
+         why: "Pivoting from capability to infrastructure and then to victims finds every host that contacted the same servers, even if the DLL was repacked with a new hash. Blocking a hash is protection, not discovery, and attribution does not locate victims."}
+      - {id: cy-3y-q08, type: mcq,
+         q: "An intruder already has a command prompt on a workstation. Instead of running a malicious DLL directly, the intruder loads it through rundll32.exe, a signed Windows binary, so that the application allowlisting policy lets it run. Which ATT&CK tactic does the choice of rundll32.exe serve?",
+         choices: ["Persistence", "Privilege Escalation", "Lateral Movement", "Defense Evasion"],
+         answer: 3,
+         why: "Proxying execution through a trusted, signed binary exists to get past a security control, which ATT&CK lists as System Binary Proxy Execution under Defense Evasion. Nothing here survives a reboot, raises rights or reaches another host."}
+      - {id: cy-3y-q09, type: mcq,
+         q: "EDR on a compromised server records: 7z a -pS3cret C:/ProgramData/a.7z //fs01/finance/*. Firewall logs show no outbound transfer from the server yet. Which ATT&CK tactic does this command serve?",
+         choices: ["Exfiltration", "Collection", "Impact", "Discovery"],
+         answer: 1,
+         why: "Gathering and archiving data ready to be stolen is Collection (Archive Collected Data). Exfiltration is the transfer out of the network, which the firewall shows has not happened yet."}
+      - {id: cy-3y-q10, type: mcq,
+         q: "Within one minute a standard domain user account requests Kerberos service tickets for 40 different service accounts, all with RC4 encryption (many event ID 4769 entries with encryption type 0x17). No logons to those services follow. Which ATT&CK tactic is MOST likely being served?",
+         choices: ["Credential Access", "Discovery", "Lateral Movement", "Privilege Escalation"],
+         answer: 0,
+         why: "Requesting many RC4 service tickets without using them is Kerberoasting: the tickets are taken away and cracked offline to recover service-account passwords, a Credential Access technique. Lateral Movement would show actual connections to the services."}
+      - {id: cy-3y-q11, type: mcq,
+         q: "An analyst images a disk and records a SHA-256 hash. The image drive is then sent by courier to an outside forensic firm, but nobody records the handover or the firm's receipt. When the firm hashes the image, the value matches. What is the weakness in this evidence?",
+         choices: ["The image's integrity can no longer be shown", "The order of volatility was not followed", "The chain of custody has a gap", "The legal hold has been breached"],
+         answer: 2,
+         why: "The matching hash shows the image is unchanged, so integrity holds. What is missing is the record of who had the drive during transit, which is a break in the chain of custody."}
+      - {id: cy-3y-q12, type: mcq,
+         q: "A suspect's disk was connected directly to an analysis workstation and mounted read-write for several minutes. It was then imaged, and the image's hash matched the disk's hash taken at that moment. Which statement BEST describes the evidence?",
+         choices: ["The matching hashes prove the disk is exactly as the suspect left it", "The image is useless because two hashes were needed", "The chain of custody is broken because the disk was mounted", "The image matches the disk as imaged, but the disk may have changed before that"],
+         answer: 3,
+         why: "A hash only proves nothing changed after it was calculated. Mounting the original read-write without a write blocker may already have altered timestamps and files, which is a preservation failure the later hash cannot reveal."}
+      - {id: cy-3y-q13, type: mcq,
+         q: "Counsel issues a legal hold covering all records of three employees' activity for an expected lawsuit. The SOC's EDR platform automatically purges telemetry after 30 days, including telemetry from those employees' laptops. What should the SOC do?",
+         choices: ["Let the purge run, because legal holds apply only to email", "Suspend the purge for the telemetry that is in scope of the hold", "Record a hash of the telemetry and then let it be purged", "Shorten the purge period so less data is held"],
+         answer: 1,
+         why: "A legal hold overrides normal retention for every relevant record, whatever system holds it. A hash proves integrity of something you still have; it does not replace data that has been deleted."}
+      - {id: cy-3y-q14, type: mcq, best: true,
+         q: "A database server behind the web shop is sending small batches of customer records to one external address every hour. The shop must keep taking orders, and investigators need the server's memory and disk intact. Which containment action is BEST?",
+         choices: ["Restrict the server's traffic to the web application tier only", "Power the server off", "Rebuild the server from the standard image", "Leave it unchanged and add a packet capture"],
+         answer: 0,
+         why: "Segmenting the server cuts the route the data is leaving by while orders keep flowing and the evidence stays untouched; it is the only choice that meets all three constraints.",
+         whys: ["Best: stops the theft, keeps the shop trading and preserves memory and disk.", "Stops the theft but halts orders and discards memory.", "Stops the theft but halts orders and destroys both memory and disk evidence.", "Keeps the shop running and the evidence intact, but customer records keep leaving."]}
+      - {id: cy-3y-q15, type: mcq,
+         q: "Ransomware was detected on 20 May. The timeline shows the intruder's first access was on 11 May. After eradication, the team restores the file server from the backup taken on 17 May. What is the problem with this recovery?",
+         choices: ["The backup may hold the intruder's backdoor, because it was taken after the first access", "The backup is too old to be useful", "Restoring any backup always destroys the chain of custody", "The backup should have been restored before eradication"],
+         answer: 0,
+         why: "A backup is only known to be clean if it predates the earliest compromise, which was 11 May, not the detection date. Restoring the 17 May copy can bring the intruder's foothold back with the data."}
+      - {id: cy-3y-q16, type: mcq,
+         q: "An isolated server has been patched and an antivirus scan is clean, but the vulnerability rescan still reports the flawed version because the patch needs a reboot that has not happened. The owner insists on reconnecting it now. What is the correct decision?",
+         choices: ["Release it with extra monitoring", "Mark the rescan result as a false positive and release it", "Restore it from backup instead", "Keep it isolated until it is rebooted and the rescan passes"],
+         answer: 3,
+         why: "Release from isolation follows verified remediation, and the rescan shows the fix is not yet effective. Calling an accurate result a false positive would reconnect a server that is still exploitable."}
+      - {id: cy-3y-q17, type: mcq,
+         q: "An intruder stole the password hash of the krbtgt account and has been forging Kerberos ticket-granting tickets. Every compromised host has been rebuilt. Which eradication step is still needed to invalidate the forged tickets?",
+         choices: ["Reset every user's password once", "Reboot all the domain controllers", "Reset the krbtgt account's password twice", "Reissue the domain controllers' certificates"],
+         answer: 2,
+         why: "Forged tickets are signed with the krbtgt key, and the domain accepts both the current and the previous key, so the password must be changed twice. Resetting user passwords does not touch the key that signs tickets."}
+      - {id: cy-3y-q18, type: mcq,
+         q: "A compromised cloud virtual machine belongs to an auto-scaling group that terminates and replaces any instance failing its health check. What should the responder do FIRST to preserve evidence?",
+         choices: ["Terminate the instance so that a clean one replaces it", "Take it out of the scaling group, snapshot its disk and move it to a quarantine security group", "Log in to the instance and run investigation commands", "Change the health check so that it always fails"],
+         answer: 1,
+         why: "If the instance is terminated its disk and memory are gone, so it must first be protected from the scaling group, captured and isolated. Logging in to investigate changes the evidence before a copy exists."}
+      - {id: cy-3y-q19, type: mcq,
+         q: "A company phone is seized from an employee under investigation. It is powered on and unlocked, and the employee could trigger a remote wipe from another device. How should the responder handle it while waiting for the examiner?",
+         choices: ["Power it off and store it in a locked drawer", "Connect it to the corporate Wi-Fi and start a backup", "Leave it as it is on the investigator's desk", "Keep it powered and place it in a Faraday bag"],
+         answer: 3,
+         why: "Blocking all radio signals stops a remote wipe, and keeping it powered avoids the device locking and encrypting its contents. Powering off prevents the wipe but may make the data unreachable without the passcode."}
+      - {id: cy-3y-q20, type: mcq,
+         q: "A domain controller, logging in local time (UTC+2), records an administrator logon at 15:02. A firewall, logging in UTC, records a large outbound transfer at 13:05. Which event happened first, and by how much?",
+         choices: ["The transfer, by 1 hour 57 minutes", "The transfer, by 3 hours 57 minutes", "The logon, by 3 minutes", "The logon, by 2 hours 3 minutes"],
+         answer: 2,
+         why: "15:02 at UTC+2 is 13:02 UTC, three minutes before the 13:05 transfer. Comparing the raw values without converting makes the transfer look earlier by 1 hour 57 minutes."}
+      - {id: cy-3y-q21, type: mcq,
+         q: "While examining an employee's laptop for malware, an analyst opens a folder containing images that appear to be child abuse material. What should the analyst do NEXT?",
+         choices: ["Stop the examination, secure the laptop and escalate to management and legal counsel", "Copy the images to the case folder as evidence", "Delete the images and continue the malware analysis", "Send screenshots to the employee's manager"],
+         answer: 0,
+         why: "This is now a possible crime beyond the analyst's authority: the device is secured and the matter escalated so that counsel can involve law enforcement. Copying, viewing further or deleting the material could itself be unlawful and damages the evidence."}
+      - {id: cy-3y-q22, type: mcq,
+         q: "An intrusion began with an emailed attachment. An analyst reconstructing it needs evidence of the delivery stage. Which source is MOST useful?",
+         choices: ["EDR process-creation events", "Mail gateway logs", "DNS query logs", "Data loss prevention alerts"],
+         answer: 1,
+         why: "The mail gateway recorded the message arriving: sender, recipient, time and attachment. EDR process events show the later exploitation and installation stages on the host."}
+      - {id: cy-3y-q23, type: mcq,
+         q: "A firewall alert shows 10.4.7.22 sending 1.2 GB to an external address at 03:14. The DHCP log shows that 10.4.7.22 was leased to LAPTOP-114 until 02:50 and to KIOSK-9 from 03:01. Which device should responders isolate?",
+         choices: ["LAPTOP-114", "The DHCP server", "The firewall", "KIOSK-9"],
+         answer: 3,
+         why: "Correlating the alert time with the lease history shows KIOSK-9 held the address at 03:14. Acting on the address alone, or on an older asset record, would send responders to the laptop that had released it."}
+      - {id: cy-3y-q24, type: mcq,
+         q: "A team deletes a web shell from an internet-facing server and returns the server to service. Two days later a new web shell appears in the same directory, placed through the same file-upload flaw. Which phase was left incomplete?",
+         choices: ["Detection", "Containment", "Eradication", "Recovery"],
+         answer: 2,
+         why: "Eradication means removing the intruder's presence and closing the weakness that let them in. The team removed the artifact but left the upload flaw, so the same route worked again."}
+      - {id: cy-3y-q25, type: mcq,
+         q: "A responder has limited time with a compromised host. Which of these sources is LEAST urgent to collect?",
+         choices: ["The host's logs already archived on the SIEM", "The contents of RAM", "The pagefile", "An image of the system disk"],
+         answer: 0,
+         why: "Logs already stored on a separate system are the least volatile item listed and will still be there tomorrow. RAM is lost at power-off, the pagefile is overwritten in use, and the disk keeps changing while the host runs."}
+      - {id: cy-3y-q26, type: mcq, best: true,
+         q: "An employee is suspected of taking design files, and the case is likely to reach court. Her laptop is powered off in her desk. Which way of obtaining the evidence is BEST?",
+         choices: ["Boot the laptop and copy her folders to a USB drive", "Remove the disk, image it through a write blocker, hash both and log custody", "Retrieve her files from last night's backup", "Log in remotely with an administrator account and search for the files"],
+         answer: 1,
+         why: "Because the case may go to court, the evidence must be complete, demonstrably unaltered and accounted for; a write-blocked image with matching hashes and a custody record gives all three.",
+         whys: ["Booting changes hundreds of files and timestamps on the original.", "Best: the original is never written to, the copy is provably exact and every handler is recorded.", "Leaves the original untouched, but a backup lacks deleted files and device-connection history.", "Needs the laptop running and alters the original through the logon and the search."]}
+      - {id: cy-3y-q27, type: mcq, best: true,
+         q: "Ransomware is contained and eradicated. The recovery time objective is 24 hours, of which four have passed. The insurer and counsel require forensic images, and the encrypted servers are the only hardware available. Which course is BEST?",
+         choices: ["Wipe and restore at once, relying on SIEM logs as the evidence", "Delay restoration until the forensic analysis is complete", "Restore half the servers now and image the other half", "Image the affected disks, or swap them for new ones, and then restore"],
+         answer: 3,
+         why: "Imaging or swapping disks takes hours, not days, so it preserves the required evidence and still fits inside the 20 hours that remain.",
+         whys: ["Meets the deadline but destroys the disk evidence the insurer and counsel require.", "Preserves evidence, but analysis can take weeks and the objective would be missed.", "Loses the evidence on every server restored first.", "Best: evidence is preserved first and restoration still meets the objective."]}
+      - {id: cy-3y-q28, type: mcq, best: true,
+         q: "A commodity worm is found on an operator workstation (HMI) that controls a running chemical process. Losing the workstation abruptly would force an unsafe manual shutdown. The IT playbook says to isolate infected hosts from the EDR console at once. Which action is BEST?",
+         choices: ["Isolate the workstation from the EDR console immediately", "Power the workstation off", "Block the worm at the IT/OT boundary firewall and plan the clean-up with plant operations", "Leave everything unchanged until the next annual shutdown"],
+         answer: 2,
+         why: "In operational technology, safety and availability come first: containing at the network boundary stops the spread without taking away the operators' view of the process.",
+         whys: ["Right for an office PC, but here it removes control of a live process and creates a safety risk.", "Contains the worm at the cost of the same unsafe shutdown.", "Best: stops the spread now and removes the worm at a time operations agree is safe.", "Avoids disruption but lets the worm spread for months."]}
+      - {id: cy-3y-m01, type: multi,
+         q: "A responder is about to cut power to a compromised server. Which TWO sources of evidence will be lost when the power goes? (Choose TWO.)",
+         choices: ["The contents of RAM", "Files in the administrator's Documents folder", "The list of active network connections", "The file system's master file table", "Web server access logs on the disk"],
+         answers: [0, 2],
+         why: "Memory and live connection state exist only while the system runs. Documents, the master file table and log files are stored on disk and survive a power cut."}
+      - {id: cy-3y-m02, type: multi,
+         q: "An intruder is using a stolen account from one infected workstation. Which TWO of these actions are containment? (Choose TWO.)",
+         choices: ["Reimaging the workstation", "Disabling the stolen account", "Restoring the user's files from backup", "Isolating the workstation with the EDR agent", "Patching the exploited flaw on every workstation", "Holding the lessons-learned meeting"],
+         answers: [1, 3],
+         why: "Disabling the account and isolating the host limit what the intruder can reach. Reimaging and patching are eradication, restoring files is recovery and the review is post-incident."}
+      - {id: cy-3y-m03, type: multi,
+         q: "Which TWO controls act at the command-and-control stage of the Kill Chain? (Choose TWO.)",
+         choices: ["Attachment filtering at the mail gateway", "DNS sinkholing of known malicious domains", "Prompt patching of browsers and document readers", "Egress filtering that blocks unapproved outbound connections", "Security awareness training on phishing"],
+         answers: [1, 3],
+         why: "Sinkholing and egress filtering stop an implant reaching its controller. Mail filtering and awareness training act at delivery, and patching removes the flaw that exploitation needs."}
+      - {id: cy-3y-m04, type: multi,
+         q: "A report reads: 'A state-backed group sent messages from newly created webmail accounts to aerospace engineers. The attachment exploited a document-reader flaw and installed a custom remote-access trojan fetched from compromised blog sites.' Which TWO elements are Diamond Model capabilities? (Choose TWO.)",
+         choices: ["The custom remote-access trojan", "The compromised blog sites", "The aerospace engineers", "The exploit for the document-reader flaw", "The state-backed group", "The webmail accounts used to send the messages"],
+         answers: [0, 3],
+         why: "Capability is the tools and techniques used: the trojan and the exploit. The blog sites and webmail accounts are infrastructure, the engineers are the victim and the group is the adversary."}
+      - {id: cy-3y-m05, type: multi,
+         q: "Which THREE of these observations show an intruder establishing persistence? (Choose THREE.)",
+         choices: ["A new service that starts the payload at boot", "A dump of the LSASS process memory", "A new value under a registry Run key", "A port scan of the server subnet", "A scheduled task that runs the payload at every logon", "The Security event log being cleared"],
+         answers: [0, 2, 4],
+         why: "A boot-time service, a Run key and a logon task all make the payload start again after a restart. Dumping LSASS is Credential Access, scanning is Discovery and clearing logs is Defense Evasion."}
+      - {id: cy-3y-m06, type: multi,
+         q: "Which TWO entries must a chain-of-custody form contain for each transfer of an evidence item? (Choose TWO.)",
+         choices: ["The date and time of the transfer", "The suspected root cause of the incident", "The names and signatures of the person releasing and the person receiving", "The CVSS score of the exploited flaw", "The analyst's opinion of the suspect's guilt"],
+         answers: [0, 2],
+         why: "Custody is proved by recording when each transfer happened and who handed the item over and received it. Root cause, scores and opinions belong in the investigation report, not the custody record."}
+      - {id: cy-3y-o01, type: order,
+         q: "Six events were observed in one intrusion. Arrange them in the left-to-right order of their tactics in the ATT&CK Enterprise matrix.",
+         steps: ["A phishing attachment is opened (Initial Access)", "The macro runs a PowerShell command (Execution)", "A registry Run key is added (Persistence)", "LSASS memory is dumped (Credential Access)", "A Remote Desktop session is opened to a file server (Lateral Movement)", "An archive is uploaded to an external site (Exfiltration)"],
+         why: "The matrix orders tactics roughly as an intrusion unfolds: Initial Access, Execution, Persistence, then later Credential Access, Lateral Movement and, near the end, Exfiltration."}
+      - {id: cy-3y-o02, type: order,
+         q: "A sign-in alert suggests a mailbox has been taken over after a phishing email. Put the response actions in order.",
+         steps: ["Confirm the sign-in is malicious and identify every affected mailbox", "Revoke active sessions and disable the affected accounts", "Remove the intruder's forwarding rules and reset passwords and MFA methods", "Re-enable the accounts and watch their sign-ins closely", "Review the incident and update the phishing playbook"],
+         why: "This follows analysis, containment, eradication, recovery and post-incident. Scope is established before containing, the intruder's rules and credentials are removed before accounts are given back, and the review comes last."}
+
+  # ───────────────────────── Domain 4: coverage ─────────────────────────
+  - id: cy-4x
+    title: "Reporting in depth: scan reports, stakeholders, notifications and metrics"
+    domain: "4"
+    goal: "I can read a scan report entry, name every inhibitor to remediation, route incident news to the right outside party and calculate each SOC metric."
+    notes: |
+      The base units taught the reports and the main metrics. This unit fills the gaps.
+
+      **A scan report entry** has a host, an identifier (plugin ID, CVE), a severity (often a CVSS score), the **evidence** the tool relied on (a banner, a version string, a response) and a recommended fix. The evidence is what lets an owner check the finding on the host.
+
+      **Stakeholder identification comes first.** List who has an interest, what each needs to know, what each must decide and who speaks to them; content, format and frequency follow from that.
+
+      **Inhibitors** you have not yet practised: **patch availability** (no fix exists yet), **proprietary system** (a fix exists but only the vendor can apply it) and **legacy system** (the vendor has stopped issuing fixes).
+
+      **Outside parties.** **Regulators** set deadlines and forms; **law enforcement** brings court-grade evidence handling; **customers** need what was taken, what to do and whom to ask. Legal counsel and the communication plan govern all three. An **MOU** sets out how two organizations will cooperate or share.
+
+      **Metrics**
+
+      | Metric | Calculation |
+      |---|---|
+      | True-positive rate | genuine alerts / all alerts |
+      | Click rate | clickers / recipients |
+      | Mean time to X | sum of the durations / number of cases |
+
+      **MTTR** can mean respond, remediate or recover: always say which. A **KPI** is a metric with a target; an **SLA** is a commitment between two parties, usually with a consequence when it is missed.
+    items:
+      - {id: cy-4x-scan-report, type: concept, term: "Vulnerability scan report",
+         def: "The output of an automated assessment that lists, for each target host, the weaknesses detected with an identifier, a severity, the evidence the tool relied on and a recommended fix."}
+      - {id: cy-4x-sla, type: concept, term: "Service-level agreement (SLA)",
+         def: "A formal commitment between two parties, often written into a contract, that states the level of service one owes the other, such as how fast critical findings are fixed, and what follows if it is missed."}
+      - {id: cy-4x-kpi, type: concept, term: "Key performance indicator (KPI)",
+         def: "A metric deliberately chosen because it shows whether a team or programme is moving towards a stated goal, and reported against a target."}
+      - {id: cy-4x-top-risks, type: concept, term: "Top risks (reporting)",
+         def: "The short, ranked set of exposures with the greatest combined likelihood and business impact, singled out in a report so that leaders know where attention and money should go first."}
+      - {id: cy-4x-stakeholder-id, type: concept, term: "Stakeholder identification",
+         def: "The analysis step of listing every group with an interest in an outcome, what each needs to know and what each must decide, done first because a reporting or communication plan is then built from it."}
+      - {id: cy-4x-patch-availability, type: concept, term: "Patch availability (inhibitor)",
+         def: "The obstacle that exists when a weakness is known but its vendor or maintainers have not yet released a fix, so only workarounds and compensating controls are possible."}
+      - {id: cy-4x-degrading-functionality, type: concept, term: "Degrading functionality (inhibitor)",
+         def: "The obstacle that exists when applying a fix would make a system slower or take away a feature that people rely on."}
+      - {id: cy-4x-legacy-system, type: concept, term: "Legacy system",
+         def: "A product past its vendor's end of support, which will receive no further security fixes and often cannot be moved to a newer platform."}
+      - {id: cy-4x-regulator, type: concept, term: "Regulatory reporting agency",
+         def: "A government body that a law requires an organization to inform of certain incidents, typically within a fixed deadline and in a prescribed form."}
+      - {id: cy-4x-lessons-learned, type: concept, term: "Lessons-learned review",
+         def: "The blameless meeting held soon after an incident closes, in which the participants discuss what helped and what hindered the response and agree what should change."}
+      - {id: cy-4x-internal-ti-report, type: concept, term: "Internal threat intelligence report",
+         def: "A written assessment that takes outside information about a threat and states what it means for this organization's own systems, exposures and detections, and what to do about it."}
+      - {id: cy-4x-tp-rate, type: concept, term: "True-positive rate (alerts)",
+         def: "The proportion of generated alerts that investigation confirms to be genuine malicious or policy-breaking activity."}
+      - {id: cy-4x-alert-volume, type: concept, term: "Alert volume",
+         def: "The raw number of detections raised for analysts over a period, which on its own says nothing about how many of them were accurate."}
+      - {id: cy-4x-mou, type: concept, term: "Memorandum of understanding (MOU)",
+         def: "A written, usually non-binding agreement in which two organizations set out how they will cooperate, for example what they will share with each other during incidents."}
+      - {id: cy-4x-q01, type: mcq,
+         q: "A system owner disputes a scan finding that says her web server runs a vulnerable OpenSSH version. Which part of the finding's entry in the scan report BEST lets her check whether the finding is real on her host?",
+         choices: ["The CVSS base score and vector string", "The CVE identifier and its references", "The plugin output it relied on", "The recommended solution text"],
+         answer: 2,
+         why: "The plugin output shows what the scanner actually saw, such as the version banner, so the owner can compare it with the host and spot, for example, a vendor-backported fix. The CVE and score describe the flaw in general, not whether this host has it."}
+      - {id: cy-4x-q02, type: mcq,
+         q: "A scan flags a critical flaw in the open-source reverse proxy in front of the customer portal. The project still supports this version, and its maintainers have confirmed the flaw but not yet released a fixed version. Which inhibitor to remediation applies?",
+         choices: ["Patch availability", "Proprietary system", "Legacy system", "Degrading functionality"],
+         answer: 0,
+         why: "There is nothing to install yet. The product is open source and still supported, so it is neither proprietary nor legacy; meanwhile the answer is a workaround or compensating control and a watch for the release."}
+      - {id: cy-4x-q03, type: mcq,
+         q: "The building-management controllers have a known firmware flaw. The manufacturer has released fixed firmware and still supports the model, but the controllers accept firmware only from the manufacturer's own service tool, which customers are not given. Which inhibitor to remediation is this?",
+         choices: ["Patch availability", "Legacy system", "Organizational governance", "Proprietary system"],
+         answer: 3,
+         why: "A fix exists, so patch availability is not the obstacle; the obstacle is that only the vendor can change its closed product. The model is still supported, so it is not a legacy system."}
+      - {id: cy-4x-q04, type: mcq,
+         q: "A company is starting a vulnerability management programme and must plan how it will report findings. What should it do FIRST?",
+         choices: ["Choose the reporting tool and dashboard layout", "Identify the stakeholders and what each must know and decide", "Set a monthly reporting schedule for all teams", "Send the first full scan export to everyone in IT"],
+         answer: 1,
+         why: "Content, format and frequency all depend on who the readers are and what they must do with the information. Choosing a tool or a schedule first produces reports that fit nobody."}
+      - {id: cy-4x-q05, type: mcq,
+         q: "A review finds that a payment server keeps its audit logs for 30 days, while PCI DSS, which the company must meet, requires at least one year of audit log history. No software flaw is involved. How should this be reported?",
+         choices: ["As a false positive, because no CVE applies", "As an accepted risk, because logs are not a vulnerability", "As a compliance finding citing the requirement it fails", "As an incident, because evidence may be lost"],
+         answer: 2,
+         why: "A system failing a requirement of a standard the company must meet is a compliance finding, and citing the requirement (PCI DSS v4.0 requirement 10.5.1: at least 12 months of audit log history, the latest three months immediately available) tells the owner and the auditor exactly what has to change. The gap is real, so it is not a false positive, and nobody with authority has accepted it."}
+      - {id: cy-4x-q06, type: mcq,
+         q: "Last month the SOC closed 1,200 alerts. Investigation confirmed 180 of them as genuine malicious activity; the rest were benign. What was the true-positive rate?",
+         choices: ["15%", "85%", "18%", "1.5%"],
+         answer: 0,
+         why: "180 / 1,200 = 0.15, or 15%. 85% is the false-positive rate (1,020 / 1,200); when every alert is classed as one or the other, the two rates add up to 100%."}
+      - {id: cy-4x-q07, type: mcq,
+         q: "After a tuning project, daily alert volume fell from 900 to 300. The SOC manager wants to show that the tuning did not harm detection. Which figure must be checked alongside the lower volume?",
+         choices: ["Mean time to close per alert", "The number of log sources ingested", "The phishing campaign click rate", "Confirmed true positives before and after"],
+         answer: 3,
+         why: "Volume can be cut by switching off useful rules as easily as noisy ones. If confirmed true positives held steady while volume fell, the alerts removed were noise; a faster close time would follow either way."}
+      - {id: cy-4x-q08, type: mcq,
+         q: "Taking time to respond as the time from an incident being noticed until it is contained, what is the mean for these three incidents? A: noticed 09:00, contained 10:30. B: noticed 14:10, contained 14:40. C: noticed 22:00, contained 01:00 the next day.",
+         choices: ["1 hour 30 minutes", "1 hour 40 minutes", "5 hours", "3 hours"],
+         answer: 1,
+         why: "90 + 30 + 180 = 300 minutes, and 300 / 3 = 100 minutes, or 1 hour 40 minutes. 1 hour 30 minutes is the median and 5 hours the total; C crosses midnight, so it lasted 3 hours."}
+      - {id: cy-4x-q09, type: mcq,
+         q: "Four incident tickets were open for 2, 3, 5 and 10 days before being closed. A fifth ticket, opened 8 days ago, is still open. What is the mean time to close for the closed tickets?",
+         choices: ["4 days", "5.6 days", "5 days", "20 days"],
+         answer: 2,
+         why: "Only closed tickets have a time to close: (2 + 3 + 5 + 10) / 4 = 5 days. Adding the open ticket's 8 days gives 5.6, which treats unfinished work as finished; 4 days is the median and 20 the total."}
+      - {id: cy-4x-q10, type: mcq,
+         q: "Leadership decides to report a ransomware attack to the national police cybercrime unit. What should the response team expect as a result?",
+         choices: ["Evidence handling must be fit for use in court", "The police will take over containment and restoration", "Notifying the regulator will no longer be required", "Every internal message about it becomes privileged"],
+         answer: 0,
+         why: "Reporting a crime means the evidence may be used in a prosecution, so collection, hashing and custody must be defensible. The police investigate the crime; they do not run the company's recovery or replace its separate duty to regulators."}
+      - {id: cy-4x-q11, type: mcq,
+         q: "Which section of a post-incident report traces the incident back from its symptoms to the underlying condition that made it possible, such as a VPN that did not require MFA?",
+         choices: ["Executive summary", "Incident timeline", "Lessons learned", "Root cause analysis"],
+         answer: 3,
+         why: "Root cause analysis keeps asking why until it reaches the condition which, if removed, would have prevented the incident. Lessons learned covers how the response went and what to change; the timeline records what happened when."}
+      - {id: cy-4x-q12, type: mcq,
+         q: "The CISO asks for a 'top risks' section in the quarterly vulnerability report to the board. How should the items in it be chosen?",
+         choices: ["The findings with the highest CVSS base scores", "Exposures with the most likelihood and impact", "The business units with the most open findings", "The findings discovered most recently"],
+         answer: 1,
+         why: "Top risks combine how likely a weakness is to be exploited with what it would cost the business. A 9.8 on an isolated test box can matter less than a 7.5 on the internet-facing payment system, so CVSS alone is the wrong ranking."}
+      - {id: cy-4x-q13, type: mcq,
+         q: "Two teams report 'MTTR' on the same dashboard. The SOC's figure is 4 hours; the vulnerability team's is 19 days. Both figures are calculated correctly. What is the MOST likely explanation?",
+         choices: ["The SOC works faster than the vulnerability team", "One team counts business hours, the other calendar days", "One measures response and the other remediation", "The vulnerability team averages in false positives"],
+         answer: 2,
+         why: "MTTR is used for mean time to respond, to remediate and to recover. Containing an incident takes hours while deploying fixes takes weeks, so each report must say which it shows; comparing the two says nothing about efficiency."}
+      - {id: cy-4x-q14, type: mcq,
+         q: "A simulated phishing email went to 800 staff. 64 clicked the link, 20 of whom also entered credentials, and 120 reported the email. What was the click rate?",
+         choices: ["2.5%", "15%", "10.5%", "8%"],
+         answer: 3,
+         why: "64 / 800 = 8%. 2.5% is the credential-submission rate and 15% the report rate; the 20 who entered credentials are already among the 64 who clicked, so adding them (10.5%) counts them twice."}
+      - {id: cy-4x-q15, type: mcq,
+         q: "A company's contract with its managed security provider says critical alerts will be escalated to the company within 15 minutes, with a fee credit for each miss. What is this commitment?",
+         choices: ["A service-level agreement", "A service-level objective", "A key performance indicator", "A memorandum of understanding"],
+         answer: 0,
+         why: "A documented commitment between two parties, with a consequence when it is missed, is an SLA. An SLO is a measurable target, often one figure inside an SLA, that carries no consequence by itself; a KPI is an internal performance measure; and an MOU is usually not binding."}
+      - {id: cy-4x-m01, type: multi,
+         q: "Which THREE items belong in the notification sent to customers whose personal data was taken? (Choose THREE.)",
+         choices: ["The types of personal data involved", "The internal IP addresses of the compromised servers", "Steps customers can take to protect themselves", "The name of the employee who opened the phishing email", "A contact point for questions", "The unpatched flaw and how it was exploited"],
+         answers: [0, 2, 4],
+         why: "Customers need to know what of theirs was affected, what to do about it and whom to ask. Internal addresses and exploit details help other attackers, and naming an employee is unfair and helps nobody."}
+      - {id: cy-4x-o01, type: order,
+         q: "Put the steps of one vulnerability reporting cycle in order, starting from a completed scan.",
+         steps: ["Validate the results and remove false positives", "Rank the confirmed findings by risk", "Send each owner a report with an action plan and deadlines", "Owners apply the fixes or obtain an approved exception", "Rescan to verify, then update the metrics and scorecards"],
+         why: "Only confirmed findings are worth ranking, owners can only act on a ranked plan, and the rescan both proves the fixes and feeds the numbers that the next report shows."}
+
+  # ───────────────────────── Domain 4: exam-hard ─────────────────────────
+  - id: cy-4y
+    title: "Reporting and communication: exam-hard practice"
+    domain: "4"
+    goal: "I can decide who needs which information, which report it belongs in, who must be notified and when, and re-derive every metric from raw figures."
+    notes: |
+      These scenario questions are above exam difficulty. Four habits answer most of them.
+
+      **1. Match the information to the reader's next action.** Executives decide: impact, status, decisions. Owners fix: hosts, findings, steps. Detection engineers and sharing partners hunt: indicators. Customers protect themselves: what was taken, what to do, whom to ask. Anyone who needs only a task gets only the task.
+
+      **2. Know who owns each decision.** Analysts escalate. The incident manager declares. Legal counsel decides what the notification laws require, including deadlines, exemptions and requests from police to delay. Risk owners approve exceptions.
+
+      **3. Treat a blocked fix as a plan, not an excuse.** Name the inhibitor, add a compensating control, record a dated exception, then fix and verify.
+
+      **4. Re-derive every number.**
+
+      - Use rates, not counts, and pool before dividing: overall false-positive rate = all false positives / all alerts, not the average of each rule's rate.
+      - Check the start and end of every interval. Detect runs from the start of the activity; respond and remediate run from the moment it is noticed.
+      - A deadline in hours runs in calendar hours unless the rule says otherwise.
+      - A mean hides outliers. An SLA set per finding is met finding by finding, so a good average can still contain a breach.
+      - Unfinished items have no time to close yet; do not average them in.
+    items:
+      - {id: cy-4y-q01, type: mcq,
+         q: "An incident is closed and its after-action report is being written. Which of these belongs in the report's detailed body rather than in its executive summary?",
+         choices: ["The outage's business impact in hours and cost", "A timestamped log of each response step", "The funding decisions leadership must make", "The overall status of the incident now"],
+         answer: 1,
+         why: "A step-by-step timeline serves the people improving the process and the record; executives need impact, status and decisions. All four belong in the report, but only the timeline belongs in the body rather than the summary."}
+      - {id: cy-4y-q02, type: mcq,
+         q: "During an investigation that may involve an insider in IT, the network team is asked to block four external addresses at the firewall tonight. What should the network team be given?",
+         choices: ["The full incident report, so they understand the context", "The executive summary sent to leadership", "Nothing until the investigation is complete", "The addresses to block and the deadline for the change"],
+         answer: 3,
+         why: "Need-to-know: they get exactly what the task requires. The full report could reach the suspect and adds nothing they need, while withholding the request leaves the attacker's channels open."}
+      - {id: cy-4y-q03, type: mcq, best: true,
+         q: "A critical, actively exploited flaw affects the company's internet-facing file-transfer appliance. The vendor says a patch is two weeks away and has published a workaround that disables the vulnerable web interface while leaving the SFTP service, which partners rely on, running. Which response is BEST?",
+         choices: ["Wait for the vendor patch, then rescan when it is installed", "Accept the risk formally until the vendor patch ships", "Apply the workaround under a dated exception", "Take the appliance offline until it can be patched"],
+         answer: 2,
+         why: "The inhibitor is patch availability. The answer is a measure that removes the exposure now, an exception on record with a date, and the real fix once it exists.",
+         whys: ["Leaves an actively exploited flaw open for two weeks with nothing done.", "Acceptance is a legitimate option, but not when a cheap workaround removes the exposure of a flaw under active attack.", "Best: closes the exposure now at little cost, keeps the record honest and sets a date to finish the job.", "Removes the exposure, but stops the SFTP service partners need when the workaround keeps it running safely."]}
+      - {id: cy-4y-q04, type: mcq,
+         q: "Forensics established when four incidents began and when each was detected. A: began Mon 02:00, detected Mon 08:00. B: began Tue 10:00, detected Thu 10:00. C: began Fri 13:30, detected Fri 14:00. D: began Sat 09:00, detected Sat 10:30. What is the mean time to detect?",
+         choices: ["14 hours", "3 hours 45 minutes", "56 hours", "6 hours"],
+         answer: 0,
+         why: "6 + 48 + 0.5 + 1.5 = 56 hours over four incidents = 14 hours. The median is 3 hours 45 minutes; the gap between the two shows one slow detection (B, two days) pulling the mean up, which the report should point out."}
+      - {id: cy-4y-q05, type: mcq,
+         q: "One incident's record: malicious activity began Mon 01:10; an analyst saw the SIEM alert Mon 01:40; the host was isolated Mon 02:25; the exploited flaw was patched and verified Thu 02:25. Taking detect as start-to-noticed, respond as noticed-to-contained and remediate as noticed-to-fixed, which set of times is right?",
+         choices: ["Detect 30 min; respond 45 min; remediate 3 days", "Detect 30 min; respond 1 h 15 min; remediate 3 days 1 h 15 min", "Detect 1 h 15 min; respond 45 min; remediate 3 days 45 min", "Detect 30 min; respond 45 min; remediate 3 days 45 min"],
+         answer: 3,
+         why: "01:10 to 01:40 is 30 minutes; 01:40 to 02:25 is 45 minutes; Monday 01:40 to Thursday 02:25 is 3 days 45 minutes. Measuring remediation from the isolation instead gives exactly 3 days, and measuring the later intervals from the start of the activity gives the 1 h 15 min figures."}
+      - {id: cy-4y-q06, type: mcq,
+         q: "Detection rule A raised 400 alerts last month, 20 of them genuine. Rule B raised 30, 15 of them genuine. What was the false-positive rate across both rules combined, and which rule should be tuned first?",
+         choices: ["About 73%; rule A", "About 92%; rule A", "About 92%; rule B", "50%; rule B"],
+         answer: 1,
+         why: "(380 + 15) / (400 + 30) = 395 / 430, about 92%. Averaging the rules' own rates (95% and 50%) gives about 73% and ignores that A raised far more alerts; A produced 380 of the 395 false positives, so tuning it gives back the most analyst time."}
+      - {id: cy-4y-q07, type: mcq,
+         q: "The SLA requires critical findings to be fixed within 15 days. This quarter 50 were found: 30 were fixed within 15 days, 8 were fixed after more than 15 days, and 12 remain open, 7 of them older than 15 days and 5 found less than 15 days ago. How many findings have breached the SLA?",
+         choices: ["8", "20", "15", "7"],
+         answer: 2,
+         why: "The breaches are the 8 fixed late plus the 7 still open past their deadline: 15. The 5 recent open findings are not yet due, so counting all 12 open (20) overstates it, and counting only the closed ones (8) hides the overdue backlog."}
+      - {id: cy-4y-q08, type: mcq,
+         q: "In January a phishing simulation went to all 1,000 staff and 120 clicked. In April one went only to the 400-person finance department and 40 clicked. A manager reports that 'clicks fell by two-thirds'. What is the BEST correction?",
+         choices: ["The rate went from 12% to 10%, and the groups differ", "Clicks fell from 120 to 40, so the claim is right", "The rate rose, as 40 of 400 beats 120 of 1,000", "The click rate fell from 12% to 4%"],
+         answer: 0,
+         why: "Use rates, not counts: 120 / 1,000 = 12% and 40 / 400 = 10%. Dividing April's 40 by all 1,000 staff gives a false 4%, and because April tested only finance, the two figures do not describe the same population."}
+      - {id: cy-4y-q09, type: mcq,
+         q: "A regulation requires notice to the supervisory authority within 72 hours of the organization becoming aware of a personal data breach, meaning reasonably certain that personal data has been compromised. An EDR alert fired on Wednesday at 09:00; analysts confirmed on Thursday at 14:00 that customer records had been exfiltrated. When is the notification due at the latest?",
+         choices: ["Saturday at 09:00", "Sunday at 14:00", "Tuesday at 14:00", "Friday at 14:00"],
+         answer: 1,
+         why: "The clock starts at awareness, Thursday 14:00, and runs in calendar hours, weekend included (as under GDPR Article 33): 72 hours later is Sunday 14:00. Counting from the unconfirmed alert gives Saturday 09:00, and treating the deadline as three working days gives Tuesday."}
+      - {id: cy-4y-q10, type: mcq,
+         q: "Police investigating a breach ask the company to hold off notifying affected customers for a few days so that the suspects are not alerted. Several notification laws apply. Who should decide how to answer the request?",
+         choices: ["The SOC lead, who holds the evidence", "Public relations, who own external messages", "The police, whose request overrides every law", "Leadership, advised by counsel on each law"],
+         answer: 3,
+         why: "Some notification laws allow a delay at law enforcement's request and others do not, so counsel checks each one and leadership decides. A police request does not automatically suspend a legal duty, and PR shapes the message but not its legally required timing."}
+      - {id: cy-4y-q11, type: mcq,
+         q: "After an intrusion the team has a list of malware hashes, control-server domains and attacker IP addresses. Which audience is the BEST fit for this list?",
+         choices: ["The board, as evidence the response was thorough", "Affected retail customers, to check their own devices", "The sector ISAC and the detection engineers", "Public relations, for the press statement"],
+         answer: 2,
+         why: "Indicators are machine-usable detail for people who can block or hunt for them: the organization's own detection engineers and peers through an information sharing and analysis center. Retail customers cannot use hashes, and the board needs impact, not indicators."}
+      - {id: cy-4y-q12, type: mcq,
+         q: "Which sentence belongs in the executive summary of an incident report for the board?",
+         choices: ["Orders stopped for 9 hours, no card data was taken, and we need approval to replace two old servers.", "The attacker exploited a deserialization flaw in the Java framework to drop a JSP web shell on WEB-03 at 01:52.", "Detection rule 4471 fired at 02:14 and the alert was triaged at 02:31.", "Hosts WEB-03 and WEB-04 had 14 and 11 open high-severity findings."],
+         answer: 0,
+         why: "Board readers need impact, status and the decision asked of them, in plain words. The other sentences are accurate but belong in the technical sections or the vulnerability report."}
+      - {id: cy-4y-q13, type: mcq,
+         q: "While reviewing a web vulnerability scan, an analyst sees that it listed an unexpected file, cmd.aspx, in the uploads folder of a public web server. On inspection the file runs operating-system commands passed in its URL. What should the analyst do?",
+         choices: ["Report it as a critical finding with a 15-day SLA", "Escalate it as a possible incident under the response plan", "Add it to next quarter's risk scorecard", "Record it as an exception for that server"],
+         answer: 1,
+         why: "A web shell is evidence that someone has already exploited the server, not a weakness waiting for a fix, so it leaves the vulnerability process for incident response. A 15-day remediation clock would leave an intruder in place."}
+      - {id: cy-4y-q14, type: mcq,
+         q: "The intruder holds Domain Admin rights, and the company's chat platform and email both sign in through the identity provider synchronized from that domain. The response team needs a place to coordinate. Which choice is BEST?",
+         choices: ["A new private channel on the existing chat platform", "Corporate email with each message marked confidential", "A new chat workspace that signs in through corporate SSO", "A platform whose accounts are separate from corporate SSO"],
+         answer: 3,
+         why: "An intruder who controls the directory can sign in to anything that trusts it, including a brand-new workspace behind the same SSO. Out-of-band means independent of the compromised identity as well as the compromised network."}
+      - {id: cy-4y-q15, type: mcq,
+         q: "About 50 new critical findings are discovered every month, a steady figure. Over two quarters, open critical findings fell from 200 to 120, but the average age of the open ones rose from 20 days to 55 days. What is the MOST likely reading?",
+         choices: ["Scanning coverage has quietly fallen", "The scanner is reporting more false positives", "Easy fixes are done; a hard core is ageing", "The remediation SLA was shortened mid-period"],
+         answer: 2,
+         why: "With discovery steady, a falling count means more is being fixed than found, and a rising age means the same difficult findings stay open and grow older, often behind an inhibitor. That residue is what the action plan and the top-risks section should target."}
+      - {id: cy-4y-q16, type: mcq,
+         q: "A team is turning a public advisory about a ransomware group into an internal threat intelligence report. Which sentence MOST clearly makes the report internal and tailored?",
+         choices: ["Three of our VPN gateways run the version it exploits; we cannot detect its loader.", "The group has been active since 2022 and mainly targets manufacturing firms.", "The group's ransom demands have averaged several million dollars.", "The group gains initial access through unpatched VPN gateways and through stolen credentials."],
+         answer: 0,
+         why: "Tailoring means stating what the threat means for this organization's own exposure and defences. The other sentences repeat the advisory and are equally true for every reader."}
+      - {id: cy-4y-q17, type: mcq,
+         q: "Four critical findings were remediated in 10, 12, 14 and 60 days. The SLA is 30 days for each finding. A manager reports: 'Mean time to remediate is 24 days, so we meet the SLA.' What is the correct assessment?",
+         choices: ["Correct: the mean of 24 is within 30", "Wrong: the mean is really 30 days", "Correct: the median is only 13 days", "Wrong: one of the four breached it"],
+         answer: 3,
+         why: "(10 + 12 + 14 + 60) / 4 = 24 days, but an SLA set per finding is met finding by finding: the 60-day fix breached it, so compliance is 3 of 4, or 75%. An average can hide exactly the outlier that matters."}
+      - {id: cy-4y-q18, type: mcq,
+         q: "A vendor advisory reveals a critical flaw in the vendor-hosted HR application that staff sign in to. The company has no access to the application's servers or code. Whom must the action plan name to apply the fix?",
+         choices: ["The company's infrastructure and server team", "The vendor, through its contract contact", "The HR department that owns the application", "The regulator responsible for employee data"],
+         answer: 1,
+         why: "Only the party that runs the platform can patch it. The company's part is to get the vendor's fix date under the contract, track it and add compensating controls meanwhile; the internal HR owner is kept informed but cannot change the code."}
+      - {id: cy-4y-q19, type: mcq,
+         q: "Laptops holding customer data were stolen. Their disks were fully encrypted with a strong algorithm, and the keys were not stored on or with the devices. Several breach notification laws apply. What is the BEST next step regarding notification?",
+         choices: ["Notify every customer at once, since data was lost", "Treat encrypted data as never needing notification", "Have counsel test each law's encryption exemption", "Let the SOC decide based on the encryption strength"],
+         answer: 2,
+         why: "Many notification laws relieve or reduce the duty when the data was encrypted and the key was not compromised, but the conditions differ by law, so counsel decides law by law and records why. The SOC confirms the technical facts but does not make the legal call."}
+      - {id: cy-4y-m01, type: multi,
+         q: "Which TWO situations are inhibitors to remediation, rather than reasons the finding itself is invalid? (Choose TWO.)",
+         choices: ["Applying the fix would remove a reporting feature the finance team relies on", "The scanner matched a version string, but the vendor backported the fix", "Only the device's manufacturer is able to install firmware on it", "The flagged port turns out to be closed when tested by hand", "The finding is for a host that was decommissioned last month"],
+         answers: [0, 2],
+         why: "Losing a feature (degrading functionality) and a vendor-only device (proprietary system) are real flaws that are hard to fix. A backported fix and a closed port make the finding a false positive, and a decommissioned host makes it obsolete."}
+      - {id: cy-4y-m02, type: multi,
+         q: "Which THREE belong in the after-action report for a contained intrusion? (Choose THREE.)",
+         choices: ["A timeline of detection, containment and recovery", "The root cause of the incident", "The names of staff who should be disciplined", "Corrective actions, each with an owner and a due date", "Every packet capture collected, pasted in full", "Attribution to a named state, stated as fact though unconfirmed"],
+         answers: [0, 1, 3],
+         why: "The report records what happened, why it was possible and what will change, with accountability. Blame defeats a blameless review, bulk evidence belongs in the case file, and unconfirmed attribution must not be presented as fact."}
+      - {id: cy-4y-m03, type: multi,
+         q: "A new SOAR playbook isolates a host automatically as soon as a high-confidence EDR alert is raised. Which TWO metrics BEST show whether the playbook is working? (Choose TWO.)",
+         choices: ["Mean time to respond", "Mean time to detect", "Phishing campaign click rate", "Share of auto-isolated hosts later found clean", "Number of vulnerability scans run"],
+         answers: [0, 3],
+         why: "The playbook acts after the alert, so it should shorten the time to containment, and the share of clean hosts isolated shows whether it is disrupting the business by mistake. Detection happens before the playbook runs, so the time to detect does not change."}
+      - {id: cy-4y-o01, type: order,
+         q: "An analyst confirms that customer personal data has been exfiltrated. Under the communication plan, only the incident manager can engage legal counsel, and only approved spokespeople may contact anyone outside the company. Put the notification steps in order.",
+         steps: ["Escalate to the incident manager, who declares a major incident", "Legal counsel determines which notification duties apply and their deadlines", "The designated spokespeople send the approved notifications", "The post-incident report records each notification and when it was made"],
+         why: "Declaration brings in the people with authority to act; counsel works out the duties and deadlines before anyone speaks outside; only approved spokespeople send the notices; and the record of what was sent can only be written after it was sent."}
+      - {id: cy-4y-o02, type: order,
+         q: "A critical finding cannot be patched until after the peak trading season. Put the steps for handling it in order.",
+         steps: ["Document the inhibitor, the remaining risk, a proposed compensating control and a target date", "The risk owner approves a time-limited exception", "Apply the fix in the agreed window", "Rescan to verify and close the finding"],
+         why: "The risk owner can only weigh a documented risk and a proposed mitigation, the exception sets the date by which the real fix must happen, and the finding closes only when a rescan proves the fix."}
+      - {id: cy-4y-o03, type: order,
+         q: "Put these moments in one incident's life in the order they occur. The gaps between them are what the SOC's 'mean time to' metrics measure.",
+         steps: ["The intruder's first malicious action", "An alert is raised and an analyst notices it", "The affected host is isolated", "The exploited flaw is fixed and the fix verified", "The case is closed after the report is approved"],
+         why: "Detection is measured from the first action to noticing it, response from noticing to containment, remediation from noticing to the verified fix, and the ticket closes only when all the work, including the report, is done."}

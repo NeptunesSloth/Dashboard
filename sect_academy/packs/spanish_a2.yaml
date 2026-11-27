@@ -1,0 +1,1095 @@
+id: spanish-a2
+title: "Spanish — A2 Elementary"
+kind: language
+language: Spanish
+lang: es-ES
+hall: tongues_south
+blurb: "Tell stories in the past, compare, give directions and advice, and talk about the future: three past tenses, object pronouns, por/para, the imperative and 300 everyday words."
+
+units:
+  # ---------------------------------------------------------------- 1
+  - id: es2-01
+    title: "What I have done: the pretérito perfecto"
+    goal: "I can talk about experiences and about what I have or haven't done yet today, this week or in my life."
+    notes: |
+      The **pretérito perfecto** works like English "I have done": the present of **haber** plus a past participle.
+
+      | Pronoun | haber | + participle |
+      | yo | he | hablado |
+      | tú | has | comido |
+      | él / ella / usted | ha | vivido |
+      | nosotros | hemos | hablado |
+      | vosotros | habéis | comido |
+      | ellos / ustedes | han | vivido |
+
+      - Participles: **-ar → -ado**, **-er / -ir → -ido**. They never change for gender or number here.
+      - Learn the irregular ones: *hecho* (hacer), *visto* (ver), *escrito* (escribir), *vuelto* (volver), *dicho* (decir), *puesto* (poner).
+      - Nothing goes between *haber* and the participle: *No lo he visto*, *Me he levantado*.
+      - Spain uses this tense for a period that is not over yet: *hoy*, *esta semana*, *este año*, *alguna vez*, *nunca*, *ya*, *todavía no*.
+      - In most of Latin America people say *hoy comí* where Spain says *hoy he comido*; both are understood everywhere.
+    items:
+      - {id: es2-01-ya, type: vocab, l2: "ya", l1: "already",
+         ex: "Ya he comido.", ex_l1: "I have already eaten.",
+         note: "Usually goes before the verb. In a question it means 'yet': ¿Ya has comido?"}
+      - {id: es2-01-todavia, type: vocab, l2: "todavía", l1: "still / yet", alt: ["aún"],
+         ex: "Todavía no he comido.", ex_l1: "I haven't eaten yet.",
+         note: "todavía no = not yet. Aún (with an accent) means the same."}
+      - {id: es2-01-alguna-vez, type: vocab, l2: "alguna vez", l1: "ever (at any time, in a question)",
+         ex: "¿Has estado alguna vez en México?", ex_l1: "Have you ever been to Mexico?",
+         note: "Literally 'some time'. The answer is often nunca (never) or una vez (once)."}
+      - {id: es2-01-ver, type: vocab, l2: "ver", l1: "to see / to watch",
+         ex: "Quiero ver la película.", ex_l1: "I want to see the film.",
+         note: "Present: veo, ves, ve, vemos, veis, ven. Irregular participle: visto."}
+      - {id: es2-01-visto, type: vocab, l2: "visto", l1: "seen (irregular past participle of ver)",
+         ex: "No he visto a Marta hoy.", ex_l1: "I haven't seen Marta today.",
+         note: "Not 'veído'. Remember the personal a before a person: ver a Marta."}
+      - {id: es2-01-hecho, type: vocab, l2: "hecho", l1: "done / made (irregular past participle of hacer)",
+         ex: "¿Qué has hecho esta mañana?", ex_l1: "What have you done this morning?",
+         note: "Not 'hacido'. The h is silent."}
+      - {id: es2-01-viajar, type: vocab, l2: "viajar", l1: "to travel",
+         ex: "Me gusta viajar en tren.", ex_l1: "I like travelling by train."}
+      - {id: es2-01-conocer, type: vocab, l2: "conocer", l1: "to know (a person or a place) / to be familiar with",
+         ex: "¿Conoces Sevilla?", ex_l1: "Do you know Seville?",
+         note: "Yo conozco. Use saber for facts and skills, conocer for people and places."}
+      - {id: es2-01-probar, type: vocab, l2: "probar", l1: "to try / to taste (food, something new)",
+         ex: "¿Has probado el queso?", ex_l1: "Have you tried the cheese?",
+         note: "Stem change o → ue in the present: pruebo, pruebas, prueba."}
+      - {id: es2-01-perder, type: vocab, l2: "perder", l1: "to lose / to miss (a train, a bus)",
+         ex: "He perdido las llaves.", ex_l1: "I have lost my keys.",
+         note: "Stem change e → ie in the present: pierdo, pierdes, pierde."}
+      - {id: es2-01-equipaje, type: vocab, l2: "el equipaje", l1: "the luggage / the baggage",
+         ex: "He perdido el equipaje.", ex_l1: "I have lost my luggage.",
+         note: "Masculine, like almost all nouns ending in -aje (el viaje, el garaje). Never plural."}
+      - {id: es2-01-extranjero, type: vocab, l2: "el extranjero", l1: "abroad / foreign countries (noun, with its article)",
+         ex: "Nunca he vivido en el extranjero.", ex_l1: "I have never lived abroad.",
+         note: "en el extranjero = abroad (where you are); al extranjero = abroad (where you go)."}
+      - {id: es2-01-ultimamente, type: vocab, l2: "últimamente", l1: "lately / recently", alt: ["recientemente"],
+         ex: "Últimamente he trabajado mucho.", ex_l1: "I have worked a lot lately.",
+         note: "A period that reaches up to now, so it goes with the perfecto."}
+      - {id: es2-01-has-estado, type: phrase, l2: "¿Has estado alguna vez en España?",
+         l1: "Have you ever been to Spain? (informal)",
+         alt: ["¿Alguna vez has estado en España?", "¿Has estado en España alguna vez?"]}
+      - {id: es2-01-nunca-he-probado, type: phrase, l2: "Nunca he probado la paella.",
+         l1: "I have never tried paella.", alt: ["No he probado nunca la paella"],
+         note: "Nunca before the verb needs no 'no'; after the verb you need both: no he probado nunca."}
+      - {id: es2-01-todavia-no, type: phrase, l2: "Todavía no he terminado.", l1: "I haven't finished yet.",
+         alt: ["Aún no he terminado", "No he terminado todavía", "No he terminado aún", "Todavía no he acabado"]}
+      - {id: es2-01-ya-he-comprado, type: phrase, l2: "Ya he comprado los billetes.",
+         l1: "I have already bought the tickets. (travel tickets)",
+         alt: ["Ya he comprado los boletos", "Ya he comprado los pasajes", "He comprado ya los billetes"]}
+      - {id: es2-01-he-perdido-tren, type: phrase, l2: "Esta mañana he perdido el tren.",
+         l1: "I missed the train this morning.", alt: ["He perdido el tren esta mañana", "Esta mañana perdí el tren"],
+         note: "'This morning' is still part of today, so Spain uses the perfecto. Latin America: perdí el tren."}
+      - {id: es2-01-c1, type: cloze, text: "Yo ___ visitado Madrid dos veces.", answer: "he",
+         l1: "I have visited Madrid twice.", note: "haber → (yo) he + participle"}
+      - {id: es2-01-c2, type: cloze, text: "¿___ comido ya, Luis?", answer: "Has",
+         l1: "Have you eaten yet, Luis?", note: "haber → (tú) has"}
+      - {id: es2-01-c3, type: cloze, text: "Mi hermana ___ viajado mucho este año.", answer: "ha",
+         l1: "My sister has travelled a lot this year.", note: "haber → (ella) ha; este año is not over, so perfecto"}
+      - {id: es2-01-c4, type: cloze, text: "Esta semana nosotros ___ trabajado mucho.", answer: "hemos",
+         l1: "This week we have worked a lot.", note: "haber → (nosotros) hemos"}
+      - {id: es2-01-c5, type: cloze, text: "¿Vosotros ___ visto la película?", answer: "habéis",
+         l1: "Have you (plural, informal) seen the film?", note: "haber → (vosotros) habéis. Latin America: ¿ustedes han visto…?"}
+      - {id: es2-01-c6, type: cloze, text: "Mis padres ___ vuelto de México.", answer: "han",
+         l1: "My parents have come back from Mexico.", note: "haber → (ellos) han; vuelto is the irregular participle of volver"}
+      - {id: es2-01-c7, type: cloze, text: "¿Qué has ___ hoy? —He estudiado.", answer: "hecho",
+         l1: "“What have you done today?” “I have studied.”", note: "hacer → hecho (irregular participle)"}
+      - {id: es2-01-c8, type: cloze, text: "Todavía no he ___ la carta.", answer: "escrito",
+         l1: "I haven't written the letter yet.", note: "escribir → escrito (irregular participle)"}
+
+  # ---------------------------------------------------------------- 2
+  - id: es2-02
+    title: "Yesterday: the regular pretérito indefinido"
+    goal: "I can say what I did yesterday, last week or on my last holiday using regular verbs."
+    notes: |
+      The **pretérito indefinido** is the simple past for finished actions at a finished time: *ayer*, *anoche*, *la semana pasada*, *el año pasado*, *en 2019*, *hace dos días*.
+
+      | Pronoun | hablar | comer / vivir |
+      | yo | hablé | comí |
+      | tú | hablaste | comiste |
+      | él / ella / usted | habló | comió |
+      | nosotros | hablamos | comimos |
+      | vosotros | hablasteis | comisteis |
+      | ellos / ustedes | hablaron | comieron |
+
+      - **-er** and **-ir** verbs share one set of endings.
+      - The accents matter: *hablo* = I speak, *habló* = he spoke.
+      - The *nosotros* forms of -ar and -ir verbs look the same as the present (*hablamos*, *vivimos*); the time word tells you which.
+      - Spelling keeps the sound in the *yo* form: *llegar → llegué*, *empezar → empecé*, *buscar → busqué*.
+      - Reflexive verbs keep their pronoun: *me quedé*, *te quedaste*.
+      - **hace** + a length of time means "ago": *hace dos días*.
+    items:
+      - {id: es2-02-ayer, type: vocab, l2: "ayer", l1: "yesterday",
+         ex: "Ayer trabajé mucho.", ex_l1: "Yesterday I worked a lot."}
+      - {id: es2-02-anoche, type: vocab, l2: "anoche", l1: "last night",
+         ex: "Anoche hablé con Ana.", ex_l1: "Last night I spoke to Ana.",
+         note: "One word. 'The night before last' is anteanoche."}
+      - {id: es2-02-ano-pasado, type: vocab, l2: "el año pasado", l1: "last year",
+         ex: "El año pasado viajé a Cuba.", ex_l1: "Last year I travelled to Cuba.",
+         note: "Keep the article: el año pasado, not just 'año pasado'."}
+      - {id: es2-02-semana-pasada, type: vocab, l2: "la semana pasada", l1: "last week",
+         ex: "La semana pasada compré un coche.", ex_l1: "Last week I bought a car.",
+         note: "pasado agrees: el año pasado, la semana pasada."}
+      - {id: es2-02-hace-dos-dias, type: vocab, l2: "hace dos días", l1: "two days ago",
+         ex: "Llegué hace dos días.", ex_l1: "I arrived two days ago.",
+         note: "hace + time = ago, and it comes BEFORE the time: hace un año, hace una semana."}
+      - {id: es2-02-montana, type: vocab, l2: "la montaña", l1: "the mountain / the mountains (as a place to go)",
+         ex: "Pasé las vacaciones en la montaña.", ex_l1: "I spent the holidays in the mountains.",
+         note: "Singular in Spanish where English says 'the mountains': ir a la montaña."}
+      - {id: es2-02-llegar, type: vocab, l2: "llegar", l1: "to arrive",
+         ex: "El tren llega a las diez.", ex_l1: "The train arrives at ten.",
+         note: "llegar a + place. Past yo form: llegué (gu keeps the hard g sound)."}
+      - {id: es2-02-pasar, type: vocab, l2: "pasar", l1: "to spend (time) / to pass",
+         ex: "Pasé una semana en Lima.", ex_l1: "I spent a week in Lima.",
+         note: "For spending money use gastar, not pasar."}
+      - {id: es2-02-quedarse, type: vocab, l2: "quedarse", l1: "to stay (in a place)",
+         ex: "Ayer me quedé en casa.", ex_l1: "Yesterday I stayed at home.",
+         note: "Reflexive: me quedo, te quedas, se queda."}
+      - {id: es2-02-reservar, type: vocab, l2: "reservar", l1: "to book / to reserve",
+         ex: "Reservé una mesa para dos.", ex_l1: "I booked a table for two."}
+      - {id: es2-02-vuelo, type: vocab, l2: "el vuelo", l1: "the flight",
+         ex: "El vuelo sale a las ocho.", ex_l1: "The flight leaves at eight."}
+      - {id: es2-02-empezar, type: vocab, l2: "empezar", l1: "to begin / to start", alt: ["comenzar"],
+         ex: "La clase empieza a las nueve.", ex_l1: "The class starts at nine.",
+         note: "Stem change e → ie in the present. Past yo form: empecé (z → c before e)."}
+      - {id: es2-02-donde-pasaste, type: phrase, l2: "¿Dónde pasaste las vacaciones?",
+         l1: "Where did you spend the holidays? (informal)", alt: ["¿Dónde pasaste tus vacaciones?"]}
+      - {id: es2-02-me-lo-pase, type: phrase, l2: "Me lo pasé muy bien.", l1: "I had a great time.",
+         alt: ["Lo pasé muy bien", "La pasé muy bien", "Me lo pasé genial"],
+         note: "Spain: me lo pasé bien or lo pasé bien. Latin America: la pasé bien."}
+      - {id: es2-02-anoche-cene, type: phrase, l2: "Anoche cené en casa.", l1: "Last night I had dinner at home.",
+         alt: ["Cené en casa anoche", "Ayer por la noche cené en casa"],
+         note: "cenar = to have dinner. Spanish needs no word for 'had' here."}
+      - {id: es2-02-llegamos-hotel, type: phrase, l2: "Llegamos al hotel a medianoche.",
+         l1: "We arrived at the hotel at midnight.",
+         note: "llegar a, never 'llegar en'. Llegamos is the same in the present and the past."}
+      - {id: es2-02-a-que-hora-saliste, type: phrase, l2: "¿A qué hora saliste de casa?",
+         l1: "What time did you leave home? (informal)",
+         note: "salir de + place. Formal: ¿A qué hora salió usted de casa?"}
+      - {id: es2-02-c1, type: cloze, text: "Ayer yo ___ con mi madre por teléfono.", answer: "hablé",
+         l1: "Yesterday I spoke to my mother on the phone.", note: "-ar verbs: yo → -é (hablé)"}
+      - {id: es2-02-c2, type: cloze, text: "¿Dónde ___ tú el coche? —En Valencia.", answer: "compraste",
+         l1: "“Where did you buy the car?” “In Valencia.”", note: "-ar verbs: tú → -aste"}
+      - {id: es2-02-c3, type: cloze, text: "Mi hermano ___ en un banco el año pasado.", answer: "trabajó",
+         l1: "My brother worked in a bank last year.", note: "-ar verbs: él → -ó, with the accent"}
+      - {id: es2-02-c4, type: cloze, text: "Anoche nosotros ___ pescado.", answer: "comimos",
+         l1: "Last night we ate fish.", note: "-er verbs: nosotros → -imos"}
+      - {id: es2-02-c5, type: cloze, text: "¿Vosotros ___ en Roma el año pasado?", answer: "vivisteis",
+         l1: "Did you (plural, informal) live in Rome last year?", note: "-ir verbs: vosotros → -isteis"}
+      - {id: es2-02-c6, type: cloze, text: "La semana pasada mis abuelos me ___ una carta.", answer: "escribieron",
+         l1: "Last week my grandparents wrote me a letter.", note: "-ir verbs: ellos → -ieron"}
+      - {id: es2-02-c7, type: cloze, text: "El lunes yo ___ a casa a las diez de la noche.", answer: "llegué",
+         l1: "On Monday I arrived home at ten at night.", note: "llegar → llegué: g becomes gu before é"}
+      - {id: es2-02-c8, type: cloze, text: "Ayer la película ___ a las nueve.", answer: "empezó",
+         l1: "Yesterday the film began at nine.", alt: ["comenzó"], note: "empezar → empezó: no stem change in the indefinido"}
+
+  # ---------------------------------------------------------------- 3
+  - id: es2-03
+    title: "Last weekend: irregular pretérito indefinido"
+    goal: "I can say where I went, what I did and how it was, using the common irregular past forms."
+    notes: |
+      The most useful verbs are irregular in the indefinido. Good news: they have **no accents**, and most share one set of endings.
+
+      **Ser** and **ir** are identical: *fui, fuiste, fue, fuimos, fuisteis, fueron*. Context decides: *Fui a Madrid* (I went), *Fue fantástico* (it was).
+
+      The others take a new stem plus **-e, -iste, -o, -imos, -isteis, -ieron**:
+
+      | Verb | Stem | yo | él / ella |
+      | estar | estuv- | estuve | estuvo |
+      | tener | tuv- | tuve | tuvo |
+      | poder | pud- | pude | pudo |
+      | poner | pus- | puse | puso |
+      | hacer | hic- | hice | hizo |
+      | venir | vin- | vine | vino |
+      | decir | dij- | dije | dijo |
+
+      - *Hacer* writes **hizo** with z to keep the sound.
+      - *Decir* loses the i in *ellos*: **dijeron**.
+      - **Dar** takes -er endings without accents: *di, diste, dio, dimos, disteis, dieron*. **Ver** too: *vi, viste, vio*.
+    items:
+      - {id: es2-03-fui, type: vocab, l2: "fui", l1: "I went / I was (pretérito indefinido of ir and ser, yo)",
+         ex: "Ayer fui al cine.", ex_l1: "Yesterday I went to the cinema.",
+         note: "One form for two verbs. No accent."}
+      - {id: es2-03-estuve, type: vocab, l2: "estuve", l1: "I was (in a place, for a time) (pretérito indefinido of estar, yo)",
+         ex: "Estuve en casa todo el día.", ex_l1: "I was at home all day.",
+         note: "Stem estuv-: estuve, estuviste, estuvo, estuvimos, estuvisteis, estuvieron."}
+      - {id: es2-03-tuve, type: vocab, l2: "tuve", l1: "I had (pretérito indefinido of tener, yo)",
+         ex: "Ayer tuve un examen.", ex_l1: "Yesterday I had an exam.",
+         note: "Stem tuv-. tuve que + infinitive = I had to."}
+      - {id: es2-03-hice, type: vocab, l2: "hice", l1: "I did / I made (pretérito indefinido of hacer, yo)",
+         ex: "Ayer no hice nada.", ex_l1: "Yesterday I did nothing.",
+         note: "hice, hiciste, hizo (with z), hicimos, hicisteis, hicieron."}
+      - {id: es2-03-pude, type: vocab, l2: "pude", l1: "I could / I managed to (pretérito indefinido of poder, yo)",
+         ex: "No pude ir a la fiesta.", ex_l1: "I couldn't go to the party.",
+         note: "Stem pud-. No pude = I tried or wanted to, and failed."}
+      - {id: es2-03-vine, type: vocab, l2: "vine", l1: "I came (pretérito indefinido of venir, yo)",
+         ex: "Vine a España hace un año.", ex_l1: "I came to Spain a year ago.",
+         note: "Stem vin-: vine, viniste, vino. (el vino is also 'wine'.)"}
+      - {id: es2-03-decir, type: vocab, l2: "decir", l1: "to say / to tell",
+         ex: "¿Qué quieres decir?", ex_l1: "What do you mean? (literally: what do you want to say?)",
+         note: "Present: digo, dices, dice, decimos, decís, dicen. Past: dije. Participle: dicho."}
+      - {id: es2-03-dar, type: vocab, l2: "dar", l1: "to give",
+         ex: "¿Me das tu número de teléfono?", ex_l1: "Will you give me your phone number?",
+         note: "Present: doy, das, da. Past: di, diste, dio — no accents."}
+      - {id: es2-03-poner, type: vocab, l2: "poner", l1: "to put",
+         ex: "¿Dónde pongo el libro?", ex_l1: "Where shall I put the book?",
+         note: "Yo pongo. Past: puse. Participle: puesto."}
+      - {id: es2-03-fin-de-semana, type: vocab, l2: "el fin de semana", l1: "the weekend",
+         ex: "El fin de semana fui a la playa.", ex_l1: "At the weekend I went to the beach.",
+         note: "No preposition for 'at': el fin de semana = at the weekend."}
+      - {id: es2-03-concierto, type: vocab, l2: "el concierto", l1: "the concert",
+         ex: "El concierto fue muy bueno.", ex_l1: "The concert was very good."}
+      - {id: es2-03-museo, type: vocab, l2: "el museo", l1: "the museum",
+         ex: "El museo está cerrado los lunes.", ex_l1: "The museum is closed on Mondays."}
+      - {id: es2-03-dar-un-paseo, type: vocab, l2: "dar un paseo", l1: "to go for a walk",
+         alt: ["pasear", "dar una vuelta"],
+         ex: "Ayer di un paseo por el centro.", ex_l1: "Yesterday I went for a walk round the centre.",
+         note: "Literally 'to give a walk'."}
+      - {id: es2-03-que-hiciste, type: phrase, l2: "¿Qué hiciste el fin de semana?",
+         l1: "What did you do at the weekend? (informal)", alt: ["¿Qué hiciste este fin de semana?"]}
+      - {id: es2-03-fuimos-concierto, type: phrase, l2: "El sábado fuimos a un concierto.",
+         l1: "On Saturday we went to a concert.", alt: ["Fuimos a un concierto el sábado"],
+         note: "el sábado = on Saturday: the article does the job of 'on'."}
+      - {id: es2-03-que-tal-fue, type: phrase, l2: "¿Qué tal fue el viaje?", l1: "How was the trip?",
+         alt: ["¿Cómo fue el viaje?", "¿Qué tal el viaje?", "¿Qué tal estuvo el viaje?", "¿Cómo estuvo el viaje?"]}
+      - {id: es2-03-no-pude-ir, type: phrase, l2: "No pude ir porque tuve que trabajar.",
+         l1: "I couldn't go because I had to work."}
+      - {id: es2-03-estuvimos, type: phrase, l2: "Estuvimos tres días en Sevilla.",
+         l1: "We were in Seville for three days.", alt: ["Estuvimos en Sevilla tres días"],
+         note: "No word for 'for' is needed before a length of time."}
+      - {id: es2-03-c1, type: cloze, text: "Ayer Ana ___ al médico.", answer: "fue",
+         l1: "Yesterday Ana went to the doctor.", note: "ir → (ella) fue, no accent"}
+      - {id: es2-03-c2, type: cloze, text: "¿Dónde ___ tú anoche? —En casa de Luis.", answer: "estuviste",
+         l1: "“Where were you last night?” “At Luis's house.”", note: "estar → (tú) estuviste"}
+      - {id: es2-03-c3, type: cloze, text: "¿Qué ___ ustedes el domingo?", answer: "hicieron",
+         l1: "What did you (plural, formal) do on Sunday?", note: "hacer → (ustedes) hicieron"}
+      - {id: es2-03-c4, type: cloze, text: "Nosotros no ___ tiempo para ver el museo.", answer: "tuvimos",
+         l1: "We didn't have time to see the museum.", note: "tener → (nosotros) tuvimos"}
+      - {id: es2-03-c5, type: cloze, text: "Mi amigo me ___ la verdad.", answer: "dijo",
+         l1: "My friend told me the truth.", note: "decir → (él) dijo"}
+      - {id: es2-03-c6, type: cloze, text: "Ella ___ las llaves en la mesa.", answer: "puso",
+         l1: "She put the keys on the table.", note: "poner → (ella) puso"}
+      - {id: es2-03-c7, type: cloze, text: "Mis amigos ___ a mi casa en coche.", answer: "vinieron",
+         l1: "My friends came to my house by car.", note: "venir → (ellos) vinieron"}
+      - {id: es2-03-c8, type: cloze, text: "Ayer yo le ___ un libro a mi madre.", answer: "di",
+         l1: "Yesterday I gave my mother a book.", alt: ["regalé"], note: "dar → (yo) di, no accent"}
+
+  # ---------------------------------------------------------------- 4
+  - id: es2-04
+    title: "How things used to be: the imperfecto"
+    goal: "I can describe my childhood, what I used to do and what people and places were like."
+    notes: |
+      The **pretérito imperfecto** is the past of description and habit: what things **were like** and what you **used to do**. English often says "used to…", "would…" or "was …ing".
+
+      | Pronoun | hablar | comer / vivir |
+      | yo | hablaba | comía |
+      | tú | hablabas | comías |
+      | él / ella / usted | hablaba | comía |
+      | nosotros | hablábamos | comíamos |
+      | vosotros | hablabais | comíais |
+      | ellos / ustedes | hablaban | comían |
+
+      - *Yo* and *él/ella* are identical, so add the pronoun when it is not clear who you mean.
+      - Only **three** verbs are irregular: **ser** (*era, eras, era, éramos, erais, eran*), **ir** (*iba, ibas, iba, íbamos, ibais, iban*) and **ver** (*veía, veías, veía…*).
+      - **había** = there was / there were. It never becomes plural: *había muchos niños*.
+      - Typical signals: *antes*, *de pequeño*, *siempre*, *a menudo*, *a veces*, *normalmente*, *todos los días*, *cuando tenía diez años*.
+      - Age and time in the past use the imperfecto: *tenía ocho años*, *eran las tres*.
+    items:
+      - {id: es2-04-antes, type: vocab, l2: "antes", l1: "before / in the past (formerly)",
+         ex: "Antes vivía en Madrid; ahora vivo en Sevilla.", ex_l1: "I used to live in Madrid; now I live in Seville.",
+         note: "antes + imperfecto often translates 'used to'."}
+      - {id: es2-04-de-pequeno, type: vocab, l2: "de pequeño", l1: "as a child (said by or about a male)",
+         alt: ["de niño", "cuando era pequeño", "cuando era niño"],
+         ex: "De pequeño, comía mucho pan.", ex_l1: "As a child, I used to eat a lot of bread.",
+         note: "It agrees: de pequeña for a girl, de pequeños for a group."}
+      - {id: es2-04-a-menudo, type: vocab, l2: "a menudo", l1: "often",
+         alt: ["con frecuencia", "muchas veces", "frecuentemente"],
+         ex: "Antes iba a menudo al cine.", ex_l1: "I used to go to the cinema often."}
+      - {id: es2-04-soler, type: vocab, l2: "soler", l1: "to usually do / to be in the habit of (+ infinitive)",
+         ex: "Suelo comer en casa.", ex_l1: "I usually eat at home.",
+         note: "o → ue: suelo, sueles, suele. In the past: solía ir = I used to go. Only used in the present and the imperfecto."}
+      - {id: es2-04-juguete, type: vocab, l2: "el juguete", l1: "the toy",
+         ex: "De pequeña tenía muchos juguetes.", ex_l1: "As a child I had a lot of toys.",
+         note: "From jugar. gue sounds like 'geh': the u is silent."}
+      - {id: es2-04-infancia, type: vocab, l2: "la infancia", l1: "childhood", alt: ["la niñez"],
+         ex: "Mi infancia fue muy feliz.", ex_l1: "My childhood was very happy."}
+      - {id: es2-04-colegio, type: vocab, l2: "el colegio", l1: "the school (for children)", alt: ["la escuela"],
+         ex: "Los niños van al colegio en autobús.", ex_l1: "The children go to school by bus.",
+         note: "False friend: not a university college. Latin America often says la escuela."}
+      - {id: es2-04-pueblo, type: vocab, l2: "el pueblo", l1: "the village / the small town",
+         ex: "Mis abuelos viven en un pueblo pequeño.", ex_l1: "My grandparents live in a small village."}
+      - {id: es2-04-nota, type: vocab, l2: "la nota", l1: "the mark / the grade (at school)", alt: ["la calificación"],
+         ex: "Mi hermana siempre tenía buenas notas.", ex_l1: "My sister always got good marks.",
+         note: "sacar or tener buenas notas = to get good marks."}
+      - {id: es2-04-companero, type: vocab, l2: "el compañero", l1: "the classmate / the colleague (male)",
+         alt: ["el compañero de clase"],
+         ex: "Luis es un compañero de clase.", ex_l1: "Luis is a classmate.",
+         note: "Feminine: la compañera. compañero de trabajo = work colleague, compañero de piso = flatmate."}
+      - {id: es2-04-asignatura, type: vocab, l2: "la asignatura", l1: "the (school) subject", alt: ["la materia"],
+         ex: "Mi asignatura favorita era el inglés.", ex_l1: "My favourite subject was English.",
+         note: "Latin America: la materia."}
+      - {id: es2-04-aprender, type: vocab, l2: "aprender", l1: "to learn",
+         ex: "Quiero aprender español.", ex_l1: "I want to learn Spanish.",
+         note: "aprender a + infinitive: aprendí a leer = I learned to read."}
+      - {id: es2-04-cuando-era-pequeno, type: phrase, l2: "Cuando era pequeño, vivía en un pueblo.",
+         l1: "When I was little, I lived in a village. (said by a man)",
+         alt: ["Cuando era niño, vivía en un pueblo", "De pequeño vivía en un pueblo", "De niño vivía en un pueblo"]}
+      - {id: es2-04-no-habia-moviles, type: phrase, l2: "Antes no había móviles.",
+         l1: "There were no mobile phones before.", alt: ["Antes no había celulares", "Antes no había teléfonos móviles"],
+         note: "había stays singular. Latin America: el celular."}
+      - {id: es2-04-como-eras, type: phrase, l2: "¿Cómo eras de pequeña?",
+         l1: "What were you like as a child? (informal, to a woman)",
+         alt: ["¿Cómo eras de niña?", "¿Cómo eras cuando eras pequeña?", "¿Cómo eras cuando eras niña?"]}
+      - {id: es2-04-todos-los-veranos, type: phrase, l2: "Todos los veranos íbamos a la playa.",
+         l1: "Every summer we used to go to the beach.", alt: ["Íbamos a la playa todos los veranos", "Cada verano íbamos a la playa"],
+         note: "A repeated habit in the past → imperfecto."}
+      - {id: es2-04-me-gustaba-leer, type: phrase, l2: "Me gustaba mucho leer.", l1: "I used to like reading a lot.",
+         alt: ["Me gustaba leer mucho", "A mí me gustaba mucho leer"]}
+      - {id: es2-04-c1, type: cloze, text: "De pequeña, yo ___ con mis hermanos en la calle.", answer: "jugaba",
+         l1: "As a child, I used to play with my brothers in the street.", note: "-ar verbs: -aba (jugar → jugaba)"}
+      - {id: es2-04-c2, type: cloze, text: "¿Dónde ___ tú cuando eras estudiante?", answer: "vivías",
+         l1: "Where did you live when you were a student?", note: "-ir verbs: tú → -ías"}
+      - {id: es2-04-c3, type: cloze, text: "Mi abuelo ___ muy alto y muy simpático.", answer: "era",
+         l1: "My grandfather was very tall and very nice.", note: "ser → era (irregular): describing a person in the past"}
+      - {id: es2-04-c4, type: cloze, text: "Antes nosotros ___ al colegio en autobús.", answer: "íbamos",
+         l1: "We used to go to school by bus.", note: "ir → íbamos (irregular), with an accent on the í"}
+      - {id: es2-04-c5, type: cloze, text: "Antes mis padres ___ mucho los sábados.", answer: "trabajaban",
+         l1: "My parents used to work a lot on Saturdays.", note: "-ar verbs: ellos → -aban"}
+      - {id: es2-04-c6, type: cloze, text: "En mi pueblo no ___ cine.", answer: "había",
+         l1: "In my village there was no cinema.", note: "hay → había (there was / there were)"}
+      - {id: es2-04-c7, type: cloze, text: "Cuando yo ___ quince años, estudiaba mucho.", answer: "tenía",
+         l1: "When I was fifteen, I used to study a lot.", note: "age in the past: tener in the imperfecto"}
+      - {id: es2-04-c8, type: cloze, text: "De niños, ¿vosotros ___ mucho la tele?", answer: "veíais",
+         l1: "As children, did you (plural, informal) watch a lot of TV?", note: "ver → veía (irregular: it keeps the e)"}
+
+  # ---------------------------------------------------------------- 5
+  - id: es2-05
+    title: "Telling a story: indefinido or imperfecto?"
+    goal: "I can tell a short story about something that happened, setting the scene and saying what happened next."
+    notes: |
+      A story in the past needs both tenses. Think of a film: the **imperfecto** is the set and the background; the **indefinido** is the action.
+
+      | Use the imperfecto for… | Use the indefinido for… |
+      | the scene: weather, time, age | completed events, one after another |
+      | what people and places were like | an action that interrupts |
+      | what was going on (*mientras…*) | a stated length of time or number of times |
+      | habits: *siempre*, *normalmente* | one occasion: *ayer*, *un día*, *de repente* |
+
+      - Interruption: *Estaba durmiendo* (background) *cuando sonó el teléfono* (event).
+      - Two things in progress together: *Mientras yo estudiaba, Luis leía*.
+      - A chain of events: *Llegué, comí y salí*.
+      - A finished period takes the indefinido even if it was long: *Viví diez años en Lima*.
+      - *estaba* + gerundio is a common way to say "was …ing": *estaba lloviendo* = *llovía*.
+
+      Order your story with *primero*, *luego*, *entonces*, *de repente*, *al final*.
+    items:
+      - {id: es2-05-mientras, type: vocab, l2: "mientras", l1: "while",
+         ex: "Yo leía mientras ella trabajaba.", ex_l1: "I was reading while she was working.",
+         note: "In the past, mientras is normally followed by the imperfecto."}
+      - {id: es2-05-de-repente, type: vocab, l2: "de repente", l1: "suddenly", alt: ["de pronto"],
+         ex: "De repente, llegó mi padre.", ex_l1: "Suddenly, my father arrived.",
+         note: "Introduces an event, so it goes with the indefinido."}
+      - {id: es2-05-entonces, type: vocab, l2: "entonces", l1: "then / so (at that moment; as a result)",
+         ex: "No había pan; entonces fui a la tienda.", ex_l1: "There was no bread, so I went to the shop."}
+      - {id: es2-05-luego, type: vocab, l2: "luego", l1: "then / next (afterwards; one word, not 'después')",
+         ex: "Comimos y luego fuimos al cine.", ex_l1: "We ate and then we went to the cinema.",
+         note: "The same luego as in hasta luego. It means the same as después."}
+      - {id: es2-05-primero, type: vocab, l2: "primero", l1: "first (of all)", alt: ["en primer lugar"],
+         ex: "Primero fui al banco.", ex_l1: "First I went to the bank."}
+      - {id: es2-05-al-final, type: vocab, l2: "al final", l1: "in the end", alt: ["finalmente"],
+         ex: "Al final no compré nada.", ex_l1: "In the end I didn't buy anything."}
+      - {id: es2-05-una-vez, type: vocab, l2: "una vez", l1: "once / one time",
+         ex: "Estuve una vez en Cuba.", ex_l1: "I was in Cuba once.",
+         note: "dos veces = twice. A number of times takes the indefinido."}
+      - {id: es2-05-ocurrir, type: vocab, l2: "ocurrir", l1: "to happen / to occur (not 'pasar')", alt: ["suceder"],
+         ex: "El accidente ocurrió ayer.", ex_l1: "The accident happened yesterday.",
+         note: "Used in the third person. Everyday speech prefers pasar: ¿qué pasó?"}
+      - {id: es2-05-historia, type: vocab, l2: "la historia", l1: "the story / history",
+         ex: "Es una historia muy triste.", ex_l1: "It's a very sad story."}
+      - {id: es2-05-caerse, type: vocab, l2: "caerse", l1: "to fall down / to fall over", alt: ["caer"],
+         ex: "Ayer me caí en la calle.", ex_l1: "Yesterday I fell over in the street.",
+         note: "Present: me caigo. Past: me caí, te caíste, se cayó (y in the third person)."}
+      - {id: es2-05-romper, type: vocab, l2: "romper", l1: "to break",
+         ex: "He roto el móvil.", ex_l1: "I have broken my phone.",
+         note: "Irregular participle: roto. The indefinido is regular: rompí."}
+      - {id: es2-05-tormenta, type: vocab, l2: "la tormenta", l1: "the storm",
+         ex: "Anoche hubo una tormenta.", ex_l1: "There was a storm last night.",
+         note: "hubo = there was, for a single event (the indefinido of hay)."}
+      - {id: es2-05-suerte, type: vocab, l2: "la suerte", l1: "luck",
+         ex: "Tuve mucha suerte.", ex_l1: "I was very lucky.",
+         note: "tener suerte = to be lucky. ¡Buena suerte! = good luck!"}
+      - {id: es2-05-que-paso, type: phrase, l2: "¿Qué pasó?", l1: "What happened?",
+         alt: ["¿Qué ocurrió?", "¿Qué ha pasado?", "¿Qué sucedió?"],
+         note: "Spain uses ¿qué ha pasado? for something that has just happened."}
+      - {id: es2-05-estaba-durmiendo, type: phrase, l2: "Estaba durmiendo cuando sonó el teléfono.",
+         l1: "I was sleeping when the phone rang.", alt: ["Dormía cuando sonó el teléfono"],
+         note: "Background (imperfecto) interrupted by an event (indefinido)."}
+      - {id: es2-05-hacia-sol, type: phrase, l2: "Hacía sol y había mucha gente.",
+         l1: "It was sunny and there were a lot of people.",
+         note: "Setting the scene → imperfecto. La gente is singular: había mucha gente."}
+      - {id: es2-05-como-llovia, type: phrase, l2: "Como llovía, nos quedamos en casa.",
+         l1: "As it was raining, we stayed at home.", alt: ["Como estaba lloviendo, nos quedamos en casa"],
+         note: "como at the start of a sentence = as / since (giving the reason first)."}
+      - {id: es2-05-que-mala-suerte, type: phrase, l2: "¡Qué mala suerte!", l1: "What bad luck!",
+         note: "¡Qué + noun or adjective! — no 'a' as in English 'what a…'."}
+      - {id: es2-05-c1, type: cloze, text: "Cuando ___ a casa, mis hijos estaban durmiendo.", answer: "llegué",
+         l1: "When I got home, my children were sleeping.", alt: ["volví"],
+         note: "a single completed event → indefinido; what was going on → imperfecto"}
+      - {id: es2-05-c2, type: cloze, text: "Eran las ocho y ___ mucho frío cuando salí de casa.", answer: "hacía",
+         l1: "It was eight o'clock and it was very cold when I left home.", note: "weather as background → imperfecto"}
+      - {id: es2-05-c3, type: cloze, text: "Mientras yo ___, Luis leía el periódico.", answer: "estudiaba",
+         l1: "While I was studying, Luis was reading the newspaper.", note: "two actions in progress → both imperfecto"}
+      - {id: es2-05-c4, type: cloze, text: "Ayer ___ a Marta en el supermercado.", answer: "vi",
+         l1: "Yesterday I saw Marta in the supermarket.", note: "one event at a definite time → indefinido (ver → vi)"}
+      - {id: es2-05-c5, type: cloze, text: "Normalmente ___ en autobús, pero ayer fui en taxi.", answer: "iba",
+         l1: "I usually went by bus, but yesterday I went by taxi.", note: "habit → imperfecto (iba); one occasion → indefinido (fui)"}
+      - {id: es2-05-c6, type: cloze, text: "Estábamos en la playa y de repente ___ a llover.", answer: "empezó",
+         l1: "We were on the beach and suddenly it started to rain.", alt: ["comenzó"],
+         note: "de repente introduces an event → indefinido"}
+      - {id: es2-05-c7, type: cloze, text: "La casa de mis abuelos ___ grande y tenía un jardín.", answer: "era",
+         l1: "My grandparents' house was big and had a garden.", note: "description → imperfecto"}
+      - {id: es2-05-c8, type: cloze, text: "El año pasado ___ tres semanas en Perú.", answer: "estuve",
+         l1: "Last year I was in Peru for three weeks.", alt: ["pasé"],
+         note: "a stated, finished length of time → indefinido"}
+
+  # ---------------------------------------------------------------- 6
+  - id: es2-06
+    title: "Giving and sending: indirect objects & se lo"
+    goal: "I can say who I give, send, lend or explain something to, and replace both objects with pronouns."
+    notes: |
+      The **indirect object** is the person who receives something: I give the book **to Ana**.
+
+      | Person | Indirect | Direct |
+      | yo | me | me |
+      | tú | te | te |
+      | él / ella / usted | **le** | lo / la |
+      | nosotros | nos | nos |
+      | vosotros | os | os |
+      | ellos / ustedes | **les** | los / las |
+
+      - Pronouns go **before** the conjugated verb: *Le escribo*. With an infinitive they may be attached instead: *¿Me puedes ayudar?* = *¿Puedes ayudarme?*
+      - Spanish normally keeps *le/les* even when the person is named: ***Le** doy el libro **a Ana***.
+      - Two pronouns together: **indirect first, then direct** — *Me lo das*, *Te la presto*.
+      - *Le* or *les* before *lo, la, los, las* turns into **se**: *Le doy el libro → **Se lo** doy* (never "le lo").
+      - Add *a él, a ella, a usted* if *se* is not clear: *Se lo doy a ella*.
+      - *Os* is used in Spain; Latin America uses *les* for every plural "you".
+    items:
+      - {id: es2-06-regalar, type: vocab, l2: "regalar", l1: "to give (as a present)",
+         ex: "Le voy a regalar un libro a mi madre.", ex_l1: "I'm going to give my mother a book.",
+         note: "dar is just 'to give'; regalar is always a gift."}
+      - {id: es2-06-regalo, type: vocab, l2: "el regalo", l1: "the present / the gift",
+         ex: "Tengo un regalo para ti.", ex_l1: "I have a present for you."}
+      - {id: es2-06-prestar, type: vocab, l2: "prestar", l1: "to lend",
+         ex: "¿Me prestas tu libro?", ex_l1: "Will you lend me your book?",
+         note: "'To borrow' is pedir prestado; usually Spanish just asks ¿me prestas…?"}
+      - {id: es2-06-enviar, type: vocab, l2: "enviar", l1: "to send", alt: ["mandar"],
+         ex: "Te envío las fotos mañana.", ex_l1: "I'll send you the photos tomorrow.",
+         note: "Accent in the present: envío, envías, envía."}
+      - {id: es2-06-devolver, type: vocab, l2: "devolver", l1: "to give back / to return (a thing)",
+         ex: "Quiero devolver esta camisa.", ex_l1: "I want to return this shirt.",
+         note: "o → ue: devuelvo. Participle: devuelto. Returning to a place is volver."}
+      - {id: es2-06-pedir, type: vocab, l2: "pedir", l1: "to ask for / to order (food)",
+         ex: "Voy a pedir una pizza.", ex_l1: "I'm going to order a pizza.",
+         note: "e → i: pido, pides, pide. No preposition: pedir la cuenta = to ask FOR the bill."}
+      - {id: es2-06-preguntar, type: vocab, l2: "preguntar", l1: "to ask (a question)",
+         ex: "Le voy a preguntar al profesor.", ex_l1: "I'm going to ask the teacher.",
+         note: "preguntar = ask a question; pedir = ask for something."}
+      - {id: es2-06-explicar, type: vocab, l2: "explicar", l1: "to explain",
+         ex: "El profesor explica muy bien.", ex_l1: "The teacher explains very well.",
+         note: "Past yo form: expliqué (c → qu before é)."}
+      - {id: es2-06-paquete, type: vocab, l2: "el paquete", l1: "the parcel / the package",
+         ex: "Ha llegado un paquete para ti.", ex_l1: "A parcel has arrived for you."}
+      - {id: es2-06-recibo, type: vocab, l2: "el recibo", l1: "the receipt",
+         alt: ["el tique", "el ticket", "el comprobante"],
+         ex: "¿Me da el recibo, por favor?", ex_l1: "Can you give me the receipt, please?",
+         note: "In Spanish shops you will also hear el tique."}
+      - {id: es2-06-nos, type: vocab, l2: "nos", l1: "us / to us (object pronoun)",
+         ex: "Mi abuela nos escribe cartas.", ex_l1: "My grandmother writes us letters.",
+         note: "Not nosotros: that is only the subject, or used after a preposition."}
+      - {id: es2-06-os, type: vocab, l2: "os", l1: "you / to you (object pronoun; plural informal, Spain)",
+         ex: "Os he comprado un regalo.", ex_l1: "I have bought you (all) a present.",
+         note: "Goes with vosotros. Latin America uses les (or los/las) instead."}
+      - {id: es2-06-les, type: vocab, l2: "les", l1: "to them / to you (formal plural) (indirect object pronoun)",
+         ex: "Les escribo un correo a mis padres.", ex_l1: "I am writing my parents an email.",
+         note: "Becomes se before lo, la, los, las."}
+      - {id: es2-06-me-puede-traer, type: phrase, l2: "¿Me puede traer la cuenta?",
+         l1: "Can you bring me the bill? (formal)",
+         alt: ["¿Puede traerme la cuenta?", "¿Me trae la cuenta?", "¿Me puede traer la cuenta, por favor?"],
+         note: "traer = to bring. The pronoun goes before puede or on the end of the infinitive."}
+      - {id: es2-06-se-lo-he-dado, type: phrase, l2: "Se lo he dado a María.",
+         l1: "I have given it to María. (it = a masculine thing)",
+         note: "le + lo → se lo. Spanish keeps se even though 'a María' is said."}
+      - {id: es2-06-me-lo-puedes-explicar, type: phrase, l2: "¿Me lo puedes explicar?",
+         l1: "Can you explain it to me? (informal)", alt: ["¿Puedes explicármelo?", "¿Me lo explicas?"],
+         note: "Attached to the infinitive, two pronouns add an accent: explicármelo."}
+      - {id: es2-06-te-lo-digo, type: phrase, l2: "Te lo digo mañana.",
+         l1: "I'll tell you tomorrow. (informal; literally 'I tell it to you')",
+         alt: ["Mañana te lo digo", "Te lo diré mañana", "Te lo voy a decir mañana"],
+         note: "Spanish needs the lo (it), which English leaves out."}
+      - {id: es2-06-le-he-comprado, type: phrase, l2: "Le he comprado un regalo a mi padre.",
+         l1: "I have bought my father a present.",
+         alt: ["He comprado un regalo a mi padre", "Le he comprado un regalo a mi papá", "Le compré un regalo a mi padre"],
+         note: "The 'extra' le is normal and sounds natural."}
+      - {id: es2-06-c1, type: cloze, text: "Ana, ¿___ prestas diez euros? No tengo dinero.", answer: "me",
+         l1: "Ana, will you lend me ten euros? I have no money.", note: "to me → me, before the verb"}
+      - {id: es2-06-c2, type: cloze, text: "Luis, ___ he traído un café.", answer: "te",
+         l1: "Luis, I've brought you a coffee.", note: "to you (tú) → te, before haber"}
+      - {id: es2-06-c3, type: cloze, text: "A mi hermana ___ regalé un libro.", answer: "le",
+         l1: "I gave my sister a book (as a present).", note: "to him / to her → le, even with 'a mi hermana'"}
+      - {id: es2-06-c4, type: cloze, text: "Nuestros padres ___ escriben todas las semanas.", answer: "nos",
+         l1: "Our parents write to us every week.", note: "to us → nos"}
+      - {id: es2-06-c5, type: cloze, text: "A mis abuelos ___ envío una postal.", answer: "les",
+         l1: "I send my grandparents a postcard.", note: "to them → les"}
+      - {id: es2-06-c6, type: cloze, text: "—¿Le das el libro a Pedro? —Sí, ___ lo doy mañana.", answer: "se",
+         l1: "“Are you giving Pedro the book?” “Yes, I'll give it to him tomorrow.”", note: "le + lo → se lo"}
+      - {id: es2-06-c7, type: cloze, text: "—¿Me prestas tu coche? —Sí, te ___ presto.", answer: "lo",
+         l1: "“Will you lend me your car?” “Yes, I'll lend it to you.”", note: "indirect (te) first, then direct (lo = el coche)"}
+      - {id: es2-06-c8, type: cloze, text: "—¿Quién te regaló esta camisa? —Me ___ regaló mi madre.", answer: "la",
+         l1: "“Who gave you this shirt?” “My mother gave it to me.”", note: "la = la camisa (feminine), after me"}
+
+  # ---------------------------------------------------------------- 7
+  - id: es2-07
+    title: "Comparing places: comparatives & superlatives"
+    goal: "I can compare people, places and things and say which is the best, the worst or the most."
+    notes: |
+      To compare, wrap the adjective:
+
+      - **más … que** — more … than: *Madrid es más grande que Sevilla.*
+      - **menos … que** — less … than: *El tren es menos caro que el avión.*
+      - **tan … como** — as … as: *Soy tan alto como mi padre.*
+      - With nouns use **tanto/a/os/as … como**: *tantos coches como…*
+
+      The adjective still agrees with the first noun: *Ana es más alt**a** que Luis.*
+
+      Four irregular comparatives have no *más*:
+
+      | Adjective | Comparative |
+      | bueno | mejor |
+      | malo | peor |
+      | grande (age) | mayor |
+      | pequeño (age) | menor |
+
+      - Before a number, "than" is **de**: *más de diez euros*.
+      - Superlative: article + *más/menos* + adjective + **de**: *la ciudad más bonita **de** España* ("in" is *de*, not *en*). With the irregulars: *el mejor*, *la peor*.
+      - **-ísimo** means "extremely": *caro → carísimo*, *grande → grandísimo*.
+    items:
+      - {id: es2-07-menos, type: vocab, l2: "menos", l1: "less / fewer",
+         ex: "Hoy hay menos coches en la calle.", ex_l1: "Today there are fewer cars in the street.",
+         note: "One word for both 'less' and 'fewer'; it never changes."}
+      - {id: es2-07-tan, type: vocab, l2: "tan", l1: "as / so (before an adjective: 'as tall as', 'so tall')",
+         ex: "No soy tan alto como tú.", ex_l1: "I'm not as tall as you.",
+         note: "tan + adjective + como. Never 'tan … que' for 'as … as'."}
+      - {id: es2-07-mejor, type: vocab, l2: "mejor", l1: "better",
+         ex: "Este café es mejor.", ex_l1: "This coffee is better.",
+         note: "Never 'más bueno' for quality. Plural: mejores. el/la mejor = the best."}
+      - {id: es2-07-peor, type: vocab, l2: "peor", l1: "worse",
+         ex: "Hoy estoy peor.", ex_l1: "I am (feeling) worse today.",
+         note: "Not 'más malo'. Plural: peores. el/la peor = the worst."}
+      - {id: es2-07-mayor, type: vocab, l2: "mayor", l1: "older / elder",
+         ex: "Mi hermana mayor vive en Lima.", ex_l1: "My elder sister lives in Lima.",
+         note: "For people's ages use mayor, not 'más viejo'. una persona mayor = an elderly person."}
+      - {id: es2-07-menor, type: vocab, l2: "menor", l1: "younger", alt: ["más joven"],
+         ex: "Mi hermano menor tiene diez años.", ex_l1: "My younger brother is ten.",
+         note: "Also 'más joven'. Used for people's ages."}
+      - {id: es2-07-barrio, type: vocab, l2: "el barrio", l1: "the neighbourhood / the district",
+         ex: "Vivo en un barrio muy bonito.", ex_l1: "I live in a very pretty neighbourhood."}
+      - {id: es2-07-ruido, type: vocab, l2: "el ruido", l1: "the noise",
+         ex: "En esta calle hay mucho ruido.", ex_l1: "There is a lot of noise in this street."}
+      - {id: es2-07-contaminacion, type: vocab, l2: "la contaminación", l1: "pollution", alt: ["la polución"],
+         ex: "En las ciudades grandes hay mucha contaminación.", ex_l1: "There is a lot of pollution in big cities.",
+         note: "Nouns ending in -ción are feminine."}
+      - {id: es2-07-tranquilo, type: vocab, l2: "tranquilo", l1: "quiet / calm (masculine)",
+         ex: "Es un pueblo muy tranquilo.", ex_l1: "It's a very quiet village.",
+         note: "The opposite, for a place, is ruidoso (noisy)."}
+      - {id: es2-07-limpio, type: vocab, l2: "limpio", l1: "clean (masculine)",
+         ex: "El agua está limpia.", ex_l1: "The water is clean.",
+         note: "With estar for the state something is in."}
+      - {id: es2-07-sucio, type: vocab, l2: "sucio", l1: "dirty (masculine)",
+         ex: "El coche está muy sucio.", ex_l1: "The car is very dirty."}
+      - {id: es2-07-campo, type: vocab, l2: "el campo", l1: "the countryside / the field",
+         ex: "Mis padres viven en el campo.", ex_l1: "My parents live in the countryside."}
+      - {id: es2-07-mas-grande-que, type: phrase, l2: "Madrid es más grande que Sevilla.",
+         l1: "Madrid is bigger than Seville."}
+      - {id: es2-07-el-mas-tranquilo, type: phrase, l2: "Mi barrio es el más tranquilo de la ciudad.",
+         l1: "My neighbourhood is the quietest in the city.",
+         note: "'in' after a superlative is de."}
+      - {id: es2-07-prefiero-campo, type: phrase, l2: "Prefiero vivir en el campo.",
+         l1: "I prefer to live in the countryside.", alt: ["Yo prefiero vivir en el campo"],
+         note: "preferir: e → ie (prefiero, prefieres, prefiere)."}
+      - {id: es2-07-el-mejor-restaurante, type: phrase, l2: "Es el mejor restaurante del barrio.",
+         l1: "It's the best restaurant in the neighbourhood.",
+         note: "mejor goes BEFORE the noun: el mejor restaurante."}
+      - {id: es2-07-carisima, type: phrase, l2: "Esta ciudad es carísima.",
+         l1: "This city is extremely expensive. (one word for 'extremely expensive')",
+         note: "Drop the final vowel and add -ísimo/-ísima: cara → carísima."}
+      - {id: es2-07-c1, type: cloze, text: "El tren es más rápido ___ el autobús.", answer: "que",
+         l1: "The train is faster than the bus.", note: "más … que = more … than"}
+      - {id: es2-07-c2, type: cloze, text: "Mi hermano es tan alto ___ mi padre.", answer: "como",
+         l1: "My brother is as tall as my father.", note: "tan … como = as … as"}
+      - {id: es2-07-c3, type: cloze, text: "Este hotel es ___ caro que el otro: es más barato.", answer: "menos",
+         l1: "This hotel is less expensive than the other one: it's cheaper.", note: "menos … que = less … than"}
+      - {id: es2-07-c4, type: cloze, text: "Ana tiene veinte años y Luis, quince. Ana es ___ que Luis.", answer: "mayor",
+         l1: "Ana is twenty and Luis is fifteen. Ana is older than Luis.", note: "older (people) → mayor, without más"}
+      - {id: es2-07-c5, type: cloze, text: "Este vino es bueno, pero el otro es ___.", answer: "mejor",
+         l1: "This wine is good, but the other one is better.", note: "bueno → mejor (not 'más bueno')"}
+      - {id: es2-07-c6, type: cloze, text: "Es la ciudad más bonita ___ mundo.", answer: "del",
+         l1: "It's the most beautiful city in the world.", note: "superlative + de (de + el = del), never en"}
+      - {id: es2-07-c7, type: cloze, text: "Hoy hace muy mal tiempo: es el ___ día del año.", answer: "peor",
+         l1: "The weather is very bad today: it's the worst day of the year.", note: "malo → peor; el peor = the worst"}
+      - {id: es2-07-c8, type: cloze, text: "En mi barrio hay ___ de diez bares.", answer: "más",
+         l1: "In my neighbourhood there are more than ten bars.", note: "before a number: más de, not más que"}
+
+  # ---------------------------------------------------------------- 8
+  - id: es2-08
+    title: "Work and reasons: por & para"
+    goal: "I can talk about my job and studies and choose between por and para for reasons, purposes and deadlines."
+    notes: |
+      English "for" splits in two. Think of **para** as an arrow pointing forward to a goal, and **por** as what lies behind or along the way.
+
+      | para → goal | por → cause, path, exchange |
+      | purpose: *para trabajar* (in order to) | cause: *por la lluvia* (because of) |
+      | recipient: *para ti* | exchange / price: *veinte euros por el libro* |
+      | destination: *el tren para Madrid* | route: *pasar por el centro* |
+      | deadline: *para el lunes* | part of the day: *por la mañana* |
+      | employer: *trabajo para un banco* | means: *por teléfono*, *por correo* |
+      | opinion: *para mí* | thanks: *gracias por…* |
+
+      - "In order to" is always **para + infinitive**: *Estudio para aprender*.
+      - Fixed phrases with *por*: *por favor*, *por eso* (that's why), *por ejemplo*, *por fin* (at last), *por supuesto* (of course).
+      - *¿Por qué?* asks for the reason; *¿Para qué?* asks for the purpose.
+      - Latin America often says *en la mañana* where Spain says *por la mañana*.
+    items:
+      - {id: es2-08-por, type: vocab, l2: "por", l1: "for / because of / through / by (cause, exchange, route)",
+         ex: "Gracias por el café.", ex_l1: "Thanks for the coffee.",
+         note: "Looks back at the cause or along the way. Never use por for 'in order to'."}
+      - {id: es2-08-para, type: vocab, l2: "para", l1: "for / in order to (purpose, recipient, deadline)",
+         ex: "Este café es para ti.", ex_l1: "This coffee is for you.",
+         note: "Points forward to a goal. para + infinitive = in order to."}
+      - {id: es2-08-empleo, type: vocab, l2: "el empleo", l1: "the job / employment (not 'el trabajo')",
+         alt: ["el puesto", "el puesto de trabajo"],
+         ex: "Mi hermano tiene un buen empleo.", ex_l1: "My brother has a good job.",
+         note: "More formal than el trabajo; the word you see in job adverts."}
+      - {id: es2-08-empresa, type: vocab, l2: "la empresa", l1: "the company / the firm", alt: ["la compañía"],
+         ex: "Trabajo en una empresa pequeña.", ex_l1: "I work in a small company."}
+      - {id: es2-08-sueldo, type: vocab, l2: "el sueldo", l1: "the salary / the pay", alt: ["el salario"],
+         ex: "El sueldo no es muy alto.", ex_l1: "The salary is not very high."}
+      - {id: es2-08-reunion, type: vocab, l2: "la reunión", l1: "the meeting",
+         ex: "Tengo una reunión a las diez.", ex_l1: "I have a meeting at ten.",
+         note: "Plural without the accent: las reuniones."}
+      - {id: es2-08-horario, type: vocab, l2: "el horario", l1: "the timetable / the working hours",
+         ex: "Tengo un buen horario: trabajo por la mañana.", ex_l1: "I have good hours: I work in the morning."}
+      - {id: es2-08-entrevista, type: vocab, l2: "la entrevista", l1: "the interview",
+         ex: "Mañana tengo una entrevista de trabajo.", ex_l1: "Tomorrow I have a job interview."}
+      - {id: es2-08-ganar, type: vocab, l2: "ganar", l1: "to earn / to win",
+         ex: "Mi hermana gana mucho dinero.", ex_l1: "My sister earns a lot of money."}
+      - {id: es2-08-buscar, type: vocab, l2: "buscar", l1: "to look for",
+         ex: "Busco las llaves.", ex_l1: "I'm looking for the keys.",
+         note: "No preposition: buscar already contains 'for'. Past yo form: busqué."}
+      - {id: es2-08-correo-electronico, type: vocab, l2: "el correo electrónico", l1: "the email",
+         alt: ["el correo", "el email", "el e-mail", "el mail"],
+         ex: "Te envío un correo electrónico esta tarde.", ex_l1: "I'll send you an email this afternoon.",
+         note: "In everyday speech: un correo or un email."}
+      - {id: es2-08-examen, type: vocab, l2: "el examen", l1: "the exam",
+         ex: "El examen es el lunes.", ex_l1: "The exam is on Monday.",
+         note: "Plural with an accent: los exámenes."}
+      - {id: es2-08-aprobar, type: vocab, l2: "aprobar", l1: "to pass (an exam)", alt: ["pasar"],
+         ex: "Quiero aprobar el examen de español.", ex_l1: "I want to pass the Spanish exam.",
+         note: "o → ue: apruebo. The opposite is suspender (Spain) or reprobar (Latin America)."}
+      - {id: es2-08-trabajo-para, type: phrase, l2: "Trabajo para una empresa española.",
+         l1: "I work for a Spanish company.", alt: ["Yo trabajo para una empresa española"],
+         note: "Employer → para."}
+      - {id: es2-08-gracias-por-ayuda, type: phrase, l2: "Gracias por tu ayuda.",
+         l1: "Thank you for your help. (informal)", alt: ["Muchas gracias por tu ayuda"],
+         note: "gracias is always followed by por."}
+      - {id: es2-08-estoy-buscando-trabajo, type: phrase, l2: "Estoy buscando trabajo.",
+         l1: "I'm looking for work.", alt: ["Busco trabajo", "Estoy buscando empleo", "Busco empleo"],
+         note: "No article and no preposition."}
+      - {id: es2-08-para-que-sirve, type: phrase, l2: "¿Para qué sirve esto?", l1: "What is this for?",
+         alt: ["¿Para qué es esto?", "¿Esto para qué sirve?"],
+         note: "servir para = to be (used) for. ¿Para qué? asks about purpose."}
+      - {id: es2-08-por-la-tarde, type: phrase, l2: "Por la tarde tengo una reunión.",
+         l1: "In the afternoon I have a meeting.",
+         alt: ["Tengo una reunión por la tarde", "En la tarde tengo una reunión", "Tengo una reunión en la tarde"],
+         note: "Parts of the day take por in Spain; Latin America also says en la tarde."}
+      - {id: es2-08-c1, type: cloze, text: "Gracias ___ el regalo.", answer: "por",
+         l1: "Thank you for the present.", note: "thanks and causes → por"}
+      - {id: es2-08-c2, type: cloze, text: "Este paquete es ___ ti.", answer: "para",
+         l1: "This parcel is for you.", note: "recipient → para"}
+      - {id: es2-08-c3, type: cloze, text: "Estudio español ___ trabajar en Madrid.", answer: "para",
+         l1: "I am studying Spanish in order to work in Madrid.", note: "purpose: para + infinitive"}
+      - {id: es2-08-c4, type: cloze, text: "Pagué veinte euros ___ el libro.", answer: "por",
+         l1: "I paid twenty euros for the book.", note: "exchange / price → por"}
+      - {id: es2-08-c5, type: cloze, text: "El tren a Barcelona pasa ___ Zaragoza.", answer: "por",
+         l1: "The train to Barcelona goes through Zaragoza.", note: "route (through, along) → por"}
+      - {id: es2-08-c6, type: cloze, text: "Tengo que terminar el trabajo ___ el viernes.", answer: "para",
+         l1: "I have to finish the work by Friday.", note: "deadline → para"}
+      - {id: es2-08-c7, type: cloze, text: "Estoy cansado; por ___ no salgo esta noche.", answer: "eso",
+         l1: "I'm tired; that's why I'm not going out tonight.", note: "por eso = that's why / so"}
+      - {id: es2-08-c8, type: cloze, text: "Me gusta la fruta, por ___, las naranjas.", answer: "ejemplo",
+         l1: "I like fruit, for example, oranges.", note: "por ejemplo = for example"}
+
+  # ---------------------------------------------------------------- 9
+  - id: es2-09
+    title: "Directions & instructions: the imperative"
+    goal: "I can give and follow simple instructions and street directions, informally and formally."
+    notes: |
+      The **imperative** tells someone what to do. This unit covers affirmative commands for **tú** and **usted**.
+
+      | Infinitive | tú | usted |
+      | girar | gira | gire |
+      | comer | come | coma |
+      | subir | sube | suba |
+
+      - **tú** = the *él/ella* form of the present: *gira*, *come*, *sigue*, *cierra*.
+      - **usted** swaps the vowel: **-ar → -e**, **-er / -ir → -a**. It is built on the *yo* form, so irregular *yo* forms carry over: *tengo → tenga*, *sigo → siga*, *cojo → coja*.
+      - Eight short irregular **tú** forms: *di* (decir), *haz* (hacer), *ve* (ir), *pon* (poner), *sal* (salir), *sé* (ser), *ten* (tener), *ven* (venir).
+      - Irregular **usted**: *vaya* (ir), *sea* (ser), *dé* (dar).
+      - Pronouns are attached to the end: *dime* (tell me), *siéntese* (sit down), *dámelo* (give it to me).
+      - Add *por favor* and commands are perfectly polite — Spanish uses them far more than English.
+      - *Coger* is the everyday verb in Spain; in much of Latin America say *tomar* instead.
+    items:
+      - {id: es2-09-seguir, type: vocab, l2: "seguir", l1: "to continue / to follow", alt: ["continuar"],
+         ex: "Tienes que seguir por esta calle.", ex_l1: "You have to continue along this street.",
+         note: "e → i: sigo, sigues, sigue. Commands: sigue (tú), siga (usted)."}
+      - {id: es2-09-girar, type: vocab, l2: "girar", l1: "to turn", alt: ["doblar", "torcer"],
+         ex: "Tienes que girar a la izquierda.", ex_l1: "You have to turn left.",
+         note: "Latin America prefers doblar."}
+      - {id: es2-09-cruzar, type: vocab, l2: "cruzar", l1: "to cross",
+         ex: "Vamos a cruzar la calle.", ex_l1: "We are going to cross the street.",
+         note: "usted command: cruce (z → c before e)."}
+      - {id: es2-09-coger, type: vocab, l2: "coger", l1: "to take / to catch (a bus, a street — the everyday verb in Spain)",
+         alt: ["tomar"],
+         ex: "Voy a coger el autobús.", ex_l1: "I'm going to catch the bus.",
+         note: "Yo cojo (g → j). In much of Latin America coger is rude: say tomar."}
+      - {id: es2-09-esquina, type: vocab, l2: "la esquina", l1: "the (street) corner",
+         ex: "El banco está en la esquina.", ex_l1: "The bank is on the corner.",
+         note: "en la esquina = on the corner."}
+      - {id: es2-09-semaforo, type: vocab, l2: "el semáforo", l1: "the traffic lights",
+         ex: "Hay un semáforo cerca del banco.", ex_l1: "There are traffic lights near the bank.",
+         note: "Singular in Spanish for one set of lights."}
+      - {id: es2-09-plaza, type: vocab, l2: "la plaza", l1: "the square",
+         ex: "La plaza está cerca de aquí.", ex_l1: "The square is near here."}
+      - {id: es2-09-puente, type: vocab, l2: "el puente", l1: "the bridge",
+         ex: "El puente es muy viejo.", ex_l1: "The bridge is very old.",
+         note: "Masculine: el puente, los puentes."}
+      - {id: es2-09-parada, type: vocab, l2: "la parada", l1: "the (bus) stop", alt: ["la parada de autobús", "el paradero"],
+         ex: "La parada está en la plaza.", ex_l1: "The stop is in the square.",
+         note: "Parts of Latin America say el paradero."}
+      - {id: es2-09-bajar, type: vocab, l2: "bajar", l1: "to go down / to get off (a bus, a train)", alt: ["bajarse"],
+         ex: "Tienes que bajar en la plaza.", ex_l1: "You have to get off at the square.",
+         note: "bajar de + vehicle: bajo del autobús."}
+      - {id: es2-09-subir, type: vocab, l2: "subir", l1: "to go up / to get on (a bus, a train)", alt: ["subirse"],
+         ex: "Vamos a subir al tren.", ex_l1: "We are going to get on the train.",
+         note: "subir a + vehicle."}
+      - {id: es2-09-hasta, type: vocab, l2: "hasta", l1: "as far as / until",
+         ex: "Tienes que seguir hasta el puente.", ex_l1: "You have to continue as far as the bridge.",
+         note: "The same hasta as in hasta luego ('until later'). Works for place and time."}
+      - {id: es2-09-enfrente-de, type: vocab, l2: "enfrente de", l1: "opposite / facing", alt: ["frente a"],
+         ex: "El hotel está enfrente de la estación.", ex_l1: "The hotel is opposite the station.",
+         note: "Not 'in front of' — that is delante de."}
+      - {id: es2-09-sigue-todo-recto, type: phrase, l2: "Sigue todo recto.", l1: "Go straight on. (informal)",
+         alt: ["Sigue recto", "Sigue derecho", "Sigue todo derecho", "Ve todo recto"],
+         note: "Latin America: sigue derecho. Don't confuse derecho (straight) with a la derecha (to the right)."}
+      - {id: es2-09-gire-derecha, type: phrase, l2: "Gire a la derecha.", l1: "Turn right. (formal)",
+         alt: ["Doble a la derecha", "Tuerza a la derecha", "Gire usted a la derecha"]}
+      - {id: es2-09-coge-la-primera, type: phrase, l2: "Coge la primera calle a la izquierda.",
+         l1: "Take the first street on the left. (informal)",
+         alt: ["Toma la primera calle a la izquierda", "Coge la primera a la izquierda", "Toma la primera a la izquierda"],
+         note: "Latin America: toma la primera calle…"}
+      - {id: es2-09-como-se-va, type: phrase, l2: "¿Cómo se va al centro?", l1: "How do you get to the centre?",
+         alt: ["¿Cómo se llega al centro?", "¿Cómo voy al centro?", "¿Cómo llego al centro?"],
+         note: "se va = 'one goes': the impersonal way to ask for directions."}
+      - {id: es2-09-ven-aqui, type: phrase, l2: "Ven aquí, por favor.", l1: "Come here, please. (informal)",
+         alt: ["Ven acá, por favor", "Por favor, ven aquí"],
+         note: "ven is the irregular tú command of venir. Latin America often says acá."}
+      - {id: es2-09-c1, type: cloze, text: "___ la calle y sigue todo recto.", answer: "Cruza",
+         l1: "Cross the street and go straight on. (informal)", note: "tú command = él/ella present: cruza"}
+      - {id: es2-09-c2, type: cloze, text: "Señora, ___ el autobús número cinco.", answer: "coja",
+         l1: "Madam, take bus number five.", alt: ["tome"], note: "usted command from the yo form: cojo → coja"}
+      - {id: es2-09-c3, type: cloze, text: "Pablo, ___ los deberes ahora.", answer: "haz",
+         l1: "Pablo, do your homework now.", note: "hacer → haz (irregular tú command)"}
+      - {id: es2-09-c4, type: cloze, text: "___ la ventana, por favor, señor.", answer: "Abra",
+         l1: "Open the window, please, sir.", note: "abrir (-ir) → usted command in -a: abra"}
+      - {id: es2-09-c5, type: cloze, text: "___ cuidado, hijo: el semáforo está en rojo.", answer: "Ten",
+         l1: "Be careful, son: the lights are red.", note: "tener → ten (irregular tú command); tener cuidado = to be careful"}
+      - {id: es2-09-c6, type: cloze, text: "___ usted en la próxima parada.", answer: "Baje",
+         l1: "Get off at the next stop. (formal)", alt: ["Bájese"], note: "-ar verbs → usted command in -e: baje"}
+      - {id: es2-09-c7, type: cloze, text: "Juan, ___ la mesa, por favor.", answer: "pon",
+         l1: "Juan, lay the table, please.", note: "poner → pon (irregular tú command); poner la mesa = to lay the table"}
+      - {id: es2-09-c8, type: cloze, text: "Señor, ___ todo recto hasta el puente.", answer: "siga",
+         l1: "Sir, go straight on as far as the bridge.", alt: ["continúe", "vaya"],
+         note: "seguir → sigo → siga (usted); hasta = as far as"}
+
+  # ---------------------------------------------------------------- 10
+  - id: es2-10
+    title: "Plans and predictions: ir a & the simple future"
+    goal: "I can talk about plans, make predictions and promises, and say what will happen if something else does."
+    notes: |
+      You already know **ir a + infinitive** for plans and intentions: *Voy a alquilar un piso*. The **futuro simple** is one word, used for predictions, promises and more distant or less certain futures.
+
+      Add the endings to the **whole infinitive** — the same for -ar, -er and -ir:
+
+      | Pronoun | hablar |
+      | yo | hablaré |
+      | tú | hablarás |
+      | él / ella / usted | hablará |
+      | nosotros | hablaremos |
+      | vosotros | hablaréis |
+      | ellos / ustedes | hablarán |
+
+      - Every form has an accent except *nosotros*.
+      - A dozen verbs change the stem but keep the endings: *tener → tendr-*, *poder → podr-*, *poner → pondr-*, *salir → saldr-*, *venir → vendr-*, *hacer → har-*, *decir → dir-*, *querer → querr-*, *saber → sabr-*, *haber → habr-* (*habrá* = there will be).
+      - **si** + present, + future: *Si tengo tiempo, iré.* Never the future straight after *si*.
+      - For fixed arrangements Spanish often just uses the present: *Mañana trabajo.*
+      - In speech, especially in Latin America, *ir a* is far more common than the simple future.
+    items:
+      - {id: es2-10-pasado-manana, type: vocab, l2: "pasado mañana", l1: "the day after tomorrow",
+         ex: "Pasado mañana voy a Sevilla.", ex_l1: "The day after tomorrow I'm going to Seville."}
+      - {id: es2-10-ano-que-viene, type: vocab, l2: "el año que viene", l1: "next year",
+         alt: ["el próximo año", "el año próximo"],
+         ex: "El año que viene voy a estudiar en Madrid.", ex_l1: "Next year I'm going to study in Madrid.",
+         note: "Literally 'the year that comes'. Also la semana que viene = next week."}
+      - {id: es2-10-proximo, type: vocab, l2: "próximo", l1: "next (adjective, masculine singular)", alt: ["siguiente"],
+         ex: "El próximo tren sale a las seis.", ex_l1: "The next train leaves at six.",
+         note: "Goes before the noun and agrees: la próxima semana."}
+      - {id: es2-10-pronto, type: vocab, l2: "pronto", l1: "soon",
+         ex: "Mis padres van a llegar pronto.", ex_l1: "My parents are going to arrive soon.",
+         note: "¡Hasta pronto! = see you soon."}
+      - {id: es2-10-dentro-de, type: vocab, l2: "dentro de", l1: "in / within (a length of time from now)", alt: ["en"],
+         ex: "El tren sale dentro de diez minutos.", ex_l1: "The train leaves in ten minutes.",
+         note: "The opposite of hace (ago): hace una semana ↔ dentro de una semana."}
+      - {id: es2-10-quiza, type: vocab, l2: "quizá", l1: "perhaps / maybe", alt: ["quizás", "tal vez", "a lo mejor"],
+         ex: "—¿Vienes mañana? —Quizá.", ex_l1: "“Are you coming tomorrow?” “Maybe.”",
+         note: "quizá and quizás are both correct."}
+      - {id: es2-10-esperar, type: vocab, l2: "esperar", l1: "to hope / to wait (for)",
+         ex: "Espero aprobar el examen.", ex_l1: "I hope to pass the exam.",
+         note: "One verb for 'hope', 'wait' and 'expect'. No preposition: espero el autobús."}
+      - {id: es2-10-pensar, type: vocab, l2: "pensar", l1: "to think / to plan (to do something)",
+         ex: "Pienso viajar a Perú en mayo.", ex_l1: "I plan to travel to Peru in May.",
+         note: "e → ie: pienso. pensar + infinitive = to intend to; pensar en = to think about."}
+      - {id: es2-10-mudarse, type: vocab, l2: "mudarse", l1: "to move house", alt: ["mudarse de casa", "cambiarse de casa"],
+         ex: "Nos vamos a mudar a Valencia.", ex_l1: "We are going to move to Valencia.",
+         note: "Reflexive. Not 'mover', which is to move an object."}
+      - {id: es2-10-alquilar, type: vocab, l2: "alquilar", l1: "to rent", alt: ["rentar", "arrendar"],
+         ex: "Quiero alquilar un coche.", ex_l1: "I want to rent a car.",
+         note: "Mexico: rentar. Chile and Colombia: arrendar."}
+      - {id: es2-10-alquiler, type: vocab, l2: "el alquiler", l1: "the rent (the money you pay)", alt: ["la renta", "el arriendo"],
+         ex: "El alquiler es muy caro en Madrid.", ex_l1: "Rent is very expensive in Madrid."}
+      - {id: es2-10-vecino, type: vocab, l2: "el vecino", l1: "the neighbour (male)",
+         ex: "Mi vecino es muy simpático.", ex_l1: "My neighbour is very nice.",
+         note: "Feminine: la vecina."}
+      - {id: es2-10-edificio, type: vocab, l2: "el edificio", l1: "the building",
+         ex: "Vivo en un edificio muy alto.", ex_l1: "I live in a very tall building."}
+      - {id: es2-10-ascensor, type: vocab, l2: "el ascensor", l1: "the lift / the elevator", alt: ["el elevador"],
+         ex: "El edificio no tiene ascensor.", ex_l1: "The building has no lift.",
+         note: "Mexico: el elevador."}
+      - {id: es2-10-que-vas-a-hacer, type: phrase, l2: "¿Qué vas a hacer mañana?",
+         l1: "What are you going to do tomorrow? (informal)", alt: ["¿Qué harás mañana?", "¿Qué haces mañana?"]}
+      - {id: es2-10-llovera, type: phrase, l2: "Mañana lloverá en el norte.",
+         l1: "Tomorrow it will rain in the north.", alt: ["Mañana va a llover en el norte", "Lloverá mañana en el norte"],
+         note: "Forecasts and predictions typically use the simple future."}
+      - {id: es2-10-te-llamare, type: phrase, l2: "Te llamaré esta noche.", l1: "I'll call you tonight. (informal)",
+         alt: ["Te llamo esta noche", "Te voy a llamar esta noche", "Esta noche te llamo", "Esta noche te llamaré"],
+         note: "A promise. In speech the present (te llamo) is just as common."}
+      - {id: es2-10-si-tengo-tiempo, type: phrase, l2: "Si tengo tiempo, iré contigo.",
+         l1: "If I have time, I'll go with you. (informal)", alt: ["Si tengo tiempo, voy contigo", "Iré contigo si tengo tiempo"],
+         note: "si + present, then future. contigo = with you; conmigo = with me."}
+      - {id: es2-10-alquilar-piso, type: phrase, l2: "Vamos a alquilar un piso en el centro.",
+         l1: "We are going to rent a flat in the centre.",
+         alt: ["Vamos a alquilar un apartamento en el centro", "Vamos a alquilar un departamento en el centro",
+               "Vamos a rentar un departamento en el centro"],
+         note: "A flat is un piso in Spain, un apartamento or un departamento in Latin America."}
+      - {id: es2-10-c1, type: cloze, text: "Mañana yo ___ con el jefe.", answer: "hablaré",
+         l1: "Tomorrow I will speak to the boss.", note: "infinitive + -é: hablaré"}
+      - {id: es2-10-c2, type: cloze, text: "¿Dónde ___ tú dentro de diez años?", answer: "vivirás",
+         l1: "Where will you live in ten years' time?", note: "infinitive + -ás: vivirás"}
+      - {id: es2-10-c3, type: cloze, text: "El próximo año nosotros ___ una casa.", answer: "compraremos",
+         l1: "Next year we will buy a house.", note: "infinitive + -emos (the only form without an accent)"}
+      - {id: es2-10-c4, type: cloze, text: "¿Vosotros ___ a la fiesta el sábado?", answer: "vendréis",
+         l1: "Will you (plural, informal) come to the party on Saturday?", note: "venir → vendr- + -éis"}
+      - {id: es2-10-c5, type: cloze, text: "Mis hijos ___ que estudiar mucho.", answer: "tendrán",
+         l1: "My children will have to study a lot.", note: "tener → tendr- + -án"}
+      - {id: es2-10-c6, type: cloze, text: "No sé qué ___ yo el domingo.", answer: "haré",
+         l1: "I don't know what I will do on Sunday.", note: "hacer → har- + -é"}
+      - {id: es2-10-c7, type: cloze, text: "El sábado ___ una fiesta en la plaza.", answer: "habrá",
+         l1: "On Saturday there will be a party in the square.", note: "hay → habrá (there will be)"}
+
+  # ---------------------------------------------------------------- 11
+  - id: es2-11
+    title: "At the doctor's: obligation & advice"
+    goal: "I can describe simple health problems and say what someone has to, must or should do."
+    notes: |
+      Three ways to say something has to be done:
+
+      | Form | Meaning | Example |
+      | **tener que** + infinitive | a particular person has to | *Tengo que ir al médico.* |
+      | **hay que** + infinitive | one must, people in general | *Hay que beber agua.* |
+      | **deber** + infinitive | must, ought to (duty or advice) | *Debes descansar.* |
+
+      - *Tener que* is the everyday choice and is conjugated: *tengo que, tienes que, tiene que…* Don't drop the **que**.
+      - *Hay que* never changes and has no subject, so use it for rules and general advice.
+      - *Deber* is regular and takes the infinitive directly — no *que*, no *de*.
+      - Softer advice uses the conditional as a fixed form: **deberías** (tú) / **debería** (usted) = you should.
+      - *No hay que* and *no tienes que* usually mean "you don't need to"; *no debes* means "you must not".
+
+      At the doctor's, illnesses go with **tener**: *tengo fiebre, tengo tos, tengo un resfriado*.
+    items:
+      - {id: es2-11-deber, type: vocab, l2: "deber", l1: "must / ought to (one verb, without 'que')",
+         ex: "Debes estudiar más.", ex_l1: "You must study more.",
+         note: "Regular -er verb + infinitive. With a noun it means 'to owe'."}
+      - {id: es2-11-hay-que, type: vocab, l2: "hay que", l1: "one must / it is necessary to (impersonal)",
+         ex: "Hay que comprar pan.", ex_l1: "We (someone) need to buy bread.",
+         note: "Never changes and never has a subject. Past: había que."}
+      - {id: es2-11-tener-que, type: vocab, l2: "tener que", l1: "to have to",
+         ex: "Mañana tengo que trabajar.", ex_l1: "Tomorrow I have to work.",
+         note: "Always with que before the infinitive."}
+      - {id: es2-11-tomar, type: vocab, l2: "tomar", l1: "to take (medicine) / to have (a drink)",
+         ex: "¿Quieres tomar un café?", ex_l1: "Do you want to have a coffee?",
+         note: "In Latin America tomar is also the usual verb for 'to drink' and 'to catch (a bus)'."}
+      - {id: es2-11-enfermedad, type: vocab, l2: "la enfermedad", l1: "the illness / the disease",
+         ex: "No es una enfermedad grave.", ex_l1: "It is not a serious illness.",
+         note: "From enfermo. Nouns ending in -dad are feminine."}
+      - {id: es2-11-dolor, type: vocab, l2: "el dolor", l1: "the pain / the ache",
+         ex: "Tengo dolor de cabeza.", ex_l1: "I have a headache.",
+         note: "dolor de + body part, with no article: dolor de cabeza."}
+      - {id: es2-11-fiebre, type: vocab, l2: "la fiebre", l1: "the fever / the temperature", alt: ["la calentura"],
+         ex: "El niño tiene fiebre.", ex_l1: "The child has a temperature.",
+         note: "Feminine. No article: tener fiebre."}
+      - {id: es2-11-tos, type: vocab, l2: "la tos", l1: "the cough",
+         ex: "Tengo mucha tos.", ex_l1: "I have a bad cough.",
+         note: "Feminine. The verb is toser."}
+      - {id: es2-11-resfriado, type: vocab, l2: "el resfriado", l1: "the cold (the illness)",
+         alt: ["el catarro", "el resfrío", "el constipado"],
+         ex: "Tengo un resfriado.", ex_l1: "I have a cold.",
+         note: "Also estoy resfriado. False friend: estar constipado means to have a cold, not to be constipated."}
+      - {id: es2-11-pastilla, type: vocab, l2: "la pastilla", l1: "the pill / the tablet", alt: ["la píldora", "el comprimido"],
+         ex: "Tomo una pastilla por la mañana.", ex_l1: "I take a pill in the morning."}
+      - {id: es2-11-receta, type: vocab, l2: "la receta", l1: "the prescription / the recipe",
+         ex: "El médico me dio una receta.", ex_l1: "The doctor gave me a prescription.",
+         note: "The same word for a doctor's prescription and a cooking recipe."}
+      - {id: es2-11-cita, type: vocab, l2: "la cita", l1: "the appointment",
+         ex: "Tengo cita con el médico a las diez.", ex_l1: "I have an appointment with the doctor at ten.",
+         note: "pedir cita = to make an appointment. Una cita can also be a date."}
+      - {id: es2-11-descansar, type: vocab, l2: "descansar", l1: "to rest",
+         ex: "Estoy cansado; voy a descansar.", ex_l1: "I'm tired; I'm going to rest."}
+      - {id: es2-11-salud, type: vocab, l2: "la salud", l1: "health",
+         ex: "La fruta es buena para la salud.", ex_l1: "Fruit is good for your health.",
+         note: "Feminine. ¡Salud! = cheers! — and in Latin America also 'bless you!' after a sneeze (Spain: ¡Jesús!)."}
+      - {id: es2-11-que-le-pasa, type: phrase, l2: "¿Qué le pasa?", l1: "What's the matter? (formal, e.g. a doctor to a patient)",
+         alt: ["¿Qué le ocurre?", "¿Qué le pasa a usted?", "¿Qué tiene?"],
+         note: "Informal: ¿Qué te pasa?"}
+      - {id: es2-11-pedir-cita, type: phrase, l2: "Necesito pedir cita con el médico.",
+         l1: "I need to make an appointment with the doctor.",
+         alt: ["Necesito pedir cita con el doctor", "Necesito pedir una cita con el médico", "Necesito pedir hora con el médico"],
+         note: "pedir cita, literally 'to ask for an appointment'. Not 'hacer una cita'."}
+      - {id: es2-11-tienes-que-ir-medico, type: phrase, l2: "Tienes que ir al médico.",
+         l1: "You have to go to the doctor. (informal)", alt: ["Tienes que ir al doctor"]}
+      - {id: es2-11-deberias-descansar, type: phrase, l2: "Deberías descansar más.",
+         l1: "You should rest more. (informal)", alt: ["Debes descansar más"],
+         note: "deberías is softer than debes — the usual way to give advice."}
+      - {id: es2-11-hay-que-beber, type: phrase, l2: "Hay que beber mucha agua.",
+         l1: "One must drink a lot of water. (general advice)", alt: ["Hay que tomar mucha agua"],
+         note: "Mucha, because agua is feminine even though it takes el."}
+      - {id: es2-11-c1, type: cloze, text: "Estoy enfermo: ___ que ir al médico.", answer: "tengo",
+         l1: "I'm ill: I have to go to the doctor.", note: "tener que → (yo) tengo que"}
+      - {id: es2-11-c2, type: cloze, text: "Para estar bien, ___ que dormir ocho horas.", answer: "hay",
+         l1: "To be well, one has to sleep eight hours.", note: "general rule with no subject → hay que"}
+      - {id: es2-11-c3, type: cloze, text: "Usted ___ tomar esta pastilla tres veces al día.", answer: "debe",
+         l1: "You must take this pill three times a day. (formal)", note: "deber + infinitive, with no que: usted debe"}
+      - {id: es2-11-c4, type: cloze, text: "Niños, ___ que lavaros las manos antes de comer.", answer: "tenéis",
+         l1: "Children, you have to wash your hands before eating.", note: "tener que → (vosotros) tenéis que"}
+      - {id: es2-11-c5, type: cloze, text: "Pedro, no ___ fumar aquí.", answer: "debes",
+         l1: "Pedro, you must not smoke here.", note: "no debes + infinitive = you must not"}
+      - {id: es2-11-c6, type: cloze, text: "Tienes ___ descansar un poco.", answer: "que",
+         l1: "You have to rest a little.", note: "tener que: the que is never dropped"}
+      - {id: es2-11-c7, type: cloze, text: "Mis padres ___ que trabajar el sábado.", answer: "tienen",
+         l1: "My parents have to work on Saturday.", note: "tener que → (ellos) tienen que"}
+
+  # ---------------------------------------------------------------- 12
+  - id: es2-12
+    title: "People and feelings: alguien, nadie, algo, ningún"
+    goal: "I can talk about relationships and how people feel, and use someone, no one, something, some and none."
+    notes: |
+      **Indefinites** come in positive and negative pairs:
+
+      | Positive | Negative |
+      | alguien — someone | nadie — no one |
+      | algo — something | nada — nothing |
+      | algún / alguna — some, any | ningún / ninguna — no, not any |
+      | siempre — always | nunca — never |
+
+      - Spanish uses a **double negative**: when the negative word follows the verb, *no* goes in front — *No conozco a nadie*, *No tengo ningún problema*. If it comes first, there is no *no*: *Nadie llama*.
+      - *Alguien* and *nadie* are people, so as objects they take the personal **a**: *¿Buscas a alguien?*
+      - *Alguno* and *ninguno* shorten to **algún** and **ningún** before a masculine singular noun, and agree in the feminine: *alguna pregunta*, *ninguna silla*.
+      - *Ningún/ninguna* is nearly always singular: *No tengo ningún amigo aquí* = I have no friends here.
+
+      Feelings are states, so they go with **estar**: *estoy enfadado, preocupada, enamorado*. Relationship verbs are often reflexive: *casarse*, *enamorarse*, *llevarse bien*.
+    items:
+      - {id: es2-12-alguien, type: vocab, l2: "alguien", l1: "someone / anyone (in questions)",
+         ex: "Alguien ha llamado.", ex_l1: "Someone has called.",
+         note: "As an object it takes the personal a: busco a alguien."}
+      - {id: es2-12-nadie, type: vocab, l2: "nadie", l1: "nobody / no one",
+         ex: "Nadie habla inglés aquí.", ex_l1: "Nobody speaks English here.",
+         note: "After the verb you need no as well: no habla nadie."}
+      - {id: es2-12-algo, type: vocab, l2: "algo", l1: "something / anything (in questions)",
+         ex: "Quiero comer algo.", ex_l1: "I want to eat something.",
+         note: "The negative is nada."}
+      - {id: es2-12-algun, type: vocab, l2: "algún", l1: "some / any (before a masculine singular noun)",
+         ex: "¿Hay algún banco cerca?", ex_l1: "Is there a bank (any bank) nearby?",
+         note: "Short for alguno. Feminine: alguna. Plural: algunos, algunas."}
+      - {id: es2-12-ningun, type: vocab, l2: "ningún", l1: "no / not any (before a masculine singular noun)",
+         ex: "No hay ningún banco cerca.", ex_l1: "There is no bank nearby.",
+         note: "Short for ninguno. Feminine: ninguna. Keep the no before the verb."}
+      - {id: es2-12-todo-el-mundo, type: vocab, l2: "todo el mundo", l1: "everybody / everyone", alt: ["todos"],
+         ex: "Todo el mundo está contento.", ex_l1: "Everybody is happy.",
+         note: "Literally 'all the world'. It takes a singular verb."}
+      - {id: es2-12-pareja, type: vocab, l2: "la pareja", l1: "the partner / the couple",
+         ex: "Vivo con mi pareja.", ex_l1: "I live with my partner.",
+         note: "Always feminine, whoever the partner is."}
+      - {id: es2-12-casarse, type: vocab, l2: "casarse", l1: "to get married",
+         ex: "Mi hermano se va a casar en mayo.", ex_l1: "My brother is going to get married in May.",
+         note: "casarse con = to marry (someone). Never 'casarse a'."}
+      - {id: es2-12-enamorarse, type: vocab, l2: "enamorarse", l1: "to fall in love",
+         ex: "Se enamoró de una compañera de trabajo.", ex_l1: "He fell in love with a colleague.",
+         note: "enamorarse de — 'in love WITH' is de, not con."}
+      - {id: es2-12-llevarse-bien, type: vocab, l2: "llevarse bien", l1: "to get on well (with someone)",
+         ex: "Mis hijos se llevan bien.", ex_l1: "My children get on well.",
+         note: "llevarse bien / mal con alguien."}
+      - {id: es2-12-discutir, type: vocab, l2: "discutir", l1: "to argue / to quarrel", alt: ["pelear", "pelearse"],
+         ex: "No quiero discutir contigo.", ex_l1: "I don't want to argue with you.",
+         note: "False friend: usually a row, not a calm discussion. 'To discuss' is hablar de."}
+      - {id: es2-12-enfadado, type: vocab, l2: "enfadado", l1: "angry / cross (masculine)", alt: ["enojado"],
+         ex: "Mi padre está enfadado conmigo.", ex_l1: "My father is angry with me.",
+         note: "With estar. Latin America says enojado."}
+      - {id: es2-12-preocupado, type: vocab, l2: "preocupado", l1: "worried (masculine)",
+         ex: "Estoy preocupado por el examen.", ex_l1: "I'm worried about the exam.",
+         note: "preocupado por = worried about."}
+      - {id: es2-12-echar-de-menos, type: vocab, l2: "echar de menos", l1: "to miss (a person or a place)", alt: ["extrañar"],
+         ex: "Echo de menos a mi familia.", ex_l1: "I miss my family.",
+         note: "Spain's everyday expression; Latin America says extrañar. Personal a before people."}
+      - {id: es2-12-estoy-enamorado, type: phrase, l2: "Estoy enamorado de ti.",
+         l1: "I'm in love with you. (said by a man)",
+         note: "enamorado DE, not con. A woman says estoy enamorada de ti."}
+      - {id: es2-12-me-llevo-bien, type: phrase, l2: "Me llevo muy bien con mi hermana.",
+         l1: "I get on very well with my sister."}
+      - {id: es2-12-te-echo-de-menos, type: phrase, l2: "Te echo de menos.", l1: "I miss you. (informal)",
+         alt: ["Te extraño", "Te echo mucho de menos"],
+         note: "Latin America: te extraño."}
+      - {id: es2-12-no-te-preocupes, type: phrase, l2: "No te preocupes.", l1: "Don't worry. (informal)",
+         note: "A fixed phrase: negative commands use a different verb form, which you will meet later. Formal: no se preocupe."}
+      - {id: es2-12-se-casaron, type: phrase, l2: "Se casaron el año pasado.", l1: "They got married last year.",
+         alt: ["El año pasado se casaron"]}
+      - {id: es2-12-c1, type: cloze, text: "¿Hay ___ en casa? —No, no hay nadie.", answer: "alguien",
+         l1: "“Is there anyone at home?” “No, there is no one.”", note: "a person, positive or in a question → alguien"}
+      - {id: es2-12-c2, type: cloze, text: "No conozco a ___ en esta ciudad.", answer: "nadie",
+         l1: "I don't know anyone in this city.", note: "double negative: no + verb + nadie, with the personal a"}
+      - {id: es2-12-c3, type: cloze, text: "¿Quieres ___ de beber?", answer: "algo",
+         l1: "Do you want something to drink?", note: "a thing → algo; algo de beber = something to drink"}
+      - {id: es2-12-c4, type: cloze, text: "No tengo ___ problema con mis vecinos.", answer: "ningún",
+         l1: "I have no problem with my neighbours.", note: "ningún before a masculine singular noun (el problema)"}
+      - {id: es2-12-c5, type: cloze, text: "¿Tienes ___ pregunta?", answer: "alguna",
+         l1: "Do you have any questions? (literally: any question)", note: "feminine singular noun → alguna"}
+      - {id: es2-12-c6, type: cloze, text: "No hay ___ silla libre.", answer: "ninguna",
+         l1: "There is no free chair.", note: "feminine singular noun → ninguna, with no before the verb"}
+      - {id: es2-12-c7, type: cloze, text: "¿Tienes ___ libro en español?", answer: "algún",
+         l1: "Do you have any book in Spanish?", note: "algún before a masculine singular noun"}

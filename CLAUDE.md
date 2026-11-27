@@ -5,122 +5,231 @@ update it when the shape of the project changes.
 
 ## What this is
 
-MayBot Control Center — a self-hosted dashboard that watches a fleet of machines
-("hosts") and the projects/bots running on them (trading bots, AI projects, game
-servers, websites…), wrapped in a cultivation-sect theme. It also includes an AI
-**Learning Center**, an **Ops Copilot**, persona "Sect Member" agents, and a
-gamified XP/realm system.
+**Sect Academy** — an offline, self-hosted study app (French and Spanish A1 to
+B2 plus conversation courses, Mandarin, Japanese and Korean A1–A2 plus conversation
+courses, picture lessons, a reader with dictionaries, Security+,
+Network+, ISC2 CC, A+ Core 1 and 2, CySA+, CCNA)
+wrapped in a cultivation-world colony sim. One FastAPI process, one JSON state file, a
+vanilla-JS front end. No network, no database, no LLM.
 
-Two deployables, both FastAPI:
+(The repo used to be "MayBot Control Center", a fleet dashboard. That code was
+removed; it lives on in git history before the `sect_academy` restructure.)
 
-- **`maybot_control_center/`** — the dashboard server (the thing you open in a
-  browser). Aggregates state from agents, serves the UI, runs the LLM features.
-- **`maybot_agent/`** — a lightweight agent that runs *on each host*, exposes
-  read-only project status via `adapters/`, and reports back to the control
-  center.
-
-## Run it
+## Run / test
 
 ```bash
 pip install -r requirements.txt
+python -m sect_academy              # http://127.0.0.1:8200
 
-# Dashboard with seeded demo data (no real agents needed) — easiest way to look around:
-MAYBOT_DEMO=1 python -m uvicorn maybot_control_center.app:app --reload --port 8200
-#   → http://127.0.0.1:8200   (Command Hall: /, Trade: /trade, Chamber: /chamber,
-#     Treasury: /treasury, Learning: /learn, legacy console: /console)
-
-# An agent on a host:
-MAYBOT_API_TOKEN=... python -m uvicorn maybot_agent.app:app --port 8100
+python -m sect_academy.packs        # validate every course file (CI gate)
+python -m pytest -q                 # tests (CI gate)
+ruff check .                        # lint (CI gate)
+python -m sect_academy & python tests/smoke_browser.py   # browser smoke (CI gate)
 ```
 
-Docker: `docker-compose.yml` (default/SQLite) and `docker-compose.full.yml`
-(Postgres + Redis + secret encryption, "everything on"). See `.env.example`.
+`node --check sect_academy/static/<file>.js` catches JS syntax errors. The
+smoke test drives the real app with every non-local request blocked and fails
+if anything tries to leave the app — that is how "fully offline" is enforced.
 
-## Test / lint (what CI gates on — `.github/workflows/ci.yml`)
+## Layout
 
-```bash
-coverage run -m pytest -q          # 133+ test files; the test gate
-ruff check . --select E9,F         # lint gate (syntax + undefined names)
-python -m playwright install --with-deps chromium && python tests/smoke_browser.py   # smoke gate
+```
+sect_academy/
+  app.py        the whole server: study API, sect API, static shell
+  packs.py      load + validate packs/*.yaml (courses and their part files)
+  packs/        the courses (see docs/ACADEMY_CONTENT.md)
+  packs/pictures/  shared picture-lesson pictures: pin ids + positions, one file each
+  fsrs.py       FSRS-6 scheduler, published default weights
+  drills.py     generated drills (graded here, never scheduled): subnetting, ports, and the
+                language drills (kinds conj-<lang>, num-<lang>; the learner picks tenses/kinds)
+  drills_lang.py verb forms: es/fr read from the dict C lines (bad cells listed in _BAD),
+                ja/ko conjugated here (JMdict class; Hangul jamo, irregular class per verb)
+  drills_num.py numbers both ways, times, dates, prices, counters in all five languages
+  hand.py       handwriting: stroke data lookup + the stroke matcher that grades
+                `glyph_write` server-side; hangul.py composes Hangul strokes from jamo
+  strokes/<lang>/  stroke data, each folder with a README naming source and licence
+                (ja/: KanjiVG, CC BY-SA 3.0; zh/: Make Me a Hanzi, Arphic Public
+                License, ARPHICPL.TXT kept unaltered beside it)
+  engine.py     enrolment, sessions, server-side grading, placement, trials
+  colony.py     the sect: pawns, needs, work, building, research, storyteller,
+                breakthroughs, rival sects, choice events (see _RESOLVERS)
+  lore.py       names and tables for the cultivation world (data only)
+  dao.py        the deeper systems (lineage, companions, heart demons, precepts,
+                merit, council, alchemy, paths, kingdom, alliances, sieges,
+                demonic path, succession); colony.py calls its small hooks
+  road.py       staffed expeditions, master-disciple trust, named rivals,
+                meridians, per-realm requirements, standing orders (dao.py
+                calls its hooks)
+  state.py      one JSON file, always on; sanitises everything it loads
+  reader.py     the Read section: routes lookups to lexicon/, your own entries and
+                saved words (per language, in the state), the "My words" courses
+                (served to packs via packs.set_personal), the book shelf
+  lexicon/      per-language lookup modules + registry (__init__.py: the module
+                contract; es.py: Spanish lookup, candidates, segmentation;
+                fr.py: elisions, inversions; ko.py: jamo, particles, endings,
+                irregulars, Revised Romanization; kaikki.py: the shared table
+                and search for the kaikki.org-built dictionaries; zh.py, ja.py
+                + ja_rules.py (deinflection, rōmaji), cjk.py (the lattice
+                segmenter for unspaced text))
+  shelf/        the starter shelf: public-domain stories (<lang>/<slug>.txt) and poems
+                (<lang>/poems.yaml, with our own English lines), manifest.yaml with the
+                evidence for each; read-only, ids shelf:<lang>:<slug> (see its README)
+  dict/<lang>/  dictionary data, one folder per language, each with a README
+                naming source and licence (es/, fr/, ko/: English Wiktionary via
+                kaikki.org, CC BY-SA 4.0 — those files are under that licence, not ours)
+  static/       index.html, academy.js (shell + study), sect.js (colony UI),
+                reader.js (Read: shelf, pages, lookup card, dictionary, My words),
+                pictures.js (picture lessons: pins, drag/tap exercises),
+                handwriting.js (writing pad, live stroke hints, demo, self-check),
+                art.js (places the painted art), art/*.webp, academy.css, sw.js,
+                vendor/pdfjs/ (Mozilla pdf.js 3.11.174, Apache-2.0, LICENSE there)
+tests/          test_engine.py, test_drills_lang.py, test_colony.py, test_dao.py, test_api.py, test_reader.py, test_reader_words.py, test_lexicon_fr_ko.py,
+                test_handwriting.py,
+                test_lexicon_zh_ja.py, lexicon_quality.py (zh/ja hit rate and word boundaries on the courses),
+                balance.py + test_balance.py (scripted 150-day games),
+                smoke_browser.py
+docs/           ACADEMY_CONTENT.md, the design spec, research
 ```
 
-- `pytest tests/test_<area>.py` to run one area.
-- Frontend is **vanilla JS, no build step**. After editing `static/**/*.js`,
-  `node --check <file>` catches syntax errors; the Playwright smoke
-  (`tests/smoke_browser.py`) loads every page and fails on any uncaught JS error.
-- `typecheck` (mypy) and `audit` (pip-audit) also run in CI.
+## Things to know before changing anything
 
-## Architecture (the 30-second version)
-
-- **`app.py`** — the control-center FastAPI app: middleware, startup wiring, the
-  agent tunnel + SSE stream. All HTTP routes live in domain routers under
-  `routers/*.py`, with shared helpers in `deps.py`
-  (`check_token`/`check_operator`/`resolve_device`/`SAFE_NAME`…).
-- **`aggregator.py`** — polls every agent and builds `/api/overview`. Sync by
-  default; opt-in async path via `MAYBOT_ASYNC_POLL=1` (`aggregate_async`).
-- **LLM layer** — `agents.py` (`_chat`/`stream_chat`, retries, fallback models,
-  budget, context trimming + opt-in secret redaction), `copilot.py` (Ops Copilot),
-  `learning.py` (Learning Center tutor/quiz/labs + learner-profile adaptation;
-  topic test-out, an objective-driven end-to-end pentest range with a capture
-  step + tradecraft grading, blue-team incident-scoping labs, current-threat
-  injection for security tracks, and an immersive tutor + cloze/translation
-  drills for language tracks). Every LLM fn takes an injectable `chat=` param
-  defaulting to `agents._chat`, for testability. Real-command labs are a
-  default-off contract (`attach_real_env`/`MAYBOT_REAL_LABS`) — see
-  `docs/REAL_LABS.md`; execution always routes through the guarded tools
-  allow-list, never free-text shell.
-- **Gamification** — `cultivation.py` (XP/realm ladder, spirit stones),
-  `governance.py`, `traits.py`, `chronicle.py` (the event feed), `lifecycle.py`.
-- **Persistence** — `store.py` (optional SQLite/Postgres via `MAYBOT_DB`; a no-op
-  when unset, so features hold working data in memory and degrade gracefully).
-  `history.py` / `pnl_history.py` keep bounded in-memory time series for the
-  charts. Real migrations under `alembic/`.
-- **Frontend** — `static/app.js` is the legacy single-page console (`/console`,
-  includes the **Sect Map**). The newer themed pages live in
-  `static/command/{command,trade,chamber,treasury,learn,login}.{html,js}` and
-  share `static/command/lib.js` (`$`, `api`, `post`, `esc`, `money`, `mountRail`,
-  `initAccount`, `starfield`, `countUp`) and `command.css`.
-
-Deeper detail: `ARCHITECTURE.md`. Remaining ideas: `ROADMAP.md`.
-
-## Conventions
-
-- **Opt-in, default-off.** New capabilities are gated behind `MAYBOT_*` env vars
-  and optional deps are lazy-imported, so a bare install always boots.
-- **Escape all LLM/user text** in the frontend with `esc()` before putting it in
-  `innerHTML`.
-- **Auth:** read endpoints use a control token; mutating/operator ones require the
-  operator role (`check_token` vs `check_operator`).
-- **The model never runs a shell command from free text.** Labs are simulated;
-  any real-env hook must route through the guarded-tools allow-list.
-
-## Trading-bot PnL contract (read this before touching trading data)
-
-The control center pulls trade/PnL data **agent-side**, in
-`maybot_agent/adapters/trading_bot.py`. A bot points the adapter at its data via
-the project config keys `database`, `log_file`, and/or `trade_csv_glob`.
-
-**Time-bucketed profit** (`profit_today` / `profit_this_week` / `profit_this_month`
-— the "Profit · Today" headline) is derived from per-trade rows with a **PnL
-column and a timestamp**. The adapter reads, in precedence order:
-
-1. `pnl_snapshots` (DayBot) → `total_pnl`,
-2. `paper_trades` → `pnl_usd` + `closed_at`/`opened_at`,
-3. a generic **`trades`** table — `_read_trade_rows()` recognises common PnL column
-   names (`pnl`, `pnl_usd`, `realized_pnl`, `profit`, `net_pnl`, …) and timestamps
-   (`closed_at`, `exit_time`, `timestamp`, …),
-4. a `paper_trades_*.csv` fallback/merge.
-
-`SUM(trades.pnl)` alone only feeds `realized_pnl` — **not** the time buckets. So
-"catching trades but no PnL" means the bot's trades have no recognised PnL+time
-columns where the adapter looks. The frontend shows an honest "no PnL reported
-yet" state (not $0) when nothing reports. Tests: `tests/test_trading_bot_daybot.py`.
-
-## Gotchas
-
-- The dashboard is single-operator; the Learning Center's learner key is fixed
-  (`"scholar"`).
-- Agent adapters run on the *host*, not the control center — adapter changes need
-  the agent redeployed/restarted on each bot host to take effect.
-- `store.enabled()` is false without `MAYBOT_DB`; don't assume persistence in tests
-  — use `store._reset_for_tests(":memory:")`.
+- **Item ids are the keys of saved progress. Never rename an item id.** Ids are
+  unique across all packs; a course can be split into part files (`part_of`).
+- **Content is the product.** A wrong answer key teaches an error. New or edited
+  items need the validator clean and a second, independent check.
+- **Cert courses are meant to be harder than the exam**: scenario stems, 85%
+  pass mark, `multi` (choose N) and `order` items, a full-length mock.
+- **The sect must not depend on study.** Everyone cultivates by meditating; study
+  adds Master qi, research insight and mood. Don't make progress study-gated.
+- **Work choice** (`colony._pick_job`): meditation is not a chore; level with the
+  work a disciple would do it takes half their hours (`MED_SHARE`), and any
+  store under `LOW_STORE_DAYS` of use (not share of capacity) comes first. The
+  stall alert names the exact priority to set (`stall_advice`).
+- **Mid-game risk** (tuned by `tests/balance.py`): great-realm breakthrough odds
+  are capped per realm (`BT_CAP`, shown as a ledger row; pills give less at
+  deeper realms), tournaments draw a field scaled to the sect (`tournament_field`,
+  odds shown match the resolver's roll), rival pairs are capped (`rival_cap`) and
+  mend daily, and disciples at home add research each evening (`PAVILION_READ`,
+  in the research ledger) so research never needs study.
+- **Nothing bad happens while the app is closed**: time away runs in quiet mode
+  (no events, no starvation damage, no deaths), capped at 48 sim hours.
+- **Grading and scheduling are server-side.** The server records what each
+  session issued; only an issued item's first answer is scheduled and paid.
+- **Don't hand-tune FSRS constants.**
+- **Escape every string** with `esc()` before `innerHTML`. `colony.view()` casts
+  every number server-side; `academy.js` passes other numbers through `num()`.
+  `art.js` takes numbers and known ids only — never user text.
+- **The art is painted, not vector.** The owner disliked the bright vector look;
+  keep the lantern-night palette that matches `static/art/`. New images go in
+  `static/art/` as WebP and are served from the fixed list in `app.py`.
+- **Result scenes**: big outcomes (raid, tournament, festival, funeral,
+  tribulation, breakthrough, realm) queue a card via `colony._scene` (cap 5,
+  repaired on load). Painting `static/art/scene_<kind>.webp` is used when the
+  file exists; until then `art.scene()` falls back to a backdrop.
+- **Time waits for the player**: while an event is pending or the gates are
+  sealed the sim does not advance (watching or away). Great-realm breakthroughs
+  are never automatic; the player orders them (`colony.attempt`).
+- **Difficulty is tuned by simulation, not by feel.** Before changing yields,
+  appetite or threat strength, run a 150-day scripted game on each storyteller
+  with an idle profile and a careful one: idle should starve or lose people on
+  balanced/harsh, careful should survive balanced. `python tests/balance.py 150
+  12345,7,99` prints the table; `tests/test_balance.py` pins its shape. Daily
+  costs (eating, winter, repairs, spoilage) all come from `colony.upkeep`.
+- **A new event needs** a branch in `_daily_event`, a `_res_<kind>` in
+  `_RESOLVERS`, and to survive `test_every_trope_event_can_be_raised...`.
+- **Every number the player is affected by must appear in a ledger** (mood,
+  cultivation speed, breakthrough odds, breakthrough grade). Opaque systems are
+  the genre's standing complaint (docs/research/notes/competitors_cultivation_games.md).
+  A new modifier goes through the `dao.*_rows` hooks, not a hidden multiplier.
+- **Only known hostnames are answered** (`_allowed_hosts` in `app.py`); serving
+  on a LAN name needs `SECT_ACADEMY_HOSTS`.
+- **Chinese, Japanese, Korean**: `rom` (romanisation) on items and dialogue
+  lines, `ex_rom` on example sentences, `glyph` items for the script. Typed
+  answers in these scripts are graded by `_check_script` in engine.py (script
+  or romanisation, spacing ignored, pinyin tone numbers accepted, no typo
+  forgiveness). An alternative answer written in the script needs its own
+  romanisation listed in `alt` too.
+- **Exam versions**: CySA+ is CS0-004 (June 2026). CCNA follows v2.0 (first
+  test 3 February 2027; v1.1 is live until then). Topics v2.0 dropped sit in
+  `cn-bg-*` units under domain `x` (weight 0), so trials never draw them.
+- **Offline is a hard rule**: no CDN, no web font, no external URL in anything
+  the page loads. The CSP in `app.py` is `default-src 'self'`.
+- **State safety** (`state.py`): atomic fsynced writes, a daily `.bak`, a
+  damaged file is moved aside (never overwritten), and loaded/imported state is
+  coerced and test-driven before use. Tests run with `SECT_ACADEMY_FILE=:memory:`
+  (set in the root `conftest.py`).
+- **Reader**: books are text only, extracted in the browser (EPUB by hand,
+  PDF by vendored pdf.js loaded on demand, `isEvalSupported: false`, same-origin
+  worker, so the CSP needed no change), stored in `<state file>.books/`
+  (`<id>.txt` + `<id>.json`; ids are 12 hex, checked before any path is built;
+  capped at 200 books / 64 MB; `:memory:` keeps them in a dict). Only reading
+  positions (`book_pos`: the END of the page last open, so shelf and pager
+  show the same "% read") live in the state. The lookup card docks beside the
+  page from 1100px wide and is a bottom sheet (with a spacer, `#rd-pad`) below
+  that: it must never cover a word. My words items (`personal: True` packs)
+  get their modes from `engine._personal_mode` (choose while FSRS stability
+  < 2 days, then `type_l2` / `cloze_type` on the saved sentence, built by
+  `reader._cloze`), and a small deck borrows distractors from the same
+  language's course vocab (`engine._course_vocab`). Personal item ids are
+  `my-<lang>-<word>` (hashed suffix when the word is not plain a-z) and the
+  `my-` prefix is refused in YAML packs. Adding a language's lookup = a data
+  folder in `dict/<lang>/` with its README + a module in `lexicon/` registered
+  in `MODULES`; the reader asks the server to segment each page
+  (`POST /api/dict/segment`) so CJK can segment by dictionary.
+- **Dictionary licence**: `dict/es/`, `dict/fr/` and `dict/ko/` are CC BY-SA 4.0
+  (English Wiktionary via kaikki.org). Keep the credit lines (`CREDIT` in each
+  module) shown with results, and keep each `dict/<lang>/README.md`. Rebuild
+  them with `python scripts/build_dict_kaikki.py` (streams the JSONL, never
+  stores it; frequencies from FrequencyWords, CC BY-SA, used at build time
+  only). A gloss is sections, one per Wiktionary entry (`pos: sense; sense |
+  pos: …`, best first: names, abbreviations and dialect last; `KO_FIRST`
+  orders common Korean homographs); `C` lines hold each verb form's
+  tense/person, given as `gram` ("ser / ir, preterite, 3rd person singular").
+  `dict/<lang>/function_*.tsv` (ours) gives function words a learner's gloss
+  shown first (src "core"). `python scripts/lexicon_hit_rate.py es fr ko`
+  measures lookup on every course sentence (99.7% / 99.9% / 99.7% when built;
+  `tests/test_lexicon_fr_ko.py` holds a floor), and `tests/lexicon_common.py`
+  checks the first meaning of ~200 common words per language (all five; held
+  at 100% by `tests/test_lexicon_common.py`). Korean results carry `rom`,
+  `lemma_rom` and `gram` (the particle or ending taken off); My words (Korean)
+  items get `rom` so the deck accepts romanised answers.
+  `dict/zh/` is CC-CEDICT (CC BY-SA 4.0) plus jieba word counts (MIT);
+  `dict/ja/` is JMdict — the credit "JMdict, Electronic Dictionary Research and
+  Development Group" with https://www.edrdg.org/edrdg/licence.html must stay
+  in `lexicon/ja.py` `CREDIT` and `dict/ja/README.md`. Rebuild both with
+  `python scripts/build_dict_zh_ja.py` (never commit the raw downloads).
+- **Chinese / Japanese lookup**: pages are cut by `cjk.lattice` (cheapest path:
+  ~1 per word, cheaper for frequent words, dearer for kana spellings of kanji
+  words and rare entries). Japanese conjugations are undone by the suffix rules
+  in `ja_rules.py`, kept only where the JMdict part of speech agrees. Rōmaji:
+  macrons for display (gakkō), kana-as-written for typing (gakkou, the course's
+  convention). Before tuning costs, run `python tests/lexicon_quality.py`
+  (hit rate and boundary agreement on every course sentence; was zh 100% hit,
+  boundaries P 100% / R 90%; ja 99.8% hit, P 95% / R 94%).
+- **Dictionary memory** (all five loaded: about 345 MB for the five tables alone): indexes are `cjk.IdMap`
+  (a bare int for a key with one entry), JMdict entries stay raw UTF-8 lines
+  split on access, kaikki form tables hold one interned lemma string per form
+  and build their lowered-gloss list on the first English search. Keep results
+  identical when touching these (compare lookups before/after).
+- **Picture lessons** (docs/ACADEMY_CONTENT.md): a `picture` item names a shared
+  picture (`packs/pictures/<id>.yaml`) and gives each pin its word; each pin is
+  its own card `<item id>-<pin id>` (type `pin`). New pins are one drag exercise
+  (`engine.group_pictures`, answered by `/api/answer/picture`, which calls
+  `engine.answer` once per pin), then `pic_tap`, then `type_l2` with the pin lit.
+  A unit whose `static/art/pic_<id>.webp` is missing is held back (`pack["soon"]`,
+  "Picture coming soon"). `scripts/pin_preview.py <id>` draws the pins on the
+  painting to set coordinates; brief in docs/ART_PIPELINE.md "Round 3".
+- One process only: state is held in memory.
+- **Handwriting** (`glyph_write`): a glyph item that is known (FSRS stability >=
+  `hand.WRITE_MIN_S`, every other review, setting `handwriting` on) is asked
+  written from its sound. The page checks each stroke with a JS port of the
+  matcher only to hint; it then posts every stroke drawn (failed ones too) to
+  `/api/answer/write`, and `hand.check` replays them: correct when every
+  character is complete with <= `slips_allowed` misses (any miss, or the
+  outline/demo, makes it Hard). Keep `TOL` in `handwriting.js` equal to the
+  constants in `hand.py` (a test compares them). "I wrote it on paper" is
+  `glyph_self`, a self-report capped at Hard. Both modes are handled before the
+  `_MODES` check in `engine.check` (they are never asked in trials). Stroke
+  data covers all kana and every CJK character in the ja/zh course files;
+  after adding characters run `python scripts/build_strokes.py` (the coverage
+  test names what is missing). Korean needs no file: `hangul.py` is ours.

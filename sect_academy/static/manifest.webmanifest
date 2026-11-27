@@ -1,0 +1,14 @@
+{
+  "name": "Sect Academy",
+  "short_name": "Academy",
+  "description": "Raise a sect by studying: French, Spanish and security certifications, every day.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05060c",
+  "theme_color": "#05060c",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

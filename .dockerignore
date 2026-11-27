@@ -4,13 +4,7 @@ __pycache__
 *.pyc
 .venv
 .pytest_cache
-*.db
-*.db-wal
-*.db-shm
-/data
-devices.yaml
-projects.yaml
-agents.yaml
-tools.yaml
-users.yaml
-schedules.yaml
+.ruff_cache
+tests
+docs
+academy_state.json*

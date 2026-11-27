@@ -1,0 +1,317 @@
+# Spanish poems for the starter shelf. Each line is [original, English]; [] is a stanza break.
+# The English lines are our own plain, literal translations (Sect Academy), written for learners:
+# they follow the Spanish word by word where English allows, not the poetry.
+# Spelling and punctuation lightly modernised where the source edition is old (the preposition "á",
+# "fué", opening ¡ ¿), as modern school editions print them.
+poems:
+  - slug: becquer-rima-xxi
+    title: "Rima XXI («¿Qué es poesía?»)"
+    author: Gustavo Adolfo Bécquer
+    died: 1870
+    published: 1871
+    first_published_in: "Obras (Madrid, 1871), Rimas"
+    level: A2
+    source: https://es.wikisource.org/wiki/Rima_XXI
+    public_domain: "Author died 1870; first published 1871. Public domain everywhere."
+    lines:
+      - ["¿Qué es poesía?, dices mientras clavas", "What is poetry?, you say as you fix"]
+      - ["en mi pupila tu pupila azul.", "on my eye your blue eye."]
+      - ["¿Qué es poesía? ¿Y tú me lo preguntas?", "What is poetry? And you ask me that?"]
+      - ["Poesía... eres tú.", "Poetry... is you."]
+  - slug: becquer-rima-xxiii
+    title: "Rima XXIII («Por una mirada, un mundo»)"
+    author: Gustavo Adolfo Bécquer
+    died: 1870
+    published: 1871
+    first_published_in: "Obras (Madrid, 1871), Rimas"
+    level: A2
+    source: https://es.wikisource.org/wiki/Rima_XXIII
+    public_domain: "Author died 1870; first published 1871. Public domain everywhere."
+    lines:
+      - ["Por una mirada, un mundo;", "For one look, a world;"]
+      - ["por una sonrisa, un cielo;", "for one smile, a heaven;"]
+      - ["por un beso... ¡yo no sé", "for a kiss... I don't know"]
+      - ["qué te diera por un beso!", "what I would give you for a kiss!"]
+  - slug: becquer-rima-liii
+    title: "Rima LIII («Volverán las oscuras golondrinas»)"
+    author: Gustavo Adolfo Bécquer
+    died: 1870
+    published: 1871
+    first_published_in: "Obras (Madrid, 1871), Rimas"
+    level: B1
+    source: https://es.wikisource.org/wiki/Rima_LIII
+    public_domain: "Author died 1870; first published 1871. Public domain everywhere."
+    lines:
+      - ["Volverán las oscuras golondrinas", "The dark swallows will come back"]
+      - ["en tu balcón sus nidos a colgar,", "to hang their nests on your balcony,"]
+      - ["y otra vez con el ala a sus cristales", "and once again, with their wings, at its windows"]
+      - ["jugando llamarán.", "they will knock as they play."]
+      - []
+      - ["Pero aquellas que el vuelo refrenaban", "But those that slowed their flight"]
+      - ["tu hermosura y mi dicha a contemplar,", "to watch your beauty and my happiness,"]
+      - ["aquellas que aprendieron nuestros nombres...", "those that learned our names..."]
+      - ["esas... ¡no volverán!", "those... will not come back!"]
+      - []
+      - ["Volverán las tupidas madreselvas", "The thick honeysuckle will come back"]
+      - ["de tu jardín las tapias a escalar,", "to climb the walls of your garden,"]
+      - ["y otra vez a la tarde, aún más hermosas,", "and once again in the evening, even more beautiful,"]
+      - ["sus flores se abrirán;", "its flowers will open;"]
+      - []
+      - ["pero aquellas, cuajadas de rocío,", "but those, thick with dew,"]
+      - ["cuyas gotas mirábamos temblar", "whose drops we used to watch tremble"]
+      - ["y caer, como lágrimas del día...", "and fall, like tears of the day..."]
+      - ["esas... ¡no volverán!", "those... will not come back!"]
+      - []
+      - ["Volverán del amor en tus oídos", "Words of love will come back"]
+      - ["las palabras ardientes a sonar;", "to sound, burning, in your ears;"]
+      - ["tu corazón de su profundo sueño", "your heart, from its deep sleep,"]
+      - ["tal vez despertará;", "perhaps will wake;"]
+      - []
+      - ["pero mudo y absorto y de rodillas,", "but silent and rapt and on my knees,"]
+      - ["como se adora a Dios ante su altar,", "as God is worshipped before his altar,"]
+      - ["como yo te he querido..., desengáñate,", "as I have loved you..., do not fool yourself,"]
+      - ["¡así no te querrán!", "no one will love you like that!"]
+  - slug: machado-caminante-no-hay-camino
+    title: "Caminante, no hay camino (Proverbios y cantares, XXIX)"
+    author: Antonio Machado
+    died: 1939
+    published: 1912
+    first_published_in: "Campos de Castilla (Madrid, 1912)"
+    level: A2
+    source: https://es.wikisource.org/wiki/Proverbios_y_cantares_(Campos_de_Castilla)
+    public_domain: "Author died 1939 (more than 80 years ago); first published 1912 (before 1931, so also public domain in the US)."
+    lines:
+      - ["Caminante, son tus huellas", "Traveller, your footprints are"]
+      - ["el camino, y nada más;", "the road, and nothing more;"]
+      - ["caminante, no hay camino:", "traveller, there is no road:"]
+      - ["se hace camino al andar.", "the road is made by walking."]
+      - ["Al andar se hace camino,", "By walking the road is made,"]
+      - ["y al volver la vista atrás", "and on looking back"]
+      - ["se ve la senda que nunca", "you see the path that you will never"]
+      - ["se ha de volver a pisar.", "set foot on again."]
+      - ["Caminante, no hay camino,", "Traveller, there is no road,"]
+      - ["sino estelas en la mar.", "only wakes on the sea."]
+  - slug: machado-recuerdo-infantil
+    title: Recuerdo infantil
+    author: Antonio Machado
+    died: 1939
+    published: 1907
+    first_published_in: "Soledades. Galerías. Otros poemas (Madrid, 1907)"
+    level: A2
+    source: https://es.wikisource.org/wiki/Recuerdo_infantil
+    public_domain: "Author died 1939 (more than 80 years ago); first published 1907 (before 1931, so also public domain in the US)."
+    lines:
+      - ["Una tarde parda y fría", "A dull grey, cold afternoon"]
+      - ["de invierno. Los colegiales", "in winter. The schoolboys"]
+      - ["estudian. Monotonía", "are studying. Monotony"]
+      - ["de lluvia tras los cristales.", "of rain behind the windows."]
+      - []
+      - ["Es la clase. En un cartel", "It is the classroom. On a poster"]
+      - ["se representa a Caín", "Cain is shown"]
+      - ["fugitivo, y muerto Abel,", "running away, and Abel dead,"]
+      - ["junto a una mancha carmín.", "beside a crimson stain."]
+      - []
+      - ["Con timbre sonoro y hueco", "With a loud and hollow voice"]
+      - ["truena el maestro, un anciano", "the teacher thunders, an old man"]
+      - ["mal vestido, enjuto y seco,", "badly dressed, lean and dry,"]
+      - ["que lleva un libro en la mano.", "who holds a book in his hand."]
+      - []
+      - ["Y todo un coro infantil", "And a whole children's choir"]
+      - ["va cantando la lección:", "goes on chanting the lesson:"]
+      - ["mil veces ciento, cien mil;", "a thousand times a hundred, a hundred thousand;"]
+      - ["mil veces mil, un millón.", "a thousand times a thousand, a million."]
+      - []
+      - ["Una tarde parda y fría", "A dull grey, cold afternoon"]
+      - ["de invierno. Los colegiales", "in winter. The schoolboys"]
+      - ["estudian. Monotonía", "are studying. Monotony"]
+      - ["de la lluvia en los cristales.", "of the rain on the windows."]
+  - slug: dario-cancion-de-otono-en-primavera
+    title: Canción de otoño en primavera
+    author: Rubén Darío
+    died: 1916
+    published: 1905
+    first_published_in: "Cantos de vida y esperanza (Madrid, 1905)"
+    level: B1
+    source: https://es.wikisource.org/wiki/Canci%C3%B3n_de_oto%C3%B1o_en_primavera
+    public_domain: "Author died 1916; first published 1905. Public domain everywhere."
+    lines:
+      - ["Juventud, divino tesoro,", "Youth, divine treasure,"]
+      - ["¡ya te vas para no volver!", "you are already leaving, never to return!"]
+      - ["Cuando quiero llorar, no lloro...", "When I want to cry, I don't cry..."]
+      - ["y a veces lloro sin querer...", "and sometimes I cry without wanting to..."]
+      - []
+      - ["Plural ha sido la celeste", "Many-sided has been the heavenly"]
+      - ["historia de mi corazón.", "story of my heart."]
+      - ["Era una dulce niña, en este", "She was a sweet girl, in this"]
+      - ["mundo de duelo y aflicción.", "world of grief and sorrow."]
+      - []
+      - ["Miraba como el alba pura;", "She looked like the pure dawn;"]
+      - ["sonreía como una flor.", "she smiled like a flower."]
+      - ["Era su cabellera oscura", "Her dark hair was"]
+      - ["hecha de noche y de dolor.", "made of night and of pain."]
+      - []
+      - ["Yo era tímido como un niño.", "I was shy like a child."]
+      - ["Ella, naturalmente, fue,", "She, naturally, was,"]
+      - ["para mi amor hecho de armiño,", "for my love made of ermine,"]
+      - ["Herodías y Salomé...", "Herodias and Salome..."]
+      - []
+      - ["Juventud, divino tesoro,", "Youth, divine treasure,"]
+      - ["¡ya te vas para no volver...!", "you are already leaving, never to return...!"]
+      - ["Cuando quiero llorar, no lloro,", "When I want to cry, I don't cry,"]
+      - ["y a veces lloro sin querer...", "and sometimes I cry without wanting to..."]
+      - []
+      - ["Y más consoladora y más", "And more comforting and more"]
+      - ["halagadora y expresiva,", "flattering and expressive,"]
+      - ["la otra fue más sensitiva", "the other was more tender"]
+      - ["cual no pensé encontrar jamás.", "than I ever thought I would find."]
+      - []
+      - ["Pues a su continua ternura", "For to her constant tenderness"]
+      - ["una pasión violenta unía.", "she joined a violent passion."]
+      - ["En un peplo de gasa pura", "In a robe of pure gauze"]
+      - ["una bacante se envolvía...", "a bacchante wrapped herself..."]
+      - []
+      - ["En brazos tomó mi ensueño", "She took my dream in her arms"]
+      - ["y lo arrulló como a un bebé...", "and lulled it like a baby..."]
+      - ["Y le mató, triste y pequeño,", "And she killed it, sad and small,"]
+      - ["falto de luz, falto de fe...", "lacking light, lacking faith..."]
+      - []
+      - ["Juventud, divino tesoro,", "Youth, divine treasure,"]
+      - ["¡te fuiste para no volver!", "you went away, never to return!"]
+      - ["Cuando quiero llorar, no lloro,", "When I want to cry, I don't cry,"]
+      - ["y a veces lloro sin querer...", "and sometimes I cry without wanting to..."]
+      - []
+      - ["Otra juzgó que era mi boca", "Another judged that my mouth was"]
+      - ["el estuche de su pasión;", "the case that held her passion;"]
+      - ["y que me roería, loca,", "and that she would gnaw, mad,"]
+      - ["con sus dientes el corazón,", "my heart with her teeth,"]
+      - []
+      - ["poniendo en un amor de exceso", "setting, in a love of excess,"]
+      - ["la mira de su voluntad,", "the aim of her will,"]
+      - ["mientras eran abrazo y beso", "while embrace and kiss were"]
+      - ["síntesis de la eternidad;", "a summary of eternity;"]
+      - []
+      - ["y de nuestra carne ligera", "and out of our light flesh"]
+      - ["imaginar siempre un Edén,", "always imagining an Eden,"]
+      - ["sin pensar que la Primavera", "without thinking that Spring"]
+      - ["y la carne acaban también...", "and the flesh come to an end too..."]
+      - []
+      - ["Juventud, divino tesoro,", "Youth, divine treasure,"]
+      - ["¡ya te vas para no volver!", "you are already leaving, never to return!"]
+      - ["Cuando quiero llorar, no lloro,", "When I want to cry, I don't cry,"]
+      - ["¡y a veces lloro sin querer!", "and sometimes I cry without wanting to!"]
+      - []
+      - ["¡Y las demás! En tantos climas,", "And the others! In so many climates,"]
+      - ["en tantas tierras, siempre son,", "in so many lands, they are always,"]
+      - ["si no pretextos de mis rimas,", "if not excuses for my rhymes,"]
+      - ["fantasmas de mi corazón.", "ghosts of my heart."]
+      - []
+      - ["En vano busqué a la princesa", "In vain I looked for the princess"]
+      - ["que estaba triste de esperar.", "who was sad from waiting."]
+      - ["La vida es dura. Amarga y pesa.", "Life is hard. It is bitter and it weighs."]
+      - ["¡Ya no hay princesa que cantar!", "There is no princess left to sing about!"]
+      - []
+      - ["Mas a pesar del tiempo terco,", "But in spite of stubborn time,"]
+      - ["mi sed de amor no tiene fin;", "my thirst for love has no end;"]
+      - ["con el cabello gris, me acerco", "with grey hair, I go up"]
+      - ["a los rosales del jardín...", "to the rose bushes in the garden..."]
+      - []
+      - ["Juventud, divino tesoro,", "Youth, divine treasure,"]
+      - ["¡ya te vas para no volver...!", "you are already leaving, never to return...!"]
+      - ["Cuando quiero llorar, no lloro,", "When I want to cry, I don't cry,"]
+      - ["y a veces lloro sin querer...", "and sometimes I cry without wanting to..."]
+      - []
+      - ["¡Mas es mía el Alba de oro!", "But the golden Dawn is mine!"]
+  - slug: dario-lo-fatal
+    title: Lo fatal
+    author: Rubén Darío
+    died: 1916
+    published: 1905
+    first_published_in: "Cantos de vida y esperanza (Madrid, 1905)"
+    level: B1
+    source: https://es.wikisource.org/wiki/Lo_fatal
+    public_domain: "Author died 1916; first published 1905. Public domain everywhere."
+    lines:
+      - ["Dichoso el árbol, que es apenas sensitivo,", "Happy the tree, which can barely feel,"]
+      - ["y más la piedra dura porque esa ya no siente,", "and happier the hard stone, because that feels nothing at all,"]
+      - ["pues no hay dolor más grande que el dolor de ser vivo,", "for there is no pain greater than the pain of being alive,"]
+      - ["ni mayor pesadumbre que la vida consciente.", "nor heavier sorrow than a life that knows itself."]
+      - []
+      - ["Ser y no saber nada, y ser sin rumbo cierto,", "To be and to know nothing, and to be without a sure course,"]
+      - ["y el temor de haber sido y un futuro terror...", "and the fear of having been, and a terror to come..."]
+      - ["Y el espanto seguro de estar mañana muerto,", "And the certain dread of being dead tomorrow,"]
+      - ["y sufrir por la vida y por la sombra y por", "and to suffer for life and for the shadow and for"]
+      - []
+      - ["lo que no conocemos y apenas sospechamos,", "what we do not know and barely suspect,"]
+      - ["y la carne que tienta con sus frescos racimos,", "and the flesh that tempts with its fresh bunches of grapes,"]
+      - ["y la tumba que aguarda con sus fúnebres ramos,", "and the tomb that waits with its funeral wreaths,"]
+      - ["¡y no saber a dónde vamos,", "and not to know where we are going,"]
+      - ["ni de dónde venimos!...", "nor where we come from!..."]
+  - slug: manrique-coplas-i-iii
+    title: "Coplas por la muerte de su padre (I–III)"
+    author: Jorge Manrique
+    died: 1479
+    published: 1482
+    first_published_in: "Written c. 1476; first printed in the 1480s (Zaragoza)"
+    level: B1
+    note: "The first three of the forty stanzas, in modern spelling."
+    source: https://es.wikisource.org/wiki/Coplas_por_la_muerte_de_su_padre
+    public_domain: "Author died 1479; printed in the fifteenth century. Public domain everywhere."
+    lines:
+      - ["Recuerde el alma dormida,", "Let the sleeping soul remember,"]
+      - ["avive el seso y despierte", "let the mind quicken and wake,"]
+      - ["contemplando", "considering"]
+      - ["cómo se pasa la vida,", "how life passes,"]
+      - ["cómo se viene la muerte", "how death comes"]
+      - ["tan callando;", "so silently;"]
+      - ["cuán presto se va el placer,", "how quickly pleasure goes,"]
+      - ["cómo, después de acordado,", "how, once it is remembered,"]
+      - ["da dolor;", "it gives pain;"]
+      - ["cómo, a nuestro parecer,", "how, as it seems to us,"]
+      - ["cualquiera tiempo pasado", "any time gone by"]
+      - ["fue mejor.", "was better."]
+      - []
+      - ["Pues si vemos lo presente", "For if we see how the present"]
+      - ["cómo en un punto se es ido", "in an instant is gone"]
+      - ["y acabado,", "and finished,"]
+      - ["si juzgamos sabiamente,", "if we judge wisely,"]
+      - ["daremos lo no venido", "we will count what has not yet come"]
+      - ["por pasado.", "as already past."]
+      - ["No se engañe nadie, no,", "Let no one fool himself, no,"]
+      - ["pensando que ha de durar", "thinking that what he hopes for"]
+      - ["lo que espera", "will last"]
+      - ["más que duró lo que vio,", "longer than what he saw lasted,"]
+      - ["pues que todo ha de pasar", "since everything must pass"]
+      - ["por tal manera.", "in the same way."]
+      - []
+      - ["Nuestras vidas son los ríos", "Our lives are the rivers"]
+      - ["que van a dar en la mar,", "that flow out into the sea,"]
+      - ["que es el morir;", "which is dying;"]
+      - ["allí van los señoríos", "there the lordships go"]
+      - ["derechos a se acabar", "straight to their end"]
+      - ["y consumir;", "and to be used up;"]
+      - ["allí los ríos caudales,", "there the great rivers,"]
+      - ["allí los otros medianos", "there the others, the middling"]
+      - ["y más chicos,", "and the smaller ones,"]
+      - ["y llegados, son iguales", "and once they arrive, they are equal,"]
+      - ["los que viven por sus manos", "those who live by their hands"]
+      - ["y los ricos.", "and the rich."]
+  - slug: marti-cultivo-una-rosa-blanca
+    title: Cultivo una rosa blanca
+    author: José Martí
+    died: 1895
+    published: 1891
+    first_published_in: "Versos sencillos (New York, 1891), XXXIX"
+    level: A2
+    note: "Line 2 is \"en julio como en enero\", as in the 1891 edition (the source page drops the second \"en\")."
+    source: https://es.wikisource.org/wiki/Cultivo_una_rosa_blanca
+    public_domain: "Author died 1895; first published 1891. Public domain everywhere."
+    lines:
+      - ["Cultivo una rosa blanca", "I grow a white rose"]
+      - ["en julio como en enero,", "in July as in January,"]
+      - ["para el amigo sincero", "for the true friend"]
+      - ["que me da su mano franca.", "who gives me his open hand."]
+      - []
+      - ["Y para el cruel que me arranca", "And for the cruel one who tears out"]
+      - ["el corazón con que vivo,", "the heart I live with,"]
+      - ["cardo ni ortiga cultivo;", "I grow no thistle or nettle;"]
+      - ["cultivo la rosa blanca.", "I grow the white rose."]

@@ -1,0 +1,831 @@
+part_of: isc2-cc
+
+units:
+  # ───────────────── Domain 4 — coverage ─────────────────
+  - id: cc-4b
+    title: "Networks and Cloud — Filling Every Gap"
+    domain: "4"
+    goal: "I can name the protocols, ports, devices, firewall types, wireless risks and cloud models the CC outline lists, and say what each one does."
+    notes: |
+      ## The rest of Domain 4
+
+      The first networking unit gave you the big picture. This one fills in every remaining term in outline sections 4.1 to 4.3.
+
+      **Models and transport.** The **TCP/IP model** has four layers: network access (link), internet, transport, application. **TCP** is reliable and connection-oriented; **UDP** is fast and connectionless. A **port number** names the service:
+
+      | Port | Service |
+      | 21 / 23 | FTP / Telnet (clear text) |
+      | 25, 110, 143 | SMTP, POP3, IMAP |
+      | 53 | DNS |
+      | 67 / 68 | DHCP |
+      | 3389 | RDP |
+
+      **Devices.** A *switch* forwards frames by MAC address (layer 2); a *router* forwards packets by IP address (layer 3). Firewalls grow from simple packet filters to *stateful* and *next-generation* (application-aware). An **IDS** alerts; an **IPS** blocks.
+
+      **Cloud.** Learn the wording of all five characteristics and the four deployment models exactly: ISC2 follows the NIST definitions, and questions turn on one phrase such as *exclusive use by a single organization*.
+    items:
+      - id: cc-4b-tcpip-model
+        type: concept
+        term: "TCP/IP model"
+        def: "A four-layer description of networking (network access, internet, transport, application) that matches the protocol suite real networks actually run."
+      - id: cc-4b-tcp
+        type: concept
+        term: "Transmission Control Protocol (TCP)"
+        def: "A connection-oriented transport protocol that numbers, acknowledges and retransmits data so that it arrives complete and in order."
+      - id: cc-4b-udp
+        type: concept
+        term: "User Datagram Protocol (UDP)"
+        def: "A connectionless transport protocol that sends data with no handshake, acknowledgement or retransmission, trading reliability for speed."
+      - id: cc-4b-ipv4
+        type: concept
+        term: "IPv4 address"
+        def: "A 32-bit logical address written as four decimal numbers separated by dots."
+      - id: cc-4b-ipv6
+        type: concept
+        term: "IPv6 address"
+        def: "A 128-bit logical address written as groups of hexadecimal digits separated by colons."
+      - id: cc-4b-nat
+        type: concept
+        term: "Network address translation (NAT)"
+        def: "Rewriting the addresses in packet headers as they cross a router, typically so that many privately addressed hosts can share one public address."
+      - id: cc-4b-port
+        type: concept
+        term: "Port number"
+        def: "A 16-bit value in a transport-layer header that identifies which service or application on a host should receive the traffic."
+      - id: cc-4b-dns
+        type: concept
+        term: "Domain Name System (DNS)"
+        def: "The service that translates human-readable host names into the numeric addresses computers use to reach each other."
+      - id: cc-4b-switch
+        type: concept
+        term: "Switch"
+        def: "A device that connects hosts within one local network and forwards frames according to their hardware (MAC) addresses."
+      - id: cc-4b-router
+        type: concept
+        term: "Router"
+        def: "A device that joins separate networks and forwards packets between them according to their logical (IP) addresses."
+      - id: cc-4b-stateful
+        type: concept
+        term: "Stateful inspection"
+        def: "A traffic-filtering capability that remembers each open connection and automatically admits the replies that belong to it."
+      - id: cc-4b-ngfw
+        type: concept
+        term: "Next-generation firewall (NGFW)"
+        def: "A traffic filter that identifies the actual application and user behind a flow and inspects its content, instead of relying on port numbers alone."
+      - id: cc-4b-ids
+        type: concept
+        term: "Intrusion detection system (IDS)"
+        def: "A sensor that watches network or host activity for signs of attack and raises alerts, without itself blocking anything."
+      - id: cc-4b-ips
+        type: concept
+        term: "Intrusion prevention system (IPS)"
+        def: "A control placed directly in the path of traffic that recognises attacks and drops or resets them automatically."
+      - id: cc-4b-wpa3
+        type: concept
+        term: "WPA3"
+        def: "The current Wi-Fi protection standard, whose key-agreement handshake resists the offline password guessing that weakened its predecessor."
+      - id: cc-4b-bluetooth
+        type: concept
+        term: "Bluetooth"
+        def: "A short-range radio technology for pairing personal devices such as headsets, keyboards and phones over a few metres."
+      - id: cc-4b-embedded
+        type: concept
+        term: "Embedded system"
+        def: "A computer built into a larger product to perform one dedicated function, usually with limited resources and firmware that is seldom updated."
+      - id: cc-4b-zone
+        type: concept
+        term: "Security zone (firewall zone)"
+        def: "A group of network segments sharing one trust level, with policy applied to any traffic that crosses its boundary."
+      - id: cc-4b-implicit-deny
+        type: concept
+        term: "Implicit deny"
+        def: "The rule-set principle that any traffic not expressly permitted is blocked by default."
+      - id: cc-4b-public-cloud
+        type: concept
+        term: "Public cloud"
+        def: "Provider-owned infrastructure offered to any paying customer, with many unrelated tenants sharing it."
+      - id: cc-4b-private-cloud
+        type: concept
+        term: "Private cloud"
+        def: "Infrastructure provisioned for the exclusive use of a single organization, whether it sits on that organization's premises or a third party's."
+      - id: cc-4b-community-cloud
+        type: concept
+        term: "Community cloud"
+        def: "Infrastructure shared exclusively by several organizations that have a common mission or compliance need."
+      - id: cc-4b-self-service
+        type: concept
+        term: "On-demand self-service"
+        def: "The cloud characteristic in which a customer provisions computing capability unilaterally and automatically, with no human interaction at the provider."
+      - id: cc-4b-broad-access
+        type: concept
+        term: "Broad network access"
+        def: "The cloud characteristic in which services are reached through standard mechanisms from many kinds of device, such as phones, tablets and laptops."
+      - id: cc-4b-elasticity
+        type: concept
+        term: "Rapid elasticity"
+        def: "The cloud characteristic in which capacity is quickly scaled out and released again in step with demand, appearing almost unlimited to the customer."
+      - id: cc-4b-measured
+        type: concept
+        term: "Measured service"
+        def: "The cloud characteristic in which usage is metered, monitored and reported, so that customers are charged for what they consume."
+
+      - id: cc-4b-q01
+        type: mcq
+        q: "After a new outbound rule set is applied, users can reach 8.8.8.8 by address but no website names resolve. Which destination port has MOST likely been left out of the permit rules?"
+        choices: ["53", "67", "123", "389"]
+        answer: 0
+        why: "Name resolution is DNS, which uses port 53. Port 67 is DHCP, which hands out addresses, and the clients clearly already have working addresses."
+      - id: cc-4b-q02
+        type: mcq
+        q: "Help-desk staff need to take over the graphical desktop of Windows servers from the management VLAN. Which single port should the internal firewall permit?"
+        choices: ["TCP 22", "TCP 3389", "TCP 23", "TCP 445"]
+        answer: 1
+        why: "Remote Desktop Protocol (RDP) listens on TCP 3389. SSH on TCP 22 is the tempting choice, but it provides a command-line session, not the Windows graphical desktop."
+      - id: cc-4b-q03
+        type: mcq
+        q: "A company's mail server must deliver messages to other organizations' mail servers. Which protocol and port carry that server-to-server delivery?"
+        choices: ["IMAP on TCP 143", "POP3 on TCP 110", "SMTP on TCP 25", "DNS on UDP 53"]
+        answer: 2
+        why: "SMTP on port 25 transfers mail between servers. IMAP and POP3 are used by a mail client to collect messages from its own mailbox, not to deliver mail onward."
+      - id: cc-4b-q04
+        type: mcq
+        q: "A firewall rule reads 'permit TCP, destination port 443'. The port number that the rule matches belongs to which OSI layer?"
+        choices: ["Layer 2 — Data Link", "Layer 3 — Network", "Layer 7 — Application", "Layer 4 — Transport"]
+        answer: 3
+        why: "Port numbers are fields in the TCP and UDP headers, which are Transport layer (layer 4). The web service itself is an application-layer protocol, but the firewall is matching the transport header."
+      - id: cc-4b-q05
+        type: mcq
+        q: "A packet's source and destination IP addresses are added at which layer of the four-layer TCP/IP model?"
+        choices: ["Internet", "Network access (link)", "Transport", "Application"]
+        answer: 0
+        why: "IP operates at the Internet layer, the TCP/IP equivalent of OSI layer 3. The network access layer below it deals in hardware (MAC) addresses and the physical medium."
+      - id: cc-4b-q06
+        type: mcq
+        q: "A live voice call can tolerate an occasional lost packet but not the delay of waiting for retransmissions. Which protocol suits its audio stream BEST?"
+        choices: ["TCP", "UDP", "ICMP", "SMTP"]
+        answer: 1
+        why: "UDP is connectionless and never retransmits, so audio keeps flowing. TCP would deliver every packet in order, but the pauses while it resends lost data ruin real-time speech."
+      - id: cc-4b-q07
+        type: mcq
+        q: "Sixty office PCs use addresses in 10.0.0.0/8, yet websites see all of them arriving from one public address. Which function on the edge router is responsible?"
+        choices: ["DNS", "DHCP", "NAT", "VLAN tagging"]
+        answer: 2
+        why: "Network address translation rewrites the private source addresses to a public one. DHCP is what gave the PCs their 10.x addresses in the first place; it does not alter packets in transit."
+      - id: cc-4b-q08
+        type: mcq
+        q: "A sensor receives a copy of traffic from a switch mirror port, compares it with known attack signatures and sends alerts, but cannot drop anything. What is it?"
+        choices: ["Intrusion prevention system (IPS)", "Stateful firewall", "Next-generation firewall", "Intrusion detection system (IDS)"]
+        answer: 3
+        why: "An IDS is passive: it sees a copy of the traffic and alerts. An IPS uses similar detection but sits in line with the traffic so that it can block, which this sensor cannot."
+      - id: cc-4b-q09
+        type: mcq
+        q: "Five regional hospitals jointly fund a cloud environment built to their shared patient-privacy regulations and open only to them. Which deployment model is this?"
+        choices: ["Community cloud", "Private cloud", "Public cloud", "Hybrid cloud"]
+        answer: 0
+        why: "A community cloud is for the exclusive use of several organizations with shared concerns. A private cloud is for the exclusive use of one organization, and here there are five."
+      - id: cc-4b-q10
+        type: mcq
+        q: "A developer creates three new virtual servers from a web portal at midnight, with no ticket and no contact with the provider's staff. Which cloud characteristic does this show?"
+        choices: ["Rapid elasticity", "On-demand self-service", "Measured service", "Broad network access"]
+        answer: 1
+        why: "Provisioning unilaterally, without human interaction at the provider, is on-demand self-service. Rapid elasticity is about capacity growing and shrinking with demand, which the stem does not describe."
+
+  # ───────────────── Domain 4 — exam-hard practice ─────────────────
+  - id: cc-4c
+    title: "Networks and Cloud — Exam-Hard Practice"
+    domain: "4"
+    goal: "I can read a rule list, a log line or a cloud scenario and pick the BEST answer between two near-neighbour concepts."
+    notes: |
+      ## How to beat the hard items
+
+      The real exam is adaptive: answer well and the questions get harder. Hard Domain 4 items rarely ask for a definition. They give you a small piece of evidence and two answers that both sound right.
+
+      **Habits that work**
+
+      - **Rule lists:** firewalls read top-down and stop at the *first match*. Find the first rule the packet matches before you look at anything else.
+      - **Log lines:** read the destination port first; it names the service.
+      - **Cloud responsibility:** ask *who can actually change this thing?* The party that can change it is the party responsible for it. The customer always stays accountable for its data.
+      - **Deployment models:** ignore *where* the hardware is. Ask *who may use it*.
+      - **Zero trust vs defense in depth:** layering more controls is defense in depth; removing trust that comes from network location is zero trust.
+
+      | Near-neighbours | The difference |
+      | IDS / IPS | alerts / blocks in line |
+      | Rogue AP / evil twin | on your wired network / copies your name |
+      | Private / community | one organization / several |
+    items:
+      - id: cc-4c-q01
+        type: mcq
+        q: "A firewall evaluates these rules top-down: '1 permit tcp any to 10.1.1.10 port 443', '2 deny tcp any to 10.1.1.0/24 any port', '3 permit tcp 192.168.5.0/24 to 10.1.1.20 port 22'. An administrator at 192.168.5.7 cannot open SSH to 10.1.1.20. What is the MOST likely cause?"
+        choices: ["Rule 2 matches the traffic before rule 3 is ever reached", "The implicit deny at the end of the list drops the traffic", "Rule 1 limits the whole server subnet to port 443", "Rule 3 names the wrong port for SSH"]
+        answer: 0
+        why: "Rules are processed in order and the first match wins: the SSH packet matches the broad deny in rule 2, so rule 3 is never evaluated. The implicit deny only applies to traffic that matched no rule at all, and port 22 is correct for SSH."
+      - id: cc-4c-q02
+        type: mcq
+        q: "An edge firewall has a single rule: 'permit tcp from 10.0.0.0/8 to any port 443'. There is no inbound permit rule, yet the web servers' replies reach the internal clients. Which firewall capability explains this?"
+        choices: ["Network address translation", "Stateful inspection", "Application-layer proxying", "Implicit deny"]
+        answer: 1
+        why: "A stateful firewall records each permitted outbound connection and admits the return traffic that belongs to it. NAT only rewrites addresses; it is not what decides that the replies are allowed."
+      - id: cc-4c-q03
+        type: mcq
+        q: "Policy bans a consumer file-sharing application, but it runs over TCP 443 to ever-changing cloud addresses, the same port as all permitted web browsing. Which control can BEST enforce the ban without blocking other HTTPS traffic?"
+        choices: ["A stateless packet filter", "A stateful firewall rule on port 443", "A next-generation firewall with application identification", "A VLAN access list on the user switches"]
+        answer: 2
+        why: "Only an application-aware (next-generation) firewall can tell one application from another when both use port 443. A stateful firewall still decides by address and port, so it would have to block or allow all HTTPS."
+      - id: cc-4c-q04
+        type: mcq
+        q: "A firewall log shows 'ALLOW TCP 10.5.5.20:51844 -> 10.9.0.1:23' each morning as an engineer manages a core router. What is the BEST recommendation?"
+        choices: ["Move the service to a non-standard port", "Restrict the connection to the management VLAN and keep the protocol", "Replace it with RDP on TCP 3389", "Replace it with SSH on TCP 22"]
+        answer: 3
+        why: "Port 23 is Telnet, which sends the engineer's password and commands in clear text; SSH gives the same command-line access encrypted. Restricting it to a management VLAN narrows exposure but leaves the credentials unencrypted."
+      - id: cc-4c-q05
+        type: mcq
+        q: "A capture on the internet-facing interface shows packets leaving with these source addresses. Which one shows that address translation is NOT being applied?"
+        choices: ["172.31.200.9", "172.32.0.9", "192.169.4.4", "11.10.10.10"]
+        answer: 0
+        why: "The private IPv4 ranges are 10.0.0.0/8, 172.16.0.0 to 172.31.255.255, and 192.168.0.0/16, so 172.31.200.9 is a private address that should have been translated. 172.32.0.9 sits just outside the private range and is a public address."
+      - id: cc-4c-q06
+        type: mcq
+        q: "A laptop on a new network shows only the address fe80::1c2b:3dff:fe4e:5f60. It can reach neighbours on its own segment but nothing beyond the router. What kind of IPv6 address is this?"
+        choices: ["Global unicast", "Link-local", "Loopback", "Multicast"]
+        answer: 1
+        why: "Addresses beginning fe80 are link-local: every IPv6 interface creates one automatically and routers never forward them. A global unicast address (currently beginning with 2 or 3) is what the laptop would need to reach beyond its segment."
+      - id: cc-4c-q07
+        type: mcq
+        q: "A 40-person branch needs permanent access to headquarters systems for its PCs, printers and IP phones, and users must not have to start anything. Which solution fits BEST?"
+        choices: ["A remote-access VPN client on every PC", "A clientless browser-based VPN portal", "A site-to-site VPN between the two sites' gateways", "A DMZ at headquarters holding copies of the systems"]
+        answer: 2
+        why: "A site-to-site VPN joins the two networks at their gateways, so every device is covered with nothing to run. A remote-access client suits individual travelling users and cannot be installed on printers or phones."
+      - id: cc-4c-q08
+        type: mcq
+        q: "Remote staff use a VPN, but only traffic for company subnets enters the tunnel; their web browsing goes straight to the internet and bypasses the company's web filter. Which change routes all of their traffic through company controls?"
+        choices: ["Enable split tunnelling", "Switch to a site-to-site VPN", "Shorten the VPN session timeout", "Enable full tunnelling"]
+        answer: 3
+        why: "A full tunnel sends all of the client's traffic through the VPN, so the company's filtering and monitoring apply. Split tunnelling is the arrangement already in place and is the cause of the bypass."
+      - id: cc-4c-q09
+        type: mcq
+        q: "During a walk-through, an auditor finds a consumer wireless router plugged into a wall jack under an employee's desk, broadcasting its own network name with no encryption. What is this?"
+        choices: ["Rogue access point", "Evil twin", "Bluejacking", "War driving"]
+        answer: 0
+        why: "An unauthorized access point attached to the organization's wired network is a rogue access point. An evil twin imitates a legitimate network's name to lure users onto the attacker's own equipment; this device uses its own name and sits on the company LAN."
+      - id: cc-4c-q10
+        type: mcq
+        q: "On a crowded train, an attacker connects over Bluetooth to a phone left in discoverable mode and copies its contact list without the owner noticing. What is this attack called?"
+        choices: ["Bluejacking", "Bluesnarfing", "Evil twin", "Jamming"]
+        answer: 1
+        why: "Bluesnarfing is the theft of data from a device over Bluetooth. Bluejacking only pushes unsolicited messages to the device and takes nothing from it."
+      - id: cc-4c-q11
+        type: mcq
+        q: "An office of 300 uses Wi-Fi in personal mode with one shared passphrase. It should be changed on every device whenever someone leaves, so in practice it never is. Which change BEST fixes the underlying problem?"
+        choices: ["Hide the network name (SSID)", "Add MAC address filtering", "Move to enterprise mode, where each user authenticates with individual credentials through 802.1X", "Lower the access points' transmit power"]
+        answer: 2
+        why: "With enterprise mode each person has their own credentials, which can be revoked on departure without touching anyone else. MAC filtering is tempting, but hardware addresses are easily copied and the leaver still knows the shared passphrase."
+      - id: cc-4c-q12
+        type: mcq
+        q: "A vendor must occasionally support a human-machine interface (HMI) on a plant's industrial control network. Which arrangement is BEST?"
+        choices: ["Forward RDP from the internet to the HMI, limited to the vendor's IP address", "Attach a cellular modem to the HMI for the vendor's sole use", "Move the HMI onto the office network, which already has remote access", "Have the vendor connect by VPN with MFA to a jump host in a DMZ between the office and control networks"]
+        answer: 3
+        why: "A VPN with MFA terminating on a jump host in a DMZ keeps the control network segmented and gives one monitored path in. Forwarding RDP from the internet, even from one address, exposes a control system directly and relies on a single filter."
+      - id: cc-4c-q13
+        type: mcq
+        q: "An attacker compromises one web server and then connects directly to the database server, because both sit in the same server VLAN behind the same firewall. Which control would BEST have stopped that movement?"
+        choices: ["Micro-segmentation rules around each workload", "A second perimeter firewall from a different vendor", "An intrusion detection sensor on the internet link", "Network address translation at the edge"]
+        answer: 0
+        why: "The traffic never left the VLAN, so only rules applied around individual workloads (micro-segmentation) would have filtered it. A second perimeter firewall adds depth at the edge but sees none of the traffic between two servers in the same segment."
+      - id: cc-4c-q14
+        type: mcq
+        q: "A public website must accept visitors from the internet and query an internal database. Which design follows sound firewall-zone practice?"
+        choices: ["Web server on the internal network; permit the internet to it on TCP 443", "Web server in a DMZ; permit the internet to it on TCP 443, and permit only that server to the database on the database port", "Web server in a DMZ; permit the whole DMZ to the whole internal network", "Web server and database together in a DMZ; permit the internet to both"]
+        answer: 1
+        why: "Public-facing servers belong in a DMZ, with the narrowest possible rule from that one server to the database. Allowing the whole DMZ into the internal network keeps the zone in name only: any compromised DMZ host could then reach everything inside."
+      - id: cc-4c-q15
+        type: mcq
+        q: "A company wants to move toward zero trust. Which change is MOST consistent with that goal?"
+        choices: ["Add a second perimeter firewall from a different vendor", "Require MFA on the VPN, then give connected users the whole internal network", "Check user identity and device health for each application session, and grant access to that application only", "Place all servers in one trusted VLAN protected by an intrusion prevention system"]
+        answer: 2
+        why: "Zero trust verifies each request explicitly and grants the least access needed, regardless of network location. MFA on the VPN is a good control, but handing over the whole network afterwards is still trust based on being 'inside'."
+      - id: cc-4c-q16
+        type: mcq
+        q: "In a design review the architect asks, 'If one laptop on the internal network is already under an attacker's control, what can it reach?' and then cuts that reach down. Which zero trust idea is driving the review?"
+        choices: ["Verify explicitly", "Trust but verify", "Perimeter-based trust", "Assume breach"]
+        answer: 3
+        why: "Designing as though an attacker is already inside, and limiting what any one compromise can reach, is 'assume breach'. 'Verify explicitly' concerns authenticating and authorizing each request, which is a different zero trust idea from the one in the question."
+      - id: cc-4c-q17
+        type: mcq
+        q: "A company's virtual machine in an IaaS cloud is compromised through an operating-system flaw for which a patch had been available for six months. Who was responsible for applying it?"
+        choices: ["The customer, because in IaaS it manages the guest operating system", "The provider, because it operates the hypervisor the machine runs on", "The provider, because infrastructure includes the operating system", "Both equally, because every cloud duty is shared"]
+        answer: 0
+        why: "In IaaS the provider's duties stop at the virtualization layer; the customer installs, configures and patches the guest operating system. The provider does run the hypervisor, but the flaw was in the operating system above it."
+      - id: cc-4c-q18
+        type: mcq
+        q: "A team deploys its own code to a PaaS runtime. Under the shared security model, which task belongs to the PROVIDER?"
+        choices: ["Fixing an injection flaw in the team's code", "Patching the operating system beneath the runtime", "Deciding which staff may deploy to the environment", "Classifying the data the application stores"]
+        answer: 1
+        why: "In PaaS the provider maintains the operating system and runtime. The customer's own code, its data and its users' access remain the customer's responsibility in every service model."
+      - id: cc-4c-q19
+        type: mcq
+        q: "An auditor asks an IaaS customer for evidence that physical access to the servers hosting its workloads is controlled. What is the BEST response?"
+        choices: ["Explain that physical security is out of scope because the provider handles it", "Send the customer's own staff to inspect the provider's data centre", "Obtain the provider's independent third-party audit report covering physical controls", "Install the customer's own cameras in the provider's facility"]
+        answer: 2
+        why: "The provider performs physical security, but the customer remains accountable and shows due diligence by reviewing independent assurance reports. Declaring it out of scope confuses 'the provider does it' with 'the customer need not check it'."
+      - id: cc-4c-q20
+        type: mcq
+        q: "A company uses a managed database service: the provider patches the operating system and the database engine, while the company designs the tables, loads the data and decides who may query it. Which service model is this?"
+        choices: ["Infrastructure as a Service (IaaS)", "Software as a Service (SaaS)", "Private cloud", "Platform as a Service (PaaS)"]
+        answer: 3
+        why: "The provider runs everything up to the platform (operating system and database engine) and the customer builds on top of it, which is PaaS. In IaaS the company would be patching the operating system and engine itself."
+      - id: cc-4c-q21
+        type: mcq
+        q: "A ministry contracts a provider to build and run a cloud in the provider's data centre, on hardware dedicated to the ministry alone. Which deployment model is this?"
+        choices: ["Private cloud", "Public cloud", "Community cloud", "Hybrid cloud"]
+        answer: 0
+        why: "Exclusive use by a single organization defines a private cloud, whoever owns or operates it and wherever it sits. It is tempting to call it public because a provider hosts it, but a public cloud is open to any customer."
+      - id: cc-4c-q22
+        type: mcq
+        q: "A security review notes that the company's cloud virtual machines run on the same physical hosts as other customers' machines, separated only by the hypervisor. Which cloud characteristic creates this multi-tenant exposure?"
+        choices: ["Broad network access", "Resource pooling", "Rapid elasticity", "On-demand self-service"]
+        answer: 1
+        why: "Resource pooling means the provider's physical resources serve many tenants at once, which is why isolation between tenants matters. Broad network access is about reaching the service from many device types, not about sharing hardware."
+      - id: cc-4c-q23
+        type: mcq
+        q: "A web server stops accepting connections. A capture shows thousands of TCP segments per second with only the SYN flag set, from spoofed sources, and no final ACK ever arrives. Which attack is this, and at which OSI layer?"
+        choices: ["ARP poisoning at layer 2", "ICMP flood at layer 3", "SYN flood at layer 4", "SQL injection at layer 7"]
+        answer: 2
+        why: "Half-open TCP handshakes that exhaust the server's connection table are a SYN flood, and TCP is a Transport-layer (layer 4) protocol. An ICMP flood is also a flooding attack but uses ping-type packets, not TCP SYN segments."
+      - id: cc-4c-q24
+        type: mcq
+        q: "A firewall report shows '03:02 ALLOW TCP 10.4.7.31:50212 -> 198.51.100.77:22, 4.1 GB sent'. The source is a finance workstation. Which protocol was MOST likely used to move the data out?"
+        choices: ["FTP", "Telnet", "SMTP", "SSH (for example SFTP or SCP)"]
+        answer: 3
+        why: "Destination port 22 is SSH, which also carries the SFTP and SCP file-transfer tools. FTP is the classic file-transfer answer but uses port 21, not 22."
+      - id: cc-4c-q25
+        type: mcq
+        q: "Users who type the bank's correct address reach a look-alike site. Their PCs' settings are untouched, but the company's resolver is returning the wrong IP address for the correct name. What has MOST likely happened?"
+        choices: ["DNS cache poisoning", "Typosquatting", "Phishing", "An evil twin access point"]
+        answer: 0
+        why: "A resolver handing out a false address for a genuine name has had its cache poisoned. Typosquatting depends on the user mistyping the name, and here the name entered was correct."
+      - id: cc-4c-q26
+        type: mcq
+        q: "Management wants attacks against a public web farm blocked automatically in real time and accepts some operational risk. Which deployment meets the requirement, and what is the main risk accepted?"
+        choices: ["An IDS on a mirror port; false positives may block legitimate traffic", "An IPS in line with the traffic; false positives may block legitimate traffic", "An IPS on a mirror port; attacks are blocked with no effect on legitimate traffic", "An IDS in line with the traffic; alerts may arrive late"]
+        answer: 1
+        why: "Only a device in the traffic path can block, and that is an IPS; the price is that a false positive now drops real customers' traffic. An IDS on a mirror port sees only a copy, so it can alert but never block."
+      - id: cc-4c-q27
+        type: mcq
+        q: "A nightly job sends payroll files by FTP on TCP 21, and an auditor objects that the password crosses the network in clear text. The firewall team will open only TCP 22. Which replacement fits?"
+        choices: ["FTPS", "TFTP", "SFTP", "HTTPS"]
+        answer: 2
+        why: "SFTP is file transfer carried inside SSH, so it is encrypted and needs only TCP 22. FTPS also encrypts, but it is FTP wrapped in TLS and uses FTP's own ports, not 22."
+      - id: cc-4c-q28
+        type: mcq
+        q: "At month end, a cloud provider sends an itemised statement of each department's CPU-hours and gigabytes stored, drawn from its own monitoring. Which cloud characteristic makes this possible?"
+        choices: ["On-demand self-service", "Rapid elasticity", "Resource pooling", "Measured service"]
+        answer: 3
+        why: "Metering and reporting of resource use is measured service. Rapid elasticity explains why the usage could rise and fall, but not how it is counted and billed."
+
+      - id: cc-4c-m01
+        type: multi
+        q: "Which TWO of these protocols encrypt the session by default? (Choose TWO.)"
+        choices: ["Telnet", "SSH", "FTP", "HTTPS", "HTTP"]
+        answers: [1, 3]
+        why: "SSH and HTTPS (HTTP over TLS) encrypt everything they carry. Telnet, FTP and plain HTTP send data, including passwords, in clear text."
+      - id: cc-4c-m02
+        type: multi
+        q: "Which THREE of these are among the five essential characteristics of cloud computing? (Choose THREE.)"
+        choices: ["Rapid elasticity", "Single tenancy", "Measured service", "Fixed, pre-purchased capacity", "On-demand self-service", "Customer-owned hardware"]
+        answers: [0, 2, 4]
+        why: "The five are on-demand self-service, broad network access, resource pooling, rapid elasticity and measured service. Single tenancy, fixed capacity and customer-owned hardware are the opposite of pooling, elasticity and the cloud model itself."
+      - id: cc-4c-m03
+        type: multi
+        q: "A company runs virtual machines in an IaaS cloud. Which TWO tasks are the CUSTOMER's responsibility? (Choose TWO.)"
+        choices: ["Physical security of the data centre", "Patching the guest operating systems", "Maintaining the hypervisor", "Managing its own users' identities and access", "Disposing of failed physical disks", "Power and cooling"]
+        answers: [1, 3]
+        why: "In IaaS the customer manages everything from the guest operating system upward, including its own identities and access. The facility, hardware and hypervisor are the provider's."
+      - id: cc-4c-m04
+        type: multi
+        q: "A simple packet filter can match on port numbers only for protocols that have them. Which TWO protocols carry port numbers? (Choose TWO.)"
+        choices: ["IP", "TCP", "Ethernet", "UDP", "ICMP"]
+        answers: [1, 3]
+        why: "Ports are a Transport-layer idea, found in TCP and UDP headers. IP and ICMP work at the Network layer and Ethernet at the Data Link layer; none of them has port fields."
+      - id: cc-4c-m05
+        type: multi
+        q: "Which TWO controls directly limit an attacker's lateral movement after one internal server has been compromised? (Choose TWO.)"
+        choices: ["Micro-segmentation between workloads", "Offsite backups", "Internal firewalls between security zones", "Full-disk encryption on staff laptops", "A DDoS scrubbing service on the internet link"]
+        answers: [0, 2]
+        why: "Micro-segmentation and internal zone firewalls both filter traffic moving between internal systems. Backups aid recovery, disk encryption protects lost laptops and DDoS scrubbing protects availability at the edge; none restricts server-to-server traffic."
+      - id: cc-4c-m06
+        type: multi
+        q: "Which THREE of these are private IPv4 addresses that are not routed on the internet? (Choose THREE.)"
+        choices: ["10.200.1.1", "172.33.1.1", "172.16.40.2", "192.186.1.1", "192.168.200.9", "12.168.1.1"]
+        answers: [0, 2, 4]
+        why: "The private ranges are 10.0.0.0/8, 172.16.0.0 to 172.31.255.255 and 192.168.0.0/16. 172.33.x, 192.186.x and 12.168.x are look-alikes that fall outside those ranges."
+
+      - id: cc-4c-o01
+        type: order
+        q: "Put the events of opening a TCP connection and then using it in order."
+        steps: ["The client sends a SYN segment", "The server replies with SYN-ACK", "The client sends an ACK", "Application data is exchanged"]
+        why: "The three-way handshake is SYN, SYN-ACK, ACK; only when both sides have acknowledged each other's sequence numbers can data flow."
+      - id: cc-4c-o02
+        type: order
+        q: "A browser sends a request. Put the encapsulation steps in order as the data moves down the stack to the wire."
+        steps: ["The application produces the data (the HTTP request)", "A TCP header with port numbers is added, forming a segment", "An IP header with source and destination addresses is added, forming a packet", "A header with MAC addresses is added, forming a frame", "The frame is transmitted as bits on the medium"]
+        why: "Each layer wraps what it receives from the layer above: data, segment (Transport), packet (Network), frame (Data Link), bits (Physical)."
+      - id: cc-4c-o03
+        type: order
+        q: "A user types https://shop.example into a browser for the first time today. Put what happens in order."
+        steps: ["The PC asks a DNS resolver for the site's IP address", "The PC opens a TCP connection to that address on port 443", "A TLS handshake checks the server's certificate and agrees session keys", "The browser sends its HTTP request inside the encrypted session", "The server returns the page, encrypted"]
+        why: "The name must be resolved before anything can connect, TCP must be established before TLS can run over it, and the HTTP request is sent only once the encrypted session exists."
+
+  # ───────────────── Domain 5 — coverage ─────────────────
+  - id: cc-5b
+    title: "Security Operations — Filling Every Gap"
+    domain: "5"
+    goal: "I can define every remaining Domain 5 term, from data labeling and digital signatures to threat actors, incident handling, baselines and security testing."
+    notes: |
+      ## The rest of Domain 5
+
+      This unit completes outline sections 5.1 to 5.5.
+
+      **Data security.** *Classification* decides the level; **labeling** marks it; **retention** says how long to keep it. A **digital signature** is a hash encrypted with the signer's *private* key: it proves origin and integrity, not secrecy.
+
+      **Operations.** An **event** is anything observable; an **incident** threatens confidentiality, integrity or availability. *Triage* sorts alerts; a **false positive** is an alert about something harmless. Know the threat actors by motive:
+
+      | Actor | Motive |
+      | Nation-state | espionage, sabotage |
+      | Organized crime | money |
+      | Hacktivist | a cause |
+      | Insider | grievance, gain or mistake |
+      | Unskilled attacker | curiosity, attention |
+
+      **Incident response** follows four phases: preparation; detection and analysis; containment, eradication and recovery; post-incident activity (*lessons learned*).
+
+      **Assets.** You cannot protect what is not in the **asset inventory**. *Configuration management* keeps systems on an approved **baseline**; change management controls how that baseline is altered.
+
+      **Testing.** Blue defends, red attacks, purple collaborates. A *vulnerability scan* finds weaknesses; a penetration test exploits them.
+    items:
+      - id: cc-5b-labeling
+        type: concept
+        term: "Data labeling"
+        def: "Marking information or its storage media with its sensitivity level, so that anyone handling it knows how it must be treated."
+      - id: cc-5b-retention
+        type: concept
+        term: "Data retention"
+        def: "Keeping information for a defined period set by policy, law or business need, and disposing of it once that period ends."
+      - id: cc-5b-signature
+        type: concept
+        term: "Digital signature"
+        def: "A hash of a message encrypted with the sender's private key, giving the receiver proof of origin and integrity."
+      - id: cc-5b-event
+        type: concept
+        term: "Event"
+        def: "Any observable occurrence in a system or network, whether harmless or not."
+      - id: cc-5b-incident
+        type: concept
+        term: "Incident"
+        def: "An occurrence that actually or potentially jeopardizes the confidentiality, integrity or availability of information or a system."
+      - id: cc-5b-triage
+        type: concept
+        term: "Event triage"
+        def: "Rapidly sorting incoming alerts by severity and likely impact to decide which need attention first."
+      - id: cc-5b-false-positive
+        type: concept
+        term: "False positive"
+        def: "An alert raised for activity that turns out to be legitimate and harmless."
+      - id: cc-5b-ioc
+        type: concept
+        term: "Indicator of compromise (IoC)"
+        def: "A piece of forensic evidence, such as a file hash or a malicious domain name, suggesting that a system has been breached."
+      - id: cc-5b-nation-state
+        type: concept
+        term: "Nation-state actor"
+        def: "A well-resourced, highly skilled adversary working for a government, usually pursuing espionage or sabotage over long periods."
+      - id: cc-5b-insider
+        type: concept
+        term: "Insider threat"
+        def: "A danger arising from someone with legitimate access, such as an employee or contractor, who misuses it deliberately or by accident."
+      - id: cc-5b-kill-chain
+        type: concept
+        term: "Cyber Kill Chain"
+        def: "A model that describes an intrusion as seven sequential stages, from reconnaissance through to actions on objectives."
+      - id: cc-5b-ir-plan
+        type: concept
+        term: "Incident response plan"
+        def: "A documented, approved set of roles, contacts and steps for detecting, handling and recovering from security breaches."
+      - id: cc-5b-containment
+        type: concept
+        term: "Containment"
+        def: "Limiting the spread and damage of an attack in progress, for example by isolating the affected systems."
+      - id: cc-5b-lessons-learned
+        type: concept
+        term: "Lessons learned (post-incident review)"
+        def: "A meeting held after a response is complete to examine what happened and what worked, so that plans and safeguards can be improved."
+      - id: cc-5b-inventory
+        type: concept
+        term: "Asset inventory"
+        def: "An up-to-date record of the hardware, software and data an organization holds, including who is responsible for each."
+      - id: cc-5b-config-management
+        type: concept
+        term: "Configuration management"
+        def: "The discipline of defining a system's approved settings and keeping every system matched to them throughout its life."
+      - id: cc-5b-baseline
+        type: concept
+        term: "Baseline"
+        def: "A documented, approved set of minimum security settings against which systems are built and later compared."
+      - id: cc-5b-blue-team
+        type: concept
+        term: "Blue team"
+        def: "The group that defends an organization: monitoring for, detecting and responding to attacks."
+      - id: cc-5b-purple-team
+        type: concept
+        term: "Purple team"
+        def: "A collaborative arrangement in which attackers and defenders work side by side, sharing techniques and detections as they go."
+      - id: cc-5b-vuln-scan
+        type: concept
+        term: "Vulnerability scanning"
+        def: "Automated checking of systems for known weaknesses, such as missing patches and insecure settings, without exploiting them."
+      - id: cc-5b-dynamic-analysis
+        type: concept
+        term: "Dynamic analysis"
+        def: "Testing software for flaws by running it and observing how it behaves with supplied inputs."
+      - id: cc-5b-tailgating
+        type: concept
+        term: "Tailgating"
+        def: "Entering a restricted area by following closely behind an authorized person through a controlled door."
+
+      - id: cc-5b-q01
+        type: mcq
+        q: "A report has been rated Confidential. Staff then add 'CONFIDENTIAL' to every page header and fix a matching sticker to the backup tape. Which data handling step is this second activity?"
+        choices: ["Classification", "Masking", "Labeling", "Sanitization"]
+        answer: 2
+        why: "Marking the data and its media with the assigned level is labeling. Classification was the earlier decision that the report is Confidential."
+      - id: cc-5b-q02
+        type: mcq
+        q: "Dana signs a contract file digitally and emails it to Eli. Which key does Eli use to verify the signature?"
+        choices: ["Eli's private key", "Eli's public key", "Dana's private key", "Dana's public key"]
+        answer: 3
+        why: "A signature is created with the signer's private key and checked with the signer's public key, which anyone may hold. Eli never has Dana's private key; if he did, the signature would prove nothing."
+      - id: cc-5b-q03
+        type: mcq
+        q: "A system administrator who was refused a promotion uses their own valid account to delete the backup catalogue. Which threat actor type is this?"
+        choices: ["Insider threat", "Hacktivist", "Organized crime", "Nation-state actor"]
+        answer: 0
+        why: "Someone with legitimate access who misuses it is an insider threat. A hacktivist also acts from grievance, but in support of a public cause and normally from outside."
+      - id: cc-5b-q04
+        type: mcq
+        q: "For eighteen months, intruders using custom tools and a previously unknown flaw quietly copy design documents from a defence contractor, demanding nothing and announcing nothing. Which threat actor is MOST likely?"
+        choices: ["Organized crime", "Nation-state actor", "Unskilled attacker", "Hacktivist"]
+        answer: 1
+        why: "Patience, custom tooling and espionage against a strategic target point to a nation-state actor. Organized crime is also capable, but it seeks money and would normally extort the victim or sell the access."
+      - id: cc-5b-q05
+        type: mcq
+        q: "An alert reports malware in a downloaded file. Analysis shows the file is the vendor's genuine, unmodified update package and nothing malicious took place. How should the alert be classified?"
+        choices: ["True positive", "False negative", "False positive", "True negative"]
+        answer: 2
+        why: "An alert about activity that proves harmless is a false positive. A false negative is the opposite and more dangerous case: real malicious activity that raised no alert."
+      - id: cc-5b-q06
+        type: mcq
+        q: "A threat report lists file hashes, domain names and IP addresses seen in a recent intrusion, so that other organizations can search their own logs for them. What are these items called?"
+        choices: ["Key risk indicators", "Vulnerabilities", "Baselines", "Indicators of compromise"]
+        answer: 3
+        why: "Artifacts that point to a breach are indicators of compromise. Key risk indicators are management metrics that signal rising risk exposure, not forensic evidence."
+      - id: cc-5b-q07
+        type: mcq
+        q: "Malware is confirmed on a workstation. The analyst immediately moves the machine to an isolated VLAN so that it cannot reach other systems. Which incident response activity is this?"
+        choices: ["Containment", "Eradication", "Recovery", "Preparation"]
+        answer: 0
+        why: "Isolating a system to stop the spread is containment. Eradication comes next and means removing the malware and its cause, which has not happened yet."
+      - id: cc-5b-q08
+        type: mcq
+        q: "A weekly check compares every server with the approved hardened settings and flags any that have drifted. What is the approved reference called?"
+        choices: ["Risk register", "Baseline", "Incident response plan", "Asset inventory"]
+        answer: 1
+        why: "The approved configuration against which systems are compared is the baseline. The asset inventory lists what systems exist, not how each should be configured."
+      - id: cc-5b-q09
+        type: mcq
+        q: "An automated tool checks 500 hosts for missing patches and known weaknesses and produces a ranked report, without trying to exploit anything. What is this?"
+        choices: ["Penetration test", "Red team engagement", "Vulnerability scan", "Dynamic analysis"]
+        answer: 2
+        why: "Automated identification of known weaknesses without exploitation is a vulnerability scan. A penetration test goes further and actively exploits weaknesses to prove what an attacker could achieve."
+      - id: cc-5b-q10
+        type: mcq
+        q: "During an authorized physical test, a tester in a courier uniform tells reception he has a parcel that needs a signature from the server-room manager, and is escorted inside. Which technique is this?"
+        choices: ["Tailgating", "Phishing", "Shoulder surfing", "Impersonation"]
+        answer: 3
+        why: "Pretending to be someone with a legitimate reason to enter is impersonation. Tailgating would be slipping through a door behind an authorized person; here staff knowingly let him in because of the false identity."
+
+  # ───────────────── Domain 5 — exam-hard practice ─────────────────
+  - id: cc-5c
+    title: "Security Operations — Exam-Hard Practice"
+    domain: "5"
+    goal: "I can work out what is happening from a log or scenario and choose the BEST or FIRST response in data security, operations, incident response and testing."
+    notes: |
+      ## How to beat the hard items
+
+      Hard Domain 5 questions are two steps: *what is going on?* then *what do we do?* Decide the first before reading the choices.
+
+      **Order matters.** When a stem says FIRST or NEXT, place yourself in the response sequence:
+
+      - Detect and analyse, then **contain**, then **eradicate**, then **recover**, then **lessons learned**.
+      - Never rebuild or clean a system before it is contained and the evidence is safe.
+
+      **Keys.** For a *signature*: signer's private key signs, signer's public key verifies. For *secrecy*: recipient's public key encrypts, recipient's private key decrypts.
+
+      | Near-neighbours | The difference |
+      | Masking / tokenization | hides on display / replaces the stored value |
+      | Vulnerability scan / penetration test | finds / exploits |
+      | Penetration test / red team | finds flaws / tests detection and response |
+      | Configuration / change management | the approved state / how it is altered |
+      | Static / dynamic analysis | code at rest / program running |
+
+      **Urgency never cancels process.** An emergency still goes through an *emergency* change procedure and is documented afterwards.
+    items:
+      - id: cc-5c-q01
+        type: mcq
+        q: "Call-centre screens show card numbers as '**** **** **** 4821', while the billing database still holds the full numbers for authorized processes. Which technique is applied on the screens?"
+        choices: ["Masking", "Tokenization", "Hashing", "Encryption"]
+        answer: 0
+        why: "Hiding part of a value when it is displayed, while the real value still exists underneath, is masking. Tokenization would replace the stored number itself with a meaningless substitute."
+      - id: cc-5c-q02
+        type: mcq
+        q: "Twelve failed solid-state drives that held Restricted data must leave the company for recycling. They no longer respond to any commands. Which sanitization method is appropriate?"
+        choices: ["Degaussing", "Physical destruction, such as shredding", "Multi-pass overwriting", "A standard format"]
+        answer: 1
+        why: "A drive that will not respond cannot be overwritten or formatted, so it must be physically destroyed. Degaussing is tempting, but it erases magnetic media and has no effect on flash memory."
+      - id: cc-5c-q03
+        type: mcq
+        q: "A developer must store customer passwords so that the application can check a login, but a thief who copies the table cannot read them or spot customers who share a password. Which approach is BEST?"
+        choices: ["Encrypt each with a symmetric key held on the same server", "Mask all but the last two characters of each", "Store a salted hash of each", "Store an unsalted hash of each"]
+        answer: 2
+        why: "A hash is one-way, and a unique salt makes identical passwords produce different digests and defeats precomputed tables. An unsalted hash is still one-way but gives identical passwords identical digests."
+      - id: cc-5c-q04
+        type: mcq
+        q: "Two offices that share no secret must encrypt a continuous, high-volume data stream. Asymmetric encryption alone is too slow for the stream. What is the usual solution?"
+        choices: ["Hash the stream and send only the digests", "Use symmetric encryption with a key sent ahead by email", "Use asymmetric encryption for the whole stream with shorter keys", "Use asymmetric encryption to agree a symmetric session key, then encrypt the stream symmetrically"]
+        answer: 3
+        why: "Asymmetric cryptography solves the key-distribution problem and fast symmetric encryption then protects the bulk data. Emailing a symmetric key exposes the key itself, and hashing is one-way so the data could never be recovered."
+      - id: cc-5c-q05
+        type: mcq
+        q: "A supplier denies having sent a digitally signed purchase order, but the signature verifies correctly with the supplier's public key. Which key must have created the signature?"
+        choices: ["The supplier's private key", "The supplier's public key", "The buyer's private key", "The buyer's public key"]
+        answer: 0
+        why: "Only the matching private key can produce a signature that the supplier's public key verifies, and only the supplier should hold it; that is what gives non-repudiation. The public key is available to everyone, so it cannot prove who signed."
+      - id: cc-5c-q06
+        type: mcq
+        q: "An attacker who controls a download server replaces an installer and also replaces the SHA-256 value published beside it. Which measure would still let users detect the swap?"
+        choices: ["Publishing a SHA-512 value instead", "A digital signature on the installer made with the vendor's private key", "Serving the download page over TLS", "Putting the installer in a password-protected archive"]
+        answer: 1
+        why: "The attacker cannot forge a signature without the vendor's private key, which is not on the server. A longer hash published in the same place can be replaced just as easily, and TLS only protects the file in transit from a server that is already compromised."
+      - id: cc-5c-q07
+        type: mcq
+        q: "An archive must stay confidential for 25 years. Which of its current protections is MOST exposed to a future large-scale quantum computer?"
+        choices: ["AES-256 encryption of the stored files", "SHA-384 hashes used for integrity checks", "RSA-2048 exchange of the file encryption keys", "HMAC-SHA-256 authentication of log entries"]
+        answer: 2
+        why: "Quantum computers threaten today's public-key algorithms such as RSA, so keys exchanged that way could be recovered later ('harvest now, decrypt later'). Strong symmetric ciphers and hashes such as AES-256 are weakened far less, which is why the AES choice is wrong."
+      - id: cc-5c-q08
+        type: mcq
+        q: "A server log shows: '02:11-02:15 148 failed logins for admin from 203.0.113.50', '02:15:19 successful login for admin from 203.0.113.50', '02:16:40 account svc_bak2 added to Administrators'. What should the analyst do FIRST?"
+        choices: ["Close the alert, because the final login was successful", "Add the address to a watch list and review it next shift", "Rebuild the server from installation media", "Escalate it as an incident under the IR plan and contain the two accounts"]
+        answer: 3
+        why: "A successful login after a burst of failures, followed by a new administrator account, is a password-guessing compromise: an incident to be declared and contained. Rebuilding straight away skips containment and analysis and destroys the evidence."
+      - id: cc-5c-q09
+        type: mcq
+        q: "Which of these occurrences should be declared a security incident?"
+        choices: ["An employee emails the customer list to a personal account in breach of policy", "The firewall drops 3,000 inbound scan packets from the internet", "A user mistypes a password once and then logs in", "A server restarts after its scheduled patch window"]
+        answer: 0
+        why: "Sending the customer list outside the organization's control jeopardizes confidentiality, so it is an incident. Blocked scans are the tempting choice, but they are events in which the control worked and nothing was harmed."
+      - id: cc-5c-q10
+        type: mcq
+        q: "Four alerts arrive together. Which should the analyst handle FIRST?"
+        choices: ["Perimeter firewall: inbound port scan blocked", "Endpoint tool: a process is rapidly encrypting files on the main file server", "Directory: a user account locked after five failed logins", "Antivirus: known adware quarantined on a lobby kiosk"]
+        answer: 1
+        why: "Triage ranks by severity and impact: active encryption of a critical server is ongoing, spreading harm. The scan, lockout and quarantine are all cases where a control has already done its job."
+      - id: cc-5c-q11
+        type: mcq
+        q: "A group runs ransomware as a business: affiliates receive a share of each payment, and victims are offered a 'support desk' for decryption. Which threat actor type is this?"
+        choices: ["Nation-state actor", "Hacktivist", "Organized crime", "Insider threat"]
+        answer: 2
+        why: "A structured, profit-sharing operation whose goal is payment is organized crime. A nation-state actor may be equally capable, but its usual aims are espionage or sabotage, not running a revenue business."
+      - id: cc-5c-q12
+        type: mcq
+        q: "A teenager downloads a ready-made attack tool, follows a video tutorial and knocks a local shop's website offline 'to see if it would work'. Which threat actor type is this?"
+        choices: ["Hacktivist", "Organized crime", "Insider threat", "Unskilled attacker"]
+        answer: 3
+        why: "Using other people's tools without understanding them, for curiosity or attention, marks an unskilled attacker. A hacktivist might use the same tool, but would be acting for a political or social cause."
+      - id: cc-5c-q13
+        type: mcq
+        q: "After reading a threat report, the team blocks the listed file hashes. Next day the attacker returns with recompiled malware whose hashes differ. Which kind of intelligence would give the MOST durable detection?"
+        choices: ["The adversary's tactics, techniques and procedures (TTPs)", "A longer list of file hashes", "The IP addresses of the attacker's servers", "The domain names the malware contacts"]
+        answer: 0
+        why: "Behaviour is hard for an adversary to change, so detections built on tactics, techniques and procedures last. Hashes, addresses and domains are all indicators the attacker can change in minutes."
+      - id: cc-5c-q14
+        type: mcq
+        q: "On an infected PC, malware contacts an external server every 60 seconds and waits for instructions. Which Cyber Kill Chain stage is this?"
+        choices: ["Delivery", "Command and control", "Installation", "Actions on objectives"]
+        answer: 1
+        why: "Regular beaconing to an attacker's server for instructions is command and control. Installation is the earlier stage in which the malware establishes itself on the host, and actions on objectives come once the attacker uses the channel to reach the goal."
+      - id: cc-5c-q15
+        type: mcq
+        q: "During a ransomware incident, the affected servers have been isolated, the malware removed and the exploited flaw patched. What should the team do NEXT?"
+        choices: ["Hold the lessons-learned meeting", "Isolate the affected servers from the network", "Restore the servers from known-good backups and monitor them closely", "Rewrite the incident response plan"]
+        answer: 2
+        why: "Containment and eradication are done, so recovery follows: restore, verify and monitor. The lessons-learned meeting belongs to post-incident activity, after service is back."
+      - id: cc-5c-q16
+        type: mcq
+        q: "An analyst believes a running workstation holds malware that exists only in memory. Which FIRST action contains it while preserving the most evidence?"
+        choices: ["Power it off immediately", "Run a full antivirus clean-up", "Reinstall the operating system", "Disconnect it from the network and leave it powered on"]
+        answer: 3
+        why: "Network isolation stops the spread while keeping the contents of memory available for analysis. Powering off also stops the spread but wipes volatile memory, which here is the only place the evidence exists."
+      - id: cc-5c-q17
+        type: mcq
+        q: "For its annual exercise, the response team works hands-on through injected alerts in an isolated lab that mirrors production, under time pressure; production is untouched. Which type of exercise is this?"
+        choices: ["Simulation", "Tabletop exercise", "Checklist (read-through) review", "Full-interruption test"]
+        answer: 0
+        why: "Practising the real response actions against a staged scenario, away from production, is a simulation. A tabletop is discussion only, with no hands on any systems."
+      - id: cc-5c-q18
+        type: mcq
+        q: "On Saturday, a flaw in the company's internet-facing VPN gateway is being actively exploited and a vendor fix is available. The change board next meets on Thursday. What is the BEST course?"
+        choices: ["Wait for Thursday's meeting so that the normal process is followed", "Use the emergency change procedure: expedited approval now, apply the fix, complete the documentation afterwards", "Apply the fix quietly and make no record, because it is urgent", "Leave the gateway running unpatched and add extra monitoring until Thursday"]
+        answer: 1
+        why: "Change management includes an emergency path so that urgent fixes are still authorized and recorded. Waiting leaves an exploited flaw open for days, and an unrecorded change abandons the control altogether."
+      - id: cc-5c-q19
+        type: mcq
+        q: "An advisory warns of a critical flaw in one router model. The team cannot say how many of that model it runs, or where they are. Which practice is MOST clearly lacking?"
+        choices: ["Change management", "Data classification", "Asset inventory", "Security awareness training"]
+        answer: 2
+        why: "Knowing what you own, and where, is the job of the asset inventory; without it nothing else in asset protection can be targeted. Change management governs how the routers are altered, not whether they are known about."
+      - id: cc-5c-q20
+        type: mcq
+        q: "Developers want flaws such as hard-coded passwords reported with the exact file and line at every code commit, before any build is running. Which technique fits?"
+        choices: ["Dynamic analysis", "Vulnerability scanning", "Penetration testing", "Static analysis"]
+        answer: 3
+        why: "Static analysis inspects the source code itself, so it works before anything runs and can point to the line. Dynamic analysis needs a running application and sees behaviour, not source lines."
+      - id: cc-5c-q21
+        type: mcq
+        q: "The board asks: 'Would our monitoring team notice and respond to a stealthy, realistic attacker over several weeks, with no warning given to them?' Which activity answers this BEST?"
+        choices: ["A red team engagement", "A vulnerability scan", "A purple team exercise", "A tabletop exercise"]
+        answer: 0
+        why: "A red team emulates a real adversary, unannounced, to test detection and response. A purple team exercise is collaborative and open, so the defenders know exactly what is coming and when."
+      - id: cc-5c-q22
+        type: mcq
+        q: "Before any code exists for a new payments service, the team draws its data flows, marks the trust boundaries and lists how each component could be abused. What is this activity?"
+        choices: ["Static analysis", "Threat modeling", "Dynamic analysis", "Vulnerability scanning"]
+        answer: 1
+        why: "Reasoning about how a design could be attacked, before it is built, is threat modeling. Static analysis is the nearest neighbour but needs code to examine, and none exists yet."
+      - id: cc-5c-q23
+        type: mcq
+        q: "A tester is engaged to attempt entry to a client's offices by tailgating and impersonation. What must be in place FIRST?"
+        choices: ["A cloned staff badge", "Floor plans of the building", "Signed written authorization from the client defining the scope", "A briefing for all reception and security staff"]
+        answer: 2
+        why: "Without written authorization and an agreed scope, the test is simply trespass. Briefing the front-line staff would defeat the purpose, because their unprompted reaction is what is being tested."
+      - id: cc-5c-q24
+        type: mcq
+        q: "An investigation stalls because the suspect administrator was able to edit the logs on the servers they managed. Which control BEST prevents this in future?"
+        choices: ["Larger local log files", "More verbose local logging", "Full-disk encryption on each server", "Forwarding logs in real time to a separate log server that those administrators cannot alter"]
+        answer: 3
+        why: "Copying logs immediately to a system outside the administrator's control protects their integrity. More or larger local logs are still under the same administrator's control and can be edited in the same way."
+
+      - id: cc-5c-m01
+        type: multi
+        q: "A message carries a valid digital signature but is not encrypted. Which TWO security properties does the signature provide? (Choose TWO.)"
+        choices: ["Confidentiality", "Integrity", "Availability", "Non-repudiation", "Anonymity"]
+        answers: [1, 3]
+        why: "A signature shows the message is unchanged (integrity) and that only the holder of the private key could have signed it (non-repudiation). It does not hide the content, keep systems running or conceal the sender."
+      - id: cc-5c-m02
+        type: multi
+        q: "Which TWO of these are symmetric encryption algorithms? (Choose TWO.)"
+        choices: ["RSA", "AES", "SHA-256", "3DES", "ECC"]
+        answers: [1, 3]
+        why: "AES and 3DES use one shared key for encryption and decryption. RSA and ECC are asymmetric, and SHA-256 is a hash function, not encryption."
+      - id: cc-5c-m03
+        type: multi
+        q: "Which THREE activities belong to the preparation phase of incident response? (Choose THREE.)"
+        choices: ["Writing and approving the incident response plan", "Isolating an infected host", "Running a tabletop exercise for the response team", "Restoring a server from backup", "Agreeing contact lists and escalation paths", "Removing malware from a host"]
+        answers: [0, 2, 4]
+        why: "Preparation is everything done before an incident: the plan, the training and exercises, and the contact arrangements. Isolating, removing and restoring are containment, eradication and recovery."
+      - id: cc-5c-m04
+        type: multi
+        q: "Which TWO of these activities require the software under test to be executing? (Choose TWO.)"
+        choices: ["Manual source code review", "Dynamic analysis of a web application", "Static analysis at code commit", "Sending malformed inputs to a live API to see how it reacts", "Threat modeling from a design diagram"]
+        answers: [1, 3]
+        why: "Dynamic analysis and sending inputs to a live interface both observe a running program. Code review and static analysis read code at rest, and threat modeling works from the design."
+      - id: cc-5c-m05
+        type: multi
+        q: "Which THREE items should a change request contain before the change authority approves it? (Choose THREE.)"
+        choices: ["An assessment of the change's impact and risk", "The administrator's account password", "A rollback (back-out) plan", "A promise that no downtime can occur", "Evidence that the change was tested", "The lessons-learned report from the change"]
+        answers: [0, 2, 4]
+        why: "Approvers need to know the risk, that the change has been tested and how to undo it. Passwords never belong in a request, nobody can promise zero downtime, and lessons learned can only be written after the change."
+
+      - id: cc-5c-o01
+        type: order
+        q: "An endpoint alert suggests ransomware on a file server. Put the response in order."
+        steps: ["Analyse the alert and confirm that it is an incident", "Isolate the server from the network", "Remove the malware and close the flaw it used", "Restore the data from known-good backups and monitor", "Hold a lessons-learned review and update the plan"]
+        why: "Detection and analysis come before containment; eradication comes before recovery, or the restored system is simply reinfected; the review is post-incident activity."
+      - id: cc-5c-o02
+        type: order
+        q: "Put the steps of a controlled change to a production system in order."
+        steps: ["Submit a change request describing the change", "Assess its impact and risk and prepare a rollback plan", "Obtain approval from the change authority", "Implement the change in the agreed window", "Verify the result and update the documentation"]
+        why: "A change is requested, assessed and approved before anything is touched; it is then implemented in its window, and verification and documentation close it."
+      - id: cc-5c-o03
+        type: order
+        q: "Put the steps of a vulnerability management cycle in order."
+        steps: ["Identify the assets that are in scope", "Scan them for known vulnerabilities", "Prioritize the findings by risk", "Remediate the highest-risk findings", "Rescan to verify that the fixes worked"]
+        why: "You can only scan what you know you have; findings are ranked before effort is spent; and a fix is not finished until a rescan confirms it."

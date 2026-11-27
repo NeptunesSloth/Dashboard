@@ -1,0 +1,910 @@
+part_of: a-plus-core2
+
+units:
+  # ───────── 1x · Windows: editions, installation, tools, commands, settings ─────────
+  - id: ap2-1x
+    title: "Windows in depth: editions, installs, tools and commands"
+    domain: "1"
+    goal: "I can choose an edition, boot method and installation type, open the right snap-in or Control Panel item, and type the exact Windows command a support task needs."
+    notes: |
+      This unit fills in the rest of the Windows half of Domain 1. Learn each item as a *task → tool* pair.
+
+      ## Editions and upgrades
+
+      - **Home** cannot join a domain, host Remote Desktop, or run BitLocker, gpedit.msc or lusrmgr.msc. **Pro** can.
+      - **Pro for Workstations** (Windows 10) adds very large RAM and CPU counts and ReFS; **Enterprise** comes only through volume licensing. **N** editions omit media players.
+      - Home to Pro is an **edition upgrade**: enter a Pro key, no reinstall. A 32-bit Windows 10 cannot be upgraded in place to Windows 11, which is 64-bit only: that needs a **clean install**.
+
+      ## Installing
+
+      Boot from USB, from the network (**PXE**), from an external drive or a recovery partition. If Setup sees no disk, **load the storage driver**. **Zero-touch** devices configure themselves at first sign-in.
+
+      ## Commands worth typing exactly
+
+      | Task | Command |
+      | Map a share at every sign-in | net use Z: \\fs01\data /persistent:yes |
+      | Show hidden files too | dir /a |
+      | Delete a folder tree | rmdir /s /q C:\old |
+      | Disable an account | net user temp /active:no |
+      | Show your groups | whoami /groups |
+      | Ping until stopped | ping -t host |
+      | Connection owner PIDs | netstat -ano |
+
+      Add `/?` to any command for its own help.
+    items:
+      # ── OS types and filesystems ──
+      - id: ap2-1x-chromeos
+        type: concept
+        term: "Chrome OS"
+        def: "Google's browser-centred desktop operating system, built on Linux, that keeps most apps and files in the cloud and is common on low-cost school laptops."
+      - id: ap2-1x-refs
+        type: concept
+        term: "ReFS"
+        def: "Microsoft's resilience-focused filesystem for large data volumes and storage pools; it uses checksums to detect and repair corruption but lacks some features of the usual Windows filesystem, such as file-level encryption."
+      - id: ap2-1x-xfs
+        type: concept
+        term: "XFS"
+        def: "A high-performance 64-bit journaling filesystem for Linux, the default on Red Hat Enterprise Linux, suited to very large files; its volumes can be grown but not shrunk."
+      - id: ap2-1x-q01
+        type: mcq
+        q: "A primary school wants cheap, quickly replaced laptops for pupils who mostly use web apps and cloud documents, managed centrally from a web console. Which operating system fits BEST?"
+        choices: ["Windows 11 Pro for Workstations", "Chrome OS", "macOS", "A Linux server distribution"]
+        answer: 1
+        why: "Chrome OS is built for browser and cloud work on inexpensive hardware and is managed centrally from a cloud console. Pro for Workstations targets high-end hardware and is the opposite of a cheap pupil laptop."
+      - id: ap2-1x-q02
+        type: mcq
+        q: "A technician formats a new data volume on a Windows file server as ReFS and then tries to encrypt individual folders on it with EFS. What happens?"
+        choices: ["The folders are encrypted just as they are on NTFS", "Windows first converts the volume to NTFS silently", "EFS is unavailable because ReFS lacks it", "BitLocker To Go encrypts the folders instead"]
+        answer: 2
+        why: "ReFS omits several NTFS features, including EFS file encryption, so the option is unavailable; BitLocker can still encrypt the whole volume. Windows never converts a ReFS volume to NTFS in place."
+
+      # ── Boot methods and installation types ──
+      - id: ap2-1x-pxe
+        type: concept
+        term: "PXE boot"
+        def: "A firmware option that lets a computer with no usable local operating system start from a boot image delivered over the wired network by a deployment server."
+      - id: ap2-1x-multiboot
+        type: concept
+        term: "Multiboot"
+        def: "A setup in which two or more operating systems are installed on separate partitions of one computer and a menu at startup chooses which one to load."
+      - id: ap2-1x-clean
+        type: concept
+        term: "Clean install"
+        def: "Installing an operating system onto a drive that is erased first, so no applications, settings or files from the previous system survive."
+      - id: ap2-1x-repair
+        type: concept
+        term: "Repair installation"
+        def: "Running Setup for the same Windows version from inside Windows and choosing to keep everything, so damaged system files are replaced while apps, settings and files stay."
+      - id: ap2-1x-zerotouch
+        type: concept
+        term: "Zero-touch deployment"
+        def: "Provisioning in which a new device ships straight to the user and configures itself with the organisation's settings, apps and policies when it first connects and the user signs in, with no technician handling it."
+      - id: ap2-1x-recoverypart
+        type: concept
+        term: "Recovery partition"
+        def: "A hidden area of the system drive, often put there by the computer's manufacturer, that holds a factory image used to return the computer to the state in which it was sold."
+      - id: ap2-1x-q03
+        type: mcq
+        q: "Twenty lab PCs have no working operating system and USB booting is disabled by policy. A deployment server on the same LAN offers Windows images. Which boot method should be enabled in each PC's firmware?"
+        choices: ["Network (PXE) boot", "Internal hard drive boot", "Multiboot menu", "Hot-swappable external drive"]
+        answer: 0
+        why: "PXE lets the network card fetch a boot image from the deployment server, so no local media is needed. Booting from the internal drive cannot work because there is no operating system on it."
+      - id: ap2-1x-q04
+        type: mcq
+        q: "During a clean install of Windows 11 on a workstation with a new RAID controller, Setup reports that it cannot find any drives. The disks work in the firmware setup. What should the technician do?"
+        choices: ["Convert the disks from GPT to MBR first", "Choose a repair installation instead", "Disable the TPM and then restart Setup", "Load the controller's driver in Setup"]
+        answer: 3
+        why: "Windows Setup cannot see disks behind a controller whose driver it lacks; the vendor's third-party driver is loaded from a USB stick with 'Load driver'. The partition style is irrelevant until the disks are visible."
+      - id: ap2-1x-q05
+        type: mcq
+        q: "A sales rep's new laptop is shipped directly from the supplier to her home. When she connects to Wi-Fi and signs in with her work account, it enrols in management and installs the company apps on its own. What is this called?"
+        choices: ["Image deployment", "Remote network installation", "Zero-touch deployment", "Repair installation"]
+        answer: 2
+        why: "Zero-touch deployment configures a device from the cloud the first time the user signs in, with no technician. Image deployment copies a prepared image onto the disk, which needs someone to start it."
+      - id: ap2-1x-q07
+        type: mcq
+        q: "A technician compares a full format with a quick format of a hard disk in Windows. What does the full format do that the quick format does not?"
+        choices: ["It converts the disk from MBR to GPT format", "It creates a hidden recovery partition", "It encrypts the volume with BitLocker", "It checks for bad sectors and writes zeros"]
+        answer: 3
+        why: "In current Windows a full format checks every sector and writes zeros; a quick format only builds a new empty file table. Changing the partition style is a separate operation in Disk Management or diskpart."
+
+      # ── Editions, upgrade paths, life cycle ──
+      - id: ap2-1x-featureupd
+        type: concept
+        term: "Feature update"
+        def: "Microsoft's yearly release of a new Windows version, such as 24H2, each supported for only a fixed number of months before devices must move to a newer one."
+      - id: ap2-1x-nedition
+        type: concept
+        term: "N edition"
+        def: "A Windows edition sold mainly in Europe that ships without Windows Media Player and related media technologies, which can be added later with a free feature pack."
+      - id: ap2-1x-proworkstation
+        type: concept
+        term: "Windows 10 Pro for Workstations"
+        def: "The Windows 10 edition for high-end hardware that adds support for up to four CPUs and 6 TB of RAM, plus ReFS volumes and persistent memory."
+      - id: ap2-1x-tpm
+        type: concept
+        term: "Trusted Platform Module (TPM)"
+        def: "A secure cryptographic chip, or firmware equivalent in the CPU, that stores keys and records measurements of the boot process; version 2.0 is required by Windows 11."
+      - id: ap2-1x-q09
+        type: mcq
+        q: "A freelancer on Windows 11 Home now needs BitLocker. She does not want to reinstall anything. What should she do?"
+        choices: ["Clean install Windows 11 Pro from new media", "Enable BitLocker in the Local Group Policy Editor", "Enter a Pro product key under Activation", "Install the Media Feature Pack"]
+        answer: 2
+        why: "Home to Pro is an edition upgrade: entering a Pro key unlocks the Pro features with apps and files untouched. gpedit.msc is itself a Pro feature, so it cannot be used to enable anything on Home."
+      - id: ap2-1x-q10
+        type: mcq
+        q: "A Windows 11 Pro PC bought in Europe cannot play video in several apps, and Windows Media Player is missing. Everything else works. What is the MOST likely explanation?"
+        choices:
+          - "The PC lacks a TPM 2.0 chip"
+          - "It is an N edition without media features"
+          - "The graphics driver was rolled back"
+          - "The PC is joined to a workgroup"
+        answer: 1
+        why: "N editions omit Windows Media Player and media components; installing the free Media Feature Pack restores them. A rolled-back graphics driver would affect the display generally, not only media playback."
+
+      # ── Task Manager, MMC snap-ins and other tools ──
+      - id: ap2-1x-mmc
+        type: concept
+        term: "Microsoft Management Console (MMC)"
+        def: "The Windows framework that hosts administrative snap-ins saved as .msc files and lets an administrator build a custom console holding several of them."
+      - id: ap2-1x-certmgr
+        type: concept
+        term: "Certificate Manager"
+        def: "The snap-in (certmgr.msc) that shows the digital certificates held for the current user, such as trusted root authorities and personal certificates, and imports, exports or deletes them."
+      - id: ap2-1x-lusrmgr
+        type: concept
+        term: "Local Users and Groups"
+        def: "The snap-in (lusrmgr.msc), absent from Home editions, used to create local accounts, reset their passwords and add them to groups such as Administrators."
+      - id: ap2-1x-gpedit
+        type: concept
+        term: "Local Group Policy Editor"
+        def: "The snap-in (gpedit.msc), available in Pro and above, for setting computer and user policies on a single machine without a domain."
+      - id: ap2-1x-msinfo
+        type: concept
+        term: "System Information"
+        def: "The tool (msinfo32.exe) that presents a read-only inventory of firmware version, hardware resources, components, drivers and the software environment, and can export it as a report."
+      - id: ap2-1x-cleanmgr
+        type: concept
+        term: "Disk Cleanup"
+        def: "The tool (cleanmgr.exe) that frees space by deleting temporary files, Recycle Bin contents, old update files and previous Windows installations the user selects."
+      - id: ap2-1x-dfrgui
+        type: concept
+        term: "Optimize Drives"
+        def: "The tool (dfrgui.exe) that defragments hard disks and sends TRIM to solid-state drives, on demand or on a weekly schedule."
+      - id: ap2-1x-q15
+        type: mcq
+        q: "A user's browser warns that an internal web site's certificate is untrusted. IT supplies the company's root CA certificate file for just this user to install. Which snap-in is used?"
+        choices: ["lusrmgr.msc", "devmgmt.msc", "taskschd.msc", "certmgr.msc"]
+        answer: 3
+        why: "Certificate Manager imports the root certificate into the user's Trusted Root Certification Authorities store. Local Users and Groups manages accounts and group membership, not certificates."
+      - id: ap2-1x-q16
+        type: mcq
+        q: "On a Windows 11 Pro PC that is not in a domain, a technician must create a local account for a temporary worker and add it to the Remote Desktop Users group. Which snap-in is designed for this?"
+        choices: ["lusrmgr.msc", "gpedit.msc", "certmgr.msc", "eventvwr.msc"]
+        answer: 0
+        why: "Local Users and Groups creates local accounts and manages group membership. gpedit.msc sets policies; it does not create user accounts."
+      - id: ap2-1x-q18
+        type: mcq
+        q: "A user asks for a weekly 'defrag' of the SSD in his laptop. What does Windows Optimize Drives do to an SSD on its schedule?"
+        choices: ["It performs a full defragmentation, as for a hard disk", "It sends TRIM so the SSD knows which blocks are free", "It runs chkdsk /r to find bad sectors", "It skips solid-state drives entirely"]
+        answer: 1
+        why: "Optimize Drives detects the media type and, for an SSD, runs a retrim instead of a hard-disk defragmentation, which would only add wear (Windows defragments an SSD only rarely, when a very fragmented volume with shadow copies needs it). It does not skip SSDs, and checking for bad sectors is chkdsk's job."
+
+      # ── Command line ──
+      - id: ap2-1x-pathping
+        type: concept
+        term: "pathping"
+        def: "The Windows command that discovers the route to a host and then sends many probes to every hop, reporting packet loss at each router."
+      - id: ap2-1x-diskpart
+        type: concept
+        term: "diskpart"
+        def: "The Windows command-line partitioning tool, used with commands such as list disk, select disk, clean and convert gpt."
+      - id: ap2-1x-gpresult
+        type: concept
+        term: "gpresult"
+        def: "The Windows command that reports which Group Policy objects and settings were applied to the computer and the signed-in user."
+      - id: ap2-1x-whoami
+        type: concept
+        term: "whoami"
+        def: "The Windows command that prints the account the current session runs as and, with switches, its group memberships and privileges."
+      - id: ap2-1x-q19
+        type: mcq
+        q: "A VoIP user reports choppy calls. tracert to the provider completes, but the technician needs loss percentages per router to find where packets drop. Which command should be run?"
+        choices: ["pathping", "ping -t", "nslookup", "netstat -ano"]
+        answer: 0
+        why: "pathping probes every hop repeatedly and reports loss at each one. A continuous ping shows loss only end to end, not where it happens."
+      - id: ap2-1x-q20
+        type: mcq
+        q: "Which command maps drive P: to the share 'projects' on server FS01 so that it reconnects at every sign-in?"
+        choices: ["net use P: \\\\FS01\\projects /persistent:no", "net use P: \\\\FS01\\projects /persistent:yes", "net use \\\\FS01\\projects /savecred /persistent:yes", "net use P: /delete"]
+        answer: 1
+        why: "A drive letter followed by the UNC path maps the share, and /persistent:yes restores it at each sign-in. /persistent:no maps it only for this session, and a command with no drive letter connects to the share without mapping P: at all."
+      - id: ap2-1x-q21
+        type: mcq
+        q: "A technician at a command prompt must remove C:\\Temp\\old, which contains many files and subfolders, without being asked to confirm. Which command does this?"
+        choices: ["rmdir C:\\Temp\\old", "rmdir /q C:\\Temp\\old", "rmdir /s /q C:\\Temp\\old", "del /q C:\\Temp\\old"]
+        answer: 2
+        why: "/s removes the folder and everything below it, and /q suppresses the confirmation prompt. Without /s, rmdir refuses to remove a folder that is not empty; del /q deletes the files in the folder but leaves the folder and its subfolders."
+      - id: ap2-1x-q22
+        type: mcq
+        q: "A contractor's local account must stop working today but be kept for an audit. Which command disables it without deleting it?"
+        choices: ["net user contractor /delete", "net use contractor /delete", "net localgroup contractor /delete", "net user contractor /active:no"]
+        answer: 3
+        why: "/active:no disables the account while keeping it and its profile. /delete removes the account entirely, which the audit requirement rules out."
+      - id: ap2-1x-q23
+        type: mcq
+        q: "A user says a folder should hold a hidden configuration file, but 'dir' does not list it. Which command also lists hidden and system files?"
+        choices: ["dir /s /p", "dir /w", "dir /o:d", "dir /a"]
+        answer: 3
+        why: "dir /a shows files regardless of attributes, including hidden and system ones. /s adds subfolders, /w uses a wide layout and /o:d sorts by date, but none of them reveals hidden files."
+      - id: ap2-1x-q24
+        type: mcq
+        q: "A technician must copy D:\\Data to \\\\NAS01\\backup so that the destination becomes an exact copy, including deleting files that no longer exist in the source. Which command does this?"
+        choices: ["robocopy D:\\Data \\\\NAS01\\backup /mir", "copy D:\\Data \\\\NAS01\\backup", "robocopy D:\\Data \\\\NAS01\\backup /e /z", "md \\\\NAS01\\backup D:\\Data"]
+        answer: 0
+        why: "robocopy /mir mirrors the tree, copying new and changed files and deleting extra ones at the destination. /e copies subfolders and /z makes copies restartable, but neither deletes files that are gone from the source."
+      - id: ap2-1x-q25
+        type: mcq
+        q: "A helpdesk caller is unsure which Windows version and build he is running. Which command opens a small window that shows both?"
+        choices: ["hostname", "whoami", "winver", "gpresult /r"]
+        answer: 2
+        why: "winver opens the About Windows dialog with the version (such as 24H2) and the OS build. hostname prints only the computer name."
+      - id: ap2-1x-q27
+        type: mcq
+        q: "A technician needs to watch a server's reachability during a reboot, sending echo requests until stopping with Ctrl+C. Which command does this on Windows?"
+        choices: ["ping -n 4 server01", "ping -t server01", "tracert -d server01", "pathping -n server01"]
+        answer: 1
+        why: "ping -t keeps pinging until it is interrupted. -n sets a fixed count (4 is the default), so it stops on its own."
+      - id: ap2-1x-q28
+        type: mcq
+        q: "A technician must format the USB drive E: as exFAT with a quick format. Which command is correct?"
+        choices:
+          - "format E: /fs:exfat /q"
+          - "chkdsk E: /fs:exfat /f"
+          - "diskpart E: exfat quick"
+          - "format exfat E: /full"
+        answer: 0
+        why: "format takes the drive letter, then /fs: to choose the filesystem and /q for a quick format. chkdsk checks an existing filesystem; it never creates one."
+      - id: ap2-1x-o01
+        type: order
+        q: "A technician uses diskpart to wipe an empty second disk (disk 1) and prepare it as one NTFS data volume on GPT. Put the commands in order."
+        steps:
+          - "list disk"
+          - "select disk 1"
+          - "clean"
+          - "convert gpt"
+          - "create partition primary"
+          - "format fs=ntfs quick"
+        why: "diskpart acts on the selected object, so you identify and select the disk first; clean removes the old partition table, after which the empty disk can be converted to GPT before a partition is created and formatted."
+      - id: ap2-1x-m01
+        type: multi
+        q: "A technician needs to find which process is listening on TCP port 8080 on a Windows PC. Which TWO tools can show this? Choose TWO."
+        choices:
+          - "netstat -ano"
+          - "Resource Monitor, Network tab"
+          - "ipconfig /all"
+          - "nslookup"
+          - "tracert"
+        answers: [0, 1]
+        why: "netstat -ano lists listening ports with the owning process ID, and Resource Monitor's Listening Ports section names the process directly. ipconfig, nslookup and tracert show addressing, name resolution and routes, not local listeners."
+
+      # ── Control Panel, Settings and power ──
+      - id: ap2-1x-fastboot
+        type: concept
+        term: "Fast startup"
+        def: "A Windows power option that, at shutdown, saves the kernel session to disk so the next start is quicker; as a result a shutdown is not a full restart of the system."
+      - id: ap2-1x-hibernate
+        type: concept
+        term: "Hibernate"
+        def: "A power state that writes the whole open session from memory to the disk and then switches the computer off, so it uses no power yet resumes where the user left off."
+      - id: ap2-1x-usbss
+        type: concept
+        term: "USB selective suspend"
+        def: "A power-plan setting that lets Windows cut power to individual idle USB ports to save energy, which can make some USB devices disconnect or stop responding."
+      - id: ap2-1x-easeofaccess
+        type: concept
+        term: "Ease of Access"
+        def: "The group of Windows settings, called Accessibility in Windows 11, that provides Narrator, Magnifier, high-contrast themes, Sticky Keys and other aids for users with impairments."
+      - id: ap2-1x-q31
+        type: mcq
+        q: "A partially sighted user needs on-screen text enlarged around the mouse pointer and spoken aloud. Where in Windows 10 are these settings found?"
+        choices: ["Personalization", "Ease of Access", "Devices", "Time and Language"]
+        answer: 1
+        why: "Magnifier and Narrator live under Ease of Access (Accessibility in Windows 11). Personalization changes backgrounds, colours and themes, not assistive tools."
+
+      - id: ap2-1x-indexing
+        type: concept
+        term: "Indexing Options"
+        def: "The Control Panel item that chooses which locations Windows Search catalogues and can rebuild that catalogue when search results go missing."
+      - id: ap2-1x-mail
+        type: concept
+        term: "Mail (Control Panel item)"
+        def: "The Control Panel item, present when the desktop Outlook client is installed, that creates and manages Outlook profiles and the email accounts in them."
+
+      # ── Client networking ──
+      - id: ap2-1x-wwan
+        type: concept
+        term: "WWAN (cellular) connection"
+        def: "A network connection made through a mobile carrier's network, using a built-in modem and SIM or eSIM, so a laptop can get online wherever there is phone coverage."
+      - id: ap2-1x-unc
+        type: concept
+        term: "UNC path"
+        def: "The \\\\server\\share\\folder form used in File Explorer or commands to reach a shared folder on another computer by name, without mapping a drive letter."
+
+  # ───────── 1y · macOS, Linux, application installs, cloud productivity ─────────
+  - id: ap2-1y
+    title: "macOS and Linux in depth, installing apps and cloud tools"
+    domain: "1"
+    goal: "I can find my way round macOS folders and features, type the Linux command or edit the config file a task needs, check an application's requirements and set up cloud productivity tools."
+    notes: |
+      ## macOS
+
+      | Folder | Holds |
+      | /Applications | Apps for every user |
+      | /Users | Each user's home folder |
+      | /Library | Fonts, preferences and support files shared by all users |
+      | ~/Library | The same, for one user (hidden in Finder) |
+      | /System | The protected operating system itself |
+
+      Uninstall by dragging the app to the Trash; leftovers sit in `~/Library`. **Rapid Security Responses** patch urgent flaws between full updates (macOS 26 Tahoe delivers them as **Background Security Improvements**). App permissions such as screen and audio recording are granted in **Privacy & Security**. **Continuity** passes work between devices on the same Apple account.
+
+      ## Linux syntax
+
+      | Task | Command |
+      | Change owner and group | chown alice:sales file |
+      | Find files by name | find /home -name "*.pdf" |
+      | Mount a partition | mount /dev/sdb1 /mnt/usb |
+      | Size of each folder | du -sh /var/* |
+      | Mail servers for a domain | dig example.com MX |
+      | Headers only from a URL | curl -I https://host |
+      | Start a service at boot | systemctl enable nginx |
+
+      Name resolution reads `/etc/hosts` and then the servers in `/etc/resolv.conf`. Check a filesystem with `fsck` only while it is **unmounted**.
+
+      ## Applications and cloud
+
+      64-bit Windows runs 32-bit apps, never the reverse. Check RAM, CPU, storage, dedicated **VRAM**, any **hardware token** and the supported OS. Cloud suites need a **licence assigned** to each user, and **identity synchronisation** lets staff use their existing directory account.
+    items:
+      # ── macOS ──
+      - id: ap2-1y-rsr
+        type: concept
+        term: "Rapid Security Response"
+        def: "A small Apple update, introduced with macOS Ventura and iOS 16, that delivers urgent security fixes between full releases, needs only a quick restart and is shown with a letter suffix such as (a); macOS 26 replaces it with Background Security Improvements."
+      - id: ap2-1y-continuity
+        type: concept
+        term: "Continuity"
+        def: "The set of Apple features, such as Handoff and Universal Clipboard, that lets work move between a Mac, iPhone and iPad signed in to the same Apple account and near each other."
+      - id: ap2-1y-missionctl
+        type: concept
+        term: "Mission Control"
+        def: "The macOS view that spreads out every open window and shows a strip of desktops (Spaces) at the top, where extra desktops can be added."
+      - id: ap2-1y-userlib
+        type: concept
+        term: "~/Library"
+        def: "The hidden folder inside a Mac user's home folder that holds that user's preferences, caches and application support files."
+      - id: ap2-1y-q01
+        type: mcq
+        q: "A Mac user dragged a video app to the Trash and emptied it, but reinstalling it brings back her old broken settings. Where are those settings MOST likely stored?"
+        choices: ["/System/Library", "/Applications", "~/Library", "/Users/Shared"]
+        answer: 2
+        why: "Per-user preferences and application support files live in the hidden ~/Library folder and survive deleting the .app. /System is the protected operating system, which apps do not write their settings into."
+      - id: ap2-1y-q02
+        type: mcq
+        q: "In 2023 a Mac running macOS Ventura was offered an update named 'macOS Ventura 13.4.1 (a)' that installed in minutes with a quick restart. What was it?"
+        choices: ["A beta release of the next major macOS version", "A firmware update for the Mac's SSD", "A Time Machine snapshot", "A Rapid Security Response"]
+        answer: 3
+        why: "Rapid Security Responses carry urgent security fixes between full updates and are labelled with a letter suffix; 13.4.1 (a) was a real one. A beta release is installed only through the beta programme and is a full update, not a small patch. In macOS 26 Tahoe the same job is done by Background Security Improvements, which also carry a letter suffix."
+      - id: ap2-1y-q03
+        type: mcq
+        q: "A user copies text on her iPhone and expects to paste it on her Mac with Universal Clipboard, but nothing appears. Both have Bluetooth and Wi-Fi on. What should be checked next?"
+        choices: ["Both use the same Apple account", "FileVault is on for the Mac", "A Time Machine disk is attached to the Mac", "Spotlight indexing has finished"]
+        answer: 0
+        why: "Continuity features such as Universal Clipboard and Handoff only work between nearby devices signed in to the same Apple account, with Handoff allowed. FileVault encrypts the disk and has no effect on Continuity."
+      - id: ap2-1y-q04
+        type: mcq
+        q: "During a video call on a Mac, the conferencing app shows only a blank desktop when the user tries to share her screen. What is the MOST likely fix?"
+        choices: ["Turn on Screen Sharing under General > Sharing", "Allow the app under Privacy & Security > Screen & System Audio Recording", "Add the app to the Dock", "Run First Aid in Disk Utility"]
+        answer: 1
+        why: "macOS requires each app to be allowed in Privacy & Security > Screen & System Audio Recording (called Screen Recording before macOS Sequoia) before it can capture the screen. Screen Sharing in Sharing lets other people remotely control the Mac, which is a different feature."
+      - id: ap2-1y-m01
+        type: multi
+        q: "A Mac user asks which kinds of files or sources can be used to install software on macOS. Choose THREE."
+        choices: [".dmg disk image", ".pkg installer package", "The App Store", ".msi package", ".deb package", ".exe setup file"]
+        answers: [0, 1, 2]
+        why: "macOS installs from .dmg images, .pkg packages and the App Store. .msi and .exe are Windows installers, and .deb is a Debian Linux package."
+
+      # ── Linux ──
+      - id: ap2-1y-chown
+        type: concept
+        term: "chown"
+        def: "The Linux command that changes which user, and optionally which group, owns a file or directory."
+      - id: ap2-1y-find
+        type: concept
+        term: "find"
+        def: "The Linux command that walks a directory tree and lists the files matching tests such as name, size, owner or modification time."
+      - id: ap2-1y-fsck
+        type: concept
+        term: "fsck"
+        def: "The Linux command that checks a filesystem for inconsistencies and repairs them, run while that filesystem is unmounted."
+      - id: ap2-1y-mount
+        type: concept
+        term: "mount"
+        def: "The Linux command that attaches a filesystem on a device, such as /dev/sdb1, to a directory in the single file tree so its contents can be used."
+      - id: ap2-1y-su
+        type: concept
+        term: "su"
+        def: "The Linux command that starts a shell as another user, by default root, after that other user's password is entered."
+      - id: ap2-1y-dig
+        type: concept
+        term: "dig"
+        def: "The Linux command that sends a DNS query for a chosen record type, optionally to a chosen server, and prints the full answer."
+      - id: ap2-1y-curl
+        type: concept
+        term: "curl"
+        def: "The Linux command-line tool that transfers data to or from a URL, used to download files or test a web service and see its response."
+      - id: ap2-1y-nano
+        type: concept
+        term: "nano"
+        def: "A simple terminal text editor that lists its keyboard shortcuts at the bottom of the screen, saving with Ctrl+O and exiting with Ctrl+X."
+      - id: ap2-1y-passwd
+        type: concept
+        term: "/etc/passwd"
+        def: "The world-readable Linux file with one line per account giving the user name, user ID, group ID, home directory and login shell."
+      - id: ap2-1y-hosts
+        type: concept
+        term: "/etc/hosts"
+        def: "The Linux file that maps host names to IP addresses locally and is normally consulted before any DNS server."
+      - id: ap2-1y-fstab
+        type: concept
+        term: "/etc/fstab"
+        def: "The Linux file that lists which filesystems to mount, where, with what type and options, at every boot."
+      - id: ap2-1y-resolv
+        type: concept
+        term: "/etc/resolv.conf"
+        def: "The Linux file that lists the DNS name servers and search domains the system uses to resolve names."
+      - id: ap2-1y-systemd
+        type: concept
+        term: "systemd"
+        def: "The first process started on most modern Linux systems; it brings up and supervises services and is controlled with systemctl."
+      - id: ap2-1y-kernel
+        type: concept
+        term: "Kernel"
+        def: "The core of an operating system that manages memory, processes and hardware through drivers, sitting between applications and the hardware."
+      - id: ap2-1y-grub
+        type: concept
+        term: "Bootloader (GRUB)"
+        def: "The small program the firmware starts first on most Linux systems; it shows a menu of installed systems and loads the chosen kernel."
+      - id: ap2-1y-root
+        type: concept
+        term: "root account"
+        def: "The Linux superuser with user ID 0, which bypasses all file permissions and should not be used for everyday work."
+      - id: ap2-1y-q05
+        type: mcq
+        q: "A shared file on a Linux workstation must now belong to user 'maria' and group 'sales'. Which command does this in one step?"
+        choices:
+          - "chmod maria:sales q3.ods"
+          - "sudo chown maria:sales q3.ods"
+          - "sudo su maria sales q3.ods"
+          - "chgrp maria sales q3.ods"
+        answer: 1
+        why: "chown takes user:group and changes both at once (root rights are needed to give a file away). chmod changes permission bits, not ownership."
+      - id: ap2-1y-q06
+        type: mcq
+        q: "A user saved a PDF somewhere under his home folder but cannot remember where. Which command lists every PDF beneath /home/raj?"
+        choices:
+          - "grep /home/raj *.pdf"
+          - "ls -R /home/raj/*.pdf"
+          - "find /home/raj -name \"*.pdf\""
+          - "cat /home/raj/*.pdf"
+        answer: 2
+        why: "find searches the whole tree below the starting directory for names matching the pattern. grep searches inside files for text, and the shell expands *.pdf only in /home/raj itself, so ls misses PDFs in subfolders."
+      - id: ap2-1y-q07
+        type: mcq
+        q: "A Linux data partition /dev/sdb1, mounted at /data, reports filesystem errors. What must be done before running fsck on it?"
+        choices: ["Unmount it with 'umount /data'", "Add an entry for it to /etc/fstab first", "Run 'du -sh /data'", "Change its owner with chown"]
+        answer: 0
+        why: "fsck must run on an unmounted filesystem, or the repair can itself cause corruption while files are changing. Adding a line to /etc/fstab only controls mounting at boot."
+      - id: ap2-1y-q08
+        type: mcq
+        q: "Mail to a domain is bouncing and a technician on Linux wants to see which mail servers DNS publishes for it. Which command shows them?"
+        choices: ["curl example.com MX", "ping -c 4 example.com", "traceroute example.com", "dig example.com MX"]
+        answer: 3
+        why: "dig queries DNS for the named record type, here the MX records that point to mail servers. curl fetches content from a URL and does not query DNS records."
+      - id: ap2-1y-q09
+        type: mcq
+        q: "A developer needs the name 'testsite.local' to resolve to 192.168.1.50 on her Linux laptop only, without changing any DNS server. Which file should she edit?"
+        choices: ["/etc/resolv.conf", "/etc/hosts", "/etc/fstab", "/etc/passwd"]
+        answer: 1
+        why: "/etc/hosts maps names to addresses locally and is checked before DNS. /etc/resolv.conf only says which DNS servers to ask, so it cannot hold a single name-to-address entry."
+      - id: ap2-1y-q10
+        type: mcq
+        q: "On a default Ubuntu desktop, a user in the sudo group types 'su -' to get a root shell and the password is always rejected. Which command gives a root shell instead?"
+        choices: ["sudo -i", "su - root", "sudo -l", "su -l"]
+        answer: 0
+        why: "Ubuntu locks the root password by default, so su cannot authenticate; sudo -i starts a root login shell using the user's own password. Every su form still asks for the root password, and sudo -l only lists what the user may run."
+      - id: ap2-1y-m02
+        type: multi
+        q: "Which TWO Linux files does a technician check when a workstation resolves host names wrongly? Choose TWO."
+        choices: ["/etc/hosts", "/etc/resolv.conf", "/etc/fstab", "/etc/shadow", "/etc/passwd"]
+        answers: [0, 1]
+        why: "/etc/hosts holds local name-to-address entries and /etc/resolv.conf names the DNS servers. fstab controls mounts, and shadow and passwd hold account data."
+      - id: ap2-1y-o01
+        type: order
+        q: "A technician plugs a USB drive into a Linux workstation, where the empty folder /mnt/usb already exists, and copies files to it from the terminal. Put the steps in order."
+        steps:
+          - "Identify the drive's partition, for example with lsblk"
+          - "sudo mount /dev/sdb1 /mnt/usb"
+          - "Copy the files to /mnt/usb with cp"
+          - "sudo umount /mnt/usb"
+        why: "You need the device name before you can mount it on the existing mount point, and the filesystem must be mounted before files can be copied; unmounting last flushes the writes so the drive can be removed safely."
+      - id: ap2-1y-o02
+        type: order
+        q: "On Ubuntu, a technician sets PasswordAuthentication no in the SSH server's config file with nano and applies it. Put the steps in order."
+        steps:
+          - "sudo nano /etc/ssh/sshd_config"
+          - "Edit the setting"
+          - "Press Ctrl+O and Enter to save"
+          - "Press Ctrl+X to exit nano"
+          - "sudo systemctl restart ssh"
+        why: "The file is opened, changed and written out before the editor is closed, and the service only reads the new setting when it is restarted afterwards. On Ubuntu and Debian the unit is called ssh; on Red Hat and Fedora it is sshd."
+
+      # ── Application requirements and distribution ──
+      - id: ap2-1y-iso
+        type: concept
+        term: "ISO file"
+        def: "A single file containing an exact image of an optical disc, which Windows and macOS can mount as a virtual drive to install software without physical media."
+      - id: ap2-1y-token
+        type: concept
+        term: "Licence dongle"
+        def: "A small USB device that some licensed applications require to be plugged in before they will run, proving the licence is present."
+      - id: ap2-1y-q11
+        type: mcq
+        q: "A user on 64-bit Windows 11 must install an accounting program that is offered only as a 32-bit build. What will happen?"
+        choices: ["It cannot be installed on a 64-bit operating system", "It must be run inside a virtual machine", "It installs and runs, usually in Program Files (x86)", "It installs only after switching the firmware to legacy BIOS"]
+        answer: 2
+        why: "64-bit Windows runs 32-bit applications through its compatibility layer and installs them under Program Files (x86). The reverse is the problem: a 32-bit Windows cannot run 64-bit applications."
+      - id: ap2-1y-q12
+        type: mcq
+        q: "A vendor sends a software installer as a single .iso file. The Windows 11 PC has no optical drive. What is the simplest way to install from it?"
+        choices: ["Burn it to a DVD using another computer", "Rename the file to .exe and run it", "Extract it with diskpart", "Double-click it to mount it as a drive"]
+        answer: 3
+        why: "Windows mounts an ISO as a virtual DVD drive with a double-click, so Setup can be run directly. Burning a disc would work but needs another PC and an optical drive this one does not have."
+      - id: ap2-1y-q13
+        type: mcq
+        q: "Before buying a new design application, a manager asks what it will do to the office. It needs 50 GB per PC, uploads large files to the vendor's cloud all day, and staff need two days of training. Which impact consideration does the all-day uploading fall under?"
+        choices: ["Network", "Device", "Operational", "Business"]
+        answer: 0
+        why: "Constant uploads consume bandwidth shared by everyone, a network impact. The 50 GB per PC is a device impact and the training is an operational one."
+
+      # ── Cloud productivity tools ──
+      - id: ap2-1y-identity
+        type: concept
+        term: "Identity synchronization"
+        def: "Copying user accounts, and often password hashes, from an on-premises directory to a cloud identity service so staff sign in to cloud apps with the same credentials."
+      - id: ap2-1y-licence
+        type: concept
+        term: "Licence assignment"
+        def: "Allocating one of an organisation's purchased cloud subscriptions to a particular user account, which is what turns on that user's mailbox and apps."
+      - id: ap2-1y-ondemand
+        type: concept
+        term: "Files On-Demand"
+        def: "A cloud sync client setting that shows every cloud file in the local folder but downloads its contents only when the file is opened or marked to keep on the device."
+      - id: ap2-1y-q14
+        type: mcq
+        q: "A laptop with a 128 GB SSD syncs a 400 GB company cloud library. The user needs to see every file but cannot store them all locally. Which sync setting fits?"
+        choices: ["Back up the Desktop folder to the cloud", "Files On-Demand, leaving files online-only", "Mark every folder 'Always keep on this device'", "Pause syncing permanently"]
+        answer: 1
+        why: "Files On-Demand lists all files but downloads each only when it is opened. 'Always keep on this device' forces full local copies, which cannot fit on the drive."
+
+  # ───────────────── 1z2 · Exam-hard practice: operating systems ─────────────────
+  - id: ap2-1z2
+    title: "Exam-hard practice: operating systems"
+    domain: "1"
+    goal: "I can read a short support ticket, work out what is really wrong, and pick the exact tool, command, edition or setting that fixes it within the stated constraint."
+    notes: |
+      These questions are written to be harder than the exam. Each one is a support ticket: a symptom, a constraint and a request. Work in two steps.
+
+      1. **Name the problem.** Is it an edition limit, a power setting, a network setting, a permission, a missing driver, an architecture mismatch?
+      2. **Apply the constraint.** "Without reinstalling", "for this user only", "until it is stopped", "on every sign-in" usually decides between two near-neighbours.
+
+      ## Near-neighbours to keep apart
+
+      | These | Differ in |
+      | Shut down and Restart | Fast startup only fully reloads Windows on Restart |
+      | Sleep and Hibernate | RAM kept powered, or written to disk |
+      | Public and metered | Firewall and discovery, or download behaviour |
+      | gpupdate and gpresult | Apply policy, or report it |
+      | tracert and pathping | Path only, or loss per hop |
+      | /etc/hosts and /etc/resolv.conf | A name entry, or which DNS server |
+      | systemctl start and enable | Now, or at every boot |
+      | Edition upgrade and clean install | Keeps everything, or wipes |
+
+      Choose TWO and Choose THREE items are marked all-or-nothing, as on the exam. Order items stand in for the performance-based questions: think about what each step needs to have happened first.
+    items:
+      - id: ap2-1z2-q01
+        type: mcq
+        q: "Since an unexpected shutdown, classic Outlook on a Windows 11 PC closes as soon as it opens, even in safe mode. Webmail works. Which Control Panel item lets the technician create a fresh profile for the account?"
+        choices: ["Internet Options", "Credential Manager", "Mail", "Programs and Features"]
+        answer: 2
+        why: "The Mail item manages Outlook profiles, so a new profile can be created and set as the default. Repairing Office from Programs and Features fixes program files, not a damaged profile."
+      - id: ap2-1z2-q02
+        type: mcq
+        q: "A user's Start menu search no longer finds documents she saved this week, although older files still appear. The files are in her Documents folder. What should the technician do?"
+        choices:
+          - "Run chkdsk /f on the C: drive"
+          - "Rebuild the index from Indexing Options"
+          - "Turn on 'Show hidden files' in File Explorer Options"
+          - "Run sfc /scannow"
+        answer: 1
+        why: "Search reads the index, and a stale or damaged index misses new files; rebuilding it from Indexing Options fixes this. The files are not hidden, so changing File Explorer's view would not help."
+      - id: ap2-1z2-q03
+        type: mcq
+        q: "A developer on Windows 11 Pro needs Hyper-V and Windows Sandbox turned on. Where are built-in optional components like these enabled from Control Panel?"
+        choices: ["Devices and Printers", "System, Advanced system settings", "Administrative Tools, Services", "Turn Windows features on or off"]
+        answer: 3
+        why: "'Turn Windows features on or off', reached from Programs and Features, adds built-in optional components such as Hyper-V. The Services console starts and stops services that are already installed."
+      - id: ap2-1z2-q04
+        type: mcq
+        q: "On Windows 11, PDFs keep opening in the browser, but the user wants them in a dedicated PDF reader that is already installed. Which Settings category is used?"
+        choices: ["Apps", "System", "Personalization", "Accounts"]
+        answer: 0
+        why: "Apps > Default apps sets which program opens each file type. Personalization changes the look of the desktop, not file associations."
+      - id: ap2-1z2-q05
+        type: mcq
+        q: "A user's video-call app shows a black image, while the Camera app works. The technician suspects the call app was denied camera access. Which Settings category holds the per-app switch?"
+        choices: ["Bluetooth & devices", "Apps", "Privacy & security", "Gaming"]
+        answer: 2
+        why: "Privacy & security > Camera lists the apps allowed to use the camera. Bluetooth & devices covers the camera hardware and its driver, which already works because the Camera app works."
+      - id: ap2-1z2-q06
+        type: mcq
+        q: "A user who moved from the US to the UK wants dates shown as day/month/year and prices in pounds on Windows. Which Settings category is used?"
+        choices: ["System", "Time and Language", "Personalization", "Accessibility"]
+        answer: 1
+        why: "Time and Language holds the region, regional format and language settings that control date and currency formats. System covers display, sound, notifications and storage, not regional formats."
+      - id: ap2-1z2-q07
+        type: mcq
+        q: "A user wants Windows to prioritise a game while it runs and to record short clips with the built-in Xbox Game Bar. Which Settings category holds both options?"
+        choices: ["Apps", "Ease of Access", "Devices", "Gaming"]
+        answer: 3
+        why: "Gaming contains Game Mode and the Game Bar and capture settings. Apps manages installed programs and defaults, not game performance."
+      - id: ap2-1z2-q08
+        type: mcq
+        q: "A user wants to sign in with a PIN instead of her password and also add her employer's work account to her personal Windows 11 PC. Which Settings category holds both?"
+        choices: ["Accounts", "Privacy & security", "Network & internet", "System"]
+        answer: 0
+        why: "Accounts contains Sign-in options (PIN, Windows Hello) and Access work or school. Privacy & security controls app permissions and Windows Security, not sign-in methods."
+      - id: ap2-1z2-q09
+        type: mcq
+        q: "A Windows PC set to obtain an address automatically shows IPv4 169.254.37.12 and no default gateway. Other PCs on the same switch are fine. What is the MOST likely cause?"
+        choices: ["The DNS server address on the PC is wrong", "No DHCP server answered, so it self-assigned", "The Windows network profile is set to Public", "The proxy server for the PC is unreachable"]
+        answer: 1
+        why: "A 169.254.x.x address is self-assigned when no DHCP reply arrives, so the fault is between this PC and the DHCP server (cable, port, VLAN or adapter). A wrong DNS server would not stop the PC getting a lease."
+      - id: ap2-1z2-b01
+        type: mcq
+        best: true
+        q: "A design tool on one Windows PC must accept connections from colleagues' PCs on the office network. The firewall blocks it. Security policy says to allow as little as possible. Which change is BEST?"
+        choices:
+          - "Turn Windows Defender Firewall off for the Private profile"
+          - "Allow the tool's program through the firewall for the Private profile only"
+          - "Allow the tool's program through the firewall for Private and Public profiles"
+          - "Change the office network to the Public profile"
+        answer: 1
+        why: "An application exception for that one program, on the trusted Private profile only, opens the least while making the tool work."
+        whys:
+          - "Works, but removes protection from every port and program on the network."
+          - "Opens only this program, only on the trusted network: the least access that works."
+          - "Works, but also exposes the tool on untrusted networks such as hotel Wi-Fi."
+          - "Tightens the firewall further, so the tool would still be blocked."
+      - id: ap2-1z2-m01
+        type: multi
+        q: "A technician must connect a Windows laptop by hand to a wireless network whose SSID is not broadcast. Which THREE pieces of information must be entered? Choose THREE."
+        choices:
+          - "The network name (SSID)"
+          - "The security type, such as WPA2-Personal"
+          - "The security key or passphrase"
+          - "The access point's MAC address"
+          - "The radio channel"
+          - "The default gateway address"
+        answers: [0, 1, 2]
+        why: "Windows' manual wireless setup asks for the network name, security type and key. The client scans channels itself, never needs the AP's MAC address, and receives the gateway by DHCP."
+      - id: ap2-1z2-q10
+        type: mcq
+        q: "A Linux file server reports /var at 100 per cent in df -h. The technician must find which folder under /var is using the space. Which command is BEST?"
+        choices: ["df -h /var", "du -sh /var/*", "ls -l /var", "fsck /var"]
+        answer: 1
+        why: "du -sh totals each folder's contents, showing which one is large. df already showed the filesystem is full but cannot break it down by folder, and ls -l shows only a directory entry's own size, not its contents."
+      - id: ap2-1z2-q11
+        type: mcq
+        q: "A web server on Linux works after 'sudo systemctl start nginx', but after every reboot the site is down until someone starts it again. Which command fixes this permanently?"
+        choices:
+          - "sudo systemctl restart nginx"
+          - "sudo systemctl status nginx"
+          - "sudo apt install nginx"
+          - "sudo systemctl enable nginx"
+        answer: 3
+        why: "enable makes systemd start the service at every boot. restart only restarts it now, so the problem would return at the next reboot."
+      - id: ap2-1z2-q12
+        type: mcq
+        q: "A Linux technician wants to check whether an internal web API answers and what HTTP status it returns, without downloading the page body. Which command is BEST?"
+        choices:
+          - "curl -I https://api.intranet.example"
+          - "dig api.intranet.example"
+          - "ping api.intranet.example"
+          - "traceroute api.intranet.example"
+        answer: 0
+        why: "curl -I sends a HEAD request and prints only the status line and headers. ping proves the host answers ICMP, not that the web service works."
+      - id: ap2-1z2-q13
+        type: mcq
+        q: "A second disk, /dev/sdb1, has to appear at /srv/media on a Linux workstation automatically after every restart. What should the technician do?"
+        choices:
+          - "Run 'mount /dev/sdb1 /srv/media' once"
+          - "Add the mount point to /etc/hosts"
+          - "Add a line for it to /etc/fstab"
+          - "Run 'fsck /dev/sdb1' at each boot"
+        answer: 2
+        why: "Entries in /etc/fstab are mounted at every boot. A manual mount works only until the next restart."
+      - id: ap2-1z2-q14
+        type: mcq
+        q: "A CAD program's requirements list a 64-bit CPU, 16 GB RAM and a graphics card with 4 GB of dedicated VRAM. A user's laptop has a 64-bit CPU, 32 GB RAM and integrated graphics only. What will MOST likely stop the program running well?"
+        choices:
+          - "Too little system RAM"
+          - "The 64-bit processor"
+          - "No dedicated graphics memory"
+          - "The amount of storage"
+        answer: 2
+        why: "Integrated graphics share system RAM and have no dedicated VRAM, which the program requires. The laptop's 32 GB of RAM is double the stated minimum."
+      - id: ap2-1z2-q15
+        type: mcq
+        q: "An employee wants her Desktop, Documents and Pictures folders protected automatically, so nothing is lost if her laptop dies. The company already provides cloud storage with a sync client. What should be configured?"
+        choices: ["Files On-Demand for the existing synced library", "A metered connection", "A mapped network drive", "Folder backup for those three folders"]
+        answer: 3
+        why: "Folder backup (Known Folder Move) redirects those folders into the synced cloud folder, so every file in them is kept in the cloud. Files On-Demand only saves local space; it does not decide which folders are protected."
+      - id: ap2-1z2-q16
+        type: mcq
+        q: "A new hire can sign in to the company's cloud portal with her synced directory account but sees 'You don't have a licence' when opening the mail and office apps. What should the administrator do?"
+        choices: ["Assign her a licence in the admin centre", "Reset her password in the directory", "Force identity synchronisation to run again now", "Join her PC to the on-premises domain"]
+        answer: 0
+        why: "She authenticates fine, so identity sync worked; what is missing is a licence, which is what enables the mailbox and apps. Resetting the password fixes sign-in failures, which she does not have."
+      - id: ap2-1z2-q17
+        type: mcq
+        q: "A teacher installs a Windows-only accounting program's .exe on a school Chromebook and it will not run. What is the underlying issue?"
+        choices: ["The Chromebook needs more RAM", "The Chromebook uses the exFAT filesystem", "Chrome OS cannot run Windows .exe files", "The program needs a hardware token"]
+        answer: 2
+        why: "This is an OS compatibility problem: Chrome OS runs web, Android and Linux apps, not Windows .exe files. A web version or a Windows machine is needed; more RAM would not change that."
+      - id: ap2-1z2-q18
+        type: mcq
+        q: "A company's in-house app is distributed as an .apk file emailed to staff. Which operating system can install it directly once 'install unknown apps' is allowed for the source app?"
+        choices: ["iOS", "Android", "iPadOS", "macOS"]
+        answer: 1
+        why: ".apk is Android's package format, and Android can install one from outside the store when the user allows that source. iOS, iPadOS and macOS cannot install an .apk at all; iOS and iPadOS take apps from the App Store or through managed distribution."
+      - id: ap2-1z2-o01
+        type: order
+        q: "An administrator changes a screen-lock setting in a domain GPO and wants to confirm it on a test PC straight away. Put the steps in order."
+        steps:
+          - "Change the setting in the GPO linked to the test PC's OU"
+          - "Run gpupdate /force on the test PC"
+          - "Run gpresult /r to confirm the GPO is listed as applied"
+        why: "The policy must exist before it can be applied, and gpresult can only report it after gpupdate has pulled it down."
+      - id: ap2-1z2-o02
+        type: order
+        q: "A user's ageing Windows 10 PC is getting a clean install of Windows 11 from USB. Put the steps in order."
+        steps:
+          - "Back up the user's files and settings"
+          - "Boot the PC from the Windows 11 installation USB drive"
+          - "Delete the old partitions and install to the unallocated space"
+          - "Complete the out-of-box setup and create the user's new account"
+          - "Restore the user's files and settings into that account"
+        why: "The backup must come before anything is wiped, the old partitions are removed during Setup, and files and settings can only go back once the account they belong to exists on the new system."
+      - id: ap2-1z2-m02
+        type: multi
+        q: "A technician checks whether an old PC meets Windows 11's minimum hardware requirements. Which THREE are actual requirements? Choose THREE."
+        choices:
+          - "TPM version 2.0"
+          - "UEFI firmware capable of Secure Boot"
+          - "At least 64 GB of storage"
+          - "A dedicated graphics card"
+          - "At least 16 GB of RAM"
+          - "An NVMe solid-state drive"
+        answers: [0, 1, 2]
+        why: "Windows 11 requires TPM 2.0, Secure Boot-capable UEFI, 64 GB of storage, 4 GB of RAM and a supported 64-bit CPU. It needs no dedicated GPU or NVMe drive, and the RAM minimum is 4 GB, not 16 GB."
+      - id: ap2-1z2-q19
+        type: mcq
+        q: "A user's Windows 10 PC has damaged system files that sfc cannot fix, but she wants to keep her installed applications and files. Which installation type BEST fits?"
+        choices: ["A clean install from USB", "A repair installation that keeps everything", "Restoring the recovery partition's factory image", "A multiboot setup with a second copy of Windows"]
+        answer: 1
+        why: "A repair installation rewrites the operating system files while keeping applications, settings and data. Both a clean install and a factory restore remove the user's applications."
+      - id: ap2-1z2-q20
+        type: mcq
+        q: "A Windows 10 Home PC runs the 32-bit version on a 64-bit capable CPU with TPM 2.0 and UEFI. The owner wants Windows 11 and to keep her files. What is the correct approach?"
+        choices:
+          - "Run the Windows 11 in-place upgrade directly"
+          - "Upgrade to Windows 10 Pro first, then run the in-place upgrade"
+          - "Install the N edition of Windows 11"
+          - "Back up her files, then clean install 64-bit Windows 11"
+        answer: 3
+        why: "Windows 11 exists only in 64-bit, and Windows cannot be upgraded in place from 32-bit to 64-bit, so a clean install with a backup is required. Changing edition does not change the architecture."
+      - id: ap2-1z2-q21
+        type: mcq
+        q: "An engineer orders a workstation with 256 GB of RAM. Which is the LOWEST Windows 11 edition that can use all of it?"
+        choices: ["Home", "Home N", "Pro", "Enterprise"]
+        answer: 2
+        why: "Windows 11 Home is limited to 128 GB of RAM; Pro supports up to 2 TB. Enterprise also supports it, but it is not the lowest edition that does."
+      - id: ap2-1z2-q22
+        type: mcq
+        q: "A manager wants to connect from home with Remote Desktop to his office PC, which runs Windows 11 Home. His home laptop runs Windows 11 Pro. What must change?"
+        choices: ["His home laptop must be upgraded to Enterprise", "Both PCs must join the same workgroup", "The office PC must be given an N edition", "The office PC must be upgraded to Pro"]
+        answer: 3
+        why: "Every edition includes the Remote Desktop client, but only Pro and above can host incoming RDP sessions, so the office PC is the one to upgrade. The laptop already has the client it needs."
+      - id: ap2-1z2-q23
+        type: mcq
+        q: "A user wants to add RAM to a desktop and asks how many memory slots are free. The technician cannot open the case today. Where can this be read?"
+        choices:
+          - "Device Manager, Memory devices"
+          - "Task Manager, Performance tab, Memory"
+          - "Disk Management"
+          - "Resource Monitor, Disk tab"
+        answer: 1
+        why: "Task Manager's Performance > Memory page shows 'Slots used', speed and form factor. Device Manager lists devices and drivers; it does not report memory slots."
+      - id: ap2-1z2-q24
+        type: mcq
+        q: "On a shared Windows PC, a user who switched away without signing out is still running a large program that slows the machine. Which Task Manager tab lets an administrator sign that user out?"
+        choices: ["Processes", "Startup apps", "Users", "Services"]
+        answer: 2
+        why: "The Users tab lists every signed-in session with its resource use and offers Sign out and Disconnect. The Processes tab can end individual programs but does not end another user's session."
+      - id: ap2-1z2-q25
+        type: mcq
+        q: "After a Windows 11 feature update, a PC's C: drive is nearly full. The update has been stable for weeks. Which tool safely removes the previous Windows installation files?"
+        choices: ["Disk Cleanup, 'Clean up system files'", "Optimize Drives", "chkdsk /r", "Resource Monitor"]
+        answer: 0
+        why: "Disk Cleanup's system-file option can delete the previous Windows installation, often many gigabytes. Optimize Drives rearranges or trims data; it does not free space."
+      - id: ap2-1z2-q26
+        type: mcq
+        q: "A user cannot open a share that requires membership of the group 'Finance-RW'. Without opening any GUI, how can the user confirm whether the current sign-in token contains that group?"
+        choices: ["net use", "hostname", "gpupdate /force", "whoami /groups"]
+        answer: 3
+        why: "whoami /groups lists every group in the current access token. If the user was added recently, the group appears only after signing out and in again; gpupdate refreshes policy but not group membership in the token."
+      - id: ap2-1z2-q27
+        type: mcq
+        q: "A driver update says 'restart required'. The user instead chose Shut down and powered on the next morning, but the change still has not applied. Which setting explains this?"
+        choices: ["USB selective suspend", "Hibernate after 3 hours", "Fast startup", "Indexing Options"]
+        answer: 2
+        why: "With fast startup on, Shut down saves the kernel session rather than ending it, so only Restart fully reloads the system. Hibernate on a timer applies to idle machines, not to a chosen shutdown."
+      - id: ap2-1z2-q28
+        type: mcq
+        q: "A USB barcode scanner stops responding after the laptop has been idle on battery for a while, and works again when replugged. Which power setting should be changed?"
+        choices: ["Turn off USB selective suspend", "Turn off fast startup", "Set closing the lid to 'Do nothing'", "Switch the network profile to Private"]
+        answer: 0
+        why: "USB selective suspend powers down idle USB ports, which some devices do not recover from. Fast startup only changes how the PC shuts down and starts."
+      - id: ap2-1z2-q29
+        type: mcq
+        q: "A laptop is tethered to a phone hotspot with a small data allowance. Large Windows updates keep downloading over it. Which setting BEST limits this while still allowing normal use?"
+        choices:
+          - "Change the network profile to Public"
+          - "Disable the Wi-Fi adapter"
+          - "Set a proxy server for the connection"
+          - "Mark the connection as metered"
+        answer: 3
+        why: "A metered connection tells Windows and many apps to defer large downloads such as updates. The Public profile changes discovery and firewall rules, not download behaviour."
+      - id: ap2-1z2-q30
+        type: mcq
+        q: "An administrator created a share named 'Payroll$' on server HR01. Users report they cannot see it when browsing \\\\HR01 in File Explorer. What should they do to open it?"
+        choices: ["Type \\\\HR01\\Payroll$ in the address bar", "Change their network profile to Private", "Map it with 'net user Payroll$'", "Ask for the share to be moved to an OU"]
+        answer: 0
+        why: "A share name ending in $ is hidden from browsing but opens normally when its full UNC path is typed (permissions still apply). net user manages accounts, not shares."
+      - id: ap2-1z2-q31
+        type: mcq
+        q: "Staff must browse the web through the corporate proxy at 10.0.0.8 port 3128, but internal sites must be reached directly. Where is this set for the whole Windows 11 session?"
+        choices: ["Settings, Network & internet, Proxy", "Network and Sharing Center, adapter properties, DNS tab", "Windows Defender Firewall, outbound rules", "Device Manager, network adapter, Advanced tab"]
+        answer: 0
+        why: "The Proxy page in Settings takes the proxy address and port and can skip the proxy for local (intranet) addresses. Firewall rules allow or block traffic but cannot forward it to a proxy."
+      - id: ap2-1z2-m03
+        type: multi
+        q: "A user's Windows 11 laptop must stay usable after a flight with no charger, picking up exactly where she left off with zero battery drain in her bag. Which TWO statements are correct?"
+        choices:
+          - "Hibernate saves the session to disk and powers off"
+          - "Sleep keeps the session in RAM and still draws a little power"
+          - "Sleep writes the session to disk and powers off"
+          - "Hibernate keeps the session in RAM on low power"
+          - "Fast startup restores open applications after a shutdown"
+        answers: [0, 1]
+        why: "Hibernate writes memory to disk and turns the power off, so it is the right choice for her; sleep keeps RAM powered and slowly drains the battery. Fast startup saves only the kernel session, not the user's open applications."

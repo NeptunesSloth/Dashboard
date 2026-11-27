@@ -1,0 +1,757 @@
+// Sect Academy — Read: a book shelf, a paginated reader with tap-to-translate, offline dictionaries and "My words".
+// Books are turned into plain text here in the browser (EPUB unzipped by hand, PDF through the vendored
+// pdf.js, loaded from this origin only when a PDF is imported), then kept by the server so every device
+// sees the same shelf. Lookups and saved words go to the server's offline dictionary.
+// Every string from a book, the dictionary or the server goes through esc() before innerHTML.
+
+let C = null;                // context from academy.js: { api, esc, num, toast, go, ICON, ov, setKeys }
+const $ = (sel, root = document) => root.querySelector(sel);
+
+/* ---------------- speech (the device's own voices: they work offline) ---------------- */
+const synth = window.speechSynthesis;
+let voices = [];
+const loadVoices = () => { try { voices = synth ? synth.getVoices() : []; } catch (_) { voices = []; } };
+if (synth) { loadVoices(); try { synth.addEventListener('voiceschanged', loadVoices); } catch (_) { /* old Safari */ } }
+const SPEECH = { es: 'es-ES', fr: 'fr-FR', zh: 'zh-CN', ja: 'ja-JP', ko: 'ko-KR', en: 'en-GB', pt: 'pt-PT', it: 'it-IT', de: 'de-DE' };
+let LANG_NAME = { es: 'Spanish', fr: 'French', zh: 'Mandarin Chinese', ja: 'Japanese', ko: 'Korean', en: 'English', pt: 'Portuguese', it: 'Italian', de: 'German', other: 'this language' };
+let LOOKUP = ['es'];          // languages the server has a dictionary for (from /api/dict/langs)
+let langsLoaded = false;
+async function loadLangs() {
+  if (langsLoaded) return;
+  const r = await C.api('/api/dict/langs');
+  if (r.ok !== false && Array.isArray(r.lookup)) {
+    LOOKUP = r.lookup.map(String);
+    if (r.langs && typeof r.langs === 'object') LANG_NAME = { ...LANG_NAME, ...r.langs };
+    langsLoaded = true;
+  }
+}
+const hasLookup = (lang) => LOOKUP.includes(lang);
+const noLookupNote = (lang) => `Lookup for ${LANG_NAME[lang] || 'this language'} is coming; for now it covers ${LOOKUP.map((l) => LANG_NAME[l] || l).join(', ')}.`;
+function voiceFor(lang) {
+  const want = SPEECH[lang]; if (!want) return null;
+  loadVoices();
+  const norm = (v) => String(v.lang || '').replace('_', '-').toLowerCase();
+  const base = want.split('-')[0].toLowerCase();
+  const local = voices.filter((v) => v.localService !== false);
+  const pool = local.length ? local : voices;
+  return pool.find((v) => norm(v) === want.toLowerCase()) || pool.find((v) => norm(v).split('-')[0] === base) || null;
+}
+function speechNote(lang) {
+  if (!synth) return 'This browser cannot speak words aloud.';
+  if (!voiceFor(lang)) return `No ${LANG_NAME[lang] || 'matching'} voice is installed on this device, so words cannot be spoken. Add one in your system's speech or language settings.`;
+  return '';
+}
+/** The "no voice" explanation is shown in full once per session (per language); after that a muted icon carries it. */
+const noteSeen = new Set();
+function noteFirstTime(lang) {
+  let seen = noteSeen.has(lang);
+  try { seen = seen || sessionStorage.getItem(`rd-voice-${lang}`) === '1'; } catch (_) { /* storage blocked */ }
+  if (!seen) { noteSeen.add(lang); try { sessionStorage.setItem(`rd-voice-${lang}`, '1'); } catch (_) { /* storage blocked */ } }
+  return !seen;
+}
+function speak(text, lang, slow = false) {
+  const v = voiceFor(lang); if (!v || !text) return false;
+  try { synth.cancel(); const u = new SpeechSynthesisUtterance(String(text)); u.voice = v; u.lang = String(v.lang).replace('_', '-'); u.rate = slow ? 0.55 : 0.9; synth.speak(u); } catch (_) { return false; }
+  return true;
+}
+
+/* ---------------- turning files into text ---------------- */
+const MAX_ENTRY = 32 * 1024 * 1024;           // one file inside an EPUB, unpacked
+async function inflate(bytes) {
+  if (typeof DecompressionStream === 'undefined') throw new Error('This browser cannot unpack EPUB files.');
+  const ds = new DecompressionStream('deflate-raw'); const w = ds.writable.getWriter();
+  w.write(bytes).catch(() => {}); w.close().catch(() => {});
+  const r = ds.readable.getReader(); const parts = []; let n = 0;
+  for (;;) {
+    const { done, value } = await r.read(); if (done) break;
+    n += value.length; if (n > MAX_ENTRY) { r.cancel().catch(() => {}); throw new Error('A file inside that EPUB is too large.'); }
+    parts.push(value);
+  }
+  const out = new Uint8Array(n); let o = 0; for (const p of parts) { out.set(p, o); o += p.length; }
+  return out;
+}
+function unzip(buf) {
+  const u8 = new Uint8Array(buf), dv = new DataView(buf); let e = u8.length - 22;
+  while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0) throw new Error('That is not an EPUB (zip) file.');
+  const n = dv.getUint16(e + 10, true); let p = dv.getUint32(e + 16, true); const F = new Map();
+  const td = new TextDecoder();
+  for (let i = 0; i < n && p + 46 <= u8.length; i++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) break;
+    const m = dv.getUint16(p + 10, true), cs = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    F.set(td.decode(u8.subarray(p + 46, p + 46 + nl)), { m, cs, off });
+    p += 46 + nl + xl + cl;
+  }
+  return {
+    async get(name) {
+      const f = F.get(name); if (!f || f.off + 30 > u8.length) return null;
+      const s = f.off + 30 + dv.getUint16(f.off + 26, true) + dv.getUint16(f.off + 28, true), d = u8.subarray(s, s + f.cs);
+      if (f.m === 0) return d;
+      if (f.m !== 8) return null;
+      return inflate(d);
+    },
+  };
+}
+function resolvePath(base, href) {
+  const parts = base.split('/').slice(0, -1);
+  for (const seg of String(href).split('#')[0].split('/')) { if (seg === '..') parts.pop(); else if (seg && seg !== '.') parts.push(seg); }
+  const joined = parts.join('/');
+  try { return decodeURIComponent(joined); } catch (_) { return joined; }
+}
+function blockText(doc) {
+  doc.querySelectorAll('script,style,rt,rp').forEach((x) => x.remove());      // ruby readings (furigana) are not the text
+  const body = doc.body || doc.documentElement; if (!body) return '';
+  body.querySelectorAll('p,h1,h2,h3,h4,h5,h6,li,blockquote,div,br,tr').forEach((x) => x.after('\n\n'));
+  return body.textContent.replace(/[ \t\r\f ]+/g, ' ').replace(/ ?\n ?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+async function epubText(buf) {
+  // DOMParser documents are inert: nothing in them runs or loads; only their text is taken.
+  const z = unzip(buf), td = new TextDecoder();
+  const read = async (name) => { const d = await z.get(name); return d ? td.decode(d) : null; };
+  const xml = (s) => new DOMParser().parseFromString(s || '', 'application/xml');
+  const container = xml(await read('META-INF/container.xml')).querySelector('rootfile');
+  if (!container) throw new Error('That EPUB has no table of contents.');
+  const opfPath = container.getAttribute('full-path') || '';
+  const opf = xml(await read(opfPath)); const man = {};
+  opf.querySelectorAll('manifest > item').forEach((i) => { man[i.getAttribute('id')] = i.getAttribute('href'); });
+  const dc = opf.getElementsByTagNameNS('*', 'title')[0] || opf.getElementsByTagName('dc:title')[0];
+  const title = ((dc || {}).textContent || '').replace(/\s+/g, ' ').trim();
+  let out = '';
+  for (const r of opf.querySelectorAll('spine > itemref')) {
+    const h = man[r.getAttribute('idref')]; if (!h) continue;
+    const s = await read(resolvePath(opfPath, h)); if (!s) continue;
+    out += blockText(new DOMParser().parseFromString(s, 'text/html')) + '\n\n';
+    if (out.length > 4200000) break;
+  }
+  return { title, text: out };
+}
+let pdfLoading = null;
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if (!pdfLoading) {
+    pdfLoading = new Promise((resolve, reject) => {
+      const s = document.createElement('script'); s.src = '/vendor/pdfjs/pdf.min.js';
+      s.onload = () => (window.pdfjsLib ? resolve(window.pdfjsLib) : reject(new Error('pdf.js did not start.')));
+      s.onerror = () => { pdfLoading = null; reject(new Error('pdf.js could not be loaded.')); };
+      document.head.appendChild(s);
+    });
+  }
+  return pdfLoading;
+}
+async function pdfText(buf, progress) {
+  const lib = await loadPdfJs();
+  lib.GlobalWorkerOptions.workerSrc = '/vendor/pdfjs/pdf.worker.min.js';      // same origin: no blob worker needed
+  const doc = await lib.getDocument({ data: new Uint8Array(buf), isEvalSupported: false, disableFontFace: true, useSystemFonts: false,
+    disableAutoFetch: true, disableStream: true }).promise;
+  let out = '', title = '';
+  try {
+    try { const m = await doc.getMetadata(); title = String((m && m.info && m.info.Title) || '').replace(/\s+/g, ' ').trim(); } catch (_) { /* no metadata */ }
+    if (/^(untitled|microsoft word\b|document\d*$)|\.(docx?|pdf|indd|tex)$/i.test(title)) title = '';   // a converter's placeholder, not a title
+    for (let p = 1; p <= doc.numPages; p++) {
+      progress(`Reading PDF page ${p} of ${doc.numPages}…`);
+      const t = await (await doc.getPage(p)).getTextContent(); let s = '';
+      t.items.forEach((i) => { s += (i.str || '') + (i.hasEOL ? '\n' : ''); });
+      // Join the lines of a paragraph; a short line that ends a sentence ends the paragraph (as Aprende did).
+      const ls = s.split('\n').map((x) => x.trim()).filter(Boolean); const mx = Math.max(0, ...ls.map((x) => x.length)); let q = '';
+      ls.forEach((l) => { if (/\p{L}-$/u.test(l)) q += l.slice(0, -1); else q += l + (/[.!?:»”"]$/.test(l) && l.length < mx * 0.75 ? '\n\n' : ' '); });
+      out += q.trim() + '\n\n';
+      if (out.length > 4200000) break;
+    }
+  } finally { doc.destroy(); }
+  return { title, text: out.replace(/ +\n/g, '\n').trim() };
+}
+/** The legacy encodings to try, in order, when a .txt/.html is not valid UTF-8: Japanese books are often Shift_JIS
+ *  (Aozora Bunko) or EUC-JP, Chinese GB18030 or Big5, old Korean files EUC-KR/CP949, old French and Spanish ones
+ *  windows-1252. */
+function legacyEncoding(lang) {
+  return { ja: ['shift_jis', 'euc-jp'], zh: ['gb18030', 'big5'], ko: ['euc-kr'], fr: ['windows-1252'], es: ['windows-1252'] }[lang] || [];
+}
+async function decodeText(f, lang) {
+  const buf = await f.arrayBuffer();
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (_) { /* not UTF-8: try the language's own */ }
+  const encs = legacyEncoding(lang);
+  for (const enc of encs) {
+    try { return new TextDecoder(enc, { fatal: true }).decode(buf); } catch (_) { /* not this one (or this browser lacks it) */ }
+  }
+  if (encs.length) { try { return new TextDecoder(encs[0]).decode(buf); } catch (_) { /* this browser lacks it */ } }
+  return new TextDecoder().decode(buf);
+}
+/** Without a Project Gutenberg licence header and footer, so page 1 is the book. */
+function stripGutenberg(text) {
+  const start = text.search(/^\*{3}\s*START OF (?:THE|THIS) PROJECT GUTENBERG[^\n]*$/im);
+  if (start >= 0) { const nl = text.indexOf('\n', start); text = nl >= 0 ? text.slice(nl + 1) : ''; }
+  const end = text.search(/^\*{3}\s*END OF (?:THE|THIS) PROJECT GUTENBERG/im);
+  if (end >= 0) text = text.slice(0, end);
+  return text;
+}
+/** Aozora Bunko plain text: ruby 《reading》 and its ｜ base marker, ［＃…］ notes, the symbol key and the colophon go. */
+function aozora(text) {
+  if (!/《|［＃/.test(text)) return text;
+  let t = text.replace(/\r/g, '');
+  const dash = /^-{20,}\s*$/gm; const marks = [];
+  let m; while ((m = dash.exec(t)) && marks.length < 2) marks.push([m.index, m.index + m[0].length]);
+  if (marks.length === 2 && marks[0][0] < 4000) t = t.slice(0, marks[0][0]) + t.slice(marks[1][1]);
+  const end = t.search(/\n底本[：:]/);
+  if (end > t.length / 2) t = t.slice(0, end);
+  return t.replace(/｜([^《\n]+)《[^》\n]*》/g, '$1').replace(/《[^》\n]*》/g, '').replace(/※?［＃[^］\n]*］/g, '').replace(/[ \t]+\n/g, '\n');
+}
+/** A title from a text file's own words: a Gutenberg "Title:" line, a Markdown heading, or a short first line. */
+function textTitle(raw, text, md) {
+  const g = /^Title:[ \t]*(.+)$/m.exec(raw.slice(0, 6000)) || /^\W*The Project Gutenberg e-?book of[ \t]+(.+?)(?:,[ \t]+by[ \t].*)?$/im.exec(raw.slice(0, 2000));
+  if (g) return g[1];
+  if (md) { const h = /^#{1,3}[ \t]+(.+?)[ \t#]*$/m.exec(text.slice(0, 6000)); if (h) return h[1]; }
+  const first = (text.split('\n').map((x) => x.trim()).find(Boolean) || '').replace(/^#+\s*/, '');
+  return first.length <= 90 && /\p{L}/u.test(first) && !/[.,;:]$/.test(first) ? first : '';
+}
+/** The file name as a title: no extension, no underscores. */
+const nameTitle = (n) => String(n).replace(/\.[^.]+$/, '').replace(/_+/g, ' ').replace(/\s+/g, ' ').trim() || 'Untitled';
+async function fileText(f, progress, lang = '') {
+  let title = '', text;
+  if (/\.epub$/i.test(f.name)) ({ title, text } = await epubText(await f.arrayBuffer()));
+  else if (/\.pdf$/i.test(f.name)) ({ title, text } = await pdfText(await f.arrayBuffer(), progress));
+  else {
+    const raw = (await decodeText(f, lang)).replace(/\r/g, '');
+    text = raw;
+    if (/\.html?$/i.test(f.name)) {
+      const doc = new DOMParser().parseFromString(raw, 'text/html');
+      title = String(doc.title || (doc.querySelector('h1') || {}).textContent || '');
+      text = blockText(doc);
+    } else if (lang === 'ja') text = aozora(text);
+    text = stripGutenberg(text);
+    if (!title) title = textTitle(raw, text, /\.(md|markdown)$/i.test(f.name));
+  }
+  title = String(title || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+  return { title: title || nameTitle(f.name), text: String(text || '').replace(/\r/g, '') };
+}
+
+/* ---------------- pages ---------------- */
+const PAGE = 1500;
+/** Pages as [start, end) character offsets, so a saved position survives any screen size. */
+function paginate(text) {
+  const pages = []; const n = text.length; let start = 0;
+  while (start < n) {
+    let end = Math.min(n, start + PAGE);
+    if (end < n) {
+      const win = text.slice(start, end); const min = PAGE * 0.4;
+      let cut = win.lastIndexOf('\n\n');
+      if (cut < min) { let m, last = -1; const re = /[.!?…»”"]\s|[。！？」』]/g; while ((m = re.exec(win))) last = m.index + 1; cut = last; }
+      if (cut < min) cut = win.lastIndexOf(' ');
+      if (cut > 0) end = start + cut;
+    }
+    pages.push([start, end]);
+    start = end; while (start < n && /\s/.test(text[start])) start++;
+  }
+  return pages.length ? pages : [[0, 0]];
+}
+const WORD = /[\p{L}\p{M}](?:[\p{L}\p{M}'’-]*[\p{L}\p{M}])?/gu;
+/** Tokens ({t, k}) for a page. The server segments languages it has a dictionary for (Spanish splits on
+ *  spaces; Chinese and Japanese will need their dictionary to find word boundaries); anything else is
+ *  split on spaces here, so it can still be read and heard. */
+async function tokens(text, lang) {
+  if (hasLookup(lang)) {
+    const r = await C.api('/api/dict/segment', { lang, text });
+    if (r.ok !== false && Array.isArray(r.tokens) && r.tokens.map((x) => String(x.t)).join('') === text) return r.tokens;
+  }
+  const out = []; let last = 0, m; WORD.lastIndex = 0;
+  while ((m = WORD.exec(text))) {
+    if (m.index > last) out.push({ t: text.slice(last, m.index), k: null });
+    out.push({ t: m[0], k: m[0].toLowerCase() }); last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push({ t: text.slice(last), k: null });
+  return out;
+}
+function pageHtml(toks, base) {
+  const esc = C.esc; let off = base, html = '<p>';
+  for (const tok of toks) {
+    const t = String(tok.t);
+    if (tok.k) html += `<span class="w" data-o="${off}">${esc(t)}</span>`;
+    else html += esc(t).replace(/\n\s*\n/g, '</p><p>').replace(/\n/g, '<br>');
+    off += t.length;
+  }
+  return `${html}</p>`.replace(/<p>\s*<\/p>/g, '');
+}
+function sentenceAt(text, at) {
+  let a = at, b = at;
+  while (a > 0 && !/[.!?…\n。！？]/.test(text[a - 1])) a--;
+  while (b < text.length && !/[.!?…\n。！？]/.test(text[b])) b++;
+  return text.slice(a, Math.min(text.length, b + 1)).replace(/\s+/g, ' ').trim().slice(0, 240);
+}
+
+/* ---------------- the lookup card ---------------- */
+const HOW = { form: 'a form of', pronouns: 'a verb with pronouns attached:', ending: 'probably from', accent: 'spelled', exact: '',
+  elision: 'elided:', inversion: 'a verb with its pronoun after it:', particle: 'a noun with a particle:', number: '',
+  variant: 'a variant of', inflected: 'a form of' };
+const SRC = { mine: 'Yours', core: 'Core', wiktionary: 'Wiktionary', rule: 'Number', cedict: 'CC-CEDICT', jmdict: 'JMdict',
+  number: 'Number', name: 'Name' };
+const ROM = new Set(['ko', 'zh', 'ja']);       // languages whose words are shown with a romanisation
+const cache = new Map();
+async function lookup(word, lang, around) {
+  const pre = around ? String(around.pre || '') : '', post = around ? String(around.post || '') : '';
+  const k = `${lang}:${word.toLowerCase()}:${pre}:${post}`;
+  if (cache.has(k)) return cache.get(k);
+  const ctx = pre || post ? `&pre=${encodeURIComponent(pre)}&post=${encodeURIComponent(post)}` : '';
+  const r = await C.api(`/api/dict?lang=${encodeURIComponent(lang)}&w=${encodeURIComponent(word)}${ctx}`);
+  if (r.ok !== false) cache.set(k, r);
+  return r;
+}
+let card = null;      // { el, word, lang, ctx, around }
+/** On a wide screen the card is docked beside the page (never over it); on a narrow one it is a bottom sheet,
+ *  and a spacer the sheet's height under the page lets every word be scrolled above it. */
+const docked = (el) => !!el && getComputedStyle(el).position !== 'fixed';
+function fitPad(word) {
+  const pad = $('#rd-pad'); if (!pad) return;
+  const el = card && card.el;
+  if (!el || el.hidden || docked(el)) { pad.style.height = '0px'; return; }
+  pad.style.height = `${Math.ceil(el.getBoundingClientRect().height) + 12}px`;
+  if (word) {                                   // the tapped word, if the sheet now covers it, is lifted above it
+    const top = el.getBoundingClientRect().top, wr = word.getBoundingClientRect();
+    if (wr.bottom > top - 8) window.scrollBy(0, wr.bottom - top + 24);
+  }
+}
+function closeCard() {
+  if (card) { card.el.hidden = true; card.el.innerHTML = ''; }
+  document.querySelectorAll('.w.on').forEach((x) => x.classList.remove('on')); card = null; fitPad();
+}
+function cardEl() {
+  let el = $('#lk');
+  if (!el) { el = document.createElement('aside'); el.id = 'lk'; el.className = 'lookup'; el.setAttribute('aria-live', 'polite'); C.view.appendChild(el); }
+  return el;
+}
+/** Every meaning on the card, one gloss each ("to scratch", "to get drunk"…): the one picked is the one saved. */
+const glosses = (s) => String(s.text).split('; ').map((g) => g.trim()).filter(Boolean);
+function firstMeaning(r) {
+  const s = (r.senses || [])[0]; if (!s) return '';
+  return (glosses(s)[0] || '').slice(0, 200);
+}
+async function showCard(word, lang, ctx = '', around = null, tapped = null) {
+  const esc = C.esc; const el = cardEl(); card = { el, word, lang, ctx, around };
+  el.hidden = false;
+  const note = speechNote(lang), full = note && noteFirstTime(lang);
+  const sayBtns = note ? `<button class="say tiny mute" data-note aria-label="Why there is no sound" title="${esc(note)}">${C.ICON.sound}</button>`
+    : `<button class="say tiny" data-say="0" aria-label="Hear it">${C.ICON.sound}</button><button class="btn quiet slow" data-say="1">Slow</button>`;
+  const head = (w, rom) => `<div class="lk-head"><b class="lk-word" lang="${esc(lang)}">${esc(w)}</b>${rom ? `<span class="lk-rom dim">${esc(rom)}</span>` : ''}${sayBtns}<span class="grow"></span><button class="btn quiet lk-x" data-x aria-label="Close">Close</button></div>
+    ${full ? `<p class="dim tiny lk-note">${esc(note)}</p>` : ''}`;
+  const done = (res) => { bindCard(word, lang, res); fitPad(tapped); };
+  if (!hasLookup(lang)) {
+    el.innerHTML = `${head(word)}<p class="lk-only">${esc(noLookupNote(lang))}</p>`;
+    done(); return;
+  }
+  el.innerHTML = `${head(word)}<p class="dim small">Looking it up…</p>`;
+  done();
+  const r = await lookup(word, lang, around);
+  if (!card || card.word !== word) return;
+  if (r.ok === false) { el.innerHTML = `${head(word)}<p class="dim">${esc(r.error)}</p>`; done(); return; }
+  const L = esc(lang);
+  const how = r.how_text ? `${r.how_text} of` : (HOW[r.how] || '');
+  const lemRom = ROM.has(lang) && r.lemma_rom ? ` <span class="dim">(${esc(r.lemma_rom)})</span>` : '';
+  // the grammar of the form tapped (tense and person, a particle or ending taken off) sits beside "a form of …"
+  const gramTag = r.gram ? ` <span class="lk-gram">${esc(r.gram)}</span>` : '';
+  const path = (r.path || []).length > 1 ? `<p class="lk-path"><span class="dim">${esc(how)}</span> ${r.path.slice(1).map((p) => `<b lang="${L}">${esc(p)}</b>`).join(' → ')}${lemRom}${gramTag}</p>`
+    : (gramTag ? `<p class="lk-path">${gramTag}</p>` : '');
+  // Chinese and Japanese: the reading (pinyin; kana + rōmaji) and the other ways the word is written
+  const rd = r.reading ? `<span lang="${L}">${esc(r.reading)}</span>` : '';
+  const ro = r.reading && r.rom && r.rom !== r.reading ? `<i>${esc(r.rom)}</i>` : '';
+  const forms = (r.forms || []).length ? `<span class="dim">also written</span> ${r.forms.map((x) => `<span lang="${L}">${esc(x)}</span>`).join(', ')}` : '';
+  const reading = rd || ro || forms ? `<p class="lk-read">${[rd, ro, forms].filter(Boolean).join(' · ')}</p>` : '';
+  const many = (r.senses || []).filter((s) => s.read).length > 1;
+  const pick = firstMeaning(r);
+  let gi = 0;                                   // each gloss is a button: tap the meaning used here, and that one is saved
+  const gl = (g) => `<button type="button" class="gl${gi++ === 0 ? ' on' : ''}" data-g="${esc(g)}" aria-pressed="${gi === 1}">${esc(g)}</button>`;
+  const sense = (s) => {
+    const parts = glosses(s);
+    const sr = many && s.read ? `<b lang="${L}" class="lk-sr">${esc(s.read)}</b>${s.rom && s.rom !== s.read ? ` <i class="dim">${esc(s.rom)}</i>` : ''} ` : '';
+    return `<li><span class="tag ${s.src === 'mine' ? 'jade' : s.src === 'core' ? 'gold' : ''}">${esc(SRC[s.src] || s.src)}</span> ${sr}${parts.slice(0, 6).map(gl).join('<span class="dim">; </span>')}${s.src === 'mine' ? ` <button class="btn quiet small" data-unmine="${esc(r.lemma)}">Delete my meaning</button>` : ''}</li>`;
+  };
+  const all = r.senses || [];
+  const shown = all.slice(0, 2).map(sense).join('');
+  const hiddenSenses = all.slice(2).map(sense).join('');
+  // at most two other words it may be, behind "More meanings", with any further senses
+  const also = (r.also || []).slice(0, 2).map((a) => `<li><b lang="${L}">${esc(a.lemma)}</b>${a.reading && a.reading !== a.lemma ? ` <span lang="${L}">${esc(a.reading)}</span>` : ''} <span class="dim">${esc(String((a.senses[0] || {}).text || '').slice(0, 80))}</span></li>`).join('');
+  const more = hiddenSenses || also ? `<details class="lk-more"><summary>More meanings ▾</summary>${hiddenSenses ? `<ol class="lk-senses" start="3">${hiddenSenses}</ol>` : ''}${also ? `<p class="small dim lk-also">It may also be</p><ul class="lk-alsos">${also}</ul>` : ''}</details>` : '';
+  const target = r.found ? r.lemma : r.word;
+  el.innerHTML = `${head(r.word || word, ROM.has(lang) && !r.reading ? r.rom : '')}${reading}${path}
+    ${r.found ? `<ol class="lk-senses">${shown}</ol>${r.weak ? '<p class="dim small">The dictionary only knows this spelling as a name; its everyday meaning may be missing. Add your own below.</p>' : ''}`
+    : '<p class="lk-only">Not in the dictionary yet.</p>'}
+    ${more}
+    ${r.saved ? `<p class="small"><span class="tag jade">Saved</span> in My words. <button class="btn quiet small" data-unsave="${esc(target)}">Remove</button></p>`
+    : `<form class="lk-save" data-save><label class="small dim" for="lk-m">${r.found ? `Save <b lang="${L}">${esc(target)}</b> to My words as` : 'Add the English meaning'}</label>
+      <div class="row"><input type="text" id="lk-m" maxlength="200" value="${esc(pick)}" autocomplete="off" placeholder="English meaning">
+      <button class="btn primary" type="submit">${r.found ? 'Save word' : 'Add and save'}</button></div>
+      ${r.found && gi > 1 ? '<p class="dim tiny" style="margin:4px 0 0">Tap the meaning it has here: only that one is saved and taught.</p>' : ''}</form>`}
+    <p class="dim tiny">${esc(r.credit || '')}</p>`;
+  done(r);
+}
+function bindCard(word, lang, r) {
+  const el = card && card.el; if (!el) return;
+  el.querySelectorAll('[data-say]').forEach((b) => { b.onclick = () => speak(word, lang, b.dataset.say === '1'); });
+  const mute = $('[data-note]', el); if (mute) mute.onclick = () => C.toast(speechNote(lang));
+  const x = $('[data-x]', el); if (x) x.onclick = closeCard;
+  if (!r) return;
+  const inp = $('#lk-m', el);
+  el.querySelectorAll('.gl').forEach((b) => {
+    b.onclick = () => {
+      el.querySelectorAll('.gl.on').forEach((o) => { o.classList.remove('on'); o.setAttribute('aria-pressed', 'false'); });
+      b.classList.add('on'); b.setAttribute('aria-pressed', 'true');
+      if (inp) inp.value = b.dataset.g;
+    };
+  });
+  el.querySelectorAll('details').forEach((d) => { d.ontoggle = () => fitPad(); });
+  const again = () => showCard(word, lang, card ? card.ctx : '', card ? card.around : null);
+  const form = $('[data-save]', el);
+  if (form) {
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const meaning = inp.value.trim(); if (!meaning) { inp.focus(); return; }
+      const target = r.found ? r.lemma : r.word;
+      if (!r.found) {
+        const a = await C.api('/api/dict/entry', { lang, word: target, meaning });
+        if (a.ok === false) { C.toast(a.error); return; }
+      }
+      const s = await C.api('/api/words', { lang, word: target, meaning, form: r.word, ctx: card ? card.ctx : '' });
+      if (s.ok === false) { C.toast(s.error); return; }
+      cache.clear(); C.toast(`Saved “${target}” to My words as “${meaning}”.`);
+      again();
+    };
+  }
+  const q = `lang=${encodeURIComponent(lang)}&w=`;
+  el.querySelectorAll('[data-unsave]').forEach((b) => { b.onclick = async () => { await C.api(`/api/words?${q}${encodeURIComponent(b.dataset.unsave)}`, undefined, 'DELETE'); cache.clear(); again(); }; });
+  el.querySelectorAll('[data-unmine]').forEach((b) => { b.onclick = async () => { await C.api(`/api/dict/entry?${q}${encodeURIComponent(b.dataset.unmine)}`, undefined, 'DELETE'); cache.clear(); again(); }; });
+}
+
+
+/* ---------------- views ---------------- */
+const TABS = [['books', 'Books'], ['dict', 'Dictionary'], ['words', 'My words']];
+function tabs(on) {
+  return `<h1 style="margin-bottom:10px">Read</h1><div class="tabs" role="tablist">${TABS.map(([k, n]) =>
+    `<button role="tab" data-rtab="${k}" aria-selected="${k === on}" class="${k === on ? 'on' : ''}">${n}</button>`).join('')}</div>`;
+}
+function bindTabs() { C.view.querySelectorAll('[data-rtab]').forEach((b) => { b.onclick = () => C.go(b.dataset.rtab === 'books' ? '/read' : `/read?tab=${b.dataset.rtab}`); }); }
+/** How much of a book is read: the end of the page last open, over its length (the shelf and the pager agree). */
+const readPct = (pos, total) => Math.max(0, Math.min(100, Math.round(100 * pos / Math.max(1, total))));
+const kb = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1e3))} kB`);
+const chars = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)} million` : n >= 1e4 ? `${Math.round(n / 1e3)},000` : n.toLocaleString("en-GB"));
+/** A language picker over the languages that have a dictionary (one today; more as modules arrive). */
+function langPicker(id, cur) {
+  const esc = C.esc;
+  if (LOOKUP.length < 2) return '';
+  return `<select class="in" id="${id}" aria-label="Language" style="width:auto;min-height:40px">${LOOKUP.map((l) => `<option value="${esc(l)}" ${l === cur ? 'selected' : ''}>${esc(LANG_NAME[l] || l)}</option>`).join('')}</select>`;
+}
+
+/* ---------------- the starter shelf: public-domain stories and poems shipped with the app ---------------- */
+const store = { get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (_) { /* private mode */ } } };
+const SHELF_LANGS = ['es', 'fr', 'zh', 'ja', 'ko'];
+let starter = [];
+function shelfCss() {
+  if (document.getElementById('rd-shelf-css')) return;
+  const s = document.createElement('style'); s.id = 'rd-shelf-css';
+  s.textContent = `.st-langs{margin:6px 0 4px}.st-langs .chip[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft)}
+.st-h{margin:14px 0 2px;font-size:.82rem;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+.st-row .bk-title{font-weight:800}.st-row .btn{min-height:38px}
+.poem .pm-l{margin:0 0 .55em}.poem .pm-gap{height:.9em}
+.poem .pm-r{color:var(--dim);font-size:.86em;line-height:1.35}.poem .pm-en{color:var(--dim);font-style:italic;font-size:.86em;line-height:1.35}
+.poem.no-r .pm-r,.poem.no-en .pm-en{display:none}
+.pm-tog{justify-content:center;margin:0 auto 12px;max-width:68ch}.pm-tog .chip[aria-pressed="true"]{border-color:var(--jade);background:var(--jade-soft)}
+.st-credit{max-width:68ch;margin:10px auto 0;text-align:center}`;
+  document.head.appendChild(s);
+}
+function starterHtml(list) {
+  const { esc, num } = C;
+  starter = list.filter((e) => e && SHELF_LANGS.includes(String(e.lang)));
+  if (!starter.length) return '';
+  shelfCss();
+  let on = store.get('sa-starter-lang');
+  if (!SHELF_LANGS.includes(on)) on = starter[0].lang;
+  const langs = SHELF_LANGS.filter((l) => starter.some((e) => e.lang === l));
+  const row = (e) => {
+    const pct = readPct(num(e.pos), num(e.chars));
+    return `<li class="row st-row"><div class="grow"><a href="/read?book=${encodeURIComponent(e.id)}" data-link class="bk-title" lang="${esc(e.lang)}">${esc(e.title)}</a>
+      <div class="dim small">${esc(e.author)}${e.level ? ` · ${esc(e.level)}` : ''}${e.kind === 'poem' ? '' : ` · ${chars(num(e.chars))} characters`}${num(e.pos) ? ` · ${pct}% read` : ''}</div></div>
+      <a class="btn" href="/read?book=${encodeURIComponent(e.id)}" data-link>${num(e.pos) && pct < 100 ? 'Continue' : 'Open'}</a></li>`;
+  };
+  const part = (l) => {
+    const texts = starter.filter((e) => e.lang === l && e.kind !== 'poem'), poems = starter.filter((e) => e.lang === l && e.kind === 'poem');
+    return `<div data-stl="${esc(l)}" ${l === on ? '' : 'hidden'}>
+      ${texts.length ? `<h3 class="st-h">Stories</h3><ul class="list">${texts.map(row).join('')}</ul>` : ''}
+      ${poems.length ? `<h3 class="st-h">Poems <span class="dim small" style="text-transform:none;letter-spacing:0">with an English line to show or hide</span></h3><ul class="list">${poems.map(row).join('')}</ul>` : ''}</div>`;
+  };
+  return `<section class="panel shelf starter"><h2>Starter shelf</h2>
+    <p class="dim small" style="margin:0">Short public-domain stories and famous poems, ready to read with lookup. They come with the app and don't count against your shelf.</p>
+    <div class="chips st-langs" role="group" aria-label="Language">${langs.map((l) => `<button class="chip" data-stlang="${esc(l)}" aria-pressed="${l === on}">${esc(LANG_NAME[l] || l)}</button>`).join('')}</div>
+    ${langs.map(part).join('')}</section>`;
+}
+function bindStarter() {
+  C.view.querySelectorAll('[data-stlang]').forEach((b) => {
+    b.onclick = () => {
+      const l = b.dataset.stlang; store.set('sa-starter-lang', l);
+      C.view.querySelectorAll('[data-stlang]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      C.view.querySelectorAll('[data-stl]').forEach((x) => { x.hidden = x.dataset.stl !== l; });
+    };
+  });
+}
+/** Where a starter-shelf text comes from, under the page (plain text: the page loads nothing from outside). */
+function creditHtml(b) {
+  const { esc, num } = C;
+  if (!b.readonly) return '';
+  let host = ''; try { host = new URL(String(b.source)).hostname; } catch (_) { /* no source */ }
+  return `<p class="dim small st-credit">${esc(b.author)} (died ${num(b.died)}) · ${b.first_published_in ? esc(b.first_published_in) : `first published ${num(b.published)}`} · public domain${host ? ` · text from ${esc(host)}` : ''}${b.kind === 'poem' ? ' · English lines by Sect Academy' : ''}</p>`;
+}
+/** A poem's lines: the original (tappable), then its reading and an English line, each shown or hidden by a toggle. */
+function poemHtml(toks, lines) {
+  const esc = C.esc; let off = 0, li = 0, cur = ''; const rows = [];
+  const flush = () => {
+    const L = lines[li] || { t: '' };
+    rows.push(!String(L.t || '') ? '<div class="pm-gap"></div>'
+      : `<div class="pm-l"><div class="pm-t">${cur}</div>${L.r ? `<div class="pm-r">${esc(L.r).split(' | ').join('<br>')}</div>` : ''}${L.en ? `<div class="pm-en" lang="en">${esc(L.en)}</div>` : ''}</div>`);
+    cur = ''; li++;
+  };
+  for (const tok of toks) {
+    const t = String(tok.t);
+    if (tok.k) cur += `<span class="w" data-o="${off}">${esc(t)}</span>`;
+    else t.split('\n').forEach((p, j) => { if (j) flush(); cur += esc(p); });
+    off += t.length;
+  }
+  flush();
+  return rows.join('');
+}
+/** Tap a word: highlight it, speak it if audio is on, and look it up with its sentence around it. */
+function bindWords(el, text, lang) {
+  const num = C.num;
+  el.onclick = (ev) => {
+    const w = ev.target.closest('.w'); if (!w) return;
+    C.view.querySelectorAll('.w.on').forEach((x) => x.classList.remove('on')); w.classList.add('on');
+    const word = w.textContent; const at = num(w.dataset.o);
+    const ov = C.ov(); if (ov && ov.settings && ov.settings.audio) speak(word, lang);
+    showCard(word, lang, sentenceAt(text, at), { pre: text.slice(Math.max(0, at - 6), at), post: text.slice(at + word.length, at + word.length + 6) }, w);
+  };
+}
+async function renderPoem(id, r) {
+  const { esc, num } = C;
+  shelfCss();
+  const b = r.book, text = String(r.text || ''), lang = String(b.lang);
+  const lines = (Array.isArray(r.lines) ? r.lines : []).map((x) => ({ t: String((x && x.t) || ''), r: String((x && x.r) || ''), en: String((x && x.en) || '') }));
+  const hasR = lines.some((x) => x.r);
+  let showT = store.get('sa-poem-en') === '1', showR = store.get('sa-poem-rd') === '1';
+  const toks = await tokens(text, lang);
+  closeCard();
+  C.view.innerHTML = `<div class="readtop"><a href="/read" data-link class="btn quiet">Shelf</a><b class="grow rt-title" lang="${esc(lang)}">${esc(b.title)}</b><span class="tag">${esc(b.language)}</span></div>
+    <div class="rd-wrap"><div class="rd-main">
+    <div class="row chips pm-tog" role="group" aria-label="Show">
+      ${hasR ? `<button class="chip" id="pm-rd" aria-pressed="${showR}">${lang === 'zh' ? 'Pinyin' : lang === 'ja' ? 'Reading' : 'Romanisation'}</button>` : ''}
+      <button class="chip" id="pm-en" aria-pressed="${showT}">Translation</button></div>
+    <article class="page poem${showR ? '' : ' no-r'}${showT ? '' : ' no-en'}" lang="${esc(lang)}" id="rd">
+      <p class="dim small" style="margin:0 0 12px">${esc(b.author)}</p>${poemHtml(toks, lines)}</article>
+    ${creditHtml(b)}
+    <p class="dim small" style="text-align:center">${hasLookup(lang) ? 'Tap any word for its meaning.' : 'Tap any word to hear it.'}</p></div>
+    <div class="rd-side"><p class="rd-hint dim small">${hasLookup(lang) ? 'Tap a word in the poem: its meaning and a way to save it appear here.' : 'Tap a word to hear it.'}</p>
+      <aside id="lk" class="lookup" aria-live="polite" hidden></aside></div></div>
+    <div id="rd-pad" aria-hidden="true"></div>`;
+  const art = $('#rd');
+  const tog = (btn, cls, key, val) => { btn.setAttribute('aria-pressed', String(val)); art.classList.toggle(cls, !val); store.set(key, val ? '1' : '0'); };
+  $('#pm-en').onclick = () => { showT = !showT; tog($('#pm-en'), 'no-en', 'sa-poem-en', showT); };
+  if (hasR) $('#pm-rd').onclick = () => { showR = !showR; tog($('#pm-rd'), 'no-r', 'sa-poem-rd', showR); };
+  bindWords(art, text, lang);
+  if (num(b.pos) !== text.length) C.api(`/api/books/${encodeURIComponent(id)}/pos`, { pos: text.length }, 'PUT');
+  C.setKeys((ev) => { if (ev.key === 'Escape') closeCard(); });
+}
+
+async function renderBooks() {
+  const { esc, num } = C;
+  C.view.innerHTML = `${tabs('books')}<p class="loading">Taking the books down from the shelf…</p>`;
+  bindTabs();
+  const r = await C.api('/api/books');
+  if (r.ok === false) { C.view.insertAdjacentHTML('beforeend', `<div class="panel">${esc(r.error)}</div>`); return; }
+  if (Array.isArray(r.lookup)) LOOKUP = r.lookup.map(String);
+  const langs = r.langs || {};
+  C.view.innerHTML = `${tabs('books')}
+    <section class="panel shelf-hero" style="background-image:linear-gradient(90deg,#120d0af2 0%,#120d0ad9 55%,#120d0a80 100%),url(/art/bg_library.webp)"><h2>Add a book</h2>
+      <p class="dim small">EPUB, PDF, plain text, Markdown or HTML. The text is taken out here on this device and kept by your Sect Academy server, so your phone and your computer share one shelf. Scanned PDFs (pictures of pages) have no text to read.</p>
+      <div class="row imp"><label class="field grow" style="margin:0"><span>Language of the book</span>
+        <select class="in" id="rb-lang">${Object.entries(langs).map(([k, v]) => `<option value="${esc(k)}" ${k === 'es' ? 'selected' : ''}>${esc(v)}${hasLookup(k) || k === 'other' ? '' : ' (lookup coming)'}</option>`).join('')}</select></label>
+      <label class="btn primary">Choose a file<input type="file" id="rb-file" accept=".epub,.pdf,.txt,.md,.html,.htm,application/epub+zip,application/pdf,text/plain" hidden></label></div>
+      <p class="small" id="rb-msg" role="status"></p>
+      <p class="dim small" style="margin:0">Shelf: ${num(r.books.length)} of ${num(r.max_count)} books, ${kb(num(r.used))} of ${kb(num(r.max_bytes))}.</p></section>
+    <section class="panel shelf">${r.books.length ? `<ul class="list">${r.books.map((b) => {
+      const pct = readPct(num(b.pos), num(b.chars));
+      return `<li class="row bk-row"><div class="grow"><a href="/read?book=${encodeURIComponent(b.id)}" data-link class="bk-title">${esc(b.title)}</a>
+        <div class="dim small">${esc(b.language)} · ${chars(num(b.chars))} characters · ${pct}% read</div>
+        <div class="bar thin jade" style="margin-top:6px"><i style="width:${pct}%"></i></div></div>
+        <a class="btn" href="/read?book=${encodeURIComponent(b.id)}" data-link>${num(b.pos) ? 'Continue' : 'Open'}</a>
+        <button class="btn quiet" data-ren="${esc(b.id)}" data-title="${esc(b.title)}">Rename</button>
+        <button class="btn quiet" data-del="${esc(b.id)}" data-title="${esc(b.title)}">Delete</button></li>`;
+    }).join('')}</ul>` : '<p class="dim" style="margin:0">No books of your own yet. Add one above, or start with the starter shelf below.</p>'}</section>
+    ${starterHtml(Array.isArray(r.shelf) ? r.shelf : [])}`;
+  bindTabs();
+  bindStarter();
+  const msg = $('#rb-msg');
+  $('#rb-file').onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const lang = $('#rb-lang').value;
+    msg.textContent = `Importing ${f.name}…`;
+    try {
+      const { title, text } = await fileText(f, (t) => { msg.textContent = t; }, lang);
+      if (text.trim().length < 50) throw new Error('No readable text was found in that file. A scanned PDF made of images cannot be read.');
+      msg.textContent = 'Saving it to the shelf…';
+      const res = await C.api('/api/books', { title, text, lang });
+      if (res.ok === false) throw new Error(res.error);
+      C.toast(`Added “${res.book.title}”.`);
+      C.go(`/read?book=${encodeURIComponent(res.book.id)}`);
+    } catch (err) { msg.textContent = (err && err.message) || 'That file could not be read. It may be damaged or protected.'; e.target.value = ''; }
+  };
+  C.view.querySelectorAll('[data-ren]').forEach((b) => {
+    b.onclick = async () => {
+      const t = prompt('A new title for this book:', b.dataset.title);
+      if (t === null || !t.trim() || t.trim() === b.dataset.title) return;
+      const res = await C.api(`/api/books/${encodeURIComponent(b.dataset.ren)}/title`, { title: t.trim() }, 'PUT');
+      if (res.ok === false) C.toast(res.error); else renderBooks();
+    };
+  });
+  C.view.querySelectorAll('[data-del]').forEach((b) => {
+    b.onclick = async () => {
+      if (!confirm(`Delete “${b.dataset.title}” from the shelf? Your saved words stay.`)) return;
+      const res = await C.api(`/api/books/${encodeURIComponent(b.dataset.del)}`, undefined, 'DELETE');
+      if (res.ok === false) C.toast(res.error); else renderBooks();
+    };
+  });
+}
+
+async function renderBook(id) {
+  const { esc, num } = C;
+  C.view.innerHTML = '<p class="loading">Opening the book…</p>';
+  const r = await C.api(`/api/books/${encodeURIComponent(id)}`);
+  if (r.ok === false || !r.book) { C.view.innerHTML = `<div class="panel"><p>${esc(r.error || 'That book is not on the shelf.')}</p><a class="btn" href="/read" data-link>Back to the shelf</a></div>`; return; }
+  const b = r.book, text = String(r.text || ''), lang = String(b.lang);
+  if (b.lookup && !hasLookup(lang)) LOOKUP = [...LOOKUP, lang];
+  if (b.kind === 'poem' && Array.isArray(r.lines)) return renderPoem(id, r);
+  const pages = paginate(text);
+  // The saved position is the end of the page last open (so "% read" counts that page, on the shelf and here);
+  // the book opens on the page that ends there. (An older position, a page's start, opens that page too.)
+  let i = 0, drawn = 0, saved = num(b.pos);
+  while (i < pages.length - 1 && pages[i][1] < saved) i++;
+  const draw = async () => {
+    const mine = ++drawn; const [s, e] = pages[i];
+    const toks = await tokens(text.slice(s, e), lang);
+    if (mine !== drawn) return;
+    closeCard();
+    C.view.innerHTML = `<div class="readtop"><a href="/read" data-link class="btn quiet">Shelf</a><b class="grow rt-title">${esc(b.title)}</b><span class="tag">${esc(b.language)}</span></div>
+      <div class="rd-wrap"><div class="rd-main">
+      <article class="page" lang="${esc(lang)}" id="rd">${pageHtml(toks, s)}</article>
+      <div class="pager"><button class="btn" id="rd-prev" ${i ? '' : 'disabled'}>Previous</button>
+        <span class="dim small num grow" style="text-align:center">Page ${i + 1} of ${pages.length} · ${readPct(e, num(b.chars) || text.length)}% read</span>
+        <button class="btn primary" id="rd-next" ${i < pages.length - 1 ? '' : 'disabled'}>Next</button></div>
+      ${i === pages.length - 1 ? creditHtml(b) : ''}
+      <p class="dim small" style="text-align:center">${hasLookup(lang) ? 'Tap any word for its meaning.' : `Tap any word to hear it. ${esc(noLookupNote(lang))}`}</p></div>
+      <div class="rd-side"><p class="rd-hint dim small">${hasLookup(lang) ? 'Tap a word on the page: its meaning, its grammar and a way to save it appear here, beside the text.' : 'Tap a word on the page to hear it.'}</p>
+        <aside id="lk" class="lookup" aria-live="polite" hidden></aside></div></div>
+      <div id="rd-pad" aria-hidden="true"></div>`;
+    if (saved !== e) { saved = e; C.api(`/api/books/${encodeURIComponent(id)}/pos`, { pos: e }, 'PUT'); }
+    $('#rd-prev').onclick = () => turn(-1);
+    $('#rd-next').onclick = () => turn(1);
+    bindWords($('#rd'), text, lang);
+  };
+  const turn = (d) => {
+    const n = Math.max(0, Math.min(pages.length - 1, i + d)); if (n === i) return;
+    i = n; draw(); window.scrollTo(0, 0);
+  };
+  C.setKeys((ev) => {
+    if (ev.target && ev.target.closest && ev.target.closest('input,textarea,select')) return;
+    if (ev.key === 'ArrowRight') turn(1); else if (ev.key === 'ArrowLeft') turn(-1); else if (ev.key === 'Escape') closeCard();
+  });
+  await draw();
+}
+
+let dictLang = 'es', dictDir = 'from', dictQ = '';
+const DICT_HINT = { es: 'Busca una palabra: casas, dímelo, cúrale…', fr: 'Cherche un mot : chevaux, l’homme, dit-il…',
+  zh: 'Characters or pinyin: 学习, xuéxí, xue2xi2, xuexi…', ja: 'Kanji, kana or rōmaji: 食べました, たべる, taberu…',
+  ko: '단어 검색: 먹었어요, 학교에서… or romanised: hakgyo' };
+const DICT_ABOUT = { es: 'About 85,000 Spanish words with their forms, plus your own entries. ',
+  fr: 'About 85,000 French words and 330,000 of their forms (English Wiktionary, CC BY-SA 4.0), plus your own entries. ',
+  zh: 'About 125,000 CC-CEDICT entries, simplified and traditional, plus your own entries. ',
+  ja: 'About 210,000 JMdict entries with their conjugations, plus your own entries. ',
+  ko: 'About 32,000 Korean words and 320,000 conjugated forms (English Wiktionary, CC BY-SA 4.0), plus your own entries. Particles and endings are taken off for you. ' };
+function renderDict() {
+  const { esc } = C;
+  const name = LANG_NAME[dictLang] || dictLang;
+  C.view.innerHTML = `${tabs('dict')}
+    <section class="panel"><div class="row" style="margin-bottom:10px">${langPicker('d-lang', dictLang)}<div class="tabs seg" style="margin:0">
+      <button data-dir="from" class="${dictDir === 'from' ? 'on' : ''}">${esc(name)} → English</button><button data-dir="en" class="${dictDir === 'en' ? 'on' : ''}">English → ${esc(name)}</button></div></div>
+      <input type="text" id="dq" value="${esc(dictQ)}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Search the dictionary"
+        placeholder="${dictDir === 'from' ? (DICT_HINT[dictLang] || 'Search a word') : 'Search the English meanings: house, to heal…'}">
+      <div id="dr" class="dres"></div>
+      <p class="dim tiny" id="d-credit" style="margin:10px 0 0">${esc(DICT_ABOUT[dictLang] || '')}</p></section>
+    <section class="panel"><h2>Add your own entry</h2><p class="dim small">For a word the dictionary lacks, or a meaning you prefer. Yours is shown first.</p>
+      <form class="row" id="da"><input type="text" id="da-w" maxlength="40" placeholder="${esc(name)} word" autocomplete="off" style="flex:1 1 140px;width:auto">
+      <input type="text" id="da-m" maxlength="200" placeholder="English meaning" autocomplete="off" style="flex:2 1 200px;width:auto"><button class="btn primary" type="submit">Add</button></form></section>`;
+  bindTabs();
+  const lp = $('#d-lang'); if (lp) lp.onchange = () => { dictLang = lp.value; dictQ = ''; renderDict(); };
+  C.view.querySelectorAll('[data-dir]').forEach((b) => { b.onclick = () => { dictDir = b.dataset.dir; renderDict(); }; });
+  let t = null, seq = 0;
+  const credit = $('#d-credit'), base = credit.textContent;
+  const run = async () => {
+    const q = dictQ.trim(); const mine = ++seq;
+    if (!q) { $('#dr').innerHTML = ''; return; }
+    const r = await C.api(`/api/dict/search?lang=${encodeURIComponent(dictLang)}&q=${encodeURIComponent(q)}&dir=${dictDir}`);
+    if (mine !== seq || !$('#dr')) return;
+    if (r.ok === false) { $('#dr').innerHTML = `<p class="dim">${esc(r.error)}</p>`; return; }
+    credit.textContent = base + (r.credit || '');
+    $('#dr').innerHTML = r.results.length ? `<ul class="list">${r.results.map((x) => `<li><button class="dict-row" data-w="${esc(x.w)}"><b lang="${esc(dictLang)}">${esc(x.w)}</b>${x.read ? ` <span lang="${esc(dictLang)}">${esc(x.read)}</span>` : ''}${x.rom ? ` <span class="dim small">${esc(x.rom)}</span>` : ''}
+      ${x.src === 'mine' ? '<span class="tag jade">yours</span>' : ''}<span class="dim">${esc(String(x.en).slice(0, 160))}</span></button></li>`).join('')}</ul>`
+      : '<p class="dim" style="margin:10px 0 0">No match. You can add it as your own entry below.</p>';
+    $('#dr').querySelectorAll('[data-w]').forEach((b) => { b.onclick = () => showCard(b.dataset.w, dictLang); });
+  };
+  const inp = $('#dq');
+  inp.oninput = () => { dictQ = inp.value; clearTimeout(t); t = setTimeout(run, 180); };
+  inp.focus(); run();
+  $('#da').onsubmit = async (e) => {
+    e.preventDefault();
+    const r = await C.api('/api/dict/entry', { lang: dictLang, word: $('#da-w').value, meaning: $('#da-m').value });
+    if (r.ok === false) { C.toast(r.error); return; }
+    cache.clear(); C.toast(`Added “${r.word}”.`); dictDir = 'from'; dictQ = r.word; renderDict();
+  };
+  C.setKeys((ev) => { if (ev.key === 'Escape') closeCard(); });
+}
+
+let wordsLang = 'es';
+async function renderWords() {
+  const { esc, num } = C;
+  C.view.innerHTML = `${tabs('words')}<p class="loading">Gathering your words…</p>`;
+  bindTabs();
+  const r = await C.api(`/api/words?lang=${encodeURIComponent(wordsLang)}`);
+  if (r.ok === false) { C.view.insertAdjacentHTML('beforeend', `<div class="panel">${esc(r.error)}</div>`); return; }
+  const n = r.words.length, name = LANG_NAME[wordsLang] || wordsLang, canHear = !!voiceFor(wordsLang);
+  C.view.innerHTML = `${tabs('words')}
+    <section class="panel"><div class="row"><div class="grow" style="flex:1 1 260px"><div class="row"><h2>My words (${esc(name)})</h2>${langPicker('w-lang', wordsLang)}</div>
+      <p class="dim small" style="margin:2px 0 0">${num(n)} saved. They are a course of their own: reviewed on the same schedule as everything else, and every answer pays qi and insight like any other study. A new word is met by choosing its meaning; once it holds, you type it from the English, or into the sentence you found it in.</p></div>
+      ${n ? (r.enrolled ? `<a class="btn primary" href="/study?course=${encodeURIComponent(r.course)}" data-link>Study my words</a>`
+    : '<button class="btn primary" id="mw-enrol">Add to my studies</button>') : ''}</div></section>
+    <section class="panel">${n ? `<ul class="list">${r.words.map((w) => `<li class="row"><div class="grow"><b lang="${esc(wordsLang)}">${esc(w.word)}</b>${w.rom ? ` <i class="dim">${esc(w.rom)}</i>` : ''}
+        <span class="tag ${w.state === 'mastered' ? 'jade' : w.state === 'learning' ? 'blue' : ''}">${esc(w.state)}${w.state !== 'new' ? ` ${num(w.strength)}%` : ''}</span>
+        <div>${esc(w.l1)}</div>${w.ctx ? `<div class="dim small" lang="${esc(wordsLang)}">“${esc(w.ctx)}”</div>` : ''}</div>
+        <button class="say tiny" data-say="${esc(w.word)}" aria-label="Hear ${esc(w.word)}" ${canHear ? '' : `disabled title="${esc(speechNote(wordsLang))}"`}>${C.ICON.sound}</button>
+        <button class="btn quiet" data-del="${esc(w.word)}">Delete</button></li>`).join('')}</ul>`
+    : '<p class="dim" style="margin:0">No saved words yet. Tap a word while reading, or look one up in the dictionary, and choose “Save word”.</p>'}
+    ${n && !canHear ? `<p class="dim small" style="margin:10px 0 0">${esc(speechNote(wordsLang))}</p>` : ''}</section>`;
+  bindTabs();
+  const lp = $('#w-lang'); if (lp) lp.onchange = () => { wordsLang = lp.value; renderWords(); };
+  const en = $('#mw-enrol');
+  if (en) en.onclick = async () => { const res = await C.api('/api/enroll', { course: r.course, on: true }); if (res.ok === false) C.toast(res.error); else { C.toast(`My words (${name}) is now one of your courses.`); renderWords(); } };
+  C.view.querySelectorAll('[data-say]').forEach((b) => { b.onclick = () => speak(b.dataset.say, wordsLang); });
+  C.view.querySelectorAll('[data-del]').forEach((b) => {
+    b.onclick = async () => {
+      if (!confirm(`Delete “${b.dataset.del}” from My words? If you save it again later, its progress comes back.`)) return;
+      const res = await C.api(`/api/words?lang=${encodeURIComponent(wordsLang)}&w=${encodeURIComponent(b.dataset.del)}`, undefined, 'DELETE');
+      if (res.ok === false) C.toast(res.error); else { cache.clear(); renderWords(); }
+    };
+  });
+}
+
+/** Route /read: ?book=<id> opens a book, ?tab=dict|words, else the shelf. */
+export async function renderRead(params, ctx) {
+  C = ctx; card = null;
+  await loadLangs();
+  const book = params && params.get('book');
+  if (book) return renderBook(book);
+  const tab = params && params.get('tab');
+  if (tab === 'dict') return renderDict();
+  if (tab === 'words') return renderWords();
+  return renderBooks();
+}

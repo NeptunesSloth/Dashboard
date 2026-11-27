@@ -1,0 +1,1049 @@
+part_of: network-plus
+
+units:
+  # ───────────────────── 3c · Operations: full coverage ─────────────────────
+  - id: np-3c
+    title: "Operations in depth: documents, life cycle, services and access"
+    domain: "3"
+    goal: "I can name the right document, life-cycle stage, monitoring feature, recovery design, network service setting or access method for any operations objective."
+    notes: |
+      This unit fills in every Domain 3 topic the first operations unit left out.
+
+      ## Organisational processes
+      Documentation answers *where is it* (**physical** and **rack diagrams**, **cable maps**), *how does it talk* (**logical diagrams**, **IPAM**) and *what do we own* (**asset inventory**). Life cycle runs from purchase to **end of life** (no longer sold), **end of support** (no more patches) and **decommissioning**. Configuration management keeps a **golden** reference, the live **production** configuration and a **backup** of it.
+
+      ## Monitoring and recovery
+      SNMP is polled on UDP 161 and sends **traps** to UDP 162; only **SNMPv3** authenticates users and encrypts. A **SIEM** correlates aggregated logs. Recovery plans are proven with **tabletop exercises** and **validation tests**.
+
+      ## Services and access
+      | Service | Know |
+      | DHCP | scope, exclusion, reservation, options, lease time |
+      | DNS | record types, zones, DNSSEC, DoH (443), DoT (853) |
+      | Time | NTP, PTP for precision, NTS for security |
+
+      Remote access is **in-band** (SSH, GUI, API over the production network) or **out-of-band** (console), often funnelled through a **jump box** or a VPN.
+    items:
+      - id: np-3c-physical-diagram
+        type: concept
+        term: "Physical network diagram"
+        def: "A drawing of where devices actually sit and how they are cabled together: buildings, rooms, ports and the media joining them."
+      - id: np-3c-logical-diagram
+        type: concept
+        term: "Logical network diagram"
+        def: "A drawing of how data flows rather than where hardware sits: subnets, VLANs, routing relationships and addressing."
+      - id: np-3c-rack-diagram
+        type: concept
+        term: "Rack diagram"
+        def: "A front-and-rear elevation drawing showing which device occupies each numbered unit of height in an equipment cabinet."
+      - id: np-3c-cable-map
+        type: concept
+        term: "Cable map"
+        def: "A record tracing every labelled run from end to end: which wall jack, patch-panel position and switch port each link joins."
+      - id: np-3c-asset-inventory
+        type: concept
+        term: "Asset inventory"
+        def: "A list of every piece of hardware and software the organisation owns, with details such as serial number, location, owner, licence and warranty dates."
+      - id: np-3c-ipam
+        type: concept
+        term: "IPAM"
+        def: "A tool that plans, tracks and audits address space in one place, tying subnet allocations to DHCP and DNS data so that overlaps and conflicts are caught."
+      - id: np-3c-sla
+        type: concept
+        term: "SLA"
+        def: "A contractual commitment by a provider to measurable targets such as uptime and response time, with remedies owed if the targets are missed."
+      - id: np-3c-wireless-survey
+        type: concept
+        term: "Wireless survey (heat map)"
+        def: "A study of a building's radio coverage, usually drawn as a colour-coded floor plan of signal strength, used to decide where access points should go."
+      - id: np-3c-eol
+        type: concept
+        term: "End of life (EOL)"
+        def: "The vendor-announced date after which a product is no longer manufactured or sold, although fixes and assistance may continue for a time."
+      - id: np-3c-eos
+        type: concept
+        term: "End of support (EOS)"
+        def: "The vendor-announced date after which a product receives no more patches, updates or technical assistance."
+      - id: np-3c-decommissioning
+        type: concept
+        term: "Decommissioning"
+        def: "The formal retirement of a device: taking it out of service, wiping its settings and stored data, updating the records and disposing of it safely."
+      - id: np-3c-golden-config
+        type: concept
+        term: "Golden configuration"
+        def: "A single approved reference set of device settings that new devices are built from and that running devices are compared against to detect deviation."
+      - id: np-3c-snmp-trap
+        type: concept
+        term: "SNMP trap"
+        def: "An unsolicited alert that a managed device sends to its management station, on UDP port 162, the moment a defined event occurs."
+      - id: np-3c-mib
+        type: concept
+        term: "MIB"
+        def: "A structured database of the objects a managed device exposes, each identified by a dotted numeric OID, telling a management station what can be read or set."
+      - id: np-3c-community-string
+        type: concept
+        term: "Community string"
+        def: "A shared text value that acts like a password in the first two versions of the network-management protocol and crosses the wire unencrypted."
+      - id: np-3c-snmpv3
+        type: concept
+        term: "SNMPv3"
+        def: "The release of the network-management protocol that adds per-user authentication and encryption of its messages."
+      - id: np-3c-siem
+        type: concept
+        term: "SIEM"
+        def: "A platform that gathers logs from many sources, normalises and correlates them, and raises alerts on patterns that no single device's log would reveal."
+      - id: np-3c-warm-site
+        type: concept
+        term: "Warm site"
+        def: "An alternate location with hardware and connectivity already installed but without current data, so takeover needs restores and typically takes hours to a day or two."
+      - id: np-3c-active-active
+        type: concept
+        term: "Active-active"
+        def: "A redundancy design in which every node carries production traffic at the same time and the survivors absorb the load when one fails."
+      - id: np-3c-active-passive
+        type: concept
+        term: "Active-passive"
+        def: "A redundancy design in which one node carries all the traffic while a second waits idle, taking over only when the first fails."
+      - id: np-3c-tabletop
+        type: concept
+        term: "Tabletop exercise"
+        def: "A discussion-based rehearsal in which the team talks through its response to an imagined disaster scenario without touching any live system."
+      - id: np-3c-validation-test
+        type: concept
+        term: "Validation test"
+        def: "A hands-on check that recovery procedures really work, such as restoring backups or failing over to the alternate location and measuring the result."
+      - id: np-3c-dhcp-scope
+        type: concept
+        term: "DHCP scope"
+        def: "The range of addresses on one subnet that a server is allowed to lease out, together with the settings handed out with them."
+      - id: np-3c-dhcp-reservation
+        type: concept
+        term: "DHCP reservation"
+        def: "A server-side mapping that always leases the same address to one particular client, identified by its MAC address."
+      - id: np-3c-dhcp-exclusion
+        type: concept
+        term: "DHCP exclusion range"
+        def: "A set of addresses inside a server's lease range that it is told never to hand out, usually because they are configured by hand on other devices."
+      - id: np-3c-dhcp-options
+        type: concept
+        term: "DHCP options"
+        def: "Numbered extra settings delivered alongside a leased address, such as the default gateway (3), name servers (6) and lease duration (51)."
+      - id: np-3c-dnssec
+        type: concept
+        term: "DNSSEC"
+        def: "Extensions that add digital signatures to name-resolution records so that a resolver can verify their origin and integrity; they do not hide the query."
+      - id: np-3c-doh
+        type: concept
+        term: "DNS over HTTPS (DoH)"
+        def: "Name-resolution queries wrapped inside ordinary encrypted web traffic on TCP port 443, which makes them hard to tell apart from browsing."
+      - id: np-3c-dot
+        type: concept
+        term: "DNS over TLS (DoT)"
+        def: "Name-resolution queries encrypted in a dedicated session on TCP port 853, which makes them easy to identify and control by port."
+      - id: np-3c-hosts-file
+        type: concept
+        term: "Hosts file"
+        def: "A local text list of name-to-address mappings stored on a computer and consulted before any name server is asked."
+      - id: np-3c-cname
+        type: concept
+        term: "CNAME record"
+        def: "A name-service entry that makes one name an alias of another name, so that lookups carry on to the target's own entries."
+      - id: np-3c-txt
+        type: concept
+        term: "TXT record"
+        def: "A name-service entry holding free-form text, commonly used for SPF and DKIM mail policies and for proving ownership of a domain."
+      - id: np-3c-ptp
+        type: concept
+        term: "PTP"
+        def: "A clock protocol (IEEE 1588) that uses hardware timestamping and a grandmaster source to reach sub-microsecond accuracy on a local network."
+      - id: np-3c-nts
+        type: concept
+        term: "NTS"
+        def: "An extension that secures clock synchronisation by running a TLS key exchange and then cryptographically authenticating each time packet."
+      - id: np-3c-split-tunnel
+        type: concept
+        term: "Split tunnel"
+        def: "A remote-access VPN setup in which only traffic for corporate networks takes the encrypted path, while everything else goes straight to the internet."
+      - id: np-3c-jump-box
+        type: concept
+        term: "Jump box"
+        def: "A hardened intermediary host that administrators must log in to first before they can reach devices in a protected management network."
+      - id: np-3c-oob
+        type: concept
+        term: "Out-of-band management"
+        def: "Administrative access over a path separate from the production network, such as a console server or dedicated management link, usable even when production is down."
+
+      - id: np-3c-q01
+        type: mcq
+        q: "Before access points are ordered for a new warehouse, an engineer walks the floor with a test AP and measurement software, recording signal strength and interference at each spot. Which document does this work produce?"
+        choices:
+          - "A wireless survey heat map"
+          - "A rack diagram"
+          - "A logical network diagram"
+          - "A cable map"
+        answer: 0
+        why: "A wireless (site) survey measures RF coverage and is normally presented as a heat map over the floor plan. A cable map also follows the building layout, but it records wired runs and their terminations, not radio coverage."
+      - id: np-3c-q02
+        type: mcq
+        q: "A technician must find out which links between switches are trunks, which VLANs each carries and which switch is the spanning-tree root. Which diagram is drawn to show exactly this?"
+        choices:
+          - "Layer 1 diagram"
+          - "Layer 2 diagram"
+          - "Layer 3 diagram"
+          - "Rack diagram"
+        answer: 1
+        why: "Trunks, VLAN membership and spanning tree are data link functions, so they appear on a Layer 2 diagram. A Layer 3 diagram shows subnets, routed interfaces and routing relationships instead."
+      - id: np-3c-q03
+        type: mcq
+        q: "An access switch dies and is replaced with an identical model. Which item lets the technician return the replacement to exactly the state of the failed unit in the shortest time?"
+        choices:
+          - "The golden configuration for access switches"
+          - "The asset inventory entry for the switch"
+          - "The backup configuration of that switch"
+          - "The rack diagram for the closet"
+        answer: 2
+        why: "A backup configuration is a saved copy of that specific device's production configuration, including its own port assignments and addresses. The golden configuration is only the generic approved standard, so device-specific settings would still have to be rebuilt."
+      - id: np-3c-q04
+        type: mcq
+        q: "A vendor bulletin says a firewall model will no longer be sold after 30 June this year, and that security patches and technical assistance will stop on 30 June three years later. What does the second date mark?"
+        choices:
+          - "End of life"
+          - "Decommissioning"
+          - "End of the SLA"
+          - "End of support"
+        answer: 3
+        why: "End of support is when patches and vendor assistance stop, which is the date that makes continued use risky. End of life is the earlier date, when the product stops being sold."
+      - id: np-3c-q05
+        type: mcq
+        q: "A firewall between the management station and the switches permits only UDP 161 in both directions. Polling works, but the station never receives the unsolicited alerts the switches are configured to send. What must also be permitted towards the management station?"
+        choices:
+          - "UDP 514"
+          - "TCP 161"
+          - "UDP 123"
+          - "UDP 162"
+        answer: 3
+        why: "SNMP polls go to the agent on UDP 161, but traps are sent by the agent to the manager on UDP 162. UDP 514 is syslog, which is a different event channel altogether."
+      - id: np-3c-q06
+        type: mcq
+        q: "A log collector is set to keep only syslog messages of severity 4 and anything more severe. Which of these messages is discarded?"
+        choices:
+          - "Severity 6 (informational)"
+          - "Severity 4 (warning)"
+          - "Severity 3 (error)"
+          - "Severity 2 (critical)"
+        answer: 0
+        why: "Syslog severity runs from 0 (most severe) to 7 (least), so 'more severe than 4' means 0 to 3. Severity 6 is less severe than the threshold and is dropped; severity 2 has a lower number but is more serious, so it is kept."
+      - id: np-3c-q07
+        type: mcq
+        q: "An operations team wants its monitoring platform to pull interface statistics as structured JSON over HTTPS from a cloud network controller and to open service-desk tickets automatically. Which monitoring method does this describe?"
+        choices:
+          - "Port mirroring"
+          - "API integration"
+          - "SNMP trap forwarding"
+          - "Syslog aggregation"
+        answer: 1
+        why: "Programmatic requests that return structured data and drive other systems are API integration. SNMP traps can also be forwarded to a ticketing tool, but they are device-initiated alerts, not HTTPS requests returning JSON."
+      - id: np-3c-q08
+        type: mcq
+        q: "A new administrator inherits an undocumented network. She wants a tool that sweeps the address ranges every night, queries neighbour tables and adds any device it finds to the inventory. Which monitoring function is this?"
+        choices:
+          - "Scheduled network discovery"
+          - "Traffic analysis"
+          - "Availability monitoring"
+          - "Performance monitoring"
+        answer: 0
+        why: "Finding what devices exist and how they connect is network discovery, here run on a schedule rather than ad hoc. Availability monitoring only checks whether devices that are already known are up."
+      - id: np-3c-q09
+        type: mcq
+        q: "A café's guest network is a /24 with a DHCP lease time of 8 days. Hundreds of visitors pass through each day, each staying about half an hour, and by midday new visitors receive no address. What is the BEST fix?"
+        choices:
+          - "Create a reservation for each visitor"
+          - "Add an exclusion range to the scope"
+          - "Shorten the lease time"
+          - "Configure a DHCP relay on the gateway"
+        answer: 2
+        why: "Departed visitors hold their addresses for 8 days, so the pool runs dry; a lease of an hour or so returns addresses quickly. An exclusion range would make things worse, because it removes addresses from the pool."
+      - id: np-3c-q10
+        type: mcq
+        q: "A partner's mail server rejects the company's messages because a lookup of the sending IP address returns no host name. What must be created to fix this?"
+        choices:
+          - "An MX record in the forward lookup zone"
+          - "A PTR record in the reverse lookup zone"
+          - "An A record in the forward lookup zone"
+          - "A CNAME record in the reverse lookup zone"
+        answer: 1
+        why: "Mapping an address back to a name is a reverse lookup, answered by a PTR record in the reverse zone. An A record goes the other way, from name to address, so it does not satisfy the check."
+      - id: np-3c-q11
+        type: mcq
+        q: "A lookup tool prints 'Non-authoritative answer:' above the address it returns for www.example.com. What does that line mean?"
+        choices:
+          - "The record failed DNSSEC validation"
+          - "The zone's secondary server answered instead of the primary"
+          - "The name was resolved from the local hosts file"
+          - "The reply came from a resolver's cache, not from a server that hosts the zone"
+        answer: 3
+        why: "A non-authoritative answer is one supplied by a server that does not hold the zone, typically a recursive resolver answering from cache. A secondary server holds a full copy of the zone, so its answers are authoritative."
+      - id: np-3c-q12
+        type: mcq
+        q: "An administrator tries to edit a record on DNS server B and is told the zone is read-only. Server B receives its copy of the zone by zone transfer from server A. What role does server B hold for this zone?"
+        choices:
+          - "Secondary"
+          - "Primary"
+          - "Forwarder"
+          - "Recursive resolver"
+        answer: 0
+        why: "A secondary server holds a read-only copy of the zone obtained by transfer; edits are made only on the primary. A recursive resolver does not host the zone at all, it looks answers up on behalf of clients."
+      - id: np-3c-q13
+        type: mcq
+        q: "A branch office of 40 staff, with IP phones and printers, needs permanent access to headquarters servers for every application. No VPN software may be installed on the branch devices. Which solution fits?"
+        choices:
+          - "A clientless VPN portal"
+          - "A client-to-site VPN with full tunnel"
+          - "A site-to-site VPN between the two edge firewalls"
+          - "A client-to-site VPN with split tunnel"
+        answer: 2
+        why: "A site-to-site VPN joins the two networks at their gateways, so every device, including phones and printers, uses it with no software. A clientless VPN also needs no software, but it serves individual users through a browser and suits web applications, not a whole office."
+      - id: np-3c-q14
+        type: mcq
+        q: "Contractors using their own unmanaged laptops need occasional access to a single internal web application. They cannot install software on those laptops. Which remote-access method is BEST?"
+        choices:
+          - "Client-to-site VPN with full tunnel"
+          - "Clientless VPN"
+          - "Site-to-site VPN"
+          - "Client-to-site VPN with split tunnel"
+        answer: 1
+        why: "A clientless VPN delivers access through a browser over TLS, with nothing installed, and suits web applications. Either client-to-site option requires VPN client software on the laptop."
+      - id: np-3c-q15
+        type: mcq
+        q: "A mistyped ACL blocks every network management session (SSH, Telnet, HTTPS and API) to a router, although the router still forwards user traffic. A technician is standing next to it. Which access method will still work?"
+        choices:
+          - "Telnet to the management address"
+          - "The web GUI from the local subnet"
+          - "A REST call from the technician's laptop"
+          - "The console port"
+        answer: 3
+        why: "The console port is a direct serial connection that does not pass through the network interfaces or their ACLs, so it is the out-of-band way back in. Telnet is another in-band network session and would be blocked like the rest."
+
+  # ───────────────────── 3d · Exam-hard practice, set 1 ─────────────────────
+  - id: np-3d
+    title: "Operations: exam-hard practice I"
+    domain: "3"
+    goal: "I can solve multi-step operations scenarios that turn on near-neighbour distinctions such as RPO vs RTO, trap vs poll and reservation vs exclusion."
+    notes: |
+      These questions are deliberately harder than the real exam. Every stem is a scenario, and every wrong choice is something a half-prepared candidate would pick.
+
+      **How to work them.** First decide *what is happening*, then choose the response. Watch the qualifier: **BEST**, **MOST likely**, **FIRST** and **NEXT** each change the answer.
+
+      **Distinctions this set tests**
+
+      - **SNMPv2c vs v3**, and v3's security levels: *authNoPriv* authenticates only, *authPriv* also encrypts.
+      - **Poll vs trap**: polling misses events between polls; a trap is sent at once.
+      - **Flow data vs packet capture**: who-talked-to-whom versus actual payload.
+      - **RPO vs RTO**: data lost versus time down. Check each number separately.
+      - **Reservation vs exclusion**: one still uses DHCP for that host, the other removes addresses from it.
+      - **DNSSEC vs DoH/DoT**: authenticity versus privacy.
+      - **Jump box vs out-of-band**: a jump box still depends on the production network.
+
+      *Choose TWO/THREE* items are all-or-nothing. Ordering items stand in for performance-based questions: rebuild the process from first principles rather than from memory.
+    items:
+      - id: np-3d-q01
+        type: mcq
+        q: "An auditor captures traffic between the management station and a router and reads the string 'N0c-R3ad' in clear text in every poll. Policy requires that management credentials and the polled data are both protected from eavesdropping. Which change BEST meets the policy?"
+        choices:
+          - "SNMPv3 at the authNoPriv security level"
+          - "SNMPv2c with a longer, random community string"
+          - "SNMPv3 at the authPriv security level"
+          - "SNMPv2c with an ACL permitting only the management station"
+        answer: 2
+        why: "Only SNMPv3 with authPriv both authenticates the user and encrypts the payload. authNoPriv is the tempting half-measure: it authenticates, but the polled data still travels in clear text."
+      - id: np-3d-q02
+        type: mcq
+        q: "A management station polls every device at five-minute intervals. A router's power supply failed and recovered within 90 seconds, and nothing was recorded. Which change BEST ensures such events are reported without adding polling load?"
+        choices:
+          - "Configure the router to send SNMP traps to the management station"
+          - "Shorten the polling interval to 30 seconds"
+          - "Enable flow data export on the router"
+          - "Mirror the router's uplink port to an analyzer"
+        answer: 0
+        why: "A trap is sent by the device the moment the event happens, so nothing is missed between polls and no extra polling is needed. Polling every 30 seconds might catch the event, but it multiplies the load, which the question rules out."
+      - id: np-3d-q03
+        type: mcq
+        q: "A legacy application intermittently returns corrupted records. Flow data shows each conversation completing normally with the expected byte counts, and the interface counters are clean. The developer needs to see the actual application-layer responses. What should the engineer configure?"
+        choices:
+          - "Flow export with a higher sampling rate"
+          - "Port mirroring of the server's switch port to a protocol analyzer"
+          - "SNMP traps for interface errors on the server's switch port"
+          - "Debug-level syslog from the access switch"
+        answer: 1
+        why: "Only a packet capture contains payload, and port mirroring is how a switch delivers a copy of the server's traffic to the analyzer. Flow data, however finely sampled, records only addresses, ports and counts."
+      - id: np-3d-q04
+        type: mcq
+        q: "A database is backed up every 4 hours and has no replication. A tested restore takes 6 hours. The business requires that no more than 1 hour of data be lost and that service resume within 8 hours. Which statement is correct?"
+        choices:
+          - "Both the RPO and the RTO are met"
+          - "The RTO is not met; the RPO is met"
+          - "Neither the RPO nor the RTO is met"
+          - "The RPO is not met; the RTO is met"
+        answer: 3
+        why: "Up to 4 hours of data can be lost between backups, which breaks the 1-hour RPO, while a 6-hour restore fits inside the 8-hour RTO. Swapping the two is the classic error: RPO is about data lost, RTO about time down."
+      - id: np-3d-q05
+        type: mcq
+        q: "Over one year (8,760 hours) an edge router failed 4 times, with a total of 20 hours of downtime. What are its MTTR and MTBF?"
+        choices:
+          - "MTTR 20 hours; MTBF 2,190 hours"
+          - "MTTR 5 hours; MTBF 8,740 hours"
+          - "MTTR 5 hours; MTBF 2,185 hours"
+          - "MTTR 2,185 hours; MTBF 5 hours"
+        answer: 2
+        why: "MTTR is downtime divided by failures: 20 / 4 = 5 hours. MTBF is operating time divided by failures: (8,760 - 20) / 4 = 2,185 hours. 8,740 hours is the total uptime, not the average between failures."
+      - id: np-3d-q06
+        type: mcq
+        q: "A distributor sets an RTO of 24 hours and an RPO of 12 hours, and ships backups off site twice a day. The budget rules out duplicating live infrastructure. Which recovery option is the MOST cost-effective that still meets the objectives?"
+        choices:
+          - "Hot site"
+          - "Warm site"
+          - "Cold site"
+          - "Active-active second data centre"
+        answer: 1
+        why: "A warm site already has hardware and connectivity, so restoring the latest backup within 24 hours is realistic at moderate cost. A cold site is cheaper, but equipment must first be bought and installed, which takes days and misses the RTO."
+      - id: np-3d-q07
+        type: mcq
+        q: "Two firewalls run as an active-active pair, and at peak each one operates at 70% of its rated throughput. One unit fails at peak time. What is the MOST likely result?"
+        choices:
+          - "The survivor is overloaded, because it is asked to carry 140% of its capacity"
+          - "Traffic stops until an administrator promotes the standby unit"
+          - "Nothing changes, because the failed unit was idle in standby"
+          - "Nothing changes, because active-active pairs always reserve half their capacity"
+        answer: 0
+        why: "In active-active both units carry traffic, so the survivor inherits the whole load: 70% + 70% = 140% of one unit. Headroom is not automatic; for a clean failover each unit must stay under 50% at peak."
+      - id: np-3d-q08
+        type: mcq
+        q: "The recovery team has twice walked through its plan in a conference room and found no gaps. Management now wants evidence that backups can really be restored at the alternate site inside the RTO. What should the team do NEXT?"
+        choices:
+          - "Hold a third tabletop exercise with more departments"
+          - "Recalculate MTBF for the core devices"
+          - "Renegotiate the SLA with the alternate site provider"
+          - "Run a validation test"
+        answer: 3
+        why: "A validation test actually performs the restore or failover and measures the result, which is the evidence asked for. Another tabletop exercise is still only discussion and proves nothing about real restore times."
+      - id: np-3d-q09
+        type: mcq
+        q: "A network printer must always be reachable at 10.1.5.50, which lies inside the scope 10.1.5.10 to 10.1.5.200. The administrators want its gateway and DNS settings to stay centrally managed. What is the BEST approach?"
+        choices:
+          - "Exclude 10.1.5.50 from the scope and configure the printer statically"
+          - "Create a reservation for 10.1.5.50 tied to the printer's MAC address"
+          - "Set a very long lease time on the scope"
+          - "Create a DNS A record for the printer pointing to 10.1.5.50"
+        answer: 1
+        why: "A reservation guarantees the address while the printer still receives its options from the server, so settings remain central. Exclusion plus a static address also fixes the address, but every setting must then be maintained by hand on the printer."
+      - id: np-3d-q10
+        type: mcq
+        q: "Clients on VLAN 30 lease 10.30.0.0/24 addresses and can ping 10.30.0.1 and 8.8.8.8, but cannot browse by name. Their settings show DNS server 10.99.9.9, which was retired last week. Other VLANs are unaffected. What should be corrected?"
+        choices:
+          - "Option 3 in the VLAN 30 scope"
+          - "The relay address on the VLAN 30 gateway"
+          - "Option 6 in the VLAN 30 scope"
+          - "Option 51 in the VLAN 30 scope"
+        answer: 2
+        why: "Leases and routing work, so only the name-server setting is wrong, and DNS servers are delivered by option 6. Option 3 is the default gateway, which is clearly fine because 8.8.8.8 answers."
+      - id: np-3d-q11
+        type: mcq
+        q: "The only DHCP server sits on 10.10.10.0/24 and has a single scope for that subnet. Clients on a new VLAN (gateway 10.10.20.1) get no address. A capture on the server shows Discover messages arriving as unicast from 10.10.20.1, with no reply sent. What is the MOST likely cause?"
+        choices:
+          - "The relay agent is not configured on the new VLAN's gateway"
+          - "The lease time on the existing scope is too short"
+          - "The clients' Discover messages are being sent as broadcasts"
+          - "The server has no scope matching the relay's subnet"
+        answer: 3
+        why: "Unicast Discovers from 10.10.20.1 prove the relay is working; the server uses the relay's address to pick a scope and stays silent because none exists for 10.10.20.0/24. A missing relay is the usual suspect, but then nothing would reach the server at all."
+      - id: np-3d-q12
+        type: mcq
+        q: "IPv6 hosts build global addresses from the router advertisement's prefix but learn no DNS servers. The administrator does not want any server tracking which host holds which address. Which change BEST fits?"
+        choices:
+          - "Set the O flag in the router advertisement and deploy stateless DHCPv6"
+          - "Set the M flag in the router advertisement and deploy stateful DHCPv6"
+          - "Add option 6 to the DHCPv4 scope for the VLAN"
+          - "Advertise a /96 prefix so hosts request the rest from a server"
+        answer: 0
+        why: "The O (other configuration) flag tells hosts to keep their SLAAC address and fetch only extras such as DNS servers from stateless DHCPv6, which tracks no leases. The M flag switches hosts to stateful DHCPv6, where the server assigns and records the addresses."
+      - id: np-3d-q13
+        type: mcq
+        q: "To conserve address space, an engineer configures a router interface with 2001:db8:a:1::/80 and enables router advertisements. Hosts on the segment show only fe80:: addresses and never form a global address. What is the MOST likely reason?"
+        choices:
+          - "Router advertisements are broadcasts, which IPv6 does not support"
+          - "SLAAC requires the advertised prefix to be a /64"
+          - "The hosts need a DHCPv6 relay to reach the router"
+          - "Duplicate address detection failed for every host"
+        answer: 1
+        why: "SLAAC combines the advertised prefix with a 64-bit interface identifier, so the prefix must be exactly 64 bits; an /80 cannot be used. Router advertisements are multicast, not broadcast, and the hosts clearly have working link-local addresses."
+      - id: np-3d-q14
+        type: mcq
+        q: "A company moves www.example.com to a content delivery network. The provider supplies the host name site-1234.cdn.example.net and warns that the IP addresses behind it change without notice. Which record should be published for www?"
+        choices:
+          - "An A record holding the provider's current IP address"
+          - "A PTR record pointing to site-1234.cdn.example.net"
+          - "An NS record delegating www to the provider"
+          - "A CNAME record pointing to site-1234.cdn.example.net"
+        answer: 3
+        why: "A CNAME aliases www to the provider's name, so address changes on their side are followed automatically. An A record works only until the provider next changes the address."
+      - id: np-3d-q15
+        type: mcq
+        q: "Receiving mail servers mark the company's messages as possible forgeries because they cannot confirm which servers are allowed to send mail for the domain. Which DNS record type should the administrator publish?"
+        choices:
+          - "MX"
+          - "CNAME"
+          - "TXT"
+          - "NS"
+        answer: 2
+        why: "The sender policy (SPF) that lists permitted sending servers is published in a TXT record. An MX record names the servers that receive the domain's mail, which says nothing about who may send it."
+      - id: np-3d-q16
+        type: mcq
+        q: "An attacker inserted a forged address for a banking site into a resolver's cache. The security team wants resolvers to be able to verify that an answer really comes from the zone owner and was not altered. Hiding queries from the ISP is not required. Which control addresses this?"
+        choices:
+          - "DNSSEC"
+          - "DNS over HTTPS"
+          - "DNS over TLS"
+          - "A shorter TTL on the zone's records"
+        answer: 0
+        why: "DNSSEC signs records so a validating resolver can check origin and integrity, which defeats forged answers. DoH and DoT encrypt the hop between client and resolver, but they do nothing to prove that the data the resolver obtained is genuine."
+      - id: np-3d-q17
+        type: mcq
+        q: "A firewall team must encrypt DNS traffic from the internal resolvers to the upstream provider, yet still be able to identify and control that traffic by port, separately from web browsing. Which should be used?"
+        choices:
+          - "DNS over HTTPS on TCP 443"
+          - "DNS over TLS on TCP 853"
+          - "DNSSEC on UDP 53"
+          - "Standard DNS over TCP 53"
+        answer: 1
+        why: "DoT runs on its own port, TCP 853, so it is encrypted and still easy to pick out in a firewall rule. DoH is also encrypted, but it shares TCP 443 with all other HTTPS traffic and cannot be separated by port."
+      - id: np-3d-q18
+        type: mcq
+        q: "On one PC, a browser reaches intranet.corp.example at the wrong address 10.9.9.9. On the same PC, nslookup returns the correct 10.1.1.20, and flushing the DNS cache changes nothing. Every other PC is fine. What is the MOST likely cause?"
+        choices:
+          - "A stale A record on the DNS server"
+          - "An incorrect DNS server in the DHCP scope options"
+          - "A TTL that has not yet expired on the resolver"
+          - "An entry in the PC's hosts file"
+        answer: 3
+        why: "nslookup queries the DNS server directly and gets the right answer, so the server is fine; the browser uses the system resolver, which reads the hosts file first. A stale server record would give nslookup, and every other PC, the wrong address too."
+      - id: np-3d-q19
+        type: mcq
+        q: "A factory's motion-control system needs device clocks to agree within one microsecond across the plant LAN. The switches and network cards support hardware timestamping. Which protocol should be deployed?"
+        choices:
+          - "NTP synchronised to a stratum 1 server"
+          - "NTS"
+          - "PTP"
+          - "SNTP"
+        answer: 2
+        why: "PTP (IEEE 1588) with hardware timestamping reaches sub-microsecond accuracy. NTP, even from a stratum 1 source, is typically accurate to around a millisecond on a LAN, which is a thousand times too coarse."
+      - id: np-3d-q20
+        type: mcq
+        q: "An on-path attacker forged NTP replies and shifted server clocks by several hours, causing certificate validation to fail. The team wants to keep NTP but have each time source and packet cryptographically authenticated. What should be implemented?"
+        choices:
+          - "NTS"
+          - "PTP"
+          - "SNTP"
+          - "A lower-stratum NTP source"
+        answer: 0
+        why: "Network Time Security adds a TLS-based key exchange and authenticates NTP packets, so forged replies are rejected. A lower-stratum source is closer to the reference clock, but its replies can still be forged in transit."
+      - id: np-3d-q21
+        type: mcq
+        q: "Remote staff on the client VPN complain that video sites are slow, and a traceroute to any public site passes through headquarters. The headquarters internet link is saturated. Policy requires only traffic to corporate subnets to be protected. Which change is BEST?"
+        choices:
+          - "Keep the full tunnel and add a second VPN concentrator"
+          - "Enable split tunnelling for the VPN clients"
+          - "Replace the client VPN with a clientless portal"
+          - "Convert each user's connection to a site-to-site VPN"
+        answer: 1
+        why: "Split tunnelling sends only corporate-bound traffic through the VPN and lets internet traffic leave locally, which relieves the headquarters link, and policy allows it. A second concentrator adds VPN capacity but the web traffic would still hairpin through the same saturated internet link."
+      - id: np-3d-q22
+        type: mcq
+        q: "Administrators currently SSH from their own workstations straight to 200 devices in the management VLAN. Auditors require one hardened, fully logged entry point, and device ACLs that accept management sessions from a single source address. What should be deployed?"
+        choices:
+          - "An out-of-band console server"
+          - "A client-to-site VPN for each administrator"
+          - "A site-to-site VPN into the management VLAN"
+          - "A jump box"
+        answer: 3
+        why: "A jump box is the single hardened host administrators log in to first, so sessions are logged in one place and devices need to trust only its address. A client VPN gets administrators onto the network, but each would still reach devices from a different address with no central session log."
+      - id: np-3d-q23
+        type: mcq
+        q: "A routing change cut off a remote site's WAN link, taking SSH access with it; the site is a four-hour drive away. Which design would have let engineers fix the router remotely?"
+        choices:
+          - "A jump box in the headquarters management VLAN"
+          - "A loopback interface used as the router's management address"
+          - "A console server reachable over a cellular modem"
+          - "SNMPv3 write access from the management station"
+        answer: 2
+        why: "A console server on a separate cellular path is out-of-band: it reaches the router's console even when the WAN is down. The jump box, loopback address and SNMP are all in-band and die with the same WAN link."
+
+      - id: np-3d-m01
+        type: multi
+        q: "A team is justifying a migration from SNMPv2c to SNMPv3. Which TWO capabilities does SNMPv3 add? (Choose TWO.)"
+        choices:
+          - "Authentication of individual users"
+          - "Encryption of the message payload"
+          - "Use of UDP as the transport"
+          - "Object identifiers defined in MIBs"
+          - "Trap messages sent by agents"
+        answers: [0, 1]
+        why: "SNMPv3 introduced user-based authentication and optional encryption (privacy). UDP transport, MIBs with OIDs and traps all existed in earlier versions."
+      - id: np-3d-m02
+        type: multi
+        q: "A link between a server and its switch port has failed, and a contractor who has never seen the data hall must locate both devices and re-patch the run. Which TWO documents will the contractor need? (Choose TWO.)"
+        choices:
+          - "Logical network diagram"
+          - "Rack diagram"
+          - "Service-level agreement"
+          - "Cable map"
+          - "IPAM subnet report"
+        answers: [1, 3]
+        why: "The rack diagram shows where each device is mounted and the cable map shows which ports and panel positions the run joins. A logical diagram and IPAM describe addressing and data flow, not physical location, and the SLA is a contract."
+      - id: np-3d-m03
+        type: multi
+        q: "A change request for a core router upgrade is about to go to the approval board. Which THREE items must it contain before approval can be given? (Choose THREE.)"
+        choices:
+          - "A rollback plan"
+          - "An assessment of impact and risk"
+          - "Results of post-implementation testing"
+          - "The proposed maintenance window"
+          - "The diagram as updated after the upgrade"
+          - "The lessons-learned report"
+        answers: [0, 1, 3]
+        why: "Approvers need to know the risk, when the work will happen and how it will be backed out. Test results, updated documentation and lessons learned can only exist after the change has been carried out."
+      - id: np-3d-m04
+        type: multi
+        q: "A privacy review requires that DNS queries cannot be read by anyone on the path between clients and the resolver. Which TWO technologies provide this? (Choose TWO.)"
+        choices:
+          - "DNSSEC"
+          - "DNS over HTTPS"
+          - "A secondary zone"
+          - "DNS over TLS"
+          - "A longer record TTL"
+        answers: [1, 3]
+        why: "DoH and DoT both encrypt the query in transit. DNSSEC signs the answers so they can be verified, but the queries and answers remain readable."
+      - id: np-3d-m05
+        type: multi
+        q: "Which TWO of these are in-band management methods? (Choose TWO.)"
+        choices:
+          - "A laptop cabled to the device's serial console port"
+          - "An SSH session to the device's address across the production network"
+          - "A console server reached through a dedicated cellular link"
+          - "The device's HTTPS GUI opened from a user VLAN"
+          - "A dial-up modem attached to the auxiliary port"
+        answers: [1, 3]
+        why: "In-band management travels over the same network that carries user data, as SSH and the web GUI do here. Serial console, cellular console server and dial-up modem all use a separate path, which makes them out-of-band."
+      - id: np-3d-m06
+        type: multi
+        q: "A business tightens its RPO from 24 hours to 15 minutes. Which TWO changes directly help meet the new RPO? (Choose TWO.)"
+        choices:
+          - "Keeping a pre-configured spare router on site"
+          - "Running backups more frequently"
+          - "Holding a tabletop exercise every quarter"
+          - "Replicating data continuously to the alternate site"
+          - "Fitting redundant power supplies to the servers"
+          - "Buying faster hardware for restores"
+        answers: [1, 3]
+        why: "RPO is about how much recent data can be lost, so only more frequent copies or replication improve it. Spares and faster restores shorten recovery time (RTO), redundant power raises reliability, and an exercise tests the plan."
+
+      - id: np-3d-o01
+        type: order
+        q: "Put the stages of a formal change to a production router in order."
+        steps:
+          - "Submit a change request describing the work and its rollback plan"
+          - "Assess the impact and risk of the change"
+          - "Obtain approval from the change authority"
+          - "Notify stakeholders and implement in the scheduled maintenance window"
+          - "Verify the result, rolling back if it fails"
+          - "Update the documentation and close the request"
+        why: "Nothing is assessed or approved until a request exists, nothing is implemented before approval, and documentation is updated only once the outcome is verified."
+      - id: np-3d-o02
+        type: order
+        q: "A client on VLAN 20 obtains its first lease from a DHCP server on another subnet through a relay agent. Put the events in order."
+        steps:
+          - "The client broadcasts a Discover on its own segment"
+          - "The gateway's relay agent forwards the Discover to the server as unicast"
+          - "The server chooses a scope from the relay's address and returns an Offer"
+          - "The client broadcasts a Request for the offered address"
+          - "The server sends an Acknowledge, relayed back to the client"
+          - "The client begins using the address"
+        why: "The order is Discover, Offer, Request, Acknowledge, with the relay turning each client broadcast into a unicast for the server; the client may use the address only after the Acknowledge."
+      - id: np-3d-o03
+        type: order
+        q: "A PC resolves www.example.com for the first time, and nothing is cached anywhere. Put the steps in order."
+        steps:
+          - "The PC checks its hosts file and local cache and finds no entry"
+          - "The PC sends the query to its configured recursive resolver"
+          - "The resolver asks a root server and is referred to the .com servers"
+          - "The resolver asks a .com server and is referred to example.com's name servers"
+          - "The resolver asks an authoritative server for example.com and receives the address"
+          - "The resolver caches the answer and returns it to the PC"
+        why: "Local sources are tried before the network; the recursive resolver then walks the hierarchy from the root through the top-level domain to the authoritative server, and replies only once it has the answer."
+
+  # ───────────────────── 3e · Exam-hard practice, set 2 ─────────────────────
+  - id: np-3e
+    title: "Operations: exam-hard practice II"
+    domain: "3"
+    goal: "I can work through operations scenarios involving calculations, log and config details, and choose the best response when several look reasonable."
+    notes: |
+      A second exam-hard set for Domain 3, leaning on **numbers and details**: availability arithmetic, syslog levels, lease timers, TTLs and strata.
+
+      **Figures worth re-deriving**
+
+      | Topic | Rule |
+      | Availability | 99.9% of a 30-day month allows about 43 minutes down |
+      | Syslog | 0 emergency … 7 debug; a threshold keeps that level *and lower numbers* |
+      | DHCP lease | renew at 50% (unicast), rebind at 87.5% (broadcast) |
+      | NTP | stratum = one more than the source you sync to |
+      | DNS TTL | caches keep the old answer for the TTL that was in force when they fetched it |
+
+      **Habits that win marks**
+
+      - Separate *symptom* from *cause*: a DNSSEC failure may really be a clock problem.
+      - Ask which document or record is the *source of truth* for the fact in question.
+      - For recovery, match each requirement to a metric before you look at the choices.
+      - For access, ask what still works when the production network does not.
+
+      Most items need two steps of reasoning; if an answer seems obvious, re-read the qualifier.
+    items:
+      - id: np-3e-q01
+        type: mcq
+        q: "Two engineers, working from a shared spreadsheet, each assign 10.20.8.0/24 to a different new site. DHCP scopes and DNS records are tracked in separate files. Which tool would BEST prevent a repeat?"
+        choices:
+          - "An asset inventory system"
+          - "A SIEM"
+          - "A logical diagram repository"
+          - "An IPAM system"
+        answer: 3
+        why: "IPAM is the single source of truth for subnet allocations and ties them to DHCP and DNS, so an overlapping assignment is refused or flagged. An asset inventory tracks devices and licences, not address space."
+      - id: np-3e-q02
+        type: mcq
+        q: "An ISP's SLA guarantees 99.9% availability measured over each 30-day month. What is the longest total outage in a month that stays within the guarantee?"
+        choices:
+          - "About 4.3 minutes"
+          - "About 43 minutes"
+          - "About 7.2 hours"
+          - "About 8.8 hours"
+        answer: 1
+        why: "A 30-day month has 43,200 minutes, and 0.1% of that is 43.2 minutes. 8.8 hours is the allowance for 99.9% over a whole year, and 7.2 hours is what 99% would allow in the month."
+      - id: np-3e-q03
+        type: mcq
+        q: "A switch model reached end of sale in January 2024, and the vendor's last security patches for it are dated 31 December 2026. A critical flaw in its software is disclosed in February 2027. What is the MOST significant risk of keeping these switches in production?"
+        choices:
+          - "No patch will be issued for the flaw"
+          - "Identical spare units can no longer be bought from the vendor"
+          - "The switches will stop forwarding when the support date passes"
+          - "The MTBF figures in the data sheet no longer apply"
+        answer: 0
+        why: "After end of support the vendor releases no fixes, so the flaw stays exploitable indefinitely. Being unable to buy new units has been true since end of sale and is an inconvenience, not an open vulnerability."
+      - id: np-3e-q04
+        type: mcq
+        q: "A retired branch router is about to be handed to an electronics recycler. Which decommissioning step addresses the risk of the organisation's information being exposed?"
+        choices:
+          - "Removing the router from the monitoring system"
+          - "Updating the rack diagram and asset inventory"
+          - "Erasing its configuration, keys and stored credentials"
+          - "Archiving a final backup of its configuration"
+        answer: 2
+        why: "The saved configuration holds passwords, keys, addressing and VPN secrets, so it must be wiped before the device leaves the organisation's control. Updating records and monitoring is part of decommissioning too, but it protects no data."
+      - id: np-3e-q05
+        type: mcq
+        q: "An audit finds 60 access switches, each configured by hand, with different SSH, SNMP and logging settings. The team wants one approved reference that every new switch is built from and against which deviations can be measured. What should it create?"
+        choices:
+          - "A backup configuration for each switch"
+          - "A golden configuration"
+          - "A performance baseline"
+          - "A production configuration archive"
+        answer: 1
+        why: "A golden (baseline) configuration is the single approved standard used to build devices and to detect deviation. Backups of each switch would simply preserve the 60 inconsistent configurations."
+      - id: np-3e-q06
+        type: mcq
+        q: "A router forwards syslog messages of severity 0 to 3 to the collector. Engineers also want interface up/down notices, which the router tags as severity 5, but not informational or debugging messages. To which level should the threshold be set?"
+        choices:
+          - "Level 4 (warning)"
+          - "Level 6 (informational)"
+          - "Level 7 (debugging)"
+          - "Level 5 (notice)"
+        answer: 3
+        why: "A threshold sends that level and everything more severe (lower numbers), so level 5 adds warnings and notices and still leaves out 6 and 7. Level 4 would stop just short of the notices they want."
+      - id: np-3e-q07
+        type: mcq
+        q: "Logs from firewalls, VPN gateways and switches already reach a central syslog server. Nobody noticed that 40 failed VPN logins from one address were followed by a success and then a configuration change on a core switch. Which capability is missing?"
+        choices:
+          - "Correlation and alerting across log sources, as a SIEM provides"
+          - "Flow data collection from the core switch"
+          - "Packet capture on the VPN gateway"
+          - "A second syslog server for redundancy"
+        answer: 0
+        why: "The events were all logged, but on different devices; a SIEM correlates them into one alert. A second syslog server only stores a second copy of the same uncorrelated messages."
+      - id: np-3e-q08
+        type: mcq
+        q: "A management station polls a new vendor's UPS successfully, but displays its values only under long numeric labels such as 1.3.6.1.4.1.318.1.1.1.2.2.1.0, with no names or units. What should be loaded into the management station?"
+        choices:
+          - "SNMPv3 credentials for the UPS"
+          - "A trap receiver address"
+          - "The vendor's MIB file"
+          - "A read-write community string"
+        answer: 2
+        why: "The MIB translates numeric OIDs into named, typed objects, so the station can label and interpret the values. Credentials are not the problem, because polling already returns data."
+      - id: np-3e-q09
+        type: mcq
+        q: "A sensor on port Gi1/0/24 should receive a copy of all traffic for a server on Gi1/0/10. After this is applied the sensor captures nothing useful and the server drops off the network: 'monitor session 1 source interface Gi1/0/24' and 'monitor session 1 destination interface Gi1/0/10'. What is wrong?"
+        choices:
+          - "Port mirroring copies only frame headers, never payloads"
+          - "The source and destination ports are reversed"
+          - "Port mirroring works only when the source is a trunk port"
+          - "The session needs an SNMP read-write community to start"
+        answer: 1
+        why: "The source must be the port being observed (the server) and the destination the port with the sensor; reversed, the server's port becomes a mirror destination and stops carrying its normal traffic. Mirroring copies whole frames and works on access ports."
+      - id: np-3e-q10
+        type: mcq
+        q: "An online retailer sets an RTO of five minutes and an RPO near zero. Finance insists that both data centres serve customers during normal operation so that neither sits idle. Which design fits?"
+        choices:
+          - "Active-passive with a hot site"
+          - "Warm site with hourly backups"
+          - "Cold site with synchronous replication"
+          - "Active-active data centres"
+        answer: 3
+        why: "Only active-active has both sites carrying production traffic all the time, with the survivor continuing at once. An active-passive hot site could meet the recovery numbers, but its second site stays idle, which finance has ruled out."
+      - id: np-3e-q11
+        type: mcq
+        q: "A technician connects a laptop to the console port of a factory-new switch with the correct cable. The terminal window fills with random symbols whenever the switch prints output. What should be checked FIRST?"
+        choices:
+          - "The speed (baud rate) and framing set in the terminal program"
+          - "The IP address configured on the laptop"
+          - "The SSH keys generated on the switch"
+          - "The VLAN assigned to the management interface"
+        answer: 0
+        why: "Garbled characters on a serial console mean the two ends disagree on speed or framing, so the terminal settings are checked first. A console session uses no IP address, SSH or VLAN at all."
+      - id: np-3e-q12
+        type: mcq
+        q: "Past incidents show the core switch's MTTR is 6 hours, most of it waiting for a replacement to be delivered. The business now sets an RTO of 2 hours for the core. Which measure BEST closes the gap?"
+        choices:
+          - "Backing up the switch configuration every hour"
+          - "Buying a model with a higher MTBF"
+          - "Keeping a pre-configured spare switch on site"
+          - "Holding a tabletop exercise on core failure"
+        answer: 2
+        why: "The delay is delivery time, so a ready spare on site cuts repair time to well under the RTO. A higher MTBF makes failures rarer but does nothing to shorten the outage when one happens."
+      - id: np-3e-q13
+        type: mcq
+        q: "A database replicates asynchronously to the recovery site with a lag of up to 10 minutes, and a full backup goes to tape every night at midnight. The primary site is destroyed at 15:00 and operations fail over to the replica. What is the worst-case data loss?"
+        choices:
+          - "None"
+          - "About 10 minutes"
+          - "About 15 hours"
+          - "About 24 hours"
+        answer: 1
+        why: "The replica can be up to 10 minutes behind, so that is the most that can be lost on failover. Fifteen hours would apply only if recovery had to fall back on the midnight tape."
+      - id: np-3e-q14
+        type: mcq
+        q: "A scope leases 192.168.50.1 to 192.168.50.254. The router uses .1 and servers are statically set to .2 through .20. Users intermittently see duplicate-address errors, always involving addresses between .2 and .20. What is the BEST fix?"
+        choices:
+          - "Shorten the lease time on the scope"
+          - "Create a reservation for each affected user's PC"
+          - "Configure a relay agent on the router"
+          - "Add an exclusion range covering .1 to .20"
+        answer: 3
+        why: "The server is leasing addresses that are already configured by hand, so those addresses must be excluded from the pool. Reserving addresses for the users' PCs treats each victim individually and leaves the server free to hand .2 to .20 to the next client."
+      - id: np-3e-q15
+        type: mcq
+        q: "The DHCP server is taken offline for 6 hours of maintenance. The lease time is 8 days and every client obtained or renewed its lease yesterday. What happens to these clients during the outage?"
+        choices:
+          - "Nothing; they do not try to renew until half the lease has passed"
+          - "They fall back to APIPA addresses as soon as the server stops answering"
+          - "They broadcast to rebind immediately, because the original server is silent"
+          - "They release their addresses when the server misses a keepalive"
+        answer: 0
+        why: "A client first attempts renewal at 50% of the lease (4 days here) and rebinding at 87.5%, so a 6-hour outage one day in passes unnoticed. There is no keepalive between client and server, and APIPA applies only when no valid lease exists."
+      - id: np-3e-q16
+        type: mcq
+        q: "New IP phones lease an address, mask and gateway, then show 'TFTP server not found' and never download their configuration. PCs on the same VLAN work normally. Which scope option is MOST likely missing?"
+        choices:
+          - "Option 3 (router)"
+          - "Option 6 (DNS servers)"
+          - "Option 66 (TFTP server)"
+          - "Option 51 (lease time)"
+        answer: 2
+        why: "Phones learn where to fetch their configuration from the TFTP server option, 66. Option 3 is present, because the phones already received a gateway."
+      - id: np-3e-q17
+        type: mcq
+        q: "A research team runs its own DNS servers for the new subdomain lab.example.com. Queries for host1.lab.example.com that reach the example.com servers return 'no such name'. What should be added to the example.com zone?"
+        choices:
+          - "A CNAME record for lab pointing to the research servers"
+          - "NS records delegating lab to the research servers"
+          - "An MX record for lab"
+          - "A PTR record for each research server"
+        answer: 1
+        why: "Delegating a subdomain is done with NS records in the parent zone naming the child's servers, so resolvers are referred onward. A CNAME aliases a single name to another name; it does not hand over authority for everything beneath lab."
+      - id: np-3e-q18
+        type: mcq
+        q: "A web server moves to a new IP address on Saturday. Its A record has a TTL of 86,400 seconds. The team wants clients to pick up the new address within about five minutes of the cutover. What should be done?"
+        choices:
+          - "Lower the TTL to 300 at the moment the address is changed"
+          - "Raise the TTL to 604,800 a week before the cutover"
+          - "Add a CNAME alongside the A record on Saturday"
+          - "Lower the TTL to 300 at least a day before the cutover"
+        answer: 3
+        why: "Resolvers keep a record for the TTL they received with it, so the short TTL must be published at least one old TTL (24 hours) ahead. Lowering it only at the cutover leaves caches holding the old address for up to a day."
+      - id: np-3e-q19
+        type: mcq
+        q: "An administrator edits a record directly in the zone on the primary DNS server. Hours later the primary returns the new address but both secondaries still return the old one. What was MOST likely overlooked?"
+        choices:
+          - "Incrementing the serial number in the SOA record"
+          - "Lowering the TTL on the edited record"
+          - "Making the secondary zones writable"
+          - "Adding a PTR record for the new address"
+        answer: 0
+        why: "Secondaries compare the SOA serial with their own copy and transfer the zone only when the primary's is higher; an unchanged serial means no transfer. TTL governs how long resolvers cache answers, not whether secondaries refresh the zone."
+      - id: np-3e-q20
+        type: mcq
+        q: "After a motherboard battery failure, one validating resolver returns SERVFAIL for every DNSSEC-signed zone while unsigned zones resolve normally. Other resolvers are fine. Its clock reads a date three years in the past. What is the BEST corrective action?"
+        choices:
+          - "Disable DNSSEC validation on that resolver"
+          - "Switch the resolver's upstream queries to DNS over TLS"
+          - "Correct the resolver's clock and restore NTP synchronisation"
+          - "Flush the resolver's cache and lower its TTL limits"
+        answer: 2
+        why: "DNSSEC signatures carry validity dates, so a clock three years slow sees every signature as not yet valid; fixing the time fixes validation. Disabling validation would also make names resolve, but by removing the protection rather than the fault."
+      - id: np-3e-q21
+        type: mcq
+        q: "Router A synchronises its clock to a GPS-fed stratum 1 NTP server. Router B is configured to synchronise only to router A. At what stratum does router B operate?"
+        choices:
+          - "Stratum 1"
+          - "Stratum 2"
+          - "Stratum 3"
+          - "Stratum 4"
+        answer: 2
+        why: "Each device is one stratum further than its source: router A is stratum 2 and router B, syncing to A, is stratum 3. Stratum 2 is the trap, forgetting that A itself is already one step from the server."
+      - id: np-3e-q22
+        type: mcq
+        q: "The same ACL change must be applied to 300 switches every night by a script that has to parse a structured response from each device to confirm success. Which management method is BEST suited?"
+        choices:
+          - "The web GUI of each switch"
+          - "The API of each switch"
+          - "A console session to each switch"
+          - "An interactive SSH session to each switch"
+        answer: 1
+        why: "An API accepts programmatic requests and returns structured data such as JSON that a script can check reliably. SSH can be scripted, but the script must scrape text meant for humans, which is fragile at this scale."
+      - id: np-3e-q23
+        type: mcq
+        q: "Regulation requires that all traffic from company laptops used off site, including web browsing, passes through the headquarters content filter. Users ask for their internet traffic to bypass the VPN for speed. Which VPN configuration must be kept?"
+        choices:
+          - "Split tunnel"
+          - "Clientless VPN"
+          - "Site-to-site VPN"
+          - "Full tunnel"
+        answer: 3
+        why: "A full tunnel forces every packet, internet-bound or not, through headquarters where it can be filtered. Split tunnelling would give the speed users want, but their web traffic would bypass the filter and break the regulation."
+      - id: np-3e-q24
+        type: mcq
+        q: "A firewall vendor's licence permits only one unit of a pair to pass traffic at any moment. The company needs automatic takeover within seconds if that unit fails and accepts paying for idle hardware. Which design matches?"
+        choices:
+          - "Active-passive"
+          - "Active-active"
+          - "A warm site"
+          - "A cold site"
+        answer: 0
+        why: "In active-passive one unit forwards while the other stands by and takes over automatically, which satisfies the licence. Active-active has both units passing traffic at once, which the licence forbids."
+
+      - id: np-3e-m01
+        type: multi
+        q: "An engineer argues for flow data export in addition to SNMP polling of interface counters. Which TWO things does flow data report that the interface counters cannot? (Choose TWO.)"
+        choices:
+          - "The source and destination addresses of each conversation"
+          - "The total number of bytes sent on the interface"
+          - "The count of CRC errors on the interface"
+          - "The transport-layer ports each conversation used"
+          - "The contents of each packet's payload"
+        answers: [0, 3]
+        why: "Flow records identify conversations by addresses, protocol and ports. Interface byte and error totals come from SNMP counters already, and payload is captured by neither."
+      - id: np-3e-m02
+        type: multi
+        q: "Which THREE of these settings can a DHCP server deliver to clients as part of a lease? (Choose THREE.)"
+        choices:
+          - "The default gateway address"
+          - "The client's MAC address"
+          - "The addresses of DNS servers"
+          - "The duration of the lease"
+          - "The VLAN of the client's switch port"
+          - "The duplex setting of the client's network card"
+        answers: [0, 2, 3]
+        why: "Gateway (option 3), DNS servers (option 6) and lease time (option 51) are standard DHCP options. The MAC address is burned into the card, and VLAN and duplex are set on the switch port and the link, not by DHCP."
+      - id: np-3e-m03
+        type: multi
+        q: "Which TWO statements describe a warm site? (Choose TWO.)"
+        choices:
+          - "It offers only floor space, power and cooling"
+          - "Hardware and network connectivity are already installed"
+          - "It serves production traffic during normal operation"
+          - "Data is synchronised live, so takeover takes minutes"
+          - "Data must be restored or brought up to date before takeover"
+        answers: [1, 4]
+        why: "A warm site has equipment in place but not current data, so restores come first. Space and power only is a cold site, live data is a hot site, and serving production traffic describes an active-active site."
+      - id: np-3e-m04
+        type: multi
+        q: "An IPv6 host has only a link-local address. Which TWO things must be present on the segment for it to build a global address using SLAAC? (Choose TWO.)"
+        choices:
+          - "A stateful DHCPv6 server"
+          - "A router sending router advertisements"
+          - "A DHCP relay agent"
+          - "An advertised prefix that is 64 bits long"
+          - "A NAT64 gateway"
+          - "An AAAA record for the host"
+        answers: [1, 3]
+        why: "SLAAC needs a router advertisement carrying a /64 prefix, which the host combines with its own 64-bit interface identifier. No DHCPv6 server, relay, translation gateway or DNS record is involved."
+      - id: np-3e-m05
+        type: multi
+        q: "A failed access switch is replaced by a newer model, mounted three rack units lower. It takes over the old switch's cabling, VLANs, management address and name. Which TWO documents must be updated? (Choose TWO.)"
+        choices:
+          - "The rack diagram"
+          - "The logical network diagram"
+          - "The IPAM records"
+          - "The asset inventory"
+          - "The wireless survey"
+        answers: [0, 3]
+        why: "The device's position changed, so the rack diagram changes, and the model and serial number changed, so the asset inventory changes. Addressing and logical topology are identical, and radio coverage is unaffected."
+      - id: np-3e-m06
+        type: multi
+        q: "Which TWO statements about PTP, compared with NTP, are correct? (Choose TWO.)"
+        choices:
+          - "It numbers its time sources in strata"
+          - "It can reach sub-microsecond accuracy on a local network"
+          - "It was designed mainly for synchronising across the public internet"
+          - "It depends on hardware timestamping for its best accuracy"
+          - "It uses UDP port 123"
+        answers: [1, 3]
+        why: "PTP achieves sub-microsecond precision by timestamping in network hardware and is aimed at local networks. Strata, UDP 123 and internet-wide synchronisation all describe NTP."
+
+      - id: np-3e-o01
+        type: order
+        q: "An IPv6 host joins a segment and configures itself with SLAAC. Put the events in order."
+        steps:
+          - "The host generates a link-local address in fe80::/10"
+          - "The host runs duplicate address detection on the link-local address"
+          - "The host sends a router solicitation to the all-routers multicast group"
+          - "A router replies with a router advertisement carrying the /64 prefix"
+          - "The host combines the prefix with its interface identifier to form a global address"
+          - "The host runs duplicate address detection on the global address"
+        why: "A host needs a verified link-local address before it can solicit routers, and it can build the global address only after the advertisement supplies the prefix; each new address is checked for duplicates before use."
+      - id: np-3e-o02
+        type: order
+        q: "A client holds a DHCP lease, and then its DHCP server is permanently removed with no replacement. Put what the client does in order."
+        steps:
+          - "It uses the leased address normally"
+          - "At 50% of the lease it sends a unicast renewal request to the server that granted the lease"
+          - "At 87.5% of the lease it broadcasts a rebind request to any DHCP server"
+          - "At 100% the lease expires and it stops using the address"
+          - "It broadcasts a new Discover to look for a fresh lease"
+        why: "Renewal (T1, 50%) is tried first with the original server, rebinding (T2, 87.5%) widens the request to any server, and only when the lease finally expires does the client give up the address and start again."
+      - id: np-3e-o03
+        type: order
+        q: "Arrange these syslog severity names from the MOST severe (level 0) downwards."
+        steps:
+          - "Emergency"
+          - "Alert"
+          - "Critical"
+          - "Error"
+          - "Warning"
+          - "Notice"
+        why: "Syslog levels run 0 emergency, 1 alert, 2 critical, 3 error, 4 warning, 5 notice, then 6 informational and 7 debug; a lower number is always more severe."

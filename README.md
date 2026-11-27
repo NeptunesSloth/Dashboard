@@ -1,923 +1,262 @@
-# MayBot Control Center
+# Sect Academy
 
-MayBot Control Center is a **distributed monitoring + autonomous-ops dashboard** for the
-bots and projects you run across many machines — wrapped in a cultivation-"sect"
-theme where your LLM agents are sect members who watch, diagnose, and fix the fleet.
+Learn every day, raise a sect.
 
-It has two components:
-- **`maybot_agent`** — runs on each device that hosts projects/bots; reads local status/logs/metrics and exposes an authenticated HTTP API.
-- **`maybot_control_center`** — the central web app that polls all configured agents, shows a unified view, and runs the agent crew, governance, and automation.
+Sect Academy is a self-hosted study app wrapped in a cultivation-world colony
+sim. You study French, Spanish, or for an entry cyber-security certification in
+short daily sessions; meanwhile your sect — a handful of disciples with needs,
+moods, skills and jobs — farms, builds, researches, fends off raids and
+cultivates on its own clock.
 
-Everything is driven from **one web app with a shared left rail** — no more old
-"classic" page. You add hosts, accounts, and sect members from inside the site,
-and a sign-in/sign-up screen guards it on first run.
-
-> ⚠️ Security posture: this system is intended for **private/local networks (LAN/VPN)** and should **not be exposed publicly** by default.
-
-![Command Hall cockpit](docs/img/dashboard-cockpit.png)
-
-<details>
-<summary>More views — operations console, trading cockpit, treasury, sect map</summary>
-
-| Operations console (`/console`) | Trading cockpit (`/trade`) |
-|---|---|
-| ![Operations console](docs/img/dashboard-classic.png) | ![Trading cockpit](docs/img/trade-cockpit.png) |
-| Treasury (`/treasury`) | Sect Map (in `/console`) |
-| ![Treasury](docs/img/treasury.png) | ![Sect Map](docs/img/realm-map.png) |
-
-</details>
-
-### Pages at a glance
-
-The same left rail appears on every page, so any page is one click away:
-
-| Rail item | Route | What it is |
-|---|---|---|
-| 🏛 **Command** | `/` | The Command Hall cockpit — fleet status, alerts, autopilot, KPIs at a glance. |
-| 📈 **Trade** | `/trade` | Trading cockpit — live PnL, positions, quotes, kill-switch / flatten. |
-| 🧠 **Sect Members** | `/chamber` | Rank **pyramid** of every member with their character portrait; click one for the cinematic **dossier** (full RPG sheet + Spirit Root). |
-| ⚔ **Missions** · 📜 **Realms** · 🗺 **Map** · ⛩ **Halls** · ⚙ **Ops** | `/console` | The operations console tabs (agent crew, projects, sect map, group halls, and the in-app **Hosts / Accounts** managers). |
-| 🏦 **Treasury** | `/treasury` | Spirit-stone treasury, veins, stipends, endowments. |
-
-> Coming from an older build? The previous `/classic` page is **gone** — its
-> route is now **`/console`**, restyled to match the Command Hall and driven by
-> the same rail. If your browser still shows a stale console, the fix was a
-> network-first service worker (`maybot-v2`); a hard refresh clears it.
-
----
-
-## Quickstart (5 minutes)
-
-Get the dashboard running on your machine with Docker:
-
-1. **Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)** and start it.
-2. **Get the code and config:**
-   ```bash
-   git clone <your-repo-url> maybot && cd maybot
-   cp .env.example .env          # then edit .env: set MAYBOT_CONTROL_CENTER_TOKEN (and ANTHROPIC_API_KEY if using Claude)
-   ```
-3. **Make it a clickable app:**
-   - **Linux:** `bash launch/install-linux.sh`  → adds a **MayBot Control Center** icon to your apps menu.
-   - **Windows:** double-click `launch\install-windows.bat`  → adds **MayBot** shortcuts to Desktop + Start Menu.
-   - (Or skip the icon and just run `docker compose up -d`.)
-   - **Prefer no rebuilds?** Run the prebuilt image with auto-update instead:
-     `docker compose -f docker-compose.images.yml up -d` (GHCR image + Watchtower — see [docs/DEPLOY.md](docs/DEPLOY.md)).
-4. **Launch:** click the **MayBot** icon → it opens **http://localhost:8200**. It auto-restarts on crashes/reboots, so you only click once.
-5. **Sign in:** the first time you open it, a **sign-up screen** creates your operator account; after that it's a normal **login** page.
-6. **Make it useful — all from inside the site:**
-   - **Add the machines running your bots:** open **Ops → Hosts → Add host**, or run one command on each bot host (it self-enrolls, no git clone):
-     ```bash
-     curl -fsSL --connect-timeout 10 --max-time 60 http://YOUR-DASH:8200/install-agent.sh | CONTROL_URL=http://YOUR-DASH:8200 REGISTER_TOKEN=<your-token> bash
-     ```
-   - **Give the sect a brain (local AI):** one command on the AI box installs Ollama + a model and registers the member:
-     ```bash
-     curl -fsSL --connect-timeout 10 --max-time 60 http://YOUR-DASH:8200/install-ai.sh | CONTROL_URL=http://YOUR-DASH:8200 CONTROL_TOKEN=<operator-token> bash
-     ```
-   > **What is `YOUR-DASH`?** The dashboard's address *as seen from the machine you run the command on*.
-   > Use `localhost` (or `127.0.0.1`) **only** when the agent runs on the **same machine** as the dashboard.
-   > On a **separate** bot host, use the dashboard's **LAN/VPN IP or hostname** (e.g. `http://192.168.1.50:8200`)
-   > — `localhost` there would point at the bot host itself, so the download and self-enrollment would fail.
-   - Deeper guides: local AI → [docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md) · agents/hosts → [docs/AGENT_SETUP.md](docs/AGENT_SETUP.md).
-
-Full desktop-app details (stop, update, troubleshoot): [docs/DESKTOP_APP.md](docs/DESKTOP_APP.md).
-
----
-
-## Documentation
-
-- **[docs/DESKTOP_APP.md](docs/DESKTOP_APP.md)** — run it as a one-click desktop app (Docker; auto-restarts, no commands).
-- **[docs/CONTROL_CENTER_SETUP.md](docs/CONTROL_CENTER_SETUP.md)** — set up the dashboard host itself (run, auth/RBAC, connect hosts, features).
-- **[docs/LOCAL_AI_SETUP.md](docs/LOCAL_AI_SETUP.md)** — set up the LLM backend (Ollama / OpenAI-compatible / Claude) that powers the agents.
-- **[docs/AGENT_SETUP.md](docs/AGENT_SETUP.md)** — install an agent on each bot host so the dashboard can pull its data.
-
----
-
-## Manage everything in-app
-
-You no longer have to hand-edit YAML or `.env` over SSH for day-to-day changes —
-the **Ops** tab and the top-right **⚙ Settings** panel manage it all live:
-
-- **Hosts manager** — add/edit/remove bot hosts (the old `devices.yaml`). It can
-  **generate a per-host token**, **test the connection** before saving (PASS/FAIL
-  with the exact cause), **generate/manage the self-enrollment token** in-app
-  (no `MAYBOT_REGISTER_TOKEN` env edit or restart), and shows the one-command
-  installer **pre-filled with the real token** plus copy buttons.
-- **Accounts manager** — create operator/viewer accounts (the old `users.yaml`),
-  reset passwords, and remove accounts.
-- **Sect Members manager** — add/edit/remove sect members (the old `agents.yaml`):
-  name, role, persona, provider/`base_url`/model, with a **Test AI** button that
-  runs one real completion to confirm the backend answers, plus a **seed** action
-  to bootstrap a starter roster.
-- **System Settings — top-right ⚙, password-protected** — manage the rest of the
-  config (the old `.env`) from **any page**: AI backend & keys (Anthropic / OpenAI
-  / Ollama), notification channels (Discord / Slack / generic webhook / email /
-  Telegram), automation & security gates (autopilot, tool autonomy, real PRs,
-  delegation, require-sign-in), and sect-sim tuning. Secrets live in the persisted
-  DB, are **masked until you re-enter your account password**, and apply **at
-  runtime** (no restart). An in-app value overrides the matching env default.
-
-Edits take effect immediately (no restart) and persist (config managers write the
-`*.yaml` files atomically; system settings persist to the DB when `MAYBOT_DB` is
-set), so the UI and the underlying files/env stay in sync.
-
-## Accounts & sign-in
-
-A real account system fronts the dashboard:
-
-- **First-run sign-up → login** at `/login`. Sessions are token-backed and
-  persisted; the account bubble (top-right) opens a menu for **change password**,
-  **account details**, and **two-factor**.
-- **Two-factor (2FA):** TOTP (authenticator app — stdlib HMAC-SHA1, no extra
-  deps) and, when an alert webhook is configured, a **webhook OTP** channel.
-- **Password security:** PBKDF2 hashing; a **rate limiter** and **login lockout**
-  blunt brute-force attempts.
-- **Require auth everywhere:** set `MAYBOT_REQUIRE_AUTH=1` to force a valid
-  session on all pages/APIs (open/operator-by-default otherwise, for a trusted
-  LAN). RBAC roles (operator/viewer) and per-project ACLs still apply (see
-  **Access control (RBAC)** and **Auth hardening** below).
-- **Hardening on every response:** `Cache-Control: no-cache` on pages/static and
-  security headers (`X-Content-Type-Options`, `X-Frame-Options`,
-  `Referrer-Policy`, `Permissions-Policy`).
-
-## Sect Members — pyramid, dossier & Spirit Roots
-
-The **Sect Members** page (`/chamber`) replaces the old scrolling name list:
-
-- **Rank pyramid** — members are arranged by sect rank (Sect Master → Elder →
-  Core/Inner/Outer), each shown with its **character portrait**. ("Disciples"
-  means only inner/outer disciples; "sect members" means everyone.)
-- **Cinematic Disciple Inspection View** — clicking a member doesn't just
-  highlight them: the scene dims, blurs, and spotlights the member while a
-  full-height **dossier** slides in — a RimWorld/CK-style character sheet with
-  profile, cultivation, attributes, skills, specialties, traits, relationships,
-  mentor, sect status, equipment, thoughts, life goals, and event history.
-- **Full Spirit Root system** — every member gets a deterministic Spirit Root:
-  root type(s), purity, quality tier, multi-root/mutations, constitutions,
-  potential, tropes, and the bonuses they confer. (Same view is reachable from
-  the console's Sect Map.)
-- **Living simulation** — `sectsim` evolves members in the background: passive
-  cultivation XP (scaled by root purity), insights, shifting relationships, and
-  promotions, persisted to `sect_state.json`. Tune with
-  `MAYBOT_SECT_TICK_SECONDS` and `MAYBOT_SECT_XP_RATE`. Relationship threads are
-  drawn between co-present members on the Sect Map (jade = allies, crimson =
-  rivals).
-
-> No agents configured? Then no members appear — the roster is built from your
-> real sect (`agents.yaml` / the Members manager), not placeholders.
-
-## Per-bot visibility (you *and* the sect)
-
-Every project card exposes its **PnL** and **logs**, and a one-click **Diagnose**
-runs a heuristic log analysis (`/api/diagnose/...`) plus an LLM **explain**
-(`/api/projects/{device}/{project}/explain`). The sect members get the same
-visibility two ways: relevant per-bot context is **auto-injected** into a
-member's prompt when it's assigned a task, and members can pull bot status/logs
-**on demand** through read-only guarded tools.
-
----
-
-## What Goes Where
-
-| Machine | What to install | What to configure |
-|---|---|---|
-| Every device hosting a bot/project | `maybot_agent` | `projects.yaml` |
-| The machine running the dashboard | `maybot_control_center` | `devices.yaml` |
-
-One machine can run both if you want to monitor local projects from the same machine.
-
----
-
-## Architecture
-
-```
-[TradeBot Server] -> maybot_agent -> [Control Center Dashboard]
-[DayBot Server]   -> maybot_agent -> [Control Center Dashboard]
-[Other Device]    -> maybot_agent -> [Control Center Dashboard]
-```
-
-Each agent reads a local `projects.yaml`. The control center reads `devices.yaml` to discover agents.
-
----
-
-## ⭐ Pulling data from the hosts running your bots
-
-**Mental model — the control center PULLS; agents never push.** On every poll the
-dashboard reaches *out* over HTTP to each host listed in `devices.yaml`,
-authenticates with a shared token, and pulls that host's project status, health,
-logs, and metrics:
-
-```
- your bot host                          dashboard host
- ┌───────────────────────────┐          ┌────────────────────────┐
- │ maybot_agent  (port 8100)  │  ◀──────  │ maybot_control_center  │
- │  reads projects.yaml       │   HTTP    │  reads devices.yaml     │
- │  (your bots live here)     │   pull    │  (list of agent URLs)   │
- └───────────────────────────┘          └────────────────────────┘
-```
-
-So there are exactly **three things to get right** per bot host:
-
-**1. On the bot host — run the agent and tell it about your bots.**
-Create `projects.yaml` (see `projects.yaml.example`) listing each bot, then start the agent bound to an address the dashboard can reach (a LAN/VPN/Tailscale IP — *not* `127.0.0.1` unless it's the same machine):
+It runs **completely offline**: no account, no internet, no AI service, no
+database. One Python process and one JSON file.
 
 ```bash
-export MAYBOT_API_TOKEN="$(python3 -c 'import secrets;print(secrets.token_hex(32))')"
-echo "token for this host: $MAYBOT_API_TOKEN"   # you'll paste it into devices.yaml
-uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100
-```
-
-**2. On the dashboard host — list that host in `devices.yaml`.**
-The `url` is the agent's address; the `api_token` MUST equal that host's `MAYBOT_API_TOKEN`:
-
-```yaml
-devices:
-  - name: trade-server
-    url: http://100.64.0.2:8100        # the bot host's reachable IP + agent port
-    api_token: "the-token-printed-above"
-```
-
-**3. Verify the link, then (re)start the control center.**
-Run the bundled checker from the dashboard host — it tells you PASS/FAIL and the exact cause:
-
-```bash
-scripts/check-agent.sh http://100.64.0.2:8100 the-token-printed-above
-```
-
-A `PASS` means the dashboard can pull from that host; the data appears on the
-next poll. Repeat steps 1–3 for every machine running bots. The
-`GET /api/history/{device}/{project}` and per-card sparklines are populated from
-this pulled data automatically.
-
-**Troubleshooting (what `check-agent.sh` reports):**
-- `401` → the `api_token` in `devices.yaml` doesn't match the host's `MAYBOT_API_TOKEN`.
-- `no response (000)` → agent not running, wrong host/port, agent bound to `127.0.0.1` instead of the LAN IP, or a firewall is blocking the port.
-- `0 projects` → the link works, but that host's `projects.yaml` is empty or missing.
-
-> 📖 Full step-by-step for the agent side (install, per-type `projects.yaml` examples, systemd/Docker, security, reference): **[docs/AGENT_SETUP.md](docs/AGENT_SETUP.md)**.
-
----
-
-## Out-of-the-box defaults (everything on)
-
-`docker compose up` ships with **every capability enabled** (see `docker-compose.yml` / `.env.example`): SQLite persistence, 90-day retention, daily disk backups, a daily summary report, alert ack/snooze, self-observability, **and the autonomous tier — Autopilot remediation, agent tool autonomy, task delegation, and real GitHub PRs.**
-
-```bash
-cp .env.example .env          # then fill in secrets (tokens, ANTHROPIC_API_KEY, channels)
-docker compose up
-```
-
-> ⚠️ **Autopilot can restart/stop your live bots and run remediation, and agents can auto-run guarded tools and open real PRs.** This is intentional per the chosen configuration. To dial it back, set any of `MAYBOT_AUTOPILOT`, `MAYBOT_AUTONOMY`, `MAYBOT_DELEGATION`, `MAYBOT_PR_ENABLED` to `0` in `.env`. Always set `MAYBOT_CONTROL_CENTER_TOKEN` before exposing the dashboard on any network. Real PRs additionally need `gh` auth (`GH_TOKEN`) and a repo (`MAYBOT_PR_REPO`); without them, fixes are recorded as review-only "proposed PRs". The public status page stays **off** by default.
-
----
-
-# Manual setup (from source, without Docker)
-
-> 💡 Most people don't need this. The [Quickstart](#quickstart-5-minutes) (Docker)
-> plus the in-app **Hosts / Accounts / Members** managers and the one-command
-> `install-agent` / `install-ai` enrollers cover the common path. The steps below
-> are the full manual install for when you want to run it straight from source.
-
-## Prerequisites
-
-Before you start, confirm these are installed on each machine:
-
-```bash
-# Check Python version — must be 3.10 or higher
-python3 --version
-
-# Check pip
-pip3 --version
-
-# Check git
-git --version
-```
-
-If `python3 --version` shows below 3.10, install it first:
-```bash
-sudo apt update && sudo apt install python3 python3-pip python3-venv git -y
-```
-
----
-
-## Step 1 — Clone the repo (on every machine)
-
-Run this on **each machine** (agent hosts AND the control center host):
-
-```bash
-git clone https://github.com/neptunessloth/dashboard.git /opt/maybot
-cd /opt/maybot
-```
-
-> If you don't want it in `/opt/maybot`, change that path — just use the same path consistently in all commands below.
-
----
-
-## Step 2 — Create a virtual environment and install dependencies (on every machine)
-
-Run this on **each machine**:
-
-```bash
-cd /opt/maybot
-python3 -m venv .venv
-source .venv/bin/activate
 pip install -r requirements.txt
+python -m sect_academy
+# open http://127.0.0.1:8200
 ```
 
-Expected output ends with something like:
-```
-Successfully installed fastapi-0.115.0 uvicorn-0.30.6 pyyaml-6.0.2 ...
-```
+## What is in it
 
-> Every time you open a new terminal, re-run `source /opt/maybot/.venv/bin/activate` before using `uvicorn`.
+**Courses** (about 8,900 items, all original, each independently re-checked)
 
----
-
-## Step 3 — Set up each agent host (device running a bot/project)
-
-Do this on **each machine that hosts a project**.
-
-### 3a — Generate a secret token
-
-Pick a long random string. Run this to generate one:
-
-```bash
-python3 -c "import secrets; print(secrets.token_hex(32))"
-```
-
-Copy the output. It will look like:
-```
-a3f9e2b1c8d7f6e5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1
-```
-
-**Save this token** — you will need it again in Step 4.
-
-### 3b — Export the token (current terminal session)
-
-```bash
-export MAYBOT_API_TOKEN="paste-your-token-here"
-```
-
-Replace `paste-your-token-here` with the token from 3a.
-
-### 3c — Create your projects config
-
-```bash
-cd /opt/maybot
-cp projects.yaml.example projects.yaml
-```
-
-Open `projects.yaml` in a text editor and fill in the details for your project:
-
-```bash
-nano projects.yaml
-```
-
-At minimum, update:
-- `name` — a label for your project
-- `path` — the absolute path to your project folder
-- `log_file` — the absolute path to the project's log file
-- `cmdline_contains` — a keyword that appears in the process command line when it's running
-
-See [Configuration examples](#configuration-examples) below for a full annotated example.
-
-### 3d — Start the agent
-
-```bash
-cd /opt/maybot
-source .venv/bin/activate
-
-# Bind to localhost only (safest — use this if control center is on the same machine)
-uvicorn maybot_agent.app:app --host 127.0.0.1 --port 8100
-
-# OR — bind to your LAN/VPN IP so other machines can reach it
-# Replace 100.x.x.x with your actual Tailscale/LAN IP
-uvicorn maybot_agent.app:app --host 100.x.x.x --port 8100
-```
-
-> ⚠️ Do **not** bind to `0.0.0.0` unless the machine is behind a firewall or VPN.
-
-### 3e — Verify the agent is working
-
-Open a second terminal on the same machine and run:
-
-```bash
-curl -H "x-api-token: $MAYBOT_API_TOKEN" http://127.0.0.1:8100/api/ping
-```
-
-Expected response:
-```json
-{"status": "ok"}
-```
-
-If you see `401 Unauthorized`, the token in your curl command doesn't match what the agent started with — re-export and restart.
-
-If you see `Connection refused`, the agent didn't start — check the terminal where you ran `uvicorn` for errors.
-
----
-
-## Step 4 — Set up the control center (dashboard machine)
-
-Do this on the **one machine that will display the dashboard**.
-
-### 4a — Create your devices config
-
-```bash
-cd /opt/maybot
-cp devices.yaml.example devices.yaml
-nano devices.yaml
-```
-
-Add an entry for each agent host. Use the token from Step 3a for each device:
-
-```yaml
-devices:
-  - name: tradebot-server          # a label — anything you like
-    url: http://100.64.10.20:8100  # the IP/port where that agent is listening
-    api_token: "paste-token-here"  # the MAYBOT_API_TOKEN from that agent host
-
-  - name: daybot-server
-    url: http://100.64.10.21:8100
-    api_token: "paste-other-token-here"
-```
-
-> If the control center and agent are on the same machine, use `http://127.0.0.1:8100`.
-
-### 4b — Start the control center
-
-```bash
-cd /opt/maybot
-source .venv/bin/activate
-uvicorn maybot_control_center.app:app --host 127.0.0.1 --port 8200
-```
-
-### 4c — Open the dashboard
-
-Open your browser and go to:
-
-```
-http://127.0.0.1:8200
-```
-
-You should see the dashboard with all configured devices listed. If a device shows **offline**, see [Troubleshooting](#troubleshooting) below.
-
----
-
-## Configuration examples
-
-### `projects.yaml` — trading bot
-
-```yaml
-projects:
-  - name: tradebot-main
-    type: trading_bot
-    path: /opt/tradebot
-    log_file: /opt/tradebot/logs/bot.log
-    database: /opt/tradebot/data/trading.sqlite3
-    trade_csv_glob: logs/paper_trades_*.csv  # DayBot paper/replay CSV fallback
-
-    pid_file: run/tradebot.pid
-    cmdline_contains: tradebot
-    expect_running: true
-
-    metrics:
-      mode: paper
-
-    commands:
-      run_tests:
-        argv: [".venv/bin/python", "-m", "pytest", "-q"]
-        cwd: /opt/tradebot
-        timeout_seconds: 300
-
-      start:
-        argv: ["./scripts/start_paper.sh"]
-        cwd: /opt/tradebot
-        stdout: logs/bot.log
-        stderr: logs/bot.log
-        pid_file: run/tradebot.pid
-        background: true
-
-      stop:
-        pid_file: run/tradebot.pid
-        match_cmdline_contains: tradebot
-```
-
-### `devices.yaml`
-
-```yaml
-devices:
-  - name: tradebot-server
-    url: http://100.64.10.20:8100
-    api_token: "replace-with-agent-token"
-
-  - name: daybot-server
-    url: http://100.64.10.21:8100
-    api_token: "replace-with-agent-token"
-```
-
----
-
-## Keep agents running with systemd (recommended)
-
-Running `uvicorn` directly in a terminal stops when you close it. Use systemd to keep agents running permanently.
-
-### Agent service — `/etc/systemd/system/maybot-agent.service`
-
-```ini
-[Unit]
-Description=MayBot Agent
-After=network.target
-
-[Service]
-Type=simple
-User=ubuntu
-WorkingDirectory=/opt/maybot
-Environment=MAYBOT_API_TOKEN=paste-your-token-here
-ExecStart=/opt/maybot/.venv/bin/uvicorn maybot_agent.app:app --host 127.0.0.1 --port 8100
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### Control center service — `/etc/systemd/system/maybot-control-center.service`
-
-```ini
-[Unit]
-Description=MayBot Control Center
-After=network.target
-
-[Service]
-Type=simple
-User=ubuntu
-WorkingDirectory=/opt/maybot
-ExecStart=/opt/maybot/.venv/bin/uvicorn maybot_control_center.app:app --host 127.0.0.1 --port 8200
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start both services:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now maybot-agent
-sudo systemctl enable --now maybot-control-center
-
-# Check status
-sudo systemctl status maybot-agent maybot-control-center
-```
-
-To view logs:
-```bash
-sudo journalctl -u maybot-agent -f
-sudo journalctl -u maybot-control-center -f
-```
-
----
-
-## Adding a new project later
-
-1. On the device hosting the project, add it to `projects.yaml`.
-2. Restart the agent on that device.
-   ```bash
-   sudo systemctl restart maybot-agent
-   # or if running manually, Ctrl+C and re-run uvicorn
-   ```
-3. If this is a brand-new device, add it to `devices.yaml` on the control center host and restart the control center.
-4. Refresh the dashboard in your browser.
-
----
-
-## Troubleshooting
-
-### Agent shows offline in dashboard
-- Check the agent is actually running: `sudo systemctl status maybot-agent` or look at the terminal where you started uvicorn.
-- Verify the URL and port in `devices.yaml` exactly match how the agent was started.
-- Test reachability from the control center machine: `curl -H "x-api-token: YOUR_TOKEN" http://AGENT_IP:8100/api/ping`
-- Verify VPN/LAN connectivity between the two machines.
-
-### 401 Unauthorized
-- The token in `devices.yaml` doesn't match `MAYBOT_API_TOKEN` on that agent.
-- If using systemd, check `Environment=MAYBOT_API_TOKEN=...` in the service file, then `sudo systemctl daemon-reload && sudo systemctl restart maybot-agent`.
-
-### Connection refused
-- Agent is not running, or bound to a different IP/port than expected.
-- Test locally on the agent host first: `curl -H "x-api-token: $MAYBOT_API_TOKEN" http://127.0.0.1:8100/api/ping`
-
-### Missing `projects.yaml`
-- Agent returns an empty project list. Copy the example and edit it:
-  ```bash
-  cp projects.yaml.example projects.yaml
-  nano projects.yaml
-  ```
-
-### Missing `devices.yaml`
-- Control center has nothing to poll. Copy and edit:
-  ```bash
-  cp devices.yaml.example devices.yaml
-  nano devices.yaml
-  ```
-
-### Bot shows `unknown` status
-- The adapter can't find the expected data (log file missing, DB schema mismatch, wrong path).
-- Double-check `path`, `log_file`, and `database` paths exist and are readable by the user running the agent.
-
-### Log file missing
-- Ensure `log_file` path exists and is readable.
-- If the bot hasn't started yet, the log file may not exist — start the bot first.
-
-- `ai_project` = track AI-assisted coding project workflow/health (Claude/Codex/etc. usage in a software project).
-- `local_ai_host` = track availability/health of a locally hosted model API endpoint.
-
-### Example: Ollama / Hermes host
-
-```yaml
-projects:
-  - name: Hermes Local AI
-    type: local_ai_host
-    path: /opt/ollama
-    provider: ollama
-    base_url: http://127.0.0.1:11434
-    default_model: nous-hermes
-    expect_running: true
-    cmdline_contains: ollama
-    log_file: /var/log/ollama.log
-    test_prompt_enabled: false
-    health_url: http://127.0.0.1:11434/api/tags
-```
-
-```yaml
-projects:
-  - name: Local LLM API
-    type: local_ai_host
-    provider: openai_compatible
-    base_url: http://127.0.0.1:1234
-    default_model: hermes
-    expect_running: true
-    health_url: http://127.0.0.1:1234/v1/models
-    test_prompt_enabled: false
-```
-
-## Operations & deployment
-
-- **One-command run:** `docker compose up` brings up the control center (`:8200`) and a co-located agent (`:8100`). Configure via a `.env` file (`ANTHROPIC_API_KEY`, `MAYBOT_CONTROL_CENTER_TOKEN`, `MAYBOT_API_TOKEN`); persistence is on by default (`MAYBOT_DB=/data/maybot.db`).
-- **Prebuilt image + auto-update (hands-off):** CI publishes a GHCR image (`ghcr.io/neptunessloth/dashboard`) on every merge to `main`; `docker compose -f docker-compose.images.yml up -d` runs it with **Watchtower**, which pulls new images and restarts automatically — no rebuilds. See [docs/DEPLOY.md](docs/DEPLOY.md).
-- **One-command host & AI enrollment:** new bot hosts and local-AI members install with a single piped command and **self-enroll** — `GET /install-agent.{sh,ps1}` (host agent, gated by `MAYBOT_REGISTER_TOKEN`) and `GET /install-ai.{sh,ps1}` (Ollama + model + member registration). The agent announces itself to `POST /api/agents/register` on startup, so it appears on the dashboard with no hand-editing of `devices.yaml`. (Windows updater: `launch/update.bat`.)
-- **Run a single uvicorn worker** for now — sessions, the kill-switch, and parts of the sim live in process memory. A snapshot cache (`agents.snapshot`, ~1.5s TTL) keeps the hot endpoints fast under load; multi-worker is safe only after runtime state moves to the shared store (see [docs/DEPLOY.md](docs/DEPLOY.md)).
-- **Prometheus metrics:** `GET /metrics` exposes monitoring + sect stats (devices/projects health, treasury balance, LLM calls/cost, tool calls by status, and per-disciple realm/stones/breakthroughs/techniques) in Prometheus text format for Grafana. It reads only cached/in-memory state, so a scrape never triggers a device poll.
-- **Alerting webhooks:** noteworthy events (incidents, heavenly tribulations) route to Discord/Slack/a generic JSON webhook. Set `MAYBOT_DISCORD_WEBHOOK_URL` / `MAYBOT_SLACK_WEBHOOK_URL` / `MAYBOT_ALERT_WEBHOOK_URL` and choose which events with `MAYBOT_ALERT_EVENTS` (default `incident,tribulation`). The existing health-transition alerts (`MAYBOT_ALERT_STATES`) still apply.
-- **Alert noise control:** health alerts are **deduplicated** (no repeat page for the same project+state within `MAYBOT_ALERT_COOLDOWN_SECONDS`, default 300), **flap-suppressed** (a project changing state `MAYBOT_ALERT_FLAP_THRESHOLD`+ times within `MAYBOT_ALERT_FLAP_WINDOW_SECONDS` is announced once as *flapping*, then muted until it settles), and followed by a **recovery** notice when it returns to ok (`MAYBOT_ALERT_RECOVERY=1`). Webhook delivery retries with backoff (`MAYBOT_WEBHOOK_RETRIES`, default 2).
-- **Health & readiness probes:** `GET /healthz` (liveness) and `GET /readyz` (readiness; reports last-poll device health, returns 503 with `?strict=1` when any device is offline) — both unauthenticated and secret-free, for uptime monitors and the Docker/compose `HEALTHCHECK`.
-- **Maintenance windows / alert silencing:** mute alerting (and incident auto-dispatch/remediation) during planned upkeep. `POST /api/maintenance/silence` with `{target, minutes, reason}` where `target` is `*`, `device:*`, or `device:project` (`minutes: 0` = until lifted or recovery); `GET /api/maintenance` lists active silences, `POST /api/maintenance/unsilence` lifts one. Drive it from the dashboard's **Reliability** panel.
-- **SLO / uptime (`GET /api/slo?hours=`):** time-weighted rolling **uptime %**, **incident** count, and **MTTR** per project, computed from the recorded health history (`unknown` samples excluded from the denominator). Window defaults to `MAYBOT_SLO_WINDOW_HOURS` (168h / 7d). Also exported to Prometheus (`maybot_project_uptime_ratio`, `maybot_project_incidents`, `maybot_project_mttr_seconds`).
-- **Data export:** `GET /api/export/usage` and `GET /api/export/history` stream CSV (or `?fmt=json`) for offline analysis/reporting.
-- **Per-device poll timeout:** a slow/hung agent can't stall the whole fleet poll — each request is capped at `MAYBOT_AGENT_TIMEOUT` (default 5s), overridable per device with a `timeout:` field in `devices.yaml`.
-- **Error budgets & deploy-freeze — "Karmic Debt / Heavenly Decree" (`GET /api/errorbudget`):** each project gets an SLO target (`MAYBOT_SLO_TARGET_PCT`, default 99.0; per-project overrides via `MAYBOT_SLO_TARGETS="device:project=99.9,…"`). The gap between target and measured uptime is its **error budget**; when a project burns through it, state-changing actions (`start`/`stop`) are **frozen** (`POST /api/action/...` returns 423) until reliability recovers — override with `?force=true`. Surfaced as a 🔒 *Decree* badge and a budget bar in the **Reliability** panel.
-- **Dependency-aware alerting — "Meridian Map" (`GET /api/meridians`):** declare project dependencies in `meridians.yaml` (see `meridians.yaml.example`). When an upstream a project `depends_on` is unhealthy, the downstream's own `error` is recognised as a *blocked meridian* (downstream symptom) and its page is suppressed (`MAYBOT_MERIDIAN_SUPPRESS=1`) so only the root cause pages. Tagged ⛓ *downstream* in the UI.
-- **Synthetic uptime probes — "Warding Talismans" (`GET /api/talismans`):** control-center-side periodic HTTP checks of arbitrary URLs (status + latency), independent of any agent, defined in `talismans.yaml` (see `talismans.yaml.example`). Results feed the same history/SLO pipeline (synthetic device `warding`). No file → idle.
-- **Scheduled / recurring maintenance windows — "Heavenly Calendar":** schedule silences in advance in `calendar.yaml` (see `calendar.yaml.example`) — recurring daily/weekly windows (`days`, `start`, `duration_minutes`) or one-off ISO-8601 windows. An active window silences its target automatically; upcoming/active windows show in `GET /api/maintenance` and the Reliability panel.
-- **Incident acknowledgement & ownership — "Sworn Oath" (`GET /api/oaths`):** a disciple/operator *claims* an incident (`POST /api/oaths/claim` `{target, who, note}`); repeat pages are then suppressed (someone owns it), the owner shows on the dashboard, and the oath auto-releases on recovery (`POST /api/oaths/release` to drop it manually). Distinct from silencing — it records ownership rather than ignoring.
-- **Escalation policy — "Chain of Command" (`GET /api/escalation`):** an `error` alert that is neither claimed (oath) nor silenced is escalated after `MAYBOT_ESCALATE_AFTER_SECONDS` (default 900) — an `escalation` webhook event plus a notice in the Ancestor's Hall, once per incident. Generalises the Night-Watch escalation to every project.
-- **Public status page — "Sect Proclamation":** opt-in (`MAYBOT_PUBLIC_STATUS=1`), unauthenticated read-only page at `GET /status` (HTML) and `GET /api/status/public` (JSON), showing per-service state + uptime% derived from SLO data — no tokens, URLs, costs, or agent internals. Off by default.
-- **Autopilot — the Sect Leader's "second brain" (`GET /api/autopilot`, `POST /api/autopilot/pause|resume`):** opt-in (`MAYBOT_AUTOPILOT=1`) autonomous operations. The Sect Leader runs a headless loop over the fleet — **detect → diagnose → act → verify → continue → report** — and *fixes unhealthy projects without you*: it diagnoses the cause (LLM, heuristic fallback) and, in full-auto, restarts the bot, runs a remediation runbook, or dispatches a coding disciple to patch the project and run its tests; on recovery it stands down, and after `MAYBOT_AUTOPILOT_MAX_ATTEMPTS` (default 3) it escalates to the Ancestor. Every step is reported to the **Ancestor's Hall** and the alert **webhooks** (`autopilot` event). A runtime **kill switch** (the Pause button / `POST /api/autopilot/pause`) and the env gate keep it controllable; tune with `MAYBOT_AUTOPILOT_INTERVAL`, `MAYBOT_AUTOPILOT_STATES`, `MAYBOT_AUTOPILOT_CODER`.
-- **Disciples ship real PRs (`MAYBOT_PR_ENABLED`):** when the autopilot judges a failure to be a code issue, a coding disciple drafts the fix as a unified diff. With `MAYBOT_PR_ENABLED=1` + the `gh` CLI + a resolvable repo (`MAYBOT_PR_REPO` or a `owner/name` project) it **opens a real pull request**; otherwise it records a reviewable **Proposed PR** (title/body/diff) in the artifact vault. Detect → diagnose → **patch as a PR**.
-- **Compounding sect memory (RAG):** task results, post-incident summaries, Elder manuals, and roamed skills accumulate in a shared, searchable memory (`/api/sectmemory`, the *Sect Knowledge* panel); every disciple retrieves the most relevant entries into its prompt before acting, so the sect gets smarter the longer it runs (`MAYBOT_SECT_MEMORY`).
-- **Skills are real capabilities:** a skill roamed from the web fetches its how-to from the source page into sect memory, and each disciple's mastered techniques are injected into its prompt — a learned skill changes behavior, not just a label.
-- **Ascension:** a disciple's cultivation realm unlocks a stronger model (Haiku→Sonnet→Opus at `MAYBOT_ASCEND_SONNET_REALM`/`_OPUS_REALM`); `run_task` runs high-realm disciples on the ascended model (upgrade-only, same provider family).
-- **Login UI + sessions:** a sign-in overlay validates the control token (`POST /api/login`) and persists it for the session; sign-out clears it. The dashboard prompts for a token whenever a request is unauthorized.
-- **Inbound alert ingestion (`POST /api/ingest/alert`):** external systems (Alertmanager, CI, cron) push incidents *into* the dashboard — stored in a feed, routed to your webhooks/Hall, and added to sect memory. Auth via the operator token or a dedicated `MAYBOT_INGEST_TOKEN`.
-- **State backup / restore (`GET /api/backup`, `POST /api/restore`):** export/import the persisted coordination state (board, oaths, silences, autopilot, sect memory, audit, inbound, registry) as one JSON blob (requires `MAYBOT_DB`).
-- **Agent auto-registration (`POST /api/agents/register`):** agents announce themselves (name/url/token) instead of being hand-listed; merged with `devices.yaml`. Gated by `MAYBOT_REGISTER_TOKEN`.
-- **Web Push (`MAYBOT_VAPID_PUBLIC`/`_PRIVATE`):** the installable PWA can receive push notifications for alerts even when closed — `pip install pywebpush` and set VAPID keys; without them, subscriptions are stored and sends are a safe no-op.
-- **Per-project PR mode:** `autopilot.yaml` `pr: open|propose` overrides the global `MAYBOT_PR_ENABLED` so some repos auto-open PRs while others only propose.
-- **Project integration prompts:** `docs/INTEGRATION_PROMPTS.md` has copy-paste prompts to make each project type dashboard-ready.
-- **Scheduled missions (cron):** define recurring sect activities in `schedules.yaml` (see `schedules.yaml.example`) — a `task`, `mission`, `quest`, or `debate` per `every_minutes`. A background scheduler fires them (first interval after startup, not at boot); no file → idle.
-- **Hall of Fame:** the dashboard ranks disciples by Strongest (realm/stones), Richest, Most Techniques, and Most Breakthroughs.
-
-## Trust, omens & formations
-
-Three features that wear the cultivation costume but earn their keep as real ops value:
-
-- **Reputation / trust tiers (`GET /api/reputation`):** a merit score (0-100) is derived live from the audit log + cultivation state — LLM success rate, guarded-tool reliability (completed vs failed/denied calls), realm/breakthroughs, minus a current failure streak — and maps to a tier shown on each disciple card. **Trusted** (≥75) disciples earn bonus autonomy budget (`MAYBOT_TRUST_AUTONOMY_BONUS`, default 3); **Probation** (<45) disciples are demoted back to human approval — their auto-runs are blocked regardless of `auto_approve`. So autonomy is *earned*: trust-based privilege escalation/de-escalation for autonomous tools. Tune the gates with `MAYBOT_TRUST_TRUSTED` / `MAYBOT_TRUST_PROBATION`.
-- **Prophecy / divination (`GET /api/prophecy`):** the **Heavenly Omens** section reads each project's recorded metrics history (the same series behind the sparklines) and forecasts near-term health with a light trend + anomaly model — a recent error, a z-score plunge, or a worsening PnL slope surfaces as an *ill omen* (ominous/caution/favorable, most concerning first). Under the costume it's simple early-warning/anomaly detection on monitoring data.
-- **Formations / agent workflows (`GET /api/formations`, `POST /api/formations/run`):** a **formation array** is a saved, reusable multi-agent pipeline run as a DAG of stages (e.g. scout → analyze → propose → review). Each stage's disciple sees the goal plus every prior stage's output and adds its part. Defined in `formations.yaml` (see `formations.yaml.example`; a built-in default works out of the box); stages without an explicit `agent` are auto-assigned round-robin. Reuses the council's one-activity-at-a-time guard. Operator-gated; launch from the **Dao Council** section.
-
-## Sect governance (the Ancestor, the Sect Leader & Elders)
-
-A meritocratic hierarchy over the disciples. **You are the Ancestor** — ultimate authority; disciples address you as such, and you can override any decision. API: `GET /api/governance` plus operator-gated `POST` actions.
-
-- **Sect Leader = the most capable mind.** The seat auto-seeds to the disciple with the highest **aptitude** — a composite of **reasoning** (model capability + spirit-root assessment), **intelligence** (demonstrated LLM reliability), **knowledge** (realm depth + breakthroughs), and **skills** (techniques mastered, incl. those roamed from the web). Leadership challenges are decided by aptitude too. The Ancestor can still appoint/pin anyone (`POST /api/governance/leader`) or release the seat back to merit. Routine tasks assigned to the Leader are auto-delegated to a deputy Elder — the Leader handles only work marked `critical`.
-- **Standing** is a composite (0-100) of **merit** (reputation/karma), **performance** (LLM success rate), **leadership** (realm depth + breakthroughs + specialty mastery), and **contribution** (work shipped). It decides challenges.
-- **Leadership challenges:** an Elder may challenge the Sect Leader (`POST /api/governance/challenge`). The challenger must beat the Leader's standing by `MAYBOT_CHALLENGE_MARGIN` (default 3) to win — on a win the role swaps immediately (the Ancestor can still override). A per-Elder cooldown (`MAYBOT_CHALLENGE_COOLDOWN`, default 3600s) prevents constant power struggles; a pinned Leader can't be contested.
-- **Elder specialties:** Elders pick a path (`POST /api/governance/specialty`) — Sword Dao (backend), Alchemy (data/ML), Formation Dao (DevOps), Talisman Crafting (frontend), Beast Taming (QA), Artifact Refinement (tooling). Good work deepens their **mastery** rating and teaches the path's signature techniques.
-- **The Ancestor's Hall:** a direct inbox (`GET/POST /api/governance/inbox`, `/message`) — only the Sect Leader and Elders may petition you; anyone below Elder rank is refused.
-- **Personal projects:** disciples may **not** be assigned to act on your personal bot projects. Mark them with `personal: true` in `projects.yaml`, or list them in `MAYBOT_PERSONAL_PROJECTS` (comma-separated `name` or `device:name`); such a task is rejected (403) and the project is flagged in the overview.
-- **GitHub:** disciples can act on GitHub through guarded tools — see the `gh_*` examples in `tools.yaml.example` (reads auto-approve; writes stay human-approved).
-
-## Trials Hall & GitHub
-
-- **Night-Watch on-call (`GET /api/nightwatch`, `POST /api/nightwatch/rotation`, `/{id}/handled`):** an on-call rotation — disciples take timed watch shifts (`MAYBOT_WATCH_SHIFT_SECONDS`, default 1h). The on-watch disciple `triage`s incidents (warnings auto-handled, `error` severity escalated to the Ancestor); resolving a watch earns spirit stones. Real value: on-call rotation with first-line auto-triage.
-- **Spirit-Root assessment (`GET /api/spirit-root`, `POST /api/spirit-root/assess`):** a capability benchmark — feed in probe results (`reasoning`/`coding`/`reliability`/`latency`) and a weighted score yields a spirit-root grade (Heavenly → Mortal Dust). Real value: automated per-model capability profiling that can feed the trust tier.
-- **Dreamscape dry-run (`POST /api/dreamscape/preview`):** preview a formation's full stage→disciple plan and a token-cost estimate **without calling any LLM**, so you can sanity-check and budget before running it for real.
-- **Tribulation Trials / chaos (`GET /api/chaos`, `POST /api/chaos/summon`, `/{id}/resolve`):** deliberately inject a fault scenario (process kill, latency storm, disk drought, endpoint seal) and score how fast a disciple recovers — fast recovery earns stones, failure costs cultivation. Real value: game-day / chaos-engineering drills with scored resilience.
-- **GitHub repos as projects (`GET /api/github`):** list repos in `MAYBOT_GITHUB_REPOS` (comma-separated `owner/name`) and they appear in the overview as `github_repo` projects with health from open PRs, failing checks, and open issues (cached `MAYBOT_GITHUB_CACHE_TTL`s; needs the `gh` CLI authenticated). Tasks can also carry a `repo`/`issue` reference (`POST /api/agents/{name}/task`) that's prepended as context, and disciples post back through the human-approved `gh_*` guarded tools.
-
-## Sect Lore (drift, bonds, lineage, votes, artifacts, titles)
-
-- **Dao-Heart drift (`GET /api/daoheart`):** each task's output quality signals (success, length, latency) are recorded; drift compares a disciple's recent window to its baseline and flags `drifting`/`degraded`. Real value: behavioral / quality-regression detection.
-- **Karmic-bond pairs (`GET /api/bonds`, `POST /api/bonds/bind|unbind`):** bind two disciples and the partner automatically peer-reviews the other's task output before it ships (the review is appended to the transcript). Real value: mandatory cross-check / pair-agent QA.
-- **Lineage (`GET /api/lineage`):** a knowledge graph of who originated each technique and who transmitted it to whom (fed by tool-mastery + the `transmit` flow). Real value: knowledge-transfer & ownership graph.
-- **Merit-weighted council vote (`POST /api/council/vote`, `GET /api/council/history`):** disciples vote on an ambiguous call; votes are weighted by sect standing and the decision + dissent is logged. Real value: weighted-ensemble decisions with an audit trail.
-- **Artifact vault (`GET /api/artifacts`, `POST /api/artifacts/forge|wield`):** disciples forge reusable, versioned artifacts (prompt templates, tool recipes, formations, notes, technique manuals) with provenance (creator/created_at/version/uses). Real value: an attributed prompt/tool library.
-- **Technique manuals (automated):** an idle Elder with **no disciples to mentor** authors a technique `manual` artifact from their specialty/mastered skills (one per `MAYBOT_MANUAL_COOLDOWN_SECONDS`, default 30m), so senior agents keep contributing knowledge to the vault even with no one to teach directly.
-- **Titles & achievements (`GET /api/titles`):** disciples earn titles (Immortal Ascendant, Sword Saint, Bane of Bugs, …) from cultivation/reputation/governance milestones, shown as badges on their cards. Real value: gamified engagement + an at-a-glance specialization signal.
-
-## Auto-remediation, chronicle, sect map & active chaos
-
-- **Auto-remediation runbooks (`GET /api/runbooks`):** define `runbooks.yaml` (see `runbooks.yaml.example`) mapping a project match (`type`/`health`/`name_pattern`/`alert_contains`) to a guarded tool + args. When a project goes unhealthy, a matching runbook **requests** its remediation tool (debounced per episode, recovers on `ok`) — still subject to the normal approval/autonomy guards, so nothing destructive runs unsanctioned.
-- **Cultivation chronicle (`GET /api/chronicle`, `/api/chronicle/{name}`):** a per-disciple event timeline — breakthroughs, tribulations, leadership challenges/appointments, specialties, and karmic bonds are recorded as a chronological story, shown in the Sect Map's chronicle feed.
-- **Sect Map:** a spatial view of the sect arrayed across the heavens — disciples rise through the peaks by realm, the Sect Leader crowned at the summit.
-- **Active chaos injection:** `POST /api/chaos/summon` with `{"inject": true}` now *actually* inflicts the fault by requesting a mapped guarded tool (`chaos.FAULT_TOOLS`; see the `chaos_*` examples in `tools.yaml.example`) — always approval-gated, never silent. Without `inject` it stays observe-and-score.
-
-## Agent Crew (LLM persona agents — Phase 1)
-
-The dashboard can run **LLM-backed persona agents** against your local AI hosts. Each agent is defined in `agents.yaml` with a name, role, and persona (system prompt), and points at an Ollama or OpenAI-compatible endpoint. In the **Agent Crew** section you assign a task to an agent and it runs one chat completion in the background, streaming the reply (and a transcript) into its card.
-
-```bash
-cp agents.yaml.example agents.yaml
-nano agents.yaml   # set name/role/persona/provider/base_url/model per agent
-# restart the control center; the "Agent Crew" section appears automatically
-```
-
-**Backends:** each agent's `provider` selects where it runs:
-- `ollama` / `openai_compatible` / `lmstudio` / `llama_cpp` — a local AI host you point at with `base_url` (reachable from the control center). **Nous Hermes works here** — set `provider: openai_compatible` (or `ollama`) and `model:` to whatever id your host serves (e.g. `hermes`, `nous-hermes2`).
-- `claude` (or `anthropic`) — the Claude API via the official SDK. Set `ANTHROPIC_API_KEY` in the control center's environment; no `base_url` needed. Defaults to `claude-opus-4-8`; the stable persona is sent with prompt caching.
-
-**Inter-agent comms (Phase 2):** the **Ship Comms** section lets you give the crew a shared goal and run a bounded round-robin "mission" — each agent contributes per round, building on the channel. Guardrails cap rounds (`MAYBOT_COMMS_MAX_ROUNDS`, default 3), participants (`MAYBOT_COMMS_MAX_PARTICIPANTS`, default 6), and allow only one mission at a time, so total LLM calls per mission (rounds × participants) are bounded. API: `GET /api/comms`, `POST /api/comms/mission`.
-
-**Obsidian vault memory (Phase 3):** point `MAYBOT_OBSIDIAN_VAULT` at an Obsidian vault (a folder of markdown notes) and agents gain a shared, persistent memory — they pull relevant notes in as context (on tasks and missions) and write mission summaries back. Reads are confined to `.md` files inside the vault (path traversal is rejected); writes go only to a dedicated subfolder (`MAYBOT_OBSIDIAN_SUBDIR`, default `MayBot/`) with sanitized filenames, so hand-written notes are never clobbered. The **Vault Memory** dashboard section appears when a vault is configured. Per-agent `memory: false` opts an agent out of context injection.
-
-> Notes injected as context are sent to whatever backend the agent uses — a local host stays local; a `claude` agent sends them to the Anthropic API. Don't point an agent at a vault with secrets you wouldn't send to its backend.
-
-**Guarded tools (Phase 4):** agents can *act* — but only through an explicit allow-list, behind human approval. Define tools in `tools.yaml` (no file → the feature is off). Each tool runs as a **fixed argv with no shell**; an agent may only fill the named `{placeholder}` args you declare, and each value is validated (no spaces or shell metacharacters, bounded length). Every call is **pending until you approve it** in the **Tools** dashboard section, unless a tool sets `auto_approve: true` (reserve that for safe, read-only tools). An agent requests a tool by ending its reply with a fenced block:
-
-````text
-```tool
-{"tool": "list_dir", "args": {"path": "/opt/daybot/logs"}}
-```
-````
-
-The request is created as **pending** — it never runs until a human approves. (Tool requests are wired into single-agent tasks only, not multi-agent missions, to keep the blast radius small.) See `tools.yaml.example`. API: `GET /api/tools`, `POST /api/tools/run`, `POST /api/tools/{id}/approve|deny`.
-
-> ⚠️ Tools execute real commands on the agent host. Keep the allow-list narrow, prefer absolute `argv`/`cwd`, and only set `auto_approve` on commands that are safe to run unattended.
-
-**Reliability & autonomy:**
-- **Persistence (opt-in):** set `MAYBOT_DB` to a SQLite path and metrics history, agent transcripts, the comms feed, and the **tool-call audit log** survive restarts (reloaded on startup). Unset → in-memory only (default).
-- **Agentic tool loop:** when a guarded tool an agent requested completes, its result is fed back so the agent can continue (request another tool or finish). Bounded by `MAYBOT_AGENT_MAX_FOLLOWUPS` (default 4) per operator task — each tool step still needs approval unless `auto_approve`.
-- **Event-driven missions:** set `MAYBOT_INCIDENT_AGENT` to an agent name and, whenever a project goes unhealthy, that agent is auto-dispatched a diagnostic task (it can request a guarded tool to read logs, then post findings). Debounced: one dispatch per incident until the project recovers.
-- **Live updates (SSE):** the dashboard subscribes to `/api/stream` and refreshes the relevant section the instant an agent reply, comms message, or tool status changes — no waiting for the poll.
-- **Bounded autonomy (opt-in, default OFF):** by default an agent's tool request is queued for approval *even for `auto_approve` tools* — agents never act unattended. Set `MAYBOT_AUTONOMY=1` and an agent may auto-run an `auto_approve` tool only while under its **per-task budget** (`MAYBOT_AUTONOMY_MAX_CALLS`, default 3; per-tool override via `max_auto_per_task` in `tools.yaml`), within an optional **time window** (`MAYBOT_AUTONOMY_HOURS`, e.g. `9-17`), and while not **paused**. The Tools section shows the budget/window and a **Pause/Resume kill switch** (`POST /api/autonomy/pause|resume`); an **approval audit log** view lists the persisted tool-call history. Operator-initiated runs are never affected.
-- **Cultivation (reward & punishment):** disciples (agents) earn **spirit stones** for good work — completing tasks, mastering a new **technique** (first success with a tool), and joining the Dao Council. With enough stones *and* techniques they **break through** realms, each split into **9 sub-realm layers** (e.g. "Core Formation · 7th Layer"; Qi Condensation → Foundation Establishment → Core Formation → … → Immortal Ascension). Failures chip stones; a streak calls down a **heavenly tribulation** that strips stones and can strike a disciple **down a realm** (qi deviation). A **Sect Ranking** leaderboard orders disciples by realm/stones with sect titles (Outer → Inner → Core Disciple → Elder → Sect Master). When a project goes unhealthy, the dispatched incident agent **faces a tribulation trial** — survive (resolve it) for a windfall, or be struck down. Per-disciple cards show realm · layer, qi bar, techniques, and breakthrough/tribulation flourishes; `GET /api/cultivation`; persisted via `MAYBOT_DB`.
-- **Inner demon (self-critique):** with `inner_demon: true` on an agent (or `MAYBOT_INNER_DEMON=1` globally), after each reply the disciple's **inner demon** critiques the answer; if it finds flaws, the disciple **revises** it before recording. The demon is **harsher at low realms** (a weaker disciple gets up to 3 critique→revise cycles; an ascended one gets fewer or none) and its tone scales with rank. The critique is saved to the transcript.
-- **Pills & elixirs:** spend a disciple's **spirit stones** on temporary buffs — *Enlightenment Elixir* (stronger model), *Qi-Gathering Pill* (deeper responses), *Foundation Pill* (+autonomy budget), *Heart-Demon Pill* (harsher inner demon). Concoct from the disciple's card; buffs are time-limited. **Overuse is dangerous:** beyond `MAYBOT_PILL_SAFE` concurrent pills, each extra one risks **qi deviation** (chance `MAYBOT_PILL_DEVIATION` per excess) — a tribulation that scatters every buff and can strike the disciple down a realm. `GET /api/pills`, `POST /api/pills/buy`.
-- **Spirit-stone economy:** all rewards/penalties are env-tunable (`MAYBOT_AWARD_*`, `MAYBOT_PENALTY_FAIL`, `MAYBOT_TRIBULATION_*`).
-- **Spirit veins & sect treasury:** the sect holds a shared spirit-stone pool (**Spirit Veins** panel + `GET /api/treasury`). Spirit veins channel ambient qi into it (`MAYBOT_VEIN_RATE` per `MAYBOT_VEIN_HOURS`) and a **tithe** of each disciple's good work (`MAYBOT_TITHE`) refills it. It **funds the daily stipend** (`MAYBOT_STIPEND` per `MAYBOT_STIPEND_HOURS`) — when the coffers run dry, stipends stop until the veins (or an elder's **endowment**, `POST /api/treasury/endow`) refill them.
-- **Closed-door seclusion:** pull a disciple offline (`POST /api/agents/{name}/seclusion`, or the card button) to cultivate in seclusion. After `MAYBOT_SECLUSION_MINUTES` sequestered it **researches a new technique** (a "Dao Insight" skill) and is **guaranteed a breakthrough** to the next realm (its stones consolidated into the new realm), repeating while it stays in seclusion — until it emerges or reaches Immortal Ascension.
-- **Roaming → real web skill-quests:** send a disciple to **wander the world** (`POST /api/agents/{name}/roaming`, or the card button). After `MAYBOT_ROAMING_MINUTES` it **searches the live web for an actual AI skill** (a real technique like *retrieval-augmented generation*, *function calling*, *reranking*…) via a keyless search (DuckDuckGo by default; override with `MAYBOT_SEARCH_URL`), learns it, and records the **source URL** as a vault note — repeating while it roams. If the web is unreachable it falls back to a curated list of genuine AI skills, so roaming always returns something real. You can also **ask a disciple to learn a specific skill** (`POST /api/agents/{name}/learn-goal`, the card's "skill to learn next roam" box, or the right-click menu) — their next roam searches for that skill (or the closest match). Each disciple's known skills (with source links) show on its card, and across the sect in the **Known Skills** tab.
-- **Skill transmission:** a higher-ranked disciple can **pass one of its techniques down** to a subordinate it outranks (`POST /api/agents/{teacher}/transmit`, or the Transmit control). The student inherits the technique (counting toward its breakthroughs) and the mentor earns merit.
-- **Mission board:** dispatch a disciple on a **quest** (`GET /api/quests`, `POST /api/agents/{name}/quest`) — it runs the quest as a task and, on success, brings back the quest's **unique reward technique** plus spirit stones.
-- **Sect tournament:** hold a single-elimination **bracket of debates** (seeded strongest-first by realm then stones) to crown the sect's strongest disciple — the champion earns a big spirit-stone windfall. Launch with 🏯 in the Dao Council; `POST /api/comms/tournament`.
-- **Dao debate:** two disciples argue opposing sides of a proposition for N rounds and a third **judges** and declares a winner (the victor earns spirit stones) — a real debate-and-judge ensemble. Launch from the Dao Council; `POST /api/comms/debate`.
-- **Delegation hierarchy:** a disciple may hand a task **downward only** — to one of strictly lower cultivation realm. The **Sect Master** (top realm) can delegate to everyone; an **Elder** only to those beneath; peers can't delegate to each other, and no one delegates upward. On each card the "Assign" control gains a target picker listing the disciples that one outranks (delegating rewards the leader with spirit stones). `POST /api/agents/{name}/delegate`. Set `MAYBOT_DELEGATION=1` to also let agents delegate **autonomously** (they get a ```delegate``` block in their prompt listing valid subordinates), bounded by `MAYBOT_AGENT_MAX_DELEGATIONS` per task.
-- **Cost & observability:** every LLM call is metered — per-agent calls, success rate, average latency, tokens, and estimated cost (per-model price table; local models are free). Surfaced in the **Usage & Cost** dashboard section and at `GET /api/usage`.
-- **Access control (RBAC):** without a users file the legacy single-token mode applies. Add `users.yaml` (see `users.yaml.example`) to map tokens to **viewer** (read-only) or **operator** (read + mutate) roles. All `/api/*` requests are rate-limited (`MAYBOT_RATE_LIMIT` per `MAYBOT_RATE_WINDOW` seconds).
-
-Optional control-center environment variables:
-
-| Variable | Default | Purpose |
+| Course | Size | Notes |
 |---|---|---|
-| `MAYBOT_DB` | _(unset)_ | SQLite path for persistence (unset → in-memory) |
-| `MAYBOT_REQUIRE_AUTH` | `0` | Force a valid session on all pages/APIs (else open/operator-by-default) |
-| `MAYBOT_REGISTER_TOKEN` | _(unset)_ | Initial secret for host self-enrollment (`/install-agent.*`, `POST /api/agents/register`); also generate/manage it in-app (Ops → Hosts → Add host) where it persists and wins over this default |
-| `MAYBOT_SECT_TICK_SECONDS` | _(default)_ | Background sect-simulation tick interval |
-| `MAYBOT_SECT_XP_RATE` | _(default)_ | Passive cultivation XP rate for the sim |
-| `MAYBOT_OBSIDIAN_VAULT` | _(unset)_ | Path to your Obsidian vault; enables agent memory |
-| `MAYBOT_OBSIDIAN_SUBDIR` | `MayBot` | Subfolder agents write into |
-| `MAYBOT_TOOLS_FILE` | `tools.yaml` | Guarded tool allow-list (absent → tools off) |
-| `MAYBOT_AGENT_MAX_FOLLOWUPS` | `4` | Tool-result feedbacks per task (loop guard) |
-| `MAYBOT_AUTONOMY` | `0` | Enable agents to auto-run `auto_approve` tools |
-| `MAYBOT_AUTONOMY_MAX_CALLS` | `3` | Agent auto-runs allowed per task (budget) |
-| `MAYBOT_AUTONOMY_HOURS` | _(unset)_ | Local-time window for auto-runs, e.g. `9-17` |
-| `MAYBOT_USERS_FILE` | `users.yaml` | RBAC token→role map (absent → single-token mode) |
-| `MAYBOT_RATE_LIMIT` | `240` | Max `/api/*` requests per window per client (0 = off) |
-| `MAYBOT_RATE_WINDOW` | `60` | Rate-limit window, seconds |
-| `MAYBOT_INCIDENT_AGENT` | _(unset)_ | Agent auto-dispatched when a project goes unhealthy |
-| `MAYBOT_INCIDENT_STATES` | `error` | Health states that trigger an incident |
-| `MAYBOT_COMMS_MAX_ROUNDS` | `3` | Max rounds per mission |
-| `MAYBOT_COMMS_MAX_PARTICIPANTS` | `6` | Max agents per mission |
+| French A1, A2, B1, B2 | 20 + 12 + 12 + 16 units | From zero to upper intermediate; typed recall and dictation |
+| French Conversations | 8 units, 56 dialogues | Rehearsed exchanges, A1 to B1: you speak one side |
+| Spanish A1, A2, B1, B2 | 20 + 12 + 12 + 16 units | Spain Spanish, Latin American variants accepted |
+| Spanish Conversations | 8 units, 56 dialogues | Rehearsed exchanges, A1 to B1: you speak one side |
+| Mandarin Chinese A1, A2 | 18 + 18 units, 1,002 items | Pinyin and tones first; ~260 characters; simplified script |
+| Mandarin Conversations | 8 units, 50 dialogues | Everyday situations: you speak one side |
+| Japanese A1, A2 | 18 + 18 units, 1,202 items | All kana, ~170 kanji; polite and plain style, conditionals, giving and receiving |
+| Japanese Conversations | 8 units, 50 dialogues | Everyday situations: you speak one side |
+| Korean A1, A2 | 18 + 17 units, 1,028 items | Hangul first, then polite and formal speech, honorifics, irregular verbs; Revised Romanization |
+| Korean Conversations | 8 units, 50 dialogues | Everyday situations: you speak one side |
+| Picture lessons (all five languages) | 10 pictures, ~103 words each | Drag the words onto the body, skeleton, house, town… |
+| CompTIA Security+ (SY0-801) | 25 units | Every exam domain, plus exam-hard practice |
+| CompTIA Network+ (N10-009) | 22 units | Every exam domain, heavy on subnetting and troubleshooting |
+| ISC2 Certified in Cybersecurity | 15 units | Sept 2026 outline |
+| CompTIA A+ Core 1 (220-1201) | 26 units, 654 items | Hardware, networking, mobile, cloud, troubleshooting |
+| CompTIA A+ Core 2 (220-1202) | 26 units, 712 items | Operating systems, security, software troubleshooting, procedures |
+| CompTIA CySA+ (CS0-004) | 27 units, 670 items | Analyst practice built on real-looking logs and tool output |
+| Cisco CCNA (200-301 v2.0, from 3 Feb 2027) | 43 units, 920 items | v2.0 domains; configuration and verification; subnetting and routing worked; topics v2.0 dropped kept as background units outside the mocks |
 
-**Phase 1 scope & safety:**
-- Agents *think and talk only* — they do **not** execute commands or tools, and do not message each other yet.
-- For local-host agents, the control center calls `base_url` directly (running it on the same box as Ollama is simplest).
-- State (transcripts) is in-memory and resets on restart.
+**Studying**
 
-Optional control-center environment variables:
+- A **placement test** when you start a course finds your level and skips what
+  you already know (skipped items come back as reviews, so a lucky pass is caught).
+- A **daily session** is scheduled for you by spaced repetition (FSRS-6): what
+  is due for review first, then a ration of new items.
+- **Chinese, Japanese and Korean** start with the writing system itself. You can
+  answer in the script or its romanisation; pinyin takes tone marks or numbers
+  (`ni3 hao3`), and a wrong tone is wrong.
+- Exercises get harder as you remember more: recognise, recall, type from
+  memory, build a sentence from word tiles, type from audio. Certification
+  items include single-answer, choose-two and put-in-order questions.
+- **Conversations**: the app speaks the other person's lines; you answer from
+  an English cue, first by arranging the words and later from memory, and are
+  told to say every line aloud. Several natural answers are accepted.
+- **Best-answer questions** (300+): four options that are all reasonable, and
+  you must pick the BEST, the FIRST or the MOST effective, as on the real exams.
+  Afterwards every option gets its own reason.
+- **Mistakes log**: anything you get wrong, in a session or a trial, stays on a
+  list until you answer it right, and one tap starts a session of just those.
+- **Listening practice** (languages): hear a word or phrase you already know,
+  and type it.
+- **Drills** (certifications): ten freshly generated subnetting or port
+  questions at a time, with the working shown.
+- **Trials** are timed mock exams drawn across the official domains by their
+  exam weights. They are deliberately harder than the real thing: the questions
+  are scenario-based and the pass mark is 85%. Each cert course has a
+  full-length mock and a four-point "ready for the real exam" checklist.
+  You can flag questions for review before submitting, and the trials page
+  shows which exam domains have cost you the most marks lately.
 
-| Variable | Default | Purpose |
+**The sect** (the game)
+
+- Disciples have food, rest, joy, mood, health, six skills with passions, two
+  traits, and a cultivation realm. You set their **work priorities**; they
+  decide hour by hour what to do.
+- You gather rice, wood, stone and herbs, **build and raise eleven rooms**,
+  **research** eight techniques, brew pills, and take in wanderers.
+- A **storyteller** sends events and waits for your decision: merchants,
+  windfalls, sickness, cold snaps, and threats you see coming and can fight at
+  the gate, sit out behind the wards, or buy off. Pick a gentle, balanced or
+  harsh one. The world eases off a sect that has just been beaten.
+- **The cultivation world**: disciples rise from Outer to Inner to Core
+  disciple to Elder, and rank decides which **manuals** (Yellow to Heaven
+  grade) they may study. A great-realm **breakthrough** is yours to order, with
+  the odds laid out; from Core Formation up it is a **heavenly tribulation**.
+  Three **rival sects** hold opinions of you. Arrogant young masters block the
+  road (slap his face and his elder comes for revenge), auctions and **secret
+  realms** open, the **Hundred Sects Tournament** comes every autumn, a
+  crippled genius with a plain black ring asks for shelter, and a stranger
+  offers a forbidden sutra. Fame, treasures and a guardian spirit beast follow.
+- **It pushes back.** Rice is tight on the balanced and harsh storytellers,
+  winter burns firewood, and a sect that is outmatched takes real wounds and
+  can lose people. Idle play fails; careful play survives.
+- **Disciples have each other.** Those who work side by side become friends,
+  sworn siblings or rivals. Friends guard a breakthrough and grieve a death;
+  rivals envy success, sour the mood and sometimes come to blows.
+- **Depth you can read.** Every spirit root has one of five elements: the
+  season favours one and presses on another, and a manual of your own element
+  is half again as strong. Each disciple can carry one **artifact** (won, dug
+  up or forged; rivals notice who gets the good sword). You may take a few
+  **direct disciples**, who stop labouring and cultivate a quarter faster but
+  expect a bed and some ease. A ledger on each disciple's page shows exactly
+  what multiplies their cultivation speed.
+- **The long road.** Masters take personal disciples who avenge them; sworn
+  siblings become dao companions who take blows for each other; grief and
+  failed tribulations leave heart demons to be faced. The sect swears up to
+  three precepts and pays for breaking them, elders offer counsel you can
+  overrule at a cost, brawlers come before the punishment hall, and merit
+  earned by work buys artifacts from the vault.
+- **More to do**: named pills from rare herbs, a path (sword, body, formation)
+  chosen at Foundation Establishment, twelve-day closed-door seclusion, a
+  lowland lord to please or defy, sworn alliances, three-stage sieges, the
+  demonic path, a reincarnated ancient, succession when the founder ascends,
+  tea-house rumours, verses carved for great days, and tomb-sweeping.
+- **Breakthroughs are prepared, then chosen.** A second ledger grades the
+  breakthrough from Flawed to Heaven-defying by what you arranged beforehand
+  (mood, health, a pill, someone keeping vigil, the season, the chamber); the
+  grade is a permanent bonus, and afterwards the disciple chooses one of three
+  fates, each a trade, fixed so it cannot be rerolled.
+- **Each great realm asks for one thing**, always with two ways to have it,
+  and each disciple has a small **meridian chart** to spend stage points on.
+- **Expeditions are yours to plan**: choose who goes and how boldly; halfway
+  there they send word and ask what to do, and the choices depend on who went.
+- **Rival cultivators have names** and advance by a rule you can read; you meet
+  them at the tournament. A master's **trust** in a disciple grows through
+  three stations, each an evening and a gift.
+- **Standing orders**: keep N pills in stock, send the same party out again,
+  and two saved sets of work priorities.
+- **Also**: spirit beasts that choose a disciple, branch sects that pay
+  tribute, a quiet karma tally, a map of the region, and a banner colour and
+  motto of your own.
+- **Things to aim at**: an elder's ten-step guided opening, a festival each
+  season, promises to keep by a deadline with a reward you choose, expeditions
+  you send out, five untimed **Great Works**, and the sect's permanent annals.
+- The sect **does not depend on studying**: everyone cultivates by meditating.
+  Study is a second engine — each correct answer gives the Sect Master qi and
+  the sect a point of research insight, a finished session lifts every
+  disciple's mood for a day, and a passed trial gives everyone a surge of qi.
+- While the app is closed the sect carries on quietly (no events, nobody
+  starves or dies) for at most two sim days per real day.
+
+**Reading**
+
+- **Read** holds a shelf of your own books: import EPUB, PDF, plain text,
+  Markdown or HTML. The text is pulled out in the browser (PDF through a
+  vendored copy of Mozilla pdf.js, served by the app itself) and kept by the
+  server beside the save file, so a phone and a PC share one shelf and each
+  book opens where you left it. Pick the book's language on import.
+- **Tap any word** of a Spanish book for its English meaning: an offline
+  dictionary of about 85,000 Spanish words and 133,000 of their forms. It finds
+  the dictionary form behind plurals, conjugations and pronouns attached to a
+  verb (*cúrale* → *curar*, *dímelo* → *decir*), with or without the accents.
+  Hear the word (normal or slow) if your device has a voice for the language;
+  the card says plainly when it has none.
+- **French** books too: about 85,000 French words and 337,000 of their forms.
+  Elisions are split (*l'homme* → *homme*, *qu'il* → *il*), inverted verbs
+  freed of their pronoun (*dit-il* → *dire*, *va-t-on* → *aller*), plurals and
+  feminines taken back (*chevaux* → *cheval*, *heureuses* → *heureux*).
+- **Korean** books too: about 33,000 Korean words and 321,000 conjugated
+  forms. Particles come off (*학교에서* → *학교*, "에서: at / in"), endings
+  are taken back to the dictionary form with the grammar named (*먹었어요* →
+  *먹다*, "past polite"; *더워요* → *덥다*, ㅂ irregular), and every word is
+  shown with its romanisation.
+- **Chinese and Japanese books** are cut into words by the dictionary (they are
+  written without spaces), and a tap shows the word, its reading — pinyin with
+  tone marks; kana and Hepburn rōmaji — and its meanings. Japanese
+  conjugations are undone and named (*食べました* → *食べる*, "polite past";
+  *勉強しています* → *勉強*). Traditional characters work too.
+- **Old text files** are read in their own encoding: UTF-8 first, else EUC-KR
+  for a Korean book, windows-1252 for a French or Spanish one, Shift_JIS or
+  EUC-JP for a Japanese one, GB18030 or Big5 for a Chinese one. A Project
+  Gutenberg licence header and footer are taken off, and so are Aozora Bunko
+  ruby, notes and colophon.
+- **Dictionary**: search each language → English, or English → it by meaning,
+  and add your own entries. Korean also by romanisation (*hakgyo* finds 학교),
+  Chinese by characters or pinyin (*xuéxí*, *xue2xi2*, *xuexi*), Japanese by
+  kanji, kana or rōmaji (*taberu*, *gakkō*).
+- **My words**: "Save word" keeps a word with its meaning and the sentence you
+  met it in. Saved words are a course of their own, *My words (Spanish)*,
+  scheduled and graded like every other course and paying the same qi and
+  insight (*My words (French)*, *(Chinese)*, *(Japanese)*, *(Korean)* the same
+  way; the last three accept the script or its romanisation).
+- The Spanish, French and Korean dictionaries are English Wiktionary via
+  kaikki.org, CC BY-SA 4.0, ranked with FrequencyWords (OpenSubtitles) counts,
+  CC BY-SA 4.0 (see `sect_academy/dict/<lang>/README.md`). The Chinese one is CC-CEDICT
+  (CC BY-SA 4.0), with word frequencies from jieba (MIT). The Japanese one uses
+  the JMdict dictionary files of the Electronic Dictionary Research and
+  Development Group (EDRDG), under CC BY-SA 4.0 in accordance with the Group's
+  licence, https://www.edrdg.org/edrdg/licence.html. pdf.js is Apache-2.0
+  (`sect_academy/static/vendor/pdfjs/LICENSE`).
+- Handwriting stroke order: Japanese kana and kanji from KanjiVG (Ulrich Apel,
+  CC BY-SA 3.0); Chinese hanzi from Make Me a Hanzi, derived from Arphic fonts,
+  under the Arphic Public License (`sect_academy/strokes/<lang>/README.md`, the
+  licence text in `strokes/zh/ARPHICPL.TXT`). Korean strokes are the app's own
+  (`sect_academy/hangul.py`).
+
+## Running it
+
+| Setting | Default | What it does |
 |---|---|---|
-| `MAYBOT_AGENTS_FILE` | `agents.yaml` | Path to the agent definitions |
-| `MAYBOT_AGENT_TIMEOUT` | `60` | Per-task LLM request timeout (seconds) |
-| `MAYBOT_AGENT_MAX_TURNS` | `20` | Transcript messages kept as context per agent |
+| `SECT_ACADEMY_FILE` | `./academy_state.json` | Where progress and the sect are saved |
+| `SECT_ACADEMY_HOST` | `127.0.0.1` | Bind address |
+| `SECT_ACADEMY_PORT` | `8200` | Port |
+| `SECT_ACADEMY_TOKEN` | unset | If set, every API call needs this token (the page asks for it once). Set it before binding to anything but localhost. |
 
-API: `GET /api/agents`, `GET /api/agents/{name}`, `POST /api/agents/{name}/task` (`{"task": "…"}`).
+- **Books** are kept in `<save file>.books/` (one `.txt` and one small `.json`
+  per book; at most 200 books and 64 MB of text). They are not part of the
+  backup download: keep that folder if you want your shelf.
+- **Backups:** Progress → Download backup. A damaged save file is never
+  overwritten; it is moved aside and yesterday's automatic backup is restored.
+- **Phone:** open it in the phone's browser and "Add to Home Screen". (The
+  server must be reachable from the phone, so bind it to your LAN address and
+  set a token.)
+- **Audio** uses the speech voices installed on your device. With no voice for
+  a language, listening exercises become typing ones.
+- **Docker:** `docker compose up -d` (progress is kept in a named volume).
+- Run a single process: the app holds its state in memory.
 
-## Dashboard features
+To use it from another device on your network, start it with
+`SECT_ACADEMY_HOST=0.0.0.0`, set `SECT_ACADEMY_TOKEN`, and list the name or
+address you will type into the browser in `SECT_ACADEMY_HOSTS` (for example
+`SECT_ACADEMY_HOSTS=192.168.1.20`). Requests for any other hostname are refused.
 
-- **Base view** — a "Base View" toggle in the top bar renders the dashboard as a "ship station": a **crew roster** down the left lists every project with a live status line, and the main area shows each project as a lit "room" in a bunker-style grid (status badge such as TRADING / INFERENCE / CODING / STANDBY, a type icon, and a health-coloured status bar). Trading bots (incl. DayBot) show live PnL, open positions and a PnL sparkline on the room face. Selecting a crew member or room opens a **Manage / Info panel** with key metrics and start / stop / test / logs controls. Toggle back to "Card View" for the detailed metric cards; the choice is remembered per browser.
-- **AI Agents area** — `ai_project` and `local_ai_host` projects are surfaced in a dedicated "AI Agents" section at the top of the dashboard with their start / stop / run-tests controls and an at-a-glance online / needs-attention count.
-- **Search & filter** — the Projects section has a search box (matches name, device, type, status) and a health filter (OK / Warning / Error / Unknown).
-- **Persistent sparklines** — the control center keeps a server-side, in-memory history of each project's `profit_today` and health, so the per-card PnL sparklines survive page refreshes and are shared across all viewers. History is also available at `GET /api/history/{device}/{project}`.
+## Developing
 
-Optional control-center environment variables:
+```bash
+python -m sect_academy.packs        # validate every course file
+python -m pytest -q                 # tests
+ruff check .                        # lint
+python -m sect_academy & python tests/smoke_browser.py   # browser test, outside network blocked
+```
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `MAYBOT_HISTORY_MAX_POINTS` | `240` | Points retained per project series |
-| `MAYBOT_HISTORY_MAX_SERIES` | `500` | Max distinct project series tracked |
+- `docs/ACADEMY_CONTENT.md` — how to write or extend a course.
+- `docs/superpowers/specs/2026-11-24-sect-academy-design.md` — the design and
+  the reasons behind it.
+- `docs/research/` — the research the design rests on.
 
-> History is in-memory only and resets when the control center restarts — it is a monitoring aid, not a system of record.
+## Honest limits
 
-Safety notes for local AI hosts:
-- Test prompt checks are disabled by default.
-- Tiny generation checks run only when `test_prompt_enabled: true`.
-- Do not expose local model hosts publicly unless protected by VPN/firewall (LAN/VPN/local-only strongly recommended).
-- API secrets are not included in dashboard project cards.
-
----
-
-## Capability upgrades
-
-A set of "ops bread-and-butter" capabilities layered on top of the monitoring core. All are backward-compatible and degrade gracefully — every new feature is a no-op until you configure it.
-
-### Type-aware project adapters
-
-Previously only `trading_bot`, `local_ai_host`, and `code_project` had domain-specific health logic; `game_server`, `school`, and `ai_project` were stubs. They now inspect their own domain (see `projects.yaml.example`):
-
-- **`website`** — on top of up/down + status + latency: a response-time budget (`max_response_ms`), a content assertion (`expect_text` — a 200 that doesn't render the expected marker is treated as an error), and **TLS certificate expiry** for `https` URLs (`check_cert`, `cert_warn_days`, `cert_error_days`).
-- **`game_server`** — players/capacity/map/tick-rate from a JSON `query_url` (or a raw TCP port check via `host`+`port`); warns when the server is full or tick rate drops below `min_tps`.
-- **`school`** — LMS health from a JSON `query_url`: enrolment, overdue assignments, pass rate, attendance; warns on overdue work or outcomes below `min_pass_rate` / `min_attendance`.
-- **`ai_project`** — ML lifecycle (phase, model, GPU/VRAM, loss, eval score) plus a log scan for AI-specific failures (CUDA OOM, NaN/inf loss).
-
-### Alert acknowledgement & snooze
-
-A lightweight, time-boxed "I've got eyes on it" distinct from a sworn oath (ownership) or a maintenance silence (planned mute). While an alert is acked the notifier suppresses repeat pages and the escalation clock is held off; acks expire after `minutes` and auto-clear on recovery.
-
-- `GET /api/alerts` · `POST /api/alerts/ack` `{target, who, minutes, reason}` · `POST /api/alerts/resolve`
-- `MAYBOT_ACK_DEFAULT_MINUTES` (default 60). Persisted via `MAYBOT_DB` and included in backups.
-
-### More notification channels
-
-`notify` now fans out to **email (SMTP)** and **Telegram** alongside Slack/Discord/webhook:
-
-| Variable | Purpose |
-|---|---|
-| `MAYBOT_SMTP_HOST`, `MAYBOT_SMTP_FROM`, `MAYBOT_SMTP_TO` | Enable email (all three required; `TO` is comma-separated) |
-| `MAYBOT_SMTP_PORT` (587), `MAYBOT_SMTP_USER`/`_PASSWORD`, `MAYBOT_SMTP_TLS` (STARTTLS, on), `MAYBOT_SMTP_SSL` (off) | SMTP options |
-| `MAYBOT_TELEGRAM_TOKEN` + `MAYBOT_TELEGRAM_CHAT_ID` | Enable Telegram (both required) |
-
-### Scheduled summary reports (Daily Proclamation)
-
-A human-readable digest of fleet health (uptime per project, incidents, trading PnL, worst/unhealthy projects) built from data already in memory.
-
-- `GET /api/reports/daily?hours=` · `POST /api/reports/send` (deliver now to channels)
-- `MAYBOT_REPORT_INTERVAL_HOURS` (>0 enables auto-delivery), `MAYBOT_REPORT_WINDOW_HOURS` (default 24).
-
-### Data retention & scheduled backups (Archivist)
-
-Keeps the SQLite store from growing forever and snapshots coordination state to disk on a schedule.
-
-| Variable | Purpose |
-|---|---|
-| `MAYBOT_RETENTION_DAYS` | Prune time-series rows (history/transcripts/comms/usage) older than N days (needs `MAYBOT_DB`) |
-| `MAYBOT_PRUNE_INTERVAL_HOURS` | How often to prune (default 6) |
-| `MAYBOT_BACKUP_DIR` | Directory for periodic JSON state snapshots |
-| `MAYBOT_BACKUP_INTERVAL_HOURS` (24), `MAYBOT_BACKUP_KEEP` (14) | Snapshot cadence and rotation |
-
-- `GET /api/retention` · `POST /api/retention/prune` · `POST /api/backup/snapshot` · `GET /api/backup/list`
-
-### Auth hardening
-
-- **Session tokens** — `POST /api/login` exchanges a token for a time-boxed session token (use in `X-Control-Token`); `POST /api/logout` revokes it. TTL via `MAYBOT_SESSION_TTL_MINUTES` (default 720; 0 = no expiry).
-- **Per-project ACLs** — a user in `users.yaml` may declare a `projects` list (`device:project` patterns with `*` / `device:*` wildcards), enforced on the project-scoped endpoints (logs, history, actions). See `users.yaml.example`.
-
-### Control-center self-observability
-
-The dashboard now monitors itself: poll freshness/duration, staleness, and API request/error counts.
-
-- `GET /api/selfcheck` · new `/metrics` gauges: `maybot_poll_age_seconds`, `maybot_poll_duration_ms`, `maybot_poll_stale`, `maybot_poll_total`, `maybot_api_requests_total`, `maybot_api_errors_total`, `maybot_uptime_seconds`, `maybot_alerts_acknowledged`.
-- `MAYBOT_POLL_STALE_AFTER_SECONDS` (default 120) sets the staleness threshold.
-
-> Not included (deliberately out of scope for an in-process change): third-party SSO/OIDC (needs an external identity provider) and true multi-node HA/clustering (needs orchestration infrastructure). The auth hardening above — sessions, expiry, per-project ACLs — and the self-observability signals are the in-process groundwork for both.
+- The course content was written and then independently checked by AI models,
+  not by a human teacher or a certified instructor. Treat it as a strong study
+  aid, and for the certifications check anything surprising against the vendor's
+  current objectives.
+- **Conversation**: the dialogues rehearse real exchanges and make you produce
+  the lines, which is the part most apps skip. They cannot listen to you or
+  talk back freely. To converse comfortably with native speakers you also need
+  hours of real speaking and listening; finish the B1 course, then find a
+  tutor, a language exchange or a conversation group and use what you built.
+- No app can guarantee an exam pass. The readiness checklist is deliberately
+  strict so that ticking all four boxes means something.
+- The Spanish dictionary is as good as its source. Where a common word and a
+  name share a spelling, the compiled data sometimes kept only the name
+  ("luz" appears as a given name); the card says so, and your own entry fixes it.
+  French and Korean lookup has no word-frequency data, so a spelling with two
+  readings is a guess (French *joue* shows "cheek" first, *jouer* under Also;
+  Korean *삽니다* shows 사다 "buy" first, 살다 "live" under Also).
+- One learner, one sect, one process.

@@ -1,0 +1,279 @@
+id: japanese-pictures
+title: "Japanese — Picture lessons"
+kind: language
+language: Japanese
+lang: ja-JP
+hall: tongues_west
+blurb: "Put the words on the picture: the body, the skeleton, the face, the house, the kitchen, clothes, the town, the classroom, food and the weather. Take it alongside A1."
+
+# Picture lessons (docs/ACADEMY_CONTENT.md, "Picture lessons"). The pictures and pin
+# positions are shared by every language in packs/pictures/; this file names the pins.
+# Each pin is its own card with the id <item id>-<pin id>: never rename either part.
+# As in japanese-a1: l2 in kana, the kanji spelling in alt, rom with long vowels as
+# written in kana (gakkou), the macron spelling (gakkō) in alt. A different word given
+# in alt lists its own romaji in alt too.
+units:
+  - id: ja-pic-01
+    title: "Picture: the body"
+    goal: "I can name the main parts of the body."
+    notes: |
+      "My head hurts" is **あたま が いたい です** (*atama ga itai desu*): the body
+      part, が, then いたい (painful).
+
+      - **あし** is the whole leg and the foot: the kanji tell them apart
+        (脚 leg, 足 foot), the word does not. This lesson pins it on the leg.
+      - **ゆび** is any finger; a toe is **あしのゆび**, "finger of the foot".
+      - **おなか** is the stomach (the belly) in everyday speech.
+    items:
+      - id: ja-pic-body
+        type: picture
+        picture: body
+        pins:
+          head: {l2: あたま, rom: atama, alt: [頭], note: "Kanji: 頭."}
+          neck: {l2: くび, rom: kubi, alt: [首], note: "Kanji: 首."}
+          shoulder: {l2: かた, rom: kata, alt: [肩], note: "Kanji: 肩."}
+          arm: {l2: うで, rom: ude, alt: [腕], note: "Kanji: 腕."}
+          elbow: {l2: ひじ, rom: hiji, alt: [肘], note: "Kanji: 肘."}
+          hand: {l2: て, rom: te, alt: [手], note: "Kanji: 手."}
+          finger: {l2: ゆび, rom: yubi, alt: [指], note: "Kanji: 指."}
+          chest: {l2: むね, rom: mune, alt: [胸], note: "Kanji: 胸."}
+          stomach: {l2: おなか, rom: onaka, alt: [お腹], note: "Kanji: お腹."}
+          back: {l2: せなか, rom: senaka, alt: [背中], note: "Kanji: 背中."}
+          leg: {l2: あし, rom: ashi, alt: [脚, 足], note: "Kanji: 脚 for the leg, 足 for the foot; both are あし."}
+          knee: {l2: ひざ, rom: hiza, alt: [膝], note: "Kanji: 膝."}
+          toe: {l2: あしのゆび, rom: ashi no yubi, alt: [足の指], note: "Kanji: 足の指."}
+
+  - id: ja-pic-02
+    title: "Picture: the skeleton"
+    goal: "I can name the main bones of the body."
+    notes: |
+      **ほね** (骨) is bone. Inside a compound it is read **こつ**: 鎖骨 *sakotsu*
+      (collarbone), 骨盤 *kotsuban* (pelvis), 肋骨 *rokkotsu* (ribs).
+
+      - **せぼね** (背骨, "back bone") is the everyday word for the spine.
+      - **ひざのさら** (膝の皿, "the plate of the knee") is the kneecap.
+      - **すねのほね** is "the bone of the shin".
+    items:
+      - id: ja-pic-skeleton
+        type: picture
+        picture: skeleton
+        pins:
+          skull: {l2: ずがいこつ, rom: zugaikotsu, alt: [頭蓋骨, とうがいこつ, tougaikotsu], note: "Kanji: 頭蓋骨."}
+          collarbone: {l2: さこつ, rom: sakotsu, alt: [鎖骨], note: "Kanji: 鎖骨."}
+          breastbone: {l2: きょうこつ, rom: kyoukotsu, alt: [胸骨, kyōkotsu], note: "Kanji: 胸骨."}
+          ribs: {l2: ろっこつ, rom: rokkotsu, alt: [肋骨, あばらぼね, abarabone], note: "Kanji: 肋骨."}
+          spine: {l2: せぼね, rom: sebone, alt: [背骨], note: "Kanji: 背骨."}
+          pelvis: {l2: こつばん, rom: kotsuban, alt: [骨盤], note: "Kanji: 骨盤."}
+          thighbone: {l2: だいたいこつ, rom: daitaikotsu, alt: [大腿骨], note: "Kanji: 大腿骨."}
+          kneecap: {l2: ひざのさら, rom: hiza no sara, alt: [膝の皿, しつがいこつ, 膝蓋骨, shitsugaikotsu], note: "Kanji: 膝の皿."}
+          shinbone: {l2: すねのほね, rom: sune no hone, alt: [すねの骨, 脛の骨, けいこつ, 脛骨, keikotsu], note: "Kanji: 脛の骨."}
+
+  - id: ja-pic-03
+    title: "Picture: the face"
+    goal: "I can name the parts of the face."
+    notes: |
+      Describe a feature with **は … が**: *かのじょ は め が おおきい です*,
+      "her eyes are big" (as for her, the eyes are big).
+
+      - **め** (目) is eye, **みみ** (耳) ear, **はな** (鼻) nose, **くち** (口) mouth:
+        short words worth knowing in kanji too.
+      - **は** (歯), a tooth, is read *ha*; the particle は is the one read *wa*.
+      - **かみ** (髪) is the hair on your head; *かみのけ* (髪の毛) too.
+    items:
+      - id: ja-pic-face
+        type: picture
+        picture: face
+        pins:
+          hair: {l2: かみ, rom: kami, alt: [髪, かみのけ, 髪の毛, kami no ke], note: "Kanji: 髪."}
+          forehead: {l2: ひたい, rom: hitai, alt: [額, おでこ, odeko], note: "Kanji: 額."}
+          eyebrow: {l2: まゆげ, rom: mayuge, alt: [眉毛, まゆ, 眉, mayu], note: "Kanji: 眉毛."}
+          eye: {l2: め, rom: me, alt: [目], note: "Kanji: 目."}
+          ear: {l2: みみ, rom: mimi, alt: [耳], note: "Kanji: 耳."}
+          nose: {l2: はな, rom: hana, alt: [鼻], note: "Kanji: 鼻."}
+          cheek: {l2: ほお, rom: hoo, alt: [頬, hō, ほほ, hoho, ほっぺ, hoppe], note: "Kanji: 頬."}
+          mouth: {l2: くち, rom: kuchi, alt: [口], note: "Kanji: 口."}
+          teeth: {l2: は, rom: ha, alt: [歯], note: "Kanji: 歯."}
+          tongue: {l2: した, rom: shita, alt: [舌], note: "Kanji: 舌."}
+          chin: {l2: あご, rom: ago, alt: [顎], note: "Kanji: 顎."}
+
+  - id: ja-pic-04
+    title: "Picture: the house"
+    goal: "I can name the rooms and parts of a house."
+    notes: |
+      Say where a room is with **に あります**: *だいどころ は いっかい に
+      あります*, "the kitchen is on the ground floor" (いっかい = first floor).
+
+      - **いま** (居間) is the living room; many families just say *リビング*.
+      - **ふろば** (風呂場) is the room with the bath; the toilet is a separate
+        room, *トイレ*.
+      - **ドア** is a Western door; a sliding paper door is *ふすま* or *しょうじ*.
+    items:
+      - id: ja-pic-house
+        type: picture
+        picture: house
+        pins:
+          roof: {l2: やね, rom: yane, alt: [屋根], note: "Kanji: 屋根."}
+          chimney: {l2: えんとつ, rom: entotsu, alt: [煙突], note: "Kanji: 煙突."}
+          bedroom: {l2: しんしつ, rom: shinshitsu, alt: [寝室], note: "Kanji: 寝室."}
+          bathroom: {l2: ふろば, rom: furoba, alt: [風呂場, おふろ, お風呂, ofuro, よくしつ, 浴室, yokushitsu], note: "Kanji: 風呂場."}
+          window: {l2: まど, rom: mado, alt: [窓], note: "Kanji: 窓."}
+          stairs: {l2: かいだん, rom: kaidan, alt: [階段], note: "Kanji: 階段."}
+          living_room: {l2: いま, rom: ima, alt: [居間, リビング, ribingu], note: "Kanji: 居間."}
+          kitchen: {l2: だいどころ, rom: daidokoro, alt: [台所, キッチン, kitchin, kicchin], note: "Kanji: 台所."}
+          door: {l2: ドア, rom: doa, alt: [とびら, 扉, tobira]}
+          garden: {l2: にわ, rom: niwa, alt: [庭], note: "Kanji: 庭."}
+
+  - id: ja-pic-05
+    title: "Picture: the kitchen"
+    goal: "I can name the things in a kitchen and on the table."
+    notes: |
+      Many kitchen words are loanwords in katakana: **テーブル** (table),
+      **ナイフ**, **フォーク**, **スプーン**, **カップ**. The long mark ー
+      doubles the vowel: テーブル *teeburu*.
+
+      - **れいぞうこ** (冷蔵庫, "cold store") is the fridge.
+      - **コンロ** is the cooker hob, often a gas *ガスコンロ*.
+      - **ながし** (流し) is the kitchen sink.
+    items:
+      - id: ja-pic-kitchen
+        type: picture
+        picture: kitchen
+        pins:
+          fridge: {l2: れいぞうこ, rom: reizouko, alt: [冷蔵庫, reizōko], note: "Kanji: 冷蔵庫."}
+          stove: {l2: コンロ, rom: konro, alt: [ガスコンロ, gasukonro]}
+          sink: {l2: ながし, rom: nagashi, alt: [流し, シンク, shinku], note: "Kanji: 流し."}
+          chair: {l2: いす, rom: isu, alt: [椅子], note: "Kanji: 椅子."}
+          table: {l2: テーブル, rom: teeburu, alt: [tēburu]}
+          fork: {l2: フォーク, rom: fooku, alt: [fōku]}
+          plate: {l2: さら, rom: sara, alt: [皿, おさら, お皿, osara], note: "Kanji: 皿."}
+          knife: {l2: ナイフ, rom: naifu}
+          spoon: {l2: スプーン, rom: supuun, alt: [supūn]}
+          cup: {l2: カップ, rom: kappu, alt: [コップ, koppu]}
+
+  - id: ja-pic-06
+    title: "Picture: clothes"
+    goal: "I can name everyday clothes."
+    notes: |
+      Japanese has different verbs for wearing: **きます** for the upper body
+      (シャツ を きます), **はきます** for the legs and feet (ズボン, くつした, くつ),
+      **かぶります** for a hat, **します** for a scarf, a belt or gloves.
+
+      - **ズボン** is trousers; **スカート** a skirt.
+      - **くつ** (靴) is shoes; **くつした** (靴下, "under the shoe") socks.
+    items:
+      - id: ja-pic-clothes
+        type: picture
+        picture: clothes
+        pins:
+          hat: {l2: ぼうし, rom: boushi, alt: [帽子, bōshi], note: "Kanji: 帽子."}
+          scarf: {l2: マフラー, rom: mafuraa, alt: [mafurā]}
+          shirt: {l2: シャツ, rom: shatsu}
+          jacket: {l2: ジャケット, rom: jaketto, alt: [うわぎ, 上着, uwagi]}
+          belt: {l2: ベルト, rom: beruto}
+          trousers: {l2: ズボン, rom: zubon}
+          shoes: {l2: くつ, rom: kutsu, alt: [靴], note: "Kanji: 靴."}
+          gloves: {l2: てぶくろ, rom: tebukuro, alt: [手袋], note: "Kanji: 手袋."}
+          skirt: {l2: スカート, rom: sukaato, alt: [sukāto]}
+          socks: {l2: くつした, rom: kutsushita, alt: [靴下], note: "Kanji: 靴下."}
+
+  - id: ja-pic-07
+    title: "Picture: the town"
+    goal: "I can name the places in a town."
+    notes: |
+      Ask with **… は どこ です か**: *えき は どこ です か*, "where is the station?"
+
+      - **しんごう** (信号, "signal") is the traffic light.
+      - **おうだんほどう** (横断歩道, "walkway for crossing") is the zebra crossing.
+      - **バスてい** (バス停) is a bus stop: バス + てい (stop).
+    items:
+      - id: ja-pic-town
+        type: picture
+        picture: town
+        pins:
+          bank: {l2: ぎんこう, rom: ginkou, alt: [銀行, ginkō], note: "Kanji: 銀行."}
+          hospital: {l2: びょういん, rom: byouin, alt: [病院, byōin], note: "Kanji: 病院. Careful: びよういん is a hair salon."}
+          school: {l2: がっこう, rom: gakkou, alt: [学校, gakkō], note: "Kanji: 学校."}
+          station: {l2: えき, rom: eki, alt: [駅], note: "Kanji: 駅."}
+          shop: {l2: みせ, rom: mise, alt: [店, おみせ, お店, omise], note: "Kanji: 店."}
+          restaurant: {l2: レストラン, rom: resutoran}
+          park: {l2: こうえん, rom: kouen, alt: [公園, kōen], note: "Kanji: 公園."}
+          traffic_light: {l2: しんごう, rom: shingou, alt: [信号, shingō], note: "Kanji: 信号."}
+          bus_stop: {l2: バスてい, rom: basutei, alt: [バス停], note: "Kanji: バス停."}
+          crosswalk: {l2: おうだんほどう, rom: oudanhodou, alt: [横断歩道, ōdanhodō], note: "Kanji: 横断歩道."}
+
+  - id: ja-pic-08
+    title: "Picture: the classroom"
+    goal: "I can name the people and things in a classroom."
+    notes: |
+      **せんせい** (先生) is the teacher, and how you speak to one: *たなか せんせい*.
+      A pupil at school is **せいと** (生徒); **がくせい** (学生) is a student,
+      especially at university.
+
+      - **こくばん** (黒板, "black board") is the blackboard.
+      - **とけい** (時計) is both a clock and a watch.
+    items:
+      - id: ja-pic-classroom
+        type: picture
+        picture: classroom
+        pins:
+          clock: {l2: とけい, rom: tokei, alt: [時計], note: "Kanji: 時計."}
+          blackboard: {l2: こくばん, rom: kokuban, alt: [黒板], note: "Kanji: 黒板."}
+          teacher: {l2: せんせい, rom: sensei, alt: [先生], note: "Kanji: 先生."}
+          window: {l2: まど, rom: mado, alt: [窓], note: "Kanji: 窓."}
+          student: {l2: せいと, rom: seito, alt: [生徒, がくせい, 学生, gakusei], note: "Kanji: 生徒."}
+          book: {l2: ほん, rom: hon, alt: [本], note: "Kanji: 本."}
+          pen: {l2: ペン, rom: pen}
+          pencil: {l2: えんぴつ, rom: enpitsu, alt: [鉛筆], note: "Kanji: 鉛筆."}
+          desk: {l2: つくえ, rom: tsukue, alt: [机], note: "Kanji: 机."}
+          bag: {l2: かばん, rom: kaban, alt: [鞄, カバン], note: "Kanji: 鞄."}
+
+  - id: ja-pic-09
+    title: "Picture: a table of food"
+    goal: "I can name common foods and drinks."
+    notes: |
+      To eat is **たべます**, to drink **のみます**: *パン を たべます*,
+      *おちゃ を のみます*.
+
+      - **ごはん** (ご飯) is cooked rice, and a meal in general.
+      - **おちゃ** (お茶) is green tea; お makes it polite.
+      - **みず** (水) is cold water; hot water is *おゆ*.
+    items:
+      - id: ja-pic-meal
+        type: picture
+        picture: meal
+        pins:
+          bread: {l2: パン, rom: pan}
+          rice: {l2: ごはん, rom: gohan, alt: [ご飯], note: "Kanji: ご飯."}
+          fish: {l2: さかな, rom: sakana, alt: [魚], note: "Kanji: 魚."}
+          meat: {l2: にく, rom: niku, alt: [肉], note: "Kanji: 肉."}
+          egg: {l2: たまご, rom: tamago, alt: [卵, 玉子], note: "Kanji: 卵."}
+          apple: {l2: りんご, rom: ringo, alt: [リンゴ, 林檎]}
+          vegetables: {l2: やさい, rom: yasai, alt: [野菜], note: "Kanji: 野菜."}
+          soup: {l2: スープ, rom: suupu, alt: [sūpu]}
+          water: {l2: みず, rom: mizu, alt: [水], note: "Kanji: 水."}
+          tea: {l2: おちゃ, rom: ocha, alt: [お茶], note: "Kanji: お茶."}
+
+  - id: ja-pic-10
+    title: "Picture: the sky and the weather"
+    goal: "I can name the sun, the moon and the weather."
+    notes: |
+      Rain and snow "fall": **あめ が ふります** (it rains), **ゆき が ふります**
+      (it snows). The wind "blows": *かぜ が ふきます*.
+
+      - **あめ** (雨) rain and *あめ* (飴) sweets sound alike; the pitch differs.
+      - **かみなり** (雷) is thunder and lightning; the flash alone is *いなずま*.
+      - **たいよう** (太陽) is the sun; children say *おひさま*.
+    items:
+      - id: ja-pic-sky
+        type: picture
+        picture: sky
+        pins:
+          sun: {l2: たいよう, rom: taiyou, alt: [太陽, taiyō], note: "Kanji: 太陽."}
+          cloud: {l2: くも, rom: kumo, alt: [雲], note: "Kanji: 雲."}
+          rainbow: {l2: にじ, rom: niji, alt: [虹], note: "Kanji: 虹."}
+          lightning: {l2: かみなり, rom: kaminari, alt: [雷, いなずま, 稲妻, inazuma], note: "Kanji: 雷."}
+          rain: {l2: あめ, rom: ame, alt: [雨], note: "Kanji: 雨."}
+          wind: {l2: かぜ, rom: kaze, alt: [風], note: "Kanji: 風."}
+          star: {l2: ほし, rom: hoshi, alt: [星], note: "Kanji: 星."}
+          moon: {l2: つき, rom: tsuki, alt: [月], note: "Kanji: 月."}
+          snow: {l2: ゆき, rom: yuki, alt: [雪], note: "Kanji: 雪."}

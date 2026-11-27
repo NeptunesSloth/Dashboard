@@ -1,0 +1,23 @@
+# A shared picture: the same pins serve every language (see docs/ACADEMY_CONTENT.md,
+# "Picture lessons"). x and y are percent of the 1200x900 painting, from the top left.
+# These are best guesses for the composition in docs/ART_PIPELINE.md "Round 3"; once the
+# painting exists, check them with:  python scripts/pin_preview.py body
+# Never rename a pin id: <item id>-<pin id> is the key of saved progress.
+id: body
+title: "The body"
+brief: "Cultivator's anatomy chart: front view on the left (centre x=33), back view on the right (centre x=68), standing, arms held a little away from the sides."
+pins:
+  - {id: head, x: 38.5, y: 22, en: head}
+  - {id: neck, x: 38.5, y: 30.5, en: neck}
+  - {id: shoulder, x: 56.5, y: 33.5, en: shoulder}
+  - {id: arm, x: 31.5, y: 39, en: arm}
+  - {id: elbow, x: 45.6, y: 42.5, en: elbow}
+  - {id: hand, x: 29.4, y: 55, en: hand}
+  - {id: finger, x: 48.2, y: 56.5, en: finger}
+  - {id: chest, x: 38.5, y: 36.5, en: chest}
+  - {id: stomach, x: 38.5, y: 43, en: stomach}
+  - {id: back, x: 62.5, y: 38, en: back}
+  - {id: leg, x: 35, y: 72, en: leg}
+  - {id: knee, x: 42.3, y: 67, en: knee}
+  - {id: foot, x: 33.5, y: 81.5, en: foot}
+  - {id: toe, x: 45.6, y: 82.3, en: toe}

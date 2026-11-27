@@ -1,0 +1,1045 @@
+part_of: network-plus
+
+units:
+  # ─────────────── 1c · Appliances, cloud, media, topologies, evolving use cases ───────────────
+  - id: np-1c
+    title: "Appliances, cloud, media, topologies and modern networks"
+    domain: "1"
+    goal: "I can describe network appliances, cloud building blocks, media and connectors, topologies, and the evolving use cases (SDN, SD-WAN, VXLAN, zero trust, SASE, IaC, IPv6 transition)."
+    notes: |
+      This unit fills the rest of Domain 1: everything that is not the OSI model, ports or basic subnetting.
+
+      ## How to file each idea
+
+      - **Appliances and functions** — what a box *does*: balance, proxy, store (file-level NAS vs block-level SAN), cache at the edge (CDN), prioritise (QoS), expire looping packets (TTL).
+      - **Cloud** — a **VPC** is your private slice of a provider. Rules attach to a subnet (*security list*) or to an instance (*security group*). An *internet gateway* allows traffic both ways; a *NAT gateway* is outbound only.
+      - **Media** — fiber connectors are told apart by shape and latch; transceivers by channel count and speed.
+
+      | Module | Channels | Typical speed |
+      | SFP | 1 | 1 Gbps |
+      | SFP+ | 1 | 10 Gbps |
+      | QSFP+ | 4 | 40 Gbps |
+      | QSFP28 | 4 | 100 Gbps |
+
+      - **Topologies** — campus networks are *three-tier* or *collapsed core*; data centres are *spine-and-leaf*.
+      - **Evolving use cases** — **SDN** separates control from forwarding, **SD-WAN** applies that to branch links, **VXLAN** stretches Layer 2 over Layer 3, and **SASE** is SD-WAN plus cloud security (**SSE** is the security half alone).
+    items:
+      # ── appliances, applications, functions ──
+      - id: np-1c-loadbalancer
+        type: concept
+        term: "Load balancer"
+        def: "An appliance that spreads incoming client connections across a pool of servers offering the same service, and stops sending work to a member that fails its health checks."
+      - id: np-1c-proxy
+        type: concept
+        term: "Proxy server"
+        def: "An intermediary that makes requests to outside servers on behalf of internal clients, so it can cache replies, filter content and hide the clients' own addresses."
+      - id: np-1c-nas
+        type: concept
+        term: "Network-attached storage (NAS)"
+        def: "A storage appliance on the ordinary LAN that shares files and folders to many clients using file-level protocols such as SMB or NFS."
+      - id: np-1c-san
+        type: concept
+        term: "Storage area network (SAN)"
+        def: "A dedicated high-speed network that presents raw block-level disks to servers, typically over Fibre Channel or iSCSI, so each server treats them like local drives."
+      - id: np-1c-cdn
+        type: concept
+        term: "Content delivery network (CDN)"
+        def: "A geographically spread set of edge caches that serves copies of web content from a location near each user, cutting delay and load on the origin server."
+
+      # ── cloud concepts and connectivity ──
+      - id: np-1c-nfv
+        type: concept
+        term: "Network functions virtualization (NFV)"
+        def: "Replacing dedicated hardware appliances such as routers, firewalls and load balancers with software instances that run on standard virtualised servers."
+      - id: np-1c-vpc
+        type: concept
+        term: "Virtual private cloud (VPC)"
+        def: "A logically isolated section of a public provider's network in which one customer defines its own address ranges, subnets and route tables."
+      - id: np-1c-nsg
+        type: concept
+        term: "Network security group"
+        def: "A set of cloud firewall rules applied to chosen individual virtual machines or their virtual network interfaces, wherever they sit, rather than to a whole subnet."
+      - id: np-1c-nsl
+        type: concept
+        term: "Network security list"
+        def: "A set of cloud firewall rules applied to a subnet as a whole, so that every resource placed in that subnet receives the same rules."
+      - id: np-1c-igw
+        type: concept
+        term: "Internet gateway"
+        def: "The cloud network component that gives resources holding public addresses two-way connectivity with the internet, so outside hosts can start connections to them."
+      - id: np-1c-natgw
+        type: concept
+        term: "NAT gateway"
+        def: "The managed cloud service that lets instances in a private subnet start outbound internet connections while refusing connections initiated from outside."
+      - id: np-1c-directconnect
+        type: concept
+        term: "Direct Connect (dedicated cloud link)"
+        def: "A private circuit leased between an organisation's premises and a cloud provider that bypasses the public internet, giving steadier latency and throughput than a VPN."
+      - id: np-1c-elasticity
+        type: concept
+        term: "Elasticity"
+        def: "The cloud property of automatically adding resources when demand rises and releasing them again when it falls, so capacity tracks load in near real time."
+
+      # ── IP protocol types ──
+      - id: np-1c-gre
+        type: concept
+        term: "GRE"
+        def: "A tunnelling protocol (IP protocol 47) that wraps many kinds of Layer 3 packets, including multicast, inside IP, but provides no encryption of its own."
+      - id: np-1c-ah
+        type: concept
+        term: "Authentication Header (AH)"
+        def: "The IPsec protocol (IP protocol 51) that proves a packet's origin and integrity, covering the outer IP header too, but leaves the payload unencrypted."
+      - id: np-1c-esp
+        type: concept
+        term: "Encapsulating Security Payload (ESP)"
+        def: "The IPsec protocol (IP protocol 50) that encrypts the payload for confidentiality and can also authenticate it."
+      - id: np-1c-ike
+        type: concept
+        term: "Internet Key Exchange (IKE)"
+        def: "The protocol on UDP port 500 that authenticates two IPsec peers and negotiates their keys and security associations before any protected data flows."
+
+      # ── transmission media, transceivers, connectors ──
+      - id: np-1c-mmf
+        type: concept
+        term: "Multimode fiber"
+        def: "Optical cable with a wide core (50 or 62.5 microns) that carries many light paths from LED or VCSEL sources; the optics are cheap but high-speed runs are limited to a few hundred metres."
+      - id: np-1c-dac
+        type: concept
+        term: "Direct attach copper (DAC)"
+        def: "A fixed-length twinaxial cable with a transceiver-style module moulded onto each end, used for short, cheap, high-speed links inside a rack or between adjacent racks."
+      - id: np-1c-plenum
+        type: concept
+        term: "Plenum-rated cable"
+        def: "Cable with a fire-retardant, low-smoke jacket, required by fire codes in the air-handling spaces above drop ceilings and under raised floors."
+      - id: np-1c-sfp
+        type: concept
+        term: "SFP"
+        def: "A hot-swappable, single-channel transceiver module that slides into a switch port; the base form runs at 1 Gbps and its '+' version at 10 Gbps."
+      - id: np-1c-qsfp
+        type: concept
+        term: "QSFP"
+        def: "A hot-swappable transceiver module that carries four channels in one housing: 4 x 10 Gbps for 40 Gbps in its '+' version, 4 x 25 Gbps for 100 Gbps in its '28' version."
+      - id: np-1c-lc
+        type: concept
+        term: "LC connector"
+        def: "A small-form-factor fiber connector with a 1.25 mm ferrule and a push-in clip like a miniature RJ45 latch; normally used as a duplex pair in pluggable optics."
+      - id: np-1c-mpo
+        type: concept
+        term: "MPO connector"
+        def: "A rectangular fiber connector that terminates many strands (commonly 12 or 24) in a single ferrule, used for parallel 40/100 Gbps optics and trunk cables."
+      - id: np-1c-bnc
+        type: concept
+        term: "BNC connector"
+        def: "A coaxial connector that locks with a quarter-turn bayonet twist, found on legacy thin Ethernet, test equipment and video links."
+
+      # ── topologies, architectures, traffic flows ──
+      - id: np-1c-spineleaf
+        type: concept
+        term: "Spine-and-leaf"
+        def: "A two-layer data-centre design in which every access switch connects to every switch in the layer above and to none in its own layer, so any two servers are the same number of hops apart."
+      - id: np-1c-threetier
+        type: concept
+        term: "Three-tier hierarchical model"
+        def: "A campus design with separate access, distribution and core layers: end devices plug in at the bottom, policy and inter-VLAN routing sit in the middle, and fast transport runs across the top."
+      - id: np-1c-collapsed
+        type: concept
+        term: "Collapsed core"
+        def: "A design for smaller sites in which the backbone and distribution functions are merged into one pair of switches, leaving two layers instead of three."
+      - id: np-1c-fullmesh
+        type: concept
+        term: "Full mesh"
+        def: "A layout in which every node has a direct link to every other node, needing n(n-1)/2 links: the most redundancy at the highest cost."
+
+      # ── IPv4 addressing ──
+      - id: np-1c-loopback
+        type: concept
+        term: "Loopback address"
+        def: "An address in 127.0.0.0/8 (::1 in IPv6) that makes a host send traffic to itself, used to test the local TCP/IP stack without putting anything on the wire."
+      - id: np-1c-vlsm
+        type: concept
+        term: "VLSM"
+        def: "The practice of dividing one address block into subnets of different sizes, giving each segment a prefix length that matches its own host count."
+
+      # ── 1.8 evolving use cases ──
+      - id: np-1c-sdn
+        type: concept
+        term: "Software-defined networking (SDN)"
+        def: "An architecture that separates the control plane from the data plane, so a central controller programs the forwarding behaviour of many devices through APIs."
+      - id: np-1c-sdwan
+        type: concept
+        term: "SD-WAN"
+        def: "An overlay that joins branch sites over any mix of MPLS, broadband and cellular circuits and steers each application onto the best current path under centrally managed policy."
+      - id: np-1c-vxlan
+        type: concept
+        term: "VXLAN"
+        def: "An overlay that wraps Layer 2 frames in UDP (port 4789) and labels them with a 24-bit identifier, allowing about 16 million isolated segments stretched across a routed network."
+      - id: np-1c-zta
+        type: concept
+        term: "Zero trust architecture (ZTA)"
+        def: "A security model in which no user or device is trusted because of its network location; every request is authenticated and authorised by policy before it is allowed through."
+      - id: np-1c-sase
+        type: concept
+        term: "SASE"
+        def: "A cloud-delivered service that combines SD-WAN connectivity with security functions such as a secure web gateway, CASB, firewall as a service and zero trust network access."
+      - id: np-1c-iac
+        type: concept
+        term: "Infrastructure as code (IaC)"
+        def: "Defining network and server configuration in machine-readable files that are kept in version control and applied by automation instead of by hand."
+      - id: np-1c-dualstack
+        type: concept
+        term: "Dual stack"
+        def: "Running IPv4 and IPv6 side by side on the same hosts and routers, so each device can speak either protocol natively."
+      - id: np-1c-nat64
+        type: concept
+        term: "NAT64"
+        def: "A gateway mechanism that lets IPv6-only clients reach IPv4-only servers by rewriting packet headers from one protocol version to the other."
+
+      # ── checks ──
+      - id: np-1c-q01
+        type: mcq
+        q: "A branch WAN link fills up whenever backups run, and phone calls break up. Extra bandwidth cannot be bought. Which function should be configured so that voice is forwarded first?"
+        choices: ["Time to live (TTL)", "Network address translation", "Quality of service (QoS)", "Port mirroring"]
+        answer: 2
+        why: "QoS classifies traffic and gives delay-sensitive classes such as voice priority when a link is congested. TTL only limits how many hops a packet may live; it does nothing for priority."
+      - id: np-1c-q02
+        type: mcq
+        q: "Two misconfigured routers each point to the other for the same destination. Which IP header field guarantees that a packet caught between them is eventually discarded?"
+        choices: ["Time to live (TTL)", "Header checksum", "Fragment offset", "DSCP marking"]
+        answer: 0
+        why: "Every router decrements the TTL by one and drops the packet when it reaches zero, so a looping packet cannot circulate forever. The checksum only detects a corrupted header."
+      - id: np-1c-q03
+        type: mcq
+        q: "A security team wants malicious packets dropped before they reach the servers, not just reported. Which device and placement meets that goal?"
+        choices:
+          - "An IDS connected to a mirror port"
+          - "An IDS placed inline behind the firewall"
+          - "An IPS connected to a mirror port"
+          - "An IPS placed inline with the traffic"
+        answer: 3
+        why: "Only a device that sits in the traffic path can drop packets, and prevention is the job of an IPS. Anything on a mirror port sees a copy of the traffic, so it can alert but the original packet has already gone by."
+      - id: np-1c-q04
+        type: mcq
+        q: "A campus has 60 access points that must share the same SSIDs, be configured from one place and hand roaming clients over smoothly. Which appliance provides this?"
+        choices: ["Load balancer", "Wireless LAN controller", "Proxy server", "Wireless range extender"]
+        answer: 1
+        why: "A wireless LAN controller manages lightweight access points centrally: configuration, channels, power and roaming. A range extender just repeats one access point's signal and manages nothing."
+      - id: np-1c-q05
+        type: mcq
+        q: "Developers want to upload application code and have the provider look after the operating system, patching and runtime underneath it. Which service model is this?"
+        choices: ["IaaS", "PaaS", "SaaS", "Private cloud"]
+        answer: 1
+        why: "Platform as a service supplies a managed OS and runtime; the customer brings only code and data. IaaS would hand the developers bare virtual machines whose operating systems they must patch themselves."
+      - id: np-1c-q06
+        type: mcq
+        q: "A company replaces its on-site mail server with a subscription where staff just sign in to a hosted mailbox through a browser. The company manages only its users and data. Which service model is this?"
+        choices: ["IaaS", "PaaS", "NFV", "SaaS"]
+        answer: 3
+        why: "Software as a service delivers a finished application; the provider runs everything beneath it. With PaaS the company would still be deploying and maintaining its own mail application."
+      - id: np-1c-q07
+        type: mcq
+        q: "A hospital keeps its patient database in its own data centre but runs its public website on a cloud provider, with the two linked by a VPN. Which deployment model is this?"
+        choices: ["Hybrid cloud", "Public cloud", "Private cloud", "Multitenant cloud"]
+        answer: 0
+        why: "Hybrid means private (on-premises) and public cloud resources working together. It is not simply public cloud, because the database never leaves infrastructure the hospital owns."
+      - id: np-1c-q08
+        type: mcq
+        q: "A provider runs the virtual machines of hundreds of unrelated customers on the same physical hosts, keeping them logically isolated from each other. Which term describes this?"
+        choices: ["Elasticity", "Scalability", "Multitenancy", "Network functions virtualization"]
+        answer: 2
+        why: "Multitenancy is many customers (tenants) sharing the same underlying hardware with logical separation. Elasticity is about capacity growing and shrinking with demand, not about who shares the hardware."
+      - id: np-1c-q09
+        type: mcq
+        q: "An application is designed so that, as the business grows over the next five years, more nodes can be added to carry ten times today's users. Which property is being described?"
+        choices: ["Multitenancy", "Elasticity", "High availability", "Scalability"]
+        answer: 3
+        why: "Scalability is the ability to grow capacity to meet higher long-term demand. Elasticity is the nearest neighbour, but it means automatic growth and shrinkage following short-term swings in load."
+      - id: np-1c-q10
+        type: mcq
+        q: "A ping returns 'Destination host unreachable' from a router along the path. Which protocol carries that error message back to the sender?"
+        choices: ["IGMP", "ICMP", "GRE", "ARP"]
+        answer: 1
+        why: "ICMP carries IP's error and diagnostic messages, including echo request/reply and destination unreachable. IGMP sounds similar but manages multicast group membership."
+      - id: np-1c-q11
+        type: mcq
+        q: "A cable modem is connected to the provider's coaxial drop with a connector that screws onto a threaded post. Which connector is it?"
+        choices: ["F-type", "BNC", "RJ11", "ST"]
+        answer: 0
+        why: "F-type is the threaded coaxial connector used for cable television and cable broadband. BNC is also coaxial, but it locks with a bayonet quarter-turn rather than a thread."
+      - id: np-1c-q12
+        type: mcq
+        q: "An old fiber patch panel uses round connectors that are pushed in and locked with a bayonet twist. Which connector type is this?"
+        choices: ["SC", "LC", "ST", "MPO"]
+        answer: 2
+        why: "ST ('straight tip') is the round, twist-lock fiber connector. SC is the tempting one, but it is square and uses a push-pull latch with no twist."
+      - id: np-1c-q13
+        type: mcq
+        q: "A DSL modem is plugged into the telephone wall jack with a small plug that has six positions and uses only the centre pair of wires. Which connector is it?"
+        choices: ["RJ45", "RJ11", "F-type", "BNC"]
+        answer: 1
+        why: "RJ11 is the small telephone-line connector. RJ45 looks alike but is wider, with eight positions and all eight wires used for Ethernet."
+      - id: np-1c-q14
+        type: mcq
+        q: "A research station is 200 km from the nearest cable or mobile tower and needs an internet link. Which medium can serve it, at the price of high latency?"
+        choices: ["Cellular", "802.11 wireless", "Multimode fiber", "Satellite"]
+        answer: 3
+        why: "Satellite reaches almost anywhere with a view of the sky, but the long radio path adds delay. Cellular needs a tower within range, which the scenario rules out."
+      - id: np-1c-q15
+        type: mcq
+        q: "Twelve branch offices each have one tunnel to headquarters and none to each other; branch-to-branch traffic passes through headquarters. Which topology is this?"
+        choices: ["Full mesh", "Point-to-point", "Hub-and-spoke", "Spine-and-leaf"]
+        answer: 2
+        why: "One central site with a single link to each outlying site is hub-and-spoke (a star). A full mesh would give every branch a direct tunnel to every other branch."
+      - id: np-1c-q16
+        type: mcq
+        q: "A router sends routing hellos to 224.0.0.5. To which IPv4 address class does this destination belong, and what is that class for?"
+        choices:
+          - "Class D — multicast groups"
+          - "Class C — small networks"
+          - "Class E — experimental use"
+          - "Class B — medium networks"
+        answer: 0
+        why: "Class D is 224 to 239 in the first octet and is reserved for multicast. Class E starts at 240, and Class C ends at 223."
+      - id: np-1c-q17
+        type: mcq
+        q: "A company is happy with its existing WAN but wants a cloud-delivered secure web gateway, CASB and zero trust network access for its remote users. Which offering is exactly that set, with no networking component?"
+        choices: ["SASE", "SD-WAN", "VXLAN", "SSE"]
+        answer: 3
+        why: "Security service edge is the security half of SASE: SWG, CASB and ZTNA delivered from the cloud. SASE would add the SD-WAN networking the company says it does not need."
+      - id: np-1c-q18
+        type: mcq
+        q: "After several late-night manual fixes, a switch's running configuration no longer matches the template stored in the automation repository. What is this called?"
+        choices: ["Branching", "Configuration drift", "Dynamic inventory", "Conflict identification"]
+        answer: 1
+        why: "Drift is a device moving away from its defined, intended configuration through unmanaged change. Conflict identification is a source-control feature that flags two edits to the same lines of a file, not a device differing from its template."
+
+  # ─────────────────────── 1d · Exam-hard practice: architecture ───────────────────────
+  - id: np-1d
+    title: "Exam-hard practice: appliances, cloud, media and architecture"
+    domain: "1"
+    goal: "I can pick the best appliance, cloud component, medium, topology or modern architecture for a scenario and say why the nearest alternative is wrong."
+    notes: |
+      These questions are written to be **harder than the exam**. Each one turns on a pair of near-neighbours, so train yourself to name the pair before you read the choices.
+
+      ## Pairs that decide most questions
+
+      | If the stem says… | It is… | Not… |
+      | block-level, Fibre Channel, LUN | SAN | NAS |
+      | follows the VM, per interface | security group | security list |
+      | outbound only from a private subnet | NAT gateway | internet gateway |
+      | must not cross the internet | Direct Connect | VPN |
+      | appliances become VMs | NFV | SDN |
+      | controller programs the switches | SDN | NFV |
+      | networking *and* security from the cloud | SASE | SSE |
+      | IPv6-only client, IPv4-only server | NAT64 | tunnelling |
+
+      ## Method
+
+      - Underline the **constraint** (distance, speed, 'must not', 'without touching').
+      - Decide what is *happening* before choosing what to *do*.
+      - For BEST and MOST, expect two answers that work; pick the one that meets every constraint.
+
+      The *order* items stand in for performance-based questions: say the sequence aloud before you drag anything.
+    items:
+      - id: np-1d-q01
+        type: mcq
+        q: "A shop's website runs on four identical web servers reached through DNS round-robin. When the web service on one server crashes, about a quarter of visitors get errors until an administrator edits DNS. Which change BEST removes this problem?"
+        choices:
+          - "Add a forward proxy in front of the four servers"
+          - "Place a load balancer with health checks in front of the servers"
+          - "Configure a first-hop redundancy protocol on the servers' default gateway"
+          - "Move the DNS zone to a second DNS provider"
+        answer: 1
+        why: "A load balancer probes each pool member and stops sending clients to one that fails, with no DNS edit. An FHRP only protects the default gateway; it knows nothing about whether a web service behind it is alive."
+      - id: np-1d-q02
+        type: mcq
+        q: "A sensor attached to a switch mirror port logged: 'ALERT SQL injection 203.0.113.9 -> 10.0.5.20:443'. The attack still succeeded, and management asks why it was not stopped. What is the MOST likely explanation?"
+        choices:
+          - "The sensor's signatures were out of date"
+          - "The traffic was encrypted, so the sensor could not read it"
+          - "The inline IPS failed open under load"
+          - "The sensor is a passive IDS that only receives a copy of the traffic"
+        answer: 3
+        why: "A device on a mirror port sees copies of packets, so it can detect and alert but cannot drop the originals: it is an IDS. The alert itself proves the signature matched and the content was readable, which rules out stale signatures and encryption."
+      - id: np-1d-q03
+        type: mcq
+        q: "A cloud subnet holds 20 virtual machines. Only the two database VMs may accept TCP 1433 from the application tier, and the rule must stay with those two VMs if they are later moved to another subnet. Which control is BEST?"
+        choices:
+          - "A network security group applied to the two VMs' interfaces"
+          - "A network security list applied to the subnet"
+          - "A route table entry pointing the subnet at a NAT gateway"
+          - "An internet gateway attached to the VPC"
+        answer: 0
+        why: "A security group binds to specific instances or interfaces, so it covers just the two database VMs and moves with them. A security list applies to the whole subnet: it would open the port to all 20 VMs and would not follow a VM that moved."
+      - id: np-1d-q04
+        type: mcq
+        q: "Instances in a private subnet of a VPC (10.0.2.0/24, no public addresses) must download operating system patches from the internet but must never accept a connection started from the internet. The subnet's route table contains only the local VPC route. What should be added?"
+        choices:
+          - "A default route to an internet gateway"
+          - "A default route to the Direct Connect circuit"
+          - "A default route to a NAT gateway in a public subnet"
+          - "A network security list entry permitting all inbound traffic"
+        answer: 2
+        why: "A NAT gateway translates the private instances' outbound connections and has no way for outsiders to initiate a session inward. A route straight to the internet gateway does not work for instances without public addresses, and giving them public addresses would expose them."
+      - id: np-1d-q05
+        type: mcq
+        q: "A bank replicates about 10 Gbps of data to its cloud VPC every night. Latency must be consistent, and a regulator forbids the traffic from crossing the public internet even when encrypted. A lead time of several weeks is acceptable. Which connectivity option is BEST?"
+        choices:
+          - "A site-to-site IPsec VPN over the existing internet links"
+          - "A client-to-site VPN from each replication server"
+          - "A dedicated private circuit to the provider (Direct Connect)"
+          - "HTTPS transfers through the VPC's internet gateway"
+        answer: 2
+        why: "A dedicated circuit never touches the public internet and gives predictable latency and throughput. A site-to-site VPN is quicker and cheaper to set up, but it still rides the internet, which the regulator rules out."
+      - id: np-1d-q06
+        type: mcq
+        q: "A firm runs a virtual firewall image on a provider's IaaS virtual machines. Two advisories arrive on the same day: one for the provider's hypervisor and one for the operating system inside the firewall image. Who is responsible for patching each?"
+        choices:
+          - "The provider patches the hypervisor; the firm patches the firewall image"
+          - "The provider patches both"
+          - "The firm patches both"
+          - "The firm patches the hypervisor; the provider patches the firewall image"
+        answer: 0
+        why: "In IaaS the provider owns the physical hosts and the virtualisation layer, and the customer owns everything from the guest operating system upward. 'The provider patches both' would be true of SaaS, not IaaS."
+      - id: np-1d-q07
+        type: mcq
+        q: "Each branch has a separate hardware router, firewall and WAN optimiser. The company wants to replace them with one standard x86 server per branch that runs all three as software instances which can be started or replaced remotely. Which concept is being adopted?"
+        choices: ["Software-defined networking", "VXLAN", "Infrastructure as code", "Network functions virtualization"]
+        answer: 3
+        why: "NFV turns purpose-built appliances into virtual instances on commodity hardware. SDN is the near neighbour, but it is about moving the control plane to a central controller, not about virtualising the appliances themselves."
+      - id: np-1d-q08
+        type: mcq
+        q: "In an SDN fabric the controller goes offline. Switches keep forwarding traffic that matches the rules they already hold, but no new forwarding decisions can be calculated or installed. Which plane has been lost?"
+        choices: ["Data plane", "Control plane", "Management plane", "Application plane"]
+        answer: 1
+        why: "In SDN the controller is the centralised control plane that works out forwarding decisions. The data plane is the switches moving packets, which the stem says still works; the management plane is administrative access to devices, not the calculation of forwarding decisions."
+      - id: np-1d-q09
+        type: mcq
+        q: "Every branch has an MPLS circuit, a broadband line and an LTE modem. Voice must move off any circuit whose jitter passes 30 ms, automatically, and policy must be set once for all 80 branches. Which solution BEST meets this?"
+        choices:
+          - "SD-WAN with application-aware path selection"
+          - "A VXLAN overlay between the branch switches"
+          - "Static routes with different metrics on each branch router"
+          - "A second MPLS circuit with a first-hop redundancy protocol"
+        answer: 0
+        why: "SD-WAN measures each transport continuously, steers each application to a path that meets its needs, and is managed from one central policy. Static routes with metrics only fail over when a link is down, not when it is merely jittery, and must be set router by router."
+      - id: np-1d-q10
+        type: mcq
+        q: "At a new branch, an office manager with no networking skills unpacks the SD-WAN edge device, cables it and switches it on. Within minutes it has contacted the orchestrator and is running the full branch configuration. Which SD-WAN characteristic made this possible?"
+        choices: ["Transport agnosticism", "Application awareness", "Zero-touch provisioning", "Central policy management"]
+        answer: 2
+        why: "Zero-touch provisioning lets a factory-default device call home and configure itself with no local set-up. Central policy management is the tempting choice, but it describes defining policy in one place, not how a brand-new device gets onboarded."
+      - id: np-1d-q11
+        type: mcq
+        q: "Two data centres are joined only by a routed Layer 3 link. Virtual machines must migrate between them keeping their IP addresses and Layer 2 adjacency, and the operator needs more than 10,000 isolated tenant segments. Which technology BEST fits?"
+        choices: ["802.1Q trunking between the sites", "VXLAN", "A GRE tunnel", "SD-WAN"]
+        answer: 1
+        why: "VXLAN encapsulates Layer 2 frames in UDP so they cross a routed network, and its 24-bit identifier allows about 16 million segments. 802.1Q needs a Layer 2 path and its 12-bit VLAN ID tops out at 4,094 usable VLANs."
+      - id: np-1d-q12
+        type: mcq
+        q: "Once contractors connect to the VPN they can reach every internal subnet. The company decides to adopt zero trust. Which change BEST reflects that model?"
+        choices:
+          - "Keep the VPN but move contractors to a stronger cipher and longer passwords"
+          - "Install a second perimeter firewall from a different vendor behind the first"
+          - "Allow contractors full access only when they connect from the office LAN"
+          - "Check each request against identity and device policy and allow only that application"
+        answer: 3
+        why: "Zero trust removes trust based on network location: every request is authenticated and authorised by policy, with least-privilege access. Trusting the office LAN is exactly the location-based assumption zero trust throws away."
+      - id: np-1d-q13
+        type: mcq
+        q: "A retailer with 200 stores wants to retire its store firewalls and MPLS circuits and buy, as one cloud service with one policy console, both optimised WAN connectivity and security inspection for every store and remote user. Which offering matches?"
+        choices: ["SSE", "SD-WAN", "A CDN", "SASE"]
+        answer: 3
+        why: "SASE converges SD-WAN networking with cloud-delivered security into one service. SSE supplies only the security half, and SD-WAN alone supplies only the networking half."
+      - id: np-1d-q14
+        type: mcq
+        q: "Two engineers each change the same lines of an ACL template on separate branches. When the second engineer tries to merge, the tool stops and marks the overlapping lines for a human decision. Which source-control capability is this?"
+        choices: ["Branching", "Conflict identification", "Central repository", "Dynamic inventory"]
+        answer: 1
+        why: "Detecting that two changes touch the same lines and refusing to merge silently is conflict identification. Branching is what let the engineers work in parallel, but it is not the feature that caught the overlap."
+      - id: np-1d-q15
+        type: mcq
+        q: "An automation playbook targets a hand-written list of 40 server addresses. The cloud environment now adds and removes instances every hour, and new instances are being missed. Which IaC feature BEST fixes this?"
+        choices:
+          - "A library of reusable tasks shared between playbooks"
+          - "Version control of the hand-written address list"
+          - "A dynamic inventory built from the provider's API at run time"
+          - "A separate repository branch for each new instance"
+        answer: 2
+        why: "A dynamic inventory asks the platform what exists each time the automation runs, so it always targets the current hosts. Version control would record every edit to the static list but someone would still have to make those edits by hand."
+      - id: np-1d-q16
+        type: mcq
+        q: "A mobile operator gives handsets IPv6 addresses only. Subscribers must still reach a legacy web server that has only an IPv4 address. Which mechanism makes this work?"
+        choices: ["NAT64", "Dual stack on the handsets", "A 6to4 tunnel", "Port address translation"]
+        answer: 0
+        why: "NAT64 translates between IPv6 and IPv4 headers at a gateway, letting IPv6-only clients talk to IPv4-only servers. Tunnelling carries IPv6 across an IPv4 network between two IPv6 endpoints; it does not let different protocol versions talk to each other."
+      - id: np-1d-q17
+        type: mcq
+        q: "Two offices run IPv6 on all hosts, but the only path between them is a carrier backbone that will remain IPv4-only. No address translation is wanted. Which approach connects the two offices?"
+        choices:
+          - "NAT64 gateways at the edge of each office"
+          - "Enabling SLAAC on the routers in both offices"
+          - "Tunnelling the IPv6 packets inside IPv4 across the backbone"
+          - "Enabling dual stack on the hosts in both offices"
+        answer: 2
+        why: "Both ends speak IPv6 and only the middle is IPv4, so the IPv6 packets are encapsulated in IPv4 to cross it. Dual stack on the hosts does not help because the backbone still cannot route IPv6, and NAT64 is translation, which is not wanted."
+      - id: np-1d-q18
+        type: mcq
+        q: "Forty-eight servers must each connect at 25 Gbps to a top-of-rack switch in the same rack, a cable run of 2 m. Cost and power use must be as low as possible. Which medium is BEST?"
+        choices:
+          - "Single-mode fiber with long-reach optics"
+          - "Multimode fiber with short-reach optics"
+          - "Cat 6A twisted pair"
+          - "Direct attach copper (twinaxial) cables"
+        answer: 3
+        why: "A passive DAC has the 'transceivers' built into a short twinax cable, so it is the cheapest, lowest-power option for a few metres. Multimode with short-reach optics also works but needs two powered optical modules per link; Cat 6A is rated to 10 Gbps, not 25."
+      - id: np-1d-q19
+        type: mcq
+        q: "A technician is cabling a 40GBASE-SR4 QSFP+ module in each of two switches 60 m apart. Which cable and connector does this module expect?"
+        choices:
+          - "Multimode fiber terminated with an MPO connector"
+          - "Single-mode fiber terminated with a duplex LC connector"
+          - "Multimode fiber terminated with ST connectors"
+          - "Twinaxial copper terminated with an RJ45 connector"
+        answer: 0
+        why: "SR4 is short-reach parallel optics: four transmit and four receive multimode fibers presented in one MPO connector. Duplex LC on single-mode is what the long-reach LR4 version uses, where the four lanes are multiplexed onto one fiber pair."
+      - id: np-1d-q20
+        type: mcq
+        q: "A storage administrator buys SFP+ modules labelled 10GBASE-SR for the ports of a SAN switch that connects servers to a disk array at 16 Gbps. The ports stay down. Which module should have been ordered?"
+        choices:
+          - "A 10GBASE-LR Ethernet SFP+ module"
+          - "A Fibre Channel SFP+ module"
+          - "A 40GBASE-SR4 Ethernet QSFP+ module"
+          - "A 1000BASE-SX Ethernet SFP module"
+        answer: 1
+        why: "A SAN switch of this kind speaks Fibre Channel, and its transceivers must be built for Fibre Channel speeds. 10GBASE-SR is an Ethernet standard, so the form factor fits but the protocol does not match; swapping to 10GBASE-LR changes only the reach and is still Ethernet."
+      - id: np-1d-q21
+        type: mcq
+        q: "A data centre has 4 spine switches and 20 leaf switches. Server ports are plentiful, but traffic between racks is congested because the leaf uplinks are oversubscribed. Which change follows the spine-and-leaf design?"
+        choices:
+          - "Add a leaf switch and connect it to one spine"
+          - "Add a spine switch and connect it to every leaf"
+          - "Connect neighbouring leaf switches directly to each other"
+          - "Add a core layer above the spine switches"
+        answer: 1
+        why: "In spine-and-leaf, more spines add east-west capacity and more leaves add ports; each new spine links to every leaf. Leaf-to-leaf links break the rule that every path is leaf-spine-leaf and the equal hop count that goes with it."
+      - id: np-1d-q22
+        type: mcq
+        q: "A single building has 300 users and six access switches, a tight budget and no growth planned. The first design shows separate pairs of core and distribution switches. Which alternative is MOST appropriate?"
+        choices:
+          - "A collapsed core"
+          - "A spine-and-leaf fabric"
+          - "A full mesh between the access switches"
+          - "A three-tier design with a second core pair"
+        answer: 0
+        why: "A small site does not need a separate backbone layer, so core and distribution are merged into one pair to save cost. Spine-and-leaf is built for data-centre server traffic, not for a small campus of user ports."
+      - id: np-1d-q23
+        type: mcq
+        q: "In a three-tier campus, packet-filtering ACLs and inter-VLAN routing were configured on the core switches, and backbone throughput suffered. To which layer should these functions be moved?"
+        choices: ["Access layer", "Core layer of a second site", "Spine layer", "Distribution layer"]
+        answer: 3
+        why: "The distribution layer is the policy boundary: routing between VLANs, filtering and summarisation. The core should do nothing but switch packets quickly, and the access layer only connects end devices."
+      - id: np-1d-q24
+        type: mcq
+        q: "Six sites are joined in a full mesh. A seventh site is added and the full mesh must be kept. How many new links are needed, and how many links exist afterwards?"
+        choices:
+          - "7 new links; 22 in total"
+          - "12 new links; 42 in total"
+          - "6 new links; 21 in total"
+          - "6 new links; 15 in total"
+        answer: 2
+        why: "A full mesh needs n(n-1)/2 links: 6 x 5 / 2 = 15 before, 7 x 6 / 2 = 21 after, so 21 - 15 = 6 new links (one from the new site to each of the six existing ones). 42 is n(n-1) without dividing by two, which counts every link twice."
+      - id: np-1d-q25
+        type: mcq
+        q: "All traffic entering and leaving a data centre passes an edge firewall. Malware on a web server still spread to a database server in the next rack without any firewall log entry. Which traffic flow went uninspected, and what addresses it?"
+        choices:
+          - "East-west traffic; add segmentation and inspection inside the data centre"
+          - "North-south traffic; add a second firewall at the internet edge"
+          - "East-west traffic; move the website to a CDN"
+          - "North-south traffic; add an IPS on the internet link"
+        answer: 0
+        why: "Server-to-server traffic inside the data centre is east-west and never crosses the edge firewall, so it needs internal segmentation. North-south is traffic in and out of the data centre, which the edge firewall already sees."
+      - id: np-1d-q26
+        type: mcq
+        q: "A company's three data centres are linked to each other in a full mesh, and each data centre is also the centre of a star of branch offices. Which term BEST describes the overall WAN topology?"
+        choices: ["Full mesh", "Hub-and-spoke", "Hybrid", "Point-to-point"]
+        answer: 2
+        why: "A network that combines two or more basic topologies, here a mesh core with star edges, is a hybrid topology. It is not a full mesh overall, because the branches have no links to each other."
+      - id: np-1d-q27
+        type: mcq
+        q: "A pop-up kiosk will trade for three weeks in a car park with strong 4G/5G coverage. No wired service can be installed in time and there is no company building within sight. Which WAN medium is BEST for its card terminal?"
+        choices: ["Satellite", "Cellular", "An 802.11 point-to-point bridge", "Coaxial cable broadband"]
+        answer: 1
+        why: "Cellular needs only a SIM and coverage, and has far lower latency and cost than satellite. An 802.11 bridge needs a second, wired site in line of sight to bridge to, which the stem rules out."
+      - id: np-1d-q28
+        type: mcq
+        q: "A copper run of 90 m between two switches must carry 10 Gbps. Which Ethernet standard and cable category should be specified?"
+        choices:
+          - "10GBASE-T over Cat 6"
+          - "10GBASE-SR over Cat 6A"
+          - "1000BASE-T over Cat 5e"
+          - "10GBASE-T over Cat 6A"
+        answer: 3
+        why: "10GBASE-T is 10 Gbps over twisted pair, and Cat 6A supports it for the full 100 m. Cat 6 carries 10GBASE-T only to about 55 m, so it fails at 90 m; 10GBASE-SR is a multimode fiber standard."
+
+      - id: np-1d-m01
+        type: multi
+        q: "Which TWO statements describe a SAN rather than a NAS?"
+        choices:
+          - "It presents block-level storage that the server formats with its own file system"
+          - "It commonly uses Fibre Channel or iSCSI"
+          - "It shares folders to clients using SMB"
+          - "It shares folders to clients using NFS"
+          - "Users reach it by browsing to a shared folder path"
+        answers: [0, 1]
+        why: "A SAN delivers raw blocks over a storage network (Fibre Channel or iSCSI) and the server supplies the file system. SMB, NFS and shared folder paths are file-level access, which is NAS."
+      - id: np-1d-m02
+        type: multi
+        q: "Which THREE are characteristics of SD-WAN?"
+        choices:
+          - "Application-aware path selection"
+          - "Transport agnostic: it can use MPLS, broadband or cellular"
+          - "Central policy management"
+          - "It requires an MPLS circuit at every site"
+          - "It identifies segments with a 24-bit network identifier"
+          - "Each branch router must be configured by hand at its console"
+        answers: [0, 1, 2]
+        why: "SD-WAN is application aware, runs over any transport, and is managed from a central policy (with zero-touch provisioning rather than console work). The 24-bit identifier belongs to VXLAN, and no particular circuit type is required."
+      - id: np-1d-m03
+        type: multi
+        q: "Which TWO are principles of a zero trust architecture?"
+        choices:
+          - "Policy-based authentication and authorisation of every request"
+          - "Least-privilege access to only the resource requested"
+          - "Devices on the internal LAN are trusted by default"
+          - "A user who passes the perimeter once may reach any subnet"
+          - "Security depends on keeping one flat internal network"
+        answers: [0, 1]
+        why: "Zero trust authenticates and authorises each request by policy and grants the minimum access needed. Default trust for internal devices and one-time perimeter checks are the perimeter model it replaces."
+      - id: np-1d-m04
+        type: multi
+        q: "Which TWO capabilities are provided by keeping network configuration in source control?"
+        choices:
+          - "A version history that allows a change to be rolled back"
+          - "Branching, so a change can be developed and reviewed in isolation"
+          - "Zero-touch provisioning of factory-default devices"
+          - "Automatic growth and shrinkage of cloud capacity"
+          - "Application-aware path selection"
+        answers: [0, 1]
+        why: "Source control gives version history (and so rollback) and branching for isolated work. Zero-touch provisioning and application awareness are SD-WAN features, and automatic capacity change is cloud elasticity."
+      - id: np-1d-m05
+        type: multi
+        q: "Which TWO statements about a spine-and-leaf fabric are true?"
+        choices:
+          - "Every leaf switch connects to every spine switch"
+          - "Any two servers on different leaf switches are the same number of switch hops apart"
+          - "Servers plug directly into the spine switches"
+          - "Leaf switches are cabled to each other in a full mesh"
+          - "It adds a third tier above the core for campus users"
+        answers: [0, 1]
+        why: "Each leaf uplinks to every spine, so every leaf-to-leaf path is leaf-spine-leaf and equally long. Servers attach to leaves, leaves do not interconnect, and there are only two tiers."
+      - id: np-1d-m06
+        type: multi
+        q: "Two switches in adjacent racks, 3 m apart, need a single 100 Gbps link. Which TWO options would provide it?"
+        choices:
+          - "A QSFP28 direct attach copper cable"
+          - "QSFP28 short-reach optics with an MPO multimode cable"
+          - "An SFP+ direct attach copper cable"
+          - "A Cat 6A patch cable between RJ45 ports"
+          - "SFP modules with a duplex LC multimode cable"
+          - "An F-type coaxial cable"
+        answers: [0, 1]
+        why: "QSFP28 carries 4 x 25 Gbps = 100 Gbps, either as a twinax DAC or as short-reach parallel optics over MPO. SFP+ is a single 10 Gbps channel, SFP is 1 Gbps, and Cat 6A copper is rated to 10 Gbps."
+
+      - id: np-1d-o01
+        type: order
+        q: "A user's PC in a three-tier campus network opens a website on the internet. Put the devices the packet crosses in order, starting from the PC."
+        steps:
+          - "Access layer switch"
+          - "Distribution layer switch"
+          - "Core layer switch"
+          - "Edge router or firewall"
+          - "Internet service provider"
+        why: "End devices attach at the access layer, which uplinks to distribution (where the VLAN is routed), which uplinks to the core backbone; the core hands off to the network edge and then the ISP. This is north-south traffic leaving the campus."
+      - id: np-1d-o02
+        type: order
+        q: "A network team manages switch configuration as code. Put the steps of making a change in order."
+        steps:
+          - "Create a branch from the main line of the repository"
+          - "Edit the configuration template and commit the change to the branch"
+          - "Open a merge request so the change is reviewed and tested"
+          - "Merge the approved change into the main line"
+          - "Automation applies the merged configuration to the devices"
+        why: "Work is isolated on a branch, committed, reviewed, and only then merged; deployment runs from the main line so that the repository stays the single source of truth. Deploying before merge would leave devices ahead of the repository, which is drift."
+      - id: np-1d-o03
+        type: order
+        q: "A virtual machine sends a frame to another VM in the same VXLAN segment on a different leaf switch. Put the events in order."
+        steps:
+          - "The source VM sends an ordinary Ethernet frame to its leaf switch"
+          - "The leaf switch maps the frame to its VXLAN network identifier and finds the remote tunnel endpoint"
+          - "The leaf switch wraps the frame in VXLAN, UDP and IP headers"
+          - "The routed underlay forwards the packet to the remote leaf switch"
+          - "The remote leaf switch removes the outer headers and delivers the original frame"
+        why: "VXLAN is Layer 2 in Layer 3 encapsulation: the ingress tunnel endpoint classifies and encapsulates, the IP underlay routes, and the egress endpoint decapsulates. The VMs never see anything but a normal Ethernet frame."
+
+  # ─────────────────── 1e · Exam-hard practice: addressing and protocols ───────────────────
+  - id: np-1e
+    title: "Exam-hard practice: subnetting, VLSM and protocols"
+    domain: "1"
+    goal: "I can calculate subnets, VLSM plans and summary routes quickly, and match ports and IP protocols to what a firewall rule or packet capture shows."
+    notes: |
+      Subnetting on the exam is about **speed**. Write this table on your scratch sheet before question one:
+
+      | Prefix | Mask octet | Block | Prefix | Mask octet | Block |
+      | /25 | 128 | 128 | /29 | 248 | 8 |
+      | /26 | 192 | 64 | /30 | 252 | 4 |
+      | /27 | 224 | 32 | /31 | 254 | 2 |
+      | /28 | 240 | 16 | /32 | 255 | 1 |
+
+      The same blocks apply one octet to the left: /17 to /24 use the third octet, /9 to /16 the second.
+
+      ## Method
+
+      - **Find the subnet:** round the interesting octet *down* to a multiple of the block. The broadcast is one below the next multiple.
+      - **VLSM:** allocate the largest need first, each at the next free boundary.
+      - **Summarise:** a summary must start on a multiple of its own block and cover every route.
+
+      ## Address classes (first octet)
+
+      A 1-126, B 128-191, C 192-223, D 224-239 (multicast), E 240-255 (experimental). 127 is loopback.
+
+      For protocols, remember that **ICMP, GRE (47), ESP (50) and AH (51)** are IP protocols with no port numbers.
+    items:
+      - id: np-1e-q01
+        type: mcq
+        q: "A server is addressed 172.16.45.14/20. What are the network address and broadcast address of its subnet?"
+        choices:
+          - "172.16.32.0 and 172.16.47.255"
+          - "172.16.40.0 and 172.16.47.255"
+          - "172.16.32.0 and 172.16.63.255"
+          - "172.16.44.0 and 172.16.45.255"
+        answer: 0
+        why: "A /20 mask is 255.255.240.0, so the block in the third octet is 256 - 240 = 16: subnets start at 0, 16, 32, 48. 45 falls in the 32 block, giving 172.16.32.0 to 172.16.47.255 (one below 48). 172.16.40.0 would be the network only with a /21 (block of 8)."
+      - id: np-1e-q02
+        type: mcq
+        q: "An engineer tries to give a server the address 10.20.30.200 with mask 255.255.255.248, and the operating system rejects it. Why?"
+        choices:
+          - "It is the broadcast address of its subnet"
+          - "A /29 mask cannot be used with a 10.x.x.x address"
+          - "It is the network address of its subnet"
+          - "It belongs to the APIPA range"
+        answer: 2
+        why: "255.255.255.248 is /29, block size 256 - 248 = 8. 200 = 25 x 8, an exact multiple, so 10.20.30.200 is the network address of the subnet 10.20.30.200 to .207; hosts are .201 to .206. The broadcast is .207, not .200."
+      - id: np-1e-q03
+        type: mcq
+        q: "A VLAN's gateway is 192.168.5.129/26. Someone configured the DHCP scope as 192.168.5.130 to 192.168.5.200. Which leased addresses will leave clients unable to communicate normally?"
+        choices:
+          - "192.168.5.192 to 192.168.5.200"
+          - "192.168.5.193 to 192.168.5.200"
+          - "192.168.5.190 to 192.168.5.200"
+          - "192.168.5.191 to 192.168.5.200"
+        answer: 3
+        why: "A /26 has a block of 64, so the gateway's subnet is 192.168.5.128 to .191 with usable hosts .129 to .190. Address .191 is the broadcast and .192 to .200 lie in the next subnet, so everything from .191 upward is bad. .190 is the last valid host and works."
+      - id: np-1e-q04
+        type: mcq
+        q: "You are given 192.168.40.0/24 and must use VLSM, allocating largest first from the start of the block with no gaps: LAN A 100 hosts, LAN B 50 hosts, LAN C 25 hosts, and a 2-host WAN link. Which subnet does LAN C receive?"
+        choices:
+          - "192.168.40.128/27"
+          - "192.168.40.192/27"
+          - "192.168.40.192/26"
+          - "192.168.40.224/27"
+        answer: 1
+        why: "A needs /25 (126 hosts): .0 to .127. B needs /26 (62 hosts): .128 to .191. C needs /27 (30 hosts, since a /28 gives only 14): the next free boundary is .192, so 192.168.40.192/27 (.192 to .223), leaving .224/30 for the WAN. 192.168.40.128/27 would overlap LAN B."
+      - id: np-1e-q05
+        type: mcq
+        q: "From 10.8.0.0/22 you must allocate, largest first and contiguously: 400 hosts, 200 hosts, 100 hosts and 60 hosts. Which subnet is assigned to the 100-host segment?"
+        choices:
+          - "10.8.2.0/25"
+          - "10.8.3.128/25"
+          - "10.8.3.0/24"
+          - "10.8.3.0/25"
+        answer: 3
+        why: "400 hosts need a /23 (510): 10.8.0.0 to 10.8.1.255. 200 hosts need a /24 (254): 10.8.2.0/24. 100 hosts need a /25 (126), which starts at the next free address: 10.8.3.0/25 (.0 to .127), leaving 10.8.3.128/26 for the 60 hosts. 10.8.2.0/25 would sit inside the 200-host subnet."
+      - id: np-1e-q06
+        type: mcq
+        q: "A router advertises eight routes, 172.20.8.0/24 through 172.20.15.0/24. Which single summary route covers exactly these eight networks and nothing else?"
+        choices:
+          - "172.20.8.0/22"
+          - "172.20.8.0/21"
+          - "172.20.0.0/20"
+          - "172.20.0.0/21"
+        answer: 1
+        why: "Eight /24s are 2^3 networks, so the summary is three bits shorter: /21, whose block in the third octet is 8. 8 is a multiple of 8, so 172.20.8.0/21 spans 172.20.8.0 to 172.20.15.255 exactly. 172.20.8.0/22 covers only 8 to 11, and 172.20.0.0/20 covers 0 to 15, twice what is needed."
+      - id: np-1e-q07
+        type: mcq
+        q: "A site uses the eight networks 10.1.12.0/24 through 10.1.19.0/24. Which is the smallest single summary route that covers all eight, even though it also covers unused space?"
+        choices:
+          - "10.1.0.0/19"
+          - "10.1.12.0/21"
+          - "10.1.8.0/20"
+          - "10.1.16.0/20"
+        answer: 0
+        why: "The range 12 to 19 crosses the /20 boundary at 16: /20 blocks are 0-15 and 16-31, so no /20 holds both 12 and 19. The next size up, /19 (block 32), gives 10.1.0.0 to 10.1.31.255, which covers them all. 10.1.16.0/20 looks close but misses 10.1.12.0 to 10.1.15.0."
+      - id: np-1e-q08
+        type: mcq
+        q: "A new wireless VLAN must hold 500 clients in one subnet. Which prefix and mask give the smallest subnet that fits?"
+        choices:
+          - "/24 — 255.255.255.0"
+          - "/22 — 255.255.252.0"
+          - "/23 — 255.255.254.0"
+          - "/23 — 255.255.252.0"
+        answer: 2
+        why: "9 host bits give 2^9 - 2 = 510 usable addresses, enough for 500; 8 bits give only 254. 32 - 9 = /23, and a /23 mask has seven bits in the third octet: 255.255.254.0. A /22 (1,022 hosts) fits but is not the smallest, and 255.255.252.0 is the /22 mask, not /23."
+      - id: np-1e-q09
+        type: mcq
+        q: "The network 172.16.0.0/16 is divided into /20 subnets. How many subnets are created, and how many usable hosts does each have?"
+        choices:
+          - "16 subnets of 4,096 hosts"
+          - "16 subnets of 4,094 hosts"
+          - "8 subnets of 8,190 hosts"
+          - "32 subnets of 2,046 hosts"
+        answer: 1
+        why: "Borrowing 20 - 16 = 4 bits gives 2^4 = 16 subnets. Each keeps 32 - 20 = 12 host bits: 2^12 = 4,096 addresses, minus network and broadcast = 4,094 usable. 4,096 forgets to subtract those two."
+      - id: np-1e-q10
+        type: mcq
+        q: "A host is configured as 10.50.66.10 with mask 255.255.224.0. Which of these addresses could be its default gateway?"
+        choices:
+          - "10.50.96.1"
+          - "10.50.63.254"
+          - "10.50.95.255"
+          - "10.50.95.254"
+        answer: 3
+        why: "255.255.224.0 is /19, block 256 - 224 = 32 in the third octet: subnets start at 0, 32, 64, 96. 66 is in the 64 block, so the subnet is 10.50.64.0 to 10.50.95.255 and a gateway must be a host inside it, such as 10.50.95.254. 10.50.95.255 is in range but is the broadcast address."
+      - id: np-1e-q11
+        type: mcq
+        q: "Point-to-point links between pairs of routers each need two usable addresses under the traditional rule that reserves a network and a broadcast address. Which mask wastes the least, and how many such links fit in 198.51.100.0/26?"
+        choices:
+          - "255.255.255.252; 14 links"
+          - "255.255.255.248; 8 links"
+          - "255.255.255.252; 16 links"
+          - "255.255.255.254; 32 links"
+        answer: 2
+        why: "A /30 (255.255.255.252) has 4 addresses: network, two hosts, broadcast. A /26 holds 64 addresses, and 64 / 4 = 16 links. Under the traditional rule a /31 has no usable hosts left after the network and broadcast addresses are reserved; a /29 gives 6 hosts per link, wasting four."
+      - id: np-1e-q12
+        type: mcq
+        q: "An audit asks for an address that is both in the Class B range by its first octet and inside an RFC 1918 private block. Which address qualifies?"
+        choices: ["172.31.200.4", "192.168.200.4", "172.32.200.4", "10.31.200.4"]
+        answer: 0
+        why: "Class B is 128 to 191 in the first octet, and the private block there is 172.16.0.0/12, which is 172.16.0.0 to 172.31.255.255; 172.31.200.4 is inside both. 172.32.200.4 is Class B but one past the private range, so it is public."
+      - id: np-1e-q13
+        type: mcq
+        q: "An administrator tries to assign 245.10.10.10/24 to a server interface and the operating system refuses the address. Why?"
+        choices:
+          - "It is a Class D multicast address"
+          - "It is a loopback address"
+          - "It is a reserved Class E address"
+          - "It is a link-local (APIPA) address"
+        answer: 2
+        why: "Class E is 240 to 255 in the first octet and is reserved, so hosts will not accept it. Class D multicast is 224 to 239, which 245 is above."
+      - id: np-1e-q14
+        type: mcq
+        q: "A legacy classful routing protocol learns the route 150.10.0.0 with no mask information. Which mask will it assume?"
+        choices: ["255.255.0.0", "255.0.0.0", "255.255.255.0", "255.255.240.0"]
+        answer: 0
+        why: "A first octet of 150 is in the Class B range (128 to 191), whose default mask is 255.255.0.0 (/16). 255.0.0.0 is the Class A default, which ends at a first octet of 126."
+      - id: np-1e-q15
+        type: mcq
+        q: "The network 192.168.9.0/24 must be split into at least 5 equal subnets, each with at least 25 usable hosts. Which mask meets both requirements?"
+        choices: ["255.255.255.192", "255.255.255.224", "255.255.255.240", "255.255.255.248"]
+        answer: 1
+        why: "Borrowing 3 bits (/27, mask .224) gives 2^3 = 8 subnets with 2^5 - 2 = 30 hosts each: both needs met. .192 (/26) gives only 4 subnets, and .240 (/28) gives 16 subnets but only 14 hosts each."
+      - id: np-1e-q16
+        type: mcq
+        q: "A firewall object must list every usable host address in the subnet that contains 192.168.77.99/28. What range should be entered?"
+        choices:
+          - "192.168.77.96 to 192.168.77.111"
+          - "192.168.77.97 to 192.168.77.126"
+          - "192.168.77.81 to 192.168.77.94"
+          - "192.168.77.97 to 192.168.77.110"
+        answer: 3
+        why: "A /28 has a block of 16: subnets at 80, 96, 112. 99 is in the 96 block, so network .96, broadcast .111, usable hosts .97 to .110 (14 addresses). .96 to .111 wrongly includes the network and broadcast addresses."
+      - id: np-1e-q17
+        type: mcq
+        q: "10.10.10.0/25 and 10.10.10.128/26 are already in use. A new segment needs a /27. Which proposed subnet does NOT overlap an existing one?"
+        choices:
+          - "10.10.10.96/27"
+          - "10.10.10.160/27"
+          - "10.10.10.128/27"
+          - "10.10.10.192/27"
+        answer: 3
+        why: "The /25 uses .0 to .127 and the /26 uses .128 to .191, so only .192 to .255 is free. 10.10.10.192/27 is .192 to .223, inside the free space. 10.10.10.160/27 is .160 to .191, which sits in the top half of the existing /26."
+      - id: np-1e-q18
+        type: mcq
+        q: "A firewall holds the rule 'permit tcp any host 10.0.0.5 eq 389' for directory lookups. Security now requires those lookups to run over TLS on the protocol's dedicated secure port. Which port should the rule use instead?"
+        choices: ["443", "445", "636", "3389"]
+        answer: 2
+        why: "389 is LDAP, and LDAP over TLS (LDAPS) listens on TCP 636. 443 is also a TLS port, but it belongs to HTTPS, not to directory services."
+      - id: np-1e-q19
+        type: mcq
+        q: "Laptops on guest networks must submit outgoing mail to the company mail server with authentication and TLS. Many of those networks block TCP 25. Which port should the mail clients be set to use?"
+        choices: ["143", "587", "110", "25"]
+        answer: 1
+        why: "TCP 587 is the mail submission port, used by clients with authentication and TLS (CompTIA lists it as SMTPS). Ports 143 (IMAP) and 110 (POP3) retrieve mail from a mailbox; they cannot send it."
+      - id: np-1e-q20
+        type: mcq
+        q: "New switches fetch their start-up configuration from a server using a simple file protocol that has no login and runs over UDP. A firewall sits between them. Which port must be permitted?"
+        choices: ["UDP 69", "TCP 21", "TCP 22", "UDP 161"]
+        answer: 0
+        why: "TFTP is the minimal, unauthenticated file transfer protocol on UDP 69, commonly used for device images and configurations. FTP on TCP 21 also moves files but uses TCP and a login."
+      - id: np-1e-q21
+        type: mcq
+        q: "An auditor requires a file server's FTP service to be replaced by file transfer that runs inside SSH. After the migration, how should the firewall rules change?"
+        choices:
+          - "Close TCP 21 only; open TCP 990"
+          - "Close TCP 20 and 21; open TCP 22"
+          - "Close TCP 20 and 21; open UDP 69"
+          - "Close TCP 23; open TCP 22"
+        answer: 1
+        why: "FTP uses TCP 21 for control and TCP 20 for data, and SFTP is a subsystem of SSH on TCP 22. TCP 990 belongs to FTPS, which is FTP wrapped in TLS, not transfer over SSH."
+      - id: np-1e-q22
+        type: mcq
+        q: "After a rule change the firewall log shows: 'DENY tcp 10.1.5.20 -> 10.1.9.8:445' and 'DENY tcp 10.1.5.31 -> 10.1.9.12:1433'. Remote desktop sessions to the same servers still work. Which two services are being blocked?"
+        choices:
+          - "SMB file sharing and Microsoft SQL Server"
+          - "LDAPS and RDP"
+          - "SMB file sharing and RDP"
+          - "LDAP and Microsoft SQL Server"
+        answer: 0
+        why: "TCP 445 is SMB (Windows file and printer sharing) and TCP 1433 is Microsoft SQL Server. RDP is 3389, which the stem says still works, and LDAP/LDAPS are 389 and 636."
+      - id: np-1e-q23
+        type: mcq
+        q: "A monitoring server must receive unsolicited SNMP alerts from switches and also collect their syslog messages. Which inbound ports must its host firewall allow?"
+        choices:
+          - "UDP 161 and UDP 514"
+          - "UDP 161 and UDP 123"
+          - "UDP 162 and UDP 514"
+          - "UDP 162 and TCP 445"
+        answer: 2
+        why: "SNMP traps are sent to UDP 162 on the manager, and syslog is received on UDP 514. UDP 161 is where the agents on the switches listen for the manager's polls, so it is an outbound flow from this server, not an inbound one."
+      - id: np-1e-q24
+        type: mcq
+        q: "The first packet captured from a newly connected PC is: source 0.0.0.0 port 68, destination 255.255.255.255 port 67. What is it?"
+        choices:
+          - "A DHCP Offer sent by a server"
+          - "A DHCP Acknowledge sent by a server"
+          - "A unicast lease renewal sent by the client"
+          - "A DHCP Discover broadcast by the client"
+        answer: 3
+        why: "A client with no address yet sends from 0.0.0.0, client port 68, to the broadcast address on server port 67: a Discover. Server messages such as Offer travel from port 67 to port 68, and a renewal is unicast from the client's leased address."
+      - id: np-1e-q25
+        type: mcq
+        q: "Two sites build an IPsec tunnel that must encrypt data. The firewall between them permits UDP 500 and IP protocol 51 only. Negotiation completes but no encrypted traffic passes. What else must be permitted?"
+        choices:
+          - "IP protocol 47 (GRE)"
+          - "IP protocol 1 (ICMP)"
+          - "IP protocol 50 (ESP)"
+          - "UDP 161 (SNMP)"
+        answer: 2
+        why: "Encryption in IPsec is done by ESP, IP protocol 50, which the firewall is dropping. Protocol 51 is AH, which authenticates but never encrypts, and UDP 500 is IKE, which explains why negotiation succeeded."
+      - id: np-1e-q26
+        type: mcq
+        q: "Two sites must exchange OSPF routing updates, which use multicast, across the internet, and the traffic must be encrypted. An IPsec tunnel on its own will not carry the multicast hellos. Which design is BEST?"
+        choices:
+          - "A GRE tunnel with no additional protection"
+          - "IPsec using AH instead of ESP"
+          - "A second IPsec tunnel negotiated with IKE"
+          - "A GRE tunnel protected by IPsec"
+        answer: 3
+        why: "GRE can encapsulate multicast and routing protocols but has no encryption, so it is wrapped in IPsec to add confidentiality. GRE alone would carry the hellos in cleartext across the internet."
+      - id: np-1e-q27
+        type: mcq
+        q: "A capture shows one packet sent to 224.0.0.5 and a second sent to 255.255.255.255. Which traffic types are these, in that order?"
+        choices:
+          - "Multicast, then broadcast"
+          - "Broadcast, then multicast"
+          - "Anycast, then broadcast"
+          - "Multicast, then unicast"
+        answer: 0
+        why: "224.0.0.5 is in the Class D range (224 to 239), so it is multicast: delivered only to hosts that joined the group. 255.255.255.255 is the limited broadcast address, delivered to every host on the segment."
+      - id: np-1e-q28
+        type: mcq
+        q: "Which is the shortest valid way to write the IPv6 address 2001:0db8:0000:0000:0000:ff00:0042:8329?"
+        choices:
+          - "2001:db8:0:0:0:ff:42:8329"
+          - "2001:db8::ff00:42:8329"
+          - "2001:db8::ff00::42:8329"
+          - "2001:0db8::ff00:0042:8329"
+        answer: 1
+        why: "Drop leading zeros in each group (0db8 becomes db8, 0042 becomes 42) and replace the one run of all-zero groups with '::'. Trailing zeros are never dropped, so ff00 cannot become ff, and '::' may appear only once in an address."
+
+      - id: np-1e-m01
+        type: multi
+        q: "Which TWO of these are usable host addresses in the subnet 10.4.4.64/27?"
+        choices: ["10.4.4.65", "10.4.4.94", "10.4.4.64", "10.4.4.95", "10.4.4.96", "10.4.4.63"]
+        answers: [0, 1]
+        why: "A /27 has a block of 32, so this subnet is .64 to .95: network .64, broadcast .95, usable hosts .65 to .94. .96 is the next subnet's network address and .63 is the previous subnet's broadcast."
+      - id: np-1e-m02
+        type: multi
+        q: "Which THREE of these addresses are in RFC 1918 private ranges?"
+        choices: ["10.255.0.1", "172.31.0.1", "192.168.255.1", "172.15.0.1", "192.169.0.1", "169.254.0.1"]
+        answers: [0, 1, 2]
+        why: "The private blocks are 10.0.0.0/8, 172.16.0.0/12 (172.16 to 172.31) and 192.168.0.0/16. 172.15 and 192.169 fall just outside them, and 169.254.0.1 is APIPA link-local, which is not an RFC 1918 range."
+      - id: np-1e-m03
+        type: multi
+        q: "Which TWO of these well-known ports belong to protocols that encrypt their traffic?"
+        choices: ["TCP 22", "TCP 636", "TCP 23", "UDP 69", "TCP 80", "UDP 514"]
+        answers: [0, 1]
+        why: "TCP 22 is SSH and TCP 636 is LDAPS (LDAP over TLS). Telnet (23), TFTP (69), HTTP (80) and syslog (514) all send their data in cleartext."
+      - id: np-1e-m04
+        type: multi
+        q: "A firewall sits between two IPsec peers that use IKE and need encryption; there is no NAT in the path. Which TWO must it permit?"
+        choices:
+          - "UDP port 500"
+          - "IP protocol 50"
+          - "IP protocol 47"
+          - "TCP port 22"
+          - "UDP port 69"
+        answers: [0, 1]
+        why: "IKE negotiates on UDP 500 and the encrypted data travels as ESP, IP protocol 50. Protocol 47 is GRE, which IPsec does not need, and the other two are SSH and TFTP."
+      - id: np-1e-m05
+        type: multi
+        q: "Which TWO of these protocols use UDP as their transport?"
+        choices: ["TFTP", "SNMP", "SSH", "Telnet", "FTP", "SMTP"]
+        answers: [0, 1]
+        why: "TFTP (UDP 69) and SNMP (UDP 161/162) are connectionless. SSH (22), Telnet (23), FTP (20/21) and SMTP (25) all run over TCP."
+      - id: np-1e-m06
+        type: multi
+        q: "An organisation owns 172.16.8.0/22. Which TWO of these subnets lie entirely inside that block?"
+        choices:
+          - "172.16.10.0/24"
+          - "172.16.11.128/25"
+          - "172.16.12.0/24"
+          - "172.16.7.0/24"
+          - "172.16.8.0/21"
+          - "172.16.16.0/26"
+        answers: [0, 1]
+        why: "A /22 has a block of 4 in the third octet, so 172.16.8.0/22 is 172.16.8.0 to 172.16.11.255. 172.16.10.0/24 and 172.16.11.128/25 are inside; 172.16.12.0 and 172.16.7.0 are the neighbours on either side, and 172.16.8.0/21 is a larger block (8 to 15) that contains the /22 rather than fitting in it."
+
+      - id: np-1e-o01
+        type: order
+        q: "Put the events of a complete TCP conversation in order."
+        steps:
+          - "The client sends a SYN"
+          - "The server replies with a SYN-ACK"
+          - "The client sends an ACK"
+          - "Application data is exchanged"
+          - "FIN and ACK segments close the connection"
+        why: "TCP opens with the three-way handshake (SYN, SYN-ACK, ACK) before any data can flow, and closes gracefully with FIN/ACK exchanges afterwards."
+      - id: np-1e-o02
+        type: order
+        q: "An IPsec site-to-site VPN comes up between two gateways. Put the events in order."
+        steps:
+          - "The peers contact each other with IKE on UDP port 500"
+          - "The peers authenticate each other and establish a protected IKE channel"
+          - "The peers negotiate the IPsec security associations and keys for user data"
+          - "User traffic is encrypted and sent as ESP packets"
+        why: "IKE first builds an authenticated, protected channel, then uses it to agree the IPsec security associations; only after that can ESP carry encrypted user traffic."
+      - id: np-1e-o03
+        type: order
+        q: "You must build a VLSM addressing plan from a single block. Put the steps in order."
+        steps:
+          - "List every segment with the number of hosts it needs"
+          - "Sort the segments from the largest host count to the smallest"
+          - "Give the largest segment the smallest prefix that fits it, at the start of the block"
+          - "Give each remaining segment the next free boundary, in order of decreasing size"
+          - "Assign the point-to-point links from the space left over and record the plan"
+        why: "Allocating largest first guarantees every subnet starts on a boundary valid for its own size, with no gaps or overlaps. Placing small subnets first fragments the block so that the large ones no longer fit."

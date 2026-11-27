@@ -1,102 +1,15 @@
-# One-command MayBot: `docker compose up`
-# - control-center on :8200 (the dashboard)
-# - a co-located agent on :8100 (monitors this host)
-#
-# Defaults below have EVERY capability turned on out of the box. Put secrets in
-# a `.env` file next to this one (`cp .env.example .env`) — it is auto-loaded.
-# Mount your devices.yaml / projects.yaml / agents.yaml / tools.yaml here too.
-
+# Sect Academy in a container. Progress is kept in the "academy-data" volume.
 services:
-  control-center:
+  academy:
     build: .
-    command: uvicorn maybot_control_center.app:app --host 0.0.0.0 --port 8200
     ports:
-      - "8200:8200"
-    # `host.docker.internal` lets disciples reach an LLM (e.g. Ollama) and bots
-    # running on the host machine from inside the container.
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "127.0.0.1:8200:8200"      # localhost only; set SECT_ACADEMY_TOKEN before widening this
     environment:
-      # --- persistence, retention & backups (ON) ---
-      MAYBOT_DB: /data/maybot.db
-      MAYBOT_RETENTION_DAYS: ${MAYBOT_RETENTION_DAYS:-90}
-      MAYBOT_BACKUP_DIR: ${MAYBOT_BACKUP_DIR:-/data/backups}
-      MAYBOT_BACKUP_INTERVAL_HOURS: ${MAYBOT_BACKUP_INTERVAL_HOURS:-24}
-      MAYBOT_BACKUP_KEEP: ${MAYBOT_BACKUP_KEEP:-14}
-      # --- scheduled daily report (ON) ---
-      MAYBOT_REPORT_INTERVAL_HOURS: ${MAYBOT_REPORT_INTERVAL_HOURS:-24}
-      # --- autonomous operations (ON) ---
-      MAYBOT_AUTOPILOT: ${MAYBOT_AUTOPILOT:-1}
-      MAYBOT_AUTONOMY: ${MAYBOT_AUTONOMY:-1}
-      MAYBOT_DELEGATION: ${MAYBOT_DELEGATION:-1}
-      MAYBOT_PR_ENABLED: ${MAYBOT_PR_ENABLED:-1}
-      MAYBOT_PR_REPO: ${MAYBOT_PR_REPO:-}
-      GH_TOKEN: ${GH_TOKEN:-}
-      # --- alerting behaviour ---
-      MAYBOT_ALERT_RECOVERY: ${MAYBOT_ALERT_RECOVERY:-1}
-      MAYBOT_ESCALATION: ${MAYBOT_ESCALATION:-1}
-      # --- security & sessions ---
-      MAYBOT_CONTROL_CENTER_TOKEN: ${MAYBOT_CONTROL_CENTER_TOKEN:-}
-      MAYBOT_REGISTER_TOKEN: ${MAYBOT_REGISTER_TOKEN:-}
-      MAYBOT_SESSION_TTL_MINUTES: ${MAYBOT_SESSION_TTL_MINUTES:-720}
-      # --- LLM backends ---
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      # Obsidian vault memory (mount the vault as a volume too if you set this)
-      MAYBOT_OBSIDIAN_VAULT: ${MAYBOT_OBSIDIAN_VAULT:-}
-      MAYBOT_OBSIDIAN_SUBDIR: ${MAYBOT_OBSIDIAN_SUBDIR:-MayBot}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      # --- notification channels (inert until you set credentials) ---
-      MAYBOT_SLACK_WEBHOOK: ${MAYBOT_SLACK_WEBHOOK:-}
-      MAYBOT_DISCORD_WEBHOOK: ${MAYBOT_DISCORD_WEBHOOK:-}
-      MAYBOT_WEBHOOK_URL: ${MAYBOT_WEBHOOK_URL:-}
-      MAYBOT_SMTP_HOST: ${MAYBOT_SMTP_HOST:-}
-      MAYBOT_SMTP_FROM: ${MAYBOT_SMTP_FROM:-}
-      MAYBOT_SMTP_TO: ${MAYBOT_SMTP_TO:-}
-      MAYBOT_SMTP_PORT: ${MAYBOT_SMTP_PORT:-587}
-      MAYBOT_SMTP_USER: ${MAYBOT_SMTP_USER:-}
-      MAYBOT_SMTP_PASSWORD: ${MAYBOT_SMTP_PASSWORD:-}
-      MAYBOT_TELEGRAM_TOKEN: ${MAYBOT_TELEGRAM_TOKEN:-}
-      MAYBOT_TELEGRAM_CHAT_ID: ${MAYBOT_TELEGRAM_CHAT_ID:-}
-      MAYBOT_PAGERDUTY_ROUTING_KEY: ${MAYBOT_PAGERDUTY_ROUTING_KEY:-}
-      MAYBOT_OPSGENIE_API_KEY: ${MAYBOT_OPSGENIE_API_KEY:-}
-      MAYBOT_OPSGENIE_REGION: ${MAYBOT_OPSGENIE_REGION:-us}
-      # --- performance & resilience (ON; no external services needed) ---
-      MAYBOT_ASYNC_POLL: ${MAYBOT_ASYNC_POLL:-1}
-      MAYBOT_LLM_RETRIES: ${MAYBOT_LLM_RETRIES:-2}
-      MAYBOT_LLM_RETRY_BASE_MS: ${MAYBOT_LLM_RETRY_BASE_MS:-400}
-      MAYBOT_JSON_LOGS: ${MAYBOT_JSON_LOGS:-1}
-      MAYBOT_LEARNING_REMINDERS: ${MAYBOT_LEARNING_REMINDERS:-1}
-      MAYBOT_CSP: ${MAYBOT_CSP:-1}
-      MAYBOT_HSTS: ${MAYBOT_HSTS:-0}          # needs HTTPS in front; left off
-      # --- observability / budgets / secrets (inert until you set a value) ---
-      MAYBOT_SENTRY_DSN: ${MAYBOT_SENTRY_DSN:-}
-      MAYBOT_SENTRY_TRACES_SAMPLE_RATE: ${MAYBOT_SENTRY_TRACES_SAMPLE_RATE:-0}
-      MAYBOT_ENV: ${MAYBOT_ENV:-production}
-      MAYBOT_BUDGET_DAILY_USD: ${MAYBOT_BUDGET_DAILY_USD:-0}
-      MAYBOT_BUDGET_MONTHLY_USD: ${MAYBOT_BUDGET_MONTHLY_USD:-0}
-      MAYBOT_SECRET_KEY: ${MAYBOT_SECRET_KEY:-}
-      MAYBOT_REDIS_URL: ${MAYBOT_REDIS_URL:-}
+      # SECT_ACADEMY_TOKEN: "choose-a-long-token"
+      TZ: UTC
     volumes:
-      - ./:/app
-      - maybot-data:/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8200/healthz', timeout=4).status==200 else 1)"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-
-  agent:
-    build: .
-    command: uvicorn maybot_agent.app:app --host 0.0.0.0 --port 8100
-    ports:
-      - "8100:8100"
-    environment:
-      MAYBOT_API_TOKEN: ${MAYBOT_API_TOKEN:-change-me}
-    volumes:
-      - ./:/app
+      - academy-data:/data
     restart: unless-stopped
 
 volumes:
-  maybot-data:
+  academy-data:

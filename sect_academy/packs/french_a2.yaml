@@ -1,0 +1,644 @@
+id: french-a2
+title: "French — A2 Elementary"
+kind: language
+language: French
+lang: fr-FR
+hall: tongues_west
+blurb: "Tell stories in the past, talk about the future, use pronouns like a native and handle travel, health, work, housing and everyday services."
+
+units:
+  # ───────────────────────────────────────────────────────────────── 1
+  - id: fr2-01
+    title: "Travel stories: the passé composé in depth"
+    goal: "I can describe a trip I took, using irregular past participles, negation and agreement correctly."
+    notes: |
+      You already know the passé composé: **avoir** or **être** + past participle. At A2 you need three more things.
+
+      ## Irregular participles
+      | infinitive | participle | infinitive | participle |
+      |---|---|---|---|
+      | avoir | eu | mettre | mis |
+      | être | été | dire | dit |
+      | lire | lu | écrire | écrit |
+      | boire | bu | pouvoir | pu |
+
+      ## Negation and adverbs
+      *ne … pas* wraps around the **auxiliary**, not the participle: *Je **n'ai pas** réservé.* Short adverbs sit in the same slot: *J'ai **déjà** mangé*, *Je n'ai **pas encore** fini*.
+
+      ## Agreement
+      - With **être**, the participle agrees with the subject: *elles sont all**ées***.
+      - Reflexive verbs always take **être**: *elle s'est lev**ée***, *nous nous sommes amus**és***.
+      - With **avoir**, no agreement with the subject: *elles ont mang**é***.
+
+      *déjà* in a question means "ever": *Tu as déjà visité Rome ?*
+    items:
+      - {id: fr2-01-voyage, type: vocab, l2: "le voyage", l1: "the trip / the journey", ex: "Le voyage a été très long.", ex_l1: "The journey was very long.", note: "Any trip, not only by sea. Bon voyage ! = Have a good trip!"}
+      - {id: fr2-01-pays, type: vocab, l2: "le pays", l1: "the country (a nation)", ex: "La France est un beau pays.", ex_l1: "France is a beautiful country.", note: "Say 'pay-ee'. The s is there in the singular too: un pays, des pays."}
+      - {id: fr2-01-bagages, type: vocab, l2: "les bagages", l1: "the luggage", ex: "Nous avons mis les bagages dans la voiture.", ex_l1: "We put the luggage in the car.", note: "Masculine and normally plural in French; one piece is un bagage."}
+      - {id: fr2-01-vol, type: vocab, l2: "le vol", l1: "the flight", ex: "Le vol pour Rome part à midi.", ex_l1: "The flight to Rome leaves at noon.", note: "From voler, to fly. Le vol also means theft."}
+      - {id: fr2-01-sejour, type: vocab, l2: "le séjour", l1: "the stay (time spent somewhere)", ex: "Nous avons fait un séjour à la montagne.", ex_l1: "We had a stay in the mountains.", note: "Bon séjour ! = Enjoy your stay! Le séjour is also the living room."}
+      - {id: fr2-01-carte-postale, type: vocab, l2: "la carte postale", l1: "the postcard", ex: "J'ai acheté une carte postale pour ma mère.", ex_l1: "I bought a postcard for my mother.", note: "Plural: des cartes postales."}
+      - {id: fr2-01-plage, type: vocab, l2: "la plage", l1: "the beach", ex: "Les enfants ont joué sur la plage.", ex_l1: "The children played on the beach."}
+      - {id: fr2-01-mer, type: vocab, l2: "la mer", l1: "the sea", ex: "L'hôtel est près de la mer.", ex_l1: "The hotel is near the sea.", note: "Sounds exactly like la mère (the mother)."}
+      - {id: fr2-01-montagne, type: vocab, l2: "la montagne", l1: "the mountain / the mountains (as a place to go)", ex: "Nous avons passé une semaine à la montagne.", ex_l1: "We spent a week in the mountains.", note: "Singular in French for the place: à la montagne."}
+      - {id: fr2-01-reserver, type: vocab, l2: "réserver", l1: "to book / to reserve", ex: "J'ai réservé une table pour ce soir.", ex_l1: "I booked a table for tonight."}
+      - {id: fr2-01-deja, type: vocab, l2: "déjà", l1: "already", ex: "J'ai déjà visité ce musée.", ex_l1: "I have already visited this museum.", note: "Goes between the auxiliary and the participle. In a question it means 'ever'."}
+      - {id: fr2-01-a-l-etranger, type: vocab, l2: "à l'étranger", l1: "abroad", ex: "Elle travaille à l'étranger.", ex_l1: "She works abroad.", note: "un étranger = a foreigner or a stranger."}
+      - {id: fr2-01-annee-derniere, type: vocab, l2: "l'année dernière", l1: "last year", alt: ["l'an dernier", "l'année passée", "l'an passé"], ex: "L'année dernière, nous sommes allés en Espagne.", ex_l1: "Last year we went to Spain.", note: "dernier after the noun = 'last' in time: la semaine dernière, le mois dernier."}
+      - {id: fr2-01-j-ai-passe-une-semaine, type: phrase, l2: "J'ai passé une semaine en Italie.", l1: "I spent a week in Italy.", note: "passer + a length of time takes avoir. You spend time with passer, money with dépenser."}
+      - {id: fr2-01-tu-as-deja-visite, type: phrase, l2: "Tu as déjà visité Paris ?", l1: "Have you ever visited Paris? (informal)", alt: ["Est-ce que tu as déjà visité Paris ?", "As-tu déjà visité Paris ?"], note: "visiter is for places only. For people, say rendre visite à or aller voir."}
+      - {id: fr2-01-pas-encore-reserve, type: phrase, l2: "Je n'ai pas encore réservé l'hôtel.", l1: "I haven't booked the hotel yet.", note: "pas encore = not yet. Both words sit before the participle."}
+      - {id: fr2-01-qu-avez-vous-fait, type: phrase, l2: "Qu'est-ce que vous avez fait pendant les vacances ?", l1: "What did you do during the holidays? (formal)", alt: ["Qu'avez-vous fait pendant les vacances ?", "Vous avez fait quoi pendant les vacances ?"]}
+      - {id: fr2-01-bien-amuses, type: phrase, l2: "Nous nous sommes bien amusés.", l1: "We had a lot of fun. (with nous; a mixed group)", alt: ["Nous nous sommes beaucoup amusés."], note: "s'amuser is reflexive, so it takes être and the participle agrees: amusés."}
+      - {id: fr2-01-c1, type: cloze, text: "Nous avons ___ beaucoup de chance.", answer: "eu", l1: "We were very lucky.", note: "avoir → eu (sounds like the letter u). avoir de la chance = to be lucky."}
+      - {id: fr2-01-c2, type: cloze, text: "J'ai ___ un livre dans l'avion.", answer: "lu", l1: "I read a book on the plane.", note: "lire → lu."}
+      - {id: fr2-01-c3, type: cloze, text: "Elle a ___ une carte postale à sa mère.", answer: "écrit", l1: "She wrote a postcard to her mother.", note: "écrire → écrit. No agreement with the subject after avoir."}
+      - {id: fr2-01-c4, type: cloze, text: "Tu as ___ ton passeport dans la valise ?", answer: "mis", l1: "Did you put your passport in the suitcase?", note: "mettre → mis (the s is silent)."}
+      - {id: fr2-01-c5, type: cloze, text: "Nous n'avons pas ___ visiter le musée.", answer: "pu", l1: "We weren't able to visit the museum.", note: "pouvoir → pu. ne … pas goes around the auxiliary."}
+      - {id: fr2-01-c6, type: cloze, text: "Elles sont ___ à la plage.", answer: "allées", l1: "They (women) went to the beach.", note: "aller takes être, so the participle agrees: feminine plural -ées."}
+      - {id: fr2-01-c7, type: cloze, text: "Elle s'est ___ à six heures.", answer: "levée", l1: "She got up at six o'clock.", note: "Reflexive verbs take être; the participle agrees with elle: levée."}
+      - {id: fr2-01-c8, type: cloze, text: "Je n'ai ___ encore acheté les billets.", answer: "pas", l1: "I haven't bought the tickets yet.", note: "pas encore = not yet, placed between the auxiliary and the participle."}
+
+  # ───────────────────────────────────────────────────────────────── 2
+  - id: fr2-02
+    title: "When I was little: the imparfait"
+    goal: "I can describe what things were like and what I used to do in the past."
+    notes: |
+      The **imparfait** describes the past as a background: what things **were like** and what you **used to do**. English says "was …ing", "used to …" or simply "was".
+
+      ## How to form it
+      Take the **nous** form of the present, drop *-ons*, add the endings. It works for every verb except **être** (stem *ét-*).
+
+      | pronoun | parler (parl-) | être (ét-) |
+      |---|---|---|
+      | je | parlais | étais |
+      | tu | parlais | étais |
+      | il / elle / on | parlait | était |
+      | nous | parlions | étions |
+      | vous | parliez | étiez |
+      | ils / elles | parlaient | étaient |
+
+      - *-ais, -ait, -aient* all sound the same: "eh".
+      - *faire* → nous **fais**ons → je **fais**ais; *avoir* → j'**av**ais; *aller* → j'**all**ais.
+      - *manger* keeps its **e** before a: je mang**e**ais, but nous mangions.
+
+      Signal words: *quand j'étais petit, autrefois, d'habitude, chaque été, tous les jours*.
+    items:
+      - {id: fr2-02-enfance, type: vocab, l2: "l'enfance", l1: "childhood", ex: "J'ai passé mon enfance à Lyon.", ex_l1: "I spent my childhood in Lyon.", note: "Feminine: une enfance heureuse."}
+      - {id: fr2-02-autrefois, type: vocab, l2: "autrefois", l1: "in the old days / formerly", alt: ["avant", "jadis"], ex: "Autrefois, il n'y avait pas d'ordinateurs.", ex_l1: "In the old days, there were no computers.", note: "Literally 'other times'. Usually with the imparfait."}
+      - {id: fr2-02-d-habitude, type: vocab, l2: "d'habitude", l1: "usually", alt: ["habituellement", "en général", "généralement"], ex: "D'habitude, nous mangions à midi.", ex_l1: "Usually, we used to eat at noon.", note: "une habitude = a habit."}
+      - {id: fr2-02-chaque, type: vocab, l2: "chaque", l1: "each / every (before a singular noun)", ex: "Chaque été, nous allions à la mer.", ex_l1: "Every summer, we used to go to the sea.", note: "Never changes and is always followed by a singular: chaque jour = tous les jours."}
+      - {id: fr2-02-parfois, type: vocab, l2: "parfois", l1: "sometimes", alt: ["quelquefois", "des fois"], ex: "Parfois, mon père jouait avec nous.", ex_l1: "Sometimes my father played with us."}
+      - {id: fr2-02-rarement, type: vocab, l2: "rarement", l1: "rarely", ex: "Nous allions rarement au restaurant.", ex_l1: "We rarely went to the restaurant.", note: "Adverbs go right after the verb, never between subject and verb."}
+      - {id: fr2-02-longtemps, type: vocab, l2: "longtemps", l1: "for a long time", ex: "Le soir, nous parlions longtemps.", ex_l1: "In the evening, we used to talk for a long time.", note: "One word, and no 'pour' before it."}
+      - {id: fr2-02-campagne, type: vocab, l2: "la campagne", l1: "the countryside", ex: "Mes parents habitaient à la campagne.", ex_l1: "My parents used to live in the countryside.", note: "In the countryside = à la campagne."}
+      - {id: fr2-02-village, type: vocab, l2: "le village", l1: "the village", ex: "Il y avait une école dans le village.", ex_l1: "There was a school in the village.", note: "The ll is a plain l sound here: 'vee-lazh'."}
+      - {id: fr2-02-grands-parents, type: vocab, l2: "les grands-parents", l1: "the grandparents", ex: "Mes grands-parents avaient un grand jardin.", ex_l1: "My grandparents had a big garden.", note: "le grand-père, la grand-mère (grand does not take an e here)."}
+      - {id: fr2-02-jouet, type: vocab, l2: "le jouet", l1: "the toy", ex: "J'avais beaucoup de jouets.", ex_l1: "I had a lot of toys.", note: "From jouer, to play."}
+      - {id: fr2-02-dessin-anime, type: vocab, l2: "le dessin animé", l1: "the cartoon (film or TV)", ex: "Je regardais des dessins animés le mercredi.", ex_l1: "I used to watch cartoons on Wednesdays.", note: "Literally 'animated drawing'. Plural: des dessins animés."}
+      - {id: fr2-02-souvenir, type: vocab, l2: "le souvenir", l1: "the memory (of something in your past)", ex: "J'ai de bons souvenirs de cette école.", ex_l1: "I have good memories of that school.", note: "Also the souvenir you buy. La mémoire is the ability to remember."}
+      - {id: fr2-02-se-souvenir-de, type: vocab, l2: "se souvenir de", l1: "to remember (reflexive verb)", alt: ["se rappeler"], ex: "Je me souviens de mon professeur.", ex_l1: "I remember my teacher.", note: "Conjugated like venir: je me souviens, nous nous souvenons."}
+      - {id: fr2-02-quand-j-etais-petit, type: phrase, l2: "Quand j'étais petit, j'habitais à la campagne.", l1: "When I was little, I lived in the countryside. (said by a man)", alt: ["Quand j'étais petit, je vivais à la campagne."], note: "A woman writes petite. Both verbs are imparfait: a description of a period."}
+      - {id: fr2-02-c-etait-comment, type: phrase, l2: "C'était comment ?", l1: "What was it like? (everyday question)", alt: ["Comment c'était ?", "Comment était-ce ?"]}
+      - {id: fr2-02-beaucoup-de-monde, type: phrase, l2: "Il y avait beaucoup de monde.", l1: "There were a lot of people.", alt: ["Il y avait beaucoup de gens.", "Il y avait beaucoup de personnes."], note: "il y a → il y avait. du monde = people; it stays singular."}
+      - {id: fr2-02-je-ne-savais-pas, type: phrase, l2: "Je ne savais pas.", l1: "I didn't know.", note: "States of mind in the past (savoir, penser, vouloir) are usually imparfait."}
+      - {id: fr2-02-c-etait-super, type: phrase, l2: "C'était super !", l1: "It was great!", alt: ["C'était génial !", "C'était formidable !", "C'était très bien !"]}
+      - {id: fr2-02-c1, type: cloze, text: "J'___ très timide à l'école.", answer: "étais", l1: "I was very shy at school.", note: "être is the one irregular stem: ét- + ais."}
+      - {id: fr2-02-c2, type: cloze, text: "Mon grand-père ___ un vieux vélo.", answer: "avait", l1: "My grandfather used to have an old bike.", note: "avoir → nous avons → av- + ait."}
+      - {id: fr2-02-c3, type: cloze, text: "Nous ___ dans un petit village.", answer: "habitions", alt: ["vivions"], l1: "We used to live in a small village.", note: "nous → -ions. The i is what separates it from the present habitons."}
+      - {id: fr2-02-c4, type: cloze, text: "Les enfants ___ dans la rue tous les soirs.", answer: "jouaient", l1: "The children used to play in the street every evening.", note: "ils / elles → -aient, pronounced exactly like -ais and -ait."}
+      - {id: fr2-02-c5, type: cloze, text: "Il ___ toujours beau en été.", answer: "faisait", l1: "The weather was always nice in summer.", note: "faire → nous faisons → fais- + ait. Say 'fuh-zeh'."}
+      - {id: fr2-02-c6, type: cloze, text: "Vous ___ à l'école à pied ?", answer: "alliez", l1: "Did you use to go to school on foot?", note: "aller → nous allons → all- + iez."}
+      - {id: fr2-02-c7, type: cloze, text: "Tu ___ beaucoup de chocolat ?", answer: "mangeais", l1: "Did you use to eat a lot of chocolate?", note: "The e stays before a to keep the soft g: mangeais."}
+
+  # ───────────────────────────────────────────────────────────────── 3
+  - id: fr2-03
+    title: "Telling a story: passé composé or imparfait?"
+    goal: "I can tell a simple story in the past, setting the scene and saying what happened in order."
+    notes: |
+      A story in French needs **both** past tenses. Think of a film:
+
+      - **imparfait** = the set. Weather, time, feelings, what was going on, habits. *Il faisait beau. J'étais fatigué.*
+      - **passé composé** = the action. Each completed event that moves the story on. *Le téléphone a sonné. Je suis sorti.*
+
+      Together: *Je **dormais** quand le téléphone **a sonné**.* The imparfait action was in progress; the passé composé event interrupted it.
+
+      | clue | tense |
+      |---|---|
+      | soudain, tout à coup, une fois, hier | passé composé |
+      | pendant que, d'habitude, tous les jours | imparfait |
+
+      ## Three little time words
+      - **il y a** + time = *ago*: *il y a deux ans*.
+      - **pendant** + time = *for* a finished period: *J'ai travaillé pendant un an.*
+      - **depuis** + time = *for / since*, and it is **still true** — so French uses the **present**: *J'habite ici depuis un an.*
+
+      Order events with *d'abord … ensuite … enfin*.
+    items:
+      - {id: fr2-03-d-abord, type: vocab, l2: "d'abord", l1: "first / first of all", alt: ["tout d'abord", "premièrement", "en premier"], ex: "D'abord, nous avons visité le musée.", ex_l1: "First, we visited the museum."}
+      - {id: fr2-03-puis, type: vocab, l2: "puis", l1: "then (the short word that opens the next step of a story)", alt: ["après"], ex: "Nous avons visité le musée, puis nous avons mangé.", ex_l1: "We visited the museum, then we ate.", note: "Same meaning as ensuite, but puis can only come at the start of its clause."}
+      - {id: fr2-03-enfin, type: vocab, l2: "enfin", l1: "finally / at last", alt: ["finalement"], ex: "Enfin, nous sommes arrivés à l'hôtel.", ex_l1: "At last, we arrived at the hotel."}
+      - {id: fr2-03-soudain, type: vocab, l2: "soudain", l1: "suddenly (one word)", alt: ["soudainement", "brusquement"], ex: "Soudain, un chien est entré.", ex_l1: "Suddenly, a dog came in.", note: "A sudden event → passé composé."}
+      - {id: fr2-03-tout-a-coup, type: vocab, l2: "tout à coup", l1: "all of a sudden (three words)", alt: ["tout d'un coup"], ex: "Tout à coup, il a commencé à pleuvoir.", ex_l1: "All of a sudden, it started to rain."}
+      - {id: fr2-03-pendant-que, type: vocab, l2: "pendant que", l1: "while (+ a verb)", ex: "Pendant que je travaillais, les enfants jouaient.", ex_l1: "While I was working, the children were playing.", note: "Followed by the imparfait for an action in progress."}
+      - {id: fr2-03-alors, type: vocab, l2: "alors", l1: "so / then (as a result, in a story)", alt: ["donc"], ex: "J'avais faim, alors j'ai acheté du pain.", ex_l1: "I was hungry, so I bought some bread."}
+      - {id: fr2-03-il-y-a-trois-jours, type: vocab, l2: "il y a trois jours", l1: "three days ago", alt: ["il y a 3 jours"], ex: "Je suis arrivé il y a trois jours.", ex_l1: "I arrived three days ago.", note: "il y a comes BEFORE the time, unlike English 'ago'."}
+      - {id: fr2-03-depuis, type: vocab, l2: "depuis", l1: "since / for (and still continuing)", ex: "Je travaille ici depuis lundi.", ex_l1: "I have been working here since Monday.", note: "Use the present tense with depuis, not the past."}
+      - {id: fr2-03-une-fois, type: vocab, l2: "une fois", l1: "once / one time", ex: "J'ai visité Rome une fois.", ex_l1: "I have visited Rome once.", note: "deux fois = twice. Il était une fois… = Once upon a time…"}
+      - {id: fr2-03-histoire, type: vocab, l2: "l'histoire", l1: "the story / history", ex: "C'est une histoire vraie.", ex_l1: "It's a true story.", note: "Feminine, with a silent h: une histoire."}
+      - {id: fr2-03-raconter, type: vocab, l2: "raconter", l1: "to tell (a story, what happened)", ex: "Il a raconté son voyage.", ex_l1: "He told the story of his trip.", note: "You raconter a story but dire a word or a fact."}
+      - {id: fr2-03-commencer, type: vocab, l2: "commencer", l1: "to begin / to start", alt: ["débuter"], ex: "Le film a commencé à huit heures.", ex_l1: "The film started at eight o'clock.", note: "nous commençons, je commençais: ç keeps the s sound before o and a."}
+      - {id: fr2-03-hier-soir, type: vocab, l2: "hier soir", l1: "last night / yesterday evening", ex: "Hier soir, j'ai regardé un film.", ex_l1: "Last night, I watched a film.", note: "No article and no preposition."}
+      - {id: fr2-03-qu-est-ce-qui-s-est-passe, type: phrase, l2: "Qu'est-ce qui s'est passé ?", l1: "What happened?", alt: ["Que s'est-il passé ?", "Qu'est-ce qu'il s'est passé ?", "Il s'est passé quoi ?"], note: "se passer = to happen. Reflexive, so it takes être."}
+      - {id: fr2-03-je-dormais-quand, type: phrase, l2: "Je dormais quand le téléphone a sonné.", l1: "I was sleeping when the phone rang.", note: "Background in the imparfait, interrupting event in the passé composé."}
+      - {id: fr2-03-j-habite-ici-depuis, type: phrase, l2: "J'habite ici depuis deux ans.", l1: "I have lived here for two years. (and I still do)", alt: ["J'habite ici depuis 2 ans.", "Je vis ici depuis deux ans.", "Ça fait deux ans que j'habite ici."], note: "Still true → present tense + depuis."}
+      - {id: fr2-03-belle-journee, type: phrase, l2: "C'était une belle journée.", l1: "It was a beautiful day.", note: "une journée is the day as a stretch of time you live through; un jour is the unit you count."}
+      - {id: fr2-03-et-alors, type: phrase, l2: "Et alors ?", l1: "And then? / So what?", alt: ["Et après ?", "Et ensuite ?"], note: "Said to make someone carry on with the story."}
+      - {id: fr2-03-c1, type: cloze, text: "Je ___ la télévision quand tu as téléphoné.", answer: "regardais", l1: "I was watching television when you phoned.", note: "An action in progress → imparfait."}
+      - {id: fr2-03-c2, type: cloze, text: "Il faisait beau, alors nous ___ allés à la plage.", answer: "sommes", l1: "The weather was nice, so we went to the beach.", note: "A completed event → passé composé; aller takes être."}
+      - {id: fr2-03-c3, type: cloze, text: "Pendant que je dormais, mon frère ___ pris ma voiture.", answer: "a", l1: "While I was sleeping, my brother took my car.", note: "One completed action → passé composé with avoir."}
+      - {id: fr2-03-c4, type: cloze, text: "Quand j'étais jeune, je ___ au tennis tous les samedis.", answer: "jouais", l1: "When I was young, I used to play tennis every Saturday.", note: "A habit in the past → imparfait."}
+      - {id: fr2-03-c5, type: cloze, text: "Il ___ quand je suis parti.", answer: "pleuvait", l1: "It was raining when I left.", note: "Weather as background → imparfait of pleuvoir."}
+      - {id: fr2-03-c6, type: cloze, text: "Elle ___ fatiguée, alors elle est restée à la maison.", answer: "était", l1: "She was tired, so she stayed at home.", note: "A state or feeling → imparfait; what she did about it → passé composé."}
+      - {id: fr2-03-c7, type: cloze, text: "J'ai travaillé à Lyon ___ trois ans.", answer: "pendant", alt: ["durant"], l1: "I worked in Lyon for three years. (it is over)", note: "A finished period → pendant + passé composé. depuis would mean it is still going on."}
+
+  # ───────────────────────────────────────────────────────────────── 4
+  - id: fr2-04
+    title: "Work, study and the future: the futur simple"
+    goal: "I can talk about my studies and job and say what I will do in the future."
+    notes: |
+      You know *je vais partir* (near future). The **futur simple** is one word and means "will": plans, predictions, promises.
+
+      ## How to form it
+      **Infinitive + the endings of avoir**: -ai, -as, -a, -ons, -ez, -ont. Verbs in -re drop the final e: *prendre → je prendrai*.
+
+      | pronoun | parler | être |
+      |---|---|---|
+      | je | parlerai | serai |
+      | tu | parleras | seras |
+      | il / elle / on | parlera | sera |
+      | nous | parlerons | serons |
+      | vous | parlerez | serez |
+      | ils / elles | parleront | seront |
+
+      ## Irregular stems (the endings never change)
+      - être → **ser-**, avoir → **aur-**, aller → **ir-**, faire → **fer-**
+      - pouvoir → **pourr-**, venir → **viendr-**, voir → **verr-**, devoir → **devr-**, vouloir → **voudr-**
+
+      After **quand**, French uses the future where English uses the present: *Quand je **serai** grand…* (when I *am* older).
+
+      There is always an **r** before the ending — that is how you hear the future.
+    items:
+      - {id: fr2-04-avenir, type: vocab, l2: "l'avenir", l1: "the future (the time ahead of you)", alt: ["le futur"], ex: "Je pense souvent à l'avenir.", ex_l1: "I often think about the future.", note: "Masculine. From à venir, 'to come'. Le futur is mostly the grammar tense."}
+      - {id: fr2-04-reunion, type: vocab, l2: "la réunion", l1: "the meeting (at work)", ex: "J'ai une réunion avec le patron à dix heures.", ex_l1: "I have a meeting with the boss at ten o'clock.", note: "False friend: a reunion of old friends is des retrouvailles."}
+      - {id: fr2-04-emploi, type: vocab, l2: "un emploi", l1: "a job (a paid position)", alt: ["un travail", "un poste", "un boulot", "un job"], ex: "Mon frère cherche un emploi.", ex_l1: "My brother is looking for a job.", note: "Informal: un boulot."}
+      - {id: fr2-04-entreprise, type: vocab, l2: "l'entreprise", l1: "the company / the firm", alt: ["la société", "la boîte", "la compagnie"], ex: "Elle travaille dans une petite entreprise.", ex_l1: "She works in a small company.", note: "Feminine: une entreprise."}
+      - {id: fr2-04-collegue, type: vocab, l2: "le collègue", l1: "the colleague (male)", ex: "Je mange avec un collègue à midi.", ex_l1: "I eat with a colleague at noon.", note: "Same word for a woman, with la: la collègue."}
+      - {id: fr2-04-patron, type: vocab, l2: "le patron", l1: "the boss (male)", alt: ["le chef", "le directeur"], ex: "Le patron n'est pas au bureau aujourd'hui.", ex_l1: "The boss is not in the office today.", note: "Feminine: la patronne. Not a 'patron' in the English sense."}
+      - {id: fr2-04-stage, type: vocab, l2: "le stage", l1: "the internship / work placement", ex: "J'ai fait un stage dans une banque.", ex_l1: "I did an internship in a bank.", note: "False friend: a theatre stage is la scène."}
+      - {id: fr2-04-diplome, type: vocab, l2: "le diplôme", l1: "the degree / the diploma", ex: "Elle a un diplôme de français.", ex_l1: "She has a French diploma.", note: "Masculine, with a circumflex on the o."}
+      - {id: fr2-04-examen, type: vocab, l2: "l'examen", l1: "the exam", ex: "L'examen commence à neuf heures.", ex_l1: "The exam starts at nine o'clock.", note: "Masculine: un examen. The ending is the nasal vowel of vin and pain ('eg-za-MAN'), not English 'men'."}
+      - {id: fr2-04-salaire, type: vocab, l2: "le salaire", l1: "the salary / the pay", ex: "Le salaire est bon, mais le bureau est loin.", ex_l1: "The pay is good, but the office is far away."}
+      - {id: fr2-04-gagner, type: vocab, l2: "gagner", l1: "to earn / to win", ex: "Elle gagne beaucoup d'argent.", ex_l1: "She earns a lot of money.", note: "gagner sa vie = to earn a living."}
+      - {id: fr2-04-plus-tard, type: vocab, l2: "plus tard", l1: "later", ex: "Plus tard, je voudrais habiter à l'étranger.", ex_l1: "Later on, I would like to live abroad.", note: "À plus tard ! = See you later!"}
+      - {id: fr2-04-annee-prochaine, type: vocab, l2: "l'année prochaine", l1: "next year", alt: ["l'an prochain"], ex: "L'année prochaine, j'habiterai à Paris.", ex_l1: "Next year, I will live in Paris."}
+      - {id: fr2-04-esperer, type: vocab, l2: "espérer", l1: "to hope", ex: "J'espère que tu viendras.", ex_l1: "I hope you will come.", note: "The accent flips: j'espère, but nous espérons."}
+      - {id: fr2-04-que-feras-tu, type: phrase, l2: "Qu'est-ce que tu feras après tes études ?", l1: "What will you do after your studies? (informal)", alt: ["Que feras-tu après tes études ?", "Tu feras quoi après tes études ?", "Qu'est-ce que tu vas faire après tes études ?"], note: "les études = your studies (always plural)."}
+      - {id: fr2-04-on-verra, type: phrase, l2: "On verra.", l1: "We'll see.", alt: ["Nous verrons.", "On verra bien."], note: "voir → verr-. The everyday way to avoid deciding now."}
+      - {id: fr2-04-je-t-appellerai, type: phrase, l2: "Je t'appellerai demain.", l1: "I'll call you tomorrow. (informal)", alt: ["Je te téléphonerai demain.", "Je vais t'appeler demain."], note: "appeler doubles its l in the future: j'appellerai."}
+      - {id: fr2-04-bonne-chance, type: phrase, l2: "Bonne chance pour ton examen !", l1: "Good luck with your exam! (informal)", note: "pour, not avec, after bonne chance."}
+      - {id: fr2-04-je-passe-un-examen, type: phrase, l2: "Je passe un examen demain.", l1: "I'm taking an exam tomorrow.", alt: ["J'ai un examen demain."], note: "False friend: passer un examen = to sit it. To pass it is réussir un examen."}
+      - {id: fr2-04-c1, type: cloze, text: "Demain, il ___ à Paris pour son travail.", answer: "sera", l1: "Tomorrow he will be in Paris for work.", note: "être → ser- + a."}
+      - {id: fr2-04-c2, type: cloze, text: "J'___ mon diplôme en juin.", answer: "aurai", l1: "I will have my degree in June.", note: "avoir → aur- + ai."}
+      - {id: fr2-04-c3, type: cloze, text: "L'été prochain, nous ___ en Espagne.", answer: "irons", l1: "Next summer we will go to Spain.", note: "aller → ir- + ons."}
+      - {id: fr2-04-c4, type: cloze, text: "Tu ___ un stage cet été ?", answer: "feras", l1: "Will you do an internship this summer?", note: "faire → fer- + as."}
+      - {id: fr2-04-c5, type: cloze, text: "Vous ___ commencer lundi.", answer: "pourrez", l1: "You will be able to start on Monday.", note: "pouvoir → pourr- + ez, with a double r."}
+      - {id: fr2-04-c6, type: cloze, text: "Ils ___ nous voir la semaine prochaine.", answer: "viendront", l1: "They will come to see us next week.", note: "venir → viendr- + ont."}
+      - {id: fr2-04-c7, type: cloze, text: "Après mes études, je ___ dans une grande entreprise.", answer: "travaillerai", l1: "After my studies, I will work in a big company.", note: "Regular: infinitive travailler + ai."}
+
+  # ───────────────────────────────────────────────────────────────── 5
+  - id: fr2-05
+    title: "Him, her, them: object pronouns"
+    goal: "I can avoid repeating nouns by using direct and indirect object pronouns."
+    notes: |
+      Object pronouns replace a noun you have already mentioned. In French they go **before the verb**: *Je **le** vois* (I see him).
+
+      | | direct (verb + thing/person) | indirect (verb + **à** + person) |
+      |---|---|---|
+      | me, you | me, te | me, te |
+      | him / it (m.) | **le** | **lui** |
+      | her / it (f.) | **la** | **lui** |
+      | us, you | nous, vous | nous, vous |
+      | them | **les** | **leur** |
+
+      - Check the verb: *voir quelqu'un* → direct (*je **la** vois*); *téléphoner **à** quelqu'un* → indirect (*je **lui** téléphone*).
+      - **lui** means "to him" *and* "to her". **leur** never takes an s.
+      - *me, te, le, la* become **m', t', l'** before a vowel: *je **l'**aime*.
+      - Negation wraps pronoun + verb: *Je **ne le** connais **pas**.*
+      - Passé composé: before the auxiliary — *Je **lui** ai téléphoné.* After a direct *le/la/les*, the participle agrees: *Je **l'**ai vu**e*** (Marie).
+      - With two verbs, before the infinitive: *Je peux **t'**aider.*
+      - Positive commands: after the verb, and *me → moi*: *Donne-**moi** ça !*
+    items:
+      - {id: fr2-05-recevoir, type: vocab, l2: "recevoir", l1: "to receive / to get (a letter, a present)", ex: "Je reçois beaucoup de lettres de la banque.", ex_l1: "I get a lot of letters from the bank.", note: "Irregular: je reçois, nous recevons, ils reçoivent. Participle: reçu."}
+      - {id: fr2-05-envoyer, type: vocab, l2: "envoyer", l1: "to send", ex: "J'envoie une carte à mes parents.", ex_l1: "I am sending a card to my parents.", note: "y becomes i when the ending is silent: j'envoie, but nous envoyons. Future: j'enverrai."}
+      - {id: fr2-05-montrer, type: vocab, l2: "montrer", l1: "to show", ex: "Elle montre sa maison à ses amis.", ex_l1: "She shows her house to her friends."}
+      - {id: fr2-05-preter, type: vocab, l2: "prêter", l1: "to lend", ex: "Il prête sa voiture à son fils.", ex_l1: "He lends his car to his son.", note: "To borrow is emprunter."}
+      - {id: fr2-05-offrir, type: vocab, l2: "offrir", l1: "to give (as a present) / to offer", ex: "J'offre des fleurs à ma mère.", ex_l1: "I am giving my mother flowers.", note: "Conjugates like an -er verb: j'offre, tu offres. Participle: offert."}
+      - {id: fr2-05-expliquer, type: vocab, l2: "expliquer", l1: "to explain", ex: "Le professeur explique la leçon aux étudiants.", ex_l1: "The teacher explains the lesson to the students."}
+      - {id: fr2-05-demander, type: vocab, l2: "demander", l1: "to ask / to ask for", ex: "Je demande le prix au vendeur.", ex_l1: "I ask the salesman the price.", note: "False friend: it is not 'to demand'. You demander à a person."}
+      - {id: fr2-05-telephoner, type: vocab, l2: "téléphoner", l1: "to phone (the verb that takes à + person)", ex: "Je téléphone à ma sœur le dimanche.", ex_l1: "I phone my sister on Sundays.", note: "Indirect: je lui téléphone. Its synonym appeler is direct: je l'appelle."}
+      - {id: fr2-05-cadeau, type: vocab, l2: "le cadeau", l1: "the present / the gift", ex: "J'ai acheté un cadeau pour Marie.", ex_l1: "I bought a present for Marie.", note: "Plural in -x: des cadeaux."}
+      - {id: fr2-05-lettre, type: vocab, l2: "la lettre", l1: "the letter", ex: "J'ai écrit une lettre à la banque.", ex_l1: "I wrote a letter to the bank."}
+      - {id: fr2-05-colis, type: vocab, l2: "le colis", l1: "the parcel / the package (sent by post)", alt: ["le paquet"], ex: "J'ai reçu un colis ce matin.", ex_l1: "I received a parcel this morning.", note: "The final s is silent and stays in the singular."}
+      - {id: fr2-05-poste, type: vocab, l2: "la poste", l1: "the post office", alt: ["le bureau de poste"], ex: "La poste est fermée le dimanche.", ex_l1: "The post office is closed on Sundays.", note: "Feminine. Le poste (masculine) is a job position or a TV set."}
+      - {id: fr2-05-portable, type: vocab, l2: "le portable", l1: "the mobile phone", alt: ["le téléphone portable", "le mobile", "le téléphone"], ex: "J'ai oublié mon portable à la maison.", ex_l1: "I left my mobile at home.", note: "Short for le téléphone portable."}
+      - {id: fr2-05-je-t-aime, type: phrase, l2: "Je t'aime.", l1: "I love you. (informal)", note: "te → t' before a vowel. Careful: Je t'aime bien only means 'I like you'."}
+      - {id: fr2-05-je-ne-le-connais-pas, type: phrase, l2: "Je ne le connais pas.", l1: "I don't know him.", note: "ne … pas goes around pronoun + verb. connaître = to know a person or a place."}
+      - {id: fr2-05-tu-peux-me-preter, type: phrase, l2: "Tu peux me prêter ton stylo ?", l1: "Can you lend me your pen? (informal)", alt: ["Peux-tu me prêter ton stylo ?", "Est-ce que tu peux me prêter ton stylo ?"], note: "With two verbs, the pronoun goes before the infinitive."}
+      - {id: fr2-05-je-lui-ai-telephone, type: phrase, l2: "Je lui ai téléphoné hier.", l1: "I phoned him yesterday.", alt: ["Je l'ai appelé hier."], note: "lui also means 'to her'. It goes before the auxiliary."}
+      - {id: fr2-05-donne-moi-ton-numero, type: phrase, l2: "Donne-moi ton numéro.", l1: "Give me your number. (informal)", alt: ["Donne-moi ton numéro de téléphone."], note: "In a positive command the pronoun follows the verb with a hyphen, and me becomes moi."}
+      - {id: fr2-05-c1, type: cloze, text: "Ce livre ? Je ___ lis en ce moment.", answer: "le", l1: "This book? I'm reading it at the moment.", note: "Masculine singular direct object → le."}
+      - {id: fr2-05-c2, type: cloze, text: "Ta sœur ? Je ___ vois souvent.", answer: "la", l1: "Your sister? I see her often.", note: "Feminine singular direct object → la (voir quelqu'un)."}
+      - {id: fr2-05-c3, type: cloze, text: "Mes parents ? Je ___ appelle chaque dimanche.", answer: "les", l1: "My parents? I call them every Sunday.", note: "appeler quelqu'un is direct → les."}
+      - {id: fr2-05-c4, type: cloze, text: "Paul a un examen demain. Je ___ explique la leçon.", answer: "lui", l1: "Paul has an exam tomorrow. I'm explaining the lesson to him.", note: "expliquer à quelqu'un → indirect → lui."}
+      - {id: fr2-05-c5, type: cloze, text: "Mes amis sont à Rome. Je ___ envoie une lettre.", answer: "leur", l1: "My friends are in Rome. I'm sending them a letter.", note: "envoyer à + several people → leur, never 'leurs'."}
+      - {id: fr2-05-c6, type: cloze, text: "Tu ___ donnes ton adresse ?", answer: "me", l1: "Will you give me your address?", note: "me = me / to me. It goes before the verb."}
+      - {id: fr2-05-c7, type: cloze, text: "Marie ? Je ___ai vue hier.", answer: "l'", l1: "Marie? I saw her yesterday.", note: "la → l' before a vowel. The participle agrees with a direct object placed before it: vue."}
+      - {id: fr2-05-c8, type: cloze, text: "Nous ne ___ connaissons pas, madame.", answer: "vous", l1: "We don't know you, ma'am.", note: "The object pronoun vous sits between ne and the verb."}
+
+  # ───────────────────────────────────────────────────────────────── 6
+  - id: fr2-06
+    title: "At the market: quantities, y and en"
+    goal: "I can buy food by quantity and use y and en instead of repeating a place or a thing."
+    notes: |
+      Two tiny pronouns do a lot of work. Both go **before the verb**, like *le* and *lui*.
+
+      ## en = "of it / of them / some"
+      **en** replaces **de + noun** (including *du, de la, des*) and any noun after a number or quantity.
+      - *Tu veux **du pain** ? — Oui, j'**en** veux.*
+      - *Tu as **des frères** ? — J'**en** ai deux.* (Keep the number!)
+      - *Il n'y **en** a plus.* (There is none left.)
+
+      ## y = "there"
+      **y** replaces **à / en / dans / chez + place**.
+      - *Tu vas **à la poste** ? — Oui, j'**y** vais.*
+      - It also replaces **à + thing**: *Je pense **à mon travail** → J'**y** pense.*
+
+      ## Quantities take plain de
+      After a quantity word, **de** never becomes *du* or *des*:
+
+      | quantity | example |
+      |---|---|
+      | un kilo de | un kilo **de** pommes |
+      | beaucoup de | beaucoup **de** monde |
+      | trop d' | trop **d'**eau |
+
+      **quelques** and **plusieurs** take no *de*: *quelques pommes*.
+    items:
+      - {id: fr2-06-marche, type: vocab, l2: "le marché", l1: "the market", ex: "Je vais au marché le samedi matin.", ex_l1: "I go to the market on Saturday mornings.", note: "bon marché = cheap."}
+      - {id: fr2-06-boulangerie, type: vocab, l2: "la boulangerie", l1: "the bakery", ex: "La boulangerie est ouverte le dimanche.", ex_l1: "The bakery is open on Sundays.", note: "The baker: le boulanger, la boulangère."}
+      - {id: fr2-06-epicerie, type: vocab, l2: "l'épicerie", l1: "the grocery shop", ex: "Il y a une petite épicerie près de chez moi.", ex_l1: "There is a small grocery shop near my place.", note: "Feminine: une épicerie."}
+      - {id: fr2-06-un-kilo-de, type: vocab, l2: "un kilo de", l1: "a kilo of", ex: "Je voudrais un kilo de pommes.", ex_l1: "I would like a kilo of apples.", note: "Plain de after a quantity, never des."}
+      - {id: fr2-06-une-bouteille-de, type: vocab, l2: "une bouteille de", l1: "a bottle of", ex: "J'ai acheté une bouteille de vin.", ex_l1: "I bought a bottle of wine."}
+      - {id: fr2-06-un-morceau-de, type: vocab, l2: "un morceau de", l1: "a piece of", alt: ["un bout de"], ex: "Tu veux un morceau de fromage ?", ex_l1: "Do you want a piece of cheese?"}
+      - {id: fr2-06-une-tranche-de, type: vocab, l2: "une tranche de", l1: "a slice of", ex: "Je mange une tranche de pain le matin.", ex_l1: "I eat a slice of bread in the morning."}
+      - {id: fr2-06-une-boite-de, type: vocab, l2: "une boîte de", l1: "a box of / a tin of", ex: "J'ai acheté une boîte de chocolats.", ex_l1: "I bought a box of chocolates.", note: "Circumflex on the i. Une boîte is also slang for a company or a nightclub."}
+      - {id: fr2-06-un-paquet-de, type: vocab, l2: "un paquet de", l1: "a packet of", ex: "Il y a un paquet de café sur la table.", ex_l1: "There is a packet of coffee on the table."}
+      - {id: fr2-06-assez-de, type: vocab, l2: "assez de", l1: "enough (of)", alt: ["suffisamment de"], ex: "Nous avons assez de pain pour ce soir.", ex_l1: "We have enough bread for tonight.", note: "Before an adjective, assez alone means 'quite': assez grand."}
+      - {id: fr2-06-trop-de, type: vocab, l2: "trop de", l1: "too much / too many", ex: "Tu manges trop de viande.", ex_l1: "You eat too much meat.", note: "The p is silent. Before an adjective, trop alone = too: trop cher."}
+      - {id: fr2-06-quelques, type: vocab, l2: "quelques", l1: "a few / some (with a plural noun)", ex: "J'ai acheté quelques pommes.", ex_l1: "I bought a few apples.", note: "No de after it."}
+      - {id: fr2-06-plusieurs, type: vocab, l2: "plusieurs", l1: "several", ex: "Il y a plusieurs boulangeries dans cette rue.", ex_l1: "There are several bakeries in this street.", note: "Never changes: same form for masculine and feminine, and no de."}
+      - {id: fr2-06-monnaie, type: vocab, l2: "la monnaie", l1: "the change (coins, or money given back)", ex: "Vous avez la monnaie ?", ex_l1: "Do you have the right change?", note: "False friend: 'money' in general is l'argent."}
+      - {id: fr2-06-on-y-va, type: phrase, l2: "On y va !", l1: "Let's go!", alt: ["Allons-y !", "On y va ?"], note: "Literally 'one goes there'. aller always needs a destination, so y fills the gap."}
+      - {id: fr2-06-j-en-voudrais-deux, type: phrase, l2: "J'en voudrais deux, s'il vous plaît.", l1: "I'd like two of them, please.", alt: ["J'en voudrais 2, s'il vous plaît.", "J'en veux deux, s'il vous plaît."], note: "English can drop 'of them'; French cannot drop en."}
+      - {id: fr2-06-il-n-y-en-a-plus, type: phrase, l2: "Il n'y en a plus.", l1: "There is none left.", alt: ["Il n'en reste plus.", "Il n'y en a plus du tout."], note: "il y a + en. The order is always y, then en."}
+      - {id: fr2-06-vous-en-voulez-combien, type: phrase, l2: "Vous en voulez combien ?", l1: "How many (of them) do you want? (formal)", alt: ["Combien en voulez-vous ?", "Combien est-ce que vous en voulez ?"]}
+      - {id: fr2-06-c-est-tout-merci, type: phrase, l2: "C'est tout, merci.", l1: "That's all, thank you.", alt: ["Ce sera tout, merci."], note: "The answer to the shopkeeper's Et avec ça ? ('Anything else?')."}
+      - {id: fr2-06-c1, type: cloze, text: "Tu vas à la boulangerie ? — Oui, j'___ vais maintenant.", answer: "y", l1: "Are you going to the bakery? — Yes, I'm going there now.", note: "y replaces à + place."}
+      - {id: fr2-06-c2, type: cloze, text: "Tu veux du fromage ? — Oui, j'___ veux bien un morceau.", answer: "en", l1: "Do you want some cheese? — Yes, I'd like a piece of it.", note: "en replaces du / de la / des + noun, even when a quantity follows."}
+      - {id: fr2-06-c3, type: cloze, text: "Un kilo ___ pommes, s'il vous plaît.", answer: "de", l1: "A kilo of apples, please.", note: "Quantity + de, never des."}
+      - {id: fr2-06-c4, type: cloze, text: "J'ai acheté une bouteille ___eau.", answer: "d'", l1: "I bought a bottle of water.", note: "de → d' before a vowel."}
+      - {id: fr2-06-c5, type: cloze, text: "Il y a ___ de monde au marché le samedi.", answer: "trop", l1: "There are too many people at the market on Saturdays.", note: "trop de + noun = too much / too many."}
+      - {id: fr2-06-c6, type: cloze, text: "Je n'ai pas ___ d'argent pour payer.", answer: "assez", l1: "I don't have enough money to pay.", note: "assez de + noun = enough."}
+      - {id: fr2-06-c7, type: cloze, text: "Il reste ___ pommes dans la cuisine.", answer: "quelques", l1: "There are a few apples left in the kitchen.", note: "quelques + plural noun, with no de. il reste = there is / are … left."}
+
+  # ───────────────────────────────────────────────────────────────── 7
+  - id: fr2-07
+    title: "My town: qui, que, où"
+    goal: "I can describe my town and its problems, linking sentences with qui, que and où."
+    notes: |
+      Relative pronouns join two sentences about the same noun. French chooses by **grammar role**, not by person/thing.
+
+      | pronoun | role | example |
+      |---|---|---|
+      | **qui** | subject (a verb follows) | l'ami **qui** habite ici |
+      | **que / qu'** | direct object (a subject follows) | le film **que** j'ai vu |
+      | **où** | place or time | la ville **où** je travaille |
+
+      - Quick test: next word is a **verb** → *qui*. Next word is a **subject** (je, tu, Paul…) → *que*.
+      - *qui* is for people **and** things: *le bus **qui** arrive*.
+      - *que* becomes **qu'** before a vowel; *qui* never shortens.
+      - English often drops "that"; French never does: *the film I saw* = *le film **que** j'ai vu*.
+      - **où** also means "when" after a time word: *le jour **où** je suis arrivé*.
+      - "What" in the middle of a sentence is **ce que** (+ subject) or **ce qui** (+ verb): *Je ne sais pas **ce que** tu veux.*
+
+      After *que*, a past participle agrees with the noun: *la ville que j'ai visit**ée***.
+    items:
+      - {id: fr2-07-quartier, type: vocab, l2: "le quartier", l1: "the neighbourhood / the district", ex: "J'habite dans un vieux quartier.", ex_l1: "I live in an old neighbourhood.", note: "Not a quarter of something: that is un quart."}
+      - {id: fr2-07-centre-ville, type: vocab, l2: "le centre-ville", l1: "the town centre / downtown", alt: ["le centre"], ex: "Les magasins sont au centre-ville.", ex_l1: "The shops are in the town centre.", note: "With a hyphen. In the centre = au centre-ville."}
+      - {id: fr2-07-banlieue, type: vocab, l2: "la banlieue", l1: "the suburbs", ex: "Ils ont une maison en banlieue.", ex_l1: "They have a house in the suburbs.", note: "Singular in French: en banlieue."}
+      - {id: fr2-07-batiment, type: vocab, l2: "le bâtiment", l1: "the building (of any kind)", ex: "La poste est dans un vieux bâtiment.", ex_l1: "The post office is in an old building."}
+      - {id: fr2-07-mairie, type: vocab, l2: "la mairie", l1: "the town hall", alt: ["l'hôtel de ville"], ex: "La mairie est sur la place.", ex_l1: "The town hall is on the square.", note: "The mayor is le maire."}
+      - {id: fr2-07-pont, type: vocab, l2: "le pont", l1: "the bridge", ex: "Il y a un vieux pont dans le village.", ex_l1: "There is an old bridge in the village."}
+      - {id: fr2-07-fleuve, type: vocab, l2: "le fleuve", l1: "the river (a big one that reaches the sea)", ex: "La Seine est un fleuve.", ex_l1: "The Seine is a river.", note: "A smaller river that flows into another is une rivière."}
+      - {id: fr2-07-place, type: vocab, l2: "la place", l1: "the square (in a town)", ex: "Il y a un marché sur la place le samedi.", ex_l1: "There is a market on the square on Saturdays.", note: "False friend: a 'place' is un endroit. La place is also a seat or room (space)."}
+      - {id: fr2-07-arret-de-bus, type: vocab, l2: "l'arrêt de bus", l1: "the bus stop", ex: "L'arrêt de bus est devant la mairie.", ex_l1: "The bus stop is in front of the town hall.", note: "Masculine: un arrêt, from arrêter (to stop)."}
+      - {id: fr2-07-circulation, type: vocab, l2: "la circulation", l1: "the traffic", alt: ["le trafic"], ex: "Il y a beaucoup de circulation le matin.", ex_l1: "There is a lot of traffic in the morning.", note: "A traffic jam is un embouteillage."}
+      - {id: fr2-07-bruit, type: vocab, l2: "le bruit", l1: "the noise", ex: "Je n'aime pas le bruit des voitures.", ex_l1: "I don't like the noise of the cars.", note: "faire du bruit = to make noise."}
+      - {id: fr2-07-bruyant, type: vocab, l2: "bruyant", l1: "noisy (masculine)", ex: "Ce quartier est très bruyant.", ex_l1: "This neighbourhood is very noisy.", note: "Feminine: bruyante. The opposite is calme."}
+      - {id: fr2-07-propre, type: vocab, l2: "propre", l1: "clean", ex: "Les rues du centre-ville sont propres.", ex_l1: "The streets in the town centre are clean.", note: "After the noun = clean. Before the noun = own: ma propre voiture."}
+      - {id: fr2-07-sale, type: vocab, l2: "sale", l1: "dirty", ex: "L'eau du fleuve est sale.", ex_l1: "The water in the river is dirty.", note: "False friend: a sale in a shop is les soldes."}
+      - {id: fr2-07-quartier-ou-j-habite, type: phrase, l2: "C'est le quartier où j'habite.", l1: "It's the neighbourhood where I live.", alt: ["C'est le quartier où je vis."]}
+      - {id: fr2-07-ville-qui-me-plait, type: phrase, l2: "C'est une ville qui me plaît beaucoup.", l1: "It's a city that I like a lot. (with the verb plaire)", note: "plaire à = to be pleasing to. The city is the subject, so qui."}
+      - {id: fr2-07-bus-en-retard, type: phrase, l2: "Le bus que je prends est toujours en retard.", l1: "The bus that I take is always late.", note: "que because je follows. en retard = late for something scheduled."}
+      - {id: fr2-07-trop-de-circulation, type: phrase, l2: "Il y a trop de circulation.", l1: "There is too much traffic.", alt: ["Il y a trop de trafic."]}
+      - {id: fr2-07-proteger-l-environnement, type: phrase, l2: "Il faut protéger l'environnement.", l1: "We must protect the environment. (with il faut)", note: "environnement has a double n and is masculine."}
+      - {id: fr2-07-c1, type: cloze, text: "C'est la ville ___ je préfère.", answer: "que", l1: "It's the city I prefer.", note: "A subject (je) follows → que. English can drop 'that'; French cannot."}
+      - {id: fr2-07-c2, type: cloze, text: "J'ai un ami ___ habite en banlieue.", answer: "qui", l1: "I have a friend who lives in the suburbs.", note: "A verb follows → qui (the subject of habite)."}
+      - {id: fr2-07-c3, type: cloze, text: "Voici le parc ___ je joue au football.", answer: "où", l1: "Here is the park where I play football.", note: "A place → où, with a grave accent."}
+      - {id: fr2-07-c4, type: cloze, text: "C'est le vélo ___il a acheté hier.", answer: "qu'", l1: "It's the bike that he bought yesterday.", note: "que → qu' before a vowel. qui never loses its i."}
+      - {id: fr2-07-c5, type: cloze, text: "Je ne sais pas ___ qu'il veut.", answer: "ce", l1: "I don't know what he wants.", note: "'what' in the middle of a sentence = ce que."}
+      - {id: fr2-07-c6, type: cloze, text: "Je vais au travail ___ métro.", answer: "en", l1: "I go to work by underground.", note: "en + transport you sit inside: en métro, en bus, en train."}
+      - {id: fr2-07-c7, type: cloze, text: "Il y a beaucoup ___ bruit dans cette rue.", answer: "de", l1: "There is a lot of noise in this street.", note: "beaucoup de + noun, never beaucoup du."}
+
+  # ───────────────────────────────────────────────────────────────── 8
+  - id: fr2-08
+    title: "Finding a flat: comparatives and superlatives"
+    goal: "I can talk about housing and compare places, people and things."
+    notes: |
+      ## Comparing
+      Put **plus / moins / aussi** before the adjective or adverb and **que** before the second item. The adjective still agrees.
+
+      | meaning | pattern | example |
+      |---|---|---|
+      | more … than | plus … que | plus **grande** que Lyon |
+      | less … than | moins … que | moins cher que Paris |
+      | as … as | aussi … que | aussi calme que le parc |
+
+      After *que*, use *moi, toi, lui, elle*: *plus grand que **moi***.
+
+      ## The superlative
+      Add **le / la / les**: *le plus grand*, *la moins chère*. "In" after a superlative is **de**: *le plus beau quartier **de** la ville*. If the adjective normally follows the noun, repeat the article: *le restaurant **le** plus cher*.
+
+      ## Two irregulars
+      - **bon → meilleur(e)** (adjective): *un meilleur loyer*. Never "plus bon".
+      - **bien → mieux** (adverb): *elle parle mieux*. Never "plus bien".
+
+      Test: if English "better" describes a **noun**, use *meilleur*; if it describes a **verb**, use *mieux*.
+
+      With nouns: **plus de / moins de / autant de** … que.
+    items:
+      - {id: fr2-08-loyer, type: vocab, l2: "le loyer", l1: "the rent", ex: "Le loyer est très cher à Paris.", ex_l1: "Rent is very expensive in Paris.", note: "From louer, to rent."}
+      - {id: fr2-08-proprietaire, type: vocab, l2: "le propriétaire", l1: "the landlord / the owner (male)", ex: "Le propriétaire habite dans la même rue.", ex_l1: "The landlord lives in the same street.", note: "Same word for a woman: la propriétaire."}
+      - {id: fr2-08-locataire, type: vocab, l2: "le locataire", l1: "the tenant (male)", ex: "Le nouveau locataire arrive demain.", ex_l1: "The new tenant arrives tomorrow.", note: "Same word for a woman: la locataire."}
+      - {id: fr2-08-louer, type: vocab, l2: "louer", l1: "to rent / to let", ex: "Nous louons une maison près de la mer.", ex_l1: "We are renting a house near the sea.", note: "Works in both directions: the tenant and the landlord both louer. À louer = to let."}
+      - {id: fr2-08-demenager, type: vocab, l2: "déménager", l1: "to move house", ex: "Nous avons déménagé l'année dernière.", ex_l1: "We moved house last year.", note: "Takes avoir. Like manger: nous déménageons."}
+      - {id: fr2-08-immeuble, type: vocab, l2: "l'immeuble", l1: "the block of flats / the apartment building", ex: "Il y a dix appartements dans l'immeuble.", ex_l1: "There are ten flats in the building.", note: "Masculine: un immeuble."}
+      - {id: fr2-08-ascenseur, type: vocab, l2: "l'ascenseur", l1: "the lift / the elevator", ex: "L'ascenseur ne marche pas.", ex_l1: "The lift is not working.", note: "Masculine. marcher = to work, for machines."}
+      - {id: fr2-08-voisin, type: vocab, l2: "le voisin", l1: "the neighbour (male)", ex: "Mon voisin est très bruyant.", ex_l1: "My neighbour is very noisy.", note: "Feminine: la voisine."}
+      - {id: fr2-08-chauffage, type: vocab, l2: "le chauffage", l1: "the heating", ex: "Le chauffage est compris dans le loyer.", ex_l1: "Heating is included in the rent.", note: "From chaud, hot."}
+      - {id: fr2-08-lumineux, type: vocab, l2: "lumineux", l1: "bright / full of light (masculine)", alt: ["clair"], ex: "L'appartement est grand et lumineux.", ex_l1: "The flat is big and bright.", note: "Feminine: lumineuse."}
+      - {id: fr2-08-pratique, type: vocab, l2: "pratique", l1: "practical / convenient", alt: ["commode"], ex: "Le métro est très pratique.", ex_l1: "The underground is very convenient."}
+      - {id: fr2-08-meilleur, type: vocab, l2: "meilleur", l1: "better (adjective, masculine singular)", ex: "Ce vin est meilleur que l'autre.", ex_l1: "This wine is better than the other one.", note: "The comparative of bon. Feminine: meilleure. Never 'plus bon'."}
+      - {id: fr2-08-mieux, type: vocab, l2: "mieux", l1: "better (adverb: describes a verb)", ex: "Je travaille mieux le matin.", ex_l1: "I work better in the morning.", note: "The comparative of bien. Never 'plus bien'."}
+      - {id: fr2-08-plus-cher-que-l-autre, type: phrase, l2: "Cet appartement est plus cher que l'autre.", l1: "This flat is more expensive than the other one.", note: "cet, not ce, before a masculine noun starting with a vowel."}
+      - {id: fr2-08-plus-beau-quartier, type: phrase, l2: "C'est le plus beau quartier de la ville.", l1: "It's the most beautiful neighbourhood in the city.", note: "'in' after a superlative is de, not dans."}
+      - {id: fr2-08-appartement-a-louer, type: phrase, l2: "Je cherche un appartement à louer.", l1: "I'm looking for a flat to rent.", note: "chercher already means 'look for': no pour."}
+      - {id: fr2-08-charges-comprises, type: phrase, l2: "Les charges sont comprises ?", l1: "Are the service charges included?", alt: ["Est-ce que les charges sont comprises ?", "Les charges sont-elles comprises ?"], note: "les charges = building costs (water, upkeep) paid on top of the rent."}
+      - {id: fr2-08-troisieme-etage, type: phrase, l2: "C'est au troisième étage, sans ascenseur.", l1: "It's on the third floor, with no lift.", alt: ["C'est au 3e étage, sans ascenseur."], note: "French floors start at le rez-de-chaussée (ground floor), then le premier étage."}
+      - {id: fr2-08-c1, type: cloze, text: "Paris est ___ grand que Lyon.", answer: "plus", l1: "Paris is bigger than Lyon.", note: "plus + adjective + que = more … than."}
+      - {id: fr2-08-c2, type: cloze, text: "Mon appartement est ___ cher que ta maison.", answer: "moins", l1: "My flat is less expensive than your house.", note: "moins + adjective + que = less … than."}
+      - {id: fr2-08-c3, type: cloze, text: "Ma sœur est ___ grande que moi.", answer: "aussi", l1: "My sister is as tall as me.", note: "aussi + adjective + que = as … as."}
+      - {id: fr2-08-c4, type: cloze, text: "Cette rue est plus calme ___ le centre-ville.", answer: "que", l1: "This street is quieter than the town centre.", note: "'than' is always que in a comparison."}
+      - {id: fr2-08-c5, type: cloze, text: "Cette boulangerie est ___ que l'autre.", answer: "meilleure", l1: "This bakery is better than the other one.", note: "bon → meilleur, and it agrees: feminine meilleure."}
+      - {id: fr2-08-c6, type: cloze, text: "Elle parle français ___ que moi.", answer: "mieux", l1: "She speaks French better than me.", note: "'better' describes the verb parler → the adverb mieux."}
+      - {id: fr2-08-c7, type: cloze, text: "C'est ___ plus vieille maison du village.", answer: "la", l1: "It's the oldest house in the village.", note: "Superlative = article + plus + adjective; the article agrees with maison."}
+      - {id: fr2-08-c8, type: cloze, text: "C'est le restaurant le plus cher ___ la ville.", answer: "de", l1: "It's the most expensive restaurant in the city.", note: "After a superlative, 'in' is de."}
+
+  # ───────────────────────────────────────────────────────────────── 9
+  - id: fr2-09
+    title: "Polite requests: the conditional"
+    goal: "I can ask for services politely, make suggestions and give advice using the conditional."
+    notes: |
+      The **conditionnel** means "would". At A2 you use it to be **polite**, to **wish**, to **suggest** and to **advise**.
+
+      ## How to form it
+      **Future stem + imparfait endings.** You already know both halves.
+
+      | pronoun | aimer | pouvoir | vouloir |
+      |---|---|---|---|
+      | je | aimerais | pourrais | voudrais |
+      | tu | aimerais | pourrais | voudrais |
+      | il / elle / on | aimerait | pourrait | voudrait |
+      | nous | aimerions | pourrions | voudrions |
+      | vous | aimeriez | pourriez | voudriez |
+      | ils / elles | aimeraient | pourraient | voudraient |
+
+      Same irregular stems as the future: *ser-, aur-, ir-, fer-, devr-, faudr-*.
+
+      ## What it does
+      - **Request**: *Pourriez-vous m'aider ?* (softer than *pouvez-vous*)
+      - **Wish**: *Je voudrais / J'aimerais* + noun or infinitive.
+      - **Suggestion**: *On pourrait aller au cinéma.*
+      - **Advice**: *Tu devrais te reposer.* (devoir in the conditional = should)
+      - **Need, softened**: *Il faudrait réserver.*
+
+      Hear the difference: future *je pourrai* ends in "ay"; conditional *je pourrais* ends in "eh".
+    items:
+      - {id: fr2-09-banque, type: vocab, l2: "la banque", l1: "the bank", ex: "La banque ferme à cinq heures.", ex_l1: "The bank closes at five o'clock."}
+      - {id: fr2-09-compte, type: vocab, l2: "le compte", l1: "the (bank) account", ex: "J'ai un compte dans cette banque.", ex_l1: "I have an account at this bank.", note: "The p is silent: say 'kont'."}
+      - {id: fr2-09-carte-bancaire, type: vocab, l2: "la carte bancaire", l1: "the bank card", alt: ["la carte bleue", "la carte de crédit"], ex: "J'ai perdu ma carte bancaire.", ex_l1: "I have lost my bank card.", note: "Often called la carte bleue or just la CB."}
+      - {id: fr2-09-retirer, type: vocab, l2: "retirer", l1: "to withdraw (money)", ex: "Je dois retirer de l'argent.", ex_l1: "I have to withdraw some money.", note: "False friend: to retire from work is prendre sa retraite."}
+      - {id: fr2-09-distributeur, type: vocab, l2: "le distributeur", l1: "the cash machine / the ATM", alt: ["le distributeur de billets", "le distributeur automatique"], ex: "Il y a un distributeur près de la poste.", ex_l1: "There is a cash machine near the post office."}
+      - {id: fr2-09-rendez-vous, type: vocab, l2: "le rendez-vous", l1: "the appointment", ex: "J'ai un rendez-vous à dix heures.", ex_l1: "I have an appointment at ten o'clock.", note: "Any appointment or meeting, not only a romantic one."}
+      - {id: fr2-09-renseignement, type: vocab, l2: "le renseignement", l1: "the piece of information (that you ask for)", alt: ["l'information"], ex: "Je voudrais un renseignement, s'il vous plaît.", ex_l1: "I would like some information, please.", note: "Countable in French: un renseignement, des renseignements."}
+      - {id: fr2-09-guichet, type: vocab, l2: "le guichet", l1: "the counter / the ticket window", ex: "Vous pouvez payer au guichet.", ex_l1: "You can pay at the counter."}
+      - {id: fr2-09-recu, type: vocab, l2: "le reçu", l1: "the receipt", alt: ["le ticket de caisse", "le ticket"], ex: "Vous voulez le reçu ?", ex_l1: "Do you want the receipt?", note: "The past participle of recevoir: literally 'received'."}
+      - {id: fr2-09-rembourser, type: vocab, l2: "rembourser", l1: "to refund / to pay back", ex: "Le magasin a remboursé la robe.", ex_l1: "The shop refunded the dress."}
+      - {id: fr2-09-echanger, type: vocab, l2: "échanger", l1: "to exchange", ex: "Je voudrais échanger ce livre.", ex_l1: "I would like to exchange this book.", note: "To change money is changer de l'argent."}
+      - {id: fr2-09-essayer, type: vocab, l2: "essayer", l1: "to try / to try on", ex: "Je peux essayer cette robe ?", ex_l1: "Can I try this dress on?", note: "j'essaie or j'essaye — both are correct."}
+      - {id: fr2-09-volontiers, type: vocab, l2: "volontiers", l1: "gladly / with pleasure", alt: ["avec plaisir"], ex: "Un café ? — Volontiers !", ex_l1: "A coffee? — Gladly!", note: "The warm way to say yes to an offer."}
+      - {id: fr2-09-prendre-rendez-vous, type: phrase, l2: "Je voudrais prendre rendez-vous.", l1: "I would like to make an appointment.", alt: ["J'aimerais prendre rendez-vous.", "Je voudrais prendre un rendez-vous."], note: "French 'takes' an appointment: prendre rendez-vous."}
+      - {id: fr2-09-parler-plus-lentement, type: phrase, l2: "Pourriez-vous parler plus lentement ?", l1: "Could you speak more slowly? (formal)", alt: ["Vous pourriez parler plus lentement ?", "Est-ce que vous pourriez parler plus lentement ?", "Pourriez-vous parler plus lentement, s'il vous plaît ?"]}
+      - {id: fr2-09-on-pourrait-aller, type: phrase, l2: "On pourrait aller au cinéma.", l1: "We could go to the cinema. (a suggestion, with on)", note: "on pourrait + infinitive: the standard way to suggest something."}
+      - {id: fr2-09-ca-me-ferait-plaisir, type: phrase, l2: "Ça me ferait plaisir.", l1: "I would be delighted. (literally: that would give me pleasure)", alt: ["Cela me ferait plaisir."], note: "faire plaisir à quelqu'un = to please someone."}
+      - {id: fr2-09-tu-devrais-te-reposer, type: phrase, l2: "Tu devrais te reposer.", l1: "You should rest. (informal)", note: "devoir in the conditional = should. se reposer = to rest (false friend: rester = to stay)."}
+      - {id: fr2-09-c1, type: cloze, text: "J'___ ouvrir un compte, s'il vous plaît.", answer: "aimerais", l1: "I would like to open an account, please.", note: "aimer + future stem aimer- + ais. j' shows the verb starts with a vowel."}
+      - {id: fr2-09-c2, type: cloze, text: "___-vous me donner un renseignement ?", answer: "pourriez", l1: "Could you give me some information?", note: "pouvoir → pourr- + iez. Softer than pouvez-vous."}
+      - {id: fr2-09-c3, type: cloze, text: "Nous ___ une table pour deux.", answer: "voudrions", alt: ["aimerions"], l1: "We would like a table for two.", note: "vouloir → voudr- + ions."}
+      - {id: fr2-09-c4, type: cloze, text: "Tu ___ demander au guichet.", answer: "devrais", l1: "You should ask at the counter.", note: "devoir → devr- + ais = should."}
+      - {id: fr2-09-c5, type: cloze, text: "Ce ___ possible demain matin ?", answer: "serait", l1: "Would it be possible tomorrow morning?", note: "être → ser- + ait."}
+      - {id: fr2-09-c6, type: cloze, text: "Vous ___ l'heure, s'il vous plaît ?", answer: "auriez", l1: "Would you have the time, please?", note: "avoir → aur- + iez. A polite way to ask a stranger."}
+      - {id: fr2-09-c7, type: cloze, text: "On ___ prendre un café ensemble.", answer: "pourrait", l1: "We could have a coffee together.", note: "on takes the il / elle form: pourrait."}
+      - {id: fr2-09-c8, type: cloze, text: "Il ___ réserver avant samedi.", answer: "faudrait", l1: "We would need to book before Saturday.", note: "il faut → il faudrait: a softened necessity."}
+
+  # ───────────────────────────────────────────────────────────────── 10
+  - id: fr2-10
+    title: "At the doctor's: never, nothing, nobody, no more"
+    goal: "I can explain a health problem and use the negations rien, plus, personne and jamais."
+    notes: |
+      French negation is a two-part frame. **ne** stays; swap *pas* for another word to change the meaning. Never keep *pas* as well.
+
+      | negation | meaning | example |
+      |---|---|---|
+      | ne … jamais | never | Je **ne** fume **jamais**. |
+      | ne … plus | no longer, no more | Je **n'**ai **plus** mal. |
+      | ne … rien | nothing | Je **ne** mange **rien**. |
+      | ne … personne | nobody | Je **ne** vois **personne**. |
+      | ne … que | only | Je **n'**ai **que** dix euros. |
+
+      - In the passé composé, *jamais, plus, rien* go **before** the participle: *Je n'ai **rien** mangé.* But *personne* goes **after**: *Je n'ai vu **personne**.*
+      - *Rien* and *personne* can be the subject — *ne* still follows: **Personne** ne sait. **Rien** ne marche.
+      - After any negation except *ne … que*, *un / une / du / des* become **de**: *Je n'ai plus **de** fièvre.*
+
+      ## Saying what hurts
+      **avoir mal à** + body part: *J'ai mal **au** dos, **à la** gorge, **aux** dents.*
+    items:
+      - {id: fr2-10-ne-rien, type: vocab, l2: "ne … rien", l1: "nothing / not … anything (negation)", ex: "Je ne comprends rien.", ex_l1: "I don't understand anything.", note: "rien replaces pas; do not use both."}
+      - {id: fr2-10-ne-plus, type: vocab, l2: "ne … plus", l1: "no longer / not … any more (negation)", ex: "Elle ne travaille plus ici.", ex_l1: "She no longer works here.", note: "The s of plus is silent in the negation."}
+      - {id: fr2-10-ne-personne, type: vocab, l2: "ne … personne", l1: "nobody / not … anyone (negation)", ex: "Je ne connais personne ici.", ex_l1: "I don't know anyone here.", note: "une personne = a person; with ne it means nobody."}
+      - {id: fr2-10-quelqu-un, type: vocab, l2: "quelqu'un", l1: "someone / somebody", ex: "Il y a quelqu'un à la porte.", ex_l1: "There is someone at the door.", note: "The negative is personne."}
+      - {id: fr2-10-quelque-chose, type: vocab, l2: "quelque chose", l1: "something", ex: "Vous voulez boire quelque chose ?", ex_l1: "Do you want something to drink?", note: "Two words. The negative is rien."}
+      - {id: fr2-10-hopital, type: vocab, l2: "l'hôpital", l1: "the hospital", ex: "Ma mère travaille à l'hôpital.", ex_l1: "My mother works at the hospital.", note: "Masculine, silent h: un hôpital. Plural: des hôpitaux."}
+      - {id: fr2-10-grave, type: vocab, l2: "grave", l1: "serious (of an illness or a problem)", ex: "Ce n'est pas grave, c'est un rhume.", ex_l1: "It's not serious, it's a cold.", note: "False friend: a grave is une tombe. Ce n'est pas grave also means 'never mind'."}
+      - {id: fr2-10-fievre, type: vocab, l2: "la fièvre", l1: "the fever / a high temperature", alt: ["la température"], ex: "J'ai de la fièvre depuis hier soir.", ex_l1: "I have had a fever since last night.", note: "avoir de la fièvre, with the partitive."}
+      - {id: fr2-10-rhume, type: vocab, l2: "le rhume", l1: "the cold (the illness)", ex: "J'ai un rhume, ce n'est rien.", ex_l1: "I have a cold, it's nothing.", note: "The h is silent: 'rüm'. Not to be confused with le rhum (rum)."}
+      - {id: fr2-10-grippe, type: vocab, l2: "la grippe", l1: "the flu", ex: "Il a la grippe, il doit rester à la maison.", ex_l1: "He has the flu, he must stay at home."}
+      - {id: fr2-10-medicament, type: vocab, l2: "le médicament", l1: "the medicine / the medication", ex: "Je prends ce médicament le matin et le soir.", ex_l1: "I take this medicine morning and evening.", note: "French 'takes' medicine with prendre."}
+      - {id: fr2-10-ordonnance, type: vocab, l2: "l'ordonnance", l1: "the prescription", ex: "Le médecin m'a donné une ordonnance.", ex_l1: "The doctor gave me a prescription.", note: "Feminine: une ordonnance."}
+      - {id: fr2-10-tousser, type: vocab, l2: "tousser", l1: "to cough", ex: "Je tousse beaucoup la nuit.", ex_l1: "I cough a lot at night.", note: "A cough is la toux."}
+      - {id: fr2-10-sante, type: vocab, l2: "la santé", l1: "health", ex: "Le sport est bon pour la santé.", ex_l1: "Sport is good for your health.", note: "Santé ! is also what you say when you raise a glass."}
+      - {id: fr2-10-trois-fois-par-jour, type: phrase, l2: "Prenez ce médicament trois fois par jour.", l1: "Take this medicine three times a day. (formal)", alt: ["Prenez ce médicament 3 fois par jour."], note: "par jour = per day. French takes medicine with prendre."}
+      - {id: fr2-10-qu-est-ce-qui-ne-va-pas, type: phrase, l2: "Qu'est-ce qui ne va pas ?", l1: "What's wrong?", alt: ["Qu'est-ce qu'il y a ?", "Qu'est-ce que vous avez ?", "Qu'est-ce que tu as ?"]}
+      - {id: fr2-10-il-n-y-a-personne, type: phrase, l2: "Il n'y a personne.", l1: "There is nobody.", note: "il y a + ne … personne."}
+      - {id: fr2-10-ca-ne-fait-rien, type: phrase, l2: "Ça ne fait rien.", l1: "It doesn't matter.", alt: ["Ce n'est pas grave.", "Ce n'est rien.", "Cela ne fait rien."], note: "Literally 'that does nothing'. The polite reply to an apology."}
+      - {id: fr2-10-je-n-ai-plus-de-fievre, type: phrase, l2: "Je n'ai plus de fièvre.", l1: "I no longer have a fever.", alt: ["Je n'ai plus de température."], note: "de la becomes de after a negation."}
+      - {id: fr2-10-c1, type: cloze, text: "Je n'ai ___ mangé ce matin.", answer: "rien", l1: "I haven't eaten anything this morning.", note: "rien goes before the participle in the passé composé."}
+      - {id: fr2-10-c2, type: cloze, text: "Il ne fume ___ : c'est mauvais pour la santé.", answer: "plus", l1: "He no longer smokes: it's bad for your health.", note: "ne … plus = no longer (he used to)."}
+      - {id: fr2-10-c3, type: cloze, text: "Je ne connais ___ dans cette ville.", answer: "personne", l1: "I don't know anyone in this city.", note: "ne … personne = nobody / not anyone."}
+      - {id: fr2-10-c4, type: cloze, text: "Elle n'est ___ malade.", answer: "jamais", l1: "She is never ill.", note: "ne … jamais = never."}
+      - {id: fr2-10-c5, type: cloze, text: "Je n'ai ___ dix euros.", answer: "que", l1: "I only have ten euros.", note: "ne … que = only. It limits rather than negates."}
+      - {id: fr2-10-c6, type: cloze, text: "Je n'ai pas ___ fièvre.", answer: "de", l1: "I don't have a fever.", note: "de la → de after a negation."}
+      - {id: fr2-10-c7, type: cloze, text: "Je ___ vois personne dans la rue.", answer: "ne", l1: "I can't see anyone in the street.", note: "Written French always keeps ne before the verb, even though speech often drops it."}
+
+  # ───────────────────────────────────────────────────────────────── 11
+  - id: fr2-11
+    title: "What I think: opinion, agreement and obligation"
+    goal: "I can give my opinion, agree or disagree, and say what is necessary or forbidden."
+    notes: |
+      ## Giving an opinion
+      **Je pense que / je crois que / je trouve que** + a normal sentence. *que* is never dropped, unlike English "that": *Je pense **que** c'est vrai.*
+
+      - *À mon avis, …* = in my opinion.
+      - *Qu'est-ce que tu **en** penses ?* = what do you think **of it**?
+
+      ## Agreeing
+      French uses **être** d'accord and **avoir** raison / tort:
+
+      | French | English |
+      |---|---|
+      | je **suis** d'accord | I agree |
+      | tu **as** raison | you are right |
+      | il **a** tort | he is wrong |
+
+      Never "je suis raison" and never "j'agrée".
+
+      ## Obligation
+      - **il faut** + infinitive: a general rule, for everybody. *Il faut réserver.*
+      - **devoir** + infinitive: a named person must. *Je dois partir. Vous devez payer.*
+      - **il ne faut pas** = must **not** (forbidden), not "don't have to".
+      - *Il est interdit de* + infinitive; *c'est obligatoire*.
+
+      Link ideas with **donc** (so, therefore) and soften with **peut-être** (maybe).
+    items:
+      - {id: fr2-11-penser, type: vocab, l2: "penser", l1: "to think", ex: "Je pense que tu travailles trop.", ex_l1: "I think you work too much.", note: "penser à = to think about; penser de = to have an opinion of."}
+      - {id: fr2-11-croire, type: vocab, l2: "croire", l1: "to believe", ex: "Je crois qu'il est malade.", ex_l1: "I believe he is ill.", note: "Irregular: je crois, nous croyons, ils croient. Participle: cru."}
+      - {id: fr2-11-trouver, type: vocab, l2: "trouver", l1: "to find", ex: "Je trouve que cette ville est belle.", ex_l1: "I find this city beautiful.", note: "trouver que … gives an opinion based on experience."}
+      - {id: fr2-11-a-mon-avis, type: vocab, l2: "à mon avis", l1: "in my opinion", alt: ["selon moi", "d'après moi", "pour moi"], ex: "À mon avis, c'est trop cher.", ex_l1: "In my opinion, it's too expensive.", note: "à, not dans."}
+      - {id: fr2-11-d-accord, type: vocab, l2: "d'accord", l1: "OK / agreed", alt: ["OK", "entendu"], ex: "On part à huit heures ? — D'accord.", ex_l1: "Shall we leave at eight? — OK."}
+      - {id: fr2-11-avoir-raison, type: vocab, l2: "avoir raison", l1: "to be right (said of a person)", ex: "Tu as raison, il faut partir.", ex_l1: "You're right, we have to leave.", note: "With avoir: literally 'to have reason'."}
+      - {id: fr2-11-avoir-tort, type: vocab, l2: "avoir tort", l1: "to be wrong (said of a person)", ex: "Je pense que vous avez tort.", ex_l1: "I think you are wrong.", note: "With avoir. The final t is silent."}
+      - {id: fr2-11-bien-sur, type: vocab, l2: "bien sûr", l1: "of course", alt: ["évidemment", "bien entendu", "bien sûr que oui"], ex: "Tu viens ce soir ? — Bien sûr !", ex_l1: "Are you coming tonight? — Of course!", note: "sûr has a circumflex; without it, sur means 'on'."}
+      - {id: fr2-11-peut-etre, type: vocab, l2: "peut-être", l1: "maybe / perhaps", ex: "Il est peut-être malade.", ex_l1: "Maybe he is ill.", note: "With a hyphen, placed after the verb."}
+      - {id: fr2-11-vrai, type: vocab, l2: "vrai", l1: "true", ex: "C'est vrai, tu as raison.", ex_l1: "It's true, you're right.", note: "Feminine: vraie. C'est pas vrai ! = No way!"}
+      - {id: fr2-11-faux, type: vocab, l2: "faux", l1: "false / wrong (masculine)", ex: "Non, c'est faux.", ex_l1: "No, that's wrong.", note: "Feminine: fausse."}
+      - {id: fr2-11-interdit, type: vocab, l2: "interdit", l1: "forbidden / not allowed (masculine)", alt: ["défendu"], ex: "C'est interdit dans le métro.", ex_l1: "It's forbidden in the underground.", note: "Feminine: interdite."}
+      - {id: fr2-11-obligatoire, type: vocab, l2: "obligatoire", l1: "compulsory / mandatory", ex: "Le passeport est obligatoire.", ex_l1: "A passport is compulsory."}
+      - {id: fr2-11-donc, type: vocab, l2: "donc", l1: "therefore / so (a logical conclusion)", alt: ["alors"], ex: "Il pleut, donc je prends le bus.", ex_l1: "It's raining, so I'm taking the bus.", note: "The c is pronounced."}
+      - {id: fr2-11-qu-est-ce-que-tu-en-penses, type: phrase, l2: "Qu'est-ce que tu en penses ?", l1: "What do you think of it? (informal)", alt: ["Tu en penses quoi ?", "Qu'en penses-tu ?"], note: "penser de → en. Without en the question is incomplete."}
+      - {id: fr2-11-d-accord-avec-toi, type: phrase, l2: "Je suis d'accord avec toi.", l1: "I agree with you. (informal)", note: "être d'accord avec + moi, toi, lui, elle, nous, vous, eux, elles."}
+      - {id: fr2-11-pas-d-accord, type: phrase, l2: "Je ne suis pas d'accord.", l1: "I don't agree.", alt: ["Je suis pas d'accord."]}
+      - {id: fr2-11-ca-depend, type: phrase, l2: "Ça dépend.", l1: "It depends.", alt: ["Cela dépend."], note: "It depends on … = ça dépend de …"}
+      - {id: fr2-11-interdit-de-fumer, type: phrase, l2: "Il est interdit de fumer ici.", l1: "Smoking is forbidden here.", alt: ["C'est interdit de fumer ici.", "Il est défendu de fumer ici."], note: "il est interdit de + infinitive."}
+      - {id: fr2-11-c1, type: cloze, text: "Je pense ___ tu as raison.", answer: "que", l1: "I think you are right.", note: "English can drop 'that'; French always keeps que."}
+      - {id: fr2-11-c2, type: cloze, text: "Il ___ réserver à l'avance.", answer: "faut", l1: "You have to book in advance.", note: "il faut + infinitive: a general obligation. Only ever used with il."}
+      - {id: fr2-11-c3, type: cloze, text: "Vous ___ montrer votre passeport.", answer: "devez", l1: "You must show your passport.", note: "devoir → vous devez + infinitive."}
+      - {id: fr2-11-c4, type: cloze, text: "Je ___ que ce film est trop long.", answer: "trouve", alt: ["pense", "crois"], l1: "I find this film too long.", note: "trouver que … = to find that … (an opinion)."}
+      - {id: fr2-11-c5, type: cloze, text: "Tu as ___ : c'est trop cher.", answer: "raison", l1: "You're right: it's too expensive.", note: "avoir raison, with avoir and no article."}
+      - {id: fr2-11-c6, type: cloze, text: "À mon ___, c'est une erreur.", answer: "avis", l1: "In my opinion, it's a mistake.", note: "à mon avis. The final s is silent."}
+      - {id: fr2-11-c7, type: cloze, text: "Il ne faut ___ fumer ici.", answer: "pas", l1: "You must not smoke here.", note: "il ne faut pas = it is forbidden, not 'you don't have to'."}
+
+  # ───────────────────────────────────────────────────────────────── 12
+  - id: fr2-12
+    title: "Feelings and friends: just done, doing now"
+    goal: "I can talk about feelings and relationships and say what has just happened or is happening right now."
+    notes: |
+      ## Just happened: venir de + infinitive
+      The present of **venir** + **de** + infinitive = "have just". No past tense needed.
+      - *Je **viens d'**arriver.* — I have just arrived.
+      - *Ils **viennent de** partir.* — They have just left.
+
+      ## Happening right now: être en train de + infinitive
+      French has no "-ing" tense. The plain present covers it, but to insist on "in the middle of":
+      - *Je **suis en train de** manger.* — I am eating (right now).
+
+      | when | pattern | example |
+      |---|---|---|
+      | just before now | venir de + inf. | elle vient de sortir |
+      | right now | être en train de + inf. | elle est en train de lire |
+      | just after now | aller + inf. | elle va partir |
+
+      ## Feelings with avoir
+      English "be", French **avoir**: *avoir peur de* (be afraid of), *avoir envie de* (feel like), *avoir besoin de* (need).
+
+      ## Adjectives of feeling
+      They agree: *heureux → heureuse*, *inquiet → inquiète*, *fier → fière*, *déçu → déçue*.
+
+      **manquer** is back to front: *Tu me manques* = I miss you.
+    items:
+      - {id: fr2-12-heureux, type: vocab, l2: "heureux", l1: "happy (masculine; deeper than content)", ex: "Il est heureux dans son nouveau travail.", ex_l1: "He is happy in his new job.", note: "Feminine: heureuse. The masculine plural stays heureux."}
+      - {id: fr2-12-triste, type: vocab, l2: "triste", l1: "sad", ex: "Elle est triste parce que son ami est parti.", ex_l1: "She is sad because her friend has left."}
+      - {id: fr2-12-en-colere, type: vocab, l2: "en colère", l1: "angry", alt: ["fâché", "furieux"], ex: "Mon père est en colère contre moi.", ex_l1: "My father is angry with me.", note: "Angry with someone = en colère contre quelqu'un."}
+      - {id: fr2-12-inquiet, type: vocab, l2: "inquiet", l1: "worried (masculine)", ex: "Je suis inquiet pour mon examen.", ex_l1: "I am worried about my exam.", note: "Feminine: inquiète, with a grave accent."}
+      - {id: fr2-12-amoureux, type: vocab, l2: "amoureux", l1: "in love (masculine)", ex: "Paul est amoureux de Marie.", ex_l1: "Paul is in love with Marie.", note: "amoureux de, not 'avec'. Feminine: amoureuse."}
+      - {id: fr2-12-fier, type: vocab, l2: "fier", l1: "proud (masculine)", ex: "Il est fier de son fils.", ex_l1: "He is proud of his son.", note: "The r is pronounced. Feminine: fière."}
+      - {id: fr2-12-decu, type: vocab, l2: "déçu", l1: "disappointed (masculine)", ex: "Je suis déçu par ce film.", ex_l1: "I am disappointed by this film.", note: "Feminine: déçue. The ç keeps the s sound."}
+      - {id: fr2-12-copain, type: vocab, l2: "le copain", l1: "the friend / the boyfriend (male, informal word)", alt: ["le petit ami"], ex: "Je sors avec des copains ce soir.", ex_l1: "I'm going out with some friends tonight.", note: "un copain = a mate; mon copain usually = my boyfriend."}
+      - {id: fr2-12-copine, type: vocab, l2: "la copine", l1: "the friend / the girlfriend (female, informal word)", alt: ["la petite amie"], ex: "Sa copine habite à Lyon.", ex_l1: "His girlfriend lives in Lyon."}
+      - {id: fr2-12-rencontrer, type: vocab, l2: "rencontrer", l1: "to meet (for the first time, or by chance)", ex: "J'ai rencontré ma femme à Paris.", ex_l1: "I met my wife in Paris.", note: "To meet up with friends by arrangement is retrouver or voir."}
+      - {id: fr2-12-amitie, type: vocab, l2: "l'amitié", l1: "friendship", ex: "L'amitié est très importante pour moi.", ex_l1: "Friendship is very important to me.", note: "Feminine. From ami."}
+      - {id: fr2-12-amour, type: vocab, l2: "l'amour", l1: "love (the noun)", ex: "C'est une belle histoire d'amour.", ex_l1: "It's a beautiful love story.", note: "Masculine: un grand amour."}
+      - {id: fr2-12-rire, type: vocab, l2: "rire", l1: "to laugh", ex: "Nous avons beaucoup ri hier soir.", ex_l1: "We laughed a lot last night.", note: "Irregular: je ris, nous rions. Participle: ri."}
+      - {id: fr2-12-pleurer, type: vocab, l2: "pleurer", l1: "to cry", ex: "Le bébé pleure toutes les nuits.", ex_l1: "The baby cries every night.", note: "Do not confuse with pleuvoir (to rain): il pleure / il pleut."}
+      - {id: fr2-12-tu-me-manques, type: phrase, l2: "Tu me manques.", l1: "I miss you. (informal)", note: "Back to front: literally 'you are missing to me'. The person missed is the subject."}
+      - {id: fr2-12-je-viens-d-arriver, type: phrase, l2: "Je viens d'arriver.", l1: "I have just arrived.", note: "venir de + infinitive = to have just done. de → d' before a vowel."}
+      - {id: fr2-12-en-train-de-manger, type: phrase, l2: "Je suis en train de manger.", l1: "I am in the middle of eating.", note: "être en train de + infinitive. Nothing to do with trains."}
+      - {id: fr2-12-ne-t-inquiete-pas, type: phrase, l2: "Ne t'inquiète pas.", l1: "Don't worry. (informal)", alt: ["T'inquiète pas.", "Ne t'en fais pas."], note: "s'inquiéter is reflexive. Formal: Ne vous inquiétez pas."}
+      - {id: fr2-12-j-ai-envie-de-dormir, type: phrase, l2: "J'ai envie de dormir.", l1: "I feel like sleeping.", note: "avoir envie de + infinitive or noun = to feel like, to want."}
+      - {id: fr2-12-c1, type: cloze, text: "Elle ___ de partir.", answer: "vient", l1: "She has just left.", note: "venir de + infinitive: elle vient de."}
+      - {id: fr2-12-c2, type: cloze, text: "Nous ___ de voir ce film.", answer: "venons", l1: "We have just seen this film.", note: "venir → nous venons de + infinitive."}
+      - {id: fr2-12-c3, type: cloze, text: "Attends, je suis en ___ de téléphoner.", answer: "train", l1: "Wait, I'm on the phone right now.", note: "être en train de = to be in the middle of doing."}
+      - {id: fr2-12-c4, type: cloze, text: "J'ai ___ d'un médecin.", answer: "besoin", l1: "I need a doctor.", note: "avoir besoin de = to need."}
+      - {id: fr2-12-c5, type: cloze, text: "Il a ___ des chiens.", answer: "peur", l1: "He is afraid of dogs.", note: "avoir peur de = to be afraid of. With avoir, not être."}
+      - {id: fr2-12-c6, type: cloze, text: "Marie est très ___ : elle a eu son diplôme.", answer: "heureuse", alt: ["contente"], l1: "Marie is very happy: she got her degree.", note: "heureux → heureuse in the feminine."}
+      - {id: fr2-12-c7, type: cloze, text: "Ils viennent ___ se marier.", answer: "de", l1: "They have just got married.", note: "venir de + infinitive: never forget the de."}

@@ -1,0 +1,1595 @@
+# Best-answer practice bank for CompTIA CySA+ CS0-004.
+# Every item is an mcq with best: true - all four choices are reasonable; whys explains each.
+part_of: cysa-plus
+units:
+  - id: cy-1b2
+    title: "Best-answer practice: Security Operations"
+    domain: "1"
+    goal: "I can pick the best monitoring, analysis or process-improvement decision in security operations when every option on offer is reasonable."
+    notes: |
+      In these questions **every choice is something a competent analyst might do**. One fact in the stem decides between them - find it before you read the choices.
+
+      **What to look for in Domain 1**
+
+      - **What the evidence actually supports.** Read the log line: one domain or many, answered or refused, response size, parent process. Pick the conclusion the data proves, not the scariest one.
+      - **Verify before you disrupt.** If a quick, harmless check could explain an alert, it comes FIRST. Once compromise is confirmed, cut the attacker's access before tidying up.
+      - **The stated constraint.** A budget, "must keep working", "personal data must not be touched", "powered off" - each rules out an otherwise good control.
+      - **Root cause over symptom.** Fix the stale credential, not the noisy alert; remove the service, do not just hide it.
+      - **Durable over brittle.** Behaviour outlasts hashes and addresses.
+
+      **Usual traps:** blocking everything on a medium-confidence feed; suppressing a rule instead of fixing its cause; trusting an AI summary unchecked; automation with no approval step for critical assets.
+    items:
+      - id: cy-1b2-b01
+        type: mcq
+        best: true
+        q: "An investigation shows an intruder was in the network for 200 days, but the SIEM keeps only 30 days of searchable logs and the budget cannot fund a year of hot storage. Which change BEST lets future investigations reach back a year?"
+        choices:
+          - "Extend hot, searchable retention in the SIEM to 365 days for every source"
+          - "Increase the local event log size on every server and workstation"
+          - "Archive authentication, DNS and proxy logs to low-cost storage for 12 months"
+          - "Keep daily summary counts of each event type for 12 months"
+        answer: 2
+        why: "Tiered retention keeps the sources investigators need most for a year at a cost the budget allows; the logs can be restored and searched when needed."
+        whys:
+          - "Meets the need, but the stem says the budget cannot fund a year of hot storage."
+          - "Helps a little, but local logs stay scattered and under the control of whoever compromises the host."
+          - "Best: the key sources are kept centrally for a year on cheap storage, which fits the budget."
+          - "Cheap, but counts lose the detail of who did what, which is what an investigation needs."
+      - id: cy-1b2-b02
+        type: mcq
+        best: true
+        q: "Stolen credentials were used to log on to several servers, but the domain controllers are set to audit failed logons only, so the SIEM cannot show where the account went. Which change BEST closes this gap for the next investigation?"
+        choices:
+          - "Audit successful logons as well and forward those events to the SIEM"
+          - "Double the size of the Security event log on each domain controller"
+          - "Capture full packets on the server VLAN and keep them for a week"
+          - "Lower the SIEM threshold that alerts on repeated failed logons"
+        answer: 0
+        why: "A stolen password produces successful logons. The gap is in what the source records, so the fix is to log successes and collect them."
+        whys:
+          - "Best: use of a stolen credential appears as successful logons, which are not being recorded at all."
+          - "Keeps more history, but more of the same failed-logon events does not show where the account went."
+          - "Could show connections, but it is costly, short-lived and much authentication traffic is encrypted."
+          - "Catches guessing sooner, but a thief with the right password causes no failures."
+      - id: cy-1b2-b03
+        type: mcq
+        best: true
+        q: "A scan of a new Linux web server image shows 14 listening services; the application needs two. The image will be the template for 60 servers. Which hardening step BEST reduces the attack surface?"
+        choices:
+          - "Enable the host firewall and allow inbound traffic only to the two needed ports"
+          - "Install a host intrusion detection agent that alerts on changes to the services"
+          - "Schedule a weekly credentialed vulnerability scan of every server built from it"
+          - "Remove or disable the twelve unneeded services in the image itself"
+        answer: 3
+        why: "Removing what is not needed is the root fix: a service that is not installed cannot be exploited, and fixing the image fixes all 60 servers."
+        whys:
+          - "A good extra layer, but the services still run and are exposed again if a rule changes or an attacker is already on the host."
+          - "Detective: it reports tampering but leaves the twelve services in place."
+          - "Useful assurance, but it will keep finding flaws in services that should not be there."
+          - "Best: it removes the surface itself, once, in the template every server inherits."
+      - id: cy-1b2-b04
+        type: mcq
+        best: true
+        q: "Database passwords and API keys sit in plain text in an infrastructure-as-code repository. The requirement is that no secret is stored in the repository and that keys can be rotated without redeploying code. Which approach BEST meets it?"
+        choices:
+          - "Encrypt the secrets file and commit the encrypted copy to the repository"
+          - "Have workloads fetch secrets at run time from a secrets vault"
+          - "Make the repository private and limit it to the operations team"
+          - "Add a pre-commit hook that rejects commits containing secrets"
+        answer: 1
+        why: "A secrets manager keeps secrets out of the repository entirely and lets them be rotated centrally, because workloads read the current value when they run."
+        whys:
+          - "Better than plain text, but the secret is still in the repository and rotation needs a new commit and deployment."
+          - "Best: nothing secret is stored in the code, and a rotated key is picked up at the next fetch."
+          - "Narrows who can read the secrets, but they are still stored in the repository in plain text."
+          - "Stops new secrets being committed, but gives them nowhere to live and no way to rotate them."
+      - id: cy-1b2-b05
+        type: mcq
+        best: true
+        q: "Contractors on their own laptops need one internal web application. They must get no network-level reach to anything else, and the application must not be published to the internet. The company already subscribes to a SASE service. Which is the BEST way to give access?"
+        choices:
+          - "A full-tunnel VPN account with firewall rules limiting each contractor"
+          - "A virtual desktop inside the network from which they open the application"
+          - "ZTNA through the SASE service, granting that one application per user"
+          - "A reverse proxy on the internet in front of the application, with MFA"
+        answer: 2
+        why: "ZTNA brokers a connection to one application after checking identity, so the contractor never joins the network and the application stays unpublished."
+        whys:
+          - "Workable, but it places the laptop on the network and relies on rules to pull that reach back."
+          - "Keeps data off the laptop, but gives the contractor a session inside the network and needs new infrastructure."
+          - "Best: per-application access with no network-level reach, using a service the company already has."
+          - "Gives application-only access, but publishes the application to the internet, which the stem forbids."
+      - id: cy-1b2-b06
+        type: mcq
+        best: true
+        q: "An intruder took the backup service account's password from the memory of the backup server. The account is a domain administrator because that was the quickest way to make backups work. Which change MOST reduces the damage a repeat of this theft could do?"
+        choices:
+          - "Give the account only the rights that backup jobs need"
+          - "Rotate the account's password automatically every 30 days"
+          - "Allow the account to log on only to the backup servers"
+          - "Alert whenever the account logs on outside the backup window"
+        answer: 0
+        why: "Damage is set by what the stolen account can do. Least privilege turns the theft of a domain administrator into the theft of a backup operator."
+        whys:
+          - "Best: a stolen copy of the account can then do only what backups need, not control the domain."
+          - "Shortens how long a stolen password works, but for up to 30 days it is still a domain administrator."
+          - "Limits where the password works, but this thief was already on a backup server, where it would still hold full rights."
+          - "Detective: it may reveal misuse, but does not limit what the account can do."
+      - id: cy-1b2-b07
+        type: mcq
+        best: true
+        q: "EDR on a Windows HMI that operators use to run a live chemical process reports malware calling out to an internet address. The plant manager states that losing the HMI without warning could create a safety hazard. Which is the BEST immediate containment?"
+        choices:
+          - "Isolate the HMI from the network through the EDR console"
+          - "Shut the HMI down and rebuild it from the vendor's image"
+          - "Watch the HMI closely and act at the next planned maintenance outage"
+          - "Block the address at the firewall between the plant and IT networks"
+        answer: 3
+        why: "In operational technology, safety and availability come first. Blocking the call-out at the boundary cuts the attacker off without taking the operators' view of the process away."
+        whys:
+          - "Stops the malware, but also cuts the HMI off from the controllers it supervises - the hazard the plant manager named."
+          - "Needed in the end, but doing it now removes the HMI without warning."
+          - "Protects the process, but leaves the attacker's channel open until the outage."
+          - "Best: it breaks the malware's channel while the HMI keeps running the process."
+      - id: cy-1b2-b08
+        type: mcq
+        best: true
+        q: "Staff are uploading customer lists to personal cloud storage accounts. The company's own sanctioned cloud storage tenant must keep working. Which control BEST prevents the leak?"
+        choices:
+          - "Block every cloud storage site at the web proxy"
+          - "A CASB policy that blocks uploads to unsanctioned tenants"
+          - "A weekly review of proxy logs for large uploads to cloud storage"
+          - "An updated acceptable use policy with annual training"
+        answer: 1
+        why: "A CASB can tell the company's tenant from a personal one on the same service, so it blocks the leak path while the sanctioned storage keeps working."
+        whys:
+          - "Prevents the leak, but also breaks the sanctioned tenant that must keep working."
+          - "Best: it stops uploads to personal tenants and leaves the company's tenant usable."
+          - "Detective: it finds uploads after the customer list has already left."
+          - "Administrative and worth having, but it relies on staff choosing to comply."
+      - id: cy-1b2-b09
+        type: mcq
+        best: true
+        q: "Sales laptops hold customer contracts. The risk to address is a laptop that is stolen while powered off and never connects to a network again. Which control BEST protects the data?"
+        choices:
+          - "Full-disk encryption with pre-boot authentication"
+          - "A remote wipe command issued from the MDM console"
+          - "A firmware password that stops booting from other media"
+          - "DLP rules that block copying contracts to USB drives"
+        answer: 0
+        why: "Data at rest on a powered-off device is protected by encryption: without the key the disk is unreadable, whatever the thief does with it."
+        whys:
+          - "Best: the disk stays unreadable even if it is removed and read in another machine."
+          - "Effective only if the laptop checks in, and the stem says it never connects again."
+          - "Stops booting other media, but the disk can simply be taken out and read elsewhere."
+          - "Addresses a different leak path - staff copying files - not theft of the device."
+      - id: cy-1b2-b10
+        type: mcq
+        best: true
+        q: "An employee who read company email on a personal phone enrolled in MDM is leaving today. Company data must be removed from the phone, and policy forbids touching personal data on employee-owned devices. Which action BEST meets both requirements?"
+        choices:
+          - "Send a full factory-reset wipe to the phone from the MDM console"
+          - "Disable the user's account and let the mail app stop synchronising"
+          - "Selectively wipe the managed work profile from the MDM console"
+          - "Ask the employee to delete the mail account and confirm in writing"
+        answer: 2
+        why: "A selective (enterprise) wipe removes only the managed apps and data, which satisfies both the data-removal requirement and the personal-data policy."
+        whys:
+          - "Removes the company data, but destroys the employee's personal data, which policy forbids."
+          - "Needed anyway, but mail and attachments already cached on the phone stay there."
+          - "Best: it removes the work data and leaves the personal side of the phone alone."
+          - "Respects the personal data, but the company cannot verify that anything was removed."
+      - id: cy-1b2-b11
+        type: mcq
+        best: true
+        q: "A DNS log shows one workstation sending about 4,000 queries an hour, all TXT lookups for names like `a9f3k2...x7.cdn-sync.example`, each with a different 50-character label under the same domain, and all of them are answered. Which explanation does the evidence BEST support?"
+        choices:
+          - "Malware using a domain generation algorithm to find its controller"
+          - "A misconfigured application retrying a failed lookup in a loop"
+          - "A browser prefetching names for links on pages the user visits"
+          - "Data being carried out through DNS queries to one domain"
+        answer: 3
+        why: "Long, unique labels under a single domain, TXT records and a steady high volume are the pattern of DNS tunnelling: the data rides in the query names and answers."
+        whys:
+          - "A DGA produces many different domains, most of which fail to resolve; here there is one domain and every query is answered."
+          - "A retry loop repeats the same name; here every label is different."
+          - "Prefetching asks for address records across many unrelated domains, not TXT records under one."
+          - "Best: unique long labels under one domain, answered TXT queries and high volume all fit DNS tunnelling."
+      - id: cy-1b2-b12
+        type: mcq
+        best: true
+        q: "An alert reports 'impossible travel': a user signed in from London at 09:00 and from Singapore at 09:20, both with MFA passed. The company recently moved remote users to a cloud proxy with exit points in several countries. What should the analyst do FIRST?"
+        choices:
+          - "Disable the account until the user can be reached by phone"
+          - "Check whether the Singapore address is one of the proxy's exit points"
+          - "Force a password reset and require the user to enrol MFA again"
+          - "Search the mailbox audit log for new forwarding rules"
+        answer: 1
+        why: "Verify before you disrupt. The stem gives a likely benign cause, and checking the address against the proxy's exit points takes seconds and harms nobody."
+        whys:
+          - "Right if compromise is confirmed, but it locks out a user who may simply be behind the new proxy."
+          - "Best: a quick, harmless check that either explains the alert or makes it serious."
+          - "A containment step for a confirmed compromise; nothing is confirmed yet."
+          - "A good next check if the address is not the proxy's, but slower and not the fact that explains this alert."
+      - id: cy-1b2-b13
+        type: mcq
+        best: true
+        q: "A mailbox audit confirms that an intruder signed in to a user's cloud email from abroad with a stolen session token and created a rule forwarding invoices to an outside address. Which action should come FIRST?"
+        choices:
+          - "Revoke the account's active sessions and reset its credentials"
+          - "Delete the forwarding rule from the user's mailbox"
+          - "Search every other mailbox for rules that forward to the same address"
+          - "Warn the suppliers whose invoices were forwarded"
+        answer: 0
+        why: "Compromise is confirmed, so containment comes first: end the intruder's access. A stolen token survives a password change, so sessions must be revoked as well."
+        whys:
+          - "Best: it removes the intruder's access, including the stolen token, before anything else is cleaned up."
+          - "Necessary, but while the session lives the intruder can simply create the rule again."
+          - "Important scoping, but it leaves the known intruder inside this mailbox meanwhile."
+          - "Will be needed, through the communication plan, once the access has been cut."
+      - id: cy-1b2-b14
+        type: mcq
+        best: true
+        q: "At 02:00 EDR records `powershell.exe -enc ...` started by the software-deployment agent on 300 workstations within one minute. No change notice reached the SOC. What should the analyst do FIRST?"
+        choices:
+          - "Isolate all 300 workstations from the network through EDR"
+          - "Push a policy that blocks encoded PowerShell on workstations"
+          - "Decode the command and check it against change records"
+          - "Add a tuning rule that ignores PowerShell started by the agent"
+        answer: 2
+        why: "The pattern fits either a routine deployment or an attacker abusing the deployment tool. Decoding the command and checking for an approved change settles which, in minutes and without disruption."
+        whys:
+          - "Right if the command proves malicious, but it would take 300 users offline on an unverified alert."
+          - "May break legitimate deployments and does not tell the analyst what just ran."
+          - "Best: it establishes what ran and whether it was authorized before any disruptive step."
+          - "Might be right later, but if the deployment tool has been hijacked this rule would hide the attack."
+      - id: cy-1b2-b15
+        type: mcq
+        best: true
+        q: "Switch logs show a new MAC address with a consumer wireless-router vendor prefix on a meeting-room port, and several unknown clients now appear behind it. Policy forbids unauthorized network devices. Which action BEST contains the risk right away?"
+        choices:
+          - "Send a technician to find and unplug the device"
+          - "Add the device's MAC address to the switch's deny list"
+          - "Run a vulnerability scan against the device and its clients"
+          - "Administratively shut down that switch port"
+        answer: 3
+        why: "Shutting the port cuts the rogue device and everything behind it off at once, from the console, and affects only one meeting-room socket."
+        whys:
+          - "Has to happen next, but it takes time while the unknown clients stay connected."
+          - "Quick, but a MAC address is easily changed and the port stays live."
+          - "Tells the team about the device without removing it from the network."
+          - "Best: immediate, certain and limited to the one port."
+      - id: cy-1b2-b16
+        type: mcq
+        best: true
+        q: "A web log shows these requests from one address, with status and response size: `/item?id=7'` 500 312; `/item?id=7 UNION SELECT null,null--` 500 318; `/item?id=7 UNION SELECT user,pass FROM users--` 200 48211. A normal item page is about 2,100 bytes. Which conclusion does the evidence BEST support?"
+        choices:
+          - "A scanner probed for SQL injection and every attempt failed"
+          - "SQL injection succeeded and account data was probably returned"
+          - "An attacker is still working out the column count and has no data yet"
+          - "The application is faulty and is returning errors for odd input"
+        answer: 1
+        why: "The last request returned 200 with a response more than twenty times the normal size after selecting from the users table: the injection worked and data came back."
+        whys:
+          - "The first two requests failed, but the third returned 200 with a very large response."
+          - "Best: a successful status and a 48 KB answer to a query on the users table point to data being returned."
+          - "That describes the first two requests; the third is past that stage."
+          - "The errors show poor input handling, but that does not explain the large successful response."
+      - id: cy-1b2-b17
+        type: mcq
+        best: true
+        q: "A cloud virtual machine is found mining cryptocurrency for an intruder. The team must cut the intruder off now and keep evidence, including what is in memory, for the investigation. Which response is BEST?"
+        choices:
+          - "Apply a security group that blocks all traffic, then snapshot the disk"
+          - "Terminate the instance and deploy a replacement from the template"
+          - "Stop the instance and take a snapshot of its disk afterwards"
+          - "Leave it running untouched and watch its traffic for a day"
+        answer: 0
+        why: "Isolating a running instance cuts the intruder off while keeping memory intact for capture, and the snapshot preserves the disk."
+        whys:
+          - "Best: the intruder loses access, the disk is preserved and the instance stays up so memory can still be collected."
+          - "Ends the activity, but destroys both the disk and the memory evidence."
+          - "Keeps the disk, but stopping the instance discards what was in memory."
+          - "Keeps all the evidence, but leaves the intruder in control, which the stem rules out."
+      - id: cy-1b2-b18
+        type: mcq
+        best: true
+        q: "Accounts payable nearly paid a fraudster who emailed new bank details from a lookalike of a supplier's domain. The lookalike domain had valid SPF and DKIM of its own. Which control BEST prevents this type of fraud from succeeding?"
+        choices:
+          - "Enforce a DMARC reject policy on the company's own domain"
+          - "Tag every message from outside the company with a warning banner"
+          - "Confirm bank-detail changes by calling a number already on file"
+          - "Run yearly phishing awareness training for the finance team"
+        answer: 2
+        why: "The fraud succeeds at the moment the bank details are changed. An out-of-band check against known contact details stops it however convincing the email is."
+        whys:
+          - "Stops others spoofing the company's own domain; it does nothing about a lookalike domain that authenticates correctly."
+          - "A useful prompt, but genuine supplier mail carries the same banner, so it does not single this message out."
+          - "Best: the change is verified through a channel the fraudster does not control."
+          - "Helps, but depends on someone spotting a one-character difference under time pressure."
+      - id: cy-1b2-b19
+        type: mcq
+        best: true
+        q: "An unknown executable is recovered from a server during what looks like a targeted intrusion. Its hash has no results on public services, the file may embed company data, and the team needs to know what it does when run. Which step is BEST?"
+        choices:
+          - "Upload the file to a public multi-engine scanning service"
+          - "Run the strings utility and read the embedded text"
+          - "Scan the file with the endpoint agent's current signatures"
+          - "Detonate it in an isolated sandbox run in-house"
+        answer: 3
+        why: "Behaviour is learned by running the file. An in-house sandbox does that without publishing the sample, which could expose company data and tell the intruder it has been found."
+        whys:
+          - "Gives many verdicts, but shares the sample publicly: possible data exposure and a warning to the intruder."
+          - "Safe and quick, but static text gives hints only, not what the file does when run."
+          - "A signature verdict is unlikely for a file nobody has seen, and says little about behaviour."
+          - "Best: it shows the file's behaviour while keeping the sample inside the company."
+      - id: cy-1b2-b20
+        type: mcq
+        best: true
+        q: "A community threat-intelligence pulse lists 500 IP addresses and domains for an active campaign. The source is rated medium confidence and some of the addresses belong to shared hosting providers. Which use of the indicators is BEST?"
+        choices:
+          - "Block all 500 at the perimeter firewall straight away"
+          - "Load them into the SIEM to alert on and search past logs"
+          - "Email the list to the analysts for reference during triage"
+          - "Wait for a high-confidence source to confirm each one"
+        answer: 1
+        why: "Medium-confidence indicators that include shared hosting suit detection, not blocking: matching them against current and past logs gains the value without breaking legitimate traffic."
+        whys:
+          - "Fast protection, but shared-hosting addresses would block legitimate sites on medium-confidence data."
+          - "Best: it finds past and present contact with the campaign and lets analysts confirm before anything is blocked."
+          - "Gets the list seen, but relies on people remembering 500 entries."
+          - "Avoids false positives, but throws away timely intelligence on an active campaign."
+      - id: cy-1b2-b21
+        type: mcq
+        best: true
+        q: "Malware is confirmed on one server. Analysis shows the group recompiles it for each victim host, so every copy has a different hash and its own controller address, but all copies share the same embedded configuration strings. Which is the BEST way to find the other infected hosts?"
+        choices:
+          - "Sweep endpoints with a YARA rule built on the shared strings"
+          - "Search EDR telemetry for the hash of the recovered sample"
+          - "Run a full antivirus scan on every server with current signatures"
+          - "Block the sample's controller address and watch for hits"
+        answer: 0
+        why: "The only thing the copies have in common is the embedded strings, and matching content patterns across files is what YARA is for."
+        whys:
+          - "Best: it matches the one feature every copy shares."
+          - "Quick, but each copy has a different hash, so it finds only the sample already in hand."
+          - "Vendor signatures are unlikely to exist for builds made for this one victim."
+          - "Each copy uses its own address, so only the known host would hit the block."
+      - id: cy-1b2-b22
+        type: mcq
+        best: true
+        q: "A 'repeated failed logon' rule fires 5,000 times a day for one service account. The cause is an old scheduled task on a single server that still uses the account's previous password. Which response is BEST?"
+        choices:
+          - "Exclude that service account from the rule"
+          - "Raise the rule's threshold above 5,000 failures a day"
+          - "Have the task's stored credential corrected or the task removed"
+          - "Send the rule's alerts to a low-priority queue"
+        answer: 2
+        why: "The noise has a known, fixable cause. Fixing it removes the alerts and keeps the rule able to catch real password guessing against a service account."
+        whys:
+          - "Silences the noise, but blinds the SOC to real guessing against that account."
+          - "Stops the alerts, but makes the rule useless for every other account as well."
+          - "Best: it removes the cause, so the rule goes quiet without losing any coverage."
+          - "Hides the noise, and real attacks on any account would sit unread in the same queue."
+      - id: cy-1b2-b23
+        type: mcq
+        best: true
+        q: "A two-person team can act on only one piece of intelligence this week. Which should it act on FIRST?"
+        choices:
+          - "A vendor blog about a group that targets a different industry"
+          - "A list of controller addresses first seen fourteen months ago"
+          - "An unverified forum claim of a zero-day in a product the company runs"
+          - "An ISAC alert from yesterday on attacks against the mail gateway in use"
+        answer: 3
+        why: "Intelligence is worth acting on when it is timely, relevant and accurate. The ISAC alert is recent, concerns a product the company runs and comes from a trusted source."
+        whys:
+          - "Credible, but of low relevance: the group targets another industry."
+          - "Relevant once, but stale; addresses change hands within months."
+          - "Relevant and current, but unverified, so its accuracy is unknown."
+          - "Best: timely, directly relevant and from a trusted sharing community."
+      - id: cy-1b2-b24
+        type: mcq
+        best: true
+        q: "An ATT&CK heat map of the SOC's detections shows dense coverage of initial access and almost none of lateral movement. Every intrusion reported in the company's sector this year spread through remote services after the first foothold. Where should detection engineering effort go FIRST?"
+        choices:
+          - "Deepening the initial-access detections that already work well"
+          - "Lateral-movement techniques seen in the sector's intrusions"
+          - "Every uncovered technique in the matrix, working left to right"
+          - "A second commercial threat feed to enrich existing alerts"
+        answer: 1
+        why: "A heat map is for finding gaps; threat intelligence says which gap matters. The uncovered tactic that the sector's attackers actually use comes first."
+        whys:
+          - "Adds depth where coverage is already dense and leaves the known gap open."
+          - "Best: it closes the gap that matches what attackers in this sector are doing."
+          - "Complete in the end, but spends effort on techniques no relevant actor uses before the urgent gap."
+          - "Enriches alerts, but cannot enrich a detection that does not exist."
+      - id: cy-1b2-b25
+        type: mcq
+        best: true
+        q: "An engineer who has resigned to join a competitor copies 40 times his usual volume of design files in his last week, using only access he legitimately holds. The files carry no classification labels. Which tool is MOST likely to flag this?"
+        choices:
+          - "UEBA comparing his activity with his own baseline"
+          - "A DLP rule matching labelled or keyword-tagged documents"
+          - "A network IDS with signatures for known attack traffic"
+          - "A quarterly review of who has access to the design share"
+        answer: 0
+        why: "Nothing here breaks a rule: the access is legitimate and the files are unlabelled. What stands out is the change from his normal behaviour, which is what UEBA measures."
+        whys:
+          - "Best: 40 times his normal volume is a clear deviation from baseline."
+          - "DLP needs labels or content patterns to match, and these files have none."
+          - "Authorized file copies look nothing like attack traffic."
+          - "Would confirm that he is entitled to the access; it says nothing about how he uses it."
+      - id: cy-1b2-b26
+        type: mcq
+        best: true
+        q: "A three-person SOC wants early warning of an intruder moving inside the network, with almost no false positives and little extra triage work. Which addition BEST fits?"
+        choices:
+          - "Lower thresholds on the existing SIEM lateral-movement rules"
+          - "Full packet capture on the links between server VLANs"
+          - "Decoy accounts and a decoy server nobody should touch"
+          - "A wider set of IDS signatures on the internal sensors"
+        answer: 2
+        why: "Nobody has a legitimate reason to touch a decoy, so any use of one is a high-fidelity alert that costs a small team almost nothing to triage."
+        whys:
+          - "Catches more, but lower thresholds mean more false positives for three people."
+          - "Excellent for investigation, but it alerts on nothing by itself and takes effort to use."
+          - "Best: any touch is suspicious by design, so alerts are rare and reliable."
+          - "Adds coverage, but also alert volume and tuning work."
+      - id: cy-1b2-b27
+        type: mcq
+        best: true
+        q: "A SOAR playbook isolates any host that raises a high-severity EDR alert. Last week a false positive isolated the production database server for an hour. Fast automatic isolation of workstations has stopped two real infections. Which change is BEST?"
+        choices:
+          - "Turn the automatic isolation step off for every host"
+          - "Exclude all servers from every automated response action"
+          - "Tune the EDR rule that produced the false positive"
+          - "Require analyst approval before isolating critical assets"
+        answer: 3
+        why: "Match the automation to the cost of being wrong: keep instant isolation where it is cheap, and put a human decision in front of it for critical assets."
+        whys:
+          - "Prevents a repeat, but gives up the speed that stopped two real infections."
+          - "Protects servers from mistakes, but also removes every fast response from them."
+          - "Worth doing, but the next false positive from any other rule would do the same damage."
+          - "Best: workstations keep automatic isolation and critical assets get a quick human check."
+      - id: cy-1b2-b28
+        type: mcq
+        best: true
+        q: "The same ransomware-precursor alert was handled three different ways by three shifts, and one shift skipped containment. Management wants every shift to handle it the same way whoever is on duty. Which measure BEST achieves this?"
+        choices:
+          - "Put a senior analyst on call to advise whichever shift is working"
+          - "Write a playbook with the required steps and decision points"
+          - "Send all analysts on an incident-handling course"
+          - "Hold a weekly review meeting where the shifts compare their cases"
+        answer: 1
+        why: "Consistency that does not depend on who is on duty comes from a documented, standard procedure: a playbook."
+        whys:
+          - "Helps, but handling then depends on one person and on the shift deciding to call."
+          - "Best: every shift follows the same steps and the same decision points."
+          - "Raises skill, but skilled analysts without a shared procedure still choose differently."
+          - "Finds differences after the event; it does not prevent them."
+      - id: cy-1b2-b29
+        type: mcq
+        best: true
+        q: "The SIEM must receive security alerts from a SaaS application within seconds. The vendor offers webhooks, a rate-limited REST API, emailed alerts and a daily CSV export. Which integration BEST meets the requirement?"
+        choices:
+          - "Register a webhook that pushes each alert to the SIEM"
+          - "Poll the REST API on a schedule the rate limit allows"
+          - "Parse the emailed alerts from a monitored mailbox"
+          - "Import the daily CSV export with a scheduled job"
+        answer: 0
+        why: "A webhook is event-driven: the application sends each alert as it happens, with no polling delay and no load on the rate limit."
+        whys:
+          - "Best: alerts are pushed as they occur, within seconds."
+          - "Works, but an alert waits for the next poll and the rate limit sets how often that can be."
+          - "Near real time at best, and fragile: mail delays and format changes break the parsing."
+          - "Reliable, but up to a day late."
+      - id: cy-1b2-b30
+        type: mcq
+        best: true
+        q: "An AI assistant summarises 2 GB of logs for an incident report and states that 'no lateral movement occurred'. The report will go to the regulator. What is the BEST way to handle that statement?"
+        choices:
+          - "Ask the assistant to state how confident it is in the finding"
+          - "Mark the report as produced with AI assistance"
+          - "Check the claim against the logs before including it"
+          - "Run the same logs through a second AI model and compare"
+        answer: 2
+        why: "Language models can state things the data does not support. A factual claim in a regulatory report must be verified by a person against the evidence."
+        whys:
+          - "A model's stated confidence is not evidence; it can be confidently wrong."
+          - "Honest, but disclosure does not make the statement true."
+          - "Best: the analyst stays accountable and the claim rests on the logs, not on the model."
+          - "Agreement between two models raises comfort, not certainty; both can be wrong."
+      - id: cy-1b2-b31
+        type: mcq
+        best: true
+        q: "Analysts have been pasting alert data that contains customer details into a public AI chatbot because it speeds up triage. Leadership wants to keep the time saving and stop the data exposure. Which measure is BEST?"
+        choices:
+          - "Ban all AI tools on SOC workstations and block them at the proxy"
+          - "Train analysts to redact customer details by hand before pasting"
+          - "Alert on uploads to AI sites and review them each week"
+          - "Provide an approved AI service with contractual data controls"
+        answer: 3
+        why: "Governance that works gives people a safe way to do the useful thing: an approved service whose terms control where the data goes, under an AI usage policy."
+        whys:
+          - "Stops the exposure, but loses the time saving leadership wants to keep."
+          - "Keeps the benefit, but manual redaction under time pressure will miss details."
+          - "Detective: it reports the exposure after the data has gone."
+          - "Best: analysts keep the speed and the data stays under agreed controls."
+      - id: cy-1b2-b32
+        type: mcq
+        best: true
+        q: "Alerts reach analysts showing only IP addresses. Each analyst spends about ten minutes per alert finding the asset's owner, role and criticality in other systems. Which improvement is BEST?"
+        choices:
+          - "Publish a wiki page listing where each detail can be looked up"
+          - "Enrich alerts automatically from the asset inventory"
+          - "Raise alert thresholds so that fewer alerts need the lookup"
+          - "Hire two more analysts to share the triage queue"
+        answer: 1
+        why: "The lookup is repetitive and the data already exists, so the fix is automatic enrichment: the context arrives with the alert."
+        whys:
+          - "Makes the manual lookup a little faster, but it is still done by hand for every alert."
+          - "Best: it removes the ten minutes from every alert and lets criticality drive priority."
+          - "Reduces the work by hiding alerts, some of which will be real."
+          - "Adds capacity for work that should not need doing."
+
+  - id: cy-2b2
+    title: "Best-answer practice: Vulnerability Management"
+    domain: "2"
+    goal: "I can choose the best scanning method, priority and treatment for a vulnerability when every option on offer is reasonable."
+    notes: |
+      Every choice here is a sensible thing to do with a vulnerability. The stem tells you which one fits **this** system and **this** business.
+
+      **What to look for in Domain 2**
+
+      - **Context beats the raw score.** Exposure (internet, internal, isolated), the value of the asset and whether the flaw is being exploited set the real priority. A "low" finding that exposes data outranks a "high" one that exposes nothing.
+      - **Fix the class, not the instance.** A template, an image, a pipeline check or a coding standard beats 300 tickets.
+      - **The control asked for.** If the stem says *prevent*, a weekly scan is detective. If it says *detective*, an approval step is not.
+      - **When patching is impossible:** compensating control plus a dated exception signed by the risk owner - never a quiet closure.
+      - **Scanning has a cost.** Load, credentials and reach all constrain the method.
+
+      **Usual traps:** marking a mitigated true positive as false; moving the target instead of the process; treating "patch installed" as "flaw gone" without validation.
+    items:
+      - id: cy-2b2-b01
+        type: mcq
+        best: true
+        q: "The vulnerability scanner's target list holds 400 hosts. DHCP and switch records for the same subnets show about 520 active devices. What should the vulnerability team do FIRST?"
+        choices:
+          - "Switch the 400 known hosts to deeper credentialed scans this week"
+          - "Run a discovery scan and reconcile it with the inventory"
+          - "Report on the 400 hosts and note the possible gap"
+          - "Buy scanner licences to cover 520 devices"
+        answer: 1
+        why: "You cannot assess what you do not know you own. An accurate inventory comes before any decision about how to scan."
+        whys:
+          - "Improves depth on known hosts while about 120 devices remain unseen."
+          - "Best: it establishes what is actually on the network, which every later step depends on."
+          - "Honest, but it accepts a blind spot covering almost a quarter of the devices."
+          - "May be needed, but only after discovery shows what the extra devices are."
+      - id: cy-2b2-b02
+        type: mcq
+        best: true
+        q: "Credentialed scans run with a domain administrator account whose password is typed into the scanner's settings. Auditors want the depth of credentialed scanning kept and the risk of that credential reduced. Which change is BEST?"
+        choices:
+          - "Switch to non-credentialed scans so no password is needed"
+          - "Keep the account and alert on every logon it makes"
+          - "Change the domain administrator password after each scan cycle"
+          - "A dedicated least-privilege scan account held in a vault"
+        answer: 3
+        why: "The scanner needs to read configuration, not to administer the domain. A dedicated account with only those rights, released from a vault, keeps the depth and shrinks the risk."
+        whys:
+          - "Removes the credential, but gives up the depth the auditors want kept."
+          - "Detective: misuse is noticed, but the credential is still a domain administrator."
+          - "Limits how long a stolen password works, but it is still far more privilege than scanning needs."
+          - "Best: the same scan depth with far less privilege and no password sitting in the settings."
+      - id: cy-2b2-b03
+        type: mcq
+        best: true
+        q: "An auto-scaling group launches cloud instances that live for about two hours, so the weekly network scan almost never sees them. Which method BEST finds vulnerabilities in these workloads?"
+        choices:
+          - "Scan the machine image in the build pipeline before release"
+          - "Run the network scan daily instead of weekly"
+          - "Scan one long-lived sample instance by hand whenever a team requests it"
+          - "Run an external scan against the load balancer's address"
+        answer: 0
+        why: "Short-lived instances are copies of an image. Scanning the image before release assesses every instance that will ever run from it."
+        whys:
+          - "Best: one scan of the image covers every instance launched from it, before any of them runs."
+          - "Sees more than a weekly scan, but still misses most two-hour instances."
+          - "Gives a view of one instance, occasionally, and only when someone asks."
+          - "Shows what the internet can reach, not what is installed on the instances."
+      - id: cy-2b2-b04
+        type: mcq
+        best: true
+        q: "A CIS benchmark scan shows the same 60 failed settings on all 300 Linux servers, which are built from one template and managed by a configuration management tool. Which remediation is BEST?"
+        choices:
+          - "Raise a ticket per server for administrators to fix the settings"
+          - "Record an exception covering all 60 settings on all servers"
+          - "Correct the template and enforce the settings through the tool"
+          - "Fix the internet-facing servers by hand and rescan monthly"
+        answer: 2
+        why: "Identical failures on every server have one cause: the template. Fixing it and enforcing the settings centrally corrects the whole class and stops drift."
+        whys:
+          - "Would work, but 300 manual fixes are slow, inconsistent and undone by the next build."
+          - "Appropriate for a setting that cannot be changed, not as a way to avoid 60 fixes."
+          - "Best: it fixes all 300 servers and every future build from the source."
+          - "Sensible priority, but it leaves the template producing non-compliant servers."
+      - id: cy-2b2-b05
+        type: mcq
+        best: true
+        q: "An external Nmap scan of a company address returns `3306/tcp open mysql MySQL 8.0.36`. Only the application server in the same subnet should ever connect to the database. Which fix BEST addresses the finding?"
+        choices:
+          - "Set long random passwords on every database account and disable remote root"
+          - "Move the database listener to a non-standard port"
+          - "Restrict port 3306 at the firewall to the application server"
+          - "Apply the latest MySQL patch release to the server"
+        answer: 2
+        why: "The finding is exposure: the internet can reach a service that one host needs. Restricting access to that host removes the exposure itself."
+        whys:
+          - "Good hygiene, but the service is still reachable by anyone who wants to try."
+          - "Hides the service from casual scans only; a full port scan finds it again."
+          - "Best: only the host that needs the database can reach it."
+          - "Closes known flaws, but leaves the database open to the internet for the next one."
+      - id: cy-2b2-b06
+        type: mcq
+        best: true
+        q: "A Nikto scan of a public web server lists: a missing X-Frame-Options header; a server banner that reveals the version; an outdated JavaScript library; and directory indexing on /backup/ showing `db_2026-10.sql`. Which finding should be dealt with FIRST?"
+        choices:
+          - "The browsable /backup/ directory"
+          - "The missing X-Frame-Options header"
+          - "The outdated JavaScript library"
+          - "The version shown in the server banner"
+        answer: 0
+        why: "A database dump that anyone can download is a data breach waiting for one request; the other findings need more work from an attacker and give less."
+        whys:
+          - "Best: it exposes a database dump directly, with no skill needed."
+          - "Worth fixing, but it enables clickjacking, which needs a victim to be lured."
+          - "Should be updated, but exploiting it depends on how the page uses the library."
+          - "Helps an attacker choose exploits, but discloses no data in itself."
+      - id: cy-2b2-b07
+        type: mcq
+        best: true
+        q: "A penetration tester exploits a CVE published three months ago on a server that last week's credentialed scan reported as clean. The scan log shows successful authentication and a plugin set last updated five months ago. Which corrective action is BEST?"
+        choices:
+          - "Add a second scanning product to cross-check results"
+          - "Commission penetration tests quarterly instead of yearly"
+          - "Rescan the server with every plugin family enabled"
+          - "Update plugins before every scan, then rescan"
+        answer: 3
+        why: "The false negative has a plain cause: the scanner's checks are older than the flaw. Keeping plugins current fixes it for every host, not just this one."
+        whys:
+          - "Might have caught it, but adds cost while the first scanner stays out of date."
+          - "Finds misses more often, at high cost, without fixing why the scanner missed it."
+          - "A check written after the plugin set was last updated is not there to enable."
+          - "Best: it removes the cause of the false negative across the whole estate."
+      - id: cy-2b2-b08
+        type: mcq
+        best: true
+        q: "A Prowler run on the company's cloud account reports: the root user has no MFA; 30 security groups are unused; a bucket of public website images allows public read; a read-only reporting user's access key is 120 days old. Which finding should be fixed FIRST?"
+        choices:
+          - "The 30 unused security groups"
+          - "The root user without MFA"
+          - "The publicly readable image bucket"
+          - "The 120-day-old access key"
+        answer: 1
+        why: "The root user controls the whole account. One stolen password would hand over everything, so its missing MFA outranks the other findings."
+        whys:
+          - "Clutter worth removing, but an unused group protects and exposes nothing."
+          - "Best: it is the single point whose compromise means total loss of the account."
+          - "Public read is intended for public website images; confirm it and move on."
+          - "Should be rotated, but the key can only read reports."
+      - id: cy-2b2-b09
+        type: mcq
+        best: true
+        q: "Storage buckets keep being created without encryption because of an error repeated in Terraform modules. The team wants such misconfigurations stopped before they ever reach the cloud account. Which control BEST does this?"
+        choices:
+          - "A weekly Prowler scan of the live account with tickets for findings"
+          - "A cloud-provider alert whenever an unencrypted bucket appears"
+          - "A quarterly manual review of the Terraform modules"
+          - "A Checkov check in the pipeline that fails the merge"
+        answer: 3
+        why: "The requirement is prevention before deployment. A static check of the infrastructure code in the pipeline blocks the misconfiguration before anything is created."
+        whys:
+          - "Detective: it finds the bucket up to a week after it was created."
+          - "Faster, but still after the unencrypted bucket exists."
+          - "Preventive in intent, but too infrequent and too dependent on a reviewer noticing."
+          - "Best: the faulty code cannot be merged, so the bucket is never created."
+      - id: cy-2b2-b10
+        type: mcq
+        best: true
+        q: "Detection engineers change EDR and SIEM rules every week. They need to confirm after each change that chosen ATT&CK techniques are still detected, without waiting for a real attack. Which approach is BEST?"
+        choices:
+          - "An annual penetration test by an outside firm"
+          - "Scheduled Atomic Red Team tests for those techniques"
+          - "The EDR vendor's published ATT&CK coverage results"
+          - "A peer review of each rule change before it goes live"
+        answer: 1
+        why: "Atomic Red Team is a library of small, repeatable tests each mapped to a named ATT&CK technique, so detection can be re-proved after every change."
+        whys:
+          - "Realistic, but once a year cannot validate weekly changes."
+          - "Best: repeatable tests mapped to the chosen techniques, run as often as rules change."
+          - "Shows what the product can detect in the vendor's lab, not what this configuration detects today."
+          - "Catches mistakes in logic, but does not prove the rule fires on real behaviour."
+      - id: cy-2b2-b11
+        type: mcq
+        best: true
+        q: "A critical finding on a manufacturing server cannot be patched until the line's planned shutdown in five months. The owner asks the vulnerability team what to do with the finding. Which handling is BEST?"
+        choices:
+          - "A dated exception with compensating controls and owner sign-off"
+          - "Leave the ticket open and let it show as overdue in every monthly report"
+          - "Close the finding as accepted so it stops appearing in reports"
+          - "Lower its severity so the remediation deadline moves out"
+        answer: 0
+        why: "When a fix must wait, the gap is managed openly: an exception that expires, controls that reduce the exposure meanwhile, and a named owner accepting the remainder."
+        whys:
+          - "Best: the risk is reduced, owned and reviewed again when the exception expires."
+          - "Keeps it visible, but nothing reduces the risk and nobody has decided anything."
+          - "Tidy, but it hides a critical flaw with no control and no review date."
+          - "Makes the deadline fit, but the flaw is exactly as severe as before."
+      - id: cy-2b2-b12
+        type: mcq
+        best: true
+        q: "A kernel flaw was patched on a Linux server yesterday; the package manager shows the fixed kernel package installed. Today's credentialed rescan still reports the flaw, and `uptime` shows 212 days. What is the MOST likely explanation?"
+        choices:
+          - "The scanner is reporting a false positive from a cached result"
+          - "The patch failed to install and the package database is wrong"
+          - "The server has not been rebooted into the new kernel"
+          - "The vendor's fix is incomplete and a further patch is needed"
+        answer: 2
+        why: "A new kernel takes effect only after a reboot. 212 days of uptime means the old, vulnerable kernel is still the one running."
+        whys:
+          - "Possible, but the scan was credentialed and run today, and the uptime gives a better explanation."
+          - "Possible, but the package manager shows the fixed package present."
+          - "Best: the fixed kernel is installed but the running kernel predates it."
+          - "Happens occasionally, but nothing in the evidence points to it."
+      - id: cy-2b2-b13
+        type: mcq
+        best: true
+        q: "External discovery finds a forgotten campaign subdomain pointing at a five-year-old CMS with critical flaws. Marketing confirms the site has had no purpose since the campaign ended. Which action is BEST?"
+        choices:
+          - "Decommission the site and remove its DNS record"
+          - "Upgrade the CMS and its plug-ins to current versions"
+          - "Put the site behind the web application firewall"
+          - "Add the subdomain to the weekly external scan"
+        answer: 0
+        why: "Attack surface management starts with removing what has no purpose. A site nobody needs should not be patched, protected or watched - it should be gone."
+        whys:
+          - "Best: no site, no flaws, and no dangling DNS record to be taken over."
+          - "Fixes today's flaws, but commits the team to maintaining a site nobody uses."
+          - "Reduces the risk, but keeps an unneeded, vulnerable system on the internet."
+          - "Keeps it visible, but only watches a risk that could simply be removed."
+      - id: cy-2b2-b14
+        type: mcq
+        best: true
+        q: "Every release of an in-house application for the last year has had new SQL injection findings in the DAST scan; each is fixed, and more appear in the next release. Which measure BEST addresses the cause?"
+        choices:
+          - "A web application firewall with a rule set tuned for SQL injection"
+          - "A penetration test of every release before it goes live"
+          - "Mandatory parameterized queries, enforced by SAST in the build"
+          - "A faster SLA for fixing injection findings after each scan"
+        answer: 2
+        why: "The flaws recur because of how the code is written. A secure coding standard, checked automatically at build time, stops new injection flaws being created."
+        whys:
+          - "A useful compensating layer, but the flawed code keeps being written and filters can be bypassed."
+          - "Finds the flaws before release, but they are still being created each time."
+          - "Best: it changes the coding practice that produces the flaws and checks it on every build."
+          - "Shortens exposure, but treats each symptom faster without ending the supply."
+      - id: cy-2b2-b15
+        type: mcq
+        best: true
+        q: "A scanner correctly reports a vulnerable library version on a server. The flaw can only be reached through a module that is disabled in this server's configuration. How should the analyst BEST record the finding?"
+        choices:
+          - "As a false positive, suppressed in future scans"
+          - "As a true positive at lower priority, noting the disabled module"
+          - "As a true positive at the scanner's original severity and deadline"
+          - "As a risk formally accepted with no further review"
+        answer: 1
+        why: "The vulnerable code is present, so the finding is true; the configuration lowers its exploitability, so its priority drops. Recording the reason means it is reassessed if the module is ever enabled."
+        whys:
+          - "The scanner is right about the library; suppressing it hides the flaw if the module is turned on later."
+          - "Best: accurate about the flaw, realistic about the priority, and the condition is on record."
+          - "Accurate, but ignores context and pulls effort away from flaws that are reachable."
+          - "Acknowledges the flaw, but with no review nobody will notice a configuration change."
+      - id: cy-2b2-b16
+        type: mcq
+        best: true
+        q: "After an unapproved firewall rule exposed a database, the audit committee asks specifically for a DETECTIVE control over firewall changes. Which control BEST meets that request?"
+        choices:
+          - "Change approval by a second engineer before any rule is applied"
+          - "Removing rule-editing rights from all but two administrators"
+          - "Nightly configuration backups that allow a quick rollback"
+          - "Alerts when the running rule set differs from the approved one"
+        answer: 3
+        why: "A detective control identifies that something has happened. Comparing the running configuration with the approved baseline and alerting on a difference does exactly that."
+        whys:
+          - "A sound control, but preventive and administrative, not detective."
+          - "Reduces who could make the change; again preventive."
+          - "Corrective: it helps undo a bad change once someone has noticed it."
+          - "Best: it detects an unapproved change soon after it is made."
+      - id: cy-2b2-b17
+        type: mcq
+        best: true
+        q: "After controls, a risk to an internal wiki scores 4 against a stated appetite of 8. A further control would cost more each year than the largest loss expected. Which treatment is BEST?"
+        choices:
+          - "Buy the further control to bring the score down again"
+          - "Transfer the remaining risk with a cyber-insurance policy"
+          - "Have the risk owner formally accept the residual risk"
+          - "Retire the wiki so that the risk no longer exists"
+        answer: 2
+        why: "Residual risk already inside the appetite, where more control costs more than the loss, is accepted - formally, by the person who owns the risk."
+        whys:
+          - "Lowers the risk further, but spends more than the loss it could prevent."
+          - "A valid strategy, but paying premiums for a risk already within appetite is poor value."
+          - "Best: the risk is within appetite and the decision is documented by its owner."
+          - "Avoidance removes the risk, and with it a tool the business uses, for no good reason."
+      - id: cy-2b2-b18
+        type: mcq
+        best: true
+        q: "Policy sets a 7-day target for critical flaws on internet-facing systems, and leadership confirms the target reflects its risk appetite. The team keeps missing it because patches go out only in a monthly cycle. Which change is BEST?"
+        choices:
+          - "Extend the target to 30 days to match the patch cycle"
+          - "Report each missed target to the risk committee"
+          - "Scan internet-facing systems daily instead of weekly"
+          - "Add an expedited change path for critical patches"
+        answer: 3
+        why: "The target is right by leadership's own statement; the process cannot meet it. Change the process, with a faster route for critical patches."
+        whys:
+          - "Makes the figures look good by lowering a bar that leadership has just confirmed."
+          - "Keeps governance informed, but the misses continue."
+          - "Finds flaws sooner, but they still wait for the monthly cycle."
+          - "Best: it removes the bottleneck that causes the misses."
+      - id: cy-2b2-b19
+        type: mcq
+        best: true
+        q: "Developers want security flaws flagged on every commit, before the application can even be built and run. Which testing method BEST fits?"
+        choices:
+          - "DAST against the staging site"
+          - "SAST in the commit pipeline"
+          - "A penetration test before release"
+          - "A bug bounty on the live site"
+        answer: 1
+        why: "Static analysis reads source code, so it works on every commit without a running application."
+        whys:
+          - "Finds runtime flaws, but needs a deployed, running application."
+          - "Best: it analyses the code itself, at commit time."
+          - "Thorough, but late, occasional and dependent on a working build."
+          - "Finds real flaws, but only after release to production."
+      - id: cy-2b2-b20
+        type: mcq
+        best: true
+        q: "A build pulled a malicious version of an open-source package hours after it was published under a hijacked maintainer account. The team wants to PREVENT builds from picking up unvetted new versions. Which control is BEST?"
+        choices:
+          - "Pin dependency hashes and use a vetted internal mirror"
+          - "Run an SCA scan of every application's dependencies each week"
+          - "Generate an SBOM for every build and store it"
+          - "Subscribe to advisories for the packages in use"
+        answer: 0
+        why: "If builds take only exact, reviewed versions from a repository the company controls, a version published an hour ago cannot enter a build."
+        whys:
+          - "Best: only versions that have been vetted and pinned can be used."
+          - "Detective: it reports a bad package after it has been built in, and only once it is known to be bad."
+          - "An inventory that shows where the package went, after the event."
+          - "Useful awareness, but advisories follow discovery, which follows the compromise."
+      - id: cy-2b2-b21
+        type: mcq
+        best: true
+        q: "A SaaS vendor will process customer personal data. The vendor does not allow customers to test its platform, and procurement needs independent assurance of its controls before signing. Which evidence is BEST?"
+        choices:
+          - "The vendor's completed security questionnaire"
+          - "References from two of the vendor's existing customers"
+          - "The security page and white papers on the vendor's website"
+          - "A current SOC 2 Type II report from the vendor's auditor"
+        answer: 3
+        why: "A SOC 2 Type II report is an independent auditor's opinion on whether the controls operated effectively over a period - the independent assurance the stem asks for."
+        whys:
+          - "Useful, but it is the vendor describing itself."
+          - "Other customers cannot see inside the vendor's controls either."
+          - "Marketing material written by the vendor."
+          - "Best: independent, and it covers how the controls worked over time."
+      - id: cy-2b2-b22
+        type: mcq
+        best: true
+        q: "A CISO wants to measure how mature the company's software security practices are across eight development teams and build a multi-year improvement roadmap. Which approach BEST fits?"
+        choices:
+          - "An OWASP SAMM assessment of each team"
+          - "A penetration test of each team's main application"
+          - "SAST deployed to every team's repositories"
+          - "A count of open findings for each team"
+        answer: 0
+        why: "SAMM is a maturity model: it scores practices across governance, design, implementation, verification and operations, and gives the next level to aim for."
+        whys:
+          - "Best: it measures practices, compares teams and yields a roadmap."
+          - "Measures one application at one moment, not how the team works."
+          - "A good practice to adopt, but it is one tool, not a measure of maturity."
+          - "Shows backlog, which depends on how much each team is tested."
+      - id: cy-2b2-b23
+        type: mcq
+        best: true
+        q: "Central scans of 10,000 hosts in 200 branches saturate the thin WAN links during the day, and backups use the links every night and at weekends. Weekly coverage of every host is still required. Which design is BEST?"
+        choices:
+          - "Throttle the central scanner until the links cope"
+          - "Scan a 10% sample of branch hosts each week"
+          - "Host agents that report results centrally"
+          - "Scan each branch once a quarter in a planned window"
+        answer: 2
+        why: "Agents assess each host locally and send back only results, so the WAN carries a few kilobytes per host and every host is still covered weekly."
+        whys:
+          - "Protects the links, but a throttled scan of 10,000 hosts will not finish in a week."
+          - "Light on the links, but 90% of hosts go unassessed each week."
+          - "Best: full weekly coverage with almost no WAN traffic."
+          - "Avoids the congestion, but misses the weekly requirement."
+      - id: cy-2b2-b24
+        type: mcq
+        best: true
+        q: "A deserialization flaw in a customer portal needs a code change that will take six weeks. The portal must stay online and the flaw is reachable from the internet. Which interim measure is BEST?"
+        choices:
+          - "Extra logging on the vulnerable endpoint, sent to the SIEM"
+          - "A WAF rule blocking the exploit pattern on that endpoint"
+          - "A documented risk acceptance until the fix is released"
+          - "Taking the portal offline until the fix is released"
+        answer: 1
+        why: "When the real fix must wait and the service must stay up, a compensating control that blocks the attack path - a virtual patch - is the best interim measure."
+        whys:
+          - "Detective: it would record an exploit, not stop it."
+          - "Best: it blocks the known attack path while the portal stays online."
+          - "May be needed as paperwork, but alone it leaves the flaw open for six weeks."
+          - "Removes the risk, but the stem says the portal must stay online."
+      - id: cy-2b2-b25
+        type: mcq
+        best: true
+        q: "A patch for an actively exploited flaw must go to 500 servers. The last urgent patch, pushed everywhere at once, caused an outage. Which deployment approach is BEST?"
+        choices:
+          - "Deploy to all 500 servers tonight to close the exposure"
+          - "Patch a small pilot group first, then roll out in waves"
+          - "Hold the patch for the next monthly maintenance cycle"
+          - "Run three weeks of full regression testing first"
+        answer: 1
+        why: "A quick pilot followed by waves balances both risks: a bad patch is caught on a few servers, and the exposure is closed in days, not weeks."
+        whys:
+          - "Fastest, but repeats the approach that caused the last outage."
+          - "Best: fast enough for an exploited flaw, with a check that limits the damage of a bad patch."
+          - "Safe for stability, but leaves an actively exploited flaw open for weeks."
+          - "Thorough, but far too slow while the flaw is being exploited."
+
+  - id: cy-3b2
+    title: "Best-answer practice: Incident Response and Management"
+    domain: "3"
+    goal: "I can choose the best next step, containment or recovery action in an incident when every option on offer is reasonable."
+    notes: |
+      In an incident nearly every option is something the team will do **eventually**. The question is which comes now.
+
+      **What to look for in Domain 3**
+
+      - **The phase.** Preparation, detection, analysis, containment, eradication, recovery, post-incident. Not yet confirmed? Validate. Confirmed and spreading? Contain. Contained? Remove the cause, then restore.
+      - **Least disruptive containment that works.** Pull one node from the pool, block one protocol, sinkhole one domain - not "take everything down", unless nothing smaller stops it.
+      - **How far the attacker got.** Domain administrator for weeks means rebuild and reset everything, and a backup taken inside the dwell time is not clean.
+      - **Evidence.** Authorization before collection; preserve before it is overwritten; never destroy it to save an hour.
+      - **Dependencies.** Restore what other systems need first.
+
+      **Usual traps:** fixing an earlier stage the attacker has already passed; chasing addresses that change; cleaning in place after a deep compromise; retraining one user when the root cause is a missing control.
+    items:
+      - id: cy-3b2-b01
+        type: mcq
+        best: true
+        q: "An intruder who entered through a phishing email three days ago is now compressing design files into archives on a file server and has begun uploading them to an outside address. Which action is the BEST immediate response?"
+        choices:
+          - "Reset the password of the user who was phished"
+          - "Patch the flaw the intruder used to gain administrator rights"
+          - "Send a phishing warning to all staff"
+          - "Cut the file server's outbound access to the internet"
+        answer: 3
+        why: "The intruder is at the last stage - acting on objectives. The harm in progress is data leaving, so the first move is to stop the upload."
+        whys:
+          - "Needed, but it addresses a stage the intruder passed three days ago."
+          - "Needed for eradication, but the intruder already holds the rights and the data is leaving now."
+          - "Guards against the next phish; it does nothing about this theft."
+          - "Best: it stops the data loss that is happening at this moment."
+      - id: cy-3b2-b02
+        type: mcq
+        best: true
+        q: "Responders find that an intruder created a scheduled task for persistence. Intelligence names the likely group. The team wants a structured list of other persistence methods this group is known to use, so it can hunt for them. Which resource is BEST?"
+        choices:
+          - "The Cyber Kill Chain's installation stage"
+          - "MITRE ATT&CK's entry for the group"
+          - "A Diamond Model drawing of this intrusion"
+          - "The indicator list from the intelligence report"
+        answer: 1
+        why: "ATT&CK catalogues techniques by tactic and maps them to named groups, which is exactly a list of this group's known persistence methods."
+        whys:
+          - "Names the stage where persistence happens, but lists no specific techniques."
+          - "Best: it lists the techniques attributed to the group, tactic by tactic."
+          - "Relates adversary, capability, infrastructure and victim for this event; it is not a catalogue of techniques."
+          - "Gives addresses and hashes to match, not the methods the group uses."
+      - id: cy-3b2-b03
+        type: mcq
+        best: true
+        q: "Last year's tabletop showed that managers know the plan. The incident lead now wants proof that responders can actually isolate hosts and restore systems with the real tools under time pressure. Which exercise is BEST?"
+        choices:
+          - "A hands-on simulation in a test environment"
+          - "A second tabletop with a harder scenario"
+          - "A walkthrough of the updated response plan"
+          - "A vendor course on the EDR product"
+        answer: 0
+        why: "A tabletop tests decisions by discussion. Only a hands-on simulation shows whether people can carry out the technical steps with the tools."
+        whys:
+          - "Best: responders perform the real actions against the clock."
+          - "Tests decisions again, still by talking, not doing."
+          - "Confirms people have read the plan, not that they can execute it."
+          - "Builds product skill, but does not test the team's own procedures under pressure."
+      - id: cy-3b2-b04
+        type: mcq
+        best: true
+        q: "During a peak sales day a web shell is found on one of six identical web servers behind a load balancer. The business will not accept taking the site down. Which containment is BEST?"
+        choices:
+          - "Block the attacker's source address at the perimeter firewall"
+          - "Take the site offline until all six servers have been checked"
+          - "Remove that server from the pool and isolate it"
+          - "Delete the web shell and keep the server in service"
+        answer: 2
+        why: "The other five servers can carry the site. Removing and isolating the affected one contains it and preserves it for analysis with no outage."
+        whys:
+          - "Quick, but an attacker changes address in seconds and the shell remains."
+          - "The most cautious choice, but the business has ruled out taking the site down."
+          - "Best: the compromised server is cut off and kept as evidence while the site stays up."
+          - "Removes one artefact, destroys evidence and leaves a server of unknown state serving customers."
+      - id: cy-3b2-b05
+        type: mcq
+        best: true
+        q: "A worm is spreading between workstations over SMB: 40 of 600 are infected and the number is rising every few minutes. Workstations never need to accept SMB connections from each other. Which containment is BEST?"
+        choices:
+          - "Block inbound SMB on all workstations by host firewall policy"
+          - "Isolate each infected workstation through EDR as soon as it is found"
+          - "Deploy the missing patch to all 600 workstations"
+          - "Disconnect the site's WAN link to protect other sites"
+        answer: 0
+        why: "Blocking the one protocol the worm travels on, everywhere at once, stops the spread and costs nothing because workstations do not need it."
+        whys:
+          - "Best: it closes the worm's path on every workstation in one action, with no business impact."
+          - "Correct for each host, but one at a time loses the race against a worm."
+          - "The eventual fix, but patching 600 machines takes far longer than the worm does."
+          - "Protects other sites, but the worm keeps spreading inside this one."
+      - id: cy-3b2-b06
+        type: mcq
+        best: true
+        q: "HR asks an analyst to collect a named employee's mailbox and browsing history for a misconduct case that may end in dismissal and a tribunal. What should the analyst do FIRST?"
+        choices:
+          - "Export the mailbox before the employee can delete anything"
+          - "Hash and store the browsing logs for the last 90 days"
+          - "Ask the employee's manager what they have noticed"
+          - "Confirm written authorization and scope with legal and HR"
+        answer: 3
+        why: "Collecting an employee's data without clear authority and scope can breach privacy law and make the evidence unusable. Authorization comes before collection."
+        whys:
+          - "Will be done, but only once the analyst is authorized and knows the scope."
+          - "Good evidence handling, but it is still collection before authorization."
+          - "Risks tipping off the employee and is not the analyst's role."
+          - "Best: it makes the collection lawful, bounded and defensible at a tribunal."
+      - id: cy-3b2-b07
+        type: mcq
+        best: true
+        q: "An intruder held domain administrator rights for three weeks before being contained. Twelve servers show signs of access. System backups are taken weekly and kept for a month. Which eradication approach for those servers is BEST?"
+        choices:
+          - "Remove the malicious files and tasks that the investigation identified"
+          - "Rebuild from trusted media, then restore data that has been checked"
+          - "Restore each server from last week's full system backup"
+          - "Run a full antivirus scan with current signatures and clean what it finds"
+        answer: 1
+        why: "After weeks of full administrative control a server cannot be trusted, and last week's backup was taken while the intruder was inside. Only a rebuild from known-good media is clean."
+        whys:
+          - "Removes what was found; with three weeks of administrator access, there may be more that was not."
+          - "Best: the system is known to be clean, and only verified data is brought back."
+          - "Fast, but that backup was taken during the intrusion and may restore the intruder's persistence."
+          - "Catches known malware only; an administrator's changes may not be malware at all."
+      - id: cy-3b2-b08
+        type: mcq
+        best: true
+        q: "After a ransomware attack every server must be restored. The order website earns the most revenue, and it, payroll and the file shares all authenticate against the directory service. Which should be restored FIRST?"
+        choices:
+          - "The public order website"
+          - "The payroll system"
+          - "The directory service"
+          - "The file shares"
+        answer: 2
+        why: "Restoration order follows dependencies as well as value. Nothing else can authenticate until the directory service is back."
+        whys:
+          - "The highest earner, but it cannot work until the directory it authenticates against is running."
+          - "Important, but it also depends on the directory service."
+          - "Best: every other system on the list depends on it."
+          - "Widely used, but again dependent on the directory service."
+      - id: cy-3b2-b09
+        type: mcq
+        best: true
+        q: "A rebuilt server is ready to leave isolation. The intruder got in through an unpatched remote-access service and a reused local administrator password. Which check is MOST important before it is reconnected?"
+        choices:
+          - "The asset inventory shows the new build date"
+          - "Users have been told when service will resume"
+          - "The patch is applied and the password is changed"
+          - "The incident ticket has the rebuild steps recorded"
+        answer: 2
+        why: "Release from isolation follows verified remediation. If the way in is still open, the server will be compromised again as soon as it is reconnected."
+        whys:
+          - "Good record keeping, but it does not stop a second compromise."
+          - "Courteous and useful, but not a security condition for reconnecting."
+          - "Best: it confirms that both routes the intruder used are closed."
+          - "Needed for the record, but it can be completed after the checks that matter."
+      - id: cy-3b2-b10
+        type: mcq
+        best: true
+        q: "An intruder logged in to the VPN with a password phished from one user. The root cause analysis names single-factor VPN login as the root cause. Which corrective action BEST addresses it?"
+        choices:
+          - "Require MFA for every VPN login"
+          - "Retrain the user who entered the password"
+          - "Block the phishing domain at the mail gateway"
+          - "Alert on VPN logins from new countries"
+        answer: 0
+        why: "A corrective action should remove the root cause. With MFA, a phished password alone no longer opens the VPN, whoever is phished next."
+        whys:
+          - "Best: it removes the named root cause for every user."
+          - "Helps one person; the next phished user opens the same door."
+          - "Stops one campaign's domain; the next one uses another."
+          - "Detective: it may spot the next misuse, but the door stays open."
+      - id: cy-3b2-b11
+        type: mcq
+        best: true
+        q: "An analyst is setting the severity of a confirmed intrusion on one server. Which finding does MOST to raise it?"
+        choices:
+          - "The malware belongs to a family seen in many organizations"
+          - "The intruder connected from an address in another country"
+          - "The server runs an operating system one version behind"
+          - "The server holds 40,000 patient records and sent 3 GB out"
+        answer: 3
+        why: "Severity is driven by impact: the sensitivity and amount of data, and evidence that it left. Regulated records plus a large outbound transfer raises it most."
+        whys:
+          - "Useful for identifying the threat, but says little about the impact here."
+          - "Worth noting, but the source address does not change what was harmed."
+          - "A weakness to fix, not a measure of the damage done."
+          - "Best: sensitive, regulated data and evidence of exfiltration define a high-impact incident."
+      - id: cy-3b2-b12
+        type: mcq
+        best: true
+        q: "An alert on host B on the 9th started the investigation. Analysis since has found the same malware on host A with a file creation time of the 3rd. The team needs the initial access vector. Which step is BEST next?"
+        choices:
+          - "Take a deeper forensic image of host B, where the first alert fired"
+          - "Review host A's email, proxy and logon records around the 3rd"
+          - "Interview the users of both hosts about anything unusual"
+          - "Wait for the malware vendor report on the sample"
+        answer: 1
+        why: "The timeline now starts at host A on the 3rd. The way in is found by examining what happened on the earliest known host just before the earliest artefact."
+        whys:
+          - "Host B is where it was noticed, not where it began."
+          - "Best: it looks at the earliest point in the timeline, where the entry must be."
+          - "May add context, but memories of one day a week ago are weak evidence."
+          - "Explains what the sample does, not how it arrived on host A."
+      - id: cy-3b2-b13
+        type: mcq
+        best: true
+        q: "A user reports that a laptop is slow and showed one pop-up. No security tool has alerted. What should the analyst do FIRST?"
+        choices:
+          - "Isolate the laptop from the network through EDR"
+          - "Check the laptop's EDR telemetry for signs of compromise"
+          - "Declare an incident and page the on-call incident manager"
+          - "Arrange for the laptop to be reimaged"
+        answer: 1
+        why: "This is the detection and analysis stage: a vague report must be validated before it is treated as an incident."
+        whys:
+          - "A containment step; nothing yet shows there is anything to contain."
+          - "Best: it establishes whether this is a security event at all, quickly and without disruption."
+          - "Premature: one slow laptop and a pop-up meet no criterion for an incident."
+          - "Destroys any evidence and costs the user a day, on no evidence of compromise."
+      - id: cy-3b2-b14
+        type: mcq
+        best: true
+        q: "In the last incident the IT director and the security manager gave responders conflicting instructions, and containment was delayed by an hour. Which preparation step BEST prevents a repeat?"
+        choices:
+          - "A shared chat channel for everyone involved in an incident"
+          - "A tabletop exercise for the two managers"
+          - "A longer contact list in the response plan"
+          - "A named incident commander role in the response plan"
+        answer: 3
+        why: "Conflicting orders are a problem of undefined roles. The plan should say who has authority to direct the response."
+        whys:
+          - "Improves communication, but two people can still give opposite orders in one channel."
+          - "Would expose the conflict again, but an exercise does not decide who is in charge."
+          - "Helps reach people; it does not say who decides."
+          - "Best: one defined role holds the authority, so instructions cannot conflict."
+      - id: cy-3b2-b15
+        type: mcq
+        best: true
+        q: "A suspected state-backed group is confirmed on three servers, and evidence suggests more footholds not yet found. There is no sign of data theft or damage in progress, and the incident lead has approved a short delay. Which approach to containment is BEST?"
+        choices:
+          - "Finish scoping quickly, then contain every foothold at once"
+          - "Isolate the three known servers immediately"
+          - "Block the three known controller addresses at the perimeter firewall now"
+          - "Reset the passwords of all accounts used on the three servers now"
+        answer: 0
+        why: "Partial containment tells a capable adversary it has been seen while it still has other ways in. With no harm in progress and the lead's approval, scope first and then act everywhere together."
+        whys:
+          - "Best: the adversary loses all its access in one coordinated move."
+          - "The normal reflex, but here it warns the group, which can dig in through footholds not yet found."
+          - "Low disruption, but equally a warning, and other addresses are probably in use."
+          - "Necessary later; done alone now it alerts the group and misses the unknown footholds."
+      - id: cy-3b2-b16
+        type: mcq
+        best: true
+        q: "A compromised payroll server must be back in service by tomorrow, and counsel says a prosecution is likely, so the evidence must be preserved intact. Which course of action BEST satisfies both?"
+        choices:
+          - "Reimage the server tonight after copying its log files"
+          - "Keep payroll offline until the forensic work is finished"
+          - "Preserve the server and bring up a clean replacement"
+          - "Clean the server in place and record every step taken"
+        answer: 2
+        why: "The two needs stop conflicting when service is restored on a different system: the original stays untouched as evidence while a clean build takes over."
+        whys:
+          - "Restores service, but destroys the disk and memory evidence a prosecution needs."
+          - "Protects the evidence, but misses tomorrow's deadline."
+          - "Best: the evidence is kept intact and payroll runs on a system known to be clean."
+          - "Alters the evidence and returns a server of doubtful integrity to service."
+      - id: cy-3b2-b17
+        type: mcq
+        best: true
+        q: "Malware on an unknown number of workstations finds its controller by resolving one domain; the address behind the domain changes every few hours. Which action BEST contains the malware and reveals which hosts are infected?"
+        choices:
+          - "Block the controller's current address at the firewall"
+          - "Isolate the four workstations identified so far"
+          - "Push new antivirus signatures to every workstation"
+          - "Sinkhole the domain on the internal DNS servers"
+        answer: 3
+        why: "The domain is the fixed point. Answering it internally with a sinkhole address cuts every infected host off from the controller, and each host that asks identifies itself."
+        whys:
+          - "Works for a few hours, until the address changes."
+          - "Right for those four, but the number infected is unknown."
+          - "May clean some hosts, but neither cuts the channel now nor lists the infected."
+          - "Best: one change breaks the channel for all hosts and logs every infected one."
+      - id: cy-3b2-b18
+        type: mcq
+        best: true
+        q: "A credential-harvesting email reached 30 mailboxes; four users have clicked so far, and their passwords are already being reset. Which action BEST stops more users from being caught?"
+        choices:
+          - "Remove the message from all 30 mailboxes"
+          - "Send all staff a warning describing the email"
+          - "Add the sender's address to the blocklist"
+          - "Review the four users' recent sign-in activity"
+        answer: 0
+        why: "Twenty-six users still have the message. Removing it takes away the chance to click, without relying on anyone reading a warning."
+        whys:
+          - "Best: users cannot click a message that is no longer there."
+          - "Helpful, but it depends on people reading it before they open the phish."
+          - "Stops further copies from that sender; the 30 delivered copies remain."
+          - "Needed to scope the damage for the four, but it protects nobody else."
+      - id: cy-3b2-b19
+        type: mcq
+        best: true
+        q: "A credential-dumping tool ran in memory on one server, leaving no file on disk. Three administrators had logged on to that server in the previous week. Which step tells the team MOST about how far the intrusion has spread?"
+        choices:
+          - "Search every endpoint for the tool's file hash"
+          - "Take a full disk image of the server"
+          - "Trace where those accounts have logged on since"
+          - "Reverse engineer the tool from a memory capture"
+        answer: 2
+        why: "The intruder's gain is credentials, so the spread is wherever those credentials have been used. Following the accounts shows the scope."
+        whys:
+          - "The tool ran only in memory, so there is no file hash to find elsewhere."
+          - "Preserves this server, but shows nothing about other systems."
+          - "Best: it follows the stolen credentials to every system they have touched."
+          - "Explains the tool, not where the intruder went with what it stole."
+      - id: cy-3b2-b20
+        type: mcq
+        best: true
+        q: "A critical alert fired at 02:00 and sat in a shared mailbox until staff arrived at 08:00. The SOC has no night shift and no budget for one. Which corrective action is BEST?"
+        choices:
+          - "A dashboard showing unread critical alerts"
+          - "On-call paging with escalation if unacknowledged"
+          - "A rule that analysts check the mailbox from home each night"
+          - "A daily 08:00 review of overnight alerts"
+        answer: 1
+        why: "The alert was raised but reached nobody. Paging an on-call analyst, with escalation when there is no acknowledgement, gets a critical alert to a person at any hour without a night shift."
+        whys:
+          - "Shows the backlog, but only to someone who is looking at it."
+          - "Best: the alert goes to a named person and keeps escalating until someone responds."
+          - "Depends on habit and goodwill, with nothing to catch a missed night."
+          - "Makes the morning review reliable, but the six-hour delay remains."
+      - id: cy-3b2-b21
+        type: mcq
+        best: true
+        q: "Forensics shows the intruder copied the Active Directory database (ntds.dit) from a domain controller. Three accounts are known to have been used by the intruder. Which credential action BEST completes eradication?"
+        choices:
+          - "Reset all account passwords and the krbtgt key twice"
+          - "Reset the passwords of the three accounts known to have been used"
+          - "Reset the passwords of all privileged accounts"
+          - "Enforce MFA enrolment for all administrators"
+        answer: 0
+        why: "The database holds the password hashes of every account and the krbtgt key. All must be treated as stolen; krbtgt is reset twice so that forged tickets stop working."
+        whys:
+          - "Best: every credential in the stolen database is replaced, including the key used to forge tickets."
+          - "Covers what was seen, but the intruder holds the hashes of every other account too."
+          - "Covers the most valuable accounts, but leaves ordinary and service accounts and the krbtgt key compromised."
+          - "Worth doing, but stolen hashes and forged tickets do not need to pass MFA prompts."
+      - id: cy-3b2-b22
+        type: mcq
+        best: true
+        q: "A new SOC has time to write one playbook this month, and management wants the largest immediate cut in handling time and mistakes. Over the past year 70% of its confirmed incidents were credential phishing; it has had no ransomware and no insider cases. Which playbook should be written FIRST?"
+        choices:
+          - "Ransomware on file servers"
+          - "Insider theft of company data"
+          - "Credential phishing"
+          - "Denial of service on the website"
+        answer: 2
+        why: "A playbook pays back each time it is used. The stated goal is the largest immediate gain, and seven in ten incidents are credential phishing."
+        whys:
+          - "High impact and next in line, but it has not occurred and the goal is immediate gain."
+          - "Serious when it happens, but there have been no cases."
+          - "Best: it standardises the incident the SOC handles most often."
+          - "Worth preparing, but nothing suggests it is frequent here."
+      - id: cy-3b2-b23
+        type: mcq
+        best: true
+        q: "An investigation into a slow, quiet intrusion will take weeks. The firewall keeps seven days of logs and overwrites the oldest; nothing forwards them elsewhere. What should the team do FIRST with those logs?"
+        choices:
+          - "Begin searching them on the firewall for the known indicators"
+          - "Raise a change request to forward them to the SIEM"
+          - "Ask the vendor whether the retention period can be extended"
+          - "Export the current logs to protected storage and hash them"
+        answer: 3
+        why: "Evidence that is about to be overwritten is preserved first. Analysis and longer-term fixes can follow once a verified copy is safe."
+        whys:
+          - "Useful, but each day of searching in place is a day of the oldest evidence lost."
+          - "The right long-term fix, but a change request does not save this week's logs."
+          - "Might help future retention; today's logs keep rolling off meanwhile."
+          - "Best: the evidence is secured, with a hash to show it has not changed."
+
+  - id: cy-4b2
+    title: "Best-answer practice: Reporting and Communication"
+    domain: "4"
+    goal: "I can choose the best report, metric, escalation or message for the audience in front of me when every option on offer is reasonable."
+    notes: |
+      Reporting questions offer four things that are all worth saying. The right one depends on **who is listening and what they must do next**.
+
+      **What to look for in Domain 4**
+
+      - **The audience.** Administrators need hosts and fixes; executives need impact, status and decisions; auditors need evidence mapped to a requirement.
+      - **Who owns the decision.** Risk owners accept risk; the incident manager declares; legal and the communication plan govern contact with regulators, police, press and customers. An analyst escalates - and does not decide alone.
+      - **Deadlines and duties.** A notification deadline is met with what is known, then updated.
+      - **Honest numbers.** Rates beat raw counts; outcomes beat activity; a metric must answer the question asked.
+      - **Need-to-know and safe channels** while an investigation is live.
+
+      **Usual traps:** reassuring statements nobody has confirmed; recommendations with no owner or date; waiting for certainty before escalating; closing a finding because its owner asked.
+    items:
+      - id: cy-4b2-b01
+        type: mcq
+        best: true
+        q: "Server administrators must act on this month's scan, which produced 9,000 findings across 400 hosts. Which report BEST serves them?"
+        choices:
+          - "A one-page summary of risk trends by business unit"
+          - "The complete raw scanner export in a spreadsheet"
+          - "Findings per host, ranked, with the fix for each"
+          - "A scorecard of each team's SLA compliance"
+        answer: 2
+        why: "People who have to fix things need to know which host, which finding, in what order and what to do about it."
+        whys:
+          - "Right for executives; it tells an administrator nothing about what to change."
+          - "Contains everything, but 9,000 unranked rows hide what matters."
+          - "Best: it is organised around the work the administrators have to do."
+          - "Shows managers how teams are performing, not which fixes to apply."
+      - id: cy-4b2-b02
+        type: mcq
+        best: true
+        q: "The board has five minutes for an update on an incident that is still being handled. Which content should the executive summary lead with to serve the board BEST?"
+        choices:
+          - "Business impact, current status and decisions needed"
+          - "A minute-by-minute timeline of the intruder's actions"
+          - "The indicators of compromise found so far"
+          - "The tools and techniques the responders are using"
+        answer: 0
+        why: "Executives need what it means for the business, where things stand and what they are being asked to decide, in plain language."
+        whys:
+          - "Best: it answers the board's questions and gets the decisions the response needs."
+          - "Belongs in the technical report; the board cannot act on it in five minutes."
+          - "Essential for analysts and partners, not for directors."
+          - "Shows effort, but not impact or what is needed from the board."
+      - id: cy-4b2-b03
+        type: mcq
+        best: true
+        q: "A system owner asks the vulnerability analyst to close a high-severity finding because 'that server is low risk'. Policy says deviations from remediation deadlines need the risk owner's approval. What is the analyst's BEST response?"
+        choices:
+          - "Close the finding, since the owner knows the system best"
+          - "Lower the finding's severity to reflect the owner's view"
+          - "Escalate the disagreement straight to the CISO"
+          - "Route the request through the exception process"
+        answer: 3
+        why: "Accepting risk is not the analyst's decision, nor the system owner's alone. The exception process puts the request in front of the person with authority and records the outcome."
+        whys:
+          - "The owner's view matters, but closing it lets risk be accepted without the authority policy requires."
+          - "Changes the record to fit an opinion; the technical severity has not changed."
+          - "May come later, but skipping the defined process is premature."
+          - "Best: the right person decides, with the reasoning on record."
+      - id: cy-4b2-b04
+        type: mcq
+        best: true
+        q: "A risk scorecard ranks business units by their number of open critical findings. The largest unit, with 4,000 assets, always ranks worst; a unit with 50 assets always looks best. Which change makes the comparison MOST meaningful?"
+        choices:
+          - "Show each unit's count for the last six months"
+          - "Report overdue criticals per 100 assets for each unit"
+          - "Add the count of high-severity findings to the ranking"
+          - "List each unit's ten worst hosts beside its count"
+        answer: 1
+        why: "Raw counts mostly measure size. A rate per asset, counting what is overdue, compares how well each unit manages its flaws."
+        whys:
+          - "Adds a trend, but still compares units of very different size by raw count."
+          - "Best: normalising by size and counting overdue items makes units comparable."
+          - "More data, with the same size bias."
+          - "Helpful detail for each unit, but it does not fix the comparison."
+      - id: cy-4b2-b05
+        type: mcq
+        best: true
+        q: "The board asks one question: is the time the company stays exposed to critical flaws getting shorter? Which metric BEST answers it?"
+        choices:
+          - "Number of critical findings discovered each month"
+          - "Number of patches deployed each month"
+          - "Percentage of assets scanned each month"
+          - "Mean time to remediate criticals, by quarter"
+        answer: 3
+        why: "The question is about duration of exposure. Mean time to remediate measures exactly that, and showing it by quarter gives the trend."
+        whys:
+          - "Shows how much is found, which depends on scanning, not how long it stays open."
+          - "Measures activity; many patches can still arrive late."
+          - "Measures coverage, which matters, but not exposure time."
+          - "Best: it measures the exposure window and how it is changing."
+      - id: cy-4b2-b06
+        type: mcq
+        best: true
+        q: "An external auditor is assessing compliance with a standard that requires quarterly internal scans of the cardholder data environment. Which report BEST serves the auditor?"
+        choices:
+          - "All open findings sorted by CVSS score"
+          - "Dated scan evidence mapped to each requirement"
+          - "A trend chart of total vulnerabilities over the year"
+          - "An executive summary of the top five risks"
+        answer: 1
+        why: "An auditor tests whether a specific requirement was met. Evidence tied to that requirement, with dates and scope, answers the question directly."
+        whys:
+          - "Right for remediation teams; it does not show that the required scans took place."
+          - "Best: it shows requirement by requirement that the scans were done, when and on what."
+          - "Shows direction over time, not compliance with a requirement."
+          - "Written for leadership, with no evidence an auditor can test."
+      - id: cy-4b2-b07
+        type: mcq
+        best: true
+        q: "Analysts confirm that customer personal data was taken. A regulation that applies to the company requires the regulator to be told within 72 hours of discovery and allows details to follow later. Forensics will need three weeks. Which approach is BEST?"
+        choices:
+          - "Notify within 72 hours with known facts, then update"
+          - "Notify once forensics has established the full facts"
+          - "Notify customers first and the regulator when asked"
+          - "Notify only if there is evidence the data was misused"
+        answer: 0
+        why: "The duty has a deadline and the regulation allows later detail, so the company reports what it knows on time, through legal, and follows up."
+        whys:
+          - "Best: it meets the legal deadline and stays accurate by updating as facts emerge."
+          - "More complete, but three weeks is far past a 72-hour duty."
+          - "Customers matter, but the regulator's deadline does not wait to be asked."
+          - "The stated duty starts at discovery of the breach, not at proof of misuse."
+      - id: cy-4b2-b08
+        type: mcq
+        best: true
+        q: "An analyst on night shift finds an extortion note demanding payment not to publish stolen data. The communication plan names the incident manager and legal counsel as the people who decide on outside contact. What should the analyst do FIRST?"
+        choices:
+          - "Report the crime to the national cybercrime unit at once"
+          - "Reply to the sender to gain time for the investigation"
+          - "Preserve the note and escalate to the incident manager"
+          - "Brief the public relations team so a statement is ready"
+        answer: 2
+        why: "The plan says who decides on contact with outsiders. The analyst's part is to keep the evidence and get it to those people quickly."
+        whys:
+          - "Involving law enforcement may well be right, but the plan gives that decision to the incident manager and counsel."
+          - "Any contact with an extortionist is a decision for leadership and counsel, not a night-shift analyst."
+          - "Best: the evidence is kept and the people with authority are told at once."
+          - "PR will be needed, but is brought in by the incident manager under the plan."
+      - id: cy-4b2-b09
+        type: mcq
+        best: true
+        q: "An intrusion is confirmed and still under investigation; whether customer data was taken is not yet known. A customer statement must go out today. Which statement is BEST?"
+        choices:
+          - "One that reassures customers that no data was taken"
+          - "One with confirmed facts, advice and a next update time"
+          - "One that explains the exploited flaw in full technical detail"
+          - "One that says only that an investigation is under way"
+        answer: 1
+        why: "Good incident communication is accurate, useful and honest about what is unknown: confirmed facts, what customers can do, and when they will hear more."
+        whys:
+          - "Comforting, but unconfirmed; if it proves wrong, trust and legal standing both suffer."
+          - "Best: true, practical and clear about when more will be known."
+          - "Transparent, but it helps other attackers and tells customers nothing they can act on."
+          - "Accurate, but gives customers no advice and no idea when they will hear more."
+      - id: cy-4b2-b10
+        type: mcq
+        best: true
+        q: "An investigation into possible data theft by a current employee has begun, and the plan treats insider cases as need-to-know. Updates must be shared. Which distribution is BEST?"
+        choices:
+          - "The whole SOC, so every shift can watch the employee's activity"
+          - "All IT administrators, so they preserve relevant logs"
+          - "The employee's department, so colleagues can report concerns"
+          - "HR, legal and the named investigators only"
+        answer: 3
+        why: "An insider case can be ruined by a tip-off and can wrong an innocent person. Information goes only to those who need it to do their part."
+        whys:
+          - "More eyes, but far more people who could let it slip, and the monitoring can be assigned without the story."
+          - "Logs can be preserved through a specific request that does not name the reason."
+          - "Would almost certainly reach the employee and damages them if they are innocent."
+          - "Best: the smallest group that can run the case lawfully."
+      - id: cy-4b2-b11
+        type: mcq
+        best: true
+        q: "An incident is mid-containment when the day shift ends. Which handover BEST lets the night shift continue without losing ground?"
+        choices:
+          - "A written status and open actions, walked through live"
+          - "A verbal summary at the desk before leaving"
+          - "A pointer to the ticket, which holds the full history"
+          - "An email summary sent after the day shift has gone home"
+        answer: 0
+        why: "A good handover leaves a record of status, actions in progress and pending decisions, and gives the incoming shift the chance to ask questions."
+        whys:
+          - "Best: a lasting record plus a live exchange in which gaps are caught."
+          - "Allows questions, but leaves nothing to refer to at 03:00."
+          - "Complete, but the night shift must rebuild the current state from the history."
+          - "A record, but nobody is there to answer questions about it."
+      - id: cy-4b2-b12
+        type: mcq
+        best: true
+        q: "After-action reports from the last three incidents each recommended network segmentation; none was implemented, and the fourth incident spread the same way. Which change BEST ensures recommendations are acted on?"
+        choices:
+          - "Circulate each report to more senior managers"
+          - "Hold the lessons-learned meeting sooner after each incident"
+          - "Give each action an owner and due date, tracked to closure"
+          - "Put the recommendations at the top of each report"
+        answer: 2
+        why: "A recommendation becomes a corrective action when someone owns it, it has a date, and its progress is tracked until it is done."
+        whys:
+          - "Raises awareness, but being read by more people is not the same as being assigned."
+          - "Improves recall of the incident, but the same unowned recommendation would result."
+          - "Best: accountability and follow-up are what the last three reports lacked."
+          - "Makes them easier to see, not more likely to be done."
+      - id: cy-4b2-b13
+        type: mcq
+        best: true
+        q: "Twenty new SIEM rules tripled alert volume last month. The SOC manager must decide which of the new rules are worth keeping. Which metric BEST informs that decision?"
+        choices:
+          - "Total alert volume per day"
+          - "Mean time to close alerts"
+          - "Mean time to detect across all incidents"
+          - "True-positive rate of each rule"
+        answer: 3
+        why: "The decision is rule by rule, so the metric must be too: the share of each rule's alerts that turned out to be real."
+        whys:
+          - "Shows that there is a load problem, not which rules cause it or which earn their place."
+          - "Shows the strain on analysts, but not the worth of any one rule."
+          - "A speed measure for the whole SOC; it cannot separate good rules from bad."
+          - "Best: it shows which rules find real activity and which only make noise."
+      - id: cy-4b2-b14
+        type: mcq
+        best: true
+        q: "At 03:00 an analyst finds signs that an intruder may have reached the payment database, but cannot tell whether the plan's criteria for a major incident are met. The plan gives the on-call incident manager the authority to declare. What should the analyst do FIRST?"
+        choices:
+          - "Call the on-call incident manager with the facts so far"
+          - "Keep investigating alone until the evidence is conclusive"
+          - "Declare a major incident and start notifying executives"
+          - "Write it up for the day shift to assess at 08:00"
+        answer: 0
+        why: "When it is unclear whether the bar is met and the possible impact is high, escalate to the person with authority to decide; do not decide for them either way."
+        whys:
+          - "Best: the decision goes to the person the plan authorizes, with no time lost."
+          - "Diligent, but it delays a decision that is not the analyst's while a payment system may be exposed."
+          - "Takes a decision the plan gives to someone else, and may alarm executives without cause."
+          - "Loses five hours on a possible compromise of payment data."
+      - id: cy-4b2-b15
+        type: mcq
+        best: true
+        q: "While testing its own integration, a company finds that a partner's API returns other customers' records. The contract names a security contact at the partner. Which action is BEST?"
+        choices:
+          - "Disconnect the integration until the partner fixes the flaw"
+          - "Publish an advisory so other customers can protect themselves"
+          - "Report it privately to the partner's security contact"
+          - "Pull more records to measure how much data is exposed"
+        answer: 2
+        why: "The flaw is the partner's to fix. Telling the named contact privately and promptly gets it fixed without exposing the data further."
+        whys:
+          - "Protects nothing: the flaw is in the partner's API and stays there, while the business loses the integration."
+          - "Disclosure before a fix gives attackers the flaw and the other customers no remedy."
+          - "Best: the party that can fix it is told, through the agreed channel."
+          - "Would give the partner useful scope, but it means accessing other customers' data without authority."

@@ -1,0 +1,653 @@
+id: french-a1
+title: "French — A1 Foundations"
+kind: language
+language: French
+lang: fr-FR
+hall: tongues_west
+blurb: "Start French from zero: greetings, être and avoir, everyday words, questions, ordering food, directions and a first past tense."
+
+units:
+  # ───────────────────────────────────────────────────────────────── 1
+  - id: fr-01
+    title: "Greetings & politeness"
+    goal: "I can greet people, say goodbye, be polite and ask someone's name and how they are."
+    notes: |
+      French has two words for "you". Choosing the right one is the first social skill to learn.
+
+      - **tu** — one person you know well: a friend, a child, family.
+      - **vous** — one person you don't know well (a shop assistant, an older person), or *any* group of people.
+
+      When in doubt, say **vous**. That is why "please" exists twice: *s'il vous plaît* and *s'il te plaît*.
+
+      ## Sounds
+      - Final consonants are usually silent: *salut* sounds like "sa-lu", *vous* like "voo".
+      - **ç** sounds like "s": *ça va* is "sa va".
+      - *monsieur* is irregular: say "muh-syuh".
+
+      ## Politeness
+      Always open with **bonjour** (or **bonsoir** in the evening) before you ask for anything. Skipping it sounds rude in France. Add *monsieur* or *madame* to be extra polite.
+
+      ## Writing
+      French puts a space before **?** and **!** — *Ça va ?*
+    items:
+      - {id: fr-01-bonjour, type: vocab, l2: "bonjour", l1: "hello / good morning", ex: "Bonjour, madame !", ex_l1: "Hello, ma'am!", note: "Used all day until early evening. Say it first, every time you enter a shop."}
+      - {id: fr-01-bonsoir, type: vocab, l2: "bonsoir", l1: "good evening", ex: "Bonsoir, monsieur !", ex_l1: "Good evening, sir!", note: "Replaces bonjour from about 6 p.m."}
+      - {id: fr-01-salut, type: vocab, l2: "salut", l1: "hi (informal)", ex: "Salut, Marie !", ex_l1: "Hi, Marie!", note: "Only with people you say tu to. It can also mean 'bye'. The final t is silent."}
+      - {id: fr-01-au-revoir, type: vocab, l2: "au revoir", l1: "goodbye", ex: "Au revoir, monsieur !", ex_l1: "Goodbye, sir!"}
+      - {id: fr-01-merci, type: vocab, l2: "merci", l1: "thank you", ex: "Merci, madame.", ex_l1: "Thank you, ma'am.", note: "Merci beaucoup = thank you very much."}
+      - {id: fr-01-svp, type: vocab, l2: "s'il vous plaît", l1: "please (formal, or to several people)", ex: "Un café, s'il vous plaît.", ex_l1: "A coffee, please.", note: "Literally 'if it pleases you'. Use this one with strangers."}
+      - {id: fr-01-stp, type: vocab, l2: "s'il te plaît", l1: "please (to a friend)", ex: "Paul, s'il te plaît !", ex_l1: "Paul, please!", note: "The tu version: te replaces vous."}
+      - {id: fr-01-de-rien, type: vocab, l2: "de rien", l1: "you're welcome (everyday reply to merci)", alt: ["je vous en prie", "je t'en prie", "il n'y a pas de quoi", "pas de quoi"], ex: "Merci ! — De rien.", ex_l1: "Thank you! — You're welcome.", note: "Literally 'of nothing'. More formal: je vous en prie."}
+      - {id: fr-01-oui, type: vocab, l2: "oui", l1: "yes", ex: "Oui, merci.", ex_l1: "Yes, thank you.", note: "Sounds like English 'we'."}
+      - {id: fr-01-non, type: vocab, l2: "non", l1: "no", ex: "Non, merci.", ex_l1: "No, thank you.", note: "The final n is not pronounced separately: it makes the o nasal."}
+      - {id: fr-01-monsieur, type: vocab, l2: "monsieur", l1: "sir / Mr.", ex: "Merci, monsieur.", ex_l1: "Thank you, sir.", note: "Irregular pronunciation: 'muh-syuh'."}
+      - {id: fr-01-madame, type: vocab, l2: "madame", l1: "ma'am / Mrs.", ex: "Bonjour, madame Martin.", ex_l1: "Hello, Mrs. Martin."}
+      - {id: fr-01-a-bientot, type: vocab, l2: "à bientôt", l1: "see you soon", ex: "Au revoir, à bientôt !", ex_l1: "Goodbye, see you soon!"}
+      - {id: fr-01-enchante, type: vocab, l2: "enchanté", l1: "pleased to meet you (said by a man)", ex: "Enchanté, madame.", ex_l1: "Pleased to meet you, ma'am.", note: "A woman writes enchantée; both sound the same."}
+      - {id: fr-01-comment-allez-vous, type: phrase, l2: "Comment allez-vous ?", l1: "How are you? (formal)", alt: ["Comment vous allez ?", "Vous allez bien ?"], note: "Liaison: the t of comment links to allez: 'co-man-ta-lay voo'."}
+      - {id: fr-01-comment-ca-va, type: phrase, l2: "Comment ça va ?", l1: "How are you? (informal)", alt: ["Ça va ?", "Comment vas-tu ?", "Comment tu vas ?", "Tu vas bien ?"], note: "Often shortened to 'Ça va ?' and the answer can simply be 'Ça va.'"}
+      - {id: fr-01-ca-va-bien, type: phrase, l2: "Ça va bien, merci.", l1: "I'm fine, thank you.", alt: ["Je vais bien, merci.", "Ça va, merci.", "Très bien, merci.", "Bien, merci."]}
+      - {id: fr-01-comment-vous-appelez-vous, type: phrase, l2: "Comment vous appelez-vous ?", l1: "What is your name? (formal)", alt: ["Comment vous vous appelez ?", "Vous vous appelez comment ?", "Quel est votre nom ?"], note: "Literally 'How do you call yourself?'. To a friend: Comment tu t'appelles ?"}
+      - {id: fr-01-je-ne-comprends-pas, type: phrase, l2: "Je ne comprends pas.", l1: "I don't understand.", note: "ne … pas wraps around the verb to make it negative."}
+      - {id: fr-01-excusez-moi, type: phrase, l2: "Excusez-moi.", l1: "Excuse me. (formal)", alt: ["Pardon.", "Excusez-moi, s'il vous plaît."], note: "Use it to get someone's attention or to apologise. Pardon works too."}
+      - {id: fr-01-c1, type: cloze, text: "Je m'___ Marie.", answer: "appelle", l1: "My name is Marie.", note: "Je m'appelle … = 'I call myself …', the normal way to give your name."}
+      - {id: fr-01-c2, type: cloze, text: "Salut ! Comment ___ va ?", answer: "ça", l1: "Hi! How are you?", note: "Fixed phrase: Comment ça va ? (ça = it/that, with a cedilla)."}
+      - {id: fr-01-c3, type: cloze, text: "Bonjour, monsieur. Comment allez-___ ?", answer: "vous", l1: "Hello, sir. How are you?", note: "A stranger addressed as monsieur → vous."}
+      - {id: fr-01-c4, type: cloze, text: "Salut, Paul ! Comment vas-___ ?", answer: "tu", l1: "Hi, Paul! How are you?", note: "A friend greeted with salut → tu."}
+      - {id: fr-01-c5, type: cloze, text: "Un café, s'il ___ plaît, maman !", answer: "te", l1: "A coffee, please, Mum!", note: "Family → tu, so 'please' is s'il te plaît."}
+      - {id: fr-01-c6, type: cloze, text: "Au ___, madame, et merci !", answer: "revoir", l1: "Goodbye, ma'am, and thank you!", note: "au revoir = 'until we see each other again'."}
+
+  # ───────────────────────────────────────────────────────────────── 2
+  - id: fr-02
+    title: "Who I am: être & subject pronouns"
+    goal: "I can say who I am, where I am from and what I do, and ask others the same."
+    notes: |
+      **être** (to be) is the most used verb in French, and it is irregular. Learn it by heart.
+
+      | pronoun | être | meaning |
+      |---|---|---|
+      | je | suis | I am |
+      | tu | es | you are (informal) |
+      | il / elle / on | est | he / she / one is |
+      | nous | sommes | we are |
+      | vous | êtes | you are (formal or plural) |
+      | ils / elles | sont | they are |
+
+      - A French verb always needs its subject pronoun: *suis* alone is not a sentence.
+      - **ils** is for men or mixed groups; **elles** only for all-female groups.
+      - **on** takes the *il* form and often means "we" in speech: *on est à Paris*.
+      - No article before a job: *Je suis professeur*, never "je suis un professeur".
+      - Nationalities have no capital letter and agree: *il est français*, *elle est française*.
+      - Before *un/une* + noun, say **c'est**: *C'est une amie*.
+      - Liaison: *vous êtes* sounds like "voo-zet".
+    items:
+      - {id: fr-02-je, type: vocab, l2: "je", l1: "I", ex: "Je suis Marie.", ex_l1: "I am Marie.", note: "Becomes j' before a vowel sound: j'aime. Only capitalised at the start of a sentence."}
+      - {id: fr-02-tu, type: vocab, l2: "tu", l1: "you (informal, one person)", ex: "Tu es Paul ?", ex_l1: "Are you Paul?", note: "For a friend, a child or family."}
+      - {id: fr-02-il, type: vocab, l2: "il", l1: "he / it (masculine)", ex: "Il est à Paris.", ex_l1: "He is in Paris."}
+      - {id: fr-02-elle, type: vocab, l2: "elle", l1: "she / it (feminine)", ex: "Elle est française.", ex_l1: "She is French."}
+      - {id: fr-02-nous, type: vocab, l2: "nous", l1: "we", ex: "Nous sommes à Londres.", ex_l1: "We are in London.", note: "The final s is silent, except in liaison: nous‿avons."}
+      - {id: fr-02-vous, type: vocab, l2: "vous", l1: "you (formal, or several people)", ex: "Vous êtes madame Martin ?", ex_l1: "Are you Mrs. Martin?", note: "One stranger or any group. Liaison: vous‿êtes ('voo-zet')."}
+      - {id: fr-02-ils, type: vocab, l2: "ils", l1: "they (men or a mixed group)", ex: "Ils sont français.", ex_l1: "They are French.", note: "Sounds exactly like il; the verb tells you it is plural."}
+      - {id: fr-02-elles, type: vocab, l2: "elles", l1: "they (women only)", ex: "Elles sont étudiantes.", ex_l1: "They are students.", note: "One man in the group is enough to switch to ils."}
+      - {id: fr-02-etre, type: vocab, l2: "être", l1: "to be", ex: "Je suis content d'être ici.", ex_l1: "I am happy to be here.", note: "Irregular: je suis, tu es, il est, nous sommes, vous êtes, ils sont."}
+      - {id: fr-02-etudiant, type: vocab, l2: "un étudiant", l1: "a student (male)", ex: "Paul est étudiant à Paris.", ex_l1: "Paul is a student in Paris.", note: "The final t is silent. Liaison: un‿étudiant."}
+      - {id: fr-02-etudiante, type: vocab, l2: "une étudiante", l1: "a student (female)", ex: "Marie est étudiante.", ex_l1: "Marie is a student.", note: "The added e makes the t audible."}
+      - {id: fr-02-professeur, type: vocab, l2: "un professeur", l1: "a teacher", alt: ["une professeure", "un prof", "une prof", "un enseignant", "une enseignante"], ex: "Le professeur est français.", ex_l1: "The teacher is French.", note: "Everyday short form: un prof / une prof."}
+      - {id: fr-02-francais, type: vocab, l2: "français", l1: "French (adjective, masculine)", ex: "Il est français, de Lyon.", ex_l1: "He is French, from Lyon.", note: "No capital letter. Feminine: française (the s then sounds like z)."}
+      - {id: fr-02-je-suis-de-londres, type: phrase, l2: "Je suis de Londres.", l1: "I am from London.", alt: ["Je viens de Londres."], note: "être de + city = to be from."}
+      - {id: fr-02-d-ou-etes-vous, type: phrase, l2: "D'où êtes-vous ?", l1: "Where are you from? (formal)", alt: ["Vous êtes d'où ?", "D'où venez-vous ?", "Vous venez d'où ?"], note: "d'où = de + où ('from where')."}
+      - {id: fr-02-qui-est-ce, type: phrase, l2: "Qui est-ce ?", l1: "Who is it?", alt: ["C'est qui ?", "Qui c'est ?"], note: "Answer with C'est … : C'est Paul."}
+      - {id: fr-02-je-suis-anglais, type: phrase, l2: "Je suis anglais.", l1: "I am English. (said by a man)", note: "A woman says: Je suis anglaise."}
+      - {id: fr-02-je-parle-un-peu, type: phrase, l2: "Je parle un peu français.", l1: "I speak a little French.", alt: ["Je parle un peu le français.", "Je parle un peu de français."]}
+      - {id: fr-02-c1, type: cloze, text: "Je ___ étudiant.", answer: "suis", l1: "I am a student.", note: "être → je suis. No article before a job or status."}
+      - {id: fr-02-c2, type: cloze, text: "Tu ___ français ?", answer: "es", l1: "Are you French? (to a friend)", note: "être → tu es. The s is silent."}
+      - {id: fr-02-c3, type: cloze, text: "Elle ___ professeur.", answer: "est", l1: "She is a teacher.", note: "être → il / elle est."}
+      - {id: fr-02-c4, type: cloze, text: "Nous ___ américains.", answer: "sommes", l1: "We are American.", note: "être → nous sommes."}
+      - {id: fr-02-c5, type: cloze, text: "Vous ___ de Paris ?", answer: "êtes", l1: "Are you from Paris?", note: "être → vous êtes, with liaison: 'voo-zet'."}
+      - {id: fr-02-c6, type: cloze, text: "Ils ___ étudiants.", answer: "sont", l1: "They are students.", note: "être → ils / elles sont."}
+      - {id: fr-02-c7, type: cloze, text: "___ une amie de Paul.", answer: "c'est", l1: "She is a friend of Paul's.", note: "Before un / une + noun, French uses c'est, not il est / elle est."}
+
+  # ───────────────────────────────────────────────────────────────── 3
+  - id: fr-03
+    title: "Things around me: articles & gender"
+    goal: "I can name everyday people and objects and say what something is, using the right article."
+    notes: |
+      Every French noun is **masculine** or **feminine**, even objects. The gender is rarely logical, so always learn a noun *with* its article.
+
+      | | masculine | feminine | plural |
+      |---|---|---|---|
+      | a / some | un | une | des |
+      | the | le | la | les |
+
+      - Before a vowel or silent h, *le* and *la* shrink to **l'**: *l'ordinateur*, *l'école*, *l'homme*. This is called elision.
+      - The plural usually adds a silent **-s**: *le livre → les livres*. You hear the plural in the article, not the noun.
+      - French needs an article where English has none: *Ce sont des livres* = "They are books".
+
+      ## Useful frames
+      - **C'est** un stylo. — It's a pen.
+      - **Ce sont** des stylos. — They are pens.
+      - **Voici** la clé. — Here is the key.
+      - **Il y a** un chat. — There is a cat. (same form for "there are")
+
+      Liaison: the s of *les* and *des* sounds like z before a vowel: *les‿enfants*.
+    items:
+      - {id: fr-03-homme, type: vocab, l2: "un homme", l1: "a man", ex: "Un homme est à la porte.", ex_l1: "A man is at the door.", note: "The h is silent, so: l'homme, and liaison un‿homme ('un-nom')."}
+      - {id: fr-03-femme, type: vocab, l2: "une femme", l1: "a woman", ex: "C'est une femme de Paris.", ex_l1: "She is a woman from Paris.", note: "Pronounced 'fam', not 'fem'."}
+      - {id: fr-03-enfant, type: vocab, l2: "un enfant", l1: "a child", alt: ["une enfant"], ex: "L'enfant est avec le chien.", ex_l1: "The child is with the dog.", note: "Liaison: un‿enfant, les‿enfants. Final t silent."}
+      - {id: fr-03-livre, type: vocab, l2: "le livre", l1: "the book", ex: "Le livre est sur la table.", ex_l1: "The book is on the table."}
+      - {id: fr-03-maison, type: vocab, l2: "la maison", l1: "the house", ex: "La maison est grande.", ex_l1: "The house is big.", note: "à la maison = at home."}
+      - {id: fr-03-table, type: vocab, l2: "la table", l1: "the table", ex: "Le stylo est sur la table.", ex_l1: "The pen is on the table."}
+      - {id: fr-03-stylo, type: vocab, l2: "le stylo", l1: "the pen", ex: "Voici un stylo.", ex_l1: "Here is a pen."}
+      - {id: fr-03-voiture, type: vocab, l2: "la voiture", l1: "the car", ex: "La voiture est devant la maison.", ex_l1: "The car is in front of the house."}
+      - {id: fr-03-porte, type: vocab, l2: "la porte", l1: "the door", ex: "La porte est ouverte.", ex_l1: "The door is open."}
+      - {id: fr-03-cle, type: vocab, l2: "la clé", l1: "the key", alt: ["la clef"], ex: "Où est la clé ?", ex_l1: "Where is the key?", note: "Also spelled la clef; both sound 'clay'."}
+      - {id: fr-03-ordinateur, type: vocab, l2: "l'ordinateur", l1: "the computer", ex: "L'ordinateur est sur la table.", ex_l1: "The computer is on the table.", note: "masculine: un ordinateur."}
+      - {id: fr-03-chien, type: vocab, l2: "le chien", l1: "the dog", ex: "Le chien est dans la voiture.", ex_l1: "The dog is in the car."}
+      - {id: fr-03-chat, type: vocab, l2: "le chat", l1: "the cat", ex: "Le chat est sous la table.", ex_l1: "The cat is under the table.", note: "Final t silent: 'sha'."}
+      - {id: fr-03-qu-est-ce-que-c-est, type: phrase, l2: "Qu'est-ce que c'est ?", l1: "What is it?", alt: ["C'est quoi ?", "Qu'est-ce que c'est que ça ?"], note: "Pronounced 'kess-kuh-say'. Casual version: C'est quoi ?"}
+      - {id: fr-03-c-est-un-livre, type: phrase, l2: "C'est un livre.", l1: "It's a book."}
+      - {id: fr-03-voici-la-cle, type: phrase, l2: "Voici la clé.", l1: "Here is the key.", alt: ["Voilà la clé.", "Voici la clef.", "Voilà la clef."], note: "voici / voilà = here is / there is (when handing over or pointing)."}
+      - {id: fr-03-il-y-a-un-chat, type: phrase, l2: "Il y a un chat dans la maison.", l1: "There is a cat in the house.", note: "il y a never changes: it means both 'there is' and 'there are'."}
+      - {id: fr-03-ce-sont-des-livres, type: phrase, l2: "Ce sont des livres.", l1: "They are books.", note: "Plural of c'est un livre. English drops the article; French needs des."}
+      - {id: fr-03-c1, type: cloze, text: "C'est ___ maison.", answer: "une", l1: "It's a house.", note: "maison is feminine → une."}
+      - {id: fr-03-c2, type: cloze, text: "C'est ___ stylo.", answer: "un", l1: "It's a pen.", note: "stylo is masculine → un."}
+      - {id: fr-03-c3, type: cloze, text: "___ voiture de Paul est ici.", answer: "la", l1: "Paul's car is here.", note: "voiture is feminine → la. 'Paul's car' = la voiture de Paul."}
+      - {id: fr-03-c4, type: cloze, text: "___ chien est dans la maison.", answer: "le", l1: "The dog is in the house.", note: "chien is masculine → le."}
+      - {id: fr-03-c5, type: cloze, text: "___école est à Paris.", answer: "l'", l1: "The school is in Paris.", note: "Elision: la → l' before a vowel. école is feminine."}
+      - {id: fr-03-c6, type: cloze, text: "Il y a ___ livres sur la table.", answer: "des", l1: "There are (some) books on the table.", note: "des = plural of un / une; English often says nothing."}
+      - {id: fr-03-c7, type: cloze, text: "___ enfants sont à la maison.", answer: "les", l1: "The children are at home.", note: "les = plural 'the' for both genders. Liaison: les‿enfants."}
+
+  # ───────────────────────────────────────────────────────────────── 4
+  - id: fr-04
+    title: "What I have: avoir, age & family"
+    goal: "I can talk about my family, say what I have and give my age."
+    notes: |
+      **avoir** (to have) is the second key verb. It is irregular too.
+
+      | pronoun | avoir |
+      |---|---|
+      | j' | ai |
+      | tu | as |
+      | il / elle / on | a |
+      | nous | avons |
+      | vous | avez |
+      | ils / elles | ont |
+
+      - *je* becomes **j'** before a vowel: *j'ai*.
+      - Liaison makes the plural audible: *nous‿avons*, *vous‿avez*, *ils‿ont* (with a z sound). Compare *ils sont* (s sound) = "they are".
+
+      ## Age, hunger, thirst
+      French *has* these things: **J'ai vingt ans** (I am twenty), **j'ai faim**, **j'ai soif**. Never use *être* for age, and never drop *ans*.
+
+      ## My
+      "My" agrees with the thing owned, not with the owner:
+
+      - **mon** + masculine: *mon père*
+      - **ma** + feminine: *ma mère*
+      - **mes** + plural: *mes parents*
+
+      Before a feminine noun starting with a vowel, use *mon* for easier pronunciation: *mon amie*.
+    items:
+      - {id: fr-04-avoir, type: vocab, l2: "avoir", l1: "to have", ex: "C'est bien d'avoir des amis.", ex_l1: "It's good to have friends.", note: "Irregular: j'ai, tu as, il a, nous avons, vous avez, ils ont."}
+      - {id: fr-04-famille, type: vocab, l2: "la famille", l1: "the family", ex: "Ma famille est à Londres.", ex_l1: "My family is in London.", note: "The -ille sounds like 'ee-y': 'fa-mee-y'."}
+      - {id: fr-04-pere, type: vocab, l2: "le père", l1: "the father", ex: "Mon père est professeur.", ex_l1: "My father is a teacher."}
+      - {id: fr-04-mere, type: vocab, l2: "la mère", l1: "the mother", ex: "Ma mère est française.", ex_l1: "My mother is French."}
+      - {id: fr-04-parents, type: vocab, l2: "les parents", l1: "the parents", ex: "Mes parents sont à Lyon.", ex_l1: "My parents are in Lyon.", note: "Can also mean 'relatives' in general."}
+      - {id: fr-04-frere, type: vocab, l2: "le frère", l1: "the brother", ex: "Mon frère a un chien.", ex_l1: "My brother has a dog."}
+      - {id: fr-04-soeur, type: vocab, l2: "la sœur", l1: "the sister", ex: "Ma sœur est étudiante.", ex_l1: "My sister is a student.", note: "œ is one letter; typing 'soeur' is understood."}
+      - {id: fr-04-fils, type: vocab, l2: "le fils", l1: "the son", ex: "Mon fils a dix ans.", ex_l1: "My son is ten years old.", note: "Pronounced 'feess': the l is silent and the s is heard. Same form in the plural."}
+      - {id: fr-04-fille, type: vocab, l2: "la fille", l1: "the daughter / the girl", ex: "Ma fille a un chat.", ex_l1: "My daughter has a cat.", note: "Pronounced 'fee-y'. Context tells you daughter or girl."}
+      - {id: fr-04-mari, type: vocab, l2: "le mari", l1: "the husband", alt: ["l'époux"], ex: "Mon mari est anglais.", ex_l1: "My husband is English."}
+      - {id: fr-04-femme, type: vocab, l2: "la femme", l1: "the wife", alt: ["l'épouse"], ex: "Ma femme est américaine.", ex_l1: "My wife is American.", note: "The same word as 'woman'; with mon / ma / sa it means wife."}
+      - {id: fr-04-mon, type: vocab, l2: "mon", l1: "my (before a masculine noun)", ex: "Mon ami est ici.", ex_l1: "My friend is here.", note: "Also used before a feminine noun that starts with a vowel: mon amie."}
+      - {id: fr-04-mes, type: vocab, l2: "mes", l1: "my (before a plural noun)", ex: "Mes enfants sont à l'école.", ex_l1: "My children are at school.", note: "Liaison before a vowel: mes‿enfants."}
+      - {id: fr-04-quel-age, type: phrase, l2: "Quel âge avez-vous ?", l1: "How old are you? (formal)", alt: ["Vous avez quel âge ?", "Quel âge vous avez ?"], note: "Literally 'What age do you have?'. To a friend: Tu as quel âge ?"}
+      - {id: fr-04-j-ai-vingt-ans, type: phrase, l2: "J'ai vingt ans.", l1: "I am twenty years old.", alt: ["J'ai 20 ans."], note: "Age uses avoir, and ans is compulsory. vingt = 20; the g is silent and the t links to ans: 'vin-tan'."}
+      - {id: fr-04-j-ai-faim, type: phrase, l2: "J'ai faim.", l1: "I am hungry.", note: "Literally 'I have hunger'. Never 'je suis faim'."}
+      - {id: fr-04-j-ai-soif, type: phrase, l2: "J'ai soif.", l1: "I am thirsty.", note: "Literally 'I have thirst'."}
+      - {id: fr-04-freres-et-soeurs, type: phrase, l2: "Tu as des frères et sœurs ?", l1: "Do you have brothers and sisters? (to a friend)", alt: ["Est-ce que tu as des frères et sœurs ?", "As-tu des frères et sœurs ?", "Tu as des frères et des sœurs ?", "Est-ce que tu as des frères et des sœurs ?", "As-tu des frères et des sœurs ?"]}
+      - {id: fr-04-c1, type: cloze, text: "J'___ un frère et une sœur.", answer: "ai", l1: "I have a brother and a sister.", note: "avoir → j'ai (je loses its e before a vowel)."}
+      - {id: fr-04-c2, type: cloze, text: "Tu ___ quel âge ?", answer: "as", l1: "How old are you? (to a friend)", note: "avoir → tu as. Age is always avoir."}
+      - {id: fr-04-c3, type: cloze, text: "Elle ___ deux enfants.", answer: "a", l1: "She has two children.", note: "avoir → il / elle a (no accent; à with an accent means 'to / at')."}
+      - {id: fr-04-c4, type: cloze, text: "Nous ___ une grande famille.", answer: "avons", l1: "We have a big family.", note: "avoir → nous avons, with liaison: 'noo-za-von'."}
+      - {id: fr-04-c5, type: cloze, text: "Vous ___ des enfants ?", answer: "avez", l1: "Do you have children?", note: "avoir → vous avez, with liaison: 'voo-za-vay'."}
+      - {id: fr-04-c6, type: cloze, text: "Ils ___ un chien.", answer: "ont", l1: "They have a dog.", note: "avoir → ils ont ('eel-zon'). Don't confuse with ils sont = they are."}
+      - {id: fr-04-c7, type: cloze, text: "C'est ___ mère.", answer: "ma", l1: "This is my mother.", note: "mère is feminine → ma."}
+
+  # ───────────────────────────────────────────────────────────────── 5
+  - id: fr-05
+    title: "Numbers, days, dates & time"
+    goal: "I can count to ten, name the days of the week, and ask and tell the time and the date."
+    notes: |
+      ## Numbers
+      **1** un / une · **2** deux · **3** trois · **4** quatre · **5** cinq · **6** six · **7** sept · **8** huit · **9** neuf · **10** dix
+
+      Then: 11 onze, 12 douze, 13 treize, 14 quatorze, 15 quinze, 16 seize, 20 vingt, 30 trente, 40 quarante, 50 cinquante, 60 soixante, 100 cent. Join tens and units with a hyphen: *vingt-deux*; but *vingt et un*.
+
+      ## Time
+      - **Il est** trois **heures**. — It is three o'clock. Never drop *heures*.
+      - *et quart* (quarter past), *et demie* (half past), *moins le quart* (quarter to).
+      - *midi* = noon, *minuit* = midnight.
+      - **à** huit heures = at eight o'clock.
+
+      ## Days and dates
+      - Days and months have **no capital letter** and are all masculine.
+      - *lundi* = on Monday (this one); **le** *lundi* = on Mondays (every week).
+      - Dates use **le** + plain number: *le 14 juillet*. Only the first is special: *le premier mai*.
+      - Months take **en**: *en janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre*.
+    items:
+      - {id: fr-05-deux, type: vocab, l2: "deux", l1: "two", ex: "J'ai deux sœurs.", ex_l1: "I have two sisters.", note: "The x is silent, but sounds like z in liaison: deux‿enfants."}
+      - {id: fr-05-trois, type: vocab, l2: "trois", l1: "three", ex: "Il a trois enfants.", ex_l1: "He has three children.", note: "Pronounced 'trwa'."}
+      - {id: fr-05-quatre, type: vocab, l2: "quatre", l1: "four", ex: "Il y a quatre livres sur la table.", ex_l1: "There are four books on the table.", note: "Never takes an s."}
+      - {id: fr-05-cinq, type: vocab, l2: "cinq", l1: "five", ex: "Il est cinq heures.", ex_l1: "It is five o'clock.", note: "The final q is pronounced: 'sank'."}
+      - {id: fr-05-six, type: vocab, l2: "six", l1: "six", ex: "J'ai six livres.", ex_l1: "I have six books.", note: "Alone it sounds 'seess'; before a consonant 'see'; before a vowel 'seez'."}
+      - {id: fr-05-sept, type: vocab, l2: "sept", l1: "seven", ex: "Une semaine a sept jours.", ex_l1: "A week has seven days.", note: "The p is silent: 'set'."}
+      - {id: fr-05-huit, type: vocab, l2: "huit", l1: "eight", ex: "Le film est à huit heures.", ex_l1: "The film is at eight o'clock.", note: "Pronounced 'weet'; the t is silent before a consonant."}
+      - {id: fr-05-neuf, type: vocab, l2: "neuf", l1: "nine", ex: "Mon fils a neuf ans.", ex_l1: "My son is nine years old.", note: "Before ans and heures the f sounds like v: 'nuh-van'."}
+      - {id: fr-05-dix, type: vocab, l2: "dix", l1: "ten", ex: "J'ai dix euros.", ex_l1: "I have ten euros.", note: "Behaves like six: 'deess' alone, 'deez' before a vowel."}
+      - {id: fr-05-lundi, type: vocab, l2: "lundi", l1: "Monday", ex: "Lundi, je suis à Paris.", ex_l1: "On Monday, I am in Paris.", note: "No capital letter, and no word for 'on'."}
+      - {id: fr-05-mardi, type: vocab, l2: "mardi", l1: "Tuesday", ex: "Mardi, j'ai un cours de français.", ex_l1: "On Tuesday, I have a French class."}
+      - {id: fr-05-mercredi, type: vocab, l2: "mercredi", l1: "Wednesday", ex: "Nous sommes mercredi.", ex_l1: "It is Wednesday.", note: "French says 'we are Wednesday' for 'it is Wednesday'."}
+      - {id: fr-05-jeudi, type: vocab, l2: "jeudi", l1: "Thursday", ex: "À jeudi !", ex_l1: "See you on Thursday!", note: "à + day = see you on …"}
+      - {id: fr-05-vendredi, type: vocab, l2: "vendredi", l1: "Friday", ex: "Vendredi, c'est mon anniversaire.", ex_l1: "Friday is my birthday."}
+      - {id: fr-05-samedi, type: vocab, l2: "samedi", l1: "Saturday", ex: "Le samedi, je suis à la maison.", ex_l1: "On Saturdays, I am at home.", note: "le samedi = every Saturday."}
+      - {id: fr-05-dimanche, type: vocab, l2: "dimanche", l1: "Sunday", ex: "La banque est fermée le dimanche.", ex_l1: "The bank is closed on Sundays."}
+      - {id: fr-05-aujourd-hui, type: vocab, l2: "aujourd'hui", l1: "today", ex: "Aujourd'hui, c'est lundi.", ex_l1: "Today is Monday.", note: "One word with an apostrophe inside."}
+      - {id: fr-05-quelle-heure, type: phrase, l2: "Quelle heure est-il ?", l1: "What time is it?", alt: ["Il est quelle heure ?", "Quelle heure il est ?"], note: "Everyday speech: Il est quelle heure ?"}
+      - {id: fr-05-il-est-trois-heures, type: phrase, l2: "Il est trois heures.", l1: "It is three o'clock.", alt: ["Il est 3 heures.", "Il est 3 h."], note: "heures is compulsory. One o'clock is singular: Il est une heure."}
+      - {id: fr-05-quel-jour, type: phrase, l2: "Quel jour sommes-nous ?", l1: "What day is it today?", alt: ["Quel jour sommes-nous aujourd'hui ?", "On est quel jour ?", "On est quel jour aujourd'hui ?", "Quel jour on est ?", "Nous sommes quel jour ?", "Quel jour est-ce ?", "Quel jour est-ce aujourd'hui ?"], note: "Literally 'What day are we?'. Answer: Nous sommes lundi."}
+      - {id: fr-05-a-quelle-heure, type: phrase, l2: "À quelle heure ?", l1: "At what time?", note: "Answer with à: à neuf heures."}
+      - {id: fr-05-c1, type: cloze, text: "Il est huit heures et ___.", answer: "quart", l1: "It is quarter past eight.", note: "et quart = quarter past (no article)."}
+      - {id: fr-05-c2, type: cloze, text: "Il est dix heures ___ le quart.", answer: "moins", l1: "It is quarter to ten.", note: "moins le quart = 'minus the quarter' = quarter to."}
+      - {id: fr-05-c3, type: cloze, text: "Le cours de français est ___ neuf heures.", answer: "à", l1: "The French class is at nine o'clock.", note: "à + time = at. The accent distinguishes à (at) from a (has)."}
+      - {id: fr-05-c4, type: cloze, text: "Il est deux heures et ___.", answer: "demie", l1: "It is half past two.", note: "et demie = half past. It ends in -e to agree with heure (feminine)."}
+      - {id: fr-05-c5, type: cloze, text: "Aujourd'hui, nous sommes ___ 14 juillet.", answer: "le", l1: "Today is the 14th of July.", note: "Dates: le + number + month, with no 'of' and no '-th'."}
+
+  # ───────────────────────────────────────────────────────────────── 6
+  - id: fr-06
+    title: "Daily life: regular -er verbs"
+    goal: "I can describe my daily routine and say where I live, what I do and what I like."
+    notes: |
+      About 90% of French verbs end in **-er** and follow one pattern. Remove *-er* and add the endings:
+
+      | pronoun | parler | ending |
+      |---|---|---|
+      | je | parle | -e |
+      | tu | parles | -es |
+      | il / elle / on | parle | -e |
+      | nous | parlons | -ons |
+      | vous | parlez | -ez |
+      | ils / elles | parlent | -ent |
+
+      - **Four forms sound identical**: *parle, parles, parle, parlent* are all "parl". The *-ent* of the plural is silent.
+      - Only *nous* ("-on") and *vous* ("-ay") sound different.
+      - Before a vowel or silent h, *je* becomes **j'**: *j'aime, j'habite, j'écoute*.
+      - One spelling fix: *manger → nous mangeons* (keep the e to keep the soft g).
+
+      The French present covers both "I work" and "I am working": *je travaille*.
+
+      **aimer** + *le / la / les*: *J'aime le café*. **aimer** + infinitive: *J'aime parler français*.
+
+      Routine verbs with *se* (*se lever*, to get up) put a small pronoun before the verb: *je me lève*.
+    items:
+      - {id: fr-06-parler, type: vocab, l2: "parler", l1: "to speak / to talk", ex: "Elle parle avec ses amis.", ex_l1: "She is talking with her friends.", note: "The model regular -er verb. No article after it for languages: parler français."}
+      - {id: fr-06-habiter, type: vocab, l2: "habiter", l1: "to live (in a place)", alt: ["vivre"], ex: "Ils habitent à Lyon.", ex_l1: "They live in Lyon.", note: "Silent h: j'habite, and liaison ils‿habitent."}
+      - {id: fr-06-travailler, type: vocab, l2: "travailler", l1: "to work", ex: "Je travaille le lundi.", ex_l1: "I work on Mondays.", note: "-aill- sounds like English 'eye': 'tra-va-yay'."}
+      - {id: fr-06-aimer, type: vocab, l2: "aimer", l1: "to like / to love", ex: "Nous aimons Paris.", ex_l1: "We love Paris.", note: "With a person, aimer alone means 'to love'; aimer bien means 'to like'."}
+      - {id: fr-06-manger, type: vocab, l2: "manger", l1: "to eat", ex: "Je mange à midi.", ex_l1: "I eat at noon.", note: "nous mangeons keeps an e after the g."}
+      - {id: fr-06-regarder, type: vocab, l2: "regarder", l1: "to watch / to look at", ex: "Ils regardent un film.", ex_l1: "They are watching a film.", note: "No preposition: regarder la télévision = to look AT the television."}
+      - {id: fr-06-ecouter, type: vocab, l2: "écouter", l1: "to listen to", ex: "J'écoute la radio le matin.", ex_l1: "I listen to the radio in the morning.", note: "No preposition in French: écouter la radio."}
+      - {id: fr-06-etudier, type: vocab, l2: "étudier", l1: "to study", ex: "Elle étudie le français.", ex_l1: "She studies French."}
+      - {id: fr-06-jouer, type: vocab, l2: "jouer", l1: "to play", ex: "Les enfants jouent dans la maison.", ex_l1: "The children are playing in the house.", note: "jouer au + sport (jouer au tennis); jouer du / de la + instrument."}
+      - {id: fr-06-chercher, type: vocab, l2: "chercher", l1: "to look for", ex: "Je cherche mon téléphone.", ex_l1: "I am looking for my phone.", note: "No preposition: 'for' is included in the verb."}
+      - {id: fr-06-matin, type: vocab, l2: "le matin", l1: "the morning", ex: "Le matin, je mange à sept heures.", ex_l1: "In the morning, I eat at seven o'clock.", note: "le matin on its own = in the morning(s)."}
+      - {id: fr-06-soir, type: vocab, l2: "le soir", l1: "the evening", ex: "Le soir, je suis à la maison.", ex_l1: "In the evening, I am at home."}
+      - {id: fr-06-toujours, type: vocab, l2: "toujours", l1: "always", ex: "Il est toujours content.", ex_l1: "He is always happy.", note: "Adverbs go right after the verb: je travaille toujours."}
+      - {id: fr-06-souvent, type: vocab, l2: "souvent", l1: "often", ex: "Je mange souvent ici.", ex_l1: "I often eat here.", note: "After the verb, unlike English: 'I eat often here'."}
+      - {id: fr-06-j-habite-a-londres, type: phrase, l2: "J'habite à Londres.", l1: "I live in London.", alt: ["Je vis à Londres."], note: "à + city = in / to a city."}
+      - {id: fr-06-je-travaille-bureau, type: phrase, l2: "Je travaille dans un bureau.", l1: "I work in an office."}
+      - {id: fr-06-j-aime-la-musique, type: phrase, l2: "J'aime beaucoup la musique.", l1: "I like music a lot.", note: "General likes need le / la / les. beaucoup follows the verb."}
+      - {id: fr-06-je-me-leve, type: phrase, l2: "Je me lève à sept heures.", l1: "I get up at seven o'clock.", alt: ["Je me lève à 7 heures.", "Je me lève à 7 h."], note: "se lever is a pronominal verb: je me lève, tu te lèves, il se lève."}
+      - {id: fr-06-c1, type: cloze, text: "Je ___ français et anglais.", answer: "parle", l1: "I speak French and English.", note: "parler → je parle (-e)."}
+      - {id: fr-06-c2, type: cloze, text: "Tu ___ où ?", answer: "habites", alt: ["vis"], l1: "Where do you live? (to a friend)", note: "habiter → tu habites (-es, silent s)."}
+      - {id: fr-06-c3, type: cloze, text: "Il ___ dans une banque.", answer: "travaille", l1: "He works in a bank.", note: "travailler → il travaille (-e)."}
+      - {id: fr-06-c4, type: cloze, text: "Nous ___ au restaurant le samedi.", answer: "mangeons", l1: "We eat at the restaurant on Saturdays.", note: "manger → nous mangeons: the extra e keeps the g soft."}
+      - {id: fr-06-c5, type: cloze, text: "Vous ___ la radio ?", answer: "écoutez", l1: "Do you listen to the radio?", note: "écouter → vous écoutez (-ez, sounds 'ay')."}
+      - {id: fr-06-c6, type: cloze, text: "Ils ___ au football.", answer: "jouent", l1: "They play football.", note: "jouer → ils jouent. The -ent is silent."}
+      - {id: fr-06-c7, type: cloze, text: "J'___ le chocolat.", answer: "aime", alt: ["adore"], l1: "I like chocolate.", note: "aimer → j'aime. je becomes j' before a vowel."}
+
+  # ───────────────────────────────────────────────────────────────── 7
+  - id: fr-07
+    title: "Asking & saying no: questions and negation"
+    goal: "I can ask simple questions with question words and make a sentence negative."
+    notes: |
+      ## Negation
+      Put **ne** before the verb and **pas** after it: Je **ne** parle **pas** espagnol.
+
+      - Before a vowel, *ne* becomes **n'**: *Il n'aime pas le café.*
+      - After a negative, *un / une / des* become **de** (d'): J'ai une voiture → Je n'ai pas **de** voiture.
+      - *ne … jamais* = never.
+      - In casual speech people drop *ne* ("Je sais pas"). Understand it, but write both parts.
+
+      ## Three ways to ask
+      - Rising voice (everyday): *Tu parles français ?*
+      - **Est-ce que** + statement (safe everywhere): *Est-ce que tu parles français ?*
+      - Inversion (formal): *Parlez-vous français ?*
+
+      Question words work with all three: *Où habites-tu ? / Où est-ce que tu habites ? / Tu habites où ?*
+
+      ## "What"
+      - **Qu'est-ce que** … at the start: *Qu'est-ce que tu cherches ?*
+      - **quoi** after the verb: *Tu cherches quoi ?*
+      - **quel / quelle** + noun: *Quel jour ? Quelle heure ?*
+
+      Note the accent: **où** = where, **ou** = or.
+    items:
+      - {id: fr-07-qui, type: vocab, l2: "qui", l1: "who", ex: "Qui parle français ici ?", ex_l1: "Who speaks French here?", note: "Pronounced 'kee'."}
+      - {id: fr-07-quoi, type: vocab, l2: "quoi", l1: "what (casual, after the verb or on its own)", ex: "Tu manges quoi ?", ex_l1: "What are you eating?", note: "Pronounced 'kwa'. At the start of a question use qu'est-ce que instead."}
+      - {id: fr-07-ou-where, type: vocab, l2: "où", l1: "where", ex: "Où est mon stylo ?", ex_l1: "Where is my pen?", note: "With a grave accent. Without it, ou means 'or'."}
+      - {id: fr-07-quand, type: vocab, l2: "quand", l1: "when", ex: "Quand est-ce que tu travailles ?", ex_l1: "When do you work?", note: "Final d silent: 'kan'. In liaison it sounds like t: quand‿est-ce que ('kan-tess-kuh')."}
+      - {id: fr-07-comment, type: vocab, l2: "comment", l1: "how", ex: "Comment est ta maison ?", ex_l1: "What is your house like?", note: "Also used alone to mean 'Pardon? What did you say?'"}
+      - {id: fr-07-pourquoi, type: vocab, l2: "pourquoi", l1: "why", ex: "Pourquoi est-ce que tu étudies le français ?", ex_l1: "Why are you studying French?"}
+      - {id: fr-07-combien, type: vocab, l2: "combien", l1: "how much / how many", ex: "Tu as combien de frères ?", ex_l1: "How many brothers do you have?", note: "combien de + noun, with no article."}
+      - {id: fr-07-parce-que, type: vocab, l2: "parce que", l1: "because", alt: ["car"], ex: "J'étudie le français parce que j'aime Paris.", ex_l1: "I am studying French because I love Paris.", note: "Becomes parce qu' before a vowel: parce qu'il …"}
+      - {id: fr-07-quel, type: vocab, l2: "quel", l1: "which / what (before a masculine noun)", ex: "Quel jour sommes-nous ?", ex_l1: "What day is it?", note: "Agrees with the noun: quel, quelle, quels, quelles — all pronounced the same."}
+      - {id: fr-07-ne-pas, type: vocab, l2: "ne … pas", l1: "not (the two-part negation around a verb)", ex: "Je ne travaille pas aujourd'hui.", ex_l1: "I am not working today.", note: "ne + verb + pas. ne becomes n' before a vowel."}
+      - {id: fr-07-jamais, type: vocab, l2: "jamais", l1: "never", ex: "Il ne regarde jamais la télévision.", ex_l1: "He never watches television.", note: "Replaces pas: ne … jamais."}
+      - {id: fr-07-mais, type: vocab, l2: "mais", l1: "but", ex: "Je parle anglais, mais pas espagnol.", ex_l1: "I speak English, but not Spanish."}
+      - {id: fr-07-ou-or, type: vocab, l2: "ou", l1: "or", ex: "Tu aimes le thé ou le café ?", ex_l1: "Do you like tea or coffee?", note: "No accent. With an accent (où) it means 'where'."}
+      - {id: fr-07-je-ne-sais-pas, type: phrase, l2: "Je ne sais pas.", l1: "I don't know.", alt: ["Je sais pas."], note: "In fast speech you will hear 'Je sais pas' or even 'Chais pas'."}
+      - {id: fr-07-ou-sont-les-toilettes, type: phrase, l2: "Où sont les toilettes ?", l1: "Where are the toilets?", alt: ["Les toilettes sont où ?", "Où sont les toilettes, s'il vous plaît ?", "Où se trouvent les toilettes ?"], note: "les toilettes is always plural in France."}
+      - {id: fr-07-parlez-vous-anglais, type: phrase, l2: "Est-ce que vous parlez anglais ?", l1: "Do you speak English? (formal)", alt: ["Parlez-vous anglais ?", "Vous parlez anglais ?"], note: "Est-ce que turns any statement into a question, with no change of word order."}
+      - {id: fr-07-pourquoi-pas, type: phrase, l2: "Pourquoi pas ?", l1: "Why not?"}
+      - {id: fr-07-qu-est-ce-que-tu-cherches, type: phrase, l2: "Qu'est-ce que tu cherches ?", l1: "What are you looking for? (to a friend)", alt: ["Tu cherches quoi ?", "Que cherches-tu ?"], note: "qu'est-ce que + subject + verb = 'what …?'"}
+      - {id: fr-07-c1, type: cloze, text: "Je ne parle ___ espagnol.", answer: "pas", l1: "I don't speak Spanish.", note: "Negation is ne + verb + pas."}
+      - {id: fr-07-c2, type: cloze, text: "Elle ___ travaille pas le dimanche.", answer: "ne", l1: "She doesn't work on Sundays.", note: "ne goes before the verb, pas after it."}
+      - {id: fr-07-c3, type: cloze, text: "Je n'ai pas ___ voiture.", answer: "de", l1: "I don't have a car.", note: "After a negative, un / une / des → de: pas de voiture."}
+      - {id: fr-07-c4, type: cloze, text: "Il ___aime pas le café.", answer: "n'", l1: "He doesn't like coffee.", note: "Elision: ne → n' before a vowel."}
+      - {id: fr-07-c5, type: cloze, text: "___ habites-tu ? — À Paris.", answer: "où", l1: "Where do you live? — In Paris.", note: "où = where, with an accent."}
+      - {id: fr-07-c6, type: cloze, text: "___ est-ce que tu arrives ? — Demain.", answer: "quand", l1: "When are you arriving? — Tomorrow.", note: "quand = when. Question word + est-ce que + statement."}
+      - {id: fr-07-c7, type: cloze, text: "___ ça coûte ? — Dix euros.", answer: "combien", l1: "How much does it cost? — Ten euros.", note: "combien = how much / how many."}
+
+  # ───────────────────────────────────────────────────────────────── 8
+  - id: fr-08
+    title: "Food, drink & ordering"
+    goal: "I can order food and drink politely and say what I eat, drink and want."
+    notes: |
+      ## Some: the partitive
+      When you mean "some" of something you can't count, French needs a word where English often has none:
+
+      | | form | example |
+      |---|---|---|
+      | masculine | du | du pain |
+      | feminine | de la | de la viande |
+      | before a vowel | de l' | de l'eau |
+      | plural | des | des légumes |
+
+      - After a negative, all of them become **de** (d'): Je ne bois pas **de** vin.
+      - After a quantity, also **de**: un verre **d'eau**, beaucoup **de** café, un peu **de** lait.
+      - But likes and dislikes take *le / la / les*: J'aime **le** fromage.
+
+      ## Ordering politely
+      **Je voudrais …** (I would like) is the polite form of *je veux* (I want). Use it with *s'il vous plaît*.
+
+      **vouloir**: je veux, tu veux, il veut, nous voulons, vous voulez, ils veulent.
+
+      **boire**: je bois, tu bois, il boit, nous buvons, vous buvez, ils boivent.
+
+      Meals: *le petit déjeuner* (breakfast), *le déjeuner* (lunch), *le dîner* (dinner).
+    items:
+      - {id: fr-08-pain, type: vocab, l2: "le pain", l1: "the bread", ex: "Je mange du pain le matin.", ex_l1: "I eat bread in the morning.", note: "Nasal vowel; the n is not pronounced separately."}
+      - {id: fr-08-eau, type: vocab, l2: "l'eau", l1: "the water", ex: "Je bois de l'eau.", ex_l1: "I drink water.", note: "feminine: une eau, de l'eau. Pronounced 'lo'."}
+      - {id: fr-08-cafe, type: vocab, l2: "le café", l1: "the coffee", ex: "Je bois un café le matin.", ex_l1: "I drink a coffee in the morning.", note: "Also the place: un café. 'Un café' ordered in France is a small espresso."}
+      - {id: fr-08-the, type: vocab, l2: "le thé", l1: "the tea", ex: "Tu veux du thé ?", ex_l1: "Do you want some tea?", note: "The h is silent: 'tay'."}
+      - {id: fr-08-vin, type: vocab, l2: "le vin", l1: "the wine", ex: "Un verre de vin rouge, s'il vous plaît.", ex_l1: "A glass of red wine, please."}
+      - {id: fr-08-lait, type: vocab, l2: "le lait", l1: "the milk", ex: "Je voudrais un café avec du lait.", ex_l1: "I would like a coffee with milk.", note: "Final t silent: 'lay'."}
+      - {id: fr-08-fromage, type: vocab, l2: "le fromage", l1: "the cheese", ex: "J'aime beaucoup le fromage français.", ex_l1: "I like French cheese a lot."}
+      - {id: fr-08-viande, type: vocab, l2: "la viande", l1: "the meat", ex: "Il ne mange pas de viande.", ex_l1: "He doesn't eat meat."}
+      - {id: fr-08-poisson, type: vocab, l2: "le poisson", l1: "the fish", ex: "Le vendredi, nous mangeons du poisson.", ex_l1: "On Fridays, we eat fish.", note: "Double s = 's' sound. With one s, poison means 'poison'."}
+      - {id: fr-08-legumes, type: vocab, l2: "les légumes", l1: "the vegetables", ex: "Les enfants n'aiment pas les légumes.", ex_l1: "The children don't like vegetables.", note: "masculine: un légume."}
+      - {id: fr-08-pomme, type: vocab, l2: "une pomme", l1: "an apple", ex: "Je mange une pomme.", ex_l1: "I am eating an apple.", note: "une pomme de terre ('earth apple') is a potato."}
+      - {id: fr-08-boire, type: vocab, l2: "boire", l1: "to drink", ex: "Tu bois du café ?", ex_l1: "Do you drink coffee?", note: "Irregular: je bois, tu bois, il boit, nous buvons, vous buvez, ils boivent."}
+      - {id: fr-08-vouloir, type: vocab, l2: "vouloir", l1: "to want", ex: "Je veux une pomme.", ex_l1: "I want an apple.", note: "Irregular: je veux, tu veux, il veut, nous voulons, vous voulez, ils veulent."}
+      - {id: fr-08-petit-dejeuner, type: vocab, l2: "le petit déjeuner", l1: "breakfast (the meal)", ex: "Le petit déjeuner est à huit heures.", ex_l1: "Breakfast is at eight o'clock.", note: "Literally 'the little lunch'."}
+      - {id: fr-08-je-voudrais-un-cafe, type: phrase, l2: "Je voudrais un café, s'il vous plaît.", l1: "I would like a coffee, please. (formal)", alt: ["J'aimerais un café, s'il vous plaît."], note: "je voudrais is the polite way to ask; je veux sounds blunt to a waiter."}
+      - {id: fr-08-l-addition, type: phrase, l2: "L'addition, s'il vous plaît.", l1: "The bill, please. (formal)", note: "l'addition is feminine. In France you must ask for the bill."}
+      - {id: fr-08-voulez-boire, type: phrase, l2: "Qu'est-ce que vous voulez boire ?", l1: "What do you want to drink? (formal)", alt: ["Que voulez-vous boire ?", "Vous voulez boire quoi ?"], note: "vouloir + infinitive: the second verb is not conjugated."}
+      - {id: fr-08-bon-appetit, type: phrase, l2: "Bon appétit !", l1: "Enjoy your meal!", note: "Liaison: 'bo-na-pay-tee'."}
+      - {id: fr-08-c-est-delicieux, type: phrase, l2: "C'est délicieux !", l1: "It's delicious!"}
+      - {id: fr-08-c1, type: cloze, text: "Je voudrais ___ pain, s'il vous plaît.", answer: "du", l1: "I would like some bread, please.", note: "Partitive, masculine: de + le = du."}
+      - {id: fr-08-c2, type: cloze, text: "Vous voulez de ___ salade ?", answer: "la", l1: "Do you want some salad?", note: "Partitive, feminine: de la."}
+      - {id: fr-08-c3, type: cloze, text: "Je mange ___ légumes tous les jours.", answer: "des", l1: "I eat vegetables every day.", note: "Plural 'some': des. English often leaves it out."}
+      - {id: fr-08-c4, type: cloze, text: "Je ne bois pas ___ vin.", answer: "de", l1: "I don't drink wine.", note: "After a negative, du / de la / des → de."}
+      - {id: fr-08-c5, type: cloze, text: "Un verre ___eau, s'il vous plaît.", answer: "d'", l1: "A glass of water, please.", note: "Quantity + de, and de → d' before a vowel."}
+      - {id: fr-08-c6, type: cloze, text: "Je ___ un thé, s'il vous plaît.", answer: "voudrais", alt: ["aimerais"], l1: "I would like a tea, please.", note: "je voudrais = I would like (polite form of vouloir)."}
+      - {id: fr-08-c7, type: cloze, text: "Tu ___ du café ?", answer: "veux", l1: "Do you want some coffee? (to a friend)", note: "vouloir → tu veux."}
+
+  # ───────────────────────────────────────────────────────────────── 9
+  - id: fr-09
+    title: "Getting around: places, directions & aller"
+    goal: "I can ask for and follow simple directions and say where I am going and where I live."
+    notes: |
+      **aller** (to go) is the only irregular *-er* verb:
+
+      | pronoun | aller |
+      |---|---|
+      | je | vais |
+      | tu | vas |
+      | il / elle / on | va |
+      | nous | allons |
+      | vous | allez |
+      | ils / elles | vont |
+
+      ## à + article
+      *à* (to, at, in) merges with *le* and *les*:
+
+      - à + le = **au**: *au supermarché*
+      - à + la = **à la**: *à la gare*
+      - à + l' = **à l'**: *à l'hôtel*
+      - à + les = **aux**: *aux États-Unis*
+
+      *de* does the same: **du**, de la, de l', **des** — *près du musée*.
+
+      ## In / to a place
+      - Cities: **à** Paris, à Londres.
+      - Feminine countries (most end in -e): **en** France, en Italie.
+      - Masculine countries: **au** Canada. Plural: **aux** États-Unis.
+      - Someone's home or business: **chez** Paul, chez le médecin.
+
+      French uses the same word for "in" and "to": *Je suis à Paris / Je vais à Paris.*
+    items:
+      - {id: fr-09-aller, type: vocab, l2: "aller", l1: "to go", ex: "J'aime aller au cinéma.", ex_l1: "I like going to the cinema.", note: "Irregular: je vais, tu vas, il va, nous allons, vous allez, ils vont."}
+      - {id: fr-09-ville, type: vocab, l2: "la ville", l1: "the city / the town", ex: "Paris est une grande ville.", ex_l1: "Paris is a big city.", note: "Here the l is pronounced: 'veel' (unlike fille)."}
+      - {id: fr-09-rue, type: vocab, l2: "la rue", l1: "the street", ex: "J'habite dans cette rue.", ex_l1: "I live in this street.", note: "'In the street' = dans la rue."}
+      - {id: fr-09-gare, type: vocab, l2: "la gare", l1: "the train station", ex: "La gare est près d'ici.", ex_l1: "The station is near here."}
+      - {id: fr-09-hotel, type: vocab, l2: "l'hôtel", l1: "the hotel", ex: "Je cherche l'hôtel de la gare.", ex_l1: "I am looking for the station hotel.", note: "masculine: un hôtel. Silent h, so liaison: un‿hôtel."}
+      - {id: fr-09-musee, type: vocab, l2: "le musée", l1: "the museum", ex: "Le musée est fermé le mardi.", ex_l1: "The museum is closed on Tuesdays.", note: "Masculine even though it ends in -ée."}
+      - {id: fr-09-pharmacie, type: vocab, l2: "la pharmacie", l1: "the pharmacy", ex: "Il y a une pharmacie dans la rue.", ex_l1: "There is a pharmacy in the street.", note: "Look for the green cross sign."}
+      - {id: fr-09-supermarche, type: vocab, l2: "le supermarché", l1: "the supermarket", ex: "Le supermarché est ouvert le dimanche.", ex_l1: "The supermarket is open on Sundays."}
+      - {id: fr-09-ici, type: vocab, l2: "ici", l1: "here", ex: "J'habite ici.", ex_l1: "I live here."}
+      - {id: fr-09-a-gauche, type: vocab, l2: "à gauche", l1: "on the left / to the left", ex: "La banque est à gauche.", ex_l1: "The bank is on the left."}
+      - {id: fr-09-a-droite, type: vocab, l2: "à droite", l1: "on the right / to the right", ex: "Le musée est à droite.", ex_l1: "The museum is on the right.", note: "Hear the final t: 'drwat'. Compare tout droit (straight ahead), where it is silent."}
+      - {id: fr-09-tout-droit, type: vocab, l2: "tout droit", l1: "straight ahead", ex: "Allez tout droit.", ex_l1: "Go straight ahead.", note: "droit ('drwa') = straight; droite ('drwat') = right. Listen for the t!"}
+      - {id: fr-09-pres-de, type: vocab, l2: "près de", l1: "near / close to", ex: "L'hôtel est près de la gare.", ex_l1: "The hotel is near the station.", note: "de + le = du: près du musée."}
+      - {id: fr-09-loin-de, type: vocab, l2: "loin de", l1: "far from", ex: "J'habite loin de Paris.", ex_l1: "I live far from Paris."}
+      - {id: fr-09-chez, type: vocab, l2: "chez", l1: "at / to the home of (someone)", ex: "Je vais chez mon frère.", ex_l1: "I am going to my brother's.", note: "Only with people: chez moi = at my place, chez le médecin = at the doctor's."}
+      - {id: fr-09-ou-est-la-gare, type: phrase, l2: "Où est la gare, s'il vous plaît ?", l1: "Where is the train station, please? (formal)", alt: ["Où se trouve la gare, s'il vous plaît ?", "La gare est où, s'il vous plaît ?"]}
+      - {id: fr-09-tournez-a-gauche, type: phrase, l2: "Tournez à gauche.", l1: "Turn left. (formal)", alt: ["Prenez à gauche."], note: "The vous command is just the vous form without vous."}
+      - {id: fr-09-c-est-loin, type: phrase, l2: "C'est loin ?", l1: "Is it far?", alt: ["Est-ce que c'est loin ?", "Est-ce loin ?", "C'est loin d'ici ?"]}
+      - {id: fr-09-je-suis-perdu, type: phrase, l2: "Je suis perdu.", l1: "I am lost. (said by a man)", note: "A woman writes: Je suis perdue (same sound)."}
+      - {id: fr-09-c1, type: cloze, text: "Je ___ à la banque.", answer: "vais", l1: "I am going to the bank.", note: "aller → je vais."}
+      - {id: fr-09-c2, type: cloze, text: "Tu ___ où ce soir ?", answer: "vas", l1: "Where are you going tonight? (to a friend)", note: "aller → tu vas."}
+      - {id: fr-09-c3, type: cloze, text: "Nous ___ au cinéma demain.", answer: "allons", l1: "We are going to the cinema tomorrow.", note: "aller → nous allons."}
+      - {id: fr-09-c4, type: cloze, text: "Les enfants ___ à l'école en bus.", answer: "vont", l1: "The children go to school by bus.", note: "aller → ils vont."}
+      - {id: fr-09-c5, type: cloze, text: "Elle va ___ supermarché.", answer: "au", l1: "She is going to the supermarket.", note: "à + le = au (supermarché is masculine)."}
+      - {id: fr-09-c6, type: cloze, text: "Mon frère habite ___ États-Unis.", answer: "aux", l1: "My brother lives in the United States.", note: "à + les = aux, for plural countries."}
+      - {id: fr-09-c7, type: cloze, text: "J'habite ___ France.", answer: "en", l1: "I live in France.", note: "en + feminine country: en France, en Italie."}
+
+  # ───────────────────────────────────────────────────────────────── 10
+  - id: fr-10
+    title: "Describing: adjectives & colours"
+    goal: "I can describe people, places and things, including their colour and size."
+    notes: |
+      A French adjective **agrees** with its noun in gender and number.
+
+      | | masculine | feminine |
+      |---|---|---|
+      | singular | grand | grande |
+      | plural | grands | grandes |
+
+      - Usually add **-e** for feminine and **-s** for plural. The added *e* makes a silent final consonant audible: *grand* ("gran") → *grande* ("grand").
+      - Adjectives already ending in *-e* don't change in the feminine: *rouge, jeune*.
+      - Irregular feminines: *bon → bonne, blanc → blanche, beau → belle, nouveau → nouvelle, vieux → vieille*.
+
+      ## Position
+      Most adjectives, and all colours, come **after** the noun: *une voiture rouge*.
+
+      A few short, common ones come **before**: *beau, bon, mauvais, grand, petit, jeune, vieux, nouveau, joli* — *un petit chien, une bonne idée*.
+
+      ## This / that
+      **ce** + masculine, **cette** + feminine, **ces** + plural (and **cet** before a masculine noun starting with a vowel or silent h: *cet homme*).
+
+      ## Hair and eyes
+      Use *avoir* + *les*: *Elle a les yeux bleus.*
+
+      **très** = very; **trop** = too.
+    items:
+      - {id: fr-10-grand, type: vocab, l2: "grand", l1: "big / tall (masculine)", ex: "Mon frère est grand.", ex_l1: "My brother is tall.", note: "Feminine: grande (the d is then pronounced). Goes before the noun: un grand jardin."}
+      - {id: fr-10-petit, type: vocab, l2: "petit", l1: "small / short (masculine)", ex: "J'ai un petit chien.", ex_l1: "I have a small dog.", note: "Feminine: petite. Goes before the noun."}
+      - {id: fr-10-bon, type: vocab, l2: "bon", l1: "good (masculine)", ex: "C'est un bon restaurant.", ex_l1: "It's a good restaurant.", note: "Feminine: bonne. Goes before the noun."}
+      - {id: fr-10-mauvais, type: vocab, l2: "mauvais", l1: "bad (masculine)", ex: "Le film est mauvais.", ex_l1: "The film is bad.", note: "Feminine: mauvaise. Already ends in s, so no extra s in the masculine plural."}
+      - {id: fr-10-beau, type: vocab, l2: "beau", l1: "beautiful / handsome (masculine)", ex: "C'est un beau jardin.", ex_l1: "It's a beautiful garden.", note: "Feminine: belle. Before a masculine vowel: bel (un bel homme). Plural: beaux."}
+      - {id: fr-10-nouveau, type: vocab, l2: "nouveau", l1: "new (masculine)", ex: "J'ai un nouveau téléphone.", ex_l1: "I have a new phone.", note: "Feminine: nouvelle. Plural: nouveaux."}
+      - {id: fr-10-vieux, type: vocab, l2: "vieux", l1: "old (masculine)", ex: "Mon chien est vieux.", ex_l1: "My dog is old.", note: "Feminine: vieille ('vyay'). For a person's age, âgé is more polite."}
+      - {id: fr-10-jeune, type: vocab, l2: "jeune", l1: "young", ex: "Ma mère est jeune.", ex_l1: "My mother is young.", note: "Same form for masculine and feminine."}
+      - {id: fr-10-content, type: vocab, l2: "content", l1: "happy / pleased (masculine)", alt: ["heureux"], ex: "Il est content de son travail.", ex_l1: "He is happy with his job.", note: "Feminine: contente. heureux / heureuse is a stronger 'happy'."}
+      - {id: fr-10-rouge, type: vocab, l2: "rouge", l1: "red", ex: "J'aime le vin rouge.", ex_l1: "I like red wine.", note: "Colours go after the noun. Same form for both genders."}
+      - {id: fr-10-bleu, type: vocab, l2: "bleu", l1: "blue (masculine)", ex: "Le stylo est bleu.", ex_l1: "The pen is blue.", note: "Feminine: bleue (same sound). Plural: bleus."}
+      - {id: fr-10-vert, type: vocab, l2: "vert", l1: "green (masculine)", ex: "J'ai un sac vert.", ex_l1: "I have a green bag.", note: "Feminine: verte (the t is then pronounced)."}
+      - {id: fr-10-noir, type: vocab, l2: "noir", l1: "black (masculine)", ex: "Mon chat est noir.", ex_l1: "My cat is black.", note: "Feminine: noire (same sound)."}
+      - {id: fr-10-blanc, type: vocab, l2: "blanc", l1: "white (masculine)", ex: "Je voudrais un verre de vin blanc.", ex_l1: "I would like a glass of white wine.", note: "Final c silent. Irregular feminine: blanche."}
+      - {id: fr-10-tres, type: vocab, l2: "très", l1: "very", ex: "La ville est très belle.", ex_l1: "The city is very beautiful.", note: "Not used with 'much': 'very much' is simply beaucoup."}
+      - {id: fr-10-quelle-couleur, type: phrase, l2: "De quelle couleur est ta voiture ?", l1: "What colour is your car? (to a friend)", alt: ["Ta voiture est de quelle couleur ?", "Elle est de quelle couleur, ta voiture ?"], note: "French asks 'OF what colour …?'"}
+      - {id: fr-10-cheveux-noirs, type: phrase, l2: "Elle a les cheveux noirs.", l1: "She has black hair.", note: "Hair is plural in French (les cheveux), so the adjective takes an s."}
+      - {id: fr-10-yeux-bleus, type: phrase, l2: "Il a les yeux bleus.", l1: "He has blue eyes.", note: "les yeux is the irregular plural of un œil (an eye). Liaison: les‿yeux."}
+      - {id: fr-10-bonne-idee, type: phrase, l2: "C'est une bonne idée.", l1: "It's a good idea.", note: "idée is feminine, so bon → bonne."}
+      - {id: fr-10-c1, type: cloze, text: "Ma sœur est ___.", answer: "grande", l1: "My sister is tall.", note: "Feminine singular: grand + e."}
+      - {id: fr-10-c2, type: cloze, text: "La maison est ___.", answer: "blanche", l1: "The house is white.", note: "Irregular feminine: blanc → blanche."}
+      - {id: fr-10-c3, type: cloze, text: "Paul et Marc sont très ___.", answer: "contents", alt: ["heureux"], l1: "Paul and Marc are very happy.", note: "Masculine plural: content + s."}
+      - {id: fr-10-c4, type: cloze, text: "C'est une ___ voiture.", answer: "belle", alt: ["jolie"], l1: "It's a beautiful car.", note: "Irregular feminine: beau → belle. It goes before the noun."}
+      - {id: fr-10-c5, type: cloze, text: "Elle porte une robe ___.", answer: "verte", l1: "She is wearing a green dress.", note: "robe is feminine: vert + e. Colours follow the noun."}
+      - {id: fr-10-c6, type: cloze, text: "___ fille est ma sœur.", answer: "cette", l1: "This girl is my sister.", note: "ce (masculine) / cette (feminine) / ces (plural)."}
+      - {id: fr-10-c7, type: cloze, text: "Ces pommes sont très ___.", answer: "bonnes", l1: "These apples are very good.", note: "Feminine plural: bon → bonne + s."}
+
+  # ───────────────────────────────────────────────────────────────── 11
+  - id: fr-11
+    title: "Plans & abilities: irregular verbs and the near future"
+    goal: "I can say what I can, must and want to do, and talk about my plans for the near future."
+    notes: |
+      The most useful verbs are irregular. Learn *je*, *nous* and *ils* and you can usually guess the rest.
+
+      | | je | nous | vous | ils |
+      |---|---|---|---|---|
+      | faire | fais | faisons | faites | font |
+      | pouvoir | peux | pouvons | pouvez | peuvent |
+      | vouloir | veux | voulons | voulez | veulent |
+      | devoir | dois | devons | devez | doivent |
+      | venir | viens | venons | venez | viennent |
+      | prendre | prends | prenons | prenez | prennent |
+
+      The *tu* form is spelled like *je*; the *il* form usually ends in *-t* (*il fait, peut, veut, doit, vient*) but: *il prend*.
+
+      ## Verb + infinitive
+      *pouvoir, vouloir, devoir* are followed by an unconjugated verb: *Je peux venir. Je dois partir.*
+
+      **Il faut** + infinitive = it is necessary to: *Il faut attendre.*
+
+      ## The near future
+      **aller** (present) + infinitive = "going to": Je **vais** visiter Paris. This is all the future you need at A1.
+
+      Negative: Je **ne** vais **pas** travailler.
+
+      *venir de* + place = to come from: *Je viens de Londres.*
+    items:
+      - {id: fr-11-faire, type: vocab, l2: "faire", l1: "to do / to make", ex: "Qu'est-ce que tu aimes faire le soir ?", ex_l1: "What do you like to do in the evening?", note: "Irregular: je fais, tu fais, il fait, nous faisons, vous faites, ils font."}
+      - {id: fr-11-pouvoir, type: vocab, l2: "pouvoir", l1: "to be able to / can", ex: "Je peux entrer ?", ex_l1: "Can I come in?", note: "je peux, tu peux, il peut, nous pouvons, vous pouvez, ils peuvent."}
+      - {id: fr-11-venir, type: vocab, l2: "venir", l1: "to come", ex: "Tu viens avec nous ?", ex_l1: "Are you coming with us?", note: "je viens, tu viens, il vient, nous venons, vous venez, ils viennent."}
+      - {id: fr-11-prendre, type: vocab, l2: "prendre", l1: "to take", ex: "Je prends le métro.", ex_l1: "I take the metro.", note: "Also used for food and drink: Je prends un café = I'll have a coffee."}
+      - {id: fr-11-devoir, type: vocab, l2: "devoir", l1: "to have to / must", ex: "Je dois travailler demain.", ex_l1: "I have to work tomorrow.", note: "je dois, tu dois, il doit, nous devons, vous devez, ils doivent."}
+      - {id: fr-11-savoir, type: vocab, l2: "savoir", l1: "to know (a fact, or how to do something)", ex: "Je sais parler français.", ex_l1: "I know how to speak French.", note: "je sais, tu sais, il sait, nous savons, vous savez, ils savent."}
+      - {id: fr-11-voir, type: vocab, l2: "voir", l1: "to see", ex: "Je vois la gare.", ex_l1: "I can see the station.", note: "je vois, tu vois, il voit, nous voyons, vous voyez, ils voient."}
+      - {id: fr-11-partir, type: vocab, l2: "partir", l1: "to leave / to go away", ex: "Le train part à six heures.", ex_l1: "The train leaves at six o'clock.", note: "je pars, tu pars, il part, nous partons, vous partez, ils partent."}
+      - {id: fr-11-demain, type: vocab, l2: "demain", l1: "tomorrow", ex: "Demain, c'est dimanche.", ex_l1: "Tomorrow is Sunday.", note: "À demain ! = See you tomorrow!"}
+      - {id: fr-11-maintenant, type: vocab, l2: "maintenant", l1: "now", ex: "Je suis à la maison maintenant.", ex_l1: "I am at home now."}
+      - {id: fr-11-bientot, type: vocab, l2: "bientôt", l1: "soon", ex: "Nous arrivons bientôt.", ex_l1: "We are arriving soon."}
+      - {id: fr-11-ce-soir, type: vocab, l2: "ce soir", l1: "tonight / this evening", ex: "Ce soir, je vais au cinéma.", ex_l1: "Tonight, I am going to the cinema."}
+      - {id: fr-11-week-end, type: vocab, l2: "le week-end", l1: "the weekend", ex: "Le week-end, je ne travaille pas.", ex_l1: "At the weekend, I don't work.", note: "Borrowed from English, written with a hyphen."}
+      - {id: fr-11-semaine-prochaine, type: vocab, l2: "la semaine prochaine", l1: "next week", ex: "Je vais à Paris la semaine prochaine.", ex_l1: "I am going to Paris next week.", note: "French keeps the article: 'the next week'."}
+      - {id: fr-11-vacances, type: vocab, l2: "les vacances", l1: "the holidays / the vacation", ex: "Je suis en vacances.", ex_l1: "I am on holiday.", note: "Always plural, and feminine: les grandes vacances = the summer holidays."}
+      - {id: fr-11-tu-fais-ce-week-end, type: phrase, l2: "Qu'est-ce que tu fais ce week-end ?", l1: "What are you doing this weekend? (to a friend)", alt: ["Tu fais quoi ce week-end ?", "Que fais-tu ce week-end ?"]}
+      - {id: fr-11-pouvez-vous-m-aider, type: phrase, l2: "Pouvez-vous m'aider, s'il vous plaît ?", l1: "Can you help me, please? (formal)", alt: ["Vous pouvez m'aider, s'il vous plaît ?", "Est-ce que vous pouvez m'aider, s'il vous plaît ?", "Pourriez-vous m'aider, s'il vous plaît ?"], note: "m' = me, placed before the infinitive."}
+      - {id: fr-11-je-dois-partir, type: phrase, l2: "Je dois partir.", l1: "I have to leave.", alt: ["Je dois y aller.", "Il faut que je parte."]}
+      - {id: fr-11-il-faut-attendre, type: phrase, l2: "Il faut attendre.", l1: "You have to wait. (impersonal: it is necessary to wait)", alt: ["Il faut patienter."], note: "il faut + infinitive: an impersonal 'you / we have to'. It exists only with il."}
+      - {id: fr-11-c1, type: cloze, text: "Qu'est-ce que vous ___ dans la vie ?", answer: "faites", l1: "What do you do for a living?", note: "faire → vous faites (never 'faisez')."}
+      - {id: fr-11-c2, type: cloze, text: "Tu ___ venir ce soir ?", answer: "peux", l1: "Can you come tonight?", note: "pouvoir → tu peux, followed by an infinitive."}
+      - {id: fr-11-c3, type: cloze, text: "Nous ___ le train à huit heures.", answer: "prenons", l1: "We take the train at eight o'clock.", note: "prendre → nous prenons (the d disappears in the plural)."}
+      - {id: fr-11-c4, type: cloze, text: "Elle ___ de Lyon.", answer: "vient", l1: "She comes from Lyon.", note: "venir → il / elle vient. venir de = to come from."}
+      - {id: fr-11-c5, type: cloze, text: "Les enfants ___ une glace.", answer: "veulent", l1: "The children want an ice cream.", note: "vouloir → ils veulent."}
+      - {id: fr-11-c6, type: cloze, text: "Demain, je ___ visiter le musée.", answer: "vais", l1: "Tomorrow, I am going to visit the museum.", note: "Near future: aller (je vais) + infinitive."}
+      - {id: fr-11-c7, type: cloze, text: "Ils ___ partir en vacances en août.", answer: "vont", l1: "They are going to go on holiday in August.", note: "Near future: ils vont + infinitive."}
+
+  # ───────────────────────────────────────────────────────────────── 12
+  - id: fr-12
+    title: "Shopping, weather & what happened"
+    goal: "I can shop and pay, talk about the weather, and say a few things I did yesterday."
+    notes: |
+      ## Weather
+      Weather uses **il fait** + adjective: *il fait beau, il fait chaud, il fait froid*. Also *il pleut* (it's raining) and *il y a du soleil* (it's sunny). Never *c'est chaud* for the weather.
+
+      ## The past: passé composé
+      To say what happened, use two words: the present of **avoir** + a **past participle**.
+
+      - *-er* verbs: *-er → -é*. *manger → j'ai mangé, acheter → j'ai acheté.* It sounds the same as the infinitive.
+      - Learn these irregular participles: *faire → fait, prendre → pris, voir → vu, avoir → eu, être → été*.
+
+      *J'ai mangé* means both "I ate" and "I have eaten".
+
+      ## A few verbs take être
+      Verbs of coming and going use **être** instead: *aller, venir, arriver, partir*.
+
+      - *Je suis allé à Paris.* — I went to Paris.
+      - The participle then agrees with the subject, like an adjective: *elle est allée*, *ils sont allés*.
+
+      ## Negative
+      *ne … pas* goes around the first verb: Je **n'ai pas** mangé.
+
+      Time words: *hier* (yesterday), *hier soir* (last night), *la semaine dernière* (last week).
+    items:
+      - {id: fr-12-magasin, type: vocab, l2: "le magasin", l1: "the shop / the store", alt: ["la boutique"], ex: "Il y a un magasin près de l'hôtel.", ex_l1: "There is a shop near the hotel.", note: "False friend: a magazine is un magazine."}
+      - {id: fr-12-acheter, type: vocab, l2: "acheter", l1: "to buy", ex: "Je vais acheter du pain.", ex_l1: "I am going to buy some bread.", note: "Takes a grave accent when the ending is silent: j'achète, but nous achetons."}
+      - {id: fr-12-payer, type: vocab, l2: "payer", l1: "to pay", ex: "Je voudrais payer, s'il vous plaît.", ex_l1: "I would like to pay, please.", note: "No preposition for what you buy: payer le café = to pay FOR the coffee."}
+      - {id: fr-12-argent, type: vocab, l2: "l'argent", l1: "the money", ex: "Je n'ai pas d'argent.", ex_l1: "I don't have any money.", note: "masculine. It also means 'silver'."}
+      - {id: fr-12-prix, type: vocab, l2: "le prix", l1: "the price", ex: "Quel est le prix ?", ex_l1: "What is the price?", note: "The x is silent: 'pree'. Same form in the plural. Also means 'prize'."}
+      - {id: fr-12-cher, type: vocab, l2: "cher", l1: "expensive (masculine)", ex: "Ce restaurant est très cher.", ex_l1: "This restaurant is very expensive.", note: "Feminine: chère. C'est trop cher = it's too expensive."}
+      - {id: fr-12-hier, type: vocab, l2: "hier", l1: "yesterday", ex: "Hier, j'ai travaillé.", ex_l1: "Yesterday, I worked.", note: "Silent h: 'ee-air'."}
+      - {id: fr-12-temps, type: vocab, l2: "le temps", l1: "the weather / time (in general)", ex: "Le temps est mauvais aujourd'hui.", ex_l1: "The weather is bad today.", note: "The p and s are silent. For clock time use l'heure, not le temps."}
+      - {id: fr-12-soleil, type: vocab, l2: "le soleil", l1: "the sun", ex: "Il y a du soleil aujourd'hui.", ex_l1: "It is sunny today.", note: "-eil sounds like 'ay-y': 'so-lay-y'."}
+      - {id: fr-12-pluie, type: vocab, l2: "la pluie", l1: "the rain", ex: "Je n'aime pas la pluie.", ex_l1: "I don't like the rain.", note: "The verb: il pleut = it is raining."}
+      - {id: fr-12-chaud, type: vocab, l2: "chaud", l1: "hot / warm (masculine)", ex: "Il fait chaud en août.", ex_l1: "It is hot in August.", note: "Feminine: chaude. For a person say j'ai chaud, never je suis chaud."}
+      - {id: fr-12-froid, type: vocab, l2: "froid", l1: "cold (masculine)", ex: "Il fait froid aujourd'hui.", ex_l1: "It is cold today.", note: "Feminine: froide. For a person: j'ai froid."}
+      - {id: fr-12-ouvert, type: vocab, l2: "ouvert", l1: "open (masculine)", ex: "Le musée est ouvert.", ex_l1: "The museum is open.", note: "Feminine: ouverte."}
+      - {id: fr-12-ferme, type: vocab, l2: "fermé", l1: "closed (masculine)", ex: "Le magasin est fermé le lundi.", ex_l1: "The shop is closed on Mondays.", note: "Feminine: fermée (same sound)."}
+      - {id: fr-12-combien-ca-coute, type: phrase, l2: "Combien ça coûte ?", l1: "How much does it cost?", alt: ["Ça coûte combien ?", "C'est combien ?", "Combien est-ce que ça coûte ?", "Combien coûte-t-il ?", "Combien cela coûte-t-il ?", "Ça fait combien ?"], note: "Point at the item and ask. Shorter still: C'est combien ?"}
+      - {id: fr-12-quel-temps, type: phrase, l2: "Quel temps fait-il ?", l1: "What is the weather like?", alt: ["Il fait quel temps ?", "Quel temps il fait ?", "Quel temps fait-il aujourd'hui ?"], note: "Weather uses faire: literally 'What weather does it make?'"}
+      - {id: fr-12-il-fait-beau, type: phrase, l2: "Il fait beau.", l1: "The weather is nice.", alt: ["Il fait bon.", "Il fait beau aujourd'hui."], note: "il fait + adjective for weather: il fait beau / mauvais / chaud / froid."}
+      - {id: fr-12-payer-par-carte, type: phrase, l2: "Je peux payer par carte ?", l1: "Can I pay by card?", alt: ["Est-ce que je peux payer par carte ?", "Puis-je payer par carte ?", "Je peux payer par carte bancaire ?", "Je peux payer avec la carte ?"]}
+      - {id: fr-12-pouvez-vous-repeter, type: phrase, l2: "Pouvez-vous répéter, s'il vous plaît ?", l1: "Can you repeat, please? (formal)", alt: ["Vous pouvez répéter, s'il vous plaît ?", "Est-ce que vous pouvez répéter, s'il vous plaît ?", "Pourriez-vous répéter, s'il vous plaît ?", "Répétez, s'il vous plaît."], note: "The single most useful sentence for a beginner. Add 'plus lentement' for 'more slowly'."}
+      - {id: fr-12-c1, type: cloze, text: "Hier, j'ai ___ un livre.", answer: "acheté", l1: "Yesterday, I bought a book.", note: "Passé composé: avoir + past participle. -er → -é."}
+      - {id: fr-12-c2, type: cloze, text: "Nous ___ mangé au restaurant.", answer: "avons", l1: "We ate at the restaurant.", note: "Most verbs build the past with avoir: nous avons mangé."}
+      - {id: fr-12-c3, type: cloze, text: "Elle ___ allée à Paris.", answer: "est", l1: "She went to Paris.", note: "aller takes être in the past, and the participle agrees: allée."}
+      - {id: fr-12-c4, type: cloze, text: "Tu as ___ le film ?", answer: "vu", alt: ["regardé"], l1: "Did you see the film?", note: "Irregular past participle: voir → vu."}
+      - {id: fr-12-c5, type: cloze, text: "Je ___ arrivé hier.", answer: "suis", l1: "I arrived yesterday.", note: "arriver takes être: je suis arrivé (a woman writes arrivée)."}
+      - {id: fr-12-c6, type: cloze, text: "Qu'est-ce que tu as ___ hier ?", answer: "fait", l1: "What did you do yesterday?", note: "Irregular past participle: faire → fait."}
+      - {id: fr-12-c7, type: cloze, text: "Ils ont ___ le train.", answer: "pris", l1: "They took the train.", note: "Irregular past participle: prendre → pris."}

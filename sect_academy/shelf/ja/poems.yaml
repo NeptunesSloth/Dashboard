@@ -1,0 +1,122 @@
+# Japanese poems for the starter shelf. Each line is [original, "kana reading | rōmaji", English];
+# [] is a stanza break. Readings follow modern pronunciation (たはむる is read たわむる);
+# rōmaji is Hepburn with macrons. The English lines are our own plain, literal translations
+# (Sect Academy), written for learners.
+poems:
+  - slug: haiku-ten-classics
+    title: 俳句十句（芭蕉・蕪村・一茶・子規）
+    author: 松尾芭蕉, 与謝蕪村, 小林一茶, 正岡子規
+    died: 1902
+    published: 1895
+    first_published_in: "Bashō 1686–1694, Buson 1770s, Issa 1810s, Shiki 1895"
+    level: A2
+    note: "閑さや and 夏草や are from おくのほそ道 (1702), given as they are usually printed today (しみ入る, 蝉), like the others."
+    source: https://ja.wikisource.org/wiki/おくのほそ道
+    public_domain: "Bashō died 1694, Buson 1784, Issa 1828, Shiki 1902; all first published before 1900. Public domain everywhere."
+    lines:
+      - ["古池や蛙飛びこむ水の音", "ふるいけや かわずとびこむ みずのおと | furuike ya kawazu tobikomu mizu no oto", "An old pond: a frog jumps in, the sound of the water. (Bashō)"]
+      - []
+      - ["閑さや岩にしみ入る蝉の声", "しずかさや いわにしみいる せみのこえ | shizukasa ya iwa ni shimiiru semi no koe", "Such stillness: soaking into the rocks, the cicadas' voice. (Bashō)"]
+      - []
+      - ["夏草や兵どもが夢の跡", "なつくさや つわものどもが ゆめのあと | natsukusa ya tsuwamonodomo ga yume no ato", "Summer grass: all that is left of the warriors' dreams. (Bashō)"]
+      - []
+      - ["旅に病んで夢は枯野をかけ廻る", "たびにやんで ゆめはかれのを かけめぐる | tabi ni yande yume wa kareno o kakemeguru", "Sick on a journey, my dreams go running over withered fields. (Bashō)"]
+      - []
+      - ["菜の花や月は東に日は西に", "なのはなや つきはひがしに ひはにしに | na no hana ya tsuki wa higashi ni hi wa nishi ni", "Rapeseed flowers: the moon in the east, the sun in the west. (Buson)"]
+      - []
+      - ["春の海終日のたりのたりかな", "はるのうみ ひねもすのたり のたりかな | haru no umi hinemosu notari notari kana", "The spring sea, all day long, gently rising, gently falling. (Buson)"]
+      - []
+      - ["痩蛙まけるな一茶これにあり", "やせがえる まけるないっさ これにあり | yasegaeru makeru na Issa kore ni ari", "Skinny frog, don't give up! Issa is here. (Issa)"]
+      - []
+      - ["雀の子そこのけそこのけ御馬が通る", "すずめのこ そこのけそこのけ おうまがとおる | suzume no ko soko noke soko noke o-uma ga tōru", "Little sparrow, out of the way, out of the way! A horse is coming through. (Issa)"]
+      - []
+      - ["やれ打つな蝿が手をすり足をする", "やれうつな はえがてをすり あしをする | yare utsu na hae ga te o suri ashi o suru", "Hey, don't swat it! The fly is rubbing its hands, rubbing its feet. (Issa)"]
+      - []
+      - ["柿くへば鐘が鳴るなり法隆寺", "かきくえば かねがなるなり ほうりゅうじ | kaki kueba kane ga naru nari Hōryūji", "I bite into a persimmon, and a bell rings: Hōryūji. (Shiki)"]
+  - slug: takuboku-ichiaku-no-suna
+    title: 一握の砂（五首）
+    author: 石川啄木 (Ishikawa Takuboku)
+    died: 1912
+    published: 1910
+    first_published_in: "一握の砂 (東雲堂書店, 1910)"
+    level: B1
+    note: "Five of the 551 tanka, in Takuboku's three-line layout."
+    source: https://ja.wikisource.org/wiki/一握の砂
+    public_domain: "Author died 1912; first published 1910. Public domain everywhere."
+    lines:
+      - ["東海の小島の磯の白砂に", "とうかいの こじまのいその しらすなに | tōkai no kojima no iso no shirasuna ni", "On the white sand of the shore of a small island in the eastern sea"]
+      - ["われ泣きぬれて", "われなきぬれて | ware nakinurete", "I, wet with tears,"]
+      - ["蟹とたはむる", "かにとたわむる | kani to tawamuru", "play with a crab."]
+      - []
+      - ["たはむれに母を背負ひて", "たわむれに ははをせおいて | tawamure ni haha o seoite", "In fun I carried my mother on my back,"]
+      - ["そのあまり軽きに泣きて", "そのあまり かろきになきて | sono amari karoki ni nakite", "and, weeping because she was so light,"]
+      - ["三歩あゆまず", "さんぽあゆまず | sanpo ayumazu", "I could not walk three steps."]
+      - []
+      - ["はたらけど", "はたらけど | hatarakedo", "I work,"]
+      - ["はたらけど猶わが生活楽にならざり", "はたらけど なおわがくらし らくにならざり | hatarakedo nao waga kurashi raku ni narazari", "I work, and still my life does not get easier;"]
+      - ["ぢっと手を見る", "じっとてをみる | jitto te o miru", "I stare at my hands."]
+      - []
+      - ["不来方のお城の草に寝ころびて", "こずかたの おしろのくさに ねころびて | kozukata no oshiro no kusa ni nekorobite", "Lying in the grass of Kozukata Castle,"]
+      - ["空に吸はれし", "そらにすわれし | sora ni suwareshi", "drawn up into the sky,"]
+      - ["十五の心", "じゅうごのこころ | jūgo no kokoro", "my heart at fifteen."]
+      - []
+      - ["ふるさとの訛なつかし", "ふるさとの なまりなつかし | furusato no namari natsukashi", "I miss the accent of my home town;"]
+      - ["停車場の人ごみの中に", "ていしゃばの ひとごみのなかに | teishaba no hitogomi no naka ni", "into the crowd at the station"]
+      - ["そを聴きにゆく", "そをききにゆく | so o kiki ni yuku", "I go to hear it."]
+  - slug: akiko-sono-ko-hatachi
+    title: その子二十（みだれ髪）
+    author: 与謝野晶子 (Yosano Akiko)
+    died: 1942
+    published: 1901
+    first_published_in: "みだれ髪 (東京新詩社, 1901)"
+    level: B1
+    source: https://www.aozora.gr.jp/cards/000885/card51307.html
+    public_domain: "Author died 1942 (more than 80 years ago); first published 1901. Public domain everywhere."
+    lines:
+      - ["その子二十", "そのこはたち | sono ko hatachi", "That girl, twenty years old:"]
+      - ["櫛にながるる", "くしにながるる | kushi ni nagaruru", "flowing through the comb,"]
+      - ["黒髪の", "くろかみの | kurokami no", "her black hair,"]
+      - ["おごりの春の", "おごりのはるの | ogori no haru no", "the pride of her springtime,"]
+      - ["うつくしきかな", "うつくしきかな | utsukushiki kana", "how beautiful it is!"]
+  - slug: miyazawa-ame-ni-mo-makezu
+    title: 雨ニモマケズ
+    author: 宮沢賢治 (Miyazawa Kenji)
+    died: 1933
+    published: 1934
+    first_published_in: "Written in a notebook on 3 November 1931; first printed 1934, after the poet's death"
+    level: B1
+    note: "Ends, as it is usually printed, before the list of Buddhist names in the notebook; 蔭 for the notebook's variant 䕃."
+    source: https://ja.wikisource.org/wiki/雨ニモマケズ
+    public_domain: "Author died 1933 (more than 90 years ago): public domain in Japan since 1984 and in every life+70 or life+80 country."
+    pd_exception: "First printed 1934, after the 1931 cut-off. In the US it is public domain all the same: it was already out of copyright in Japan (life+50, expired end of 1983) on 1 January 1996, so the URAA never restored a US copyright, and no US formalities were observed."
+    lines:
+      - ["雨ニモマケズ", "あめにもまけず | ame ni mo makezu", "Not losing to the rain,"]
+      - ["風ニモマケズ", "かぜにもまけず | kaze ni mo makezu", "not losing to the wind,"]
+      - ["雪ニモ夏ノ暑サニモマケヌ", "ゆきにもなつのあつさにもまけぬ | yuki ni mo natsu no atsusa ni mo makenu", "not losing to the snow or to the summer heat,"]
+      - ["丈夫ナカラダヲモチ", "じょうぶなからだをもち | jōbu na karada o mochi", "with a strong body,"]
+      - ["慾ハナク", "よくはなく | yoku wa naku", "without greed,"]
+      - ["決シテ瞋ラズ", "けっしていからず | kesshite ikarazu", "never angry,"]
+      - ["イツモシヅカニワラッテヰル", "いつもしずかにわらっている | itsumo shizuka ni waratte iru", "always smiling quietly;"]
+      - ["一日ニ玄米四合ト", "いちにちにげんまいよんごうと | ichinichi ni genmai yongō to", "eating each day four cups of brown rice,"]
+      - ["味噌ト少シノ野菜ヲタベ", "みそとすこしのやさいをたべ | miso to sukoshi no yasai o tabe", "miso and a few vegetables;"]
+      - ["アラユルコトヲ", "あらゆることを | arayuru koto o", "in everything,"]
+      - ["ジブンヲカンジョウニ入レズニ", "じぶんをかんじょうにいれずに | jibun o kanjō ni irezu ni", "not counting myself,"]
+      - ["ヨクミキキシワカリ", "よくみききしわかり | yoku mikiki shi wakari", "looking and listening well, and understanding,"]
+      - ["ソシテワスレズ", "そしてわすれず | soshite wasurezu", "and not forgetting;"]
+      - ["野原ノ松ノ林ノ蔭ノ", "のはらのまつのはやしのかげの | nohara no matsu no hayashi no kage no", "in the shade of a pine wood on the moor,"]
+      - ["小サナ萱ブキノ小屋ニヰテ", "ちいさなかやぶきのこやにいて | chiisana kayabuki no koya ni ite", "living in a small thatched hut;"]
+      - ["東ニ病気ノコドモアレバ", "ひがしにびょうきのこどもあれば | higashi ni byōki no kodomo areba", "if there is a sick child in the east,"]
+      - ["行ッテ看病シテヤリ", "いってかんびょうしてやり | itte kanbyō shite yari", "going and nursing it;"]
+      - ["西ニツカレタ母アレバ", "にしにつかれたははあれば | nishi ni tsukareta haha areba", "if there is a tired mother in the west,"]
+      - ["行ッテソノ稲ノ束ヲ負ヒ", "いってそのいねのたばをおい | itte sono ine no taba o oi", "going and carrying her sheaves of rice;"]
+      - ["南ニ死ニサウナ人アレバ", "みなみにしにそうなひとあれば | minami ni shini sō na hito areba", "if there is someone dying in the south,"]
+      - ["行ッテコハガラナクテモイヽトイヒ", "いってこわがらなくてもいいといい | itte kowagaranakute mo ii to ii", "going and saying there is no need to be afraid;"]
+      - ["北ニケンクヮヤソショウガアレバ", "きたにけんかやそしょうがあれば | kita ni kenka ya soshō ga areba", "if there is a quarrel or a lawsuit in the north,"]
+      - ["ツマラナイカラヤメロトイヒ", "つまらないからやめろといい | tsumaranai kara yamero to ii", "saying stop it, it is not worth it;"]
+      - ["ヒデリノトキハナミダヲナガシ", "ひでりのときはなみだをながし | hideri no toki wa namida o nagashi", "shedding tears in the drought,"]
+      - ["サムサノナツハオロオロアルキ", "さむさのなつはおろおろあるき | samusa no natsu wa orooro aruki", "walking about at a loss in a cold summer,"]
+      - ["ミンナニデクノボートヨバレ", "みんなにでくのぼうとよばれ | minna ni dekunobō to yobare", "called a blockhead by everyone,"]
+      - ["ホメラレモセズ", "ほめられもせず | homerare mo sezu", "not praised,"]
+      - ["クニモサレズ", "くにもされず | ku ni mo sarezu", "and no trouble to anyone:"]
+      - ["サウイフモノニ", "そういうものに | sō iu mono ni", "that kind of person"]
+      - ["ワタシハナリタイ", "わたしはなりたい | watashi wa naritai", "is what I want to be."]
