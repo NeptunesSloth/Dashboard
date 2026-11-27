@@ -852,3 +852,19 @@ button.res:focus-visible, .alerthead:focus-visible { outline: 3px solid var(--go
 .namebox .dice:active { transform: translateY(-50%) rotate(-20deg) scale(.95); }
 .namebox .dice:focus-visible { outline: 3px solid var(--azure, #4aa3ff); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .namebox .dice:active { transform: translateY(-50%); } }
+
+/* Work, mixed: the original coloured grid + faces, icons, skill bars */
+.worklegend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 0 0 10px; font-size: .82rem; }
+.worklegend > span { display: inline-flex; align-items: center; gap: 6px; }
+.prio.mini { display: inline-block; width: 20px; height: 16px; border-radius: 5px; cursor: default; }
+.worktable.mixed th { vertical-align: bottom; }
+.worktable.mixed th .jic { display: block; font-size: 1.15rem; line-height: 1.2; }
+.worktable.mixed th.who { text-align: left; }
+.worktable.mixed th.who { min-width: 11em; padding-right: 12px; }
+.worktable.mixed .wwho { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.worktable.mixed th.who .wtxt b { display: block; font-size: .9rem; } .worktable.mixed th.who .wtxt small { display: block; font-size: .7rem; font-weight: 500; }
+.worktable.mixed .prio { position: relative; overflow: hidden; }
+.worktable.mixed .prio .sk { position: absolute; left: 6px; right: 6px; bottom: 4px; height: 4px; border-radius: 2px; background: rgba(0, 0, 0, .3); }
+.worktable.mixed .prio .sk::after { content: ''; position: absolute; inset: 0; width: calc(var(--sk) * 100%); border-radius: 2px; background: #2f9e78; }
+.worktable.mixed .prio .ace { position: absolute; top: 2px; left: 4px; font-size: .66rem; color: #2f9e78; }
+.worktable.mixed .prio em { position: absolute; top: 2px; right: 3px; font-size: .58rem; font-style: normal; }

@@ -286,20 +286,23 @@ export function mountSect(h) {
       <p class="dim small" style="margin:10px 0 0">${S.beds} bed${S.beds === 1 ? '' : 's'} for ${S.pawns.length} disciple${S.pawns.length === 1 ? '' : 's'}. Wanderers sometimes ask to join; the sect can hold ${S.pawn_cap}.${S.graves ? ` ${S.graves} lie in the sect's graveyard.` : ''}</p>`;
   }
 
+  const JOB_ICON = { build: '🔨', farm: '🌾', wood: '🪓', mine: '⛏️', forage: '🌿', craft: '⚗️', research: '📜', train: '⚔️', meditate: '🧘' };
   function work() {
-    return `<p class="dim small"><b>1</b> is done first, <b>4</b> last, blank never. Click or tap a cell to raise it (blank → 4 → … → 1); right-click or press and hold to lower it. When two jobs tie, a disciple does what the sect is shortest of.</p>
-      <p class="dim small phone-only">Swipe the grid sideways for more jobs; the names stay put.</p>
-      <div class="scroll-x workgrid"><table class="worktable"><tr><th class="who"></th>${S.jobs.map((j) => `<th title="Uses ${esc(j.skill)}"><span>${esc(j.name)}</span></th>`).join('')}</tr>
-      ${S.pawns.map((p) => `<tr><th class="who" scope="row">${esc(p.name)}</th>${S.jobs.map((j) => {
-        const lv = p.prio[j.id]; const sk = p.skills.find((s) => s.name === j.skill);
-        return `<td><button class="prio p${lv}" data-prio="${esc(p.id)}|${esc(j.id)}|${lv}" title="${esc(j.name)}: priority ${lv || 'off'}, skill ${sk ? sk.lv : 0}. Click to raise, right-click or hold to lower."
-          aria-label="${esc(p.name)}: ${esc(j.name)}, priority ${lv || 'off'}; skill ${sk ? sk.lv : 0}. Activate to raise; context menu to lower.">
-<span>${lv || ''}</span><small>${sk ? sk.lv : 0}${sk ? flames(sk.passion) : ''}</small></button></td>`;
-      }).join('')}</tr>`).join('')}</table></div>
-      <p class="dim small" style="margin:8px 0 0">The small number is their skill; a flame means they love it and learn it fast.</p>
-      <div class="row" style="margin-top:10px">${['peace', 'war'].map((n) => `<button class="btn quiet" data-preset-save="${n}">Save as “${n}”</button>${S.presets.includes(n) ? `<button class="btn" data-preset-apply="${n}">Switch to “${n}”</button>` : ''}`).join('')}</div>
-      <p class="dim small">Two saved sets of priorities, so preparing for a siege is one tap.</p>`;
+    // The compact grid (one row per disciple, coloured priority numbers) with faces, job icons, skill bars and a one-line legend.
+    const WORD = { 1: 'First', 2: 'High', 3: 'Normal', 4: 'Low', 0: 'Never' };
+    const best = Object.fromEntries(S.jobs.map((j) => [j.id, Math.max(0, ...S.pawns.map((p) => (p.skills.find((s) => s.name === j.skill) || {}).lv || 0))]));
+    const cell = (p, j) => {
+      const lv = p.prio[j.id]; const sk = p.skills.find((s) => s.name === j.skill) || {}; const sl = sk.lv || 0;
+      return `<td><button class="prio p${lv}" data-prio="${esc(p.id)}|${esc(j.id)}|${lv}" title="${esc(`${j.name}: ${WORD[lv]}. Skill ${sl}${sk.passion ? ', loves it' : ''}. Tap to raise, right-click or hold to lower.`)}"
+        aria-label="${esc(`${p.name}, ${j.name}: ${WORD[lv]}; skill ${sl}. Activate to raise; context menu to lower.`)}"><span>${lv || ''}</span><i class="sk" style="--sk:${Math.min(1, sl / 20)}"></i>${sl && sl === best[j.id] ? '<b class="ace" aria-hidden="true">★</b>' : ''}${sk.passion ? `<em aria-hidden="true">${flames(sk.passion)}</em>` : ''}</button></td>`;
+    };
+    return `<div class="worklegend">${[1, 2, 3, 4, 0].map((n) => `<span><i class="prio p${n} mini"></i>${n || '–'} ${WORD[n]}</span>`).join('')}<span class="dim">Tap to raise · right-click or hold to lower · bar = skill · ★ best · 🔥 loves it</span></div>
+      <div class="scroll-x workgrid"><table class="worktable mixed"><tr><th class="who"></th>${S.jobs.map((j) => `<th title="Uses ${esc(j.skill)}"><span class="jic" aria-hidden="true">${JOB_ICON[j.id] || ''}</span><span>${esc(j.name)}</span></th>`).join('')}</tr>
+      ${S.pawns.map((p) => `<tr><th class="who" scope="row"><div class="wwho"><span class="wface">${face(p, 34)}</span><span class="wtxt"><b>${esc(p.name)}</b><small class="dim">${esc(p.doing || '')}</small></span></div></th>${S.jobs.map((j) => cell(p, j)).join('')}</tr>`).join('')}</table></div>
+      <div class="row" style="margin-top:10px">${['peace', 'war'].map((n) => `${S.presets.includes(n) ? `<button class="btn" data-preset-apply="${n}">Use “${n}” plan</button>` : ''}<button class="btn quiet" data-preset-save="${n}">${S.presets.includes(n) ? 'Update' : 'Save as'} “${n}”</button>`).join('')}</div>`;
   }
+
+
 
   function build() {
     const queue = S.builds.length ? `<ul class="list">${S.builds.map((b, i) => `<li class="row"><span class="grow"><b>${esc(b.name)}</b>${bar(b.pct, 'azure')}</span>
