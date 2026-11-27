@@ -132,6 +132,16 @@ WORK_QI = 0.12                     # an hour of work gathers this share of an ho
 STALL_DAYS = 5                     # days without meditation before the sect says so
 LOW_STORE_DAYS = 4.0               # a store under this many days of use is genuinely low: its chore wins a tie
 STORE_OF = {"farm": "rice", "wood": "wood", "mine": "stone", "forage": "herbs"}
+# Builders (SECT_OVERHAUL_PLAN 3.1): each slot runs one job on its own clock, helped or not. Sim hours.
+BUILDERS = 2                       # builder slots a sect starts with
+BUILDER_HALLS = (3, 6, 9)          # one more builder at each of these Main Hall levels
+HELPER_X = 0.25                    # each disciple on Build adds this share of a builder's speed, times their Construction
+HELPERS_PER_SITE = 2
+ROOM_HOURS = {1: 1, 2: 2, 3: 4, 4: 6, 5: 9, 6: 12, 7: 16, 8: 20}          # sim hours to reach a room level
+HALL_HOURS = {2: 4, 3: 8, 4: 12, 5: 16, 6: 20, 7: 24, 8: 28, 9: 32, 10: 36}   # and a Main Hall level
+BLUEPRINT_CUT = 0.25               # a Master's Blueprint takes this share off the time left on one running job
+BLUEPRINT_BANK = 3                 # blueprints kept at most (one is drawn per real day of counted study)
+MASTER_BUILDER_HOURS = 24          # meeting the weekly study goal lends the Master as a builder this long
 
 
 # ---------------------------------------------------------------------------
@@ -197,7 +207,10 @@ def new_colony(now: float) -> dict:
         "name": "", "seed": random.randrange(1 << 30), "hour": 6, "storyteller": "balanced", "paused": False,
         "res": {"rice": 36.0, "wood": 45.0, "stone": 25.0, "herbs": 4.0, "pills": 1.0, "stones": 0.0},
         "rooms": {"main_hall": 1, "dormitory": 1, "fields": 1},
-        "builds": [],                # [{room, need (work hours), done}]
+        "builds": [],                # [{room, need (sim hours of a builder), done, cost, at, crew}]: the first builders(c) are worked
+        "blueprints": {"n": 0, "day": ""},   # Master's Blueprints in hand, and the real day the last was drawn
+        "master_builds_until": 0,    # the sect hour the Master stops lending a hand as a builder
+        HELD_SECS: 0.0,
         "pawns": [], "next_pawn": 0, "graves": 0,
         "research": {"done": [], "current": "", "progress": 0.0, "banked": {}},
         # the wider world
@@ -544,8 +557,88 @@ def room_cost(c: dict, room: str, level: int) -> dict:
     return cost
 
 
-def build_hours(level: int) -> float:
-    return 16.0 * (level + 1)
+def build_hours(room: str, level: int) -> float:
+    """Sim hours one builder takes to bring `room` to `level` (helpers make it quicker)."""
+    table = HALL_HOURS if room == "main_hall" else ROOM_HOURS
+    return float(table.get(int(level), max(table.values())))
+
+
+def builder_rows(c: dict) -> list[tuple[str, int]]:
+    """Where the sect's builder slots come from (a ledger: it adds up to builders(c))."""
+    rows = [("Builders every sect has", BUILDERS)]
+    hall = _lvl(c, "main_hall")
+    rows += [(f"Main Hall level {h}", 1) for h in BUILDER_HALLS if hall >= h]
+    left = int(c.get("master_builds_until", 0)) - c["hour"]
+    if left > 0:
+        rows.append((f"The Master, lent by a week of study ({_n(left, 'hour')} left)", 1))
+    return rows
+
+
+def builders(c: dict) -> int:
+    return sum(n for _, n in builder_rows(c))
+
+
+def _running(c: dict) -> list[dict]:
+    """The jobs a builder is on: the first builders(c) of the list (the rest wait for a builder to come free)."""
+    return c["builds"][:builders(c)]
+
+
+def build_rate_rows(c: dict, b: dict) -> list[tuple[str, float]]:
+    """A job's speed last hour, in builder-hours an hour: the builder, then each helper."""
+    return [("The builder", 1.0)] + [(f"{name} helping (Construction {lv})", float(x)) for name, lv, x in b.get("crew", [])]
+
+
+def build_left(c: dict, b: dict) -> float:
+    """Sim hours left on a job at last hour's speed."""
+    rate = sum(x for _, x in build_rate_rows(c, b)) if b in _running(c) else 1.0
+    return max(0.0, b["need"] - b["done"]) / max(rate, 1.0)
+
+
+def _finish_build(c: dict, b: dict) -> None:
+    c["builds"].remove(b)
+    c["rooms"][b["room"]] = _lvl(c, b["room"]) + 1
+    lv = c["rooms"][b["room"]]
+    if b["room"] == "main_hall":
+        _fame(c, 4)                       # the valley sees the sect's hall rise
+    name = ROOMS[b["room"]]["name"]
+    crew = sorted({x[0] for x in b.get("crew_all", [])})
+    _letter(c, "good", f"{name} {'built' if lv == 1 else f'raised to level {lv}'}",
+            "The builder set the last stone" + (f", with {_and(crew)} helping." if crew else "."))
+    if isinstance(c.get("built_away"), list):
+        c["built_away"].append(f"{name} {'built' if lv == 1 else f'to level {lv}'}")
+
+
+def _tick_builds(c: dict, helped: bool = True) -> None:
+    """One sim hour for every builder: each running job moves by one hour, plus what its helpers added this hour."""
+    for b in list(_running(c)):
+        boost = b.pop("boost", 0.0) if helped else 0.0
+        b["crew"] = b.pop("crew_now", []) if helped else []
+        if b["crew"]:
+            b["crew_all"] = (b.get("crew_all", []) + [[x[0]] for x in b["crew"]])[-12:]
+        b["done"] += 1.0 + boost
+        if b["done"] >= b["need"] - 1e-9:
+            _finish_build(c, b)
+    for b in c["builds"][builders(c):]:
+        b.pop("boost", None), b.pop("crew_now", None)
+        b["crew"] = []
+
+
+HELD_SECS = "held_secs"            # real seconds banked for the builders while an event waits for your answer
+
+
+def _builders_wait(c: dict, now: float) -> int:
+    """While an event waits for your answer, only the builders keep working, at the away rate (decided by the owner:
+    building can only help). Returns the builder hours run."""
+    if not c["pending"] or c["seclusion"] or not c["builds"]:
+        c[HELD_SECS] = 0.0
+        return 0
+    c[HELD_SECS] = min(float(c.get(HELD_SECS, 0.0)) + max(0.0, now - float(c["last_real"])), MAX_OFFLINE_HOURS * SECS_PER_HOUR_OFFLINE)
+    n = 0
+    while c[HELD_SECS] >= SECS_PER_HOUR_OFFLINE and c["builds"]:
+        c[HELD_SECS] -= SECS_PER_HOUR_OFFLINE
+        _tick_builds(c, helped=False)
+        n += 1
+    return n
 
 
 def beds(c: dict) -> int:
@@ -623,7 +716,7 @@ def _job_open(c: dict, job: str, taken: dict) -> bool:
     if job == "farm":
         return _lvl(c, "fields") > 0 and _season(c) != 3 and taken.get("farm", 0) < 2 * _lvl(c, "fields")
     if job == "build":
-        return bool(c["builds"])
+        return taken.get("build", 0) < HELPERS_PER_SITE * len(_running(c))
     if job == "craft":
         return _lvl(c, "alchemy") > 0 and c["res"]["herbs"] >= (2 if _has(c, "refinement") else 3)
     if job == "research":
@@ -718,17 +811,14 @@ def _do_job(c: dict, p: dict, job: str, quiet: bool) -> None:
     elif job == "forage":
         _add(c, "herbs", out * GATHER["herbs"] * (0.3 if _season(c) == 3 else 1.0) * STORYTELLERS[c["storyteller"]]["yield"])
     elif job == "build":
-        b = c["builds"][0]
-        b["done"] += out
-        b["moved"] = hour
-        if b["done"] >= b["need"]:
-            c["builds"].pop(0)
-            c["rooms"][b["room"]] = _lvl(c, b["room"]) + 1
-            lv = c["rooms"][b["room"]]
-            if b["room"] == "main_hall":
-                _fame(c, 4)                       # the valley sees the sect's hall rise
-            _letter(c, "good", f"{ROOMS[b['room']]['name']} {'built' if lv == 1 else f'raised to level {lv}'}",
-                    f"{p['name']} set the last stone.")
+        # a helper: up to HELPERS_PER_SITE at each running job, in order; the builder's hour is added in _tick_builds
+        sites = _running(c)
+        site = (taken.get("build", 1) - 1) // HELPERS_PER_SITE
+        if sites:
+            b = sites[min(site, len(sites) - 1)]
+            x = HELPER_X * out
+            b["boost"] = b.get("boost", 0.0) + x
+            b.setdefault("crew_now", []).append([p["name"], int(p["skills"]["build"]["lv"]), round(x, 2)])
     elif job == "craft":
         c["craft"] += out * (1 + 0.15 * (_lvl(c, "alchemy") - 1)) * (1 + _manual(c, p, "alchemy")[0]) \
             * (1.3 if "pill_furnace" in c["treasures"] else 1.0)
@@ -3438,6 +3528,7 @@ def _hour(c: dict, quiet: bool) -> None:
     taken: dict = {}
     for p in list(c["pawns"]):
         _tick_pawn(c, p, taken, quiet)
+    _tick_builds(c)
     _socialise(c, quiet)
     dao.hourly(c, quiet)
     if c["hour"] % 24 == 5:
@@ -3482,6 +3573,7 @@ def advance(st: dict, hours: int, now: float) -> dict:
             break                        # time waits for your answer, and behind sealed gates
         _hour(c, quiet=False)
         n += 1
+    _builders_wait(c, now)               # ...all but the builders, who work on at the away rate while an event waits
     c["last_real"] = now
     return {"ok": True, "hours": n}
 
@@ -3490,16 +3582,24 @@ def catch_up(st: dict, now: float) -> int:
     """Quiet progress for time spent away. Returns the sim hours advanced."""
     c = _c(st, now)
     if not c["name"] or c["seclusion"] or c["pending"]:
+        c["built_away"] = []
+        built = _builders_wait(c, now) if c["name"] else 0     # an event waiting: only the builders work on
+        if built and c["built_away"]:
+            _letter(c, "info", "The builders worked on", f"While the sect waited for your answer, the builders finished: {_and(c['built_away'])}.")
+        c.pop("built_away", None)
         c["last_real"] = now             # sealed gates, or someone waiting for your answer: time waits
         return 0
     hours = int(min(max(0.0, now - c["last_real"]) / SECS_PER_HOUR_OFFLINE, MAX_OFFLINE_HOURS))
     if hours < 1:
         return 0
+    c["built_away"] = []
     for _ in range(hours):
         _hour(c, quiet=True)
     c["last_real"] = now
-    if hours >= 6:
-        _letter(c, "info", "While you were away", f"The sect carried on quietly for {_n(hours, 'hour')}. No one came to harm.")
+    built = c.pop("built_away", [])
+    if hours >= 6 or built:
+        _letter(c, "info", "While you were away", f"The sect carried on quietly for {_n(hours, 'hour')}. No one came to harm."
+                + (f" The builders finished: {_and(built)}." if built else ""))
     return hours
 
 
@@ -3526,15 +3626,35 @@ def queue_build(st: dict, room: str, now: float) -> dict:
         return {"ok": False, "error": "Already at its highest level."}
     if room != "main_hall" and level > _lvl(c, "main_hall"):
         return {"ok": False, "error": f"Raise the Main Hall to level {level} first."}
-    if len(c["builds"]) >= 4:
-        return {"ok": False, "error": "The builders already have four jobs queued."}
+    if len(c["builds"]) >= builders(c):
+        n = builders(c)
+        return {"ok": False, "error": f"{'Both' if n == 2 else f'All {n}'} builders are busy. One comes free when a job finishes."}
     cost = room_cost(c, room, level)
     short = [f"{math.ceil(v - c['res'][k])} more {RES_NAMES[k].lower()}" for k, v in cost.items() if c["res"][k] < v]
     if short:
         return {"ok": False, "error": "Needs " + " and ".join(short) + "."}
     for k, v in cost.items():
         c["res"][k] -= v
-    c["builds"].append({"room": room, "need": build_hours(level), "done": 0.0, "cost": cost, "at": c["hour"]})
+    c["builds"].append({"room": room, "need": build_hours(room, level + 1), "done": 0.0, "cost": cost, "at": c["hour"], "crew": []})
+    return {"ok": True}
+
+
+def use_blueprint(st: dict, index: int, now: float) -> dict:
+    """Spend a Master's Blueprint (drawn from a day's study) on one running job: BLUEPRINT_CUT off the time it has left."""
+    c = _c(st, now)
+    run = _running(c)
+    if not 0 <= int(index) < len(run):
+        return {"ok": False, "error": "No builder is on that job."}
+    bp = c["blueprints"]
+    if bp["n"] < 1:
+        return {"ok": False, "error": "No blueprint in hand. The Master draws one on a day you study."}
+    b = run[int(index)]
+    cut = BLUEPRINT_CUT * max(0.0, b["need"] - b["done"])
+    b["done"] += cut
+    b["blue"] = float(b.get("blue", 0.0)) + cut
+    bp["n"] -= 1
+    if b["done"] >= b["need"] - 1e-9:
+        _finish_build(c, b)
     return {"ok": True}
 
 
@@ -3708,7 +3828,28 @@ def on_session(st: dict, *, answers: int, correct: int, counted: bool, due_left:
                 _bond(c, m, p, 2)                    # teaching binds master and disciple
         if c["pawns"]:
             events.append({"kind": "good", "text": "Your disciples gathered to hear what you learned. Their mood lifts for a day."})
+        events += _study_builds(st, c, now)
     return {"stones": 0, "events": events, "streak": c["streak"]}
+
+
+def _study_builds(st: dict, c: dict, now: float) -> list[dict]:
+    """Study helps the builders and never gates them: a counted session draws a Master's Blueprint (one per real day,
+    up to BLUEPRINT_BANK kept), and meeting the weekly goal lends the Master as one more builder for a day."""
+    out = []
+    today = _today(st, now)
+    bp = c["blueprints"]
+    if bp["day"] != today:
+        bp["day"] = today
+        if bp["n"] < BLUEPRINT_BANK:
+            bp["n"] += 1
+            out.append({"kind": "good", "text": f"The Master drew a blueprint from today's study: {int(BLUEPRINT_CUT * 100)}% off the time left "
+                                                f"on one build ({_n(bp['n'], 'blueprint')} in hand)."})
+    wk = c["week"]
+    if wk["id"] and len(wk["days"]) >= WEEK_GOAL and wk.get("lent") != wk["id"]:
+        wk["lent"] = wk["id"]
+        c["master_builds_until"] = c["hour"] + MASTER_BUILDER_HOURS
+        out.append({"kind": "good", "text": f"A week of study: the Master joins the builders for {MASTER_BUILDER_HOURS} sect hours."})
+    return out
 
 
 def on_trial(st: dict, course: str, *, passed: bool, pct: int, now: float) -> dict:
