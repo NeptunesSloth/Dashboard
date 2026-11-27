@@ -341,9 +341,9 @@ function renderFounding() {
 const ago = (ts) => { const s = Date.now() / 1000 - ts; if (s < 90) return 'now'; if (s < 3600) return `${Math.round(s / 60)}m`; if (s < 86400) return `${Math.round(s / 3600)}h`; return `${Math.round(s / 86400)}d`; };
 
 const shortName = (c) => { const [a, b] = String(c.title).split(' — '); return c.kind === 'language' && b ? `${a} ${b.split(' ')[0]}` : a; };
-// A language's levels are one course (a track, OV.tracks); conversations and picture lessons are its add-ons.
-const ADDON_NAME = { talk: 'Conversations', pictures: 'Picture lessons' };
-const ADDON_NOTE = { talk: 'Spoken exchanges', pictures: 'Words on pictures' };
+// A language's levels are one course (a track, OV.tracks); conversations, picture lessons and swearing are its add-ons.
+const ADDON_NAME = { talk: 'Conversations', pictures: 'Picture lessons', swear: 'Swearing & slang' };
+const ADDON_NOTE = { talk: 'Spoken exchanges', pictures: 'Words on pictures', swear: 'Opt-in: rude words, to understand real speech' };
 const trackOf = (id) => (OV.tracks || []).find((t) => t.id === id) || null;
 const addonName = (c) => ADDON_NAME[c.addon] || String(c.title).split(' — ').pop();
 const isStage = (c) => !!c.track && !c.addon;
