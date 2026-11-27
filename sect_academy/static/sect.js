@@ -459,7 +459,7 @@ export function mountSect(h) {
         <div class="bbody"><span class="bname"><b>${esc(b.name)}</b> <span class="dim small">to level ${b.level}</span></span>
           <span class="bcount"><b class="num">${esc(awayT(b.left))}</b><small class="dim">left with the app closed, ${esc(watchT(b.left))} if you watch</small></span>
           ${bar(b.pct, 'azure')}
-          <div class="row bfoot">${benchSpeed(b, i)}<span class="grow"></span>${benchButtons(i)}</div></div></li>`
+          <div class="row bfoot">${benchButtons(i)}</div>${benchSpeed(b, i)}</div></li>`
       : '<li class="bench empty"><span class="bthumb idle" aria-hidden="true"></span><div class="bbody"><b class="serif">A builder is free</b><span class="dim small">Choose a room below.</span></div></li>');
     const waiting = S.builds.filter((b) => !b.running);
     const tile = (r) => {
@@ -483,7 +483,7 @@ export function mountSect(h) {
     const running = S.builds.filter((b) => b.running);
     const lamp = (b, i) => (b ? `<li class="lamp" style="--p:${b.pct}">
         <span class="ring"><span class="rthumb" style="${siteCrop(b.room, 1)}" aria-hidden="true"></span></span>
-        <span class="ltxt"><b>${esc(b.name)} ${b.level}</b><span class="num">${esc(awayT(b.left))}</span><small class="dim">${esc(watchT(b.left))} watching · ${b.pct}%</small>
+        <span class="ltxt"><b>${esc(b.name)} ${b.level}</b><span class="num">${esc(awayT(b.left))} left</span><small class="dim">with the app closed, or ${esc(watchT(b.left))} if you watch · ${b.pct}% done</small>
           <span class="row">${benchButtons(i)}</span>${benchSpeed(b, i)}</span></li>`
       : '<li class="lamp empty"><span class="ring"></span><span class="ltxt"><b>Free</b><small class="dim">waiting for orders</small></span></li>');
     const groups = { can: [], short: [], locked: [], max: [] };

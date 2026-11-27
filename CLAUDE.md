@@ -152,6 +152,16 @@ docs/           ACADEMY_CONTENT.md, the design spec, research
   spirit stones from level 4. Old saves above the new caps keep their rooms.
   Builders still idle most hours: with timers capped at 36 h, materials pace the
   ladder (balance columns `idle_builder`, `want_mat`, `hall`).
+  **Room play** (stage 4): the roster under the map posts a disciple by drag (or tap,
+  then a room): `set_post` makes the room's job(s) (`POSTS`) first priority, within
+  `room_slots`; the Work grid stays as the detailed view (setting a post's job off 1
+  clears the post). A tray (`trays`, since dawn or the last look) is already in the
+  stores; tapping it (`inspect_tray`) only cheers the crew (+3 mood, 12 h, once a room
+  a day), so never tapping loses nothing (balance profile `collect` pins it). `rush`
+  (room: 6 h of its work now; build: finished now) rolls the odds `rush_rows` and
+  `contain_rows` show; an uncontained incident idles the room 6 h (`room_idle`,
+  checked in `_job_open`) or sets the build back, wounds but never kills, and queues
+  an `incident` scene.
 - **Result scenes**: big outcomes (raid, tournament, festival, funeral,
   tribulation, breakthrough, realm) queue a card via `colony._scene` (cap 5,
   repaired on load). Painting `static/art/scene_<kind>.webp` is used when the
