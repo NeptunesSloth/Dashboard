@@ -43,7 +43,7 @@ units:
         scene: "You arrive at a language-exchange evening in a café and see a free seat next to a young man. You are Alex."
         you: A
         lines:
-          - {who: A, l2: "こんにちは。 ここ、 いい です か。", rom: "Konnichiwa. Koko, ii desu ka.", l1: "Hi. Is it OK if I sit here?", alt: ["すみません、 ここ、 いい です か。", "Sumimasen, koko, ii desu ka.", "こんにちは。 ここ に すわって も いい です か。", "Konnichiwa. Koko ni suwatte mo ii desu ka."]}
+          - {who: A, l2: "こんにちは。 ここ、 いい です か。", rom: "Konnichiwa. Koko, ii desu ka.", l1: "Hi. Is it OK if I sit here?", alt: ["Konnichiha. Koko, ii desu ka.", "Konnichiha. Koko ni suwatte mo ii desu ka.", "すみません、 ここ、 いい です か。", "Sumimasen, koko, ii desu ka.", "こんにちは。 ここ に すわって も いい です か。", "Konnichiwa. Koko ni suwatte mo ii desu ka."]}
           - {who: B, l2: "どうぞ、 どうぞ。 はじめまして。 けんた です。", rom: "Douzo, douzo. Hajimemashite. Kenta desu.", l1: "Sure, go ahead. Nice to meet you. I'm Kenta."}
           - {who: A, l2: "はじめまして。 アレックス です。 よろしく。", rom: "Hajimemashite. Arekkusu desu. Yoroshiku.", l1: "Nice to meet you. I'm Alex. Good to meet you.", alt: ["はじめまして。 アレックス です。 よろしく おねがいします。", "Hajimemashite. Arekkusu desu. Yoroshiku onegaishimasu."]}
           - {who: B, l2: "アレックスさん は がくせい です か。", rom: "Arekkusu-san wa gakusei desu ka.", l1: "Are you a student, Alex?"}
@@ -266,7 +266,7 @@ units:
           - {who: A, l2: "この あおい の は いくら です か。", rom: "Kono aoi no wa ikura desu ka.", l1: "How much is this blue one?", alt: ["この あおい かさ は いくら です か。", "Kono aoi kasa wa ikura desu ka.", "これ は いくら です か。", "Kore wa ikura desu ka.", "Kono aoi no ha ikura desu ka.", "Kono aoi kasa ha ikura desu ka.", "Kore ha ikura desu ka."]}
           - {who: B, l2: "にせん はっぴゃく えん です。 おりたたみがさ なら こちら に も ございます よ。", rom: "Nisen happyaku en desu. Oritatamigasa nara kochira ni mo gozaimasu yo.", l1: "2,800 yen. If you'd like an oritatami-gasa, we have those here too."}
           - {who: A, l2: "すみません、 おりたたみがさ って なん です か。", rom: "Sumimasen, oritatamigasa tte nan desu ka.", l1: "Sorry, what's an 'oritatami-gasa'?", alt: ["おりたたみがさ って なん です か。", "Oritatamigasa tte nan desu ka."]}
-          - {who: B, l2: "ちいさく できる かさ です。 かばん に はいります よ。", rom: "Chiisaku dekiru kasa desu. Kaban ni hairimasu yo.", l1: "An umbrella that folds up small. It fits in your bag."}
+          - {who: B, l2: "ちいさく たためる かさ です。 かばん に はいります よ。", rom: "Chiisaku tatameru kasa desu. Kaban ni hairimasu yo.", l1: "An umbrella that folds up small. It fits in your bag."}
           - {who: A, l2: "いい です ね。 じゃ、 それ に します。", rom: "Ii desu ne. Ja, sore ni shimasu.", l1: "Great. I'll take one of those, then.", alt: ["いい です ね。 じゃ、 それ を ください。", "Ii desu ne. Ja, sore o kudasai.", "じゃ、 それ に します。", "Ja, sore ni shimasu.", "Ii desu ne. Ja, sore wo kudasai."]}
       - id: ja-talk-03-trying-on
         type: dialogue
@@ -290,7 +290,7 @@ units:
         lines:
           - {who: A, l2: "すみません、 かぜ の くすり は どこ です か。", rom: "Sumimasen, kaze no kusuri wa doko desu ka.", l1: "Excuse me, where's the cold medicine?", alt: ["すみません、 かぜぐすり は どこ です か。", "Sumimasen, kazegusuri wa doko desu ka.", "すみません、 かぜ の くすり は ありません か。", "Sumimasen, kaze no kusuri wa arimasen ka.", "Sumimasen, kaze no kusuri ha doko desu ka.", "Sumimasen, kazegusuri ha doko desu ka.", "Sumimasen, kaze no kusuri ha arimasen ka."]}
           - {who: B, l2: "こちら です。 どんな しょうじょう です か。", rom: "Kochira desu. Donna shoujou desu ka.", l1: "Over here. What are your symptoms?"}
-          - {who: A, l2: "ねつ が あって、 のど が いたい です。", rom: "Netsu ga atte, nodo ga itai desu.", l1: "I have a temperature and a sore throat.", alt: ["ねつ と のど が いたい です。", "Netsu to nodo ga itai desu.", "すこし ねつ が あって、 のど が いたい です。", "Sukoshi netsu ga atte, nodo ga itai desu."]}
+          - {who: A, l2: "ねつ が あって、 のど が いたい です。", rom: "Netsu ga atte, nodo ga itai desu.", l1: "I have a temperature and a sore throat.", alt: ["ねつ が あります。 のど も いたい です。", "Netsu ga arimasu. Nodo mo itai desu.", "すこし ねつ が あって、 のど が いたい です。", "Sukoshi netsu ga atte, nodo ga itai desu."]}
           - {who: B, l2: "それ なら、 この くすり が いい です よ。 いちにち さんかい、 しょくご に のんで ください。", rom: "Sore nara, kono kusuri ga ii desu yo. Ichinichi sankai, shokugo ni nonde kudasai.", l1: "Then this one is good. Take it three times a day, after meals."}
           - {who: A, l2: "ねむく なります か。", rom: "Nemuku narimasu ka.", l1: "Will it make me sleepy?", alt: ["これ を のむ と、 ねむく なります か。", "Kore o nomu to, nemuku narimasu ka.", "Kore wo nomu to, nemuku narimasu ka."]}
           - {who: B, l2: "すこし ねむく なる かもしれません。 くるま の うんてん は しないで ください。", rom: "Sukoshi nemuku naru kamoshiremasen. Kuruma no unten wa shinaide kudasai.", l1: "It may make you a little drowsy. Please don't drive."}
@@ -633,7 +633,7 @@ units:
 
       - **Open**: **もしもし** (only on the phone). Give your name with **と もうします**, or [company] の [name] です.
       - **Ask for someone**: 〜さん は **いらっしゃいます か**. You will hear: しょうしょう おまち ください · たなか は いま せき を はずして おります (is away from their desk) · でかけて おります (is out) · かいぎ ちゅう です (is in a meeting).
-      - Staff refer to their own colleagues with no さん: たなか は…. Don't copy that; always say たなかさん.
+      - Staff refer to their own colleagues with no さん when talking to outsiders: たなか は…. When you ask for someone at another company, always say たなかさん.
       - **Messages**: でんごん を おねがいできます か · 〜から でんわ が あった と つたえて ください · また あと で おでんわ します.
       - **Line trouble**: すみません、 よく きこえません · もう すこし おおきい こえ で おねがいします.
       - **Numbers**: read digit by digit, with の for the hyphen, and repeat them back to check.

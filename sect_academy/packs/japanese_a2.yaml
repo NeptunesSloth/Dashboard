@@ -4,7 +4,7 @@ kind: language
 language: Japanese
 lang: ja-JP
 hall: tongues_west
-blurb: "Carry on from A1: the dictionary, て-, plain, potential and volitional forms, casual speech, conditionals, giving and receiving and polite keigo, 300 everyday words and 129 more kanji."
+blurb: "Carry on from A1: the dictionary, て-, plain, potential and volitional forms, casual speech, conditionals, giving and receiving and polite keigo, 300 everyday words and 130 more kanji."
 
 units:
   # ───────────────────────────────────────────────────────────────── 1
@@ -227,7 +227,7 @@ units:
       - {id: ja2-03-c1, type: cloze, text: "いま テレビ を ___ います。", answer: "みて", l1: "I am watching TV now.", alt: ["mite", "見て"], note: "Action in progress: 〜て います."}
       - {id: ja2-03-c2, type: cloze, text: "スミスさん は おおさか に ___ います。", answer: "すんで", l1: "Mr. Smith lives in Osaka.", alt: ["sunde", "住んで"], note: "すむ → すんで います."}
       - {id: ja2-03-c3, type: cloze, text: "やまださん の じゅうしょ を ___ います か。", answer: "しって", l1: "Do you know Ms. Yamada's address?", alt: ["shitte", "知って"], note: "To know: しって います."}
-      - {id: ja2-03-c4, type: cloze, text: "たなかさん は めがね を ___ います。", answer: "かけて", l1: "Mr. Tanaka is wearing glasses.", alt: ["kakete", "掛けて"], note: "Glasses: かける."}
+      - {id: ja2-03-c4, type: cloze, text: "たなかさん は めがね を ___ います。", answer: "かけて", l1: "Mr. Tanaka is wearing glasses.", alt: ["kakete", "掛けて", "して", "shite"], note: "Glasses: かける (in casual speech めがね を して います is also heard)."}
       - {id: ja2-03-c5, type: cloze, text: "ちち は ぎんこう で ___ います。", answer: "はたらいて", l1: "My father works at a bank.", alt: ["hataraite", "働いて"], note: "く → いて: はたらく → はたらいて."}
       - {id: ja2-03-c6, type: cloze, text: "まだ ひるごはん を たべて ___。", answer: "いません", l1: "I haven't eaten lunch yet.", alt: ["imasen"], note: "Not yet: まだ 〜て いません (not 〜ませんでした)."}
       - {id: ja2-03-c7, type: cloze, text: "あたらしい コート を ___ います。", answer: "きて", l1: "I am wearing a new coat.", alt: ["kite", "着て"], note: "The upper body: きる → きて."}
@@ -311,9 +311,9 @@ units:
       - {id: ja2-04-tomete-wa-ikemasen, type: phrase, l2: "ここ に くるま を とめて は いけません。", rom: "Koko ni kuruma o tomete wa ikemasen.", l1: "You must not park here.", alt: ["ここに車を止めてはいけません", "ここ に くるま を とめて は だめ です。", "Koko ni kuruma o tomete wa dame desu.", "Koko ni kuruma o tomete ha ikemasen.", "Koko ni kuruma wo tomete wa ikemasen.", "Koko ni kuruma wo tomete ha ikemasen.", "Koko ni kuruma o tomete ha dame desu.", "Koko ni kuruma wo tomete wa dame desu.", "Koko ni kuruma wo tomete ha dame desu."], note: "With kanji: ここに車を止めてはいけません"}
       - {id: ja2-04-c1, type: cloze, text: "この へや で しゃしん を とって ___ いい です か。", answer: "も", l1: "May I take photos in this room?", alt: ["mo"], note: "Permission: 〜て も いい です か."}
       - {id: ja2-04-c2, type: cloze, text: "びじゅつかん で たべて ___ いけません。", answer: "は", l1: "You must not eat in the art museum.", alt: ["wa", "ha"], note: "Prohibition: 〜て は いけません. は is read wa."}
-      - {id: ja2-04-c3, type: cloze, text: "ここ で たばこ を すって は ___。", answer: "いけません", l1: "You must not smoke here.", alt: ["ikemasen", "だめ です", "dame desu", "駄目です"], note: "〜て は いけません (in speech: 〜て は だめ です)."}
+      - {id: ja2-04-c3, type: cloze, text: "ここ で たばこ を すって は ___。", answer: "いけません", l1: "You must not smoke here.", alt: ["ikemasen", "だめ です", "dame desu", "駄目です", "いけない", "ikenai"], note: "〜て は いけません (in speech: 〜て は だめ です)."}
       - {id: ja2-04-c4, type: cloze, text: "この いぬ に ___ も いい です か。", answer: "さわって", l1: "May I touch this dog?", alt: ["sawatte", "触って"], note: "さわる → さわって."}
-      - {id: ja2-04-c5, type: cloze, text: "みせ は じゅうじ に ___。", answer: "あきます", l1: "The shop opens at ten.", alt: ["akimasu", "開きます"], note: "No object, so あく, not あける."}
+      - {id: ja2-04-c5, type: cloze, text: "みせ は じゅうじ に ___。", answer: "あきます", l1: "The shop opens at ten.", alt: ["akimasu", "開きます", "ひらきます", "hirakimasu"], note: "No object, so あく, not あける. 開きます read ひらきます is also right."}
       - {id: ja2-04-c6, type: cloze, text: "あつい です ね。 まど を ___ も いい です か。", answer: "あけて", l1: "It's hot, isn't it? May I open the window?", alt: ["akete", "開けて"], note: "With an object: あける → あけて."}
       - {id: ja2-04-c7, type: cloze, text: "ぎんこう は さんじ に ___。", answer: "しまります", l1: "The bank closes at three.", alt: ["shimarimasu", "閉まります"], note: "No object, so しまる, not しめる."}
       - id: ja2-04-d-temple
@@ -479,7 +479,7 @@ units:
       - {id: ja2-06-c2, type: cloze, text: "きのう すし を ___。", answer: "たべた", l1: "I ate sushi yesterday. (casual)", alt: ["tabeta", "食べた"], note: "た-form: たべて → たべた."}
       - {id: ja2-06-c3, type: cloze, text: "けさ コーヒー を ___。", answer: "のんだ", l1: "I drank coffee this morning. (casual)", alt: ["nonda", "飲んだ"], note: "のんで → のんだ."}
       - {id: ja2-06-c4, type: cloze, text: "きのう は ぜんぜん べんきょう ___。", answer: "しなかった", l1: "I didn't study at all yesterday. (casual)", alt: ["shinakatta"], note: "する → しない → しなかった."}
-      - {id: ja2-06-c5, type: cloze, text: "あの えいが、 すごく ___。", answer: "おもしろかった", l1: "That film was really good. (casual)", alt: ["omoshirokatta", "面白かった"], note: "い-adjective past: い → かった."}
+      - {id: ja2-06-c5, type: cloze, text: "あの えいが、 すごく ___。", answer: "おもしろかった", l1: "That film was really good. (casual)", alt: ["omoshirokatta", "面白かった", "よかった", "yokatta", "良かった"], note: "い-adjective past: い → かった."}
       - {id: ja2-06-c6, type: cloze, text: "きのう は やすみ ___。", answer: "だった", l1: "Yesterday was a day off. (casual)", alt: ["datta"], note: "でした → だった."}
       - {id: ja2-06-c7, type: cloze, text: "ともだち が まだ ___。", answer: "こない", l1: "My friend still hasn't come. (casual)", alt: ["konai", "来ない"], note: "くる → こない (irregular)."}
       - id: ja2-06-d-casual
@@ -547,7 +547,7 @@ units:
       - {id: ja2-07-pasupooto, type: vocab, l2: "パスポート", rom: "pasupooto", l1: "passport", alt: ["pasupōto"], ex: "パスポート を みせて ください。", ex_rom: "Pasupooto o misete kudasai.", ex_l1: "Please show me your passport."}
       - {id: ja2-07-fujisan, type: vocab, l2: "ふじさん", rom: "Fujisan", l1: "Mount Fuji", alt: ["富士山"], ex: "あれ は ふじさん です。", ex_rom: "Are wa Fujisan desu.", ex_l1: "That over there is Mount Fuji.", note: "山 is read さん in mountain names. Kanji: 富士山."}
       - {id: ja2-07-ichido, type: vocab, l2: "いちど", rom: "ichido", l1: "once / one time", alt: ["一度"], ex: "いちど きょうと へ いった こと が あります。", ex_rom: "Ichido Kyouto e itta koto ga arimasu.", ex_l1: "I've been to Kyoto once.", note: "Never: いちど も + negative. Kanji: 一度."}
-      - {id: ja2-07-keshiki, type: vocab, l2: "けしき", rom: "keshiki", l1: "scenery / view", alt: ["景色"], ex: "この やま の けしき は きれい です。", ex_rom: "Kono yama no keshiki wa kirei desu.", ex_l1: "The view from this mountain is beautiful.", note: "Kanji: 景色."}
+      - {id: ja2-07-keshiki, type: vocab, l2: "けしき", rom: "keshiki", l1: "scenery / view", alt: ["景色"], ex: "この やま の けしき は きれい です。", ex_rom: "Kono yama no keshiki wa kirei desu.", ex_l1: "The scenery on this mountain is beautiful.", note: "Kanji: 景色."}
       - {id: ja2-07-sanpo, type: vocab, l2: "さんぽ", rom: "sanpo", l1: "a walk, a stroll (さんぽ する = to go for a walk)", alt: ["散歩"], ex: "まいあさ いぬ と さんぽ します。", ex_rom: "Maiasa inu to sanpo shimasu.", ex_l1: "I walk the dog every morning.", note: "Kanji: 散歩."}
       - {id: ja2-07-hi, type: vocab, l2: "ひ", rom: "hi", l1: "day (a particular day)", alt: ["日"], ex: "やすみ の ひ は なに を します か。", ex_rom: "Yasumi no hi wa nani o shimasu ka.", ex_l1: "What do you do on your days off?", note: "Kanji: 日."}
       - {id: ja2-07-yuumei, type: vocab, l2: "ゆうめい", rom: "yuumei", l1: "famous (な-adjective)", alt: ["有名", "yūmei"], ex: "きょうと は おてら で ゆうめい です。", ex_rom: "Kyouto wa otera de yuumei desu.", ex_l1: "Kyoto is famous for its temples.", note: "Famous for: で ゆうめい. Kanji: 有名."}
@@ -860,7 +860,7 @@ units:
       - {id: ja2-11-chiisai-no, type: phrase, l2: "もう すこし ちいさい の は あります か。", rom: "Mou sukoshi chiisai no wa arimasu ka.", l1: "Do you have a slightly smaller one?", alt: ["もう少し小さいのはありますか", "もう すこし ちいさい サイズ は あります か。", "Mou sukoshi chiisai saizu wa arimasu ka.", "もう すこし ちいさい の、 あります か。", "Mou sukoshi chiisai no, arimasu ka.", "Mou sukoshi chiisai no ha arimasu ka.", "Mō sukoshi chiisai no wa arimasu ka.", "Mō sukoshi chiisai no ha arimasu ka.", "Mou sukoshi chiisai saizu ha arimasu ka.", "Mō sukoshi chiisai saizu wa arimasu ka.", "Mō sukoshi chiisai saizu ha arimasu ka.", "Mō sukoshi chiisai no, arimasu ka."], note: "の = one (stands in for the noun). With kanji: もう少し小さいのはありますか"}
       - {id: ja2-11-kore-ni-shimasu, type: phrase, l2: "これ に します。", rom: "Kore ni shimasu.", l1: "I'll take this one. (making your choice)", alt: ["これにします", "じゃ、 これ に します。", "Ja, kore ni shimasu."], note: "X に します = I'll go for X. Also when ordering food."}
       - {id: ja2-11-c1, type: cloze, text: "あたらしい かばん ___ ほしい です。", answer: "が", l1: "I want a new bag.", alt: ["ga"], note: "ほしい takes が."}
-      - {id: ja2-11-c2, type: cloze, text: "こども は ゲーム を ___ います。", answer: "したがって", l1: "The children want to play games.", alt: ["shitagatte"], note: "Someone else: 〜たがって います."}
+      - {id: ja2-11-c2, type: cloze, text: "こども は ゲーム を ___ います。", answer: "したがって", l1: "The children want to play games.", alt: ["shitagatte", "やりたがって", "yaritagatte"], note: "Someone else: 〜たがって います."}
       - {id: ja2-11-c3, type: cloze, text: "いもうと は ねこ を ___ います。", answer: "ほしがって", l1: "My younger sister wants a cat.", alt: ["hoshigatte", "欲しがって"], note: "Someone else wants a thing: を ほしがって います."}
       - {id: ja2-11-c4, type: cloze, text: "みどり ___ シャツ を ください。", answer: "の", l1: "A green shirt, please.", alt: ["no"], note: "みどり is a noun: みどり の."}
       - {id: ja2-11-c5, type: cloze, text: "その ___ セーター は いくら です か。", answer: "あかい", l1: "How much is that red sweater?", alt: ["akai", "赤い"], note: "あか (noun) → あかい (adjective) before a noun."}
@@ -1016,9 +1016,9 @@ units:
       - {id: ja2-13-c1, type: cloze, text: "あめ が ___、 うち で えいが を みます。", answer: "ふったら", l1: "If it rains, I'll watch a film at home.", alt: ["futtara", "降ったら"], note: "ふって → ふった → ふったら."}
       - {id: ja2-13-c2, type: cloze, text: "だいがく を そつぎょう ___、 にほん で はたらきたい です。", answer: "したら", l1: "When I graduate from university, I want to work in Japan.", alt: ["shitara"], note: "する → した → したら."}
       - {id: ja2-13-c3, type: cloze, text: "はし を わたる ___、 みぎ に こうえん が あります。", answer: "と", l1: "Cross the bridge and there's a park on the right.", alt: ["to"], note: "Directions: [dictionary form] と …."}
-      - {id: ja2-13-c4, type: cloze, text: "もっと ___ かいます。", answer: "やすければ", l1: "If it were cheaper, I would buy it.", alt: ["yasukereba", "安ければ"], note: "い-adjective: やすい → やすければ."}
-      - {id: ja2-13-c5, type: cloze, text: "つきあたり を ひだり ___ まがって ください。", answer: "に", l1: "Turn left at the end of the road.", alt: ["ni"], note: "The direction takes に."}
-      - {id: ja2-13-c6, type: cloze, text: "この みち を まっすぐ ___ と、 えき が あります。", answer: "いく", l1: "Go straight along this road and you'll come to the station.", alt: ["iku", "行く"], note: "と follows the dictionary form."}
+      - {id: ja2-13-c4, type: cloze, text: "もっと ___ かいます。", answer: "やすければ", l1: "If it were cheaper, I would buy it.", alt: ["yasukereba", "安ければ", "やすかったら", "yasukattara", "安かったら"], note: "い-adjective: やすい → やすければ (やすかったら is also right)."}
+      - {id: ja2-13-c5, type: cloze, text: "つきあたり を ひだり ___ まがって ください。", answer: "に", l1: "Turn left at the end of the road.", alt: ["ni", "へ", "e", "he"], note: "The direction takes に (へ is also heard)."}
+      - {id: ja2-13-c6, type: cloze, text: "この みち を まっすぐ ___ と、 えき が あります。", answer: "いく", l1: "Go straight along this road and you'll come to the station.", alt: ["iku", "行く", "あるく", "aruku", "歩く"], note: "と follows the dictionary form."}
       - id: ja2-13-d-museum
         type: dialogue
         title: "Which way to the museum?"
@@ -1073,7 +1073,7 @@ units:
       - {id: ja2-14-sabishii, type: vocab, l2: "さびしい", rom: "sabishii", l1: "lonely; missing someone", alt: ["寂しい"], ex: "ひとり で すんで いる ので、 ときどき さびしい です。", ex_rom: "Hitori de sunde iru node, tokidoki sabishii desu.", ex_l1: "I live on my own, so I sometimes get lonely.", note: "Kanji: 寂しい."}
       - {id: ja2-14-kowai, type: vocab, l2: "こわい", rom: "kowai", l1: "scary; scared", alt: ["怖い"], ex: "この いぬ は ちょっと こわい です。", ex_rom: "Kono inu wa chotto kowai desu.", ex_l1: "This dog is a bit scary.", note: "The same word for the thing and the feeling. Kanji: 怖い."}
       - {id: ja2-14-shinpai, type: vocab, l2: "しんぱい", rom: "shinpai", l1: "worry; worried (しんぱい する = to worry)", alt: ["心配"], ex: "こども が まだ かえらない ので、 しんぱい です。", ex_rom: "Kodomo ga mada kaeranai node, shinpai desu.", ex_l1: "My child isn't home yet, so I'm worried.", note: "Kanji: 心配."}
-      - {id: ja2-14-anshin, type: vocab, l2: "あんしん", rom: "anshin", l1: "relief; relieved (あんしん する = to be relieved)", alt: ["安心"], ex: "せんせい の はなし を きいて、 あんしん しました。", ex_rom: "Sensei no hanashi o kiite, anshin shimashita.", ex_l1: "I was relieved after talking to the doctor.", note: "Kanji: 安心."}
+      - {id: ja2-14-anshin, type: vocab, l2: "あんしん", rom: "anshin", l1: "relief; relieved (あんしん する = to be relieved)", alt: ["安心"], ex: "せんせい の はなし を きいて、 あんしん しました。", ex_rom: "Sensei no hanashi o kiite, anshin shimashita.", ex_l1: "I was relieved when I heard what the doctor said.", note: "Kanji: 安心."}
       - {id: ja2-14-zannen, type: vocab, l2: "ざんねん", rom: "zannen", l1: "a pity / disappointing (な-adjective)", alt: ["残念"], ex: "あした は いけません。 ざんねん です。", ex_rom: "Ashita wa ikemasen. Zannen desu.", ex_l1: "I can't go tomorrow. What a pity.", note: "Kanji: 残念."}
       - {id: ja2-14-tsukareru, type: vocab, l2: "つかれる", rom: "tsukareru", l1: "to get tired", alt: ["疲れる"], ex: "たくさん あるいて、 つかれました。", ex_rom: "Takusan aruite, tsukaremashita.", ex_l1: "I walked a lot and got tired.", note: "I'm tired (now) = つかれました or つかれて います. Kanji: 疲れる."}
       - {id: ja2-14-komaru, type: vocab, l2: "こまる", rom: "komaru", l1: "to be in trouble / to be stuck, at a loss", alt: ["困る"], ex: "みち が わからない ので、 こまりました。", ex_rom: "Michi ga wakaranai node, komarimashita.", ex_l1: "I didn't know the way, so I was stuck.", note: "こまって います = I'm in a fix. Kanji: 困る."}
@@ -1091,7 +1091,7 @@ units:
       - {id: ja2-14-c2, type: cloze, text: "たくさん べんきょう した ___、 しけん に おちました。", answer: "のに", l1: "Even though I studied a lot, I failed the exam.", alt: ["noni"], note: "のに = even though (disappointed)."}
       - {id: ja2-14-c3, type: cloze, text: "あめ ___ ので、 タクシー で いきます。", answer: "な", l1: "It's raining, so I'll take a taxi.", alt: ["na"], note: "Noun + な + ので."}
       - {id: ja2-14-c4, type: cloze, text: "___ ちこく しました か。", answer: "どうして", l1: "Why were you late?", alt: ["doushite", "dōshite", "なぜ", "naze", "なんで", "nande"], note: "どうして = why."}
-      - {id: ja2-14-c5, type: cloze, text: "きょう は とても ___。", answer: "つかれました", l1: "I'm really tired today.", alt: ["tsukaremashita", "疲れました"], note: "Tired now: つかれました."}
+      - {id: ja2-14-c5, type: cloze, text: "きょう は とても ___。", answer: "つかれました", l1: "I'm really tired today.", alt: ["tsukaremashita", "疲れました", "つかれて います", "tsukarete imasu", "疲れています"], note: "Tired now: つかれました or つかれて います."}
       - {id: ja2-14-c6, type: cloze, text: "こども から でんわ が あって、 ___ しました。", answer: "あんしん", l1: "My child phoned, and I was relieved.", alt: ["anshin", "安心"], note: "あんしん する = to be relieved."}
       - id: ja2-14-d-late
         type: dialogue
@@ -1391,10 +1391,10 @@ units:
       - {id: ja2-18-kashikomarimashita, type: phrase, l2: "かしこまりました。", rom: "Kashikomarimashita.", l1: "Certainly. (staff accepting a request)", alt: ["畏まりました"], note: "A very polite わかりました. You will hear it in every shop and restaurant."}
       - {id: ja2-18-to-moushimasu, type: phrase, l2: "スミス と もうします。", rom: "Sumisu to moushimasu.", l1: "My name is Smith. (humble, at work)", alt: ["スミスと申します", "わたくし は スミス と もうします。", "Watakushi wa Sumisu to moushimasu.", "わたし は スミス と もうします。", "Watashi wa Sumisu to moushimasu.", "Sumisu to mōshimasu.", "Watakushi ha Sumisu to moushimasu.", "Watakushi wa Sumisu to mōshimasu.", "Watakushi ha Sumisu to mōshimasu.", "Watashi ha Sumisu to moushimasu.", "Watashi wa Sumisu to mōshimasu.", "Watashi ha Sumisu to mōshimasu."], note: "With kanji: スミスと申します"}
       - {id: ja2-18-onegai-itashimasu, type: phrase, l2: "よろしく おねがい いたします。", rom: "Yoroshiku onegai itashimasu.", l1: "I look forward to working with you. (very polite)", alt: ["よろしくお願いいたします", "よろしくお願い致します", "どうぞ よろしく おねがい いたします。", "Douzo yoroshiku onegai itashimasu.", "Dōzo yoroshiku onegai itashimasu."], note: "The humble form of よろしく おねがいします. With kanji: よろしくお願いいたします"}
-      - {id: ja2-18-c1, type: cloze, text: "しゃちょう は いま かいぎしつ に ___。", answer: "いらっしゃいます", l1: "The president is in the meeting room now.", alt: ["irasshaimasu"], note: "Honorific for いる."}
-      - {id: ja2-18-c2, type: cloze, text: "どうぞ、 ___ ください。", answer: "めしあがって", l1: "Please, do have some. (offering food)", alt: ["meshiagatte", "召し上がって"], note: "Honorific for たべる: めしあがる → めしあがって."}
+      - {id: ja2-18-c1, type: cloze, text: "しゃちょう は いま かいぎしつ に ___。", answer: "いらっしゃいます", l1: "The president is in the meeting room now. (honorific)", alt: ["irasshaimasu"], note: "Honorific for いる."}
+      - {id: ja2-18-c2, type: cloze, text: "どうぞ、 ___ ください。", answer: "めしあがって", l1: "Please, do have some. (honorific, offering food)", alt: ["meshiagatte", "召し上がって"], note: "Honorific for たべる: めしあがる → めしあがって."}
       - {id: ja2-18-c3, type: cloze, text: "あした、 そちら に ___。", answer: "うかがいます", l1: "I will visit you tomorrow. (humble)", alt: ["ukagaimasu", "伺います"], note: "Humble visit: うかがいます."}
-      - {id: ja2-18-c4, type: cloze, text: "せんせい は なん と ___ か。", answer: "おっしゃいました", l1: "What did the teacher say?", alt: ["osshaimashita"], note: "Honorific for いう."}
+      - {id: ja2-18-c4, type: cloze, text: "せんせい は なん と ___ か。", answer: "おっしゃいました", l1: "What did the teacher say? (honorific)", alt: ["osshaimashita"], note: "Honorific for いう."}
       - {id: ja2-18-c5, type: cloze, text: "トイレ は にかい に ___。", answer: "ございます", l1: "The toilets are on the second floor. (shop staff)", alt: ["gozaimasu"], note: "Very polite あります."}
       - {id: ja2-18-c6, type: cloze, text: "ちち は いま うち に ___。", answer: "おります", l1: "My father is at home now. (humble, on the phone)", alt: ["orimasu"], note: "Humble for いる, used for your own family."}
       - id: ja2-18-d-first-day
