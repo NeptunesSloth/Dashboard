@@ -3823,6 +3823,58 @@ def _made(c: dict, hours: int = MADE_HOURS) -> tuple[dict, int]:
     return out, span
 
 
+# What each producing room's work made since the morning (the tray it will hold, once trays exist: SECT_OVERHAUL_PLAN 3.6).
+# For now it only lights the room on the map; nothing is collected and nothing changes in the stores.
+TRAY_OF = {"fields": (("farm", "rice"),), "alchemy": (("craft", "pills"),), "spirit_vein": (("mine", "stones"),),
+           "storehouse": (("wood", "wood"), ("mine", "stone"), ("forage", "herbs"))}
+TRAY_DAWN = 6                       # the hour a tray's count starts again
+
+
+def trays(c: dict) -> dict:
+    """{room: [(res, amount), ...]} made by that room's work since the last dawn, largest first, whole units only."""
+    since = c["hour"] - ((c["hour"] - TRAY_DAWN) % 24)        # the last dawn at or before now
+    totals: dict = {}
+    for h, b in c["made"].items():
+        if since < int(h) <= c["hour"]:
+            for k, v in b.items():
+                res, job, _ = k.split("|")
+                totals[(job, res)] = totals.get((job, res), 0.0) + v
+    out = {}
+    for room, pairs in TRAY_OF.items():
+        if not _lvl(c, room):
+            continue
+        got = sorted(((res, totals.get((job, res), 0.0)) for job, res in pairs), key=lambda x: -x[1])
+        got = [(res, n) for res, n in got if n >= 1]
+        if got:
+            out[room] = got
+    return out
+
+
+def hall_next(c: dict) -> dict | None:
+    """The next Main Hall level and what it opens, for the card on the home view (None at the top)."""
+    lvl = _lvl(c, "main_hall")
+    queued = [b for b in c["builds"] if b["room"] == "main_hall"]
+    target = lvl + 1
+    if target > ROOMS["main_hall"]["max"]:
+        return None
+    opens = [f"Room for {_n(2, 'more disciple', 'more disciples')}: {3 + 2 * target} in all, from {pawn_cap(c)}"]
+    top = min(target + 1, max(r["max"] for k, r in ROOMS.items() if k != "main_hall"))
+    held = [ROOMS[k]["name"] for k, r in ROOMS.items()
+            if k != "main_hall" and _lvl(c, k) + sum(1 for b in c["builds"] if b["room"] == k) == target and target < r["max"]]
+    if top > target:
+        opens.append(f"Other rooms up to level {top}" + (f" ({_and(held)} {_be(len(held))} waiting on it)" if held else ""))
+    opens.append("+4 fame as the valley sees it rise")
+    if target == 4:
+        opens.append("Branch sects, with eight disciples and 100 spirit stones")
+    if target == 5:
+        opens.append("The first line of the Great Work “A Great Sect”")
+    cost = queued[0]["cost"] if queued else room_cost(c, "main_hall", lvl)
+    short = {k: v - c["res"][k] for k, v in cost.items() if c["res"][k] < v}
+    return {"level": target, "opens": opens, "cost": cost, "queued": bool(queued),
+            "pct": 100.0 * queued[0]["done"] / queued[0]["need"] if queued else 0.0,
+            "affordable": not queued and not short, "short": short}
+
+
 def _id_names(c: dict, ids) -> str:
     known = [str((_p(c, i) or {}).get("name") or "") for i in ids]
     names = [n for n in known if n]
@@ -4022,6 +4074,7 @@ def view(st: dict, now: float) -> dict:
     today = _today(st, now)
     day = _day(c)
     rooms = []
+    tray = trays(c)
     for rid, r in ROOMS.items():
         level = _lvl(c, rid)
         queued = sum(1 for b in c["builds"] if b["room"] == rid)
@@ -4032,7 +4085,8 @@ def view(st: dict, now: float) -> dict:
             locked = f"Needs Main Hall level {nxt}."
         rooms.append({"id": rid, "name": r["name"], "effect": r["effect"], "level": level, "max": r["max"], "open": level > 0,
                       "queued": queued, "cost": {k: _f(v) for k, v in cost.items()} if cost else None, "locked": locked,
-                      "affordable": bool(cost) and not locked and all(c["res"][k] >= v for k, v in cost.items())})
+                      "affordable": bool(cost) and not locked and all(c["res"][k] >= v for k, v in cost.items()),
+                      "tray": [{"res": res, "name": RES_NAMES[res].lower(), "n": _whole(n)} for res, n in tray.get(rid, [])]})
     last = c["last_study_day"]
     gap = (_date(today) - _date(last)).days if last else 0
     lost = bool(last) and not c["seclusion"] and gap > 1 and c["grace"] < gap - 1
@@ -4086,6 +4140,7 @@ def view(st: dict, now: float) -> dict:
         "farm_yield": {"rows": [{"label": str(label), "x": _f(x, 2)} for label, x in farm_rows(c)],
                        "per_hour": _f(math.prod(x for _, x in farm_rows(c)), 2), "blight_days": _f(blight_left(c) / 24.0, 1)},
         "rooms": rooms,
+        "hall_next": _hall_view(hall_next(c)),
         "builds": [{"room": b["room"], "name": ROOMS[b["room"]]["name"], "pct": _f(100.0 * b["done"] / b["need"])} for b in c["builds"]],
         "build_stall": build_stall(c),
         "pawns": [_pawn_view(c, p) for p in c["pawns"]],
@@ -4106,6 +4161,14 @@ def view(st: dict, now: float) -> dict:
         "week": {"days": len(c["week"]["days"]) if c["week"]["id"] else 0, "goal": WEEK_GOAL},
         "realm": REALMS[int(m["step"]) // 4] if m else REALMS[0], "stage": STAGES[int(m["step"]) % 4] if m else STAGES[0],
     }
+
+
+def _hall_view(h: dict | None) -> dict | None:
+    if not h:
+        return None
+    return {"level": _f(h["level"]), "opens": [str(x) for x in h["opens"]], "cost": {k: _f(v) for k, v in h["cost"].items()},
+            "queued": bool(h["queued"]), "pct": _f(h["pct"]), "affordable": bool(h["affordable"]),
+            "short": {k: _f(math.ceil(v)) for k, v in h["short"].items()}}
 
 
 def sanitize(raw, now: float) -> dict:

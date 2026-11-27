@@ -195,17 +195,21 @@ export function mountSect(h) {
       const site = p.doing === 'build' ? building[0] : SITE_OF[p.doing] || 'main_hall';
       if (site) (staff[site] = staff[site] || []).push(p);
     });
-    const sig = JSON.stringify([S.rooms.map((r) => r.level), building, Object.entries(staff).map(([k, v]) => k + v.map((p) => p.id).join()), S.rooms.map((r) => r.affordable), S.treasures.length]);
+    const trayText = (r) => (r.tray || []).slice(0, 2).map((t) => `+${t.n} ${t.name}`).join(' ');
+    const sig = JSON.stringify([S.rooms.map((r) => r.level), building, Object.entries(staff).map(([k, v]) => k + v.map((p) => p.id).join()), S.rooms.map((r) => r.affordable), S.rooms.map(trayText), S.treasures.length]);
     if (sig === sceneSig && z.firstChild) return;
     sceneSig = sig;
     const rooms = S.rooms.map((r) => {
       const [x, y, w, hh] = siteRect(r.id);
       const crew = (staff[r.id] || []).slice(0, 5).map((p) => face(p, 30)).join('');
-      return `<button class="room ${r.open ? '' : 'closed'} ${building.includes(r.id) ? 'building' : ''}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
-        aria-label="${esc(r.name)}, ${r.open ? `level ${r.level}` : 'not built'}${r.affordable ? ', you can afford the next level' : ''}">
-        ${r.affordable ? '<span class="can" aria-hidden="true">↑</span>' : ''}
+      // A room you can afford to raise glows softly and shows "+" after its level; a room whose crew made something
+      // since dawn has its lanterns brightened and says what (visual only: nothing is collected yet).
+      const tray = trayText(r);
+      return `<button class="room ${r.open ? '' : 'closed'} ${building.includes(r.id) ? 'building' : ''} ${r.affordable ? 'can' : ''} ${tray ? 'tray' : ''}" data-room="${esc(r.id)}" style="left:${x}%;top:${y}%;width:${w}%;height:${hh}%"
+        aria-label="${esc(r.name)}, ${r.open ? `level ${r.level}` : 'not built'}${r.affordable ? ', you can afford the next level' : ''}${tray ? `, made ${esc(tray)} since dawn` : ''}">
         <span class="crew" aria-hidden="true">${crew}</span>
-        <span class="plaque">${esc(r.name)}${r.open ? `<em>${r.level}</em>` : building.includes(r.id) ? '<em>building</em>' : ''}</span></button>`;
+        ${tray ? `<span class="trayn" aria-hidden="true">${esc(tray)}</span>` : ''}
+        <span class="plaque">${esc(r.name)}${r.open ? `<em>${r.level}${r.affordable ? '<b class="up" aria-hidden="true">+</b>' : ''}</em>` : building.includes(r.id) ? '<em>building</em>' : r.affordable ? '<em><b class="up" aria-hidden="true">+</b></em>' : ''}</span></button>`;
     }).join('');
     const [vx, vy, vw, vh] = VAULT;
     z.innerHTML = `<div class="hq">${sectScene()}<div class="daylight" id="daylight"></div>${rooms}
@@ -213,6 +217,24 @@ export function mountSect(h) {
         <span class="plaque">Treasure Vault${S.treasures.length ? `<em>${S.treasures.length}</em>` : ''}</span></button></div>`;
     z.querySelectorAll('[data-room]').forEach((b) => { b.onclick = () => roomSheet(b.dataset.room); });
     $('[data-vault]', z).onclick = () => { tab = 'world'; sessionStorage.setItem('sect.tab', tab); paintTabs(); $('#z-tabs').scrollIntoView({ behavior: 'smooth' }); };
+  }
+
+  // The near goal, always in view: the next Main Hall level and what it opens.
+  function paintHall() {
+    const z = $('#z-hall'); if (!z) return;
+    const H = S.hall_next;
+    const shortText = (o) => Object.entries(o).map(([k, v]) => `${v} more ${k === 'stones' ? 'spirit stones' : k}`).join(' and ');
+    const act = !H ? '' : H.queued ? `<div class="hn-prog"><span class="small">Being raised · <b class="num">${H.pct}%</b></span>${bar(H.pct, 'azure')}</div>`
+      : `<button class="btn ${H.affordable ? 'primary' : ''}" data-hall ${H.affordable ? '' : 'disabled'}>Raise it: ${esc(costText(H.cost))}</button>
+         ${H.affordable ? '' : `<small class="dim">Needs ${esc(shortText(H.short))}</small>`}`;
+    const html = !H ? '' : `<div class="hallnext ${H.affordable ? 'can' : ''}" style="background-image:linear-gradient(90deg,#1a130ef7 0%,#1a130eeb 62%,#1a130eb3 100%),url(${backdrop('hall')})">
+      <div class="hn-head"><small>The next step</small><b>Main Hall ${H.level}</b><span class="dim small">what it opens</span></div>
+      <ul class="hn-opens">${H.opens.map((o) => `<li>${esc(o)}</li>`).join('')}</ul>
+      <div class="hn-act">${act}</div></div>`;
+    if (z.dataset.sig === html) return;
+    z.dataset.sig = html;
+    z.innerHTML = html;
+    const b = $('[data-hall]', z); if (b) b.onclick = () => order('build', { room: 'main_hall' });
   }
 
   function paintTabs() {
@@ -573,7 +595,7 @@ export function mountSect(h) {
     z.innerHTML = html;
   }
 
-  function paint() { paintStyle(); paintTop(); paintEvent(); paintScene(); paintLight(); paintMaster(); paintTabs(); paintScenes(); }
+  function paint() { paintStyle(); paintTop(); paintEvent(); paintScene(); paintHall(); paintLight(); paintMaster(); paintTabs(); paintScenes(); }
 
   /* ---------------- result scenes: a big outcome gets a framed card ---------------- */
   function sceneCard(x) {
@@ -609,7 +631,7 @@ export function mountSect(h) {
   }
 
   view.innerHTML = `<div id="sect-root"><div id="z-top"></div>
-    <div id="z-event"></div><section class="panel scenewrap" id="z-scene"></section>
+    <div id="z-event"></div><section class="panel scenewrap"><div id="z-scene"></div><div id="z-hall"></div></section>
     ${h.studyStrip()}
     <section class="panel" id="z-tabs" style="margin-top:14px"></section>
     <div class="grid2 studyrow" id="z-study">${h.todayPanel()}<div id="z-master"></div></div></div>`;
