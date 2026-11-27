@@ -22,10 +22,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from sect_academy import colony, state  # noqa: E402
 
 T0 = 1_800_000_000.0
-BUILD_ORDER = ["fields", "storehouse", "training", "library", "dormitory", "main_hall", "ward", "alchemy",
-               "meditation", "dormitory", "storehouse", "training", "main_hall", "fields", "ward", "spirit_vein", "meditation",
-               "library", "alchemy", "dormitory", "main_hall", "ward", "storehouse", "meditation", "training"]
+# The order a careful player raises rooms in: the n-th mention of a room is its n-th level. An entry the Main Hall
+# ladder does not allow yet (not open, over the cap, or the Hall's three-rooms rule unmet) is passed over for now.
+BUILD_ORDER = (["fields", "storehouse", "main_hall", "training", "library", "dormitory", "ward", "fields", "storehouse", "main_hall",
+                "alchemy", "meditation", "dormitory", "training", "library", "main_hall", "spirit_vein", "ward", "fields", "storehouse",
+                "meditation", "dormitory", "alchemy", "main_hall", "library", "training", "ward", "market"]
+               + ["main_hall", "fields", "storehouse", "dormitory", "meditation", "library", "training", "ward", "spirit_vein", "alchemy"] * 5)
 RESEARCH_ORDER = ["irrigation", "masonry", "granary", "sword_forms", "qi_array", "refinement", "ward_ii", "dao_heart"]
+
+
+def _legal(c: dict, room: str) -> bool:
+    have = colony._lvl(c, room) + sum(1 for b in c["builds"] if b["room"] == room)
+    return have < colony.ROOMS[room]["max"] and not colony.build_block(c, room, have)
+
+
+def _afford(c: dict, room: str) -> bool:
+    have = colony._lvl(c, room) + sum(1 for b in c["builds"] if b["room"] == room)
+    return all(c["res"][k] >= v for k, v in colony.room_cost(c, room, have).items())
 
 
 def _careful_choice(c: dict, ev: dict) -> str:
@@ -128,8 +141,10 @@ def _careful_orders(st: dict, c: dict, seen_alerts: set) -> None:
         for room in BUILD_ORDER:
             built[room] = built.get(room, 0) + 1
             have = colony._lvl(c, room) + sum(1 for b in c["builds"] if b["room"] == room)
-            if have >= built[room]:
+            if have >= built[room] or have >= colony.ROOMS[room]["max"]:
                 continue
+            if hasattr(colony, "build_block") and colony.build_block(c, room, have):
+                continue            # the ladder does not allow it yet: the next thing in the plan
             queued = colony.queue_build(st, room, T0)["ok"]
             if not queued:
                 short = {k for k, v in colony.room_cost(c, room, have).items() if c["res"][k] < v}
@@ -200,13 +215,13 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
         return res
     colony.attempt = attempt
     stolen_was = 0.0
-    slot_hours = [0, 0]                    # builder-slot hours to day 60, and of those the hours a slot stood empty
+    slot_hours = [0, 0, 0]                 # builder-slot hours to day 60; of those, empty; and empty for want of materials
     event_days: set = set()              # days with something to decide (a letter alone does not count)
     work_jobs = {v[0].lower() for v in colony.JOBS.values()}
     hours: dict = {}                       # pawn id -> [working hours, of which meditating, name]
     out = {"deaths": 0, "min_rice": 1e9, "min_food_days": 1e9, "lean_days": 0, "cap_days": 0, "rice_cap_days": 0, "short_days": 0,
            "mood": (100, 0), "rice_by_month": [], "raids": 0, "raid_losses": 0, "renown_day": None, "pop_max": 0, "qi60": {},
-           "steps60": {}, "fame60": 0, "others_up60": 0, "qc80": 0, "others80": 0, "steps80": {}, "infil": 0, "thefts": 0}
+           "steps60": {}, "fame60": 0, "others_up60": 0, "qc80": 0, "others80": 0, "steps80": {}, "infil": 0, "thefts": 0, "hall_by_day": {}}
     try:
         for _ in range(days * 24):
             colony.advance(st, 1, T0)
@@ -227,8 +242,15 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
             if profile == "careful":
                 _careful_orders(st, c, seen_alerts)
             if hasattr(colony, "builders") and colony._day(c) < 60:
+                free = max(0, colony.builders(c) - len(c["builds"]))
                 slot_hours[0] += colony.builders(c)
-                slot_hours[1] += max(0, colony.builders(c) - len(c["builds"]))
+                slot_hours[1] += free
+                if free and hasattr(colony, "build_block"):
+                    legal = [r for r in colony.ROOMS if _legal(c, r)]
+                    if legal and not any(_afford(c, r) for r in legal):
+                        slot_hours[2] += free          # empty for want of materials: something could be built, nothing affordable
+            if c["hour"] % 24 == 0 and colony._day(c) in (30, 60, 90, 150):
+                out["hall_by_day"][colony._day(c)] = colony._lvl(c, "main_hall")
             if c["tally"]["stolen"] > stolen_was + 0.5:          # a raid or a thief carried something off
                 out["thefts"] += 1
             stolen_was = c["tally"]["stolen"]
@@ -276,6 +298,8 @@ def play(storyteller: str = "balanced", profile: str = "careful", days: int = 15
         colony.attempt = real_attempt
     out["bts"] = bts
     out["idle_builder"] = round(slot_hours[1] / slot_hours[0], 2) if slot_hours[0] else None
+    out["idle_builder_hours"] = round(slot_hours[2] / slot_hours[0], 2) if slot_hours[0] else None
+    out["hall_by_day"].setdefault(days, colony._lvl(c, "main_hall"))
     out.setdefault("risk80", out["infil"] + out["thefts"])
     out.setdefault("techs70", len(c["research"]["done"]))
     gaps, last = [], 4                        # counted from the first threat (day 5) on
@@ -316,6 +340,6 @@ if __name__ == "__main__":
                       f"plague_dead={r['plague_dead']} techs70={r['techs70']} rivals={r['rivals_max']} infil={r['infil']} thefts={r['thefts']} "
                       f"risk80={r['risk80']} bt_fail={sum(1 for b in r['bts'] if not b[2])}/{len(r['bts'])} "
                       f"bt_fail_fe+={sum(1 for b in r['bts'] if not b[2] and b[0] >= 2)}/{sum(1 for b in r['bts'] if b[0] >= 2)} "
-                      f"idle_builder={r['idle_builder']} loss={r['loss']} ({time.time() - t:.1f}s)", flush=True)
+                      f"idle_builder={r['idle_builder']} want_mat={r['idle_builder_hours']} hall={r['hall_by_day']} loss={r['loss']} ({time.time() - t:.1f}s)", flush=True)
                 if "-v" in sys.argv:
                     print("   ", r["fights"])
