@@ -67,7 +67,7 @@ units:
          note: "dimitir is the word for officials and politicians. To quit an ordinary job, people say dejar el trabajo or (especially in Latin America) renunciar."}
       - {id: es-b2-01-formacion, type: vocab, l2: "la formación", l1: "training / education (for a job)",
          ex: "La empresa ofrece formación a todos los empleados.", ex_l1: "The company offers training to all its employees.",
-         note: "False friend: a formation of things is una disposición. la formación profesional = vocational training."}
+         note: "At work it means training; it also means formation (una formación rocosa, en formación). la formación profesional = vocational training."}
       - {id: es-b2-01-becario, type: vocab, l2: "el becario", l1: "the intern / the trainee (male)", alt: ["el pasante", "el practicante"],
          ex: "Este verano tenemos dos becarios en la oficina.", ex_l1: "This summer we have two interns in the office.",
          note: "Spain. Also a grant holder (from la beca). Latin America: el pasante. Feminine: la becaria."}
@@ -116,7 +116,7 @@ units:
          l1: "It surprised me that they promoted you so soon.", note: "ascender: ascendieron → ascendieran"}
       - {id: es-b2-01-c6, type: cloze, text: "El director nos reunió para que le ___ nuestra opinión.", answer: "diéramos", alt: ["diésemos"],
          l1: "The director got us together so that we would give him our opinion.", note: "para que after a past verb → imperfect subjunctive: dieron → diéramos"}
-      - {id: es-b2-01-c7, type: cloze, text: "___ hablar con la directora, por favor.", answer: "Quisiera", alt: ["Querría"],
+      - {id: es-b2-01-c7, type: cloze, text: "___ hablar con la directora, por favor.", answer: "Quisiera", alt: ["Querría", "Me gustaría", "Desearía"],
          l1: "I would like to speak to the director, please. (very polite)", note: "quisiera = the most polite way to say 'I would like'"}
       - {id: es-b2-01-c8, type: cloze, text: "Les exigieron que ___ el contrato ese mismo día.", answer: "firmaran", alt: ["firmasen"],
          l1: "They demanded that they sign the contract that same day.", note: "exigir que + subjunctive; past → firmaran"}
@@ -380,7 +380,7 @@ units:
       - {id: es-b2-03-c8, type: cloze, text: "Fue una pena que los resultados no ___ llegado a tiempo.", answer: "hubieran", alt: ["hubiesen"],
          l1: "It was a shame that the results hadn't arrived in time.", note: "ellos → hubieran"}
       - {id: es-b2-03-c9, type: cloze, text: "Yo no lo ___ hecho así.", answer: "habría", alt: ["hubiera", "hubiese"],
-         l1: "I wouldn't have done it like that.", note: "conditional perfect; hubiera can replace habría here"}
+         l1: "I wouldn't have done it like that.", note: "conditional perfect; hubiera (less often hubiese) can replace habría here"}
       - {id: es-b2-03-c10, type: cloze, text: "No me podía creer que se hubiera ___ la pierna esquiando.", answer: "roto",
          l1: "I couldn't believe he had broken his leg skiing.", note: "romper → roto (irregular participle)"}
       - {id: es-b2-03-c11, type: cloze, text: "Espero que ya te ___ recuperado.", answer: "hayas",
@@ -490,7 +490,7 @@ units:
       - {id: es-b2-04-si-ganan, type: phrase, l2: "Si ganan las elecciones, subirán los impuestos.", l1: "If they win the election, taxes will go up.",
          alt: ["Si ganan las elecciones, van a subir los impuestos", "Si ganan las elecciones, suben los impuestos"],
          note: "Type 1: si + present, future result."}
-      - {id: es-b2-04-c1, type: cloze, text: "Si llueve el domingo, la gente no ___ a votar.", answer: "irá", alt: ["va", "saldrá", "sale"],
+      - {id: es-b2-04-c1, type: cloze, text: "Si llueve el domingo, la gente no ___ a votar.", answer: "irá", alt: ["va", "saldrá", "sale", "acudirá"],
          l1: "If it rains on Sunday, people won't go and vote.", note: "type 1: si + present → future (or present) in the result"}
       - {id: es-b2-04-c2, type: cloze, text: "Si yo ___ alcalde, construiría más viviendas.", answer: "fuera", alt: ["fuese"],
          l1: "If I were mayor, I would build more housing.", note: "type 2: si + imperfect subjunctive → conditional"}
@@ -758,14 +758,14 @@ units:
          l1: "The system failed, which caused a lot of problems.", note: "lo cual / lo que refers back to the whole sentence"}
       - {id: es-b2-06-c7, type: cloze, text: "Son las razones por las ___ dejé la empresa.", answer: "cuales", alt: ["que"],
          l1: "Those are the reasons why I left the company.", note: "preposition + las cuales (formal) or las que"}
-      - {id: es-b2-06-c8, type: cloze, text: "___ quiera participar, que se apunte aquí.", answer: "Quien",
+      - {id: es-b2-06-c8, type: cloze, text: "___ quiera participar, que se apunte aquí.", answer: "Quien", alt: ["El que"],
          l1: "Whoever wants to take part should sign up here.", note: "quien + subjunctive = whoever"}
       - {id: es-b2-06-c9, type: cloze, text: "Puedes elegir lo que ___.", answer: "quieras", alt: ["prefieras"],
          l1: "You can choose whatever you want. (informal)", note: "lo que + subjunctive = whatever"}
       - {id: es-b2-06-c10, type: cloze, text: "No existe ninguna máquina que ___ hacer eso.", answer: "pueda",
          l1: "There is no machine that can do that.", note: "a denied thing → subjunctive"}
       - {id: es-b2-06-c11, type: cloze, text: "Los investigadores, ___ trabajan día y noche, esperan resultados pronto.", answer: "quienes",
-         alt: ["que"],
+         alt: ["que", "los cuales"],
          l1: "The researchers, who work day and night, hope for results soon.", note: "between commas, people can take quienes (or que)"}
       - {id: es-b2-06-c12, type: cloze, text: "El que ___ primero, que encienda el ordenador.", answer: "llegue",
          l1: "Whoever arrives first should switch on the computer.", note: "el que + subjunctive = whoever (not known yet)"}
@@ -886,7 +886,7 @@ units:
          l1: "“Have you read the paper?” → He asked me if I had read the paper.", note: "perfecto → pluperfect; a yes/no question → si"}
       - {id: es-b2-07-c6, type: cloze, text: "«No es verdad.» → El portavoz negó que ___ verdad.", answer: "fuera", alt: ["fuese"],
          l1: "“It isn't true.” → The spokesman denied that it was true.", note: "negar que + subjunctive; past → imperfect subjunctive"}
-      - {id: es-b2-07-c7, type: cloze, text: "«Estoy aquí desde ayer.» → Dijo que estaba allí desde el día ___.", answer: "anterior",
+      - {id: es-b2-07-c7, type: cloze, text: "«Estoy aquí desde ayer.» → Dijo que estaba allí desde el día ___.", answer: "anterior", alt: ["antes"],
          l1: "“I've been here since yesterday.” → He said he had been there since the day before.", note: "ayer → el día anterior; aquí → allí"}
       - {id: es-b2-07-c8, type: cloze, text: "«Hoy hay rueda de prensa.» → Dijeron que ___ día había rueda de prensa.", answer: "aquel", alt: ["ese"],
          l1: "“There's a press conference today.” → They said there was a press conference that day.", note: "hoy → aquel día"}
@@ -939,7 +939,7 @@ units:
          note: "estrenar = to premiere, and also to use or wear something for the first time."}
       - {id: es-b2-08-guion, type: vocab, l2: "el guion", l1: "the script / the screenplay",
          ex: "El guion de la película es excelente.", ex_l1: "The film's script is excellent.",
-         note: "Written without an accent since 2010 (guión is the older spelling). Also a hyphen or dash."}
+         note: "Written without an accent since 2010 (guión is the older spelling). Also the hyphen (-)."}
       - {id: es-b2-08-critica, type: vocab, l2: "la crítica", l1: "the review / the criticism / the critics (as a group)",
          ex: "La obra ha recibido muy buenas críticas.", ex_l1: "The play has received very good reviews.",
          note: "el crítico / la crítica = the critic (a person)."}
@@ -1002,7 +1002,7 @@ units:
       - {id: es-b2-08-lo-pinto-goya, type: phrase, l2: "Este cuadro lo pintó Goya.", l1: "This painting was painted by Goya. (spoken style: object first, with lo)",
          alt: ["Este cuadro fue pintado por Goya", "Goya pintó este cuadro"],
          note: "The usual spoken way to focus on the painting: object first, repeated with lo."}
-      - {id: es-b2-08-c1, type: cloze, text: "La catedral fue ___ en el siglo XIII.", answer: "construida",
+      - {id: es-b2-08-c1, type: cloze, text: "La catedral fue ___ en el siglo XIII.", answer: "construida", alt: ["edificada", "levantada"],
          l1: "The cathedral was built in the thirteenth century.", note: "ser + participle; construida agrees with la catedral"}
       - {id: es-b2-08-c2, type: cloze, text: "Estos cuadros fueron pintados ___ Velázquez.", answer: "por",
          l1: "These paintings were painted by Velázquez.", note: "the doer of a passive takes por"}
@@ -1054,7 +1054,7 @@ units:
       | estar a punto de + inf. | to be about to | **Está a punto de** empezar. |
       | ir + gerund | to be gradually doing | **Voy** mejorando. |
 
-      - *Llevo dos años estudiando* = *Estudio desde hace dos años* = *Hace dos años que estudio*. Never the English perfect: not *he estudiado por dos años*.
+      - *Llevo dos años estudiando* = *Estudio desde hace dos años* = *Hace dos años que estudio*. For something still going on, don't copy the English perfect (*he estudiado por dos años*); *he estudiado durante dos años* describes a finished stretch.
       - **acababa de** (imperfect) = had just: *Cuando llamaste, acababa de salir*.
       - **echarse a** + *reír / llorar* = to burst out laughing / crying.
     items:
@@ -1117,9 +1117,9 @@ units:
       - {id: es-b2-09-blanco, type: vocab, l2: "quedarse en blanco", l1: "for your mind to go blank",
          ex: "En el examen oral me quedé en blanco.", ex_l1: "In the oral exam my mind went blank."}
       - {id: es-b2-09-codos, type: vocab, l2: "hincar los codos", l1: "to hit the books / to study hard (colloquial)",
-         alt: ["clavar los codos", "quemarse las pestañas"],
+         alt: ["quemarse las pestañas"],
          ex: "Si quieres aprobar, vas a tener que hincar los codos.", ex_l1: "If you want to pass, you're going to have to hit the books.",
-         note: "Literally 'to dig in your elbows' (on the desk). Spain."}
+         note: "Literally 'to dig in your elbows' (on the desk); mainly Spain. quemarse las pestañas ('to burn your eyelashes', studying late by candlelight) is understood everywhere."}
       - {id: es-b2-09-pasar-pagina, type: vocab, l2: "pasar página", l1: "to turn the page / to move on (after something bad)",
          ex: "Ya está, he suspendido. Ahora toca pasar página.", ex_l1: "That's it, I've failed. Now it's time to move on."}
       - {id: es-b2-09-pie-letra, type: vocab, l2: "al pie de la letra", l1: "to the letter / exactly (as instructed)",
@@ -1127,7 +1127,7 @@ units:
       - {id: es-b2-09-practica, type: phrase, l2: "La práctica hace al maestro.", l1: "Practice makes perfect. (proverb)"}
       - {id: es-b2-09-llevo-tres-anos, type: phrase, l2: "Llevo tres años estudiando español.", l1: "I've been studying Spanish for three years.",
          alt: ["Hace tres años que estudio español", "Estudio español desde hace tres años", "Llevo tres años aprendiendo español"],
-         note: "llevar + time + gerund. Never 'he estudiado por tres años'."}
+         note: "llevar + time + gerund, for something still going on; not 'he estudiado por tres años'."}
       - {id: es-b2-09-acabo-terminar, type: phrase, l2: "Acabo de terminar la carrera.", l1: "I've just finished my degree.",
          alt: ["Acabo de terminar mi carrera", "Acabo de acabar la carrera"], note: "acabar de + infinitive = to have just done."}
       - {id: es-b2-09-vuelto-suspender, type: phrase, l2: "He vuelto a suspender.", l1: "I've failed again.",
@@ -1249,9 +1249,9 @@ units:
       - {id: es-b2-10-paces, type: vocab, l2: "hacer las paces", l1: "to make up / to make peace (after a quarrel)",
          ex: "Ya han hecho las paces.", ex_l1: "They've made up now.",
          note: "Plural: las paces."}
-      - {id: es-b2-10-cara, type: vocab, l2: "tener mucha cara", l1: "to have a nerve / to be cheeky (idiom)", alt: ["tener mucho morro", "tener mucho descaro", "ser un caradura"],
+      - {id: es-b2-10-cara, type: vocab, l2: "tener mucha cara", l1: "to have a nerve / to be cheeky (idiom, Spain)", alt: ["tener mucho morro", "tener mucho descaro", "ser un caradura"],
          ex: "¡Qué cara tienes! Siempre me pides dinero.", ex_l1: "What a nerve you've got! You're always asking me for money.",
-         note: "Spain also tener mucho morro; un caradura = a cheeky so-and-so."}
+         note: "Colloquial Spain, like tener mucho morro. Understood everywhere: ser un caradura (a cheeky so-and-so), tener cara dura."}
       - {id: es-b2-10-tomate, type: vocab, l2: "ponerse como un tomate", l1: "to go as red as a beetroot (to blush)", alt: ["ponerse rojo como un tomate"],
          ex: "Cuando la vio, se puso como un tomate.", ex_l1: "When he saw her, he went as red as a beetroot."}
       - {id: es-b2-10-dime-quien, type: phrase, l2: "Dime con quién andas y te diré quién eres.", l1: "You can tell a person by the company they keep. (proverb)",
@@ -1274,7 +1274,7 @@ units:
          l1: "The film was so boring that I fell asleep.", note: "ser aburrido = to be boring"}
       - {id: es-b2-10-c6, type: cloze, text: "No tengo nada que hacer: ___ aburridísimo.", answer: "estoy",
          l1: "I have nothing to do: I'm really bored.", note: "estar aburrido = to be bored"}
-      - {id: es-b2-10-c7, type: cloze, text: "Ayer mi abuelo ___ malo y no pudo venir.", answer: "estaba",
+      - {id: es-b2-10-c7, type: cloze, text: "Ayer mi abuelo ___ malo y no pudo venir.", answer: "estaba", alt: ["estuvo"],
          l1: "Yesterday my grandfather was ill and couldn't come.", note: "estar malo (Spain) = to be ill"}
       - {id: es-b2-10-c8, type: cloze, text: "¡Qué malo ___! Le has quitado el juguete a tu hermano.", answer: "eres",
          l1: "How naughty you are! You've taken your brother's toy.", note: "ser malo = to be bad / naughty"}
@@ -1654,7 +1654,8 @@ units:
       - {id: es-b2-13-quedo-espera, type: phrase, l2: "Quedo a la espera de su respuesta.", l1: "I look forward to your reply. (formal)",
          alt: ["Quedo a la espera de sus noticias", "En espera de su respuesta"]}
       - {id: es-b2-13-adjunto-envio, type: phrase, l2: "Adjunto le envío mi currículum.", l1: "Please find my CV attached. (formal: I send you attached)",
-         alt: ["Le adjunto mi currículum", "Le envío adjunto mi currículum", "Adjunto mi currículum"]}
+         alt: ["Le adjunto mi currículum", "Le envío adjunto mi currículum", "Adjunto mi currículum"],
+         note: "adjunto is an adjective and agrees: Le envío adjuntas las fotos."}
       - {id: es-b2-13-cordial-saludo, type: phrase, l2: "Un cordial saludo.", l1: "Kind regards. (closing an e-mail)",
          alt: ["Saludos cordiales", "Reciba un cordial saludo"]}
       - {id: es-b2-13-nos-tuteamos, type: phrase, l2: "¿Nos tuteamos?", l1: "Shall we call each other tú?",
@@ -1671,7 +1672,7 @@ units:
       - {id: es-b2-13-c4, type: cloze, text: "El curso es intensivo, es ___, cinco horas al día.", answer: "decir",
          l1: "The course is intensive, that is to say, five hours a day.", note: "es decir = that is to say"}
       - {id: es-b2-13-c5, type: cloze, text: "En ___ a su pregunta, le informo de que el plazo sigue abierto.", answer: "cuanto", alt: ["relación"],
-         l1: "As regards your question, I can tell you that the application period is still open. (formal)", note: "en cuanto a = as regards"}
+         l1: "As regards your question, I can tell you that the application period is still open. (formal)", note: "en cuanto a = as regards. The standard alternatives are en relación con and con relación a; en relación a is common but less recommended."}
       - {id: es-b2-13-c6, type: cloze, text: "Por un lado, el trabajo es interesante; por ___, el sueldo es bajo.", answer: "otro",
          l1: "On the one hand, the job is interesting; on the other, the pay is low.", note: "por un lado… por otro (lado)"}
       - {id: es-b2-13-c7, type: cloze, text: "Le agradecería que me ___ el formulario.", answer: "enviara", alt: ["enviase", "mandara", "mandase"],
